@@ -176,9 +176,9 @@
 	</section>
 
 	<section name="BOOZ2_MODE" prefix="BOOZ2_MODE_">
-		<define name="MANUAL" value="BOOZ2_AP_MODE_RATE_DIRECT" />
-		<define name="AUTO1" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT" />
-		<define name="AUTO2" value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD" />
+		<define name="MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT" />
+		<define name="AUTO1" value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD" />
+		<define name="AUTO2" value="BOOZ2_AP_MODE_NAV" />
 	</section>
 
 	<makefile>
@@ -192,6 +192,7 @@
 		include	$(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
 		include	$(CFG_BOOZ)/booz2_autopilot.makefile
 		include	$(CFG_BOOZ)/booz2_test_progs.makefile
+        ap.CFLAGS += -DBOOZ_FAILSAFE_GROUND_DETECT
 
 		include	$(CFG_BOOZ)/booz2_simulator_nps.makefile
 
@@ -207,7 +208,7 @@
 		#set GPS lag for horizontal filter
 		ap.CFLAGS += -DGPS_LAG=0.8 -DUSE_GPS_ACC4R
 
-        ap.CFLAGS += -DBOOZ_START_DELAY=2
+        ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=2
   </makefile>
 
 </airframe>
