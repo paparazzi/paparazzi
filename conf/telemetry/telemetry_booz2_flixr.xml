@@ -59,25 +59,25 @@
       <message name="BOOZ_STATUS"       period="1.2"/>
       <message name="DL_VALUE"          period="0.5"/>
       <message name="ALIVE"             period="2.1"/>
-      <message name="BOOZ2_RATE_LOOP"   period=".02"/>
+      <message name="BOOZ2_RATE_LOOP"   period=".05"/>
     </mode>
 
     <mode name="attitude_loop">
       <message name="BOOZ_STATUS"             period="1.2"/>
       <message name="DL_VALUE"                period="0.5"/>
       <message name="ALIVE"                   period="0.9"/>
-      <message name="BOOZ2_STAB_ATTITUDE"     period=".05"/>
-      <message name="BOOZ2_STAB_ATTITUDE_REF" period=".05"/>
+      <message name="BOOZ2_STAB_ATTITUDE"     period=".1"/>
+      <message name="BOOZ2_STAB_ATTITUDE_REF" period=".1"/>
     </mode>
 
     <mode name="vert_loop">
       <message name="BOOZ_STATUS"             period="1.2"/>
       <message name="DL_VALUE"                period="0.5"/>
       <message name="ALIVE"                   period="0.9"/>
-      <message name="BOOZ2_VFF"               period=".05"/>
-      <message name="BOOZ2_VERT_LOOP"         period=".05"/>
+      <message name="BOOZ2_VFF"               period=".1"/>
+      <message name="BOOZ2_VERT_LOOP"         period=".1"/>
 <!--      <message name="BOOZ2_CMD"               period=".05"/> -->
-      <message name="BOOZ2_INS"               period=".05"/>
+      <message name="BOOZ2_INS"               period=".2"/>
       <message name="BOOZ2_INS_REF"           period="5.1"/>
     </mode>
 
@@ -90,7 +90,7 @@
       <message name="BOOZ2_FP"                period="0.8"/>
       <message name="BOOZ_STATUS"             period="1.2"/>
       <message name="BOOZ2_NAV_STATUS"        period="1.6"/>
-	  <message name="BOOZ2_HFF_GPS"           period=".03"/>
+	  <message name="BOOZ2_HFF_GPS"           period=".05"/>
       <message name="BOOZ2_INS_REF"           period="5.1"/>
     </mode>
 
