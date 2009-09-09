@@ -148,6 +148,9 @@ int past_save_counter;
 #define SAVING -1
 #define SAVE_DONE -2
 
+uint16_t gps_lost_counter;
+#define GPS_LOST_LIMIT 1000
+
 #ifdef GPS_LAG
 static inline void b2_hff_get_past_accel(unsigned int back_n);
 static inline void b2_hff_rb_put_state(struct HfilterFloat* source);
@@ -348,6 +351,9 @@ static inline void b2_hff_propagate_past(struct HfilterFloat* hff_past) {
 
 
 void b2_hff_propagate(void) {
+  if (gps_lost_counter < GPS_LOST_LIMIT)
+    gps_lost_counter++;
+
 #ifdef GPS_LAG
   /* continue re-propagating to catch up with the present */
   if (b2_hff_rb_last->rollback) {
@@ -359,41 +365,42 @@ void b2_hff_propagate(void) {
   if (b2_hff_ps_counter == HFF_PRESCALER) {
 	b2_hff_ps_counter = 1;
 
-	/* compute float ltp mean acceleration */
-	booz_ahrs_compute_accel_mean(HFF_PRESCALER);
-	struct Int32Vect3 mean_accel_body;
-	INT32_RMAT_TRANSP_VMULT(mean_accel_body, booz_imu.body_to_imu_rmat, booz_ahrs_accel_mean);
-	struct Int32Vect3 mean_accel_ltp;
-	INT32_RMAT_TRANSP_VMULT(mean_accel_ltp, booz_ahrs.ltp_to_body_rmat, mean_accel_body);
-	b2_hff_xdd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.x);
-	b2_hff_ydd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.y);
+    if (gps_lost_counter < GPS_LOST_LIMIT) {
+      /* compute float ltp mean acceleration */
+      booz_ahrs_compute_accel_mean(HFF_PRESCALER);
+      struct Int32Vect3 mean_accel_body;
+      INT32_RMAT_TRANSP_VMULT(mean_accel_body, booz_imu.body_to_imu_rmat, booz_ahrs_accel_mean);
+      struct Int32Vect3 mean_accel_ltp;
+      INT32_RMAT_TRANSP_VMULT(mean_accel_ltp, booz_ahrs.ltp_to_body_rmat, mean_accel_body);
+      b2_hff_xdd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.x);
+      b2_hff_ydd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.y);
 #ifdef GPS_LAG
-	b2_hff_store_accel(b2_hff_xdd_meas, b2_hff_ydd_meas);
+      b2_hff_store_accel(b2_hff_xdd_meas, b2_hff_ydd_meas);
 #endif
 
-	/*
-	 * propagate current state
-	 */
-	if ( booz_ins_ltp_initialised ) {
-	  b2_hff_propagate_x(&b2_hff_state);
-	  b2_hff_propagate_y(&b2_hff_state);
-	}
+      /*
+       * propagate current state
+       */
+      if ( booz_ins_ltp_initialised ) {
+        b2_hff_propagate_x(&b2_hff_state);
+        b2_hff_propagate_y(&b2_hff_state);
+      }
 
 #ifdef GPS_LAG
-	/* increase lag counter on last saved state */
-	if (b2_hff_rb_n > 0)
-	  b2_hff_rb_last->lag_counter++;
+      /* increase lag counter on last saved state */
+      if (b2_hff_rb_n > 0)
+        b2_hff_rb_last->lag_counter++;
 
-	/* save filter state if needed */
-	if (save_counter == 0) {
-	  PRINT_DBG(1, ("save current state\n"));
-	  b2_hff_rb_put_state(&b2_hff_state);
-	  save_counter = -1;
-	} else if (save_counter > 0) {
-	  save_counter--;
-	}
+      /* save filter state if needed */
+      if (save_counter == 0) {
+        PRINT_DBG(1, ("save current state\n"));
+        b2_hff_rb_put_state(&b2_hff_state);
+        save_counter = -1;
+      } else if (save_counter > 0) {
+        save_counter--;
+      }
 #endif
-
+    }
   } else {
 	b2_hff_ps_counter++;
   }
@@ -403,6 +410,8 @@ void b2_hff_propagate(void) {
 
 
 void b2_hff_update_gps(void) {
+  gps_lost_counter = 0;
+
 #ifdef USE_GPS_ACC4R
   Rpos = (float) booz_gps_state.pacc / 100.;
   if (Rpos > R_POS_MAX)
