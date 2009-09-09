@@ -56,6 +56,7 @@ extern void booz2_autopilot_on_rc_frame(void);
 extern void booz2_autopilot_set_mode(uint8_t new_autopilot_mode);
 
 extern bool_t booz2_autopilot_detect_ground;
+extern bool_t booz2_autopilot_detect_ground_once;
 
 #ifndef BOOZ2_MODE_MANUAL
 #define BOOZ2_MODE_MANUAL BOOZ2_AP_MODE_RATE_DIRECT
@@ -88,11 +89,13 @@ extern bool_t booz2_autopilot_detect_ground;
 
 #define TRESHOLD_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)
 #define BoozDetectGroundEvent() {					\
-    if (booz2_autopilot_mode == BOOZ2_AP_MODE_FAILSAFE) {		\
-      if (booz_ins_ltp_accel.z < -TRESHOLD_GROUND_DETECT ||		\
-	  booz_ins_ltp_accel.z > TRESHOLD_GROUND_DETECT)		\
-	booz2_autopilot_detect_ground = TRUE;				\
-    }									\
+    if (booz2_autopilot_mode == BOOZ2_AP_MODE_FAILSAFE || booz2_autopilot_detect_ground_once) { \
+      if (booz_ins_ltp_accel.z < -TRESHOLD_GROUND_DETECT || \
+	        booz_ins_ltp_accel.z > TRESHOLD_GROUND_DETECT) { \
+        booz2_autopilot_detect_ground = TRUE; \
+        booz2_autopilot_detect_ground_once = FALSE; \
+      } \
+    } \
   }
 
 #endif /* BOOZ2_AUTOPILOT_H */

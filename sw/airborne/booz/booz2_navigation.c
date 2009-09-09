@@ -137,7 +137,7 @@ void nav_circle(uint8_t wp_center, int32_t radius) {
     struct Int32Vect2 pos_diff;
     VECT2_DIFF(pos_diff, booz_ins_enu_pos,waypoints[wp_center]);
     // go back to half metric precision or values are too large
-    INT32_VECT2_RSHIFT(pos_diff,pos_diff,INT32_POS_FRAC-1);
+    //INT32_VECT2_RSHIFT(pos_diff,pos_diff,INT32_POS_FRAC/2);
     // store last qdr
     int32_t last_qdr = nav_circle_qdr;
     // compute qdr
@@ -153,7 +153,7 @@ void nav_circle(uint8_t wp_center, int32_t radius) {
     int32_t abs_radius = abs(radius);
     // carrot_angle
     int32_t carrot_angle = (CARROT_DIST / abs_radius) << (INT32_TRIG_FRAC - INT32_POS_FRAC);
-    Bound(carrot_angle, (INT32_ANGLE_PI / 16), INT32_ANGLE_PI_4);
+    Bound(carrot_angle, (INT32_ANGLE_PI / 16), INT32_ANGLE_PI_2);
     carrot_angle = nav_circle_qdr - sign_radius * carrot_angle;
     int32_t s_carrot, c_carrot;
     PPRZ_ITRIG_SIN(s_carrot, carrot_angle);	
@@ -182,6 +182,7 @@ void nav_route(uint8_t wp_start, uint8_t wp_end) {
   INT32_SQRT(leg_length,leg_length2);
   int32_t nav_leg_progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / leg_length;
   nav_leg_progress += Max((CARROT_DIST >> INT32_POS_FRAC), 0);
+  Bound(nav_leg_progress,0,leg_length);
   struct Int32Vect2 progress_pos;
   VECT2_SMUL(progress_pos, wp_diff, nav_leg_progress);
   VECT2_SDIV(progress_pos, progress_pos, leg_length);
@@ -285,6 +286,12 @@ void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos) {
   if (wp_id < nb_waypoint) {
     INT32_VECT3_COPY(waypoints[wp_id],(*new_pos));
   }
+}
+
+bool_t nav_detect_ground(void) {
+  if (!booz2_autopilot_detect_ground) return FALSE;
+  booz2_autopilot_detect_ground = FALSE;
+  return TRUE;
 }
 
 void nav_home(void) {}

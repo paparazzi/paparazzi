@@ -40,10 +40,13 @@ extern void radio_control_impl_init(void);
 /* timeouts - for now assumes 60Hz periodic */
 #define RADIO_CONTROL_LOST_TIME        30
 #define RADIO_CONTROL_REALLY_LOST_TIME 60
+/* number of valid frames before going back to OK */
+#define RADIO_CONTROL_OK_CPT      15
 
 struct RadioControl {
   uint8_t status;
   uint8_t time_since_last_frame;
+  uint8_t radio_ok_cpt;
   uint8_t frame_rate;
   uint8_t frame_cpt;
   pprz_t  values[RADIO_CONTROL_NB_CHANNEL];

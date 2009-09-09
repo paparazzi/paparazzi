@@ -138,8 +138,13 @@ void booz2_guidance_h_read_rc(bool_t  in_flight) {
     break;
   
   case BOOZ2_GUIDANCE_H_MODE_NAV:
-    BOOZ_STABILIZATION_ATTITUDE_READ_RC(booz2_guidance_h_rc_sp, in_flight);
-    booz2_guidance_h_rc_sp.psi = 0;
+    if (radio_control.status == RADIO_CONTROL_OK) {
+      BOOZ_STABILIZATION_ATTITUDE_READ_RC(booz2_guidance_h_rc_sp, in_flight);
+      booz2_guidance_h_rc_sp.psi = 0;
+    }
+    else {
+      INT_EULERS_ZERO(booz2_guidance_h_rc_sp);
+    }
     break;
   }
 
@@ -164,6 +169,8 @@ void booz2_guidance_h_run(bool_t  in_flight) {
     
   case BOOZ2_GUIDANCE_H_MODE_NAV:
     {
+      if (!in_flight) booz2_guidance_h_nav_enter();
+
       if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
 #ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
         booz_stab_att_sp_euler.phi = nav_roll << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);

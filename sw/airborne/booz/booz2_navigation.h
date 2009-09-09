@@ -74,6 +74,7 @@ unit_t nav_reset_reference( void ) __attribute__ ((unused));
 unit_t nav_reset_alt( void ) __attribute__ ((unused));
 void nav_periodic_task(void);
 void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos);
+bool_t nav_detect_ground(void);
 
 void nav_home(void);
 
@@ -107,7 +108,7 @@ void nav_home(void);
 #define NavSetGroundReferenceHere() ({ nav_reset_reference(); FALSE; })
 #define NavSetAltitudeReferenceHere() ({ nav_reset_alt(); FALSE; })
 
-#define NavSetWaypointHere(_wp) { FALSE; }
+#define NavSetWaypointHere(_wp) ({ VECT2_COPY(waypoints[_wp], booz_ins_enu_pos); FALSE; })
 
 #define WaypointX(_wp)    POS_FLOAT_OF_BFP(waypoints[_wp].x)
 #define WaypointY(_wp)    POS_FLOAT_OF_BFP(waypoints[_wp].y)
@@ -189,8 +190,8 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
   nav_roll = ANGLE_BFP_OF_REAL(_roll); \
 }
 
-#define NAV_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)
-#define NavDetectGround() ( booz_ins_enu_accel.z < -NAV_GROUND_DETECT || booz_ins_enu_accel.z > NAV_GROUND_DETECT )
+#define NavStartDetectGround() ({ booz2_autopilot_detect_ground_once = TRUE; FALSE; })
+#define NavDetectGround() nav_detect_ground()
 
 #define nav_IncreaseShift(x) {}
 

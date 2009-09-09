@@ -209,8 +209,11 @@ void booz2_guidance_v_run(bool_t in_flight) {
         booz2_guidance_v_z_sp = -nav_flight_altitude; // For display only
         booz2_guidance_v_delta_t = nav_throttle;
       }
-      //booz_stabilization_cmd[COMMAND_THRUST] = booz2_guidance_v_delta_t;
-    booz_stabilization_cmd[COMMAND_THRUST] = Min( booz2_guidance_v_rc_delta_t, booz2_guidance_v_delta_t);
+      /* use rc limitation if available */
+      if (radio_control.status == RADIO_CONTROL_OK)
+        booz_stabilization_cmd[COMMAND_THRUST] = Min( booz2_guidance_v_rc_delta_t, booz2_guidance_v_delta_t);
+      else
+        booz_stabilization_cmd[COMMAND_THRUST] = booz2_guidance_v_delta_t;
       break;
     }
   }

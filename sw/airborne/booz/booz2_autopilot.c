@@ -39,6 +39,7 @@ uint32_t booz2_autopilot_in_flight_counter;
 bool_t kill_throttle;
 
 bool_t booz2_autopilot_detect_ground;
+bool_t booz2_autopilot_detect_ground_once;
 
 #define BOOZ2_AUTOPILOT_MOTOR_ON_TIME     40
 #define BOOZ2_AUTOPILOT_IN_FLIGHT_TIME    40
@@ -54,6 +55,7 @@ void booz2_autopilot_init(void) {
   booz2_autopilot_in_flight_counter = 0;
   booz2_autopilot_mode_auto2 = BOOZ2_MODE_AUTO2;
   booz2_autopilot_detect_ground = FALSE;
+  booz2_autopilot_detect_ground_once = FALSE;
 }
 
 

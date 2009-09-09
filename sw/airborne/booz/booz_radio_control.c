@@ -33,6 +33,7 @@ void radio_control_init(void) {
     radio_control.values[i] = 0;
   radio_control.status = RADIO_CONTROL_REALLY_LOST;
   radio_control.time_since_last_frame = RADIO_CONTROL_REALLY_LOST_TIME;
+  radio_control.radio_ok_cpt = 0;
   radio_control.frame_rate = 0;
   radio_control.frame_cpt = 0;
   radio_control_impl_init();
@@ -52,8 +53,10 @@ void radio_control_periodic(void) {
     radio_control.status = RADIO_CONTROL_REALLY_LOST;
   } 
   else {
-    if (radio_control.time_since_last_frame >= RADIO_CONTROL_LOST_TIME)
+    if (radio_control.time_since_last_frame >= RADIO_CONTROL_LOST_TIME) {
       radio_control.status = RADIO_CONTROL_LOST;
+      radio_control.radio_ok_cpt = RADIO_CONTROL_OK_CPT;
+    }
     radio_control.time_since_last_frame++;
   }
 
