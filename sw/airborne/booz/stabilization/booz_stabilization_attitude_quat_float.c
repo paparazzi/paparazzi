@@ -35,6 +35,7 @@ struct FloatVect3  booz_stabilization_pgain;
 struct FloatVect3  booz_stabilization_dgain;
 struct FloatVect3  booz_stabilization_ddgain;
 struct FloatVect3  booz_stabilization_igain;
+struct FloatQuat   booz_stabilization_sum_err;
 struct FloatEulers booz_stabilization_att_sum_err;
 
 float booz_stabilization_att_fb_cmd[COMMANDS_NB];
@@ -65,6 +66,7 @@ void booz_stabilization_attitude_init(void) {
 	       BOOZ_STABILIZATION_ATTITUDE_THETA_DDGAIN,
 	       BOOZ_STABILIZATION_ATTITUDE_PSI_DDGAIN);
 
+  FLOAT_QUAT_ZERO( booz_stabilization_sum_err );
   FLOAT_EULERS_ZERO( booz_stabilization_att_sum_err );
 
 }
@@ -81,9 +83,12 @@ void booz_stabilization_attitude_enter(void) {
 
   BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF(  booz_stab_att_sp_euler );
   FLOAT_EULERS_ZERO( booz_stabilization_att_sum_err );
+  FLOAT_QUAT_ZERO( booz_stabilization_sum_err );
   
 }
 
+
+#define IERROR_SCALE 1024
 
 #define MAX_SUM_ERR RadOfDeg(56000)
 #include <stdio.h>
@@ -120,13 +125,20 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   FLOAT_QUAT_WRAP_SHORTEST(att_err);  
 
   if (in_flight) {
+    struct FloatQuat new_sum_err, scaled_att_err;
     /* update accumulator */
-    //    EULERS_ADD(booz_stabilization_att_sum_err, err);
-    EULERS_BOUND_CUBE(booz_stabilization_att_sum_err, -MAX_SUM_ERR, MAX_SUM_ERR);
+    FLOAT_QUAT_COPY(scaled_att_err, att_err);
+    scaled_att_err.qx /= IERROR_SCALE;
+    scaled_att_err.qy /= IERROR_SCALE;
+    scaled_att_err.qz /= IERROR_SCALE;
+    FLOAT_QUAT_COMP_INV(new_sum_err, booz_stabilization_sum_err, scaled_att_err);
+    FLOAT_QUAT_NORMALISE(new_sum_err);
+    FLOAT_QUAT_COPY(booz_stabilization_sum_err, new_sum_err);
   }
   else {
     /* reset accumulator */
     FLOAT_EULERS_ZERO(booz_stabilization_att_sum_err);
+    FLOAT_QUAT_ZERO( booz_stabilization_sum_err );
   }
   
   /*  rate error                */
@@ -136,18 +148,18 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   /*  PID                  */
   booz_stabilization_att_fb_cmd[COMMAND_ROLL] = 
     -2. * booz_stabilization_pgain.x  * QUAT1_BFP_OF_REAL(att_err.qx)+
-    booz_stabilization_dgain.x  * RATE_BFP_OF_REAL(rate_err.p) /*+
-    booz_stabilization_igain.x  * booz_stabilization_att_sum_err.phi / 1024.*/;
+    booz_stabilization_dgain.x  * RATE_BFP_OF_REAL(rate_err.p) +
+    booz_stabilization_igain.x  * QUAT1_BFP_OF_REAL(booz_stabilization_sum_err.qx);
 
   booz_stabilization_att_fb_cmd[COMMAND_PITCH] = 
     -2. * booz_stabilization_pgain.y  * QUAT1_BFP_OF_REAL(att_err.qy)+
-    booz_stabilization_dgain.y  * RATE_BFP_OF_REAL(rate_err.q) /*+
-    booz_stabilization_igain.y  * booz_stabilization_att_sum_err.theta / 1024.*/;
+    booz_stabilization_dgain.y  * RATE_BFP_OF_REAL(rate_err.q) +
+    booz_stabilization_igain.y  * QUAT1_BFP_OF_REAL(booz_stabilization_sum_err.qy);
   
   booz_stabilization_att_fb_cmd[COMMAND_YAW] = 
     -2. * booz_stabilization_pgain.z  * QUAT1_BFP_OF_REAL(att_err.qz)+
-    booz_stabilization_dgain.z  * RATE_BFP_OF_REAL(rate_err.r) /*+
-    booz_stabilization_igain.z  * booz_stabilization_att_sum_err.psi / 1024.*/;
+    booz_stabilization_dgain.z  * RATE_BFP_OF_REAL(rate_err.r) +
+    booz_stabilization_igain.z  * QUAT1_BFP_OF_REAL(booz_stabilization_sum_err.qz);
 
 
   booz_stabilization_cmd[COMMAND_ROLL] = 
