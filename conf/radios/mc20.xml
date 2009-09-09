@@ -51,5 +51,6 @@ Note: a command may be reversed by exchanging min and max values
   <channel ctl="E" function="MODE" min="1100" neutral="1500" max="1900" average="1"/>     <!-- left middle 3-pos switch -->
   <channel ctl="F" function="GAIN1" min="1100" neutral="1500" max="1900" average="0"/>     <!-- left slider prop channel -->
   <channel ctl="G" function="GAIN2" min="1100" neutral="1500" max="1900" average="0"/>     <!-- right slider prop channel -->
-  <channel ctl="H" function="SWITCH1" min="1100" neutral="1500" max="1900" average="1"/>     <!-- switch channel -->
+  <channel ctl="H" function="SWITCH1" min="1100" neutral="1500" max="1900" average="1"/>     <!-- switch (channel 8) -->
+  <channel ctl="I" function="SWITCH2" min="1100" neutral="1500" max="1900" average="1"/>     <!-- switch (channel 9) -->
 </radio>
