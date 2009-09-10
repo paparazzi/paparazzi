@@ -1,0 +1,15 @@
+<settings>
+  <dl_settings>
+
+    <dl_settings NAME="CAM">
+      <dl_setting var="booz2_cam_mode" MIN="0" STEP="1" MAX="3" module="booz2_cam" shortname="mode" values="NONE|MAN|HEADING|WP" handler="SetCamMode">
+        <strip_button name="CN" value="0"/>
+        <strip_button name="CH" value="2"/>
+        <strip_button name="CWP" value="3"/>
+      </dl_setting>
+      <dl_setting var="booz2_cam_tilt" min="1000" step="1" max="2000" module="booz2_cam" shortname="tilt"/>
+      <dl_setting var="booz2_cam_pan" MIN="0" STEP="1" MAX="360" module="booz2_cam" shortname="pan" unit="1/2^12r" alt_unit="deg" alt_unit_coef="0.0139882"/>
+    </dl_settings>
+
+  </dl_settings>
+</settings>
