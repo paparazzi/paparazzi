@@ -31,7 +31,7 @@
     <define name="ROLL_COEF"  value="{    0,    0, -256,  256}"/>
     <define name="PITCH_COEF" value="{  256, -256,    0,    0}"/>
     <define name="YAW_COEF"   value="{ -256, -256,  256,  256}"/>
-    <define name="THRUST_COEF" value="{    1,    1,    1,    1}"/>
+    <define name="THRUST_COEF" value="{ 256,  256,  256,  256}"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
@@ -47,10 +47,10 @@
     <define name="GYRO_P_SENS" value=" 1.01" integer="16"/>
     <define name="GYRO_Q_SENS" value="-1.01" integer="16"/>
     <define name="GYRO_R_SENS" value="-1.01" integer="16"/>
-  
+
     <define name="ACCEL_X_CHAN" value="5"/>
     <define name="ACCEL_Y_CHAN" value="3"/>
-    <define name="ACCEL_Z_CHAN" value="4"/>    
+    <define name="ACCEL_Z_CHAN" value="4"/>
 
 
 
@@ -61,12 +61,12 @@
     <define name="ACCEL_X_NEUTRAL" value="29174"/>
     <define name="ACCEL_Y_NEUTRAL" value="29720"/>
     <define name="ACCEL_Z_NEUTRAL" value="28629"/>
- 
+
 
     <define name="MAG_X_CHAN" value="0"/>
     <define name="MAG_Y_CHAN" value="1"/>
     <define name="MAG_Z_CHAN" value="2"/>
-    
+
 
     <define name="MAG_X_SENS" value="5.20834273" integer="16"/>
     <define name="MAG_Y_SENS" value="-5.22061499" integer="16"/>

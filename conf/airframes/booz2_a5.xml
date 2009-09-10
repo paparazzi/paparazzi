@@ -20,7 +20,7 @@
     <define name="NB" value="6"/>
     <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58, 0x5A, 0X5C }"/>
   </section>
- 
+
   <section name="SUPERVISION" prefix="SUPERVISION_">
     <define name="MIN_MOTOR" value="2"/>
     <define name="MAX_MOTOR" value="210"/>
@@ -32,7 +32,7 @@
     <define name="ROLL_COEF"  value="{  -69,   69, -256,  256, -186,  186 }"/>
     <define name="PITCH_COEF" value="{ -256, -256,    0,    0,  256,  256 }"/>
     <define name="YAW_COEF"   value="{ -153,  153,  256, -256, -115,  115 }"/>
-    <define name="THRUST_COEF" value="{   1,    1,    1,    1,    1,    1 }"/>
+    <define name="THRUST_COEF" value="{ 256,  256,  256,  256,  256,  256 }"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
@@ -48,11 +48,11 @@
     <define name="GYRO_P_SENS" value=" 1.01" integer="16"/>
     <define name="GYRO_Q_SENS" value="-1.01" integer="16"/>
     <define name="GYRO_R_SENS" value="-1.01" integer="16"/>
-  
+
 
     <define name="ACCEL_X_CHAN" value="5"/>
     <define name="ACCEL_Y_CHAN" value="3"/>
-    <define name="ACCEL_Z_CHAN" value="4"/>    
+    <define name="ACCEL_Z_CHAN" value="4"/>
 
     <define name="ACCEL_X_SENS" value="-2.53973936" integer="16"/>
     <define name="ACCEL_Y_SENS" value="-2.58673329" integer="16"/>
@@ -220,7 +220,7 @@ lpc_test_motors.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.
 lpc_test_motors.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 lpc_test_motors.srcs += $(SRC_ARCH)/uart_hw.c
 
-lpc_test_motors.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+lpc_test_motors.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
 lpc_test_motors.srcs += downlink.c pprz_transport.c
 
 lpc_test_motors.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
