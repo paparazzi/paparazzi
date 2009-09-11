@@ -151,7 +151,7 @@ void dl_parse_msg(void) {
     DlSetting(i, val);
     DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &val);
   } else if (msg_id == DL_GET_SETTING && DL_GET_SETTING_ac_id(dl_buffer) == AC_ID) {
-    uint8_t i = DL_SETTING_index(dl_buffer);
+    uint8_t i = DL_GET_SETTING_index(dl_buffer);
     float val = settings_get_value(i);
     DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &val);
   } else
