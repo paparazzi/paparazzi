@@ -23,10 +23,13 @@
       <call fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
+    <block name="Start Engine">
+      <call fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="booz_ins_enu_pos.z > POS_BFP_OF_REAL(2.)" deroute="Standby"/>
       <call fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <call fun="NavResurrect()"/>
       <while cond="LessThan(NavBlockTime(), 3)"/>
       <stay height="4.0" vmode="alt" wp="CLIMB"/>
     </block>

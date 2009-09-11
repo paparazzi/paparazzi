@@ -147,8 +147,8 @@
 
 
  <section name="GUIDANCE_H" prefix="BOOZ2_GUIDANCE_H_">
-   <define name="PGAIN" value="-60"/>
-   <define name="DGAIN" value="-170"/>
+   <define name="PGAIN" value="-70"/>
+   <define name="DGAIN" value="-150"/>
    <define name="IGAIN" value="-15"/>
    <define name="NGAIN" value="-0"/>
    <define name="AGAIN" value="-0"/>
@@ -174,8 +174,8 @@
     <define name="TILT_NEUTRAL" value="1500"/>
     <define name="TILT_MIN" value="1000"/>
     <define name="TILT_MAX" value="2000"/>
-    <define name="TILT_ANGLE_MIN" value="RadOfDeg(-70.)" unit="rad"/>
-    <define name="TILT_ANGLE_MAX" value="RadOfDeg( 70.)" unit="rad"/>
+    <define name="TILT_ANGLE_MIN" value="RadOfDeg(-85.)" unit="rad"/>
+    <define name="TILT_ANGLE_MAX" value="RadOfDeg( 30.)" unit="rad"/>
     <define name="PAN_NEUTRAL" value="0"/>
     <define name="PAN_MIN" value="0"/>
     <define name="PAN_MAX" value="25736"/> <!-- 360 deg (2^12) -->

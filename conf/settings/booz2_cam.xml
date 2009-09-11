@@ -7,7 +7,11 @@
         <strip_button name="CH" value="2"/>
         <strip_button name="CWP" value="3"/>
       </dl_setting>
-      <dl_setting var="booz2_cam_tilt" min="1000" step="1" max="2000" module="booz2_cam" shortname="tilt"/>
+      <dl_setting var="booz2_cam_tilt_pwm" min="1000" step="1" max="2000" module="booz2_cam" shortname="tilt_pwm"/>
+      <dl_setting var="booz2_cam_tilt" min="-90" step="1" max="45" module="booz2_cam" shortname="tilt" alt_unit="deg" alt_unit_coef="0.0139882">
+        <strip_button name="Look Foreward" icon="lookfore.png" value="0"/>
+        <strip_button name="Look Down" icon="lookdown.png" value="-6434"/>
+      </dl_setting>
       <dl_setting var="booz2_cam_pan" MIN="0" STEP="1" MAX="360" module="booz2_cam" shortname="pan" unit="1/2^12r" alt_unit="deg" alt_unit_coef="0.0139882"/>
     </dl_settings>
 

@@ -58,6 +58,7 @@
    <dl_settings NAME="NAV">
      <dl_setting var="flight_altitude" MIN="0" STEP="0.1" MAX="400" module="booz2_navigation" unit="m" handler="SetFlightAltitude"/>
      <dl_setting var="nav_heading" MIN="0" STEP="1" MAX="360" module="booz2_navigation" unit="1/2^12r" alt_unit="deg" alt_unit_coef="0.0139882"/>
+     <dl_setting var="nav_radius" MIN="-150" STEP="0.1" MAX="150" module="booz2_navigation" unit="m"/>
    </dl_settings>
 
     <dl_settings NAME="Analog Baro">
