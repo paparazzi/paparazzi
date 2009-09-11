@@ -152,7 +152,7 @@ void nav_circle(uint8_t wp_center, int32_t radius) {
     // absolute radius
     int32_t abs_radius = abs(radius);
     // carrot_angle
-    int32_t carrot_angle = (CARROT_DIST / abs_radius) << (INT32_ANGLE_FRAC - INT32_POS_FRAC);
+    int32_t carrot_angle = ((CARROT_DIST<<2) / (abs_radius<<2)) << INT32_ANGLE_FRAC;
     Bound(carrot_angle, (INT32_ANGLE_PI / 16), INT32_ANGLE_PI_4);
     carrot_angle = nav_circle_qdr - sign_radius * carrot_angle;
     int32_t s_carrot, c_carrot;
