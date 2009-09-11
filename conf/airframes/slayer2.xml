@@ -80,7 +80,7 @@
   </section>
 
  <section name="GYRO" prefix="GYRO_">
-    <define name="ADC_ROLL_NEUTRAL" value="443"/>
+    <define name="ADC_ROLL_NEUTRAL" value="484"/>
 <!--    <define name="ADC_TEMP_NEUTRAL" value="476"/>   
     <define name="ADC_TEMP_SLOPE" value="0"/>  
 -->
