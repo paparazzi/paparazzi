@@ -58,6 +58,8 @@ extern void booz2_autopilot_set_mode(uint8_t new_autopilot_mode);
 extern bool_t booz2_autopilot_detect_ground;
 extern bool_t booz2_autopilot_detect_ground_once;
 
+extern uint16_t booz2_autopilot_flight_time;
+
 #ifndef BOOZ2_MODE_MANUAL
 #define BOOZ2_MODE_MANUAL BOOZ2_AP_MODE_RATE_DIRECT
 #endif

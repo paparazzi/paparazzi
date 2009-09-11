@@ -635,7 +635,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			    &booz2_guidance_h_pos_sp.x,			\
 			    &carrot_up,					\
 			    &booz2_guidance_h_command_body.psi,		\
-			    &booz_stabilization_cmd[COMMAND_THRUST]);	\
+			    &booz_stabilization_cmd[COMMAND_THRUST], \
+          &booz2_autopilot_flight_time);	\
   }
 
 #ifdef USE_GPS

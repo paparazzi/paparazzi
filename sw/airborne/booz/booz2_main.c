@@ -185,6 +185,10 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   booz2_analog_periodic();
 #endif
 
+  if (booz2_autopilot_in_flight) {
+    RunOnceEvery(512, { booz2_autopilot_flight_time++; });
+  }
+
   //  t1 = T0TC;
   //  diff = t1 - t0;
   //  RunOnceEvery(100, {DOWNLINK_SEND_TIME(&diff);});
