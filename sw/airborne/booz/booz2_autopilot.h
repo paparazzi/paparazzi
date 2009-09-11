@@ -49,6 +49,9 @@ extern uint8_t booz2_autopilot_mode_auto2;
 extern bool_t  booz2_autopilot_motors_on;
 extern bool_t  booz2_autopilot_in_flight;
 extern bool_t kill_throttle;
+extern bool_t booz2_autopilot_rc;
+
+extern bool_t booz2_autopilot_power_switch;
 
 extern void booz2_autopilot_init(void);
 extern void booz2_autopilot_periodic(void);
@@ -88,6 +91,11 @@ extern uint16_t booz2_autopilot_flight_time;
     booz2_autopilot_motors_on = !kill_throttle;				\
   }
 
+#define booz2_autopilot_SetPowerSwitch(_v) { \
+  booz2_autopilot_power_switch = _v; \
+  if (_v) { LED_OFF(POWER_SWITCH_LED); } \
+  else { LED_ON(POWER_SWITCH_LED); } \
+}
 
 #define TRESHOLD_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)
 #define BoozDetectGroundEvent() {					\

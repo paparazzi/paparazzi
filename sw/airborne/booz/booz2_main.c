@@ -200,7 +200,9 @@ STATIC_INLINE void booz2_main_event( void ) {
 
   DatalinkEvent();
 
-  RadioControlEvent(booz2_autopilot_on_rc_frame);
+  if (booz2_autopilot_rc) {
+    RadioControlEvent(booz2_autopilot_on_rc_frame);
+  }
 
   BoozImuEvent(on_gyro_accel_event, on_mag_event);
 

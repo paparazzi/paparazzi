@@ -29,6 +29,7 @@
 #include "booz2_navigation.h"
 #include "booz_guidance.h"
 #include "booz_stabilization.h"
+#include "led.h"
 
 uint8_t booz2_autopilot_mode;
 uint8_t booz2_autopilot_mode_auto2;
@@ -37,6 +38,9 @@ bool_t  booz2_autopilot_in_flight;
 uint32_t booz2_autopilot_motors_on_counter;
 uint32_t booz2_autopilot_in_flight_counter;
 bool_t kill_throttle;
+bool_t booz2_autopilot_rc;
+
+bool_t booz2_autopilot_power_switch;
 
 bool_t booz2_autopilot_detect_ground;
 bool_t booz2_autopilot_detect_ground_once;
@@ -59,6 +63,9 @@ void booz2_autopilot_init(void) {
   booz2_autopilot_detect_ground = FALSE;
   booz2_autopilot_detect_ground_once = FALSE;
   booz2_autopilot_flight_time = 0;
+  booz2_autopilot_rc = TRUE;
+  booz2_autopilot_power_switch = FALSE;
+  LED_ON(POWER_SWITCH_LED); // POWER OFF
 }
 
 
