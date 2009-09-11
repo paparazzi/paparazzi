@@ -53,10 +53,20 @@ void dl_parse_msg(void) {
     
   case DL_SETTING :
     {
+      if (DL_SETTING_ac_id(dl_buffer) != AC_ID) break;
       uint8_t i = DL_SETTING_index(dl_buffer);
       float var = DL_SETTING_value(dl_buffer);
       DlSetting(i, var);
       DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &var);
+    }
+    break;
+
+  case DL_GET_SETTING :
+    {
+      if (DL_GET_SETTING_ac_id(dl_buffer) != AC_ID) break;
+      uint8_t i = DL_GET_SETTING_index(dl_buffer);
+      float val = settings_get_value(i);
+      DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &val);
     }
     break;
 
