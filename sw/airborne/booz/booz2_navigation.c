@@ -143,7 +143,7 @@ void nav_circle(uint8_t wp_center, int32_t radius) {
     // compute qdr
     INT32_ATAN2(nav_circle_qdr, pos_diff.y, pos_diff.x);
     // increment circle radians
-    int32_t angle_diff = (nav_circle_qdr - last_qdr) >> (INT32_TRIG_FRAC - INT32_ANGLE_FRAC);
+    int32_t angle_diff = nav_circle_qdr - last_qdr;
     INT32_ANGLE_NORMALIZE(angle_diff);
     nav_circle_radians += angle_diff;
 
@@ -152,8 +152,8 @@ void nav_circle(uint8_t wp_center, int32_t radius) {
     // absolute radius
     int32_t abs_radius = abs(radius);
     // carrot_angle
-    int32_t carrot_angle = (CARROT_DIST / abs_radius) << (INT32_TRIG_FRAC - INT32_POS_FRAC);
-    Bound(carrot_angle, (INT32_ANGLE_PI / 16), INT32_ANGLE_PI_2);
+    int32_t carrot_angle = (CARROT_DIST / abs_radius) << (INT32_ANGLE_FRAC - INT32_POS_FRAC);
+    Bound(carrot_angle, (INT32_ANGLE_PI / 16), INT32_ANGLE_PI_4);
     carrot_angle = nav_circle_qdr - sign_radius * carrot_angle;
     int32_t s_carrot, c_carrot;
     PPRZ_ITRIG_SIN(s_carrot, carrot_angle);	
@@ -181,8 +181,10 @@ void nav_route(uint8_t wp_start, uint8_t wp_end) {
   int32_t leg_length2 = Max((wp_diff.x * wp_diff.x + wp_diff.y * wp_diff.y),1);
   INT32_SQRT(leg_length,leg_length2);
   int32_t nav_leg_progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / leg_length;
-  nav_leg_progress += Max((CARROT_DIST >> INT32_POS_FRAC), 0);
-  Bound(nav_leg_progress,0,leg_length);
+  int32_t progress = Max((CARROT_DIST >> INT32_POS_FRAC), 0);
+  nav_leg_progress += progress;
+  int32_t prog_2 = leg_length + progress / 2;
+  Bound(nav_leg_progress, 0, prog_2);
   struct Int32Vect2 progress_pos;
   VECT2_SMUL(progress_pos, wp_diff, nav_leg_progress);
   VECT2_SDIV(progress_pos, progress_pos, leg_length);
