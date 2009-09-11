@@ -49,10 +49,8 @@
 #define Qdotdot ACCEL_NOISE*DT_HFILTER
 //TODO: proper measurement noise
 #define R_POS   7.
-#define R_POS_MAX 20.
 #define R_POS_MIN 2.
 #define R_SPEED 2.
-#define R_SPEED_MAX 10.
 #define R_SPEED_MIN 0.2
 
 float Rpos, Rspeed;
@@ -414,14 +412,11 @@ void b2_hff_update_gps(void) {
 
 #ifdef USE_GPS_ACC4R
   Rpos = (float) booz_gps_state.pacc / 100.;
-  if (Rpos > R_POS_MAX)
-    Rpos = R_POS_MAX;
-  else if (Rpos < R_POS_MIN)
+  if (Rpos < R_POS_MIN)
     Rpos = R_POS_MIN;
+
   Rspeed = (float) booz_gps_state.sacc / 100.;
-  if (Rspeed > R_SPEED_MAX)
-    Rspeed = R_SPEED_MAX;
-  else if (Rspeed < R_SPEED_MIN)
+  if (Rspeed < R_SPEED_MIN)
     Rspeed = R_SPEED_MIN;
 #endif
 
