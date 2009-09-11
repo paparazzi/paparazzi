@@ -24,9 +24,27 @@
 
 
 #include "MPPT.h"
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+#include "messages.h"
+#include "downlink.h"
+
+
+
+uint8_t MPPT_mode;
+
+static int16_t MPPT_data[NB_DATA];
 
 void MPPT_init( void ) {
+  uint8_t i = 0;
+
+  for(i = 0; i < NB_DATA; i++)
+    MPPT_data[i] = 42 + i;
 }
 
 void MPPT_periodic( void ) {
+  MPPT_data[MPPT_ITOTAL_INDEX] = MPPT_data[MPPT_IBAT_INDEX] + MPPT_data[MPPT_ICONV_INDEX];
+
+  RunOnceEvery(8, DOWNLINK_SEND_MPPT(DefaultChannel, NB_DATA, MPPT_data));
 }

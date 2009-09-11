@@ -30,9 +30,8 @@
 
 
 #define MPPT_SLAVE_ADDR 0x40
-#define NB_DATA 8
+#define NB_I2C_DATA 8
 #define MPPT_MODE_ADDR 0xf
-#define MPPT_IBAT_INDEX 1
 
 /**
  0: VBat (mV)
@@ -43,6 +42,8 @@
  5: PSol (mW)
  6: IConv (mA)
  7: PConv (mW)
+ 
+ 9: IBat + IConv
 */
 
 
@@ -67,7 +68,7 @@ static uint8_t MPPT_status;
 
 
 static uint8_t data_index = 0xff;
-int16_t MPPT_data[NB_DATA];
+static int16_t MPPT_data[NB_DATA];
 
 void MPPT_init( void ) {
   MPPT_mode = 0;
@@ -79,11 +80,11 @@ void MPPT_init( void ) {
 
 static void MPPT_ask( void ) {
   data_index++;
-  if (data_index >= NB_DATA) {
+  if (data_index >= NB_I2C_DATA) {
     /* Setting the current value */
     fbw_current_milliamp = MPPT_data[MPPT_IBAT_INDEX];
 
-
+    MPPT_data[MPPT_ITOTAL_INDEX] = MPPT_data[MPPT_IBAT_INDEX] + MPPT_data[MPPT_ICONV_INDEX];
     DOWNLINK_SEND_MPPT(DefaultChannel, NB_DATA, MPPT_data);
     data_index = 0;
   }
@@ -127,7 +128,7 @@ void MPPT_periodic( void ) {
     
     case MPPT_STATUS_READING:
       /* We got 2 bytes */
-      if (data_index < NB_DATA)
+      if (data_index < NB_I2C_DATA)
 	MPPT_data[data_index] = (i2c0_buf[0]<<8) | i2c0_buf[1];
       MPPT_status = MPPT_STATUS_IDLE;
       break;

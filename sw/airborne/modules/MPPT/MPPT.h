@@ -36,6 +36,11 @@
 #define MPPT_MODE_PASSIVE 2
 #define MPPT_MODE_ACTIVE  3
 
+#define NB_DATA 9
+#define MPPT_IBAT_INDEX 1
+#define MPPT_ICONV_INDEX 6
+#define MPPT_ITOTAL_INDEX 8
+
 
 extern uint8_t MPPT_mode;
 

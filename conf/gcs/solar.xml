@@ -1,0 +1,41 @@
+<layout width="1024" height="768">
+  <rows>
+    <widget NAME="map2d" SIZE="500">
+      <papget type="message_field" display="text" x="5" y="125">
+        <property name="field" value="BAT:energy"/>
+        <property name="scale" value="1"/>
+        <property name="format" value="Bat: %.0fmAh"/>
+        <property name="size" value="20."/>
+        <property name="color" value="green"/>
+      </papget>
+      <papget type="message_field" display="text" x="5" y="195">
+        <property name="field" value="MPPT:values[8]"/>
+        <property name="scale" value="1e-3"/>
+        <property name="format" value="I tot: %.2fA"/>
+        <property name="size" value="20."/>
+        <property name="color" value="green"/>
+      </papget>
+      <papget type="message_field" display="text" x="5" y="230">
+        <property name="field" value="MPPT:values[5]"/>
+        <property name="scale" value="1e-3"/>
+        <property name="format" value="P sol: %.1fW"/>
+        <property name="size" value="20."/>
+        <property name="color" value="green"/>
+      </papget>
+      <papget type="message_field" display="text" x="5" y="160">
+        <property name="field" value="MPPT:values[1]"/>
+        <property name="scale" value="1e-3"/>
+        <property name="format" value="I bat: %.2fA"/>
+        <property name="size" value="20."/>
+        <property name="color" value="green"/>
+      </papget>
+    </widget>
+    <columns>
+      <rows SIZE="375">
+        <widget NAME="strips" SIZE="200"/>
+      </rows>
+      <widget NAME="aircraft" SIZE="400"/>
+      <widget NAME="alarms"/>
+    </columns>
+  </rows>
+</layout>
