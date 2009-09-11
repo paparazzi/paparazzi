@@ -34,6 +34,16 @@ class type item = object
   method deleted : bool
 end
 
+(** [index_of_fields s] Returns i if s matches x[i] else 0. *)
+let base_and_index =
+  let field_regexp = Str.regexp "\\([^\\.]+\\)\\[\\([0-9]+\\)\\]" in
+  fun field_descr ->
+    if Str.string_match field_regexp field_descr 0 then
+      ( Str.matched_group 1 field_descr,
+	int_of_string (Str.matched_group 2 field_descr))
+    else
+      (field_descr, 0)
+
 class message = fun ?sender ?(class_name="telemetry") msg_name ->
   object
     val mutable callbacks = []
@@ -43,9 +53,13 @@ class message = fun ?sender ?(class_name="telemetry") msg_name ->
       let module P = Pprz.Messages (struct let name = class_name end) in
       let cb = fun _sender values -> 
 	List.iter 
-	  (fun (field_name, cb) -> 
-	    let field = Pprz.string_assoc field_name values in
-	    cb field) 
+	  (fun (field_descr, cb) ->
+	    let (field_name, index) = base_and_index field_descr in
+	    let value =
+	      match Pprz.assoc field_name values with
+		Pprz.Array array -> array.(index)
+	      | scalar -> scalar in
+	    cb (Pprz.string_of_value value)) 
 	  callbacks  in
       ignore (P.message_bind ?sender msg_name cb)
   end
