@@ -32,23 +32,37 @@
 uint8_t booz2_cam_mode;
 
 #ifdef BOOZ2_CAM_TILT_NEUTRAL
+int16_t booz2_cam_tilt_pwm;
 int16_t booz2_cam_tilt;
 #endif
 #ifdef BOOZ2_CAM_PAN_NEUTRAL
 int16_t booz2_cam_pan;
 #endif
 
+#ifdef BOOZ2_CAM_TILT_ANGLE_MIN
+#define CAM_TA_MIN ANGLE_BFP_OF_REAL(BOOZ2_CAM_TILT_ANGLE_MIN)
+#else
+#define CAM_TA_MIN 0
+#endif
+
+#ifdef BOOZ2_CAM_TILT_ANGLE_MAX
+#define CAM_TA_MAX ANGLE_BFP_OF_REAL(BOOZ2_CAM_TILT_ANGLE_MAX)
+#else
+#define CAM_TA_MAX 0
+#endif
+
 void booz2_cam_init(void) {
   booz2_pwm_init_hw();
   booz2_cam_mode = BOOZ2_CAM_MODE_NONE;
 #ifdef BOOZ2_CAM_TILT_NEUTRAL
-  booz2_cam_tilt = BOOZ2_CAM_TILT_NEUTRAL;
-  Booz2SetPwmValue(booz2_cam_tilt);
+  booz2_cam_tilt_pwm = BOOZ2_CAM_TILT_NEUTRAL;
+  Booz2SetPwmValue(booz2_cam_tilt_pwm);
+  booz2_cam_tilt = 0;
 #endif
 #ifdef BOOZ2_CAM_PAN_NEUTRAL
   booz2_cam_pan = BOOZ2_CAM_PAN_NEUTRAL;
 #endif
-  LED_ON(CAM_SWITCH_LED);
+  LED_ON(CAM_SWITCH_LED); // CAM OFF
 }
 
 void booz2_cam_periodic(void) {
@@ -56,20 +70,25 @@ void booz2_cam_periodic(void) {
   switch (booz2_cam_mode) {
     case BOOZ2_CAM_MODE_NONE:
 #ifdef BOOZ2_CAM_TILT_NEUTRAL
-      booz2_cam_tilt = BOOZ2_CAM_TILT_NEUTRAL;
+      booz2_cam_tilt_pwm = BOOZ2_CAM_TILT_NEUTRAL;
 #endif
 #ifdef BOOZ2_CAM_PAN_NEUTRAL
       booz2_cam_pan = booz_ahrs.ltp_to_body_euler.psi;
 #endif
       break;
     case BOOZ2_CAM_MODE_MANUAL:
-    case BOOZ2_CAM_MODE_HEADING:
 #if defined BOOZ2_CAM_TILT_MIN && defined BOOZ2_CAM_TILT_MAX
-      Bound(booz2_cam_tilt,BOOZ2_CAM_TILT_MIN,BOOZ2_CAM_TILT_MAX);
-      //Booz2SetPwmValue(booz2_cam_tilt);
+      Bound(booz2_cam_tilt_pwm,BOOZ2_CAM_TILT_MIN,BOOZ2_CAM_TILT_MAX);
+#endif
+      break;
+    case BOOZ2_CAM_MODE_HEADING:
+#if defined BOOZ2_CAM_TILT_ANGLE_MIN && defined BOOZ2_CAM_TILT_ANGLE_MAX
+      Bound(booz2_cam_tilt,CAM_TA_MIN,CAM_TA_MAX);
+      booz2_cam_tilt_pwm = BOOZ2_CAM_TILT_MIN + (BOOZ2_CAM_TILT_MAX - BOOZ2_CAM_TILT_MIN) * (booz2_cam_tilt - CAM_TA_MIN) / (CAM_TA_MAX - CAM_TA_MIN);
+      Bound(booz2_cam_tilt_pwm,BOOZ2_CAM_TILT_MIN,BOOZ2_CAM_TILT_MAX);
 #endif
 #if defined BOOZ2_CAM_PAN_MIN && defined BOOZ2_CAM_PAN_MAX
-      //Bound(booz2_cam_pan,BOOZ2_CAM_PAN_MIN,BOOZ2_CAM_PAN_MAX);
+      Bound(booz2_cam_pan,BOOZ2_CAM_PAN_MIN,BOOZ2_CAM_PAN_MAX);
       nav_heading = booz2_cam_pan;
 #endif
       break;
@@ -80,14 +99,18 @@ void booz2_cam_periodic(void) {
         VECT2_DIFF(diff, waypoints[WP_CAM], booz_ins_enu_pos);
         INT32_VECT2_RSHIFT(diff,diff,INT32_POS_FRAC);
         INT32_ATAN2(booz2_cam_pan,diff.x,diff.y);
-        //if (diff.y < 0) {
-        //  booz2_cam_pan += INT32_ANGLE_PI;
-        //}
         nav_heading = booz2_cam_pan;
+        int32_t dist, height;
+        INT32_VECT2_NORM(dist, diff);
+        height = waypoints[WP_CAM].z - booz_ins_enu_pos.z;
+        INT32_ATAN2(booz2_cam_tilt, height, dist);
+        Bound(booz2_cam_tilt, CAM_TA_MIN, CAM_TA_MAX);
+        booz2_cam_tilt_pwm = BOOZ2_CAM_TILT_MIN + (BOOZ2_CAM_TILT_MAX - BOOZ2_CAM_TILT_MIN) * (booz2_cam_tilt - CAM_TA_MIN) / (CAM_TA_MAX - CAM_TA_MIN);
+        Bound(booz2_cam_tilt_pwm, BOOZ2_CAM_TILT_MIN, BOOZ2_CAM_TILT_MAX);
       }
 #endif
       break;
   }
-  Booz2SetPwmValue(booz2_cam_tilt);
+  Booz2SetPwmValue(booz2_cam_tilt_pwm);
 }
 

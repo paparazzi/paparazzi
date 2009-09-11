@@ -37,6 +37,7 @@
 extern uint8_t booz2_cam_mode;
 
 #ifdef BOOZ2_CAM_TILT_NEUTRAL
+extern int16_t booz2_cam_tilt_pwm;
 extern int16_t booz2_cam_tilt;
 #endif
 #ifdef BOOZ2_CAM_PAN_NEUTRAL
