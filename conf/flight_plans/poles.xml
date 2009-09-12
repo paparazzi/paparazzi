@@ -44,13 +44,21 @@
       <call fun="nav_poles_init(WP_1, WP_2, WP_C1, WP_C2, nav_radius)"/>
       <oval p1="C1" p2="C2" radius="nav_radius" until="nav_oval_count>=nav_poles_count"/>
     </block>
-    <block name="Drop">
+    <block name="Goto Target">
       <go wp="TARGET" approaching_time="0"/>
-      <set value="MAX_PPRZ" var="ap_state->commands[COMMAND_HATCH]"/>
     </block>
-    <block name="Poles 2" pre_call="nav_ground_speed_loop()">
+    <block name="Drop">
+      <set value="MIN_PPRZ" var="ap_state->commands[COMMAND_HATCH]"/>
+    </block>
+    <block name="Poles 2">
       <oval p1="C1" p2="C2" radius="nav_radius" until="nav_oval_count>=nav_poles_count"/>
+   </block>
+
+    <block name="Auto pitch (circle wp 1)">
+      <circle pitch="auto" radius="nav_radius" throttle="0.45" wp="1"/>
     </block>
+
+
     <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>

@@ -110,6 +110,8 @@
     <define name="GLIDE_AIRSPEED" value="12.5"/>
     <define name="GLIDE_VSPEED" value="2."/>
     <define name="GLIDE_PITCH" value="45" unit="deg"/>
+
+    <define name="TELEMETRY_MODE_AP" value="1"/>
   </section>
 
  <section name="VERTICAL CONTROL" prefix="V_CTL_">

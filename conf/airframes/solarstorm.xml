@@ -17,9 +17,8 @@
 <!-- commands section -->
   <servos>
     <servo name="MOTOR" no="3" min="1250" neutral="1250" max="1800"/>
-    <servo name="AILEVON_LEFT" no="4" min="1850" neutral="1370" max="1000"/>
-    <servo name="AILEVON_RIGHT" no="5" min="1000" neutral="1515" max="1870"/>
-    <servo name="HATCH" no="6" min="1350" neutral="1900" max="1900"/>
+    <servo name="AILEVON_LEFT" no="4" min="1850" neutral="1470" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="5" min="1100" neutral="1545" max="1870"/>
   </servos>
 
   <commands>
@@ -33,7 +32,6 @@
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="ROLL" value="@ROLL"/>
     <set command="PITCH" value="@PITCH"/>
-    <set command="HATCH" value="@GAIN1"/>
   </rc_commands>
 
   <section name="MIXER">
@@ -46,7 +44,6 @@
     <let var="aileron" value="@ROLL  * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
     <set servo="MOTOR" value="@THROTTLE"/>
-    <set servo="HATCH" value="@HATCH"/>
     <set servo="AILEVON_LEFT" value="$elevator + ($aileron > 0 ? 1 : AILERON_DIFF) * $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - ($aileron > 0 ? AILERON_DIFF : 1) * $aileron"/>
   </command_laws>
@@ -82,7 +79,7 @@
     <define name="TOP_SIGN" value="-1"/>
 
     <define name="ROLL_NEUTRAL_DEFAULT" value="3.49504256248" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="-0.114591561258" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="8.42247962952" unit="deg"/>
 
     <define name="CORRECTION_UP" value="1."/>
     <define name="CORRECTION_DOWN" value="1."/>
@@ -91,14 +88,12 @@
   </section>
 
  <section name="GYRO" prefix="GYRO_">
-    <define name="ADC_ROLL_NEUTRAL" value="492"/>
-    <define name="ADC_TEMP_NEUTRAL" value="512"/>   
-    <define name="ADC_TEMP_SLOPE" value="0"/>  
+    <define name="ADC_ROLL_NEUTRAL" value="512"/>
     <define name="DYNAMIC_RANGE" value="300" unit="deg/s"/>
     <define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+1.8))"/>
     <define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/>
     <define name="ROLL_SCALE" value="3.3*1000./1024./(GYRO_ADXRS300_SENSITIVITY*GYRO_ADXRS300_RESISTOR_BRIDGE)" unit="deg/s/adc_unit"/>
-    <define name="ROLL_DIRECTION" value="1."/> 
+    <define name="ROLL_DIRECTION" value="-1."/> 
   </section>
 
   <section name="BAT">
@@ -129,7 +124,7 @@
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.356000006199"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.80"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
@@ -150,9 +145,9 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.23500001431"/>
+    <define name="COURSE_PGAIN" value="-0.885999977589"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="0.805000007153" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.7" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
@@ -232,9 +227,9 @@ ap.srcs += inter_mcu.c
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
-ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400 -DGPS_LED=2
+ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B9600 -DGPS_LED=2
 #ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B9600 -DGPS_LED=2
-#ap.CFLAGS += -DGPS_CONFIGURE -DGPS_BAUD=38400
+ap.CFLAGS += -DGPS_CONFIGURE -DGPS_BAUD=38400
 
 ap.srcs += gps_ubx.c gps.c latlong.c
 

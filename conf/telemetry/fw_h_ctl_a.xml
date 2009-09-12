@@ -18,7 +18,7 @@
       <message name="DOWNLINK"       period="5.1"/>
       <message name="DL_VALUE"       period="1.5"/>
       <message name="IR_SENSORS"     period="1.2"/>
-      <message name="GYRO_RATES"     period="0.05"/>
+      <message name="GYRO_RATES"     period="0.2"/>
       <message name="SURVEY"         period="2.1"/>
       <message name="GPS_SOL"        period="2.0"/>
     </mode>
