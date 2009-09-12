@@ -64,6 +64,7 @@
 #endif
 #include "uart.h"
 #include "downlink.h"
+#include "ap_downlink.h"
 
 #define MOfCm(_x) (((float)(_x))/100.)
 
@@ -108,6 +109,7 @@ void dl_parse_msg(void) {
     DOWNLINK_SEND_WP_MOVED(DefaultChannel, &wp_id, &latlong_utm_x, &latlong_utm_y, &a, &nav_utm_zone0);
   } else if (msg_id == DL_BLOCK && DL_BLOCK_ac_id(dl_buffer) == AC_ID) {
     nav_goto_block(DL_BLOCK_block_id(dl_buffer));
+    SEND_NAVIGATION(DefaultChannel);
   } else
 #endif /** NAV */
 #ifdef WIND_INFO
