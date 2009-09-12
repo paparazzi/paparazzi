@@ -362,7 +362,7 @@ static void navigation_task( void ) {
   CallTCAS();
 #endif
 
-#ifndef PERIOD_NAVIGATION_0 // If not sent periodically (in default 0 mode)
+#ifndef PERIOD_NAVIGATION_DefaultChannel_0 // If not sent periodically (in default 0 mode)
   SEND_NAVIGATION(DefaultChannel);
 #endif
 
