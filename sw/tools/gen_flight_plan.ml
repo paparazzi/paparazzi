@@ -402,6 +402,13 @@ let rec print_stage = fun index_of_waypoints x ->
 	      lprintf "NavGotoXY(last_x, last_y);\n";
 		ignore(output_vmode x "" "")
 	end;
+	begin
+	  try
+	    let c = parsed_attrib x "until" in
+	    lprintf "if (%s) NextStageAndBreak();\n" c
+	  with
+	    ExtXml.Error _ -> ()
+	end;
 	lprintf "break;\n"
     | "xyz" ->
 	stage ();

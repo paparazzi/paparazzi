@@ -207,6 +207,7 @@ vmode CDATA #IMPLIED
 throttle CDATA #IMPLIED
 climb CDATA #IMPLIED
 alt CDATA #IMPLIED
+until CDATA #IMPLIED
 height CDATA #IMPLIED>
 
 <!ATTLIST deroute
