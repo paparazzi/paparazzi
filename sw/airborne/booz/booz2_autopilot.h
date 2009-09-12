@@ -27,6 +27,8 @@
 
 #include "std.h"
 
+#include "led.h"
+
 #include "airframe.h"
 #include "booz2_ins.h"
 
