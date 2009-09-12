@@ -60,8 +60,8 @@ float h_ctl_ref_roll_accel;
 float h_ctl_ref_pitch_angle;
 float h_ctl_ref_pitch_rate;
 float h_ctl_ref_pitch_accel;
-#define H_CTL_REF_W 3.
-#define H_CTL_REF_XI 1.
+#define H_CTL_REF_W 10.
+#define H_CTL_REF_XI 0.85
 
 /* inner roll loop parameters */
 float  h_ctl_roll_setpoint;
@@ -235,17 +235,16 @@ inline static void h_ctl_roll_loop( void ) {
     - h_ctl_roll_igain * h_ctl_roll_sum_err
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
 
-  //  cmd /= airspeed_ratio2;
+  //x  cmd /= airspeed_ratio2;
 
   h_ctl_aileron_setpoint = TRIM_PPRZ(cmd); 
 }
 
 
-
 #ifdef LOITER_TRIM
-
 float v_ctl_auto_throttle_loiter_trim = V_CTL_AUTO_THROTTLE_LOITER_TRIM;
 float v_ctl_auto_throttle_dash_trim = V_CTL_AUTO_THROTTLE_DASH_TRIM;
+
 
 inline static float loiter(void) {
   float elevator_trim;
@@ -265,10 +264,6 @@ inline static float loiter(void) {
 
 
 inline static void h_ctl_pitch_loop( void ) {
-  h_ctl_ref_pitch_accel = H_CTL_REF_W*H_CTL_REF_W * (h_ctl_pitch_loop_setpoint - h_ctl_ref_pitch_angle) - 2*H_CTL_REF_XI*H_CTL_REF_W * h_ctl_ref_pitch_rate;
-  h_ctl_ref_pitch_rate += h_ctl_ref_pitch_accel * H_CTL_REF_DT;
-  h_ctl_ref_pitch_angle += h_ctl_ref_pitch_rate * H_CTL_REF_DT;
-
   static float last_err;
   /* sanity check */
   if (h_ctl_elevator_of_roll <0.)
@@ -277,6 +272,10 @@ inline static void h_ctl_pitch_loop( void ) {
   h_ctl_pitch_loop_setpoint =
     h_ctl_pitch_setpoint 
     - h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(estimator_phi);
+
+  h_ctl_ref_pitch_accel = H_CTL_REF_W*H_CTL_REF_W * (h_ctl_pitch_loop_setpoint - h_ctl_ref_pitch_angle) - 2*H_CTL_REF_XI*H_CTL_REF_W * h_ctl_ref_pitch_rate;
+  h_ctl_ref_pitch_rate += h_ctl_ref_pitch_accel * H_CTL_REF_DT;
+  h_ctl_ref_pitch_angle += h_ctl_ref_pitch_rate * H_CTL_REF_DT;
 
 #ifdef LOITER_TRIM
   h_ctl_pitch_loop_setpoint -= loiter();
@@ -294,7 +293,8 @@ inline static void h_ctl_pitch_loop( void ) {
   last_err = err;
   float cmd = h_ctl_pitch_pgain * err + h_ctl_pitch_dgain * d_err + h_ctl_pitch_igain * h_ctl_pitch_sum_err;
 
-  cmd /= airspeed_ratio2;
+  //  cmd /= airspeed_ratio2;
 
   h_ctl_elevator_setpoint = TRIM_PPRZ(cmd);
 }
+
