@@ -160,10 +160,7 @@
 #define PERIODIC_SEND_GPS_SOL(_chan) DOWNLINK_SEND_GPS_SOL(_chan, &gps_Pacc, &gps_Sacc, &gps_PDOP, &gps_numSV)
 #define PERIODIC_SEND_DebugChao(_chan) DOWNLINK_SEND_DebugChao(_chan, &ugear_debug1, &ugear_debug2, &ugear_debug3, &ugear_debug4, &ugear_debug5, &ugear_debug6)
 #else
-#  ifdef PERIOD_GPS_0
-#  include "gps.h"
-#    define PERIODIC_SEND_GPS(_chan) gps_send()
-#  endif
+#define PERIODIC_SEND_GPS(_chan) gps_send()
 #endif
 
 #ifdef USE_BARO_MS5534A
