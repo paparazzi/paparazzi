@@ -63,8 +63,8 @@ void gps_downlink( void ) {
 #  endif
 
 
-#ifndef PERIOD_GPS_0
-   gps_send();
+#ifndef PERIOD_GPS_DefaultChannel_0
+  gps_send();
 #endif
 }
 
