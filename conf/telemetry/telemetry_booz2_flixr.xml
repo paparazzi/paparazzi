@@ -83,14 +83,14 @@
 
     <mode name="h_loop">
       <message name="ALIVE"                   period="0.9"/>
-      <message name="BOOZ2_HOVER_LOOP"        period="0.062"/>
+      <message name="BOOZ2_HOVER_LOOP"        period="0.1"/>
       <message name="BOOZ2_STAB_ATTITUDE"     period=".4"/>
       <message name="BOOZ2_HFF_DBG"           period=".2"/>
       <!--<message name="BOOZ2_STAB_ATTITUDE_REF" period=".4"/>-->
       <message name="BOOZ2_FP"                period="0.8"/>
       <message name="BOOZ_STATUS"             period="1.2"/>
       <message name="BOOZ2_NAV_STATUS"        period="1.6"/>
-	  <message name="BOOZ2_HFF_GPS"           period=".05"/>
+	  <message name="BOOZ2_HFF_GPS"           period=".1"/>
       <message name="BOOZ2_INS_REF"           period="5.1"/>
     </mode>
 
