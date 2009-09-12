@@ -55,6 +55,14 @@
 #include "booz2_cam.h"
 #endif
 
+#ifdef USE_DROP
+#include "booz_drop.h"
+#endif
+
+#if defined USE_CAM || USE_DROP
+#include "booz2_pwm_hw.h"
+#endif
+
 #ifdef BOOZ2_SONAR
 #include "booz2_sonar.h"
 #endif
@@ -100,6 +108,9 @@ STATIC_INLINE void booz2_main_init( void ) {
 
   booz2_analog_init();
   booz2_analog_baro_init();
+#if defined USE_CAM || USE_DROP
+  booz2_pwm_init_hw();
+#endif
   booz2_battery_init();
   booz_imu_init();
 
@@ -122,6 +133,10 @@ STATIC_INLINE void booz2_main_init( void ) {
 
 #ifdef USE_CAM
   booz2_cam_init();
+#endif
+
+#ifdef USE_DROP
+  booz_drop_init();
 #endif
 
 #ifdef BOOZ2_SONAR
@@ -161,15 +176,15 @@ STATIC_INLINE void booz2_main_periodic( void ) {
 	booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);		\
     },									\
     {									\
-      Booz2TelemetryPeriodic();						\
+      Booz2TelemetryPeriodic();         \
     },									\
     {									\
-      booz_fms_periodic();						\
+      booz_fms_periodic();              \
     },									\
     {									\
       /*BoozControlSurfacesSetFromCommands();*/				\
     },									\
-    {},									\
+    {},                                 \
     {},									\
     {},									\
     {},									\
@@ -179,6 +194,10 @@ STATIC_INLINE void booz2_main_periodic( void ) {
 
 #ifdef USE_CAM
   RunOnceEvery(50,booz2_cam_periodic());
+#endif
+
+#ifdef USE_DROP
+  RunOnceEvery(50,booz_drop_periodic());
 #endif
 
 #ifdef BOOZ2_SONAR

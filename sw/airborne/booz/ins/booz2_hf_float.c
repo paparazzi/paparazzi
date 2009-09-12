@@ -48,10 +48,10 @@
 #define Q       ACCEL_NOISE*DT_HFILTER*DT_HFILTER/2.
 #define Qdotdot ACCEL_NOISE*DT_HFILTER
 //TODO: proper measurement noise
-#define R_POS   7.
-#define R_POS_MIN 2.
+#define R_POS   8.
+#define R_POS_MIN 3.
 #define R_SPEED 2.
-#define R_SPEED_MIN 0.2
+#define R_SPEED_MIN 1.
 
 float Rpos, Rspeed;
 

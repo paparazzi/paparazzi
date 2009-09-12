@@ -99,7 +99,9 @@ extern uint16_t booz2_autopilot_flight_time;
   else { LED_ON(POWER_SWITCH_LED); } \
 }
 
+#ifndef TRESHOLD_GROUND_DETECT
 #define TRESHOLD_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)
+#endif
 #define BoozDetectGroundEvent() {					\
     if (booz2_autopilot_mode == BOOZ2_AP_MODE_FAILSAFE || booz2_autopilot_detect_ground_once) { \
       if (booz_ins_ltp_accel.z < -TRESHOLD_GROUND_DETECT || \

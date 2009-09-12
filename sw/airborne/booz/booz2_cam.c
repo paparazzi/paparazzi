@@ -52,7 +52,6 @@ int16_t booz2_cam_pan;
 #endif
 
 void booz2_cam_init(void) {
-  booz2_pwm_init_hw();
   booz2_cam_mode = BOOZ2_CAM_MODE_NONE;
 #ifdef BOOZ2_CAM_TILT_NEUTRAL
   booz2_cam_tilt_pwm = BOOZ2_CAM_TILT_NEUTRAL;
