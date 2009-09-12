@@ -123,6 +123,15 @@ module Gen_onboard = struct
 
   let size_of_message = fun m -> size_fields m.fields "0"
       
+  let estimated_size_of_message = fun m ->
+    try
+      List.fold_right
+	(fun (t, _, _)  r ->  int_of_string (Syntax.sizeof t)+r)
+	m.fields
+	0
+    with
+      Failure "int_of_string" -> 0
+      
   let print_downlink_macro = fun h {name=s; fields = fields} ->
     if List.length fields > 0 then begin
       fprintf h "#define DOWNLINK_SEND_%s(_chan, " s;
@@ -167,7 +176,21 @@ module Gen_onboard = struct
     for i = 0 to n - 1 do
       fprintf h "%s," (try "(2+" ^ List.assoc i sizes^")" with Not_found -> "0")
     done;
-    fprintf h "}\n\n"
+    fprintf h "}\n\n";
+
+    (* Print a comment with the actual size (when not variable) *)
+    fprintf h "/*\n Size for non variable messages\n";
+
+    let sizes =
+      List.map
+	(fun m -> (estimated_size_of_message m, m.name))
+	messages in
+    let sizes = List.sort (fun (s1,_) (s2,_) -> compare s2 s1) sizes in
+
+    List.iter
+      (fun (s, id) -> fprintf h "%2d : %s\n" s id)
+      sizes;
+    fprintf h "*/\n"
 
   (** Prints the macros required to send a message *)
   let print_downlink_macros = fun h class_ messages ->
