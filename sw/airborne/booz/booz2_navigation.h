@@ -213,4 +213,12 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
   nav_flight_altitude = POS_BFP_OF_REAL(flight_altitude) - ground_alt; \
 }
 
+
+#define GetPosX() POS_FLOAT_OF_BFP(booz_ins_enu_pos.x)
+#define GetPosY() POS_FLOAT_OF_BFP(booz_ins_enu_pos.y)
+#define GetPosAlt() (POS_FLOAT_OF_BFP(booz_ins_enu_pos.z+ground_alt))
+
+
+
+
 #endif /* BOOZ2_NAVIGATION_H */
