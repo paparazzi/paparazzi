@@ -41,6 +41,8 @@ struct Booz_gps_state {
 
 extern struct Booz_gps_state booz_gps_state;
 
+extern uint8_t booz_gps_lost_counter; /* updated at 4Hz */
+
 
 /* UBX NAV SOL */
 #define  BOOZ2_GPS_FIX_NONE 0x00
@@ -68,11 +70,13 @@ static inline void  booz_gps_feed_value() {
   booz_gps_available = TRUE;
 }
 
-#define Booz2GpsEvent(_sol_available_callback) {    \
-    if (booz_gps_available) {                       \
-      _sol_available_callback();                    \
-      booz_gps_available = FALSE;                   \
-    }                                               \
+#define Booz2GpsEvent(_sol_available_callback) {	        \
+    if (booz_gps_available) {					\
+      if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D)               \
+        booz_gps_lost_counter = 0;                              \
+      _sol_available_callback();				\
+      booz_gps_available = FALSE;				\
+    }								\
   }
 #else /* ! SITL */
 #define Booz2GpsEvent(_sol_available_callback) {                    \
@@ -82,10 +86,12 @@ static inline void  booz_gps_feed_value() {
     if (ubx_msg_available) {                                        \
       booz2_gps_read_ubx_message();                                 \
       if (ubx_class == UBX_NAV_ID && ubx_id == UBX_NAV_SOL_ID) {	\
-        _sol_available_callback();                                  \
-      }                                                             \
-      ubx_msg_available = FALSE;                                    \
-    }                                                               \
+        if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D)                     \
+          booz_gps_lost_counter = 0;                                    \
+	_sol_available_callback();					\
+      }									\
+      ubx_msg_available = FALSE;					\
+    }									\
   }
 #endif
 
@@ -113,9 +119,11 @@ extern uint8_t ubx_class;
 extern void ubx_parse( uint8_t c );
 extern void ubx_init(void);
 
+static inline void booz_gps_periodic( void ) {
+  RunOnceEvery(128, booz_gps_lost_counter++; );
+}
 
+#define GpsIsLost() (booz_gps_lost_counter > 20) /* 4Hz -> 5s */
 
 
 #endif /* BOOZ2_GPS_H */
-
-

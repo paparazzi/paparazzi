@@ -27,6 +27,9 @@
 
 struct Booz_gps_state booz_gps_state;
 
+uint8_t booz_gps_lost_counter; /* updated at 4Hz, reset on gps event */
+
+
 #ifdef SITL
 bool_t booz_gps_available;
 #endif
