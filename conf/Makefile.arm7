@@ -18,8 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.  
-# 
+# Boston, MA 02111-1307, USA.
+#
 
 
 #
@@ -55,9 +55,9 @@ FORMAT = ihex
 
 SRCARM = $($(TARGET).srcs)
 
-ASRCARM = crt0.S 
+ASRCARM = crt0.S
 
-# Optimization level, can be [0, 1, 2, 3, s]. 
+# Optimization level, can be [0, 1, 2, 3, s].
 # 0 = turn off optimization. s = optimize for size.
 # (Note: 3 is not always the best optimization level. See avr-libc FAQ.)
 OPT = s
@@ -71,17 +71,18 @@ CINCS = $(INCLUDES) -I $(SRC_ARCH)/include
 CFLAGS = $(CINCS)
 CFLAGS += -O$(OPT)
 # CFLAGS += -malignment-traps
-CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
+CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align -Winline
 CFLAGS += -Wpointer-arith -Wswitch
 CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
+CFLAGS += -ffunction-sections -fdata-sections
 
 # flags only for C
 CFLAGS + = -Wstrict-prototypes -Wmissing-declarations
-CFLAGS += -Wmissing-prototypes -Wnested-externs 
+CFLAGS += -Wmissing-prototypes -Wnested-externs
 CFLAGS += $(CSTANDARD)
-CFLAGS += $($(TARGET).CFLAGS) $(LOCAL_CFLAGS)		
+CFLAGS += $($(TARGET).CFLAGS) $(LOCAL_CFLAGS)
 
 # Assembler flags.
 ASFLAGS = -Wa,-adhlns=$(OBJDIR)/$(notdir $(<:.S=.lst))
@@ -93,8 +94,9 @@ MATH_LIB = -lm
 LDFLAGS = -n -nostartfiles -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref
 LDFLAGS += -lc
 LDFLAGS += $(NEWLIBLPC) $(MATH_LIB)
-LDFLAGS += -lc -lgcc 
+LDFLAGS += -lc -lgcc
 LDFLAGS += $(CPLUSPLUS_LIB)
+LDFLAGS += -Wl,--gc-sections
 # -lusbstack -Larm7/lpcusb
 
 ifndef LDSCRIPT
@@ -110,7 +112,7 @@ LDFLAGS +=-T$(LDSCRIPT)
 
 
 # ---------------------------------------------------------------------------
-# Flash-Programming support using lpc21isp by Martin Maurer 
+# Flash-Programming support using lpc21isp by Martin Maurer
 
 # Settings and variables:
 LPC21ISP = lpc21isp
@@ -128,7 +130,7 @@ LPC21ISP_CONTROL =
 endif
 
 # ---------------------------------------------------------------------------
-# Flash-Programming support using lpc21iap by Martin Muller  (usb bootloader) 
+# Flash-Programming support using lpc21iap by Martin Muller  (usb bootloader)
 
 LPC21IAP = $(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap
 
@@ -136,7 +138,7 @@ LPC21IAP = $(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap
 
 
 # Define all object files.
-COBJ      = $(SRC:%.c=$(OBJDIR)/%.o) 
+COBJ      = $(SRC:%.c=$(OBJDIR)/%.o)
 AOBJ      = $(ASRC:%.S=$(OBJDIR)/%.o)
 COBJARM   = $(SRCARM:%.c=$(OBJDIR)/%.o)
 AOBJARM   = $(ASRCARM:%.S=$(OBJDIR)/%.o)
@@ -160,7 +162,7 @@ build: elf hex lss sym
 
 elf: $(OBJDIR)/$(TARGET).elf
 hex: $(OBJDIR)/$(TARGET).hex
-lss: $(OBJDIR)/$(TARGET).lss 
+lss: $(OBJDIR)/$(TARGET).lss
 sym: $(OBJDIR)/$(TARGET).sym
 
 
@@ -174,11 +176,11 @@ sizeafter:
 	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; $(ELFSIZE); echo; fi
 
 
-# Program the device.  
+# Program the device.
 load upload program: $(OBJDIR)/$(TARGET).hex
 ifeq ($(FLASH_MODE),IAP)
 	$(SUDO) $(LPC21IAP)  $(OBJDIR)/$(TARGET).elf
-else 
+else
 	@echo
 	$(LPC21ISP) $(LPC21ISP_CONTROL) $(LPC21ISP_DEBUG) $(LPC21ISP_FLASHFILE) $(LPC21ISP_PORT) $(LPC21ISP_BAUD) $(LPC21ISP_XTAL)
 endif
@@ -205,7 +207,7 @@ endif
 
 # Link: create ELF output file from object files.
 .SECONDARY : $(OBJDIR)/$(TARGET).elf
-.PRECIOUS : $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) 
+.PRECIOUS : $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ)
 %.elf:  $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ)
 	@echo LD $@
 	$(Q)$(CC) $(THUMB) $(ALL_CFLAGS) $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ)  --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS)
@@ -215,17 +217,17 @@ endif
 $(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
+	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@
 
 $(OBJDIR)/%.o : $(SRC_ARCH)/lpcusb/%.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
-	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
+	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@
 
 
 # grab files in var/$(AIRCRAFT)/$(TARGET) aka $(OBJDIR)
 #$(OBJDIR)/%.o : $(OBJDIR)/%.c
 #	@echo CC $@
-#	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@ 
+#	$(Q)$(CC) -c $(ALL_CFLAGS) $(CONLYFLAGS) $< -o $@
 
 # Assemble: create object files from assembler source files. ARM/Thumb
 $(AOBJ) : $(OBJDIR)/%.o : %.S
@@ -281,8 +283,8 @@ $(OBJDIR)/.depend:
 	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
 	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
 
-ifneq ($(MAKECMDGOALS),clean) 
-ifneq ($(MAKECMDGOALS),erase) 
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(MAKECMDGOALS),erase)
 -include $(OBJDIR)/.depend
 endif
 endif

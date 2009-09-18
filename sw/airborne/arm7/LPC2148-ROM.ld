@@ -28,21 +28,21 @@ SECTIONS
 	*(.rodata*)
 	*(.gnu.linkonce.r.*)
   } > ROM
-  
-  /***** old: 
+
+  /***** old:
   .text :
   {
-    *crt0.o (.text)            
-    *(.text)                   
-    *(.rodata)                 
+    *crt0.o (.text)
+    *(.text)
+    *(.rodata)
     *(.rodata*)
     *(.glue_7)
     *(.glue_7t)
-  } > ROM 
+  } > ROM
   *****/
 
   . = ALIGN(4);
-  
+
 	/* .ctors .dtors are used for c++ constructors/destructors */
 	/* added by Martin Thomas 4/2005 based on Anglia Design example */
 	.ctors :
@@ -52,18 +52,18 @@ SECTIONS
 		KEEP(*(.ctors))
 		PROVIDE(__ctors_end__ = .);
 	} >ROM
-	
+
 	.dtors :
 	{
-		PROVIDE(__dtors_start__ = .); 
+		PROVIDE(__dtors_start__ = .);
 		KEEP(*(SORT(.dtors.*)))
 		KEEP(*(.dtors))
 		PROVIDE(__dtors_end__ = .);
 	} >ROM
-  
+
     . = ALIGN(4);
 	/* mthomas - end */
-   
+
   _etext = . ;
   PROVIDE (etext = .);
 
@@ -78,7 +78,7 @@ SECTIONS
 	. = ALIGN(4);
 	*(.fastrun) /* !!!! "RAM-Function" example */
   } > RAM
- 
+
   . = ALIGN(4);
   _edata = . ;
   PROVIDE (edata = .);
@@ -89,6 +89,7 @@ SECTIONS
     __bss_start = . ;
     __bss_start__ = . ;
     *(.bss)
+    *(.bss.*)
 	*(.gnu.linkonce.b*)
     *(COMMON)
     . = ALIGN(4);
