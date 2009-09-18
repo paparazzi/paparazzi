@@ -179,5 +179,5 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
 
 #define nav_SetNavRadius(x) { if (x==1) nav_radius = DEFAULT_CIRCLE_RADIUS; else if (x==-1) nav_radius = -DEFAULT_CIRCLE_RADIUS; else nav_radius = x; }
 
-
+#define NavKillThrottle() { kill_throttle = 1; } 
 #endif /* NAV_H */
