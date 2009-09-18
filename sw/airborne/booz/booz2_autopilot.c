@@ -174,61 +174,61 @@ void booz2_autopilot_set_mode(uint8_t new_autopilot_mode) {
   (radio_control.values[RADIO_CONTROL_YAW] > BOOZ2_AUTOPILOT_YAW_TRESHOLD || \
    radio_control.values[RADIO_CONTROL_YAW] < -BOOZ2_AUTOPILOT_YAW_TRESHOLD)
 
-#define BOOZ2_AUTOPILOT_CHECK_IN_FLIGHT() {				\
-    if (booz2_autopilot_in_flight) {					\
-      if (booz2_autopilot_in_flight_counter > 0) {			\
-	if (THROTTLE_STICK_DOWN()) {					\
-	  booz2_autopilot_in_flight_counter--;				\
-	  if (booz2_autopilot_in_flight_counter == 0) {			\
-	    booz2_autopilot_in_flight = FALSE;				\
-	  }								\
-	}								\
-	else {	/* !THROTTLE_STICK_DOWN */				\
-	  booz2_autopilot_in_flight_counter = BOOZ2_AUTOPILOT_IN_FLIGHT_TIME; \
-        }								\
-      }									\
-    }									\
-    else { /* not in flight */						\
-      if (booz2_autopilot_in_flight_counter < BOOZ2_AUTOPILOT_IN_FLIGHT_TIME && \
-	  booz2_autopilot_motors_on) {					\
-	if (!THROTTLE_STICK_DOWN()) {					\
-	  booz2_autopilot_in_flight_counter++;				\
-	  if (booz2_autopilot_in_flight_counter == BOOZ2_AUTOPILOT_IN_FLIGHT_TIME) \
-	    booz2_autopilot_in_flight = TRUE;				\
-	}								\
-	else { /*  THROTTLE_STICK_DOWN */				\
-	  booz2_autopilot_in_flight_counter = 0;			\
-	}								\
-      }									\
-    }									\
+static inline void booz2_autopilot_check_in_flight() {				\
+  if (booz2_autopilot_in_flight) {
+    if (booz2_autopilot_in_flight_counter > 0) {
+      if (THROTTLE_STICK_DOWN()) {
+        booz2_autopilot_in_flight_counter--;
+        if (booz2_autopilot_in_flight_counter == 0) {
+          booz2_autopilot_in_flight = FALSE;
+        }
+      }
+      else {	/* !THROTTLE_STICK_DOWN */
+        booz2_autopilot_in_flight_counter = BOOZ2_AUTOPILOT_IN_FLIGHT_TIME;
+      }
+    }
   }
+  else { /* not in flight */
+    if (booz2_autopilot_in_flight_counter < BOOZ2_AUTOPILOT_IN_FLIGHT_TIME &&
+        booz2_autopilot_motors_on) {
+      if (!THROTTLE_STICK_DOWN()) {
+        booz2_autopilot_in_flight_counter++;
+        if (booz2_autopilot_in_flight_counter == BOOZ2_AUTOPILOT_IN_FLIGHT_TIME)
+          booz2_autopilot_in_flight = TRUE;
+      }
+      else { /*  THROTTLE_STICK_DOWN */
+        booz2_autopilot_in_flight_counter = 0;
+      }
+    }
+  }
+}
 
-#define BOOZ2_AUTOPILOT_CHECK_MOTORS_ON() {				\
-    if (booz2_autopilot_motors_on) {					\
-      if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) {		\
-	if ( booz2_autopilot_motors_on_counter > 0) {			\
-	  booz2_autopilot_motors_on_counter--;				\
-	  if (booz2_autopilot_motors_on_counter == 0)			\
-	    booz2_autopilot_motors_on = FALSE;				\
-	}								\
-      }									\
-      else { /* sticks not in the corner */				\
-	booz2_autopilot_motors_on_counter = BOOZ2_AUTOPILOT_MOTOR_ON_TIME; \
-      }									\
-    }									\
-    else { /* motors off */						\
-      if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) {		\
-	if ( booz2_autopilot_motors_on_counter <  BOOZ2_AUTOPILOT_MOTOR_ON_TIME) { \
-	  booz2_autopilot_motors_on_counter++;				\
-	  if (booz2_autopilot_motors_on_counter == BOOZ2_AUTOPILOT_MOTOR_ON_TIME) \
-	    booz2_autopilot_motors_on = TRUE;				\
-	}								\
-      }									\
-      else {								\
-	booz2_autopilot_motors_on_counter = 0;				\
-      }									\
-    }									\
+static inline void booz2_autopilot_check_motors_on() {
+  if (booz2_autopilot_motors_on) {
+    if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) {
+      if ( booz2_autopilot_motors_on_counter > 0) {
+        booz2_autopilot_motors_on_counter--;
+        if (booz2_autopilot_motors_on_counter == 0)
+          booz2_autopilot_motors_on = FALSE;
+      }
+    }
+    else { /* sticks not in the corner */
+      booz2_autopilot_motors_on_counter = BOOZ2_AUTOPILOT_MOTOR_ON_TIME;
+    }
   }
+  else { /* motors off */
+    if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) {
+      if ( booz2_autopilot_motors_on_counter <  BOOZ2_AUTOPILOT_MOTOR_ON_TIME) {
+        booz2_autopilot_motors_on_counter++;
+        if (booz2_autopilot_motors_on_counter == BOOZ2_AUTOPILOT_MOTOR_ON_TIME)
+          booz2_autopilot_motors_on = TRUE;
+      }
+    }
+    else {
+      booz2_autopilot_motors_on_counter = 0;
+    }
+  }
+}
 
 
 
@@ -243,8 +243,8 @@ void booz2_autopilot_on_rc_frame(void) {
     booz2_autopilot_set_mode(BOOZ2_AP_MODE_KILL);
 #endif
 
-  BOOZ2_AUTOPILOT_CHECK_MOTORS_ON();
-  BOOZ2_AUTOPILOT_CHECK_IN_FLIGHT();
+  booz2_autopilot_check_motors_on();
+  booz2_autopilot_check_in_flight();
   kill_throttle = !booz2_autopilot_motors_on;
 
   if (booz2_autopilot_mode > BOOZ2_AP_MODE_FAILSAFE) {
