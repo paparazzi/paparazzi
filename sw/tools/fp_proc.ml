@@ -192,7 +192,11 @@ let append_pc_data = fun tag new_data xml ->
 
 
 let parse_include = fun dir flight_plan include_xml ->
-  let f = Filename.concat dir (ExtXml.attrib include_xml "procedure") in
+  let f = 
+    let procedure = ExtXml.attrib include_xml "procedure" in
+    try Ocaml_tools.find_file [dir; Env.flight_plans_path] procedure with
+      Not_found ->
+	failwith (sprintf "parse_include: %s not found\n" procedure) in
   let proc_name = ExtXml.attrib include_xml "name" in
   let prefix = fun x -> proc_name ^ "." ^ x in
 
