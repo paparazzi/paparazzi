@@ -14,6 +14,7 @@
   </waypoints>
 
   <includes>
+    <include name="Safety" procedure="EMAV2009_data.xml"/>
     <include name="Safety" procedure="EMAV2009_safety.xml"/>
     <include name="L" procedure="landing.xml"/>
   </includes>
