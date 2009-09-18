@@ -2,7 +2,7 @@
 
 <procedure>
   <waypoints>
-    <waypoint lat="52.38252048723831" lon="5.897420494955952" name="_CENTER" alt="100"/>
+    <waypoint lat="52.38252048723831" lon="5.897420494955952" name="_CENTER" alt="120"/>
     <waypoint lat="52.39223341391188" lon="5.891920215186895" name="_G1"/>
     <waypoint lat="52.38457192890880" lon="5.905759083500732" name="_G2"/>
     <waypoint lat="52.37522867761314" lon="5.891055906501672" name="_G3"/>
@@ -15,12 +15,13 @@
     <waypoint lat="52.38741511939426" lon="5.896820110526804" name="_S2"/>
     <waypoint lat="52.38344448233852" lon="5.895558989657886" name="_S3"/>
     <waypoint lat="52.38442017389706" lon="5.887661800773984" name="_S4"/>
-    <waypoint lat="52.38117866835545" lon="5.897949813109249" name="E1"/>
-    <waypoint lat="52.38219156830098" lon="5.890795873256735" name="E2"/>
-    <waypoint name="BALLOON" x="27.1" y="41.9"/>
-    <waypoint name="ARCH" x="6.5" y="33.2"/>
-    <waypoint name="DROP_RED" x="-14.5" y="28.3"/>
-    <waypoint name="DROP_BLUE" x="-23.5" y="-0.6"/>
+    <waypoint lat="52.38050" lon="5.89706" name="E1"/>
+    <waypoint lat="52.38232" lon="5.89032" name="E2"/>
+    <waypoint name="ARCH" lat="52.38223" lon="5.90066"/>
+    <waypoint name="A1" lat="52.38223" lon="5.90030"/>
+    <waypoint name="A2" lat="52.38223" lon="5.90098"/>
+    <waypoint name="DROP_RED" lat="52.38242" lon="5.90074"/>
+    <waypoint name="DROP_BLUE" lat="52.38191" lon="5.90048"/>
   </waypoints>
 
   <sectors>
