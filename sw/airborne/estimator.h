@@ -78,6 +78,12 @@ extern void alt_kalman_init( void );
 extern void alt_kalman( float );
 #endif
 
+
+#define GetPosX() (estimator_x)
+#define GetPosY() (estimator_y)
+#define GetPosAlt() (estimator_z)
+
+
 #ifdef ALT_KALMAN
 #define EstimatorSetPosXY(x, y) { estimator_x = x; estimator_y = y; }
 
