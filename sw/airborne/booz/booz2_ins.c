@@ -84,8 +84,16 @@ struct EnuCoor_i booz_ins_enu_accel;
 void booz_ins_init() {
 #ifdef USE_INS_NAV_INIT
   booz_ins_ltp_initialised  = TRUE;
+
+  /** FIXME: should use the same code than MOVE_WP in booz2_datalink.c */
+  struct LlaCoor_i llh; /* Height above the ellipsoid */
+  llh.lat = INT32_RAD_OF_DEG(NAV_LAT0);
+  llh.lon = INT32_RAD_OF_DEG(NAV_LON0);
+  llh.alt = NAV_ALT0 - booz_ins_ltp_def.hmsl + booz_ins_ltp_def.lla.alt;
+
   struct EcefCoor_i nav_init;
-  VECT3_ASSIGN(nav_init,NAV_ECEF_X0,NAV_ECEF_Y0,NAV_ECEF_Z0);
+  ecef_of_lla_i(&nav_init, &llh);
+
   ltp_def_from_ecef_i(&booz_ins_ltp_def, &nav_init);
 #else
   booz_ins_ltp_initialised  = FALSE;
