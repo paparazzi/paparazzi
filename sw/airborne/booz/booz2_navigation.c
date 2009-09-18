@@ -244,6 +244,10 @@ unit_t nav_reset_reference( void ) {
 
 unit_t nav_reset_alt( void ) {
   booz_ins_vff_realign = TRUE;
+
+  booz_ins_ltp_def.lla.alt = booz_gps_state.lla_pos.alt;
+  booz_ins_ltp_def.hmsl = booz_gps_state.hmsl;
+
   return 0;
 }
 
