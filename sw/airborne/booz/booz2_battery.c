@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,13 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "booz2_battery.h"
 
 uint8_t booz2_battery_voltage;
 
-extern void booz2_battery_init(void) {
+void booz2_battery_init(void) {
   booz2_battery_voltage = 0;
 }

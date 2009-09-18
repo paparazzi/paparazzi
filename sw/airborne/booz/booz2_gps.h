@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #ifndef BOOZ2_GPS_H
@@ -56,34 +56,36 @@ extern bool_t booz_gps_available;
 #define GPS_LINKChAvailable() (FALSE)
 #define GPS_LINKGetch() (TRUE)
 #include "nps_sensors.h"
-#define booz_gps_feed_value() {					\
-    booz_gps_state.ecef_pos.x = sensors.gps.ecef_pos.x * 100.;	\
-    booz_gps_state.ecef_pos.y = sensors.gps.ecef_pos.y * 100.;	\
-    booz_gps_state.ecef_pos.z = sensors.gps.ecef_pos.z * 100.;	\
-    booz_gps_state.ecef_vel.x = sensors.gps.ecef_vel.x * 100.;	\
-    booz_gps_state.ecef_vel.y = sensors.gps.ecef_vel.y * 100.;	\
-    booz_gps_state.ecef_vel.z = sensors.gps.ecef_vel.z * 100.;	\
-    booz_gps_state.fix = BOOZ2_GPS_FIX_3D;			\
-    booz_gps_available = TRUE;					\
-  }
-#define Booz2GpsEvent(_sol_available_callback) {	        \
-    if (booz_gps_available) {					\
-      _sol_available_callback();				\
-      booz_gps_available = FALSE;				\
-    }								\
+
+static inline void  booz_gps_feed_value() {
+  booz_gps_state.ecef_pos.x = sensors.gps.ecef_pos.x * 100.;
+  booz_gps_state.ecef_pos.y = sensors.gps.ecef_pos.y * 100.;
+  booz_gps_state.ecef_pos.z = sensors.gps.ecef_pos.z * 100.;
+  booz_gps_state.ecef_vel.x = sensors.gps.ecef_vel.x * 100.;
+  booz_gps_state.ecef_vel.y = sensors.gps.ecef_vel.y * 100.;
+  booz_gps_state.ecef_vel.z = sensors.gps.ecef_vel.z * 100.;
+  booz_gps_state.fix = BOOZ2_GPS_FIX_3D;
+  booz_gps_available = TRUE;
+}
+
+#define Booz2GpsEvent(_sol_available_callback) {    \
+    if (booz_gps_available) {                       \
+      _sol_available_callback();                    \
+      booz_gps_available = FALSE;                   \
+    }                                               \
   }
 #else /* ! SITL */
-#define Booz2GpsEvent(_sol_available_callback) {			\
-    if (GpsBuffer()) {							\
-      ReadGpsBuffer();							\
-    }									\
-    if (ubx_msg_available) {						\
-      booz2_gps_read_ubx_message();					\
+#define Booz2GpsEvent(_sol_available_callback) {                    \
+    if (GpsBuffer()) {                                              \
+      ReadGpsBuffer();                                              \
+    }                                                               \
+    if (ubx_msg_available) {                                        \
+      booz2_gps_read_ubx_message();                                 \
       if (ubx_class == UBX_NAV_ID && ubx_id == UBX_NAV_SOL_ID) {	\
-	_sol_available_callback();					\
-      }									\
-      ubx_msg_available = FALSE;					\
-    }									\
+        _sol_available_callback();                                  \
+      }                                                             \
+      ubx_msg_available = FALSE;                                    \
+    }                                                               \
   }
 #endif
 
@@ -96,9 +98,9 @@ extern void booz2_gps_read_ubx_message(void);
 #define GpsLink(_x) _GpsLink(GPS_LINK, _x)
 
 #define GpsBuffer() GpsLink(ChAvailable())
-#define ReadGpsBuffer() {				\
-    while (GpsLink(ChAvailable())&&!ubx_msg_available)	\
-      ubx_parse(GpsLink(Getch()));			\
+#define ReadGpsBuffer() {                          \
+    while (GpsLink(ChAvailable())&&!ubx_msg_available)  \
+      ubx_parse(GpsLink(Getch()));                      \
   }
 
 /* UBX parsing - copied from gps_ubx.c */

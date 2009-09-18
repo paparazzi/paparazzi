@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,15 +18,18 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #ifndef BOOZ2_ANALOG_HW_H
 #define BOOZ2_ANALOG_HW_H
 
 #include "LPC21xx.h"
+#include "std.h"
 
-#define Booz2AnalogSetDAC(x) {  DACR = x << 6; }
+static inline void Booz2AnalogSetDAC(uint16_t x) {
+  DACR = x << 6;
+}
 
 extern void booz2_analog_init_hw(void);
 

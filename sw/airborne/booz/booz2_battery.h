@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #ifndef BOOZ2_BATTERY_H
@@ -31,11 +31,11 @@
 /* decivolts */
 extern uint8_t booz2_battery_voltage;
 
-#define Booz2BatteryISRHandler(_val) {					\
-    uint32_t cal_v = (uint32_t)(_val) * BATTERY_SENS_NUM / BATTERY_SENS_DEN; \
-    uint32_t sum = (uint32_t)booz2_battery_voltage + cal_v;		\
-    booz2_battery_voltage = (uint8_t)(sum/2);				\
-  }
+static inline void Booz2BatteryISRHandler(uint16_t _val) {
+  uint32_t cal_v = (uint32_t)(_val) * BATTERY_SENS_NUM / BATTERY_SENS_DEN;
+  uint32_t sum = (uint32_t)booz2_battery_voltage + cal_v;
+  booz2_battery_voltage = (uint8_t)(sum/2);
+}
 
 
 extern void booz2_battery_init(void);

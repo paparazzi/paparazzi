@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #ifndef BOOZ2_ANALOG_BARO_H
@@ -42,27 +42,27 @@ extern bool_t   booz2_analog_baro_data_available;
 
 extern void booz2_analog_baro_calibrate(void);
 
-#define Booz2AnalogBaroEvent(_handler) {	\
-    if (booz2_analog_baro_data_available) {	\
-      _handler();				\
+#define Booz2AnalogBaroEvent(_handler) {        \
+    if (booz2_analog_baro_data_available) {     \
+      _handler();                               \
       booz2_analog_baro_data_available = FALSE;	\
-    }						\
+    }                                           \
   }
 
-#define booz2_analog_baro_SetOffset(_o) {	\
-    booz2_analog_baro_offset = _o;		\
-    Booz2AnalogSetDAC(((uint16_t)_o));	\
-  }						
+static inline void booz2_analog_baro_SetOffset(uint16_t _o) {
+  booz2_analog_baro_offset = _o;
+  Booz2AnalogSetDAC(_o);
+}
 
-#define Booz2BaroISRHandler(_val) {					\
-    booz2_analog_baro_value = _val;					\
-    booz2_analog_baro_value_filtered = (3*booz2_analog_baro_value_filtered + booz2_analog_baro_value)/4; \
-    if (booz2_analog_baro_status == BOOZ2_ANALOG_BARO_UNINIT) {		\
-      RunOnceEvery(10, { booz2_analog_baro_calibrate();});		\
-    }									\
-    /*  else */								\
-    booz2_analog_baro_data_available = TRUE;				\
+static inline void Booz2BaroISRHandler(uint16_t _val) {
+  booz2_analog_baro_value = _val;
+  booz2_analog_baro_value_filtered = (3*booz2_analog_baro_value_filtered + booz2_analog_baro_value)/4;
+  if (booz2_analog_baro_status == BOOZ2_ANALOG_BARO_UNINIT) {
+    RunOnceEvery(10, { booz2_analog_baro_calibrate();});
   }
+  /*  else */
+  booz2_analog_baro_data_available = TRUE;
+}
 
 
 #endif /* BOOZ2_ANALOG_BARO_H */
