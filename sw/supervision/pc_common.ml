@@ -60,6 +60,16 @@ let run_and_log = fun log com ->
   let io_watch_out = Glib.Io.add_watch [`IN; `HUP] cb channel_out in
   pid, channel_out, com_stdout, io_watch_out
 
+let strip_prefix = fun dir file ->
+  let n = String.length dir in
+  if not (String.length file > n && String.sub file 0 n = dir) then begin
+    let msg = sprintf "Selected file '%s' should be in '%s'" file dir in
+    GToolbox.message_box ~title:"Error" msg;
+    raise Exit
+  end else
+    String.sub file (n+1) (String.length file - n - 1)
+    
+
 let choose_xml_file = fun ?(multiple = false) title subdir cb ->
   let dir = conf_dir // subdir in
   let dialog = GWindow.file_chooser_dialog ~action:`OPEN ~title () in
@@ -72,10 +82,10 @@ let choose_xml_file = fun ?(multiple = false) title subdir cb ->
   | `OPEN, _ when multiple ->
       let names = dialog#get_filenames in
       dialog#destroy ();
-      cb (List.map Filename.basename names)
+      cb (List.map (fun f -> subdir // strip_prefix dir f) names)
   | `OPEN, Some name ->
       dialog#destroy ();
-      cb [Filename.basename name]
+      cb [subdir // strip_prefix dir name]
   | _ -> dialog#destroy ()
   end
 

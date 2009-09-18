@@ -98,11 +98,11 @@ let gcs_or_edit = fun file ->
   | _ -> failwith "Internal error: gcs_or_edit"
     
 let ac_files = fun gui ->
-  ["airframe", gui#label_airframe, gui#button_browse_airframe, gui#button_edit_airframe, edit, false;
-   "flight_plan", gui#label_flight_plan, gui#button_browse_flight_plan, gui#button_edit_flight_plan, gcs_or_edit, false;
-   "settings", gui#label_settings, gui#button_browse_settings, gui#button_edit_settings, edit, true;
-   "radio", gui#label_radio, gui#button_browse_radio, gui#button_edit_radio, edit, false;
-   "telemetry", gui#label_telemetry, gui#button_browse_telemetry, gui#button_edit_telemetry, edit, false]
+  ["airframe", "airframes", gui#label_airframe, gui#button_browse_airframe, gui#button_edit_airframe, edit, false;
+   "flight_plan", "flight_plans", gui#label_flight_plan, gui#button_browse_flight_plan, gui#button_edit_flight_plan, gcs_or_edit, false;
+   "settings", "settings", gui#label_settings, gui#button_browse_settings, gui#button_edit_settings, edit, true;
+   "radio", "radios", gui#label_radio, gui#button_browse_radio, gui#button_edit_radio, edit, false;
+   "telemetry", "telemetry", gui#label_telemetry, gui#button_browse_telemetry, gui#button_edit_telemetry, edit, false]
 
 
 (* Awful but easier *)
@@ -169,7 +169,7 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
       let value = fun a ->
 	try (ExtXml.attrib aircraft a) with _ -> Xml.attrib sample a in
       List.iter
-	(fun (a, label, _, _, _, _) -> label#set_text (value a))
+	(fun (a, _subdir, label, _, _, _, _) -> label#set_text (value a))
 	(ac_files gui);
 	let ac_id = ExtXml.attrib aircraft "ac_id"
 	and gui_color = ExtXml.attrib_or_default aircraft "gui_color" "white" in
@@ -241,7 +241,7 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
   ignore(gui#entry_ac_id#connect#changed ~callback:(fun () -> save_callback gui ac_combo ()));
   
   (* Conf *)
-  List.iter (fun (name, label, button_browse, button_edit, editor, multiple) ->
+  List.iter (fun (name, subdir, label, button_browse, button_edit, editor, multiple) ->
     let callback = fun _ ->
       let rel_files = Str.split regexp_space label#text in
       let abs_files = List.map (Filename.concat Utils.conf_dir) rel_files in
@@ -250,9 +250,7 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
       editor arg in
     ignore (button_edit#connect#clicked ~callback);
     let callback = fun _ ->
-      let subdir = Filename.dirname (first_word label#text) in
-      let cb = fun selected ->
-	let names = List.map (fun name -> subdir//name) selected in
+      let cb = fun names ->
 	let names = String.concat " " names in
 	label#set_text names;
 	save_callback gui ac_combo ()
