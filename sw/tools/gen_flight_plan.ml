@@ -118,25 +118,15 @@ let print_waypoint = fun default_alt waypoint ->
   check_altitude (float_of_string alt) waypoint;
   printf " {%.1f, %.1f, %s},\\\n" x y alt
 
-(*
-let print_waypoint_int32 = fun default_alt waypoint ->
-  let (x, y) = (float_attrib waypoint "x", float_attrib waypoint "y")
-  and alt = float_of_string (try Xml.attrib waypoint "alt" with _ -> default_alt) in
-  let pow8 = 2. ** 8. in
-  let x_int = truncate (x *. pow8) and
-  y_int = truncate (y *. pow8) and
-  alt_int = truncate (alt *. pow8) in
-  printf " {%d, %d, %d},\\\n" x_int y_int alt_int
-*)
-
 let convert_angle = fun rad -> truncate (1e7 *. (Rad>>Deg)rad)
-(*
-let print_waypoint_latlong = fun utm0 default_alt waypoint ->
-  let (x, y) = (float_attrib waypoint "x", float_attrib waypoint "y")
+
+let print_waypoint_lla = fun utm0 default_alt waypoint ->
+  let x = float_attrib waypoint "x"
+  and y = float_attrib waypoint "y"
   and alt = try Xml.attrib waypoint "alt" with _ -> default_alt in
   let wgs84 = Latlong.of_utm Latlong.WGS84 (Latlong.utm_add utm0 (x, y)) in
-  printf " {%d, %d, %.0f},\\\n" (convert_angle wgs84.posn_lat) (convert_angle wgs84.posn_long) (100. *. float_of_string alt)
-*)
+  printf " {%d, %d, %.0f}, /* 1e7deg, 1e7deg, cm */ \\\n" (convert_angle wgs84.posn_lat) (convert_angle wgs84.posn_long) (100. *. float_of_string alt)
+
 
 let index_of_blocks = ref []
 
@@ -760,14 +750,9 @@ let () =
       Xml2h.define "NAV_UTM_EAST0" (sprintf "%.0f" utm0.utm_x);
       Xml2h.define "NAV_UTM_NORTH0" (sprintf "%.0f" utm0.utm_y);
       Xml2h.define "NAV_UTM_ZONE0" (sprintf "%d" utm0.utm_zone);
-      Xml2h.define "NAV_LAT0" (sprintf "%d" (convert_angle wgs84.posn_lat));
-      Xml2h.define "NAV_LON0" (sprintf "%d" (convert_angle wgs84.posn_long));
-
-      let ecef0 = Latlong.ecef_of_geo Latlong.WGS84 wgs84 !ground_alt in
-      let ecef0 = Latlong.array_of_ecef ecef0 in
-      Xml2h.define "NAV_ECEF_X0" (sprintf "%.0f" (cm ecef0.(0)));
-      Xml2h.define "NAV_ECEF_Y0" (sprintf "%.0f" (cm ecef0.(1)));
-      Xml2h.define "NAV_ECEF_Z0" (sprintf "%.0f" (cm ecef0.(2)));
+      Xml2h.define "NAV_LAT0" (sprintf "%d /* 1e7deg */" (convert_angle wgs84.posn_lat));
+      Xml2h.define "NAV_LON0" (sprintf "%d /* 1e7deg */" (convert_angle wgs84.posn_long));
+      Xml2h.define "NAV_ALT0" (sprintf "%.0f /* cm hmsl */" (100. *. !ground_alt));
 
       Xml2h.define "QFU" (sprintf "%.1f" qfu);
       
@@ -780,9 +765,9 @@ let () =
       Xml2h.define "WAYPOINTS" "{ \\";
       List.iter (print_waypoint alt) waypoints;
       lprintf "};\n";
-      (*Xml2h.define "WAYPOINTS_INT32" "{ \\";
-      List.iter (print_waypoint_int32 alt) waypoints;
-      lprintf "};\n";*)
+      Xml2h.define "WAYPOINTS_LLA" "{ \\";
+      List.iter (print_waypoint_lla utm0 alt) waypoints;
+      lprintf "};\n";
       Xml2h.define "NB_WAYPOINT" (string_of_int (List.length waypoints));
 
       Xml2h.define "NB_BLOCK" (string_of_int (List.length blocks));
