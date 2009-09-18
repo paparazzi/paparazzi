@@ -42,6 +42,8 @@
 #define IdOfMsg(x) (x[1])
 
 void dl_parse_msg(void) {
+  datalink_time = 0;
+
   uint8_t msg_id = IdOfMsg(dl_buffer);
   switch (msg_id) {
 
