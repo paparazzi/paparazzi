@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #define B2_GUIDANCE_V_C
@@ -106,18 +106,18 @@ void booz2_guidance_v_read_rc(void) {
   booz2_guidance_v_rc_zd_sp   = ((MAX_PPRZ/2) - (int32_t)radio_control.values[RADIO_CONTROL_THROTTLE]) *
                                 BOOZ2_GUIDANCE_V_RC_CLIMB_COEF;
   DeadBand(booz2_guidance_v_rc_zd_sp, BOOZ2_GUIDANCE_V_RC_CLIMB_DEAD_BAND);
-  
+
 }
 
 void booz2_guidance_v_mode_changed(uint8_t new_mode) {
-  
+
   if (new_mode == booz2_guidance_v_mode)
     return;
 
   //  switch ( booz2_guidance_v_mode ) {
-  //  
+  //
   //  }
-   
+
   switch (new_mode) {
 
   case BOOZ2_GUIDANCE_V_MODE_RC_CLIMB:
@@ -130,7 +130,7 @@ void booz2_guidance_v_mode_changed(uint8_t new_mode) {
 
   }
 
-  
+
   booz2_guidance_v_mode = new_mode;
 
 }
@@ -154,7 +154,7 @@ void booz2_guidance_v_run(bool_t in_flight) {
     // reset vertical filter until takeoff
     //booz_ins_vff_realign = TRUE;
   }
-		
+
   switch (booz2_guidance_v_mode) {
 
   case BOOZ2_GUIDANCE_V_MODE_RC_DIRECT:
@@ -248,10 +248,10 @@ static inline void run_hover_loop(bool_t in_flight) {
 #else
   const int32_t inv_m =  b2_gv_adapt_X>>(B2_GV_ADAPT_X_FRAC - FF_CMD_FRAC);
 #endif
-  const int32_t g_m_zdd = (int32_t)BFP_OF_REAL(9.81, FF_CMD_FRAC) - 
+  const int32_t g_m_zdd = (int32_t)BFP_OF_REAL(9.81, FF_CMD_FRAC) -
                           (booz2_guidance_v_zdd_ref<<(FF_CMD_FRAC - INT32_ACCEL_FRAC));
 #if 0
-  if (g_m_zdd > 0) 
+  if (g_m_zdd > 0)
     booz2_guidance_v_ff_cmd = ( g_m_zdd + (inv_m>>1)) / inv_m;
   else
     booz2_guidance_v_ff_cmd = ( g_m_zdd - (inv_m>>1)) / inv_m;
@@ -259,9 +259,9 @@ static inline void run_hover_loop(bool_t in_flight) {
   booz2_guidance_v_ff_cmd = g_m_zdd / inv_m;
 #endif
   //  booz2_guidance_v_ff_cmd = BOOZ2_GUIDANCE_V_HOVER_POWER;
-  
+
   /* our error command                   */
-  booz2_guidance_v_fb_cmd = ((-booz2_guidance_v_kp * err_z)  >> 12) + 
+  booz2_guidance_v_fb_cmd = ((-booz2_guidance_v_kp * err_z)  >> 12) +
                             ((-booz2_guidance_v_kd * err_zd) >> 21) +
                             ((-booz2_guidance_v_ki * booz2_guidance_v_z_sum_err) >> 21);
 

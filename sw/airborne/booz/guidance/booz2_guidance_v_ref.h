@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #ifndef BOOZ2_GUIDANCE_V_REF_H
@@ -85,7 +85,7 @@ extern int64_t b2_gv_z_ref;
 /* first order time constant */
 #define B2_GV_REF_THAU_F  0.25
 #define B2_GV_REF_INV_THAU_FRAC 16
-#define B2_GV_REF_INV_THAU  BFP_OF_REAL((1./0.25), B2_GV_REF_INV_THAU_FRAC) 
+#define B2_GV_REF_INV_THAU  BFP_OF_REAL((1./0.25), B2_GV_REF_INV_THAU_FRAC)
 
 #ifdef B2_GUIDANCE_V_C
 static inline void b2_gv_set_ref(int32_t alt, int32_t speed, int32_t accel);
@@ -107,7 +107,7 @@ static inline void b2_gv_update_ref_from_z_sp(int32_t z_sp) {
 
   b2_gv_z_ref  += b2_gv_zd_ref;
   b2_gv_zd_ref += b2_gv_zdd_ref;
-  
+
   // compute the "speed part" of zdd = -2*zeta*omega*zd -omega^2(z_sp - z)
   int32_t zd_zdd_res = b2_gv_zd_ref>>(B2_GV_ZD_REF_FRAC - B2_GV_ZDD_REF_FRAC);
   int32_t zdd_speed = ((int32_t)(-2*B2_GV_ZETA_OMEGA)*zd_zdd_res)>>(B2_GV_ZETA_OMEGA_FRAC);
@@ -120,7 +120,7 @@ static inline void b2_gv_update_ref_from_z_sp(int32_t z_sp) {
 
   /* Saturate accelerations */
   Bound(b2_gv_zdd_ref, B2_GV_MIN_ZDD, B2_GV_MAX_ZDD);
-  
+
   /* Saturate speed and adjust acceleration accordingly */
   if (b2_gv_zd_ref <= B2_GV_MIN_ZD) {
     b2_gv_zd_ref = B2_GV_MIN_ZD;
@@ -146,7 +146,7 @@ static inline void b2_gv_update_ref_from_zd_sp(int32_t zd_sp) {
 
   /* Saturate accelerations */
   Bound(b2_gv_zdd_ref, B2_GV_MIN_ZDD, B2_GV_MAX_ZDD);
-  
+
   /* Saturate speed and adjust acceleration accordingly */
   if (b2_gv_zd_ref <= B2_GV_MIN_ZD) {
     b2_gv_zd_ref = B2_GV_MIN_ZD;

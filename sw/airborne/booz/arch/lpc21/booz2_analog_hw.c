@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "booz2_analog.h"
@@ -50,8 +50,8 @@ void booz2_analog_init_hw( void ) {
   AD0CR |= 4 << 24;
 
 
- /* clear match 1 */                                     
-  T0EMR &= ~TEMR_EM1;                                   
+ /* clear match 1 */
+  T0EMR &= ~TEMR_EM1;
   /* set high on match 1 */
   T0EMR |= TEMR_EMC1_2;
   /* first match in a while */
@@ -74,8 +74,8 @@ void booz2_analog_init_hw( void ) {
   AD1CR |= 5 << 24;
 
 
-  /* clear match 2 */                                     
-  T0EMR &= ~TEMR_EM3;                                   
+  /* clear match 2 */
+  T0EMR &= ~TEMR_EM3;
   /* set high on match 2 */
   T0EMR |= TEMR_EMC3_2;
   /* first match in a while */
@@ -94,7 +94,7 @@ void ADC0_ISR ( void ) {
   /* trigger next convertion */
   T0MR1 += BOOZ2_ANALOG_BATTERY_PERIOD;
   /* lower clock         */
-  T0EMR &= ~TEMR_EM1;   
+  T0EMR &= ~TEMR_EM1;
   VICVectAddr = 0x00000000;                 // clear this interrupt from the VIC
   ISR_EXIT();                               // recover registers and return
 }
@@ -107,7 +107,7 @@ void ADC1_ISR ( void ) {
   /* trigger next convertion */
   T0MR3 += BOOZ2_ANALOG_BARO_PERIOD;
   /* lower clock         */
-  T0EMR &= ~TEMR_EM3;   
+  T0EMR &= ~TEMR_EM3;
   VICVectAddr = 0x00000000;                 // clear this interrupt from the VIC
   ISR_EXIT();                               // recover registers and return
 }

@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #define DATALINK_C
@@ -44,13 +44,13 @@
 void dl_parse_msg(void) {
   uint8_t msg_id = IdOfMsg(dl_buffer);
   switch (msg_id) {
-  
+
   case  DL_PING:
     {
       DOWNLINK_SEND_PONG(DefaultChannel);
     }
     break;
-    
+
   case DL_SETTING :
     {
       if (DL_SETTING_ac_id(dl_buffer) != AC_ID) break;

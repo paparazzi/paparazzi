@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "booz2_guidance_h.h"
@@ -92,13 +92,13 @@ void booz2_guidance_h_mode_changed(uint8_t new_mode) {
 	//	booz_stabilization_rate_exit();
 	//	break;
   }
-   
+
   switch (new_mode) {
 
   case BOOZ2_GUIDANCE_H_MODE_ATTITUDE:
     booz_stabilization_attitude_enter();
     break;
-    
+
   case BOOZ2_GUIDANCE_H_MODE_HOVER:
     booz2_guidance_h_hover_enter();
     break;
@@ -110,17 +110,17 @@ void booz2_guidance_h_mode_changed(uint8_t new_mode) {
   }
 
   booz2_guidance_h_mode = new_mode;
-  
+
 }
 
 void booz2_guidance_h_read_rc(bool_t  in_flight) {
-  
+
   switch ( booz2_guidance_h_mode ) {
 
   case BOOZ2_GUIDANCE_H_MODE_RATE:
     booz_stabilization_rate_read_rc();
     break;
-    
+
   case BOOZ2_GUIDANCE_H_MODE_ATTITUDE:
     booz_stabilization_attitude_read_rc(in_flight);
 #ifdef USE_FMS
@@ -128,7 +128,7 @@ void booz2_guidance_h_read_rc(bool_t  in_flight) {
       BOOZ_STABILIZATION_ATTITUDE_ADD_SP(fms.input.h_sp.attitude);
 #endif
     break;
-  
+
   case BOOZ2_GUIDANCE_H_MODE_HOVER:
 #ifdef USE_FMS
     if (fms.enabled && fms.input.h_mode >= BOOZ2_GUIDANCE_H_MODE_HOVER)
@@ -136,7 +136,7 @@ void booz2_guidance_h_read_rc(bool_t  in_flight) {
 #endif
     BOOZ_STABILIZATION_ATTITUDE_READ_RC(booz2_guidance_h_rc_sp, in_flight);
     break;
-  
+
   case BOOZ2_GUIDANCE_H_MODE_NAV:
     if (radio_control.status == RADIO_CONTROL_OK) {
       BOOZ_STABILIZATION_ATTITUDE_READ_RC(booz2_guidance_h_rc_sp, in_flight);
@@ -161,12 +161,12 @@ void booz2_guidance_h_run(bool_t  in_flight) {
   case BOOZ2_GUIDANCE_H_MODE_ATTITUDE:
     booz_stabilization_attitude_run(in_flight);
     break;
-    
+
   case BOOZ2_GUIDANCE_H_MODE_HOVER:
     booz2_guidance_h_hover_run();
     booz_stabilization_attitude_run(in_flight);
     break;
-    
+
   case BOOZ2_GUIDANCE_H_MODE_NAV:
     {
       if (!in_flight) booz2_guidance_h_nav_enter();
@@ -188,7 +188,7 @@ void booz2_guidance_h_run(bool_t  in_flight) {
       booz_stabilization_attitude_run(in_flight);
       break;
     }
-    
+
   }
 
 
@@ -214,34 +214,34 @@ static inline void  booz2_guidance_h_hover_run(void) {
   VECT2_COPY(booz2_guidance_h_speed_err, booz_ins_ltp_speed);
   /* saturate it               */
   VECT2_STRIM(booz2_guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
-  
+
   /* update pos error integral */
   VECT2_ADD(booz2_guidance_h_pos_err_sum, booz2_guidance_h_pos_err);
   /* saturate it               */
   VECT2_STRIM(booz2_guidance_h_pos_err_sum, -MAX_POS_ERR_SUM, MAX_POS_ERR_SUM);
-		    
+
   /* run PID */
   // cmd_earth < 15.17
   booz2_guidance_h_command_earth.x = (booz2_guidance_h_pgain<<1)  * booz2_guidance_h_pos_err.x +
                                      booz2_guidance_h_dgain * (booz2_guidance_h_speed_err.x>>9) +
-                                      booz2_guidance_h_igain * (booz2_guidance_h_pos_err_sum.x >> 12); 
+                                      booz2_guidance_h_igain * (booz2_guidance_h_pos_err_sum.x >> 12);
   booz2_guidance_h_command_earth.y = (booz2_guidance_h_pgain<<1)  * booz2_guidance_h_pos_err.y +
                                      booz2_guidance_h_dgain *( booz2_guidance_h_speed_err.y>>9) +
-		                      booz2_guidance_h_igain * (booz2_guidance_h_pos_err_sum.y >> 12); 
+		                      booz2_guidance_h_igain * (booz2_guidance_h_pos_err_sum.y >> 12);
 
   VECT2_STRIM(booz2_guidance_h_command_earth, -MAX_BANK, MAX_BANK);
 
   /* Rotate to body frame */
   int32_t s_psi, c_psi;
-  PPRZ_ITRIG_SIN(s_psi, booz_ahrs.ltp_to_body_euler.psi);	
-  PPRZ_ITRIG_COS(c_psi, booz_ahrs.ltp_to_body_euler.psi);	
+  PPRZ_ITRIG_SIN(s_psi, booz_ahrs.ltp_to_body_euler.psi);
+  PPRZ_ITRIG_COS(c_psi, booz_ahrs.ltp_to_body_euler.psi);
 
 
   // INT32_TRIG_FRAC - 2: 100mm erreur, gain 100 -> 10000 command | 2 degres = 36000, so multiply by 4
-  booz2_guidance_h_command_body.phi = 
+  booz2_guidance_h_command_body.phi =
       ( - s_psi * booz2_guidance_h_command_earth.x + c_psi * booz2_guidance_h_command_earth.y)
     >> (INT32_TRIG_FRAC - 2);
-  booz2_guidance_h_command_body.theta = 
+  booz2_guidance_h_command_body.theta =
     - ( c_psi * booz2_guidance_h_command_earth.x + s_psi * booz2_guidance_h_command_earth.y)
     >> (INT32_TRIG_FRAC - 2);
 
@@ -272,7 +272,7 @@ static inline void  booz2_guidance_h_nav_run(bool_t in_flight) {
   VECT2_COPY(booz2_guidance_h_speed_err, booz_ins_ltp_speed);
   /* saturate it               */
   VECT2_STRIM(booz2_guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
-  
+
   int32_t dist;
   INT32_VECT2_NORM(dist, booz2_guidance_h_pos_err);
   if ( dist < HOLD_DISTANCE ) { // Hold position
@@ -318,13 +318,13 @@ static inline void  booz2_guidance_h_nav_run(bool_t in_flight) {
 
   /* Rotate to body frame */
   int32_t s_psi, c_psi;
-  PPRZ_ITRIG_SIN(s_psi, booz_ahrs.ltp_to_body_euler.psi);	
-  PPRZ_ITRIG_COS(c_psi, booz_ahrs.ltp_to_body_euler.psi);	
+  PPRZ_ITRIG_SIN(s_psi, booz_ahrs.ltp_to_body_euler.psi);
+  PPRZ_ITRIG_COS(c_psi, booz_ahrs.ltp_to_body_euler.psi);
 
   // Restore angle ref resolution after rotation
-  booz2_guidance_h_command_body.phi = 
+  booz2_guidance_h_command_body.phi =
       ( - s_psi * booz2_guidance_h_command_earth.x + c_psi * booz2_guidance_h_command_earth.y) >> (INT32_TRIG_FRAC - (REF_ANGLE_FRAC - 16));
-  booz2_guidance_h_command_body.theta = 
+  booz2_guidance_h_command_body.theta =
     - ( c_psi * booz2_guidance_h_command_earth.x + s_psi * booz2_guidance_h_command_earth.y) >> (INT32_TRIG_FRAC - (REF_ANGLE_FRAC - 16));
 
   booz2_guidance_h_command_body.phi   += booz2_guidance_h_rc_sp.phi;

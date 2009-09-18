@@ -1,8 +1,8 @@
 /*
  * $Id$
  *
- * Copyright (C) 2009 Pascal Brisset <pascal.brisset@gmail.com>, 
- *                    Antoine Drouin <poinix@gmail.com>, 
+ * Copyright (C) 2009 Pascal Brisset <pascal.brisset@gmail.com>,
+ *                    Antoine Drouin <poinix@gmail.com>,
  *                    Gautier Hattenberger <gautier.hattenberger@laas.fr>
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *
  * Adaptation bloc of the vertical guidance
@@ -39,14 +39,14 @@ extern int32_t b2_gv_adapt_Xmeas;
 
 #ifdef B2_GUIDANCE_V_C
 
-/* Our State 
-   Q13.18 
+/* Our State
+   Q13.18
 */
 int32_t b2_gv_adapt_X;
 #define B2_GV_ADAPT_X_FRAC 18
 
 /* Our covariance
-   Q13.18 
+   Q13.18
 */
 int32_t b2_gv_adapt_P;
 #define B2_GV_ADAPT_P_FRAC 18
@@ -67,7 +67,7 @@ int32_t b2_gv_adapt_Xmeas;
 
 #ifndef USE_ADAPT_HOVER
 
-#define B2_GV_ADAPT_MEAS_NOISE_F 2.0                                                   
+#define B2_GV_ADAPT_MEAS_NOISE_F 2.0
 #define B2_GV_ADAPT_MEAS_NOISE_HOVER BFP_OF_REAL(B2_GV_ADAPT_MEAS_NOISE_HOVER_F, B2_GV_ADAPT_P_FRAC)
 
 #else /* USE_ADAPT_HOVER */
@@ -129,17 +129,17 @@ static inline void b2_gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied) {
   int32_t K = (b2_gv_adapt_P<<K_FRAC) / E;
   /* Update Covariance */
   b2_gv_adapt_P = b2_gv_adapt_P - ((K * b2_gv_adapt_P)>>K_FRAC);
-  /* Don't let covariance climb over initial value */ 
+  /* Don't let covariance climb over initial value */
   if (b2_gv_adapt_P > B2_GV_ADAPT_P0) b2_gv_adapt_P = B2_GV_ADAPT_P0;
   /* Update State */
   b2_gv_adapt_X = b2_gv_adapt_X + ((K * residual)>>K_FRAC);
-  /* Again don't let it climb over a value that would 
+  /* Again don't let it climb over a value that would
      give less than zero throttle and don't let it down to zero.
      30254 = MAX_ACCEL*B2_GV_ADAPT_X_FRAC/MAX_THROTTLE
      aka
      30254 = 3*9.81*2^8/255
      2571632 = 9.81*2^18
-  */ 
+  */
   Bound(b2_gv_adapt_X, 10000, 2571632);
 }
 
