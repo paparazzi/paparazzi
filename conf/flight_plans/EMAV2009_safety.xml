@@ -2,11 +2,11 @@
 
 <procedure>
   <exceptions>
-    <exception cond="Or(! InsideGreen(estimator_x, estimator_y), estimator_z > ground_alt + 150)" deroute="Center"/>
+    <exception cond="Or(! InsideGreen(GetPosX(), GetPosY()), GetPosAlt() > ground_alt + 150)" deroute="Center"/>
   </exceptions>
 
   <blocks>
-    <block name="Center" pre_call="if (And(!kill_throttle, !InsideRed(estimator_x, estimator_y))) kill_throttle=TRUE;">
+    <block name="Center" pre_call="if (!InsideRed(GetPosX(), GetPosY())) NavKillThrottle();">
       <circle wp="_CENTER" radius="DEFAULT_CIRCLE_RADIUS"/>
     </block>
   </blocks>
