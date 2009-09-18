@@ -184,13 +184,17 @@ STATIC_INLINE void booz2_main_periodic( void ) {
     {									\
       /*BoozControlSurfacesSetFromCommands();*/				\
     },									\
-    {},                                 \
+    { if (radio_control.status != RADIO_CONTROL_OK && booz2_autopilot_mode == BOOZ2_AP_MODE_NAV && GpsIsLost())    \
+	booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);               \
+    },                                                                  \
     {},									\
     {},									\
     {},									\
     {},									\
     {}									\
     );									\
+
+  booz_gps_periodic();
 
 #ifdef USE_CAM
   RunOnceEvery(50,booz2_cam_periodic());
@@ -205,7 +209,7 @@ STATIC_INLINE void booz2_main_periodic( void ) {
 #endif
 
   if (booz2_autopilot_in_flight) {
-    RunOnceEvery(512, { booz2_autopilot_flight_time++; });
+    RunOnceEvery(512, { booz2_autopilot_flight_time++; datalink_time++; });
   }
 
   //  t1 = T0TC;
