@@ -159,6 +159,5 @@ void b2_vff_update(float z_meas) {
 
 void b2_vff_realign(float z_meas) {
   b2_vff_z = z_meas;
+  b2_vff_zdot = 0;
 }
-
-
