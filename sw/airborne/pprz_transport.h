@@ -112,9 +112,13 @@ extern uint8_t ck_a, ck_b;
 }
 
 #define PprzTransportPutFloatArray(_n, _x) PprzTransportPutArray(PprzTransportPutFloatByAddr, _n, _x)
-#define PprzTransportPutInt16Array(_n, _x) PprzTransportPutArray(PprzTransportPutInt16ByAddr, _n, _x)
 
+#define PprzTransportPutInt16Array(_n, _x) PprzTransportPutArray(PprzTransportPutInt16ByAddr, _n, _x)
 #define PprzTransportPutUint16Array(_n, _x) PprzTransportPutArray(PprzTransportPutUint16ByAddr, _n, _x)
+
+#define PprzTransportPutInt32Array(_n, _x) PprzTransportPutArray(PprzTransportPutInt32ByAddr, _n, _x)
+#define PprzTransportPutUint32Array(_n, _x) PprzTransportPutArray(PprzTransportPutUint32ByAddr, _n, _x)
+
 #define PprzTransportPutUint8Array(_n, _x) PprzTransportPutArray(PprzTransportPutUint8ByAddr, _n, _x)
 
 
