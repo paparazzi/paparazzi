@@ -238,7 +238,11 @@ module Gen_onboard = struct
 	  incr offset;
 
 	  (** The macro to access to the array itself *)
-	  fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name (Syntax.assoc_types t).Pprz.inttype !offset;
+	  let pprz_type = Syntax.assoc_types t in
+	  if check_alignment && !offset mod pprz_type.Pprz.size <> 0 then
+	    failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
+	  
+	  fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name pprz_type.Pprz.inttype !offset;
 	  offset := -1 (** Mark for no more fields *)
     in
     
