@@ -14,8 +14,8 @@
 <!-- commands section -->
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1627" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1511" max="1900"/>
+    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1622" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1538" max="1900"/>
   </servos>
 
   <commands>
@@ -74,7 +74,7 @@
     <define name="IR2_SIGN" value="-1"/>
     <define name="TOP_SIGN" value="-1"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="3" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
   </section>
 
