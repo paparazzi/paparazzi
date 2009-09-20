@@ -197,3 +197,5 @@ val ecef_of_geo : geodesic -> geographic -> float -> ecef
 
 val geo_of_ecef : geodesic -> ecef -> geographic * float
 (** [geo_of_ecef ellipsoid geo ecef] Returns llh *)
+
+val wgs84_hmsl : geographic -> fmeter
