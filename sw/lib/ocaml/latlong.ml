@@ -24,6 +24,8 @@
  *
  *)
 
+let (//) = Filename.concat
+
 module C = struct
   include Complex
   let make x y = {re = x; im = y}
@@ -712,3 +714,32 @@ let wgs84_hmsl = fun geo ->
     (float geoid_data.(ilat1).(ilon2))
     (float geoid_data.(ilat2).(ilon1)) 
     (float geoid_data.(ilat2).(ilon2))
+
+
+
+let egm96_ncols = 1440
+let egm96_nrows = 721
+let egm96_data =
+  lazy (
+    let path = [Env.paparazzi_home // "data" // "srtm"] in
+    let f = Ocaml_tools.open_compress (Ocaml_tools.find_file path "WW15MGH.DAC") in
+    let n = egm96_ncols * egm96_nrows * 2 in
+    let buf = String.create n in
+    really_input f buf 0 n;
+    buf)
+
+
+(* http://earth-info.nima.mil/GandG/wgs84/gravitymod/egm96/binary/binarygeoid.html *)
+let egm96 = fun geo ->
+  let egm96_data = Lazy.force egm96_data in
+
+  let lat = truncate ((Rad>>Deg) (norm_angle geo.posn_lat))
+  and lon = truncate ((Rad>>Deg) (norm_angle geo.posn_long)) in
+  let ilat = (90-lat)*4      (* 15' == 4 entries per degree *)
+  and ilon = (lon+if lon < 0 then 360 else 0)*4 in
+
+  let i = (2*(ilat*egm96_ncols+ilon)) in
+
+  let x = Char.code egm96_data.[i] lsl 8 + Char.code egm96_data.[i+1] in
+
+  float ((x lsl 16) asr 16) /. 100.

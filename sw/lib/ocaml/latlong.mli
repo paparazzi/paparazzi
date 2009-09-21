@@ -199,3 +199,6 @@ val geo_of_ecef : geodesic -> ecef -> geographic * float
 (** [geo_of_ecef ellipsoid geo ecef] Returns llh *)
 
 val wgs84_hmsl : geographic -> fmeter
+
+val egm96 :  geographic -> fmeter
+(** Return geoid height from 15' precomputed file *)
