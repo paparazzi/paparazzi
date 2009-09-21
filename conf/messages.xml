@@ -1421,6 +1421,15 @@
       <field name="mag_z"    type="float" />
     </message>
 
+    <message name="GPS_ERROR" id="199">
+      <field name="x_position"    type="float" unit="m"/>
+      <field name="y_position"    type="float" unit="m"/>
+      <field name="z_position"    type="float" unit="m"/>
+      <field name="x_velocity"    type="float" unit="m"/>
+      <field name="y_velocity"    type="float" unit="m"/>
+      <field name="z_velocity"    type="float" unit="m"/>
+    </message>
+
 	<message name="BOOZ_INS" id="198">
 	  <field name="ins_x"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
 	  <field name="ins_y"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
@@ -1432,7 +1441,6 @@
       <field name="ins_ydd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
       <field name="ins_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
 	</message>
-
 </class>
 
 
