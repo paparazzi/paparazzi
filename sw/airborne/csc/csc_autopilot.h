@@ -28,6 +28,7 @@
 #include "types.h"
 #include "std.h"
 #include "math/pprz_algebra_float.h"
+#include "math/pprz_geodetic_int.h"
 
 struct control_gains {
   float pitch_kp;
@@ -45,6 +46,11 @@ struct control_reference {
   struct FloatEulers eulers;
   struct FloatRates rates;
   struct FloatEulers eulers_i;
+};
+
+struct gps_reference {
+  struct FloatVect3 pos;
+  struct FloatVect3 rate;
 };
 
 struct control_trims {
@@ -69,13 +75,18 @@ extern float csc_vane_filter_constant;
 extern float csc_drag_pitch;
 extern float csc_drag_yaw;
 
+extern struct gps_reference csc_gps_errors;
+extern int csc_gps_setzero;
+extern float csc_gps_weight;
+extern float csc_gps_gain;
+extern float csc_gps_filter_weight;
 
 void csc_autopilot_set_roll_ki(float ki);
 void csc_autopilot_set_pitch_ki(float ki);
 void csc_autopilot_set_yaw_ki(float ki);
 
 void csc_ap_init( void );
-void csc_ap_periodic (int time);
+void csc_ap_periodic (int time, struct NedCoor_i *ned_pos, struct NedCoor_i *ned_vel);
 void csc_ap_set_trims (void );
 void csc_ap_clear_ierrors (void );
 void csc_ap_update_gains(struct control_reference *errors, struct control_gains *gains);

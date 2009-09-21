@@ -37,6 +37,7 @@
 #include "pwm_input.h"
 #include "LPC21xx.h"
 #include "print.h"
+#include "booz/booz2_gps.h"
 
 struct control_gains csc_gains;
 struct control_reference csc_reference;
@@ -58,7 +59,19 @@ float csc_vane_filter_constant;
 float csc_drag_pitch = 0;
 float csc_drag_yaw = 0;
 
+static float csc_gps_zero_x = 0;
+static float csc_gps_zero_y = 0;
+struct gps_reference csc_gps_errors;
+int csc_gps_setzero = 0;
+float csc_gps_weight = 0;
+float csc_gps_gain = 0;
+float csc_gps_filter_weight = 0;
+
 #define PWM_INPUT_COUNTS_PER_REV 61358.
+
+#define BOOZ2_NED_METERS 0.00380625
+#define BOOZ2_NED_METERS_SEC 0.0000019073
+
 static void update_vane_angle( void )
 {
   csc_vane_angle =  (csc_vane_filter_constant * csc_vane_angle) + (1-csc_vane_filter_constant)*RadOfDeg( 360. * pwm_input_duration / PWM_INPUT_COUNTS_PER_REV) - RadOfDeg(csc_vane_angle_offset);
@@ -84,6 +97,10 @@ void csc_ap_init( void )
   csc_trims.aileron = -80;
   csc_trims.rudder = 80;
 
+  csc_gps_weight = 0;
+  csc_gps_gain = 1;
+  csc_gps_filter_weight = 0;
+
   csc_gamma.roll_kp = 0;
   csc_gamma.roll_kd = 0;
   csc_gamma.roll_ki = 0;
@@ -93,7 +110,7 @@ void csc_ap_init( void )
   csc_gamma.yaw_kp = 0;
   csc_gamma.yaw_kd = 0;
   csc_gamma.yaw_ki = 0;
-  
+
   memset(&csc_reference, 0, sizeof(struct control_reference));
 }
 
@@ -119,6 +136,11 @@ static void bound_ierror(float igain, float *ierror)
   }
 }
 
+static float compute_ref_trajectory()
+{
+
+}
+
 void csc_autopilot_set_roll_ki(float ki)
 {
   update_ki(ki, &csc_gains.roll_ki, &csc_errors.eulers_i.phi);
@@ -132,6 +154,21 @@ void csc_autopilot_set_pitch_ki(float ki)
 void csc_autopilot_set_yaw_ki(float ki)
 {
   update_ki(ki, &csc_gains.yaw_ki, &csc_errors.eulers_i.psi);
+}
+
+static void csc_zero_gps(struct NedCoor_i *ned_pos, struct NedCoor_i *ned_vel)
+{
+  csc_gps_zero_x = ned_pos->x*BOOZ2_NED_METERS;
+  csc_gps_zero_y = ned_pos->y*BOOZ2_NED_METERS;
+  csc_gps_setzero = 0;
+}
+
+static void calculate_gps_errors(struct gps_reference *error, struct NedCoor_i *ned_pos, struct NedCoor_i *ned_vel)
+{
+  error->pos.x = (ned_pos->x*BOOZ2_NED_METERS - csc_gps_zero_x)*csc_gps_gain*(1 - csc_gps_filter_weight) + error->pos.x*csc_gps_filter_weight;
+  error->pos.y = (ned_pos->y*BOOZ2_NED_METERS - csc_gps_zero_y)*csc_gps_gain*(1 - csc_gps_filter_weight) + error->pos.x*csc_gps_filter_weight;
+  error->rate.x = -ned_vel->x*BOOZ2_NED_METERS_SEC*csc_gps_gain*(1 - csc_gps_filter_weight) + error->pos.x*csc_gps_filter_weight;
+  error->rate.y = -ned_vel->y*BOOZ2_NED_METERS_SEC*csc_gps_gain*(1 - csc_gps_filter_weight) + error->pos.x*csc_gps_filter_weight;
 }
 
 static void calculate_errors(struct control_reference *errors)
@@ -149,10 +186,13 @@ static void calculate_errors(struct control_reference *errors)
 
   errors->eulers.phi = xsens_eulers.phi - csc_reference.eulers.phi;
   errors->eulers.theta = xsens_eulers.theta - csc_reference.eulers.theta;
-  //errors->eulers.psi = xsens_eulers.psi - csc_reference.eulers.psi;
-  //errors->eulers.psi = csc_vane_angle - csc_reference.eulers.psi;
+  // The following mess mixes in the wind vane and the GPS errors in
+  // an arbitrary fashion.  
   errors->eulers.psi = (csc_vane_angle*csc_vane_weight) 
-    + (xsens_eulers.psi - csc_reference.eulers.psi)*(1 - csc_vane_weight);
+    + (xsens_eulers.psi - csc_reference.eulers.psi)*(1 - csc_vane_weight);    
+  errors->eulers.psi = (1 - csc_gps_weight)*errors->eulers.psi
+    + csc_gps_weight*(cos(xsens_eulers.psi)*csc_gps_errors.pos.x 
+       + sin(xsens_eulers.psi)*csc_gps_errors.pos.y);
 
   errors->rates.p = xsens_rates.p - csc_reference.rates.p;
   errors->rates.q = xsens_rates.q - csc_reference.rates.q;
@@ -190,11 +230,14 @@ static void calculate_reference(struct control_reference *reference, int time)
   reference->eulers.psi /= MAX_PPRZ;
 }
 
-void csc_ap_periodic(int time)
+void csc_ap_periodic(int time, struct NedCoor_i *ned_pos, struct NedCoor_i *ned_vel)
 {
   //static int counter = 0;
   update_vane_angle();
   calculate_reference(&csc_reference, time);
+  if (csc_gps_setzero)
+    csc_zero_gps(ned_pos, ned_vel);
+  calculate_gps_errors(&csc_gps_errors, ned_pos, ned_vel);
   calculate_errors(&csc_errors);
 
   commands[COMMAND_ROLL] = -csc_gains.roll_kp * (csc_errors.eulers.phi)
@@ -247,3 +290,4 @@ void csc_ap_update_gains(struct control_reference *errors, struct control_gains 
   gains->yaw_kd += -csc_gamma.yaw_kd*errors->eulers.psi*xsens_gyro_z[xsens_id];
   gains->yaw_ki += -csc_gamma.yaw_ki*errors->eulers.psi*errors->eulers_i.psi;
 }
+

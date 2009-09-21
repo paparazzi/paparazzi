@@ -25,4 +25,4 @@
 #include "csc_telemetry.h"
 
 
-uint8_t telemetry_mode_Ap;
+uint8_t telemetry_mode_Ap_DefaultChannel;

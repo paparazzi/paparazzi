@@ -55,7 +55,7 @@
 #include "csc_ap_link.h"
 static inline void on_servo_cmd(struct CscServoCmd *cmd);
 static inline void on_motor_cmd(struct CscMotorMsg *msg);
-static inline void on_prop_cmd(struct CscPropCmd *msg);
+static inline void on_prop_cmd(struct CscPropCmd *msg, int idx);
 
 #define SERVO_TIMEOUT (SYS_TICS_OF_SEC(0.1) / PERIODIC_TASK_PERIOD)
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
@@ -112,7 +112,7 @@ static void csc_main_periodic( void ) {
   static uint32_t csc_loops = 0;
 
   #ifdef DOWNLINK
-  PeriodicSendAp();
+  PeriodicSendAp_DefaultChannel();
   #endif
 
   if (servo_cmd_timeout > SERVO_TIMEOUT) {
@@ -143,12 +143,12 @@ static void csc_main_event( void ) {
 #define MAX_SERVO SYS_TICS_OF_USEC(2000)
 
 #ifdef USE_BUSS_TWI_BLMC_MOTOR
-static void on_prop_cmd(struct CscPropCmd *cmd)
+static void on_prop_cmd(struct CscPropCmd *cmd, int idx)
 {
-  for(uint8_t i = 0; i < BUSS_TWI_BLMC_NB; i++)
-    motors_set_motor(i,cmd->speeds[i]);
+  for(uint8_t i = 0; i < 4; i++)
+    motors_set_motor(i + idx * 4, cmd->speeds[i]);
   
-  motors_commit();
+  motors_commit(idx == 1);
 
   ++can_msg_count;
 }

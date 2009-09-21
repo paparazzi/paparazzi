@@ -5,7 +5,7 @@
 <settings>
   <dl_settings>
     <dl_settings NAME="Misc" >
-      <dl_setting VAR="telemetry_mode_Ap" MIN="0" STEP="1" MAX="1" module="csc_telemetry" shortname="telemetry"
+      <dl_setting VAR="telemetry_mode_Ap_DefaultChannel" MIN="0" STEP="1" MAX="1" module="csc_telemetry" shortname="telemetry"
         values="Default|Debug"/>
     </dl_settings>
     <dl_settings NAME="imu params">
@@ -54,6 +54,11 @@
       <dl_setting VAR="csc_trims.aileron" MIN="-6000" STEP="10" MAX="6000" module="csc_autopilot" shortname="aileron trim"/>
       <dl_setting VAR="csc_trims.rudder" MIN="-6000" STEP="10" MAX="6000" module="csc_autopilot" shortname="rudder trim"/>
     </dl_settings>
-
+    <dl_settings NAME="GPS">
+      <dl_setting VAR="csc_gps_setzero" MIN="0" STEP="1" MAX="1" module="csc_autopilot" shortname="zero GPS"/>
+      <dl_setting VAR="csc_gps_weight" MIN="-2" STEP="0.01" MAX="2" module="csc_autopilot" shortname="GPS weight"/>
+      <dl_setting VAR="csc_gps_gain" MIN="-1" STEP="0.0001" MAX="1" module="csc_autopilot" shortname="GPS gain"/>
+      <dl_setting VAR="csc_gps_filter_weight" MIN="0" STEP="0.0001" MAX="1" module="csc_autopilot" shortname="GPS low-pass coeff"/>
+    </dl_settings>
   </dl_settings>
 </settings>

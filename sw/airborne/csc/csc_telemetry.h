@@ -27,60 +27,62 @@
 
 #include "actuators.h"
 
+extern uint8_t telemetry_mode_Ap_DefaultChannel;
+
 #include "settings.h"
 #include "booz/booz2_gps.h"
 
 
-#define PERIODIC_SEND_DL_VALUE() PeriodicSendDlValue()
+#define PERIODIC_SEND_DL_VALUE(_chan) PeriodicSendDlValue(_chan)
 
-#define PERIODIC_SEND_ALIVE() DOWNLINK_SEND_ALIVE(16, MD5SUM)
+#define PERIODIC_SEND_ALIVE(_chan) DOWNLINK_SEND_ALIVE(_chan, 16, MD5SUM)
 
-#define PERIODIC_SEND_DOWNLINK() { \
+#define PERIODIC_SEND_DOWNLINK(_chan) { \
   static uint16_t last; \
   uint16_t rate = (downlink_nb_bytes - last) / PERIOD_DOWNLINK_0; \
   last = downlink_nb_bytes; \
-  DOWNLINK_SEND_DOWNLINK(&downlink_nb_ovrn, &rate, &downlink_nb_msgs); \
+  DOWNLINK_SEND_DOWNLINK(_chan, &downlink_nb_ovrn, &rate, &downlink_nb_msgs); \
 }
 
 
 #ifdef PROPS_NB
 
 #include "mercury_ap.h"
-#define PERIODIC_SEND_MERCURY_PROPS() DOWNLINK_SEND_MERCURY_PROPS(&(mixed_commands[0]),&(mixed_commands[1]),&(mixed_commands[2]),&(mixed_commands[3]))
+#define PERIODIC_SEND_MERCURY_PROPS(_chan) DOWNLINK_SEND_MERCURY_PROPS(_chan, &(mixed_commands[0]),&(mixed_commands[1]),&(mixed_commands[2]),&(mixed_commands[3]))
 
 #endif /*  PROPS_NB */
 
 #ifdef BUSS_TWI_BLMC_NB
-#define PERIODIC_SEND_MERCURY_PROPS() DOWNLINK_SEND_MERCURY_PROPS(&(motor_power[0]),&(motor_power[1]),&(motor_power[2]),&(motor_power[3]))
+#define PERIODIC_SEND_MERCURY_PROPS(_chan) DOWNLINK_SEND_MERCURY_PROPS(_chan, &(motor_power[0]),&(motor_power[1]),&(motor_power[2]),&(motor_power[3]))
 #endif /* BUSS_TWI_BLMC_NB */
 
 #ifdef COMMANDS_NB
 #include "commands.h"
-#define PERIODIC_SEND_COMMANDS() DOWNLINK_SEND_COMMANDS(COMMANDS_NB, commands)
+#define PERIODIC_SEND_COMMANDS(_chan) DOWNLINK_SEND_COMMANDS(_chan, COMMANDS_NB, commands)
 #endif /* COMMANDS_NB */
-#define PERIODIC_SEND_SIMPLE_COMMANDS() DOWNLINK_SEND_SIMPLE_COMMANDS(&commands[0], &commands[1], &commands[2])
-#define PERIODIC_SEND_CONTROLLER_GAINS() DOWNLINK_SEND_CONTROLLER_GAINS(&csc_gains.roll_kp, &csc_gains.roll_kd, &csc_gains.roll_ki, &csc_gains.pitch_kp, &csc_gains.pitch_kd, &csc_gains.pitch_ki, &csc_gains.yaw_kp, &csc_gains.yaw_kd, &csc_gains.yaw_ki)
+#define PERIODIC_SEND_SIMPLE_COMMANDS(_chan) DOWNLINK_SEND_SIMPLE_COMMANDS(_chan, &commands[0], &commands[1], &commands[2])
+#define PERIODIC_SEND_CONTROLLER_GAINS(_chan) DOWNLINK_SEND_CONTROLLER_GAINS(_chan, &csc_gains.roll_kp, &csc_gains.roll_kd, &csc_gains.roll_ki, &csc_gains.pitch_kp, &csc_gains.pitch_kd, &csc_gains.pitch_ki, &csc_gains.yaw_kp, &csc_gains.yaw_kd, &csc_gains.yaw_ki)
 
 #ifdef SERVOS_NB
-#define PERIODIC_SEND_ACTUATORS() DOWNLINK_SEND_ACTUATORS(SERVOS_NB, actuators)
+#define PERIODIC_SEND_ACTUATORS(_chan) DOWNLINK_SEND_ACTUATORS(_chan, SERVOS_NB, actuators)
 #endif
 
 #ifdef USE_RADIO_CONTROL
 #include "booz_radio_control.h"
-#define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(RADIO_CONTROL_NB_CHANNEL, radio_control.values)
-#define PERIODIC_SEND_QUAD_STATUS() DOWNLINK_SEND_QUAD_STATUS(&radio_control.status, &pprz_mode, &vsupply, &cpu_time)
+#define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
+#define PERIODIC_SEND_QUAD_STATUS(_chan) DOWNLINK_SEND_QUAD_STATUS(_chan, &radio_control.status, &pprz_mode, &vsupply, &cpu_time)
 #else 
 #ifdef RADIO_CONTROL
-#define PERIODIC_SEND_RC() DOWNLINK_SEND_RC(PPM_NB_PULSES, rc_values)
-#define PERIODIC_SEND_QUAD_STATUS() DOWNLINK_SEND_QUAD_STATUS(&rc_status, &pprz_mode, &vsupply, &cpu_time)
+#define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, PPM_NB_PULSES, rc_values)
+#define PERIODIC_SEND_QUAD_STATUS(_chan) DOWNLINK_SEND_QUAD_STATUS(_chan, &rc_status, &pprz_mode, &vsupply, &cpu_time)
 #endif
 #endif /* USE_RADIO_CONTROL */
 
 #ifdef USE_GPS
-#define PERIODIC_SEND_BOOZ2_GPS() {				\
-    DOWNLINK_SEND_BOOZ2_GPS( &booz_gps_state.ecef_pos.x,	\
-			     &booz_gps_state.ecef_pos.y,	\
-			     &booz_gps_state.ecef_pos.z,	\
+#define PERIODIC_SEND_BOOZ2_GPS(_chan) {				\
+    DOWNLINK_SEND_BOOZ2_GPS( &booz_ins_gps_pos_cm_ned.x,	\
+			     &booz_ins_gps_pos_cm_ned.y,	\
+			     &booz_ins_gps_pos_cm_ned.z,	\
 			     &booz_gps_state.ecef_speed.x,	\
 			     &booz_gps_state.ecef_speed.y,	\
 			     &booz_gps_state.ecef_speed.z,	\
@@ -91,8 +93,17 @@
 			     &booz_gps_state.fix);		\
   }
 #endif
+
+#define PERIODIC_SEND_GPS_ERROR() {				\
+  DOWNLINK_SEND_GPS_ERROR( &csc_gps_errors.pos.x,		\
+			   &csc_gps_errors.pos.y,		\
+			   &csc_gps_errors.pos.z,		\
+			   &csc_gps_errors.rate.x,		\
+			   &csc_gps_errors.rate.y,		\
+			   &csc_gps_errors.rate.z) 		\
+    }			   
 	
-#define PERIODIC_SEND_BOOZ2_INS3() { \
+#define PERIODIC_SEND_BOOZ2_INS3(_chan) { \
 DOWNLINK_SEND_BOOZ2_INS3(&booz_ins_gps_pos_cm_ned.x, \
 &booz_ins_gps_pos_cm_ned.y,	    \
 &booz_ins_gps_pos_cm_ned.z,	    \
@@ -101,10 +112,10 @@ DOWNLINK_SEND_BOOZ2_INS3(&booz_ins_gps_pos_cm_ned.x, \
 &booz_ins_gps_speed_cm_s_ned.z    \
 ) }
 
-#define PERIODIC_SEND_GPS_SOL() DOWNLINK_SEND_GPS_SOL(&booz_gps_state.pacc, \
+#define PERIODIC_SEND_GPS_SOL(_chan) DOWNLINK_SEND_GPS_SOL(_chan, &booz_gps_state.pacc, \
   &booz_gps_state.sacc, &booz_gps_state.pdop, &booz_gps_state.num_sv)
 
-#define PERIODIC_SEND_GPS() { uint32_t zero = 0; DOWNLINK_SEND_GPS(&booz_gps_state.fix, \
+#define PERIODIC_SEND_GPS(_chan) { uint32_t zero = 0; DOWNLINK_SEND_GPS(_chan, &booz_gps_state.fix, \
   &booz_ins_gps_pos_cm_ned.y, \
   &booz_ins_gps_pos_cm_ned.x, \
   &zero, \
@@ -115,6 +126,5 @@ DOWNLINK_SEND_BOOZ2_INS3(&booz_ins_gps_pos_cm_ned.x, \
   &zero, \
   &zero, &zero) }
 
-extern uint8_t telemetry_mode_Ap;
 
 #endif /* CSC_TELEMETRY_H */

@@ -185,7 +185,7 @@ static void csc_main_periodic( void )
   }
   xsens_periodic_task();
   if (pprz_mode == PPRZ_MODE_AUTO1)
-    csc_ap_periodic(cpu_time);
+    csc_ap_periodic(cpu_time, &booz_ins_gps_pos_cm_ned, &booz_ins_gps_speed_cm_s_ned);
 
   if (csc_trims_set) {
     csc_trims_set = 0;

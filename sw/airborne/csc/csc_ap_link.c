@@ -3,12 +3,13 @@
 #include "csc_can.h"
 #include "led.h"
 
+
 int32_t csc_ap_link_error_cnt;
 
 static void (* servo_msg_cb)(struct CscServoCmd *);
 static void (* motor_msg_cb)(struct CscMotorMsg *);
 static void (* rc_msg_cb)(struct CscRCMsg *);
-static void (* prop_msg_cb)(struct CscPropCmd *);
+static void (* prop_msg_cb)(struct CscPropCmd *, int idx);
 static void (* gpsfix_cb)(struct CscGPSFixMsg *);
 static void (* gpspos_cb)(struct CscGPSPosMsg *);
 static void (* gpsacc_cb)(struct CscGPSAccMsg *);
@@ -67,7 +68,7 @@ void csc_ap_link_set_motor_cmd_cb(void (* cb)(struct CscMotorMsg *msg))
   motor_msg_cb = cb;
 }
 
-void csc_ap_link_set_prop_cmd_cb(void (* cb)(struct CscPropCmd *cmd))
+void csc_ap_link_set_prop_cmd_cb(void (* cb)(struct CscPropCmd *cmd, int idx))
 {
   prop_msg_cb = cb;
 }
@@ -130,7 +131,7 @@ static void on_ap_link_msg( struct CscCanMsg *msg)
 	LED_ON(ERROR_LED);
 	csc_ap_link_error_cnt++;
       } else
-	prop_msg_cb((struct CscPropCmd *) &msg->dat_a);
+	prop_msg_cb((struct CscPropCmd *) &msg->dat_a, 0);
       break;
     case CSC_GPS_FIX_ID:
       if (len != sizeof(struct CscGPSFixMsg)){
@@ -152,6 +153,13 @@ static void on_ap_link_msg( struct CscCanMsg *msg)
 	csc_ap_link_error_cnt++;
       } else
 	gpsacc_cb((struct CscGPSAccMsg *) &msg->dat_a);
+      break;
+    case CSC_PROP2_CMD_ID:
+      if (len != sizeof(struct CscPropCmd)){
+	LED_ON(ERROR_LED);
+	csc_ap_link_error_cnt++;
+      } else
+	prop_msg_cb((struct CscPropCmd *) &msg->dat_a, 1);
       break;
   }
 }

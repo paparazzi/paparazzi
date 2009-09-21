@@ -17,6 +17,7 @@
 #define CSC_GPS_FIX_ID	      7
 #define CSC_GPS_POS_ID	      8
 #define CSC_GPS_ACC_ID	      9
+#define CSC_PROP2_CMD_ID       10
 
 
 /* Received from the autopilot */

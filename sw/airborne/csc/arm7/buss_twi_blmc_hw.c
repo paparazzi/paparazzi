@@ -37,18 +37,20 @@ static void buss_twi_blmc_send_next()
 }
 
 
-void motors_commit()
+void motors_commit(int force)
 {
-  buss_twi_blmc_idx = 0;						
-  buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_BUSY;			
-  buss_twi_blmc_send_next();
+  if (force || buss_twi_blmc_status == BUSS_TWI_BLMC_STATUS_IDLE) {
+    buss_twi_blmc_idx = 0;						
+    buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_BUSY;			
+    buss_twi_blmc_send_next();
+  }
 }
 
 
 void motors_commit_next()
 {
     buss_twi_blmc_idx++;				
-    if (buss_twi_blmc_idx < BUSS_TWI_BLMC_NB)
+    if (buss_twi_blmc_idx < BUSS_TWI_BLMC_NB_SEND)
       buss_twi_blmc_send_next();
     else						
       buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_IDLE;	
