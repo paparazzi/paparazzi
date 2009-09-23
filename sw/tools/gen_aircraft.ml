@@ -34,8 +34,7 @@ let conf_xml = paparazzi_conf // "conf.xml"
 let modules_dir = paparazzi_conf // "modules"
 
 let mkdir = fun d ->
-  if not (Sys.file_exists d) then
-    U.mkdir d 0o755
+  assert (Sys.command (sprintf "mkdir -p %s" d) = 0)
 
 (** Raises a Failure if an ID or a NAME appears twice in the conf *)
 let check_unique_id_and_name = fun conf ->
@@ -236,6 +235,11 @@ let () =
 		close_out f end;
 
     let airframe_file = value "airframe" in
+
+    let airframe_dir = Filename.dirname airframe_file in
+    let var_airframe_dir = aircraft_conf_dir // airframe_dir in
+    mkdir var_airframe_dir;
+    assert (Sys.command (sprintf "cp %s %s" (paparazzi_conf // airframe_file) var_airframe_dir) = 0);
     
     (** Calls the Makefile with target and options *)
     let make = fun target options ->

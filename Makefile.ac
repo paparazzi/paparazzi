@@ -80,7 +80,6 @@ $(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5)
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $(MD5SUM) $< > /tmp/airframe.h
 	$(Q)mv /tmp/airframe.h $@
-	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/airframes
 	$(Q)cp $(CONF)/airframes/airframe.dtd $(AIRCRAFT_CONF_DIR)/airframes
 
 $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(TOOLS)/gen_radio.out
