@@ -64,24 +64,42 @@ class OnboardLogTransformTool():
 	elif field == "uint8[]":
 	  value = struct.unpack('B', "".join(data_fields[field_offset:field_offset + 1]))[0]
 	  field_offset = field_offset + 1
+	  print "",
 	  for count in range(0, value):
 	    array_value = struct.unpack('B', "".join(data_fields[field_offset:field_offset + 1]))[0]
 	    field_offset = field_offset + 1
-	    print array_value, 
+	    if (count == value - 1):
+	      sys.stdout.softspace=0
+	      print array_value,
+	    else:
+	      sys.stdout.softspace=0
+	      print ("%u," % array_value),
 	elif field == "int16[]":
 	  value = struct.unpack('B', "".join(data_fields[field_offset:field_offset + 1]))[0]
 	  field_offset = field_offset + 1
+	  print "",
 	  for count in range(0, value):
 	    array_value = struct.unpack('h', "".join(data_fields[field_offset:field_offset + 2]))[0]
 	    field_offset = field_offset + 2
-	    print array_value, 
+	    if (count == value - 1):
+	      sys.stdout.softspace=0
+	      print array_value,
+	    else:
+	      sys.stdout.softspace=0
+	      print ("%i," % array_value),
 	elif field == "uint16[]":
 	  value = struct.unpack('B', "".join(data_fields[field_offset:field_offset + 1]))[0]
 	  field_offset = field_offset + 1
+	  print "",
 	  for count in range(0, value):
 	    array_value = struct.unpack('H', "".join(data_fields[field_offset:field_offset + 2]))[0]
 	    field_offset = field_offset + 2
-	    print array_value, 
+	    if (count == value - 1):
+	      sys.stdout.softspace=0
+	      print array_value,
+	    else:
+	      sys.stdout.softspace=0
+	      print ("%u," % array_value),
 	else:
 	  print "unknown field type %s" % field
 
