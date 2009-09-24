@@ -145,10 +145,10 @@ let get_from_cache = fun f ->
   let rec loop = fun i ->
     if i < Array.length files then
       let fi = files.(i) in
-      let fi_key = Filename.chop_extension fi in
-      if try is_prefix fi_key f with _ -> false then begin
+      let fi_key = try Filename.chop_extension fi with _ -> fi in
+      if fi_key <> "" && is_prefix fi_key f then
 	(tile_of_key fi_key, !cache_path // fi)
-      end else
+      else
 	loop (i+1)
     else
       raise Not_found in
