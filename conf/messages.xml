@@ -1214,21 +1214,11 @@
       <field name="xsens2_seq" type="uint16"/>
     </message>
 
-    <message name="WHIRLY_ESTIMATOR" id="182">
-      <field name="whirly_timestamp"   type="float"/>
-      <field name="phi_1"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-      <field name="theta_1" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-      <field name="psi_1"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-      <field name="phi_2"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-      <field name="theta_2" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-      <field name="psi_2"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-      <field name="euler_1_error_nb" type="uint32"/>
-      <field name="euler_2_error_nb" type="uint32"/>
-      <field name="psi_mag_1_error_nb" type="uint32"/>
-      <field name="psi_mag_2_error_nb" type="uint32"/>
-      <field name="gyro1x_lp" type="float"/>
-      <field name="gyro1y_lp" type="float"/>
-      <field name="gyro1z_lp" type="float"/>
+    <message name="FLA_DEBUG" id="182">
+      <field name="past_input"    type="float"/>
+      <field name="imu_rate"      type="float"/>
+      <field name="desired_accel" type="float"/>
+      <field name="motor_command" type="float"/>
     </message>
 
     <message name="WHIRLY_MOTORCONTROL" id="183">
