@@ -154,15 +154,34 @@ let get_from_cache = fun f ->
       raise Not_found in
   loop 0
 
+(** Translate the old quadtree naming policy into new (x,y) coordinates
+    if z is the zoom level, 0 <= x, y < 2^z are the coordinates of the tile *)
+let xyz_of_qsrt = fun s ->
+  let x = ref 0
+  and y = ref 0
+  and n = String.length s in
+  for i = 1 to n - 1 do (* Skip the first t *)
+    x := !x * 2;
+    y := !y * 2;
+    match s.[i] with
+      'q' -> ()
+    | 'r' -> incr x
+    | 's' -> incr x; incr y
+    | 't' -> incr y
+    | _ -> failwith "xy_of_qsrt"
+  done;
+  (!x, !y, n-1)
 
 let google_maps_url = fun s -> 
-  sprintf "http://khm.google.com/kh?n=404&v=3&t=%s" s
+  let (x, y, z) = xyz_of_qsrt s in
+  sprintf "http://khm0.google.com/kh/v=45&x=%d&s=&y=%d&z=%d" x y z
 
 exception Not_available
 
 let no_http = ref false
 
 let remove_last_char = fun s -> String.sub s 0 (String.length s - 1)
+
 
 let get_image = fun key ->
   try get_from_cache key with
