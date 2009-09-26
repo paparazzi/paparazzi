@@ -70,8 +70,9 @@ int main(void)
   gm_quadtree(x, y, z, gm_qkey);
   
   printf("http://tile.openstreetmap.org/%d/%d/%d.png\n", z, x, y);
-  printf("http://kh.google.com/kh?v=3&t=%s\n", gm_qkey);
-  printf("http://mt1.google.com/mt/v=ap.95&hl=en&x=%d&y=%d&z=%d&s=G\n", x, y, z);
+  printf("http://khm0.google.com/kh/v=45&x=%d&s=&y=%d&z=%d\n", x, y, z);
+//  printf("http://kh.google.com/kh?v=3&t=%s\n", gm_qkey);
+//  printf("http://mt1.google.com/mt/v=ap.95&hl=en&x=%d&y=%d&z=%d&s=G\n", x, y, z);
   printf("http://a0.ortho.tiles.virtualearth.net/tiles/a%s.jpeg?g=%d\n", ms_qkey, z+32);
   printf("http://r0.ortho.tiles.virtualearth.net/tiles/r%s.png?g=%d\n", ms_qkey, z+32);
   
