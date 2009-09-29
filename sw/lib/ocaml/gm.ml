@@ -40,6 +40,14 @@ type tile_t = {
     height : float (* Latitude difference *)
   }
 
+type maps_source = Google | OSM
+
+let maps_source = ref Google
+
+let mkdir = fun d ->
+  if not (Sys.file_exists d) then
+    Unix.mkdir d 0o755
+
 let (/.=) r x = r := !r /. x
 let (+.=) r x = r := !r +. x
 
@@ -140,8 +148,9 @@ let is_prefix = fun a b ->
   a = String.sub b 0 (String.length a)
 
 
-let get_from_cache = fun f ->
-  let files = Sys.readdir !cache_path in
+(** Get the tile or one which contains it from the cache *)
+let get_from_cache = fun dir f ->
+  let files = Sys.readdir dir in
   let rec loop = fun i ->
     if i < Array.length files then
       let fi = files.(i) in
@@ -172,9 +181,16 @@ let xyz_of_qsrt = fun s ->
   done;
   (!x, !y, n-1)
 
-let google_maps_url = fun s -> 
+let url_of_tile_key = fun maps_source s -> 
   let (x, y, z) = xyz_of_qsrt s in
-  sprintf "http://khm0.google.com/kh/v=45&x=%d&s=&y=%d&z=%d" x y z
+  match maps_source with
+    Google -> sprintf "http://khm0.google.com/kh/v=45&x=%d&s=&y=%d&z=%d" x y z
+  | OSM ->    sprintf "http://tile.openstreetmap.org/%d/%d/%d.png" z x y
+
+let get_cache_dir = function
+    Google -> !cache_path (* Historic ! Should be // Google *)
+  | OSM -> !cache_path // "OSM"
+  
 
 exception Not_available
 
@@ -184,13 +200,15 @@ let remove_last_char = fun s -> String.sub s 0 (String.length s - 1)
 
 
 let get_image = fun key ->
-  try get_from_cache key with
+  let cache_dir = get_cache_dir !maps_source in
+  mkdir cache_dir;
+  try get_from_cache cache_dir key with
     Not_found ->
       if !no_http then raise Not_available;
       let rec loop = fun k ->
 	if String.length k >= 1 then
-	  let url = google_maps_url k in
-	  let jpg_file = !cache_path // (k ^ ".jpg") in
+	  let url = url_of_tile_key !maps_source k in
+	  let jpg_file = cache_dir // (k ^ ".jpg") in
 	  try
 	    ignore (Http.file_of_url ~dest:jpg_file url);
 	    tile_of_key k, jpg_file

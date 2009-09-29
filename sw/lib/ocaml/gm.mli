@@ -34,6 +34,8 @@ type tile_t = {
     width : float; (* Longitude difference *)
     height : float (* Latitude difference *)
   }
+
+type maps_source = Google | OSM
       
 val tile_of_geo : Latlong.geographic -> int -> tile_t
 (** [tile_string geo zoom] Returns the tile description containing a
@@ -47,6 +49,9 @@ val cache_path : string ref
 val no_http : bool ref
 (** Initialized to false. Set to use only the cache *)
 
+val maps_source : maps_source ref
+(** Initialized to Google *)
+
 exception Not_available
 
 val get_image : string -> tile_t * string
@@ -55,6 +60,3 @@ val get_image : string -> tile_t * string
 
 val get_tile : Latlong.geographic -> int -> tile_t*string
 (** [get_tile geo zoom] May raise [Not_available] *)
-
-
-
