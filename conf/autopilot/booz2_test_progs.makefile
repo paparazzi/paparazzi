@@ -135,7 +135,7 @@ test_usb.ARCH = arm7tdmi
 test_usb.TARGET = test_usb
 test_usb.TARGETDIR = test_usb
 
-test_usb.CFLAGS += -DBOARD_CONFIG=\"booz2_board_usb.h\" $(BOOZ_CFLAGS)
+test_usb.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 test_usb.srcs += $(SRC_BOOZ_TEST)/booz2_test_usb.c
 test_usb.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 # -DTIME_LED=1

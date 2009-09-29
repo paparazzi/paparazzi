@@ -28,7 +28,6 @@
 #include "sys_time.h"
 #include "led.h"
 
-//#include "uart.h"
 #include "usb_serial.h"
 
 #include "messages.h"
@@ -56,7 +55,6 @@ static inline void main_init( void ) {
   sys_time_init();
   led_init();
 
-  //uart1_init_tx();
   VCOM_init();
 
   int_enable();
@@ -65,7 +63,7 @@ static inline void main_init( void ) {
 static inline void main_periodic_task( void ) {
   RunOnceEvery(10, {
       LED_TOGGLE(1);
-      DOWNLINK_SEND_ALIVE(16, MD5SUM);
+      DOWNLINK_SEND_ALIVE(PprzTransport,16, MD5SUM);
     });
 }
 

@@ -56,7 +56,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
     uint8_t _twi_blmc_nb_err = 0;					\
     DOWNLINK_SEND_BOOZ_STATUS(_chan,					\
 			      &booz_imu_nb_err,				\
-			      &_twi_blmc_nb_err,				\
+			      &_twi_blmc_nb_err,			\
 			      &radio_control.status,			\
 			      &booz_gps_state.fix,			\
 			      &booz2_autopilot_mode,			\
