@@ -46,7 +46,11 @@ void booz_stabilization_attitude_ref_init(void) {
 /*
  * Reference
  */
+#ifdef BOOZ_AP_PERIODIC_PRESCALE
+#define DT_UPDATE ((1./PERIODIC_FREQ)/BOOZ_AP_PERIODIC_PRESCALE)
+#else
 #define DT_UPDATE (1./512.)
+#endif
 
 #define OMEGA_P   BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_P
 #define ZETA_P    BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_P
