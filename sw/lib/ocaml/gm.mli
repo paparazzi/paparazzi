@@ -35,7 +35,9 @@ type tile_t = {
     height : float (* Latitude difference *)
   }
 
-type maps_source = Google | OSM
+type maps_source = Google | OSM | MS
+val string_of_maps_source : maps_source -> string
+val maps_sources : maps_source list
       
 val tile_of_geo : Latlong.geographic -> int -> tile_t
 (** [tile_string geo zoom] Returns the tile description containing a
@@ -46,17 +48,21 @@ val tile_of_key : string -> tile_t
    named tile. *)
 
 val cache_path : string ref
-val no_http : bool ref
-(** Initialized to false. Set to use only the cache *)
 
-val maps_source : maps_source ref
+type policy =  CacheOrHttp | NoHttp | NoCache
+val string_of_policy : policy -> string
+val policies : policy list
+val set_policy : policy -> unit
+(** Initialized to CacheOrHttp using cache and http access *)
+
+val set_maps_source : maps_source -> unit
 (** Initialized to Google *)
 
 exception Not_available
 
 val get_image : string -> tile_t * string
 (** [get_image key] Returns the tile description and the image file name.
-   May raise [Not_available] *)
+    May raise [Not_available] *)
 
 val get_tile : Latlong.geographic -> int -> tile_t*string
 (** [get_tile geo zoom] May raise [Not_available] *)

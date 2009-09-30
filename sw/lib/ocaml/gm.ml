@@ -40,9 +40,13 @@ type tile_t = {
     height : float (* Latitude difference *)
   }
 
-type maps_source = Google | OSM
+type maps_source = Google | OSM | MS
+let maps_sources = [Google; OSM; MS]
+let string_of_maps_source = function
+    Google -> "Google" | OSM -> "OSM" | MS -> "MS"
 
 let maps_source = ref Google
+let set_maps_source = fun s -> maps_source := s
 
 let mkdir = fun d ->
   if not (Sys.file_exists d) then
@@ -156,7 +160,7 @@ let get_from_cache = fun dir f ->
       let fi = files.(i) in
       let fi_key = try Filename.chop_extension fi with _ -> fi in
       if fi_key <> "" && is_prefix fi_key f then
-	(tile_of_key fi_key, !cache_path // fi)
+	(tile_of_key fi_key, dir // fi)
       else
 	loop (i+1)
     else
@@ -181,20 +185,46 @@ let xyz_of_qsrt = fun s ->
   done;
   (!x, !y, n-1)
 
+let ms_key = fun key ->
+  let n = String.length key in
+  let ms_key = String.create (n-1) in
+  for i = 1 to n - 1 do
+    ms_key.[i-1] <-
+      match key.[i] with
+	'q' -> '0'
+      |	'r' -> '1'
+      | 's' -> '3'
+      | 't' -> '2'
+      | _ -> invalid_arg "Gm.ms_key"
+  done;
+  ms_key
+    
+
 let url_of_tile_key = fun maps_source s -> 
   let (x, y, z) = xyz_of_qsrt s in
   match maps_source with
     Google -> sprintf "http://khm0.google.com/kh/v=45&x=%d&s=&y=%d&z=%d" x y z
   | OSM ->    sprintf "http://tile.openstreetmap.org/%d/%d/%d.png" z x y
+  | MS ->    sprintf "http://a0.ortho.tiles.virtualearth.net/tiles/a%s.jpeg?g=%d" (ms_key s) (z+32)
+
 
 let get_cache_dir = function
     Google -> !cache_path (* Historic ! Should be // Google *)
   | OSM -> !cache_path // "OSM"
+  | MS -> !cache_path // "MS"
   
 
 exception Not_available
 
-let no_http = ref false
+type policy = CacheOrHttp | NoHttp | NoCache
+let string_of_policy = function
+    CacheOrHttp -> "CacheOrHttp"
+  | NoHttp -> "NoHttp"
+  | NoCache -> "NoCache"
+let policies = [CacheOrHttp; NoHttp; NoCache]
+let policy = ref CacheOrHttp
+let set_policy = fun p ->
+  policy := p
 
 let remove_last_char = fun s -> String.sub s 0 (String.length s - 1)
 
@@ -202,9 +232,12 @@ let remove_last_char = fun s -> String.sub s 0 (String.length s - 1)
 let get_image = fun key ->
   let cache_dir = get_cache_dir !maps_source in
   mkdir cache_dir;
-  try get_from_cache cache_dir key with
+  try
+    if !policy = NoCache then raise Not_found;
+    get_from_cache cache_dir key
+  with
     Not_found ->
-      if !no_http then raise Not_available;
+      if !policy = NoHttp then raise Not_available;
       let rec loop = fun k ->
 	if String.length k >= 1 then
 	  let url = url_of_tile_key !maps_source k in

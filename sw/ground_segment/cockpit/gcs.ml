@@ -138,12 +138,9 @@ let map_from_region = fun (geomap:G.widget) () ->
       save_map geomap dest nw se
 
 
-(************ Google Maps handling *****************************************)
+(************ Google, OSM Maps handling *****************************************)
 module GM = struct
-  let active_http = fun x -> 
-    Gm.no_http := not x
-
-  (** Fill the visible background with Google tiles *)
+  (** Fill the visible background with Google, OSM tiles *)
   let fill_tiles = fun geomap -> 
     ignore (Thread.create MapGoogle.fill_window geomap)
 
@@ -154,7 +151,7 @@ module GM = struct
     auto := x;
     update geomap      
 
-(** Creates a calibrated map from the Google tiles (selected region) *)
+(** Creates a calibrated map from the Google, OSM tiles (selected region) *)
   let map_from_tiles = fun (geomap:G.widget) () ->
     match geomap#region with
       None -> GToolbox.message_box "Error" "Select a region (shift-left drag)"
@@ -324,9 +321,9 @@ let options =
    "-mercator", Arg.Unit (fun () -> projection:=G.Mercator),"Switch to (Google Maps) Mercator projection, default";
    "-mplayer", Arg.Set_string mplayer, "Launch mplayer with the given argument as X plugin";
    "-no_alarm", Arg.Set no_alarm, "Disables alarm page";
-   "-no_google_http", Arg.Set Gm.no_http, "Switch off Google Maps downloading";
+   "-no_google_http", Arg.Unit (fun () -> Gm.set_policy Gm.NoHttp), "Switch off Google Maps downloading";
    "-ortho", Arg.Set_string get_bdortho, "IGN tiles path";
-   "-osm", Arg.Unit (fun () -> Gm.maps_source := Gm.OSM), "Use OpenStreetMap database (default is Google)";
+   "-osm", Arg.Unit (fun () -> Gm.set_maps_source Gm.OSM), "Use OpenStreetMap database (default is Google)";
    "-particules", Arg.Set display_particules, "Display particules";
     "-plugin", Arg.Set_string  plugin_window, "External X application (launched with the id of the plugin window as argument)";
    "-ref", Arg.Set_string geo_ref, "Geographic ref (e.g. 'WGS84 43.605 1.443')";
@@ -364,24 +361,45 @@ let create_geomap = fun switch_fullscreen editor_frame ->
   (* Maps handling *)
   let map_menu = geomap#factory#add_submenu "Maps" in
   let map_menu_fact = new GMenu.factory ~accel_group map_menu in
-  ignore (map_menu_fact#add_item "Load" ~key:GdkKeysyms._M ~callback:(load_map geomap));
+  ignore (map_menu_fact#add_item "Load User Map" ~key:GdkKeysyms._M ~callback:(load_map geomap));
   if !edit then
     ignore (map_menu_fact#add_item "Calibrate" ~key:GdkKeysyms._C ~callback:(EditFP.calibrate_map geomap editor_frame accel_group));
 
+  (* Choose the map source *)
+  let maps_source_menu = map_menu_fact#add_submenu "Maps Source" in
+  let maps_source_fact = new GMenu.factory maps_source_menu in
+  let group = ref None in
+  List.iter
+    (fun maps_source ->
+      let callback = fun b -> if b then Gm.set_maps_source maps_source in
+      let menu_item = maps_source_fact#add_radio_item ~group: !group ~callback (Gm.string_of_maps_source maps_source) in
+      group := menu_item#group)
+    Gm.maps_sources;  
+
+  (* Choose the map policy *)
+  let maps_policy_menu = map_menu_fact#add_submenu "Maps Policy" in
+  let maps_policy_fact = new GMenu.factory maps_policy_menu in
+  let group = ref None in
+  List.iter
+    (fun policy ->
+      let callback = fun b -> if b then Gm.set_policy policy in
+      let menu_item = maps_policy_fact#add_radio_item ~group: !group ~callback (Gm.string_of_policy policy) in
+      group := menu_item#group)
+    Gm.policies;
+
   (* Google fill menu entry and toolbar button *)
   let callback = fun _ -> GM.fill_tiles geomap in
-  ignore (map_menu_fact#add_item "GoogleMaps Fill" ~key:GdkKeysyms._G ~callback);
+  ignore (map_menu_fact#add_item "Maps Fill" ~key:GdkKeysyms._G ~callback);
   let b = GButton.button ~packing:geomap#toolbar#add () in
   ignore (b#connect#clicked callback);
   let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // "googleearth.png") in
   ignore (GMisc.image ~pixbuf ~packing:b#add ());
-  let tooltips = GData.tooltips () in    
+  let tooltips = GData.tooltips () in
   tooltips#set_tip b#coerce ~text:"Google maps fill";
 
-  ignore (map_menu_fact#add_check_item "GoogleMaps Http" ~key:GdkKeysyms._H ~active:true ~callback:GM.active_http);
-  ignore (map_menu_fact#add_check_item "GoogleMaps Auto" ~active:!GM.auto ~callback:(GM.active_auto geomap));
+  ignore (map_menu_fact#add_check_item "Maps Auto" ~active:!GM.auto ~callback:(GM.active_auto geomap));
   ignore (map_menu_fact#add_item "Map of Region" ~key:GdkKeysyms._R ~callback:(map_from_region geomap));
-  ignore (map_menu_fact#add_item "Map of Google Tiles" ~key:GdkKeysyms._T ~callback:(GM.map_from_tiles geomap));
+  ignore (map_menu_fact#add_item "Dump map of Tiles" ~key:GdkKeysyms._T ~callback:(GM.map_from_tiles geomap));
   ignore (map_menu_fact#add_item "Load sector" ~callback:(Sectors.load geomap));
   
   (** Connect Google Maps display to view change *)
