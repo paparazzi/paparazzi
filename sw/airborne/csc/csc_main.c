@@ -111,7 +111,7 @@ static void csc_main_periodic( void ) {
   static uint32_t csc_loops = 0;
 
   #ifdef DOWNLINK
-  PeriodicSendAp();
+  PeriodicSendAp_DefaultChannel();
   #endif
 
   if (servo_cmd_timeout > SERVO_TIMEOUT) {
