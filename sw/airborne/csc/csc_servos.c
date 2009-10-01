@@ -39,7 +39,7 @@ void csc_servo_normalized_set(uint8_t id, uint16_t val)
 }
 
 
-inline void csc_servos_commit()
+void csc_servos_commit()
 {
   ActuatorsCommit();
 }
