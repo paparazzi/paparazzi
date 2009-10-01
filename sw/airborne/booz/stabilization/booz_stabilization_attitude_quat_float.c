@@ -71,17 +71,55 @@ void booz_stabilization_attitude_init(void) {
 
 }
 
+static void reset_psi_ref_from_body(void) {
+    booz_stab_att_sp_euler.psi = booz_ahrs_float.ltp_to_body_euler.psi;
+    booz_stab_att_ref_euler.psi = booz_ahrs_float.ltp_to_body_euler.psi;
+    booz_stab_att_ref_rate.r = 0;
+    booz_stab_att_ref_accel.r = 0;
+}
+
+static void update_quats_from_euler(void) {
+    struct FloatRMat sp_rmat, ref_rmat;
+
+    FLOAT_RMAT_OF_EULERS_312(sp_rmat, booz_stab_att_sp_euler);
+    /*    FLOAT_RMAT_OF_EULERS_321(sp_rmat, _sp);*/
+    FLOAT_QUAT_OF_RMAT(booz_stab_att_sp_quat, sp_rmat);
+
+    FLOAT_RMAT_OF_EULERS_312(ref_rmat, booz_stab_att_ref_euler);
+    FLOAT_QUAT_OF_RMAT(booz_stab_att_ref_quat, ref_rmat);
+}
+
+void booz_stabilization_attitude_read_beta_vane(float beta)
+{
+  booz_stab_att_ref_rate.r += beta / 4;
+  update_quats_from_euler();
+}
 
 void booz_stabilization_attitude_read_rc(bool_t in_flight) {
 
-  BOOZ_STABILIZATION_ATTITUDE_READ_RC(booz_stab_att_sp_euler, in_flight);
+    booz_stab_att_sp_euler.phi   = radio_control.values[RADIO_CONTROL_ROLL]  * ROLL_COEF;
+    booz_stab_att_sp_euler.theta = radio_control.values[RADIO_CONTROL_PITCH] * PITCH_COEF;
 
+    if (in_flight) {
+      if (YAW_DEADBAND_EXCEEDED()) {
+        booz_stab_att_sp_euler.psi += radio_control.values[RADIO_CONTROL_YAW] * YAW_COEF;
+        FLOAT_ANGLE_NORMALIZE(booz_stab_att_sp_euler.psi);
+      }
+    } else { /* if not flying, use current yaw as setpoint */
+      reset_psi_ref_from_body();
+      booz_stab_att_ref_rate.r = RC_UPDATE_FREQ*radio_control.values[RADIO_CONTROL_YAW]*YAW_COEF;
+    }
+
+    update_quats_from_euler();
 }
+
 
 
 void booz_stabilization_attitude_enter(void) {
 
-  BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF(  booz_stab_att_sp_euler );
+  reset_psi_ref_from_body();
+  update_quats_from_euler();
+  
   FLOAT_EULERS_ZERO( booz_stabilization_att_sum_err );
   FLOAT_QUAT_ZERO( booz_stabilization_sum_err );
   
