@@ -68,23 +68,23 @@ extern int xsens_setzero;
 
 extern struct FloatRMat xsens_rmat_neutral[XSENS_COUNT];
 
-#define PERIODIC_SEND_IMU_GYRO() DOWNLINK_SEND_IMU_GYRO (\
+#define PERIODIC_SEND_IMU_GYRO(_chan) DOWNLINK_SEND_IMU_GYRO (_chan, 	\
   &xsens_gyro_x, &xsens_gyro_y, &xsens_gyro_z \
 )
 
-#define PERIODIC_SEND_IMU_ACCEL() DOWNLINK_SEND_IMU_ACCEL (\
+#define PERIODIC_SEND_IMU_ACCEL(_chan) DOWNLINK_SEND_IMU_ACCEL (_chan, 	\
   &xsens_accel_x, &xsens_accel_y, &xsens_accel_z \
 )
 
-#define PERIODIC_SEND_IMU_MAG() DOWNLINK_SEND_IMU_MAG (\
+#define PERIODIC_SEND_IMU_MAG(_chan) DOWNLINK_SEND_IMU_MAG (_chan, 	\
   &xsens_mag_x, &xsens_mag_y, &xsens_mag_z \
 )
 
-#define PERIODIC_SEND_ATTITUDE() DOWNLINK_SEND_ATTITUDE (\
+#define PERIODIC_SEND_ATTITUDE(_chan) DOWNLINK_SEND_ATTITUDE (_chan,	\
   &xsens_phi, &xsens_psi, &xsens_theta \
 )
 
-#define PERIODIC_SEND_RMAT_DEBUG() DOWNLINK_SEND_RMAT_DEBUG (\
+#define PERIODIC_SEND_RMAT_DEBUG(_chan) DOWNLINK_SEND_RMAT_DEBUG (_chan,  \
   &xsens_rmat_neutral[0].m[0], \
   &xsens_rmat_neutral[0].m[1], \
   &xsens_rmat_neutral[0].m[2], \
