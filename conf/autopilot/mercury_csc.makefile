@@ -58,8 +58,8 @@ ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SL
 ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 ap.srcs += $(SRC_ARCH)/uart_hw.c
-ap.srcs += $(SRC_ARCH)/adc_hw.c
-ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_0 -DUSE_AD0_1
+#ap.srcs += $(SRC_ARCH)/adc_hw.c
+#ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_0 -DUSE_AD0_1
 
 #ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
 #ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
@@ -90,7 +90,7 @@ ap.srcs += $(SRC_CSC)/csc_servos.c
 ap.srcs += $(SRC_CSC)/csc_ap_link.c
 
 
-ap.srcs += $(SRC_CSC)/csc_adc.c
+#ap.srcs += $(SRC_CSC)/csc_adc.c
 
 ap.CFLAGS += -DERROR_LED=4
 
