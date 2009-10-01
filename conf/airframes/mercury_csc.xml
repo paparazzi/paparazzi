@@ -46,6 +46,8 @@ ap.CFLAGS += -DI2C0_STOP_HANDLER_HEADER=\"csc/arm7/buss_twi_blmc_hw.h\" -DI2C0_S
 ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 include $(PAPARAZZI_SRC)/conf/autopilot/mercury_csc.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/pwm_input.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/vane_sensor.makefile
 
 
   </makefile>
