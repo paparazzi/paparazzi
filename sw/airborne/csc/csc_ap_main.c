@@ -40,6 +40,8 @@
 #include "radio_control.h"
 #include "booz/booz2_gps.h"
 
+//#include "ap_downlink.h"
+
 #include "csc_servos.h"
 #include "csc_telemetry.h"
 #include "csc_adc.h"
@@ -49,6 +51,8 @@
 #include "pwm_input.h"
 #include "csc_ap_link.h"
 #include "led.h"
+
+#include "pprz_transport.h"
 
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
 
@@ -172,7 +176,7 @@ static void csc_main_periodic( void )
 {
   static uint32_t csc_loops = 0;
   
-  PeriodicSendAp();
+  PeriodicSendAp_DefaultChannel();
   radio_control_periodic_task();
 
   if (rc_status == RC_REALLY_LOST) {

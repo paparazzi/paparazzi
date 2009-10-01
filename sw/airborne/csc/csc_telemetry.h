@@ -29,6 +29,7 @@
 
 extern uint8_t telemetry_mode_Ap_DefaultChannel;
 
+#include "downlink.h"
 #include "settings.h"
 #include "booz/booz2_gps.h"
 
@@ -70,18 +71,19 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #ifdef USE_RADIO_CONTROL
 #include "booz_radio_control.h"
 #define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
-#define PERIODIC_SEND_QUAD_STATUS(_chan) DOWNLINK_SEND_QUAD_STATUS(_chan, &radio_control.status, &pprz_mode, &vsupply, &cpu_time)
+#define PERIODIC_SEND_FBW_STATUS(_chan) { uint16_t current; DOWNLINK_SEND_FBW_STATUS(_chan, &radio_control.status, &pprz_mode, &vsupply, &current); }
 #else 
 #ifdef RADIO_CONTROL
 #define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, PPM_NB_PULSES, rc_values)
-#define PERIODIC_SEND_QUAD_STATUS(_chan) DOWNLINK_SEND_QUAD_STATUS(_chan, &rc_status, &pprz_mode, &vsupply, &cpu_time)
+#define PERIODIC_SEND_FBW_STATUS(_chan) { uint16_t current; DOWNLINK_SEND_FBW_STATUS(_chan, &rc_status, &pprz_mode, &vsupply, &current); }
 #endif
 #endif /* USE_RADIO_CONTROL */
 
 #ifdef USE_GPS
-#define PERIODIC_SEND_BOOZ2_GPS(_chan) {				\
-    DOWNLINK_SEND_BOOZ2_GPS( &booz_ins_gps_pos_cm_ned.x,	\
-			     &booz_ins_gps_pos_cm_ned.y,	\
+#define PERIODIC_SEND_BOOZ2_GPS(_chan) {			\
+DOWNLINK_SEND_BOOZ2_GPS( _chan,    				\
+                         &booz_ins_gps_pos_cm_ned.x,		\
+                         &booz_ins_gps_pos_cm_ned.y,		\
 			     &booz_ins_gps_pos_cm_ned.z,	\
 			     &booz_gps_state.ecef_speed.x,	\
 			     &booz_gps_state.ecef_speed.y,	\
@@ -90,12 +92,13 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 			     &booz_gps_state.sacc,		\
 			     &booz_gps_state.pdop,		\
 			     &booz_gps_state.num_sv,		\
-			     &booz_gps_state.fix);		\
+			     &booz_gps_state.fix)		\
   }
 #endif
 
-#define PERIODIC_SEND_GPS_ERROR() {				\
-  DOWNLINK_SEND_GPS_ERROR( &csc_gps_errors.pos.x,		\
+#define PERIODIC_SEND_GPS_ERROR(_chan) {				\
+DOWNLINK_SEND_GPS_ERROR( _chan, 				\
+			     &csc_gps_errors.pos.x,		\
 			   &csc_gps_errors.pos.y,		\
 			   &csc_gps_errors.pos.z,		\
 			   &csc_gps_errors.rate.x,		\
@@ -104,7 +107,8 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
     }			   
 	
 #define PERIODIC_SEND_BOOZ2_INS3(_chan) { \
-DOWNLINK_SEND_BOOZ2_INS3(&booz_ins_gps_pos_cm_ned.x, \
+DOWNLINK_SEND_BOOZ2_INS3(_chan,	  \
+&booz_ins_gps_pos_cm_ned.x,	\
 &booz_ins_gps_pos_cm_ned.y,	    \
 &booz_ins_gps_pos_cm_ned.z,	    \
 &booz_ins_gps_speed_cm_s_ned.x,   \
