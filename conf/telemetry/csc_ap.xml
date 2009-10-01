@@ -9,7 +9,7 @@
       <message name="GPS_SOL"	     period="1.5"/>
       <message name="VANE_SENSOR"    period="0.2"/>
       <message name="SIMPLE_COMMANDS" period="0.2"/>
-      <message name="QUAD_STATUS"    period="1.5"/>
+      <message name="FBW_STATUS"    period="1.5"/>
       <message name="DL_VALUE"       period="1.5"/>
       <message name="CONTROLLER_GAINS" period="1"/>
       <message name="GPS_ERROR"        period="0.25"/>
@@ -20,7 +20,7 @@
       <message name="ATTITUDE"	     period="0.5"/>
       <message name="COMMANDS"       period="0.5"/>
       <message name="ACTUATORS"      period="0.5"/>
-      <message name="QUAD_STATUS"    period="1.1"/>
+      <message name="FBW_STATUS"    period="1.1"/>
       <message name="RC"	     period="0.5"/>
       <message name="IMU_ACCEL"      period="0.4"/>
       <message name="IMU_GYRO"       period="0.2"/>
