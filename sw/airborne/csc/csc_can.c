@@ -167,7 +167,7 @@ void csc_can1_send(struct CscCanMsg* msg) {
 void CAN1_Rx_ISR ( void ) {
  ISR_ENTRY();
  
- can1_rx_msg.id     = C1RID;
+ can1_rx_msg.id = C1RID;
  if (BOARDID_OF_CANMSG_ID(can1_rx_msg.id) == CSC_BOARD_ID) {
    can1_rx_msg.frame  = C1RFS;
    can1_rx_msg.dat_a  = C1RDA;
@@ -225,7 +225,7 @@ void CAN1_Err_ISR ( void ) {
  uint32_t __attribute__ ((unused)) c1icr = C1ICR;
 
  err_cnt++;
- LED_ON(ERROR_LED);
+ /* LED_ON(ERROR_LED); */
 
  VICVectAddr = 0x00000000; // acknowledge interrupt
  ISR_EXIT();
