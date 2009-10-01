@@ -14,6 +14,7 @@ void csc_ap_send_msg(uint8_t msg_id, const uint8_t *buf, uint8_t len);
 void can_write_csc(uint8_t board_id, uint8_t msg_id, const uint8_t *buf, uint8_t len);
 void csc_ap_link_send_status(uint32_t loops, uint32_t msgs);
 void csc_ap_link_send_adc(float adc1, float adc2);
+void csc_ap_link_send_vane(float vane_angle);
 void csc_ap_link_set_servo_cmd_cb(void (* cb)(struct CscServoCmd *cmd));
 void csc_ap_link_set_motor_cmd_cb(void (* cb)(struct CscMotorMsg *msg));
 void csc_ap_link_set_prop_cmd_cb(void (* cb)(struct CscPropCmd *cmd, int idx));

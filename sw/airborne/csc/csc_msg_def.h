@@ -18,6 +18,7 @@
 #define CSC_GPS_POS_ID	      8
 #define CSC_GPS_ACC_ID	      9
 #define CSC_PROP2_CMD_ID       10
+#define CSC_VANE_MSG_ID       11
 
 
 /* Received from the autopilot */
@@ -71,6 +72,11 @@ struct CscGPSPosMsg {
 struct CscGPSAccMsg {
   uint32_t pacc;
   uint32_t sacc;
+} __attribute__((packed));
+
+struct CscVaneMsg {
+  float vane_angle1;
+  float vane_angle2;
 } __attribute__((packed));
 
 #define CSC_RC_SCALE 20

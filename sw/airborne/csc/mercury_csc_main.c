@@ -31,6 +31,7 @@
 #include "init_hw.h"
 #include "sys_time.h"
 #include "led.h"
+#include "csc_vane.h"
 
 #ifdef USE_BUSS_TWI_BLMC_MOTOR
 #include "buss_twi_blmc_hw.h"
@@ -46,7 +47,7 @@
 #include "csc_telemetry.h"
 #include "periodic.h"
 #include "downlink.h"
-
+#include "pwm_input.h"
 
 #include "csc_adc.h"
 #include "csc_rc_spektrum.h"
@@ -87,12 +88,18 @@ static void csc_main_init( void ) {
   spektrum_init();
 #endif
 
+#ifdef USE_PWM_INPUT
+  pwm_input_init();
+#endif
+
   csc_ap_link_init();
   csc_ap_link_set_servo_cmd_cb(on_servo_cmd);
   csc_ap_link_set_motor_cmd_cb(on_motor_cmd);
   csc_ap_link_set_prop_cmd_cb(on_prop_cmd);
 
+#ifdef ADC
   csc_adc_init();
+#endif
 
   // be sure to call servos_init after uart1 init since they are sharing pins
   #ifdef USE_I2C0
@@ -115,6 +122,10 @@ static void csc_main_periodic( void ) {
   PeriodicSendAp_DefaultChannel();
   #endif
 
+  #ifdef USE_VANE_SENSOR
+  csc_vane_periodic();
+  #endif
+
   if (servo_cmd_timeout > SERVO_TIMEOUT) {
     csc_servos_set(zeros);
   } else {
@@ -124,10 +135,11 @@ static void csc_main_periodic( void ) {
   if ((++csc_loops % CSC_STATUS_TIMEOUT) == 0) {
     csc_ap_link_send_status(csc_loops, can_msg_count);
   }
+#ifdef ADC
   if ((++csc_loops % CSC_STATUS_TIMEOUT) == 0) {
     csc_adc_periodic();
   }
-
+#endif
 }
 
 static void csc_main_event( void ) {

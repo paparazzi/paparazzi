@@ -35,6 +35,16 @@ void csc_ap_link_send_status(uint32_t loops, uint32_t msgs)
   csc_ap_send_msg(CSC_BOARD_STATUS_ID, (const uint8_t *) &msg, sizeof(msg));
 }
 
+void csc_ap_link_send_vane(float vane_angle)
+{
+
+  struct CscVaneMsg msg;
+
+  msg.vane_angle1 = vane_angle;
+
+  csc_ap_send_msg(CSC_VANE_MSG_ID, (const uint8_t *) &msg, sizeof(msg));
+}
+
 
 // Generic function for sending can messages
 void can_write_csc(uint8_t board_id, uint8_t msg_id, const uint8_t *buf, uint8_t len)
