@@ -22,6 +22,7 @@
 #define RAD_OF_EM7RAD(_r) (_r/1e7)
 
 static void test_floats(void);
+static void test_doubles(void);
 static void  test_enu_of_ecef_int(void);
 static void test_ned_to_ecef_to_ned(void);
 static void test_enu_to_ecef_to_enu( void );
@@ -32,11 +33,12 @@ static void test_enu_to_ecef_to_enu( void );
 
 int main(int argc, char** argv) {
 
-  //  test_floats();
+  test_floats();
+  test_doubles();
   //  test_enu_of_ecef_int();
   //  test_ned_to_ecef_to_ned();
 
-  test_enu_to_ecef_to_enu();
+  // test_enu_to_ecef_to_enu();
   return 0;
 
 }
@@ -61,6 +63,33 @@ static void test_floats(void) {
   struct EcefCoor_f my_ecef_point = ref_coor;
   struct EnuCoor_f  my_enu_point;
   enu_of_ecef_point_f(&my_enu_point, &ltp_def, &my_ecef_point);
+
+  printf("ecef to enu : (%f,%f,%f) -> (%f,%f,%f)\n", 
+	 my_ecef_point.x, my_ecef_point.y, my_ecef_point.z, 
+	 my_enu_point.x, my_enu_point.y, my_enu_point.z );
+  printf("\n"); 
+}
+
+
+static void test_doubles(void) {
+
+  printf("\n--- enu_of_ecef double ---\n");
+  //  struct LlaCoor_f ref_coor;
+  //  ref_coor.lat = RAD_OF_DEG(43.605278);
+  //  ref_coor.lon = RAD_OF_DEG(1.442778);
+  //  ref_coor.alt = 180.0;
+  
+  struct EcefCoor_d ref_coor = { 4624497.0 , 116475.0, 4376563.0};
+  printf("ecef0 : (%.02f,%.02f,%.02f)\n", ref_coor.x, ref_coor.y, ref_coor.z); 
+
+  struct LtpDef_d ltp_def;
+  ltp_def_from_ecef_d(&ltp_def, &ref_coor);
+
+  printf("lla0 : (%f,%f,%f)\n", DegOfRad(ltp_def.lla.lat), DegOfRad(ltp_def.lla.lon), ltp_def.lla.alt); 
+
+  struct EcefCoor_d my_ecef_point = ref_coor;
+  struct EnuCoor_d  my_enu_point;
+  enu_of_ecef_point_d(&my_enu_point, &ltp_def, &my_ecef_point);
 
   printf("ecef to enu : (%f,%f,%f) -> (%f,%f,%f)\n", 
 	 my_ecef_point.x, my_ecef_point.y, my_ecef_point.z, 
