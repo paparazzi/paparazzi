@@ -11,6 +11,11 @@ static void got_pprz_message(const u_char *buf, const struct timeval *ts)
   int i = 0;
   u_char length;
   u_char ck_A = 0, ck_B = 0;
+  static unsigned int start_secs = 0;
+
+  if (start_secs == 0) {
+    start_secs = ts->tv_sec;
+  }
 
   length = buf[i];
 
@@ -25,7 +30,7 @@ static void got_pprz_message(const u_char *buf, const struct timeval *ts)
     return;
   }
   //printf("Got pprz msg len %i, ckA %02x, ckB %02x (%02x %02x)\n", length, ck_A, ck_B, buf[length - 3], buf[length - 2]);
-  printf("%i.%06i ", (unsigned) ts->tv_sec, (unsigned) ts->tv_usec);
+  printf("%i.%06i ", (unsigned) ts->tv_sec - start_secs, (unsigned) ts->tv_usec);
   printf("%i %i ", buf[1], buf[2]);
   for(i = 2; i < length - 3; i++)
   {
