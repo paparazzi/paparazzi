@@ -125,7 +125,7 @@ let print_waypoint_lla = fun utm0 default_alt waypoint ->
   and y = float_attrib waypoint "y"
   and alt = try Xml.attrib waypoint "alt" with _ -> default_alt in
   let wgs84 = Latlong.of_utm Latlong.WGS84 (Latlong.utm_add utm0 (x, y)) in
-  printf " {%d, %d, %.0f}, /* 1e7deg, 1e7deg, cm */ \\\n" (convert_angle wgs84.posn_lat) (convert_angle wgs84.posn_long) (100. *. float_of_string alt)
+  printf " {%d, %d, %.0f}, /* 1e7deg, 1e7deg, cm (hmsl=%.2fm) */ \\\n" (convert_angle wgs84.posn_lat) (convert_angle wgs84.posn_long) (100. *. float_of_string alt) (egm96 wgs84)
 
 
 let index_of_blocks = ref []
@@ -752,8 +752,9 @@ let () =
       Xml2h.define "NAV_UTM_ZONE0" (sprintf "%d" utm0.utm_zone);
       Xml2h.define "NAV_LAT0" (sprintf "%d /* 1e7deg */" (convert_angle wgs84.posn_lat));
       Xml2h.define "NAV_LON0" (sprintf "%d /* 1e7deg */" (convert_angle wgs84.posn_long));
-      Xml2h.define "NAV_ALT0" (sprintf "%.0f /* cm hmsl */" (100. *. !ground_alt));
-
+      Xml2h.define "NAV_ALT0" (sprintf "%.0f /* cm from msl */" (100. *. !ground_alt));
+      Xml2h.define "NAV_HMSL0" (sprintf "%.0f /* cm, msl from ellipsoid (EGM96) */" (100. *. Latlong.egm96 wgs84));
+      
       Xml2h.define "QFU" (sprintf "%.1f" qfu);
       
       let waypoints = dummy_waypoint :: waypoints in
