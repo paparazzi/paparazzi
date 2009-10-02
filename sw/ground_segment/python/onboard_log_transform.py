@@ -106,6 +106,7 @@ class OnboardLogTransformTool():
 	if (field_offset + 1 >= len(data_fields)):
 	  break
 
+      sys.stdout.softspace=0
       print ""
 
     def Run(self, logfile):
