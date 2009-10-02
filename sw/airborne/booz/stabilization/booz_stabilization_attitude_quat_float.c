@@ -78,12 +78,16 @@ static void reset_psi_ref_from_body(void) {
     booz_stab_att_ref_accel.r = 0;
 }
 
-static void update_quats_from_euler(void) {
-    struct FloatRMat sp_rmat, ref_rmat;
+static void update_sp_quat_from_eulers(void) {
+    struct FloatRMat sp_rmat;
 
     FLOAT_RMAT_OF_EULERS_312(sp_rmat, booz_stab_att_sp_euler);
     /*    FLOAT_RMAT_OF_EULERS_321(sp_rmat, _sp);*/
     FLOAT_QUAT_OF_RMAT(booz_stab_att_sp_quat, sp_rmat);
+}
+
+static void update_ref_quat_from_eulers(void) {
+    struct FloatRMat ref_rmat;
 
     FLOAT_RMAT_OF_EULERS_312(ref_rmat, booz_stab_att_ref_euler);
     FLOAT_QUAT_OF_RMAT(booz_stab_att_ref_quat, ref_rmat);
@@ -91,8 +95,8 @@ static void update_quats_from_euler(void) {
 
 void booz_stabilization_attitude_read_beta_vane(float beta)
 {
-  booz_stab_att_ref_rate.r += beta / 4;
-  update_quats_from_euler();
+  booz_stab_att_sp_euler.psi += beta / RC_UPDATE_FREQ;
+  update_sp_quat_from_eulers();
 }
 
 void booz_stabilization_attitude_read_rc(bool_t in_flight) {
@@ -105,12 +109,14 @@ void booz_stabilization_attitude_read_rc(bool_t in_flight) {
         booz_stab_att_sp_euler.psi += radio_control.values[RADIO_CONTROL_YAW] * YAW_COEF;
         FLOAT_ANGLE_NORMALIZE(booz_stab_att_sp_euler.psi);
       }
+      update_sp_quat_from_eulers();
     } else { /* if not flying, use current yaw as setpoint */
       reset_psi_ref_from_body();
+      update_sp_quat_from_eulers();
+      update_ref_quat_from_eulers();
       booz_stab_att_ref_rate.r = RC_UPDATE_FREQ*radio_control.values[RADIO_CONTROL_YAW]*YAW_COEF;
     }
 
-    update_quats_from_euler();
 }
 
 
@@ -118,7 +124,8 @@ void booz_stabilization_attitude_read_rc(bool_t in_flight) {
 void booz_stabilization_attitude_enter(void) {
 
   reset_psi_ref_from_body();
-  update_quats_from_euler();
+  update_sp_quat_from_eulers();
+  update_ref_quat_from_eulers();
   
   FLOAT_EULERS_ZERO( booz_stabilization_att_sum_err );
   FLOAT_QUAT_ZERO( booz_stabilization_sum_err );
