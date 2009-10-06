@@ -229,7 +229,7 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx) {
 
 static inline void nav_set_altitude( void ) {
   static int32_t last_nav_alt = 0;
-  if (abs(nav_altitude - last_nav_alt) < (POS_BFP_OF_REAL(0.5))) {
+  if (abs(nav_altitude - last_nav_alt) > (POS_BFP_OF_REAL(0.5))) {
     nav_flight_altitude = nav_altitude;
     last_nav_alt = nav_altitude;
   }
