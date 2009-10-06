@@ -103,7 +103,8 @@ class OnboardLogTransformTool():
 	else:
 	  print "unknown field type %s" % field
 
-	if (field_offset + 1 >= len(data_fields)):
+	if (field_offset > len(data_fields)):
+	  print "finished without parsing %s" % field
 	  break
 
       sys.stdout.softspace=0
