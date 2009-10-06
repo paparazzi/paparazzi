@@ -278,7 +278,10 @@
 
   <message name="AIRSPEED" id="45">
       <field name="adc" type="uint16"/>
-      <field name="airspeed" type="float"/>
+      <field name="airspeed" type="float" unit="m/s"/>
+      <field name="airspeed_sp" type="float" unit="m/s"/>
+      <field name="airspeed_cnt" type="float" unit="m/s"/>
+      <field name="groundspeed_sp" type="float" unit="m/s"/>
   </message>
 
   <message name="BARO_WORDS" id="46">

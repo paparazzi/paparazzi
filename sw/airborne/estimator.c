@@ -150,6 +150,12 @@ void alt_kalman(float gps_z) {
     R = baro_MS5534A_r;
     SIGMA2 = baro_MS5534A_sigma2;
   } else
+#elif defined(USE_BARO_ETS)
+  if (baro_ets_enabled) {
+    DT = BARO_ETS_DT;
+    R = baro_ets_r;
+    SIGMA2 = baro_ets_sigma2;
+  } else
 #endif
   {
     DT = GPS_DT;
@@ -204,9 +210,11 @@ void estimator_update_state_gps( void ) {
   gps_east -= nav_utm_east0;
   gps_north -= nav_utm_north0;
 
-  float falt = gps_alt / 100.;
   EstimatorSetPosXY(gps_east, gps_north);
+#ifndef USE_BARO_ETS
+  float falt = gps_alt / 100.;
   EstimatorSetAlt(falt);
+#endif
   float fspeed = gps_gspeed / 100.;
   float fclimb = gps_climb / 100.;
   float fcourse = RadOfDeg(gps_course / 10.);

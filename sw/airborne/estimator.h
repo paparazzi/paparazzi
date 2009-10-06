@@ -36,6 +36,10 @@
 #include "baro_MS5534A.h"
 #endif
 
+#ifdef USE_BARO_ETS
+#include "baro_ets.h"
+#endif
+
 /* position in meters */
 extern float estimator_x;
 extern float estimator_y;
@@ -87,7 +91,7 @@ extern void alt_kalman( float );
 #ifdef ALT_KALMAN
 #define EstimatorSetPosXY(x, y) { estimator_x = x; estimator_y = y; }
 
-#ifdef USE_BARO_MS5534A
+#if defined(USE_BARO_MS5534A) || defined(USE_BARO_ETS)
 /* Kalman filter cannot be disabled in this mode (no z_dot) */
 #define EstimatorSetAlt(z) alt_kalman(z)
 #else /* USE_BARO_MS5534A */

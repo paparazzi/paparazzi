@@ -90,9 +90,14 @@ extern void v_ctl_climb_loop ( void );
 #ifdef USE_AIRSPEED
 /* "airspeed" inner loop parameters */
 extern float v_ctl_auto_airspeed_setpoint;
-extern float v_ctl_auto_airspeed_pitch_pgain;
-extern float v_ctl_auto_airspeed_throttle_pgain;
-extern float v_ctl_auto_airspeed_throttle_igain;
+extern float v_ctl_auto_airspeed_controlled;
+extern float v_ctl_auto_airspeed_pgain;
+extern float v_ctl_auto_airspeed_igain;
+extern float v_ctl_auto_airspeed_sum_err;
+extern float v_ctl_auto_groundspeed_setpoint;
+extern float v_ctl_auto_groundspeed_pgain;
+extern float v_ctl_auto_groundspeed_igain;
+extern float v_ctl_auto_groundspeed_sum_err;
 #endif
 
 /** Computes throttle_slewed from throttle_setpoint */

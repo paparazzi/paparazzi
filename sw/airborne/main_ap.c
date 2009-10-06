@@ -127,6 +127,14 @@
 #include "usb_serial.h"
 #endif
 
+#ifdef USE_AIRSPEED_ETS
+#include "airspeed_ets.h"
+#endif // USE_AIRSPEED_ETS
+
+#ifdef USE_BARO_ETS
+#include "baro_ets.h"
+#endif // USE_BARO_ETS
+
 /*code added by Haiyang Chao for using Xsens IMU for fixed wing UAV 20080804*/
 #ifdef UGEAR
 #include "osam_imu_ugear.h"
@@ -581,6 +589,29 @@ void periodic_task_ap( void ) {
   if (!_20Hz)
 #endif
     {
+
+    // I2C scheduler
+    switch (_20Hz) {
+      case 0:
+#ifdef USE_AIRSPEED_ETS
+        airspeed_ets_periodic(); // process airspeed
+#endif // USE_AIRSPEED_ETS
+#ifdef USE_BARO_ETS
+        baro_ets_read(); // initiate next i2c read
+#endif // USE_BARO_ETS
+        break;
+      case 1:
+#ifdef USE_BARO_ETS
+        baro_ets_periodic(); // process altitude
+#endif // USE_BARO_ETS
+#ifdef USE_AIRSPEED_ETS
+        airspeed_ets_read(); // initiate next i2c read
+#endif // USE_AIRSPEED_ETS
+        break;
+      case 2:
+        break;
+    }
+
 #if defined GYRO
       gyro_update();
 #endif
@@ -666,6 +697,14 @@ void init_ap( void ) {
 
 #ifdef USE_I2C1
   i2c1_init();
+#endif
+
+#ifdef USE_AIRSPEED_ETS
+  airspeed_ets_init();
+#endif
+
+#ifdef USE_BARO_ETS
+  baro_ets_init();
 #endif
 
 #ifdef USE_ADC_GENERIC
@@ -885,6 +924,13 @@ void event_task_ap( void ) {
       if (alt_baro_enabled) {
 	EstimatorSetAlt(baro_MS5534A_z);
       }
+    }
+  }
+#elif defined(USE_BARO_ETS)
+  if (baro_ets_updated) {
+    baro_ets_updated = FALSE;
+    if (baro_ets_valid) {
+      EstimatorSetAlt(baro_ets_altitude);
     }
   }
 #endif
