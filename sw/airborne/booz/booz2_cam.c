@@ -101,7 +101,7 @@ void booz2_cam_periodic(void) {
         nav_heading = booz2_cam_pan;
         int32_t dist, height;
         INT32_VECT2_NORM(dist, diff);
-        height = waypoints[WP_CAM].z - booz_ins_enu_pos.z;
+        height = (waypoints[WP_CAM].z - booz_ins_enu_pos.z) >> INT32_POS_FRAC;
         INT32_ATAN2(booz2_cam_tilt, height, dist);
         Bound(booz2_cam_tilt, CAM_TA_MIN, CAM_TA_MAX);
         booz2_cam_tilt_pwm = BOOZ2_CAM_TILT_MIN + (BOOZ2_CAM_TILT_MAX - BOOZ2_CAM_TILT_MIN) * (booz2_cam_tilt - CAM_TA_MIN) / (CAM_TA_MAX - CAM_TA_MIN);
