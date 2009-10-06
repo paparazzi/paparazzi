@@ -89,12 +89,14 @@ void booz_ins_init() {
   struct LlaCoor_i llh; /* Height above the ellipsoid */
   llh.lat = INT32_RAD_OF_DEG(NAV_LAT0);
   llh.lon = INT32_RAD_OF_DEG(NAV_LON0);
-  llh.alt = NAV_ALT0 - booz_ins_ltp_def.hmsl + booz_ins_ltp_def.lla.alt;
+  //llh.alt = NAV_ALT0 - booz_ins_ltp_def.hmsl + booz_ins_ltp_def.lla.alt;
+  llh.alt = NAV_ALT0 + NAV_HMSL0;
 
   struct EcefCoor_i nav_init;
   ecef_of_lla_i(&nav_init, &llh);
 
   ltp_def_from_ecef_i(&booz_ins_ltp_def, &nav_init);
+  booz_ins_ltp_def.hmsl = NAV_ALT0;
 #else
   booz_ins_ltp_initialised  = FALSE;
 #endif
