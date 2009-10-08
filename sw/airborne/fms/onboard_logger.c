@@ -67,19 +67,19 @@ static void got_packet (u_char *args, const struct pcap_pkthdr *header,
   udp_length = htons(udp->uh_len);
   //printf ("Got udp packet length %i\n", udp_length);
   //for ( i = 0; i < udp_length; i++)
-  //printf ("%02x ", payload[i]);
+  //printf ("[%02i] \n", payload[i]);
 
   i = 0;
   while (i < udp_length) {
-    if (payload[i++] == 0x99) {
-      //printf("got startbyte at %i\n", i);
-      if (i + payload[i] + 2 <= udp_length) {
-	got_pprz_message(payload + i, &header->ts);
-	i += payload[i] + 2;
-      } else {
-	return; // truncated
-      }
-    }
+    if (payload[i] != 0x99) {
+      ///printf("missing start byte\n");
+      break;
+    } 
+    i++;
+    if (i + payload[i] <= udp_length) {
+      got_pprz_message(payload + i, &header->ts);
+      i += payload[i] - 1;
+    } 
   }
 }
 
