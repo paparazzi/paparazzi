@@ -95,7 +95,7 @@ static void update_ref_quat_from_eulers(void) {
 
 void booz_stabilization_attitude_read_beta_vane(float beta)
 {
-  booz_stab_att_sp_euler.psi += beta / RC_UPDATE_FREQ;
+  booz_stab_att_sp_euler.psi += booz_ahrs_float.ltp_to_body_euler.theta * beta / RC_UPDATE_FREQ;
   update_sp_quat_from_eulers();
 }
 
