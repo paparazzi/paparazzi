@@ -70,9 +70,13 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
   let f = fun a -> float_of_string (ExtXml.attrib dl_setting a) in
   let lower = f "min"
   and upper = f "max"
-  and step_incr = f "step"
-  and page_incr = f "step"
-  and page_size = f "step"
+  and step_incr = 
+    try f "step" with _ ->
+      fprintf stderr "Warning: 'step' attribute missing in '%s' setting. Default to 1\n%!" (Xml.to_string dl_setting);
+      1.
+  in
+  let page_incr = step_incr
+  and page_size = step_incr
   and show_auto = try ExtXml.attrib dl_setting "auto" = "true" with _ -> false in
   let auc = try Xml.attrib dl_setting "alt_unit_coef" with _ -> "" in
   let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
