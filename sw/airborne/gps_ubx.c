@@ -40,7 +40,7 @@
 
 #define UbxInitCheksum() { send_ck_a = send_ck_b = 0; }
 #define UpdateChecksum(c) { send_ck_a += c; send_ck_b += send_ck_a; }
-#define UbxTrailer() { GpsUartSend1(send_ck_a);  GpsUartSend1(send_ck_b); }
+#define UbxTrailer() { GpsUartSend1(send_ck_a);  GpsUartSend1(send_ck_b); GpsUartSendMessage(); }
 
 #define UbxSend1(c) { uint8_t i8=c; GpsUartSend1(i8); UpdateChecksum(i8); }
 #define UbxSend2(c) { uint16_t i16=c; UbxSend1(i16&0xff); UbxSend1(i16 >> 8); }
@@ -121,19 +121,42 @@ void gps_init( void ) {
 #define NMEA_PROTO_MASK 0x0002
 #define RTCM_PROTO_MASK 0x0004
 
+#define GPS_PORT_DDC   0x00
+#define GPS_PORT_UART1 0x01
+#define GPS_PORT_UART2 0x02
+#define GPS_PORT_USB   0x03
+#define GPS_PORT_SPI   0x04
+
+
 #ifdef GPS_CONFIGURE
 /* GPS dynamic configuration */
 
 #include "uart.h"
 
-/* Configure the GPS baud rateó< using the current uart baud rate. Busy
+#ifndef GPS_PORT_ID
+#define GPS_PORT_ID GPS_PORT_UART1
+#endif
+
+
+/* Configure the GPS baud rate using the current uart baud rate. Busy
    wait for the end of the transmit. Then, BEFORE waiting for the ACK,
    change the uart rate. */
+#if GPS_PORT_ID == GPS_PORT_UART1 || GPS_PORT_ID == GPS_PORT_UART2
 void gps_configure_uart ( void ) {
-  UbxSend_CFG_PRT(0x01, 0x0, 0x0, 0x000008D0, GPS_BAUD, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);  
+  UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x000008D0, GPS_BAUD, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+
   while (GpsUartRunning) ; /* FIXME */
   GpsUartInitParam( UART_BAUD(GPS_BAUD),  UART_8N1, UART_FIFO_8);
 }
+#endif
+
+#if GPS_PORT_ID == GPS_PORT_DDC
+void gps_configure_uart ( void ) {
+  UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, (GPS_I2C_SLAVE_ADDR<<1), 0x0, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+}
+#endif
+
+
 
 #ifdef USER_GPS_CONFIGURE
 #include USER_GPS_CONFIGURE
