@@ -6,6 +6,8 @@
 
 static const char filter_exp[] = "dst port 4242 && udp";
 
+#define MIN_MSG_LENGTH 3
+
 static void got_pprz_message(const u_char *buf, const struct timeval *ts)
 {
   int i = 0;
@@ -47,6 +49,7 @@ static void got_packet (u_char *args, const struct pcap_pkthdr *header,
   const struct ethernet_header *ethernet;
   const struct ip_header *ip;
   const struct udp_header *udp;
+  unsigned int msg_length;
 
   u_short udp_length;
   u_int size_ip;
@@ -76,7 +79,8 @@ static void got_packet (u_char *args, const struct pcap_pkthdr *header,
       break;
     } 
     i++;
-    if (i + payload[i] <= udp_length) {
+    msg_length = payload[i];
+    if ((i + msg_length <= udp_length) && msg_length >= MIN_MSG_LENGTH) {
       got_pprz_message(payload + i, &header->ts);
       i += payload[i] - 1;
     } 
