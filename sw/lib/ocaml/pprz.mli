@@ -72,7 +72,7 @@ val types : (string * type_descr) list
 type values  = (string * value) list
 
 val assoc : string -> values -> value
-(** Safe assoc taking into accound characters case *)
+(** Safe assoc taking into accound characters case. May raise Failure ... *)
 
 val string_assoc : string -> values -> string
 (** May raise Not_found *)
@@ -81,6 +81,9 @@ val float_assoc : string -> values -> float
 val int_assoc : string -> values -> int
 val int32_assoc : string -> values -> Int32.t
 (** May raise Not_found or Invalid_argument *)
+
+val hex_of_int_array : value -> string
+(** Returns the hexadecimal string of an array of integers *)
 
 exception Unknown_msg_name of string * string
 (** [Unknown_msg_name (name, class_name)] Raised if message [name] is not

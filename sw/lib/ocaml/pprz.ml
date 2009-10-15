@@ -296,7 +296,25 @@ let rec sprint_value = fun buf i _type v ->
       String.blit s 0 buf (i+1) n;
       1 + n
   | (Scalar x|ArrayType x), _ -> failwith (sprintf "Pprz.sprint_value (%s)" x)
-  
+
+
+
+let hex_of_int_array = function
+    Array array ->
+      let n = Array.length array in
+      (* One integer -> 2 chars *)
+      let s = String.create (2*n) in
+      Array.iteri
+	(fun i dec ->
+	  let x = int_of_value array.(i) in
+	  assert (0 <= x && x <= 0xff);
+	  let hex = sprintf "%02x" x in
+	  String.blit hex 0 s (2*i) 2)
+	array;
+      s	
+  | value ->
+      failwith (sprintf "Error: expecting array in Pprz.hex_of_int_array, found %s" (string_of_value value))
+
   
 
 exception Unknown_msg_name of string * string
