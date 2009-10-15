@@ -11,17 +11,22 @@
 
 #include <caml/mlvalues.h>
 
+float sim_air_speed;
+
 void ir_gain_calib(void) {
 }
 
 value set_ir(value roll __attribute__ ((unused)),
 	     value front __attribute__ ((unused)),
-             value top __attribute__ ((unused))) {
+             value top __attribute__ ((unused)),
+	     value air_speed
+	     ) {
 #ifdef INFRARED
   ir_roll = Int_val(roll);
   ir_pitch = Int_val(front);
   ir_top = Int_val(top);
 #endif
+  sim_air_speed = Double_val(air_speed);
   return Val_unit;
 }
 

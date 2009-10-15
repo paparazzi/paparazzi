@@ -189,10 +189,10 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 (* Functions called by the simulator *)
   let commands = fun s -> rcommands := s
       
-  external set_ir : int -> int -> int -> unit = "set_ir"
-  let infrared = fun ir_left ir_front ir_top ->
+  external set_ir : int -> int -> int -> float -> unit = "set_ir"
+  let infrared = fun ir_left ir_front ir_top air_speed ->
     (** ADC neutral is not taken into account in the soft sim (c.f. sim_ir.c)*)
-    set_ir (truncate ir_left) (truncate ir_front) (truncate ir_top)
+    set_ir (truncate ir_left) (truncate ir_front) (truncate ir_top) air_speed
 
   external use_gps_pos: int -> int -> int -> float -> float -> float -> float -> float -> bool -> float -> float -> unit = "sim_use_gps_pos_bytecode" "sim_use_gps_pos"
   let gps = fun gps ->
