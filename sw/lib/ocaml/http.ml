@@ -9,7 +9,7 @@ let file_of_url = fun ?dest url ->
       match dest with 
 	Some s -> s
       | None -> Filename.temp_file "fp" ".wget" in
-    let c = Printf.sprintf "wget --cache=off -O %s '%s'" tmp_file url in
+    let c = Printf.sprintf "wget -nv --cache=off -O %s '%s'" tmp_file url in
     if Sys.command c = 0 then
       tmp_file
     else begin
