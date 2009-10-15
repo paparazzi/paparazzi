@@ -138,11 +138,46 @@ let map_from_region = fun (geomap:G.widget) () ->
       save_map geomap dest nw se
 
 
+(** This module could be inserted into Ocaml_toosl; but it requires threads.cma *)
+module TodoList = struct
+  (** A list of functions to call *)
+  let queue = (Queue.create () : (unit -> unit) Queue.t)
+
+  (** The id of a running thread executing the queue *)
+  let doer = ref None
+
+  (** A mutex to handle concurrent accesses *)
+  let mutex = Mutex.create ()
+
+  let rec exec_todo_list = fun todo_list ->
+    Mutex.lock mutex;
+    if Queue.is_empty todo_list then begin
+      (** Nothing mode to do: exiting the thread *)
+      doer := None;
+      Mutex.unlock mutex
+    end else
+      (** Pick a function from the list, call it and continue *)
+      let f = Queue.take queue in
+      Mutex.unlock mutex;
+      f ();
+      exec_todo_list todo_list
+	
+  let add = fun f ->
+    Mutex.lock mutex;
+    (** Add the function to the queue *)
+    Queue.add f queue;
+    if !doer = None then
+      (** Nobody is currently running the queue: start a thread *)
+      doer := Some (Thread.create exec_todo_list queue);
+    Mutex.unlock mutex
+end
+  
+
 (************ Google, OSM Maps handling *****************************************)
 module GM = struct
   (** Fill the visible background with Google, OSM tiles *)
   let fill_tiles = fun geomap -> 
-    ignore (Thread.create MapGoogle.fill_window geomap)
+    TodoList.add (fun () -> MapGoogle.fill_window geomap)
 
   let auto = ref false
   let update = fun geomap ->
@@ -189,12 +224,11 @@ let display_bdortho = fun  (geomap:G.widget) wgs84 () ->
     if Sys.file_exists f then
       display f
     else
-      ignore (Thread.create
-		(fun f ->
-		  let c = sprintf "%s %d %d %d %s" !get_bdortho lx ly r f in
-		  ignore (Sys.command c);
-		  display f)
-		f)
+      TodoList.add
+	(fun () ->
+	  let c = sprintf "%s %d %d %d %s" !get_bdortho lx ly r f in
+	  ignore (Sys.command c);
+	  display f)
   end
 
 
@@ -237,15 +271,14 @@ let button_press = fun (geomap:G.widget) ev ->
     and yc = GdkEvent.Button.y ev in
     let (xw,yw) = geomap#window_to_world xc yc in
     
-    let thread = fun f x -> ignore (Thread.create f x) in
     let wgs84 = geomap#of_world (xw,yw) in
     let display_ign = fun () ->	
-      thread (MapIGN.display_tile geomap) wgs84
+      TodoList.add (fun () -> MapIGN.display_tile geomap wgs84)
     and display_gm = fun () ->
-      thread (fun () ->
-	try ignore (MapGoogle.display_tile geomap wgs84) with
-	  Gm.Not_available -> ())
-	() in
+      TodoList.add
+	(fun () ->
+	  try ignore (MapGoogle.display_tile geomap wgs84) with
+	    Gm.Not_available -> ()) in
     
     let m = if !ign then [`I ("Load IGN tile", display_ign)] else [] in
     let m =
