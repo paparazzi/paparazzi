@@ -24,11 +24,14 @@
 extern void i2c0_init(void);
 extern void i2c0_receive(uint8_t slave_addr, uint8_t len, volatile bool_t* finished);
 extern void i2c0_transmit(uint8_t slave_addr, uint8_t len, volatile bool_t* finished);
+extern void i2c0_transmit_no_stop(uint8_t slave_addr, uint8_t len, volatile bool_t* finished);
 
 extern volatile uint8_t i2c0_status;
+extern volatile bool_t  i2c0_stop_after_transmit;
+
 
 #ifndef I2C0_BUF_LEN
-#define I2C0_BUF_LEN 16
+#define I2C0_BUF_LEN 32
 #endif
 
 extern volatile uint8_t i2c0_buf[I2C0_BUF_LEN];
@@ -71,7 +74,11 @@ extern volatile bool_t* i2c0_finished;
 	I2c0SendByte(i2c0_buf[i2c0_index]);				\
 	i2c0_index++;							\
       } else {								\
-	I2c0SendStop();							\
+	if (i2c0_stop_after_transmit) {                                 \
+          I2c0SendStop();                                               \
+        } else {                                                        \
+          I2c0Finished();                                               \
+        }                                                               \
       }									\
       break;								\
     case I2C_MR_DATA_NACK:						\
