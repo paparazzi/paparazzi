@@ -50,7 +50,8 @@ void airspeed_update( void ) {
   adc_airspeed_val = airspeed_ets_raw;
 #endif
 #else // SITL
-  EstimatorSetAirspeed(gps_gspeed / 100.0); // FIXME: should calculate airspeed in the simulation model, use ground speed for now
+  extern float sim_air_speed;
+  EstimatorSetAirspeed(sim_air_speed);
   adc_airspeed_val = 0;
 #endif //SITL
 }
