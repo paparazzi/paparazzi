@@ -69,6 +69,7 @@ sim.srcs += $(SRC_BOOZ)/booz2_telemetry.c \
 
 sim.srcs   += $(SRC_BOOZ)/booz2_commands.c
 
+sim.srcs += $(SRC_BOOZ)/booz2_datalink.c
 
 #
 #
