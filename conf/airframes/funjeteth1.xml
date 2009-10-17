@@ -79,7 +79,9 @@
   </section>
 
   <section name="BAT">
-    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
+    <!--define name="MILLIAMP_AT_FULL_THROTTLE" value="10000."/-->
+    <define name="ADC_CHANNEL_CURRENT" value="ADC_6"/>
+    <define name="MilliAmpereOfAdc(adc)" value="(88*adc)"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
                                         <!-- 0.0247311828 -->
                                         <!-- 0.02432905 -->
@@ -176,9 +178,25 @@
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
  
- <section name="SIMU">
-    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
- </section>
+  <section name="MICROMAG">
+
+    <define name="MM_SS_PIN" value="20"/>
+    <define name="MM_SS_IODIR" value="IO0DIR"/>
+    <define name="MM_SS_IOSET" value="IO0SET"/>
+    <define name="MM_SS_IOCLR" value="IO0CLR"/>
+
+    <define name="MM_RESET_PIN" value="29"/>
+    <define name="MM_RESET_IODIR" value="IO0DIR"/>
+    <define name="MM_RESET_IOSET" value="IO0SET"/>
+    <define name="MM_RESET_IOCLR" value="IO0CLR"/>
+
+    <define name="MM_DRDY_PINSEL" value="PINSEL1"/>
+    <define name="MM_DRDY_PINSEL_BIT" value="0"/>
+    <define name="MM_DRDY_PINSEL_VAL" value="1"/>
+    <define name="MM_DRDY_EINT" value="0"/>
+    <define name="MM_DRDY_VIC_IT" value="VIC_EINT0"/>
+
+  </section>
 
  <makefile>
 CONFIG = \"tiny_2_1.h\"
@@ -205,11 +223,10 @@ ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 #ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ -DUART1_BAUD=B9600
 #ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
 
-
 ap.CFLAGS += -DINTER_MCU
 ap.srcs += inter_mcu.c 
 
-ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2
+ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_6
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B38400 -DGPS_USE_LATLONG
@@ -225,14 +242,16 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 ap.srcs += nav_line.c
 ap.srcs += nav_survey_rectangle.c
 
+
+ap.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=12 -DSSP_VIC_SLOT=11 -DUSE_MICROMAG_FW
+ap.srcs += micromag_fw.c $(SRC_ARCH)/micromag_fw_hw.c
+
 ap.srcs += humid_sht.c
-ap.CFLAGS += -DUSE_HUMID_SHT -DDAT_PIN=3  -DSCK_PIN=2
+ap.CFLAGS += -DUSE_HUMID_SHT -DDAT_PIN=30  -DSCK_PIN=4
 
-ap.srcs += baro_scp.c
-ap.CFLAGS += -DUSE_BARO_SCP
+ap.srcs += i2c.c arm7/i2c_hw.c baro_scp_i2c.c
+ap.CFLAGS += -DUSE_I2C0 -DUSE_BARO_SCP
 
-ap.srcs += joystick.c
-ap.CFLAGS += -DUSE_JOYSTICK
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile

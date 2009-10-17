@@ -3,10 +3,11 @@
 
 #include "std.h"
 
-#define BARO_SCP_IDLE       0
-#define BARO_SCP_RD_TEMP    1
-#define BARO_SCP_RD_PRESS_0 2
-#define BARO_SCP_RD_PRESS_1 3
+#define BARO_SCP_UNINIT     0
+#define BARO_SCP_IDLE       1
+#define BARO_SCP_RD_TEMP    2
+#define BARO_SCP_RD_PRESS_0 3
+#define BARO_SCP_RD_PRESS_1 4
 
 extern uint8_t  baro_scp_status;
 extern uint32_t baro_scp_pressure;

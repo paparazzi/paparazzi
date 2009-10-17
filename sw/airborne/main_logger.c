@@ -102,7 +102,7 @@
 #endif
 
 /* BUTTON that stops logging (BUTTON = P0.7, INT1 = P0.14) */
-#define STOP_KEY 7
+#define STOP_KEY 14
 
 /* USB Vbus (= P0.23) */
 #define VBUS_PIN 23
@@ -380,22 +380,29 @@ int do_log(void)
     {
 
 #ifdef USE_MAX11040
-      if (max11040_data == MAXM_DATA_AVAILABLE) {
+      if (max11040_data == MAX11040_DATA_AVAILABLE) {
 //        LED_TOGGLE(3);
         int i;
 
-        log_buffer[LOG_DATA_OFFSET+0] = 42; // sender_id;
-        log_buffer[LOG_DATA_OFFSET+1] = 59; // message_id;
+        log_buffer[LOG_DATA_OFFSET+0] = 100; // sender_id;
+        log_buffer[LOG_DATA_OFFSET+1] = 61;  // message_id;
 
         for (i=0; i<16; i++) {
-//          log_buffer[LOG_DATA_OFFSET + i + 0] = (max11040_values[i] << 24) & 0xFF;
+          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 0] = (max11040_values[i]      ) & 0xFF;
+          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 1] = (max11040_values[i] >> 8 ) & 0xFF;
+          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 2] = (max11040_values[i] >> 16) & 0xFF;
+          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 3] = (max11040_values[i] >> 24) & 0xFF;
+
+#if 0
           log_buffer[LOG_DATA_OFFSET+2 + i*4 + 0] = i*4;
           log_buffer[LOG_DATA_OFFSET+2 + i*4 + 1] = i*4+1;
           log_buffer[LOG_DATA_OFFSET+2 + i*4 + 2] = i*4+2;
           log_buffer[LOG_DATA_OFFSET+2 + i*4 + 3] = i*4+3;
+#endif
+
         }
         log_payload(2 + 16 * 4, LOG_SOURCE_UART0, max11040_timestamp);
-        max11040_data = MAXM_IDLE;
+        max11040_data = MAX11040_IDLE;
       }
 #endif
 

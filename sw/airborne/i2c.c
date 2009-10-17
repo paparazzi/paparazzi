@@ -24,6 +24,7 @@ void i2c0_init(void) {
 
 
 void i2c0_receive(uint8_t slave_addr, uint16_t len, volatile bool_t* finished) {
+  i2c0_trx = 0;
   i2c0_len_r = len;
   i2c0_slave_addr = slave_addr | I2C_RECEIVE;
   i2c0_finished = finished;

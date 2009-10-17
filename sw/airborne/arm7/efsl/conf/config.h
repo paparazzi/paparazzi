@@ -20,8 +20,8 @@
 
 	#define HW_ENDPOINT_LPC2000_SD
 	/* defines the interface for LPC213x (0=SPI0 1=SPI1) */
-	// #define HW_ENDPOINT_LPC2000_SPINUM  (0)
-	#define HW_ENDPOINT_LPC2000_SPINUM  (1)
+	//#define HW_ENDPOINT_LPC2000_SPINUM  (0)
+	//#define HW_ENDPOINT_LPC2000_SPINUM  (1)
 	
 	/*#define HW_ENDPOINT_DSP_TI6713_SD*/
 

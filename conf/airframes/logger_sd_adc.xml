@@ -35,23 +35,18 @@
 
 <airframe name="Logger">
 
-  <section name="MICROMAG">
+  <section name="MAX11040">
 
-    <define name="MM_SS_PIN" value="20"/>
-    <define name="MM_SS_IODIR" value="IO0DIR"/>
-    <define name="MM_SS_IOSET" value="IO0SET"/>
-    <define name="MM_SS_IOCLR" value="IO0CLR"/>
+    <define name="MAXM_SS_PIN" value="20"/>
+    <define name="MAXM_SS_IODIR" value="IO0DIR"/>
+    <define name="MAXM_SS_IOSET" value="IO0SET"/>
+    <define name="MAXM_SS_IOCLR" value="IO0CLR"/>
 
-    <define name="MM_RESET_PIN" value="29"/>
-    <define name="MM_RESET_IODIR" value="IO0DIR"/>
-    <define name="MM_RESET_IOSET" value="IO0SET"/>
-    <define name="MM_RESET_IOCLR" value="IO0CLR"/>
-
-    <define name="MM_DRDY_PINSEL" value="PINSEL1"/>
-    <define name="MM_DRDY_PINSEL_BIT" value="0"/>
-    <define name="MM_DRDY_PINSEL_VAL" value="1"/>
-    <define name="MM_DRDY_EINT" value="0"/>
-    <define name="MM_DRDY_VIC_IT" value="VIC_EINT0"/>
+    <define name="MAXM_DRDY_PINSEL" value="PINSEL1"/>
+    <define name="MAXM_DRDY_PINSEL_BIT" value="0"/>
+    <define name="MAXM_DRDY_PINSEL_VAL" value="1"/>
+    <define name="MAXM_DRDY_EINT" value="0"/>
+    <define name="MAXM_DRDY_VIC_IT" value="VIC_EINT0"/>
 
   </section>
 
@@ -64,7 +59,7 @@ include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 FLASH_MODE=IAP
 
 ap.CFLAGS += -DBOARD_CONFIG=$(CONFIG) -DLED -DLOGGER
-ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_logger_adc.c
+ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_logger.c
 
 #choose one
 ap.CFLAGS += -DLOG_XBEE
@@ -74,6 +69,9 @@ ap.CFLAGS += -DLOG_XBEE
 ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUSE_UART0_RX_ONLY
 ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUSE_UART1_RX_ONLY
 ap.srcs += $(SRC_ARCH)/uart_hw.c
+
+#set SPI interface for SD card (0 or 1)
+ap.CFLAGS += -DHW_ENDPOINT_LPC2000_SPINUM=0
 
 #efsl
 ap.CFLAGS += -I $(SRC_ARCH)/efsl/inc -I $(SRC_ARCH)/efsl/conf
@@ -98,7 +96,7 @@ ap.srcs += $(SRC_ARCH)/usb_msc_hw.c
 ap.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 ap.srcs += $(SRC_ARCH)/lpcusb/examples/msc_bot.c $(SRC_ARCH)/lpcusb/examples/msc_scsi.c $(SRC_ARCH)/lpcusb/examples/blockdev_sd.c $(SRC_ARCH)/lpcusb/examples/lpc2000_spi0.c
 
-ap.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=9 -DSSP_VIC_SLOT=11 -DUSE_MAX11040
+ap.CFLAGS += -DMAX11040_DRDY_VIC_SLOT=12 -DSSP_VIC_SLOT=11 -DUSE_MAX11040
 ap.srcs += max11040.c $(SRC_ARCH)/max11040_hw.c
 
   </makefile>
