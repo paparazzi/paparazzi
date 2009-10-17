@@ -152,7 +152,7 @@ void gps_configure_uart ( void ) {
 
 #if GPS_PORT_ID == GPS_PORT_DDC
 void gps_configure_uart ( void ) {
-  UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, (GPS_I2C_SLAVE_ADDR<<1), 0x0, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+  UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, GPS_I2C_SLAVE_ADDR, 0x0, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
 }
 #endif
 
@@ -248,6 +248,7 @@ void parse_gps_msg( void ) {
       
       gps_pos_available = TRUE; /* The 3 UBX messages are sent in one rafale */
     } else if (ubx_id == UBX_NAV_SOL_ID) {
+      gps_mode = UBX_NAV_SOL_GPSfix(ubx_msg_buf);
       gps_PDOP = UBX_NAV_SOL_PDOP(ubx_msg_buf);
       gps_Pacc = UBX_NAV_SOL_Pacc(ubx_msg_buf);
       gps_Sacc = UBX_NAV_SOL_Sacc(ubx_msg_buf);
