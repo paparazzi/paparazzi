@@ -17,11 +17,14 @@
 extern void i2c0_hw_init(void);
 
 #define I2c0SendAck()   { I2C0CONSET = _BV(AA); }
-#define I2c0SendStop()  {						\
-    I2C0CONSET = _BV(STO);						\
+#define I2c0Finished()  {                                               \
     if (i2c0_finished) *i2c0_finished = TRUE;				\
     i2c0_status = I2C_IDLE;						\
     I2c0StopHandler();							\
+}
+#define I2c0SendStop()  {						\
+    I2C0CONSET = _BV(STO);						\
+    I2c0Finished();                                                     \
   }
 #define I2c0SendStart() { I2C0CONSET = _BV(STA); }
 #define I2c0SendByte(b) { I2C_DATA_REG = b; }
