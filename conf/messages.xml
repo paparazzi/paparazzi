@@ -341,6 +341,44 @@
     <field name="ref_pitch_angle" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
   </message>
 
+  <message name="TURB_PRESSURE_RAW" id="61">
+    <field name="ch_0" type="int32" unit="adc"/>
+    <field name="ch_1" type="int32" unit="adc"/>
+    <field name="ch_2" type="int32" unit="adc"/>
+    <field name="ch_3" type="int32" unit="adc"/>
+    <field name="ch_4" type="int32" unit="adc"/>
+    <field name="ch_5" type="int32" unit="adc"/>
+    <field name="ch_6" type="int32" unit="adc"/>
+    <field name="ch_7" type="int32" unit="adc"/>
+    <field name="ch_8" type="int32" unit="adc"/>
+    <field name="ch_9" type="int32" unit="adc"/>
+    <field name="ch_10" type="int32" unit="adc"/>
+    <field name="ch_11" type="int32" unit="adc"/>
+    <field name="ch_12" type="int32" unit="adc"/>
+    <field name="ch_13" type="int32" unit="adc"/>
+    <field name="ch_14" type="int32" unit="adc"/>
+    <field name="ch_15" type="int32" unit="adc"/>
+  </message>
+
+  <message name="TURB_PRESSURE_VOLTAGE" id="62">
+    <field name="ch_1_p" type="float"/>
+    <field name="ch_1_t" type="float"/>
+    <field name="ch_2_p" type="float"/>
+    <field name="ch_2_t" type="float"/>
+    <field name="ch_3_p" type="float"/>
+    <field name="ch_3_t" type="float"/>
+    <field name="ch_4_p" type="float"/>
+    <field name="ch_4_t" type="float"/>
+    <field name="ch_5_p" type="float"/>
+    <field name="ch_5_t" type="float"/>
+    <field name="ch_6_p" type="float"/>
+    <field name="ch_6_t" type="float"/>
+    <field name="ch_7_p" type="float"/>
+    <field name="ch_7_t" type="float"/>
+    <field name="gnd1"   type="float"/>
+    <field name="gnd2"   type="float"/>
+  </message>
+
 
   <message name="PPM" id="100">
     <field name="ppm_rate" type="uint8"></field>

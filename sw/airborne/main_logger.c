@@ -90,6 +90,10 @@
 #include "efs.h"
 #include "ls.h"
 
+#ifdef USE_MAX11040
+#include "max11040.h"
+#endif
+
 #ifndef FALSE
 #define FALSE 0
 #endif
@@ -374,10 +378,31 @@ int do_log(void)
     /* write to SD until key is pressed */
     while ((IO0PIN & _BV(STOP_KEY))>>STOP_KEY)
     {
+
+#ifdef USE_MAX11040
+      if (max11040_data == MAXM_DATA_AVAILABLE) {
+//        LED_TOGGLE(3);
+        int i;
+
+        log_buffer[LOG_DATA_OFFSET+0] = 42; // sender_id;
+        log_buffer[LOG_DATA_OFFSET+1] = 59; // message_id;
+
+        for (i=0; i<16; i++) {
+//          log_buffer[LOG_DATA_OFFSET + i + 0] = (max11040_values[i] << 24) & 0xFF;
+          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 0] = i*4;
+          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 1] = i*4+1;
+          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 2] = i*4+2;
+          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 3] = i*4+3;
+        }
+        log_payload(2 + 16 * 4, LOG_SOURCE_UART0, max11040_timestamp);
+        max11040_data = MAXM_IDLE;
+      }
+#endif
+
 #ifdef USE_UART0
         if (Uart0ChAvailable())
         {   
-			LED_TOGGLE(2);
+			LED_TOGGLE(3);
 			inc = Uart0Getch();
 #ifdef LOG_XBEE
             log_xbee(inc, LOG_SOURCE_UART0);
@@ -393,7 +418,7 @@ int do_log(void)
 #ifdef USE_UART1
         if (Uart1ChAvailable())
         {   
-			LED_TOGGLE(2);
+			LED_TOGGLE(3);
 			inc = Uart1Getch();
 #ifdef LOG_XBEE
             log_xbee(inc, LOG_SOURCE_UART1);
@@ -407,7 +432,7 @@ int do_log(void)
         }
 #endif
     }
-    LED_OFF(2);
+    LED_OFF(3);
 
     file_fclose( &filew );
     fs_umount( &efs.myFs ) ;
@@ -422,21 +447,23 @@ int main(void)
 
   while(1)
   {
-    LED_ON(3);
+    LED_ON(2);
     do_log();
-    LED_OFF(3);
+    LED_OFF(2);
 
     waitloop = 0;
     ledcount = 0;
+
     while (waitloop < 20)
     {
       sys_time_usleep(100000);
+
       {
         if (ledcount++ > 9) {
           ledcount=0;
-          LED_ON(3);
+          LED_ON(2);
         } else {
-          LED_OFF(3);
+          LED_OFF(2);
         }
         if (((IO0PIN & _BV(STOP_KEY))>>STOP_KEY) == 1) { 
           waitloop=0;
@@ -447,12 +474,12 @@ int main(void)
 
       if ((IO0PIN & _BV(VBUS_PIN))>>VBUS_PIN)
       {
-        LED_OFF(3);
+        LED_OFF(2);
         LED_ON(1);
         main_mass_storage();
       }
     }
-    LED_ON(3);
+    LED_ON(2);
     while (((IO0PIN & _BV(STOP_KEY))>>STOP_KEY) == 0); 
   } 
 
@@ -463,12 +490,19 @@ static inline void main_init( void ) {
   hw_init();
   sys_time_init();
   led_init();
+
 #ifdef USE_UART0
     Uart0Init();
 #endif
 #ifdef USE_UART1
     Uart1Init();
 #endif
+
+#ifdef USE_MAX11040
+  max11040_init_ssp();
+  max11040_init();
+#endif
+
   int_enable();
 }
 
