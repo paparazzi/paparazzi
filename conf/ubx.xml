@@ -122,18 +122,6 @@
       </block>
     </message>
 
-    <message name="RST" ID="0x04" length="4">
-      <field name="nav_bbr" format="U2"/>
-      <field name="Reset" format="U1"/>
-      <field name="Res" format="U1"/>
-    </message>
-
-    <message name="RATE" ID="0x08" length="6">
-      <field name="Meas" format="U2"/>
-      <field name="Nav" format="U2"/>
-      <field name="Time" format="U2"/>
-    </message>
-
     <message name="NAV" ID="0x03" length="28">
       <field name="Platform" format="U1"/>
       <field name="MinSvs" format="U1"/>
@@ -158,12 +146,16 @@
       <field name="reserved" format="U1"/>
     </message>
 
-    <message name="SBAS" ID="0x16">
-      <field name="mode" format="U1"/>
-      <field name="usage" format="U1"/>
-      <field name="maxbas" format="U1"/>
-      <field name="reserved" format="U1"/>
-      <field name="scanmode" format="U4"/>
+    <message name="RST" ID="0x04" length="4">
+      <field name="nav_bbr" format="U2"/>
+      <field name="Reset" format="U1"/>
+      <field name="Res" format="U1"/>
+    </message>
+
+    <message name="RATE" ID="0x08" length="6">
+      <field name="Meas" format="U2"/>
+      <field name="Nav" format="U2"/>
+      <field name="Time" format="U2"/>
     </message>
 
     <message name="CFG" ID="0x09" length="12">
@@ -172,7 +164,32 @@
       <field name="Load_mask" format="U4"/>
     </message>
 
+    <message name="SBAS" ID="0x16">
+      <field name="mode" format="U1"/>
+      <field name="usage" format="U1"/>
+      <field name="maxbas" format="U1"/>
+      <field name="reserved" format="U1"/>
+      <field name="scanmode" format="U4"/>
+    </message>
 
+    <message name="NAV5" ID="0x24" length="36">
+      <field name="mask"   format="U2"/>
+      <field name="dynModel" format="U1"/>
+      <field name="fixModel" format="U1"/>
+      <field name="fixedAlt" format="I4"/>
+      <field name="fixedAltVar" format="U4"/>
+      <field name="minElev" format="I1"/>
+      <field name="drLimit" format="U1"/>
+      <field name="dDop" format="U2"/>
+      <field name="tDop" format="U2"/>
+      <field name="pAcc" format="U2"/>
+      <field name="tAcc" format="U2"/>
+      <field name="staticHoldThresh" format="U1"/>
+      <field name="res1" format="U1"/>
+      <field name="res2" format="U4"/>
+      <field name="res3" format="U4"/>
+      <field name="res4" format="U4"/>
+     </message>
  </class>
 
  <class name="ACK" ID="0x05">
