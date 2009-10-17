@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009  ENAC, Pascal Brisset, Michel Gorraz
+ * Copyright (C) 2009  ENAC, Pascal Brisset, Michel Gorraz,Gautier Hattenberger
  *
  * This file is part of paparazzi.
  * 
@@ -25,7 +25,7 @@
 
 #include "std.h"
 
-#define GPS_I2C_SLAVE_ADDR 0x42
+#define GPS_I2C_SLAVE_ADDR (0x42 << 1)
 
 #define GPS_I2C_BUF_SIZE 256
 extern uint8_t gps_i2c_rx_buf[GPS_I2C_BUF_SIZE];
@@ -50,7 +50,7 @@ void gps_i2c_periodic(void);
   gps_i2c_data_ready_to_transmit = TRUE; \
   gps_i2c_tx_extract_idx = 0;            \
 }
-#define gps_i2cTxRunning (gps_i2c_data_ready_to_transmit)
-#define gps_i2cInitParam(_baud, _uart_prm1, _uart_prm2) {}
+// #define gps_i2cTxRunning (gps_i2c_data_ready_to_transmit)
+// #define gps_i2cInitParam(_baud, _uart_prm1, _uart_prm2) {}
 
 #endif // GPS_I2C
