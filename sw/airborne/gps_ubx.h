@@ -69,6 +69,21 @@ extern void parse_ubx( uint8_t c );
 #define NAV_DYN_AIRBORNE_2G 6
 #define NAV_DYN_AIRBORNE_4G 7
 
+#define NAV5_DYN_PORTABLE    0
+#define NAV5_DYN_FIXED       1
+#define NAV5_DYN_STATIONARY  2
+#define NAV5_DYN_PEDESTRIAN  3
+#define NAV5_DYN_AUTOMOTIVE  4
+#define NAV5_DYN_SEA         5
+#define NAV5_DYN_AIRBORNE_1G 6
+#define NAV5_DYN_AIRBORNE_2G 7
+#define NAV5_DYN_AIRBORNE_4G 8
+
+#define NAV5_2D_ONLY 1
+#define NAV5_3D_ONLY 2
+#define NAV5_AUTO    3
+
+
 extern void ubxsend_cfg_rst(uint16_t, uint8_t);
 
 #define gps_ubx_Reset(_val) { \
