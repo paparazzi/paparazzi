@@ -295,6 +295,7 @@ void log_xbee(unsigned char c, unsigned char source)
       log_buffer[i+LOG_DATA_OFFSET] = xbeel_payload[i+XBEE_RFDATA_OFFSET];
     }
     log_payload(xbeel_payload_len-XBEE_RFDATA_OFFSET, source, xbeel_timestamp);
+    LED_TOGGLE(3);
     goto restart;
   }
   return;
@@ -342,6 +343,7 @@ void log_pprz(unsigned char c, unsigned char source)
       log_buffer[i+LOG_DATA_OFFSET] = pprzl_payload[i];
     }
     log_payload(pprzl_payload_len, source, pprzl_timestamp);
+    LED_TOGGLE(3);
     goto restart;
   }
   return;
@@ -356,7 +358,8 @@ int do_log(void)
 {
     unsigned int count;
     unsigned char name[13];
-    unsigned char inc;               
+    unsigned char inc;
+    int temp;               
 
 	if(efs_init(&efs, 0) != 0) {
 		return(-1);
@@ -407,9 +410,10 @@ int do_log(void)
 #endif
 
 #ifdef USE_UART0
-        if (Uart0ChAvailable())
+        temp = 0;
+        while (Uart0ChAvailable() && (temp++ < 128))
         {   
-			LED_TOGGLE(3);
+//			LED_TOGGLE(3);
 			inc = Uart0Getch();
 #ifdef LOG_XBEE
             log_xbee(inc, LOG_SOURCE_UART0);
@@ -423,9 +427,10 @@ int do_log(void)
         }
 #endif
 #ifdef USE_UART1
-        if (Uart1ChAvailable())
+        temp = 0;
+        while (Uart1ChAvailable() && (temp++ < 128))
         {   
-			LED_TOGGLE(3);
+//			LED_TOGGLE(3);
 			inc = Uart1Getch();
 #ifdef LOG_XBEE
             log_xbee(inc, LOG_SOURCE_UART1);
