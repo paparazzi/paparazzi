@@ -1,14 +1,18 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
 <flight_plan alt="152" ground_alt="147" lat0="43 33 50.83" lon0="1 28 52.61" max_dist_from_home="400" name="Booz Test Enac" security_height="2">
+  <header>
+    #include "booz_fms.h"
+  </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
     <waypoint name="CLIMB" x="0.0" y="5.0"/>
     <waypoint name="p1" x="3.6" y="-13.9"/>
     <waypoint name="p2" x="27.5" y="-48.2"/>
     <waypoint name="p3" x="16.7" y="-19.6"/>
-    <waypoint name="p4" x="13.7" y="-40.7" height="6."/>
+    <waypoint name="p4" x="13.7" y="-40.7"/>
     <waypoint name="CAM" x="-20" y="-50" height="2."/>
+    <waypoint name="TD" x="5.6" y="-10.9"/>
   </waypoints>
   <blocks>
     <block name="Wait GPS">
@@ -18,6 +22,7 @@
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call fun="NavSetGroundReferenceHere()"/>
+      <!--<call fun="NavSetAltitudeReferenceHere()"/>-->
     </block>
     <block name="Holding point">
       <call fun="NavKillThrottle()"/>
@@ -30,11 +35,10 @@
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="booz_ins_enu_pos.z > POS_BFP_OF_REAL(2.)" deroute="Standby"/>
       <call fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <while cond="LessThan(NavBlockTime(), 3)"/>
-      <stay height="4.0" vmode="alt" wp="CLIMB"/>
+      <stay vmode="climb" climb="0.5" wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
-      <stay height="4.0" vmode="alt" wp="HOME"/>
+      <stay wp="HOME"/>
     </block>
     <block name="stay_p1">
       <stay wp="p1"/>
@@ -57,13 +61,21 @@
     <block name="circle">
       <circle radius="nav_radius" wp="p1"/>
     </block>
+    <block name="Joystick" pre_call="NavUpdateWPFromFms(WP_p1)">
+      <set var="fms.enabled" value="TRUE"/>
+      <call fun="NavSetWaypointHere(WP_p1)"/>
+      <stay wp="p1"/>
+    </block>
+    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
+      <call fun="NavSetWaypointHere(WP_TD)"/>
+    </block>
     <block name="land">
-      <go wp="HOME"/>
+      <go wp="TD"/>
     </block>
     <block name="flare">
       <exception cond="NavDetectGround()" deroute="Holding point"/>
       <call fun="NavStartDetectGround()"/>
-      <stay climb="-0.8" vmode="climb" wp="HOME"/>
+      <stay climb="-0.8" vmode="climb" wp="TD"/>
     </block>
   </blocks>
 </flight_plan>
