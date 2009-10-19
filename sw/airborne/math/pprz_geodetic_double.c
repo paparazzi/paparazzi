@@ -61,6 +61,25 @@ void lla_of_ecef_d(struct LlaCoor_d* lla, struct EcefCoor_d* ecef) {
 
 }
 
+void ecef_of_lla_d(struct EcefCoor_d* ecef, struct LlaCoor_d* lla) {
+
+  // FIXME : make an ellipsoid struct
+  static const double a = 6378137.0;           /* earth semimajor axis in meters */
+  static const double f = 1./298.257223563;    /* reciprocal flattening          */
+  const double e2 = 2.*f-(f*f);                /* first eccentricity squared     */
+
+  const double sin_lat = sinf(lla->lat);
+  const double cos_lat = cosf(lla->lat);
+  const double sin_lon = sinf(lla->lon);
+  const double cos_lon = cosf(lla->lon);
+  const double chi = sqrtf(1. - e2*sin_lat*sin_lat);
+  const double a_chi = a / chi;
+
+  ecef->x = (a_chi + lla->alt) * cos_lat * cos_lon;
+  ecef->y = (a_chi + lla->alt) * cos_lat * sin_lon;
+  ecef->z = (a_chi*(1. - e2) + lla->alt) * sin_lat;
+}
+
 void enu_of_ecef_point_d(struct EnuCoor_d* enu, struct LtpDef_d* def, struct EcefCoor_d* ecef) {
   struct EcefCoor_d delta;
   VECT3_DIFF(delta, *ecef, def->ecef);

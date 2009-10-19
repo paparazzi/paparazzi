@@ -92,6 +92,11 @@ struct Int32Quat {
     while (_a < -INT32_ANGLE_PI) _a += INT32_ANGLE_2_PI;	\
   }
 
+#define INT32_COURSE_NORMALIZE(_a) {				\
+    while (_a < 0) _a += INT32_ANGLE_2_PI;	\
+    while (_a >= INT32_ANGLE_2_PI)  _a -= INT32_ANGLE_2_PI;	\
+  }
+
 
 struct Int16Eulers {
   int16_t phi;

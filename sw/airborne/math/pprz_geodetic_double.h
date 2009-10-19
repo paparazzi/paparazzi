@@ -42,6 +42,7 @@ struct LtpDef_d {
 
 extern void ltp_def_from_ecef_d(struct LtpDef_d* def, struct EcefCoor_d* ecef);
 extern void lla_of_ecef_d(struct LlaCoor_d* out, struct EcefCoor_d* in);
+extern void ecef_of_lla_d(struct EcefCoor_d* out, struct LlaCoor_d* in);
 
 extern void enu_of_ecef_point_d(struct EnuCoor_d* ned, struct LtpDef_d* def, struct EcefCoor_d* ecef);
 extern void ned_of_ecef_point_d(struct NedCoor_d* ned, struct LtpDef_d* def, struct EcefCoor_d* ecef);
