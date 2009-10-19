@@ -129,7 +129,7 @@ ap.srcs += $(SRC_BOOZ)/guidance/booz2_guidance_h.c
 ap.srcs += $(SRC_BOOZ)/guidance/booz2_guidance_v.c
 
 ap.srcs += $(SRC_BOOZ)/booz2_ins.c
-ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c
+ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c
 
 #
 # INS choice
