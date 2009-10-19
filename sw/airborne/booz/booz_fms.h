@@ -59,7 +59,7 @@ struct Booz_fms_command {
   union {
     struct Int32Vect3  rate;
     struct Int32Eulers attitude;
-    struct Int32Vect2 speed;
+    struct Int32Vect3 speed; //FIXME Warning z is heading rate
     struct Int32Vect3 pos; //FIXME Warning z is heading
   } h_sp;
   union {
