@@ -30,8 +30,8 @@
 #include "dl_protocol.h"
 #include "uart.h"
 
-#ifdef BOOZ2_FMS_TYPE
-#include "booz2_fms.h"
+#ifdef BOOZ_FMS_TYPE
+#include "booz_fms.h"
 #endif
 
 #include "booz2_navigation.h"
@@ -72,7 +72,7 @@ void dl_parse_msg(void) {
     }
     break;
 
-#if defined BOOZ2_FMS_TYPE && BOOZ2_FMS_TYPE == BOOZ2_FMS_TYPE_DATALINK
+#if defined BOOZ_FMS_TYPE && BOOZ_FMS_TYPE == BOOZ_FMS_TYPE_DATALINK
   case DL_BOOZ2_FMS_COMMAND :
     {
       if (DL_BOOZ2_FMS_COMMAND_ac_id(dl_buffer) != AC_ID) break;
