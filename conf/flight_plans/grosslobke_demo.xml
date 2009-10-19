@@ -1,51 +1,34 @@
-<flight_plan ALT="170" GROUND_ALT="68" LAT0="52.26483" LON0="9.99394" MAX_DIST_FROM_HOME="1500" NAME="Gross Lobke, verschiedene Kreise" QFU="270" SECURITY_HEIGHT="60">
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="170" ground_alt="68" lat0="52.26483" lon0="9.99394" max_dist_from_home="1500" name="Gross Lobke Demo" qfu="270" security_height="60">
   <header>
-#include "joystick.h"
 #include "bomb.h"
 #include "nav_line.h"
 #include "datalink.h"
 </header>
-  <rc_control>
-  </rc_control>
-  <waypoints utm_x0="567831.0" utm_y0="5790955.0">
+  <waypoints>
     <waypoint name="HOME" x="15.0" y="5.0"/>
-    <waypoint name="1" x="-181.785735614" y="34.9692539535"/>
-    <waypoint name="2" x="130.143368186" y="90.3661855655"/>
-    <waypoint name="CR" x="0.0885126006" y="73.7359798392"/>
+    <waypoint name="1" x="-180." y="35."/>
+    <waypoint name="2" x="156.8" y="22.3"/>
+    <waypoint name="CR" x="0.0" y="160.0"/>
     <waypoint name="S1" x="-200" y="-200"/>
     <waypoint name="S2" x="300" y="400"/>
-    <waypoint alt="140" name="START"    x="140.0" y="35."/>
-    <waypoint alt="120" name="BASELEG"  x="39.9"  y="-130.3"/>
-    <waypoint alt="120" name="RELEASE"  x="39.9"  y="-110.3"/>
-    <waypoint alt="160" name="CLIMB"    x="39.9"  y="-90.3"/>
-    <waypoint alt="120" name="_BASELEG" x="39.9"  y="-90.3"/>
-    <waypoint alt="120" name="AF"       x="39.9"  y="-90.3"/>
-    <waypoint alt="68"  name="TD"       x="-10."  y="10.3"/>
-    <waypoint alt="68"  name="TARGET"   x="0.9"   y="10.3"/>
+    <waypoint alt="140.0" name="START" x="-180" y="-0.0"/>
+    <waypoint alt="68.0" name="TARGET" x="-56.9" y="7.8"/>
+    <waypoint alt="68.0" name="TD" x="-2.3" y="18.2"/>
+    <waypoint alt="120.0" name="AF" x="170.0" y="45.0"/>
+    <waypoint alt="120.0" name="BASELEG" x="40." y="-130."/>
+    <waypoint alt="120.0" name="_BASELEG" x="40." y="-130."/>
+    <waypoint alt="120.0" name="RELEASE" x="40." y="-110."/>
+    <waypoint alt="160.0" name="CLIMB" x="40." y="-90."/>
   </waypoints>
   <blocks>
-    <block NAME="start">
-      <attitude roll="0" pitch="20" vmode="throttle" throttle="0.7" until="(estimator_flight_time > 3)"/>
+    <block name="start">
+      <attitude pitch="20" roll="0" throttle="0.8" until="(estimator_flight_time > 3)" vmode="throttle"/>
       <go wp="START"/>
     </block>
-    <block NAME="wait" strip_button="wait">
-      <circle wp="CR" radius="nav_radius"/>
-    </block>
-    <block NAME="east">
-      <go target="2" APPROACHING_TIME="2" HMODE="route" WP="2" from="1"/>
-      <deroute block="west"/>
-    </block>
-    <block NAME="west">
-      <go target="1" APPROACHING_TIME="2" HMODE="route" WP="1" from="2"/>
-      <deroute block="east"/>
-    </block>
-    <block NAME="east t">
-      <go target="2" APPROACHING_TIME="2" PITCH="auto" THROTTLE="0.55" HMODE="route" WP="2" from="1"/>
-      <deroute block="west t"/>
-    </block>
-    <block NAME="west t">
-      <go target="1" APPROACHING_TIME="2" PITCH="auto" THROTTLE="0.55" HMODE="route" WP="1" from="2"/>
-      <deroute block="east t"/>
+    <block name="wait" strip_button="wait">
+      <circle radius="nav_radius" wp="CR"/>
     </block>
     <block name="survey">
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
@@ -66,33 +49,23 @@
     <block name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
       <eight center="1" radius="nav_radius" turn_around="2"/>
     </block>
-
-    <block name="Joystick" strip_button="J" pre_call="{}" strip_icon="joystick.png">
-      <set var="lateral_mode" value="LATERAL_MODE_ROLL"/>
-      <set var="v_ctl_mode" value="V_CTL_MODE_MANUAL"/>
-      <set var="joystick_block" value="nav_block"/>
-      <call fun="TRUE"/>
+    <block name="down" strip_button="Down" strip_icon="downdown.png">
+      <set value="LATERAL_MODE_ROLL" var="lateral_mode"/>
+      <set value="V_CTL_MODE_MANUAL" var="v_ctl_mode"/>
+      <set value="TRUE" var="h_ctl_disabled"/>
+      <set value="(-0.6*MAX_PPRZ)" var="h_ctl_aileron_setpoint"/>
+      <set value="(0.9*MAX_PPRZ)" var="h_ctl_elevator_setpoint"/>
+      <while cond="estimator_z > ground_alt + 220"/>
+      <set value="0" var="h_ctl_aileron_setpoint"/>
+      <set value="0" var="h_ctl_elevator_setpoint"/>
     </block>
-
-    <block NAME="down" strip_button="Down">
-     <set var="lateral_mode" value="LATERAL_MODE_ROLL"/>
-     <set var="v_ctl_mode" value="V_CTL_MODE_MANUAL"/>
-     <set value="TRUE" var="h_ctl_disabled"/>
-     <set value="(-0.6*MAX_PPRZ)" var="h_ctl_aileron_setpoint"/>
-     <set value="(0.9*MAX_PPRZ)" var="h_ctl_elevator_setpoint"/>
-     <while cond="estimator_z > ground_alt + 220"/>
-     <set value="0" var="h_ctl_aileron_setpoint"/>
-     <set value="0" var="h_ctl_elevator_setpoint"/>
-     <!--deroute block="down_end"/-->
+    <block name="down_end" strip_button="DownEnd" strip_icon="downdownend.png">
+      <set value="0" var="h_ctl_aileron_setpoint"/>
+      <set value="0" var="h_ctl_elevator_setpoint"/>
+      <while cond="1.> stage_time"/>
+      <set value="FALSE" var="h_ctl_disabled"/>
+      <deroute block="wait"/>
     </block>
-    <block NAME="down_end" strip_button="DownEnd">
-     <set value="0" var="h_ctl_aileron_setpoint"/>
-     <set value="0" var="h_ctl_elevator_setpoint"/>
-     <while cond="1.> stage_time"/>
-     <set value="FALSE" var="h_ctl_disabled"/>
-     <deroute block="wait"/>
-    </block>
-
     <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>
@@ -137,6 +110,7 @@
       <set value="BombCloseHatch()" var="unit"/>
       <deroute block="wait"/>
     </block-->
+
     <!--block NAME="roll" strip_button="Roll">
      <set value="TRUE" var="h_ctl_disabled"/>
      <set value="(-0.75*MAX_PPRZ)" var="h_ctl_aileron_setpoint"/>
@@ -144,5 +118,6 @@
      <set value="FALSE" var="h_ctl_disabled"/>
      <return/>
     </block-->
+
   </blocks>
 </flight_plan>

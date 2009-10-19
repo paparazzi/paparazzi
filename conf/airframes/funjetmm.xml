@@ -260,9 +260,6 @@ ap.CFLAGS += -DUSE_HUMID_SHT -DDAT_PIN=3  -DSCK_PIN=2
 ap.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=9 -DSSP_VIC_SLOT=11 -DUSE_MICROMAG_FW
 ap.srcs += micromag_fw.c $(SRC_ARCH)/micromag_fw_hw.c
 
-ap.srcs += joystick.c
-ap.CFLAGS += -DUSE_JOYSTICK
-
 ap.srcs += bomb.c
 
 ap.srcs += snav.c
@@ -276,8 +273,7 @@ include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 sim.srcs += nav_line.c nav_survey_rectangle.c
 
-sim.srcs += joystick.c
-sim.CFLAGS += -DUSE_JOYSTICK
+sim.srcs += bomb.c
 
 
   </makefile>
