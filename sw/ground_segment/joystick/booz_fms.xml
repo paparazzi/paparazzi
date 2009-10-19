@@ -1,0 +1,32 @@
+<joystick>
+ <input>
+  <axis index="0" name="roll"/>
+  <axis index="1" name="pitch"/>
+  <axis index="2" name="throttle"/>
+  <button index="0" name="shoot"/>
+  <button index="1" name="down"/>
+  <button index="2" name="up"/>
+  <button index="3" name="left"/>
+  <button index="4" name="right"/>
+  <button index="7" name="button8"/>
+</input>
+<messages period="0.1">
+  <message class="datalink" name="BOOZ2_FMS_COMMAND" min_period="1">
+   <field name="h_mode" value="IndexOfEnum(NAV)"/>
+   <field name="v_mode" value="IndexOfEnum(NAV)"/>
+   <field name="v_sp"   value="(up-down)*42"/>
+   <field name="h_sp_1" value="roll"/>
+   <field name="h_sp_2" value="pitch"/>
+   <field name="h_sp_3" value="(right-left)*42"/>
+  </message>
+
+  <message class="ground" name="DL_SETTING">
+    <field name="index" value="IndexOfSetting(ir_pitch_neutral)"/>
+    <field name="value" value="Scale(throttle, 1000, 2000)"/>
+  </message>
+
+  <message class="ground" name="JUMP_TO_BLOCK" on_event="shoot && button8">
+    <field name="block_id" value="IndexOfBlock('Land Left AF-TD')"/>
+  </message>
+ </messages>
+</joystick>
