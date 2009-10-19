@@ -175,6 +175,8 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.ap_mode       <- check_index (get_pprz_mode (ivalue "ap_mode")) ap_modes "BOOZ_AP_MODE";
       a.kill_mode     <- ivalue "ap_motors_on" == 0;
       a.bat           <- fvalue "vsupply" /. 10.;
+  | "BOOZ2_GPS" ->
+      a.gps_Pacc <- ivalue "Pacc"
   | "BOOZ2_INS_REF" ->
       let x = foi32value "ecef_x0" /. 100.
       and y = foi32value "ecef_y0" /. 100.
