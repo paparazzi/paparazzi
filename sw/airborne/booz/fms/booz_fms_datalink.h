@@ -33,41 +33,49 @@
 #endif
 
 #define BOOZ_FMS_PARSE_DATALINK(_dl_buffer) {				\
-    booz_fms_last_msg = 0;						\
-    booz_fms_input.h_mode = DL_BOOZ2_FMS_COMMAND_h_mode(_dl_buffer);	\
-    booz_fms_input.v_mode = DL_BOOZ2_FMS_COMMAND_v_mode(_dl_buffer);	\
-    switch (booz_fms_input.h_mode) {					\
+    fms.last_msg = 0;						\
+    fms.input.h_mode = DL_BOOZ2_FMS_COMMAND_h_mode(_dl_buffer);	\
+    fms.input.v_mode = DL_BOOZ2_FMS_COMMAND_v_mode(_dl_buffer);	\
+    switch (fms.input.h_mode) {					\
     case BOOZ2_GUIDANCE_H_MODE_KILL:					\
     case BOOZ2_GUIDANCE_H_MODE_RATE :					\
       break;								\
     case BOOZ2_GUIDANCE_H_MODE_ATTITUDE :				\
       {									\
-	  booz_fms_input.h_sp.attitude.phi   = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer);			\
-	  booz_fms_input.h_sp.attitude.theta = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer);			\
-	  booz_fms_input.h_sp.attitude.psi   = DL_BOOZ2_FMS_COMMAND_h_sp_3(_dl_buffer);			\
-        ANGLE_REF_NORMALIZE(booz_fms_input.h_sp.attitude.psi); \
-        BOOZ_FMS_LIMIT_ATTITUDE(booz_fms_input.h_sp.attitude); \
+	      fms.input.h_sp.attitude.phi   = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer);			\
+	      fms.input.h_sp.attitude.theta = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer);			\
+	      fms.input.h_sp.attitude.psi   = DL_BOOZ2_FMS_COMMAND_h_sp_3(_dl_buffer);			\
+        ANGLE_REF_NORMALIZE(fms.input.h_sp.attitude.psi); \
+        BOOZ_FMS_LIMIT_ATTITUDE(fms.input.h_sp.attitude); \
       }									\
       break;  \
     case BOOZ2_GUIDANCE_H_MODE_HOVER :					\
       {									\
-	  booz_fms_input.h_sp.pos.x   = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer);			\
-	  booz_fms_input.h_sp.pos.y   = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer);			\
+	      fms.input.h_sp.pos.x   = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer);			\
+	      fms.input.h_sp.pos.y   = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer);			\
       }									\
       break;  \
     case BOOZ2_GUIDANCE_H_MODE_NAV :					\
+      { \
+        fms.input.h_sp.speed.x = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer); \
+        fms.input.h_sp.speed.y = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer); \
+        fms.input.h_sp.speed.z = DL_BOOZ2_FMS_COMMAND_h_sp_3(_dl_buffer); \
+      } \
       break;								\
     }									\
-    switch (booz_fms_input.v_mode) {					\
+    switch (fms.input.v_mode) {					\
     case BOOZ2_GUIDANCE_V_MODE_KILL:					\
     case BOOZ2_GUIDANCE_V_MODE_RC_DIRECT:				\
     case BOOZ2_GUIDANCE_V_MODE_RC_CLIMB:				\
       break;								\
     case BOOZ2_GUIDANCE_V_MODE_CLIMB :					\
-      booz_fms_input.v_sp.climb = DL_BOOZ2_FMS_COMMAND_v_sp(_dl_buffer); \
+      fms.input.v_sp.climb = DL_BOOZ2_FMS_COMMAND_v_sp(_dl_buffer); \
       break;								\
     case BOOZ2_GUIDANCE_V_MODE_HOVER :					\
-      booz_fms_input.v_sp.height = DL_BOOZ2_FMS_COMMAND_v_sp(_dl_buffer); \
+      fms.input.v_sp.height = DL_BOOZ2_FMS_COMMAND_v_sp(_dl_buffer); \
+      break;								\
+    case BOOZ2_GUIDANCE_V_MODE_NAV :					\
+      fms.input.v_sp.climb = DL_BOOZ2_FMS_COMMAND_v_sp(_dl_buffer); \
       break;								\
     }									\
   }
