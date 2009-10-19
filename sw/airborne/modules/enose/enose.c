@@ -87,5 +87,5 @@ void enose_periodic( void ) {
       enose_status = ENOSE_IDLE;
     }
   }
-  DOWNLINK_SEND_ENOSE_STATUS(&enose_val[0], &enose_val[1], &enose_val[2], &enose_PID_val, 3, enose_heat);
+  DOWNLINK_SEND_ENOSE_STATUS(DefaultChannel,&enose_val[0], &enose_val[1], &enose_val[2], &enose_PID_val, 3, enose_heat);
 }
