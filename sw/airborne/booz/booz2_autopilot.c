@@ -71,7 +71,7 @@ void booz2_autopilot_init(void) {
 
 void booz2_autopilot_periodic(void) {
 
-  RunOnceEvery(32, nav_periodic_task());
+  RunOnceEvery(BOOZ2_AP_NAV_RATE, nav_periodic_task());
 #ifdef BOOZ_FAILSAFE_GROUND_DETECT
   if (booz2_autopilot_mode == BOOZ2_AP_MODE_FAILSAFE && booz2_autopilot_detect_ground) {
     booz2_autopilot_set_mode(BOOZ2_AP_MODE_KILL);
