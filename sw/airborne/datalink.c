@@ -45,6 +45,10 @@
 #include "joystick.h"
 #endif
 
+#ifdef USE_RC_TELEMETRY
+#include "ppm.h"
+#endif
+
 #ifdef USE_USB_SERIAL
 #include "usb_serial.h"
 #endif
@@ -165,6 +169,14 @@ void dl_parse_msg(void) {
 			    DL_JOYSTICK_RAW_throttle(dl_buffer));
     } else
 #endif // USE_JOYSTICK
+#ifdef USE_RC_TELEMETRY
+    if (msg_id == DL_RC_3CH /*&& DL_RC_3CH_ac_id(dl_buffer) == TX_ID*/) {
+LED_TOGGLE(3);
+      ppm_datalink(DL_RC_3CH_throttle_mode(dl_buffer),
+                   DL_RC_3CH_roll(dl_buffer),
+                   DL_RC_3CH_pitch(dl_buffer));
+    } else
+#endif // USE_RC_TELEMETRY
   { /* Last else */
 #ifdef USE_MODULES
     /* Parse modules datalink */

@@ -12,8 +12,8 @@
 <!-- commands section -->
   <servos>
     <servo name="MOTOR" no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT" no="2" min="1720" neutral="1316" max="1000"/>
-    <servo name="AILEVON_RIGHT" no="6" min="1220" neutral="1542" max="1840"/>
+    <servo name="AILEVON_LEFT"  no="2" min="1720" neutral="1341" max="1000"/>
+    <servo name="AILEVON_RIGHT" no="6" min="1220" neutral="1523" max="1840"/>
   </servos>
 
   <commands>
@@ -172,10 +172,6 @@
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
  
- <section name="SIMU">
-    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
- </section>
-
  <makefile>
 CONFIG = \"tiny_2_1.h\"
 

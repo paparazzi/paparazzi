@@ -32,7 +32,11 @@
 extern uint16_t ppm_pulses[ PPM_NB_PULSES ];
 extern volatile bool_t	ppm_valid;
 
+#ifdef USE_RC_TELEMETRY
+#include "ppm_telemetry.h"
+#else
 #include "ppm_hw.h"
+#endif
 
 #endif /* RADIO_CONTROL */
 

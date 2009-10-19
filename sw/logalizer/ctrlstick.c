@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-//#define DBG 1
+#define DBG 1
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,19 +62,23 @@
 
 #if 1
 // e-sky 0905A simulator fms
-#define AXIS_YAW        ABS_X
-#define AXIS_PITCH      ABS_Y
-#define AXIS_ROLL       ABS_Z
-#define AXIS_THROTTLE   ABS_RY
+//#define AXIS_YAW        ABS_X
+//#define AXIS_ROLL       ABS_Z
+//#define AXIS_THROTTLE   ABS_RY
+//#define AXIS_PITCH      ABS_Y
+#define AXIS_YAW        ABS_RY
+#define AXIS_ROLL       ABS_Y
+#define AXIS_THROTTLE   ABS_X
+#define AXIS_PITCH      ABS_Z
 
 #define THROTTLE_MIN        (-90)
 #define THROTTLE_NEUTRAL    (0)
 #define THROTTLE_MAX        (90)
 #define ROLL_MIN            (-122)
-#define ROLL_NEUTRAL        (-2)
+#define ROLL_NEUTRAL        (-13)
 #define ROLL_MAX            (113)
 #define PITCH_MIN           (-109)
-#define PITCH_NEUTRAL       (2)
+#define PITCH_NEUTRAL       (-2)
 #define PITCH_MAX           (109)
 #define YAW_MIN             (125)
 #define YAW_NEUTRAL         (-13
@@ -315,8 +319,8 @@ static gboolean joystick_periodic(gpointer data __attribute__ ((unused))) {
     {
         dbgprintf(stdout, "pos  %d %d %d %d\n", position[0], position[1], position[2], position[3]);
 
-        if (position[3] > 125) mode = 1;
-        else if (position[3] < -125) mode = 2;
+        if (position[3] > 125) mode = 2;
+        else if (position[3] < -125) mode = 1;
         else mode = 0;
 
         throttle = ((position[0] - THROTTLE_NEUTRAL -THROTTLE_MIN) * 63) / (THROTTLE_MAX-THROTTLE_MIN);
