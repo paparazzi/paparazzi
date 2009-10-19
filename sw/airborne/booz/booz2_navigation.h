@@ -218,7 +218,14 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 #define GetPosY() POS_FLOAT_OF_BFP(booz_ins_enu_pos.y)
 #define GetPosAlt() (POS_FLOAT_OF_BFP(booz_ins_enu_pos.z+ground_alt))
 
+#define NavFmsMaxHSpeed ((int32_t)SPEED_BFP_OF_REAL(4.))
+#define NavFmsMaxVSpeed ((int32_t)SPEED_BFP_OF_REAL(2.))
+#define NavFmsMaxHeadingRate ((int32_t)RATE_BFP_OF_REAL(RadOfDeg(60.)))
 
+extern void nav_update_wp_from_fms(uint8_t _wp);
+#define NavUpdateWPFromFms(_wp) { \
+  nav_update_wp_from_fms(_wp); \
+}
 
 
 #endif /* BOOZ2_NAVIGATION_H */

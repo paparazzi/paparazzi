@@ -31,6 +31,8 @@
 #include "booz2_autopilot.h"
 #include "flight_plan.h"
 
+#include "booz_fms.h"
+
 #include "math/pprz_algebra_int.h"
 
 const uint8_t nb_waypoint = NB_WAYPOINT;
@@ -291,6 +293,26 @@ void nav_periodic_task() {
 void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos) {
   if (wp_id < nb_waypoint) {
     INT32_VECT3_COPY(waypoints[wp_id],(*new_pos));
+  }
+}
+
+void nav_update_wp_from_fms(uint8_t _wp) {
+  if (fms.enabled && _wp < nb_waypoint) {
+    int32_t s_heading, c_heading;
+    PPRZ_ITRIG_SIN(s_heading, nav_heading);
+    PPRZ_ITRIG_COS(c_heading, nav_heading);
+    struct Int32Vect3 dpos;
+    dpos.x = (NavFmsMaxHSpeed * fms.input.h_sp.speed.x >> (INT32_SPEED_FRAC - INT32_POS_FRAC)) / (BOOZ2_AP_NAV_RATE * 128);
+    dpos.y = (NavFmsMaxHSpeed * fms.input.h_sp.speed.y >> (INT32_SPEED_FRAC - INT32_POS_FRAC)) / (BOOZ2_AP_NAV_RATE * 128);
+    dpos.z = (NavFmsMaxVSpeed * fms.input.v_sp.climb >> (INT32_SPEED_FRAC - INT32_POS_FRAC)) / (BOOZ2_AP_NAV_RATE * 128);
+    waypoints[_wp].x += (s_heading * dpos.x + c_heading * dpos.y) >> INT32_TRIG_FRAC;
+    waypoints[_wp].y += (c_heading * dpos.x - s_heading * dpos.y) >> INT32_TRIG_FRAC;
+    waypoints[_wp].z += dpos.z;
+    int32_t dheading = (NavFmsMaxHeadingRate * fms.input.h_sp.speed.z >> (INT32_RATE_FRAC - INT32_ANGLE_FRAC)) / (BOOZ2_AP_NAV_RATE * 128);
+    if (dheading != 0) {
+      nav_heading += dheading;
+      INT32_COURSE_NORMALIZE(nav_heading);
+    }
   }
 }
 
