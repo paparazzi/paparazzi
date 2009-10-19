@@ -10,7 +10,7 @@ extern char* ivy_p;
 
 #define IvyTransportHeader(len) ivy_p=ivy_buf;
 
-#define IvyTransportTrailer() { *ivy_p = '\0'; IvySendMsg(ivy_buf); }
+#define IvyTransportTrailer() { *ivy_p = '\0'; IvySendMsg("%s",ivy_buf); }
 
 #define IvyTransportPutUint8(x) { ivy_p += sprintf(ivy_p, "%u ", x); }
 #define IvyTransportPutNamedUint8(_name, _x) { ivy_p += sprintf(ivy_p, "%s ", _name); }
