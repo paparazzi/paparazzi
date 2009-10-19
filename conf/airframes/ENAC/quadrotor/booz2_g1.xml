@@ -97,21 +97,21 @@
 
     <define name="REF_OMEGA_R"  value="RadOfDeg(500)"/>
     <define name="REF_ZETA_R"   value="0.85"/>
-    <define name="REF_MAX_R"    value="RadOfDeg(180.)"/>
-    <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
+    <define name="REF_MAX_R"    value="RadOfDeg(90.)"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
 
    <!-- feedback -->
     <define name="PHI_PGAIN"  value="-2000"/>
     <define name="PHI_DGAIN"  value="-400"/>
-    <define name="PHI_IGAIN"  value="-50"/>
+    <define name="PHI_IGAIN"  value="-200"/>
 
     <define name="THETA_PGAIN"  value="-2000"/>
     <define name="THETA_DGAIN"  value="-400"/>
-    <define name="THETA_IGAIN"  value="-50"/>
+    <define name="THETA_IGAIN"  value="-200"/>
 
     <define name="PSI_PGAIN"  value="-1000"/>
     <define name="PSI_DGAIN"  value="-350"/>
-    <define name="PSI_IGAIN"  value="-50"/>
+    <define name="PSI_IGAIN"  value="-10"/>
 
     <!-- feedforward -->
     <define name="PHI_DDGAIN"   value=" 300"/>
@@ -182,7 +182,7 @@
  </section>
 
  <section name="MISC">
-   <define name="BOOZ_ANALOG_BARO_THRESHOLD" value="512"/>
+   <define name="BOOZ_ANALOG_BARO_THRESHOLD" value="800"/>
    <define name="BOOZ2_FACE_REINJ_1"  value="1024"/>
    <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
  </section>
@@ -209,7 +209,7 @@ ap.CFLAGS += -DBOOZ_FAILSAFE_GROUND_DETECT
 sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a2.h\"
 include $(CFG_BOOZ)/booz2_simulator_nps.makefile
 
-ap.CFLAGS += -DMODEM_BAUD=B9600
+ap.CFLAGS += -DMODEM_BAUD=B57600
 include $(CFG_BOOZ)/subsystems/booz2_actuators_asctec.makefile
 include $(CFG_BOOZ)/subsystems/booz2_radio_control_ppm.makefile
 include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1_1.makefile
