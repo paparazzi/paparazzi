@@ -60,7 +60,7 @@ void booz2_analog_baro_init( void ) {
 /* decrement offset until adc reading is over a threshold */
 void booz2_analog_baro_calibrate(void) {
   if (booz2_analog_baro_value_filtered < BOOZ_ANALOG_BARO_THRESHOLD && booz2_analog_baro_offset >= 1) {
-    if (booz2_analog_baro_value_filtered == 0)
+    if (booz2_analog_baro_value_filtered == 0 && booz2_analog_baro_offset > 15)
       booz2_analog_baro_offset -= 15;
     else
       booz2_analog_baro_offset--;
