@@ -38,6 +38,7 @@
 extern int stick_device_handle;
 extern int8_t stick_axis_values[STICK_AXIS_COUNT];
 extern int16_t stick_button_values;
+extern int stick_axis_count, stick_button_count;
 
 /* Structure for custom configuration
  * if button_count > 0, button_code is used (valid range:[0x120, 0x13e])

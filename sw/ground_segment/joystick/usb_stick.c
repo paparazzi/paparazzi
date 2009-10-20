@@ -65,9 +65,9 @@ int8_t stick_axis_values[AXIS_COUNT] = {0, 0, 0, 0, 0, 0};
 int16_t stick_button_values = 0;
 
 int axis_code[AXIS_COUNT];
-int axis_count = 0;
+int stick_axis_count = 0;
 int button_code[BUTTON_COUNT];
-int button_count = 0;
+int stick_button_count = 0;
 
 int32_t axis_min[AXIS_COUNT], axis_max[AXIS_COUNT];
 
@@ -87,8 +87,8 @@ int init_hid_device(char* device_name)
   int valbuf[16];
   char name[256] = "Unknown";
 
-  button_count = 0;
-  axis_count = 0;
+  stick_button_count = 0;
+  stick_axis_count = 0;
 
   /* Open event device read only (with write permission for ff) */
   stick_device_handle = open(device_name,O_RDONLY|O_NONBLOCK);
@@ -114,18 +114,18 @@ int init_hid_device(char* device_name)
         return 1;
       }
     }
-    button_count = stick_init_param.button_count;
+    stick_button_count = stick_init_param.button_count;
     memcpy(button_code,stick_init_param.button_code,BUTTON_COUNT*sizeof(int));
   }
   else {
     for (cnt = MIN_BUTTON_CODE; cnt < MAX_BUTTON_CODE; cnt++) {
       if (TEST_BIT(cnt, key_bits)) {
-        button_code[button_count++] = cnt;
+        button_code[stick_button_count++] = cnt;
         dbgprintf(stderr,"Available button: %d (0x%x)\n",cnt,cnt);
       }
-      if (button_count == BUTTON_COUNT) break;
+      if (stick_button_count == BUTTON_COUNT) break;
     }
-    if (button_count == 0) {
+    if (stick_button_count == 0) {
       dbgprintf(stderr,"ERROR: no suitable buttons found [%s:%d]\n",__FILE__,__LINE__);
     }
   }
@@ -146,26 +146,26 @@ int init_hid_device(char* device_name)
         return 1;
       }
     }
-    axis_count = stick_init_param.axis_count;
+    stick_axis_count = stick_init_param.axis_count;
     memcpy(axis_code,stick_init_param.axis_code,AXIS_COUNT*sizeof(int));
   }
   else {
     for (cnt = MIN_ABS_CODE; cnt < MAX_ABS_CODE; cnt++) {
       if (TEST_BIT(cnt, abs_bits)) {
-        axis_code[axis_count++] = cnt;
+        axis_code[stick_axis_count++] = cnt;
         dbgprintf(stderr,"Available axis: %d (0x%x)\n",cnt,cnt);
       }
-      if (axis_count == AXIS_COUNT) break;
+      if (stick_axis_count == AXIS_COUNT) break;
     }
     // at least 2 axis are needed in auto detection
-    if (axis_count < 2) {
+    if (stick_axis_count < 2) {
       dbgprintf(stderr,"ERROR: no suitable axis found [%s:%d]\n",__FILE__,__LINE__);
       return(1);
     }
   }
 
   /* Axis param */
-  for (cnt = 0; cnt < axis_count; cnt++)
+  for (cnt = 0; cnt < stick_axis_count; cnt++)
   {
     /* get axis value range */
     if (ioctl(stick_device_handle,EVIOCGABS(axis_code[cnt]),valbuf)<0) {
@@ -260,7 +260,7 @@ int stick_read( void ) {
 
     switch (event.type) {
       case EV_KEY:
-        for (cnt = 0; cnt < button_count; cnt++) {
+        for (cnt = 0; cnt < stick_button_count; cnt++) {
           if (event.code == button_code[cnt]) {
             if (event.value) stick_button_values |= (1 << cnt); // Set bit
             else stick_button_values &= ~(1 << cnt); // Clear bit
@@ -269,7 +269,7 @@ int stick_read( void ) {
         }
         break;
       case EV_ABS:
-        for (cnt = 0; cnt < axis_count; cnt++) {
+        for (cnt = 0; cnt < stick_axis_count; cnt++) {
           if (event.code == axis_code[cnt]) {
             stick_axis_values[cnt] = (((event.value) - axis_min[cnt]))*ABS_MAX_VALUE / (axis_max[cnt] - axis_min[cnt]) - ABS_MID_VALUE;
             break;
