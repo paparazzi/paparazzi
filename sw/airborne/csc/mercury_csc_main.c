@@ -35,8 +35,8 @@
 
 #ifdef USE_BUSS_TWI_BLMC_MOTOR
 #include "buss_twi_blmc_hw.h"
-#include "i2c.h"
 #endif
+#include "i2c.h"
 
 #include "csc_servos.h"
 
@@ -165,7 +165,7 @@ static void on_prop_cmd(struct CscPropCmd *cmd, int idx)
   ++can_msg_count;
 }
 #else
-static void on_prop_cmd(struct CscPropCmd *cmd) {}
+static void on_prop_cmd(struct CscPropCmd *cmd, int idx) {}
 #endif
 
 
