@@ -11,7 +11,7 @@
   <button index="7" name="button8"/>
 </input>
 <messages period="0.1">
-  <message class="datalink" name="BOOZ2_FMS_COMMAND" min_period="1">
+  <message class="datalink" name="BOOZ2_FMS_COMMAND">
    <field name="h_mode" value="IndexOfEnum(NAV)"/>
    <field name="v_mode" value="IndexOfEnum(NAV)"/>
    <field name="v_sp"   value="(up-down)*42"/>

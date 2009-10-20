@@ -23,23 +23,40 @@
 # Quiet compilation
 Q=@
 
+OCAMLC = ocamlc
+OCAMLLIB = ../../lib/ocaml
+TOOLSDIR = ../../tools
+OCAMLINCLUDES= -I $(OCAMLLIB) -I +lablgtk2 -I +xml-light -I $(TOOLSDIR)
+LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
+
 all: main_stick
 
-main_stick: main_stick.c usb_stick.c
+main_stick: main_stick.o usb_stick.o
 	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
 
-main_stick_debug: main_stick.c usb_stick.c
+main_stick_debug: main_stick.o usb_stick.o
 	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy -DSTICK_DBG
 
-apm_stick: apm_stick.c usb_stick.c
+apm_stick: apm_stick.o usb_stick.o
 	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
 
-xbox_stick: xbox_stick.c usb_stick.c
+xbox_stick: xbox_stick.o usb_stick.o
 	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
 
-attack3_stick: attack3_stick.c usb_stick.c
+attack3_stick: attack3_stick.o usb_stick.o
 	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
+
+input2ivy: usb_stick.o ml_usb_stick.o input2ivy.cmo
+	$(OCAMLC) $(OCAMLINCLUDES) -custom -o $@ unix.cma str.cma glibivy-ocaml.cma xml-light.cma lib-pprz.cma lablgtk.cma $(TOOLSDIR)/fp_syntax.cmo $(TOOLSDIR)/fp_lexer.cmo $(TOOLSDIR)/fp_parser.cmo $(TOOLSDIR)/fp_proc.cmo $^
+
+
+%.o : %.c
+	gcc -c -O2 -Wall `pkg-config glib-2.0 --cflags` $<
+
+%.cmo : %.ml
+	@echo OC $<
+	$(Q)$(OCAMLC) $(OCAMLINCLUDES) -c $<
 
 clean:
-	rm -f *~ core *.o *.bak .depend main_stick main_stick_debug apm_stick xbox_stick attack3_stick
+	rm -f *~ core *.o *.bak .depend main_stick main_stick_debug apm_stick xbox_stick attack3_stick *.cmo *.cmi input2ivy
 
