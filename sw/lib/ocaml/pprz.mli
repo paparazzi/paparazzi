@@ -39,7 +39,8 @@ type value =
 type field = {
     _type : _type;
     fformat : format;
-    alt_unit_coef : string (* May be empty *)
+    alt_unit_coef : string; (* May be empty *)
+    enum : string list (* 'values' attribute *)
   }
 type link_mode = Forwarded | Broadcasted
 type message = { 
@@ -116,6 +117,7 @@ module type MESSAGES = sig
   val messages : (message_id, message) Hashtbl.t
   val message_of_id : message_id -> message
   val message_of_name : string ->  message_id * message
+
   val values_of_payload : Serial.payload -> message_id * ac_id * values
   (** [values_of_bin payload] Parses a raw payload, returns the
    message id, the A/C id and the list of (field_name, value) *)
