@@ -121,7 +121,7 @@ extern volatile uint8_t i2c1_status;
 extern volatile uint8_t i2c1_buf[I2C1_BUF_LEN];
 extern volatile uint16_t i2c1_len_r;
 extern volatile uint8_t  i2c1_len_w;
-extern volatile uint8_t i2c1_index;
+extern volatile uint16_t i2c1_index;
 extern volatile uint8_t i2c1_slave_addr;
 extern volatile uint8_t i2c1_trx;
 
