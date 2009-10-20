@@ -58,7 +58,7 @@ let min_input = -127
 
 (** Representation of an input value *)
 type input =
-    Axis of int
+    Axis of int * int (* (index, deadband) *)
   | Button of int
 
 (** Description of a message *)
@@ -158,7 +158,9 @@ let parse_input = fun input ->
       and index = ExtXml.int_attrib x "index" in
       let value =
 	match Xml.tag x with
-	  "axis" -> Axis index
+	  "axis" -> 
+             let deadband = try ExtXml.int_attrib x "deadband" with _ -> 0 in
+             Axis (index, deadband)
 	| "button" -> Button index
 	| _ -> failwith "parse_input: unexepcted tag" in
       (name, value))
@@ -211,10 +213,13 @@ let my_assoc = fun x l ->
   try List.assoc x l with Not_found ->
     failwith (sprintf "my_assoc: %s not found" x)
 
+let apply_deadband = fun x min ->
+  if abs x < min then 0 else x
+
 (** Access to an input value, button or axis *)
 let eval_input = fun buttons axis input ->
   match input with
-    Axis i -> axis.(i)
+    Axis (i, deadband) -> apply_deadband axis.(i) deadband
   | Button i -> (buttons lsr i) land 0x1
 
 (** Scale a value in the given bounds *)
@@ -287,7 +292,7 @@ let print_inputs = fun nb_buttons buttons axis ->
   done;
   fprintf stderr "\naxis: ";
   for i = 0 to Array.length axis - 1 do
-    fprintf stderr "%d:%d " i (eval_input buttons axis (Axis i))
+    fprintf stderr "%d:%d " i (eval_input buttons axis (Axis (i, 0)))
   done;
   fprintf stderr "\n%!"
   
