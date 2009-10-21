@@ -14,13 +14,13 @@
    <field name="h_mode" value="IndexOfEnum(NAV)"/>
    <field name="v_mode" value="IndexOfEnum(NAV)"/>
    <field name="v_sp"   value="(up-down)*42"/>
-   <field name="h_sp_1" value="roll"/>
-   <field name="h_sp_2" value="pitch"/>
+   <field name="h_sp_1" value="0-pitch"/>
+   <field name="h_sp_2" value="roll"/>
    <field name="h_sp_3" value="yaw"/>
   </message>
 
   <message class="ground" name="DL_SETTING">
-    <field name="index" value="IndexOfSetting(booz2_cam_tilt)"/>
+    <field name="index" value="IndexOfSetting(booz2_cam_tilt_pwm)"/>
     <field name="value" value="Scale(tilt, 1000, 2000)"/>
   </message>
 
