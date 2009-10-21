@@ -16,10 +16,10 @@
   <message class="datalink" name="BOOZ2_FMS_COMMAND">
    <field name="h_mode" value="IndexOfEnum(NAV)"/>
    <field name="v_mode" value="IndexOfEnum(NAV)"/>
-   <field name="v_sp"   value="(up-down)*42"/>
+   <field name="v_sp"   value="(up-down)*127"/>
    <field name="h_sp_1" value="roll"/>
    <field name="h_sp_2" value="pitch"/>
-   <field name="h_sp_3" value="(right-left)*42"/>
+   <field name="h_sp_3" value="(right-left)*127"/>
   </message>
 
   <message class="ground" name="DL_SETTING">
