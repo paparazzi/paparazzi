@@ -130,5 +130,16 @@ DOWNLINK_SEND_BOOZ2_INS3(_chan,	  \
   &zero, \
   &zero, &zero) }
 
+#ifdef USE_AIRSPEED
+#include "estimator.h"
+#define PERIODIC_SEND_AIRSPEED(_chan) { float empty; DOWNLINK_SEND_AIRSPEED (_chan, &adc_airspeed_val,&estimator_airspeed,&empty,&empty,&empty) }
+#else
+#define PERIODIC_SEND_AIRSPEED(_chan) {}
+#endif
+
+#ifdef USE_BARO_ETS
+#include "baro_ets.h"
+#define PERIODIC_SEND_ESTIMATOR(_chan) { float empty; DOWNLINK_SEND_ESTIMATOR(_chan, &baro_ets_altitude, &empty) }
+#endif
 
 #endif /* CSC_TELEMETRY_H */

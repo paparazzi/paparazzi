@@ -40,7 +40,9 @@
 
 #include "csc_servos.h"
 
-
+#include "airspeed.h"
+#include "baro_ets.h"
+#include "airspeed_ets.h"
 
 #include "interrupt_hw.h"
 #include "uart.h"
@@ -60,6 +62,7 @@ static inline void on_prop_cmd(struct CscPropCmd *msg, int idx);
 
 #define SERVO_TIMEOUT (SYS_TICS_OF_SEC(0.1) / PERIODIC_TASK_PERIOD)
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
+#define AIRSPEED_TIMEOUT (SYS_TICS_OF_SEC(0.05) / PERIODIC_TASK_PERIOD)
 
 static uint32_t servo_cmd_timeout = 0;
 static uint32_t can_msg_count = 0;
@@ -110,6 +113,17 @@ static void csc_main_init( void ) {
   motors_init();
   #endif
 
+#ifdef USE_AIRSPEED
+  airspeed_init();
+#endif
+
+#ifdef USE_AIRSPEED_ETS
+  airspeed_ets_init();
+#endif
+#ifdef USE_BARO_ETS
+  baro_ets_init();
+#endif
+
   int_enable();
 }
 
@@ -136,9 +150,29 @@ static void csc_main_periodic( void ) {
     csc_ap_link_send_status(csc_loops, can_msg_count);
   }
 #ifdef ADC
-  if ((++csc_loops % CSC_STATUS_TIMEOUT) == 0) {
+  if ((csc_loops % CSC_STATUS_TIMEOUT) == 0) {
     csc_adc_periodic();
   }
+#endif
+
+  if ((csc_loops % AIRSPEED_TIMEOUT) == 0) {
+#ifdef USE_AIRSPEED_ETS
+    airspeed_ets_periodic();
+#endif
+#ifdef USE_BARO_ETS
+    baro_ets_read();
+#endif
+  } else if ((csc_loops % AIRSPEED_TIMEOUT) == 1) {
+#ifdef USE_BARO_ETS
+    baro_ets_periodic();
+#endif
+#ifdef USE_AIRSPEED_ETS
+    airspeed_ets_read();
+#endif
+  }
+
+#ifdef USE_AIRSPEED
+  airspeed_update();
 #endif
 }
 
