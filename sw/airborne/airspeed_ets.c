@@ -46,7 +46,12 @@
 
 #define AIRSPEED_ETS_ADDR 0xEA
 #define AIRSPEED_ETS_REG 0x07
+#ifndef AIRSPEED_ETS_SCALE
 #define AIRSPEED_ETS_SCALE 1.8
+#endif
+#ifndef AIRSPEED_ETS_OFFSET
+#define AIRSPEED_ETS_OFFSET 0
+#endif
 #define AIRSPEED_ETS_OFFSET_MAX 1750
 #define AIRSPEED_ETS_OFFSET_MIN 1550
 #define AIRSPEED_ETS_OFFSET_NBSAMPLES_INIT 40
@@ -127,7 +132,7 @@ void airspeed_ets_periodic( void ) {
     }    
     // Convert raw to m/s
     if (airspeed_ets_offset_init && airspeed_ets_raw > airspeed_ets_offset)
-      airspeed_tmp = AIRSPEED_ETS_SCALE * sqrt( (float)(airspeed_ets_raw-airspeed_ets_offset) );
+      airspeed_tmp = AIRSPEED_ETS_SCALE * sqrt( (float)(airspeed_ets_raw-airspeed_ets_offset) ) - AIRSPEED_ETS_OFFSET;
     else
       airspeed_tmp = 0.0;
     // Airspeed should always be positive
