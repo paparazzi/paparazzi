@@ -35,7 +35,7 @@ extern void booz_stabilization_attitude_run(bool_t  in_flight);
 #include "stabilization/booz_stabilization_attitude_ref.h"
 #include STABILISATION_ATTITUDE_REF_H
 extern void booz_stabilization_attitude_ref_init(void);
-extern void booz_stabilization_attitude_ref_update(void);
+extern void booz_stabilization_attitude_ref_update(bool_t in_flight);
 
 
 #define booz_stabilization_attitude_SetKiPhi(_val) {	\

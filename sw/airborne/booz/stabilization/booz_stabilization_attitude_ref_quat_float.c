@@ -59,7 +59,7 @@ void booz_stabilization_attitude_ref_init(void) {
 #define OMEGA_R   BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_R
 #define ZETA_R    BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_R
 
-void booz_stabilization_attitude_ref_update(void) {
+void booz_stabilization_attitude_ref_update(bool_t in_flight) {
 
   /* integrate reference attitude            */
   struct FloatQuat qdot;
@@ -82,7 +82,10 @@ void booz_stabilization_attitude_ref_update(void) {
   /* propagate the 2nd order linear model    */
   booz_stab_att_ref_accel.p = -2.*ZETA_P*OMEGA_P*booz_stab_att_ref_rate.p - OMEGA_P*OMEGA_P*err.qx;
   booz_stab_att_ref_accel.q = -2.*ZETA_Q*OMEGA_Q*booz_stab_att_ref_rate.q - OMEGA_Q*OMEGA_Q*err.qy;
-  booz_stab_att_ref_accel.r = -2.*ZETA_R*OMEGA_R*booz_stab_att_ref_rate.r - OMEGA_R*OMEGA_R*err.qz;
+
+  if (in_flight) {
+    booz_stab_att_ref_accel.r = -2.*ZETA_R*OMEGA_R*booz_stab_att_ref_rate.r - OMEGA_R*OMEGA_R*err.qz;
+  }
 
   /* compute ref_euler */
   FLOAT_EULERS_OF_QUAT(booz_stab_att_ref_euler, booz_stab_att_ref_quat);
