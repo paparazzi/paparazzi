@@ -371,13 +371,11 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let af_file =  Http.file_of_url af_url in
   let af_xml = ExtXml.parse_file af_file in
 
-  let label_box = GBin.event_box () in
-  let label = GPack.hbox ~packing:label_box#add ~spacing:3 () in
-  let eb = GBin.event_box ~width:10 ~height:10 ~packing:label#pack () in
-  eb#coerce#misc#modify_bg [`NORMAL, `NAME color];
-  let _ac_label = GMisc.label ~text:name ~packing:label#pack () in
+  (* Aicraft menu decorated with a colored box *)
+  let image = GBin.event_box ~width:10 ~height:10 () in
+  image#coerce#misc#modify_bg [`NORMAL, `NAME color];
+  let ac_mi = GMenu.image_menu_item ~label:name ~image ~packing:geomap#menubar#append () in
 
-  let ac_mi = GMenu.image_menu_item ~image:label_box ~packing:geomap#menubar#append () in
   let ac_menu = GMenu.menu () in
   ac_mi#set_submenu ac_menu;
   let ac_menu_fact = new GMenu.factory ac_menu in
