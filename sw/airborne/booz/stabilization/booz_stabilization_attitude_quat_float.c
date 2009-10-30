@@ -74,6 +74,7 @@ void booz_stabilization_attitude_init(void) {
 static void reset_psi_ref_from_body(void) {
     booz_stab_att_sp_euler.psi = booz_ahrs_float.ltp_to_body_euler.psi;
     booz_stab_att_ref_euler.psi = booz_ahrs_float.ltp_to_body_euler.psi;
+    booz_stab_att_ref_rate.r = 0;
     booz_stab_att_ref_accel.r = 0;
 }
 
@@ -136,7 +137,7 @@ void booz_stabilization_attitude_read_rc(bool_t in_flight) {
       reset_psi_ref_from_body();
       update_sp_quat_from_eulers();
       update_ref_quat_from_eulers();
-      booz_stab_att_ref_rate.r = 8 * radio_control.values[RADIO_CONTROL_YAW] * YAW_COEF;
+      booz_stab_att_ref_rate.r = radio_control.values[RADIO_CONTROL_YAW] * YAW_COEF;
     }
 
 }
@@ -168,7 +169,7 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   /* 
    * Update reference
    */
-  booz_stabilization_attitude_ref_update(in_flight);
+  booz_stabilization_attitude_ref_update();
 
   /* 
    * Compute feedforward

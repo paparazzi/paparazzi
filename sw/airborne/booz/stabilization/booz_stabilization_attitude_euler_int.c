@@ -93,7 +93,7 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
 
 
   /* update reference */
-  booz_stabilization_attitude_ref_update(in_flight);
+  booz_stabilization_attitude_ref_update();
 
   /* compute feedforward command */
   booz_stabilization_att_ff_cmd[COMMAND_ROLL] = 

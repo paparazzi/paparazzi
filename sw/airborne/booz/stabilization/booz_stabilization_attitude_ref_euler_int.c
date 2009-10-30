@@ -71,7 +71,7 @@ void booz_stabilization_attitude_ref_init(void) {
 
 #define USE_REF 1
 
-void booz_stabilization_attitude_ref_update(bool_t in_flight) {
+void booz_stabilization_attitude_ref_update() {
 
 #ifdef USE_REF
 
