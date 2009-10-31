@@ -5,7 +5,6 @@
  * Notes:
  * Connect directly to TWOG/Tiny I2C port. Multiple sensors can be chained together.
  * Sensor should be in the proprietary mode (default) and not in 3rd party mode.
- * Aggressive climb mode (AGR_CLIMB) has not been tested with the barometric altitude.
  * Pitch gains may need to be updated.
  * See conf/airframes/easystar2.xml for a configuration example.
  *
@@ -51,6 +50,8 @@
 #define BARO_ETS_OFFSET_MIN 10
 #define BARO_ETS_OFFSET_NBSAMPLES_INIT 20
 #define BARO_ETS_OFFSET_NBSAMPLES_AVRG 40
+#define BARO_ETS_R 0.5
+#define BARO_ETS_SIGMA2 0.1
 
 // Global variables
 uint16_t baro_ets_adc;
@@ -79,8 +80,8 @@ void baro_ets_init( void ) {
   baro_ets_enabled = TRUE;
   baro_ets_updated = FALSE;
   baro_ets_cnt = BARO_ETS_OFFSET_NBSAMPLES_INIT + BARO_ETS_OFFSET_NBSAMPLES_AVRG;
-  baro_ets_r = 20.0;
-  baro_ets_sigma2 = 1.0;
+  baro_ets_r = BARO_ETS_R;
+  baro_ets_sigma2 = BARO_ETS_SIGMA2;
   i2c0_buf[0] = 0;
   i2c0_buf[1] = 0;  
 }
@@ -132,13 +133,12 @@ void baro_ets_periodic( void ) {
   } else {
     baro_ets_altitude = 0.0;
   }
-  // New value available
-  baro_ets_updated = TRUE;
 #else // SITL
   baro_ets_adc = 0;
   baro_ets_altitude = gps_alt / 100.0;
   baro_ets_valid = TRUE;
-  baro_ets_updated = TRUE;
 #endif
+  // New value available
+  baro_ets_updated = TRUE;
 }
 

@@ -5,7 +5,6 @@
  * Notes:
  * Connect directly to TWOG/Tiny I2C port. Multiple sensors can be chained together.
  * Sensor should be in the proprietary mode (default) and not in 3rd party mode.
- * Aggressive climb mode (AGR_CLIMB) has not been tested.
  * See conf/airframes/easystar2.xml for a configuration example.
  *
  * Sensor module wire assignments:
@@ -98,7 +97,7 @@ void airspeed_ets_read( void ) {
 
 void airspeed_ets_periodic( void ) {
   int n;
-  float airspeed_tmp;
+  float airspeed_tmp = 0.0;
 
   // Read raw value
   if (i2c0_status == I2C_IDLE) {
@@ -110,6 +109,8 @@ void airspeed_ets_periodic( void ) {
     else
       airspeed_ets_valid = TRUE;
   }
+  else
+    airspeed_ets_valid = FALSE;
   // Continue only if a new airspeed value was received  
   if (airspeed_ets_valid) {  
     // Calculate offset average if not done already
