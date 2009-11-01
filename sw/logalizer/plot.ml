@@ -629,7 +629,7 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 	      msgs in
 	  
 	  (* Store data for other windows *)
-	  logs_menus := (ac, menu_name, (msgs, raw_msgs), protocol) :: !logs_menus;
+	  logs_menus :=  !logs_menus @ [(ac, menu_name, (msgs, raw_msgs), protocol)];
 	  
 	  add_ac_submenu ?export protocol ?factor plot menubar curves_fact ac menu_name msgs raw_msgs;
 	)
@@ -672,13 +672,26 @@ let screenshot = fun frame ->
   | _ -> dialog#destroy ()
   end
 
+(** Table of current windows, to be able to quit when the last one is closed
+ FIXME: should be shared with plotter.ml *)
+let windows = Hashtbl.create 3
 
 (*****************************************************************************)
 let rec plot_window = fun ?export init ->
   let plotter = GWindow.window ~allow_shrink:true ~title:"Log Plotter" () in
+
+  (* Register the window *)
+  let oid = plotter#get_oid in
+  Hashtbl.add windows oid ();
+
   plotter#set_icon (Some (GdkPixbuf.from_file Env.icon_file));  
   let vbox = GPack.vbox ~packing:plotter#add () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
+  let close = fun () -> 
+    plotter#destroy ();
+    Hashtbl.remove windows oid;
+    if Hashtbl.length windows = 0 then
+      quit () in
 
   let tooltips = GData.tooltips () in
 
@@ -695,18 +708,16 @@ let rec plot_window = fun ?export init ->
   let open_log_item = file_menu_fact#add_item "Open Log" ~key:GdkKeysyms._O in
   
   ignore (file_menu_fact#add_item "New" ~key:GdkKeysyms._N ~callback:(fun () -> plot_window []));
-(*
-  let close = fun () -> plotter#destroy () in
-  ignore (file_menu_fact#add_item "Close" ~key:GdkKeysyms._W ~callback:close); *)
-
   let delayed_screenshot = fun () ->
     ignore (GMain.Idle.add (fun () -> screenshot plot#drawing_area; false)) in
   ignore (file_menu_fact#add_item "Save screenshot" ~key:GdkKeysyms._S ~callback:delayed_screenshot);
+  ignore (file_menu_fact#add_separator ());
+  ignore (file_menu_fact#add_item "Close" ~key:GdkKeysyms._W ~callback:close);
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
   let curves_menu = factory#add_submenu "Curves" in
   let curves_menu_fact = new GMenu.factory curves_menu in
 
-  ignore (plotter#connect#destroy ~callback:(fun () -> plot#destroy (); quit ()));
+  ignore (plotter#connect#destroy ~callback:close);
 
   (* Auto Scale *)
   let auto_scale = GButton.check_button ~label:"Auto Scale" ~active:true ~packing:h#pack () in

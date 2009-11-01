@@ -329,12 +329,26 @@ let base_and_index =
     else
       (field_descr, 0)
 
+(** Table of current windows, to be able to quit when the last one is closed *)
+let windows = Hashtbl.create 3
+
 let rec plot_window = fun window ->
-  let plotter = GWindow.window ~type_hint:`DIALOG ~allow_shrink:true ~title:window.title () in
+  let plotter = GWindow.window ~deletable:true ~type_hint:`DIALOG ~allow_shrink:true ~title:window.title () in
+
+  (* Register the window *)
+  let oid = plotter#get_oid in
+  Hashtbl.add windows oid ();
+
   ignore (plotter#parse_geometry window.geometry);
   plotter#set_icon (Some (GdkPixbuf.from_file Env.icon_file));
   let vbox = GPack.vbox ~packing:plotter#add () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
+
+  let close = fun () -> 
+    plotter#destroy ();
+    Hashtbl.remove windows oid;
+    if Hashtbl.length windows = 0 then
+      quit () in
 
   let tooltips = GData.tooltips () in
 
@@ -345,13 +359,13 @@ let rec plot_window = fun window ->
   let file_menu_fact = new GMenu.factory file_menu ~accel_group in
   
   ignore (file_menu_fact#add_item "New" ~key:GdkKeysyms._N ~callback:(fun () -> plot_window {window with curves=[]}));
-(*
-  let close = fun () -> plotter#destroy () in
-  ignore (file_menu_fact#add_item "Close" ~key:GdkKeysyms._W ~callback:close); *)
+
   let reset_item = file_menu_fact#add_item "Reset" ~key:GdkKeysyms._L in
   let suspend_item = file_menu_fact#add_item "Suspend" ~key:GdkKeysyms._S in
   let stop_item = file_menu_fact#add_item "Stop" ~key:GdkKeysyms._C in
   let start_item = file_menu_fact#add_item "Restart" ~key:GdkKeysyms._X in
+  ignore (file_menu_fact#add_separator ());
+  ignore (file_menu_fact#add_item "Close" ~key:GdkKeysyms._W ~callback:close);
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
   let curves_menu = factory#add_submenu "Curves" in
   let curves_menu_fact = new GMenu.factory curves_menu in
@@ -366,7 +380,7 @@ let rec plot_window = fun window ->
   let width = 900 and height = 200 in
   let plot = new plot ~size: !size ~width ~height ~packing:(vbox#pack ~expand:true) () in
   tooltips#set_tip plot#drawing_area#coerce ~text:"Drop a messages field here to draw it";
-  ignore (plotter#connect#destroy ~callback:(fun () -> plot#destroy (); quit ()));
+  ignore (plotter#connect#destroy ~callback:close);
 
   (* Auto Scale *)
   let auto_scale = GButton.check_button ~label:"Auto Scale" ~active:true ~packing:h#pack () in
@@ -444,14 +458,14 @@ let rec plot_window = fun window ->
     ignore (discrete_item#connect#toggled ~callback);
 
     (* Average *)
-    let average_value = GMisc.label ~height:10 ~text:"N/A" () in
+    let average_value = GMisc.label ~text:"N/A" () in
     let _avg_item = submenu_fact#add_image_item ~image:average_value#coerce ~label:"Average" () in
     let update_avg_item = fun () ->
       average_value#set_text (sprintf "%.6f" curve.average#value) in
     ignore (curve.average#connect#value_changed update_avg_item);
 
     (* Standard deviation *)
-    let stdev_value = GMisc.label~height:10  ~text:"N/A" () in
+    let stdev_value = GMisc.label ~text:"N/A" () in
     let _item = submenu_fact#add_image_item ~image:stdev_value#coerce ~label:"Stdev" () in
     let update_stdev_value = fun () ->
       stdev_value#set_text (sprintf "%.6f" curve.stdev#value) in
