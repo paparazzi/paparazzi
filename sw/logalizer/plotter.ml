@@ -333,7 +333,7 @@ let base_and_index =
 let windows = Hashtbl.create 3
 
 let rec plot_window = fun window ->
-  let plotter = GWindow.window ~deletable:true ~type_hint:`DIALOG ~allow_shrink:true ~title:window.title () in
+  let plotter = GWindow.window ~type_hint:`DIALOG ~allow_shrink:true ~title:window.title () in
 
   (* Register the window *)
   let oid = plotter#get_oid in
