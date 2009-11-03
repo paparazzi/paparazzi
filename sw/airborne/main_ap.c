@@ -635,32 +635,34 @@ void periodic_task_ap( void ) {
   }
 #endif
 
+#ifdef USE_I2C0
+  // I2C0 scheduler
+  switch (_20Hz) {
+    case 0:
+#ifdef USE_AIRSPEED_ETS
+      airspeed_ets_periodic(); // process airspeed
+#endif // USE_AIRSPEED_ETS
+#ifdef USE_BARO_ETS
+      baro_ets_read(); // initiate next i2c read
+#endif // USE_BARO_ETS
+      break;
+    case 1:
+#ifdef USE_BARO_ETS
+      baro_ets_periodic(); // process altitude
+#endif // USE_BARO_ETS
+#ifdef USE_AIRSPEED_ETS
+      airspeed_ets_read(); // initiate next i2c read
+#endif // USE_AIRSPEED_ETS
+      break;
+    case 2:
+      break;
+  }
+#endif // USE_I2C0
+
 #if CONTROL_RATE == 20
   if (!_20Hz)
 #endif
     {
-
-    // I2C scheduler
-    switch (_20Hz) {
-      case 0:
-#ifdef USE_AIRSPEED_ETS
-        airspeed_ets_periodic(); // process airspeed
-#endif // USE_AIRSPEED_ETS
-#ifdef USE_BARO_ETS
-        baro_ets_read(); // initiate next i2c read
-#endif // USE_BARO_ETS
-        break;
-      case 1:
-#ifdef USE_BARO_ETS
-        baro_ets_periodic(); // process altitude
-#endif // USE_BARO_ETS
-#ifdef USE_AIRSPEED_ETS
-        airspeed_ets_read(); // initiate next i2c read
-#endif // USE_AIRSPEED_ETS
-        break;
-      case 2:
-        break;
-    }
 
 #if defined GYRO
       gyro_update();
