@@ -56,7 +56,7 @@ extern volatile bool_t* i2c0_finished;
       if (i2c0_index < i2c0_len_r) {					\
 	i2c0_buf[i2c0_index] = I2C_DATA_REG;				\
 	i2c0_index++;							\
-	I2c0Receive(i2c0_index < i2c0_len_r - 1);				\
+	I2c0Receive(i2c0_index < i2c0_len_r - 1);			\
       }									\
       else {								\
 	/* error , we should have got NACK */				\
@@ -77,18 +77,18 @@ extern volatile bool_t* i2c0_finished;
 	I2c0SendByte(i2c0_buf[i2c0_index]);				\
 	i2c0_index++;							\
       } else {								\
-        if (i2c0_trx) {                  \
-          i2c0_trx = 0;                      \
-          i2c0_index = 0;                      \
-          i2c0_slave_addr |= 1;                \
-          I2c0SendStart();                     \
-        } else {                              \
-	      if (i2c0_stop_after_transmit) {                                 \
-            I2c0SendStop();                                               \
-          } else {                                                        \
-            I2c0Finished();                                               \
-          }                                                               \
-	    }                                     \
+        if (i2c0_trx) {							\
+          i2c0_trx = 0;							\
+          i2c0_index = 0;						\
+          i2c0_slave_addr |= 1;						\
+          I2c0SendStart();						\
+        } else {							\
+	  if (i2c0_stop_after_transmit) {				\
+            I2c0SendStop();						\
+          } else {							\
+            I2c0Finished();						\
+          }								\
+	}								\
       }									\
       break;								\
     case I2C_MR_DATA_NACK:						\
