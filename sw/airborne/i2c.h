@@ -108,7 +108,7 @@ extern volatile bool_t* i2c0_finished;
 #ifdef USE_I2C1
 
 extern void i2c1_init(void);
-extern void i2c1_receive(uint8_t slave_addr, uint8_t len, volatile bool_t* finished);
+extern void i2c1_receive(uint8_t slave_addr, uint16_t len, volatile bool_t* finished);
 extern void i2c1_transmit(uint8_t slave_addr, uint8_t len, volatile bool_t* finished);
 extern void i2c1_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile bool_t* finished);
 
