@@ -1,0 +1,10 @@
+<airframe name="booz2_a6">
+
+
+ <makefile>
+
+include $(PAPARAZZI_SRC)/conf/autopilot/stm32_test_progs.makefile
+
+ </makefile>
+
+</airframe>
