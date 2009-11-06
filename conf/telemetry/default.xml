@@ -8,6 +8,7 @@
       <message name="NAVIGATION"     period="1."/>
       <message name="ATTITUDE"       period="0.5"/>
       <message name="ESTIMATOR"      period="0.5"/>
+      <message name="ENERGY"         period="2.5"/>
       <message name="WP_MOVED"       period="0.5"/>
       <message name="CIRCLE"         period="1.05"/>
       <message name="DESIRED"        period="1.05"/>
