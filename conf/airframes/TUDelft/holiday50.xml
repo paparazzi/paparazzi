@@ -160,10 +160,15 @@
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.56"/>
     <define name="THROTTLE_SLEW_LIMITER" value="1" unit="s"/>
 
-    <define name="AUTO_AIRSPEED_SETPOINT" value="16" unit="m/s"/>
-    <define name="AUTO_AIRSPEED_PITCH_PGAIN" value="0" unit="degree/(m/s)"/>
-    <define name="AUTO_AIRSPEED_THROTTLE_PGAIN" value="0" unit="%/(m/s)"/>
-    <define name="AUTO_AIRSPEED_THROTTLE_IGAIN" value="0"/>
+    <define name="AUTO_GROUNDSPEED_SETPOINT" value="16" unit="m/s"/>
+    <define name="AUTO_GROUNDSPEED_PGAIN" value="0" unit="degree/(m/s)"/>
+    <define name="AUTO_GROUNDSPEED_IGAIN" value="0"/>
+    <define name="AUTO_AIRSPEED_SETPOINT" value="0" unit="%/(m/s)"/>
+    <define name="AUTO_AIRSPEED_PGAIN" value="0" unit="degree/(m/s)"/>
+    <define name="AUTO_AIRSPEED_IGAIN" value="0" unit="degree/(m/s)"/>
+
+    <define name="AUTO_PITCH_MAX_PITCH" value="0.4" unit="radians"/>
+    <define name="AUTO_PITCH_MIN_PITCH" value="-0.4" unit="radians"/>
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
