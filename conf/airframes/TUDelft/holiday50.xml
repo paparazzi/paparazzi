@@ -84,9 +84,9 @@
   </section>
 
   <section name="AIRSPEED" prefix="AIRSPEED_">
-    <define name="ZERO" value="50"/>
+    <define name="ZERO" value="0"/>
     <define name="RESISTOR_BRIDGE" value="(3.3/(3.3+2.2))"/>
-    <define name="SCALE" value="30./1024./(AIRSPEED_RESISTOR_BRIDGE)" unit="m/s/adc_unit"/>
+    <define name="SCALE" value="1." unit="m/s/adc_unit"/>
   </section>
 
 
