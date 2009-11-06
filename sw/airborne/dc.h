@@ -67,24 +67,38 @@ extern uint8_t dc_shutter_timer;
 extern uint8_t dc_utm_threshold;
 /* In m. If non zero, automatic shots when greater than utm_north % 100 */
 
+/* Picture Number starting from zero */
+extern uint16_t dc_photo_nr;
+extern uint8_t dc_shoot;
 
+#ifndef DC_PUSH
+#define DC_PUSH LED_ON
+#endif
+
+#ifndef DC_RELEASE
+#define DC_RELEASE LED_OFF
+#endif
 
 #define SHUTTER_DELAY 2  /* 4Hz -> 0.5s */
 
 static inline uint8_t dc_shutter( void ) {
   dc_timer = SHUTTER_DELAY; 
-  LED_OFF(DC_SHUTTER_LED);
+  DC_PUSH(DC_SHUTTER_LED);
 
-  int16_t phi = DegOfRad(estimator_phi);
-  int16_t theta = DegOfRad(estimator_theta);
-  DOWNLINK_SEND_DC_SHOT(DefaultChannel, &gps_utm_east, &gps_utm_north, &gps_utm_zone, &gps_course, &estimator_z, &phi, &theta);
+  int16_t phi = DegOfRad(estimator_phi*10.0f);
+  int16_t theta = DegOfRad(estimator_theta*10.0f);
+  DOWNLINK_SEND_DC_SHOT(DefaultChannel, &dc_photo_nr, &gps_utm_east, &gps_utm_north, &estimator_z, &gps_utm_zone, &phi, &theta,  &gps_course, &gps_gspeed, &gps_itow);
+
+  dc_photo_nr++;
 
   return 0;
 }
 
 static inline uint8_t dc_zoom( void ) {
   dc_timer = SHUTTER_DELAY; 
-  LED_OFF(DC_ZOOM_LED);
+#ifdef DC_ZOOM_LED
+  DC_PUSH(DC_ZOOM_LED);
+#endif
   return 0;
 }
 
@@ -95,13 +109,41 @@ static inline uint8_t dc_zoom( void ) {
 
 #define dc_init() { /* initialized as leds */ dc_periodic_shutter = 0; } /* Output */
 
+static inline void dc_shoot_on_gps( void ) {
+  static uint8_t gps_msg_counter = 0;
+
+  if (dc_shoot > 0)
+  {
+
+    if (gps_msg_counter == 0)
+    {
+      DC_PUSH(DC_SHUTTER_LED);
+      int16_t phi = DegOfRad(estimator_phi*10.0f);
+      int16_t theta = DegOfRad(estimator_theta*10.0f);
+      float gps_z = ((float)gps_alt) / 100.0f;
+      DOWNLINK_SEND_DC_SHOT(DefaultChannel, &dc_photo_nr, &gps_utm_east, &gps_utm_north, &gps_z, &gps_utm_zone, &phi, &theta,  &gps_course, &gps_gspeed, &gps_itow);
+      dc_photo_nr++;
+    }
+    else if (gps_msg_counter == 1)
+    {
+      DC_RELEASE(DC_SHUTTER_LED);
+    }
+  
+    gps_msg_counter++;
+    if (gps_msg_counter >= 4)
+      gps_msg_counter = 0;
+  }
+}	
+
 /* 4Hz */
 static inline void dc_periodic( void ) {
   if (dc_timer) {
     dc_timer--;
   } else {
-    LED_ON(DC_SHUTTER_LED);
-    LED_ON(DC_ZOOM_LED);
+    DC_RELEASE(DC_SHUTTER_LED);
+#ifdef DC_ZOOM_LED
+    DC_RELEASE(DC_ZOOM_LED);
+#endif
   }
 
   if (dc_periodic_shutter) {

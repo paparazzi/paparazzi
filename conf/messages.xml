@@ -291,6 +291,29 @@
       <field name="w4"  type="uint16"/>
   </message>
 
+  <message name="BARO_BMP85_CALIB" id="38">
+      <field name="a1"  type="int16"/>
+      <field name="a2"  type="int16"/>
+      <field name="a3"  type="int16"/>
+      <field name="a4"  type="uint16"/>
+      <field name="a5"  type="uint16"/>
+      <field name="a6"  type="uint16"/>
+      <field name="b1"  type="int16"/>
+      <field name="b2"  type="int16"/>
+      <field name="mb"  type="int16"/>
+      <field name="mc"  type="int16"/>
+      <field name="md"  type="int16"/>
+  </message>
+
+  <message name="BARO_BMP85" id="39">
+      <field name="UT"  type="int32"/>
+      <field name="UP"  type="int32"/>
+      <field name="P"  type="uint32"/>
+      <field name="T"  type="float"/>
+      <field name="MSL"  type="float"/>
+  </message>
+
+
 
  <message name="WP_MOVED_LLA" id="47">
     <field name="wp_id" type="uint8"/>
@@ -412,13 +435,16 @@
 
 
   <message name="DC_SHOT" id="110">
+     <field name="photo_nr" type="int16" unit=""></field>
      <field name="utm_east"  type="int32" unit="cm"></field>
      <field name="utm_north" type="int32" unit="cm"></field>
-     <field name="utm_zone"  type="uint8"></field>
-     <field name="course" type="int16" unit="decideg"></field>
      <field name="z" type="float" unit="m"/>
-     <field name="phi" type="int16" unit="deg"></field>
-     <field name="theta" type="int16" unit="deg"></field>	 
+     <field name="utm_zone"  type="uint8"></field>
+     <field name="phi" type="int16" unit="decideg"></field>
+     <field name="theta" type="int16" unit="decideg"></field>	 
+     <field name="course" type="int16" unit="decideg"></field>
+     <field name="speed"  type="uint16" unit="cm/s"></field>
+     <field name="itow"  type="uint32" unit="ms"></field>
   </message>
 
   <message name="TEST_BOARD_RESULTS" ID="111">

@@ -176,7 +176,7 @@
 #define PERIODIC_SEND_AIRSPEED(_chan) {}
 #endif
 
-#define PERIODIC_SEND_ENERGY(_chan) Downlink({ int16_t e = energy; DOWNLINK_SEND_ENERGY( &vsup, &curs, &e); })
+#define PERIODIC_SEND_ENERGY(_chan) Downlink({ int16_t e = energy; float vsup = ((float)vsupply) / 10.0f; float curs = ((float) current)/1000.0f;  DOWNLINK_SEND_ENERGY(_chan, &vsup, &curs, &e); })
 
 
 #include "fw_h_ctl_a.h"
