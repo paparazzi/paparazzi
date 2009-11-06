@@ -11,6 +11,11 @@
       </dl_setting>
       <dl_setting MAX="60" MIN="0" STEP="1" VAR="dc_periodic_shutter" module="dc" handler="Periodic" shortname="Periodic"/>
       <dl_setting MAX="5" MIN="0" STEP="1" VAR="dc_utm_threshold" shortname="UTM%"/>
+
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="dc_shoot" module="dc">
+       <strip_button name="Start Autoshoot" icon="on.png" value="1"/>
+       <strip_button name="Stop Autoshoot" icon="off.png" value="0"/>
+      </dl_setting>
     </dl_settings>
   </dl_settings>
 </settings>
