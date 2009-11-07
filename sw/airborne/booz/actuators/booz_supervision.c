@@ -64,6 +64,18 @@ static inline void bound_commands() {
           SUPERVISION_MIN_MOTOR, SUPERVISION_MAX_MOTOR);
 }
 
+void supervision_run_spinup(uint32_t counter, uint32_t max_counter, int32_t in_cmd[])
+{
+  int i;
+  for (i = 0; i < SUPERVISION_NB_MOTOR; i++) {
+    if (counter < i * max_counter / SUPERVISION_NB_MOTOR) {
+      supervision.commands[i] = SUPERVISION_MIN_MOTOR;
+    } else {
+      supervision.commands[i] = 0;
+    }
+  }
+}
+
 void supervision_run(bool_t motors_on, int32_t in_cmd[] ) {
   uint8_t i;
   if (motors_on) {
