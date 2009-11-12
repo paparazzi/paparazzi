@@ -1,3 +1,28 @@
+/*
+ * Paparazzi $Id$
+ *  
+ * Copyright (C) 2009 - Pascal Brisset, Antoine Drouin
+ *
+ * Modified by: Mark Griffin
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ */
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <math.h>
@@ -10,21 +35,23 @@
 #define MANUAL 0
 #define AUTO 1
 
-static float azim_sp;
-static float elev_sp;
-static guint id_sp;
-static guint mode;
+static double gps_pos_x;
+static double gps_pos_y;
+static double gps_alt;
+static double home_alt;
+static double ant_azim;
+static double ant_elev;
+static int mode;
+static int home_found=0;
 
 GtkWidget *azim_scale;
 GtkWidget *elev_scale;
 
 void on_mode_changed (GtkRadioButton  *radiobutton, gpointer user_data) {
-
   mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radiobutton)) ? MANUAL : AUTO;
   IvySendMsg("1ME RAW_DATALINK 80 SETTING;0;0;%d", mode);
-  g_message("on mode changed %d" , mode);  
+  g_message("Mode changed to %d" , mode);  
 }
-
 
 #define GLADE_HOOKUP_OBJECT(component,widget,name) \
   g_object_set_data_full (G_OBJECT (component), name, \
@@ -32,7 +59,6 @@ void on_mode_changed (GtkRadioButton  *radiobutton, gpointer user_data) {
 
 #define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) \
   g_object_set_data (G_OBJECT (component), name, widget)
-
 
 GtkWidget* build_gui ( void ) {
   GtkWidget *window1;
@@ -145,24 +171,36 @@ GtkWidget* build_gui ( void ) {
   GLADE_HOOKUP_OBJECT (window1, entry1, "entry1");
 
   return window1;
-
-
 }
 
-void on_ANTENNA_STATUS(IvyClientPtr app, void *user_data, int argc, char *argv[]){
-  //  azim_sp = atof(argv[0]);
-  //  elev_sp = atof(argv[1]);
-  //  id_sp = atoi(argv[2]);
-  //  mode = atoi(argv[3]);
+/* jump here when a GPS message is received */
+void on_GPS_STATUS(IvyClientPtr app, void *user_data, int argc, char *argv[]){
+  if (home_found == 0) {  
+	if (atof(argv[0]) == 3) { /* wait until we have a valid GPS fix */
+    	   home_alt = atof(argv[4])/100.; /* get the altitude */
+    	   home_found = 1;
+  	}
+  }
+  gps_alt = atof(argv[4])/100.;
+}
+
+/* jump here when a NAVIGATION message is received */
+void on_NAV_STATUS(IvyClientPtr app, void *user_data, int argc, char *argv[]){
 
   if (mode == AUTO) {
-    azim_sp = atof(argv[0]);
-    elev_sp = atof(argv[1]);
-    gtk_range_set_value(azim_scale, azim_sp);
-    gtk_range_set_value(elev_scale, elev_sp);
+    gps_pos_x = atof(argv[2]);
+    gps_pos_y = atof(argv[3]);
+    /* calculate azimuth */
+    ant_azim = atan2(gps_pos_x, gps_pos_y) * 180. / M_PI;
+    if (ant_azim < 0) ant_azim += 360.;
+    /* calculate elevation */
+    ant_elev = atan2( (gps_alt-home_alt), sqrt(atof(argv[5])) ) * 180. / M_PI;
+    if (ant_elev < 0) ant_elev = 0.;
 
+    gtk_range_set_value(azim_scale, ant_azim);
+    gtk_range_set_value(elev_scale, ant_elev);
   }
-  g_message("on antenna status %d", mode);
+   /*g_message("home_alt %f gps_alt %f azim %f elev %f", home_alt, gps_alt, ant_azim, ant_elev); */
 }
 
 int main (int argc, char** argv) {
@@ -173,7 +211,8 @@ int main (int argc, char** argv) {
   gtk_widget_show_all(window);
 
   IvyInit ("AntennaTracker", "AntennaTracker READY", NULL, NULL, NULL, NULL);
-  IvyBindMsg(on_ANTENNA_STATUS, NULL, "^\\S* ANTENNA_STATUS (\\S*) (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_GPS_STATUS, NULL, "^\\S* GPS (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_NAV_STATUS, NULL, "^\\S* NAVIGATION (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
   IvyStart("127.255.255.255");
 
   gtk_main();
