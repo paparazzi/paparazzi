@@ -87,9 +87,9 @@ static float get_pitch_rotation_angle(struct FloatRMat *rmat)
   return -atan2f(dcm02, dcm22);
 }
 
-// complicated function to reset setpoint quaternion to pitch 0, roll 0 from current
-// ltp to body quaternion by rotating first about pitch, then roll (and not yaw)
-static void reset_sp_quat_from_body(void)
+// complicated function to reset setpoint quaternion to pitch theta, roll phi using provided
+// quaternion initial rotating first about pitch, then roll (and not yaw)
+static void reset_sp_quat(float phi, float theta, struct FloatQuat *initial)
 {
   float pitch_rotation_angle, roll_rotation_angle;
   struct FloatQuat pitch_axis_quat, roll_axis_quat;
@@ -104,19 +104,20 @@ static void reset_sp_quat_from_body(void)
   struct FloatEulers rotated_euler;
   
   // Convert body orientation to rotation matrix
-  FLOAT_RMAT_OF_QUAT(ltp_to_body_rmat, booz_ahrs_float.ltp_to_body_quat);
+  FLOAT_RMAT_OF_QUAT(ltp_to_body_rmat, *initial);
 
-  // rotate about Y axis (pitch axis) to zero
-  pitch_rotation_angle = -get_pitch_rotation_angle(&ltp_to_body_rmat);
+  // compose rotation about Y axis (pitch axis) to theta
+  pitch_rotation_angle = theta - get_pitch_rotation_angle(&ltp_to_body_rmat);
   FLOAT_QUAT_OF_AXIS_ANGLE(pitch_axis_quat, y_axis, pitch_rotation_angle);
-  FLOAT_QUAT_COMP(pitch_rotated_quat, booz_ahrs_float.ltp_to_body_quat, pitch_axis_quat);
+  FLOAT_QUAT_COMP(pitch_rotated_quat, *initial, pitch_axis_quat);
 
-  // rotate about X axis (roll axis) to zero
+  // compose rotation about X axis (roll axis) to phi
   FLOAT_EULERS_OF_QUAT(rotated_euler, pitch_rotated_quat);
-  roll_rotation_angle = -rotated_euler.phi;
+  roll_rotation_angle = phi - rotated_euler.phi;
   FLOAT_QUAT_OF_AXIS_ANGLE(roll_axis_quat, x_axis, roll_rotation_angle);
   FLOAT_QUAT_COMP(roll_rotated_quat, pitch_rotated_quat, roll_axis_quat);
 
+  // store result into setpoint
   FLOAT_QUAT_COPY(booz_stab_att_sp_quat, roll_rotated_quat);
 }
 
@@ -152,50 +153,53 @@ void booz_stabilization_attitude_read_rc(bool_t in_flight) {
 
   uint32_t rate_stick_mode = radio_control.values[RADIO_CONTROL_MODE] < -150;
   static uint32_t last_rate_stick_mode;
+  pprz_t roll = radio_control.values[RADIO_CONTROL_ROLL];
+  pprz_t pitch = radio_control.values[RADIO_CONTROL_PITCH];
+  pprz_t yaw = radio_control.values[RADIO_CONTROL_YAW];
+  struct FloatEulers sticks_eulers;
+  struct FloatQuat sticks_quat, prev_sp_quat;
 
+  // RC stick commands rate or position?
   if (rate_stick_mode) {
-    if (ROLL_DEADBAND_EXCEEDED()) {
-      booz_stab_att_sp_euler.phi = radio_control.values[RADIO_CONTROL_ROLL] * ROLL_COEF_RATE / RC_UPDATE_FREQ;
-    } else {
-      booz_stab_att_sp_euler.phi = 0;
-    }
-    if (PITCH_DEADBAND_EXCEEDED()) {
-      booz_stab_att_sp_euler.theta = radio_control.values[RADIO_CONTROL_PITCH] * PITCH_COEF_RATE / RC_UPDATE_FREQ;
-    } else {
-      booz_stab_att_sp_euler.theta = 0;
-    }
-    if (YAW_DEADBAND_EXCEEDED()) {
-      booz_stab_att_sp_euler.psi = radio_control.values[RADIO_CONTROL_YAW] * YAW_COEF / RC_UPDATE_FREQ;
-    } else {
-      booz_stab_att_sp_euler.psi = 0;
-    }
-    struct FloatQuat sticks_quat;
-    struct FloatQuat prev_sp_quat;
+    // convert sticks to commanded rates
+    sticks_eulers.phi = APPLY_DEADBAND(roll, BOOZ_STABILIZATION_ATTITUDE_DEADBAND_A) * ROLL_COEF_RATE / RC_UPDATE_FREQ;
+    sticks_eulers.theta = APPLY_DEADBAND(pitch, BOOZ_STABILIZATION_ATTITUDE_DEADBAND_E) * PITCH_COEF_RATE / RC_UPDATE_FREQ;
+    sticks_eulers.psi = APPLY_DEADBAND(yaw, BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R) * YAW_COEF / RC_UPDATE_FREQ;
 
-    FLOAT_QUAT_OF_EULERS(sticks_quat, booz_stab_att_sp_euler);
+    // convert eulers to quaternion
+    FLOAT_QUAT_OF_EULERS(sticks_quat, sticks_eulers);
     FLOAT_QUAT_COPY(prev_sp_quat, booz_stab_att_sp_quat)
   
+    // rotate previous setpoint by commanded rotation
     FLOAT_QUAT_COMP(booz_stab_att_sp_quat, prev_sp_quat, sticks_quat);
   } else {
+    // First time switching from rate to position reset the setpoint based on the body
     if (last_rate_stick_mode) {
-      reset_sp_quat_from_body();
-      FLOAT_EULERS_OF_QUAT(booz_stab_att_sp_euler, booz_stab_att_sp_quat);
+      reset_sp_quat(roll * ROLL_COEF, pitch * PITCH_COEF, &booz_ahrs_float.ltp_to_body_quat);
     }
-    booz_stab_att_sp_euler.phi   = radio_control.values[RADIO_CONTROL_ROLL]  * ROLL_COEF;
-    booz_stab_att_sp_euler.theta = radio_control.values[RADIO_CONTROL_PITCH] * PITCH_COEF;
+
+    // heading hold?
     if (in_flight) {
-      if (YAW_DEADBAND_EXCEEDED()) {
-	booz_stab_att_sp_euler.psi += radio_control.values[RADIO_CONTROL_YAW] * YAW_COEF / RC_UPDATE_FREQ;
-	FLOAT_ANGLE_NORMALIZE(booz_stab_att_sp_euler.psi);
-      }
-      update_sp_quat_from_eulers();
-    } else { /* if not flying, use current yaw as setpoint */
-      reset_psi_ref_from_body();
-      update_sp_quat_from_eulers();
-      update_ref_quat_from_eulers();
-      booz_stab_att_ref_rate.r = radio_control.values[RADIO_CONTROL_YAW] * YAW_COEF;
+      // compose setpoint based on previous setpoint + pitch/roll sticks
+      reset_sp_quat(roll * ROLL_COEF, pitch * PITCH_COEF, &booz_stab_att_sp_quat);
+
+      // get commanded yaw rate from sticks
+      sticks_eulers.phi = 0;
+      sticks_eulers.theta = 0;
+      sticks_eulers.psi = APPLY_DEADBAND(yaw, BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R) * YAW_COEF / RC_UPDATE_FREQ;
+
+      // convert yaw rate * dt into quaternion
+      FLOAT_QUAT_OF_EULERS(sticks_quat, sticks_eulers);
+      FLOAT_QUAT_COPY(prev_sp_quat, booz_stab_att_sp_quat)
+  
+      // update setpoint by rotating by yaw command
+      FLOAT_QUAT_COMP(booz_stab_att_sp_quat, prev_sp_quat, sticks_quat);
+    } else { /* if not flying, use current body position + pitch/roll from sticks to compose setpoint */
+      reset_sp_quat(roll * ROLL_COEF, pitch * PITCH_COEF, &booz_ahrs_float.ltp_to_body_quat);
     }
   }
+  // update euler setpoints for telemetry
+  FLOAT_EULERS_OF_QUAT(booz_stab_att_sp_euler, booz_stab_att_sp_quat);
   last_rate_stick_mode = rate_stick_mode;
 }
 
