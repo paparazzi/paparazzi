@@ -226,7 +226,7 @@
 
  <message name="MOTOR" id="34">
    <field name="rpm" type="uint16" unit="Hz"/>
-   <field name="current" type="uint16" unit="mA"/>
+   <field name="current" type="int32" unit="mA"/>
  </message>
 
  <message name="WP_MOVED" id="35">
@@ -420,7 +420,7 @@
     <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
     <field name="mode" type="uint8" values="MANUAL|AUTO|FAILSAFE"/>
     <field name="vsupply" type="uint8" unit="decivolt"/>
-    <field name="current" type="int16" unit="mA"/>
+    <field name="current" type="int32" unit="mA"/>
   </message>
 
   <message name="ADC" id="104">

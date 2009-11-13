@@ -190,7 +190,7 @@ float slider_1_val, slider_2_val;
 bool_t launch = FALSE;
 
 uint8_t vsupply;	// deciVolt
-static int16_t current;	// milliAmpere
+static int32_t current;	// milliAmpere
 
 float energy; 		// Fuel consumption (mAh)
 

@@ -41,7 +41,7 @@
 
 extern uint8_t fbw_mode;
 extern uint8_t fbw_vsupply_decivolt;
-extern int16_t fbw_current_milliamp;
+extern int32_t fbw_current_milliamp;
 extern bool_t failsafe_mode;
 
 void init_fbw( void );

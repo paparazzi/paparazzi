@@ -76,7 +76,7 @@ struct adc_buf current_adc_buf;
 #endif
 
 uint8_t fbw_vsupply_decivolt;
-int16_t fbw_current_milliamp;
+int32_t fbw_current_milliamp;
 
 uint8_t fbw_mode;
 
