@@ -51,7 +51,7 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic( void ) {
-  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(&cpu_time_sec);});
+  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(DefaultChannel, &cpu_time_sec);});
 }
 
 
