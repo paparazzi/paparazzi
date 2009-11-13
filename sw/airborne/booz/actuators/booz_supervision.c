@@ -57,14 +57,14 @@ static inline void offset_commands(int32_t offset) {
     supervision.commands[j] += (offset);
 }
 
-static inline void bound_commands() {
+static inline void bound_commands(void) {
   uint8_t j;
   for (j=0; j<SUPERVISION_NB_MOTOR; j++)
     Bound(supervision.commands[j],
           SUPERVISION_MIN_MOTOR, SUPERVISION_MAX_MOTOR);
 }
 
-void supervision_run_spinup(uint32_t counter, uint32_t max_counter, int32_t in_cmd[])
+void supervision_run_spinup(uint32_t counter, uint32_t max_counter)
 {
   int i;
   for (i = 0; i < SUPERVISION_NB_MOTOR; i++) {

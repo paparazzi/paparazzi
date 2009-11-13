@@ -14,6 +14,6 @@ extern struct BoozSupervision supervision;
 
 extern void supervision_init(void);
 extern void supervision_run(bool_t motors_on, int32_t in_cmd[]);
-extern void supervision_run_spinup(uint32_t counter, uint32_t max_counter, int32_t in_cmd[]);
+extern void supervision_run_spinup(uint32_t counter, uint32_t max_counter);
 
 #endif /* BOOZ_SUPERVISION_H */
