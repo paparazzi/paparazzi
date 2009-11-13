@@ -104,7 +104,7 @@ extern uint16_t booz2_autopilot_flight_time;
 #ifndef TRESHOLD_GROUND_DETECT
 #define TRESHOLD_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)
 #endif
-static inline void BoozDetectGroundEvent() {
+static inline void BoozDetectGroundEvent(void) {
   if (booz2_autopilot_mode == BOOZ2_AP_MODE_FAILSAFE || booz2_autopilot_detect_ground_once) {
     if (booz_ins_ltp_accel.z < -TRESHOLD_GROUND_DETECT ||
         booz_ins_ltp_accel.z > TRESHOLD_GROUND_DETECT) {
