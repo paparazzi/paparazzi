@@ -170,6 +170,13 @@
 #define PERIODIC_SEND_BARO_MS5534A(_chan) {}
 #endif
 
+#ifdef USE_BARO_SCP
+#include "baro_scp.h"
+#define PERIODIC_SEND_SCP_STATUS(_chan) DOWNLINK_SEND_SCP_STATUS(_chan, &baro_scp_pressure, &baro_scp_temperature)
+#else
+#define PERIODIC_SEND_SCP_STATUS(_chan) {}
+#endif
+
 #ifdef USE_AIRSPEED
 #define PERIODIC_SEND_AIRSPEED(_chan) DOWNLINK_SEND_AIRSPEED (_chan, &adc_airspeed_val,&estimator_airspeed,&v_ctl_auto_airspeed_setpoint,&v_ctl_auto_airspeed_controlled,&v_ctl_auto_groundspeed_setpoint)
 #else
