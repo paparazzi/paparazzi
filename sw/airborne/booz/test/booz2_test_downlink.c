@@ -25,9 +25,7 @@
 
 #include "init_hw.h"
 #include "sys_time.h"
-#include "led.h"
 #include "interrupt_hw.h"
-#include "uart.h"
 
 #include "messages.h"
 #include "downlink.h"
@@ -49,13 +47,12 @@ int main( void ) {
 static inline void main_init( void ) {
   hw_init();
   sys_time_init();
-  led_init();
-  uart1_init_tx();
   int_enable();
 }
 
 static inline void main_periodic_task( void ) {
-  RunOnceEvery(10, {LED_TOGGLE(2); DOWNLINK_SEND_TIME(&cpu_time_sec);});
+  LED_TOGGLE(2);
+  DOWNLINK_SEND_TIME(DefaultChannel, &cpu_time_sec);
 }
 
 static inline void main_event_task( void ) {

@@ -26,15 +26,13 @@
 #include "std.h"
 #include "init_hw.h"
 #include "sys_time.h"
-#include "led.h"
-#include "uart.h"
+#include "interrupt_hw.h"
 #include "messages.h"
 #include "downlink.h"
 
-#include "interrupt_hw.h"
 #include "armVIC.h"
 #include "LPC21xx.h"
-#include "booz2_max1168.h"
+#include "peripherals/booz_max1168.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -60,28 +58,25 @@ int main( void ) {
 static inline void main_init( void ) {
   hw_init();
   sys_time_init();
-  led_init();
-
-  uart1_init_tx();
 
   main_init_ssp();
-  booz2_max1168_init();
+  booz_max1168_init();
 
   int_enable();
 }
 
 static inline void main_periodic_task( void ) {
   LED_TOGGLE(3);
-  booz2_max1168_read();
+  booz_max1168_read();
 }
 
 static inline void main_event_task( void ) {
-  if (booz2_max1168_status == STA_MAX1168_DATA_AVAILABLE) {
+  if (booz_max1168_status == STA_MAX1168_DATA_AVAILABLE) {
     RunOnceEvery(10, {
-	DOWNLINK_SEND_IMU_GYRO_RAW(&booz2_max1168_values[0], &booz2_max1168_values[1], &booz2_max1168_values[2]); 
-	DOWNLINK_SEND_IMU_ACCEL_RAW(&booz2_max1168_values[3], &booz2_max1168_values[4], &booz2_max1168_values[6]);
-	DOWNLINK_SEND_BOOT(&booz2_max1168_values[7]); });
-    booz2_max1168_status = STA_MAX1168_IDLE;
+	DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, &booz_max1168_values[0], &booz_max1168_values[1], &booz_max1168_values[2]); 
+	DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, &booz_max1168_values[3], &booz_max1168_values[4], &booz_max1168_values[6]);
+	DOWNLINK_SEND_BOOT(DefaultChannel, &booz_max1168_values[7]); });
+    booz_max1168_status = STA_MAX1168_IDLE;
   }
 }
 

@@ -22,6 +22,28 @@
 #
 #
 
+#
+# test downlink
+#
+test_downlink.ARCHDIR = $(ARCHI)
+test_downlink.ARCH = arm7tdmi
+test_downlink.TARGET = test_downlink
+test_downlink.TARGETDIR = test_downlink
+
+test_downlink.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
+test_downlink.CFLAGS += -DPERIPHERALS_AUTO_INIT
+test_downlink.srcs   += $(SRC_BOOZ_TEST)/booz2_test_downlink.c
+test_downlink.CFLAGS += -DUSE_LED
+test_downlink.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./10.))' -DTIME_LED=1
+test_downlink.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_downlink.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_downlink.srcs   += $(SRC_ARCH)/uart_hw.c
+
+test_downlink.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_downlink.srcs   += downlink.c pprz_transport.c
+
+
 
 #
 # tunnel hw
@@ -38,10 +60,7 @@ tunnel.CFLAGS += -DLED
 tunnel.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 tunnel.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
-#tunnel.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 tunnel.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
-#tunnel.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B19200
-#tunnel.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B9600
 tunnel.srcs += $(SRC_ARCH)/uart_hw.c
 
 
@@ -219,20 +238,21 @@ test_max1168.TARGET = test_max1168
 test_max1168.TARGETDIR = test_max1168
 
 test_max1168.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
-test_max1168.srcs += $(SRC_BOOZ_TEST)/booz2_test_max1168.c
+test_max1168.CFLAGS += -DPERIPHERALS_AUTO_INIT
+test_max1168.srcs   += $(SRC_BOOZ_TEST)/booz2_test_max1168.c
+test_max1168.CFLAGS += -DUSE_LED
 test_max1168.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
-test_max1168.CFLAGS += -DLED
-test_max1168.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+test_max1168.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 test_max1168.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
-test_max1168.srcs += $(SRC_ARCH)/uart_hw.c
+test_max1168.srcs   += $(SRC_ARCH)/uart_hw.c
 
 test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
-test_max1168.srcs += downlink.c pprz_transport.c
+test_max1168.srcs   += downlink.c pprz_transport.c
 
 test_max1168.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8 -DSSP_VIC_SLOT=9
-test_max1168.srcs += $(SRC_BOOZ)/booz2_max1168.c $(SRC_BOOZ_ARCH)/booz2_max1168_hw.c
-
+test_max1168.srcs   += $(SRC_BOOZ)/peripherals/booz_max1168.c \
+                       $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
 
 
 
