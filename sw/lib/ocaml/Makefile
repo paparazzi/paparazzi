@@ -29,7 +29,7 @@ OCAMLOPT=ocamlopt
 OCAMLLIBDIR=$(shell ocamlc -where)
 
 
-SRC = debug.ml base64.ml serial.ml ocaml_tools.ml extXml.ml env.ml xml2h.ml latlong.ml srtm.ml http.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml logpprz.ml xmlCom.ml editAirframe.ml
+SRC = debug.ml base64.ml serial.ml ocaml_tools.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml logpprz.ml xmlCom.ml editAirframe.ml
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 
