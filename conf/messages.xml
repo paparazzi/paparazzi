@@ -1268,7 +1268,8 @@
     </message>
 
     <message name="LOADCELL" id="181">
-      <field name="value" type="int32"/>
+      <field name="torque" type="int32"/>
+      <field name="thrust" type="int32"/>
     </message>
 
     <message name="FLA_DEBUG" id="182">
