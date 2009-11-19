@@ -179,6 +179,9 @@ static void csc_main_periodic( void ) {
 static void csc_main_event( void ) {
 
   csc_can_event();
+#ifdef USE_BUSS_TWI_BLMC_MOTOR
+  motors_event();
+#endif
 #ifdef SPEKTRUM_LINK
   spektrum_event_task();
 #endif
