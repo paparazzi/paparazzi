@@ -450,7 +450,11 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
       Debug.call 'T' (fun f -> fprintf f "Pprz.values id=%d\n" id);
       let rec loop = fun index fields ->
 	match fields with
-	  [] -> []
+	  [] ->
+	    if index = String.length buffer then
+	      []
+	    else
+	      failwith (sprintf "Pprz.values_of_payload, too many bytes: %s" (Debug.xprint buffer))
 	| (field_name, field_descr)::fs -> 
 	    let (value, n) = value_field buffer index field_descr in
 	    (field_name, value) :: loop (index+n) fs in
@@ -520,7 +524,12 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
   let message_send = fun sender msg_name values ->
     let m = snd (message_of_name msg_name) in
     let s = string_of_message m values in
-    Ivy.send (sprintf "%s %s" sender s)
+    let msg = sprintf "%s %s" sender s in
+    let n = String.length msg in
+    if n > 1000 then (** FIXME: to prevent Ivy bug on long message *)
+      fprintf stderr "Discarding long ivy message (%d bytes)\n%!" n
+    else
+      Ivy.send msg
 
   let message_bind = fun ?sender msg_name cb ->
     match sender with
