@@ -29,7 +29,7 @@ OCAMLOPT=ocamlopt
 OCAMLLIBDIR=$(shell ocamlc -where)
 
 
-SRC = debug.ml base64.ml serial.ml ocaml_tools.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml logpprz.ml xmlCom.ml editAirframe.ml
+SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml logpprz.ml xmlCom.ml editAirframe.ml
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 
@@ -37,7 +37,7 @@ XSRC = gtk_tools.ml platform.ml wind_sock.ml gtk_papget_editor.ml gtk_papget_tex
 XCMO = $(XSRC:.ml=.cmo)
 XCMX = $(XSRC:.ml=.cmx)
 
-TESTS_SRC = test/test_logpprz.ml
+TESTS_SRC = test/test_latlong.ml
 TESTS_CMO = $(TESTS_SRC:.ml=.cmo)
 
 $(XCMO) $(XCMX) myGtkInit.cmo : INCLUDES=$(XINCLUDES)
