@@ -30,6 +30,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <getopt.h>
+#include <stdlib.h>
 
 
 /* *********************** change this to your needs *********************** */
@@ -47,7 +49,7 @@
 
 /* **************** no user servicable part below this line **************** */
 
-
+  
 #define SYNC_CHAR_1     0xB5
 #define SYNC_CHAR_2     0x62
 #define BLANK_CHAR      ' '
@@ -192,10 +194,10 @@ int wait_for_ack( unsigned char* data, int serial_fd )
 }
 
 
-int main (void)
+int main (int argc, char **argv)
 {
-    char in_file_name[80]  = IN_FILE_NAME;
-    char out_file_name[80] = OUT_FILE_NAME;
+    char *in_file_name  = NULL;
+    char *out_file_name = OUT_FILE_NAME;
 
     struct termios orig_termios, cur_termios;
 
@@ -215,10 +217,61 @@ int main (void)
     int count, i;
     int br;
     int baud;
+    int save_perm = SAVE_PERMANENT;
+    int baudrate = DEFAULT_BAUDRATE;
+    int ublox_port = UBLOX_PORT;
 
-    if ((br = int_to_baud(DEFAULT_BAUDRATE)) < 0 )
+    while ((i=getopt(argc, argv, "p:b:s:d:")) != -1)
     {
-        printf("invalid baudrate %d\n", DEFAULT_BAUDRATE);
+        switch(i)
+        {
+            case'p':
+                ublox_port = strtoul(optarg, 0, 0);
+                break;
+            case'b':
+                baudrate = strtoul(optarg, 0, 0);
+                break;
+            case's':
+                save_perm = strtoul(optarg, 0, 0);
+                break;
+            case'd':
+                out_file_name = optarg;
+                break;
+        }
+    }    
+    
+    if (optind == argc - 1)
+    {
+        in_file_name = argv[ optind ];
+        ++optind;
+    }
+    
+    if (in_file_name == NULL)
+    {
+//        fprintf(stderr, usage_str);
+        fprintf(stderr, 
+                "ublox_conf\nConfigures u-blox GPS receivers\n");
+        fprintf(stderr,
+                "  <file>    : configuration file name (example: %s)\n",
+                IN_FILE_NAME);
+        fprintf(stderr, 
+                "  -d <dev>  : GPS device name (default: %s)\n", 
+                OUT_FILE_NAME);
+        fprintf(stderr, 
+                "  -b <baud> : initial GPS receiver baud rate (default: %d)\n",
+                DEFAULT_BAUDRATE);
+        fprintf(stderr, 
+                "  -s <0|1>  : save config to Flash/battery backed RAM (default: %d)\n",
+                SAVE_PERMANENT);
+        fprintf(stderr,
+                "  -p <port> : internal u-blox receiver port (default: %d)\n",
+                UBLOX_PORT);
+        exit(2);
+    }
+
+    if ((br = int_to_baud(baudrate)) < 0 )
+    {
+        printf("invalid baudrate %d\n", baudrate);
         return( -1 );
     }
 
@@ -385,7 +438,7 @@ int main (void)
                        (data[6+10] << 16) +
                        (data[6+11] << 24);
         
-                if (data[6] == UBLOX_PORT)
+                if (data[6] == ublox_port)
                 {
                     sleep(1);
                     printf("port in use, ");
@@ -439,7 +492,7 @@ int main (void)
     }    
     
     /* save it forever? */
-    if (SAVE_PERMANENT != 0)
+    if (save_perm != 0)
     {
         printf("CFG-CFG writing config to permanent memory ");
         count = CFG_CFG_LENGTH-2;
@@ -460,3 +513,4 @@ int main (void)
 
     return(0);
 }
+
