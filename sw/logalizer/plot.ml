@@ -71,13 +71,94 @@ let compute_ticks = fun min_y max_y ->
   (delta, scale, u, tick_min)
 	
 
-let colors = [|"red"; "blue"; "green"; "orange"; "purple"; "magenta"|]
+let colors = [|(255,0,0);(0,255,0); (0,0,255); (245,215,20); (245,20,245); (30,225,225); (110,30,230)|]
 
-type curve = { values: (float*float) array; color : string }
+type curve = { values: (float*float) array; color : int*int*int }
 
 let labelled_entry = fun ?width_chars text value (h:GPack.box) ->
   let label = GMisc.label ~text ~packing:h#pack () in
   label, GEdit.entry ?width_chars ~text:value ~packing:h#pack ()
+
+let logs_menus = ref []
+
+let screenshot_hint_name = 
+  let n = ref 0 in
+  fun extension ->
+    let basename = 
+      match !logs_menus with
+	(_, menu_name, _, _)::_ -> begin
+	  match Str.split (Str.regexp ":") menu_name with
+	    menu_prefix::_ -> sprintf "%s" menu_prefix
+	  | _ -> sprintf "%s" menu_name
+	end
+      | _ -> incr n; sprintf "pprz_log-%d" !n in
+    sprintf "%s.%s" basename extension
+
+let save_dialog = fun extension callback ->
+  let title = "Save snapshot" in
+  let dialog = GWindow.file_chooser_dialog ~action:`SAVE ~title () in
+  ignore (dialog#set_current_folder logs_dir);
+  dialog#add_filter (GFile.filter ~name:extension ~patterns:["*."^extension] ());
+  dialog#add_button_stock `CANCEL `CANCEL ;
+  dialog#add_select_button_stock `SAVE `SAVE ;
+  let name = screenshot_hint_name extension in
+  let _ = dialog#set_current_name name in
+  begin match dialog#run (), dialog#filename with
+    `SAVE, Some name ->
+      dialog#destroy ();
+      callback name
+  | _ -> dialog#destroy ()
+  end
+
+
+let fig_renderer = fun (width, height) ->
+  let scale = 12 in (* 1200ppi (for xfig) / 100ppi (for screen) *)
+  let width = width * scale
+  and height = height * scale in
+  object (self)
+    val mutable pen_color = Fig.black
+    val mutable text = ""
+    val mutable objects = []
+
+    method unit = fun x -> scale * x
+
+    method size = (width, height)
+	
+    method init = fun () ->
+      self#rectangle 0 0 width height ()
+	
+    method set_color = fun (r, g, b) ->
+      let (id, obj) = Fig.color r g b in
+      pen_color <- id;
+      objects <- obj :: objects
+	      
+    method lines = fun points ->
+      objects <- Fig.polyline ~pen_color points :: objects
+	
+    method rectangle = fun x y width height ?(filled=false) () ->
+      let area_fill = if filled then Fig.filled else -1
+      and p1 = (x,y)
+      and p2 = (x+width,y+height) in
+      let points = [p1; p2] in
+      objects <- Fig.polyline ~pen_color ~fill_color:pen_color ~sub_type:Fig.Box ~area_fill points :: objects
+
+    val font_size = 10
+	
+    method create_text = fun s -> 
+      text <- s;
+      ((3*font_size*scale)/4*String.length s, font_size*scale)
+	
+    method put_text = fun x y ->
+      let font = Fig.Postscript Fig.Helvetica in
+      let obj = Fig.text ~font ~font_size ~color:pen_color (x,y+font_size*scale) text in
+      objects <- obj :: objects
+	
+    method draw = fun () ->
+      let fig = Fig.create objects in
+      save_dialog "fig" (fun name -> Fig.write name fig)
+  end
+    
+
 
 class plot = fun ~width ~height ~packing () ->
   let curves = Hashtbl.create 3
@@ -100,7 +181,7 @@ class plot = fun ~width ~height ~packing () ->
     val mutable motion_y = 0.
     val mutable pressed_button = None
 
-    inherit Gtk_tools.pixmap_in_drawin_area ~width ~height ~packing ()
+    inherit Gtk_tools.pixmap_in_drawin_area ~width ~height ~packing () as pida
 
     method unscale_x = fun width x ->
       min_x +. (x -. float left_margin) *. (max_x -. min_x) /.  float (width-left_margin)
@@ -142,16 +223,16 @@ class plot = fun ~width ~height ~packing () ->
     method set_auto_scale = fun x ->
       auto_scale <- x;
       self#reset_scale ();
-      self#redraw ()
+      self#recompute ()
 
     method min_x () = min_x
     method min_y () = min_y
-    method set_min_x = fun x -> if not self#auto_scale then begin min_x <- x; self#redraw () end
-    method set_min_y = fun x -> if not self#auto_scale then begin min_y <- x; self#redraw () end
+    method set_min_x = fun x -> if not self#auto_scale then begin min_x <- x; self#recompute () end
+    method set_min_y = fun x -> if not self#auto_scale then begin min_y <- x; self#recompute () end
     method max_x () = max_x
     method max_y () = max_y
-    method set_max_x = fun x -> if not self#auto_scale then begin max_x <- x; self#redraw () end
-    method set_max_y = fun x -> if not self#auto_scale then begin max_y <- x; self#redraw () end
+    method set_max_x = fun x -> if not self#auto_scale then begin max_x <- x; self#recompute () end
+    method set_max_y = fun x -> if not self#auto_scale then begin max_y <- x; self#recompute () end
 
     method scale_event = fun cb -> scale_events <- cb :: scale_events
     method wake = fun () -> List.iter (fun cb -> cb ()) scale_events;
@@ -160,11 +241,11 @@ class plot = fun ~width ~height ~packing () ->
 
     method add_cst = fun v ->
       csts <- v :: csts;
-      self#redraw ()
+      self#recompute ()
 
     method delete_cst = fun v ->
       csts <- List.filter (fun x -> x <> v) csts;
-      self#redraw ()
+      self#recompute ()
 
     method add_curve = fun (name:string) (values:(float*float) array) ->
       let curve = { values = values; color = colors.(color_index) } in
@@ -175,38 +256,77 @@ class plot = fun ~width ~height ~packing () ->
 	self#wake ()
       end;
       self#wake ();
-      self#redraw ();
+      self#recompute ();
       curve
 	
     method delete_curve = fun (name:string) ->
       Hashtbl.remove curves name;
       self#reset_scale ();
-      self#redraw ()
+      self#recompute ()
 
-    method redraw = fun () ->
+    method da_renderer = fun () ->
       let da = self#drawing_area in
-      let {Gtk.width=width; height=height} = da#misc#allocation in
+      let context = da#misc#create_pango_context in
+      let () = context#set_font_by_name "sans 8 " in
+      let layout = context#create_layout in
       let dr = self#get_pixmap () in
-      dr#set_foreground (`NAME "white");
-      dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
+      object
+	method size =
+	  let s = da#misc#allocation in
+	  (s.Gtk.width, s.Gtk.height)
 
-      let tick_len = 5
-      and margin = 3 in
+	method init = fun () ->
+	  dr#set_foreground (`NAME "white");
+	  dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ()
+
+	method set_color = fun (r, g, b) ->
+	  dr#set_foreground (`RGB (256*r, 256*g, 256*b))
+	  
+	method lines = dr#lines
+	  
+	method rectangle = fun x y width height ?(filled=false) () ->
+	  dr#rectangle ~x ~y ~width ~height ~filled ()
+
+	method create_text = fun s ->
+	  Pango.Layout.set_text layout s;
+	  Pango.Layout.get_pixel_size layout
+
+	method put_text = fun x y ->
+	  dr#put_layout ~x ~y layout
+
+	method draw = fun () ->
+	  pida#redraw ()
+
+	method unit = fun x -> x
+      end
+
+    method export_fig = fun () ->
+      let renderer = fig_renderer (self#da_renderer ())#size in
+      self#recompute ~renderer ()
+
+    method recompute = fun ?(renderer=self#da_renderer ()) () ->
+      let (width, height) = renderer#size in
+      renderer#init ();
+
+      let tick_len = renderer#unit 5
+      and margin = renderer#unit 3
+      and left_margin = renderer#unit left_margin
+      and bottom_margin = renderer#unit bottom_margin
+      and top_margin = renderer#unit top_margin in
+
+      let black = (0,0,0) in
+
       let graph_height = height - bottom_margin - top_margin in
       
       let scale_x = fun x -> left_margin + truncate ((x-.min_x)*. float (width-left_margin) /. (max_x -. min_x))
       and scale_y = fun y -> top_margin+graph_height - truncate ((y-.min_y)*. float graph_height /. (max_y -. min_y)) in
 
       (* Constants *)
-      List.iter (fun v ->
-	dr#set_foreground (`NAME "black");
-	dr#lines [(left_margin, scale_y v); (width, scale_y v)])
+      List.iter
+	(fun v ->
+	  renderer#set_color black;
+	  renderer#lines [(left_margin, scale_y v); (width, scale_y v)])
 	csts;
-
-      let context = da#misc#create_pango_context in
-      context#set_font_by_name "sans 8 ";
-      
-      let layout = context#create_layout in
 
       (* Curves *)
       let title_y = ref margin in
@@ -215,22 +335,21 @@ class plot = fun ~width ~height ~packing () ->
 	(* let points = remove_same_t points in *)
 	let points = remove_older (scale_x min_x) points in
 	let points = remove_newer (scale_x max_x) points in
-	dr#set_foreground (`NAME curve.color);
-	dr#lines points;
+	renderer#set_color curve.color;
+	renderer#lines points;
 
 	(* Title *)
-	Pango.Layout.set_text layout title;
-	let (w, h) = Pango.Layout.get_pixel_size layout in
-	dr#rectangle ~x:(width-h-margin) ~y:!title_y ~width:h ~height:h ~filled:true ();
+	let (w, h) = renderer#create_text title in
+	renderer#rectangle (width-h-margin) !title_y h h ~filled:true ();
 
-	dr#set_foreground `BLACK;
-	dr#put_layout ~x:(width-2*margin-w-h) ~y:(!title_y) layout;
+	renderer#set_color black;
+	renderer#put_text (width-2*margin-w-h) (!title_y);
 	title_y := !title_y + h + margin)
 	curves;
 
       (* Graduations *)
       if Hashtbl.length curves > 0 then begin
-	dr#set_foreground `BLACK;
+	renderer#set_color black;
 
 	(* Y *)
 	let (min_y, max_y) = 
@@ -242,12 +361,12 @@ class plot = fun ~width ~height ~packing () ->
 	for i = 0 to truncate (delta/.u) + 1 do
 	  let tick = tick_min +. float i *. u in
 	  let y = scale_y tick in
-	  let s = Printf.sprintf "%.*f" (Pervasives.max 0 (2-truncate scale)) tick in
-	  Pango.Layout.set_text layout s;
-	  let (w, h) = Pango.Layout.get_pixel_size layout in
-	  dr#put_layout ~x:(left_margin-margin-w) ~y:(y-h/2) layout;
-	  
-	  dr#lines [(left_margin,y);(left_margin+tick_len,y)]
+	  if y < height - bottom_margin then
+	    let s = Printf.sprintf "%.*f" (Pervasives.max 0 (2-truncate scale)) tick in
+	    let (w, h) = renderer#create_text s in
+	    renderer#put_text (left_margin-margin-w) (y-h/2);
+	    
+	    renderer#lines [(left_margin,y);(left_margin+tick_len,y)]
 	done;
 	
 	(* Time *)
@@ -256,13 +375,13 @@ class plot = fun ~width ~height ~packing () ->
 	for i = 0 to truncate (delta/.u) + 1 do
 	  let tick = tick_min +. float i *. u in
 	  let x = scale_x tick in
-	  let s = Printf.sprintf "%.*f" (Pervasives.max 0 (2-truncate scale)) tick in
-	  Pango.Layout.set_text layout s;
-	  let (w, h) = Pango.Layout.get_pixel_size layout in
-	  let y = y-margin-h in
-	  dr#put_layout ~x:(x-w/2) ~y layout;
-	  
-	  dr#lines [(x,y);(x,y-tick_len)]
+	  if left_margin < x && x < width then
+	    let s = Printf.sprintf "%.*f" (Pervasives.max 0 (2-truncate scale)) tick in
+	    let (w, h) = renderer#create_text s in
+	    let y = y-margin-h in
+	    renderer#put_text (x-w/2) y;
+	    
+	    renderer#lines [(x,y);(x,y-tick_len)]
 	done
       end;
 
@@ -275,13 +394,13 @@ class plot = fun ~width ~height ~packing () ->
 	   if width > 5 && height > 5 then
 	     let x = truncate (min press_x motion_x)
 	     and y = truncate (min press_y motion_y) in
-	     dr#set_foreground (`NAME "black");
-	     dr#rectangle ~x ~y ~width ~height ();
+	     renderer#set_color black;
+	     renderer#rectangle x y width height ();
 	| _ -> ()
       end;
       
       (* Actually draw *)
-      (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
+      renderer#draw ()
 
     method scroll = fun dpx dpy ->
       let scale_x = (max_x -. min_x) /. float (width-left_margin)
@@ -292,7 +411,7 @@ class plot = fun ~width ~height ~packing () ->
       max_x <- max_x +. dx;
       min_y <- min_y +. dy;
       max_y <- max_y +. dy;
-      self#redraw ()
+      self#recompute ()
 
     method button_press = fun ev ->
       pressed_button <- Some (GdkEvent.Button.button ev);
@@ -303,7 +422,7 @@ class plot = fun ~width ~height ~packing () ->
 	  true
       | 3 when not auto_scale -> (* right button, reset scale *)
 	  self#reset_scale ~update_x:false ();
-	  self#redraw ();
+	  self#recompute ();
 	  true
       | _ -> false
 
@@ -314,7 +433,7 @@ class plot = fun ~width ~height ~packing () ->
 	Some 1 ->
 	  motion_x <- x;
 	  motion_y <- y;
-	  self#redraw ();
+	  self#recompute ();
 	  true
       |	Some 2 -> (* middle button, scroll *)
 	  self#scroll (truncate (press_x-.x)) (truncate (y-.press_y));
@@ -340,7 +459,7 @@ class plot = fun ~width ~height ~packing () ->
 		min_y <- self#unscale_y height (max press_y release_y);
 		max_y <- new_max_y;
 		auto_scale <- false;
-		self#redraw ()
+		self#recompute ()
 	      end;
 	  true
       | _ -> false
@@ -368,7 +487,7 @@ class plot = fun ~width ~height ~packing () ->
 	    max_y <- min_y +. dy /. 2.
 	  end;
 	  auto_scale <- false;
-	  self#redraw ();
+	  self#recompute ();
 	  true
       | `DOWN -> (* Unzoom factor 2 *)
 	  if not shift_mod then begin
@@ -380,12 +499,12 @@ class plot = fun ~width ~height ~packing () ->
 	    max_y <- min_y +. dy *. 2.
 	  end;
 	  auto_scale <- false;
-	  self#redraw ();
+	  self#recompute ();
 	  true
       | _ -> false
       
 
-    initializer ignore (self#drawing_area#event#connect#expose ~callback:(fun _ -> self#redraw (); false))
+    initializer ignore (self#drawing_area#event#connect#expose ~callback:(fun _ -> self#recompute (); false))
 
     initializer ignore (self#drawing_area#event#add [`BUTTON_PRESS; `BUTTON_MOTION; `BUTTON_RELEASE; `SCROLL])
 
@@ -404,7 +523,6 @@ let pprz_float = function
   | Pprz.Array _ -> 0.
 
 
-let logs_menus = ref []
 
 let write_kml = fun plot log_name values ->
   let xs = (List.assoc "utm_east" values)
@@ -494,7 +612,7 @@ let add_ac_submenu = fun ?(export=false) protocol ?(factor=object method text="1
 	    let values = Array.map (fun (t,v) -> (t, v*.a+.b)) values in
 	    let curve = plot#add_curve name values in
 	    let eb = GBin.event_box ~width:10 ~height:10 () in
-	    eb#coerce#misc#modify_bg [`NORMAL, `NAME curve.color];
+	    eb#coerce#misc#modify_bg [`NORMAL, `RGB curve.color];
 	    let item = curves_menu_fact#add_image_item ~image:eb#coerce ~label:name () in
 	    
 	    let delete = fun () ->
@@ -645,32 +763,16 @@ let remove_fst_and_snd = function
     _::_::l -> l
   | l -> l
 
-let screenshot_hint_name = 
-  let n = ref 0 in
-  fun () ->
-    match !logs_menus with
-      (_, menu_name, _, _)::_ -> sprintf "%s.png" menu_name
-    | _ -> incr n; sprintf "pprz_log-%d.png" !n
 	  
 let screenshot = fun frame ->
   let width, height = Gdk.Drawable.get_size frame#misc#window in
   let dest = GdkPixbuf.create width height () in
   GdkPixbuf.get_from_drawable ~dest ~width ~height frame#misc#window;
+  save_dialog
+    "png"
+    (fun name -> GdkPixbuf.save name "png" dest)
 
-  let title = "Save snapshot" in
-  let dialog = GWindow.file_chooser_dialog ~action:`SAVE ~title () in
-  ignore (dialog#set_current_folder logs_dir);
-  dialog#add_filter (GFile.filter ~name:"png" ~patterns:["*.png"] ());
-  dialog#add_button_stock `CANCEL `CANCEL ;
-  dialog#add_select_button_stock `SAVE `SAVE ;
-  let name = screenshot_hint_name () in
-  let _ = dialog#set_current_name name in
-  begin match dialog#run (), dialog#filename with
-    `SAVE, Some name ->
-      dialog#destroy ();
-      GdkPixbuf.save name "png" dest;
-  | _ -> dialog#destroy ()
-  end
+  
 
 (** Table of current windows, to be able to quit when the last one is closed
  FIXME: should be shared with plotter.ml *)
@@ -708,9 +810,14 @@ let rec plot_window = fun ?export init ->
   let open_log_item = file_menu_fact#add_item "Open Log" ~key:GdkKeysyms._O in
   
   ignore (file_menu_fact#add_item "New" ~key:GdkKeysyms._N ~callback:(fun () -> plot_window []));
+
   let delayed_screenshot = fun () ->
     ignore (GMain.Idle.add (fun () -> screenshot plot#drawing_area; false)) in
   ignore (file_menu_fact#add_item "Save screenshot" ~key:GdkKeysyms._S ~callback:delayed_screenshot);
+
+  let delayed_export = fun () ->
+    ignore (GMain.Idle.add (fun () -> (try plot#export_fig () with exc -> prerr_endline (Printexc.to_string exc)); false)) in
+  ignore (file_menu_fact#add_item "Export fig" ~key:GdkKeysyms._X ~callback:delayed_export);
   ignore (file_menu_fact#add_separator ());
   ignore (file_menu_fact#add_item "Close" ~key:GdkKeysyms._W ~callback:close);
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
