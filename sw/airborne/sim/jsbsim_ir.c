@@ -8,11 +8,18 @@
 #include "jsbsim_hw.h"
 #include <math.h>
 
+#ifndef JSBSIM_IR_ROLL_NEUTRAL
+#define JSBSIM_IR_ROLL_NEUTRAL 0.
+#endif
+#ifndef JSBSIM_IR_PITCH_NEUTRAL
+#define JSBSIM_IR_PITCH_NEUTRAL 0.
+#endif
+
 void set_ir(double roll, double pitch) {
 
   double ir_contrast = 150; //FIXME
-  double roll_sensor = roll + ir_roll_neutral;
-  double pitch_sensor = pitch + ir_pitch_neutral;
+  double roll_sensor = roll + JSBSIM_IR_ROLL_NEUTRAL; // ir_roll_neutral;
+  double pitch_sensor = pitch + JSBSIM_IR_PITCH_NEUTRAL; // ir_pitch_neutral;
 #ifdef INFRARED
   ir_roll = sin(roll_sensor) * ir_contrast;
   ir_pitch = sin(pitch_sensor) * ir_contrast;
