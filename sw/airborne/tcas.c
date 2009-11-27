@@ -126,7 +126,7 @@ void tcas_periodic_task_1Hz( void ) {
         if (tau < tcas_tau_ra || inside) {
           tcas_acs_status[i] = TCAS_RA; // TA -> RA
           // Downlink alert
-          DOWNLINK_SEND_TCAS_RA(&(the_acs[i].ac_id));
+          DOWNLINK_SEND_TCAS_RA(DefaultChannel,&(the_acs[i].ac_id));
           break;
         }
         if (tau > tcas_tau_ta && !inside)
@@ -136,12 +136,12 @@ void tcas_periodic_task_1Hz( void ) {
         if (tau < tcas_tau_ta || inside) {
           tcas_acs_status[i] = TCAS_TA; // NO_ALARM -> TA
           // Downlink warning
-          DOWNLINK_SEND_TCAS_TA(&(the_acs[i].ac_id));
+          DOWNLINK_SEND_TCAS_TA(DefaultChannel,&(the_acs[i].ac_id));
         }
         if (tau < tcas_tau_ra || inside) {
           tcas_acs_status[i] = TCAS_RA; // NO_ALARM -> RA = big problem ?
           // Downlink alert
-          DOWNLINK_SEND_TCAS_RA(&(the_acs[i].ac_id));
+          DOWNLINK_SEND_TCAS_RA(DefaultChannel,&(the_acs[i].ac_id));
         }
         break;
     }
@@ -158,7 +158,7 @@ void tcas_periodic_task_1Hz( void ) {
     else tcas_ac_RA = AC_ID; // no conflicts
   }
 #ifdef TCAS_DEBUG
-  if (tcas_status == TCAS_RA) DOWNLINK_SEND_TCAS_DEBUG(&ac_id_close,&tau_min);
+  if (tcas_status == TCAS_RA) DOWNLINK_SEND_TCAS_DEBUG(DefaultChannel,&ac_id_close,&tau_min);
 #endif
 }
 
