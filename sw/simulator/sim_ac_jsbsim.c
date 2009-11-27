@@ -25,8 +25,12 @@
 #include "sim_ac_jsbsim.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <glib.h>
 #include <getopt.h>
+
+#include <iostream>
+using namespace std;
 
 //#include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
@@ -210,8 +214,8 @@ void jsbsim_init(void) {
       // Use flight plan initial conditions
       IC->SetLatitudeDegIC(NAV_LAT0 / 1e7);
       IC->SetLongitudeDegIC(NAV_LON0 / 1e7);
-      IC->SetAltitudeFtIC((GROUND_ALT+100) / FT2M);
-      IC->SetTerrainAltitudeFtIC(GROUND_ALT / FT2M);
+      IC->SetAltitudeAGLFtIC(0.0 / FT2M);
+      IC->SetTerrainElevationFtIC(GROUND_ALT / FT2M);
       IC->SetPsiDegIC(QFU);
       IC->SetVgroundFpsIC(0.);
       if (!FDMExec->RunIC()) {

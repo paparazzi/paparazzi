@@ -28,6 +28,9 @@
 #include "main_fbw.h"
 #include "jsbsim_hw.h"
 
+#include <iostream>
+using namespace std;
+
 using namespace JSBSim;
 
 /* Datalink Ivy function */
@@ -46,6 +49,11 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
 			  int argc __attribute__ ((unused)), char *argv[]){
   parse_dl_setting(argv);
 }
+static void on_DL_GET_SETTING(IvyClientPtr app __attribute__ ((unused)), 
+			  void *user_data __attribute__ ((unused)), 
+			  int argc __attribute__ ((unused)), char *argv[]){
+  parse_dl_get_setting(argv);
+}
 static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)), 
 			  void *user_data __attribute__ ((unused)), 
 			  int argc __attribute__ ((unused)), char *argv[]){
@@ -61,6 +69,7 @@ void autopilot_init(void) {
   IvyBindMsg(on_DL_PING, NULL, "^(\\S*) DL_PING");
   IvyBindMsg(on_DL_ACINFO, NULL, "^(\\S*) DL_ACINFO (\\S*) (\\S*) (\\S* (\\S*) (\\S*) (\\S*)) (\\S*) (\\S*)");
   IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
+  IvyBindMsg(on_DL_GET_SETTING, NULL, "^(\\S*) DL_GET_SETTING (\\S*) (\\S*)");
   IvyBindMsg(on_DL_BLOCK, NULL, "^(\\S*) BLOCK (\\S*) (\\S*)");
   IvyBindMsg(on_DL_MOVE_WP, NULL, "^(\\S*) MOVE_WP (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)");
 
@@ -125,8 +134,8 @@ void copy_inputs_to_jsbsim(FGFDMExec* FDMExec) {
     run_model = true;
     //set_value(FDMExec, "propulsion/set-running", 1);
     // set initial speed
-    FDMExec->GetIC()->SetAltitudeFtIC((GROUND_ALT+50.0) / FT2M);
-    FDMExec->GetIC()->SetVgroundFpsIC(40./FT2M);
+    FDMExec->GetIC()->SetAltitudeAGLFtIC(5.0 / FT2M);
+    FDMExec->GetIC()->SetVgroundFpsIC(20./FT2M);
     FDMExec->RunIC();
     th = 0.;
   }
