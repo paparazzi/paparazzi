@@ -58,6 +58,7 @@ extern bool_t booz_gps_available;
 #define GPS_LINKChAvailable() (FALSE)
 #define GPS_LINKGetch() (TRUE)
 #include "nps_sensors.h"
+#include "flight_plan.h"
 
 static inline void  booz_gps_feed_value() {
   booz_gps_state.ecef_pos.x = sensors.gps.ecef_pos.x * 100.;
@@ -66,6 +67,10 @@ static inline void  booz_gps_feed_value() {
   booz_gps_state.ecef_vel.x = sensors.gps.ecef_vel.x * 100.;
   booz_gps_state.ecef_vel.y = sensors.gps.ecef_vel.y * 100.;
   booz_gps_state.ecef_vel.z = sensors.gps.ecef_vel.z * 100.;
+  booz_gps_state.lla_pos.lat = DegOfRad(sensors.gps.lla_pos.lat) * 1e7;
+  booz_gps_state.lla_pos.lon = DegOfRad(sensors.gps.lla_pos.lon) * 1e7;
+  booz_gps_state.lla_pos.alt = sensors.gps.lla_pos.alt * 100. + NAV_HMSL0;
+  booz_gps_state.hmsl        = sensors.gps.lla_pos.alt * 100.;
   booz_gps_state.fix = BOOZ2_GPS_FIX_3D;
   booz_gps_available = TRUE;
 }
