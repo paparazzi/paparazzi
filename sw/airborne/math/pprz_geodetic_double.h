@@ -56,6 +56,7 @@ extern void ecef_of_ned_point_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, s
 extern void ecef_of_enu_vect_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct EnuCoor_d* enu);
 extern void ecef_of_ned_vect_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct NedCoor_d* ned);
 
+extern double gc_of_gd_lat_d(double gd_lat, double hmsl);
 
 
 #endif /* PPRZ_GEODETIC_DOUBLE_H */

@@ -126,6 +126,14 @@ void ecef_of_ned_vect_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct Ne
 }
 
 
+double gc_of_gd_lat_d(double gd_lat, double hmsl) {
+  static const double a = 6378137.0;           /* earth semimajor axis in meters */
+  static const double f = 1./298.257223563;    /* reciprocal flattening          */
+  static const double c2 = (1-f)*(1-f);
+  /* geocentric latitude at the planet surface */
+  double ls = atan(c2*tan(gd_lat));
+  return atan2(hmsl*sin(gd_lat) + a*sin(ls), hmsl*cos(gd_lat) + a*cos(ls));
+}
 
 
 
