@@ -29,5 +29,5 @@ void booz_fms_impl_init(void) {
 void booz_fms_impl_periodic(void) {
 }
 
-void booz_fms_impl_set_enabled(bool_t enabled) {
+void booz_fms_impl_set_enabled(bool_t enabled __attribute__ ((unused))) {
 }
