@@ -1,10 +1,10 @@
-<airframe name="BOOZ2_A2">
+<airframe name="BOOZ2_NoVa">
 
-  <servos min="0" neutral="0" max="0xff">
-    <servo name="PITCH"  no="0" min="0" neutral="0" max="255"/>
-    <servo name="ROLL"   no="1" min="0" neutral="0" max="255"/>
-    <servo name="YAW"    no="2" min="0" neutral="0" max="255"/>
-    <servo name="THRUST" no="3" min="0" neutral="0" max="255"/>
+ <servos min="0" neutral="0" max="0xff">
+    <servo name="FRONT" no="0" min="0" neutral="0" max="255"/>
+    <servo name="RIGHT" no="1" min="0" neutral="0" max="255"/>
+    <servo name="BACK"  no="2" min="0" neutral="0" max="255"/>
+    <servo name="LEFT"  no="3" min="0" neutral="0" max="255"/>
   </servos>
 
   <commands>
@@ -16,25 +16,25 @@
 
   <section name="IMU" prefix="IMU_">
 
-    <define name="GYRO_P_CHAN" value="1"/>
-    <define name="GYRO_Q_CHAN" value="0"/>
+    <define name="GYRO_P_CHAN" value="0"/>
+    <define name="GYRO_Q_CHAN" value="1"/>
     <define name="GYRO_R_CHAN" value="2"/>
 
-    <define name="GYRO_P_NEUTRAL" value="33008"/>
-    <define name="GYRO_Q_NEUTRAL" value="31899"/>
-    <define name="GYRO_R_NEUTRAL" value="32989"/>
+    <define name="GYRO_P_NEUTRAL" value="32900"/>
+    <define name="GYRO_Q_NEUTRAL" value="31700"/>
+    <define name="GYRO_R_NEUTRAL" value="31525"/>
 
-    <define name="GYRO_P_SENS" value=" 1.01" integer="16"/>
+    <define name="GYRO_P_SENS" value=" -1.01" integer="16"/>
     <define name="GYRO_Q_SENS" value="-1.01" integer="16"/>
     <define name="GYRO_R_SENS" value="-1.01" integer="16"/>
 
 
-    <define name="ACCEL_X_CHAN" value="5"/>
-    <define name="ACCEL_Y_CHAN" value="3"/>
+    <define name="ACCEL_X_CHAN" value="3"/>
+    <define name="ACCEL_Y_CHAN" value="5"/>
     <define name="ACCEL_Z_CHAN" value="4"/>
 
     <define name="ACCEL_X_SENS" value="-2.19476868" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="-2.88368188" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.88368188" integer="16"/>
     <define name="ACCEL_Z_SENS" value="-2.57172803" integer="16"/>
 
     <define name="ACCEL_X_NEUTRAL" value="33160"/>
@@ -199,7 +199,7 @@ ARCH=lpc21
 BOARD_CFG = \"boards/booz2_v1_0.h\"
 
 # prevents motors from ever starting
-ap.CFLAGS += -DKILL_MOTORS
+#ap.CFLAGS += -DKILL_MOTORS
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
 include $(CFG_BOOZ)/booz2_autopilot.makefile
