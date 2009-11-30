@@ -23,7 +23,22 @@
 #
 
 #
-# test downlink
+# test_led : blinks all leds
+#
+test_led.ARCHDIR = $(ARCHI)
+test_led.ARCH = arm7tdmi
+test_led.TARGET = test_led
+test_led.TARGETDIR = test_led
+
+test_led.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
+test_led.CFLAGS += -DPERIPHERALS_AUTO_INIT
+test_led.srcs   += $(SRC_BOOZ_TEST)/booz2_test_led.c
+test_led.CFLAGS += -DUSE_LED
+test_led.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
+test_led.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+#
+# test_downlink : sends a TIME message
 #
 test_downlink.ARCHDIR = $(ARCHI)
 test_downlink.ARCH = arm7tdmi
@@ -42,6 +57,58 @@ test_downlink.srcs   += $(SRC_ARCH)/uart_hw.c
 
 test_downlink.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
 test_downlink.srcs   += downlink.c pprz_transport.c
+
+
+#
+# test_max1168 : samples gyros and mags, sends values 
+#
+test_max1168.ARCHDIR = $(ARCHI)
+test_max1168.ARCH = arm7tdmi
+test_max1168.TARGET = test_max1168
+test_max1168.TARGETDIR = test_max1168
+
+test_max1168.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
+test_max1168.CFLAGS += -DPERIPHERALS_AUTO_INIT
+test_max1168.srcs   += $(SRC_BOOZ_TEST)/booz2_test_max1168.c
+test_max1168.CFLAGS += -DUSE_LED
+test_max1168.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
+test_max1168.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_max1168.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_max1168.srcs   += $(SRC_ARCH)/uart_hw.c
+
+test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_max1168.srcs   += downlink.c pprz_transport.c
+
+test_max1168.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8 -DSSP_VIC_SLOT=9
+test_max1168.srcs   += $(SRC_BOOZ)/peripherals/booz_max1168.c \
+                       $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
+
+#
+# test MICROMAG
+#
+test_micromag.ARCHDIR = $(ARCHI)
+test_micromag.ARCH = arm7tdmi
+test_micromag.TARGET = test_micromag
+test_micromag.TARGETDIR = test_micromag
+
+test_micromag.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
+test_micromag.srcs += $(SRC_BOOZ_TEST)/booz2_test_micromag.c
+test_micromag.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
+test_micromag.CFLAGS += -DLED
+test_micromag.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_micromag.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_micromag.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_micromag.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_micromag.srcs += downlink.c pprz_transport.c
+
+#test_micromag.CFLAGS += -I$(BOOZ)
+#test_micromag.srcs += $(BOOZ)/booz_debug.c
+
+test_micromag.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=8 -DSSP_VIC_SLOT=9
+test_micromag.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
 
 
 
@@ -78,20 +145,6 @@ tunnel_bb.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_L
 tunnel_bb.CFLAGS += -DLED
 tunnel_bb.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-
-#
-# test leds
-#
-test_led.ARCHDIR = $(ARCHI)
-test_led.ARCH = arm7tdmi
-test_led.TARGET = test_led
-test_led.TARGETDIR = test_led
-
-test_led.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
-test_led.srcs += $(SRC_BOOZ_TEST)/booz2_test_led.c
-test_led.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
-test_led.CFLAGS += -DLED
-test_led.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 
 #
@@ -229,58 +282,7 @@ test_crista.srcs += $(SRC_BOOZ)/booz2_imu.c
 test_crista.srcs += $(SRC_BOOZ)/booz2_imu_crista.c $(SRC_BOOZ_ARCH)/booz2_imu_crista_hw.c
 
 
-#
-# test MAX1168
-#
-test_max1168.ARCHDIR = $(ARCHI)
-test_max1168.ARCH = arm7tdmi
-test_max1168.TARGET = test_max1168
-test_max1168.TARGETDIR = test_max1168
 
-test_max1168.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
-test_max1168.CFLAGS += -DPERIPHERALS_AUTO_INIT
-test_max1168.srcs   += $(SRC_BOOZ_TEST)/booz2_test_max1168.c
-test_max1168.CFLAGS += -DUSE_LED
-test_max1168.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
-test_max1168.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
-
-test_max1168.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
-test_max1168.srcs   += $(SRC_ARCH)/uart_hw.c
-
-test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
-test_max1168.srcs   += downlink.c pprz_transport.c
-
-test_max1168.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8 -DSSP_VIC_SLOT=9
-test_max1168.srcs   += $(SRC_BOOZ)/peripherals/booz_max1168.c \
-                       $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
-
-
-
-#
-# test MICROMAG
-#
-test_micromag.ARCHDIR = $(ARCHI)
-test_micromag.ARCH = arm7tdmi
-test_micromag.TARGET = test_micromag
-test_micromag.TARGETDIR = test_micromag
-
-test_micromag.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
-test_micromag.srcs += $(SRC_BOOZ_TEST)/booz2_test_micromag.c
-test_micromag.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
-test_micromag.CFLAGS += -DLED
-test_micromag.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
-
-test_micromag.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
-test_micromag.srcs += $(SRC_ARCH)/uart_hw.c
-
-test_micromag.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
-test_micromag.srcs += downlink.c pprz_transport.c
-
-#test_micromag.CFLAGS += -I$(BOOZ)
-#test_micromag.srcs += $(BOOZ)/booz_debug.c
-
-test_micromag.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=8 -DSSP_VIC_SLOT=9
-test_micromag.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
 
 #
 # test MICROMAG
@@ -491,6 +493,26 @@ test_amc.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 test_amc.CFLAGS += -DFLOAT_T=float 
 #-DBOOZ2_IMU_TYPE=\"booz2_imu_crista.h\"
+
+
+
+#
+# test_mkk_bldc : 
+#
+test_mkk_bldc.ARCHDIR = $(ARCHI)
+test_mkk_bldc.ARCH = arm7tdmi
+test_mkk_bldc.TARGET = test_mkk_bldc
+test_mkk_bldc.TARGETDIR = test_mkk_bldc
+
+test_mkk_bldc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
+test_mkk_bldc.CFLAGS += -DPERIPHERALS_AUTO_INIT
+test_mkk_bldc.srcs   += $(SRC_BOOZ_TEST)/booz2_test_buss_bldc_hexa.c
+test_mkk_bldc.CFLAGS += -DUSE_LED
+test_mkk_bldc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
+test_mkk_bldc.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+test_mkk_bldc.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
+test_mkk_bldc.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
 
 #
 # test 24 bits baro

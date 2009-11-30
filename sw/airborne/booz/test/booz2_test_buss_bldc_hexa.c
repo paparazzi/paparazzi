@@ -68,7 +68,7 @@ static inline void main_periodic_task( void ) {
   i2c0_buf[0] = thrust;
   i2c0_transmit(motor_addr[motor], 1, &i2c_done);
 
-  RunOnceEvery(128, { DOWNLINK_SEND_ALIVE(16, MD5SUM);});
+  RunOnceEvery(128, { DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
 
 }
 
