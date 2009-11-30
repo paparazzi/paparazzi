@@ -97,7 +97,8 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
    <!-- feedback -->
-    <!--
+
+<!--
     <define name="PHI_PGAIN"  value="-400"/>
     <define name="PHI_DGAIN"  value="-300"/>
     <define name="PHI_IGAIN"  value="-100"/>
@@ -166,7 +167,7 @@
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-   <define name="BATTERY_SENS"   value="0.19" integer="16"/>
+   <define name="BATTERY_SENS"   value="0.18" integer="16"/>
 <!--   <define name="BATTERY_SENS"   value="1" integer="16"/>-->
  </section>
 
