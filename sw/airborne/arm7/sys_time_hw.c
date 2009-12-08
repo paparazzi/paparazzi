@@ -40,7 +40,8 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
 #ifdef USE_PWM_INPUT
 #include "pwm_input.h"
 #else
-#define PWM_INPUT_IT 0x00
+#define PWM_INPUT_IT1 0x00
+#define PWM_INPUT_IT2 0x00
 #endif
 
 #ifdef USE_AMI601
@@ -55,7 +56,8 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
                         RADIO_CONTROL_PPM_IT |\
                         MB_SCALE_IT          |\
                         MB_TACHO_IT          |\
-                        PWM_INPUT_IT         |\
+                        PWM_INPUT_IT1        |\
+                        PWM_INPUT_IT2        |\
                         AMI601_IT)
 
 void TIMER0_ISR ( void ) {
@@ -101,10 +103,16 @@ void TIMER0_ISR ( void ) {
       T0IR = MB_TACHO_IT;
     }
 #endif
-#ifdef USE_PWM_INPUT
-    if (T0IR&PWM_INPUT_IT) {
-      PWM_INPUT_ISR();
-      T0IR = PWM_INPUT_IT; 
+#ifdef USE_PWM_INPUT1
+    if (T0IR&PWM_INPUT_IT1) {
+      PWM_INPUT_ISR_1();
+      T0IR = PWM_INPUT_IT1; 
+    }
+#endif
+#ifdef USE_PWM_INPUT2
+    if (T0IR&PWM_INPUT_IT2) {
+      PWM_INPUT_ISR_2();
+      T0IR = PWM_INPUT_IT2; 
     }
 #endif
 #ifdef USE_AMI601
