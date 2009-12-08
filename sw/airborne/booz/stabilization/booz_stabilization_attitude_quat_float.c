@@ -145,8 +145,35 @@ static void update_ref_quat_from_eulers(void) {
 
 void booz_stabilization_attitude_read_beta_vane(float beta)
 {
-  booz_stab_att_sp_euler.psi += booz_ahrs_float.ltp_to_body_euler.theta * beta / RC_UPDATE_FREQ;
-  update_sp_quat_from_eulers();
+  struct FloatEulers sticks_eulers;
+  struct FloatQuat sticks_quat, prev_sp_quat;
+
+  sticks_eulers.phi = beta / RC_UPDATE_FREQ;
+  sticks_eulers.theta = 0;
+  sticks_eulers.psi = 0;
+
+  // convert eulers to quaternion
+  FLOAT_QUAT_OF_EULERS(sticks_quat, sticks_eulers);
+  FLOAT_QUAT_COPY(prev_sp_quat, booz_stab_att_sp_quat)
+  
+  // rotate previous setpoint by commanded rotation
+  FLOAT_QUAT_COMP(booz_stab_att_sp_quat, prev_sp_quat, sticks_quat);
+}
+
+void booz_stabilization_attitude_read_alpha_vane(float alpha)
+{
+  struct FloatEulers sticks_eulers;
+  struct FloatQuat sticks_quat, prev_sp_quat;
+  sticks_eulers.phi = 0;
+  sticks_eulers.theta = alpha / RC_UPDATE_FREQ;
+  sticks_eulers.psi = 0;
+
+  // convert eulers to quaternion
+  FLOAT_QUAT_OF_EULERS(sticks_quat, sticks_eulers);
+  FLOAT_QUAT_COPY(prev_sp_quat, booz_stab_att_sp_quat)
+  
+  // rotate previous setpoint by commanded rotation
+  FLOAT_QUAT_COMP(booz_stab_att_sp_quat, prev_sp_quat, sticks_quat);
 }
 
 void booz_stabilization_attitude_read_rc(bool_t in_flight) {

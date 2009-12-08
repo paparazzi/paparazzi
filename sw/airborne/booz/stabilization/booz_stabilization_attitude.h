@@ -29,6 +29,7 @@
 extern void booz_stabilization_attitude_init(void);
 extern void booz_stabilization_attitude_read_rc(bool_t in_flight);
 extern void booz_stabilization_attitude_read_beta_vane(float beta);
+extern void booz_stabilization_attitude_read_alpha_vane(float alpha);
 extern void booz_stabilization_attitude_enter(void);
 extern void booz_stabilization_attitude_run(bool_t  in_flight);
 
