@@ -9,12 +9,13 @@
 #define MSGID_OF_CANMSG_ID(_id) ((_id) & CSC_MSGID_MASK)
 #define CAN_MSG_LENGTH_OF_FRAME(_f) (((_f)>>16) & 0x0F)
 
-// Common CAN bit rates
+// Common CAN bit rates (assumes 30Mhz PCLK)
 #define   CANBitrate62k5_1MHz           0x001C001D
 #define   CANBitrate125k_2MHz           0x001C000E
 #define   CANBitrate156k25_2_5MHz       0x001C000B
 #define   CANBitrate187k5_3MHz          0x001C0009
 #define   CANBitrate312k5_5MHz          0x001C0005
+#define   CANBitrate375k_6MHz           0x001C0004
 
 #define CSC_BOARD_MASK 0x0F
 #define CSC_MSGID_MASK 0x7F

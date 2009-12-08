@@ -35,12 +35,13 @@ void csc_ap_link_send_status(uint32_t loops, uint32_t msgs)
   csc_ap_send_msg(CSC_BOARD_STATUS_ID, (const uint8_t *) &msg, sizeof(msg));
 }
 
-void csc_ap_link_send_vane(float vane_angle)
+void csc_ap_link_send_vane(float *vane_angles)
 {
 
   struct CscVaneMsg msg;
 
-  msg.vane_angle1 = vane_angle;
+  msg.vane_angle1 = vane_angles[0];
+  msg.vane_angle2 = vane_angles[1];
 
   csc_ap_send_msg(CSC_VANE_MSG_ID, (const uint8_t *) &msg, sizeof(msg));
 }

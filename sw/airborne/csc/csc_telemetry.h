@@ -26,6 +26,7 @@
 #define CSC_TELEMETRY_H
 
 #include "actuators.h"
+#include <inttypes.h>
 
 extern uint8_t telemetry_mode_Ap_DefaultChannel;
 
