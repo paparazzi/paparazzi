@@ -26,8 +26,6 @@
 
 #include "math/pprz_algebra_int.h"
 
-/* underlying hardware */
-#include BOOZ_IMU_TYPE_H
 /* must be defined by underlying hardware */
 extern void booz_imu_impl_init(void);
 extern void booz_imu_periodic(void);
@@ -47,6 +45,9 @@ struct BoozImu {
   struct Int32Quat  body_to_imu_quat;
   struct Int32RMat  body_to_imu_rmat;
 };
+
+/* underlying hardware */
+#include BOOZ_IMU_TYPE_H
 
 extern struct BoozImu booz_imu;
 
