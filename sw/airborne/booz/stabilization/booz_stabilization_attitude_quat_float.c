@@ -143,12 +143,13 @@ static void update_ref_quat_from_eulers(void) {
     FLOAT_QUAT_OF_RMAT(booz_stab_att_ref_quat, ref_rmat);
 }
 
+#ifdef USE_VANE
 void booz_stabilization_attitude_read_beta_vane(float beta)
 {
   struct FloatEulers sticks_eulers;
   struct FloatQuat sticks_quat, prev_sp_quat;
 
-  sticks_eulers.phi = beta / RC_UPDATE_FREQ;
+  sticks_eulers.phi = BOOZ_STABILIZATION_ATTITUDE_BETA_VANE_T * beta / RC_UPDATE_FREQ;
   sticks_eulers.theta = 0;
   sticks_eulers.psi = 0;
 
@@ -165,7 +166,7 @@ void booz_stabilization_attitude_read_alpha_vane(float alpha)
   struct FloatEulers sticks_eulers;
   struct FloatQuat sticks_quat, prev_sp_quat;
   sticks_eulers.phi = 0;
-  sticks_eulers.theta = alpha / RC_UPDATE_FREQ;
+  sticks_eulers.theta = BOOZ_STABILIZATION_ATTITUDE_ALPHA_VANE_T * alpha / RC_UPDATE_FREQ;
   sticks_eulers.psi = 0;
 
   // convert eulers to quaternion
@@ -175,6 +176,7 @@ void booz_stabilization_attitude_read_alpha_vane(float alpha)
   // rotate previous setpoint by commanded rotation
   FLOAT_QUAT_COMP(booz_stab_att_sp_quat, prev_sp_quat, sticks_quat);
 }
+#endif
 
 void booz_stabilization_attitude_read_rc(bool_t in_flight) {
 
