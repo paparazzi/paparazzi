@@ -22,6 +22,18 @@ void serial_port_free(struct FmsSerialPort* me) {
   free(me);
 }
 
+
+void serial_port_flush(struct FmsSerialPort* me) {
+  /*
+   * flush any input that might be on the port so we start fresh.
+   */
+  if (tcflush(me->fd, TCIFLUSH)) {
+    TRACE(TRACE_ERROR,"%s, set term attr failed: %s (%d)\n", device, strerror(errno), errno);
+    fprintf(stderr, "flush (%d) failed: %s (%d)\n", me->fd, strerror(errno), errno);
+  }
+}
+
+
 int  serial_port_open(struct FmsSerialPort* me, const char* device,
 		      void(*term_conf_callback)(struct termios*, speed_t*)) {
   
@@ -47,6 +59,7 @@ int  serial_port_open(struct FmsSerialPort* me, const char* device,
     close(me->fd);
     return -1;
   }
+  serial_port_flush(me);
   return 0;
   
 }
