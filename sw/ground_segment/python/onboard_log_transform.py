@@ -17,6 +17,17 @@ import messages_xml_map
 class OnboardLogTransformTool():
     def __init__(self):
       messages_xml_map.ParseMessages()
+      self.data_types = { 'float' : ['f', 4],
+			  'uint8' : ['B', 1],
+			  'uint16' : ['H', 2],
+			  'uint32' : ['L', 4],
+			  'int8' : ['b', 1],
+			  'int16' : ['h', 2],
+			  'int32' : ['l', 4]
+			 }
+
+    def Unpack(self, data_fields, type, start, length):
+	  return struct.unpack(type, "".join(data_fields[start:start + length]))[0]
 
     def ProcessLine(self, line):
       fields = line.strip().split(' ')
@@ -29,93 +40,37 @@ class OnboardLogTransformTool():
       msg_name = messages_xml_map.message_dictionary_id_name[msg_id]
       msg_fields = messages_xml_map.message_dictionary_types[msg_id]
 
-      print timestamp, ac_id, msg_name, 
+      result = "%f %i %s " % (timestamp, ac_id, msg_name)
 
       field_offset = 0
       for field in msg_fields:
-	if field == "float":
-	  value = struct.unpack('f', "".join(data_fields[field_offset:field_offset + 4]))[0]
-	  print value, 
-	  field_offset = field_offset + 4
-	elif field == "uint8":
-	  value = struct.unpack('B', "".join(data_fields[field_offset:field_offset + 1]))[0]
-	  print value, 
+	if field[-2:] == "[]":	
+	  baseType = field[:-2]
+	  array_length = int(self.Unpack(data_fields, 'B', field_offset, 1))
 	  field_offset = field_offset + 1
-	elif field == "uint16":
-	  value = struct.unpack('H', "".join(data_fields[field_offset:field_offset + 2]))[0]
-	  print value, 
-	  field_offset = field_offset + 2
-	elif field == "uint32":
-	  value = struct.unpack('L', "".join(data_fields[field_offset:field_offset + 4]))[0]
-	  print value, 
-	  field_offset = field_offset + 4
-	elif field == "int8":
-	  value = struct.unpack('b', "".join(data_fields[field_offset:field_offset + 1]))[0]
-	  print value,
-	  field_offset = field_offset + 1
-	elif field == "int16":
-	  value = struct.unpack('h', "".join(data_fields[field_offset:field_offset + 2]))[0]
-	  print value, 
-	  field_offset = field_offset + 2
-	elif field == "int32":
-	  value = struct.unpack('l', "".join(data_fields[field_offset:field_offset + 4]))[0]
-	  print value, 
-	  field_offset = field_offset + 4
-	elif field == "uint8[]":
-	  value = struct.unpack('B', "".join(data_fields[field_offset:field_offset + 1]))[0]
-	  field_offset = field_offset + 1
-	  print "",
-	  for count in range(0, value):
-	    array_value = struct.unpack('B', "".join(data_fields[field_offset:field_offset + 1]))[0]
-	    field_offset = field_offset + 1
-	    if (count == value - 1):
-	      sys.stdout.softspace=0
-	      print array_value,
+	  for count in range(0, array_length):
+	    array_value = str(self.Unpack(data_fields, self.data_types[baseType][0], field_offset, self.data_types[baseType][1]))
+	    field_offset = field_offset + self.data_types[baseType][1]
+	    if (count == array_length - 1):
+	      result += array_value + " "
 	    else:
-	      sys.stdout.softspace=0
-	      print ("%u," % array_value),
-	elif field == "int16[]":
-	  value = struct.unpack('B', "".join(data_fields[field_offset:field_offset + 1]))[0]
-	  field_offset = field_offset + 1
-	  print "",
-	  for count in range(0, value):
-	    array_value = struct.unpack('h', "".join(data_fields[field_offset:field_offset + 2]))[0]
-	    field_offset = field_offset + 2
-	    if (count == value - 1):
-	      sys.stdout.softspace=0
-	      print array_value,
-	    else:
-	      sys.stdout.softspace=0
-	      print ("%i," % array_value),
-	elif field == "uint16[]":
-	  value = struct.unpack('B', "".join(data_fields[field_offset:field_offset + 1]))[0]
-	  field_offset = field_offset + 1
-	  print "",
-	  for count in range(0, value):
-	    array_value = struct.unpack('H', "".join(data_fields[field_offset:field_offset + 2]))[0]
-	    field_offset = field_offset + 2
-	    if (count == value - 1):
-	      sys.stdout.softspace=0
-	      print array_value,
-	    else:
-	      sys.stdout.softspace=0
-	      print ("%u," % array_value),
+	      result += array_value + ","
 	else:
-	  print "unknown field type %s" % field
+	  result += str(self.Unpack(data_fields, self.data_types[field][0], field_offset, self.data_types[field][1])) + " "
+	  field_offset = field_offset + self.data_types[field][1]
 
 	if (field_offset > len(data_fields)):
 	  print "finished without parsing %s" % field
 	  break
 
-      sys.stdout.softspace=0
-      print ""
+      return result[:-1]
 
     def Run(self, logfile):
       # open log file
       INPUT = open(logfile, "r")
       for line in INPUT:
 	try:
-	  self.ProcessLine(line)
+	  print self.ProcessLine(line)
 	except:
 	  pass
       INPUT.close()
