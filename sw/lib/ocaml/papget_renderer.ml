@@ -3,7 +3,7 @@
  *
  * Paparazzi widget renderers
  *  
- * Copyright (C) 2008 ENAC
+ * Copyright (C) 2008-2009 ENAC, Pascal Brisset
  *
  * This file is part of paparazzi.
  *
@@ -94,7 +94,7 @@ let affine_pos xw yw = affine_pos_and_angle xw yw 0.
 class canvas_ruler = fun ?(config=[]) canvas_group x y ->
   let h = float_of_string (PC.get_prop "height" config "100.")
   and index_on_right = bool_of_string (PC.get_prop "index_on_right" config "false")
-  and scale = float_of_string (PC.get_prop "scale" config "2.")
+  and point_per_unit = float_of_string (PC.get_prop "point_per_unit" config "2.")
   and w = float_of_string (PC.get_prop "width" config "32.")
   and step = int_of_string (PC.get_prop "step" config "10") in
   let text_props=[`ANCHOR `CENTER; `FILL_COLOR "white"]
@@ -108,13 +108,13 @@ class canvas_ruler = fun ?(config=[]) canvas_group x y ->
   (* One step drawer *)
   let draw = fun i value ->
     let i = i * step in
-    let y = -. scale *. (float i -. value) in
+    let y = -. point_per_unit *. (float i -. value) in
     if y >= -. h && y <= h then begin
       let text = Printf.sprintf "%d" i in
       ignore (GnoCanvas.text ~text ~props ~y ~x:(w*.0.75) r);
-      ignore(GnoCanvas.line ~points:[|w*.0.8;y;w-.1.;y|] ~fill_color:"white" r)
+      ignore (GnoCanvas.line ~points:[|w*.0.8;y;w-.1.;y|] ~fill_color:"white" r)
     end;
-    let y = y -. float step /. 2. *. scale in
+    let y = y -. float step /. 2. *. point_per_unit in
     if y >= -. h && y <= h then
       ignore(GnoCanvas.line ~points:[|w*.0.8;y;w-.1.;y|] ~fill_color:"white" r)
   in
@@ -123,10 +123,11 @@ class canvas_ruler = fun ?(config=[]) canvas_group x y ->
     (* Remove previous items *)
     List.iter (fun i -> i#destroy ()) r#get_items;
     let v = truncate value / step in
-    let k = truncate (h /. scale) / step in
+    let k = truncate (h /. point_per_unit) / step in
     for i = Pervasives.max 0 (v - k) to (v + k) do
       draw i value
-    done in
+    done
+  in
   
   (** Yellow index *)
   let _ = GnoCanvas.line ~points:[|0.;0.;w-.1.;0.|] ~fill_color:"yellow" root in
@@ -145,10 +146,10 @@ class canvas_ruler = fun ?(config=[]) canvas_group x y ->
     method item = (root :> movable_item)
     method config = fun () ->
       [ PC.float_property "height" h;
-	PC.property "index_of_right" (sprintf "%b" index_on_right);
-	PC.float_property "scale" scale;
+	PC.property "index_on_right" (sprintf "%b" index_on_right);
 	PC.float_property "width" w;
-	PC.property "scale" (sprintf "%d" step) ]
+	PC.float_property "point_per_unit" point_per_unit;
+	PC.property "step" (sprintf "%d" step) ]
   end
 
 (*************************** Gauge ***********************************)
