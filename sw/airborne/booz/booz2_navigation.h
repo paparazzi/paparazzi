@@ -116,6 +116,7 @@ void nav_home(void);
 #define NavSetAltitudeReferenceHere() ({ nav_reset_alt(); FALSE; })
 
 #define NavSetWaypointHere(_wp) ({ VECT2_COPY(waypoints[_wp], booz_ins_enu_pos); FALSE; })
+#define NavCopyWaypoint(_wp1, _wp2) ({ VECT2_COPY(waypoints[_wp1], waypoints[_wp2]); FALSE; })
 
 #define WaypointX(_wp)    POS_FLOAT_OF_BFP(waypoints[_wp].x)
 #define WaypointY(_wp)    POS_FLOAT_OF_BFP(waypoints[_wp].y)
