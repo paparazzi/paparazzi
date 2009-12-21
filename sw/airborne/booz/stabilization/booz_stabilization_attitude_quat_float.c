@@ -193,7 +193,7 @@ void booz_stabilization_attitude_read_rc(bool_t in_flight) {
     // convert sticks to commanded rates
     sticks_eulers.phi = APPLY_DEADBAND(roll, BOOZ_STABILIZATION_ATTITUDE_DEADBAND_A) * ROLL_COEF_RATE / RC_UPDATE_FREQ;
     sticks_eulers.theta = APPLY_DEADBAND(pitch, BOOZ_STABILIZATION_ATTITUDE_DEADBAND_E) * PITCH_COEF_RATE / RC_UPDATE_FREQ;
-    sticks_eulers.psi = APPLY_DEADBAND(yaw, BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R) * YAW_COEF / RC_UPDATE_FREQ;
+    sticks_eulers.psi = APPLY_DEADBAND(yaw, BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R) * YAW_COEF_H / RC_UPDATE_FREQ;
 
     // convert eulers to quaternion
     FLOAT_QUAT_OF_EULERS(sticks_quat, sticks_eulers);
