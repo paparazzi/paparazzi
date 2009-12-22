@@ -61,8 +61,8 @@ module type SIG =
     val max_bat_level : float (* V *)
     val roll_neutral_default : float (* rad *)
     val pitch_neutral_default : float (* rad *)
-    val state_update : state -> float -> float * float -> float -> float -> unit
-	(** [state_update nom_airspeed state (wind_x, wind_y) on_ground dt] With m/s for wind and s for
+    val state_update : state -> float -> float * float * float -> float -> float -> unit
+	(** [state_update nom_airspeed state (wind_x, wind_y, wind_z) on_ground dt] With m/s for wind and s for
 	    dt *)
   end
 
@@ -179,7 +179,7 @@ module Make(A:Data.MISSION) = struct
    http://controls.ae.gatech.edu/papers/johnson_dasc_01.pdf
    http://controls.ae.gatech.edu/papers/johnson_mst_01.pdf
  *)
-  let state_update = fun state nominal_airspeed (wx, wy) agl dt ->
+  let state_update = fun state nominal_airspeed (wx, wy, wz) agl dt ->
     let now = state.t +. dt in
     if state.air_speed = 0. && state.thrust > 0. then
       state.air_speed <- nominal_airspeed;
@@ -227,7 +227,8 @@ module Make(A:Data.MISSION) = struct
       let x_dot = state.air_speed *. cos state.psi +. wx
       and y_dot = state.air_speed *. sin state.psi +. wy in
       state.x <- state.x +. x_dot *. dt;
-      state.y <- state.y +. y_dot *. dt
+      state.y <- state.y +. y_dot *. dt;
+      state.z <- state.z +. wz *. dt
     end;
     state.t <- now
 end (* Make functor *)
