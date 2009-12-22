@@ -150,7 +150,8 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let _run = ref false in
 
     let wind_x = ref 0.
-    and wind_y = ref 0. in
+    and wind_y = ref 0.
+    and wind_z = ref 0. in
     let infrared_contrast = ref 266.
     and time_scale = object val mutable v = 1. method value = v method set_value x = v <- x end
     and gps_availability = ref 1 in
@@ -159,11 +160,28 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       gps_availability := Pprz.int_assoc "gps_availability" vs;
       wind_x := Pprz.float_assoc "wind_east" vs;      
       wind_y := Pprz.float_assoc "wind_north" vs;      
+      wind_z := Pprz.float_assoc "wind_up" vs;      
       infrared_contrast := Pprz.float_assoc "ir_contrast" vs;
       time_scale#set_value (Pprz.float_assoc "time_scale" vs)
     in
 
-    ignore (Ground_Pprz.message_bind "WORLD_ENV" world_update);
+    let ask_for_world_env = fun () ->
+      try
+	let (x, y, z) = FlightModel.get_xyz !state in
+	
+	let gps_sol = compute_gps_state (x,y,z) (FlightModel.get_time !state) in
+	
+	let float = fun f -> Pprz.Float f in
+	let values = ["east", float x; "north", float y; "up", float z;
+		      "lat", float ((Rad>>Deg)gps_sol.Gps.wgs84.posn_lat);
+		      "long", float ((Rad>>Deg)gps_sol.Gps.wgs84.posn_long);
+		      "alt", float gps_sol.Gps.alt ] in
+	Ground_Pprz.message_req "sim" "WORLD_ENV" values world_update
+      with
+	exc -> fprintf stderr "Error in sim: %s\n%!" (Printexc.to_string exc)
+    in
+
+    ignore (GMain.Timeout.add 1000 (fun () -> ask_for_world_env (); true));
 
 
     let fm_task = fun () ->
@@ -178,7 +196,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 		  _ -> s.Gps.alt
 	      end
 	  | None -> 0. in
-      FM.state_update !state FM.nominal_airspeed (!wind_x, !wind_y) agl fm_period
+      FM.state_update !state FM.nominal_airspeed (!wind_x, !wind_y, !wind_z) agl fm_period
        
     and ir_task = fun () ->
       let phi, theta, _ = FlightModel.get_attitude !state in
@@ -280,7 +298,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 	t#misc#set_sensitive false in
       ignore (t#connect#clicked ~callback);
 
-      (* Monitor an AUTO2 lauch to disable the button *)
+      (* Monitor an AUTO2 launch to disable the button *)
       let monitor = fun () ->
 	if FlightModel.get_air_speed !state > 0. then begin
 	  t#misc#set_sensitive false;
