@@ -138,10 +138,15 @@ module type MESSAGES = sig
   (** [message_bind ?sender msg_name callback] *)
 
   val message_answerer : string -> string -> (string -> values -> values) -> Ivy.binding
-  (** [message_answerer sender msg_name callback] *)
+  (** [message_answerer sender msg_name callback] Set a handler for a
+      [message_req] (which will send a [msg_name]_REQ message).
+      [callback asker args] must return the list of attributes of the answer. *)
 
   val message_req : string -> string -> values -> (string -> values -> unit) -> unit
-  (** [message_answerer sender msg_name values receiver] Sends a request on the Ivy bus for the specified message. On reception, [receiver] will be applied on [sender_name] and expected values. *)
+  (** [message_req sender msg_name values receiver] Sends a request on the Ivy
+      bus for the specified message. A [msg_name]_REQ message is send and a
+      [msg_name] message is expected for the reply. On reception, [receiver]
+      will be applied on [sender_name] and attribute values of the values. *)
 end
 
 module Messages : functor (Class : CLASS) -> MESSAGES
