@@ -54,18 +54,22 @@ let _ =
   let infrared_contrast_adj = GData.adjustment ~page_size:0. ~value:266. ~lower:(0.) ~upper:1010. ~step_incr:10. () in
   let gps_sa = GButton.toggle_button ~label:"GPS OFF" () in
 
-  let world_values = fun () ->
-    let wind_dir_rad = Latlong.pi /. 2. -. (Deg>>Rad) wind_dir_adj#value in
-    let wind_east = -. wind_speed_adj#value *. cos wind_dir_rad
-    and wind_north = -. wind_speed_adj#value *. sin wind_dir_rad in
+  let world_values = fun asker_values ->
+    let wind_speed = wind_speed_adj#value
+    and wind_dir_rad = Latlong.pi /. 2. -. (Deg>>Rad) wind_dir_adj#value in
+
+    let wind_east = -. wind_speed  *. cos wind_dir_rad
+    and wind_north = -. wind_speed *. sin wind_dir_rad in
+
     [ "wind_east", Pprz.Float wind_east;
       "wind_north", Pprz.Float wind_north;
+      "wind_up", Pprz.Float 0.0;
       "ir_contrast", Pprz.Float infrared_contrast_adj#value;
       "time_scale", Pprz.Float time_scale#value;
       "gps_availability", Pprz.Int (if gps_sa#active then 0 else 1)
     ] in
   let world_send = fun () ->
-    Ground_Pprz.message_send my_id "WORLD_ENV" (world_values ()) in
+    Ground_Pprz.message_send my_id "WORLD_ENV" (world_values []) in
 
   List.iter 
     (fun (a:GData.adjustment) -> ignore (a#connect#value_changed world_send))
@@ -73,7 +77,6 @@ let _ =
   ignore (gps_sa#connect#toggled world_send);
 
   ignore (Glib.Timeout.add sending_period (fun () -> world_send (); true));
-    
 
   let vbox = GPack.vbox ~packing:window#add () in
 
@@ -94,7 +97,7 @@ let _ =
   Ivy.init "Paparazzi gaia" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
-  ignore (Ground_Pprz.message_answerer my_id "WORLD_ENV" (fun _ _ -> world_values ()));
+  ignore (Ground_Pprz.message_answerer my_id "WORLD_ENV" (fun _ -> world_values));
 
   window#show ();
   Unix.handle_unix_error GMain.Main.main ()
