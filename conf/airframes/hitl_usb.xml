@@ -25,7 +25,6 @@
   </section>
 
   <section name="BAT">
-    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="0" unit="V"/>
     <define name="LOW_BAT_LEVEL" value="3.5" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="4" unit="V"/>
