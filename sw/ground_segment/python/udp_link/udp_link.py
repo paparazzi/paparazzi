@@ -22,7 +22,19 @@ class IvyUdpLink():
       self.last_rx_bytes = 0
       self.last_rx_msgs = 0
       self.rx_err = 0
+
       messages_xml_map.ParseMessages()
+      self.data_types = { 'float' : ['f', 4],
+                          'uint8' : ['B', 1],
+                          'uint16' : ['H', 2],
+                          'uint32' : ['L', 4],
+                          'int8' : ['b', 1],
+                          'int16' : ['h', 2],
+                          'int32' : ['l', 4]
+                         }
+
+    def Unpack(self, data_fields, type, start, length):
+      return struct.unpack(type, "".join(data_fields[start:start + length]))[0]
 
     def ProcessMessage(self, message_values, fromRemote):
       # Extract aircraft id from message and ignore if not matching
@@ -43,7 +55,7 @@ class IvyUdpLink():
 
     def InitIvy(self):
       # initialising the bus
-      IvyInit("UdpLink", # application name for Ivy
+      IvyInit("Link", # application name for Ivy
 			"READY",                 # ready message
 			0,                  # main loop is local (ie. using IvyMainloop)
 			lambda x,y: y,      # handler called on connection/deconnection
@@ -51,7 +63,7 @@ class IvyUdpLink():
 			)
 
       # starting the bus
-      logging.getLogger('Ivy').setLevel(logging.WARN)
+      logging.getLogger('Ivy').setLevel(logging.DEBUG)
       IvyStart("")
       #IvyBindMsg(self.OnValueMsg, "(^.* DL_VALUE .*)")
 
@@ -77,86 +89,69 @@ class IvyUdpLink():
         return
 
       msg_offset = 0
-      start_byte = ord(msg[msg_offset])
-
-      if start_byte != 0x99:
-        self.rx_err = self.rx_err + 1
-        return
-
-      msg_offset = msg_offset + 1
-      ac_id = ord(msg[msg_offset])
-      msg_offset = msg_offset + 1
       while msg_offset < len(msg):
+	start_byte = ord(msg[msg_offset])
+	msg_offset = msg_offset + 1
+
+	if start_byte != 0x99:
+	  self.rx_err = self.rx_err + 1
+	  return
+
+	msg_length = ord(msg[msg_offset])
+	msg_offset = msg_offset + 1
+
+	#timestamp = int(self.Unpack(msg, 'L', msg_offset, 4))
+	#msg_offset = msg_offset + 4
+
+	ac_id = ord(msg[msg_offset])
+	msg_offset = msg_offset + 1
+
         msg_id = ord(msg[msg_offset])
         msg_offset = msg_offset + 1
-        start_byte2 = ord(msg[msg_offset])
-
-        if start_byte2 != 0x66:
-          self.rx_err = self.rx_err + 1
-          return
-        msg_offset = msg_offset + 1
+      
         msg_name = messages_xml_map.message_dictionary_id_name[msg_id]
         msg_fields = messages_xml_map.message_dictionary_types[msg_id]
 
-        ivy_msg = "%i %s" % (ac_id, msg_name)
+        ivy_msg = "%i %s " % (ac_id, msg_name)
 
         for field in msg_fields:
-          if field == "float":
-            value = struct.unpack('f', str(msg[msg_offset:msg_offset + 4]))[0]
-            ivy_msg = "%s %f" % (ivy_msg, value)
-            msg_offset = msg_offset + 4
-          elif field == "uint8":
-            value = struct.unpack('B', str(msg[msg_offset:msg_offset + 1]))[0]
-            ivy_msg = "%s %i" % (ivy_msg, value)
-            msg_offset = msg_offset + 1
-          elif field == "uint16":
-            value = struct.unpack('H', str(msg[msg_offset:msg_offset + 2]))[0]
-            ivy_msg = "%s %i" % (ivy_msg, value)
-            msg_offset = msg_offset + 2
-          elif field == "uint32":
-            value = struct.unpack('L', str(msg[msg_offset:msg_offset + 4]))[0]
-            ivy_msg = "%s %i" % (ivy_msg, value)
-            msg_offset = msg_offset + 4
-          elif field == "int8":
-            value = struct.unpack('b', str(msg[msg_offset:msg_offset + 1]))[0]
-            ivy_msg = "%s %i" % (ivy_msg, value)
-            msg_offset = msg_offset + 1
-          elif field == "int16":
-            value = struct.unpack('h', str(msg[msg_offset:msg_offset + 2]))[0]
-            ivy_msg = "%s %i" % (ivy_msg, value)
-            msg_offset = msg_offset + 2
-          elif field == "int32":
-            value = struct.unpack('l', str(msg[msg_offset:msg_offset + 4]))[0]
-            ivy_msg = "%s %i" % (ivy_msg, value)
-            msg_offset = msg_offset + 4
-          elif field == "uint8[]":
-            value = struct.unpack('B', str(msg[msg_offset:msg_offset + 1]))[0]
-            msg_offset = msg_offset + 1
-            for count in range(0, value):
-              array_value = struct.unpack('B', str(msg[msg_offset:msg_offset + 1]))[0]
-              msg_offset = msg_offset + 1
-              ivy_msg = "%s,%i" % (ivy_msg, array_value)
-          else:
-            print "Unknown field type %s" % field
+	  if field[-2:] == "[]":
+	    baseType = field[:-2]
+	    array_length = int(self.Unpack(msg, 'B', msg_offset, 1))
+	    msg_offset = msg_offset + 1
+	    for count in range(0, array_length):
+	      array_value = str(self.Unpack(msg, self.data_types[baseType][0], msg_offset, self.data_types[baseType][1]))
+	      msg_offset = msg_offset + self.data_types[baseType][1]
+	      if (count == array_length - 1):
+		ivy_msg += array_value + " "
+	      else:
+		ivy_msg += array_value + ","
+	  else:
+	    ivy_msg += str(self.Unpack(msg, self.data_types[field][0], msg_offset, self.data_types[field][1])) + " "
+	    msg_offset = msg_offset + self.data_types[field][1]
+
+	  if (msg_offset > len(msg)):
+	    print "finished without parsing %s" % field
+	    break
+
+	msg_offset += 2 # munch munch checksum bytes
   
         self.rx_msgs = self.rx_msgs + 1
         self.rx_bytes = self.rx_bytes + len(msg)
+	ivy_msg = ivy_msg[:-1]
         IvySendMsg(ivy_msg)
-        #print ivy_msg
 
 
     def Run(self):
       server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
       server.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
       msg_count = 0
-      server.bind(('0.0.0.0' , 51914))
+      server.bind(('0.0.0.0' , 4242))
       self.status_timer.start()
       while True:
         msg = server.recv(2048)
         msg_count = msg_count + 1
         self.ProcessPacket(msg)
-        #if (msg_count % 120 == 0):
-        # print msg_count
 
 def main():
   udp_interface = IvyUdpLink()
