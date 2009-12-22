@@ -198,7 +198,7 @@
 
 		include	$(CFG_BOOZ)/booz2_simulator_nps.makefile
 
-		ap.CFLAGS += -DMODEM_BAUD=B9600
+		ap.CFLAGS += -DMODEM_BAUD=B57600
 		include	$(CFG_BOOZ)/subsystems/booz2_radio_control_ppm.makefile
 		include	$(CFG_BOOZ)/subsystems/booz2_actuators_mkk.makefile
 		include	$(CFG_BOOZ)/subsystems/booz2_imu_b2v1.makefile
@@ -214,8 +214,8 @@
         #ap.CFLAGS += -DBOOZ_FAILSAFE_GROUND_DETECT
         ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=2
 
-        ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c  $(SRC_BOOZ)/booz_drop.c
-        ap.CFLAGS += -DUSE_DROP
+        #ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c  $(SRC_BOOZ)/booz_drop.c
+        #ap.CFLAGS += -DUSE_DROP
   </makefile>
 
 </airframe>
