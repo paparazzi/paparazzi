@@ -2,8 +2,8 @@
 
  <servos min="0" neutral="0" max="0xff">
     <servo name="FRONT" no="0" min="0" neutral="0" max="255"/>
-    <servo name="RIGHT" no="1" min="0" neutral="0" max="255"/>
-    <servo name="BACK"  no="2" min="0" neutral="0" max="255"/>
+    <servo name="BACK"  no="1" min="0" neutral="0" max="255"/>
+    <servo name="RIGHT" no="2" min="0" neutral="0" max="255"/>
     <servo name="LEFT"  no="3" min="0" neutral="0" max="255"/>
   </servos>
 
@@ -16,25 +16,25 @@
 
   <section name="IMU" prefix="IMU_">
 
-    <define name="GYRO_P_CHAN" value="0"/>
-    <define name="GYRO_Q_CHAN" value="1"/>
+    <define name="GYRO_P_CHAN" value="1"/>
+    <define name="GYRO_Q_CHAN" value="0"/>
     <define name="GYRO_R_CHAN" value="2"/>
 
-    <define name="GYRO_P_NEUTRAL" value="32900"/>
-    <define name="GYRO_Q_NEUTRAL" value="31700"/>
-    <define name="GYRO_R_NEUTRAL" value="31525"/>
+    <define name="GYRO_P_NEUTRAL" value="33008"/>
+    <define name="GYRO_Q_NEUTRAL" value="31899"/>
+    <define name="GYRO_R_NEUTRAL" value="32989"/>
 
-    <define name="GYRO_P_SENS" value=" -1.01" integer="16"/>
+    <define name="GYRO_P_SENS" value=" 1.01" integer="16"/>
     <define name="GYRO_Q_SENS" value="-1.01" integer="16"/>
     <define name="GYRO_R_SENS" value="-1.01" integer="16"/>
 
 
-    <define name="ACCEL_X_CHAN" value="3"/>
-    <define name="ACCEL_Y_CHAN" value="5"/>
+    <define name="ACCEL_X_CHAN" value="5"/>
+    <define name="ACCEL_Y_CHAN" value="3"/>
     <define name="ACCEL_Z_CHAN" value="4"/>
 
     <define name="ACCEL_X_SENS" value="-2.19476868" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="2.88368188" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="-2.88368188" integer="16"/>
     <define name="ACCEL_Z_SENS" value="-2.57172803" integer="16"/>
 
     <define name="ACCEL_X_NEUTRAL" value="33160"/>
@@ -55,9 +55,11 @@
 
     <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
     <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
-    <define name="BODY_TO_IMU_PSI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
+    <define name="BODY_TO_IMU_PSI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(-90.))"/>
 
   </section>
+
+
 
 
   <section name="STABILIZATION_RATE" prefix="BOOZ_STABILIZATION_RATE_">
@@ -146,7 +148,7 @@
 
 <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
 		<define name="NB" value="4" />
-		<define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }" />
+		<define name="ADDR" value="{ 0x52, 0x56, 0x54, 0x58 }" />
 	</section>
 
   <section name="INS" prefix="BOOZ_INS_">
@@ -191,6 +193,7 @@
 
 
  <section name="MISC">
+ <define name="BOOZ_ANALOG_BARO_THRESHOLD" value="800"/>
    <define name="BOOZ2_FACE_REINJ_1"  value="1024"/>
  </section>
 
@@ -204,6 +207,7 @@ BOARD_CFG = \"boards/booz2_v1_0.h\"
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
 include $(CFG_BOOZ)/booz2_autopilot.makefile
 include $(CFG_BOOZ)/booz2_test_progs.makefile
+ap.CFLAGS += -DBOOZ_FAILSAFE_GROUND_DETECT
 
 #ap.CFLAGS += -DMODEM_BAUD=B38400
 ap.CFLAGS += -DMODEM_BAUD=B57600
@@ -211,10 +215,18 @@ include $(CFG_BOOZ)/subsystems/booz2_radio_control_ppm.makefile
 include $(CFG_BOOZ)/subsystems/booz2_actuators_mkk.makefile
 include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1_1.makefile
 include $(CFG_BOOZ)/subsystems/booz2_gps.makefile
+include $(CFG_BOOZ)/subsystems/booz2_fms_datalink.makefile
 
 include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 
-include $(CFG_BOOZ)/subsystems/booz2_fms_test_signal.makefile
+
+include $(CFG_BOOZ)/subsystems/booz2_ins_hff.makefile
+#set GPS lag for horizontal filter
+#ap.CFLAGS += -DGPS_LAG=0.8
+ap.CFLAGS += -DUSE_GPS_ACC4R -DGPS_USE_LATLONG
+
+ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3
+
 
   </makefile>
 
