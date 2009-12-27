@@ -1,4 +1,11 @@
-<airframe name="BOOZ2_A2">
+<airframe name="PPZUAV_BOOZ2_ASCTEC_EXAMPLE">
+
+<!-- PPZUAV_BOOZ2_ASCTEC_EXAMPLE
+     Booz2 main board
+     Booz2 IMU
+     LEA-5H GPS configured for Booz2
+     Datamodems configured for 57600 baud
+     Asctec speed controllers-->
 
   <servos min="0" neutral="0" max="0xff">
     <servo name="PITCH"  no="0" min="0" neutral="0" max="255"/>
