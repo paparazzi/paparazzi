@@ -1,4 +1,11 @@
-<airframe name="BOOZ2_NoVa">
+<airframe name="PPZUAV_BOOZ2_MKK_EXAMPLE">
+
+<!-- PPZUAV_BOOZ2_MKK_EXAMPLE
+     Booz2 main board
+     Booz2 IMU
+     LEA-5H GPS configured for Booz2
+     Datamodems configured for 57600 baud
+     MKK style speed controllers-->
 
  <servos min="0" neutral="0" max="0xff">
     <servo name="FRONT" no="0" min="0" neutral="0" max="255"/>
