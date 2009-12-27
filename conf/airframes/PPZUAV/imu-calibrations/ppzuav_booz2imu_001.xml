@@ -44,6 +44,6 @@
 
     <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
     <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
-    <define name="BODY_TO_IMU_PSI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(-90.))"/>
+    <define name="BODY_TO_IMU_PSI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
 
   </section>
