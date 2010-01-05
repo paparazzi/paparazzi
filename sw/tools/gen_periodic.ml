@@ -37,9 +37,7 @@ let lprintf = fun c f ->
   fprintf c "%s" (String.make !margin ' ');
   fprintf c f
 
-let freq = ref 60
-let min_period = 1./.float !freq
-let max_period = 65536. /. float !freq
+(**let freq = ref 60 *)
 
 let remove_dup = fun l ->
   let rec loop = fun l ->
@@ -50,7 +48,9 @@ let remove_dup = fun l ->
   loop (List.sort compare l)
 
 
-let output_modes = fun avr_h process_name channel_name modes ->       
+let output_modes = fun avr_h process_name channel_name modes freq ->       
+  let min_period = 1./.float freq in
+  let max_period = 65536. /. float freq in
   (** For each mode in this process *)
   List.iter
     (fun mode ->
@@ -65,7 +65,7 @@ let output_modes = fun avr_h process_name channel_name modes ->
 	    let p = float_of_string (ExtXml.attrib x "period") in
 	    if p < min_period || p > max_period then
 	      fprintf stderr "Warning: period is bound between %.3fs and %.3fs for message %s\n%!" min_period max_period (ExtXml.attrib x "name");
-	    (x, min 65535 (max 1 (int_of_float (p*.float_of_int !freq)))))
+	    (x, min 65535 (max 1 (int_of_float (p*.float_of_int freq)))))
 	  (Xml.children mode)
       in
       let modulos = remove_dup (List.map snd messages) in
@@ -87,12 +87,12 @@ let output_modes = fun avr_h process_name channel_name modes ->
 	  let message_name = ExtXml.attrib message "name" in
 	  i := !i mod p;
 	  (* if phase attribute is present, use it, otherwise shedule at 10Hz *)
-	  let message_phase = try int_of_float (float_of_string (ExtXml.attrib message "phase")*.float_of_int !freq) with _ -> !i in
+	  let message_phase = try int_of_float (float_of_string (ExtXml.attrib message "phase")*.float_of_int freq) with _ -> !i in
 	  phase := message_phase;
 	  let else_ = if List.mem_assoc p !l && not (List.mem (p, !phase) !l) then "else " else "" in
 	  lprintf avr_h "%sif (i%d == %d) {\\\n" else_ p !phase;
 	  l := (p, !phase) :: !l;
-	  i := !i + !freq/10;
+	  i := !i + freq/10;
 	  right ();
 	  lprintf avr_h "PERIODIC_SEND_%s(%s);\\\n" message_name channel_name;
 	  left ();
@@ -109,7 +109,7 @@ let _ =
     failwith (sprintf "Usage: %s <messages.xml> <telemetry.xml> frequency_in_hz" Sys.argv.(0)) 
   end;
 
-  freq := int_of_string(Sys.argv.(3));
+  let freq = int_of_string(Sys.argv.(3)) in
   let telemetry_xml = 
     try
       Xml.parse_file Sys.argv.(2)
@@ -147,9 +147,9 @@ let _ =
 	incr i)
 	modes;
 
-      lprintf avr_h "#define PeriodicSend%s_%s() {  /* %dHz */ \\\n" process_name channel_name !freq;
+      lprintf avr_h "#define PeriodicSend%s_%s() {  /* %dHz */ \\\n" process_name channel_name freq;
       right ();
-      output_modes avr_h process_name channel_name modes;
+      output_modes avr_h process_name channel_name modes freq;
       left ();
       lprintf avr_h "}\n"
     )
