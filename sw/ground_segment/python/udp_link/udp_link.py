@@ -16,6 +16,12 @@ import messages_xml_map
 PING_PERIOD = 5.0
 STATUS_PERIOD = 1.0
 
+STX = 0x99
+STX_TS = 0x98
+
+DATALINK_PORT = 4243
+DOWNLINK_PORT = 4242
+
 class DownLinkStatus():
   def __init__(self, ac_id, address):
       self.ac_id = ac_id
@@ -73,7 +79,7 @@ class IvyUdpLink():
       return (ck_a, ck_b)
 
     def buildPprzMsg(self, msg_id, *args):
-      stx = 0x99
+      stx = STX
       length = 6
       sender = 0
       msg_fields = messages_xml_map.message_dictionary_types["datalink"][msg_id]
@@ -98,14 +104,14 @@ class IvyUdpLink():
       msg_id = messages_xml_map.message_dictionary_name_id["datalink"][msg_name]
       if self.ac_downlink_status.has_key(int(ac_id)):
 	msgbuf = self.buildPprzMsg(msg_id, *args)
-	address = (self.ac_downlink_status[int(ac_id)].address[0], 4243)
+	address = (self.ac_downlink_status[int(ac_id)].address[0], DATALINK_PORT)
 	self.server.sendto(msgbuf, address)
 
     def sendPing(self):
       for (ac_id, value) in self.ac_downlink_status.items():
 	msg_id = messages_xml_map.message_dictionary_name_id["datalink"]["PING"]
 	msgbuf = self.buildPprzMsg(msg_id)
-	address = (self.ac_downlink_status[int(ac_id)].address[0], 4243)
+	address = (self.ac_downlink_status[int(ac_id)].address[0], DATALINK_PORT)
 	self.server.sendto(msgbuf, address)
 	value.last_ping_time = time.clock()
       
@@ -150,14 +156,14 @@ class IvyUdpLink():
 	msg_start_idx = msg_offset
 	msg_offset = msg_offset + 1
 
-	if start_byte != 0x99 and start_byte != 0x98:
+	if start_byte != STX and start_byte != STX_TS:
 	  self.rx_err = self.rx_err + 1
 	  return
 
 	msg_length = ord(msg[msg_offset])
 	msg_offset = msg_offset + 1
 
-	if (start_byte == 0x98):
+	if (start_byte == STX_TS):
 	  timestamp = int(self.Unpack(msg, 'L', msg_offset, 4))
 	  msg_offset = msg_offset + 4
 
@@ -209,7 +215,7 @@ class IvyUdpLink():
     def Run(self):
       self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
       self.server.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-      self.server.bind(('0.0.0.0' , 4242))
+      self.server.bind(('0.0.0.0' , DOWNLINK_PORT))
       self.status_timer.start()
       self.ping_timer.start()
       while True:
