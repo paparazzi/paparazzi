@@ -17,6 +17,10 @@
 #define UdpTransportPutSTX() UdpTransportPut1Byte(STX)
 #endif
 
+#ifndef MSG_TIMESTAMP
+#define MSG_TIMESTAMP 0
+#endif
+
 #define UDPT_TX_BUF_LEN 1496
 extern char updt_tx_buf[UDPT_TX_BUF_LEN];
 extern uint16_t udpt_tx_buf_idx;
@@ -39,7 +43,7 @@ extern uint8_t udpt_ck_a, udpt_ck_b;
 
 
 #define UdpTransportHeader(payload_len) {		\
-    uint32_t msg_timestamp = 0;				\
+    uint32_t msg_timestamp = MSG_TIMESTAMP;		\
     /*udpt_tx_buf_idx = 0;*/				\
     UdpTransportPutSTX();		\
     uint8_t msg_len = UdpTransportSizeOf(payload_len);	\
