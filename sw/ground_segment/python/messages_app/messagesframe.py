@@ -80,7 +80,7 @@ class MessagesFrame(wx.Frame):
 
   def add_new_message(self, aircraft, name):
       messages_book = aircraft.messages_book
-      aircraft.messages[name] = messages_tool.Message(name)
+      aircraft.messages[name] = messages_tool.Message("telemetry", name)
       field_panel = wx.Panel(messages_book)
       grid_sizer = wx.FlexGridSizer(len(aircraft.messages[name].field_names), 2)
 

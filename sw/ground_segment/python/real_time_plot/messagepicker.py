@@ -41,7 +41,7 @@ class MessagePicker(wx.Frame):
     if not aircraft.messages.has_key(name):
       msg_node = self.tree.AppendItem(ac_node, str(name))
       self.tree.SortChildren(ac_node)
-      aircraft.messages[name] = messages_tool.Message(name)
+      aircraft.messages[name] = messages_tool.Message("telemetry", name)
       for field in aircraft.messages[name].field_names:
         item = self.tree.AppendItem(msg_node, field)
 

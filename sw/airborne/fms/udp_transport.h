@@ -5,13 +5,23 @@
 #include "fms_debug.h"
 #include "std.h"
 
+#ifdef UDP_TRANSPORT_TIMESTAMP
+#define STX_TS  0x98
+#define UdpTransportSizeOf(_payload) (_payload + 8)
+#define UdpTransportPutTimestamp(x) UdpTransportPutUint32ByAddr(x)
+#define UdpTransportPutSTX() UdpTransportPut1Byte(STX_TS)
+#else
 #define STX  0x99
+#define UdpTransportSizeOf(_payload) (_payload + 4)
+#define UdpTransportPutTimestamp(x) {} 
+#define UdpTransportPutSTX() UdpTransportPut1Byte(STX)
+#endif
+
 #define UDPT_TX_BUF_LEN 1496
 extern char updt_tx_buf[UDPT_TX_BUF_LEN];
 extern uint16_t udpt_tx_buf_idx;
 extern uint8_t udpt_ck_a, udpt_ck_b;
 #define  UDPT_TX_BUF_WATERMARK 1024
-
 
 #define UdpTransportPeriodic() {				\
     if (udpt_tx_buf_idx) {					\
@@ -27,15 +37,17 @@ extern uint8_t udpt_ck_a, udpt_ck_b;
 
 #define UdpTransportCheckFreeSpace(_x) (TRUE)
 
-#define UdpTransportSizeOf(_payload) (_payload+4)
 
 #define UdpTransportHeader(payload_len) {		\
+    uint32_t msg_timestamp = 0;				\
     /*udpt_tx_buf_idx = 0;*/				\
-    UdpTransportPut1Byte(STX);				\
+    UdpTransportPutSTX();		\
     uint8_t msg_len = UdpTransportSizeOf(payload_len);	\
-    UdpTransportPut1Byte(msg_len);			\
-    udpt_ck_a = msg_len; udpt_ck_b = msg_len;		\
+    udpt_ck_a = udpt_ck_b = 0;		 		\
+    UdpTransportPutUint8(msg_len);			\
+    UdpTransportPutTimestamp(&msg_timestamp);		\
 }
+
 
 #define UdpTransportTrailer() {						\
     UdpTransportPut1Byte(udpt_ck_a);					\

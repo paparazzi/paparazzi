@@ -9,6 +9,7 @@ messages_path = '%s/conf/messages.xml' % os.getenv("PAPARAZZI_HOME")
 message_dictionary = {}
 message_dictionary_types = {}
 message_dictionary_id_name = {}
+message_dictionary_name_id = {}
 
 def Usage(scmd):
 	lpathitem = scmd.split('/')
@@ -37,7 +38,14 @@ def GetOptions():
 def ParseMessages():
   from lxml import etree
   tree = etree.parse( messages_path)
-  for the_message in tree.xpath("//class[@name='telemetry']/message[@name]"):
+  for the_class in tree.xpath("//class[@name]"):
+    class_name = the_class.attrib['name']
+    if not message_dictionary.has_key(class_name):
+      message_dictionary_id_name[class_name] = {}
+      message_dictionary_name_id[class_name] = {}
+      message_dictionary[class_name] = {}
+      message_dictionary_types[class_name] = {}
+    for the_message in the_class.xpath("message[@name]"):
       message_name = the_message.attrib['name']
       if the_message.attrib.has_key('id'):
         message_id = the_message.attrib['id']
@@ -48,27 +56,21 @@ def ParseMessages():
       else:
         message_id = int(message_id)
 
-      message_dictionary_id_name[message_id] = message_name
+      message_dictionary_id_name[class_name][message_id] = message_name
+      message_dictionary_name_id[class_name][message_name] = message_id
 
       # insert this message into our dictionary as a list with room for the fields
-      message_dictionary[message_name] = []
-      message_dictionary_types[message_id] = []
+      message_dictionary[class_name][message_name] = []
+      message_dictionary_types[class_name][message_id] = []
 
       for the_field in the_message.xpath('field[@name]'):
         # for now, just save the field names -- in the future maybe expand this to save a struct?
-        message_dictionary[message_name].append( the_field.attrib['name'])
-        message_dictionary_types[message_id].append( the_field.attrib['type'])
+        message_dictionary[class_name][message_name].append( the_field.attrib['name'])
+        message_dictionary_types[class_name][message_id].append( the_field.attrib['type'])
     
 def test():
   GetOptions()
   ParseMessages()
-  print message_dictionary['WHIRLY']
-  print message_dictionary['WHIRLY'].index('plane2_pitch')
-  print message_dictionary['ACTUATORS']
-  print message_dictionary['ACTUATORS'].index('actuator0')
-  print message_dictionary_types[53]
-  print message_dictionary_id_name[53]
-  
   
 if __name__ == '__main__':
   test()

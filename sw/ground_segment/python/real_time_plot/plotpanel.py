@@ -252,7 +252,7 @@ class PlotPanel():
 
         for field in self.plots[ac_id][message]:
             plot = self.plots[ac_id][message][field]
-            ix = messages_xml_map.message_dictionary[message].index(field)
+            ix = messages_xml_map.message_dictionary["telemetry"][message].index(field)
             point = float(data[ix+2])
 
             if self.x_axis == None or self.x_axis.id != plot.id:

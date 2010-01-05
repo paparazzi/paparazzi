@@ -7,20 +7,33 @@ import os
 import logging
 import sys
 import threading
+import time
 
 sys.path.append(os.getenv("PAPARAZZI_HOME") + "/sw/lib/python")
 
 import messages_xml_map
 
+PING_PERIOD = 5.0
+STATUS_PERIOD = 1.0
+
+class DownLinkStatus():
+  def __init__(self, ac_id, address):
+      self.ac_id = ac_id
+      self.address = address
+      self.rx_bytes = 0
+      self.rx_msgs = 0
+      self.run_time = 0
+      self.last_rx_bytes = 0
+      self.last_rx_msgs = 0
+      self.last_ping_time = 0
+      self.last_pong_time = 0
+
 class IvyUdpLink():
     def __init__(self):
       self.InitIvy()
-      self.status_timer = threading.Timer(1.0, self.sendStatus)
-      self.run_time = 0
-      self.rx_bytes = 0
-      self.rx_msgs = 0
-      self.last_rx_bytes = 0
-      self.last_rx_msgs = 0
+      self.status_timer = threading.Timer(STATUS_PERIOD, self.sendStatus)
+      self.ping_timer = threading.Timer(STATUS_PERIOD, self.sendPing)
+      self.ac_downlink_status = { }
       self.rx_err = 0
 
       messages_xml_map.ParseMessages()
@@ -36,23 +49,6 @@ class IvyUdpLink():
     def Unpack(self, data_fields, type, start, length):
       return struct.unpack(type, "".join(data_fields[start:start + length]))[0]
 
-    def ProcessMessage(self, message_values, fromRemote):
-      # Extract aircraft id from message and ignore if not matching
-      msg_ac_id = int(message_values[0])
-      if (msg_ac_id != self.ac_ids[0]):
-        return
-
-      # Extract setting value
-      setting_index = int(message_values[1])
-      setting_value = message_values[2]
-
-    # Called for DL_VALUE (from aircraft)
-    def OnValueMsg(self, agent, *larg):
-      # Extract field values
-      message_values = larg[0].split(' ')
-      message_values = message_values[0:1] + message_values[2:]
-      self.ProcessMessage(message_values, True)
-
     def InitIvy(self):
       # initialising the bus
       IvyInit("Link", # application name for Ivy
@@ -63,27 +59,87 @@ class IvyUdpLink():
 			)
 
       # starting the bus
-      logging.getLogger('Ivy').setLevel(logging.DEBUG)
+      logging.getLogger('Ivy').setLevel(logging.WARN)
       IvyStart("")
-      #IvyBindMsg(self.OnValueMsg, "(^.* DL_VALUE .*)")
+      IvyBindMsg(self.OnSettingMsg, "(^.* SETTING .*)")
+
+    def calculate_checksum(self, msg):
+      ck_a = 0
+      ck_b = 0
+      # start char not included in checksum for pprz protocol
+      for c in msg[1:]:
+	ck_a = (ck_a + ord(c)) % 256
+	ck_b = (ck_b + ck_a) % 256
+      return (ck_a, ck_b)
+
+    def buildPprzMsg(self, msg_id, *args):
+      stx = 0x99
+      length = 6
+      sender = 0
+      msg_fields = messages_xml_map.message_dictionary_types["datalink"][msg_id]
+      struct_string = "=BBBB"
+      typed_args = []
+      idx = 0
+      for msg_type in msg_fields:
+	struct_string += self.data_types[msg_type][0]
+	length += self.data_types[msg_type][1]
+	typed_args.append(args[idx])
+      msg = struct.pack(struct_string, stx, length, sender, msg_id, *args)
+      (ck_a, ck_b) = self.calculate_checksum(msg)
+      msg = msg + struct.pack('=BB', ck_a, ck_b)
+      return msg
+      
+    def OnSettingMsg(self, agent, *larg):
+      list = larg[0].split(' ')
+      sender = list[0]
+      msg_name = list[1]
+      ac_id = list[3]
+      args = list[2:]
+      msg_id = messages_xml_map.message_dictionary_name_id["datalink"][msg_name]
+      if self.ac_downlink_status.has_key(int(ac_id)):
+	msgbuf = self.buildPprzMsg(msg_id, *args)
+	address = (self.ac_downlink_status[int(ac_id)].address[0], 4243)
+	self.server.sendto(msgbuf, address)
+
+    def sendPing(self):
+      for (ac_id, value) in self.ac_downlink_status.items():
+	msg_id = messages_xml_map.message_dictionary_name_id["datalink"]["PING"]
+	msgbuf = self.buildPprzMsg(msg_id)
+	address = (self.ac_downlink_status[int(ac_id)].address[0], 4243)
+	self.server.sendto(msgbuf, address)
+	value.last_ping_time = time.clock()
+      
+      self.ping_timer = threading.Timer(STATUS_PERIOD, self.sendPing)
+      self.ping_timer.start()
 
     def sendStatus(self):
-      self.run_time = self.run_time + 1
-      IvySendMsg("11 DOWNLINK_STATUS %i %i %i %i %i %i %i" % (
-        self.run_time,
-        self.rx_bytes - self.last_rx_bytes,
-        self.rx_msgs - self.last_rx_msgs,
-        self.rx_err,
-        self.rx_bytes,
-        self.rx_msgs,
-        0 ))
-      self.last_rx_bytes = self.rx_bytes
-      self.last_rx_msgs = self.rx_msgs
+      for (key, value) in self.ac_downlink_status.items():
+	IvySendMsg("%i DOWNLINK_STATUS %i %i %i %i %i %i %i" % (
+	  value.ac_id,
+	  value.run_time,
+	  value.rx_bytes,
+	  value.rx_msgs,
+	  self.rx_err,
+	  value.rx_bytes - value.last_rx_bytes,
+	  value.rx_msgs - value.last_rx_msgs,
+	  1000 * value.last_pong_time ))
+	value.last_rx_bytes = value.rx_bytes
+	value.last_rx_msgs = value.rx_msgs
+	value.run_time = value.run_time + 1
 
-      self.status_timer = threading.Timer(1.0, self.sendStatus)
+      self.status_timer = threading.Timer(STATUS_PERIOD, self.sendStatus)
       self.status_timer.start()
 
-    def ProcessPacket(self, msg):
+    def updateStatus(self, ac_id, length, address, isPong):
+      if not self.ac_downlink_status.has_key(ac_id):
+	self.ac_downlink_status[ac_id] = DownLinkStatus(ac_id, address)
+
+      self.ac_downlink_status[ac_id].rx_msgs += 1
+      self.ac_downlink_status[ac_id].rx_bytes += length
+      if isPong:
+	self.ac_downlink_status[ac_id].last_pong_time = time.clock() - self.ac_downlink_status[ac_id].last_ping_time 
+
+    def ProcessPacket(self, msg, address):
       if len(msg) < 4:
         self.rx_err = self.rx_err + 1
         return
@@ -91,17 +147,19 @@ class IvyUdpLink():
       msg_offset = 0
       while msg_offset < len(msg):
 	start_byte = ord(msg[msg_offset])
+	msg_start_idx = msg_offset
 	msg_offset = msg_offset + 1
 
-	if start_byte != 0x99:
+	if start_byte != 0x99 and start_byte != 0x98:
 	  self.rx_err = self.rx_err + 1
 	  return
 
 	msg_length = ord(msg[msg_offset])
 	msg_offset = msg_offset + 1
 
-	#timestamp = int(self.Unpack(msg, 'L', msg_offset, 4))
-	#msg_offset = msg_offset + 4
+	if (start_byte == 0x98):
+	  timestamp = int(self.Unpack(msg, 'L', msg_offset, 4))
+	  msg_offset = msg_offset + 4
 
 	ac_id = ord(msg[msg_offset])
 	msg_offset = msg_offset + 1
@@ -109,8 +167,8 @@ class IvyUdpLink():
         msg_id = ord(msg[msg_offset])
         msg_offset = msg_offset + 1
       
-        msg_name = messages_xml_map.message_dictionary_id_name[msg_id]
-        msg_fields = messages_xml_map.message_dictionary_types[msg_id]
+        msg_name = messages_xml_map.message_dictionary_id_name["telemetry"][msg_id]
+        msg_fields = messages_xml_map.message_dictionary_types["telemetry"][msg_id]
 
         ivy_msg = "%i %s " % (ac_id, msg_name)
 
@@ -134,24 +192,29 @@ class IvyUdpLink():
 	    print "finished without parsing %s" % field
 	    break
 
-	msg_offset += 2 # munch munch checksum bytes
-  
-        self.rx_msgs = self.rx_msgs + 1
-        self.rx_bytes = self.rx_bytes + len(msg)
-	ivy_msg = ivy_msg[:-1]
-        IvySendMsg(ivy_msg)
+	(ck_a, ck_b) = self.calculate_checksum(msg[msg_start_idx:msg_offset])
+	msg_ck_a = int(self.Unpack(msg, 'B', msg_offset, 1))
+	msg_offset += 1
+	msg_ck_b = int(self.Unpack(msg, 'B', msg_offset, 1))
+	msg_offset += 1
 
+	# check for valid checksum
+	if (ck_a, ck_b) == (msg_ck_a, msg_ck_b):
+	  self.updateStatus(ac_id, msg_length, address, msg_id == messages_xml_map.message_dictionary_name_id["telemetry"]["PONG"])
+
+	  # strip off trailing whitespace
+	  ivy_msg = ivy_msg[:-1]
+	  IvySendMsg(ivy_msg)
 
     def Run(self):
-      server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-      server.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-      msg_count = 0
-      server.bind(('0.0.0.0' , 4242))
+      self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+      self.server.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+      self.server.bind(('0.0.0.0' , 4242))
       self.status_timer.start()
+      self.ping_timer.start()
       while True:
-        msg = server.recv(2048)
-        msg_count = msg_count + 1
-        self.ProcessPacket(msg)
+        (msg, address) = self.server.recvfrom(2048)
+        self.ProcessPacket(msg, address)
 
 def main():
   udp_interface = IvyUdpLink()

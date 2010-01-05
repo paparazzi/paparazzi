@@ -5,10 +5,10 @@ import time
 import os
 
 class Message:
-  def __init__(self, name):
+  def __init__(self, class_name, name):
     messages_xml_map.ParseMessages()
     self.field_value = []
-    self.field_names = messages_xml_map.message_dictionary[name]
+    self.field_names = messages_xml_map.message_dictionary[class_name][name]
     self.field_controls = []
     self.index = None
     self.last_seen = time.clock()
