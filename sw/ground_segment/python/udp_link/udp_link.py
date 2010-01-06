@@ -89,8 +89,12 @@ class IvyUdpLink():
       for msg_type in msg_fields:
 	struct_string += self.data_types[msg_type][0]
 	length += self.data_types[msg_type][1]
-	typed_args.append(args[idx])
-      msg = struct.pack(struct_string, stx, length, sender, msg_id, *args)
+	if (msg_type == "float"):
+	  typed_args.append(float(args[idx]))
+	else:
+	  typed_args.append(int(args[idx]))
+	idx += 1
+      msg = struct.pack(struct_string, stx, length, sender, msg_id, *typed_args)
       (ck_a, ck_b) = self.calculate_checksum(msg)
       msg = msg + struct.pack('=BB', ck_a, ck_b)
       return msg
