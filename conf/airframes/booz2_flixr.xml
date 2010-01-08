@@ -172,6 +172,9 @@
         <define name="BOOZ_ANALOG_BARO_THRESHOLD" value="512"/>
 	</section>
 
+    <section name="FMS">
+    </section>
+
 	<section name="SIMULATOR" prefix="NPS_">
 		<define name="ACTUATOR_NAMES" value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}" />
 		<define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;" />
@@ -205,6 +208,7 @@
 		include	$(CFG_BOOZ)/subsystems/booz2_gps.makefile
 
 		include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
+        include $(CFG_BOOZ)/subsystems/booz2_fms_datalink.makefile
 
 		include $(CFG_BOOZ)/subsystems/booz2_ins_hff.makefile
 		#set GPS lag for horizontal filter
