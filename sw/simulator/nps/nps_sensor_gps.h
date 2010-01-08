@@ -13,6 +13,7 @@
 struct NpsSensorGps {
   struct EcefCoor_d ecef_pos;
   struct EcefCoor_d ecef_vel;
+  struct LlaCoor_d  lla_pos;
   struct DoubleVect3  pos_noise_std_dev;
   struct DoubleVect3  speed_noise_std_dev;
   struct DoubleVect3  pos_bias_initial;
@@ -21,6 +22,7 @@ struct NpsSensorGps {
   double pos_latency;
   double speed_latency;
   GSList* pos_history;
+  GSList* lla_history;
   GSList* speed_history;
   double       next_update;
   bool_t       data_available;

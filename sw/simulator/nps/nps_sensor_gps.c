@@ -73,6 +73,17 @@ void nps_sensor_gps_run_step(struct NpsSensorGps* gps, double time) {
   UpdateSensorLatency(time, &cur_pos_reading, &gps->pos_history, gps->pos_latency, &gps->ecef_pos);
 
 
+  /*
+   * simulate lla pos
+   */
+  /* convert current ecef reading to lla */
+  struct LlaCoor_d cur_lla_reading;
+  lla_of_ecef_d(&cur_lla_reading, (EcefCoor_d*) &cur_pos_reading);
+
+  /* store that for later and retrieve a previously stored data */
+  UpdateSensorLatency(time, &cur_lla_reading, &gps->lla_history, gps->pos_latency, &gps->lla_pos);
+
+
   gps->next_update += NPS_GPS_DT;
   gps->data_available = TRUE;
 
