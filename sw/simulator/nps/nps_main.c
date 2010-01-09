@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include <glib.h>
 #include <sys/time.h>
 #include <getopt.h>
