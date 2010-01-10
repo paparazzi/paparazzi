@@ -8,9 +8,6 @@
     <waypoint name="p2" x="27.5" y="-48.2"/>
     <waypoint name="p3" x="16.7" y="-19.6"/>
     <waypoint name="p4" x="13.7" y="-40.7" height="6."/>
-    <waypoint name="CAM" x="-20" y="-50" height="2."/>
-    <waypoint name="blue" x="5" y="-5" height="5."/>
-    <waypoint name="red"  x="10" y="-10" height="5."/>
   </waypoints>
   <blocks>
     <block name="Wait GPS">
