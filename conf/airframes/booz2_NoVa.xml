@@ -163,26 +163,32 @@
   </section>
 
 
-  <section name="GUIDANCE_V"   prefix="BOOZ2_GUIDANCE_V_">
-
+ <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
    <define name="MIN_ERR_Z"    value="POS_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_Z"    value="POS_BFP_OF_REAL( 10.)"/>
    <define name="MIN_ERR_ZD"   value="SPEED_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_ZD"   value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="MAX_SUM_ERR"  value="2000000"/>
-   <define name="HOVER_KP"     value="-500"/>
-   <define name="HOVER_KD"     value="-250"/>
-   <define name="HOVER_KI"     value="-100"/>
-   <!-- SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
+   <define name="REF_MIN_ZDD"  value="-1.5*9.81"/>
+   <define name="REF_MAX_ZDD"  value=" 0.5*9.81"/>
+   <define name="REF_MIN_ZD"   value="-1.5"/>
+   <define name="REF_MAX_ZD"   value=" 1.5"/>
+   <define name="HOVER_KP"     value="-150"/>
+   <define name="HOVER_KD"     value="-80"/>
+   <define name="HOVER_KI"     value="0"/>
+   <!-- 1.5m/s for full stick : SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
    <!-- SPEED_BFP_OF_REAL(1.5) * 20% -->
    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
+   <!-- <define name="INV_M" value="0.118"/> -->
   </section>
 
- <section name="GUIDANCE_H" prefix="BOOZ2_GUIDANCE_H_">
-   <define name="PGAIN" value="-100"/>
-   <define name="DGAIN" value="-100"/>
-   <define name="IGAIN" value="-0"/>
+<section name="GUIDANCE_H" prefix="BOOZ2_GUIDANCE_H_">
+   <define name="PGAIN" value="-70"/>
+   <define name="DGAIN" value="-150"/>
+   <define name="IGAIN" value="-15"/>
+   <define name="NGAIN" value="-0"/>
+   <define name="AGAIN" value="-0"/>
  </section>
 
  <section name="BAT">
@@ -194,8 +200,8 @@
 
  <section name="AUTOPILOT">
    <define name="BOOZ2_MODE_MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="BOOZ2_MODE_AUTO1"  value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
-   <define name="BOOZ2_MODE_AUTO2"  value="BOOZ2_AP_MODE_HOVER_Z_HOLD"/>
+   <define name="BOOZ2_MODE_AUTO1"  value="BOOZ2_AP_MODE_HOVER_Z_HOLD"/>
+   <define name="BOOZ2_MODE_AUTO2"  value="BOOZ2_AP_MODE_NAV"/>
  </section>
 
 
@@ -226,12 +232,12 @@ include $(CFG_BOOZ)/subsystems/booz2_gps.makefile
 include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 
 
-#include $(CFG_BOOZ)/subsystems/booz2_ins_hff.makefile
+include $(CFG_BOOZ)/subsystems/booz2_ins_hff.makefile
 #set GPS lag for horizontal filter
-#ap.CFLAGS += -DGPS_LAG=0.8
+ap.CFLAGS += -DGPS_LAG=0.8 -DUSE_GPS_ACC4R
 ap.CFLAGS += -DGPS_USE_LATLONG
 
-#ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3
+ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3
 
 
   </makefile>
