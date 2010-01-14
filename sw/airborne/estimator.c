@@ -53,7 +53,7 @@ float estimator_p;
 float estimator_q;
 
 /* flight time in seconds */
-uint16_t estimator_flight_time; 
+uint16_t estimator_flight_time;
 /* flight time in seconds */
 float estimator_t;
 
@@ -107,7 +107,7 @@ void estimator_init( void ) {
 
 
 void estimator_propagate_state( void ) {
-  
+
 }
 
 bool_t alt_kalman_enabled;
@@ -184,15 +184,15 @@ void alt_kalman(float gps_z) {
     float k_0 = p[0][0] / e;
     float k_1 =  p[1][0] / e;
     e = gps_z - estimator_z;
-    
+
     /* correction */
     estimator_z += k_0 * e;
     estimator_z_dot += k_1 * e;
-    
-    p[0][0] = p[0][0] * (1-k_0);
-    p[0][1] = p[0][1] * (1-k_0);
+
     p[1][0] = -p[0][0]*k_1+p[1][0];
     p[1][1] = -p[0][1]*k_1+p[1][1];
+    p[0][0] = p[0][0] * (1-k_0);
+    p[0][1] = p[0][1] * (1-k_0);
   }
 
 #ifdef DEBUG_ALT_KALMAN
