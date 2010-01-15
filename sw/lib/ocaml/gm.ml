@@ -199,11 +199,12 @@ let ms_key = fun key ->
   done;
   ms_key
     
+let google_version = 51
 
 let url_of_tile_key = fun maps_source s -> 
   let (x, y, z) = xyz_of_qsrt s in
   match maps_source with
-    Google -> sprintf "http://khm0.google.com/kh/v=45&x=%d&s=&y=%d&z=%d" x y z
+    Google -> sprintf "http://khm0.google.com/kh/v=%d&x=%d&s=&y=%d&z=%d" google_version x y z
   | OSM ->    sprintf "http://tile.openstreetmap.org/%d/%d/%d.png" z x y
   | MS ->    sprintf "http://a0.ortho.tiles.virtualearth.net/tiles/a%s.jpeg?g=%d" (ms_key s) (z+32)
 
