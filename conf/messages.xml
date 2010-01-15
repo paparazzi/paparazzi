@@ -1290,73 +1290,29 @@
       <field name="motor_command" type="float"/>
     </message>
 
-    <message name="WHIRLY_MOTORCONTROL" id="183">
-      <field name="rpm1"	type="uint16"/>
-      <field name="rpm2"	type="uint16"/>
-      <field name="fault1"	type="uint16"/>
-      <field name="fault2"	type="uint16"/>
+    <message name="ASTRO_MOTOR" id="183">
+      <field name="fault"	type="uint16"/>
+      <field name="raw_speed"	type="uint16"/>
+      <field name="raw_dcbus"	type="uint16"/>
     </message>
 
-    <message name="WHIRLY_STATUS" id="184">
-      <field name="whirly_timestamp"   type="float"/>
-      <field name="xsens1_error_ck" type="uint32"/>
-      <field name="xsens2_error_ck" type="uint32"/>
-      <field name="xsens1_error_mid" type="uint32"/>
-      <field name="xsens2_error_mid" type="uint32"/>
-      <field name="xsens1_error_seq" type="uint32"/>
-      <field name="xsens2_error_seq" type="uint32"/>
-      <field name="csc1_loops" type="uint32"/>
-      <field name="csc1_msgs" type="uint32"/>
-      <field name="csc2_loops" type="uint32"/>
-      <field name="csc2_msgs" type="uint32"/>
-      <field name="busvolts0_0"	type="float"/>
-      <field name="busvolts0_1"	type="float"/>
-      <field name="busvolts1_0"	type="float"/>
-      <field name="busvolts1_1"	type="float"/>
+    <message name="BLMC_SPEEDS" id="184">
+      <field name="speeds"	type="uint16[]"/>
     </message>
 
-    <message name="WHIRLY_IMU" id="185">
-      <field name="whirly_timestamp"   type="float"/>
-      <field name="p1_gyro_p" type="float"/>
-      <field name="p1_gyro_r" type="float"/>
-      <field name="p1_gyro_y" type="float"/>
-      <field name="p1_accel_x" type="float"/>
-      <field name="p1_accel_y" type="float"/>
-      <field name="p1_accel_z" type="float"/>
-      <field name="p1_mag_x" type="float"/>
-      <field name="p1_mag_y" type="float"/>
-      <field name="p1_mag_z" type="float"/>
-      <field name="p2_gyro_p" type="float"/>
-      <field name="p2_gyro_r" type="float"/>
-      <field name="p2_gyro_y" type="float"/>
-      <field name="p2_accel_x" type="float"/>
-      <field name="p2_accel_y" type="float"/>
-      <field name="p2_accel_z" type="float"/>
-      <field name="p2_mag_x" type="float"/>
-      <field name="p2_mag_y" type="float"/>
-      <field name="p2_mag_z" type="float"/>
+    <message name="AHRS_DEBUG_QUAT" id="185">
+      <field name="jqi"   type="float"/>
+      <field name="jqx"   type="float"/>
+      <field name="jqy"   type="float"/>
+      <field name="jqz"   type="float"/>
+      <field name="xqi"   type="float"/>
+      <field name="xqx"   type="float"/>
+      <field name="xqy"   type="float"/>
+      <field name="xqz"   type="float"/>
     </message>
 
-    <message name="WHIRLY_IMU_RAW" id="186">
-      <field name="whirly_timestamp"   type="float"/>
-      <field name="p1_gyro_p_raw" type="uint16"/>
-      <field name="p1_gyro_r_raw" type="uint16"/>
-      <field name="p1_gyro_y_raw" type="uint16"/>
-      <field name="p1_accel_x_raw" type="uint16"/>
-      <field name="p1_accel_y_raw" type="uint16"/>
-      <field name="p1_accel_z_raw" type="uint16"/>
-      <field name="p1_mag_x_raw" type="uint16"/>
-      <field name="p1_mag_y_raw" type="uint16"/>
-      <field name="p1_mag_z_raw" type="uint16"/>
-      <field name="p2_gyro_p_raw" type="uint16"/>
-      <field name="p2_gyro_r_raw" type="uint16"/>
-      <field name="p2_gyro_y_raw" type="uint16"/>
-      <field name="p2_accel_x_raw" type="uint16"/>
-      <field name="p2_accel_y_raw" type="uint16"/>
-      <field name="p2_accel_z_raw" type="uint16"/>
-      <field name="p2_mag_x_raw" type="uint16"/>
-      <field name="p2_mag_y_raw" type="uint16"/>
-      <field name="p2_mag_z_raw" type="uint16"/>
+    <message name="BLMC_BUSVOLTS" id="186">
+      <field name="busvolts"	type="uint16[]"/>
     </message>
 
     <message name="WHIRLY_KALMAN_DEBUG" id="187">

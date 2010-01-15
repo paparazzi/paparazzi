@@ -217,7 +217,7 @@ if __name__ == "__main__":
       elif o in ("-m", "--message"):
 	MESSAGE_NAME=a
       elif o in ("-a", "--alt-message"):
-	MESSAGE_NAME = "JOBY_AHRS_DEBUG"
+	MESSAGE_NAME = "AHRS_DEBUG"
   except getopt.error, msg:
       print msg
       print """usage:
