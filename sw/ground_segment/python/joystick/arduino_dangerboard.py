@@ -61,7 +61,7 @@ class arduino_dangerboard():
 
 def main():
   try:
-    foo = dangerboard()
+    foo = arduino_dangerboard()
     foo.poll()
   except KeyboardInterrupt:
     pass

@@ -76,7 +76,7 @@ def GetOptions():
       Usage(sys.argv[0])
       sys.exit()
     elif o in ("-a", "--ac_id"):
-      options['ac_id'].append(int(a))
+      options['ac_id'] = [ int(a) ]
     elif o in ("-s", "--sliders"):
       options['sliders'] = a.split(':')
 
