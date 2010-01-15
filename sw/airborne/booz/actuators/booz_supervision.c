@@ -47,6 +47,8 @@ void supervision_init(void) {
       roll_coef[i]  * SUPERVISION_TRIM_A +
       pitch_coef[i] * SUPERVISION_TRIM_E +
       yaw_coef[i]   * SUPERVISION_TRIM_R;
+    supervision.override_enabled[i] = FALSE;
+    supervision.override_value[i] = SUPERVISION_MIN_MOTOR;
   }
   supervision.nb_failure = 0;
 }
@@ -76,7 +78,7 @@ void supervision_run_spinup(uint32_t counter, uint32_t max_counter)
   }
 }
 
-void supervision_run(bool_t motors_on, int32_t in_cmd[] ) {
+void supervision_run(bool_t motors_on, bool_t override_on, int32_t in_cmd[] ) {
   uint8_t i;
   if (motors_on) {
     int32_t min_cmd = INT32_MAX;
@@ -99,6 +101,14 @@ void supervision_run(bool_t motors_on, int32_t in_cmd[] ) {
       offset_commands(-(min_cmd - SUPERVISION_MIN_MOTOR));
     if (max_cmd > SUPERVISION_MAX_MOTOR)
       offset_commands(-(max_cmd - SUPERVISION_MAX_MOTOR));
+
+    /* For testing motor failure */
+    if (motors_on && override_on) {
+      for (i = 0; i < SUPERVISION_NB_MOTOR; i++) {
+	if (supervision.override_enabled[i])
+	  supervision.commands[i] = supervision.override_value[i];
+      }
+    }
     bound_commands();
   }
   else

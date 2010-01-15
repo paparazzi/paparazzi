@@ -43,7 +43,7 @@ void actuators_init(void) {
 
 void actuators_set(bool_t motors_on) {
 
-  supervision_run(motors_on, booz2_commands);
+  supervision_run(motors_on, FALSE, booz2_commands);
   actuators_mkk.status = BUSY;
   actuators_mkk.i2c_done = FALSE;
   actuators_mkk.idx = 0;
