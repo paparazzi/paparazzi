@@ -66,30 +66,10 @@ let send_aircrafts_msg = fun _asker _values ->
 
 let make_element = fun t a c -> Xml.Element (t,a,c)
 
-let expand_ac_xml = fun ac_conf ->
-  let prefix = fun s -> sprintf "%s/conf/%s" Env.paparazzi_home s in
-  let parse = fun a ->
-    let file = prefix (ExtXml.attrib ac_conf a) in
-    try
-      Xml.parse_file file
-    with
-      Xml.File_not_found _ ->
-	prerr_endline (sprintf "File not found: %s" file);
-	make_element "file_not_found" ["file",a] []
-    | Xml.Error e ->
-	let s = Xml.error e in
-	prerr_endline (sprintf "Parse error in %s: %s" file s);
-	make_element "cannot_parse" ["file",file;"error", s] [] in
-  let fp = parse "flight_plan" in
-  let af = parse "airframe" in
-  let rc = parse "radio" in
-  let children = Xml.children ac_conf@[fp; af; rc] in
-  make_element (Xml.tag ac_conf) (Xml.attribs ac_conf) children
-  
 let log_xml = fun timeofday data_file ->
   let conf_children = 
     List.map
-      (fun x ->	  if Xml.tag x = "aircraft" then expand_ac_xml x else x)
+      (fun x ->	  if Xml.tag x = "aircraft" then Env.expand_ac_xml x else x)
       (Xml.children conf_xml) in
   let expanded_conf = make_element (Xml.tag conf_xml) (Xml.attribs conf_xml) conf_children in
   make_element 
@@ -120,11 +100,14 @@ let logger = fun () ->
 
 
 
-let log = fun logging ac_name msg_name values ->
+let log = fun ?timestamp logging ac_name msg_name values ->
   match logging with
     Some log ->
       let s = string_of_values values in
-      let t = U.gettimeofday () -. start_time in
+      let t = 
+	match timestamp with
+	  Some x -> x
+	| None   -> U.gettimeofday () -. start_time in
       fprintf log "%.3f %s %s %s\n" t ac_name msg_name s; flush log
   | None -> ()
 
@@ -132,11 +115,12 @@ let log = fun logging ac_name msg_name values ->
 (** Callback for a message from a registered A/C *)
 let ac_msg = fun messages_xml logging ac_name ac ->
   let module Tele_Pprz = Pprz.MessagesOfXml(struct let xml = messages_xml let name="telemetry" end) in
-  fun m ->
+  fun ts m ->
     try
+      let timestamp = try Some (float_of_string ts) with _ -> None in
       let (msg_id, values) = Tele_Pprz.values_of_string m in
       let msg = Tele_Pprz.message_of_id msg_id in
-      log logging ac_name msg.Pprz.name values;
+      log ?timestamp logging ac_name msg.Pprz.name values;
       Fw_server.log_and_parse ac_name ac msg values;
       Booz_server.log_and_parse ac_name ac msg values
     with
@@ -448,6 +432,10 @@ let new_aircraft = fun get_alive_md5sum real_id ->
   let ac_name = ExtXml.attrib conf "name" in
   let var_aircraft_dir = Env.paparazzi_home // root_dir // "var" // ac_name in
 
+  if not (Sys.file_exists var_aircraft_dir) then begin
+    (* Let's look for a backup configuration with the md5 signature *)
+  end;
+
   let fp_file =  var_aircraft_dir // "flight_plan.xml" in
   let xml_fp = ExtXml.child (Xml.parse_file fp_file) "flight_plan" in
 
@@ -548,7 +536,7 @@ let ident_msg = fun log name vs ->
       let get_md5sum = fun () -> Pprz.assoc "md5sum" vs in
       let ac, messages_xml = new_aircraft get_md5sum name in
       let ac_msg_closure = ac_msg messages_xml log name ac in
-      let _b = Ivy.bind (fun _ args -> ac_msg_closure args.(0)) (sprintf "^%s +(.*)" name) in
+      let _b = Ivy.bind (fun _ args -> ac_msg_closure args.(1) args.(2)) (sprintf "^(([0-9]+\\.[0-9]+) )?%s +(.*)" name) in
       register_aircraft name ac;
       Ground_Pprz.message_send my_id "NEW_AIRCRAFT" ["ac_id", Pprz.String name]
   with
@@ -568,7 +556,7 @@ let listen_acs = fun log ->
 let send_config = fun http _asker args ->
   let ac_id' = Pprz.string_assoc "ac_id" args in
   try
-    let is_replayed, ac_id, root_dir, conf_xml = replayed ac_id' in
+    let _is_replayed, ac_id, root_dir, conf_xml = replayed ac_id' in
 
     let conf = ExtXml.child conf_xml "aircraft" ~select:(fun x -> ExtXml.attrib x "ac_id" = ac_id) in
     let ac_name = ExtXml.attrib conf "name" in
@@ -668,7 +656,7 @@ let ground_to_uplink = fun logging ->
 
 
 (* main loop *)
-let _ =
+let () =
   let ivy_bus = ref "127.255.255.255:2010"
   and logging = ref true
   and http = ref false in
@@ -682,7 +670,9 @@ let _ =
       "-n", Arg.Clear logging, "Disable log";
       "-no_md5_check", Arg.Set no_md5_check, "Disable safety matching of live and current configurations";
       "-replay_old_log", Arg.Set replay_old_log, "Enable aircraft registering on PPRZ_MODE messages"] in
-  Arg.parse (options)
+
+  Arg.parse
+    options
     (fun x -> Printf.fprintf stderr "%s: Warning: Don't do anything with '%s' argument\n" Sys.argv.(0) x)
     "Usage: ";
 
@@ -694,16 +684,17 @@ let _ =
   let logging = 
     if !logging then
       (* Opens the log file *)
-      let log = logger () in
-      (* Waits for new simulated aircrafts *)
-      (Some log)
+      Some (logger ())
     else
       None in
+
+  (* Waits for new aircrafts *)
   listen_acs logging;
 
+  (* Forward messages from ground agents to vehicles *)
   ground_to_uplink logging;
 
-  (* Waits for client requests on the Ivy bus *)
+  (* Waits for client configurations requests on the Ivy bus *)
   ivy_server !http;
   
   let loop = Glib.Main.create true in
