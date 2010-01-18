@@ -409,7 +409,7 @@ module type MESSAGES = sig
   val string_of_message : ?sep:string -> message -> values -> string
   (** [string_of_message ?sep msg values] Default [sep] is space *)
 
-  val message_send : string -> string -> values -> unit
+  val message_send : ?timestamp:float -> string -> string -> values -> unit
   (** [message_send sender msg_name values] *)
 
   val message_bind : ?sender:string ->string -> (string -> values -> unit) -> Ivy.binding
@@ -521,10 +521,14 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 	   formatted_string_of_value field.fformat v)
 	 msg.fields)
 
-  let message_send = fun sender msg_name values ->
+  let message_send = fun ?timestamp sender msg_name values ->
     let m = snd (message_of_name msg_name) in
     let s = string_of_message m values in
-    let msg = sprintf "%s %s" sender s in
+    let timestamp_string =
+      match timestamp with
+	None -> ""
+      | Some x -> sprintf "%f " x in
+    let msg = sprintf "%s%s %s" timestamp_string sender s in
     let n = String.length msg in
     if n > 1000 then (** FIXME: to prevent Ivy bug on long message *)
       fprintf stderr "Discarding long ivy message (%d bytes)\n%!" n
@@ -536,15 +540,15 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
       None ->
 	Ivy.bind 
 	  (fun _ args -> 
-	    let values = try snd (values_of_string args.(1)) with exc -> prerr_endline (Printexc.to_string exc); [] in
-	    cb args.(0) values) 
-	  (sprintf "^([^ ]*) +(%s( .*|$))" msg_name)
+	    let values = try snd (values_of_string args.(2)) with exc -> prerr_endline (Printexc.to_string exc); [] in
+	    cb args.(1) values) 
+	  (sprintf "^([0-9]+\\.[0-9]+ )?([^ ]*) +(%s( .*|$))" msg_name)
     | Some s ->
 	Ivy.bind
 	  (fun _ args -> 
-	    let values = try snd (values_of_string args.(0)) with  exc -> prerr_endline (Printexc.to_string exc); [] in
+	    let values = try snd (values_of_string args.(1)) with  exc -> prerr_endline (Printexc.to_string exc); [] in
 	    cb s values)
-	  (sprintf "^%s +(%s( .*|$))" s msg_name)
+	  (sprintf "^([0-9]+\\.[0-9]+ )?%s +(%s( .*|$))" s msg_name)
 
   let message_answerer = fun sender msg_name cb ->
     let ivy_cb = fun _ args ->
