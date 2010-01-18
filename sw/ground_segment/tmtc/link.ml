@@ -66,6 +66,15 @@ let udp_uplink_port = ref 4243
 (* Enable trafic statistics on standard output *)
 let gen_stat_trafic = ref false
 
+let add_timestamp = ref None
+
+let send_message_over_ivy = fun sender name vs ->
+  let timestamp =
+    match !add_timestamp with
+      None -> None
+    | Some start_time -> Some (Unix.gettimeofday () -. start_time) in
+  Tm_Pprz.message_send ?timestamp sender name vs
+
 let ios = int_of_string
 let (//) = Filename.concat
 let conf_dir = Env.paparazzi_home // "conf"
@@ -162,7 +171,7 @@ let send_status_msg =
 		"rx_msgs", Pprz.Int status.rx_msg;
 		"ping_time", Pprz.Float (1000. *. (status.last_pong -. status.last_ping))
 	      ] in
-      Tm_Pprz.message_send (string_of_int ac_id) "DOWNLINK_STATUS" vs)
+      send_message_over_ivy (string_of_int ac_id) "DOWNLINK_STATUS" vs)
       statuss 
 
 
@@ -208,7 +217,7 @@ let use_tele_message = fun ?udp_peername ?raw_data_size payload ->
   try
     let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
     let msg = Tm_Pprz.message_of_id msg_id in
-    Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values;
+    send_message_over_ivy (string_of_int ac_id) msg.Pprz.name values;
     update_status ?udp_peername ac_id raw_data_size (msg.Pprz.name = "PONG")
   with
     exc ->
@@ -473,6 +482,7 @@ let () =
       "-noac_info", Arg.Clear ac_info, (sprintf "Disables AC traffic info (uplink).");
       "-nouplink", Arg.Clear uplink, (sprintf "Disables the uplink (from the ground to the aircraft).");
       "-s", Arg.Set_string baudrate, (sprintf "<baudrate>  Default is %s" !baudrate);
+      "-timestamp", Arg.Unit (fun () -> add_timestamp := Some (Unix.gettimeofday ())), "Add timestamp to messages sent over ivy";
       "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz and xbee. Default is %s" !transport);
       "-udp", Arg.Set udp, "Listen a UDP connection on <udp_port>";
       "-udp_port", Arg.Set_int udp_port, (sprintf "<UDP port> Default is %d" !udp_port);
