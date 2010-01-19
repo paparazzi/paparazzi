@@ -19,6 +19,7 @@
 #define CSC_GPS_ACC_ID	      9
 #define CSC_PROP2_CMD_ID       10
 #define CSC_VANE_MSG_ID       11
+#define CSC_AIRSPEED_MSG_ID   12
 
 
 /* Received from the autopilot */
@@ -77,6 +78,11 @@ struct CscGPSAccMsg {
 struct CscVaneMsg {
   float vane_angle1;
   float vane_angle2;
+} __attribute__((packed));
+
+struct CscAirspeedMsg {
+  float airspeed1;
+  float airspeed2;
 } __attribute__((packed));
 
 #define CSC_RC_SCALE 20

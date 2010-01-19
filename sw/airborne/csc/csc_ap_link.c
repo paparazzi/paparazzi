@@ -47,6 +47,18 @@ void csc_ap_link_send_vane(float *vane_angles)
 }
 
 
+void csc_ap_link_send_airspeed(float airspeed1, float airspeed2)
+{
+
+  struct CscAirspeedMsg msg;
+
+  msg.airspeed1 = airspeed1;
+  msg.airspeed2 = airspeed2;
+
+  csc_ap_send_msg(CSC_AIRSPEED_MSG_ID, (const uint8_t *) &msg, sizeof(msg));
+}
+
+
 // Generic function for sending can messages
 void can_write_csc(uint8_t board_id, uint8_t msg_id, const uint8_t *buf, uint8_t len)
 {

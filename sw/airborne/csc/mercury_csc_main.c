@@ -50,6 +50,7 @@
 #include "periodic.h"
 #include "downlink.h"
 #include "pwm_input.h"
+#include "csc_airspeed.h"
 
 #include "csc_adc.h"
 #include "csc_rc_spektrum.h"
@@ -173,6 +174,7 @@ static void csc_main_periodic( void ) {
 
 #ifdef USE_AIRSPEED
   airspeed_update();
+  csc_airspeed_periodic();
 #endif
 }
 
