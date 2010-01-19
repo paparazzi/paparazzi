@@ -46,6 +46,14 @@ static void buss_twi_blmc_send_next()
   i2c0_transmit(buss_twi_blmc_addr[buss_twi_blmc_idx], 1, &buss_twi_blmc_i2c_done); 
 }
 
+void motors_commit_next( void )
+{
+    buss_twi_blmc_idx++;				
+    if (buss_twi_blmc_idx < BUSS_TWI_BLMC_NB_SEND)
+      buss_twi_blmc_send_next();
+    else						
+      buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_IDLE;	
+}
 
 void motors_commit(int force)
 {
@@ -66,15 +74,6 @@ void motors_callback_nop()
 {
   // do nothing...
   // We don't use this to kick the next command automatically anymore
-}
-
-static void motors_commit_next()
-{
-    buss_twi_blmc_idx++;				
-    if (buss_twi_blmc_idx < BUSS_TWI_BLMC_NB_SEND)
-      buss_twi_blmc_send_next();
-    else						
-      buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_IDLE;	
 }
 
 void motors_event( void )
