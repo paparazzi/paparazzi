@@ -1357,6 +1357,7 @@
     <message name="VANE_SENSOR" id="191">
       <field name="alpha"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
       <field name="beta"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+      <field name="alpha_target"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
     </message>
 
     <message name="CONTROLLER_GAINS" id="192">
