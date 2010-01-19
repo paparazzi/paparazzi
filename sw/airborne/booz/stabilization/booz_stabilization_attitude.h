@@ -38,6 +38,9 @@ extern void booz_stabilization_attitude_run(bool_t  in_flight);
 extern void booz_stabilization_attitude_ref_init(void);
 extern void booz_stabilization_attitude_ref_update(void);
 
+extern float booz_stabilization_attitude_beta_vane_gain;
+extern float booz_stabilization_attitude_alpha_vane_gain;
+
 
 #define booz_stabilization_attitude_SetKiPhi(_val) {	\
     booz_stabilization_igain.x = _val;			\

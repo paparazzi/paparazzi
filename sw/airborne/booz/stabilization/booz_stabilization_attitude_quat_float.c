@@ -41,6 +41,9 @@ struct FloatEulers booz_stabilization_att_sum_err;
 float booz_stabilization_att_fb_cmd[COMMANDS_NB];
 float booz_stabilization_att_ff_cmd[COMMANDS_NB];
 
+float booz_stabilization_attitude_beta_vane_gain;
+float booz_stabilization_attitude_alpha_vane_gain;
+
 
 void booz_stabilization_attitude_init(void) {
 
@@ -68,6 +71,11 @@ void booz_stabilization_attitude_init(void) {
 
   FLOAT_QUAT_ZERO( booz_stabilization_sum_err );
   FLOAT_EULERS_ZERO( booz_stabilization_att_sum_err );
+
+#ifdef USE_VANE
+  booz_stabilization_attitude_alpha_vane_gain = BOOZ_STABILIZATION_ATTITUDE_ALPHA_VANE_T;
+  booz_stabilization_attitude_beta_vane_gain = BOOZ_STABILIZATION_ATTITUDE_BETA_VANE_T;
+#endif
 
 }
 
@@ -149,7 +157,8 @@ void booz_stabilization_attitude_read_beta_vane(float beta)
   struct FloatEulers sticks_eulers;
   struct FloatQuat sticks_quat, prev_sp_quat;
 
-  sticks_eulers.phi = BOOZ_STABILIZATION_ATTITUDE_BETA_VANE_T * beta / RC_UPDATE_FREQ;
+
+  sticks_eulers.phi = booz_stabilization_attitude_beta_vane_gain * beta / RC_UPDATE_FREQ;
   sticks_eulers.theta = 0;
   sticks_eulers.psi = 0;
 
@@ -166,7 +175,7 @@ void booz_stabilization_attitude_read_alpha_vane(float alpha)
   struct FloatEulers sticks_eulers;
   struct FloatQuat sticks_quat, prev_sp_quat;
   sticks_eulers.phi = 0;
-  sticks_eulers.theta = BOOZ_STABILIZATION_ATTITUDE_ALPHA_VANE_T * alpha / RC_UPDATE_FREQ;
+  sticks_eulers.theta = booz_stabilization_attitude_alpha_vane_gain * alpha / RC_UPDATE_FREQ;
   sticks_eulers.psi = 0;
 
   // convert eulers to quaternion
