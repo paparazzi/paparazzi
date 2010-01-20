@@ -63,7 +63,7 @@ static inline void on_prop_cmd(struct CscPropCmd *msg, int idx);
 
 #define SERVO_TIMEOUT (SYS_TICS_OF_SEC(0.1) / PERIODIC_TASK_PERIOD)
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
-#define AIRSPEED_TIMEOUT (SYS_TICS_OF_SEC(0.05) / PERIODIC_TASK_PERIOD)
+#define AIRSPEED_TIMEOUT (SYS_TICS_OF_SEC(0.01) / PERIODIC_TASK_PERIOD)
 
 static uint32_t servo_cmd_timeout = 0;
 static uint32_t can_msg_count = 0;
@@ -170,11 +170,13 @@ static void csc_main_periodic( void ) {
 #ifdef USE_AIRSPEED_ETS
     airspeed_ets_read();
 #endif
+#ifdef USE_AIRSPEED
+    csc_airspeed_periodic();
+#endif
   }
 
 #ifdef USE_AIRSPEED
   airspeed_update();
-  csc_airspeed_periodic();
 #endif
 }
 
