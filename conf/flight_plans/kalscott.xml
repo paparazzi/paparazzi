@@ -1,16 +1,15 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan alt="100" ground_alt="0" lat0="43.46223" lon0="1.27289" max_dist_from_home="1500" name="Basic" security_height="25">
+<flight_plan alt="100" ground_alt="0" lat0="38.9159" lon0="-95.3207" max_dist_from_home="1500" name="KalScott" security_height="25">
   <header>
-#include "nav_line.h"
-#include "datalink.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
-    <waypoint name="CIRCLE" x="49.5" y="100.1"/>
-    <waypoint name="1" x="10.1" y="189.9"/>
-    <waypoint name="2" x="132.3" y="139.1"/>
-    <waypoint name="CLIMB" x="-114.5" y="162.3"/>
+    <waypoint name="CIRCLE" x="0" y="5"/>
+    <waypoint name="1" x="-100" y="105"/>
+    <waypoint name="2" x="100" y="105"/>
+    <waypoint name="3" x="100" y="-95"/>
+    <waypoint name="CLIMB" x="0" y="100"/>
   </waypoints>
   <exceptions/>
   <blocks>
@@ -39,24 +38,37 @@
       <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+300" until="NavCircleCount() > 2"/>
       <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+400" until="estimator_z > ground_alt+395"/>
       <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+400" until="NavCircleCount() > 2"/>
-      <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+300" until="estimator_z > ground_alt+305"/>
+      <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+300" until="ground_alt+305 > estimator_z"/>
       <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+300" until="NavCircleCount() > 2"/>
-      <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+200" until="estimator_z > ground_alt+205"/>
+      <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+200" until="ground_alt+205 > estimator_z"/>
       <circle radius="nav_radius" wp="CIRCLE" alt="ground_alt+200" until="NavCircleCount() > 2"/>
       <deroute block="Circle"/>
     </block>
-   <block name="Racetrack 1-2" strip_button="Racetrack (wp 1-2)" strip_icon="oval.png">
+   <block name="Racetrack E-W" strip_button="Racetrack E-W" strip_icon="oval.png">
       <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+200" until="estimator_z > ground_alt+195"/>
       <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+200" until="nav_oval_count > 2"/>
       <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+300" until="estimator_z > ground_alt+295"/>
       <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+300" until="nav_oval_count > 2"/>
       <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+400" until="estimator_z > ground_alt+395"/>
       <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+400" until="nav_oval_count > 2"/>
-      <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+300" until="estimator_z > ground_alt+305"/>
+      <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+300" until="ground_alt+305 > estimator_z"/>
       <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+300" until="nav_oval_count > 2"/>
-      <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+200" until="estimator_z > ground_alt+205"/>
+      <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+200" until="ground_alt+205 > estimator_z"/>
       <oval p1="1" p2="2" radius="nav_radius" alt="ground_alt+200" until="nav_oval_count > 2"/>
-      <deroute block="Racetrack 1-2"/>
+      <deroute block="Racetrack E-W"/>
+    </block>
+    <block name="Racetrack N-S" strip_button="Racetrack N-S" strip_icon="oval.png">
+      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+200" until="estimator_z > ground_alt+195"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+200" until="nav_oval_count > 2"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+300" until="estimator_z > ground_alt+295"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+300" until="nav_oval_count > 2"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+400" until="estimator_z > ground_alt+395"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+400" until="nav_oval_count > 2"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+300" until="ground_alt+305 > estimator_z"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+300" until="nav_oval_count > 2"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+200" until="ground_alt+305 > estimator_z"/>
+      <oval p1="2" p2="3" radius="nav_radius" alt="ground_alt+200" until="nav_oval_count > 2"/>
+      <deroute block="Racetrack N-S"/>
     </block>
   </blocks>
 </flight_plan>
