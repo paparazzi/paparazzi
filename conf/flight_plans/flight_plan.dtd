@@ -184,7 +184,10 @@ until CDATA #IMPLIED>
 <!ATTLIST eight
 center CDATA #REQUIRED
 turn_around CDATA #REQUIRED
+alt CDATA #IMPLIED
+until CDATA #IMPLIED
 radius CDATA #REQUIRED>
+
 
 <!ATTLIST oval
 p1 CDATA #REQUIRED
@@ -193,6 +196,7 @@ vmode CDATA #IMPLIED
 pitch CDATA #IMPLIED
 throttle CDATA #IMPLIED
 radius CDATA #REQUIRED
+alt CDATA #IMPLIED
 until CDATA #IMPLIED>
 
 <!ATTLIST survey_rectangle
