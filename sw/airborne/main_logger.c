@@ -294,7 +294,7 @@ void log_xbee(unsigned char c, unsigned char source)
     for (i = 0; i < xbeel_payload_len-XBEE_RFDATA_OFFSET; i++) {
       log_buffer[i+LOG_DATA_OFFSET] = xbeel_payload[i+XBEE_RFDATA_OFFSET];
     }
-    log_payload(xbeel_payload_len-XBEE_RFDATA_OFFSET, source, xbeel_timestamp);
+//mmm    log_payload(xbeel_payload_len-XBEE_RFDATA_OFFSET, source, xbeel_timestamp);
     LED_TOGGLE(3);
     goto restart;
   }
@@ -383,29 +383,28 @@ int do_log(void)
     {
 
 #ifdef USE_MAX11040
-      if (max11040_data == MAX11040_DATA_AVAILABLE) {
+      if (max11040_buf_in != max11040_buf_out) {
 //        LED_TOGGLE(3);
         int i;
+
+        max11040_data = MAX11040_IDLE;
 
         log_buffer[LOG_DATA_OFFSET+0] = 100; // sender_id;
         log_buffer[LOG_DATA_OFFSET+1] = 61;  // message_id;
 
-        for (i=0; i<16; i++) {
-          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 0] = (max11040_values[i]      ) & 0xFF;
-          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 1] = (max11040_values[i] >> 8 ) & 0xFF;
-          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 2] = (max11040_values[i] >> 16) & 0xFF;
-          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 3] = (max11040_values[i] >> 24) & 0xFF;
+	while(max11040_buf_in != max11040_buf_out) {
+          for (i=0; i<16; i++) {
+            log_buffer[LOG_DATA_OFFSET+2 + i*4 + 0] = (max11040_values[max11040_buf_out][i]      ) & 0xFF;
+            log_buffer[LOG_DATA_OFFSET+2 + i*4 + 1] = (max11040_values[max11040_buf_out][i] >> 8 ) & 0xFF;
+            log_buffer[LOG_DATA_OFFSET+2 + i*4 + 2] = (max11040_values[max11040_buf_out][i] >> 16) & 0xFF;
+            log_buffer[LOG_DATA_OFFSET+2 + i*4 + 3] = (max11040_values[max11040_buf_out][i] >> 24) & 0xFF;
 
-#if 0
-          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 0] = i*4;
-          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 1] = i*4+1;
-          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 2] = i*4+2;
-          log_buffer[LOG_DATA_OFFSET+2 + i*4 + 3] = i*4+3;
-#endif
-
-        }
-        log_payload(2 + 16 * 4, LOG_SOURCE_UART0, max11040_timestamp);
-        max11040_data = MAX11040_IDLE;
+          }
+          log_payload(2 + 16 * 4, LOG_SOURCE_UART0, max11040_timestamp[max11040_buf_out]);
+	  i = max11040_buf_out+1;
+	  if (i >= MAX11040_BUF_SIZE) i=0;
+          max11040_buf_out = i;
+   	}
       }
 #endif
 

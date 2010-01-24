@@ -50,7 +50,7 @@ void EXTINT_ISR(void) {
 //LED_TOGGLE(3);
 
 #ifdef LOGGER
-    max11040_timestamp = getclock();
+    max11040_timestamp[max11040_buf_in] = getclock();
 #endif
 
     MaxmSelect();

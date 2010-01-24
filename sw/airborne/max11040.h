@@ -7,6 +7,7 @@
 
 #define MAXM_NB_CHAN 16
 #define MAXM_NB_ADCS ((MAXM_NB_CHAN+3)/4)
+#define MAX11040_BUF_SIZE 320
 
 extern void max11040_init_ssp(void);
 extern void max11040_init( void );
@@ -18,9 +19,11 @@ extern void max11040_hw_init( void );
 
 extern volatile uint8_t max11040_status;
 extern volatile uint8_t max11040_data;
-extern volatile int32_t max11040_values[MAXM_NB_CHAN];
+extern volatile int32_t max11040_values[MAX11040_BUF_SIZE][MAXM_NB_CHAN];
+extern volatile uint32_t max11040_timestamp[MAX11040_BUF_SIZE];
 extern volatile uint8_t max11040_count;
-extern volatile uint32_t max11040_timestamp;
+extern volatile uint32_t max11040_buf_in;
+extern volatile uint32_t max11040_buf_out;
 
 
 #define MAX11040_RESET      0

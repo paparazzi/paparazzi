@@ -1,12 +1,13 @@
 
 #include "max11040.h"
 
-
 volatile uint8_t max11040_status;
 volatile uint8_t max11040_data;
-volatile int32_t max11040_values[MAXM_NB_CHAN] = {0};
+volatile int32_t max11040_values[MAX11040_BUF_SIZE][MAXM_NB_CHAN] = {{0}};
+volatile uint32_t max11040_timestamp[MAX11040_BUF_SIZE] = {0};
 volatile uint8_t max11040_count = 0;
-volatile uint32_t max11040_timestamp = 0;
+volatile uint32_t max11040_buf_in = 0;
+volatile uint32_t max11040_buf_out = 0;
 
 static void SSP_ISR(void) __attribute__((naked));
 
@@ -162,19 +163,19 @@ static void SSP_ISR(void) {
 
       if (max11040_count == 0) foo = SSPDR;
 
-      max11040_values[max11040_count]  = SSPDR << 16;
-      max11040_values[max11040_count] |= SSPDR << 8;
-      max11040_values[max11040_count] |= SSPDR;
-      if (max11040_values[max11040_count] & 0x800000) 
-        max11040_values[max11040_count] |= 0xFF000000;
+      max11040_values[max11040_buf_in][max11040_count]  = SSPDR << 16;
+      max11040_values[max11040_buf_in][max11040_count] |= SSPDR << 8;
+      max11040_values[max11040_buf_in][max11040_count] |= SSPDR;
+      if (max11040_values[max11040_buf_in][max11040_count] & 0x800000) 
+        max11040_values[max11040_buf_in][max11040_count] |= 0xFF000000;
 
       max11040_count++;
 
-      max11040_values[max11040_count]  = SSPDR << 16;
-      max11040_values[max11040_count] |= SSPDR << 8;
-      max11040_values[max11040_count] |= SSPDR;
-      if (max11040_values[max11040_count] & 0x800000) 
-        max11040_values[max11040_count] |= 0xFF000000;
+      max11040_values[max11040_buf_in][max11040_count]  = SSPDR << 16;
+      max11040_values[max11040_buf_in][max11040_count] |= SSPDR << 8;
+      max11040_values[max11040_buf_in][max11040_count] |= SSPDR;
+      if (max11040_values[max11040_buf_in][max11040_count] & 0x800000) 
+        max11040_values[max11040_buf_in][max11040_count] |= 0xFF000000;
 
       max11040_count++;
 
@@ -182,6 +183,13 @@ static void SSP_ISR(void) {
       {
         MaxmUnselect();
         max11040_data = MAX11040_DATA_AVAILABLE;
+        i = max11040_buf_in+1;
+        if (i >= MAX11040_BUF_SIZE) i=0;
+        if (i != max11040_buf_out) {
+          max11040_buf_in = i;
+ 	} else {
+          max11040_buf_in = i;
+	}
       }
     }
     break;
