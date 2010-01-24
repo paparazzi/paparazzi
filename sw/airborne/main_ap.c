@@ -551,7 +551,8 @@ void periodic_task_ap( void ) {
   if (max11040_data == MAX11040_DATA_AVAILABLE) {
     LED_TOGGLE(3);
     for (i=0; i<16; i++) {
-      max11040_values_f[i] = (max11040_values[i] * 2.2) / 8388608.0;
+      /* we assume that the buffer will be full always in this test mode anyway */
+      max11040_values_f[i] = (max11040_values[max11040_buf_in][i] * 2.2) / 8388608.0;
     }
 
     DOWNLINK_SEND_TURB_PRESSURE_VOLTAGE(

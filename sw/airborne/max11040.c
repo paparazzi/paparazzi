@@ -188,7 +188,7 @@ static void SSP_ISR(void) {
         if (i != max11040_buf_out) {
           max11040_buf_in = i;
  	} else {
-          max11040_buf_in = i;
+          //throw error;
 	}
       }
     }
