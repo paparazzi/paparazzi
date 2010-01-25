@@ -294,7 +294,8 @@ void log_xbee(unsigned char c, unsigned char source)
     for (i = 0; i < xbeel_payload_len-XBEE_RFDATA_OFFSET; i++) {
       log_buffer[i+LOG_DATA_OFFSET] = xbeel_payload[i+XBEE_RFDATA_OFFSET];
     }
-//mmm    log_payload(xbeel_payload_len-XBEE_RFDATA_OFFSET, source, xbeel_timestamp);
+// do not log as broken
+//    log_payload(xbeel_payload_len-XBEE_RFDATA_OFFSET, source, xbeel_timestamp);
     LED_TOGGLE(3);
     goto restart;
   }
@@ -383,7 +384,8 @@ int do_log(void)
     {
 
 #ifdef USE_MAX11040
-      if (max11040_buf_in != max11040_buf_out) {
+      if ((max11040_data == MAX11040_DATA_AVAILABLE) &&
+          (max11040_buf_in != max11040_buf_out)) {
 //        LED_TOGGLE(3);
         int i;
 
