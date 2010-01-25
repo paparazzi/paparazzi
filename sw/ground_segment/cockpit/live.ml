@@ -819,7 +819,7 @@ let check_approaching = fun ac geo alert ->
   match ac.track#last with
     None -> ()
   | Some ac_pos ->
-      let d = LL.utm_distance (LL.utm_of WGS84 ac_pos) (LL.utm_of WGS84 geo) in
+      let d = LL.wgs84_distance ac_pos geo in
       if d < ac.speed *. approaching_alert_time then
 	log_and_say alert ac.ac_name (sprintf "%s, approaching" ac.ac_name)
 
@@ -1042,7 +1042,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
     (* Estimated Time Arrival to next waypoint *)
     let d = Pprz.float_assoc "dist_to_wp" vs in
     let label = 
-      if d = ac.last_dist_to_wp || ac.speed = 0. then
+      if d = 0. || ac.speed = 0. then
 	"N/A"
       else
 	sprintf "%.0fs" (d /. ac.speed) in

@@ -61,8 +61,6 @@ let valid_geo = fun {posn_long = lambda; posn_lat = phi} ->
 
 type angle_unit = Semi | Rad | Deg | Grd
 
-type cartesian = {x : float; y : float; z: float }
-
 let piradian = function
   Semi -> 2. ** 31. | Rad -> pi | Deg -> 180. | Grd -> 200.
 let (>>) u1 u2 x = (x *. piradian u2) /. piradian u1;;
@@ -112,6 +110,7 @@ let ntf = { dx = -168.; dy = -60.; dz = 320. ; a = 6378249.2; df = 0.00340754952
 let wgs84 = { dx = 0.; dy = 0.; dz = 0. ; a = 6378137.0; df = 0.0033528106647474805 ; e = 0.08181919106}
 let ed50 = { dx = -87.0; dy = -98.0; dz = -121.0 ; a = 6378388.0; df = 0.003367003367003367 ; e = 0.08199188998}
 let nad27 = { dx = 0.0; dy = 125.0; dz = 194.0 ; a = wgs84.a-. -.69.4; df = wgs84.df-. -0.37264639 /. 1e4 ; e = 0.08181919106(*** ??? ***)}
+let grs80 = { dx = 0.; dy = 0.; dz = 0. ; a = 6378137.0; df = 0.00335281068118231879 ; e = 0.0818191910428151675}
 
 type geodesic = NTF | ED50 | WGS84 | NAD27
 type ntf = geographic
@@ -132,16 +131,17 @@ let inverse_latitude_isometrique lat e epsilon =
     if abs_float (phi' -. phi) < epsilon then phi' else loop phi' in
   loop phi0;;
 
+(* http://professionnels.ign.fr/DISPLAY/000/526/700/5267002/transformation.pdf *)
+
 type lambert_zone = {
     ellipsoid : ellipsoid;
     phi0 : radian;
-    lphi0 : float;
-    r0 : float;
+    c : float;
     lambda0 : radian;
     y0 : int;
     x0 : int;
     ys : int;
-    k0 : float (* facteur d'échelle *)
+    n : float
   }
 
 type meter = int
@@ -154,62 +154,73 @@ module Ellipse = struct
   let e_prime_square d = 1.0 /. (1.0 -. d) ** 2.0 -. 1.0;;
 end
 
-(* From http://www.tandt.be/wis/WiS/eqntf.html et http://www.ign.fr/MP/GEOD/geodesie/coordonnees.html *)
-let lambertI = {
-  ellipsoid = ntf;
-  lambda0 = (Deg>>Rad) (decimal 2 20 14.025);
-  phi0 = (Deg>>Rad) (decimal 49 30 0.);
-  x0 = 600000;
-  y0 = 200000;
-  ys = 5657617;
-  lphi0 = 0.991996665;
-  r0 = 5457616.674;
-  k0 = 0.99987734
-};;
+(* From http://www.winnepenninckx.com/Geo/WiS/eqntf.html et http://www.ign.fr/DISPLAY/000/526/701/5267019/NTG_71.pdf *)
+let lambertI =
+  let phi0 = (Deg>>Rad) (decimal 49 30 0.) in
+  { ellipsoid = ntf;
+    lambda0 = (Deg>>Rad) (decimal 2 20 14.025);
+    phi0 = phi0;
+    x0 = 600000;
+    y0 = 200000;
+    ys = 5657617;
+    c = 11603796.98;
+    n = sin phi0 (* tangent projection *) 
+  };;
 
-let lambertII = {
-  ellipsoid = ntf;
-  lambda0 = (Deg>>Rad) (decimal 2 20 14.025);
-  phi0 = (Deg>>Rad) (decimal 46 48 0.);
-  x0 = 600000;
-  y0 = 2200000;
-  ys = 6199696;
-  lphi0 = 0.921557361;
-  r0 = 5999695.77;
-  k0 = 0.99987742};;
+let lambertII = 
+  let phi0 = (Deg>>Rad) (decimal 46 48 0.) in
+  { ellipsoid = ntf;
+    lambda0 = (Deg>>Rad) (decimal 2 20 14.025);
+    phi0 = phi0;
+    x0 = 600000;
+    y0 = 2200000;
+    ys = 6199696;
+    c = 11745793.39;
+    n = sin phi0 (* tangent projection *) 
+  };;
 
 let lambertIIe = { lambertII with ys = 8199696 };;
 
-let lambertIII = {
-  ellipsoid = ntf;
-  lambda0 = (Deg>>Rad) (decimal 2 20 14.025);
-  phi0 = (Deg>>Rad) (decimal 44 6 0.);
-  x0 = 600000;
-  y0 = 3200000;
-  ys = 6791905;
-  lphi0 = 0.854591098;
-  r0 = 6591905.08;
-  k0 = 0.99987750};;
+let lambertIII =
+  let phi0 = (Deg>>Rad) (decimal 44 6 0.) in
+  { ellipsoid = ntf;
+    lambda0 = (Deg>>Rad) (decimal 2 20 14.025);
+    phi0 = phi0;
+    x0 = 600000;
+    y0 = 3200000;
+    ys = 6791905;
+    c = 11947992.52;
+    n = sin phi0 (* tangent projection *) 
+  };;
 
-let lambertIV = {
-  ellipsoid = ntf;
-  lambda0 = (Deg>>Rad) (decimal 2 20 14.025);
-  phi0 = (Deg>>Rad) (decimal 42 09 54.);
-  x0 = 234;
-  y0 = 4185861;
-  ys = 7239162;
-  lphi0 = 0.808475773;
-  r0 = 7053300.18;
-  k0 = 0.99994471
+let lambertIV =
+  let phi0 = (Deg>>Rad) (decimal 42 09 54.) in
+  {
+   ellipsoid = ntf;
+   lambda0 = (Deg>>Rad) (decimal 2 20 14.025);
+   phi0 = phi0;
+   x0 = 234;
+   y0 = 4185861;
+   ys = 7239162;
+   c = 12136281.99;
+   n = sin phi0;    (* tangent projection *) 
+ };;
+
+let lambert93 = {
+  ellipsoid = grs80;
+  lambda0 = (Deg>>Rad) (decimal 3 0 0.0);
+  phi0 = (Deg>>Rad) (decimal 46 30 0.);
+  x0 = 700000;
+  y0 = 6600000;
+  ys = 12655612;
+  c = 11754255.426;
+  n = 0.725607765053268738 (* Secant projection *)
 };;
 
-let lambert_n l = sin l.phi0
+let lambert_n l = l.n
 
+let lambert_c = fun l -> l.c
 
-let lambert_c l =
-  let n = lambert_n l in
-  l.r0 *. exp (l.lphi0 *. n)
-  
 
 let of_lambert l { lbt_x = x; lbt_y = y } =
   let c = lambert_c l and n = lambert_n l in
@@ -378,33 +389,6 @@ let (<<) geo1 geo2 ({posn_long = lambda; posn_lat = phi} as pos) =
   let d4 = atan2 d24 d23 in
   make_geo d3 d4
 
-let cartesian_of ellips ({posn_long = lambda; posn_lat = phi} as pos) h =
-  if not (valid_geo pos) || h < 0. then
-    invalid_arg "Latlong.(<<)";
-  let geo = ellipsoid_of ellips in
-  let w = sqrt (1. -. geo.e**2. *. sin phi ** 2.)in
-  let n = geo.a /. w in
-  let x = (n+.h) *. cos phi *. cos lambda
-  and y = (n+.h) *. cos phi *. sin lambda
-  and z = (n*.(1.-.geo.e**2.)+.h) *. sin phi in
-  { x = x; y = y; z = z}
-
-let of_cartesian ellips {x=x;y=y;z=z} =
-  let geo = ellipsoid_of ellips in
-  let epsilon = 1e-11 in
-  let xy = sqrt (x**2. +. y**2.)
-  and r = sqrt (x**2. +. y**2. +. z**2.)
-  and e2 = geo.e**2. in
-  let z_xy = z /. xy in
-  let lambda = 2. *. atan (y /. (x +. xy))
-  and phi0 = atan (z_xy /. sqrt (1.-.geo.a*.e2/.r)) in
-  let rec iter phi =
-    let phi' = atan (z_xy /. (1.-.geo.a*.e2*.cos phi/.xy/.sqrt (1.-.e2*. sin phi ** 2.))) in
-    if abs_float (phi -. phi') > epsilon then iter phi' else phi' in
-  let phi = iter phi0 in
-  let h = xy/.cos phi -. geo.a /. sqrt (1.-.e2*.sin phi ** 2.) in
-  (make_geo phi lambda, h)
-
 let utm_distance = fun utm1 utm2 ->
   if utm1.utm_zone <> utm2.utm_zone then invalid_arg "utm_distance";
   sqrt ((utm1.utm_x -. utm2.utm_x)**2. +. (utm1.utm_y -. utm2.utm_y)**2.)
@@ -558,12 +542,8 @@ let array_of_ned = fun x -> x
 let fprint_ecef = fun c x -> Printf.fprintf c "[%.2f %.2f %.2f]" x.(0) x.(1) x.(2)
 let fprint_ned = fprint_ecef
 
-let geocentric_of_ecef = fun r ->
-  let xr = r.(0) and yr = r.(1) and zr = r.(2) in
-  let phiP = atan2 zr (sqrt (xr*.xr +. yr*.yr))
-  and lambda = atan2 yr xr in
-  (phiP, lambda)
-
+let ecef_distance = fun e1 e2 ->
+  sqrt ((e1.(0)-.e2.(0))**2. +. (e1.(1)-.e2.(1))**2. +. (e1.(2)-.e2.(2))**2.)
 
 let ecef_of_geo = fun geo ->
   let elps = ellipsoid_of geo in
@@ -714,3 +694,9 @@ let wgs84_hmsl = fun geo ->
     (float geoid_data.(ilat1).(ilon2))
     (float geoid_data.(ilat2).(ilon1)) 
     (float geoid_data.(ilat2).(ilon2))
+
+let wgs84_distance = fun geo1 geo2 ->
+  let e1 = ecef_of_geo WGS84 geo1 0.
+  and e2 = ecef_of_geo WGS84 geo1 0. in
+  ecef_distance e1 e2
+  

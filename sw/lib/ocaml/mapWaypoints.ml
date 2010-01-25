@@ -266,11 +266,10 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
       and dy = (yw-.yw0)*.z
       and dz = match altitude with Some a -> a -. alt | _ -> 0. in
 
-      let current_utm = utm_of WGS84 self#pos
-      and new_utm = utm_of WGS84 wgs84 in
-      let d = utm_distance current_utm new_utm in
+      let current_ecef = ecef_of_geo WGS84 self#pos self#alt
+      and new_ecef = ecef_of_geo WGS84 wgs84 (alt+.dz) in
 
-      let new_pos = d*.d +. dz*.dz > 3. in
+      let new_pos = ecef_distance current_ecef new_ecef > 2. in
       match moved, new_pos with
 	None, true ->
 	  self#move dx dy;

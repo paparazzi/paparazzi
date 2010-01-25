@@ -58,6 +58,7 @@ val lambertII : lambert_zone
 val lambertIIe : lambert_zone
 val lambertIII : lambert_zone
 val lambertIV : lambert_zone
+val lambert93 : lambert_zone
 (** French lambert zones *)
 
 
@@ -65,12 +66,11 @@ val lambertIV : lambert_zone
 
 type semicircle = { lat : semi; long : semi; }
 type geographic = { posn_lat : radian; posn_long : radian; }
-type cartesian = { x : float; y : float; z : float; }
 type meter = int
 type fmeter = float
 type lambert = { lbt_x : meter; lbt_y : meter; }
 type utm = { utm_x : fmeter; utm_y : fmeter; utm_zone : int; }
-(** Position units. Coordinates are in meters in the [cartesian] type. *)
+(** Position units. *)
 
 val norm_angle : float -> float
 (** [norm_angle rad] Returns an angle -pi<= < pi *)
@@ -98,26 +98,14 @@ referential *)
 val of_semicircle : semicircle -> geographic
 val semicircle_of : geographic -> semicircle
 
-type ntf = geographic
-(** Type alias for documentation purpose *)
-
-val of_lambert : lambert_zone -> lambert -> ntf
-val lambert_of : lambert_zone -> ntf -> lambert
-(** Conversions between geographic (in NTF) and lambert *)
+val of_lambert : lambert_zone -> lambert -> geographic
+val lambert_of : lambert_zone -> geographic -> lambert
+(** Conversions between geographic (in NTF or GRS80) and lambert *)
 
 val utm_of' : geodesic -> geographic -> utm
 val utm_of : geodesic -> geographic -> utm
 val of_utm : geodesic -> utm -> geographic
 (** Conversions between geographic and UTM. May raise Invalid_argument. *)
-
-val cartesian_of : geodesic -> geographic -> float -> cartesian
-(** [cartesian_of geode geo alt] converts position [geo] at altitude [alt]
-expressed in [geode] into cartesian coordinates *)
-
-val of_cartesian : geodesic -> cartesian -> geographic * float
-(** [of_cartesian geode xyz] converts cartesian coordinates [xyz] into
-geographic coordinates and altitude expressed in geodesic referential
-[geode] *)
 
 val utm_distance : utm -> utm -> fmeter 
 
@@ -185,6 +173,8 @@ val make_ned : float array -> ned
 val fprint_ecef : out_channel -> ecef -> unit
 val fprint_ned : out_channel -> ned -> unit
 
+val ecef_distance : ecef -> ecef -> fmeter
+
 val ned_of_ecef : ecef -> ecef -> ned
 (** [ned_of_ecef r p] Returns the coordinates of [p] in a local NED (north east down)
     located in [r] *)
@@ -199,3 +189,6 @@ val geo_of_ecef : geodesic -> ecef -> geographic * float
 (** [geo_of_ecef ellipsoid geo ecef] Returns llh *)
 
 val wgs84_hmsl : geographic -> fmeter
+
+val wgs84_distance : geographic -> geographic -> fmeter
+(** Distance over the WGS84 ellipsoid *)
