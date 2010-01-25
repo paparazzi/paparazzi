@@ -386,6 +386,7 @@ void nav_periodic_task(void) {
   nav_survey_active = FALSE;
 
   compute_dist2_to_home();
+  dist2_to_wp = 0.;
 
   auto_nav(); /* From flight_plan.h */
 
