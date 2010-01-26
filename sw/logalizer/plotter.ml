@@ -31,7 +31,7 @@ let (//) = Filename.concat
 (* Fixme: find something more basic than adjustment *)
 let set_float_value = fun (a:GData.adjustment) v ->
   let lower = Pervasives.min a#lower v
-  and upper = Pervasives.max a#upper v in
+  and upper = Pervasives.max a#upper v +. a#step_increment in
   a#set_bounds ~lower ~upper ();
   a#set_value v
 
@@ -124,6 +124,8 @@ class plot = fun ~size ~width ~height ~packing () ->
       end;
       Hashtbl.iter (fun _ a ->
 	a.index <- 0;
+	a.average#set_value 0.;
+	a.stdev#set_value 0.;
 	for i = 0 to Array.length a.array - 1 do a.array.(i) <- None done)
 	curves
 
