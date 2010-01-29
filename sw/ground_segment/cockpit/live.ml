@@ -937,24 +937,39 @@ let draw_altgraph = fun (da_object:Gtk_tools.pixmap_in_drawin_area) (geomap:MapC
   (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
 
 
-(*****************************************************************************)
-let gcs_icon = ref None
-let display_gcs_pos = fun (geomap:G.widget) vs ->
-  let item = 
-    match !gcs_icon with
-      None ->
-	let rad = 7. in
-	let c = GnoCanvas.ellipse ~fill_color:"brown" ~props:[`WIDTH_PIXELS 1; `OUTLINE_COLOR "black"] ~x1: ~-.rad ~y1:  ~-.rad ~x2:rad ~y2:rad geomap#canvas#root in
-	gcs_icon := Some c;
-	c
-  | Some item ->
-      item in
+(****** Display the position provided by a connected GPS receiver (../tmtc/gpsd2ivy) *******************)
+module GCS_icon = struct
+  let status = ref None
+  let color = "black"
+  let fill_color = "brown"
+  let radius = 5.
+  let outdated_color = "red"
+  let timeout = 10000 (* ms : time before changing to outdated color *)
 
-  let lat = Pprz.float_assoc "lat" vs
-  and lon = Pprz.float_assoc "long" vs in
-  let wgs84 = LL.make_geo_deg lat lon in
-  
-  geomap#move_item item wgs84
+  let display = fun (geomap:G.widget) vs ->
+    let item = 
+      match !status with
+	None -> (* First call, create the graphical object *)
+	  GnoCanvas.ellipse ~fill_color ~props:[`WIDTH_PIXELS 2]
+	    ~x1: ~-.radius ~y1:  ~-.radius ~x2:radius ~y2:radius
+	    geomap#canvas#root
+      | Some (item, timeout_handle) -> (* Remove the timeouted color modification *)
+	  Glib.Timeout.remove timeout_handle;
+	  item in
+    
+    item#set [`OUTLINE_COLOR color];
+    let change_color_if_not_updated = 
+      Glib.Timeout.add 10000 (fun ()  -> item#set [`OUTLINE_COLOR outdated_color]; false) in
+
+    (* Store the object and the timeout to change its color *)
+    status := Some (item, change_color_if_not_updated);
+    
+    let lat = Pprz.float_assoc "lat" vs
+    and lon = Pprz.float_assoc "long" vs in
+    let wgs84 = LL.make_geo_deg lat lon in
+    
+    geomap#move_item item wgs84
+end (* module GCS_icon *)
 
 
 (******************************** FLIGHT_PARAMS ******************************)
@@ -962,7 +977,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
   let get_fp = fun _sender vs ->
     let ac_id = Pprz.string_assoc "ac_id" vs in
     if ac_id = gcs_id then
-      display_gcs_pos geomap vs
+      GCS_icon.display geomap vs
     else
       let ac = get_ac vs in
       let pfd_page = ac.pfd_page in
