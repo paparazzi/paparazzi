@@ -356,7 +356,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 
     method move_item = fun (item:GnomeCanvas.re_p GnoCanvas.item) wgs84 ->
       let (xw,yw) = self#world_of wgs84 in
-      item#affine_absolute (affine_pos_and_angle ~z:self#zoom_adj#value xw yw 0.);
+      item#affine_absolute (affine_pos_and_angle xw yw 0.);
     	    
     method moveto = fun wgs84 ->
       let (xw, yw) = self#world_of wgs84 in
