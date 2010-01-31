@@ -34,13 +34,14 @@
     <define name="MAG_Y_CHAN" value="1"/>
     <define name="MAG_Z_CHAN" value="2"/>
 
-    <define name="MAG_X_SENS" value="5.66180118" integer="16"/>
-    <define name="MAG_Y_SENS" value="-5.64457472" integer="16"/>
-    <define name="MAG_Z_SENS" value="-3.40880798" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="-22"/>
+    <define name="MAG_Y_NEUTRAL" value="-14"/>
+    <define name="MAG_Z_NEUTRAL" value="16"/>
 
-    <define name="MAG_X_NEUTRAL" value="-2"/>
-    <define name="MAG_Y_NEUTRAL" value="21"/>
-    <define name="MAG_Z_NEUTRAL" value="37"/>
+    <define name="MAG_X_SENS" value="4.79355327494" integer="16"/>
+    <define name="MAG_Y_SENS" value="-5.04941795802" integer="16"/>
+    <define name="MAG_Z_SENS" value="-2.98000294999" integer="16"/>
+
 
     <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
     <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
