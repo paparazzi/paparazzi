@@ -53,5 +53,13 @@ struct ActuatorsAsctec {
 
 extern struct ActuatorsAsctec actuators_asctec; 
 
+#define booz_actuators_asctec_SetCommand(_v) {  \
+    actuators_asctec.cmd = _v;			\
+}
+
+#define booz_actuators_asctec_SetAddr(_v) {	\
+    actuators_asctec.new_addr = _v;		\
+}
+
 
 #endif /* BOOZ_ACTUATORS_ASCTEC_H */
