@@ -137,6 +137,14 @@ BOOTLOADER_DEV=/dev/ttyUSB0
 upload_bl bl.upload: bl
 	lpc21isp -control $(AIRBORNE)/arm7/test/bootloader/bl.hex $(BOOTLOADER_DEV) 38400 12000
 
+JTAG_INTERFACE = olimex-jtag-tiny.cfg
+#JTAG_INTERFACE = olimex-arm-usb-ocd.cfg
+
+upload_jtag: bl
+	openocd -f interface/$(JTAG_INTERFACE)  -f board/olimex_lpc_h2148.cfg -c init -c halt -c "flash write_image erase $(AIRBORNE)/arm7/test/bootloader/bl.hex"  -c reset -c shutdown
+
+
+
 lpc21iap:
 	cd sw/ground_segment/lpc21iap; make
 
