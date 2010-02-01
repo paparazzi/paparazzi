@@ -270,13 +270,14 @@ class plot = fun ~width ~height ~packing () ->
       let () = context#set_font_by_name "sans 8 " in
       let layout = context#create_layout in
       let dr = self#get_pixmap () in
-      object
+      object (self)
 	method size =
 	  let s = da#misc#allocation in
 	  (s.Gtk.width, s.Gtk.height)
 
 	method init = fun () ->
 	  dr#set_foreground (`NAME "white");
+	  let (width, height) = self# size in
 	  dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ()
 
 	method set_color = fun (r, g, b) ->
