@@ -49,10 +49,6 @@ type ground_device = {
     fd : Unix.file_descr; transport : transport ; baud_rate : int
   }
 
-type airborne_device = 
-    XBeeDevice
-  | Uart (** For HITL for example *)
-
 (* We assume here a single modem is used *)
 let my_id = 0
 
@@ -74,20 +70,6 @@ let send_message_over_ivy = fun sender name vs ->
       None -> None
     | Some start_time -> Some (Unix.gettimeofday () -. start_time) in
   Tm_Pprz.message_send ?timestamp sender name vs
-
-let ios = int_of_string
-let (//) = Filename.concat
-let conf_dir = Env.paparazzi_home // "conf"
-
-let airborne_device = fun device ->
-  match device with
-    "XBEE" -> XBeeDevice
-  | "PPRZ" | "AEROCOMM" -> Uart
-  | _ -> failwith (sprintf "Link: unknown datalink: %s" device)
-
-let get_define = fun xml name ->
-  let xml = ExtXml.child ~select:(fun d -> ExtXml.tag_is d "define" && ExtXml.attrib d "name" = name) xml "define" in
-  ExtXml.attrib xml "value"
 
 
 (*********** Monitoring *************************************************)
@@ -173,41 +155,6 @@ let send_status_msg =
 	      ] in
       send_message_over_ivy (string_of_int ac_id) "DOWNLINK_STATUS" vs)
       statuss 
-
-
-let airframes =
-  let conf_file = conf_dir // "conf.xml" in
-  List.fold_right (fun a r ->
-    if ExtXml.tag_is a "aircraft" then
-      let airframe_file = conf_dir // ExtXml.attrib a "airframe" in
-      try
-	let airframe_xml = Xml.parse_file airframe_file in
-	let dls = ExtXml.child ~select:(fun s -> Xml.attrib s "name" = "DATALINK") airframe_xml "section" in
-	let device = get_define dls "DEVICE_TYPE" in
-	let dl = airborne_device device in
-	(ios (ExtXml.attrib a "ac_id"), dl)::r
-      with
-	Not_found -> r
-      |	Xml.File_not_found f ->
-	  fprintf stderr "Error in '%s', file not found: %s\n%!" conf_file f;
-	  r
-      | exc ->
-	  fprintf stderr "Error in '%s', ignoring: %s\n%!" airframe_file (Printexc.to_string exc);
-	  r
-    else
-      r)
-    (Xml.children (Xml.parse_file conf_file))
-    []
-
-exception NotSendingToThis
-
-let airborne_device = fun ac_id airframes device ->
-  let ac_device = try Some (List.assoc ac_id airframes) with Not_found -> None in
-  match ac_device, device with
-    (None, Pprz) | (Some Uart, Pprz) -> Uart
-  | (Some (XBeeDevice as ac_device), XBee) ->
-      ac_device
-  | _ -> raise NotSendingToThis
 
 
 let use_tele_message = fun ?udp_peername ?raw_data_size payload ->
@@ -345,19 +292,19 @@ let udp_send = fun fd payload peername ->
   let n = Unix.sendto fd buf 0 len [] sockaddr in
   assert (n = len)
 
-let send = fun ac_id device ac_device payload _priority ->
+let send = fun ac_id device payload _priority ->
   if live_aircraft ac_id then
     match udp_peername ac_id with
       Some (Unix.ADDR_INET (peername, _port)) ->
 	udp_send device.fd payload peername
     | _ ->
-	match ac_device with
-	  Uart ->
+	match device.transport with
+	  Pprz ->
 	    let o = Unix.out_channel_of_descr device.fd in
 	    let buf = Pprz.Transport.packet payload in
 	    Printf.fprintf o "%s" buf; flush o;
 	    Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
-	| XBeeDevice ->
+	| XBee ->
 	    XB.send ~ac_id device payload
 
 
@@ -421,13 +368,9 @@ let message_uplink = fun device ->
   let forwarder = fun name _sender vs ->
     Debug.call 'f' (fun f -> fprintf f "forward %s\n" name);
     let ac_id = Pprz.int_assoc "ac_id" vs in
-    try
-      let ac_device = airborne_device ac_id airframes device.transport in
-      let msg_id, _ = Dl_Pprz.message_of_name name in
-      let s = Dl_Pprz.payload_of_values msg_id my_id vs in
-      send ac_id device ac_device s High
-    with
-      NotSendingToThis -> () in
+    let msg_id, _ = Dl_Pprz.message_of_name name in
+    let s = Dl_Pprz.payload_of_values msg_id my_id vs in
+    send ac_id device s High in
   let set_forwarder = fun name ->
     ignore (Dl_Pprz.message_bind name (forwarder name)) in
 
@@ -451,10 +394,9 @@ let message_uplink = fun device ->
 let send_ping_msg = fun device ->
   Hashtbl.iter
     (fun ac_id status ->
-      let ac_device = airborne_device ac_id airframes device.transport in
       let msg_id, _ = Dl_Pprz.message_of_name "PING" in
       let s = Dl_Pprz.payload_of_values msg_id my_id [] in
-      send ac_id device ac_device s High;
+      send ac_id device s High;
       status.last_ping <- Unix.gettimeofday ()
     )
     statuss
