@@ -26,6 +26,7 @@
 #define PRINT_H
 
 #include "uart.h"
+#include "usb_serial.h"
 
 #define _PrintString(out_fun, s) { \
   uint8_t i = 0;                  \
@@ -66,6 +67,10 @@
 #define Uart1PrintHex(c) _PrintHex(uart1_transmit, c)
 #define Uart1PrintHex16(c) _PrintHex16(uart1_transmit, c)
 #define Uart1PrintString(s) _PrintString(uart1_transmit, s)
+
+#define UsbSPrintHex(c) _PrintHex(VCOM_putchar, c)
+#define UsbSPrintHex16(c) _PrintHex16(VCOM_putchar, c)
+#define UsbSPrintString(s) _PrintString(VCOM_putchar, s)
 
 
 #endif /* PRINT_H */

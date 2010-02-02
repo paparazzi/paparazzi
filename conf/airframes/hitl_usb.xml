@@ -122,7 +122,14 @@ ap.srcs += commands.c
 # Through USB
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DUSE_USB_SERIAL
 ap.CFLAGS += -DDOWNLINK_FBW_DEVICE=UsbS -DDOWNLINK_AP_DEVICE=UsbS -DPPRZ_UART=UsbS -DDATALINK=PPRZ
-ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c $(SRC_ARCH)/usb_ser_hw.c datalink.c pprz_transport.c
+ap.srcs += pprz_transport.c
+
+#XBEE ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=XBeeTransport -DUSE_USB_SERIAL
+#XBEE ap.CFLAGS += -DDOWNLINK_FBW_DEVICE=UsbS -DDOWNLINK_AP_DEVICE=UsbS -DXBEE_UART=UsbS -DDATALINK=XBEE
+#XBEE ap.srcs += xbee.c
+
+
+ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c $(SRC_ARCH)/usb_ser_hw.c datalink.c
 ap.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
 ap.srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 
