@@ -155,7 +155,7 @@ let isotropic_wind wind_init speeds precision =
   let wind = simplex wind_init cost step max_iter precision in
 
   let (mean, _, _) = mean wind.p in
-  (wind.p, mean, wind.f)
+  (wind.p, mean, -.wind.f)
 
 
 (* val wind : Geometry_2d.pt_2D -> Geometry_2d.pt_2D array -> float
@@ -182,7 +182,7 @@ let wind wind_init speeds precision =
   let step = 2. and max_iter = 100 in
   let wind = simplex wind_init cost step max_iter precision in
 
-  (wind.p, mean wind.p, wind.f)
+  (wind.p, mean wind.p, -.wind.f)
 
 type wind_ac = {
     speeds : Geometry_2d.pt_2D option array;
