@@ -4,15 +4,15 @@
 
 <!-- commands section -->
   <servos>
-    <servo name="THROTTLE"   no="0" min="1200" neutral="1200" max="2000"/>
+    <servo name="THROTTLE"   no="3" min="1200" neutral="1200" max="2000"/>
 <!-- Servo aileron gauche = couleur blanche -->
 <!-- Aileron gauche oppose de l'aileron droit -->
-    <servo name="AILERON_LEFT"  no="1" min="1775" neutral="1500" max="1050"/>
+    <servo name="AILERON_RIGHT"  no="5" min="1250" neutral="1445" max="1650"/>
 <!-- max = valeur aileron vers le bas-->
-    <servo name="AILERON_RIGHT" no="3" min="1875" neutral="1475" max="1225"/>
+    <servo name="AILERON_LEFT" no="4" min="1350" neutral="1565" max="1750"/>
     <!-- Rudder = Couleur rouge droite gauche -->
-    <servo name="RUDDER" no="4" min="1875" neutral="1500" max="1250"/>
-    <servo name="ELEVATOR" no="5" min="1850" neutral="1586" max="1150"/>
+    <servo name="RUDDER" no="0" min="1000" neutral="1200" max="1900"/>
+    <servo name="ELEVATOR" no="1" min="1180" neutral="1445" max="1820"/>
 
   </servos>
 
@@ -66,6 +66,7 @@
 
     <define name="HORIZ_SENSOR_TILTED" value="1"/>
     <define name="IR1_SIGN" value="-1"/>
+    <define name="TOP_SIGN" value="-1"/>
 
     <define name="LATERAL_CORRECTION" value="1."/>
     <define name="LONGITUDINAL_CORRECTION" value="1."/>
@@ -83,11 +84,17 @@
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="10000"/>
 
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="MilliAmpereOfAdc(_adc)" value="(_adc-162)*17.4"/>
+
+
+    <define name="CATASTROPHIC_BAT_LEVEL" value="6." unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="6.5" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="7.0" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="8.4" unit="V"/>
   </section>
  
   <section name="MISC">
-    <define name="NOMINAL_AIRSPEED" value="11." unit="m/s"/>
+    <define name="NOMINAL_AIRSPEED" value="8." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
@@ -101,7 +108,7 @@
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
-    <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
+    <define name="POWER_CTL_BAT_NOMINAL" value="7.4" unit="volt"/>
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="-0.07"/>
     <!-- outer loop saturation -->
@@ -166,11 +173,6 @@
     <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
     <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
 </section>
- 
- <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="XBEE"/>
-    <define name="DEVICE_ADDRESS" value="...."/>
-  </section>
 
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
@@ -201,7 +203,9 @@ ap.srcs += inter_mcu.c
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_4
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
-ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B19200
+# ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400
+ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B9600 -DGPS_LED=2
+ap.CFLAGS += -DGPS_CONFIGURE -DGPS_BAUD=38400
 
 ap.srcs += gps_ubx.c gps.c latlong.c
 
@@ -210,6 +214,8 @@ ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
 ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c nav_line.c
+
+ap.CFLAGS += -DUSE_ADC_6 -DADC_CHANNEL_CURRENT=ADC_6
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
