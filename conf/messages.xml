@@ -121,8 +121,8 @@
 
    <message name="GPS_SOL" id="17">
      <field name="Pacc" type="uint32" unit="cm"/>
-     <field name="Sacc" type="uint32" unit="cm"/>
-     <field name="PDOP" type="uint16" unit="cm"/>
+     <field name="Sacc" type="uint32" unit="cm/s"/>
+     <field name="PDOP" type="uint16"/>
      <field name="numSV" type="uint8"/>
    </message>
 
@@ -691,15 +691,15 @@
  </message>
 
   <message name="SCP_STATUS" id="88">
-      <field name="press" type="uint32"/>
-      <field name="temp"  type="int16"/>
+      <field name="press" type="uint32" unit="Pa"/>
+      <field name="temp"  type="int16" unit="100x_deg_celsius"/>
   </message>
 
   <message name="SHT_STATUS" id="89">
       <field name="ihumid" type="uint16"/>
       <field name="itemp"  type="uint16"/>
-      <field name="humid"  type="float"/>
-      <field name="temp"   type="float"/>
+      <field name="humid"  type="float" unit="rel_hum"/>
+      <field name="temp"   type="float" unit="deg_celsius"/>
   </message>
 
   <message name="ENOSE_STATUS" id="90">
@@ -713,8 +713,8 @@
   <message name="DPICCO_STATUS" id="91">
       <field name="humid" type="uint16"/>
       <field name="temp" type="uint16"/>
-      <field name="fhumid" type="float"/>
-      <field name="ftemp" type="float"/>
+      <field name="fhumid" type="float" unit="rel_hum"/>
+      <field name="ftemp" type="float" unit="deg_celsius"/>
   </message>
 
   <message name="ANTENNA_DEBUG" id="92">
