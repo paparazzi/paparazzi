@@ -39,6 +39,8 @@
 
     <program name="Settings (Python)" command="sw/ground_segment/python/settings_app/settingsapp.py"/>
 
+    <program name="GPSd position display" command ="sw/ground_segment/tmtc/gpsd2ivy"/>
+
     <program name="Log Plotter" command ="sw/logalizer/plot"/>
 
     <program name="Real-time Plotter" command ="sw/logalizer/plotter"/>
