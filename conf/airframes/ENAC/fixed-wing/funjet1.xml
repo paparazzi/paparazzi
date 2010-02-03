@@ -76,7 +76,7 @@
     <define name="TOP_SIGN" value="-1"/>
 
     <define name="ROLL_NEUTRAL_DEFAULT" value="-1.43239450455" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="17" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="9.22462081909" unit="deg"/>
 
     <define name="CORRECTION_UP" value="1."/>
     <define name="CORRECTION_DOWN" value="1."/>
@@ -115,6 +115,8 @@
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
     <define name="MIN_CIRCLE_RADIUS" value="50."/>
+
+    <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
   </section>
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -126,7 +128,7 @@
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.35"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.305000007153"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.80"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
