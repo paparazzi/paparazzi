@@ -344,10 +344,8 @@ let () =
     fprintf out_h "#define MODULES_STOP  3\n";
     nl ();
     let modules = try (ExtXml.child xml "modules") with _ -> Xml.Element("modules",[],[]) in
-    try
-      let main_freq = Xml.attrib modules "main_freq" in
-      freq := int_of_string main_freq;
-    with _ -> ();
+    let main_freq = try (int_of_string (Xml.attrib modules "main_freq")) with _ -> !freq in
+    freq := main_freq;
     let modules_list = List.map (get_modules modules_dir) (Xml.children modules) in
     let modules_name = 
       (List.map (fun l -> try Xml.attrib l "name" with _ -> "") (Xml.children modules)) @
