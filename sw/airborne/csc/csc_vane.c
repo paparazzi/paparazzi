@@ -9,7 +9,7 @@
 #define PWM_INPUT_COUNTS_PER_REV 61358.
 #define PWM_INPUT_MSG_PRESCALE 8
 #define VANE_NB 2
-const static float avg_factor = 0.5;
+const static float avg_factor = 0.0;
 
 void csc_vane_init(void)
 {
