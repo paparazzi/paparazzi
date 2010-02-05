@@ -23,6 +23,7 @@
 
 #include "booz_stabilization.h"
 
+#include "booz_stabilization_attitude_ref_float.h"
 
 struct FloatEulers booz_stab_att_sp_euler;
 struct FloatQuat   booz_stab_att_sp_quat;
@@ -31,6 +32,7 @@ struct FloatQuat   booz_stab_att_ref_quat;
 struct FloatRates  booz_stab_att_ref_rate;
 struct FloatRates  booz_stab_att_ref_accel;
 
+struct FloatRefModel booz_stab_att_ref_model;
 
 void booz_stabilization_attitude_ref_init(void) {
 
@@ -40,6 +42,13 @@ void booz_stabilization_attitude_ref_init(void) {
   FLOAT_QUAT_ZERO(  booz_stab_att_ref_quat);
   FLOAT_RATES_ZERO( booz_stab_att_ref_rate);
   FLOAT_RATES_ZERO( booz_stab_att_ref_accel);
+
+  booz_stab_att_ref_model.omega_p = BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_P;
+  booz_stab_att_ref_model.zeta_p = BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_P;
+  booz_stab_att_ref_model.omega_q = BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_Q;
+  booz_stab_att_ref_model.zeta_q = BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_Q;
+  booz_stab_att_ref_model.omega_r = BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_R;
+  booz_stab_att_ref_model.zeta_r = BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_R;
 
 }
 
@@ -51,13 +60,6 @@ void booz_stabilization_attitude_ref_init(void) {
 #else
 #define DT_UPDATE (1./512.)
 #endif
-
-#define OMEGA_P   BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_P
-#define ZETA_P    BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_P
-#define OMEGA_Q   BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_Q
-#define ZETA_Q    BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_Q
-#define OMEGA_R   BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_R
-#define ZETA_R    BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_R
 
 void booz_stabilization_attitude_ref_update() {
 
@@ -80,9 +82,12 @@ void booz_stabilization_attitude_ref_update() {
   /* wrap it in the shortest direction       */
   FLOAT_QUAT_WRAP_SHORTEST(err);
   /* propagate the 2nd order linear model    */
-  booz_stab_att_ref_accel.p = -2.*ZETA_P*OMEGA_P*booz_stab_att_ref_rate.p - OMEGA_P*OMEGA_P*err.qx;
-  booz_stab_att_ref_accel.q = -2.*ZETA_Q*OMEGA_Q*booz_stab_att_ref_rate.q - OMEGA_Q*OMEGA_Q*err.qy;
-  booz_stab_att_ref_accel.r = -2.*ZETA_R*OMEGA_R*booz_stab_att_ref_rate.r - OMEGA_R*OMEGA_R*err.qz;
+  booz_stab_att_ref_accel.p = -2.*booz_stab_att_ref_model.zeta_p*booz_stab_att_ref_model.omega_p*booz_stab_att_ref_rate.p 
+    - booz_stab_att_ref_model.omega_p*booz_stab_att_ref_model.omega_p*err.qx;
+  booz_stab_att_ref_accel.q = -2.*booz_stab_att_ref_model.zeta_q*booz_stab_att_ref_model.omega_q*booz_stab_att_ref_rate.q 
+    - booz_stab_att_ref_model.omega_q*booz_stab_att_ref_model.omega_q*err.qy;
+  booz_stab_att_ref_accel.r = -2.*booz_stab_att_ref_model.zeta_r*booz_stab_att_ref_model.omega_r*booz_stab_att_ref_rate.r 
+    - booz_stab_att_ref_model.omega_r*booz_stab_att_ref_model.omega_r*err.qz;
 
   /* compute ref_euler */
   FLOAT_EULERS_OF_QUAT(booz_stab_att_ref_euler, booz_stab_att_ref_quat);

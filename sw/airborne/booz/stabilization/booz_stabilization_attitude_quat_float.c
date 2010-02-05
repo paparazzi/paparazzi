@@ -27,7 +27,6 @@
 #include "math/pprz_algebra_int.h"
 #include "booz_ahrs.h"
 #include "booz_radio_control.h"
-
 #include "airframe.h"
 
 
@@ -44,6 +43,11 @@ float booz_stabilization_att_ff_cmd[COMMANDS_NB];
 float booz_stabilization_attitude_beta_vane_gain;
 float booz_stabilization_attitude_alpha_vane_gain;
 
+float booz_stabilization_attitude_alpha_alt_dgain;
+float booz_stabilization_attitude_alpha_alt_zeta;
+
+static struct FloatQuat pitch_setpoint_quat = { 1., 0., 0., 0. };
+static struct FloatQuat pr_setpoint_quat = { 1., 0., 0., 0. };
 
 void booz_stabilization_attitude_init(void) {
 
@@ -75,6 +79,8 @@ void booz_stabilization_attitude_init(void) {
 #ifdef USE_VANE
   booz_stabilization_attitude_alpha_vane_gain = BOOZ_STABILIZATION_ATTITUDE_ALPHA_VANE_T;
   booz_stabilization_attitude_beta_vane_gain = BOOZ_STABILIZATION_ATTITUDE_BETA_VANE_T;
+  booz_stabilization_attitude_alpha_alt_dgain = booz_stabilization_dgain.y;
+  booz_stabilization_attitude_alpha_alt_zeta = booz_stab_att_ref_model.zeta_q;
 #endif
 
 }
@@ -94,6 +100,7 @@ static float get_pitch_rotation_angle(struct FloatRMat *rmat)
 
   return -atan2f(dcm02, dcm22);
 }
+
 
 // complicated function to reset setpoint quaternion to pitch theta, roll phi using provided
 // quaternion initial rotating first about pitch, then roll (and not yaw)
@@ -170,21 +177,26 @@ void booz_stabilization_attitude_read_beta_vane(float beta)
   FLOAT_QUAT_COMP(booz_stab_att_sp_quat, prev_sp_quat, sticks_quat);
 }
 
+static void booz_stabilization_attitude_new_setpoint(void)
+{
+      // add integrated stick commands to existing setpoint
+      FLOAT_QUAT_COMP(booz_stab_att_sp_quat, pr_setpoint_quat, pitch_setpoint_quat);
+}
+
+// when doing closed-loop angle of attack control, the pitch
+// setpoint is not based on a rate stick but on the AoA error.  
 void booz_stabilization_attitude_read_alpha_vane(float alpha)
 {
-  struct FloatEulers sticks_eulers;
-  struct FloatQuat sticks_quat, prev_sp_quat;
-  sticks_eulers.phi = 0;
-  sticks_eulers.theta = booz_stabilization_attitude_alpha_vane_gain * alpha / RC_UPDATE_FREQ;
-  sticks_eulers.psi = 0;
-
-  // convert eulers to quaternion
-  FLOAT_QUAT_OF_EULERS(sticks_quat, sticks_eulers);
-  FLOAT_QUAT_COPY(prev_sp_quat, booz_stab_att_sp_quat)
+  // argument alpha is error between measurement and setpoint, I believe
+  struct FloatVect3 y_axis = { 0, 1, 0 };
   
-  // rotate previous setpoint by commanded rotation
-  FLOAT_QUAT_COMP(booz_stab_att_sp_quat, prev_sp_quat, sticks_quat);
+  // make new quaternion of alpha deviation added to current theta angle
+  FLOAT_QUAT_OF_AXIS_ANGLE(pitch_setpoint_quat, y_axis, alpha + booz_ahrs_float.ltp_to_body_euler.theta); 
+  
+  // make new trajectory setpoint
+  booz_stabilization_attitude_new_setpoint();
 }
+
 #endif
 
 void booz_stabilization_attitude_read_rc(bool_t in_flight) {
@@ -195,21 +207,79 @@ void booz_stabilization_attitude_read_rc(bool_t in_flight) {
   pprz_t pitch = radio_control.values[RADIO_CONTROL_PITCH];
   pprz_t yaw = radio_control.values[RADIO_CONTROL_YAW];
   struct FloatEulers sticks_eulers;
-  struct FloatQuat sticks_quat, prev_sp_quat;
+  struct FloatQuat sticks_quat, prev_sp_quat, setpoint_quat_old;
+
+  // convert sticks to commanded rates
+  sticks_eulers.phi = APPLY_DEADBAND(roll, BOOZ_STABILIZATION_ATTITUDE_DEADBAND_A) * ROLL_COEF_RATE / RC_UPDATE_FREQ;
+  sticks_eulers.psi = APPLY_DEADBAND(yaw, BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R) * YAW_COEF_H / RC_UPDATE_FREQ;
+  sticks_eulers.theta = APPLY_DEADBAND(pitch, BOOZ_STABILIZATION_ATTITUDE_DEADBAND_E) * PITCH_COEF_RATE / RC_UPDATE_FREQ;
 
   // RC stick commands rate or position?
   if (rate_stick_mode) {
-    // convert sticks to commanded rates
-    sticks_eulers.phi = APPLY_DEADBAND(roll, BOOZ_STABILIZATION_ATTITUDE_DEADBAND_A) * ROLL_COEF_RATE / RC_UPDATE_FREQ;
-    sticks_eulers.theta = APPLY_DEADBAND(pitch, BOOZ_STABILIZATION_ATTITUDE_DEADBAND_E) * PITCH_COEF_RATE / RC_UPDATE_FREQ;
-    sticks_eulers.psi = APPLY_DEADBAND(yaw, BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R) * YAW_COEF_H / RC_UPDATE_FREQ;
+#ifdef USE_VANE
+    struct FloatRMat pitch_rmat, ltp_to_body_rmat, phi_psi_rmat;
 
+    static int vane_transition = 0;
+    static float d_gain_y = 0;
+    static float zeta_y = 0;
+
+    // struct FloatVect3 x_axis = { 1, 0, 0 };
+    struct FloatVect3 y_axis = { 0, 1, 0 };
+    // struct FloatVect3 z_axis = { 0, 0, 1 };
+    
+    // is vane engaged?	
+    if (radio_control.values[RADIO_CONTROL_AUX4] < 0) {
+      sticks_eulers.theta = 0;
+
+      // generate new rotation based on current stick commands
+      FLOAT_QUAT_OF_EULERS(sticks_quat, sticks_eulers);
+
+      // if first time on the vane, set setpoint to existing roll and yaw angles
+      if (vane_transition == 0) {
+	// convert current body quat and current pitch rotation to DCMs
+	FLOAT_RMAT_OF_QUAT(ltp_to_body_rmat, booz_ahrs_float.ltp_to_body_quat);
+	FLOAT_RMAT_OF_AXIS_ANGLE(pitch_rmat, y_axis, -get_pitch_rotation_angle(&ltp_to_body_rmat));
+
+	// subtract pitch rotation from current body DCM
+	FLOAT_RMAT_COMP(phi_psi_rmat, ltp_to_body_rmat, pitch_rmat);
+	
+	// new phi & psi setpoints come from body DCM minus pitch
+	FLOAT_QUAT_OF_RMAT(pr_setpoint_quat, phi_psi_rmat);
+	vane_transition = 1;
+
+	// swap in new D gain
+	d_gain_y = booz_stabilization_dgain.y;
+	booz_stabilization_dgain.y = booz_stabilization_attitude_alpha_alt_dgain;
+
+	// swap in new reference zeta (damping)
+	zeta_y = booz_stab_att_ref_model.zeta_q;
+	booz_stab_att_ref_model.zeta_q = booz_stabilization_attitude_alpha_alt_zeta;
+      }
+
+      // integrate stick commands in phi and psi
+      FLOAT_QUAT_COPY(setpoint_quat_old, pr_setpoint_quat);
+      FLOAT_QUAT_COMP(pr_setpoint_quat, sticks_quat, setpoint_quat_old);
+      
+      // make new trajectory setpoint
+      booz_stabilization_attitude_new_setpoint();
+    } else {
+      if (vane_transition == 1) {
+	// just switched out of vane mode
+	booz_stabilization_dgain.y = d_gain_y;
+	booz_stab_att_ref_model.zeta_q = zeta_y; 
+      }
+#endif // USE_VANE
     // convert eulers to quaternion
     FLOAT_QUAT_OF_EULERS(sticks_quat, sticks_eulers);
-    FLOAT_QUAT_COPY(prev_sp_quat, booz_stab_att_sp_quat)
+    FLOAT_QUAT_COPY(prev_sp_quat, booz_stab_att_sp_quat);
   
     // rotate previous setpoint by commanded rotation
     FLOAT_QUAT_COMP(booz_stab_att_sp_quat, prev_sp_quat, sticks_quat);
+#ifdef USE_VANE
+    vane_transition = 0;
+    }
+#endif // USE_VANE
+
   } else {
     // First time switching from rate to position reset the setpoint based on the body
     if (last_rate_stick_mode) {

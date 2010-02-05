@@ -41,6 +41,8 @@ extern void booz_stabilization_attitude_ref_update(void);
 extern float booz_stabilization_attitude_beta_vane_gain;
 extern float booz_stabilization_attitude_alpha_vane_gain;
 
+extern float booz_stabilization_attitude_alpha_alt_dgain;
+extern float booz_stabilization_attitude_alpha_alt_zeta;
 
 #define booz_stabilization_attitude_SetKiPhi(_val) {	\
     booz_stabilization_igain.x = _val;			\

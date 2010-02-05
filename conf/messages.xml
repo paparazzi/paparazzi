@@ -1290,14 +1290,12 @@
       <field name="motor_command" type="float"/>
     </message>
 
-    <message name="ASTRO_MOTOR" id="183">
-      <field name="fault"	type="uint16"/>
-      <field name="raw_speed"	type="uint16"/>
-      <field name="raw_dcbus"	type="uint16"/>
+    <message name="BLMC_FAULT_STATUS" id="183">
+      <field name="raw_fault"	type="uint16[]"/>
     </message>
 
     <message name="BLMC_SPEEDS" id="184">
-      <field name="speeds"	type="uint16[]"/>
+      <field name="speeds"	type="int16[]"/>
     </message>
 
     <message name="AHRS_DEBUG_QUAT" id="185">
@@ -1458,6 +1456,28 @@
       <field name="ins_ydd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
       <field name="ins_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
 	</message>
+
+  <message name="AFL_COEFFS" id="250">
+      <field name="roll_a"   type="float"/>
+      <field name="roll_b"  type="float"/>
+      <field name="roll_c"  type="float"/>
+      <field name="pitch_a"  type="float"/>
+      <field name="pitch_b"   type="float"/>
+      <field name="pitch_c"   type="float"/>
+      <field name="yaw_a"   type="float"/>
+      <field name="yaw_b"  type="float"/>
+      <field name="yaw_c"  type="float"/>
+  </message>
+
+  <message name="BOOZ_ATT_REF_MODEL" id="251">
+    <field name="omega_p" type="float" />
+    <field name="zeta_p" type="float" />
+    <field name="omega_q" type="float" />
+    <field name="zeta_q" type="float" />
+    <field name="omega_r" type="float" />
+    <field name="zeta_r" type="float" />
+  </message>
+
 </class>
 
 

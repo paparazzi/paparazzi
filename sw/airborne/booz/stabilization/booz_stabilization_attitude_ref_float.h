@@ -30,5 +30,16 @@ extern struct FloatQuat   booz_stab_att_ref_quat;
 extern struct FloatRates  booz_stab_att_ref_rate;
 extern struct FloatRates  booz_stab_att_ref_accel;
 
+struct FloatRefModel {
+  float omega_p;
+  float zeta_p;
+  float omega_q;
+  float zeta_q;
+  float omega_r;
+  float zeta_r;
+};
+
+extern struct FloatRefModel booz_stab_att_ref_model;
+
 #endif /* BOOZ_STABILISATION_ATTITUDE_REF_FLOAT_H */
 
