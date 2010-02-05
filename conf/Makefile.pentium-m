@@ -50,6 +50,7 @@ CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 CFLAGS += -mtune=pentium-m # optimize for pentium-m
+CFLAGS += -m32
 
 # flags only for C
 CFLAGS += -Wstrict-prototypes -Wmissing-declarations
