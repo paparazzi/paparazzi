@@ -2,14 +2,20 @@
 Q=@
 
 DEBUG		=n
+MACHINE := $(shell uname -m)
 
 CFLAGS		=-Wall -Wstrict-prototypes -I/usr/X11R6/include -I `ocamlc -where`
 ifeq ($(DEBUG),y)
-CFLAGS		+=-g -O -march=i486 -falign-loops=2 -falign-jumps=2 \
-		  -falign-functions=2 -DARCH_I386
+CFLAGS		+=-g -O 
 else
-CFLAGS		+=-O3 -march=i486 -falign-loops=2 -falign-jumps=2 \
-		  -falign-functions=2 -DARCH_I386
+CFLAGS		+=-O3 
+endif 		
+
+ifeq ($(MACHINE),'i686')
+CFLAGS		+= -march=i486 -falign-loops=2 -falign-jumps=2 \
+	  	-falign-functions=2 -DARCH_I386
+else
+CFLAGS		+= -fPIC
 endif
 LDFLAGSX	=-lX11 -L/usr/X11R6/lib
 
