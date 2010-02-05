@@ -34,13 +34,16 @@ module Tm_Pprz = Pprz.Messages (struct let name = "telemetry" end)
 module Ground_Pprz = Pprz.Messages (struct let name = "ground" end)
 module Dl_Pprz = Pprz.Messages (struct let name = "datalink" end)
 module PprzTransport = Serial.Transport (Pprz.Transport)
+module PprzTransportExtended = Serial.Transport (Pprz.TransportExtended)
 
 (* Modem transport layer *)
 type transport =
     Pprz  (* Paparazzi protocol, with A/C id, message id and CRC *)
+  | Pprz2  (* Paparazzi protocol, with timestamp, A/C id, message id and CRC *)
   | XBee  (* Maxstream protocol, API mode *)
 let transport_of_string = function
     "pprz" -> Pprz
+  | "pprz2" -> Pprz2
   | "xbee" -> XBee
   | x -> invalid_arg (sprintf "transport_of_string: %s" x)
 
@@ -325,6 +328,11 @@ let broadcast = fun device payload _priority ->
         let buf = Pprz.Transport.packet payload in
 	Printf.fprintf o "%s" buf; flush o;
         Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
+    | Pprz2 ->
+        let o = Unix.out_channel_of_descr device.fd in
+        let buf = Pprz.TransportExtended.packet payload in
+	Printf.fprintf o "%s" buf; flush o;
+        Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
     | XBee ->
         XB.send device payload
 
@@ -345,7 +353,7 @@ let parser_of_device = fun device ->
   match device.transport with
     Pprz ->
       let use = fun s ->
-	let raw_data_size = String.length (Serial.string_of_payload s) + 4(*stx,len,ck_a, ck_b*) in
+	let raw_data_size = String.length (Serial.string_of_payload s) + 4 (*stx,len,ck_a, ck_b*) in
 	let udp_peername =
 	  if !udp then
 	    Some !last_udp_peername
@@ -353,6 +361,16 @@ let parser_of_device = fun device ->
 	    None in
 	use_tele_message ?udp_peername ~raw_data_size s in
       PprzTransport.parse use
+  | Pprz2 ->
+      let use = fun s ->
+	let raw_data_size = String.length (Serial.string_of_payload s) + 8 (*stx,len, timestamp, ck_a, ck_b*) in
+	let udp_peername =
+	  if !udp then
+	    Some !last_udp_peername
+	  else
+	    None in
+	use_tele_message ?udp_peername ~raw_data_size s in
+      PprzTransportExtended.parse use
   | XBee ->
       let module XbeeTransport = Serial.Transport (Xbee.Protocol) in
       XbeeTransport.parse (XB.use_message device)
@@ -424,8 +442,8 @@ let () =
       "-noac_info", Arg.Clear ac_info, (sprintf "Disables AC traffic info (uplink).");
       "-nouplink", Arg.Clear uplink, (sprintf "Disables the uplink (from the ground to the aircraft).");
       "-s", Arg.Set_string baudrate, (sprintf "<baudrate>  Default is %s" !baudrate);
-      "-timestamp", Arg.Unit (fun () -> add_timestamp := Some (Unix.gettimeofday ())), "Add timestamp to messages sent over ivy";
-      "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz and xbee. Default is %s" !transport);
+      "-local_timestamp", Arg.Unit (fun () -> add_timestamp := Some (Unix.gettimeofday ())), "Add local timestamp to messages sent over ivy";
+      "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz,pprz2 and xbee. Default is %s" !transport);
       "-udp", Arg.Set udp, "Listen a UDP connection on <udp_port>";
       "-udp_port", Arg.Set_int udp_port, (sprintf "<UDP port> Default is %d" !udp_port);
       "-udp_uplink_port", Arg.Set_int udp_uplink_port, (sprintf "<UDP uplink port> Default is %d" !udp_uplink_port);

@@ -102,6 +102,18 @@ module Transport : Serial.PROTOCOL
     [packet] raises Invalid_Argument if length >= 256
  *)
 
+module TransportExtended : Serial.PROTOCOL
+(** Pprz frame (sw/airborne/pprz_transport.h):
+    |STX|length|timestamp|... payload=(length-4) bytes ...|Checksum A|Checksum B|
+    Where checksum is computed over length and payload:
+    ck_A = ck_B = 0;
+    for all byte b in payload
+      ck_A += b; ck_b += ck_A
+
+    STX = 0x98
+    [packet] raises Invalid_Argument if length >= 256
+ *)
+
 val offset_fields : int
 
 module type CLASS = sig

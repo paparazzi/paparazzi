@@ -6,15 +6,15 @@
 #include "std.h"
 
 #ifdef UDP_TRANSPORT_TIMESTAMP
-#define STX_TS  0x98
-#define UdpTransportSizeOf(_payload) (_payload + 8)
+#define STX_UDP_TX  0x98
+#define STX_UDP_RX  0x99
+#define PPRZ_PROTOCOL_OVERHEAD 8
 #define UdpTransportPutTimestamp(x) UdpTransportPutUint32ByAddr(x)
-#define UdpTransportPutSTX() UdpTransportPut1Byte(STX_TS)
 #else
-#define STX  0x99
-#define UdpTransportSizeOf(_payload) (_payload + 4)
+#define STX_UDP_TX  0x99
+#define STX_UDP_RX  0x99
+#define PPRZ_PROTOCOL_OVERHEAD 4
 #define UdpTransportPutTimestamp(x) {} 
-#define UdpTransportPutSTX() UdpTransportPut1Byte(STX)
 #endif
 
 #ifndef MSG_TIMESTAMP
@@ -26,6 +26,10 @@ extern char updt_tx_buf[UDPT_TX_BUF_LEN];
 extern uint16_t udpt_tx_buf_idx;
 extern uint8_t udpt_ck_a, udpt_ck_b;
 #define  UDPT_TX_BUF_WATERMARK 1024
+
+#define UdpTransportSizeOf(_payload) (_payload + PPRZ_PROTOCOL_OVERHEAD)
+
+#define UdpTransportPutSTX() UdpTransportPut1Byte(STX_UDP_TX)
 
 #define UdpTransportPeriodic() {				\
     if (udpt_tx_buf_idx) {					\
@@ -137,7 +141,7 @@ static inline void parse_udp_dl( uint8_t c ) {
 
   switch (udp_dl_status) {
   case UNINIT:
-    if (c == STX)
+    if (c == STX_UDP_RX)
       udp_dl_status++;
     break;
   case GOT_STX:

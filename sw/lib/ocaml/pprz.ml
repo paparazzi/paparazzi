@@ -324,20 +324,24 @@ let hex_of_int_array = function
 
 exception Unknown_msg_name of string * string
 
-module Transport = struct
-  let stx = Char.chr 0x99 (** sw/airborne/pprz_transport.h *)
-  let offset_length = 1
-  let offset_payload = 2
+module type TRANSPORT_TYPE = sig
+  val stx : char
+  val offset_length : int
+  val offset_payload : int
+  val offset_timestamp : int
+  val overhead_length : int
+end
 
+module PprzTransportBase(SubType:TRANSPORT_TYPE) = struct
   let index_start = fun buf ->
-    String.index buf stx
+    String.index buf SubType.stx
 
   let length = fun buf start ->
     let len = String.length buf - start in
-    if len > offset_length then
-      let l = Char.code buf.[start+offset_length] in
+    if len > SubType.offset_length then
+      let l = Char.code buf.[start+SubType.offset_length] in
       Debug.call 'T' (fun f -> fprintf f "Pprz len=%d\n" l);
-      max l 4 (** if l<4 (4=stx+length+ck_a+ck_b), it's not a valid length *)
+      max l SubType.overhead_length (** if l<4 (4=stx+length+ck_a+ck_b), it's not a valid length *)
     else
       raise Serial.Not_enough
 
@@ -359,25 +363,44 @@ module Transport = struct
 
   let payload = fun msg ->
     let l = String.length msg in
-    assert(Char.code msg.[offset_length] = l);
-    assert(l >= 4);
-    Serial.payload_of_string (String.sub msg offset_payload (l-4))
+    assert(Char.code msg.[SubType.offset_length] = l);
+    assert(l >= SubType.overhead_length);
+    Serial.payload_of_string (String.sub msg SubType.offset_payload (l-SubType.overhead_length))
 
   let packet = fun payload ->
     let payload = Serial.string_of_payload payload in
     let n = String.length payload in
-    let msg_length = n + 4 in (** + stx, len, ck_a and ck_b *)
+    let msg_length = n + SubType.overhead_length in (** + stx, len, ck_a and ck_b *)
     if msg_length >= 256 then
       invalid_arg "Pprz.Transport.packet";
     let m = String.create msg_length in
-    String.blit payload 0 m offset_payload n;
-    m.[0] <- stx;
-    m.[offset_length] <- Char.chr msg_length;
+    String.blit payload 0 m SubType.offset_payload n;
+    m.[0] <- SubType.stx;
+    m.[SubType.offset_length] <- Char.chr msg_length;
     let (ck_a, ck_b) = compute_checksum m in
     m.[msg_length-2] <- Char.chr ck_a;
     m.[msg_length-1] <- Char.chr ck_b;
     m
 end
+
+module PprzTypeStandard = struct
+  let stx = Char.chr 0x99
+  let offset_length = 1
+  let offset_timestamp = -1
+  let offset_payload = 2
+  let overhead_length = 4
+end
+
+module PprzTypeTimestamp = struct
+  let stx = Char.chr 0x98
+  let offset_length = 1
+  let offset_timestamp = 2
+  let offset_payload = 6
+  let overhead_length = 8
+end
+
+module Transport = PprzTransportBase (PprzTypeStandard)
+module TransportExtended = PprzTransportBase (PprzTypeTimestamp)
 
 let offset_ac_id = 0
 let offset_msg_id = 1
