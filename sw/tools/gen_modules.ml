@@ -66,7 +66,7 @@ let is_status_lock = fun p ->
   let mode = ExtXml.attrib_or_default p "autorun" "LOCK" in
   mode = "LOCK"
 
-let print_status = fun modules out_c ->
+let print_status = fun modules ->
   nl ();
   List.iter (fun m ->
     let module_name = ExtXml.attrib m "name" in
@@ -74,8 +74,7 @@ let print_status = fun modules out_c ->
       match Xml.tag i with
         "periodic" ->
           if not (is_status_lock i) then begin
-            lprintf out_h "extern uint8_t %s;\n" (get_status_name i module_name);
-            fprintf out_c "uint8_t %s;\n" (get_status_name i module_name)
+            lprintf out_h "EXTERN_MODULES uint8_t %s;\n" (get_status_name i module_name);
           end
       | _ -> ())
     (Xml.children m))
@@ -245,9 +244,9 @@ let print_datalink_functions = fun modules ->
   left ();
   lprintf out_h "}\n"
 
-let parse_modules modules out_c =
+let parse_modules modules =
   print_headers modules;
-  print_status modules out_c;
+  print_status modules;
   nl ();
   fprintf out_h "#ifdef MODULES_C\n";
   print_init_functions modules;
@@ -327,21 +326,24 @@ let write_settings = fun xml_file out_set modules ->
 let h_name = "MODULES_H"
 
 let () =
-  if Array.length Sys.argv <> 5 then
-    failwith (Printf.sprintf "Usage: %s conf_modules_dir out_c_file out_settings_file xml_file" Sys.argv.(0));
-  let xml_file = Sys.argv.(4)
-  and out_set = open_out Sys.argv.(3)
-  and out_c = open_out Sys.argv.(2)
+  if Array.length Sys.argv <> 4 then
+    failwith (Printf.sprintf "Usage: %s conf_modules_dir out_settings_file xml_file" Sys.argv.(0));
+  let xml_file = Sys.argv.(3)
+  and out_set = open_out Sys.argv.(2)
   and modules_dir = Sys.argv.(1) in
   try
     let xml = start_and_begin xml_file h_name in
-    begin_c_out xml_file "modules" out_c;
     fprintf out_h "#ifdef USE_MODULES\n\n";
-    fprintf out_c "#ifdef USE_MODULES\n\n";
     fprintf out_h "#define MODULES_IDLE  0\n";
     fprintf out_h "#define MODULES_RUN   1\n";
     fprintf out_h "#define MODULES_START 2\n";
     fprintf out_h "#define MODULES_STOP  3\n";
+    nl ();
+    fprintf out_h "#ifdef MODULES_C\n";
+    fprintf out_h "#define EXTERN_MODULES\n";
+    fprintf out_h "#else\n";
+    fprintf out_h "#define EXTERN_MODULES extern\n";
+    fprintf out_h "#endif";
     nl ();
     let modules = try (ExtXml.child xml "modules") with _ -> Xml.Element("modules",[],[]) in
     let main_freq = try (int_of_string (Xml.attrib modules "main_freq")) with _ -> !freq in
@@ -351,11 +353,9 @@ let () =
       (List.map (fun l -> try Xml.attrib l "name" with _ -> "") (Xml.children modules)) @
       (List.map (fun m -> try Xml.attrib m "name" with _ -> "") modules_list) in
     check_dependencies modules_list modules_name;
-    parse_modules modules_list out_c;
+    parse_modules modules_list;
     fprintf out_h "\n#endif // USE_MODULES\n";
-    fprintf out_c "\n#endif // USE_MODULES\n";
     finish h_name;
-    close_out out_c;
     write_settings xml_file out_set modules_list;
     close_out out_set;
   with

@@ -54,7 +54,6 @@ TUNING_INC_H=$(PAPARAZZI_HOME)/var/include/"$(SETTINGS:settings/%.xml=%).h"
 SUPERVISION=./paparazzi
 MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
 MODULES_H=$(ACINCLUDE)/modules.h
-MODULES_C=$(ACINCLUDE)/modules.c
 MODULES_DIR=$(PAPARAZZI_HOME)/conf/modules/
 AIRCRAFT_MD5=$(AIRCRAFT_CONF_DIR)/aircraft.md5
 
@@ -131,7 +130,7 @@ $(TUNING_H) : $(SETTINGS_XMLS) $(CONF_XML) $(TOOLS)/gen_tuning.out
 
 $(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_modules.out $(CONF)/modules/*.xml
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_modules.out $(MODULES_DIR) $(MODULES_C) $(SETTINGS_MODULES) $< > $@
+	$(Q)$(TOOLS)/gen_modules.out $(MODULES_DIR) $(SETTINGS_MODULES) $< > $@
 	$(Q)chmod a+r $@
 
 

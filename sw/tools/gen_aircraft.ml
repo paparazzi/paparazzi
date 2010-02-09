@@ -95,7 +95,6 @@ let extract_makefile = fun airframe_file makefile_ac ->
     (Xml.children xml);
 
   (** Look for modules *)
-  let modules_exist = ref [] in (* Targets requring modules *)
   let files = ref [] in
   List.iter (fun x ->
     if ExtXml.tag_is x "modules" then
@@ -106,17 +105,11 @@ let extract_makefile = fun airframe_file makefile_ac ->
         let name = ExtXml.attrib modul "name" in
         let dir_name = (String.uppercase name)^"_DIR" in
         fprintf f "\n# makefile for module %s\n" name;
-        fprintf f "%s = $(PAPARAZZI_SRC)/sw/airborne/modules/%s\n" dir_name name;
+        fprintf f "%s = modules/%s\n" dir_name name;
         List.iter (fun l ->
           if ExtXml.tag_is l "makefile" then begin
             let targets = targets_of_field l in
-            List.iter (fun t ->
-              if not (List.mem t !modules_exist) then begin
-                fprintf f "%s.srcs += $(ACINCLUDE)/modules.c\n" t;
-                modules_exist := t :: !modules_exist
-              end;
-              fprintf f "%s.CFLAGS += -I $(%s)\n" t dir_name
-		      ) targets;
+            List.iter (fun t -> fprintf f "%s.CFLAGS += -I $(%s)\n" t dir_name ) targets;
             List.iter (fun field ->
               match String.lowercase (Xml.tag field) with
                 "flag" -> 
