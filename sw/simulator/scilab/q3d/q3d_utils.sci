@@ -82,7 +82,7 @@ function gen_video()
       drawlater();
       draw_quad(i, _rect);
       drawnow();
-      if 1
+      if 0
 	filename = sprintf('images/frame_%04d.ppm',frame_idx);
 	xs2ppm(0, filename, 1);
       else
