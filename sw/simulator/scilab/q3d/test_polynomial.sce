@@ -1,144 +1,33 @@
 clear()
 
-//
-// traj is a n_compo*n_order*n_sample vector
-// n_compo components
-// n_order succesive time derivatives
-// n_sample time values
-//
-function poly_display_traj(time, traj)
-
-  [n_compo, n_order, n_sample] = size(traj); 
- 
-  for compo=1:n_compo
-    for order=1:n_order
-      subplot(n_order, n_compo, compo+(order-1)*n_compo);
-      plot2d(time, matrix(traj(compo,order,:), n_sample, 1));
-      xtitle(sprintf('$X^{%d}_{%d}$', order-1, compo));
-    end
-  end
-  
-endfunction
+// a0 + a1(t-t0) + ... + an(t-tO)^n
+coefs = 
 
 
-//
-// compute the values of a set of polynomials along a time vector
-// 
-//
-function [traj] = poly_gen_traj(time, coefs)
- 
-  [n_comp, n_order, n_coef] = size(coefs);
- 
-  traj = zeros(n_comp, n_coef/2, length(time));
-  for compo=1:n_comp 
-    for order=1:n_order
-      for i=1:length(time)
-	traj(compo, order, i) = ...
-	    poly_compute_val(matrix(coefs(compo,order, :),1,n_coef), time(1), time(i));
-      end
-    end
-  end
-
-endfunction
 
 
-//
-// compute v = a_{n}*(t-t_0)^{n} + a_{n-1}*(t-t_0)^{n-1} + ... + a_{0}
-//
-//
-function [v] = poly_compute_val(coefs, t0, t)
-  dt = t-t0;
-  v = coefs($);
-  for i=1:length(coefs)-1
-    v = v * dt;
-    v = v + coefs(length(coefs)-i); // assume coef(1) = a_0
-  end
-  
-endfunction
+if 0
+exec('q3d_utils.sci');
+exec('q3d_polynomials.sci');
+exec('q3d_diff_flatness.sci');
+exec('q3d_fdm.sci');
+exec('q3d_display.sci');
 
-
-//
-//  compute coefficients for a set of polynomials
-//  having bond values b0 and b1
-//
-//
-function [coefs] = poly_get_coef_from_bound(time, b0,b1)
-
-  [n_comp, n_order] = size(b0);
-  n_coef = 2*n_order
-  coefs = zeros(n_comp, n_order, n_coef); 
-  
-  // refer to paper for notations
-  
-  for compo=1:n_comp
-
-    // invert of the top left corner block  
-    invA1 = zeros(n_order, n_order);
-    for i=1:n_order
-      invA1(i,i) = 1/Arr(i-1,i-1);
-    end
-    // first half of the coefficients
-    coefs(compo, 1, 1:n_order) = (invA1*b0(compo,:)')';
-    
-    // bottom right block : triangular
-    A3 = zeros(n_order, n_order);
-    dt = time($) - time(1);
-    for i=1:n_order
-      for j=i:n_order
-	A3(i,j) = Arr(i-1,j-1) * dt^(j-1);
-      end
-    end
-    // bottom left block 
-    A4 = zeros(n_order, n_order);
-    for i=1:n_order
-      for j=1:n_order
-	A4(i,j) = Arr(i-1,j-1+n_order) * dt^(j-1+n_order);
-      end
-    end
-    coefs(compo, 1, n_order+1:2*n_order) = ...
-	(inv(A4)*(b1(compo,:)' - A3*matrix(coefs(compo,1, 1:n_order), n_order, 1)))';
-    // fill in the coefficients for the succesive time derivatives  
-    for order=2:n_order
-      for pow=1:2*n_order-order
-	coefs(compo, order, pow+1) = Arr(order-1,pow-1+order)*coefs(compo, 1, pow+order);
-      end
-    end
-  end
-  
-endfunction
-
-
-//
-// Arrangement
-//
-//
-function [akn] = Arr(k,n)
-  akn = factorial(n)/factorial(n-k);
-endfunction
-
-
-b0 = [1 0 0 0; 1 0 0 0];
-b1 = [2 0 0 0;-1 0 0 0];
-t0 = 1;
+b0 = [0 1 0];
+b1 = [2 0 0];
+t0 = 0;
 t1 = 2;
 dt = 0.01;
 time = t0:dt:t1;
-if 1
+
 [coefs] = poly_get_coef_from_bound(time, b0, b1);
-[traj] = poly_gen_traj(time, coefs);
+[fo_traj] = poly_gen_traj(time, coefs);
 
+
+  
+set("current_figure",0);
 clf();
-poly_display_traj(time, traj);
+f=get("current_figure");
+f.figure_name="Flat Outputs Trajectory";
+poly_display_traj(time, fo_traj);
 end
-
-if 0
-coefs = [0 1 0 ];
-time = 0:dt:1;
-[traj] = poly_gen_traj(time, coefs);
-
-clf();
-poly_display_traj(time, traj);
-end
-
-
-// 1 0 0 10 -15 6
