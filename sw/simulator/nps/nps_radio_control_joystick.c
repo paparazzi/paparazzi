@@ -1,4 +1,5 @@
 #include "nps_radio_control.h"
+#include "nps_radio_control_joystick.h"
 
 #include <glib.h>
 #include <stdio.h>
@@ -11,9 +12,17 @@
 #include <sys/ioctl.h>
 #include <linux/joystick.h>
 
+NpsJoystick nps_joystick;
+
 static gboolean on_js_data_received(GIOChannel *source, GIOCondition condition, gpointer data);
 
 int nps_radio_control_joystick_init(const char* device) {
+
+  nps_joystick.throttle = 0.5;
+  nps_joystick.roll = 0.;
+  nps_joystick.pitch = 0.;
+  nps_joystick.yaw = 0.;
+  nps_joystick.mode = 1.0;
 
   int fd = open(device, O_RDONLY | O_NONBLOCK);
   if (fd == -1) {
@@ -29,44 +38,46 @@ int nps_radio_control_joystick_init(const char* device) {
 
 #define JS_ROLL     0
 #define JS_PITCH    1
-#define JS_MODE     2
-#define JS_YAW      5
-#define JS_THROTTLE 6
+#define JS_YAW      2
+#define JS_THROTTLE 3
+#define JS_MODE     5
 #define JS_NB_AXIS  7
 
 
-static gboolean on_js_data_received(GIOChannel *source, 
-				    GIOCondition condition __attribute__ ((unused)), 
+static gboolean on_js_data_received(GIOChannel *source,
+				    GIOCondition condition __attribute__ ((unused)),
 				    gpointer data __attribute__ ((unused))) {
 
   struct js_event js;
   gsize len;
   GError *err = NULL;
   g_io_channel_read_chars(source, (gchar*)(&js), sizeof(struct js_event), &len, &err);
-  
+
   if (js.type == JS_EVENT_AXIS) {
     if (js.number < JS_NB_AXIS) {
       switch (js.number) {
       case JS_THROTTLE:
-	nps_radio_control.throttle = ((float)js.value + 28000.)/56000.; 
-	//printf("joystick throttle %d\n",js.value);
-	break;
-      case JS_ROLL: 
-	nps_radio_control.roll = (float)js.value/-28000.; 
-	//printf("joystick roll %d %f\n",js.value, nps_radio_control.roll);
-	break;
+        nps_joystick.throttle = ((float)js.value - 32767.)/-65534.;
+        //printf("joystick throttle %d\n",js.value);
+        break;
+      case JS_ROLL:
+        nps_joystick.roll = (float)js.value/-32767.;
+        //printf("joystick roll %d %f\n",js.value, nps_joystick.roll);
+        break;
       case JS_PITCH:
-	nps_radio_control.pitch = (float)js.value/-28000.; 
-	//printf("joystick pitch %d\n",js.value);
-	break;
+        nps_joystick.pitch = (float)js.value/32767.;
+        //printf("joystick pitch %d %f\n",js.value, nps_joystick.pitch);
+        break;
       case JS_YAW:
-	nps_radio_control.yaw = (float)js.value/-28000.; 
-	//printf("joystick yaw %d\n",js.value);
-	break;
+        //nps_joystick.yaw = 0.;
+        nps_joystick.yaw = (float)js.value/-32767.;
+        //printf("joystick yaw %d %f\n",js.value, nps_joystick.yaw);
+        break;
       case JS_MODE:
-	nps_radio_control.mode = (float)js.value/-32000.; 
-	//printf("joystick mode %d\n",js.value);
-	break;
+        nps_joystick.mode = 1.0;
+        //nps_joystick.mode = (float)js.value/-32767.;
+        //printf("joystick mode %d\n",js.value);
+        break;
       }
     }
   }
