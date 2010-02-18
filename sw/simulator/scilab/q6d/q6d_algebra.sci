@@ -7,6 +7,19 @@ function [o] = trim(i,_min, _max)
   end
 endfunction
 
+function [o] = trim_vect(i,_min, _max)
+  o = i;
+  for j=1:length(i)
+    if i(j) > _max
+      o(j) = _max
+    elseif i(j) < _min
+      o(j) = _min
+    end
+  end
+endfunction
+
+
+
 function [rad] = rad_of_deg(deg)
   rad = deg / 180 * %pi;
 endfunction
@@ -32,6 +45,14 @@ Q_QX = 2;
 Q_QY = 3;
 Q_QZ = 4;
 Q_SIZE = 4;
+
+
+//
+// 
+//
+function [quat] = quat_null()
+  quat = [1 0 0 0]';
+endfunction
 
 //
 //

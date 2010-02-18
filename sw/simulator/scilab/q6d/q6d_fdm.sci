@@ -45,6 +45,9 @@ fdm_wind = [ 0; 0; 0];
 
 fdm_dt = 1/512;
 
+fdm_max_u = 1.0; // 100%
+fdm_min_u = 0.1; // 10%
+
 global fdm_time;
 global fdm_state;
 global fdm_euler;
@@ -71,6 +74,7 @@ endfunction
 
 function fdm_run(i, cmd)
 
+  cmd = trim_vect(cmd,fdm_min_u, fdm_max_u);
   global fdm_state;
   global fdm_time;
   fdm_state(:,i) = ode(fdm_state(:,i-1), fdm_time(i-1), fdm_time(i), list(fdm_get_derivatives, cmd));

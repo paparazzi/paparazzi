@@ -96,8 +96,6 @@ function [coefs] = poly_get_coef_from_bound(time, b0,b1)
     coefs(compo, 1, n_order+1:2*n_order) = ...
 	(inv(A4)*(b1(compo,:)' - A3*matrix(coefs(compo,1, 1:n_order), n_order, 1)))';
     // fill in the coefficients for the succesive time derivatives  
-//    pause
-    
     for order=2:n_order
       for pow=0:2*n_order-order
 	coefs(compo, order, pow+1) = Arr(order-1,pow-1+order)*coefs(compo, 1, pow+order);

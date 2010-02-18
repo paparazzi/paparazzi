@@ -27,7 +27,15 @@ for i=1:length(fdm_time)-1
   sensors_run(i+1);
   ahrs_propagate(i+1);
   ins_propagate(i+1);
-  guidance_run(i+1);
+//  guidance_run(i+1);
+
+  if (fdm_time(i)>1 & fdm_time(i)<2)
+    stabilization_sp_quat(:,i+1) = quat_of_euler([rad_of_deg(30) 0 0]');
+  else
+    stabilization_sp_quat(:,i+1) = quat_null();
+  end
+  stabilization_sp_thrust(i+1) = guidance_mass / guidance_Ct0 * 9.81;
+
   stabilization_run(i+1);
   
 end

@@ -16,7 +16,7 @@ global stabilization_cmd_axis;
 global stabilization_cmd_motors;
 
 
-stab_omega_ref = [ rad_of_deg(1440); rad_of_deg(1440); rad_of_deg(720) ]; 
+stab_omega_ref = [ rad_of_deg(720); rad_of_deg(720); rad_of_deg(720) ]; 
 stab_zeta_ref  = [ 0.8; 0.8; 0.8 ]; 
 
 

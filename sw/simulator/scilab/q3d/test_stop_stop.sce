@@ -1,24 +1,29 @@
 clear()
 exec('q3d_utils.sci');
+
 exec('q3d_polynomials.sci');
+exec('q3d_sbb.sci');
+
 exec('q3d_diff_flatness.sci');
 exec('q3d_fdm.sci');
 exec('q3d_display.sci');
 
-b0 = [0 0 0 0 0; 0 0 0 0 0];
-b1 = [5 0 0 0 0; 0 0 0 0 0];
+
 t0 = 0;
 t1 = 2.;
 dt = 0.01;
 time = t0:dt:t1;
 
-[coefs] = poly_get_coef_from_bound(time, b0, b1);
-
-//coefs = zeros(2,5,10);
-//coefs(1,1,2) = 1;
-//coefs(1,2,1) = 1;
-
-[fo_traj] = poly_gen_traj(time, coefs);
+if (0)
+  // polynomials
+  b0 = [0 0 0 0 0; 0 0 0 0 0];
+  b1 = [5 0 0 0 0; 0 0 0 0 0];
+  [coefs] = poly_get_coef_from_bound(time, b0, b1);
+  [fo_traj] = poly_gen_traj(time, coefs);
+else
+// differential equation
+  [fo_traj] = sbb_gen_traj(time, 5, rad_of_deg(30), [0 0] [20 0]);
+end
 
 diff_flat_cmd = zeros(2,length(time));
 diff_flat_ref = zeros(FDM_SSIZE, length(time));
