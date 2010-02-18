@@ -5,10 +5,10 @@ exec('q3d_diff_flatness.sci');
 exec('q3d_fdm.sci');
 exec('q3d_display.sci');
 
-b0 = [0  0 0 0 0; 0 0 0 0 0];
-b1 = [20 0 0 0 0; 0 0 0 0 0];
+b0 = [0 0 0 0 0; 0 0 0 0 0];
+b1 = [5 0 0 0 0; 0 0 0 0 0];
 t0 = 0;
-t1 = 10;
+t1 = 2.;
 dt = 0.01;
 time = t0:dt:t1;
 
