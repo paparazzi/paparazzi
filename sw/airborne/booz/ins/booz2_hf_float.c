@@ -83,6 +83,53 @@ int b2_hff_ps_counter;
 
 
 /*
+ * accel(in body frame) buffer
+ */
+#define ACC_RB_MAXN 64
+struct AccBuf {
+  struct Int32Vect3 buf[ACC_RB_MAXN];
+  uint8_t r; /* pos to read from, oldest measurement */
+  uint8_t w; /* pos to write to */
+  uint8_t n; /* number of elements in rb */
+  uint8_t size;
+};
+struct AccBuf acc_body;
+struct Int32Vect3 acc_mean;
+
+void b2_hff_store_accel(void) {
+  VECT3_COPY(acc_body.buf[acc_body.w], booz_imu.accel);
+  acc_body.w = (acc_body.w + 1) < acc_body.size ? (acc_body.w + 1) : 0;
+
+  /* once the buffer is full it always has the last acc_body.size accel measurements */
+  if (acc_body.n < acc_body.size) {
+	acc_body.n++;
+  } else {
+	acc_body.r = (acc_body.r + 1) < acc_body.size ? (acc_body.r + 1) : 0;
+  }
+}
+
+/* compute the mean of the last n accel measurements */
+static inline void b2_hff_compute_accel_mean(uint8_t n) {
+  struct Int32Vect3 sum;
+  int i, j;
+
+  INT_VECT3_ZERO(sum);
+
+  if (n > acc_body.n) {
+	n = acc_body.n;
+  }
+  for (i = 1; i <= n; i++) {
+	j = (acc_body.w - i) > 0 ? acc_body.w - i : acc_body.w - i + acc_body.size;
+	VECT3_ADD(sum, acc_body.buf[j]);
+  }
+  if (n > 1) {
+	VECT3_SDIV(acc_mean, sum, n);
+  } else {
+	VECT3_COPY(acc_mean, sum);
+  }
+}
+
+/*
  * For GPS lag compensation
  *
  *
@@ -107,7 +154,7 @@ int b2_hff_ps_counter;
  */
 #define MAX_PP_STEPS 6
 
-/* variables for accel buffer */
+/* variables for mean accel buffer */
 #define ACC_BUF_MAXN (GPS_LAG_N+10)
 #define INC_ACC_IDX(idx) {	idx = (idx + 1) < ACC_BUF_MAXN ? (idx + 1) : 0;	}
 
@@ -177,7 +224,13 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
   Rspeed = R_SPEED;
   b2_hff_init_x(init_x, init_xdot);
   b2_hff_init_y(init_y, init_ydot);
+  /* init buffer for mean accel calculation */
+  acc_body.r = 0;
+  acc_body.w = 0;
+  acc_body.n = 0;
+  acc_body.size = ACC_RB_MAXN;
 #ifdef GPS_LAG
+  /* init buffer for past mean accel values */
   acc_buf_r = 0;
   acc_buf_w = 0;
   acc_buf_n = 0;
@@ -229,7 +282,7 @@ static inline void b2_hff_init_y(float init_y, float init_ydot) {
 }
 
 #ifdef GPS_LAG
-void b2_hff_store_accel(float x, float y) {
+static inline void b2_hff_store_accel_ltp(float x, float y) {
   past_accel[acc_buf_w].x = x;
   past_accel[acc_buf_w].y = y;
   INC_ACC_IDX(acc_buf_w);
@@ -365,15 +418,15 @@ void b2_hff_propagate(void) {
 
     if (gps_lost_counter < GPS_LOST_LIMIT) {
       /* compute float ltp mean acceleration */
-      booz_ahrs_compute_accel_mean(HFF_PRESCALER);
+      b2_hff_compute_accel_mean(HFF_PRESCALER);
       struct Int32Vect3 mean_accel_body;
-      INT32_RMAT_TRANSP_VMULT(mean_accel_body, booz_imu.body_to_imu_rmat, booz_ahrs_accel_mean);
+      INT32_RMAT_TRANSP_VMULT(mean_accel_body, booz_imu.body_to_imu_rmat, acc_mean);
       struct Int32Vect3 mean_accel_ltp;
       INT32_RMAT_TRANSP_VMULT(mean_accel_ltp, booz_ahrs.ltp_to_body_rmat, mean_accel_body);
       b2_hff_xdd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.x);
       b2_hff_ydd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.y);
 #ifdef GPS_LAG
-      b2_hff_store_accel(b2_hff_xdd_meas, b2_hff_ydd_meas);
+      b2_hff_store_accel_ltp(b2_hff_xdd_meas, b2_hff_ydd_meas);
 #endif
 
       /*

@@ -70,9 +70,8 @@ extern void b2_hff_update_pos(float xpos, float ypos);
 extern void b2_hff_update_v(float xspeed, float yspeed);
 extern void b2_hff_realign(struct FloatVect2 pos, struct FloatVect2 speed);
 
-#ifdef GPS_LAG
-extern void b2_hff_store_accel(float x, float y);
-#endif
+extern void b2_hff_store_accel(void);
+
 extern struct HfilterFloat *b2_hff_rb_last;
 extern int lag_counter_err;
 extern int save_counter;

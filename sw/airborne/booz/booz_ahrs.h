@@ -57,7 +57,6 @@ struct BoozAhrsFloat {
 
 extern struct BoozAhrs booz_ahrs;
 extern struct BoozAhrsFloat booz_ahrs_float;
-extern struct Int32Vect3 booz_ahrs_accel_mean;
 
 #define BOOZ_AHRS_FLOAT_OF_INT32() {					\
     QUAT_FLOAT_OF_BFP(booz_ahrs_float.ltp_to_body_quat, booz_ahrs.ltp_to_body_quat); \
@@ -73,9 +72,5 @@ extern void booz_ahrs_propagate(void);
 extern void booz_ahrs_update(void);
 extern void booz_ahrs_update_accel(void);
 extern void booz_ahrs_update_mag(void);
-
-extern void booz_ahrs_init_accel_rb(void);
-extern void booz_ahrs_store_accel(void);
-extern void booz_ahrs_compute_accel_mean(uint8_t n);
 
 #endif /* BOOZ_AHRS_H */
