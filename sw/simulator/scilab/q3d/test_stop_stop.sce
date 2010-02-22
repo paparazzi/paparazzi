@@ -23,7 +23,7 @@ if (0)
   [fo_traj] = poly_gen_traj(time, coefs);
 else
 // differential equation
-  [fo_traj] = sbb_gen_traj(time, 5, rad_of_deg(29.983325), [0 0], [5 0]);
+  [fo_traj] = sbb_gen_traj(time, 5, rad_of_deg(29.983325), [-1 0], [1 0]);
   printf('xfinal:%f\n',fo_traj(1,1,$)); 
 
 end
@@ -45,7 +45,7 @@ for i=2:length(time)
 end
 
 
-//povray_draw(time, diff_flat_ref);
+povray_draw(time, diff_flat_ref);
 
 set("current_figure",0);
 clf();
