@@ -51,37 +51,6 @@ function [inp] = df_input_of_fo(fo)
 endfunction
 
 
-// 
-function [fo] = df_get_traj_polynomial(Xin, Xout, Uin, Uout, time)
-
-  fo = zeros(DF_OSIZE*DF_ORANK, length(time));
-  // boundary conditions
-  fo(1,1)  = Xin(FDM_SX);
-  fo(2,1)  = Xin(FDM_SZ);
-  fo(3,1)  = Xin(FDM_SXD);
-  fo(4,1)  = Xin(FDM_SZD);
-  fo(5,1)  = -Uin(1)*sin(Xin(FDM_STHETA));
-  fo(6,1)  =  Uin(1)*(cos(Xin(FDM_STHETA)) - 1);
-  fo(7,1)  = 0;
-  fo(8,1)  = 0;
-  fo(9,1)  = 0;
-  fo(10,1) = 0;
-  
-  fo(1, length(time)) = Xout(FDM_SX);
-  fo(2, length(time)) = Xout(FDM_SZ);
-  fo(3, length(time)) = Xout(FDM_SXD);
-  fo(4, length(time)) = Xout(FDM_SZD);
-  fo(5, length(time)) = -Uout(1)*sin(Xout(FDM_STHETA));
-  fo(6, length(time)) =  Uout(1)*(cos(Xout(FDM_STHETA)) - 1);
-  fo(7, length(time)) = 0;
-  fo(8, length(time)) = 0;
-  fo(9, length(time)) = 0;
-  fo(10,length(time)) = 0;  
-
- 
-endfunction
-
-
 
 
 

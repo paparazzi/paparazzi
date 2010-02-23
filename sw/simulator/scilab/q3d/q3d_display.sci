@@ -104,27 +104,27 @@ endfunction
 function display_fo_ref(time, diff_flat_ref)
 
   subplot(2,3,1);
-  plot2d(fdm_time, diff_flat_ref(FDM_SX, :));
+  plot2d(time, diff_flat_ref(FDM_SX, :));
   xtitle('X');
 
   subplot(2,3,2);
-  plot2d(fdm_time, diff_flat_ref(FDM_SZ, :));
+  plot2d(time, diff_flat_ref(FDM_SZ, :));
   xtitle('Z');
 
   subplot(2,3,3);
-  plot2d(fdm_time, deg_of_rad(diff_flat_ref(FDM_STHETA, :)));
+  plot2d(time, deg_of_rad(diff_flat_ref(FDM_STHETA, :)));
   xtitle('Theta');
 
   subplot(2,3,4);
-  plot2d(fdm_time, diff_flat_ref(FDM_SXD, :));
+  plot2d(time, diff_flat_ref(FDM_SXD, :));
   xtitle('Xd');
 
   subplot(2,3,5);
-  plot2d(fdm_time, diff_flat_ref(FDM_SZD, :));
+  plot2d(time, diff_flat_ref(FDM_SZD, :));
   xtitle('Zd');
 
   subplot(2,3,6);
-  plot2d(fdm_time, deg_of_rad(diff_flat_ref(FDM_STHETAD, :)));
+  plot2d(time, deg_of_rad(diff_flat_ref(FDM_STHETAD, :)));
   xtitle('Thetad');
   
   endfunction

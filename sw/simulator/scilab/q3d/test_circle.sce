@@ -2,7 +2,6 @@ clear()
 exec('q3d_utils.sci');
 
 exec('q3d_polynomials.sci');
-exec('q3d_sbb.sci');
 exec('q3d_fo_traj_misc.sci');
 
 exec('q3d_diff_flatness.sci');
@@ -12,30 +11,28 @@ exec('q3d_povray.sci');
 
 
 t0 = 0;
-t1 = 10.;
+t1 = 5.;
+t2 = 15.;
+t3 = 20.;
 dt = 1/512;
-time = t0:dt:t1;
+time1 = t0:dt:t1;
+time2 = t1:dt:t2;
+time3 = t2:dt:t3;
 
-if (0)
-  // polynomials
-  b0 = [0 0 0 0 0; 0 0 0 0 0];
-  b1 = [2 0 0 0 0; 0 0 0 0 0];
-  [coefs] = poly_get_coef_from_bound(time, b0, b1);
-  [fo_traj] = poly_gen_traj(time, coefs);
-end
-if (0)
-// differential equation
-  dyn = [rad_of_deg(500) 0.7; rad_of_deg(500) 0.7];
-  max_speed = [5 2.5];
-  max_accel = [ 9.81*tan(rad_of_deg(29.983325)) 0.5*9.81];
-  b0 = [-5 0];
-  b1 = [ 5 -2];
-  [fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1);
-  printf('xfinal %f, zfinal:%f\n',fo_traj(1,1,$), fo_traj(2,1,$));
-end
-if (1)
- [fo_traj] = fo_traj_circle(time, [0 0], 2, rad_of_deg(45));
-end
+[fo_traj2] = fo_traj_circle(time2, [0 0], 2, rad_of_deg(45));
+
+b0 = [-5 0 0 0 0; 0 0 0 0 0];
+b1 = [ fo_traj2(1,:,1); fo_traj2(2,:,1)];
+[coefs] = poly_get_coef_from_bound(time1, b0, b1);
+[fo_traj1] = poly_gen_traj(time1, coefs);
+
+b0 = [ fo_traj2(1,:,$); fo_traj2(2,:,$)];
+b1 = [-5 0 0 0 0; 0 0 0 0 0];
+[coefs] = poly_get_coef_from_bound(time3, b0, b1);
+[fo_traj3] = poly_gen_traj(time3, coefs);
+
+
+[time, fo_traj] = merge_traj(list(time1, time2, time3), list(fo_traj1, fo_traj2, fo_traj3));
  
  
 diff_flat_cmd = zeros(2,length(time));
