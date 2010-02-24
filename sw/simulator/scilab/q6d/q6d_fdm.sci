@@ -138,7 +138,7 @@ function [F_ltp] = fdm_get_forces_ltp(X, U)
   quat = X(FDM_SQI:FDM_SQZ);
   airspeed_body = quat_vect_mult(quat, airspeed_ltp);
 
-  lift_body = [0; 0; -sum(U) * fdm_Ct0 * ( 1 + 1/fdm_V0 * airspeed_body(AXIS_Z))];
+  lift_body = [0; 0; -sum(U) * fdm_Ct0 * ( 1 - 1/fdm_V0 * airspeed_body(AXIS_Z))];
   lift_ltp = quat_vect_inv_mult(quat, lift_body);
   
   weight_ltp = [0; 0; fdm_g * fdm_mass];
