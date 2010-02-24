@@ -146,12 +146,13 @@
   </section>
 
 
- <section name="GUIDANCE_H" prefix="BOOZ2_GUIDANCE_H_">
+  <section name="GUIDANCE_H" prefix="BOOZ2_GUIDANCE_H_">
    <define name="PGAIN" value="-70"/>
    <define name="DGAIN" value="-150"/>
    <define name="IGAIN" value="-15"/>
    <define name="NGAIN" value="-0"/>
-   <define name="AGAIN" value="-0"/>
+   <!-- feedforward -->
+   <define name="AGAIN" value="100"/>
  </section>
 
  <section name="BAT">
@@ -189,7 +190,7 @@
 
  <section name="SIMULATOR" prefix="NPS_">
    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-   <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
+   <!--define name="INITIAL_CONDITITONS" value="&quot;reset_enac&quot;"/-->
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
  </section>
 
@@ -207,6 +208,7 @@ include $(CFG_BOOZ)/booz2_test_progs.makefile
 ap.CFLAGS += -DBOOZ_FAILSAFE_GROUND_DETECT
 
 sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a2.h\"
+sim.CFLAGS += -DNPS_NO_SUPERVISION
 include $(CFG_BOOZ)/booz2_simulator_nps.makefile
 
 ap.CFLAGS += -DMODEM_BAUD=B57600
@@ -214,6 +216,7 @@ include $(CFG_BOOZ)/subsystems/booz2_actuators_asctec.makefile
 include $(CFG_BOOZ)/subsystems/booz2_radio_control_ppm.makefile
 include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1_1.makefile
 include $(CFG_BOOZ)/subsystems/booz2_gps.makefile
+include $(CFG_BOOZ)/subsystems/booz2_analog_bat_baro.makefile
 include $(CFG_BOOZ)/subsystems/booz2_fms_datalink.makefile
 
 include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
@@ -223,10 +226,16 @@ include $(CFG_BOOZ)/subsystems/booz2_ins_hff.makefile
 #ap.CFLAGS += -DGPS_LAG=0.8
 ap.CFLAGS += -DUSE_GPS_ACC4R
 
+ap.CFLAGS += -DB2_GUIDANCE_H_USE_REF
+sim.CFLAGS += -DB2_GUIDANCE_H_USE_REF
+
 ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3
+sim.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3
 
 ap.CFLAGS += -DUSE_CAM
 ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c $(SRC_BOOZ)/booz2_cam.c
+sim.CFLAGS += -DUSE_CAM
+sim.srcs += $(SRC_BOOZ_SIM)/booz2_pwm_hw.c $(SRC_BOOZ)/booz2_cam.c
 
   </makefile>
 
