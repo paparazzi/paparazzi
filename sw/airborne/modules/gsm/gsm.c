@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2009 ENAC
+ * Copyright (C) 2009 ENAC, Arnaud Quintard, Pascal Brisset
  *
  * This file is part of paparazzi.
  *
@@ -21,6 +21,10 @@
  * Boston, MA 02111-1307, USA. 
  *
  */
+
+/*
+http://www.telit.com/en/products/gsm-gprs.php?p_ac=show&p=12#downloads
+*/
 
 #include <stdbool.h>
 #include <string.h>
@@ -54,6 +58,8 @@
 #define CTRLZ 		0x1A
 #define GSM_ORIGIN_MAXLEN 32
 #define DATA_MAXLEN 128
+
+#define CMTI "+CMTI:"
 
 static bool gsm_line_received;
 static bool prompt_received;
@@ -99,9 +105,8 @@ static void gsm_receive_content(void);
 static void request_for_msg(void);
 static void Extraction(char source[], char char_dbt, int nb_occurence1, int decalage1, char char_fin, int nb_occurence2, int decalage2, char destination[]);
 static void Send_CSQ(void);
-static void receiving_header(void);
 static void Send(const char string[]);
-static void parse_msg_header(char* reponse_module);
+static void parse_msg_header(void);
 
 
 
@@ -138,126 +143,58 @@ static void gsm_got_line(void)
 {
   if (wait_data) { // Currently receiving a SMS
     gsm_receive_content();
-  } else if ((strncmp("+CMTI:", gsm_buf, strlen("+CMTI")) == 0)
-	     && (!is_receiving)) { // A SMS is available
-    is_receiving = true;
-    // ???? Send(gsm_buf);
- 
-    char index_extrait[6] = "\0\0\0\0\0\0";     
-      
-    /* Extraction de l'index du message recu */
-    Extraction(gsm_buf, ',', 1, 1, '\r', 1, 1, index_extrait);
+  } else if ((strncmp(CMTI, gsm_buf, strlen(CMTI)) == 0)
+	     && (!is_receiving)) { /* A SMS is available */
 
-    //??? Send(index_extrait);
-      
-    index_msg = atoi(index_extrait);
-    
-    request_for_msg();
+    /* Extracting the index of the message */
+    char first_comma = index(gsm_buf, ',');
+    if (first_comma) {
+      index_msg = atoi(first_comma+1);
+      is_receiving = true;
+      request_for_msg();
+    }
   } else if (waiting_for_reply) { // Other cases
     // Do we get what we were expecting
     
-    bool GSM_reponse = strncmp(expected_ack, gsm_buf, strlen(expected_ack)) == 0;
-    switch(gsm_status) {
-    case STATUS_CSQ :			
-      if(!GSM_reponse) {
-	if(nb_received_lines <= 15) { // ????? Telit is sending empty lines ?
-	  nb_received_lines++;
-	  waiting_for_reply = true; // Waiting longer for an answer
-	} else {
-	  nb_received_lines = 0;
-	  Send_CSQ(); // Asking again for the network coverage
-	}
-      } else {
-	waiting_for_reply = false;
+    bool gsm_answer = strncmp(expected_ack, gsm_buf, strlen(expected_ack)) == 0;
+    if (gsm_answer) {
+      waiting_for_reply = false;
+
+      switch(gsm_status) {
+      case STATUS_CSQ :			
 	gsm_send_report_continue();
-      }
-      break;
+	break;
+	
+      case STATUS_REQUESTING_MESSAGE:
+	parse_msg_header();
+	wait_data = true;
+	break;
       
-    case STATUS_REQUESTING_MESSAGE :
-      if(!GSM_reponse) {
-	if(nb_received_lines <= 10) {
-	  nb_received_lines++;
-	  waiting_for_reply = true;
-	} else {
-	  nb_received_lines = 0;
-	  request_for_msg();
-	}
-      } else {
-	waiting_for_reply = false;
-	receiving_header();
-      }
-      break;
-      
-    case STATUS_SEND_AT :
-      if(!GSM_reponse) {
-	if(nb_received_lines <= 10) {
-	  nb_received_lines++;
-	  waiting_for_reply = true;
-	} else {
-	  nb_received_lines = 0;
-	  waiting_for_reply = true;
-	  Send_AT();
-	}
-      } else {
-	waiting_for_reply = false;
-	GSM_reponse = false;
+      case STATUS_SEND_AT :
+	gsm_answer = false;
 	Send_CMGF();
-      }
-      break;
+	break;
       
-    case STATUS_SEND_CMGF :
-      if(!GSM_reponse) {
-	if(nb_received_lines <= 10) {
-	  nb_received_lines++;
-	  waiting_for_reply = true;
-	} else {
-	  nb_received_lines = 0;
-	  waiting_for_reply = true;
-	  Send_CMGF();
-	}
-      } else {
-	waiting_for_reply = false;
-	GSM_reponse = false;
+      case STATUS_SEND_CMGF :
+	gsm_answer = false;
 	Send_CNMI();
-      }
-      break;
+	break;
       
-    case STATUS_SEND_CNMI :
-      if(!GSM_reponse) {
-	if(nb_received_lines <= 10) {
-	  nb_received_lines++;
-	  waiting_for_reply = true;
-	} else {
-	  nb_received_lines = 0;
-	  waiting_for_reply = true;
-	  Send_CNMI();
-	}
-      } else {
-	waiting_for_reply = false;
-	GSM_reponse = false;
+      case STATUS_SEND_CNMI :
+	gsm_answer = false;
 	Send_CPMS();
-      }
-      break;
+	break;
       
-    case STATUS_SEND_CPMS :
-      if(!GSM_reponse) {
-	if(nb_received_lines <= 10) {
-	  nb_received_lines++;
-	  waiting_for_reply = true;
-	} else {
-	  nb_received_lines = 0;
-	  waiting_for_reply = true;
-	  Send_CPMS();
-	}
-      } else {
-	GSM_reponse = false;
+      case STATUS_SEND_CPMS :
+	gsm_answer = false;
 	init_done = true;
-	waiting_for_reply = false;
-      }								
-      break;
+	break;
       
-    default:				
-      break;
+      default:				
+	break;
+      }
+    } else { /** We did not get the expected answer */
+      /* Let's wait for the next line */
     }
   }
 }
@@ -277,14 +214,11 @@ static void request_for_msg(void)
 }
 
 
-// Receiving a SMS, second step, header available in gsm_buf
-static void receiving_header(void)
-{
-  parse_msg_header(gsm_buf);
-  wait_data = true;
-}
-
-// Receiving a SMS, third step, content in gsm_buf
+/** Receiving a SMS, third step, content in gsm_buf
+    Message can be
+      Bdd         where dd is a block index on two digits. WARNING: dd > 0
+      Sdd value   where dd>0 is a var index on two digits and value is a float
+ */
 static void gsm_receive_content(void)
 {
   char instruction[15], index_block[2];
@@ -295,23 +229,28 @@ static void gsm_receive_content(void)
   // ?????? Send(data_to_send);
   
   // Checking the number of the sender
-  if (strncmp((char*)GCS_NUMBER, origin, 12) == 0) {
-      // Decoding the message ...
-	
-      // Search for the instruction
-      Extraction(gsm_buf, ' ', 1, 1, ' ', 1, 0, instruction);
-	
-      Send(instruction);
-	
-      // Si on a recu une instruction JUMP_TO_BLOCK	
-      if (strcmp(instruction, "JUMP_TO_BLOCK") == 0) {
-	Extraction(gsm_buf, ' ', 2, 1, '\n', 1, 0, index_block);
-	
-	nav_goto_block(atoi(index_block));
+  if (strncmp((char*)GCS_NUMBER, origin, strlen(GCS_NUMBER)) == 0) {
+    // Decoding the message ...
+
+    // Search for the instruction
+    switch (gsm_buf[0]) {
+    case 'B' :
+      uint8_t block_index = atoi(gsm_buf+1);
+      if (block_index > 0) /* Warning: no way to go to the first block */
+	nav_goto_block(block_index);
+      break;
+      
+    case 'S' :
+      uint8_t var_index = atoi(gsm_buf+1);
+      if (var_index > 0) {
+	float value = atof(index(gsm_buf, ' ')+1);
+	DlSetting(var_index, value);
       }
-	
-      Suppr_SMS(index_msg);
+
+    default:
+    }
   }
+  Suppr_SMS(index_msg);
   
   is_receiving = false;
 }
@@ -349,11 +288,12 @@ static void gsm_got_prompt(void)
   waiting_prompt = false;
 }
 
-
-static void parse_msg_header(char* buffer2)
+/** Message header in gsm_bug
+ */
+static void parse_msg_header(void)
 {
   /* Extraction du flag*/
-  Extraction(buffer2, '"', 1, 1, '"', 1, 0, msg_status);
+  /** Extraction(buffer2, '"', 1, 1, '"', 1, 0, msg_status); */
 	
   /* Extraction de l'expediteur*/
   Extraction(buffer2, '"', 2, 1, '"', 1, 0, origin);
