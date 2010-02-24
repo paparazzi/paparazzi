@@ -70,6 +70,10 @@ extern void b2_hff_update_pos(float xpos, float ypos);
 extern void b2_hff_update_v(float xspeed, float yspeed);
 extern void b2_hff_realign(struct FloatVect2 pos, struct FloatVect2 speed);
 
+#define B2_HFF_LOST_LIMIT 1000
+extern uint16_t b2_hff_lost_limit;
+extern uint16_t b2_hff_lost_counter;
+
 extern void b2_hff_store_accel(void);
 
 extern struct HfilterFloat *b2_hff_rb_last;

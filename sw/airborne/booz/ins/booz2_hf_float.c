@@ -29,6 +29,8 @@
 #include "booz2_gps.h"
 #include <stdlib.h>
 
+#include "airframe.h"
+
 #ifdef SITL
 #include <stdio.h>
 #define DBG_LEVEL 1
@@ -44,14 +46,26 @@
 /* initial covariance diagonal */
 #define INIT_PXX 1.
 /* process noise (is the same for x and y)*/
-#define ACCEL_NOISE 0.5
-#define Q       ACCEL_NOISE*DT_HFILTER*DT_HFILTER/2.
-#define Qdotdot ACCEL_NOISE*DT_HFILTER
+#ifndef B2_HFF_ACCEL_NOISE
+#define B2_HFF_ACCEL_NOISE 0.5
+#endif
+#define Q       B2_HFF_ACCEL_NOISE*DT_HFILTER*DT_HFILTER/2.
+#define Qdotdot B2_HFF_ACCEL_NOISE*DT_HFILTER
+
 //TODO: proper measurement noise
-#define R_POS   8.
-#define R_POS_MIN 3.
-#define R_SPEED 2.
-#define R_SPEED_MIN 1.
+#ifndef B2_HFF_R_POS
+#define B2_HFF_R_POS   8.
+#endif
+#ifndef B2_HFF_R_POS_MIN
+#define B2_HFF_R_POS_MIN 3.
+#endif
+
+#ifndef B2_HFF_R_SPEED
+#define B2_HFF_R_SPEED 2.
+#endif
+#ifndef B2_HFF_R_SPEED_MIN
+#define B2_HFF_R_SPEED_MIN 1.
+#endif
 
 float Rpos, Rspeed;
 
@@ -193,8 +207,8 @@ int past_save_counter;
 #define SAVING -1
 #define SAVE_DONE -2
 
-uint16_t gps_lost_counter;
-#define GPS_LOST_LIMIT 1000
+uint16_t b2_hff_lost_limit;
+uint16_t b2_hff_lost_counter;
 
 #ifdef GPS_LAG
 static inline void b2_hff_get_past_accel(unsigned int back_n);
@@ -220,8 +234,8 @@ static inline void b2_hff_update_ydot(struct HfilterFloat* hff_work, float v);
 
 
 void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
-  Rpos = R_POS;
-  Rspeed = R_SPEED;
+  Rpos = B2_HFF_R_POS;
+  Rspeed = B2_HFF_R_SPEED;
   b2_hff_init_x(init_x, init_xdot);
   b2_hff_init_y(init_y, init_ydot);
   /* init buffer for mean accel calculation */
@@ -256,6 +270,8 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
   save_counter = -1;
   past_save_counter = SAVE_DONE;
   b2_hff_ps_counter = 1;
+  b2_hff_lost_counter = 0;
+  b2_hff_lost_limit = B2_HFF_LOST_LIMIT;
 }
 
 static inline void b2_hff_init_x(float init_x, float init_xdot) {
@@ -397,13 +413,13 @@ static inline void b2_hff_propagate_past(struct HfilterFloat* hff_past) {
 	}
   }
 }
-#endif
+#endif /* GPS_LAG */
 
 
 
 void b2_hff_propagate(void) {
-  if (gps_lost_counter < GPS_LOST_LIMIT)
-    gps_lost_counter++;
+  if (b2_hff_lost_counter < b2_hff_lost_limit)
+    b2_hff_lost_counter++;
 
 #ifdef GPS_LAG
   /* continue re-propagating to catch up with the present */
@@ -416,7 +432,7 @@ void b2_hff_propagate(void) {
   if (b2_hff_ps_counter == HFF_PRESCALER) {
 	b2_hff_ps_counter = 1;
 
-    if (gps_lost_counter < GPS_LOST_LIMIT) {
+    if (b2_hff_lost_counter < b2_hff_lost_limit) {
       /* compute float ltp mean acceleration */
       b2_hff_compute_accel_mean(HFF_PRESCALER);
       struct Int32Vect3 mean_accel_body;
@@ -453,7 +469,7 @@ void b2_hff_propagate(void) {
 #endif
     }
   } else {
-	b2_hff_ps_counter++;
+    b2_hff_ps_counter++;
   }
 }
 
@@ -461,16 +477,16 @@ void b2_hff_propagate(void) {
 
 
 void b2_hff_update_gps(void) {
-  gps_lost_counter = 0;
+  b2_hff_lost_counter = 0;
 
 #ifdef USE_GPS_ACC4R
   Rpos = (float) booz_gps_state.pacc / 100.;
-  if (Rpos < R_POS_MIN)
-    Rpos = R_POS_MIN;
+  if (Rpos < B2_HFF_R_POS_MIN)
+    Rpos = B2_HFF_R_POS_MIN;
 
   Rspeed = (float) booz_gps_state.sacc / 100.;
-  if (Rspeed < R_SPEED_MIN)
-    Rspeed = R_SPEED_MIN;
+  if (Rspeed < B2_HFF_R_SPEED_MIN)
+    Rspeed = B2_HFF_R_SPEED_MIN;
 #endif
 
 #ifdef GPS_LAG
