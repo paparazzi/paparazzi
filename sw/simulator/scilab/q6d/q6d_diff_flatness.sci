@@ -48,7 +48,7 @@ function [state] = df_state_of_fo(fo)
   z2dmg = z2d - DF_G;
   av = sqrt(axpsi^2 + z2dmg^2);
   
-  state(DF_REF_PHI) = atan(aypsi/av);
+  state(DF_REF_PHI) = sign(z2dmg)*atan(aypsi/av);
   state(DF_REF_THETA) = atan(axpsi/z2dmg);
   
   x3d = fo(1,4);
@@ -132,7 +132,7 @@ function [inp] = df_input_of_fo(fo)
   b = -adv*(axpsi*adxpsi + zddmg*zddd);
   addv = (a+b)/av^2;
   
-  phi = atan(aypsi/av);
+  phi = sign(zddmg)*atan(aypsi/av);
   theta = atan(axpsi/zddmg);
   
   phid   = (adypsi*av-adv*aypsi)/(aypsi^2+av^2);
