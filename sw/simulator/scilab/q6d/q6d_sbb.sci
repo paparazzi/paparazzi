@@ -41,8 +41,11 @@ function [fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1)
   fo_traj = zeros(n_comp, order, length(time));
 
   // psi
+  omega = rad_of_deg(45);
   for i=1:length(time)
-    fo_traj(4,1,i) = rad_of_deg(30);
+    fo_traj(4,1,i) = sin(omega*time(i));
+    fo_traj(4,2,i) = omega*cos(omega*time(i));
+    fo_traj(4,3,i) = -omega^2*sin(omega*time(i));
   end
   
   // x and y
