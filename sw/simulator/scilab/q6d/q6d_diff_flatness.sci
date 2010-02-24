@@ -133,7 +133,7 @@ function [inp] = df_input_of_fo(fo)
   adv = (axpsi*adxpsi + z2dmg*z3d)/av;
   z4d = fo(3,5);
   a = (axpsi*a2dxpsi + adxpsi^2 + (z2dmg)*z4d +z3d^2)*av;
-//  a = (axpsi*a2dxpsi + adxpsi^2 + (z2dmg)*z4d +z3d)*av;
+  //a = (axpsi*a2dxpsi + adxpsi^2 + (z2dmg)*z4d +z3d)*av;
   b = -adv*(axpsi*adxpsi + z2dmg*z3d);
   a2dv = (a+b)/av^2;
   
@@ -144,12 +144,12 @@ function [inp] = df_input_of_fo(fo)
   //thetad = (adxpsi*z2dmg-z3d*aypsi)/(axpsi^2+z2dmg^2);
   thetad = (adxpsi*z2dmg-z3d*axpsi)/(axpsi^2+z2dmg^2);
     
-  a = (a2dypsi*av + adv*(adypsi-aypsi)-a2dv*aypsi)*(aypsi^2+av^2);
+  a = (a2dypsi*av-a2dv*aypsi)*(aypsi^2+av^2);
   b = -2*(aypsi*adypsi+av*adv)*(adypsi*av-adv*aypsi);
   c = (aypsi^2+av^2)^2;
   phi2d = sign(z2dmg)*(a+b)/c;
   
-  a = (a2dxpsi*z2dmg+z3d*(adxpsi - axpsi) - z4d*axpsi)*(axpsi^2+z2dmg^2);
+  a = (a2dxpsi*z2dmg-z4d*axpsi)*(axpsi^2+z2dmg^2);
   b = -2*(axpsi*adxpsi+z2dmg*z3d)*(adxpsi*z2dmg-z3d*axpsi);
   c = (axpsi^2+z2dmg^2)^2;
   theta2d = (a+b)/c;

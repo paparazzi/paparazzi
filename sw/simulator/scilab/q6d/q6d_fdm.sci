@@ -53,8 +53,10 @@ fdm_inertia = [0.0078 0.     0.        // inertia tensor
                0.     0.0078 0.
 	       0.     0.     0.0137 ];
 fdm_Ct0 = 4. * fdm_mass * fdm_g / 4;   // thrust coefficient
-fdm_V0  = 7.;	                       // 
-fdm_Cd  = 0.01;                        // drag coefficient
+//fdm_V0  = 7.;	                       // 
+fdm_V0  = 1000.;	                       // 
+//fdm_Cd  = 0.01;                        // drag coefficient
+fdm_Cd  = 0.000001;                        // drag coefficient
 fdm_la  = 0.25;                        // arm length
 fdm_Cm  = fdm_Ct0 / 10;                // torque coefficient
 
@@ -137,8 +139,7 @@ function [F_ltp] = fdm_get_forces_ltp(X, U)
   airspeed_ltp = gspeed_ltp - fdm_wind;
   quat = X(FDM_SQI:FDM_SQZ);
   airspeed_body = quat_vect_mult(quat, airspeed_ltp);
-
-  lift_body = [0; 0; -sum(U) * fdm_Ct0 * ( 1 - 1/fdm_V0 * airspeed_body(AXIS_Z))];
+  lift_body = [0; 0; -sum(U) * fdm_Ct0 * ( 1 - abs(1/fdm_V0 * airspeed_body(AXIS_Z)))];
   lift_ltp = quat_vect_inv_mult(quat, lift_body);
   
   weight_ltp = [0; 0; fdm_g * fdm_mass];
