@@ -41,7 +41,7 @@ function [state] = df_state_of_fo(fo)
   
   x2d = fo(1,3);
   y2d = fo(2,3);
-  z2d = fo(2,3);
+  z2d = fo(3,3);
   
   axpsi = cpsi*x2d + spsi*y2d;
   aypsi = spsi*x2d - cpsi*y2d;
