@@ -185,7 +185,7 @@ void nav_route(uint8_t wp_start, uint8_t wp_end) {
   int32_t nav_leg_progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / leg_length;
   int32_t progress = Max((CARROT_DIST >> INT32_POS_FRAC), 0);
   nav_leg_progress += progress;
-  int32_t prog_2 = leg_length + progress / 2;
+  int32_t prog_2 = leg_length;// + progress / 2;
   Bound(nav_leg_progress, 0, prog_2);
   struct Int32Vect2 progress_pos;
   VECT2_SMUL(progress_pos, wp_diff, nav_leg_progress);
@@ -231,7 +231,7 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx) {
 
 static inline void nav_set_altitude( void ) {
   static int32_t last_nav_alt = 0;
-  if (abs(nav_altitude - last_nav_alt) > (POS_BFP_OF_REAL(0.5))) {
+  if (abs(nav_altitude - last_nav_alt) > (POS_BFP_OF_REAL(0.2))) {
     nav_flight_altitude = nav_altitude;
     last_nav_alt = nav_altitude;
   }
@@ -247,8 +247,10 @@ unit_t nav_reset_reference( void ) {
 unit_t nav_reset_alt( void ) {
   booz_ins_vff_realign = TRUE;
 
+#ifdef USE_GPS
   booz_ins_ltp_def.lla.alt = booz_gps_state.lla_pos.alt;
   booz_ins_ltp_def.hmsl = booz_gps_state.hmsl;
+#endif
 
   return 0;
 }
@@ -290,9 +292,13 @@ void nav_periodic_task() {
 
 }
 
+#include "downlink.h"
+#include "messages.h"
+#include "uart.h"
 void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos) {
   if (wp_id < nb_waypoint) {
     INT32_VECT3_COPY(waypoints[wp_id],(*new_pos));
+    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, &wp_id, &(new_pos->x), &(new_pos->y), &(new_pos->z));
   }
 }
 
@@ -313,6 +319,7 @@ void nav_update_wp_from_fms(uint8_t _wp) {
       nav_heading += dheading;
       INT32_COURSE_NORMALIZE(nav_heading);
     }
+    RunOnceEvery(10,DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, &_wp, &(waypoints[_wp].x), &(waypoints[_wp].y), &(waypoints[_wp].z)));
   }
 }
 
