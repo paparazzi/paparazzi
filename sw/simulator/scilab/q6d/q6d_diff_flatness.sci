@@ -94,70 +94,80 @@ function [inp] = df_input_of_fo(fo)
 
   inp = zeros(4,1);
   
-  xdd = fo(1,3);
-  ydd = fo(2,3);
-  zddmg = fo(3,3) - DF_G;
-  inp(1) = DF_MASS * sqrt(xdd^2+ydd^2+zddmg^2);
+  x2d = fo(1,3);
+  y2d = fo(2,3);
+  z2d = fo(3,3);
+  z2dmg = z2d - DF_G;
+  inp(1) = DF_MASS * sqrt(x2d^2+y2d^2+z2dmg^2);
   
   psi   = fo(4,1);
   psid  = fo(4,2);
-  psidd = fo(4,3);
+  psi2d = fo(4,3);
    
-  axpsi = cos(psi)*xdd + sin(psi)*ydd;
-  aypsi = sin(psi)*xdd - cos(psi)*ydd;
+  cpsi = cos(psi);
+  spsi = sin(psi);
   
-  xddd = fo(1,4);
-  yddd = fo(2,4);
+  axpsi = cpsi*x2d + spsi*y2d;
+  aypsi = spsi*x2d - cpsi*y2d;
   
-  jxpsi = cos(psi)*xddd + sin(psi)*yddd;
-  jypsi = sin(psi)*xddd - cos(psi)*yddd;
+  x3d = fo(1,4);
+  y3d = fo(2,4);
   
-  xdddd = fo(1,5);
-  ydddd = fo(2,5);
+  jxpsi = cpsi*x3d + spsi*y3d;
+  jypsi = spsi*x3d - cpsi*y3d;
   
-  kxpsi = cos(psi)*xdddd + sin(psi)*ydddd;
-  kypsi = sin(psi)*xdddd - cos(psi)*ydddd;
+  x4d = fo(1,5);
+  y4d = fo(2,5);
+  
+  kxpsi = cpsi*x4d + spsi*y4d;
+  kypsi = spsi*x4d - cpsi*y4d;
   
   adxpsi = -psid*aypsi + jxpsi;
   adypsi =  psid*axpsi + jypsi;
   
-  addxpsi = -psidd*aypsi - psid^2*axpsi - 2*psid*jypsi + kxpsi;
-  addypsi =  psidd*axpsi - psid^2*aypsi + 2*psid*jxpsi + kypsi;
+  a2dxpsi = -psi2d*aypsi - psid^2*axpsi - 2*psid*jypsi + kxpsi;
+  a2dypsi =  psi2d*axpsi - psid^2*aypsi + 2*psid*jxpsi + kypsi;
   
-  av = sqrt(axpsi^2 + zddmg^2);
-  zddd = fo(3,4);
-  adv = (axpsi*adxpsi+zddmg*zddd)/av;
-  zdddd = fo(3,5);
-  a = (axpsi*addxpsi + adxpsi^2 + (zddmg)*zdddd +zddd)*av;
-  b = -adv*(axpsi*adxpsi + zddmg*zddd);
-  addv = (a+b)/av^2;
+  av = sqrt(axpsi^2 + z2dmg^2);
+  z3d = fo(3,4);
+  adv = (axpsi*adxpsi + z2dmg*z3d)/av;
+  z4d = fo(3,5);
+  a = (axpsi*a2dxpsi + adxpsi^2 + (z2dmg)*z4d +z3d)*av;
+  b = -adv*(axpsi*adxpsi + z2dmg*z3d);
+  a2dv = (a+b)/av^2;
   
-  phi = sign(zddmg)*atan(aypsi/av);
-  theta = atan(axpsi/zddmg);
+  phi = sign(z2dmg)*atan(aypsi/av);
+  theta = atan(axpsi/z2dmg);
   
   phid   = (adypsi*av-adv*aypsi)/(aypsi^2+av^2);
-  thetad = (adxpsi*zddmg-zddd*aypsi)/(axpsi^2+zddmg^2);
+  thetad = (adxpsi*z2dmg-z3d*aypsi)/(axpsi^2+z2dmg^2);
     
-  a = (addypsi*av + adv*(adypsi-aypsi)-addv*aypsi)*(aypsi^2+av^2);
+  a = (a2dypsi*av + adv*(adypsi-aypsi)-a2dv*aypsi)*(aypsi^2+av^2);
   b = -2*(aypsi*adypsi+av*adv)*(adypsi*av-adv*aypsi);
   c = (aypsi^2+av^2)^2;
-  phidd = (a+b)/c;
+  phi2d = (a+b)/c;
   
-  a = (addxpsi*zddmg+fo(3,4)*(adxpsi - axpsi) - fo(3,5)*axpsi)*(axpsi^2+zddmg^2);
-  b = -2*(axpsi*adxpsi+zddmg*fo(3,4))*(adxpsi*zddmg-fo(3,4)*axpsi);
-  c = (axpsi^2+zddmg^2)^2;
-  thetadd = (a+b)/c;
+  a = (a2dxpsi*z2dmg+z3d*(adxpsi - axpsi) - z4d*axpsi)*(axpsi^2+z2dmg^2);
+  b = -2*(axpsi*adxpsi+z2dmg*z3d)*(adxpsi*z2dmg-z3d*axpsi);
+  c = (axpsi^2+z2dmg^2)^2;
+  theta2d = (a+b)/c;
    
-  p =  phid - sin(theta)*psid;
-  q =  cos(phi)*thetad + sin(phi)*cos(theta)*psid;
-  r = -sin(phi)*thetad + cos(phi)*cos(theta)*psid;
+  cphi = cos(phi);
+  sphi = sin(phi);
+
+  ctheta = cos(theta);
+  stheta = sin(theta);
   
-  pd = phidd - cos(theta)*thetad*psid - sin(theta)*psidd;
-  a  = -sin(phi)*phid*thetad + cos(phi)*thetadd + cos(phi)*cos(theta)*phid*psid;
-  b  = -sin(phi)*sin(theta)*thetad*psid + sin(phi)*cos(theta)*psidd;
+  p =  phid - stheta*psid;
+  q =  cphi*thetad + sphi*ctheta*psid;
+  r = -sphi*thetad + cphi*ctheta*psid;
+  
+  pd = phi2d - ctheta*thetad*psid - stheta*psi2d;
+  a  = -sphi*phid*thetad + cphi*theta2d + cphi*ctheta*phid*psid;
+  b  = -sphi*stheta*thetad*psid + sphi*ctheta*psi2d;
   qd =  a+b;
-  a  = -cos(phi)*phid*thetad - sin(phi)*thetadd - sin(phi)*cos(theta)*phid*psid;
-  b  = -cos(phi)*sin(theta)*thetad*psid + cos(phi)*cos(theta)*psidd; 
+  a  = -cphi*phid*thetad - sphi*theta2d - sphi*ctheta*phid*psid;
+  b  = -cphi*stheta*thetad*psid + cphi*ctheta*psi2d; 
   rd = a+b;
   
   inp(2) = DF_JXX/DF_L*pd + (DF_JZZ-DF_JYY)*q*r;
