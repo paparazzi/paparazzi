@@ -170,8 +170,8 @@ function [inp] = df_input_of_fo(fo)
   b  = -cphi*stheta*thetad*psid + cphi*ctheta*psi2d; 
   rd = a+b;
   
-  inp(2) = DF_JXX/DF_L*pd + (DF_JZZ-DF_JYY)*q*r;
-  inp(3) = DF_JYY/DF_L*qd + (DF_JXX-DF_JZZ)*p*r;
-  inp(4) = DF_JZZ/DF_CM_OV_CT*rd + (DF_JYY-DF_JXX)*p*q;
+  inp(2) = 1/DF_L*(DF_JXX*pd + (DF_JZZ-DF_JYY)*q*r);
+  inp(3) = 1/DF_L*(DF_JYY*qd + (DF_JXX-DF_JZZ)*p*r);
+  inp(4) = 1/DF_CM_OV_CT*(DF_JZZ*rd + (DF_JYY-DF_JXX)*p*q);
   
 endfunction

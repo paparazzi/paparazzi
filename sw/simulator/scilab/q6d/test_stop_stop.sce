@@ -18,7 +18,7 @@ max_accel = [ 9.81*tan(rad_of_deg(30)) 0.5*9.81];
 //b0 = [ 0    0   0];
 //b1 = [-10   1  -2];
 b0 = [ 0   0   0];
-b1 = [ 0   5   0];
+b1 = [ 1   0   5];
 [fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1);
 
 
