@@ -37,6 +37,8 @@ extern float b2_vff_z_meas;
 extern void b2_vff_init(float z, float zdot, float bias);
 extern void b2_vff_propagate(float accel);
 extern void b2_vff_update(float z_meas);
+extern void b2_vff_update_z_conf(float z_meas, float conf);
+extern void b2_vff_update_vz_conf(float vz_meas, float conf);
 extern void b2_vff_realign(float z_meas);
 
 #endif /* BOOZ2_VF_FLOAT_H */
