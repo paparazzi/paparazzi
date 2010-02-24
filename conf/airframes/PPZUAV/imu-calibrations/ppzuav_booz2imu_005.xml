@@ -1,0 +1,50 @@
+<!--PPZUAV Booz2 IMU Serial Number 005 -->
+
+
+<!--Insert this calibration into airframe.xml-->
+
+  <section name="IMU" prefix="IMU_">
+
+    <define name="GYRO_P_CHAN" value="1"/>
+    <define name="GYRO_Q_CHAN" value="0"/>
+    <define name="GYRO_R_CHAN" value="2"/>
+
+    <define name="GYRO_P_NEUTRAL" value="32940"/>
+    <define name="GYRO_Q_NEUTRAL" value="32860"/>
+    <define name="GYRO_R_NEUTRAL" value="32310"/>
+
+    <define name="GYRO_P_SENS" value=" 1.01" integer="16"/>
+    <define name="GYRO_Q_SENS" value="-1.01" integer="16"/>
+    <define name="GYRO_R_SENS" value="-1.01" integer="16"/>
+
+
+    <define name="ACCEL_X_CHAN" value="5"/>
+    <define name="ACCEL_Y_CHAN" value="3"/>
+    <define name="ACCEL_Z_CHAN" value="4"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="32270"/>
+    <define name="ACCEL_Y_NEUTRAL" value="32652"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32756"/>
+
+    <define name="ACCEL_X_SENS" value="-2.5674700335" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="-2.56939447068" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="-2.59028953036" integer="16"/>
+
+
+    <define name="MAG_X_CHAN" value="0"/>
+    <define name="MAG_Y_CHAN" value="1"/>
+    <define name="MAG_Z_CHAN" value="2"/>
+
+    <define name="MAG_X_NEUTRAL" value="-54"/>
+    <define name="MAG_Y_NEUTRAL" value="-14"/>
+    <define name="MAG_Z_NEUTRAL" value="5"/>
+
+    <define name="MAG_X_SENS" value="6.45841376336" integer="16"/>
+    <define name="MAG_Y_SENS" value="-5.18461478109" integer="16"/>
+    <define name="MAG_Z_SENS" value="-2.92759455933" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
+    <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
+    <define name="BODY_TO_IMU_PSI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
+
+  </section>
