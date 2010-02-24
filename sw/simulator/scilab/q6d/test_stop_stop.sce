@@ -7,7 +7,7 @@ exec('q6d_algebra.sci');
 exec('q6d_display.sci');
 
 t0 = 0;
-t1 = 4.;
+t1 = 8.;
 dt = 1/512;
 time = t0:dt:t1;
 
@@ -18,7 +18,7 @@ max_accel = [ 9.81*tan(rad_of_deg(30)) 0.5*9.81];
 //b0 = [ 0    0   0];
 //b1 = [-10   1  -2];
 b0 = [ 0   0   0 ];
-b1 = [ 1   0  -1 ];
+b1 = [ 1  -1  -1 ];
 [fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1);
 
 
