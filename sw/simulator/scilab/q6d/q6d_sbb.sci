@@ -43,7 +43,11 @@ function [fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1)
   disp_xy = b1(1:2) - b0(1:2);
   [pulse_dt, pulse_ampl, traj_dt] = compute_step(norm(disp_xy), dyn(1,:), max_accel(1), max_speed(1));
   fo_traj(1:2,1,1) = b0(1:2);
-  u = disp_xy' / norm(disp_xy);
+  if norm(disp_xy) != 0
+    u = disp_xy' / norm(disp_xy);
+  else
+    u = [0 0]';
+  end
   for i=2:length(time)
     delta_t = time(i)-time(1);
     if delta_t < pulse_dt
