@@ -6,29 +6,29 @@
 
 SBB_TOLERANCE = 0.025;
 
-function [step_dt, step_ampl, traj_dt] = compute_step(dist, dyn, max_accel, max_speed)
+function [pulse_dt, pulse_ampl, traj_dt] = compute_step(dist, dyn, max_accel, max_speed)
   if (dist < 0.01)
-    step_dt = 0;
-    step_ampl = 0;
+    pulse_dt = 0;
+    pulse_ampl = 0;
     traj_dt = 1;
   else
     omega = dyn(1);
     xsi = dyn(2);
-    step_dt = -log(SBB_TOLERANCE)/(omega*xsi*sqrt(1-xsi^2));
-    step_ampl = dist / (2*step_dt^2);
-    if step_ampl < max_accel
-      if step_ampl > max_speed/step_dt
-	step_ampl = max_speed/step_dt;
+    pulse_dt = -log(SBB_TOLERANCE)/(omega*xsi*sqrt(1-xsi^2));
+    pulse_ampl = dist / (2*pulse_dt^2);
+    if pulse_ampl < max_accel
+      if pulse_ampl > max_speed/pulse_dt
+	pulse_ampl = max_speed/pulse_dt;
       end
     else
-      step_ampl = max_accel;
-      if step_ampl <= max_speed/step_dt
-	step_dt = max_speed/step_ampl;
+      pulse_ampl = max_accel;
+      if pulse_ampl <= max_speed/pulse_dt
+	pulse_dt = max_speed/pulse_ampl;
       else
-	step_ampl = max_speed/step_dt;
+	pulse_ampl = max_speed/pulse_dt;
       end
     end
-    traj_dt = (dist - 2*step_dt*(step_ampl*step_dt))/step_ampl*step_dt + 4*step_dt;
+    traj_dt = (dist - 2*pulse_dt*(pulse_ampl*pulse_dt))/pulse_ampl*pulse_dt + 4*pulse_dt;
   end
 endfunction
 
