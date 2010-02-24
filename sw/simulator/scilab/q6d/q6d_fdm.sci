@@ -30,6 +30,23 @@ FDM_MOTOR_BACK  = 3;
 FDM_MOTOR_LEFT  = 4;
 FDM_MOTOR_NB    = 4;
 
+
+//
+// By Products
+//
+FDM_EPHI   = 1;  // euler angles
+FDM_ETHETA = 2;
+FDM_EPSI   = 3;
+
+FDM_AXDD   = 1;  // linear accelerations
+FDM_AYDD   = 2;
+FDM_AZDD   = 3;
+
+FDM_RAPD   = 1;  // rotational accelerations
+FDM_RAQD   = 2;
+FDM_RARD   = 3;
+
+
 fdm_g = 9.81;                          // gravitational acceleration
 fdm_mass = 0.5;                        // mass in kg
 fdm_inertia = [0.0078 0.     0.        // inertia tensor
@@ -55,9 +72,9 @@ global fdm_accel;
 global fdm_raccel;
 
 
-function fdm_init(t_start, t_stop) 
+function fdm_init(time) 
   global fdm_time;
-  fdm_time = t_start:fdm_dt:t_stop;
+  fdm_time = time;
   global fdm_state;
   fdm_state = zeros(FDM_SSIZE, length(fdm_time));
   fdm_state(FDM_SQI, 1) = 1.;

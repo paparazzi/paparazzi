@@ -152,7 +152,184 @@ function display_df_ref(time, diff_flat_ref)
   plot2d(time, deg_of_rad(diff_flat_ref(DF_REF_R,:)));
   xtitle('R');  
 
+endfunction
+
+
+function display_df_cmd(time, diff_flat_cmd)
+
+  f=get("current_figure");
+  f.figure_name="Command";
+
+  subplot(2,4,1);
+  plot2d(time, diff_flat_cmd(1,:));
+  xtitle('Ut');  
+
+  subplot(2,4,2);
+  plot2d(time, diff_flat_cmd(2,:));
+  xtitle('Up');  
+
+  subplot(2,4,3);
+  plot2d(time, diff_flat_cmd(3,:));
+  xtitle('Uq');  
+
+  subplot(2,4,4);
+  plot2d(time, diff_flat_cmd(4,:));
+  xtitle('Ur');  
+
+endfunction
+
+
+function display_motor_cmd(time, motor_cmd)
+
+  subplot(2,4,5);
+  plot2d(time, motor_cmd(1,:));
+  xtitle('F1');  
+
+  subplot(2,4,6);
+  plot2d(time, motor_cmd(2,:));
+  xtitle('F2');  
+
+  subplot(2,4,7);
+  plot2d(time, motor_cmd(3,:));
+  xtitle('F3');  
+
+  subplot(2,4,8);
+  plot2d(time, motor_cmd(4,:));
+  xtitle('F4');  
+
+endfunction
+
+
+function display_fdm(time, state, euler)
+
+  f=get("current_figure");
+  f.figure_name="FDM";
+
+  subplot(4,3,1);
+  plot2d(time, state(FDM_SX,:));
+  xtitle('X');
   
+  subplot(4,3,2);
+  plot2d(time, state(FDM_SY,:));
+  xtitle('Y');
+
+  subplot(4,3,3);
+  plot2d(time, state(FDM_SZ,:));
+  xtitle('Z');
+
+  
+  subplot(4,3,4);
+  plot2d(time, state(FDM_SXD,:));
+  xtitle('Xd');
+  
+  subplot(4,3,5);
+  plot2d(time, state(FDM_SYD,:));
+  xtitle('Yd');
+
+  subplot(4,3,6);
+  plot2d(time, state(FDM_SZD,:));
+  xtitle('Zd');
+
+  
+  subplot(4,3,7);
+  plot2d(time, deg_of_rad(euler(FDM_EPHI,:)));
+  xtitle('Phi');
+  
+  subplot(4,3,8);
+  plot2d(time, deg_of_rad(euler(FDM_ETHETA,:)));
+  xtitle('Theta');
+
+  subplot(4,3,9);
+  plot2d(time, deg_of_rad(euler(FDM_EPSI,:)));
+  xtitle('Psi');
+
+
+  subplot(4,3,10);
+  plot2d(time, deg_of_rad(state(FDM_SP,:)));
+  xtitle('p');
+  
+  subplot(4,3,11);
+  plot2d(time, deg_of_rad(state(FDM_SQ,:)));
+  xtitle('q');
+
+  subplot(4,3,12);
+  plot2d(time, deg_of_rad(state(FDM_SR,:)));
+  xtitle('r');
+
+
+endfunction
+
+
+function display_control(time, fdm_state, fdm_euler, diff_flat_ref)
+
+  f=get("current_figure");
+  f.figure_name="Control";
+
+  subplot(4,3,1);
+  plot2d(time, fdm_state(FDM_SX,:), 2);
+  plot2d(time, diff_flat_ref(DF_REF_X,:),3);
+  xtitle('X');
+  legends(["fdm", "ref"],[2 3], with_box=%f, opt="ul"); 
+
+  subplot(4,3,2);
+  plot2d(time, fdm_state(FDM_SY,:), 2);
+  plot2d(time, diff_flat_ref(DF_REF_Y,:),3);
+  xtitle('Y');
+
+  subplot(4,3,3);
+  plot2d(time, fdm_state(FDM_SZ,:), 2);
+  plot2d(time, diff_flat_ref(DF_REF_Z,:),3);
+  xtitle('Z');
+
+  
+  subplot(4,3,4);
+  plot2d(time, fdm_state(FDM_SXD,:), 2);
+  plot2d(time, diff_flat_ref(DF_REF_XD,:),3);
+  xtitle('Xd');
+  
+  subplot(4,3,5);
+  plot2d(time, fdm_state(FDM_SYD,:), 2);
+  plot2d(time, diff_flat_ref(DF_REF_YD,:),3);
+  xtitle('Yd');
+
+  subplot(4,3,6);
+  plot2d(time, fdm_state(FDM_SZD,:), 2);
+  plot2d(time, diff_flat_ref(DF_REF_ZD,:),3);
+  xtitle('Zd');
+
+  
+  subplot(4,3,7);
+  plot2d(time, deg_of_rad(fdm_euler(FDM_EPHI,:)), 2);
+  plot2d(time, deg_of_rad(diff_flat_ref(DF_REF_PHI,:)), 3);
+  xtitle('Phi');
+  
+  subplot(4,3,8);
+  plot2d(time, deg_of_rad(fdm_euler(FDM_ETHETA,:)), 2);
+  plot2d(time, deg_of_rad(diff_flat_ref(DF_REF_THETA,:)), 3);
+  xtitle('Theta');
+
+  subplot(4,3,9);
+  plot2d(time, deg_of_rad(fdm_euler(FDM_EPSI,:)), 2);
+  plot2d(time, deg_of_rad(diff_flat_ref(DF_REF_PSI,:)), 3);
+  xtitle('Psi');
+
+
+  subplot(4,3,10);
+  plot2d(time, deg_of_rad(fdm_state(FDM_SP,:)), 2);
+  plot2d(time, deg_of_rad(diff_flat_ref(DF_REF_P,:)), 3);
+  xtitle('p');
+  
+  subplot(4,3,11);
+  plot2d(time, deg_of_rad(fdm_state(FDM_SQ,:)), 2);
+  plot2d(time, deg_of_rad(diff_flat_ref(DF_REF_Q,:)), 3);
+  xtitle('q');
+
+  subplot(4,3,12);
+  plot2d(time, deg_of_rad(fdm_state(FDM_SR,:)), 2);
+  plot2d(time, deg_of_rad(diff_flat_ref(DF_REF_R,:)), 3);
+  xtitle('r');
+
+
 endfunction
 
 

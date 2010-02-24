@@ -10,6 +10,7 @@ function [step_dt, step_ampl, traj_dt] = compute_step(dist, dyn, max_accel, max_
   if (dist < 0.01)
     step_dt = 0;
     step_ampl = 0;
+    traj_dt = 1;
   else
     omega = dyn(1);
     xsi = dyn(2);
