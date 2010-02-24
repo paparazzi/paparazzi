@@ -1,3 +1,9 @@
+DF_FO_X   = 1;
+DF_FO_Y   = 2;
+DF_FO_Z   = 3;
+DF_FO_PSI = 4;
+DF_FO_SIZE = 4;
+DF_FO_ORDER = 5;
 
 DF_REF_X      = 1;
 DF_REF_Y      = 2;
@@ -25,15 +31,15 @@ DF_CM_OV_CT = 0.1;
 function [state] = df_state_of_fo(fo)
 
   state = zeros(DF_REF_SIZE, 1);
-  state(DF_REF_X)      = fo(1,1);
-  state(DF_REF_Y)      = fo(2,1);
-  state(DF_REF_Z)      = fo(3,1);
+  state(DF_REF_X)      = fo(DF_FO_X,1);
+  state(DF_REF_Y)      = fo(DF_FO_Y,1);
+  state(DF_REF_Z)      = fo(DF_FO_Z,1);
 
-  state(DF_REF_XD)     = fo(1,2);
-  state(DF_REF_YD)     = fo(2,2);
-  state(DF_REF_ZD)     = fo(3,2);
+  state(DF_REF_XD)     = fo(DF_FO_X,2);
+  state(DF_REF_YD)     = fo(DF_FO_Y,2);
+  state(DF_REF_ZD)     = fo(DF_FO_Z,2);
 
-  state(DF_REF_PSI)    = fo(4,1);
+  state(DF_REF_PSI)    = fo(DF_FO_PSI,1);
   
   psi = state(DF_REF_PSI);
   cpsi = cos(psi);

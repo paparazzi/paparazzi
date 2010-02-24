@@ -1,6 +1,7 @@
 clear();
 
 exec('q6d_sbb.sci');
+exec('q6d_fo_traj_misc.sci');
 exec('q6d_diff_flatness.sci');
 exec('q6d_fdm.sci');
 exec('q6d_algebra.sci');
@@ -19,8 +20,8 @@ max_accel = [ 9.81*tan(rad_of_deg(30)) 0.5*9.81];
 //b1 = [-10   1  -2];
 b0 = [ 0   0   0 ];
 b1 = [ 1  -1  -1 ];
-[fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1);
-
+//[fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1);
+[fo_traj] = fo_traj_circle(time);
 
 set("current_figure",0);
 clf();
