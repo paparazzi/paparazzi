@@ -21,6 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#define MODULES_C
+
 #include <inttypes.h>
 
 #include "init_hw.h"
@@ -72,6 +74,11 @@
 #ifdef SITL
 #include "nps_autopilot_booz.h"
 #endif
+
+#ifdef USE_MODULES
+#include "modules.h"
+#endif
+
 
 static inline void on_gyro_accel_event( void );
 static inline void on_baro_event( void );
@@ -144,6 +151,10 @@ STATIC_INLINE void booz2_main_init( void ) {
 
   int_enable();
 
+#ifdef USE_MODULES
+  modules_init();
+#endif
+
 #if defined BOOZ_START_DELAY && ! defined SITL
   delay_done = FALSE;
   init_done_time = T0TC;
@@ -210,6 +221,10 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   booz2_analog_periodic();
 #endif
 
+#ifdef USE_MODULES
+  modules_periodic_task();
+#endif
+
   if (booz2_autopilot_in_flight) {
     RunOnceEvery(512, { booz2_autopilot_flight_time++; datalink_time++; });
   }
@@ -233,12 +248,20 @@ STATIC_INLINE void booz2_main_event( void ) {
 
   Booz2AnalogBaroEvent(on_baro_event);
 
+#ifdef BOOZ2_SONAR
+  Booz2SonarEvent(booz_ins_update_sonar);
+#endif
+
 #ifdef USE_GPS
   Booz2GpsEvent(on_gps_event);
 #endif
 
 #ifdef BOOZ_FAILSAFE_GROUND_DETECT
   BoozDetectGroundEvent();
+#endif
+
+#ifdef USE_MODULES
+  modules_event_task();
 #endif
 
 }
