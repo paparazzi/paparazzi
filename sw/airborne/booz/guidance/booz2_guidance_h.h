@@ -27,6 +27,8 @@
 
 #include "math/pprz_algebra_int.h"
 
+#include "booz2_guidance_h_ref.h"
+
 #define BOOZ2_GUIDANCE_H_MODE_KILL      0
 #define BOOZ2_GUIDANCE_H_MODE_RATE      1
 #define BOOZ2_GUIDANCE_H_MODE_ATTITUDE  2
@@ -40,6 +42,9 @@ extern uint8_t booz2_guidance_h_mode;
 /* Q_int32_xx_8        */
 extern struct Int32Vect2 booz2_guidance_h_pos_sp;
 extern int32_t           booz2_guidance_h_psi_sp;
+extern struct Int32Vect2 booz2_guidance_h_pos_ref;
+extern struct Int32Vect2 booz2_guidance_h_speed_ref;
+extern struct Int32Vect2 booz2_guidance_h_accel_ref;
 
 extern struct Int32Vect2 booz2_guidance_h_pos_err;
 extern struct Int32Vect2 booz2_guidance_h_speed_err;

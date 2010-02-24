@@ -21,6 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#define B2_GUIDANCE_H_C
+//#define B2_GUIDANCE_H_USE_REF
 #include "booz2_guidance_h.h"
 
 #include "booz_ahrs.h"
@@ -34,7 +36,10 @@
 uint8_t booz2_guidance_h_mode;
 
 struct Int32Vect2 booz2_guidance_h_pos_sp;
-int32_t            booz2_guidance_h_psi_sp;
+int32_t           booz2_guidance_h_psi_sp;
+struct Int32Vect2 booz2_guidance_h_pos_ref;
+struct Int32Vect2 booz2_guidance_h_speed_ref;
+struct Int32Vect2 booz2_guidance_h_accel_ref;
 
 struct Int32Vect2 booz2_guidance_h_pos_err;
 struct Int32Vect2 booz2_guidance_h_speed_err;
@@ -64,6 +69,13 @@ static inline void booz2_guidance_h_hover_run(void);
 static inline void booz2_guidance_h_nav_run(bool_t in_flight);
 static inline void booz2_guidance_h_hover_enter(void);
 static inline void booz2_guidance_h_nav_enter(void);
+
+#define Booz2GuidanceHSetRef(_pos, _speed, _accel) { \
+    b2_gh_set_ref(_pos, _speed, _accel); \
+    VECT2_COPY(booz2_guidance_h_pos_ref,   _pos); \
+    VECT2_COPY(booz2_guidance_h_speed_ref, _speed); \
+    VECT2_COPY(booz2_guidance_h_accel_ref, _accel); \
+  }
 
 
 void booz2_guidance_h_init(void) {
@@ -179,6 +191,9 @@ void booz2_guidance_h_run(bool_t  in_flight) {
       }
       else {
         INT32_VECT2_NED_OF_ENU(booz2_guidance_h_pos_sp, booz2_navigation_carrot);
+#ifdef B2_GUIDANCE_H_USE_REF
+        b2_gh_update_ref_from_pos_sp(booz2_guidance_h_pos_sp);
+#endif
 #ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
         booz2_guidance_h_psi_sp = (nav_heading << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
 #endif
@@ -263,13 +278,25 @@ static inline void  booz2_guidance_h_hover_run(void) {
 
 static inline void  booz2_guidance_h_nav_run(bool_t in_flight) {
 
+  /* convert our reference to generic representation */
+#ifdef B2_GUIDANCE_H_USE_REF
+  INT32_VECT2_RSHIFT(booz2_guidance_h_pos_ref,   b2_gh_pos_ref,   (B2_GH_POS_REF_FRAC - INT32_POS_FRAC));
+  INT32_VECT2_LSHIFT(booz2_guidance_h_speed_ref, b2_gh_speed_ref, (INT32_SPEED_FRAC - B2_GH_SPEED_REF_FRAC));
+  INT32_VECT2_LSHIFT(booz2_guidance_h_accel_ref, b2_gh_accel_ref, (INT32_ACCEL_FRAC - B2_GH_ACCEL_REF_FRAC));
+#else
+  VECT2_COPY(booz2_guidance_h_pos_ref, booz2_guidance_h_pos_sp);
+  INT_VECT2_ZERO(booz2_guidance_v_speed_ref);
+  INT_VECT2_ZERO(booz2_guidance_v_accel_ref);
+#endif
+
   /* compute position error    */
-  VECT2_DIFF(booz2_guidance_h_pos_err, booz_ins_ltp_pos, booz2_guidance_h_pos_sp);
+  VECT2_DIFF(booz2_guidance_h_pos_err, booz_ins_ltp_pos, booz2_guidance_h_pos_ref);
   /* saturate it               */
   VECT2_STRIM(booz2_guidance_h_pos_err, -MAX_POS_ERR, MAX_POS_ERR);
 
   /* compute speed error    */
-  VECT2_COPY(booz2_guidance_h_speed_err, booz_ins_ltp_speed);
+  //VECT2_COPY(booz2_guidance_h_speed_err, booz_ins_ltp_speed);
+  VECT2_DIFF(booz2_guidance_h_speed_err, booz_ins_ltp_speed, booz2_guidance_h_speed_ref);
   /* saturate it               */
   VECT2_STRIM(booz2_guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
 
@@ -305,13 +332,13 @@ static inline void  booz2_guidance_h_nav_run(bool_t in_flight) {
     booz2_guidance_h_dgain * (booz2_guidance_h_speed_err.x >> (INT32_SPEED_FRAC - 10)) +
     booz2_guidance_h_igain * (booz2_guidance_h_pos_err_sum.x >> (12 + INT32_POS_FRAC - 10)) +
     booz2_guidance_h_ngain * booz2_guidance_h_nav_err.x +
-    booz2_guidance_h_again * booz_ins_ltp_accel.x;
+    booz2_guidance_h_again * booz2_guidance_h_accel_ref.x; /* feedforward gain */
   booz2_guidance_h_command_earth.y =
     booz2_guidance_h_pgain * (booz2_guidance_h_pos_err.y << (10 - INT32_POS_FRAC)) +
     booz2_guidance_h_dgain * (booz2_guidance_h_speed_err.y >> (INT32_SPEED_FRAC - 10)) +
     booz2_guidance_h_igain * (booz2_guidance_h_pos_err_sum.y >> (12 + INT32_POS_FRAC - 10)) +
     booz2_guidance_h_ngain * booz2_guidance_h_nav_err.y +
-    booz2_guidance_h_again * booz_ins_ltp_accel.y;
+    booz2_guidance_h_again * booz2_guidance_h_accel_ref.y; /* feedforward gain */
 
   VECT2_STRIM(booz2_guidance_h_command_earth, -NAV_MAX_BANK, NAV_MAX_BANK);
   INT32_VECT2_RSHIFT(booz2_guidance_h_command_earth, booz2_guidance_h_command_earth, REF_ANGLE_FRAC - 16); // Reduice to 16 for trigo operation
@@ -327,11 +354,13 @@ static inline void  booz2_guidance_h_nav_run(bool_t in_flight) {
   booz2_guidance_h_command_body.theta =
     - ( c_psi * booz2_guidance_h_command_earth.x + s_psi * booz2_guidance_h_command_earth.y) >> (INT32_TRIG_FRAC - (REF_ANGLE_FRAC - 16));
 
+  // Add RC setpoint
   booz2_guidance_h_command_body.phi   += booz2_guidance_h_rc_sp.phi;
   booz2_guidance_h_command_body.theta += booz2_guidance_h_rc_sp.theta;
   booz2_guidance_h_command_body.psi    = booz2_guidance_h_psi_sp + booz2_guidance_h_rc_sp.psi;
   ANGLE_REF_NORMALIZE(booz2_guidance_h_command_body.psi);
 
+  // Set attitude setpoint
   EULERS_COPY(booz_stab_att_sp_euler, booz2_guidance_h_command_body);
 
 }
@@ -352,6 +381,10 @@ static inline void booz2_guidance_h_hover_enter(void) {
 static inline void booz2_guidance_h_nav_enter(void) {
 
   INT32_VECT2_NED_OF_ENU(booz2_guidance_h_pos_sp, booz2_navigation_carrot);
+  struct Int32Vect2 pos,speed,zero;
+  VECT2_COPY(pos, booz_ins_ltp_pos);
+  VECT2_COPY(speed, booz_ins_ltp_speed);
+  Booz2GuidanceHSetRef(pos, speed, zero);
 
   struct Int32Eulers tmp_sp;
   BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF( tmp_sp );
