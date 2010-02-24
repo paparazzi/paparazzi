@@ -39,7 +39,13 @@ function [fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1)
   n_comp = 4;  // x, y, z, psi
   order = 5;   
   fo_traj = zeros(n_comp, order, length(time));
+
+  // psi
+  for i=1:length(time)
+    fo_traj(4,1,i) = rad_of_deg(30);
+  end
   
+  // x and y
   disp_xy = b1(1:2) - b0(1:2);
   [pulse_dt, pulse_ampl, traj_dt] = compute_step(norm(disp_xy), dyn(1,:), max_accel(1), max_speed(1));
   fo_traj(1:2,1,1) = b0(1:2);
@@ -61,6 +67,7 @@ function [fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1)
     fo_traj(1:2,5,i) = -2*dyn(1,2)*dyn(1,1)*fo_traj(1:2,4,i)-dyn(1,1)^2*(fo_traj(1:2,3,i)-sp*u);  
   end
   
+  // z
   disp_z = b1(3) - b0(3);
   [pulse_dt, pulse_ampl, traj_dt] = compute_step(norm(disp_z), dyn(2,:), max_accel(2), max_speed(2));
   fo_traj(3,1,1) = b0(3);

@@ -54,9 +54,9 @@ fdm_inertia = [0.0078 0.     0.        // inertia tensor
 	       0.     0.     0.0137 ];
 fdm_Ct0 = 4. * fdm_mass * fdm_g / 4;   // thrust coefficient
 //fdm_V0  = 7.;	                       // 
-fdm_V0  = 1000.;	                       // 
-//fdm_Cd  = 0.01;                        // drag coefficient
-fdm_Cd  = 0.000001;                        // drag coefficient
+fdm_V0  = 1e6;	                       // 
+//fdm_Cd  = 0.01;                      // drag coefficient
+fdm_Cd  = 1e-6;                        // drag coefficient
 fdm_la  = 0.25;                        // arm length
 fdm_Cm  = fdm_Ct0 / 10;                // torque coefficient
 
@@ -74,14 +74,15 @@ global fdm_accel;
 global fdm_raccel;
 
 
-function fdm_init(time) 
+function fdm_init(time, X0) 
   global fdm_time;
   fdm_time = time;
   global fdm_state;
   fdm_state = zeros(FDM_SSIZE, length(fdm_time));
-  fdm_state(FDM_SQI, 1) = 1.;
+  fdm_state(:,1) = X0;
   global fdm_euler;
   fdm_euler = zeros(AXIS_NB, length(fdm_time));
+  fdm_euler(:,1) = euler_of_quat(fdm_state(FDM_SQI:FDM_SQZ,1));
   global fdm_accel;
   fdm_accel = zeros(AXIS_NB, length(fdm_time));
   global fdm_raccel;
