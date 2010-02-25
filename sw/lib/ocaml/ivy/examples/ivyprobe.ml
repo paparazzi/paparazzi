@@ -37,6 +37,4 @@ let init = fun () ->
 
   Printf.printf "\nEnd of file to stop\n\n"; flush stdout;
 
-  IvyLoop.timer (-1) 1000 (fun _ -> Ivy.send "Coucou");
-
   ignore (Ivy.bind print_message !regexp)
