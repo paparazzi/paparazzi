@@ -6,9 +6,10 @@ exec('q6d_diff_flatness.sci');
 exec('q6d_fdm.sci');
 exec('q6d_algebra.sci');
 exec('q6d_display.sci');
+exec('q6d_povray.sci');
 
 t0 = 0;
-t1 = 8.;
+t1 = 10.;
 dt = 1/512;
 time = t0:dt:t1;
 
@@ -19,9 +20,10 @@ max_accel = [ 9.81*tan(rad_of_deg(30)) 0.5*9.81];
 //b0 = [ 0    0   0];
 //b1 = [-10   1  -2];
 b0 = [ 0   0   0 ];
-b1 = [ 1  -1  -1 ];
-//[fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1);
-[fo_traj] = fo_traj_circle(time);
+b1 = [ 0   0  5 ];
+[fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1);
+[traj] = fo_traj_circle(time);
+fo_traj(1:2,:,:) = traj(1:2,:,:);
 
 set("current_figure",0);
 clf();
@@ -62,7 +64,7 @@ X0 = [diff_flat_ref(DF_REF_X,1)  ; diff_flat_ref(DF_REF_Y,1) ; diff_flat_ref(DF_
       quat_of_euler([diff_flat_ref(DF_REF_PHI,1) diff_flat_ref(DF_REF_THETA,1) diff_flat_ref(DF_REF_PSI,1)])
       diff_flat_ref(DF_REF_P,1)  ; diff_flat_ref(DF_REF_Q,1) ; diff_flat_ref(DF_REF_R,1) 
       ];
-  
+
 fdm_init(time, X0);
 for i=2:length(time)
   fdm_run(i, motor_cmd(:,i-1));
@@ -72,3 +74,5 @@ set("current_figure",3);
 clf();
 //display_fdm(time, fdm_state, fdm_euler)
 display_control(time, fdm_state, fdm_euler, diff_flat_ref);
+
+povray_draw(time,diff_flat_ref);

@@ -78,7 +78,7 @@ function [state] = df_state_of_fo(fo)
   adv = (axpsi*adxpsi + z2dmg*fo(3,4))/av;
   
   phid   = sign(z2dmg)*(adypsi*av-adv*aypsi)/(aypsi^2+av^2);
-  thetad = (adxpsi*z2dmg-z3d*aypsi)/(axpsi^2+z2dmg^2);
+  thetad = (adxpsi*z2dmg-z3d*axpsi)/(axpsi^2+z2dmg^2);
   
   cphi = cos(state(DF_REF_PHI));
   sphi = sin(state(DF_REF_PHI));
