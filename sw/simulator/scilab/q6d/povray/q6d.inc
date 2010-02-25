@@ -1,4 +1,3 @@
-
 //POVRay include files
 #include "arrays.inc"
 #include "chars.inc"
@@ -21,19 +20,78 @@
 #include "textures.inc"
 #include "transforms.inc"
 
+#macro AXIS_POVRAY(mac_x_ver,mac_y_ver,mac_z_ver,mac_x_rot,mac_y_rot,mac_z_rot)
+object {
+  union {
+    union {
+      cylinder{<0.,0.,0.><2500.,0.,0.> 10}
+      text { ttf "timrom.ttf" "X" 1, 0 scale <2,2,2> translate(<20, 0, 0>)}
+      texture{ pigment{rgb<1,0,0>}}
+    }   
+    union {
+      cylinder{<0.,0,0.><0.,2500.,0.> 10}
+      text { ttf "timrom.ttf" "Y" 1, 0 scale <2,2,2> translate(<0, 20, 0>)}
+      texture{ pigment{rgb<0,1,0>}}
+    }   
+    union {
+      cylinder{<0.,0,0.><0.,0.,2500.> 10}
+      text { ttf "timrom.ttf" "Z" 1, 0 scale <2,2,2> translate(<0, 0, 20>)}
+      texture{ pigment{rgb<0,0,1>}}
+    }   
+  translate(<mac_x_ver,mac_y_ver,mac_z_ver>)
+  rotate(<mac_x_rot,mac_y_rot,mac_z_rot>)	
+  }
+} 
+#end
 
-#macro Q3D()
-union {
-  box{<-250,-10,-10><250,10,10> texture{pigment{Red}}}
-  cylinder{<-250,10,0><-250,15,0>  125 texture{pigment{Green}}}
-  cylinder{<250,10,0><250,15,0>   125 texture{pigment{Green}}}
 
-  box{<-10,-10,-250><10,10,250> texture{pigment{Red}}}
-  cylinder{<0,10,-250><0,15,-250>  125 texture{pigment{Green}}}
-  cylinder{<0,10, 250><0,15, 250>   125 texture{pigment{Green}}}
+#macro AXIS_NED()
+object {
+  union {
+    union {
+      cylinder{<0.,0.,0.><2500.,0.,0.> 10}
+      texture{ pigment{rgb<1,0,0>}}
+    }   
+    union {
+      cylinder{<0.,0,0.><0.,2500.,0.> 10}
+      texture{ pigment{rgb<0,1,0>}}
+    }   
+    union {
+      cylinder{<0.,0,0.><0.,0.,2500.> 10}
+      texture{ pigment{rgb<0,0,1>}}
+    }   
+  }
+  matrix < 1, 0, 0,
+           0, 0,-1,
+           0,-1, 0,
+           0, 0, 0 >
+} 
+#end
 
+
+
+#macro Q6D(xned, yned, zned, phi, theta, psi)
+
+object {
+  union {
+    box{<-250,-10,-10><0,10,10> texture{pigment{Blue}}}
+    box{<0,-10,-10><250,10,10> texture{pigment{Red}}}
+    cylinder{<-250,0,-10><-250,0,-15>  125 texture{pigment{Green}}}
+    cylinder{<250, 0,-10><250,0,-15>   125 texture{pigment{Green}}}
+
+    box{<-10,-250,-10><10,250,10> texture{pigment{Blue}}}
+    cylinder{<0,-250,-10><0,-250,-15>  125 texture{pigment{Green}}}
+    cylinder{<0, 250,-10><0, 250,-15>  125 texture{pigment{Green}}}
+  }
+  rotate <phi,theta, psi>
+  translate <xned,yned,zned>
+  matrix < 1, 0, 0,
+           0, 0,-1,
+           0,-1, 0,
+           0, 0, 0 >
 }
 #end
+
 
 #declare cam_x = 0;
 #declare cam_y = 5000;
@@ -43,7 +101,7 @@ union {
 #declare cam_look_y = 0;
 #declare cam_look_z = 0;
 
-#declare cam_a = 32;
+#declare cam_a = 36;
 //#declare cam_a = 10;
 
 camera
