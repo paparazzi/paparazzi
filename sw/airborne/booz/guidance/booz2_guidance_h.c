@@ -285,8 +285,8 @@ static inline void  booz2_guidance_h_nav_run(bool_t in_flight) {
   INT32_VECT2_LSHIFT(booz2_guidance_h_accel_ref, b2_gh_accel_ref, (INT32_ACCEL_FRAC - B2_GH_ACCEL_REF_FRAC));
 #else
   VECT2_COPY(booz2_guidance_h_pos_ref, booz2_guidance_h_pos_sp);
-  INT_VECT2_ZERO(booz2_guidance_v_speed_ref);
-  INT_VECT2_ZERO(booz2_guidance_v_accel_ref);
+  INT_VECT2_ZERO(booz2_guidance_h_speed_ref);
+  INT_VECT2_ZERO(booz2_guidance_h_accel_ref);
 #endif
 
   /* compute position error    */
