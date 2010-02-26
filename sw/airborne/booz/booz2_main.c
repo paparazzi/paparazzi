@@ -85,8 +85,6 @@ static inline void on_baro_event( void );
 static inline void on_gps_event( void );
 static inline void on_mag_event( void );
 
-uint32_t t0, t1, diff;
-
 #ifndef SITL
 int main( void ) {
   booz2_main_init();
@@ -164,17 +162,15 @@ STATIC_INLINE void booz2_main_init( void ) {
 
 
 STATIC_INLINE void booz2_main_periodic( void ) {
-  //  t0 = T0TC;
-
   booz_imu_periodic();
-//#ifdef BOOZ_START_DELAY
+  
 #if defined BOOZ_START_DELAY && ! defined SITL
   if (!delay_done) {
     if ((uint32_t)(T0TC-init_done_time) < SYS_TICS_OF_USEC((uint32_t)(BOOZ_START_DELAY*1e6))) return;
     else delay_done = TRUE;
   }
 #endif
-
+  
   /* run control loops */
   booz2_autopilot_periodic();
   /* set actuators     */
@@ -183,9 +179,11 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   PeriodicPrescaleBy10(							\
     {						                        \
       radio_control_periodic();						\
-			 if (radio_control.status != RADIO_CONTROL_OK && booz2_autopilot_mode != BOOZ2_AP_MODE_KILL && booz2_autopilot_mode != BOOZ2_AP_MODE_NAV) \
-			   booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE); \
-		       },						\
+      if (radio_control.status != RADIO_CONTROL_OK &&			\
+          booz2_autopilot_mode != BOOZ2_AP_MODE_KILL &&			\
+          booz2_autopilot_mode != BOOZ2_AP_MODE_NAV)			\
+        booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);		\
+    },									\
     {									\
       Booz2TelemetryPeriodic();						\
     },									\
@@ -204,8 +202,9 @@ STATIC_INLINE void booz2_main_periodic( void ) {
     );									\
 
 #ifdef USE_GPS
-      if (radio_control.status != RADIO_CONTROL_OK && booz2_autopilot_mode == BOOZ2_AP_MODE_NAV && GpsIsLost())	\
-	booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);               \
+  if (radio_control.status != RADIO_CONTROL_OK &&			\
+      booz2_autopilot_mode == BOOZ2_AP_MODE_NAV && GpsIsLost())		\
+    booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);			\
   booz_gps_periodic();
 #endif
 
@@ -228,11 +227,6 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   if (booz2_autopilot_in_flight) {
     RunOnceEvery(512, { booz2_autopilot_flight_time++; datalink_time++; });
   }
-
-  //  t1 = T0TC;
-  //  diff = t1 - t0;
-  //  RunOnceEvery(100, {DOWNLINK_SEND_TIME(&diff);});
-  //  t0 = t1;
 
 }
 
