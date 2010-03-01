@@ -36,6 +36,7 @@ struct Int32Rates booz_stabilization_rate_gain;
 void booz_stabilization_rate_init(void) {
 
   INT_RATES_ZERO(booz_stabilization_rate_sp);
+  INT_RATES_ZERO(booz_stabilization_rate_measure);
 
   RATES_ASSIGN(booz_stabilization_rate_gain,
 	       BOOZ_STABILIZATION_RATE_GAIN_P,
