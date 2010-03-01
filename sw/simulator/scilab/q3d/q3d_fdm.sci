@@ -31,11 +31,16 @@ FDM_MOTOR_NB    = 2;
 fdm_g       = 9.81;
 fdm_mass    = 0.25;
 fdm_inertia = 0.0078;
+fdm_la  = 0.25;                        // arm length
 
-fdm_min_thrust =  0.5 * 0.1 * fdm_mass * fdm_g; // 10%  of hovering power for each motor
-fdm_max_thrust =  0.5 * 4.0 * fdm_mass * fdm_g; // 400% of hovering power for each motor
+fdm_Ct0 = 4. * fdm_mass * fdm_g / 2;   // thrust coefficient
+fdm_V0  = 1e9;	                       // 
+fdm_Cd  = 1e-2;                        // drag coefficient
 
-fdm_dt = 1./512.;
+fdm_min_thrust =  0.05; //  5%  
+fdm_max_thrust =  1.0;  // 400%
+
+fdm_wind = [0 0]';
 
 global fdm_time;
 global fdm_state;
@@ -69,12 +74,29 @@ endfunction
 function [Xdot] = fdm_get_derivatives(t, X, U)
 
   Xdot = zeros(length(X),1);
-  Xdot(FDM_SX) = X(FDM_SXD);
-  Xdot(FDM_SZ) = X(FDM_SZD);
-  Xdot(FDM_STHETA) = X(FDM_STHETAD);
-  Xdot(FDM_SXD) = -sum(U)/fdm_mass*sin(X(FDM_STHETA));
-  Xdot(FDM_SZD) = 1/fdm_mass*(sum(U)*cos(X(FDM_STHETA))-fdm_mass*fdm_g);
-  Xdot(FDM_STHETAD) = 1/fdm_inertia*(U(FDM_MOTOR_RIGHT) - U(FDM_MOTOR_LEFT));
+  
+  Xdot(FDM_SX:FDM_STHETA) = X(FDM_SXD:FDM_STHETAD);
+  
+  // forces :
+  gspeed_ltp =  X(FDM_SXD:FDM_SZD);
+  airspeed_ltp = gspeed_ltp - fdm_wind;
+   
+  stheta = sin(X(FDM_STHETA));
+  ctheta = cos(X(FDM_STHETA));
+  
+  DCM = [ctheta stheta ; -stheta ctheta];
+  airspeed_body = DCM * airspeed_ltp;
+  
+  lift_body = [0; sum(U) * fdm_Ct0 * ( 1 - abs(1/fdm_V0 * airspeed_body(AXIS_Z)))];
+  lift_ltp = DCM'*lift_body; 
+  weight_ltp = [0; -fdm_g * fdm_mass];
+  drag_ltp = -fdm_Cd * norm(airspeed_ltp) * airspeed_ltp;
+  Xdot(FDM_SXD:FDM_SZD) = 1/fdm_mass*(lift_ltp+weight_ltp+drag_ltp);
+  
+  // moments
+  Xdot(FDM_STHETAD) = fdm_la * fdm_Ct0 / fdm_inertia*(U(FDM_MOTOR_RIGHT) - U(FDM_MOTOR_LEFT));
+  
+//  pause
   
 endfunction
 
