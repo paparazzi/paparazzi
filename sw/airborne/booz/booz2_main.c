@@ -57,10 +57,6 @@
 #include "booz2_cam.h"
 #endif
 
-#ifdef USE_DROP
-#include "booz_drop.h"
-#endif
-
 #if defined USE_CAM || USE_DROP
 #include "booz2_pwm_hw.h"
 #endif
@@ -139,10 +135,6 @@ STATIC_INLINE void booz2_main_init( void ) {
   booz2_cam_init();
 #endif
 
-#ifdef USE_DROP
-  booz_drop_init();
-#endif
-
 #ifdef BOOZ2_SONAR
   booz2_sonar_init();
 #endif
@@ -210,10 +202,6 @@ STATIC_INLINE void booz2_main_periodic( void ) {
 
 #ifdef USE_CAM
   RunOnceEvery(50,booz2_cam_periodic());
-#endif
-
-#ifdef USE_DROP
-  RunOnceEvery(50,booz_drop_periodic());
 #endif
 
 #ifdef BOOZ2_SONAR

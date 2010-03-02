@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="drop">
+  <!-- depend require="booz_pwm" -->
+  <header>
+    <file name="booz_drop.h"/>
+  </header>
+  <init fun="booz_drop_init()"/>
+  <periodic fun="booz_drop_periodic()" freq="10."/>
+  <makefile>
+    <flag name="USE_DROP"/>
+    <file name="booz_drop.c"/>
+  </makefile>
+</module>
+
