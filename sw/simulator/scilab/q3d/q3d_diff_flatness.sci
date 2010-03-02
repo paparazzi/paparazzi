@@ -31,12 +31,13 @@ function [state] = df_state_of_fo(fo)
 endfunction
 
 // control input from flat output
-function [inp] = df_input_of_fo(fo)
+function [inp] = df_input_of_fo(fo, model_a, model_b)
 
   x2   = fo(1,3);				 
   z2pg = fo(2,3)+9.81;				 
 
-  u1 =  fo_mass / fo_Ct0 * sqrt((x2)^2 + (z2pg)^2);
+//  u1 =  fo_mass / fo_Ct0 * sqrt((x2)^2 + (z2pg)^2);
+  u1 =  1/model_a * sqrt((x2)^2 + (z2pg)^2);
   
   x3   = fo(1,4);				 
   z3   = fo(2,4);				 
@@ -46,7 +47,8 @@ function [inp] = df_input_of_fo(fo)
   b = z2pg^2+x2^2;
   c = 2 * (z2pg*z3 + x2*x3);
   d = x3*z2pg-z3*x2;
-  u2 = fo_J / fo_la /fo_Ct0 * ( a/b - c*d/b^2);
+//  u2 = -fo_J / fo_la /fo_Ct0 * ( a/b - c*d/b^2);
+  u2 = -1/model_b * ( a/b - c*d/b^2);
  
   inp = [u1; u2];
   

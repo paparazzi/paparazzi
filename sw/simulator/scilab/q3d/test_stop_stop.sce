@@ -43,11 +43,11 @@ end
 diff_flat_cmd = zeros(2,length(time));
 diff_flat_ref = zeros(FDM_SSIZE, length(time));
 for i=1:length(time)
-  diff_flat_cmd(:,i) = df_input_of_fo(fo_traj(:,:,i));
+  diff_flat_cmd(:,i) = df_input_of_fo(fo_traj(:,:,i), fdm_Ct0/fdm_mass, fdm_la*fdm_Ct0/fdm_inertia);
   diff_flat_ref(:,i) = df_state_of_fo(fo_traj(:,:,i));
 end
 
-fdm_init(time, df_state_of_fo(fo_traj(:,:,1)));
+fdm_init(time, df_state_of_fo(fo_traj(:,:,1)), [0.25 0.25]');
 fb_cmd = zeros(2,length(time));
 motor_cmd = zeros(2,length(time));
 for i=2:length(time)

@@ -16,8 +16,8 @@ function [fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1)
     dist = b1(compo)-b0(compo);
     if (abs(dist) > 0.01)
       step_dt = -log(sbb_tolerance)/(dyn(compo,2)*dyn(compo,1)*sqrt(1-dyn(compo,2)^2));
-      step_xdd = dist / (2*step_dt^2);
-  
+      step_xdd = abs(dist) / (2*step_dt^2);
+
       if step_xdd < max_accel(compo)
         if step_xdd > max_speed(compo)/step_dt
           step_xdd = max_speed(compo)/step_dt;
@@ -30,7 +30,7 @@ function [fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1)
           step_xdd = max_speed(compo)/step_dt;
         end
       end
-      t_tot = (dist - 2*step_dt*(step_xdd*step_dt))/(step_xdd*step_dt) + 4*step_dt;
+      t_tot = (abs(dist) - 2*step_dt*(step_xdd*step_dt))/(step_xdd*step_dt) + 4*step_dt;
     else
       step_dt = 0;
       step_xdd = 0;
@@ -45,9 +45,9 @@ function [fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1)
     fo_traj(compo,1,1) = b0(compo);
       for i=2:length(time)
         if time(i)-time(1) < step_dt
-          sp = step_xdd;      
+          sp = sign(dist)*step_xdd;      
         elseif time(i)-time(1) < t_tot - step_dt & time(i)-time(1) >= t_tot -  2 * step_dt
-          sp = -step_xdd;      
+          sp = -sign(dist)*step_xdd;      
         else
           sp = 0;
         end

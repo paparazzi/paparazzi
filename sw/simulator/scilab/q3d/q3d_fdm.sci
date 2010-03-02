@@ -35,10 +35,10 @@ fdm_la  = 0.25;                        // arm length
 
 fdm_Ct0 = 4. * fdm_mass * fdm_g / 2;   // thrust coefficient
 fdm_V0  = 1e9;	                       // 
-fdm_Cd  = 1e-2;                        // drag coefficient
+fdm_Cd  = 1e-9;                        // drag coefficient
 
 fdm_min_thrust =  0.05; //  5%  
-fdm_max_thrust =  1.0;  // 400%
+fdm_max_thrust =  1.00; // 100%
 
 fdm_wind = [0 0]';
 
@@ -47,7 +47,7 @@ global fdm_state;
 global fdm_accel;
 
 
-function fdm_init(time, fdm_X0) 
+function fdm_init(time, fdm_X0, cmd0) 
 
   global fdm_time;
   fdm_time = time;
@@ -56,7 +56,9 @@ function fdm_init(time, fdm_X0)
   fdm_state(:,1) = fdm_X0;
   global fdm_accel;
   fdm_accel = zeros(FDM_ASIZE, length(fdm_time));
-  
+  accel = fdm_get_derivatives(time(1), fdm_state(:,1), cmd0);
+  fdm_accel(:,1) = accel(FDM_SXD:FDM_STHETAD);
+
 endfunction
 
 function fdm_run(i, cmd)
@@ -94,9 +96,7 @@ function [Xdot] = fdm_get_derivatives(t, X, U)
   Xdot(FDM_SXD:FDM_SZD) = 1/fdm_mass*(lift_ltp+weight_ltp+drag_ltp);
   
   // moments
-  Xdot(FDM_STHETAD) = fdm_la * fdm_Ct0 / fdm_inertia*(U(FDM_MOTOR_RIGHT) - U(FDM_MOTOR_LEFT));
-  
-//  pause
+  Xdot(FDM_STHETAD) = fdm_la * fdm_Ct0 / fdm_inertia*(U(FDM_MOTOR_LEFT) - U(FDM_MOTOR_RIGHT));
   
 endfunction
 
