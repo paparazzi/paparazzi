@@ -43,6 +43,7 @@ ctl_init(time);
 
 diff_flat_cmd = zeros(2,length(time));
 diff_flat_ref = zeros(FDM_SSIZE, length(time));
+diff_flat_ref(:,1) = df_state_of_fo(fo_traj(:,:,1));
 
 fb_cmd = zeros(2,length(time));
 motor_cmd = zeros(2,length(time));
