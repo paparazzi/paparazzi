@@ -50,7 +50,6 @@ MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
 SETTINGS_FILE=$(SETTINGS:settings%=%)
 #TUNING_FILE=$(subst   ,_,$(SETTINGS:settings/%.xml=%)).h
 TUNING_H=$(ACINCLUDE)/tuning.h
-TUNING_INC_H=$(PAPARAZZI_HOME)/var/include/"$(SETTINGS:settings/%.xml=%).h"
 SUPERVISION=./paparazzi
 MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
 MODULES_H=$(ACINCLUDE)/modules.h
@@ -125,8 +124,6 @@ $(SETTINGS_H) : $(SETTINGS_XMLS) $(CONF_XML) $(SETTINGS_MODULES) $(TOOLS)/gen_se
 $(TUNING_H) : $(SETTINGS_XMLS) $(CONF_XML) $(TOOLS)/gen_tuning.out
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_tuning.out $(SETTINGS_XMLS) > $@
-	$(Q)cp $@ $(TUNING_INC_H)
-	$(Q)chmod a+r $@ $(TUNING_INC_H)
 
 $(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_modules.out $(CONF)/modules/*.xml
 	@echo BUILD $@
