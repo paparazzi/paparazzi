@@ -50,7 +50,8 @@ target CDATA "ap|sim">
 
 <!ATTLIST flag
 name CDATA #REQUIRED
-value CDATA #IMPLIED>
+value CDATA #IMPLIED
+type CDATA #IMPLIED>
 
 <!ATTLIST file
 name CDATA #REQUIRED>
