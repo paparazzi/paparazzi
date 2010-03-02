@@ -53,10 +53,6 @@
 #include "booz_ahrs.h"
 #include "booz2_ins.h"
 
-#ifdef USE_CAM
-#include "booz2_cam.h"
-#endif
-
 #if defined USE_CAM || USE_DROP
 #include "booz2_pwm_hw.h"
 #endif
@@ -131,10 +127,6 @@ STATIC_INLINE void booz2_main_init( void ) {
   booz2_gps_init();
 #endif
 
-#ifdef USE_CAM
-  booz2_cam_init();
-#endif
-
 #ifdef BOOZ2_SONAR
   booz2_sonar_init();
 #endif
@@ -198,10 +190,6 @@ STATIC_INLINE void booz2_main_periodic( void ) {
       booz2_autopilot_mode == BOOZ2_AP_MODE_NAV && GpsIsLost())		\
     booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);			\
   booz_gps_periodic();
-#endif
-
-#ifdef USE_CAM
-  RunOnceEvery(50,booz2_cam_periodic());
 #endif
 
 #ifdef BOOZ2_SONAR

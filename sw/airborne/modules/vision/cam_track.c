@@ -1,0 +1,236 @@
+/*
+ * $Id: demo_module.c 3079 2009-03-11 16:55:42Z gautier $
+ *  
+ * Copyright (C) 2010  Gautier Hattenberger
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ */
+
+#include "cam_track.h"
+
+#include "booz2_ins.h"
+#include "booz_ahrs.h"
+
+#ifdef USE_HFF
+#include "ins/booz2_hf_float.h"
+#endif
+
+struct FloatVect3 target_pos_ned;
+struct FloatVect3 target_speed_ned;
+struct FloatVect3 target_accel_ned;
+
+struct FloatVect3 last_pos_ned;
+
+#define CAM_DATA_LEN  (3*4)
+#define CAM_START_1   0xFF
+#define CAM_START_2   0xFE
+#define CAM_END       0xF0
+
+#define UNINIT        0
+#define GOT_START_1   1
+#define GOT_START_2   2
+#define GOT_LEN       3
+#define GOT_DATA      4
+#define GOT_END       5
+
+#include "messages.h"
+#include "downlink.h"
+
+volatile uint8_t cam_msg_received;
+uint8_t cam_status;
+uint8_t cam_data_len;
+
+void track_init(void) {
+  booz_ins_ltp_initialised = TRUE; // ltp is initialized and centered on the target
+  booz_ins_update_on_agl = TRUE;   // use sonar to update agl (assume flat ground)
+
+  cam_status = UNINIT;
+  cam_data_len = CAM_DATA_LEN;
+
+}
+
+#include <stdio.h>
+void track_periodic_task(void) {
+  char cmd_msg[256];
+  uint8_t c = 0;
+
+  cmd_msg[c++] = 'A';
+  cmd_msg[c++] = ' ';
+  float phi = ANGLE_FLOAT_OF_BFP(booz_ahrs.ltp_to_body_euler.phi);
+  if (phi > 0) cmd_msg[c++] = ' ';
+  else { cmd_msg[c++] = '-'; phi = -phi; }
+  cmd_msg[c++] = '0' + ((unsigned int) phi % 10);
+  cmd_msg[c++] = '0' + ((unsigned int) (10*phi) % 10);
+  cmd_msg[c++] = '0' + ((unsigned int) (100*phi) % 10);
+  cmd_msg[c++] = '0' + ((unsigned int) (1000*phi) % 10);
+  cmd_msg[c++] = '0' + ((unsigned int) (10000*phi) % 10);
+  cmd_msg[c++] = ' ';
+  float theta = ANGLE_FLOAT_OF_BFP(booz_ahrs.ltp_to_body_euler.theta);
+  if (theta > 0) cmd_msg[c++] = ' ';
+  else { cmd_msg[c++] = '-'; theta = -theta; }
+  cmd_msg[c++] = '0' + ((unsigned int) theta % 10);
+  cmd_msg[c++] = '0' + ((unsigned int) (10*theta) % 10);
+  cmd_msg[c++] = '0' + ((unsigned int) (100*theta) % 10);
+  cmd_msg[c++] = '0' + ((unsigned int) (1000*theta) % 10);
+  cmd_msg[c++] = '0' + ((unsigned int) (10000*theta) % 10);
+  cmd_msg[c++] = ' ';
+  float psi = ANGLE_FLOAT_OF_BFP(booz_ahrs.ltp_to_body_euler.psi);
+  if (psi > 0) cmd_msg[c++] = ' ';
+  else { cmd_msg[c++] = '-'; psi = -psi; }
+  cmd_msg[c++] = '0' + ((unsigned int) psi % 10);
+  cmd_msg[c++] = '0' + ((unsigned int) (10*psi) % 10);
+  cmd_msg[c++] = '0' + ((unsigned int) (100*psi) % 10);
+  cmd_msg[c++] = '0' + ((unsigned int) (1000*psi) % 10);
+  cmd_msg[c++] = '0' + ((unsigned int) (10000*psi) % 10);
+  cmd_msg[c++] = ' ';
+  float alt = -POS_FLOAT_OF_BFP(booz_ins_ltp_pos.z);
+  //alt = 0.40;
+  if (alt > 0) cmd_msg[c++] = ' ';
+  else { cmd_msg[c++] = '-'; alt = -alt; }
+  cmd_msg[c++] = '0' + ((unsigned int) (alt/10) % 10);
+  cmd_msg[c++] = '0' + ((unsigned int) alt % 10);
+  cmd_msg[c++] = '0' + ((unsigned int) (10*alt) % 10);
+  cmd_msg[c++] = '0' + ((unsigned int) (100*alt) % 10);
+  cmd_msg[c++] = '0' + ((unsigned int) (1000*alt) % 10);
+  cmd_msg[c++] = ' ';
+  cmd_msg[c++] = '\n';;
+
+  int i;
+  for (i = 0; i < c; i++) {
+    CamUartSend1(cmd_msg[i]);
+  }
+  //DOWNLINK_SEND_DEBUG(DefaultChannel,c,cmd_msg);
+
+}
+
+void track_event(void) {
+  if (!booz_ins_ltp_initialised) {
+    booz_ins_ltp_initialised = TRUE;
+#ifdef USE_HFF
+    booz_ins_hff_realign = TRUE;
+#endif
+  }
+
+#ifdef USE_HFF
+  if (booz_ins_hff_realign) {
+    booz_ins_hff_realign = FALSE;
+    struct FloatVect2 pos, zero;
+    pos.x = -target_pos_ned.x;
+    pos.y = -target_pos_ned.y;
+    b2_hff_realign(pos, zero);
+  }
+  b2_hff_update_pos(-target_pos_ned.x, -target_pos_ned.y);
+  booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
+  booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
+  booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
+  booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
+  booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
+  booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
+#else
+  // store pos in ins
+  booz_ins_ltp_pos.x = -(POS_BFP_OF_REAL(target_pos_ned.x));
+  booz_ins_ltp_pos.y = -(POS_BFP_OF_REAL(target_pos_ned.y));
+  // compute speed from last pos
+  // TODO get delta T
+  // store last pos
+  VECT3_COPY(last_pos_ned, target_pos_ned);
+#endif
+
+  b2_hff_lost_counter = 0;
+}
+
+#define CAM_MAX_PAYLOAD 254
+uint8_t cam_data_buf[CAM_MAX_PAYLOAD];
+uint8_t cam_data_idx;
+
+void parse_cam_msg( void ) {
+  uint8_t* ptr;
+  // pos x
+  ptr = (uint8_t*)(&(target_pos_ned.x));
+  *ptr = cam_data_buf[0];
+  ptr++;
+  *ptr = cam_data_buf[1];
+  ptr++;
+  *ptr = cam_data_buf[2];
+  ptr++;
+  *ptr = cam_data_buf[3];
+  // pos y
+  ptr = (uint8_t*)(&(target_pos_ned.y));
+  *ptr = cam_data_buf[4];
+  ptr++;
+  *ptr = cam_data_buf[5];
+  ptr++;
+  *ptr = cam_data_buf[6];
+  ptr++;
+  *ptr = cam_data_buf[7];
+  // pos z
+  ptr = (uint8_t*)(&(target_pos_ned.z));
+  *ptr = cam_data_buf[8];
+  ptr++;
+  *ptr = cam_data_buf[9];
+  ptr++;
+  *ptr = cam_data_buf[10];
+  ptr++;
+  *ptr = cam_data_buf[11];
+
+  //DOWNLINK_SEND_DEBUG(DefaultChannel,12,cam_data_buf);
+}
+
+void parse_cam_buffer( uint8_t c ) {
+  char bla[1];
+  bla[1] = c;
+  //DOWNLINK_SEND_DEBUG(DefaultChannel,1,bla);
+  switch (cam_status) {
+  case UNINIT:
+    if (c != CAM_START_1)
+      goto error;
+    cam_status++;
+    break;
+  case GOT_START_1:
+    if (c != CAM_START_2)
+      goto error;
+    cam_status++;
+    break;
+  case GOT_START_2:
+    cam_data_len = c;
+    if (cam_data_len > CAM_MAX_PAYLOAD)
+      goto error;
+    cam_data_idx = 0;
+    cam_status++;
+    break;
+  case GOT_LEN:
+    cam_data_buf[cam_data_idx] = c;
+    cam_data_idx++;
+    if (cam_data_idx >= cam_data_len)
+      cam_status++;
+    break;
+  case GOT_DATA:
+    if (c != CAM_END)
+      goto error;
+    cam_msg_received = TRUE;
+    goto restart;
+    break;
+  }
+  return;
+ error:  
+ restart:
+  cam_status = UNINIT;
+  return;
+}
+

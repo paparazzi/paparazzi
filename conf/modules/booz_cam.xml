@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="vision">
+  <!-- depend require="booz_pwm|led" -->
+  <header>
+    <file name="booz_cam.h"/>
+  </header>
+  <init fun="booz_cam_init()"/>
+  <periodic fun="booz_cam_periodic()" freq="10."/>
+  <makefile>
+    <flag name="USE_CAM"/>
+    <file name="booz_cam.c"/>
+  </makefile>
+</module>
+

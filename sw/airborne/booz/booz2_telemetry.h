@@ -616,6 +616,17 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				   &booz2_guidance_h_command_body.psi);	\
   }
 
+#define PERIODIC_SEND_BOOZ2_GUIDANCE_H_REF(_chan) { \
+  DOWNLINK_SEND_BOOZ2_GUIDANCE_H_REF_INT(_chan, \
+      &booz2_guidance_h_pos_sp.x, \
+      &booz2_guidance_h_pos_ref.x, \
+      &booz2_guidance_h_speed_ref.x, \
+      &booz2_guidance_h_accel_ref.x, \
+      &booz2_guidance_h_pos_sp.y, \
+      &booz2_guidance_h_pos_ref.y, \
+      &booz2_guidance_h_speed_ref.y, \
+      &booz2_guidance_h_accel_ref.y); \
+}
 
 #include "booz2_gps.h"
 #include "booz2_navigation.h"
@@ -695,8 +706,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 #ifdef USE_CAM
-#include "booz2_cam.h"
-#define PERIODIC_SEND_BOOZ2_CAM(_chan) DOWNLINK_SEND_BOOZ2_CAM(_chan,&booz2_cam_tilt,&booz2_cam_pan);
+#define PERIODIC_SEND_BOOZ2_CAM(_chan) DOWNLINK_SEND_BOOZ2_CAM(_chan,&booz_cam_tilt,&booz_cam_pan);
 #else
 #define PERIODIC_SEND_BOOZ2_CAM(_chan) {}
 #endif
@@ -721,11 +731,26 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef BOOZ2_SONAR
 #include "booz2_sonar.h"
-#define PERIODIC_SEND_BOOZ2_SONAR(_chan) DOWNLINK_SEND_BOOZ2_SONAR(_chan,&booz2_sonar_front,&booz2_sonar_back,&booz2_sonar_right,&booz2_sonar_left);
+#define PERIODIC_SEND_BOOZ2_SONAR(_chan) DOWNLINK_SEND_BOOZ2_SONAR(_chan,&booz2_sonar_1,&booz2_sonar_2,&booz2_sonar_3,&booz2_sonar_4);
 #else
 #define PERIODIC_SEND_BOOZ2_SONAR(_chan) {}
 #endif
 
+#ifdef BOOZ2_TRACK_CAM
+#include "cam_track.h"
+#define PERIODIC_SEND_CAM_TRACK(_chan) DOWNLINK_SEND_BOOZ_SIM_SPEED_POS(_chan, \
+    &target_accel_ned.x, \
+    &target_accel_ned.y, \
+    &target_accel_ned.z, \
+    &target_speed_ned.x, \
+    &target_speed_ned.y, \
+    &target_speed_ned.z, \
+    &target_pos_ned.x, \
+    &target_pos_ned.y, \
+    &target_pos_ned.z)
+#else
+#define PERIODIC_SEND_CAM_TRACK(_chan) {}
+#endif
 
 #include "settings.h"
 #define PERIODIC_SEND_DL_VALUE(_chan) PeriodicSendDlValue(_chan)
