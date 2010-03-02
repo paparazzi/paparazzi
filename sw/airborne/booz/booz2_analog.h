@@ -26,6 +26,22 @@
 
 extern void booz2_analog_init( void );
 
+#ifdef USE_EXTRA_ADC
+#include "std.h"
+
+extern uint16_t booz2_adc_1; 
+extern uint16_t booz2_adc_2; 
+extern uint16_t booz2_adc_3; 
+extern uint16_t booz2_adc_4; 
+
+extern void booz2_analog_periodic( void );
+
+extern void booz2_analog_baro_read(void);
+extern void booz2_analog_bat_read(void);
+extern void booz2_analog_extra_adc_read(void);
+#endif
+
+
 #include "booz2_analog_hw.h"
 
 #endif /* BOOZ2_ANALOG_H */

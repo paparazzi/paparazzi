@@ -729,9 +729,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				   );					       \
   }
 
+//TODO replace by BOOZ_EXTRA_ADC
 #ifdef BOOZ2_SONAR
-#include "booz2_sonar.h"
-#define PERIODIC_SEND_BOOZ2_SONAR(_chan) DOWNLINK_SEND_BOOZ2_SONAR(_chan,&booz2_sonar_1,&booz2_sonar_2,&booz2_sonar_3,&booz2_sonar_4);
+#define PERIODIC_SEND_BOOZ2_SONAR(_chan) DOWNLINK_SEND_BOOZ2_SONAR(_chan,&booz2_adc_1,&booz2_adc_2,&booz2_adc_3,&booz2_adc_4);
 #else
 #define PERIODIC_SEND_BOOZ2_SONAR(_chan) {}
 #endif

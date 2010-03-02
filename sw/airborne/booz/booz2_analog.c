@@ -23,6 +23,8 @@
 
 #include "booz2_analog.h"
 
+#include "std.h"
+
 // battery on AD0.3 on P0.30
 // baro    on AD0.1 on P0.28
 
@@ -35,4 +37,14 @@ void booz2_analog_init( void ) {
   booz2_analog_init_hw();
 
 }
+
+#ifdef USE_EXTRA_ADC
+// Read manually baro (100Hz) and bat (10Hz)
+void booz2_analog_periodic( void ) {
+  // baro
+  RunOnceEvery(5,booz2_analog_baro_read());
+  // bat
+  RunOnceEvery(50,booz2_analog_bat_read());
+}
+#endif
 

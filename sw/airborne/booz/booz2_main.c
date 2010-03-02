@@ -57,10 +57,6 @@
 #include "booz2_pwm_hw.h"
 #endif
 
-#ifdef BOOZ2_SONAR
-#include "booz2_sonar.h"
-#endif
-
 #include "booz2_main.h"
 
 #ifdef SITL
@@ -127,15 +123,11 @@ STATIC_INLINE void booz2_main_init( void ) {
   booz2_gps_init();
 #endif
 
-#ifdef BOOZ2_SONAR
-  booz2_sonar_init();
-#endif
-
-  int_enable();
-
 #ifdef USE_MODULES
   modules_init();
 #endif
+
+  int_enable();
 
 #if defined BOOZ_START_DELAY && ! defined SITL
   delay_done = FALSE;
@@ -192,7 +184,7 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   booz_gps_periodic();
 #endif
 
-#ifdef BOOZ2_SONAR
+#ifdef USE_EXTRA_ADC
   booz2_analog_periodic();
 #endif
 
@@ -217,10 +209,6 @@ STATIC_INLINE void booz2_main_event( void ) {
   BoozImuEvent(on_gyro_accel_event, on_mag_event);
 
   Booz2AnalogBaroEvent(on_baro_event);
-
-#ifdef BOOZ2_SONAR
-  Booz2SonarEvent(booz_ins_update_sonar);
-#endif
 
 #ifdef USE_GPS
   Booz2GpsEvent(on_gps_event);
