@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,12 +18,12 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "booz_stabilization.h"
 
-#include "ahrs/booz_ahrs_aligner.h"
+#include "booz_ahrs.h"
 
 #include "booz_imu.h"
 #include "booz_radio_control.h"
@@ -36,13 +36,12 @@ struct Int32Rates booz_stabilization_rate_gain;
 void booz_stabilization_rate_init(void) {
 
   INT_RATES_ZERO(booz_stabilization_rate_sp);
-  INT_RATES_ZERO(booz_stabilization_rate_measure);
 
   RATES_ASSIGN(booz_stabilization_rate_gain,
 	       BOOZ_STABILIZATION_RATE_GAIN_P,
 	       BOOZ_STABILIZATION_RATE_GAIN_Q,
 	       BOOZ_STABILIZATION_RATE_GAIN_R);
-  
+
 }
 
 
@@ -58,21 +57,13 @@ void booz_stabilization_rate_read_rc( void ) {
 
 void booz_stabilization_rate_run(void) {
 
-  /* low pass */
-  RATES_ADD(booz_stabilization_rate_measure, booz_imu.gyro);
-  if (booz_ahrs_aligner.status == BOOZ_AHRS_ALIGNER_LOCKED)
-    RATES_SUB(booz_stabilization_rate_measure, booz_ahrs_aligner.lp_gyro);
-  RATES_SDIV(booz_stabilization_rate_measure, booz_stabilization_rate_measure, 2);
-  
-
   struct Int32Rates _error;
-  RATES_DIFF(_error, booz_stabilization_rate_measure, booz_stabilization_rate_sp);
+  RATES_DIFF(_error, booz_ahrs.body_rate, booz_stabilization_rate_sp);
   struct Int32Rates _cmd;
   RATES_EWMULT_RSHIFT(_cmd, _error, booz_stabilization_rate_gain, 16);
 
   booz_stabilization_cmd[COMMAND_ROLL]  = _cmd.p;
   booz_stabilization_cmd[COMMAND_PITCH] = _cmd.q;
   booz_stabilization_cmd[COMMAND_YAW]   = _cmd.r;
- 
-}
 
+}
