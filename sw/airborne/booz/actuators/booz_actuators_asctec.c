@@ -3,8 +3,12 @@
 
 #include "booz2_commands.h"
 #include "i2c.h"
+#include "sys_time.h"
 
 struct ActuatorsAsctec actuators_asctec; 
+
+uint32_t actuators_delay_time;
+bool_t   actuators_delay_done;
 
 void actuators_init(void) {
   actuators_asctec.cmd = NONE;
@@ -12,9 +16,24 @@ void actuators_init(void) {
   actuators_asctec.new_addr = FRONT;
   actuators_asctec.i2c_done = TRUE;
   actuators_asctec.nb_err = 0;
+
+#if defined BOOZ_START_DELAY && ! defined SITL
+  actuators_delay_done = FALSE;
+  SysTimeTimerStart(actuators_delay_time);
+#else
+  actuators_delay_done = TRUE;
+  actuators_delay_time = 0;
+#endif
 }
 
 void actuators_set(bool_t motors_on) {
+#if defined BOOZ_START_DELAY && ! defined SITL
+  if (!actuators_delay_done) {
+    if (SysTimeTimer(actuators_delay_time) < SYS_TICS_OF_SEC(BOOZ_START_DELAY)) return;
+    else actuators_delay_done = TRUE;
+  }
+#endif
+
   if (!actuators_asctec.i2c_done)
     actuators_asctec.nb_err++;
 

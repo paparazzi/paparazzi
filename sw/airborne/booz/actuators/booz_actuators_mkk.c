@@ -31,6 +31,9 @@ struct ActuatorsMkk actuators_mkk;
 
 const uint8_t actuators_addr[ACTUATORS_MKK_NB] = ACTUATORS_MKK_ADDR;
 
+uint32_t actuators_delay_time;
+bool_t   actuators_delay_done;
+
 void actuators_init(void) {
 
   supervision_init();
@@ -38,10 +41,23 @@ void actuators_init(void) {
   actuators_mkk.i2c_done = TRUE;
   actuators_mkk.idx = 0;
 
+#if defined BOOZ_START_DELAY && ! defined SITL
+  actuators_delay_done = FALSE;
+  SysTimeTimerStart(actuators_delay_time);
+#else
+  actuators_delay_done = TRUE;
+  actuators_delay_time = 0;
+#endif
 }
 
 
 void actuators_set(bool_t motors_on) {
+#if defined BOOZ_START_DELAY && ! defined SITL
+  if (!actuators_delay_done) {
+    if (SysTimeTimer(actuators_delay_time) < SYS_TICS_OF_SEC(BOOZ_START_DELAY)) return;
+    else actuators_delay_done = TRUE;
+  }
+#endif
 
   supervision_run(motors_on, FALSE, booz2_commands);
   actuators_mkk.status = BUSY;
