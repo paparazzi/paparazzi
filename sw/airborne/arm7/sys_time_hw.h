@@ -83,6 +83,10 @@ extern uint32_t sys_time_chrono; /* T0TC ticks,frequency: PCLK / T0PCLK_DIV */
   DOWNLINK_SEND_CHRONO(_tag, &sys_time_chrono); \
 }
 
+/* Generic timer macros */
+#define SysTimeTimerStart(_t) { _t = T0TC; }
+#define SysTimeTimer(_t) ((uint32_t)(T0TC - _t))
+#define SysTimeTimerStop(_t) { _t = (T0TC - _t); }
 
 
 static inline void sys_time_init( void ) {
