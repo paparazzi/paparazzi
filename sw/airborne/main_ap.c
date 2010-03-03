@@ -77,11 +77,6 @@
 #include "srf08.h"
 #endif
 
-#ifdef ENOSE
-#include "chemo_detect.h"
-#include "enose.h"
-#endif
-
 #if defined USE_I2C0 || USE_I2C1
 #include "i2c.h"
 #endif
@@ -525,14 +520,6 @@ void periodic_task_ap( void ) {
     break;
 #endif
 
-#ifdef ENOSE
-  case 4:
-    enose_periodic();
-    chemo_periodic();
-    DOWNLINK_SEND_ENOSE_STATUS(DefaultChannel, &enose_val[0], &enose_val[1], &enose_val[2], &enose_PID_val, 3, enose_heat);
-    break;
-#endif
-
 #ifdef DPICCO
   case 5:
     dpicco_periodic();
@@ -764,11 +751,6 @@ void init_ap( void ) {
   adc_generic_init();
 #endif
 
-#ifdef ENOSE
-  enose_init();
-  chemo_init();
-#endif
-
 #ifdef DIGITAL_CAM
   dc_init();
 #endif
@@ -820,6 +802,10 @@ void init_ap( void ) {
   max11040_init();
 #endif
 
+#ifdef USE_MODULES
+  modules_init();
+#endif
+
   /** - start interrupt task */
   int_enable();
 
@@ -866,9 +852,6 @@ void init_ap( void ) {
   tcas_init();
 #endif
 
-#ifdef USE_MODULES
-  modules_init();
-#endif
 }
 
 
