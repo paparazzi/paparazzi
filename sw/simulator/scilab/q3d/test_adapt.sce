@@ -30,6 +30,7 @@ if 1
   b1 = [ 5 -5];
   b2 = [ 0 -5];
   [fo_traj1] = sbb_gen_traj(time1, dyn, max_speed, max_accel, b0, b1);
+  b1 = [fo_traj1(1,1,$) fo_traj1(2,1,$)];
   [fo_traj2] = sbb_gen_traj(time2, dyn, max_speed, max_accel, b1, b2);
   [time, fo_traj] = merge_traj(list(time1, time2), list(fo_traj1, fo_traj2));
 else
@@ -55,7 +56,7 @@ for i=2:length(time)
 //  diff_flat_cmd(:,i) = df_input_of_fo(fo_traj(:,:,i), fdm_Ct0/fdm_mass, fdm_la*fdm_Ct0/fdm_inertia);
   diff_flat_cmd(:,i-1) = df_input_of_fo(fo_traj(:,:,i-1), adp_est(1,i-1), adp_est(2,i-1));
   diff_flat_ref(:,i-1) = df_state_of_fo(fo_traj(:,:,i-1));
-  fb_cmd(:,i-1) = ctl_compute_feeback(fdm_state(:,i-1),diff_flat_ref(:,i-1)); 
+  fb_cmd(:,i-1) = ctl_compute_feeback(fdm_state(:,i-1),diff_flat_ref(:,i-1), diff_flat_cmd(:,i-1),  adp_est(1,i-1), adp_est(2,i-1)); 
   global ctl_u;
   ctl_u(:,i-1) = diff_flat_cmd(:,i-1) + fb_cmd(:,i-1);
   MotorsOfCmds = 0.5*[1 -1 ; 1 1];
