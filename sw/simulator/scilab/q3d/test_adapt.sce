@@ -41,14 +41,9 @@ end
 
 fdm_init(time, df_state_of_fo(fo_traj(:,:,1)), [0.25 0.25]');
 
-//pause
 global fdm_perturb;
-fdm_perturb(:,2562) = [15;15;15];
-fdm_perturb(:,2563) = [15;15;15];
-fdm_perturb(:,2564) = [15;15;15];
-fdm_perturb(:,2565) = [15;15;15];
-fdm_perturb(:,2566) = [15;15;15];
-fdm_perturb(:,2567) = [15;15;15];
+k=find(time > 5 & time < 5.05);
+fdm_perturb(FDM_AX,k) = 10*ones(1,length(k));
 
 ctl_init(time);
 
