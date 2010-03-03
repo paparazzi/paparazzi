@@ -81,20 +81,20 @@ endfunction
 function adp_run(i)
   // low pass filter thetad and ud
   global adp_thetad_f;
-  adp_thetad_f(i) = adp_lp_tau*adp_lp_alpha*sensors_state(SEN_SG,i) + (1-adp_lp_alpha)*adp_thetad_f(i-1);
+  adp_thetad_f(i) = adp_lp_tau*adp_lp_alpha*sensors_state(SEN_SG,i-1) + (1-adp_lp_alpha)*adp_thetad_f(i-1);
   global adp_ud_f;
-  adp_ud_f(i)     = adp_lp_tau*adp_lp_alpha*ctl_u(CTL_UD,i)         + (1-adp_lp_alpha)*adp_ud_f(i-1);
+  adp_ud_f(i)     = adp_lp_tau*adp_lp_alpha*ctl_u(CTL_UD,i-1)         + (1-adp_lp_alpha)*adp_ud_f(i-1);
 
   global adp_y;
   global adp_est;
   global adp_P;
   
   //output
-  adp_y(1,i) = sqrt(fdm_accel(FDM_AX,i)^2 + (fdm_accel(FDM_AZ,i)+9.81)^2);   // fixme
+  adp_y(1,i-1) = sqrt(fdm_accel(FDM_AX,i-1)^2 + (fdm_accel(FDM_AZ,i-1)+9.81)^2);   // fixme
   // input  
-  W = ctl_u(CTL_UT,i); 
+  W = ctl_u(CTL_UT,i-1); 
   // residual
-  e1 = W*adp_est(1,i-1) - adp_y(1,i);
+  e1 = W*adp_est(1,i-1) - adp_y(1,i-1);
   // update state
   ad = -adp_P(1,1,i-1)*W'*e1;
   adp_est(1,i) = adp_est(1,i-1) + ad * adp_dt;
@@ -105,11 +105,11 @@ function adp_run(i)
   adp_P(1,1,i) = adp_P(1,1,i-1) + Pd * dt;
   
   //output
-  adp_y(2,i) = sensors_state(SEN_SG,i) - 1/adp_lp_tau * adp_thetad_f(i);
+  adp_y(2,i-1) = sensors_state(SEN_SG,i-1) - 1/adp_lp_tau * adp_thetad_f(i-1);
   // input
-  W =  adp_ud_f(i); 
+  W =  adp_ud_f(i-1); 
   // residual
-  e1 = W*adp_est(2,i-1) - adp_y(2,i);
+  e1 = W*adp_est(2,i-1) - adp_y(2,i-1);
   // update state
   ad = -adp_P(2,2,i-1)*W'*e1;
   adp_est(2,i) = adp_est(2,i-1) + ad * adp_dt;

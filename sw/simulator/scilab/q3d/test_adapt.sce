@@ -48,18 +48,18 @@ diff_flat_ref(:,1) = df_state_of_fo(fo_traj(:,:,1));
 fb_cmd = zeros(2,length(time));
 motor_cmd = zeros(2,length(time));
 
-adp_init(time, [19 150]', []);
+adp_init(time, [15 100]', []);
 sensors_init(time)
 
 for i=2:length(time)
 //  diff_flat_cmd(:,i) = df_input_of_fo(fo_traj(:,:,i), fdm_Ct0/fdm_mass, fdm_la*fdm_Ct0/fdm_inertia);
-  diff_flat_cmd(:,i) = df_input_of_fo(fo_traj(:,:,i), adp_est(1,i-1), adp_est(2,i-1));
-  diff_flat_ref(:,i) = df_state_of_fo(fo_traj(:,:,i));
+  diff_flat_cmd(:,i-1) = df_input_of_fo(fo_traj(:,:,i-1), adp_est(1,i-1), adp_est(2,i-1));
+  diff_flat_ref(:,i-1) = df_state_of_fo(fo_traj(:,:,i-1));
   fb_cmd(:,i-1) = ctl_compute_feeback(fdm_state(:,i-1),diff_flat_ref(:,i-1)); 
   global ctl_u;
-  ctl_u(:,i) = diff_flat_cmd(:,i) + fb_cmd(:,i-1);
+  ctl_u(:,i-1) = diff_flat_cmd(:,i-1) + fb_cmd(:,i-1);
   MotorsOfCmds = 0.5*[1 -1 ; 1 1];
-  motor_cmd(:,i-1) =  MotorsOfCmds * ctl_u(:,i);
+  motor_cmd(:,i-1) =  MotorsOfCmds * ctl_u(:,i-1);
   fdm_run(i, motor_cmd(:,i-1));
   sensors_run(i);
   adp_run(i);
