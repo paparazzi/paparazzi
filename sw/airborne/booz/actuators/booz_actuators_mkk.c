@@ -1,6 +1,6 @@
 /*
  * $Id: actuators_buss_twi_blmc_hw.h 3847 2009-08-02 21:47:31Z poine $
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "booz_actuators.h"
@@ -26,8 +26,9 @@
 
 #include "booz2_commands.h"
 #include "i2c.h"
+#include "sys_time.h"
 
-struct ActuatorsMkk actuators_mkk; 
+struct ActuatorsMkk actuators_mkk;
 
 const uint8_t actuators_addr[ACTUATORS_MKK_NB] = ACTUATORS_MKK_ADDR;
 
@@ -65,6 +66,5 @@ void actuators_set(bool_t motors_on) {
   actuators_mkk.idx = 0;
   i2c0_buf[0] = supervision.commands[actuators_mkk.idx];
   i2c0_transmit(actuators_addr[actuators_mkk.idx], 1, &actuators_mkk.i2c_done);
-  
-}
 
+}
