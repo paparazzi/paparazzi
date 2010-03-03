@@ -2,11 +2,11 @@ CTL_UT    = 1;
 CTL_UD    = 2;
 CTL_USIZE = 2;
 
+global ctl_diff_flat_cmd;
+global ctl_diff_flat_ref;
+global ctl_fb_cmd;
 global ctl_u;
-
-//           X    Z  Theta   Xd    Zd   Theta_d
-//ctl_gain = [ 0   -1    0      0    -1    0
-//            -2    0    5     -2     0    5 ];
+global ctl_motor_cmd;
 
 fb_o_x = rad_of_deg(250);
 fb_x_x = 0.9;
@@ -27,11 +27,36 @@ ctl_gain = [    0   -1    0      0       -1    0
 end
 
 function ctl_init(time)
-
+  global ctl_diff_flat_cmd;
+  ctl_diff_flat_cmd = zeros(CTL_USIZE,length(time));
+  global ctl_diff_flat_ref;
+  ctl_diff_flat_ref = zeros(FDM_SSIZE, length(time));
+  global ctl_fb_cmd;
+  ctl_fb_cmd = zeros(CTL_USIZE,length(time));
   global ctl_u;
   ctl_u = zeros(CTL_USIZE, length(time));
-  
+  global ctl_motor_cmd;
+  ctl_motor_cmd = zeros(2,length(time));
 endfunction
+
+function ctl_run(i)
+
+  global ctl_diff_flat_cmd;
+  //  ctl_diff_flat_cmd(:,i) = df_input_of_fo(fo_traj(:,:,i), fdm_Ct0/fdm_mass, fdm_la*fdm_Ct0/fdm_inertia);
+  ctl_diff_flat_cmd(:,i) = df_input_of_fo(fo_traj(:,:,i), adp_est(1,i), adp_est(2,i));
+  global ctl_diff_flat_ref;
+  ctl_diff_flat_ref(:,i) = df_state_of_fo(fo_traj(:,:,i));
+  global ctl_fb_cmd;
+  ctl_fb_cmd(:,i) = ctl_compute_feeback(fdm_state(:,i), ctl_diff_flat_ref(:,i), ctl_diff_flat_cmd(:,i), adp_est(1,i), adp_est(2,i)); 
+  global ctl_u;
+  ctl_u(:,i) = ctl_diff_flat_cmd(:,i) + ctl_fb_cmd(:,i);
+  MotorsOfCmds = 0.5*[1 -1 ; 1 1];
+  global ctl_motor_cmd;
+  ctl_motor_cmd(:,i) =  MotorsOfCmds * ctl_u(:,i);
+
+endfunction
+
+
 
 function [fb_cmd] = ctl_compute_feeback(fdm_state, s_ref, u_ref, a, b)
 
@@ -47,12 +72,6 @@ function [fb_cmd] = ctl_compute_feeback(fdm_state, s_ref, u_ref, a, b)
   xo2_t = 2*fb_x_t*fb_o_t;
   ut = u_ref(1);
    
-  if ut == 0
-    pause
-  end
-  
-//  gain = [ o2_x*st/a            -o2_z*ct/a                0      xo2_x*st/a             -xo2_z*ct/a                   0
-//           o2_t/b*o2_x*ct/a/ut   o2_t/b*o2_z*st/a/ut   -o2_t/b   -o2_t/b*xo2_x*ct/a/ut  -o2_t/b*xo2_z*st/a/ut    -xo2_t/b];
   
   gain = [ o2_x*st/a            -o2_z*ct/a                0      xo2_x*st/a             -xo2_z*ct/a                   0
            o2_t/b*o2_x*ct/a/ut   o2_t/b*o2_z*st/a/ut   -o2_t/b   o2_t/b*xo2_x*ct/a/ut   o2_t/b*xo2_z*st/a/ut    -xo2_t/b];
