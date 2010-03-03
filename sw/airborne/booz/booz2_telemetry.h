@@ -169,9 +169,6 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #include "booz_stabilization.h"
 #define PERIODIC_SEND_BOOZ2_RATE_LOOP(_chan) {				    \
     DOWNLINK_SEND_BOOZ2_RATE_LOOP(_chan,				    \
-				  &booz_stabilization_rate_measure.p,	    \
-				  &booz_stabilization_rate_measure.q,	    \
-				  &booz_stabilization_rate_measure.r,	    \
 				  &booz_stabilization_rate_sp.p,	    \
 				  &booz_stabilization_rate_sp.q,	    \
 				  &booz_stabilization_rate_sp.r,	    \

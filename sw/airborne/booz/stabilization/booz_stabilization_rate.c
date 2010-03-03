@@ -29,7 +29,6 @@
 #include "booz_radio_control.h"
 #include "airframe.h"
 
-struct Int32Rates booz_stabilization_rate_measure;
 struct Int32Rates booz_stabilization_rate_sp;
 struct Int32Rates booz_stabilization_rate_gain;
 

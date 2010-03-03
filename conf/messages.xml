@@ -802,9 +802,6 @@
  </message>
 
  <message name="BOOZ2_RATE_LOOP" id="136">   
-   <field name="gp"  type="int32"/>
-   <field name="gq"  type="int32"/>
-   <field name="gr"  type="int32"/>
    <field name="spp" type="int32"/>
    <field name="spq" type="int32"/>
    <field name="spr" type="int32"/>
