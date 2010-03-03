@@ -1,4 +1,5 @@
 clear();
+clearglobal();
 
 exec('q3d_utils.sci');
 
@@ -23,7 +24,7 @@ time2 = t1:dt:t2;
 
 // trajectory generation
 if 1
-  dyn = [rad_of_deg(500) 0.7; rad_of_deg(500) 0.7];
+  dyn = [rad_of_deg(400) 0.7; rad_of_deg(400) 0.7];
   max_speed = [ 5                        2.5];
   max_accel = [ 9.81*tan(rad_of_deg(30)) 0.5*9.81];
   b0 = [-5  0];
@@ -39,6 +40,15 @@ else
 end
 
 fdm_init(time, df_state_of_fo(fo_traj(:,:,1)), [0.25 0.25]');
+
+//pause
+global fdm_perturb;
+fdm_perturb(:,2562) = [15;15;15];
+fdm_perturb(:,2563) = [15;15;15];
+fdm_perturb(:,2564) = [15;15;15];
+fdm_perturb(:,2565) = [15;15;15];
+fdm_perturb(:,2566) = [15;15;15];
+fdm_perturb(:,2567) = [15;15;15];
 
 ctl_init(time);
 

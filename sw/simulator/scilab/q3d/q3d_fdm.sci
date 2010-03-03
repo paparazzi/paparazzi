@@ -43,9 +43,9 @@ fdm_max_thrust =  1.00; // 100%
 fdm_wind = [0 0]';
 
 global fdm_time;
-global fdm_state;
-global fdm_accel;
-
+global fdm_state;                    // state
+global fdm_accel;                    // aceleration (used for sensors)
+global fdm_perturb;                  // perturbation
 
 function fdm_init(time, fdm_X0, cmd0) 
 
@@ -56,24 +56,27 @@ function fdm_init(time, fdm_X0, cmd0)
   fdm_state(:,1) = fdm_X0;
   global fdm_accel;
   fdm_accel = zeros(FDM_ASIZE, length(fdm_time));
-  accel = fdm_get_derivatives(time(1), fdm_state(:,1), cmd0);
+  accel = fdm_get_derivatives(time(1), fdm_state(:,1), cmd0, [0;0;0]);
   fdm_accel(:,1) = accel(FDM_SXD:FDM_STHETAD);
-
+  global fdm_perturb;
+  fdm_perturb = zeros(FDM_ASIZE, length(fdm_time));
 endfunction
 
+
+// propagate dynamic model from step i-1 to step i
 function fdm_run(i, cmd)
  
   cmd = trim_vect(cmd, fdm_min_thrust, fdm_max_thrust);
   global fdm_state;
-  global fdm_time;
-  fdm_state(:,i) = ode(fdm_state(:,i-1), fdm_time(i-1), fdm_time(i), list(fdm_get_derivatives, cmd));
+//  global fdm_time;
+  fdm_state(:,i) = ode(fdm_state(:,i-1), fdm_time(i-1), fdm_time(i), list(fdm_get_derivatives, cmd, fdm_perturb(:,i-1)));
   global fdm_accel;
-  accel = fdm_get_derivatives(fdm_time(i), fdm_state(:,i), cmd);
+  accel = fdm_get_derivatives(fdm_time(i), fdm_state(:,i), cmd, fdm_perturb(:,i));
   fdm_accel(:,i) = accel(FDM_SXD:FDM_STHETAD);
 
 endfunction
 
-function [Xdot] = fdm_get_derivatives(t, X, U)
+function [Xdot] = fdm_get_derivatives(t, X, U, perturb)
 
   Xdot = zeros(length(X),1);
   
@@ -98,5 +101,7 @@ function [Xdot] = fdm_get_derivatives(t, X, U)
   // moments
   Xdot(FDM_STHETAD) = fdm_la * fdm_Ct0 / fdm_inertia*(U(FDM_MOTOR_LEFT) - U(FDM_MOTOR_RIGHT));
   
+  // add perturbation
+  Xdot(FDM_SXD:FDM_STHETAD) = Xdot(FDM_SXD:FDM_STHETAD)+perturb;
 endfunction
 
