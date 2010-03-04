@@ -340,6 +340,16 @@
 // A/D1 Converter Registers
 #define AD1CR            ADC1->cr       /* Control Register */
 #define AD1GDR           ADC1->gdr      /* Data Register */
+#define AD1INTEN         ADC1->inten    /* Interrupt Enable Register */
+#define AD1DR0           ADC1->dr0      /* Channel 0 Data Register   */
+#define AD1DR1           ADC1->dr1      /* Channel 1 Data Register   */
+#define AD1DR2           ADC1->dr2      /* Channel 2 Data Register   */
+#define AD1DR3           ADC1->dr3      /* Channel 3 Data Register   */
+#define AD1DR4           ADC1->dr4      /* Channel 4 Data Register   */
+#define AD1DR5           ADC1->dr5      /* Channel 5 Data Register   */
+#define AD1DR6           ADC1->dr6      /* Channel 6 Data Register   */
+#define AD1DR7           ADC1->dr7      /* Channel 7 Data Register   */
+#define AD1STAT          ADC1->stat     /* Status Register           */
 
 
 ///////////////////////////////////////////////////////////////////////////////
