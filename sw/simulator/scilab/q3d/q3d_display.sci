@@ -137,59 +137,59 @@ function display_control(time, diff_flat_ref, fdm_state, diff_flat_cmd, fb_cmd, 
   clf();
   
   subplot(4,3,1);
-  plot2d(time, diff_flat_ref(FDM_SX, :), 3);
-  plot2d(time, fdm_state(FDM_SX, :), 2);
+  plot2d(time(2:$-1), ctl_diff_flat_ref(FDM_SX, 2:$-1), 3);
+  plot2d(time(2:$-1), fdm_state(FDM_SX, 2:$-1), 2);
   legends(["fdm", "ref"],[2 3], with_box=%f, opt="ul"); 
   xtitle('X');
 
   subplot(4,3,2);
-  plot2d(time, diff_flat_ref(FDM_SZ, :), 3);
-  plot2d(time, fdm_state(FDM_SZ, :), 2);
+  plot2d(time(2:$-1), ctl_diff_flat_ref(FDM_SZ, 2:$-1), 3);
+  plot2d(time(2:$-1), fdm_state(FDM_SZ, 2:$-1), 2);
   xtitle('Z');
 
   subplot(4,3,3);
-  plot2d(time, deg_of_rad(diff_flat_ref(FDM_STHETA, :)), 3);
-  plot2d(time, deg_of_rad(fdm_state(FDM_STHETA, :)), 2);
+  plot2d(time(2:$-1), deg_of_rad(ctl_diff_flat_ref(FDM_STHETA, 2:$-1)), 3);
+  plot2d(time(2:$-1), deg_of_rad(fdm_state(FDM_STHETA, 2:$-1)), 2);
   xtitle('Theta');
 
   subplot(4,3,4);
-  plot2d(time, diff_flat_ref(FDM_SXD, :), 3);
-  plot2d(time, fdm_state(FDM_SXD, :), 2);
+  plot2d(time(2:$-1), ctl_diff_flat_ref(FDM_SXD, 2:$-1), 3);
+  plot2d(time(2:$-1), fdm_state(FDM_SXD, 2:$-1), 2);
   xtitle('Xd');
 
   subplot(4,3,5);
-  plot2d(time, diff_flat_ref(FDM_SZD, :), 3);
-  plot2d(time, fdm_state(FDM_SZD, :), 2);
+  plot2d(time(2:$-1), diff_flat_ref(FDM_SZD, 2:$-1), 3);
+  plot2d(time(2:$-1), fdm_state(FDM_SZD, 2:$-1), 2);
   xtitle('Zd');
 
   subplot(4,3,6);
-  plot2d(time, deg_of_rad(diff_flat_ref(FDM_STHETAD, :)), 3);
-  plot2d(time, deg_of_rad(fdm_state(FDM_STHETAD, :)), 2);
+  plot2d(time(2:$-1), deg_of_rad(diff_flat_ref(FDM_STHETAD, 2:$-1)), 3);
+  plot2d(time(2:$-1), deg_of_rad(fdm_state(FDM_STHETAD, 2:$-1)), 2);
   xtitle('Thetad');
   
   
   subplot(4,3,7);
   xset("color",5);
-  foo = diff_flat_cmd(1,:) + fb_cmd(1,:);
-  xfpoly([time time($:-1:1)], [diff_flat_cmd(1,:) foo($:-1:1)]);
+  xfpoly([time(2:$-1) time($-1:-1:2)], [diff_flat_cmd(1,2:$-1) ctl_u(1,$-1:-1:2)]);
   xset("color",1);
-  plot2d(time, diff_flat_cmd(1,:), 2);
+  plot2d(time(2:$-1), ctl_u(1,2:$-1), 5);
+  plot2d(time(2:$-1), diff_flat_cmd(1,2:$-1), 2);
   xtitle('u_t');
 
   subplot(4,3,8);
-  tot_cmd = diff_flat_cmd(2,:) + fb_cmd(2,:);
   xset("color",5);
-  xfpoly([time time($:-1:1)], [diff_flat_cmd(2,:) tot_cmd($:-1:1)]);
+  xfpoly([time(2:$-1) time($-1:-1:2)], [diff_flat_cmd(2,2:$-1) ctl_u(2,$-1:-1:2)]);
   xset("color",1);
-  plot2d(time, diff_flat_cmd(2,:), 2);
+  plot2d(time(2:$-1), ctl_u(2,2:$-1), 5);
+  plot2d(time(2:$-1), diff_flat_cmd(2,2:$-1), 2);
   xtitle('u_d');
   
   subplot(4,3,10);
-  plot2d(time, motor_cmd(1,:), 2);
+  plot2d(time(2:$-1), motor_cmd(1,2:$-1), 2);
   xtitle('u1');
 
   subplot(4,3,11);
-  plot2d(time, motor_cmd(2,:), 2);
+  plot2d(time(2:$-1), motor_cmd(2,2:$-1), 2);
   xtitle('u2');
   
   
