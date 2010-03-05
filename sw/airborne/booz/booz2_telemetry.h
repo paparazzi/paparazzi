@@ -167,15 +167,24 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 #include "booz_stabilization.h"
-#define PERIODIC_SEND_BOOZ2_RATE_LOOP(_chan) {				    \
-    DOWNLINK_SEND_BOOZ2_RATE_LOOP(_chan,				    \
-				  &booz_stabilization_rate_sp.p,	    \
-				  &booz_stabilization_rate_sp.q,	    \
-				  &booz_stabilization_rate_sp.r,	    \
-				  &booz_stabilization_cmd[COMMAND_ROLL],    \
-				  &booz_stabilization_cmd[COMMAND_PITCH],   \
-				  &booz_stabilization_cmd[COMMAND_YAW],     \
-				  &booz_stabilization_cmd[COMMAND_THRUST]); \
+#define PERIODIC_SEND_BOOZ2_RATE_LOOP(_chan) {                          \
+    DOWNLINK_SEND_BOOZ2_RATE_LOOP(_chan,                                \
+                                  &booz_stabilization_rate_sp.p,        \
+                                  &booz_stabilization_rate_sp.q,        \
+                                  &booz_stabilization_rate_sp.r,        \
+                                  &booz_stabilization_rate_ref.p,      \
+                                  &booz_stabilization_rate_ref.q,       \
+                                  &booz_stabilization_rate_ref.r,       \
+                                  &booz_stabilization_rate_refdot.p,       \
+                                  &booz_stabilization_rate_refdot.q,       \
+                                  &booz_stabilization_rate_refdot.r,       \
+                                  &booz_stabilization_rate_ff_cmd.p,    \
+                                  &booz_stabilization_rate_ff_cmd.q,    \
+                                  &booz_stabilization_rate_ff_cmd.r,    \
+                                  &booz_stabilization_rate_fb_cmd.p,    \
+                                  &booz_stabilization_rate_fb_cmd.q,    \
+                                  &booz_stabilization_rate_fb_cmd.r,    \
+                                  &booz_stabilization_cmd[COMMAND_THRUST]); \
   }
 
 #ifdef STABILISATION_ATTITUDE_TYPE_INT
