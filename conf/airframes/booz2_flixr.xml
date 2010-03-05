@@ -88,10 +88,14 @@
 		<define name="GAIN_R" value="-350" />
 
         <!-- feedforward -->
-		<define name="DDGAIN_P" value="100" />
-		<define name="DDGAIN_Q" value="100" />
-		<define name="DDGAIN_R" value="100" />
-        <define name="TAU" value="10" />
+        <define name="IGAIN_P" value="-75" />
+        <define name="IGAIN_Q" value="-75" />
+        <define name="IGAIN_R" value="-50" />
+
+        <define name="DDGAIN_P" value="300" />
+        <define name="DDGAIN_Q" value="300" />
+        <define name="DDGAIN_R" value="300" />
+        <define name="TAU" value="4" />
 	</section>
 
 
