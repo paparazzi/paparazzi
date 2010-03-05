@@ -29,7 +29,7 @@ FDM_MOTOR_LEFT  = 2;
 FDM_MOTOR_NB    = 2;
 
 fdm_g       = 9.81;
-fdm_mass    = 0.5;
+fdm_mass    = 0.25;
 fdm_inertia = 0.0078;
 fdm_la  = 0.25;                        // arm length
 
@@ -42,22 +42,21 @@ fdm_max_thrust =  1.00; // 100%
 
 fdm_wind = [0 0]';
 
-fdm_T0 = 1*9.81; // Static maximum thrust = 1kg
+fdm_T0 = 0.41*9.81; // Static maximum thrust = 0.41kg
 fdm_Vlim = 15;  // Velocity of 0 thrust at full throttle in m/s
 fdm_K = 3000*%pi/30/sqrt(0.3); // FIXME: Should be best fit of expression
                                // omega [rad/s] = K*sqrt(u) (a.k.a
                                // maximum rpm in rad/s)
+fdm_propR = 4*0.0254;  // propeller radius in meters
 
-			       
-fdm_propR = 5*0.0254;  // propeller radius
+// Don't change this //
 Jlim = fdm_Vlim/(fdm_K*fdm_propR); // advance ratio at Vlim with full throttle
 fdm_rhops = 1.25*fdm_K^2*%pi*fdm_propR^4; // rho * 'dynamic pressure' * surface
-
 // Coeffs of CT(J) = aJ^2 + bJ + c
 fdm_CTa = - 0.3173096; // From Qprop simulations with APC 8x3.8
 fdm_CTc = 2*fdm_T0/fdm_rhops;
 fdm_CTb = 1/Jlim*(-fdm_CTa*Jlim^2 - fdm_CTc);
-
+// Now you can change //
 
 global fdm_time;
 global fdm_state;                    // state
