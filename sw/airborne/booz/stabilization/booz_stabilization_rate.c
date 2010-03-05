@@ -54,8 +54,8 @@
 #ifndef BOOZ_STABILIZATION_RATE_IGAIN_R
 #define BOOZ_STABILIZATION_RATE_IGAIN_R 0
 #endif
-#ifndef BOOZ_STABILIZATION_RATE_TAU
-#define BOOZ_STABILIZATION_RATE_TAU 4
+#ifndef BOOZ_STABILIZATION_RATE_REF_TAU
+#define BOOZ_STABILIZATION_RATE_REF_TAU 4
 #endif
 
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
@@ -71,6 +71,30 @@ struct Int32Rates booz_stabilization_rate_sum_err;
 
 struct Int32Rates booz_stabilization_rate_fb_cmd;
 struct Int32Rates booz_stabilization_rate_ff_cmd;
+
+
+#ifndef BOOZ_STABILIZATION_RATE_DEADBAND_P
+#define BOOZ_STABILIZATION_RATE_DEADBAND_P 0
+#endif
+#ifndef BOOZ_STABILIZATION_RATE_DEADBAND_Q
+#define BOOZ_STABILIZATION_RATE_DEADBAND_Q 0
+#endif
+#ifndef BOOZ_STABILIZATION_RATE_DEADBAND_R
+#define BOOZ_STABILIZATION_RATE_DEADBAND_R 200
+#endif
+
+#define ROLL_RATE_DEADBAND_EXCEEDED()                                         \
+  (radio_control.values[RADIO_CONTROL_ROLL] >  BOOZ_STABILIZATION_RATE_DEADBAND_P || \
+   radio_control.values[RADIO_CONTROL_ROLL] < -BOOZ_STABILIZATION_RATE_DEADBAND_P)
+
+#define PITCH_RATE_DEADBAND_EXCEEDED()                                         \
+  (radio_control.values[RADIO_CONTROL_PITCH] >  BOOZ_STABILIZATION_RATE_DEADBAND_Q || \
+   radio_control.values[RADIO_CONTROL_PITCH] < -BOOZ_STABILIZATION_RATE_DEADBAND_Q)
+
+#define YAW_RATE_DEADBAND_EXCEEDED()                                         \
+  (radio_control.values[RADIO_CONTROL_YAW] >  BOOZ_STABILIZATION_RATE_DEADBAND_R || \
+   radio_control.values[RADIO_CONTROL_YAW] < -BOOZ_STABILIZATION_RATE_DEADBAND_R)
+
 
 void booz_stabilization_rate_init(void) {
 
@@ -97,11 +121,20 @@ void booz_stabilization_rate_init(void) {
 
 void booz_stabilization_rate_read_rc( void ) {
 
-  RATES_ASSIGN(booz_stabilization_rate_sp,
-	       (int32_t)-radio_control.values[RADIO_CONTROL_ROLL]  * BOOZ_STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ,
-	       (int32_t) radio_control.values[RADIO_CONTROL_PITCH] * BOOZ_STABILIZATION_RATE_SP_MAX_Q / MAX_PPRZ,
-	       (int32_t)-radio_control.values[RADIO_CONTROL_YAW]   * BOOZ_STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ);
+  if(ROLL_RATE_DEADBAND_EXCEEDED())
+    booz_stabilization_rate_sp.p = (int32_t)-radio_control.values[RADIO_CONTROL_ROLL] * BOOZ_STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
+  else
+    booz_stabilization_rate_sp.p = 0;
 
+  if(PITCH_RATE_DEADBAND_EXCEEDED())
+    booz_stabilization_rate_sp.q = (int32_t)radio_control.values[RADIO_CONTROL_PITCH] * BOOZ_STABILIZATION_RATE_SP_MAX_Q / MAX_PPRZ;
+  else
+    booz_stabilization_rate_sp.q = 0;
+
+  if(YAW_RATE_DEADBAND_EXCEEDED())
+    booz_stabilization_rate_sp.r = (int32_t)-radio_control.values[RADIO_CONTROL_YAW] * BOOZ_STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
+  else
+    booz_stabilization_rate_sp.r = 0;
 }
 
 void booz_stabilization_rate_enter(void) {
@@ -114,7 +147,7 @@ void booz_stabilization_rate_run(bool_t in_flight) {
   /* reference */
   struct Int32Rates _r;
   RATES_DIFF(_r, booz_stabilization_rate_sp, booz_stabilization_rate_ref);
-  RATES_SDIV(booz_stabilization_rate_refdot, _r, BOOZ_STABILIZATION_RATE_TAU);
+  RATES_SDIV(booz_stabilization_rate_refdot, _r, BOOZ_STABILIZATION_RATE_REF_TAU);
   /* integrate ref */
   const struct Int32Rates _delta_ref = {
     booz_stabilization_rate_refdot.p >> ( F_UPDATE_RES + REF_DOT_FRAC - REF_FRAC),

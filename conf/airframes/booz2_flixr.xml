@@ -78,24 +78,28 @@
 
 
 	<section name="STABILIZATION_RATE" prefix="BOOZ_STABILIZATION_RATE_">
-
+      <!-- setpoints -->
 		<define name="SP_MAX_P" value="10000" />
 		<define name="SP_MAX_Q" value="10000" />
 		<define name="SP_MAX_R" value="10000" />
+        <define name="DEADBAND_P" value="0" />
+        <define name="DEADBAND_Q" value="0" />
+        <define name="DEADBAND_R" value="200" />
+        <define name="REF_TAU" value="4" />
 
+        <!-- feedback -->
 		<define name="GAIN_P" value="-400" />
 		<define name="GAIN_Q" value="-400" />
 		<define name="GAIN_R" value="-350" />
 
-        <!-- feedforward -->
         <define name="IGAIN_P" value="-75" />
         <define name="IGAIN_Q" value="-75" />
         <define name="IGAIN_R" value="-50" />
 
+        <!-- feedforward -->
         <define name="DDGAIN_P" value="300" />
         <define name="DDGAIN_Q" value="300" />
         <define name="DDGAIN_R" value="300" />
-        <define name="TAU" value="4" />
 	</section>
 
 
