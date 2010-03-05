@@ -32,10 +32,17 @@
 #define INT32_MAX (2147483647)
 #endif
 
+#ifdef SITL
+static const int32_t roll_coef[SUPERVISION_NB_MOTOR]   = {    0,    0, -256,  256};
+static const int32_t pitch_coef[SUPERVISION_NB_MOTOR]  = {  256, -256,    0,    0};
+static const int32_t yaw_coef[SUPERVISION_NB_MOTOR]    = { -256, -256,  256,  256};
+static const int32_t thrust_coef[SUPERVISION_NB_MOTOR] = {  256,  256,  256,  256};
+#else
 static const int32_t roll_coef[SUPERVISION_NB_MOTOR]   = SUPERVISION_ROLL_COEF;
 static const int32_t pitch_coef[SUPERVISION_NB_MOTOR]  = SUPERVISION_PITCH_COEF;
 static const int32_t yaw_coef[SUPERVISION_NB_MOTOR]    = SUPERVISION_YAW_COEF;
 static const int32_t thrust_coef[SUPERVISION_NB_MOTOR] = SUPERVISION_THRUST_COEF;
+#endif
 
 struct BoozSupervision supervision;
 

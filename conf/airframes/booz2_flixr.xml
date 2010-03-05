@@ -197,7 +197,7 @@
 	<section name="BOOZ2_MODE" prefix="BOOZ2_MODE_">
 		<define name="MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT" />
 		<define name="AUTO1" value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD" />
-		<define name="AUTO2" value="BOOZ2_AP_MODE_NAV" />
+		<define name="AUTO2" value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD" />
 	</section>
 
 	<makefile>
