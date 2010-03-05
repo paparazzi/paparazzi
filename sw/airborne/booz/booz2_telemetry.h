@@ -172,12 +172,15 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                                   &booz_stabilization_rate_sp.p,        \
                                   &booz_stabilization_rate_sp.q,        \
                                   &booz_stabilization_rate_sp.r,        \
-                                  &booz_stabilization_rate_ref.p,      \
+                                  &booz_stabilization_rate_ref.p,       \
                                   &booz_stabilization_rate_ref.q,       \
                                   &booz_stabilization_rate_ref.r,       \
-                                  &booz_stabilization_rate_refdot.p,       \
-                                  &booz_stabilization_rate_refdot.q,       \
-                                  &booz_stabilization_rate_refdot.r,       \
+                                  &booz_stabilization_rate_refdot.p,    \
+                                  &booz_stabilization_rate_refdot.q,    \
+                                  &booz_stabilization_rate_refdot.r,    \
+                                  &booz_stabilization_rate_sum_err.p,    \
+                                  &booz_stabilization_rate_sum_err.q,    \
+                                  &booz_stabilization_rate_sum_err.r,    \
                                   &booz_stabilization_rate_ff_cmd.p,    \
                                   &booz_stabilization_rate_ff_cmd.q,    \
                                   &booz_stabilization_rate_ff_cmd.r,    \

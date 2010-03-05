@@ -28,14 +28,16 @@
 
 extern void booz_stabilization_rate_init(void);
 extern void booz_stabilization_rate_read_rc(void);
-extern void booz_stabilization_rate_run(void);
+extern void booz_stabilization_rate_run(bool_t in_flight);
 extern void booz_stabilization_rate_enter(void);
 
 extern struct Int32Rates booz_stabilization_rate_sp;
 extern struct Int32Rates booz_stabilization_rate_gain;
+extern struct Int32Rates booz_stabilization_rate_igain;
 extern struct Int32Rates booz_stabilization_rate_ddgain;
 extern struct Int32Rates booz_stabilization_rate_ref;
 extern struct Int32Rates booz_stabilization_rate_refdot;
+extern struct Int32Rates booz_stabilization_rate_sum_err;
 
 extern struct Int32Rates booz_stabilization_rate_fb_cmd;
 extern struct Int32Rates booz_stabilization_rate_ff_cmd;

@@ -171,7 +171,7 @@ void booz2_guidance_h_run(bool_t  in_flight) {
   switch ( booz2_guidance_h_mode ) {
 
   case BOOZ2_GUIDANCE_H_MODE_RATE:
-    booz_stabilization_rate_run();
+    booz_stabilization_rate_run(in_flight);
     break;
 
   case BOOZ2_GUIDANCE_H_MODE_ATTITUDE:
