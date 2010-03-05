@@ -2,6 +2,7 @@
  * $Id$
  *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2010 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -29,18 +30,48 @@
 #include "booz_radio_control.h"
 #include "airframe.h"
 
+#define F_UPDATE_RES 9
+#define REF_DOT_FRAC 11
+#define REF_FRAC  16
+
+#ifndef BOOZ_STABILIZATION_RATE_DDGAIN_P
+#define BOOZ_STABILIZATION_RATE_DDGAIN_P 0
+#endif
+#ifndef BOOZ_STABILIZATION_RATE_DDGAIN_Q
+#define BOOZ_STABILIZATION_RATE_DDGAIN_Q 0
+#endif
+#ifndef BOOZ_STABILIZATION_RATE_DDGAIN_R
+#define BOOZ_STABILIZATION_RATE_DDGAIN_R 0
+#endif
+#ifndef BOOZ_STABILIZATION_RATE_TAU
+#define BOOZ_STABILIZATION_RATE_TAU 1
+#endif
+
 struct Int32Rates booz_stabilization_rate_sp;
 struct Int32Rates booz_stabilization_rate_gain;
+struct Int32Rates booz_stabilization_rate_ddgain;
+struct Int32Rates booz_stabilization_rate_ref;
+struct Int32Rates booz_stabilization_rate_refdot;
+
+struct Int32Rates booz_stabilization_rate_fb_cmd;
+struct Int32Rates booz_stabilization_rate_ff_cmd;
 
 void booz_stabilization_rate_init(void) {
 
   INT_RATES_ZERO(booz_stabilization_rate_sp);
 
   RATES_ASSIGN(booz_stabilization_rate_gain,
-	       BOOZ_STABILIZATION_RATE_GAIN_P,
-	       BOOZ_STABILIZATION_RATE_GAIN_Q,
-	       BOOZ_STABILIZATION_RATE_GAIN_R);
+               BOOZ_STABILIZATION_RATE_GAIN_P,
+               BOOZ_STABILIZATION_RATE_GAIN_Q,
+               BOOZ_STABILIZATION_RATE_GAIN_R);
 
+  RATES_ASSIGN(booz_stabilization_rate_ddgain,
+               BOOZ_STABILIZATION_RATE_DDGAIN_P,
+               BOOZ_STABILIZATION_RATE_DDGAIN_Q,
+               BOOZ_STABILIZATION_RATE_DDGAIN_R);
+
+  INT_RATES_ZERO(booz_stabilization_rate_ref);
+  INT_RATES_ZERO(booz_stabilization_rate_refdot);
 }
 
 
@@ -53,16 +84,34 @@ void booz_stabilization_rate_read_rc( void ) {
 
 }
 
+void booz_stabilization_rate_enter(void) {
+  RATES_COPY(booz_stabilization_rate_ref, booz_stabilization_rate_sp);
+}
 
 void booz_stabilization_rate_run(void) {
 
+  /* reference */
+  struct Int32Rates _r;
+  RATES_DIFF(_r, booz_stabilization_rate_sp, booz_stabilization_rate_ref);
+  RATES_SDIV(booz_stabilization_rate_refdot, _r, BOOZ_STABILIZATION_RATE_TAU);
+  /* integrate ref */
+  const struct Int32Rates _delta_ref = {
+    booz_stabilization_rate_refdot.p >> ( F_UPDATE_RES + REF_DOT_FRAC - REF_FRAC),
+    booz_stabilization_rate_refdot.q >> ( F_UPDATE_RES + REF_DOT_FRAC - REF_FRAC),
+    booz_stabilization_rate_refdot.r >> ( F_UPDATE_RES + REF_DOT_FRAC - REF_FRAC)};
+  RATES_ADD(booz_stabilization_rate_ref, _delta_ref);
+
+  /* compute feed-forward command */
+  RATES_EWMULT_RSHIFT(booz_stabilization_rate_ff_cmd, booz_stabilization_rate_ddgain, booz_stabilization_rate_refdot, 16);
+
+  /* compute feed-back command */
   struct Int32Rates _error;
   RATES_DIFF(_error, booz_ahrs.body_rate, booz_stabilization_rate_sp);
-  struct Int32Rates _cmd;
-  RATES_EWMULT_RSHIFT(_cmd, _error, booz_stabilization_rate_gain, 16);
+  RATES_EWMULT_RSHIFT(booz_stabilization_rate_fb_cmd, booz_stabilization_rate_gain, _error, 16);
 
-  booz_stabilization_cmd[COMMAND_ROLL]  = _cmd.p;
-  booz_stabilization_cmd[COMMAND_PITCH] = _cmd.q;
-  booz_stabilization_cmd[COMMAND_YAW]   = _cmd.r;
+  /* sum to final command */
+  booz_stabilization_cmd[COMMAND_ROLL]  = booz_stabilization_rate_ff_cmd.p + booz_stabilization_rate_fb_cmd.p;
+  booz_stabilization_cmd[COMMAND_PITCH] = booz_stabilization_rate_ff_cmd.q + booz_stabilization_rate_fb_cmd.q;
+  booz_stabilization_cmd[COMMAND_YAW]   = booz_stabilization_rate_ff_cmd.r + booz_stabilization_rate_fb_cmd.r;
 
 }

@@ -107,6 +107,10 @@ void booz2_guidance_h_mode_changed(uint8_t new_mode) {
 
   switch (new_mode) {
 
+  case BOOZ2_GUIDANCE_H_MODE_RATE:
+    booz_stabilization_rate_enter();
+    break;
+
   case BOOZ2_GUIDANCE_H_MODE_ATTITUDE:
     booz_stabilization_attitude_enter();
     break;
