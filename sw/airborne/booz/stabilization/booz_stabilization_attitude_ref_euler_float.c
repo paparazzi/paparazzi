@@ -43,15 +43,15 @@ void booz_stabilization_attitude_ref_init(void) {
 void booz_stabilization_attitude_ref_update() {
 
 #ifdef USE_REF
-  
-    /* dumb integrate reference attitude        */			
+
+    /* dumb integrate reference attitude        */
     struct FloatRates delta_rate;
     RATES_SMUL(delta_rate, booz_stab_att_ref_rate, DT_UPDATE);
     struct FloatEulers delta_angle;
     EULERS_ASSIGN(delta_angle, delta_rate.p, delta_rate.q, delta_rate.r);
     EULERS_ADD(booz_stab_att_ref_euler, delta_angle );
     FLOAT_ANGLE_NORMALIZE(booz_stab_att_ref_euler.psi);
-								
+
     /* integrate reference rotational speeds   */
     struct FloatRates delta_accel;
     RATES_SMUL(delta_accel, booz_stab_att_ref_accel, DT_UPDATE);
@@ -68,21 +68,18 @@ void booz_stabilization_attitude_ref_update() {
     booz_stab_att_ref_accel.q = -2.*ZETA_Q*OMEGA_P*booz_stab_att_ref_rate.q - OMEGA_Q*OMEGA_Q*ref_err.theta;
     booz_stab_att_ref_accel.r = -2.*ZETA_R*OMEGA_P*booz_stab_att_ref_rate.r - OMEGA_R*OMEGA_R*ref_err.psi;
 
-    /*	saturate acceleration */				
+    /*	saturate acceleration */
     const struct Int32Rates MIN_ACCEL = { -REF_ACCEL_MAX_P, -REF_ACCEL_MAX_Q, -REF_ACCEL_MAX_R };
     const struct Int32Rates MAX_ACCEL = {  REF_ACCEL_MAX_P,  REF_ACCEL_MAX_Q,  REF_ACCEL_MAX_R }; \
     RATES_BOUND_BOX(booz_stab_att_ref_accel, MIN_ACCEL, MAX_ACCEL);
 
     /* saturate speed and trim accel accordingly */
     SATURATE_SPEED_TRIM_ACCEL();
-								
+
 #else   /* !USE_REF */
-  EULERS_COPY(booz_stabilization_att_ref, booz_stabilization_att_sp);
-  FLOAT_RATES_ZERO(booz_stabilization_rate_ref);
-  FLOAT_RATES_ZERO(booz_stabilization_accel_ref);
+    EULERS_COPY(booz_stab_att_ref_euler, booz_stabilization_att_sp);
+    FLOAT_RATES_ZERO(booz_stab_att_ref_rate);
+    FLOAT_RATES_ZERO(booz_stab_att_ref_accel);
 #endif /* USE_REF */
 
-
 }
-
-
