@@ -42,6 +42,23 @@ fdm_max_thrust =  1.00; // 100%
 
 fdm_wind = [0 0]';
 
+fdm_T0 = 1*9.81; // Static maximum thrust = 1kg
+fdm_Vlim = 15;  // Velocity of 0 thrust at full throttle in m/s
+fdm_K = 3000*%pi/30/sqrt(0.3); // FIXME: Should be best fit of expression
+                               // omega [rad/s] = K*sqrt(u) (a.k.a
+                               // maximum rpm in rad/s)
+
+			       
+fdm_propR = 5*0.0254;  // propeller radius
+Jlim = fdm_Vlim/(fdm_K*fdm_propR); // advance ratio at Vlim with full throttle
+fdm_rhops = 1.25*fdm_K^2*%pi*fdm_propR^4; // rho * 'dynamic pressure' * surface
+
+// Coeffs of CT(J) = aJ^2 + bJ + c
+fdm_CTa = - 0.3173096; // From Qprop simulations with APC 8x3.8
+fdm_CTc = 2*fdm_T0/fdm_rhops;
+fdm_CTb = 1/Jlim*(-fdm_CTa*Jlim^2 - fdm_CTc);
+
+
 global fdm_time;
 global fdm_state;                    // state
 global fdm_accel;                    // aceleration (used for sensors)
@@ -92,16 +109,34 @@ function [Xdot] = fdm_get_derivatives(t, X, U, perturb)
   DCM = [ctheta stheta ; -stheta ctheta];
   airspeed_body = DCM * airspeed_ltp;
   
-  lift_body = [0; sum(U) * fdm_Ct0 * ( 1 - abs(1/fdm_V0 * airspeed_body(AXIS_Z)))];
+  thrust = fdm_get_thrust(airspeed_body,X(FDM_STHETAD),U);
+  
+  lift_body = [0; sum(thrust)];
   lift_ltp = DCM'*lift_body; 
   weight_ltp = [0; -fdm_g * fdm_mass];
   drag_ltp = -fdm_Cd * norm(airspeed_ltp) * airspeed_ltp;
   Xdot(FDM_SXD:FDM_SZD) = 1/fdm_mass*(lift_ltp+weight_ltp+drag_ltp);
   
   // moments
-  Xdot(FDM_STHETAD) = fdm_la * fdm_Ct0 / fdm_inertia*(U(FDM_MOTOR_LEFT) - U(FDM_MOTOR_RIGHT));
+  Xdot(FDM_STHETAD) = fdm_la / fdm_inertia * (thrust(FDM_MOTOR_LEFT) - thrust(FDM_MOTOR_RIGHT));
   
   // add perturbation
   Xdot(FDM_SXD:FDM_STHETAD) = Xdot(FDM_SXD:FDM_STHETAD)+perturb;
 endfunction
+
+function thrust = fdm_get_thrust(airspeed_body,rates_body,U)
+  
+  vel_of_rate = [rates_body*fdm_la; -rates_body*fdm_la];
+
+  for i = 1:FDM_MOTOR_NB
+    adv(i) = (airspeed_body(FDM_SZ) + vel_of_rate(i))/(fdm_K*sqrt(U(i))*fdm_propR);
+    c_t(i) = fdm_CTa*adv(i)^2 + fdm_CTb*adv(i) + fdm_CTc;
+    if c_t(i) < 0
+      c_t(i) = 0;
+    end
+    thrust(i) = U(i)*(0.5*fdm_rhops)*c_t(i);
+  end
+
+endfunction
+
 
