@@ -46,11 +46,11 @@ k=find(time > 5 & time < 5.05);
 fdm_perturb(FDM_AX,k) = 10*ones(1,length(k));
 
 ctl_init(time);
-adp_init(time, [15 100]', []);
+adp_init(time, [19.5 157]', []);
 sensors_init(time)
 
 for i=2:length(time)
-  ctl_run(i-1); 
+  ctl_run(i-1, adp_est(1,i-1), adp_est(2,i-1)); 
   fdm_run(i, ctl_motor_cmd(:,i-1));
   sensors_run(i);
   adp_run(i);

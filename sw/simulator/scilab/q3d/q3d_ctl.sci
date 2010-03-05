@@ -36,19 +36,17 @@ function ctl_init(time)
   global ctl_u;
   ctl_u = zeros(CTL_USIZE, length(time));
   global ctl_motor_cmd;
-  ctl_motor_cmd = zeros(2,length(time));
+  ctl_motor_cmd = zeros(CTL_USIZE,length(time));
 endfunction
 
-function ctl_run(i)
+function ctl_run(i, model_a, model_b)
 
   global ctl_diff_flat_cmd;
-//  ctl_diff_flat_cmd(:,i) = df_input_of_fo(fo_traj(:,:,i), fdm_Ct0/fdm_mass, fdm_la*fdm_Ct0/fdm_inertia);
-  ctl_diff_flat_cmd(:,i) = df_input_of_fo(fo_traj(:,:,i), adp_est(1,i), adp_est(2,i));
+  ctl_diff_flat_cmd(:,i) = df_input_of_fo(fo_traj(:,:,i), model_a, model_b);
   global ctl_diff_flat_ref;
   ctl_diff_flat_ref(:,i) = df_state_of_fo(fo_traj(:,:,i));
   global ctl_fb_cmd;
-  ctl_fb_cmd(:,i) = ctl_compute_feeback(fdm_state(:,i), ctl_diff_flat_ref(:,i), ctl_diff_flat_cmd(:,i), adp_est(1,i), adp_est(2,i)); 
-//  ctl_fb_cmd(:,i) = ctl_compute_feeback(fdm_state(:,i), ctl_diff_flat_ref(:,i), ctl_diff_flat_cmd(:,i), fdm_Ct0/fdm_mass,  fdm_la*fdm_Ct0/fdm_inertia); 
+  ctl_fb_cmd(:,i) = ctl_compute_feeback(fdm_state(:,i), ctl_diff_flat_ref(:,i), ctl_diff_flat_cmd(:,i), model_a, model_b); 
   global ctl_u;
   ctl_u(:,i) = ctl_diff_flat_cmd(:,i) + ctl_fb_cmd(:,i);
   MotorsOfCmds = 0.5*[1 -1 ; 1 1];
