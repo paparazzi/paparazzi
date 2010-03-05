@@ -29,12 +29,12 @@ FDM_MOTOR_LEFT  = 2;
 FDM_MOTOR_NB    = 2;
 
 fdm_g       = 9.81;
-fdm_mass    = 0.25;
+fdm_mass    = 0.5;
 fdm_inertia = 0.0078;
 fdm_la  = 0.25;                        // arm length
 
-fdm_Ct0 = 4. * fdm_mass * fdm_g / 2;   // thrust coefficient
-fdm_V0  = 1e9;	                       // 
+//fdm_Ct0 = 4. * fdm_mass * fdm_g / 2;   // thrust coefficient
+//fdm_V0  = 1e9;	                       // 
 fdm_Cd  = 1e-9;                        // drag coefficient
 
 fdm_min_thrust =  0.05; //  5%  

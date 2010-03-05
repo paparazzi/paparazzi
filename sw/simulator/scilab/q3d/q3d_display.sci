@@ -204,12 +204,12 @@ function display_adaptation()
   
   subplot(2,3,1);
   plot2d(fdm_time, adp_y(1,:), 3);
-  plot2d(fdm_time, fdm_Ct0/fdm_mass*ctl_u(CTL_UT,:), 2);
+//  plot2d(fdm_time, fdm_Ct0/fdm_mass*ctl_u(CTL_UT,:), 2);
   legends(["y1", "ut"],[3 2], with_box=%f, opt="ul"); 
   xtitle('apd_y1');
   
   subplot(2,3,2);
-  plot2d(fdm_time, fdm_Ct0/fdm_mass*ones(1,length(time)),3);
+//  plot2d(fdm_time, fdm_Ct0/fdm_mass*ones(1,length(time)),3);
   plot2d(fdm_time, adp_est(ADP_EST_A,:), 2);
   xtitle('adp_est A');
 
@@ -220,12 +220,12 @@ function display_adaptation()
  
   subplot(2,3,4);
   plot2d(fdm_time, adp_y(2,:), 3);
-  plot2d(fdm_time, fdm_la*fdm_Ct0/fdm_inertia*adp_ud_f, 2);
+//  plot2d(fdm_time, fdm_la*fdm_Ct0/fdm_inertia*adp_ud_f, 2);
   legends(["y2", "udf"],[3 2], with_box=%f, opt="ul");   
   xtitle('ud_f');
   
   subplot(2,3,5);
-  plot2d(fdm_time, fdm_la*fdm_Ct0/fdm_inertia*ones(1, length(time)),3);
+//  plot2d(fdm_time, fdm_la*fdm_Ct0/fdm_inertia*ones(1, length(time)),3);
   plot2d(fdm_time, adp_est(ADP_EST_B,:), 2);
   xtitle('adp_est B');
 

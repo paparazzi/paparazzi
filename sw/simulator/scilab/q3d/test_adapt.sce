@@ -28,8 +28,8 @@ if 1
   max_speed = [ 5                        2.5];
   max_accel = [ 9.81*tan(rad_of_deg(30)) 0.5*9.81];
   b0 = [-5  0];
-  b1 = [ 5 -5];
-  b2 = [ 0 -5];
+  b1 = [ 5  0];
+  b2 = [ 0  0];
   [fo_traj1] = sbb_gen_traj(time1, dyn, max_speed, max_accel, b0, b1);
   b1 = [fo_traj1(1,1,$) fo_traj1(2,1,$)];
   [fo_traj2] = sbb_gen_traj(time2, dyn, max_speed, max_accel, b1, b2);
@@ -41,9 +41,11 @@ end
 
 fdm_init(time, df_state_of_fo(fo_traj(:,:,1)), [0.25 0.25]');
 
-global fdm_perturb;
-k=find(time > 5 & time < 5.05);
-fdm_perturb(FDM_AX,k) = 10*ones(1,length(k));
+if 0
+  global fdm_perturb;
+  k=find(time > 5 & time < 5.05);
+  fdm_perturb(FDM_AX,k) = 10*ones(1,length(k));
+end
 
 ctl_init(time);
 adp_init(time, [19.5 157]', []);
