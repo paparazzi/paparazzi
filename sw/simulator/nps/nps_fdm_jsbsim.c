@@ -1,6 +1,6 @@
 #include <FGFDMExec.h>
 #include <FGJSBBase.h>
-#include <FGState.h>
+#include <models/FGGroundReactions.h>
 #include <stdlib.h>
 #include "nps_fdm.h"
 #include "6dof.h"
@@ -42,7 +42,7 @@ void nps_fdm_init(double dt) {
   init_ltp();
 
   fetch_state();
- 
+
 }
 
 void nps_fdm_run_step(double* commands) {
@@ -71,20 +71,20 @@ static void feed_jsbsim(double* commands) {
 
 static void fetch_state(void) {
 
-  FGPropertyManager* node = FDMExec->GetPropertyManager()->GetNode("sim-time-sec");
+  FGPropertyManager* node = FDMExec->GetPropertyManager()->GetNode("simulation/sim-time-sec");
   fdm.time = node->getDoubleValue();
 
   FGPropagate* propagate = FDMExec->GetPropagate();
-  
+
   fdm.on_ground = FDMExec->GetGroundReactions()->GetWOW();
-  
-  /* 
+
+  /*
    * position
    */
   jsbsimloc_to_loc(&fdm.ecef_pos,&propagate->GetLocation());
-  
+
   /*
-   * linear speed and accelerations 
+   * linear speed and accelerations
    */
 
   /* in body frame */
@@ -115,10 +115,10 @@ static void fetch_state(void) {
   /* lla */
   //jsbsimloc_to_lla(&fdm.lla_pos, &VState->vLocation);
   test123(&fdm.lla_pos, propagate);
-  
 
-  /* 
-   * attitude 
+
+  /*
+   * attitude
    */
   const FGQuaternion jsb_quat = propagate->GetQuaternion();
   jsbsimquat_to_quat(&fdm.ltp_to_body_quat, &jsb_quat);
@@ -128,17 +128,17 @@ static void fetch_state(void) {
   /* FIXME: use jsbsim ltp for now */
   EULERS_COPY(fdm.ltpprz_to_body_eulers, fdm.ltp_to_body_eulers);
   QUAT_COPY(fdm.ltpprz_to_body_quat, fdm.ltp_to_body_quat);
-   
+
   /*
-   * rotational speed and accelerations 
-   */ 
+   * rotational speed and accelerations
+   */
   jsbsimvec_to_rate(&fdm.body_ecef_rotvel,&propagate->GetPQR());
   jsbsimvec_to_rate(&fdm.body_ecef_rotaccel,&propagate->GetPQRdot());
-  
+
 }
 
 static void test123(LlaCoor_d* fdm_lla, FGPropagate* propagate) {
- 
+
   fdm_lla->lat = propagate->GetLatitude();
   fdm_lla->lon = propagate->GetLongitude();
 
@@ -153,19 +153,17 @@ static void init_jsbsim(double dt) {
 
   char buf[1024];
   string rootdir;
-  JSBSim::FGState* State;
-  
+
   sprintf(buf,"%s/conf/simulator/jsbsim/",getenv("PAPARAZZI_HOME"));
   rootdir = string(buf);
   FDMExec = new FGFDMExec();
-  
-  State = FDMExec->GetState();
-  State->Setsim_time(0.);
-  State->Setdt(dt);
-  
+
+  FDMExec->Setsim_time(0.);
+  FDMExec->Setdt(dt);
+
   FDMExec->DisableOutput();
   FDMExec->SetDebugLevel(0); // No DEBUG messages
-  
+
   if ( ! FDMExec->LoadModel( rootdir + "aircraft",
 			     rootdir + "engine",
 			     rootdir + "systems",
@@ -177,7 +175,7 @@ static void init_jsbsim(double dt) {
     delete FDMExec;
     exit(-1);
   }
-  
+
   JSBSim::FGInitialCondition *IC = FDMExec->GetIC();
   if ( ! IC->Load(NPS_INITIAL_CONDITITONS)) {
 #ifdef DEBUG
@@ -193,21 +191,21 @@ static void init_ltp(void) {
 
   FGPropagate* propagate;
   FGPropagate::VehicleState* VState;
-  
+
   propagate = FDMExec->GetPropagate();
   VState = propagate->GetVState();
-  
+
   jsbsimloc_to_loc(&fdm.ecef_pos,&VState->vLocation);
   ltp_def_from_ecef_d(&ltpdef,&fdm.ecef_pos);
 
   fdm.ltp_g.x = 0.;
   fdm.ltp_g.y = 0.;
   fdm.ltp_g.z = 9.81;
-  
+
   fdm.ltp_h.x = 1.;
   fdm.ltp_h.y = 0.;
   fdm.ltp_h.z = 1.;
-  
+
 
 }
 
@@ -216,9 +214,9 @@ static void jsbsimloc_to_loc(EcefCoor_d* fdm_location, const FGLocation* jsb_loc
   fdm_location->x = jsb_location->Entry(1);
   fdm_location->y = jsb_location->Entry(2);
   fdm_location->z = jsb_location->Entry(3);
-  
+
 }
- 
+
 static void jsbsimvec_to_vec(DoubleVect3* fdm_vector, const FGColumnVector3* jsb_vector) {
 
   fdm_vector->x = jsb_vector->Entry(1);
@@ -228,7 +226,7 @@ static void jsbsimvec_to_vec(DoubleVect3* fdm_vector, const FGColumnVector3* jsb
 }
 
 static void jsbsimquat_to_quat(DoubleQuat* fdm_quat, const FGQuaternion* jsb_quat){
-  
+
   fdm_quat->qi = jsb_quat->Entry(1);
   fdm_quat->qx = jsb_quat->Entry(2);
   fdm_quat->qy = jsb_quat->Entry(3);
@@ -261,4 +259,3 @@ void jsbsimloc_to_lla(LlaCoor_d* fdm_lla, FGLocation* jsb_location) {
   //  printf("%f\n", jsb_location->GetGeodAltitude());
 }
 #endif
-
