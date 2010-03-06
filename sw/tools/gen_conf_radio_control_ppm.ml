@@ -131,7 +131,18 @@ let _ =
   
   let channels_params = List.map parse_channel channels in 
   nl ();
-  
+
+  List.iter
+    (fun c ->
+      begin
+        printf "#define RADIO_CONTROL_%s_NEUTRAL %d\n" c.name c.neutral;
+        printf "#define RADIO_CONTROL_%s_MIN %d\n" c.name c.min;
+        printf "#define RADIO_CONTROL_%s_MAX %d\n" c.name c.max;
+      end
+    )
+    channels_params;
+  nl();
+
   let ppm_pulse_type = ExtXml.attrib xml "pulse_type" in
   let ppm_data_min = ExtXml.attrib xml "data_min" in
   let ppm_data_max = ExtXml.attrib xml "data_max" in

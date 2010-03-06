@@ -33,11 +33,26 @@ void booz_radio_control_ppm_arch_init ( void ) {
   ((_nps) >= 0 ? (_neutral) + (_nps) * ((_max)-(_neutral)) : (_neutral) + (_nps) * ((_neutral)- (_min)))
 
 void booz_radio_control_feed(void) {
-  booz_radio_control_ppm_pulses[RADIO_CONTROL_ROLL]     = PPM_OF_NPS(nps_radio_control.roll,     1500, 950,  2050);
-  booz_radio_control_ppm_pulses[RADIO_CONTROL_PITCH]    = PPM_OF_NPS(nps_radio_control.pitch,    1500, 2050,  950);
-  booz_radio_control_ppm_pulses[RADIO_CONTROL_YAW]      = PPM_OF_NPS(nps_radio_control.yaw,      1500, 2050,  950);
-  booz_radio_control_ppm_pulses[RADIO_CONTROL_THROTTLE] = PPM_OF_NPS(nps_radio_control.throttle, 1223, 1223, 2050);
-  booz_radio_control_ppm_pulses[RADIO_CONTROL_MODE]     = PPM_OF_NPS(nps_radio_control.mode,     1500, 2050,  940);
+  booz_radio_control_ppm_pulses[RADIO_CONTROL_ROLL]     = PPM_OF_NPS(nps_radio_control.roll, \
+                                                                     RADIO_CONTROL_ROLL_NEUTRAL, \
+                                                                     RADIO_CONTROL_ROLL_MIN, \
+                                                                     RADIO_CONTROL_ROLL_MAX);
+  booz_radio_control_ppm_pulses[RADIO_CONTROL_PITCH]    = PPM_OF_NPS(nps_radio_control.pitch, \
+                                                                     RADIO_CONTROL_PITCH_NEUTRAL, \
+                                                                     RADIO_CONTROL_PITCH_MIN, \
+                                                                     RADIO_CONTROL_PITCH_MAX);
+  booz_radio_control_ppm_pulses[RADIO_CONTROL_YAW]      = PPM_OF_NPS(nps_radio_control.yaw, \
+                                                                     RADIO_CONTROL_YAW_NEUTRAL, \
+                                                                     RADIO_CONTROL_YAW_MIN, \
+                                                                     RADIO_CONTROL_YAW_MAX);
+  booz_radio_control_ppm_pulses[RADIO_CONTROL_THROTTLE] = PPM_OF_NPS(nps_radio_control.throttle, \
+                                                                     RADIO_CONTROL_THROTTLE_NEUTRAL, \
+                                                                     RADIO_CONTROL_THROTTLE_MIN, \
+                                                                     RADIO_CONTROL_THROTTLE_MAX);
+  booz_radio_control_ppm_pulses[RADIO_CONTROL_MODE]     = PPM_OF_NPS(nps_radio_control.mode, \
+                                                                     RADIO_CONTROL_MODE_NEUTRAL, \
+                                                                     RADIO_CONTROL_MODE_MIN, \
+                                                                     RADIO_CONTROL_MODE_MAX);
   booz_radio_control_ppm_frame_available = TRUE;
 }
 
