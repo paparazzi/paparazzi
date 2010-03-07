@@ -50,7 +50,7 @@
     </mass_balance>
 
    <ground_reactions>
-        <contact type="BOGEY" name="CONTACT_FRONT">
+        <contact type="STRUCTURE" name="CONTACT_FRONT">
             <location unit="M">
                 <x>-0.15 </x>
                 <y> 0 </y>
@@ -58,17 +58,15 @@
             </location>
             <static_friction>  0.8 </static_friction>
             <dynamic_friction> 0.5 </dynamic_friction>
-            <rolling_friction> 0.2 </rolling_friction>
-            <spring_coeff unit="N/M"> 50000 </spring_coeff>
+            <spring_coeff unit="N/M"> 500 </spring_coeff>
             <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
-            <spring_coeff_rebound unit="N/M"> 50000 </spring_coeff_rebound>
-            <damping_coeff_rebound unit="N/M/SEC"> 100 </damping_coeff_rebound>
+            <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
             <max_steer unit="DEG"> 0.0 </max_steer>
             <brake_group> NONE </brake_group>
             <retractable>0</retractable>
         </contact>
- 
-        <contact type="BOGEY" name="CONTACT_BACK">
+
+        <contact type="STRUCTURE" name="CONTACT_BACK">
             <location unit="M">
                 <x> 0.15</x>
                 <y> 0   </y>
@@ -76,17 +74,15 @@
             </location>
             <static_friction>  0.8 </static_friction>
             <dynamic_friction> 0.5 </dynamic_friction>
-            <rolling_friction> 0.2 </rolling_friction>
-            <spring_coeff unit="N/M"> 50000 </spring_coeff>
+            <spring_coeff unit="N/M"> 500 </spring_coeff>
             <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
-            <spring_coeff_rebound unit="N/M"> 50000 </spring_coeff_rebound>
-            <damping_coeff_rebound unit="N/M/SEC"> 100 </damping_coeff_rebound>
+            <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
             <max_steer unit="DEG"> 0.0 </max_steer>
             <brake_group> NONE </brake_group>
             <retractable>0</retractable>
         </contact>
 
-        <contact type="BOGEY" name="CONTACT_RIGHT">
+        <contact type="STRUCTURE" name="CONTACT_RIGHT">
             <location unit="M">
                 <x> 0.  </x>
                 <y> 0.15</y>
@@ -94,17 +90,15 @@
             </location>
             <static_friction>  0.8 </static_friction>
             <dynamic_friction> 0.5 </dynamic_friction>
-            <rolling_friction> 0.2 </rolling_friction>
-            <spring_coeff unit="N/M"> 50000 </spring_coeff>
+            <spring_coeff unit="N/M"> 500 </spring_coeff>
             <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
-            <spring_coeff_rebound unit="N/M"> 50000 </spring_coeff_rebound>
-            <damping_coeff_rebound unit="N/M/SEC"> 100 </damping_coeff_rebound>
+            <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
             <max_steer unit="DEG"> 0.0 </max_steer>
             <brake_group> NONE </brake_group>
             <retractable>0</retractable>
         </contact>
 
-        <contact type="BOGEY" name="CONTACT_LEFT">
+        <contact type="STRUCTURE" name="CONTACT_LEFT">
             <location unit="M">
                 <x> 0.  </x>
                 <y>-0.15</y>
@@ -112,11 +106,9 @@
             </location>
             <static_friction>  0.8 </static_friction>
             <dynamic_friction> 0.5 </dynamic_friction>
-            <rolling_friction> 0.2 </rolling_friction>
-            <spring_coeff unit="N/M"> 50000 </spring_coeff>
+            <spring_coeff unit="N/M"> 500 </spring_coeff>
             <damping_coeff unit="N/M/SEC"> 100 </damping_coeff>
-            <spring_coeff_rebound unit="N/M"> 50000 </spring_coeff_rebound>
-            <damping_coeff_rebound unit="N/M/SEC"> 100 </damping_coeff_rebound>
+            <damping_coeff_rebound type="SQUARE" unit="N/M2/SEC2"> 1000 </damping_coeff_rebound>
             <max_steer unit="DEG"> 0.0 </max_steer>
             <brake_group> NONE </brake_group>
             <retractable>0</retractable>
