@@ -102,12 +102,10 @@ void booz2_autopilot_set_mode(uint8_t new_autopilot_mode) {
     /* horizontal mode */
     switch (new_autopilot_mode) {
     case BOOZ2_AP_MODE_FAILSAFE:
-#ifdef BOOZ_FAILSAFE_GROUND_DETECT
       booz_stab_att_sp_euler.phi = 0;
       booz_stab_att_sp_euler.theta = 0;
       booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_ATTITUDE);
       break;
-#endif
     case BOOZ2_AP_MODE_KILL:
       booz2_autopilot_motors_on = FALSE;
       booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_KILL);
@@ -133,11 +131,9 @@ void booz2_autopilot_set_mode(uint8_t new_autopilot_mode) {
     /* vertical mode */
     switch (new_autopilot_mode) {
     case BOOZ2_AP_MODE_FAILSAFE:
-#ifdef BOOZ_FAILSAFE_GROUND_DETECT
       booz2_guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
       booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_CLIMB);
       break;
-#endif
     case BOOZ2_AP_MODE_KILL:
       booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_KILL);
       break;
