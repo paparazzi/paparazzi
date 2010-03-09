@@ -148,7 +148,7 @@ void booz_ins_propagate() {
 #endif /* USE_VFF */
 
 #ifdef USE_HFF
-  b2_hff_store_accel();
+  b2_hff_store_accel_body();
   /* propagate horizontal filter */
   b2_hff_propagate();
   if ( booz_ins_ltp_initialised ) {

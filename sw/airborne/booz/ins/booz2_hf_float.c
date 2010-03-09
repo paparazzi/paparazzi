@@ -108,10 +108,10 @@ struct AccBuf {
   uint8_t size;
 };
 struct AccBuf acc_body;
-struct Int32Vect3 acc_mean;
+struct Int32Vect3 acc_body_mean;
 
-void b2_hff_store_accel(void) {
-  VECT3_COPY(acc_body.buf[acc_body.w], booz_imu.accel);
+void b2_hff_store_accel_body(void) {
+  INT32_RMAT_TRANSP_VMULT(acc_body.buf[acc_body.w], booz_imu.body_to_imu_rmat,  booz_imu.accel);
   acc_body.w = (acc_body.w + 1) < acc_body.size ? (acc_body.w + 1) : 0;
 
   /* once the buffer is full it always has the last acc_body.size accel measurements */
@@ -123,23 +123,23 @@ void b2_hff_store_accel(void) {
 }
 
 /* compute the mean of the last n accel measurements */
-static inline void b2_hff_compute_accel_mean(uint8_t n) {
+static inline void b2_hff_compute_accel_body_mean(uint8_t n) {
   struct Int32Vect3 sum;
   int i, j;
 
   INT_VECT3_ZERO(sum);
 
-  if (n > acc_body.n) {
-	n = acc_body.n;
-  }
-  for (i = 1; i <= n; i++) {
-	j = (acc_body.w - i) > 0 ? acc_body.w - i : acc_body.w - i + acc_body.size;
-	VECT3_ADD(sum, acc_body.buf[j]);
-  }
   if (n > 1) {
-	VECT3_SDIV(acc_mean, sum, n);
+    if (n > acc_body.n) {
+      n = acc_body.n;
+    }
+    for (i = 1; i <= n; i++) {
+      j = (acc_body.w - i) > 0 ? (acc_body.w - i) : (acc_body.w - i + acc_body.size);
+      VECT3_ADD(sum, acc_body.buf[j]);
+    }
+	VECT3_SDIV(acc_body_mean, sum, n);
   } else {
-	VECT3_COPY(acc_mean, sum);
+	VECT3_COPY(acc_body_mean, acc_body.buf[acc_body.w - 1]);
   }
 }
 
@@ -434,11 +434,9 @@ void b2_hff_propagate(void) {
 
     if (b2_hff_lost_counter < b2_hff_lost_limit) {
       /* compute float ltp mean acceleration */
-      b2_hff_compute_accel_mean(HFF_PRESCALER);
-      struct Int32Vect3 mean_accel_body;
-      INT32_RMAT_TRANSP_VMULT(mean_accel_body, booz_imu.body_to_imu_rmat, acc_mean);
+      b2_hff_compute_accel_body_mean(HFF_PRESCALER);
       struct Int32Vect3 mean_accel_ltp;
-      INT32_RMAT_TRANSP_VMULT(mean_accel_ltp, booz_ahrs.ltp_to_body_rmat, mean_accel_body);
+      INT32_RMAT_TRANSP_VMULT(mean_accel_ltp, booz_ahrs.ltp_to_body_rmat, acc_body_mean);
       b2_hff_xdd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.x);
       b2_hff_ydd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.y);
 #ifdef GPS_LAG
