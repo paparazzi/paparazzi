@@ -74,6 +74,34 @@ struct FloatRates {
 
 
 /*
+ * Dimension 2 Vectors
+ */
+
+#define FLOAT_VECT2_ZERO(_v) VECT2_ASSIGN(_v, 0., 0.)
+
+/* a =  {x, y} */
+#define FLOAT_VECT2_ASSIGN(_a, _x, _y) VECT2_ASSIGN(_a, _x, _y)
+
+/* a = b */
+#define FLOAT_VECT2_COPY(_a, _b) VECT2_COPY(_a, _b)
+
+/* a += b */
+#define FLOAT_VECT2_ADD(_a, _b)  VECT2_ADD(_a, _b)
+
+/* c = a + b */
+#define FLOAT_VECT2_SUM(_c, _a, _b) VECT2_SUM(_c, _a, _b)
+
+/* c = a - b */
+#define FLOAT_VECT2_DIFF(_c, _a, _b) VECT2_DIFF(_c, _a, _b)
+
+/* a -= b */
+#define FLOAT_VECT2_SUB(_a, _b) VECT2_SUB(_a, _b)
+
+/* _vo = _vi * _s */
+#define FLOAT_VECT2_SMUL(_vo, _vi, _s) VECT2_SMUL(_vo, _vi, _s)
+
+
+/*
  * Dimension 3 Vectors
  */
 
