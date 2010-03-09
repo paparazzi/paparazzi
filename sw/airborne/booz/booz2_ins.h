@@ -39,7 +39,6 @@ extern struct NedCoor_i booz_ins_gps_speed_cm_s_ned;
 extern int32_t booz_ins_baro_alt;
 extern int32_t booz_ins_qfe;
 extern bool_t  booz_ins_baro_initialised;
-extern bool_t  booz_ins_vff_realign;
 #endif
 
 /* output LTP NED               */
@@ -55,10 +54,14 @@ extern struct EnuCoor_i booz_ins_enu_accel;
 extern struct FloatVect2 booz_ins_gps_pos_m_ned;
 extern struct FloatVect2 booz_ins_gps_speed_m_s_ned;
 #endif
-extern bool_t  booz_ins_hff_realign;
+
+extern bool_t booz_ins_hf_realign;
+extern bool_t booz_ins_vf_realign;
 
 extern void booz_ins_init( void );
 extern void booz_ins_periodic( void );
+extern void booz_ins_realign_h(struct FloatVect2 pos, struct FloatVect2 speed);
+extern void booz_ins_realign_v(float z);
 extern void booz_ins_propagate( void );
 extern void booz_ins_update_baro( void );
 extern void booz_ins_update_gps( void );

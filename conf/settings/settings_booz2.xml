@@ -48,7 +48,7 @@
       <dl_setting var="booz2_guidance_v_kd" min="-600" step="1" max="0"   module="guidance/booz2_guidance_v" shortname="kd"/>
       <dl_setting var="booz2_guidance_v_ki" min="-300" step="1" max="0"   module="guidance/booz2_guidance_v" shortname="ki" handler="SetKi" />
       <dl_setting var="booz2_guidance_v_z_sp" min="-5" step="0.5" max="3" module="guidance/booz2_guidance_v" shortname="sp" unit="2e-8m" alt_unit="m" alt_unit_coef="0.00390625"/>
-      <dl_setting var="booz_ins_vff_realign" min="0" step="1" max="1" module="booz2_ins" shortname="vff_realign" values="OFF|ON"/>
+      <dl_setting var="booz_ins_vf_realign" min="0" step="1" max="1" module="booz2_ins" shortname="vf_realign" values="OFF|ON"/>
    </dl_settings>
 
    <dl_settings NAME="Horiz Loop">
@@ -60,7 +60,7 @@
       <dl_setting var="booz2_guidance_h_igain" min="-400" step="1" max="0" module="guidance/booz2_guidance_h" shortname="ki" handler="SetKi"/>
       <dl_setting var="booz2_guidance_h_ngain" min="-400" step="1" max="0" module="guidance/booz2_guidance_h" shortname="kn"/>
       <dl_setting var="booz2_guidance_h_again" min="-400" step="1" max="0" module="guidance/booz2_guidance_h" shortname="ka"/>
-      <dl_setting var="booz_ins_hff_realign" min="0" step="1" max="1" module="booz2_ins" shortname="hff_realign" values="OFF|ON"/>
+      <dl_setting var="booz_ins_hf_realign" min="0" step="1" max="1" module="booz2_ins" shortname="hf_realign" values="OFF|ON"/>
    </dl_settings>
 
    <dl_settings NAME="NAV">

@@ -122,18 +122,16 @@ void track_periodic_task(void) {
 void track_event(void) {
   if (!booz_ins_ltp_initialised) {
     booz_ins_ltp_initialised = TRUE;
-#ifdef USE_HFF
-    booz_ins_hff_realign = TRUE;
-#endif
+    booz_ins_hf_realign = TRUE;
   }
 
 #ifdef USE_HFF
-  if (booz_ins_hff_realign) {
-    booz_ins_hff_realign = FALSE;
+  if (booz_ins_hf_realign) {
+    booz_ins_hf_realign = FALSE;
     struct FloatVect2 pos, zero;
     pos.x = -target_pos_ned.x;
     pos.y = -target_pos_ned.y;
-    b2_hff_realign(pos, zero);
+    booz_ins_realign_h(pos, zero);
   }
   b2_hff_update_pos(-target_pos_ned.x, -target_pos_ned.y);
   booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);

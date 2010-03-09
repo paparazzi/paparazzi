@@ -152,7 +152,7 @@ void booz2_guidance_v_run(bool_t in_flight) {
   }
   else {
     // reset vertical filter until takeoff
-    //booz_ins_vff_realign = TRUE;
+    //booz_ins_vf_realign = TRUE;
   }
 
   switch (booz2_guidance_v_mode) {

@@ -240,15 +240,13 @@ static inline void nav_set_altitude( void ) {
 /** Reset the geographic reference to the current GPS fix */
 unit_t nav_reset_reference( void ) {
   booz_ins_ltp_initialised = FALSE;
-  booz_ins_vff_realign = TRUE;
-#ifdef USE_HFF
-  booz_ins_hff_realign = TRUE;
-#endif
+  booz_ins_hf_realign = TRUE;
+  booz_ins_vf_realign = TRUE;
   return 0;
 }
 
 unit_t nav_reset_alt( void ) {
-  booz_ins_vff_realign = TRUE;
+  booz_ins_vf_realign = TRUE;
 
 #ifdef USE_GPS
   booz_ins_ltp_def.lla.alt = booz_gps_state.lla_pos.alt;
