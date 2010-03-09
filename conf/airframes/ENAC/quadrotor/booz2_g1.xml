@@ -1,5 +1,11 @@
 <airframe name="BOOZ2_G1">
 
+  <modules main_freq="512">
+    <!--load name="booz_drop.xml"/-->
+    <load name="booz_cam.xml"/>
+    <!--load name="sonar_maxbotix_booz.xml"/-->
+  </modules>
+
   <servos min="0" neutral="0" max="0xff">
     <servo name="PITCH"  no="0" min="0" neutral="0" max="255"/>
     <servo name="ROLL"   no="1" min="0" neutral="0" max="255"/>
@@ -123,6 +129,7 @@
   <section name="INS" prefix="BOOZ_INS_">
     <define name="BARO_SENS" value="15." integer="16"/>
     <define name="UNTILT_ACCEL" value="1"/>
+    <define name="SONAR_SENS" value="2.146" integer="16"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
@@ -171,7 +178,7 @@
 
  </section>
 
- <section name="CAM" prefix="BOOZ2_CAM_">
+ <section name="CAM" prefix="BOOZ_CAM_">
     <define name="TILT_NEUTRAL" value="1500"/>
     <define name="TILT_MIN" value="1000"/>
     <define name="TILT_MAX" value="2000"/>
@@ -221,21 +228,21 @@ include $(CFG_BOOZ)/subsystems/booz2_fms_datalink.makefile
 
 include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 
-include $(CFG_BOOZ)/subsystems/booz2_ins_hff.makefile
+#include $(CFG_BOOZ)/subsystems/booz2_ins_hff.makefile
 #set GPS lag for horizontal filter
 #ap.CFLAGS += -DGPS_LAG=0.8
-ap.CFLAGS += -DUSE_GPS_ACC4R
+#ap.CFLAGS += -DUSE_GPS_ACC4R
 
-ap.CFLAGS += -DB2_GUIDANCE_H_USE_REF
+#ap.CFLAGS += -DB2_GUIDANCE_H_USE_REF
 sim.CFLAGS += -DB2_GUIDANCE_H_USE_REF
 
 ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3
 sim.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3
 
-ap.CFLAGS += -DUSE_CAM
-ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c $(SRC_BOOZ)/booz2_cam.c
-sim.CFLAGS += -DUSE_CAM
-sim.srcs += $(SRC_BOOZ_SIM)/booz2_pwm_hw.c $(SRC_BOOZ)/booz2_cam.c
+ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c
+sim.srcs += $(SRC_BOOZ_SIM)/booz2_pwm_hw.c
+
+ap.CFLAGS += -DUSE_MODULES
 
   </makefile>
 
