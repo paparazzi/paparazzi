@@ -241,6 +241,9 @@ static inline void nav_set_altitude( void ) {
 unit_t nav_reset_reference( void ) {
   booz_ins_ltp_initialised = FALSE;
   booz_ins_vff_realign = TRUE;
+#ifdef USE_HFF
+  booz_ins_hff_realign = TRUE;
+#endif
   return 0;
 }
 
