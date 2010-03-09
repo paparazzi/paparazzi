@@ -133,7 +133,8 @@ void track_event(void) {
     pos.y = -target_pos_ned.y;
     booz_ins_realign_h(pos, zero);
   }
-  b2_hff_update_pos(-target_pos_ned.x, -target_pos_ned.y);
+  const stuct FlotVect2 measuremet_noise = { 10.0, 10.0);
+  b2_hff_update_pos(-target_pos_ned, measurement_noise);
   booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
   booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
   booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);

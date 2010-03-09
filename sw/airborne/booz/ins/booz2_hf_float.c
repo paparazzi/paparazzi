@@ -67,7 +67,8 @@
 #define B2_HFF_R_SPEED_MIN 1.
 #endif
 
-float Rpos, Rspeed;
+/* gps measurement noise */
+float Rgps_pos, Rgps_vel;
 
 /*
 
@@ -225,17 +226,17 @@ static inline void b2_hff_init_y(float init_y, float init_ydot);
 static inline void b2_hff_propagate_x(struct HfilterFloat* hff_work);
 static inline void b2_hff_propagate_y(struct HfilterFloat* hff_work);
 
-static inline void b2_hff_update_x(struct HfilterFloat* hff_work, float x_meas);
-static inline void b2_hff_update_y(struct HfilterFloat* hff_work, float y_meas);
+static inline void b2_hff_update_x(struct HfilterFloat* hff_work, float x_meas, float Rpos);
+static inline void b2_hff_update_y(struct HfilterFloat* hff_work, float y_meas, float Rpos);
 
-static inline void b2_hff_update_xdot(struct HfilterFloat* hff_work, float v);
-static inline void b2_hff_update_ydot(struct HfilterFloat* hff_work, float v);
+static inline void b2_hff_update_xdot(struct HfilterFloat* hff_work, float vel, float Rvel);
+static inline void b2_hff_update_ydot(struct HfilterFloat* hff_work, float vel, float Rvel);
 
 
 
 void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
-  Rpos = B2_HFF_R_POS;
-  Rspeed = B2_HFF_R_SPEED;
+  Rgps_pos = B2_HFF_R_POS;
+  Rgps_vel = B2_HFF_R_SPEED;
   b2_hff_init_x(init_x, init_xdot);
   b2_hff_init_y(init_y, init_ydot);
   /* init buffer for mean accel calculation */
@@ -478,24 +479,23 @@ void b2_hff_update_gps(void) {
   b2_hff_lost_counter = 0;
 
 #ifdef USE_GPS_ACC4R
-  Rpos = (float) booz_gps_state.pacc / 100.;
-  if (Rpos < B2_HFF_R_POS_MIN)
-    Rpos = B2_HFF_R_POS_MIN;
+  Rgps_pos = (float) booz_gps_state.pacc / 100.;
+  if (Rgps_pos < B2_HFF_R_POS_MIN)
+    Rgps_pos = B2_HFF_R_POS_MIN;
 
-  Rspeed = (float) booz_gps_state.sacc / 100.;
-  if (Rspeed < B2_HFF_R_SPEED_MIN)
-    Rspeed = B2_HFF_R_SPEED_MIN;
+  Rgps_vel = (float) booz_gps_state.sacc / 100.;
+  if (Rgps_vel < B2_HFF_R_SPEED_MIN)
+    Rgps_vel = B2_HFF_R_SPEED_MIN;
 #endif
 
 #ifdef GPS_LAG
   if (GPS_LAG_N == 0) {
 #endif
-
-    b2_hff_update_x(&b2_hff_state, booz_ins_gps_pos_m_ned.x);
-    b2_hff_update_y(&b2_hff_state, booz_ins_gps_pos_m_ned.y);
+    b2_hff_update_x(&b2_hff_state, booz_ins_gps_pos_m_ned.x, Rgps_pos);
+    b2_hff_update_y(&b2_hff_state, booz_ins_gps_pos_m_ned.y, Rgps_pos);
 #ifdef B2_HFF_UPDATE_SPEED
-    b2_hff_update_xdot(&b2_hff_state, booz_ins_gps_speed_m_s_ned.x);
-    b2_hff_update_ydot(&b2_hff_state, booz_ins_gps_speed_m_s_ned.y);
+    b2_hff_update_xdot(&b2_hff_state, booz_ins_gps_speed_m_s_ned.x, Rgps_vel);
+    b2_hff_update_ydot(&b2_hff_state, booz_ins_gps_speed_m_s_ned.y, Rgps_vel);
 #endif
 
 #ifdef GPS_LAG
@@ -530,11 +530,11 @@ void b2_hff_update_gps(void) {
 }
 
 
-void b2_hff_realign(struct FloatVect2 pos, struct FloatVect2 speed) {
+void b2_hff_realign(struct FloatVect2 pos, struct FloatVect2 vel) {
   b2_hff_state.x = pos.x;
   b2_hff_state.y = pos.y;
-  b2_hff_state.xdot = speed.x;
-  b2_hff_state.ydot = speed.y;
+  b2_hff_state.xdot = vel.x;
+  b2_hff_state.ydot = vel.y;
 #ifdef GPS_LAG
   while (b2_hff_rb_n > 0) {
 	b2_hff_rb_drop_last();
@@ -618,12 +618,12 @@ static inline void b2_hff_propagate_y(struct HfilterFloat* hff_work) {
   // update covariance
   Pp = Pm - K*H*Pm;
 */
-void b2_hff_update_pos (float posx, float posy) {
-  b2_hff_update_x(&b2_hff_state, posx);
-  b2_hff_update_y(&b2_hff_state, posy);
+void b2_hff_update_pos (struct FloatVect2 pos, struct FloatVect2 Rpos) {
+  b2_hff_update_x(&b2_hff_state, pos.x, Rpos.x);
+  b2_hff_update_y(&b2_hff_state, pos.y, Rpos.y);
 }
 
-static inline void b2_hff_update_x(struct HfilterFloat* hff_work, float x_meas) {
+static inline void b2_hff_update_x(struct HfilterFloat* hff_work, float x_meas, float Rpos) {
   b2_hff_x_meas = x_meas;
 
   const float y  = x_meas - hff_work->x;
@@ -645,7 +645,7 @@ static inline void b2_hff_update_x(struct HfilterFloat* hff_work, float x_meas) 
   hff_work->xP[1][1] = P22;
 }
 
-static inline void b2_hff_update_y(struct HfilterFloat* hff_work, float y_meas) {
+static inline void b2_hff_update_y(struct HfilterFloat* hff_work, float y_meas, float Rpos) {
   b2_hff_y_meas = y_meas;
 
   const float y  = y_meas - hff_work->y;
@@ -672,7 +672,7 @@ static inline void b2_hff_update_y(struct HfilterFloat* hff_work, float y_meas) 
 
 /*
  *
- * Update speed
+ * Update velocity
  *
  *
 
@@ -689,16 +689,16 @@ static inline void b2_hff_update_y(struct HfilterFloat* hff_work, float y_meas) 
   // update covariance
   Pp = Pm - K*H*Pm;
 */
-void b2_hff_update_v(float xspeed, float yspeed) {
-  b2_hff_update_xdot(&b2_hff_state, xspeed);
-  b2_hff_update_ydot(&b2_hff_state, yspeed);
+void b2_hff_update_vel(struct FloatVect2 vel, struct FloatVect2 Rvel) {
+  b2_hff_update_xdot(&b2_hff_state, vel.x, Rvel.x);
+  b2_hff_update_ydot(&b2_hff_state, vel.y, Rvel.y);
 }
 
-static inline void b2_hff_update_xdot(struct HfilterFloat* hff_work, float v) {
-  b2_hff_xd_meas = v;
+static inline void b2_hff_update_xdot(struct HfilterFloat* hff_work, float vel, float Rvel) {
+  b2_hff_xd_meas = vel;
 
-  const float yd = v - hff_work->xdot;
-  const float S  = hff_work->xP[1][1] + Rspeed;
+  const float yd = vel - hff_work->xdot;
+  const float S  = hff_work->xP[1][1] + Rvel;
   const float K1 = hff_work->xP[0][1] * 1/S;
   const float K2 = hff_work->xP[1][1] * 1/S;
 
@@ -716,11 +716,11 @@ static inline void b2_hff_update_xdot(struct HfilterFloat* hff_work, float v) {
   hff_work->xP[1][1] = P22;
 }
 
-static inline void b2_hff_update_ydot(struct HfilterFloat* hff_work, float v) {
-  b2_hff_yd_meas = v;
+static inline void b2_hff_update_ydot(struct HfilterFloat* hff_work, float vel, float Rvel) {
+  b2_hff_yd_meas = vel;
 
-  const float yd = v - hff_work->ydot;
-  const float S  = hff_work->yP[1][1] + Rspeed;
+  const float yd = vel - hff_work->ydot;
+  const float S  = hff_work->yP[1][1] + Rvel;
   const float K1 = hff_work->yP[0][1] * 1/S;
   const float K2 = hff_work->yP[1][1] * 1/S;
 

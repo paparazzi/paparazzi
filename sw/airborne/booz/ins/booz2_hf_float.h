@@ -66,9 +66,9 @@ extern float b2_hff_ydd_meas;
 extern void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot);
 extern void b2_hff_propagate(void);
 extern void b2_hff_update_gps(void);
-extern void b2_hff_update_pos(float xpos, float ypos);
-extern void b2_hff_update_v(float xspeed, float yspeed);
-extern void b2_hff_realign(struct FloatVect2 pos, struct FloatVect2 speed);
+extern void b2_hff_update_pos(struct FloatVect2 pos, struct FloatVect2 Rpos);
+extern void b2_hff_update_vel(struct FloatVect2 vel, struct FloatVect2 Rvel);
+extern void b2_hff_realign(struct FloatVect2 pos, struct FloatVect2 vel);
 
 #define B2_HFF_LOST_LIMIT 1000
 extern uint16_t b2_hff_lost_limit;
