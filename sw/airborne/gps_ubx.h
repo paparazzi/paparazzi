@@ -93,4 +93,8 @@ extern void ubxsend_cfg_rst(uint16_t, uint8_t);
   ubxsend_cfg_rst(gps_reset, CFG_RST_Reset_Controlled); \
 }
 
+#ifdef GPS_TIMESTAMP
+uint32_t itow_from_ticks(uint32_t clock_ticks);
+#endif
+
 #endif /* UBX_H */

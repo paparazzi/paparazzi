@@ -50,6 +50,9 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
 #define AMI601_IT 0x00
 #endif
 
+#ifdef TRIGGER_EXT
+#include "trig_ext.h"
+#endif
 
 #define TIMER0_IT_MASK (ACTUATORS_IT         |\
                         PPM_IT               |\
@@ -83,6 +86,14 @@ void TIMER0_ISR ( void ) {
     if (T0IR&PPM_IT) {
       PPM_ISR();
       T0IR = PPM_IT;
+    }
+#endif
+#ifdef TRIGGER_EXT
+#define TRIGGER_IT PPM_CRI
+    if (T0IR&TRIGGER_IT) {
+      TRIG_ISR();
+      T0IR = TRIGGER_IT;
+LED_TOGGLE(3);
     }
 #endif
 #if defined USE_RADIO_CONTROL && defined RADIO_CONTROL_TYPE_PPM

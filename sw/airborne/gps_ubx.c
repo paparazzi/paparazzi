@@ -38,6 +38,11 @@
 #include "nav.h"
 #include "latlong.h"
 
+#ifdef GPS_TIMESTAMP
+#include "sys_time.h"
+#define MSEC_PER_WEEK (1000*60*60*24*7)
+#endif 
+
 #define UbxInitCheksum() { send_ck_a = send_ck_b = 0; }
 #define UpdateChecksum(c) { send_ck_a += c; send_ck_b += send_ck_a; }
 #define UbxTrailer() { GpsUartSend1(send_ck_a);  GpsUartSend1(send_ck_b); GpsUartSendMessage(); }
@@ -64,6 +69,11 @@
 
 uint16_t gps_week;
 uint32_t gps_itow;
+#ifdef GPS_TIMESTAMP
+uint32_t gps_t0;
+uint32_t gps_t0_itow;
+uint32_t gps_t0_frac;
+#endif
 int32_t gps_alt;
 uint16_t gps_gspeed;
 int16_t gps_climb;
@@ -248,6 +258,13 @@ void parse_gps_msg( void ) {
       
       gps_pos_available = TRUE; /* The 3 UBX messages are sent in one rafale */
     } else if (ubx_id == UBX_NAV_SOL_ID) {
+#ifdef GPS_TIMESTAMP
+      /* get hardware clock ticks */
+      gps_t0 = T0TC;
+      /* set receive time */
+      gps_t0_itow = UBX_NAV_SOL_ITOW(ubx_msg_buf);
+      gps_t0_frac = UBX_NAV_SOL_Frac(ubx_msg_buf);
+#endif
       gps_mode = UBX_NAV_SOL_GPSfix(ubx_msg_buf);
       gps_PDOP = UBX_NAV_SOL_PDOP(ubx_msg_buf);
       gps_Pacc = UBX_NAV_SOL_Pacc(ubx_msg_buf);
@@ -339,3 +356,31 @@ void parse_ubx( uint8_t c ) {
   ubx_status = UNINIT;
   return;
 }
+
+#ifdef GPS_TIMESTAMP
+
+#ifndef PCLK
+#error unknown PCLK frequency
+#endif
+
+uint32_t itow_from_ticks(uint32_t clock_ticks)
+{
+  uint32_t clock_delta;
+  uint32_t time_delta;
+  uint32_t itow_now;
+
+  if (clock_ticks < gps_t0) {
+    clock_delta = (0xFFFFFFFF - clock_ticks) + gps_t0 + 1;
+  } else {
+    clock_delta = clock_ticks - gps_t0;
+  }
+
+  time_delta = MSEC_OF_SYS_TICS(clock_delta);
+
+  itow_now = gps_t0_itow + time_delta;
+  if (itow_now > MSEC_PER_WEEK) itow_now %= MSEC_PER_WEEK;
+
+  return itow_now;
+}
+#endif
+
