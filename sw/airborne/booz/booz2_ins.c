@@ -161,22 +161,8 @@ void booz_ins_propagate() {
 #endif /* USE_VFF */
 
 #ifdef USE_HFF
-  b2_hff_store_accel_body();
   /* propagate horizontal filter */
   b2_hff_propagate();
-  if ( booz_ins_ltp_initialised ) {
-    /* update ins state from horizontal filter */
-    booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
-    booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
-    booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
-    booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
-    booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
-    booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
-  }
-  else {
-    booz_ins_ltp_accel.x = accel_ltp.x;
-    booz_ins_ltp_accel.y = accel_ltp.y;
-  }
 #else
   booz_ins_ltp_accel.x = accel_ltp.x;
   booz_ins_ltp_accel.y = accel_ltp.y;
