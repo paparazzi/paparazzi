@@ -100,11 +100,11 @@ void booz_ins_init() {
 #else
   booz_ins_ltp_initialised  = FALSE;
 #endif
-  booz_ins_vf_realign = FALSE;
 #ifdef USE_VFF
   booz_ins_baro_initialised = FALSE;
   b2_vff_init(0., 0., 0.);
 #endif
+  booz_ins_vf_realign = FALSE;
   booz_ins_hf_realign = FALSE;
 #ifdef USE_HFF
   b2_hff_init(0., 0., 0., 0.);
@@ -229,12 +229,6 @@ void booz_ins_update_gps(void) {
 #endif
     }
     b2_hff_update_gps();
-    booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
-    booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
-    booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
-    booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
-    booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
-    booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
 
 #ifndef USE_VFF /* vff not used */
     booz_ins_ltp_pos.z =  (booz_ins_gps_pos_cm_ned.z * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;

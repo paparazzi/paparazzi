@@ -500,12 +500,22 @@ void b2_hff_update_gps(void) {
 #ifdef GPS_LAG
   if (GPS_LAG_N == 0) {
 #endif
+
+    /* update filter state with measurement */
     b2_hff_update_x(&b2_hff_state, booz_ins_gps_pos_m_ned.x, Rgps_pos);
     b2_hff_update_y(&b2_hff_state, booz_ins_gps_pos_m_ned.y, Rgps_pos);
 #ifdef B2_HFF_UPDATE_SPEED
     b2_hff_update_xdot(&b2_hff_state, booz_ins_gps_speed_m_s_ned.x, Rgps_vel);
     b2_hff_update_ydot(&b2_hff_state, booz_ins_gps_speed_m_s_ned.y, Rgps_vel);
 #endif
+
+    /* update ins state */
+    booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
+    booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
+    booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
+    booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
+    booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
+    booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
 
 #ifdef GPS_LAG
   } else if (b2_hff_rb_n > 0) {
