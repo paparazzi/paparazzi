@@ -524,11 +524,11 @@ void b2_hff_update_gps(void) {
     PRINT_DBG(2, ("update. rb_n: %d  lag_counter: %d  lag_cnt_err: %d\n", b2_hff_rb_n, b2_hff_rb_last->lag_counter, lag_counter_err));
     if (abs(lag_counter_err) <= GPS_LAG_TOL_N) {
       b2_hff_rb_last->rollback = TRUE;
-      b2_hff_update_x(b2_hff_rb_last, booz_ins_gps_pos_m_ned.x);
-      b2_hff_update_y(b2_hff_rb_last, booz_ins_gps_pos_m_ned.y);
+      b2_hff_update_x(b2_hff_rb_last, booz_ins_gps_pos_m_ned.x, Rgps_pos);
+      b2_hff_update_y(b2_hff_rb_last, booz_ins_gps_pos_m_ned.y, Rgps_pos);
 #ifdef B2_HFF_UPDATE_SPEED
-      b2_hff_update_xdot(b2_hff_rb_last, booz_ins_gps_speed_m_s_ned.x);
-      b2_hff_update_ydot(b2_hff_rb_last, booz_ins_gps_speed_m_s_ned.y);
+      b2_hff_update_xdot(b2_hff_rb_last, booz_ins_gps_speed_m_s_ned.x, Rgps_vel);
+      b2_hff_update_ydot(b2_hff_rb_last, booz_ins_gps_speed_m_s_ned.y, Rgps_vel);
 #endif
       past_save_counter = GPS_DT_N-1;// + lag_counter_err;
       PRINT_DBG(2, ("gps updated. past_save_counter: %d\n", past_save_counter));
