@@ -103,10 +103,10 @@ int b2_hff_ps_counter;
 #define ACC_RB_MAXN 64
 struct AccBuf {
   struct Int32Vect3 buf[ACC_RB_MAXN];
-  uint8_t r; /* pos to read from, oldest measurement */
-  uint8_t w; /* pos to write to */
-  uint8_t n; /* number of elements in rb */
-  uint8_t size;
+  int r; /* pos to read from, oldest measurement */
+  int w; /* pos to write to */
+  int n; /* number of elements in rb */
+  int size;
 };
 struct AccBuf acc_body;
 struct Int32Vect3 acc_body_mean;
@@ -140,7 +140,7 @@ static inline void b2_hff_compute_accel_body_mean(uint8_t n) {
     }
 	VECT3_SDIV(acc_body_mean, sum, n);
   } else {
-	VECT3_COPY(acc_body_mean, acc_body.buf[acc_body.w - 1]);
+	VECT3_COPY(acc_body_mean, sum);
   }
 }
 
