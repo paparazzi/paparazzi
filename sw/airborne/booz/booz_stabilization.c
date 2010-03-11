@@ -26,7 +26,9 @@
 int32_t booz_stabilization_cmd[COMMANDS_NB];
 
 void booz_stabilization_init(void) {
+#ifndef BOOZ_STABILIZATION_SKIP_RATE
   booz_stabilization_rate_init();
+#endif
   booz_stabilization_attitude_init();
 }
 
