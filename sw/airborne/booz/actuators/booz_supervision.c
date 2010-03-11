@@ -32,6 +32,10 @@
 #define INT32_MAX (2147483647)
 #endif
 
+#ifndef SUPERVISION_MIN_MOTOR_STARTUP
+#define SUPERVISION_MIN_MOTOR_STARTUP SUPERVISION_MIN_MOTOR
+#endif
+
 #ifdef SITL
 static const int32_t roll_coef[SUPERVISION_NB_MOTOR]   = {    0,    0, -256,  256};
 static const int32_t pitch_coef[SUPERVISION_NB_MOTOR]  = {  256, -256,    0,    0};
@@ -77,8 +81,12 @@ void supervision_run_spinup(uint32_t counter, uint32_t max_counter)
 {
   int i;
   for (i = 0; i < SUPERVISION_NB_MOTOR; i++) {
-    if (counter < i * max_counter / SUPERVISION_NB_MOTOR) {
-      supervision.commands[i] = SUPERVISION_MIN_MOTOR;
+    if (counter > i * max_counter / (SUPERVISION_NB_MOTOR + SUPERVISION_STARTUP_DELAY)) {
+      if (counter > SUPERVISION_NB_MOTOR * max_counter / (SUPERVISION_NB_MOTOR + SUPERVISION_STARTUP_DELAY)) {
+	supervision.commands[i] = SUPERVISION_MIN_MOTOR_STARTUP + (SUPERVISION_MIN_MOTOR - SUPERVISION_MIN_MOTOR_STARTUP) * counter / max_counter;
+      } else {
+	supervision.commands[i] = SUPERVISION_MIN_MOTOR_STARTUP;
+      }
     } else {
       supervision.commands[i] = 0;
     }
