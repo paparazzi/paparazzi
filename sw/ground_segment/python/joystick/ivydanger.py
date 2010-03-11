@@ -6,38 +6,40 @@ import logging
 import os
 import sys
 import getopt
+import signal
 
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME")
 sys.path.append(PPRZ_HOME + "/sw/lib/python")
 
 from settings_tool import IvySettingsInterface
 
-DEFAULT_AC_IDS = [ 11 ]
+DEFAULT_AC_IDS = [ ]
 
 # Map dangerboard sliders to these settings from aircraft settings
 # file, in that order (dimension of this list needs to match number
 # of sliders!)
-DEFAULT_SLIDERS = ["throttle_sp", "cyclic_sp", "collective_sp"]
-
-POT_MIN = 0.0
-POT_MAX = 1023.0
+DEFAULT_SLIDERS = [ ]
 
 class IvyStick(arduino_dangerboard):
   def __init__(self, ac_ids, settings_names):
     arduino_dangerboard.__init__(self)
-    self.last_values = [0] * self.SLIDER_COUNT
+    if (len(settings_names) > self.SLIDER_COUNT):
+      raise Exception("Number of settings greater than number of sliders")
+    if (len(ac_ids) < 1):
+      raise Exception("Need at least one ac_id")
+    self.last_values = [0] * len(settings_names)
     self.ac_settings = IvySettingsInterface(ac_ids)
     self.settings = []
     for name in settings_names:
       self.settings.append(self.ac_settings.name_lookup[name])
 
   def ScalePot(self, pot_value, min_value, max_value, step_size):
-    scale_factor = (max_value - min_value) / (POT_MAX - POT_MIN)
-    offset = (POT_MIN - min_value) / scale_factor
+    scale_factor = (max_value - min_value) / (self.POT_MAX - self.POT_MIN)
+    offset = (self.POT_MIN - min_value) / scale_factor
     return int((pot_value - offset) * scale_factor / step_size) * step_size
 
   def HandleEvent(self):
-    for setting_index in range(0, self.SLIDER_COUNT):
+    for setting_index in range(0, len(self.settings)):
       value = self.ScalePot(self.sliders[setting_index],
         self.settings[setting_index].min_value,
         self.settings[setting_index].max_value,
@@ -82,7 +84,12 @@ def GetOptions():
 
   return options
 
+def signal_handler(signal, frame):
+  sys.exit(0)
+
 def main():
+  signal.signal(signal.SIGINT, signal_handler)
+
   options = GetOptions()
   ivyStick = IvyStick(options['ac_id'], options['sliders'])
   ivyStick.poll()

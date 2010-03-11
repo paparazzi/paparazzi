@@ -25,6 +25,9 @@ class arduino_dangerboard():
     self.port = serial.Serial('/dev/ttyUSB0', 115200)  
     self.SLIDER_COUNT = 3
     self.sliders = [0] * self.SLIDER_COUNT
+    self.POT_MIN = 0.0
+    self.POT_MAX = 1023.0
+
 
   def HandleEvent(self):
     pass
