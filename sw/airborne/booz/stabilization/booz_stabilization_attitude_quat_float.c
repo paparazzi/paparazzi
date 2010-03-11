@@ -52,8 +52,6 @@ float booz_stabilization_attitude_pitch_wish;
 static float beta_vane_stick_cmd = 0;
 static struct FloatQuat alpha_setpoint_quat = { 1., 0., 0., 0. };
 static float alpha_error = 0;
-
-static struct FloatQuat pr_setpoint_quat = { 1., 0., 0., 0. };
 #endif // USE_VANE
 
 void booz_stabilization_attitude_init(void) {
@@ -237,7 +235,7 @@ void booz_stabilization_attitude_read_rc(bool_t in_flight) {
       if (vane_transition == 0) {
 
 	// new setpoint
-	FLOAT_QUAT_COPY(pr_setpoint_quat, booz_ahrs_float.ltp_to_body_quat);
+	FLOAT_QUAT_COPY(booz_stab_att_sp_quat, booz_ahrs_float.ltp_to_body_quat);
 
 	// store old gains
 	d_gain_y = booz_stabilization_dgain.y;
@@ -250,11 +248,10 @@ void booz_stabilization_attitude_read_rc(bool_t in_flight) {
       booz_stabilization_pgain.y = booz_stabilization_attitude_alpha_alt_pgain;
 
       // integrate stick commands in phi and psi
-      FLOAT_QUAT_COPY(setpoint_quat_old, pr_setpoint_quat);
-      FLOAT_QUAT_COMP(pr_setpoint_quat, setpoint_quat_old, sticks_quat);
+      FLOAT_QUAT_COPY(setpoint_quat_old, booz_stab_att_sp_quat);
+      FLOAT_QUAT_COMP(booz_stab_att_sp_quat, setpoint_quat_old, sticks_quat);
       
       // make new trajectory setpoint
-      FLOAT_QUAT_COPY(booz_stab_att_sp_quat, pr_setpoint_quat);
     } else {
       if (vane_transition == 1) {
 	// just switched out of vane mode
@@ -393,9 +390,10 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   /*  override qy in alpha mode  */
   if (rate_stick_mode) {
     if (radio_control.values[RADIO_CONTROL_AUX4] < 0) {
-      att_err.qy = alpha_error;
+      att_err.qy += alpha_error;
     }
   }
+  FLOAT_QUAT_NORMALISE(att_err);
 #endif // USE_VANE
 
   /*  PID                  */
