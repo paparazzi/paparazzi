@@ -6,5 +6,8 @@
 void csc_adc_init(void);
 void csc_adc_periodic(void);
 
+extern uint8_t vsupply;
+extern uint16_t adc_slider;
+
 #endif /* CSC_ADC_H */
 

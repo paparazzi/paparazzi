@@ -4,12 +4,10 @@
 #include "std.h"
 #include "sys_time.h"
 #include "actuators.h"
+#include "airframe.h"
 #include ACTUATORS
 
 #define CSC_SERVOS_NB 4
-#define SERVOS_PERIOD (SYS_TICS_OF_SEC((1./250.))) /* 250 Hz */
-
-#include "airframe.h"
 
 static uint32_t csc_servos_rng[] = {SYS_TICS_OF_USEC(SERVO_S1_MAX-SERVO_S1_MIN),
 				    SYS_TICS_OF_USEC(SERVO_S2_MAX-SERVO_S2_MIN),
