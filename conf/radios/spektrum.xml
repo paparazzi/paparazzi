@@ -53,4 +53,6 @@
  <channel ctl="switch_g" function="UNUSED"    min="2050" neutral="1500" max="948" average="1"/>
  <channel ctl="switch_C" function="MODE"    min="2050" neutral="1500" max="950" average="1"/>
  <channel ctl="aux2" function="KILL"     min="2050" neutral="1496" max="948" average="1"/>
+ <channel ctl="aux3" function="AUX3"    min="2050" neutral="1500" max="950" average="1"/>
+ <channel ctl="aux4" function="AUX4"     min="2050" neutral="1496" max="948" average="1"/>
 </radio>
