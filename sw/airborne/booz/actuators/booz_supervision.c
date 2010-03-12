@@ -81,15 +81,21 @@ void supervision_run_spinup(uint32_t counter, uint32_t max_counter)
 {
   int i;
   for (i = 0; i < SUPERVISION_NB_MOTOR; i++) {
+#ifdef SUPERVISION_STARTUP_DELAY
     if (counter > i * max_counter / (SUPERVISION_NB_MOTOR + SUPERVISION_STARTUP_DELAY)) {
       if (counter > SUPERVISION_NB_MOTOR * max_counter / (SUPERVISION_NB_MOTOR + SUPERVISION_STARTUP_DELAY)) {
-	supervision.commands[i] = SUPERVISION_MIN_MOTOR_STARTUP + (SUPERVISION_MIN_MOTOR - SUPERVISION_MIN_MOTOR_STARTUP) * counter / max_counter;
+        supervision.commands[i] = SUPERVISION_MIN_MOTOR_STARTUP + (SUPERVISION_MIN_MOTOR - SUPERVISION_MIN_MOTOR_STARTUP) * counter / max_counter;
       } else {
-	supervision.commands[i] = SUPERVISION_MIN_MOTOR_STARTUP;
+        supervision.commands[i] = SUPERVISION_MIN_MOTOR_STARTUP;
       }
     } else {
       supervision.commands[i] = 0;
     }
+#else
+    if (counter < i * max_counter / SUPERVISION_NB_MOTOR) {
+      supervision.commands[i] = SUPERVISION_MIN_MOTOR_STARTUP;
+    }
+#endif
   }
 }
 
