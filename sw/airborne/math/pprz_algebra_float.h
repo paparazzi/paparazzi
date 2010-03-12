@@ -135,6 +135,8 @@ struct FloatRates {
     RATES_ASSIGN(_r, 0., 0., 0.);		\
   }
 
+#define FLOAT_RATES_NORM(_v) (sqrtf((_v).p*(_v).p + (_v).q*(_v).q + (_v).r*(_v).r))
+
 
 /*
  * 3x3 matrices
