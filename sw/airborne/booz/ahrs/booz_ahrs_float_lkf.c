@@ -35,6 +35,8 @@
 
 #define BAFL_DEBUG
 
+static void booz_ahrs_do_update_accel(void);
+static void booz_ahrs_do_update_mag(void);
 
 
 /* our estimated attitude  (ltp <-> imu)      */
@@ -403,8 +405,11 @@ void booz_ahrs_propagate(void) {
 #endif
 }
 
-
 void booz_ahrs_update_accel(void) {
+  RunOnceEvery(50, booz_ahrs_do_update_accel());
+}
+
+static void booz_ahrs_do_update_accel(void) {
 	int i, j, k;
 
 #ifdef BAFL_DEBUG2
@@ -632,6 +637,10 @@ void booz_ahrs_update_accel(void) {
 
 
 void booz_ahrs_update_mag(void) {
+  RunOnceEvery(10, booz_ahrs_do_update_mag());
+}
+
+static void booz_ahrs_update_mag(void) {
 	int i, j, k;
 
 #ifdef BAFL_DEBUG2

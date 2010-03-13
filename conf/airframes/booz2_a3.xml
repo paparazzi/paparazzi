@@ -52,9 +52,9 @@
     <define name="MAG_Y_SENS" value="20." integer="16"/>
     <define name="MAG_Z_SENS" value="15." integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg( 14.5))"/>
-    <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(-8.5))"/>
-    <define name="BODY_TO_IMU_PSI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(-45.))"/>
+    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg( 14.5)"/>
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg( -8.5)"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(-45. )"/>
 
   </section>
 

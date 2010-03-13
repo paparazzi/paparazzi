@@ -196,9 +196,13 @@ void booz_ahrs_propagate(void) {
 
 }
 
-void booz_ahrs_update(void) {
+void booz_ahrs_update_accel(void) {
 
 
 }
 
+void booz_ahrs_update_mag(void) {
+
+
+}
 

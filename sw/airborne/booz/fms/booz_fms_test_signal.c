@@ -63,6 +63,9 @@ void booz_fms_impl_periodic(void) {
     }
   }
     break;
+  case STEP_PITCH:
+  case STEP_VERT:
+    break;
 #if 0    
   case BOOZ_FMS_TEST_SIGNAL_MODE_VERTICAL: {
     if (booz2_guidance_v_mode < BOOZ2_GUIDANCE_V_MODE_HOVER)
