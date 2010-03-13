@@ -63,6 +63,11 @@
     printf("%s %d %d %d (%d)\n",text,  (_v).x, (_v).y, (_v).z, norm);	\
   }
 
+#define DISPLAY_INT32_RATES(text, _v) {					\
+    printf("%s %d %d %d\n",text,  (_v).p, (_v).q, (_v).r);		\
+  }
+
+
 #define DISPLAY_INT32_EULERS(text, _e) {				\
     printf("%s %d %d %d\n",text,  (_e).phi, (_e).theta, (_e).psi);	\
   }
