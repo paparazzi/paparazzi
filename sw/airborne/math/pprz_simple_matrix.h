@@ -1,6 +1,9 @@
 #ifndef PPRZ_SIMPLE_MATRIX_H
 #define PPRZ_SIMPLE_MATRIX_H
 
+#include <float.h>  /* for FLT_EPSILON */
+#include <math.h> 
+
 //
 // C = A*B   A:(i,k) B:(k,j) C:(i,j)
 //
@@ -44,27 +47,27 @@
 //
 // invS = 1/det(S) com(S)'
 //
-#define MAT_INV33(invS, S) {						\
-    const float m00 = S[1][1]*S[2][2] - S[1][2]*S[2][1];		\
-    const float m10 = S[0][1]*S[2][2] - S[0][2]*S[2][1];		\
-    const float m20 = S[0][1]*S[1][2] - S[0][2]*S[1][1];		\
-    const float m01 = S[1][0]*S[2][2] - S[1][2]*S[2][0];		\
-    const float m11 = S[0][0]*S[2][2] - S[0][2]*S[2][0];		\
-    const float m21 = S[0][1]*S[1][2] - S[0][2]*S[1][0];		\
-    const float m02 = S[1][0]*S[2][1] - S[1][1]*S[2][0];		\
-    const float m12 = S[0][0]*S[2][1] - S[0][1]*S[2][0];		\
-    const float m22 = S[0][0]*S[1][1] - S[0][1]*S[1][0];		\
-    const float det = S[0][0]*m00 - S[1][0]*m10 + S[2][0]*m20;		\
+#define MAT_INV33(_invS, _S) {						\
+    const float m00 = _S[1][1]*_S[2][2] - _S[1][2]*_S[2][1];		\
+    const float m10 = _S[0][1]*_S[2][2] - _S[0][2]*_S[2][1];		\
+    const float m20 = _S[0][1]*_S[1][2] - _S[0][2]*_S[1][1];		\
+    const float m01 = _S[1][0]*_S[2][2] - _S[1][2]*_S[2][0];		\
+    const float m11 = _S[0][0]*_S[2][2] - _S[0][2]*_S[2][0];		\
+    const float m21 = _S[0][0]*_S[1][2] - _S[0][2]*_S[1][0];		\
+    const float m02 = _S[1][0]*_S[2][1] - _S[1][1]*_S[2][0];		\
+    const float m12 = _S[0][0]*_S[2][1] - _S[0][1]*_S[2][0];		\
+    const float m22 = _S[0][0]*_S[1][1] - _S[0][1]*_S[1][0];		\
+    const float det = _S[0][0]*m00 - _S[1][0]*m10 + _S[2][0]*m20;	\
     if (fabs(det) > FLT_EPSILON) {					\
-      invS[0][0] =  m00 / det;						\
-      invS[1][0] = -m01 / det;						\
-      invS[2][0] =  m02 / det;						\
-      invS[0][1] = -m10 / det;						\
-      invS[1][1] =  m11 / det;						\
-      invS[2][1] = -m12 / det;						\
-      invS[0][2] =  m20 / det;						\
-      invS[1][2] = -m21 / det;						\
-      invS[2][2] =  m22 / det;						\
+      _invS[0][0] =  m00 / det;						\
+      _invS[1][0] = -m01 / det;						\
+      _invS[2][0] =  m02 / det;						\
+      _invS[0][1] = -m10 / det;						\
+      _invS[1][1] =  m11 / det;						\
+      _invS[2][1] = -m12 / det;						\
+      _invS[0][2] =  m20 / det;						\
+      _invS[1][2] = -m21 / det;						\
+      _invS[2][2] =  m22 / det;						\
     }									\
   }
 
