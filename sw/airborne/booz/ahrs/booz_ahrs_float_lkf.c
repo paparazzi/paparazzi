@@ -254,7 +254,7 @@ void booz_ahrs_align(void) {
 	booz_ahrs.status = BOOZ_AHRS_RUNNING;
 }
 
-void booz_ahrs_lowpass_accel(void) {
+static inline void booz_ahrs_lowpass_accel(void) {
 	// get latest measurement
 	ACCELS_FLOAT_OF_BFP(bafl_accel_last, booz_imu.accel);
 	// low pass it
@@ -640,7 +640,7 @@ void booz_ahrs_update_mag(void) {
   RunOnceEvery(10, booz_ahrs_do_update_mag());
 }
 
-static void booz_ahrs_update_mag(void) {
+static void booz_ahrs_do_update_mag(void) {
 	int i, j, k;
 
 #ifdef BAFL_DEBUG2
