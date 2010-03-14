@@ -224,10 +224,7 @@ static inline void on_gyro_accel_event( void ) {
   }
   else {
     booz_ahrs_propagate();
-#ifdef USE_AHRS_LKF
-    RunOnceEvery(50, booz_ahrs_update_accel());
-#endif
-    //    booz2_filter_attitude_update();
+    booz_ahrs_update_accel();
 #ifdef SITL
     if (nps_bypass_ahrs) {
         sim_overwrite_ahrs();
@@ -248,9 +245,6 @@ static inline void on_gps_event(void) {
 
 static inline void on_mag_event(void) {
   BoozImuScaleMag();
-#ifdef USE_AHRS_LKF
-  if (booz_ahrs.status == BOOZ_AHRS_RUNNING) {
-	  RunOnceEvery(10, booz_ahrs_update_mag());
-  }
-#endif
+  if (booz_ahrs.status == BOOZ_AHRS_RUNNING)
+    booz_ahrs_update_mag();
 }
