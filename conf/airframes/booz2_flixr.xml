@@ -71,9 +71,9 @@
 	  <define name="MAG_Y_NEUTRAL" value="1963" />
 	  <define name="MAG_Z_NEUTRAL" value="2078" />
 
-	  <define name="BODY_TO_IMU_PHI" value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))" />
-	  <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))" />
-	  <define name="BODY_TO_IMU_PSI" value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))" />
+	  <define name="BODY_TO_IMU_PHI" value="RadOfDeg(0.)" />
+	  <define name="BODY_TO_IMU_THETA" value="RadOfDeg(0.)" />
+	  <define name="BODY_TO_IMU_PSI" value="RadOfDeg(0.)" />
 	</section>
 
 
@@ -226,14 +226,14 @@
 		include $(CFG_BOOZ)/subsystems/booz2_ins_hff.makefile
 		#set GPS lag for horizontal filter
 		ap.CFLAGS += -DUSE_GPS_ACC4R
-        #ap.CFLAGS += -DGPS_LAG=0.5
+        #ap.CFLAGS += -DGPS_LAG=0.3
 
         ap.CFLAGS += -DB2_GUIDANCE_H_USE_REF
         sim.CFLAGS += -DB2_GUIDANCE_H_USE_REF
 
         #ap.CFLAGS += -DBOOZ_FAILSAFE_GROUND_DETECT
         ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=2
-        sim.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT
+        sim.CFLAGS += -DUSE_ADAPT_HOVER
 
   </makefile>
 
