@@ -346,29 +346,29 @@
 
 
 /* multiply _vin by _mat, store in _vout */
-#define MAT33_VECT3_MUL(_vout, _mat, _vin) {				\
-    (_vout).x = MAT33_ELMT((_mat), 0, 0) * (_vin).x +			\
-                MAT33_ELMT((_mat), 0, 1) * (_vin).y +			\
-                MAT33_ELMT((_mat), 0, 2) * (_vin).z;			\
-    (_vout).y = MAT33_ELMT((_mat), 1, 0) * (_vin).x +                   \
-                MAT33_ELMT((_mat), 1, 1) * (_vin).y +                   \
-                MAT33_ELMT((_mat), 1, 2) * (_vin).z;			\
-    (_vout).z = MAT33_ELMT((_mat), 2, 0) * (_vin).x +			\
-                MAT33_ELMT((_mat), 2, 1) * (_vin).y +			\
-                MAT33_ELMT((_mat), 2, 2) * (_vin).z;			\
+#define MAT33_VECT3_MUL(_vout, _mat, _vin) {		\
+    (_vout).x = MAT33_ELMT((_mat), 0, 0) * (_vin).x +	\
+                MAT33_ELMT((_mat), 0, 1) * (_vin).y +	\
+                MAT33_ELMT((_mat), 0, 2) * (_vin).z;	\
+    (_vout).y = MAT33_ELMT((_mat), 1, 0) * (_vin).x +   \
+                MAT33_ELMT((_mat), 1, 1) * (_vin).y +   \
+                MAT33_ELMT((_mat), 1, 2) * (_vin).z;	\
+    (_vout).z = MAT33_ELMT((_mat), 2, 0) * (_vin).x +	\
+                MAT33_ELMT((_mat), 2, 1) * (_vin).y +	\
+                MAT33_ELMT((_mat), 2, 2) * (_vin).z;	\
   }
 
 /* multiply _vin by transpose of _mat, store in _vout */
-#define MAT33_VECT3_TRANSP_MUL(_vout, _mat, _vin) {			\
-    (_vout).x = MAT33_ELMT((_mat), 0, 0) * (_vin).x +			\
-                MAT33_ELMT((_mat), 1, 0) * (_vin).y +			\
-                MAT33_ELMT((_mat), 2, 0) * (_vin).z;			\
-    (_vout).y = MAT33_ELMT((_mat), 0, 1) * (_vin).x +                   \
-                MAT33_ELMT((_mat), 1, 1) * (_vin).y +                   \
-                MAT33_ELMT((_mat), 2, 1) * (_vin).z;			\
-    (_vout).z = MAT33_ELMT((_mat), 0, 2) * (_vin).x +			\
-                MAT33_ELMT((_mat), 1, 2) * (_vin).y +			\
-                MAT33_ELMT((_mat), 2, 2) * (_vin).z;			\
+#define MAT33_VECT3_TRANSP_MUL(_vout, _mat, _vin) {     \
+    (_vout).x = MAT33_ELMT((_mat), 0, 0) * (_vin).x +	\
+                MAT33_ELMT((_mat), 1, 0) * (_vin).y +	\
+                MAT33_ELMT((_mat), 2, 0) * (_vin).z;	\
+    (_vout).y = MAT33_ELMT((_mat), 0, 1) * (_vin).x +   \
+                MAT33_ELMT((_mat), 1, 1) * (_vin).y +   \
+                MAT33_ELMT((_mat), 2, 1) * (_vin).z;	\
+    (_vout).z = MAT33_ELMT((_mat), 0, 2) * (_vin).x +   \
+                MAT33_ELMT((_mat), 1, 2) * (_vin).y +	\
+                MAT33_ELMT((_mat), 2, 2) * (_vin).z;	\
   }
 
 //
@@ -377,55 +377,53 @@
 //
 //
 #define QUAT_ASSIGN(_q, _i, _x, _y, _z) {   \
-    (_q).qi = (_i);                        \
-    (_q).qx = (_x);                        \
-    (_q).qy = (_y);                        \
-    (_q).qz = (_z);                        \
+    (_q).qi = (_i);			    \
+    (_q).qx = (_x);			    \
+    (_q).qy = (_y);			    \
+    (_q).qz = (_z);			    \
+  }
+
+#define QUAT_DIFF(_qc, _qa, _qb) {	    \
+    (_qc).qi = (_qa).qi - (_qb).qi;	    \
+    (_qc).qx = (_qa).qx - (_qb).qx;	    \
+    (_qc).qy = (_qa).qy - (_qb).qy;	    \
+    (_qc).qz = (_qa).qz - (_qb).qz;	    \
+  }
+
+#define QUAT_COPY(_qo, _qi) {		    \
+    (_qo).qi = (_qi).qi;		    \
+    (_qo).qx = (_qi).qx;		    \
+    (_qo).qy = (_qi).qy;		    \
+    (_qo).qz = (_qi).qz;		    \
+  }
+
+#define QUAT_EXPLEMENTARY(b,a) {	    \
+    b.qi = -a.qi;                           \
+    b.qx = -a.qx;                           \
+    b.qy = -a.qy;                           \
+    b.qz = -a.qz;                           \
   }
 
 
-
-#define QUAT_DIFF(_qc, _qa, _qb) {				\
-    (_qc).qi = (_qa).qi - (_qb).qi;				\
-    (_qc).qx = (_qa).qx - (_qb).qx;				\
-    (_qc).qy = (_qa).qy - (_qb).qy;				\
-    (_qc).qz = (_qa).qz - (_qb).qz;				\
+#define QUAT_SMUL(_qo, _qi, _s) {	    \
+    (_qo).qi = (_qi).qi * _s;		    \
+    (_qo).qx = (_qi).qx * _s;		    \
+    (_qo).qy = (_qi).qy * _s;		    \
+    (_qo).qz = (_qi).qz * _s;		    \
   }
 
-#define QUAT_COPY(_qo, _qi) {			                \
-    (_qo).qi = (_qi).qi;					\
-    (_qo).qx = (_qi).qx;					\
-    (_qo).qy = (_qi).qy;					\
-    (_qo).qz = (_qi).qz;					\
+#define QUAT_ADD(_qo, _qi) {		    \
+    (_qo).qi += (_qi).qi;		    \
+    (_qo).qx += (_qi).qx;		    \
+    (_qo).qy += (_qi).qy;		    \
+    (_qo).qz += (_qi).qz;		    \
   }
 
-#define QUAT_EXPLEMENTARY(b,a) {				\
-    b.qi = -a.qi;                                               \
-    b.qx = -a.qx;                                               \
-    b.qy = -a.qy;                                               \
-    b.qz = -a.qz;                                               \
-  }
-
-
-#define QUAT_SMUL(_qo, _qi, _s) {				\
-    (_qo).qi = (_qi).qi * _s;					\
-    (_qo).qx = (_qi).qx * _s;					\
-    (_qo).qy = (_qi).qy * _s;					\
-    (_qo).qz = (_qi).qz * _s;					\
-  }
-
-#define QUAT_ADD(_qo, _qi) {					\
-    (_qo).qi += (_qi).qi;					\
-    (_qo).qx += (_qi).qx;					\
-    (_qo).qy += (_qi).qy;					\
-    (_qo).qz += (_qi).qz;					\
-  }
-
-#define QUAT_INVERT(_qo, _qi) {					\
-    (_qo).qi =  (_qi).qi;						\
-    (_qo).qx = -(_qi).qx;						\
-    (_qo).qy = -(_qi).qy;						\
-    (_qo).qz = -(_qi).qz;						\
+#define QUAT_INVERT(_qo, _qi) {		    \
+    (_qo).qi =  (_qi).qi;		    \
+    (_qo).qx = -(_qi).qx;		    \
+    (_qo).qy = -(_qi).qy;		    \
+    (_qo).qz = -(_qi).qz;		    \
   }
 
 
@@ -440,42 +438,40 @@
 #define RMAT_TRACE(_rm) (RMAT_ELMT(_rm, 0, 0)+RMAT_ELMT(_rm, 1, 1)+RMAT_ELMT(_rm, 2, 2))
 
 
-#define RMAT_DIFF(_c, _a, _b) {					\
-    (_c).m[0] = (_a).m[0] - (_b).m[0];				\
-    (_c).m[1] = (_a).m[1] - (_b).m[1];				\
-    (_c).m[2] = (_a).m[2] - (_b).m[2];				\
-    (_c).m[3] = (_a).m[3] - (_b).m[3];				\
-    (_c).m[4] = (_a).m[4] - (_b).m[4];				\
-    (_c).m[5] = (_a).m[5] - (_b).m[5];				\
-    (_c).m[6] = (_a).m[6] - (_b).m[6];				\
-    (_c).m[7] = (_a).m[7] - (_b).m[7];				\
-    (_c).m[8] = (_a).m[8] - (_b).m[8];				\
+#define RMAT_DIFF(_c, _a, _b) {				 \
+    (_c).m[0] = (_a).m[0] - (_b).m[0];			 \
+    (_c).m[1] = (_a).m[1] - (_b).m[1];			 \
+    (_c).m[2] = (_a).m[2] - (_b).m[2];			 \
+    (_c).m[3] = (_a).m[3] - (_b).m[3];			 \
+    (_c).m[4] = (_a).m[4] - (_b).m[4];			 \
+    (_c).m[5] = (_a).m[5] - (_b).m[5];			 \
+    (_c).m[6] = (_a).m[6] - (_b).m[6];			 \
+    (_c).m[7] = (_a).m[7] - (_b).m[7];			 \
+    (_c).m[8] = (_a).m[8] - (_b).m[8];			 \
   }
 
 /* multiply _vin by _rmat, store in _vout */
-#define RMAT_VECT3_MUL(_vout, _rmat, _vin) {				\
-    (_vout).x = RMAT_ELMT((_rmat), 0, 0) * (_vin).x +			\
-                RMAT_ELMT((_rmat), 0, 1) * (_vin).y +			\
-                RMAT_ELMT((_rmat), 0, 2) * (_vin).z;			\
-    (_vout).y = RMAT_ELMT((_rmat), 1, 0) * (_vin).x +           \
-                RMAT_ELMT((_rmat), 1, 1) * (_vin).y +           \
-                RMAT_ELMT((_rmat), 1, 2) * (_vin).z;			\
-    (_vout).z = RMAT_ELMT((_rmat), 2, 0) * (_vin).x +			\
-                RMAT_ELMT((_rmat), 2, 1) * (_vin).y +			\
-                RMAT_ELMT((_rmat), 2, 2) * (_vin).z;			\
+#define RMAT_VECT3_MUL(_vout, _rmat, _vin) {		 \
+    (_vout).x = RMAT_ELMT((_rmat), 0, 0) * (_vin).x +	 \
+                RMAT_ELMT((_rmat), 0, 1) * (_vin).y +	 \
+                RMAT_ELMT((_rmat), 0, 2) * (_vin).z;	 \
+    (_vout).y = RMAT_ELMT((_rmat), 1, 0) * (_vin).x +    \
+                RMAT_ELMT((_rmat), 1, 1) * (_vin).y +    \
+                RMAT_ELMT((_rmat), 1, 2) * (_vin).z;	 \
+    (_vout).z = RMAT_ELMT((_rmat), 2, 0) * (_vin).x +	 \
+                RMAT_ELMT((_rmat), 2, 1) * (_vin).y +	 \
+                RMAT_ELMT((_rmat), 2, 2) * (_vin).z;	 \
   }
 
+#define RMAT_COPY(_o, _i) { memcpy(&(_o), &(_i), sizeof(_o));}
 
 
-// if defined PPRZ_ALGEBRA_INT_H && defined PPRZ_ALGEBRA_FLOAT
-//#include "pprz_algebra_int.h"
-//#include "pprz_algebra_float.h"
 
 
-#define EULERS_FLOAT_OF_BFP(_ef, _ei) {				\
-    (_ef).phi   = ANGLE_FLOAT_OF_BFP((_ei).phi);		\
-    (_ef).theta = ANGLE_FLOAT_OF_BFP((_ei).theta);		\
-    (_ef).psi   = ANGLE_FLOAT_OF_BFP((_ei).psi);		\
+#define EULERS_FLOAT_OF_BFP(_ef, _ei) {			\
+    (_ef).phi   = ANGLE_FLOAT_OF_BFP((_ei).phi);	\
+    (_ef).theta = ANGLE_FLOAT_OF_BFP((_ei).theta);	\
+    (_ef).psi   = ANGLE_FLOAT_OF_BFP((_ei).psi);	\
   }
 
 #define EULERS_BFP_OF_REAL(_ei, _ef) {			\
@@ -485,30 +481,28 @@
   }
 
 #define RMAT_BFP_OF_REAL(_ei, _ef) {			\
-    (_ei).m[0]   = TRIG_BFP_OF_REAL((_ef).m[0]);		\
-    (_ei).m[1]   = TRIG_BFP_OF_REAL((_ef).m[1]);		\
-    (_ei).m[2]   = TRIG_BFP_OF_REAL((_ef).m[2]);		\
-    (_ei).m[3]   = TRIG_BFP_OF_REAL((_ef).m[3]);		\
-    (_ei).m[4]   = TRIG_BFP_OF_REAL((_ef).m[4]);		\
-    (_ei).m[5]   = TRIG_BFP_OF_REAL((_ef).m[5]);		\
-    (_ei).m[6]   = TRIG_BFP_OF_REAL((_ef).m[6]);		\
-    (_ei).m[7]   = TRIG_BFP_OF_REAL((_ef).m[7]);		\
-    (_ei).m[8]   = TRIG_BFP_OF_REAL((_ef).m[8]);		\
+    (_ei).m[0] = TRIG_BFP_OF_REAL((_ef).m[0]);		\
+    (_ei).m[1] = TRIG_BFP_OF_REAL((_ef).m[1]);		\
+    (_ei).m[2] = TRIG_BFP_OF_REAL((_ef).m[2]);		\
+    (_ei).m[3] = TRIG_BFP_OF_REAL((_ef).m[3]);		\
+    (_ei).m[4] = TRIG_BFP_OF_REAL((_ef).m[4]);		\
+    (_ei).m[5] = TRIG_BFP_OF_REAL((_ef).m[5]);		\
+    (_ei).m[6] = TRIG_BFP_OF_REAL((_ef).m[6]);		\
+    (_ei).m[7] = TRIG_BFP_OF_REAL((_ef).m[7]);		\
+    (_ei).m[8] = TRIG_BFP_OF_REAL((_ef).m[8]);		\
   }
 
-#define RMAT_FLOAT_OF_BFP(_ef, _ei) {				\
-    (_ef).m[0]   = TRIG_FLOAT_OF_BFP((_ei).m[0]);		\
-    (_ef).m[1]   = TRIG_FLOAT_OF_BFP((_ei).m[1]);		\
-    (_ef).m[2]   = TRIG_FLOAT_OF_BFP((_ei).m[2]);		\
-    (_ef).m[3]   = TRIG_FLOAT_OF_BFP((_ei).m[3]);		\
-    (_ef).m[4]   = TRIG_FLOAT_OF_BFP((_ei).m[4]);		\
-    (_ef).m[5]   = TRIG_FLOAT_OF_BFP((_ei).m[5]);		\
-    (_ef).m[6]   = TRIG_FLOAT_OF_BFP((_ei).m[6]);		\
-    (_ef).m[7]   = TRIG_FLOAT_OF_BFP((_ei).m[7]);		\
-    (_ef).m[8]   = TRIG_FLOAT_OF_BFP((_ei).m[8]);		\
+#define RMAT_FLOAT_OF_BFP(_ef, _ei) {			\
+    (_ef).m[0] = TRIG_FLOAT_OF_BFP((_ei).m[0]);		\
+    (_ef).m[1] = TRIG_FLOAT_OF_BFP((_ei).m[1]);		\
+    (_ef).m[2] = TRIG_FLOAT_OF_BFP((_ei).m[2]);		\
+    (_ef).m[3] = TRIG_FLOAT_OF_BFP((_ei).m[3]);		\
+    (_ef).m[4] = TRIG_FLOAT_OF_BFP((_ei).m[4]);		\
+    (_ef).m[5] = TRIG_FLOAT_OF_BFP((_ei).m[5]);		\
+    (_ef).m[6] = TRIG_FLOAT_OF_BFP((_ei).m[6]);		\
+    (_ef).m[7] = TRIG_FLOAT_OF_BFP((_ei).m[7]);		\
+    (_ef).m[8] = TRIG_FLOAT_OF_BFP((_ei).m[8]);		\
   }
-
-
 
 #define QUAT_FLOAT_OF_BFP(_qf, _qi) {			\
     (_qf).qi = QUAT1_FLOAT_OF_BFP((_qi).qi);		\
@@ -526,38 +520,38 @@
 
 #define RATES_FLOAT_OF_BFP(_rf, _ri) {			\
     (_rf).p = RATE_FLOAT_OF_BFP((_ri).p);		\
-    (_rf).q = RATE_FLOAT_OF_BFP((_ri).q);	\
+    (_rf).q = RATE_FLOAT_OF_BFP((_ri).q);		\
     (_rf).r = RATE_FLOAT_OF_BFP((_ri).r);		\
   }
 
 #define RATES_BFP_OF_REAL(_ri, _rf) {			\
     (_ri).p = RATE_BFP_OF_REAL((_rf).p);		\
-    (_ri).q = RATE_BFP_OF_REAL((_rf).q);	\
+    (_ri).q = RATE_BFP_OF_REAL((_rf).q);		\
     (_ri).r = RATE_BFP_OF_REAL((_rf).r);		\
   }
 
-#define ACCELS_FLOAT_OF_BFP(_ef, _ei) {				\
+#define ACCELS_FLOAT_OF_BFP(_ef, _ei) {			\
     (_ef).x   = ACCEL_FLOAT_OF_BFP((_ei).x);		\
     (_ef).y   = ACCEL_FLOAT_OF_BFP((_ei).y);		\
     (_ef).z   = ACCEL_FLOAT_OF_BFP((_ei).z);		\
   }
 
-#define ACCELS_BFP_OF_REAL(_ef, _ei) {				\
+#define ACCELS_BFP_OF_REAL(_ef, _ei) {			\
     (_ef).x   = ACCEL_BFP_OF_REAL((_ei).x);		\
     (_ef).y   = ACCEL_BFP_OF_REAL((_ei).y);		\
     (_ef).z   = ACCEL_BFP_OF_REAL((_ei).z);		\
   }
 
-#define MAGS_FLOAT_OF_BFP(_ef, _ei) {				\
-    (_ef).x   = ACCEL_FLOAT_OF_BFP((_ei).x);		\
-    (_ef).y   = ACCEL_FLOAT_OF_BFP((_ei).y);		\
-    (_ef).z   = ACCEL_FLOAT_OF_BFP((_ei).z);		\
+#define MAGS_FLOAT_OF_BFP(_ef, _ei) {			\
+    (_ef).x   = MAG_FLOAT_OF_BFP((_ei).x);		\
+    (_ef).y   = MAG_FLOAT_OF_BFP((_ei).y);		\
+    (_ef).z   = MAG_FLOAT_OF_BFP((_ei).z);		\
   }
 
-#define MAGS_BFP_OF_REAL(_ef, _ei) {				\
-    (_ef).x   = ACCEL_BFP_OF_REAL((_ei).x);		\
-    (_ef).y   = ACCEL_BFP_OF_REAL((_ei).y);		\
-    (_ef).z   = ACCEL_BFP_OF_REAL((_ei).z);		\
+#define MAGS_BFP_OF_REAL(_ef, _ei) {			\
+    (_ef).x   = MAG_BFP_OF_REAL((_ei).x);		\
+    (_ef).y   = MAG_BFP_OF_REAL((_ei).y);		\
+    (_ef).z   = MAG_BFP_OF_REAL((_ei).z);		\
   }
 
 #endif /* PPRZ_ALGEBRA_H */
