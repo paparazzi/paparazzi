@@ -52,8 +52,8 @@ main.CFLAGS += -DMB_SCALE
 main.srcs += $(MB)/mb_scale.c
 
 main.srcs += $(MB)/mb_modes.c
-main.srcs += $(MB)/mb_static.c
-main.srcs += $(MB)/mb_mode_fixed_rpm.c
+#main.srcs += $(MB)/mb_static.c
+#main.srcs += $(MB)/mb_mode_fixed_rpm.c
 
 foo.ARCHDIR = $(ARCHI)
 foo.ARCH = arm7tdmi
@@ -95,6 +95,9 @@ bar.srcs += $(SRC_ARCH)/armVIC.c
 bar.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=9
 bar.CFLAGS += -DUSE_TWI_CONTROLLER
 bar.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(MB)/mb_twi_controller_mkk.c
+
+
+
 
   </makefile>
 
