@@ -52,7 +52,8 @@ OOCD = openocd
 
 LOADER=$(STM32_DIR)/stm32loader-a3c51c26ad6c/stm32loader.py
 
-OOCD_INTERFACE = arm-usb-ocd
+#OOCD_INTERFACE = arm-usb-ocd
+OOCD_INTERFACE = openocd-usb2
 OOCD_TARGET    = olimex_stm32_h103
 
 # inpput files
@@ -64,7 +65,7 @@ COBJ    = $(SRCS:%.c=$(OBJDIR)/%.o)
 AOBJ    = $(ASRC:%.S=$(OBJDIR)/%.o)
 
 # linker script
-LD_SCRIPT = $(SRC_FYA)/stm32f10x_flash_md.ld
+LD_SCRIPT = $(SRC_LISA)/stm32f10x_flash_md.ld
 
 CFLAGS = -I. -I./$(ARCHI) $(INCLUDES) -Wall -ansi -std=c99 -c -fno-common -Os -g -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections -c
 CFLAGS += -Wl,gc-sections
