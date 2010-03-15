@@ -194,7 +194,11 @@ int main(int argc, char *argv[])
 	printf("bits per word: %d\n", bits);
 	printf("max speed: %d Hz (%d KHz)\n", speed, speed/1000);
 
-	transfer(fd);
+	int i;
+	for (i=0; i<10; i++) {
+	  transfer(fd);
+	  usleep(1953);
+	}
 
 	close(fd);
 
