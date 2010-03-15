@@ -333,3 +333,47 @@ function display_control(time, fdm_state, fdm_euler, diff_flat_ref)
 endfunction
 
 
+function display_sensors(time)
+
+  f=get("current_figure");
+  f.figure_name="Sensors";
+
+  subplot(3,3,1);
+  plot2d(time, deg_of_rad(sensor_gyro(1,:)), 2);
+  xtitle('gyro p');
+ 
+  subplot(3,3,2);
+  plot2d(time, deg_of_rad(sensor_gyro(2,:)), 2);
+  xtitle('gyro q');
+
+  subplot(3,3,3);
+  plot2d(time, deg_of_rad(sensor_gyro(3,:)), 2);
+  xtitle('gyro r');
+
+  
+  subplot(3,3,4);
+  plot2d(time, sensor_accel(1,:), 2);
+  xtitle('accel x');
+  
+  subplot(3,3,5);
+  plot2d(time, sensor_accel(2,:), 2);
+  xtitle('accel y');
+
+  subplot(3,3,6);
+  plot2d(time, sensor_accel(3,:), 2);
+  xtitle('accel z');
+
+  subplot(3,3,7);
+  plot2d(time, sensor_mag(1,:), 2);
+  xtitle('mag x');
+  
+  subplot(3,3,8);
+  plot2d(time, sensor_mag(2,:), 2);
+  xtitle('mag y');
+
+  subplot(3,3,9);
+  plot2d(time, sensor_mag(3,:), 2);
+  xtitle('mag z');
+
+endfunction
+

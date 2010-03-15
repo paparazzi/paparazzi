@@ -131,6 +131,13 @@ endfunction
 //
 //
 //
+function [qo] = quat_normalize(qi)
+  qo = qi / norm(qi); 
+endfunction
+
+//
+//
+//
 function [vo] = quat_vect_mult(q, vi)
   dcm = dcm_of_quat(q);
   vo = dcm * vi;

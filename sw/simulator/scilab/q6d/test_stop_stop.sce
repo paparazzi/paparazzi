@@ -21,8 +21,8 @@ b0 = [ -5    0   0];
 b1 = [  5    0   0];
 //b0 = [ 0   -5   0 ];
 //b1 = [ 0    5  0 ];
-//[fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1);
-[fo_traj] = fo_traj_circle(time);
+[fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1);
+//[fo_traj] = fo_traj_circle(time);
 
 set("current_figure",0);
 clf();
@@ -33,14 +33,14 @@ diff_flat_cmd = zeros(4,length(time));
 diff_flat_ref = zeros(DF_REF_SIZE, length(time));
 for i=1:length(time)
   diff_flat_cmd(:,i) = df_input_of_fo(fo_traj(:,:,i));
-  diff_flat_ref(:,i) = df_state_of_fo(fo_traj(:,:,i));
+  diff_flat_ref(:,i) = df_ref_of_fo(fo_traj(:,:,i));
 end
 
 set("current_figure",1);
 clf();
 display_df_ref(time, diff_flat_ref);
 
-povray_draw( time, diff_flat_ref );
+//povray_draw( time, diff_flat_ref );
 
 set("current_figure",2);
 clf();
@@ -76,4 +76,4 @@ clf();
 //display_fdm(time, fdm_state, fdm_euler)
 display_control(time, fdm_state, fdm_euler, diff_flat_ref);
 
-povray_draw(time,diff_flat_ref);
+//povray_draw(time,diff_flat_ref);

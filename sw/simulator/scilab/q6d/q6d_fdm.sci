@@ -75,6 +75,7 @@ global fdm_raccel;
 
 
 function fdm_init(time, X0) 
+
   global fdm_time;
   fdm_time = time;
   global fdm_state;

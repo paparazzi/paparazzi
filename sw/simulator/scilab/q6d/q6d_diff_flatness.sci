@@ -28,20 +28,20 @@ DF_L = 0.25;
 DF_CM_OV_CT = 0.1;
 
 // state from flat output
-function [state] = df_state_of_fo(fo)
+function [ref] = df_ref_of_fo(fo)
 
-  state = zeros(DF_REF_SIZE, 1);
-  state(DF_REF_X)      = fo(DF_FO_X,1);
-  state(DF_REF_Y)      = fo(DF_FO_Y,1);
-  state(DF_REF_Z)      = fo(DF_FO_Z,1);
+  ref = zeros(DF_REF_SIZE, 1);
+  ref(DF_REF_X)  = fo(DF_FO_X,1);
+  ref(DF_REF_Y)  = fo(DF_FO_Y,1);
+  ref(DF_REF_Z)  = fo(DF_FO_Z,1);
 
-  state(DF_REF_XD)     = fo(DF_FO_X,2);
-  state(DF_REF_YD)     = fo(DF_FO_Y,2);
-  state(DF_REF_ZD)     = fo(DF_FO_Z,2);
+  ref(DF_REF_XD) = fo(DF_FO_X,2);
+  ref(DF_REF_YD) = fo(DF_FO_Y,2);
+  ref(DF_REF_ZD) = fo(DF_FO_Z,2);
 
-  state(DF_REF_PSI)    = fo(DF_FO_PSI,1);
+  ref(DF_REF_PSI) = fo(DF_FO_PSI,1);
   
-  psi = state(DF_REF_PSI);
+  psi = ref(DF_REF_PSI);
   cpsi = cos(psi);
   spsi = sin(psi);
   
@@ -54,8 +54,8 @@ function [state] = df_state_of_fo(fo)
   z2dmg = z2d - DF_G;
   av = sqrt(axpsi^2 + z2dmg^2);
   
-  state(DF_REF_PHI) = sign(z2dmg)*atan(aypsi/av);
-  state(DF_REF_THETA) = atan(axpsi/z2dmg);
+  ref(DF_REF_PHI) = sign(z2dmg)*atan(aypsi/av);
+  ref(DF_REF_THETA) = atan(axpsi/z2dmg);
   
   x3d = fo(1,4);
   y3d = fo(2,4);
@@ -80,14 +80,14 @@ function [state] = df_state_of_fo(fo)
   phid   = sign(z2dmg)*(adypsi*av-adv*aypsi)/(aypsi^2+av^2);
   thetad = (adxpsi*z2dmg-z3d*axpsi)/(axpsi^2+z2dmg^2);
 
-  cphi = cos(state(DF_REF_PHI));
-  sphi = sin(state(DF_REF_PHI));
-  ctheta = cos(state(DF_REF_THETA));
-  stheta = sin(state(DF_REF_THETA));
+  cphi = cos(ref(DF_REF_PHI));
+  sphi = sin(ref(DF_REF_PHI));
+  ctheta = cos(ref(DF_REF_THETA));
+  stheta = sin(ref(DF_REF_THETA));
   
-  state(DF_REF_P) =  phid - stheta*psid;
-  state(DF_REF_Q) =  cphi*thetad + sphi*ctheta*psid;
-  state(DF_REF_R) = -sphi*thetad + cphi*ctheta*psid;
+  ref(DF_REF_P) =  phid - stheta*psid;
+  ref(DF_REF_Q) =  cphi*thetad + sphi*ctheta*psid;
+  ref(DF_REF_R) = -sphi*thetad + cphi*ctheta*psid;
   
 endfunction
 
