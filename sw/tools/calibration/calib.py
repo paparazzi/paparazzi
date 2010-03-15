@@ -3,6 +3,8 @@
 # calibrate accelerometer
 #
 
+# http://www.ngdc.noaa.gov/geomagmodels/Declination.jsp
+
 import re
 import scipy
 from scipy import optimize
@@ -72,8 +74,8 @@ def print_xml(p, sensor, res):
     print "<define name=\""+sensor+"_Y_SENS\" value=\""+str(p[4]*2**res)+"\" integer=\"16\"/>"
     print "<define name=\""+sensor+"_Z_SENS\" value=\""+str(p[5]*2**res)+"\" integer=\"16\"/>"
 
-filename = 'log_accel_booz2_a2'
-ac_id = "151"
+filename = 'log_accel_a2p'
+ac_id = "158"
 if 1:
     sensor = "ACCEL"
     sensor_ref = 9.81
