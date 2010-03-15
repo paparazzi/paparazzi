@@ -202,9 +202,9 @@ static void init_ltp(void) {
   fdm.ltp_g.y = 0.;
   fdm.ltp_g.z = 9.81;
 
-  fdm.ltp_h.x = 1.;
-  fdm.ltp_h.y = 0.;
-  fdm.ltp_h.z = 1.;
+  fdm.ltp_h.x = 0.4912;
+  fdm.ltp_h.y = 0.1225;
+  fdm.ltp_h.z = 0.8624;
 
 
 }
