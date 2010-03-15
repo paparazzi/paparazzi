@@ -539,3 +539,17 @@ test_baro_24.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SL
 test_baro_24.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 test_baro_24.srcs += $(SRC_BOOZ)/booz2_baro_24.c
 
+#
+# test_coders : blinks all leds
+#
+test_coder.ARCHDIR = $(ARCHI)
+test_coder.ARCH = arm7tdmi
+test_coder.TARGET = test_coder
+test_coder.TARGETDIR = test_coder
+
+test_coder.CFLAGS += -DBOARD_CONFIG=\"boards/olimex_lpc_h2148.h\" $(BOOZ_CFLAGS)
+test_coder.CFLAGS += -DPERIPHERALS_AUTO_INIT
+test_coder.srcs   += $(SRC_BOOZ_TEST)/booz2_test_coder.c
+test_coder.CFLAGS += -DUSE_LED
+test_coder.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
+test_coder.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
