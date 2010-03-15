@@ -21,9 +21,14 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-/** \file booz_radio_control_ppm_hw.h
- *  \brief STM32 ppm decoder
- *
+/*
+ * STM32 PWM servos handling
  */
 
-extern void booz_radio_control_ppm_hw_init ( void );
+#ifndef BOOZ_ACTUATORS_PWM_HW_H
+#define BOOZ_ACTUATORS_PWM_HW_H
+
+extern void booz_actuators_pwm_hw_init(void);
+extern void booz_actuators_pwm_commit(void);
+
+#endif /* BOOZ_ACTUATORS_PWM_HW_H */
