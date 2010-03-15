@@ -1,0 +1,12 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="multi">
+  <header>
+    <file name="potential.h"/>
+  </header>
+  <init fun="potential_init()"/>
+  <makefile>
+    <file name="potential.c"/>
+  </makefile>
+</module>
+
