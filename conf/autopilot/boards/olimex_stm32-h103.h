@@ -1,5 +1,5 @@
-#ifndef CONFIG_FYA_V1_0_H
-#define CONFIG_FYA_V1_0_H
+#ifndef CONFIG_LISA_V1_0_H
+#define CONFIG_LISA_V1_0_H
 
 
 #define AHB_CLK 72000000
@@ -12,4 +12,4 @@
 
 
 
-#endif /* CONFIG_FYA_V1_0_H */
+#endif /* CONFIG_LISA_V1_0_H */
