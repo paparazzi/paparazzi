@@ -102,6 +102,8 @@ LDFLAGS += -Wl,--gc-sections
 ifndef LDSCRIPT
 ifeq ($(FLASH_MODE),ISP)
 LDSCRIPT = $(SRC_ARCH)/LPC2148-ROM.ld
+else ifeq ($(FLASH_MODE),ISP)
+LDSCRIPT = $(SRC_ARCH)/LPC2148-ROM.ld
 else
 LDSCRIPT = $(SRC_ARCH)/LPC2148-ROM-bl.ld
 endif
@@ -134,7 +136,11 @@ endif
 
 LPC21IAP = $(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap
 
-
+# ---------------------------------------------------------------------------
+# Flash-Programming support using openocd
+OOCD = openocd
+OOCD_INTERFACE = arm-usb-ocd
+OOCD_TARGET    = csc
 
 
 # Define all object files.
@@ -180,6 +186,15 @@ sizeafter:
 load upload program: $(OBJDIR)/$(TARGET).hex
 ifeq ($(FLASH_MODE),IAP)
 	$(SUDO) $(LPC21IAP)  $(OBJDIR)/$(TARGET).elf
+else ifeq ($(FLASH_MODE),JTAG)
+	@echo -e "  OOCD\t$<"
+	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
+                -f board/$(OOCD_TARGET).cfg \
+                -c init \
+                -c "reset halt" \
+                -c "flash write_image erase $(OBJDIR)/$(TARGET).bin 0x08000000" \
+                -c reset \
+                -c shutdown
 else
 	@echo
 	$(LPC21ISP) $(LPC21ISP_CONTROL) $(LPC21ISP_DEBUG) $(LPC21ISP_FLASHFILE) $(LPC21ISP_PORT) $(LPC21ISP_BAUD) $(LPC21ISP_XTAL)
