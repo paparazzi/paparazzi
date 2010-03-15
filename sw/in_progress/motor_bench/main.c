@@ -33,7 +33,7 @@
 
 
 
-const guint mb_id = 145;
+const guint mb_id = 158;
 
 struct motor_bench_state {
   guint mode;
