@@ -1,6 +1,6 @@
 #include "mb_modes.h"
 
-#include "mb_static.h"
+//#include "mb_static.h"
 
 #include "adc.h"
 #include "sys_time.h"
@@ -44,7 +44,7 @@ void mb_mode_init(void) {
   mb_modes_sine_mean = 0.5;
   mb_modes_sine_ampl = 0.1;
 
-  mb_static_init();
+  //  mb_static_init();
 
 }
 
@@ -59,9 +59,9 @@ void mb_mode_periodic(float rpm, float thrust, float current) {
     mb_modes_manual();
     break;
   case MB_MODES_RAMP :
-    mb_static_periodic(rpm, thrust, current);
-    mb_modes_throttle = (float)mb_static_throttle / (float)MB_STATIC_MAX_THROTTLE;
-    //    mb_modes_ramp();
+    //    mb_static_periodic(rpm, thrust, current);
+    //    mb_modes_throttle = (float)mb_static_throttle / (float)MB_STATIC_MAX_THROTTLE;
+    mb_modes_ramp();
     break;
   case MB_MODES_STEP :
     mb_modes_step();
@@ -69,10 +69,10 @@ void mb_mode_periodic(float rpm, float thrust, float current) {
   case MB_MODES_SINE :
     mb_modes_sine();
     break;
-  case MB_MODES_FIXED_RPM :
-    mb_mode_fixed_rpm_periodic(rpm, thrust, current);
-    mb_modes_throttle = mb_mode_fixed_rpm_throttle;
-    break;
+    //  case MB_MODES_FIXED_RPM :
+    //    mb_mode_fixed_rpm_periodic(rpm, thrust, current);
+    //    mb_modes_throttle = mb_mode_fixed_rpm_throttle;
+    //    break;
   default:
     mb_modes_throttle = 0.;
   }

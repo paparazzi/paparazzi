@@ -22,7 +22,7 @@
 #include "adc.h"
 
 #include "mb_modes.h"
-#include "mb_static.h"
+//#include "mb_static.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -48,7 +48,7 @@ static inline void main_init( void ) {
   mb_tacho_init();
 
 #if defined USE_TWI_CONTROLLER
-  i2c_init();
+  i2c0_init();
   mb_twi_controller_init();
 #endif
 
@@ -83,10 +83,10 @@ static inline void main_periodic_task( void ) {
 
 
   RunOnceEvery(125, {
-      DOWNLINK_SEND_ALIVE(16, MD5SUM);
-      PeriodicSendDlValue();
+      DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+      PeriodicSendDlValue(DefaultChannel);
     });
-  DOWNLINK_SEND_MOTOR_BENCH_STATUS(&cpu_time_ticks, &throttle, &rpm, &amps , &thrust, &torque, &cpu_time_sec, &mb_modes_mode);
+  DOWNLINK_SEND_MOTOR_BENCH_STATUS(DefaultChannel, &cpu_time_ticks, &throttle, &rpm, &amps , &thrust, &torque, &cpu_time_sec, &mb_modes_mode);
 
 
 
@@ -123,6 +123,6 @@ static inline void main_dl_parse_msg(void) {
     uint8_t i = DL_SETTING_index(dl_buffer);
     float var = DL_SETTING_value(dl_buffer);
     DlSetting(i, var);
-    DOWNLINK_SEND_DL_VALUE(&i, &var);
+    DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &var);
   }  
 }

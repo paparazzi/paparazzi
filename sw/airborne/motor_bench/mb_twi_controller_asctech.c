@@ -38,32 +38,32 @@ void mb_twi_controller_set( float throttle ) {
       switch (mb_twi_controller_asctech_command_type) {
 
       case MB_TWI_CONTROLLER_COMMAND_TEST :
-	i2c_buf[0] = 251;
-	i2c_buf[1] = mb_twi_controller_asctech_addr;
-	i2c_buf[2] = 0;
-	i2c_buf[3] = 231 + mb_twi_controller_asctech_addr;
+	i2c0_buf[0] = 251;
+	i2c0_buf[1] = mb_twi_controller_asctech_addr;
+	i2c0_buf[2] = 0;
+	i2c0_buf[3] = 231 + mb_twi_controller_asctech_addr;
 	//	mb_twi_i2c_done = FALSE;
-	i2c_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
+	i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
       break;
       
       case MB_TWI_CONTROLLER_COMMAND_REVERSE :
-	i2c_buf[0] = 254;
-	i2c_buf[1] = mb_twi_controller_asctech_addr;
-	i2c_buf[2] = 0;
-	i2c_buf[3] = 234 + mb_twi_controller_asctech_addr;
+	i2c0_buf[0] = 254;
+	i2c0_buf[1] = mb_twi_controller_asctech_addr;
+	i2c0_buf[2] = 0;
+	i2c0_buf[3] = 234 + mb_twi_controller_asctech_addr;
 	//	mb_twi_i2c_done = FALSE;
-	i2c_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
+	i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
 	break;
    
     case MB_TWI_CONTROLLER_COMMAND_SET_ADDR :
-	i2c_buf[0] = 250;
-	i2c_buf[1] = mb_twi_controller_asctech_addr;
-	i2c_buf[2] = mb_twi_controller_asctech_new_addr;
-	i2c_buf[3] = 230 + mb_twi_controller_asctech_addr + 
+	i2c0_buf[0] = 250;
+	i2c0_buf[1] = mb_twi_controller_asctech_addr;
+	i2c0_buf[2] = mb_twi_controller_asctech_new_addr;
+	i2c0_buf[3] = 230 + mb_twi_controller_asctech_addr + 
 	             mb_twi_controller_asctech_new_addr;
 	mb_twi_controller_asctech_addr = mb_twi_controller_asctech_new_addr;
 	//	mb_twi_i2c_done = FALSE;
-	i2c_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
+	i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
 	break;
 
       }
@@ -74,12 +74,12 @@ void mb_twi_controller_set( float throttle ) {
       uint8_t roll  = 100;
       uint8_t yaw   = 100;
       uint8_t power = throttle * MB_TWI_CONTROLLER_MAX_CMD;
-      i2c_buf[0] = pitch;
-      i2c_buf[1] = roll;
-      i2c_buf[2] = yaw;
-      i2c_buf[3] = power;
+      i2c0_buf[0] = pitch;
+      i2c0_buf[1] = roll;
+      i2c0_buf[2] = yaw;
+      i2c0_buf[3] = power;
       //      mb_twi_i2c_done = FALSE;
-      i2c_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
+      i2c0_transmit(MB_TWI_CONTROLLER_ADDR, 4, &mb_twi_i2c_done);
     }
   }
   else
