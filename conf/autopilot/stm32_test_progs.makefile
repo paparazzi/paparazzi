@@ -51,7 +51,7 @@ test_uart.CFLAGS += -DUSE_LED
 test_uart.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
 test_uart.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_uart.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-test_uart.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_uart.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_uart.srcs += $(SRC_ARCH)/uart_hw.c
 
 
@@ -228,4 +228,24 @@ test_mc.CFLAGS += -DUSE_LED
 test_mc.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
 test_mc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_mc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+#
+# test overo com
+#
+test_ovc.ARCHDIR = $(ARCHI)
+test_ovc.TARGET = test_ovc
+test_ovc.TARGETDIR = test_ovc
+test_ovc.CFLAGS += -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_ovc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_ovc.srcs += $(SRC_LISA)/test_ovc.c       \
+                 $(SRC_LISA)/exceptions.c     \
+                 $(SRC_LISA)/vector_table.c
+test_ovc.CFLAGS += -DUSE_LED
+test_ovc.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_ovc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_ovc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_ovc.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_ovc.srcs += $(SRC_ARCH)/uart_hw.c
+
 
