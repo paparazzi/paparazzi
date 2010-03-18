@@ -90,7 +90,7 @@ void autopilot_event_task(void) {
 void print(FGFDMExec* FDMExec) {
   FGPropertyManager* cur_node;
   double cur_value, factor=1;
-  const char* state[] = {"sim-time-sec",
+  const char* state[] = {"simulation/sim-time-sec",
 			 /*"position/lat-gc-deg","position/long-gc-deg","position/h-sl-meters",
 			 "ic/lat-gc-deg","ic/long-gc-deg","ic/h-sl-ft",
 			 "velocities/v-north-fps","velocities/v-east-fps","velocities/v-down-fps","velocities/vg-fps",*/
@@ -100,7 +100,7 @@ void print(FGFDMExec* FDMExec) {
 			 //"fcs/throttle-cmd-norm","fcs/aileron-cmd-norm","fcs/elevator-cmd-norm"};
   int i=0;
 
-  cur_node = FDMExec->GetPropertyManager()->GetNode("sim-time-sec");
+  cur_node = FDMExec->GetPropertyManager()->GetNode("simulation/sim-time-sec");
   cur_value = cur_node->getDoubleValue();
   cout << state[i] << " " << cur_value << endl;
   
@@ -175,7 +175,7 @@ void copy_outputs_from_jsbsim(FGFDMExec* FDMExec) {
     double course = get_value(FDMExec, "attitude/heading-true-rad");
     double gspeed = get_value(FDMExec, "velocities/vg-fps") * FT2M;
     double climb  = get_value(FDMExec, "velocities/v-down-fps") * (-FT2M);
-    double time   = get_value(FDMExec, "sim-time-sec");
+    double time   = get_value(FDMExec, "simulation/sim-time-sec");
     sim_use_gps_pos(lat, lon, alt, course, gspeed, climb, time);
     sim_update_sv();
     gps_period = 0.;

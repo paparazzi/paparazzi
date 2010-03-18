@@ -184,8 +184,8 @@ void jsbsim_init(void) {
   FDMExec = new JSBSim::FGFDMExec();
 
   /* Set simulation time step */
-  FDMExec->GetState()->Setsim_time(0.);
-  FDMExec->GetState()->Setdt(DT);
+  FDMExec->Setsim_time(0.);
+  FDMExec->Setdt(DT);
   cout << "Simulation delta " << FDMExec->GetDeltaT() << endl;
 
   FDMExec->DisableOutput();
