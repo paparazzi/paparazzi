@@ -503,6 +503,7 @@ let unix_time_of_tow = fun ?week tow ->
 type coordinates_kind = 
     WGS84_dec
   | WGS84_dms
+  | LBT2e
   | Bearing of < pos : geographic>
 
 
@@ -512,6 +513,9 @@ let string_of_coordinates = fun kind geo ->
       string_degrees_of_geographic geo
   | WGS84_dms ->
       string_dms_of_geographic geo
+  | LBT2e ->
+      let l = lambertIIe_of geo in
+      Printf.sprintf "%d %d" l.lbt_x l.lbt_y
   | Bearing georef ->
       let (dx, dy) = utm_sub (utm_of WGS84 geo) (utm_of WGS84 georef#pos) in
       let d = sqrt (dx*.dx+.dy*.dy) in
@@ -524,6 +528,8 @@ let geographic_of_coordinates = fun kind s ->
       of_string ("WGS84 " ^ s)
   | WGS84_dms -> 
       of_string ("WGS84_dms " ^ s)
+  | LBT2e ->
+      of_string ("LBT2e " ^ s)
   | Bearing georef ->
       of_string (Printf.sprintf "WGS84_bearing %s %s" (string_degrees_of_geographic georef#pos) s)
 

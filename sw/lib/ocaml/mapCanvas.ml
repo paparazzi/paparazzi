@@ -672,6 +672,7 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
       let set = fun x () -> selected_georef <- x in
       my_menu_item "WGS84" ~packing:georef_menu#append ~callback:(set WGS84_dec) ();
       my_menu_item "WGS84_dms" ~packing:georef_menu#append ~callback:(set WGS84_dms) ();
+      my_menu_item "LambertIIe" ~packing:georef_menu#append ~callback:(set LBT2e) ();
       optmenu#set_menu georef_menu
      )
 

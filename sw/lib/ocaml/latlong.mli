@@ -155,6 +155,7 @@ val unix_time_of_tow : ?week:int -> int -> float
 type coordinates_kind = 
     WGS84_dec
   | WGS84_dms
+  | LBT2e
   | Bearing of < pos : geographic >
 
 val string_of_coordinates : coordinates_kind -> geographic -> string
