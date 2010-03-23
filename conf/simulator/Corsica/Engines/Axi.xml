@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<!-- AXI motor for Corsica plane -->
+
+<electric_engine name="electric">
+  <power unit="WATTS">  200 </power>
+</electric_engine>
