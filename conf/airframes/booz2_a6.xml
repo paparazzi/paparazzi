@@ -3,7 +3,16 @@
 
  <makefile>
 
-include $(PAPARAZZI_SRC)/conf/autopilot/stm32_test_progs.makefile
+
+USER =
+HOST = 10.10.13.147
+TARGET_DIR = ~
+
+SRC_FMS=fms
+
+include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
+
+
 
  </makefile>
 

@@ -1,3 +1,53 @@
+#
+# $Id$
+#  
+# Copyright (C) 2010 Antoine Drouin
+#
+# This file is part of paparazzi.
+#
+# paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA. 
+#
+#
+
+
+################################################################################
+#
+#
+#  Those babies run on the overo
+#
+#
+################################################################################
+overo_test_spi.ARCHDIR = omap
+overo_test_spi.srcs=$(SRC_FMS)/overo_test_spi.c
+
+
+
+overo_test_link_stm.ARCHDIR = omap
+overo_test_link_stm.srcs  =$(SRC_FMS)/overo_test_link.c
+overo_test_link_stm.srcs +=$(SRC_FMS)/fms_spi_link.c
+
+
+################################################################################
+#
+#
+#  Those babies run on the stm
+#
+#
+################################################################################
+
 ARCHI=stm32
 SRC_LISA=lisa
 SRC_ARCH=$(ARCHI)
@@ -228,6 +278,47 @@ test_mc.CFLAGS += -DUSE_LED
 test_mc.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
 test_mc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_mc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+
+#
+# test motor controllers with interrupts
+#
+test_mc2.ARCHDIR = $(ARCHI)
+test_mc2.TARGET = test_mc
+test_mc2.TARGETDIR = test_mc
+test_mc2.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_mc2.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_mc2.srcs = $(SRC_LISA)/test_mc2.c     \
+                $(SRC_LISA)/exceptions.c   \
+                $(SRC_LISA)/vector_table.c
+test_mc2.CFLAGS += -DUSE_LED
+test_mc2.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_mc2.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_mc2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+#test_mc2.CFLAGS += -DACTUATORS=\"actuators_buss_twi_blmc_hw.h\" -DUSE_BUSS_TWI_BLMC
+#test_mc2.srcs += $(SRC_BOOZ_ARCH)/actuators_buss_twi_blmc_hw.c actuators.c
+test_mc2.CFLAGS += -DUSE_I2C1
+test_mc2.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+
+#
+# test spi slave
+#
+test_spi_slave.ARCHDIR = $(ARCHI)
+test_spi_slave.TARGET = test_spi_slave
+test_spi_slave.TARGETDIR = test_spi_slave
+test_spi_slave.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_spi_slave.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_spi_slave.srcs = $(SRC_LISA)/test_spi_slave.c      \
+                      $(SRC_LISA)/exceptions.c          \
+                      $(SRC_LISA)/vector_table.c
+test_spi_slave.CFLAGS += -DUSE_LED
+test_spi_slave.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_spi_slave.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_spi_slave.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_spi_slave.CFLAGS += -DUSE_SPI1
+
+
 
 #
 # test overo com
