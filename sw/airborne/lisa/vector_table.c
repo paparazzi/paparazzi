@@ -51,6 +51,21 @@
 #define USART3_IRQ_HANDLER usart3_irq_handler
 #endif
 
+#ifdef USE_I2C1
+#include "i2c_hw.h"
+#define I2C1_EV_IRQ_HANDLER i2c1_ev_irq_handler
+#define I2C1_ER_IRQ_HANDLER i2c1_er_irq_handler
+#else
+#define I2C1_EV_IRQ_HANDLER null_handler
+#define I2C1_ER_IRQ_HANDLER null_handler
+#endif
+
+#ifdef USE_SPI1
+extern void spi1_irq_handler(void);
+#define SPI1_IRQ_HANDLER spi1_irq_handler
+#else
+#define SPI1_IRQ_HANDLER null_handler
+#endif
 
 
 /* addresses defined in the linker script */
@@ -113,11 +128,11 @@ void (* const vector_table[])(void) = {
     null_handler,             /* tim2_irq_handler */
     null_handler,             /* tim3_irq_handler */
     null_handler,             /* tim4_irq_handler */
-    null_handler,             /* i2c1_ev_irq_handler */
-    null_handler,             /* i2c1_er_irq_handler */
+    I2C1_EV_IRQ_HANDLER,      /* i2c1_ev_irq_handler */
+    I2C1_ER_IRQ_HANDLER,      /* i2c1_er_irq_handler */
     null_handler,             /* i2c2_ev_irq_handler */
     null_handler,             /* i2c2_er_irq_handler */
-    null_handler,             /* spi1_irq_handler */
+    SPI1_IRQ_HANDLER,         /* spi1_irq_handler */
     null_handler,             /* spi2_irq_handler */
     USART1_IRQ_HANDLER,       /* usart1_irq_handler */
     USART2_IRQ_HANDLER,       /* usart2_irq_handler */

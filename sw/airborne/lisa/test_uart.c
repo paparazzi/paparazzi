@@ -51,8 +51,10 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic( void ) {
-  uart1_transmit('a');
-  uart1_transmit('\n');
+  uart2_transmit('a');
+  uart2_transmit('b');
+  uart2_transmit('c');
+  uart2_transmit('\n');
 }
 
 

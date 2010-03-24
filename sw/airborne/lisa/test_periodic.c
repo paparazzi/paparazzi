@@ -26,7 +26,6 @@
 
 #include BOARD_CONFIG
 #include "init_hw.h"
-//#include "led.h"
 #include "sys_time.h"
 
 static inline void main_init( void );
@@ -45,7 +44,6 @@ int main(void) {
 
 static inline void main_init( void ) {
   hw_init();
-  //  led_init(); // handled by PERIPHERALS_AUTO_INIT
   sys_time_init();
 }
 
