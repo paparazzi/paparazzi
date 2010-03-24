@@ -52,8 +52,8 @@ extern volatile bool_t booz_radio_control_ppm_frame_available;
       radio_control.frame_cpt++;					\
       radio_control.time_since_last_frame = 0;				\
       if (radio_control.radio_ok_cpt > 0) radio_control.radio_ok_cpt--; \
-      else { \
-        radio_control.status = RADIO_CONTROL_OK;				\
+      else {								\
+        radio_control.status = RADIO_CONTROL_OK;			\
         NormalizePpm();							\
         _received_frame_handler();					\
       } \
