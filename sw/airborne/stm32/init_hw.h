@@ -45,7 +45,7 @@
 #if defined USE_UART1 || defined USE_UART2 || defined USE_UART3
 #include "uart.h"
 #endif
-#if defined USE_I2C0 || defined USE_I2C1
+#if defined USE_I2C1 || defined USE_I2C2
 #include "i2c.h"
 #endif
 #endif /* PERIPHERALS_AUTO_INIT */
@@ -106,11 +106,11 @@ static inline void hw_init(void) {
 #ifdef USE_UART3
   uart3_init();
 #endif
-#ifdef USE_I2C0
-  i2c0_init();
-#endif
 #ifdef USE_I2C1
   i2c1_init();
+#endif
+#ifdef USE_I2C2
+  i2c2_init();
 #endif
 #endif /* PERIPHERALS_AUTO_INIT */
 
