@@ -165,7 +165,7 @@ class MainWindow(wx.Frame):
     bind_string = "(^.*" + MESSAGE_NAME + ".*$)"
     IvyBindMsg(self.panel.onmsgproc, bind_string)
   def OnPaint(self, event):
-    self.edit.SetValue( self.panel.longitude[-1] + " " + self.panel.latitude[-1])
+    pass
 	
   def GenerateGui( self):
     # generate panel and edit box
