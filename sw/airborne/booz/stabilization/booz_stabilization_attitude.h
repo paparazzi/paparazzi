@@ -46,6 +46,15 @@ extern float booz_stabilization_attitude_alpha_alt_pgain;
 
 extern float booz_stabilization_attitude_pitch_wish;
 
+extern float booz_stabilization_att_ff_adap_gain[COMMANDS_NB];
+extern float booz_stabilization_att_ff_gain_wish[COMMANDS_NB];
+extern float booz_stab_att_ff_lambda;
+extern float booz_stab_att_ff_alpha0;
+extern float booz_stab_att_ff_k0;
+extern float booz_stab_att_ff_update_min;
+extern float booz_stab_att_ff_update_max;
+
+
 #define booz_stabilization_attitude_SetKiPhi(_val) {	\
     booz_stabilization_igain.x = _val;			\
     booz_stabilization_att_sum_err.phi = 0;		\

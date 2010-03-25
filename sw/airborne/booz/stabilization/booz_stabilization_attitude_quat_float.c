@@ -48,6 +48,14 @@ float booz_stabilization_attitude_alpha_alt_pgain;
 
 float booz_stabilization_attitude_pitch_wish;
 
+float booz_stabilization_att_ff_adap_gain[COMMANDS_NB];
+float booz_stabilization_att_ff_gain_wish[COMMANDS_NB];
+float booz_stab_att_ff_lambda;
+float booz_stab_att_ff_alpha0;
+float booz_stab_att_ff_k0;
+float booz_stab_att_ff_update_min;
+float booz_stab_att_ff_update_max;
+
 #ifdef USE_VANE
 static float beta_vane_stick_cmd = 0;
 static struct FloatQuat alpha_setpoint_quat = { 1., 0., 0., 0. };
@@ -87,6 +95,20 @@ void booz_stabilization_attitude_init(void) {
   booz_stabilization_attitude_alpha_alt_dgain = booz_stabilization_dgain.y;
   booz_stabilization_attitude_alpha_alt_pgain = booz_stabilization_pgain.y/4;
 #endif
+
+  booz_stabilization_att_ff_adap_gain[COMMAND_ROLL] = 0.001;
+  booz_stabilization_att_ff_adap_gain[COMMAND_PITCH] = 0.001;
+  booz_stabilization_att_ff_adap_gain[COMMAND_YAW] = 0.001;
+
+  booz_stabilization_att_ff_gain_wish[COMMAND_ROLL] = 550;
+  booz_stabilization_att_ff_gain_wish[COMMAND_PITCH] = 400;
+  booz_stabilization_att_ff_gain_wish[COMMAND_YAW] = 300;
+
+  booz_stab_att_ff_lambda = 0.05;
+  booz_stab_att_ff_alpha0 = 0.005;
+  booz_stab_att_ff_k0 = 10;
+  booz_stab_att_ff_update_min = 0.1;
+  booz_stab_att_ff_update_max = 500;
 
 }
 
@@ -321,6 +343,94 @@ void booz_stabilization_attitude_enter(void) {
   
 }
 
+#define CMD_SCALE 0.0001
+
+static void booz_stabilization_attitude_ffgain_adap(void) {
+  static float miac_covariance_roll = 1;
+  static float miac_covariance_pitch = 1;
+  static float miac_covariance_yaw = 1;
+
+  static float miac_alpha_roll = 0.005;
+  static float miac_alpha_pitch = 0.005;
+  static float miac_alpha_yaw = 0.005;
+  
+  static float miac_command_roll = 0;
+  static float miac_command_pitch = 0;
+  static float miac_command_yaw = 0;
+
+  float update[COMMANDS_NB];
+
+  /* Roll */
+  /* Update the feedforward gains based on how well we can predict the
+     vehicle's response (MIAC); see Slotine Ch. 8.7-8 */
+  update[COMMAND_ROLL] = -1/miac_covariance_roll * miac_command_roll 
+    * (booz_ahrs_float.body_rate.p - miac_command_roll * booz_stabilization_att_ff_adap_gain[COMMAND_ROLL]);
+
+  /* Update the feedforward gains based on how well we have tracked
+     the reference trajectory (MRAC); see Slotine Ch. 8.2-4 */
+  update[COMMAND_ROLL] += CMD_SCALE * booz_stabilization_att_ff_adap_gain[COMMAND_ROLL] * 
+    copysign(booz_stabilization_att_fb_cmd[COMMAND_ROLL], 
+	     booz_stabilization_att_fb_cmd[COMMAND_ROLL] * booz_stabilization_att_ff_cmd[COMMAND_ROLL]);
+
+  /* Update the gain for the MIAC adaptive controller.  This is a
+     crude approximation of the parameter error covariance. */
+  miac_covariance_roll += booz_ahrs_float.body_rate.p * booz_ahrs_float.body_rate.p 
+    - miac_alpha_roll * miac_covariance_roll;
+
+  /* Low-pass filter the axis commands so that we don't need to
+     measure rotational accelerations to learn the command-to-torque
+     coupling; see Slotine example 8.9 pg. 360 */
+  miac_command_roll = booz_stabilization_cmd[COMMAND_ROLL]*booz_stab_att_ff_lambda 
+    + miac_command_roll*(1 - booz_stab_att_ff_lambda);
+
+  /* Calculate a dynamic forgetting factor so we can learn faster when
+     signals are more persistently exciting; see Slotine 8.7.6 */
+  miac_alpha_roll = booz_stab_att_ff_alpha0 * (1 - 1/(booz_stab_att_ff_k0 * miac_covariance_roll));
+
+  /* Remove noisy and excessive updates and actually update the
+     feedforward gain */ 
+  if (fabs(update[COMMAND_ROLL]) < booz_stab_att_ff_update_min)
+    update[COMMAND_ROLL] = 0;
+  else if (fabs(update[COMMAND_ROLL]) > booz_stab_att_ff_update_max)
+    update[COMMAND_ROLL] = copysign(booz_stab_att_ff_update_max, update[COMMAND_ROLL]);
+  booz_stabilization_att_ff_gain_wish[COMMAND_ROLL] += update[COMMAND_ROLL];
+
+  /* Pitch */
+  update[COMMAND_PITCH] = -1/miac_covariance_pitch * miac_command_pitch 
+    * (booz_ahrs_float.body_rate.q - miac_command_pitch * booz_stabilization_att_ff_adap_gain[COMMAND_PITCH]);
+  update[COMMAND_PITCH] += CMD_SCALE * booz_stabilization_att_ff_adap_gain[COMMAND_PITCH] * 
+    copysign(booz_stabilization_att_fb_cmd[COMMAND_PITCH], 
+	     booz_stabilization_att_fb_cmd[COMMAND_PITCH] * booz_stabilization_att_ff_cmd[COMMAND_PITCH]);
+  miac_covariance_pitch += booz_ahrs_float.body_rate.q * booz_ahrs_float.body_rate.q 
+    - miac_alpha_pitch * miac_covariance_pitch;
+  miac_command_pitch = booz_stabilization_cmd[COMMAND_PITCH]*booz_stab_att_ff_lambda 
+    + miac_command_pitch*(1 - booz_stab_att_ff_lambda);
+  miac_alpha_pitch = booz_stab_att_ff_alpha0 * (1 - 1/(booz_stab_att_ff_k0 * miac_covariance_pitch));
+  if (fabs(update[COMMAND_PITCH]) < booz_stab_att_ff_update_min)
+    update[COMMAND_PITCH] = 0;
+  else if (fabs(update[COMMAND_PITCH]) > booz_stab_att_ff_update_max)
+    update[COMMAND_PITCH] = copysign(booz_stab_att_ff_update_max, update[COMMAND_PITCH]);
+  booz_stabilization_att_ff_gain_wish[COMMAND_PITCH] += update[COMMAND_PITCH];
+
+  /* Yaw */
+  update[COMMAND_YAW] = -1/miac_covariance_yaw * miac_command_yaw 
+    * (booz_ahrs_float.body_rate.r - miac_command_yaw * booz_stabilization_att_ff_adap_gain[COMMAND_YAW]);
+  update[COMMAND_YAW] += CMD_SCALE * booz_stabilization_att_ff_adap_gain[COMMAND_YAW] * 
+    copysign(booz_stabilization_att_fb_cmd[COMMAND_YAW], 
+	     booz_stabilization_att_fb_cmd[COMMAND_YAW] * booz_stabilization_att_ff_cmd[COMMAND_YAW]);
+  miac_covariance_yaw += booz_ahrs_float.body_rate.r * booz_ahrs_float.body_rate.r 
+    - miac_alpha_yaw * miac_covariance_yaw;
+  miac_command_yaw = booz_stabilization_cmd[COMMAND_YAW]*booz_stab_att_ff_lambda 
+    + miac_command_yaw*(1 - booz_stab_att_ff_lambda);
+  miac_alpha_yaw = booz_stab_att_ff_alpha0 * (1 - 1/(booz_stab_att_ff_k0 * miac_covariance_yaw));
+  if (fabs(update[COMMAND_YAW]) < booz_stab_att_ff_update_min)
+    update[COMMAND_YAW] = 0;
+  else if (fabs(update[COMMAND_YAW]) > booz_stab_att_ff_update_max)
+    update[COMMAND_YAW] = copysign(booz_stab_att_ff_update_max, update[COMMAND_YAW]);
+  booz_stabilization_att_ff_gain_wish[COMMAND_YAW] += update[COMMAND_YAW];
+
+}
+
 
 #define IERROR_SCALE 1024
 
@@ -378,7 +488,9 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   /*  rate error                */
   struct FloatRates rate_err;
   RATES_DIFF(rate_err, booz_ahrs_float.body_rate, booz_stab_att_ref_rate);
-
+  
+  /*  what the quaternion controller would have commanded in
+      alpha-vane mode  */
   booz_stabilization_attitude_pitch_wish = 
     -2. * booz_stabilization_pgain.y  * QUAT1_BFP_OF_REAL(att_err.qy)+
     booz_stabilization_dgain.y  * RATE_BFP_OF_REAL(rate_err.q) +
@@ -390,7 +502,7 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   /*  override qy in alpha mode  */
   if (rate_stick_mode) {
     if (radio_control.values[RADIO_CONTROL_AUX4] < 0) {
-      att_err.qy += alpha_error;
+      att_err.qy = alpha_error;
     }
   }
   FLOAT_QUAT_NORMALISE(att_err);
@@ -419,7 +531,7 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   booz_stabilization_cmd[COMMAND_YAW] = 
     ((booz_stabilization_att_fb_cmd[COMMAND_YAW]+booz_stabilization_att_ff_cmd[COMMAND_YAW]))/(1<<16);
     
+  if (in_flight) {
+    booz_stabilization_attitude_ffgain_adap();
+  }
 }
-
-
-
