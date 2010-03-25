@@ -29,6 +29,8 @@
 SRC_ARCH = arm7
 
 # Define programs and commands.
+HAVE_ARM_NONE_EABI_GCC := $(wildcard /usr/bin/arm-none-eabi-gcc)
+ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
 CC		= arm-elf-gcc
 LD		= $(CC)
 SHELL = sh
@@ -36,6 +38,15 @@ OBJCOPY = arm-elf-objcopy
 OBJDUMP = arm-elf-objdump
 SIZE = arm-elf-size
 NM = arm-elf-nm
+else
+CC		= arm-none-eabi-gcc
+LD		= $(CC)
+SHELL = sh
+OBJCOPY = arm-none-eabi-objcopy
+OBJDUMP = arm-none-eabi-objdump
+SIZE = arm-none-eabi-size
+NM = arm-none-eabi-nm
+endif
 REMOVE = rm -f
 COPY = cp
 

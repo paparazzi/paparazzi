@@ -5,12 +5,24 @@ PKG_NAME	= target
 DATE		= $$(date +%Y%m%d)
 
 # Tool definitions
+HAVE_ARM_NONE_EABI_GCC := $(wildcard /usr/bin/arm-none-eabi-gcc)
+
+ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
 CC      = arm-elf-gcc
 LD      = arm-elf-ld -v
 AR      = arm-elf-ar
 AS      = arm-elf-as
 CP      = arm-elf-objcopy
-OD		= arm-elf-objdump
+OD	= arm-elf-objdump
+else
+CC=arm-none-eabi-gcc
+LD=arm-none-eabi-ld -v
+AR=arm-none-eabi-ar
+AS=arm-none-eabi-ar
+CP=arm-none-eabi-objcopy
+OD=arm-none-eabi-objdump
+endif
+
 RM		= rm
 TAR		= tar
 
