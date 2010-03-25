@@ -159,6 +159,9 @@ BOOTLOADER_DEVICE=/dev/ttyUSB0
 tiny_bl.upload:
 	lpc21isp -control $(AIRBORNE)/arm7/test/bootloader/bl.hex $(BOOTLOADER_DEVICE) 38400 12000
 
+jsbsim jsbsim.compile: ac_h
+	cd $(AIRBORNE); $(MAKE) TARGET=jsbsim ARCHI=jsbsim all
+
 sim: ac_h
 	cd $(AIRBORNE); $(MAKE) TARGET=sim ARCHI=sim all
 

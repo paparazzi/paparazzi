@@ -193,13 +193,19 @@
   </section>
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
-	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
-    	<define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
-    	<define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
-    	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
-	<define name="HOME_RADIUS" value="100" unit="m"/>
-</section>
- 
+    <define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
+    <define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
+    <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
+    <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
+    <define name="HOME_RADIUS" value="100" unit="m"/>
+  </section>
+
+  <section name="SIMU">
+    <define name="JSBSIM_MODEL" value="&quot;Corsica&quot;"/>
+    <define name="JSBSIM_IR_ROLL_NEUTRAL" value="RadOfDeg(0.)"/>
+    <define name="JSBSIM_IR_PITCH_NEUTRAL" value="RadOfDeg(0.)"/>
+  </section>
+
  <makefile>
 CONFIG = \"tiny_2_1_1.h\"
 
@@ -257,6 +263,16 @@ sim.srcs = latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c inf
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 
 sim.srcs += nav_line.c nav_survey_rectangle.c
+
+# Config for JSBSim simulation
+include $(PAPARAZZI_SRC)/conf/autopilot/sitl_jsbsim.makefile
+
+jsbsim.CFLAGS += -I/home/cocoleon/usr/include/JSBSim
+jsbsim.LDFLAGS += -L/home/cocoleon/usr/lib/
+
+jsbsim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
+jsbsim.srcs += nav_line.c nav_survey_rectangle.c
+jsbsim.srcs += $(SIMDIR)/sim_ac_fw.c
 
 
 # a test program to setup actuators 

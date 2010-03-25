@@ -112,7 +112,7 @@ int main ( int argc, char** argv) {
 
 
 static void ivy_transport_init(void) {
-  IvyInit ("Paparazzi sim " + AC_ID, "READY", NULL, NULL, NULL, NULL);
+  IvyInit ("Paparazzi jsbsim " + AC_ID, "READY", NULL, NULL, NULL, NULL);
   IvyStart(ivyBus.c_str());
 }
 
@@ -145,6 +145,9 @@ static void sim_parse_options(int argc, char** argv) {
       // Compatibility with ocaml
     }
     else if (argument == "-norc") {
+      // Compatibility with ocaml
+    }
+    else if (argument == "-jsbsim") {
       // Compatibility with ocaml
     }
     else if (argument == "-b") {

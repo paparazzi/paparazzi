@@ -52,8 +52,68 @@
     </mass_balance>
 
 
-
-<!--Ground reactions deleted -->
+    <ground_reactions>
+        <contact type="BOGEY" name="LEFT_MLG">
+            <location unit="M">
+                <x> 0.07 </x>
+                <y> -0.6 </y>
+                <z> -0.01 </z>
+            </location>
+            <static_friction> 0.8 </static_friction>
+            <dynamic_friction> 0.5 </dynamic_friction>
+            <rolling_friction> 0.02 </rolling_friction>
+            <spring_coeff unit="LBS/FT"> 30 </spring_coeff>
+            <damping_coeff unit="LBS/FT/SEC"> 5 </damping_coeff>
+            <max_steer unit="DEG"> 0.0 </max_steer>
+            <brake_group> LEFT </brake_group>
+            <retractable>0</retractable>
+        </contact>
+        <contact type="BOGEY" name="RIGHT_MLG">
+            <location unit="M">
+                <x> 0.07 </x>
+                <y> 0.6 </y>
+                <z> -0.01 </z>
+            </location>
+            <static_friction> 0.8 </static_friction>
+            <dynamic_friction> 0.5 </dynamic_friction>
+            <rolling_friction> 0.02 </rolling_friction>
+            <spring_coeff unit="LBS/FT"> 30 </spring_coeff>
+            <damping_coeff unit="LBS/FT/SEC"> 5 </damping_coeff>
+            <max_steer unit="DEG"> 0.0 </max_steer>
+            <brake_group> RIGHT </brake_group>
+            <retractable>0</retractable>
+        </contact>
+        <contact type="BOGEY" name="TAIL_LG">
+            <location unit="M">
+                <x> 0.6 </x>
+                <y> 0.0 </y>
+                <z> -0.01 </z>
+            </location>
+            <static_friction> 0.8 </static_friction>
+            <dynamic_friction> 0.5 </dynamic_friction>
+            <rolling_friction> 0.02 </rolling_friction>
+            <spring_coeff unit="LBS/FT"> 6 </spring_coeff>
+            <damping_coeff unit="LBS/FT/SEC"> 5 </damping_coeff>
+            <max_steer unit="DEG"> 360.0 </max_steer>
+            <brake_group> NONE </brake_group>
+            <retractable>0</retractable>
+        </contact>
+        <contact type="BOGEY" name="NOSE_LG">
+            <location unit="M">
+                <x> 0.01 </x>
+                <y> 0.0 </y>
+                <z> -0.01 </z>
+            </location>
+            <static_friction> 0.8 </static_friction>
+            <dynamic_friction> 0.5 </dynamic_friction>
+            <rolling_friction> 0.02 </rolling_friction>
+            <spring_coeff unit="LBS/FT"> 6 </spring_coeff>
+            <damping_coeff unit="LBS/FT/SEC"> 5 </damping_coeff>
+            <max_steer unit="DEG"> 360.0 </max_steer>
+            <brake_group> NONE </brake_group>
+            <retractable>0</retractable>
+        </contact>
+    </ground_reactions>
 
     <propulsion>
         <engine file="Axi">
@@ -82,6 +142,14 @@
                 <p_factor>1.0</p_factor>
             </thruster>
         </engine>
+        <tank type="OXIDIZER">    <!-- Tank number 0 --> 
+            <location unit="M">
+                <x> 0.7 </x>
+                <y> 0.0 </y>
+                <z> 0.0 </z>
+            </location>
+            <capacity unit="LBS"> 0.001 </capacity>
+        </tank>
     </propulsion>
 
     <flight_control name="Corsica">
