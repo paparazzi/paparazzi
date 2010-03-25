@@ -90,7 +90,7 @@
   </section>
 
   <section name="BAT">
-    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="2000"/>
 
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
@@ -183,64 +183,29 @@
   </section>
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
-	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
-    	<define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
-    	<define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
-    	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
-	<define name="HOME_RADIUS" value="100" unit="m"/>
-</section>
- 
-<!--
- <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="XBEE"/>
-    <define name="DEVICE_ADDRESS" value="...."/>
+    <define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
+    <define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
+    <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
+    <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
+    <define name="HOME_RADIUS" value="100" unit="m"/>
   </section>
--->
-
-  <section name="Digital camera telecommand">
-    <!-- IOs are seen as LEDs -->
-
-    <define name="LED_6_BANK" value="0"/>
-    <define name="LED_6_PIN" value="2"/> <!-- I2C SCL -->
-
-    <!-- ADC 5 -->
-    <define name="LED_7_BANK" value="0"/>
-    <define name="LED_7_PIN" value="3"/> <!-- I2C SDA -->
-
-    <define name="DC_SHUTTER_LED" value="6"/> <!-- Grey wire -->
-    <define name="DC_ZOOM_LED" value="7"/>
+ 
+  <section name="SIMU">
+    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
+    <define name="JSBSIM_IR_ROLL_NEUTRAL" value="RadOfDeg(0.)"/>
+    <define name="JSBSIM_IR_PITCH_NEUTRAL" value="RadOfDeg(0.)"/>
   </section>
 
  <makefile>
-CONFIG = \"tiny_2_1.h\"
-MY_JSBSIM_ROOT = /home/violato/enac/programs/JSBSim
-MY_JSBSIM_LIB = /home/violato/enac/programs/install_jsbsim
-
-include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
-
-
 # Config for SITL simulation with JSBSim
-SIM_TYPE = JSBSIM
-sim.ARCHDIR = $(ARCHI)
-sim.ARCH = sitl
-sim.TARGET = sim
-sim.TARGETDIR = sim
+include $(PAPARAZZI_SRC)/conf/autopilot/sitl_jsbsim.makefile
 
-sim.CFLAGS += -I$(SIMDIR) -I/usr/local/include -I$(MY_JSBSIM_LIB)/include/JSBSim
-sim.CFLAGS += `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
-sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy -L$(MY_JSBSIM_LIB)/lib -lJSBSim
+jsbsim.CFLAGS += -I/home/cocoleon/usr/include/JSBSim
+jsbsim.LDFLAGS += -L/home/cocoleon/usr/lib/
 
-sim.CFLAGS += -DJSBSIM_ROOT_DIR=\"/home/violato/enac/programs/JSBSim/\"
-
-sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
-
-sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DINFRARED -DNAV
-
-sim.srcs = $(SRC_ARCH)/sim_jsbsim.c $(SRC_ARCH)/ivy_transport.c 
-sim.srcs += latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c infrared.c fw_h_ctl.c fw_v_ctl.c nav.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c
-sim.srcs += nav_line.c nav_survey_rectangle.c
-
-sim.srcs += $(SIMDIR)/sim_ac_jsbsim.c $(SIMDIR)/sim_ac_booz.c
+jsbsim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
+jsbsim.srcs += nav_line.c nav_survey_rectangle.c
+jsbsim.srcs += $(SIMDIR)/sim_ac_fw.c
 
   </makefile>
 </airframe>
