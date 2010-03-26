@@ -19,7 +19,12 @@ let () =
       else if i = n then raise Not_found
       else loop (i+1) in
     let ac = loop 0 in
-    let com = paparazzi_home // "var" // ac // "sim/simsitl" in
+    let rec sim_type = fun i ->
+      if Sys.argv.(i) = "-jsbsim" then "jsbsim"
+      else if i = (n-2) then "sim"
+      else sim_type (i+1) in
+    let sim = sim_type 0 in
+    let com = paparazzi_home // "var" // ac // sim // "simsitl" in
     if not (Sys.file_exists com) then begin
       Printf.fprintf stderr "Error: '%s' is missing. Build target sim for A/C %s ?\n" com ac;
       exit 1
