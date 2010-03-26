@@ -34,10 +34,10 @@ MCU   = cortex-m3
 OPT   = s
 
 # Programs location
-GCC_DIR=/opt/paparazzi/stm32/arm-none-eabi/
-#GCC_DIR=/home/poine/arm-none-eabi
-GCC_BIN_DIR=$(GCC_DIR)/bin
-GCC_LIB_DIR=$(GCC_DIR)/arm-none-eabi/lib
+TOOLCHAIN_DIR=/opt/paparazzi/stm32
+#GCC_DIR=/opt/stm32/toolchain/arm-none-eabi
+GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
+GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
 
 # Define programs and commands.
 GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi
@@ -48,12 +48,11 @@ DMP  = $(GCC_BIN_PREFIX)-objdump
 NM   = $(GCC_BIN_PREFIX)-nm
 SIZE = $(GCC_BIN_PREFIX)-size
 RM   = rm
-OOCD = openocd
+OOCD = $(TOOLCHAIN_DIR)/bin/openocd
 
 LOADER=$(STM32_DIR)/stm32loader-a3c51c26ad6c/stm32loader.py
 
-#OOCD_INTERFACE = arm-usb-ocd
-OOCD_INTERFACE = openocd-usb2
+OOCD_INTERFACE = openocd-lisa-jtag
 OOCD_TARGET    = olimex_stm32_h103
 
 # inpput files
