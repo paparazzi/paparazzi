@@ -43,6 +43,8 @@
 
 #define RCLost() bit_is_set(fbw_state->status, RADIO_REALLY_LOST)
 
+enum oval_status oval_status;
+
 float last_x, last_y;
 
 /** Index of last waypoint. Used only in "go" stage in "route" horiz mode */
@@ -570,9 +572,6 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
     Initial state is the route along the desired segment (OC2).
 */
 
-enum oval_status { OR12, OC2, OR21, OC1 };
-
-static enum oval_status oval_status;
 uint8_t nav_oval_count;
 
 void nav_oval_init( void ) {

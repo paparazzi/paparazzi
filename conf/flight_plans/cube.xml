@@ -1,0 +1,60 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan ALT="130" GROUND_ALT="68" LAT0="52.26483" LON0="9.99394" MAX_DIST_FROM_HOME="1500" NAME="Gross Lobke Cube" QFU="270" SECURITY_HEIGHT="60">
+
+<header>
+#include "nav_cube.h"
+</header>
+
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="-175.0"/>
+    <waypoint name="CENTER" x="0.1" y="0.1" alt="150.0"/>
+    <waypoint name="CR" x="-53.8" y="-175.1"/>
+
+    <waypoint name="_B" x="-200." y="200.0"/>
+    <waypoint name="B0" x="-200." y="200.0"/>
+    <waypoint name="B1" x="-200." y="200.0"/>
+    <waypoint name="B2" x="-200." y="200.0"/>
+    <waypoint name="B3" x="-200." y="200.0"/>
+    <waypoint name="B4" x="-200." y="200.0"/>
+    <waypoint name="B5" x="-200." y="200.0"/>
+    <waypoint name="B6" x="-200." y="200.0"/>
+    <waypoint name="B7" x="-200." y="200.0"/>
+    <waypoint name="_E" x="-200." y="200.0"/>
+    <waypoint name="E0" x="-200." y="200.0"/>
+    <waypoint name="E1" x="-200." y="200.0"/>
+    <waypoint name="E2" x="-200." y="200.0"/>
+    <waypoint name="E3" x="-200." y="200.0"/>
+    <waypoint name="E4" x="-200." y="200.0"/>
+    <waypoint name="E5" x="-200." y="200.0"/>
+    <waypoint name="E6" x="-200." y="200.0"/>
+    <waypoint name="E7" x="-200." y="200.0"/>
+  </waypoints>
+
+  <blocks>
+    <block name="wait" strip_button="wait">
+      <circle radius="-nav_radius" wp="CR"/>
+    </block>
+    <block name="Fly lines in cubical" strip_button="Cube">
+      <set var="cube_alpha"  value="60"/>
+      <set var="cube_size_x" value="70"/>
+      <set var="cube_size_y" value="150"/>
+      <set var="cube_size_z" value="50"/>
+      <set var="cube_grid_x" value="20"/>
+      <set var="cube_grid_z" value="20"/>
+      <set var="cube_offs_x" value="0"/>
+      <set var="cube_offs_y" value="30"/>
+      <set var="cube_offs_z" value="40"/>
+      <call fun="nav_cube_init(WP_CENTER, WP_B0, WP_E0)"/>
+      <for from="0" to="cube_nline_z" var="j">
+        <for from="0" to="cube_nline_x" var="i">
+          <call fun="nav_cube(_var_j, _var_i, WP__B, WP__E, WP_B0, WP_E0)"/>
+          <oval p1="_B" p2="_E" radius="-nav_radius" until="(oval_status == OC1)"/>
+          <go approaching_time="0" from="_B" hmode="route" wp="_E"/>
+        </for>
+      </for>
+      <deroute block="wait"/>
+    </block>
+  </blocks>
+</flight_plan>
+

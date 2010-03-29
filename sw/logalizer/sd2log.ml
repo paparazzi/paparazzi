@@ -143,7 +143,7 @@ let convert_file = fun file ->
     else
       let msg_descr = message_of_id log_msg msg_id in
       let timestamp = Int32.to_float log_msg.Logpprz.timestamp /. 1e4 in
-      fprintf f_out "%.3f %d %s\n" timestamp ac_id (string_of_message log_msg msg_descr vs);
+      fprintf f_out "%.4f %d %s\n" timestamp ac_id (string_of_message log_msg msg_descr vs);
       
       (** Looking for a date from a GPS message and a md5 from an ALIVE *)
       if log_msg.Logpprz.source = 0 then

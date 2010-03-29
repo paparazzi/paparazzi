@@ -42,6 +42,8 @@
 #define Square(_x) ((_x)*(_x))
 #define DistanceSquare(p1_x, p1_y, p2_x, p2_y) (Square(p1_x-p2_x)+Square(p1_y-p2_y))
 
+enum oval_status { OR12, OC2, OR21, OC1 };
+
 extern float cur_pos_x;
 extern float cur_pos_y;
 extern float last_x, last_y;
