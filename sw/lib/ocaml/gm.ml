@@ -30,6 +30,7 @@ open Latlong
 open Printf
 
 let tile_size = 256, 256
+let zoom_max = 18
 
 let cache_path = ref "/var/tmp"
 
@@ -59,7 +60,7 @@ let inv_norm_lat = fun l -> Latlong.inv_mercator_lat (l *. pi)
 let norm_lat = fun l -> Latlong.mercator_lat l /. pi
 
 let tile_coverage = fun lat zoom ->
-  let normed_size = 2. /. (2. ** (float (18-zoom))) in
+  let normed_size = 2. /. (2. ** (float (zoom_max-zoom))) in
   let normed_lat = norm_lat lat in
   let normed_lat' = normed_lat +. normed_size in
   let lat' = inv_norm_lat normed_lat' in
@@ -79,7 +80,7 @@ let gm_pos_and_scale = fun keyholeString tLat latHeight tLon lonWidth ->
 (** Returns a keyhole string for a longitude (x), latitude (y), and zoom 
    for Google Maps (http://www.ponies.me.uk/maps/GoogleTileUtils.java) *)
 let tile_of_geo = fun wgs84 zoom ->
-  let zoom = 18 - zoom in
+  let zoom = zoom_max - zoom in
   
   (* first convert the lat lon to transverse mercator coordintes.*)
   let lon = (Rad>>Deg)wgs84.posn_long in
