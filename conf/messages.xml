@@ -45,12 +45,12 @@
 
    <message name="GPS" id="8">
      <field name="mode"   type="uint8" unit="byte_mask"></field>
-     <field name="utm_east"  type="int32" unit="cm"></field>
-     <field name="utm_north"  type="int32" unit="cm"></field>
-     <field name="course" type="int16" unit="decideg"></field>
-     <field name="alt"    type="int32" unit="cm"></field>
-     <field name="speed"  type="uint16" unit="cm/s"></field>
-     <field name="climb"  type="int16" unit="cm/s"></field>
+     <field name="utm_east"  type="int32" unit="cm" alt_unit="m" alt_unit_coef="0.01"></field>
+     <field name="utm_north"  type="int32" unit="cm" alt_unit="m" alt_unit_coef="0.01"></field>
+     <field name="course" type="int16" unit="decideg" alt_unit="deg" alt_unit_coef="0.1"></field>
+     <field name="alt"    type="int32" unit="cm" alt_unit="m" alt_unit_coef="0.01"></field>
+     <field name="speed"  type="uint16" unit="cm/s" alt_unit="m/s" alt_unit_coef="0.01"></field>
+     <field name="climb"  type="int16" unit="cm/s" alt_unit="m/s" alt_unit_coef="0.01"></field>
      <field name="week"  type="uint16" unit="weeks"></field>
      <field name="itow"  type="uint32" unit="ms"></field>
      <field name="utm_zone"  type="uint8"></field>
