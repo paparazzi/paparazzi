@@ -29,17 +29,31 @@
         <property name="size" value="50."/>
         <property name="text" value="Throttle(%)"/>
       </papget>
+      <papget type="expression" display="gauge" x="200" y="414">
+        <property name="expr" value="ENERGY.bat*ENERGY.amp"/>
+        <property name="min" value="0."/>
+        <property name="max" value="25."/>
+        <property name="size" value="50."/>
+        <property name="text" value="Power(W)"/>
+      </papget>
       <papget type="goto_block" display="button" x="10" y="300">
         <property name="block_name" value="Standby"/>
         <property name="icon" value="home.png"/>
       </papget>
       <papget type="message_field" display="text" x="826" y="10">
-        <property name="field" value="ESTIMATOR:z_dot"/>
+        <property name="field" value="ESTIMATOR.z_dot"/>
         <property name="scale" value="1"/>
         <property name="format" value="Climb:%.1fm/s"/>
         <property name="size" value="20."/>
         <property name="color" value="pink"/>
       </papget>
+
+      <papget type="expression" display="text" x="250" y="414">
+        <property name="expr" value="BlockName(NAVIGATION.cur_block)"/>
+        <property name="size" value="20."/>
+        <property name="color" value="white"/>
+      </papget>
+
       <papget type="variable_setting" display="button" x="10" y="250">
         <property name="variable" value="launch"/>
         <property name="value" value="1."/>
