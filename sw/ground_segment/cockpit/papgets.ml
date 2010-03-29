@@ -40,16 +40,60 @@ let dump_store = fun () ->
     []
 
 let papget_listener =
-  let sep = Str.regexp ":" in
+  let sep = Str.regexp "[:\\.]" in
   fun papget ->
     try
       let field = Papget_common.get_property "field" papget in
       match Str.split sep field with
 	[msg_name; field_name] ->
-	  (new Papget.message msg_name, field_name)
+	  (new Papget.message_field msg_name field_name)
       | _ -> failwith (sprintf "Unexpected field spec: %s" field)
     with
       _ -> failwith (sprintf "field attr expected in '%s" (Xml.to_string papget))
+
+
+let block_name_of_index = function
+    [ i ] ->
+      let i = sprintf "%.0f" (float_of_string i) in
+      if Hashtbl.length Live.aircrafts = 1 then
+	Hashtbl.fold 
+	  (fun ac_id ac _r ->
+	    let blocks = ExtXml.child ac.Live.fp "blocks" in
+	    let block = ExtXml.child blocks i  in
+	    ExtXml.attrib block "name")
+	  Live.aircrafts
+	  "N/A"
+      else
+	"N/A"
+  | _ -> failwith "Papgets.block_name_of_index"
+
+let extra_functions = 
+  ["BlockName", block_name_of_index ]
+
+
+let expression_listener = fun papget ->
+  let expr = Papget_common.get_property "expr" papget in
+  let expr = Expr_lexer.parse expr in
+  new Papget.expression ~extra_functions expr
+
+
+    
+let display_float_papget = fun canvas_group config display x y listener ->
+  let renderer =
+    match display with
+      "text" ->
+	(new Papget_renderer.canvas_text ~config canvas_group x y :> Papget_renderer.t)
+    | "ruler" ->
+	(new Papget_renderer.canvas_ruler canvas_group ~config x y :> Papget_renderer.t)
+    | "gauge" ->
+	(new Papget_renderer.canvas_gauge ~config canvas_group x y :> Papget_renderer.t)
+    | _ -> failwith (sprintf "Unexpected papget display: %s" display) in
+  
+  let p = new Papget.canvas_display_float_item ~config listener renderer in
+  let p = (p :> Papget.item) in
+  register_papget p
+
+
 
 let locked = fun config ->
   try
@@ -57,92 +101,89 @@ let locked = fun config ->
   with _ -> []
 	  
 let create = fun canvas_group papget ->
-  let type_ = ExtXml.attrib papget "type"
-  and display = ExtXml.attrib papget "display"
-  and x = ExtXml.float_attrib papget "x"
-  and y = ExtXml.float_attrib papget "y"
-  and config = Xml.children papget in
-  match type_ with
-    "message_field" ->
-      let msg_listener, field_name = papget_listener papget
-      and renderer =
-	match display with
-	  "text" ->
-	    (new Papget_renderer.canvas_text ~config canvas_group x y :> Papget_renderer.t)
-	| "ruler" ->
-	    (new Papget_renderer.canvas_ruler canvas_group ~config x y :> Papget_renderer.t)
-	| "gauge" ->
-	    (new Papget_renderer.canvas_gauge ~config canvas_group x y :> Papget_renderer.t)
-	| _ -> failwith (sprintf "Unexpected papget display: %s" display) in
-      let p = new Papget.canvas_display_float_item ~config msg_listener field_name renderer in
-      let p = (p :> Papget.item) in
-      register_papget p
-  | "goto_block" ->
-      let renderer = 
-	match display with
-	  "button" ->
-	    (new Papget_renderer.canvas_button canvas_group ~config x y :> Papget_renderer.t)
-	| _ -> failwith (sprintf "Unexpected papget display: %s" display) in
-      let block_name = Papget_common.get_property "block_name" papget in
-      let clicked = fun () ->
-	prerr_endline "Warning: goto_block papget sends to all A/C";
-	Hashtbl.iter
-	  (fun ac_id ac ->
-	    let blocks = ExtXml.child ac.Live.fp "blocks" in
-	    let block = ExtXml.child ~select:(fun x -> ExtXml.attrib x "name" = block_name) blocks "block" in
-	    let block_id = ExtXml.int_attrib block "no" in
-	    Live.jump_to_block ac_id block_id
-	  )
-	  Live.aircrafts
-      in
-      let properties =
-	[ Papget_common.property "block_name" block_name ] @ locked papget in
+  try
+    let type_ = ExtXml.attrib papget "type"
+    and display = ExtXml.attrib papget "display"
+    and x = ExtXml.float_attrib papget "x"
+    and y = ExtXml.float_attrib papget "y"
+    and config = Xml.children papget in
+    match type_ with
+      "expression" ->
+	let expr_listener = expression_listener papget in
+	display_float_papget canvas_group config display x y expr_listener
+	  
+    | "message_field" ->
+	let msg_listener = papget_listener papget in
+	display_float_papget canvas_group config display x y msg_listener
+	  
+    | "goto_block" ->
+	let renderer = 
+	  match display with
+	    "button" ->
+	      (new Papget_renderer.canvas_button canvas_group ~config x y :> Papget_renderer.t)
+	  | _ -> failwith (sprintf "Unexpected papget display: %s" display) in
+	let block_name = Papget_common.get_property "block_name" papget in
+	let clicked = fun () ->
+	  prerr_endline "Warning: goto_block papget sends to all A/C";
+	  Hashtbl.iter
+	    (fun ac_id ac ->
+	      let blocks = ExtXml.child ac.Live.fp "blocks" in
+	      let block = ExtXml.child ~select:(fun x -> ExtXml.attrib x "name" = block_name) blocks "block" in
+	      let block_id = ExtXml.int_attrib block "no" in
+	      Live.jump_to_block ac_id block_id
+	    )
+	    Live.aircrafts
+	in
+	let properties =
+	  [ Papget_common.property "block_name" block_name ] @ locked papget in
+	
+	let p = new Papget.canvas_goto_block_item properties clicked renderer in
+	let p = (p :> Papget.item) in
+	register_papget p
+    | "variable_setting" ->
+	let renderer = 
+	  match display with
+	    "button" ->
+	      (new Papget_renderer.canvas_button canvas_group ~config x y :> Papget_renderer.t)
+	  | _ -> failwith (sprintf "Unexpected papget display: %s" display) in
 
-      let p = new Papget.canvas_goto_block_item properties clicked renderer in
-      let p = (p :> Papget.item) in
-      register_papget p
-  | "variable_setting" ->
-      let renderer = 
-	match display with
-	  "button" ->
-	    (new Papget_renderer.canvas_button canvas_group ~config x y :> Papget_renderer.t)
-	| _ -> failwith (sprintf "Unexpected papget display: %s" display) in
-
-      let varname = Papget_common.get_property "variable" papget
-      and value = float_of_string (Papget_common.get_property "value" papget) in
-
-      let clicked = fun () ->
+	let varname = Papget_common.get_property "variable" papget
+	and value = float_of_string (Papget_common.get_property "value" papget) in
+	
+	let clicked = fun () ->
 	prerr_endline "Warning: variable_setting papget sending to all active A/C";
-	Hashtbl.iter
-	  (fun ac_id ac ->
+	  Hashtbl.iter
+	    (fun ac_id ac ->
 	    match ac.Live.dl_settings_page with
 	      None -> ()
 	    | Some settings ->
 		let var_id = settings#assoc varname in
 		Live.dl_setting ac_id var_id value)
-	  Live.aircrafts
-      in
-      let properties =
-	[ Papget_common.property "variable" varname;
-	  Papget_common.float_property "value" value ]
-	@ locked papget in
-      let p = new Papget.canvas_variable_setting_item properties clicked renderer in
-      let p = (p :> Papget.item) in
+	    Live.aircrafts
+	in
+	let properties =
+	  [ Papget_common.property "variable" varname;
+	    Papget_common.float_property "value" value ]
+	  @ locked papget in
+	let p = new Papget.canvas_variable_setting_item properties clicked renderer in
+	let p = (p :> Papget.item) in
       register_papget p
+	  
+    | "video_plugin" ->
+	let renderer = 
+	  match display with
+	    "mplayer" ->
+	      (new Papget_renderer.canvas_mplayer canvas_group ~config x y :> Papget_renderer.t)
+	  | _ -> failwith (sprintf "Unexpected papget display: %s" display) in
 	
-  | "video_plugin" ->
-      let renderer = 
-	match display with
-	  "mplayer" ->
-	    (new Papget_renderer.canvas_mplayer canvas_group ~config x y :> Papget_renderer.t)
-	| _ -> failwith (sprintf "Unexpected papget display: %s" display) in
-
-      let properties = locked papget in
-      let p = new Papget.canvas_video_plugin_item properties renderer in
-      let p = (p :> Papget.item) in
-      register_papget p
-	
-  | _ -> failwith (sprintf "Unexpected papget type: %s" type_)
+	let properties = locked papget in
+	let p = new Papget.canvas_video_plugin_item properties renderer in
+	let p = (p :> Papget.item) in
+	register_papget p
+	  
+    | _ -> failwith (sprintf "Unexpected papget type: %s" type_)
+  with
+    exc -> fprintf stderr "Papgets.create: %s\n%!" (Printexc.to_string exc)
 	
 
 exception Parse_message_dnd of string
