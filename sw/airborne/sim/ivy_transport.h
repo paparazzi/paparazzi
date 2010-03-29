@@ -28,6 +28,7 @@ extern char* ivy_p;
 #define IvyTransportPutInt16ByAddr(x) IvyTransportPutIntByAddr(x) Space()
 #define IvyTransportPutInt32ByAddr(x) IvyTransportPutIntByAddr(x) Space()
 #define IvyTransportPutFloatByAddr(x) ivy_p += sprintf(ivy_p, "%f ", *x);
+#define IvyTransportPutDoubleByAddr(x) ivy_p += sprintf(ivy_p, "%f ", *x);
 
 #define IvyTransportPutArray(_put, _n, _x) { \
   int i; \

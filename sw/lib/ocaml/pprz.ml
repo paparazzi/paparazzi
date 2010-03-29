@@ -79,6 +79,7 @@ external int32_of_bytes : string -> int -> int32 = "c_int32_of_indexed_bytes"
 external int8_of_bytes : string -> int -> int = "c_int8_of_indexed_bytes"
 external int16_of_bytes : string -> int -> int = "c_int16_of_indexed_bytes"
 external sprint_float : string -> int -> float -> unit = "c_sprint_float"
+external sprint_double : string -> int -> float -> unit = "c_sprint_double"
 external sprint_int32 : string -> int -> int32 -> unit = "c_sprint_int32"
 external sprint_int16 : string -> int -> int -> unit = "c_sprint_int16"
 external sprint_int8 : string -> int -> int -> unit = "c_sprint_int8"
@@ -91,6 +92,7 @@ let types = [
   ("int16",  { format = "%d";  glib_type = "gint16"; inttype = "int16_t";  size = 2; value= Int 42 });
   ("int32",  { format = "%ld" ;  glib_type = "gint32"; inttype = "int32_t";  size = 4; value=Int 42 });
   ("float",  { format = "%f" ;  glib_type = "gfloat"; inttype = "float";  size = 4; value=Float 4.2 });
+  ("double",  { format = "%f" ;  glib_type = "gdouble"; inttype = "double";  size = 8; value=Float 4.2 });
   ("string",  { format = "%s" ;  glib_type = "gchar*"; inttype = "char*";  size = max_int; value=String "42" })
 ]
 
@@ -110,7 +112,7 @@ let rec value = fun t v ->
   match t with 
     Scalar ("uint8" | "uint16" | "int8" | "int16") -> Int (int_of_string v)
   | Scalar ("uint32" | "int32") -> Int32 (Int32.of_string v)
-  | Scalar "float" -> Float (float_of_string v)
+  | Scalar ("float" | "double") -> Float (float_of_string v)
   | Scalar "string" -> String v
   | ArrayType t' ->
       Array (Array.map (value (Scalar t')) (Array.of_list (split_array v)))
@@ -267,6 +269,7 @@ let rec sprint_value = fun buf i _type v ->
 	failwith (sprintf "Value too large to fit in a int8: %d" x);
       sprint_int8 buf i x; sizeof _type
   | Scalar "float", Float f -> sprint_float buf i f; sizeof _type
+  | Scalar "double", Float f -> sprint_double buf i f; sizeof _type
   | Scalar ("int32"|"uint32"), Int32 x -> sprint_int32 buf i x; sizeof _type
   | Scalar "int16", Int x -> sprint_int16 buf i x; sizeof _type
   | Scalar ("int32" | "uint32"), Int value ->

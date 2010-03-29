@@ -48,6 +48,13 @@ c_sprint_float(value s, value index, value f) {
 }
 
 value
+c_sprint_double(value s, value index, value f) {
+  double *p = (double*) (String_val(s) + Int_val(index));
+  *p = Double_val(f);
+  return Val_unit;
+}
+
+value
 c_sprint_int16(value s, value index, value f) {
   int16_t *p = (int16_t*) (String_val(s) + Int_val(index));
   *p = (int16_t)Int_val(f);

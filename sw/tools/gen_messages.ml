@@ -59,7 +59,7 @@ module Syntax = struct
       List.assoc t Pprz.types
     with
       Not_found -> 
-	failwith (sprintf "Error: '%s' unknown type\n" t)
+	failwith (sprintf "Error: '%s' unknown type" t)
 
   let rec sizeof = function
       Basic t -> string_of_int (assoc_types t).Pprz.size
@@ -221,6 +221,13 @@ module Gen_onboard = struct
 	| 2 -> sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8)" pprz_type.Pprz.inttype o o
 	| 4 when pprz_type.Pprz.inttype = "float" -> 
 	    sprintf "({ union { uint32_t u; float f; } _f; _f.u = (uint32_t)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|((uint32_t)*((uint8_t*)_payload+%d+2))<<16|((uint32_t)*((uint8_t*)_payload+%d+3))<<24); _f.f; })" o o o o
+	| 8 when pprz_type.Pprz.inttype = "double" ->
+	    let s = ref (sprintf "*((uint8_t*)_payload+%d)" o) in
+	    for i = 1 to 7 do
+	      s := !s ^ sprintf "|((uint64_t)*((uint8_t*)_payload+%d+%d))<<%d" o i (8*i)
+	    done;
+
+	    sprintf "({ union { uint64_t u; double f; } _f; _f.u = (uint64_t)(%s); _f.f; })" !s
 	| 4 -> 
 	    sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|((uint32_t)*((uint8_t*)_payload+%d+2))<<16|((uint32_t)*((uint8_t*)_payload+%d+3))<<24)" pprz_type.Pprz.inttype o o o o
 	| _ -> failwith "unexpected size in Gen_messages.print_get_macros" in

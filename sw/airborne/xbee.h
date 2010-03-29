@@ -95,7 +95,12 @@ void xbee_init( void );
 
 #define XBeeTransportPut4ByteByAddr(_byte) { \
     XBeeTransportPut2ByteByAddr(_byte);	\
-    XBeeTransportPut2ByteByAddr((const uint8_t*)_byte+2);	\
+    XBeeTransportPut2ByteByAddr((const uint8_t*)_byte+2); \
+  }
+
+#define XBeeTransportPut8ByteByAddr(_byte) { \
+    XBeeTransportPut4ByteByAddr(_byte);	\
+    XBeeTransportPut4ByteByAddr((const uint8_t*)_byte+4); \
   }
 
   
@@ -106,6 +111,7 @@ void xbee_init( void );
 #define XBeeTransportPutInt32ByAddr(_x) XBeeTransportPut4ByteByAddr((const uint8_t*)_x)
 #define XBeeTransportPutUint32ByAddr(_x) XBeeTransportPut4ByteByAddr((const uint8_t*)_x)
 #define XBeeTransportPutFloatByAddr(_x) XBeeTransportPut4ByteByAddr((const uint8_t*)_x)
+#define XBeeTransportPutDoubleByAddr(_x) XBeeTransportPut8ByteByAddr((const uint8_t*)_x)
 #define XBeeTransportPutNamedUint8(_name, _byte) XBeeTransportPutUint8(_byte)
 
 #define XBeeTransportPutArray(_put, _n, _x) { \
