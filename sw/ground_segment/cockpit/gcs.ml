@@ -646,16 +646,17 @@ let () =
 		 "aircraft", ac_notebook#coerce;
 		 "editor", editor_frame#coerce;
 		 "alarms", alert_page#coerce;
-		 "altgraph", alt_graph#drawing_area#coerce (*alt_frame#coerce*);
-	   "plugin", plugin_frame#coerce] in
+		 "altgraph", alt_graph#drawing_area#coerce;
+		 "plugin", plugin_frame#coerce] in
 
   let the_layout = ExtXml.child layout "0" in
   pack_widgets `HORIZONTAL the_layout widgets window#add;
 
-  (** packing mapgets *)
+  (** packing papgets *)
   let papgets = try find_widget_children "map2d" the_layout with Not_found -> [] in
   List.iter (Papgets.create geomap#still) papgets;
   listen_dropped_papgets geomap;
+
   let save_layout = fun () ->
     let the_new_layout = replace_widget_children "map2d" (Papgets.dump_store ()) the_layout in
     let width, height = Gdk.Drawable.get_size window#misc#window in
@@ -668,6 +669,8 @@ let () =
   if !mplayer <> "" then
     plugin_window := sprintf "mplayer -really-quiet -nomouseinput %s -wid " !mplayer;
   if !plugin_window <> "" then begin  
+    if plugin_frame#misc#parent = None then
+      failwith "Error: \"plugin\" widget required in layout description";
     let frame = GBin.event_box ~packing:plugin_frame#add ~width:plugin_width ~height:plugin_height () in
     let s = GWindow.socket ~packing:frame#add () in
     let com = sprintf "%s 0x%lx -geometry %dx%d" !plugin_window s#xwindow plugin_width plugin_height in
