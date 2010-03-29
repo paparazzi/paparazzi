@@ -29,8 +29,8 @@ CC = $(OVERO_OE)/tmp/cross/armv7a/bin/arm-angstrom-linux-gnueabi-gcc
 LD = $(CC)
 
 
-GLIB_INC = $(OVERO_OE)/tmp/work/armv7a-angstrom-linux-gnueabi/glib-2.0-2.20.0-r0/staging-pkg/staging/armv7a-angstrom-linux-gnueabi/usr/include/glib-2.0
-GLIB_LIB = $(OVERO_OE)/tmp/work/armv7a-angstrom-linux-gnueabi/glib-2.0-2.20.0-r0/staging-pkg/staging/armv7a-angstrom-linux-gnueabi/usr/lib/
+GLIB_INC = $(OVERO_OE)/tmp/work/armv7a-angstrom-linux-gnueabi/glib-2.0-2.22.4-r1/staging-pkg/staging/armv7a-angstrom-linux-gnueabi/usr/include/glib-2.0
+GLIB_LIB = $(OVERO_OE)/tmp/work/armv7a-angstrom-linux-gnueabi/glib-2.0-2.22.4-r1/staging-pkg/staging/armv7a-angstrom-linux-gnueabi/usr/lib/
 
 # Launch with "make Q=''" to get full command display
 Q=@
@@ -43,16 +43,16 @@ CINCS = -I$(PAPARAZZI_SRC)/sw/include
 CFLAGS += $(CINCS)
 CFLAGS += -O$(OPT)
 # CFLAGS += -malignment-traps
-#CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
-#CFLAGS += -Wpointer-arith -Wswitch
-#CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
+CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
+CFLAGS += -Wpointer-arith -Wswitch
+CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 #CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 #CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 #CFLAGS += -mtune=geode # optimize for geode
 
 # flags only for C
-#CFLAGS + = -Wstrict-prototypes -Wmissing-declarations
-#CFLAGS += -Wmissing-prototypes -Wnested-externs 
+CFLAGS + = -Wstrict-prototypes -Wmissing-declarations
+CFLAGS += -Wmissing-prototypes -Wnested-externs 
 CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS)		
 
