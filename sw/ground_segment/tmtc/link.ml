@@ -296,6 +296,7 @@ let udp_send = fun fd payload peername ->
   assert (n = len)
 
 let send = fun ac_id device payload _priority ->
+	Debug.call 's' (fun f -> fprintf f "%d\n" ac_id);
   if live_aircraft ac_id then
     match udp_peername ac_id with
       Some (Unix.ADDR_INET (peername, _port)) ->
@@ -306,7 +307,7 @@ let send = fun ac_id device payload _priority ->
 	    let o = Unix.out_channel_of_descr device.fd in
 	    let buf = Pprz.Transport.packet payload in
 	    Printf.fprintf o "%s" buf; flush o;
-	    Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
+	    Debug.call 's' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
 	| XBee ->
 	    XB.send ~ac_id device payload
 
