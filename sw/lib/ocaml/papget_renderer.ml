@@ -60,7 +60,8 @@ class canvas_text = fun ?(config=[]) canvas_group x y ->
 	PC.float_property "size" size;
 	PC.property "color" color ]
     method update = fun (value : string) ->
-      let renderer = fun x -> sprintf (Obj.magic format) (float_of_string x) in
+      let renderer = fun x ->
+	try sprintf (Obj.magic format) (float_of_string x) with _ -> x in
       text#set [`SIZE_POINTS size; `TEXT (renderer value); `FILL_COLOR color; `ANCHOR `NW]
 
 

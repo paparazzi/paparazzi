@@ -26,10 +26,12 @@ INCLUDES= -I +xml-light -I +pcre -I +netstring
 XINCLUDES= -I +lablgl -I +lablgtk2 -I +xml-light
 OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
+OCAMLLEX=ocamllex
+OCAMLYACC=ocamlyacc
 OCAMLLIBDIR=$(shell ocamlc -where)
 
 
-SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml logpprz.ml xmlCom.ml editAirframe.ml
+SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml logpprz.ml xmlCom.ml editAirframe.ml
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 
@@ -104,7 +106,22 @@ caml_from_c_example : cserial.o convert.o caml_from_c_example.o camltm.o
 
 %.cmi : %.ml
 	@echo OC $<
-	$(Q)$(OCAMLC) $(XINCLUDES) $<
+	$(Q)$(OCAMLC) $(XINCLUDES) -c $<
+
+%.ml : %.mll
+	@echo OCL $<
+	$(Q)$(OCAMLLEX) $<
+
+%.ml %.mli : %.mly
+	@echo OCY $<
+	$(Q)$(OCAMLYACC) $<
+
+expr_parser.cmo expr_parser.cmx : expr_parser.cmi expr_syntax.cmi
+expr_parser.cmi : expr_parser.ml expr_syntax.cmi
+expr_lexer.cmi : expr_syntax.cmi
+expr_lexer.cmo : expr_lexer.cmi
+expr_syntax.cmo : expr_syntax.cmi
+
 
 gtk_papget_editor.ml : widgets.glade
 	lablgladecc2 -root papget_editor -hide-default $< | grep -B 1000000 "  end" > $@
@@ -116,7 +133,7 @@ gtk_papget_gauge_editor.ml : widgets.glade
 	lablgladecc2 -root table_gauge_editor -hide-default $< | grep -B 1000000 "  end" > $@
 
 clean :
-	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests gtk_papget_*.ml
+	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli
 
 
 #

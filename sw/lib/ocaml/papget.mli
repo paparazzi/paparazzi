@@ -30,15 +30,25 @@ class type item =
     method deleted : bool
   end
 
-class message :
+class type value =
+  object
+    method last_value : string
+    method connect : (string -> unit) -> unit
+    method config : unit -> Xml.xml list
+    method type_ : string
+  end
+
+class message_field :
   ?sender:string ->
   ?class_name:string ->
   string ->
-  object
-    method connect : string -> (string -> unit) -> unit
-    method msg_name : string
-  end
+  string ->
+    value
 
+class expression :
+    ?extra_functions:(string * (string list -> string)) list ->
+    Expr_syntax.expression ->
+      value
 
 class type canvas_item_type = 
   object
@@ -53,8 +63,7 @@ class type canvas_item_type =
 
 class canvas_display_float_item :
   config:Xml.xml list ->
-  message ->
-  string ->
+  value ->
   Papget_renderer.t ->
   object
     inherit canvas_item_type

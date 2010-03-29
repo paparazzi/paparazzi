@@ -27,12 +27,23 @@
 open Printf
 module PC = Papget_common
 module PR = Papget_renderer
+module E = Expr_syntax
 let (//) = Filename.concat
 
 class type item = object
   method config : unit -> Xml.xml
   method deleted : bool
 end
+
+class type value =
+  object
+    method last_value : string
+    method connect : (string -> unit) -> unit
+    method config : unit -> Xml.xml list
+    method type_ : string
+  end
+
+
 
 (** [index_of_fields s] Returns i if s matches x[i] else 0. *)
 let base_and_index =
@@ -44,33 +55,107 @@ let base_and_index =
     else
       (field_descr, 0)
 
-class message = fun ?sender ?(class_name="telemetry") msg_name ->
+
+class message_field = fun ?sender ?(class_name="telemetry") msg_name field_descr ->
   object
     val mutable callbacks = []
-    method connect = fun f cb -> callbacks <- (f, cb) :: callbacks
-    method msg_name = msg_name
+    val mutable last_value = "0."
+
+    method last_value = last_value
+
+    method connect = fun cb -> callbacks <- cb :: callbacks
+    method config = fun () ->
+      let field = sprintf "%s:%s" msg_name field_descr in
+      [ PC.property "field" field ]
+    method type_ = "message_field"
+
     initializer
       let module P = Pprz.Messages (struct let name = class_name end) in
-      let cb = fun _sender values -> 
-	List.iter 
-	  (fun (field_descr, cb) ->
-	    let (field_name, index) = base_and_index field_descr in
-	    let value =
-	      match Pprz.assoc field_name values with
-		Pprz.Array array -> array.(index)
-	      | scalar -> scalar in
-	    cb (Pprz.string_of_value value)) 
-	  callbacks  in
-      ignore (P.message_bind ?sender msg_name cb)
+      let process_message = fun _sender values -> 
+	let (field_name, index) = base_and_index field_descr in
+	let value =
+	  match Pprz.assoc field_name values with
+	    Pprz.Array array -> array.(index)
+	  | scalar -> scalar in
+
+	last_value <- Pprz.string_of_value value;
+
+	List.iter (fun cb -> cb last_value) callbacks in
+      ignore (P.message_bind ?sender msg_name process_message)
   end
 
-class field = fun msg_obj field_name ->
-  object (self)
-    val mutable last_val = ""
-    method update_field = fun value -> last_val <- value
+
+let hash_vars = fun expr ->
+  let htable = Hashtbl.create 3 in
+  let rec loop = function
+      E.Ident i -> prerr_endline i
+    | E.Int _ | E.Float _ -> ()
+    | E.Call (_id, list) | E.CallOperator (_id, list) -> List.iter loop list
+    | E.Index (_id, e) -> loop e
+    | E.Field (i, f) ->
+	if not (Hashtbl.mem htable (i,f)) then
+	  let msg_obj = new message_field i f in
+	  Hashtbl.add htable (i, f) msg_obj in
+  loop expr;
+  htable
+
+
+let wrap = fun f ->
+  fun x y -> string_of_float (f (float_of_string x) (float_of_string y))
+let eval_bin_op = function
+    "*" -> wrap ( *. )
+  | "+" -> wrap ( +. )
+  | "-" -> wrap ( -. )
+  | "/" -> wrap ( /. )
+  | op -> failwith (sprintf "Papget.eval_expr '%s'" op)
+
+let eval_expr = fun (extra_functions:(string * (string list -> string)) list) h e ->
+  let rec loop = function
+      E.Ident ident -> failwith (sprintf "Papget.eval_expr '%s'" ident)
+    | E.Int int -> string_of_int int
+    | E.Float float -> string_of_float float
+    | E.CallOperator (ident, [e1; e2]) ->
+	eval_bin_op ident (loop e1) (loop e2)
+    | E.Call (ident, args) when List.mem_assoc ident extra_functions ->
+	(List.assoc ident extra_functions) (List.map loop args)
+    | E.Call (ident, _l) | E.CallOperator (ident, _l) ->
+	failwith (sprintf "Papget.eval_expr '%s(...)'" ident)
+    | E.Index (ident, _e) -> failwith (sprintf "Papget.eval_expr '%s[...]'" ident)
+    | E.Field (i, f) ->
+	try
+	  (Hashtbl.find h (i,f))#last_value
+	with
+	  Not_found -> failwith (sprintf "Papget.eval_expr '%s.%s'" i f)
+  in loop e
+
+
+
+class expression = fun ?(extra_functions=[]) expr ->
+  let h = hash_vars expr in
+  object
+    val mutable callbacks = []
+    val mutable last_value = "0."
+
+    method last_value = last_value
+
+    method connect = fun cb -> callbacks <- cb :: callbacks
+
+    method config = fun () ->
+      [ PC.property "expr" (Expr_syntax.sprint expr)]
+
+    method type_ = "expression"
+
     initializer
-      msg_obj#connect field_name self#update_field
+      Hashtbl.iter
+	(fun (i,f) (msg_obj:value) ->
+	  let val_updated = fun _new_val ->
+	    last_value <- eval_expr extra_functions h expr;
+	    List.iter (fun cb -> cb last_value) callbacks
+	  in
+	  msg_obj#connect val_updated)
+	h
   end
+
 
 
 
@@ -221,9 +306,14 @@ class canvas_float_item = fun ~config canvas_renderer ->
     val mutable affine = "1"
 	
     method update = fun value ->
-      let (a, b) =  Ocaml_tools.affine_transform affine
-      and fvalue = float_of_string value in
-      super#update (string_of_float (fvalue *. a +. b))
+      let scaled_value =
+	try
+	  let (a, b) =  Ocaml_tools.affine_transform affine
+	  and fvalue = float_of_string value in
+	  string_of_float (fvalue *. a +. b)
+	with
+	  _ -> value in
+      super#update scaled_value
 
     method edit = fun () ->
       super#edit ();
@@ -240,44 +330,29 @@ class canvas_float_item = fun ~config canvas_renderer ->
   end
 
 
-class canvas_display_float_item = fun ~config (msg_obj:message) field_name (canvas_renderer:PR.t) ->
-  object
-    inherit field msg_obj field_name as super
+class canvas_display_float_item = fun ~config (msg_obj:value) (canvas_renderer:PR.t) ->
+  object (self)
     inherit canvas_float_item ~config canvas_renderer as item
 
     initializer
-      affine <- PC.get_prop "scale" config "1"
+      affine <- PC.get_prop "scale" config "1";
+      msg_obj#connect self#update_field
 
     method update_field = fun value ->
       if not deleted then begin
-	super#update_field value;
 	item#update value
       end
 
     method config = fun () ->
-      let props = renderer#config () in
-      let field = sprintf "%s:%s" msg_obj#msg_name field_name in
-      let field_prop = PC.property "field" field
+      let renderer_props = renderer#config ()
+      and val_props = msg_obj#config ()
       and scale_prop = PC.property "scale" affine in
       let (x, y) = item#xy in
       let attrs =
-	[ "type", "message_field";
+	[ "type", msg_obj#type_;
 	  "display", String.lowercase item#renderer#tag;
 	  "x", sprintf "%.0f" x; "y", sprintf "%.0f" y ] in
-      Xml.Element ("papget", attrs, field_prop::scale_prop::props)
-  end
-
-
-(****************************************************************************)
-class canvas_setting_item = fun ~config variable canvas_renderer ->
-  object
-    inherit canvas_float_item ~config canvas_renderer as item
-
-    method clicked = fun value ->
-      (variable#set : float -> unit) value
-
-    initializer
-      variable#connect item#update
+      Xml.Element ("papget", attrs, scale_prop::val_props@renderer_props)
   end
 
 
