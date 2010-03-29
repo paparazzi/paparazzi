@@ -125,6 +125,8 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
       ignore (mi#connect#activate ~callback:(set WGS84_dec));
       let mi = GMenu.menu_item ~label:"WGS84_dms" ~packing:menu#append () in
       ignore (mi#connect#activate ~callback:(set WGS84_dms));
+      let mi = GMenu.menu_item ~label:"LambertIIe" ~packing:menu#append () in
+      ignore (mi#connect#activate ~callback:(set LBT2e));
       List.iter (fun (label, geo) ->
 	let mi = GMenu.menu_item ~label ~packing:menu#append () in
 	ignore (mi#connect#activate ~callback:(set (Bearing geo))))
