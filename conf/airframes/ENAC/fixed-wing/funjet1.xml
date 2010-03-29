@@ -16,8 +16,8 @@
 <!-- commands section -->
   <servos>
     <servo name="MOTOR" no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT" no="2" min="1130" neutral="1575" max="1880"/>
-    <servo name="AILEVON_RIGHT" no="6" min="1980" neutral="1465" max="1170"/>
+    <servo name="AILEVON_LEFT" no="2" min="1130" neutral="1530" max="1880"/>
+    <servo name="AILEVON_RIGHT" no="6" min="1980" neutral="1470" max="1170"/>
   </servos>
 
   <commands>
@@ -75,8 +75,8 @@
     <define name="IR2_SIGN" value="-1"/>
     <define name="TOP_SIGN" value="-1"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="-1.43239450455" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="9.22462081909" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="1.14591562748" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="3.38045096397" unit="deg"/>
 
     <define name="CORRECTION_UP" value="1."/>
     <define name="CORRECTION_DOWN" value="1."/>
@@ -160,8 +160,8 @@
 
     <define name="ELEVATOR_OF_ROLL" value="2500"/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-12584.7460938"/>
-    <define name="ROLL_RATE_GAIN" value="-1779.66101074"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="-6101.69482422"/>
+    <define name="ROLL_RATE_GAIN" value="-1144.06799316"/>
 
     <define name="ROLL_KFF" value="-500"/>
     <define name="ROLL_IGAIN" value="-500"/>
