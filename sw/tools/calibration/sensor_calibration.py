@@ -1,18 +1,11 @@
-#
-# My first attempt at python
-# calibrate accelerometer
-#
-
-# http://www.ngdc.noaa.gov/geomagmodels/Declination.jsp
 
 import re
 import scipy
-from scipy import optimize
 from scipy import linalg
 from pylab import *
 
 #
-# parse the log
+# parse a log and extracts raw sensor measurements
 #
 def read_log(ac_id, filename, sensor):
     f = open(filename, 'r')
@@ -27,6 +20,8 @@ def read_log(ac_id, filename, sensor):
             list_meas.append([float(m.group(2)), float(m.group(3)), float(m.group(4))])
     return scipy.array(list_meas)
 
+
+
 #
 # select only non-noisy data
 #
@@ -40,6 +35,7 @@ def filter_meas(meas, window_size, noise_threshold):
             filtered_idx.append(i)
     return scipy.array(filtered_meas), filtered_idx
 
+
 #
 # initial boundary based calibration
 #
@@ -49,6 +45,7 @@ def get_min_max_guess(meas, scale):
     n = (max_meas + min_meas) / 2
     sf = 2*scale/(max_meas - min_meas)
     return scipy.array([n[0], n[1], n[2], sf[0], sf[1], sf[2]])
+
 
 #
 # scale the set of measurements
@@ -62,6 +59,7 @@ def scale_measurements(meas, p):
         l_norm.append(linalg.norm(sm))
     return scipy.array(l_comp), scipy.array(l_norm)
 
+
 #
 # print xml for airframe file
 #
@@ -74,78 +72,43 @@ def print_xml(p, sensor, res):
     print "<define name=\""+sensor+"_Y_SENS\" value=\""+str(p[4]*2**res)+"\" integer=\"16\"/>"
     print "<define name=\""+sensor+"_Z_SENS\" value=\""+str(p[5]*2**res)+"\" integer=\"16\"/>"
 
-filename = 'log_accel_a2p'
-ac_id = "158"
-if 1:
-    sensor = "ACCEL"
-    sensor_ref = 9.81
-    sensor_res = 10
-    noise_window = 20;
-    noise_threshold = 40;
-else:
-    sensor = "MAG"
-    sensor_ref = 1.
-    sensor_res = 11
-    noise_window = 10;
-    noise_threshold = 1000;
-    
-    
-print "reading file "+filename+" for aircraft "+ac_id+" and sensor "+sensor
-
-measurements = read_log(ac_id, filename, sensor)
-print "found "+str(len(measurements))+" records"
-
-flt_meas, flt_idx = filter_meas(measurements, noise_window, noise_threshold)
-print "remaining "+str(len(flt_meas))+" after low pass"
-
-p0 = get_min_max_guess(flt_meas, sensor_ref)
-cp0, np0 = scale_measurements(flt_meas, p0)
-print "initial guess : "+str(np0.mean())+" "+str(np0.std())
-print p0
 
 
-def err_func(p,meas,y):
-    cp, np = scale_measurements(meas, p)
-    err = y*scipy.ones(len(meas)) - np
-    return err
+#
+# plot calibration results
+#
+def plot_results(measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref):
+    subplot(3,1,1)
+    plot(measurements[:,0])
+    plot(measurements[:,1])
+    plot(measurements[:,2])
+    plot(flt_idx, flt_meas[:,0], 'ro')
+    plot(flt_idx, flt_meas[:,1], 'ro')
+    plot(flt_idx, flt_meas[:,2], 'ro')
+    xlabel('time (s)')
+    ylabel('ADC')
+    title('Raw sensors')
+  
+    subplot(3,2,3)
+    plot(cp0[:,0]);
+    plot(cp0[:,1]);
+    plot(cp0[:,2]);
+    plot(-sensor_ref*scipy.ones(len(flt_meas)));
+    plot(sensor_ref*scipy.ones(len(flt_meas)));
 
-p1, success = optimize.leastsq(err_func, p0[:], args=(flt_meas, sensor_ref))
-cp1, np1 = scale_measurements(flt_meas, p1)
+    subplot(3,2,4)
+    plot(np0);
+    plot(sensor_ref*scipy.ones(len(flt_meas)));
 
-print "optimized guess : "+str(np1.mean())+" "+str(np1.std())
-print p1
+    subplot(3,2,5)
+    plot(cp1[:,0]);
+    plot(cp1[:,1]);
+    plot(cp1[:,2]);
+    plot(-sensor_ref*scipy.ones(len(flt_meas)));
+    plot(sensor_ref*scipy.ones(len(flt_meas)));
 
-print_xml(p1, sensor, sensor_res)
+    subplot(3,2,6)
+    plot(np1);
+    plot(sensor_ref*scipy.ones(len(flt_meas)));
 
-subplot(3,1,1)
-plot(measurements[:,0])
-plot(measurements[:,1])
-plot(measurements[:,2])
-plot(flt_idx, flt_meas[:,0], 'ro')
-plot(flt_idx, flt_meas[:,1], 'ro')
-plot(flt_idx, flt_meas[:,2], 'ro')
-
-subplot(3,2,3)
-plot(cp0[:,0]);
-plot(cp0[:,1]);
-plot(cp0[:,2]);
-plot(-sensor_ref*scipy.ones(len(flt_meas)));
-plot(sensor_ref*scipy.ones(len(flt_meas)));
-
-subplot(3,2,4)
-plot(np0);
-plot(sensor_ref*scipy.ones(len(flt_meas)));
-
-subplot(3,2,5)
-plot(cp1[:,0]);
-plot(cp1[:,1]);
-plot(cp1[:,2]);
-plot(-sensor_ref*scipy.ones(len(flt_meas)));
-plot(sensor_ref*scipy.ones(len(flt_meas)));
-
-subplot(3,2,6)
-plot(np1);
-plot(sensor_ref*scipy.ones(len(flt_meas)));
-
-show();
-
+    show();

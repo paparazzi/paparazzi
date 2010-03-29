@@ -7,6 +7,7 @@ import os
 import calib_gui
 
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME")
+import code; code.interact(local=locals())
 sys.path.append(PPRZ_HOME + "/sw/lib/python")
 
 import messages_tool
