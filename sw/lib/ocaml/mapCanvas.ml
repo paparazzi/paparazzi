@@ -131,9 +131,7 @@ class type geographic = object
 end
 	    
 
-(** basic canvas with menubar **************************************
- * (the vertical display in map2.ml is an instance of basic_widget)*
- *******************************************************************)
+(** basic canvas with menubar ************************************************)
     
 (* world_unit: m:pixel at scale 1. *)
 class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef () -> 
@@ -617,7 +615,6 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 (** canvas which inherits from basic_widget  ********************
  * - labels for displaying mouse coordinates on the map         *
  * - background switching                                       *
- *(the horizontal map in map2.ml is an instance of basic_widget)*
  ****************************************************************)
 
     
