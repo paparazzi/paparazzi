@@ -36,6 +36,21 @@ type control = { failsafe_value : int; foo : int }
 let fos = float_of_string
 let sof = fun x -> if mod_float x 1. = 0. then Printf.sprintf "%.0f" x else string_of_float x
 
+let servos_drivers = Hashtbl.create 3
+
+let get_servo_driver = fun servo_name ->
+  try
+    Hashtbl.find servos_drivers servo_name
+  with
+    Not_found -> failwith (sprintf "gen_airframe, Unknown servo: %s" servo_name)
+let get_list_of_drivers = fun () ->
+  let l = ref [] in
+  Hashtbl.iter
+    (fun _s d -> if not (List.mem d !l) then l := d :: !l)
+    servos_drivers;
+  !l
+
+
 let define_macro name n x =
   let a = fun s -> ExtXml.attrib x s in
   printf "#define %s(" name;
@@ -81,24 +96,34 @@ let parse_element = fun prefix s ->
   | _ -> xml_error "define|linear"
 
 
-let parse_servo = fun c ->
-  let name = "SERVO_"^ExtXml.attrib c "name" in
-  let no_servo = int_of_string (ExtXml.attrib c "no") in
+
+let parse_servo = fun driver c ->
+  let shortname = ExtXml.attrib c "name" in
+  let name = "SERVO_"^shortname
+  and no_servo = int_of_string (ExtXml.attrib c "no") in
+
   define name (string_of_int no_servo);
+
   let min = fos (ExtXml.attrib c "min" )
   and neutral = fos (ExtXml.attrib c "neutral")
   and max = fos (ExtXml.attrib c "max" ) in
   
   let travel_up = (max-.neutral) /. max_pprz
   and travel_down = (neutral-.min) /. max_pprz in
+
   define (name^"_NEUTRAL") (sof neutral);
   define (name^"_TRAVEL_UP") (sof travel_up);
   define (name^"_TRAVEL_DOWN") (sof travel_down);
+
   let min = Pervasives.min min max
   and max = Pervasives.max min max in
+
   define (name^"_MAX") (sof max);
   define (name^"_MIN") (sof min);
-  nl ()
+  nl ();
+
+  (* Memorize the associated driver (if any) *)
+  Hashtbl.add servos_drivers shortname driver
 
 (* Characters checked in Gen_radio.checl_function_name *)
 let pprz_value = Str.regexp "@\\([A-Z_0-9]+\\)"
@@ -107,6 +132,8 @@ let var_value = Str.regexp "\\$\\([_a-z0-9]+\\)"
 let preprocess_value = fun s v prefix ->
   let s = Str.global_replace pprz_value (sprintf "%s[%s_\\1]" v prefix) s in
   Str.global_replace var_value "_var_\\1" s
+
+
 
 let parse_command_laws = fun command ->
   let a = fun s -> ExtXml.attrib command s in
@@ -119,7 +146,9 @@ let parse_command_laws = fun command ->
        printf "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP : SERVO_%s_TRAVEL_DOWN;\\\n" servo servo;
        printf "  servo_value = SERVO_%s_NEUTRAL + (int16_t)(command_value);\\\n" servo;
        printf "  actuators[SERVO_%s] = ChopServo(servo_value, SERVO_%s_MIN, SERVO_%s_MAX);\\\n\\\n" servo servo servo;
-       printf "  Actuator(SERVO_%s) = SERVOS_TICS_OF_USEC(actuators[SERVO_%s]);\\\n\\\n" servo servo
+
+       let driver = get_servo_driver servo in
+       printf "  Actuator%s(SERVO_%s) = SERVOS_TICS_OF_USEC(actuators[SERVO_%s]);\\\n\\\n" driver servo servo
    | "let" ->
        let var = a "var"
        and value = a "value" in
@@ -203,11 +232,13 @@ let parse_section = fun s ->
       List.iter (parse_element prefix) (Xml.children s);
       nl ()
   | "servos" ->
+      let driver = ExtXml.attrib_or_default s "driver" "" in
       let servos = Xml.children s in
       let nb_servos = List.fold_right (fun s m -> Pervasives.max (int_of_string (ExtXml.attrib s "no")) m) servos min_int + 1 in
+
       define "SERVOS_NB" (string_of_int nb_servos);
       nl ();
-      List.iter parse_servo servos;
+      List.iter (parse_servo driver) servos;
       nl ()
   | "commands" ->
       let commands = Array.of_list (Xml.children s) in
@@ -231,9 +262,16 @@ let parse_section = fun s ->
       printf "#define SetActuatorsFromCommands(values) { \\\n";
       printf "  uint16_t servo_value;\\\n";
       printf "  float command_value;\\\n";
+
       List.iter parse_command_laws (Xml.children s);
-      printf "  ActuatorsCommit();\\\n";
-      printf "}\n"
+
+      let drivers = get_list_of_drivers () in
+      List.iter (fun d -> printf "  Actuators%sCommit();\\\n" d) drivers;
+      printf "}\n\n";
+
+      printf "#define AllActuatorsInit() { \\\n";
+      List.iter (fun d -> printf "  Actuators%sInit();\\\n" d) drivers;
+      printf "}\n\n";
   | "csc_boards" ->
       let boards = Array.of_list (Xml.children s) in
       define "CSC_BOARD_NB" (string_of_int (Array.length boards + 1));
