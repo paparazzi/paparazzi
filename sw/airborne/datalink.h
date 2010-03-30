@@ -35,6 +35,12 @@
 #define EXTERN extern
 #endif
 
+#ifdef __IEEE_BIG_ENDIAN /* From machine/ieeefp.h */
+#define Swap32IfBigEndian(_u) { _u = (_u << 32) | (_u >> 32); } 
+#else
+#define Swap32IfBigEndian(_) {}
+#endif
+ 
 #include "std.h"
 #include "dl_protocol.h"
 
