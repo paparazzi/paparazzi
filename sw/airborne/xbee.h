@@ -98,10 +98,17 @@ void xbee_init( void );
     XBeeTransportPut2ByteByAddr((const uint8_t*)_byte+2); \
   }
 
-#define XBeeTransportPut8ByteByAddr(_byte) { \
-    XBeeTransportPut4ByteByAddr(_byte);	\
-    XBeeTransportPut4ByteByAddr((const uint8_t*)_byte+4); \
+#ifdef __IEEE_BIG_ENDIAN /* From machine/ieeefp.h */
+#define XBeeTransportPutDoubleByAddr(_byte) { \
+    XBeeTransportPut4ByteByAddr((const uint8_t*)_byte+4);	\
+    XBeeTransportPut4ByteByAddr((const uint8_t*)_byte);	\
   }
+#else
+#define XBeeTransportPutDoubleByAddr(_byte) { \
+    XBeeTransportPut4ByteByAddr((const uint8_t*)_byte);	\
+    XBeeTransportPut4ByteByAddr((const uint8_t*)_byte+4);	\
+  }
+#endif
 
   
 #define XBeeTransportPutInt8ByAddr(_x) XBeeTransportPut1ByteByAddr(_x)
@@ -111,7 +118,6 @@ void xbee_init( void );
 #define XBeeTransportPutInt32ByAddr(_x) XBeeTransportPut4ByteByAddr((const uint8_t*)_x)
 #define XBeeTransportPutUint32ByAddr(_x) XBeeTransportPut4ByteByAddr((const uint8_t*)_x)
 #define XBeeTransportPutFloatByAddr(_x) XBeeTransportPut4ByteByAddr((const uint8_t*)_x)
-#define XBeeTransportPutDoubleByAddr(_x) XBeeTransportPut8ByteByAddr((const uint8_t*)_x)
 #define XBeeTransportPutNamedUint8(_name, _byte) XBeeTransportPutUint8(_byte)
 
 #define XBeeTransportPutArray(_put, _n, _x) { \
@@ -126,6 +132,8 @@ void xbee_init( void );
 
 #define XBeeTransportPutUint16Array(_n, _x) XBeeTransportPutArray(XBeeTransportPutUint16ByAddr, _n, _x)
 #define XBeeTransportPutUint8Array(_n, _x) XBeeTransportPutArray(XBeeTransportPutUint8ByAddr, _n, _x)
+#define XBeeTransportPutFloatArray(_n, _x) XBeeTransportPutArray(XBeeTransportPutFloatByAddr, _n, _x)
+#define XBeeTransportPutDoubleArray(_n, _x) XBeeTransportPutArray(XBeeTransportPutDoubleByAddr, _n, _x)
 
 
 
