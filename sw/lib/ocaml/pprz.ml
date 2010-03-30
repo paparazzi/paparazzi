@@ -238,10 +238,8 @@ let rec value_of_bin = fun buffer index _type ->
   | Scalar "int8" -> Int (int8_of_bytes buffer index), sizeof _type
   | Scalar "uint16" -> Int (Char.code buffer.[index+1] lsl 8 + Char.code buffer.[index]), sizeof _type
   | Scalar "int16" -> Int (int16_of_bytes buffer index), sizeof _type
-  | Scalar "float" ->  Float (float_of_bytes buffer index), sizeof _type
-  | Scalar "double" ->  
-      fprintf stderr "%s\n%!" (Debug.xprint (String.sub buffer index 8));
-Float (double_of_bytes buffer index), sizeof _type
+  | Scalar "float" -> Float (float_of_bytes buffer index), sizeof _type
+  | Scalar "double" -> Float (double_of_bytes buffer index), sizeof _type
   | Scalar ("int32"  | "uint32") -> Int32 (int32_of_bytes buffer index), sizeof _type
   | ArrayType t ->
       (** First get the number of values *)
