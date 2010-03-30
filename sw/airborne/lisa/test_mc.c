@@ -122,7 +122,7 @@ static inline void main_test_send( void ) {
   //  return;
   
   /* Snd data */
-  I2C_SendData(I2C1, 0x5);
+  I2C_SendData(I2C1, 0x05);
 
   /* Test on EV8 and clear it */
   while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
