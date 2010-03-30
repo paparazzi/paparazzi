@@ -39,6 +39,14 @@ c_float_of_indexed_bytes(value s, value index)
   return copy_double((double)(*x));
 }
 
+value 
+c_double_of_indexed_bytes(value s, value index)
+{
+  double *x = (double*)(String_val(s) + Int_val(index));
+
+  return copy_double(*x);
+}
+
 value
 c_sprint_float(value s, value index, value f) {
   float *p = (float*) (String_val(s) + Int_val(index));

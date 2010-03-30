@@ -98,6 +98,7 @@ extern uint16_t downlink_nb_msgs;
 #define DownlinkPutDoubleByAddr(_chan, _x) Transport(_chan, PutDoubleByAddr(_x))
 
 #define DownlinkPutFloatArray(_chan, _n, _x) Transport(_chan, PutFloatArray(_n, _x))
+#define DownlinkPutDoubleArray(_chan, _n, _x) Transport(_chan, PutDoubleArray(_n, _x))
 #define DownlinkPutInt16Array(_chan, _n, _x) Transport(_chan, PutInt16Array(_n, _x))
 #define DownlinkPutUint16Array(_chan, _n, _x) Transport(_chan, PutUint16Array(_n, _x))
 #define DownlinkPutInt32Array(_chan, _n, _x) Transport(_chan, PutInt32Array(_n, _x))

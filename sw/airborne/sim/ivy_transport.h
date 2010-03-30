@@ -27,8 +27,10 @@ extern char* ivy_p;
 #define IvyTransportPutInt8ByAddr(x) IvyTransportPutIntByAddr(x) Space()
 #define IvyTransportPutInt16ByAddr(x) IvyTransportPutIntByAddr(x) Space()
 #define IvyTransportPutInt32ByAddr(x) IvyTransportPutIntByAddr(x) Space()
-#define IvyTransportPutFloatByAddr(x) ivy_p += sprintf(ivy_p, "%f ", *x);
-#define IvyTransportPutDoubleByAddr(x) ivy_p += sprintf(ivy_p, "%f ", *x);
+
+#define IvyTransportPutOneFloatByAddr(x) ivy_p += sprintf(ivy_p, "%f", *x);
+#define IvyTransportPutFloatByAddr(x) IvyTransportPutOneFloatByAddr(x) Space()
+#define IvyTransportPutDoubleByAddr(x) IvyTransportPutOneFloatByAddr(x) Space()
 
 #define IvyTransportPutArray(_put, _n, _x) { \
   int i; \
@@ -42,3 +44,5 @@ extern char* ivy_p;
 #define IvyTransportPutInt16Array(_n, _x) IvyTransportPutArray(IvyTransportPutIntByAddr, _n, _x)
 #define IvyTransportPutUint16Array(_n, _x) IvyTransportPutArray(IvyTransportPutUintByAddr, _n, _x)
 #define IvyTransportPutUint32Array(_n, _x) IvyTransportPutArray(IvyTransportPutUintByAddr, _n, _x)
+#define IvyTransportPutFloatArray(_n, _x) IvyTransportPutArray(IvyTransportPutOneFloatByAddr, _n, _x)
+#define IvyTransportPutDoubleArray(_n, _x) IvyTransportPutFloatArray(_n, _x) 
