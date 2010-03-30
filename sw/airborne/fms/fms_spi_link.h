@@ -16,6 +16,6 @@ struct SpiLink {
 struct SpiLink spi_link;
 
 extern int spi_link_init(void);
-extern int spi_link_send(const void *buf, size_t count);
+extern int spi_link_send(const void *buf_out, size_t count, void* buf_in);
 
 #endif /* FMS_SPI_LINK_H */

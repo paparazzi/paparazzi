@@ -85,25 +85,31 @@ extern uint8_t udpt_ck_a, udpt_ck_b;
     UdpTransportPutUint8(_x);			\
   }
 
-#define UdpTransportPut2ByteByAddr(_byte) { \
-    UdpTransportPut1ByteByAddr(_byte);	\
+#define UdpTransportPut2ByteByAddr(_byte) {			\
+    UdpTransportPut1ByteByAddr(_byte);				\
     UdpTransportPut1ByteByAddr((const uint8_t*)_byte+1);	\
   }
 
-#define UdpTransportPut4ByteByAddr(_byte) { \
-    UdpTransportPut2ByteByAddr(_byte);	\
+#define UdpTransportPut4ByteByAddr(_byte) {			\
+    UdpTransportPut2ByteByAddr(_byte);				\
     UdpTransportPut2ByteByAddr((const uint8_t*)_byte+2);	\
+  }
+
+#define UdpTransportPut8ByteByAddr(_byte) {			\
+    UdpTransportPut4ByteByAddr(_byte);				\
+    UdpTransportPut4ByteByAddr((const uint8_t*)_byte+4);	\
   }
 
 
 /* base types */
-#define UdpTransportPutInt8ByAddr(_x)  UdpTransportPut1ByteByAddr(_x)
-#define UdpTransportPutUint8ByAddr(_x) UdpTransportPut1ByteByAddr((const uint8_t*)_x)
-#define UdpTransportPutInt16ByAddr(_x) UdpTransportPut2ByteByAddr((const uint8_t*)_x)
+#define UdpTransportPutInt8ByAddr(_x)   UdpTransportPut1ByteByAddr(_x)
+#define UdpTransportPutUint8ByAddr(_x)  UdpTransportPut1ByteByAddr((const uint8_t*)_x)
+#define UdpTransportPutInt16ByAddr(_x)  UdpTransportPut2ByteByAddr((const uint8_t*)_x)
 #define UdpTransportPutUint16ByAddr(_x) UdpTransportPut2ByteByAddr((const uint8_t*)_x)
-#define UdpTransportPutInt32ByAddr(_x) UdpTransportPut4ByteByAddr((const uint8_t*)_x)
+#define UdpTransportPutInt32ByAddr(_x)  UdpTransportPut4ByteByAddr((const uint8_t*)_x)
 #define UdpTransportPutUint32ByAddr(_x) UdpTransportPut4ByteByAddr((const uint8_t*)_x)
-#define UdpTransportPutFloatByAddr(_x) UdpTransportPut4ByteByAddr((const uint8_t*)_x)
+#define UdpTransportPutFloatByAddr(_x)  UdpTransportPut4ByteByAddr((const uint8_t*)_x)
+#define UdpTransportPutDoubleByAddr(_x) UdpTransportPut8ByteByAddr((const uint8_t*)_x)
 
 #define UdpTransportPutArray(_put, _n, _x) { \
     uint8_t _i;				     \

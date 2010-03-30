@@ -36,15 +36,14 @@ int spi_link_init(void) {
   return 0;
 }
 
-int spi_link_send(const void *buf_out, size_t count) {
- int ret; 
+int spi_link_send(const void *buf_out, size_t count, void *buf_in) {
 
- char buf_in[256]; /* FIXME, check size ? */
+ int ret; 
 
  struct spi_ioc_transfer tr = {
    .tx_buf = (unsigned long)buf_out,
-   .rx_buf = (unsigned long)&buf_in,
-   .len = sizeof(*buf_out),
+   .rx_buf = (unsigned long)buf_in,
+   .len = count,
    .delay_usecs = spi_link.delay,
    .speed_hz = spi_link.speed,
    .bits_per_word = spi_link.bits,
@@ -52,4 +51,5 @@ int spi_link_send(const void *buf_out, size_t count) {
  ret = ioctl(spi_link.fd, SPI_IOC_MESSAGE(1), &tr);
 
  return ret;
+
 }
