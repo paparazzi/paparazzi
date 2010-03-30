@@ -94,10 +94,17 @@ extern uint8_t ck_a, ck_b;
     PprzTransportPut2ByteByAddr((const uint8_t*)_byte+2);	\
   }
 
-#define PprzTransportPut8ByteByAddr(_byte) { \
-    PprzTransportPut4ByteByAddr(_byte);	\
+#ifdef __IEEE_BIG_ENDIAN /* From machine/ieeefp.h */
+#define PprzTransportPutDoubleByAddr(_byte) { \
+    PprzTransportPut4ByteByAddr((const uint8_t*)_byte+4);	\
+    PprzTransportPut4ByteByAddr((const uint8_t*)_byte);	\
+  }
+#else
+#define PprzTransportPutDoubleByAddr(_byte) { \
+    PprzTransportPut4ByteByAddr((const uint8_t*)_byte);	\
     PprzTransportPut4ByteByAddr((const uint8_t*)_byte+4);	\
   }
+#endif
 
 
 #define PprzTransportPutInt8ByAddr(_x) PprzTransportPut1ByteByAddr(_x)
@@ -107,7 +114,6 @@ extern uint8_t ck_a, ck_b;
 #define PprzTransportPutInt32ByAddr(_x) PprzTransportPut4ByteByAddr((const uint8_t*)_x)
 #define PprzTransportPutUint32ByAddr(_x) PprzTransportPut4ByteByAddr((const uint8_t*)_x)
 #define PprzTransportPutFloatByAddr(_x) PprzTransportPut4ByteByAddr((const uint8_t*)_x)
-#define PprzTransportPutDoubleByAddr(_x) PprzTransportPut8ByteByAddr((const uint8_t*)_x)
 
 #define PprzTransportPutArray(_put, _n, _x) { \
   uint8_t _i; \
@@ -118,6 +124,7 @@ extern uint8_t ck_a, ck_b;
 }
 
 #define PprzTransportPutFloatArray(_n, _x) PprzTransportPutArray(PprzTransportPutFloatByAddr, _n, _x)
+#define PprzTransportPutDoubleArray(_n, _x) PprzTransportPutArray(PprzTransportPutDoubleByAddr, _n, _x)
 
 #define PprzTransportPutInt16Array(_n, _x) PprzTransportPutArray(PprzTransportPutInt16ByAddr, _n, _x)
 #define PprzTransportPutUint16Array(_n, _x) PprzTransportPutArray(PprzTransportPutUint16ByAddr, _n, _x)
