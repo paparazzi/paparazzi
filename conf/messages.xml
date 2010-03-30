@@ -131,6 +131,11 @@
      <field name="val2" type="uint16"/>
    </message>
 
+   <message name="TEST_FORMAT" id="19">
+     <field name="val1" type="double"/>
+     <field name="val2" type="float"/>
+   </message>
+
    <message name="CAM" id="20">
      <field name="phi" type="int8" unit="deg"/>
      <field name="theta" type="int8" unit="deg"/>

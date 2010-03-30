@@ -1,22 +1,22 @@
+# Hey Emacs, this is a -*- makefile -*-
 #
 # $Id$
-#  
 # Copyright (C) 2010 Antoine Drouin
 #
-# This file is part of paparazzi.
+# This file is part of Paparazzi.
 #
-# paparazzi is free software; you can redistribute it and/or modify
+# Paparazzi is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2, or (at your option)
 # any later version.
 #
-# paparazzi is distributed in the hope that it will be useful,
+# Paparazzi is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with paparazzi; see the file COPYING.  If not, write to
+# along with Paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA. 
 #
@@ -30,14 +30,26 @@
 #
 #
 ################################################################################
+
 overo_test_spi.ARCHDIR = omap
 overo_test_spi.srcs=$(SRC_FMS)/overo_test_spi.c
 
 
-
 overo_test_link_stm.ARCHDIR = omap
-overo_test_link_stm.srcs  =$(SRC_FMS)/overo_test_link.c
-overo_test_link_stm.srcs +=$(SRC_FMS)/fms_spi_link.c
+overo_test_link_stm.srcs  = $(SRC_FMS)/overo_test_link.c
+overo_test_link_stm.srcs += $(SRC_FMS)/fms_spi_link.c
+
+
+overo_test_telemetry.ARCHDIR  = omap
+overo_test_telemetry.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
+overo_test_telemetry.srcs     = $(SRC_FMS)/overo_test_telemetry.c
+overo_test_telemetry.srcs    += $(SRC_FMS)/fms_network.c
+overo_test_telemetry.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
+overo_test_telemetry.srcs    += $(SRC_FMS)/udp_transport.c downlink.c
+overo_test_telemetry.LDFLAGS += -levent
+
+
+
 
 
 ################################################################################
@@ -317,6 +329,26 @@ test_spi_slave.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
 test_spi_slave.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_spi_slave.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_spi_slave.CFLAGS += -DUSE_SPI1
+
+
+#
+# test spi slave2
+#
+test_spi_slave2.ARCHDIR = $(ARCHI)
+test_spi_slave2.TARGET = test_spi_slave2
+test_spi_slave2.TARGETDIR = test_spi_slave2
+test_spi_slave2.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_spi_slave2.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_spi_slave2.srcs = $(SRC_LISA)/test_spi_slave2.c      \
+                      $(SRC_LISA)/exceptions.c          \
+                      $(SRC_LISA)/vector_table.c
+test_spi_slave2.CFLAGS += -DUSE_LED
+test_spi_slave2.CFLAGS += -DUSE_SYS_TIME
+# -DSYS_TIME_LED=1
+test_spi_slave2.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_spi_slave2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_spi_slave2.CFLAGS += -DUSE_SPI1
+
 
 
 

@@ -5,7 +5,7 @@
 
 
 USER =
-HOST = 10.10.13.147
+HOST = 10.31.4.22
 TARGET_DIR = ~
 
 SRC_FMS=fms
