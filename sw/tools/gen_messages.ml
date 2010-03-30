@@ -213,7 +213,7 @@ module Gen_onboard = struct
       (** Converts bytes into the required type *)
       let typed = fun o pprz_type -> (* o for offset *)
 	let size = pprz_type.Pprz.size in
-	if check_alignment && o mod size <> 0 then
+	if check_alignment && o mod (min size 4) <> 0 then
 	  failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
 	
 	match size with
@@ -227,7 +227,7 @@ module Gen_onboard = struct
 	      s := !s ^ sprintf "|((uint64_t)*((uint8_t*)_payload+%d+%d))<<%d" o i (8*i)
 	    done;
 
-	    sprintf "({ union { uint64_t u; double f; } _f; _f.u = (uint64_t)(%s); _f.f; })" !s
+	    sprintf "({ union { uint64_t u; double f; } _f; _f.u = (uint64_t)(%s); Swap32IfBigEndian(_f.u); _f.f; })" !s
 	| 4 -> 
 	    sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|((uint32_t)*((uint8_t*)_payload+%d+2))<<16|((uint32_t)*((uint8_t*)_payload+%d+3))<<24)" pprz_type.Pprz.inttype o o o o
 	| _ -> failwith "unexpected size in Gen_messages.print_get_macros" in
@@ -246,7 +246,7 @@ module Gen_onboard = struct
 
 	  (** The macro to access to the array itself *)
 	  let pprz_type = Syntax.assoc_types t in
-	  if check_alignment && !offset mod pprz_type.Pprz.size <> 0 then
+	  if check_alignment && !offset mod (min pprz_type.Pprz.size 4) <> 0 then
 	    failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
 	  
 	  fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name pprz_type.Pprz.inttype !offset;
