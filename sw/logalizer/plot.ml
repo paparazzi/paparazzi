@@ -524,36 +524,61 @@ let pprz_float = function
   | Pprz.Array _ -> 0.
 
 
+let rec select_gps_values = function
+    [] -> []
+  | (m, values)::_ when m.Pprz.name = "GPS" ->
+      let xs = List.assoc "utm_east" values
+      and ys = List.assoc "utm_north" values
+      and zs = List.assoc "utm_zone" values 
+      and alts = List.assoc "alt" values in
+      let l = ref [] in
+      for i = 0 to Array.length xs - 1 do
+	let z = truncate (snd zs.(i))
+	and a = snd alts.(i) /. 100. in
+	if z <> 0 && a > 0. then
+	    let t = fst xs.(i)
+	    and x = snd xs.(i) /. 100.
+	    and y = snd ys.(i) /. 100. in
+	    let utm = { utm_x = x; utm_y = y; utm_zone = z } in
+	    l := (t, of_utm WGS84 utm, a) :: !l
+      done;
+      List.rev !l
+  | (m, values)::_ when m.Pprz.name = "BOOZ2_GPS" ->
+      let lats = List.assoc "lat" values
+      and lons = List.assoc "lon" values
+      and alts = List.assoc "alt" values in
+      let l = ref [] in
+      for i = 0 to Array.length lats - 1 do
+	let a = snd alts.(i) /. 100. in
+	if a > 0. then
+	  let t = fst lats.(i)
+	  and lat = snd lats.(i) /. 1e7
+	  and lon = snd lons.(i) /. 1e7 in
+	  let wgs84 = make_geo_deg lat lon in
+	  l := (t, wgs84, a) :: !l
+      done;
+      List.rev !l
+      
+      
+  | _ :: rest ->
+	select_gps_values rest
+	
 
 let write_kml = fun plot log_name values ->
-  let xs = (List.assoc "utm_east" values)
-  and ys = (List.assoc "utm_north" values) 
-  and zs = (List.assoc "utm_zone" values) 
-  and alts = (List.assoc "alt" values) in
-  let l = ref [] in
   let t_min = plot#min_x ()
   and t_max = plot#max_x () in
   let t_min = if t_min = max_float then -. max_float else t_min in
   let t_max = if t_max = -. max_float then max_float else t_max in
-  for i = 0 to Array.length xs - 1 do
-    let t = fst xs.(i) in
-    if t_min <= t && t < t_max then
-      let x = snd xs.(i) /. 100.
-      and y = snd ys.(i) /. 100.
-      and z = truncate (snd zs.(i))
-      and a = snd alts.(i) /. 100. in
-      let utm = { utm_x = x; utm_y = y; utm_zone = z } in
-      if z <> 0 then
-	l := (of_utm WGS84 utm, a) :: !l
-  done;
-  let l = List.rev !l in
+
+  let l = List.filter (fun (t,_,_) -> t_min <= t && t < t_max) values in
+
   let xml = Xml.parse_file sample_kml in
   let doc = ExtXml.child xml "Document" in
   let place = ExtXml.child doc "Placemark" in
   let line = ExtXml.child place "LineString" in
 
   let coords =
-    String.concat " " (List.map (fun (p, a) -> sprintf "%.6f,%.6f,%f" ((Rad>>Deg)p.posn_long) ((Rad>>Deg)p.posn_lat) a) l) in
+    String.concat " " (List.map (fun (_,p, a) -> sprintf "%.6f,%.6f,%f" ((Rad>>Deg)p.posn_long) ((Rad>>Deg)p.posn_lat) a) l) in
   let coordinates = Xml.Element ("coordinates", [], [Xml.PCData coords]) in
 
   let line = ExtXml.subst_child "coordinates" coordinates line in
@@ -627,9 +652,7 @@ let add_ac_submenu = fun ?(export=false) protocol ?(factor=object method text="1
     l;
   ignore (menu_fact#add_separator ());
   let callback = fun () ->
-    let gps_values = 
-      snd (List.find (fun (m, _) -> m.Pprz.name = "GPS") l) in
-    write_kml plot menu_name gps_values in
+    write_kml plot menu_name (select_gps_values l) in
   ignore (menu_fact#add_item ~callback "Export KML path");
   let callback = fun ?no_gui () ->
     Export.popup ?no_gui protocol menu_name raw_msgs in
