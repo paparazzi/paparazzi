@@ -29,11 +29,11 @@ INCLUDES= -I +xml-light -I +lablgtk2 -I ../lib/ocaml
 
 all: play plotter plot sd2log
 
-play : log_file.ml play_core.ml play.ml
+play : log_file.cmo play_core.cmo play.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo $^
 
-play-nox : play_core.ml play-nox.ml
+play-nox : play_core.cmo play-nox.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma  $^
 
@@ -48,6 +48,10 @@ plot : log_file.cmx gtk_export.cmx export.cmx plot.cmx
 sd2log : sd2log.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma $^
+
+
+play play-nox plotter sd2log : ../lib/ocaml/lib-pprz.cma
+plot : ../lib/ocaml/lib-pprz.cmxa
 
 # Target for bytecode executable (if ocamlopt is not available)
 # plot : log_file.cmo gtk_export.cmo export.cmo plot.cmo
