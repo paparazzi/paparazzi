@@ -33,9 +33,9 @@ extern char* ivy_p;
 #define IvyTransportPutDoubleByAddr(x) IvyTransportPutOneFloatByAddr(x) Space()
 
 #define IvyTransportPutArray(_put, _n, _x) { \
-  int i; \
-  for(i = 0; i < _n; i++) { \
-    _put(&_x[i]); \
+  int __i; \
+  for(__i = 0; __i < _n; __i++) { \
+    _put(&_x[__i]); \
     Comma(); \
   } \
 }
