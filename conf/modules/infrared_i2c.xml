@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="sensors">
+  <header>
+    <file name="infrared_i2c.h"/>
+  </header>
+  <init fun="infrared_i2c_init()"/>
+  <periodic fun="infrared_i2c_update()" freq="60."/>
+  <event fun="infrared_i2cEvent()"/>
+  <makefile>
+    <file name="infrared_i2c.c"/>
+  </makefile>
+</module>
+
