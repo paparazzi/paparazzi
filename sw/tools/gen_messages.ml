@@ -84,13 +84,27 @@ module Syntax = struct
   	  (_type, id, fmt))
 	(Xml.children xml) in 
     { id=id; name = name; period = period; fields = fields }
+
+  let check_single_ids = fun msgs ->
+    let tab = Array.create 256 false
+    and  last_id = ref 0 in
+    List.iter (fun msg ->
+      if tab.(msg.id) then
+        failwith (sprintf "Duplicated message id: %d" msg.id);
+      if msg.id < !last_id then
+        fprintf stderr "Warning: unsorted id: %d\n%!" msg.id;
+      last_id := msg.id;
+      tab.(msg.id) <- true)
+      msgs
 	  
   (** Translates one class of a XML message file into a list of messages *)
   let read = fun filename class_ ->
     let xml = Xml.parse_file filename in
     try
       let xml_class = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = class_) xml "class" in
-      List.map struct_of_xml (Xml.children xml_class)
+      let msgs = List.map struct_of_xml (Xml.children xml_class) in
+      check_single_ids msgs;
+      msgs
     with
       Not_found -> failwith (sprintf "No class '%s' found" class_)
 end (* module Suntax *)
