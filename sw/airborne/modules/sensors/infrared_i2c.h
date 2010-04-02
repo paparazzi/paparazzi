@@ -30,16 +30,17 @@
 #include "std.h"
 #include "airframe.h"
 
-extern float ir_i2c_roll_neutral; /* Rad */
-extern float ir_i2c_pitch_neutral; /* Rad */
-
-extern int16_t ir_i2c_ir1; /* First horizontal channel */
-extern int16_t ir_i2c_ir2; /* Second horizontal channel */
-extern int16_t ir_i2c_roll;  /* averaged roll adc */
-extern int16_t ir_i2c_pitch; /* averaged pitch adc */
 extern int16_t ir_i2c_top;  /* averaged vertical ir adc */
+extern volatile bool_t ir_i2c_done;
+extern bool_t ir_i2c_data_available;
+extern uint8_t ir_i2c_conf_word;
 
 extern void infrared_i2c_init( void );
 extern void infrared_i2c_update( void );
+extern void infrared_i2c_event( void );
+
+#define infrared_i2cEvent() { if (ir_i2c_done) infrared_i2c_event();	}
+
+#define infrared_i2cDownlink() DOWNLINK_SEND_DEBUG_IR_I2C(DefaultChannel, &ir_i2c_top)
 
 #endif // INFRARED_I2C_H
