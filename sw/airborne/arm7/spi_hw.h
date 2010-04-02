@@ -185,6 +185,9 @@ extern volatile uint8_t spi_rx_idx;
 #endif /* SPI_MASTER */
 
 
+#define SpiSetCPOL() (SSPCR0 |= _BV(6))
+#define SpiClrCPOL() (SSPCR0 &= ~(_BV(6)))
+
 #define SpiSetCPHA() (SSPCR0 |= _BV(7))
 #define SpiClrCPHA() (SSPCR0 &= ~(_BV(7)))
 
