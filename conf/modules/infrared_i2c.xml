@@ -6,6 +6,7 @@
   </header>
   <init fun="infrared_i2c_init()"/>
   <periodic fun="infrared_i2c_update()" freq="60."/>
+  <periodic fun="infrared_i2cDownlink()" freq="1."/>
   <event fun="infrared_i2cEvent()"/>
   <makefile>
     <file name="infrared_i2c.c"/>
