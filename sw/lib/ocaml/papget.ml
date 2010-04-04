@@ -190,7 +190,10 @@ class canvas_item = fun ~config canvas_renderer ->
     method deleted = deleted
 
     method update = fun value ->
-      (renderer#update:string->unit) value
+      try
+	(renderer#update:string->unit) value
+      with
+	exc -> prerr_endline (Printexc.to_string exc)
 
     method event = fun (ev : GnoCanvas.item_event) ->
       let item = (renderer#item :> PR.movable_item) in
