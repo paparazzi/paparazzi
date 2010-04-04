@@ -24,7 +24,7 @@
  *
  *)
 
-val parse_expression : string -> Fp_syntax.expression
+val parse_expression : string -> Expr_syntax.expression
 
 val process_paths : Xml.xml -> Xml.xml
 (** [process_paths flight_plan] *)

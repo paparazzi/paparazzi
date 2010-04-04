@@ -50,14 +50,14 @@ let parse = fun s ->
       exit 1 in
     begin
       try
-	Fp_syntax.check_expression e
+	Expr_syntax.check_expression e
       with
-	Fp_syntax.Unknown_operator x -> unexpected "operator" x
-      | Fp_syntax.Unknown_ident x -> unexpected "ident" x
-      | Fp_syntax.Unknown_function x -> unexpected "function" x
+	Expr_syntax.Unknown_operator x -> unexpected "operator" x
+      | Expr_syntax.Unknown_ident x -> unexpected "ident" x
+      | Expr_syntax.Unknown_function x -> unexpected "function" x
     end
   end;
-  Fp_syntax.sprint_expression e
+  Expr_syntax.sprint e
 
 let parsed_attrib = fun xml a ->
   parse (ExtXml.attrib xml a)
@@ -304,7 +304,7 @@ let rec print_stage = fun index_of_waypoints x ->
     | "for" ->
 	let f = gen_label "for" in
 	let e = gen_label "endfor" in
-	let v = Fp_syntax.c_var_of_ident (ExtXml.attrib x "var")
+	let v = Expr_syntax.c_var_of_ident (ExtXml.attrib x "var")
 	and from_ = parsed_attrib x "from" 
 	and to_expr = parsed_attrib x "to"  in
 	let to_var = v ^ "_to" in

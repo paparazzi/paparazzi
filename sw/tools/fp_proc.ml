@@ -28,7 +28,7 @@ open Printf
 
 module G2D = Geometry_2d
 
-open Fp_syntax
+open Expr_syntax
 
 let rec list_split3 = function
     [] -> ([], [], [])
@@ -38,7 +38,7 @@ let rec list_split3 = function
 let parse_expression = fun s ->
   let lexbuf = Lexing.from_string s in
   try
-    Fp_parser.expression Fp_lexer.token lexbuf
+    Expr_parser.expression Expr_lexer.token lexbuf
   with
     Failure("lexing: empty token") ->
       fprintf stderr "Lexing error in '%s': unexpected char: '%c' \n"
@@ -56,7 +56,7 @@ let subst_expression = fun env e ->
   let rec sub = fun e ->
     match e with
       Ident i -> Ident (try List.assoc i env with Not_found -> i)
-    | Int _ | Float _ -> e
+    | Int _ | Float _ | Field _ -> e
     | Call (i, es) -> Call (i, List.map sub es)
     | CallOperator (i, es) -> CallOperator (i, List.map sub es)
     | Index (i,e) -> Index (i,sub e) in
@@ -65,7 +65,7 @@ let subst_expression = fun env e ->
 
 let transform_expression = fun env e ->
   let e' = subst_expression env e in
-  Fp_syntax.sprint_expression e'
+  Expr_syntax.sprint e'
   
 
 let transform_values = fun attribs_not_modified env attribs ->
@@ -204,7 +204,7 @@ let parse_include = fun dir flight_plan include_xml ->
   and args_assocs = build_assocs "arg" "name" "value" include_xml in
  
   try
-    let proc = ExtXml.parse_file f in
+    let proc = ExtXml.parse_file ~noprovedtd:true f in
     let params = List.filter 
 	(fun x -> ExtXml.tag_is x "param")
 	(Xml.children proc) in

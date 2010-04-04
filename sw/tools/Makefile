@@ -32,20 +32,16 @@ OCAMLYACC=ocamlyacc
 
 all: gen_aircraft.out gen_airframe.out gen_messages.out gen_ubx.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_tuning.out gen_xsens.out gen_modules.out gen_conf_radio_control_ppm.out find_free_msg_id.out
 
-FP_CMO = fp_syntax.cmo fp_parser.cmo fp_lexer.cmo fp_proc.cmo gen_flight_plan.cmo
+FP_CMO = fp_proc.cmo gen_flight_plan.cmo
 ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)
 
 gen_flight_plan.out : $(FP_CMO) ../lib/ocaml/lib-pprz.cma
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma ivy-ocaml.cma lib-pprz.cma $^
 
-fp_parser.cmo : fp_parser.cmi fp_syntax.cmi
-fp_proc.cmo : fp_lexer.cmi fp_parser.cmi fp_proc.cmi
-fp_parser.cmi : fp_parser.ml fp_syntax.cmi
-fp_lexer.cmi : fp_syntax.cmi
-fp_lexer.cmo : fp_lexer.cmi
-gen_flight_plan.cmo : fp_parser.cmi fp_proc.cmi
-fp_syntax.cmo : fp_syntax.cmi
+fp_proc.cmo : fp_proc.cmi
+gen_flight_plan.cmo : fp_proc.cmi
+
 
 
 %.out : %.ml Makefile
