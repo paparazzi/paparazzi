@@ -15,10 +15,12 @@ paparazzicenter : $(PAPARAZZICENTERCMO) $(OCAMLLIB)/lib-pprz.cma
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma lablglade.cma gtkInit.cmo lib-pprz.cma xlib-pprz.cma lablgnomeui.cma $^
 
 gtk_pc.ml : paparazzicenter.glade
-	lablgladecc2 -hide-default -root window $< > $@
+	grep -v invisible_char $< > /tmp/$<
+	lablgladecc2 -hide-default -root window /tmp/$< > $@
 
 gtk_process.ml : paparazzicenter.glade
-	lablgladecc2 -hide-default -root hbox_program $< | grep -B 1000000 "  end" > $@
+	grep -v invisible_char $< > /tmp/$<
+	lablgladecc2 -hide-default -root hbox_program /tmp/$< | grep -B 1000000 "  end" > $@
 
 %.cmo : %.ml
 	@echo OC $<

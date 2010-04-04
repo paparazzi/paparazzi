@@ -124,13 +124,16 @@ expr_syntax.cmo : expr_syntax.cmi
 
 
 gtk_papget_editor.ml : widgets.glade
-	lablgladecc2 -root papget_editor -hide-default $< | grep -B 1000000 "  end" > $@
+	grep -v invisible_char $< > /tmp/$<
+	lablgladecc2 -root papget_editor -hide-default /tmp/$< | grep -B 1000000 "  end" > $@
 
 gtk_papget_text_editor.ml : widgets.glade
-	lablgladecc2 -root table_text_editor -hide-default $< | grep -B 1000000 "  end" > $@
+	grep -v invisible_char $< > /tmp/$<
+	lablgladecc2 -root table_text_editor -hide-default /tmp/$< | grep -B 1000000 "  end" > $@
 
 gtk_papget_gauge_editor.ml : widgets.glade
-	lablgladecc2 -root table_gauge_editor -hide-default $< | grep -B 1000000 "  end" > $@
+	grep -v invisible_char $< > /tmp/$<
+	lablgladecc2 -root table_gauge_editor -hide-default /tmp/$< | grep -B 1000000 "  end" > $@
 
 clean :
 	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli

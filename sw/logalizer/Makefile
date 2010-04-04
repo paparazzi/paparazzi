@@ -71,7 +71,8 @@ plot : ../lib/ocaml/lib-pprz.cmxa
 
 
 gtk_export.ml : export.glade
-	lablgladecc2 -root export -hide-default $< | grep -B 1000000 "  end" > $@
+	grep -v invisible_char $< > /tmp/$<
+	lablgladecc2 -root export -hide-default /tmp/$< | grep -B 1000000 "  end" > $@
 
 
 
