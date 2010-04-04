@@ -783,11 +783,6 @@ let open_log = fun ?factor plot menubar curves_fact () ->
   ignore (Log_file.chooser ~callback:(fun name -> load_log ?factor plot menubar curves_fact name) ())
 
 
-let remove_fst_and_snd = function
-    _::_::l -> l
-  | l -> l
-
-	  
 let screenshot = fun frame ->
   let width, height = Gdk.Drawable.get_size frame#misc#window in
   let dest = GdkPixbuf.create width height () in
