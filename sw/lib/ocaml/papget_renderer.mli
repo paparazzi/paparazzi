@@ -48,6 +48,9 @@ class canvas_ruler : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float 
 class canvas_gauge : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t
 (** [canvas_gauge config group x y] *)
 
+class canvas_led : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t
+(** [canvas_led config group x y] *)
+
 class canvas_button : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t
 (** [canvas_button config group x y] *)
 

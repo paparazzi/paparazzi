@@ -240,6 +240,66 @@ class canvas_gauge = fun ?(config=[]) canvas_group x y ->
         PC.property "text" text ]
   end
 
+(*************************** Led ***********************************)
+class canvas_led = fun ?(config=[]) canvas_group x y ->
+  let size = float_of_string (PC.get_prop "size" config "15.") in
+  let text = PC.get_prop "text" config "" in
+
+  let root = GnoCanvas.group ~x ~y canvas_group in
+  
+  let r = (Pervasives.max 2. (size /. 2.)) +. 1. in
+  let led = GnoCanvas.ellipse ~x1:r ~y1:r ~x2:(-.r) ~y2:(-.r)
+    ~props:[`NO_FILL_COLOR; `OUTLINE_COLOR "grey"; `WIDTH_UNITS 2.]  root in
+
+  let led_text = GnoCanvas.text ~x:(-.r-.3.) ~y:0. ~props:[`ANCHOR `EAST; `FILL_COLOR "green"] root in
+
+  object
+    val mutable size = float_of_string (PC.get_prop "size" config "15.")
+    val mutable text = PC.get_prop "text" config ""
+    val mutable test_value = float_of_string (PC.get_prop "test_value" config "0.")
+    val mutable test_inv = bool_of_string (PC.get_prop "test_invert" config "false")
+
+    method tag = "Led"
+    method edit = fun (pack:GObj.widget -> unit) ->
+      let file = Env.paparazzi_src // "sw" // "lib" // "ocaml" // "widgets.glade" in
+      let led_editor = new Gtk_papget_led_editor.table_led_editor ~file () in
+      pack led_editor#table_led_editor#coerce;
+
+      (* Initialize the entries *)
+      led_editor#entry_text#set_text text;
+      led_editor#spinbutton_size#set_value size;
+      led_editor#spinbutton_test#set_value test_value;
+
+      (* Connect the entries *)
+      let callback = fun () ->
+        text <- led_editor#entry_text#text in
+      ignore (led_editor#entry_text#connect#activate ~callback);
+      let callback = fun () ->
+        size <- led_editor#spinbutton_size#value in
+      ignore (led_editor#spinbutton_size#connect#activate ~callback);
+      let callback = fun () ->
+        test_value <- led_editor#spinbutton_test#value in
+      ignore (led_editor#spinbutton_test#connect#activate ~callback);
+      let callback = fun () ->
+        test_inv <- led_editor#check_invert#active in
+      ignore (led_editor#check_invert#connect#toggled ~callback);
+
+    method update = fun value ->
+      let value = float_of_string value in
+      let inv = if test_inv then not else (fun x -> x) in
+      (* Led drawer *)
+      if inv (value = test_value) then led#set [`FILL_COLOR "red"]
+      else led#set [`FILL_COLOR "green"];
+      let r = (Pervasives.max 2. (size /. 2.)) +. 1. in
+      led#set [`X1 r; `Y1 r; `X2 (-.r); `Y2 (-.r)];
+      led_text#set [`TEXT text; `SIZE_POINTS size; `X (-.r-.3.)]
+
+    method item = (root :> movable_item)
+    method config = fun () ->
+      [ PC.float_property "size" size;
+        PC.property "text" text ]
+  end
+
 (****************************************************************************)
 class canvas_button = fun ?(config=[]) canvas_group x y ->
   let icon = PC.get_prop "icon" config "icon_file" in
@@ -288,7 +348,8 @@ class canvas_mplayer = fun ?(config=[]) canvas_group x y ->
 let renderers =
   [ (new canvas_text :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t);
     (new canvas_ruler :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t);
-    (new canvas_gauge :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t) ] 
+    (new canvas_gauge :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t);
+    (new canvas_led :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t) ] 
 
 let lazy_tagged_renderers = lazy
     (let x = 0. and y = 0.

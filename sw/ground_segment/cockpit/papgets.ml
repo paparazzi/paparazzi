@@ -87,6 +87,8 @@ let display_float_papget = fun canvas_group config display x y listener ->
 	(new Papget_renderer.canvas_ruler canvas_group ~config x y :> Papget_renderer.t)
     | "gauge" ->
 	(new Papget_renderer.canvas_gauge ~config canvas_group x y :> Papget_renderer.t)
+    | "led" ->
+	(new Papget_renderer.canvas_led ~config canvas_group x y :> Papget_renderer.t)
     | _ -> failwith (sprintf "Unexpected papget display: %s" display) in
   
   let p = new Papget.canvas_display_float_item ~config listener renderer in
