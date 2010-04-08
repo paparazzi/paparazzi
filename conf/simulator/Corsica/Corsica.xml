@@ -313,9 +313,22 @@
                 <product>
                     <property>aero/qbar-psf</property>
                     <property>metrics/Sw-sqft</property>
-                    <property>aero/alpha-rad</property>
-                    <value>5.1460</value>
+                    <property>aero/alpha-deg</property>
+                       <tableData>
+                        -23  -0.7
+                        -21  -0.9 
+                        -20  -1.0
+                        -10  -0.1647
+                          0   0.7394
+                          5   1.18
+                          6   1.20
+                          7   1.10
+                          8   1.0
+                          10  0.7
+                       </tableData>
                 </product>
+
+
             </function>
             <function name="aero/coefficient/CLde">
                 <description>Lift_due_to_Elevator_Deflection</description>
