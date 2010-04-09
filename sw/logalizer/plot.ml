@@ -624,7 +624,7 @@ let add_ac_submenu = fun ?(export=false) protocol ?(factor=object method text="1
       let menu = menu_fact#add_submenu (double__ msg_name) in
       let menu_fact = new GMenu.factory menu in
       (* Build the field menus *)
-      List.iter
+      List.iter (* forall fields *)
 	(fun (f, values) ->
 	  let callback = fun _ ->
 	    (* Remove the . for an array field name *)
@@ -638,7 +638,8 @@ let add_ac_submenu = fun ?(export=false) protocol ?(factor=object method text="1
 	    let values = Array.map (fun (t,v) -> (t, v*.a+.b)) values in
 	    let curve = plot#add_curve name values in
 	    let eb = GBin.event_box ~width:10 ~height:10 () in
-	    eb#coerce#misc#modify_bg [`NORMAL, `RGB curve.color];
+	    let (r, g, b) = curve.color in
+	    eb#coerce#misc#modify_bg [`NORMAL, `RGB (256*r,256*g,256*b)];
 	    let item = curves_menu_fact#add_image_item ~image:eb#coerce ~label:name () in
 	    
 	    let delete = fun () ->
@@ -840,8 +841,10 @@ let rec plot_window = fun ?export init ->
   ignore (file_menu_fact#add_separator ());
   ignore (file_menu_fact#add_item "Close" ~key:GdkKeysyms._W ~callback:close);
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
+
   let curves_menu = factory#add_submenu "Curves" in
   let curves_menu_fact = new GMenu.factory curves_menu in
+  tooltips#set_tip curves_menu#coerce ~text:"Delete";
 
   ignore (plotter#connect#destroy ~callback:close);
 
