@@ -22,8 +22,8 @@
  */
 
 
-#ifndef BOOZ_MAX1168_HW_H
-#define BOOZ_MAX1168_HW_H
+#ifndef BOOZ_MAX1168_ARCH_H
+#define BOOZ_MAX1168_ARCH_H
 
 
 /*
@@ -76,4 +76,4 @@
     booz_max1168_status = STA_MAX1168_DATA_AVAILABLE;			\
   }
 
-#endif /* BOOZ2_MAX1168_HW_H */
+#endif /* BOOZ2_MAX1168_ARCH_H */
