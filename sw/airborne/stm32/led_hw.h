@@ -31,6 +31,9 @@
 
 #include "std.h"
 
+
+#ifndef LED_STP08
+
 #define _LED_GPIO_CLK(i)  i
 #define _LED_GPIO(i)  i
 #define _LED_GPIO_PIN(i) i
@@ -53,6 +56,42 @@
 #define LED_OFF(i) {LED_GPIO(i)->BSRR = LED_GPIO_PIN(i);}
 #define LED_TOGGLE(i) {	LED_GPIO(i)->ODR ^= LED_GPIO_PIN(i);}
 
+#else  /* LED_STP08 */
+#define NB_LED 8
+extern uint8_t led_status[NB_LED];
+/* Lisa/L uses a shift register for driving LEDs */
+/* PA8  led_clk  */
+/* PC15 led_data */
 
+#define LED_INIT(_i) {						\
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);	\
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);	\
+    GPIO_InitTypeDef GPIO_InitStructure;			\
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;			\
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;		\
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;		\
+    GPIO_Init(GPIOA, &GPIO_InitStructure);			\
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;			\
+    GPIO_Init(GPIOC, &GPIO_InitStructure);			\
+    for(uint8_t i=0; i<NB_LED; i++)				\
+      led_status[i] = FALSE;					\
+  }
+
+#define LED_ON(i)  { led_status[i] = TRUE;  }
+#define LED_OFF(i) { led_status[i] = FALSE; }
+#define LED_TOGGLE(i) {led_status[i] = !led_status[i];}
+
+#define LED_PERIODIC() {					\
+    for (uint8_t cnt = 0; cnt < NB_LED; cnt++) {		\
+      if (led_status[cnt])					\
+	GPIOC->BSRR = GPIO_Pin_15;				\
+      else							\
+	GPIOC->BRR = GPIO_Pin_15;				\
+      GPIOA->BSRR = GPIO_Pin_8; /* clock rising edge */		\
+      GPIOA->BRR = GPIO_Pin_8;  /* clock falling edge */	\
+    }								\
+  }
+
+#endif /* LED_STP08 */
 
 #endif /* LED_HW_H */
