@@ -40,7 +40,7 @@ void booz_actuators_pwm_hw_init(void) {
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | 
 			 RCC_APB2Periph_AFIO, ENABLE);
   /* GPIO */
-  /* PC6=servo1 PC7=servo2 PB0=servo3 */
+  /* PC6=servo1 PC7=servo2 PC8=servo3 PC9=servo4 */
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9;
   GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_AF_PP;
