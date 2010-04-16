@@ -12,12 +12,6 @@
 
 #include "airframe.h"
 
-#define MS2001_DIVISOR_128  2
-#define MS2001_DIVISOR_256  3
-#define MS2001_DIVISOR_512  4
-#define MS2001_DIVISOR_1024 5
-
-#define MS2001_DIVISOR MS2001_DIVISOR_1024
 
 
 extern volatile uint8_t ms2001_cur_axe;
