@@ -50,10 +50,11 @@ SIZE = $(GCC_BIN_PREFIX)-size
 RM   = rm
 OOCD = $(TOOLCHAIN_DIR)/bin/openocd
 
-LOADER=$(STM32_DIR)/stm32loader-a3c51c26ad6c/stm32loader.py
+LOADER=/home/poine/home_regis/work/stm32/stm32loader-a3c51c26ad6c/stm32loader.py
 
 OOCD_INTERFACE = openocd-lisa-jtag
-OOCD_TARGET    = olimex_stm32_h103
+#OOCD_TARGET    = olimex_stm32_h103
+OOCD_TARGET    = stm32
 
 # inpput files
 SRCS = $($(TARGET).srcs)
@@ -155,19 +156,20 @@ $(AOBJ) : $(OBJDIR)/%.o : %.S
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CC) -c $(AFLAGS) $< -o $@
 
-#upload: $(OBJDIR)/$(TARGET).bin
-#	$(LOADER) -p /dev/ttyUSB1  -b 115200 -e -w -v $^
-
+ifeq ($(FLASH_MODE),SERIAL)
+upload: $(OBJDIR)/$(TARGET).bin
+	$(LOADER) -p /dev/ttyUSB0  -b 115200 -e -w -v $^
+else ifeq ($(FLASH_MODE),JTAG)
 upload:  $(OBJDIR)/$(TARGET).bin
 	@echo -e "  OOCD\t$<"
 	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
-                -f board/$(OOCD_TARGET).cfg \
+                -f target/$(OOCD_TARGET).cfg \
                 -c init \
                 -c "reset halt" \
                 -c "flash write_image erase $(OBJDIR)/$(TARGET).bin 0x08000000" \
                 -c reset \
                 -c shutdown
-
+endif
 
 
 
