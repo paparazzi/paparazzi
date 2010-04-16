@@ -30,7 +30,6 @@
 
 extern void ms2001_init( void );
 extern void ms2001_read( void );
-
 extern void ms2001_reset( void);
 
 #define MS2001_IDLE            0
@@ -48,6 +47,13 @@ extern volatile int16_t ms2001_values[MS2001_NB_AXIS];
 #include "peripherals/booz_ms2001_arch.h"
 /* must be implemented by underlying architecture */
 extern void ms2001_arch_init( void );
+
+#define MS2001_DIVISOR_128  2
+#define MS2001_DIVISOR_256  3
+#define MS2001_DIVISOR_512  4
+#define MS2001_DIVISOR_1024 5
+
+#define MS2001_DIVISOR MS2001_DIVISOR_1024
 
 
 #endif /* BOOZ_MS2001_H */
