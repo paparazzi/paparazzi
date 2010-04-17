@@ -25,8 +25,8 @@
 /** \file blitzer.c
  *  \brief LED flasher
  *
- *   Flashes a LED connected to PB1 (pin 6) of an ATTINY45 through 
- * an IRML2502 transistor, PB1 low -> LED off.
+ *   Flashes a LED connected to PB1 (pin 6) and PB2 (pin 7) of an
+ * ATTINY25 through an IRML2502 transistor, PBx low -> LED off.
  *
  * fuse high byte: 0xdf, fuse low byte: 0x62
  *
@@ -46,17 +46,22 @@ void wait(int msec_time)
 
 int main(void)
 {
+  DDRB |=  (1 << PB2);  // PB2 output
   DDRB |=  (1 << PB1);  // PB1 output
   DDRB &= ~(1 << PB0);  // PB0 input
 
   while (1)
   {
+    PORTB |=  (1 << PB2);
     PORTB |=  (1 << PB1);
     wait(25);
+    PORTB &= ~(1 << PB2);
     PORTB &= ~(1 << PB1);
     wait(110);
+    PORTB |=  (1 << PB2);
     PORTB |=  (1 << PB1);
     wait(25);
+    PORTB &= ~(1 << PB2);
     PORTB &= ~(1 << PB1);
     wait(780);
   }
