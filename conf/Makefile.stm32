@@ -65,7 +65,7 @@ COBJ    = $(SRCS:%.c=$(OBJDIR)/%.o)
 AOBJ    = $(ASRC:%.S=$(OBJDIR)/%.o)
 
 # linker script
-LD_SCRIPT = $(SRC_LISA)/stm32f10x_flash_md.ld
+LD_SCRIPT = $(SRC_ARCH)/stm32f10x_flash_hd.ld
 
 CFLAGS = -I. -I./$(ARCHI) $(INCLUDES) -Wall -ansi -std=c99 -c -fno-common -Os -g -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections -c
 CFLAGS += -Wl,gc-sections
