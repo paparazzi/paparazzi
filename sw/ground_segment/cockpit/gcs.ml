@@ -673,7 +673,7 @@ let () =
       failwith "Error: \"plugin\" widget required in layout description";
     let frame = GBin.event_box ~packing:plugin_frame#add ~width:plugin_width ~height:plugin_height () in
     let s = GWindow.socket ~packing:frame#add () in
-    let com = sprintf "%s 0x%lx -geometry %dx%d" !plugin_window s#xwindow plugin_width plugin_height in
+    let com = sprintf "%s0x%lx" !plugin_window s#xwindow in
 
     let restart = fun () ->
       begin match !pid_plugin with
@@ -710,7 +710,8 @@ let () =
       | 3 -> restart (); true
       | _ -> false in
       
-    ignore (frame#event#connect#button_press ~callback)
+    ignore (frame#event#connect#button_press ~callback);
+    ignore (menu_fact#add_item "Swap plugin/map" ~callback:(fun _ -> swap ()));
   end;
 
   (** Wait for A/Cs and subsequent messages *)
