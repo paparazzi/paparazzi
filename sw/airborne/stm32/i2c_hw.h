@@ -40,6 +40,12 @@ extern void i2c1_er_irq_handler(void);
 
 #define I2c1SendStart() { I2C_GenerateSTART(I2C1, ENABLE); }
 
+#ifdef I2C1_STOP_HANDLER
+#include I2C1_STOP_HANDLER_HEADER
+#define I2c1StopHandler() I2C1_STOP_HANDLER()
+#else 
+#define I2c1StopHandler() {}
+#endif /* I2C1_STOP_HANDLER */
 
 #endif /* USE_I2C1 */
 
