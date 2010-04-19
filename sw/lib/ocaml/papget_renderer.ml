@@ -344,6 +344,32 @@ class canvas_mplayer = fun ?(config=[]) canvas_group x y ->
   end
 
 
+(****************************************************************************)
+class canvas_plugin = fun ?(config=[]) canvas_group x y ->
+  let command = PC.get_prop "command" config "missing_plugin_command" in
+  let width = float_of_string (PC.get_prop "width" config "320.")
+  and height = float_of_string (PC.get_prop "height" config "240.") in
+  let socket = GWindow.socket () in
+  let group = GnoCanvas.group ~x ~y canvas_group in
+  let _item = GnoCanvas.widget ~width ~height ~widget:socket group in
+
+  object
+    method tag = "Plugin"
+    method item = (group :> movable_item)
+    method edit = fun (pack:GObj.widget -> unit) -> ()
+    method update = fun (value:string) -> ()
+    method config = fun () ->
+      [ PC.property "command" command;
+	PC.float_property "width" width;
+	PC.float_property "height" height ]
+    initializer
+      group#lower_to_bottom ();
+      let com = sprintf "exec %s0x%lx" command socket#xwindow in
+      let dev_null = Unix.descr_of_out_channel (open_out "/dev/null") in
+      ignore (Unix.create_process "/bin/sh" [|"/bin/sh"; "-c"; com|] dev_null dev_null dev_null)
+  end
+
+
 
 let renderers =
   [ (new canvas_text :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t);

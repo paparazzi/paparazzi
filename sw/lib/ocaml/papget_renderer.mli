@@ -57,6 +57,9 @@ class canvas_button : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float
 class canvas_mplayer : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t
 (** [canvas_mplayer config group x y] *)
 
+class canvas_plugin : ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t
+(** [canvas_plugin config group x y] *)
+
 val lazy_tagged_renderers :
   (string * (?config:Xml.xml list -> GnoCanvas.group -> float -> float -> t))
   list lazy_t

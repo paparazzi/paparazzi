@@ -176,6 +176,8 @@ let create = fun canvas_group papget ->
 	  match display with
 	    "mplayer" ->
 	      (new Papget_renderer.canvas_mplayer canvas_group ~config x y :> Papget_renderer.t)
+	  | "plugin" ->
+	      (new Papget_renderer.canvas_plugin canvas_group ~config x y :> Papget_renderer.t)
 	  | _ -> failwith (sprintf "Unexpected papget display: %s" display) in
 	
 	let properties = locked papget in
