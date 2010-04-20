@@ -15,6 +15,7 @@ struct adc_buf adc_bufs[ADC_NB];
 
 uint8_t vsupply;
 uint16_t adc_slider;
+uint16_t adc_values[ADC_NB];
 
 #define ADC_VDIV 5.7
 #define ADC_VOLT 3.28
@@ -43,5 +44,8 @@ void csc_adc_periodic(void)
 {
   vsupply = adc_bufs[ADC_VSUPPLY].sum / adc_bufs[ADC_VSUPPLY].av_nb_sample / ADC_FACTOR * 10;
   adc_slider = adc_bufs[ADC_SLIDER].sum / adc_bufs[ADC_SLIDER].av_nb_sample;
+  for (int i = 0; i < ADC_NB; i++) {
+    adc_values[i] = adc_bufs[i].sum / adc_bufs[i].av_nb_sample;
+  }
 }
 

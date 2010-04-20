@@ -8,6 +8,7 @@ void csc_adc_periodic(void);
 
 extern uint8_t vsupply;
 extern uint16_t adc_slider;
+extern uint16_t adc_values[];
 
 #endif /* CSC_ADC_H */
 
