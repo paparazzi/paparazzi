@@ -742,6 +742,8 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
       match GToolbox.input_string ~title:"Geo ref" ~text:"WGS84 " "Geo ref" with
 	Some s ->
 	  let wgs84 = Latlong.of_string s in
+	  if georef = None then
+	    self#set_georef wgs84;
 	  self#moveto wgs84
       | None -> ()
 	
