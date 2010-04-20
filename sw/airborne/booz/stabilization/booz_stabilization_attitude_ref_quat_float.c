@@ -21,9 +21,16 @@
  * Boston, MA 02111-1307, USA. 
  */
 
+/** \file booz_stabilization_attitude_ref_float.c
+ *  \brief Booz attitude reference generation (quaternion float version)
+ *
+ */
+
 #include "booz_stabilization.h"
+#include "booz_ahrs.h"
 
 #include "booz_stabilization_attitude_ref_float.h"
+#include "quat_setpoint.h"
 
 struct FloatEulers booz_stab_att_sp_euler;
 struct FloatQuat   booz_stab_att_sp_quat;
@@ -33,6 +40,24 @@ struct FloatRates  booz_stab_att_ref_rate;
 struct FloatRates  booz_stab_att_ref_accel;
 
 struct FloatRefModel booz_stab_att_ref_model;
+
+static void reset_psi_ref_from_body(void) {
+    booz_stab_att_sp_euler.psi = booz_ahrs_float.ltp_to_body_euler.psi;
+    booz_stab_att_ref_euler.psi = booz_ahrs_float.ltp_to_body_euler.psi;
+    booz_stab_att_ref_rate.r = 0;
+    booz_stab_att_ref_accel.r = 0;
+}
+
+static void update_ref_quat_from_eulers(void) {
+    struct FloatRMat ref_rmat;
+
+#ifdef STICKS_RMAT312
+    FLOAT_RMAT_OF_EULERS_312(ref_rmat, booz_stab_att_ref_euler);
+#else
+    FLOAT_RMAT_OF_EULERS_321(ref_rmat, booz_stab_att_ref_euler);
+#endif
+    FLOAT_QUAT_OF_RMAT(booz_stab_att_ref_quat, ref_rmat);
+}
 
 void booz_stabilization_attitude_ref_init(void) {
 
@@ -50,6 +75,13 @@ void booz_stabilization_attitude_ref_init(void) {
   booz_stab_att_ref_model.omega_r = BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_R;
   booz_stab_att_ref_model.zeta_r = BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_R;
 
+}
+
+void booz_stabilization_attitude_ref_enter()
+{
+  reset_psi_ref_from_body();
+  update_ref_quat_from_eulers();
+  booz_stabilization_attitude_sp_enter();
 }
 
 /*
@@ -91,7 +123,4 @@ void booz_stabilization_attitude_ref_update() {
 
   /* compute ref_euler */
   FLOAT_EULERS_OF_QUAT(booz_stab_att_ref_euler, booz_stab_att_ref_quat);
-
 }
-
-

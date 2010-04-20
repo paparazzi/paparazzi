@@ -29,10 +29,8 @@
 
 #include "airframe.h"
 
-struct Int32Vect3  booz_stabilization_pgain;
-struct Int32Vect3  booz_stabilization_dgain;
-struct Int32Vect3  booz_stabilization_ddgain;
-struct Int32Vect3  booz_stabilization_igain;
+struct Int32AttitudeGains  booz_stabilization_gains;
+
 struct Int32Eulers booz_stabilization_att_sum_err;
 
 int32_t booz_stabilization_att_fb_cmd[COMMANDS_NB];
@@ -43,22 +41,22 @@ void booz_stabilization_attitude_init(void) {
   booz_stabilization_attitude_ref_init();
   
  
-  VECT3_ASSIGN(booz_stabilization_pgain,
+  VECT3_ASSIGN(booz_stabilization_gains.p,
 	       BOOZ_STABILIZATION_ATTITUDE_PHI_PGAIN,
 	       BOOZ_STABILIZATION_ATTITUDE_THETA_PGAIN,
 	       BOOZ_STABILIZATION_ATTITUDE_PSI_PGAIN);
   
-  VECT3_ASSIGN(booz_stabilization_dgain,
+  VECT3_ASSIGN(booz_stabilization_gains.d,
 	       BOOZ_STABILIZATION_ATTITUDE_PHI_DGAIN,
 	       BOOZ_STABILIZATION_ATTITUDE_THETA_DGAIN,
 	       BOOZ_STABILIZATION_ATTITUDE_PSI_DGAIN);
   
-  VECT3_ASSIGN(booz_stabilization_igain,
+  VECT3_ASSIGN(booz_stabilization_gains.i,
 	       BOOZ_STABILIZATION_ATTITUDE_PHI_IGAIN,
 	       BOOZ_STABILIZATION_ATTITUDE_THETA_IGAIN,
 	       BOOZ_STABILIZATION_ATTITUDE_PSI_IGAIN);
 
-  VECT3_ASSIGN(booz_stabilization_ddgain,
+  VECT3_ASSIGN(booz_stabilization_gains.dd,
 	       BOOZ_STABILIZATION_ATTITUDE_PHI_DDGAIN,
 	       BOOZ_STABILIZATION_ATTITUDE_THETA_DDGAIN,
 	       BOOZ_STABILIZATION_ATTITUDE_PSI_DDGAIN);
@@ -97,11 +95,11 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
 
   /* compute feedforward command */
   booz_stabilization_att_ff_cmd[COMMAND_ROLL] = 
-    OFFSET_AND_ROUND(booz_stabilization_ddgain.x * booz_stab_att_ref_accel.p, 5);
+    OFFSET_AND_ROUND(booz_stabilization_gains.dd.x * booz_stab_att_ref_accel.p, 5);
   booz_stabilization_att_ff_cmd[COMMAND_PITCH] = 
-    OFFSET_AND_ROUND(booz_stabilization_ddgain.y * booz_stab_att_ref_accel.q, 5);
+    OFFSET_AND_ROUND(booz_stabilization_gains.dd.y * booz_stab_att_ref_accel.q, 5);
   booz_stabilization_att_ff_cmd[COMMAND_YAW] = 
-    OFFSET_AND_ROUND(booz_stabilization_ddgain.z * booz_stab_att_ref_accel.r, 5);
+    OFFSET_AND_ROUND(booz_stabilization_gains.dd.z * booz_stab_att_ref_accel.r, 5);
 
   /* compute feedback command */
   /* attitude error            */
@@ -132,19 +130,19 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
 
   /* PID                  */
   booz_stabilization_att_fb_cmd[COMMAND_ROLL] = 
-    booz_stabilization_pgain.x    * att_err.phi +
-    booz_stabilization_dgain.x    * rate_err.p +
-    OFFSET_AND_ROUND2((booz_stabilization_igain.x  * booz_stabilization_att_sum_err.phi), 10);
+    booz_stabilization_gains.p.x    * att_err.phi +
+    booz_stabilization_gains.d.x    * rate_err.p +
+    OFFSET_AND_ROUND2((booz_stabilization_gains.i.x  * booz_stabilization_att_sum_err.phi), 10);
 
   booz_stabilization_att_fb_cmd[COMMAND_PITCH] = 
-    booz_stabilization_pgain.y    * att_err.theta +
-    booz_stabilization_dgain.y    * rate_err.q +
-    OFFSET_AND_ROUND2((booz_stabilization_igain.y  * booz_stabilization_att_sum_err.theta), 10);
+    booz_stabilization_gains.p.y    * att_err.theta +
+    booz_stabilization_gains.d.y    * rate_err.q +
+    OFFSET_AND_ROUND2((booz_stabilization_gains.i.y  * booz_stabilization_att_sum_err.theta), 10);
 
   booz_stabilization_att_fb_cmd[COMMAND_YAW] = 
-    booz_stabilization_pgain.z    * att_err.psi +
-    booz_stabilization_dgain.z    * rate_err.r +
-    OFFSET_AND_ROUND2((booz_stabilization_igain.z  * booz_stabilization_att_sum_err.psi), 10);
+    booz_stabilization_gains.p.z    * att_err.psi +
+    booz_stabilization_gains.d.z    * rate_err.r +
+    OFFSET_AND_ROUND2((booz_stabilization_gains.i.z  * booz_stabilization_att_sum_err.psi), 10);
     
   /* sum feedforward and feedback */
   booz_stabilization_cmd[COMMAND_ROLL] = 

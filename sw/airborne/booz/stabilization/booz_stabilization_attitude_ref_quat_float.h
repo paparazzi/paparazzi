@@ -52,7 +52,6 @@
   (radio_control.values[RADIO_CONTROL_YAW] >  BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R || \
    radio_control.values[RADIO_CONTROL_YAW] < -BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R)
 
+void booz_stabilization_attitude_ref_enter(void);
 
 #endif /* BOOZ_STABILIZATION_ATTITUDE_REF_QUAT_FLOAT_H */
-
-

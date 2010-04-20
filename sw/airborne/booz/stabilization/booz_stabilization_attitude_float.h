@@ -28,14 +28,24 @@
 
 #include "airframe.h"
 
-extern struct FloatVect3  booz_stabilization_pgain;
-extern struct FloatVect3  booz_stabilization_dgain;
-extern struct FloatVect3  booz_stabilization_ddgain;
-extern struct FloatVect3  booz_stabilization_igain;
-extern struct FloatEulers booz_stabilization_att_sum_err;
+struct FloatAttitudeGains {
+	struct FloatVect3  p;
+	struct FloatVect3  d;
+	struct FloatVect3  dd;
+	struct FloatVect3  i;
+	struct FloatVect3  surface_p;
+	struct FloatVect3  surface_d;
+	struct FloatVect3  surface_dd;
+	struct FloatVect3  surface_i;
+};
+
+extern struct FloatAttitudeGains booz_stabilization_gains[];
+extern struct FloatEulers booz_stabilization_att_sum_err_eulers;
 
 extern float booz_stabilization_att_fb_cmd[COMMANDS_NB];
 extern float booz_stabilization_att_ff_cmd[COMMANDS_NB];
+
+void booz_stabilization_attitude_gain_schedule(uint8_t idx);
 
 #endif /* BOOZ_STABILIZATION_ATTITUDE_FLOAT_H */
 

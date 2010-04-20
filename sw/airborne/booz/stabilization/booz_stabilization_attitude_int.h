@@ -28,10 +28,14 @@
 
 #include "airframe.h"
 
-extern struct Int32Vect3  booz_stabilization_igain;
-extern struct Int32Vect3  booz_stabilization_pgain;
-extern struct Int32Vect3  booz_stabilization_dgain;
-extern struct Int32Vect3  booz_stabilization_ddgain;
+struct Int32AttitudeGains {
+	struct Int32Vect3  p;
+	struct Int32Vect3  d;
+	struct Int32Vect3  dd;
+	struct Int32Vect3  i;
+};
+
+extern struct Int32AttitudeGains  booz_stabilization_gains;
 extern struct Int32Eulers booz_stabilization_att_sum_err;
 
 extern int32_t booz_stabilization_att_fb_cmd[COMMANDS_NB];
