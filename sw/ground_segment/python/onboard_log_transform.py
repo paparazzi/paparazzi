@@ -27,18 +27,22 @@ class OnboardLogTransformTool():
 			 }
 
     def Unpack(self, data_fields, type, start, length):
-	  return struct.unpack(type, "".join(data_fields[start:start + length]))[0]
+        return struct.unpack(type, "".join(data_fields[start:start + length]))[0]
 
     def ProcessLine(self, line):
       fields = line.strip().split(' ')
-      [timestamp, ac_id, msg_id] = fields[0:3]
-      data_fields = map(lambda x: chr(int(x, 16)), fields[4:])
+      [timestamp, pprz_tstamp, ac_id, msg_id] = fields[0:4]
+      data_fields = map(lambda x: chr(int(x, 16)), fields[5:])
       ac_id = int(ac_id)
       timestamp = float(timestamp)
       msg_id = int(msg_id)
 
-      msg_name = messages_xml_map.message_dictionary_id_name[msg_id]
-      msg_fields = messages_xml_map.message_dictionary_types[msg_id]
+      # print "Next message: ", timestamp, pprz_tstamp, ac_id, msg_id
+      # print messages_xml_map.message_dictionary_id_name.keys()
+      # print messages_xml_map.message_dictionary_types.keys()
+      
+      msg_name = messages_xml_map.message_dictionary_id_name['telemetry'][msg_id]
+      msg_fields = messages_xml_map.message_dictionary_types['telemetry'][msg_id]
 
       result = "%f %i %s " % (timestamp, ac_id, msg_name)
 
@@ -56,8 +60,9 @@ class OnboardLogTransformTool():
 	    else:
 	      result += array_value + ","
 	else:
-	  result += str(self.Unpack(data_fields, self.data_types[field][0], field_offset, self.data_types[field][1])) + " "
-	  field_offset = field_offset + self.data_types[field][1]
+            result += str(self.Unpack(data_fields, self.data_types[field][0], field_offset, self.data_types[field][1])) + " "
+            field_offset = field_offset + self.data_types[field][1]
+
 
 	if (field_offset > len(data_fields)):
 	  print "finished without parsing %s" % field
@@ -69,10 +74,11 @@ class OnboardLogTransformTool():
       # open log file
       INPUT = open(logfile, "r")
       for line in INPUT:
-	try:
-	  print self.ProcessLine(line)
-	except:
-	  pass
+        print self.ProcessLine(line)
+
+	#   print self.ProcessLine(line)
+	# except:
+        #   pass
       INPUT.close()
 
 def main():
