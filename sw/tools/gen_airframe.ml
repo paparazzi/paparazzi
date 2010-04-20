@@ -144,7 +144,7 @@ let parse_command_laws = fun command ->
        let v = preprocess_value value "values" "COMMAND" in
        printf "  command_value = %s;\\\n" v;
        printf "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP : SERVO_%s_TRAVEL_DOWN;\\\n" servo servo;
-       printf "  servo_value = SERVO_%s_NEUTRAL + (int16_t)(command_value);\\\n" servo;
+       printf "  servo_value = SERVO_%s_NEUTRAL + (int32_t)(command_value);\\\n" servo;
        printf "  actuators[SERVO_%s] = ChopServo(servo_value, SERVO_%s_MIN, SERVO_%s_MAX);\\\n\\\n" servo servo servo;
 
        let driver = get_servo_driver servo in
@@ -260,7 +260,7 @@ let parse_section = fun s ->
       printf "}\n\n"
   | "command_laws" ->
       printf "#define SetActuatorsFromCommands(values) { \\\n";
-      printf "  uint16_t servo_value;\\\n";
+      printf "  uint32_t servo_value;\\\n";
       printf "  float command_value;\\\n";
 
       List.iter parse_command_laws (Xml.children s);
@@ -274,7 +274,7 @@ let parse_section = fun s ->
       printf "}\n\n";
   | "csc_boards" ->
       let boards = Array.of_list (Xml.children s) in
-      define "CSC_BOARD_NB" (string_of_int (Array.length boards + 1));
+      define "CSC_BOARD_NB" (string_of_int (Array.length boards));
       printf "#define SendCscFromActuators() { \\\n";
       List.iter parse_csc_boards (Xml.children s);
       printf "}\n"
