@@ -5,6 +5,8 @@
 #include "LPC21xx.h"
 #include "std.h"
 
+#define LED_PERIODIC() {}
+
 #define __LED_DIR(i) IO ## i ## DIR
 #define _LED_DIR(i) __LED_DIR(i)
 #define __LED_CLR(i) IO ## i ## CLR

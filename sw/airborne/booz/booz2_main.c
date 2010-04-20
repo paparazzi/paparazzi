@@ -157,7 +157,9 @@ STATIC_INLINE void booz2_main_periodic( void ) {
     {									\
       /*BoozControlSurfacesSetFromCommands();*/				\
     },									\
-    {},									\
+    {									\
+      LED_PERIODIC();							\
+    },									\
     {},									\
     {},									\
     {},									\
@@ -226,9 +228,7 @@ static inline void on_gyro_accel_event( void ) {
     booz_ahrs_propagate();
     booz_ahrs_update_accel();
 #ifdef SITL
-    if (nps_bypass_ahrs) {
-        sim_overwrite_ahrs();
-    }
+    if (nps_bypass_ahrs) sim_overwrite_ahrs();
 #endif
     booz_ins_propagate();
   }
