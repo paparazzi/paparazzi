@@ -53,7 +53,7 @@ class waypoint :
     method label : GnoCanvas.text
     method move : float -> float -> unit
     method name : string
-    method set : ?if_not_moved:bool -> ?altitude:float -> ?update:bool -> Latlong.geographic -> unit
+    method set : ?altitude:float -> ?update:bool -> Latlong.geographic -> unit
     method set_name : string -> unit
     method xy : float * float
     method zoom : float -> unit

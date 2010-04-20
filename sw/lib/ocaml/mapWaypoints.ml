@@ -29,7 +29,6 @@ open Printf
 open LL
 
 let s = 6.
-let losange = [|s;0.; 0.;s; -.s;0.; 0.;-.s|]
 
 class group = fun ?(color="red") ?(editable=true) ?(show_moved=false) (geomap:MapCanvas.widget) ->
   let g = GnoCanvas.group geomap#canvas#root in
@@ -259,7 +258,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
     method deleted = deleted
     method item = item
     method pos = geomap#of_world self#xy
-    method set ?(if_not_moved = false) ?altitude ?(update=false) wgs84 = 
+    method set ?altitude ?(update=false) wgs84 = 
       let (xw, yw) = geomap#world_of wgs84
       and (xw0, yw0) = self#xy
       and z = geomap#zoom_adj#value in
@@ -278,7 +277,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
 	  alt <- alt+.dz;
 	  if update then updated ()
       | (None, false) | (Some _, true) -> ()
-      | Some x, false -> self#reset_moved ()
+      | Some _, false -> self#reset_moved ()
     method delete () =
       deleted <- true; (* BOF *)
       wpt_group#destroy ()
