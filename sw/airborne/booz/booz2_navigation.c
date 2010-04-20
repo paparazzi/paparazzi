@@ -31,7 +31,9 @@
 #include "booz2_autopilot.h"
 #include "flight_plan.h"
 
+#ifdef USE_FMS
 #include "booz_fms.h"
+#endif
 
 #include "math/pprz_algebra_int.h"
 
@@ -303,6 +305,7 @@ void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos) {
   }
 }
 
+#ifdef USE_FMS
 void nav_update_wp_from_fms(uint8_t _wp) {
   if (fms.enabled && _wp < nb_waypoint) {
     int32_t s_heading, c_heading;
@@ -323,6 +326,7 @@ void nav_update_wp_from_fms(uint8_t _wp) {
     RunOnceEvery(10,DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, &_wp, &(waypoints[_wp].x), &(waypoints[_wp].y), &(waypoints[_wp].z)));
   }
 }
+#endif /* USE_FMS */
 
 bool_t nav_detect_ground(void) {
   if (!booz2_autopilot_detect_ground) return FALSE;
