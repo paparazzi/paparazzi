@@ -31,10 +31,11 @@ static void got_pprz_message(const u_char *buf, const struct timeval *ts)
     printf("checksum mismatch\n");
     return;
   }
-  //printf("Got pprz msg len %i, ckA %02x, ckB %02x (%02x %02x)\n", length, ck_A, ck_B, buf[length - 3], buf[length - 2]);
+  // printf("Got pprz msg len %i, ckA %02x, ckB %02x (%02x %02x)\n", length, ck_A, ck_B, buf[length - 3], buf[length - 2]);
   printf("%i.%06i ", (unsigned) ts->tv_sec - start_secs, (unsigned) ts->tv_usec);
-  printf("%i %i ", buf[1], buf[2]);
-  for(i = 2; i < length - 3; i++)
+  printf("%d ", (uint32_t) buf[1]); 	   // paparazzi timestamp; see udp_transport.h
+  printf("%i %i ", buf[5], buf[6]);	   // AC_ID MSG_ID
+  for(i = 6; i < length - 3; i++)	   
   {
     printf("%02x ", buf[i]);
   }
@@ -74,8 +75,8 @@ static void got_packet (u_char *args, const struct pcap_pkthdr *header,
 
   i = 0;
   while (i < udp_length) {
-    if (payload[i] != 0x99) {
-      ///printf("missing start byte\n");
+    if (payload[i] != 0x98) {
+      // printf("missing start byte\n");
       break;
     } 
     i++;
