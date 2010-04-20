@@ -386,6 +386,7 @@ static inline void booz2_guidance_h_nav_enter(void) {
 
   INT32_VECT2_NED_OF_ENU(booz2_guidance_h_pos_sp, booz2_navigation_carrot);
   struct Int32Vect2 pos,speed,zero;
+  INT_VECT2_ZERO(zero);
   VECT2_COPY(pos, booz_ins_ltp_pos);
   VECT2_COPY(speed, booz_ins_ltp_speed);
   Booz2GuidanceHSetRef(pos, speed, zero);
