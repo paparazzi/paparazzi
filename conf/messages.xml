@@ -1149,6 +1149,10 @@
       <field name="xqx"   type="float"/>
       <field name="xqy"   type="float"/>
       <field name="xqz"   type="float"/>
+      <field name="mqi"   type="float"/>
+      <field name="mqx"   type="float"/>
+      <field name="mqy"   type="float"/>
+      <field name="mqz"   type="float"/>
     </message>
 
     <message name="BLMC_BUSVOLTS" id="186">
@@ -1166,11 +1170,12 @@
       <field name="can_tx_err"	     type="uint32"/>
     </message>
 
-    <message name="WHIRLY_ESTIMATOR_DEBUG" id="188">
-      <field name="whirly_timestamp"   type="float"/>
-      <field name="phi"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-      <field name="theta" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
-      <field name="psi"   type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <message name="DYNAMIXEL" id="188">
+      <field name="left_wing"    type="uint16"/>
+      <field name="right_wing"   type="uint16"/>
+      <field name="invalid_position"   type="uint32"/>
+      <field name="timeout_events"   type="uint32"/>
+      <field name="checksum_errors"   type="uint32"/>
     </message>
 
     <message name="RMAT_DEBUG" id="189">
@@ -1193,10 +1198,16 @@
 
     <message name="VANE_SENSOR" id="191">
       <field name="alpha"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+      <field name="alpha_filtered"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
       <field name="beta"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
       <field name="alpha_target"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
       <field name="alpha_vane_error" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-      <field name="pitch_wish" type="float"/>
+    </message>
+
+    <message name="BOOZ2_FF_ADAP" id="252">
+      <field name="roll" type="float"/>
+      <field name="pitch" type="float"/>
+      <field name="yaw" type="float"/>
     </message>
 
     <message name="CONTROLLER_GAINS" id="192">
