@@ -25,29 +25,53 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
+#include "fms_debug.h"
 #include "fms_spi_link.h"
 #include "fms_autopilot_msg.h"
 
+static void fill_msg(struct AutopilotMessageFoo* msg);
 
 int main(int argc, char *argv[]) {
   
-  if (spi_link_init())
+  if (spi_link_init()) {
+    TRACE(TRACE_ERROR, "%s", "failed to open SPI link \n");
     return -1;
-  uint32_t foo = 0;
+  }
   while (1) {
+    struct AutopilotMessageFoo msg_out_prev;
     struct AutopilotMessageFoo msg_out;
-    msg_out.foo  = foo;
-    msg_out.bar  = foo;
-    msg_out.blaa = foo;
+    memcpy(&msg_out_prev, &msg_out, sizeof(msg_out));
+    fill_msg(&msg_out);
     struct AutopilotMessageFoo msg_in;
     spi_link_send(&msg_out, sizeof(struct AutopilotMessageFoo), &msg_in);
-    printf("%d %d %d\n", msg_in.foo, msg_in.bar, msg_in.blaa);
-    //    usleep(1953);
-    usleep(50000);
-    foo++;
+    if (memcmp(&msg_in, &msg_out_prev, sizeof(msg_in))) {
+      printf("compare failed\n");
+      printf("expected %d %d %d\n", msg_out_prev.foo, msg_out_prev.bar, msg_out_prev.blaa);
+      printf("got      %d %d %d\n\n", msg_in.foo, msg_in.bar, msg_in.blaa);
+    }
+    else {
+      static uint32_t foo = 0;
+      if (!msg_in.foo) {
+	printf("passed %d\n", foo );
+	foo++;
+      }
+    }
+    usleep(1953);
+    //usleep(50000);
   }
 
   return 0;
+}
+
+
+
+static void fill_msg(struct AutopilotMessageFoo* msg) {
+  static uint32_t foo = 0;
+  msg->foo  = foo;
+  msg->bar  = foo+1;
+  msg->blaa = foo+2;
+  foo++;
 }
