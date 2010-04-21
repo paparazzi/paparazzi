@@ -29,22 +29,10 @@ TOOLSDIR = ../../tools
 OCAMLINCLUDES= -I $(OCAMLLIB) -I +lablgtk2 -I +xml-light -I $(TOOLSDIR)
 LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
 
-all: main_stick
+all: test_stick input2ivy
 
-main_stick: main_stick.o usb_stick.o
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
-
-main_stick_debug: main_stick.o usb_stick.o
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy -DSTICK_DBG
-
-apm_stick: apm_stick.o usb_stick.o
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
-
-xbox_stick: xbox_stick.o usb_stick.o
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
-
-attack3_stick: attack3_stick.o usb_stick.o
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
+test_stick: test_stick.o
+	gcc -g -O2 -Wall -DSTICK_DBG `pkg-config glib-2.0 --cflags` -o $@ $^ usb_stick.c `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
 
 input2ivy: usb_stick.o ml_usb_stick.o input2ivy.cmo
 	$(OCAMLC) $(OCAMLINCLUDES) -custom -o $@ unix.cma str.cma glibivy-ocaml.cma xml-light.cma lib-pprz.cma lablgtk.cma $(TOOLSDIR)/fp_proc.cmo $^
@@ -58,5 +46,5 @@ input2ivy: usb_stick.o ml_usb_stick.o input2ivy.cmo
 	$(Q)$(OCAMLC) $(OCAMLINCLUDES) -c $<
 
 clean:
-	rm -f *~ core *.o *.bak .depend main_stick main_stick_debug apm_stick xbox_stick attack3_stick *.cmo *.cmi input2ivy
+	rm -f *~ core *.o *.bak .depend test_stick *.cmo *.cmi input2ivy
 

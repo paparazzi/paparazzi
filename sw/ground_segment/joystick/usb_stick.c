@@ -180,6 +180,8 @@ int init_hid_device(char* device_name)
           cnt,axis_min[cnt],axis_max[cnt],__FILE__,__LINE__);
       return(1);
     }
+    dbgprintf(stderr,"Axis %d : parameters = [%d,%d]\n",
+        cnt,axis_min[cnt],axis_max[cnt]);
   }
 
 #if 0
