@@ -35,7 +35,7 @@ module DL = Pprz.Messages(struct let name = "datalink" end)
 module G = Pprz.Messages(struct let name = "ground" end)
 
 (** Syntax for expressions *)
-module Syntax = Fp_syntax (* From ../../tools/ *)
+module Syntax = Expr_syntax
 
 (** Hash table of name-index associations for the settings of the A/C *)
 let index_of_settings = Hashtbl.create 13

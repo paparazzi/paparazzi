@@ -47,7 +47,7 @@ attack3_stick: attack3_stick.o usb_stick.o
 	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
 
 input2ivy: usb_stick.o ml_usb_stick.o input2ivy.cmo
-	$(OCAMLC) $(OCAMLINCLUDES) -custom -o $@ unix.cma str.cma glibivy-ocaml.cma xml-light.cma lib-pprz.cma lablgtk.cma $(TOOLSDIR)/fp_syntax.cmo $(TOOLSDIR)/fp_lexer.cmo $(TOOLSDIR)/fp_parser.cmo $(TOOLSDIR)/fp_proc.cmo $^
+	$(OCAMLC) $(OCAMLINCLUDES) -custom -o $@ unix.cma str.cma glibivy-ocaml.cma xml-light.cma lib-pprz.cma lablgtk.cma $(TOOLSDIR)/fp_proc.cmo $^
 
 
 %.o : %.c
