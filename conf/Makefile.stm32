@@ -91,7 +91,7 @@ AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
 LDFLAGS = -D__thumb2__ -T$(LD_SCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT) --gc-sections
 #LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
-LDLIBS  += -lc -lgcc -lcmsis -lstm32 -lm -lc -lgcc 
+LDLIBS  += -lc -lm -lgcc -lcmsis -lstm32 
 
 CPFLAGS = -j .isr_vector -j .text -j .data -Obinary
 
@@ -171,6 +171,21 @@ upload:  $(OBJDIR)/$(TARGET).bin
                 -c shutdown
 endif
 
+
+start_gdb:
+	xterm -e "$(OOCD) -f interface/$(OOCD_INTERFACE).cfg  -f target/$(OOCD_TARGET).cfg" &
+	xterm -e "/opt/paparazzi/stm32/bin/openocd -f interface/openocd-lisa-jtag.cfg -f target/stm32.cfg"&
+
+start_telnet:
+	xterm -e "telnet localhost 4444" &
+#reset halt
+#flash probe 0
+#stm32x mass_erase 0
+#flash write_bank 0 main.bin 0
+#reset halt
+
+#/opt/paparazzi/stm32/bin/arm-none-eabi-gdbtui --eval-command="target remote localhost:3333"
+#/opt/paparazzi/stm32/bin/arm-none-eabi-gdbtui --eval-command="target remote localhost:3333" var/BOOZ2_A6/ap/ap.elf
 
 
 # Target: clean project.
