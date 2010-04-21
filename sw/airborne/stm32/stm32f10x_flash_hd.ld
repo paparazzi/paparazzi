@@ -21,8 +21,19 @@
  * Boston, MA 02111-1307, USA. 
  */
 
+/* Memory Spaces Definitions */
+MEMORY
+{                        
+  RAM   (xrw)  : ORIGIN = 0x20000000, LENGTH = 64K
+  FLASH (rx)   : ORIGIN = 0x8000000,  LENGTH = 512K
+  FLASHB1 (rx) :  ORIGIN = 0x00000000, LENGTH = 0
+}
+
+/* User mode stack top */
+_estack = 0x20010000;
+
 /* Stack size and address definitions */
-__Stack_Size = 1024 ;
+__Stack_Size = 0x1000 ;
 
 PROVIDE ( _Stack_Size = __Stack_Size ) ;
 
@@ -31,17 +42,10 @@ __Stack_Init = _estack  - __Stack_Size ;
 PROVIDE ( _Stack_Init = __Stack_Init ) ;
 
 /* Enforce a linker error if there is not enough space left in ram for the stack */
-_Minimum_Stack_Size = 0x100 ;
+_Minimum_Stack_Size = 0x800 ;
 
-/* Memory Spaces Definitions */
-MEMORY
-{                        
-  RAM   (xrw) : ORIGIN = 0x20000000, LENGTH = 64K
-  FLASH (rx)  : ORIGIN = 0x8000000,  LENGTH = 512K
-}
-
-/* User mode stack top */
-_estack = 0x20000800;
+/* Check valid alignment for VTOR */
+ASSERT(ORIGIN(FLASH) == ALIGN(ORIGIN(FLASH), 0x80), "Start of memory region flash not aligned for startup vector table");
 
 /* Sections Definitions */
 
@@ -81,6 +85,8 @@ SECTIONS
 	/* This is used by the startup in order to initialize the .data secion */
    	_sidata = _etext;
     } >FLASH
+
+
 
     /* This is the initialized data section
     The program executes knowing that the data is in the RAM
@@ -133,16 +139,26 @@ SECTIONS
         _eusrstack = . ;
     } >RAM
 
+   .b1text :
+    {
+        *(.b1text)                   /* remaining code */
+        *(.b1rodata)                 /* read-only data (constants) */
+        *(.b1rodata*)
+    } >FLASHB1
+
+    __exidx_start = .;
+    .ARM.exidx   : { *(.ARM.exidx* .gnu.linkonce.armexidx.*) }
+   __exidx_end = .;
 
     /* after that it's only debugging information. */
 
     /* remove the debugging information from the standard libraries */
-    /*DISCARD :
+    /DISCARD/ :
     {
      libc.a ( * )
      libm.a ( * )
      libgcc.a ( * )
-     }*/
+     }
 
     /* Stabs debugging sections.  */
     .stab          0 : { *(.stab) }
