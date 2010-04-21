@@ -99,6 +99,12 @@ extern void dma1_c4_irq_handler(void);
 #define DMA1_C4_IRQ_HANDLER null_handler
 #endif
 
+#ifdef USE_TIM2_IRQ
+extern void tim2_irq_handler(void);
+#define TIM2_IRQ_HANDLER tim2_irq_handler
+#else
+#define TIM2_IRQ_HANDLER null_handler
+#endif
 
 
 /* addresses defined in the linker script */
@@ -158,7 +164,7 @@ void (* const vector_table[])(void) = {
     null_handler,             /* tim1_up_irq_handler */
     null_handler,             /* tim1_trg_com_irq_handler */
     null_handler,             /* tim1_cc_irq_handler */
-    null_handler,             /* tim2_irq_handler */
+    TIM2_IRQ_HANDLER,         /* tim2_irq_handler */
     null_handler,             /* tim3_irq_handler */
     null_handler,             /* tim4_irq_handler */
     I2C1_EV_IRQ_HANDLER,      /* i2c1_ev_irq_handler */
