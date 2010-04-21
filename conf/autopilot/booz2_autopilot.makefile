@@ -22,38 +22,69 @@
 #
 #
 
-ARCHI=arm7
-
-FLASH_MODE = IAP
-
 ap.ARCHDIR = $(ARCHI)
+# this is supposedly ignored by the stm32 makefile
 ap.ARCH = arm7tdmi
 ap.TARGET = ap
 ap.TARGETDIR = ap
 
 
 ap.CFLAGS += $(BOOZ_INC)
-ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-ap.srcs += $(SRC_BOOZ)/booz2_main.c
+ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
+ap.srcs    = $(SRC_BOOZ)/booz2_main.c
 
-ap.CFLAGS += -DPERIPHERALS_AUTO_INIT
+ifeq ($(ARCHI), stm32) 
+ap.srcs += lisa/plug_sys.c
+endif
+#
+# Interrupts
+#
+ifeq ($(ARCHI), arm7)
+ap.srcs += $(SRC_ARCH)/armVIC.c
+else ifeq ($(ARCHI), stm32) 
+ap.srcs += $(SRC_ARCH)/stm32_exceptions.c
+ap.srcs += $(SRC_ARCH)/stm32_vector_table.c
+endif
 
+#
+# LEDs
+#
 ap.CFLAGS += -DUSE_LED
+ifeq ($(ARCHI), stm32) 
+ap.srcs += $(SRC_ARCH)/led_hw.c
+endif
 
-ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+#
+# Systime
+#
+ap.CFLAGS += -DUSE_SYS_TIME
+ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
-# -DTIME_LED=1
+ifeq ($(ARCHI), stm32) 
+ap.CFLAGS += -DSYS_TIME_LED=1
+endif
 
-ap.CFLAGS += -DUSE_UART1  -DUART1_VIC_SLOT=6  -DUART1_BAUD=MODEM_BAUD
+#
+# Telemetry/Datalink
+#
 ap.srcs += $(SRC_ARCH)/uart_hw.c
-
-ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport
 ap.srcs += $(SRC_BOOZ)/booz2_telemetry.c \
 	   downlink.c \
            pprz_transport.c
-
-ap.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
+ap.CFLAGS += -DDATALINK=PPRZ
 ap.srcs += $(SRC_BOOZ)/booz2_datalink.c
+
+ifeq ($(ARCHI), arm7)
+ap.CFLAGS += -DUSE_UART1  -DUART1_VIC_SLOT=6  -DUART1_BAUD=MODEM_BAUD
+ap.CFLAGS += -DDOWNLINK_DEVICE=Uart1 
+ap.CFLAGS += -DPPRZ_UART=Uart1
+else ifeq ($(ARCHI), stm32) 
+ap.CFLAGS += -DUSE_UART2 -DUART2_BAUD=MODEM_BAUD
+ap.CFLAGS += -DDOWNLINK_DEVICE=Uart2 
+ap.CFLAGS += -DPPRZ_UART=Uart2
+endif
+
 
 ap.srcs += $(SRC_BOOZ)/booz2_commands.c
 
@@ -78,11 +109,13 @@ ap.srcs += $(SRC_BOOZ)/booz2_commands.c
 #
 # include booz2_imu_b2v1.makefile
 # or
+# include booz2_imu_b2v1_1.makefile
+# or
 # include booz2_imu_crista.makefile
 #
 
 
-
+ifeq ($(ARCHI), arm7)
 ap.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
 ap.srcs += $(SRC_BOOZ)/booz2_analog_baro.c
 
@@ -93,6 +126,10 @@ ap.CFLAGS += -DADC0_VIC_SLOT=2
 ap.CFLAGS += -DADC1_VIC_SLOT=3
 ap.srcs += $(SRC_BOOZ)/booz2_analog.c \
            $(SRC_BOOZ_ARCH)/booz2_analog_hw.c
+else ifeq ($(ARCHI), stm32) 
+ap.srcs += lisa/lisa_analog_plug.c
+endif
+
 
 #
 # GPS choice
@@ -141,7 +178,7 @@ ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodeti
 
 #  vertical filter float version
 ap.srcs += $(SRC_BOOZ)/ins/booz2_vf_float.c
-ap.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)" -DFLOAT_T=float
+ap.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)"
 
 ap.srcs += $(SRC_BOOZ)/booz2_navigation.c
 
