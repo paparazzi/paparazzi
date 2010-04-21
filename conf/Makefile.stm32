@@ -42,7 +42,7 @@ GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
 # Define programs and commands.
 GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi
 CC   = $(GCC_BIN_PREFIX)-gcc
-LD   = $(GCC_BIN_PREFIX)-ld
+LD   = $(GCC_BIN_PREFIX)-gcc
 CP   = $(GCC_BIN_PREFIX)-objcopy
 DMP  = $(GCC_BIN_PREFIX)-objdump
 NM   = $(GCC_BIN_PREFIX)-nm
@@ -67,7 +67,7 @@ AOBJ    = $(ASRC:%.S=$(OBJDIR)/%.o)
 # linker script
 LD_SCRIPT = $(SRC_ARCH)/stm32f10x_flash_hd.ld
 
-CFLAGS = -I. -I./$(ARCHI) $(INCLUDES) -Wall -ansi -std=c99 -c -fno-common -Os -g -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections -c
+CFLAGS = -I. -I./$(ARCHI) $(INCLUDES) -D__thumb2__ -Wall -ansi -std=gnu99 -c -fno-common -Os -g -mcpu=cortex-m3 -mthumb -msoft-float -ffunction-sections -fdata-sections
 CFLAGS += -Wl,gc-sections
 #CFLAGS  = -mcpu=$(MCU) -mthumb -ansi
 #CFLAGS += -std=c99
@@ -89,9 +89,9 @@ CFLAGS += $($(TARGET).CFLAGS)
 AFLAGS  = -ahls -mapcs-32
 AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
-LDFLAGS = -T$(LD_SCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT) --gc-sections
+LDFLAGS = -D__thumb2__ -T$(LD_SCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT) --gc-sections
 #LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
-LDLIBS  += -lcmsis -lstm32
+LDLIBS  += -lc -lgcc -lcmsis -lstm32 -lm -lc -lgcc 
 
 CPFLAGS = -j .isr_vector -j .text -j .data -Obinary
 
