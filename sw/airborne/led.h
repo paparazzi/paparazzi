@@ -83,6 +83,7 @@ static inline void led_init ( void ) {}
 #define LED_ON(i) {}
 #define LED_OFF(i) {}
 #define LED_TOGGLE(i) {}
+#define LED_PERIODIC() {}
 #endif /* USE_LED */
 
 #endif /* LED_H */
