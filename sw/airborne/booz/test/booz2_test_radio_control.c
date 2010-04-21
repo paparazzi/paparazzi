@@ -56,16 +56,20 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
   
-  RunOnceEvery(51, {/*LED_TOGGLE(2);*/ DOWNLINK_SEND_TIME(&cpu_time_sec);});  
+  RunOnceEvery(51, {/*LED_TOGGLE(2);*/ DOWNLINK_SEND_TIME(DefaultChannel, &cpu_time_sec);});  
 
   RunOnceEvery(10, {radio_control_periodic();});
 
-  RunOnceEvery(10, {DOWNLINK_SEND_BOOZ2_RADIO_CONTROL(&radio_control.values[RADIO_CONTROL_ROLL],     \
+  int16_t foo = 0;
+  RunOnceEvery(10, {DOWNLINK_SEND_BOOZ2_RADIO_CONTROL(DefaultChannel,                                \
+						      &radio_control.values[RADIO_CONTROL_ROLL],     \
 						      &radio_control.values[RADIO_CONTROL_PITCH],    \
 						      &radio_control.values[RADIO_CONTROL_YAW],	     \
 						      &radio_control.values[RADIO_CONTROL_THROTTLE], \
 						      &radio_control.values[RADIO_CONTROL_MODE],     \
+						      &foo,                                          \
 						      &radio_control.status);});
+  LED_PERIODIC();
 }
 
 static inline void main_event_task( void ) {
