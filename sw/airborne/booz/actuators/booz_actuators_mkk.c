@@ -1,5 +1,5 @@
 /*
- * $Id: actuators_buss_twi_blmc_hw.h 3847 2009-08-02 21:47:31Z poine $
+ * $Id$
  *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
@@ -28,6 +28,7 @@
 #include "i2c.h"
 #include "sys_time.h"
 
+
 struct ActuatorsMkk actuators_mkk;
 
 const uint8_t actuators_addr[ACTUATORS_MKK_NB] = ACTUATORS_MKK_ADDR;
@@ -49,6 +50,9 @@ void actuators_init(void) {
   actuators_delay_done = TRUE;
   actuators_delay_time = 0;
 #endif
+
+  booz_actuators_mkk_arch_init();
+
 }
 
 
@@ -64,7 +68,8 @@ void actuators_set(bool_t motors_on) {
   actuators_mkk.status = BUSY;
   actuators_mkk.i2c_done = FALSE;
   actuators_mkk.idx = 0;
-  i2c0_buf[0] = supervision.commands[actuators_mkk.idx];
-  i2c0_transmit(actuators_addr[actuators_mkk.idx], 1, &actuators_mkk.i2c_done);
+  BoozActuatorsMkkArchSend();
+  DeviceBuf[0] = supervision.commands[actuators_mkk.idx];
+  DeviceTransmit(actuators_addr[actuators_mkk.idx], 1, &actuators_mkk.i2c_done);
 
 }
