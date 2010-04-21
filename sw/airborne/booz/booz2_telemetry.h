@@ -30,7 +30,10 @@
 
 #include "downlink.h"
 
+#ifdef USE_RADIO_CONTROL
 #include "booz_radio_control.h"
+#endif
+
 #include "booz2_autopilot.h"
 #include "booz_guidance.h"
 
