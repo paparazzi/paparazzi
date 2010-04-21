@@ -24,6 +24,11 @@
 #define IMU_MAG_X_CHAN   0
 #define IMU_MAG_Y_CHAN   1
 #define IMU_MAG_Z_CHAN   2
-#endif /* IMU_OVERRIDE_CHANNELS */
+#endif /* not IMU_OVERRIDE_CHANNELS */
+
+// FIXME, this is just to make it compile
+#define POWER_SWITCH_LED 5
+
+
 
 #endif /* CONFIG_LISA_V1_0_H */
