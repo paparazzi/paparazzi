@@ -38,7 +38,7 @@ extern void i2c1_ev_irq_handler(void);
 extern void i2c1_er_irq_handler(void);
 
 
-#define I2c1SendStart() { I2C_GenerateSTART(I2C1, ENABLE); }
+#define I2c1SendStart() { I2C_GenerateSTART(I2C1, ENABLE); I2C_ITConfig(I2C1, I2C_IT_EVT, ENABLE);}
 
 #ifdef I2C1_STOP_HANDLER
 #include I2C1_STOP_HANDLER_HEADER

@@ -98,6 +98,13 @@ extern uint8_t  uart3_tx_buffer[UART3_TX_BUFFER_SIZE];
 
 extern void usart3_irq_handler(void);
 
+#define Uart3ChAvailable() (uart3_rx_insert_idx != uart3_rx_extract_idx)
+#define Uart3Getch() ({							\
+      uint8_t ret = uart3_rx_buffer[uart3_rx_extract_idx];		\
+      uart3_rx_extract_idx = (uart3_rx_extract_idx + 1)%UART3_RX_BUFFER_SIZE; \
+      ret;								\
+    })
+
 #endif /* USE_UART3 */
 
 #endif /* UART_HW_H */

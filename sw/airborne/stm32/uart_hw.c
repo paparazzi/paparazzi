@@ -286,8 +286,11 @@ volatile uint16_t uart3_tx_insert_idx, uart3_tx_extract_idx;
 volatile bool_t uart3_tx_running;
 uint8_t  uart3_tx_buffer[UART3_TX_BUFFER_SIZE];
 
+#include "led.h"
+
 
 void uart3_init( void ) {
+
   /* init RCC */
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
 
@@ -300,16 +303,17 @@ void uart3_init( void ) {
   NVIC_Init(&nvic);
 
   /* Init GPIOS */
+  GPIO_PinRemapConfig(GPIO_PartialRemap_USART3, ENABLE);
   GPIO_InitTypeDef gpio;
   /* GPIOB: USART3 Tx push-pull */
   gpio.GPIO_Pin   = GPIO_Pin_10;
   gpio.GPIO_Mode  = GPIO_Mode_AF_PP;
   gpio.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB, &gpio);
+  GPIO_Init(GPIOC, &gpio);
   /* GPIOB: USART3 Rx pin as floating input */
   gpio.GPIO_Pin   = GPIO_Pin_11;
   gpio.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(GPIOB, &gpio);
+  GPIO_Init(GPIOC, &gpio);
 
   /* Configure USART3 */
   USART_InitTypeDef usart;
@@ -354,7 +358,6 @@ void uart3_transmit( uint8_t data ) {
     uart3_tx_running = TRUE;
     USART_SendData(USART3, data);
   }
-
   USART_ITConfig(USART3, USART_IT_TXE, ENABLE);
 
 }

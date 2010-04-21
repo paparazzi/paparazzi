@@ -13,6 +13,7 @@
 #define I2C_RECEIVER                0x01
 static const uint8_t i2c2_direction = I2C_TRANSMITTER;
 
+
 void i2c1_hw_init(void) {
 
   NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
@@ -21,17 +22,17 @@ void i2c1_hw_init(void) {
   /* Configure and enable I2C1 event interrupt -------------------------------*/
   NVIC_InitStructure.NVIC_IRQChannel = I2C1_EV_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
 
   /* Configure and enable I2C1 err interrupt -------------------------------*/
   NVIC_InitStructure.NVIC_IRQChannel = I2C1_ER_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
-  
+
   /* Enable peripheral clocks --------------------------------------------------*/
   /* Enable I2C1 clock */
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
@@ -60,17 +61,17 @@ void i2c1_hw_init(void) {
   /* Apply I2C configuration after enabling it */
   I2C_Init(I2C1, &I2C_InitStructure);
 
-  /* Enable I2C1 event, buffer and error interrupts */
-  I2C_ITConfig(I2C1, I2C_IT_EVT, ENABLE);
-  //  I2C_ITConfig(I2C1, I2C_IT_EVT | I2C_IT_ERR, ENABLE);
-  //  I2C_ITConfig(I2C1, I2C_IT_EVT, ENABLE);
+  /* Enable I2C1 error interrupts */
+  I2C_ITConfig(I2C1, I2C_IT_ERR, ENABLE);
 
+ 
 }
 
 
 void i2c1_ev_irq_handler(void) {
   switch (I2C_GetLastEvent(I2C1)) {
   case I2C_EVENT_MASTER_MODE_SELECT:                 /* EV5 */
+    /*    DEBUG1_T(); */
     if(i2c2_direction == I2C_TRANSMITTER) {
       /* Master Transmitter : Send slave Address for write */
       I2C_Send7bitAddress(I2C1, (i2c1_slave_addr&0xFE), I2C_Direction_Transmitter);
@@ -84,14 +85,18 @@ void i2c1_ev_irq_handler(void) {
     /* Master Transmitter --------------------------------------------------*/
     /* Test on I2C1 EV6 and first EV8 and clear them */
   case I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED:  
+    /*DEBUG2_T();*/
+    /* enable empty dr if we have more than one byte to send */
+    //    if (i2c1_len_w > 1)
+      I2C_ITConfig(I2C1, I2C_IT_BUF, ENABLE);
     /* Send the first data */
-    I2C_ITConfig(I2C1, I2C_IT_BUF, ENABLE);
     I2C_SendData(I2C1, i2c1_buf[0]);
     i2c1_index = 1;
     break;
     
     /* Test on I2C1 EV8 and clear it */
   case I2C_EVENT_MASTER_BYTE_TRANSMITTING:  /* Without BTF, EV8 */     
+    /*DEBUG3_T();*/
     if(i2c1_index < i2c1_len_w) {
       I2C_SendData(I2C1, i2c1_buf[i2c1_index]);
       i2c1_index++;
@@ -103,9 +108,20 @@ void i2c1_ev_irq_handler(void) {
     break;
 
   case I2C_EVENT_MASTER_BYTE_TRANSMITTED: /* With BTF EV8-2 */
-    if(i2c1_index >= i2c1_len_w) {
-      I2c1StopHandler();
+    /*DEBUG4_T();*/
+    if(i2c1_index < i2c1_len_w) {
+      I2C_SendData(I2C1, i2c1_buf[i2c1_index]);
+      i2c1_index++;
     }
+    else {
+      if (i2c1_finished)
+	*i2c1_finished = TRUE;
+      i2c1_status = I2C_IDLE;
+      // I2C_GenerateSTOP(I2C1, ENABLE);
+      I2C_ITConfig(I2C1, I2C_IT_EVT, DISABLE);
+    }
+      //      while (I2C_GetFlagStatus(I2C1, I2C_FLAG_MSL));
+      //      I2c1StopHandler();
     break;
 
     /* Master Receiver -------------------------------------------------------*/
@@ -137,10 +153,17 @@ void i2c1_ev_irq_handler(void) {
 }
 
 void i2c1_er_irq_handler(void) {
+  /*DEBUG1_T();*/
   /* Check on I2C2 AF flag and clear it */
-  if (I2C_GetITStatus(I2C1, I2C_IT_AF))
+  if (I2C_GetITStatus(I2C1, I2C_IT_AF)) {
     I2C_ClearITPendingBit(I2C1, I2C_IT_AF);
-  LED_ON(4);
+    
+  }
+  if (i2c1_finished)
+	*i2c1_finished = TRUE;
+  i2c1_status = I2C_IDLE;
+  I2C_ITConfig(I2C1, I2C_IT_EVT | I2C_IT_BUF, DISABLE);
+
 }
 
 #endif /* USE_I2C1 */
