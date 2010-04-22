@@ -46,3 +46,7 @@ val make_1st_order_noise_generator :
 (* [make_1st_order_noise_generator ?init k sigma] Returns a generator
    initialized to [init], damped by [k] with a variation of stdev [sigma].
    0 < [k] < 1 . x_n+1 <- k x_n + normal 0 sigma . *)
+
+val shifter : int -> 'a -> ('a -> 'a)
+(* [shifter size init] Returns a shift register containing [size] values
+   initialized to [init] *)

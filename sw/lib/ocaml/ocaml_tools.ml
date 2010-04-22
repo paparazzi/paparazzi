@@ -67,3 +67,12 @@ let make_1st_order_noise_generator = fun ?(init = 0.) k sigma ->
   fun () ->
     x := k *. !x +. normal 0. sigma;
     !x
+
+let shifter = fun n default ->
+  let a = Array.create n default
+  and i = ref 0 in
+  fun new_value ->
+    let old_value = a.(!i) in
+    a.(!i) <- new_value;
+    i := (!i + 1) mod n;
+    old_value
