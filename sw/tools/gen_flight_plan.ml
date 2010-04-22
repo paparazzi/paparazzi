@@ -288,6 +288,7 @@ let rec print_stage = fun index_of_waypoints x ->
 	lprintf "GotoBlock(%d);\n" (get_index_block (ExtXml.attrib x "block"));
 	lprintf "break;\n"
     | "exit_block" ->
+	lprintf "default:\n";
 	stage ();
 	lprintf "NextBlock();\n";
 	lprintf "break;\n"
@@ -795,8 +796,11 @@ let () =
       lprintf "switch (nav_block) {\n";
       right ();
       print_blocks index_of_waypoints blocks;
-      left (); lprintf "}\n";
-      left (); lprintf "}\n";
+      lprintf "default: break;\n";
+      left (); 
+      lprintf "}\n";
+      left ();
+      lprintf "}\n";
       lprintf "#endif // NAV_C\n";
 
       begin

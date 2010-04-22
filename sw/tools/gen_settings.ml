@@ -89,6 +89,7 @@ let print_dl_settings = fun settings ->
 	incr idx
     ) 
     settings;
+  lprintf "default: break;\\\n";
   left ();
   lprintf "}\\\n";
   left ();
