@@ -1,0 +1,44 @@
+<airframe name="BETH">
+
+
+  <makefile>
+
+ARCH=lpc21
+ARCHI=arm7
+
+BOARD_CFG = \"boards/olimex_lpc_h2148.h\"
+FLASH_MODE = IAP
+
+#
+# main
+#
+main.ARCHDIR = $(ARCHI)
+main.ARCH = arm7tdmi
+main.TARGET = main
+main.TARGETDIR = main
+
+main.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
+main.CFLAGS += -DPERIPHERALS_AUTO_INIT
+main.srcs   += beth/main_beth.c
+main.CFLAGS += -DUSE_LED
+main.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
+main.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+main.CFLAGS += -DUSE_USB_SERIAL
+main.srcs += $(SRC_ARCH)/usb_ser_hw.c
+main.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
+main.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
+main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UsbS
+main.srcs += downlink.c pprz_transport.c
+main.srcs += beth/bench_sensors.c
+
+main.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
+main.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+
+
+
+
+
+  </makefile>
+
+</airframe>
