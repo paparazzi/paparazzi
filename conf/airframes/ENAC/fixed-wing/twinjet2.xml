@@ -7,11 +7,12 @@
 
 <airframe name="Twinjet 2 Tiny 2.12">
 
-<!--
   <modules>
-    <load name="demo_module.xml"/>
+    <!--load name="adp_roll.xml"/-->
+    <!--load name="ins_vn100.xml"/-->
+    <!--load name="ets_module_sensors.xml"/-->
+    <load name="infrared_i2c.xml"/>
   </modules>
--->
 
 <!-- commands section -->
   <servos>
@@ -74,20 +75,22 @@
 
     <define name="LATERAL_CORRECTION" value="1."/>
     <define name="LONGITUDINAL_CORRECTION" value="1."/>
-    <define name="VERTICAL_CORRECTION" value="1."/>
+    <define name="VERTICAL_CORRECTION" value="1.25"/>
 
     <define name="HORIZ_SENSOR_TILTED" value="1"/>
     <define name="IR1_SIGN" value="-1"/>
     <define name="IR2_SIGN" value="1"/>
     <define name="TOP_SIGN" value="1"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="-2.29183125496" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="-1.146" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0.15" unit="deg"/>
 
     <define name="CORRECTION_UP" value="1."/>
     <define name="CORRECTION_DOWN" value="1."/>
     <define name="CORRECTION_LEFT" value="1."/>
     <define name="CORRECTION_RIGHT" value="1."/>
+
+    <define name="I2C_DEFAULT_CONF" value="1"/>
   </section>
 
   <!--
@@ -126,44 +129,45 @@
 
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="-0.04"/>
+    <define name="ALTITUDE_PGAIN" value="-0.0450000017881"/>
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.32"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.305000007153"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.80"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-1000"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.02"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="-0.00999999977648"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.1"/>
-    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.1"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.0670000016689"/>
 
     <!-- auto pitch inner loop -->
-    <define name="AUTO_PITCH_PGAIN" value="-0.05"/>
-    <define name="AUTO_PITCH_IGAIN" value="0.075"/>
+    <define name="AUTO_PITCH_PGAIN" value="-0.00999999977648"/>
+    <define name="AUTO_PITCH_IGAIN" value="0.194000005722"/>
     <define name="AUTO_PITCH_MAX_PITCH" value="0.35"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="-0.35"/>
+    <define name="AUTO_PITCH_CLIMB_THROTTLE_INCREMENT" value="0.15"/>
 
    <define name="THROTTLE_SLEW" value="0.3"/>
 
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.39999997616"/>
+    <define name="COURSE_PGAIN" value="-1.2009999752"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="0.600000023842" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.6" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
-    <define name="PITCH_PGAIN" value="-12000."/>
+    <define name="PITCH_PGAIN" value="-15762.1953125"/>
     <define name="PITCH_DGAIN" value="0."/>
 
-    <define name="ELEVATOR_OF_ROLL" value="2500"/>
+    <define name="ELEVATOR_OF_ROLL" value="1541."/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-7500"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="-6500."/>
     <define name="ROLL_RATE_GAIN" value="-1500"/>
   </section>
 
@@ -237,7 +241,7 @@ ap.CFLAGS += -DRADIO_CONTROL
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
 ########## Modems
-ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=XBeeTransport -DXBEE_UART=Uart1 -DDATALINK=XBEE -DUART1_BAUD=B9600
+ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=XBeeTransport -DXBEE_UART=Uart1 -DDATALINK=XBEE -DUART1_BAUD=B57600
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 
 #TRANSPARENT
@@ -267,9 +271,17 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 ap.srcs += nav_survey_rectangle.c
 ap.srcs += nav_line.c
 
+########## SPI Master use slave0
+#ap.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0
+#ap.srcs += spi.c $(SRC_ARCH)/spi_hw.c
+
 ########## Barometer (SPI)
-#ap.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0 -DUSE_BARO_MS5534A
-#ap.srcs += spi.c $(SRC_ARCH)/spi_hw.c $(SRC_ARCH)/baro_MS5534A.c
+#ap.CFLAGS += -DUSE_BARO_MS5534A
+#ap.srcs += $(SRC_ARCH)/baro_MS5534A.c
+
+########## I2C0
+ap.CFLAGS += -DUSE_I2C0
+ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 ########## Lights
 ap.CFLAGS += -DUSE_LIGHT
