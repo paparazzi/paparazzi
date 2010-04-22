@@ -7,6 +7,7 @@
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
     <waypoint name="CLIMB" x="0.0" y="5.0"/>
+    <waypoint name="STDBY" x="-2.0" y="-5.0"/>
     <waypoint name="p1" x="3.6" y="-13.9"/>
     <waypoint name="p2" x="27.5" y="-48.2"/>
     <waypoint name="p3" x="16.7" y="-19.6"/>
@@ -38,7 +39,7 @@
       <stay vmode="climb" climb="0.5" wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
-      <stay wp="HOME"/>
+      <stay wp="STDBY"/>
     </block>
     <block name="stay_p1">
       <stay wp="p1"/>
@@ -49,19 +50,20 @@
     </block>
     <block name="line_p1_p2">
       <go from="p1" hmode="route" wp="p2"/>
+      <stay wp="p2" until="stage_time>10"/>
       <go from="p2" hmode="route" wp="p1"/>
       <deroute block="stay_p1"/>
     </block>
     <block name="route">
-      <go from="HOME" hmode="route" wp="p3"/>
+      <go from="p1" hmode="route" wp="p3"/>
       <go from="p3" hmode="route" wp="p4"/>
-      <go from="p4" hmode="route" wp="HOME"/>
-      <stay wp="HOME"/>
+      <go from="p4" hmode="route" wp="p1"/>
+      <deroute block="stay_p1"/>
     </block>
     <block name="circle">
       <circle radius="nav_radius" wp="p1"/>
     </block>
-    <block name="Joystick" pre_call="NavUpdateWPFromFms(WP_p1)">
+    <block name="Joystick" pre_call="NavUpdateWPFromFms(WP_p1)" strip_button="Joystick" strip_icon="joystick.png">
       <set var="fms.enabled" value="TRUE"/>
       <call fun="NavSetWaypointHere(WP_p1)"/>
       <stay wp="p1"/>
