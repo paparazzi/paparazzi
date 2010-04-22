@@ -185,6 +185,7 @@ void v_ctl_altitude_loop( void ) {
 void v_ctl_climb_loop ( void ) {
   switch (v_ctl_climb_mode) {
   case V_CTL_CLIMB_MODE_AUTO_THROTTLE:
+  default:
     v_ctl_climb_auto_throttle_loop();
     break;
 #ifdef V_CTL_AUTO_PITCH_PGAIN
@@ -250,6 +251,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
     
   case V_CTL_AUTO_THROTTLE_STANDARD:
 #endif
+  default:
     f_throttle = controlled_throttle;
     v_ctl_auto_throttle_sum_err += err;
     BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR);

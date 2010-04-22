@@ -558,6 +558,9 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
       InitStage();
     }
     return;
+
+  default:/* Should not occur !!! Doing nothing */
+    return;
   } /* switch */
 }
 
@@ -649,5 +652,8 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
       InitStage();
     }
     return;
+
+ default: /* Should not occur !!! Doing nothing */
+   return;
   }
 }
