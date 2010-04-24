@@ -86,6 +86,10 @@ void booz_stabilization_attitude_init(void) {
     VECT3_ASSIGN(booz_stabilization_gains[i].d, phi_dgain[i], theta_dgain[i], psi_dgain[i]);
     VECT3_ASSIGN(booz_stabilization_gains[i].i, phi_igain[i], theta_igain[i], psi_igain[i]);
     VECT3_ASSIGN(booz_stabilization_gains[i].dd, phi_ddgain[i], theta_ddgain[i], psi_ddgain[i]);
+    VECT3_ASSIGN(booz_stabilization_gains[i].surface_p, phi_pgain_surface[i], theta_pgain_surface[i], psi_pgain_surface[i]);
+    VECT3_ASSIGN(booz_stabilization_gains[i].surface_d, phi_dgain_surface[i], theta_dgain_surface[i], psi_dgain_surface[i]);
+    VECT3_ASSIGN(booz_stabilization_gains[i].surface_i, phi_igain_surface[i], theta_igain_surface[i], psi_igain_surface[i]);
+    VECT3_ASSIGN(booz_stabilization_gains[i].surface_dd, phi_ddgain_surface[i], theta_ddgain_surface[i], psi_ddgain_surface[i]);
   }
 
   FLOAT_QUAT_ZERO( booz_stabilization_att_sum_err_quat );
@@ -188,7 +192,7 @@ void booz_stabilization_attitude_run(bool_t enable_integrator) {
 
   attitude_run_fb(booz_stabilization_att_fb_cmd, &booz_stabilization_gains[gain_idx], &att_err, &rate_err, &booz_stabilization_att_sum_err_quat);
 
-  for (int i = COMMAND_ROLL; i <= COMMAND_YAW; i++) {
+  for (int i = COMMAND_ROLL; i <= COMMAND_YAW_SURFACE; i++) {
 	booz_stabilization_cmd[i] = booz_stabilization_att_fb_cmd[i]+booz_stabilization_att_ff_cmd[i];
   }
 }
