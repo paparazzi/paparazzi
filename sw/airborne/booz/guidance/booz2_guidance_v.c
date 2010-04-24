@@ -127,7 +127,8 @@ void booz2_guidance_v_mode_changed(uint8_t new_mode) {
     booz2_guidance_v_z_sum_err = 0;
     Booz2GuidanceVSetRef(booz_ins_ltp_pos.z, booz_ins_ltp_speed.z, 0);
     break;
-
+  default:
+    break;
   }
 
 
@@ -216,6 +217,8 @@ void booz2_guidance_v_run(bool_t in_flight) {
         booz_stabilization_cmd[COMMAND_THRUST] = booz2_guidance_v_delta_t;
       break;
     }
+  default:
+    break;
   }
 }
 

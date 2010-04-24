@@ -90,6 +90,8 @@ extern const int16_t rc_spk_throw[RADIO_CONTROL_NB_CHANNEL];
 	  _received_frame_handler();					\
         }                                                               \
         break;                                                          \
+      default:								\
+	rc_spk_parser_status = RC_SPK_STA_UNINIT;			\
       }                                                                 \
     }                                                                   \
   }

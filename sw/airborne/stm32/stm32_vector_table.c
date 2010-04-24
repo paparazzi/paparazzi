@@ -229,5 +229,13 @@ void reset_handler_stage2(void){
 void null_handler(void){
 }
 
+/* FIXME: look deeper into what that is doing
+ * 
+ */
+
+void assert_param(void);
+
 void assert_param(void){
+
 }
+

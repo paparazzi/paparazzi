@@ -103,6 +103,8 @@ void booz2_guidance_h_mode_changed(uint8_t new_mode) {
 	//      case BOOZ2_GUIDANCE_H_MODE_RATE:
 	//	booz_stabilization_rate_exit();
 	//	break;
+  default:
+    break;
   }
 
   switch (new_mode) {
@@ -122,7 +124,8 @@ void booz2_guidance_h_mode_changed(uint8_t new_mode) {
   case BOOZ2_GUIDANCE_H_MODE_NAV:
     booz2_guidance_h_nav_enter();
     break;
-
+  default:
+    break;
   }
 
   booz2_guidance_h_mode = new_mode;
@@ -161,6 +164,8 @@ void booz2_guidance_h_read_rc(bool_t  in_flight) {
     else {
       INT_EULERS_ZERO(booz2_guidance_h_rc_sp);
     }
+    break;
+  default:
     break;
   }
 
@@ -207,7 +212,8 @@ void booz2_guidance_h_run(bool_t  in_flight) {
       booz_stabilization_attitude_run(in_flight);
       break;
     }
-
+  default:
+    break;
   }
 
 

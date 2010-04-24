@@ -129,6 +129,8 @@ void booz2_autopilot_set_mode(uint8_t new_autopilot_mode) {
     case BOOZ2_AP_MODE_NAV:
       booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_NAV);
       break;
+    default:
+      break;
     }
     /* vertical mode */
     switch (new_autopilot_mode) {
@@ -162,6 +164,8 @@ void booz2_autopilot_set_mode(uint8_t new_autopilot_mode) {
     case BOOZ2_AP_MODE_NAV:
       booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_NAV);
       break;
+    default:
+      break;
     }
     booz2_autopilot_mode = new_autopilot_mode;
   }
@@ -174,7 +178,7 @@ void booz2_autopilot_set_mode(uint8_t new_autopilot_mode) {
   (radio_control.values[RADIO_CONTROL_YAW] > BOOZ2_AUTOPILOT_YAW_TRESHOLD || \
    radio_control.values[RADIO_CONTROL_YAW] < -BOOZ2_AUTOPILOT_YAW_TRESHOLD)
 
-static inline void booz2_autopilot_check_in_flight() {				\
+static inline void booz2_autopilot_check_in_flight( void) {
   if (booz2_autopilot_in_flight) {
     if (booz2_autopilot_in_flight_counter > 0) {
       if (THROTTLE_STICK_DOWN()) {
@@ -203,7 +207,7 @@ static inline void booz2_autopilot_check_in_flight() {				\
   }
 }
 
-static inline void booz2_autopilot_check_motors_on() {
+static inline void booz2_autopilot_check_motors_on( void ) {
   if (booz2_autopilot_motors_on) {
     if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) {
       if ( booz2_autopilot_motors_on_counter > 0) {

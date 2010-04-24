@@ -5,6 +5,8 @@
 #include <stm32/rcc.h>
 #include <stm32/misc.h>
 
+void tim2_irq_handler(void);
+
 /* ---------------------------------------------------------------
     TIM2 Configuration: Output Compare Timing Mode:
     TIM2CLK = 36 MHz, Prescaler = 4, TIM2 counter clock = 7.2 MHz

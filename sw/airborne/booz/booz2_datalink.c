@@ -117,6 +117,7 @@ void dl_parse_msg(void) {
     /* Parse modules datalink */
     modules_parse_datalink(msg_id);
 #endif
-
+  default:
+    break;
   }
 }

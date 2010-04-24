@@ -36,6 +36,9 @@
 
 volatile uint8_t booz_imu_ssp_status;
 
+void dma1_c4_irq_handler(void);
+void spi2_irq_handler(void);
+
 void booz_imu_b2_arch_init(void) {
 
   /* Enable SPI2 Periph clock -------------------------------------------------*/
@@ -99,6 +102,9 @@ void dma1_c4_irq_handler(void) {
   case BOOZ_IMU_SSP_STA_BUSY_MS2100:
     Ms2001OnDmaIrq();
     break;
+  default:
+    // POST_ERROR(DEBUG_IMU, IMU_ERR_SUPRIOUS_DMA1_C4_IRQ);
+    booz_imu_ssp_status = BOOZ_IMU_SSP_STA_IDLE;
   }
 }
 

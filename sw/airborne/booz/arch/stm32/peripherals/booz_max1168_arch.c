@@ -28,7 +28,7 @@
 #include <stm32/misc.h>
 #include <stm32/dma.h>
 
-#include "led.h"  // for debug, remove me
+void exti2_irq_handler(void);
 
 void booz_max1168_arch_init( void ) {
 

@@ -187,6 +187,8 @@ static inline void parse_pprz( uint8_t c ) {
       goto error;
     pprz_msg_received = TRUE;
     goto restart;
+  default:
+    goto error;
   }
   return;
  error:
