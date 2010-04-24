@@ -45,6 +45,10 @@ typedef uint8_t bool_t;
 /* Unit (void) values */
 typedef uint8_t unit_t;
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #ifndef M_PI_4
 #define M_PI_4 (M_PI/4)
 #endif
@@ -167,6 +171,7 @@ typedef uint8_t unit_t;
       _code_8;								\
       break;								\
     case 9:								\
+    default:								\
       _code_9;								\
       break;								\
     }									\
