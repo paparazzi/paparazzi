@@ -197,6 +197,9 @@ static inline void parse_xbee( uint8_t c ) {
       goto error;
     xbee_msg_received = TRUE;
     goto restart;
+    break;
+  default:
+    goto error;
   }
   return;
  error:
