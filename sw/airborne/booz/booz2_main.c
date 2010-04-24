@@ -101,9 +101,11 @@ STATIC_INLINE void booz2_main_init( void ) {
 
   booz2_analog_init();
   booz2_analog_baro_init();
+
 #if defined USE_CAM || USE_DROP
   booz2_pwm_init_hw();
 #endif
+
   booz2_battery_init();
   booz_imu_init();
 
@@ -133,6 +135,8 @@ STATIC_INLINE void booz2_main_init( void ) {
 
 
 STATIC_INLINE void booz2_main_periodic( void ) {
+
+
   booz_imu_periodic();
   
   /* run control loops */
@@ -158,7 +162,7 @@ STATIC_INLINE void booz2_main_periodic( void ) {
       /*BoozControlSurfacesSetFromCommands();*/				\
     },									\
     {									\
-      LED_PERIODIC();							\
+      LED_PERIODIC();		     					\
     },									\
     {},									\
     {},									\
