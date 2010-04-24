@@ -115,7 +115,9 @@ SECTIONS
         /* This is used by the startup in order to initialize the .bss secion */
         _sbss = .;
 
-        *(.bss)
+        *(.dynbss)
+        *(.bss .bss.* .gnu.linkonce.b.*)
+	  /*        *(.bss) */
         *(COMMON)
 
         . = ALIGN(4);
