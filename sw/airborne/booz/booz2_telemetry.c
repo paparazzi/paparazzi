@@ -24,5 +24,5 @@
 #include "booz2_telemetry.h"
 
 
-uint8_t telemetry_mode_Main_DefaultChannel;
+uint8_t telemetry_mode_Main_DefaultChannel = TELEMETRY_MODE_Main_DefaultChannel_default;
 
