@@ -67,22 +67,23 @@ AOBJ    = $(ASRC:%.S=$(OBJDIR)/%.o)
 # linker script
 LD_SCRIPT = $(SRC_ARCH)/stm32f10x_flash_hd.ld
 
-CFLAGS = -I. -I./$(ARCHI) $(INCLUDES) -D__thumb2__ -Wall -ansi -std=gnu99 -c -fno-common -Os -g -mcpu=cortex-m3 -mthumb -msoft-float -ffunction-sections -fdata-sections
+CFLAGS = -I. -I./$(ARCHI) $(INCLUDES) -D__thumb2__ -Wall -c -msoft-float
 CFLAGS += -Wl,gc-sections
-#CFLAGS  = -mcpu=$(MCU) -mthumb -ansi
-#CFLAGS += -std=c99
+CFLAGS += -mcpu=$(MCU) -mthumb -ansi
+CFLAGS += -std=gnu99
 #CFLAGS += -malignment-traps
-#CFLAGS += -fno-common -O$(OPT) -g$(DEBUG)
-#CFLAGS += -ffunction-sections -fdata-sections
-#CFLAGS += -Wall -Wimplicit
-#CFLAGS += -Wcast-align
-#CFLAGS += -Wpointer-arith -Wswitch
-#CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
-#CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
-#CFLAGS += -Wnested-externs
-#CFLAGS += -Wmissing-prototypes 
-#CFLAGS += -Wstrict-prototypes
-#CFLAGS += -Wmissing-declarations
+CFLAGS += -fno-common -O$(OPT) -g$(DEBUG)
+CFLAGS += -ffunction-sections -fdata-sections
+CFLAGS += -Wall -Wimplicit
+CFLAGS += -Wcast-align
+CFLAGS += -Wpointer-arith -Wswitch
+CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
+CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
+CFLAGS += -Wnested-externs
+CFLAGS += -Wmissing-prototypes 
+CFLAGS += -Wstrict-prototypes
+CFLAGS += -Wmissing-declarations
+CFLAGS += -Wswitch-default
 
 CFLAGS += $($(TARGET).CFLAGS)
 
@@ -90,7 +91,7 @@ AFLAGS  = -ahls -mapcs-32
 AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
 LDFLAGS = -D__thumb2__ -T$(LD_SCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT) --gc-sections
-#LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
+LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
 LDLIBS  += -lc -lm -lgcc -lcmsis -lstm32 
 
 CPFLAGS = -j .isr_vector -j .text -j .data -Obinary
