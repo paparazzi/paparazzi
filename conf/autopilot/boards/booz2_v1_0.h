@@ -87,19 +87,11 @@
 #define PWM_PINSEL_BIT 10
 
 
-// damit, we have two of them now
-//#define POWER_SWITCH_LED 3
-
-/* 4017 servo driver on CAM connector */
-/* P0.28 aka MAT0.2  */
-//#define SERVO_CLOCK_PIN  28
-//#define SERVO_CLOCK_PINSEL PINSEL0
-//#define SERVO_CLOCK_PINSEL_VAL 0x02
-//#define SERVO_CLOCK_PINSEL_BIT 10
-/* p1.23          */
-//#define SERVO_DATA_PIN  23
-/* p1.24          */
-//#define SERVO_RESET_PIN 24
+/*
+ * Modem
+ */
+//#define MODEM_DEVICE Uart1
+//#define MODEM_UART_FLAG 
 
 
 #endif /* CONFIG_BOOZ2_V1_0_H */
