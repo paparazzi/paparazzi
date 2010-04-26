@@ -16,6 +16,9 @@ extern bool_t InitializeFlower(uint8_t CenterWP, uint8_t EdgeWP);
 extern bool_t InitializeBungeeTakeoff(uint8_t BungeeWP);
 extern bool_t BungeeTakeoff(void);
 
+extern bool_t InitializeSkidLanding(uint8_t AFWP, uint8_t TDWP, float radius);
+extern bool_t SkidLanding(void);
+
 #define PolygonSize 10
 #define MaxFloat   1000000000
 #define MinFloat   -1000000000
@@ -24,6 +27,12 @@ extern bool_t InitializePolygonSurvey(uint8_t FirstWP, uint8_t Size, float Sweep
 extern bool_t PolygonSurvey(void);
 extern uint16_t PolySurveySweepNum;
 extern uint16_t PolySurveySweepBackNum;
+
+extern bool_t InitializeVerticalRaster( void );
+extern bool_t VerticalRaster(uint8_t wp1, uint8_t wp2, float radius, float AltSweep);
+
+extern bool_t FlightLine(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Before, float Space_After);
+extern bool_t FlightLineBlock(uint8_t First_WP, uint8_t Last_WP, float radius, float Space_Before, float Space_After);
 
 void TranslateAndRotateFromWorld(struct Point2D *p, float Zrot, float transX, float transY);
 void RotateAndTranslateToWorld(struct Point2D *p, float Zrot, float transX, float transY);
