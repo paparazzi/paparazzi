@@ -31,7 +31,6 @@
 #
 ################################################################################
 
-
 overo_test_spi.ARCHDIR = omap
 overo_test_spi.srcs=$(SRC_FMS)/overo_test_spi.c
 
@@ -77,11 +76,11 @@ test_led.ARCHDIR = $(ARCHI)
 test_led.TARGET = test_led
 test_led.TARGETDIR = test_led
 test_led.CFLAGS += -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
-#test_led.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_led.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_led.srcs += $(SRC_LISA)/test_led.c       	\
                  $(SRC_ARCH)/led_hw.c     	\
-                 $(SRC_LISA)/exceptions.c     	\
-                 $(SRC_LISA)/vector_table.c
+                 $(SRC_ARCH)/stm32_exceptions.c   \
+                 $(SRC_ARCH)/stm32_vector_table.c
 test_led.CFLAGS += -DUSE_LED
 
 
@@ -145,8 +144,8 @@ test_telemetry1.TARGETDIR = test_telemetry1
 test_telemetry1.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
 test_telemetry1.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_telemetry1.srcs = $(SRC_LISA)/test_telemetry.c \
-                      $(SRC_LISA)/exceptions.c      \
-                      $(SRC_LISA)/vector_table.c
+                       $(SRC_ARCH)/stm32_exceptions.c   \
+                       $(SRC_ARCH)/stm32_vector_table.c
 test_telemetry1.CFLAGS += -DUSE_LED
 test_telemetry1.srcs += $(SRC_ARCH)/led_hw.c
 test_telemetry1.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
@@ -167,9 +166,10 @@ test_telemetry2.TARGETDIR = test_telemetry2
 test_telemetry2.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
 test_telemetry2.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_telemetry2.srcs = $(SRC_LISA)/test_telemetry.c \
-                       $(SRC_LISA)/exceptions.c     \
-                       $(SRC_LISA)/vector_table.c
+                       $(SRC_ARCH)/stm32_exceptions.c   \
+                       $(SRC_ARCH)/stm32_vector_table.c
 test_telemetry2.CFLAGS += -DUSE_LED
+test_telemetry2.srcs += $(SRC_ARCH)/led_hw.c
 test_telemetry2.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
 test_telemetry2.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_telemetry2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
@@ -451,6 +451,26 @@ test_mc2.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 
 #
+# test motor controllers with interrupts
+#
+test_mc4.ARCHDIR = $(ARCHI)
+test_mc4.TARGET = test_mc
+test_mc4.TARGETDIR = test_mc
+test_mc4.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_mc4.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_mc4.srcs = $(SRC_LISA)/test_mc4.c           \
+                $(SRC_ARCH)/stm32_exceptions.c   \
+                $(SRC_ARCH)/stm32_vector_table.c
+test_mc4.CFLAGS += -DUSE_LED
+test_mc4.srcs += $(SRC_ARCH)/led_hw.c
+test_mc4.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_mc4.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_mc4.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_mc4.CFLAGS += -DUSE_I2C1
+test_mc4.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+
+#
 # test actuators mkk
 #
 test_actuators_mkk.ARCHDIR = $(ARCHI)
@@ -482,6 +502,46 @@ test_actuators_mkk.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1  -DUSE_TIM2_IRQ
 test_actuators_mkk.srcs += $(SRC_BOOZ)/actuators/booz_supervision.c
 test_actuators_mkk.CFLAGS += -DUSE_I2C1
 test_actuators_mkk.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+
+#
+# test actuators asctec
+#
+test_actuators_asctec.ARCHDIR = $(ARCHI)
+test_actuators_asctec.TARGET = test_actuators_asctec
+test_actuators_asctec.TARGETDIR = test_actuators_asctec
+test_actuators_asctec.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_actuators_asctec.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_actuators_asctec.srcs = $(SRC_LISA)/test/lisa_test_actuators_mkk.c \
+                          $(SRC_ARCH)/stm32_exceptions.c   \
+                          $(SRC_ARCH)/stm32_vector_table.c
+
+test_actuators_asctec.CFLAGS += -DUSE_LED
+test_actuators_asctec.srcs += $(SRC_ARCH)/led_hw.c
+
+test_actuators_asctec.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_actuators_asctec.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_actuators_asctec.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_actuators_asctec.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_actuators_asctec.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_actuators_asctec.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_actuators_asctec.srcs += downlink.c pprz_transport.c
+
+test_actuators_asctec.srcs += $(SRC_BOOZ)/booz2_commands.c
+test_actuators_asctec.srcs += $(SRC_BOOZ)/actuators/booz_actuators_asctec.c 
+#\
+#                              $(SRC_BOOZ_ARCH)/actuators/booz_actuators_asctec_arch.c
+test_actuators_asctec.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
+# -DBOOZ_START_DELAY=3
+#  -DUSE_TIM2_IRQ
+test_actuators_asctec.CFLAGS += -DUSE_I2C1
+test_actuators_asctec.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+
+
+
 
 
 #
@@ -540,9 +600,9 @@ test_spi_slave.TARGET = test_spi_slave
 test_spi_slave.TARGETDIR = test_spi_slave
 test_spi_slave.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
 test_spi_slave.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_spi_slave.srcs = $(SRC_LISA)/test_spi_slave.c      \
-                      $(SRC_LISA)/exceptions.c          \
-                      $(SRC_LISA)/vector_table.c
+test_spi_slave.srcs = $(SRC_LISA)/test_spi_slave.c     \
+                      $(SRC_ARCH)/stm32_exceptions.c   \
+                      $(SRC_ARCH)/stm32_vector_table.c
 test_spi_slave.CFLAGS += -DUSE_LED
 test_spi_slave.srcs += $(SRC_ARCH)/led_hw.c
 test_spi_slave.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
@@ -563,9 +623,9 @@ test_spi_slave2.TARGET = test_spi_slave2
 test_spi_slave2.TARGETDIR = test_spi_slave2
 test_spi_slave2.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
 test_spi_slave2.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_spi_slave2.srcs = $(SRC_LISA)/test_spi_slave2.c      \
-                      $(SRC_LISA)/exceptions.c          \
-                      $(SRC_LISA)/vector_table.c
+test_spi_slave2.srcs = $(SRC_LISA)/test_spi_slave2.c    \
+                       $(SRC_ARCH)/stm32_exceptions.c   \
+                       $(SRC_ARCH)/stm32_vector_table.c
 test_spi_slave2.CFLAGS += -DUSE_LED
 test_spi_slave2.srcs += $(SRC_ARCH)/led_hw.c
 test_spi_slave2.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
