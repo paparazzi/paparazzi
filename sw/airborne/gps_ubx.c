@@ -349,6 +349,8 @@ void parse_ubx( uint8_t c ) {
     gps_msg_received = TRUE;
     goto restart;
     break;
+  default:
+    goto error;
   }
   return;
  error:  
