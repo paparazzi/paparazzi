@@ -28,6 +28,8 @@
 #include "booz_actuators.h"
 #include "downlink.h"
 
+#include "actuators/booz_actuators_asctec.h"
+
 static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void );
@@ -56,19 +58,44 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
 
+  static uint16_t i = 0;
+
   RunOnceEvery(100, {
       LED_TOGGLE(3);
       DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
     });
   
-  /* set actuators     */
-  booz2_commands[COMMAND_PITCH] = 0;
-  booz2_commands[COMMAND_ROLL] = 0;
-  booz2_commands[COMMAND_YAW] = 0;
-  booz2_commands[COMMAND_THRUST] = 0;
-  //actuators_set(TRUE);
-  actuators_set(FALSE);
 
+#if 0
+  if (i==1) {
+    actuators_asctec.cur_addr = BACK;
+    actuators_asctec.cmd = TEST;
+  }
+#endif
+#if 0
+  if (i==1) {
+    actuators_asctec.cur_addr = LEFT;
+    actuators_asctec.new_addr = BACK;
+    actuators_asctec.cmd = SET_ADDR;
+  }
+#endif
+#if 0
+  if (i==1) {
+    actuators_asctec.cur_addr = BACK;
+    actuators_asctec.cmd = REVERSE;
+  }
+#endif
+  i++;
+
+  if (i>1000) {
+    /* set actuators     */
+    booz2_commands[COMMAND_PITCH] = 0;
+    booz2_commands[COMMAND_ROLL] = 0;
+    booz2_commands[COMMAND_YAW] = 0;
+    booz2_commands[COMMAND_THRUST] = 0;
+    actuators_set(TRUE);
+    //actuators_set(FALSE);
+  }
   LED_PERIODIC();
 
 }
