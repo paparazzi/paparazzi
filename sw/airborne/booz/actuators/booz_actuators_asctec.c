@@ -5,6 +5,20 @@
 #include "i2c.h"
 #include "sys_time.h"
 
+
+#ifndef ACTUATORS_ASCTEC_DEVICE
+#define ACTUATORS_ASCTEC_DEVICE i2c0
+#endif
+
+#define __Device(dev, _z) dev##_##_z 
+#define  _Device(dev, _z) __Device(dev, _z)
+#define  Device( _z) _Device(ACTUATORS_ASCTEC_DEVICE, _z)
+
+#define   DeviceBuf                    Device(buf)
+#define   DeviceTransmit(_x, _y, _z)   Device(transmit(_x, _y, _z))
+
+
+
 struct ActuatorsAsctec actuators_asctec; 
 
 uint32_t actuators_delay_time;
@@ -59,33 +73,33 @@ void actuators_set(bool_t motors_on) {
 
   switch (actuators_asctec.cmd) {
   case TEST:
-    i2c0_buf[0] = 251;
-    i2c0_buf[1] = actuators_asctec.cur_addr;
-    i2c0_buf[2] = 0;
-    i2c0_buf[3] = 231 + actuators_asctec.cur_addr;
+    DeviceBuf[0] = 251;
+    DeviceBuf[1] = actuators_asctec.cur_addr;
+    DeviceBuf[2] = 0;
+    DeviceBuf[3] = 231 + actuators_asctec.cur_addr;
     break;
   case REVERSE:
-    i2c0_buf[0] = 254;
-    i2c0_buf[1] = actuators_asctec.cur_addr;
-    i2c0_buf[2] = 0;
-    i2c0_buf[3] = 234 + actuators_asctec.cur_addr;
+    DeviceBuf[0] = 254;
+    DeviceBuf[1] = actuators_asctec.cur_addr;
+    DeviceBuf[2] = 0;
+    DeviceBuf[3] = 234 + actuators_asctec.cur_addr;
     break;
   case SET_ADDR:
-    i2c0_buf[0] = 250;
-    i2c0_buf[1] = actuators_asctec.cur_addr;
-    i2c0_buf[2] = actuators_asctec.new_addr;
-    i2c0_buf[3] = 230 + actuators_asctec.cur_addr + actuators_asctec.new_addr;
+    DeviceBuf[0] = 250;
+    DeviceBuf[1] = actuators_asctec.cur_addr;
+    DeviceBuf[2] = actuators_asctec.new_addr;
+    DeviceBuf[3] = 230 + actuators_asctec.cur_addr + actuators_asctec.new_addr;
     actuators_asctec.cur_addr = actuators_asctec.new_addr;
     break;
   case NONE:
-    i2c0_buf[0] = 100 -  actuators_asctec.cmds[PITCH];
-    i2c0_buf[1] = 100 + actuators_asctec.cmds[ROLL];
-    i2c0_buf[2] = 100 - actuators_asctec.cmds[YAW];
-    i2c0_buf[3] = actuators_asctec.cmds[THRUST];
+    DeviceBuf[0] = 100 -  actuators_asctec.cmds[PITCH];
+    DeviceBuf[1] = 100 + actuators_asctec.cmds[ROLL];
+    DeviceBuf[2] = 100 - actuators_asctec.cmds[YAW];
+    DeviceBuf[3] = actuators_asctec.cmds[THRUST];
     break;
   }
   actuators_asctec.cmd = NONE;
   actuators_asctec.i2c_done = FALSE;
-  i2c0_transmit(0x02, 4, &actuators_asctec.i2c_done);
+  DeviceTransmit(0x02, 4, &actuators_asctec.i2c_done);
 }
 
