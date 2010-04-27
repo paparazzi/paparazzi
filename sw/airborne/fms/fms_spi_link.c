@@ -11,7 +11,10 @@
 int spi_link_init(void) {
 
   spi_link.device = "/dev/spidev1.1";
-  spi_link.mode  = 0;
+  //  spi_link.mode  = 0;
+  //  spi_link.mode  = SPI_CPHA | SPI_CPOL | SPI_LSB_FIRST;
+  spi_link.mode  = SPI_CPHA;
+  //  spi_link.mode  = SPI_LSB_FIRST;
   spi_link.bits  = 8;
   spi_link.speed = 500000;
   spi_link.delay = 1;
