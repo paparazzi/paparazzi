@@ -29,6 +29,9 @@
 #include "booz2_ins.h"
 
 #include "booz2_autopilot.h"
+#ifdef USE_MODULES
+#include "modules.h"
+#endif
 #include "flight_plan.h"
 
 #ifdef USE_FMS
@@ -120,8 +123,9 @@ void booz2_nav_run(void) {
   int32_t dist_to_waypoint;
   INT32_VECT2_NORM(dist_to_waypoint, path_to_waypoint);
 
+#ifndef B2_GUIDANCE_H_USE_REF
   if (dist_to_waypoint < CLOSE_TO_WAYPOINT) {
-    VECT2_COPY( booz2_navigation_carrot, booz2_navigation_target);
+    VECT2_COPY(booz2_navigation_carrot, booz2_navigation_target);
   }
   else {
     struct Int32Vect2 path_to_carrot;
@@ -129,6 +133,10 @@ void booz2_nav_run(void) {
     VECT2_SDIV(path_to_carrot, path_to_carrot, dist_to_waypoint);
     VECT2_SUM(booz2_navigation_carrot, path_to_carrot, booz_ins_enu_pos);
   }
+#else
+  // if H_REF is used, CARROT_DIST is not used
+  VECT2_COPY(booz2_navigation_carrot, booz2_navigation_target);
+#endif
 
   nav_set_altitude();
 }

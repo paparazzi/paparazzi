@@ -32,4 +32,6 @@ extern bool_t booz_drop_ball;
 extern void booz_drop_init(void);
 extern void booz_drop_periodic(void);
 
+#define NavDropNow() ({ booz_drop_ball = TRUE; FALSE; })
+
 #endif  /* BOOZ_DROP_H */

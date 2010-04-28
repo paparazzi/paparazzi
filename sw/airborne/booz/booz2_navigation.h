@@ -78,15 +78,8 @@ bool_t nav_detect_ground(void);
 
 void nav_home(void);
 
-#ifdef USE_DROP
-#include "booz_drop.h"
-#define NavDropNow() ({ booz_drop_ball = TRUE; FALSE; })
-#else
-#define NavDropNow() {}
-#endif
-
-#define NavKillThrottle() ({ kill_throttle = 1; booz2_autopilot_motors_on = 0; FALSE; })
-#define NavResurrect() ({ kill_throttle = 0; booz2_autopilot_motors_on = 1; FALSE; })
+#define NavKillThrottle() ({ if (booz2_autopilot_mode == BOOZ2_AP_MODE_NAV) { kill_throttle = 1; booz2_autopilot_motors_on = 0; } FALSE; })
+#define NavResurrect() ({ if (booz2_autopilot_mode == BOOZ2_AP_MODE_NAV) { kill_throttle = 0; booz2_autopilot_motors_on = 1; } FALSE; })
 
 #define InitStage() nav_init_stage();
 
