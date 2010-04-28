@@ -27,9 +27,13 @@
 #include "booz2_gps.h"
 #include "booz_ahrs.h"
 
+#include "airframe.h"
+
 struct BoozFms fms;
 
+#ifndef BOOZ_FMS_TIMEOUT
 #define BOOZ_FMS_TIMEOUT 100
+#endif
 
 void booz_fms_init(void) {
 
@@ -46,6 +50,7 @@ void booz_fms_init(void) {
 }
 
 void booz_fms_periodic(void) {
+#if (BOOZ_FMS_TIMEOUT != 0)
   if (fms.last_msg < BOOZ_FMS_TIMEOUT) 
     fms.last_msg++;
   else {
@@ -55,6 +60,7 @@ void booz_fms_periodic(void) {
     fms.input.v_mode = BOOZ2_GUIDANCE_V_MODE_CLIMB;
     fms.input.v_sp.climb = 0;
   }
+#endif
   booz_fms_impl_periodic();
 }
 
