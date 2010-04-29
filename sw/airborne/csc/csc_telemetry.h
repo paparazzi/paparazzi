@@ -133,7 +133,7 @@ DOWNLINK_SEND_BOOZ2_INS3(_chan,	  \
 
 #ifdef USE_AIRSPEED
 #include "estimator.h"
-#define PERIODIC_SEND_AIRSPEED(_chan) { float empty; DOWNLINK_SEND_AIRSPEED (_chan, &adc_airspeed_val,&estimator_airspeed,&empty,&empty,&empty) }
+#define PERIODIC_SEND_AIRSPEED(_chan) { float empty; DOWNLINK_SEND_AIRSPEED (_chan, &adc_airspeed_val,&estimator_airspeed,&empty,&empty,&empty,&empty) }
 #else
 #define PERIODIC_SEND_AIRSPEED(_chan) {}
 #endif

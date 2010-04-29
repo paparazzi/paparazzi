@@ -151,9 +151,7 @@ static void csc_main_periodic( void ) {
     csc_ap_link_send_status(csc_loops, can_msg_count);
   }
 #ifdef ADC
-  if ((csc_loops % CSC_STATUS_TIMEOUT) == 0) {
-    csc_adc_periodic();
-  }
+  csc_adc_periodic();
 #endif
 
   if ((csc_loops % AIRSPEED_TIMEOUT) == 0) {

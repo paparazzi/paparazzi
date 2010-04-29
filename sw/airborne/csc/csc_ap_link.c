@@ -58,6 +58,18 @@ void csc_ap_link_send_airspeed(float airspeed1, float airspeed2)
   csc_ap_send_msg(CSC_AIRSPEED_MSG_ID, (const uint8_t *) &msg, sizeof(msg));
 }
 
+void csc_ap_link_send_baro(uint32_t pressure, uint16_t temperature, uint8_t status)
+{
+
+  struct CscBaroMsg msg;
+
+  msg.baro_pressure = pressure;
+  msg.baro_temperature = temperature;
+  msg.baro_status = status;
+
+  csc_ap_send_msg(CSC_BARO_MSG_ID, (const uint8_t *) &msg, sizeof(msg));
+}
+
 
 // Generic function for sending can messages
 void can_write_csc(uint8_t board_id, uint8_t msg_id, const uint8_t *buf, uint8_t len)

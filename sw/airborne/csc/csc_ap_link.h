@@ -16,6 +16,7 @@ void csc_ap_link_send_status(uint32_t loops, uint32_t msgs);
 void csc_ap_link_send_adc(float adc1, float adc2);
 void csc_ap_link_send_vane(float *vane_angle);
 void csc_ap_link_send_airspeed(float airspeed1, float airspeed2);
+void csc_ap_link_send_baro(uint32_t pressure, uint16_t temp, uint8_t status);
 void csc_ap_link_set_servo_cmd_cb(void (* cb)(struct CscServoCmd *cmd));
 void csc_ap_link_set_motor_cmd_cb(void (* cb)(struct CscMotorMsg *msg));
 void csc_ap_link_set_prop_cmd_cb(void (* cb)(struct CscPropCmd *cmd, int idx));

@@ -20,6 +20,7 @@
 #define CSC_PROP2_CMD_ID       10
 #define CSC_VANE_MSG_ID       11
 #define CSC_AIRSPEED_MSG_ID   12
+#define CSC_BARO_MSG_ID       13
 
 
 /* Received from the autopilot */
@@ -83,6 +84,12 @@ struct CscVaneMsg {
 struct CscAirspeedMsg {
   float airspeed1;
   float airspeed2;
+} __attribute__((packed));
+
+struct CscBaroMsg {
+  uint32_t baro_pressure;
+  uint16_t baro_temperature;
+  uint8_t baro_status;
 } __attribute__((packed));
 
 #define CSC_RC_SCALE 20

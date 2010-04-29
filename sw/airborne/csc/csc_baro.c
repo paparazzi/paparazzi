@@ -160,10 +160,10 @@ void spi1_isr()
     baro_scp_pressure |= (msb << 16);
     baro_scp_pressure *= 25;
 
-    baro_scp_alt = 9000 - baro_scp_pressure * 0.00084366;
+    //baro_scp_alt = 9000 - baro_scp_pressure * 0.00084366;
     baro_scp_status = STA_VALID;
 
-    booz_ins_update_baro();
+    csc_ap_link_send_baro(baro_scp_pressure, baro_scp_temperature, baro_scp_status);
   }
 }
 
