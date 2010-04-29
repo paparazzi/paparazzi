@@ -152,3 +152,30 @@ def plot_results(measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref
     plot(sensor_ref*scipy.ones(len(flt_meas)));
 
     show();
+
+
+#
+# read a turntable log
+# return an array which first column is turnatble and next 3 are gyro
+#
+def read_turntable_log(ac_id, tt_id, filename, _min, _max):
+    f = open(filename, 'r')
+    pattern_g = re.compile("(\S+) "+ac_id+" IMU_GYRO_RAW (\S+) (\S+) (\S+)")
+    pattern_t = re.compile("(\S+) "+tt_id+" IMU_TURNTABLE (\S+)")
+    last_tt = None
+    list_tt = []
+    while 1:
+        line = f.readline().strip()
+        if line == '':
+            break
+        m=re.match(pattern_t, line)
+        if m:
+            last_tt = float(m.group(2))
+        m=re.match(pattern_g, line)
+        if m and last_tt and last_tt > _min and last_tt < _max:
+            list_tt.append([last_tt, float(m.group(2)), float(m.group(3)), float(m.group(4))])
+    return scipy.array(list_tt)           
+
+#
+#
+#
