@@ -61,7 +61,6 @@ extern uint8_t udpt_ck_a, udpt_ck_b;
     UdpTransportPut1Byte(udpt_ck_a);					\
     UdpTransportPut1Byte(udpt_ck_b);					\
     if (udpt_tx_buf_idx > UDPT_TX_BUF_WATERMARK) {			\
-      TRACE(TRACE_DEBUG, "in UdpTransportTrailer : watermark crossed, sending (%d/%d)\n", udpt_tx_buf_idx, UDPT_TX_BUF_WATERMARK); \
       network_write(network, updt_tx_buf, udpt_tx_buf_idx);		\
       udpt_tx_buf_idx = 0;						\
     }									\
