@@ -6,16 +6,16 @@
      Tilted infrared sensor (http://paparazzi.enac.fr/wiki/index.php/Image:Tiny_v2_1_Funjet.jpg)
      XBee modem
      Payload: Sensirion humidity/temp, VTI pressure/temp
-     K66, LEA 5
+     K68, LEA 5
 -->
 
-<airframe name="Funjet GFI 5 K66">
+<airframe name="Funjet GFI 9 K68">
 
 <!-- commands section -->
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1520" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1456" max="1900"/>
+    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1574" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1509" max="1900"/>
   </servos>
 
   <commands>
@@ -74,7 +74,7 @@
     <define name="IR2_SIGN" value="-1"/>
     <define name="TOP_SIGN" value="-1"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="3" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
   </section>
 
