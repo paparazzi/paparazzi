@@ -1,3 +1,4 @@
+#include "std.h"
 #include "init_hw.h"
 #include "interrupt_hw.h"
 #include "sys_time.h"
@@ -9,11 +10,15 @@
 #include "uart.h"
 #include "pprz_transport.h"
 #include "main_fbw.h"
+#include "downlink.h"
 
 
 #define IdOfMsg(x) (x[1])
 
-#define SetServo(x, v) Actuator(x) = SERVOS_TICS_OF_USEC(ChopServo(v,700,2400));
+#define SetServo(x, v) { \
+  Actuator(x) = SERVOS_TICS_OF_USEC(ChopServo(v,700,2400)); \
+  actuators[x] = v; \
+  }
 
 void dl_parse_msg( void ) {
   uint8_t msg_id = IdOfMsg(dl_buffer);
@@ -25,19 +30,21 @@ void dl_parse_msg( void ) {
   }
 }
 
+#define PprzUartInit() Link(Init())
 
 void init_fbw( void ) {
   hw_init();
   sys_time_init();
   led_init();
 
-  Uart0Init();
+  PprzUartInit();
 
   actuators_init();
 
   uint8_t i;
-  for(i = 0; i < SERVOS_NB; i++)
+  for(i = 0; i < SERVOS_NB; i++) {
     SetServo(i, 1500);
+  }
 
   //  SetServo(SERVO_GAZ, SERVO_GAZ_MIN);
 
@@ -45,10 +52,13 @@ void init_fbw( void ) {
 }
 
 void periodic_task_fbw(void) {
-/*    static float t; */
-/*    t += 1./60.; */
-/*    uint16_t servo_value = 1500+ 500*sin(t); */
-/*    SetServo(SERVO_AILEVON_LEFT, servo_value); */
+   /* static float t; */
+   /* t += 1./60.; */
+   /* uint16_t servo_value = 1500+ 500*sin(t); */
+   /* SetServo(SERVO_THROTTLE, servo_value); */
+
+  //  RunOnceEvery(300, DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM));
+  RunOnceEvery(300, DOWNLINK_SEND_ACTUATORS(DefaultChannel, SERVOS_NB, actuators ));
 }
 
 void event_task_fbw(void) {
