@@ -7,9 +7,9 @@
 </header>
 
   <waypoints>
-    <waypoint name="HOME" x="0.0" y="-175.0"/>
-    <waypoint name="CENTER" x="0.1" y="0.1" alt="150.0"/>
-    <waypoint name="CR" x="-53.8" y="-175.1"/>
+    <waypoint name="HOME" x="-30.0" y="13.0"/>
+    <waypoint name="CENTER" x="10.0" y="1.0" alt="140.0"/>
+    <waypoint name="CR" x="-53.8" y="140.0"/>
 
     <waypoint name="_B" x="-200." y="200.0"/>
     <waypoint name="B0" x="-200." y="200.0"/>
@@ -42,13 +42,13 @@
       <set var="cube_nsect_z" value="2"/>
       <set var="cube_alpha"   value="60"/>
       <set var="cube_size_x"  value="70"/>
-      <set var="cube_size_y"  value="150"/>
-      <set var="cube_size_z"  value="100"/>
-      <set var="cube_grid_x"  value="20"/>
-      <set var="cube_grid_z"  value="20"/>
+      <set var="cube_size_y"  value="50"/>
+      <set var="cube_size_z"  value="40"/>
+      <set var="cube_grid_x"  value="10"/>
+      <set var="cube_grid_z"  value="10"/>
       <set var="cube_offs_x"  value="0"/>
       <set var="cube_offs_y"  value="30"/>
-      <set var="cube_offs_z"  value="40"/>
+      <set var="cube_offs_z"  value="10"/>
       <deroute block="Fly lines in cubical"/>
     </block>
 

@@ -73,7 +73,7 @@ bool_t nav_cube_init(uint8_t center, uint8_t tb, uint8_t te) {
   if (cube_nline_x >= MAX_LINES_X) cube_nline_x = MAX_LINES_X-1;
 
   /* position and number of layers in this sector */
-  cube_pos_z = (cube_sect-1) / cube_nsect_z;
+  cube_pos_z = (cube_sect-1) / cube_nsect_x;
   cube_line_z_start =  (cube_pos_z    * cube_nline_z_t)/cube_nsect_z;
   cube_line_z_end   = ((cube_pos_z+1) * cube_nline_z_t)/cube_nsect_z;
   cube_nline_z = cube_line_z_end - cube_line_z_start;
@@ -95,8 +95,8 @@ bool_t nav_cube_init(uint8_t center, uint8_t tb, uint8_t te) {
   start_by = start_ey - cube_size_y;
 
   /* calculate lower left start begin/end z coord */
-  start_bz = waypoints[center].a - (((cube_nline_z-1) * cube_grid_z)/2)
-             + cube_offs_z;
+  start_bz = waypoints[center].a - (((cube_nline_z_t-1) * cube_grid_z)/2)
+             + (cube_line_z_start*cube_grid_z) + cube_offs_z;
   start_ez = start_bz;
 
   /* reset all waypoints to the standby position */
@@ -142,13 +142,13 @@ bool_t nav_cube(int8_t j, int8_t i,
   waypoints[dest_b].y = waypoints[src_b+i].y;
   waypoints[dest_b].a = waypoints[src_b+i].a + j*cube_grid_z;
   /* always keep at least security altitude */
-  if (waypoints[dest_b].a < ground_alt+SECURITY_HEIGHT) waypoints[dest_b].a = ground_alt+SECURITY_HEIGHT;
+  if (waypoints[dest_b].a < (ground_alt+SECURITY_HEIGHT)) waypoints[dest_b].a = ground_alt+SECURITY_HEIGHT;
 
   waypoints[dest_e].x = waypoints[src_e+i].x;
   waypoints[dest_e].y = waypoints[src_e+i].y;
   waypoints[dest_e].a = waypoints[src_e+i].a + j*cube_grid_z;
   /* always keep at least security altitude */
-  if (waypoints[dest_e].a < ground_alt+SECURITY_HEIGHT) waypoints[dest_e].a = ground_alt+SECURITY_HEIGHT;
+  if (waypoints[dest_e].a < (ground_alt+SECURITY_HEIGHT)) waypoints[dest_e].a = ground_alt+SECURITY_HEIGHT;
 
   return FALSE; 
 }
