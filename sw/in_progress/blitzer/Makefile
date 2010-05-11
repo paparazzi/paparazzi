@@ -1,5 +1,5 @@
 
-MCU = attiny45
+MCU = attiny25
 
 PROG = dragon_isp
 DEV = usb

@@ -35,16 +35,24 @@
     <block name="wait" strip_button="wait">
       <circle radius="-nav_radius" wp="CR"/>
     </block>
+
+    <block name="Preset cubical lines" strip_button="CubeInit">
+      <set var="cube_sect"    value="1"/>
+      <set var="cube_nsect_x" value="3"/>
+      <set var="cube_nsect_z" value="2"/>
+      <set var="cube_alpha"   value="60"/>
+      <set var="cube_size_x"  value="70"/>
+      <set var="cube_size_y"  value="150"/>
+      <set var="cube_size_z"  value="100"/>
+      <set var="cube_grid_x"  value="20"/>
+      <set var="cube_grid_z"  value="20"/>
+      <set var="cube_offs_x"  value="0"/>
+      <set var="cube_offs_y"  value="30"/>
+      <set var="cube_offs_z"  value="40"/>
+      <deroute block="Fly lines in cubical"/>
+    </block>
+
     <block name="Fly lines in cubical" strip_button="Cube">
-      <set var="cube_alpha"  value="60"/>
-      <set var="cube_size_x" value="70"/>
-      <set var="cube_size_y" value="150"/>
-      <set var="cube_size_z" value="50"/>
-      <set var="cube_grid_x" value="20"/>
-      <set var="cube_grid_z" value="20"/>
-      <set var="cube_offs_x" value="0"/>
-      <set var="cube_offs_y" value="30"/>
-      <set var="cube_offs_z" value="40"/>
       <call fun="nav_cube_init(WP_CENTER, WP_B0, WP_E0)"/>
       <for from="0" to="cube_nline_z" var="j">
         <for from="0" to="cube_nline_x" var="i">

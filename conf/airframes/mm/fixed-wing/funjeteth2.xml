@@ -1,4 +1,4 @@
-<!DOCTYPE airframe SYSTEM "airframe.dtd">
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
 <!-- Funjet Multiplex (http://www.multiplex-rc.de/), Jeti ECO 25
      Tiny 2.11 board (http://paparazzi.enac.fr/wiki/index.php/Tiny_v2)
@@ -6,16 +6,16 @@
      Tilted infrared sensor (http://paparazzi.enac.fr/wiki/index.php/Image:Tiny_v2_1_Funjet.jpg)
      XBee modem
      Payload: Sensirion humidity/temp, VTI pressure/temp
-     LEA 4
+     K61, LEA 4 (set to POSLLH)
 -->
 
-<airframe name="Funjet ETH 1">
+<airframe name="Funjet ETH 1 K61">
 
 <!-- commands section -->
   <servos>
-    <servo name="MOTOR"         no="0" min="1550" neutral="1550" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1532" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1519" max="1900"/>
+    <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1504" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1506" max="1900"/>
   </servos>
 
   <commands>
@@ -72,7 +72,7 @@
     <define name="HORIZ_SENSOR_TILTED" value="1"/>
     <define name="IR1_SIGN" value="1"/>
     <define name="IR2_SIGN" value="-1"/>
-    <define name="TOP_SIGN" value="-1"/>
+    <define name="TOP_SIGN" value="1"/>
 
     <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
@@ -89,7 +89,7 @@
   </section>
  
   <section name="MISC">
-    <define name="NOMINAL_AIRSPEED" value="15." unit="m/s"/>
+    <define name="NOMINAL_AIRSPEED" value="18." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
@@ -242,7 +242,6 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 ap.srcs += nav_line.c nav_cube.c
 ap.srcs += nav_survey_rectangle.c
 
-
 ap.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=12 -DSSP_VIC_SLOT=11 -DUSE_MICROMAG_FW
 ap.srcs += micromag_fw.c $(SRC_ARCH)/micromag_fw_hw.c
 
@@ -257,10 +256,6 @@ ap.CFLAGS += -DUSE_I2C0 -DUSE_BARO_SCP
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 sim.srcs += nav_line.c nav_survey_rectangle.c nav_cube.c
-
-sim.srcs += joystick.c
-sim.CFLAGS += -DUSE_JOYSTICK
-
 
   </makefile>
 </airframe>

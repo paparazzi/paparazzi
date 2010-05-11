@@ -30,27 +30,53 @@
 #include "airframe.h"
 #include "nav_cube.h"
 #include "nav.h"
+#include "flight_plan.h"
 
 int32_t cube_alpha;
 int32_t cube_size_x, cube_size_y, cube_size_z;
 int32_t cube_grid_x, cube_grid_z;
 int32_t cube_offs_x, cube_offs_y, cube_offs_z;
 int32_t cube_nline_x, cube_nline_z;
+int32_t cube_sect=1;
+int32_t cube_nsect_x=1, cube_nsect_z=1;
 
 bool_t nav_cube_init(uint8_t center, uint8_t tb, uint8_t te) {
 
-  int32_t i, start_bx, start_by, start_bz, start_ex, start_ey, start_ez;
+  int32_t j, start_bx, start_by, start_bz, start_ex, start_ey, start_ez;
   int32_t bx, by, ex, ey;
   float alpha, cos_alpha, sin_alpha;
+  int32_t cube_nline_x_t, cube_nline_z_t;
+  int32_t cube_pos_x, cube_pos_z;
+  int32_t cube_line_x_start, cube_line_x_end;
+  int32_t cube_line_z_start, cube_line_z_end;
 
   /* sanity checks */
-  if (cube_grid_x == 0) cube_nline_x = 1;
-  else cube_nline_x = cube_size_x / cube_grid_x + 1;
-  if (cube_grid_z == 0) cube_nline_z = 1;
-  else cube_nline_z = cube_size_z / cube_grid_z + 1;
+  if (cube_nsect_x <= 0) cube_nsect_x = 1;
+  if (cube_nsect_z <= 0) cube_nsect_z = 1;
+  if ((cube_sect <= 0) || 
+      (cube_sect > (cube_nsect_x*cube_nsect_z))) cube_sect = 1;
+
+  /* total number of lines/layers to fly */
+  if (cube_grid_x == 0) cube_nline_x_t = 1;
+  else cube_nline_x_t = cube_size_x / cube_grid_x + 1;
+  if (cube_grid_z == 0) cube_nline_z_t = 1;
+  else cube_nline_z_t = cube_size_z / cube_grid_z + 1;
+
+  /* position and number of lines in this sector */
+  cube_pos_x = (cube_sect-1) % cube_nsect_x;
+  cube_line_x_start =  (cube_pos_x    * cube_nline_x_t)/cube_nsect_x;
+  cube_line_x_end   = ((cube_pos_x+1) * cube_nline_x_t)/cube_nsect_x;
+  if (cube_line_x_end > cube_nline_x_t) cube_line_x_end = cube_nline_x_t;
+  cube_nline_x = cube_line_x_end - cube_line_x_start;
 
   /* do not do more than pre-set number of lines */
-  if (cube_nline_x >= MAX_LINES_X) cube_nline_x = 0;
+  if (cube_nline_x >= MAX_LINES_X) cube_nline_x = MAX_LINES_X-1;
+
+  /* position and number of layers in this sector */
+  cube_pos_z = (cube_sect-1) / cube_nsect_z;
+  cube_line_z_start =  (cube_pos_z    * cube_nline_z_t)/cube_nsect_z;
+  cube_line_z_end   = ((cube_pos_z+1) * cube_nline_z_t)/cube_nsect_z;
+  cube_nline_z = cube_line_z_end - cube_line_z_start;
 
   /* do the costly stuff only once */
   alpha = ((360. - cube_alpha) / 360.) * 2 * M_PI;
@@ -58,32 +84,44 @@ bool_t nav_cube_init(uint8_t center, uint8_t tb, uint8_t te) {
   sin_alpha = sin(alpha);
 
   /* calculate lower left start begin/end x coord */
-  start_bx = waypoints[center].x - (((cube_nline_x-1) * cube_grid_x)/2) + cube_offs_x;
-  start_ex = waypoints[center].x - (((cube_nline_x-1) * cube_grid_x)/2) + cube_offs_x;
-
-  /* calculate lower left start begin point y coord */
-  start_by = waypoints[center].y - cube_offs_y - cube_size_y;
+  start_bx = waypoints[center].x - (((cube_nline_x_t-1) * cube_grid_x)/2)
+             + cube_offs_x;
+  start_ex = start_bx;
 
   /* calculate lower left start end point y coord */
   start_ey = waypoints[center].y - cube_offs_y;
 
-  /* calculate lower left start begin/end z coord */
-  start_bz = waypoints[center].a - (((cube_nline_z-1) * cube_grid_z)/2) + cube_offs_z;
-  start_ez = waypoints[center].a - (((cube_nline_z-1) * cube_grid_z)/2) + cube_offs_z;
+  /* calculate lower left start begin point y coord */
+  start_by = start_ey - cube_size_y;
 
-  for (i=0; i < cube_nline_x; i++) {
+  /* calculate lower left start begin/end z coord */
+  start_bz = waypoints[center].a - (((cube_nline_z-1) * cube_grid_z)/2)
+             + cube_offs_z;
+  start_ez = start_bz;
+
+  /* reset all waypoints to the standby position */
+  for (j=0; j < MAX_LINES_X; j++) {
+    waypoints[tb+j].x = waypoints[center].x + STBY_OFFSET;
+    waypoints[tb+j].y = waypoints[center].y;
+    waypoints[te+j].x = waypoints[center].x + STBY_OFFSET;
+    waypoints[te+j].y = waypoints[center].y;
+  }
+
+  /* set used waypoints */
+  for (j=0; j < cube_nline_x; j++) {
+    int i = cube_line_x_start+j;
     /* set waypoints and vectorize in regard to center */
     bx = (start_bx + i*cube_grid_x) - waypoints[center].x;
     by = start_by - waypoints[center].y;
     ex = (start_ex + i*cube_grid_x) - waypoints[center].x;
     ey = start_ey - waypoints[center].y;
     /* rotate clockwise with alpha and un-vectorize*/
-    waypoints[tb+i].x = bx * cos_alpha - by * sin_alpha + waypoints[center].x;
-    waypoints[tb+i].y = bx * sin_alpha + by * cos_alpha + waypoints[center].y;
-    waypoints[tb+i].a = start_bz;
-    waypoints[te+i].x = ex * cos_alpha - ey * sin_alpha + waypoints[center].x;
-    waypoints[te+i].y = ex * sin_alpha + ey * cos_alpha + waypoints[center].y;
-    waypoints[te+i].a = start_ez;
+    waypoints[tb+j].x = bx * cos_alpha - by * sin_alpha + waypoints[center].x;
+    waypoints[tb+j].y = bx * sin_alpha + by * cos_alpha + waypoints[center].y;
+    waypoints[tb+j].a = start_bz;
+    waypoints[te+j].x = ex * cos_alpha - ey * sin_alpha + waypoints[center].x;
+    waypoints[te+j].y = ex * sin_alpha + ey * cos_alpha + waypoints[center].y;
+    waypoints[te+j].a = start_ez;
   }
 
   /* bug in <for from="" to=""> ? */
@@ -103,10 +141,14 @@ bool_t nav_cube(int8_t j, int8_t i,
   waypoints[dest_b].x = waypoints[src_b+i].x;
   waypoints[dest_b].y = waypoints[src_b+i].y;
   waypoints[dest_b].a = waypoints[src_b+i].a + j*cube_grid_z;
+  /* always keep at least security altitude */
+  if (waypoints[dest_b].a < ground_alt+SECURITY_HEIGHT) waypoints[dest_b].a = ground_alt+SECURITY_HEIGHT;
 
   waypoints[dest_e].x = waypoints[src_e+i].x;
   waypoints[dest_e].y = waypoints[src_e+i].y;
   waypoints[dest_e].a = waypoints[src_e+i].a + j*cube_grid_z;
+  /* always keep at least security altitude */
+  if (waypoints[dest_e].a < ground_alt+SECURITY_HEIGHT) waypoints[dest_e].a = ground_alt+SECURITY_HEIGHT;
 
   return FALSE; 
 }

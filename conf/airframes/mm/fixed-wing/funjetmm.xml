@@ -1,4 +1,4 @@
-<!DOCTYPE airframe SYSTEM "airframe.dtd">
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
 <!-- Funjet Multiplex (http://www.multiplex-rc.de/), Jeti ECO 25
      Tiny 2.11 board (http://paparazzi.enac.fr/wiki/index.php/Tiny_v2)
@@ -252,13 +252,17 @@ ap.srcs += nav_line.c
 ap.srcs += nav_survey_rectangle.c
 
 ap.srcs += humid_sht.c
-ap.CFLAGS += -DUSE_HUMID_SHT -DDAT_PIN=3  -DSCK_PIN=2
+ap.CFLAGS += -DUSE_HUMID_SHT -DDAT_PIN=30  -DSCK_PIN=4
 
 #ap.srcs += baro_scp.c
 #ap.CFLAGS += -DUSE_BARO_SCP
 
 ap.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=9 -DSSP_VIC_SLOT=11 -DUSE_MICROMAG_FW
 ap.srcs += micromag_fw.c $(SRC_ARCH)/micromag_fw_hw.c
+
+# EagleTree airspeed sensor
+ap.CFLAGS += -DUSE_AIRSPEED_ETS -DUSE_I2C0
+ap.srcs += airspeed_ets.c i2c.c $(SRC_ARCH)/i2c_hw.c
 
 ap.srcs += bomb.c
 
