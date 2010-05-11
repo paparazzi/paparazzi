@@ -138,6 +138,7 @@ bool_t nav_line(uint8_t l1, uint8_t l2, float radius) {
       line_status = LR12;
       nav_init_stage();
     }
+    break;
   default: /* Should not occur !!! End the pattern */
     return FALSE;
   }
