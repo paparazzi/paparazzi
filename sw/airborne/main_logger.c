@@ -101,8 +101,8 @@
 #define TRUE (!FALSE)
 #endif
 
-/* BUTTON that stops logging (BUTTON = P0.7, INT1 = P0.14) */
-#define STOP_KEY 14
+/* BUTTON that stops logging (BUTTON = P0.7, DTR = P0.13, INT1 = P0.14) */
+#define STOP_KEY 13
 
 /* USB Vbus (= P0.23) */
 #define VBUS_PIN 23
@@ -391,8 +391,8 @@ int do_log(void)
 
         max11040_data = MAX11040_IDLE;
 
-        log_buffer[LOG_DATA_OFFSET+0] = 100; // sender_id;
-        log_buffer[LOG_DATA_OFFSET+1] = 61;  // message_id;
+        log_buffer[LOG_DATA_OFFSET+0] = AC_ID;  // sender_id
+        log_buffer[LOG_DATA_OFFSET+1] = 61;     // message_id (DL_TURB_PRESSURE_RAW)
 
 	while(max11040_buf_in != max11040_buf_out) {
           for (i=0; i<16; i++) {

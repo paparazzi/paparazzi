@@ -94,8 +94,8 @@ extern int32_t cube_nline_z;   /* number of lines z (vertical) */
    --------->                    -           -
                                  | (grid_z)  |
    --------->                    -           |
-                                 | (offs_z)  | (size_z)
-   --------->                    |           | 
+                                 -           | (size_z)
+   --------->                    | (offs_z)  | 
                       o [alt]    -           |
    --------->                                -
 
