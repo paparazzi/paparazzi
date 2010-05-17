@@ -1,4 +1,4 @@
-<!DOCTYPE airframe SYSTEM "airframe.dtd">
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
 <!--
 
@@ -30,6 +30,8 @@
     ######    ##
           \  I  \
            ##    ##
+
+    Also logs data from MAX11040 connected to SPI.
 
 -->
 
@@ -72,6 +74,9 @@ ap.srcs += $(SRC_ARCH)/uart_hw.c
 
 #set SPI interface for SD card (0 or 1)
 ap.CFLAGS += -DHW_ENDPOINT_LPC2000_SPINUM=0
+
+#set the logger stop key to P0.13
+ap.CFLAGS += -DLOG_STOP_KEY=13
 
 #efsl
 ap.CFLAGS += -I $(SRC_ARCH)/efsl/inc -I $(SRC_ARCH)/efsl/conf

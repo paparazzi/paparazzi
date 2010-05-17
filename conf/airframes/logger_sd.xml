@@ -55,6 +55,9 @@ ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B9600 -DUSE_UART0_RX_ONLY
 ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B9600 -DUSE_UART1_RX_ONLY
 ap.srcs += $(SRC_ARCH)/uart_hw.c
 
+#set SPI interface for SD card (0 or 1)
+ap.CFLAGS += -DHW_ENDPOINT_LPC2000_SPINUM=1
+
 #efsl
 ap.CFLAGS += -I $(SRC_ARCH)/efsl/inc -I $(SRC_ARCH)/efsl/conf
 

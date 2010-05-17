@@ -101,8 +101,10 @@
 #define TRUE (!FALSE)
 #endif
 
+#ifndef LOG_STOP_KEY
 /* BUTTON that stops logging (BUTTON = P0.7, DTR = P0.13, INT1 = P0.14) */
-#define STOP_KEY 13
+#define LOG_STOP_KEY 7
+#endif
 
 /* USB Vbus (= P0.23) */
 #define VBUS_PIN 23
@@ -263,7 +265,10 @@ void log_xbee(unsigned char c, unsigned char source)
   case XBEE_UNINIT:
     if (c == XBEE_START)
     {
+// serial receive broken with MAX
+#ifndef USE_MAX11040
       xbeel_timestamp = getclock();
+#endif
       xbeel_status++;
     }
     break;
@@ -294,8 +299,10 @@ void log_xbee(unsigned char c, unsigned char source)
     for (i = 0; i < xbeel_payload_len-XBEE_RFDATA_OFFSET; i++) {
       log_buffer[i+LOG_DATA_OFFSET] = xbeel_payload[i+XBEE_RFDATA_OFFSET];
     }
-// do not log as broken
-//    log_payload(xbeel_payload_len-XBEE_RFDATA_OFFSET, source, xbeel_timestamp);
+// serial receive broken with MAX
+#ifndef USE_MAX11040
+    log_payload(xbeel_payload_len-XBEE_RFDATA_OFFSET, source, xbeel_timestamp);
+#endif
     LED_TOGGLE(3);
     goto restart;
   }
@@ -315,7 +322,10 @@ void log_pprz(unsigned char c, unsigned char source)
   switch (pprzl_status) {
   case UNINIT:
     if (c == STX)
+// serial receive broken with MAX
+#ifndef USE_MAX11040
       pprzl_timestamp = getclock();
+#endif
       pprzl_status++;
     break;
   case GOT_STX:
@@ -343,7 +353,10 @@ void log_pprz(unsigned char c, unsigned char source)
     for (i = 0; i < pprzl_payload_len; i++) {
       log_buffer[i+LOG_DATA_OFFSET] = pprzl_payload[i];
     }
+// serial receive broken with MAX
+#ifndef USE_MAX11040
     log_payload(pprzl_payload_len, source, pprzl_timestamp);
+#endif
     LED_TOGGLE(3);
     goto restart;
   }
@@ -380,7 +393,7 @@ int do_log(void)
     }
 
     /* write to SD until key is pressed */
-    while ((IO0PIN & _BV(STOP_KEY))>>STOP_KEY)
+    while ((IO0PIN & _BV(LOG_STOP_KEY))>>LOG_STOP_KEY)
     {
 
 #ifdef USE_MAX11040
@@ -478,7 +491,7 @@ int main(void)
         } else {
           LED_OFF(2);
         }
-        if (((IO0PIN & _BV(STOP_KEY))>>STOP_KEY) == 1) { 
+        if (((IO0PIN & _BV(LOG_STOP_KEY))>>LOG_STOP_KEY) == 1) { 
           waitloop=0;
         } else { 
           waitloop++;
@@ -493,7 +506,7 @@ int main(void)
       }
     }
     LED_ON(2);
-    while (((IO0PIN & _BV(STOP_KEY))>>STOP_KEY) == 0); 
+    while (((IO0PIN & _BV(LOG_STOP_KEY))>>LOG_STOP_KEY) == 0); 
   } 
 
   return 0;
