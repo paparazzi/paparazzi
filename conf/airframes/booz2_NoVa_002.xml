@@ -167,7 +167,7 @@
 
 <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
 		<define name="NB" value="4" />
-		<define name="ADDR" value="{ 0x52, 0x56, 0x54, 0x58 }" />
+		<define name="ADDR" value="{ 0x54, 0x58, 0x56, 0x52 }" />
 	</section>
 
   <section name="INS" prefix="BOOZ_INS_">
