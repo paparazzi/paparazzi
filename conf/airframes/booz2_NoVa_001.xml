@@ -1,9 +1,9 @@
-<airframe name="BOOZ2_NoVa">
+<airframe name="BOOZ2_NoVa_001">
 
-<!-- PPZUAV_BOOZ2_NoVa
-     PPZUAV_BOOZ2_MAIN_002 main board
-     PPZUAV_BOOZ2_IMU_002 IMU
-     PPZUAV_BOOZ2_GPS_002 LEA-5H GPS
+<!-- BOOZ2_NoVa
+     BOOZ2_MAIN_002 main board
+     BOOZ2_IMU_002 IMU
+     BOOZ2_GPS_002 LEA-5H GPS
      Datamodems configured for 57600 baud
      ZEF100 Speed Controllers
      -->
