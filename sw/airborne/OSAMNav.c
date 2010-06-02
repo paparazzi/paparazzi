@@ -25,6 +25,13 @@ static float Flowerradius;
 static uint8_t Center;
 static uint8_t Edge;
 
+#ifndef LINE_START_FUNCTION
+#define LINE_START_FUNCTION {}
+#endif
+#ifndef LINE_STOP_FUNCTION
+#define LINE_STOP_FUNCTION {}
+#endif
+
 bool_t InitializeFlower(uint8_t CenterWP, uint8_t EdgeWP)
 {
 	Center = CenterWP;
@@ -507,6 +514,7 @@ bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Or
 
 		//Go into entry circle state
 		CSurveyStatus = Entry;	
+		LINE_STOP_FUNCTION;
 	}
 
 	return FALSE;
@@ -545,6 +553,7 @@ bool_t PolygonSurvey(void)
 		{
 			CSurveyStatus = Sweep;
 			nav_init_stage();
+			LINE_START_FUNCTION;
 		}
 		break;
 	case Sweep:
@@ -670,7 +679,7 @@ bool_t PolygonSurvey(void)
 			//Go into circle state
 			CSurveyStatus = SweepCircle;	
 			nav_init_stage();
-
+      LINE_STOP_FUNCTION;
 			PolySurveySweepNum++;
 		}
 
@@ -689,6 +698,7 @@ bool_t PolygonSurvey(void)
 		{
 			CSurveyStatus = Sweep;
 			nav_init_stage();
+			LINE_START_FUNCTION;
 		}
 		break;
 	case Init:
