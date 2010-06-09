@@ -250,8 +250,8 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
   }
     
   case V_CTL_AUTO_THROTTLE_STANDARD:
-#endif
   default:
+#endif
     f_throttle = controlled_throttle;
     v_ctl_auto_throttle_sum_err += err;
     BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR);
