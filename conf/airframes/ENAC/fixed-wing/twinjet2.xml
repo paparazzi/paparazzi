@@ -11,10 +11,10 @@
     <!--load name="adp_roll.xml"/-->
     <!--load name="ins_vn100.xml"/-->
     <!--load name="ets_module_sensors.xml"/-->
-    <load name="infrared_i2c.xml"/>
+    <!--load name="infrared_i2c.xml"/-->
   </modules>
 
-<!-- commands section -->
+  <!-- commands section -->
   <servos>
     <servo name="MOTOR_LEFT" no="3" min="1000" neutral="1000" max="2000"/>
     <servo name="MOTOR_RIGHT" no="4" min="1000" neutral="1000" max="2000"/>
@@ -112,7 +112,9 @@
   </section>
  
   <section name="MISC">
+    <define name="MINIMUM_AIRSPEED" value="10." unit="m/s"/>
     <define name="NOMINAL_AIRSPEED" value="12." unit="m/s"/>
+    <define name="MAXIMUM_AIRSPEED" value="20." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
@@ -134,41 +136,55 @@
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.305000007153"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.319999992847"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.80"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-1000"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.00999999977648"/>
-    <define name="AUTO_THROTTLE_IGAIN" value="0.1"/>
-    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.0670000016689"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="-0.035000000149"/>
+    <define name="AUTO_THROTTLE_IGAIN" value="-0.01"/>
+    <define name="AUTO_THROTTLE_DGAIN" value="-0"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.12"/>
 
     <!-- auto pitch inner loop -->
-    <define name="AUTO_PITCH_PGAIN" value="-0.00999999977648"/>
-    <define name="AUTO_PITCH_IGAIN" value="0.194000005722"/>
+    <define name="AUTO_PITCH_PGAIN" value="-0.035000000149"/>
+    <define name="AUTO_PITCH_IGAIN" value="-0.01"/>
+    <define name="AUTO_PITCH_DGAIN" value="-0"/>
     <define name="AUTO_PITCH_MAX_PITCH" value="0.35"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="-0.35"/>
     <define name="AUTO_PITCH_CLIMB_THROTTLE_INCREMENT" value="0.15"/>
+
+    <!-- pitch trim -->
+    <define name="PITCH_LOITER_TRIM" value="RadOfDeg(5.)"/>
+    <define name="PITCH_DASH_TRIM" value="RadOfDeg(-5.)"/>
 
    <define name="THROTTLE_SLEW" value="0.3"/>
 
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.2009999752"/>
+    <define name="COURSE_PGAIN" value="-0.995000004768"/>
 
     <define name="ROLL_MAX_SETPOINT" value="0.6" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
-    <define name="PITCH_PGAIN" value="-15762.1953125"/>
-    <define name="PITCH_DGAIN" value="0."/>
+    <define name="ROLL_ATTITUDE_GAIN" value="-3553.89208984"/>
+    <define name="ROLL_RATE_GAIN" value="0."/>
+    <define name="ROLL_IGAIN" value="-500"/>
+    <define name="ROLL_KFFA" value="-500"/>
+    <define name="ROLL_KFFD" value="-500"/>
 
-    <define name="ELEVATOR_OF_ROLL" value="1541."/>
+    <define name="PITCH_PGAIN" value="-14522.4716797"/>
+    <define name="PITCH_DGAIN" value="-0."/>
+    <define name="PITCH_IGAIN" value="-500"/>
+    <define name="PITCH_KFFA" value="0."/>
+    <define name="PITCH_KFFD" value="0."/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-6500."/>
-    <define name="ROLL_RATE_GAIN" value="-1500"/>
+    <!--define name="ELEVATOR_OF_ROLL" value="1541."/-->
+    <define name="PITCH_OF_ROLL" value="RadOfDeg(0.2)"/>
+
   </section>
 
   <section name="NAV">
@@ -266,14 +282,14 @@ ap.srcs += infrared.c estimator.c
 #ap.srcs += gyro.c
 
 ########## Nav
-ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
+ap.CFLAGS += -DNAV -DAGR_CLIMB -DPITCH_TRIM
+ap.srcs += nav.c fw_h_ctl_a.c fw_v_ctl_n.c
 ap.srcs += nav_survey_rectangle.c
 ap.srcs += nav_line.c
 
 ########## SPI Master use slave0
-#ap.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0
-#ap.srcs += spi.c $(SRC_ARCH)/spi_hw.c
+ap.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0
+ap.srcs += spi.c $(SRC_ARCH)/spi_hw.c
 
 ########## Barometer (SPI)
 #ap.CFLAGS += -DUSE_BARO_MS5534A
@@ -290,13 +306,24 @@ ap.srcs += light.c
 ap.CFLAGS += -DUSE_MODULES
 
 # Config for SITL simulation
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
+#include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
+
+sim.ARCHDIR = $(ARCHI)
+sim.ARCH = sitl
+sim.TARGET = autopilot
+sim.TARGETDIR = autopilot
+sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DINFRARED -DNAV -DLED -DWIND_INFO
+sim.srcs = latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c infrared.c fw_h_ctl_a.c fw_v_ctl_n.c nav.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_ir.c $(SRC_ARCH)/sim_ap.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c $(SRC_ARCH)/led_hw.c
+
+sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DPITCH_TRIM -DALT_KALMAN
 
 sim.srcs += nav_line.c nav_survey_rectangle.c
 
 sim.CFLAGS += -DUSE_LIGHT
 sim.srcs += light.c
+
+sim.CFLAGS += -DUSE_I2C0
+sim.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 sim.CFLAGS += -DUSE_MODULES
 
