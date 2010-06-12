@@ -140,8 +140,22 @@ height (defined in as Takeoff_Height in airframe file) above the bungee waypoint
   <define name="Height" value="30" unit="m"/>
   <define name="Speed" value="15" unit="m/s"/>
   <define name="Distance" value="10" unit="m"/>
+  <define name="MinSpeed" value="5" unit="m/s"/>
 </section>
  */
+
+#ifndef Takeoff_Distance
+#define Takeoff_Distance 10
+#endif
+#ifndef Takeoff_Height
+#define Takeoff_Height 30
+#endif
+#ifndef Takeoff_Speed
+#define Takeoff_Speed 15
+#endif
+#ifndef Takeoff_MinSpeed
+#define Takeoff_MinSpeed 5
+#endif
 
 enum TakeoffStatus { Launch, Throttle, Finished };
 static enum TakeoffStatus CTakeoffStatus;
@@ -829,8 +843,26 @@ bool_t VerticalRaster(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
 /************** SkidLanding **********************************************/
 /*
 Landing Routine
+
+
+  <section name="Landing" prefix="Landing_">
+    <define name="AFHeight" value="50" unit="m"/>
+    <define name="FinalHeight" value="5" unit="m"/>
+    <define name="FinalStageTime" value="5" unit="s"/>
+  </section>
+
  */
- 
+
+#ifndef Landing_AFHeight
+#define Landing_AFHeight 50
+#endif
+#ifndef Landing_FinalHeight
+#define Landing_FinalHeight 5
+#endif
+#ifndef Landing_FinalStageTime
+#define Landing_FinalStageTime 5
+#endif
+
 enum LandingStatus { CircleDown, LandingWait, Final, Approach };
 static enum LandingStatus CLandingStatus;
 static uint8_t AFWaypoint;
