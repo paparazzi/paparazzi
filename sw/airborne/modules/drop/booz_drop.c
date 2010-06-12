@@ -28,8 +28,12 @@
 bool_t booz_drop_ball;
 int16_t booz_drop_servo;
 
+#ifndef DROP_SERVO_OPEN
 #define DROP_SERVO_OPEN 1700
+#endif
+#ifndef DROP_SERVO_CLOSED
 #define DROP_SERVO_CLOSED 900
+#endif
 
 void booz_drop_init(void) {
   booz_drop_ball = FALSE;

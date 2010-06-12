@@ -1,5 +1,11 @@
 <airframe name="BOOZ2_F1">
 
+	<modules main_freq="512">
+    		<load name="booz_drop.xml"/>
+    		<!--load name="booz_cam.xml"/-->
+    		<!--load name="sonar_maxbotix_booz.xml"/-->
+  	</modules>
+
 	<servos min="0" neutral="0" max="0xff">
 		<servo name="FRONT" no="0" min="0" neutral="0" max="255" />
 		<servo name="BACK" no="1" min="0" neutral="0" max="255" />
@@ -229,6 +235,12 @@
 		#set GPS lag for horizontal filter
 		ap.CFLAGS += -DUSE_GPS_ACC4R
         #ap.CFLAGS += -DGPS_LAG=0.3
+
+        ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c
+        sim.srcs += $(SRC_BOOZ_SIM)/booz2_pwm_hw.c
+
+        ap.CFLAGS += -DUSEMODULES
+        sim.CFLAGS += -DUSEMODULES
 
         ap.CFLAGS += -DB2_GUIDANCE_H_USE_REF
         sim.CFLAGS += -DB2_GUIDANCE_H_USE_REF
