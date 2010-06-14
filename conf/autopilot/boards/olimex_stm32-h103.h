@@ -1,8 +1,11 @@
-#ifndef CONFIG_LISA_V1_0_H
-#define CONFIG_LISA_V1_0_H
+#ifndef CONFIG_OLIMEX_STM32_H103_H
+#define CONFIG_OLIMEX_STM32_H103_H
 
 
 #define AHB_CLK 72000000
+
+/* this board uses a crystal for HSE */
+//#define HSE_TYPE RCC_HSE_ON
 
 /* Onboard LEDs */
 #define LED_1_BANK 
@@ -12,4 +15,4 @@
 
 
 
-#endif /* CONFIG_LISA_V1_0_H */
+#endif /* CONFIG_OLIMEX_STM32_H103_H */
