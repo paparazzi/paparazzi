@@ -28,6 +28,7 @@
 #include <stm32/spi.h>
 
 extern uint8_t ms2001_cur_axe;
+extern int16_t ms2001_last_reading;
 
 #define Ms2001Select()   GPIOC->BRR = GPIO_Pin_12
 #define Ms2001Unselect() GPIOC->BSRR = GPIO_Pin_12
@@ -87,7 +88,7 @@ extern uint8_t ms2001_cur_axe;
     DMA_InitTypeDef  DMA_InitStructure;					\
     DMA_DeInit(DMA1_Channel4);						\
     DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C); \
-    DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)(&ms2001_values[ms2001_cur_axe]); \
+    DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)(&ms2001_last_reading); \
     DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;			\
     DMA_InitStructure.DMA_BufferSize = 1;				\
     DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;	\
@@ -121,20 +122,22 @@ extern uint8_t ms2001_cur_axe;
     									\
   }
 
-#define Ms2001OnDmaIrq() {				\
-    /*  ASSERT((ms2001_status == MS2001_READING_RES),	\
-     *   DEBUG_MS2001, MS2001_ERR_SPURIOUS_DMA_IRQ);	\
-     */							\
-    Ms2001Unselect();					\
-    ms2001_cur_axe++;					\
-    if (ms2001_cur_axe > 2) {				\
-      ms2001_cur_axe = 0;				\
-      ms2001_status = MS2001_DATA_AVAILABLE;		\
-    }							\
-    else						\
-      ms2001_status = MS2001_IDLE;			\
-    SPI_Cmd(SPI2, DISABLE);				\
-    DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);	\
+#define Ms2001OnDmaIrq() {					\
+    /*  ASSERT((ms2001_status == MS2001_READING_RES),		\
+     *   DEBUG_MS2001, MS2001_ERR_SPURIOUS_DMA_IRQ);		\
+     */								\
+    if (abs(ms2001_last_reading) < 2000)			\
+      ms2001_values[ms2001_cur_axe] = ms2001_last_reading;	\
+    Ms2001Unselect();						\
+    ms2001_cur_axe++;						\
+    if (ms2001_cur_axe > 2) {					\
+      ms2001_cur_axe = 0;					\
+      ms2001_status = MS2001_DATA_AVAILABLE;			\
+    }								\
+    else							\
+      ms2001_status = MS2001_IDLE;				\
+    SPI_Cmd(SPI2, DISABLE);					\
+    DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);		\
   }
 
 #define Ms2001OnSpiIrq() {						\

@@ -30,6 +30,11 @@
 #include <stm32/dma.h>
 
 uint8_t ms2001_cur_axe;
+int16_t ms2001_last_reading; // can't write in place because that stupid beast
+                             // stips stupid values once in a while that I need
+                             // to filter - high time we get rid of this crap hardware
+                             // and no, I checked with the logic analyzer, timing are
+                             // within specs
 
 void ms2001_arch_init( void ) {
 
