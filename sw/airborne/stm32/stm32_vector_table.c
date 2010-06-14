@@ -27,32 +27,32 @@
 
 #include "stm32_exceptions.h"
 
-#ifndef USE_SYS_TIME
-#define SYS_TICK_IRQ_HANDLER null_handler
-#else
+#ifdef USE_SYS_TIME
 #include "sys_time.h"
 #define SYS_TICK_IRQ_HANDLER sys_tick_irq_handler
+#else
+#define SYS_TICK_IRQ_HANDLER null_handler
 #endif
 
-#ifndef USE_UART1
-#define USART1_IRQ_HANDLER null_handler
-#else
+#ifdef USE_UART1
 #include "uart.h"
 #define USART1_IRQ_HANDLER usart1_irq_handler
+#else
+#define USART1_IRQ_HANDLER null_handler
 #endif
 
-#ifndef USE_UART2
-#define USART2_IRQ_HANDLER null_handler
-#else
+#ifdef USE_UART2
 #include "uart.h"
 #define USART2_IRQ_HANDLER usart2_irq_handler
+#else
+#define USART2_IRQ_HANDLER null_handler
 #endif
 
-#ifndef USE_UART3
-#define USART3_IRQ_HANDLER null_handler
-#else
+#ifdef USE_UART3
 #include "uart.h"
 #define USART3_IRQ_HANDLER usart3_irq_handler
+#else
+#define USART3_IRQ_HANDLER null_handler
 #endif
 
 #ifdef USE_I2C1
@@ -62,6 +62,15 @@
 #else
 #define I2C1_EV_IRQ_HANDLER null_handler
 #define I2C1_ER_IRQ_HANDLER null_handler
+#endif
+
+#ifdef USE_I2C2
+#include "i2c_hw.h"
+#define I2C2_EV_IRQ_HANDLER i2c2_ev_irq_handler
+#define I2C2_ER_IRQ_HANDLER i2c2_er_irq_handler
+#else
+#define I2C2_EV_IRQ_HANDLER null_handler
+#define I2C2_ER_IRQ_HANDLER null_handler
 #endif
 
 #ifdef USE_SPI1_IRQ
@@ -176,8 +185,8 @@ void (* const vector_table[])(void) = {
     null_handler,             /* tim4_irq_handler */
     I2C1_EV_IRQ_HANDLER,      /* i2c1_ev_irq_handler */
     I2C1_ER_IRQ_HANDLER,      /* i2c1_er_irq_handler */
-    null_handler,             /* i2c2_ev_irq_handler */
-    null_handler,             /* i2c2_er_irq_handler */
+    I2C2_EV_IRQ_HANDLER,      /* i2c2_ev_irq_handler */
+    I2C2_ER_IRQ_HANDLER,      /* i2c2_er_irq_handler */
     SPI1_IRQ_HANDLER,         /* spi1_irq_handler */
     SPI2_IRQ_HANDLER,         /* spi2_irq_handler */
     USART1_IRQ_HANDLER,       /* usart1_irq_handler */
