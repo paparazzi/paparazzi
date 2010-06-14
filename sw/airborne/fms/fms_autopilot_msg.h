@@ -28,4 +28,22 @@ union AutopilotMessageBeth {
   struct AutopilotMessageBethDown down;
 };
 
+
+#define TW_BUF_LEN 63
+struct AutopilotMessageTWUp {
+  uint8_t tw_len;
+  uint8_t data[TW_BUF_LEN];
+};
+
+struct AutopilotMessageTWDown {
+  uint8_t tw_len;
+  uint8_t data[TW_BUF_LEN];
+};
+
+union AutopilotMessageTW {
+  struct AutopilotMessageTWUp up;
+  struct AutopilotMessageTWDown down;
+};
+
+
 #endif /* FMS_AUTOPILOT_H */
