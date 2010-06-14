@@ -59,6 +59,7 @@ extern void abort(void);
 
 static inline void hw_init(void) {
 
+#ifdef HSE_TYPE_EXT_CLK
   /* Setup the microcontroller system. 
    *  Initialize the Embedded Flash Interface,  
    *  initialize the PLL and update the SystemFrequency variable. 
@@ -95,7 +96,9 @@ static inline void hw_init(void) {
     /* Wait till PLL is used as system clock source */
     while(RCC_GetSYSCLKSource() != 0x08) {}
   }
-
+#else  /* HSE_TYPE_EXT_CLK */
+  SystemInit();
+#endif /* HSE_TYPE_EXT_CLK */
    /* Set the Vector Table base location at 0x08000000 */
   NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
   /* Configure all unused GPIO port pins in Analog Input mode (floating input
