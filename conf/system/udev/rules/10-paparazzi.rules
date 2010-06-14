@@ -1,16 +1,19 @@
 #BUS=="usb", SYSFS{serial}=="*_fbw", NAME="test_fbw", SYMLINK="paparazzi/%s{serial}", MODE="0666"
 
 # MaxStream xbee pro box
-BUS=="usb", SYSFS{product}=="MaxStream PKG-U", KERNEL=="ttyUSB*", SYMLINK+="paparazzi/xbee", GROUP="plugdev"
+BUS=="usb", ATTRS{product}=="MaxStream PKG-U", KERNEL=="ttyUSB*", SYMLINK+="paparazzi/xbee", GROUP="plugdev"
 
 # bare FTDI chip without EEPROM
-BUS=="usb", SYSFS{idVendor}=="0403", SYSFS{idProduct}=="6001", KERNEL=="ttyUSB*", SYMLINK+="paparazzi/serial", GROUP="plugdev"
+BUS=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", KERNEL=="ttyUSB*", SYMLINK+="paparazzi/serial", GROUP="plugdev"
 
 # all (fake VID 0x7070) LPCUSB devices (access through libusb)
-BUS=="usb", SYSFS{idVendor}=="7070", GROUP="plugdev"
+BUS=="usb", ATTRS{idVendor}=="7070", GROUP="plugdev"
 
 # FTDI 2232 parallel converter / Amontec JTAG-Tiny (access through libftdi)
-BUS=="usb",  SYSFS{idVendor}=="0403", SYSFS{idProduct}=="cff8", GROUP="plugdev"
+BUS=="usb",  ATTRS{idVendor}=="0403", ATTRS{idProduct}=="cff8", GROUP="plugdev"
+
+# FTDI 2232 based jtag for Lisa/L
+SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6010", MODE="0666", GROUP="plugdev"
 
 # make joysticks/gamepads readable on event interface (writeable for force feedback), see input_event.sh
 KERNEL=="event*", IMPORT{program}="input_event.sh %p", NAME="input/%k", GROUP="plugdev", MODE="0640"
