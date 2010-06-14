@@ -117,3 +117,48 @@ void i2c1_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile
 }
 
 #endif /* USE_I2C1 */
+
+#ifdef USE_I2C2
+
+struct I2C2_P i2c2;
+
+void i2c2_init(void) {
+  i2c2.status = I2C_IDLE;
+  i2c2.finished = NULL;
+  i2c2_hw_init();
+}
+
+void i2c2_receive(uint8_t slave_addr, uint8_t len, volatile bool_t* finished) {
+  i2c2.direction = I2CDirRx;
+  i2c2.slave_addr = slave_addr;
+  i2c2.len_r = len;
+  i2c2.finished = finished;
+  if (finished) *finished = FALSE;
+  i2c2.status = I2C_BUSY;
+  I2c2SendStart();
+}
+
+void i2c2_transmit(uint8_t slave_addr, uint8_t len, volatile bool_t* finished) {
+  i2c2.direction = I2CDirTx;
+  i2c2.slave_addr = slave_addr;
+  i2c2.len_w = len;
+  i2c2.finished = finished;
+  if (finished) *finished = FALSE;
+  i2c2.status = I2C_BUSY;
+  I2c2SendStart();
+}
+
+void i2c2_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile bool_t* finished) {
+  i2c2.direction = I2CDirTxRx;
+  i2c2.slave_addr = slave_addr;
+  i2c2.len_w = len_w;
+  i2c2.len_r = len_r;
+  i2c2.finished = finished;
+  if (finished) *finished = FALSE;
+  i2c2.status = I2C_BUSY;
+  I2c2SendStart();
+}
+
+
+
+#endif /* USE_I2C2 */

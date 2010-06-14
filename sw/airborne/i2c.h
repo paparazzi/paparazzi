@@ -5,6 +5,7 @@
 
 #include "i2c_hw.h"
 
+
 #define I2C_START        0x08
 #define I2C_RESTART      0x10
 #define I2C_MT_SLA_ACK   0x18
@@ -183,6 +184,37 @@ extern volatile bool_t* i2c1_finished;
   }									\
    
 #endif /* USE_I2C1 */
+
+
+
+#ifdef USE_I2C2
+
+#ifndef I2C2_BUF_LEN
+#define I2C2_BUF_LEN 32
+#endif
+
+enum I2CDirection { I2CDirTx, I2CDirRx, I2CDirTxRx };
+
+struct I2C2_P {
+  volatile uint8_t  status;
+  enum I2CDirection direction;
+  volatile uint8_t  slave_addr;
+  volatile uint16_t len_r;
+  volatile uint8_t  len_w;
+  volatile bool_t   stop_after_transmit;
+  volatile uint8_t  index;
+  volatile bool_t*  finished;
+  volatile uint8_t  buf[I2C2_BUF_LEN];
+};
+
+extern struct I2C2_P i2c2;
+
+extern void i2c2_init(void);
+extern void i2c2_receive(uint8_t slave_addr, uint8_t len, volatile bool_t* finished);
+extern void i2c2_transmit(uint8_t slave_addr, uint8_t len, volatile bool_t* finished);
+extern void i2c2_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile bool_t* finished);
+
+#endif /* USE_I2C2 */
 
 
 #endif /* I2C_H */
