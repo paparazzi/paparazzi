@@ -32,6 +32,11 @@
 #include "std.h"
 
 
+/*
+ *
+ *  Regular GPIO driven LEDs
+ *
+ */
 #ifndef LED_STP08
 
 #define _LED_GPIO_CLK(i)  i
@@ -56,6 +61,14 @@
 #define LED_OFF(i) {LED_GPIO(i)->BSRR = LED_GPIO_PIN(i);}
 #define LED_TOGGLE(i) {	LED_GPIO(i)->ODR ^= LED_GPIO_PIN(i);}
 
+#define LED_PERIODIC() {}
+
+
+/*
+ *
+ * Shift register driven LEDs
+ *
+ */
 #else  /* LED_STP08 */
 #define NB_LED 8
 extern uint8_t led_status[NB_LED];
