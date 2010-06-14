@@ -52,8 +52,12 @@ OOCD = $(TOOLCHAIN_DIR)/bin/openocd
 
 LOADER=/home/poine/home_regis/work/stm32/stm32loader-a3c51c26ad6c/stm32loader.py
 
+ifndef $(TARGET).OOCD_INTERFACE
 OOCD_INTERFACE = openocd-lisa-jtag
-#OOCD_TARGET    = olimex_stm32_h103
+else
+OOCD_INTERFACE =  $($(TARGET).OOCD_INTERFACE)
+endif
+
 OOCD_TARGET    = stm32
 
 # inpput files
@@ -64,8 +68,17 @@ SRCS = $($(TARGET).srcs)
 COBJ    = $(SRCS:%.c=$(OBJDIR)/%.o) 
 AOBJ    = $(ASRC:%.S=$(OBJDIR)/%.o)
 
-# linker script
-LD_SCRIPT = $(SRC_ARCH)/stm32f10x_flash_hd.ld
+# linker script : 
+#   if LDSCRIPT is defined in the airframe use that independantly of TARGET
+#   if not and a TARGET.LDSCRIPT is defined, use that
+#   if not use the default STM32f103re_flash.ld
+ifndef LDSCRIPT
+ifndef $(TARGET).LDSCRIPT
+LDSCRIPT = $(SRC_ARCH)/stm32f103re_flash.ld
+else
+LDSCRIPT = $($(TARGET).LDSCRIPT)
+endif
+endif
 
 CFLAGS = -I. -I./$(ARCHI) $(INCLUDES) -D__thumb2__ -Wall -c -msoft-float
 CFLAGS += -Wl,gc-sections
@@ -90,7 +103,7 @@ CFLAGS += $($(TARGET).CFLAGS)
 AFLAGS  = -ahls -mapcs-32
 AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
-LDFLAGS = -D__thumb2__ -T$(LD_SCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT) --gc-sections
+LDFLAGS = -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT) --gc-sections
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
 LDLIBS  += -lc -lm -lgcc -lcmsis -lstm32 
 
