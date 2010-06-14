@@ -7,11 +7,22 @@
 #include "led.h"
 
 /* Pin configuration for max3100 IRQ */
-#define MAX3100_IRQ_PIN 7
+// #define MAX3100_IRQ_PIN 7
+#if MAX3100_IRQ_PIN == 7
 #define MAX3100_IRQ_PINSEL PINSEL0
 #define MAX3100_IRQ_PINSEL_BIT 14
 #define MAX3100_IRQ_PINSEL_VAL 0x3
 #define MAX3100_IRQ_EINT 2
+#define MAX3100_VIC_EINT VIC_EINT2
+#elif MAX3100_IRQ_PIN == 16
+#define MAX3100_IRQ_PINSEL PINSEL1
+#define MAX3100_IRQ_PINSEL_BIT 0
+#define MAX3100_IRQ_PINSEL_VAL 0x1
+#define MAX3100_IRQ_EINT 0
+#define MAX3100_VIC_EINT VIC_EINT0
+#else
+#error "Define MAX3100_IRQ_PIN"
+#endif
 
 #define MAX3100_SS_PORT 0
 #define MAX3100_SS_PIN 20
@@ -57,9 +68,16 @@ extern bool read_bytes;
 #define MAX3100_WRITE_DATA ((1U<<15) | (0U<<14))
 #define MAX3100_READ_DATA ((0U<<15) | (0U<<14))
 
+/* Datasheet page 12 */
+#if MAX3100_FOSC == 1843200
 #define MAX3100_B57600 0x1
 #define MAX3100_B19200 0x9 
 #define MAX3100_B9600 0xA
+#elif MAX3100_FOSC == 3686400
+#define MAX3100_B9600 0xB
+#else
+#error "MAX3100_FOSC must be defined to 1843200 or 3686400"
+#endif
 
 #define MAX3100_BIT_NOT_RM (1U<<10)
 #define MAX3100_BIT_NOT_TM (1U<<11)

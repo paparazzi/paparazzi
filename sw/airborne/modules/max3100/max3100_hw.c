@@ -43,7 +43,7 @@ uint8_t volatile max3100_rx_buf[MAX3100_RX_BUF_LEN];
 bool read_bytes = false;
 
 
-static void EXTINT2_ISR(void) __attribute__((naked));
+static void EXTINT_ISR(void) __attribute__((naked));
 static void SPI1_ISR(void) __attribute__((naked));
 
 #define PINSEL1_SCK  (2 << 2)
@@ -104,10 +104,10 @@ void max3100_init( void ) {
   SetBit(EXTINT, MAX3100_IRQ_EINT);
 
    /* Configure interrupt vector for external pin interrupt */
-  VICIntSelect &= ~VIC_BIT( VIC_EINT2 );                     // EXTINT2 selected as IRQ
-  VICIntEnable = VIC_BIT( VIC_EINT2 );                       // EXTINT2 interrupt enabled
-  VICVectCntl8 = VIC_ENABLE | VIC_EINT2;
-  VICVectAddr8 = (uint32_t)EXTINT2_ISR;   // address of the ISR 
+  VICIntSelect &= ~VIC_BIT( MAX3100_VIC_EINT );    // EXTINT selected as IRQ
+  VICIntEnable = VIC_BIT( MAX3100_VIC_EINT );             // EXTINT interrupt enabled
+  VICVectCntl8 = VIC_ENABLE | MAX3100_VIC_EINT;
+  VICVectAddr8 = (uint32_t)EXTINT_ISR;   // address of the ISR 
 
   /* Configure interrupt vector for SPI */
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   /* SPI1 selected as IRQ */
@@ -121,7 +121,7 @@ void max3100_init( void ) {
 
 
 /******* External interrupt: Data input available ***********/
-void EXTINT2_ISR(void) {
+void EXTINT_ISR(void) {
   ISR_ENTRY();
 
   LED_ON(2);
@@ -162,5 +162,5 @@ void SPI1_ISR(void) {
 }
 
 void max3100_debug(void) {
-  /***/     DOWNLINK_SEND_DEBUG(16, max3100_rx_buf); /***/
+  /***     DOWNLINK_SEND_DEBUG(16, max3100_rx_buf); ***/
 }
