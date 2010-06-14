@@ -21,19 +21,17 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#include <stm32/rcc.h>
-#include <stm32/gpio.h>
-
-#include <stm32/flash.h>
-#include <stm32/misc.h>
 
 #include BOARD_CONFIG
 #include "init_hw.h"
 #include "sys_time.h"
 #include "downlink.h"
+#include "booz/booz2_commands.h"
+#include "booz/booz_actuators.h"
+//#include "booz/booz_radio_control.h"
 #include "booz/booz_imu.h"
 #include "lisa/lisa_overo_link.h"
-
+#include "beth/bench_sensors.h"
 
 static inline void main_init( void );
 static inline void main_periodic( void );
@@ -44,6 +42,7 @@ static inline void on_mag_event(void);
 
 static inline void main_on_overo_msg_received(void);
 static inline void main_on_overo_link_lost(void);
+static inline void main_on_bench_sensors( void );
 
 static int16_t my_cnt;
 
@@ -62,20 +61,29 @@ int main(void) {
 static inline void main_init( void ) {
   hw_init();
   sys_time_init();
-  booz_imu_init();
-  overo_link_init();
+  actuators_init();
+  //  radio_control_init();
+  //  booz_imu_init();
+  //  overo_link_init();
+  bench_sensors_init();
 }
 
 static inline void main_periodic( void ) {
-  booz_imu_periodic();
-  OveroLinkPperiodic(main_on_overo_link_lost)
+  //  booz_imu_periodic();
+  actuators_set(FALSE);
+  //  OveroLinkPeriodic(main_on_overo_link_lost)
   RunOnceEvery(10, {LED_PERIODIC(); DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
-  
+
+  read_bench_sensors();
+ 
 }
 
 static inline void main_event( void ) {
-    BoozImuEvent(on_gyro_accel_event, on_mag_event);
-    OveroLinkEvent(main_on_overo_msg_received);
+  //    BoozImuEvent(on_gyro_accel_event, on_mag_event);
+  //    OveroLinkEvent(main_on_overo_msg_received);
+
+  BenchSensorsEvent(main_on_bench_sensors);
+
 }
 
 static inline void main_on_overo_msg_received(void) {
@@ -150,4 +158,13 @@ static inline void on_mag_event(void) {
 			      &booz_imu.mag_unscaled.y,
 			      &booz_imu.mag_unscaled.z);
   }
+}
+
+
+static inline void main_on_bench_sensors( void ) {
+  
+  DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, 
+			    &bench_sensors.angle_1,
+                            &bench_sensors.angle_2);
+  
 }

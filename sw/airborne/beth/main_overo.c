@@ -59,12 +59,12 @@ static void send_message() {
   static uint32_t foo = 0;
 
   spi_link_send(msg_out, sizeof(union AutopilotMessageBeth), msg_in);
-  if (!foo%100) {
-    printf("%d -> %d %d %d %d %d %d %d %d %d\n", foo, 
-	   msg_in->bench_sensor.x, msg_in->bench_sensor.y, msg_in->bench_sensor.z,
-	   msg_in->gyro.x, msg_in->gyro.y, msg_in->gyro.z,
-	   msg_in->accel.x, msg_in->accel.y, msg_in->accel.z);
-  }
+  //  if (!foo%100) {
+  printf("%d -> %d %d %d %d %d %d %d %d %d\n", foo, 
+	 msg_in->bench_sensor.x, msg_in->bench_sensor.y, msg_in->bench_sensor.z,
+	 msg_in->gyro.x, msg_in->gyro.y, msg_in->gyro.z,
+	 msg_in->accel.x, msg_in->accel.y, msg_in->accel.z);
+  //  }
   foo++;
 }
 

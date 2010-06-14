@@ -1,22 +1,19 @@
 #include "bench_sensors.h"
 
-#include "i2c.h"
+struct BenchSensors bench_sensors;
 
-bool_t   bench_sensors_available;
-uint16_t bench_sensors_angle_1;
-uint16_t bench_sensors_angle_2;
-uint16_t bench_sensors_angle_3;
-uint16_t bench_sensors_current;
 
 void bench_sensors_init(void) {
-  bench_sensors_available = FALSE;
+  bench_sensors.status = BS_IDLE;
+  bench_sensors.i2c_done = TRUE;
 }
 
 
 void read_bench_sensors(void) {
 
-  const uint8_t bench_addr = 0x52;
-
-  i2c1_receive(bench_addr, 4, &bench_sensors_available);
+  const uint8_t bench_addr = 0x30;
+  bench_sensors.status = BS_BUSY;
+  bench_sensors.i2c_done = FALSE;
+  i2c2_receive(bench_addr, 4, &bench_sensors.i2c_done);
   
 }
