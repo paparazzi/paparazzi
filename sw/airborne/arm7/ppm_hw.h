@@ -19,9 +19,9 @@ static inline void ppm_init ( void ) {
   PPM_PINSEL |= PPM_PINSEL_VAL << PPM_PINSEL_BIT;
   /* enable capture 0.2 on falling or rising edge + trigger interrupt */
 #if defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_POSITIVE
-  T0CCR = PPM_CCR_CRF | PPM_CCR_CRI;
-#elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE
   T0CCR = PPM_CCR_CRR | PPM_CCR_CRI;
+#elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE
+  T0CCR = PPM_CCR_CRF | PPM_CCR_CRI;
 #else
 #error "ppm_hw.h: Unknown PM_PULSE_TYPE"
 #endif
