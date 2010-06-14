@@ -24,6 +24,32 @@
 
 /*
 http://www.telit.com/en/products/gsm-gprs.php?p_ac=show&p=12#downloads
+
+Init:
+  Out: ATE0
+  In: OK
+  Out: AT+CMGF=1
+  In: OK
+  Out: AT+CNMI=1,1,0,0,0
+  In: OK
+  Out : AT+CPMS=\"SM\"
+  In: +CPMS:
+
+Reporting:
+  Out: AT+CSQ
+  In: +CSQ: <rssi>,<ber>
+  In: OK
+  Out: AT+CMGS=\"GCS_NUMBER\"
+  In: >
+  Out: gps_utm_east, gps_utm_north, gps_course, gps_alt, gps_gspeed, gps_climb, vsupply, estimator_flight_time, rssi  CTRLZ
+
+Receiving:
+  In: +CMTI: ...,<number>
+  Out: AT+CMGR=<number>
+  In: +CMGR ...
+  In: B42 (or S42 3.14)
+  Out: AT+CMGD=<number>
+  In: OK
 */
 
 #include <stdbool.h>
@@ -34,6 +60,14 @@ http://www.telit.com/en/products/gsm-gprs.php?p_ac=show&p=12#downloads
 #include "gsm.h"
 #include "uart.h"
 #include "std.h"
+#ifdef USE_USB_SERIAL
+#include "usb_serial.h"
+#endif
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+#include "uart.h"
+#include "downlink.h"
 #include "ap_downlink.h"
 #include "gps.h"
 #include "autopilot.h"
@@ -89,6 +123,7 @@ static char data_to_send[DATA_MAXLEN];
 #define STATUS_IDLE           9
 #define STATUS_WAITING_PROMPT 10
 #define STATUS_DELETE_SMS     11
+#define STATUS_POWERON        12
 
 static uint8_t gsm_status = STATUS_NONE;
 
@@ -116,11 +151,17 @@ static char* indexn(char*, char, uint8_t);
 
 /*****************************************************************************/
 void gsm_init(void) {
-  gsm_buf_idx = 0;
-  gsm_line_received = false;
-
-  Send_AT();
-  gsm_status = STATUS_SEND_AT;
+  if (gsm_status == STATUS_NONE) { /* First call */
+    LED_ON(GSM_ONOFF_LED);
+    gsm_status = STATUS_POWERON;
+  } else { /* Second call */
+    gsm_buf_idx = 0;
+    gsm_line_received = false;
+    
+    Send_AT();
+    gsm_status = STATUS_SEND_AT;
+    gsm_gsm_init_status = FALSE;
+  }
 }
 
 
@@ -130,9 +171,11 @@ void gsm_event(void) {
   }
 
   if (gsm_line_received) {
+    DOWNLINK_SEND_DEBUG_GSM_RECEIVE(DefaultChannel, gsm_buf_len, gsm_buf);
     gsm_got_line();
     gsm_line_received = false;
   } else if (prompt_received) {
+    DOWNLINK_SEND_DEBUG_GSM_RECEIVE(DefaultChannel, 1, ">");
     gsm_got_prompt();
     prompt_received = false;
   }
@@ -149,13 +192,10 @@ static void gsm_got_line(void)
   } else if (gsm_status == STATUS_IDLE 
 	     && strncmp(CMTI, gsm_buf, strlen(CMTI)) == 0) {
     /* A SMS is available */
-    /***/printf("CMTI: %s\n", gsm_buf);
     /* Extracting the index of the message */
     char * first_comma = indexn(gsm_buf, ',',MAXLEN_CMTI_ANSWER);
-    /***/printf("CMTI: com=%d\n", first_comma - gsm_buf);
     if (first_comma) {
       index_msg = atoi(first_comma+1);
-    /***/printf("CMTI: index=%d\n", index_msg);
       request_for_msg();
       gsm_status = STATUS_REQUESTING_MESSAGE;
     }
@@ -198,6 +238,7 @@ static void gsm_got_line(void)
       case STATUS_SEND_CPMS :
 	gsm_answer = false;
 	gsm_status = STATUS_IDLE;
+	gsm_gsm_send_report_status = MODULES_START; /** Start reporting */
 	break;
       
       case STATUS_DELETE_SMS :
@@ -312,7 +353,7 @@ static void parse_msg_header(void)
 // Periodic message, first step (called every 60s)
 void gsm_send_report()
 {
-  /***/printf("send_report: %d\n", gsm_status);
+  gsm_status = STATUS_IDLE;
   if(gsm_status == STATUS_IDLE) {
     // Checking the network coverage
     Send_CSQ();
@@ -331,7 +372,7 @@ void gsm_send_report_continue(void)
   // Donnee GPS :ne sont pas envoyes gps_mode, gps_itow, gps_utm_zone, gps_nb_ovrn
   // Donnees batterie (seuls vsupply et estimator_flight_time sont envoyes)
   // concatenation de toutes les infos en un seul message à transmettre
-  sprintf(data_to_send, "%d %d %d %d %d %d %d %d %d", gps_utm_east, gps_utm_north, gps_course, gps_alt, gps_gspeed, gps_climb, vsupply, estimator_flight_time, rssi);
+  sprintf(data_to_send, "%ld %ld %d %ld %d %d %d %d %d", gps_utm_east, gps_utm_north, gps_course, gps_alt, gps_gspeed, gps_climb, vsupply, estimator_flight_time, rssi);
 
   // send the number and wait for the prompt
   char buf[32];
@@ -347,7 +388,7 @@ static void Send_AT(void)
   strcpy(expected_ack, "OK");
   waiting_for_reply = true;
  
-  Send("AT");
+  Send("ATE0");
 }
 
 static void Send_CMGF(void)
@@ -359,7 +400,8 @@ static void Send_CMGF(void)
 
 static void Send_CSQ(void)
 { 
-  strcpy(expected_ack, "+CSQ:");
+  /***** FIXME ******  strcpy(expected_ack, "+CSQ:"); ****/
+  strcpy(expected_ack, "OK");
   waiting_for_reply = true;
   Send("AT+CSQ");
 }
@@ -380,7 +422,6 @@ static void Send_CPMS(void)
 
 
 static void gsm_parse(uint8_t c) {
-  /***  fprintf(stderr, "gsm_parse:%c\n", c); ***/
   switch(c) {
   case GSM_CR:
     gsm_buf[gsm_buf_idx] = '\0';
@@ -390,6 +431,8 @@ static void gsm_parse(uint8_t c) {
     break;
   case '>':
     prompt_received = true;
+    break;
+  case '\n':
     break;
   default:
     if (gsm_buf_idx < GSM_MAX_PAYLOAD) { 
@@ -409,6 +452,8 @@ static void Send(const char string[])
   while(string[i])
     GSMTransmit(string[i++]);
   GSMTransmit(GSM_CR);
+
+  DOWNLINK_SEND_DEBUG_GSM_SEND(DefaultChannel, i, string);
 }
 
 /* Returns a pointer to the first occurrence of the character c in the firtn

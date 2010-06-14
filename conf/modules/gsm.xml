@@ -4,8 +4,8 @@
   <header>
     <file name="gsm.h"/>
   </header>
-  <init fun="gsm_init()"/>
-  <periodic fun="gsm_send_report()" period="60."/>
+  <periodic fun="gsm_init()" period="2." autorun="TRUE"/>
+  <periodic fun="gsm_send_report()" period="60." autorun="FALSE"/>
   <event fun="gsm_event()"/>
   <makefile>
     <file name="gsm.c"/>
