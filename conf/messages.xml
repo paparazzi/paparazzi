@@ -1400,7 +1400,8 @@
   </message>
 
   <message name="IMU_TURNTABLE" id="220">
-    <field name="omega" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+<!--    <field name="omega" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/> -->
+    <field name="omega" type="float" unit="rad/s" alt_unit="rpm" alt_unit_coef="9.549296584"/>
   </message>
 
 
