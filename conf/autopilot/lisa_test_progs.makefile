@@ -36,6 +36,7 @@ overo_test_spi.srcs=$(SRC_FMS)/overo_test_spi.c
 
 
 overo_test_link_stm.ARCHDIR = omap
+overo_test_link_stm.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
 overo_test_link_stm.srcs  = $(SRC_FMS)/overo_test_link.c
 overo_test_link_stm.srcs += $(SRC_FMS)/fms_spi_link.c
 
@@ -49,7 +50,18 @@ overo_test_telemetry.srcs    += $(SRC_FMS)/fms_network.c
 overo_test_telemetry.LDFLAGS += -levent
 
 
-
+overo_test_periodic.ARCHDIR  = omap
+overo_test_periodic.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
+overo_test_periodic.srcs     = $(SRC_FMS)/overo_test_periodic.c
+overo_test_periodic.CFLAGS  += -DFMS_PERIODIC_FREQ=10
+overo_test_periodic.srcs    += $(SRC_FMS)/fms_periodic.c
+overo_test_periodic.srcs    += $(SRC_FMS)/fms_serial_port.c
+overo_test_periodic.LDFLAGS += -lrt
+overo_test_periodic.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
+overo_test_periodic.srcs    += $(SRC_FMS)/udp_transport.c downlink.c
+overo_test_periodic.srcs    += $(SRC_FMS)/fms_network.c
+overo_test_periodic.LDFLAGS += -levent
+overo_test_periodic.srcs    += $(SRC_FMS)/fms_spi_link.c
 
 
 ################################################################################
@@ -451,7 +463,7 @@ test_mc2.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 
 #
-# test motor controllers with interrupts
+# test motor controllers asctec with interrupts
 #
 test_mc4.ARCHDIR = $(ARCHI)
 test_mc4.TARGET = test_mc
@@ -468,6 +480,28 @@ test_mc4.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_mc4.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_mc4.CFLAGS += -DUSE_I2C1
 test_mc4.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+
+#
+# test motor controllers asctec2 with interrupts
+#
+test_mc5.ARCHDIR = $(ARCHI)
+test_mc5.TARGET = test_mc
+test_mc5.TARGETDIR = test_mc
+test_mc5.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_mc5.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_mc5.srcs = $(SRC_LISA)/test_mc5.c           \
+                $(SRC_ARCH)/stm32_exceptions.c   \
+                $(SRC_ARCH)/stm32_vector_table.c
+test_mc5.CFLAGS += -DUSE_LED
+test_mc5.srcs += $(SRC_ARCH)/led_hw.c
+test_mc5.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_mc5.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_mc5.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_mc5.CFLAGS += -DUSE_I2C1
+test_mc5.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+
 
 
 #
@@ -496,9 +530,11 @@ test_actuators_mkk.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOW
 test_actuators_mkk.srcs += downlink.c pprz_transport.c
 
 test_actuators_mkk.srcs += $(SRC_BOOZ)/booz2_commands.c
-test_actuators_mkk.srcs += $(SRC_BOOZ)/actuators/booz_actuators_mkk.c \
-                           $(SRC_BOOZ_ARCH)/actuators/booz_actuators_mkk_arch.c
-test_actuators_mkk.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1  -DUSE_TIM2_IRQ
+#test_actuators_mkk.srcs += $(SRC_BOOZ)/actuators/booz_actuators_mkk.c \
+#                           $(SRC_BOOZ_ARCH)/actuators/booz_actuators_mkk_arch.c
+#test_actuators_mkk.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1  -DUSE_TIM2_IRQ
+test_actuators_mkk.CFLAGS += -DACTUATORS_ASCTEC_V2_PROTOCOL -DACTUATORS_ASCTEC_DEVICE=i2c1
+test_actuators_mkk.srcs += $(SRC_BOOZ)/actuators/booz_actuators_asctec.c
 test_actuators_mkk.srcs += $(SRC_BOOZ)/actuators/booz_supervision.c
 test_actuators_mkk.CFLAGS += -DUSE_I2C1
 test_actuators_mkk.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
@@ -587,6 +623,61 @@ test_baro.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEV
 test_baro.srcs += downlink.c pprz_transport.c
 
 
+#
+# test baro with interrupts
+#
+test_baro2.ARCHDIR = $(ARCHI)
+test_baro2.TARGET = test_baro2
+test_baro2.TARGETDIR = test_baro2
+test_baro2.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_baro2.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_baro2.srcs = $(SRC_LISA)/test_baro2.c      \
+                 $(SRC_ARCH)/stm32_exceptions.c   \
+                 $(SRC_ARCH)/stm32_vector_table.c
+test_baro2.CFLAGS += -DUSE_LED
+test_baro2.srcs += $(SRC_ARCH)/led_hw.c
+test_baro2.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_baro2.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_baro2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_baro2.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_baro2.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_baro2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_baro2.srcs += downlink.c pprz_transport.c
+
+test_baro2.srcs += $(SRC_LISA)/lisa_baro.c
+test_baro2.CFLAGS += -DUSE_I2C2
+test_baro2.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+
+#
+# another baro test with interrupts
+#
+test_baro3.ARCHDIR = $(ARCHI)
+test_baro3.TARGET = test_baro3
+test_baro3.TARGETDIR = test_baro3
+test_baro3.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_baro3.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_baro3.srcs = $(SRC_LISA)/test_baro3.c      \
+                  $(SRC_ARCH)/stm32_exceptions.c   \
+                  $(SRC_ARCH)/stm32_vector_table.c
+test_baro3.CFLAGS += -DUSE_LED
+test_baro3.srcs += $(SRC_ARCH)/led_hw.c
+test_baro3.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_baro3.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_baro3.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_baro3.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_baro3.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_baro3.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_baro3.srcs += downlink.c pprz_transport.c
+
+test_baro3.CFLAGS += -DUSE_I2C2
+test_baro3.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+
 
 
 
@@ -658,92 +749,6 @@ test_ovc.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_ovc.srcs += $(SRC_ARCH)/uart_hw.c
 
 
-#
-# test main
-#
-test_main.CFLAGS += -DMODEM_BAUD=B57600
-
-test_main.ARCHDIR = $(ARCHI)
-#test_main.ARCH = arm7tdmi
-test_main.TARGET = test_main
-test_main.TARGETDIR = test_main
-
-test_main.CFLAGS += $(BOOZ_INC)
-test_main.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
-test_main.srcs    = lisa/test_main.c
-
-test_main.srcs += $(SRC_ARCH)/stm32_exceptions.c
-test_main.srcs += $(SRC_ARCH)/stm32_vector_table.c
-# LEDs
-test_main.CFLAGS += -DUSE_LED
-test_main.srcs += $(SRC_ARCH)/led_hw.c
-# Systime
-test_main.CFLAGS += -DUSE_SYS_TIME
-test_main.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-test_main.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
-test_main.CFLAGS += -DSYS_TIME_LED=1
-# Telemetry/Datalink
-#test_main.srcs += $(SRC_ARCH)/uart_hw.c
-#test_main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport
-#test_main.srcs += $(SRC_BOOZ)/booz2_telemetry.c
-#test_main.srcs += downlink.c
-#test_main.srcs += pprz_transport.c
-#test_main.CFLAGS += -DDATALINK=PPRZ
-#test_main.srcs += $(SRC_BOOZ)/booz2_datalink.c
-
-#test_main.CFLAGS += -DUSE_UART2 -DUART2_BAUD=MODEM_BAUD
-#test_main.CFLAGS += -DDOWNLINK_DEVICE=Uart2 
-#test_main.CFLAGS += -DPPRZ_UART=Uart2
-
-#test_main.srcs += $(SRC_BOOZ)/booz2_commands.c
-
-# Radio control choice
-#test_main.CFLAGS += -DUSE_RADIO_CONTROL
-#test_main.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_spektrum.h\"
-#test_main.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"radio_control/booz_radio_control_spektrum_dx7se.h\"
-
-#test_main.srcs += $(SRC_BOOZ)/booz_radio_control.c \
-#           $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c
-#test_main.CFLAGS += -DRADIO_CONTROL_LED=4
-#test_main.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B115200
-#test_main.CFLAGS += -DRADIO_CONTROL_LINK=Uart3
-
-# IMU choice
-#test_main.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
-#test_main.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
-#test_main.srcs += $(SRC_BOOZ)/booz_imu.c                   \
-#           $(SRC_BOOZ)/imu/booz_imu_b2.c            \
-#           $(SRC_BOOZ_ARCH)/imu/booz_imu_b2_arch.c
-
-#test_main.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
-#           $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
-
-#test_main.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c \
-#           $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
-#test_main.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
-
-
-#test_main.srcs += $(SRC_BOOZ)/booz2_autopilot.c
-
-#test_main.srcs += math/pprz_trig_int.c
-#test_main.srcs += $(SRC_BOOZ)/booz_stabilization.c
-#test_main.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_rate.c
-
-
-#test_main.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_INT
-#test_main.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/booz_stabilization_attitude_int.h\"
-#test_main.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/booz_stabilization_attitude_ref_euler_int.h\"
-#test_main.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_ref_euler_int.c
-#test_main.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_euler_int.c
-
-#test_main.CFLAGS += -DUSE_NAVIGATION
-#test_main.srcs += $(SRC_BOOZ)/guidance/booz2_guidance_h.c
-#test_main.srcs += $(SRC_BOOZ)/guidance/booz2_guidance_v.c
-
-#test_main.srcs += $(SRC_BOOZ)/booz2_ins.c
-#test_main.srcs += math/pprz_geodetic_int.c
-#test_main.srcs += math/pprz_geodetic_float.c
-#test_main.srcs += math/pprz_geodetic_double.c
 
 
 
@@ -758,3 +763,72 @@ test_static.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_static.srcs = $(SRC_LISA)/test_static.c \
                    $(SRC_ARCH)/stm32_exceptions.c   \
                    $(SRC_ARCH)/stm32_vector_table.c
+
+
+
+#
+#
+# Passing  STM32 telemetry through WIFI
+#
+#
+
+ptw.ARCHDIR = stm32
+ptw.TARGET = ptw
+ptw.TARGETDIR = ptw
+ptw.CFLAGS += -I$(SRC_LISA) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+ptw.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+ptw.srcs = $(SRC_LISA)/test/lisa_test_stm_wifi_telemetry.c \
+          $(SRC_ARCH)/stm32_exceptions.c   \
+          $(SRC_ARCH)/stm32_vector_table.c
+
+# Leds
+ptw.CFLAGS += -DUSE_LED
+ptw.srcs += $(SRC_ARCH)/led_hw.c
+
+# Sys time
+ptw.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+ptw.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+ptw.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+# Link Overo
+ptw.CFLAGS += -DUSE_OVERO_LINK -DOVERO_LINK_MSG_UNION=AutopilotMessageTW
+ptw.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=4 -DUSE_DMA1_C2_IRQ
+ptw.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
+
+# Telemetry
+ptw.CFLAGS += -DUSE_OVERO_LINK_TELEMETRY
+#ptw.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+#ptw.srcs += $(SRC_ARCH)/uart_hw.c
+ptw.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=OveroLinkTelemetry 
+ptw.srcs += downlink.c pprz_transport.c
+
+# IMU
+ptw.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
+ptw.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
+ptw.srcs += $(SRC_BOOZ)/booz_imu.c
+ptw.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
+ptw.srcs += $(SRC_BOOZ)/imu/booz_imu_b2.c $(SRC_BOOZ_ARCH)/imu/booz_imu_b2_arch.c
+ptw.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
+ptw.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c  $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
+ptw.srcs += math/pprz_trig_int.c
+
+ptw.srcs += $(SRC_BOOZ)/booz2_commands.c
+
+# Radio control
+ptw.CFLAGS += -DUSE_RADIO_CONTROL
+ptw.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_spektrum.h\"
+ptw.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"radio_control/booz_radio_control_spektrum_dx7se.h\"
+ptw.srcs += $(SRC_BOOZ)/booz_radio_control.c \
+           $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c
+ptw.CFLAGS += -DRADIO_CONTROL_LED=6
+ptw.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B115200
+ptw.CFLAGS += -DRADIO_CONTROL_LINK=Uart3
+ptw.srcs += $(SRC_ARCH)/uart_hw.c
+
+# Actuators
+ptw.srcs += $(SRC_BOOZ)/actuators/booz_supervision.c
+ptw.srcs += $(SRC_BOOZ)/actuators/booz_actuators_mkk.c
+ptw.srcs += $(SRC_BOOZ_ARCH)/actuators/booz_actuators_mkk_arch.c
+ptw.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+ptw.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1  -DUSE_TIM2_IRQ
+ptw.CFLAGS += -DUSE_I2C1
