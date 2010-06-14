@@ -1,6 +1,10 @@
 #include "booz_actuators.h"
 #include "actuators/booz_actuators_asctec.h"
 
+#ifdef ACTUATORS_ASCTEC_V2_PROTOCOL
+#include "actuators/booz_supervision.h"
+#endif
+
 #include "booz2_commands.h"
 #include "i2c.h"
 #include "sys_time.h"
@@ -38,8 +42,14 @@ void actuators_init(void) {
   actuators_delay_done = TRUE;
   actuators_delay_time = 0;
 #endif
+
+#ifdef ACTUATORS_ASCTEC_V2_PROTOCOL
+  supervision_init();
+#endif
+
 }
 
+#ifndef ACTUATORS_ASCTEC_V2_PROTOCOL
 void actuators_set(bool_t motors_on) {
 #if defined BOOZ_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {
@@ -102,4 +112,28 @@ void actuators_set(bool_t motors_on) {
   actuators_asctec.i2c_done = FALSE;
   DeviceTransmit(0x02, 4, &actuators_asctec.i2c_done);
 }
+#else /* ! ACTUATORS_ASCTEC_V2_PROTOCOL */
+void actuators_set(bool_t motors_on) {
+  if (!cpu_time_sec) return; // FIXME
+  supervision_run(motors_on, FALSE, booz2_commands);
+#ifdef KILL_MOTORS
+  DeviceBuf[0] = 0;
+  DeviceBuf[1] = 0;
+  DeviceBuf[2] = 0;
+  DeviceBuf[3] = 0;
+  DeviceBuf[4] = 0xAA;
+#else
+  DeviceBuf[0] = supervision.commands[SERVO_FRONT];
+  DeviceBuf[1] = supervision.commands[SERVO_BACK];
+  DeviceBuf[2] = supervision.commands[SERVO_LEFT];
+  DeviceBuf[3] = supervision.commands[SERVO_RIGHT];
+  DeviceBuf[4] = 0xAA + DeviceBuf[0] + DeviceBuf[1] + DeviceBuf[2] + DeviceBuf[3];
+#endif
 
+  if (actuators_asctec.i2c_done) {
+    actuators_asctec.i2c_done = FALSE;
+    DeviceTransmit(0x02, 5, &actuators_asctec.i2c_done);
+  }
+
+}
+#endif /* ACTUATORS_ASCTEC_V2_PROTOCOL */
