@@ -37,13 +37,13 @@
 
   <section name="IMU" prefix="IMU_">
 
-    <define name="GYRO_P_NEUTRAL" value="31489"/>
-    <define name="GYRO_Q_NEUTRAL" value="31814"/>
-    <define name="GYRO_R_NEUTRAL" value="32752"/>
+    <define name="GYRO_P_NEUTRAL" value="31948"/>
+    <define name="GYRO_Q_NEUTRAL" value="31834"/>
+    <define name="GYRO_R_NEUTRAL" value="32687"/>
 
-    <define name="GYRO_P_SENS" value=" 1.01" integer="16"/>
-    <define name="GYRO_Q_SENS" value="-1.01" integer="16"/>
-    <define name="GYRO_R_SENS" value="-1.01" integer="16"/>
+    <define name="GYRO_P_SENS" value=" 1.101357422" integer="16"/>
+    <define name="GYRO_Q_SENS" value="-1.122670898" integer="16"/>
+    <define name="GYRO_R_SENS" value="-1.104890137" integer="16"/>
 
 
     <define name="ACCEL_X_SENS" value="-2.58273701242" integer="16"/>
@@ -172,9 +172,11 @@
  <makefile>
 
 
+
 USER =
 #HOST = 10.31.4.22
 HOST = overo
+#HOST = beth
 TARGET_DIR = ~
 
 SRC_FMS=fms
@@ -199,6 +201,11 @@ include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 
 include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
 
+#
+# 
+#
+
+include $(PAPARAZZI_SRC)/conf/autopilot/lisa_passthrough.makefile
 
  </makefile>
 
