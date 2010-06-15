@@ -32,6 +32,7 @@
 
 uint8_t volatile max3100_status;
 bool volatile max3100_data_available;
+bool volatile max3100_transmit_buffer_empty;
 
 uint8_t volatile max3100_tx_insert_idx, max3100_tx_extract_idx;
 uint8_t volatile max3100_rx_insert_idx, max3100_rx_extract_idx;
@@ -73,6 +74,7 @@ static void SPI1_ISR(void) __attribute__((naked));
 void max3100_init( void ) {
   max3100_status = MAX3100_STATUS_IDLE;
   max3100_data_available = false;
+  max3100_transmit_buffer_empty = true;
   max3100_tx_insert_idx = 0;
   max3100_tx_extract_idx = 0;
   max3100_rx_insert_idx = 0;
@@ -88,22 +90,22 @@ void max3100_init( void ) {
 
 
   /* From arm7/max1167_hw.c */
-  
+
   /* SS pin is output */
   SetBit(MAX3100_SS_IODIR, MAX3100_SS_PIN);
   /* unselected max3100 */
   Max3100Unselect();
 
-  /* connect P0.7 to extint2 (IRQ) */
+  /* connect extint (IRQ) */
   MAX3100_IRQ_PINSEL |= MAX3100_IRQ_PINSEL_VAL << MAX3100_IRQ_PINSEL_BIT;
-  /* extint0 is edge trigered */
+  /* extint is edge trigered */
   SetBit(EXTMODE, MAX3100_IRQ_EINT);
-  /* extint0 is trigered on falling edge */
+  /* extint is trigered on falling edge */
   ClearBit(EXTPOLAR, MAX3100_IRQ_EINT);
   /* clear pending extint0 before enabling interrupts */
   SetBit(EXTINT, MAX3100_IRQ_EINT);
 
-   /* Configure interrupt vector for external pin interrupt */
+  /* Configure interrupt vector for external pin interrupt */
   VICIntSelect &= ~VIC_BIT( MAX3100_VIC_EINT );    // EXTINT selected as IRQ
   VICIntEnable = VIC_BIT( MAX3100_VIC_EINT );             // EXTINT interrupt enabled
   VICVectCntl8 = VIC_ENABLE | MAX3100_VIC_EINT;
@@ -116,7 +118,8 @@ void max3100_init( void ) {
   VICVectAddr7 = (uint32_t)SPI1_ISR;    /* address of the ISR */
 
   /* Write configuration */
-  Max3100TransmitConf(MAX3100_BAUD_RATE | MAX3100_BIT_NOT_RM);
+  //Max3100TransmitConf(MAX3100_BAUD_RATE | MAX3100_BIT_NOT_TM);
+  Max3100TransmitConf(MAX3100_BAUD_RATE | MAX3100_BIT_NOT_RM | MAX3100_BIT_NOT_TM);
 }
 
 
@@ -124,14 +127,10 @@ void max3100_init( void ) {
 void EXTINT_ISR(void) {
   ISR_ENTRY();
 
-  LED_ON(2);
-
   max3100_data_available = true;
   
   SetBit(EXTINT, MAX3100_IRQ_EINT);   /* clear extint */
   VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
-
-  LED_OFF(2);
 
   ISR_EXIT();
 }
@@ -140,15 +139,15 @@ void SPI1_ISR(void) {
   ISR_ENTRY();
 
   while (bit_is_set(SSPSR, RNE)) {
-    //    uint8_t byte1 = SSPDR;
-    //uint8_t byte2 = SSPDR;
-    //    uint16_t data = byte1 << 8 | byte2;
     uint16_t data = SSPDR;
 
     if (bit_is_set(data, MAX3100_R_BIT)) { /* Data available */
       max3100_rx_buf[max3100_rx_insert_idx] = data & 0xff;
       max3100_rx_insert_idx++;  // automatic overflow because len=256
       read_bytes = true;
+    }
+    if (bit_is_set(data, MAX3100_T_BIT) && (max3100_status == MAX3100_STATUS_READING)) { /* transmit buffer empty */
+      max3100_transmit_buffer_empty = true;
     }
   }
   SpiClearRti();                  /* clear interrupt */
@@ -162,5 +161,5 @@ void SPI1_ISR(void) {
 }
 
 void max3100_debug(void) {
-  /***     DOWNLINK_SEND_DEBUG(16, max3100_rx_buf); ***/
+  /***     DOWNLINK_SEND_DEBUG(DefaultChannel, 16, max3100_rx_buf); ***/
 }

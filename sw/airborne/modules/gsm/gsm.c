@@ -154,16 +154,26 @@ void gsm_init(void) {
   if (gsm_status == STATUS_NONE) { /* First call */
     LED_ON(GSM_ONOFF_LED);
     gsm_status = STATUS_POWERON;
-  } else { /* Second call */
-    gsm_buf_idx = 0;
-    gsm_line_received = false;
-    
-    Send_AT();
-    gsm_status = STATUS_SEND_AT;
-    gsm_gsm_init_status = FALSE;
+  //} else { /* Second call */
+  //  gsm_buf_idx = 0;
+  //  gsm_line_received = false;
+  //  
+  //  Send_AT();
+  //  gsm_status = STATUS_SEND_AT;
+  //  gsm_gsm_init_status = FALSE;
   }
 }
 
+void gsm_init_report(void) { /* Second call */
+  if (gsm_status != STATUS_NONE) {
+    gsm_buf_idx = 0;
+    gsm_line_received = false;
+
+    Send_AT();
+    gsm_status = STATUS_SEND_AT;
+    gsm_gsm_init_report_status = FALSE;
+  }
+}
 
 void gsm_event(void) {
   if (GSMBuffer()) {
@@ -171,7 +181,7 @@ void gsm_event(void) {
   }
 
   if (gsm_line_received) {
-    DOWNLINK_SEND_DEBUG_GSM_RECEIVE(DefaultChannel, gsm_buf_len, gsm_buf);
+    if (gsm_buf_len > 0) DOWNLINK_SEND_DEBUG_GSM_RECEIVE(DefaultChannel, gsm_buf_len, gsm_buf);
     gsm_got_line();
     gsm_line_received = false;
   } else if (prompt_received) {
@@ -190,7 +200,7 @@ static void gsm_got_line(void)
     Suppr_SMS(index_msg);
     gsm_status = STATUS_DELETE_SMS;
   } else if (gsm_status == STATUS_IDLE 
-	     && strncmp(CMTI, gsm_buf, strlen(CMTI)) == 0) {
+      && strncmp(CMTI, gsm_buf, strlen(CMTI)) == 0) {
     /* A SMS is available */
     /* Extracting the index of the message */
     char * first_comma = indexn(gsm_buf, ',',MAXLEN_CMTI_ANSWER);
@@ -201,52 +211,56 @@ static void gsm_got_line(void)
     }
   } else if (waiting_for_reply) { // Other cases
     // Do we get what we were expecting
-    
+
     bool gsm_answer = strncmp(expected_ack, gsm_buf, strlen(expected_ack)) == 0;
     if (gsm_answer) {
       waiting_for_reply = false;
 
       switch(gsm_status) {
-      case STATUS_CSQ :			
-	gsm_send_report_continue();
-	gsm_status = STATUS_WAITING_PROMPT;
-	break;
-	
-      case STATUS_REQUESTING_MESSAGE:
-	parse_msg_header();
-	gsm_status = STATUS_WAITING_DATA;
-	break;
-      
-      case STATUS_SEND_AT :
-	gsm_answer = false;
-	Send_CMGF();
-	gsm_status = STATUS_SEND_CMGF;
-	break;
-      
-      case STATUS_SEND_CMGF :
-	gsm_answer = false;
-	Send_CNMI();
-	gsm_status = STATUS_SEND_CNMI;
-	break;
-      
-      case STATUS_SEND_CNMI :
-	gsm_answer = false;
-	Send_CPMS();
-	gsm_status = STATUS_SEND_CPMS;
-	break;
-      
-      case STATUS_SEND_CPMS :
-	gsm_answer = false;
-	gsm_status = STATUS_IDLE;
-	gsm_gsm_send_report_status = MODULES_START; /** Start reporting */
-	break;
-      
-      case STATUS_DELETE_SMS :
-	gsm_status = STATUS_IDLE;
-	break;
-      
-      default:				
-	break;
+        case STATUS_CSQ :			
+          gsm_send_report_continue();
+          gsm_status = STATUS_WAITING_PROMPT;
+          break;
+
+        case STATUS_REQUESTING_MESSAGE:
+          parse_msg_header();
+          gsm_status = STATUS_WAITING_DATA;
+          break;
+
+        case STATUS_SEND_AT :
+          gsm_answer = false;
+          Send_CMGF();
+          gsm_status = STATUS_SEND_CMGF;
+          LED_TOGGLE(3);
+          break;
+
+        case STATUS_SEND_CMGF :
+          gsm_answer = false;
+          Send_CNMI();
+          gsm_status = STATUS_SEND_CNMI;
+          LED_TOGGLE(3);
+          break;
+
+        case STATUS_SEND_CNMI :
+          gsm_answer = false;
+          Send_CPMS();
+          gsm_status = STATUS_SEND_CPMS;
+          LED_TOGGLE(3);
+          break;
+
+        case STATUS_SEND_CPMS :
+          gsm_answer = false;
+          gsm_status = STATUS_IDLE;
+          gsm_gsm_send_report_status = MODULES_START; /** Start reporting */
+          LED_TOGGLE(3);
+          break;
+
+        case STATUS_DELETE_SMS :
+          gsm_status = STATUS_IDLE;
+          break;
+
+        default:				
+          break;
       }
     } else { /** We did not get the expected answer */
       /* Let's wait for the next line */
@@ -260,7 +274,7 @@ static void gsm_got_line(void)
 static void request_for_msg(void)
 {
   char demande_lecture_SMS[16];
-  
+
   strcpy(expected_ack, "+CMGR");
   sprintf(demande_lecture_SMS, "AT+CMGR=%d", index_msg);
   waiting_for_reply = true;
@@ -269,10 +283,10 @@ static void request_for_msg(void)
 
 
 /** Receiving a SMS, third step, content in gsm_buf
-    Message can be
-      Bdd         where dd is a block index on two digits. WARNING: dd > 0
-      Sdd value   where dd>0 is a var index on two digits and value is a float
- */
+  Message can be
+  Bdd         where dd is a block index on two digits. WARNING: dd > 0
+  Sdd value   where dd>0 is a var index on two digits and value is a float
+  */
 static void gsm_receive_content(void)
 {
   // ?????? sprintf(data_to_send, "%d %s %s %s %s", index_msg, flag, expediteur, dateheure, data_recue);
@@ -365,6 +379,7 @@ void gsm_send_report()
 // Sending a message, second step; we have asked for network quality
 void gsm_send_report_continue(void)
 {
+  LED_ON(2);
   //We got "+CSQ: <rssi>,<ber>" <rssi> and <ber> on 2 digits (cf 3.5.4.4.4)
   // and we expect "OK" on the second line
   uint8_t rssi = atoi(gsm_buf + strlen("+CSQ: "));
@@ -378,6 +393,7 @@ void gsm_send_report_continue(void)
   char buf[32];
   sprintf(buf, "AT+CMGS=\"%s\"", GCS_NUMBER);
   Send(buf);
+  LED_OFF(2);
 }
 
 
@@ -423,23 +439,23 @@ static void Send_CPMS(void)
 
 static void gsm_parse(uint8_t c) {
   switch(c) {
-  case GSM_CR:
-    gsm_buf[gsm_buf_idx] = '\0';
-    gsm_line_received = true;
-    gsm_buf_len = gsm_buf_idx;
-    gsm_buf_idx=0;
-    break;
-  case '>':
-    prompt_received = true;
-    break;
-  case '\n':
-    break;
-  default:
-    if (gsm_buf_idx < GSM_MAX_PAYLOAD) { 
-      gsm_buf[gsm_buf_idx] = c;
-      gsm_buf_idx++;
-    } /* else extra characters are ignored */
-    break;
+    case GSM_CMD_LINE_TERMINATION:
+      break;
+    case '>':
+      prompt_received = true;
+      break;
+    case GSM_RESPONSE_FORMATING:
+      gsm_buf[gsm_buf_idx] = '\0';
+      gsm_line_received = true;
+      gsm_buf_len = gsm_buf_idx;
+      gsm_buf_idx=0;
+      break;
+    default:
+      if (gsm_buf_idx < GSM_MAX_PAYLOAD) { 
+        gsm_buf[gsm_buf_idx] = c;
+        gsm_buf_idx++;
+      } /* else extra characters are ignored */
+      break;
   }
 }
 
@@ -451,7 +467,7 @@ static void Send(const char string[])
 
   while(string[i])
     GSMTransmit(string[i++]);
-  GSMTransmit(GSM_CR);
+  GSMTransmit(GSM_CMD_LINE_TERMINATION);
 
   DOWNLINK_SEND_DEBUG_GSM_SEND(DefaultChannel, i, string);
 }

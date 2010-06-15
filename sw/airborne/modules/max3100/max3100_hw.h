@@ -41,6 +41,7 @@
 
 extern volatile uint8_t max3100_status;
 extern volatile bool max3100_data_available;
+extern volatile bool max3100_transmit_buffer_empty; // Max3100 ready to receive data on SPI
 
 /** I/O Buffers */
 #define MAX3100_TX_BUF_LEN 256
@@ -70,6 +71,7 @@ extern bool read_bytes;
 
 /* Datasheet page 12 */
 #if MAX3100_FOSC == 1843200
+#define MAX3100_B115200 0x0
 #define MAX3100_B57600 0x1
 #define MAX3100_B19200 0x9 
 #define MAX3100_B9600 0xA
@@ -82,6 +84,7 @@ extern bool read_bytes;
 #define MAX3100_BIT_NOT_RM (1U<<10)
 #define MAX3100_BIT_NOT_TM (1U<<11)
 #define MAX3100_BIT_NOT_FEN (1U<<13)
+#define MAX3100_T_BIT 14
 #define MAX3100_R_BIT 15
 
 /** Like Uart macros */
@@ -120,10 +123,12 @@ static inline void max3100_read_data(void) {
   
 static inline void max3100_flush( void ) {
   if (max3100_status == MAX3100_STATUS_IDLE
-      && max3100_tx_extract_idx != max3100_tx_insert_idx) {
+      && max3100_tx_extract_idx != max3100_tx_insert_idx
+      && max3100_transmit_buffer_empty) {
     Max3100TransmitData(max3100_tx_buf[max3100_tx_extract_idx]);
     max3100_tx_extract_idx++; /* automatic overflow since len=256 */
     max3100_status = MAX3100_STATUS_WRITING;
+    max3100_transmit_buffer_empty = false;
   }
 }
 
