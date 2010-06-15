@@ -49,10 +49,6 @@ static rc_script scripts[] = {
 };
 
 
-#define MODE_SWITCH_MANUAL -1.0
-#define MODE_SWITCH_AUTO1   0.0
-#define MODE_SWITCH_AUTO2   1.0
-
 #define RADIO_CONTROL_TAKEOFF_TIME 8
 
 
@@ -86,7 +82,6 @@ bool_t nps_radio_control_available(double time) {
  */
 
 void radio_control_script_takeoff(double time) {
-  
   nps_radio_control.roll = 0.;
   nps_radio_control.pitch = 0.;
   nps_radio_control.yaw = 0.;
@@ -111,7 +106,7 @@ void radio_control_script_hover(double time __attribute__ ((unused))) {
 void radio_control_script_step_roll(double time) {
   nps_radio_control.throttle = 0.99;
   nps_radio_control.mode = MODE_SWITCH_AUTO2;
-  
+
   if (((int32_t)rint((time*0.5)))%2) {
     nps_radio_control.roll = 0.2;
     nps_radio_control.yaw = 0.5;
@@ -140,7 +135,7 @@ void radio_control_script_step_yaw(double time) {
   nps_radio_control.pitch = 0.;
   nps_radio_control.throttle = 0.99;
   nps_radio_control.mode = MODE_SWITCH_AUTO2;
-  
+
   if (((int32_t)rint((time*0.5)))%2) {
     nps_radio_control.yaw = 0.5;
   }
@@ -163,5 +158,3 @@ void radio_control_script_ff(double time __attribute__ ((unused))) {
     nps_radio_control.roll = 0.;
   }
 }
-
-

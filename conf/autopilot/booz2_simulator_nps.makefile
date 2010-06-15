@@ -131,6 +131,7 @@ else ifeq ($(NUM_TYPE), float)
   endif
 endif
 
+sim.CFLAGS += -DUSE_NAVIGATION
 sim.srcs += $(SRC_BOOZ)/guidance/booz2_guidance_h.c
 sim.srcs += $(SRC_BOOZ)/guidance/booz2_guidance_v.c
 sim.srcs += math/pprz_geodetic_int.c

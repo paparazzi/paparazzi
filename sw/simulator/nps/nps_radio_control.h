@@ -3,6 +3,10 @@
 
 #include "std.h"
 
+#define MODE_SWITCH_MANUAL -1.0
+#define MODE_SWITCH_AUTO1   0.0
+#define MODE_SWITCH_AUTO2   1.0
+
 enum NpsRadioControlType {
   SCRIPT,
   JOYSTICK,

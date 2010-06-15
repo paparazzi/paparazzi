@@ -22,7 +22,7 @@ int nps_radio_control_joystick_init(const char* device) {
   nps_joystick.roll = 0.;
   nps_joystick.pitch = 0.;
   nps_joystick.yaw = 0.;
-  nps_joystick.mode = 1.0;
+  nps_joystick.mode = MODE_SWITCH_AUTO2;
 
   int fd = open(device, O_RDONLY | O_NONBLOCK);
   if (fd == -1) {
@@ -40,9 +40,12 @@ int nps_radio_control_joystick_init(const char* device) {
 #define JS_PITCH    1
 #define JS_YAW      2
 #define JS_THROTTLE 3
-#define JS_MODE     5
 #define JS_NB_AXIS  7
 
+// buttons to switch modes
+#define JS_MODE_MANUAL 4
+#define JS_MODE_AUTO1  5
+#define JS_MODE_AUTO2  6
 
 static gboolean on_js_data_received(GIOChannel *source,
 				    GIOCondition condition __attribute__ ((unused)),
@@ -73,13 +76,22 @@ static gboolean on_js_data_received(GIOChannel *source,
         nps_joystick.yaw = (float)js.value/-32767.;
         //printf("joystick yaw %d %f\n",js.value, nps_joystick.yaw);
         break;
-      case JS_MODE:
-        nps_joystick.mode = 1.0;
-        //nps_joystick.mode = (float)js.value/-32767.;
-        //printf("joystick mode %d\n",js.value);
-        break;
       }
     }
   }
+  if (js.type == JS_EVENT_BUTTON) {
+    switch (js.number) {
+    case JS_MODE_MANUAL:
+      nps_joystick.mode = MODE_SWITCH_MANUAL;
+      break;
+    case JS_MODE_AUTO1:
+      nps_joystick.mode = MODE_SWITCH_AUTO1;
+      break;
+    case JS_MODE_AUTO2:
+      nps_joystick.mode = MODE_SWITCH_AUTO2;
+      break;
+    }
+  }
+
   return TRUE;
 }
