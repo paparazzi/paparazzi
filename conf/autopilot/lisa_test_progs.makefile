@@ -34,11 +34,11 @@
 overo_test_spi.ARCHDIR = omap
 overo_test_spi.srcs=$(SRC_FMS)/overo_test_spi.c
 
-
-overo_test_link_stm.ARCHDIR = omap
-overo_test_link_stm.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
-overo_test_link_stm.srcs  = $(SRC_FMS)/overo_test_link.c
-overo_test_link_stm.srcs += $(SRC_FMS)/fms_spi_link.c
+# test spi link between overo and stm32
+overo_test_spi_link.ARCHDIR = omap
+overo_test_spi_link.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
+overo_test_spi_link.srcs  = $(SRC_FMS)/overo_test_spi_link.c
+overo_test_spi_link.srcs += $(SRC_FMS)/fms_spi_link.c
 
 
 overo_test_telemetry.ARCHDIR  = omap
@@ -730,25 +730,30 @@ test_spi_slave2.srcs += downlink.c pprz_transport.c
 
 
 #
-# test overo com
+# test spi link between overo and stm32
 #
-test_ovc.ARCHDIR = $(ARCHI)
-test_ovc.TARGET = test_ovc
-test_ovc.TARGETDIR = test_ovc
-test_ovc.CFLAGS += -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
-test_ovc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_ovc.srcs += $(SRC_LISA)/test_ovc.c       \
-                 $(SRC_LISA)/exceptions.c     \
-                 $(SRC_LISA)/vector_table.c
-test_ovc.CFLAGS += -DUSE_LED
-test_ovc.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
-test_ovc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-test_ovc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+stm_test_spi_link.ARCHDIR = $(ARCHI)
+stm_test_spi_link.TARGET = stm_test_spi_link
+stm_test_spi_link.TARGETDIR = stm_test_spi_link
+stm_test_spi_link.CFLAGS += -Ilisa -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+stm_test_spi_link.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+stm_test_spi_link.srcs += lisa/stm_test_spi_link.c       \
+	                  $(SRC_ARCH)/stm32_exceptions.c   \
+		          $(SRC_ARCH)/stm32_vector_table.c
 
-test_ovc.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
-test_ovc.srcs += $(SRC_ARCH)/uart_hw.c
+stm_test_spi_link.CFLAGS += -DUSE_LED
+stm_test_spi_link.srcs += $(SRC_ARCH)/led_hw.c
 
+stm_test_spi_link.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+stm_test_spi_link.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+stm_test_spi_link.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
+stm_test_spi_link.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+stm_test_spi_link.srcs += $(SRC_ARCH)/uart_hw.c
+
+stm_test_spi_link.CFLAGS += -DUSE_OVERO_LINK -DOVERO_LINK_MSG_UNION=AutopilotMessageFoo1
+stm_test_spi_link.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=4 -DUSE_DMA1_C2_IRQ
+stm_test_spi_link.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
 
 
 

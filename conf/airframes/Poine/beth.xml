@@ -164,8 +164,10 @@ main_overo.srcs  = $(SRC_BETH)/main_overo.c
 main_overo.srcs += $(SRC_FMS)/fms_spi_link.c
 
 
-
-
+#
+#
+#
+include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
 
   </makefile>
 

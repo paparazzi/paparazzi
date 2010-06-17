@@ -1,3 +1,4 @@
+<!-- this is a custom hexa Lisa/L#3 and mikrokopter controllers -->
 <airframe name="booz2_a6">
 
   <servos min="0" neutral="0" max="0xff">
