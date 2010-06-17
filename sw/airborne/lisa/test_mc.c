@@ -21,6 +21,10 @@
  * Boston, MA 02111-1307, USA. 
  */
 
+// addr 4
+// J6 = SCL orange
+// J7 = SDA
+
 #include <stm32/flash.h>
 #include <stm32/misc.h>
 #include <stm32/i2c.h>
@@ -35,7 +39,7 @@ static inline void main_event_task( void );
 
 static inline void main_i2c_init( void );
 static inline void main_test_send( void );
-
+static void test_gpios(void);
 
 int main(void) {
   main_init();
@@ -53,17 +57,35 @@ int main(void) {
 static inline void main_init( void ) {
   hw_init();
   sys_time_init();
-  main_i2c_init();
+  //main_i2c_init();
+   test_gpios();
 }
 
 static inline void main_periodic_task( void ) {
 
-  main_test_send();
-
+  //  main_test_send();
+  LED_PERIODIC();
 }
 
 static inline void main_event_task( void ) {
 
+}
+
+
+static void test_gpios(void) {
+  /* Enable GPIOB clock */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+ /* Configure I2C1 pins: SCL and SDA ------------------------------------------*/
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_10 | GPIO_Pin_11;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+
+  //GPIOB->BRR  = GPIO_Pin_6 | GPIO_Pin_7;
+
+  GPIOC->BSRR  = GPIO_Pin_10 | GPIO_Pin_11;
 }
 
 
@@ -103,16 +125,18 @@ static inline void main_i2c_init( void ) {
 
 static inline void main_test_send( void ) {
 
+  //  return;
   /* Send START condition */
   I2C_GenerateSTART(I2C1, ENABLE);
 
   /* Test on EV5 and clear it */
   while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
 
-  //  return;
+  //return;
 
   /* Send  address */
-  I2C_Send7bitAddress(I2C1, 0x52, I2C_Direction_Transmitter);
+  //  I2C_Send7bitAddress(I2C1, 0x52, I2C_Direction_Transmitter);
+  I2C_Send7bitAddress(I2C1, 0x58, I2C_Direction_Transmitter);
   
   //  return;
 
@@ -122,7 +146,7 @@ static inline void main_test_send( void ) {
   //  return;
   
   /* Snd data */
-  I2C_SendData(I2C1, 0x05);
+  I2C_SendData(I2C1, 0x00);
 
   /* Test on EV8 and clear it */
   while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));

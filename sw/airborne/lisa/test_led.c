@@ -26,19 +26,37 @@
 
 #include BOARD_CONFIG
 #include "init_hw.h"
-#include "led.h"
 
 void Delay(__IO uint32_t nCount);
 
 int main(void) {
 
   hw_init();
-  //  led_init(); // handled by PERIPHERALS_AUTO_INIT
   while (1) {
     LED_ON(1);
-    Delay(500000);
+    LED_ON(3);
+    LED_ON(5);
+    LED_ON(7);
+#if 1
+    LED_OFF(0);
+    LED_OFF(2);
+    LED_OFF(4);
+    LED_OFF(6);
+#endif
+    LED_PERIODIC();
+    Delay(1000000);
     LED_OFF(1);
-    Delay(500000);
+    LED_OFF(3);
+    LED_OFF(5);
+    LED_OFF(7);
+#if 1
+    LED_ON(0);
+    LED_ON(2);
+    LED_ON(4);
+    LED_ON(6);
+#endif
+    LED_PERIODIC();
+    Delay(1000000);
 
   };
   return 0;

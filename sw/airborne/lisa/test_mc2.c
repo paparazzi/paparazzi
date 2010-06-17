@@ -51,9 +51,11 @@ static inline void main_init( void ) {
 
 
 static inline void main_periodic_task( void ) {
+  
+  i2c1_buf[0] = 0x00;
+  i2c1_transmit(0x58, 1, &i2c_done);
 
-  i2c1_buf[0] = 0x05;
-  i2c1_transmit(0x52, 1, &i2c_done);
+  LED_PERIODIC();
 
 }
 

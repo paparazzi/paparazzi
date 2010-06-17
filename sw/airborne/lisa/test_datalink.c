@@ -21,15 +21,9 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#include <stm32/rcc.h>
-#include <stm32/gpio.h>
-
-#include <stm32/flash.h>
-#include <stm32/misc.h>
-
 #define DATALINK_C
 
-#include CONFIG
+#include BOARD_CONFIG
 #include "init_hw.h"
 #include "sys_time.h"
 #include "downlink.h"
@@ -58,7 +52,7 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic( void ) {
-  RunOnceEvery(50, {DOWNLINK_SEND_BOOT(&cpu_time_sec);});
+  RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel,  16, MD5SUM);});
 }
 
 static inline void main_event( void ) {
@@ -73,7 +67,7 @@ void dl_parse_msg(void) {
   
   case  DL_PING:
     {
-      DOWNLINK_SEND_PONG();
+      DOWNLINK_SEND_PONG(DefaultChannel);
     }
     break;
   }

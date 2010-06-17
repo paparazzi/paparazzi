@@ -91,10 +91,10 @@ static inline void main_periodic_task( void ) {
     /* set actuators     */
     booz2_commands[COMMAND_PITCH] = 0;
     booz2_commands[COMMAND_ROLL] = 0;
-    booz2_commands[COMMAND_YAW] = 0;
+    booz2_commands[COMMAND_YAW] = 20;
     booz2_commands[COMMAND_THRUST] = 0;
-    actuators_set(TRUE);
-    //actuators_set(FALSE);
+    // actuators_set(TRUE);
+    actuators_set(FALSE);
   }
   LED_PERIODIC();
 

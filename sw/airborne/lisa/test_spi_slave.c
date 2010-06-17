@@ -28,6 +28,7 @@
 #include BOARD_CONFIG
 #include "init_hw.h"
 #include "sys_time.h"
+#include "downlink.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -64,6 +65,8 @@ static inline void main_periodic_task( void ) {
     GPIOC->BSRR = GPIO_Pin_4;
   foo = !foo;
 #endif
+  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(DefaultChannel, &cpu_time_sec);});
+  LED_PERIODIC();
 }
 
 static inline void main_event_task( void ) {
@@ -125,6 +128,9 @@ void spi1_irq_handler(void) {
   static uint8_t cnt = 0;
   SPI_I2S_SendData(SPI1, cnt);
   cnt++;
-  LED_TOGGLE(1);
+  LED_TOGGLE(3);
+  DOWNLINK_SEND_DEBUG_MCU_LINK(DefaultChannel, &foo, &foo, &cnt);
+
+
 }
 

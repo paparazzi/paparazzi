@@ -57,6 +57,8 @@ static inline void main_periodic( void ) {
   if (bar < -9600) { foo = -foo; bar = -9600;}
   booz_actuators_pwm_values[0] = 3375 + bar * 1125 / 9600;
   booz_actuators_pwm_commit();
+
+  LED_PERIODIC();
 }
 
 

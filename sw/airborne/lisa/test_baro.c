@@ -32,9 +32,9 @@
 
 
 // absolute
-#define BARO_ADDR 0x90   
+//#define BARO_ADDR 0x90   
 // differential
-//#define BARO_ADDR 0x92
+#define BARO_ADDR 0x92
 
 #include <stm32/flash.h>
 #include <stm32/misc.h>
@@ -92,8 +92,9 @@ static inline void main_periodic_task( void ) {
       if (!initialised) {
 	main_send_reset();
 	//main_send_config();
-	//	uint8_t cfg_msb = 0x84;
-	uint8_t cfg_msb = 0x86;
+	uint8_t cfg_msb = 0x84;
+	// double gain ??
+	//	uint8_t cfg_msb = 0x86;
 	uint8_t cfg_lsb = 0x83;
 	write_to_register(0x01, cfg_msb, cfg_lsb);
 	// low tresh  msb to 0
@@ -108,11 +109,18 @@ static inline void main_periodic_task( void ) {
       
       int16_t adc = foo<<8 | bar;
       uint16_t adc1 = 255* foo + bar;
+      int16_t bla = 0;
       DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, &adc, &foo, &bar);
-      DOWNLINK_SEND_BOOT(DefaultChannel, &adc1);
+      //DOWNLINK_SEND_BOOT(DefaultChannel, &adc1);
+      //      uint16_t bla = 0;
+      //      DOWNLINK_SEND_BOOZ2_BARO_RAW(DefaultChannel, &bla, &adc, &bla);
       LED_PERIODIC();
     });
-  
+   RunOnceEvery(100, {
+      LED_TOGGLE(3);
+      DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+    });
+
 }
 
 static inline void main_event_task( void ) {
@@ -293,8 +301,6 @@ static void main_read_register( uint8_t reg) {
 
   I2C_AcknowledgeConfig(I2C2, DISABLE);
   I2C_GenerateSTOP(I2C2, ENABLE);
-
-
 
   while (!I2C_CheckEvent(I2C2, I2C_EVENT_MASTER_BYTE_RECEIVED));
   bar = I2C_ReceiveData(I2C2);
