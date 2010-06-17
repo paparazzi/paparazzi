@@ -43,12 +43,11 @@ int main(void) {
   hw_init();
   sys_time_init();
   overo_link_init();
-  
-  while (1) {
 
+  while (1) {
     if (sys_time_periodic())
       main_periodic();
-  
+    main_event();
   }
   
   return 0;
@@ -56,23 +55,17 @@ int main(void) {
 
 
 static inline void main_periodic( void ) {
-  //  LED_TOGGLE(1);
-
-  //  uart2_transmit('a');
-  //  uart2_transmit('b');
-  //  uart2_transmit('b');
-  //  uart2_transmit('\n');
 
   OveroLinkPeriodic(on_overo_link_lost);
+
+  RunOnceEvery(10,{ LED_PERIODIC();});
 
 }
 
 static inline void main_event( void ) {
+
   OveroLinkEvent(on_overo_msg_received);
-  // send previously received msg
-  memcpy(overo_link.msg_out, &my_msg, sizeof(my_msg));
-  // store newly received message
-  memcpy(&my_msg, overo_link.msg_in, sizeof(my_msg));
+
 }
 
 
@@ -82,5 +75,6 @@ static inline void on_overo_link_lost(void) {
 
 static inline void on_overo_msg_received(void) {
 
+  memcpy(overo_link.msg_out, overo_link.msg_in, sizeof(struct AutopilotMessageFoo));
 
 }
