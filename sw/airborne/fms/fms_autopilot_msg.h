@@ -10,6 +10,10 @@ struct AutopilotMessageFoo {
   uint8_t blaa;
 };
 
+union AutopilotMessageFoo1 {
+  struct AutopilotMessageFoo up;
+  struct AutopilotMessageFoo down;
+};
 
 struct AutopilotMessageBethUp {
   struct Int16Vect3 gyro;
