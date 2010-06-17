@@ -153,8 +153,9 @@ main_coders.CFLAGS += -DUSE_I2C2
 #
 
 USER =
-HOST = beth
-HOST = overo
+#HOST = beth
+#HOST = overo
+HOST = auto7
 TARGET_DIR = ~
 SRC_FMS=fms
 
@@ -168,6 +169,8 @@ main_overo.srcs += $(SRC_FMS)/fms_spi_link.c
 #
 #
 include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
+
+include $(PAPARAZZI_SRC)/conf/autopilot/lisa_passthrough.makefile
 
   </makefile>
 

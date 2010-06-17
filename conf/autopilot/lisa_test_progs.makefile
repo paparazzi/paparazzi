@@ -707,7 +707,7 @@ test_spi_slave.srcs += downlink.c pprz_transport.c
 
 
 #
-# test spi slave2
+# test spi slave2  ( with DMA )
 #
 test_spi_slave2.ARCHDIR = $(ARCHI)
 test_spi_slave2.TARGET = test_spi_slave2
