@@ -29,35 +29,25 @@
 
 void Delay(__IO uint32_t nCount);
 
-int main(void) {
+#define LED_PROGRAM_SIZE 26
 
+const int LED_PROG_ON[LED_PROGRAM_SIZE] = {  3,  5,  7,  1,   -1, -1, -1, -1,    2,  4,  6,  0,     3,  5,  7,  1,    -1, -1, -1, -1,     -1, -1, -1, -1,     -1, -1   };
+const int LED_PROG_OFF[LED_PROGRAM_SIZE] = {-1, -1, -1, -1,    3,  5,  7,  1,   -1, -1, -1, -1,    -1, -1, -1, -1,     3,  5,  7,  1,      2,  4,  6,  0,     -1, -1   };
+
+
+int main(void) {
+  int i = 0;
   hw_init();
   while (1) {
-    LED_ON(1);
-    LED_ON(3);
-    LED_ON(5);
-    LED_ON(7);
-#if 1
-    LED_OFF(0);
-    LED_OFF(2);
-    LED_OFF(4);
-    LED_OFF(6);
-#endif
-    LED_PERIODIC();
-    Delay(1000000);
-    LED_OFF(1);
-    LED_OFF(3);
-    LED_OFF(5);
-    LED_OFF(7);
-#if 1
-    LED_ON(0);
-    LED_ON(2);
-    LED_ON(4);
-    LED_ON(6);
-#endif
-    LED_PERIODIC();
-    Delay(1000000);
-
+    for (i=0; i< LED_PROGRAM_SIZE; i++)
+    {
+      if (LED_PROG_ON[i] >= 0)
+        LED_ON(LED_PROG_ON[i]);
+      LED_PERIODIC();
+      Delay(2000000);
+      if (LED_PROG_OFF[i] >= 0)
+        LED_OFF(LED_PROG_OFF[i]);
+    }
   };
   return 0;
 }
