@@ -146,7 +146,8 @@ static void parse_msg_header(void);
 static char* indexn(char*, char, uint8_t);
 
 
-
+static uint8_t gcs_index;
+static uint8_t gcs_index_max;
 
 
 /*****************************************************************************/
@@ -162,6 +163,14 @@ void gsm_init(void) {
   //  gsm_status = STATUS_SEND_AT;
   //  gsm_gsm_init_status = FALSE;
   }
+  gcs_index = 0;
+  gcs_index_max = 0;
+#ifdef GCS_NUMBER_1
+  gcs_index_max++;
+#endif
+#ifdef GCS_NUMBER_2
+  gcs_index_max++;
+#endif
 }
 
 void gsm_init_report(void) { /* Second call */
@@ -231,28 +240,24 @@ static void gsm_got_line(void)
           gsm_answer = false;
           Send_CMGF();
           gsm_status = STATUS_SEND_CMGF;
-          LED_TOGGLE(3);
           break;
 
         case STATUS_SEND_CMGF :
           gsm_answer = false;
           Send_CNMI();
           gsm_status = STATUS_SEND_CNMI;
-          LED_TOGGLE(3);
           break;
 
         case STATUS_SEND_CNMI :
           gsm_answer = false;
           Send_CPMS();
           gsm_status = STATUS_SEND_CPMS;
-          LED_TOGGLE(3);
           break;
 
         case STATUS_SEND_CPMS :
           gsm_answer = false;
           gsm_status = STATUS_IDLE;
           gsm_gsm_send_report_status = MODULES_START; /** Start reporting */
-          LED_TOGGLE(3);
           break;
 
         case STATUS_DELETE_SMS :
@@ -291,30 +296,50 @@ static void gsm_receive_content(void)
 {
   // ?????? sprintf(data_to_send, "%d %s %s %s %s", index_msg, flag, expediteur, dateheure, data_recue);
   // ?????? Send(data_to_send);
-  
+
   // Checking the number of the sender
-  if (true || strncmp((char*)GCS_NUMBER, origin, strlen(GCS_NUMBER)) == 0) {
+  if (
+#if ! (defined GCS_NUMBER_1 || defined GCS_NUMBER_2 || defined SAFETY_NUMBER_1 || defined SAFETY_NUMBER_2)
+      true
+#else
+      false
+#endif
+#ifdef GCS_NUMBER_1
+      || strncmp((char*)GCS_NUMBER_1, origin, strlen(GCS_NUMBER_1)) == 0
+#endif
+#ifdef GCS_NUMBER_2
+      || strncmp((char*)GCS_NUMBER_2, origin, strlen(GCS_NUMBER_2)) == 0
+#endif
+#ifdef SAFETY_NUMBER_1
+      || strncmp((char*)SAFETY_NUMBER_1, origin, strlen(SAFETY_NUMBER_1)) == 0
+#endif
+#ifdef SAFETY_NUMBER_2
+      || strncmp((char*)SAFETY_NUMBER_2, origin, strlen(SAFETY_NUMBER_2)) == 0
+#endif
+      ) {
     // Decoding the message ...
 
     // Search for the instruction
     switch (gsm_buf[0]) {
-    case 'B' : {
-      uint8_t block_index = atoi(gsm_buf+1);
-      if (block_index > 0) /* Warning: no way to go to the first block */
-	nav_goto_block(block_index);
-      break;
-    }
-    case 'S' : {
-      uint8_t var_index = atoi(gsm_buf+1);
-      if (var_index > 0) {
-	float value = atof(indexn(gsm_buf, ' ',MAXLEN_SMS_CONTENT)+1);
-	DlSetting(var_index, value);
-      }
-    }
+      case 'B' :
+        {
+          uint8_t block_index = atoi(gsm_buf+1);
+          if (block_index > 0) /* Warning: no way to go to the first block */
+            nav_goto_block(block_index);
+          break;
+        }
+      case 'S' :
+        {
+          uint8_t var_index = atoi(gsm_buf+1);
+          if (var_index > 0) {
+            float value = atof(indexn(gsm_buf, ' ',MAXLEN_SMS_CONTENT)+1);
+            DlSetting(var_index, value);
+          }
+        }
 
-    default:
-      // Report an error ???
-      break;
+      default:
+        // Report an error ???
+        break;
     }
   }
 }
@@ -379,7 +404,6 @@ void gsm_send_report()
 // Sending a message, second step; we have asked for network quality
 void gsm_send_report_continue(void)
 {
-  LED_ON(2);
   //We got "+CSQ: <rssi>,<ber>" <rssi> and <ber> on 2 digits (cf 3.5.4.4.4)
   // and we expect "OK" on the second line
   uint8_t rssi = atoi(gsm_buf + strlen("+CSQ: "));
@@ -391,9 +415,25 @@ void gsm_send_report_continue(void)
 
   // send the number and wait for the prompt
   char buf[32];
-  sprintf(buf, "AT+CMGS=\"%s\"", GCS_NUMBER);
-  Send(buf);
-  LED_OFF(2);
+  switch (gcs_index) {
+#ifdef GCS_NUMBER_1
+    case 0 :
+      sprintf(buf, "AT+CMGS=\"%s\"", GCS_NUMBER_1);
+      Send(buf);
+      break;
+#endif
+#ifdef GCS_NUMBER_2
+    case 1 :
+      sprintf(buf, "AT+CMGS=\"%s\"", GCS_NUMBER_2);
+      Send(buf);
+      break;
+#endif
+    default :
+      gcs_index = 0;
+      break;
+  }
+  gcs_index++;
+  if (gcs_index == gcs_index_max) gcs_index = 0;
 }
 
 
