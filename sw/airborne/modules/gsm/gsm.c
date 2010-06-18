@@ -299,11 +299,11 @@ static void gsm_receive_content(void)
 
   // Checking the number of the sender
   if (
-#if ! (defined GCS_NUMBER_1 || defined GCS_NUMBER_2 || defined SAFETY_NUMBER_1 || defined SAFETY_NUMBER_2)
+//#if ! (defined GCS_NUMBER_1 || defined GCS_NUMBER_2 || defined SAFETY_NUMBER_1 || defined SAFETY_NUMBER_2)
       true
-#else
-      false
-#endif
+//#else
+//      false
+//#endif
 #ifdef GCS_NUMBER_1
       || strncmp((char*)GCS_NUMBER_1, origin, strlen(GCS_NUMBER_1)) == 0
 #endif
