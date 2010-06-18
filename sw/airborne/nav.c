@@ -260,6 +260,16 @@ static inline bool_t compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float g
 
 #include "flight_plan.h"
 
+
+#ifndef LINE_START_FUNCTION
+#define LINE_START_FUNCTION {}
+#endif
+#ifndef LINE_STOP_FUNCTION
+#define LINE_STOP_FUNCTION {}
+#endif
+
+
+
 static inline void nav_follow(uint8_t _ac_id, float _distance, float _height) { 
   struct ac_info_ * ac = get_ac_info(_ac_id);
   NavVerticalAutoThrottleMode(0.);
@@ -625,6 +635,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
     if (NavQdrCloseTo(DegOfRad(qdr_out_1)-qdr_anticipation)) {
       oval_status = OR12;
       InitStage();
+      LINE_START_FUNCTION;
     }
     return;
 
@@ -634,6 +645,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
       oval_status = OC2;
       nav_oval_count++;
       InitStage();
+      LINE_STOP_FUNCTION;
     }
     return;
 
@@ -642,6 +654,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
     if (NavQdrCloseTo(DegOfRad(qdr_out_2)-qdr_anticipation)) {
       oval_status = OR21;
       InitStage();
+      LINE_START_FUNCTION;
     }
    return;
 
@@ -650,6 +663,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
     if (nav_approaching_xy(waypoints[p1].x, waypoints[p1].y, waypoints[p2].x, waypoints[p2].y, CARROT)) { 
       oval_status = OC1;
       InitStage();
+      LINE_STOP_FUNCTION;
     }
     return;
 

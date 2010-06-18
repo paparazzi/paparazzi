@@ -11,6 +11,15 @@ static survey_orientation_t survey_orientation = NS;
 #define SurveyGoingEast() ((survey_orientation == WE) && (survey_to.x > survey_from.x))
 #define SurveyGoingWest() ((survey_orientation == WE) && (survey_to.x < survey_from.x))
 
+#include "flight_plan.h"
+
+#ifndef LINE_START_FUNCTION
+#define LINE_START_FUNCTION {}
+#endif
+#ifndef LINE_STOP_FUNCTION
+#define LINE_STOP_FUNCTION {}
+#endif
+
 
 void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orientation_t so) {
   nav_survey_west = Min(waypoints[wp1].x, waypoints[wp2].x);
@@ -40,6 +49,7 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
   }
   nav_survey_shift = grid;
   survey_uturn = FALSE;
+  LINE_START_FUNCTION;
 }
 
 
@@ -131,6 +141,7 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
 
       nav_in_segment = FALSE;
       survey_uturn = TRUE;
+      LINE_STOP_FUNCTION;
     }
   } else { /* U-turn */
     if ((SurveyGoingNorth() && NavCourseCloseTo(0)) ||
@@ -140,6 +151,7 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
       /* U-turn finished, back on a segment */
       survey_uturn = FALSE;
       nav_in_circle = FALSE;
+      LINE_START_FUNCTION;
     } else {
       NavCircleWaypoint(0, survey_radius);
     }
