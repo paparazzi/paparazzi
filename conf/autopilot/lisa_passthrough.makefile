@@ -29,7 +29,7 @@ pt.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uar
 pt.srcs += downlink.c pprz_transport.c
 
 # Link Overo
-pt.CFLAGS += -DUSE_OVERO_LINK -DOVERO_LINK_MSG_UNION=AutopilotMessageBeth
+pt.CFLAGS += -DUSE_OVERO_LINK -DOVERO_LINK_MSG_UNION=AutopilotMessagePT
 pt.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=4 -DUSE_DMA1_C2_IRQ
 pt.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
 
@@ -57,8 +57,9 @@ pt.CFLAGS += -DRADIO_CONTROL_LINK=Uart3
 
 # Actuators
 pt.srcs += $(SRC_BOOZ)/actuators/booz_supervision.c
-pt.srcs += $(SRC_BOOZ)/actuators/booz_actuators_mkk.c
-pt.srcs += $(SRC_BOOZ_ARCH)/actuators/booz_actuators_mkk_arch.c
+pt.CFLAGS += -DACTUATORS_ASCTEC_V2_PROTOCOL
+pt.srcs += $(SRC_BOOZ)/actuators/booz_actuators_asctec.c
 pt.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-pt.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1  -DUSE_TIM2_IRQ
+
+pt.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
 pt.CFLAGS += -DUSE_I2C1

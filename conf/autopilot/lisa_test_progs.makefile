@@ -684,7 +684,7 @@ test_baro3.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 
 #
-# test spi slave
+# test spi slave ( hardcoded SPI without DMA )
 #
 test_spi_slave.ARCHDIR = $(ARCHI)
 test_spi_slave.TARGET = test_spi_slave
@@ -707,7 +707,7 @@ test_spi_slave.srcs += downlink.c pprz_transport.c
 
 
 #
-# test spi slave2  ( with DMA )
+# test spi slave2  ( hardcoded SPI with DMA )
 #
 test_spi_slave2.ARCHDIR = $(ARCHI)
 test_spi_slave2.TARGET = test_spi_slave2

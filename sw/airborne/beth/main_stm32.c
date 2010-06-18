@@ -64,14 +64,14 @@ static inline void main_init( void ) {
   actuators_init();
   //  radio_control_init();
   //  booz_imu_init();
-  //  overo_link_init();
+  overo_link_init();
   bench_sensors_init();
 }
 
 static inline void main_periodic( void ) {
   //  booz_imu_periodic();
   actuators_set(FALSE);
-  //  OveroLinkPeriodic(main_on_overo_link_lost)
+  OveroLinkPeriodic(main_on_overo_link_lost)
   RunOnceEvery(10, {LED_PERIODIC(); DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
 
   read_bench_sensors();
@@ -80,7 +80,7 @@ static inline void main_periodic( void ) {
 
 static inline void main_event( void ) {
   //    BoozImuEvent(on_gyro_accel_event, on_mag_event);
-  //    OveroLinkEvent(main_on_overo_msg_received);
+  OveroLinkEvent(main_on_overo_msg_received);
 
   BenchSensorsEvent(main_on_bench_sensors);
 

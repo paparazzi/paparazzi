@@ -36,8 +36,6 @@ static inline void main_event( void );
 static inline void on_overo_msg_received(void);
 static inline void on_overo_link_lost(void);
 
-struct AutopilotMessageFoo my_msg;
-
 int main(void) {
 
   hw_init();

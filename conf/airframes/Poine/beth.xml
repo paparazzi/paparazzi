@@ -91,7 +91,7 @@ main_stm32.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DE
 main_stm32.srcs += downlink.c pprz_transport.c
 
 main_stm32.CFLAGS += -DUSE_OVERO_LINK -DOVERO_LINK_MSG_UNION=AutopilotMessageBeth
-main_stm32.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=4 -DUSE_DMA1_C2_IRQ
+main_stm32.CFLAGS += -DOVERO_LINK_LED_OK=5 -DOVERO_LINK_LED_KO=4 -DUSE_DMA1_C2_IRQ
 main_stm32.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
 
 main_stm32.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
@@ -169,8 +169,6 @@ main_overo.srcs += $(SRC_FMS)/fms_spi_link.c
 #
 #
 include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
-
-include $(PAPARAZZI_SRC)/conf/autopilot/lisa_passthrough.makefile
 
   </makefile>
 
