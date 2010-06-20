@@ -189,13 +189,9 @@ static void init_jsbsim(double dt) {
 
 static void init_ltp(void) {
 
-  FGPropagate* propagate;
-  FGPropagate::VehicleState* VState;
+  FGPropagate* propagate = FDMExec->GetPropagate();
 
-  propagate = FDMExec->GetPropagate();
-  VState = propagate->GetVState();
-
-  jsbsimloc_to_loc(&fdm.ecef_pos,&VState->vLocation);
+  jsbsimloc_to_loc(&fdm.ecef_pos,&propagate->GetLocation());
   ltp_def_from_ecef_d(&ltpdef,&fdm.ecef_pos);
 
   fdm.ltp_g.x = 0.;
@@ -205,23 +201,21 @@ static void init_ltp(void) {
   fdm.ltp_h.x = 0.4912;
   fdm.ltp_h.y = 0.1225;
   fdm.ltp_h.z = 0.8624;
-
-
 }
 
 static void jsbsimloc_to_loc(EcefCoor_d* fdm_location, const FGLocation* jsb_location){
 
-  fdm_location->x = jsb_location->Entry(1);
-  fdm_location->y = jsb_location->Entry(2);
-  fdm_location->z = jsb_location->Entry(3);
+  fdm_location->x = MetersOfFeet(jsb_location->Entry(1));
+  fdm_location->y = MetersOfFeet(jsb_location->Entry(2));
+  fdm_location->z = MetersOfFeet(jsb_location->Entry(3));
 
 }
 
 static void jsbsimvec_to_vec(DoubleVect3* fdm_vector, const FGColumnVector3* jsb_vector) {
 
-  fdm_vector->x = jsb_vector->Entry(1);
-  fdm_vector->y = jsb_vector->Entry(2);
-  fdm_vector->z = jsb_vector->Entry(3);
+  fdm_vector->x = MetersOfFeet(jsb_vector->Entry(1));
+  fdm_vector->y = MetersOfFeet(jsb_vector->Entry(2));
+  fdm_vector->z = MetersOfFeet(jsb_vector->Entry(3));
 
 }
 
