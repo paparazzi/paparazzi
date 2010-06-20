@@ -68,14 +68,27 @@
 	  <define name="MAG_Y_CHAN" value="0" />
 	  <define name="MAG_Z_CHAN" value="2" />
 
+<!--
 	  <define name="MAG_X_SENS" value="-3.3915023" integer="16" />
 	  <define name="MAG_Y_SENS" value="3.3855561" integer="16" />
 	  <define name="MAG_Z_SENS" value="-4.50143271" integer="16" />
+-->
 	  <define name="MAG_45_HACK" value="1" />
+      <!--define name="MAG_X_SENS" value="-5.14821844457 * sqrt(2)/2" integer="16"/-->
+      <!--define name="MAG_Y_SENS" value="5.11810156597 * sqrt(2)/2" integer="16"/-->
+      <define name="MAG_X_SENS" value="-3.640340173" integer="16"/>
+      <define name="MAG_Y_SENS" value="3.619044324" integer="16"/>
+      <define name="MAG_Z_SENS" value="-5.07618333556" integer="16"/>
 
+
+      <define name="MAG_X_NEUTRAL" value="2059"/>
+      <define name="MAG_Y_NEUTRAL" value="1944"/>
+      <define name="MAG_Z_NEUTRAL" value="2099"/>
+<!--
 	  <define name="MAG_X_NEUTRAL" value="2054" />
 	  <define name="MAG_Y_NEUTRAL" value="1963" />
 	  <define name="MAG_Z_NEUTRAL" value="2078" />
+-->
 
 	  <define name="BODY_TO_IMU_PHI" value="RadOfDeg(0.)" />
 	  <define name="BODY_TO_IMU_THETA" value="RadOfDeg(0.)" />
@@ -85,27 +98,27 @@
 
 	<section name="STABILIZATION_RATE" prefix="BOOZ_STABILIZATION_RATE_">
       <!-- setpoints -->
-		<define name="SP_MAX_P" value="10000" />
-		<define name="SP_MAX_Q" value="10000" />
-		<define name="SP_MAX_R" value="10000" />
-        <define name="DEADBAND_P" value="0" />
-        <define name="DEADBAND_Q" value="0" />
-        <define name="DEADBAND_R" value="200" />
-        <define name="REF_TAU" value="4" />
+	  <define name="SP_MAX_P" value="10000" />
+	  <define name="SP_MAX_Q" value="10000" />
+	  <define name="SP_MAX_R" value="10000" />
+      <define name="DEADBAND_P" value="0" />
+      <define name="DEADBAND_Q" value="0" />
+      <define name="DEADBAND_R" value="200" />
+      <define name="REF_TAU" value="4" />
 
-        <!-- feedback -->
-		<define name="GAIN_P" value="-400" />
-		<define name="GAIN_Q" value="-400" />
-		<define name="GAIN_R" value="-350" />
+      <!-- feedback -->
+	  <define name="GAIN_P" value="-400" />
+	  <define name="GAIN_Q" value="-400" />
+	  <define name="GAIN_R" value="-350" />
 
-        <define name="IGAIN_P" value="-75" />
-        <define name="IGAIN_Q" value="-75" />
-        <define name="IGAIN_R" value="-50" />
+      <define name="IGAIN_P" value="-75" />
+      <define name="IGAIN_Q" value="-75" />
+      <define name="IGAIN_R" value="-50" />
 
-        <!-- feedforward -->
-        <define name="DDGAIN_P" value="300" />
-        <define name="DDGAIN_Q" value="300" />
-        <define name="DDGAIN_R" value="300" />
+      <!-- feedforward -->
+      <define name="DDGAIN_P" value="300" />
+      <define name="DDGAIN_Q" value="300" />
+      <define name="DDGAIN_R" value="300" />
 	</section>
 
 
