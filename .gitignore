@@ -1,0 +1,78 @@
+*.so
+*.[oa]
+*.out
+
+*.pyc
+
+*.cmo
+*.cma
+*.cmi
+*.cmx
+*.cmxa
+
+*.depend
+
+/var
+/dox
+
+
+# /conf/
+/conf/conf.xml
+/conf/conf.xml.20*
+/conf/control_panel.xml
+/conf/%gconf.xml
+
+
+# /sw/ground_segment/cockpit/
+/sw/ground_segment/cockpit/gtk_save_settings.ml
+/sw/ground_segment/cockpit/gtk_setting_time.ml
+/sw/ground_segment/cockpit/gcs
+/sw/ground_segment/cockpit/gtk_strip.ml
+
+# /sw/ground_segment/lpc21iap/
+/sw/ground_segment/lpc21iap/lpc21iap
+
+# /sw/ground_segment/multimon/
+/sw/ground_segment/multimon/costabf.c
+/sw/ground_segment/multimon/mkcostab
+/sw/ground_segment/multimon/multimon
+/sw/ground_segment/multimon/costabi.c
+
+# /sw/ground_segment/tmtc/
+/sw/ground_segment/tmtc/ivy_tcp_aircraft
+/sw/ground_segment/tmtc/settings
+/sw/ground_segment/tmtc/messages
+/sw/ground_segment/tmtc/ivy_tcp_controller
+/sw/ground_segment/tmtc/link
+/sw/ground_segment/tmtc/broadcaster
+/sw/ground_segment/tmtc/dia
+/sw/ground_segment/tmtc/ivy2udp
+/sw/ground_segment/tmtc/server
+/sw/ground_segment/tmtc/diadec
+
+# /sw/lib/ocaml/
+/sw/lib/ocaml/gtk_papget_editor.ml
+/sw/lib/ocaml/gtk_papget_text_editor.ml
+/sw/lib/ocaml/gtk_papget_gauge_editor.ml
+/sw/lib/ocaml/expr_parser.ml
+/sw/lib/ocaml/expr_parser.mli
+/sw/lib/ocaml/gtk_papget_led_editor.ml
+
+# /sw/logalizer/
+/sw/logalizer/plot
+/sw/logalizer/play
+/sw/logalizer/plotter
+/sw/logalizer/gtk_export.ml
+/sw/logalizer/sd2log
+
+# /sw/simulator/
+/sw/simulator/gaia
+/sw/simulator/simhitl
+
+# /sw/supervision/
+/sw/supervision/gtk_process.ml
+/sw/supervision/paparazzicenter
+/sw/supervision/gtk_pc.ml
+
+# /sw/tools/
+/sw/tools/fp_parser.ml
