@@ -136,9 +136,8 @@ STATIC_INLINE void booz2_main_init( void ) {
 
 STATIC_INLINE void booz2_main_periodic( void ) {
 
-
   booz_imu_periodic();
-  
+
   /* run control loops */
   booz2_autopilot_periodic();
   /* set actuators     */
@@ -153,9 +152,6 @@ STATIC_INLINE void booz2_main_periodic( void ) {
         booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);		\
     },									\
     {									\
-      Booz2TelemetryPeriodic();						\
-    },									\
-    {									\
       booz_fms_periodic();						\
     },									\
     {									\
@@ -168,7 +164,10 @@ STATIC_INLINE void booz2_main_periodic( void ) {
     {},									\
     {},									\
     {},									\
-    {}									\
+    {},									\
+    {                                               \
+      Booz2TelemetryPeriodic();						\
+    }                                              \
     );									\
 
 #ifdef USE_GPS
