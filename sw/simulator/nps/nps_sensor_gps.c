@@ -10,6 +10,7 @@
 void nps_sensor_gps_init(struct NpsSensorGps* gps, double time) {
   FLOAT_VECT3_ZERO(gps->ecef_pos);
   FLOAT_VECT3_ZERO(gps->ecef_vel);
+  gps->hmsl = 0.0;
   gps->pos_latency = NPS_GPS_POS_LATENCY;
   gps->speed_latency = NPS_GPS_SPEED_LATENCY;
   VECT3_ASSIGN(gps->pos_noise_std_dev,
@@ -83,6 +84,8 @@ void nps_sensor_gps_run_step(struct NpsSensorGps* gps, double time) {
   /* store that for later and retrieve a previously stored data */
   UpdateSensorLatency(time, &cur_lla_reading, &gps->lla_history, gps->pos_latency, &gps->lla_pos);
 
+  double cur_hmsl_reading = fdm.hmsl;
+  UpdateSensorLatency(time, &cur_hmsl_reading, &gps->hmsl_history, gps->pos_latency, &gps->hmsl);
 
   gps->next_update += NPS_GPS_DT;
   gps->data_available = TRUE;

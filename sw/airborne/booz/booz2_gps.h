@@ -69,8 +69,8 @@ static inline void  booz_gps_feed_value() {
   booz_gps_state.ecef_vel.z = sensors.gps.ecef_vel.z * 100.;
   booz_gps_state.lla_pos.lat = DegOfRad(sensors.gps.lla_pos.lat) * 1e7;
   booz_gps_state.lla_pos.lon = DegOfRad(sensors.gps.lla_pos.lon) * 1e7;
-  booz_gps_state.lla_pos.alt = sensors.gps.lla_pos.alt * 100. + NAV_HMSL0;
-  booz_gps_state.hmsl        = sensors.gps.lla_pos.alt * 100.;
+  booz_gps_state.lla_pos.alt = sensors.gps.lla_pos.alt * 100.;
+  booz_gps_state.hmsl        = sensors.gps.hmsl * 100.;
   booz_gps_state.fix = BOOZ2_GPS_FIX_3D;
   booz_gps_available = TRUE;
 }

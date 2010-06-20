@@ -25,6 +25,7 @@ struct NpsFdm {
   struct EcefCoor_d  ecef_pos;
   struct NedCoor_d ltpprz_pos;
   struct LlaCoor_d lla_pos;
+  double hmsl;
 
   /*  velocity and acceleration wrt inertial frame expressed in ecef frame */
   //  struct EcefCoor_d  ecef_inertial_vel;

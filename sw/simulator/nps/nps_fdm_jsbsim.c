@@ -82,6 +82,7 @@ static void fetch_state(void) {
    * position
    */
   jsbsimloc_to_loc(&fdm.ecef_pos,&propagate->GetLocation());
+  fdm.hmsl = propagate->GetAltitudeASLmeters();
 
   /*
    * linear speed and accelerations
@@ -247,9 +248,9 @@ static void rate_to_vec(DoubleVect3* vector, DoubleRates* rate) {
 
 void jsbsimloc_to_lla(LlaCoor_d* fdm_lla, FGLocation* jsb_location) {
 
-  fdm_lla->lat = jsb_location->GetLatitude();
+  fdm_lla->lat = jsb_location->GetGeodLatitudeRad();
   fdm_lla->lon = jsb_location->GetLongitude();
-  fdm_lla->alt = MetersOfFeet(jsb_location->GetGeodAltitude());
+  fdm_lla->alt = MetersOfFeet(jsb_location->GetGeodeticAltitude());
   //  printf("%f\n", jsb_location->GetGeodAltitude());
 }
 #endif

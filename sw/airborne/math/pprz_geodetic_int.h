@@ -15,8 +15,8 @@ struct EcefCoor_i {
   int32_t z;
 };
 
-/* lon, lat in radians */
-/* alt in meters       */
+/* lon, lat in radians*1e7  */
+/* alt in centimeters       */
 struct LlaCoor_i {
   int32_t lon;
   int32_t lat;
