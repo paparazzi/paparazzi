@@ -67,6 +67,7 @@
 #include "modules.h"
 #endif
 
+uint32_t startup_counter = 0;
 
 static inline void on_gyro_accel_event( void );
 static inline void on_baro_event( void );
@@ -92,6 +93,9 @@ uint32_t init_done_time;
 #endif
 
 STATIC_INLINE void booz2_main_init( void ) {
+  for (startup_counter=0; startup_counter<2000000; startup_counter++){
+  __asm("nop");
+  }
 
   hw_init();
   sys_time_init();
