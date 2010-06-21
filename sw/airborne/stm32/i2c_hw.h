@@ -37,6 +37,14 @@ extern void i2c1_hw_init(void);
 extern void i2c1_ev_irq_handler(void);
 extern void i2c1_er_irq_handler(void);
 
+extern uint16_t i2c_errc_ack_fail;
+extern uint16_t i2c_errc_miss_start_stop;
+extern uint16_t i2c_errc_arb_lost;
+extern uint16_t i2c_errc_over_under;
+extern uint16_t i2c_errc_pec_recep;
+extern uint16_t i2c_errc_timeout_tlow;
+extern uint16_t i2c_errc_smbus_alert;
+
 
 #define I2c1SendStart() { I2C_GenerateSTART(I2C1, ENABLE); I2C_ITConfig(I2C1, I2C_IT_EVT, ENABLE);}
 

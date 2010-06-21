@@ -114,7 +114,8 @@ void actuators_set(bool_t motors_on) {
 }
 #else /* ! ACTUATORS_ASCTEC_V2_PROTOCOL */
 void actuators_set(bool_t motors_on) {
-  if (!cpu_time_sec) return; // FIXME
+//  if (!cpu_time_sec) return; // FIXME
+  if (cpu_time_sec < 2) return; // FIXME
   supervision_run(motors_on, FALSE, booz2_commands);
 #ifdef KILL_MOTORS
   DeviceBuf[0] = 0;

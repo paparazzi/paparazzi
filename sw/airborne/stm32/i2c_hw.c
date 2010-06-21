@@ -41,6 +41,14 @@ static const uint8_t i2c2_direction = I2C_TRANSMITTER;
     									\
   }
 
+uint16_t i2c_errc_ack_fail = 0;
+uint16_t i2c_errc_miss_start_stop = 0;
+uint16_t i2c_errc_arb_lost = 0;
+uint16_t i2c_errc_over_under = 0;
+uint16_t i2c_errc_pec_recep = 0;
+uint16_t i2c_errc_timeout_tlow = 0;
+uint16_t i2c_errc_smbus_alert = 0;
+
 void i2c1_hw_init(void) {
   
   DEBUG_SERVO1_INIT();
@@ -198,30 +206,39 @@ void i2c1_ev_irq_handler(void) {
   }
 }
 
+
+
 void i2c1_er_irq_handler(void) {
   
   DEBUG_S1_TOGGLE();
-  
+
   if (I2C_GetITStatus(I2C1, I2C_IT_AF)) {   /* Acknowledge failure */
+    i2c_errc_ack_fail++;
     I2C_ClearITPendingBit(I2C1, I2C_IT_AF);
     I2C_GenerateSTOP(I2C1, ENABLE);
   }
   if (I2C_GetITStatus(I2C1, I2C_IT_BERR)) {   /* Misplaced Start or Stop condition */
+    i2c_errc_miss_start_stop++;
     I2C_ClearITPendingBit(I2C1, I2C_IT_BERR);
   }
   if (I2C_GetITStatus(I2C1, I2C_IT_ARLO)) {   /* Arbitration lost */
+    i2c_errc_arb_lost++;
     I2C_ClearITPendingBit(I2C1, I2C_IT_ARLO);
   }
   if (I2C_GetITStatus(I2C1, I2C_IT_OVR)) {    /* Overrun/Underrun */
+    i2c_errc_over_under++;
     I2C_ClearITPendingBit(I2C1, I2C_IT_OVR);
   }
   if (I2C_GetITStatus(I2C1, I2C_IT_PECERR)) { /* PEC Error in reception */
+    i2c_errc_pec_recep++;
     I2C_ClearITPendingBit(I2C1, I2C_IT_PECERR);
   }
   if (I2C_GetITStatus(I2C1, I2C_IT_TIMEOUT)) { /* Timeout or Tlow error */
+    i2c_errc_timeout_tlow++;
     I2C_ClearITPendingBit(I2C1, I2C_IT_TIMEOUT);
   }
   if (I2C_GetITStatus(I2C1, I2C_IT_SMBALERT)) { /* SMBus alert */
+    i2c_errc_smbus_alert++;
     I2C_ClearITPendingBit(I2C1, I2C_IT_SMBALERT);
   }
   

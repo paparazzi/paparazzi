@@ -51,6 +51,8 @@
 #include "booz2_ins.h"
 #include "booz_ahrs.h"
 
+#include "i2c_hw.h"
+
 extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef USE_GPS
@@ -749,6 +751,18 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				   &booz_ahrs.ltp_to_body_euler.phi,	       \
 				   &booz_ahrs.ltp_to_body_euler.theta,	       \
 				   &booz_ahrs.ltp_to_body_euler.psi	       \
+				   );					       \
+  }
+
+#define PERIODIC_SEND_I2C_ERRORS(_chan) {				       \
+    DOWNLINK_SEND_I2C_ERRORS(_chan,				       \
+				   &i2c_errc_ack_fail,  \
+				   &i2c_errc_miss_start_stop,  \
+				   &i2c_errc_arb_lost,  \
+				   &i2c_errc_over_under,  \
+				   &i2c_errc_pec_recep,  \
+				   &i2c_errc_timeout_tlow,  \
+				   &i2c_errc_smbus_alert  \
 				   );					       \
   }
 
