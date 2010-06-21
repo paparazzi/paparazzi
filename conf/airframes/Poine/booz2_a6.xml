@@ -43,21 +43,21 @@
     <define name="GYRO_R_NEUTRAL" value="32687"/>
 
     <define name="GYRO_P_SENS" value=" 1.101357422" integer="16"/>
-    <define name="GYRO_Q_SENS" value="-1.122670898" integer="16"/>
-    <define name="GYRO_R_SENS" value="-1.104890137" integer="16"/>
+    <define name="GYRO_Q_SENS" value=" 1.122670898" integer="16"/>
+    <define name="GYRO_R_SENS" value=" 1.104890137" integer="16"/>
 
 
-    <define name="ACCEL_X_SENS" value="-2.58273701242" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="-2.54076215332" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="-2.57633620646" integer="16"/>
+    <define name="ACCEL_X_SENS" value=" 2.58273701242" integer="16"/>
+    <define name="ACCEL_Y_SENS" value=" 2.54076215332" integer="16"/>
+    <define name="ACCEL_Z_SENS" value=" 2.57633620646" integer="16"/>
 
     <define name="ACCEL_X_NEUTRAL" value="32857"/>
     <define name="ACCEL_Y_NEUTRAL" value="32429"/>
     <define name="ACCEL_Z_NEUTRAL" value="32593"/>
 
     <define name="MAG_X_SENS" value=" 5.32718104135" integer="16"/>
-    <define name="MAG_Y_SENS" value="-4.87857821202" integer="16"/>
-    <define name="MAG_Z_SENS" value="-3.11986612709" integer="16"/>
+    <define name="MAG_Y_SENS" value=" 4.87857821202" integer="16"/>
+    <define name="MAG_Z_SENS" value=" 3.11986612709" integer="16"/>
 
     <define name="MAG_X_NEUTRAL" value="-43"/>
     <define name="MAG_Y_NEUTRAL" value=" 49"/>
@@ -189,6 +189,7 @@ BOARD_CFG=\"boards/lisa_0.99.h\"
 FLASH_MODE = JTAG
 
 ap.CFLAGS += -DMODEM_BAUD=B57600
+ap.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"radio_control/booz_radio_control_spektrum_dx7se.h\"
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
 include $(CFG_BOOZ)/booz2_autopilot.makefile

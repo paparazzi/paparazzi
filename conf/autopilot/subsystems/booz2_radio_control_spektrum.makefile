@@ -3,7 +3,6 @@
 #
 ap.CFLAGS += -DUSE_RADIO_CONTROL
 ap.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_spektrum.h\"
-ap.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"radio_control/booz_radio_control_spektrum_dx7se.h\"
 
 ap.srcs += $(SRC_BOOZ)/booz_radio_control.c \
            $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c
