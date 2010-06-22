@@ -16,7 +16,6 @@
       <message name="BOOZ2_CAM"         period="1."/>
       <message name="BOOZ2_GPS"         period=".25"/>
       <message name="BOOZ_INS"          period=".25"/>
-      <message name="I2C_ERRORS"        period=".25"/>
     </mode>
 
     <mode name="ppm">
