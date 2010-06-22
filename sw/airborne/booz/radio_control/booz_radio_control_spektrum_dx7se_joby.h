@@ -38,9 +38,9 @@
 #define RC_SPK_THROWS { MAX_PPRZ/MAX_SPK, \
                         MAX_PPRZ/MAX_SPK, \
                        -MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK, \
                        -MAX_PPRZ/MAX_SPK, \
+                        MAX_PPRZ/MAX_SPK, \
+                        MAX_PPRZ/MAX_SPK, \
                         MAX_PPRZ/MAX_SPK }
 
 /*
