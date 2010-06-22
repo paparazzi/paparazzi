@@ -186,10 +186,12 @@ FLASH_MODE = JTAG
 
 ap.CFLAGS += -DMODEM_BAUD=B57600
 
+ap.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"radio_control/booz_radio_control_spektrum_dx7se_joby.h\"
+
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
 include $(CFG_BOOZ)/booz2_autopilot.makefile
 
-include $(CFG_BOOZ)/subsystems/booz2_radio_control_spektrum_joby.makefile
+include $(CFG_BOOZ)/subsystems/booz2_radio_control_spektrum.makefile
 include $(CFG_BOOZ)/subsystems/booz2_actuators_asctec_v2.makefile
 include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1_1.makefile
 #include $(CFG_BOOZ)/subsystems/booz2_gps.makefile
