@@ -40,8 +40,14 @@ extern float h_ctl_roll_sum_err;
 extern float h_ctl_pitch_sum_err;
 extern float h_ctl_roll_igain;
 extern float h_ctl_pitch_igain;
-extern float h_ctl_roll_Kff;
+extern float h_ctl_roll_Kffa;
+extern float h_ctl_roll_Kffd;
+extern float h_ctl_pitch_Kffa;
+extern float h_ctl_pitch_Kffd;
+extern float h_ctl_pitch_of_roll;
+
 #define H_CTL_ROLL_SUM_ERR_MAX 100.
+#define H_CTL_PITCH_SUM_ERR_MAX 100.
 
 #define fw_h_ctl_a_SetRollIGain(_gain) { \
   h_ctl_roll_sum_err = 0; \
