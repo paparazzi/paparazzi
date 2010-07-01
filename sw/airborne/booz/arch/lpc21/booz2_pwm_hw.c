@@ -31,7 +31,7 @@ void booz2_pwm_init_hw( void ) {
 
   /* start PWM5 */
   /* select P0.21 as PWM5 */
-  PWM_PINSEL |=  PWM_PINSEL_VAL << PWM_PINSEL_BIT;
+  PWM0_PINSEL |=  PWM0_PINSEL_VAL << PWM0_PINSEL_BIT;
   /* select pwm period */
   PWMMR0 = PWM_PERIOD;
   /* select pwm value to 50% at init (1500 us) */
@@ -44,6 +44,18 @@ void booz2_pwm_init_hw( void ) {
   PWMTCR = PWMTCR_COUNTER_ENABLE | PWMTCR_PWM_ENABLE;
   /* enable PWM5 */
   PWMPCR = PWMPCR_ENA5;
+
+#ifdef USE_PWM1
+  /* start PWM2 */
+  PWM1_PINSEL |=  PWM1_PINSEL_VAL << PWM1_PINSEL_BIT;
+  /* select pwm value to 50% at init (1500 us) */
+  PWMMR2 = PWM_DUTY;
+  /* commit values */
+  PWMLER = PWMLER_LATCH2;
+  /* enable PWM2 */
+  PWMPCR |= PWMPCR_ENA2;
+#endif
+
 
 }
 

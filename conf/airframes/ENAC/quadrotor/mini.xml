@@ -1,4 +1,10 @@
-<airframe name="BOOZ2_A4">
+<airframe name="NFF">
+
+  <modules main_freq="512">
+    <load name="booz_drop.xml"/>
+    <load name="booz_cam.xml"/>
+    <!--load name="sonar_maxbotix_booz.xml"/-->
+  </modules>
 
   <servos min="0" neutral="0" max="0xff">
     <servo name="PITCH"  no="0"    min="0" neutral="0" max="255"/>
@@ -173,13 +179,14 @@
 
  <section name="CAM" prefix="BOOZ_CAM_">
     <define name="TILT_NEUTRAL" value="1500"/>
-    <define name="TILT_MIN" value="1000"/>
-    <define name="TILT_MAX" value="2000"/>
-    <define name="TILT_ANGLE_MIN" value="RadOfDeg(-85.)" unit="rad"/>
-    <define name="TILT_ANGLE_MAX" value="RadOfDeg( 30.)" unit="rad"/>
+    <define name="TILT_MIN" value="1060"/>
+    <define name="TILT_MAX" value="2250"/>
+    <define name="TILT_ANGLE_MIN" value="RadOfDeg(-90.)" unit="rad"/>
+    <define name="TILT_ANGLE_MAX" value="RadOfDeg(  0.)" unit="rad"/>
     <define name="PAN_NEUTRAL" value="0"/>
     <define name="PAN_MIN" value="0"/>
     <define name="PAN_MAX" value="25736"/> <!-- 360 deg (2^12) -->
+    <!--define name="SetPwm(_v)" value="Booz2SetPwm1Value(_v)"/-->
  </section>
 
 
@@ -187,6 +194,7 @@
    <define name="BOOZ_ANALOG_BARO_THRESHOLD" value="800"/>
    <define name="BOOZ2_FACE_REINJ_1"  value="1024"/>
    <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
+   <define name="BoozDropPwm(_v)" value="Booz2SetPwm1Value(_v)"/>
  </section>
 
   <makefile>
@@ -218,9 +226,9 @@ ap.CFLAGS += -DUSE_GPS_ACC4R
 
 ap.CFLAGS += -DB2_GUIDANCE_H_USE_REF
 
-ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3
+ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3 -DUSE_PWM1
 
-#ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c
+ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c
 
 ap.CFLAGS += -DUSE_MODULES
 

@@ -30,9 +30,17 @@
 
 extern void booz2_pwm_init_hw(void);
 
-#define Booz2SetPwmValue(_v) { \
+// Default PWM is PWM0
+#define Booz2SetPwmValue(_v) Booz2SetPwm0Value(_v)
+
+#define Booz2SetPwm0Value(_v) { \
   PWMMR5 = SYS_TICS_OF_USEC(_v); \
   PWMLER = PWMLER_LATCH5; \
+}
+
+#define Booz2SetPwm1Value(_v) { \
+  PWMMR2 = SYS_TICS_OF_USEC(_v); \
+  PWMLER = PWMLER_LATCH2; \
 }
 
 #endif /* BOOZ2_PWM_HW_H */

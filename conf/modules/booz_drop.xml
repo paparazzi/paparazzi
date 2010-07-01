@@ -9,8 +9,8 @@
   <periodic fun="booz_drop_periodic()" freq="10."/>
   <makefile>
     <flag name="USE_DROP"/>
-    <flag name="DROP_SERVO_OPEN" value="1700"/>
-    <flag name="DROP_SERVO_CLOSED" value="900"/>
+    <flag name="DROP_SERVO_OPEN" value="2120"/>
+    <flag name="DROP_SERVO_CLOSED" value="1060"/>
     <file name="booz_drop.c"/>
   </makefile>
 </module>

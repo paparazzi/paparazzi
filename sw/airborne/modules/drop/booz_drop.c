@@ -23,7 +23,7 @@
 
 #include "booz_drop.h"
 #include "booz2_pwm_hw.h"
-
+#include "airframe.h"
 
 bool_t booz_drop_ball;
 int16_t booz_drop_servo;
@@ -33,6 +33,11 @@ int16_t booz_drop_servo;
 #endif
 #ifndef DROP_SERVO_CLOSED
 #define DROP_SERVO_CLOSED 900
+#endif
+
+// PWM definition
+#ifndef BoozDropPwm
+#define BoozDropPwm(_v) Booz2SetPwmValue(_v)
 #endif
 
 void booz_drop_init(void) {
@@ -45,5 +50,5 @@ void booz_drop_periodic(void) {
     booz_drop_servo = DROP_SERVO_OPEN;
   else
     booz_drop_servo = DROP_SERVO_CLOSED;
-  Booz2SetPwmValue(booz_drop_servo);
+  BoozDropPwm(booz_drop_servo);
 }
