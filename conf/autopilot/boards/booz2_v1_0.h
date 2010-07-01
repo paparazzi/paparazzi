@@ -82,9 +82,15 @@
 
 /* PWM5 on CAM connector */
 /* P0.21 */
-#define PWM_PINSEL PINSEL1
-#define PWM_PINSEL_VAL 0x01
-#define PWM_PINSEL_BIT 10
+#define PWM0_PINSEL PINSEL1
+#define PWM0_PINSEL_VAL 0x01
+#define PWM0_PINSEL_BIT 10
+
+/* PWM2 on SPI connector */
+/* P0.7 */
+#define PWM1_PINSEL PINSEL0
+#define PWM1_PINSEL_VAL 0x02
+#define PWM1_PINSEL_BIT 14
 
 
 /*
