@@ -28,6 +28,7 @@
 
 #include "booz_radio_control.h"
 #include "booz_stabilization.h"
+#include "booz_ahrs.h"
 #include "booz_fms.h"
 #include "booz2_navigation.h"
 
@@ -225,6 +226,8 @@ void booz2_guidance_v_run(bool_t in_flight) {
 
 #define FF_CMD_FRAC 18
 
+#define BOOZ2_MAX_BANK_COEF (BFP_OF_REAL(RadOfDeg(30.),INT32_TRIG_FRAC))
+
 static inline void run_hover_loop(bool_t in_flight) {
 
   /* convert our reference to generic representation */
@@ -260,8 +263,13 @@ static inline void run_hover_loop(bool_t in_flight) {
     booz2_guidance_v_ff_cmd = ( g_m_zdd - (inv_m>>1)) / inv_m;
 #else
   booz2_guidance_v_ff_cmd = g_m_zdd / inv_m;
+  int32_t cphi,ctheta,cphitheta;
+  PPRZ_ITRIG_COS(cphi, booz_ahrs.ltp_to_body_euler.phi);
+  PPRZ_ITRIG_COS(ctheta, booz_ahrs.ltp_to_body_euler.theta);
+  cphitheta = (cphi * ctheta) >> INT32_TRIG_FRAC;
+  if (cphitheta < BOOZ2_MAX_BANK_COEF) cphitheta = BOOZ2_MAX_BANK_COEF;
+  booz2_guidance_v_ff_cmd = (booz2_guidance_v_ff_cmd << INT32_TRIG_FRAC) / cphitheta;
 #endif
-  //  booz2_guidance_v_ff_cmd = BOOZ2_GUIDANCE_V_HOVER_POWER;
 
   /* our error command                   */
   booz2_guidance_v_fb_cmd = ((-booz2_guidance_v_kp * err_z)  >> 12) +

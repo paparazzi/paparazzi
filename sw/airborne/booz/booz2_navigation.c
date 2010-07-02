@@ -155,9 +155,15 @@ void nav_circle(uint8_t wp_center, int32_t radius) {
     // compute qdr
     INT32_ATAN2(nav_circle_qdr, pos_diff.y, pos_diff.x);
     // increment circle radians
-    int32_t angle_diff = nav_circle_qdr - last_qdr;
-    INT32_ANGLE_NORMALIZE(angle_diff);
-    nav_circle_radians += angle_diff;
+    if (nav_circle_radians != 0) {
+      int32_t angle_diff = nav_circle_qdr - last_qdr;
+      INT32_ANGLE_NORMALIZE(angle_diff);
+      nav_circle_radians += angle_diff;
+    }
+    else {
+      // Smallest angle to increment at next step
+      nav_circle_radians = 1;
+    }
 
     // direction of rotation
     int8_t sign_radius = radius > 0 ? 1 : -1;
