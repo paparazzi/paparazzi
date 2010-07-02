@@ -139,8 +139,8 @@
    <define name="MIN_ERR_ZD"   value="SPEED_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_ZD"   value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="MAX_SUM_ERR"  value="2000000"/>
-   <define name="REF_MIN_ZDD"  value="-1.5*9.81"/>
-   <define name="REF_MAX_ZDD"  value=" 0.5*9.81"/>
+   <define name="REF_MIN_ZDD"  value="-1.2*9.81"/>
+   <define name="REF_MAX_ZDD"  value=" 0.8*9.81"/>
    <define name="REF_MIN_ZD"   value="-1.5"/>
    <define name="REF_MAX_ZD"   value=" 1.5"/>
    <define name="HOVER_KP"     value="-500"/>
