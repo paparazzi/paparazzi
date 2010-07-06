@@ -253,6 +253,7 @@ class MyGLCanvas(wx.glcanvas.GLCanvas):
       for telemetry_quat in self.quats:
         glPushMatrix()
         glRotate(360 * math.acos(telemetry_quat.qi) / math.pi, telemetry_quat.qy, -telemetry_quat.qz, -telemetry_quat.qx)
+	glRotate(-90, 1, 0, 0)
 	self.DrawVehicle(telemetry_quat.name)
 	glPopMatrix()
         glTranslate(0,  2 * height / (len(self.quats)), 0)
@@ -320,7 +321,7 @@ class MainWindow(wx.Frame):
       
 if __name__ == "__main__":
   global VEHICLE_QUATS, BAR_VALUES
-  VEHICLE_QUATS = [ ["AHRS_DEBUG_QUAT", 2, "JOBY"], ["AHRS_DEBUG_QUAT", 10, "POINE"], ["AHRS_DEBUG_QUAT", 6, "XSENS Estimation"], ["BOOZ2_AHRS_REF_QUAT", 2, "Reference"]]
+  VEHICLE_QUATS = [ ["AHRS_DEBUG_QUAT", 10, "POINE"], ["BOOZ2_AHRS_REF_QUAT", 2, "Reference"]]
   BAR_VALUES = [ ["AIRSPEED", 3, "Airspeed (m/s) %i", 0, 1, 40], ["BOOZ2_RADIO_CONTROL", 5, "Throttle (%%) %i", 9600, 96 * 2, 100], ["BOOZ2_RADIO_CONTROL", 6, "Mode %i", -9600, -9600, 2]]
   window_title = "Attitude_Viz"
   try:
