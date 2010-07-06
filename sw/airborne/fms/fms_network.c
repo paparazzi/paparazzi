@@ -6,8 +6,7 @@
 
 #include "fms_debug.h"
 
-struct FmsNetwork* network_new(const char* str_ip_out, const int port_out, const int port_in, 
-			       const enum FmsNetworkMode mode) {
+struct FmsNetwork* network_new(const char* str_ip_out, const int port_out, const int port_in, const int broadcast) {
 
   struct FmsNetwork* me = malloc(sizeof(struct FmsNetwork));
  
@@ -17,11 +16,10 @@ struct FmsNetwork* network_new(const char* str_ip_out, const int port_out, const
   setsockopt(me->socket_out, SOL_SOCKET, SO_REUSEADDR, 
              &so_reuseaddr, sizeof(so_reuseaddr));
 
-  /* only set broadcast option if explicitly enabled */
-  const int val = 1;
-  if (mode == FMS_NETWORK_BROADCAST)
+	/* only set broadcast option if explicitly enabled */
+  if (broadcast)
     setsockopt(me->socket_out, SOL_SOCKET, SO_BROADCAST,
-               &val, sizeof(val));
+               &broadcast, sizeof(broadcast));
   
   me->addr_out.sin_family = PF_INET;
   me->addr_out.sin_port = htons(port_out);
