@@ -34,7 +34,7 @@ class OnboardLogTransformTool():
       [timestamp, pprz_tstamp, ac_id, msg_id] = fields[0:4]
       data_fields = map(lambda x: chr(int(x, 16)), fields[5:])
       ac_id = int(ac_id)
-      timestamp = float(timestamp)
+      timestamp = float(pprz_tstamp)
       msg_id = int(msg_id)
 
       # print "Next message: ", timestamp, pprz_tstamp, ac_id, msg_id
