@@ -5,7 +5,7 @@
 #include "LPC21xx.h"
 #include "interrupt_hw.h"
 
-#define PWM_INPUT_NB 2
+#define PWM_INPUT_NB 4
 
 void pwm_input_init ( void );
 
@@ -49,9 +49,49 @@ static inline void pwm_input_isr2()
   }
 }
 
+static inline void pwm_input_isr3()
+{
+  static uint32_t t_rise;
+  static uint32_t t_fall;
+
+  if (T0CCR & TCCR_CR1_F) {
+    t_fall = T0CR1;
+    T0CCR |= TCCR_CR1_R;
+    T0CCR &= ~TCCR_CR1_F;
+    pwm_input_duration[2] = t_fall - t_rise;
+    pwm_input_valid[2] = TRUE;
+  } else if (T0CCR & TCCR_CR1_R) {
+    t_rise = T0CR1;
+    T0CCR |= TCCR_CR1_F;
+    T0CCR &= ~TCCR_CR1_R;
+  }
+}
+
+static inline void pwm_input_isr4()
+{
+  static uint32_t t_rise;
+  static uint32_t t_fall;
+
+  if (T0CCR & TCCR_CR2_F) {
+    t_fall = T0CR2;
+    T0CCR |= TCCR_CR2_R;
+    T0CCR &= ~TCCR_CR2_F;
+    pwm_input_duration[3] = t_fall - t_rise;
+    pwm_input_valid[3] = TRUE;
+  } else if (T0CCR & TCCR_CR2_R) {
+    t_rise = T0CR2;
+    T0CCR |= TCCR_CR2_F;
+    T0CCR &= ~TCCR_CR2_R;
+  }
+}
+
 #define PWM_INPUT_IT1 TIR_CR3I
 #define PWM_INPUT_IT2 TIR_CR0I
+#define PWM_INPUT_IT3 TIR_CR1I
+#define PWM_INPUT_IT4 TIR_CR2I
 #define PWM_INPUT_ISR_1()	pwm_input_isr1()
 #define PWM_INPUT_ISR_2()	pwm_input_isr2()
+#define PWM_INPUT_ISR_3()	pwm_input_isr3()
+#define PWM_INPUT_ISR_4()	pwm_input_isr4()
 
 #endif /* PWM_INPUT_H */
