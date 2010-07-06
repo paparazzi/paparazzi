@@ -308,11 +308,6 @@ let send = fun ac_id device payload _priority ->
 	    let buf = Pprz.Transport.packet payload in
 	    Printf.fprintf o "%s" buf; flush o;
 	    Debug.call 's' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
-  | Pprz2 ->
-      let o = Unix.out_channel_of_descr device.fd in
-      let buf = Pprz.TransportExtended.packet payload in
-      Printf.fprintf o "%s" buf; flush o;
-      Debug.call 'l' (fun f -> fprintf f "mm sending: %s\n" (Debug.xprint buf));
 	| XBee ->
 	    XB.send ~ac_id device payload
 
