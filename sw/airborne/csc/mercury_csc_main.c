@@ -43,6 +43,7 @@
 #include "airspeed.h"
 #include "baro_ets.h"
 #include "airspeed_ets.h"
+#include "ams5812.h"
 
 #include "interrupt_hw.h"
 #include "uart.h"
@@ -51,6 +52,7 @@
 #include "downlink.h"
 #include "pwm_input.h"
 #include "csc_airspeed.h"
+#include "csc_baro.h"
 
 #include "csc_adc.h"
 #include "csc_rc_spektrum.h"
@@ -124,6 +126,12 @@ static void csc_main_init( void ) {
 #ifdef USE_BARO_ETS
   baro_ets_init();
 #endif
+#ifdef USE_AMS5812
+    csc_ams5812_init();
+#endif
+#ifdef USE_BARO_SCP
+  baro_scp_init();
+#endif
 
   int_enable();
 }
@@ -171,10 +179,18 @@ static void csc_main_periodic( void ) {
 #ifdef USE_AIRSPEED
     csc_airspeed_periodic();
 #endif
+#ifdef USE_AMS5812
+    csc_ams5812_periodic();
+    csc_ap_link_send_pressure(ams5812_pressure[0], ams5812_pressure[1]);
+#endif
   }
 
 #ifdef USE_AIRSPEED
   airspeed_update();
+#endif
+#ifdef USE_BARO_SCP
+  baro_scp_periodic();
+  csc_ap_link_send_baro(baro_scp_pressure, baro_scp_temperature, baro_scp_status);
 #endif
 }
 
