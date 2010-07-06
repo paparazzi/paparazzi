@@ -23,7 +23,7 @@
 
 # Define programs and commands.
 
-OVERO_OE=/overo-oe
+OVERO_OE=`find ~ /opt / -maxdepth 1 -type d -a \( -name overo-oe -o -name paparazzi-overo \) | head -n 1`
 
 CC = $(OVERO_OE)/tmp/cross/armv7a/bin/arm-angstrom-linux-gnueabi-gcc
 LD = $(CC)
