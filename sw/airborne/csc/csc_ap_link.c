@@ -47,15 +47,15 @@ void csc_ap_link_send_vane(float *vane_angles)
 }
 
 
-void csc_ap_link_send_airspeed(float airspeed1, float airspeed2)
+void csc_ap_link_send_pressure(float pressure1, float pressure2)
 {
 
-  struct CscAirspeedMsg msg;
+  struct CscPressureMsg msg;
 
-  msg.airspeed1 = airspeed1;
-  msg.airspeed2 = airspeed2;
+  msg.pressure1 = pressure1;
+  msg.pressure2 = pressure2;
 
-  csc_ap_send_msg(CSC_AIRSPEED_MSG_ID, (const uint8_t *) &msg, sizeof(msg));
+  csc_ap_send_msg(CSC_PRESSURE_MSG_ID, (const uint8_t *) &msg, sizeof(msg));
 }
 
 void csc_ap_link_send_baro(uint32_t pressure, uint16_t temperature, uint8_t status)

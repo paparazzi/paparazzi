@@ -19,7 +19,7 @@
 #define CSC_GPS_ACC_ID	      9
 #define CSC_PROP2_CMD_ID       10
 #define CSC_VANE_MSG_ID       11
-#define CSC_AIRSPEED_MSG_ID   12
+#define CSC_PRESSURE_MSG_ID   12
 #define CSC_BARO_MSG_ID       13
 
 
@@ -81,9 +81,9 @@ struct CscVaneMsg {
   float vane_angle2;
 } __attribute__((packed));
 
-struct CscAirspeedMsg {
-  float airspeed1;
-  float airspeed2;
+struct CscPressureMsg {
+  float pressure1;
+  float pressure2;
 } __attribute__((packed));
 
 struct CscBaroMsg {

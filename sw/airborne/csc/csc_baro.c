@@ -8,6 +8,7 @@
 #include "messages.h"
 #include "downlink.h"
 #include "csc_booz2_ins.h"
+#include "csc_ap_link.h"
 
 #include "spi_hw.h"
 
@@ -37,7 +38,6 @@ void baro_scp_periodic(void) {
 #define SS_IODIR IO0DIR
 #define SS_IOSET IO0SET
 #define SS_IOCLR IO0CLR
-#define SSEL1_PINSEL() PINSEL1 = (PINSEL1 & ~(3 << 28)) | (0 << 28)
 
 #define ScpSelect()   SetBit(SS_IOCLR,SS_PIN)
 #define ScpUnselect() SetBit(SS_IOSET,SS_PIN)
@@ -48,10 +48,10 @@ void baro_scp_periodic(void) {
 #define DRDY1_IOPIN IO0PIN
 #define DRDY1_PINSEL() PINSEL0 = (PINSEL0 & ~(3 << 30)) | (0 << 30)
 
-#define SSP0_SCK_PINSEL() (PINSEL1 = (PINSEL1 & ~(3 << 2)) | (2 << 2))
-#define SSP0_MISO_PINSEL() (PINSEL1 = (PINSEL1 & ~(3 << 4)) | (2 << 4))
-#define SSP0_MOSI_PINSEL() (PINSEL1 = (PINSEL1 & ~(3 << 6)) | (2 << 6))
-#define SSP0_SSEL_PINSEL() (PINSEL1 = (PINSEL1 & ~(3 << 8)) | (2 << 8))
+#define SSP1_SCK_PINSEL() (PINSEL1 = (PINSEL1 & ~(3 << 2)) | (2 << 2))
+#define SSP1_MISO_PINSEL() (PINSEL1 = (PINSEL1 & ~(3 << 4)) | (2 << 4))
+#define SSP1_MOSI_PINSEL() (PINSEL1 = (PINSEL1 & ~(3 << 6)) | (2 << 6))
+#define SSP1_SSEL_PINSEL() (PINSEL1 = (PINSEL1 & ~(3 << 8)) | (2 << 8))
 
 static uint8_t baro_scp_read_reg_8(uint8_t regno)
 {
@@ -125,12 +125,10 @@ static uint16_t baro_scp_read_reg_16(uint8_t regno)
 void baro_scp_init( void )
 {
   
-  SSP0_SCK_PINSEL();
-  SSP0_MISO_PINSEL();
-  SSP0_MOSI_PINSEL();
-  SSP0_SSEL_PINSEL();
-  SSEL1_PINSEL();
-  SS_IODIR = SS_IODIR | _BV(SS_PIN);
+  SSP1_SCK_PINSEL();
+  SSP1_MISO_PINSEL();
+  SSP1_MOSI_PINSEL();
+  SSP1_SSEL_PINSEL();
   DRDY1_PINSEL();
   
   S1SPCR = _BV(3) | _BV(4) | _BV(5);
@@ -162,8 +160,6 @@ void spi1_isr()
 
     //baro_scp_alt = 9000 - baro_scp_pressure * 0.00084366;
     baro_scp_status = STA_VALID;
-
-    csc_ap_link_send_baro(baro_scp_pressure, baro_scp_temperature, baro_scp_status);
   }
 }
 
