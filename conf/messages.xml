@@ -1404,6 +1404,10 @@
     <field name="omega" type="float" unit="rad/s" alt_unit="rpm" alt_unit_coef="9.549296584"/>
   </message>
 
+  <message name="BOOZ_BARO2_RAW" id="221">
+      <field name="abs"          type="int16"/>
+      <field name="diff"         type="int16"/>
+  </message>
 
   <message name="TIME" id="227">
     <field name="t" type="uint32"/>
