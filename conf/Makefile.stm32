@@ -107,7 +107,9 @@ LDFLAGS = -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT) --
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
 LDLIBS  += -lc -lm -lgcc -lcmsis -lstm32 
 
-CPFLAGS = -j .isr_vector -j .text -j .data -Obinary
+CPFLAGS = -j .isr_vector -j .text -j .data
+CPFLAGS_BIN = -Obinary
+CPFLAGS_HEX = -Oihex
 
 ODFLAGS = -S
 
@@ -116,11 +118,12 @@ ODFLAGS = -S
 # Default target.
 all: sizebefore build sizeafter
 
-build: elf bin
+build: elf bin hex
 # lss sym
 
 elf: $(OBJDIR)/$(TARGET).elf
 bin: $(OBJDIR)/$(TARGET).bin
+hex: $(OBJDIR)/$(TARGET).hex
 lss: $(OBJDIR)/$(TARGET).lss 
 sym: $(OBJDIR)/$(TARGET).sym
 
@@ -135,8 +138,12 @@ sizeafter:
 
 
 %.bin: %.elf
-	@echo OBJC $@
-	$(Q)$(CP) $(CPFLAGS) $< $@
+	@echo OBJCB $@
+	$(Q)$(CP) $(CPFLAGS) $(CPFLAGS_BIN) $< $@
+
+%.hex: %.elf
+	@echo OBJCH $@
+	$(Q)$(CP) $(CPFLAGS) $(CPFLAGS_HEX) $< $@
 
 # Create extended listing file from ELF output file.
 # testing: option -C
