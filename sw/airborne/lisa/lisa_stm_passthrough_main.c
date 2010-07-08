@@ -86,6 +86,10 @@ static inline void main_on_overo_msg_received(void) {
 	msg_out->accel.y = booz_imu.accel.y;
 	msg_out->accel.z = booz_imu.accel.z;
 
+	msg_out->mag.x = booz_imu.mag.x;
+	msg_out->mag.y = booz_imu.mag.y;
+	msg_out->mag.z = booz_imu.mag.z;
+
 	msg_out->rc_status++;
 }
 
