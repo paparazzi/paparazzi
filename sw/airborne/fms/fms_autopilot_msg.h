@@ -3,6 +3,7 @@
 
 #include <inttypes.h>
 #include "math/pprz_algebra_int.h"
+#include "airframe.h"
 
 /*
  * Testing
@@ -91,6 +92,7 @@ struct __attribute__ ((packed)) AutopilotMessagePTDown
   int16_t command_roll;
   int16_t command_yaw;
   int16_t command_thrust;
+  int16_t actuators[SERVOS_NB];
 };
 
 union AutopilotMessagePT
