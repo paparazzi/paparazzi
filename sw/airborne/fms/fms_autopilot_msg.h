@@ -8,14 +8,16 @@
  * Testing
  */
 
-struct AutopilotMessageFoo {
+struct __attribute__ ((packed)) AutopilotMessageFoo
+{
   uint8_t foo;
   uint8_t bar;
   uint8_t blaa;
   uint8_t bli;
 };
 
-union AutopilotMessageFoo1 {
+union AutopilotMessageFoo1
+{
   struct AutopilotMessageFoo up;
   struct AutopilotMessageFoo down;
 };
@@ -24,19 +26,22 @@ union AutopilotMessageFoo1 {
 /*
  * BETH
  */
-struct AutopilotMessageBethUp {
+struct __attribute__ ((packed)) AutopilotMessageBethUp
+{
   struct Int16Vect3 gyro;
   struct Int16Vect3 accel;
   struct Int16Vect3 bench_sensor;
 
 };
 
-struct AutopilotMessageBethDown {
+struct __attribute__ ((packed)) AutopilotMessageBethDown
+{
   uint8_t motor_front;
   uint8_t motor_back;
 };
 
-union AutopilotMessageBeth {
+union AutopilotMessageBeth
+{
   struct AutopilotMessageBethUp up;
   struct AutopilotMessageBethDown down;
 };
@@ -46,17 +51,20 @@ union AutopilotMessageBeth {
  *  STM Telemetry through wifi
  */
 #define TW_BUF_LEN 63
-struct AutopilotMessageTWUp {
+struct __attribute__ ((packed)) AutopilotMessageTWUp
+{
   uint8_t tw_len;
   uint8_t data[TW_BUF_LEN];
 };
 
-struct AutopilotMessageTWDown {
+struct __attribute__ ((packed)) AutopilotMessageTWDown
+{
   uint8_t tw_len;
   uint8_t data[TW_BUF_LEN];
 };
 
-union AutopilotMessageTW {
+union AutopilotMessageTW
+{
   struct AutopilotMessageTWUp up;
   struct AutopilotMessageTWDown down;
 };
@@ -64,7 +72,8 @@ union AutopilotMessageTW {
 /*
  * Passthrough, aka biplan
  */
-struct AutopilotMessagePTUp {
+struct __attribute__ ((packed)) AutopilotMessagePTUp
+{
   struct Int16Vect3 gyro;
   struct Int16Vect3 accel;
   struct Int16Vect3 mag;
@@ -73,24 +82,21 @@ struct AutopilotMessagePTUp {
   int16_t rc_yaw;
   int16_t rc_thrust;
   int16_t rc_mode;
-  uint8_t  rc_status;
+  uint8_t rc_status;
 };
 
-struct AutopilotMessagePTDown {
+struct __attribute__ ((packed)) AutopilotMessagePTDown
+{
   int16_t command_pitch;
   int16_t command_roll;
   int16_t command_yaw;
   int16_t command_thrust;
 };
 
-union AutopilotMessagePT {
-  struct AutopilotMessageBethUp up;
-  struct AutopilotMessageBethDown down;
+union AutopilotMessagePT
+{
+  struct AutopilotMessagePTUp up;
+  struct AutopilotMessagePTDown down;
 };
-
-
-
-
-
 
 #endif /* FMS_AUTOPILOT_H */

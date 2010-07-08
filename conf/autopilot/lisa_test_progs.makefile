@@ -40,7 +40,13 @@ overo_test_spi_link.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/includ
 overo_test_spi_link.srcs  = $(SRC_FMS)/overo_test_spi_link.c
 overo_test_spi_link.srcs += $(SRC_FMS)/fms_spi_link.c
 
+# test passthrough spi link between overo and stm32
+overo_test_passthrough.ARCHDIR = omap
+overo_test_passthrough.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
+overo_test_passthrough.srcs  = $(SRC_FMS)/overo_test_passthrough.c
+overo_test_passthrough.srcs += $(SRC_FMS)/fms_spi_link.c
 
+# test network based telemetry on overo
 overo_test_telemetry.ARCHDIR  = omap
 overo_test_telemetry.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
 overo_test_telemetry.srcs     = $(SRC_FMS)/overo_test_telemetry.c
@@ -49,7 +55,7 @@ overo_test_telemetry.srcs    += $(SRC_FMS)/udp_transport.c downlink.c
 overo_test_telemetry.srcs    += $(SRC_FMS)/fms_network.c
 overo_test_telemetry.LDFLAGS += -levent
 
-
+# test periodic tasks on the overo
 overo_test_periodic.ARCHDIR  = omap
 overo_test_periodic.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
 overo_test_periodic.srcs     = $(SRC_FMS)/overo_test_periodic.c
@@ -754,8 +760,6 @@ stm_test_spi_link.srcs += $(SRC_ARCH)/uart_hw.c
 stm_test_spi_link.CFLAGS += -DUSE_OVERO_LINK -DOVERO_LINK_MSG_UNION=AutopilotMessageFoo1
 stm_test_spi_link.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=4 -DUSE_DMA1_C2_IRQ
 stm_test_spi_link.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
-
-
 
 #
 # test static

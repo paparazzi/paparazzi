@@ -58,7 +58,7 @@ void overo_link_arch_prepare_next_transfert(void) {
   DMA_InitTypeDef  DMA_InitStructure;
   DMA_DeInit(DMA1_Channel2);
   DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(SPI1_BASE+0x0C);
-  DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)&(overo_link.msg_in);
+  DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)overo_link.msg_in.array;
   DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
   DMA_InitStructure.DMA_BufferSize = sizeof(overo_link.msg_in);
   DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
@@ -73,7 +73,7 @@ void overo_link_arch_prepare_next_transfert(void) {
   /* SPI_SLAVE_Tx_DMA_Channel configuration ------------------------------------*/
   DMA_DeInit(DMA1_Channel3);
   DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(SPI1_BASE+0x0C);
-  DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)&(overo_link.msg_out);
+  DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)overo_link.msg_out.array;
   DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
   DMA_InitStructure.DMA_Priority = DMA_Priority_Medium;
   DMA_Init(DMA1_Channel3, &DMA_InitStructure);

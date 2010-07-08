@@ -10,10 +10,16 @@ enum LisaOveroLinkStatus {IDLE, BUSY, DATA_AVAILABLE, LOST};
 #define OVERO_LINK_TIMEOUT 10
 
 struct LisaOveroLink {
-  volatile uint8_t status;
-  uint8_t msg_in[sizeof(union OVERO_LINK_MSG_UNION)];
-  uint8_t msg_out[sizeof(union OVERO_LINK_MSG_UNION)];
-  uint8_t timeout;
+	volatile uint8_t status;
+	union {
+		union OVERO_LINK_MSG_UNION uni;
+		uint8_t array[sizeof(union OVERO_LINK_MSG_UNION)];
+	} msg_in;
+	union {
+		union OVERO_LINK_MSG_UNION uni;
+		uint8_t array[sizeof(union OVERO_LINK_MSG_UNION)];
+	} msg_out;
+	uint8_t timeout;
 };
 
 extern struct LisaOveroLink overo_link;
