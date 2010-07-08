@@ -60,10 +60,10 @@ static void send_message() {
 
 	spi_link_send(msg_out, sizeof(union AutopilotMessagePT), msg_in);
 	if (!(foo % 100)) {
-		printf("0x%08x -> gx%+06d gy%+06d gz%+06d ax%+06d ay%+06d az%+06d rs%02x\n",
+		printf("0x%08x -> gx%+02f gy%+02f gz%+02f ax%+02f ay%+02f az%+02f rs%02x\n",
 			foo,
-			msg_in->gyro.x, msg_in->gyro.y, msg_in->gyro.z,
-			msg_in->accel.x, msg_in->accel.y, msg_in->accel.z,
+			DegOfRad(RATE_FLOAT_OF_BFP(msg_in->gyro.x)), DegOfRad(RATE_FLOAT_OF_BFP(msg_in->gyro.y)), DegOfRad(RATE_FLOAT_OF_BFP(msg_in->gyro.z)),
+			ACCEL_FLOAT_OF_BFP(msg_in->accel.x), ACCEL_FLOAT_OF_BFP(msg_in->accel.y), ACCEL_FLOAT_OF_BFP(msg_in->accel.z),
 			msg_in->rc_status);
 	}
 	foo++;
