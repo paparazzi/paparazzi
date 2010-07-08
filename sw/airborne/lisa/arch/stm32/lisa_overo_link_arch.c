@@ -10,7 +10,7 @@
 void dma1_c2_irq_handler(void);
 
 void overo_link_arch_init(void) {
- 
+
   /* Enable SPI_1 DMA clock ---------------------------------------------------*/
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
   /* Enable SPI1 Periph clock -------------------------------------------------*/
@@ -32,7 +32,7 @@ void overo_link_arch_init(void) {
   SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
   SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
   SPI_InitStructure.SPI_CRCPolynomial = 7;
-  SPI_Init(SPI1, &SPI_InitStructure); 
+  SPI_Init(SPI1, &SPI_InitStructure);
   /* Enable SPI_SLAVE */
   SPI_Cmd(SPI1, ENABLE);
 
@@ -41,13 +41,13 @@ void overo_link_arch_init(void) {
     .NVIC_IRQChannel = DMA1_Channel2_IRQn,
     .NVIC_IRQChannelPreemptionPriority = 0,
     .NVIC_IRQChannelSubPriority = 0,
-    .NVIC_IRQChannelCmd = ENABLE 
+    .NVIC_IRQChannelCmd = ENABLE
   };
   NVIC_Init(&NVIC_init_struct);
 
   /* setup DMA for first transfert */
   overo_link_arch_prepare_next_transfert();
-  
+
 
 }
 
@@ -55,29 +55,29 @@ void overo_link_arch_init(void) {
 void overo_link_arch_prepare_next_transfert(void) {
 
   /* SPI_SLAVE_Rx_DMA_Channel configuration ------------------------------------*/
-  DMA_InitTypeDef  DMA_InitStructure;					
-  DMA_DeInit(DMA1_Channel2);						
-  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(SPI1_BASE+0x0C); 
+  DMA_InitTypeDef  DMA_InitStructure;
+  DMA_DeInit(DMA1_Channel2);
+  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(SPI1_BASE+0x0C);
   DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)&(overo_link.msg_in);
-  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;			
-  DMA_InitStructure.DMA_BufferSize = sizeof(overo_link.msg_in);			
-  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;	
-  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;		
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+  DMA_InitStructure.DMA_BufferSize = sizeof(overo_link.msg_in);
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
   DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;	
-  DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;			
-  DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;		
-  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;			
-  DMA_Init(DMA1_Channel2, &DMA_InitStructure);			
+  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+  DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
+  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+  DMA_Init(DMA1_Channel2, &DMA_InitStructure);
 
   /* SPI_SLAVE_Tx_DMA_Channel configuration ------------------------------------*/
-  DMA_DeInit(DMA1_Channel3);  
+  DMA_DeInit(DMA1_Channel3);
   DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(SPI1_BASE+0x0C);
   DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)&(overo_link.msg_out);
   DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
   DMA_InitStructure.DMA_Priority = DMA_Priority_Medium;
   DMA_Init(DMA1_Channel3, &DMA_InitStructure);
-  
+
   /* Enable SPI_1 Rx request */
   SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx, ENABLE);
   /* Enable DMA1 Channel2 */
@@ -99,4 +99,3 @@ void dma1_c2_irq_handler(void) {
   overo_link.status = DATA_AVAILABLE;
 
 }
-
