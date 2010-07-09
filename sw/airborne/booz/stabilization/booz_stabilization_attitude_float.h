@@ -32,6 +32,7 @@ struct FloatAttitudeGains {
 	struct FloatVect3  p;
 	struct FloatVect3  d;
 	struct FloatVect3  dd;
+	struct FloatVect3  rates_d;
 	struct FloatVect3  i;
 	struct FloatVect3  surface_p;
 	struct FloatVect3  surface_d;

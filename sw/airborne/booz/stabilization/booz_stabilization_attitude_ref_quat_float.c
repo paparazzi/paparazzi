@@ -26,6 +26,7 @@
  *
  */
 
+#include "airframe.h"
 #include "booz_stabilization.h"
 #include "booz_ahrs.h"
 
@@ -43,7 +44,16 @@ struct FloatQuat   booz_stab_att_ref_quat;
 struct FloatRates  booz_stab_att_ref_rate;
 struct FloatRates  booz_stab_att_ref_accel;
 
-struct FloatRefModel booz_stab_att_ref_model;
+struct FloatRefModel booz_stab_att_ref_model[BOOZ_STABILIZATION_ATTITUDE_GAIN_NB];
+
+static int ref_idx = BOOZ_STABILIZATION_ATTITUDE_GAIN_IDX_DEFAULT;
+
+static const float omega_p[] = BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_P;
+static const float zeta_p[] = BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_P;
+static const float omega_q[] = BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_Q;
+static const float zeta_q[] = BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_Q;
+static const float omega_r[] = BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_R;
+static const float zeta_r[] = BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_R;
 
 static void reset_psi_ref_from_body(void) {
     booz_stab_att_ref_euler.psi = booz_ahrs_float.ltp_to_body_euler.psi;
@@ -72,13 +82,16 @@ void booz_stabilization_attitude_ref_init(void) {
   FLOAT_RATES_ZERO( booz_stab_att_ref_rate);
   FLOAT_RATES_ZERO( booz_stab_att_ref_accel);
 
-  booz_stab_att_ref_model.omega_p = BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_P;
-  booz_stab_att_ref_model.zeta_p = BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_P;
-  booz_stab_att_ref_model.omega_q = BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_Q;
-  booz_stab_att_ref_model.zeta_q = BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_Q;
-  booz_stab_att_ref_model.omega_r = BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_R;
-  booz_stab_att_ref_model.zeta_r = BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_R;
+  for (int i = 0; i < BOOZ_STABILIZATION_ATTITUDE_GAIN_NB; i++) {
+    RATES_ASSIGN(booz_stab_att_ref_model[i].omega, omega_p[i], omega_q[i], omega_r[i]);
+    RATES_ASSIGN(booz_stab_att_ref_model[i].zeta, zeta_p[i], zeta_q[i], zeta_r[i]);
+  }
 
+}
+
+void booz_stabilization_attitude_ref_schedule(uint8_t idx)
+{
+  ref_idx = idx;
 }
 
 void booz_stabilization_attitude_ref_enter()
@@ -118,12 +131,12 @@ void booz_stabilization_attitude_ref_update() {
   /* wrap it in the shortest direction       */
   FLOAT_QUAT_WRAP_SHORTEST(err);
   /* propagate the 2nd order linear model    */
-  booz_stab_att_ref_accel.p = -2.*booz_stab_att_ref_model.zeta_p*booz_stab_att_ref_model.omega_p*booz_stab_att_ref_rate.p 
-    - booz_stab_att_ref_model.omega_p*booz_stab_att_ref_model.omega_p*err.qx;
-  booz_stab_att_ref_accel.q = -2.*booz_stab_att_ref_model.zeta_q*booz_stab_att_ref_model.omega_q*booz_stab_att_ref_rate.q 
-    - booz_stab_att_ref_model.omega_q*booz_stab_att_ref_model.omega_q*err.qy;
-  booz_stab_att_ref_accel.r = -2.*booz_stab_att_ref_model.zeta_r*booz_stab_att_ref_model.omega_r*booz_stab_att_ref_rate.r 
-    - booz_stab_att_ref_model.omega_r*booz_stab_att_ref_model.omega_r*err.qz;
+  booz_stab_att_ref_accel.p = -2.*booz_stab_att_ref_model[ref_idx].zeta.p*booz_stab_att_ref_model[ref_idx].omega.p*booz_stab_att_ref_rate.p 
+    - booz_stab_att_ref_model[ref_idx].omega.p*booz_stab_att_ref_model[ref_idx].omega.p*err.qx;
+  booz_stab_att_ref_accel.q = -2.*booz_stab_att_ref_model[ref_idx].zeta.q*booz_stab_att_ref_model[ref_idx].omega.q*booz_stab_att_ref_rate.q 
+    - booz_stab_att_ref_model[ref_idx].omega.q*booz_stab_att_ref_model[ref_idx].omega.q*err.qy;
+  booz_stab_att_ref_accel.r = -2.*booz_stab_att_ref_model[ref_idx].zeta.r*booz_stab_att_ref_model[ref_idx].omega.r*booz_stab_att_ref_rate.r 
+    - booz_stab_att_ref_model[ref_idx].omega.r*booz_stab_att_ref_model[ref_idx].omega.r*err.qz;
 
   /*	saturate acceleration */
   const struct FloatRates MIN_ACCEL = { -REF_ACCEL_MAX_P, -REF_ACCEL_MAX_Q, -REF_ACCEL_MAX_R };

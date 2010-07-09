@@ -59,6 +59,10 @@ static const float phi_ddgain[] = BOOZ_STABILIZATION_ATTITUDE_PHI_DDGAIN;
 static const float theta_ddgain[] = BOOZ_STABILIZATION_ATTITUDE_THETA_DDGAIN;
 static const float psi_ddgain[] = BOOZ_STABILIZATION_ATTITUDE_PSI_DDGAIN;
 
+static const float phi_dgain_d[] = BOOZ_STABILIZATION_ATTITUDE_PHI_DGAIN_D;
+static const float theta_dgain_d[] = BOOZ_STABILIZATION_ATTITUDE_THETA_DGAIN_D;
+static const float psi_dgain_d[] = BOOZ_STABILIZATION_ATTITUDE_PSI_DGAIN_D;
+
 static const float phi_pgain_surface[] = BOOZ_STABILIZATION_ATTITUDE_PHI_PGAIN_SURFACE;
 static const float theta_pgain_surface[] = BOOZ_STABILIZATION_ATTITUDE_THETA_PGAIN_SURFACE;
 static const float psi_pgain_surface[] = BOOZ_STABILIZATION_ATTITUDE_PSI_PGAIN_SURFACE;
@@ -86,6 +90,7 @@ void booz_stabilization_attitude_init(void) {
     VECT3_ASSIGN(booz_stabilization_gains[i].d, phi_dgain[i], theta_dgain[i], psi_dgain[i]);
     VECT3_ASSIGN(booz_stabilization_gains[i].i, phi_igain[i], theta_igain[i], psi_igain[i]);
     VECT3_ASSIGN(booz_stabilization_gains[i].dd, phi_ddgain[i], theta_ddgain[i], psi_ddgain[i]);
+    VECT3_ASSIGN(booz_stabilization_gains[i].rates_d, phi_dgain_d[i], theta_dgain_d[i], psi_dgain_d[i]);
     VECT3_ASSIGN(booz_stabilization_gains[i].surface_p, phi_pgain_surface[i], theta_pgain_surface[i], psi_pgain_surface[i]);
     VECT3_ASSIGN(booz_stabilization_gains[i].surface_d, phi_dgain_surface[i], theta_dgain_surface[i], psi_dgain_surface[i]);
     VECT3_ASSIGN(booz_stabilization_gains[i].surface_i, phi_igain_surface[i], theta_igain_surface[i], psi_igain_surface[i]);
@@ -103,6 +108,7 @@ void booz_stabilization_attitude_gain_schedule(uint8_t idx)
 		return;
 	}
 	gain_idx = idx;
+	booz_stabilization_attitude_ref_schedule(idx);
 }
 
 void booz_stabilization_attitude_enter(void) {
@@ -120,27 +126,42 @@ static void attitude_run_ff(float ff_commands[], struct FloatAttitudeGains *gain
   ff_commands[COMMAND_ROLL]          = GAIN_PRESCALER_FF * gains->dd.x * ref_accel->p;
   ff_commands[COMMAND_PITCH]         = GAIN_PRESCALER_FF * gains->dd.y * ref_accel->q;
   ff_commands[COMMAND_YAW]           = GAIN_PRESCALER_FF * gains->dd.z * ref_accel->r;
+  ff_commands[COMMAND_ROLL_SURFACE]  = GAIN_PRESCALER_FF * gains->surface_dd.x * ref_accel->p;
+  ff_commands[COMMAND_PITCH_SURFACE] = GAIN_PRESCALER_FF * gains->surface_dd.y * ref_accel->q;
   ff_commands[COMMAND_YAW_SURFACE]   = GAIN_PRESCALER_FF * gains->surface_dd.z * ref_accel->r;
 }
 
 static void attitude_run_fb(float fb_commands[], struct FloatAttitudeGains *gains, struct FloatQuat *att_err,
-	struct FloatRates *rate_err, struct FloatQuat *sum_err)
+	struct FloatRates *rate_err, struct FloatRates *rate_err_d, struct FloatQuat *sum_err)
 {
   /*  PID feedback */
   fb_commands[COMMAND_ROLL] = 
     GAIN_PRESCALER_P * -gains->p.x  * att_err->qx +
     GAIN_PRESCALER_D * gains->d.x  * rate_err->p +
+    GAIN_PRESCALER_D * gains->rates_d.x  * rate_err_d->p +
     GAIN_PRESCALER_I * gains->i.x  * sum_err->qx;
 
   fb_commands[COMMAND_PITCH] = 
     GAIN_PRESCALER_P * -gains->p.y  * att_err->qy + 
     GAIN_PRESCALER_D * gains->d.y  * rate_err->q +
+    GAIN_PRESCALER_D * gains->rates_d.y  * rate_err_d->q +
     GAIN_PRESCALER_I * gains->i.y  * sum_err->qy;
   
   fb_commands[COMMAND_YAW] = 
     GAIN_PRESCALER_P * -gains->p.z  * att_err->qz +
     GAIN_PRESCALER_D * gains->d.z  * rate_err->r +
+    GAIN_PRESCALER_D * gains->rates_d.z  * rate_err_d->r +
     GAIN_PRESCALER_I * gains->i.z  * sum_err->qz;
+
+  fb_commands[COMMAND_ROLL_SURFACE] = 
+    GAIN_PRESCALER_P * -gains->surface_p.x  * att_err->qx +
+    GAIN_PRESCALER_D * gains->surface_d.x  * rate_err->p +
+    GAIN_PRESCALER_I * gains->surface_i.x  * sum_err->qx;
+
+  fb_commands[COMMAND_PITCH_SURFACE] = 
+    GAIN_PRESCALER_P * -gains->surface_p.y  * att_err->qy +
+    GAIN_PRESCALER_D * gains->surface_d.y  * rate_err->q +
+    GAIN_PRESCALER_I * gains->surface_i.y  * sum_err->qy;
 
   fb_commands[COMMAND_YAW_SURFACE] = 
     GAIN_PRESCALER_P * -gains->surface_p.z  * att_err->qz +
@@ -190,7 +211,7 @@ void booz_stabilization_attitude_run(bool_t enable_integrator) {
 
   attitude_run_ff(booz_stabilization_att_ff_cmd, &booz_stabilization_gains[gain_idx], &booz_stab_att_ref_accel);
 
-  attitude_run_fb(booz_stabilization_att_fb_cmd, &booz_stabilization_gains[gain_idx], &att_err, &rate_err, &booz_stabilization_att_sum_err_quat);
+  attitude_run_fb(booz_stabilization_att_fb_cmd, &booz_stabilization_gains[gain_idx], &att_err, &rate_err, &booz_ahrs_float.body_rate_d, &booz_stabilization_att_sum_err_quat);
 
   for (int i = COMMAND_ROLL; i <= COMMAND_YAW_SURFACE; i++) {
 	booz_stabilization_cmd[i] = booz_stabilization_att_fb_cmd[i]+booz_stabilization_att_ff_cmd[i];

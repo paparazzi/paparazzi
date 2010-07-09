@@ -23,6 +23,8 @@
 #ifndef BOOZ_STABILISATION_ATTITUDE_REF_FLOAT_H
 #define BOOZ_STABILISATION_ATTITUDE_REF_FLOAT_H
 
+#include "airframe.h"
+
 extern struct FloatEulers booz_stab_att_sp_euler;
 extern struct FloatQuat   booz_stab_att_sp_quat;
 extern struct FloatEulers booz_stab_att_ref_euler;
@@ -31,15 +33,11 @@ extern struct FloatRates  booz_stab_att_ref_rate;
 extern struct FloatRates  booz_stab_att_ref_accel;
 
 struct FloatRefModel {
-  float omega_p;
-  float zeta_p;
-  float omega_q;
-  float zeta_q;
-  float omega_r;
-  float zeta_r;
+  struct FloatRates omega;
+  struct FloatRates zeta;
 };
 
-extern struct FloatRefModel booz_stab_att_ref_model;
+extern struct FloatRefModel booz_stab_att_ref_model[];
 
 #endif /* BOOZ_STABILISATION_ATTITUDE_REF_FLOAT_H */
 
