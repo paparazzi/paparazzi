@@ -312,9 +312,11 @@
       <field name="alt" type="float" unit="m"/>
   </message>
 
-  <message name="AIRSPEED" id="45">
-      <field name="adc" type="uint16"/>
+  <message name="PRESSURE" id="45">
+      <field name="adc" type="float"/>
       <field name="airspeed" type="float" unit="m/s"/>
+      <field name="altitude_adc" type="float"/>
+      <field name="altitude" type="float" unit="m"/>
       <field name="airspeed_sp" type="float" unit="m/s"/>
       <field name="airspeed_cnt" type="float" unit="m/s"/>
       <field name="groundspeed_sp" type="float" unit="m/s"/>
@@ -367,14 +369,6 @@
  <message name="DEBUG_IR_I2C" id="53">
     <field name="top" type="int16" unit="adc"></field>
  </message>
-
-  <message name="DEBUG_GSM_RECEIVE" id="54">
-    <field name="msg" type="uint8[]"/>
-  </message>
-
-  <message name="DEBUG_GSM_SEND" id="55">
-    <field name="msg" type="uint8[]"/>
-  </message>
 
   <message name="H_CTL_A" id="60">
     <field name="roll_sum_err" type="float"/>
@@ -620,6 +614,9 @@
     <field name="delta_a"       type="int32"/>
     <field name="delta_e"       type="int32"/>
     <field name="delta_r"       type="int32"/>
+    <field name="est_p_d"       type="float" alt_unit="degres/s^2" alt_unit_coef="57.29578"/>   
+    <field name="est_q_d"       type="float" alt_unit="degres/s^2" alt_unit_coef="57.29578"/>   
+    <field name="est_r_d"       type="float" alt_unit="degres/s^2" alt_unit_coef="57.29578"/>   
  </message>
 
  <message name="BOOZ2_GYRO" id="131">   
@@ -1168,22 +1165,26 @@
     </message>
 
     <message name="SYSTEM_STATUS" id="187">
-      <field name="xsens1_count"     type="uint16"/>
-      <field name="xsens2_count"     type="uint16"/>
       <field name="csc1_loop_count"  type="uint32"/>
       <field name="csc1_msg_count"   type="uint32"/>
       <field name="csc2_loop_count"  type="uint32"/>
       <field name="csc2_msg_count"   type="uint32"/>
       <field name="can_rx_err"	     type="uint32"/>
       <field name="can_tx_err"	     type="uint32"/>
+      <field name="rc_parser_err"    type="uint32"/>
+      <field name="system_fault"     type="uint8" unit="bool"/>
     </message>
 
     <message name="DYNAMIXEL" id="188">
       <field name="left_wing"    type="uint16"/>
       <field name="right_wing"   type="uint16"/>
+      <field name="left_wing_flag"    type="uint8"/>
+      <field name="right_wing_flag"   type="uint8"/>
       <field name="invalid_position"   type="uint32"/>
       <field name="timeout_events"   type="uint32"/>
       <field name="checksum_errors"   type="uint32"/>
+      <field name="fuse_rotation_angle"  type="float"/>
+      <field name="fuse_rotation_rate"   type="float"/>
     </message>
 
     <message name="RMAT_DEBUG" id="189">
@@ -1210,6 +1211,8 @@
       <field name="beta"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
       <field name="alpha_target"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
       <field name="alpha_vane_error" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+      <field name="alpha2"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+      <field name="beta2"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
     </message>
 
     <message name="BOOZ2_FF_ADAP" id="252">
@@ -1400,8 +1403,7 @@
   </message>
 
   <message name="IMU_TURNTABLE" id="220">
-<!--    <field name="omega" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/> -->
-    <field name="omega" type="float" unit="rad/s" alt_unit="rpm" alt_unit_coef="9.549296584"/>
+    <field name="omega" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
   </message>
 
   <message name="BOOZ_BARO2_RAW" id="221">
@@ -1517,6 +1519,30 @@
     <field name="zeta_q" type="float" />
     <field name="omega_r" type="float" />
     <field name="zeta_r" type="float" />
+  </message>
+
+  <message name="HENRY_GNSS" id="255">
+    <field name="GPS_solution_valid" type="uint8"/>
+    <field name="latitude" type="double" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="longitude" type="double" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="altitude" type="double" />
+    <field name="North" type="double" />
+    <field name="East" type="double" />
+    <field name="Down" type="double" />
+    <field name="SVs_Tracked" type="uint8" />
+    <field name="SVs_PVT" type="uint8" />
+    <field name="V_North" type="double"/>
+    <field name="V_East" type="double"/>
+    <field name="V_Down" type="double"/>
+  </message>
+
+  <message name="RDYB_TRAJECTORY" id="254">
+    <field name="commanded_phi" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="commanded_theta" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="commanded_psi" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="setpoint_x" type="float" unit="m N"/>
+    <field name="setpoint_y" type="float" unit="m E"/>
+    <field name="setpoint_z" type="float" unit="m D"/>
   </message>
 
   <message name="I2C_ERRORS" id="253">
@@ -1638,7 +1664,7 @@
     <field name="pitch" type="int8"/>
   </message>
 
- <message name="SET_ACTUATOR" id="100" link="forwarded">
+ <message name="SET_ACTUATOR" id="100">
    <field name="value" type="uint16"/>
    <field name="no" type="uint8"/>
    <field name="ac_id" type="uint8"/>
