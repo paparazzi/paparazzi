@@ -83,6 +83,10 @@ struct __attribute__ ((packed)) AutopilotMessagePTUp
   int16_t rc_yaw;
   int16_t rc_thrust;
   int16_t rc_mode;
+  int16_t rc_kill;
+  int16_t rc_gear;
+  int16_t rc_aux3;
+  int16_t rc_aux4;
   uint8_t rc_status;
 };
 

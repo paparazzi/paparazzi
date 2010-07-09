@@ -27,6 +27,7 @@
 #include "booz/booz2_commands.h"
 #include "booz/booz_actuators.h"
 #include "booz/booz_imu.h"
+#include "booz_radio_control.h"
 #include "lisa/lisa_overo_link.h"
 
 static inline void main_init(void);
@@ -58,6 +59,7 @@ static inline void main_init(void) {
 	sys_time_init();
 	actuators_init();
 	booz_imu_init();
+	radio_control_init();
 	overo_link_init();
 }
 
@@ -66,13 +68,14 @@ static inline void main_periodic(void) {
 	booz_imu_periodic();
 	actuators_set(FALSE);
 	OveroLinkPeriodic(main_on_overo_link_lost);
-	RunOnceEvery(10, {LED_PERIODIC(); DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
+	RunOnceEvery(10, {LED_PERIODIC(); DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);radio_control_periodic();});
 }
 
 static inline void main_event(void) {
 
 	BoozImuEvent(on_gyro_accel_event, on_mag_event);
 	OveroLinkEvent(main_on_overo_msg_received);
+	RadioControlEvent(NULL);
 }
 
 static inline void main_on_overo_msg_received(void) {
@@ -90,7 +93,16 @@ static inline void main_on_overo_msg_received(void) {
 	msg_out->mag.y = booz_imu.mag.y;
 	msg_out->mag.z = booz_imu.mag.z;
 
-	msg_out->rc_status++;
+	msg_out->rc_pitch = radio_control.values[RADIO_CONTROL_PITCH];
+	msg_out->rc_roll = radio_control.values[RADIO_CONTROL_ROLL];
+	msg_out->rc_yaw = radio_control.values[RADIO_CONTROL_YAW];
+	msg_out->rc_thrust = radio_control.values[RADIO_CONTROL_THROTTLE];
+	msg_out->rc_mode = radio_control.values[RADIO_CONTROL_MODE];
+	msg_out->rc_kill = radio_control.values[RADIO_CONTROL_KILL];
+	msg_out->rc_gear = radio_control.values[RADIO_CONTROL_GEAR];
+	msg_out->rc_aux3 = radio_control.values[RADIO_CONTROL_AUX3];
+	msg_out->rc_aux4 = radio_control.values[RADIO_CONTROL_AUX4];
+	msg_out->rc_status = radio_control.status;
 }
 
 static inline void main_on_overo_link_lost(void) {
