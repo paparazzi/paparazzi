@@ -25,6 +25,7 @@
 #define BOOZ_IMU_H
 
 #include "math/pprz_algebra_int.h"
+#include "math/pprz_algebra_float.h"
 
 /* must be defined by underlying hardware */
 extern void booz_imu_impl_init(void);
@@ -46,8 +47,21 @@ struct BoozImu {
   struct Int32RMat  body_to_imu_rmat;
 };
 
+/* abstract IMU interface providing floating point interface  */
+struct BoozImuFloat {
+  struct FloatRates   gyro;
+  struct FloatVect3   accel;
+  struct FloatVect3   mag;
+  struct FloatRates   gyro_prev;
+  struct FloatEulers  body_to_imu_eulers;
+  struct FloatQuat    body_to_imu_quat;
+  struct FloatRMat    body_to_imu_rmat;
+};
+
 /* underlying hardware */
+#ifdef BOOZ_IMU_TYPE_H
 #include BOOZ_IMU_TYPE_H
+#endif
 
 extern struct BoozImu booz_imu;
 
