@@ -2,8 +2,6 @@
 #define FMS_DEBUG_H
 
 #include <stdio.h>
-#include <string.h>
-#include <errno.h>
 
 #define TRACE_DEBUG 1
 #define TRACE_ERROR 2
