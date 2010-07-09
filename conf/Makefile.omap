@@ -37,7 +37,7 @@ Q=@
 
 OPT=3
 CSTANDARD = -std=gnu99
-CINCS = -I$(PAPARAZZI_SRC)/sw/include
+CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
 
 # Compiler flags.
 CFLAGS += $(CINCS)
