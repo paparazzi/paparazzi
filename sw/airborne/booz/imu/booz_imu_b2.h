@@ -28,9 +28,27 @@
 
 #include "peripherals/booz_max1168.h"
 
+/* type of magnetometer */
 #define IMU_B2_MAG_NONE   0
 #define IMU_B2_MAG_MS2001 1
 #define IMU_B2_MAG_AMI601 2
+
+#if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
+#define IMU_GYRO_P_SIGN   1
+#define IMU_GYRO_Q_SIGN  -1
+#define IMU_GYRO_R_SIGN  -1
+#endif
+#if !defined IMU_ACCEL_X_SIGN & !defined IMU_ACCEL_Y_SIGN & !defined IMU_ACCEL_Z_SIGN
+#define IMU_ACCEL_X_SIGN -1
+#define IMU_ACCEL_Y_SIGN -1
+#define IMU_ACCEL_Z_SIGN -1
+#endif
+#if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
+#define IMU_MAG_X_SIGN    1
+#define IMU_MAG_Y_SIGN   -1
+#define IMU_MAG_Z_SIGN   -1
+#endif
+
 
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
 #include "peripherals/booz_ms2001.h"
