@@ -148,7 +148,7 @@ void exti2_irq_handler(void) {
   /* Enable DMA1 Channel5 */
   DMA_Cmd(DMA1_Channel5, ENABLE);
 
-  /* Enable DMA1 Channel6 Transfer Complete interrupt */
+  /* Enable DMA1 Channel4 Transfer Complete interrupt */
   DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, ENABLE);
 
   booz_max1168_status = STA_MAX1168_READING_RES;
