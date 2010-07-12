@@ -60,7 +60,7 @@ extern bool_t ADS8344_available;
     }									\
   }
 #else
-#define Booz2ImuMagEvent(_mag_handler) {}
+#define BoozImuMagEvent(_mag_handler) {}
 #endif
 
 /* underlying architecture */
