@@ -25,11 +25,11 @@
 #define BOOZ_IMU_CRISTA_H
 
 #include "booz_imu.h"
-
+#include "airframe.h"
 
 #define ADS8344_NB_CHANNELS 8
 extern uint16_t ADS8344_values[ADS8344_NB_CHANNELS];
-extern bool_t ADS8344_available;
+extern volatile bool_t ADS8344_available;
 
 #define BoozImuEvent(_gyro_accel_handler, _mag_handler) {		\
     if (ADS8344_available) {						\
