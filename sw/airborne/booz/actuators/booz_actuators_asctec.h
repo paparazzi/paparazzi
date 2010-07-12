@@ -34,7 +34,7 @@ enum actuators_astec_addr { FRONT,
 			    LEFT,
 			    RIGHT };
 
-
+/* this is for the v1 protocol which does its own mixing */
 enum actuators_astec_cmds { PITCH,
 			    ROLL,
 			    YAW,
