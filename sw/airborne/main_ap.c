@@ -936,7 +936,7 @@ void event_task_ap( void ) {
       xbee_msg_received = FALSE;
     }
   }
-#elif
+#else
 #error "Unknown DATALINK"
 #endif
 
