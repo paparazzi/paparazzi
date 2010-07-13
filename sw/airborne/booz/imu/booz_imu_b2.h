@@ -25,6 +25,7 @@
 #define BOOZ_IMU_B2_H
 
 #include "booz_imu.h"
+#include "airframe.h"
 
 #include "peripherals/booz_max1168.h"
 
