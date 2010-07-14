@@ -95,5 +95,7 @@ void booz_actuators_pwm_hw_init(void) {
 
 void booz_actuators_pwm_commit(void) {
   TIM_SetCompare1 (TIM3, booz_actuators_pwm_values[0]);
+  TIM_SetCompare2 (TIM3, booz_actuators_pwm_values[1]);
+  TIM_SetCompare3 (TIM3, booz_actuators_pwm_values[2]);
   
 }
