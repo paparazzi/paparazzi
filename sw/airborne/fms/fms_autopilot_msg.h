@@ -94,7 +94,7 @@ struct __attribute__ ((packed)) AutopilotMessagePTUp
 
 struct __attribute__ ((packed)) AutopilotMessagePTDown
 {
-  uint16_t pwm_outputs_usecs[LISA_PWM_NB];
+  uint16_t pwm_outputs_usecs[LISA_PWM_OUTPUT_NB];
 };
 
 union AutopilotMessagePT
