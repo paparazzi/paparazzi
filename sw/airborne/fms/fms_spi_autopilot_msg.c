@@ -47,6 +47,7 @@
 #include "rdyb_mahrs.h"
 
 static struct BoozImuFloat imu;
+static struct FloatEulers body_to_imu_eulers = LISA_BODY_TO_IMU_EULERS;
 
 static void (* vane_callback)(uint8_t vane_id, float alpha, float beta) = NULL;
 static void (* pressure_callback)(uint8_t pressure_id, uint32_t pressure1, uint32_t pressure2) = NULL;
@@ -82,9 +83,7 @@ int spi_ap_link_init()
   }
 
   // Initialize IMU->Body orientation
-  imu.body_to_imu_eulers.phi = 0;
-  imu.body_to_imu_eulers.theta = 0;
-  imu.body_to_imu_eulers.psi = 0;
+  imu.body_to_imu_eulers = body_to_imu_eulers;
 
   FLOAT_QUAT_OF_EULERS(imu.body_to_imu_quat, imu.body_to_imu_eulers);
   FLOAT_QUAT_NORMALISE(imu.body_to_imu_quat);
