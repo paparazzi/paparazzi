@@ -318,7 +318,7 @@
       <field name="altitude_adc" type="float"/>
       <field name="altitude" type="float" unit="m"/>
       <field name="airspeed_sp" type="float" unit="m/s"/>
-      <field name="airspeed_cnt" type="float" unit="m/s"/>
+      <field name="altitude_sp" type="float" unit="m/s"/>
       <field name="groundspeed_sp" type="float" unit="m/s"/>
   </message>
 
