@@ -29,11 +29,12 @@
 #include <stm32/misc.h>
 #include <stm32/tim.h>
 
+#define PCLK 72000000
+#define ONE_MHZ_CLK 1000000
+#define SERVO_HZ 40
+
 void booz_actuators_pwm_hw_init(void) {
 
-  /* System clock */
-  /* PCLK1 = HCLK/4 */
-  RCC_PCLK1Config(RCC_HCLK_Div4);
   /* TIM3 clock enable */
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
   /* GPIOB and GPIOC clock enable */
@@ -52,50 +53,44 @@ void booz_actuators_pwm_hw_init(void) {
   TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
   TIM_OCInitTypeDef  TIM_OCInitStructure;
   /* Time base configuration */
-  TIM_TimeBaseStructure.TIM_Period = 56249;
-  TIM_TimeBaseStructure.TIM_Prescaler = 15;
+  TIM_TimeBaseStructure.TIM_Prescaler = (PCLK / ONE_MHZ_CLK) - 1; // 1uS
+  TIM_TimeBaseStructure.TIM_Period = (ONE_MHZ_CLK / SERVO_HZ) - 1;
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
   TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
  
-  uint16_t CCR1_Val = 2250;
-  uint16_t CCR2_Val = 2250;
-  uint16_t CCR3_Val = 2250;
-  /* PWM1 Mode configuration: Channel1 */
+  /* PWM1 Mode configuration: All Channels */
   TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_Pulse = CCR1_Val;
+  TIM_OCInitStructure.TIM_Pulse = 0; // default low (no pulse)
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
+  /* PWM1 Mode configuration: Channel1 */
   TIM_OC1Init(TIM3, &TIM_OCInitStructure);
-
   TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Enable);
 
   /* PWM1 Mode configuration: Channel2 */
-  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_Pulse = CCR2_Val;
-
   TIM_OC2Init(TIM3, &TIM_OCInitStructure);
-
   TIM_OC2PreloadConfig(TIM3, TIM_OCPreload_Enable);
 
   /* PWM1 Mode configuration: Channel3 */
-  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_Pulse = CCR3_Val;
-
   TIM_OC3Init(TIM3, &TIM_OCInitStructure);
-
   TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
+
+  /* PWM1 Mode configuration: Channel4 */
+  TIM_OC4Init(TIM3, &TIM_OCInitStructure);
+  TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
 
   /* TIM3 enable counter */
   TIM_Cmd(TIM3, ENABLE);
 
 }
 
+/* set pulse widths from actuator values, assumed to be in us */
 void booz_actuators_pwm_commit(void) {
-  TIM_SetCompare1 (TIM3, booz_actuators_pwm_values[0]);
-  TIM_SetCompare2 (TIM3, booz_actuators_pwm_values[1]);
-  TIM_SetCompare3 (TIM3, booz_actuators_pwm_values[2]);
-  
+  TIM_SetCompare1(TIM3, booz_actuators_pwm_values[0]);
+  TIM_SetCompare2(TIM3, booz_actuators_pwm_values[1]);
+  TIM_SetCompare3(TIM3, booz_actuators_pwm_values[2]);
+  TIM_SetCompare4(TIM3, booz_actuators_pwm_values[3]);
 }

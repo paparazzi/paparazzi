@@ -56,10 +56,14 @@ pt.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B115200
 pt.CFLAGS += -DRADIO_CONTROL_LINK=Uart3
 
 # Actuators
-pt.srcs += $(SRC_BOOZ)/actuators/booz_supervision.c
-pt.CFLAGS += -DACTUATORS_ASCTEC_V2_PROTOCOL
-pt.srcs += $(SRC_BOOZ)/actuators/booz_actuators_asctec.c
-pt.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+#pt.srcs += $(SRC_BOOZ)/actuators/booz_supervision.c
+#pt.CFLAGS += -DACTUATORS_ASCTEC_V2_PROTOCOL
+#pt.srcs += $(SRC_BOOZ)/actuators/booz_actuators_asctec.c
+#pt.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+#
+#pt.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
+#pt.CFLAGS += -DUSE_I2C1
 
-pt.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
-pt.CFLAGS += -DUSE_I2C1
+# PWM actuator
+pt.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c
+pt.srcs += $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_hw.c

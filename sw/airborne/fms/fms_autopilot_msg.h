@@ -5,6 +5,8 @@
 #include "math/pprz_algebra_int.h"
 #include "airframe.h"
 
+#define LISA_PWM_NB 6
+
 /*
  * Testing
  */
@@ -92,11 +94,7 @@ struct __attribute__ ((packed)) AutopilotMessagePTUp
 
 struct __attribute__ ((packed)) AutopilotMessagePTDown
 {
-  int16_t command_pitch;
-  int16_t command_roll;
-  int16_t command_yaw;
-  int16_t command_thrust;
-  int16_t actuators[SERVOS_NB];
+  uint16_t pwm_outputs_usecs[LISA_PWM_NB];
 };
 
 union AutopilotMessagePT
