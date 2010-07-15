@@ -28,6 +28,7 @@
 #include "booz/booz_actuators.h"
 #include "booz/booz_imu.h"
 #include "booz_radio_control.h"
+#include "actuators/booz_actuators_pwm.h"
 #include "lisa/lisa_overo_link.h"
 
 static inline void main_init(void);
@@ -57,16 +58,15 @@ static inline void main_init(void) {
 
 	hw_init();
 	sys_time_init();
-	actuators_init();
 	booz_imu_init();
 	radio_control_init();
+	booz_actuators_pwm_hw_init();
 	overo_link_init();
 }
 
 static inline void main_periodic(void) {
 
 	booz_imu_periodic();
-	actuators_set(FALSE);
 	OveroLinkPeriodic(main_on_overo_link_lost);
 	RunOnceEvery(10, {LED_PERIODIC(); DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);radio_control_periodic();});
 }
@@ -80,6 +80,7 @@ static inline void main_event(void) {
 
 static inline void main_on_overo_msg_received(void) {
 	struct AutopilotMessagePTUp *msg_out = &overo_link.msg_out.uni.up;
+	struct AutopilotMessagePTDown *msg_in = &overo_link.msg_in.uni.down;
 
 	msg_out->gyro.x = booz_imu.gyro.p;
 	msg_out->gyro.y = booz_imu.gyro.q;
@@ -103,6 +104,10 @@ static inline void main_on_overo_msg_received(void) {
 	msg_out->rc_aux3 = radio_control.values[RADIO_CONTROL_AUX3];
 	msg_out->rc_aux4 = radio_control.values[RADIO_CONTROL_AUX4];
 	msg_out->rc_status = radio_control.status;
+
+	for (int i = 0; i < LISA_PWM_OUTPUT_NB; i++)
+	  booz_actuators_pwm_values[i] = msg_in->pwm_outputs_usecs[i];
+	booz_actuators_pwm_commit();
 }
 
 static inline void main_on_overo_link_lost(void) {

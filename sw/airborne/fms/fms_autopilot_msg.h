@@ -5,7 +5,7 @@
 #include "math/pprz_algebra_int.h"
 #include "airframe.h"
 
-#define LISA_PWM_NB 6
+#define LISA_PWM_OUTPUT_NB 6
 
 /*
  * Testing

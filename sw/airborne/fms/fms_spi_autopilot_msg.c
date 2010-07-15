@@ -138,7 +138,7 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
 
 static void passthrough_down_fill(struct AutopilotMessagePTDown *msg_out)
 {
-  for (int i = 0; i < LISA_PWM_NB; i++) {
+  for (int i = 0; i < LISA_PWM_OUTPUT_NB; i++) {
     msg_out->pwm_outputs_usecs[i] = actuators[i];
   }
 }
