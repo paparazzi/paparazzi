@@ -757,7 +757,7 @@ stm_test_spi_link.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 stm_test_spi_link.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 stm_test_spi_link.srcs += $(SRC_ARCH)/uart_hw.c
 
-stm_test_spi_link.CFLAGS += -DUSE_OVERO_LINK -DOVERO_LINK_MSG_UNION=AutopilotMessageFoo1
+stm_test_spi_link.CFLAGS += -DUSE_OVERO_LINK -DOVERO_LINK_MSG_UP=AutopilotMessageFoo -DOVERO_LINK_MSG_DOWN=AutopilotMessageFoo
 stm_test_spi_link.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=4 -DUSE_DMA1_C2_IRQ
 stm_test_spi_link.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
 

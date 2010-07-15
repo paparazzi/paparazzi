@@ -12,13 +12,13 @@ enum LisaOveroLinkStatus {IDLE, BUSY, DATA_AVAILABLE, LOST};
 struct LisaOveroLink {
 	volatile uint8_t status;
 	union {
-		union OVERO_LINK_MSG_UNION uni;
-		uint8_t array[sizeof(union OVERO_LINK_MSG_UNION)];
-	} msg_in;
+		struct OVERO_LINK_MSG_UP msg;
+		uint8_t array[sizeof(union AutopilotMessage)];
+	} up;
 	union {
-		union OVERO_LINK_MSG_UNION uni;
-		uint8_t array[sizeof(union OVERO_LINK_MSG_UNION)];
-	} msg_out;
+		struct OVERO_LINK_MSG_DOWN msg;
+		uint8_t array[sizeof(union AutopilotMessage)];
+	} down;
 	uint8_t timeout;
 };
 

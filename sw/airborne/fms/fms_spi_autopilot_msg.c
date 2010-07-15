@@ -150,7 +150,7 @@ void spi_ap_link_periodic()
   passthrough_down_fill(&msg_out);
 
   // SPI transcieve
-  spi_link_send(&msg_out, sizeof(union AutopilotMessagePT), &msg_in);
+  spi_link_send(&msg_out, sizeof(union AutopilotMessage), &msg_in);
 
   passthrough_up_parse(&msg_in);
 }

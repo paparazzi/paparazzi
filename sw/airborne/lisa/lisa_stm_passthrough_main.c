@@ -79,34 +79,34 @@ static inline void main_event(void) {
 }
 
 static inline void main_on_overo_msg_received(void) {
-	struct AutopilotMessagePTUp *msg_out = &overo_link.msg_out.uni.up;
-	struct AutopilotMessagePTDown *msg_in = &overo_link.msg_in.uni.down;
+	struct AutopilotMessagePTUp *msg_up = &overo_link.up.msg;
+	struct AutopilotMessagePTDown *msg_down = &overo_link.down.msg;
 
-	msg_out->gyro.x = booz_imu.gyro.p;
-	msg_out->gyro.y = booz_imu.gyro.q;
-	msg_out->gyro.z = booz_imu.gyro.r;
+	msg_up->gyro.x = booz_imu.gyro.p;
+	msg_up->gyro.y = booz_imu.gyro.q;
+	msg_up->gyro.z = booz_imu.gyro.r;
 
-	msg_out->accel.x = booz_imu.accel.x;
-	msg_out->accel.y = booz_imu.accel.y;
-	msg_out->accel.z = booz_imu.accel.z;
+	msg_up->accel.x = booz_imu.accel.x;
+	msg_up->accel.y = booz_imu.accel.y;
+	msg_up->accel.z = booz_imu.accel.z;
 
-	msg_out->mag.x = booz_imu.mag.x;
-	msg_out->mag.y = booz_imu.mag.y;
-	msg_out->mag.z = booz_imu.mag.z;
+	msg_up->mag.x = booz_imu.mag.x;
+	msg_up->mag.y = booz_imu.mag.y;
+	msg_up->mag.z = booz_imu.mag.z;
 
-	msg_out->rc_pitch = radio_control.values[RADIO_CONTROL_PITCH];
-	msg_out->rc_roll = radio_control.values[RADIO_CONTROL_ROLL];
-	msg_out->rc_yaw = radio_control.values[RADIO_CONTROL_YAW];
-	msg_out->rc_thrust = radio_control.values[RADIO_CONTROL_THROTTLE];
-	msg_out->rc_mode = radio_control.values[RADIO_CONTROL_MODE];
-	msg_out->rc_kill = radio_control.values[RADIO_CONTROL_KILL];
-	msg_out->rc_gear = radio_control.values[RADIO_CONTROL_GEAR];
-	msg_out->rc_aux3 = radio_control.values[RADIO_CONTROL_AUX3];
-	msg_out->rc_aux4 = radio_control.values[RADIO_CONTROL_AUX4];
-	msg_out->rc_status = radio_control.status;
+	msg_up->rc_pitch = radio_control.values[RADIO_CONTROL_PITCH];
+	msg_up->rc_roll = radio_control.values[RADIO_CONTROL_ROLL];
+	msg_up->rc_yaw = radio_control.values[RADIO_CONTROL_YAW];
+	msg_up->rc_thrust = radio_control.values[RADIO_CONTROL_THROTTLE];
+	msg_up->rc_mode = radio_control.values[RADIO_CONTROL_MODE];
+	msg_up->rc_kill = radio_control.values[RADIO_CONTROL_KILL];
+	msg_up->rc_gear = radio_control.values[RADIO_CONTROL_GEAR];
+	msg_up->rc_aux3 = radio_control.values[RADIO_CONTROL_AUX3];
+	msg_up->rc_aux4 = radio_control.values[RADIO_CONTROL_AUX4];
+	msg_up->rc_status = radio_control.status;
 
 	for (int i = 0; i < LISA_PWM_OUTPUT_NB; i++)
-	  booz_actuators_pwm_values[i] = msg_in->pwm_outputs_usecs[i];
+	  booz_actuators_pwm_values[i] = msg_down->pwm_outputs_usecs[i];
 	booz_actuators_pwm_commit();
 }
 

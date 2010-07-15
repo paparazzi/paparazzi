@@ -66,8 +66,8 @@ static void main_periodic(int my_sig_num) {
 
 static void main_send_to_stm(void) {
 
-  union AutopilotMessageTW msg_in, msg_out;
-  spi_link_send(&msg_out.down, sizeof(union AutopilotMessageTW), &msg_in.up);
+  union AutopilotMessage msg_in, msg_out;
+  spi_link_send(&msg_out.down, sizeof(union AutopilotMessage), &msg_in.up);
 
   printf("spi telemetry got %d\n", msg_in.up.tw_len);
   //  for (int i=0; i<msg_in.up.tw_len; i++)

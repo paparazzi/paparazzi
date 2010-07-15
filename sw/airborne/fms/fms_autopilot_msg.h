@@ -19,13 +19,6 @@ struct __attribute__ ((packed)) AutopilotMessageFoo
   uint8_t bli;
 };
 
-union AutopilotMessageFoo1
-{
-  struct AutopilotMessageFoo up;
-  struct AutopilotMessageFoo down;
-};
-
-
 /*
  * BETH
  */
@@ -43,13 +36,6 @@ struct __attribute__ ((packed)) AutopilotMessageBethDown
   uint8_t motor_back;
 };
 
-union AutopilotMessageBeth
-{
-  struct AutopilotMessageBethUp up;
-  struct AutopilotMessageBethDown down;
-};
-
-
 /*
  *  STM Telemetry through wifi
  */
@@ -64,12 +50,6 @@ struct __attribute__ ((packed)) AutopilotMessageTWDown
 {
   uint8_t tw_len;
   uint8_t data[TW_BUF_LEN];
-};
-
-union AutopilotMessageTW
-{
-  struct AutopilotMessageTWUp up;
-  struct AutopilotMessageTWDown down;
 };
 
 /*
@@ -97,10 +77,11 @@ struct __attribute__ ((packed)) AutopilotMessagePTDown
   uint16_t pwm_outputs_usecs[LISA_PWM_OUTPUT_NB];
 };
 
-union AutopilotMessagePT
-{
-  struct AutopilotMessagePTUp up;
-  struct AutopilotMessagePTDown down;
+/* Union for computing size of SPI transfer (largest of either up or down message) */
+union AutopilotMessage {
+  struct OVERO_LINK_MSG_UP msg_up;
+  struct OVERO_LINK_MSG_DOWN msg_down;
 };
+
 
 #endif /* FMS_AUTOPILOT_H */

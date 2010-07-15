@@ -29,7 +29,7 @@ pt.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uar
 pt.srcs += downlink.c pprz_transport.c
 
 # Link Overo
-pt.CFLAGS += -DUSE_OVERO_LINK -DOVERO_LINK_MSG_UNION=AutopilotMessagePT
+pt.CFLAGS += -DUSE_OVERO_LINK -DOVERO_LINK_MSG_UP=AutopilotMessagePTUp -DOVERO_LINK_MSG_DOWN=AutopilotMessagePTDown
 pt.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=4 -DUSE_DMA1_C2_IRQ
 pt.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
 
