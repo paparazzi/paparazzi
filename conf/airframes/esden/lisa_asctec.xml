@@ -33,13 +33,13 @@
 
   <section name="IMU" prefix="IMU_">
 
-    <define name="GYRO_P_NEUTRAL" value="31948"/>
-    <define name="GYRO_Q_NEUTRAL" value="31834"/>
-    <define name="GYRO_R_NEUTRAL" value="32687"/>
+    <define name="GYRO_P_NEUTRAL" value="32685"/>
+    <define name="GYRO_Q_NEUTRAL" value="33261"/>
+    <define name="GYRO_R_NEUTRAL" value="32707"/>
 
-    <define name="GYRO_P_SENS" value=" 1.101357422" integer="16"/>
-    <define name="GYRO_Q_SENS" value="-1.122670898" integer="16"/>
-    <define name="GYRO_R_SENS" value="-1.104890137" integer="16"/>
+    <define name="GYRO_P_SENS" value=" 1.096691894" integer="16"/>
+    <define name="GYRO_Q_SENS" value="-1.066804199" integer="16"/>
+    <define name="GYRO_R_SENS" value="-1.117463379" integer="16"/>
 
 
     <define name="ACCEL_X_SENS" value="-2.58358915626" integer="16"/>
