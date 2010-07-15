@@ -26,7 +26,7 @@
 
 #include "std.h"
 
-#define BOOZ_ACTUATORS_PWM_NB 4
+#define BOOZ_ACTUATORS_PWM_NB 6
 extern int32_t booz_actuators_pwm_values[BOOZ_ACTUATORS_PWM_NB];
 
 #include "actuators/booz_actuators_pwm_hw.h"
