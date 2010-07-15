@@ -122,6 +122,19 @@ extern void tim2_irq_handler(void);
 #define TIM2_IRQ_HANDLER null_handler
 #endif
 
+#ifdef USE_USB_HP_CAN1_TX_IRQ
+extern void usb_hp_can1_tx_irq_handler(void);
+#define USB_HP_CAN1_TX_IRQ_HANDLER usb_hp_can1_tx_irq_handler
+#else
+#define USB_HP_CAN1_TX_IRQ_HANDLER null_handler
+#endif
+
+#ifdef USE_USB_LP_CAN1_RX0_IRQ
+extern void usb_lp_can1_rx0_irq_handler(void);
+#define USB_LP_CAN1_RX0_IRQ_HANDLER usb_lp_can_rx0_irq_handler
+#else
+#define USB_LP_CAN1_RX0_IRQ_HANDLER null_handler
+#endif
 
 /* addresses defined in the linker script */
 extern unsigned long _etext;  /* end addr of .text section     */
@@ -171,8 +184,8 @@ void (* const vector_table[])(void) = {
     null_handler,             /* dma1_channel6_irq_handler */
     null_handler,             /* dma1_channel7_irq_handler */
     null_handler,             /* adc1_2_irq_handler */
-    null_handler,             /* usb_hp_can_tx_irq_handler */
-    null_handler,             /* usb_lp_can_rx0_irq_handler */
+    USB_HP_CAN1_TX_IRQ_HANDLER, /* usb_hp_can_tx_irq_handler */
+    USB_LP_CAN1_RX0_IRQ_HANDLER, /* usb_lp_can_rx0_irq_handler */
     null_handler,             /* can_rx1_irq_handler */
     null_handler,             /* can_sce_irq_handler */
     null_handler,             /* exti9_5_irq_handler */

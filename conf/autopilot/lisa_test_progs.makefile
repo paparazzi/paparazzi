@@ -841,3 +841,23 @@ ptw.srcs += $(SRC_BOOZ_ARCH)/actuators/booz_actuators_mkk_arch.c
 ptw.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 ptw.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1  -DUSE_TIM2_IRQ
 ptw.CFLAGS += -DUSE_I2C1
+
+#
+# test csc servo
+#
+test_csc_servo.ARCHDIR = $(ARCHI)
+test_csc_servo.TARGET = test_csc_servo
+test_csc_servo.TARGETDIR = test_csc_servo
+test_csc_servo.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_csc_servo.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_csc_servo.srcs = $(SRC_LISA)/test_csc_servo.c      \
+               $(SRC_ARCH)/stm32_exceptions.c   \
+               $(SRC_ARCH)/stm32_vector_table.c
+test_csc_servo.CFLAGS += -DUSE_LED
+test_csc_servo.srcs += $(SRC_ARCH)/led_hw.c
+test_csc_servo.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+#test_csc_servo.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_csc_servo.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./10.)'
+test_csc_servo.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_csc_servo.CFLAGS += -DUSE_CAN1
+test_csc_servo.srcs += can.c $(SRC_ARCH)/can_hw.c
