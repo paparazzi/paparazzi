@@ -112,36 +112,25 @@ void can_hw_init(void)
 	CAN_FilterInit(&can_filter);
 
 	/* transmit struct init */
-	can_tx_msg.StdId = 0x321;
-	can_tx_msg.ExtId = 0x01;
+	can_tx_msg.StdId = 0x0;
+	can_tx_msg.ExtId = 0x0;
 	can_tx_msg.RTR = CAN_RTR_DATA;
-	can_tx_msg.IDE = CAN_ID_STD;
+	can_tx_msg.IDE = CAN_ID_EXT;
 	can_tx_msg.DLC = 1;
 
 	CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);
-
-	can_tx_msg.Data[0] = 0x55;
-
-	CAN_Transmit(CAN1, &can_tx_msg);
 }
 
-int can_hw_transmit(uint16_t id, const uint8_t *buf, uint8_t len)
+int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 {
 	if(len > 8){
 		return -1;
 	}
 
-//	can_tx_msg.StdId = id >> 8;
-//	can_tx_msg.ExtId = id & 0xFF;
-//	can_tx_msg.DLC = len;
-//	memcpy(&can_tx_msg.Data, buf, len);
-//
-//	CAN_Transmit(CAN1, &can_tx_msg);
+	can_tx_msg.ExtId = id;
+	can_tx_msg.DLC = len;
 
-	//can_tx_msg.StdId = 0;
-	//can_tx_msg.ExtId = 0x1234;
-	//can_tx_msg.DLC = 1;
-	//can_tx_msg.Data[0] = 0x55;
+	memcpy(can_tx_msg.Data, buf, len);
 
 	CAN_Transmit(CAN1, &can_tx_msg);
 

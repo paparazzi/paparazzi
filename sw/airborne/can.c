@@ -32,13 +32,13 @@ void can_init(void)
 	can_hw_init();
 }
 
-static inline uint16_t can_id(uint8_t client_id, uint8_t msg_id)
+static inline uint32_t can_id(uint8_t client_id, uint8_t msg_id)
 {
 	return ((client_id & 0xF) << 7) | (msg_id & 0x7F);
 }
 
 int can_transmit(uint8_t client_id, uint8_t msg_id, const uint8_t *buf, uint8_t len)
 {
-	uint16_t id = can_id(client_id, msg_id);
+	uint32_t id = can_id(client_id, msg_id);
 	return can_hw_transmit(id, buf, len);
 }

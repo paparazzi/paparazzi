@@ -52,7 +52,12 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
 
-	can_transmit(1, 0, (uint8_t *)servos, 1);
+	servos[0] = 1;
+	servos[1] = 2;
+	servos[2] = 3;
+	servos[3] = 4;
+
+	can_transmit(1, 0, (uint8_t *)servos, 8);
 
 	LED_TOGGLE(2);
 
