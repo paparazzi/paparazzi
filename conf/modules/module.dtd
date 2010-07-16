@@ -46,7 +46,7 @@ message CDATA #REQUIRED
 fun CDATA #REQUIRED>
 
 <!ATTLIST makefile
-target CDATA "ap|sim">
+target CDATA "ap|sim|jsbsim">
 
 <!ATTLIST flag
 name CDATA #REQUIRED
