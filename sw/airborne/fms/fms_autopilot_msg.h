@@ -57,7 +57,7 @@ struct __attribute__ ((packed)) AutopilotMessageTWDown
  */
 struct __attribute__ ((packed)) AutopilotMessagePTUp
 {
-  struct Int16Vect3 gyro;
+  struct Int32Rates gyro;
   struct Int16Vect3 accel;
   struct Int16Vect3 mag;
   int16_t rc_pitch;

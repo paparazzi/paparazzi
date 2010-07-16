@@ -120,9 +120,9 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
     radio_control_callback();
 
   // Fill IMU data
-  imu.gyro.p = RATE_FLOAT_OF_BFP(msg_up->gyro.x);
-  imu.gyro.q = RATE_FLOAT_OF_BFP(msg_up->gyro.y);
-  imu.gyro.r = RATE_FLOAT_OF_BFP(msg_up->gyro.z);
+  imu.gyro.p = RATE_FLOAT_OF_BFP(msg_up->gyro.p);
+  imu.gyro.q = RATE_FLOAT_OF_BFP(msg_up->gyro.q);
+  imu.gyro.r = RATE_FLOAT_OF_BFP(msg_up->gyro.r);
 
   imu.accel.x = ACCEL_FLOAT_OF_BFP(msg_up->accel.x);
   imu.accel.y = ACCEL_FLOAT_OF_BFP(msg_up->accel.y);

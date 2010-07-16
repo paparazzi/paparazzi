@@ -79,34 +79,25 @@ static inline void main_event(void) {
 }
 
 static inline void main_on_overo_msg_received(void) {
-	struct AutopilotMessagePTUp *msg_up = &overo_link.up.msg;
-	struct AutopilotMessagePTDown *msg_down = &overo_link.down.msg;
+	RATES_COPY(overo_link.up.msg.gyro, booz_imu.gyro);
 
-	msg_up->gyro.x = booz_imu.gyro.p;
-	msg_up->gyro.y = booz_imu.gyro.q;
-	msg_up->gyro.z = booz_imu.gyro.r;
+	VECT3_COPY(overo_link.up.msg.accel, booz_imu.accel);
 
-	msg_up->accel.x = booz_imu.accel.x;
-	msg_up->accel.y = booz_imu.accel.y;
-	msg_up->accel.z = booz_imu.accel.z;
+	VECT3_COPY(overo_link.up.msg.mag, booz_imu.mag);
 
-	msg_up->mag.x = booz_imu.mag.x;
-	msg_up->mag.y = booz_imu.mag.y;
-	msg_up->mag.z = booz_imu.mag.z;
-
-	msg_up->rc_pitch = radio_control.values[RADIO_CONTROL_PITCH];
-	msg_up->rc_roll = radio_control.values[RADIO_CONTROL_ROLL];
-	msg_up->rc_yaw = radio_control.values[RADIO_CONTROL_YAW];
-	msg_up->rc_thrust = radio_control.values[RADIO_CONTROL_THROTTLE];
-	msg_up->rc_mode = radio_control.values[RADIO_CONTROL_MODE];
-	msg_up->rc_kill = radio_control.values[RADIO_CONTROL_KILL];
-	msg_up->rc_gear = radio_control.values[RADIO_CONTROL_GEAR];
-	msg_up->rc_aux3 = radio_control.values[RADIO_CONTROL_AUX3];
-	msg_up->rc_aux4 = radio_control.values[RADIO_CONTROL_AUX4];
-	msg_up->rc_status = radio_control.status;
+	overo_link.up.msg.rc_pitch = radio_control.values[RADIO_CONTROL_PITCH];
+	overo_link.up.msg.rc_roll = radio_control.values[RADIO_CONTROL_ROLL];
+	overo_link.up.msg.rc_yaw = radio_control.values[RADIO_CONTROL_YAW];
+	overo_link.up.msg.rc_thrust = radio_control.values[RADIO_CONTROL_THROTTLE];
+	overo_link.up.msg.rc_mode = radio_control.values[RADIO_CONTROL_MODE];
+	overo_link.up.msg.rc_kill = radio_control.values[RADIO_CONTROL_KILL];
+	overo_link.up.msg.rc_gear = radio_control.values[RADIO_CONTROL_GEAR];
+	overo_link.up.msg.rc_aux3 = radio_control.values[RADIO_CONTROL_AUX3];
+	overo_link.up.msg.rc_aux4 = radio_control.values[RADIO_CONTROL_AUX4];
+	overo_link.up.msg.rc_status = radio_control.status;
 
 	for (int i = 0; i < LISA_PWM_OUTPUT_NB; i++)
-	  booz_actuators_pwm_values[i] = msg_down->pwm_outputs_usecs[i];
+	  booz_actuators_pwm_values[i] = overo_link.down.msg.pwm_outputs_usecs[i];
 	booz_actuators_pwm_commit();
 }
 
