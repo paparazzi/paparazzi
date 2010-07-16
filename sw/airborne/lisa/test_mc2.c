@@ -24,6 +24,7 @@
 
 #include "init_hw.h"
 #include "sys_time.h"
+#include "led.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -52,8 +53,15 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
   
-  i2c1_buf[0] = 0x00;
-  i2c1_transmit(0x58, 1, &i2c_done);
+  //  LED_ON(4);
+  //  static uint16_t i = 1000;
+  //  if (i) i--;
+  //  else {
+  //    LED_OFF(4);
+    LED_ON(5);
+    i2c1_buf[0] = 0x04;
+    i2c1_transmit(0x58, 1, &i2c_done);
+    //  }
 
   LED_PERIODIC();
 

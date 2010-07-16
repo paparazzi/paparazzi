@@ -315,8 +315,8 @@ test_servos.CFLAGS  = -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) 
 test_servos.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_servos.LDFLAGS += -lm
 test_servos.srcs += $(SRC_LISA)/test_servos.c 	\
-                    $(SRC_LISA)/exceptions.c    \
-                    $(SRC_LISA)/vector_table.c
+                    $(SRC_ARCH)/stm32_exceptions.c   \
+                    $(SRC_ARCH)/stm32_vector_table.c
 test_servos.CFLAGS += -DUSE_LED
 test_servos.srcs += $(SRC_ARCH)/led_hw.c
 test_servos.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
@@ -429,6 +429,40 @@ test_imu_b2.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IR
 test_imu_b2.srcs += $(SRC_BOOZ)/imu/booz_imu_b2.c $(SRC_BOOZ_ARCH)/imu/booz_imu_b2_arch.c
 test_imu_b2.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
 test_imu_b2.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c  $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
+
+
+#
+# test IMU crista
+#
+test_imu_crista.ARCHDIR = $(ARCHI)
+test_imu_crista.TARGET = test_imu_crista
+test_imu_crista.TARGETDIR = test_imu_crista
+test_imu_crista.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_imu_crista.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
+test_imu_crista.srcs += $(SRC_BOOZ_TEST)/booz2_test_imu_b2.c \
+                    $(SRC_ARCH)/stm32_exceptions.c   \
+                    $(SRC_ARCH)/stm32_vector_table.c
+
+test_imu_crista.CFLAGS += -DUSE_LED
+test_imu_crista.srcs += $(SRC_ARCH)/led_hw.c
+
+test_imu_crista.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_imu_crista.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_imu_crista.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_imu_crista.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B57600
+test_imu_crista.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_imu_crista.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart3
+test_imu_crista.srcs += downlink.c pprz_transport.c
+
+test_imu_crista.srcs += math/pprz_trig_int.c
+
+test_imu_crista.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_crista.h\" -DIMU_OVERRIDE_CHANNELS
+test_imu_crista.srcs += $(SRC_BOOZ)/booz_imu.c             \
+                        $(SRC_BOOZ)/imu/booz_imu_crista.c \
+                        $(SRC_BOOZ_ARCH)/imu/booz_imu_crista_arch.c
+test_imu_crista.CFLAGS += -DUSE_DMA1_C4_IRQ
 
 #
 # test motor controllers
@@ -684,6 +718,34 @@ test_baro3.CFLAGS += -DUSE_I2C2
 test_baro3.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 
+
+#
+# test hmc5843
+#
+test_hmc5843.ARCHDIR = $(ARCHI)
+test_hmc5843.TARGET = test_hmc5843
+test_hmc5843.TARGETDIR = test_hmc5843
+test_hmc5843.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -Ibooz -DPERIPHERALS_AUTO_INIT
+test_hmc5843.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_hmc5843.srcs = booz/test/booz_test_hmc5843.c         \
+                    $(SRC_ARCH)/stm32_exceptions.c   \
+                    $(SRC_ARCH)/stm32_vector_table.c
+test_hmc5843.CFLAGS += -DUSE_LED
+test_hmc5843.srcs += $(SRC_ARCH)/led_hw.c
+test_hmc5843.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_hmc5843.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_hmc5843.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_hmc5843.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_hmc5843.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_hmc5843.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_hmc5843.srcs += downlink.c pprz_transport.c
+
+test_hmc5843.srcs += booz/peripherals/booz_hmc5843.c
+test_hmc5843.CFLAGS += -DUSE_I2C2
+test_hmc5843.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+test_hmc5843.CFLAGS += -DIMU_OVERRIDE_CHANNELS
 
 
 
