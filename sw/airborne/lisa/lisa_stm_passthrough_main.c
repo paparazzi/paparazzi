@@ -41,6 +41,8 @@ static inline void on_mag_event(void);
 static inline void main_on_overo_msg_received(void);
 static inline void main_on_overo_link_lost(void);
 
+static bool_t new_radio_msg;
+
 int main(void) {
 
 	main_init();
@@ -52,6 +54,10 @@ int main(void) {
 	}
 
 	return 0;
+}
+
+static void on_rc_message(void) {
+  new_radio_msg = TRUE;
 }
 
 static inline void main_init(void) {
@@ -75,10 +81,17 @@ static inline void main_event(void) {
 
 	BoozImuEvent(on_gyro_accel_event, on_mag_event);
 	OveroLinkEvent(main_on_overo_msg_received);
-	RadioControlEvent(NULL);
+	RadioControlEvent(on_rc_message);
 }
 
 static inline void main_on_overo_msg_received(void) {
+
+	if (new_radio_msg) overo_link.up.msg.valid.rc = 1;
+	else overo_link.up.msg.valid.rc = 0;
+        new_radio_msg = FALSE;
+
+	overo_link.up.msg.valid.imu = 1;
+
 	RATES_COPY(overo_link.up.msg.gyro, booz_imu.gyro);
 
 	VECT3_COPY(overo_link.up.msg.accel, booz_imu.accel);

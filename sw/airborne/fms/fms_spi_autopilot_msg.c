@@ -97,11 +97,12 @@ int spi_ap_link_init()
 
 static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
 {
-  // FIXME: Should only callback when there is something new
-  // FIXME: placeholders since the vane and pressure data fields don't exist yet
-  if (vane_callback)
+
+  if (msg_up->valid.vane && vane_callback)
+    // FIXME: placeholders since the vane and pressure data fields don't exist yet
     vane_callback(0, 0., 0.);
-  if (pressure_callback)
+
+  if (msg_up->valid.pressure && pressure_callback)
     pressure_callback(0, 0, 0);
 
   // Fill radio data
@@ -116,7 +117,7 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
   radio_control.values[RADIO_CONTROL_AUX4] = msg_up->rc_aux4;
   radio_control.status = msg_up->rc_status;
   
-  if (radio_control_callback)
+  if (msg_up->valid.rc && radio_control_callback)
     radio_control_callback();
 
   // Fill IMU data
@@ -132,7 +133,8 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
   imu.mag.y = MAG_FLOAT_OF_BFP(msg_up->mag.y);
   imu.mag.z = MAG_FLOAT_OF_BFP(msg_up->mag.z);
 
-  rdyb_booz_imu_update(&imu);
+  if (msg_up->valid.imu)
+    rdyb_booz_imu_update(&imu);
 }
 
 static void passthrough_down_fill(struct AutopilotMessagePTDown *msg_out)
@@ -144,8 +146,8 @@ static void passthrough_down_fill(struct AutopilotMessagePTDown *msg_out)
 
 void spi_ap_link_periodic()
 {
-  struct AutopilotMessagePTUp msg_in;
-  struct AutopilotMessagePTDown msg_out;
+  static struct AutopilotMessagePTUp msg_in;
+  static struct AutopilotMessagePTDown msg_out;
 
   passthrough_down_fill(&msg_out);
 

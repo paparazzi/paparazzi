@@ -55,6 +55,16 @@ struct __attribute__ ((packed)) AutopilotMessageTWDown
 /*
  * Passthrough, aka biplan
  */
+
+/* used to indicate parts of the message which actually represent a new measurement */
+struct PTUpValidFlags
+{
+  unsigned rc:1;
+  unsigned pressure:1;
+  unsigned vane:1;
+  unsigned imu:1;
+};
+
 struct __attribute__ ((packed)) AutopilotMessagePTUp
 {
   struct Int32Rates gyro;
@@ -70,6 +80,7 @@ struct __attribute__ ((packed)) AutopilotMessagePTUp
   int16_t rc_aux3;
   int16_t rc_aux4;
   uint8_t rc_status;
+  struct PTUpValidFlags valid;
 };
 
 struct __attribute__ ((packed)) AutopilotMessagePTDown
