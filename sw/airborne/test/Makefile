@@ -14,6 +14,9 @@ test_geodetic: test_geodetic.c ../math/pprz_geodetic_float.c ../math/pprz_geodet
 test_algebra: test_algebra.c ../math/pprz_trig_int.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
+test_bla: test_bla.c ../math/pprz_trig_int.c
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
 test_att: test_att.c ../math/pprz_trig_int.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
