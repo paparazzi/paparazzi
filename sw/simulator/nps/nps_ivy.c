@@ -73,7 +73,7 @@ static void on_DL_GET_SETTING(IvyClientPtr app __attribute__ ((unused)),
 
 static void on_DL_PING(IvyClientPtr app __attribute__ ((unused)),
                        void *user_data __attribute__ ((unused)),
-                       int argc __attribute__ ((unused)), char *argv[]) {
+                       int argc __attribute__ ((unused)), char *argv[] __attribute__ ((unused))) {
   DOWNLINK_SEND_PONG(DefaultChannel);
 }
 
