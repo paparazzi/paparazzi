@@ -47,15 +47,29 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic( void ) {
-  //  static float foo = 0.;
-  //  foo += 0.001;
-  //  int32_t bar = 9600. * sin(foo);
+  static float foo = 0.;
+  foo += 0.0025;
+  int32_t bar = 1500 + 500. * sin(foo);
+  booz_actuators_pwm_values[0] = bar;
+  booz_actuators_pwm_values[1] = bar;
+  booz_actuators_pwm_values[2] = bar;
+  booz_actuators_pwm_values[3] = bar;
+  booz_actuators_pwm_values[4] = bar;
+  booz_actuators_pwm_values[5] = bar;
+#if 0
   static int32_t foo = 10;
   static int32_t bar = 0;
   bar += foo;
   if (bar > 9600) { foo = -foo; bar = 9600;}
   if (bar < -9600) { foo = -foo; bar = -9600;}
   booz_actuators_pwm_values[0] = 3375 + bar * 1125 / 9600;
+  booz_actuators_pwm_values[1] = 3375 + bar * 1125 / 9600;
+  booz_actuators_pwm_values[2] = 3375 + bar * 1125 / 9600;
+  booz_actuators_pwm_values[3] = 3375 + bar * 1125 / 9600;
+  booz_actuators_pwm_values[4] = 3375 + bar * 1125 / 9600;
+  booz_actuators_pwm_values[5] = 3375 + bar * 1125 / 9600;
+#endif
+
   booz_actuators_pwm_commit();
 
   LED_PERIODIC();
