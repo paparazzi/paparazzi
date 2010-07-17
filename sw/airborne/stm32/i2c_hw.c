@@ -13,14 +13,14 @@
 #define I2C_RECEIVER                0x01
 static const uint8_t i2c2_direction = I2C_TRANSMITTER;
 
-#include "my_debug_servo.h"
+//#include "my_debug_servo.h"
 
 #define I2C1_APPLY_CONFIG() {						\
 									\
     I2C_InitTypeDef  I2C_InitStructure;					\
     I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;				\
     I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;			\
-    I2C_InitStructure.I2C_OwnAddress1 = 0x02;				\
+    I2C_InitStructure.I2C_OwnAddress1 = 0x00;				\
     I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;				\
     I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit; \
     I2C_InitStructure.I2C_ClockSpeed = 200000;				\
@@ -51,9 +51,8 @@ uint16_t i2c_errc_smbus_alert = 0;
 
 void i2c1_hw_init(void) {
   
-  DEBUG_SERVO1_INIT();
-  DEBUG_SERVO2_INIT();
-
+  I2C_DeInit(I2C1);
+    
   NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
   NVIC_InitTypeDef  NVIC_InitStructure;
   
@@ -79,6 +78,7 @@ void i2c1_hw_init(void) {
 
   /* Configure I2C1 pins: SCL and SDA ------------------------------------------*/
   GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_StructInit(&GPIO_InitStructure);
   GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_6 | GPIO_Pin_7;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
@@ -99,7 +99,7 @@ void i2c1_hw_init(void) {
 
 
 void i2c1_ev_irq_handler(void) {
-  DEBUG_S4_TOGGLE();
+  //  DEBUG_S4_TOGGLE();
   uint32_t event = I2C_GetLastEvent(I2C1);
   switch (event) {
     /* EV5 */
@@ -127,7 +127,7 @@ void i2c1_ev_irq_handler(void) {
     
     /* Test on I2C1 EV8 and clear it */
   case I2C_EVENT_MASTER_BYTE_TRANSMITTING:  /* Without BTF, EV8 */     
-    DEBUG_S5_TOGGLE();
+    //    DEBUG_S5_TOGGLE();
     if(i2c1_index < i2c1_len_w) {
       I2C_SendData(I2C1, i2c1_buf[i2c1_index]);
       i2c1_index++;
@@ -140,7 +140,7 @@ void i2c1_ev_irq_handler(void) {
     break;
 
   case I2C_EVENT_MASTER_BYTE_TRANSMITTED: /* With BTF EV8-2 */
-    DEBUG_S6_TOGGLE();
+    //    DEBUG_S6_TOGGLE();
     if(i2c1_index < i2c1_len_w) {
       I2C_SendData(I2C1, i2c1_buf[i2c1_index]);
       i2c1_index++;
@@ -171,7 +171,7 @@ void i2c1_ev_irq_handler(void) {
   case I2C_EVENT_SLAVE_TRANSMITTER_SECONDADDRESS_MATCHED:  /* DUALF, TRA, BUSY and TXE flags */
   case I2C_EVENT_SLAVE_RECEIVER_SECONDADDRESS_MATCHED:     /* DUALF and BUSY flags */
   case I2C_EVENT_SLAVE_GENERALCALLADDRESS_MATCHED:         /* GENCALL and BUSY flags */
-    DEBUG_S3_TOGGLE();
+    //    DEBUG_S3_TOGGLE();
     break;
     
     /* EV2 */
@@ -196,7 +196,7 @@ void i2c1_ev_irq_handler(void) {
 #endif /* 0 */
   default:
     // spurious Interrupt
-    DEBUG_S2_TOGGLE();
+    //    DEBUG_S2_TOGGLE();
     // I have already had I2C_EVENT_SLAVE_STOP_DETECTED ( 0x10 )
     // let's clear that by restarting I2C
     //    if (event ==  I2C_EVENT_SLAVE_STOP_DETECTED) {
@@ -210,7 +210,7 @@ void i2c1_ev_irq_handler(void) {
 
 void i2c1_er_irq_handler(void) {
   
-  DEBUG_S1_TOGGLE();
+  //  DEBUG_S1_TOGGLE();
 
   if (I2C_GetITStatus(I2C1, I2C_IT_AF)) {   /* Acknowledge failure */
     i2c_errc_ack_fail++;
