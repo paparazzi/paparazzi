@@ -39,8 +39,10 @@ let distance = fun (x1, y1) (x2, y2) ->
 (**    and if the horizontal distance is less than 100 meters (5s between     *)
 (**    2 aircraft at 10m/s                                                    *)
 let airprox = fun aircraft1 aircraft2 ->
-  let x1 = aircraft1.pos.utm_x and x2 = aircraft2.pos.utm_x and 
-      y1 = aircraft1.pos.utm_y and y2 = aircraft2.pos.utm_y and
+  let p1 = Latlong.utm_of Latlong.WGS84 aircraft1.pos in
+  let p2 = Latlong.utm_of Latlong.WGS84 aircraft2.pos in
+  let x1 = p1.utm_x and x2 = p2.utm_x and 
+      y1 = p1.utm_y and y2 = p2.utm_y and
       z1 = aircraft1.alt and z2 = aircraft2.alt in
   let alt_difference = abs_float (z1 -. z2) and
       dist =  distance (x1, y1) (x2, y2) in
@@ -50,8 +52,10 @@ let airprox = fun aircraft1 aircraft2 ->
 (** level is warning if the distance between both aircraft is increasing      *)
 (** level is crictical otherwise                                              *)
 let airprox_level = fun aircraft1 aircraft2 ->
-  let x1 = aircraft1.pos.utm_x and x2 = aircraft2.pos.utm_x and 
-      y1 = aircraft1.pos.utm_y and y2 = aircraft2.pos.utm_y in
+  let p1 = Latlong.utm_of Latlong.WGS84 aircraft1.pos in
+  let p2 = Latlong.utm_of Latlong.WGS84 aircraft2.pos in
+  let x1 = p1.utm_x and x2 = p2.utm_x and 
+      y1 = p1.utm_y and y2 = p2.utm_y in
   let d0 = distance (x1, y1) (x2, y2) in 
   let course1 = aircraft1.course and course2 = aircraft2.course and
       speed1 = aircraft1.gspeed and speed2 = aircraft2.gspeed in

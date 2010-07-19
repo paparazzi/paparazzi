@@ -32,7 +32,6 @@ module LL = Latlong
 module U = Unix
 module Dl_Pprz = Pprz.Messages (struct let name = "datalink" end)
 
-let nav_ref_ecef = ref (LL.make_ecef [|0.;0.;0.|])
 let nav_ref_alt = ref 0.
 let nav_ref_hmsl = ref 0.
 
@@ -89,7 +88,7 @@ let check_index = fun i t where ->
 
 
 let update_waypoint = fun ac wp_id p alt ->
-  let new_wp = { altitude = alt; wp_utm = p } in
+  let new_wp = { altitude = alt; wp_geo = p } in
   try
     let prev_wp = Hashtbl.find ac.waypoints wp_id in
     if new_wp <> prev_wp then
@@ -117,9 +116,19 @@ let speed_frac = 2. ** 19.
 let angle_frac = 2. ** 12.
 let gps_frac = 1e7
 
-let utm_hmsl_of_ltp = fun ned ->
-  let (geo, alt) = LL.geo_of_ecef LL.WGS84 (LL.ecef_of_ned !nav_ref_ecef ned) in
-  (LL.utm_of LL.WGS84 geo, alt +. !nav_ref_hmsl -. !nav_ref_alt)
+let geo_hmsl_of_ltp = fun ned nav_ref d_hmsl ->
+  match nav_ref with
+  | Ltp nav_ref_ecef ->
+    let (geo, alt) = LL.geo_of_ecef LL.WGS84 (LL.ecef_of_ned nav_ref_ecef ned) in
+    (geo, alt +. d_hmsl)
+  | _ -> (LL.make_geo 0. 0., 0.)
+
+let hmsl_of_ref = fun nav_ref d_hmsl ->
+  match nav_ref with
+  | Ltp nav_ref_ecef ->
+    let (_, alt) = LL.geo_of_ecef LL.WGS84 nav_ref_ecef in
+    alt +. d_hmsl
+  | _ -> 0.
 
 let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   let value = fun x -> try Pprz.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
@@ -136,7 +145,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   (*and i32value = fun x -> i32value (value x)*)
   and foi32value = fun x -> foi32value (value x) in
   if not (msg.Pprz.name = "DOWNLINK_STATUS") then
-    a.last_bat_msg_date <- U.gettimeofday ();
+    a.last_msg_date <- U.gettimeofday ();
   match msg.Pprz.name with
     "BOOZ2_FP" ->
       begin match a.nav_ref with
@@ -145,12 +154,14 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
           let north = foi32value "north" /. pos_frac
           and east  = foi32value "east" /. pos_frac
           and up    = foi32value "up" /. pos_frac in
-          let (utm, h) = utm_hmsl_of_ltp (LL.make_ned [| north; east; -. up |]) in
-          a.pos <- utm;
+          let (geo, h) = geo_hmsl_of_ltp (LL.make_ned [| north; east; -. up |]) nav_ref a.d_hmsl in
+          a.pos <- geo;
           a.alt <- h;
-          a.desired_east     <- foi32value "carrot_east" /. pos_frac;
-          a.desired_north    <- foi32value "carrot_north" /. pos_frac;
-          a.desired_altitude <- (foi32value "carrot_up" /. pos_frac) +. !nav_ref_hmsl;
+          let desired_east  = foi32value "carrot_east" /. pos_frac
+          and desired_north = foi32value "carrot_north" /. pos_frac
+          and desired_alt = foi32value "carrot_up" /. pos_frac in
+          a.desired_pos <- Aircraft.add_pos_to_nav_ref nav_ref ~z:desired_alt (desired_east, desired_north);
+          a.desired_altitude <- desired_alt +. (hmsl_of_ref nav_ref a.d_hmsl);
           a.desired_course   <- foi32value "carrot_psi" /. angle_frac
           (* a.desired_climb <-  ?? *)
       end;
@@ -158,7 +169,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       and vnorth = foi32value "vnorth" /. speed_frac in
       a.gspeed  <- sqrt(vnorth*.vnorth +. veast*.veast);
       a.climb   <- foi32value "vup" /. speed_frac;
-      a.agl     <- a.alt -. float (try Srtm.of_utm a.pos with _ -> 0);
+      a.agl     <- a.alt -. float (try Srtm.of_wgs84 a.pos with _ -> 0);
       a.course  <- norm_course ((Rad>>Deg) (foi32value "psi" /. angle_frac));
       a.heading <- norm_course (foi32value "psi" /. angle_frac);
       a.roll    <- foi32value "phi" /. angle_frac;
@@ -175,19 +186,15 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.ap_mode       <- check_index (get_pprz_mode (ivalue "ap_mode")) ap_modes "BOOZ_AP_MODE";
       a.kill_mode     <- ivalue "ap_motors_on" == 0;
       a.bat           <- fvalue "vsupply" /. 10.;
-  | "BOOZ2_GPS" ->
-      a.gps_Pacc <- ivalue "Pacc"
   | "BOOZ2_INS_REF" ->
       let x = foi32value "ecef_x0" /. 100.
       and y = foi32value "ecef_y0" /. 100.
       and z = foi32value "ecef_z0" /. 100.
       and alt = foi32value "alt0" /. 100.
       and hmsl = foi32value "hmsl0" /. 100. in
-      nav_ref_ecef := LL.make_ecef [| x; y; z |];
-      let (geo, _) = LL.geo_of_ecef LL.WGS84 !nav_ref_ecef in
-      a.nav_ref <- Some (LL.utm_of LL.WGS84 geo);
-      nav_ref_alt := alt;
-      nav_ref_hmsl := hmsl;
+      let nav_ref_ecef = LL.make_ecef [| x; y; z |] in
+      a.nav_ref <- Some (Ltp nav_ref_ecef);
+      a.d_hmsl <- hmsl -. alt;
   | "BOOZ2_NAV_STATUS" ->
       a.block_time <- ivalue "block_time";
       a.stage_time <- ivalue "stage_time";
@@ -202,8 +209,8 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
           let east  = foi32value "east"   /. pos_frac
           and north = foi32value "north"  /. pos_frac
           and up    = foi32value "up"     /. pos_frac in
-          let (utm, h) = utm_hmsl_of_ltp (LL.make_ned [| north; east; -. up |]) in
-          update_waypoint a (ivalue "wp_id") utm h;
+          let (geo, h) = geo_hmsl_of_ltp (LL.make_ned [| north; east; -. up |]) nav_ref a.d_hmsl in
+          update_waypoint a (ivalue "wp_id") geo h;
         | None -> (); (** Can't use this message  *)
       end
   | _ -> ()

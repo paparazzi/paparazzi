@@ -30,13 +30,6 @@ type ac_cam = {
     mutable target : (float * float) (* meter*meter relative *)
   }
 
-type inflight_calib = {
-  mutable if_mode : int;
-  mutable if_val1 : float;
-  mutable if_val2 : float;
-}
-type contrast_status = string
-
 type rc_status = string
 type rc_mode = string
 type fbw = { mutable rc_status : rc_status; mutable rc_mode : rc_mode; }
@@ -52,34 +45,41 @@ type svinfo = {
   }
 val svinfo_init : unit -> svinfo
 type horiz_mode =
-    Circle of Latlong.utm * int
-  | Segment of Latlong.utm * Latlong.utm
+    Circle of Latlong.geographic * int
+  | Segment of Latlong.geographic * Latlong.geographic
   | UnknownHorizMode
 
-type waypoint = { altitude : float; wp_utm : Latlong.utm }
+type nav_ref =
+    Geo of Latlong.geographic
+  | Utm of Latlong.utm
+  | Ltp of Latlong.ecef
+
+val add_pos_to_nav_ref : nav_ref -> ?z:float -> (float * float) -> Latlong.geographic
+
+type waypoint = { altitude : float; wp_geo : Latlong.geographic }
 
 type aircraft = {
     id : string;
     name : string;
     flight_plan : Xml.xml;
     airframe : Xml.xml;
-    mutable pos : Latlong.utm;
+    mutable pos : Latlong.geographic;
     mutable unix_time : float;
     mutable itow : int32;
     mutable roll : float;
     mutable pitch : float;
     mutable heading : float; (* rad *)
-    mutable nav_ref : Latlong.utm option;
-    mutable desired_east : float;
-    mutable desired_north : float;
-    mutable desired_altitude : float;
-    mutable desired_course : float;
-    mutable desired_climb : float;
     mutable gspeed : float; (* m/s *)
     mutable course : float; (* rad *)
     mutable alt : float;
     mutable agl : float; (* m *)
     mutable climb : float;
+    mutable nav_ref : nav_ref option;
+    mutable d_hmsl : float; (* difference between geoid and ellipsoid *)
+    mutable desired_pos : Latlong.geographic;
+    mutable desired_altitude : float;
+    mutable desired_course : float;
+    mutable desired_climb : float;
     mutable cur_block : int;
     mutable cur_stage : int;
     mutable throttle : float;
@@ -98,7 +98,6 @@ type aircraft = {
     cam : ac_cam;
     mutable gps_mode : int;
     mutable gps_Pacc : int;
-    inflight_calib : inflight_calib;
     fbw : fbw;
     svinfo : svinfo array;
     waypoints : (int, waypoint) Hashtbl.t;
@@ -109,7 +108,7 @@ type aircraft = {
     dl_setting_values : float array;
     mutable nb_dl_setting_values : int;
     mutable survey : (Latlong.geographic * Latlong.geographic) option;
-    mutable last_bat_msg_date : float;
+    mutable last_msg_date : float;
     mutable time_since_last_survey_msg : float;
     mutable dist_to_wp : float
 }

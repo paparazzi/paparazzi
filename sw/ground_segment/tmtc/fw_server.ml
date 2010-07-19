@@ -74,7 +74,7 @@ let check_index = fun i t where ->
 
 
 let update_waypoint = fun ac wp_id p alt ->
-  let new_wp = { altitude = alt; wp_utm = p } in
+  let new_wp = { altitude = alt; wp_geo = p } in
   try
     let prev_wp = Hashtbl.find ac.waypoints wp_id in
     if new_wp <> prev_wp then
@@ -83,7 +83,10 @@ let update_waypoint = fun ac wp_id p alt ->
     Not_found ->
       Hashtbl.add ac.waypoints wp_id new_wp
 
+
+
 let heading_from_course = ref false
+
 let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   let value = fun x -> try Pprz.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
 
@@ -97,22 +100,38 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       | _ -> f
   and ivalue = fun x -> ivalue (value x) in
   if not (msg.Pprz.name = "DOWNLINK_STATUS") then
-    a.last_bat_msg_date <- U.gettimeofday ();
+    a.last_msg_date <- U.gettimeofday ();
   match msg.Pprz.name with
     "GPS" ->
-      a.pos <- { LL.utm_x = fvalue "utm_east" /. 100.;
-		 utm_y = fvalue "utm_north" /. 100.;
-		 utm_zone = ivalue "utm_zone" };
+      let p = { LL.utm_x = fvalue "utm_east" /. 100.;
+        utm_y = fvalue "utm_north" /. 100.;
+        utm_zone = ivalue "utm_zone" } in
+      a.pos <- LL.of_utm WGS84 p;
       a.unix_time <- LL.unix_time_of_tow (truncate (fvalue "itow" /. 1000.));
       a.itow <- Int32.of_float (fvalue "itow");
       a.gspeed  <- fvalue "speed" /. 100.;
       a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
       if !heading_from_course then
-	a.heading <- a.course;
-      a.agl     <- a.alt -. float (try Srtm.of_utm a.pos with _ -> 0);
+        a.heading <- a.course;
+      a.agl     <- a.alt -. float (try Srtm.of_wgs84 a.pos with _ -> 0);
       a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
       if a.gspeed > 3. && a.ap_mode = _AUTO2 then
-	Wind.update ac_name a.gspeed a.course
+	      Wind.update ac_name a.gspeed a.course
+  | "GPS_LLA" ->
+      let lat = ivalue "lat"
+      and lon = ivalue "lon" in
+      let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
+      a.pos <- geo;
+      a.unix_time <- LL.unix_time_of_tow (truncate (fvalue "itow" /. 1000.));
+      a.itow <- Int32.of_float (fvalue "itow");
+      a.gspeed  <- fvalue "speed" /. 100.;
+      a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
+      if !heading_from_course then
+        a.heading <- a.course;
+      a.agl     <- a.alt -. float (try Srtm.of_wgs84 a.pos with _ -> 0);
+      a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
+      if a.gspeed > 3. && a.ap_mode = _AUTO2 then
+	      Wind.update ac_name a.gspeed a.course
   | "GPS_SOL" ->
       a.gps_Pacc <- ivalue "Pacc"
   | "ESTIMATOR" ->
@@ -120,24 +139,37 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.climb   <- fvalue "z_dot"
   | "DESIRED" ->
       (* Trying to be compatible with old logs ... *)
-      a.desired_east <- (try fvalue "x" with _ -> fvalue "desired_x");
-      a.desired_north <- (try fvalue "y" with _ -> fvalue "desired_y");
+      begin match a.nav_ref with
+        Some nav_ref ->
+          let x = (try fvalue "x" with _ -> fvalue "desired_x")
+          and y = (try fvalue "y" with _ -> fvalue "desired_y") in
+	        (*let target_utm = LL.utm_add (LL.utm_of nav_ref) (x, y) in
+	        let target_geo = LL.of_utm WGS84 target_utm in 
+          a.desired_pos <- target_geo;*)
+          a.desired_pos <- Aircraft.add_pos_to_nav_ref nav_ref (x, y);
+      | None -> ()
+      end;
       a.desired_altitude <- (try fvalue "altitude" with _ -> fvalue "desired_altitude");
       a.desired_climb <- (try fvalue "climb" with _ -> fvalue "desired_climb");
       begin try	a.desired_course <- norm_course (fvalue "course") with _ -> () end
   | "NAVIGATION_REF" ->
-      a.nav_ref <- Some { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = ivalue "utm_zone" }
+      a.nav_ref <- Some (Utm { utm_x = fvalue "utm_east"; utm_y = fvalue "utm_north"; utm_zone = ivalue "utm_zone" })
+  | "NAVIGATION_REF_LLA" ->
+      let lat = ivalue "lat"
+      and lon = ivalue "lon" in
+      let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
+      a.nav_ref <- Some (Geo geo)
   | "ATTITUDE" ->
       let roll = fvalue "phi"
       and pitch = fvalue "theta" in
       if (List.assoc "phi" msg.Pprz.fields).Pprz._type = Pprz.Scalar "int16" then begin (* Compatibility with old message in degrees *)
-	a.roll <- roll /. 180. *. pi;
-	a.pitch <- pitch /. 180. *. pi;
-	heading_from_course := true; (* Awfull hack to get heading from GPS *)
+        a.roll <- roll /. 180. *. pi;
+        a.pitch <- pitch /. 180. *. pi;
+        heading_from_course := true; (* Awfull hack to get heading from GPS *)
       end else begin
-	a.roll <- roll;
-	a.pitch <- pitch;
-	a.heading  <- norm_course (fvalue "psi")
+        a.roll <- roll;
+        a.pitch <- pitch;
+        a.heading  <- norm_course (fvalue "psi")
       end
   | "NAVIGATION" -> 
       a.cur_block <- ivalue "cur_block";
@@ -162,17 +194,17 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       let mcu1_status = ivalue "mcu1_status" in
       (** c.f. link_autopilot.h *)
       a.fbw.rc_status <- 
-	if mcu1_status land 0b1 > 0
-	then "OK"
-	else if mcu1_status land 0b10 > 0
-	then "NONE"
-	else "LOST";
-      a.fbw.rc_mode <-
-	if mcu1_status land 0b1000 > 0
-	then "FAILSAFE"
-	else if mcu1_status land 0b100 > 0
-	then "AUTO"
-	else "MANUAL";
+        if mcu1_status land 0b1 > 0
+        then "OK"
+        else if mcu1_status land 0b10 > 0
+        then "NONE"
+        else "LOST";
+            a.fbw.rc_mode <-
+        if mcu1_status land 0b1000 > 0
+        then "FAILSAFE"
+        else if mcu1_status land 0b100 > 0
+        then "AUTO"
+        else "MANUAL";
   | "CAM" ->
       a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
       a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
@@ -181,41 +213,41 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       let i = ivalue "chn" in
       assert(i < Array.length a.svinfo);
       a.svinfo.(i) <- {  
-	svid = ivalue "SVID";
-	flags = ivalue "Flags";
-	qi = ivalue "QI";
-	cno = ivalue "CNO";
-	elev = ivalue "Elev";
-	azim = ivalue "Azim";
-	age = 0
+        svid = ivalue "SVID";
+        flags = ivalue "Flags";
+        qi = ivalue "QI";
+        cno = ivalue "CNO";
+        elev = ivalue "Elev";
+        azim = ivalue "Azim";
+        age = 0
       }
   | "CIRCLE" ->
       begin
-	match a.nav_ref, a.horizontal_mode with
-	  Some nav_ref, 2 -> (** FIXME *)
-	    a.horiz_mode <- Circle (LL.utm_add nav_ref (fvalue "center_east", fvalue "center_north"), truncate (fvalue "radius"));
-	    if !Kml.enabled then Kml.update_horiz_mode a
-	| _ -> ()
+        match a.nav_ref, a.horizontal_mode with
+        Some nav_ref, 2 -> (** FIXME *)
+          a.horiz_mode <- Circle (Aircraft.add_pos_to_nav_ref nav_ref (fvalue "center_east", fvalue "center_north"), truncate (fvalue "radius"));
+          if !Kml.enabled then Kml.update_horiz_mode a
+        | _ -> ()
       end
   | "SEGMENT" ->
       begin
-	match a.nav_ref, a.horizontal_mode with
-	  Some nav_ref, 1 -> (** FIXME *)
-	    let p1 = LL.utm_add nav_ref (fvalue "segment_east_1", fvalue "segment_north_1")
-	    and p2 = LL.utm_add nav_ref (fvalue "segment_east_2",  fvalue "segment_north_2") in
-	    a.horiz_mode <- Segment (p1, p2);
-	    if !Kml.enabled then Kml.update_horiz_mode a
-	| _ -> ()
+        match a.nav_ref, a.horizontal_mode with
+          Some nav_ref, 1 -> (** FIXME *)
+            let p1 = Aircraft.add_pos_to_nav_ref nav_ref (fvalue "segment_east_1", fvalue "segment_north_1")
+            and p2 = Aircraft.add_pos_to_nav_ref nav_ref (fvalue "segment_east_2", fvalue "segment_north_2") in
+            a.horiz_mode <- Segment (p1, p2);
+            if !Kml.enabled then Kml.update_horiz_mode a
+          | _ -> ()
       end
   | "SURVEY" ->
       begin
-	a.time_since_last_survey_msg <- 0.;
-	match a.nav_ref with
-	  Some nav_ref ->
-	    let p1 = LL.utm_add nav_ref (fvalue "west", fvalue "south")
-	    and p2 = LL.utm_add nav_ref (fvalue "east",  fvalue "north") in
-	    a.survey <- Some (LL.of_utm WGS84 p1, LL.of_utm WGS84 p2)
-	| None -> ()
+        a.time_since_last_survey_msg <- 0.;
+        match a.nav_ref with
+          Some nav_ref ->
+            let p1 = Aircraft.add_pos_to_nav_ref nav_ref (fvalue "west", fvalue "south")
+            and p2 = Aircraft.add_pos_to_nav_ref nav_ref (fvalue "east", fvalue "north") in
+            a.survey <- Some (p1, p2)
+        | None -> ()
       end
   | "CALIBRATION" ->
       a.throttle_accu <- fvalue "climb_sum_err"
@@ -228,15 +260,21 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
 	failwith "Too much dl_setting values !!!"
   | "WP_MOVED" ->
       begin
-	match a.nav_ref with
-	  Some nav_ref ->
-	    let utm_zone = try ivalue "utm_zone" with _ -> nav_ref.utm_zone in
-	    let p = { LL.utm_x = fvalue "utm_east";
-		      utm_y = fvalue "utm_north";
-		      utm_zone = utm_zone } in
-	    update_waypoint a (ivalue "wp_id") p (fvalue "alt")
-	| None -> () (** Can't use this message  *)
+        match a.nav_ref with
+          Some Utm nav_ref ->
+            let utm_zone = try ivalue "utm_zone" with _ -> nav_ref.utm_zone in
+            let p = { LL.utm_x = fvalue "utm_east";
+                utm_y = fvalue "utm_north";
+                utm_zone = utm_zone } in
+            update_waypoint a (ivalue "wp_id") (LL.of_utm WGS84 p) (fvalue "alt")
+        | _ -> () (** Can't use this message  *)
       end
+  | "WP_MOVED_LLA" ->
+      let lat = ivalue "lat"
+      and lon = ivalue "lon"
+      and alt = ivalue "alt" in
+      let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
+	    update_waypoint a (ivalue "wp_id") geo (float alt /. 100.)
   | "FORMATION_SLOT_TM" ->
       Dl_Pprz.message_send "ground_dl" "FORMATION_SLOT" values
   | "FORMATION_STATUS_TM" ->

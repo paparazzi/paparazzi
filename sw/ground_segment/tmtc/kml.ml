@@ -86,10 +86,10 @@ let style =
     stylemap "msn_ac_icon" "ac_style" "ac_style";
     stylemap "msn_wp_icon" "wp_style" "wp_style"]
 
-let circle = fun utm0 radius alt ->
+let circle = fun geo radius alt ->
   let degree_point = fun d ->
     let a = (Deg>>Rad) (float d) in
-    let utm = utm_add utm0 (cos a *. radius, sin a *. radius) in
+    let utm = utm_add (utm_of WGS84 geo) (cos a *. radius, sin a *. radius) in
     let wgs84 = of_utm WGS84 utm in
     coordinates wgs84 alt in
   let points = Array.init 360 degree_point in
@@ -147,7 +147,7 @@ let flight_plan = fun ac_name fp ->
        data "latitude" (sprintf "%f" ((Rad>>Deg)wgs84.posn_lat));
        data "range" (ExtXml.attrib fp "max_dist_from_home")] in
   kml
-    [el "Document" [] (data "open" "1"::lookat::style@(horiz_mode::ring_around_home utm0 fp::ac::waypoints))]
+    [el "Document" [] (data "open" "1"::lookat::style@(horiz_mode::ring_around_home geo0 fp::ac::waypoints))]
 
 let aircraft = fun ac url_flight_plan url_changes ->
   let dyn_links =
@@ -212,7 +212,7 @@ let update_waypoints =
     if !l <> !last_state then begin
       last_state := !l;
       let url_flight_plan = sprintf "http://%s:%d/var/%s/flight_plan.kml" !hostname !port ac.name in
-      let changes = List.map (fun (wp_id, wp) -> change_waypoint ac.name wp_id(of_utm WGS84 wp.wp_utm) wp.altitude) !l in
+      let changes = List.map (fun (wp_id, wp) -> change_waypoint ac.name wp_id wp.wp_geo wp.altitude) !l in
       let kml_update = link_update url_flight_plan changes in
       print_xml ac.name "wp_changes.kml" kml_update
     end
@@ -227,7 +227,7 @@ let update_horiz_mode =
       let alt = ac.desired_altitude in
       match ac.horiz_mode with
 	Segment (p1, p2) -> 
-	  let coordinates = String.concat " " (List.map (fun p -> coordinates (of_utm WGS84 p) alt) [p1; p2]) in
+	  let coordinates = String.concat " " (List.map (fun p -> coordinates p alt) [p1; p2]) in
 	  let kml_changes = update_linear_ring url_flight_plan "horiz_mode" coordinates in
 	  print_xml ac.name "route_changes.kml" kml_changes
       | Circle (p, r) ->
@@ -245,8 +245,7 @@ let update_ac = fun ac ->
     let block = ExtXml.child blocks (string_of_int ac.cur_block) in
     let block_name = ExtXml.attrib block "name" in
     let description = sprintf "<b><font color=\"green\">%s</font></b>: %s\nBat: <b><font color=\"red\">%.1fV</font></b>\nAGL: %.0fm\nSpeed: %.1fm/s" ap_modes.(ac.ap_mode) block_name ac.bat ac.agl ac.gspeed in
-    let wgs84 = of_utm WGS84 ac.pos in
-    let change = change_placemark ~description ac.name wgs84 ac.alt in
+    let change = change_placemark ~description ac.name ac.pos ac.alt in
     let kml_changes = link_update url_flight_plan [change] in
     print_xml ac.name "ac_changes.kml" kml_changes
   with

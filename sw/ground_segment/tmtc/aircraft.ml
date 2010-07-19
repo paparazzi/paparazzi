@@ -22,19 +22,13 @@
  *
  *)
 
+open Latlong
+
 type ac_cam = {
     mutable phi : float; (* Rad, right = >0 *)
     mutable theta : float; (* Rad, front = >0 *)
     mutable target : (float * float) (* meter*meter relative *)
   }
-
-type inflight_calib = {
-    mutable if_mode : int; (* DOWN|OFF|UP *)
-    mutable if_val1 : float;
-    mutable if_val2 : float
-  }
-
-type contrast_status = string (** DEFAULT|WAITING|SET *)
 
 type rc_status = string (** OK, LOST, REALLY_LOST *)
 type rc_mode = string (** MANUAL, AUTO, FAILSAFE *)
@@ -66,34 +60,58 @@ let svinfo_init = fun () ->
    }
 
 type horiz_mode = 
-    Circle of Latlong.utm * int
-  | Segment of Latlong.utm * Latlong.utm
+    Circle of Latlong.geographic * int
+  | Segment of Latlong.geographic * Latlong.geographic
   | UnknownHorizMode
 
-type waypoint = { altitude : float; wp_utm : Latlong.utm }
+type nav_ref =
+    Geo of Latlong.geographic
+  | Utm of Latlong.utm
+  | Ltp of Latlong.ecef
+
+let add_pos_to_nav_ref = fun nav_ref  ?(z = 0.) (x, y) ->
+  let rec lat_of_xy = fun lat last geo (_x, _y) n e ->
+    if n > 0 && abs_float (lat -. last) > e then
+      lat_of_xy (asin ( (_y +. (sin geo.posn_lat)*.(cos lat)*.(cos (asin (_x /. cos lat)))) /. cos geo.posn_lat)) lat geo (_x, _y) (n-1) e
+    else
+      lat
+  in
+  match nav_ref with
+    Geo geo ->
+      let m_to_rad = 0.0005399568034557235 *. 0.00029088820866572159 in
+      let lat = lat_of_xy (geo.posn_lat +. asin (y*.m_to_rad)) 0. geo (x*.m_to_rad, y *.m_to_rad) 10 1.e-7 in 
+      Latlong.make_geo lat (geo.posn_long +. asin (x*.m_to_rad /. cos lat))
+  | Utm utm ->
+      Latlong.of_utm Latlong.WGS84 (Latlong.utm_add utm (x, y))
+  | Ltp ecef ->
+      let ned = Latlong.make_ned [| y; x; 0. |] in (* FIXME z=0 *)
+      let (geo, _) = Latlong.geo_of_ecef Latlong.WGS84 (Latlong.ecef_of_ned ecef ned) in
+      geo
+
+type waypoint = { altitude : float; wp_geo : Latlong.geographic }
 
 type aircraft = { 
     id : string;
     name : string;
     flight_plan : Xml.xml;
     airframe : Xml.xml;
-    mutable pos : Latlong.utm;
+    mutable pos : Latlong.geographic;
     mutable unix_time : float;
     mutable itow : int32; (* ms *)
     mutable roll    : float;
     mutable pitch   : float;
     mutable heading  : float; (* rad, CW 0=N *)
-    mutable nav_ref    : Latlong.utm option;
-    mutable desired_east    : float;
-    mutable desired_north    : float;
-    mutable desired_altitude    : float;
-    mutable desired_course : float;
-    mutable desired_climb : float;
     mutable gspeed  : float; (* m/s *)
     mutable course : float; (* rad *)
     mutable alt     : float;
     mutable agl     : float;
     mutable climb   : float;
+    mutable nav_ref : nav_ref option;
+    mutable d_hmsl : float;
+    mutable desired_pos    : Latlong.geographic;
+    mutable desired_altitude    : float;
+    mutable desired_course : float;
+    mutable desired_climb : float;
     mutable cur_block : int;
     mutable cur_stage : int;
     mutable throttle : float;
@@ -112,7 +130,6 @@ type aircraft = {
     cam : ac_cam;
     mutable gps_mode : int;
     mutable gps_Pacc : int;
-    inflight_calib : inflight_calib;
     fbw : fbw;
     svinfo : svinfo array;
     waypoints : (int, waypoint) Hashtbl.t;
@@ -123,7 +140,7 @@ type aircraft = {
     dl_setting_values : float array;
     mutable nb_dl_setting_values : int;
     mutable survey : (Latlong.geographic * Latlong.geographic) option;
-    mutable last_bat_msg_date : float;
+    mutable last_msg_date : float;
     mutable time_since_last_survey_msg : float;
     mutable dist_to_wp : float
   }
@@ -132,27 +149,27 @@ let max_nb_dl_setting_values = 256 (** indexed iwth an uint8 (messages.xml)  *)
 
 let new_aircraft = fun id name fp airframe ->
   let svsinfo_init = Array.init gps_nb_channels (fun _ -> svinfo_init ()) in
-  { id = id ; name = name; roll = 0.; pitch = 0.; desired_east = 0.; desired_north = 0.; flight_plan = fp; airframe = airframe; dist_to_wp = 0.;
-    desired_course = 0.;
-    gspeed=0.; course = 0.; heading = 0.; alt=0.; climb=0.; cur_block=0; cur_stage=0;
-    throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 42.; amp = 0.; energy = 0; ap_mode= -1; agl = 0.;
+  { id = id ; name = name; flight_plan = fp; airframe = airframe;
+    pos = { Latlong.posn_lat = 0.; posn_long = 0. };
+    unix_time = 0.; itow = Int32.of_int 0;
+    roll = 0.; pitch = 0.;
+    gspeed=0.; course = 0.; heading = 0.; alt=0.; climb=0.; agl = 0.;
+    nav_ref = None; d_hmsl = 0.;
+    desired_pos = { Latlong.posn_lat = 0.; posn_long = 0. };
+    desired_course = 0.; desired_altitude = 0.; desired_climb = 0.;
+    cur_block=0; cur_stage=0;
+    flight_time = 0; stage_time = 0; block_time = 0;
+    throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 42.; amp = 0.; energy = 0; ap_mode= -1;
+    kill_mode = false;
     gaz_mode= -1; lateral_mode= -1;
     gps_mode =0; gps_Pacc = 0; periodic_callbacks = [];
-    desired_altitude = 0.;
-    desired_climb = 0.;
-    pos = { Latlong.utm_x = 0.; utm_y = 0.; utm_zone = 0 };
-    unix_time = 0.; itow = Int32.of_int 0;
-    nav_ref = None;
     cam = { phi = 0.; theta = 0. ; target=(0.,0.)};
-    inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
-    kill_mode = false;
     fbw = { rc_status = "???"; rc_mode = "???" };
     svinfo = svsinfo_init;
     dl_setting_values = Array.create max_nb_dl_setting_values 42.;
     nb_dl_setting_values = 0;
-    flight_time = 0; stage_time = 0; block_time = 0;
     horiz_mode = UnknownHorizMode;
     horizontal_mode = 0;
-    waypoints = Hashtbl.create 3; survey = None; last_bat_msg_date = 0.;
+    waypoints = Hashtbl.create 3; survey = None; last_msg_date = 0.; dist_to_wp = 0.;
     time_since_last_survey_msg = 1729.
   }

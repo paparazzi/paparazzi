@@ -151,10 +151,9 @@ let send_cam_status = fun a ->
 	  let alpha = -. a.course in
 	  let east = dx *. cos alpha -. dy *. sin alpha
 	  and north = dx *. sin alpha +. dy *. cos alpha in
-	  let utm = LL.utm_add a.pos (east, north) in
+	  let utm = LL.utm_add (LL.utm_of WGS84 a.pos) (east, north) in
 	  let wgs84 = LL.of_utm WGS84 utm in
-	  let utm_target = LL.utm_add nav_ref a.cam.target in
-	  let twgs84 =  LL.of_utm WGS84 utm_target in
+	  let twgs84 = Aircraft.add_pos_to_nav_ref nav_ref a.cam.target in
 	  let values = ["ac_id", Pprz.String a.id; 
 			"cam_lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
 			"cam_long", Pprz.Float ((Rad>>Deg)wgs84.posn_long); 
@@ -205,21 +204,18 @@ let send_svsinfo = fun a ->
 
 let send_horiz_status = fun a ->
   match a.horiz_mode with
-    Circle (utm, r) ->
-      let wgs84 = LL.of_utm WGS84 utm in
+    Circle (geo, r) ->
       let vs = [ "ac_id", Pprz.String a.id; 
-		 "circle_lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
-		 "circle_long", Pprz.Float ((Rad>>Deg)wgs84.posn_long);
-		 "radius", Pprz.Int r ] in
+        "circle_lat", Pprz.Float ((Rad>>Deg)geo.posn_lat);
+        "circle_long", Pprz.Float ((Rad>>Deg)geo.posn_long);
+        "radius", Pprz.Int r ] in
        Ground_Pprz.message_send my_id "CIRCLE_STATUS" vs
-  | Segment (u1, u2) ->
-      let geo1 = LL.of_utm WGS84 u1 in
-      let geo2 = LL.of_utm WGS84 u2 in
+  | Segment (geo1, geo2) ->
       let vs = [ "ac_id", Pprz.String a.id; 
-		 "segment1_lat", Pprz.Float ((Rad>>Deg)geo1.posn_lat);
-		 "segment1_long", Pprz.Float ((Rad>>Deg)geo1.posn_long);
-		 "segment2_lat", Pprz.Float ((Rad>>Deg)geo2.posn_lat);
-		 "segment2_long", Pprz.Float ((Rad>>Deg)geo2.posn_long) ] in
+        "segment1_lat", Pprz.Float ((Rad>>Deg)geo1.posn_lat);
+        "segment1_long", Pprz.Float ((Rad>>Deg)geo1.posn_long);
+        "segment2_lat", Pprz.Float ((Rad>>Deg)geo2.posn_lat);
+        "segment2_long", Pprz.Float ((Rad>>Deg)geo2.posn_long) ] in
       Ground_Pprz.message_send my_id "SEGMENT_STATUS" vs
   | UnknownHorizMode -> ()
 
@@ -256,7 +252,7 @@ let send_telemetry_status = fun a ->
   try
     let vs =
       ["ac_id", Pprz.String id;
-       "time_since_last_bat_msg", Pprz.Float (U.gettimeofday () -. a.last_bat_msg_date)] in
+       "time_since_last_bat_msg", Pprz.Float (U.gettimeofday () -. a.last_msg_date)] in
     Ground_Pprz.message_send my_id "TELEMETRY_STATUS" vs
   with
     _exc -> ()
@@ -264,7 +260,7 @@ let send_telemetry_status = fun a ->
 let send_moved_waypoints = fun a ->
   Hashtbl.iter
     (fun wp_id wp ->
-      let geo = LL.of_utm WGS84 wp.wp_utm in
+      let geo = wp.wp_geo in
       let vs =
 	["ac_id", Pprz.String a.id;
 	 "wp_id", Pprz.Int wp_id;
@@ -282,7 +278,7 @@ let send_aircraft_msg = fun ac ->
   try
     let a = Hashtbl.find aircrafts ac in
     let f = fun x -> Pprz.Float x in
-    let wgs84 = try LL.of_utm WGS84 a.pos with _ -> LL.make_geo 0. 0. in
+    let wgs84 = try a.pos with _ -> LL.make_geo 0. 0. in
     let values = ["ac_id", Pprz.String ac;
 		  "roll", f (Geometry_2d.rad2deg a.roll);
 		  "pitch", f (Geometry_2d.rad2deg a.pitch);
@@ -302,9 +298,10 @@ let send_aircraft_msg = fun ac ->
     if Hashtbl.length aircrafts > 1 then
       begin
         let cm_of_m = fun f -> Pprz.Int (truncate (100. *. f)) in
+        let pos = LL.utm_of WGS84 a.pos in
         let ac_info = ["ac_id", Pprz.String ac;
-          "utm_east", cm_of_m a.pos.utm_x;
-          "utm_north", cm_of_m a.pos.utm_y;
+          "utm_east", cm_of_m pos.utm_x;
+          "utm_north", cm_of_m pos.utm_y;
           "course", Pprz.Int (truncate (10. *. (Geometry_2d.rad2deg a.course)));
           "alt", cm_of_m a.alt;
           "speed", cm_of_m a.gspeed;
@@ -319,15 +316,13 @@ let send_aircraft_msg = fun ac ->
     begin
       match a.nav_ref with
 	Some nav_ref ->
-	  let target_utm = LL.utm_add nav_ref (a.desired_east, a.desired_north) in
-	  let target_wgs84 = LL.of_utm WGS84 target_utm in 
 	  let values = ["ac_id", Pprz.String ac; 
 			"cur_block", Pprz.Int a.cur_block;
 			"cur_stage", Pprz.Int a.cur_stage;
 			"stage_time", Pprz.Int a.stage_time;
 			"block_time", Pprz.Int a.block_time;
-			"target_lat", f ((Rad>>Deg)target_wgs84.posn_lat);
-			"target_long", f ((Rad>>Deg)target_wgs84.posn_long);
+			"target_lat", f ((Rad>>Deg)a.desired_pos.posn_lat);
+			"target_long", f ((Rad>>Deg)a.desired_pos.posn_long);
 			"target_alt", Pprz.Float a.desired_altitude;
 			"target_climb", Pprz.Float a.desired_climb;
 			"target_course", Pprz.Float ((Rad>>Deg)a.desired_course);
