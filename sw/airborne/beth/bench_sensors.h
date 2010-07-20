@@ -24,7 +24,7 @@ extern struct BenchSensors bench_sensors;
     if (bench_sensors.status ==  BS_BUSY && bench_sensors.i2c_done) {	\
       bench_sensors.angle_1 = i2c2.buf[0] + (i2c2.buf[1] << 8);		\
       bench_sensors.angle_2 = i2c2.buf[2] + (i2c2.buf[3] << 8);		\
-      bench_sensors.status = IDLE;					\
+      bench_sensors.status = BS_IDLE;					\
       _handler();							\
     }									\
   }
