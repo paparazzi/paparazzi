@@ -47,6 +47,12 @@ static inline void main_on_overo_link_lost(void);
 
 static int16_t my_cnt;
 
+//hack to get beth angle values from CAN receive buffer
+//see airborne/stm32/can_hw.c
+#ifdef BETH_HACK
+extern uint16_t halfw1,halfw2,halfw3,halfw4;
+#endif
+
 int main(void) {
   main_init();
 
@@ -70,8 +76,6 @@ static inline void main_init( void ) {
   can_init();
 }
 
-//hack to get beth angle values from CAN receive buffer
-extern uint16_t halfw1,halfw2,halfw3,halfw4;
 
 static inline void main_periodic( void ) {
   //booz_imu_periodic();
@@ -79,8 +83,9 @@ static inline void main_periodic( void ) {
   //OveroLinkPeriodic(main_on_overo_link_lost)
 
   RunOnceEvery(10, {LED_PERIODIC(); DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
-
+#ifdef BETH_HACK
   RunOnceEvery(5, {DOWNLINK_SEND_BETH(DefaultChannel, &halfw4, &halfw1,&halfw2, &halfw3);});
+#endif
 
   //No longer needed as we switched from I2C to CAN
   //read_bench_sensors();
