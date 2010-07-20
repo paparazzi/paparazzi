@@ -35,6 +35,11 @@ uint16_t servos[4];
 int main(void) {
   main_init();
 
+  servos[0] = 1;
+  servos[1] = 2;
+  servos[2] = 3;
+  servos[3] = 4;
+
   while(1) {
 	  if (sys_time_periodic())
 		  main_periodic_task();
@@ -51,15 +56,11 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic_task( void ) {
-
-	servos[0] = 1;
-	servos[1] = 2;
-	servos[2] = 3;
-	servos[3] = 4;
+	servos[0]++;
 
 	can_transmit(1, 0, (uint8_t *)servos, 8);
 
-	LED_TOGGLE(2);
+	LED_TOGGLE(0);
 
 	LED_PERIODIC();
 }

@@ -921,5 +921,5 @@ test_csc_servo.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
 #test_csc_servo.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_csc_servo.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./10.)'
 test_csc_servo.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-test_csc_servo.CFLAGS += -DUSE_CAN1
+test_csc_servo.CFLAGS += -DUSE_CAN1 -DUSE_USB_LP_CAN1_RX0_IRQ
 test_csc_servo.srcs += can.c $(SRC_ARCH)/can_hw.c

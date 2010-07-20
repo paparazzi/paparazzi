@@ -131,7 +131,7 @@ extern void usb_hp_can1_tx_irq_handler(void);
 
 #ifdef USE_USB_LP_CAN1_RX0_IRQ
 extern void usb_lp_can1_rx0_irq_handler(void);
-#define USB_LP_CAN1_RX0_IRQ_HANDLER usb_lp_can_rx0_irq_handler
+#define USB_LP_CAN1_RX0_IRQ_HANDLER usb_lp_can1_rx0_irq_handler
 #else
 #define USB_LP_CAN1_RX0_IRQ_HANDLER null_handler
 #endif

@@ -41,6 +41,7 @@
 #define GPIO_Pin_CAN_TX GPIO_Pin_12
 
 CanTxMsg can_tx_msg;
+CanRxMsg can_rx_msg;
 RCC_ClocksTypeDef rcc_clocks;
 
 void can_hw_init(void)
@@ -96,7 +97,7 @@ void can_hw_init(void)
 	can.CAN_SJW = CAN_SJW_1tq;
 	can.CAN_BS1 = CAN_BS1_3tq;
 	can.CAN_BS2 = CAN_BS2_5tq;
-	can.CAN_Prescaler = 4;
+	can.CAN_Prescaler = 11;
 	CAN_Init(CAN1, &can);
 
 	/* CAN filter init */
@@ -135,4 +136,31 @@ int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 	CAN_Transmit(CAN1, &can_tx_msg);
 
 	return 0;
+}
+
+void usb_lp_can1_rx0_irq_handler(void)
+{
+	CAN_Receive(CAN1, CAN_FIFO0, &can_rx_msg);
+	//LED_TOGGLE(3);
+
+	if((can_rx_msg.Data[0] & 0x01) == 0x01){
+		LED_ON(4);
+	}else{
+		LED_OFF(4);
+	}
+	if((can_rx_msg.Data[0] & 0x02) == 0x02){
+		LED_ON(5);
+	}else{
+		LED_OFF(5);
+	}
+	if((can_rx_msg.Data[0] & 0x04) == 0x04){
+		LED_ON(6);
+	}else{
+		LED_OFF(6);
+	}
+	if((can_rx_msg.Data[0] & 0x08) == 0x08){
+		LED_ON(7);
+	}else{
+		LED_OFF(7);
+	}
 }
