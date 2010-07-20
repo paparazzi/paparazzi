@@ -2,6 +2,10 @@
 
 <airframe name="Holiday 50 Delft Tiny 1.1">
 
+  <modules>
+    <load name="opticflow.xml"/>
+  </modules>
+
 <!-- commands section -->
   <servos>
     <servo name="THROTTLE" no="0" min="1100" neutral="1100" max="1900"/>
@@ -55,8 +59,8 @@
     <define name="GYRO_ROLL" value="ADC_3"/>
     <define name="GYRO_TEMP" value="ADC_4"/>
     <define name="GYRO_NB_SAMPLES" value="16"/> 
-    <define name="AIRSPEED" value="ADC_5"/>
-    <define name="AIRSPEED_NB_SAMPLES" value="32"/> 
+    <define name="OPTICFLOW" value="ADC_5"/>
+    <define name="OPTICFLOW_NB_SAMPLES" value="32"/> 
 
     <define name="CURRENT" value="ADC_6"/>		<!-- Current Measurement -->
   </section>
@@ -72,10 +76,10 @@
 
     <define name="LATERAL_CORRECTION" value="0.7"/>
     <define name="LONGITUDINAL_CORRECTION" value="-0.7"/>
-    <define name="VERTICAL_CORRECTION" value="1."/>
+    <define name="VERTICAL_CORRECTION" value="1.3"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="-4.29718351364" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="5" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
 
     <define name="CORRECTION_UP" value="1.0"/>
     <define name="CORRECTION_DOWN" value="1.0"/>
@@ -84,6 +88,8 @@
   </section>
 
   <section name="AIRSPEED" prefix="AIRSPEED_">
+    <define name="BIAS" value="(168.0f)"/>
+    <define name="QUADRATIC_SCALE" value="1.2588f"/>
     <define name="ZERO" value="0"/>
     <define name="RESISTOR_BRIDGE" value="(3.3/(3.3+2.2))"/>
     <define name="SCALE" value="1." unit="m/s/adc_unit"/>
@@ -174,18 +180,18 @@
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-1.5"/>	<!-- Heading outerloop: only P-gain -->
 
-    <define name="ROLL_MAX_SETPOINT" value="0.80" unit="radians"/> <!-- Max Angles -->
+    <define name="ROLL_MAX_SETPOINT" value="0.60" unit="radians"/> <!-- Max Angles -->
     <define name="PITCH_MAX_SETPOINT" value="0.4" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.4" unit="radians"/>
 
-    <define name="PITCH_PGAIN" value="-4925.65087891"/>	<!-- Pitch Angle PD control -->
+    <define name="PITCH_PGAIN" value="-5925.65087891"/>	<!-- Pitch Angle PD control -->
     <define name="PITCH_DGAIN" value="2.0"/>
 
     <define name="ELEVATOR_OF_ROLL" value="2050"/> <!-- Feed forward ABS(roll) to elevator -->
     
     <define name="ROLL_SLEW" value="0.10"/> <!-- Maximal roll angle change per 1/60 of second --> 
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-9000"/> <!-- Roll Angle PD control -->
+    <define name="ROLL_ATTITUDE_GAIN" value="-6000"/> <!-- Roll Angle PD control -->
     <define name="ROLL_RATE_GAIN" value="-550"/>
 
 <!--
@@ -279,12 +285,12 @@ ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
+ap.CFLAGS += -DTUNE_AGRESSIVE_CLIMB
 
 ap.CFLAGS += -DGYRO -DADXRS150
 ap.srcs += gyro.c
 
-ap.CFLAGS += -DUSE_AIRSPEED
-ap.srcs += airspeed.c
+ap.CFLAGS += -DUSE_MODULES -DOPTICFLOW
 
 ap.srcs += nav_line.c nav_survey_rectangle.c
 ap.srcs += traffic_info.c
@@ -302,9 +308,9 @@ ap.srcs += bomb.c
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny_1_1.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DWIND_INFO -DSTRONG_WIND
 sim.srcs += nav_survey_rectangle.c nav_line.c 
+sim.CFLAGS += -DTUNE_AGRESSIVE_CLIMB
 # traffic_info.c
-sim.CFLAGS += -DUSE_AIRSPEED
-sim.srcs += airspeed.c
+sim.CFLAGS += -DUSE_MODULES -DOPTICFLOW
 
 sim.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM -DPOINT_CAM_PITCH_ROLL
 # -DTEST_CAM

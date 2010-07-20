@@ -121,7 +121,9 @@
     <define name="CARROT" value="10." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
-
+<!--uncommant API protocol in makefile-->
+    <define name="XBEE_INIT" value="\"ATCHC\rATID3332\rATPL4\rATRN1\rATTT80\rATBD3\rATWR\r\""/>
+    <define name="NO_XBEE_API_INIT" value="TRUE"/>  <!-- uncommant after programed-->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="70."/>
     <define name="GLIDE_AIRSPEED" value="10"/>
@@ -267,9 +269,12 @@ ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 #ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 
 #TRANSPARENT
-ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ -DUART1_BAUD=B9600
-ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
+#ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1 -DPPRZ_UART=Uart1 -#DDATALINK=PPRZ -DUART1_BAUD=B9600
+#ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
 
+# Maxstream API protocol
+ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1 -DXBEE_UART=Uart1 -DDATALINK=XBEE -DUART1_BAUD=B9600
+ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 
 ap.CFLAGS += -DINTER_MCU
 ap.srcs += inter_mcu.c 
