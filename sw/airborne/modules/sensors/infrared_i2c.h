@@ -30,7 +30,9 @@
 #include "std.h"
 #include "airframe.h"
 
-extern int16_t ir_i2c_top;  /* averaged vertical ir adc */
+extern int16_t ir_i2c_ir1;
+extern int16_t ir_i2c_ir2;
+extern int16_t ir_i2c_top;
 extern volatile bool_t ir_i2c_done;
 extern bool_t ir_i2c_data_available;
 extern uint8_t ir_i2c_conf_word;
@@ -41,6 +43,6 @@ extern void infrared_i2c_event( void );
 
 #define infrared_i2cEvent() { if (ir_i2c_done) infrared_i2c_event();	}
 
-#define infrared_i2cDownlink() DOWNLINK_SEND_DEBUG_IR_I2C(DefaultChannel, &ir_i2c_top)
+#define infrared_i2cDownlink() DOWNLINK_SEND_DEBUG_IR_I2C(DefaultChannel, &ir_i2c_ir1, &ir_i2c_ir2, &ir_i2c_top)
 
 #endif // INFRARED_I2C_H
