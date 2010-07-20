@@ -54,9 +54,6 @@ uint8_t gps_configuring;
 
 uint16_t gps_reset;
 
-uint16_t last_gps_msg_t;
-bool_t gps_verbose_downlink;
-
 volatile bool_t gps_msg_received;
 bool_t gps_pos_available;
 uint8_t gps_nb_ovrn;
