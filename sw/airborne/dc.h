@@ -109,6 +109,14 @@ static inline uint8_t dc_zoom( void ) {
 
 #define dc_init() { /* initialized as leds */ dc_periodic_shutter = 0; } /* Output */
 
+
+#ifndef DC_GPS_TRIGGER_START 
+#define DC_GPS_TRIGGER_START 1
+#endif
+#ifndef DC_GPS_TRIGGER_STOP 
+#define DC_GPS_TRIGGER_STOP 3
+#endif
+
 static inline void dc_shoot_on_gps( void ) {
   static uint8_t gps_msg_counter = 0;
 
@@ -124,13 +132,13 @@ static inline void dc_shoot_on_gps( void ) {
       DOWNLINK_SEND_DC_SHOT(DefaultChannel, &dc_photo_nr, &gps_utm_east, &gps_utm_north, &gps_z, &gps_utm_zone, &phi, &theta,  &gps_course, &gps_gspeed, &gps_itow);
       dc_photo_nr++;
     }
-    else if (gps_msg_counter == 1)
+    else if (gps_msg_counter == DC_GPS_TRIGGER_START)
     {
       DC_RELEASE(DC_SHUTTER_LED);
     }
   
     gps_msg_counter++;
-    if (gps_msg_counter >= 4)
+    if (gps_msg_counter >= DC_GPS_TRIGGER_STOP)
       gps_msg_counter = 0;
   }
 }	
