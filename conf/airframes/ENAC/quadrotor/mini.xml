@@ -30,9 +30,9 @@
     <define name="GYRO_Q_NEUTRAL" value="32440"/>
     <define name="GYRO_R_NEUTRAL" value="33033"/>
 
-    <define name="GYRO_P_SENS" value=" 1.00" integer="16"/>
-    <define name="GYRO_Q_SENS" value="-1.00" integer="16"/>
-    <define name="GYRO_R_SENS" value="-1.00" integer="16"/>
+    <define name="GYRO_P_SENS" value="1.00" integer="16"/>
+    <define name="GYRO_Q_SENS" value="1.00" integer="16"/>
+    <define name="GYRO_R_SENS" value="1.00" integer="16"/>
   
     <define name="ACCEL_X_CHAN" value="5"/>
     <define name="ACCEL_Y_CHAN" value="3"/>
@@ -42,9 +42,9 @@
     <define name="ACCEL_Y_NEUTRAL" value="32251"/>
     <define name="ACCEL_Z_NEUTRAL" value="32463"/>
 
-    <define name="ACCEL_X_SENS" value="-2.59502439625" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="-2.57636806334" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="-2.59680479039" integer="16"/>
+    <define name="ACCEL_X_SENS" value="2.59502439625" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.57636806334" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.59680479039" integer="16"/>
 
     <define name="MAG_X_CHAN" value="0"/>
     <define name="MAG_Y_CHAN" value="1"/>
@@ -55,12 +55,12 @@
     <define name="MAG_Z_NEUTRAL" value="7"/>
 
     <define name="MAG_X_SENS" value="5.50726991669" integer="16"/>
-    <define name="MAG_Y_SENS" value="-5.43740121157" integer="16"/>
-    <define name="MAG_Z_SENS" value="-2.60492836649" integer="16"/>
+    <define name="MAG_Y_SENS" value="5.43740121157" integer="16"/>
+    <define name="MAG_Z_SENS" value="2.60492836649" integer="16"/>
 
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(-1.5)"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(-1.5)"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(-45.)"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(-45)"/> <!-- -13 -->
 
   </section>
 
@@ -101,13 +101,13 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="-1000"/>
-    <define name="PHI_DGAIN"  value="-250"/>
-    <define name="PHI_IGAIN"  value="-40"/>
+    <define name="PHI_PGAIN"  value="-1500"/>
+    <define name="PHI_DGAIN"  value="-350"/>
+    <define name="PHI_IGAIN"  value="-50"/>
 
-    <define name="THETA_PGAIN"  value="-1000"/>
-    <define name="THETA_DGAIN"  value="-250"/>
-    <define name="THETA_IGAIN"  value="-40"/>
+    <define name="THETA_PGAIN"  value="-1500"/>
+    <define name="THETA_DGAIN"  value="-350"/>
+    <define name="THETA_IGAIN"  value="-50"/>
 
     <define name="PSI_PGAIN"  value="-1000"/>
     <define name="PSI_DGAIN"  value="-350"/>
@@ -153,9 +153,9 @@
   </section>
 
  <section name="GUIDANCE_H" prefix="BOOZ2_GUIDANCE_H_">
-   <define name="PGAIN" value="-100"/>
-   <define name="DGAIN" value="-100"/>
-   <define name="IGAIN" value="-0"/>
+   <define name="PGAIN" value="-140"/>
+   <define name="DGAIN" value="-90"/>
+   <define name="IGAIN" value="-30"/>
    <define name="NGAIN" value="-0"/>
    <!-- feedforward -->
    <define name="AGAIN" value="100"/>
@@ -186,6 +186,7 @@
     <define name="PAN_NEUTRAL" value="0"/>
     <define name="PAN_MIN" value="0"/>
     <define name="PAN_MAX" value="25736"/> <!-- 360 deg (2^12) -->
+    <define name="DEFAULT_MODE" value="BOOZ_CAM_MODE_MANUAL"/>
     <!--define name="SetPwm(_v)" value="Booz2SetPwm1Value(_v)"/-->
  </section>
 
@@ -195,7 +196,14 @@
    <define name="BOOZ2_FACE_REINJ_1"  value="1024"/>
    <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
    <define name="BoozDropPwm(_v)" value="Booz2SetPwm1Value(_v)"/>
+   <define name="IMU_MAG_OFFSET" value="-9."/>
  </section>
+
+  <section name="GCS">
+    <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>
+    <define name="ALT_SHIFT_PLUS" value="1"/>
+    <define name="ALT_SHIFT_MINUS" value="-1"/>
+  </section>
 
   <makefile>
 ARCH=lpc21
@@ -227,6 +235,7 @@ ap.CFLAGS += -DUSE_GPS_ACC4R
 ap.CFLAGS += -DB2_GUIDANCE_H_USE_REF
 
 ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3 -DUSE_PWM1
+ap.CFLAGS += -DBOOZ_ACTUATORS_MAX_THRUST=160 -DBOOZ_THRUST_LOWPASS=17
 
 ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c
 

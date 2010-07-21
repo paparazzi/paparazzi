@@ -1,9 +1,10 @@
 <airframe name="BOOZ2_G1">
 
   <modules main_freq="512">
-    <!--load name="booz_drop.xml"/-->
-    <load name="booz_cam.xml"/>
+    <load name="booz_drop.xml"/>
+    <!--load name="booz_cam.xml"/-->
     <!--load name="sonar_maxbotix_booz.xml"/-->
+    <!--load name="adc_generic_booz.xml"/-->
   </modules>
 
   <servos min="0" neutral="0" max="0xff">
@@ -36,17 +37,17 @@
     <define name="GYRO_Q_NEUTRAL" value="32391"/>
     <define name="GYRO_R_NEUTRAL" value="32853"/>
 
-    <define name="GYRO_P_SENS" value=" 1.00" integer="16"/>
-    <define name="GYRO_Q_SENS" value="-1.00" integer="16"/>
-    <define name="GYRO_R_SENS" value="-1.00" integer="16"/>
+    <define name="GYRO_P_SENS" value="1.00" integer="16"/>
+    <define name="GYRO_Q_SENS" value="1.00" integer="16"/>
+    <define name="GYRO_R_SENS" value="1.00" integer="16"/>
   
     <define name="ACCEL_X_CHAN" value="5"/>
     <define name="ACCEL_Y_CHAN" value="3"/>
     <define name="ACCEL_Z_CHAN" value="4"/>    
 
-    <define name="ACCEL_X_SENS" value="-2.55975587" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="-2.55643340" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="-2.57178460" integer="16"/>
+    <define name="ACCEL_X_SENS" value="2.55975587" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.55643340" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.57178460" integer="16"/>
 
     <define name="ACCEL_X_NEUTRAL" value="33067"/>
     <define name="ACCEL_Y_NEUTRAL" value="32778"/>
@@ -61,12 +62,12 @@
     <define name="MAG_Z_NEUTRAL" value="-11"/>
 
     <define name="MAG_X_SENS" value="22.008352" integer="16"/>
-    <define name="MAG_Y_SENS" value="-21.79885" integer="16"/>
-    <define name="MAG_Z_SENS" value="-14.675745" integer="16"/>
+    <define name="MAG_Y_SENS" value="21.79885" integer="16"/>
+    <define name="MAG_Z_SENS" value="14.675745" integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(-0.2))"/>
-    <define name="BODY_TO_IMU_THETA" value="ANGLE_BFP_OF_REAL(RadOfDeg(1.))"/>
-    <define name="BODY_TO_IMU_PSI"   value="ANGLE_BFP_OF_REAL(RadOfDeg(0.))"/>
+    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(1.3)"/>
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(-2.6)"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(0.)"/>
 
   </section>
 
@@ -165,7 +166,7 @@
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-   <define name="BATTERY_SENS"   value="0.25" integer="16"/>
+   <define name="BATTERY_SENS"   value="0.183" integer="16"/>
  </section>
 
  <section name="AUTOPILOT">
@@ -175,7 +176,7 @@
  </section>
 
  <section name="FMS">
-
+   <define name="BOOZ_FMS_TIMEOUT" value="0"/>
  </section>
 
  <section name="CAM" prefix="BOOZ_CAM_">
@@ -195,6 +196,12 @@
    <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
  </section>
 
+  <section name="GCS">
+    <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>
+    <define name="ALT_SHIFT_PLUS" value="1"/>
+    <define name="ALT_SHIFT_MINUS" value="-1"/>
+  </section>
+
  <section name="SIMULATOR" prefix="NPS_">
    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
    <!--define name="INITIAL_CONDITITONS" value="&quot;reset_enac&quot;"/-->
@@ -204,7 +211,9 @@
 
   <makefile>
 ARCH=lpc21
+ARCHI=arm7
 BOARD_CFG = \"boards/booz2_v1_0.h\"
+FLASH_MODE=IAP
 
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
@@ -228,12 +237,12 @@ include $(CFG_BOOZ)/subsystems/booz2_fms_datalink.makefile
 
 include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 
-#include $(CFG_BOOZ)/subsystems/booz2_ins_hff.makefile
+include $(CFG_BOOZ)/subsystems/booz2_ins_hff.makefile
 #set GPS lag for horizontal filter
 #ap.CFLAGS += -DGPS_LAG=0.8
-#ap.CFLAGS += -DUSE_GPS_ACC4R
+ap.CFLAGS += -DUSE_GPS_ACC4R
 
-#ap.CFLAGS += -DB2_GUIDANCE_H_USE_REF
+ap.CFLAGS += -DB2_GUIDANCE_H_USE_REF
 sim.CFLAGS += -DB2_GUIDANCE_H_USE_REF
 
 ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3
