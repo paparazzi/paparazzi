@@ -123,12 +123,18 @@ struct Int32Mat33 {
 };
 
 /* Rotational speed                              */
-struct Int32Rates {
+struct Int16Rates {
   int32_t p;
   int32_t q;
   int32_t r;
 };
 
+/* Rotational speed                              */
+struct Int32Rates {
+  int32_t p;
+  int32_t q;
+  int32_t r;
+};
 
 struct Int64Vect2 {
   int64_t x;
