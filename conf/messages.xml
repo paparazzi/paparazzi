@@ -550,7 +550,12 @@
     <field name="values" type="uint16[]" unit="none"/>
   </message>
 
-
+   <message name="BETH" id="106">
+     <field name="azimuth" type="uint16"/>
+     <field name="elevation" type="uint16"/>
+     <field name="tilt" type="uint16"/>
+     <field name="other" type="uint16"/>
+   </message>
 
   <message name="DC_SHOT" id="110">
      <field name="photo_nr" type="int16" unit=""></field>
