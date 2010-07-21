@@ -34,6 +34,8 @@
 
 static void fill_msg(struct AutopilotMessageFoo* msg);
 
+static uint32_t passed_cnt = 0;
+
 int main(int argc, char *argv[]) {
   
   if (spi_link_init()) {
@@ -49,14 +51,13 @@ int main(int argc, char *argv[]) {
     spi_link_send(&msg_out, sizeof(struct AutopilotMessageFoo), &msg_in);
     if (memcmp(&msg_in, &msg_out_prev, sizeof(msg_in))) {
       printf("compare failed\n");
-      printf("expected %d %d %d %d\n", msg_out_prev.foo, msg_out_prev.bar, msg_out_prev.blaa, msg_out_prev.bli);
-      printf("got      %d %d %d %d\n\n", msg_in.foo, msg_in.bar, msg_in.blaa, msg_in.bli);
+      printf("expected %d %d %d %d\n", msg_out_prev.foo, msg_out_prev.bar, msg_out_prev.bla, msg_out_prev.ble);
+      printf("got      %d %d %d %d\n\n", msg_in.foo, msg_in.bar, msg_in.bla, msg_in.ble);
     }
     else {
-      static uint32_t foo = 0;
-      if (!msg_in.foo) {
-	printf("passed %d\n", foo );
-	foo++;
+      passed_cnt++;
+      if (!(passed_cnt%1000)) {
+	printf("passed %d\n", passed_cnt );
       }
     }
     usleep(1953);
@@ -72,7 +73,12 @@ static void fill_msg(struct AutopilotMessageFoo* msg) {
   static uint32_t foo = 0;
   msg->foo  = foo;
   msg->bar  = foo+2;
-  msg->blaa = foo+4;
-  msg->bli  = foo+8;
+  msg->bla  = foo+4;
+  msg->ble  = foo+8;
+  msg->bli  = foo+4;
+  msg->blo  = foo+4;
+  msg->blu  = foo+4;
+  msg->bly  = foo+4;
+ 
   foo++;
 }
