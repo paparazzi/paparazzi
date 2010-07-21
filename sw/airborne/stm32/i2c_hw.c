@@ -210,8 +210,6 @@ void i2c1_ev_irq_handler(void) {
 
 void i2c1_er_irq_handler(void) {
   
-  //  DEBUG_S1_TOGGLE();
-
   if (I2C_GetITStatus(I2C1, I2C_IT_AF)) {   /* Acknowledge failure */
     i2c_errc_ack_fail++;
     I2C_ClearITPendingBit(I2C1, I2C_IT_AF);
@@ -255,6 +253,8 @@ void i2c1_er_irq_handler(void) {
 #ifdef USE_I2C2
 
 void i2c2_hw_init(void) {
+
+  I2C_DeInit(I2C2);
 
   NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
   NVIC_InitTypeDef  NVIC_InitStructure;
