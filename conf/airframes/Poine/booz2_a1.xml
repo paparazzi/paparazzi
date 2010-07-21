@@ -69,11 +69,15 @@
 
 <!--    <define name="MAG_X_SENS" value="-4.94075530" integer="16"/>-->
 <!--    <define name="MAG_Y_SENS" value=" 5.10207664" integer="16"/>-->
-    <define name="MAG_Z_SENS" value="-4.90788848" integer="16"/>
+    <define name="MAG_X_SIGN" value="-1"/>
+    <define name="MAG_Y_SIGN" value=" 1"/>
+    <define name="MAG_Z_SIGN" value="-1"/>
+
+    <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
     <define name="MAG_45_HACK" value="1"/>
 <!--    <define name="MAG_X_SENS" value="-4.94075530 * sqrt(2)/2" integer="16"/> -->
 <!--    <define name="MAG_Y_SENS" value=" 5.10207664 * sqrt(2)/2" integer="16"/> -->
-    <define name="MAG_X_SENS" value="-3.4936416" integer="16"/>
+    <define name="MAG_X_SENS" value=" 3.4936416" integer="16"/>
     <define name="MAG_Y_SENS" value=" 3.607713"  integer="16"/>
 
    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(4.)"/>
