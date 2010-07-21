@@ -73,6 +73,6 @@ static inline void on_overo_link_lost(void) {
 
 static inline void on_overo_msg_received(void) {
 
-  memcpy(overo_link.up, overo_link.down, sizeof(struct AutopilotMessageFoo));
+  memcpy(&overo_link.up.msg, &overo_link.down.msg, sizeof(struct AutopilotMessageFoo));
 
 }
