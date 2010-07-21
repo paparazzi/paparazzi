@@ -37,6 +37,8 @@ overo_test_spi.srcs=$(SRC_FMS)/overo_test_spi.c
 # test spi link between overo and stm32
 overo_test_spi_link.ARCHDIR = omap
 overo_test_spi_link.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
+overo_test_spi_link.CFLAGS  += -DOVERO_LINK_MSG_UP=AutopilotMessageFoo -DOVERO_LINK_MSG_DOWN=AutopilotMessageFoo
+
 overo_test_spi_link.srcs  = $(SRC_FMS)/overo_test_spi_link.c
 overo_test_spi_link.srcs += $(SRC_FMS)/fms_spi_link.c
 
@@ -838,6 +840,38 @@ test_static.srcs = $(SRC_LISA)/test_static.c \
 
 
 #
+# test SC18IS600
+#
+test_sc18is600.ARCHDIR = $(ARCHI)
+test_sc18is600.TARGET = test_sc18is600
+test_sc18is600.TARGETDIR = test_sc18is600
+test_sc18is600.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_sc18is600.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
+test_sc18is600.srcs += lisa/test/lisa_test_sc18is600.c \
+                       $(SRC_ARCH)/stm32_exceptions.c   \
+                       $(SRC_ARCH)/stm32_vector_table.c
+
+test_sc18is600.CFLAGS += -DUSE_LED
+test_sc18is600.srcs += $(SRC_ARCH)/led_hw.c
+
+test_sc18is600.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_sc18is600.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_sc18is600.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_sc18is600.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_sc18is600.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_sc18is600.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
+test_sc18is600.srcs += downlink.c pprz_transport.c
+
+test_sc18is600.srcs += math/pprz_trig_int.c
+
+test_sc18is600.CFLAGS += -DUSE_EXTI2_IRQ  -DUSE_DMA1_C4_IRQ
+test_sc18is600.srcs += $(SRC_BOOZ)/peripherals/booz_sc18is600.c \
+                       $(SRC_BOOZ_ARCH)/peripherals/booz_sc18is600_arch.c
+
+
+#
 #
 # Passing  STM32 telemetry through WIFI
 #
@@ -923,3 +957,42 @@ test_csc_servo.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./10.)'
 test_csc_servo.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_csc_servo.CFLAGS += -DUSE_CAN1 -DUSE_USB_LP_CAN1_RX0_IRQ
 test_csc_servo.srcs += can.c $(SRC_ARCH)/can_hw.c
+
+################################################################################
+#
+#
+#  Hardware test suite
+#
+#
+################################################################################
+test_board.ARCHDIR = $(ARCHI)
+test_board.TARGET = test_board
+test_board.TARGETDIR = test_board
+test_board.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_board.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_board.srcs = $(SRC_LISA)/test/test_board.c       \
+                     $(SRC_ARCH)/stm32_exceptions.c   \
+                     $(SRC_ARCH)/stm32_vector_table.c
+test_board.CFLAGS += -DUSE_LED
+test_board.srcs += $(SRC_ARCH)/led_hw.c
+test_board.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_board.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_board.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_board.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_board.srcs += $(SRC_ARCH)/uart_hw.c
+test_board.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart2
+
+test_board.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_board.srcs += downlink.c pprz_transport.c
+
+test_board.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_board.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B57600
+
+test_board.srcs += $(SRC_LISA)/lisa_baro.c
+test_board.CFLAGS += -DUSE_I2C2
+test_board.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+test_board.CFLAGS += -DUSE_I2C1
+
+test_board.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_hw.c
