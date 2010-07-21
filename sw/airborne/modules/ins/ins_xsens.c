@@ -133,11 +133,21 @@ void ins_init( void ) {
   XSENS_GoToConfig();
   XSENS_SetOutputMode(xsens_output_mode);
   XSENS_SetOutputSettings(xsens_output_settings);
-  //XSENS_GoToMeasurment();
+  XSENS_GoToMeasurment();
 }
 
 void ins_periodic_task( void ) {
   RunOnceEvery(100,XSENS_ReqGPSStatus());
+}
+
+#include "estimator.h"
+
+void handle_ins_msg( void) {
+  if (xsens_id == XSENS_MTData_ID) {
+    EstimatorSetAtt(ins_phi,-ins_psi, -ins_theta);
+    EstimatorSetRate(ins_p,ins_q);
+    EstimatorSetSpeedPol(gps_gspeed, -ins_psi, ins_vz);
+  }
 }
 
 void parse_ins_msg( void ) {
