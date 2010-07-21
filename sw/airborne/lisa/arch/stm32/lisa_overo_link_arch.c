@@ -60,7 +60,7 @@ void overo_link_arch_prepare_next_transfert(void) {
   DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(SPI1_BASE+0x0C);
   DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)overo_link.down.array;
   DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-  DMA_InitStructure.DMA_BufferSize = sizeof(overo_link.down);
+  DMA_InitStructure.DMA_BufferSize = sizeof(union AutopilotMessage);
   DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
   DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
   DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
