@@ -31,7 +31,7 @@
 #include "booz/booz_actuators.h"
 //#include "booz/booz_radio_control.h"
 #include "booz/booz_imu.h"
-//#include "lisa/lisa_overo_link.h"
+#include "lisa/lisa_overo_link.h"
 //#include "beth/bench_sensors.h"
 
 static inline void main_init( void );
@@ -71,7 +71,7 @@ static inline void main_init( void ) {
   //actuators_init();
   //radio_control_init();
   //booz_imu_init();
-  //overo_link_init();
+  overo_link_init();
   //bench_sensors_init();
   can_init();
 }
@@ -80,7 +80,7 @@ static inline void main_init( void ) {
 static inline void main_periodic( void ) {
   //booz_imu_periodic();
   //actuators_set(FALSE);
-  //OveroLinkPeriodic(main_on_overo_link_lost)
+  OveroLinkPeriodic(main_on_overo_link_lost)
 
   RunOnceEvery(10, {LED_PERIODIC(); DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
 #ifdef BETH_HACK
@@ -102,17 +102,17 @@ static inline void main_event( void ) {
 }
 
 static inline void main_on_overo_msg_received(void) {
-/*  struct AutopilotMessageBethUp* msg_out = (struct AutopilotMessageBethUp*)overo_link.msg_out;
-  msg_out->gyro.x = booz_imu.gyro.p;
-  msg_out->gyro.y = booz_imu.gyro.q;
+  // struct AutopilotMessageBethUp* msg_out = (struct AutopilotMessageBethUp*)overo_link.msg_out;
+  overo_link.up.msg.gyro.x = booz_imu.gyro.p;
+  /*  msg_out->gyro.y = booz_imu.gyro.q;
   msg_out->gyro.z = booz_imu.gyro.r;
   msg_out->accel.x = booz_imu.accel.x;
   msg_out->accel.y = booz_imu.accel.y;
   msg_out->accel.z = booz_imu.accel.z;
   msg_out->bench_sensor.x = my_cnt;
   msg_out->bench_sensor.y = my_cnt;
-  msg_out->bench_sensor.z = my_cnt;
-  my_cnt++;*/
+  msg_out->bench_sensor.z = my_cnt; */
+  my_cnt++;
 }
 
 static inline void main_on_overo_link_lost(void) {
