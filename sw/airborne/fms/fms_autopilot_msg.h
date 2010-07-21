@@ -13,10 +13,14 @@
 
 struct __attribute__ ((packed)) AutopilotMessageFoo
 {
-  uint8_t foo;
-  uint8_t bar;
-  uint8_t blaa;
-  uint8_t bli;
+  uint32_t foo;
+  uint32_t bar;
+  uint32_t bla;
+  uint32_t ble;
+  uint32_t bli;
+  uint32_t blo;
+  uint32_t blu;
+  uint32_t bly;
 };
 
 /*
@@ -24,16 +28,16 @@ struct __attribute__ ((packed)) AutopilotMessageFoo
  */
 struct __attribute__ ((packed)) AutopilotMessageBethUp
 {
-  struct Int16Vect3 gyro;
+  struct Int16Rates gyro;
   struct Int16Vect3 accel;
   struct Int16Vect3 bench_sensor;
-
+  uint32_t cnt;
 };
 
 struct __attribute__ ((packed)) AutopilotMessageBethDown
 {
-  uint8_t motor_front;
-  uint8_t motor_back;
+  uint8_t thrust;
+  uint8_t pitch;
 };
 
 /*
