@@ -44,6 +44,8 @@ CanTxMsg can_tx_msg;
 CanRxMsg can_rx_msg;
 RCC_ClocksTypeDef rcc_clocks;
 
+volatile uint8_t CAN_RX_FLAG;
+
 void can_hw_init(void)
 {
 	GPIO_InitTypeDef gpio;
@@ -138,17 +140,17 @@ int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 	return 0;
 }
 
-#ifdef BETH_HACK
-uint16_t halfw1,halfw2,halfw3,halfw4,tempid;
-#endif
 
 void usb_lp_can1_rx0_irq_handler(void)
 {
 	CAN_Receive(CAN1, CAN_FIFO0, &can_rx_msg);
+	//set CAN receive event flag
+	CAN_RX_FLAG = 1;
+	LED_TOGGLE(5);
 
 #ifdef BLINKENLIGHTS
 //code piotr used to show receive activity
-	//LED_TOGGLE(1);
+	
 	if((can_rx_msg.Data[0] & 0x01) == 0x01){
 		LED_ON(4);
 	}else{
@@ -169,20 +171,5 @@ void usb_lp_can1_rx0_irq_handler(void)
 	}else{
 		LED_OFF(7);
 	}
-#endif
-
-#ifdef BETH_HACK
-	tempid = (uint16_t)(can_rx_msg.ExtId>>7);
-	if (tempid == 2) {
-		halfw2 = can_rx_msg.Data[3];
-		halfw2 = (halfw2<<8) + can_rx_msg.Data[2];
-		halfw1 = can_rx_msg.Data[1];
-		halfw1 = (halfw1<<8) + can_rx_msg.Data[0];
-	} else {
-		halfw4 = can_rx_msg.Data[3];
-		halfw4 = (halfw4<<8) + can_rx_msg.Data[2];
-		halfw3 = can_rx_msg.Data[1];
-		halfw3 = (halfw3<<8) + can_rx_msg.Data[0];
-	}
-#endif
+#endif	
 }

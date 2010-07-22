@@ -26,6 +26,7 @@
 #define CAN_HW_H
 
 void can_hw_init(void);
+void usb_lp_can1_rx0_irq_handler(void);
 int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len);
 
 #endif /* CAN_HW_H */
