@@ -176,7 +176,7 @@ static void csc_main_periodic( void )
 {
   static uint32_t csc_loops = 0;
   
-  PeriodicSendAp_DefaultChannel();
+  PeriodicSendAp(DefaultChannel);
   radio_control_periodic_task();
 
   if (rc_status == RC_REALLY_LOST) {

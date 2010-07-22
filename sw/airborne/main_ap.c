@@ -262,7 +262,7 @@ static inline void reporting_task( void ) {
   }
   /** then report periodicly */
   else {
-    PeriodicSendAp_DefaultChannel();
+    PeriodicSendAp(DefaultChannel);
   }
 }
 

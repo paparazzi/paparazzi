@@ -789,7 +789,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #include "periodic.h"
 #define Booz2TelemetryPeriodic() {			\
-    PeriodicSendMain_DefaultChannel();			\
+    PeriodicSendMain(DefaultChannel);			\
   }
 
 

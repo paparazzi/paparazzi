@@ -142,7 +142,7 @@ static void csc_main_periodic( void ) {
   static uint32_t csc_loops = 0;
 
   #ifdef DOWNLINK
-  PeriodicSendAp_DefaultChannel();
+  PeriodicSendAp(DefaultChannel);
   #endif
 
   #ifdef USE_VANE_SENSOR

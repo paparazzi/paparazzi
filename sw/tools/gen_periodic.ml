@@ -149,7 +149,7 @@ let _ =
 	incr i)
 	modes;
 
-      lprintf avr_h "#define PeriodicSend%s_%s() {  /* %dHz */ \\\n" process_name channel_name freq;
+      lprintf avr_h "#define PeriodicSend%s(%s) {  /* %dHz */ \\\n" process_name channel_name freq;
       right ();
       output_modes avr_h process_name channel_name modes freq;
       left ();

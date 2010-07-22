@@ -73,7 +73,7 @@ static void csc_main_init( void ) {
 
 static void csc_main_periodic( void )
 {
-  PeriodicSendAp_DefaultChannel();
+  PeriodicSendAp(DefaultChannel);
   radio_control_periodic_task();
 
   cpu_time++;
