@@ -22,8 +22,8 @@
  *
  */
 
-/** \file gps_ubx.h
- * \brief UBX protocol specific code
+/** \file gps_xsens.h
+ * \brief XSens GPS
  *
 */
 
@@ -32,6 +32,8 @@
 #define XSENS_GPS_H
 
 extern uint16_t gps_reset;
+
+#define GPS_NB_CHANNELS 16
 
 #define GpsFixValid() (gps_mode == 3)
 
