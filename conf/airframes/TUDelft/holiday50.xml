@@ -60,8 +60,7 @@
     <define name="GYRO_TEMP" value="ADC_4"/>
     <define name="GYRO_NB_SAMPLES" value="16"/> 
     <define name="OPTICFLOW" value="ADC_5"/>
-    <define name="OPTICFLOW_NB_SAMPLES" value="32"/> 
-
+  
     <define name="CURRENT" value="ADC_6"/>		<!-- Current Measurement -->
   </section>
 
@@ -290,7 +289,7 @@ ap.CFLAGS += -DTUNE_AGRESSIVE_CLIMB
 ap.CFLAGS += -DGYRO -DADXRS150
 ap.srcs += gyro.c
 
-ap.CFLAGS += -DUSE_MODULES -DOPTICFLOW
+ap.CFLAGS += -DUSE_MODULES
 
 ap.srcs += nav_line.c nav_survey_rectangle.c
 ap.srcs += traffic_info.c
@@ -310,7 +309,7 @@ sim.CFLAGS += -DBOARD_CONFIG=\"tiny_1_1.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALM
 sim.srcs += nav_survey_rectangle.c nav_line.c 
 sim.CFLAGS += -DTUNE_AGRESSIVE_CLIMB
 # traffic_info.c
-sim.CFLAGS += -DUSE_MODULES -DOPTICFLOW
+sim.CFLAGS += -DUSE_MODULES 
 
 sim.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM -DPOINT_CAM_PITCH_ROLL
 # -DTEST_CAM
