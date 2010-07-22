@@ -34,8 +34,10 @@
 
 
 //static union AutopilotMessageBeth my_buffers[2];
-static struct AutopilotMessageBethUp   msg_in;
-static struct AutopilotMessageBethDown msg_out;
+//static struct AutopilotMessageBethUp   msg_in;
+//static struct AutopilotMessageBethDown msg_out;
+static struct AutopilotMessageFoo   msg_in;
+static struct AutopilotMessageFoo   msg_out;
 static void send_message(void);
 
 int main(int argc, char *argv[]) {
@@ -46,27 +48,30 @@ int main(int argc, char *argv[]) {
   while (1) {
     send_message();
     usleep(1953);
-    //usleep(50000);
+    //usleep(500000);
   }
 
   return 0;
 }
 
+uint16_t az,elev,tilt;
 
-
+static uint32_t foo = 0;
 static void send_message() {
-  static uint32_t foo = 0;
 
-  spi_link_send(&msg_out, sizeof(struct AutopilotMessageBethUp), &msg_in);
-  //  if (!foo%100) {
-#if 0
-  if (0) {
-  printf("%d -> %d %d %d %d %d %d %d %d %d\n", foo, 
-	 msg_in->bench_sensor.x, msg_in->bench_sensor.y, msg_in->bench_sensor.z,
-	 msg_in->gyro.x, msg_in->gyro.y, msg_in->gyro.z,
-	 msg_in->accel.x, msg_in->accel.y, msg_in->accel.z);
+  msg_out.foo = 0x0123;
+  msg_out.bar = 0x4567;
+
+  spi_link_send(&msg_out, sizeof(struct AutopilotMessageFoo) , &msg_in);
+//  if (msg_in.bli == "0xdead") {
+    az = msg_in.foo;
+    elev = msg_in.bar;
+    tilt = msg_in.blaa;
+//  }
+  if (!(foo%100)) { 
+    printf("%d %d %d %x\r\n",az,elev,tilt,msg_in.bli);
+    
   }
-#endif
   foo++;
 }
 

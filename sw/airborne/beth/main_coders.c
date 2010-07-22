@@ -37,7 +37,7 @@ static inline void main_init_adc(void);
 //void i2c2_er_irq_handler(void);
 
 #define ADC1_DR_Address    ((uint32_t)0x4001244C)
-static uint16_t coder_values[2];
+static uint16_t coder_values[3];
 
 //azimuth potentiometer board address is 0x30
 //#define I2C2_SLAVE_ADDRESS7     0x30
@@ -49,10 +49,15 @@ static uint16_t coder_values[2];
 static uint8_t i2c2_idx;
 static uint8_t i2c2_buf[MY_I2C2_BUF_LEN];
 
+uint16_t servos[4];
 
 int main(void) {
   main_init();
 
+  servos[0] = 1;
+  servos[1] = 2;
+  servos[2] = 3;
+  servos[3] = 4;
 
   while (1) {
     if (sys_time_periodic())
@@ -81,14 +86,69 @@ static inline void main_periodic( void ) {
   //RunOnceEvery(5, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &coder_values[0], &coder_values[1]);});
   //RunOnceEvery(5, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &can1_status, &can1_pending);});
   
-  //ID=2 for tilt/elevation  board, ID=1 for azimuth board
-  //the CAN receiver (lisa) determines which board sent it values based on this ID
-  can_transmit(2, 0, (uint8_t *)coder_values, 8);
+  servos[0]=coder_values[0];
+  servos[1]=coder_values[1];
+  can_transmit(2, 0, (uint8_t *)servos, 8);
 
 }
 
 
 static inline void main_event( void ) {
+
+}
+
+/*
+ *
+ *  I2C2 : autopilot link
+ *
+ */
+void i2c2_init(void) {
+//  static inline void main_init_i2c2(void) {
+
+  /* System clocks configuration ---------------------------------------------*/
+  /* Enable I2C2 clock */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
+  /* Enable GPIOB clock */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+  
+  /* NVIC configuration ------------------------------------------------------*/
+  NVIC_InitTypeDef  NVIC_InitStructure;
+  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
+  /* Configure and enable I2C2 event interrupt -------------------------------*/
+  NVIC_InitStructure.NVIC_IRQChannel = I2C2_EV_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+  /* Configure and enable I2C2 error interrupt -------------------------------*/  
+  NVIC_InitStructure.NVIC_IRQChannel = I2C2_ER_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+  NVIC_Init(&NVIC_InitStructure);
+
+  
+  /* GPIO configuration ------------------------------------------------------*/
+  GPIO_InitTypeDef GPIO_InitStructure;
+  /* Configure I2C2 pins: SCL and SDA ----------------------------------------*/
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 
+  /* Enable I2C2 -------------------------------------------------------------*/
+  I2C_Cmd(I2C2, ENABLE);
+  /* I2C2 configuration ------------------------------------------------------*/
+  I2C_InitTypeDef   I2C_InitStructure;
+  I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
+  I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
+  I2C_InitStructure.I2C_OwnAddress1 = I2C2_SLAVE_ADDRESS7;
+  I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
+  I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+  I2C_InitStructure.I2C_ClockSpeed = I2C2_ClockSpeed;
+  I2C_Init(I2C2, &I2C_InitStructure);
+
+  /* Enable I2C1 event and buffer interrupts */
+  //  I2C_ITConfig(I2C2, I2C_IT_EVT | I2C_IT_BUF, ENABLE);
+  I2C_ITConfig(I2C2, I2C_IT_EVT | I2C_IT_ERR, ENABLE);
 
 }
 
@@ -119,6 +179,16 @@ void i2c2_ev_irq_handler(void) {
 
   }
 }
+
+
+void i2c2_er_irq_handler(void) {
+  /* Check on I2C2 AF flag and clear it */
+  if (I2C_GetITStatus(I2C2, I2C_IT_AF))  {
+    I2C_ClearITPendingBit(I2C2, I2C_IT_AF);
+  }
+}
+
+
 
 
 /*

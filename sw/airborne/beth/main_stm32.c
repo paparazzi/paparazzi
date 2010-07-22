@@ -32,7 +32,7 @@
 //#include "booz/booz_radio_control.h"
 #include "booz/booz_imu.h"
 #include "lisa/lisa_overo_link.h"
-//#include "beth/bench_sensors.h"
+#include "beth/bench_sensors.h"
 
 static inline void main_init( void );
 static inline void main_periodic( void );
@@ -43,19 +43,12 @@ static inline void on_mag_event(void);
 
 static inline void main_on_overo_msg_received(void);
 static inline void main_on_overo_link_lost(void);
-//static inline void main_on_bench_sensors( void );
+static inline void main_on_bench_sensors( void );
 
 static int16_t my_cnt;
 
-//hack to get beth angle values from CAN receive buffer
-//see airborne/stm32/can_hw.c
-#ifdef BETH_HACK
-extern uint16_t halfw1,halfw2,halfw3,halfw4;
-#endif
-
 int main(void) {
   main_init();
-
 
   while (1) {
     if (sys_time_periodic())
@@ -68,54 +61,58 @@ int main(void) {
 static inline void main_init( void ) {
   hw_init();
   sys_time_init();
-  //actuators_init();
+  actuators_init();
   //radio_control_init();
   //booz_imu_init();
   overo_link_init();
-  //bench_sensors_init();
-  can_init();
+  bench_sensors_init();
 }
 
 
 static inline void main_periodic( void ) {
   //booz_imu_periodic();
-  //actuators_set(FALSE);
+
   OveroLinkPeriodic(main_on_overo_link_lost)
 
   RunOnceEvery(10, {LED_PERIODIC(); DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
-#ifdef BETH_HACK
-  RunOnceEvery(5, {DOWNLINK_SEND_BETH(DefaultChannel, &halfw4, &halfw1,&halfw2, &halfw3);});
-#endif
 
-  //No longer needed as we switched from I2C to CAN
-  //read_bench_sensors();
- 
+  RunOnceEvery(5, {DOWNLINK_SEND_BETH(DefaultChannel, &bench_sensors.angle_1,
+    &bench_sensors.angle_2,&bench_sensors.angle_3, &bench_sensors.current);});
+
+  RunOnceEvery(5, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &overo_link.down.msg.foo,&overo_link.down.msg.bar);});
+
+  /*Request reception of values from coder boards :
+    When configured for I2C, lisa stm32 is master and requests data from the
+    beth board slaves.
+    When configured for CAN, data is automatically available as CAN reception is
+    always ongoing, and new data generates a flag by the IST. */
+  read_bench_sensors();
+
+  booz2_commands[COMMAND_PITCH] = 0;
+  booz2_commands[COMMAND_ROLL] = 0;
+  booz2_commands[COMMAND_YAW] = 0;
+  booz2_commands[COMMAND_THRUST] = 4;
 }
 
 static inline void main_event( void ) {
   //BoozImuEvent(on_gyro_accel_event, on_mag_event);
-  //OveroLinkEvent(main_on_overo_msg_received);
+  OveroLinkEvent(main_on_overo_msg_received);
 
-  //No longer needed as we switched from I2C to CAN
-  //BenchSensorsEvent(main_on_bench_sensors);
+  BenchSensorsEvent(main_on_bench_sensors);
 
 }
 
 static inline void main_on_overo_msg_received(void) {
-  // struct AutopilotMessageBethUp* msg_out = (struct AutopilotMessageBethUp*)overo_link.msg_out;
-  overo_link.up.msg.gyro.x = booz_imu.gyro.p;
-  /*  msg_out->gyro.y = booz_imu.gyro.q;
-  msg_out->gyro.z = booz_imu.gyro.r;
-  msg_out->accel.x = booz_imu.accel.x;
-  msg_out->accel.y = booz_imu.accel.y;
-  msg_out->accel.z = booz_imu.accel.z;
-  msg_out->bench_sensor.x = my_cnt;
-  msg_out->bench_sensor.y = my_cnt;
-  msg_out->bench_sensor.z = my_cnt; */
+  overo_link.up.msg.foo = bench_sensors.angle_1;
+  overo_link.up.msg.bar = bench_sensors.angle_2;
+  overo_link.up.msg.blaa = bench_sensors.angle_3;
+  overo_link.up.msg.bli = 0xdead;
   my_cnt++;
+  actuators_set(TRUE);
 }
 
 static inline void main_on_overo_link_lost(void) {
+  actuators_set(FALSE);
   my_cnt = 0;
 }
 
@@ -175,13 +172,5 @@ static inline void on_mag_event(void) {
 
 
 static inline void main_on_bench_sensors( void ) {
- /* 
-  DOWNLINK_SEND_BETH(DefaultChannel, &halfw4, &halfw1,&halfw2, &halfw3);
-			    &bench_sensors.angle_1,&bench_sensors.angle_2,&bench_sensors.angle_1,
-                            &bench_sensors.angle_2);*/
-
-  //DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &bench_sensors.angle_1,&bench_sensors.angle_2);
-  //DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &can1_status, &can1_pending);
-  //DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &halfw1, &halfw2);
-  
+ 
 }
