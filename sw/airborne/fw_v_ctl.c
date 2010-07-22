@@ -64,6 +64,16 @@ float v_ctl_auto_throttle_pitch_of_vz_dgain;
 #define V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_DGAIN 0.
 #endif
 
+/* agressive tuning */
+#ifdef TUNE_AGRESSIVE_CLIMB
+float agr_climb_throttle;
+float agr_climb_pitch;
+float agr_climb_nav_ratio;
+float agr_descent_throttle;
+float agr_descent_pitch;
+float agr_descent_nav_ratio;
+#endif
+
 /* "auto pitch" inner loop parameters */
 float v_ctl_auto_pitch_pgain;
 float v_ctl_auto_pitch_igain;
@@ -143,6 +153,28 @@ void v_ctl_init( void ) {
 #endif
 
   v_ctl_throttle_setpoint = 0;
+
+/*agressive tuning*/
+#ifdef TUNE_AGRESSIVE_CLIMB
+  agr_climb_throttle = AGR_CLIMB_THROTTLE;
+  #undef   AGR_CLIMB_THROTTLE
+  #define AGR_CLIMB_THROTTLE agr_climb_throttle
+  agr_climb_pitch = AGR_CLIMB_PITCH;
+  #undef   AGR_CLIMB_PITCH
+  #define   AGR_CLIMB_PITCH agr_climb_pitch 
+  agr_climb_nav_ratio = AGR_CLIMB_NAV_RATIO;
+  #undef   AGR_CLIMB_NAV_RATIO
+  #define   AGR_CLIMB_NAV_RATIO agr_climb_nav_ratio
+  agr_descent_throttle = AGR_DESCENT_THROTTLE;
+  #undef   AGR_DESCENT_THROTTLE
+  #define   AGR_DESCENT_THROTTLE agr_descent_throttle
+  agr_descent_pitch = AGR_DESCENT_PITCH;
+  #undef   AGR_DESCENT_PITCH
+  #define   AGR_DESCENT_PITCH agr_descent_pitch
+  agr_descent_nav_ratio = AGR_DESCENT_NAV_RATIO;
+  #undef   AGR_DESCENT_NAV_RATIO
+  #define   AGR_DESCENT_NAV_RATIO agr_descent_nav_ratio
+#endif
 }
 
 /** 

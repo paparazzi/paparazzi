@@ -75,6 +75,16 @@ extern float v_ctl_auto_throttle_loiter_trim;
 extern float v_ctl_auto_throttle_dash_trim;
 #endif
 
+/* agressive tuning */
+#ifdef TUNE_AGRESSIVE_CLIMB
+extern float agr_climb_throttle;
+extern float agr_climb_pitch;
+extern float agr_climb_nav_ratio;
+extern float agr_descent_throttle;
+extern float agr_descent_pitch;
+extern float agr_descent_nav_ratio;
+#endif
+
 /* "auto pitch" inner loop parameters */
 extern float v_ctl_auto_pitch_pgain;
 extern float v_ctl_auto_pitch_igain;
