@@ -205,6 +205,13 @@ void periodic_task_fbw( void ) {
   if (fbw_mode == FBW_MODE_MANUAL && rc_status == RC_REALLY_LOST) {
     fbw_mode = FBW_MODE_AUTO;
   }
+#ifdef RADIO_LED
+  if (rc_status != RC_OK) {
+    LED_OFF(RADIO_LED);
+  } else {
+    LED_ON(RADIO_LED);
+  }
+#endif
 #endif
 
 #ifdef INTER_MCU
