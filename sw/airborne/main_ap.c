@@ -69,7 +69,7 @@
 #include "adc_generic.h"
 #endif
 
-#ifdef USE_AIRSPEED
+#if defined USE_AIRSPEED || defined MEASURE_AIRSPEED
 #include "airspeed.h"
 #endif
 
@@ -147,9 +147,6 @@
 #include "osam_imu_ugear.h"
 #endif 
 
-#ifdef XSENS 
-#include "xsens_ins.h"
-#endif
 /*code added by Haiyang Chao ends*/
 
 #if ! defined CATASTROPHIC_BAT_LEVEL && defined LOW_BATTERY
@@ -659,7 +656,8 @@ void periodic_task_ap( void ) {
 #if defined GYRO
       gyro_update();
 #endif
-#if defined USE_AIRSPEED
+
+#if defined USE_AIRSPEED || defined MEASURE_AIRSPEED
       airspeed_update();
 #endif
 #ifdef INFRARED
@@ -711,7 +709,7 @@ void init_ap( void ) {
 #ifdef GYRO
   gyro_init();
 #endif
-#ifdef USE_AIRSPEED
+#if defined USE_AIRSPEED || defined MEASURE_AIRSPEED
   airspeed_init();
 #endif
 #ifdef GPS
@@ -913,6 +911,9 @@ void event_task_ap( void ) {
       gps_verbose_downlink = !launch;
       UseGpsPosNoSend(estimator_update_state_gps);
       gps_downlink();
+#ifdef GPS_TRIGGERED_FUNCTION
+	GPS_TRIGGERED_FUNCTION();
+#endif
       gps_pos_available = FALSE;
     }
   }

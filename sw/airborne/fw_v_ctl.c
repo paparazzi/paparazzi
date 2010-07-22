@@ -336,6 +336,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
   controlled_throttle = (err_airspeed + v_ctl_auto_airspeed_sum_err * v_ctl_auto_airspeed_igain) * v_ctl_auto_airspeed_pgain;
 
   // Done, set outputs
+  Bound(controlled_throttle, 0, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE);
   f_throttle = controlled_throttle;
   nav_pitch = v_ctl_pitch_of_vz;
   v_ctl_throttle_setpoint = TRIM_UPPRZ(f_throttle * MAX_PPRZ);

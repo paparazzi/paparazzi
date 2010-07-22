@@ -322,6 +322,15 @@
       <field name="groundspeed_sp" type="float" unit="m/s"/>
   </message>
 
+  <message name="AIRSPEED" id="54">
+      <field name="adc" type="uint16"/>
+      <field name="airspeed" type="float" unit="m/s"/>
+      <field name="airspeed_sp" type="float" unit="m/s"/>
+      <field name="airspeed_cnt" type="float" unit="m/s"/>
+      <field name="groundspeed_sp" type="float" unit="m/s"/>
+  </message>
+
+
   <message name="BARO_WORDS" id="46">
       <field name="w1"  type="uint16"/>
       <field name="w2"  type="uint16"/>
@@ -365,6 +374,11 @@
  <message name="MPPT" id="52">
     <field name="values" type="int16[]" alt_unit_coef="1e-3"/>
  </message>
+
+  <message name="VISUALTARGET" id="235">
+    <field name="x" type="uint16"></field>
+    <field name="y" type="uint16"></field>
+  </message>
 
  <message name="DEBUG_IR_I2C" id="53">
     <field name="top" type="int16" unit="adc"></field>
@@ -526,6 +540,11 @@
     <field name="values" type="uint16[]" unit="ticks"/>
   </message>
 
+  <message name="OPTICFLOW" id="234">
+    <field name="flow" type="uint16"></field>
+    <field name="ref_alt" type="float"></field>
+  </message>
+
   <message name="RC" id="101">
     <field name="values" type="int16[]" unit="pprz" format="%d"/>
   </message>
@@ -550,12 +569,12 @@
     <field name="values" type="uint16[]" unit="none"/>
   </message>
 
-   <message name="BETH" id="106">
-     <field name="azimuth" type="uint16"/>
-     <field name="elevation" type="uint16"/>
-     <field name="tilt" type="uint16"/>
-     <field name="other" type="uint16"/>
-   </message>
+  <message name="BETH" id="106">
+    <field name="azimuth" type="uint16"/>
+    <field name="elevation" type="uint16"/>
+    <field name="tilt" type="uint16"/>
+    <field name="other" type="uint16"/>
+  </message>
 
   <message name="DC_SHOT" id="110">
      <field name="photo_nr" type="int16" unit=""></field>
@@ -595,6 +614,16 @@
     <field name="alt" type="float"/>
     <field name="speed" type="float"/>
     <field name="climb" type="float"/>
+  </message>
+
+  <message name="VERTICAL_ENERGY" id="124">
+    <field name="Epot_err" type="float"/>
+    <field name="Ekin_err" type="float"/>
+    <field name="Etot_err" type="float"/>
+    <field name="Edis_err" type="float"/>
+    <field name="throttle" type="float"/>
+    <field name="nav_pitch" type="float"/>
+    <field name="speed_sp" type="float"/>
   </message>
 
  <message name="BOOZ2_STAB_ATTITUDE_FLOAT" id="130">

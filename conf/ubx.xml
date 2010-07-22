@@ -205,4 +205,24 @@
 
  </class>
 
+ <class name="MAVPILOT" ID="100">
+  <message name="COMMAND" ID="0x05" length="12">
+    <field name="S1" format="U2"/>
+    <field name="S2" format="U2"/>
+    <field name="S3" format="U2"/>
+    <field name="S4" format="U2"/>
+    <field name="S5" format="U2"/>
+    <field name="S6" format="U2"/>
+  </message>
+
+  <message name="FBW" ID="0x06" length="6">
+    <field name="MOD" format="U1"/>
+    <field name="STAT" format="U1"/>
+    <field name="ERR" format="U1"/>
+    <field name="VOLT" format="U1"/>
+    <field name="CURRENT" format="U2" />
+  </message>
+ </class>
+
+
 </ubx>
