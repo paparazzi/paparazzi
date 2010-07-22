@@ -252,7 +252,7 @@
   <message name="ENERGY" id="37">
     <field name="bat"      type="float" unit="V"/>
     <field name="amp"      type="float" unit="A"/>
-    <field name="energy"   type="uint16" unit="Wh"/>
+    <field name="energy"   type="uint16" unit="mAh"/>
     <field name="power"   type="float" unit="W"/>
   </message>
 
