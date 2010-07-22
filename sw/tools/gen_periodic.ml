@@ -121,6 +121,8 @@ let _ =
 
   fprintf avr_h "/* This file has been generated from %s and %s */\n" Sys.argv.(1) Sys.argv.(2);
   fprintf avr_h "/* Please DO NOT EDIT */\n\n";
+  fprintf avr_h "#ifndef _VAR_PERIODIC_H_\n";
+  fprintf avr_h "#define _VAR_PERIODIC_H_\n";
   
   (** For each process *)
   List.iter
@@ -153,5 +155,7 @@ let _ =
       left ();
       lprintf avr_h "}\n"
     )
-    (Xml.children telemetry_xml)
+    (Xml.children telemetry_xml);
+
+  fprintf avr_h "#endif // _VAR_PERIODIC_H_\n";
 
