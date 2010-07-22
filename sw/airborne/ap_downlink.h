@@ -102,6 +102,8 @@
 
 #ifdef INFRARED
 #define PERIODIC_SEND_IR_SENSORS(_chan) DOWNLINK_SEND_IR_SENSORS(_chan, &ir_ir1, &ir_ir2, &ir_pitch, &ir_roll, &ir_top);
+#else
+#define PERIODIC_SEND_IR_SENSORS(_chan) ;
 #endif
 
 #define PERIODIC_SEND_ADC(_chan) {}
@@ -150,7 +152,7 @@
 
 #define PERIODIC_SEND_TUNE_ROLL(_chan) DOWNLINK_SEND_TUNE_ROLL(_chan, &estimator_p,&estimator_phi, &h_ctl_roll_setpoint);
 
-#if defined GPS || defined SITL
+#if defined GPS || defined SITL || defined USE_GPS_XSENS
 #define PERIODIC_SEND_GPS_SOL(_chan) DOWNLINK_SEND_GPS_SOL(_chan, &gps_Pacc, &gps_Sacc, &gps_PDOP, &gps_numSV)
 #endif
 
@@ -177,7 +179,9 @@
 #define PERIODIC_SEND_SCP_STATUS(_chan) {}
 #endif
 
-#ifdef USE_AIRSPEED
+#ifdef MEASURE_AIRSPEED
+#define PERIODIC_SEND_AIRSPEED(_chan) DOWNLINK_SEND_AIRSPEED (_chan, &adc_airspeed_val,&estimator_airspeed,&estimator_airspeed,&estimator_airspeed,&estimator_airspeed)
+#elif defined USE_AIRSPEED
 #define PERIODIC_SEND_AIRSPEED(_chan) DOWNLINK_SEND_AIRSPEED (_chan, &adc_airspeed_val,&estimator_airspeed,&v_ctl_auto_airspeed_setpoint,&v_ctl_auto_airspeed_controlled,&v_ctl_auto_groundspeed_setpoint)
 #else
 #define PERIODIC_SEND_AIRSPEED(_chan) {}
