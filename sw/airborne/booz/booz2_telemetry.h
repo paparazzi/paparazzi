@@ -314,7 +314,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 
 #ifdef USE_AHRS_CMPL
-#include "ahrs/booz2_filter_attitude_cmpl_euler.h"
+#include "ahrs/booz_ahrs_cmpl_euler.h"
 #define PERIODIC_SEND_BOOZ2_FILTER(_chan) {				\
     DOWNLINK_SEND_BOOZ2_FILTER(_chan,					\
 			       &booz_ahrs.ltp_to_imu_euler.phi,		\

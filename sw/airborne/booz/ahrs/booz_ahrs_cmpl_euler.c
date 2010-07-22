@@ -1,5 +1,5 @@
 /*
- * $Id: booz2_filter_attitude_cmpl_euler.c 4675 2010-03-13 22:59:46Z poine $
+ * $Id:  $
  *  
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#include "booz2_filter_attitude_cmpl_euler.h"
+#include "booz_ahrs_cmpl_euler.h"
 
 #include "booz_imu.h"
 #include "booz_ahrs_aligner.h"

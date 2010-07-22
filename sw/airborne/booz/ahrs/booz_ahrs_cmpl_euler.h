@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ2_FILTER_ATTITUDE_CMPL_EULER_H
-#define BOOZ2_FILTER_ATTITUDE_CMPL_EULER_H
+#ifndef BOOZ_AHRS_CMPL_EULER_H
+#define BOOZ_AHRS_CMPL_EULER_H
 
 #include "booz_ahrs.h"
 #include "std.h"
@@ -37,4 +37,4 @@ extern struct Int32Eulers booz2_face_corrected;
 extern int32_t booz2_face_reinj_1;
 
 
-#endif /* BOOZ2_FILTER_ATTITUDE_CMPL_EULER_H */
+#endif /* BOOZ_AHRS_CMPL_EULER_H */

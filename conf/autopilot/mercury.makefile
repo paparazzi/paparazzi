@@ -76,7 +76,7 @@ ap.CFLAGS += -DPPRZ_TRIG_CONST=const
 ap.srcs += $(SRC_CSC)/mercury_xsens.c $(SRC_BOOZ)/booz_imu.c math/pprz_trig_int.c
 ap.CFLAGS += -DXSENS1_LINK=Uart0 -DBOOZ_IMU_TYPE_H=\"mercury_xsens.h\"
 
-ap.srcs += $(SRC_BOOZ)/ahrs/booz2_filter_attitude_cmpl_euler.c $(SRC_BOOZ)/ahrs/booz_ahrs_aligner.c
+ap.srcs += $(SRC_BOOZ)/ahrs/booz_ahrs_cmpl_euler.c $(SRC_BOOZ)/ahrs/booz_ahrs_aligner.c
 ap.CFLAGS += -DFLOAT_T=float
 
 ap.srcs += $(SRC_BOOZ)/booz_stabilization.c
