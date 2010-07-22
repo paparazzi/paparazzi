@@ -36,6 +36,10 @@
 
 #ifdef UBX
 #include "gps_ubx.h"
+#elif defined USE_GPS_XSENS
+#include "gps_xsens.h"
+#define GPS_NB_CHANNELS 16
+#define GpsFixValid() (gps_mode == 3)
 #elif defined SITL
 #define GPS_NB_CHANNELS 16
 #define GpsFixValid() (gps_mode == 3)
