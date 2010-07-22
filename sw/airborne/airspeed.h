@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 
-#ifdef USE_AIRSPEED
+#if defined USE_AIRSPEED || defined MEASURE_AIRSPEED 
 extern uint16_t adc_airspeed_val;
 #endif
 

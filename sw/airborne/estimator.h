@@ -120,7 +120,7 @@ extern void alt_kalman( float );
 
 #endif
 
-#ifdef USE_AIRSPEED
+#if defined USE_AIRSPEED || defined MEASURE_AIRSPEED 
 #define EstimatorSetAirspeed(airspeed) { estimator_airspeed = airspeed; }
 #endif
 

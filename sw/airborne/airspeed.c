@@ -10,10 +10,8 @@
 #include "airspeed_ets.h"
 #endif
 
-#ifdef USE_AIRSPEED
+#if defined USE_AIRSPEED || defined MEASURE_AIRSPEED 
 uint16_t adc_airspeed_val;
-#else
-#error "You compiled the airspeed.c file but did not USE_AIRSPEED, which is needed in other *.c files"
 #endif
 
 #ifdef ADC_CHANNEL_AIRSPEED
@@ -42,8 +40,15 @@ void airspeed_init( void ) {
 void airspeed_update( void ) {
 #ifndef SITL
 #ifdef ADC_CHANNEL_AIRSPEED
-  adc_airspeed_val = (buf_airspeed.sum / buf_airspeed.av_nb_sample) - AIRSPEED_ZERO;
-  float airspeed = AIRSPEED_SCALE * adc_airspeed_val;
+  adc_airspeed_val = buf_airspeed.sum / buf_airspeed.av_nb_sample;
+#ifdef AIRSPEED_QUADRATIC_SCALE
+  float airspeed = (adc_airspeed_val - AIRSPEED_BIAS);
+  if (airspeed <= 0.0f)
+    airspeed = 0.0f;
+  airspeed = sqrt(airspeed) * AIRSPEED_QUADRATIC_SCALE;
+#else
+  float airspeed = AIRSPEED_SCALE * (adc_airspeed_val - AIRSPEED_BIAS);
+#endif
   EstimatorSetAirspeed(airspeed);
 #elif defined(USE_AIRSPEED_ETS)
   EstimatorSetAirspeed(airspeed_ets);
