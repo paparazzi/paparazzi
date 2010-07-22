@@ -224,12 +224,6 @@ void adc_init( void ) {
 
 }
 
-#include "led.h"
-
-#include "uart.h"
-#include "messages.h"
-#include "downlink.h"
-
 
 void adcISR0 ( void ) {
   ISR_ENTRY();
