@@ -32,6 +32,7 @@
 #define INS_H
 
 #include "std.h"
+#include "led.h"
 
 #ifndef INS_FORMAT
 #define INS_FORMAT float
