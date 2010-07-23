@@ -43,6 +43,18 @@ let c_type = fun format ->
   | "Uint16" -> "uint16_t"
   | "Uint8" -> "uint8_t"
   | _ -> failwith (sprintf "gen_messages.c_type: unknown format '%s'" format)
+
+let dl_type = fun format ->
+  match format with
+    "Float" -> "DL_TYPE_FLOAT"
+  | "Double" -> "DL_TYPE_DOUBLE"
+  | "Int32" -> "DL_TYPE_INT32"
+  | "Int16" -> "DL_TYPE_INT16"
+  | "Int8" -> "DL_TYPE_INT8"
+  | "Uint32" -> "DL_TYPE_UINT32"
+  | "Uint16" -> "DL_TYPE_UINT16"
+  | "Uint8" -> "DL_TYPE_UINT8"
+  | _ -> failwith (sprintf "gen_messages.c_type: unknown format '%s'" format)
 	
 type field = _type  * string * format option
       
@@ -127,11 +139,11 @@ module Gen_onboard = struct
   let print_field = fun h (t, name, (_f: format option)) ->
     match t with 
       Basic _ ->
-	fprintf h "\t  tp->PutBytes(tp->impl, %s, (uint8_t *) _%s); \n" (Syntax.sizeof t) name
+	fprintf h "\t  tp->PutBytes(tp->impl, %s, %s, (uint8_t *) _%s); \n" (dl_type (Syntax.nameof t)) (Syntax.sizeof t) name
     | Array (t, varname) ->
 	let _s = Syntax.sizeof (Basic t) in
-	fprintf h "\t  tp->PutBytes(tp->impl, 1, (uint8_t *) &%s); \n" (Syntax.length_name varname);
-	fprintf h "\t  tp->PutBytes(tp->impl, %s * %s, (uint8_t *) _%s); \n" (Syntax.sizeof (Basic t)) (Syntax.length_name varname) name
+	fprintf h "\t  tp->PutBytes(tp->impl, DL_TYPE_ARRAY_LENGTH, 1, (uint8_t *) &%s); \n" (Syntax.length_name varname);
+	fprintf h "\t  tp->PutBytes(tp->impl, %s, %s * %s, (uint8_t *) _%s); \n" (dl_type (Syntax.nameof (Basic t))) (Syntax.sizeof (Basic t)) (Syntax.length_name varname) name
 
   let print_parameter h = function
       (Array (t, varname), s, _) -> fprintf h "uint8_t %s, %s *_%s" (Syntax.length_name s) (c_type (Syntax.nameof (Basic t))) s

@@ -32,12 +32,26 @@
 
 #include <inttypes.h>
 
+enum DownlinkDataType {
+	DL_TYPE_ARRAY_LENGTH = 1,
+	DL_TYPE_UINT8,
+	DL_TYPE_INT8,
+	DL_TYPE_UINT16,
+	DL_TYPE_INT16,
+	DL_TYPE_UINT32,
+	DL_TYPE_INT32,
+	DL_TYPE_UINT64,
+	DL_TYPE_INT64,
+	DL_TYPE_FLOAT,
+	DL_TYPE_DOUBLE,
+};
+
 struct DownlinkTransport
 {
 	uint8_t (*SizeOf)(void *impl, uint8_t size);
 	int (*CheckFreeSpace)(void *impl, uint8_t size);
 
-	void (*PutBytes)(void *impl, uint8_t len, const uint8_t *bytes);
+	void (*PutBytes)(void *impl, enum DownlinkDataType data_type, uint8_t len, const uint8_t *bytes);
 
 	void (*StartMessage)(void *impl, char *name, uint8_t msg_id, uint8_t payload_len);
 	void (*EndMessage)(void *impl);
