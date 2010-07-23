@@ -39,6 +39,7 @@ void sys_time_init( void ) {
   cpu_time_ticks = 0;
 }
 
+
 void sys_tick_irq_handler(void) {
   sys_time_period_elapsed = TRUE;
 }
