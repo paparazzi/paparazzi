@@ -101,6 +101,20 @@ extern void exti2_irq_handler(void);
 #define EXTI2_IRQ_HANDLER null_handler
 #endif
 
+#ifdef USE_EXTI3_IRQ
+extern void exti3_irq_handler(void);
+#define EXTI3_IRQ_HANDLER exti3_irq_handler
+#else
+#define EXTI3_IRQ_HANDLER null_handler
+#endif
+
+#ifdef USE_EXTI4_IRQ
+extern void exti4_irq_handler(void);
+#define EXTI4_IRQ_HANDLER exti4_irq_handler
+#else
+#define EXTI4_IRQ_HANDLER null_handler
+#endif
+
 #ifdef USE_DMA1_C2_IRQ
 extern void dma1_c2_irq_handler(void);
 #define DMA1_C2_IRQ_HANDLER dma1_c2_irq_handler
@@ -174,8 +188,8 @@ void (* const vector_table[])(void) = {
     EXTI0_IRQ_HANDLER,        /* exti0_irq_handler */
     null_handler,             /* exti1_irq_handler */
     EXTI2_IRQ_HANDLER,        /* exti2_irq_handler */
-    null_handler,             /* exti3_irq_handler */
-    null_handler,             /* exti4_irq_handler */
+    EXTI3_IRQ_HANDLER,        /* exti3_irq_handler */
+    EXTI4_IRQ_HANDLER,        /* exti4_irq_handler */
     null_handler,             /* dma1_channel1_irq_handler */
     DMA1_C2_IRQ_HANDLER,      /* dma1_channel2_irq_handler */
     null_handler,             /* dma1_channel3_irq_handler */
