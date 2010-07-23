@@ -38,7 +38,6 @@ overo_test_spi.srcs=$(SRC_FMS)/overo_test_spi.c
 overo_test_spi_link.ARCHDIR = omap
 overo_test_spi_link.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
 overo_test_spi_link.CFLAGS  += -DOVERO_LINK_MSG_UP=AutopilotMessageFoo -DOVERO_LINK_MSG_DOWN=AutopilotMessageFoo
-
 overo_test_spi_link.srcs  = $(SRC_FMS)/overo_test_spi_link.c
 overo_test_spi_link.srcs += $(SRC_FMS)/fms_spi_link.c
 
@@ -855,7 +854,7 @@ test_sc18is600.CFLAGS += -DUSE_LED
 test_sc18is600.srcs += $(SRC_ARCH)/led_hw.c
 
 test_sc18is600.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
-test_sc18is600.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_sc18is600.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./128.))'
 test_sc18is600.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 test_sc18is600.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
@@ -869,6 +868,99 @@ test_sc18is600.srcs += math/pprz_trig_int.c
 test_sc18is600.CFLAGS += -DUSE_EXTI2_IRQ  -DUSE_DMA1_C4_IRQ
 test_sc18is600.srcs += $(SRC_BOOZ)/peripherals/booz_sc18is600.c \
                        $(SRC_BOOZ_ARCH)/peripherals/booz_sc18is600_arch.c
+
+
+#
+# test adxl345
+#
+test_adxl345.ARCHDIR = $(ARCHI)
+test_adxl345.TARGET = test_adxl345
+test_adxl345.TARGETDIR = test_adxl345
+test_adxl345.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_adxl345.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
+test_adxl345.srcs += lisa/test/lisa_test_adxl345.c \
+                       $(SRC_ARCH)/stm32_exceptions.c   \
+                       $(SRC_ARCH)/stm32_vector_table.c
+
+test_adxl345.CFLAGS += -DUSE_LED
+test_adxl345.srcs += $(SRC_ARCH)/led_hw.c
+
+test_adxl345.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_adxl345.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_adxl345.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_adxl345.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_adxl345.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_adxl345.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
+test_adxl345.srcs += downlink.c pprz_transport.c
+
+test_adxl345.CFLAGS += -DUSE_EXTI2_IRQ   # Acc  Int
+
+#
+# test ITG3200
+#
+test_itg3200.ARCHDIR = $(ARCHI)
+test_itg3200.TARGET = test_itg3200
+test_itg3200.TARGETDIR = test_itg3200
+test_itg3200.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_itg3200.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
+test_itg3200.srcs += lisa/test/lisa_test_itg3200.c \
+                       $(SRC_ARCH)/stm32_exceptions.c   \
+                       $(SRC_ARCH)/stm32_vector_table.c
+
+test_itg3200.CFLAGS += -DUSE_LED
+test_itg3200.srcs += $(SRC_ARCH)/led_hw.c
+
+test_itg3200.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_itg3200.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_itg3200.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_itg3200.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_itg3200.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_itg3200.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
+test_itg3200.srcs += downlink.c pprz_transport.c
+
+test_itg3200.CFLAGS += -DUSE_I2C2
+test_itg3200.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+test_itg3200.CFLAGS += -DUSE_EXTI2_IRQ   # Gyro Int
+
+
+
+
+#
+# test Aspirin ( rewired ) no sc18is600
+#
+test_aspirin.ARCHDIR = $(ARCHI)
+test_aspirin.TARGET = test_aspirin
+test_aspirin.TARGETDIR = test_aspirin
+test_aspirin.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_aspirin.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
+test_aspirin.srcs += lisa/test/lisa_test_aspirin.c \
+                       $(SRC_ARCH)/stm32_exceptions.c   \
+                       $(SRC_ARCH)/stm32_vector_table.c
+
+test_aspirin.CFLAGS += -DUSE_LED
+test_aspirin.srcs += $(SRC_ARCH)/led_hw.c
+
+test_aspirin.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_aspirin.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_aspirin.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_aspirin.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_aspirin.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_aspirin.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
+test_aspirin.srcs += downlink.c pprz_transport.c
+
+test_aspirin.CFLAGS += -DUSE_I2C2
+test_aspirin.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+test_aspirin.CFLAGS += -DUSE_EXTI2_IRQ   # Gyro Int
+test_aspirin.CFLAGS += -DUSE_EXTI3_IRQ   # Mag  Int
+test_aspirin.CFLAGS += -DUSE_EXTI4_IRQ   # Acc  Int
+
+
 
 
 #
