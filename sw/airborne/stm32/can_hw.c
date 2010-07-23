@@ -42,13 +42,13 @@
 
 CanTxMsg can_tx_msg;
 CanRxMsg can_rx_msg;
-RCC_ClocksTypeDef rcc_clocks;
 
 volatile uint8_t CAN_RX_FLAG;
 
 void can_hw_init(void)
 {
-	GPIO_InitTypeDef gpio;
+        RCC_ClocksTypeDef rcc_clocks;
+        GPIO_InitTypeDef gpio;
 	NVIC_InitTypeDef nvic;
 	CAN_InitTypeDef can;
 	CAN_FilterInitTypeDef can_filter;
