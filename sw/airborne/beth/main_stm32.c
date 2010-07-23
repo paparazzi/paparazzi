@@ -70,7 +70,7 @@ static inline void main_init( void ) {
 
 
 static inline void main_periodic( void ) {
-  //booz_imu_periodic();
+  booz_imu_periodic();
 
   OveroLinkPeriodic(main_on_overo_link_lost)
 
@@ -95,7 +95,7 @@ static inline void main_periodic( void ) {
 }
 
 static inline void main_event( void ) {
-  //BoozImuEvent(on_gyro_accel_event, on_mag_event);
+  BoozImuEvent(on_gyro_accel_event, on_mag_event);
   OveroLinkEvent(main_on_overo_msg_received);
 
   BenchSensorsEvent(main_on_bench_sensors);

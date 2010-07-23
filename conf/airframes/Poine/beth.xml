@@ -24,39 +24,62 @@
   </servos>
 
 
+
+ <!-- this is my crista -->
   <section name="IMU" prefix="IMU_">
 
-    <define name="GYRO_P_NEUTRAL" value="31489"/>
-    <define name="GYRO_Q_NEUTRAL" value="31814"/>
-    <define name="GYRO_R_NEUTRAL" value="32752"/>
+    <define name="GYRO_P_SIGN" value="-1"/>
+    <define name="GYRO_Q_SIGN" value="-1"/>
+    <define name="GYRO_R_SIGN" value=" 1"/>
 
-    <define name="GYRO_P_SENS" value=" 1.01" integer="16"/>
-    <define name="GYRO_Q_SENS" value="-1.01" integer="16"/>
-    <define name="GYRO_R_SENS" value="-1.01" integer="16"/>
+    <define name="GYRO_P_NEUTRAL" value="31288"/>
+    <define name="GYRO_Q_NEUTRAL" value="32593"/>
+    <define name="GYRO_R_NEUTRAL" value="32709"/>
+
+    <define name="GYRO_P_SENS" value=" 0.943560" integer="16"/>
+    <define name="GYRO_Q_SENS" value=" 0.926199" integer="16"/>
+    <define name="GYRO_R_SENS" value=" 0.931912" integer="16"/>
 
 
-    <define name="ACCEL_X_SENS" value="-2.58273701242" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="-2.54076215332" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="-2.57633620646" integer="16"/>
+    <define name="ACCEL_X_SIGN" value="1"/>
+    <define name="ACCEL_Y_SIGN" value="1"/>
+    <define name="ACCEL_Z_SIGN" value="1"/>
 
     <define name="ACCEL_X_NEUTRAL" value="32857"/>
     <define name="ACCEL_Y_NEUTRAL" value="32429"/>
     <define name="ACCEL_Z_NEUTRAL" value="32593"/>
 
-    <define name="MAG_X_SENS" value=" 5.32718104135" integer="16"/>
-    <define name="MAG_Y_SENS" value="-4.87857821202" integer="16"/>
-    <define name="MAG_Z_SENS" value="-3.11986612709" integer="16"/>
+    <define name="ACCEL_X_SENS" value="-2.58273701242" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="-2.54076215332" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="-2.57633620646" integer="16"/>
+
+
+    <define name="MAG_X_SIGN" value="-43"/>
+    <define name="MAG_Y_SIGN" value=" 49"/>
+    <define name="MAG_Z_SIGN" value="-66"/>
 
     <define name="MAG_X_NEUTRAL" value="-43"/>
     <define name="MAG_Y_NEUTRAL" value=" 49"/>
     <define name="MAG_Z_NEUTRAL" value="-66"/>
 
+    <define name="MAG_X_SENS" value=" 5.32718104135" integer="16"/>
+    <define name="MAG_Y_SENS" value="-4.87857821202" integer="16"/>
+    <define name="MAG_Z_SENS" value="-3.11986612709" integer="16"/>
+
+
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(  0.)"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(  0.)"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg( 90.)"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45.)"/>
+
+<!--  3  -->
+    <define name="GYRO_P_CHAN" value="0"/>
+    <define name="GYRO_Q_CHAN" value="4"/>
+    <define name="GYRO_R_CHAN" value="1"/>
+    <define name="ACCEL_X_CHAN" value="5"/>
+    <define name="ACCEL_Y_CHAN" value="2"/>
+    <define name="ACCEL_Z_CHAN" value="6"/>
 
   </section>
-
 
   <makefile>
 
@@ -104,14 +127,21 @@ main_stm32.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageFoo -DOVERO_LINK_MSG_DO
 main_stm32.CFLAGS += -DOVERO_LINK_LED_OK=5 -DOVERO_LINK_LED_KO=4 -DUSE_DMA1_C2_IRQ
 main_stm32.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
 
-main_stm32.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
-main_stm32.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
-main_stm32.srcs += $(SRC_BOOZ)/booz_imu.c
-main_stm32.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
-main_stm32.srcs += $(SRC_BOOZ)/imu/booz_imu_b2.c $(SRC_BOOZ_ARCH)/imu/booz_imu_b2_arch.c
-main_stm32.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
-main_stm32.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c  $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
+#main_stm32.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
+#main_stm32.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
+#main_stm32.srcs += $(SRC_BOOZ)/booz_imu.c
+#main_stm32.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
+#main_stm32.srcs += $(SRC_BOOZ)/imu/booz_imu_b2.c $(SRC_BOOZ_ARCH)/imu/booz_imu_b2_arch.c
+#main_stm32.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
+#main_stm32.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c  $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
+#main_stm32.srcs += math/pprz_trig_int.c
+
 main_stm32.srcs += math/pprz_trig_int.c
+main_stm32.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_crista.h\" -DIMU_OVERRIDE_CHANNELS
+main_stm32.srcs += $(SRC_BOOZ)/booz_imu.c             \
+                        $(SRC_BOOZ)/imu/booz_imu_crista.c \
+                        $(SRC_BOOZ_ARCH)/imu/booz_imu_crista_arch.c
+main_stm32.CFLAGS += -DUSE_DMA1_C4_IRQ
 
 main_stm32.srcs += $(SRC_BOOZ)/booz2_commands.c
 main_stm32.srcs += $(SRC_BOOZ)/actuators/booz_actuators_asctec.c 
@@ -160,9 +190,9 @@ main_coders.srcs += downlink.c pprz_transport.c
 #main_coders.CFLAGS += -DUSE_I2C2
 #main_coders.srcs += $(SRC_ARCH)/i2c_hw.c
 
-main_coders.CFLAGS += -DUSE_CAN1 -DUSE_USB_LP_CAN1_RX0_IRQ
+main_coders.CFLAGS += -DUSE_CAN1 -DUSE_USB_LP_CAN1_RX0_IRQ -DBLINKENLIGHTS
 main_coders.srcs += can.c $(SRC_ARCH)/can_hw.c
-
+main_coders.srcs += $(SRC_BETH)/bench_sensors_can.c
 
 #
 # main Overo
