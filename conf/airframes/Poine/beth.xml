@@ -127,6 +127,7 @@ main_stm32.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageFoo -DOVERO_LINK_MSG_DO
 main_stm32.CFLAGS += -DOVERO_LINK_LED_OK=5 -DOVERO_LINK_LED_KO=4 -DUSE_DMA1_C2_IRQ
 main_stm32.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
 
+#booz IMU
 #main_stm32.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
 #main_stm32.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
 #main_stm32.srcs += $(SRC_BOOZ)/booz_imu.c
@@ -136,6 +137,7 @@ main_stm32.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
 #main_stm32.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c  $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
 #main_stm32.srcs += math/pprz_trig_int.c
 
+#crista IMU
 main_stm32.srcs += math/pprz_trig_int.c
 main_stm32.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_crista.h\" -DIMU_OVERRIDE_CHANNELS
 main_stm32.srcs += $(SRC_BOOZ)/booz_imu.c             \
