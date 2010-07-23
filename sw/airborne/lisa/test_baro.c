@@ -69,7 +69,7 @@ void Delay(__IO uint32_t nCount) {
 
 int main(void) {
   main_init();
-  //  Delay(50000);
+  Delay(50000);
   while(1) {
     if (sys_time_periodic())
       main_periodic_task();
@@ -130,6 +130,8 @@ static inline void main_event_task( void ) {
 
 static inline void main_i2c_init( void ) {
 
+
+  I2C_DeInit(I2C2);
   //  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
   /* enable pullup on PC0 */
  GPIO_InitTypeDef GPIO_InitStructure;
