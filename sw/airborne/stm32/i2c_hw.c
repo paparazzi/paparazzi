@@ -252,8 +252,24 @@ void i2c1_er_irq_handler(void) {
 
 #ifdef USE_I2C2
 
+#define I2C2_APPLY_CONFIG() {						\
+    									\
+    I2C_InitTypeDef  I2C_InitStructure= {				\
+      .I2C_Mode = I2C_Mode_I2C,						\
+      .I2C_DutyCycle = I2C_DutyCycle_2,					\
+      .I2C_OwnAddress1 = 0x00,						\
+      .I2C_Ack = I2C_Ack_Enable,					\
+      .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,		\
+      .I2C_ClockSpeed = 400000						\
+    };									\
+    I2C_Init(I2C2, &I2C_InitStructure);					\
+									\
+  }
+
+
 void i2c2_hw_init(void) {
 
+  /* reset periphearl to default state ( sometimes not achieved on reset :(  ) */
   I2C_DeInit(I2C2);
 
   NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
@@ -262,14 +278,14 @@ void i2c2_hw_init(void) {
   /* Configure and enable I2C2 event interrupt --------------------------------*/
   NVIC_InitStructure.NVIC_IRQChannel = I2C2_EV_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 4;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
 
   /* Configure and enable I2C2 err interrupt ----------------------------------*/
   NVIC_InitStructure.NVIC_IRQChannel = I2C2_ER_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 4;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
 
@@ -286,19 +302,11 @@ void i2c2_hw_init(void) {
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-  /* I2C configuration --------------------------------------------------------*/
-  I2C_InitTypeDef  I2C_InitStructure; 
-  I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
-  I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
-  I2C_InitStructure.I2C_OwnAddress1 = 0x02;
-  I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
-  I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-  I2C_InitStructure.I2C_ClockSpeed = 200000;
-  
   /* I2C Peripheral Enable ----------------------------------------------------*/
   I2C_Cmd(I2C2, ENABLE);
+
   /* Apply I2C configuration after enabling it */
-  I2C_Init(I2C2, &I2C_InitStructure);
+  I2C2_APPLY_CONFIG();
 
   /* Enable I2C2 error interrupts ---------------------------------------------*/
   I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);
@@ -309,16 +317,16 @@ void i2c2_ev_irq_handler(void) {
   uint32_t event = I2C_GetLastEvent(I2C2);
   switch (event) {
   case I2C_EVENT_MASTER_MODE_SELECT:                 /* EV5 */
-    if(i2c2.direction == I2CDirTx || i2c2.direction ==  I2CDirTxRx)          /* for TxRx, we'll swap direction */
+    if(i2c2.transaction == I2CTransTx || i2c2.transaction ==  I2CTransTxRx)  /* for TxRx, we'll swap direction */
       I2C_Send7bitAddress(I2C2, i2c2.slave_addr, I2C_Direction_Transmitter); /* to Rx after Tx is done         */
     else
       I2C_Send7bitAddress(I2C2, i2c2.slave_addr, I2C_Direction_Receiver);
     break;
     
     /* Master Transmitter -----------------------------------------------------*/
-  case I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED: /* Test on I2C1 EV6 and first EV8 and clear them */
+  case I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED: /* Test on I2C2 EV6 and first EV8 and clear them */
     /* enable empty dr if we have more than one byte to send */
-    //    if (i2c1_len_w > 1)
+    //    if (i2c2.len_w > 1)
     I2C_ITConfig(I2C2, I2C_IT_BUF, ENABLE);
     I2C_SendData(I2C2, i2c2.buf[0]);        /* Send the first data */
     i2c2.index = 1;
@@ -343,13 +351,13 @@ void i2c2_ev_irq_handler(void) {
     }
     else {
       I2C_ITConfig(I2C2, I2C_IT_EVT, DISABLE);
-      if (i2c2.direction == I2CDirTx) {
+      if (i2c2.transaction == I2CTransTx) {
 	if (i2c2.finished)
 	  *i2c2.finished = TRUE;
-	i2c2.status = I2C_IDLE;
+	i2c2.status = I2CComplete;
       }
       else {
-	i2c2.direction = I2CDirRx;
+	i2c2.transaction = I2CTransRx;
 	I2c2SendStart();
       }
     }
@@ -370,9 +378,10 @@ void i2c2_ev_irq_handler(void) {
     
     /* Test on I2C2 EV7 and clear it */
   case I2C_EVENT_MASTER_BYTE_RECEIVED:      /* Store I2C2 received data        */
+  case 0x40:  /* only RXNE - misses BUSY and MSL */
     i2c2.buf[i2c2.index] = I2C_ReceiveData(I2C2);
     i2c2.index++;
-    /* Disable ACK and send I2C1 STOP condition before receiving last byte    */
+    /* Disable ACK and send I2C2 STOP condition before receiving last byte    */
     if (i2c2.index == (i2c2.len_r - 1)) {
       I2C_AcknowledgeConfig(I2C2, DISABLE); /* Disable I2C2 acknowledgement   */
       I2C_GenerateSTOP(I2C2, ENABLE);       /* Send I2C2 STOP Condition       */
@@ -380,7 +389,7 @@ void i2c2_ev_irq_handler(void) {
     else if (i2c2.index == i2c2.len_r) {
       if (i2c2.finished)
 	*i2c2.finished = TRUE;
-      i2c2.status = I2C_IDLE;
+      i2c2.status = I2CComplete;
       I2C_ITConfig(I2C2, I2C_IT_EVT, DISABLE);
     }
     break;
@@ -390,19 +399,52 @@ void i2c2_ev_irq_handler(void) {
   }
 }
 
+#define I2C2_ABORT_AND_RESET() {					\
+									\
+    if (i2c2.finished)							\
+      *(i2c2.finished) = TRUE;						\
+    i2c2.status = I2CFailed;						\
+    I2C_ITConfig(I2C2, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);	\
+    I2C_Cmd(I2C2, DISABLE);						\
+    I2C_DeInit(I2C2);							\
+    I2C_Cmd(I2C2, ENABLE);						\
+    I2C2_APPLY_CONFIG();						\
+    I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);				\
+    									\
+  }
 
 void i2c2_er_irq_handler(void) {
-  /* Check on I2C2 AF flag and clear it */
-  if (I2C_GetITStatus(I2C2, I2C_IT_AF)) {
+  if (I2C_GetITStatus(I2C2, I2C_IT_AF)) {       /* Acknowledge failure */
+    i2c2.errc_ack_fail++;
     I2C_ClearITPendingBit(I2C2, I2C_IT_AF);
-    
+    I2C_GenerateSTOP(I2C2, ENABLE);
   }
-  /* Notify transfert failed */
-  if (i2c2.finished)
-	*i2c2.finished = TRUE;
-  i2c2.status = I2C_IDLE;
-  /* disable event interrupt */
-  I2C_ITConfig(I2C2, I2C_IT_EVT | I2C_IT_BUF, DISABLE);
+  if (I2C_GetITStatus(I2C2, I2C_IT_BERR)) {     /* Misplaced Start or Stop condition */
+    i2c2.errc_miss_start_stop++;
+    I2C_ClearITPendingBit(I2C2, I2C_IT_BERR);
+  }
+  if (I2C_GetITStatus(I2C2, I2C_IT_ARLO)) {     /* Arbitration lost */
+    i2c2.errc_arb_lost++;
+    I2C_ClearITPendingBit(I2C2, I2C_IT_ARLO);
+  }
+  if (I2C_GetITStatus(I2C2, I2C_IT_OVR)) {      /* Overrun/Underrun */
+    i2c2.errc_over_under++;
+    I2C_ClearITPendingBit(I2C2, I2C_IT_OVR);
+  }
+  if (I2C_GetITStatus(I2C2, I2C_IT_PECERR)) {   /* PEC Error in reception */
+    i2c2.errc_pec_recep++;
+    I2C_ClearITPendingBit(I2C2, I2C_IT_PECERR);
+  }
+  if (I2C_GetITStatus(I2C2, I2C_IT_TIMEOUT)) {  /* Timeout or Tlow error */
+    i2c2.errc_timeout_tlow++;
+    I2C_ClearITPendingBit(I2C2, I2C_IT_TIMEOUT);
+  }
+  if (I2C_GetITStatus(I2C2, I2C_IT_SMBALERT)) { /* SMBus alert */
+    i2c2.errc_smbus_alert++;
+    I2C_ClearITPendingBit(I2C2, I2C_IT_SMBALERT);
+  }
+  
+  I2C2_ABORT_AND_RESET();
 }
 
 #endif /* USE_I2C2 */
