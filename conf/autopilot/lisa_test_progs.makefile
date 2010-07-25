@@ -126,9 +126,10 @@ test_periodic.TARGETDIR = test_periodic
 test_periodic.CFLAGS += -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
 test_periodic.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_periodic.srcs += $(SRC_LISA)/test_periodic.c  \
-                      $(SRC_LISA)/exceptions.c     \
-                      $(SRC_LISA)/vector_table.c
+                      $(SRC_ARCH)/stm32_exceptions.c     \
+                      $(SRC_ARCH)/stm32_vector_table.c
 test_periodic.CFLAGS += -DUSE_LED
+test_periodic.srcs += $(SRC_ARCH)/led_hw.c
 test_periodic.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
 test_periodic.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_periodic.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
@@ -336,65 +337,6 @@ test_servos.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c $(SRC_BOOZ_ARCH)/
 
 
 
-#
-# test Max1168
-#
-test_max1168.ARCHDIR = $(ARCHI)
-test_max1168.TARGET = test_max1168
-test_max1168.TARGETDIR = test_max1168
-test_max1168.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
-test_max1168.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_max1168.srcs = $(SRC_LISA)/test/lisa_test_max1168.c \
-                    $(SRC_ARCH)/stm32_exceptions.c   \
-                    $(SRC_ARCH)/stm32_vector_table.c
-
-test_max1168.CFLAGS += -DUSE_LED
-test_max1168.srcs += $(SRC_ARCH)/led_hw.c
-
-test_max1168.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
-test_max1168.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-test_max1168.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-
-test_max1168.CFLAGS += -DUSE_SPI2 -DUSE_EXTI2_IRQ -DUSE_DMA1_C4_IRQ -DMAX1168_HANDLES_DMA_IRQ
-test_max1168.srcs   += $(SRC_BOOZ)/peripherals/booz_max1168.c \
-                       $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
-
-test_max1168.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
-test_max1168.srcs += $(SRC_ARCH)/uart_hw.c
-
-test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
-test_max1168.srcs += downlink.c pprz_transport.c
-
-#
-# test ms2001
-#
-test_ms2001.ARCHDIR = $(ARCHI)
-test_ms2001.TARGET = test_ms2001
-test_ms2001.TARGETDIR = test_ms2001
-test_ms2001.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
-test_ms2001.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_ms2001.srcs = $(SRC_LISA)/test/lisa_test_ms2001.c \
-                   $(SRC_ARCH)/stm32_exceptions.c   \
-                   $(SRC_ARCH)/stm32_vector_table.c
-
-test_ms2001.CFLAGS += -DUSE_LED
-test_ms2001.srcs += $(SRC_ARCH)/led_hw.c
-
-test_ms2001.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
-test_ms2001.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-test_ms2001.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-
-test_ms2001.CFLAGS += -DUSE_SPI2
-test_ms2001.CFLAGS += -DUSE_DMA1_C4_IRQ -DMS2001_HANDLES_DMA_IRQ
-test_ms2001.CFLAGS += -DUSE_SPI2_IRQ -DMS2001_HANDLES_SPI_IRQ
-test_ms2001.srcs   += $(SRC_BOOZ)/peripherals/booz_ms2001.c \
-                      $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
-
-test_ms2001.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
-test_ms2001.srcs += $(SRC_ARCH)/uart_hw.c
-
-test_ms2001.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
-test_ms2001.srcs += downlink.c pprz_transport.c
 
 #
 # test IMU b2
@@ -404,7 +346,7 @@ test_imu_b2.TARGET = test_imu_b2
 test_imu_b2.TARGETDIR = test_imu_b2
 test_imu_b2.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_imu_b2.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
-test_imu_b2.srcs += $(SRC_BOOZ_TEST)/booz2_test_imu_b2.c \
+test_imu_b2.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
                     $(SRC_ARCH)/stm32_exceptions.c   \
                     $(SRC_ARCH)/stm32_vector_table.c
 
@@ -440,7 +382,7 @@ test_imu_crista.TARGET = test_imu_crista
 test_imu_crista.TARGETDIR = test_imu_crista
 test_imu_crista.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_imu_crista.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
-test_imu_crista.srcs += $(SRC_BOOZ_TEST)/booz2_test_imu_b2.c \
+test_imu_crista.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
                     $(SRC_ARCH)/stm32_exceptions.c   \
                     $(SRC_ARCH)/stm32_vector_table.c
 
@@ -451,10 +393,10 @@ test_imu_crista.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
 test_imu_crista.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 test_imu_crista.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
-test_imu_crista.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B57600
+test_imu_crista.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_imu_crista.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_imu_crista.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart3
+test_imu_crista.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_imu_crista.srcs += downlink.c pprz_transport.c
 
 test_imu_crista.srcs += math/pprz_trig_int.c
@@ -464,6 +406,48 @@ test_imu_crista.srcs += $(SRC_BOOZ)/booz_imu.c             \
                         $(SRC_BOOZ)/imu/booz_imu_crista.c \
                         $(SRC_BOOZ_ARCH)/imu/booz_imu_crista_arch.c
 test_imu_crista.CFLAGS += -DUSE_DMA1_C4_IRQ
+
+
+#
+# test IMU aspirin
+#
+test_imu_aspirin.ARCHDIR = $(ARCHI)
+test_imu_aspirin.TARGET = test_imu_aspirin
+test_imu_aspirin.TARGETDIR = test_imu_aspirin
+test_imu_aspirin.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_imu_aspirin.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
+test_imu_aspirin.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
+                    $(SRC_ARCH)/stm32_exceptions.c   \
+                    $(SRC_ARCH)/stm32_vector_table.c
+
+test_imu_aspirin.CFLAGS += -DUSE_LED
+test_imu_aspirin.srcs += $(SRC_ARCH)/led_hw.c
+
+test_imu_aspirin.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_imu_aspirin.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_imu_aspirin.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_imu_aspirin.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_imu_aspirin.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_imu_aspirin.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
+test_imu_aspirin.srcs += downlink.c pprz_transport.c
+
+test_imu_aspirin.srcs += math/pprz_trig_int.c
+
+test_imu_aspirin.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_aspirin.h\" -DIMU_OVERRIDE_CHANNELS
+test_imu_aspirin.srcs += $(SRC_BOOZ)/booz_imu.c             \
+                        $(SRC_BOOZ)/imu/booz_imu_aspirin.c \
+                        $(SRC_BOOZ_ARCH)/imu/booz_imu_aspirin_arch.c
+
+test_imu_aspirin.CFLAGS += -DUSE_I2C2
+test_imu_aspirin.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+test_imu_aspirin.CFLAGS += -DUSE_EXTI15_10_IRQ   # Gyro Int on PC14
+
+#test_imu_aspirin.CFLAGS += -DUSE_DMA1_C4_IRQ
+
+
+
 
 #
 # test motor controllers
@@ -721,38 +705,6 @@ test_baro3.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 
 #
-# test hmc5843
-#
-test_hmc5843.ARCHDIR = $(ARCHI)
-test_hmc5843.TARGET = test_hmc5843
-test_hmc5843.TARGETDIR = test_hmc5843
-test_hmc5843.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -Ibooz -DPERIPHERALS_AUTO_INIT
-test_hmc5843.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_hmc5843.srcs = booz/test/booz_test_hmc5843.c         \
-                    $(SRC_ARCH)/stm32_exceptions.c   \
-                    $(SRC_ARCH)/stm32_vector_table.c
-test_hmc5843.CFLAGS += -DUSE_LED
-test_hmc5843.srcs += $(SRC_ARCH)/led_hw.c
-test_hmc5843.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
-test_hmc5843.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-test_hmc5843.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-
-test_hmc5843.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
-test_hmc5843.srcs += $(SRC_ARCH)/uart_hw.c
-
-test_hmc5843.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
-test_hmc5843.srcs += downlink.c pprz_transport.c
-
-test_hmc5843.srcs += booz/peripherals/booz_hmc5843.c
-test_hmc5843.CFLAGS += -DUSE_I2C2
-test_hmc5843.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-test_hmc5843.CFLAGS += -DIMU_OVERRIDE_CHANNELS
-
-
-
-
-
-#
 # test spi slave ( hardcoded SPI without DMA )
 #
 test_spi_slave.ARCHDIR = $(ARCHI)
@@ -871,6 +823,66 @@ test_sc18is600.srcs += $(SRC_BOOZ)/peripherals/booz_sc18is600.c \
 
 
 #
+# test Max1168
+#
+test_max1168.ARCHDIR = $(ARCHI)
+test_max1168.TARGET = test_max1168
+test_max1168.TARGETDIR = test_max1168
+test_max1168.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_max1168.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_max1168.srcs = $(SRC_LISA)/test/lisa_test_max1168.c \
+                    $(SRC_ARCH)/stm32_exceptions.c   \
+                    $(SRC_ARCH)/stm32_vector_table.c
+
+test_max1168.CFLAGS += -DUSE_LED
+test_max1168.srcs += $(SRC_ARCH)/led_hw.c
+
+test_max1168.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_max1168.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_max1168.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_max1168.CFLAGS += -DUSE_SPI2 -DUSE_EXTI2_IRQ -DUSE_DMA1_C4_IRQ -DMAX1168_HANDLES_DMA_IRQ
+test_max1168.srcs   += $(SRC_BOOZ)/peripherals/booz_max1168.c \
+                       $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
+
+test_max1168.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_max1168.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_max1168.srcs += downlink.c pprz_transport.c
+
+#
+# test ms2001
+#
+test_ms2001.ARCHDIR = $(ARCHI)
+test_ms2001.TARGET = test_ms2001
+test_ms2001.TARGETDIR = test_ms2001
+test_ms2001.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_ms2001.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_ms2001.srcs = $(SRC_LISA)/test/lisa_test_ms2001.c \
+                   $(SRC_ARCH)/stm32_exceptions.c   \
+                   $(SRC_ARCH)/stm32_vector_table.c
+
+test_ms2001.CFLAGS += -DUSE_LED
+test_ms2001.srcs += $(SRC_ARCH)/led_hw.c
+
+test_ms2001.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_ms2001.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_ms2001.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_ms2001.CFLAGS += -DUSE_SPI2
+test_ms2001.CFLAGS += -DUSE_DMA1_C4_IRQ -DMS2001_HANDLES_DMA_IRQ
+test_ms2001.CFLAGS += -DUSE_SPI2_IRQ -DMS2001_HANDLES_SPI_IRQ
+test_ms2001.srcs   += $(SRC_BOOZ)/peripherals/booz_ms2001.c \
+                      $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
+
+test_ms2001.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_ms2001.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_ms2001.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_ms2001.srcs += downlink.c pprz_transport.c
+
+#
 # test adxl345
 #
 test_adxl345.ARCHDIR = $(ARCHI)
@@ -895,7 +907,7 @@ test_adxl345.srcs += $(SRC_ARCH)/uart_hw.c
 test_adxl345.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_adxl345.srcs += downlink.c pprz_transport.c
 
-test_adxl345.CFLAGS += -DUSE_EXTI2_IRQ   # Acc  Int
+test_adxl345.CFLAGS += -DUSE_EXTI2_IRQ   # Acc  Int on PD2
 
 #
 # test ITG3200
@@ -924,7 +936,37 @@ test_itg3200.srcs += downlink.c pprz_transport.c
 
 test_itg3200.CFLAGS += -DUSE_I2C2
 test_itg3200.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-test_itg3200.CFLAGS += -DUSE_EXTI2_IRQ   # Gyro Int
+test_itg3200.CFLAGS += -DUSE_EXTI15_10_IRQ   # Gyro Int on PC14
+
+
+#
+# test hmc5843
+#
+test_hmc5843.ARCHDIR = $(ARCHI)
+test_hmc5843.TARGET = test_hmc5843
+test_hmc5843.TARGETDIR = test_hmc5843
+test_hmc5843.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -Ibooz -DPERIPHERALS_AUTO_INIT
+test_hmc5843.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_hmc5843.srcs = lisa/test/lisa_test_hmc5843.c         \
+                    $(SRC_ARCH)/stm32_exceptions.c   \
+                    $(SRC_ARCH)/stm32_vector_table.c
+test_hmc5843.CFLAGS += -DUSE_LED
+test_hmc5843.srcs += $(SRC_ARCH)/led_hw.c
+test_hmc5843.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_hmc5843.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_hmc5843.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_hmc5843.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_hmc5843.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_hmc5843.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_hmc5843.srcs += downlink.c pprz_transport.c
+
+test_hmc5843.CFLAGS += -DUSE_I2C2
+test_hmc5843.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+test_hmc5843.CFLAGS += -DIMU_OVERRIDE_CHANNELS
+test_hmc5843.CFLAGS += -DUSE_EXTI9_5_IRQ   # Mag Int on PB5
+
 
 
 
