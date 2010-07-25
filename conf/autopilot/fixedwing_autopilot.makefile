@@ -50,7 +50,7 @@ endif
 #
 # LEDs
 #
-ap.CFLAGS += -DUSE_LED
+ap.CFLAGS += -DUSE_LED -DLED -DTIME_LED=1
 ifeq ($(ARCHI), stm32) 
 ap.srcs += $(SRC_ARCH)/led_hw.c
 endif
@@ -66,76 +66,38 @@ ap.CFLAGS += -DSYS_TIME_LED=1
 endif
 
 #
-# FlyByWire
+# FlyByWire Main
 #
 ap.CFLAGS += -DFBW
 ap.srcs += $(SRC_FIXEDWING)/main_fbw.c
 
 #
-# Telemetry/Datalink
+# AutoPilot Main
 #
-# ap.srcs += $(SRC_ARCH)/uart_hw.c
-# ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport
-# ap.srcs += $(SRC_FIXEDWING)/booz2_telemetry.c \
-# 	   downlink.c \
-#            pprz_transport.c
-# ap.CFLAGS += -DDATALINK=PPRZ
-# ap.srcs += $(SRC_FIXEDWING)/booz2_datalink.c
-
-# ifeq ($(ARCHI), arm7)
-# ap.CFLAGS += -DUSE_UART1  -DUART1_VIC_SLOT=6  -DUART1_BAUD=MODEM_BAUD
-# ap.CFLAGS += -DDOWNLINK_DEVICE=Uart1 
-# ap.CFLAGS += -DPPRZ_UART=Uart1
-# else ifeq ($(ARCHI), stm32) 
-# ap.CFLAGS += -DUSE_UART2 -DUART2_BAUD=MODEM_BAUD
-# ap.CFLAGS += -DDOWNLINK_DEVICE=Uart2 
-# ap.CFLAGS += -DPPRZ_UART=Uart2
-# endif
-
-
-# ap.srcs += $(SRC_FIXEDWING)/booz2_commands.c
+ap.CFLAGS += -DAP
+ap.srcs += $(SRC_FIXEDWING)/main_ap.c
+ap.srcs += $(SRC_FIXEDWING)/estimator.c
 
 #
-# Radio control choice
-#
-# include booz2_radio_control_ppm.makefile
-# or
-# include booz2_radio_control_spektrum.makefile
+# InterMCU Commands
 #
 
-#
-# Actuator choice
-#
-# include booz2_actuators_buss.makefile
-# or
-# include booz2_actuators_asctec.makefile
-#
+ap.CFLAGS += -DINTER_MCU
+ap.srcs += $(SRC_FIXEDWING)/inter_mcu.c 
+ap.srcs += $(SRC_FIXEDWING)/commands.c
 
 #
-# IMU choice
+# UARTS
 #
-# include booz2_imu_b2v1.makefile
-# or
-# include booz2_imu_b2v1_1.makefile
-# or
-# include booz2_imu_crista.makefile
-#
+ap.srcs += $(SRC_ARCH)/uart_hw.c
 
 
-# ifeq ($(ARCHI), arm7)
-# ap.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
-# ap.srcs += $(SRC_FIXEDWING)/booz2_analog_baro.c
-# 
-# ap.CFLAGS += -DBOOZ2_ANALOG_BATTERY_PERIOD='SYS_TICS_OF_SEC((1./10.))'
-# ap.srcs += $(SRC_FIXEDWING)/booz2_battery.c
-# 
-# ap.CFLAGS += -DADC0_VIC_SLOT=2
-# ap.CFLAGS += -DADC1_VIC_SLOT=3
-# ap.srcs += $(SRC_FIXEDWING)/booz2_analog.c \
-#            $(SRC_FIXEDWING_ARCH)/booz2_analog_hw.c
-# else ifeq ($(ARCHI), stm32) 
-# ap.srcs += lisa/lisa_analog_plug.c
-# endif
+ifeq ($(ARCHI), arm7)
+ap.CFLAGS += -DADC
+ap.srcs += $(SRC_ARCH)/adc_hw.c
+else ifeq ($(ARCHI), stm32) 
+ap.srcs += lisa/lisa_analog_plug.c
+endif
 
 
 #
@@ -155,25 +117,6 @@ ap.srcs += $(SRC_FIXEDWING)/main_fbw.c
 # include booz2_ahrs_lkf.makefile
 #
 
-# ap.srcs += $(SRC_FIXEDWING)/booz2_autopilot.c
-
-# ap.srcs += math/pprz_trig_int.c
-# ap.srcs += $(SRC_FIXEDWING)/booz_stabilization.c
-# ap.srcs += $(SRC_FIXEDWING)/stabilization/booz_stabilization_rate.c
-
-
-# ap.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_INT
-# ap.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/booz_stabilization_attitude_int.h\"
-# ap.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/booz_stabilization_attitude_ref_euler_int.h\"
-# ap.srcs += $(SRC_FIXEDWING)/stabilization/booz_stabilization_attitude_ref_euler_int.c
-# ap.srcs += $(SRC_FIXEDWING)/stabilization/booz_stabilization_attitude_euler_int.c
-
-# ap.CFLAGS += -DUSE_NAVIGATION
-# ap.srcs += $(SRC_FIXEDWING)/guidance/booz2_guidance_h.c
-# ap.srcs += $(SRC_FIXEDWING)/guidance/booz2_guidance_v.c
-
-# ap.srcs += $(SRC_FIXEDWING)/booz2_ins.c
-# ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c
 
 #
 # INS choice
@@ -182,12 +125,6 @@ ap.srcs += $(SRC_FIXEDWING)/main_fbw.c
 # or
 # nothing
 #
-
-#  vertical filter float version
-# ap.srcs += $(SRC_FIXEDWING)/ins/booz2_vf_float.c
-# ap.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)"
-
-# ap.srcs += $(SRC_FIXEDWING)/booz2_navigation.c
 
 
 #
