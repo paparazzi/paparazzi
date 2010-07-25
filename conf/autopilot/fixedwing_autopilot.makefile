@@ -77,7 +77,9 @@ ap.srcs += $(SRC_FIXEDWING)/main_fbw.c
 ap.CFLAGS += -DAP
 ap.srcs += $(SRC_FIXEDWING)/main_ap.c
 ap.srcs += $(SRC_FIXEDWING)/estimator.c
-
+ap.CFLAGS += -DNAV
+ap.srcs += $(SRC_FIXEDWING)/nav.c $(SRC_FIXEDWING)/fw_h_ctl.c $(SRC_FIXEDWING)/fw_v_ctl.c
+ap.srcs += $(SRC_FIXEDWING)/nav_survey_rectangle.c $(SRC_FIXEDWING)/nav_line.c
 #
 # InterMCU Commands
 #
