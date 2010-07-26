@@ -442,8 +442,12 @@ test_imu_aspirin.srcs += $(SRC_BOOZ)/booz_imu.c             \
 
 test_imu_aspirin.CFLAGS += -DUSE_I2C2
 test_imu_aspirin.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-test_imu_aspirin.CFLAGS += -DUSE_EXTI15_10_IRQ   # Gyro Int on PC14
+test_imu_aspirin.CFLAGS += -DUSE_EXTI15_10_IRQ  # Gyro Int on PC14
+test_imu_aspirin.CFLAGS += -DUSE_EXTI9_5_IRQ    # Mag Int on PB5
+test_imu_aspirin.CFLAGS += -DUSE_EXTI2_IRQ      # Accel Int on PD2
+test_imu_aspirin.CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
 
+#test_imu_aspirin.CFLAGS += -DI2C2_STOP_HANDLER=OnI2CDone -DI2C2_STOP_HANDLER_HEADER=\"imu/booz_imu_aspirin_arch.h\"
 #test_imu_aspirin.CFLAGS += -DUSE_DMA1_C4_IRQ
 
 
@@ -910,6 +914,37 @@ test_adxl345.srcs += downlink.c pprz_transport.c
 test_adxl345.CFLAGS += -DUSE_EXTI2_IRQ   # Acc  Int on PD2
 
 #
+# test adxl345 with DMA
+#
+test_adxl345_dma.ARCHDIR = $(ARCHI)
+test_adxl345_dma.TARGET = test_adxl345_dma
+test_adxl345_dma.TARGETDIR = test_adxl345_dma
+test_adxl345_dma.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_adxl345_dma.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
+test_adxl345_dma.srcs += lisa/test/lisa_test_adxl345_dma.c \
+                       $(SRC_ARCH)/stm32_exceptions.c   \
+                       $(SRC_ARCH)/stm32_vector_table.c
+
+test_adxl345_dma.CFLAGS += -DUSE_LED
+test_adxl345_dma.srcs += $(SRC_ARCH)/led_hw.c
+
+test_adxl345_dma.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_adxl345_dma.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_adxl345_dma.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_adxl345_dma.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_adxl345_dma.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_adxl345_dma.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
+test_adxl345_dma.srcs += downlink.c pprz_transport.c
+
+test_adxl345_dma.CFLAGS += -DUSE_EXTI2_IRQ   # Accel Int on PD2
+test_adxl345_dma.CFLAGS += -DUSE_DMA1_C4_IRQ # SPI2 Rx DMA
+
+
+
+
+#
 # test ITG3200
 #
 test_itg3200.ARCHDIR = $(ARCHI)
@@ -1130,3 +1165,52 @@ test_board.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 test_board.CFLAGS += -DUSE_I2C1
 
 test_board.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_hw.c
+
+
+
+
+################################################################################
+#
+#
+#  Tools for IMUs comparison
+#
+#
+################################################################################
+#
+# test IMU aspirin
+#
+hs_gyro_aspirin.ARCHDIR = $(ARCHI)
+hs_gyro_aspirin.TARGET = hs_gyro_aspirin
+hs_gyro_aspirin.TARGETDIR = hs_gyro_aspirin
+hs_gyro_aspirin.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+hs_gyro_aspirin.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
+hs_gyro_aspirin.srcs += lisa/test/hs_gyro.c \
+                    $(SRC_ARCH)/stm32_exceptions.c   \
+                    $(SRC_ARCH)/stm32_vector_table.c
+
+hs_gyro_aspirin.CFLAGS += -DUSE_LED
+hs_gyro_aspirin.srcs += $(SRC_ARCH)/led_hw.c
+
+hs_gyro_aspirin.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+hs_gyro_aspirin.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+hs_gyro_aspirin.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+hs_gyro_aspirin.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+hs_gyro_aspirin.srcs += $(SRC_ARCH)/uart_hw.c
+
+hs_gyro_aspirin.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
+hs_gyro_aspirin.srcs += downlink.c pprz_transport.c
+
+hs_gyro_aspirin.srcs += math/pprz_trig_int.c
+
+hs_gyro_aspirin.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_aspirin.h\" -DIMU_OVERRIDE_CHANNELS
+hs_gyro_aspirin.srcs += $(SRC_BOOZ)/booz_imu.c             \
+                        $(SRC_BOOZ)/imu/booz_imu_aspirin.c \
+                        $(SRC_BOOZ_ARCH)/imu/booz_imu_aspirin_arch.c
+
+hs_gyro_aspirin.CFLAGS += -DUSE_I2C2
+hs_gyro_aspirin.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+hs_gyro_aspirin.CFLAGS += -DUSE_EXTI15_10_IRQ  # Gyro Int on PC14
+hs_gyro_aspirin.CFLAGS += -DUSE_EXTI9_5_IRQ    # Mag Int on PB5
+hs_gyro_aspirin.CFLAGS += -DUSE_EXTI2_IRQ      # Accel Int on PD2
+hs_gyro_aspirin.CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
