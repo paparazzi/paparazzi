@@ -57,12 +57,12 @@ int main( void ) {
     if (sys_time_periodic()) {
       Fbw(periodic_task);
       Ap(periodic_task);
+#ifdef STM32
+      LED_PERIODIC();
+#endif
     }
     Fbw(event_task);
     Ap(event_task);
-#ifdef STM32
-    LED_PERIODIC();
-#endif
   }
   return 0;
 }
