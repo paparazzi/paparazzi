@@ -115,6 +115,21 @@ extern void exti4_irq_handler(void);
 #define EXTI4_IRQ_HANDLER null_handler
 #endif
 
+#ifdef USE_EXTI9_5_IRQ
+extern void exti9_5_irq_handler(void);
+#define EXTI9_5_IRQ_HANDLER exti9_5_irq_handler
+#else
+#define EXTI9_5_IRQ_HANDLER null_handler
+#endif
+
+#ifdef USE_EXTI15_10_IRQ
+extern void exti15_10_irq_handler(void);
+#define EXTI15_10_IRQ_HANDLER exti15_10_irq_handler
+#else
+#define EXTI15_10_IRQ_HANDLER null_handler
+#endif
+
+
 #ifdef USE_DMA1_C2_IRQ
 extern void dma1_c2_irq_handler(void);
 #define DMA1_C2_IRQ_HANDLER dma1_c2_irq_handler
@@ -202,7 +217,7 @@ void (* const vector_table[])(void) = {
     USB_LP_CAN1_RX0_IRQ_HANDLER, /* usb_lp_can_rx0_irq_handler */
     null_handler,             /* can_rx1_irq_handler */
     null_handler,             /* can_sce_irq_handler */
-    null_handler,             /* exti9_5_irq_handler */
+    EXTI9_5_IRQ_HANDLER,      /* exti9_5_irq_handler */
     null_handler,             /* tim1_brk_irq_handler */
     null_handler,             /* tim1_up_irq_handler */
     null_handler,             /* tim1_trg_com_irq_handler */
@@ -219,7 +234,7 @@ void (* const vector_table[])(void) = {
     USART1_IRQ_HANDLER,       /* usart1_irq_handler */
     USART2_IRQ_HANDLER,       /* usart2_irq_handler */
     USART3_IRQ_HANDLER,       /* usart3_irq_handler */
-    null_handler,             /* exti15_10_irq_handler */
+    EXTI15_10_IRQ_HANDLER,    /* exti15_10_irq_handler */
     null_handler,             /* rtc_alarm_irq_handler */
     null_handler,             /* usb_wake_up_irq_handler */
     null_handler,             /* tim8_brk_irq_handler */
