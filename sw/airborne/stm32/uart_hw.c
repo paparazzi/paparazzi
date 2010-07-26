@@ -46,7 +46,7 @@ void uart1_init( void ) {
   /* Enable USART1 interrupts */
   NVIC_InitTypeDef nvic;
   nvic.NVIC_IRQChannel = USART1_IRQn;
-  nvic.NVIC_IRQChannelPreemptionPriority = 0;
+  nvic.NVIC_IRQChannelPreemptionPriority = 2;
   nvic.NVIC_IRQChannelSubPriority = 1;
   nvic.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&nvic);
@@ -169,7 +169,7 @@ void uart2_init( void ) {
   /* Enable USART2 interrupts */
   NVIC_InitTypeDef nvic;
   nvic.NVIC_IRQChannel = USART2_IRQn;
-  nvic.NVIC_IRQChannelPreemptionPriority = 0;
+  nvic.NVIC_IRQChannelPreemptionPriority = 2;
   nvic.NVIC_IRQChannelSubPriority = 1;
   nvic.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&nvic);
@@ -295,7 +295,7 @@ void uart3_init( void ) {
   /* Enable USART3 interrupts */
   NVIC_InitTypeDef nvic;
   nvic.NVIC_IRQChannel = USART3_IRQn;
-  nvic.NVIC_IRQChannelPreemptionPriority = 0;
+  nvic.NVIC_IRQChannelPreemptionPriority = 2;
   nvic.NVIC_IRQChannelSubPriority = 1;
   nvic.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&nvic);
