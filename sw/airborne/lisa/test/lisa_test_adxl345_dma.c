@@ -26,6 +26,7 @@
 #include <stm32/misc.h>
 #include <stm32/exti.h>
 #include <stm32/spi.h>
+#include <stm32/dma.h>
 
 #include BOARD_CONFIG
 #include "init_hw.h"
@@ -42,6 +43,7 @@ static inline void main_event_task( void );
 static inline void main_init_hw(void);
 
 void exti2_irq_handler(void);
+void dma1_c4_irq_handler(void);
 
 int main(void) {
   main_init();
@@ -66,8 +68,10 @@ static void write_to_reg(uint8_t addr, uint8_t val);
 static uint8_t read_fom_reg(uint8_t addr);
 #define CONFIGURED 6
 static uint8_t acc_status=0;
-static volatile uint8_t acc_ready_for_read = FALSE;
-static uint8_t values[6];
+static volatile uint8_t acc_data_available = FALSE;
+
+static uint8_t dma_tx_buf[7];
+static uint8_t dma_rx_buf[7];
 
 #define AccUnselect() GPIOB->BSRR = GPIO_Pin_12
 #define AccSelect() GPIOB->BRR = GPIO_Pin_12
@@ -99,39 +103,55 @@ static uint8_t read_fom_reg(uint8_t addr) {
 
 static void read_data(void) {
   AccSelect();
-  SPI_I2S_SendData(SPI2, (1<<7|1<<6|ADXL345_REG_DATA_X0));
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
-  uint8_t __attribute__ ((unused)) foo = SPI_I2S_ReceiveData(SPI2);
+ 
+  dma_tx_buf[0] = (1<<7|1<<6|ADXL345_REG_DATA_X0);
+  
+  /* SPI2_Rx_DMA_Channel configuration ------------------------------------*/
+  DMA_DeInit(DMA1_Channel4);						
+  DMA_InitTypeDef DMA_initStructure_4 = {
+    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
+    .DMA_MemoryBaseAddr = (uint32_t)dma_rx_buf,
+    .DMA_DIR = DMA_DIR_PeripheralSRC,			
+    .DMA_BufferSize = 7,
+    .DMA_PeripheralInc = DMA_PeripheralInc_Disable,	
+    .DMA_MemoryInc = DMA_MemoryInc_Enable,
+    .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
+    .DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,	
+    .DMA_Mode = DMA_Mode_Normal,
+    .DMA_Priority = DMA_Priority_VeryHigh,		
+    .DMA_M2M = DMA_M2M_Disable
+  };
+  DMA_Init(DMA1_Channel4, &DMA_initStructure_4);
 
-  SPI_I2S_SendData(SPI2, 0x00);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
-  values[0] = SPI_I2S_ReceiveData(SPI2);
-  SPI_I2S_SendData(SPI2, 0x00);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET); 
-  values[1] = SPI_I2S_ReceiveData(SPI2);
-
-  SPI_I2S_SendData(SPI2, 0x00);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
-  values[2] = SPI_I2S_ReceiveData(SPI2);
-  SPI_I2S_SendData(SPI2, 0x00);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET); 
-  values[3] = SPI_I2S_ReceiveData(SPI2);
-
-  SPI_I2S_SendData(SPI2, 0x00);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
-  values[4] = SPI_I2S_ReceiveData(SPI2);
-  SPI_I2S_SendData(SPI2, 0x00);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET); 
-  values[5] = SPI_I2S_ReceiveData(SPI2);
-
-  AccUnselect();
+  /* SPI2_Tx_DMA_Channel configuration ------------------------------------*/
+  DMA_DeInit(DMA1_Channel5);  
+  DMA_InitTypeDef DMA_initStructure_5 = {
+    .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
+    .DMA_MemoryBaseAddr = (uint32_t)dma_tx_buf,
+    .DMA_DIR = DMA_DIR_PeripheralDST,
+    .DMA_BufferSize = 7,
+    .DMA_PeripheralInc = DMA_PeripheralInc_Disable,
+    .DMA_MemoryInc = DMA_MemoryInc_Enable,
+    .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
+    .DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,	
+    .DMA_Mode = DMA_Mode_Normal,
+    .DMA_Priority = DMA_Priority_Medium,
+    .DMA_M2M = DMA_M2M_Disable
+  };
+  DMA_Init(DMA1_Channel5, &DMA_initStructure_5);
+  
+  /* Enable SPI_2 Rx request */
+  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, ENABLE);
+  /* Enable DMA1 Channel4 */
+  DMA_Cmd(DMA1_Channel4, ENABLE);
+  
+  /* Enable SPI_2 Tx request */
+  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, ENABLE);
+  /* Enable DMA1 Channel5 */
+  DMA_Cmd(DMA1_Channel5, ENABLE);
+  
+  /* Enable DMA1 Channel4 Transfer Complete interrupt */
+  DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, ENABLE);
 
 }
 
@@ -145,51 +165,38 @@ static inline void main_periodic_task( void ) {
       LED_PERIODIC();
     });
 
-  switch (acc_status) {
-  case 1: 
+  if (acc_status != CONFIGURED) {
     {
       /* read data rate */
       //      uint8_t bar = read_fom_reg(ADXL345_REG_BW_RATE);
     }
     /* set data rate to 800Hz */
     write_to_reg(ADXL345_REG_BW_RATE, 0x0D);
-    break;
-  case 2:
     /* switch to measurememnt mode */
     write_to_reg(ADXL345_REG_POWER_CTL, 1<<3);
-    break;
-  case 3:
     /* enable data ready interrupt */
     write_to_reg(ADXL345_REG_INT_ENABLE, 1<<7);
-    break;
-  case 4:
     /* Enable full res and interrupt active low */
-     write_to_reg(ADXL345_REG_DATA_FORMAT, 1<<3|1<<5);
-    break;
-  case 5:
+    write_to_reg(ADXL345_REG_DATA_FORMAT, 1<<3|1<<5);
     /* reads data once to bring interrupt line up */
+    uint8_t ret = SPI_I2S_ReceiveData(SPI2);
     read_data();
-    break;
-  case CONFIGURED:
-    //    read_data();
-    break;
-  default:
-    break;
+    acc_status = CONFIGURED;
   }
-  
-  if (acc_status < CONFIGURED) acc_status++;
 
 }
 
 
 static inline void main_event_task( void ) {
 
-  if (acc_status >= CONFIGURED && acc_ready_for_read) {
-    read_data();
-    acc_ready_for_read = FALSE;
-    int32_t iax = *((int16_t*)&values[0]);
-    int32_t iay = *((int16_t*)&values[2]);
-    int32_t iaz = *((int16_t*)&values[4]);
+  if (acc_status >= CONFIGURED && acc_data_available) {
+    acc_data_available = FALSE;
+    int16_t ax = dma_rx_buf[1] | (dma_rx_buf[2]<<8);
+    int16_t ay = dma_rx_buf[3] | (dma_rx_buf[4]<<8);
+    int16_t az = dma_rx_buf[5] | (dma_rx_buf[6]<<8);
+    int32_t iax = ax;
+    int32_t iay = ay;
+    int32_t iaz = az;
     RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, &iax, &iay, &iaz);});
   }
 
@@ -252,6 +259,18 @@ static inline void main_init_hw( void ) {
   SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;			
   SPI_InitStructure.SPI_CRCPolynomial = 7;				
   SPI_Init(SPI2, &SPI_InitStructure);					
+  
+  /* Enable DMA1 channel4 IRQ Channel ( SPI RX) */
+  NVIC_InitTypeDef NVIC_init_struct = {
+    .NVIC_IRQChannel = DMA1_Channel4_IRQn,
+    .NVIC_IRQChannelPreemptionPriority = 0,
+    .NVIC_IRQChannelSubPriority = 0,
+    .NVIC_IRQChannelCmd = ENABLE 
+  };
+  NVIC_Init(&NVIC_init_struct);
+
+  /* Enable SPI_2 DMA clock ---------------------------------------------------*/
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
   DEBUG_SERVO2_INIT();
 
@@ -265,9 +284,20 @@ void exti2_irq_handler(void) {
     EXTI_ClearITPendingBit(EXTI_Line2);
 
   DEBUG_S4_TOGGLE();
-
-  acc_ready_for_read = TRUE;
   
+  read_data();
 
 }
 
+void dma1_c4_irq_handler(void) {
+  AccUnselect();
+  DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);
+  /* Disable SPI_2 Rx and TX request */			
+  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, DISABLE);	
+  SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, DISABLE);	
+  /* Disable DMA1 Channel4 and 5 */			
+  DMA_Cmd(DMA1_Channel4, DISABLE);			
+  DMA_Cmd(DMA1_Channel5, DISABLE);			
+  							
+  acc_data_available = TRUE;	
+}
