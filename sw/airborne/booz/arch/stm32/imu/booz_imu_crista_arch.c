@@ -43,7 +43,7 @@ static uint8_t buf_out[4];
 #define ADS8344Unselect() GPIOB->BSRR = GPIO_Pin_12
 #define ADS8344Select()   GPIOB->BRR  = GPIO_Pin_12
 
-
+extern void dma1_c4_irq_handler(void);
 static void ADS8344_read_channel( void );
 
 void booz_imu_crista_arch_init(void) {
