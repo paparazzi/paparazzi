@@ -61,6 +61,19 @@ extern uint16_t i2c_errc_smbus_alert;
 
 #ifdef USE_I2C2
 
+/* 
+   This is a hook for a caller module to provide
+   code to be called in the interrupt handler
+   at the end of a transfert 
+*/
+#ifdef I2C2_STOP_HANDLER
+#include I2C2_STOP_HANDLER_HEADER
+#define I2c2StopHandler() I2C2_STOP_HANDLER()
+#else 
+#define I2c2StopHandler() {}
+#endif /* I2C2_STOP_HANDLER */
+
+
 extern void i2c2_hw_init(void);
 extern void i2c2_ev_irq_handler(void);
 extern void i2c2_er_irq_handler(void);

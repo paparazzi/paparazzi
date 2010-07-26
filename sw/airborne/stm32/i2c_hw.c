@@ -355,6 +355,7 @@ void i2c2_ev_irq_handler(void) {
 	if (i2c2.finished)
 	  *i2c2.finished = TRUE;
 	i2c2.status = I2CComplete;
+	I2c2StopHandler();
       }
       else {
 	i2c2.transaction = I2CTransRx;
@@ -387,10 +388,11 @@ void i2c2_ev_irq_handler(void) {
       I2C_GenerateSTOP(I2C2, ENABLE);       /* Send I2C2 STOP Condition       */
     }
     else if (i2c2.index == i2c2.len_r) {
+      I2C_ITConfig(I2C2, I2C_IT_EVT, DISABLE);
       if (i2c2.finished)
 	*i2c2.finished = TRUE;
       i2c2.status = I2CComplete;
-      I2C_ITConfig(I2C2, I2C_IT_EVT, DISABLE);
+      I2c2StopHandler();
     }
     break;
     
