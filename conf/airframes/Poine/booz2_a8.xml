@@ -1,4 +1,4 @@
-<!-- this is the biplan equiped with  Lisa/L#XXX, crista IMU and asctec V2 controllers -->
+<!-- this is the biplan equiped with  Lisa/L#XXX, aspirin IMU and asctec V2 controllers -->
 
 <airframe name="booz2_a7">
 
@@ -32,7 +32,8 @@
   </section>
 
   <!-- this is my crista -->
-  <section name="IMU" prefix="IMU_">
+ <!--
+ <section name="IMU" prefix="IMU_">
 
     <define name="GYRO_P_SIGN" value="-1"/>
     <define name="GYRO_Q_SIGN" value="-1"/>
@@ -77,7 +78,6 @@
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(  0.)"/>
     <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45.)"/>
 
-<!--  3  -->
     <define name="GYRO_P_CHAN" value="0"/>
     <define name="GYRO_Q_CHAN" value="4"/>
     <define name="GYRO_R_CHAN" value="1"/>
@@ -86,6 +86,65 @@
     <define name="ACCEL_Z_CHAN" value="6"/>
 
   </section>
+-->
+
+
+ <section name="IMU" prefix="IMU_">
+
+    <define name="GYRO_P_SIGN" value="-1"/>
+    <define name="GYRO_Q_SIGN" value="-1"/>
+    <define name="GYRO_R_SIGN" value=" 1"/>
+
+    <define name="GYRO_P_NEUTRAL" value="186"/>
+    <define name="GYRO_Q_NEUTRAL" value="-21"/>
+    <define name="GYRO_R_NEUTRAL" value="25"/>
+
+    <define name="GYRO_P_SENS" value=" 5." integer="16"/>
+    <define name="GYRO_Q_SENS" value=" 5." integer="16"/>
+    <define name="GYRO_R_SENS" value=" 5." integer="16"/>
+
+
+    <define name="ACCEL_X_SIGN" value="1"/>
+    <define name="ACCEL_Y_SIGN" value="1"/>
+    <define name="ACCEL_Z_SIGN" value="1"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="32857"/>
+    <define name="ACCEL_Y_NEUTRAL" value="32429"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32593"/>
+
+    <define name="ACCEL_X_SENS" value="-2.58273701242" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="-2.54076215332" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="-2.57633620646" integer="16"/>
+
+
+    <define name="MAG_X_SIGN" value="-43"/>
+    <define name="MAG_Y_SIGN" value=" 49"/>
+    <define name="MAG_Z_SIGN" value="-66"/>
+
+    <define name="MAG_X_NEUTRAL" value="-43"/>
+    <define name="MAG_Y_NEUTRAL" value=" 49"/>
+    <define name="MAG_Z_NEUTRAL" value="-66"/>
+
+    <define name="MAG_X_SENS" value=" 5.32718104135" integer="16"/>
+    <define name="MAG_Y_SENS" value="-4.87857821202" integer="16"/>
+    <define name="MAG_Z_SENS" value="-3.11986612709" integer="16"/>
+
+
+    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(  0.)"/>
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(  0.)"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45.)"/>
+
+    <define name="GYRO_P_CHAN" value="0"/>
+    <define name="GYRO_Q_CHAN" value="4"/>
+    <define name="GYRO_R_CHAN" value="1"/>
+    <define name="ACCEL_X_CHAN" value="5"/>
+    <define name="ACCEL_Y_CHAN" value="2"/>
+    <define name="ACCEL_Z_CHAN" value="6"/>
+
+  </section>
+
+
+
 
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
