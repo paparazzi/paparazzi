@@ -78,7 +78,7 @@ extern void i2c2_hw_init(void);
 extern void i2c2_ev_irq_handler(void);
 extern void i2c2_er_irq_handler(void);
 
-#define I2c2SendStart() { I2C_GenerateSTART(I2C2, ENABLE); I2C_ITConfig(I2C2, I2C_IT_EVT, ENABLE);}
+#define I2c2SendStart() {I2C_GenerateSTART(I2C2, ENABLE); I2C_ITConfig(I2C2, I2C_IT_EVT|I2C_IT_BUF, ENABLE);}
 
 #endif /* USE_I2C2 */
 
