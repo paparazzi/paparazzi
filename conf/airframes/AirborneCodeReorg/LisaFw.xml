@@ -173,14 +173,28 @@
 
 # Config for AP
 
+# Board Specifics
 include $(PAPARAZZI_SRC)/conf/autopilot/lisa_l.makefile
+
+# Fixed Wing Specifics
 include $(PAPARAZZI_SRC)/conf/autopilot/fixedwing_common.makefile
 include $(CFG_FIXEDWING)/fixedwing_autopilot.makefile
+
+# Temporary problem solving
+ap.CFLAGS 	+= -DSTM32
+
+GPS_UART_NR	= 1
+GPS_BAUD	= 38400
+include $(CFG_FIXEDWING)/subsystems/fixedwing_gps_ublox.makefile
+
+MODEM_UART_NR	= 2
+MODEM_BAUD	= 57600
+include $(CFG_FIXEDWING)/subsystems/fixedwing_telemetry_transparent.makefile
 
 # Config for SITL simulation
 
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DTRAFFIC_INFO
-sim.srcs += nav_survey_rectangle.c traffic_info.c nav_line.c
+sim.CFLAGS 	+= -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DTRAFFIC_INFO
+sim.srcs 	+= nav_survey_rectangle.c traffic_info.c nav_line.c
   </makefile>
 </airframe>

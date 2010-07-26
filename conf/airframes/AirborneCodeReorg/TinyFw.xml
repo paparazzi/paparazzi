@@ -171,8 +171,8 @@
   </section>
  <makefile>
 
-BOARD_CFG=\"tiny_2_1_1.h\"
-FLASH_MODE=IAP
+BOARD_CFG	= \"tiny_2_1_1.h\"
+FLASH_MODE	= IAP
 
 # Board Specifics
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
@@ -185,25 +185,25 @@ include $(CFG_FIXEDWING)/subsystems/fixedwing_attitude_infrared.makefile
 # IO Options
 include $(CFG_FIXEDWING)/subsystems/fixedwing_radio_control_ppm.makefile
 
-GPS_UART=Uart0
-GPS_BAUD=38400
+GPS_UART_NR	= 0
+GPS_BAUD	= 38400
 include $(CFG_FIXEDWING)/subsystems/fixedwing_gps_ublox.makefile
 
-MODEM_UART=Uart1
-MODEM_BAUD=9600
+MODEM_UART_NR	= 1
+MODEM_BAUD	= 9600
 include $(CFG_FIXEDWING)/subsystems/fixedwing_telemetry_transparent.makefile
 
 
 # Special options
-ap.CFLAGS += -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
+ap.CFLAGS 	+= -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 
 
 ######################################
 # Todo
 
-ap.CFLAGS += -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3
-ap.CFLAGS += -DGYRO -DADXRS150
-ap.srcs += gyro.c
+ap.CFLAGS 	+= -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3
+ap.CFLAGS 	+= -DGYRO -DADXRS150
+ap.srcs 	+= $(SRC_FIXEDWING)/gyro.c
 
 
 ######################################

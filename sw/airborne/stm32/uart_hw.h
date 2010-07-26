@@ -31,6 +31,7 @@
 
 #include "std.h"
 
+#define B9600     9600
 #define B38400   38400
 #define B57600   57600
 #define B115200 115200
@@ -106,5 +107,8 @@ extern void usart3_irq_handler(void);
     })
 
 #endif /* USE_UART3 */
+
+
+void uart_init( void );
 
 #endif /* UART_HW_H */

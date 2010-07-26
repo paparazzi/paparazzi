@@ -60,10 +60,12 @@ endif
 #
 ap.CFLAGS += -DUSE_SYS_TIME
 ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+#ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./60.))'
 ifeq ($(ARCHI), stm32) 
-ap.CFLAGS += -DSYS_TIME_LED=1
+ap.CFLAGS += -DSYS_TIME_LED=1  -DPERIPHERALS_AUTO_INIT
 endif
+
 
 #
 # FlyByWire Main
@@ -80,8 +82,9 @@ ap.srcs += $(SRC_FIXEDWING)/estimator.c
 ap.CFLAGS += -DNAV
 ap.srcs += $(SRC_FIXEDWING)/nav.c $(SRC_FIXEDWING)/fw_h_ctl.c $(SRC_FIXEDWING)/fw_v_ctl.c
 ap.srcs += $(SRC_FIXEDWING)/nav_survey_rectangle.c $(SRC_FIXEDWING)/nav_line.c
+
 #
-# InterMCU Commands
+# InterMCU & Commands
 #
 
 ap.CFLAGS += -DINTER_MCU

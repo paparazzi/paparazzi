@@ -29,8 +29,6 @@
 #include <stm32/gpio.h>
 #include "std.h"
 
-
-
 #ifdef USE_UART1 
 
 volatile uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
@@ -397,3 +395,18 @@ void usart3_irq_handler(void) {
 
 
 #endif /* USE_UART3 */
+
+void uart_init( void )
+{
+#ifdef USE_UART1 
+  uart1_init();
+#endif
+#ifdef USE_UART2 
+  uart2_init();
+#endif
+#ifdef USE_UART3 
+  uart3_init();
+#endif
+}
+
+

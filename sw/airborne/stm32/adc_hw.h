@@ -1,7 +1,7 @@
 /*
- * Paparazzi $Id$
+ * $Id: adc_hw.h 2638 2008-08-18 01:30:27Z poine $
  *  
- * Copyright (C) 2005 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2008  Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -21,48 +21,11 @@
  * Boston, MA 02111-1307, USA. 
  *
  */
-/** \file main.c
- * \brief main loop used both on single and dual MCU configuration */
 
+#ifndef ADC_HW_H
+#define ADC_HW_H
 
-#include "sys_time.h"
+#define AdcBank0(x) (x)
+#define AdcBank1(x) (x+NB_ADC)
 
-#ifdef FBW
-#include "main_fbw.h"
-#define Fbw(f) f ## _fbw()
-#else
-#define Fbw(f)
-#endif
-
-#ifdef AP
-#include "main_ap.h"
-#define Ap(f) f ## _ap()
-#else
-#define Ap(f)
-#endif
-
-#ifdef STM32
-#include "init_hw.h"
-#endif
-
-int main( void ) {
-#ifdef STM32
-  hw_init();
-  sys_time_init();
-#endif
-  Fbw(init);
-  Ap(init);
-  InitSysTimePeriodic();
-  while (1) {
-    if (sys_time_periodic()) {
-      Fbw(periodic_task);
-      Ap(periodic_task);
-    }
-    Fbw(event_task);
-    Ap(event_task);
-#ifdef STM32
-    LED_PERIODIC();
-#endif
-  }
-  return 0;
-}
+#endif /* ADC_HW_H */

@@ -54,7 +54,11 @@
 #include "flight_plan.h"
 #include "datalink.h"
 #include "xbee.h"
+#ifdef STM32
+#include <stm32/gpio.h>
+#else
 #include "gpio.h"
+#endif
 #include "light.h"
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
@@ -490,7 +494,8 @@ void periodic_task_ap( void ) {
     tcas_periodic_task_1Hz();
     break;
 #endif
-
+  default:
+    break;
   }
 
 #ifdef USE_LIGHT
@@ -508,6 +513,8 @@ void periodic_task_ap( void ) {
       estimator_flight_time = 1;
       launch = TRUE; /* Not set in non auto launch */
       DOWNLINK_SEND_TAKEOFF(DefaultChannel, &cpu_time_sec);
+  default:
+    break;
     }
 
 #ifdef DIGITAL_CAM
@@ -812,7 +819,9 @@ void init_ap( void ) {
   int_enable();
 
   /** wait 0.5s (historical :-) */
+#ifndef STM32
   sys_time_usleep(500000);
+#endif
 
 #if defined GPS_CONFIGURE
   gps_configure_uart();

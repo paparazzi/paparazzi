@@ -37,6 +37,8 @@
 #include "led.h"
 #endif
 
+#define InitSysTimePeriodic() 
+
 extern void sys_time_init( void );
 extern void sys_tick_irq_handler(void);
 
