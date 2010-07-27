@@ -44,6 +44,7 @@ enum DownlinkDataType {
 	DL_TYPE_INT64,
 	DL_TYPE_FLOAT,
 	DL_TYPE_DOUBLE,
+	DL_TYPE_TIMESTAMP,
 };
 
 struct DownlinkTransport
