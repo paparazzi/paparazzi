@@ -35,6 +35,11 @@
 
 #include "interrupt_hw.h"
 
+#ifndef MEASURED_SENSOR
+#define MEASURED_SENSOR gyro_unscaled.p
+#define MEASURED_SENSOR_NB 0
+#endif
+
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -87,10 +92,10 @@ static inline void on_gyro_accel_event(void) {
   
   static uint8_t cnt;
   static int32_t samples[NB_SAMPLES];
-  const uint8_t axis = 2;
+  const uint8_t axis = MEASURED_SENSOR_NB;
   cnt++;
   if (cnt > NB_SAMPLES) cnt = 0;
-  samples[cnt] = booz_imu.gyro_unscaled.r;
+  samples[cnt] = booz_imu.MEASURED_SENSOR;
   if (cnt == 19) {
     DOWNLINK_SEND_IMU_HS_GYRO(DefaultChannel, &axis, NB_SAMPLES, samples);
   }

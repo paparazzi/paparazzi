@@ -1176,8 +1176,9 @@ test_board.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c $(SRC_BOOZ_ARCH)/a
 #
 #
 ################################################################################
+
 #
-# test IMU aspirin
+# Spits every samples of one axis of gyro on IMU aspirin
 #
 hs_gyro_aspirin.ARCHDIR = $(ARCHI)
 hs_gyro_aspirin.TARGET = hs_gyro_aspirin
@@ -1214,3 +1215,74 @@ hs_gyro_aspirin.CFLAGS += -DUSE_EXTI15_10_IRQ  # Gyro Int on PC14
 hs_gyro_aspirin.CFLAGS += -DUSE_EXTI9_5_IRQ    # Mag Int on PB5
 hs_gyro_aspirin.CFLAGS += -DUSE_EXTI2_IRQ      # Accel Int on PD2
 hs_gyro_aspirin.CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
+
+
+#
+# Spits every samples of one axis of gyro on IMU b2
+#
+hs_gyro_b2.ARCHDIR = $(ARCHI)
+hs_gyro_b2.TARGET = hs_gyro_b2
+hs_gyro_b2.TARGETDIR = hs_gyro_b2
+hs_gyro_b2.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+hs_gyro_b2.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
+hs_gyro_b2.srcs += lisa/test/hs_gyro.c \
+                    $(SRC_ARCH)/stm32_exceptions.c   \
+                    $(SRC_ARCH)/stm32_vector_table.c
+
+hs_gyro_b2.CFLAGS += -DUSE_LED
+hs_gyro_b2.srcs += $(SRC_ARCH)/led_hw.c
+
+hs_gyro_b2.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+hs_gyro_b2.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+hs_gyro_b2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+hs_gyro_b2.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+hs_gyro_b2.srcs += $(SRC_ARCH)/uart_hw.c
+
+hs_gyro_b2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
+hs_gyro_b2.srcs += downlink.c pprz_transport.c
+
+hs_gyro_b2.srcs += math/pprz_trig_int.c
+
+hs_gyro_b2.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
+hs_gyro_b2.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
+hs_gyro_b2.srcs += $(SRC_BOOZ)/booz_imu.c
+hs_gyro_b2.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
+hs_gyro_b2.srcs += $(SRC_BOOZ)/imu/booz_imu_b2.c $(SRC_BOOZ_ARCH)/imu/booz_imu_b2_arch.c
+hs_gyro_b2.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
+hs_gyro_b2.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c  $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
+
+#
+# Spits every samples of one axis of gyro on IMU crista
+#
+hs_gyro_crista.ARCHDIR = $(ARCHI)
+hs_gyro_crista.TARGET = hs_gyro_crista
+hs_gyro_crista.TARGETDIR = hs_gyro_crista
+hs_gyro_crista.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+hs_gyro_crista.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
+hs_gyro_crista.srcs += lisa/test/hs_gyro.c \
+                    $(SRC_ARCH)/stm32_exceptions.c   \
+                    $(SRC_ARCH)/stm32_vector_table.c
+
+hs_gyro_crista.CFLAGS += -DUSE_LED
+hs_gyro_crista.srcs += $(SRC_ARCH)/led_hw.c
+
+hs_gyro_crista.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+hs_gyro_crista.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+hs_gyro_crista.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+hs_gyro_crista.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+hs_gyro_crista.srcs += $(SRC_ARCH)/uart_hw.c
+
+hs_gyro_crista.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
+hs_gyro_crista.srcs += downlink.c pprz_transport.c
+
+hs_gyro_crista.srcs += math/pprz_trig_int.c
+
+hs_gyro_crista.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_crista.h\" -DIMU_OVERRIDE_CHANNELS
+hs_gyro_crista.srcs += $(SRC_BOOZ)/booz_imu.c             \
+                        $(SRC_BOOZ)/imu/booz_imu_crista.c \
+                        $(SRC_BOOZ_ARCH)/imu/booz_imu_crista_arch.c
+hs_gyro_crista.CFLAGS += -DUSE_DMA1_C4_IRQ
+
+hs_gyro_crista.CFLAGS += -DMEASURED_SENSOR=gyro_unscaled.p -DMEASURED_SENSOR_NB=0
