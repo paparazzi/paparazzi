@@ -34,9 +34,9 @@
 #include "fms_spi_autopilot_msg.h"
 
 /* all these for telemetry */
-#include "messages.h"
-#include "downlink.h"
-#include "udp_transport.h"
+#include "messages2.h"
+#include "downlink_transport.h"
+#include "udp_transport2.h"
 #include "fms/fms_network.h"
 #include "ready_main.h"
 
@@ -53,9 +53,10 @@ static void (* vane_callback)(uint8_t vane_id, float alpha, float beta) = NULL;
 static void (* pressure_callback)(uint8_t pressure_id, uint32_t pressure1, uint32_t pressure2) = NULL;
 static void (* radio_control_callback)(void) = NULL;
 
-void spi_ap_link_downlink_send()
+void spi_ap_link_downlink_send(struct DownlinkTransport *tp)
 {
-  DOWNLINK_SEND_EKF7_Y(DefaultChannel, &imu.accel.x, &imu.accel.y, &imu.accel.z,
+  uint32_t timestamp = 0;
+  DOWNLINK_SEND_EKF7_Y(tp, &timestamp, &imu.accel.x, &imu.accel.y, &imu.accel.z,
 		    &imu.mag.x, &imu.mag.y, &imu.mag.z,
 		    &imu.gyro.p, &imu.gyro.q, &imu.gyro.r);
 }
