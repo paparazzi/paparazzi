@@ -68,6 +68,7 @@ overo_test_periodic.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
 overo_test_periodic.srcs    += $(SRC_FMS)/udp_transport.c downlink.c
 overo_test_periodic.srcs    += $(SRC_FMS)/fms_network.c
 overo_test_periodic.LDFLAGS += -levent
+overo_test_periodic.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageBethDown
 overo_test_periodic.srcs    += $(SRC_FMS)/fms_spi_link.c
 
 
