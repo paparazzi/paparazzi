@@ -1374,21 +1374,21 @@
   </message>
 
   <message name="IMU_GYRO_RAW" id="203">
-    <field name="gp" type="uint16" unit="adc"/>
-    <field name="gq" type="uint16" unit="adc"/>
-    <field name="gr" type="uint16" unit="adc"/>
+    <field name="gp" type="int32" unit="adc"/>
+    <field name="gq" type="int32" unit="adc"/>
+    <field name="gr" type="int32" unit="adc"/>
   </message>
 
   <message name="IMU_ACCEL_RAW" id="204">
-    <field name="ax" type="uint16" unit="adc"/>
-    <field name="ay" type="uint16" unit="adc"/>
-    <field name="az" type="uint16" unit="adc"/>
+    <field name="ax" type="int32" unit="adc"/>
+    <field name="ay" type="int32" unit="adc"/>
+    <field name="az" type="int32" unit="adc"/>
   </message>
 
   <message name="IMU_MAG_RAW" id="205">
-    <field name="mx" type="int16" unit="adc"/>
-    <field name="my" type="int16" unit="adc"/>
-    <field name="mz" type="int16" unit="adc"/>
+    <field name="mx" type="int32" unit="adc"/>
+    <field name="my" type="int32" unit="adc"/>
+    <field name="mz" type="int32" unit="adc"/>
   </message>
 
   <message name="IMU_GYRO_RAW_AVG" id="206">
@@ -1429,11 +1429,9 @@
     <field name="p" type="float" unit="pascal"/>
   </message>
 
-  <message name="IMU_DEBUG" id="211">
-    <field name="max1167_status"  type="uint8"/>
-    <field name="micromag_status" type="uint8"/>
-    <field name="imu_v3_sensors_micromag_timeout"  type="uint8"/>
-    <field name="imu_v3_sensors_micromag_nb_reset"  type="uint8"/>
+  <message name="IMU_HS_GYRO" id="211">
+    <field name="axis" type="uint8"/>
+    <field name="samples"  type="uint32[]"/>
   </message>
 
   <message name="IMU_TURNTABLE" id="220">
@@ -1580,6 +1578,7 @@
   </message>
 
   <message name="I2C_ERRORS" id="253">
+      <field name="Unexpected_event"   type="uint32"/>
       <field name="Acknowledge_failure"   type="uint8"/>
       <field name="Misplaced_Start_or_Stop"   type="uint8"/>
       <field name="Arbitration_lost"   type="uint8"/>
