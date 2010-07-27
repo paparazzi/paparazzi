@@ -7,9 +7,10 @@
 
 //#define LINK_HOST  "10.31.4.7"
 //#define LINK_HOST  "stripe"
-#define LINK_HOST  "192.168.1.0"
-#define LINK_PORT        4242
-#define DATALINK_PORT    4243
+#define LINK_HOST     "192.168.1.0"
+#define LINK_PORT             4242
+#define DATALINK_PORT         4243
+#define FMS_NETWORK_BROADCAST TRUE
 
 #include "airframe.h"
 
@@ -66,10 +67,11 @@ static void main_periodic(int my_sig_num) {
 
 static void main_send_to_stm(void) {
 
-  union AutopilotMessage msg_in, msg_out;
-  spi_link_send(&msg_out.down, sizeof(union AutopilotMessage), &msg_in.up);
+  struct OVERO_LINK_MSG_UP   msg_in;
+  struct OVERO_LINK_MSG_DOWN msg_out;
+  spi_link_send(&msg_out, sizeof(union AutopilotMessage), &msg_in);
 
-  printf("spi telemetry got %d\n", msg_in.up.tw_len);
+  //  printf("spi telemetry got %d\n", msg_in.up.tw_len);
   //  for (int i=0; i<msg_in.up.tw_len; i++)
   //    printf("%02x ",  msg_in.up.data[i]);
   //  printf("\n");

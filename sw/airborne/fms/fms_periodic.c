@@ -31,6 +31,8 @@
 #include <fcntl.h>
 #include <sched.h>
 #include <time.h>
+#include <string.h>
+#include <errno.h>
 
 #include "fms_debug.h"
 
