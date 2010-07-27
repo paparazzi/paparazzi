@@ -56,6 +56,15 @@ overo_test_telemetry.srcs    += $(SRC_FMS)/udp_transport.c downlink.c
 overo_test_telemetry.srcs    += $(SRC_FMS)/fms_network.c
 overo_test_telemetry.LDFLAGS += -levent
 
+# test network based telemetry on overo (using udp_transport2/messages2)
+overo_test_telemetry2.ARCHDIR  = omap
+overo_test_telemetry2.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
+overo_test_telemetry2.srcs     = $(SRC_FMS)/overo_test_telemetry2.c
+overo_test_telemetry2.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
+overo_test_telemetry2.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
+overo_test_telemetry2.srcs    += $(SRC_FMS)/fms_network.c
+overo_test_telemetry2.LDFLAGS += -levent
+
 # test periodic tasks on the overo
 overo_test_periodic.ARCHDIR  = omap
 overo_test_periodic.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
