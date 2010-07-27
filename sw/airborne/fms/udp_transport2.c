@@ -17,13 +17,14 @@ static void put_uint8_t(struct udp_transport *udp, const uint8_t byte)
   put_1byte(udp, byte);
 }
 
-static void put_named_uint8_t(struct udp_transport *udp, char *name, const uint8_t byte)
+static void put_named_uint8_t(struct udp_transport *udp, char *name __attribute__((unused)), const uint8_t byte)
 {
   put_uint8_t(udp, byte);
 }
 
-static void put_bytes(struct udp_transport *udp, uint16_t len, const uint8_t *bytes)
+static void put_bytes(void *impl, enum DownlinkDataType data_type __attribute__((unused)), uint8_t len, const uint8_t *bytes)
 {
+  struct udp_transport *udp = (struct udp_transport *) impl;
   for (int i = 0; i < len; i++) {
     put_uint8_t(udp, bytes[i]);
   }
@@ -37,19 +38,20 @@ static void header(struct udp_transport *udp, uint8_t payload_len)
   uint8_t msg_len = payload_len + PPRZ_PROTOCOL_OVERHEAD;
   udp->udpt_ck_a = udp->udpt_ck_b = 0;
   put_uint8_t(udp, msg_len);
-  put_bytes(udp, 4, (uint8_t *) &msg_timestamp);
+  put_bytes(udp, DL_TYPE_UINT32, 4, (uint8_t *) &msg_timestamp);
 }
 
-static void start_message(struct udp_transport *udp, char *name, uint8_t msg_id, uint16_t payload_len)
+static void start_message(void *impl, char *name, uint8_t msg_id, uint8_t payload_len)
 {
-  //downlink_nb_msgs++;
+  struct udp_transport *udp = (struct udp_transport *) impl;
   header(udp, 2 + payload_len);
   put_uint8_t(udp, AC_ID);
   put_named_uint8_t(udp, name, msg_id);
 }
 
-static void end_message(struct udp_transport *udp)
+static void end_message(void *impl)
 {
+  struct udp_transport *udp = (struct udp_transport *) impl;
   put_1byte(udp, udp->udpt_ck_a);
   put_1byte(udp, udp->udpt_ck_b);
   if (udp->udpt_tx_buf_idx > UDPT_TX_BUF_WATERMARK) {
@@ -58,22 +60,22 @@ static void end_message(struct udp_transport *udp)
   }
 }
 
-static void overrun(struct udp_transport *udp)
+static void overrun(void *impl __attribute__((unused)))
 {
   
 }
 
-static void count_bytes(struct udp_transport *udp, uint8_t bytes)
+static void count_bytes(void *udp __attribute__((unused)), uint8_t bytes __attribute__((unused)))
 {
 	
 }
 
-static int check_free_space(struct udp_transport *udp, uint8_t bytes)
+static int check_free_space(void *udp __attribute__((unused)), uint8_t bytes __attribute__((unused)))
 {
 	return TRUE;
 }
 
-static uint8_t size_of(struct udp_transport *udp, uint8_t len)
+static uint8_t size_of(void *udp __attribute__((unused)), uint8_t len)
 {
 	return len + 2;
 }
