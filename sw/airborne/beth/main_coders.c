@@ -15,6 +15,8 @@
 
 #include <string.h>
 
+#include "beth/bench_sensors.h"
+
 /*
  *
  *  PC.01 (ADC Channel11) ext1-20 coder_values[1]
@@ -32,6 +34,8 @@ static inline void main_periodic( void );
 static inline void main_event( void );
 
 static inline void main_init_adc(void);
+static inline void main_on_bench_sensors( void );
+
 //static inline void main_init_i2c2(void);
 //void i2c2_ev_irq_handler(void);
 //void i2c2_er_irq_handler(void);
@@ -46,8 +50,8 @@ static uint16_t coder_values[3];
 #define I2C2_ClockSpeed       200000
 
 #define MY_I2C2_BUF_LEN 4
-static uint8_t i2c2_idx;
-static uint8_t i2c2_buf[MY_I2C2_BUF_LEN];
+//static uint8_t i2c2_idx;
+//static uint8_t i2c2_buf[MY_I2C2_BUF_LEN];
 
 uint16_t servos[4];
 
@@ -85,18 +89,28 @@ static inline void main_periodic( void ) {
   
   //RunOnceEvery(5, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &coder_values[0], &coder_values[1]);});
   //RunOnceEvery(5, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &can1_status, &can1_pending);});
+
+  RunOnceEvery(5, {DOWNLINK_SEND_BETH(DefaultChannel, &bench_sensors.angle_1,
+    &bench_sensors.angle_2,&bench_sensors.angle_3, &bench_sensors.current);});
   
   servos[0]=coder_values[0];
   servos[1]=coder_values[1];
-  can_transmit(2, 0, (uint8_t *)servos, 8);
+  //use id=1 for azimuth board
+  can_transmit(1, 0, (uint8_t *)servos, 8);
 
 }
 
 
 static inline void main_event( void ) {
-
+  BenchSensorsEvent(main_on_bench_sensors);
 }
 
+
+static inline void main_on_bench_sensors( void ) {
+ 
+}
+
+#if 0
 /*
  *
  *  I2C2 : autopilot link
@@ -189,7 +203,7 @@ void i2c2_er_irq_handler(void) {
 }
 
 
-
+#endif
 
 /*
  *

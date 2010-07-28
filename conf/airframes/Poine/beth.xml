@@ -122,8 +122,7 @@ main_stm32.srcs += downlink.c pprz_transport.c
 
 
 main_stm32.CFLAGS += -DUSE_OVERO_LINK
-#main_stm32.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageBethDown
-main_stm32.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageFoo -DOVERO_LINK_MSG_DOWN=AutopilotMessageFoo
+main_stm32.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageBethDown
 main_stm32.CFLAGS += -DOVERO_LINK_LED_OK=5 -DOVERO_LINK_LED_KO=4 -DUSE_DMA1_C2_IRQ
 main_stm32.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
 
@@ -150,7 +149,7 @@ main_stm32.srcs += $(SRC_BOOZ)/actuators/booz_actuators_asctec.c
 #\
 #                             $(SRC_BOOZ_ARCH)/actuators/booz_actuators_asctec_arch.c
 main_stm32.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1 
-#-DBOOZ_START_DELAY=3  -DUSE_TIM2_IRQ
+# -DBOOZ_START_DELAY=3  -DUSE_TIM2_IRQ
 main_stm32.CFLAGS += -DUSE_I2C1
 main_stm32.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
@@ -181,7 +180,6 @@ main_coders.CFLAGS += -DUSE_LED
 main_coders.srcs += $(SRC_ARCH)/led_hw.c
 main_coders.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=7
 main_coders.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-#main_coders.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./10.)'
 main_coders.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 main_coders.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
@@ -210,10 +208,17 @@ SRC_FMS=fms
 main_overo.ARCHDIR = omap
 main_overo.CFLAGS = -I. -I$(SRC_FMS)
 main_overo.srcs  = $(SRC_BETH)/main_overo.c
+main_overo.CFLAGS  += -DFMS_PERIODIC_FREQ=100
+main_overo.srcs    += $(SRC_FMS)/fms_periodic.c
+main_overo.srcs    += $(SRC_FMS)/fms_serial_port.c
+main_overo.LDFLAGS += -lrt
 main_overo.srcs += $(SRC_FMS)/fms_spi_link.c
-#main_overo.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageBethDown
-main_overo.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageFoo -DOVERO_LINK_MSG_DOWN=AutopilotMessageFoo
+main_overo.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageBethDown
 
+main_overo.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
+main_overo.srcs    += $(SRC_FMS)/udp_transport.c downlink.c
+main_overo.srcs    += $(SRC_FMS)/fms_network.c
+main_overo.LDFLAGS += -levent
 
 #
 #

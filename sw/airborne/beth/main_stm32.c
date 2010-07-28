@@ -63,9 +63,10 @@ static inline void main_init( void ) {
   sys_time_init();
   actuators_init();
   //radio_control_init();
-  //booz_imu_init();
+  booz_imu_init();
   overo_link_init();
   bench_sensors_init();
+  LED_ON(7);
 }
 
 
@@ -76,10 +77,10 @@ static inline void main_periodic( void ) {
 
   RunOnceEvery(10, {LED_PERIODIC(); DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
 
-  RunOnceEvery(5, {DOWNLINK_SEND_BETH(DefaultChannel, &bench_sensors.angle_1,
-    &bench_sensors.angle_2,&bench_sensors.angle_3, &bench_sensors.current);});
+  //RunOnceEvery(5, {DOWNLINK_SEND_BETH(DefaultChannel, &bench_sensors.angle_1,
+  //  &bench_sensors.angle_2,&bench_sensors.angle_3, &bench_sensors.current);});
 
-  RunOnceEvery(5, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &overo_link.down.msg.foo,&overo_link.down.msg.bar);});
+  //RunOnceEvery(5, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &overo_link.down.msg.foo,&overo_link.down.msg.bar);});
 
   /*Request reception of values from coder boards :
     When configured for I2C, lisa stm32 is master and requests data from the
@@ -92,6 +93,7 @@ static inline void main_periodic( void ) {
   booz2_commands[COMMAND_ROLL] = 0;
   booz2_commands[COMMAND_YAW] = 0;
   booz2_commands[COMMAND_THRUST] = 4;
+  //actuators_set(TRUE);
 }
 
 static inline void main_event( void ) {
@@ -99,22 +101,31 @@ static inline void main_event( void ) {
   OveroLinkEvent(main_on_overo_msg_received);
 
   BenchSensorsEvent(main_on_bench_sensors);
-
 }
 
 static inline void main_on_overo_msg_received(void) {
-  overo_link.up.msg.foo = bench_sensors.angle_1;
-  overo_link.up.msg.bar = bench_sensors.angle_2;
-  overo_link.up.msg.blaa = bench_sensors.angle_3;
-  overo_link.up.msg.bli = 0xdead;
+
+  overo_link.up.msg.bench_sensor.x = bench_sensors.angle_1;
+  overo_link.up.msg.bench_sensor.y = bench_sensors.angle_2;
+  overo_link.up.msg.bench_sensor.z = bench_sensors.angle_3;
+
+  overo_link.up.msg.accel.x = booz_imu.accel.x;
+  overo_link.up.msg.accel.y = booz_imu.accel.y;
+  overo_link.up.msg.accel.z = booz_imu.accel.z;
+
+  overo_link.up.msg.gyro.p = booz_imu.gyro.p;
+  overo_link.up.msg.gyro.q = booz_imu.gyro.q;
+  overo_link.up.msg.gyro.r = booz_imu.gyro.r;
+
   my_cnt++;
   actuators_set(TRUE);
 }
 
 static inline void main_on_overo_link_lost(void) {
-  actuators_set(FALSE);
+  //actuators_set(FALSE);
   my_cnt = 0;
 }
+
 
 static inline void on_gyro_accel_event(void) {
   BoozImuScaleGyro();
