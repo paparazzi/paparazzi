@@ -58,25 +58,25 @@ static uint32_t foo = 0;
 
 static void main_periodic(int my_sig_num) {
 
-  DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+  RunOnceEvery(10, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
 
   send_message();
 
-  DOWNLINK_SEND_BETH(DefaultChannel,&msg_in.bench_sensor.x,&msg_in.bench_sensor.y,
-    &msg_in.bench_sensor.z,&msg_in.bench_sensor.x);
+  RunOnceEvery(10, {DOWNLINK_SEND_BETH(DefaultChannel,&msg_in.bench_sensor.x,&msg_in.bench_sensor.y,
+    &msg_in.bench_sensor.z,&foo);});
 
-  DOWNLINK_SEND_BOOZ2_GYRO(DefaultChannel,
+  RunOnceEvery(10, {DOWNLINK_SEND_BOOZ2_GYRO(DefaultChannel,
 			     &msg_in.gyro.p,
 			     &msg_in.gyro.q,
-			     &msg_in.gyro.r);
+			     &msg_in.gyro.r);});
     
 
-  DOWNLINK_SEND_BOOZ2_ACCEL(DefaultChannel,
+  RunOnceEvery(10, {DOWNLINK_SEND_BOOZ2_ACCEL(DefaultChannel,
 			      &msg_in.accel.x,
 			      &msg_in.accel.y,
-			      &msg_in.accel.z);
+			      &msg_in.accel.z);});
 
-  UdpTransportPeriodic();
+  RunOnceEvery(10, {UdpTransportPeriodic();});
 
 }
 
@@ -107,14 +107,21 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-static uint16_t foo1 = 0x12;
+static int8_t pitchval = 0;
+static int8_t adder = 1;
 
 static void send_message() {
   //uint8_t *fooptr;
 
-  msg_out.thrust = foo1+foo1;
-  msg_out.pitch = foo1;
-  foo1 = foo1+2;
+  msg_out.thrust = 7;
+
+  if (!(foo%100)) { 
+    if (pitchval == 10 ) adder=-1;
+    if (pitchval == -10 ) adder=1;
+    pitchval = pitchval + adder;
+    printf("pitchval now %d\n",pitchval);
+  }
+  msg_out.pitch = pitchval;
   //msg_out.cksum = msg_out.thrust + msg_out.pitch;
 
   spi_link_send(&msg_out, sizeof(union AutopilotMessage) , &msg_in);

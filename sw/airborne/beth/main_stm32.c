@@ -89,11 +89,19 @@ static inline void main_periodic( void ) {
     always ongoing, and new data generates a flag by the IST. */
   read_bench_sensors();
 
-  booz2_commands[COMMAND_PITCH] = 0;
+  booz2_commands[COMMAND_PITCH] = (int8_t)((0xFF) & overo_link.down.msg.pitch);
   booz2_commands[COMMAND_ROLL] = 0;
   booz2_commands[COMMAND_YAW] = 0;
-  booz2_commands[COMMAND_THRUST] = 4;
-  //actuators_set(TRUE);
+  if ( overo_link.down.msg.thrust < 6) {
+    booz2_commands[COMMAND_THRUST] = overo_link.down.msg.thrust;
+  } else { 
+    booz2_commands[COMMAND_THRUST] = 5;
+  }
+  if (my_cnt == 0) {
+    actuators_set(FALSE);
+  } else {
+    actuators_set(TRUE);
+  }
 }
 
 static inline void main_event( void ) {
@@ -117,8 +125,8 @@ static inline void main_on_overo_msg_received(void) {
   overo_link.up.msg.gyro.q = booz_imu.gyro.q;
   overo_link.up.msg.gyro.r = booz_imu.gyro.r;
 
-  my_cnt++;
-  actuators_set(TRUE);
+  my_cnt=1;
+  //actuators_set(TRUE);
 }
 
 static inline void main_on_overo_link_lost(void) {
