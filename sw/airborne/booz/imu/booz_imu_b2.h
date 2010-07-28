@@ -35,17 +35,22 @@
 #define IMU_B2_MAG_AMI601 2
 
 /* Default IMU b2 sensors connection */
-#ifndef IMU_OVERRIDE_CHANNELS
+#if !defined IMU_GYRO_P_CHAN & !defined IMU_GYRO_Q_CHAN & !defined IMU_GYRO_R_CHAN
 #define IMU_GYRO_P_CHAN  1
 #define IMU_GYRO_Q_CHAN  0
 #define IMU_GYRO_R_CHAN  2
+#endif
+#if !defined IMU_ACCEL_X_CHAN & !defined IMU_ACCEL_Y_CHAN & !defined IMU_ACCEL_Z_CHAN
 #define IMU_ACCEL_X_CHAN 5
 #define IMU_ACCEL_Y_CHAN 3
 #define IMU_ACCEL_Z_CHAN 4
+#endif
+#if !defined IMU_MAG_X_CHAN & !defined IMU_MAG_Y_CHAN & !defined IMU_MAG_Z_CHAN
 #define IMU_MAG_X_CHAN   0
 #define IMU_MAG_Y_CHAN   1
 #define IMU_MAG_Z_CHAN   2
-#endif /* not IMU_OVERRIDE_CHANNELS */
+#endif
+
 
 #if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
 #define IMU_GYRO_P_SIGN   1
