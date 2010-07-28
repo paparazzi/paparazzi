@@ -245,6 +245,8 @@
         ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c
         sim.srcs += $(SRC_BOOZ_SIM)/booz2_pwm_hw.c
 
+        ap.CFLAGS += -DCALC_CPU_LOAD
+
         ap.CFLAGS += -DUSEMODULES
         sim.CFLAGS += -DUSEMODULES
 

@@ -1458,7 +1458,9 @@
       <field name="ap_h_mode"    type="uint8" values="KILL|RATE|ATTITUDE|HOVER|NAV"/>
       <field name="ap_v_mode"    type="uint8" values="KILL|RC_DIRECT|RC_CLIMB|CLIMB|HOVER|NAV"/>
       <field name="vsupply"      type="uint8" unit="decivolt"/>
-      <field name="cpu_time"     type="uint16" unit="s"></field>
+      <field name="cpu_time"     type="uint16" unit="s"/>
+      <field name="cpu_load_avg" type="uint8" unit="%"/>
+      <field name="cpu_load_max" type="uint8" unit="%"/>
   </message>
 
   <message name="BOOZ_SIM_RPMS" id="239">
