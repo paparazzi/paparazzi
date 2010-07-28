@@ -80,7 +80,7 @@ static void fms_periodic_delete(void) {
 
 
 #define NS_PER_SEC         1000000000
-#define PERIODIC_DT_NSEC  (NS_PER_SEC/(2*FMS_PERIODIC_FREQ))
+#define PERIODIC_DT_NSEC  (NS_PER_SEC/(FMS_PERIODIC_FREQ))
 
 static void fms_periodic_run(void) {
 
