@@ -31,6 +31,8 @@
 #
 ################################################################################
 
+SRC_CSC=csc
+
 overo_test_spi.ARCHDIR = omap
 overo_test_spi.srcs=$(SRC_FMS)/overo_test_spi.c
 
@@ -1123,16 +1125,25 @@ ptw.CFLAGS += -DUSE_I2C1
 test_csc_servo.ARCHDIR = $(ARCHI)
 test_csc_servo.TARGET = test_csc_servo
 test_csc_servo.TARGETDIR = test_csc_servo
-test_csc_servo.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_csc_servo.CFLAGS = -I $(SRC_CSC) -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
 test_csc_servo.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_csc_servo.srcs = $(SRC_LISA)/test_csc_servo.c      \
-               $(SRC_ARCH)/stm32_exceptions.c   \
-               $(SRC_ARCH)/stm32_vector_table.c
+test_csc_servo.srcs = $(SRC_CSC)/csc_protocol.c \
+		$(SRC_LISA)/test_csc_servo.c      \
+		$(SRC_ARCH)/stm32_exceptions.c   \
+		$(SRC_ARCH)/stm32_vector_table.c
 test_csc_servo.CFLAGS += -DUSE_LED
 test_csc_servo.srcs += $(SRC_ARCH)/led_hw.c
 test_csc_servo.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
 test_csc_servo.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_csc_servo.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_csc_servo.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_csc_servo.srcs += $(SRC_ARCH)/uart_hw.c
+test_csc_servo.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart2
+
+test_csc_servo.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_csc_servo.srcs += downlink.c pprz_transport.c
+
 # setting CAN prescaler to generate 3MHz time quanta, drift compensiation to 1
 # time quanta, bit section 1 to 3 time quanta and bit section 2 to 4 time quanta
 # resulting in a 375kHz CAN bitrate expected by the CSC.

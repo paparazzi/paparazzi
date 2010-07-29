@@ -27,18 +27,23 @@
 #include "can.h"
 #include "can_hw.h"
 
-void can_init(void)
+can_rx_callback_t can_rx_callback;
+
+void _can_run_rx_callback(uint32_t id, uint8_t *buf, uint8_t len);
+
+void can_init(can_rx_callback_t callback)
 {
+	can_rx_callback = callback;
 	can_hw_init();
 }
 
-static inline uint32_t can_id(uint8_t client_id, uint8_t msg_id)
+int can_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 {
-	return ((client_id & 0xF) << 7) | (msg_id & 0x7F);
+	return can_hw_transmit(id, buf, len);
 }
 
-int can_transmit(uint8_t client_id, uint8_t msg_id, const uint8_t *buf, uint8_t len)
+void _can_run_rx_callback(uint32_t id, uint8_t *buf, uint8_t len)
 {
-	uint32_t id = can_id(client_id, msg_id);
-	return can_hw_transmit(id, buf, len);
+	if(can_rx_callback)
+		can_rx_callback(id, buf, len);
 }

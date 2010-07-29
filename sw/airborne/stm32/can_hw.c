@@ -43,6 +43,10 @@
 CanTxMsg can_tx_msg;
 CanRxMsg can_rx_msg;
 
+RCC_ClocksTypeDef rcc_clocks;
+
+void _can_run_rx_callback(uint32_t id, uint8_t *buf, uint8_t len);
+
 void can_hw_init(void)
 {
         RCC_ClocksTypeDef rcc_clocks;
@@ -143,8 +147,13 @@ int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 	return 0;
 }
 
-
 void usb_lp_can1_rx0_irq_handler(void)
 {
 	CAN_Receive(CAN1, CAN_FIFO0, &can_rx_msg);
+#ifdef USE_CAN_EXT_ID
+	_can_run_rx_callback(can_rx_msg.ExtId, can_rx_msg.Data, can_rx_msg.DLC);
+#else
+	_can_run_rx_callback(can_rx_msg.StdId, can_rx_msg.Data, can_rx_msg.DLC);
+#endif
 }
+

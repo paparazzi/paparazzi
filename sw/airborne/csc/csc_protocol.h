@@ -22,12 +22,14 @@
  *
  */
 
-#ifndef CAN_H
-#define CAN_H
+#ifndef CSC_PROTOCOL_H
+#define CSC_PROTOCOL_H
 
-typedef void(* can_rx_callback_t)(uint32_t id, uint8_t *buf, int len);
+typedef void(* cscp_callback_t)(void *data);
 
-void can_init(can_rx_callback_t callback);
-int can_transmit(uint32_t id, const uint8_t *buf, uint8_t len);
+void cscp_init(void);
+int cscp_transmit(uint32_t client_id, uint8_t msg_id, const uint8_t *buf, uint8_t len);
+void cscp_event(void);
+void cscp_register_callback(uint32_t msg_id, cscp_callback_t callback, uint8_t *data);
 
-#endif /* CAN_H */
+#endif

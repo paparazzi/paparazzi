@@ -24,8 +24,10 @@
 
 #include "init_hw.h"
 #include "sys_time.h"
-#include "can.h"
+#include "csc_msg_def.h"
+#include "csc_protocol.h"
 #include "stm32/can.h"
+#include "downlink.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -36,6 +38,10 @@ uint16_t servos[4];
 FlagStatus can_error_warning = RESET;
 FlagStatus can_error_passive = RESET;
 FlagStatus can_bus_off = RESET;
+
+struct CscVaneMsg csc_vane_msg;
+
+void main_on_vane_msg(void *data);
 
 int main(void) {
   main_init();
@@ -57,7 +63,8 @@ int main(void) {
 static inline void main_init( void ) {
 	hw_init();
 	sys_time_init();
-	can_init();
+	cscp_init();
+	cscp_register_callback(CSC_VANE_MSG_ID, main_on_vane_msg, (void *)&csc_vane_msg);
 }
 
 static inline void main_periodic_task( void ) {
@@ -82,7 +89,7 @@ static inline void main_periodic_task( void ) {
 		LED_OFF(0);
 	}
 
-	can_transmit(0, 0, (uint8_t *)servos, 8);
+	cscp_transmit(0, 0, (uint8_t *)servos, 8);
 
 	LED_PERIODIC();
 }
@@ -90,5 +97,11 @@ static inline void main_periodic_task( void ) {
 
 
 static inline void main_event_task( void ) {
+	cscp_event();
+}
 
+void main_on_vane_msg(void *data)
+{
+	int zero = 0;
+	RunOnceEvery(10, {DOWNLINK_SEND_VANE_SENSOR(DefaultChannel, &(csc_vane_msg.vane_angle1), &zero, &csc_vane_msg.vane_angle2, &zero, &zero, &zero, &zero);});
 }

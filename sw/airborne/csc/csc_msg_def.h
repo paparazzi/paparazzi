@@ -21,7 +21,7 @@
 #define CSC_VANE_MSG_ID       11
 #define CSC_PRESSURE_MSG_ID   12
 #define CSC_BARO_MSG_ID       13
-
+#define CSC_ID_COUNT          14
 
 /* Received from the autopilot */
 struct CscServoCmd {
