@@ -1131,10 +1131,19 @@ test_csc_servo.srcs = $(SRC_LISA)/test_csc_servo.c      \
 test_csc_servo.CFLAGS += -DUSE_LED
 test_csc_servo.srcs += $(SRC_ARCH)/led_hw.c
 test_csc_servo.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
-#test_csc_servo.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-test_csc_servo.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./10.)'
+test_csc_servo.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_csc_servo.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-test_csc_servo.CFLAGS += -DUSE_CAN1 -DUSE_USB_LP_CAN1_RX0_IRQ
+# setting CAN prescaler to generate 3MHz time quanta, drift compensiation to 1
+# time quanta, bit section 1 to 3 time quanta and bit section 2 to 4 time quanta
+# resulting in a 375kHz CAN bitrate expected by the CSC.
+test_csc_servo.CFLAGS += \
+	-DUSE_CAN1 \
+	-DUSE_USB_LP_CAN1_RX0_IRQ \
+	-DCAN_PRESCALER=12 \
+	-DCAN_SJW_TQ=CAN_SJW_1tq \
+	-DCAN_BS1_TQ=CAN_BS1_3tq \
+	-DCAN_BS2_TQ=CAN_BS2_4tq \
+	-DCAN_ERR_RESUME=DISABLE
 test_csc_servo.srcs += can.c $(SRC_ARCH)/can_hw.c
 
 ################################################################################

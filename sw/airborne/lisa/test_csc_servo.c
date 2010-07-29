@@ -25,12 +25,17 @@
 #include "init_hw.h"
 #include "sys_time.h"
 #include "can.h"
+#include "stm32/can.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void );
 
 uint16_t servos[4];
+
+FlagStatus can_error_warning = RESET;
+FlagStatus can_error_passive = RESET;
+FlagStatus can_bus_off = RESET;
 
 int main(void) {
   main_init();
@@ -56,11 +61,28 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic_task( void ) {
-	servos[0]++;
+	servos[0]+=10;
+	servos[1]+=10;
+	servos[2]+=10;
+	servos[3]+=10;
 
-	can_transmit(1, 0, (uint8_t *)servos, 8);
+	if((can_error_warning = CAN_GetFlagStatus(CAN1, CAN_FLAG_EWG)) == SET){
+		LED_ON(2);
+	}else{
+		LED_OFF(2);
+	}
+	if((can_error_passive = CAN_GetFlagStatus(CAN1, CAN_FLAG_EPV)) == SET){
+		LED_ON(3);
+	}else{
+		LED_OFF(3);
+	}
+	if((can_bus_off = CAN_GetFlagStatus(CAN1, CAN_FLAG_BOF)) == SET){
+		LED_ON(0);
+	}else{
+		LED_OFF(0);
+	}
 
-	LED_TOGGLE(0);
+	can_transmit(0, 0, (uint8_t *)servos, 8);
 
 	LED_PERIODIC();
 }

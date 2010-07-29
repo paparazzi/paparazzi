@@ -43,8 +43,6 @@
 CanTxMsg can_tx_msg;
 CanRxMsg can_rx_msg;
 
-volatile uint8_t CAN_RX_FLAG;
-
 void can_hw_init(void)
 {
         RCC_ClocksTypeDef rcc_clocks;
@@ -57,9 +55,6 @@ void can_hw_init(void)
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO |
 			       RCC_APB2Periph_GPIOA, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
-	//RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO |
-	//		       RCC_APB2Periph_GPIO_CAN, ENABLE);
-	//RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
 
 	/* Configure CAN pin: RX */
 	gpio.GPIO_Pin = GPIO_Pin_11;
@@ -90,16 +85,16 @@ void can_hw_init(void)
 
 	/* CAN cell init */
 	can.CAN_TTCM = DISABLE;
-	can.CAN_ABOM = DISABLE;
+	can.CAN_ABOM = CAN_ERR_RESUME;
 	can.CAN_AWUM = DISABLE;
 	can.CAN_NART = DISABLE;
 	can.CAN_RFLM = DISABLE;
 	can.CAN_TXFP = DISABLE;
 	can.CAN_Mode = CAN_Mode_Normal;
-	can.CAN_SJW = CAN_SJW_1tq;
-	can.CAN_BS1 = CAN_BS1_3tq;
-	can.CAN_BS2 = CAN_BS2_5tq;
-	can.CAN_Prescaler = 11;
+	can.CAN_SJW = CAN_SJW_TQ;
+	can.CAN_BS1 = CAN_BS1_TQ;
+	can.CAN_BS2 = CAN_BS2_TQ;
+	can.CAN_Prescaler = CAN_PRESCALER;
 	CAN_Init(CAN1, &can);
 
 	/* CAN filter init */
@@ -118,7 +113,11 @@ void can_hw_init(void)
 	can_tx_msg.StdId = 0x0;
 	can_tx_msg.ExtId = 0x0;
 	can_tx_msg.RTR = CAN_RTR_DATA;
+#ifdef USE_CAN_EXT_ID
 	can_tx_msg.IDE = CAN_ID_EXT;
+#else
+	can_tx_msg.IDE = CAN_ID_STD;
+#endif
 	can_tx_msg.DLC = 1;
 
 	CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);
@@ -130,7 +129,11 @@ int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 		return -1;
 	}
 
+#ifdef USE_CAN_EXT_ID
 	can_tx_msg.ExtId = id;
+#else
+	can_tx_msg.StdId = id;
+#endif
 	can_tx_msg.DLC = len;
 
 	memcpy(can_tx_msg.Data, buf, len);
@@ -144,32 +147,4 @@ int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 void usb_lp_can1_rx0_irq_handler(void)
 {
 	CAN_Receive(CAN1, CAN_FIFO0, &can_rx_msg);
-	//set CAN receive event flag
-	CAN_RX_FLAG = 1;
-	LED_TOGGLE(5);
-
-#ifdef BLINKENLIGHTS
-//code piotr used to show receive activity
-	
-	if((can_rx_msg.Data[0] & 0x01) == 0x01){
-		LED_ON(4);
-	}else{
-		LED_OFF(4);
-	}
-	if((can_rx_msg.Data[0] & 0x02) == 0x02){
-		LED_ON(5);
-	}else{
-		LED_OFF(5);
-	}
-	if((can_rx_msg.Data[0] & 0x04) == 0x04){
-		LED_ON(6);
-	}else{
-		LED_OFF(6);
-	}
-	if((can_rx_msg.Data[0] & 0x08) == 0x08){
-		LED_ON(7);
-	}else{
-		LED_OFF(7);
-	}
-#endif	
 }
