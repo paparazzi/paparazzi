@@ -43,13 +43,10 @@
 CanTxMsg can_tx_msg;
 CanRxMsg can_rx_msg;
 
-RCC_ClocksTypeDef rcc_clocks;
-
 void _can_run_rx_callback(uint32_t id, uint8_t *buf, uint8_t len);
 
 void can_hw_init(void)
 {
-        RCC_ClocksTypeDef rcc_clocks;
         GPIO_InitTypeDef gpio;
 	NVIC_InitTypeDef nvic;
 	CAN_InitTypeDef can;
@@ -79,9 +76,6 @@ void can_hw_init(void)
 	nvic.NVIC_IRQChannelSubPriority = 0x00;
 	nvic.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&nvic);
-
-	/* get rcc clocks */
-	RCC_GetClocksFreq(&rcc_clocks);
 
 	/* CAN register init */
 	CAN_DeInit(CAN1);
