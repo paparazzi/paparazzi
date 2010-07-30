@@ -56,6 +56,18 @@ extern void booz_actuators_mkk_arch_init(void);
 #include "actuators/booz_supervision.h"
 extern const uint8_t actuators_addr[];
 
+
+#ifdef KILL_MOTORS
+#define ActuatorsMkkI2cHandler() {					\
+    actuators_mkk.idx++;						\
+    if (actuators_mkk.idx<ACTUATORS_MKK_NB) {				\
+      DeviceBuf[0] = 0;							\
+      DeviceTransmit(actuators_addr[actuators_mkk.idx], 1, &actuators_mkk.i2c_done); \
+    }									\
+    else								\
+      actuators_mkk.status = IDLE;					\
+  }
+#else /* KILL_MOTORS */
 #define ActuatorsMkkI2cHandler() {					\
     actuators_mkk.idx++;						\
     if (actuators_mkk.idx<ACTUATORS_MKK_NB) {				\
@@ -65,5 +77,6 @@ extern const uint8_t actuators_addr[];
     else								\
       actuators_mkk.status = IDLE;					\
   }
+#endif /* KILL_MOTORS */
 
 #endif /* BOOZ_ACTUATORS_MKK_H */
