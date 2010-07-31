@@ -27,7 +27,6 @@
 
 #include <FGFDMExec.h>
 #include <FGJSBBase.h>
-#include <FGState.h>
 
 #include "std.h"
 #include "airframe.h"
