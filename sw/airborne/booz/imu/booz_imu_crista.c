@@ -23,6 +23,9 @@
 
 #include "booz_imu.h"
 
+volatile bool_t ADS8344_available;
+uint16_t ADS8344_values[ADS8344_NB_CHANNELS];
+
 void booz_imu_impl_init(void) {
 
   ADS8344_available = FALSE;
