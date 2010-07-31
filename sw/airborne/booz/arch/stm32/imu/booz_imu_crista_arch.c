@@ -31,8 +31,6 @@
 
 #include "stm32_vector_table.h"
 
-volatile bool_t ADS8344_available;
-uint16_t ADS8344_values[ADS8344_NB_CHANNELS];
 static volatile uint8_t channel;
 static uint8_t buf_in[4];
 static uint8_t buf_out[4];
