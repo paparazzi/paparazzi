@@ -69,7 +69,11 @@ void actuators_set(bool_t motors_on) {
   actuators_mkk.i2c_done = FALSE;
   actuators_mkk.idx = 0;
   BoozActuatorsMkkArchSend();
+#ifdef KILL_MOTORS
+  DeviceBuf[0] = 0;
+#else
   DeviceBuf[0] = supervision.commands[actuators_mkk.idx];
+#endif
   DeviceTransmit(actuators_addr[actuators_mkk.idx], 1, &actuators_mkk.i2c_done);
 
 }
