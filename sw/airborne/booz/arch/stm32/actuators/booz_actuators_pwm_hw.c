@@ -31,7 +31,9 @@
 
 #define PCLK 72000000
 #define ONE_MHZ_CLK 1000000
+#ifndef SERVO_HZ
 #define SERVO_HZ 40
+#endif
 
 void booz_actuators_pwm_hw_init(void) {
 
