@@ -38,20 +38,14 @@
 
 #define RC_JOBY_SYNC_2 0x12
 
-#define RC_JOBY_THROWS { MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK, \
-                       -MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK, \
-                       -MAX_PPRZ/MAX_SPK, \
-                        MAX_PPRZ/MAX_SPK }
-
-/*
-  aileron 1
-  elevator 2
-  rudder 3
-  gear 4
-  throttle 5
-*/
+#define RC_JOBY_SIGNS { 1, \
+                       -1, \
+                        1, \
+                        1, \
+                        1, \
+                        1, \
+                        1, \
+                        1, \
+                        1 }
 
 #endif /* BOOZ_RADIO_CONTROL_JOBY_9CH_H */

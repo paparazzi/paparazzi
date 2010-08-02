@@ -25,6 +25,8 @@
 #include "booz_radio_control.h"
 
 static struct rc_joby_parser_state parser;
+static const int16_t rc_joby_signs[RADIO_CONTROL_NB_CHANNEL] = RC_JOBY_SIGNS;
+
 
 static void handle_channel(void (* callback)(void))
 {
@@ -37,7 +39,7 @@ static void handle_channel(void (* callback)(void))
     parser.current_inverted = READING_NORMAL;
   } else {
     // valid channel, store and look for next
-    radio_control.values[parser.current_channel] = parser.parser_normal_buf;
+    radio_control.values[parser.current_channel] = rc_joby_signs[parser.current_channel] * parser.parser_normal_buf;
     parser.current_channel++;
     if (parser.current_channel == RADIO_CONTROL_NB_CHANNEL) {
       // all channels read, reset parser and handle message
