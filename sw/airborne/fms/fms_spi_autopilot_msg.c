@@ -107,18 +107,17 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
     pressure_callback(0, 0, 0);
 
   // Fill radio data
-  radio_control.values[RADIO_CONTROL_ROLL] = msg_up->rc_roll;
-  radio_control.values[RADIO_CONTROL_PITCH] = msg_up->rc_pitch;
-  radio_control.values[RADIO_CONTROL_YAW] = msg_up->rc_yaw;
-  radio_control.values[RADIO_CONTROL_THROTTLE] = msg_up->rc_thrust;
-  radio_control.values[RADIO_CONTROL_MODE] = msg_up->rc_mode;
-  radio_control.values[RADIO_CONTROL_KILL] = msg_up->rc_kill;
-  radio_control.values[RADIO_CONTROL_GEAR] = msg_up->rc_gear;
-  radio_control.values[RADIO_CONTROL_AUX3] = msg_up->rc_aux3;
-  radio_control.values[RADIO_CONTROL_AUX4] = msg_up->rc_aux4;
-  radio_control.status = msg_up->rc_status;
-  
   if (msg_up->valid.rc && radio_control_callback)
+    radio_control.values[RADIO_CONTROL_ROLL] = msg_up->rc_roll;
+    radio_control.values[RADIO_CONTROL_PITCH] = msg_up->rc_pitch;
+    radio_control.values[RADIO_CONTROL_YAW] = msg_up->rc_yaw;
+    radio_control.values[RADIO_CONTROL_THROTTLE] = msg_up->rc_thrust;
+    radio_control.values[RADIO_CONTROL_MODE] = msg_up->rc_mode;
+    radio_control.values[RADIO_CONTROL_KILL] = msg_up->rc_kill;
+    radio_control.values[RADIO_CONTROL_GEAR] = msg_up->rc_gear;
+    radio_control.values[RADIO_CONTROL_AUX3] = msg_up->rc_aux3;
+    radio_control.values[RADIO_CONTROL_AUX4] = msg_up->rc_aux4;
+    radio_control.status = msg_up->rc_status;
     radio_control_callback();
 
   // Fill IMU data
