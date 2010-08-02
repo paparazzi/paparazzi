@@ -81,7 +81,7 @@ static void put_bytes(void *impl, enum DownlinkDataType data_type, uint8_t len _
   }
 }
 
-static void start_message(void *impl, char *name, uint8_t msg_id, uint8_t payload_len __attribute__((unused)))
+static void start_message(void *impl, char *name, uint8_t msg_id __attribute__((unused)), uint8_t payload_len __attribute__((unused)))
 {
   uint8_t ac_id = AC_ID;
   struct onboard_transport *onboard = (struct onboard_transport *) impl;
@@ -91,7 +91,6 @@ static void start_message(void *impl, char *name, uint8_t msg_id, uint8_t payloa
   put_bytes(onboard, DL_TYPE_TIMESTAMP, 4, (uint8_t *) onboard->timestamp);
   put_bytes(onboard, DL_TYPE_UINT8, 1, (uint8_t *) &ac_id);
   onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, " %s", name);
-  put_bytes(onboard, DL_TYPE_UINT8, 1, (uint8_t *) &msg_id);
 }
 
 static void end_message(void *impl)
