@@ -201,7 +201,8 @@ main_coders.srcs += $(SRC_BETH)/bench_sensors_can.c
 USER =
 #HOST = beth
 #HOST = overo
-HOST = auto7
+#HOST = auto7
+HOST= regis
 TARGET_DIR = ~
 SRC_FMS=fms
 

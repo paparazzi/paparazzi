@@ -71,6 +71,7 @@ static inline void main_init( void ) {
 
 
 static inline void main_periodic( void ) {
+  int8_t pitch;
   booz_imu_periodic();
 
   OveroLinkPeriodic(main_on_overo_link_lost)
@@ -89,13 +90,17 @@ static inline void main_periodic( void ) {
     always ongoing, and new data generates a flag by the IST. */
   read_bench_sensors();
 
-  booz2_commands[COMMAND_PITCH] = (int8_t)((0xFF) & overo_link.down.msg.pitch);
+  pitch = (int8_t)((0xFF) & overo_link.down.msg.pitch);
+  if (pitch > 10) pitch = 10; else 
+   if (pitch < -10) pitch = -10; 
+
+  booz2_commands[COMMAND_PITCH] = pitch;
   booz2_commands[COMMAND_ROLL] = 0;
   booz2_commands[COMMAND_YAW] = 0;
-  if ( overo_link.down.msg.thrust < 6) {
+  if ( overo_link.down.msg.thrust < 10) {
     booz2_commands[COMMAND_THRUST] = overo_link.down.msg.thrust;
   } else { 
-    booz2_commands[COMMAND_THRUST] = 5;
+    booz2_commands[COMMAND_THRUST] = 10;
   }
   if (my_cnt == 0) {
     actuators_set(FALSE);
@@ -103,6 +108,7 @@ static inline void main_periodic( void ) {
     actuators_set(TRUE);
   }
 }
+
 
 static inline void main_event( void ) {
   BoozImuEvent(on_gyro_accel_event, on_mag_event);
@@ -117,13 +123,21 @@ static inline void main_on_overo_msg_received(void) {
   overo_link.up.msg.bench_sensor.y = bench_sensors.angle_2;
   overo_link.up.msg.bench_sensor.z = bench_sensors.angle_3;
 
-  overo_link.up.msg.accel.x = booz_imu.accel.x;
+/*  overo_link.up.msg.accel.x = booz_imu.accel.x;
   overo_link.up.msg.accel.y = booz_imu.accel.y;
   overo_link.up.msg.accel.z = booz_imu.accel.z;
 
   overo_link.up.msg.gyro.p = booz_imu.gyro.p;
   overo_link.up.msg.gyro.q = booz_imu.gyro.q;
-  overo_link.up.msg.gyro.r = booz_imu.gyro.r;
+  overo_link.up.msg.gyro.r = booz_imu.gyro.r;*/
+
+  overo_link.up.msg.accel.x = booz_imu.accel_unscaled.x;
+  overo_link.up.msg.accel.y = booz_imu.accel_unscaled.y;
+  overo_link.up.msg.accel.z = booz_imu.accel_unscaled.z;
+
+  overo_link.up.msg.gyro.p = booz_imu.gyro_unscaled.p;
+  overo_link.up.msg.gyro.q = booz_imu.gyro_unscaled.q;
+  overo_link.up.msg.gyro.r = booz_imu.gyro_unscaled.r;
 
   my_cnt=1;
   //actuators_set(TRUE);
@@ -132,6 +146,10 @@ static inline void main_on_overo_msg_received(void) {
 static inline void main_on_overo_link_lost(void) {
   //actuators_set(FALSE);
   my_cnt = 0;
+/* didn't work: */
+//  overo_link_arch_prepare_next_transfert();
+//  overo_link.status = IDLE;	
+
 }
 
 
