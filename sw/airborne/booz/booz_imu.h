@@ -56,6 +56,7 @@ struct BoozImuFloat {
   struct FloatEulers  body_to_imu_eulers;
   struct FloatQuat    body_to_imu_quat;
   struct FloatRMat    body_to_imu_rmat;
+  uint32_t sample_count;
 };
 
 /* underlying hardware */
