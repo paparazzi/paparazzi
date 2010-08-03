@@ -43,7 +43,6 @@ static inline void on_mag_event(void);
 
 static inline void main_on_overo_msg_received(void);
 static inline void main_on_overo_link_lost(void);
-static inline void main_on_bench_sensors( void );
 
 static int16_t my_cnt;
 
@@ -66,7 +65,7 @@ static inline void main_init( void ) {
   booz_imu_init();
   overo_link_init();
   bench_sensors_init();
-  LED_ON(7);
+  //LED_ON(7);
 }
 
 
@@ -114,7 +113,6 @@ static inline void main_event( void ) {
   BoozImuEvent(on_gyro_accel_event, on_mag_event);
   OveroLinkEvent(main_on_overo_msg_received);
 
-  BenchSensorsEvent(main_on_bench_sensors);
 }
 
 static inline void main_on_overo_msg_received(void) {
@@ -207,7 +205,3 @@ static inline void on_mag_event(void) {
   }
 }
 
-
-static inline void main_on_bench_sensors( void ) {
- 
-}

@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 #include "fms_network.h"
 #include "fms_periodic.h"
@@ -53,6 +54,8 @@ static struct AutopilotMessageBethUp   msg_in;
 static struct AutopilotMessageBethDown msg_out;
 static void send_message(void);
 static void PID(void);
+void ex_program(int sig);
+FILE *outfile;
 
 struct BoozImu booz_imu;
 struct BoozImuFloat booz_imu_float;
@@ -64,12 +67,12 @@ static uint32_t foo = 0;
 
 static void main_periodic(int my_sig_num) {
 
-  RunOnceEvery(10, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
+  RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
 
   PID();
   send_message();
 
-  RunOnceEvery(10, {DOWNLINK_SEND_BETH(DefaultChannel,&msg_in.bench_sensor.x,&msg_in.bench_sensor.y,
+  RunOnceEvery(50, {DOWNLINK_SEND_BETH(DefaultChannel,&msg_in.bench_sensor.x,&msg_in.bench_sensor.y,
     &msg_in.bench_sensor.z,&foo);});
 
   booz_imu.gyro_unscaled.p = (msg_in.gyro.p&0xFFFF);
@@ -81,6 +84,9 @@ static void main_periodic(int my_sig_num) {
   
   BoozImuScaleGyro();
 
+  fprintf(outfile,"%f %d IMU_ACCEL_RAW %d %d %d\n",foo/500.,42,booz_imu.accel_unscaled.x,booz_imu.accel_unscaled.y,booz_imu.accel_unscaled.z);
+  fprintf(outfile,"%f %d IMU_GYRO_RAW %d %d %d\n",foo/500.,42,booz_imu.gyro_unscaled.p,booz_imu.gyro_unscaled.q,booz_imu.gyro_unscaled.r);
+
   RunOnceEvery(10, {DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,
 			     //&msg_in.gyro.p,&msg_in.gyro.q,&msg_in.gyro.r)
 				&booz_imu.gyro_unscaled.p,&booz_imu.gyro_unscaled.q,&booz_imu.gyro_unscaled.r);});
@@ -90,23 +96,23 @@ static void main_periodic(int my_sig_num) {
 			     //&msg_in.accel.x,&msg_in.accel.y,&msg_in.accel.z
 				&booz_imu.accel_unscaled.x,&booz_imu.accel_unscaled.y,&booz_imu.accel_unscaled.z);});
 
-  RunOnceEvery(10, {DOWNLINK_SEND_BOOZ2_GYRO(DefaultChannel,
+  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_GYRO(DefaultChannel,
 			     //&msg_in.gyro.p,&msg_in.gyro.q,&msg_in.gyro.r)
 				&booz_imu.gyro.p,&booz_imu.gyro.q,&booz_imu.gyro.r);});
     
 
-  RunOnceEvery(10, {DOWNLINK_SEND_BOOZ2_ACCEL(DefaultChannel,
+/*  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_ACCEL(DefaultChannel,
 			     //&msg_in.accel.x,&msg_in.accel.y,&msg_in.accel.z
-				&booz_imu.accel.x,&booz_imu.accel.y,&booz_imu.accel.z);});
+				&booz_imu.accel.x,&booz_imu.accel.y,&booz_imu.accel.z);});*/
 
-  RunOnceEvery(10, {UdpTransportPeriodic();});
+  RunOnceEvery(33, {UdpTransportPeriodic();});
 
 }
 
 static int8_t pitchval = 0;
 static float kp, ki, kd;
 int8_t presp,dresp;
-static uint16_t tilt_sp=2600;
+static uint16_t tilt_sp=2770;
 static float piderror,piderrorold;
 
 static void PID(){
@@ -123,6 +129,13 @@ static void PID(){
   if (!(foo%100)) {
     printf("%d %d\n",presp,dresp);
   }
+}
+
+void ex_program(int sig) {
+  fprintf(outfile,"%d\n",foo);
+  printf("Closing down\n");
+  fclose(outfile);
+  exit(EXIT_SUCCESS);
 }
 
 int main(int argc, char *argv[]) {
@@ -142,6 +155,10 @@ int main(int argc, char *argv[]) {
     printf("using default value of kp %f\n",kp);
   }
   ki=0.0;
+
+  outfile = fopen("output.data","w+");
+
+  (void) signal(SIGINT, ex_program);
 
   RATES_ASSIGN(booz_imu.gyro_neutral,  IMU_GYRO_P_NEUTRAL,  IMU_GYRO_Q_NEUTRAL,  IMU_GYRO_R_NEUTRAL);
   VECT3_ASSIGN(booz_imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
