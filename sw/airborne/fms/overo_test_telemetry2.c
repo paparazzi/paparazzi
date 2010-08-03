@@ -38,7 +38,7 @@ static void timeout_cb(int fd, short event, void *arg);
 static struct event timeout;
 static struct event read_event;
 static struct FmsNetwork* network;
-static struct DownlinkTrasport *udp_transport;
+static struct DownlinkTransport *udp_transport;
 
 void timeout_cb(int fd, short event, void *arg) {
 
