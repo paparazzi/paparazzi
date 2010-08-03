@@ -84,24 +84,22 @@ uint32_t main_event_idle_ticks = PERIODIC_TASK_PERIOD;
 int main( void ) {
   uint32_t load_counter = 0;
   uint8_t cpu_load = 0;
+  uint8_t cpu_load_max_tmp = 0;
   uint16_t cpu_load_avg_sum = 0;
 
   booz2_main_init();
 
   while(1) {
     if (sys_time_periodic()) {
-      if (load_counter > 0)
-        cpu_load = 100*(PERIODIC_TASK_PERIOD - (load_counter + (load_counter-1)*main_event_idle_ticks)) / PERIODIC_TASK_PERIOD;
-      else
-        cpu_load = 100;
-      if (cpu_load > cpu_load_max)
-        cpu_load_max = cpu_load;
+      cpu_load = 100*(PERIODIC_TASK_PERIOD - (load_counter-1)*main_event_idle_ticks) / PERIODIC_TASK_PERIOD;
+      if (cpu_load > cpu_load_max_tmp)
+        cpu_load_max_tmp = cpu_load;
       cpu_load_avg_sum += cpu_load;
 
       booz2_main_periodic();
 
       load_counter = 0;
-      RunOnceEvery(512, {cpu_load_avg = cpu_load_avg_sum/512; cpu_load_avg_sum = 0; cpu_load_max = 0;});
+      RunOnceEvery(512, {cpu_load_avg=cpu_load_avg_sum/512; cpu_load_max=cpu_load_max_tmp; cpu_load_avg_sum=0; cpu_load_max_tmp=0;});
     }
     load_counter++;
     booz2_main_event();
