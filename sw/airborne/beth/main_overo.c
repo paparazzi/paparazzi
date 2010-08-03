@@ -28,6 +28,14 @@
 #include <string.h>
 #include <signal.h>
 
+//#include "downlink.h"
+//#include "udp_transport.h"
+
+#include "downlink_transport.h"
+#include "messages2.h"
+#include "udp_transport2.h"
+#include "dl_protocol.h"
+
 #include "fms_network.h"
 #include "fms_periodic.h"
 #include "fms_debug.h"
@@ -37,8 +45,7 @@
 
 #include <event.h>
 
-#include "downlink.h"
-#include "udp_transport.h"
+
 
 #define GCS_HOST "10.31.4.104"
 #define GCS_PORT 4242
@@ -46,9 +53,11 @@
 
 
 static void main_periodic(int);
-static void on_datalink_event(int fd, short event, void *arg);
+//static void on_datalink_event(int fd, short event, void *arg);
+static void on_datalink_event(int fd, short event __attribute__((unused)), void *arg);
 
 static struct FmsNetwork* network;
+static struct DownlinkTransport *udp_transport;
 
 static struct AutopilotMessageBethUp   msg_in;
 static struct AutopilotMessageBethDown msg_out;
@@ -67,12 +76,12 @@ static uint32_t foo = 0;
 
 static void main_periodic(int my_sig_num) {
 
-  RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
+  RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(udp_transport, 16, MD5SUM);});
 
   PID();
   send_message();
 
-  RunOnceEvery(50, {DOWNLINK_SEND_BETH(DefaultChannel,&msg_in.bench_sensor.x,&msg_in.bench_sensor.y,
+  RunOnceEvery(50, {DOWNLINK_SEND_BETH(udp_transport,&msg_in.bench_sensor.x,&msg_in.bench_sensor.y,
     &msg_in.bench_sensor.z,&foo);});
 
   booz_imu.gyro_unscaled.p = (msg_in.gyro.p&0xFFFF);
@@ -87,16 +96,16 @@ static void main_periodic(int my_sig_num) {
   fprintf(outfile,"%f %d IMU_ACCEL_RAW %d %d %d\n",foo/500.,42,booz_imu.accel_unscaled.x,booz_imu.accel_unscaled.y,booz_imu.accel_unscaled.z);
   fprintf(outfile,"%f %d IMU_GYRO_RAW %d %d %d\n",foo/500.,42,booz_imu.gyro_unscaled.p,booz_imu.gyro_unscaled.q,booz_imu.gyro_unscaled.r);
 
-  RunOnceEvery(10, {DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,
+  RunOnceEvery(10, {DOWNLINK_SEND_IMU_GYRO_RAW(udp_transport,
 			     //&msg_in.gyro.p,&msg_in.gyro.q,&msg_in.gyro.r)
 				&booz_imu.gyro_unscaled.p,&booz_imu.gyro_unscaled.q,&booz_imu.gyro_unscaled.r);});
     
 
-  RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,
+  RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(udp_transport,
 			     //&msg_in.accel.x,&msg_in.accel.y,&msg_in.accel.z
 				&booz_imu.accel_unscaled.x,&booz_imu.accel_unscaled.y,&booz_imu.accel_unscaled.z);});
 
-  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_GYRO(DefaultChannel,
+  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_GYRO(udp_transport,
 			     //&msg_in.gyro.p,&msg_in.gyro.q,&msg_in.gyro.r)
 				&booz_imu.gyro.p,&booz_imu.gyro.q,&booz_imu.gyro.r);});
     
@@ -169,8 +178,6 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-  network = network_new(GCS_HOST, GCS_PORT, DATALINK_PORT, FALSE);
-
   /* Initalize the event library */
   event_init();
 
@@ -180,8 +187,10 @@ int main(int argc, char *argv[]) {
   }
 
   network = network_new(GCS_HOST, GCS_PORT, DATALINK_PORT, FALSE);
+
   struct event datalink_event;
-  event_set(&datalink_event, network->socket_in, EV_READ, on_datalink_event, &datalink_event);
+  //event_set(&datalink_event, network->socket_in, EV_READ, on_datalink_event, &datalink_event);
+  event_set(&datalink_event, network->socket_in, EV_READ, on_datalink_event, udp_transport);
   event_add(&datalink_event, NULL);
 
   event_dispatch();
@@ -224,6 +233,7 @@ static void send_message() {
   foo++;
 }
 
+#if 0
 static void on_datalink_event(int fd, short event, void *arg) {
   char buf[255];
   int bytes_read;
@@ -239,4 +249,67 @@ static void on_datalink_event(int fd, short event, void *arg) {
 
   struct event *ev = arg;
   event_add(ev, NULL);
+}
+#endif
+
+static inline int checked_read(int fd, char *buf, size_t len)
+{
+  int bytes = read(fd, buf, len);
+
+  if (bytes == 0) {
+    fprintf(stderr, "Connection closed\n");
+  } else if (bytes == -1) {
+    perror("read");
+  }
+
+  return bytes;
+}
+
+#define DL_MSG_SIZE 128
+
+bool_t my_dl_msg_available;
+uint8_t my_dl_buffer[DL_MSG_SIZE]  __attribute__ ((aligned));
+
+#define IdOfMsg(x) (x[1])
+
+static void dl_handle_msg(struct DownlinkTransport *tp) {
+  uint8_t msg_id = IdOfMsg(my_dl_buffer);
+  switch (msg_id) {
+  
+  case  DL_PING:
+    {
+      DOWNLINK_SEND_PONG(tp);
+    }
+    break;
+    
+  case DL_SETTING :
+    {
+      uint8_t i = DL_SETTING_index(my_dl_buffer);
+      float var = DL_SETTING_value(my_dl_buffer);
+      // DlSetting(i, var);
+      DOWNLINK_SEND_DL_VALUE(tp, &i, &var);
+    }
+    break;
+  }
+
+}
+
+static void on_datalink_event(int fd, short event __attribute__((unused)), void *arg)
+{
+  char buf[255];
+  int bytes_read;
+  bytes_read = checked_read(fd, buf, sizeof(buf) - 1);
+  struct DownlinkTransport *tp = (struct DownlinkTransport *) arg;
+  struct udp_transport *udp_impl = tp->impl;
+
+  int i = 0;
+  while (i<bytes_read) {
+    parse_udp_dl(udp_impl, buf[i]);
+    i++;
+    if (udp_impl->udp_dl_msg_received) {
+      memcpy(my_dl_buffer, udp_impl->udp_dl_payload, udp_impl->udp_dl_payload_len);
+      dl_handle_msg(tp);
+      udp_impl->udp_dl_msg_received = FALSE;
+    }
+  }
 }
