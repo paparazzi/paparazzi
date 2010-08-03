@@ -6,15 +6,9 @@
 #include "std.h"
 #include "airframe.h"
 
-#ifdef UDP_TRANSPORT_TIMESTAMP
 #define STX_UDP_TX  0x98
 #define STX_UDP_RX  0x99
 #define PPRZ_PROTOCOL_OVERHEAD 8
-#else
-#define STX_UDP_TX  0x99
-#define STX_UDP_RX  0x99
-#define PPRZ_PROTOCOL_OVERHEAD 4
-#endif
 
 #ifndef MSG_TIMESTAMP
 #define MSG_TIMESTAMP 0
