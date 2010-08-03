@@ -58,6 +58,7 @@ struct DownlinkTransport
 	void (*EndMessage)(void *impl);
 	void (*Overrun)(void *impl);
 	void (*CountBytes)(void *impl, uint8_t len);
+	void (*Periodic)(void *impl);
 
 	void *impl;
 };

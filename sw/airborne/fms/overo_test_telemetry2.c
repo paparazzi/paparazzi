@@ -49,6 +49,10 @@ void timeout_cb(int fd, short event, void *arg) {
   float  foof = 3.14159265358979323846;
   double food = 3.14159265358979323846;
   DOWNLINK_SEND_TEST_FORMAT(udp_transport, &food, &foof);
+  
+  if (udp_transport->Periodic) {
+    udp_transport->Periodic(udp_transport->impl);
+  }
 
   ADD_TIMEOUT();
 

@@ -80,6 +80,15 @@ static uint8_t size_of(void *udp __attribute__((unused)), uint8_t len)
 	return len + 2;
 }
 
+static void periodic(void *impl)
+{
+  struct udp_transport *udp = (struct udp_transport *) impl;
+  if (udp->udpt_tx_buf_idx > 0) {
+    network_write(udp->network, udp->updt_tx_buf, udp->udpt_tx_buf_idx);
+    udp->udpt_tx_buf_idx = 0;
+  }
+}
+
 struct DownlinkTransport *udp_transport_new(struct FmsNetwork *network)
 {
   struct DownlinkTransport *tp = calloc(1, sizeof(struct DownlinkTransport));
@@ -97,6 +106,7 @@ struct DownlinkTransport *udp_transport_new(struct FmsNetwork *network)
   tp->CountBytes = count_bytes;
   tp->SizeOf = size_of;
   tp->CheckFreeSpace = check_free_space;
+  tp->Periodic = periodic;
 
   return tp;
 }
