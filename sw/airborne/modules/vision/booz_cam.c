@@ -67,8 +67,12 @@ int16_t booz_cam_pan;
 #define BOOZ_CAM_SetPwm(_v) Booz2SetPwmValue(_v)
 #endif
 
+#ifndef BOOZ_CAM_DEFAULT_MODE
+#define BOOZ_CAM_DEFAULT_MODE BOOZ_CAM_MODE_NONE
+#endif
+
 void booz_cam_init(void) {
-  booz_cam_mode = BOOZ_CAM_MODE_NONE;
+  booz_cam_mode = BOOZ_CAM_DEFAULT_MODE;
 #ifdef BOOZ_CAM_USE_TILT
   booz_cam_tilt_pwm = BOOZ_CAM_TILT_NEUTRAL;
   BOOZ_CAM_SetPwm(booz_cam_tilt_pwm);
@@ -77,8 +81,8 @@ void booz_cam_init(void) {
 #ifdef BOOZ_CAM_USE_PAN
   booz_cam_pan = BOOZ_CAM_PAN_NEUTRAL;
 #endif
-  LED_ON(CAM_SWITCH_LED); // CAM OFF
-  LED_OFF(CAM_SWITCH_LED); // CAM ON
+  if (booz_cam_mode == BOOZ_CAM_MODE_NONE) { LED_ON(CAM_SWITCH_LED); } // CAM OFF
+  else { LED_OFF(CAM_SWITCH_LED); } // CAM ON
 }
 
 void booz_cam_periodic(void) {
