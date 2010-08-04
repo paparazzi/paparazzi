@@ -163,22 +163,22 @@ void booz2_analog_init_hw( void ) {
   PINSEL1 |= 2 << 18;
 
 #ifdef USE_ADC_1
-  /* select P0.13 as AD1.4 adc 1 */
+  /* select P0.13 (ADC_SPARE) as AD1.4 adc 1 */
   PINSEL0 |= 0x03 << 26;
   AD1CR |= 1 << 4;
 #endif
 #ifdef USE_ADC_2
-  /* select P0.4 as AD0.6 adc 2 */
+  /* select P0.4 (SCK_0) as AD0.6 adc 2 */
   PINSEL0 |= 0x03 << 8;
   AD0CR |= 1 << 6;
 #endif
 #ifdef USE_ADC_3
-  /* select P0.5 as AD0.7 adc 3 */
+  /* select P0.5 (MISO_0) as AD0.7 adc 3 */
   PINSEL0 |= 0x03 << 10;
   AD0CR |= 1 << 7;
 #endif
 #ifdef USE_ADC_4
-  /* select P0.6 as AD1.0 adc 4 */
+  /* select P0.6 (MOSI_0) as AD1.0 adc 4 */
   PINSEL0 |= 0x03 << 12;
   AD1CR |= 1 << 0;
 #endif
