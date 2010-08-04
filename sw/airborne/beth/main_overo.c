@@ -28,19 +28,22 @@
 #include <string.h>
 #include <signal.h>
 
-#include "downlink_transport.h"
-#include "messages2.h"
-#include "udp_transport2.h"
-#include "dl_protocol.h"
+#include <event.h>
 
-#include "fms_network.h"
+#include "messages2.h"
+
 #include "fms_periodic.h"
 #include "fms_debug.h"
 #include "fms_spi_link.h"
 #include "fms_autopilot_msg.h"
 #include "booz/booz_imu.h"
 
-#include <event.h>
+#include "overo_file_logger.h"
+#include "overo_gcs_com.h"
+#include "overo_estimator.h"
+#include "overo_controller.h"
+
+
 
 #define GCS_HOST "10.31.4.104"
 #define GCS_PORT 4242
@@ -48,150 +51,49 @@
 
 
 static void main_periodic(int);
+static void main_parse_cmd_line(int argc, char *argv[]);
+static void main_exit(int sig);
+static void main_talk_with_stm32(void);
 
-static void on_datalink_event(int fd, short event __attribute__((unused)), void *arg);
-
-static struct FmsNetwork* network;
-static struct DownlinkTransport *udp_transport;
 
 static struct AutopilotMessageBethUp   msg_in;
 static struct AutopilotMessageBethDown msg_out;
-static void send_message(void);
-static void PID(void);
-void ex_program(int sig);
-
 
 struct BoozImu booz_imu;
 struct BoozImuFloat booz_imu_float;
 
-uint16_t az,elev,tilt;
-//FILE *outfile;
 
 static uint32_t foo = 0;
 
-static void main_periodic(int my_sig_num) {
-
-  RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(udp_transport, 16, MD5SUM);});
-
-  PID();
-  send_message();
-
-  RunOnceEvery(50, {DOWNLINK_SEND_BETH(udp_transport,&msg_in.bench_sensor.x,&msg_in.bench_sensor.y,
-    &msg_in.bench_sensor.z,&foo);});
-
-  booz_imu.gyro_unscaled.p = (msg_in.gyro.p&0xFFFF);
-  booz_imu.gyro_unscaled.q = (msg_in.gyro.q&0xFFFF);
-  booz_imu.gyro_unscaled.r = (msg_in.gyro.r&0xFFFF);
-  booz_imu.accel_unscaled.x = (msg_in.accel.x&0xFFFF);
-  booz_imu.accel_unscaled.y = (msg_in.accel.y&0xFFFF);
-  booz_imu.accel_unscaled.z = (msg_in.accel.z&0xFFFF);
-
-  //fprintf(outfile,"%f %d IMU_ACCEL_RAW %d %d %d\n",foo/500.,42,booz_imu.accel_unscaled.x,booz_imu.accel_unscaled.y,booz_imu.accel_unscaled.z);
-  //fprintf(outfile,"%f %d IMU_GYRO_RAW %d %d %d\n",foo/500.,42,booz_imu.gyro_unscaled.p,booz_imu.gyro_unscaled.q,booz_imu.gyro_unscaled.r);
-
-  RunOnceEvery(10, {DOWNLINK_SEND_IMU_GYRO_RAW(udp_transport,
-			     //&msg_in.gyro.p,&msg_in.gyro.q,&msg_in.gyro.r)
-				&booz_imu.gyro_unscaled.p,&booz_imu.gyro_unscaled.q,&booz_imu.gyro_unscaled.r);});
-    
-
-  RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(udp_transport,
-			     //&msg_in.accel.x,&msg_in.accel.y,&msg_in.accel.z
-				&booz_imu.accel_unscaled.x,&booz_imu.accel_unscaled.y,&booz_imu.accel_unscaled.z);});
-
-  BoozImuScaleGyro();
-  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_GYRO(udp_transport,
-			     //&msg_in.gyro.p,&msg_in.gyro.q,&msg_in.gyro.r)
-				&booz_imu.gyro.p,&booz_imu.gyro.q,&booz_imu.gyro.r);});
-    
-
-/*  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_ACCEL(DefaultChannel,
-			     //&msg_in.accel.x,&msg_in.accel.y,&msg_in.accel.z
-				&booz_imu.accel.x,&booz_imu.accel.y,&booz_imu.accel.z);});*/
-
-  //RunOnceEvery(33, {UdpTransportPeriodic();});
-  RunOnceEvery(33, {if (udp_transport->Periodic) {udp_transport->Periodic(udp_transport->impl);} });
-
-
-}
-
-static int8_t pitchval = 0;
-static float kp, ki, kd;
-int8_t presp,dresp;
-static uint16_t tilt_sp=2770;
-static float piderror,piderrorold;
-
-static void PID(){
-  piderror = tilt_sp-msg_in.bench_sensor.z;
-
-  presp = (int8_t)(kp * piderror);
-  //Generate derivative error :
-  //dresp = (int8_t)(kd * (piderror - piderrorold) );
-  //Now using gyro measurement
-  dresp = (int8_t)(kd * booz_imu.gyro.q);  
-
-  pitchval =  presp + dresp;	
-
-  piderrorold = piderror;
-
-  if (!(foo%100)) {
-    printf("%d %d\n",presp,dresp);
-  }
-}
-
-void ex_program(int sig) {
-  //fprintf(outfile,"%d\n",foo);
-  printf("Closing down\n");
-  //fclose(outfile);
-  exit(EXIT_SUCCESS);
-}
 
 int main(int argc, char *argv[]) {
 
-  if (argc>1){
-    kp = atof(argv[1]);
-    printf("kp set to %f\n",kp);
-    if (argc>2) {
-      kd = atof(argv[2]);
-      printf("kd set to %f\n",kd);
-    } else {
-      kd=1.0;
-      printf("using default value of kd %f\n",kd);
-    }
-  } else {
-    kp = 0.05;
-    printf("using default value of kp %f\n",kp);
-  }
-  ki=0.0;
-
-  //outfile = fopen("output.data","w+");
-
-  (void) signal(SIGINT, ex_program);
-
+  
+  (void) signal(SIGINT, main_exit);
+  
   RATES_ASSIGN(booz_imu.gyro_neutral,  IMU_GYRO_P_NEUTRAL,  IMU_GYRO_Q_NEUTRAL,  IMU_GYRO_R_NEUTRAL);
   VECT3_ASSIGN(booz_imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
   VECT3_ASSIGN(booz_imu.mag_neutral,   IMU_MAG_X_NEUTRAL,   IMU_MAG_Y_NEUTRAL,   IMU_MAG_Z_NEUTRAL);
-
+  
   if (spi_link_init()) {
     TRACE(TRACE_ERROR, "%s", "failed to open SPI link \n");
     return -1;
   }
-
+  
   /* Initalize the event library */
   event_init();
-
+  
   if (fms_periodic_init(main_periodic)) {
     TRACE(TRACE_ERROR, "%s", "failed to start periodic generator\n");
     return -1; 
   }
 
-  network = network_new(GCS_HOST, GCS_PORT, DATALINK_PORT, FALSE);
-  udp_transport = udp_transport_new(network);
+  //  file_logger_init("my_log.data");
 
-  struct event datalink_event;
-  //event_set(&datalink_event, network->socket_in, EV_READ, on_datalink_event, &datalink_event);
-  event_set(&datalink_event, network->socket_in, EV_READ| EV_PERSIST, on_datalink_event, udp_transport);
-  event_add(&datalink_event, NULL);
+  gcs_com_init(GCS_HOST, GCS_PORT, DATALINK_PORT, FALSE);
 
+  main_parse_cmd_line(argc, argv);
+  
   event_dispatch();
  
   printf("goodbye! (%d)\n",foo);
@@ -201,10 +103,78 @@ int main(int argc, char *argv[]) {
 
 
 
-//static int8_t pitchval = 0;
-static int8_t adder = 1;
+static void main_periodic(int my_sig_num) {
 
-static void send_message() {
+  RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);});
+  
+  main_talk_with_stm32();
+  
+  RunOnceEvery(50, {DOWNLINK_SEND_BETH(gcs_com.udp_transport,&msg_in.bench_sensor.x,&msg_in.bench_sensor.y,
+				       &msg_in.bench_sensor.z,&foo);});
+  
+  estimator_run(msg_in.bench_sensor.z);
+ 
+  control_run();
+
+  //  file_logger_periodic();
+
+
+  RunOnceEvery(10, {DOWNLINK_SEND_IMU_GYRO_RAW(gcs_com.udp_transport,
+			     //&msg_in.gyro.p,&msg_in.gyro.q,&msg_in.gyro.r)
+				&booz_imu.gyro_unscaled.p,&booz_imu.gyro_unscaled.q,&booz_imu.gyro_unscaled.r);});
+    
+
+  RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(gcs_com.udp_transport,
+			     //&msg_in.accel.x,&msg_in.accel.y,&msg_in.accel.z
+				&booz_imu.accel_unscaled.x,&booz_imu.accel_unscaled.y,&booz_imu.accel_unscaled.z);});
+
+  BoozImuScaleGyro();
+  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_GYRO(gcs_com.udp_transport,
+			     //&msg_in.gyro.p,&msg_in.gyro.q,&msg_in.gyro.r)
+				&booz_imu.gyro.p,&booz_imu.gyro.q,&booz_imu.gyro.r);});
+    
+
+/*  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_ACCEL(DefaultChannel,
+			     //&msg_in.accel.x,&msg_in.accel.y,&msg_in.accel.z
+				&booz_imu.accel.x,&booz_imu.accel.y,&booz_imu.accel.z);});*/
+
+  //RunOnceEvery(33, {UdpTransportPeriodic();});
+  RunOnceEvery(33, gcs_com_periodic());
+
+
+}
+
+
+static void main_parse_cmd_line(int argc, char *argv[]) {
+
+  if (argc>1){
+    controller.kp = atof(argv[1]);
+    //    printf("kp set to %f\n",kp);
+    if (argc>2) {
+      controller.kd = atof(argv[2]);
+      //      printf("kd set to %f\n",kd);
+    } else {
+      controller.kd=1.0;
+      //      printf("using default value of kd %f\n",kd);
+    }
+  } else {
+    controller.kp = 0.05;
+    //    printf("using default value of kp %f\n",kp);
+  }
+
+}
+
+
+static void main_exit(int sig) {
+  printf("Closing down\n");
+  //file_logger_exit()
+  exit(EXIT_SUCCESS);
+}
+
+
+static void main_talk_with_stm32() {
+
+  static int8_t adder = 1;
   //uint8_t *fooptr;
 
   msg_out.thrust = 10;
@@ -213,9 +183,9 @@ static void send_message() {
     /*if (pitchval == 15 ) adder=-1;
     if (pitchval == -15 ) adder=1;
     pitchval = pitchval + adder;*/
-    printf("pitchval now %d\n",pitchval);
+    printf("cmd now %f\n",controller.cmd);
   }
-  msg_out.pitch = pitchval;
+  msg_out.pitch = (int8_t)controller.cmd;
   //msg_out.cksum = msg_out.thrust + msg_out.pitch;
 
   spi_link_send(&msg_out, sizeof(union AutopilotMessage) , &msg_in);
@@ -232,72 +202,16 @@ static void send_message() {
     msg_in.bench_sensor.z,msg_in.bench_sensor.x);   
   }*/
   foo++;
-}
 
-static inline int checked_read(int fd, char *buf, size_t len)
-{
-  int bytes = read(fd, buf, len);
-
-  if (bytes == 0) {
-    fprintf(stderr, "Connection closed\n");
-  } else if (bytes == -1) {
-    perror("read");
-  }
-
-  return bytes;
-}
-
-#define DL_MSG_SIZE 128
-
-bool_t my_dl_msg_available;
-uint8_t my_dl_buffer[DL_MSG_SIZE]  __attribute__ ((aligned));
-
-#define IdOfMsg(x) (x[1])
-
-static void dl_handle_msg(struct DownlinkTransport *tp) {
-  uint8_t msg_id = IdOfMsg(my_dl_buffer);
-  switch (msg_id) {
-  
-  case  DL_PING:
-    {
-      DOWNLINK_SEND_PONG(tp);
-printf("sent pong\n");
-    }
-    break;
-    
-  case DL_SETTING :
-    {
-      uint8_t i = DL_SETTING_index(my_dl_buffer);
-      float var = DL_SETTING_value(my_dl_buffer);
-      // DlSetting(i, var);
-      DOWNLINK_SEND_DL_VALUE(tp, &i, &var);
-printf("sent back value\n");
-    }
-    break;
-   default :
-printf("did nothing\n");
-     break;
-  }
+  booz_imu.gyro_unscaled.p = (msg_in.gyro.p&0xFFFF);
+  booz_imu.gyro_unscaled.q = (msg_in.gyro.q&0xFFFF);
+  booz_imu.gyro_unscaled.r = (msg_in.gyro.r&0xFFFF);
+  booz_imu.accel_unscaled.x = (msg_in.accel.x&0xFFFF);
+  booz_imu.accel_unscaled.y = (msg_in.accel.y&0xFFFF);
+  booz_imu.accel_unscaled.z = (msg_in.accel.z&0xFFFF);
 
 }
 
-static void on_datalink_event(int fd, short event __attribute__((unused)), void *arg)
-{
-  char buf[255];
-  int bytes_read;
-  bytes_read = checked_read(fd, buf, sizeof(buf) - 1);
-  struct DownlinkTransport *tp = (struct DownlinkTransport *) arg;
-  struct udp_transport *udp_impl = tp->impl;
-  printf("on datalink event: %d bytes\n",bytes_read);
-  int i = 0;
-  while (i<bytes_read) {
-    parse_udp_dl(udp_impl, buf[i]);
-    i++;
-    if (udp_impl->udp_dl_msg_received) {
-      memcpy(my_dl_buffer, udp_impl->udp_dl_payload, udp_impl->udp_dl_payload_len);
-      dl_handle_msg(tp);
-      udp_impl->udp_dl_msg_received = FALSE;
-    }
-  }
- 
-}
+
+
+
