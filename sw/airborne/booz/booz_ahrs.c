@@ -26,3 +26,6 @@
 
 struct BoozAhrs booz_ahrs;
 struct BoozAhrsFloat booz_ahrs_float;
+
+float booz_ahrs_mag_offset;
+

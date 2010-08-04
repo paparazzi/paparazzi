@@ -53,6 +53,12 @@ void booz_ahrs_init(void) {
   booz2_face_reinj_1 = BOOZ2_FACE_REINJ_1;
 
   INT_EULERS_ZERO(booz2_face_uncorrected);
+
+#ifdef IMU_MAG_OFFSET
+  booz_ahrs_mag_offset = IMU_MAG_OFFSET;
+#else
+  booz_ahrs_mag_offset = 0.;
+#endif
 }
 
 void booz_ahrs_align(void) {
@@ -177,7 +183,7 @@ void booz_ahrs_update_mag(void) {
   //  sphi_ctheta * booz_imu.mag.y +
   //  cphi_ctheta * booz_imu.mag.z;
   float m_psi = -atan2(me, mn);
-  measurement.psi = ((m_psi)*(float)(1<<(INT32_ANGLE_FRAC))*F_UPDATE);
+  measurement.psi = ((m_psi - RadOfDeg(booz_ahrs_mag_offset))*(float)(1<<(INT32_ANGLE_FRAC))*F_UPDATE);
 
 }
 

@@ -64,6 +64,8 @@ struct BoozAhrsFloat {
 extern struct BoozAhrs booz_ahrs;
 extern struct BoozAhrsFloat booz_ahrs_float;
 
+extern float booz_ahrs_mag_offset;
+
 #define BOOZ_AHRS_FLOAT_OF_INT32() {					                 \
     QUAT_FLOAT_OF_BFP(booz_ahrs_float.ltp_to_body_quat, booz_ahrs.ltp_to_body_quat);     \
     EULERS_FLOAT_OF_BFP(booz_ahrs_float.ltp_to_body_euler, booz_ahrs.ltp_to_body_euler); \
