@@ -92,7 +92,8 @@ extern uint16_t booz2_autopilot_flight_time;
 
 #define booz2_autopilot_KillThrottle(_v) {	                        \
     kill_throttle = _v;							\
-    booz2_autopilot_motors_on = !kill_throttle;				\
+    if (kill_throttle) booz2_autopilot_motors_on = FALSE;				\
+    else booz2_autopilot_motors_on = TRUE; \
   }
 
 #define booz2_autopilot_SetPowerSwitch(_v) { \
