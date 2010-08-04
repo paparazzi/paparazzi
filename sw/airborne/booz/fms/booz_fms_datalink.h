@@ -80,4 +80,14 @@
     }									\
   }
 
+#define BOOZ_FMS_NAV_STICK_PARSE_DL(_dl_buffer) { \
+  fms.last_msg = 0; \
+  fms.input.h_mode = BOOZ2_GUIDANCE_H_MODE_NAV;	\
+  fms.input.v_mode = BOOZ2_GUIDANCE_V_MODE_NAV;	\
+  fms.input.h_sp.speed.x = DL_BOOZ_NAV_STICK_vx_sp(_dl_buffer); \
+  fms.input.h_sp.speed.y = DL_BOOZ_NAV_STICK_vy_sp(_dl_buffer); \
+  fms.input.h_sp.speed.z = DL_BOOZ_NAV_STICK_r_sp(_dl_buffer); \
+  fms.input.v_sp.climb   = DL_BOOZ_NAV_STICK_vz_sp(_dl_buffer); \
+}
+
 #endif /* BOOZ2_FMS_DATALINK_H */
