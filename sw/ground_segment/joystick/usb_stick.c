@@ -73,7 +73,7 @@ int32_t axis_min[AXIS_COUNT], axis_max[AXIS_COUNT];
 
 struct stick_code_param_ stick_init_param = {
   0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-  0, {0, 0, 0, 0, 0, 0}
+  0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 };
 
 //struct ff_effect effect;
@@ -300,13 +300,17 @@ int stick_read( void ) {
       (stick_button_values >> 13) & 1,
       (stick_button_values >> 14) & 1,
       (stick_button_values >> 15) & 1);
-  dbgprintf(stderr,"axis %d %d %d %d %d %d\n",
+  dbgprintf(stderr,"axis %d %d %d %d %d %d %d %d %d %d\n",
       stick_axis_values[0],
       stick_axis_values[1],
       stick_axis_values[2],
       stick_axis_values[3],
       stick_axis_values[4],
-      stick_axis_values[5]);
+      stick_axis_values[5],
+      stick_axis_values[6],
+      stick_axis_values[7],
+      stick_axis_values[8],
+      stick_axis_values[9]);
 
   return 0;
 }

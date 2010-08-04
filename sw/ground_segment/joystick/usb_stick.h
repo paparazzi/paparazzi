@@ -28,7 +28,7 @@
 
 /* Max number of axis and buttons */
 #define STICK_BUTTON_COUNT    16
-#define STICK_AXIS_COUNT      6
+#define STICK_AXIS_COUNT      10
 
 /* Default values for the options */
 #define STICK_INPUT_DEV_MAX   15
