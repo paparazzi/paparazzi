@@ -227,6 +227,12 @@ main_overo.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
 main_overo.srcs    += $(SRC_FMS)/fms_network.c
 main_overo.LDFLAGS += -levent
 
+main_overo.srcs    += $(SRC_BETH)/overo_gcs_com.c
+main_overo.srcs    += $(SRC_BETH)/overo_file_logger.c
+main_overo.srcs    += $(SRC_BETH)/overo_estimator.c
+main_overo.srcs    += $(SRC_BETH)/overo_controller.c
+
+
 #
 #
 #
