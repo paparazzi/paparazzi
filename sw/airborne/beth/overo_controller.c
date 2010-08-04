@@ -16,10 +16,14 @@ void control_init(void) {
 
 
 void control_run(void) {
-  
+  static int foo=0;
+
   float track_err = estimator.tilt - controller.tilt_sp;
-  
-  controller.cmd = controller.kp*track_err + controller.kd*estimator.tilt_dot;
-  
+  float pcmd = controller.kp*track_err;
+  float dcmd = controller.kd*estimator.tilt_dot;
+  //controller.cmd = controller.kp*track_err + controller.kd*estimator.tilt_dot;
+  controller.cmd = pcmd + dcmd;
+  //if (!(foo%100)) printf("%f %f\n",pcmd,dcmd);
+  foo++;
 }
 

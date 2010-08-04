@@ -44,12 +44,6 @@
 #include "overo_controller.h"
 
 
-
-#define GCS_HOST "10.31.4.104"
-#define GCS_PORT 4242
-#define DATALINK_PORT 4243
-
-
 static void main_periodic(int);
 static void main_parse_cmd_line(int argc, char *argv[]);
 static void main_exit(int sig);
@@ -67,7 +61,6 @@ static uint32_t foo = 0;
 
 
 int main(int argc, char *argv[]) {
-
   
   (void) signal(SIGINT, main_exit);
   
@@ -90,7 +83,7 @@ int main(int argc, char *argv[]) {
 
   //  file_logger_init("my_log.data");
 
-  gcs_com_init(GCS_HOST, GCS_PORT, DATALINK_PORT, FALSE);
+  gcs_com_init();
 
   main_parse_cmd_line(argc, argv);
   
@@ -104,11 +97,20 @@ int main(int argc, char *argv[]) {
 
 
 static void main_periodic(int my_sig_num) {
+#if 0
+DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);
+main_talk_with_stm32();
+estimator_run(msg_in.bench_sensor.z);
+control_run();
+BoozImuScaleGyro();
+gcs_com_periodic();
+#endif
 
+#if 01 
   RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);});
-  
+ 
   main_talk_with_stm32();
-  
+
   RunOnceEvery(50, {DOWNLINK_SEND_BETH(gcs_com.udp_transport,&msg_in.bench_sensor.x,&msg_in.bench_sensor.y,
 				       &msg_in.bench_sensor.z,&foo);});
   
@@ -140,7 +142,7 @@ static void main_periodic(int my_sig_num) {
 
   //RunOnceEvery(33, {UdpTransportPeriodic();});
   RunOnceEvery(33, gcs_com_periodic());
-
+#endif
 
 }
 
@@ -186,6 +188,7 @@ static void main_talk_with_stm32() {
     printf("cmd now %f\n",controller.cmd);
   }
   msg_out.pitch = (int8_t)controller.cmd;
+  //msg_out.pitch = 1;
   //msg_out.cksum = msg_out.thrust + msg_out.pitch;
 
   spi_link_send(&msg_out, sizeof(union AutopilotMessage) , &msg_in);

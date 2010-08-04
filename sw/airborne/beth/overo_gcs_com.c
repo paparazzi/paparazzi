@@ -1,6 +1,5 @@
 #include "overo_gcs_com.h"
 
-#include <event.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -11,6 +10,9 @@
 #include "settings.h"
 //#include "downlink.h"
 
+#define GCS_HOST "10.31.4.104"
+#define GCS_PORT 4242
+#define DATALINK_PORT 4243
 
 static void dl_handle_msg(struct DownlinkTransport *tp);
 static inline int checked_read(int fd, char *buf, size_t len);
@@ -18,14 +20,13 @@ static void on_datalink_event(int fd, short event __attribute__((unused)), void 
 
 struct OveroGcsCom gcs_com;
 
+void gcs_com_init(void) {
 
-void gcs_com_init(char* gcs_host, uint32_t gcs_port, uint32_t datalink_port, uint8_t broadcast) {
-
-  gcs_com.network = network_new(gcs_host, gcs_port, datalink_port, broadcast);
+  gcs_com.network = network_new(GCS_HOST,GCS_PORT,DATALINK_PORT,FALSE);
   gcs_com.udp_transport = udp_transport_new(gcs_com.network);
-  struct event datalink_event;
-  event_set(&datalink_event, gcs_com.network->socket_in, EV_READ| EV_PERSIST, on_datalink_event, gcs_com.udp_transport);
-  event_add(&datalink_event, NULL);
+  
+  event_set(&gcs_com.datalink_event, gcs_com.network->socket_in, EV_READ| EV_PERSIST, on_datalink_event, gcs_com.udp_transport);
+  event_add(&gcs_com.datalink_event, NULL);
   
 }
 
@@ -70,7 +71,8 @@ static void dl_handle_msg(struct DownlinkTransport *tp) {
     {
       uint8_t i = DL_SETTING_index(gcs_com.my_dl_buffer);
       float var = DL_SETTING_value(gcs_com.my_dl_buffer);
-      DlSetting(i, var);
+      //DlSetting(i, var);
+      printf("datalink : %d %f\n",i,var);
       DOWNLINK_SEND_DL_VALUE(tp, &i, &var);
     }
     break;

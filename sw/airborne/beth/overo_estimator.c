@@ -11,10 +11,11 @@ void estimator_init(void) {
 
 void estimator_run(uint16_t tilt_measure) {
   
-  const int32_t tilt_neutral = 2770;
-  const float   tilt_scale = 1./580.;
+  const int32_t tilt_neutral = 2815;
+  //const float   tilt_scale = 1./580.;
+  const float   tilt_scale = 1.;
 
-  estimator.tilt = ((int32_t)tilt_measure - tilt_neutral) * tilt_scale;
+  estimator.tilt = (tilt_neutral - (int32_t)tilt_measure ) * tilt_scale;
   estimator.tilt_dot = booz_imu.gyro.q;
 
 

@@ -96,10 +96,10 @@ static inline void main_periodic( void ) {
   booz2_commands[COMMAND_PITCH] = pitch;
   booz2_commands[COMMAND_ROLL] = 0;
   booz2_commands[COMMAND_YAW] = 0;
-  if ( overo_link.down.msg.thrust < 10) {
+  if ( overo_link.down.msg.thrust < 20) {
     booz2_commands[COMMAND_THRUST] = overo_link.down.msg.thrust;
   } else { 
-    booz2_commands[COMMAND_THRUST] = 10;
+    booz2_commands[COMMAND_THRUST] = 20;
   }
   if (my_cnt == 0) {
     actuators_set(FALSE);
