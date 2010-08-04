@@ -37,7 +37,7 @@
 #include "fms_debug.h"
 
 static void fms_periodic_run(void);
-static void fms_periodic_delete(void);
+//static void fms_periodic_delete(void);
 
 struct FmsPeriodic {
   pid_t ap_pid;
@@ -74,9 +74,9 @@ int fms_periodic_init(void(*periodic_handler)(int) ) {
   return 0;
 }
 
-static void fms_periodic_delete(void) {
-
-}
+//static void fms_periodic_delete(void) {
+//
+//}
 
 
 #define NS_PER_SEC         1000000000
