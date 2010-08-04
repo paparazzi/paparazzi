@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="core">
+  <header>
+    <file name="sys_mon.h"/>
+  </header>
+  <init fun="init_sysmon()"/>
+  <periodic fun="periodic_report_sysmon()" freq="1."/>
+  <periodic fun="periodic_sysmon()"/>
+  <event fun="event_sysmon()"/>
+  <makefile>
+    <file name="sys_mon.c"/>
+  </makefile>
+</module>
+
