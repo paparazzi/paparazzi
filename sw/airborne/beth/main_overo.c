@@ -28,9 +28,6 @@
 #include <string.h>
 #include <signal.h>
 
-//#include "downlink.h"
-//#include "udp_transport.h"
-
 #include "downlink_transport.h"
 #include "messages2.h"
 #include "udp_transport2.h"
@@ -45,15 +42,13 @@
 
 #include <event.h>
 
-
-
 #define GCS_HOST "10.31.4.104"
 #define GCS_PORT 4242
 #define DATALINK_PORT 4243
 
 
 static void main_periodic(int);
-//static void on_datalink_event(int fd, short event, void *arg);
+
 static void on_datalink_event(int fd, short event __attribute__((unused)), void *arg);
 
 static struct FmsNetwork* network;
@@ -64,15 +59,15 @@ static struct AutopilotMessageBethDown msg_out;
 static void send_message(void);
 static void PID(void);
 void ex_program(int sig);
-FILE *outfile;
+
 
 struct BoozImu booz_imu;
 struct BoozImuFloat booz_imu_float;
 
 uint16_t az,elev,tilt;
+//FILE *outfile;
 
 static uint32_t foo = 0;
-//static int32_t p,q,r,x,y,z;
 
 static void main_periodic(int my_sig_num) {
 
@@ -90,11 +85,9 @@ static void main_periodic(int my_sig_num) {
   booz_imu.accel_unscaled.x = (msg_in.accel.x&0xFFFF);
   booz_imu.accel_unscaled.y = (msg_in.accel.y&0xFFFF);
   booz_imu.accel_unscaled.z = (msg_in.accel.z&0xFFFF);
-  
-  BoozImuScaleGyro();
 
-  fprintf(outfile,"%f %d IMU_ACCEL_RAW %d %d %d\n",foo/500.,42,booz_imu.accel_unscaled.x,booz_imu.accel_unscaled.y,booz_imu.accel_unscaled.z);
-  fprintf(outfile,"%f %d IMU_GYRO_RAW %d %d %d\n",foo/500.,42,booz_imu.gyro_unscaled.p,booz_imu.gyro_unscaled.q,booz_imu.gyro_unscaled.r);
+  //fprintf(outfile,"%f %d IMU_ACCEL_RAW %d %d %d\n",foo/500.,42,booz_imu.accel_unscaled.x,booz_imu.accel_unscaled.y,booz_imu.accel_unscaled.z);
+  //fprintf(outfile,"%f %d IMU_GYRO_RAW %d %d %d\n",foo/500.,42,booz_imu.gyro_unscaled.p,booz_imu.gyro_unscaled.q,booz_imu.gyro_unscaled.r);
 
   RunOnceEvery(10, {DOWNLINK_SEND_IMU_GYRO_RAW(udp_transport,
 			     //&msg_in.gyro.p,&msg_in.gyro.q,&msg_in.gyro.r)
@@ -105,6 +98,7 @@ static void main_periodic(int my_sig_num) {
 			     //&msg_in.accel.x,&msg_in.accel.y,&msg_in.accel.z
 				&booz_imu.accel_unscaled.x,&booz_imu.accel_unscaled.y,&booz_imu.accel_unscaled.z);});
 
+  BoozImuScaleGyro();
   RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_GYRO(udp_transport,
 			     //&msg_in.gyro.p,&msg_in.gyro.q,&msg_in.gyro.r)
 				&booz_imu.gyro.p,&booz_imu.gyro.q,&booz_imu.gyro.r);});
@@ -114,7 +108,9 @@ static void main_periodic(int my_sig_num) {
 			     //&msg_in.accel.x,&msg_in.accel.y,&msg_in.accel.z
 				&booz_imu.accel.x,&booz_imu.accel.y,&booz_imu.accel.z);});*/
 
-  RunOnceEvery(33, {UdpTransportPeriodic();});
+  //RunOnceEvery(33, {UdpTransportPeriodic();});
+  RunOnceEvery(33, {if (udp_transport->Periodic) {udp_transport->Periodic(udp_transport->impl);} });
+
 
 }
 
@@ -128,7 +124,9 @@ static void PID(){
   piderror = tilt_sp-msg_in.bench_sensor.z;
 
   presp = (int8_t)(kp * piderror);
+  //Generate derivative error :
   //dresp = (int8_t)(kd * (piderror - piderrorold) );
+  //Now using gyro measurement
   dresp = (int8_t)(kd * booz_imu.gyro.q);  
 
   pitchval =  presp + dresp;	
@@ -141,9 +139,9 @@ static void PID(){
 }
 
 void ex_program(int sig) {
-  fprintf(outfile,"%d\n",foo);
+  //fprintf(outfile,"%d\n",foo);
   printf("Closing down\n");
-  fclose(outfile);
+  //fclose(outfile);
   exit(EXIT_SUCCESS);
 }
 
@@ -165,7 +163,7 @@ int main(int argc, char *argv[]) {
   }
   ki=0.0;
 
-  outfile = fopen("output.data","w+");
+  //outfile = fopen("output.data","w+");
 
   (void) signal(SIGINT, ex_program);
 
@@ -187,13 +185,16 @@ int main(int argc, char *argv[]) {
   }
 
   network = network_new(GCS_HOST, GCS_PORT, DATALINK_PORT, FALSE);
+  udp_transport = udp_transport_new(network);
 
   struct event datalink_event;
   //event_set(&datalink_event, network->socket_in, EV_READ, on_datalink_event, &datalink_event);
-  event_set(&datalink_event, network->socket_in, EV_READ, on_datalink_event, udp_transport);
+  event_set(&datalink_event, network->socket_in, EV_READ| EV_PERSIST, on_datalink_event, udp_transport);
   event_add(&datalink_event, NULL);
 
   event_dispatch();
+ 
+  printf("goodbye! (%d)\n",foo);
 
   return 0;
 }
@@ -233,25 +234,6 @@ static void send_message() {
   foo++;
 }
 
-#if 0
-static void on_datalink_event(int fd, short event, void *arg) {
-  char buf[255];
-  int bytes_read;
-  bytes_read = read(fd, buf, sizeof(buf) - 1);
-  if (bytes_read == -1) {
-    perror("read");
-    return;
-  } else if (bytes_read == 0) {
-    fprintf(stderr, "Connection closed\n");
-    return;
-  }
-  printf("on_datalink_event, read %d\n", bytes_read);
-
-  struct event *ev = arg;
-  event_add(ev, NULL);
-}
-#endif
-
 static inline int checked_read(int fd, char *buf, size_t len)
 {
   int bytes = read(fd, buf, len);
@@ -279,6 +261,7 @@ static void dl_handle_msg(struct DownlinkTransport *tp) {
   case  DL_PING:
     {
       DOWNLINK_SEND_PONG(tp);
+printf("sent pong\n");
     }
     break;
     
@@ -288,8 +271,12 @@ static void dl_handle_msg(struct DownlinkTransport *tp) {
       float var = DL_SETTING_value(my_dl_buffer);
       // DlSetting(i, var);
       DOWNLINK_SEND_DL_VALUE(tp, &i, &var);
+printf("sent back value\n");
     }
     break;
+   default :
+printf("did nothing\n");
+     break;
   }
 
 }
@@ -301,7 +288,7 @@ static void on_datalink_event(int fd, short event __attribute__((unused)), void 
   bytes_read = checked_read(fd, buf, sizeof(buf) - 1);
   struct DownlinkTransport *tp = (struct DownlinkTransport *) arg;
   struct udp_transport *udp_impl = tp->impl;
-
+  printf("on datalink event: %d bytes\n",bytes_read);
   int i = 0;
   while (i<bytes_read) {
     parse_udp_dl(udp_impl, buf[i]);
@@ -312,4 +299,5 @@ static void on_datalink_event(int fd, short event __attribute__((unused)), void 
       udp_impl->udp_dl_msg_received = FALSE;
     }
   }
+ 
 }
