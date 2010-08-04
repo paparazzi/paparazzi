@@ -25,6 +25,7 @@
 #define MODULES_DATALINK_C
 
 #include "datalink.h"
+
 #ifdef USE_MODULES
 #include "modules.h"
 #endif
@@ -85,6 +86,12 @@ void dl_parse_msg(void) {
       BOOZ_FMS_PARSE_DATALINK(dl_buffer);
     }
     break;
+  case DL_BOOZ_NAV_STICK :
+    {
+      if (DL_BOOZ_NAV_STICK_ac_id(dl_buffer) != AC_ID) break;
+      BOOZ_FMS_NAV_STICK_PARSE_DL(dl_buffer);
+    }
+    break;
 #endif
 #if defined USE_NAVIGATION
   case DL_BLOCK :
@@ -113,11 +120,11 @@ void dl_parse_msg(void) {
     }
     break;
 #endif /* USE_NAVIGATION */
-#ifdef USE_MODULES
-    /* Parse modules datalink */
-    modules_parse_datalink(msg_id);
-#endif
   default:
     break;
   }
+#ifdef USE_MODULES
+  /* Parse modules datalink */
+  modules_parse_datalink(msg_id);
+#endif
 }
