@@ -32,10 +32,10 @@ Q=@
 MCU   = cortex-m3
 #DEBUG = dwarf-2
 OPT   = s
+#OPT   = 3
 
 # Programs location
 TOOLCHAIN_DIR=/opt/paparazzi/stm32
-#GCC_DIR=/opt/stm32/toolchain/arm-none-eabi
 GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
 GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
 
@@ -53,12 +53,12 @@ OOCD = $(TOOLCHAIN_DIR)/bin/openocd
 LOADER=/home/poine/home_regis/work/stm32/stm32loader-a3c51c26ad6c/stm32loader.py
 
 ifndef $(TARGET).OOCD_INTERFACE
-OOCD_INTERFACE = openocd-lisa-jtag
+OOCD_INTERFACE = lisa-l
 else
 OOCD_INTERFACE =  $($(TARGET).OOCD_INTERFACE)
 endif
 
-OOCD_TARGET    = stm32
+OOCD_BOARD     = lisa-l
 
 # inpput files
 SRCS = $($(TARGET).srcs)
@@ -70,8 +70,8 @@ AOBJ    = $(ASRC:%.S=$(OBJDIR)/%.o)
 
 # linker script : 
 #   if LDSCRIPT is defined in the airframe use that independantly of TARGET
-#   if not and a TARGET.LDSCRIPT is defined, use that
-#   if not use the default STM32f103re_flash.ld
+#   if not, and a TARGET.LDSCRIPT is defined, use that
+#   if not, use the default STM32f103re_flash.ld
 ifndef LDSCRIPT
 ifndef $(TARGET).LDSCRIPT
 LDSCRIPT = $(SRC_ARCH)/stm32f103re_flash.ld
@@ -85,7 +85,7 @@ CFLAGS += -Wl,gc-sections
 CFLAGS += -mcpu=$(MCU) -mthumb -ansi
 CFLAGS += -std=gnu99
 #CFLAGS += -malignment-traps
-CFLAGS += -fno-common -O$(OPT) -g$(DEBUG)
+CFLAGS += -fno-common  -g$(DEBUG)
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -Wall -Wimplicit
 CFLAGS += -Wcast-align
@@ -184,7 +184,7 @@ else ifeq ($(FLASH_MODE),JTAG)
 upload:  $(OBJDIR)/$(TARGET).bin
 	@echo -e "  OOCD\t$<"
 	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
-                -f target/$(OOCD_TARGET).cfg \
+                -f boards/$(OOCD_BOARD).cfg \
                 -c init \
                 -c "reset halt" \
                 -c "flash write_image erase $(OBJDIR)/$(TARGET).bin 0x08000000" \
@@ -195,7 +195,7 @@ endif
 
 start_gdb:
 	xterm -e "$(OOCD) -f interface/$(OOCD_INTERFACE).cfg  -f target/$(OOCD_TARGET).cfg" &
-	xterm -e "/opt/paparazzi/stm32/bin/openocd -f interface/openocd-lisa-jtag.cfg -f target/stm32.cfg"&
+	xterm -e "/opt/paparazzi/stm32/bin/openocd -f interface/lisa-l.cfg -f boards/lisa-l.cfg"&
 
 start_telnet:
 	xterm -e "telnet localhost 4444" &
