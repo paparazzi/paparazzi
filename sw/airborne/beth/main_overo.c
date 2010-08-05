@@ -75,6 +75,8 @@ int main(int argc, char *argv[]) {
   
   /* Initalize the event library */
   event_init();
+
+  control_init();
   
   if (fms_periodic_init(main_periodic)) {
     TRACE(TRACE_ERROR, "%s", "failed to start periodic generator\n");
@@ -97,19 +99,12 @@ int main(int argc, char *argv[]) {
 
 
 static void main_periodic(int my_sig_num) {
-#if 0
-DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);
-main_talk_with_stm32();
-estimator_run(msg_in.bench_sensor.z);
-control_run();
-BoozImuScaleGyro();
-gcs_com_periodic();
-#endif
 
-#if 01 
   RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);});
  
   main_talk_with_stm32();
+
+  BoozImuScaleGyro();
 
   RunOnceEvery(50, {DOWNLINK_SEND_BETH(gcs_com.udp_transport,&msg_in.bench_sensor.x,&msg_in.bench_sensor.y,
 				       &msg_in.bench_sensor.z,&foo);});
@@ -130,7 +125,7 @@ gcs_com_periodic();
 			     //&msg_in.accel.x,&msg_in.accel.y,&msg_in.accel.z
 				&booz_imu.accel_unscaled.x,&booz_imu.accel_unscaled.y,&booz_imu.accel_unscaled.z);});
 
-  BoozImuScaleGyro();
+
   RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_GYRO(gcs_com.udp_transport,
 			     //&msg_in.gyro.p,&msg_in.gyro.q,&msg_in.gyro.r)
 				&booz_imu.gyro.p,&booz_imu.gyro.q,&booz_imu.gyro.r);});
@@ -140,9 +135,7 @@ gcs_com_periodic();
 			     //&msg_in.accel.x,&msg_in.accel.y,&msg_in.accel.z
 				&booz_imu.accel.x,&booz_imu.accel.y,&booz_imu.accel.z);});*/
 
-  //RunOnceEvery(33, {UdpTransportPeriodic();});
   RunOnceEvery(33, gcs_com_periodic());
-#endif
 
 }
 

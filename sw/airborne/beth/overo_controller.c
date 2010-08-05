@@ -24,8 +24,11 @@ void control_init(void) {
   controller.xi_cl = 1.;
 
   controller.cmd_ff = 0.;
-  controller.cmd_fb = 0.;
+  controller.cmd_fb1 = 0.;
+  controller.cmd_fb2 = 0.;
   controller.cmd = 0.;
+  //printf("omega_ref: %f omega_cl: %f",controller.omega_ref,controller.omega_cl);
+  //omega_ref: 3.490659 omega_cl: 8.726646
 }
 
 
@@ -35,32 +38,36 @@ void control_run(void) {
   /*
    *  propagate reference
    */
-  const float dt_ctl = 1./512.;
+  const float dt_ctl = 1./500.;
   controller.tilt_ref = controller.tilt_ref + controller.tilt_dot_ref * dt_ctl;
   controller.tilt_dot_ref = controller.tilt_dot_ref + controller.tilt_ddot_ref * dt_ctl;
   controller.tilt_ddot_ref = -2*controller.omega_ref*controller.xi_ref*controller.tilt_dot_ref 
-    - 2*controller.omega_ref*controller.omega_ref*(controller.tilt_ref - controller.tilt_sp); 
+    - controller.omega_ref*controller.omega_ref*(controller.tilt_ref - controller.tilt_sp); 
 
-#if 0
+
   static int foo=0;
-
+#if 0
   float track_err = estimator.tilt - controller.tilt_sp;
   float pcmd = controller.kp*track_err;
   float dcmd = controller.kd*estimator.tilt_dot;
   //controller.cmd = controller.kp*track_err + controller.kd*estimator.tilt_dot;
   controller.cmd = pcmd + dcmd;
-  //if (!(foo%100)) printf("%f %f\n",pcmd,dcmd);
-  foo++;
+
 #else
+
+
 
   const float err_tilt = estimator.tilt - controller.tilt_ref;
   const float err_tilt_dot = estimator.tilt_dot - controller.tilt_dot_ref;
   controller.cmd_ff = controller.one_over_J*controller.tilt_ddot_ref;
-  controller.cmd_fb = controller.one_over_J*( 
-					     -2*controller.xi_cl*controller.omega_cl*err_tilt_dot
-					     -controller.omega_cl*controller.omega_cl*err_tilt);
-  controller.cmd = controller.cmd_ff + controller.cmd_fb; 
-  
+  controller.cmd_fb1 = controller.one_over_J*(2*controller.xi_cl*controller.omega_cl*err_tilt_dot);
+  controller.cmd_fb2 = controller.one_over_J*(controller.omega_cl*controller.omega_cl*err_tilt);
+
+  controller.cmd = controller.cmd_ff + controller.cmd_fb1+ controller.cmd_fb1; 
+  if (!(foo%100)) 
+  //printf("ff:%f fb:%f %f (%f)\n",controller.cmd_ff, controller.cmd_fb1, controller.cmd_fb2,estimator.tilt_dot);
+  printf("%f %f %f\n",controller.tilt_ref,controller.tilt_dot_ref,controller.tilt_ddot_ref);
+  foo++; 
 #endif
 }
 

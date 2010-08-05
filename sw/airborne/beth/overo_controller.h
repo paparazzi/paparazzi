@@ -22,7 +22,8 @@ struct OveroController {
   float xi_cl;
 
   float cmd_ff;
-  float cmd_fb;
+  float cmd_fb1;
+  float cmd_fb2;
   float cmd;
 };
 

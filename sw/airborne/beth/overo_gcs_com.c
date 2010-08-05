@@ -9,6 +9,7 @@
 #include "dl_protocol.h"
 #include "settings.h"
 //#include "downlink.h"
+#include "overo_controller.h"
 
 #define GCS_HOST "10.31.4.104"
 #define GCS_PORT 4242
@@ -71,8 +72,9 @@ static void dl_handle_msg(struct DownlinkTransport *tp) {
     {
       uint8_t i = DL_SETTING_index(gcs_com.my_dl_buffer);
       float var = DL_SETTING_value(gcs_com.my_dl_buffer);
-      //DlSetting(i, var);
+      DlSetting(i, var);
       printf("datalink : %d %f\n",i,var);
+      printf("controller.tilt_sp : %f \n",controller.tilt_sp);
       DOWNLINK_SEND_DL_VALUE(tp, &i, &var);
     }
     break;
