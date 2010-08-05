@@ -82,70 +82,65 @@ let gm_pos_and_scale = fun keyholeString tLat latHeight tLon lonWidth ->
 let tile_of_geo = fun wgs84 zoom ->
   let zoom = zoom_max - zoom in
   
-  (* first convert the lat lon to transverse mercator coordintes.*)
+  (* first convert the lat lon to transverse mercator coordinates *)
   let lon = (Rad>>Deg)wgs84.posn_long in
   let lon = if lon > 180. then lon -. 180. else lon in
   let lon = lon /. 180. in
 
-  (*  convert latitude to a range -1..+1 *)
+  (* convert latitude to a range -1..+1 *)
   let lat = norm_lat wgs84.posn_lat in
-(*** log (tan (pi/.4. +. 0.5*. wgs84.posn_lat)) /. pi in ***)
 
   let tLat = ref (-1.)
   and tLon      = ref (-1.)
-  and lonWidth  = ref 2.
-  and latHeight = ref 2. (** Always identical to lonWidth !!! *)
+  and latLonSize  = ref 2.
   and keyholeString = Buffer.create 3 in
   Buffer.add_char keyholeString 't';
 
   for i = 0 to zoom - 1 do
-    lonWidth /.= 2.;
-    latHeight /.= 2.;
+    latLonSize /.= 2.;
 
-    if !tLat +. !latHeight > lat then
-      if ((!tLon +. !lonWidth) > lon) then begin
+    if !tLat +. !latLonSize > lat then
+      if ((!tLon +. !latLonSize) > lon) then begin
         Buffer.add_char keyholeString 't';
       end else begin
-        tLon +.= !lonWidth;
+        tLon +.= !latLonSize;
         Buffer.add_char keyholeString 's';
       end
     else begin
-      tLat +.= !latHeight;
+      tLat +.= !latLonSize;
 
-      if ((!tLon +. !lonWidth) > lon) then begin
+      if ((!tLon +. !latLonSize) > lon) then begin
         Buffer.add_char keyholeString 'q';
       end
       else begin  
-        tLon +.= !lonWidth;
+        tLon +.= !latLonSize;
         Buffer.add_char keyholeString 'r';
       end
     end
   done;
-  gm_pos_and_scale (Buffer.contents keyholeString) !tLat !latHeight !tLon !lonWidth
+  gm_pos_and_scale (Buffer.contents keyholeString) !tLat !latLonSize !tLon !latLonSize
 
 let tile_of_key = fun keyholeStr ->
   assert(keyholeStr.[0] = 't');
   
-  let lon  = ref (-180.)
-  and lonWidth = ref 360. 
+  let lon  = ref (-1.)
   and lat       = ref (-1.) 
-  and latHeight = ref 2. in
+  and latLonSize = ref 2. in
   
   for i = 1 to String.length keyholeStr - 1  do
-    lonWidth /.= 2.;
-    latHeight /.= 2.;
+    latLonSize /.= 2.;
 
     match keyholeStr.[i] with
-      's' -> lon +.= !lonWidth
+      's' -> lon +.= !latLonSize
     | 'r' -> 
-        lat +.= !latHeight;
-        lon +.= !lonWidth
-    | 'q' -> lat +.= !latHeight
+        lat +.= !latLonSize;
+        lon +.= !latLonSize
+    | 'q' -> lat +.= !latLonSize
     | 't' -> ()
     | _ -> invalid_arg ("gm_get_lat_long " ^ keyholeStr)
   done;
 
-  gm_pos_and_scale keyholeStr !lat !latHeight (!lon/.180.) (!lonWidth/.180.)
+  gm_pos_and_scale keyholeStr !lat !latLonSize !lon !latLonSize
 
 
 let is_prefix = fun a b ->
@@ -182,12 +177,13 @@ let xyz_of_qsrt = fun s ->
     | 'r' -> incr x
     | 's' -> incr x; incr y
     | 't' -> incr y
-    | _ -> failwith "xy_of_qsrt"
+    | _ -> failwith "xyz_of_qsrt"
   done;
   (!x, !y, n-1)
 
 let ms_key = fun key ->
   let n = String.length key in
+  if n = 1 then invalid_arg "Gm.ms_key";
   let ms_key = String.create (n-1) in
   for i = 1 to n - 1 do
     ms_key.[i-1] <-
@@ -198,16 +194,23 @@ let ms_key = fun key ->
       | 't' -> '2'
       | _ -> invalid_arg "Gm.ms_key"
   done;
-  ms_key
+  (ms_key, ms_key.[n-2])
     
-let google_version = 51
+let google_version = 65
 
 let url_of_tile_key = fun maps_source s -> 
   let (x, y, z) = xyz_of_qsrt s in
   match maps_source with
     Google -> sprintf "http://khm0.google.com/kh/v=%d&x=%d&s=&y=%d&z=%d" google_version x y z
   | OSM ->    sprintf "http://tile.openstreetmap.org/%d/%d/%d.png" z x y
-  | MS ->    sprintf "http://a0.ortho.tiles.virtualearth.net/tiles/a%s.jpeg?g=%d" (ms_key s) (z+32)
+  | MS ->
+      let (key, last_char) = ms_key s in
+      (* That's the old naming scheme, that still works as of 1st August 2010
+      sprintf "http://a0.ortho.tiles.virtualearth.net/tiles/a%s.jpeg?g=%d" key (z+32)
+      *)
+      (* That's the new code, which conforms to MS naming scheme as of 1st August 2010 *)
+      sprintf "http://ecn.t%c.tiles.virtualearth.net/tiles/a%s.jpeg?g=516" last_char key
+      (**)
 
 
 let get_cache_dir = function
