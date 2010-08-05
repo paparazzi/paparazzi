@@ -55,6 +55,7 @@ void init_sysmon(void) {
 #include "uart.h"
 #include "messages.h"
 #include "downlink.h"
+#include "ap_downlink.h"
 
 void periodic_report_sysmon(void) {
   /** Report system status at low frequency */
