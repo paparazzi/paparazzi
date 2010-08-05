@@ -1,0 +1,52 @@
+<conf>
+  <aircraft
+   name="BOOZ2_1000"
+   ac_id="2"
+   airframe="airframes/UofAdelaide/booz2_a1000.xml"
+   radio="radios/eric_PCM9XwAR7000.xml"
+   telemetry="telemetry/telemetry_booz2.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/settings_booz2.xml settings/settings_booz2_ahrs_cmpl.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="BOOZ2_A1"
+   ac_id="150"
+   airframe="airframes/Poine/booz2_a1.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/telemetry_booz2.xml"
+   flight_plan="flight_plans/booz_test_1.xml"
+   settings="settings/settings_booz2.xml settings/settings_booz2_ahrs_cmpl.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="BOOZ2_A2"
+   ac_id="151"
+   airframe="airframes/Poine/booz2_a2.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/telemetry_booz2.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/settings_booz2.xml settings/settings_booz2_fms_ts.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="LISA_ASCTEC"
+   ac_id="160"
+   airframe="airframes/esden/lisa_asctec.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/telemetry_booz2.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/settings_booz2.xml settings/settings_booz2_ahrs_cmpl.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="NoVa"
+   ac_id="154"
+   airframe="airframes/UofAdelaide/booz2_NoVa_001_1000.xml"
+   radio="radios/eric_DX7wAR7000.xml"
+   telemetry="telemetry/telemetry_booz2.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/settings_booz2.xml settings/settings_booz2_ahrs_cmpl.xml"
+   gui_color="blue"
+  />
+</conf>
