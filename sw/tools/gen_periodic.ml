@@ -144,7 +144,7 @@ let _ =
 	  (fun x -> 
 	    let p = ExtXml.attrib x "period"
 	    and n = ExtXml.attrib x "name" in
-	    Xml2h.define (sprintf "PERIOD_%s_%s_%d" n channel_name !i) (sprintf "(%s)" p))
+	    Xml2h.define (sprintf "PERIOD_%s_%s_%s_%d" n process_name channel_name !i) (sprintf "(%s)" p))
 	  (Xml.children mode);
 	incr i)
 	modes;
