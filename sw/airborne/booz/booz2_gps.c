@@ -170,6 +170,7 @@ void ubx_parse( uint8_t c ) {
     ubx_msg_available = TRUE;
     goto restart;
     break;
+  default: break;
   }
   return;
  error:
