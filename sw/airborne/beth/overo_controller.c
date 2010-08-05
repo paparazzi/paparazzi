@@ -27,8 +27,6 @@ void control_init(void) {
   controller.cmd_fb1 = 0.;
   controller.cmd_fb2 = 0.;
   controller.cmd = 0.;
-  //printf("omega_ref: %f omega_cl: %f",controller.omega_ref,controller.omega_cl);
-  //omega_ref: 3.490659 omega_cl: 8.726646
 }
 
 
@@ -63,7 +61,7 @@ void control_run(void) {
   controller.cmd_fb1 = controller.one_over_J*(2*controller.xi_cl*controller.omega_cl*err_tilt_dot);
   controller.cmd_fb2 = controller.one_over_J*(controller.omega_cl*controller.omega_cl*err_tilt);
 
-  controller.cmd = controller.cmd_ff + controller.cmd_fb1+ controller.cmd_fb1; 
+  controller.cmd = controller.cmd_ff + controller.cmd_fb1+ controller.cmd_fb2; 
   if (!(foo%100)) 
   //printf("ff:%f fb:%f %f (%f)\n",controller.cmd_ff, controller.cmd_fb1, controller.cmd_fb2,estimator.tilt_dot);
   printf("%f %f %f\n",controller.tilt_ref,controller.tilt_dot_ref,controller.tilt_ddot_ref);
