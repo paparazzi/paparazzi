@@ -126,6 +126,7 @@ static inline void sys_time_init( void ) {
 
 #define SEC_OF_SYS_TICS(st) (st / PCLK * T0_PCLK_DIV)
 #define MSEC_OF_SYS_TICS(st) (st / (PCLK/1000) * T0_PCLK_DIV)
+#define USEC_OF_SYS_TICS(st) (st / (PCLK/1000000) * T0_PCLK_DIV)
 
 #define GET_CUR_TIME_FLOAT() ((float)cpu_time_sec + SEC_OF_SYS_TICS((float)cpu_time_ticks))
 
