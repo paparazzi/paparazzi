@@ -107,7 +107,7 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
     pressure_callback(0, 0, 0);
 
   // Fill radio data
-  if (msg_up->valid.rc && radio_control_callback)
+  if (msg_up->valid.rc && radio_control_callback) {
     radio_control.values[RADIO_CONTROL_ROLL] = msg_up->rc_roll;
     radio_control.values[RADIO_CONTROL_PITCH] = msg_up->rc_pitch;
     radio_control.values[RADIO_CONTROL_YAW] = msg_up->rc_yaw;
@@ -119,6 +119,7 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
     radio_control.values[RADIO_CONTROL_AUX4] = msg_up->rc_aux4;
     radio_control.status = msg_up->rc_status;
     radio_control_callback();
+  }
 
   // Fill IMU data
   imu.gyro.p = RATE_FLOAT_OF_BFP(msg_up->gyro.p);
