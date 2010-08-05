@@ -67,6 +67,18 @@ overo_test_telemetry2.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
 overo_test_telemetry2.srcs    += $(SRC_FMS)/fms_network.c
 overo_test_telemetry2.LDFLAGS += -levent
 
+# test gps on overo
+overo_test_gps.ARCHDIR  = omap
+overo_test_gps.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
+overo_test_gps.srcs     = $(SRC_FMS)/overo_test_gps.c
+overo_test_gps.CFLAGS  += -DFMS_PERIODIC_FREQ=500
+overo_test_gps.srcs    += $(SRC_FMS)/fms_periodic.c
+overo_test_gps.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
+overo_test_gps.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
+overo_test_gps.srcs    += $(SRC_FMS)/fms_network.c
+overo_test_gps.LDFLAGS += -levent
+
+
 # test periodic tasks on the overo
 overo_test_periodic.ARCHDIR  = omap
 overo_test_periodic.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
@@ -79,7 +91,7 @@ overo_test_periodic.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
 overo_test_periodic.srcs    += $(SRC_FMS)/udp_transport.c downlink.c
 overo_test_periodic.srcs    += $(SRC_FMS)/fms_network.c
 overo_test_periodic.LDFLAGS += -levent
-overo_test_periodic.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageBethDown
+overo_test_periodic.CFLAGS  += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageBethDown
 overo_test_periodic.srcs    += $(SRC_FMS)/fms_spi_link.c
 
 
@@ -256,6 +268,38 @@ test_datalink.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart2
 #test_datalink.srcs += $(SRC_BOOZ)/booz2_datalink.c
 
 #
+# tunnel
+#
+tunnel.ARCHDIR = $(ARCHI)
+tunnel.TARGET = tunnel
+tunnel.TARGETDIR = tunnel
+tunnel.CFLAGS  = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+tunnel.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+tunnel.srcs += $(SRC_LISA)/test/lisa_tunnel.c \
+	       $(SRC_ARCH)/stm32_exceptions.c  \
+               $(SRC_ARCH)/stm32_vector_table.c
+tunnel.CFLAGS += -DUSE_LED
+tunnel.srcs += $(SRC_ARCH)/led_hw.c
+tunnel.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+tunnel.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+tunnel.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+#tunnel.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B9600
+#tunnel.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B9600
+
+tunnel.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
+tunnel.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B38400
+
+#tunnel.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+#tunnel.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+
+#tunnel.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B115200
+#tunnel.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B115200
+tunnel.srcs += $(SRC_ARCH)/uart_hw.c
+
+
+
+#
 # test float
 #
 test_float.ARCHDIR = $(ARCHI)
@@ -276,6 +320,17 @@ test_float.srcs += $(SRC_ARCH)/uart_hw.c
 test_float.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
 test_float.srcs += downlink.c pprz_transport.c
 test_float.srcs += lisa/plug_sys.c
+
+#
+# test bswap
+#
+test_bswap.ARCHDIR = $(ARCHI)
+test_bswap.TARGET = test_bswap
+test_bswap.TARGETDIR = test_bswap
+test_bswap.CFLAGS = -I$(SRC_LISA) -I$(ARCHI)
+test_bswap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_bswap.srcs = $(SRC_LISA)/test/test_bswap.c \
+
 
 
 #
@@ -1156,6 +1211,54 @@ test_csc_servo.CFLAGS += \
 	-DCAN_BS2_TQ=CAN_BS2_4tq \
 	-DCAN_ERR_RESUME=DISABLE
 test_csc_servo.srcs += can.c $(SRC_ARCH)/can_hw.c
+
+
+
+
+#
+# test GPS
+#
+test_gps.ARCHDIR = $(ARCHI)
+test_gps.TARGET = test_gps
+test_gps.TARGETDIR = test_gps
+test_gps.CFLAGS = -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_gps.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
+test_gps.srcs += $(SRC_BOOZ_TEST)/booz2_test_gps.c \
+		 $(SRC_ARCH)/stm32_exceptions.c    \
+		 $(SRC_ARCH)/stm32_vector_table.c
+test_gps.CFLAGS += -DUSE_LED
+test_gps.srcs += $(SRC_ARCH)/led_hw.c
+test_gps.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_gps.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
+test_gps.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_gps.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_gps.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_gps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_gps.srcs += downlink.c pprz_transport.c
+
+test_gps.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
+test_gps.CFLAGS += -DGPS_LINK=Uart1 -DGPS_LED=3
+test_gps.srcs += $(SRC_BOOZ)/booz_gps.c
+#test_gps.CFLAGS += -DBOOZ_GPS_TYPE_H=\"gps/booz_gps_ubx.h\"
+#test_gps.srcs += $(SRC_BOOZ)/gps/booz_gps_ubx.c
+test_gps.CFLAGS += -DBOOZ_GPS_TYPE_H=\"gps/booz_gps_skytraq.h\"
+test_gps.srcs += $(SRC_BOOZ)/gps/booz_gps_skytraq.c
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ################################################################################
 #
