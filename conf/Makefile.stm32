@@ -31,8 +31,8 @@ Q=@
 
 MCU   = cortex-m3
 #DEBUG = dwarf-2
-OPT   = s
-#OPT   = 3
+#OPT   = s
+OPT   = 2
 
 # Programs location
 TOOLCHAIN_DIR=/opt/paparazzi/stm32
@@ -184,7 +184,7 @@ else ifeq ($(FLASH_MODE),JTAG)
 upload:  $(OBJDIR)/$(TARGET).bin
 	@echo -e "  OOCD\t$<"
 	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
-                -f boards/$(OOCD_BOARD).cfg \
+                -f board/$(OOCD_BOARD).cfg \
                 -c init \
                 -c "reset halt" \
                 -c "flash write_image erase $(OBJDIR)/$(TARGET).bin 0x08000000" \
