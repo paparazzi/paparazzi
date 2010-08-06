@@ -982,17 +982,18 @@
      <field name="ecef_x"  type="int32" alt_unit="m"   alt_unit_coef="0.01"/>
      <field name="ecef_y"  type="int32" alt_unit="m"   alt_unit_coef="0.01"/>
      <field name="ecef_z"  type="int32" alt_unit="m"   alt_unit_coef="0.01"/>
-    <field name="lat"    type="int32" alt_unit="deg"  alt_unit_coef="0.0000001"/>
-    <field name="lon"    type="int32" alt_unit="deg"  alt_unit_coef="0.0000001"/>
-    <field name="alt"    type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
+    <field name="lat"    type="int32"   alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="lon"    type="int32"   alt_unit="deg" alt_unit_coef="0.0000001"/>
+    <field name="alt"    type="int32"   alt_unit="m"   alt_unit_coef="0.01"/>
      <field name="ecef_xd" type="int32" alt_unit="m/s" alt_unit_coef="0.01"/>
      <field name="ecef_yd" type="int32" alt_unit="m/s" alt_unit_coef="0.01"/>
      <field name="ecef_zd" type="int32" alt_unit="m/s" alt_unit_coef="0.01"/>
      <field name="pacc"    type="int32" alt_unit="m"   alt_unit_coef="0.01"/>
      <field name="sacc"    type="int32" alt_unit="m/s" alt_unit_coef="0.01"/>
+     <field name="tow"     type="uint32"/>
      <field name="pdop"    type="uint16"/>
      <field name="numsv"   type="uint8"/>
-     <field name="fix"     type="uint8"/>
+     <field name="fix"     type="uint8" values="NONE|UKN1|UKN2|3D"/>
  </message>
 
 
