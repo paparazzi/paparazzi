@@ -732,20 +732,20 @@ struct Int64Vect3 {
     PPRZ_ITRIG_SIN(stheta, (_e).theta);					\
     int32_t ctheta;							\
     PPRZ_ITRIG_COS(ctheta, (_e).theta);					\
-    									\
+									\
     int32_t cphi_ctheta = INT_MULT_RSHIFT(cphi,   ctheta, INT32_TRIG_FRAC); \
     int32_t sphi_ctheta = INT_MULT_RSHIFT(sphi,   ctheta, INT32_TRIG_FRAC); \
-    									\
-    (_r).p = - INT_MULT_RSHIFT(sphi, (_ed).psi, INT32_TRIG_FRAC) + (_ed).phi;					\
-    (_r).q = INT_MULT_RSHIFT(sphi_ctheta, (_ed).psi, INT32_TRIG_FRAC) + INT_MULT_RSHIFT(cphi, (_ed).theta, INT32_TRIG_FRAC);					\
-    (_r).r = INT_MULT_RSHIFT(cphi_ctheta, (_ed).psi, INT32_TRIG_FRAC) - INT_MULT_RSHIFT(sphi, (_ed).theta, INT32_TRIG_FRAC);					\
-    									\
+									\
+    (_r).p = - INT_MULT_RSHIFT(sphi, (_ed).psi, INT32_TRIG_FRAC) + (_ed).phi; \
+    (_r).q = INT_MULT_RSHIFT(sphi_ctheta, (_ed).psi, INT32_TRIG_FRAC) + INT_MULT_RSHIFT(cphi, (_ed).theta, INT32_TRIG_FRAC); \
+    (_r).r = INT_MULT_RSHIFT(cphi_ctheta, (_ed).psi, INT32_TRIG_FRAC) - INT_MULT_RSHIFT(sphi, (_ed).theta, INT32_TRIG_FRAC); \
+									\
   }
 
 #define INT32_RATES_OF_EULERS_DOT(_r, _e, _ed) INT32_RATES_OF_EULERS_DOT_321(_r, _e, _ed)
 
-#define INT32_EULERS_DOT_321_OF_RATES(_ed, _e, _r) {				\
-									\
+#define INT32_EULERS_DOT_321_OF_RATES(_ed, _e, _r) {			\
+    									\
     int32_t sphi;							\
     PPRZ_ITRIG_SIN(sphi, (_e).phi);					\
     int32_t cphi;							\
@@ -755,14 +755,14 @@ struct Int64Vect3 {
     int64_t ctheta;							\
     PPRZ_ITRIG_COS(ctheta, (_e).theta);					\
     									\
-    if (ctheta != 0) { \
+    if (ctheta != 0) {							\
       int64_t cphi_stheta = INT_MULT_RSHIFT(cphi, stheta, INT32_TRIG_FRAC); \
       int64_t sphi_stheta = INT_MULT_RSHIFT(sphi, stheta, INT32_TRIG_FRAC); \
-    									\
-      (_ed).phi = (_r).p + (int32_t)((sphi_stheta * (int64_t)(_r).q) / ctheta) + (int32_t)((cphi_stheta * (int64_t)(_r).r) / ctheta);					\
-      (_ed).theta = INT_MULT_RSHIFT(cphi, (_r).q, INT32_TRIG_FRAC) - INT_MULT_RSHIFT(sphi, (_r).r, INT32_TRIG_FRAC);					\
-      (_ed).psi = (int32_t)(((int64_t)sphi * (int64_t)(_r).q) / ctheta) + (int32_t)(((int64_t)cphi * (int64_t)(_r).r) / ctheta);					\
-    } \
+      									\
+      (_ed).phi = (_r).p + (int32_t)((sphi_stheta * (int64_t)(_r).q) / ctheta) + (int32_t)((cphi_stheta * (int64_t)(_r).r) / ctheta); \
+      (_ed).theta = INT_MULT_RSHIFT(cphi, (_r).q, INT32_TRIG_FRAC) - INT_MULT_RSHIFT(sphi, (_r).r, INT32_TRIG_FRAC); \
+      (_ed).psi = (int32_t)(((int64_t)sphi * (int64_t)(_r).q) / ctheta) + (int32_t)(((int64_t)cphi * (int64_t)(_r).r) / ctheta); \
+    }									\
     									\
   }
 
