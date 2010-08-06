@@ -26,11 +26,8 @@
 #include "std.h"
 #include "init_hw.h"
 #include "sys_time.h"
-#include "led.h"
-#include "uart.h"
-#include "messages.h"
 #include "downlink.h"
-#include "booz2_gps.h"
+#include "booz_gps.h"
 #include "interrupt_hw.h"
 
 static inline void main_init( void );
@@ -53,25 +50,38 @@ static inline void main_init( void ) {
   hw_init();
   sys_time_init();
   led_init();
-  uart0_init();
-  uart1_init();
-  booz2_gps_init();
+  booz_gps_init();
   int_enable();
 }
 
 static inline void main_periodic_task( void ) {
 
-
-
+  RunOnceEvery(128, { DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
+  RunOnceEvery(128, { LED_PERIODIC();});
 }
 
 static inline void main_event_task( void ) {
-  Booz2GpsEvent(on_gps_sol);
+  BoozGpsEvent(on_gps_sol);
   
 }
 
 static void on_gps_sol(void) {
-  uint16_t foo = booz_gps_state.num_sv;
-  DOWNLINK_SEND_BOOT(&foo);
+ 
+  DOWNLINK_SEND_BOOZ2_GPS( DefaultChannel,		
+			   &booz_gps_state.ecef_pos.x,
+			   &booz_gps_state.ecef_pos.y,
+			   &booz_gps_state.ecef_pos.z,
+			   &booz_gps_state.lla_pos.lat,
+			   &booz_gps_state.lla_pos.lon,
+			   &booz_gps_state.lla_pos.alt,
+			   &booz_gps_state.ecef_vel.x,
+			   &booz_gps_state.ecef_vel.y,
+			   &booz_gps_state.ecef_vel.z,
+			   &booz_gps_state.pacc,
+			   &booz_gps_state.sacc,
+			   &booz_gps_state.tow,
+			   &booz_gps_state.pdop,
+			   &booz_gps_state.num_sv,
+			   &booz_gps_state.fix);
 
 }
