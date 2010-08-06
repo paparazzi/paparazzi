@@ -56,45 +56,41 @@
 extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef USE_GPS
-#define PERIODIC_SEND_BOOZ_STATUS(_chan) {                  \
-    uint32_t booz_imu_nb_err = 0;                           \
-    uint8_t _twi_blmc_nb_err = 0;                           \
-    DOWNLINK_SEND_BOOZ_STATUS(_chan,                        \
-                              &booz_imu_nb_err,             \
-                              &_twi_blmc_nb_err,            \
-                              &radio_control.status,        \
-                              &booz_gps_state.fix,          \
-                              &booz2_autopilot_mode,        \
-                              &booz2_autopilot_in_flight,   \
-                              &booz2_autopilot_motors_on,   \
-                              &booz2_guidance_h_mode,       \
-                              &booz2_guidance_v_mode,       \
-                              &booz2_battery_voltage,       \
-                              &cpu_time_sec,                \
-                              &cpu_load_avg,                \
-                              &cpu_load_max                 \
-                              );                            \
+#define PERIODIC_SEND_BOOZ_STATUS(_chan) {				\
+    uint32_t booz_imu_nb_err = 0;					\
+    uint8_t _twi_blmc_nb_err = 0;					\
+    DOWNLINK_SEND_BOOZ_STATUS(_chan,					\
+			      &booz_imu_nb_err,				\
+			      &_twi_blmc_nb_err,			\
+			      &radio_control.status,			\
+			      &booz_gps_state.fix,			\
+			      &booz2_autopilot_mode,			\
+			      &booz2_autopilot_in_flight,		\
+			      &booz2_autopilot_motors_on,		\
+			      &booz2_guidance_h_mode,			\
+			      &booz2_guidance_v_mode,			\
+			      &booz2_battery_voltage,			\
+			      &cpu_time_sec				\
+			      );					\
   }
 #else /* !USE_GPS */
-#define PERIODIC_SEND_BOOZ_STATUS(_chan) {                  \
-    uint32_t booz_imu_nb_err = 0;                           \
-    uint8_t twi_blmc_nb_err = 0;                            \
-    uint8_t  fix = BOOZ2_GPS_FIX_NONE;                      \
-    DOWNLINK_SEND_BOOZ_STATUS(_chan,                        \
-                              &booz_imu_nb_err,             \
-                              &twi_blmc_nb_err,             \
-                              &radio_control.status,        \
-                              &fix,                         \
-                              &booz2_autopilot_mode,        \
-                              &booz2_autopilot_in_flight,   \
-                              &booz2_autopilot_motors_on,   \
-                              &booz2_guidance_h_mode,       \
-                              &booz2_guidance_v_mode,       \
-                              &booz2_battery_voltage,       \
-                              &cpu_time_sec,                \
-                              &cpu_load_avg,                \
-                              &cpu_load_max                 \
-                              );                            \
+#define PERIODIC_SEND_BOOZ_STATUS(_chan) {				\
+    uint32_t booz_imu_nb_err = 0;					\
+    uint8_t twi_blmc_nb_err = 0;					\
+    uint8_t  fix = BOOZ2_GPS_FIX_NONE;					\
+    DOWNLINK_SEND_BOOZ_STATUS(_chan,					\
+			      &booz_imu_nb_err,				\
+			      &twi_blmc_nb_err,				\
+			      &radio_control.status,			\
+			      &fix,					\
+			      &booz2_autopilot_mode,			\
+			      &booz2_autopilot_in_flight,		\
+			      &booz2_autopilot_motors_on,		\
+			      &booz2_guidance_h_mode,			\
+			      &booz2_guidance_v_mode,			\
+			      &booz2_battery_voltage,			\
+			      &cpu_time_sec				\
+			      );					\
   }
 #endif /* USE_GPS */
 

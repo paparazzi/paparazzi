@@ -68,8 +68,6 @@
 #endif
 
 uint32_t startup_counter = 0;
-uint8_t cpu_load_avg = 0;
-uint8_t cpu_load_max = 0;
 
 static inline void on_gyro_accel_event( void );
 static inline void on_baro_event( void );
@@ -77,36 +75,6 @@ static inline void on_gps_event( void );
 static inline void on_mag_event( void );
 
 #ifndef SITL
-#ifdef CALC_CPU_LOAD
-/* estimate of time needed in idle main_event taks (no pending events) in TOTC ticks */
-uint32_t main_event_idle_ticks = PERIODIC_TASK_PERIOD;
-
-int main( void ) {
-  uint32_t load_counter = 0;
-  uint8_t cpu_load = 0;
-  uint8_t cpu_load_max_tmp = 0;
-  uint16_t cpu_load_avg_sum = 0;
-
-  booz2_main_init();
-
-  while(1) {
-    if (sys_time_periodic()) {
-      cpu_load = 100*(PERIODIC_TASK_PERIOD - (load_counter-1)*main_event_idle_ticks) / PERIODIC_TASK_PERIOD;
-      if (cpu_load > cpu_load_max_tmp)
-        cpu_load_max_tmp = cpu_load;
-      cpu_load_avg_sum += cpu_load;
-
-      booz2_main_periodic();
-
-      load_counter = 0;
-      RunOnceEvery(512, {cpu_load_avg=cpu_load_avg_sum/512; cpu_load_max=cpu_load_max_tmp; cpu_load_avg_sum=0; cpu_load_max_tmp=0;});
-    }
-    load_counter++;
-    booz2_main_event();
-  }
-  return 0;
-}
-#else // Do not calculate cpu load
 int main( void ) {
   booz2_main_init();
 
@@ -117,7 +85,6 @@ int main( void ) {
   }
   return 0;
 }
-#endif /* CALC_CPU_LOAD */
 #endif /* SITL */
 
 #ifdef BOOZ_START_DELAY
@@ -229,10 +196,6 @@ STATIC_INLINE void booz2_main_periodic( void ) {
 }
 
 STATIC_INLINE void booz2_main_event( void ) {
-#ifdef CALC_CPU_LOAD
-  /* start estimation of ticks needed if no events are processed */
-  SysTimeChronoStart();
-#endif
 
   DatalinkEvent();
 
@@ -256,12 +219,6 @@ STATIC_INLINE void booz2_main_event( void ) {
   modules_event_task();
 #endif
 
-#ifdef CALC_CPU_LOAD
-  /* remember lowest value -> no events processed */
-  SysTimeChronoStop();
-  if (sys_time_chrono < main_event_idle_ticks)
-    main_event_idle_ticks = sys_time_chrono;
-#endif
 }
 
 static inline void on_gyro_accel_event( void ) {
