@@ -2,6 +2,7 @@
 
     <modules main_freq="512">
         <load name="booz_drop.xml"/>
+        <load name="sys_mon.xml"/>
         <!--load name="booz_cam.xml"/-->
         <!--load name="sonar_maxbotix_booz.xml"/-->
     </modules>
@@ -232,7 +233,7 @@
         include	$(CFG_BOOZ)/subsystems/booz2_radio_control_ppm.makefile
         include	$(CFG_BOOZ)/subsystems/booz2_actuators_mkk.makefile
         include	$(CFG_BOOZ)/subsystems/booz2_imu_b2v1.makefile
-        include	$(CFG_BOOZ)/subsystems/booz2_gps.makefile
+        include	$(CFG_BOOZ)/subsystems/booz_gps_ublox.makefile
 
         include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
         include $(CFG_BOOZ)/subsystems/booz2_fms_datalink.makefile
@@ -245,10 +246,10 @@
         ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c
         sim.srcs += $(SRC_BOOZ_SIM)/booz2_pwm_hw.c
 
-        ap.CFLAGS += -DCALC_CPU_LOAD
+        #ap.CFLAGS += -DCALC_CPU_LOAD
 
-        ap.CFLAGS += -DUSEMODULES
-        sim.CFLAGS += -DUSEMODULES
+        ap.CFLAGS += -DUSE_MODULES
+        sim.CFLAGS += -DUSE_MODULES
 
         ap.CFLAGS += -DB2_GUIDANCE_H_USE_REF
         sim.CFLAGS += -DB2_GUIDANCE_H_USE_REF
