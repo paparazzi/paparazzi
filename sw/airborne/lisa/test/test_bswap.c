@@ -13,6 +13,22 @@
     ((((uint32_t) n) >>  8) & 0x0000FF00) |	     \
     ((((uint32_t) n) >> 24) & 0x000000FF) )
 
+#define MyByteSwap32_1(in, out) \
+    asm volatile ( \
+    "rev        %0, %1\n\t" \
+    : "=r" (out) \
+    : "r"(in) \
+);
+
+
+#define MyByteSwap16_1(in, out) \
+    asm volatile ( \
+    "rev16        %0, %1\n\t" \
+    : "=r" (out) \
+    : "r"(in) \
+);
+
+
 
 int main(void) {
 
@@ -27,10 +43,11 @@ int main(void) {
 
   uint16_t foo = 12345;
   uint16_t bar = MyByteSwap16(foo);
-
+  MyByteSwap16_1(foo,bar);
 
   uint32_t a = 23456;
   uint32_t b = MyByteSwap32(a);
+  MyByteSwap32_1(a,b);
 
   return 0;
 }
