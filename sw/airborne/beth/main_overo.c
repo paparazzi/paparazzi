@@ -122,7 +122,7 @@ static void main_periodic(int my_sig_num) {
   estimator_run(msg_in.bench_sensor.z,msg_in.bench_sensor.y,msg_in.bench_sensor.x);
  
 
-  controller.elevation_sp = ((foo/512.)%2) ? RadOfDeg(-15) : RadOfDeg(0);
+  controller.elevation_sp = ((int32_t)(foo/512.)%2) ? RadOfDeg(-15) : RadOfDeg(0);
 
   control_run();
 
@@ -134,8 +134,8 @@ static void main_periodic(int my_sig_num) {
   RunOnceEvery(25, {DOWNLINK_SEND_BETH_CONTROLLER(gcs_com.udp_transport,
 			&controller.cmd_pitch,&controller.cmd_thrust,
 			&controller.cmd_pitch_ff,&controller.cmd_pitch_fb,
-			&controller.cmd_thrust_ff,&controller.cmd_thrust_fb
-  			&controller.tilt_ref,&controller.tilt_dot_ref
+			&controller.cmd_thrust_ff,&controller.cmd_thrust_fb,
+  			&controller.tilt_ref,&controller.tilt_dot_ref,
 			&controller.elevation_ref,&controller.elevation_dot_ref);});
 
   //file_logger_periodic();
