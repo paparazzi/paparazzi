@@ -122,7 +122,7 @@ static void main_periodic(int my_sig_num) {
   estimator_run(msg_in.bench_sensor.z,msg_in.bench_sensor.y,msg_in.bench_sensor.x);
  
 
-  controller.elevation_sp = ((int32_t)(foo/512.)%2) ? RadOfDeg(-15) : RadOfDeg(0);
+  controller.elevation_sp = ((int32_t)(foo/2048.)%2) ? RadOfDeg(-20) : RadOfDeg(10);
 
   control_run();
 

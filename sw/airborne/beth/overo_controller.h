@@ -23,6 +23,7 @@ struct OveroController {
 
   /* invert control law parameter */
   float one_over_J;
+  float mass;
 
   /* closed loop parameters */
   float omega_cl;
