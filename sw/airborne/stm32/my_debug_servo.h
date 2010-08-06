@@ -1,6 +1,8 @@
 #ifndef MY_DEBUG_SERVO_H
 #define MY_DEBUG_SERVO_H
 
+#include <stm32/gpio.h>
+#include <stm32/rcc.h>
 
 /* using servo 2 connector as debug */
 
