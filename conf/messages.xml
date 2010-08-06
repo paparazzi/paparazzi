@@ -601,6 +601,31 @@
     <field name="other" type="uint16"/>
   </message>
 
+  <message name="BETH_ESTIMATOR" id="107">
+    <field name="tilt" type="float"/>
+    <field name="tilt_dot" type="float"/>
+    <field name="elevation" type="float"/>
+    <field name="elevation_dot" type="float"/>
+    <field name="azimuth" type="float"/>
+    <field name="azimuth_dot" type="float"/>
+  </message>
+
+  <message name="BETH_CONTROLLER" id="108">
+    <field name="pitch" type="float"/>
+    <field name="thrust" type="float"/>
+    <field name="pitch_ff" type="float"/>
+    <field name="pitch_fb" type="float"/>
+    <field name="thrust_ff" type="float"/>
+    <field name="thrust_fb" type="float"/>
+    <field name="tilt_ref" type="float"/>
+    <field name="tilt_dot_ref" type="float"/>
+    <field name="elevation_ref " type="float"/>
+    <field name="elevation_dot_ref" type="float"/>
+  </message>
+
+
+
+
   <message name="DC_SHOT" id="110">
      <field name="photo_nr" type="int16" unit=""></field>
      <field name="utm_east"  type="int32" unit="cm"></field>

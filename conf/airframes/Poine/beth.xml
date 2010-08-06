@@ -29,8 +29,8 @@
   <section name="IMU" prefix="IMU_">
 
     <define name="GYRO_P_SIGN" value="-1"/>
-    <define name="GYRO_Q_SIGN" value="-1"/>
-    <define name="GYRO_R_SIGN" value=" 1"/>
+    <define name="GYRO_Q_SIGN" value="1"/>
+    <define name="GYRO_R_SIGN" value="1"/>
 
     <define name="GYRO_P_NEUTRAL" value="31288"/>
     <define name="GYRO_Q_NEUTRAL" value="32593"/>
@@ -215,7 +215,7 @@ SRC_FMS=fms
 main_overo.ARCHDIR = omap
 main_overo.CFLAGS = -I. -I$(SRC_FMS)
 main_overo.srcs  = $(SRC_BETH)/main_overo.c
-main_overo.CFLAGS  += -DFMS_PERIODIC_FREQ=500
+main_overo.CFLAGS  += -DFMS_PERIODIC_FREQ=512
 main_overo.srcs    += $(SRC_FMS)/fms_periodic.c
 main_overo.srcs    += $(SRC_FMS)/fms_serial_port.c
 main_overo.LDFLAGS += -lrt

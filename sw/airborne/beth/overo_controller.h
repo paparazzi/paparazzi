@@ -2,16 +2,23 @@
 #define OVERO_CONTROLLER_H
 
 struct OveroController {
-  float kp;
-  float kd;
+//  float kp;
+//  float kd;
   
   float tilt_sp;
+  float elevation_sp;
   
   /* modele de reference */
   float tilt_ref;
   float tilt_dot_ref;
   float tilt_ddot_ref;
-  float omega_ref;
+
+  float elevation_ref;
+  float elevation_dot_ref;
+  float elevation_ddot_ref;
+
+  float omega_tilt_ref;
+  float omega_elevation_ref;
   float xi_ref;
 
   /* invert control law parameter */
@@ -21,10 +28,14 @@ struct OveroController {
   float omega_cl;
   float xi_cl;
 
-  float cmd_ff;
-  float cmd_fb1;
-  float cmd_fb2;
-  float cmd;
+  float cmd_pitch_ff;
+  float cmd_pitch_fb;
+
+  float cmd_thrust_ff;
+  float cmd_thrust_fb;
+
+  float cmd_pitch;
+  float cmd_thrust;
 };
 
 

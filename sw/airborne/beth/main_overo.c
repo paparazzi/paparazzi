@@ -63,7 +63,8 @@ static uint32_t foo = 0;
 int main(int argc, char *argv[]) {
   
   (void) signal(SIGINT, main_exit);
-  
+
+  //set IMU neutrals
   RATES_ASSIGN(booz_imu.gyro_neutral,  IMU_GYRO_P_NEUTRAL,  IMU_GYRO_Q_NEUTRAL,  IMU_GYRO_R_NEUTRAL);
   VECT3_ASSIGN(booz_imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
   VECT3_ASSIGN(booz_imu.mag_neutral,   IMU_MAG_X_NEUTRAL,   IMU_MAG_Y_NEUTRAL,   IMU_MAG_Z_NEUTRAL);
@@ -90,7 +91,7 @@ int main(int argc, char *argv[]) {
   main_parse_cmd_line(argc, argv);
   
   event_dispatch();
- 
+  //should never occur!
   printf("goodbye! (%d)\n",foo);
 
   return 0;
@@ -99,6 +100,15 @@ int main(int argc, char *argv[]) {
 
 
 static void main_periodic(int my_sig_num) {
+/*  static int bar=0;
+  if (!(foo%2000)) {
+    if (bar) {
+      controller.tilt_sp = -0.4; bar=0;
+    }else{ 
+      controller.tilt_sp = 0.4; bar=1;
+    }
+  }
+*/
 
   RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);});
  
@@ -108,15 +118,30 @@ static void main_periodic(int my_sig_num) {
 
   RunOnceEvery(50, {DOWNLINK_SEND_BETH(gcs_com.udp_transport,&msg_in.bench_sensor.x,&msg_in.bench_sensor.y,
 				       &msg_in.bench_sensor.z,&foo);});
-  
-  estimator_run(msg_in.bench_sensor.z);
  
+  estimator_run(msg_in.bench_sensor.z,msg_in.bench_sensor.y,msg_in.bench_sensor.x);
+ 
+
+  controller.elevation_sp = ((foo/512.)%2) ? RadOfDeg(-15) : RadOfDeg(0);
+
   control_run();
 
-  //  file_logger_periodic();
+  RunOnceEvery(25, {DOWNLINK_SEND_BETH_ESTIMATOR(gcs_com.udp_transport,
+			&estimator.tilt,&estimator.tilt_dot,
+			&estimator.elevation,&estimator.elevation_dot,
+			&estimator.azimuth,&estimator.azimuth_dot);});
+
+  RunOnceEvery(25, {DOWNLINK_SEND_BETH_CONTROLLER(gcs_com.udp_transport,
+			&controller.cmd_pitch,&controller.cmd_thrust,
+			&controller.cmd_pitch_ff,&controller.cmd_pitch_fb,
+			&controller.cmd_thrust_ff,&controller.cmd_thrust_fb
+  			&controller.tilt_ref,&controller.tilt_dot_ref
+			&controller.elevation_ref,&controller.elevation_dot_ref);});
+
+  //file_logger_periodic();
 
 
-  RunOnceEvery(10, {DOWNLINK_SEND_IMU_GYRO_RAW(gcs_com.udp_transport,
+/*  RunOnceEvery(10, {DOWNLINK_SEND_IMU_GYRO_RAW(gcs_com.udp_transport,
 			     //&msg_in.gyro.p,&msg_in.gyro.q,&msg_in.gyro.r)
 				&booz_imu.gyro_unscaled.p,&booz_imu.gyro_unscaled.q,&booz_imu.gyro_unscaled.r);});
     
@@ -124,12 +149,15 @@ static void main_periodic(int my_sig_num) {
   RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(gcs_com.udp_transport,
 			     //&msg_in.accel.x,&msg_in.accel.y,&msg_in.accel.z
 				&booz_imu.accel_unscaled.x,&booz_imu.accel_unscaled.y,&booz_imu.accel_unscaled.z);});
+*/
 
-
-  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_GYRO(gcs_com.udp_transport,
+/*  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_GYRO(gcs_com.udp_transport,
 			     //&msg_in.gyro.p,&msg_in.gyro.q,&msg_in.gyro.r)
 				&booz_imu.gyro.p,&booz_imu.gyro.q,&booz_imu.gyro.r);});
-    
+
+  RunOnceEvery(50, {DOWNLINK_SEND_AHRS_EULER(gcs_com.udp_transport,
+			&estimator.tilt, &estimator.elevation, &estimator.azimuth );});
+*/    
 
 /*  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_ACCEL(DefaultChannel,
 			     //&msg_in.accel.x,&msg_in.accel.y,&msg_in.accel.z
@@ -141,7 +169,7 @@ static void main_periodic(int my_sig_num) {
 
 
 static void main_parse_cmd_line(int argc, char *argv[]) {
-
+#if 0
   if (argc>1){
     controller.kp = atof(argv[1]);
     //    printf("kp set to %f\n",kp);
@@ -156,7 +184,10 @@ static void main_parse_cmd_line(int argc, char *argv[]) {
     controller.kp = 0.05;
     //    printf("using default value of kp %f\n",kp);
   }
-
+#endif
+  if (argc>1){
+    printf("args not currently supported\n");
+  }
 }
 
 
@@ -172,31 +203,23 @@ static void main_talk_with_stm32() {
   static int8_t adder = 1;
   //uint8_t *fooptr;
 
-  msg_out.thrust = 10;
+  //msg_out.thrust = 0;
+  msg_out.thrust = (int8_t)controller.cmd_thrust;
 
-  if (!(foo%100)) { 
-    /*if (pitchval == 15 ) adder=-1;
-    if (pitchval == -15 ) adder=1;
-    pitchval = pitchval + adder;*/
-    printf("cmd now %f\n",controller.cmd);
-  }
-  msg_out.pitch = (int8_t)controller.cmd;
-  //msg_out.pitch = 1;
-  //msg_out.cksum = msg_out.thrust + msg_out.pitch;
+  //TODO: change motor config to remove minus here.
+  msg_out.pitch = -(int8_t)controller.cmd_pitch;
+  //msg_out.pitch = 0;
 
   spi_link_send(&msg_out, sizeof(union AutopilotMessage) , &msg_in);
 
-  /*if (msg_in.bench_sensor.x == 0){
+  /* for debugging overo/stm spi link
+  if (msg_in.bench_sensor.x == 0){
     fooptr = &msg_in;
     for (int i=0; i<sizeof(msg_in); i++)
       printf("%02x ",  fooptr[i]);
     printf("\n");
   }*/
 
-  /*if (!(foo%10)) { 
-    printf("%d %d %d %x\r\n",msg_in.bench_sensor.x,msg_in.bench_sensor.y,
-    msg_in.bench_sensor.z,msg_in.bench_sensor.x);   
-  }*/
   foo++;
 
   booz_imu.gyro_unscaled.p = (msg_in.gyro.p&0xFFFF);
