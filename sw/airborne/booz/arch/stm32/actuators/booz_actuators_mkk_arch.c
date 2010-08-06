@@ -48,8 +48,12 @@ void tim2_irq_handler(void) {
   /* Clear TIM2 update interrupt */
   TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
   actuators_mkk.idx++;							
-  if (actuators_mkk.idx<ACTUATORS_MKK_NB) {				
-    DeviceBuf[0] = supervision.commands[actuators_mkk.idx];		
+  if (actuators_mkk.idx<ACTUATORS_MKK_NB) {
+#ifdef KILL_MOTORS
+    DeviceBuf[0] = 0;
+#else
+    DeviceBuf[0] = supervision.commands[actuators_mkk.idx];
+#endif						
     DeviceTransmit(actuators_addr[actuators_mkk.idx], 1, &actuators_mkk.i2c_done);
   }								
   else {
