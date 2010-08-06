@@ -25,7 +25,7 @@
 
 #include "booz2_navigation.h"
 
-#include "booz2_gps.h"
+#include "booz_gps.h"
 #include "booz2_ins.h"
 
 #include "booz2_autopilot.h"

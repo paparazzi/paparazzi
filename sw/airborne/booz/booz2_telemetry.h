@@ -47,7 +47,7 @@
 
 #include "booz2_battery.h"
 #include "booz_imu.h"
-#include "booz2_gps.h"
+#include "booz_gps.h"
 #include "booz2_ins.h"
 #include "booz_ahrs.h"
 
@@ -652,7 +652,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
       &booz2_guidance_h_accel_ref.y); \
 }
 
-#include "booz2_gps.h"
+#include "booz_gps.h"
 #include "booz2_navigation.h"
 #define PERIODIC_SEND_BOOZ2_FP(_chan) {					\
     int32_t carrot_up = -booz2_guidance_v_z_sp;				\
@@ -688,6 +688,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			     &booz_gps_state.ecef_vel.z,		\
 			     &booz_gps_state.pacc,			\
 			     &booz_gps_state.sacc,			\
+			     &booz_gps_state.tow,			\
 			     &booz_gps_state.pdop,			\
 			     &booz_gps_state.num_sv,			\
 			     &booz_gps_state.fix);			\

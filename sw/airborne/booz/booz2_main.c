@@ -39,7 +39,7 @@
 #include "booz_radio_control.h"
 
 #include "booz_imu.h"
-#include "booz2_gps.h"
+#include "booz_gps.h"
 
 #include "booz2_analog_baro.h"
 #include "booz2_battery.h"
@@ -159,7 +159,7 @@ STATIC_INLINE void booz2_main_init( void ) {
   booz_ins_init();
 
 #ifdef USE_GPS
-  booz2_gps_init();
+  booz_gps_init();
 #endif
 
 #ifdef USE_MODULES
@@ -245,7 +245,7 @@ STATIC_INLINE void booz2_main_event( void ) {
   Booz2AnalogBaroEvent(on_baro_event);
 
 #ifdef USE_GPS
-  Booz2GpsEvent(on_gps_event);
+  BoozGpsEvent(on_gps_event);
 #endif
 
 #ifdef BOOZ_FAILSAFE_GROUND_DETECT

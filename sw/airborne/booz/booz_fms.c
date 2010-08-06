@@ -24,7 +24,7 @@
 #include "booz_fms.h"
 
 #include "booz_imu.h"
-#include "booz2_gps.h"
+#include "booz_gps.h"
 #include "booz_ahrs.h"
 
 #include "airframe.h"
