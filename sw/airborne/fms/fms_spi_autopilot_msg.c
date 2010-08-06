@@ -117,9 +117,10 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
     radio_control.values[RADIO_CONTROL_GEAR] = msg_up->rc_gear;
     radio_control.values[RADIO_CONTROL_AUX3] = msg_up->rc_aux3;
     radio_control.values[RADIO_CONTROL_AUX4] = msg_up->rc_aux4;
-    radio_control.status = msg_up->rc_status;
     radio_control_callback();
   }
+  // always fill status, it may change even when in the case when there is no new data
+  radio_control.status = msg_up->rc_status;
 
   // Fill IMU data
   imu.gyro.p = RATE_FLOAT_OF_BFP(msg_up->gyro.p);
