@@ -4,8 +4,7 @@
   <dl_settings>
 
     <dl_settings NAME="Controller">
-      <dl_setting var="controller.kp" min="0" step="0.005" max="0.1" module="beth/overo_controller"/>
-      <dl_setting var="controller.kd" min="0" step="0.002" max="0.02" module="beth/overo_controller"/>
+      <dl_setting var="controller.elevation_sp" min="-0.5" step="0.05" max="0.5" module="beth/overo_controller"/>
       <dl_setting var="controller.tilt_sp" min="-0.5" step="0.05" max="0.5" module="beth/overo_controller"/>
     </dl_settings>
 
