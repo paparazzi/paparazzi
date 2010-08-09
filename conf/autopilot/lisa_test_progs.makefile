@@ -55,6 +55,7 @@ overo_test_spi_link_crc.srcs += $(SRC_FMS)/fms_crc.c
 # test passthrough spi link between overo and stm32
 overo_test_passthrough.ARCHDIR = omap
 overo_test_passthrough.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
+overo_test_passthrough.CFLAGS  += -DOVERO_LINK_MSG_UP=AutopilotMessagePTUp -DOVERO_LINK_MSG_DOWN=AutopilotMessagePTDown
 overo_test_passthrough.srcs  = $(SRC_FMS)/overo_test_passthrough.c
 overo_test_passthrough.srcs += $(SRC_FMS)/fms_spi_link.c
 
@@ -879,8 +880,7 @@ stm_test_spi_link_crc.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 stm_test_spi_link_crc.srcs += $(SRC_ARCH)/uart_hw.c
 
 stm_test_spi_link_crc.CFLAGS += -DUSE_OVERO_LINK -DOVERO_LINK_MSG_UP=AutopilotMessageFoo -DOVERO_LINK_MSG_DOWN=AutopilotMessageFoo
-stm_test_spi_link_crc.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=4 -DUSE_DMA1_C2_IRQ -DONTUSE_IRQ_INLINE_HANDLER
-# stm_test_spi_link_crc.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=4 -DUSE_SPI1_IRQ -DUSE_DMA1_C2_IRQ 
+stm_test_spi_link_crc.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=4 -DUSE_DMA1_C2_IRQ
 stm_test_spi_link_crc.srcs += lisa/lisa_overo_link_crc.c lisa/arch/stm32/lisa_overo_link_crc_arch.c
 
 
