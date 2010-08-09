@@ -114,13 +114,9 @@ void overo_link_arch_prepare_next_transfert(unsigned char init) {
 
 void dma1_c2_irq_handler(void) {
   
-  //  DEBUG_S2_ON(); 
-
   DMA_ITConfig(DMA1_Channel2, DMA_IT_TC, DISABLE);
 
   overo_link.status = DATA_AVAILABLE;
-
-  //  DEBUG_S2_OFF(); 
 
   
 }
