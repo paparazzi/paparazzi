@@ -43,6 +43,15 @@ overo_test_spi_link.CFLAGS  += -DOVERO_LINK_MSG_UP=AutopilotMessageFoo -DOVERO_L
 overo_test_spi_link.srcs  = $(SRC_FMS)/overo_test_spi_link.c
 overo_test_spi_link.srcs += $(SRC_FMS)/fms_spi_link.c
 
+# same with crc enabled
+overo_test_spi_link_crc.ARCHDIR = omap
+overo_test_spi_link_crc.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
+overo_test_spi_link_crc.CFLAGS  += -DOVERO_LINK_MSG_UP=AutopilotMessageFoo -DOVERO_LINK_MSG_DOWN=AutopilotMessageFoo
+overo_test_spi_link_crc.srcs  = $(SRC_FMS)/overo_test_spi_link_crc.c
+overo_test_spi_link_crc.srcs += $(SRC_FMS)/fms_spi_link_crc.c
+overo_test_spi_link_crc.srcs += $(SRC_FMS)/fms_crc.c
+
+
 # test passthrough spi link between overo and stm32
 overo_test_passthrough.ARCHDIR = omap
 overo_test_passthrough.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
@@ -848,6 +857,36 @@ stm_test_spi_link.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=4 -DUSE_DM
 stm_test_spi_link.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
 
 #
+# test spi link between overo and stm32 with crc enabled
+#
+stm_test_spi_link_crc.ARCHDIR = $(ARCHI)
+stm_test_spi_link_crc.TARGET = stm_test_spi_link_crc
+stm_test_spi_link_crc.TARGETDIR = stm_test_spi_link_crc
+stm_test_spi_link_crc.CFLAGS += -Ilisa -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+stm_test_spi_link_crc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+stm_test_spi_link_crc.srcs += lisa/stm_test_spi_link_crc.c       \
+                          $(SRC_ARCH)/stm32_exceptions.c   \
+                          $(SRC_ARCH)/stm32_vector_table.c
+
+stm_test_spi_link_crc.CFLAGS += -DUSE_LED
+stm_test_spi_link_crc.srcs += $(SRC_ARCH)/led_hw.c
+
+stm_test_spi_link_crc.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+stm_test_spi_link_crc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+stm_test_spi_link_crc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+stm_test_spi_link_crc.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+stm_test_spi_link_crc.srcs += $(SRC_ARCH)/uart_hw.c
+
+stm_test_spi_link_crc.CFLAGS += -DUSE_OVERO_LINK -DOVERO_LINK_MSG_UP=AutopilotMessageFoo -DOVERO_LINK_MSG_DOWN=AutopilotMessageFoo
+stm_test_spi_link_crc.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=4 -DUSE_DMA1_C2_IRQ -DONTUSE_IRQ_INLINE_HANDLER
+# stm_test_spi_link_crc.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=4 -DUSE_SPI1_IRQ -DUSE_DMA1_C2_IRQ 
+stm_test_spi_link_crc.srcs += lisa/lisa_overo_link_crc.c lisa/arch/stm32/lisa_overo_link_crc_arch.c
+
+
+
+
+#
 # test static
 #
 test_static.ARCHDIR = $(ARCHI)
@@ -1248,8 +1287,30 @@ test_gps.srcs += $(SRC_BOOZ)/gps/booz_gps_skytraq.c
 
 
 
+#
+# test ADC
+#
+test_adc.ARCHDIR = $(ARCHI)
+test_adc.TARGET = test_adc
+test_adc.TARGETDIR = test_adc
+test_adc.CFLAGS = -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_adc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
+test_adc.srcs += $(SRC_LISA)/test/lisa_test_adc.c \
+		 $(SRC_ARCH)/stm32_exceptions.c   \
+		 $(SRC_ARCH)/stm32_vector_table.c
+test_adc.CFLAGS += -DUSE_LED
+test_adc.srcs += $(SRC_ARCH)/led_hw.c
+test_adc.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_adc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
+test_adc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
+test_adc.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_adc.srcs += $(SRC_ARCH)/uart_hw.c
 
+test_adc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_adc.srcs += downlink.c pprz_transport.c
+
+test_adc.srcs += $(SRC_ARCH)/adc_hw.c 
 
 
 
