@@ -16,17 +16,22 @@
 	LED_TOGGLE(OVERO_LINK_LED_OK);					\
 	LED_OFF(OVERO_LINK_LED_KO);					\
 	_data_received_handler();					\
+      	overo_link_arch_prepare_next_transfert(0);			\
+      	overo_link.status = IDLE;						\
       }									\
       else {								\
 	LED_OFF(OVERO_LINK_LED_OK);					\
 	LED_ON(OVERO_LINK_LED_KO);					\
 	_crc_failed_handler();						\
-	/* wait until we're not selected */				\
-	while (!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4));		\
-	uint8_t foo __attribute__ ((unused)) = SPI_I2S_ReceiveData(SPI1); \
+        overo_link.status = CRC_ERROR;					\
       }									\
-      overo_link_arch_prepare_next_transfert(0);			\
-      overo_link.status = IDLE;						\
+    }									\
+    else if (overo_link.status == CRC_ERROR) {				\
+	/* wait until we're not selected */				\
+	if (GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4)) {			\
+	  uint8_t foo __attribute__ ((unused)) = SPI_I2S_ReceiveData(SPI1); \
+          overo_link.status = IDLE;	 				\
+	}								\
     }									\
   }
 
