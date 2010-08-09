@@ -80,7 +80,7 @@ LDSCRIPT = $($(TARGET).LDSCRIPT)
 endif
 endif
 
-CFLAGS = -I. -I./$(ARCHI) $(INCLUDES) -D__thumb2__ -Wall -c -msoft-float
+CFLAGS = -I. -I./$(ARCHI) $(INCLUDES) -D__thumb2__ -Wall -c -msoft-float -O$(OPT)
 CFLAGS += -Wl,gc-sections
 CFLAGS += -mcpu=$(MCU) -mthumb -ansi
 CFLAGS += -std=gnu99
@@ -195,7 +195,7 @@ endif
 
 start_gdb:
 	xterm -e "$(OOCD) -f interface/$(OOCD_INTERFACE).cfg  -f target/$(OOCD_TARGET).cfg" &
-	xterm -e "/opt/paparazzi/stm32/bin/openocd -f interface/lisa-l.cfg -f boards/lisa-l.cfg"&
+	xterm -e "/opt/paparazzi/stm32/bin/openocd -f interface/lisa-l.cfg -f board/lisa-l.cfg"&
 
 start_telnet:
 	xterm -e "telnet localhost 4444" &
