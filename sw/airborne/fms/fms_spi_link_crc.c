@@ -16,8 +16,8 @@ int spi_link_init(void) {
   spi_link.mode  = SPI_CPHA;
   //  spi_link.mode  = SPI_LSB_FIRST;
   spi_link.bits  = 8;
-  spi_link.speed = 3000000;
-  //  spi_link.speed = 18000000;
+  //spi_link.speed = 3000000;
+  spi_link.speed = 18000000;
   spi_link.delay = 1;
 
   spi_link.fd = open(spi_link.device, O_RDWR);
