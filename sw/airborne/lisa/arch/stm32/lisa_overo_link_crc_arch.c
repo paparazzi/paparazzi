@@ -104,6 +104,7 @@ void overo_link_arch_prepare_next_transfert(unsigned char init) {
   /* Enable DMA1 Channel2 Transfer Complete interrupt */
   DMA_ITConfig(DMA1_Channel2, DMA_IT_TC, ENABLE);
 
+  /* resets CRC module */
   SPI_Cmd(SPI1, DISABLE); 
   SPI_CalculateCRC(SPI1, DISABLE); 
   SPI_CalculateCRC(SPI1, ENABLE); 
@@ -112,17 +113,14 @@ void overo_link_arch_prepare_next_transfert(unsigned char init) {
 }
 
 void dma1_c2_irq_handler(void) {
-  DEBUG_S2_ON(); 
+  
+  //  DEBUG_S2_ON(); 
 
   DMA_ITConfig(DMA1_Channel2, DMA_IT_TC, DISABLE);
 
   overo_link.status = DATA_AVAILABLE;
 
-  //    overo_link.status = DATA_AVAILABLE;
-  //  else
-  //    overo_link.status = CRC_ERROR;
-
-  DEBUG_S2_OFF(); 
+  //  DEBUG_S2_OFF(); 
 
   
 }
