@@ -862,7 +862,7 @@ stm_test_spi_link.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link
 stm_test_spi_link_crc.ARCHDIR = $(ARCHI)
 stm_test_spi_link_crc.TARGET = stm_test_spi_link_crc
 stm_test_spi_link_crc.TARGETDIR = stm_test_spi_link_crc
-stm_test_spi_link_crc.CFLAGS += -Ilisa -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+stm_test_spi_link_crc.CFLAGS += -Ilisa -I$(ARCHI) -Ilisa/arch/$(ARCHI) -DPERIPHERALS_AUTO_INIT
 stm_test_spi_link_crc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 stm_test_spi_link_crc.srcs += lisa/stm_test_spi_link_crc.c       \
                           $(SRC_ARCH)/stm32_exceptions.c   \
