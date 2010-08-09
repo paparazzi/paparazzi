@@ -44,18 +44,14 @@ int main(void) {
   sys_time_init();
   overo_link_init();
   DEBUG_SERVO1_INIT();
+  DEBUG_SERVO2_INIT();
 
-#ifdef USE_IRQ_INLINE_HANDLER
-  SetOveroLinkHandler(on_overo_msg_received);
-#endif
-  
   while (1) {
     if (sys_time_periodic()) {
       main_periodic();
     }
     main_event(); 
   }
-  
   return 0;
 }
 
@@ -66,19 +62,9 @@ static inline void main_periodic( void ) {
 }
 
 static inline void main_event( void ) {
-#ifndef USE_IRQ_INLINE_HANDLER
   OveroLinkEvent(on_overo_msg_received, on_overo_link_crc_err);
-#endif
 }
 
-static inline void on_overo_link_crc_err(void) {
-  
-  //  DEBUG_S2_TOGGLE(); 
-  memcpy(&overo_link.up.msg, 
-         &overo_link.down.msg, 
-         sizeof(union AutopilotMessage));
-
-}
 
 static inline void on_overo_link_lost(void) {
 
@@ -88,9 +74,20 @@ static inline void on_overo_link_lost(void) {
 
 static inline void on_overo_msg_received(void) {
   
+  DEBUG_S1_TOGGLE(); 
   memcpy(&overo_link.up.msg, 
          &overo_link.down.msg, 
          sizeof(union AutopilotMessage));
+
+}
+
+
+static inline void on_overo_link_crc_err(void) {
+  
+  DEBUG_S2_TOGGLE(); 
+  //  memcpy(&overo_link.up.msg, 
+  //         &overo_link.down.msg, 
+  //         sizeof(union AutopilotMessage));
 
 }
 
