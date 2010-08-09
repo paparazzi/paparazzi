@@ -139,22 +139,22 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
     rdyb_booz_imu_update(&imu);
 }
 
-static void passthrough_down_fill(struct AutopilotMessagePTDown *msg_out)
+static void passthrough_down_fill(struct AutopilotMessagePTDown *msg_down)
 {
   for (int i = 0; i < LISA_PWM_OUTPUT_NB; i++) {
-    msg_out->pwm_outputs_usecs[i] = actuators[i];
+    msg_down->pwm_outputs_usecs[i] = actuators[i];
   }
 }
 
 void spi_ap_link_periodic()
 {
-  static struct AutopilotMessagePTUp msg_in;
-  static struct AutopilotMessagePTDown msg_out;
+  static struct AutopilotMessagePTUp msg_up;
+  static struct AutopilotMessagePTDown msg_down;
 
-  passthrough_down_fill(&msg_out);
+  passthrough_down_fill(&msg_down);
 
   // SPI transcieve
-  spi_link_send(&msg_out, sizeof(union AutopilotMessage), &msg_in);
+  spi_link_send(&msg_down, sizeof(union AutopilotMessage), &msg_up);
 
-  passthrough_up_parse(&msg_in);
+  passthrough_up_parse(&msg_up);
 }
