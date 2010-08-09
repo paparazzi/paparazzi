@@ -23,7 +23,6 @@
 	_crc_failed_handler();						\
 	/* wait until we're not selected - same thing, we would */	\
 	/* probably want a limit here                           */	\
-	DEBUG_S4_OFF();							\
 	while (!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4));		\
 	uint8_t foo __attribute__ ((unused)) = SPI_I2S_ReceiveData(SPI1); \
 	SPI_I2S_DeInit(SPI1);						\
@@ -41,7 +40,6 @@
 	SPI_Init(SPI1, &SPI_InitStructure);				\
 	SPI_CalculateCRC(SPI1, ENABLE);					\
 	SPI_Cmd(SPI1, ENABLE);						\
-	DEBUG_S4_ON();							\
       }									\
       overo_link_arch_prepare_next_transfert(0);			\
       overo_link.status = IDLE;						\
