@@ -39,6 +39,8 @@ void control_init(void) {
 
   controller.cmd_pitch = 0.;
   controller.cmd_thrust = 0.;
+
+  controller.armed = 0;
 }
 
 

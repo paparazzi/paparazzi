@@ -59,7 +59,6 @@ struct BoozImuFloat booz_imu_float;
 
 static uint32_t foo = 0;
 
-
 int main(int argc, char *argv[]) {
   
   (void) signal(SIGINT, main_exit);
@@ -100,6 +99,7 @@ int main(int argc, char *argv[]) {
 
 
 static void main_periodic(int my_sig_num) {
+  static last_state = 0;
 /*  static int bar=0;
   if (!(foo%2000)) {
     if (bar) {
@@ -109,6 +109,7 @@ static void main_periodic(int my_sig_num) {
     }
   }
 */
+  //if (foo >2000 ) { controller.armed=1;}
 
   RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);});
  
@@ -122,9 +123,41 @@ static void main_periodic(int my_sig_num) {
   estimator_run(msg_in.bench_sensor.z,msg_in.bench_sensor.y,msg_in.bench_sensor.x);
  
 
-  controller.elevation_sp = ((int32_t)(foo/2048.)%2) ? RadOfDeg(-20) : RadOfDeg(10);
-
-  control_run();
+  switch (controller.armed) {
+    case 0:
+      if (last_state == 2) {
+        controller.armed = 2;
+        printf("Entering spinup mode from flight not permitted. Enter standby first.\n");
+        controller.elevation_sp = ((int32_t)(foo/2048.)%2) ? RadOfDeg(-20) : RadOfDeg(10);
+        control_run();
+      } else {
+        controller.cmd_pitch = 1;
+        controller.cmd_thrust = 1;
+        last_state=0;
+      }
+      break;
+    case 1:
+      if (last_state != 1) {
+        printf("Entering standby mode.\n");
+        controller.elevation_sp = RadOfDeg(-30);
+        controller.tilt_sp = 0;
+        last_state=1;
+      }
+      control_run();
+      break;
+    case 2:
+      if (last_state == 0) {
+        printf("Entering flight mode from spinup not permitted. Enter standby first.\n");
+        controller.armed = 0;
+      } else {
+        controller.elevation_sp = ((int32_t)(foo/2048.)%2) ? RadOfDeg(-20) : RadOfDeg(10);
+        control_run();
+        last_state=2;
+      }
+      break;
+    default:
+      break;
+  }
 
   RunOnceEvery(25, {DOWNLINK_SEND_BETH_ESTIMATOR(gcs_com.udp_transport,
 			&estimator.tilt,&estimator.tilt_dot,
@@ -192,15 +225,29 @@ static void main_parse_cmd_line(int argc, char *argv[]) {
 
 
 static void main_exit(int sig) {
-  printf("Closing down\n");
+  printf("Initiating BETH shutdown...\n");
+
+//since the periodic event is no longer running when we get here right now,
+//this code doesn't do anything so removed for now.
+#if 0
+  printf("Zeroing setpoints...");
+  uint32_t startfoo = foo;
+  while (foo < (startfoo +2000)) {
+    controller.tilt_sp = 0;
+    controller.elevation_sp = RadOfDeg(-25);
+  }
+  printf("done\n");
+#endif
+  //If a logfile is being used, close it.
   //file_logger_exit()
+  printf("Main Overo Application Exiting...\n");
   exit(EXIT_SUCCESS);
 }
 
 
 static void main_talk_with_stm32() {
 
-  static int8_t adder = 1;
+  //static int8_t adder = 1;
   //uint8_t *fooptr;
 
   //msg_out.thrust = 0;

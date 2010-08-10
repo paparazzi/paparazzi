@@ -9,7 +9,7 @@
 #include "dl_protocol.h"
 #include "settings.h"
 
-#define GCS_HOST "10.31.4.104"
+#define GCS_HOST "10.31.4.5"
 #define GCS_PORT 4242
 #define DATALINK_PORT 4243
 

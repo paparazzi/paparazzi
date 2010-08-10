@@ -37,6 +37,8 @@ struct OveroController {
 
   float cmd_pitch;
   float cmd_thrust;
+
+  int armed;
 };
 
 
