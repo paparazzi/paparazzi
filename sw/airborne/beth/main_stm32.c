@@ -70,7 +70,7 @@ static inline void main_init( void ) {
 
 
 static inline void main_periodic( void ) {
-  int8_t pitch;
+  int8_t pitch,thrust;
   booz_imu_periodic();
 
   OveroLinkPeriodic(main_on_overo_link_lost)
@@ -90,18 +90,21 @@ static inline void main_periodic( void ) {
   read_bench_sensors();
 
   pitch = (int8_t)((0xFF) & overo_link.down.msg.pitch);
+  thrust =(int8_t)((0xFF) & overo_link.down.msg.thrust);
+
   if (pitch > 10) pitch = 10; else 
    if (pitch < -10) pitch = -10; 
 
   booz2_commands[COMMAND_PITCH] = pitch;
   booz2_commands[COMMAND_ROLL] = 0;
   booz2_commands[COMMAND_YAW] = 0;
-  if ( overo_link.down.msg.thrust < 20) {
-    booz2_commands[COMMAND_THRUST] = overo_link.down.msg.thrust;
+  
+  if ( thrust < 100) {
+    booz2_commands[COMMAND_THRUST] = thrust;
   } else { 
-    booz2_commands[COMMAND_THRUST] = 20;
+    booz2_commands[COMMAND_THRUST] = 100;
   }
-  if (my_cnt == 0) {
+  if ((my_cnt == 0) || ((pitch == 0) && (thrust == 0) )) {
     actuators_set(FALSE);
   } else {
     actuators_set(TRUE);
