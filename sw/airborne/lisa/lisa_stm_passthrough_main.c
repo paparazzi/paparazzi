@@ -29,7 +29,7 @@
 #include "booz/booz_imu.h"
 #include "booz_radio_control.h"
 #include "actuators/booz_actuators_pwm.h"
-#include "lisa/lisa_overo_link.h"
+#include "lisa/lisa_overo_link_crc.h"
 
 static inline void main_init(void);
 static inline void main_periodic(void);
@@ -80,7 +80,7 @@ static inline void main_periodic(void) {
 static inline void main_event(void) {
 
 	BoozImuEvent(on_gyro_accel_event, on_mag_event);
-	OveroLinkEvent(main_on_overo_msg_received);
+	OveroLinkEvent(main_on_overo_msg_received, main_on_overo_link_lost);
 	RadioControlEvent(on_rc_message);
 }
 
