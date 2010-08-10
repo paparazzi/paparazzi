@@ -32,6 +32,7 @@
 #include "fms_spi_link.h"
 #include "fms_autopilot_msg.h"
 #include "fms_spi_autopilot_msg.h"
+#include "fms_crc.h"
 
 /* all these for telemetry */
 #include "messages2.h"
@@ -148,13 +149,22 @@ static void passthrough_down_fill(struct AutopilotMessagePTDown *msg_down)
 
 void spi_ap_link_periodic()
 {
-  static struct AutopilotMessagePTUp msg_up;
-  static struct AutopilotMessagePTDown msg_down;
+  static struct AutopilotMessageCRCFrame msg_up;
+  static struct AutopilotMessageCRCFrame msg_down;
+  static uint32_t crc_errors = 0;
+  static uint32_t foo = 0;
+  crc_t crc_in;
 
-  passthrough_down_fill(&msg_down);
+  passthrough_down_fill(&msg_down.payload.msg_down);
+  msg_down.crc = crc__calc_block_crc8(&msg_down, sizeof(union AutopilotMessage));
 
   // SPI transcieve
-  spi_link_send(&msg_down, sizeof(union AutopilotMessage), &msg_up);
+  spi_link_send(&msg_down, sizeof(struct AutopilotMessageCRCFrame), &msg_up);
+  crc_in = crc__calc_block_crc8(&msg_up, sizeof(union AutopilotMessage));
 
-  passthrough_up_parse(&msg_up);
+  if(msg_up.crc != crc_in) {
+    crc_errors++;
+  } else {
+    passthrough_up_parse(&msg_up.payload.msg_up);
+  }
 }
