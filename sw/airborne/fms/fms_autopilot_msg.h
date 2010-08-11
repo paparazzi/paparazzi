@@ -4,7 +4,6 @@
 #include <inttypes.h>
 #include "math/pprz_algebra_int.h"
 #include "airframe.h"
-#include "fms/fms_crc.h"
 
 #define LISA_PWM_OUTPUT_NB 6
 
@@ -102,7 +101,7 @@ union AutopilotMessage {
 struct __attribute__ ((packed)) AutopilotMessageCRCFrame
 {
   union AutopilotMessage payload; 
-  crc_t crc; 
+  uint8_t crc; 
 }; 
 
 #endif /* FMS_AUTOPILOT_H */
