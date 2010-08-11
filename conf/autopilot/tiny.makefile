@@ -1,6 +1,7 @@
 # Makefile for the Tiny board (1 arm7tdmi, 1 LEA-LA)
 
 ARCHI=arm7
+ARCH=arm7
 
 ap.ARCHDIR = $(ARCHI)
 ap.ARCH = arm7tdmi
