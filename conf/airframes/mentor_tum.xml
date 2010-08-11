@@ -217,13 +217,14 @@ include $(CFG_FIXEDWING)/subsystems/fixedwing_navigation.makefile
 
 # IO Options
 include $(CFG_FIXEDWING)/subsystems/fixedwing_radio_control_ppm.makefile
+include $(CFG_FIXEDWING)/subsystems/fixedwing_actuators_4017.makefile
 
-# default GPS parameters
+### (UART 0, 38400baud) are the default GPS parameters, change and uncomment if needed
 #GPS_UART_NR	= 0
 #GPS_BAUD	= 38400
 include $(CFG_FIXEDWING)/subsystems/fixedwing_gps_ublox_lea5h.makefile
 
-# default modem parameters
+### (UART 1, 57600baud) are default modem parameters, change and uncomment if needed
 #MODEM_UART_NR = 1
 #MODEM_BAUD = 57600
 include $(CFG_FIXEDWING)/subsystems/fixedwing_telemetry_transparent.makefile
