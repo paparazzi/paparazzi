@@ -71,7 +71,7 @@ void overo_link_arch_prepare_next_transfert(void) {
     .DMA_Priority           = DMA_Priority_VeryHigh,
     .DMA_M2M                = DMA_M2M_Disable
   };
-  DMA_Init(DMA1_Channel2, &DMA_InitStructure_rx);
+  DMA_Init(DMA1_Channel2, (DMA_InitTypeDef*)&DMA_InitStructure_rx);
 
   /* SPI_SLAVE_Tx_DMA_Channel configuration ------------------------------------*/
   DMA_DeInit(DMA1_Channel3);
@@ -88,7 +88,7 @@ void overo_link_arch_prepare_next_transfert(void) {
     .DMA_Priority           = DMA_Priority_Medium,
     .DMA_M2M                = DMA_M2M_Disable
   };
-  DMA_Init(DMA1_Channel3, &DMA_InitStructure_tx);
+  DMA_Init(DMA1_Channel3, (DMA_InitTypeDef*)&DMA_InitStructure_tx);
   
   /* Enable SPI_1 Rx request */
   SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx, ENABLE);
