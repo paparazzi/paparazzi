@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="servo_switch">
+  <header>
+    <file name="servo_switch.h"/>
+  </header>
+  <init fun="servo_switch_init()"/>
+  <periodic fun="servo_switch_periodic()" freq="10."/>
+  <makefile>
+    <flag name="SWITCH_ON_VALUE"  value="MIN_PPRZ"/>
+    <flag name="SWITCH_OFF_VALUE" value="MAX_PPRZ"/>
+    <file name="servo_switch.c"/>
+  </makefile>
+</module>
+

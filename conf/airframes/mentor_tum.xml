@@ -10,7 +10,7 @@
 <airframe name="Mentor Twog AkaModell">
 
   <modules main_freq="60">
-    <load name="switch_channel.xml"/>
+    <load name="servo_switch.xml"/>
     <load name="sys_mon.xml"/>
   </modules>
 

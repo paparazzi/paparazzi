@@ -1,0 +1,40 @@
+/*
+ * $Id: $
+ *
+ * Copyright (C) 2010 Flixr
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+#include "servo_switch.h"
+#include "inter_mcu.h"
+
+bool_t servo_switch_on;
+int16_t servo_switch_value;
+
+void servo_switch_init(void) {
+  servo_switch_on = FALSE;
+  servo_switch_periodic();
+}
+
+void servo_switch_periodic(void) {
+  if (servo_switch_on == TRUE)
+    ap_state->commands[COMMAND_SWITCH] = SWITCH_ON_VALUE;
+  else
+    ap_state->commands[COMMAND_SWITCH] = SWITCH_OFF_VALUE;
+}
