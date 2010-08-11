@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2009-20010 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -28,57 +28,144 @@
 #include <string.h>
 
 
-#include "fms_debug.h"
-#include "fms_spi_link.h"
-#include "fms_autopilot_msg.h"
+#include "fms/fms_debug.h"
+#include "fms/fms_spi_link.h"
+#include "fms/fms_autopilot_msg.h"
 
-static void fill_msg(struct AutopilotMessageFoo* msg);
+#define fill_msg fill_msg_random
+static void fill_msg_counter(struct AutopilotMessageCRCFrame * msg);
+static void fill_msg_cst(struct AutopilotMessageCRCFrame * msg);
+static void fill_msg_random(struct AutopilotMessageCRCFrame * msg);
+static void print_up_msg(struct AutopilotMessageCRCFrame * msg);
+static void print_down_msg(struct AutopilotMessageCRCFrame * msg);
 
-static uint32_t passed_cnt = 0;
 
 int main(int argc, char *argv[]) {
+  
+  uint32_t us_delay; 
+  
+  if(argc > 1) { 
+    us_delay = atoi(argv[1]);
+  }
+  else { 
+    us_delay = 1953; 
+  }
+
+  printf("Delay: %dus\n", us_delay); 
   
   if (spi_link_init()) {
     TRACE(TRACE_ERROR, "%s", "failed to open SPI link \n");
     return -1;
   }
+  
+  uint8_t skip_buf_check = 0; 
+  uint8_t skip_crc_check = 0; 
+
+  uint32_t buf_check_errors = 0;
+
   while (1) {
-    struct AutopilotMessageFoo msg_out_prev;
-    struct AutopilotMessageFoo msg_out;
-    memcpy(&msg_out_prev, &msg_out, sizeof(msg_out));
-    fill_msg(&msg_out);
-    struct AutopilotMessageFoo msg_in;
-    spi_link_send(&msg_out, sizeof(struct AutopilotMessageFoo), &msg_in);
-    if (memcmp(&msg_in, &msg_out_prev, sizeof(msg_in))) {
-      printf("compare failed\n");
-      printf("expected %d %d %d %d\n", msg_out_prev.foo, msg_out_prev.bar, msg_out_prev.bla, msg_out_prev.ble);
-      printf("got      %d %d %d %d\n\n", msg_in.foo, msg_in.bar, msg_in.bla, msg_in.ble);
-    }
-    else {
-      passed_cnt++;
-      if (!(passed_cnt%1000)) {
-	printf("passed %d\n", passed_cnt );
+    struct AutopilotMessageCRCFrame crc_msg_out;
+    struct AutopilotMessageCRCFrame msg_out_prev;
+    struct AutopilotMessageCRCFrame crc_msg_in;
+    uint8_t crc_valid;
+    
+    /* backup message for later comparison */
+    memcpy(&msg_out_prev, &crc_msg_out, sizeof(struct AutopilotMessageCRCFrame));
+    /* fill message with data */ 
+    fill_msg(&crc_msg_out);
+    /* send it over spi */
+    spi_link_send(&crc_msg_out, sizeof(struct AutopilotMessageCRCFrame), &crc_msg_in, &crc_valid);
+    
+    /* check that received message is identical to the one previously sent */
+    if (!skip_buf_check && spi_link.msg_cnt > 1) {
+      if (memcmp(&crc_msg_in.payload, &msg_out_prev.payload, sizeof(struct OVERO_LINK_MSG_DOWN))) {
+	printf("Compare failed: (received != expected): \n");
+	print_up_msg(&crc_msg_in);
+	print_down_msg(&msg_out_prev);
+	buf_check_errors++;
       }
     }
-    usleep(1953);
-    //    usleep(50000);
-  }
+    /* report crc error */
+    if (!skip_crc_check & !crc_valid) {
+      printf("CRC checksum failed: received %04X != computed %04X\n", 
+	     crc_msg_in.crc,  
+	     crc_calc_block_crc8((uint8_t*)&crc_msg_in.payload, sizeof(struct OVERO_LINK_MSG_DOWN)));
+    }
+    /* report message count */
+    if (!(spi_link.msg_cnt % 1000))
+      printf("msg %d, buf err %d, CRC errors: %d\n", spi_link.msg_cnt, 
+	     buf_check_errors, spi_link.crc_err_cnt);
 
+    /* give it some rest */
+    if(us_delay > 0)
+      usleep(us_delay);
+  }
+  
   return 0;
 }
 
 
+static void print_up_msg(struct AutopilotMessageCRCFrame * msg) {
+  printf("UP: %08X %08X %08X %08X %08X %08X %08X %08X CRC: %08X\n", 
+	 msg->payload.msg_up.foo, 
+	 msg->payload.msg_up.bar, 
+	 msg->payload.msg_up.bla, 
+	 msg->payload.msg_up.ble, 
+	 msg->payload.msg_up.bli, 
+	 msg->payload.msg_up.blo, 
+	 msg->payload.msg_up.blu, 
+	 msg->payload.msg_up.bly, 
+	 msg->crc);
+}
+static void print_down_msg(struct AutopilotMessageCRCFrame * msg) {
+  printf("DW: %08X %08X %08X %08X %08X %08X %08X %08X CRC: %08X\n", 
+	 msg->payload.msg_down.foo, 
+	 msg->payload.msg_down.bar, 
+	 msg->payload.msg_down.bla, 
+	 msg->payload.msg_down.ble, 
+	 msg->payload.msg_down.bli, 
+	 msg->payload.msg_down.blo, 
+	 msg->payload.msg_up.blu, 
+	 msg->payload.msg_up.bly, 
+	 msg->crc);
+}
 
-static void fill_msg(struct AutopilotMessageFoo* msg) {
-  static uint32_t foo = 0;
-  msg->foo  = foo;
-  msg->bar  = foo+2;
-  msg->bla  = foo+4;
-  msg->ble  = foo+8;
-  msg->bli  = foo+4;
-  msg->blo  = foo+4;
-  msg->blu  = foo+4;
-  msg->bly  = foo+4;
+
+static void fill_msg_counter(struct AutopilotMessageCRCFrame * msg) {
+  static uint32_t foo = 5000;
+  msg->payload.msg_up.foo = 0x55;
+  msg->payload.msg_up.bar = 1;
+  msg->payload.msg_up.bla = 0xff;
+  msg->payload.msg_up.ble = foo % 255;
+  msg->payload.msg_up.bli = 1;
+  msg->payload.msg_up.blo = 0xff;
+  msg->payload.msg_up.blu = 0;
+  msg->payload.msg_up.bly = 0;
  
-  foo++;
+  foo--; 
+  if(foo == 0) { 
+    foo = 5000;
+  }
+}
+
+static void fill_msg_cst(struct AutopilotMessageCRCFrame * msg) {
+  msg->payload.msg_up.foo = 0;
+  msg->payload.msg_up.bar = 0;
+  msg->payload.msg_up.bla = 0;
+  msg->payload.msg_up.ble = 0;
+  msg->payload.msg_up.bli = 0;
+  msg->payload.msg_up.blo = 0;
+  msg->payload.msg_up.blu = 0;
+  msg->payload.msg_up.bly = 0x01;
+}
+
+static void fill_msg_random(struct AutopilotMessageCRCFrame * msg) {
+  msg->payload.msg_up.foo = random();
+  msg->payload.msg_up.bar = random();
+  msg->payload.msg_up.bla = random();
+  msg->payload.msg_up.ble = random();
+  msg->payload.msg_up.bli = random();
+  msg->payload.msg_up.blo = random();
+  msg->payload.msg_up.blu = random();
+  msg->payload.msg_up.bly = random();
 }
