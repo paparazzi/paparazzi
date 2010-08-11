@@ -15,7 +15,8 @@
 #define OveroLinkEvent(_data_received_handler, _crc_failed_handler) {	\
     if (overo_link.status == DATA_AVAILABLE) {	                  /* set by DMA interrupt */ \
       while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE)==RESET);	\
-      while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY)==SET);	\
+      while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) ==RESET);	\
+      while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) ==SET);	\
       uint8_t foo1 __attribute__ ((unused)) = SPI_I2S_ReceiveData(SPI1); \
       overo_link.timeout = 0;						\
       if((SPI_I2S_GetFlagStatus(SPI1, SPI_FLAG_CRCERR)) == RESET) {	\
@@ -26,6 +27,7 @@
 	overo_link_arch_prepare_next_transfert();			\
       }									\
       else {								\
+	SPI_Cmd(SPI1, DISABLE);						\
 	LED_OFF(OVERO_LINK_LED_OK);					\
 	LED_ON(OVERO_LINK_LED_KO);					\
 	overo_link.crc_err_cnt++;					\
@@ -84,8 +86,8 @@
 
 
 #define violently_reset_spi() {						\
-    SPI_I2S_DeInit(SPI1);						\
     SPI_Cmd(SPI1, DISABLE);						\
+    SPI_I2S_DeInit(SPI1);						\
     SPI_InitTypeDef SPI_InitStructure;					\
     SPI_InitStructure.SPI_Direction         = SPI_Direction_2Lines_FullDuplex; \
     SPI_InitStructure.SPI_Mode              = SPI_Mode_Slave;		\
