@@ -185,7 +185,7 @@ ap.CFLAGS 	+= -DSTM32
 
 GPS_UART_NR	= 1
 GPS_BAUD	= 38400
-include $(CFG_FIXEDWING)/subsystems/fixedwing_gps_ublox.makefile
+include $(CFG_FIXEDWING)/subsystems/fixedwing_gps_ublox_lea4p.makefile
 
 MODEM_UART_NR	= 2
 MODEM_BAUD	= 57600

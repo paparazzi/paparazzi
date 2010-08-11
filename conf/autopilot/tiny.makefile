@@ -15,6 +15,13 @@ fbw.TARGETDIR = autopilot
 LPC21ISP_BAUD = 38400
 LPC21ISP_XTAL = 12000
 
+
+# default settings for tiny and twog
+GPS_UART_NR	= 0
+GPS_BAUD	= 38400
+MODEM_UART_NR = 1
+MODEM_BAUD = 57600
+
 # a test program to setup actuators 
 setup_actuators.ARCHDIR = $(ARCHI)
 setup_actuators.ARCH = arm7tdmi

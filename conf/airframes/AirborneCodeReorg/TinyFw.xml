@@ -187,7 +187,7 @@ include $(CFG_FIXEDWING)/subsystems/fixedwing_radio_control_ppm.makefile
 
 GPS_UART_NR	= 0
 GPS_BAUD	= 38400
-include $(CFG_FIXEDWING)/subsystems/fixedwing_gps_ublox.makefile
+include $(CFG_FIXEDWING)/subsystems/fixedwing_gps_ublox_lea4p.makefile
 
 MODEM_UART_NR	= 1
 MODEM_BAUD	= 9600
