@@ -28,7 +28,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "crc.h"
 #include "fms_debug.h"
 #include "fms_spi_link.h"
 #include "fms_autopilot_msg.h"
@@ -57,8 +56,6 @@ int main(int argc, char *argv[]) {
 
   printf("Delay: %dus\n", us_delay); 
 
-  crc__init(0x31); 
-  printf("CRC initialized\n");
 
   printf("AutopilotMessage size: %d\n",          sizeof(union AutopilotMessage));
   printf("AutopilotMessageCRCFrame size: %d\n",  sizeof(struct AutopilotMessageCRCFrame));
@@ -67,79 +64,76 @@ int main(int argc, char *argv[]) {
     send_message();
     usleep(us_delay);
   }
-
+  
   return 0;
 }
 
 
 
 static void send_message() {
-	static uint32_t foo = 0;
-  static uint32_t crc_errors = 0; 
-  crc_t crc_in; 
+  static uint32_t foo = 0;
 
-	spi_link_send(&msg_out, sizeof(struct AutopilotMessageCRCFrame), &msg_in);
-  crc_in      = crc__calc_block_crc8(&msg_in.payload.msg_up, sizeof(union AutopilotMessage));
+  uint8_t crc_valid; 
   
-  if(msg_in.crc != crc_in) {
-    crc_errors++;
+  spi_link_send(&msg_out, sizeof(struct AutopilotMessageCRCFrame), &msg_in, &crc_valid);
+  
+  if (!(foo % 100)) {
+    printf("msg %d, CRC errors: %d\n", spi_link.msg_cnt, spi_link.crc_err_cnt);
+    //    print_up_msg(&msg_in);
+    //    print_down_msg(&msg_out);
+    printf("0x%08x -> gx%+02f gy%+02f gz%+02f ax%+02f ay%+02f az%+02f rs%02x | CRC errors: %d \n",
+	   foo,
+	   DegOfRad(RATE_FLOAT_OF_BFP(msg_in.payload.msg_up.gyro.p)), 
+	   DegOfRad(RATE_FLOAT_OF_BFP(msg_in.payload.msg_up.gyro.q)), 
+	   DegOfRad(RATE_FLOAT_OF_BFP(msg_in.payload.msg_up.gyro.r)),
+	   ACCEL_FLOAT_OF_BFP(msg_in.payload.msg_up.accel.x), 
+	   ACCEL_FLOAT_OF_BFP(msg_in.payload.msg_up.accel.y), 
+	   ACCEL_FLOAT_OF_BFP(msg_in.payload.msg_up.accel.z),
+	   msg_in.payload.msg_up.rc_status, 
+	   spi_link.crc_err_cnt);
   }
-  
-	if (!(foo % 100)) {
-    printf("CRC errors: %d \n", crc_errors);
-//    print_up_msg(&msg_in);
-//    print_down_msg(&msg_out);
-		printf("0x%08x -> gx%+02f gy%+02f gz%+02f ax%+02f ay%+02f az%+02f rs%02x | CRC errors: %d \n",
-			foo,
-			DegOfRad(RATE_FLOAT_OF_BFP(msg_in.payload.msg_up.gyro.p)), 
-      DegOfRad(RATE_FLOAT_OF_BFP(msg_in.payload.msg_up.gyro.q)), 
-      DegOfRad(RATE_FLOAT_OF_BFP(msg_in.payload.msg_up.gyro.r)),
-			ACCEL_FLOAT_OF_BFP(msg_in.payload.msg_up.accel.x), 
-      ACCEL_FLOAT_OF_BFP(msg_in.payload.msg_up.accel.y), 
-      ACCEL_FLOAT_OF_BFP(msg_in.payload.msg_up.accel.z),
-			msg_in.payload.msg_up.rc_status, 
-      crc_errors);
-	}
-	foo++;
+  foo++;
 }
 
 
 static void print_up_msg(struct AutopilotMessageCRCFrame * msg) { 
   printf("UP: %04X %04X %04X %04X %04x %04X %04X %04X %04X \n", 
-          msg->payload.msg_up.gyro.p, 
-          msg->payload.msg_up.gyro.q, 
-          msg->payload.msg_up.gyro.r, 
-          msg->payload.msg_up.accel.x, 
-          msg->payload.msg_up.accel.y, 
-          msg->payload.msg_up.accel.z, 
-          msg->payload.msg_up.mag.x, 
-          msg->payload.msg_up.mag.y, 
-          msg->payload.msg_up.mag.z);
+	 msg->payload.msg_up.gyro.p, 
+	 msg->payload.msg_up.gyro.q, 
+	 msg->payload.msg_up.gyro.r, 
+	 msg->payload.msg_up.accel.x, 
+	 msg->payload.msg_up.accel.y, 
+	 msg->payload.msg_up.accel.z, 
+	 msg->payload.msg_up.mag.x, 
+	 msg->payload.msg_up.mag.y, 
+	 msg->payload.msg_up.mag.z);
   printf("    %04X %04X %04X %04X %04X %04X %04X %04X %04X %02X [%d %d %d %d] CRC: %d\n", 
-          msg->payload.msg_up.rc_pitch, 
-          msg->payload.msg_up.rc_roll, 
-          msg->payload.msg_up.rc_yaw, 
-          msg->payload.msg_up.rc_thrust, 
-          msg->payload.msg_up.rc_mode, 
-          msg->payload.msg_up.rc_kill, 
-          msg->payload.msg_up.rc_gear, 
-          msg->payload.msg_up.rc_aux3, 
-          msg->payload.msg_up.rc_aux4, 
-          msg->payload.msg_up.rc_status, 
-          msg->payload.msg_up.valid.rc, 
-          msg->payload.msg_up.valid.pressure, 
-          msg->payload.msg_up.valid.vane, 
-          msg->payload.msg_up.valid.imu, 
-          msg->crc);
+	 msg->payload.msg_up.rc_pitch, 
+	 msg->payload.msg_up.rc_roll, 
+	 msg->payload.msg_up.rc_yaw, 
+	 msg->payload.msg_up.rc_thrust, 
+	 msg->payload.msg_up.rc_mode, 
+	 msg->payload.msg_up.rc_kill, 
+	 msg->payload.msg_up.rc_gear, 
+	 msg->payload.msg_up.rc_aux3, 
+	 msg->payload.msg_up.rc_aux4, 
+	 msg->payload.msg_up.rc_status, 
+	 msg->payload.msg_up.valid.rc, 
+	 msg->payload.msg_up.valid.pressure, 
+	 msg->payload.msg_up.valid.vane, 
+	 msg->payload.msg_up.valid.imu, 
+	 msg->crc);
 }
+
+
 static void print_down_msg(struct AutopilotMessageCRCFrame * msg) { 
   printf("%04X %04X %04X %04X %04X %04X CRC: %d\n", msg->payload.msg_down.pwm_outputs_usecs[0], 
-                                                    msg->payload.msg_down.pwm_outputs_usecs[1], 
-                                                    msg->payload.msg_down.pwm_outputs_usecs[2], 
-                                                    msg->payload.msg_down.pwm_outputs_usecs[3], 
-                                                    msg->payload.msg_down.pwm_outputs_usecs[4], 
-                                                    msg->payload.msg_down.pwm_outputs_usecs[5], 
-                                                    msg->crc);
+	 msg->payload.msg_down.pwm_outputs_usecs[1], 
+	 msg->payload.msg_down.pwm_outputs_usecs[2], 
+	 msg->payload.msg_down.pwm_outputs_usecs[3], 
+	 msg->payload.msg_down.pwm_outputs_usecs[4], 
+	 msg->payload.msg_down.pwm_outputs_usecs[5], 
+	 msg->crc);
 }
 
 

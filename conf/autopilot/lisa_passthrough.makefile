@@ -7,7 +7,7 @@
 pt.ARCHDIR = stm32
 pt.TARGET = pt
 pt.TARGETDIR = pt
-pt.CFLAGS += -I$(SRC_LISA) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+pt.CFLAGS += -I$(SRC_LISA) -I$(SRC_LISA_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 pt.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 pt.srcs = $(SRC_LISA)/lisa_stm_passthrough_main.c \
           $(SRC_ARCH)/stm32_exceptions.c   \
@@ -30,7 +30,7 @@ pt.srcs += downlink.c pprz_transport.c
 
 # Link Overo
 pt.CFLAGS += -DUSE_OVERO_LINK -DOVERO_LINK_MSG_UP=AutopilotMessagePTUp -DOVERO_LINK_MSG_DOWN=AutopilotMessagePTDown
-pt.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=4 -DUSE_DMA1_C2_IRQ
+pt.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=2 -DUSE_DMA1_C2_IRQ
 pt.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
 
 # IMU
