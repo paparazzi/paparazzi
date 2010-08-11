@@ -16,13 +16,20 @@ LPC21ISP_BAUD = 38400
 LPC21ISP_XTAL = 12000
 
 
-# default settings for tiny and twog
+### default settings for tiny and twog
 GPS_UART_NR	= 0
 GPS_BAUD	= 38400
 MODEM_UART_NR = 1
 MODEM_BAUD = 57600
 
-# a test program to setup actuators 
+ADC_IR1 = ADC_1
+ADC_IR2 = ADC_2
+ADC_IR_TOP = ADC_0
+ADC_IR_NB_SAMPLES = 16
+ADC_GYRO_ROLL = ADC_3
+ADC_GYRO_NB_SAMPLES = 16
+
+# a test program to setup actuators
 setup_actuators.ARCHDIR = $(ARCHI)
 setup_actuators.ARCH = arm7tdmi
 setup_actuators.TARGET = setup_actuators
@@ -63,7 +70,7 @@ usb_tunnel_0.TARGET = usb_tunnel_0
 usb_tunnel_0.TARGETDIR = usb_tunnel_0
 usb_tunnel_0.CFLAGS += -DFBW -DBOARD_CONFIG=\"tiny_2_1_1_usb.h\" -DUSE_UART0 -DUART0_BAUD=B115200
 usb_tunnel_0.CFLAGS += -DUSE_USB_LINE_CODING -DUSE_USB_SERIAL -DLED
-usb_tunnel_0.srcs += $(SRC_ARCH)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/uart_hw.c 
+usb_tunnel_0.srcs += $(SRC_ARCH)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/uart_hw.c
 usb_tunnel_0.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
 usb_tunnel_0.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
 usb_tunnel_0.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
@@ -74,9 +81,7 @@ usb_tunnel_1.TARGET = usb_tunnel_1
 usb_tunnel_1.TARGETDIR = usb_tunnel_1
 usb_tunnel_1.CFLAGS += -DFBW -DBOARD_CONFIG=\"tiny_2_1_1_usb.h\" -DUSE_UART1 -DUART1_BAUD=B115200
 usb_tunnel_1.CFLAGS += -DUSE_USB_LINE_CODING -DUSE_USB_SERIAL -DLED
-usb_tunnel_1.srcs += $(SRC_ARCH)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/uart_hw.c 
+usb_tunnel_1.srcs += $(SRC_ARCH)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/uart_hw.c
 usb_tunnel_1.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
 usb_tunnel_1.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
 usb_tunnel_1.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
-
-
