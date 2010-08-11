@@ -19,7 +19,9 @@ struct LisaOveroLink {
 		struct OVERO_LINK_MSG_DOWN msg;
 		uint8_t array[sizeof(union AutopilotMessage)];
 	} down;
-	uint8_t timeout;
+  uint8_t timeout;
+  uint32_t msg_cnt;
+  uint32_t crc_err_cnt;
 };
 
 extern struct LisaOveroLink overo_link;
@@ -31,17 +33,7 @@ extern void overo_link_periodic(void);
 extern void overo_link_arch_init(void);
 extern void overo_link_arch_prepare_next_transfert(void);
 
-
-#define OveroLinkEvent(_data_received_handler) {	\
-    if (overo_link.status == DATA_AVAILABLE) {		\
-      overo_link.timeout = 0;				\
-      LED_TOGGLE(OVERO_LINK_LED_OK);			\
-      LED_OFF(OVERO_LINK_LED_KO);			\
-      _data_received_handler();				\
-      overo_link_arch_prepare_next_transfert();		\
-      overo_link.status = IDLE;				\
-    }						        \
-  }
+#include "lisa_overo_link_arch.h"
 
 #define OveroLinkPeriodic(_timeout_handler) {		\
     if (overo_link.timeout < OVERO_LINK_TIMEOUT)	\
@@ -56,6 +48,18 @@ extern void overo_link_arch_prepare_next_transfert(void);
     }							\
   }
 
+#if 0
+#define OveroLinkEvent(_data_received_handler) {	\
+    if (overo_link.status == DATA_AVAILABLE) {		\
+      overo_link.timeout = 0;				\
+      LED_TOGGLE(OVERO_LINK_LED_OK);			\
+      LED_OFF(OVERO_LINK_LED_KO);			\
+      _data_received_handler();				\
+      overo_link_arch_prepare_next_transfert();		\
+      overo_link.status = IDLE;				\
+    }						        \
+  }
+#endif
 
 
 /*

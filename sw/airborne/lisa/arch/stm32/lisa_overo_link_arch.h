@@ -24,7 +24,7 @@
 	/* wait until we're not selected - same thing, we would */	\
 	/* probably want a limit here                           */	\
 	while (!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4));		\
-	uint8_t foo __attribute__ ((unused)) = SPI_I2S_ReceiveData(SPI1); \
+	uint8_t foo2 __attribute__ ((unused)) = SPI_I2S_ReceiveData(SPI1); \
 	SPI_I2S_DeInit(SPI1);						\
 	SPI_Cmd(SPI1, DISABLE);						\
 	SPI_InitTypeDef SPI_InitStructure;				\
@@ -36,12 +36,12 @@
 	SPI_InitStructure.SPI_NSS               = SPI_NSS_Hard;		\
 	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2; \
 	SPI_InitStructure.SPI_FirstBit          = SPI_FirstBit_MSB;	\
-	SPI_InitStructure.SPI_CRCPolynomial     = 0x31; /* fuchsto: was 7 (reset) */ \
+	SPI_InitStructure.SPI_CRCPolynomial     = 0x31;			\
 	SPI_Init(SPI1, &SPI_InitStructure);				\
 	SPI_CalculateCRC(SPI1, ENABLE);					\
 	SPI_Cmd(SPI1, ENABLE);						\
       }									\
-      overo_link_arch_prepare_next_transfert(0);			\
+      overo_link_arch_prepare_next_transfert();				\
       overo_link.status = IDLE;						\
     }									\
   }

@@ -31,9 +31,13 @@
 #include "sys_time.h"
 #include "lisa/lisa_overo_link.h"
 
+#include "my_debug_servo.h"
+
+
 static inline void main_periodic( void );
 static inline void main_event( void );
-static inline void on_overo_msg_received(void);
+static inline void on_overo_link_msg_received(void);
+static inline void on_overo_link_crc_err(void);
 static inline void on_overo_link_lost(void);
 
 int main(void) {
@@ -41,6 +45,7 @@ int main(void) {
   hw_init();
   sys_time_init();
   overo_link_init();
+  DEBUG_SERVO1_INIT();
 
   while (1) {
     if (sys_time_periodic())
@@ -62,7 +67,7 @@ static inline void main_periodic( void ) {
 
 static inline void main_event( void ) {
 
-  OveroLinkEvent(on_overo_msg_received);
+  OveroLinkEvent(on_overo_link_msg_received, on_overo_link_crc_err);
 
 }
 
@@ -71,8 +76,15 @@ static inline void on_overo_link_lost(void) {
 
 }
 
-static inline void on_overo_msg_received(void) {
+static inline void on_overo_link_msg_received(void) {
+  
+  DEBUG_S1_TOGGLE();
 
-  memcpy(&overo_link.up.msg, &overo_link.down.msg, sizeof(struct AutopilotMessageFoo));
+  memcpy(&overo_link.up.msg, &overo_link.down.msg, 
+	 sizeof(union AutopilotMessage));
+  
+}
 
+static inline void on_overo_link_crc_err(void) {
+  
 }
