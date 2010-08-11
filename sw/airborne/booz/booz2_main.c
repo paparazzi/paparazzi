@@ -223,8 +223,8 @@ STATIC_INLINE void booz2_main_event( void ) {
 
 static inline void on_gyro_accel_event( void ) {
 
-  BoozImuScaleGyro();
-  BoozImuScaleAccel();
+  BoozImuScaleGyro(booz_imu);
+  BoozImuScaleAccel(booz_imu);
 
   if (booz_ahrs.status == BOOZ_AHRS_UNINIT) {
     booz_ahrs_aligner_run();
@@ -251,7 +251,7 @@ static inline void on_gps_event(void) {
 }
 
 static inline void on_mag_event(void) {
-  BoozImuScaleMag();
+  BoozImuScaleMag(booz_imu);
   if (booz_ahrs.status == BOOZ_AHRS_RUNNING)
     booz_ahrs_update_mag();
 }

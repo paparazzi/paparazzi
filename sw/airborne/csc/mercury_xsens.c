@@ -310,9 +310,9 @@ void xsens_parse_msg( uint8_t xsens_id ) {
         booz_imu.mag_unscaled.x  = XSENS_DATA_RAWInertial_magZ(xsens_msg_buf[xsens_id][buf_slot],offset);
 	booz_imu.mag_unscaled.y  = XSENS_DATA_RAWInertial_magY(xsens_msg_buf[xsens_id][buf_slot],offset);
 	booz_imu.mag_unscaled.z  = XSENS_DATA_RAWInertial_magX(xsens_msg_buf[xsens_id][buf_slot],offset);
-	BoozImuScaleGyro();
-	BoozImuScaleAccel();
-	BoozImuScaleMag();
+	BoozImuScaleGyro(booz_imu);
+	BoozImuScaleAccel(booz_imu);
+	BoozImuScaleMag(booz_imu);
 	
 	// Copied from booz2_main -- 5143134f060fcc57ce657e17d8b7fc2e72119fd7
 	// mmt 6/15/09

@@ -115,7 +115,7 @@ static void main_periodic(int my_sig_num) {
  
   main_talk_with_stm32();
 
-  BoozImuScaleGyro();
+  BoozImuScaleGyro(booz_imu);
 
   RunOnceEvery(50, {DOWNLINK_SEND_BETH(gcs_com.udp_transport,&msg_in.bench_sensor.x,&msg_in.bench_sensor.y,
 				       &msg_in.bench_sensor.z,&foo);});

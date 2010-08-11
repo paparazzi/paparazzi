@@ -29,7 +29,7 @@
 #include "booz/booz_imu.h"
 #include "booz_radio_control.h"
 #include "actuators/booz_actuators_pwm.h"
-#include "lisa/lisa_overo_link_crc.h"
+#include "lisa/lisa_overo_link.h"
 
 static inline void main_init(void);
 static inline void main_periodic(void);
@@ -38,26 +38,25 @@ static inline void main_event(void);
 static inline void on_gyro_accel_event(void);
 static inline void on_mag_event(void);
 
-static inline void main_on_overo_msg_received(void);
-static inline void main_on_overo_link_lost(void);
+static inline void on_overo_link_msg_received(void);
+static inline void on_overo_link_lost(void);
+static inline void on_overo_link_crc_failed(void);
+
+static inline void on_rc_message(void);
 
 static bool_t new_radio_msg;
 
 int main(void) {
 
-	main_init();
+  main_init();
 
-	while (1) {
-		if (sys_time_periodic())
-			main_periodic();
-		main_event();
-	}
+  while (1) {
+    if (sys_time_periodic())
+      main_periodic();
+    main_event();
+  }
 
-	return 0;
-}
-
-static void on_rc_message(void) {
-  new_radio_msg = TRUE;
+  return 0;
 }
 
 static inline void main_init(void) {
@@ -68,23 +67,34 @@ static inline void main_init(void) {
 	radio_control_init();
 	booz_actuators_pwm_hw_init();
 	overo_link_init();
+	new_radio_msg = FALSE;
 }
 
 static inline void main_periodic(void) {
 
-	booz_imu_periodic();
-	OveroLinkPeriodic(main_on_overo_link_lost);
-	RunOnceEvery(10, {LED_PERIODIC(); DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);radio_control_periodic();});
+  booz_imu_periodic();
+  OveroLinkPeriodic(on_overo_link_lost);
+  RunOnceEvery(10, {
+      LED_PERIODIC(); 
+      DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+      radio_control_periodic();
+    });
+
 }
 
 static inline void main_event(void) {
 
 	BoozImuEvent(on_gyro_accel_event, on_mag_event);
-	OveroLinkEvent(main_on_overo_msg_received, main_on_overo_link_lost);
+	OveroLinkEvent(on_overo_link_msg_received, on_overo_link_crc_failed);
 	RadioControlEvent(on_rc_message);
+
 }
 
-static inline void main_on_overo_msg_received(void) {
+static inline void on_rc_message(void) {
+  new_radio_msg = TRUE;
+}
+
+static inline void on_overo_link_msg_received(void) {
 
 	if (new_radio_msg) overo_link.up.msg.valid.rc = 1;
 	else overo_link.up.msg.valid.rc = 0;
@@ -114,59 +124,21 @@ static inline void main_on_overo_msg_received(void) {
 	booz_actuators_pwm_commit();
 }
 
-static inline void main_on_overo_link_lost(void) {
-
+static inline void on_overo_link_lost(void) {
+  
 }
 
+static inline void on_overo_link_crc_failed(void) {
+  
+}
+
+
 static inline void on_gyro_accel_event(void) {
-	static uint8_t cnt;
-
-	BoozImuScaleGyro();
-	BoozImuScaleAccel();
-
-	LED_TOGGLE(2);
-	cnt++;
-	if (cnt > 15) cnt = 0;
-
-	if (cnt == 0) {
-		DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,
-					&booz_imu.gyro_unscaled.p,
-					&booz_imu.gyro_unscaled.q,
-					&booz_imu.gyro_unscaled.r);
-
-		DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,
-					&booz_imu.accel_unscaled.x,
-					&booz_imu.accel_unscaled.y,
-					&booz_imu.accel_unscaled.z);
-	} else if (cnt == 7) {
-		DOWNLINK_SEND_BOOZ2_GYRO(DefaultChannel,
-					&booz_imu.gyro.p,
-					&booz_imu.gyro.q,
-					&booz_imu.gyro.r);
-
-		DOWNLINK_SEND_BOOZ2_ACCEL(DefaultChannel,
-					&booz_imu.accel.x,
-					&booz_imu.accel.y,
-					&booz_imu.accel.z);
-	}
+  BoozImuScaleGyro(booz_imu);
+  BoozImuScaleAccel(booz_imu);
 }
 
 static inline void on_mag_event(void) {
-	static uint8_t cnt;
-
-	BoozImuScaleMag();
-
-	cnt++;
-	if (cnt % 2) {
-		DOWNLINK_SEND_BOOZ2_MAG(DefaultChannel,
-					&booz_imu.mag.x,
-					&booz_imu.mag.y,
-					&booz_imu.mag.z);
-	} else {
-		DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
-					&booz_imu.mag_unscaled.x,
-					&booz_imu.mag_unscaled.y,
-					&booz_imu.mag_unscaled.z);
-	}
+  BoozImuScaleMag(booz_imu);
 }
 

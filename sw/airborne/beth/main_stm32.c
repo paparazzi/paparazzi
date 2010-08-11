@@ -154,8 +154,8 @@ static inline void main_on_overo_link_lost(void) {
 
 
 static inline void on_gyro_accel_event(void) {
-  BoozImuScaleGyro();
-  BoozImuScaleAccel();
+  BoozImuScaleGyro(booz_imu);
+  BoozImuScaleAccel(booz_imu);
 
   LED_TOGGLE(2);
   static uint8_t cnt;

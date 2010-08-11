@@ -35,6 +35,7 @@
 
 #include "interrupt_hw.h"
 
+#include "my_debug_servo.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -59,6 +60,10 @@ static inline void main_init( void ) {
   sys_time_init();
   booz_imu_init();
 
+  DEBUG_SERVO1_INIT();
+  DEBUG_SERVO2_INIT();
+
+
   int_enable();
 }
 
@@ -67,14 +72,20 @@ static inline void main_periodic_task( void ) {
       LED_TOGGLE(3);
       DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
     });
+#ifdef USE_I2C2
   RunOnceEvery(111, {
       DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, 
-			       &i2c2.got_unexpected_event, 
-			       &i2c2.errc_ack_fail, &i2c2.errc_miss_start_stop,
-			       &i2c2.errc_arb_lost, &i2c2.errc_over_under,
-			       &i2c2.errc_pec_recep, &i2c2.errc_timeout_tlow,
-			       &i2c2.errc_smbus_alert);
+			       &i2c2_errors.ack_fail_cnt,
+			       &i2c2_errors.miss_start_stop_cnt,
+			       &i2c2_errors.arb_lost_cnt,
+			       &i2c2_errors.over_under_cnt,
+			       &i2c2_errors.pec_recep_cnt,
+			       &i2c2_errors.timeout_tlow_cnt,
+			       &i2c2_errors.smbus_alert_cnt,
+			       &i2c2_errors.unexpected_event_cnt,
+			       &i2c2_errors.last_unexpected_event);
     });
+#endif
   booz_imu_periodic();
   RunOnceEvery(10, { LED_PERIODIC();});
 }
@@ -86,8 +97,8 @@ static inline void main_event_task( void ) {
 }
 
 static inline void on_gyro_accel_event(void) {
-  BoozImuScaleGyro();
-  BoozImuScaleAccel();
+  BoozImuScaleGyro(booz_imu);
+  BoozImuScaleAccel(booz_imu);
 
   LED_TOGGLE(2);
   static uint8_t cnt;
