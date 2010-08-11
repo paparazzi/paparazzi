@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -79,34 +79,34 @@ pin2  AD1.7  P0.22   PINSEL1 1 << 12
 */
 
 static const uint32_t ADC_PINSEL0_ONES = 0
-#if defined USE_AD0_6       
-  | 3 << 8		    
-#endif			    
-#if defined USE_AD0_7	    
-  | 3 << 10		    
-#endif			    
-#if defined USE_AD1_0	    
-  | 3 << 12		    
-#endif			    
-#if defined USE_AD1_1	    
-  | 3 << 16		    
-#endif			    
-#if defined USE_AD1_2	    
-  | 3 << 20		    
-#endif			   
-#if defined USE_AD1_3	   
-  | 3 << 24		    
-#endif			    
-#if defined USE_AD1_4	    
-  | 3 << 26		    
-#endif			    
-#if defined USE_AD1_5	    
-  | 3 << 30		    
-#endif			    
+#if defined USE_AD0_6
+  | 3 << 8
+#endif
+#if defined USE_AD0_7
+  | 3 << 10
+#endif
+#if defined USE_AD1_0
+  | 3 << 12
+#endif
+#if defined USE_AD1_1
+  | 3 << 16
+#endif
+#if defined USE_AD1_2
+  | 3 << 20
+#endif
+#if defined USE_AD1_3
+  | 3 << 24
+#endif
+#if defined USE_AD1_4
+  | 3 << 26
+#endif
+#if defined USE_AD1_5
+  | 3 << 30
+#endif
 ;
 
 static const uint32_t ADC_PINSEL1_ONES = 0
-#if defined USE_AD0_0 
+#if defined USE_AD0_0
   | 1 << 22
 #endif
 #if defined USE_AD0_1
@@ -118,12 +118,12 @@ static const uint32_t ADC_PINSEL1_ONES = 0
 #if defined USE_AD0_3
   | 1 << 28
 #endif
-#if defined USE_AD0_4  
+#if defined USE_AD0_4
   | 1 << 18
 #endif
 #if defined USE_AD0_5
   | 1 << 20
-#endif 
+#endif
 #if defined USE_AD1_6
   | 2 << 10
 #endif
@@ -133,7 +133,7 @@ static const uint32_t ADC_PINSEL1_ONES = 0
 ;
 
 static const uint32_t ADC_AD0CR_SEL_HW_SCAN = 0
-#if defined USE_AD0_0 
+#if defined USE_AD0_0
   | 1 << 0
 #endif
 #if defined USE_AD0_1
@@ -145,12 +145,12 @@ static const uint32_t ADC_AD0CR_SEL_HW_SCAN = 0
 #if defined USE_AD0_3
   | 1 << 3
 #endif
-#if defined USE_AD0_4  
+#if defined USE_AD0_4
   | 1 << 4
 #endif
 #if defined USE_AD0_5
   | 1 << 5
-#endif 
+#endif
 #if defined USE_AD0_6
   | 1 << 6
 #endif
@@ -160,7 +160,7 @@ static const uint32_t ADC_AD0CR_SEL_HW_SCAN = 0
 ;
 
 static const uint32_t ADC_AD1CR_SEL_HW_SCAN = 0
-#if defined USE_AD1_0 
+#if defined USE_AD1_0
   | 1 << 0
 #endif
 #if defined USE_AD1_1
@@ -172,12 +172,12 @@ static const uint32_t ADC_AD1CR_SEL_HW_SCAN = 0
 #if defined USE_AD1_3
   | 1 << 3
 #endif
-#if defined USE_AD1_4  
+#if defined USE_AD1_4
   | 1 << 4
 #endif
 #if defined USE_AD1_5
   | 1 << 5
-#endif 
+#endif
 #if defined USE_AD1_6
   | 1 << 6
 #endif
@@ -189,19 +189,19 @@ static const uint32_t ADC_AD1CR_SEL_HW_SCAN = 0
 void adc_init( void ) {
 
   /* connect pins for selected ADCs */
-  PINSEL0 |= ADC_PINSEL0_ONES; 
+  PINSEL0 |= ADC_PINSEL0_ONES;
   PINSEL1 |= ADC_PINSEL1_ONES;
 
 #ifdef USE_AD0
   /* FIXME: this needs to be investigated, we should run just below 4.5MHz,
-            but we are a lot slower (e.g. 58.6kHz with PCLK = 15MHz), see 
-            lpc_vor_convertions.c for right timing code */  
+			but we are a lot slower (e.g. 58.6kHz with PCLK = 15MHz), see
+			lpc_vor_convertions.c for right timing code */
   /* setup hw scan - PCLK/256 ( 58.6kHz/117.2kHz/234.4kHz ) - BURST ON */
   AD0CR = ADC_AD0CR_SEL_HW_SCAN | 0xFF << 8 | 1 << 16 | 0x01 << 21 ;
   /* AD0 selected as IRQ */
   VICIntSelect &= ~VIC_BIT(VIC_AD0);
   /* AD0 interrupt enabled */
-  VICIntEnable = VIC_BIT(VIC_AD0);  
+  VICIntEnable = VIC_BIT(VIC_AD0);
   /* AD0 interrupt as VIC2 */
   _VIC_CNTL(AD0_VIC_SLOT) = VIC_ENABLE | VIC_AD0;
   _VIC_ADDR(AD0_VIC_SLOT) = (uint32_t)adcISR0;
@@ -209,14 +209,14 @@ void adc_init( void ) {
 
 #ifdef USE_AD1
   /* FIXME: this needs to be investigated, we should run just below 4.5MHz,
-            but we are a lot slower (e.g. 58.6kHz with PCLK = 15MHz), see 
-            lpc_vor_convertions.c for right timing code */  
+			but we are a lot slower (e.g. 58.6kHz with PCLK = 15MHz), see
+			lpc_vor_convertions.c for right timing code */
   /* setup hw scan - PCLK/256 ( 58.6kHz/117.2kHz/234.4kHz ) - BURST ON */
   AD1CR = ADC_AD1CR_SEL_HW_SCAN | 0xFF << 8 | 1 << 16 | 0x01 << 21 ;
   /* AD1 selected as IRQ */
   VICIntSelect &= ~VIC_BIT(VIC_AD1);
   /* AD1 interrupt enabled */
-  VICIntEnable = VIC_BIT(VIC_AD1);  
+  VICIntEnable = VIC_BIT(VIC_AD1);
   /* AD1 interrupt as VIC2 */
   _VIC_CNTL(AD1_VIC_SLOT) = VIC_ENABLE | VIC_AD1;
   _VIC_ADDR(AD1_VIC_SLOT) = (uint32_t)adcISR1;
@@ -234,14 +234,14 @@ void adcISR0 ( void ) {
 
   struct adc_buf* buf = buffers[channel];
   if (buf) {
-    uint8_t new_head = buf->head + 1;
-    if (new_head >= buf->av_nb_sample) new_head = 0;
-    buf->sum -= buf->values[new_head];
-    buf->values[new_head] = value;
-    buf->sum += value;
-    buf->head = new_head;   
+	uint8_t new_head = buf->head + 1;
+	if (new_head >= buf->av_nb_sample) new_head = 0;
+	buf->sum -= buf->values[new_head];
+	buf->values[new_head] = value;
+	buf->sum += value;
+	buf->head = new_head;
   }
-  
+
   VICVectAddr = 0x00000000;                 // clear this interrupt from the VIC
   ISR_EXIT();                               // recover registers and return
 }
@@ -254,12 +254,12 @@ void adcISR1 ( void ) {
   adc1_val[channel] = value;
   struct adc_buf* buf = buffers[channel+NB_ADC];
   if (buf) {
-    uint8_t new_head = buf->head + 1;
-    if (new_head >= buf->av_nb_sample) new_head = 0;
-    buf->sum -= buf->values[new_head];
-    buf->values[new_head] = value;
-    buf->sum += value;
-    buf->head = new_head;   
+	uint8_t new_head = buf->head + 1;
+	if (new_head >= buf->av_nb_sample) new_head = 0;
+	buf->sum -= buf->values[new_head];
+	buf->values[new_head] = value;
+	buf->sum += value;
+	buf->head = new_head;
   }
 
   VICVectAddr = 0x00000000;                 // clear this interrupt from the VIC
