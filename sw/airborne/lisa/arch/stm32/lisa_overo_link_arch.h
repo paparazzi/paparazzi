@@ -9,7 +9,6 @@
       while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE)==RESET);	\
       while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) ==RESET);	\
       while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) ==SET);	\
-      uint8_t foo1 __attribute__ ((unused)) = SPI_I2S_ReceiveData(SPI1); \
       overo_link.timeout = 0;						\
       if((SPI_I2S_GetFlagStatus(SPI1, SPI_FLAG_CRCERR)) == RESET) {	\
 	LED_ON(OVERO_LINK_LED_OK);					\
@@ -30,33 +29,12 @@
     }									\
     if (overo_link.crc_error &&	                     /* if we've had a bad crc         */ \
 	!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4)) { /* and we're not selected anymore */ \
-      uint8_t foo2 __attribute__ ((unused)) = SPI_I2S_ReceiveData(SPI1); \
-      foo2  = SPI_I2S_ReceiveData(SPI1);				\
-      violently_reset_spi();						\
       overo_link_arch_prepare_next_transfert();				\
       overo_link.crc_error = FALSE;					\
     }									\
   }
 
 
-
-#define violently_reset_spi() {						\
-    SPI_Cmd(SPI1, DISABLE);						\
-    SPI_I2S_DeInit(SPI1);						\
-    SPI_InitTypeDef SPI_InitStructure;					\
-    SPI_InitStructure.SPI_Direction         = SPI_Direction_2Lines_FullDuplex; \
-    SPI_InitStructure.SPI_Mode              = SPI_Mode_Slave;		\
-    SPI_InitStructure.SPI_DataSize          = SPI_DataSize_8b;		\
-    SPI_InitStructure.SPI_CPOL              = SPI_CPOL_Low;		\
-    SPI_InitStructure.SPI_CPHA              = SPI_CPHA_2Edge;		\
-    SPI_InitStructure.SPI_NSS               = SPI_NSS_Hard;		\
-    SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2;	\
-    SPI_InitStructure.SPI_FirstBit          = SPI_FirstBit_MSB;		\
-    SPI_InitStructure.SPI_CRCPolynomial     = 0x31;			\
-    SPI_Init(SPI1, &SPI_InitStructure);					\
-    SPI_CalculateCRC(SPI1, ENABLE);					\
-    SPI_Cmd(SPI1, ENABLE);						\
-  }
 
 
 #endif /* LISA_OVERO_LINK_ARCH_H */

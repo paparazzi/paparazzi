@@ -63,6 +63,8 @@ void overo_link_arch_prepare_next_transfert(void) {
   uint8_t foo __attribute__ ((unused)) = SPI1->DR;
   /* Read status register to clear OVR, UDR, MODF flags */
   foo = SPI1->SR;
+  /* clear possible CRC_ERR flag */
+  SPI1->SR = (uint16_t)~SPI_FLAG_CRCERR;
 
   /* SPI_SLAVE_Rx_DMA_Channel configuration ------------------------------------*/
   DMA_DeInit(DMA1_Channel2);
