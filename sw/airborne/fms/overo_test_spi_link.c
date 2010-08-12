@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2009-20010 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2009-20010 Paparazzi Team
  *
  * This file is part of paparazzi.
  *
