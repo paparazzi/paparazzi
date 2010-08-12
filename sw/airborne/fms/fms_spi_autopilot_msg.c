@@ -159,8 +159,8 @@ void spi_ap_link_periodic()
   spi_link_send(&msg_down, sizeof(struct AutopilotMessageCRCFrame), &msg_up, &crc_valid);
 
   if(crc_valid) {
-    crc_errors++;
-  } else {
     passthrough_up_parse(&msg_up.payload.msg_up);
+  } else {
+    crc_errors++;
   }
 }
