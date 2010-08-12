@@ -77,13 +77,19 @@ static inline void main_periodic_task( void ) {
     LED_PERIODIC();
   });
   RunOnceEvery(256, 
-	       {DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, &i2c2.got_unexpected_event, 
-					 &i2c2.errc_ack_fail, &i2c2.errc_miss_start_stop,
-					 &i2c2.errc_arb_lost, &i2c2.errc_over_under,
-					 &i2c2.errc_pec_recep, &i2c2.errc_timeout_tlow,
-					 &i2c2.errc_smbus_alert);
-  });
-
+    {
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, 
+			       &i2c2_errors.ack_fail_cnt,
+			       &i2c2_errors.miss_start_stop_cnt,
+			       &i2c2_errors.arb_lost_cnt,
+			       &i2c2_errors.over_under_cnt,
+			       &i2c2_errors.pec_recep_cnt,
+			       &i2c2_errors.timeout_tlow_cnt,
+			       &i2c2_errors.smbus_alert_cnt,
+			       &i2c2_errors.unexpected_event_cnt,
+			       &i2c2_errors.last_unexpected_event);
+    });
+  
   switch (mag_state) {
   case 2:
     i2c2.buf[0] = HMC5843_REG_CFGA;  // set to rate to 50Hz
@@ -176,6 +182,7 @@ static inline void main_init_hw( void ) {
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure); 
 
+  DEBUG_SERVO1_INIT();
   DEBUG_SERVO2_INIT();
 
 }
@@ -188,7 +195,5 @@ void exti9_5_irq_handler(void) {
   if(EXTI_GetITStatus(EXTI_Line5) != RESET)
     EXTI_ClearITPendingBit(EXTI_Line5);
 
-  DEBUG_S4_TOGGLE();
-  
   mag_ready_for_read = TRUE;
 }

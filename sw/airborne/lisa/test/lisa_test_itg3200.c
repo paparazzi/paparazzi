@@ -44,12 +44,12 @@ static inline void main_event_task( void );
 static inline void main_init_hw(void);
 
 static uint8_t i2c_done = FALSE;
-#define INITIALISZED 5
+#define INITIALISZED 6
 static uint8_t gyro_state = 0;
 static volatile uint8_t gyro_ready_for_read = FALSE;
 static uint8_t reading_gyro = FALSE;
-extern void exti2_irq_handler(void);
 
+void exti15_10_irq_handler(void);
 
 int main(void) {
   main_init();
@@ -76,29 +76,39 @@ static inline void main_periodic_task( void ) {
     DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
     LED_PERIODIC();
   });
-  RunOnceEvery(256, 
-  {DOWNLINK_SEND_I2C_ERRORS(DefaultChannel,
-			    &i2c2.got_unexpected_event,
-			    &i2c2.errc_ack_fail, &i2c2.errc_miss_start_stop,
-			    &i2c2.errc_arb_lost, &i2c2.errc_over_under,
-			    &i2c2.errc_pec_recep, &i2c2.errc_timeout_tlow,
-			    &i2c2.errc_smbus_alert);
-  });
+  RunOnceEvery(256, {
+   DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, 
+			    &i2c2_errors.ack_fail_cnt,
+			    &i2c2_errors.miss_start_stop_cnt,
+			    &i2c2_errors.arb_lost_cnt,
+			    &i2c2_errors.over_under_cnt,
+			    &i2c2_errors.pec_recep_cnt,
+			    &i2c2_errors.timeout_tlow_cnt,
+			    &i2c2_errors.smbus_alert_cnt,
+			    &i2c2_errors.unexpected_event_cnt,
+			    &i2c2_errors.last_unexpected_event);
+    });
 
   switch (gyro_state) {
   case 2:
     /* set gyro range to 2000deg/s and low pass at 256Hz */
     i2c2.buf[0] = ITG3200_REG_DLPF_FS;
-    i2c2.buf[1] = 0x03;
+    i2c2.buf[1] = (0x03<<3);
     i2c2_transmit(ITG3200_ADDR, 2, &i2c_done);
     break;
   case 3:
+    /* set sample rate to 533Hz */
+    i2c2.buf[0] = ITG3200_REG_SMPLRT_DIV;
+    i2c2.buf[1] = 0x0E;
+    i2c2_transmit(ITG3200_ADDR, 2, &i2c_done);
+    break;
+  case 4:
     /* switch to gyroX clock */
     i2c2.buf[0] = ITG3200_REG_PWR_MGM;
     i2c2.buf[1] = 0x01;
     i2c2_transmit(ITG3200_ADDR, 2, &i2c_done);
     break;
-  case 4:
+  case 5:
     /* enable interrupt on data ready, idle hight */
     i2c2.buf[0] = ITG3200_REG_INT_CFG;
     i2c2.buf[1] = (0x01 | 0x01<<7);
@@ -118,36 +128,57 @@ static inline void main_periodic_task( void ) {
 }
 
 
+#if 0
+
+#endif
+
 static inline void main_event_task( void ) {
 
   if (gyro_state == INITIALISZED && gyro_ready_for_read) {
     /* reads 8 bytes from address 0x1b */
     i2c2.buf[0] = ITG3200_REG_TEMP_OUT_H;
     i2c2_transceive(ITG3200_ADDR,1, 8, &i2c_done);
+    //   i2c2.buf[0] = ITG3200_REG_GYRO_XOUT_H;
+    //    i2c2_transceive(ITG3200_ADDR,1, 6, &i2c_done);
     gyro_ready_for_read = FALSE;
     reading_gyro = TRUE;
   }
 
   if (reading_gyro && i2c_done) {
+    //    DEBUG_S5_ON();
+    reading_gyro = FALSE;
+    int16_t tgp, tgq, tgr;
+
+    int16_t ttemp = i2c2.buf[0]<<8 | i2c2.buf[1];
+#if 1
+    tgp = i2c2.buf[2]<<8 | i2c2.buf[3];
+    tgq = i2c2.buf[4]<<8 | i2c2.buf[5];
+    tgr = i2c2.buf[6]<<8 | i2c2.buf[7];
+#endif
+#if 0
+    tgp = __REVSH(*(int16_t*)(i2c2.buf+2));
+    tgq = __REVSH(*(int16_t*)(i2c2.buf+4));
+    tgr = __REVSH(*(int16_t*)(i2c2.buf+6));
+#endif
+#if 0
+    MyByteSwap16(*(int16_t*)(i2c2.buf+2), tgp);
+    MyByteSwap16(*(int16_t*)(i2c2.buf+4), tgq);
+    MyByteSwap16(*(int16_t*)(i2c2.buf+6), tgr);
+#endif
+    struct Int32Rates g;
+    RATES_ASSIGN(g, tgp, tgq, tgr);
     RunOnceEvery(10, 
     {
-      int16_t ttemp = i2c2.buf[0]<<8 | i2c2.buf[1];
-      int16_t tgp = i2c2.buf[2]<<8 | i2c2.buf[3];
-      int16_t tgq = i2c2.buf[4]<<8 | i2c2.buf[5];
-      int16_t tgr = i2c2.buf[6]<<8 | i2c2.buf[7];
-      int32_t temp = ttemp;
-      struct Int32Rates g;
-      RATES_ASSIGN(g, tgp, tgq, tgr);
       DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, &g.p, &g.q, &g.r);
-      //      uint8_t tmp[8];
-      //      memcpy(tmp, i2c2.buf, 8);
-      //      DOWNLINK_SEND_DEBUG(DefaultChannel, 8, tmp);
-    }
-		 );
-    reading_gyro = FALSE;
+      
+      uint8_t tmp[8];
+      memcpy(tmp, i2c2.buf, 8);
+      DOWNLINK_SEND_DEBUG(DefaultChannel, 8, tmp);
+
+
+    });
+    //    DEBUG_S5_OFF();
   }
-
-
 }
 
 static inline void main_init_hw( void ) {
@@ -189,12 +220,15 @@ static inline void main_init_hw( void ) {
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure); 
 
+  DEBUG_SERVO1_INIT();
   DEBUG_SERVO2_INIT();
 
 }
 
 
 void exti15_10_irq_handler(void) {
+
+  //  DEBUG_S4_ON();
 
   /* clear EXTI */
   if(EXTI_GetITStatus(EXTI_Line14) != RESET)
@@ -203,5 +237,7 @@ void exti15_10_irq_handler(void) {
   //  DEBUG_S4_TOGGLE();
 
   gyro_ready_for_read = TRUE;
+
+  //  DEBUG_S4_OFF();
 
 }
