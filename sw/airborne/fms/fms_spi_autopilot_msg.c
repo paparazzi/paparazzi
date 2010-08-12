@@ -160,7 +160,5 @@ void spi_ap_link_periodic()
 
   if(crc_valid) {
     passthrough_up_parse(&msg_up.payload.msg_up);
-  } else {
-    crc_errors++;
   }
 }
