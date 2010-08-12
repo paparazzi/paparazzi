@@ -1645,14 +1645,15 @@
   </message>
 
   <message name="I2C_ERRORS" id="253">
-      <field name="Unexpected_event"   type="uint32"/>
-      <field name="Acknowledge_failure"   type="uint8"/>
-      <field name="Misplaced_Start_or_Stop"   type="uint8"/>
-      <field name="Arbitration_lost"   type="uint8"/>
-      <field name="Overrun_or_Underrun"   type="uint8"/>
-      <field name="PEC_Error_in_reception"   type="uint8"/>
-      <field name="Timeout_or_Tlow_error"   type="uint8"/>
-      <field name="SMBus_alert"   type="uint8"/>
+      <field name="acknowledge_failure_cnt"     type="uint16"/>
+      <field name="misplaced_start_or_stop_cnt" type="uint16"/>
+      <field name="arbitration_lost_cnt"        type="uint16"/>
+      <field name="overrun_or_underrun_cnt"     type="uint16"/>
+      <field name="pec_error_in_reception_cnt"  type="uint16"/>
+      <field name="timeout_or_tlow_error_cnt"   type="uint16"/>
+      <field name="smbus_alert_cnt"             type="uint16"/>
+      <field name="unexpected_event_cnt"        type="uint16"/>
+      <field name="last_unexpected_event"       type="uint32"/>
   </message>
 
 </class>
