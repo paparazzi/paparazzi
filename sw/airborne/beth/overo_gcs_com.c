@@ -42,7 +42,7 @@ static void on_datalink_event(int fd, short event __attribute__((unused)), void 
   bytes_read = checked_read(fd, buf, sizeof(buf) - 1);
   struct DownlinkTransport *tp = (struct DownlinkTransport *) arg;
   struct udp_transport *udp_impl = tp->impl;
-  printf("on datalink event: %d bytes\n",bytes_read);
+  //printf("on datalink event: %d bytes\n",bytes_read);
   int i = 0;
   while (i<bytes_read) {
     parse_udp_dl(udp_impl, buf[i]);
@@ -77,7 +77,7 @@ static void dl_handle_msg(struct DownlinkTransport *tp) {
     break;
 
   default :
-    printf("did nothing\n");
+    printf("datalink did nothing\n");
     break;
   }
 

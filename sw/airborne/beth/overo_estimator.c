@@ -8,14 +8,14 @@ void estimator_init(void) {
 
 }
 
-
+//zyx
 void estimator_run(uint16_t tilt_measure, uint16_t elevation_measure, uint16_t azimuth_measure) {
   
-  const int32_t tilt_neutral = 2815;
+  const int32_t tilt_neutral = 1970;
   const float   tilt_scale = 1./580.;
   const int32_t azimuth_neutral = 1500;
   const float   azimuth_scale = 1./580.;
-  const int32_t elevation_neutral = 1050;
+  const int32_t elevation_neutral = 670;
   const float   elevation_scale = 1./580.;
 
 

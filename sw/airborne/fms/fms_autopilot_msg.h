@@ -31,13 +31,19 @@ struct __attribute__ ((packed)) AutopilotMessageBethUp
   struct Int16Rates gyro;
   struct Int16Vect3 accel;
   struct Int16Vect3 bench_sensor;
+  uint16_t can_errs;
+  uint16_t spi_errs;
   uint32_t cnt;
+  int8_t thrust_out;
+  int8_t pitch_out;
 };
 
 struct __attribute__ ((packed)) AutopilotMessageBethDown
 {
   uint8_t thrust;
   uint8_t pitch;
+  uint32_t errors;
+  uint32_t cnt;
 };
 
 /*

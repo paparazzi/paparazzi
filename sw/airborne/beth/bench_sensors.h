@@ -11,8 +11,7 @@
 #include "can.h"
 #include "can_hw.h"
 #include <stm32/can.h>
-
-extern uint16_t halfw1,halfw2,halfw3,halfw4;
+extern uint16_t can_err_flags;
 #endif
 
 extern void bench_sensors_init(void);

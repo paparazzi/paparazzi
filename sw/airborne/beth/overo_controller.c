@@ -11,7 +11,7 @@ void control_init(void) {
 //  controller.kd = 0.01;
 
   controller.tilt_sp = 0.;
-  controller.elevation_sp = 0.;
+  controller.elevation_sp = RadOfDeg(10);
 
   controller.omega_tilt_ref = RadOfDeg(200);
   controller.omega_elevation_ref = RadOfDeg(120);
@@ -21,7 +21,8 @@ void control_init(void) {
   controller.tilt_dot_ref = estimator.tilt_dot;
   controller.tilt_ddot_ref = 0.;
 
-  controller.elevation_ref = estimator.elevation;
+  //controller.elevation_ref = estimator.elevation;
+  controller.elevation_ref = RadOfDeg(-28);
   controller.elevation_dot_ref = estimator.elevation_dot;
   controller.elevation_ddot_ref = 0.;
 
@@ -82,7 +83,9 @@ void control_run(void) {
   controller.cmd_pitch =  controller.cmd_pitch_ff + controller.cmd_pitch_fb; 
   controller.cmd_thrust = controller.cmd_thrust_ff + controller.cmd_thrust_fb + thrust_constant;
 
-  if (controller.cmd_thrust<0.) controller.cmd_thrust = 0;
+  //if (controller.cmd_thrust<0.) controller.cmd_thrust = 0;
+  Bound(controller.cmd_thrust,0,100);
+  Bound(controller.cmd_pitch,-100,100);
 
   if (!(foo%100)) {
     //printf("pitch : ff:%f fb:%f (%f)\n",controller.cmd_pitch_ff, controller.cmd_pitch_fb,estimator.tilt_dot);
