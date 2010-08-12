@@ -38,6 +38,18 @@
 
 #include BOARD_CONFIG
 
+/* should probably not be here
+ *   a couple of macros to use the rev instruction
+ */
+#define MyByteSwap16(in, out) {			\
+    asm volatile (				\
+		  "rev16        %0, %1\n\t"	\
+		  : "=r" (out)			\
+		  : "r"(in)			\
+		  );				\
+  }
+
+
 #ifdef PERIPHERALS_AUTO_INIT
 #ifdef USE_LED
 #include "led.h"
@@ -101,13 +113,18 @@ static inline void hw_init(void) {
 #endif /* HSE_TYPE_EXT_CLK */
    /* Set the Vector Table base location at 0x08000000 */
   NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
+
+
+#if 0
   /* Configure all unused GPIO port pins in Analog Input mode (floating input
      trigger OFF), this will reduce the power consumption and increase the device
      immunity against EMI/EMC *************************************************/
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB |
                          RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
                          RCC_APB2Periph_GPIOE, ENABLE);
+#endif
   
+#if 0
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
@@ -116,19 +133,15 @@ static inline void hw_init(void) {
   GPIO_Init(GPIOC, &GPIO_InitStructure);
   GPIO_Init(GPIOD, &GPIO_InitStructure);
   GPIO_Init(GPIOE, &GPIO_InitStructure);
-
-#if 0
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB |
-                         RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
-                         RCC_APB2Periph_GPIOE, DISABLE);  
 #endif
 
+#if 0
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA |
 			 RCC_APB2Periph_GPIOB |
-			 RCC_APB2Periph_GPIOC |
+                         RCC_APB2Periph_GPIOC |
 			 RCC_APB2Periph_GPIOD |
-			 RCC_APB2Periph_AFIO, ENABLE);
-  
+                         RCC_APB2Periph_GPIOE, DISABLE);  
+#endif
 
 
 
