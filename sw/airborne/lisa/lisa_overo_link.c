@@ -4,10 +4,11 @@ struct LisaOveroLink overo_link;
 
 void overo_link_init(void) {
   overo_link.status = IDLE;
-  overo_link.timeout = OVERO_LINK_TIMEOUT-1;
+  overo_link.timeout_cnt = OVERO_LINK_TIMEOUT-1;
   overo_link.msg_cnt = 0;
   overo_link.crc_err_cnt = 0;
   overo_link.crc_error = FALSE;
+  overo_link.timeout = FALSE;
   overo_link_arch_init();
 }
 

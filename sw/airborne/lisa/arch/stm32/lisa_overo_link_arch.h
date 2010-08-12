@@ -5,11 +5,11 @@
 
 
 #define OveroLinkEvent(_data_received_handler, _crc_failed_handler) {	\
-    if (overo_link.status == DATA_AVAILABLE) {	                  /* set by DMA interrupt */ \
+    if (overo_link.status == DATA_AVAILABLE) {        /* set by DMA interrupt */ \
       while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE)==RESET);	\
       while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) ==RESET);	\
       while(SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) ==SET);	\
-      overo_link.timeout = 0;						\
+      overo_link.timeout_cnt = 0;					\
       if((SPI_I2S_GetFlagStatus(SPI1, SPI_FLAG_CRCERR)) == RESET) {	\
 	LED_ON(OVERO_LINK_LED_OK);					\
 	LED_OFF(OVERO_LINK_LED_KO);					\
@@ -31,6 +31,11 @@
 	!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4)) { /* and we're not selected anymore */ \
       overo_link_arch_prepare_next_transfert();				\
       overo_link.crc_error = FALSE;					\
+    }									\
+    if (overo_link.timeout &&	                     /* if we've had a timeout         */ \
+	!GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4)) { /* and we're not selected anymore */ \
+      overo_link_arch_prepare_next_transfert();				\
+      overo_link.timeout = FALSE;					\
     }									\
   }
 

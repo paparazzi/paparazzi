@@ -21,8 +21,10 @@ struct LisaOveroLink {
     struct OVERO_LINK_MSG_DOWN msg;
     uint8_t array[sizeof(union AutopilotMessage)];
   } down;
-  uint8_t timeout;
+  uint8_t timeout_cnt;
+  /* flags used to reset hardware */
   uint8_t crc_error;
+  uint8_t timeout;
 };
 
 extern struct LisaOveroLink overo_link;
@@ -36,18 +38,41 @@ extern void overo_link_arch_prepare_next_transfert(void);
 
 #include "lisa_overo_link_arch.h"
 
+#if 0  /* that doesn't work yet */
 #define OveroLinkPeriodic(_timeout_handler) {				\
-    if (overo_link.timeout < OVERO_LINK_TIMEOUT)			\
-      overo_link.timeout++;						\
+    if (overo_link.timeout_cnt < OVERO_LINK_TIMEOUT)			\
+      overo_link.timeout_cnt++;						\
     else {								\
       if (overo_link.status != LOST && overo_link.status != DATA_AVAILABLE ) { \
+	SPI_Cmd(SPI1, DISABLE);						\
 	overo_link.status = LOST;					\
 	LED_OFF(OVERO_LINK_LED_OK);					\
 	LED_ON(OVERO_LINK_LED_KO);					\
+	overo_link.timeout = TRUE;					\
 	_timeout_handler();						\
       }									\
     }									\
   }
+#else   /* this one does */
+#define OveroLinkPeriodic(_timeout_handler) {				\
+    if (overo_link.timeout_cnt < OVERO_LINK_TIMEOUT)			\
+      overo_link.timeout_cnt++;						\
+    else {								\
+      __disable_irq();							\
+      if (overo_link.status != LOST && overo_link.status != DATA_AVAILABLE ) { \
+	overo_link.status = LOST;					\
+	__enable_irq();							\
+	LED_OFF(OVERO_LINK_LED_OK);					\
+	LED_ON(OVERO_LINK_LED_KO);					\
+	_timeout_handler();						\
+      }									\
+      __enable_irq();							\
+    }									\
+  }
+#endif
+
+
+
 
 
 
