@@ -48,7 +48,9 @@ extern struct Booz_gps_state booz_gps_state;
 
 /* GPS model specific implementation */
 
+#ifdef BOOZ_GPS_TYPE_H
 #include BOOZ_GPS_TYPE_H
+#endif
 extern void booz_gps_impl_init(void);
 
 
