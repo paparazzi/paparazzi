@@ -46,7 +46,7 @@
 
 
 static void main_periodic(int);
-static void main_parse_cmd_line(int argc, char *argv[]);
+//static void main_parse_cmd_line(int argc, char *argv[]);
 static void main_exit(int sig);
 static void main_talk_with_stm32(void);
 
@@ -135,8 +135,7 @@ static void main_periodic(int my_sig_num) {
 
   //If the stm32 cut the motors due to an error, we force the state machine into spinup mode.
   //when the stm32 resumes after the error, the system will need to be rearmed by the user.
-  //if ( (controller.armed != 0) && (msg_in.payload.msg_up.pitch_out == PITCH_MAGIC_NUMBER) ) {
-  if ( msg_in.payload.msg_up.pitch_out == PITCH_MAGIC_NUMBER ) {
+  if ( (controller.armed != 0) && (msg_in.payload.msg_up.pitch_out == PITCH_MAGIC_NUMBER) ) {
     controller.armed = 0; last_state=1;
     printf("STM cut motor power. %d %d\n",
 			msg_in.payload.msg_up.cnt,msg_in.payload.msg_up.can_errs);
@@ -229,9 +228,9 @@ static void main_periodic(int my_sig_num) {
 
 }
 
-
-static void main_parse_cmd_line(int argc, char *argv[]) {
 #if 0
+static void main_parse_cmd_line(int argc, char *argv[]) {
+
   if (argc>1){
     controller.kp = atof(argv[1]);
     //    printf("kp set to %f\n",kp);
@@ -246,12 +245,12 @@ static void main_parse_cmd_line(int argc, char *argv[]) {
     controller.kp = 0.05;
     //    printf("using default value of kp %f\n",kp);
   }
-#endif
+/*
   if (argc>1){
     printf("args not currently supported\n");
-  }
+  }*/
 }
-
+#endif
 
 static void main_exit(int sig) {
   printf("Initiating BETH shutdown...\n");
