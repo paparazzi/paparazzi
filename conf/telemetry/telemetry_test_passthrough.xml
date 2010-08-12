@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
+<telemetry>
+
+  <process name="Main">
+    <mode name="DefaultMode">
+      <message name="ALIVE"               period="0.5"/>
+      <message name="IMU_GYRO"            period="0.1"/>
+    </mode>
+
+    <mode name="OtherMode">
+      <message name="ALIVE"               period="0.5"/>
+    </mode>
+  </process>
+
+</telemetry>
