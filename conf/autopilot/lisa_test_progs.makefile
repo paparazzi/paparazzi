@@ -42,13 +42,6 @@ overo_test_spi_link.srcs += $(SRC_FMS)/fms_spi_link.c
 
 
 
-# test passthrough spi link between overo and stm32
-overo_test_passthrough.ARCHDIR = omap
-overo_test_passthrough.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
-overo_test_passthrough.CFLAGS  += -DOVERO_LINK_MSG_UP=AutopilotMessagePTUp -DOVERO_LINK_MSG_DOWN=AutopilotMessagePTDown
-overo_test_passthrough.srcs  = $(SRC_FMS)/overo_test_passthrough.c
-overo_test_passthrough.srcs += $(SRC_FMS)/fms_spi_link.c
-
 # test network based telemetry on overo
 overo_test_telemetry.ARCHDIR  = omap
 overo_test_telemetry.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
@@ -93,6 +86,26 @@ overo_test_periodic.srcs    += $(SRC_FMS)/fms_network.c
 overo_test_periodic.LDFLAGS += -levent
 overo_test_periodic.CFLAGS  += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageBethDown
 overo_test_periodic.srcs    += $(SRC_FMS)/fms_spi_link.c
+
+# test passthrough , aka using stm32 as io processor
+# this demonstrates
+#   -link with io processor
+#   -periodic event
+#   -telemetry and datalink
+#
+overo_test_passthrough.ARCHDIR  = omap
+overo_test_passthrough.LDFLAGS += -levent -lm
+overo_test_passthrough.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
+overo_test_passthrough.CFLAGS  += -DOVERO_LINK_MSG_UP=AutopilotMessagePTUp -DOVERO_LINK_MSG_DOWN=AutopilotMessagePTDown
+overo_test_passthrough.srcs     = $(SRC_FMS)/overo_test_passthrough.c
+overo_test_passthrough.CFLAGS  += -DFMS_PERIODIC_FREQ=512
+overo_test_passthrough.srcs    += $(SRC_FMS)/fms_periodic.c
+overo_test_passthrough.srcs    += $(SRC_FMS)/fms_spi_link.c
+overo_test_passthrough.srcs    += $(SRC_FMS)/fms_gs_com.c
+overo_test_passthrough.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
+overo_test_passthrough.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
+overo_test_passthrough.srcs    += $(SRC_FMS)/fms_network.c
+
 
 
 ################################################################################

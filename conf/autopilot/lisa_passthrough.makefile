@@ -66,5 +66,6 @@ pt.CFLAGS += -DRADIO_CONTROL_LINK=Uart3
 
 # PWM actuator
 pt.CFLAGS += -DSERVO_HZ=200
+#pt.CFLAGS += -DSERVO_HZ=50
 pt.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c
 pt.srcs += $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_hw.c

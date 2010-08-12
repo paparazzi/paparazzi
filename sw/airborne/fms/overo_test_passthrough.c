@@ -28,44 +28,69 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <event.h>
+
+#include "std.h"
 #include "fms_debug.h"
+#include "fms_periodic.h"
+
+/* stuff for io processor link */
 #include "fms_spi_link.h"
 #include "fms_autopilot_msg.h"
 
-static struct AutopilotMessageCRCFrame msg_in;
-static struct AutopilotMessageCRCFrame msg_out;
+/* stuff for telemetry/datalink */
+#include "fms_gs_com.h"
+
+/* let's store those data somewhere */
+#include "booz/booz_imu.h"
+
+struct BoozImuFloat imu;
+
+static void main_periodic(int my_sig_num);
+
+
+
+
+
 static void send_message(void);
 static void print_up_msg(struct AutopilotMessageCRCFrame * msg);
 static void print_down_msg(struct AutopilotMessageCRCFrame * msg);
 
 int main(int argc, char *argv[]) {
 
-  uint32_t us_delay; 
-
+  /* Initalize our SPI link to IO processor */
   if (spi_link_init()) {
     TRACE(TRACE_ERROR, "%s", "failed to open SPI link \n");
     return -1;
   }
   
-  if(argc > 1) { 
-    us_delay = atoi(argv[1]);
-  }
-  else { 
-    us_delay = 1953; 
-  }
-
-  printf("Delay: %dus\n", us_delay); 
-
-
-  printf("AutopilotMessage size: %d\n",          sizeof(union AutopilotMessage));
-  printf("AutopilotMessageCRCFrame size: %d\n",  sizeof(struct AutopilotMessageCRCFrame));
+  /* Initalize the event library */
+  event_init();
   
-  while (1) {
-    send_message();
-    usleep(us_delay);
+  /* Initalize our ô so accurate periodic timer */
+  if (fms_periodic_init(main_periodic)) {
+    TRACE(TRACE_ERROR, "%s", "failed to start periodic generator\n");
+    return -1; 
   }
   
+  /* Initialize our communications with ground segment */
+  fms_gs_com_init("10.31.4.7", 4242, 4243, FALSE);
+
+  /* Enter our mainloop */
+  event_dispatch();
+  
+  printf("leaving... goodbye!\n");
+
   return 0;
+
+}
+
+static void main_periodic(int my_sig_num) {
+
+  send_message();
+  
+  fms_gs_com_periodic();
+
 }
 
 
@@ -73,23 +98,37 @@ int main(int argc, char *argv[]) {
 static void send_message() {
   static uint32_t foo = 0;
 
+  struct AutopilotMessageCRCFrame msg_in;
+  struct AutopilotMessageCRCFrame msg_out;
   uint8_t crc_valid; 
-  
+
+  uint16_t val = 1500 + 500*sin(foo*0.001);
+  msg_out.payload.msg_down.pwm_outputs_usecs[0] = val;
+  msg_out.payload.msg_down.pwm_outputs_usecs[1] = val;
+  msg_out.payload.msg_down.pwm_outputs_usecs[2] = val;
+
   spi_link_send(&msg_out, sizeof(struct AutopilotMessageCRCFrame), &msg_in, &crc_valid);
   
-  if (!(foo % 100)) {
-    printf("msg %d, CRC errors: %d\n", spi_link.msg_cnt, spi_link.crc_err_cnt);
+
+  struct AutopilotMessagePTUp *in = &msg_in.payload.msg_up; 
+  RATES_FLOAT_OF_BFP(imu.gyro, in->gyro);
+  ACCELS_FLOAT_OF_BFP(imu.accel, in->accel); 
+
+  if (!(foo % 200)) {
+    //    printf("msg %d, CRC errors: %d\n", spi_link.msg_cnt, spi_link.crc_err_cnt);
     //    print_up_msg(&msg_in);
     //    print_down_msg(&msg_out);
-    printf("0x%08x -> gx%+02f gy%+02f gz%+02f ax%+02f ay%+02f az%+02f rs%02x | CRC errors: %d \n",
+    printf("%08d -> gx%+02.1f gy%+02.1f gz%+02.1f ax%+02.1f ay%+02.1f az%+02.1f rs%02x stm_msg %08d stm_err %d | CRC errors: %d\n",
 	   foo,
-	   DegOfRad(RATE_FLOAT_OF_BFP(msg_in.payload.msg_up.gyro.p)), 
-	   DegOfRad(RATE_FLOAT_OF_BFP(msg_in.payload.msg_up.gyro.q)), 
-	   DegOfRad(RATE_FLOAT_OF_BFP(msg_in.payload.msg_up.gyro.r)),
-	   ACCEL_FLOAT_OF_BFP(msg_in.payload.msg_up.accel.x), 
-	   ACCEL_FLOAT_OF_BFP(msg_in.payload.msg_up.accel.y), 
-	   ACCEL_FLOAT_OF_BFP(msg_in.payload.msg_up.accel.z),
-	   msg_in.payload.msg_up.rc_status, 
+	   DegOfRad(RATE_FLOAT_OF_BFP(in->gyro.p)), 
+	   DegOfRad(RATE_FLOAT_OF_BFP(in->gyro.q)), 
+	   DegOfRad(RATE_FLOAT_OF_BFP(in->gyro.r)),
+	   ACCEL_FLOAT_OF_BFP(in->accel.x), 
+	   ACCEL_FLOAT_OF_BFP(in->accel.y), 
+	   ACCEL_FLOAT_OF_BFP(in->accel.z),
+	   in->rc_status, 
+	   in->stm_msg_cnt, 
+	   in->stm_crc_err_cnt, 
 	   spi_link.crc_err_cnt);
   }
   foo++;
