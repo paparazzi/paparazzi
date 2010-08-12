@@ -5,23 +5,24 @@
 
 #include "fms/fms_autopilot_msg.h"
 
-enum LisaOveroLinkStatus {IDLE, BUSY, DATA_AVAILABLE, LOST};
+enum LisaOveroLinkStatus {IDLE, BUSY, DATA_AVAILABLE, LOST, CRC_ERROR};
 
 #define OVERO_LINK_TIMEOUT 10
 
 struct LisaOveroLink {
-	volatile uint8_t status;
-	union {
-		struct OVERO_LINK_MSG_UP msg;
-		uint8_t array[sizeof(union AutopilotMessage)];
-	} up;
-	union {
-		struct OVERO_LINK_MSG_DOWN msg;
-		uint8_t array[sizeof(union AutopilotMessage)];
-	} down;
-  uint8_t timeout;
+  volatile uint8_t status;
   uint32_t msg_cnt;
   uint32_t crc_err_cnt;
+  union {
+    struct OVERO_LINK_MSG_UP msg;
+    uint8_t array[sizeof(union AutopilotMessage)];
+  } up;
+  union {
+    struct OVERO_LINK_MSG_DOWN msg;
+    uint8_t array[sizeof(union AutopilotMessage)];
+  } down;
+  uint8_t timeout;
+  uint8_t crc_error;
 };
 
 extern struct LisaOveroLink overo_link;
@@ -35,31 +36,19 @@ extern void overo_link_arch_prepare_next_transfert(void);
 
 #include "lisa_overo_link_arch.h"
 
-#define OveroLinkPeriodic(_timeout_handler) {		\
-    if (overo_link.timeout < OVERO_LINK_TIMEOUT)	\
-      overo_link.timeout++;				\
-    else {						\
-      if (overo_link.status != LOST) {			\
-	overo_link.status = LOST;			\
-	LED_OFF(OVERO_LINK_LED_OK);			\
-	LED_ON(OVERO_LINK_LED_KO);			\
-	_timeout_handler();				\
-      }							\
-    }							\
+#define OveroLinkPeriodic(_timeout_handler) {				\
+    if (overo_link.timeout < OVERO_LINK_TIMEOUT)			\
+      overo_link.timeout++;						\
+    else {								\
+      if (overo_link.status != LOST && overo_link.status != CRC_ERROR) { \
+	overo_link.status = LOST;					\
+	LED_OFF(OVERO_LINK_LED_OK);					\
+	LED_ON(OVERO_LINK_LED_KO);					\
+	_timeout_handler();						\
+      }									\
+    }									\
   }
 
-#if 0
-#define OveroLinkEvent(_data_received_handler) {	\
-    if (overo_link.status == DATA_AVAILABLE) {		\
-      overo_link.timeout = 0;				\
-      LED_TOGGLE(OVERO_LINK_LED_OK);			\
-      LED_OFF(OVERO_LINK_LED_KO);			\
-      _data_received_handler();				\
-      overo_link_arch_prepare_next_transfert();		\
-      overo_link.status = IDLE;				\
-    }						        \
-  }
-#endif
 
 
 /*
