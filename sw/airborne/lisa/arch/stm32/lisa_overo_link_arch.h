@@ -20,7 +20,7 @@
       uint8_t foo1 __attribute__ ((unused)) = SPI_I2S_ReceiveData(SPI1); \
       overo_link.timeout = 0;						\
       if((SPI_I2S_GetFlagStatus(SPI1, SPI_FLAG_CRCERR)) == RESET) {	\
-	LED_TOGGLE(OVERO_LINK_LED_OK);					\
+	LED_ON(OVERO_LINK_LED_OK);					\
 	LED_OFF(OVERO_LINK_LED_KO);					\
 	overo_link.msg_cnt++;						\
 	_data_received_handler();					\
@@ -71,6 +71,7 @@
       else {								\
 	LED_OFF(OVERO_LINK_LED_OK);					\
 	LED_ON(OVERO_LINK_LED_KO);					\
+	overo_link.crc_err_cnt++;					\
 	_crc_failed_handler();						\
 	/* wait until we're not selected - same thing, we would */	\
 	/* probably want a limit here                           */	\
@@ -78,6 +79,7 @@
 	uint8_t foo2 __attribute__ ((unused)) = SPI_I2S_ReceiveData(SPI1); \
 	violently_reset_spi();						\
       }									\
+      overo_link.msg_cnt++;						\
       overo_link_arch_prepare_next_transfert();				\
       overo_link.status = IDLE;						\
     }									\
