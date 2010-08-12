@@ -119,6 +119,9 @@ static inline void on_overo_link_msg_received(void) {
 	overo_link.up.msg.rc_aux4 = radio_control.values[RADIO_CONTROL_AUX4];
 	overo_link.up.msg.rc_status = radio_control.status;
 
+	overo_link.up.msg.stm_msg_cnt = overo_link.msg_cnt;
+	overo_link.up.msg.stm_crc_err_cnt = overo_link.crc_err_cnt;
+
 	for (int i = 0; i < LISA_PWM_OUTPUT_NB; i++)
 	  booz_actuators_pwm_values[i] = overo_link.down.msg.pwm_outputs_usecs[i];
 	booz_actuators_pwm_commit();
