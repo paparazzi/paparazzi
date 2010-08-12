@@ -55,6 +55,14 @@ void overo_link_arch_init(void) {
 
 
 void overo_link_arch_prepare_next_transfert(void) {
+  
+  /* Disable SPI module */
+  SPI_Cmd(SPI1, DISABLE); 
+
+  /* Make sure RX register is empty */
+  uint8_t foo __attribute__ ((unused)) = SPI1->DR;
+  /* Read status register to clear OVR, UDR, MODF flags */
+  foo = SPI1->SR;
 
   /* SPI_SLAVE_Rx_DMA_Channel configuration ------------------------------------*/
   DMA_DeInit(DMA1_Channel2);
@@ -103,9 +111,10 @@ void overo_link_arch_prepare_next_transfert(void) {
   DMA_ITConfig(DMA1_Channel2, DMA_IT_TC, ENABLE);
   
   /* resets CRC module */
-  SPI_Cmd(SPI1, DISABLE); 
   SPI_CalculateCRC(SPI1, DISABLE); 
   SPI_CalculateCRC(SPI1, ENABLE); 
+
+  /* enable SPI */
   SPI_Cmd(SPI1, ENABLE);
 }
 
