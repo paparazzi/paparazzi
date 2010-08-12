@@ -44,6 +44,7 @@ struct NpsFdm {
   struct NedCoor_d ltpprz_ecef_accel;
 
   /* attitude */
+  struct DoubleQuat   ecef_to_body_quat;
   struct DoubleQuat   ltp_to_body_quat;
   struct DoubleEulers ltp_to_body_eulers;
   struct DoubleQuat   ltpprz_to_body_quat;
