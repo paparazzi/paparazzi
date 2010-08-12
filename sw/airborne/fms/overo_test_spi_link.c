@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2009-20010 Paparazzi Team
+ * Copyright (C) 2009-2010 Paparazzi Team
  *
  * This file is part of paparazzi.
  *
