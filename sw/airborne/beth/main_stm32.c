@@ -92,8 +92,8 @@ static inline void main_periodic( void ) {
   pitch_out = (int8_t)((0xFF) & overo_link.down.msg.pitch);
   thrust_out = (int8_t)((0xFF) & overo_link.down.msg.thrust);
 
-  Bound(pitch_out,-30,30);
-  Bound(thrust_out,0,80);
+  Bound(pitch_out,-80,80);
+  Bound(thrust_out,0,100);
 
   overo_link.up.msg.thrust_out = thrust_out;
   overo_link.up.msg.pitch_out = pitch_out;
