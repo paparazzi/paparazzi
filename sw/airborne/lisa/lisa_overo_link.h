@@ -5,7 +5,7 @@
 
 #include "fms/fms_autopilot_msg.h"
 
-enum LisaOveroLinkStatus {IDLE, BUSY, DATA_AVAILABLE, LOST, CRC_ERROR};
+enum LisaOveroLinkStatus {IDLE, BUSY, DATA_AVAILABLE, LOST};
 
 #define OVERO_LINK_TIMEOUT 10
 
@@ -40,7 +40,7 @@ extern void overo_link_arch_prepare_next_transfert(void);
     if (overo_link.timeout < OVERO_LINK_TIMEOUT)			\
       overo_link.timeout++;						\
     else {								\
-      if (overo_link.status != LOST && overo_link.status != CRC_ERROR) { \
+      if (overo_link.status != LOST && overo_link.status != DATA_AVAILABLE ) { \
 	overo_link.status = LOST;					\
 	LED_OFF(OVERO_LINK_LED_OK);					\
 	LED_ON(OVERO_LINK_LED_KO);					\
