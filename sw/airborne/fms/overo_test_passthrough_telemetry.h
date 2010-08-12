@@ -3,10 +3,25 @@
 
 #define PERIODIC_SEND_ALIVE(_transport) DOWNLINK_SEND_ALIVE(_transport, 16, MD5SUM)
 
-#include "booz/booz_imu.h"
-extern struct BoozImuFloat imu;
+#include "fms/overo_test_passthrough.h"
+#include "fms/fms_spi_link.h"
+#include "fms/fms_gs_com.h"
+#define PERIODIC_SEND_TEST_PASSTHROUGH_STATUS(_transport)		\
+  DOWNLINK_SEND_TEST_PASSTHROUGH_STATUS(_transport,			\
+					&otp.io_proc_msg_cnt,		\
+					&otp.io_proc_err_cnt,		\
+					&spi_link.msg_cnt,		\
+					&spi_link.crc_err_cnt)
+
+
 #define PERIODIC_SEND_IMU_GYRO(_transport)				\
-  DOWNLINK_SEND_IMU_GYRO(_transport, &imu.gyro.p, &imu.gyro.q, &imu.gyro.r)
+  DOWNLINK_SEND_IMU_GYRO(_transport, &otp.imu.gyro.p, &otp.imu.gyro.q, &otp.imu.gyro.r)
+
+#define PERIODIC_SEND_IMU_ACCEL(_transport)				\
+  DOWNLINK_SEND_IMU_ACCEL(_transport, &otp.imu.accel.x, &otp.imu.accel.y, &otp.imu.accel.z)
+
+#define PERIODIC_SEND_IMU_MAG(_transport)				\
+  DOWNLINK_SEND_IMU_MAG(_transport, &otp.imu.mag.x, &otp.imu.mag.y, &otp.imu.mag.z)
 
 
 

@@ -4,18 +4,21 @@
 
 #include "udp_transport2.h"
 
-/* generated */
+/* generated : holds PeriodicSendMain */
 #include "periodic.h"
 /* holds the definitions of PERIODIC_SEND_XXX */
 #include "overo_test_passthrough_telemetry.h"
 /* holds the definitions of DOWNLINK_SEND_XXX */
 #include "messages2.h"
+
 #include "dl_protocol.h"
+/* generated : holds DlSetting() and PeriodicSendDlValue() */
 #include "settings.h"
 
 struct FmsGsCom fms_gs_com;
 uint8_t telemetry_mode_Main_DefaultChannel;
 
+#define PERIODIC_SEND_DL_VALUE(_chan) PeriodicSendDlValue(_chan)
 
 static void on_datalink_event(int fd, short event __attribute__((unused)), void *arg);
 static void on_datalink_message(void);
@@ -58,6 +61,7 @@ static void on_datalink_event(int fd, short event __attribute__((unused)), void 
 }
 
 static void on_datalink_message(void) {
+
   struct udp_transport *tp = fms_gs_com.udp_transport->impl;
   uint8_t msg_id = tp->udp_dl_payload[1]; 
 
@@ -69,13 +73,11 @@ static void on_datalink_message(void) {
     uint8_t i = DL_SETTING_index(tp->udp_dl_payload);
     float var = DL_SETTING_value(tp->udp_dl_payload);
     DlSetting(i, var);
-    printf("datalink : %d %f\n",i,var);
     DOWNLINK_SEND_DL_VALUE(fms_gs_com.udp_transport, &i, &var);
   }
     break;
 
   default :
-    printf("did nothing\n");
     break;
   }
 

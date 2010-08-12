@@ -1,8 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2008-2010 Antoine Drouin <poinix@gmail.com>
- * Copyright (C) 2010 Piotr Esden-Tempski <piotr@esden.net>
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -20,6 +19,7 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
 #include <stdint.h>
@@ -29,6 +29,8 @@
 #include <string.h>
 
 #include <event.h>
+
+#include "fms/overo_test_passthrough.h"
 
 #include "std.h"
 #include "fms_debug.h"
@@ -41,22 +43,14 @@
 /* stuff for telemetry/datalink */
 #include "fms_gs_com.h"
 
-/* let's store those data somewhere */
-#include "booz/booz_imu.h"
-
-struct BoozImuFloat imu;
+struct OveroTestPassthrough otp;
 
 static void main_periodic(int my_sig_num);
-
-
-
-
-
-static void send_message(void);
-static void print_up_msg(struct AutopilotMessageCRCFrame * msg);
-static void print_down_msg(struct AutopilotMessageCRCFrame * msg);
+static void dialog_with_io_proc(void);
 
 int main(int argc, char *argv[]) {
+
+  TRACE(TRACE_DEBUG, "%s", "Starting initialization\n");
 
   /* Initalize our SPI link to IO processor */
   if (spi_link_init()) {
@@ -76,10 +70,15 @@ int main(int argc, char *argv[]) {
   /* Initialize our communications with ground segment */
   fms_gs_com_init("10.31.4.7", 4242, 4243, FALSE);
 
+  TRACE(TRACE_DEBUG, "%s", "Initialization completed, entering mainloop\n");
+
+  /* Initialize blaaa */
+  for (uint8_t i=0; i<6; i++) otp.servos_outputs_usecs[i] = 1500;
+
   /* Enter our mainloop */
   event_dispatch();
   
-  printf("leaving... goodbye!\n");
+  TRACE(TRACE_DEBUG, "%s", "leaving mainloop... goodbye!\n");
 
   return 0;
 
@@ -87,7 +86,7 @@ int main(int argc, char *argv[]) {
 
 static void main_periodic(int my_sig_num) {
 
-  send_message();
+  dialog_with_io_proc();
   
   fms_gs_com_periodic();
 
@@ -95,46 +94,38 @@ static void main_periodic(int my_sig_num) {
 
 
 
-static void send_message() {
-  static uint32_t foo = 0;
+static void dialog_with_io_proc() {
 
   struct AutopilotMessageCRCFrame msg_in;
   struct AutopilotMessageCRCFrame msg_out;
   uint8_t crc_valid; 
 
+#if 0
   uint16_t val = 1500 + 500*sin(foo*0.001);
   msg_out.payload.msg_down.pwm_outputs_usecs[0] = val;
   msg_out.payload.msg_down.pwm_outputs_usecs[1] = val;
   msg_out.payload.msg_down.pwm_outputs_usecs[2] = val;
+#endif
+  for (uint8_t i=0; i<6; i++) msg_out.payload.msg_down.pwm_outputs_usecs[i] = otp.servos_outputs_usecs[i];
 
   spi_link_send(&msg_out, sizeof(struct AutopilotMessageCRCFrame), &msg_in, &crc_valid);
   
 
   struct AutopilotMessagePTUp *in = &msg_in.payload.msg_up; 
-  RATES_FLOAT_OF_BFP(imu.gyro, in->gyro);
-  ACCELS_FLOAT_OF_BFP(imu.accel, in->accel); 
+  RATES_FLOAT_OF_BFP(otp.imu.gyro, in->gyro);
+  ACCELS_FLOAT_OF_BFP(otp.imu.accel, in->accel); 
+  MAGS_FLOAT_OF_BFP(otp.imu.mag, in->mag); 
 
-  if (!(foo % 200)) {
-    //    printf("msg %d, CRC errors: %d\n", spi_link.msg_cnt, spi_link.crc_err_cnt);
-    //    print_up_msg(&msg_in);
-    //    print_down_msg(&msg_out);
-    printf("%08d -> gx%+02.1f gy%+02.1f gz%+02.1f ax%+02.1f ay%+02.1f az%+02.1f rs%02x stm_msg %08d stm_err %d | CRC errors: %d\n",
-	   foo,
-	   DegOfRad(RATE_FLOAT_OF_BFP(in->gyro.p)), 
-	   DegOfRad(RATE_FLOAT_OF_BFP(in->gyro.q)), 
-	   DegOfRad(RATE_FLOAT_OF_BFP(in->gyro.r)),
-	   ACCEL_FLOAT_OF_BFP(in->accel.x), 
-	   ACCEL_FLOAT_OF_BFP(in->accel.y), 
-	   ACCEL_FLOAT_OF_BFP(in->accel.z),
-	   in->rc_status, 
-	   in->stm_msg_cnt, 
-	   in->stm_crc_err_cnt, 
-	   spi_link.crc_err_cnt);
-  }
-  foo++;
+  otp.io_proc_msg_cnt = in->stm_msg_cnt;
+  otp.io_proc_err_cnt = in->stm_crc_err_cnt;
+
 }
 
 
+
+
+
+#if 0
 static void print_up_msg(struct AutopilotMessageCRCFrame * msg) { 
   printf("UP: %04X %04X %04X %04X %04x %04X %04X %04X %04X \n", 
 	 msg->payload.msg_up.gyro.p, 
@@ -176,3 +167,4 @@ static void print_down_msg(struct AutopilotMessageCRCFrame * msg) {
 }
 
 
+#endif
