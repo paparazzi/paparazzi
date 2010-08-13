@@ -47,7 +47,7 @@ void _can_run_rx_callback(uint32_t id, uint8_t *buf, uint8_t len);
 
 void can_hw_init(void)
 {
-        GPIO_InitTypeDef gpio;
+	GPIO_InitTypeDef gpio;
 	NVIC_InitTypeDef nvic;
 	CAN_InitTypeDef can;
 	CAN_FilterInitTypeDef can_filter;
@@ -93,6 +93,7 @@ void can_hw_init(void)
 	can.CAN_BS1 = CAN_BS1_TQ;
 	can.CAN_BS2 = CAN_BS2_TQ;
 	can.CAN_Prescaler = CAN_PRESCALER;
+	can.CAN_ABOM = ENABLE;
 	CAN_Init(CAN1, &can);
 
 	/* CAN filter init */
