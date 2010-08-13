@@ -291,6 +291,7 @@ void uart3_init( void ) {
 
   /* init RCC */
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
 
   /* Enable USART3 interrupts */
   NVIC_InitTypeDef nvic;
