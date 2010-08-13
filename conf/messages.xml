@@ -615,19 +615,23 @@
   </message>
 
   <message name="BETH" id="106">
-    <field name="azimuth" type="uint16"/>
-    <field name="elevation" type="uint16"/>
-    <field name="tilt" type="uint16"/>
-    <field name="other" type="uint16"/>
+    <field name="azimuth" type="int16"/>
+    <field name="elevation" type="int16"/>
+    <field name="tilt" type="int16"/>
+    <field name="counter" type="uint32"/>
+    <field name="can_errs" type="uint16"/>
+    <field name="spi_errs" type="uint16"/>
+    <field name="thrust_out" type="int8"/>
+    <field name="pitch_out" type="int8"/>
   </message>
 
   <message name="BETH_ESTIMATOR" id="107">
-    <field name="tilt" type="float"/>
-    <field name="tilt_dot" type="float"/>
-    <field name="elevation" type="float"/>
-    <field name="elevation_dot" type="float"/>
-    <field name="azimuth" type="float"/>
-    <field name="azimuth_dot" type="float"/>
+    <field name="tilt" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="tilt_dot" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+    <field name="elevation" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="elevation_dot" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+    <field name="azimuth" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="azimuth_dot" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
   </message>
 
   <message name="BETH_CONTROLLER" id="108">
@@ -637,10 +641,10 @@
     <field name="pitch_fb" type="float"/>
     <field name="thrust_ff" type="float"/>
     <field name="thrust_fb" type="float"/>
-    <field name="tilt_ref" type="float"/>
-    <field name="tilt_dot_ref" type="float"/>
-    <field name="elevation_ref " type="float"/>
-    <field name="elevation_dot_ref" type="float"/>
+    <field name="tilt_ref" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="tilt_dot_ref" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+    <field name="elevation_ref " type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="elevation_dot_ref" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
   </message>
 
  <!--109 is free --> 
