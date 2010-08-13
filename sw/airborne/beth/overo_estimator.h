@@ -12,6 +12,8 @@ struct OveroEstimator {
   float azimuth_dot;
   float elevation_dot;
   float tilt_dot;
+
+  float lp_coeff;
 };
 
 

@@ -82,6 +82,7 @@ void control_run(void) {
 
   controller.cmd_pitch =  controller.cmd_pitch_ff + controller.cmd_pitch_fb; 
   controller.cmd_thrust = controller.cmd_thrust_ff + controller.cmd_thrust_fb + thrust_constant;
+  controller.cmd_thrust = controller.cmd_thrust*(1/cos(estimator.elevation));
 
   //if (controller.cmd_thrust<0.) controller.cmd_thrust = 0;
   Bound(controller.cmd_thrust,0,100);

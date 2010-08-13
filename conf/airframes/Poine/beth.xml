@@ -225,7 +225,7 @@ main_overo.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG
 main_overo.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
 main_overo.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
 main_overo.srcs    += $(SRC_FMS)/fms_network.c
-main_overo.LDFLAGS += -levent
+main_overo.LDFLAGS += -levent -lm
 
 main_overo.srcs    += $(SRC_BETH)/overo_gcs_com.c
 main_overo.srcs    += $(SRC_BETH)/overo_file_logger.c
