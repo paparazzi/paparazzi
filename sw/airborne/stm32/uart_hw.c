@@ -41,7 +41,7 @@ uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
 
 void uart1_init( void ) {
   /* init RCC */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+  Uart1_PeriphClockCmd; // RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 
   /* Enable USART1 interrupts */
   NVIC_InitTypeDef nvic;
@@ -53,15 +53,15 @@ void uart1_init( void ) {
 
   /* Init GPIOS */
   GPIO_InitTypeDef gpio;
-  /* GPIOA: USART1 Tx push-pull */
-  gpio.GPIO_Pin   = GPIO_Pin_9;
+  /* GPIOA: GPIO_Pin_9 USART1 Tx push-pull */
+  gpio.GPIO_Pin   = Uart1_TxPin;
   gpio.GPIO_Mode  = GPIO_Mode_AF_PP;
   gpio.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOA, &gpio);
-  /* GPIOA: USART1 Rx pin as floating input */
-  gpio.GPIO_Pin   = GPIO_Pin_10;
+  GPIO_Init(Uart1_TxPort, &gpio);
+  /* GPIOA: GPIO_Pin_10 USART1 Rx pin as floating input */
+  gpio.GPIO_Pin   = Uart1_RxPin;
   gpio.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(GPIOA, &gpio);
+  GPIO_Init(Uart1_RxPort, &gpio);
 
   /* Configure USART1 */
   USART_InitTypeDef usart;
@@ -164,7 +164,7 @@ uint8_t  uart2_tx_buffer[UART2_TX_BUFFER_SIZE];
 
 void uart2_init( void ) {
   /* init RCC */
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+  Uart2_PeriphClockCmd; // RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
 
   /* Enable USART2 interrupts */
   NVIC_InitTypeDef nvic;
@@ -176,15 +176,15 @@ void uart2_init( void ) {
 
   /* Init GPIOS */
   GPIO_InitTypeDef gpio;
-  /* GPIOA: USART2 Tx push-pull */
-  gpio.GPIO_Pin   = GPIO_Pin_2;
+  /* GPIOA: GPIO_Pin_2 USART2 Tx push-pull */
+  gpio.GPIO_Pin   = Uart2_TxPin; // ;
   gpio.GPIO_Mode  = GPIO_Mode_AF_PP;
   gpio.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOA, &gpio);
-  /* GPIOA: USART2 Rx pin as floating input */
-  gpio.GPIO_Pin   = GPIO_Pin_3;
+  GPIO_Init(Uart2_TxPort, &gpio);
+  /* GPIOA: GPIO_Pin_3 USART2 Rx pin as floating input */
+  gpio.GPIO_Pin   = Uart2_RxPin; // ;
   gpio.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(GPIOA, &gpio);
+  GPIO_Init(Uart2_RxPort, &gpio);
 
   /* Configure USART2 */
   USART_InitTypeDef usart;
@@ -290,8 +290,7 @@ uint8_t  uart3_tx_buffer[UART3_TX_BUFFER_SIZE];
 void uart3_init( void ) {
 
   /* init RCC */
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+  Uart3_PeriphClockCmd; // RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
 
   /* Enable USART3 interrupts */
   NVIC_InitTypeDef nvic;
@@ -304,15 +303,15 @@ void uart3_init( void ) {
   /* Init GPIOS */
   GPIO_PinRemapConfig(GPIO_PartialRemap_USART3, ENABLE);
   GPIO_InitTypeDef gpio;
-  /* GPIOB: USART3 Tx push-pull */
-  gpio.GPIO_Pin   = GPIO_Pin_10;
+  /* GPIOC: GPIO_Pin_10 USART3 Tx push-pull */
+  gpio.GPIO_Pin   = Uart3_TxPin; 
   gpio.GPIO_Mode  = GPIO_Mode_AF_PP;
   gpio.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOC, &gpio);
-  /* GPIOB: USART3 Rx pin as floating input */
-  gpio.GPIO_Pin   = GPIO_Pin_11;
+  GPIO_Init(Uart3_TxPort, &gpio);
+  /* GPIOC: GPIO_Pin_11 USART3 Rx pin as floating input */
+  gpio.GPIO_Pin   = Uart3_RxPin; 
   gpio.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(GPIOC, &gpio);
+  GPIO_Init(Uart3_RxPort, &gpio);
 
   /* Configure USART3 */
   USART_InitTypeDef usart;
