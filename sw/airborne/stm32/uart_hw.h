@@ -36,6 +36,21 @@
 #define B57600   57600
 #define B115200 115200
 
+#define Uart1_TxPin GPIO_Pin_9
+#define Uart1_RxPin GPIO_Pin_10
+#define Uart1_TxPort GPIOA
+#define Uart1_RxPort GPIOA
+#define Uart1_PeriphClockCmd  RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE)
+#define Uart2_TxPin GPIO_Pin_2
+#define Uart2_RxPin GPIO_Pin_3
+#define Uart2_TxPort GPIOA
+#define Uart2_RxPort GPIOA
+#define Uart2_PeriphClockCmd RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE)
+#define Uart3_TxPin GPIO_Pin_10
+#define Uart3_RxPin GPIO_Pin_11
+#define Uart3_TxPort GPIOC
+#define Uart3_RxPort GPIOC
+#define Uart3_PeriphClockCmd RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE)
 
 #ifdef USE_UART1
 
