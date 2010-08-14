@@ -9,6 +9,7 @@ struct OveroTestPassthrough {
   uint32_t io_proc_msg_cnt;
   uint32_t io_proc_err_cnt;
   uint16_t servos_outputs_usecs[6]; /* FIXME */
+  uint8_t  rc_status;
 };
 
 extern struct OveroTestPassthrough otp;

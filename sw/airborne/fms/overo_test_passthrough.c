@@ -100,16 +100,9 @@ static void dialog_with_io_proc() {
   struct AutopilotMessageCRCFrame msg_out;
   uint8_t crc_valid; 
 
-#if 0
-  uint16_t val = 1500 + 500*sin(foo*0.001);
-  msg_out.payload.msg_down.pwm_outputs_usecs[0] = val;
-  msg_out.payload.msg_down.pwm_outputs_usecs[1] = val;
-  msg_out.payload.msg_down.pwm_outputs_usecs[2] = val;
-#endif
   for (uint8_t i=0; i<6; i++) msg_out.payload.msg_down.pwm_outputs_usecs[i] = otp.servos_outputs_usecs[i];
 
   spi_link_send(&msg_out, sizeof(struct AutopilotMessageCRCFrame), &msg_in, &crc_valid);
-  
 
   struct AutopilotMessagePTUp *in = &msg_in.payload.msg_up; 
   RATES_FLOAT_OF_BFP(otp.imu.gyro, in->gyro);
@@ -118,6 +111,8 @@ static void dialog_with_io_proc() {
 
   otp.io_proc_msg_cnt = in->stm_msg_cnt;
   otp.io_proc_err_cnt = in->stm_crc_err_cnt;
+
+  otp.rc_status = in->rc_status;
 
 }
 
