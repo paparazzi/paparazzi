@@ -1533,7 +1533,14 @@
     <field name="samples"  type="uint32[]"/>
   </message>
 
- <!--212 is free --> 
+  <message name="TEST_PASSTHROUGH_STATUS" id="212">
+    <field name="io_proc_msg_cnt" type="uint32"/>
+    <field name="io_proc_err_cnt" type="uint32"/>
+    <field name="io_link_msg_cnt" type="uint32"/>
+    <field name="io_link_err_cnt" type="uint32"/>
+    <field name="rc_status"       type="uint8" values="OK|LOST|REALLY_LOST"/>
+  </message>
+
  <!--213 is free --> 
  <!--214 is free --> 
  <!--215 is free --> 
