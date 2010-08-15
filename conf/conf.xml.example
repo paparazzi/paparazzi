@@ -28,9 +28,39 @@
   />
 
 <!-- LISA -->
-   <aircraft
-   name="LISA_ASCTEC"
+  <aircraft
+   name="BOOZ2_A6"
+   ac_id="153"
+   airframe="airframes/Poine/booz2_a6.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/telemetry_booz2.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/settings_booz2.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="BOOZ2_A7"
+   ac_id="159"
+   airframe="airframes/Poine/booz2_a7.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/telemetry_booz2.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/settings_booz2.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="BOOZ2_A8"
    ac_id="160"
+   airframe="airframes/Poine/booz2_a8.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/telemetry_test_passthrough.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/settings_test_passthrough.xml"
+   gui_color="white"
+  />
+  <aircraft
+   name="LISA_ASCTEC_PIOTR"
+   ac_id="161"
    airframe="airframes/esden/lisa_asctec.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/telemetry_booz2.xml"

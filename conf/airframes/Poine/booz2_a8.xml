@@ -89,7 +89,7 @@
 -->
 
 
-<!-- booz2 -->
+<!-- booz2
 
   <section name="IMU" prefix="IMU_">
 
@@ -123,8 +123,9 @@
     <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45.)"/>
 
   </section>
+-->
 
-<!-- aspirin
+<!-- aspirin -->
  <section name="IMU" prefix="IMU_">
 
     <define name="GYRO_P_SIGN" value="-1"/>
@@ -153,9 +154,9 @@
     <define name="ACCEL_Z_SENS" value="-2.57633620646" integer="16"/>
 
 
-    <define name="MAG_X_SIGN" value="-43"/>
-    <define name="MAG_Y_SIGN" value=" 49"/>
-    <define name="MAG_Z_SIGN" value="-66"/>
+    <define name="MAG_X_SIGN" value="1"/>
+    <define name="MAG_Y_SIGN" value="1"/>
+    <define name="MAG_Z_SIGN" value="1"/>
 
     <define name="MAG_X_NEUTRAL" value="-43"/>
     <define name="MAG_Y_NEUTRAL" value=" 49"/>
@@ -168,7 +169,7 @@
 
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(  0.)"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(  0.)"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45.)"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg( 45.)"/>
 
     <define name="GYRO_P_CHAN" value="0"/>
     <define name="GYRO_Q_CHAN" value="4"/>
@@ -179,7 +180,7 @@
 
   </section>
 
--->
+<!-- -->
 
 
  <section name="BAT">
@@ -212,7 +213,14 @@ PERIODIC_FREQ = 512
 
 include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
 
+
+CONFIG_PASSTHROUGH = $(PAPARAZZI_SRC)/conf/autopilot/subsystems/lisa_passthrough
+
 include $(PAPARAZZI_SRC)/conf/autopilot/lisa_passthrough.makefile
+
+RADIO_CONTROL_SPEKTRUM_MODEL=\"booz/radio_control/booz_radio_control_spektrum_dx7se.h\"
+include $(CONFIG_PASSTHROUGH)/radio_control_spektrum.makefile
+
 
 #
 # 
