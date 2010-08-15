@@ -290,7 +290,8 @@ uint8_t  uart3_tx_buffer[UART3_TX_BUFFER_SIZE];
 void uart3_init( void ) {
 
   /* init RCC */
-  Uart3_PeriphClockCmd; // RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+  Uart3_PeriphClockCmd();
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
 
   /* Enable USART3 interrupts */
   NVIC_InitTypeDef nvic;

@@ -50,7 +50,7 @@
 #define Uart3_RxPin GPIO_Pin_11
 #define Uart3_TxPort GPIOC
 #define Uart3_RxPort GPIOC
-#define Uart3_PeriphClockCmd RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE)
+#define Uart3_PeriphClockCmd() RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE)
 
 #ifdef USE_UART1
 
