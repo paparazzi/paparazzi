@@ -42,6 +42,7 @@
 #define Uart1_RxPin GPIO_Pin_10
 #define Uart1_TxPort GPIOA
 #define Uart1_RxPort GPIOA
+#define Uart1_Periph RCC_APB2Periph_GPIOA
 
 #define UART1_RX_BUFFER_SIZE 128
 #define UART1_TX_BUFFER_SIZE 128
