@@ -54,6 +54,9 @@
 #ifdef USE_LED
 #include "led.h"
 #endif
+#ifdef RADIO_CONTROL_LINK
+#include "bind_hw.h"
+#endif
 #if defined USE_UART1 || defined USE_UART2 || defined USE_UART3
 #include "uart.h"
 #endif
@@ -148,6 +151,9 @@ static inline void hw_init(void) {
 #ifdef PERIPHERALS_AUTO_INIT
 #ifdef USE_LED
   led_init();
+#endif
+#ifdef RADIO_CONTROL_LINK
+  bind_init();
 #endif
 #ifdef USE_UART1
   uart1_init();
