@@ -60,27 +60,17 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 
   booz2_main_periodic();
 
-  /* 25 */
-  if (time < 8) {
-    //    double hover = 0.25;
-    double hover = 0.2493;
-    //  if (time > 20) hover = 0.25;
-    double yaw = 0.000000;
-    double pitch = 0.000;
-    double roll  = 0.0000;
+  if (time < 8) { /* start with a little bit of hovering */
+    int32_t init_cmd[4];
+    init_cmd[COMMAND_THRUST] = 0.2493*SUPERVISION_MAX_MOTOR;
+    init_cmd[COMMAND_ROLL]  = 0;
+    init_cmd[COMMAND_PITCH] = 0;
+    init_cmd[COMMAND_YAW]   = 0;
+    supervision_run(TRUE, FALSE, init_cmd);
+  }
+  for (uint8_t i=0; i<ACTUATORS_MKK_NB; i++)
+    autopilot.commands[i] = (double)supervision.commands[i] / SUPERVISION_MAX_MOTOR;
 
-    autopilot.commands[SERVO_FRONT] = hover + yaw + pitch;
-    autopilot.commands[SERVO_BACK]  = hover + yaw - pitch;
-    autopilot.commands[SERVO_RIGHT] = hover - yaw - roll ;
-    autopilot.commands[SERVO_LEFT]  = hover - yaw + roll;
-  }
-  else {
-    uint8_t i;
-    for (i=0; i<ACTUATORS_MKK_NB; i++)
-      autopilot.commands[i] = (double)supervision.commands[i] / SUPERVISION_MAX_MOTOR;
-  }
-  //  printf("%f %f %f %f\n", autopilot.commands[SERVO_FRONT], autopilot.commands[SERVO_BACK],
-  //                          autopilot.commands[SERVO_RIGHT], autopilot.commands[SERVO_LEFT]);
 }
 
 #include "nps_fdm.h"
