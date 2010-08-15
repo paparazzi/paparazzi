@@ -291,7 +291,6 @@ void uart3_init( void ) {
 
   /* init RCC */
   Uart3_PeriphClockCmd();
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
 
   /* Enable USART3 interrupts */
   NVIC_InitTypeDef nvic;
@@ -333,7 +332,7 @@ void uart3_init( void ) {
   uart3_tx_insert_idx = 0;
   uart3_tx_running = FALSE;
 
-  // initialize the receive data queue
+  // initialize the receive data queuenn
   uart3_rx_extract_idx = 0;
   uart3_rx_insert_idx = 0;
 
