@@ -215,6 +215,7 @@ include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
 
 
 CONFIG_PASSTHROUGH = $(PAPARAZZI_SRC)/conf/autopilot/subsystems/lisa_passthrough
+SERVOS_REFRESH_FREQ=50
 
 include $(PAPARAZZI_SRC)/conf/autopilot/lisa_passthrough.makefile
 
