@@ -18,13 +18,14 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
 
   nps_radio_control_init(type_rc, num_rc_script, rc_dev);
   nps_bypass_ahrs = TRUE;
+  //  nps_bypass_ahrs = FALSE;
 
   booz2_main_init();
 
 }
 
 #include <stdio.h>
-#include "booz2_gps.h"
+#include "booz_gps.h"
 
 void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 
