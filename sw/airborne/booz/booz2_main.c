@@ -24,8 +24,8 @@
 #define MODULES_C
 
 #include <inttypes.h>
-
 #include "init_hw.h"
+#include "bind_hw.h"
 #include "sys_time.h"
 #include "led.h"
 #include "interrupt_hw.h"
@@ -87,11 +87,20 @@ int main( void ) {
 
 STATIC_INLINE void booz2_main_init( void ) {
 
+#ifndef RADIO_CONTROL_LINK
+  /* read the comment below the bind function needs to start as close to powerup as possible 
+     it also blocks for 73ms which is longer than this loop could thhis be moved elsewhere */
   for (uint32_t startup_counter=0; startup_counter<2000000; startup_counter++){
     __asm("nop");
   }
+#endif
 
   hw_init();
+
+#ifdef RADIO_CONTROL_LINK
+  /* This function blocks for 73ms */
+  bind_init();
+#endif
   sys_time_init();
 
   actuators_init();
