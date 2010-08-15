@@ -94,7 +94,7 @@ static inline void  booz_gps_feed_value() {
 #define BoozGpsEvent(_sol_available_callback) {			\
     if (booz_gps_available) {					\
       if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D)               \
-        booz_gps_lost_counter = 0;                              \
+        booz_gps_state.lost_counter = 0;			\
       _sol_available_callback();				\
       booz_gps_available = FALSE;				\
     }								\
@@ -104,15 +104,6 @@ static inline void  booz_gps_feed_value() {
  * This part is used by the autopilot to read data from a uart
  * 
  */
-
-
-extern void booz_gps_init(void);
-
-static inline void booz_gps_periodic( void ) {
-  RunOnceEvery(128, booz_gps_state.lost_counter++; );
-}
-
-#define GpsIsLost() (booz_gps_state.lost_counter > 20) /* 4Hz -> 5s */
 
 
 #define __GpsLink(dev, _x) dev##_x
@@ -125,5 +116,17 @@ static inline void booz_gps_periodic( void ) {
 
 
 #endif /* !SITL */
+
+
+extern void booz_gps_init(void);
+
+static inline void booz_gps_periodic( void ) {
+  RunOnceEvery(128, booz_gps_state.lost_counter++; );
+}
+
+#define GpsIsLost() (booz_gps_state.lost_counter > 20) /* 4Hz -> 5s */
+
+
+
 
 #endif /* BOOZ2_GPS_H */

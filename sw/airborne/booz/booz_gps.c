@@ -41,8 +41,9 @@ void booz_gps_init(void) {
 #ifdef GPS_LED
   LED_OFF(GPS_LED);
 #endif
+#ifdef BOOZ_GPS_TYPE_H
   booz_gps_impl_init();
-  
+#endif  
 }
 
 
