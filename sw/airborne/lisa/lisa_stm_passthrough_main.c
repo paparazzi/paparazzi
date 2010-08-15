@@ -26,9 +26,9 @@
 #include "downlink.h"
 #include "booz/booz2_commands.h"
 #include "booz/booz_actuators.h"
+#include "booz/actuators/booz_actuators_pwm.h"
 #include "booz/booz_imu.h"
 #include "booz/booz_radio_control.h"
-#include "booz/actuators/booz_actuators_pwm.h"
 #include "lisa/lisa_overo_link.h"
 
 static inline void main_init(void);
@@ -65,7 +65,7 @@ static inline void main_init(void) {
   sys_time_init();
   booz_imu_init();
   radio_control_init();
-  booz_actuators_pwm_hw_init();
+  booz_actuators_init();
   overo_link_init();
   new_radio_msg = FALSE;
 

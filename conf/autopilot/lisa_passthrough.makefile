@@ -69,4 +69,4 @@ SERVOS_REFRESH_FREQ 50
 endif
 stm_passthrough.CFLAGS += -DSERVO_HZ=$(SERVOS_REFRESH_FREQ)
 stm_passthrough.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c
-stm_passthrough.srcs += $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_hw.c
+stm_passthrough.srcs += $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_arch.c

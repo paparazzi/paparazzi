@@ -408,7 +408,7 @@ test_servos.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
 test_servos.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 test_servos.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
-test_servos.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_hw.c
+test_servos.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_arch.c
 
 
 #test_servos.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
@@ -1339,7 +1339,7 @@ test_board.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 test_board.CFLAGS += -DUSE_I2C1
 
-test_board.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_hw.c
+test_board.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_arch.c
 
 
 
