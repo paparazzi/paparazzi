@@ -67,8 +67,6 @@
 #include "modules.h"
 #endif
 
-uint32_t startup_counter = 0;
-
 static inline void on_gyro_accel_event( void );
 static inline void on_baro_event( void );
 static inline void on_gps_event( void );
@@ -87,14 +85,10 @@ int main( void ) {
 }
 #endif /* SITL */
 
-#ifdef BOOZ_START_DELAY
-bool_t delay_done;
-uint32_t init_done_time;
-#endif
-
 STATIC_INLINE void booz2_main_init( void ) {
-  for (startup_counter=0; startup_counter<2000000; startup_counter++){
-  __asm("nop");
+
+  for (uint32_t startup_counter=0; startup_counter<2000000; startup_counter++){
+    __asm("nop");
   }
 
   hw_init();
