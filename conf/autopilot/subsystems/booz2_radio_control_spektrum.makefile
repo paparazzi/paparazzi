@@ -10,9 +10,10 @@ ifeq ($(ARCHI), arm7)
 ap.CFLAGS += -DRADIO_CONTROL_LED=1
 ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B115200
 ap.CFLAGS += -DRADIO_CONTROL_LINK=Uart0
-else ifeq ($(ARCHI), stm32) 
+else ifeq ($(ARCHI), stm32)
 ap.CFLAGS += -DRADIO_CONTROL_LED=4
 ap.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B115200
 ap.CFLAGS += -DRADIO_CONTROL_LINK=Uart3
+ap.srcs += $(SRC_ARCH)/bind_hw.c
 endif
 
