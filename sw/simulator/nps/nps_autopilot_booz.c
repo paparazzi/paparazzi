@@ -79,12 +79,11 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 void sim_overwrite_ahrs(void) {
 
   EULERS_BFP_OF_REAL(booz_ahrs.ltp_to_body_euler, fdm.ltp_to_body_eulers);
-  
-  QUAT_BFP_OF_REAL(booz_ahrs.ltp_to_body_quat, fdm.ltp_to_body_quat);
-  
-  RATES_BFP_OF_REAL(booz_ahrs.body_rate, fdm.body_ecef_rotvel);
-  
-  INT32_RMAT_OF_QUAT(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_body_quat);
-  
-}
 
+  QUAT_BFP_OF_REAL(booz_ahrs.ltp_to_body_quat, fdm.ltp_to_body_quat);
+
+  RATES_BFP_OF_REAL(booz_ahrs.body_rate, fdm.body_ecef_rotvel);
+
+  INT32_RMAT_OF_QUAT(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_body_quat);
+
+}
