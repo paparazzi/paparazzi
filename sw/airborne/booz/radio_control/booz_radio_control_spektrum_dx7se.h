@@ -29,7 +29,9 @@
 #define RADIO_CONTROL_THROTTLE   1
 #define RADIO_CONTROL_PITCH      2
 #define RADIO_CONTROL_YAW        3
+#define RADIO_CONTROL_AUX3       4
 #define RADIO_CONTROL_MODE       5
+#define RADIO_CONTROL_AUX4       6
 
 #define RC_SPK_SYNC_2 0x12
 
