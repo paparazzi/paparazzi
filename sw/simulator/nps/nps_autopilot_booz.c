@@ -84,29 +84,17 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 }
 
 #include "nps_fdm.h"
-#include "math/pprz_algebra_int.h"
 #include "booz_ahrs.h"
+#include "math/pprz_algebra.h"
 void sim_overwrite_ahrs(void) {
 
-  //  printf("%f\n", fdm.ltpprz_to_body_eulers.phi);
-
-  //  printf("filter theta %d  sim %f\n", booz_ahrs.ltp_to_body_euler.theta, fdm.ltp_to_body_eulers.theta);
-  //  printf("filter qy %d  sim %f\n", booz_ahrs.ltp_to_body_quat.qy, fdm.ltp_to_body_quat.qy);
-
-  booz_ahrs.ltp_to_body_euler.phi   = ANGLE_BFP_OF_REAL(fdm.ltp_to_body_eulers.phi);
-  booz_ahrs.ltp_to_body_euler.theta = ANGLE_BFP_OF_REAL(fdm.ltp_to_body_eulers.theta);
-  booz_ahrs.ltp_to_body_euler.psi   = ANGLE_BFP_OF_REAL(fdm.ltp_to_body_eulers.psi);
-
-  booz_ahrs.ltp_to_body_quat.qi = QUAT1_BFP_OF_REAL(fdm.ltp_to_body_quat.qi);
-  booz_ahrs.ltp_to_body_quat.qx = QUAT1_BFP_OF_REAL(fdm.ltp_to_body_quat.qx);
-  booz_ahrs.ltp_to_body_quat.qy = QUAT1_BFP_OF_REAL(fdm.ltp_to_body_quat.qy);
-  booz_ahrs.ltp_to_body_quat.qz = QUAT1_BFP_OF_REAL(fdm.ltp_to_body_quat.qz);
-
-  booz_ahrs.body_rate.p = RATE_BFP_OF_REAL(fdm.body_ecef_rotvel.p);
-  booz_ahrs.body_rate.q = RATE_BFP_OF_REAL(fdm.body_ecef_rotvel.q);
-  booz_ahrs.body_rate.r = RATE_BFP_OF_REAL(fdm.body_ecef_rotvel.r);
-
+  EULERS_BFP_OF_REAL(booz_ahrs.ltp_to_body_euler, fdm.ltp_to_body_eulers);
+  
+  QUAT_BFP_OF_REAL(booz_ahrs.ltp_to_body_quat, fdm.ltp_to_body_quat);
+  
+  RATES_BFP_OF_REAL(booz_ahrs.body_rate, fdm.body_ecef_rotvel);
+  
   INT32_RMAT_OF_QUAT(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_body_quat);
-
+  
 }
 
