@@ -1,24 +1,25 @@
 /*
  * $Id$
  *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2008-2010 The Paparazzi Team
  *
- * This file is part of paparazzi.
+ * This file is part of Paparazzi.
  *
- * paparazzi is free software; you can redistribute it and/or modify
+ * Paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
  *
- * paparazzi is distributed in the hope that it will be useful,
+ * Paparazzi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
+ * along with Paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
 #include "actuators/booz_supervision.h"
@@ -36,17 +37,10 @@
 #define SUPERVISION_MIN_MOTOR_STARTUP SUPERVISION_MIN_MOTOR
 #endif
 
-#ifdef SITL
-static const int32_t roll_coef[SUPERVISION_NB_MOTOR]   = {    0,    0, -256,  256};
-static const int32_t pitch_coef[SUPERVISION_NB_MOTOR]  = {  256, -256,    0,    0};
-static const int32_t yaw_coef[SUPERVISION_NB_MOTOR]    = { -256, -256,  256,  256};
-static const int32_t thrust_coef[SUPERVISION_NB_MOTOR] = {  256,  256,  256,  256};
-#else
 static const int32_t roll_coef[SUPERVISION_NB_MOTOR]   = SUPERVISION_ROLL_COEF;
 static const int32_t pitch_coef[SUPERVISION_NB_MOTOR]  = SUPERVISION_PITCH_COEF;
 static const int32_t yaw_coef[SUPERVISION_NB_MOTOR]    = SUPERVISION_YAW_COEF;
 static const int32_t thrust_coef[SUPERVISION_NB_MOTOR] = SUPERVISION_THRUST_COEF;
-#endif
 
 struct BoozSupervision supervision;
 
