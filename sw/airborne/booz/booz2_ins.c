@@ -126,11 +126,14 @@ void booz_ins_periodic( void ) {
 #endif
 }
 
-void booz_ins_realign_h(struct FloatVect2 pos, struct FloatVect2 speed) {
 #ifdef USE_HFF
+void booz_ins_realign_h(struct FloatVect2 pos, struct FloatVect2 speed) {
   b2_hff_realign(pos, speed);
-#endif
 }
+#else
+void booz_ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)), struct FloatVect2 speed __attribute__ ((unused))) {}
+#endif /* USE_HFF */
+
 
 void booz_ins_realign_v(float z) {
 #ifdef USE_VFF
