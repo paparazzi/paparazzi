@@ -763,7 +763,11 @@ struct Int64Vect3 {
       (_ed).theta = INT_MULT_RSHIFT(cphi, (_r).q, INT32_TRIG_FRAC) - INT_MULT_RSHIFT(sphi, (_r).r, INT32_TRIG_FRAC); \
       (_ed).psi = (int32_t)(((int64_t)sphi * (int64_t)(_r).q) / ctheta) + (int32_t)(((int64_t)cphi * (int64_t)(_r).r) / ctheta); \
     }									\
-    									\
+    /* FIXME: What do you wanna do when you hit the singularity ? */	\
+    /* probably not return an uninitialized variable, or ?        */	\
+    else {								\
+      INT_EULERS_ZERO(_ed);						\
+    }									\
   }
 
 #define INT32_EULERS_DOT_OF_RATES(_ed, _e, _r) INT32_EULERS_DOT_321_OF_RATES(_ed, _e, _r)
