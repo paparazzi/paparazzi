@@ -1,9 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2009 Pascal Brisset <pascal.brisset@gmail.com>,
- *                    Antoine Drouin <poinix@gmail.com>,
- *                    Gautier Hattenberger <gautier.hattenberger@laas.fr>
+ * Copyright (C) 2009-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
