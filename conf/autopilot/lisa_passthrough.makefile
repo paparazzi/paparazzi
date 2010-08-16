@@ -65,7 +65,7 @@ stm_passthrough.srcs += $(SRC_BOOZ)/booz2_commands.c
 
 # PWM actuator
 ifndef SERVOS_REFRESH_FREQ
-SERVOS_REFRESH_FREQ 50
+SERVOS_REFRESH_FREQ=50
 endif
 stm_passthrough.CFLAGS += -DSERVO_HZ=$(SERVOS_REFRESH_FREQ)
 stm_passthrough.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c

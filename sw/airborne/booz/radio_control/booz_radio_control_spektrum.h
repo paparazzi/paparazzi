@@ -1,8 +1,7 @@
 /*
  * Paparazzi $Id$
  *  
- * Copyright (C) 2009 Pascal Brisset <pascal.brisset@gmail.com>, 
- *                    Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2009-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,7 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
+ *
  */
 
 #ifndef BOOZ_RADIO_CONTROL_SPEKTRUM_H
@@ -27,6 +27,9 @@
 
 #include "std.h"
 #include "uart.h"
+
+/* implemented in booz/arch/xxx/radio_control/booz_radio_control_spektrum_arch.c */
+extern void radio_control_spektrum_try_bind(void);
 
 #include RADIO_CONTROL_SPEKTRUM_MODEL_H
 
