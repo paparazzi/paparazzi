@@ -28,25 +28,19 @@
 #ifndef I2C_HW_H
 #define I2C_HW_H
 
+#include "i2c.h"
 #include <stm32/i2c.h>
+
 
 #ifdef USE_I2C1
 
 extern void i2c1_hw_init(void);
-
 extern void i2c1_ev_irq_handler(void);
 extern void i2c1_er_irq_handler(void);
 
-extern uint16_t i2c_errc_ack_fail;
-extern uint16_t i2c_errc_miss_start_stop;
-extern uint16_t i2c_errc_arb_lost;
-extern uint16_t i2c_errc_over_under;
-extern uint16_t i2c_errc_pec_recep;
-extern uint16_t i2c_errc_timeout_tlow;
-extern uint16_t i2c_errc_smbus_alert;
+extern struct i2c_errors i2c1_errors;
 
-
-#define I2c1SendStart() { I2C_GenerateSTART(I2C1, ENABLE); I2C_ITConfig(I2C1, I2C_IT_EVT, ENABLE);}
+#define I2c1SendStart() { I2C_GenerateSTART(I2C1, ENABLE); I2C_ITConfig(I2C1, I2C_IT_EVT|I2C_IT_BUF, ENABLE);}
 
 #ifdef I2C1_STOP_HANDLER
 #include I2C1_STOP_HANDLER_HEADER
@@ -78,7 +72,15 @@ extern void i2c2_hw_init(void);
 extern void i2c2_ev_irq_handler(void);
 extern void i2c2_er_irq_handler(void);
 
-#define I2c2SendStart() {I2C_GenerateSTART(I2C2, ENABLE); I2C_ITConfig(I2C2, I2C_IT_EVT|I2C_IT_BUF, ENABLE);}
+extern struct i2c_errors i2c2_errors;
+
+//#define I2c2SendStart() {I2C_GenerateSTART(I2C2, ENABLE); I2C_ITConfig(I2C2, I2C_IT_EVT, ENABLE);}
+#include <string.h>
+#define I2C_ZERO_EVENTS() {						\
+    i2c2_errors.irq_cnt = 0;						\
+    memset((void*)i2c2_errors.event_chain, 0, sizeof(i2c2_errors.event_chain)); \
+    memset((void*)i2c2_errors.status_chain, 0, sizeof(i2c2_errors.status_chain)); \
+  }
 
 #endif /* USE_I2C2 */
 
