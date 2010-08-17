@@ -31,6 +31,7 @@
 #include "init_hw.h"
 #include "sys_time.h"
 #include "led.h"
+
 #include "csc_vane.h"
 
 #ifdef USE_BUSS_TWI_BLMC_MOTOR
@@ -48,17 +49,22 @@
 #include "interrupt_hw.h"
 #include "uart.h"
 #include "csc_telemetry.h"
+
 #include "periodic.h"
 #include "downlink.h"
+
 #include "pwm_input.h"
 #include "csc_airspeed.h"
 #include "csc_baro.h"
+#include "csc_bat_monitor.h"
 
 #include "csc_adc.h"
+
 #include "csc_rc_spektrum.h"
 
 #include "csc_can.h"
 #include "csc_ap_link.h"
+
 static inline void on_servo_cmd(struct CscServoCmd *cmd);
 static inline void on_motor_cmd(struct CscMotorMsg *msg);
 static inline void on_prop_cmd(struct CscPropCmd *msg, int idx);
@@ -67,144 +73,158 @@ static inline void on_prop_cmd(struct CscPropCmd *msg, int idx);
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
 #define AIRSPEED_TIMEOUT (SYS_TICS_OF_SEC(0.01) / PERIODIC_TASK_PERIOD)
 
+
 static uint32_t servo_cmd_timeout = 0;
 static uint32_t can_msg_count = 0;
 
 
 static void csc_main_init( void ) {
 
-  hw_init();
-  sys_time_init();
-  led_init();
+	hw_init();
+	sys_time_init();
+	led_init();
+	
+	actuators_init();
 
-  
-  actuators_init();
-  csc_servos_init();
-
-
+	
 #ifdef USE_UART0
-  Uart0Init();
+	Uart0Init();
 #endif
-
+	
 #ifdef USE_UART1
-  Uart1Init();
+	Uart1Init();
 #endif
 
 #ifdef SPEKTRUM_LINK
-  spektrum_init();
+	spektrum_init();
 #endif
 
 #ifdef USE_PWM_INPUT
-  pwm_input_init();
+	pwm_input_init();
 #endif
 
-  csc_ap_link_init();
-  csc_ap_link_set_servo_cmd_cb(on_servo_cmd);
-  csc_ap_link_set_motor_cmd_cb(on_motor_cmd);
-  csc_ap_link_set_prop_cmd_cb(on_prop_cmd);
+
+// be sure to call servos_init after uart1 init since they are sharing pins
+#ifdef USE_VANE_SENSOR
+	csc_servos_init();
+#endif
+
+	csc_ap_link_init();
+	csc_ap_link_set_servo_cmd_cb(on_servo_cmd);
+	csc_ap_link_set_motor_cmd_cb(on_motor_cmd);
+	csc_ap_link_set_prop_cmd_cb(on_prop_cmd);
 
 #ifdef ADC
-  csc_adc_init();
+	csc_adc_init();
+#endif
+	
+	
+#ifdef USE_I2C0
+	i2c0_init();
 #endif
 
-  // be sure to call servos_init after uart1 init since they are sharing pins
-  #ifdef USE_I2C0
-  i2c0_init();
-  #endif
-
-  #ifdef USE_BUSS_TWI_BLMC_MOTOR
-  motors_init();
-  #endif
+#ifdef USE_BUSS_TWI_BLMC_MOTOR
+	motors_init();
+#endif
 
 #ifdef USE_AIRSPEED
-  airspeed_init();
+	airspeed_init();
 #endif
-
 #ifdef USE_AIRSPEED_ETS
-  airspeed_ets_init();
+	airspeed_ets_init();
 #endif
 #ifdef USE_BARO_ETS
-  baro_ets_init();
+	baro_ets_init();
 #endif
 #ifdef USE_AMS5812
-    csc_ams5812_init();
+		csc_ams5812_init();
 #endif
 #ifdef USE_BARO_SCP
-  baro_scp_init();
+	baro_scp_init();
 #endif
 
-  int_enable();
+#ifdef USE_BAT_MONITOR
+	csc_bat_monitor_init(); 
+#endif
+	
+	int_enable(); 
+
 }
 
+static void csc_main_periodic( void )
+{
+	static uint32_t zeros[4] = {0, 0, 0, 0};
+	static uint32_t csc_loops = 0;
 
-static void csc_main_periodic( void ) {
-  static uint32_t zeros[4] = {0, 0, 0, 0};
-  static uint32_t csc_loops = 0;
-
-  #ifdef DOWNLINK
-  PeriodicSendAp(DefaultChannel);
-  #endif
-
-  #ifdef USE_VANE_SENSOR
-  csc_vane_periodic();
-  #endif
-
-  if (servo_cmd_timeout > SERVO_TIMEOUT) {
-    csc_servos_set(zeros);
-  } else {
-    servo_cmd_timeout++;
-  }
-  
-  if ((++csc_loops % CSC_STATUS_TIMEOUT) == 0) {
-    csc_ap_link_send_status(csc_loops, can_msg_count);
-  }
-#ifdef ADC
-  csc_adc_periodic();
+#ifdef DOWNLINK
+	PeriodicSendAp(DefaultChannel);
 #endif
 
-  if ((csc_loops % AIRSPEED_TIMEOUT) == 0) {
+#ifdef USE_VANE_SENSOR
+	csc_vane_periodic();
+#endif
+
+	if (servo_cmd_timeout > SERVO_TIMEOUT) {
+		csc_servos_set(zeros);
+	} else {
+		servo_cmd_timeout++;
+	}
+	
+	if ((++csc_loops % CSC_STATUS_TIMEOUT) == 0) {
+		csc_ap_link_send_status(csc_loops, can_msg_count);
+	}
+	
+	csc_adc_periodic();
+	
+	if ((csc_loops % AIRSPEED_TIMEOUT) == 0) {
 #ifdef USE_AIRSPEED_ETS
-    airspeed_ets_periodic();
+		airspeed_ets_periodic();
 #endif
 #ifdef USE_BARO_ETS
-    baro_ets_read();
+		baro_ets_read();
 #endif
-  } else if ((csc_loops % AIRSPEED_TIMEOUT) == 1) {
+	} else if ((csc_loops % AIRSPEED_TIMEOUT) == 1) {
 #ifdef USE_BARO_ETS
-    baro_ets_periodic();
+		baro_ets_periodic();
 #endif
 #ifdef USE_AIRSPEED_ETS
-    airspeed_ets_read();
+		airspeed_ets_read();
 #endif
 #ifdef USE_AIRSPEED
-    csc_airspeed_periodic();
+		csc_airspeed_periodic();
 #endif
 #ifdef USE_AMS5812
-    csc_ams5812_periodic();
-    csc_ap_link_send_pressure(ams5812_pressure[0], ams5812_pressure[1]);
+		csc_ams5812_periodic();
+		csc_ap_link_send_pressure(ams5812_pressure[0], ams5812_pressure[1]);
 #endif
-  }
+	}
 
 #ifdef USE_AIRSPEED
-  airspeed_update();
+	airspeed_update();
 #endif
+
 #ifdef USE_BARO_SCP
-  baro_scp_periodic();
-  csc_ap_link_send_baro(baro_scp_pressure, baro_scp_temperature, baro_scp_status);
+	baro_scp_periodic();
+	csc_ap_link_send_baro(baro_scp_pressure, baro_scp_temperature, baro_scp_status);
 #endif
+
+#ifdef USE_BAT_MONITOR
+	csc_bat_monitor_periodic(); 
+#endif
+
 }
 
 static void csc_main_event( void ) {
+	csc_can_event();
 
-  csc_can_event();
 #ifdef USE_BUSS_TWI_BLMC_MOTOR
-  motors_event();
+	motors_event();
 #endif
+
 #ifdef SPEKTRUM_LINK
-  spektrum_event_task();
+	spektrum_event_task();
 #endif
 }
-
 
 #define MIN_SERVO SYS_TICS_OF_USEC(1000)
 #define MAX_SERVO SYS_TICS_OF_USEC(2000)
@@ -212,47 +232,42 @@ static void csc_main_event( void ) {
 #ifdef USE_BUSS_TWI_BLMC_MOTOR
 static void on_prop_cmd(struct CscPropCmd *cmd, int idx)
 {
-  for(uint8_t i = 0; i < 4; i++)
-    motors_set_motor(i + idx * 4, cmd->speeds[i]);
-  
-  motors_commit(idx == 1);
+	for(uint8_t i = 0; i < 4; i++)
+		motors_set_motor(i + idx * 4, cmd->speeds[i]);
 
-  ++can_msg_count;
-}
+	motors_commit(idx == 1);
+
+	++can_msg_count;
+}	
 #else
 static void on_prop_cmd(struct CscPropCmd *cmd, int idx) {}
 #endif
 
-
 static void on_servo_cmd(struct CscServoCmd *cmd)
 {
+	uint16_t* servos = (uint16_t*)(cmd);
+	uint8_t i;
 
-  uint16_t* servos = (uint16_t*)(cmd);
-  uint8_t i;
-  
-  //  uint32_t servos_checked[4];
-  for(i = 0; i < 4; i++)
-    csc_servo_normalized_set(i,servos[i]);
-  csc_servos_commit();
-  
-  servo_cmd_timeout = 0;
-  
-  ++can_msg_count;
+	//	uint32_t servos_checked[4];
+	for(i = 0; i < 4; i++) { 
+		csc_servo_normalized_set(i,servos[i]);
+	}
+	csc_servos_commit();
+	servo_cmd_timeout = 0;
+	++can_msg_count;
 }
 
-
-static void on_motor_cmd(struct CscMotorMsg *msg)
-{
-
-}
+static void on_motor_cmd(struct CscMotorMsg *msg) {}
 
 int main( void ) {
-  csc_main_init();
-  while(1) {
-    if (sys_time_periodic())
-      csc_main_periodic();
-    csc_main_event();
-  }
-  return 0;
+	csc_main_init();
+//	Uart0PrintString("Hello");
+	while(1) {
+		if (sys_time_periodic()) {
+			csc_main_periodic();
+		}
+		csc_main_event();
+	}
+	return 0;
 }
 

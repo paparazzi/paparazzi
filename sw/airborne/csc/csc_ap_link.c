@@ -58,7 +58,19 @@ void csc_ap_link_send_pressure(float pressure1, float pressure2)
   csc_ap_send_msg(CSC_PRESSURE_MSG_ID, (const uint8_t *) &msg, sizeof(msg));
 }
 
-void csc_ap_link_send_baro(uint32_t pressure, uint16_t temperature, uint8_t status)
+void csc_ap_link_send_airspeed(float airspeed, uint8_t sensor_id)
+{
+
+  struct CscAirspeedMsg msg;
+
+  msg.airspeed = airspeed;
+  msg.sensor_addr = sensor_id;
+
+  csc_ap_send_msg(CSC_AIRSPEED_MSG_ID, (const uint8_t *) &msg, sizeof(msg));
+}
+
+
+void csc_ap_link_send_baro(uint32_t pressure, uint16_t temperature, uint8_t status, uint8_t sensor_addr)
 {
 
   struct CscBaroMsg msg;
@@ -66,8 +78,22 @@ void csc_ap_link_send_baro(uint32_t pressure, uint16_t temperature, uint8_t stat
   msg.baro_pressure = pressure;
   msg.baro_temperature = temperature;
   msg.baro_status = status;
+  msg.baro_sensor_addr = sensor_addr;
 
   csc_ap_send_msg(CSC_BARO_MSG_ID, (const uint8_t *) &msg, sizeof(msg));
+}
+
+
+void csc_ap_link_send_bat(uint16_t volts, uint16_t amps, uint8_t msgctr)
+{
+
+  struct CscBatMsg msg;
+
+  msg.volts = volts;
+  msg.amps = amps; 
+  msg.msgctr = msgctr;
+
+  csc_ap_send_msg(CSC_BAT_MSG_ID, (const uint8_t *) &msg, sizeof(msg));
 }
 
 

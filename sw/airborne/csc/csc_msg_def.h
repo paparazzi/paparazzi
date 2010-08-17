@@ -3,25 +3,30 @@
 
 #include "paparazzi.h"
 
-#define CSC_GPS_AXIS_IDX_X    0
-#define CSC_GPS_AXIS_IDX_Y    1
-#define CSC_GPS_AXIS_IDX_Z    2
+#define CSC_GPS_AXIS_IDX_X		0
+#define CSC_GPS_AXIS_IDX_Y		1
+#define CSC_GPS_AXIS_IDX_Z		2
 
-#define CSC_SERVO_CMD_ID      0
-#define CSC_MOTOR_CMD_ID      1
-#define CSC_PROP_CMD_ID       2
-#define CSC_MOTOR_STATUS_ID   3
-#define CSC_BOARD_STATUS_ID   4
-#define CSC_BOARD_ADCVOLTS_ID 5
-#define CSC_RC_ID	      6
-#define CSC_GPS_FIX_ID	      7
-#define CSC_GPS_POS_ID	      8
-#define CSC_GPS_ACC_ID	      9
-#define CSC_PROP2_CMD_ID       10
-#define CSC_VANE_MSG_ID       11
-#define CSC_PRESSURE_MSG_ID   12
-#define CSC_BARO_MSG_ID       13
-#define CSC_ID_COUNT          14
+typedef enum { 
+	CSC_SERVO_CMD_ID 				=  0, 
+	CSC_MOTOR_CMD_ID 				=  1, 
+	CSC_PROP_CMD_ID 				=  2, 
+	CSC_MOTOR_STATUS_ID			=  3, 
+	CSC_BOARD_STATUS_ID			=  4, 
+	CSC_BOARD_ADCVOLTS_ID		=  5, 
+	CSC_RC_ID								=  6, 
+	CSC_GPS_FIX_ID					=  7, 
+	CSC_GPS_POS_ID					=  8, 
+	CSC_GPS_ACC_ID					=  9, 
+	CSC_PROP2_CMD_ID				= 10, 
+	CSC_VANE_MSG_ID					= 11, 
+	CSC_PRESSURE_MSG_ID			= 12, 
+	CSC_BARO_MSG_ID 				= 13, 
+	CSC_BAT_MSG_ID 					= 14, 
+	CSC_AIRSPEED_MSG_ID 		= 15, 
+	
+	CSC_ID_COUNT
+} csc_can_msg_id;
 
 /* Received from the autopilot */
 struct CscServoCmd {
@@ -86,10 +91,29 @@ struct CscPressureMsg {
   float pressure2;
 } __attribute__((packed));
 
+/*
+struct CscAirspeedMsg {
+  float airspeed1;
+  float airspeed2;
+} __attribute__((packed));
+*/
+
+struct CscAirspeedMsg {
+  float airspeed;
+  uint8_t sensor_addr;
+} __attribute__((packed));
+
+struct CscBatMsg {
+  uint16_t volts;
+  uint16_t amps;
+  uint8_t msgctr;
+} __attribute__((packed));
+
 struct CscBaroMsg {
   uint32_t baro_pressure;
   uint16_t baro_temperature;
   uint8_t baro_status;
+  uint8_t baro_sensor_addr;
 } __attribute__((packed));
 
 #define CSC_RC_SCALE 20
