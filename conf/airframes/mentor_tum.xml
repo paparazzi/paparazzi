@@ -9,6 +9,10 @@
 
 <airframe name="Mentor Twog AkaModell">
 
+  <target name="fixed_wings" board="tiny_2.11">
+    <subsystem name="radio_control" type="ppm"/>
+  </target>
+
   <modules main_freq="60">
     <load name="servo_switch.xml"/>
     <load name="sys_mon.xml"/>
@@ -216,7 +220,7 @@ include $(CFG_FIXEDWING)/subsystems/fixedwing_attitude_infrared.makefile
 include $(CFG_FIXEDWING)/subsystems/fixedwing_navigation.makefile
 
 # IO Options
-include $(CFG_FIXEDWING)/subsystems/fixedwing_radio_control_ppm.makefile
+#include $(CFG_FIXEDWING)/subsystems/fixedwing_radio_control_ppm.makefile
 include $(CFG_FIXEDWING)/subsystems/fixedwing_actuators_4017.makefile
 
 ### (UART 0, 38400baud) are the default GPS parameters, change and uncomment if needed

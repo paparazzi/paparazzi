@@ -7,6 +7,11 @@
 -->
 
 <airframe name="Microjet 5 Tiny 2.11">
+
+  <target name="fixed_wings" board="tiny_2.11">
+    <subsystem name="radio_control" type="ppm"/>
+  </target>
+
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="AILEVON_LEFT"  no="2" min="1130" neutral="1575" max="1880"/>
@@ -33,7 +38,7 @@
 
   <command_laws>
     <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
-    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
+    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
     <set servo="MOTOR"           value="@THROTTLE"/>
     <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
@@ -51,7 +56,7 @@
     <define name="IR_NB_SAMPLES" value="16"/>
 
     <define name="GYRO_ROLL" value="ADC_3"/>
-    <define name="GYRO_NB_SAMPLES" value="16"/> 
+    <define name="GYRO_NB_SAMPLES" value="16"/>
 
   </section>
 
@@ -79,13 +84,13 @@
 
  <section name="GYRO" prefix="GYRO_">
     <define name="ADC_ROLL_NEUTRAL" value="520"/>
-    <define name="ADC_TEMP_NEUTRAL" value="476"/>   
-    <define name="ADC_TEMP_SLOPE" value="0"/>  
+    <define name="ADC_TEMP_NEUTRAL" value="476"/>
+    <define name="ADC_TEMP_SLOPE" value="0"/>
     <define name="DYNAMIC_RANGE" value="300" unit="deg/s"/>
     <define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+1.8))"/>
     <define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/>
     <define name="ROLL_SCALE" value="3.3*1000./1024./(GYRO_ADXRS300_SENSITIVITY*GYRO_ADXRS300_RESISTOR_BRIDGE)" unit="deg/s/adc_unit"/>
-    <define name="ROLL_DIRECTION" value="-1."/> 
+    <define name="ROLL_DIRECTION" value="-1."/>
   </section>
 
   <section name="BAT">
@@ -93,7 +98,7 @@
 
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
- 
+
   <section name="MISC">
     <define name="MINIMUM_AIRSPEED" value="12." unit="m/s"/>
     <define name="NOMINAL_AIRSPEED" value="15." unit="m/s"/>
@@ -106,7 +111,7 @@
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
     <define name="MIN_CIRCLE_RADIUS" value="50."/>
   </section>
- 
+
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
     <!-- outer loop proportional gain -->
@@ -163,17 +168,12 @@
     </section>
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
-	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
-    	<define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
-    	<define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
-    	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
-	<define name="HOME_RADIUS" value="100" unit="m"/>
+    <define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
+        <define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
+        <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
+        <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
+    <define name="HOME_RADIUS" value="100" unit="m"/>
   </section>
-
-  <target name="fixed_wings" board="tiny_2.11">
-    <subsystem name="radio_control" type="ppm"/>
-  </target>
-
 
  <makefile>
 CONFIG = \"tiny_2_1_1.h\"
@@ -194,13 +194,13 @@ ap.srcs += $(SRC_ARCH)/servos_4017_hw.c actuators.c
 # Commented out thanks to the above "target" xml thingy
 #
 #ap.CFLAGS += -DRADIO_CONTROL
-#ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
+#ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ -DUART1_BAUD=B9600
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
 
 ap.CFLAGS += -DINTER_MCU
-ap.srcs += inter_mcu.c 
+ap.srcs += inter_mcu.c
 
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3
 ap.srcs += $(SRC_ARCH)/adc_hw.c
@@ -224,4 +224,3 @@ sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -
 sim.srcs += nav_survey_rectangle.c traffic_info.c nav_line.c
   </makefile>
 </airframe>
-

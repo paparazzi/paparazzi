@@ -7,6 +7,11 @@
 -->
 
 <airframe name="Microjet Tiny 1.1">
+
+  <target name="fixed_wings" board="tiny_2.11">
+    <subsystem name="radio_control" type="ppm"/>
+  </target>
+
   <servos>
     <servo name="MOTOR"         no="0" min="1290" neutral="1290" max="1810"/>
     <servo name="AILEVON_LEFT"  no="1" min="2000" neutral="1510" max="1000"/>
@@ -157,12 +162,6 @@
     <define name="DEVICE_TYPE" value="XBEE"/>
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
-
-  
-  <target name="fixed_wings" board="tiny_2.11">
-   <subsystem name="radio_control" type="ppm"/>
-  </target>
-  
 
   <makefile>
 BOARD_CFG = \"tiny_1_1.h\"
