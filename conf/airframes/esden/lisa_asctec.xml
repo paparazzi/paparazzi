@@ -200,11 +200,13 @@ include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 
 include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
 
-#
-# 
-#
+CONFIG_PASSTHROUGH = $(PAPARAZZI_SRC)/conf/autopilot/subsystems/lisa_passthrough
+SERVOS_REFRESH_FREQ=200
 
 include $(PAPARAZZI_SRC)/conf/autopilot/lisa_passthrough.makefile
+
+RADIO_CONTROL_SPEKTRUM_MODEL=\"booz/radio_control/booz_radio_control_joby.h\"
+include $(CONFIG_PASSTHROUGH)/radio_control_joby.makefile
 
  </makefile>
 
