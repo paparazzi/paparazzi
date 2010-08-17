@@ -32,9 +32,9 @@
 
 
 // absolute
-//#define BARO_ADDR 0x90   
+#define BARO_ADDR 0x90   
 // differential
-#define BARO_ADDR 0x92
+//#define BARO_ADDR 0x92
 
 #include <stm32/flash.h>
 #include <stm32/misc.h>
@@ -131,7 +131,6 @@ static inline void main_event_task( void ) {
 static inline void main_i2c_init( void ) {
 
 
-  I2C_DeInit(I2C2);
   //  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
   /* enable pullup on PC0 */
  GPIO_InitTypeDef GPIO_InitStructure;
@@ -154,7 +153,7 @@ static inline void main_i2c_init( void ) {
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-
+  I2C_DeInit(I2C2);
   /* I2C configuration ----------------------------------------------------------*/
   I2C_InitTypeDef  I2C_InitStructure; 
   I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
@@ -163,7 +162,7 @@ static inline void main_i2c_init( void ) {
   I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
   //  I2C_InitStructure.I2C_Ack = I2C_Ack_Disable;
   I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-  I2C_InitStructure.I2C_ClockSpeed = 200000;
+  I2C_InitStructure.I2C_ClockSpeed = 400000;
   
   /* I2C Peripheral Enable */
   I2C_Cmd(I2C2, ENABLE);
