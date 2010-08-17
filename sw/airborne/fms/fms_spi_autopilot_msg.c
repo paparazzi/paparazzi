@@ -50,7 +50,8 @@ static struct BoozImuFloat imu;
 static struct FloatEulers body_to_imu_eulers = LISA_BODY_TO_IMU_EULERS;
 
 static void (* vane_callback)(uint8_t vane_id, float alpha, float beta) = NULL;
-static void (* pressure_callback)(uint8_t pressure_id, uint32_t pressure1, uint32_t pressure2) = NULL;
+static void (* pressure_absolute_callback)(uint8_t pressure_id, uint32_t pressure) = NULL;
+static void (* pressure_differential_callback)(uint8_t pressure_id, uint32_t pressure) = NULL;
 static void (* radio_control_callback)(void) = NULL;
 
 void spi_ap_link_downlink_send(struct DownlinkTransport *tp)
@@ -66,9 +67,14 @@ void spi_ap_link_set_vane_callback(void (* vane_cb)(uint8_t vane_id, float alpha
   vane_callback = vane_cb;
 }
 
-void spi_ap_link_set_pressure_callback(void (* pressure_cb)(uint8_t pressure_id, uint32_t pressure1, uint32_t pressure2))
+void spi_ap_link_set_pressure_absolute_callback(void (* pressure_absolute_cb)(uint8_t pressure_id, uint32_t pressure))
 {
-  pressure_callback = pressure_cb;
+  pressure_absolute_callback = pressure_absolute_cb;
+}
+
+void spi_ap_link_set_pressure_differential_callback(void (* pressure_differential_cb)(uint8_t pressure_id, uint32_t pressure))
+{
+  pressure_differential_callback = pressure_differential_cb;
 }
 
 void spi_ap_link_set_radio_control_callback(void (* radio_control_cb)(void))
@@ -100,11 +106,15 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
 {
 
   if (msg_up->valid.vane && vane_callback)
-    // FIXME: placeholders since the vane and pressure data fields don't exist yet
+    // FIXME: placeholders since the vane data fields don't exist yet
     vane_callback(0, 0., 0.);
 
-  if (msg_up->valid.pressure && pressure_callback)
-    pressure_callback(0, 0, 0);
+  // Fill pressure data
+  if (msg_up->valid.pressure_absolute && pressure_absolute_callback)
+    pressure_absolute_callback(0, msg_up->pressure_absolute);
+
+  if (msg_up->valid.pressure_differential && pressure_differential_callback)
+    pressure_differential_callback(0, msg_up->pressure_differential);
 
   // Fill radio data
   if (msg_up->valid.rc && radio_control_callback) {
