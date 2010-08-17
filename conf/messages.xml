@@ -1667,13 +1667,6 @@
     <field name="zdd"   type="float" unit="m/s2"/>
   </message>
   
-  <message name="MERCURY_PROPS" id="249">
-    <field name="upper_left" type="uint8" />
-    <field name="lower_right" type="uint8" />
-    <field name="lower_left" type="uint8" />
-    <field name="upper_right" type="uint8" />
-  </message>
-
   <message name="AFL_COEFFS" id="250">
       <field name="roll_a"   type="float"/>
       <field name="roll_b"  type="float"/>
