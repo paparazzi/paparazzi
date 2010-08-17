@@ -58,6 +58,23 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
   
+
+  RunOnceEvery(256, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
+  RunOnceEvery(256, 
+    {
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, 
+			       &i2c2_errors.ack_fail_cnt,
+			       &i2c2_errors.miss_start_stop_cnt,
+			       &i2c2_errors.arb_lost_cnt,
+			       &i2c2_errors.over_under_cnt,
+			       &i2c2_errors.pec_recep_cnt,
+			       &i2c2_errors.timeout_tlow_cnt,
+			       &i2c2_errors.smbus_alert_cnt,
+			       &i2c2_errors.unexpected_event_cnt,
+			       &i2c2_errors.last_unexpected_event);
+    });
+
+
   i2c1_buf[0] = 100 + 0;
   i2c1_buf[1] = 100 + 0;
   i2c1_buf[2] = 100 + 0;
