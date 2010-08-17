@@ -54,13 +54,17 @@ ap.CFLAGS += -DLED -DTIME_LED=1
 
 ap.CFLAGS += -DCSC_BOARD_ID=$(CSC_ID)
 
+# ap.CFLAGS += -DUSE_PWM_INPUT -DUSE_VANE_SENSOR
+ap.CFLAGS += -DUSE_VANE_SENSOR
+ap.CFLAGS += -DUSE_BAT_MONITOR
+
 ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
 ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 #ap.srcs += $(SRC_ARCH)/adc_hw.c
 #ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_0 -DUSE_AD0_1
 
-#ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
+
 #ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 #ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
 #	                  -DDOWNLINK_DEVICE=Uart0
@@ -71,17 +75,17 @@ ap.CFLAGS += -DAP_LINK_CAN -DCAN_LED=2
 ap.CFLAGS += -DUSE_CAN1 #-DCAN1_BTR=CANBitrate125k_3MHz
 ap.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN1_ERR_VIC_SLOT=7
 ap.srcs += $(SRC_CSC)/csc_can.c
+ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5    
 #ap.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz -DCAN2_VIC_SLOT=4
 
 ap.CFLAGS += -DACTUATORS=\"servos_direct_hw.h\"
 ap.srcs += actuators.c
+ap.srcs += $(SRC_ARCH)/uart_hw.c
 ap.srcs += $(SRC_ARCH)/servos_direct_hw.c
 ap.srcs += $(SRC_CSC)/csc_servos.c
-
+ap.srcs += $(SRC_CSC)/csc_bat_monitor.c
 ap.srcs += $(SRC_CSC)/csc_ap_link.c
-
-
-#ap.srcs += $(SRC_CSC)/csc_adc.c
+ap.srcs += $(SRC_CSC)/csc_adc.c
 
 ap.CFLAGS += -DERROR_LED=4
 
