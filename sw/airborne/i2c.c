@@ -71,6 +71,8 @@ void i2c0_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile
 
 #ifdef USE_I2C1
 
+struct i2c i2c1;
+
 volatile uint8_t i2c1_status;
 volatile uint8_t i2c1_buf[I2C1_BUF_LEN];
 volatile uint16_t i2c1_len_r;
@@ -120,43 +122,62 @@ void i2c1_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile
 
 #ifdef USE_I2C2
 
-struct I2C2_P i2c2;
+#include "booz/booz2_debug.h"
+
+struct i2c i2c2;
 
 void i2c2_init(void) {
-  i2c2.status = I2C_IDLE;
+  i2c2.status = I2CIdle;
   i2c2.finished = NULL;
   i2c2_hw_init();
 }
 
 void i2c2_receive(uint8_t slave_addr, uint8_t len, volatile bool_t* finished) {
-  i2c2.direction = I2CDirRx;
+  MY_ASSERT((i2c2.status == I2CIdle) || (i2c2.status == I2CComplete) || (i2c2.status == I2CFailed));
+  i2c2.transaction = I2CTransRx;
   i2c2.slave_addr = slave_addr;
   i2c2.len_r = len;
   i2c2.finished = finished;
   if (finished) *finished = FALSE;
-  i2c2.status = I2C_BUSY;
-  I2c2SendStart();
+  i2c2.index = 0;
+  I2C_AcknowledgeConfig(I2C2, ENABLE); 
+  i2c2.status = I2CStartRequested;
+  I2C_ZERO_EVENTS();
+  //  I2c2SendStart();
+  I2C_ITConfig(I2C2, I2C_IT_EVT, ENABLE);
+  I2C_GenerateSTART(I2C2, ENABLE);
 }
 
 void i2c2_transmit(uint8_t slave_addr, uint8_t len, volatile bool_t* finished) {
-  i2c2.direction = I2CDirTx;
+  MY_ASSERT((i2c2.status == I2CIdle) || (i2c2.status == I2CComplete) || (i2c2.status == I2CFailed));
+  i2c2.transaction = I2CTransTx;
   i2c2.slave_addr = slave_addr;
   i2c2.len_w = len;
   i2c2.finished = finished;
   if (finished) *finished = FALSE;
-  i2c2.status = I2C_BUSY;
-  I2c2SendStart();
+  i2c2.index = 0;
+  i2c2.status = I2CStartRequested;
+  I2C_ZERO_EVENTS();
+  //  I2c2SendStart();
+  I2C_ITConfig(I2C2, I2C_IT_EVT, ENABLE);
+  I2C_GenerateSTART(I2C2, ENABLE);
 }
 
 void i2c2_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile bool_t* finished) {
-  i2c2.direction = I2CDirTxRx;
+  MY_ASSERT((i2c2.status == I2CIdle) || (i2c2.status == I2CComplete) || (i2c2.status == I2CFailed));
+  i2c2.transaction = I2CTransTxRx;
   i2c2.slave_addr = slave_addr;
   i2c2.len_w = len_w;
   i2c2.len_r = len_r;
   i2c2.finished = finished;
   if (finished) *finished = FALSE;
-  i2c2.status = I2C_BUSY;
-  I2c2SendStart();
+  i2c2.index = 0;
+  I2C_AcknowledgeConfig(I2C2, ENABLE); 
+  i2c2.status = I2CStartRequested;
+  I2C_ZERO_EVENTS();
+  //  I2c2SendStart();
+  I2C_ITConfig(I2C2, I2C_IT_EVT, ENABLE);
+  I2C_GenerateSTART(I2C2, ENABLE);
 }
 
 

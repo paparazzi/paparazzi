@@ -5,6 +5,59 @@
 
 #include "i2c_hw.h"
 
+enum I2CTransaction { 
+  I2CTransTx, 
+  I2CTransRx, 
+  I2CTransTxRx 
+};
+
+enum I2CStatus { 
+  I2CIdle, 
+  I2CStartRequested,
+  I2CAddrWrSent, 
+  I2CAddrRdSent, 
+  I2CSendingByte, 
+  I2CSendingLastByte,
+  I2CReadingByte,
+  I2CReadingLastByte,
+  I2CStopRequested, 
+  I2CRestartRequested,
+  I2CComplete,
+  I2CFailed
+};
+
+#ifndef I2C_BUF_LEN
+#define I2C_BUF_LEN 32
+#endif
+
+struct i2c {
+  volatile enum I2CStatus status;
+  volatile enum I2CTransaction transaction;
+  volatile uint8_t  slave_addr;
+  volatile uint16_t len_r;
+  volatile uint8_t  len_w;
+  volatile bool_t   stop_after_transmit;
+  volatile uint8_t  index;
+  volatile bool_t*  finished;
+  volatile uint8_t  buf[I2C_BUF_LEN];
+};
+
+struct i2c_errors {
+  volatile uint16_t ack_fail_cnt;
+  volatile uint16_t miss_start_stop_cnt;
+  volatile uint16_t arb_lost_cnt;
+  volatile uint16_t over_under_cnt;
+  volatile uint16_t pec_recep_cnt;
+  volatile uint16_t timeout_tlow_cnt;
+  volatile uint16_t smbus_alert_cnt;
+  volatile uint16_t unexpected_event_cnt;
+  volatile uint32_t last_unexpected_event;
+  volatile uint32_t er_irq_cnt;
+  volatile uint32_t irq_cnt;
+  volatile uint32_t event_chain[16];
+  volatile enum I2CStatus status_chain[16];
+};
+
 
 #define I2C_START        0x08
 #define I2C_RESTART      0x10
@@ -114,6 +167,7 @@ extern void i2c1_transmit(uint8_t slave_addr, uint8_t len, volatile bool_t* fini
 extern void i2c1_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile bool_t* finished);
 
 extern volatile uint8_t i2c1_status;
+extern struct i2c i2c1;
 
 #ifndef I2C1_BUF_LEN
 #define I2C1_BUF_LEN 16
@@ -189,25 +243,8 @@ extern volatile bool_t* i2c1_finished;
 
 #ifdef USE_I2C2
 
-#ifndef I2C2_BUF_LEN
-#define I2C2_BUF_LEN 32
-#endif
 
-enum I2CDirection { I2CDirTx, I2CDirRx, I2CDirTxRx };
-
-struct I2C2_P {
-  volatile uint8_t  status;
-  enum I2CDirection direction;
-  volatile uint8_t  slave_addr;
-  volatile uint16_t len_r;
-  volatile uint8_t  len_w;
-  volatile bool_t   stop_after_transmit;
-  volatile uint8_t  index;
-  volatile bool_t*  finished;
-  volatile uint8_t  buf[I2C2_BUF_LEN];
-};
-
-extern struct I2C2_P i2c2;
+extern struct i2c i2c2;
 
 extern void i2c2_init(void);
 extern void i2c2_receive(uint8_t slave_addr, uint8_t len, volatile bool_t* finished);
