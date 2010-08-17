@@ -70,3 +70,8 @@ endif
 stm_passthrough.CFLAGS += -DSERVO_HZ=$(SERVOS_REFRESH_FREQ)
 stm_passthrough.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c
 stm_passthrough.srcs += $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_arch.c
+
+# Baro
+stm_passthrough.srcs += $(SRC_LISA)/lisa_baro.c
+stm_passthrough.CFLAGS += -DUSE_I2C2
+stm_passthrough.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c

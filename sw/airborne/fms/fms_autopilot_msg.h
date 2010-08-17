@@ -70,7 +70,8 @@ struct __attribute__ ((packed)) AutopilotMessageTWDown
 struct __attribute__ ((packed)) PTUpValidFlags
 {
   unsigned rc:1;
-  unsigned pressure:1;
+  unsigned pressure_absolute:1;
+  unsigned pressure_differential:1;
   unsigned vane:1;
   unsigned imu:1;
 };
@@ -80,6 +81,8 @@ struct __attribute__ ((packed)) AutopilotMessagePTUp
   struct Int32Rates gyro;
   struct Int16Vect3 accel;
   struct Int16Vect3 mag;
+  int16_t pressure_absolute;
+  int16_t pressure_differential;
   int16_t rc_pitch;
   int16_t rc_roll;
   int16_t rc_yaw;

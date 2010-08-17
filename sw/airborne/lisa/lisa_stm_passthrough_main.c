@@ -31,6 +31,7 @@
 #include "booz/booz_imu.h"
 #include "booz/booz_radio_control.h"
 #include "lisa/lisa_overo_link.h"
+#include "lisa/lisa_baro.h"
 
 static inline void main_init(void);
 static inline void main_periodic(void);
@@ -46,6 +47,8 @@ static inline void on_overo_link_crc_failed(void);
 static inline void on_rc_message(void);
 
 static bool_t new_radio_msg;
+static bool_t new_baro_diff;
+static bool_t new_baro_abs;
 
 int main(void) {
 
@@ -60,55 +63,22 @@ int main(void) {
   return 0;
 }
 
-static inline void main_init(void) {
-
-  hw_init();
-  sys_time_init();
-  booz_imu_init();
-  radio_control_init();
-  booz_actuators_init();
-  overo_link_init();
-  new_radio_msg = FALSE;
-
-}
-
-static inline void main_periodic(void) {
-  
-  booz_imu_periodic();
-  OveroLinkPeriodic(on_overo_link_lost);
-  RunOnceEvery(10, {
-      LED_PERIODIC(); 
-      DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
-      radio_control_periodic();
-    });
-
-}
-
-static inline void main_event(void) {
-  
-  BoozImuEvent(on_gyro_accel_event, on_mag_event);
-  OveroLinkEvent(on_overo_link_msg_received, on_overo_link_crc_failed);
-  RadioControlEvent(on_rc_message);
-
-}
-
 static inline void on_rc_message(void) {
   new_radio_msg = TRUE;
 }
 
 static inline void on_overo_link_msg_received(void) {
 
-  overo_link.up.msg.valid.rc = new_radio_msg;
-  new_radio_msg = FALSE;
-  
+  /* IMU up */ 
   overo_link.up.msg.valid.imu = 1;
-  
   RATES_COPY(overo_link.up.msg.gyro, booz_imu.gyro);
-  
   VECT3_COPY(overo_link.up.msg.accel, booz_imu.accel);
-  
   VECT3_COPY(overo_link.up.msg.mag, booz_imu.mag);
   
+  /* RC up */
+  overo_link.up.msg.valid.rc = new_radio_msg;
+  new_radio_msg = FALSE;
+
   overo_link.up.msg.rc_pitch = radio_control.values[RADIO_CONTROL_PITCH];
   overo_link.up.msg.rc_roll = radio_control.values[RADIO_CONTROL_ROLL];
   overo_link.up.msg.rc_yaw = radio_control.values[RADIO_CONTROL_YAW];
@@ -126,7 +96,16 @@ static inline void on_overo_link_msg_received(void) {
   
   overo_link.up.msg.stm_msg_cnt = overo_link.msg_cnt;
   overo_link.up.msg.stm_crc_err_cnt = overo_link.crc_err_cnt;
+
+  /* baro up */
+  overo_link.up.msg.valid.pressure_differential = new_baro_diff;
+  overo_link.up.msg.valid.pressure_absolute = new_baro_abs;
+  new_baro_diff = FALSE;
+  new_baro_abs = FALSE;
+  overo_link.up.msg.pressure_differential = baro.diff_raw;
+  overo_link.up.msg.pressure_absolute = baro.abs_raw;
   
+  /* pwm acuators down */
   for (int i = 0; i < LISA_PWM_OUTPUT_NB; i++)
     booz_actuators_pwm_values[i] = overo_link.down.msg.pwm_outputs_usecs[i];
   booz_actuators_pwm_commit();
@@ -150,3 +129,43 @@ static inline void on_mag_event(void) {
   BoozImuScaleMag(booz_imu);
 }
 
+static inline void main_on_baro_diff(void) {
+  new_baro_diff = TRUE;
+}
+
+static inline void main_on_baro_abs(void) {
+  new_baro_abs = TRUE;
+}
+
+static inline void main_init(void) {
+
+  hw_init();
+  sys_time_init();
+  booz_imu_init();
+  baro_init();
+  radio_control_init();
+  booz_actuators_init();
+  overo_link_init();
+  new_radio_msg = FALSE;
+
+}
+
+static inline void main_periodic(void) {
+  
+  booz_imu_periodic();
+  OveroLinkPeriodic(on_overo_link_lost);
+  RunOnceEvery(10, {
+      LED_PERIODIC(); 
+      DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+      radio_control_periodic();
+    });
+
+}
+
+static inline void main_event(void) {
+  
+  BoozImuEvent(on_gyro_accel_event, on_mag_event);
+  BaroEvent(main_on_baro_abs, main_on_baro_diff);
+  OveroLinkEvent(on_overo_link_msg_received, on_overo_link_crc_failed);
+  RadioControlEvent(on_rc_message);
+}
