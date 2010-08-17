@@ -27,5 +27,5 @@
 
 #ifndef BOOZ_RADIO_CONTROL_SPEKTRUM_ARCH_H
 #define BOOZ_RADIO_CONTROL_SPEKTRUM_ARCH_H
-extern void bind_init( void );
+extern void radio_control_spektrum_try_bind( void );
 #endif  /* BOOZ_RADIO_CONTROL_SPEKTRUM_ARCH_H */
