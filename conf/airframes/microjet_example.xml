@@ -1,4 +1,4 @@
-<!DOCTYPE airframe SYSTEM "airframe.dtd">
+<!-- <!DOCTYPE airframe SYSTEM "airframe.dtd"> -->
 
 <!-- Microjet Multiplex (http://www.multiplex-rc.de/)
      Tiny 1.1 board (http://paparazzi.enac.fr/wiki/Tiny)
@@ -157,6 +157,17 @@
     <define name="DEVICE_TYPE" value="XBEE"/>
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
+
+  
+  <target name="fixed_wings" board="tiny_2.11">
+   <subsystem name="radio_control" type="ppm"/>
+  </target>
+  
+<!--
+ include $(PAPARAZZI_SRC)/conf/autopilot/fixed_wing.makefile
+ include $(PAPARAZZI_SRC)/conf/boards/tiny_2.11.makefile
+ include $(CFG_FIXED_WINGS)/radio_control_ppm.makefile
+-->
 
   <makefile>
 BOARD_CFG = \"tiny_1_1.h\"

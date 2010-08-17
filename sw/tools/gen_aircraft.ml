@@ -94,6 +94,23 @@ let extract_makefile = fun airframe_file makefile_ac ->
     end)
     (Xml.children xml);
 
+  (** Search and dump target sections *)
+  List.iter (fun x ->
+    if ExtXml.tag_is x "target" then begin
+      begin try
+        fprintf f "\n# makefile target '%s' board '%s'\n\n" (Xml.attrib x "name") (Xml.attrib x "board");
+        fprintf f "include $(PAPARAZZI_SRC)/conf/autopilot/%s.makefile\n" (Xml.attrib x "name");
+        fprintf f "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib x "board");
+      with _ -> () end;
+      (**     
+	 match Xml.children x with
+         [Xml.PCData s] -> fprintf f "%s\n" s
+	 | _ -> failwith (sprintf "Warning: wrong makefile section in '%s': %s\n" airframe_file (Xml.to_string_fmt x)) 
+       **)
+      
+    end)
+    (Xml.children xml);
+
   (** Look for modules *)
   let files = ref [] in
   List.iter (fun x ->
