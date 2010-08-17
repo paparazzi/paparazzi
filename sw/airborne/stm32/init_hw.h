@@ -55,7 +55,7 @@
 #include "led.h"
 #endif
 #ifdef RADIO_CONTROL_LINK
-#include "bind_hw.h"
+#include "booz/radio_control/booz_radio_control_spektrum.h"
 #endif
 #if defined USE_UART1 || defined USE_UART2 || defined USE_UART3
 #include "uart.h"
@@ -153,7 +153,7 @@ static inline void hw_init(void) {
   led_init();
 #endif
 #ifdef RADIO_CONTROL_LINK
-  bind_init();
+  radio_control_spektrum_try_bind();
 #endif
 #ifdef USE_UART1
   uart1_init();
