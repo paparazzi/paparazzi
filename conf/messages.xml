@@ -1203,6 +1203,7 @@
   </message>
 
     <message name="EKF7_Y" id="171">
+      <field name="timecount" type="uint32"/>
       <field name="g1"  type="float"/>
       <field name="g2"  type="float"/>
       <field name="g3"  type="float"/>
@@ -1348,11 +1349,14 @@
     <message name="VANE_SENSOR" id="191">
       <field name="alpha"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
       <field name="alpha_filtered"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-      <field name="beta"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
       <field name="alpha_target"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
       <field name="alpha_vane_error" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
       <field name="alpha2"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-      <field name="beta2"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+      <field name="beta"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+      <field name="beta_filtered"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+      <field name="beta_target"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+      <field name="beta_vane_error" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+      <field name="beta2"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
     </message>
 
     <message name="CONTROLLER_GAINS" id="192">
@@ -1666,7 +1670,31 @@
     <field name="ydd"   type="float" unit="m/s2"/>
     <field name="zdd"   type="float" unit="m/s2"/>
   </message>
+
+  <message name="LOOSE_INS_GPS_MEAS" id="249">
+    <field name="est_p"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>   
+    <field name="est_q"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>   
+    <field name="est_r"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>   
+    <field name="est_phi"       type="float" alt_unit="degres" alt_unit_coef="57.29578"/>   
+    <field name="est_theta"     type="float" alt_unit="degres" alt_unit_coef="57.29578"/>   
+    <field name="est_psi"       type="float" alt_unit="degres" alt_unit_coef="57.29578"/>   
+    <field name="est_p_d"       type="float" alt_unit="degres/s^2" alt_unit_coef="57.29578"/>   
+    <field name="est_q_d"       type="float" alt_unit="degres/s^2" alt_unit_coef="57.29578"/>   
+    <field name="est_r_d"       type="float" alt_unit="degres/s^2" alt_unit_coef="57.29578"/>   
+    <field name="gps_solution_valid" type="uint8"/>
+    <field name="north" type="double" unit="m" />
+    <field name="east" type="double" unit="m" />
+    <field name="down" type="double" unit="m" />
+    <field name="v_north" type="double" unit="m/s" />
+    <field name="v_east" type="double" unit="m/s" />
+    <field name="v_down" type="double" unit="m/s" />
+    <field name="alpha"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3" />
+    <field name="beta"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3" />
+    <field name="airspeed" type="float" unit="m/s" />
+    <field name="barometer" type="float" unit="Pa" />
+  </message>
   
+
   <message name="AFL_COEFFS" id="250">
       <field name="roll_a"   type="float"/>
       <field name="roll_b"  type="float"/>
@@ -1716,6 +1744,8 @@
   </message>
 
   <message name="HENRY_GNSS" id="255">
+    <field name="last_imu_update" type="uint32"/>
+    <field name="GPS_time" type="double"/>
     <field name="GPS_solution_valid" type="uint8"/>
     <field name="latitude" type="double" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
     <field name="longitude" type="double" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
