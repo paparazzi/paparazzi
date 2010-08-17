@@ -133,7 +133,6 @@ void i2c2_init(void) {
 }
 
 void i2c2_receive(uint8_t slave_addr, uint8_t len, volatile bool_t* finished) {
-  MY_ASSERT((i2c2.status == I2CIdle) || (i2c2.status == I2CComplete) || (i2c2.status == I2CFailed));
   i2c2.transaction = I2CTransRx;
   i2c2.slave_addr = slave_addr;
   i2c2.len_r = len;
@@ -149,7 +148,7 @@ void i2c2_receive(uint8_t slave_addr, uint8_t len, volatile bool_t* finished) {
 }
 
 void i2c2_transmit(uint8_t slave_addr, uint8_t len, volatile bool_t* finished) {
-  MY_ASSERT((i2c2.status == I2CIdle) || (i2c2.status == I2CComplete) || (i2c2.status == I2CFailed));
+  //MY_ASSERT((i2c2.status == I2CIdle) || (i2c2.status == I2CComplete) || (i2c2.status == I2CFailed));
   i2c2.transaction = I2CTransTx;
   i2c2.slave_addr = slave_addr;
   i2c2.len_w = len;
@@ -164,7 +163,7 @@ void i2c2_transmit(uint8_t slave_addr, uint8_t len, volatile bool_t* finished) {
 }
 
 void i2c2_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile bool_t* finished) {
-  MY_ASSERT((i2c2.status == I2CIdle) || (i2c2.status == I2CComplete) || (i2c2.status == I2CFailed));
+  //MY_ASSERT((i2c2.status == I2CIdle) || (i2c2.status == I2CComplete) || (i2c2.status == I2CFailed));
   i2c2.transaction = I2CTransTxRx;
   i2c2.slave_addr = slave_addr;
   i2c2.len_w = len_w;
