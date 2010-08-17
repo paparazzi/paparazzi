@@ -326,8 +326,13 @@ static inline void on_status_reading_byte(uint32_t event);
 static inline void on_status_reading_last_byte(uint32_t event);
 static inline void on_status_restart_requested(uint32_t event);
 
+#ifdef DEBUG_I2C
 #define SPURIOUS_INTERRUPT(_status, _event) { while(1); }
 #define OUT_OF_SYNC_STATE_MACHINE(_status, _event) { while(1); }
+#else
+#define SPURIOUS_INTERRUPT(_status, _event) {}
+#define OUT_OF_SYNC_STATE_MACHINE(_status, _event) {}
+#endif
 
 /*
  * Start Requested
