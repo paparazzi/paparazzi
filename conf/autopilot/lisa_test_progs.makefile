@@ -303,11 +303,11 @@ tunnel.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 #tunnel.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B9600
 #tunnel.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B9600
 
-tunnel.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
-tunnel.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B38400
+#tunnel.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
+#tunnel.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B38400
 
-#tunnel.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
-#tunnel.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+tunnel.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+tunnel.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 
 #tunnel.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B115200
 #tunnel.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B115200
@@ -577,21 +577,21 @@ test_mc2.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 #
 # test motor controllers asctec with interrupts
 #
-test_mc4.ARCHDIR = $(ARCHI)
-test_mc4.TARGET = test_mc
-test_mc4.TARGETDIR = test_mc
-test_mc4.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
-test_mc4.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_mc4.srcs = $(SRC_LISA)/test_mc4.c           \
-                $(SRC_ARCH)/stm32_exceptions.c   \
-                $(SRC_ARCH)/stm32_vector_table.c
-test_mc4.CFLAGS += -DUSE_LED
-test_mc4.srcs += $(SRC_ARCH)/led_hw.c
-test_mc4.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
-test_mc4.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-test_mc4.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-test_mc4.CFLAGS += -DUSE_I2C1
-test_mc4.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+test_mc_asctec_v1_simple.ARCHDIR = $(ARCHI)
+test_mc_asctec_v1_simple.TARGET = test_mc_asctec_v1_simple
+test_mc_asctec_v1_simple.TARGETDIR = test_mc_asctec_v1_simple
+test_mc_asctec_v1_simple.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_mc_asctec_v1_simple.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_mc_asctec_v1_simple.srcs = $(SRC_LISA)/test/test_mc_asctec_v1_simple.c  \
+                                $(SRC_ARCH)/stm32_exceptions.c               \
+                                $(SRC_ARCH)/stm32_vector_table.c
+test_mc_asctec_v1_simple.CFLAGS += -DUSE_LED
+test_mc_asctec_v1_simple.srcs += $(SRC_ARCH)/led_hw.c
+test_mc_asctec_v1_simple.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_mc_asctec_v1_simple.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_mc_asctec_v1_simple.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_mc_asctec_v1_simple.CFLAGS += -DUSE_I2C1
+test_mc_asctec_v1_simple.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 
 #

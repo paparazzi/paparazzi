@@ -669,7 +669,7 @@ void i2c2_er_irq_handler(void) {
 /* disable IRQ, notifiy caller, update status */
 #define TransactionComplete() {				\
     I2C_ITConfig(I2C2, I2C_IT_EVT|I2C_IT_BUF, DISABLE); \
-    //    DEBUG_S1_OFF();				\
+				\
     if (i2c2.finished) *i2c2.finished = TRUE;		\
     i2c2.status = I2CComplete;				\
     I2c2StopHandler();					\
