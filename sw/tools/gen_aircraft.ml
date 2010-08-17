@@ -101,13 +101,12 @@ let extract_makefile = fun airframe_file makefile_ac ->
         fprintf f "\n# makefile target '%s' board '%s'\n\n" (Xml.attrib x "name") (Xml.attrib x "board");
         fprintf f "include $(PAPARAZZI_SRC)/conf/autopilot/%s.makefile\n" (Xml.attrib x "name");
         fprintf f "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib x "board");
+	let print_if_subsystem = (fun c ->
+          if ExtXml.tag_is c "subsystem" then begin
+            fprintf f "include $(CFG_%s)/%s_%s.makefile\n" (String.uppercase(Xml.attrib x "name")) (Xml.attrib c "name") (Xml.attrib c "type");
+          end) in
+	List.iter print_if_subsystem (Xml.children x)
       with _ -> () end;
-      (**     
-	 match Xml.children x with
-         [Xml.PCData s] -> fprintf f "%s\n" s
-	 | _ -> failwith (sprintf "Warning: wrong makefile section in '%s': %s\n" airframe_file (Xml.to_string_fmt x)) 
-       **)
-      
     end)
     (Xml.children xml);
 
