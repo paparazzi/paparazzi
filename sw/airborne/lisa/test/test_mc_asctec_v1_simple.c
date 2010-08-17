@@ -30,6 +30,7 @@
 
 #include "init_hw.h"
 #include "sys_time.h"
+#include "downlink.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -63,15 +64,15 @@ static inline void main_periodic_task( void ) {
   RunOnceEvery(256, 
     {
       DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, 
-			       &i2c2_errors.ack_fail_cnt,
-			       &i2c2_errors.miss_start_stop_cnt,
-			       &i2c2_errors.arb_lost_cnt,
-			       &i2c2_errors.over_under_cnt,
-			       &i2c2_errors.pec_recep_cnt,
-			       &i2c2_errors.timeout_tlow_cnt,
-			       &i2c2_errors.smbus_alert_cnt,
-			       &i2c2_errors.unexpected_event_cnt,
-			       &i2c2_errors.last_unexpected_event);
+			       &i2c1_errors.ack_fail_cnt,
+			       &i2c1_errors.miss_start_stop_cnt,
+			       &i2c1_errors.arb_lost_cnt,
+			       &i2c1_errors.over_under_cnt,
+			       &i2c1_errors.pec_recep_cnt,
+			       &i2c1_errors.timeout_tlow_cnt,
+			       &i2c1_errors.smbus_alert_cnt,
+			       &i2c1_errors.unexpected_event_cnt,
+			       &i2c1_errors.last_unexpected_event);
     });
 
 

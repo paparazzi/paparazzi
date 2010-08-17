@@ -592,6 +592,11 @@ test_mc_asctec_v1_simple.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./51
 test_mc_asctec_v1_simple.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_mc_asctec_v1_simple.CFLAGS += -DUSE_I2C1
 test_mc_asctec_v1_simple.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+test_mc_asctec_v1_simple.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_mc_asctec_v1_simple.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_mc_asctec_v1_simple.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_mc_asctec_v1_simple.srcs += downlink.c pprz_transport.c
 
 
 #
