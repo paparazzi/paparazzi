@@ -17,7 +17,7 @@ enum I2CStatus {
   I2CAddrWrSent, 
   I2CAddrRdSent, 
   I2CSendingByte, 
-  I2CSendingLastByte,
+  /*  I2CSendingLastByte, */
   I2CReadingByte,
   I2CReadingLastByte,
   I2CStopRequested, 

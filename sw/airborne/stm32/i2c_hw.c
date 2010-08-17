@@ -319,7 +319,7 @@ void i2c2_hw_init(void) {
 static inline void on_status_start_requested(uint32_t event);
 static inline void on_status_addr_wr_sent(uint32_t event);
 static inline void on_status_sending_byte(uint32_t event);
-static inline void on_status_sending_last_byte(uint32_t event);
+//static inline void on_status_sending_last_byte(uint32_t event);
 static inline void on_status_stop_requested(uint32_t event);
 static inline void on_status_addr_rd_sent(uint32_t event);
 static inline void on_status_reading_byte(uint32_t event);
