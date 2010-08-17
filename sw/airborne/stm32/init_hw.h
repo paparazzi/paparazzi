@@ -1,7 +1,7 @@
 /*
  * Paparazzi $Id$
  *
- * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2009-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -54,8 +54,8 @@
 #ifdef USE_LED
 #include "led.h"
 #endif
-#ifdef RADIO_CONTROL_LINK
-#include "booz/radio_control/booz_radio_control_spektrum.h"
+#if defined USE_RADIO_CONTROL & defined RADIO_CONTROL_LINK
+#include "booz/booz_radio_control.h"
 #endif
 #if defined USE_UART1 || defined USE_UART2 || defined USE_UART3
 #include "uart.h"
@@ -118,41 +118,12 @@ static inline void hw_init(void) {
   NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
 
 
-#if 0
-  /* Configure all unused GPIO port pins in Analog Input mode (floating input
-     trigger OFF), this will reduce the power consumption and increase the device
-     immunity against EMI/EMC *************************************************/
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB |
-                         RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
-                         RCC_APB2Periph_GPIOE, ENABLE);
-#endif
-  
-#if 0
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
-  GPIO_Init(GPIOD, &GPIO_InitStructure);
-  GPIO_Init(GPIOE, &GPIO_InitStructure);
-#endif
-
-#if 0
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA |
-			 RCC_APB2Periph_GPIOB |
-                         RCC_APB2Periph_GPIOC |
-			 RCC_APB2Periph_GPIOD |
-                         RCC_APB2Periph_GPIOE, DISABLE);  
-#endif
-
-
-
 #ifdef PERIPHERALS_AUTO_INIT
 #ifdef USE_LED
   led_init();
 #endif
-#ifdef RADIO_CONTROL_LINK
+  /* for now this means using spektrum */
+#if defined USE_RADIO_CONTROL & defined RADIO_CONTROL_LINK
   radio_control_spektrum_try_bind();
 #endif
 #ifdef USE_UART1
