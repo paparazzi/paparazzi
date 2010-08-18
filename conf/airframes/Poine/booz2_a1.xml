@@ -207,8 +207,6 @@
   <makefile target="opening">
 
 
-FLASH_MODE = IAP
-
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
 ap.CFLAGS += -DMODEM_BAUD=B57600
@@ -219,6 +217,7 @@ ap.CFLAGS += -DUSE_ADAPT_HOVER
 
 
   <target name="baloo" board="booz">
+    <option name="FLASH_MODE" value="IAP"/> <!-- that should be the default for the board but I'm putting it here as example--> 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="actuators"     type="mkk"/>
     <subsystem name="imu"           type="b2v1"/>
