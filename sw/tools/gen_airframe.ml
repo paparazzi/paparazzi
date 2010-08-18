@@ -229,7 +229,9 @@ let parse_subsystem_defines = fun options ->
 
 let parse_subsystems = fun subsystem ->
   match Xml.tag subsystem with
-    "subsystem" ->
+    "param" ->
+      printf "// subsystem parameter: %s\n"  (ExtXml.attrib subsystem "name") 
+   | "subsystem" ->
       printf "// -%s:\n"  (ExtXml.attrib subsystem "name");
       List.iter parse_subsystem_defines (Xml.children subsystem)
    | _ -> xml_error "subsystem"

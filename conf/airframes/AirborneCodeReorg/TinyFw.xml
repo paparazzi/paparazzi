@@ -161,6 +161,7 @@
   </section>
 
   <target name="fixedwing" board="tiny_2.11">
+    <param name="FLASH_MODE" value="IAP"/>
     <subsystem name="autopilot"/>
     <subsystem name="testing"/>
     <subsystem name="radio_control" type="ppm"/>

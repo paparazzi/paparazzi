@@ -23,7 +23,7 @@
 <!ELEMENT modules (load)*>
 <!ELEMENT load EMPTY>
 <!ELEMENT param EMPTY>
-<!ELEMENT target (subsystem)*>
+<!ELEMENT target (subsystem|param)*>
 <!ELEMENT subsystem (define|param)*>
 
 <!ATTLIST target

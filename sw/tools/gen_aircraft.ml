@@ -162,6 +162,11 @@ let dump_target_section = fun xml makefile_ac ->
         fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/autopilot/%s.makefile\n" (Xml.attrib tag "name");
         fprintf makefile_ac "\n# Subsystems:'\n";
 	let print_if_subsystem = (fun c ->
+          if ExtXml.tag_is c "param" then begin
+            fprintf makefile_ac "%s = %s\n"
+            (String.uppercase(Xml.attrib c "name"))
+            (Xml.attrib c "value")
+          end;
           if ExtXml.tag_is c "subsystem" then begin
             let has_subtype = ref false in
             begin try
