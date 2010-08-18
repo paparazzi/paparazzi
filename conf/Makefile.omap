@@ -23,11 +23,14 @@
 
 # Define programs and commands.
 
-OVERO_OE=`find /opt/paparazzi/omap ~ / -maxdepth 1 -type d -name overo-oe 2>/dev/null | head -n 1`
-#OVERO_OE=/opt/paparazzi/omap/overo-oe
+# Look for an open embedded directory
+OVERO_OE := $(shell find -L /opt/paparazzi/omap ~ / -maxdepth 1 -type d -name overo-oe 2>/dev/null | head -n 1)
 
-#CC = $(OVERO_OE)/tmp/cross/armv7a/bin/arm-angstrom-linux-gnueabi-gcc
-CC = $(OVERO_OE)/tmp/sysroots/i686-linux/usr/armv7a/bin/arm-angstrom-linux-gnueabi-gcc
+# Multiple places to look for compiler within oe directory structure
+CC_NAME = arm-angstrom-linux-gnueabi-gcc
+CCPATH1 = $(OVERO_OE)/tmp/cross/armv7a/bin
+CCPATH2 = $(OVERO_OE)/tmp/sysroots/i686-linux/usr/armv7a/bin
+CC := $(shell find -L $(CCPATH1) $(CCPATH2) -name $(CC_NAME) -type f 2>/dev/null | head -n 1)
 LD = $(CC)
 
 
