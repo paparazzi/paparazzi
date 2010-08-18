@@ -165,13 +165,13 @@ let dump_target_section = fun xml makefile_ac ->
             fprintf makefile_ac "include $(CFG_%s)/%s_%s.makefile\n" 
 	      (String.uppercase(Xml.attrib tag "name"))
 	      (Xml.attrib c "name") (Xml.attrib c "type");
-            let print_if_subsystem_define = (fun c ->
-              if ExtXml.tag_is c "define" then begin
+            let print_if_subsystem_define = (fun d ->
+              if ExtXml.tag_is d "define" then begin
                 fprintf makefile_ac "%s = %s\n"
-                (String.uppercase(Xml.attrib c "name"))
-                (Xml.attrib c "value");
+                (String.uppercase(Xml.attrib d "name"))
+                (Xml.attrib d "value");
               end) in
-            List.iter print_if_subsystem_define (Xml.children tag)
+            List.iter print_if_subsystem_define (Xml.children c)
           end) in
 	List.iter print_if_subsystem (Xml.children tag)
       with _ -> () end;
