@@ -74,43 +74,12 @@ let get_modules = fun dir m ->
 
 
 
-(** Extracts the makefile section of an airframe file *)
-let extract_makefile = fun airframe_file makefile_ac ->
-  let xml = Xml.parse_file airframe_file in
-  let f = open_out makefile_ac in
-
-  fprintf f "# This file has been generated from %s by %s\n" airframe_file Sys.argv.(0);
-  fprintf f "# Please DO NOT EDIT\n";
-
-  (** Search and dump the makefile sections *)
-  List.iter (fun x ->
-    if ExtXml.tag_is x "makefile" then begin
-      begin try
-        fprintf f "\n# makefile target '%s'\n" (Xml.attrib x "target")
-      with _ -> () end;
-      match Xml.children x with
-        [Xml.PCData s] -> fprintf f "%s\n" s
-      | _ -> failwith (sprintf "Warning: wrong makefile section in '%s': %s\n" airframe_file (Xml.to_string_fmt x))
-    end)
-    (Xml.children xml);
-
-  (** Search and dump target sections *)
-  List.iter (fun x ->
-    if ExtXml.tag_is x "target" then begin
-      begin try
-        fprintf f "\n# makefile target '%s' board '%s'\n\n" (Xml.attrib x "name") (Xml.attrib x "board");
-        fprintf f "include $(PAPARAZZI_SRC)/conf/autopilot/%s.makefile\n" (Xml.attrib x "name");
-        fprintf f "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib x "board");
-	let print_if_subsystem = (fun c ->
-          if ExtXml.tag_is c "subsystem" then begin
-            fprintf f "include $(CFG_%s)/%s_%s.makefile\n" (String.uppercase(Xml.attrib x "name")) (Xml.attrib c "name") (Xml.attrib c "type");
-          end) in
-	List.iter print_if_subsystem (Xml.children x)
-      with _ -> () end;
-    end)
-    (Xml.children xml);
-
-  (** Look for modules *)
+(** 
+   Search and dump the module section : 
+     xml : the parsed airframe.xml 
+     f   : makefile.ac 
+ **)
+let dump_module_section = fun xml f ->
   let files = ref [] in
   List.iter (fun x ->
     if ExtXml.tag_is x "modules" then
@@ -158,9 +127,70 @@ let extract_makefile = fun airframe_file makefile_ac ->
           (Xml.children modul))
 	modules_list)
     (Xml.children xml);
-
-  close_out f;
   !files
+
+ (** (String.compare (Xml.attrib x "location") "after" = 0)
+    Search and dump the makefile sections 
+  **)
+let dump_makefile_section = fun xml makefile_ac airframe_infile print_if_loc_after ->
+  List.iter (fun x ->
+    if ExtXml.tag_is x "makefile" then begin
+      let located_before = ref true in
+      begin try
+	located_before := not (String.compare (Xml.attrib x "location") "after" = 0)
+      with _ -> () end;
+      if  (not print_if_loc_after && !located_before) || (print_if_loc_after && not !located_before) then begin
+	begin try
+	  fprintf makefile_ac "\n# makefile target '%s'\n" (Xml.attrib x "target")
+	with _ -> () end;
+	match Xml.children x with
+          [Xml.PCData s] -> fprintf makefile_ac "%s\n" s
+	| _ -> failwith (sprintf "Warning: wrong makefile section in '%s': %s\n" airframe_infile (Xml.to_string_fmt x))
+      end
+    end)
+    (Xml.children xml)
+
+(** 
+   Search and dump the target section 
+ **)
+let dump_target_section = fun xml makefile_ac ->
+  List.iter (fun tag ->
+    if ExtXml.tag_is tag "target" then begin
+      begin try
+        fprintf makefile_ac "\n# makefile target '%s' board '%s'\n\n" (Xml.attrib tag "name") (Xml.attrib tag "board");
+        fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib tag "board");
+        fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/autopilot/%s.makefile\n" (Xml.attrib tag "name");
+	let print_if_subsystem = (fun c ->
+          if ExtXml.tag_is c "subsystem" then begin
+            fprintf makefile_ac "include $(CFG_%s)/%s_%s.makefile\n" 
+	      (String.uppercase(Xml.attrib tag "name"))
+	      (Xml.attrib c "name") (Xml.attrib c "type");
+          end) in
+	List.iter print_if_subsystem (Xml.children tag)
+      with _ -> () end;
+    end)
+    (Xml.children xml)
+    
+
+(** Extracts the makefile sections of an airframe file *)
+let extract_makefile = fun airframe_file makefile_ac ->
+  let xml = Xml.parse_file airframe_file in
+  let f = open_out makefile_ac in
+
+  fprintf f "# This file has been generated from %s by %s\n" airframe_file Sys.argv.(0);
+  fprintf f "# Please DO NOT EDIT\n";
+
+  (** Search and dump makefile sections that don't have a "location" attribute set to "after" *)
+  dump_makefile_section xml f airframe_file false;
+  (** Search and dump the target section *)
+  dump_target_section xml f;
+  (** Search and dump makefile sections that have a "location" attribute set to "after" *)
+  dump_makefile_section xml f airframe_file true;
+
+  (** Look for modules *)
+  let module_files = dump_module_section  xml f in
+  close_out f;
+  module_files
 
 
 
