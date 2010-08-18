@@ -129,7 +129,7 @@ let dump_module_section = fun xml f ->
     (Xml.children xml);
   !files
 
- (** (String.compare (Xml.attrib x "location") "after" = 0)
+(** (String.compare (Xml.attrib x "location") "after" = 0)
     Search and dump the makefile sections 
   **)
 let dump_makefile_section = fun xml makefile_ac airframe_infile print_if_loc_after ->
@@ -165,11 +165,19 @@ let dump_target_section = fun xml makefile_ac ->
             fprintf makefile_ac "include $(CFG_%s)/%s_%s.makefile\n" 
 	      (String.uppercase(Xml.attrib tag "name"))
 	      (Xml.attrib c "name") (Xml.attrib c "type");
+            let print_if_subsystem_define = (fun c ->
+              if ExtXml.tag_is c "define" then begin
+                fprintf makefile_ac "%s = %s\n"
+                (String.uppercase(Xml.attrib c "name"))
+                (Xml.attrib c "value");
+              end) in
+            List.iter print_if_subsystem_define (Xml.children tag)
           end) in
 	List.iter print_if_subsystem (Xml.children tag)
       with _ -> () end;
     end)
     (Xml.children xml)
+
     
 
 (** Extracts the makefile sections of an airframe file *)
