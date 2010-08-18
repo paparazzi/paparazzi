@@ -1203,7 +1203,7 @@
   </message>
 
     <message name="EKF7_Y" id="171">
-      <field name="timecount" type="uint32"/>
+      <field name="timecount" type="uint16"/>
       <field name="g1"  type="float"/>
       <field name="g2"  type="float"/>
       <field name="g3"  type="float"/>
@@ -1305,16 +1305,16 @@
     <field name="busvolts"	type="uint16[]"/>
   </message>
 
-  <message name="SYSTEM_STATUS" id="187">
-    <field name="csc1_loop_count"  type="uint32"/>
-    <field name="csc1_msg_count"   type="uint32"/>
-    <field name="csc2_loop_count"  type="uint32"/>
-    <field name="csc2_msg_count"   type="uint32"/>
-    <field name="can_rx_err"	     type="uint32"/>
-    <field name="can_tx_err"	     type="uint32"/>
-    <field name="rc_parser_err"    type="uint32"/>
-    <field name="system_fault"     type="uint8" unit="bool"/>
-  </message>
+    <message name="SYSTEM_STATUS" id="187">
+      <field name="csc1_loop_count"  type="uint32"/>
+      <field name="csc1_msg_count"   type="uint32"/>
+      <field name="csc2_loop_count"  type="uint32"/>
+      <field name="csc2_msg_count"   type="uint32"/>
+      <field name="can_rx_err"	     type="uint32"/>
+      <field name="can_tx_err"	     type="uint32"/>
+      <field name="rc_parser_err"    type="uint32"/>
+      <field name="system_fault"     type="uint8"/>
+    </message>
 
   <message name="DYNAMIXEL" id="188">
       <field name="left_wing"    type="uint16"/>
@@ -1671,29 +1671,39 @@
     <field name="zdd"   type="float" unit="m/s2"/>
   </message>
 
-  <message name="LOOSE_INS_GPS_MEAS" id="249">
-    <field name="est_p"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>   
-    <field name="est_q"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>   
-    <field name="est_r"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>   
-    <field name="est_phi"       type="float" alt_unit="degres" alt_unit_coef="57.29578"/>   
-    <field name="est_theta"     type="float" alt_unit="degres" alt_unit_coef="57.29578"/>   
-    <field name="est_psi"       type="float" alt_unit="degres" alt_unit_coef="57.29578"/>   
-    <field name="est_p_d"       type="float" alt_unit="degres/s^2" alt_unit_coef="57.29578"/>   
-    <field name="est_q_d"       type="float" alt_unit="degres/s^2" alt_unit_coef="57.29578"/>   
-    <field name="est_r_d"       type="float" alt_unit="degres/s^2" alt_unit_coef="57.29578"/>   
-    <field name="gps_solution_valid" type="uint8"/>
-    <field name="north" type="double" unit="m" />
-    <field name="east" type="double" unit="m" />
-    <field name="down" type="double" unit="m" />
-    <field name="v_north" type="double" unit="m/s" />
-    <field name="v_east" type="double" unit="m/s" />
-    <field name="v_down" type="double" unit="m/s" />
+  <message name="LOOSE_INS_GPS" id="249">
+    <field name="status"        type="uint8" values="UNINITIALIZED|STARTUP_TRANSIENTS|LOWPASSING|GPS_LOST|NOMINAL"/>
+		<field name="time_running"  type="double" alt_unit="minutes" alt_unit_coef="0.016666666666667"/> 
+		<field name="q0"            type="double" />
+		<field name="q1"            type="double" />
+		<field name="q2"            type="double" />
+		<field name="q3"            type="double" />
+		<field name="phi"           type="double" alt_unit="deg" alt_unit_coef="57.29578"/>
+		<field name="theta"         type="double" alt_unit="deg" alt_unit_coef="57.29578"/>
+		<field name="psi"           type="double" alt_unit="deg" alt_unit_coef="57.29578"/>
+		<field name="north"         type="double" unit="m"  />
+		<field name="east"          type="double" unit="m"  />
+		<field name="down"          type="double" unit="m"  />
+		<field name="v_north"       type="double" unit="m/s"/>
+		<field name="v_east"        type="double" unit="m/s"/>
+		<field name="v_down"        type="double" unit="m/s"/>
+		<field name="est_p"         type="double" alt_unit="degres/s" alt_unit_coef="57.29578"/>   
+    <field name="est_q"         type="double" alt_unit="degres/s" alt_unit_coef="57.29578"/>   
+    <field name="est_r"         type="double" alt_unit="degres/s" alt_unit_coef="57.29578"/>   
+    <field name="gyroBias_x"    type="double" alt_unit="degres/s" alt_unit_coef="57.29578"/>   
+    <field name="gyroBias_y"    type="double" alt_unit="degres/s" alt_unit_coef="57.29578"/>   
+    <field name="gyroBias_z"    type="double" alt_unit="degres/s" alt_unit_coef="57.29578"/>
+    <field name="imuCallbacks"  type="uint32" />
+    <field name="gpsCallbacks"  type="uint32" />
+    <field name="baroCallbacks" type="uint32" /> 
+<!--    <field name="mahrs_gbx"      type="float"  alt_unit="degres/s" alt_unit_coef="57.29578"/>   
+    <field name="mahrs_gby"      type="float"  alt_unit="degres/s" alt_unit_coef="57.29578"/>   
+    <field name="mahrs_gbz"      type="float"  alt_unit="degres/s" alt_unit_coef="57.29578"/>   
     <field name="alpha"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3" />
     <field name="beta"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3" />
     <field name="airspeed" type="float" unit="m/s" />
-    <field name="barometer" type="float" unit="Pa" />
+    <field name="barometer" type="float" unit="Pa" /> -->
   </message>
-  
 
   <message name="AFL_COEFFS" id="250">
       <field name="roll_a"   type="float"/>
@@ -1759,7 +1769,6 @@
     <field name="V_East" type="double"/>
     <field name="V_Down" type="double"/>
   </message>
-
 
 </class>
 
