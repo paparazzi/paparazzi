@@ -217,9 +217,12 @@ ap.CFLAGS += -DUSE_ADAPT_HOVER
 
 
   <target name="baloo" board="booz">
-    <option name="FLASH_MODE" value="IAP"/> <!-- that should be the default for the board but I'm putting it here as example--> 
+    <option name="FLASH_MODE" value="IAP"/>                    <!-- that is the default for the board but I'm putting it here as example--> 
     <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="actuators"     type="mkk"/>
+    <subsystem name="actuators"     type="mkk">
+      <define name="NB" value="4"/>                            <!-- not parsed yet -->
+      <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/> <!-- not parsed yet -->
+    </subsystem>
     <subsystem name="imu"           type="b2v1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="cmpl"/>
