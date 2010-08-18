@@ -220,6 +220,10 @@ ap.CFLAGS += -DUSE_ADAPT_HOVER
 
   <target name="baloo" board="booz">
     <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="actuators"     type="mkk"/>
+    <subsystem name="imu"           type="b2v1"/>
+    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="ahrs"          type="cmpl"/>
   </target>
 
 
@@ -227,18 +231,17 @@ ap.CFLAGS += -DUSE_ADAPT_HOVER
 #
 #include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
 #include $(CFG_BOOZ)/booz2_autopilot.makefile
-include $(CFG_BOOZ)/booz2_test_progs.makefile
+#include $(CFG_BOOZ)/subsystems/booz2_radio_control_ppm.makefile
+#include $(CFG_BOOZ)/subsystems/booz2_actuators_mkk.makefile
+#include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1.makefile
+#include $(CFG_BOOZ)/subsystems/booz_gps_ublox.makefile
+#include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
+# FIXME: make fms a module
+include $(CFG_BOOZ)/subsystems/booz2_fms_test_signal.makefile
 
+include $(CFG_BOOZ)/booz2_test_progs.makefile
 include $(CFG_BOOZ)/booz2_simulator_nps.makefile
 
-#include $(CFG_BOOZ)/subsystems/booz2_radio_control_ppm.makefile
-include $(CFG_BOOZ)/subsystems/booz2_actuators_mkk.makefile
-include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1.makefile
-include $(CFG_BOOZ)/subsystems/booz_gps_ublox.makefile
-
-include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
-
-include $(CFG_BOOZ)/subsystems/booz2_fms_test_signal.makefile
   </makefile>
 
 </airframe>
