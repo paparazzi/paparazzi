@@ -126,7 +126,8 @@ static void main_periodic(int my_sig_num) {
 			&msg_in.payload.msg_up.can_errs,&msg_in.payload.msg_up.spi_errs,
 			&msg_in.payload.msg_up.thrust_out,&msg_in.payload.msg_up.pitch_out);});
  
-  estimator_run(msg_in.payload.msg_up.bench_sensor.z,msg_in.payload.msg_up.bench_sensor.y,msg_in.payload.msg_up.bench_sensor.x);
+  estimator_run(msg_in.payload.msg_up.bench_sensor.z,msg_in.payload.msg_up.bench_sensor.y,
+		msg_in.payload.msg_up.bench_sensor.x);
  
   if ( msg_in.payload.msg_up.cnt == 0) printf("STM indicates overo link is lost! %d %d\n",
 			msg_in.payload.msg_up.cnt,msg_in.payload.msg_up.can_errs);

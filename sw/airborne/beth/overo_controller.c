@@ -26,8 +26,13 @@ void control_init(void) {
   controller.elevation_dot_ref = estimator.elevation_dot;
   controller.elevation_ddot_ref = 0.;
 
+  controller.azimuth_ref = estimator.azimuth;
+  controller.azimuth_dot_ref = 0.;
+  controller.azimuth_ddot_ref = 0.;
+
   controller.one_over_J = 2.;
   controller.mass = 5.;
+  controller.azim_gain = 1.;
 
   controller.omega_cl = RadOfDeg(600);
   controller.xi_cl = 1.;
@@ -66,21 +71,35 @@ void control_run(void) {
 
   static int foo=0;
 
+  /*
+   *  calculate errors
+   */
+
   const float err_tilt = estimator.tilt - controller.tilt_ref;
   const float err_tilt_dot = estimator.tilt_dot - controller.tilt_dot_ref;
 
   const float err_elevation = estimator.elevation - controller.elevation_ref;
   const float err_elevation_dot = estimator.elevation_dot - controller.elevation_dot_ref;
 
-  controller.cmd_pitch_ff = controller.one_over_J*controller.tilt_ddot_ref;
-  controller.cmd_pitch_fb = controller.one_over_J*(2*controller.xi_cl*controller.omega_cl*err_tilt_dot) +
-  			controller.one_over_J*(controller.omega_cl*controller.omega_cl*err_tilt);
+  const float err_azimuth = estimator.azimuth - controller.azimuth_ref;
+  const float err_azimuth_dot = estimator.azimuth_dot - controller.azimuth_dot_ref;
 
-  controller.cmd_thrust_ff = controller.mass*controller.elevation_ddot_ref;
-  controller.cmd_thrust_fb = -controller.mass*(2*controller.xi_cl*controller.omega_cl*err_elevation_dot) -
-  			controller.mass*(controller.omega_cl*controller.omega_cl*err_elevation);
+  /*
+   *  Compute feedforward and feedback commands
+   */
 
-  controller.cmd_pitch =  controller.cmd_pitch_ff + controller.cmd_pitch_fb; 
+  controller.cmd_pitch_ff = controller.one_over_J * controller.tilt_ddot_ref;
+  controller.cmd_pitch_fb = controller.one_over_J * (2 * controller.xi_cl * controller.omega_cl * err_tilt_dot) +
+  			controller.one_over_J * (controller.omega_cl * controller.omega_cl * err_tilt);
+
+  controller.cmd_thrust_ff = controller.mass * controller.elevation_ddot_ref;
+  controller.cmd_thrust_fb = -controller.mass * (2 * controller.xi_cl * controller.omega_cl * err_elevation_dot) -
+  			controller.mass * (controller.omega_cl * controller.omega_cl * err_elevation);
+
+  controller.cmd_azimuth_fb = controller.one_over_J * (2 * controller.xi_cl * controller.omega_cl * err_azimuth_dot) +
+                        controller.one_over_J * (controller.omega_cl * controller.omega_cl * err_azimuth);
+
+  controller.cmd_pitch =  controller.cmd_pitch_ff + controller.cmd_pitch_fb + controller.azim_gain * controller.cmd_azimuth_fb; 
   controller.cmd_thrust = controller.cmd_thrust_ff + controller.cmd_thrust_fb + thrust_constant;
   controller.cmd_thrust = controller.cmd_thrust*(1/cos(estimator.elevation));
 

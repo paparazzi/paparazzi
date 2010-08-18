@@ -17,6 +17,10 @@ struct OveroController {
   float elevation_dot_ref;
   float elevation_ddot_ref;
 
+  float azimuth_ref;
+  float azimuth_dot_ref;
+  float azimuth_ddot_ref;
+
   float omega_tilt_ref;
   float omega_elevation_ref;
   float xi_ref;
@@ -28,12 +32,15 @@ struct OveroController {
   /* closed loop parameters */
   float omega_cl;
   float xi_cl;
+  float azim_gain;
 
   float cmd_pitch_ff;
   float cmd_pitch_fb;
 
   float cmd_thrust_ff;
   float cmd_thrust_fb;
+
+  float cmd_azimuth_fb;
 
   float cmd_pitch;
   float cmd_thrust;
