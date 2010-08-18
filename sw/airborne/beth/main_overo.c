@@ -197,8 +197,9 @@ static void main_periodic(int my_sig_num) {
 			&controller.cmd_pitch,&controller.cmd_thrust,
 			&controller.cmd_pitch_ff,&controller.cmd_pitch_fb,
 			&controller.cmd_thrust_ff,&controller.cmd_thrust_fb,
-  			&controller.tilt_ref,&controller.tilt_dot_ref,
-			&controller.elevation_ref,&controller.elevation_dot_ref);});
+  			&controller.tilt_sp,&controller.tilt_ref,&controller.tilt_dot_ref,
+			&controller.elevation_sp,&controller.elevation_ref,&controller.elevation_dot_ref,
+			&controller.azimuth_sp);});
 
   //file_logger_periodic();
 

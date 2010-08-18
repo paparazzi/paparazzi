@@ -14,7 +14,7 @@ void control_init(void) {
   controller.elevation_sp = RadOfDeg(10);
   controller.azimuth_sp = 0.;
 
-  controller.omega_tilt_ref = RadOfDeg(200);
+  controller.omega_tilt_ref = RadOfDeg(600);
   controller.omega_elevation_ref = RadOfDeg(120);
   controller.omega_azimuth_ref = RadOfDeg(60);
   controller.xi_ref = 1.;
@@ -34,7 +34,7 @@ void control_init(void) {
 
   controller.one_over_J = 2.;
   controller.mass = 5.;
-  controller.azim_gain = 1.;
+  controller.azim_gain = 0.05;
 
   controller.omega_cl = RadOfDeg(600);
   controller.xi_cl = 1.;
@@ -107,8 +107,9 @@ void control_run(void) {
   controller.cmd_azimuth_fb = controller.one_over_J * (2 * controller.xi_cl * controller.omega_cl * err_azimuth_dot) +
                         controller.one_over_J * (controller.omega_cl * controller.omega_cl * err_azimuth);
 
-  controller.cmd_pitch =  controller.cmd_pitch_ff + controller.cmd_pitch_fb + 
-                            controller.azim_gain * (controller.cmd_azimuth_fb + controller.cmd_azimuth_ff); 
+  controller.cmd_pitch =  controller.cmd_pitch_ff + controller.cmd_pitch_fb;// + 
+  controller.tilt_sp = 
+                            controller.azim_gain * (-controller.cmd_azimuth_fb );//+ controller.cmd_azimuth_ff); 
   controller.cmd_thrust = controller.cmd_thrust_ff + controller.cmd_thrust_fb + thrust_constant;
   controller.cmd_thrust = controller.cmd_thrust*(1/cos(estimator.elevation));
 
