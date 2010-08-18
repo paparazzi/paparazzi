@@ -148,7 +148,7 @@ main_stm32.srcs += $(SRC_BOOZ)/booz2_commands.c
 main_stm32.srcs += $(SRC_BOOZ)/actuators/booz_actuators_asctec.c 
 #\
 #                             $(SRC_BOOZ_ARCH)/actuators/booz_actuators_asctec_arch.c
-main_stm32.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1 
+main_stm32.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
 # -DBOOZ_START_DELAY=3  -DUSE_TIM2_IRQ
 main_stm32.CFLAGS += -DUSE_I2C1
 main_stm32.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
@@ -208,7 +208,8 @@ USER =
 #HOST = beth
 #HOST = overo
 #HOST = auto7
-HOST= regis
+#HOST= regis
+HOST = auto3
 TARGET_DIR = ~
 SRC_FMS=fms
 

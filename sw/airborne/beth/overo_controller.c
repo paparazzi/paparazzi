@@ -12,9 +12,11 @@ void control_init(void) {
 
   controller.tilt_sp = 0.;
   controller.elevation_sp = RadOfDeg(10);
+  controller.azimuth_sp = 0.;
 
   controller.omega_tilt_ref = RadOfDeg(200);
   controller.omega_elevation_ref = RadOfDeg(120);
+  controller.omega_azimuth_ref = RadOfDeg(60);
   controller.xi_ref = 1.;
 
   controller.tilt_ref = estimator.tilt;
@@ -69,6 +71,11 @@ void control_run(void) {
   controller.elevation_ddot_ref = -2*controller.omega_elevation_ref*controller.xi_ref*controller.elevation_dot_ref 
     - controller.omega_elevation_ref*controller.omega_elevation_ref*(controller.elevation_ref - controller.elevation_sp); 
 
+  controller.azimuth_ref = controller.azimuth_ref + controller.azimuth_dot_ref * dt_ctl;
+  controller.azimuth_dot_ref = controller.azimuth_dot_ref + controller.azimuth_ddot_ref * dt_ctl;
+  controller.azimuth_ddot_ref = -2*controller.omega_azimuth_ref*controller.xi_ref*controller.azimuth_dot_ref 
+    - controller.omega_azimuth_ref*controller.omega_azimuth_ref*(controller.azimuth_ref - controller.azimuth_sp); 
+
   static int foo=0;
 
   /*
@@ -96,10 +103,12 @@ void control_run(void) {
   controller.cmd_thrust_fb = -controller.mass * (2 * controller.xi_cl * controller.omega_cl * err_elevation_dot) -
   			controller.mass * (controller.omega_cl * controller.omega_cl * err_elevation);
 
+  controller.cmd_azimuth_ff = controller.one_over_J * controller.azimuth_ddot_ref;
   controller.cmd_azimuth_fb = controller.one_over_J * (2 * controller.xi_cl * controller.omega_cl * err_azimuth_dot) +
                         controller.one_over_J * (controller.omega_cl * controller.omega_cl * err_azimuth);
 
-  controller.cmd_pitch =  controller.cmd_pitch_ff + controller.cmd_pitch_fb + controller.azim_gain * controller.cmd_azimuth_fb; 
+  controller.cmd_pitch =  controller.cmd_pitch_ff + controller.cmd_pitch_fb + 
+                            controller.azim_gain * (controller.cmd_azimuth_fb + controller.cmd_azimuth_ff); 
   controller.cmd_thrust = controller.cmd_thrust_ff + controller.cmd_thrust_fb + thrust_constant;
   controller.cmd_thrust = controller.cmd_thrust*(1/cos(estimator.elevation));
 

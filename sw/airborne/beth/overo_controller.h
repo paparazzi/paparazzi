@@ -7,6 +7,7 @@ struct OveroController {
   
   float tilt_sp;
   float elevation_sp;
+  float azimuth_sp;
   
   /* modele de reference */
   float tilt_ref;
@@ -23,6 +24,7 @@ struct OveroController {
 
   float omega_tilt_ref;
   float omega_elevation_ref;
+  float omega_azimuth_ref;
   float xi_ref;
 
   /* invert control law parameter */
@@ -40,6 +42,7 @@ struct OveroController {
   float cmd_thrust_ff;
   float cmd_thrust_fb;
 
+  float cmd_azimuth_ff;
   float cmd_azimuth_fb;
 
   float cmd_pitch;
