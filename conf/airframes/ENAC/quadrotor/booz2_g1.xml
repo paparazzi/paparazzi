@@ -231,8 +231,8 @@ ap.CFLAGS += -DMODEM_BAUD=B57600
 include $(CFG_BOOZ)/subsystems/booz2_actuators_asctec.makefile
 include $(CFG_BOOZ)/subsystems/booz2_radio_control_ppm.makefile
 include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1_1.makefile
-include $(CFG_BOOZ)/subsystems/booz2_gps.makefile
-include $(CFG_BOOZ)/subsystems/booz2_analog_bat_baro.makefile
+include $(CFG_BOOZ)/subsystems/booz_gps_ublox.makefile
+#include $(CFG_BOOZ)/subsystems/booz2_analog_bat_baro.makefile
 include $(CFG_BOOZ)/subsystems/booz2_fms_datalink.makefile
 
 include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
