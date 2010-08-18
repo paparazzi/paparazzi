@@ -54,6 +54,11 @@ uint8_t gps_configuring;
 
 uint16_t gps_reset;
 
+void reset_gps_watchdog(void)
+{
+  last_gps_msg_t = cpu_time_sec;
+}
+
 volatile bool_t gps_msg_received;
 bool_t gps_pos_available;
 uint8_t gps_nb_ovrn;

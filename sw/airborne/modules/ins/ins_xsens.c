@@ -90,11 +90,56 @@ volatile uint8_t ins_msg_received;
 #define XSENS_MAX_PAYLOAD 254
 uint8_t xsens_msg_buf[XSENS_MAX_PAYLOAD];
 
-/* output mode : calibrated, orientation, position, velocity, status */
+/* output mode : calibrated, orientation, position, velocity, status 
+ * -----------
+ *
+ *	bit 0	temp
+ *	bit 1	calibrated
+ *	bit 2	orentation
+ *	bit 3	aux
+ *
+ *	bit 4	position
+ *	bit 5	velocity
+ *	bit 6-7	Reserved
+ *
+ *	bit 8-10 Reserved
+ *	bit 11	status
+ *
+ *	bit 12	GPS PVT+baro
+ *	bit 13	Reserved
+ *	bit 14	Raw
+ *	bit 15	Reserved
+ */
+
 #ifndef XSENS_OUTPUT_MODE
-#define XSENS_OUTPUT_MODE 0x0836
+#define XSENS_OUTPUT_MODE 0x1836
 #endif
-/* output settings : timestamp, euler, acc, rate, mag, float, no aux, lla, m/s, NED */
+/* output settings : timestamp, euler, acc, rate, mag, float, no aux, lla, m/s, NED
+ * -----------
+ *
+ *	bit 01	0=none, 1=sample counter, 2=utc, 3=sample+utc
+ *	bit 23	0=quaternion, 1=euler, 2=DCM
+ *
+ *	bit 4	1=disable acc output
+ *	bit 5	1=disable gyro output
+ *	bit 6	1=disable magneto output
+ *	bit 7	Reserved
+ *
+ *	bit 89	0=float, 1=fixedpoint12.20, 2=fixedpoint16.32
+ *	bit 10	1=disable aux analog 1
+ *	bit 11	1=disable aux analog 2
+ *
+ *	bit 12-15 0-only: 14-16 WGS84
+ *
+ *	bit 16-19 0-only: 16-18 m/s XYZ
+ *
+ *	bit 20-23 Reserved
+ *
+ *	bit 24-27 Reseverd
+ *
+ *	bit 28-30 Reseverd
+ *	bit 31	0=X-North-Z-Up, 1=North-East-Down 
+ */
 #ifndef XSENS_OUTPUT_SETTINGS
 #define XSENS_OUTPUT_SETTINGS 0x80000C05
 #endif
@@ -161,6 +206,7 @@ void parse_ins_msg( void ) {
 #ifdef USE_GPS_XSENS
   else if (xsens_id == XSENS_GPSStatus_ID) {
     gps_nb_channels = XSENS_GPSStatus_nch(xsens_msg_buf);
+    gps_numSV = gps_nb_channels;
     uint8_t i;
     for(i = 0; i < Min(gps_nb_channels, GPS_NB_CHANNELS); i++) {
       uint8_t ch = XSENS_GPSStatus_chn(xsens_msg_buf,i);
@@ -184,7 +230,8 @@ void parse_ins_msg( void ) {
       if (XSENS_MASK_RAWGPS(xsens_output_mode)) {
 #ifdef USE_GPS_XSENS
         gps_week = 0; // FIXME
-        gps_itow = XSENS_DATA_RAWGPS_itow(xsens_msg_buf,offset);
+        gps_itow = XSENS_DATA_RAWGPS_itow(xsens_msg_buf,offset) * 10;
+#ifdef USE_GPS_XSENS_RAW_DATA
         gps_lat = XSENS_DATA_RAWGPS_lat(xsens_msg_buf,offset);
         gps_lon = XSENS_DATA_RAWGPS_lon(xsens_msg_buf,offset);
         /* Set the real UTM zone */
@@ -201,8 +248,10 @@ void parse_ins_msg( void ) {
         ins_vy = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_n(xsens_msg_buf,offset) / 100.;
         ins_vz = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_d(xsens_msg_buf,offset) / 100.;
         gps_climb = -XSENS_DATA_RAWGPS_vel_d(xsens_msg_buf,offset) / 10;
-        gps_Pacc = XSENS_DATA_RAWGPS_hacc(xsens_msg_buf,offset);
-        gps_Sacc = XSENS_DATA_RAWGPS_sacc(xsens_msg_buf,offset);
+#endif
+        gps_Pacc = XSENS_DATA_RAWGPS_hacc(xsens_msg_buf,offset) / 100;
+        gps_Sacc = XSENS_DATA_RAWGPS_sacc(xsens_msg_buf,offset) / 100;
+        gps_PDOP = 5;
 #endif
         offset += XSENS_DATA_RAWGPS_LENGTH;
       }
@@ -290,6 +339,7 @@ void parse_ins_msg( void ) {
 #ifndef USE_VFILTER
         gps_alt = ins_z * 100;
 #endif
+	reset_gps_watchdog();
 #endif
         offset += XSENS_DATA_Position_LENGTH;
       }
@@ -309,6 +359,7 @@ void parse_ins_msg( void ) {
         xsens_msg_status = XSENS_DATA_Status_status(xsens_msg_buf,offset);
 #ifdef USE_GPS_XSENS
         if (bit_is_set(xsens_msg_status,2)) gps_mode = 0x03; // gps fix
+        else if (bit_is_set(xsens_msg_status,1)) gps_mode = 0x01; // efk valid
         else gps_mode = 0;
 #endif
         offset += XSENS_DATA_Status_LENGTH;

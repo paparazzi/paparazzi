@@ -35,7 +35,10 @@ extern uint16_t gps_reset;
 
 #define GPS_NB_CHANNELS 16
 
-#define GpsFixValid() (gps_mode == 3)
+extern void reset_gps_watchdog(void);
+
+
+#define GpsFixValid() (gps_mode > 0)
 
 #define gps_xsens_Reset(_val) { \
   gps_reset = _val; \
