@@ -158,15 +158,17 @@ let dump_target_section = fun xml makefile_ac ->
     if ExtXml.tag_is tag "target" then begin
       begin try
         fprintf makefile_ac "\n# makefile target '%s' board '%s'\n" (Xml.attrib tag "name") (Xml.attrib tag "board");
-        fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib tag "board");
-        fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/autopilot/%s.makefile\n" (Xml.attrib tag "name");
-        fprintf makefile_ac "\n# Subsystems:'\n";
 	let print_if_subsystem = (fun c ->
           if ExtXml.tag_is c "param" then begin
             fprintf makefile_ac "%s = %s\n"
             (String.uppercase(Xml.attrib c "name"))
             (Xml.attrib c "value")
-          end;
+          end) in
+	List.iter print_if_subsystem (Xml.children tag);
+        fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib tag "board");
+        fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/autopilot/%s.makefile\n" (Xml.attrib tag "name");
+        fprintf makefile_ac "\n# Subsystems:'\n";
+	let print_if_subsystem = (fun c ->
           if ExtXml.tag_is c "subsystem" then begin
             let has_subtype = ref false in
             begin try
