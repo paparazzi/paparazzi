@@ -14,10 +14,12 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
+<!-- not needed anymore - in subsystem 
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
     <define name="NB" value="4"/>
     <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
   </section>
+-->
 
   <section name="SUPERVISION" prefix="SUPERVISION_">
     <define name="MIN_MOTOR" value="2"/>
@@ -217,11 +219,12 @@ ap.CFLAGS += -DUSE_ADAPT_HOVER
 
 
   <target name="baloo" board="booz">
-    <option name="FLASH_MODE" value="IAP"/>                    <!-- that is the default for the board but I'm putting it here as example--> 
+
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="actuators"     type="mkk">
-      <define name="NB" value="4"/>                            <!-- not parsed yet -->
-      <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/> <!-- not parsed yet -->
+       <param  name="FLASH_MODE" value="IAP"/>   <!-- that is the default for the board but I'm putting it here as example--> 
+       <define name="ACTUATORS_MKK_NB"   value="4"/>                        
+       <define name="ACTUATORS_MKKADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
     </subsystem>
     <subsystem name="imu"           type="b2v1"/>
     <subsystem name="gps"           type="ublox"/>
