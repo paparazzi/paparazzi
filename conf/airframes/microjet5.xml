@@ -8,7 +8,7 @@
 
 <airframe name="Microjet 5 Tiny 2.11">
 
-  <target name="fixed_wings" board="tiny_2.11">
+  <target name="fixedwing" board="tiny_2.11">
     <subsystem name="radio_control" type="ppm"/>
   </target>
 

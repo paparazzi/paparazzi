@@ -7,6 +7,7 @@
 -->
 
 <airframe name="Fixed Wing Lisa">
+
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="AILEVON_LEFT"  no="2" min="1130" neutral="1575" max="1880"/>
@@ -158,48 +159,36 @@
     	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
 	<define name="HOME_RADIUS" value="100" unit="m"/>
   </section>
- <makefile>
 
-BOARD_CFG	= \"tiny_2_1_1.h\"
-FLASH_MODE	= IAP
+  <target name="fixedwing" board="tiny_2.11">
+    <subsystem name="autopilot"/>
+    <subsystem name="testing"/>
+    <subsystem name="radio_control" type="ppm"/>
+    <!-- Communication -->
+    <subsystem name="telemetry" type="transparent">
+      <param name="MODEM_BAUD" value="9600"/>
+    </subsystem>
+    <!-- Actuators -->
+    <subsystem name="actuators" type="4017"/>
+    <!-- Sensors -->
+    <subsystem name="gyro"/>
+    <subsystem name="attitude" type="infrared"/>
+    <subsystem name="gps" type="ublox_lea4p"/>
+    <subsystem name="navigation">
+      <define name="AGR_CLIMB" value="1" />
+      <define name="LOITER_TRIM" value="1" />
+      <define name="WIND_INFO" value="1" />
+    </subsystem>
+  </target>
 
-# Board Specifics
-include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
+ <makefile location="after">
 
-# Fixed Wing Specifics
-include $(PAPARAZZI_SRC)/conf/autopilot/fixedwing_common.makefile
-include $(CFG_FIXEDWING)/fixedwing_autopilot.makefile
-include $(CFG_FIXEDWING)/subsystems/fixedwing_navigation.makefile
-
-# IO Options
-include $(CFG_FIXEDWING)/subsystems/fixedwing_radio_control_ppm.makefile
-include $(CFG_FIXEDWING)/subsystems/fixedwing_actuators_4017.makefile
-
-# Sensors
-include $(CFG_FIXEDWING)/subsystems/fixedwing_attitude_infrared.makefile
-include $(CFG_FIXEDWING)/subsystems/fixedwing_gyro.makefile
-
-### (UART 0, 38400baud) are the default GPS parameters, change and uncomment if needed
-#GPS_UART_NR	= 0
-#GPS_BAUD	= 38400
-include $(CFG_FIXEDWING)/subsystems/fixedwing_gps_ublox_lea4p.makefile
-
-### (UART 1, 57600baud) are default modem parameters, change and uncomment if needed
-#MODEM_UART_NR = 1
-MODEM_BAUD = 9600
-include $(CFG_FIXEDWING)/subsystems/fixedwing_telemetry_transparent.makefile
+ap.CFLAGS += -DTRAFFIC_INFO -DALT_KALMAN
+sim.CFLAGS += -DTRAFFIC_INFO
 
 
-# Special options
-ap.CFLAGS += -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DWIND_INFO
-
-ap.CFLAGS += -DTRAFFIC_INFO
-ap.srcs += traffic_info.c
-
-######################################
-# Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DWIND_INFO -DTRAFFIC_INFO
-sim.srcs += traffic_info.c
+sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\"
+
   </makefile>
 </airframe>

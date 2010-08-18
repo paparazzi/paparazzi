@@ -157,16 +157,26 @@ let dump_target_section = fun xml makefile_ac ->
   List.iter (fun tag ->
     if ExtXml.tag_is tag "target" then begin
       begin try
-        fprintf makefile_ac "\n# makefile target '%s' board '%s'\n\n" (Xml.attrib tag "name") (Xml.attrib tag "board");
+        fprintf makefile_ac "\n# makefile target '%s' board '%s'\n" (Xml.attrib tag "name") (Xml.attrib tag "board");
         fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib tag "board");
         fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/autopilot/%s.makefile\n" (Xml.attrib tag "name");
+        fprintf makefile_ac "\n# Subsystems:'\n";
 	let print_if_subsystem = (fun c ->
           if ExtXml.tag_is c "subsystem" then begin
-            fprintf makefile_ac "include $(CFG_%s)/%s_%s.makefile\n" 
-	      (String.uppercase(Xml.attrib tag "name"))
-	      (Xml.attrib c "name") (Xml.attrib c "type");
+            let has_subtype = ref false in
+            begin try
+              has_subtype := not (String.compare (Xml.attrib c "type") "" = 0)
+            with _ -> () end;
+            fprintf makefile_ac "include $(CFG_%s)/%s" 
+   	        (String.uppercase(Xml.attrib tag "name"))
+	        (Xml.attrib c "name");
+            if !has_subtype then
+              fprintf makefile_ac "_%s" 
+	        (Xml.attrib c "type");
+            
+	    fprintf makefile_ac ".makefile\n";
             let print_if_subsystem_define = (fun d ->
-              if ExtXml.tag_is d "define" then begin
+              if ExtXml.tag_is d "param" then begin
                 fprintf makefile_ac "%s = %s\n"
                 (String.uppercase(Xml.attrib d "name"))
                 (Xml.attrib d "value");

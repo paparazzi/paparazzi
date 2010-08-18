@@ -8,7 +8,7 @@
 
 <airframe name="Microjet Tiny 1.1">
 
-  <target name="fixed_wings" board="tiny_2.11">
+  <target name="fixedwing" board="tiny_1.1">
     <subsystem name="radio_control" type="ppm"/>
   </target>
 
@@ -172,26 +172,26 @@ FLASH_MODE=IAP
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 
 # Fixed Wing Specifics
-include $(PAPARAZZI_SRC)/conf/autopilot/fixedwing_common.makefile
-include $(CFG_FIXEDWING)/fixedwing_autopilot.makefile
-include $(CFG_FIXEDWING)/subsystems/fixedwing_navigation.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/fixedwing.makefile
+include $(CFG_FIXEDWING)/autopilot.makefile
+include $(CFG_FIXEDWING)/navigation.makefile
 
 # IO Options
-include $(CFG_FIXEDWING)/subsystems/fixedwing_actuators_4015.makefile
+include $(CFG_FIXEDWING)/actuators_4015.makefile
 
 # Sensors
-include $(CFG_FIXEDWING)/subsystems/fixedwing_attitude_infrared.makefile
-include $(CFG_FIXEDWING)/subsystems/fixedwing_gyro.makefile
+include $(CFG_FIXEDWING)/attitude_infrared.makefile
+include $(CFG_FIXEDWING)/gyro.makefile
 
 ### (UART 0, 38400baud) are the default GPS parameters, change and uncomment if needed
 #GPS_UART_NR	= 0
 #GPS_BAUD	= 38400
-include $(CFG_FIXEDWING)/subsystems/fixedwing_gps_ublox_lea5h.makefile
+include $(CFG_FIXEDWING)/gps_ublox_lea5h.makefile
 
 ### (UART 1, 57600baud) are default modem parameters, change and uncomment if needed
 #MODEM_UART_NR = 1
 #MODEM_BAUD = 57600
-include $(CFG_FIXEDWING)/subsystems/fixedwing_telemetry_xbee_api.makefile
+include $(CFG_FIXEDWING)/telemetry_xbee_api.makefile
 
 
 # Special options

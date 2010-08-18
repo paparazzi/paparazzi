@@ -22,8 +22,9 @@
 <!ELEMENT makefile (#PCDATA)>
 <!ELEMENT modules (load)*>
 <!ELEMENT load EMPTY>
+<!ELEMENT param EMPTY>
 <!ELEMENT target (subsystem)*>
-<!ELEMENT subsystem (define)*>
+<!ELEMENT subsystem (define|param)*>
 
 <!ATTLIST target
 name CDATA #REQUIRED
@@ -88,6 +89,10 @@ name CDATA #REQUIRED
 value CDATA #REQUIRED
 unit CDATA #IMPLIED
 integer CDATA #IMPLIED>
+
+<!ATTLIST param
+name CDATA #REQUIRED
+value CDATA #REQUIRED>
 
 <!ATTLIST linear
 name CDATA #REQUIRED
