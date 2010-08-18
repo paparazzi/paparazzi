@@ -204,25 +204,34 @@
 
 
 
+  <makefile target="opening">
 
-  <makefile>
 
-ARCH=lpc21
-ARCHI=arm7
-BOARD_CFG = \"boards/booz2_v1_0.h\"
 FLASH_MODE = IAP
 
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
 ap.CFLAGS += -DMODEM_BAUD=B57600
+ap.CFLAGS += -DUSE_ADAPT_HOVER
 
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
-include $(CFG_BOOZ)/booz2_autopilot.makefile
+
+  </makefile>
+
+
+  <target name="baloo" board="booz">
+    <subsystem name="radio_control" type="ppm"/>
+  </target>
+
+
+  <makefile target="closure" location="after">
+#
+#include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
+#include $(CFG_BOOZ)/booz2_autopilot.makefile
 include $(CFG_BOOZ)/booz2_test_progs.makefile
 
 include $(CFG_BOOZ)/booz2_simulator_nps.makefile
 
-include $(CFG_BOOZ)/subsystems/booz2_radio_control_ppm.makefile
+#include $(CFG_BOOZ)/subsystems/booz2_radio_control_ppm.makefile
 include $(CFG_BOOZ)/subsystems/booz2_actuators_mkk.makefile
 include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1.makefile
 include $(CFG_BOOZ)/subsystems/booz_gps_ublox.makefile
@@ -230,7 +239,6 @@ include $(CFG_BOOZ)/subsystems/booz_gps_ublox.makefile
 include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 
 include $(CFG_BOOZ)/subsystems/booz2_fms_test_signal.makefile
-
   </makefile>
 
 </airframe>
