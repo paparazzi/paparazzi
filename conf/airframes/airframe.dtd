@@ -97,7 +97,8 @@ coeff2 CDATA #IMPLIED
 coeff3 CDATA #IMPLIED>
 
 <!ATTLIST makefile
-target CDATA #IMPLIED>
+target CDATA #IMPLIED
+location CDATA #IMPLIED>
 
 <!ATTLIST modules
 main_freq CDATA #IMPLIED>
