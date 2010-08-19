@@ -29,7 +29,7 @@ ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 # WTF is that for ? VARINCLUDE=$(PAPARAZZI_HOME)/var/include  and  -I $(PAPARAZZI_SRC)/var/include in the line below ?
 #
 
-INCLUDES = -I $(PAPARAZZI_SRC)/sw/include -I $(PAPARAZZI_SRC)/var/include -I $(PAPARAZZI_SRC)/sw/airborne -I $(PAPARAZZI_SRC)/conf/autopilot -I $(PAPARAZZI_SRC)/sw/airborne/$($(TARGET).ARCHDIR) -I $(VARINCLUDE) -I $(ACINCLUDE)  
+INCLUDES = -I $(PAPARAZZI_SRC)/sw/include -I $(PAPARAZZI_SRC)/var/include -I $(PAPARAZZI_SRC)/sw/airborne -I $(PAPARAZZI_SRC)/conf/autopilot -I $(PAPARAZZI_SRC)/sw/airborne/$($(TARGET).ARCHDIR) -I $(VARINCLUDE) -I $(ACINCLUDE)
 
 SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/$(ARCHDIR)
 
