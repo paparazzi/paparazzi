@@ -169,7 +169,6 @@
       <define name="WIND_INFO" />
     </target>
 
-    <subsystem name="autopilot"/>
     <subsystem name="radio_control" 	type="ppm"/>
 
     <!-- Communication -->
