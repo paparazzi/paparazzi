@@ -1,23 +1,25 @@
 #
-# fixed_wings.makefile
+# setup.makefile
 #
 #
 
 
-CFG_FIXEDWING=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/fixedwing
+CFG_SETUP=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/SETUP
 
 
-SRC_FIXEDWING=.
-SRC_FIXEDWING_ARCH=$(SRC_FIXEDWING)/$(ARCH)
-SRC_FIXEDWING_TEST=$(SRC_FIXEDWING)/
+SRC_SETUP=.
+SRC_SETUP_ARCH=$(SRC_SETUP)/$(ARCH)
+SRC_SETUP_TEST=$(SRC_SETUP)/
 
-FIXEDWING_INC = -I$(SRC_FIXEDWING) -I$(SRC_FIXEDWING_ARCH)
-
-
+SETUP_INC = -I$(SRC_SETUP) -I$(SRC_SETUP_ARCH)
 
 
-# Standard Fixed Wing Code
 
-include $(CFG_FIXEDWING)/autopilot.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
+
+
+# a test program to tunnel between both uart
+
+tunnel.CFLAGS += -DFBW -DBOARD_CONFIG=\"tiny_2_1_1_usb.h\" -DLED
+tunnel.srcs += $(SRC_ARCH)/uart_tunnel.c
+
 

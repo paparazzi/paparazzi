@@ -1,13 +1,11 @@
 # Standard fixed wing navigation
 
-ap.CFLAGS += -DNAV
-ap.srcs += $(SRC_FIXEDWING)/nav.c $(SRC_FIXEDWING)/fw_h_ctl.c $(SRC_FIXEDWING)/fw_v_ctl.c
-ap.srcs += $(SRC_FIXEDWING)/nav_survey_rectangle.c $(SRC_FIXEDWING)/nav_line.c
-ap.srcs += traffic_info.c
 
+#add these to all targets
 
-
-sim.srcs += $(SRC_FIXEDWING)/nav_survey_rectangle.c $(SRC_FIXEDWING)/nav_line.c
-sim.srcs += traffic_info.c
+$(TARGET).CFLAGS += -DNAV
+$(TARGET).srcs += $(SRC_FIXEDWING)/nav.c $(SRC_FIXEDWING)/fw_h_ctl.c $(SRC_FIXEDWING)/fw_v_ctl.c
+$(TARGET).srcs += $(SRC_FIXEDWING)/traffic_info.c
+$(TARGET).srcs += $(SRC_FIXEDWING)/nav_survey_rectangle.c $(SRC_FIXEDWING)/nav_line.c
 
 

@@ -17,7 +17,5 @@ FIXEDWING_INC = -I$(SRC_FIXEDWING) -I$(SRC_FIXEDWING_ARCH)
 
 
 # Standard Fixed Wing Code
-
 include $(CFG_FIXEDWING)/autopilot.makefile
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 

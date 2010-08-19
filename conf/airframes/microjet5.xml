@@ -7,11 +7,11 @@
 -->
 
 <airframe name="Microjet 5 Tiny 2.11">
-
+<!--
   <target name="fixedwing" board="tiny_2.11">
     <subsystem name="radio_control" type="ppm"/>
   </target>
-
+-->
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="AILEVON_LEFT"  no="2" min="1130" neutral="1575" max="1880"/>

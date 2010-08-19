@@ -161,12 +161,16 @@
   </section>
 
   <firmware name="fixedwing">
-    <target name="sim" 			board="pc" />
+    <target name="sim" 			board="pc" >
+      <define name="TRAFFIC_INFO" />
+    </target>
     <target name="ap" 			board="tiny_2.11">
       <param name="FLASH_MODE" 		value="IAP" />
       <define name="AGR_CLIMB" />
       <define name="LOITER_TRIM" />
       <define name="WIND_INFO" />
+      <define name="TRAFFIC_INFO" />
+      <define name="ALT_KALMAN" />
     </target>
 
     <subsystem name="radio_control" 	type="ppm"/>
@@ -190,18 +194,12 @@
 
   </firmware>
 
-<!--
+
   <firmware name="setup">
     <target name="tunnel" 		board="tiny_2.11" />
     <target name="setup_actuators" 	board="tiny_2.11" />
   </firmware>
--->
 
 
- <makefile location="after">
 
-ap.CFLAGS += -DTRAFFIC_INFO -DALT_KALMAN
-sim.CFLAGS += -DTRAFFIC_INFO
-
-  </makefile>
 </airframe>

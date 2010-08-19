@@ -14,15 +14,10 @@ FLASH_MODE = IAP
 endif
 
 
-ap.ARCHDIR = $(ARCHI)
-ap.ARCH = arm7tdmi
-ap.TARGET = autopilot
-ap.TARGETDIR = autopilot
-
-fbw.ARCHDIR = $(ARCHI)
-fbw.ARCH = arm7tdmi
-fbw.TARGET = autopilot
-fbw.TARGETDIR = autopilot
+$(TARGET).ARCHDIR = $(ARCHI)
+$(TARGET).ARCH = arm7tdmi
+$(TARGET).TARGET = $(TARGET)
+$(TARGET).TARGETDIR = $(TARGET)
 
 LPC21ISP_BAUD = 38400
 LPC21ISP_XTAL = 12000

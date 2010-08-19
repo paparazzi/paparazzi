@@ -150,9 +150,9 @@ let dump_makefile_section = fun xml makefile_ac airframe_infile print_if_loc_aft
     end)
     (Xml.children xml)
 
-(** Firnware Children **)
+(** Firmware Children **)
 
-let parse_firmware = fun makefile_ac tag firmware ->
+let parse_subsystems = fun makefile_ac tag firmware ->
    match Xml.tag firmware with
     "subsystem" ->
         begin try
@@ -176,25 +176,32 @@ let parse_firmware = fun makefile_ac tag firmware ->
 	      (Xml.attrib firmware "type");
           fprintf makefile_ac ".makefile\n"
         with _ -> () end;
+   | _ -> ()
+
+let parse_targets = fun makefile_ac tag target ->
+   match Xml.tag target with
    | "target" ->
         begin try
-          fprintf makefile_ac "\n###########\n# -target: '%s' \n" (Xml.attrib firmware "name"); 
+          fprintf makefile_ac "\n###########\n# -target: '%s' \n" (Xml.attrib target "name"); 
+          fprintf makefile_ac "ifeq ($(TARGET), %s) \n" (Xml.attrib target "name"); 
   	  let print_if_subsystem = (fun c ->
             if ExtXml.tag_is c "param" then begin
               fprintf makefile_ac "%s = %s\n"
                 (String.uppercase(Xml.attrib c "name"))
                 (Xml.attrib c "value")
             end) in
-	  List.iter print_if_subsystem (Xml.children firmware);
-(**  	  let print_if_subsystem = (fun c ->
-            if ExtXml.tag_is c "define" then begin
-              fprintf makefile_ac "%s.CFLAGS += -D%s\n"
-                (String.uppercase(Xml.attrib tag "name"))
-                (Xml.attrib c "value")
-            end) in
-	  List.iter print_if_subsystem (Xml.children firmware);
-**)          fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib firmware "board");
+	  List.iter print_if_subsystem (Xml.children target);
+          fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib target "board");
           fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/autopilot/%s.makefile\n" (Xml.attrib tag "name");
+  	  let print_if_subsystem = (fun d ->
+            if ExtXml.tag_is d "define" then begin
+              fprintf makefile_ac "%s.CFLAGS += -D%s\n"
+                (Xml.attrib target "name")
+                (Xml.attrib d "name")
+            end) in
+	  List.iter print_if_subsystem (Xml.children target);
+	  List.iter (parse_subsystems makefile_ac tag) (Xml.children tag );
+          fprintf makefile_ac "endif\n\n"; 
         with _ -> () end;
    | _ -> ()
 
@@ -207,7 +214,7 @@ let dump_target_section = fun xml makefile_ac ->
     if ExtXml.tag_is tag "firmware" then begin
       begin try
         fprintf makefile_ac "\n######################\n# makefile firmware '%s' \n" (Xml.attrib tag "name");
-	List.iter (parse_firmware makefile_ac tag) (Xml.children tag )
+	List.iter (parse_targets makefile_ac tag) (Xml.children tag )
       with _ -> () end;
     end)
     (Xml.children xml)
