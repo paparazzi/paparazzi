@@ -174,6 +174,13 @@ let dump_target_section = fun xml makefile_ac ->
             begin try
               has_subtype := not (String.compare (Xml.attrib c "type") "" = 0)
             with _ -> () end;
+            let print_if_subsystem_define = (fun d ->
+              if ExtXml.tag_is d "param" then begin
+                fprintf makefile_ac "%s = %s\n"
+                (String.uppercase(Xml.attrib d "name"))
+                (Xml.attrib d "value");
+              end) in
+            List.iter print_if_subsystem_define (Xml.children c);
             fprintf makefile_ac "include $(CFG_%s)/%s" 
    	        (String.uppercase(Xml.attrib tag "name"))
 	        (Xml.attrib c "name");
@@ -181,14 +188,7 @@ let dump_target_section = fun xml makefile_ac ->
               fprintf makefile_ac "_%s" 
 	        (Xml.attrib c "type");
             
-	    fprintf makefile_ac ".makefile\n";
-            let print_if_subsystem_define = (fun d ->
-              if ExtXml.tag_is d "param" then begin
-                fprintf makefile_ac "%s = %s\n"
-                (String.uppercase(Xml.attrib d "name"))
-                (Xml.attrib d "value");
-              end) in
-            List.iter print_if_subsystem_define (Xml.children c)
+	    fprintf makefile_ac ".makefile\n"
           end) in
 	List.iter print_if_subsystem (Xml.children tag)
       with _ -> () end;
