@@ -375,9 +375,14 @@ struct FloatRates {
       QUAT_EXPLEMENTARY(q,q);						\
   }
 
+/* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
+#define FLOAT_QUAT_COMP_NORM_SHORTEST(_a2c, _a2b, _b2c) {		\
+		FLOAT_QUAT_COMP(_a2c, _a2b, _b2c);										\
+		FLOAT_QUAT_WRAP_SHORTEST(_a2c);												\
+		FLOAT_QUAT_NORMALISE(_a2c);														\
+  }
 
-
-/* _a2c = _a2b comp _b2c , aka  _a2c = _b2c * _a2b */
+/* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
 #define FLOAT_QUAT_COMP(_a2c, _a2b, _b2c) {				\
     (_a2c).qi = (_a2b).qi*(_b2c).qi - (_a2b).qx*(_b2c).qx - (_a2b).qy*(_b2c).qy - (_a2b).qz*(_b2c).qz; \
     (_a2c).qx = (_a2b).qi*(_b2c).qx + (_a2b).qx*(_b2c).qi + (_a2b).qy*(_b2c).qz - (_a2b).qz*(_b2c).qy; \
@@ -385,7 +390,16 @@ struct FloatRates {
     (_a2c).qz = (_a2b).qi*(_b2c).qz + (_a2b).qx*(_b2c).qy - (_a2b).qy*(_b2c).qx + (_a2b).qz*(_b2c).qi; \
   }
 
-/* _a2b = _a2c comp_inv _b2c , aka  _a2b = inv(_b2c) * _a2c */
+#define FLOAT_QUAT_MULT(_a2c, _a2b, _b2c) FLOAT_QUAT_COMP(_a2c, _a2b, _b2c)
+
+/* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
+#define FLOAT_QUAT_COMP_INV_NORM_SHORTEST(_a2b, _a2c, _b2c) {				\
+		FLOAT_QUAT_COMP_INV(_a2b, _a2c, _b2c); 													\
+		FLOAT_QUAT_WRAP_SHORTEST(_a2c);																	\
+		FLOAT_QUAT_NORMALISE(_a2c);																			\
+  }
+
+/* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
 #define FLOAT_QUAT_COMP_INV(_a2b, _a2c, _b2c) {				\
     (_a2b).qi =  (_a2c).qi*(_b2c).qi + (_a2c).qx*(_b2c).qx + (_a2c).qy*(_b2c).qy + (_a2c).qz*(_b2c).qz; \
     (_a2b).qx = -(_a2c).qi*(_b2c).qx + (_a2c).qx*(_b2c).qi - (_a2c).qy*(_b2c).qz + (_a2c).qz*(_b2c).qy; \
@@ -393,12 +407,43 @@ struct FloatRates {
     (_a2b).qz = -(_a2c).qi*(_b2c).qz - (_a2c).qx*(_b2c).qy + (_a2c).qy*(_b2c).qx + (_a2c).qz*(_b2c).qi; \
   }
 
-/* _b2c = _a2b inv_comp _a2c , aka  _b2c = _a2c * inv(_a2b) */
+/* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
+#define FLOAT_QUAT_INV_COMP_NORM_SHORTEST(_b2c, _a2b, _a2c) {				\
+		FLOAT_QUAT_INV_COMP(_a2b, _a2c, _b2c); 													\
+		FLOAT_QUAT_WRAP_SHORTEST(_a2c);																	\
+		FLOAT_QUAT_NORMALISE(_a2c);																			\
+}
+
+/* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
 #define FLOAT_QUAT_INV_COMP(_b2c, _a2b, _a2c) {				\
     (_b2c).qi = (_a2b).qi*(_a2c).qi + (_a2b).qx*(_a2c).qx + (_a2b).qy*(_a2c).qy + (_a2b).qz*(_a2c).qz; \
     (_b2c).qx = (_a2b).qi*(_a2c).qx - (_a2b).qx*(_a2c).qi - (_a2b).qy*(_a2c).qz + (_a2b).qz*(_a2c).qy; \
     (_b2c).qy = (_a2b).qi*(_a2c).qy + (_a2b).qx*(_a2c).qz - (_a2b).qy*(_a2c).qi - (_a2b).qz*(_a2c).qx; \
     (_b2c).qz = (_a2b).qi*(_a2c).qz - (_a2b).qx*(_a2c).qy + (_a2b).qy*(_a2c).qx - (_a2b).qz*(_a2c).qi; \
+  }
+
+#define FLOAT_QUAT_DIFFERENTIAL(q_out, w, dt) {                         \
+  const float v_norm = sqrt((w).p*(w).p + (w).q*(w).q + (w).r*(w).r); \
+  const float c2 = cos(dt*v_norm/2.0);                                     \
+  const float s2 = sin(dt*v_norm/2.0);                                     \
+  if (v_norm < 1e-8) {                                                  \
+    (q_out).qi = 1;                                                     \
+    (q_out).qx = 0;                                                     \
+    (q_out).qy = 0;                                                     \
+    (q_out).qz = 0;                                                     \
+  } else {                                                              \
+    (q_out).qi = c2;                                                      \
+    (q_out).qx = (w).p/v_norm * s2;                                       \
+    (q_out).qy = (w).q/v_norm * s2;                                       \
+    (q_out).qz = (w).r/v_norm * s2;                                       \
+  }                                                                     \
+}
+
+#define FLOAT_QUAT_ROTATE_FRAME(q_out, q_in, q_rot) {                   \
+  struct FloatQuat q_temp;                                              \
+  FLOAT_QUAT_INV_COMP(q_temp, q_rot, q_in);                             \
+  print_quat(q_temp);                                                   \
+  FLOAT_QUAT_COMP(q_out, q_temp, q_rot);                                \
   }
 
 #define FLOAT_QUAT_VMULT(v_out, q, v_in) {				\
