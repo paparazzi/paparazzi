@@ -73,22 +73,22 @@ static inline void main_periodic_task( void ) {
 	servos[2]+=10;
 	servos[3]+=10;
 
-	if((can_error_warning = CAN_GetFlagStatus(CAN1, CAN_FLAG_EWG)) == SET){
+	if ((can_error_warning = CAN_GetFlagStatus(CAN1, CAN_FLAG_EWG)) == SET) {
 		LED_ON(2);
-	}else{
+	} else {
 		LED_OFF(2);
 	}
-	if((can_error_passive = CAN_GetFlagStatus(CAN1, CAN_FLAG_EPV)) == SET){
+	if ((can_error_passive = CAN_GetFlagStatus(CAN1, CAN_FLAG_EPV)) == SET) {
 		LED_ON(3);
-	}else{
+	} else {
 		LED_OFF(3);
 	}
-	if((can_bus_off = CAN_GetFlagStatus(CAN1, CAN_FLAG_BOF)) == SET){
+	if ((can_bus_off = CAN_GetFlagStatus(CAN1, CAN_FLAG_BOF)) == SET) {
 		LED_ON(0);
-	}else{
+	} else {
 		LED_OFF(0);
 	}
-
+	
 	cscp_transmit(0, 0, (uint8_t *)servos, 8);
 
 	LED_PERIODIC();
@@ -98,10 +98,35 @@ static inline void main_periodic_task( void ) {
 
 static inline void main_event_task( void ) {
 	cscp_event();
+	
+	LED_OFF(0);
+	LED_OFF(1);
+	LED_OFF(2);
+	LED_OFF(3);
+
+//	DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM); 
 }
 
 void main_on_vane_msg(void *data)
 {
 	int zero = 0;
-	RunOnceEvery(10, {DOWNLINK_SEND_VANE_SENSOR(DefaultChannel, &(csc_vane_msg.vane_angle1), &zero, &csc_vane_msg.vane_angle2, &zero, &zero, &zero, &zero);});
+	
+//	DOWNLINK_SEND_PONG(DefaultChannel);
+
+//	RunOnceEvery(10, { 
+			DOWNLINK_SEND_VANE_SENSOR(DefaultChannel, 
+																&(csc_vane_msg.vane_angle1), 
+																&zero, 
+																&zero, 
+																&zero, 
+																&zero, 
+																&csc_vane_msg.vane_angle2, 
+																&zero, 
+																&zero, 
+																&zero, 
+																&zero);
+//	});
 }
+
+
+
