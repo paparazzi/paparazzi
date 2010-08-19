@@ -34,26 +34,34 @@
 #define SYS_TICK_IRQ_HANDLER null_handler
 #endif
 
-#ifdef USE_UART1
+#if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
 #include "uart.h"
 #define USART1_IRQ_HANDLER usart1_irq_handler
 #else
 #define USART1_IRQ_HANDLER null_handler
 #endif
 
-#ifdef USE_UART2
+#if defined USE_UART2 || OVERRIDE_UART2_IRQ_HANDLER
 #include "uart.h"
 #define USART2_IRQ_HANDLER usart2_irq_handler
 #else
 #define USART2_IRQ_HANDLER null_handler
 #endif
 
-#ifdef USE_UART3
+#if defined USE_UART3 || OVERRIDE_UART3_IRQ_HANDLER
 #include "uart.h"
 #define USART3_IRQ_HANDLER usart3_irq_handler
 #else
 #define USART3_IRQ_HANDLER null_handler
 #endif
+
+#if defined USE_UART5 || OVERRIDE_UART5_IRQ_HANDLER
+#include "uart.h"
+#define USART5_IRQ_HANDLER usart5_irq_handler
+#else
+#define USART5_IRQ_HANDLER null_handler
+#endif
+
 
 #ifdef USE_I2C1
 #include "i2c_hw.h"
@@ -144,6 +152,15 @@ extern void dma1_c4_irq_handler(void);
 #define DMA1_C4_IRQ_HANDLER null_handler
 #endif
 
+
+#ifdef USE_TIM1_UP_IRQ
+extern void tim1_up_irq_handler(void);
+#define TIM1_UP_IRQ_HANDLER tim1_up_irq_handler
+#else
+#define TIM1_UP_IRQ_HANDLER null_handler
+#endif
+
+
 #ifdef USE_TIM2_IRQ
 extern void tim2_irq_handler(void);
 #define TIM2_IRQ_HANDLER tim2_irq_handler
@@ -219,7 +236,7 @@ void (* const vector_table[])(void) = {
     null_handler,             /* can_sce_irq_handler */
     EXTI9_5_IRQ_HANDLER,      /* exti9_5_irq_handler */
     null_handler,             /* tim1_brk_irq_handler */
-    null_handler,             /* tim1_up_irq_handler */
+    TIM1_UP_IRQ_HANDLER,      /* tim1_up_irq_handler */
     null_handler,             /* tim1_trg_com_irq_handler */
     null_handler,             /* tim1_cc_irq_handler */
     TIM2_IRQ_HANDLER,         /* tim2_irq_handler */
@@ -247,7 +264,7 @@ void (* const vector_table[])(void) = {
     null_handler,             /* tim5_irq_handler */
     null_handler,             /* spi3_irq_handler */
     null_handler,             /* uart4_irq_handler */
-    null_handler,             /* uart5_irq_handler */
+    USART5_IRQ_HANDLER,       /* uart5_irq_handler */
     null_handler,             /* tim6_irq_handler */
     null_handler,             /* tim7_irq_handler */
     null_handler,             /* dma2_channel1_irq_handler */
