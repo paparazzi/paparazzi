@@ -6,11 +6,7 @@
      Xbee modem in API mode
 -->
 
-<airframe name="Microjet Tiny 1.1">
-
-  <target name="fixedwing" board="tiny_1.1">
-    <subsystem name="radio_control" type="ppm"/>
-  </target>
+<airframe name="Microjet Tiny 2.11">
 
   <servos>
     <servo name="MOTOR"         no="0" min="1290" neutral="1290" max="1810"/>
@@ -163,45 +159,44 @@
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
 
-  <makefile>
-BOARD_CFG = \"tiny_1_1.h\"
+  <firmware name="fixedwing">
+    <target name="sim" 			board="pc" >
+      <define name="TRAFFIC_INFO" />
+    </target>
+    <target name="ap" 			board="tiny_2.11">
+      <param name="FLASH_MODE" 		value="IAP" />
+      <define name="AGR_CLIMB" />
+      <define name="LOITER_TRIM" />
+      <define name="WIND_INFO" />
+      <define name="TRAFFIC_INFO" />
+      <define name="ALT_KALMAN" />
+    </target>
 
-FLASH_MODE=IAP
+    <subsystem name="radio_control" 	type="ppm"/>
 
-# Board Specifics
-include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
+    <!-- Communication -->
+    <subsystem name="telemetry" 	type="transparent">
+      <param name="MODEM_BAUD" 		value="9600"/>
+    </subsystem>
 
-# Fixed Wing Specifics
-include $(PAPARAZZI_SRC)/conf/autopilot/fixedwing.makefile
-include $(CFG_FIXEDWING)/autopilot.makefile
-include $(CFG_FIXEDWING)/navigation.makefile
+    <!-- Actuators -->
+    <subsystem name="actuators" 	type="4017"/>
 
-# IO Options
-include $(CFG_FIXEDWING)/actuators_4015.makefile
+    <!-- Sensors -->
+    <subsystem name="gyro"/>
+    <subsystem name="attitude" 		type="infrared"/>
+    <subsystem name="gps" 		type="ublox_lea4p"/>
+    <subsystem name="navigation"/>
 
-# Sensors
-include $(CFG_FIXEDWING)/attitude_infrared.makefile
-include $(CFG_FIXEDWING)/gyro.makefile
+    <modules>
+    </modules>
 
-### (UART 0, 38400baud) are the default GPS parameters, change and uncomment if needed
-#GPS_UART_NR	= 0
-#GPS_BAUD	= 38400
-include $(CFG_FIXEDWING)/gps_ublox_lea5h.makefile
-
-### (UART 1, 57600baud) are default modem parameters, change and uncomment if needed
-#MODEM_UART_NR = 1
-#MODEM_BAUD = 57600
-include $(CFG_FIXEDWING)/telemetry_xbee_api.makefile
+  </firmware>
 
 
-# Special options
-ap.CFLAGS += -DLOITER_TRIM -DALT_KALMAN -DWIND_INFO -DAGR_CLIMB
+  <firmware name="setup">
+    <target name="tunnel" 		board="tiny_2.11" />
+    <target name="setup_actuators" 	board="tiny_2.11" />
+  </firmware>
 
-
-######################################
-# Config for SITL simulation
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DLOITER_TRIM -DALT_KALMAN -DAGR_CLIMB
-
-  </makefile>
 </airframe>
