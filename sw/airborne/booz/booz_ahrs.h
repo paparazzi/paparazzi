@@ -52,11 +52,14 @@ struct BoozAhrsFloat {
   struct FloatEulers ltp_to_imu_euler;
   struct FloatRMat   ltp_to_imu_rmat;
   struct FloatRates  imu_rate;
+  struct FloatRates  imu_rate_previous;
+  struct FloatRates  imu_rate_d;
   
   struct FloatQuat   ltp_to_body_quat;
   struct FloatEulers ltp_to_body_euler;
   struct FloatRMat   ltp_to_body_rmat;
   struct FloatRates  body_rate;  
+  struct FloatRates  body_rate_d; 
 
   uint8_t status;
 };
