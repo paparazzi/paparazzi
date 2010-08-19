@@ -21,14 +21,11 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#include "booz_radio_control.h"
+#include "booz_radio_control_spektrum.h"
 
-bool_t   rc_spk_parser_status;
-uint8_t  rc_spk_parser_idx;
-uint8_t  rc_spk_parser_buf[RADIO_CONTROL_NB_CHANNEL*2];
-const int16_t rc_spk_throw[RADIO_CONTROL_NB_CHANNEL] = RC_SPK_THROWS;
-
-void radio_control_impl_init(void) {
-  rc_spk_parser_status = RC_SPK_STA_UNINIT;
-  rc_spk_parser_idx = 0;
-}
+/* Currently the functionality has been pushed into the arch directories 
+ * both arch directories contain essentially the original parser.
+ * The next step is to implement a new parser for lisa. Once this is complete
+ * hardware dependent functions will be written for booz then the lisa parser
+ * will end up in here 
+ */
