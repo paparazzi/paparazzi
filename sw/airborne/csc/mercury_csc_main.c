@@ -105,8 +105,12 @@ static void csc_main_init( void ) {
 
 
 // be sure to call servos_init after uart1 init since they are sharing pins
-#ifdef USE_VANE_SENSOR
 	csc_servos_init();
+
+#ifdef USE_VANE_SENSOR
+#ifndef USE_PWM_INPUT
+	pwm_input_init();
+#endif
 #endif
 
 	csc_ap_link_init();

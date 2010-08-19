@@ -26,10 +26,19 @@
 #define CSC_PROTOCOL_H
 
 typedef void(* cscp_callback_t)(void *data);
+typedef enum { INIT=0, READ=1, WRITE=2 } queue_state_t; 
 
 void cscp_init(void);
 int cscp_transmit(uint32_t client_id, uint8_t msg_id, const uint8_t *buf, uint8_t len);
 void cscp_event(void);
+
+/* Note that messages are only accepted and parsed if a callback function 
+ * has been registered for their respective message id. 
+ * Example: 
+ *
+ * 		cscp_register_callback(CSC_VANE_MSG_ID, main_on_vane_msg, (void *)&csc_vane_msg);
+ * 
+ */
 void cscp_register_callback(uint32_t msg_id, cscp_callback_t callback, uint8_t *data);
 
 #endif

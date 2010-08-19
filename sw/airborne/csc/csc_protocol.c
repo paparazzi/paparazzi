@@ -29,6 +29,9 @@
 #include "can.h"
 #include "csc_msg_def.h"
 
+// #include "init_hw.h"
+// #include "sys_time.h"
+// #include "downlink.h"
 
 #define CSCP_QUEUE_LEN 8
 
@@ -42,6 +45,7 @@ struct cscp_msg_queue {
 	int head;
 	int tail;
 	int full;
+	int empty; 
 	struct cscp_msg msgs[CSCP_QUEUE_LEN];
 } cscp_msg_queue;
 
@@ -93,10 +97,11 @@ void cscp_can_rx_callback(uint32_t id, uint8_t *buf, int len)
 	/* just store the incoming data in a buffer with very little processing */
 
 	/* TODO we should handle the return value of enqueue somehow,
-	 * the returnvalue tells us if the queue had enough space to
+	 * the return value tells us if the queue had enough space to
 	 * store our message or not
 	 */
 	uint32_t msg_id = cscp_msg_id(id);
+
 	cscp_enqueue(msg_id, buf, len);
 }
 
@@ -105,45 +110,51 @@ void cscp_event(void)
 	/* this periodig is the main csc protocol event dispatcher */
 	int msg_id = cscp_peek_msg_id();
 
-	if(msg_id == -1){
+	if (msg_id == -1){
 		return;
 	}
 
 	if(cscp_callback_handles[msg_id].callback){
 		cscp_dequeue(cscp_callback_handles[msg_id].data);
 		cscp_callback_handles[msg_id].callback(cscp_callback_handles[msg_id].data);
+		return;
 	}
 
 }
 
 void cscp_queue_init(void)
 {
-	cscp_msg_queue.head = 0;
-	cscp_msg_queue.tail = 0;
-	cscp_msg_queue.full = 0;
+	cscp_msg_queue.head  = 0;
+	cscp_msg_queue.tail  = 0;
+	cscp_msg_queue.full  = 0;
+	cscp_msg_queue.empty = 1;
 }
 
 int cscp_enqueue(uint32_t msg_id, uint8_t *buf, int len)
 {
 	if (cscp_msg_queue.full) {
-		return 1;
+		cscp_msg_queue.empty = 0; 
+		return 1; 
+	}
+	if(!cscp_callback_handles[msg_id].callback) {
+		return 2; 
 	}
 
 	cscp_msg_queue.msgs[cscp_msg_queue.tail].id = msg_id;
 	cscp_msg_queue.msgs[cscp_msg_queue.tail].len = len;
 	memcpy(cscp_msg_queue.msgs[cscp_msg_queue.tail].data, buf, len);
-	cscp_msg_queue.tail = (cscp_msg_queue.tail + 1) % CSCP_QUEUE_LEN;
-	if (cscp_msg_queue.head == cscp_msg_queue.tail)
+	cscp_msg_queue.tail  = (cscp_msg_queue.tail + 1) % CSCP_QUEUE_LEN;
+	cscp_msg_queue.empty = 0; 
+	if (cscp_msg_queue.head == cscp_msg_queue.tail) {
 		cscp_msg_queue.full = 1;
+	}
 
 	return 0;
 }
 
 int cscp_peek_msg_id(void)
 {
-	if(!cscp_msg_queue.full &&
-		(cscp_msg_queue.head == cscp_msg_queue.tail))
-	{
+	if (cscp_msg_queue.empty) {
 		return -1;
 	}
 	return cscp_msg_queue.msgs[cscp_msg_queue.head].id;
@@ -151,8 +162,7 @@ int cscp_peek_msg_id(void)
 
 int cscp_dequeue(uint8_t *buf)
 {
-	if (!cscp_msg_queue.full &&
-		(cscp_msg_queue.head == cscp_msg_queue.tail)) {
+	if (cscp_msg_queue.empty) {
 		return 1;
 	}
 
@@ -161,6 +171,9 @@ int cscp_dequeue(uint8_t *buf)
 		cscp_msg_queue.msgs[cscp_msg_queue.head].len);
 	cscp_msg_queue.head = (cscp_msg_queue.head + 1) % CSCP_QUEUE_LEN;
 	cscp_msg_queue.full = 0;
+	if (cscp_msg_queue.head == cscp_msg_queue.tail) { 
+		cscp_msg_queue.empty = 1; 
+	}
 
 	return 0;
 }

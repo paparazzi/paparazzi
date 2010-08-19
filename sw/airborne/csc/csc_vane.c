@@ -22,7 +22,9 @@ void csc_vane_periodic(void)
   static uint8_t prescale = 0;
 
   for (int i = 0; i < VANE_NB; i++) {
-    angle[i] = avg_factor * angle[i] + (1. - avg_factor) * RadOfDeg(360. * pwm_input_duration[i] / PWM_INPUT_COUNTS_PER_REV);
+    angle[i] = avg_factor * angle[i] + 
+								((1. - avg_factor) * 
+								 RadOfDeg(360. * pwm_input_duration[i] / PWM_INPUT_COUNTS_PER_REV));
   }
 
   if (prescale++ >= PWM_INPUT_MSG_PRESCALE) {
