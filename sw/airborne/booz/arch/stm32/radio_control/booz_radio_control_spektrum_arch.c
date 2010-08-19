@@ -2,7 +2,7 @@
  * $Id$
  *  
  * Copyright (C) 2010 Eric Parsonage <eric@eparsonage.com>
- *
+ *               
  * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
@@ -19,18 +19,22 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA. 
- *
  */
 
 #include <stdint.h>
 #include <stm32/gpio.h>
 #include <stm32/rcc.h>
 #include <stm32/tim.h>
-
 #include BOARD_CONFIG
-
 #include "uart.h"
-#include "booz/booz_radio_control.h"
+#include "booz_radio_control.h"
+#include "booz_radio_control_spektrum_arch.h"
+#include "booz2_autopilot.h"
+
+bool_t   rc_spk_parser_status;
+uint8_t  rc_spk_parser_idx;
+uint8_t  rc_spk_parser_buf[RADIO_CONTROL_NB_CHANNEL*2];
+const int16_t rc_spk_throw[RADIO_CONTROL_NB_CHANNEL] = RC_SPK_THROWS;
 
 /* set TIM1 to run at DELAY_TIM_FREQUENCY */ 
 static void delay_init( void );
@@ -175,6 +179,16 @@ static void delay_ms( uint16_t mSecs ) {
   for(int i = 0; i < mSecs; i++) {
     delay_us(DELAY_TIM_FREQUENCY / 1000);
   }
+}
+
+
+void radio_control_impl_init(void) {
+  rc_spk_parser_status = RC_SPK_STA_UNINIT;
+  rc_spk_parser_idx = 0;
+}
+
+void RadioControlEventImp(void) {
+  _RadioControlEvent(booz2_autopilot_on_rc_frame);
 }
 
 
