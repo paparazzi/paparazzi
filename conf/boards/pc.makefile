@@ -14,5 +14,5 @@ sim.ARCH = sitl
 sim.TARGET = autopilot
 sim.TARGETDIR = autopilot
 
-
+sim.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 

@@ -161,9 +161,7 @@
   </section>
 
   <firmware name="fixedwing">
-<!--
     <target name="sim" 			board="pc" />
--->
     <target name="ap" 			board="tiny_2.11">
       <param name="FLASH_MODE" 		value="IAP" />
       <define name="AGR_CLIMB" />
@@ -192,6 +190,7 @@
     </modules>
 
   </firmware>
+
 <!--
   <firmware name="setup">
     <target name="tunnel" 		board="tiny_2.11" />
