@@ -75,3 +75,19 @@ stm_passthrough.srcs += $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_arch.c
 stm_passthrough.srcs += $(SRC_LISA)/lisa_baro.c
 stm_passthrough.CFLAGS += -DUSE_I2C2
 stm_passthrough.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+# Vanes
+stm_passthrough.CFLAGS += -I $(SRC_CSC) 
+stm_passthrough.CFLAGS += -DUSE_CAN1 \
+	-DUSE_CAN1 \
+	-DUSE_USB_LP_CAN1_RX0_IRQ \
+	-DCAN_PRESCALER=12 \
+	-DCAN_SJW_TQ=CAN_SJW_1tq \
+	-DCAN_BS1_TQ=CAN_BS1_3tq \
+	-DCAN_BS2_TQ=CAN_BS2_4tq \
+	-DCAN_ERR_RESUME=DISABLE
+stm_passthrough.srcs += can.c $(SRC_ARCH)/can_hw.c
+stm_passthrough.srcs += $(SRC_CSC)/csc_protocol.c 
+
+# Battery monitor
+
