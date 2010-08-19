@@ -163,7 +163,6 @@
   <target name="fixedwing" board="tiny_2.11">
     <param name="FLASH_MODE" value="IAP"/>
     <subsystem name="autopilot"/>
-    <subsystem name="testing"/>
     <subsystem name="radio_control" type="ppm"/>
     <!-- Communication -->
     <subsystem name="telemetry" type="transparent">
@@ -180,6 +179,7 @@
       <define name="LOITER_TRIM" value="1" />
       <define name="WIND_INFO" value="1" />
     </subsystem>
+    <subsystem name="testing"/>
   </target>
 
  <makefile location="after">
