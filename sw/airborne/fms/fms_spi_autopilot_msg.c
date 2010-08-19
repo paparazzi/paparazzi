@@ -107,7 +107,7 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
 
   if (msg_up->valid.vane && vane_callback)
     // FIXME: placeholders since the vane data fields don't exist yet
-    vane_callback(0, 0., 0.);
+    vane_callback(0, msg_up->vane_angle1, msg_up->vane_angle2);
 
   // Fill pressure data
   if (msg_up->valid.pressure_absolute && pressure_absolute_callback)
@@ -160,7 +160,6 @@ void spi_ap_link_periodic()
 {
   static struct AutopilotMessageCRCFrame msg_up;
   static struct AutopilotMessageCRCFrame msg_down;
-  static uint32_t crc_errors = 0;
   uint8_t crc_valid;
 
   passthrough_down_fill(&msg_down.payload.msg_down);
