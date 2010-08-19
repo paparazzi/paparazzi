@@ -36,31 +36,29 @@
     <define name="GYRO_P_NEUTRAL" value="31948"/>
     <define name="GYRO_Q_NEUTRAL" value="31834"/>
     <define name="GYRO_R_NEUTRAL" value="32687"/>
-
     <define name="GYRO_P_SENS" value=" 1.101357422" integer="16"/>
     <define name="GYRO_Q_SENS" value=" 1.122670898" integer="16"/>
     <define name="GYRO_R_SENS" value=" 1.104890137" integer="16"/>
 
 
-    <define name="ACCEL_X_SENS" value=" 2.58273701242" integer="16"/>
-    <define name="ACCEL_Y_SENS" value=" 2.54076215332" integer="16"/>
-    <define name="ACCEL_Z_SENS" value=" 2.57633620646" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="32899"/>
+    <define name="ACCEL_Y_NEUTRAL" value="33281"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32569"/>
+    <define name="ACCEL_X_SENS" value="2.57702956051" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.57835230627" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.54311399868" integer="16"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="32857"/>
-    <define name="ACCEL_Y_NEUTRAL" value="32429"/>
-    <define name="ACCEL_Z_NEUTRAL" value="32593"/>
 
-    <define name="MAG_X_SENS" value=" 5.32718104135" integer="16"/>
-    <define name="MAG_Y_SENS" value=" 4.87857821202" integer="16"/>
-    <define name="MAG_Z_SENS" value=" 3.11986612709" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="30"/>
+    <define name="MAG_Y_NEUTRAL" value="80"/>
+    <define name="MAG_Z_NEUTRAL" value="19"/>
+    <define name="MAG_X_SENS" value="4.73590916868" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.86013203775" integer="16"/>
+    <define name="MAG_Z_SENS" value="2.5947951512" integer="16"/>
 
-    <define name="MAG_X_NEUTRAL" value="-43"/>
-    <define name="MAG_Y_NEUTRAL" value=" 49"/>
-    <define name="MAG_Z_NEUTRAL" value="-66"/>
-
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(  0.)"/>
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(  0.)"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45.)"/>
+    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(   0. )"/>
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg( 135.)"/>
 
   </section>
 
@@ -164,6 +162,16 @@
    <define name="BOOZ2_FACE_REINJ_1"  value="1024"/>
  </section>
 
+ 
+  <firmware name="baloo">
+    <target name="ap" board="lisa_l_1.0"/>
+    <subsystem name="radio_control" type="spektrum"/>
+    <subsystem name="actuators"     type="asctec"/>
+    <subsystem name="imu"           type="b2v1_1"/>
+    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="ahrs"          type="cmpl"/>
+  </firmware>
+
 
  <makefile>
 
@@ -178,23 +186,9 @@ TARGET_DIR = ~
 SRC_FMS=fms
 
 
-ARCH=stm32
-ARCHI=stm32
-BOARD_CFG=\"boards/lisa_0.99.h\"
-FLASH_MODE = JTAG
 
 ap.CFLAGS += -DMODEM_BAUD=B57600
 ap.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"radio_control/booz_radio_control_spektrum_dx7se.h\"
-
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
-include $(CFG_BOOZ)/booz2_autopilot.makefile
-
-include $(CFG_BOOZ)/subsystems/booz2_radio_control_spektrum.makefile
-include $(CFG_BOOZ)/subsystems/booz2_actuators_asctec_v2.makefile
-include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1_1.makefile
-include $(CFG_BOOZ)/subsystems/booz_gps_ublox.makefile
-include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
-
 
 include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
 

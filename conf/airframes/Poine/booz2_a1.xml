@@ -14,12 +14,12 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
-<!-- not needed anymore - in subsystem 
+<!-- not needed anymore - in subsystem -->
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
     <define name="NB" value="4"/>
     <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
   </section>
--->
+<!--  -->
 
   <section name="SUPERVISION" prefix="SUPERVISION_">
     <define name="MIN_MOTOR" value="2"/>
@@ -218,28 +218,20 @@ ap.CFLAGS += -DUSE_ADAPT_HOVER
   </makefile>
 
 
-  <target name="baloo" board="booz">
-    <param  name="FLASH_MODE" value="IAP"/>   <!-- that is the default for the board but I'm putting it here as example--> 
+  <firmware name="baloo">
+    <target name="ap" board="booz">
+      <param  name="FLASH_MODE" value="IAP"/>   <!-- that is the default for the board but I'm putting it here as example--> 
+    </target>
     <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="actuators"     type="mkk">
-       <define name="ACTUATORS_MKK_NB"   value="4"/>                        
-       <define name="ACTUATORS_MKK_ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
-    </subsystem>
+    <subsystem name="actuators"     type="mkk"/>
     <subsystem name="imu"           type="b2v1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="cmpl"/>
-  </target>
+  </firmware>
 
 
   <makefile target="closure" location="after">
-#
-#include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
-#include $(CFG_BOOZ)/booz2_autopilot.makefile
-#include $(CFG_BOOZ)/subsystems/booz2_radio_control_ppm.makefile
-#include $(CFG_BOOZ)/subsystems/booz2_actuators_mkk.makefile
-#include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1.makefile
-#include $(CFG_BOOZ)/subsystems/booz_gps_ublox.makefile
-#include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
+
 # FIXME: make fms a module
 include $(CFG_BOOZ)/subsystems/booz2_fms_test_signal.makefile
 
