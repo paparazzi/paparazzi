@@ -93,6 +93,8 @@ struct __attribute__ ((packed)) AutopilotMessagePTUp
   int16_t rc_aux3;
   int16_t rc_aux4;
   uint8_t rc_status;
+	float vane_angle1; 
+	float vane_angle2; 
   struct PTUpValidFlags valid;
   uint32_t stm_msg_cnt;
   uint32_t stm_crc_err_cnt;
