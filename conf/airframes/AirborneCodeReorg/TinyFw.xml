@@ -160,36 +160,50 @@
 	<define name="HOME_RADIUS" value="100" unit="m"/>
   </section>
 
-  <target name="fixedwing" board="tiny_2.11">
-    <param name="FLASH_MODE" value="IAP"/>
+  <firmware name="fixedwing">
+<!--
+    <target name="sim" 			board="pc" />
+-->
+    <target name="ap" 			board="tiny_2.11">
+      <param name="FLASH_MODE" 		value="IAP" />
+      <define name="AGR_CLIMB" />
+      <define name="LOITER_TRIM" />
+      <define name="WIND_INFO" />
+    </target>
+
     <subsystem name="autopilot"/>
-    <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="radio_control" 	type="ppm"/>
+
     <!-- Communication -->
-    <subsystem name="telemetry" type="transparent">
-      <param name="MODEM_BAUD" value="9600"/>
+    <subsystem name="telemetry" 	type="transparent">
+      <param name="MODEM_BAUD" 		value="9600"/>
     </subsystem>
+
     <!-- Actuators -->
-    <subsystem name="actuators" type="4017"/>
+    <subsystem name="actuators" 	type="4017"/>
+
     <!-- Sensors -->
     <subsystem name="gyro"/>
-    <subsystem name="attitude" type="infrared"/>
-    <subsystem name="gps" type="ublox_lea4p"/>
-    <subsystem name="navigation">
-      <define name="AGR_CLIMB" value="1" />
-      <define name="LOITER_TRIM" value="1" />
-      <define name="WIND_INFO" value="1" />
-    </subsystem>
-    <subsystem name="testing"/>
-  </target>
+    <subsystem name="attitude" 		type="infrared"/>
+    <subsystem name="gps" 		type="ublox_lea4p"/>
+    <subsystem name="navigation"/>
+
+    <modules>
+    </modules>
+
+  </firmware>
+<!--
+  <firmware name="setup">
+    <target name="tunnel" 		board="tiny_2.11" />
+    <target name="setup_actuators" 	board="tiny_2.11" />
+  </firmware>
+-->
+
 
  <makefile location="after">
 
 ap.CFLAGS += -DTRAFFIC_INFO -DALT_KALMAN
 sim.CFLAGS += -DTRAFFIC_INFO
-
-
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\"
 
   </makefile>
 </airframe>

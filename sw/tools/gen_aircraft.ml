@@ -150,47 +150,57 @@ let dump_makefile_section = fun xml makefile_ac airframe_infile print_if_loc_aft
     end)
     (Xml.children xml)
 
+(** Firnware Children **)
+
+let parse_firmware = fun makefile_ac tag firmware ->
+   match Xml.tag firmware with
+    "subsystem" ->
+        begin try
+          fprintf makefile_ac "# -subsystem: '%s' \n" (Xml.attrib firmware "name");
+          let has_subtype = ref false in
+          begin try
+            has_subtype := not (String.compare (Xml.attrib firmware "type") "" = 0)
+          with _ -> () end;
+          let print_if_subsystem_define = (fun d ->
+            if ExtXml.tag_is d "param" then begin
+              fprintf makefile_ac "%s = %s\n"
+              (String.uppercase(Xml.attrib d "name"))
+              (Xml.attrib d "value");
+            end) in
+          List.iter print_if_subsystem_define (Xml.children firmware);
+          fprintf makefile_ac "include $(CFG_%s)/%s" 
+   	    (String.uppercase(Xml.attrib tag "name"))
+	    (Xml.attrib firmware "name");
+          if !has_subtype then
+            fprintf makefile_ac "_%s" 
+	      (Xml.attrib firmware "type");
+          fprintf makefile_ac ".makefile\n"
+        with _ -> () end;
+   | "target" ->
+        begin try
+          fprintf makefile_ac "\n###########\n# -target: '%s' \n" (Xml.attrib firmware "name"); 
+  	  let print_if_subsystem = (fun c ->
+            if ExtXml.tag_is c "param" then begin
+              fprintf makefile_ac "%s = %s\n"
+                (String.uppercase(Xml.attrib c "name"))
+                (Xml.attrib c "value")
+            end) in
+	  List.iter print_if_subsystem (Xml.children firmware);
+          fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib firmware "board")
+        with _ -> () end;
+   | _ -> ()
+
+
 (** 
-   Search and dump the target section 
+   Search and dump the firmware section 
  **)
 let dump_target_section = fun xml makefile_ac ->
   List.iter (fun tag ->
-    if ExtXml.tag_is tag "target" then begin
+    if ExtXml.tag_is tag "firmware" then begin
       begin try
-        fprintf makefile_ac "\n# makefile target '%s' board '%s'\n" (Xml.attrib tag "name") (Xml.attrib tag "board");
-	let print_if_subsystem = (fun c ->
-          if ExtXml.tag_is c "param" then begin
-            fprintf makefile_ac "%s = %s\n"
-            (String.uppercase(Xml.attrib c "name"))
-            (Xml.attrib c "value")
-          end) in
-	List.iter print_if_subsystem (Xml.children tag);
-        fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib tag "board");
+        fprintf makefile_ac "\n######################\n# makefile firmware '%s' \n" (Xml.attrib tag "name");
         fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/autopilot/%s.makefile\n" (Xml.attrib tag "name");
-        fprintf makefile_ac "\n# Subsystems:'\n";
-	let print_if_subsystem = (fun c ->
-          if ExtXml.tag_is c "subsystem" then begin
-            let has_subtype = ref false in
-            begin try
-              has_subtype := not (String.compare (Xml.attrib c "type") "" = 0)
-            with _ -> () end;
-            let print_if_subsystem_define = (fun d ->
-              if ExtXml.tag_is d "param" then begin
-                fprintf makefile_ac "%s = %s\n"
-                (String.uppercase(Xml.attrib d "name"))
-                (Xml.attrib d "value");
-              end) in
-            List.iter print_if_subsystem_define (Xml.children c);
-            fprintf makefile_ac "include $(CFG_%s)/%s" 
-   	        (String.uppercase(Xml.attrib tag "name"))
-	        (Xml.attrib c "name");
-            if !has_subtype then
-              fprintf makefile_ac "_%s" 
-	        (Xml.attrib c "type");
-            
-	    fprintf makefile_ac ".makefile\n"
-          end) in
-	List.iter print_if_subsystem (Xml.children tag)
+	List.iter (parse_firmware makefile_ac tag) (Xml.children tag )
       with _ -> () end;
     end)
     (Xml.children xml)
