@@ -1,9 +1,10 @@
-<!DOCTYPE airframe SYSTEM "airframe.dtd">
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="MiniMag Laas N2 Tiny 1.1">
 
   <modules>
     <load name="formation_flight.xml"/>
+    <!--load name="potential.xml"/-->
   </modules>
 
 <!-- commands section -->
@@ -87,9 +88,11 @@
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8600"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
-
+ 
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="11." unit="m/s"/>
+    <define name="MINIMUM_AIRSPEED" value="8." unit="m/s"/>
+    <define name="MAXIMUM_AIRSPEED" value="16." unit="m/s"/>
     <define name="CARROT" value="3." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
@@ -100,7 +103,7 @@
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="60."/>
   </section>
-
+ 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
@@ -142,7 +145,7 @@
     <define name="PITCH_PGAIN" value="-12000."/>
     <define name="PITCH_DGAIN" value="1.5"/>
     <define name="ELEVATOR_OF_ROLL" value="1250"/>
-
+    
   </section>
 
   <section name="NAV">
@@ -188,19 +191,19 @@
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
 	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
-	<define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
-	<define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
-	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
+    	<define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
+    	<define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
+    	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
 	<define name="HOME_RADIUS" value="100" unit="m"/>
 </section>
-
+ 
  <section name="DATALINK" prefix="DATALINK_">
     <define name="DEVICE_TYPE" value="XBEE"/>
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
 
   <section name="SIMU">
-    <define name="YAW_RESPONSE_FACTOR" value="1."/>
+    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
   </section>
 
  <makefile>
@@ -220,13 +223,13 @@ ap.CFLAGS += -DACTUATORS=\"servos_4015_MAT_hw.h\" -DSERVOS_4015_MAT
 ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 
 ap.CFLAGS += -DRADIO_CONTROL
-ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
+ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
 ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B57600
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 
 ap.CFLAGS += -DINTER_MCU
-ap.srcs += inter_mcu.c
+ap.srcs += inter_mcu.c 
 
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2
 ap.srcs += $(SRC_ARCH)/adc_hw.c
