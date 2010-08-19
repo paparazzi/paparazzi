@@ -57,8 +57,12 @@ extern struct ActuatorsAsctec actuators_asctec;
     actuators_asctec.cmd = _v;			\
 }
 
-#define booz_actuators_asctec_SetAddr(_v) {	\
+#define booz_actuators_asctec_SetNewAddr(_v) {	\
     actuators_asctec.new_addr = _v;		\
+}
+
+#define booz_actuators_asctec_SetCurAddr(_v) {	\
+    actuators_asctec.cur_addr = _v;		\
 }
 
 
