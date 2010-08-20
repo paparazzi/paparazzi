@@ -30,9 +30,9 @@ extern void radio_control_spektrum_try_bind(void);
 
 #include RADIO_CONTROL_SPEKTRUM_MODEL_H
 
+#include "radio_control/booz_radio_control_spektrum_arch.h"
 /* implemented in booz/arch/xxx/radio_control/booz_radio_control_spektrum_arch.c */
-extern void RadioControlEventImp(void);
 
-#define RadioControlEvent(_received_frame_handler) RadioControlEventImp()
+#define RadioControlEvent(_received_frame_handler) RadioControlEventImp(_received_frame_handler)
 
 #endif /* BOOZ_RADIO_CONTROL_SPEKTRUM_H */

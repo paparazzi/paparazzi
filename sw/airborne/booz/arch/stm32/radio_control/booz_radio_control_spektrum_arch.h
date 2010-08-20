@@ -52,7 +52,7 @@ extern const int16_t rc_spk_throw[RADIO_CONTROL_NB_CHANNEL];
 #define RcLinkChAvailable() RcLink(ChAvailable())
 #define RcLinkGetCh() RcLink(Getch())
 
-#define _RadioControlEvent(_received_frame_handler) {                    \
+#define RadioControlEventImp(_received_frame_handler) {                 \
     while (RcLinkChAvailable()) {                                       \
       int8_t c = RcLinkGetCh();                                         \
       switch (rc_spk_parser_status) {                                   \

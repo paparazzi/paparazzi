@@ -23,7 +23,6 @@
 
 #include "booz_radio_control.h"
 #include "booz_radio_control_spektrum_arch.h"
-#include "booz2_autopilot.h"
 
 bool_t   rc_spk_parser_status;
 uint8_t  rc_spk_parser_idx;
@@ -35,9 +34,6 @@ void radio_control_impl_init(void) {
   rc_spk_parser_idx = 0;
 }
 
-void RadioControlEventImp(void) {
-  _RadioControlEvent(booz2_autopilot_on_rc_frame);
-}
 
 
 
