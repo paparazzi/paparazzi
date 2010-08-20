@@ -232,6 +232,7 @@ ap.CFLAGS += -DUSE_ADAPT_HOVER
 
   <makefile target="closure" location="after">
 
+CFG_BOOZ=$(PAPARAZZI_SRC)/conf/autopilot/
 # FIXME: make fms a module
 include $(CFG_BOOZ)/subsystems/booz2_fms_test_signal.makefile
 
