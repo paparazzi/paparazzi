@@ -188,9 +188,6 @@
     <subsystem name="gps" 		type="ublox_lea4p"/>
     <subsystem name="navigation"/>
 
-    <modules>
-    </modules>
-
   </firmware>
 
 

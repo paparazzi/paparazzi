@@ -23,7 +23,7 @@
 <!ELEMENT modules (load)*>
 <!ELEMENT load EMPTY>
 <!ELEMENT param EMPTY>
-<!ELEMENT firmware (target|subsystem|modules)*>
+<!ELEMENT firmware (target|subsystem)*>
 <!ELEMENT target (param|define)*>
 <!ELEMENT subsystem (param)*>
 

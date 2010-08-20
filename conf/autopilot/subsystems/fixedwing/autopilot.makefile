@@ -101,21 +101,3 @@ ap.srcs += lisa/lisa_analog_plug.c
 endif
 
 
-#
-# GPS choice
-#
-# include fixedwing_gps_ublox_lea5h.makefile
-# or
-# include fixedwing_gps_ublox_lea4p.makefile
-# or
-# nothing
-#
-
-
-#
-# AHRS choice
-#
-# include fixedwing_attitude_infrared.makefile
-# or
-# not done yet
-#
