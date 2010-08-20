@@ -58,9 +58,13 @@ else
 OOCD_INTERFACE =  $($(TARGET).OOCD_INTERFACE)
 endif
 
-OOCD_BOARD     = lisa-l
+ifndef $(TARGET).OOCD_BOARD
+OOCD_BOARD = lisa-l
+else
+OOCD_BOARD =  $($(TARGET).OOCD_BOARD)
+endif
 
-# inpput files
+# input files
 SRCS = $($(TARGET).srcs)
 #ASRC = 
 
