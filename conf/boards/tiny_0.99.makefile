@@ -3,3 +3,10 @@
 #
 # http://paparazzi.enac.fr/wiki/Tiny_v0.99
 #
+
+
+include tiny_2.11.makefile
+
+BOARD_CFG = \"tiny_0_99.h\"
+
+

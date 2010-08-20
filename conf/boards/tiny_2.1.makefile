@@ -6,4 +6,7 @@
 
 include tiny_2.11.makefile
 
+BOARD_CFG = \"tiny_2_1.h\"
+
+
 

@@ -22,14 +22,17 @@
 #
 #
 
+# All targets need the board config
+$(TARGET).CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 
-sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DINFRARED -DLED -DWIND_INFO
+$(TARGET).CFLAGS += -DWIND_INFO -DTRAFFIC_INFO
+
+sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DINFRARED -DLED
 sim.srcs += latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c infrared.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_ir.c $(SRC_ARCH)/sim_ap.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c $(SRC_ARCH)/led_hw.c
 
 
 
 ap.CFLAGS += $(FIXEDWING_INC)
-ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 ap.srcs    = $(SRC_FIXEDWING)/main.c
 
 ifeq ($(ARCHI), stm32)
