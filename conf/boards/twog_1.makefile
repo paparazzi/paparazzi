@@ -7,4 +7,4 @@
 include $(PAPARAZZI_SRC)/conf/boards/tiny_2.11.makefile
 
 
-BOARD_CFG = \"twog_1.h\"
+BOARD_CFG = \"twog_v1.h\"
