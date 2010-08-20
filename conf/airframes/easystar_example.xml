@@ -29,8 +29,8 @@
   </firmware>
 
   <firmware name="setup">
-    <target name="tunnel" 		board="twog_1" />
-    <target name="setup_actuators" 	board="twog_1" />
+    <target name="tunnel" 		board="twog_1"/>
+    <target name="setup_actuators" 	board="twog_1"/>
   </firmware>
 
 <!-- commands section -->
