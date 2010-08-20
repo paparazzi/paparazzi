@@ -6,7 +6,7 @@
      Xbee modem in API mode
 -->
 
-<airframe name="Microjet Tiny 2.11">
+<airframe name="Microjet Tiny 1.1">
 
   <servos>
     <servo name="MOTOR"         no="0" min="1290" neutral="1290" max="1810"/>
@@ -161,7 +161,7 @@
 
   <firmware name="fixedwing">
     <target name="sim" 			board="pc" />
-    <target name="ap" 			board="tiny_2.11">
+    <target name="ap" 			board="tiny_1.1">
       <param name="FLASH_MODE" 		value="IAP" />
       <define name="AGR_CLIMB" />
       <define name="LOITER_TRIM" />
@@ -188,8 +188,8 @@
 
 
   <firmware name="setup">
-    <target name="tunnel" 		board="tiny_2.11" />
-    <target name="setup_actuators" 	board="tiny_2.11" />
+    <target name="tunnel" 		board="tiny_1.1" />
+    <target name="setup_actuators" 	board="tiny_1.1" />
   </firmware>
 
 </airframe>

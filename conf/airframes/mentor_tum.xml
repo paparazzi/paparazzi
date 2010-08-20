@@ -9,9 +9,43 @@
 
 <airframe name="Mentor Twog AkaModell">
 
-  <target name="fixed_wings" board="tiny_2.11">
+  <firmware name="fixedwing">
+    <target name="ap" 			board="tiny_2.11">
+      <define name="AGR_CLIMB"/>
+      <define name="LOITER_TRIM"/>
+      <define name="WIND_INFO"/>
+      <define name="ALT_KALMAN"/>
+      <define name="USE_MODULES"/>
+    </target>
+
+    <target name="sim" 			board="pc">
+      <define name="AGR_CLIMB"/>
+      <define name="LOITER_TRIM"/>
+      <define name="WIND_INFO"/>
+      <define name="ALT_KALMAN"/>
+      <define name="USE_MODULES"/>
+    </target>
+
     <subsystem name="radio_control" type="ppm"/>
-  </target>
+
+    <!-- Communication -->
+    <subsystem name="telemetry" type="transparent">
+      <!--<define name="TELEMETRY_MODE_FBW" value="1"/>-->
+    </subsystem>
+
+    <!-- Actuators -->
+    <subsystem name="actuators" type="4017"/>
+
+    <!-- Sensors -->
+    <subsystem name="attitude" type="infrared"/>
+    <subsystem name="gps" type="ublox_lea5h"/>
+    <subsystem name="navigation"/>
+  </firmware>
+
+  <firmware name="setup">
+    <target name="tunnel" 		board="tiny_2.11" />
+    <target name="setup_actuators" 	board="tiny_2.11" />
+  </firmware>
 
   <modules main_freq="60">
     <load name="servo_switch.xml"/>
@@ -205,82 +239,4 @@
     <define name="JSBSIM_IR_PITCH_NEUTRAL" value="RadOfDeg(0.)"/>
   </section>
 
-
-  <makefile>
-BOARD_CFG	= \"tiny_2_1_1.h\"
-FLASH_MODE	= IAP
-
-# Board Specifics
-include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
-
-# Fixed Wing Specifics
-include $(PAPARAZZI_SRC)/conf/autopilot/fixedwing_common.makefile
-include $(CFG_FIXEDWING)/fixedwing_autopilot.makefile
-include $(CFG_FIXEDWING)/subsystems/fixedwing_attitude_infrared.makefile
-include $(CFG_FIXEDWING)/subsystems/fixedwing_navigation.makefile
-
-# IO Options
-#include $(CFG_FIXEDWING)/subsystems/fixedwing_radio_control_ppm.makefile
-include $(CFG_FIXEDWING)/subsystems/fixedwing_actuators_4017.makefile
-
-### (UART 0, 38400baud) are the default GPS parameters, change and uncomment if needed
-#GPS_UART_NR	= 0
-#GPS_BAUD	= 38400
-include $(CFG_FIXEDWING)/subsystems/fixedwing_gps_ublox_lea5h.makefile
-
-### (UART 1, 57600baud) are default modem parameters, change and uncomment if needed
-#MODEM_UART_NR = 1
-#MODEM_BAUD = 57600
-include $(CFG_FIXEDWING)/subsystems/fixedwing_telemetry_transparent.makefile
-
-
-
-#### set FBW debug messages (for PPM message)
-#ap.CFLAGS += -DTELEMETRY_MODE_FBW=1
-
-#### Strong Wind compensation, use on windy areas and days.
-#ap.CFLAGS += -DSTRONG_WIND
-
-### Special options
-ap.CFLAGS 	+= -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DWIND_INFO
-
-### additional navigation routines
-#ap.srcs += discsurvey.c nav_cube.c snav.c OSAMNav.c
-
-### Use Modules
-ap.CFLAGS += -DUSE_MODULES
-
-
-
-
-#
-############### Config for SITL simulation ######################
-#
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-
-sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DTRAFFIC_INFO
-
-sim.srcs += discsurvey.c nav_cube.c snav.c OSAMNav.c
-
-sim.CFLAGS += -DUSE_MODULES
-
-
-#
-############ Config for SITL simulation with JSBSim #############
-#
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl_jsbsim.makefile
-
-jsbsim.CFLAGS += -I/opt/jsbsim/include/JSBSim
-jsbsim.LDFLAGS += -L/opt/jsbsim/lib/
-
-jsbsim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
-jsbsim.srcs += $(SIMDIR)/sim_ac_fw.c
-
-jsbsim.srcs += nav_line.c nav_survey_rectangle.c
-jsbsim.srcs += discsurvey.c nav_cube.c snav.c OSAMNav.c
-
-jsbsim.CFLAGS += -DUSE_MODULES
-
-
-  </makefile>
 </airframe>

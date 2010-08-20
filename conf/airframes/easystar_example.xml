@@ -8,6 +8,33 @@
 -->
 
 <airframe name="EasyStar TWOGv1">
+
+  <firmware name="fixedwing">
+    <target name="ap" 			board="tiny_2.11">
+      <define name="LOITER_TRIM"/>
+      <define name="WIND_INFO"/>
+      <define name="ALT_KALMAN"/>
+    </target>
+
+    <target name="sim" 			board="pc">
+      <define name="LOITER_TRIM"/>
+      <define name="WIND_INFO"/>
+      <define name="ALT_KALMAN"/>
+    </target>
+
+    <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="telemetry" type="transparent"/>
+    <subsystem name="actuators" type="4017"/>
+    <subsystem name="attitude" type="infrared"/>
+    <subsystem name="gps" type="ublox_lea5h"/>
+    <subsystem name="navigation"/>
+  </firmware>
+
+  <firmware name="setup">
+    <target name="tunnel" 		board="tiny_2.11" />
+    <target name="setup_actuators" 	board="tiny_2.11" />
+  </firmware>
+
 <!-- commands section -->
   <servos>
     <servo name="THROTTLE"      no="7" min="1120" neutral="1120" max="1920"/>
@@ -145,45 +172,4 @@
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
 
-  <makefile>
-BOARD_CFG = \"twog_v1.h\"
-
-FLASH_MODE=IAP
-
-# Board Specifics
-include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
-
-# Fixed Wing Specifics
-include $(PAPARAZZI_SRC)/conf/autopilot/fixedwing_common.makefile
-include $(CFG_FIXEDWING)/fixedwing_autopilot.makefile
-include $(CFG_FIXEDWING)/subsystems/fixedwing_navigation.makefile
-
-# IO Options
-include $(CFG_FIXEDWING)/subsystems/fixedwing_radio_control_ppm.makefile
-include $(CFG_FIXEDWING)/subsystems/fixedwing_actuators_4017.makefile
-
-# Sensors
-include $(CFG_FIXEDWING)/subsystems/fixedwing_attitude_infrared.makefile
-
-### (UART 0, 38400baud) are the default GPS parameters, change and uncomment if needed
-#GPS_UART_NR	= 0
-#GPS_BAUD	= 38400
-include $(CFG_FIXEDWING)/subsystems/fixedwing_gps_ublox_lea5h.makefile
-
-### (UART 1, 57600baud) are default modem parameters, change and uncomment if needed
-#MODEM_UART_NR = 1
-#MODEM_BAUD = 57600
-include $(CFG_FIXEDWING)/subsystems/fixedwing_telemetry_transparent.makefile
-
-
-# Special options
-ap.CFLAGS += -DLOITER_TRIM -DALT_KALMAN -DWIND_INFO
-
-
-######################################
-# Config for SITL simulation
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DLOITER_TRIM -DALT_KALMAN
-
-  </makefile>
 </airframe>
