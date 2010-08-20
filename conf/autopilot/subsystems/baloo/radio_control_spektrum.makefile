@@ -1,8 +1,13 @@
 #
 # Autopilot
 #
-ap.CFLAGS += -DUSE_RADIO_CONTROL
-ap.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_spektrum.h\"
+ifndef RADIO_CONTROL_SPEKTRUM_MODEL
+RADIO_CONTROL_SPEKTRUM_MODEL=\"booz/radio_control/booz_radio_control_spektrum_dx7se.h\"
+endif
+
+ap.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_BIND_IMPL_FUNC=radio_control_spektrum_try_bind
+ap.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"booz/radio_control/booz_radio_control_spektrum.h\"
+ap.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=$(RADIO_CONTROL_SPEKTRUM_MODEL)
 
 ap.srcs += $(SRC_BOOZ)/booz_radio_control.c \
            $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c \
