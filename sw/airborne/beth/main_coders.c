@@ -34,7 +34,7 @@ static inline void main_periodic( void );
 static inline void main_event( void );
 
 static inline void main_init_adc(void);
-static inline void main_on_bench_sensors( void );
+//static inline void main_on_bench_sensors( void );
 
 //static inline void main_init_i2c2(void);
 //void i2c2_ev_irq_handler(void);
@@ -76,39 +76,37 @@ static inline void main_init( void ) {
   hw_init();
   sys_time_init();
   main_init_adc();
-  //main_init_i2c2();
-  //i2c2_init();
-  can_init();
+  bench_sensors_init();
   int_enable();
- 
 }
 
 static inline void main_periodic( void ) {
 
-  RunOnceEvery(10, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
+  /*RunOnceEvery(10, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});*/
   
   //RunOnceEvery(5, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &coder_values[0], &coder_values[1]);});
   //RunOnceEvery(5, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &can1_status, &can1_pending);});
 
-  RunOnceEvery(5, {DOWNLINK_SEND_BETH(DefaultChannel, &bench_sensors.angle_1,
-    &bench_sensors.angle_2,&bench_sensors.angle_3, &bench_sensors.current);});
+  /*RunOnceEvery(5, {DOWNLINK_SEND_BETH(DefaultChannel, &bench_sensors.angle_1,
+    &bench_sensors.angle_2,&bench_sensors.angle_3, &bench_sensors.current);});*/
   
   servos[0]=coder_values[0];
   servos[1]=coder_values[1];
   //use id=1 for azimuth board
-  can_transmit(1, 0, (uint8_t *)servos, 8);
-
+  can_transmit(1, (uint8_t *)servos, 8);
+  LED_TOGGLE(5);
 }
 
 
 static inline void main_event( void ) {
-  BenchSensorsEvent(main_on_bench_sensors);
+  //BenchSensorsEvent(main_on_bench_sensors);
 }
 
 
-static inline void main_on_bench_sensors( void ) {
+/*static inline void main_on_bench_sensors( void ) {
  
-}
+}*/
+
 
 #if 0
 /*

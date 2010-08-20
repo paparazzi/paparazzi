@@ -6,8 +6,9 @@
 struct OveroEstimator estimator;
 
 void estimator_init(void) {
-  estimator.tilt_lp_coeff = 0.9;
-  estimator.elevation_lp_coeff = 0.9;
+  estimator.tilt_lp_coeff = 0.5;
+  estimator.elevation_lp_coeff = 0.5;
+  estimator.azimuth_lp_coeff = 0.5;
 }
 
 //bench sensors z,y,x values passed in
@@ -23,10 +24,10 @@ void estimator_run(uint16_t tilt_measure, uint16_t elevation_measure, uint16_t a
 
   estimator.tilt = -(tilt_neutral - (int32_t)tilt_measure ) * tilt_scale;
   Bound(estimator.tilt,-89,89);
-  //low pass filter gyro values
+  //low pass filter tilt gyro
   estimator.tilt_dot = estimator.tilt_dot + 
                          estimator.tilt_lp_coeff * (RATE_FLOAT_OF_BFP(booz_imu.gyro.q) - estimator.tilt_dot);
-  /* Second order filter to be tested
+  /* Second order filter yet to be tested
   estimator.tilt_dot = estimator.tilt_dot * (2 - estimator.tilt_lp_coeff1 - estimator.tilt_lp_coeff2) +
                          estimator.tilt_lp_coeff1 * estimator.tilt_lp_coeff2 * RATE_FLOAT_OF_BFP(booz_imu.gyro.q) -
                          estimator.tilt_dot_old * (1 - estimator.tilt_lp_coeff1 - estimator.tilt_lp_coeff2 +
@@ -44,7 +45,11 @@ void estimator_run(uint16_t tilt_measure, uint16_t elevation_measure, uint16_t a
                               estimator.elevation_lp_coeff * (rotated_elev_dot - estimator.elevation_dot);
 
   estimator.azimuth = (azimuth_neutral - (int32_t)azimuth_measure ) * azimuth_scale;
-  estimator.azimuth_dot = RATE_FLOAT_OF_BFP(booz_imu.gyro.r);
+
+  //low pass filter azimuth gyro
+  //TODO: compensate rotation and increase order
+  estimator.azimuth_dot = estimator.azimuth_dot + 
+                         estimator.azimuth_lp_coeff * (RATE_FLOAT_OF_BFP(booz_imu.gyro.r) - estimator.azimuth_dot);
 
 }
 

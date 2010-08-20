@@ -98,9 +98,6 @@ static inline void main_periodic( void ) {
   overo_link.up.msg.thrust_out = thrust_out;
   overo_link.up.msg.pitch_out = pitch_out;
 
-  booz2_commands[COMMAND_PITCH] = pitch_out;
-  booz2_commands[COMMAND_THRUST] = thrust_out;
-
   //stop the motors if we've lost SPI or CAN link
   //If SPI has had CRC error we don't stop motors
   if ((spi_msg_cnt == 0) || (can_err_flags != 0)) {
@@ -110,6 +107,8 @@ static inline void main_periodic( void ) {
     overo_link.up.msg.can_errs = can_err_flags;
     overo_link.up.msg.pitch_out = PITCH_MAGIC_NUMBER;
   } else {
+    booz2_commands[COMMAND_PITCH] = pitch_out;
+    booz2_commands[COMMAND_THRUST] = thrust_out;
     actuators_set(TRUE);
   }
 }
