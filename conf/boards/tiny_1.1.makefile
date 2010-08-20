@@ -5,7 +5,7 @@
 #
 
 
-include tiny_2.11.makefile
+include $(PAPARAZZI_SRC)/conf/boards/tiny_2.11.makefile
 
 BOARD_CFG = \"tiny_1_1.h\"
 

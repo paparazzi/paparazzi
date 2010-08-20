@@ -4,5 +4,7 @@
 # http://paparazzi.enac.fr/wiki/Twog_v1
 #
 
-include tiny_2.11.makefile
+include $(PAPARAZZI_SRC)/conf/boards/tiny_2.11.makefile
 
+
+BOARD_CFG = \"twog_1.h\"
