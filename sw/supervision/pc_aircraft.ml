@@ -83,7 +83,6 @@ let parse_conf_xml = fun vbox ->
   Hashtbl.iter (fun name _ac -> strings := name :: !strings) Utils.aircrafts;
   Gtk_tools.combo ("" :: !strings) vbox
 
-
 let editor =
   try Sys.getenv "EDITOR" with _ -> "gedit"
 
@@ -158,6 +157,49 @@ let first_word = fun s ->
   with
     Not_found -> s
 
+(** Parse Airframe File for Targets **)
+
+let parse_ac_targets = fun target_combo ac_file ->
+  let strings = ref [] in
+  let count = ref 0 in
+  let (store, column) = Gtk_tools.combo_model target_combo in
+  store#clear ();
+  (** Clear ComboBox 
+  **)
+  let af_xml = Xml.parse_file (Env.paparazzi_src // "conf" // ac_file) in
+  List.iter (fun tag ->
+    if ExtXml.tag_is tag "firmware" then begin
+      begin try
+	  List.iter (fun tar ->
+	    if ExtXml.tag_is tar "target" then begin
+	      begin try
+                (** Temp Hack: remove these 3 lines once the bottom parts is ready *)
+		let (store, column) = Gtk_tools.combo_model target_combo in
+		let row = store#append () in
+		store#set ~row ~column (Xml.attrib tar "name");
+		(* this is the way to go *)
+		strings :=  (Xml.attrib tar "name") :: !strings;
+                count := !count + 1
+	      with _ -> () end;
+	    end)
+	    (Xml.children tag)
+      with _ -> () end;
+    end)
+    (Xml.children af_xml);
+    if !count = 0 then begin
+	let (store, column) = Gtk_tools.combo_model target_combo in
+	let row = store#append () in
+	store#set ~row ~column "sim";
+	let (store, column) = Gtk_tools.combo_model target_combo in
+	let row = store#append () in
+	store#set ~row ~column "ap";
+    end;
+    let combo_box = Gtk_tools.combo_widget target_combo in
+    combo_box#set_active 0
+(** 
+    Gtk_tools.combo (!strings) target_combo
+**)
+
 
 
 (* Link A/C to airframe & flight_plan labels *)
@@ -179,6 +221,7 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
 	current_color := gui_color;
 	gui#entry_ac_id#set_text ac_id;
 	(Gtk_tools.combo_widget target_combo)#misc#set_sensitive true;
+	parse_ac_targets target_combo (ExtXml.attrib aircraft "airframe");
     with
       Not_found ->
 	gui#label_airframe#set_text "";
