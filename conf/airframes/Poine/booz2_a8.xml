@@ -1,6 +1,6 @@
 <!-- this is the biplan equiped with  Lisa/L#XXX, aspirin IMU and asctec V2 controllers -->
 
-<airframe name="booz2_a7">
+<airframe name="booz2_a8">
 
   <servos min="0" neutral="0" max="0xff">
     <servo name="FRONT"   no="0" min="0" neutral="0" max="255"/>
@@ -180,8 +180,6 @@
 
   </section>
 
-<!-- -->
-
 
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
@@ -190,44 +188,24 @@
  </section>
 
 
- <makefile>
+  <firmware name="lisa_passthrough">
+
+    <target name="stm_passthrough"        board="lisa_l_1.0">
+    </target>
+    <subsystem name="radio_control" type="spektrum">
+      <param name="RADIO_CONTROL_SPEKTRUM_MODEL" 
+             value="\\\"booz/radio_control/booz_radio_control_spektrum_dx7se.h\\\""/>
+    </subsystem>
 
 
+    <target name="overo_test_passthrough" board="lisa_l_1.0"  >
+      <param name="HOST"          value="auto1"/>
+      <param name="USER"          value=""/>
+      <param name="TARGET_DIR"    value="~"/>
+      <param name="PERIODIC_FREQ" value="512"/>
+    </target>
 
-USER =
-#HOST = 10.31.4.22
-#HOST = overo
-HOST = auto7
-#HOST = 192.168.2.230
-TARGET_DIR = ~
+  </firmware>
 
-SRC_FMS=fms
-
-
-ARCH=stm32
-ARCHI=stm32
-BOARD_CFG=\"boards/lisa_0.99.h\"
-FLASH_MODE = JTAG
-
-PERIODIC_FREQ = 512
-
-include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
-
-
-CONFIG_PASSTHROUGH = $(PAPARAZZI_SRC)/conf/autopilot/subsystems/lisa_passthrough
-SERVOS_REFRESH_FREQ=50
-
-include $(PAPARAZZI_SRC)/conf/autopilot/lisa_passthrough.makefile
-
-RADIO_CONTROL_SPEKTRUM_MODEL=\"booz/radio_control/booz_radio_control_spektrum_dx7se.h\"
-include $(CONFIG_PASSTHROUGH)/radio_control_spektrum.makefile
-
-
-#
-# 
-#
-
-
- </makefile>
 
 </airframe>

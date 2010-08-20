@@ -4,6 +4,16 @@
 #
 #
 
+SRC_ARCH=$(ARCH)
+SRC_BOOZ=booz
+SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCH)
+SRC_LISA=lisa
+SRC_LISA_ARCH=$(SRC_LISA)/arch/$(ARCH)
+SRC_CSC=csc
+
+CFG_LISA_PASSTHROUGH = $(PAPARAZZI_SRC)/conf/autopilot/subsystems/lisa_passthrough
+
+
 stm_passthrough.ARCHDIR = stm32
 stm_passthrough.TARGET = stm_passthrough
 stm_passthrough.TARGETDIR = stm_passthrough
@@ -36,6 +46,7 @@ stm_passthrough.srcs += $(SRC_LISA)/lisa_overo_link.c           \
 
 # IMU
 stm_passthrough.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
+stm_passthrough.CFLAGS += -DIMU_B2_VERSION_1_1
 stm_passthrough.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
 stm_passthrough.srcs += $(SRC_BOOZ)/booz_imu.c
 stm_passthrough.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
@@ -91,3 +102,35 @@ stm_passthrough.srcs += $(SRC_CSC)/csc_protocol.c
 
 # Battery monitor
 
+
+
+
+
+
+
+
+
+#
+#
+#
+#
+# test passthrough , aka using stm32 as io processor
+# this demonstrates
+#   -link with io processor
+#   -periodic event
+#   -telemetry and datalink
+#
+SRC_FMS=fms
+
+overo_test_passthrough.ARCHDIR  = omap
+overo_test_passthrough.LDFLAGS += -levent -lm
+overo_test_passthrough.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
+overo_test_passthrough.CFLAGS  += -DOVERO_LINK_MSG_UP=AutopilotMessagePTUp -DOVERO_LINK_MSG_DOWN=AutopilotMessagePTDown
+overo_test_passthrough.srcs     = $(SRC_FMS)/overo_test_passthrough.c
+overo_test_passthrough.CFLAGS  += -DFMS_PERIODIC_FREQ=512
+overo_test_passthrough.srcs    += $(SRC_FMS)/fms_periodic.c
+overo_test_passthrough.srcs    += $(SRC_FMS)/fms_spi_link.c
+overo_test_passthrough.srcs    += $(SRC_FMS)/fms_gs_com.c
+overo_test_passthrough.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
+overo_test_passthrough.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
+overo_test_passthrough.srcs    += $(SRC_FMS)/fms_network.c
