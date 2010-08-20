@@ -10,15 +10,13 @@
 <airframe name="EasyStar TWOGv1">
 
   <firmware name="fixedwing">
-    <target name="ap" 			board="tiny_2.11">
+    <target name="ap" 			board="twog_1">
       <define name="LOITER_TRIM"/>
-      <define name="WIND_INFO"/>
       <define name="ALT_KALMAN"/>
     </target>
 
     <target name="sim" 			board="pc">
       <define name="LOITER_TRIM"/>
-      <define name="WIND_INFO"/>
       <define name="ALT_KALMAN"/>
     </target>
 
@@ -31,8 +29,8 @@
   </firmware>
 
   <firmware name="setup">
-    <target name="tunnel" 		board="tiny_2.11" />
-    <target name="setup_actuators" 	board="tiny_2.11" />
+    <target name="tunnel" 		board="twog_1" />
+    <target name="setup_actuators" 	board="twog_1" />
   </firmware>
 
 <!-- commands section -->

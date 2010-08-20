@@ -9,4 +9,5 @@ include $(PAPARAZZI_SRC)/conf/boards/tiny_2.11.makefile
 
 BOARD_CFG = \"tiny_1_1.h\"
 
-
+GPS_UART_NR	= 1
+MODEM_UART_NR = 0

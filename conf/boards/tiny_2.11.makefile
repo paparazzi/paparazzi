@@ -23,7 +23,7 @@ LPC21ISP_BAUD = 38400
 LPC21ISP_XTAL = 12000
 
 
-### default settings for tiny and twog
+### default settings for tiny_2 and twog
 GPS_UART_NR	= 0
 GPS_BAUD	= 38400
 MODEM_UART_NR	= 1

@@ -179,7 +179,7 @@
     <subsystem name="actuators" 	type="4017"/>
 
     <!-- Sensors -->
-    <subsystem name="gyro"/>
+    <subsystem name="gyro" type="roll"/>
     <subsystem name="attitude" 		type="infrared"/>
     <subsystem name="gps" 		type="ublox_lea4p"/>
     <subsystem name="navigation"/>
