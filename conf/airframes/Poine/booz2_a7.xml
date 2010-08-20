@@ -172,6 +172,11 @@
     <subsystem name="ahrs"          type="cmpl"/>
   </firmware>
 
+  <firmware name="baloo">
+    <target name="test_led" board="lisa_l_1.0" />
+    <target name="test_float" board="lisa_l_1.0" />
+    <target name="test_periodic" board="lisa_l_1.0" />
+  </firmware>
 
  <makefile>
 
