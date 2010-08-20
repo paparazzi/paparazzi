@@ -30,7 +30,6 @@ from scipy import optimize
 
 import calibration_utils
 
-
 def main():
     usage = "usage: %prog [options] log_filename"
     parser = OptionParser(usage)

@@ -96,7 +96,7 @@ static inline void on_gyro_accel_event(void) {
   cnt++;
   if (cnt > NB_SAMPLES) cnt = 0;
   samples[cnt] = booz_imu.MEASURED_SENSOR;
-  if (cnt == 19) {
+  if (cnt == NB_SAMPLES-1) {
     DOWNLINK_SEND_IMU_HS_GYRO(DefaultChannel, &axis, NB_SAMPLES, samples);
   }
 

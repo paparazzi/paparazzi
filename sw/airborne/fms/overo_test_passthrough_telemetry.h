@@ -24,6 +24,8 @@
 #define PERIODIC_SEND_IMU_MAG(_transport)				\
   DOWNLINK_SEND_IMU_MAG(_transport, &otp.imu.mag.x, &otp.imu.mag.y, &otp.imu.mag.z)
 
+#define PERIODIC_SEND_BOOZ_BARO2_RAW(_transport)				\
+  DOWNLINK_SEND_BOOZ_BARO2_RAW(_transport, &otp.baro_abs, &otp.baro_diff)
 
 
 #endif /* OVERO_TEST_PASSTHROUGH_TELEMETRY_H */

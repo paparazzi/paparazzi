@@ -57,13 +57,13 @@ int main(void) {
 static inline void main_init( void ) {
   hw_init();
   sys_time_init();
-  //main_i2c_init();
-   test_gpios();
+  main_i2c_init();
+  test_gpios();
 }
 
 static inline void main_periodic_task( void ) {
 
-  //  main_test_send();
+  main_test_send();
   LED_PERIODIC();
 }
 
@@ -146,7 +146,7 @@ static inline void main_test_send( void ) {
   //  return;
   
   /* Snd data */
-  I2C_SendData(I2C1, 0x00);
+  I2C_SendData(I2C1, 0x06);
 
   /* Test on EV8 and clear it */
   while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));

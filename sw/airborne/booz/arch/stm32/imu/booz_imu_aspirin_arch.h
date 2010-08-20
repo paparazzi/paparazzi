@@ -10,6 +10,7 @@ extern void adxl345_write_to_reg(uint8_t addr, uint8_t val);
 extern void adxl345_clear_rx_buf(void);
 extern void adxl345_start_reading_data(void);
 
+#if 0
 #define OnI2CDone() {							\
     switch (imu_aspirin.status) {					\
     case AspirinStatusReadingGyro:					\
@@ -26,5 +27,6 @@ extern void adxl345_start_reading_data(void);
       break;								\
     }									\
   }
+#endif
 
 #endif /* BOOZ_IMU_ASPIRIN_ARCH_H */

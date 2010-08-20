@@ -61,7 +61,7 @@ if 0
 end
 if 1
   k = find(time >= 5);
-  fdm_param(k) = 0.5*fdm_mass;
+  fdm_param(k) = 0.75*fdm_mass;
 end
 
 
@@ -213,3 +213,83 @@ ctl_display_ref(ctl_sp, ctl_ref_state, time);
 drawnow();
 
 end
+
+
+//
+// big filter play
+//
+exec("q1d_big_filter.sci");
+bfl_init(time);
+for i = 2:length(time)
+   bfl_predict(i,  ctl_command(i-1), dt);
+   if modulo(i,5) == 0
+     bfl_update_baro(i, sensors_state(SENSORS_BARO,i));
+   end
+   bfl_update_accel(i, sensors_state(SENSORS_ACCEL,i), ctl_command(i-1));
+end
+
+set("current_figure",5);
+clf();
+f=get("current_figure");
+f.figure_name="Big Filter";
+drawlater();
+
+  subplot(4, 2, 1);
+  plot2d(time, sensors_state(SENSORS_BARO,:),3);
+  plot2d(time, bflt_state(BF_Z, :), 5);
+  plot2d(time, fdm_state(FDM_Z,:),2);
+  legends(["Estimation", "Truth", "Measurement"],[5 2 3], with_box=%f, opt="ur");  
+  xtitle('Z');
+
+  subplot(4, 2, 3);
+  plot2d(time, bflt_state(BF_ZD, :),5);
+  plot2d(time, fdm_state(FDM_ZD,:),2);
+  legends(["Estimation", "Truth"],[5 2], with_box=%f, opt="ur");
+  xtitle('ZD');
+
+  subplot(4, 2, 5);
+  plot2d(time, sensors_state(SENSORS_ACCEL_BIAS,:),2);
+  plot2d(time, bflt_state(BF_BIAS, :), 5);
+  legends(["Estimation", "Truth"],[5 2], with_box=%f, opt="ur"); 
+  xtitle('BIAS');
+
+  subplot(4, 2, 7);
+  plot2d(time, bflt_state(BF_C, :));
+  xtitle('C');
+
+  
+  subplot(4, 2, 2);
+  foo=[];
+  for i=1:length(time)
+    foo = [foo bflt_cov(BF_Z, BF_Z, i)];
+  end
+  plot2d(time, foo);
+  xtitle('COV ZZ');
+  
+
+  subplot(4, 2, 4);
+  foo=[];
+  for i=1:length(time)
+    foo = [foo bflt_cov(BF_ZD, BF_ZD, i)];
+  end
+  plot2d(time, foo);
+  xtitle('COV ZDZD');
+
+  subplot(4, 2, 6);
+  foo=[];
+  for i=1:length(time)
+    foo = [foo bflt_cov(BF_BIAS, BF_BIAS, i)];
+  end
+  plot2d(time, foo);
+  xtitle('COV BIASBIAS');
+
+  subplot(4, 2, 8);
+  foo=[];
+  for i=1:length(time)
+    foo = [foo bflt_cov(BF_C, BF_C, i)];
+  end
+  plot2d(time, foo);
+  xtitle('COV CC');
+  
+  drawnow();
+

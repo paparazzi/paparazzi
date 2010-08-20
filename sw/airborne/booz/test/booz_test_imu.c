@@ -131,7 +131,7 @@ static inline void on_gyro_accel_event(void) {
 
 
 static inline void on_mag_event(void) {
-  BoozImuScaleMag();
+  BoozImuScaleMag(booz_imu);
   static uint8_t cnt;
   cnt++;
   if (cnt > 1) cnt = 0;

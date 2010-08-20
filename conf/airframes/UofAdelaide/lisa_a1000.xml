@@ -1,4 +1,4 @@
-<!-- this is an asctec frame equiped with  Lisa/L#3 and asctec V2 controllers -->
+<!-- this is a variable pitch quadrotor -->
 
 <airframe name="lisa_asctec">
 
@@ -168,17 +168,6 @@
  <makefile>
 
 
-
-USER = root
-HOST = 192.168.1.3
-#HOST = overo
-#HOST = beth
-#HOST = asctec_lisa
-TARGET_DIR = ~
-
-SRC_FMS=fms
-
-
 ARCH=stm32
 ARCHI=stm32
 BOARD_CFG=\"boards/lisa_0.99.h\"
@@ -202,11 +191,6 @@ include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 
 include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
 
-#
-# 
-#
-
-#include $(PAPARAZZI_SRC)/conf/autopilot/lisa_passthrough.makefile
 
  </makefile>
 

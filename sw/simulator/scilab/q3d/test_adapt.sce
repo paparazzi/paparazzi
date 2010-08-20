@@ -17,7 +17,7 @@ exec('q3d_display.sci');
 
 t0 = 0;
 t1 = 4.;
-t2 = 8.;
+t2 = 10.;
 dt = 1/512;
 time1 = t0:dt:t1;
 time2 = t1:dt:t2;
@@ -48,11 +48,12 @@ if 0
 end
 
 ctl_init(time);
-adp_init(time, [19.5 157]', []);
+adp_init(time, [16.5 110]', []);
 sensors_init(time)
 
 for i=2:length(time)
   ctl_run(i-1, adp_est(1,i-1), adp_est(2,i-1)); 
+//  ctl_run(i-1, 16, 100); 
   fdm_run(i, ctl_motor_cmd(:,i-1));
   sensors_run(i);
   adp_run(i);

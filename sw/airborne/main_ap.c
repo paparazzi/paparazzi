@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2003-2006  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2010  Paparazzi team
  *
  * This file is part of paparazzi.
  *

@@ -97,14 +97,16 @@ int main( void ) {
 }
 
 static inline void main_init( void ) {
+
   hw_init();
   sys_time_init();
   led_init();
-
+  
   baro_init();
-  booz_actuators_pwm_hw_init();
-
-  cur_test = TestTypeNone;
+  booz_actuators_init();
+  
+  //  cur_test = TestTypeNone;
+  cur_test = TestTypeBldc;
 
 }
 
@@ -151,7 +153,21 @@ static void test_none_event(void) {}
 static inline void test_baro_on_baro_diff(void);
 static inline void test_baro_on_baro_abs(void);
 static void test_baro_start(void) {all_led_green();}
-static void test_baro_periodic(void) { RunOnceEvery(2, {baro_periodic();}); }
+static void test_baro_periodic(void) { 
+  RunOnceEvery(2, {baro_periodic();});
+  RunOnceEvery(100,{
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, 
+			       &i2c2_errors.ack_fail_cnt,
+			       &i2c2_errors.miss_start_stop_cnt,
+			       &i2c2_errors.arb_lost_cnt,
+			       &i2c2_errors.over_under_cnt,
+			       &i2c2_errors.pec_recep_cnt,
+			       &i2c2_errors.timeout_tlow_cnt,
+			       &i2c2_errors.smbus_alert_cnt,
+			       &i2c2_errors.unexpected_event_cnt,
+			       &i2c2_errors.last_unexpected_event);
+    });
+}
 static void test_baro_event(void) {BaroEvent(test_baro_on_baro_abs, test_baro_on_baro_diff);}
 static inline void test_baro_on_baro_abs(void) {
   RunOnceEvery(5,{DOWNLINK_SEND_BOOZ_BARO2_RAW(DefaultChannel, &baro.abs_raw, &baro.diff_raw);});
@@ -160,16 +176,33 @@ static inline void test_baro_on_baro_diff(void) {
   RunOnceEvery(5,{DOWNLINK_SEND_BOOZ_BARO2_RAW(DefaultChannel, &baro.abs_raw, &baro.diff_raw);});
 }
 
+
 /*
  *
  * Test motor controller
  *
  */
+
 static void test_bldc_start(void) {}
 static void test_bldc_periodic(void) {
+
   i2c1_buf[0] = 0x04;
   i2c1_transmit(0x58, 1, NULL);
+
+  RunOnceEvery(100,{
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, 
+			       &i2c1_errors.ack_fail_cnt,
+			       &i2c1_errors.miss_start_stop_cnt,
+			       &i2c1_errors.arb_lost_cnt,
+			       &i2c1_errors.over_under_cnt,
+			       &i2c1_errors.pec_recep_cnt,
+			       &i2c1_errors.timeout_tlow_cnt,
+			       &i2c1_errors.smbus_alert_cnt,
+			       &i2c1_errors.unexpected_event_cnt,
+			       &i2c1_errors.last_unexpected_event);
+    });
 }
+
 static void test_bldc_event(void) {}
 
 

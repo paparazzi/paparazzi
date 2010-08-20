@@ -55,8 +55,8 @@ static inline void main_periodic( void ) {
   d += 0.0025;
   double d1 = sin(d);
 
-  //  float i = sqrt(f);  // nok
-  float i = powf(f1, f1); // nok
+  float i = sqrt(f);  // ok
+  //float i = powf(f1, f1); // nok
   //float i = atan2(f, f); // ok
   RunOnceEvery(10, {DOWNLINK_SEND_TEST_FORMAT(DefaultChannel, &d1, &i);});
 

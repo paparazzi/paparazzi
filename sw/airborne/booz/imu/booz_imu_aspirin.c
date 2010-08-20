@@ -28,8 +28,8 @@ void booz_imu_impl_init(void) {
 void booz_imu_periodic(void) {
   if (imu_aspirin.status == AspirinStatusUninit) {
     configure_gyro();
-    configure_mag();
-    //    configure_accel();
+    //    configure_mag();
+    configure_accel();
     imu_aspirin.status = AspirinStatusIdle;
   }
   else
@@ -42,7 +42,12 @@ static void configure_gyro(void) {
   
   /* set gyro range to 2000deg/s and low pass at 256Hz */
   i2c2.buf[0] = ITG3200_REG_DLPF_FS;
-  i2c2.buf[1] = 0x03;
+  i2c2.buf[1] = (0x03<<3);
+  i2c2_transmit(ITG3200_ADDR, 2, &imu_aspirin.i2c_done);
+  while (!imu_aspirin.i2c_done);
+  /* set sample rate to 533Hz */
+  i2c2.buf[0] = ITG3200_REG_SMPLRT_DIV;
+  i2c2.buf[1] = 0x0E;
   i2c2_transmit(ITG3200_ADDR, 2, &imu_aspirin.i2c_done);
   while (!imu_aspirin.i2c_done);
   /* switch to gyroX clock */
@@ -93,4 +98,5 @@ static void configure_accel(void) {
   adxl345_clear_rx_buf();
   /* reads data once to bring interrupt line up */
   adxl345_start_reading_data();
+
 }

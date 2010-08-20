@@ -24,6 +24,10 @@
 #ifndef BOOZ2_DEBUG_H
 #define BOOZ2_DEBUG_H
 
+#define MY_ASSERT(cond) {			\
+    if (!(cond)) while(1);			\
+  }
+
 #ifdef BOOZ_DEBUG
 
 #include "std.h"

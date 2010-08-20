@@ -114,6 +114,9 @@ static void dialog_with_io_proc() {
 
   otp.rc_status = in->rc_status;
 
+  otp.baro_abs  = in->pressure_absolute;
+  otp.baro_diff = in->pressure_differential;
+
 }
 
 

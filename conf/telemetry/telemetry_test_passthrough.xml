@@ -16,7 +16,8 @@
       <message name="IMU_GYRO"                period="0.05"/>
       <message name="IMU_ACCEL"               period="0.05"/>
       <message name="IMU_MAG"                 period="0.05"/>
-    </mode>
+      <message name="BOOZ_BARO2_RAW"          period="0.05"/>
+   </mode>
   </process>
 
 </telemetry>

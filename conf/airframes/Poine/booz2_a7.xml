@@ -163,18 +163,21 @@
  </section>
 
  
-  <firmware name="baloo">
+  <firmware name="rotorcraft">
     <target name="ap" board="lisa_l_1.0"/>
-    <subsystem name="radio_control" type="spektrum"/>
+    <subsystem name="radio_control" type="spektrum">
+      <param name="RADIO_CONTROL_SPEKTRUM_MODEL" 
+             value="\\\"booz/radio_control/booz_radio_control_spektrum_dx7se.h\\\""/>
+    </subsystem>
     <subsystem name="actuators"     type="asctec"/>
     <subsystem name="imu"           type="b2v1_1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="cmpl"/>
   </firmware>
 
-  <firmware name="baloo">
-    <target name="test_led" board="lisa_l_1.0" />
-    <target name="test_float" board="lisa_l_1.0" />
+  <firmware name="rotorcraft">
+    <target name="test_led"      board="lisa_l_1.0" />
+    <target name="test_float"    board="lisa_l_1.0" />
     <target name="test_periodic" board="lisa_l_1.0" />
   </firmware>
 
@@ -194,7 +197,6 @@ SRC_FMS=fms
 
 
 ap.CFLAGS += -DMODEM_BAUD=B57600
-ap.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"radio_control/booz_radio_control_spektrum_dx7se.h\"
 
 include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
 

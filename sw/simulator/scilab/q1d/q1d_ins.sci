@@ -18,8 +18,14 @@ function [Xi1, Pi1] = ins_run(Xi, Pi, sensors_i, sensors_i1, dt)
         0  0   1     ];
   B = [ dt^2/2 dt 0]';
   
-  Qz  = 0.01*dt;
-  Qzd = 0.01 * dt^2/2;
+  Qz  = 0.01*dt^2/2;
+  Qzd = 0.01*dt;
+  
+  // FIXME: Qz and Qzd noise mismatch with dt
+  //Qz  = 0.01*dt;
+  //Qzd = 0.01*dt^2/2;
+
+  
   Qbias = 0.0001 * dt;
   Q = [ Qz  0    0
          0  Qzd  0

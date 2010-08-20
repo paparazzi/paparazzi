@@ -33,6 +33,7 @@ MCU   = cortex-m3
 #DEBUG = dwarf-2
 #OPT   = s
 OPT   = 2
+#OPT   = 0
 
 # Programs location
 TOOLCHAIN_DIR=/opt/paparazzi/stm32

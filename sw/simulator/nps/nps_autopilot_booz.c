@@ -62,10 +62,10 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 
   if (time < 8) { /* start with a little bit of hovering */
     int32_t init_cmd[4];
-    init_cmd[COMMAND_THRUST] = 0.2493*SUPERVISION_MAX_MOTOR;
-    init_cmd[COMMAND_ROLL]  = 0;
-    init_cmd[COMMAND_PITCH] = 0;
-    init_cmd[COMMAND_YAW]   = 0;
+    init_cmd[COMMAND_THRUST] = 0.253*SUPERVISION_MAX_MOTOR;
+    init_cmd[COMMAND_ROLL]   = 0;
+    init_cmd[COMMAND_PITCH]  = 0;
+    init_cmd[COMMAND_YAW]    = 0;
     supervision_run(TRUE, FALSE, init_cmd);
   }
   for (uint8_t i=0; i<ACTUATORS_MKK_NB; i++)

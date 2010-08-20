@@ -28,7 +28,6 @@
 #include "sys_time.h"
 #include "led.h"
 #include "uart.h"
-#include "interrupt_hw.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );

@@ -22,7 +22,7 @@
 #
 #
 
-CFG_BALOO=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/baloo
+CFG_ROTORCRAFT=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/rotorcraft
 
 SRC_BOOZ=booz
 SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCH)

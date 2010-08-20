@@ -15,7 +15,7 @@
 #include "dl_protocol.h"
 #include "fms_network.h"
 
-#define GCS_HOST "10.10.13.32"
+#define GCS_HOST "10.31.4.7"
 #define GCS_PORT 4242
 #define DATALINK_PORT 4243
 

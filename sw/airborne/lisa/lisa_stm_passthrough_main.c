@@ -179,24 +179,25 @@ static inline void on_vane_msg(void *data) {
 	new_vane = TRUE;
 	int zero = 0;
 	DOWNLINK_SEND_VANE_SENSOR(DefaultChannel, 
-														&(csc_vane_msg.vane_angle1), 
-														&zero, 
-														&zero, 
-														&zero, 
-														&zero, 
-														&csc_vane_msg.vane_angle2, 
-														&zero, 
-														&zero, 
-														&zero, 
-														&zero);
+				  &(csc_vane_msg.vane_angle1), 
+				  &zero, 
+				  &zero, 
+				  &zero, 
+				  &zero, 
+				  &csc_vane_msg.vane_angle2, 
+				  &zero, 
+				  &zero, 
+				  &zero, 
+				  &zero);
 }
 
 static inline void main_on_baro_diff(void) {
-	new_baro_diff = TRUE;
+  new_baro_diff = TRUE;
+  RunOnceEvery(5,{DOWNLINK_SEND_BOOZ_BARO2_RAW(DefaultChannel, &baro.abs_raw, &baro.diff_raw);});
 }
 
 static inline void main_on_baro_abs(void) {
-	new_baro_abs = TRUE;
+  new_baro_abs = TRUE;
 }
 
 static inline void main_event(void) {

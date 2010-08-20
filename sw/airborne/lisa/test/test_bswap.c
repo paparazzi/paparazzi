@@ -1,6 +1,6 @@
 
 #include <inttypes.h>
-//#include <byteswap.h>
+#include "init_hw.h"
 
 
 #define MyByteSwap16(n)				     \
@@ -44,6 +44,9 @@ int main(void) {
   uint16_t foo = 12345;
   uint16_t bar = MyByteSwap16(foo);
   MyByteSwap16_1(foo,bar);
+  bar = __REV16(foo);
+
+
 
   uint32_t a = 23456;
   uint32_t b = MyByteSwap32(a);

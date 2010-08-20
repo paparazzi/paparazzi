@@ -46,7 +46,7 @@ value c_init_serial(value device, value speed)
 
   int br = baudrates[Int_val(speed)];
 
-  int fd = open(String_val(device), O_RDWR);
+  int fd = open(String_val(device), O_RDWR|O_NONBLOCK);
  
   if (fd == -1) failwith("opening modem serial device : fd < 0");
   

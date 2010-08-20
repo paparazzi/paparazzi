@@ -39,6 +39,7 @@ void baro_periodic(void) {
   case LBS_INITIALIZING_DIFF:
     baro_set_current_register(BARO_DIFF_ADDR, 0x00);
     baro.status = LBS_INITIALIZING_DIFF_1;
+    //    baro.status = LBS_UNINITIALIZED;
     break;
   case LBS_INITIALIZING_DIFF_1:
   case LBS_READ_DIFF:

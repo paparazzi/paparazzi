@@ -116,6 +116,8 @@ static inline void main_periodic_task( void ) {
     break;
   }
 
+  //  if (mag_state  == 4) mag_state=1;
+
   if (mag_state  < INITIALISZED) mag_state++;
 
 }
@@ -123,7 +125,7 @@ static inline void main_periodic_task( void ) {
 
 static inline void main_event_task( void ) {
 
-  if (mag_state == INITIALISZED && mag_ready_for_read) {
+  if (mag_state == INITIALISZED && mag_ready_for_read && i2c_done) {
     /* read mag */
     i2c2_receive(HMC5843_ADDR, 7, &i2c_done);
     reading_mag = TRUE;
@@ -195,5 +197,5 @@ void exti9_5_irq_handler(void) {
   if(EXTI_GetITStatus(EXTI_Line5) != RESET)
     EXTI_ClearITPendingBit(EXTI_Line5);
 
-  mag_ready_for_read = TRUE;
+  if (mag_state == INITIALISZED) mag_ready_for_read = TRUE;
 }

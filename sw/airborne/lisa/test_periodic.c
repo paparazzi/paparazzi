@@ -48,9 +48,9 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic( void ) {
-  //  LED_TOGGLE(1);
 
   LED_PERIODIC();
+  
 }
 
 

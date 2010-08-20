@@ -85,17 +85,17 @@ void parse_ins_buffer( uint8_t );
 
 #endif /** !SITL */
 
-#define InsEventCheckAndHandle(handler) { \
-  if (InsBuffer()) {				  \
-    ReadInsBuffer();				  \
-  }						                \
-  if (ins_msg_received) {			\
-    LED_TOGGLE(2); \
-    parse_ins_msg();          \
-    handler;                \
-    ins_msg_received = FALSE; \
-  }						                \
-}
+#define InsEventCheckAndHandle(handler) {			\
+    if (InsBuffer()) {						\
+      ReadInsBuffer();						\
+    }						                \
+    if (ins_msg_received) {					\
+      LED_TOGGLE(2);						\
+      parse_ins_msg();						\
+      handler;							\
+      ins_msg_received = FALSE;					\
+    }						                \
+  }
 
 
 #endif /* INS_H */

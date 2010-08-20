@@ -308,9 +308,9 @@ void null_handler(void){
  * 
  */
 
-void assert_param(void);
+//void assert_param(void);
 
-void assert_param(void){
-
-}
+//void assert_param(void){
+//
+//}
 

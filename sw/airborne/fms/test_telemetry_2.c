@@ -11,7 +11,7 @@
 #include "udp_transport.h"
 #include "fms_network.h"
 
-#define GCS_HOST "192.168.1.100"
+#define GCS_HOST "10.31.4.7"
 #define GCS_PORT 4242
 
 #define TIMEOUT_DT_SEC  0
@@ -38,6 +38,8 @@ void timeout_cb(int fd, short event, void *arg) {
 
 
 int main(int argc, char** argv) {
+
+  printf("hello world\n");
 
   network = network_new(GCS_HOST, GCS_PORT);
 

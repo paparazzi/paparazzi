@@ -90,6 +90,11 @@ static inline void main_periodic_task( void ) {
     });
 
   switch (gyro_state) {
+
+  case 1:
+    i2c2.buf[0] = ITG3200_REG_TEMP_OUT_H;
+    i2c2_transmit(ITG3200_ADDR,1, &i2c_done);
+    break;
   case 2:
     /* set gyro range to 2000deg/s and low pass at 256Hz */
     i2c2.buf[0] = ITG3200_REG_DLPF_FS;
@@ -123,6 +128,7 @@ static inline void main_periodic_task( void ) {
     break;
   }
 
+  //  if (gyro_state == 1) gyro_state = 0;
   if (gyro_state  < INITIALISZED) gyro_state++;
 
 }
@@ -134,7 +140,7 @@ static inline void main_periodic_task( void ) {
 
 static inline void main_event_task( void ) {
 
-  if (gyro_state == INITIALISZED && gyro_ready_for_read) {
+  if (gyro_state == INITIALISZED && gyro_ready_for_read && i2c_done) {
     /* reads 8 bytes from address 0x1b */
     i2c2.buf[0] = ITG3200_REG_TEMP_OUT_H;
     i2c2_transceive(ITG3200_ADDR,1, 8, &i2c_done);
@@ -236,7 +242,7 @@ void exti15_10_irq_handler(void) {
 
   //  DEBUG_S4_TOGGLE();
 
-  gyro_ready_for_read = TRUE;
+  if (gyro_state == INITIALISZED) gyro_ready_for_read = TRUE;
 
   //  DEBUG_S4_OFF();
 
