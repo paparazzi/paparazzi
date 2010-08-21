@@ -54,14 +54,14 @@ void uart1_init( void ) {
   /* Init GPIOS */
   GPIO_InitTypeDef gpio;
   /* GPIOA: GPIO_Pin_9 USART1 Tx push-pull */
-  gpio.GPIO_Pin   = Uart1_TxPin;
+  gpio.GPIO_Pin   = UART1_TxPin;
   gpio.GPIO_Mode  = GPIO_Mode_AF_PP;
   gpio.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(Uart1_TxPort, &gpio);
+  GPIO_Init(UART1_TxPort, &gpio);
   /* GPIOA: GPIO_Pin_10 USART1 Rx pin as floating input */
-  gpio.GPIO_Pin   = Uart1_RxPin;
+  gpio.GPIO_Pin   = UART1_RxPin;
   gpio.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(Uart1_RxPort, &gpio);
+  GPIO_Init(UART1_RxPort, &gpio);
 
   /* Configure USART1 */
   USART_InitTypeDef usart;
@@ -177,14 +177,14 @@ void uart2_init( void ) {
   /* Init GPIOS */
   GPIO_InitTypeDef gpio;
   /* GPIOA: GPIO_Pin_2 USART2 Tx push-pull */
-  gpio.GPIO_Pin   = Uart2_TxPin; // ;
+  gpio.GPIO_Pin   = UART2_TxPin; // ;
   gpio.GPIO_Mode  = GPIO_Mode_AF_PP;
   gpio.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(Uart2_TxPort, &gpio);
+  GPIO_Init(UART2_TxPort, &gpio);
   /* GPIOA: GPIO_Pin_3 USART2 Rx pin as floating input */
-  gpio.GPIO_Pin   = Uart2_RxPin; // ;
+  gpio.GPIO_Pin   = UART2_RxPin; // ;
   gpio.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(Uart2_RxPort, &gpio);
+  GPIO_Init(UART2_RxPort, &gpio);
 
   /* Configure USART2 */
   USART_InitTypeDef usart;
@@ -305,14 +305,14 @@ void uart3_init( void ) {
   GPIO_PinRemapConfig(GPIO_PartialRemap_USART3, ENABLE);
   GPIO_InitTypeDef gpio;
   /* GPIOC: GPIO_Pin_10 USART3 Tx push-pull */
-  gpio.GPIO_Pin   = Uart3_TxPin; 
+  gpio.GPIO_Pin   = UART3_TxPin; 
   gpio.GPIO_Mode  = GPIO_Mode_AF_PP;
   gpio.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(Uart3_TxPort, &gpio);
+  GPIO_Init(UART3_TxPort, &gpio);
   /* GPIOC: GPIO_Pin_11 USART3 Rx pin as floating input */
-  gpio.GPIO_Pin   = Uart3_RxPin; 
+  gpio.GPIO_Pin   = UART3_RxPin; 
   gpio.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(Uart3_RxPort, &gpio);
+  GPIO_Init(UART3_RxPort, &gpio);
 
   /* Configure USART3 */
   USART_InitTypeDef usart;
