@@ -206,22 +206,20 @@
 
 
 
+<!--
   <makefile target="opening">
-
-
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
-ap.CFLAGS += -DMODEM_BAUD=B57600
-ap.CFLAGS += -DUSE_ADAPT_HOVER
-
-
+#ap.CFLAGS += -DUSE_ADAPT_HOVER
   </makefile>
+-->
 
-
-  <firmware name="baloo">
-    <target name="ap" board="booz">
-      <param  name="FLASH_MODE" value="IAP"/>   <!-- that is the default for the board but I'm putting it here as example--> 
+  <firmware name="rotorcraft">
+    <target name="ap" board="booz_1.0">
+      <param  name="FLASH_MODE" value="IAP"/>   <!-- default for the board but putting it here as example--> 
     </target>
+    <target name="sim" board="pc">
+    </target> 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="actuators"     type="mkk"/>
     <subsystem name="imu"           type="b2v1"/>
@@ -229,16 +227,20 @@ ap.CFLAGS += -DUSE_ADAPT_HOVER
     <subsystem name="ahrs"          type="cmpl"/>
   </firmware>
 
+  <firmware name="booz_test_progs">
+    <target name="test_telemetry" board="booz_1.0">
+      <param name="MODEM_PORT" value="UART1"/>
+    </target>
+  </firmware>
 
+<!--
   <makefile target="closure" location="after">
-
-CFG_BOOZ=$(PAPARAZZI_SRC)/conf/autopilot/
+#CFG_BOOZ=$(PAPARAZZI_SRC)/conf/autopilot/
 # FIXME: make fms a module
-include $(CFG_BOOZ)/subsystems/booz2_fms_test_signal.makefile
-
-include $(CFG_BOOZ)/booz2_test_progs.makefile
-include $(CFG_BOOZ)/booz2_simulator_nps.makefile
-
+#include $(CFG_BOOZ)/subsystems/booz2_fms_test_signal.makefile
+#include $(CFG_BOOZ)/booz2_test_progs.makefile
+#include $(CFG_BOOZ)/booz2_simulator_nps.makefile
   </makefile>
+-->
 
 </airframe>

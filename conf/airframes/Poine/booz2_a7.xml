@@ -175,36 +175,25 @@
     <subsystem name="ahrs"          type="cmpl"/>
   </firmware>
 
-  <firmware name="rotorcraft">
-    <target name="test_led"      board="lisa_l_1.0" />
-    <target name="test_float"    board="lisa_l_1.0" />
-    <target name="test_periodic" board="lisa_l_1.0" />
+  <firmware name="lisa_l_test_progs">
+    <target name="test_telemetry" board="lisa_l_1.0"/>
+    <target name="test_baro"      board="lisa_l_1.0"/>
+    <target name="test_spektrum"  board="lisa_l_1.0"/>
   </firmware>
 
 
+  <firmware name="lisa_passthrough">
+      <target name="overo_test_passthrough" board="lisa_l_1.0"  >
+      <param name="HOST"          value="A7"/>
+      <param name="USER"          value=""/>
+      <param name="TARGET_DIR"    value="~"/>
+      <param name="PERIODIC_FREQ" value="512"/>
+    </target>
+ </firmware>
+
  <makefile>
 
-
-
-USER =
-#HOST = 10.31.4.22
-#HOST = overo
-HOST = beth
-TARGET_DIR = ~
-
-SRC_FMS=fms
-
-
-
-ap.CFLAGS += -DMODEM_BAUD=B57600
-
 include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
-
-#
-# 
-#
-
-include $(PAPARAZZI_SRC)/conf/autopilot/lisa_passthrough.makefile
 
  </makefile>
 
