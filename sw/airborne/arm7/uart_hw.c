@@ -22,6 +22,10 @@
  *
  */
 
+/*
+ * Brief LPC21 uart code
+ */
+
 #include "uart.h"
 #include "armVIC.h"
 
