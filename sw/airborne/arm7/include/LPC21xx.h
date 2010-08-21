@@ -109,45 +109,45 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // Universal Asynchronous Receiver Transmitter 0 (UART0)
-#define UART0           ((uartRegs_t *)0xE000C000)
+#define UART0_BASE     ((uartRegs_t *)0xE000C000)
 #define U0_PINSEL       (0x00000005)    /* PINSEL0 Value for UART0 */
 #define U0_PINMASK      (0x0000000F)    /* PINSEL0 Mask for UART0 */
 #define U0_PINSEL_RX    (0x00000004)    /* PINSEL0 Value for UART0 RX only */
 #define U0_PINMASK_RX   (0x0000000C)    /* PINSEL0 Mask for UART0 RX only */
 
 // UART0 Registers
-#define U0RBR           UART0->rbr      /* Receive Buffer Register */
-#define U0THR           UART0->thr      /* Transmit Holding Register */
-#define U0IER           UART0->ier      /* Interrupt Enable Register */
-#define U0IIR           UART0->iir      /* Interrupt ID Register */
-#define U0FCR           UART0->fcr      /* FIFO Control Register */
-#define U0LCR           UART0->lcr      /* Line Control Register */
-#define U0LSR           UART0->lsr      /* Line Status Register */
-#define U0SCR           UART0->scr      /* Scratch Pad Register */
-#define U0DLL           UART0->dll      /* Divisor Latch Register (LSB) */
-#define U0DLM           UART0->dlm      /* Divisor Latch Register (MSB) */
+#define U0RBR           UART0_BASE->rbr /* Receive Buffer Register */
+#define U0THR           UART0_BASE->thr /* Transmit Holding Register */
+#define U0IER           UART0_BASE->ier /* Interrupt Enable Register */
+#define U0IIR           UART0_BASE->iir /* Interrupt ID Register */
+#define U0FCR           UART0_BASE->fcr /* FIFO Control Register */
+#define U0LCR           UART0_BASE->lcr /* Line Control Register */
+#define U0LSR           UART0_BASE->lsr /* Line Status Register */
+#define U0SCR           UART0_BASE->scr /* Scratch Pad Register */
+#define U0DLL           UART0_BASE->dll /* Divisor Latch Register (LSB) */
+#define U0DLM           UART0_BASE->dlm /* Divisor Latch Register (MSB) */
 
 ///////////////////////////////////////////////////////////////////////////////
 // Universal Asynchronous Receiver Transmitter 1 (UART1)
-#define UART1           ((uartRegs_t *)0xE0010000)
+#define UART1_BASE     ((uartRegs_t *)0xE0010000)
 #define U1_PINSEL       (0x00050000)    /* PINSEL0 Value for UART1 */
 #define U1_PINMASK      (0x000F0000)    /* PINSEL0 Mask for UART1 */
 #define U1_PINSEL_RX    (0x00040000)    /* PINSEL0 Value for UART1 RX only */
 #define U1_PINMASK_RX   (0x000C0000)    /* PINSEL0 Mask for UART1 RX only */
 
 // UART1 Registers
-#define U1RBR           UART1->rbr      /* Receive Buffer Register */
-#define U1THR           UART1->thr      /* Transmit Holding Register */
-#define U1IER           UART1->ier      /* Interrupt Enable Register */
-#define U1IIR           UART1->iir      /* Interrupt ID Register */
-#define U1FCR           UART1->fcr      /* FIFO Control Register */
-#define U1LCR           UART1->lcr      /* Line Control Register */
-#define U1MCR           UART1->mcr      /* MODEM Control Register */
-#define U1LSR           UART1->lsr      /* Line Status Register */
-#define U1MSR           UART1->msr      /* MODEM Status Register */
-#define U1SCR           UART1->scr      /* Scratch Pad Register */
-#define U1DLL           UART1->dll      /* Divisor Latch Register (LSB) */
-#define U1DLM           UART1->dlm      /* Divisor Latch Register (MSB) */
+#define U1RBR           UART1_BASE->rbr /* Receive Buffer Register */
+#define U1THR           UART1_BASE->thr /* Transmit Holding Register */
+#define U1IER           UART1_BASE->ier /* Interrupt Enable Register */
+#define U1IIR           UART1_BASE->iir /* Interrupt ID Register */
+#define U1FCR           UART1_BASE->fcr /* FIFO Control Register */
+#define U1LCR           UART1_BASE->lcr /* Line Control Register */
+#define U1MCR           UART1_BASE->mcr /* MODEM Control Register */
+#define U1LSR           UART1_BASE->lsr /* Line Status Register */
+#define U1MSR           UART1_BASE->msr /* MODEM Status Register */
+#define U1SCR           UART1_BASE->scr /* Scratch Pad Register */
+#define U1DLL           UART1_BASE->dll /* Divisor Latch Register (LSB) */
+#define U1DLM           UART1_BASE->dlm /* Divisor Latch Register (MSB) */
 
 ///////////////////////////////////////////////////////////////////////////////
 // I2C Interface
