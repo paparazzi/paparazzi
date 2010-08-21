@@ -31,8 +31,8 @@ Q=@
 
 MCU   = cortex-m3
 #DEBUG = dwarf-2
-#OPT   = s
-OPT   = 2
+OPT   = s
+#OPT   = 2
 #OPT   = 0
 
 # Programs location
@@ -254,7 +254,7 @@ build elf bin lss sym clean clean_list upload
 $(OBJDIR)/.depend:
 	@echo DEPEND $@
 	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
-	$(Q)$(CC) -MM -MG $(THUMB) $(CFLAGS) $($(TARGET).CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
+	$(Q)$(CC) -MM -MG $(THUMB) $(CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
 
 ifneq ($(MAKECMDGOALS),clean) 
 ifneq ($(MAKECMDGOALS),erase) 
