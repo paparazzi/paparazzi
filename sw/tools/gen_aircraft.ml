@@ -129,9 +129,9 @@ let dump_module_section = fun xml f ->
     (Xml.children xml);
   !files
 
-(** (String.compare (Xml.attrib x "location") "after" = 0)
+(**
     Search and dump the makefile sections 
-  **)
+**)
 let dump_makefile_section = fun xml makefile_ac airframe_infile print_if_loc_after ->
   List.iter (fun x ->
     if ExtXml.tag_is x "makefile" then begin
@@ -213,7 +213,9 @@ let dump_target_section = fun xml makefile_ac ->
   List.iter (fun tag ->
     if ExtXml.tag_is tag "firmware" then begin
       begin try
-        fprintf makefile_ac "\n######################\n# makefile firmware '%s' \n" (Xml.attrib tag "name");
+        fprintf makefile_ac "\n####################################################\n";
+        fprintf makefile_ac   "# makefile firmware '%s' \n" (Xml.attrib tag "name");
+        fprintf makefile_ac   "####################################################\n";
 	List.iter (parse_targets makefile_ac tag) (Xml.children tag )
       with _ -> () end;
     end)
