@@ -45,35 +45,18 @@
 
 struct OveroTestPassthrough otp;
 
+static void parse_command_line(int argc, char** argv);
+static void main_init(void);
 static void main_periodic(int my_sig_num);
 static void dialog_with_io_proc(void);
 
+
 int main(int argc, char *argv[]) {
 
-  TRACE(TRACE_DEBUG, "%s", "Starting initialization\n");
-
-  /* Initalize our SPI link to IO processor */
-  if (spi_link_init()) {
-    TRACE(TRACE_ERROR, "%s", "failed to open SPI link \n");
-    return -1;
-  }
+  parse_command_line(argc, argv);
   
-  /* Initalize the event library */
-  event_init();
-  
-  /* Initalize our ô so accurate periodic timer */
-  if (fms_periodic_init(main_periodic)) {
-    TRACE(TRACE_ERROR, "%s", "failed to start periodic generator\n");
-    return -1; 
-  }
-  
-  /* Initialize our communications with ground segment */
-  fms_gs_com_init("10.31.4.7", 4242, 4243, FALSE);
-
-  TRACE(TRACE_DEBUG, "%s", "Initialization completed, entering mainloop\n");
-
-  /* Initialize blaaa */
-  for (uint8_t i=0; i<6; i++) otp.servos_outputs_usecs[i] = 1500;
+  main_init();
+  TRACE(TRACE_DEBUG, "%s", "Entering mainloop\n");
 
   /* Enter our mainloop */
   event_dispatch();
@@ -120,49 +103,43 @@ static void dialog_with_io_proc() {
 }
 
 
+static void main_init(void) {
 
+  TRACE(TRACE_DEBUG, "%s", "Starting initialization\n");
 
+  /* Initalize our SPI link to IO processor */
+  if (spi_link_init()) {
+    TRACE(TRACE_ERROR, "%s", "failed to open SPI link \n");
+    return -1;
+  }
+  
+  /* Initalize the event library */
+  event_init();
+  
+  /* Initalize our ô so accurate periodic timer */
+  if (fms_periodic_init(main_periodic)) {
+    TRACE(TRACE_ERROR, "%s", "failed to start periodic generator\n");
+    return -1; 
+  }
+  
+  /* Initialize our communications with ground segment */
+  fms_gs_com_init(otp.gs_gw, 4242, 4243, FALSE);
 
-#if 0
-static void print_up_msg(struct AutopilotMessageCRCFrame * msg) { 
-  printf("UP: %04X %04X %04X %04X %04x %04X %04X %04X %04X \n", 
-	 msg->payload.msg_up.gyro.p, 
-	 msg->payload.msg_up.gyro.q, 
-	 msg->payload.msg_up.gyro.r, 
-	 msg->payload.msg_up.accel.x, 
-	 msg->payload.msg_up.accel.y, 
-	 msg->payload.msg_up.accel.z, 
-	 msg->payload.msg_up.mag.x, 
-	 msg->payload.msg_up.mag.y, 
-	 msg->payload.msg_up.mag.z);
-  printf("    %04X %04X %04X %04X %04X %04X %04X %04X %04X %02X [%d %d %d %d] CRC: %d\n", 
-	 msg->payload.msg_up.rc_pitch, 
-	 msg->payload.msg_up.rc_roll, 
-	 msg->payload.msg_up.rc_yaw, 
-	 msg->payload.msg_up.rc_thrust, 
-	 msg->payload.msg_up.rc_mode, 
-	 msg->payload.msg_up.rc_kill, 
-	 msg->payload.msg_up.rc_gear, 
-	 msg->payload.msg_up.rc_aux3, 
-	 msg->payload.msg_up.rc_aux4, 
-	 msg->payload.msg_up.rc_status, 
-	 msg->payload.msg_up.valid.rc, 
-	 msg->payload.msg_up.valid.pressure, 
-	 msg->payload.msg_up.valid.vane, 
-	 msg->payload.msg_up.valid.imu, 
-	 msg->crc);
+  /* Initialize blaaa */
+  for (uint8_t i=0; i<6; i++) otp.servos_outputs_usecs[i] = 1500;
+
+  TRACE(TRACE_DEBUG, "%s", "Initialization completed\n");
 }
 
 
-static void print_down_msg(struct AutopilotMessageCRCFrame * msg) { 
-  printf("%04X %04X %04X %04X %04X %04X CRC: %d\n", msg->payload.msg_down.pwm_outputs_usecs[0], 
-	 msg->payload.msg_down.pwm_outputs_usecs[1], 
-	 msg->payload.msg_down.pwm_outputs_usecs[2], 
-	 msg->payload.msg_down.pwm_outputs_usecs[3], 
-	 msg->payload.msg_down.pwm_outputs_usecs[4], 
-	 msg->payload.msg_down.pwm_outputs_usecs[5], 
-	 msg->crc);
+
+static void parse_command_line(int argc, char** argv) {
+
+  if (argc > 1)
+    otp.gs_gw = strdup(argv[1]);
+  else
+    otp.gs_gw = strdup("10.31.4.7");
+  TRACE(TRACE_DEBUG, "%s", "Parsing command line:\n"); 
+  TRACE(TRACE_DEBUG, " gw: %s\n", otp.gs_gw); 
+
 }
-
-
-#endif
