@@ -22,6 +22,13 @@
 #
 #
 
+#
+# Expected from board file or overriden as xml param :
+#
+# MODEM_PORT
+# MODEM_BAUD
+#
+
 CFG_ROTORCRAFT=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/rotorcraft
 
 SRC_BOOZ=booz
@@ -32,7 +39,7 @@ SRC_BOOZ_PRIV=booz_priv
 
 CFG_BOOZ=$(PAPARAZZI_SRC)/conf/autopilot/
 
-BOOZ_INC = -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
+BOOZ_INC = -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(PAPARAZZI_SRC)/conf
 
 
 ap.ARCHDIR = $(ARCHI)
@@ -82,20 +89,17 @@ endif
 #
 ap.srcs += $(SRC_ARCH)/uart_hw.c
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport
-ap.srcs += $(SRC_BOOZ)/booz2_telemetry.c \
-	   downlink.c \
-           pprz_transport.c
+ap.CFLAGS += -DDOWNLINK_DEVICE=$(MODEM_PORT) 
+ap.srcs   += $(SRC_BOOZ)/booz2_telemetry.c \
+	     downlink.c \
+             pprz_transport.c
 ap.CFLAGS += -DDATALINK=PPRZ
-ap.srcs += $(SRC_BOOZ)/booz2_datalink.c
+ap.CFLAGS += -DPPRZ_UART=$(MODEM_PORT)
+ap.srcs   += $(SRC_BOOZ)/booz2_datalink.c
+ap.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 
 ifeq ($(ARCHI), arm7)
-ap.CFLAGS += -DUSE_UART1  -DUART1_VIC_SLOT=6  -DUART1_BAUD=MODEM_BAUD
-ap.CFLAGS += -DDOWNLINK_DEVICE=Uart1 
-ap.CFLAGS += -DPPRZ_UART=Uart1
-else ifeq ($(ARCHI), stm32) 
-ap.CFLAGS += -DUSE_UART2 -DUART2_BAUD=MODEM_BAUD
-ap.CFLAGS += -DDOWNLINK_DEVICE=Uart2 
-ap.CFLAGS += -DPPRZ_UART=Uart2
+ap.CFLAGS += -D$(MODEM_PORT)_VIC_SLOT=6
 endif
 
 
@@ -104,17 +108,19 @@ ap.srcs += $(SRC_BOOZ)/booz2_commands.c
 #
 # Radio control choice
 #
-# include booz2_radio_control_ppm.makefile
+# include radio_control_ppm.makefile
 # or
-# include booz2_radio_control_spektrum.makefile
+# include radio_control_spektrum.makefile
 #
 
 #
 # Actuator choice
 #
-# include booz2_actuators_buss.makefile
+# include actuators_mkk.makefile
 # or
-# include booz2_actuators_asctec.makefile
+# include actuators_asctec.makefile
+# or
+# include actuators_asctec_v2.makefile
 #
 
 #
