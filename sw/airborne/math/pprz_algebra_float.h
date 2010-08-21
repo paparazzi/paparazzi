@@ -28,6 +28,7 @@
 #include "pprz_algebra.h"
 
 #include <math.h>
+#include <float.h> // for FLT_MIN
 
 struct FloatVect2 {
   float x;
@@ -362,10 +363,12 @@ struct FloatRates {
 
 #define FLOAT_QUAT_NORMALISE(q) {		                        \
     float norm = FLOAT_QUAT_NORM(q);					\
-    q.qi = q.qi / norm;							\
-    q.qx = q.qx / norm;							\
-    q.qy = q.qy / norm;							\
-    q.qz = q.qz / norm;							\
+	  if (norm > FLT_MIN) {						 \
+      q.qi = q.qi / norm;							\
+      q.qx = q.qx / norm;							\
+      q.qy = q.qy / norm;							\
+      q.qz = q.qz / norm;							\
+		}																	\
   }
 
 #define FLOAT_QUAT_INVERT(_qo, _qi) QUAT_INVERT(_qo, _qi)
@@ -395,8 +398,8 @@ struct FloatRates {
 /* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
 #define FLOAT_QUAT_COMP_INV_NORM_SHORTEST(_a2b, _a2c, _b2c) {				\
 		FLOAT_QUAT_COMP_INV(_a2b, _a2c, _b2c); 													\
-		FLOAT_QUAT_WRAP_SHORTEST(_a2c);																	\
-		FLOAT_QUAT_NORMALISE(_a2c);																			\
+		FLOAT_QUAT_WRAP_SHORTEST(_a2b);																	\
+		FLOAT_QUAT_NORMALISE(_a2b);																			\
   }
 
 /* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
@@ -409,9 +412,9 @@ struct FloatRates {
 
 /* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
 #define FLOAT_QUAT_INV_COMP_NORM_SHORTEST(_b2c, _a2b, _a2c) {				\
-		FLOAT_QUAT_INV_COMP(_a2b, _a2c, _b2c); 													\
-		FLOAT_QUAT_WRAP_SHORTEST(_a2c);																	\
-		FLOAT_QUAT_NORMALISE(_a2c);																			\
+		FLOAT_QUAT_INV_COMP(_b2c, _a2b, _a2c); 													\
+		FLOAT_QUAT_WRAP_SHORTEST(_b2c);																	\
+		FLOAT_QUAT_NORMALISE(_b2c);																			\
 }
 
 /* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
