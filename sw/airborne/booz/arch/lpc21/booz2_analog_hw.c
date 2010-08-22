@@ -23,7 +23,8 @@
 
 #include "booz2_analog.h"
 
-#include "booz2_analog_baro.h"
+/* analog_arch includes baro ??? naaaa we don't want double references */
+#include "rotorcraft/baro.h"
 #include "booz2_battery.h"
 
 #ifndef USE_EXTRA_ADC
@@ -110,7 +111,7 @@ void ADC1_ISR ( void ) {
   ISR_ENTRY();
   uint32_t tmp = AD1GDR;
   uint16_t tmp2 = (uint16_t)(tmp >> 6) & 0x03FF;
-  Booz2BaroISRHandler(tmp2);
+  BoozBaroISRHandler(tmp2);
   /* trigger next convertion */
   T0MR3 += BOOZ2_ANALOG_BARO_PERIOD;
   /* lower clock         */
@@ -192,7 +193,7 @@ void booz2_analog_init_hw( void ) {
 void booz2_analog_baro_read(void) {
   uint32_t tmp = AD1DR2;
   uint16_t tmp2 = (uint16_t)(tmp >> 6) & 0x03FF;
-  Booz2BaroISRHandler(tmp2);
+  BoozBaroISRHandler(tmp2);
 }
 
 void booz2_analog_bat_read(void) {
