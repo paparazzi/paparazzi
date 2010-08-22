@@ -1116,7 +1116,7 @@
      <field name="status"   type="uint8" values="OK|LOST|REALLY_LOST"/>
   </message>
 
-  <message name="BOOZ2_BARO_RAW" id="161">
+  <message name="BOOZ_BARO_RAW" id="161">
       <field name="offset"         type="uint16"/>
       <field name="value"          type="uint16"/>
       <field name="value_filtered" type="uint16"/>
@@ -1532,9 +1532,9 @@
     <field name="omega" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
   </message>
 
-  <message name="BOOZ_BARO2_RAW" id="221">
-    <field name="abs"          type="int16"/>
-    <field name="diff"         type="int16"/>
+  <message name="BARO_RAW" id="221">
+    <field name="abs"          type="int32"/>
+    <field name="diff"         type="int32"/>
   </message>
 
  <!--222 is free --> 
