@@ -34,12 +34,13 @@ CFG_ROTORCRAFT=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/rotorcraft
 SRC_BOOZ=booz
 SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCH)
 SRC_BOOZ_TEST=$(SRC_BOOZ)/test
+SRC_BOARD=boards/$(BOARD)
 
 SRC_BOOZ_PRIV=booz_priv
 
 CFG_BOOZ=$(PAPARAZZI_SRC)/conf/autopilot/
 
-BOOZ_INC = -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(PAPARAZZI_SRC)/conf
+BOOZ_INC = -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD)
 
 
 ap.ARCHDIR = $(ARCHI)
@@ -133,14 +134,22 @@ ap.srcs += $(SRC_BOOZ)/booz2_commands.c
 # include booz2_imu_crista.makefile
 #
 
+#
+# BARO
+#
+ap.srcs += $(SRC_BOARD)/baro_board.c
+ifeq ($(BOARD), booz)
+ap.CFLAGS += -DROTORCRAFT_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
+else ifeq ($(BOARD), lisa_l) 
+ap.CFLAGS += -DUSE_I2C2
+endif
 
+#
+# Analog Backend
+#
 ifeq ($(ARCHI), arm7)
-ap.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
-ap.srcs += $(SRC_BOOZ)/booz2_analog_baro.c
-
 ap.CFLAGS += -DBOOZ2_ANALOG_BATTERY_PERIOD='SYS_TICS_OF_SEC((1./10.))'
 ap.srcs += $(SRC_BOOZ)/booz2_battery.c
-
 ap.CFLAGS += -DADC0_VIC_SLOT=2
 ap.CFLAGS += -DADC1_VIC_SLOT=3
 ap.srcs += $(SRC_BOOZ)/booz2_analog.c \
