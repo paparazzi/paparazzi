@@ -41,6 +41,7 @@
 #include "booz_imu.h"
 #include "booz_gps.h"
 
+#include "booz/booz2_analog.h"
 #include "rotorcraft/baro.h"
 
 #include "booz2_battery.h"
