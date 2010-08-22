@@ -2,12 +2,12 @@
 # Error State Space Kalman filter for attitude estimation
 #
 
-ap.CFLAGS += -DUSE_AHRS_LKF -DAHRS_ALIGNER_LED=3
+ap.CFLAGS += -DUSE_AHRS_LKF -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 ap.srcs += $(SRC_BOOZ)/booz_ahrs.c
 ap.srcs += $(SRC_BOOZ)/ahrs/booz_ahrs_aligner.c
 ap.srcs += $(SRC_BOOZ)/ahrs/booz_ahrs_float_lkf.c
 
-sim.CFLAGS += -DUSE_AHRS_LKF -DAHRS_ALIGNER_LED=3
+sim.CFLAGS += -DUSE_AHRS_LKF -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 sim.srcs += $(SRC_BOOZ)/booz_ahrs.c
 sim.srcs += $(SRC_BOOZ)/ahrs/booz_ahrs_aligner.c
 sim.srcs += $(SRC_BOOZ)/ahrs/booz_ahrs_float_lkf.c
