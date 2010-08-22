@@ -82,7 +82,7 @@ ap.CFLAGS += -DUSE_SYS_TIME
 ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 ifeq ($(ARCHI), stm32) 
-ap.CFLAGS += -DSYS_TIME_LED=(SYS_TIME_LED)
+ap.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
 
 #
