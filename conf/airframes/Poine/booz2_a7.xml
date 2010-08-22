@@ -170,7 +170,7 @@
              value="\\\"booz/radio_control/booz_radio_control_spektrum_dx7se.h\\\""/>
     </subsystem>
     <subsystem name="actuators"     type="asctec"/>
-    <subsystem name="imu"           type="b2v1_1"/>
+    <subsystem name="imu"           type="b2v1.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="cmpl"/>
   </firmware>
