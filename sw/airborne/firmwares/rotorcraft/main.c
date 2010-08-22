@@ -42,7 +42,7 @@
 #include "booz_gps.h"
 
 #include "booz/booz2_analog.h"
-#include "rotorcraft/baro.h"
+#include "firmwares/rotorcraft/baro.h"
 
 #include "booz2_battery.h"
 
@@ -59,7 +59,7 @@
 #include "booz2_pwm_hw.h"
 #endif
 
-#include "booz2_main.h"
+#include "firmwares/rotorcraft/main.h"
 
 #ifdef SITL
 #include "nps_autopilot_booz.h"

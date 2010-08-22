@@ -19,7 +19,7 @@ endif
 #
 #
 
-#SYS_TIME_LED = 1 # not used
+SYS_TIME_LED = 1 # not used on rotorcraft, only for tests
 
 RADIO_CONTROL_LED  = 1
 RADIO_CONTROL_LINK = UART0

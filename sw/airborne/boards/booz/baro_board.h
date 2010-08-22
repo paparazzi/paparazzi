@@ -3,7 +3,7 @@
 
 #include "std.h"
 
-#include "rotorcraft/baro.h"
+#include "firmwares/rotorcraft/baro.h"
 #include "booz/booz2_analog.h"
 
 /* we don't need that on this board */

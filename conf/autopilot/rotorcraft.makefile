@@ -35,6 +35,7 @@ SRC_BOOZ=booz
 SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCH)
 SRC_BOOZ_TEST=$(SRC_BOOZ)/test
 SRC_BOARD=boards/$(BOARD)
+SRC_FIRMAWRE=firmwares/rotorcraft
 
 SRC_BOOZ_PRIV=booz_priv
 
@@ -52,7 +53,7 @@ ap.TARGETDIR = ap
 
 ap.CFLAGS += $(BOOZ_INC)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
-ap.srcs    = $(SRC_BOOZ)/booz2_main.c
+ap.srcs    = $(SRC_FIRMAWRE)/main.c
 
 ifeq ($(ARCHI), stm32) 
 ap.srcs += lisa/plug_sys.c
