@@ -107,6 +107,8 @@ void actuators_set(bool_t motors_on) {
     DeviceBuf[2] = 100 - actuators_asctec.cmds[YAW];
     DeviceBuf[3] = actuators_asctec.cmds[THRUST];
     break;
+  default:
+    break;
   }
   actuators_asctec.cmd = NONE;
   actuators_asctec.i2c_done = FALSE;
