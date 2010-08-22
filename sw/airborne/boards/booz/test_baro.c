@@ -30,12 +30,11 @@
 #include BOARD_CONFIG
 
 #include "init_hw.h"
+#include "interrupt_hw.h"
+
 #include "sys_time.h"
-
 #include "downlink.h"
-
 #include "rotorcraft/baro.h"
-//#include "my_debug_servo.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -60,7 +59,9 @@ int main(void) {
 static inline void main_init( void ) {
   hw_init();
   sys_time_init();
+  booz2_analog_init();
   baro_init();
+  int_enable();
 }
 
 
@@ -68,8 +69,9 @@ static inline void main_init( void ) {
 static inline void main_periodic_task( void ) {
   
   RunOnceEvery(2, {baro_periodic();});
-  LED_PERIODIC();
   RunOnceEvery(256, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
+  LED_PERIODIC();
+
 }
 
 
@@ -77,7 +79,6 @@ static inline void main_periodic_task( void ) {
 static inline void main_event_task( void ) {
   BaroEvent(main_on_baro_abs, main_on_baro_diff);
 }
-
 
 
 static inline void main_on_baro_diff(void) {

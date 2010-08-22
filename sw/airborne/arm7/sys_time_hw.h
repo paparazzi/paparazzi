@@ -152,6 +152,9 @@ static inline bool_t sys_time_periodic( void ) {
 #ifdef TIME_LED
       LED_TOGGLE(TIME_LED)
 #endif
+#ifdef SYS_TIME_LED
+      LED_TOGGLE(SYS_TIME_LED)
+#endif
     }
     return TRUE;
   }

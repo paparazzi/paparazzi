@@ -23,6 +23,7 @@
 
 #include BOARD_CONFIG
 #include "init_hw.h"
+#include "interrupt_hw.h"
 #include "sys_time.h"
 #include "downlink.h"
 static inline void main_init( void );
@@ -42,6 +43,7 @@ int main(void) {
 static inline void main_init( void ) {
   hw_init();
   sys_time_init();
+  int_enable();
 }
 
 static inline void main_periodic( void ) {

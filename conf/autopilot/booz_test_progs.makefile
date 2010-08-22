@@ -1,3 +1,26 @@
+# Hey Emacs, this is a -*- makefile -*-
+#
+# $Id$
+# Copyright (C) 2010 The Paparazzi Team
+#
+# This file is part of Paparazzi.
+#
+# Paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# Paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Paparazzi; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA. 
+#
+#
 
 ################################################################################
 #
@@ -36,9 +59,9 @@ BOARD_CFG=\"boards/booz_1.0.h\"
 # test_telemetry : Sends ALIVE telemetry messages
 #
 # used configuration
-#   TIME_LED   :
-#   MODEM_PORT :
-#   MODEM_BAUD :
+#   SYS_TIME_LED   :
+#   MODEM_PORT     :
+#   MODEM_BAUD     :
 #
 test_telemetry.ARCHDIR   = $(ARCHI)
 test_telemetry.ARCH      = arm7tdmi
@@ -50,8 +73,8 @@ test_telemetry.srcs   += test/test_telemetry.c \
 	                 $(SRC_ARCH)/armVIC.c
 test_telemetry.CFLAGS += -DUSE_LED
 test_telemetry.CFLAGS += -DUSE_SYS_TIME
-test_telemetry.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./10.))'
-test_telemetry.CFLAGS += -DSYS_TIME_LED=$(TIME_LED)
+test_telemetry.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_telemetry.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_telemetry.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_telemetry.CFLAGS += -DUSE_$(MODEM_PORT)
 test_telemetry.CFLAGS += -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
@@ -75,7 +98,7 @@ test_baro.TARGETDIR = test_baro
 test_baro.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_baro.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_ARCH) -I$(SRC_BOARD)
 test_baro.CFLAGS += -DPERIPHERALS_AUTO_INIT
-test_baro.srcs    = $(SRC_BOARD)/test_baro.c      	  \
+test_baro.srcs    = $(SRC_BOARD)/test_baro.c \
                     $(SRC_ARCH)/armVIC.c
 test_baro.CFLAGS += -DUSE_LED
 test_baro.CFLAGS += -DUSE_SYS_TIME
@@ -95,3 +118,16 @@ test_baro.srcs += $(SRC_BOOZ)/booz2_analog.c \
 # tell me why this shit needs to know battery !!!!
 test_baro.CFLAGS += -DBOOZ2_ANALOG_BATTERY_PERIOD='SYS_TICS_OF_SEC((1./10.))'
 test_baro.srcs += $(SRC_BOOZ)/booz2_battery.c
+
+
+#
+# test_spektrum :
+#
+# TODO
+# 
+# 
+# 
+#
+
+
+

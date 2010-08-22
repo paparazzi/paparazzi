@@ -1,6 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# $Id: lisa_test_progs.makefile 5420 2010-08-17 14:05:21Z poine $
+# $Id$
 # Copyright (C) 2010 The Paparazzi Team
 #
 # This file is part of Paparazzi.
@@ -48,7 +48,6 @@ SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCHI)
 SRC_BOARD=boards/$(BOARD)
 
 BOARD_CFG=\"boards/lisa_l_1.0.h\"
-
 
 #
 # default configuration expected from the board files

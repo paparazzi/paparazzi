@@ -43,9 +43,9 @@
 #define IMU_GYRO_R_CHAN  2
 #endif
 #if !defined IMU_ACCEL_X_CHAN & !defined IMU_ACCEL_Y_CHAN & !defined IMU_ACCEL_Z_CHAN
-#define IMU_ACCEL_X_CHAN 5
-#define IMU_ACCEL_Y_CHAN 3
-#define IMU_ACCEL_Z_CHAN 4
+#define IMU_ACCEL_X_CHAN 3
+#define IMU_ACCEL_Y_CHAN 5
+#define IMU_ACCEL_Z_CHAN 6
 #endif
 #if !defined IMU_MAG_X_CHAN & !defined IMU_MAG_Y_CHAN & !defined IMU_MAG_Z_CHAN
 #define IMU_MAG_X_CHAN   0
