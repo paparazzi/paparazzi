@@ -212,8 +212,8 @@
     <target name="test_telemetry" board="lisa_l_1.0">
       <param name="MODEM_PORT" value="UART2"/>
     </target>
-    <target name="test_baro"      board="lisa_l_1.0">
-    </target>
+    <target name="test_baro"      board="lisa_l_1.0"/>
+    <target name="test_spektrum"  board="lisa_l_1.0"/>
   </firmware>
 
 </airframe>

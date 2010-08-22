@@ -181,9 +181,8 @@
     <target name="test_spektrum"  board="lisa_l_1.0"/>
   </firmware>
 
-
   <firmware name="lisa_passthrough">
-      <target name="overo_test_passthrough" board="lisa_l_1.0"  >
+    <target name="overo_test_passthrough" board="lisa_l_1.0"  >
       <param name="HOST"          value="A7"/>
       <param name="USER"          value=""/>
       <param name="TARGET_DIR"    value="~"/>
