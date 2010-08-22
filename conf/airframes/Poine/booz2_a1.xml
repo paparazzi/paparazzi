@@ -213,7 +213,7 @@
     </target> 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="actuators"     type="mkk"/>
-    <subsystem name="imu"           type="b2v1"/>
+    <subsystem name="imu"           type="b2_v1.0"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="cmpl"/>
   </firmware>
