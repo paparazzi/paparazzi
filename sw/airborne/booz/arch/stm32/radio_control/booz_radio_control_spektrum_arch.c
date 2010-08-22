@@ -47,8 +47,8 @@ static void delay_ms( uint16_t mSecs );
 /* the frequency of the delay timer */
 #define DELAY_TIM_FREQUENCY 1000000
 /* Number of low pulses sent to satellite receivers */ 
-#define MASTER_RECEIVER_PULSES 3 
-#define SLAVE_RECEIVER_PULSES 4 
+#define MASTER_RECEIVER_PULSES 5 
+#define SLAVE_RECEIVER_PULSES 6 
 
 /* The line that is pulled low at power up to initiate the bind process */  
 #define BIND_PIN GPIO_Pin_3
@@ -75,7 +75,6 @@ static void delay_ms( uint16_t mSecs );
 #define __SlaveRcLink(dev, _x) dev##_x
 #define _SlaveRcLink(dev, _x)  __SlaveRcLink(dev, _x)
 #define SlaveRcLink(_x) _SlaveRcLink(RADIO_CONTROL_LINK_SLAVE, _x)
-
 
 /*
  * bind() init must called on powerup as the spektrum 
@@ -122,7 +121,7 @@ void radio_control_spektrum_try_bind( void ) {
 
   /* We have no idea how long the window for allowing binding after  
      power up is .This works for the moment but will need revisiting */	
-  delay_ms(73);
+  delay_ms(61);
 
   for (int i = 0; i < MASTER_RECEIVER_PULSES ; i++) 
   {
