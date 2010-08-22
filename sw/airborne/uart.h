@@ -48,6 +48,14 @@ extern bool_t uart0_check_free_space( uint8_t len);
 #define Uart0TxRunning uart0_tx_running
 #define Uart0InitParam uart0_init_param
 
+/* I want to trigger USE_UART and generate macros with the makefile same variable */
+#define UART0Init           Uart0Init
+#define UART0CheckFreeSpace Uart0CheckFreeSpace
+#define UART0Transmit       Uart0Transmit
+#define UART0SendMessage    Uart0SendMessage
+#define UART0ChAvailable    Uart0ChAvailable
+#define UART0Getch          Uart0Getch
+
 #endif /* USE_UART0 */
 
 #ifdef USE_UART1
@@ -64,6 +72,13 @@ extern bool_t uart1_check_free_space( uint8_t len);
 #define Uart1TxRunning uart1_tx_running
 #define Uart1InitParam uart1_init_param
 
+#define UART1Init           Uart1Init
+#define UART1CheckFreeSpace Uart1CheckFreeSpace
+#define UART1Transmit       Uart1Transmit
+#define UART1SendMessage    Uart1SendMessage
+#define UART1ChAvailable    Uart1ChAvailable
+#define UART1Getch          Uart1Getch
+
 #endif /* USE_UART1 */
 
 #ifdef USE_UART2
@@ -77,6 +92,13 @@ extern bool_t uart2_check_free_space( uint8_t len);
 #define Uart2Transmit(_x) uart2_transmit(_x)
 #define Uart2SendMessage() {}
 
+#define UART2Init           Uart2Init
+#define UART2CheckFreeSpace Uart2CheckFreeSpace
+#define UART2Transmit       Uart2Transmit
+#define UART2SendMessage    Uart2SendMessage
+#define UART2ChAvailable    Uart2ChAvailable
+#define UART2Getch          Uart2Getch
+
 #endif /* USE_UART2 */
 
 #ifdef USE_UART3
@@ -89,6 +111,13 @@ extern bool_t uart3_check_free_space( uint8_t len);
 #define Uart3CheckFreeSpace(_x) uart3_check_free_space(_x)
 #define Uart3Transmit(_x)       uart3_transmit(_x)
 #define Uart3SendMessage() {}
+
+#define UART3Init           Uart3Init
+#define UART3CheckFreeSpace Uart3CheckFreeSpace
+#define UART3Transmit       Uart3Transmit
+#define UART3SendMessage    Uart3SendMessage
+#define UART3ChAvailable    Uart3ChAvailable
+#define UART3Getch          Uart3Getch
 
 #endif /* USE_UART3 */
 
