@@ -1,4 +1,0 @@
-
-#include "rotorcraft/baro.h"
-
-
