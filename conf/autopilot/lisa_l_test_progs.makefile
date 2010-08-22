@@ -44,6 +44,8 @@ SRC_LISA=lisa
 SRC_LISA_ARCH=$(SRC_LISA)/arch/$(ARCHI)
 SRC_BOOZ=booz
 SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCHI)
+#SRC_ROTORCRAFT=rotorcraft
+SRC_BOARD=boards/$(BOARD)
 
 BOARD_CFG=\"boards/lisa_l_1.0.h\"
 
@@ -51,8 +53,9 @@ BOARD_CFG=\"boards/lisa_l_1.0.h\"
 #
 # default configuration expected from the board files
 #
-# MODEM_PORT = UART2
-# MODEM_BAUD = B57600
+# SYS_TIME_LED = 1  
+# MODEM_PORT   = UART2
+# MODEM_BAUD   = B57600
 
 
 #
@@ -65,7 +68,7 @@ BOARD_CFG=\"boards/lisa_l_1.0.h\"
 test_telemetry.ARCHDIR = $(ARCHI)
 test_telemetry.TARGET = test_telemetry
 test_telemetry.TARGETDIR = test_telemetry
-test_telemetry.CFLAGS += -I$(SRC_LISA) -I$(SRC_ARCH) -I$(PAPARAZZI_SRC)/conf -DPERIPHERALS_AUTO_INIT
+test_telemetry.CFLAGS += -I$(SRC_LISA) -I$(SRC_ARCH) -DPERIPHERALS_AUTO_INIT
 test_telemetry.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_telemetry.srcs = test/test_telemetry.c            \
                       $(SRC_ARCH)/stm32_exceptions.c   \
@@ -74,7 +77,7 @@ test_telemetry.CFLAGS += -DUSE_LED
 test_telemetry.srcs += $(SRC_ARCH)/led_hw.c
 test_telemetry.CFLAGS += -DUSE_SYS_TIME
 test_telemetry.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-test_telemetry.CFLAGS += -DSYS_TIME_LED=1
+test_telemetry.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_telemetry.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_telemetry.CFLAGS += -DUSE_$(MODEM_PORT)
 test_telemetry.CFLAGS += -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
@@ -87,28 +90,29 @@ test_telemetry.srcs   += $(SRC_ARCH)/uart_hw.c
 # test_baro : reads barometers and sends values over telemetry
 #
 # configuration
-#   MODEM_PORT :
-#   MODEM_BAUD :
+#   SYS_TIME_LED
+#   MODEM_PORT
+#   MODEM_BAUD
 #
 test_baro.ARCHDIR   = $(ARCHI)
 test_baro.TARGET    = test_baro
 test_baro.TARGETDIR = test_baro
-test_baro.CFLAGS = -I$(SRC_LISA) -I$(SRC_ARCH) -I$(PAPARAZZI_SRC)/conf -DPERIPHERALS_AUTO_INIT
+test_baro.CFLAGS = -I$(SRC_LISA) -I$(SRC_ARCH) -I$(SRC_BOARD) -DPERIPHERALS_AUTO_INIT
 test_baro.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_baro.srcs = $(SRC_LISA)/test_baro2.c      \
+test_baro.srcs = $(SRC_BOARD)/test_baro.c      	  \
                  $(SRC_ARCH)/stm32_exceptions.c   \
                  $(SRC_ARCH)/stm32_vector_table.c
 test_baro.CFLAGS += -DUSE_LED
 test_baro.srcs   += $(SRC_ARCH)/led_hw.c
 test_baro.CFLAGS += -DUSE_SYS_TIME
 test_baro.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-test_baro.CFLAGS += -DSYS_TIME_LED=1
+test_baro.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_baro.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_baro.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
 test_baro.srcs   += downlink.c pprz_transport.c
 test_baro.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 test_baro.srcs   += $(SRC_ARCH)/uart_hw.c
-test_baro.srcs   += $(SRC_LISA)/lisa_baro.c
+test_baro.srcs   += $(SRC_BOARD)/baro_board.c
 test_baro.CFLAGS += -DUSE_I2C2
 test_baro.srcs   += i2c.c $(SRC_ARCH)/i2c_hw.c
 
@@ -125,7 +129,7 @@ test_baro.srcs   += i2c.c $(SRC_ARCH)/i2c_hw.c
 test_spektrum.ARCHDIR = $(ARCHI)
 test_spektrum.TARGET = test_spektrum
 test_spektrum.TARGETDIR = test_spektrum
-test_spektrum.CFLAGS += -I$(SRC_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(PAPARAZZI_SRC)/conf -DPERIPHERALS_AUTO_INIT
+test_spektrum.CFLAGS += -I$(SRC_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_spektrum.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) 
 test_spektrum.srcs   += $(SRC_BOOZ_TEST)/booz2_test_radio_control.c \
                         $(SRC_ARCH)/stm32_exceptions.c              \
@@ -135,7 +139,7 @@ test_spektrum.CFLAGS += -DUSE_LED
 test_spektrum.srcs   += $(SRC_ARCH)/led_hw.c
 test_spektrum.CFLAGS += -DUSE_SYS_TIME
 test_spektrum.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
-test_spektrum.CFLAGS += -DSYS_TIME_LED=1
+test_spektrum.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_spektrum.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_spektrum.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 test_spektrum.srcs   += $(SRC_ARCH)/uart_hw.c
