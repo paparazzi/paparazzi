@@ -25,7 +25,7 @@
 #include "booz2_ins.h"
 
 #include "booz_imu.h"
-#include "booz2_analog_baro.h"
+#include "rotorcraft/baro.h"
 #include "booz_gps.h"
 
 #include "airframe.h"
@@ -150,7 +150,7 @@ void booz_ins_propagate() {
   float z_accel_float = ACCEL_FLOAT_OF_BFP(accel_ltp.z);
 
 #ifdef USE_VFF
-  if (booz2_analog_baro_status == BOOZ2_ANALOG_BARO_RUNNING && booz_ins_baro_initialised) {
+  if (baro.status == BS_RUNNING && booz_ins_baro_initialised) {
     b2_vff_propagate(z_accel_float);
     booz_ins_ltp_accel.z = ACCEL_BFP_OF_REAL(b2_vff_zdotdot);
     booz_ins_ltp_speed.z = SPEED_BFP_OF_REAL(b2_vff_zdot);
@@ -178,16 +178,16 @@ void booz_ins_propagate() {
 
 void booz_ins_update_baro() {
 #ifdef USE_VFF
-  if (booz2_analog_baro_status == BOOZ2_ANALOG_BARO_RUNNING) {
+  if (baro.status == BS_RUNNING) {
     if (!booz_ins_baro_initialised) {
-      booz_ins_qfe = booz2_analog_baro_value;
+      booz_ins_qfe = baro.absolute;
       booz_ins_baro_initialised = TRUE;
     }
-    booz_ins_baro_alt = (((int32_t)booz2_analog_baro_value - booz_ins_qfe) * BOOZ_INS_BARO_SENS_NUM)/BOOZ_INS_BARO_SENS_DEN;
+    booz_ins_baro_alt = ((baro.absolute - booz_ins_qfe) * BOOZ_INS_BARO_SENS_NUM)/BOOZ_INS_BARO_SENS_DEN;
     float alt_float = POS_FLOAT_OF_BFP(booz_ins_baro_alt);
     if (booz_ins_vf_realign) {
       booz_ins_vf_realign = FALSE;
-      booz_ins_qfe = booz2_analog_baro_value;
+      booz_ins_qfe = baro.absolute;
       b2_vff_realign(0.);
       booz_ins_ltp_accel.z = ACCEL_BFP_OF_REAL(b2_vff_zdotdot);
       booz_ins_ltp_speed.z = SPEED_BFP_OF_REAL(b2_vff_zdot);

@@ -170,12 +170,23 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			      &booz_imu.mag_unscaled.z);		\
   }
 
-#define PERIODIC_SEND_BOOZ2_BARO_RAW(_chan) {				\
+/* FIXME: make that depend on board */
+#define PERIODIC_SEND_BOOZ_BARO_RAW(_chan) {				\
     DOWNLINK_SEND_BOOZ2_BARO_RAW(_chan,					\
-				 &booz2_analog_baro_offset,		\
-			         &booz2_analog_baro_value,		\
-			         &booz2_analog_baro_value_filtered);	\
+				 &baro_board.offset,			\
+			         &baro.absolute,			\
+			         &baro_board.value_filtered);		\
   }
+
+
+#define PERIODIC_SEND_BARO_RAW(_chan) {					\
+    DOWNLINK_SEND_BARO_RAW(_chan,					\
+			   &baro.absolute,				\
+			   &baro.differential);				\
+  }
+
+
+
 
 #include "booz_stabilization.h"
 #define PERIODIC_SEND_BOOZ2_RATE_LOOP(_chan) {                          \

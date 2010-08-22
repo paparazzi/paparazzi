@@ -41,7 +41,8 @@
 #include "booz_imu.h"
 #include "booz_gps.h"
 
-#include "booz2_analog_baro.h"
+#include "rotorcraft/baro.h"
+
 #include "booz2_battery.h"
 
 #include "booz_fms.h"
@@ -68,7 +69,8 @@
 #endif
 
 static inline void on_gyro_accel_event( void );
-static inline void on_baro_event( void );
+static inline void on_baro_abs_event( void );
+static inline void on_baro_dif_event( void );
 static inline void on_gps_event( void );
 static inline void on_mag_event( void );
 
@@ -102,8 +104,7 @@ STATIC_INLINE void booz2_main_init( void ) {
   actuators_init();
   radio_control_init();
 
-  booz2_analog_init();
-  booz2_analog_baro_init();
+  baro_init();
 
 #if defined USE_CAM || USE_DROP
   booz2_pwm_init_hw();
@@ -163,7 +164,8 @@ STATIC_INLINE void booz2_main_periodic( void ) {
     {									\
       LED_PERIODIC();		     					\
     },									\
-    {},									\
+    { baro_periodic();
+    },									\
     {},									\
     {},									\
     {},									\
@@ -204,7 +206,7 @@ STATIC_INLINE void booz2_main_event( void ) {
 
   BoozImuEvent(on_gyro_accel_event, on_mag_event);
 
-  Booz2AnalogBaroEvent(on_baro_event);
+  BaroEvent(on_baro_abs_event, on_baro_dif_event);
 
 #ifdef USE_GPS
   BoozGpsEvent(on_gps_event);
@@ -240,10 +242,13 @@ static inline void on_gyro_accel_event( void ) {
   }
 }
 
-static inline void on_baro_event( void ) {
+static inline void on_baro_abs_event( void ) {
   booz_ins_update_baro();
 }
 
+static inline void on_baro_dif_event( void ) {
+
+}
 
 static inline void on_gps_event(void) {
   booz_ins_update_gps();
