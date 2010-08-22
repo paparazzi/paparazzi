@@ -228,9 +228,8 @@
   </firmware>
 
   <firmware name="booz_test_progs">
-    <target name="test_telemetry" board="booz_1.0">
-      <param name="MODEM_PORT" value="UART1"/>
-    </target>
+    <target name="test_telemetry" board="booz_1.0"/>
+    <target name="test_baro"      board="booz_1.0"/>
   </firmware>
 
 <!--
