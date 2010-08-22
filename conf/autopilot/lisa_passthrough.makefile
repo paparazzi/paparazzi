@@ -10,6 +10,7 @@ SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCH)
 SRC_LISA=lisa
 SRC_LISA_ARCH=$(SRC_LISA)/arch/$(ARCH)
 SRC_CSC=csc
+SRC_BOARD=boards/$(BOARD)
 
 CFG_LISA_PASSTHROUGH = $(PAPARAZZI_SRC)/conf/autopilot/subsystems/lisa_passthrough
 
@@ -17,7 +18,7 @@ CFG_LISA_PASSTHROUGH = $(PAPARAZZI_SRC)/conf/autopilot/subsystems/lisa_passthrou
 stm_passthrough.ARCHDIR = stm32
 stm_passthrough.TARGET = stm_passthrough
 stm_passthrough.TARGETDIR = stm_passthrough
-stm_passthrough.CFLAGS += -I$(SRC_LISA) -I$(SRC_LISA_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
+stm_passthrough.CFLAGS += -I$(SRC_LISA) -I$(SRC_LISA_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD)
 stm_passthrough.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 stm_passthrough.CFLAGS += -DPERIPHERALS_AUTO_INIT
 stm_passthrough.srcs = $(SRC_LISA)/lisa_stm_passthrough_main.c \
@@ -85,7 +86,7 @@ stm_passthrough.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c
 stm_passthrough.srcs += $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_arch.c
 
 # Baro
-stm_passthrough.srcs += $(SRC_LISA)/lisa_baro.c
+stm_passthrough.srcs += $(SRC_BOARD)/baro_board.c
 stm_passthrough.CFLAGS += -DUSE_I2C2
 stm_passthrough.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
