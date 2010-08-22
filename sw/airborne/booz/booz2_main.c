@@ -104,6 +104,7 @@ STATIC_INLINE void booz2_main_init( void ) {
   actuators_init();
   radio_control_init();
 
+  booz2_analog_init();
   baro_init();
 
 #if defined USE_CAM || USE_DROP
