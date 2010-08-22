@@ -170,7 +170,7 @@
              value="\\\"booz/radio_control/booz_radio_control_spektrum_dx7se.h\\\""/>
     </subsystem>
     <subsystem name="actuators"     type="asctec"/>
-    <subsystem name="imu"           type="b2v1.1"/>
+    <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="cmpl"/>
   </firmware>
@@ -189,6 +189,12 @@
       <param name="TARGET_DIR"    value="~"/>
       <param name="PERIODIC_FREQ" value="512"/>
     </target>
+    <target name="stm_passthrough" board="lisa_l_1.0"/>
+      <subsystem name="radio_control" type="spektrum">
+        <param name="RADIO_CONTROL_SPEKTRUM_MODEL" 
+              value="\\\"booz/radio_control/booz_radio_control_spektrum_dx7se.h\\\""/>
+      </subsystem>
+      <subsystem name="imu" type="b2_v1.1"/>
  </firmware>
 
  <makefile>
