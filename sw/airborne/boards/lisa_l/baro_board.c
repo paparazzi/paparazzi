@@ -47,6 +47,7 @@ void baro_periodic(void) {
     //    baro_board.status = LBS_UNINITIALIZED;
     break;
   case LBS_INITIALIZING_DIFF_1:
+    baro.status = BS_RUNNING;
   case LBS_READ_DIFF:
     baro_board_read_from_current_register(BARO_ABS_ADDR);
     baro_board.status = LBS_READING_ABS;
