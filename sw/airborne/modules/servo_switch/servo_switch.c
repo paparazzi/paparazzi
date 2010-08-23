@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "servo_switch.h"
+#include "servo_switch/servo_switch.h"
 #include "inter_mcu.h"
 
 bool_t servo_switch_on;

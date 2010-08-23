@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="servo_switch">
+<module name="servo_switch" dir="servo_switch">
   <header>
     <file name="servo_switch.h"/>
   </header>
