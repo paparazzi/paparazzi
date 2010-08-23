@@ -231,7 +231,8 @@ let parse_targets = fun makefile_ac tag target ->
                 (Xml.attrib d "name")
             end) in
 	  List.iter print_if_subsystem (Xml.children target);
-	  List.iter (parse_subsystems makefile_ac tag) (Xml.children tag );
+	  List.iter (parse_subsystems makefile_ac tag) (Xml.children target ); (** dump target  subsystems **)
+	  List.iter (parse_subsystems makefile_ac tag) (Xml.children tag );    (** dump firware subsystems **)
           fprintf makefile_ac "endif\n\n"; 
         with _ -> () end;
    | _ -> ()
@@ -240,7 +241,7 @@ let parse_targets = fun makefile_ac tag target ->
 (** 
    Search and dump the firmware section 
  **)
-let dump_target_section = fun xml makefile_ac ->
+let dump_firmware_sections = fun xml makefile_ac ->
   List.iter (fun tag ->
     if ExtXml.tag_is tag "firmware" then begin
       begin try
@@ -264,8 +265,8 @@ let extract_makefile = fun airframe_file makefile_ac ->
 
   (** Search and dump makefile sections that don't have a "location" attribute set to "after" *)
   dump_makefile_section xml f airframe_file false;
-  (** Search and dump the target section *)
-  dump_target_section xml f;
+  (** Search and dump the firmware sections *)
+  dump_firmware_sections xml f;
   (** Search and dump makefile sections that have a "location" attribute set to "after" *)
   dump_makefile_section xml f airframe_file true;
 
