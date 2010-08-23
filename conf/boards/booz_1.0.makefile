@@ -24,6 +24,8 @@ SYS_TIME_LED = 1 # not used on rotorcraft, only for tests
 RADIO_CONTROL_LED  = 1
 RADIO_CONTROL_LINK = UART0
 
+BARO_LED = 2
+
 MODEM_PORT = UART1
 MODEM_BAUD = B57600
 

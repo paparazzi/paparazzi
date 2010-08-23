@@ -140,7 +140,7 @@ ap.srcs += $(SRC_BOOZ)/booz2_commands.c
 #
 ap.srcs += $(SRC_BOARD)/baro_board.c
 ifeq ($(BOARD), booz)
-ap.CFLAGS += -DROTORCRAFT_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
+ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED) -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
 else ifeq ($(BOARD), lisa_l) 
 ap.CFLAGS += -DUSE_I2C2
 endif
