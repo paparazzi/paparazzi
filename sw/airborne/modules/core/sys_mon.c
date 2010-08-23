@@ -22,7 +22,7 @@
  *
  */
 
-#include "sys_mon.h"
+#include "core/sys_mon.h"
 #include "sys_time.h"
 
 #ifdef USE_USB_SERIAL
@@ -37,7 +37,7 @@ uint16_t event_time, event_number;
 /* Local vars */
 uint16_t n_periodic, n_event;
 uint32_t time_periodic, time_event;
-uint32_t sum_time_periodic, sum_cycle_periodic, sum_time_event, sum_n_event;
+uint32_t sum_time_periodic, sum_cycle_periodic, sum_time_event, min_time_event, sum_n_event;
 
 void init_sysmon(void) {
   cpu_load = 0;
@@ -53,6 +53,7 @@ void init_sysmon(void) {
   sum_time_periodic = 0;
   sum_cycle_periodic = 0;
   sum_time_event = 0;
+  min_time_event = ~0;
   sum_n_event = 0;
 }
 
@@ -86,7 +87,8 @@ void periodic_sysmon(void) {
   /** Estimate periodic task cycle time */
   SysTimeTimerStop(time_periodic);
   periodic_time = USEC_OF_SYS_TICS(time_periodic);
-  periodic_cycle = periodic_time - sum_time_event /* - sum_time_event/n_event */;
+  /* only periodic cycle : periodic_cycle = periodic_time - sum_time_event; */
+  periodic_cycle = periodic_time - n_event * min_time_event;
   if (periodic_cycle < periodic_cycle_min) periodic_cycle_min = periodic_cycle;
   if (periodic_cycle > periodic_cycle_max) periodic_cycle_max = periodic_cycle;
   sum_time_periodic += periodic_time;
@@ -101,7 +103,9 @@ void periodic_sysmon(void) {
 void event_sysmon(void) {
   /** Store event calls total time and number of calls between two periodic calls */
   if (n_event > 0) {
-    sum_time_event += USEC_OF_SYS_TICS(SysTimeTimer(time_event));
+    uint32_t t = USEC_OF_SYS_TICS(SysTimeTimer(time_event));
+    if (t < min_time_event) min_time_event = t;
+    sum_time_event += t;
   }
   SysTimeTimerStart(time_event);
   n_event++;
