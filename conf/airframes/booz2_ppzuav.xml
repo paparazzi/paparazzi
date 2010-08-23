@@ -24,34 +24,20 @@
 
    <section name="IMU" prefix="IMU_">
 
-    <define name="GYRO_P_CHAN" value="1"/>
-    <define name="GYRO_Q_CHAN" value="0"/>
-    <define name="GYRO_R_CHAN" value="2"/>
-
     <define name="GYRO_P_NEUTRAL" value="31675"/>
     <define name="GYRO_Q_NEUTRAL" value="31650"/>
     <define name="GYRO_R_NEUTRAL" value="31475"/>
+    <define name="GYRO_P_SENS"    value="1.01" integer="16"/>
+    <define name="GYRO_Q_SENS"    value="1.01" integer="16"/>
+    <define name="GYRO_R_SENS"    value="1.01" integer="16"/>
 
-    <define name="GYRO_P_SENS" value=" -1.01" integer="16"/>
-    <define name="GYRO_Q_SENS" value="1.01" integer="16"/>
-    <define name="GYRO_R_SENS" value="-1.01" integer="16"/>
-
-
-    <define name="ACCEL_X_CHAN" value="5"/>
-    <define name="ACCEL_Y_CHAN" value="3"/>
-    <define name="ACCEL_Z_CHAN" value="4"/>
 
     <define name="ACCEL_X_NEUTRAL" value="33026"/>
     <define name="ACCEL_Y_NEUTRAL" value="32976"/>
     <define name="ACCEL_Z_NEUTRAL" value="32329"/>
-
     <define name="ACCEL_X_SENS" value="2.52976874461" integer="16"/>
     <define name="ACCEL_Y_SENS" value="2.5581570391" integer="16"/>
     <define name="ACCEL_Z_SENS" value="2.5247740245" integer="16"/>
-
-    <define name="MAG_X_CHAN" value="0"/>
-    <define name="MAG_Y_CHAN" value="1"/>
-    <define name="MAG_Z_CHAN" value="2"/>
 
     <define name="MAG_X_SENS" value="5.25214038933" integer="16"/>
     <define name="MAG_Y_SENS" value="5.5771208609" integer="16"/>
@@ -63,7 +49,7 @@
 
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(0.)"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(0.)"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(-90.)"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(0.)"/>
 
   </section>
 
@@ -150,9 +136,9 @@
 
   </section>
 
- <section name="SUPERVISION" prefix="SUPERVISION_">
-		<define name="MIN_MOTOR" value="2" />
-		<define name="MAX_MOTOR" value="210" />
+  <section name="SUPERVISION" prefix="SUPERVISION_">
+	<define name="MIN_MOTOR" value="2" />
+	<define name="MAX_MOTOR" value="210" />
 		<define name="TRIM_A" value="0" />
 		<define name="TRIM_E" value="0" />
 		<define name="TRIM_R" value="0" />
@@ -162,7 +148,7 @@
 		<define name="PITCH_COEF"  value="{ 256, -256,    0,    0}" />
 		<define name="YAW_COEF"    value="{ 256,  256, -256, -256}" />
 		<define name="THRUST_COEF" value="{ 256,  256,  256,  256}"/>
-	</section>
+  </section>
 
  <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
    <define name="MIN_ERR_Z"    value="POS_BFP_OF_REAL(-10.)"/>
@@ -219,7 +205,7 @@
   </target>
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="actuators"     type="asctec"/>
-    <subsystem name="imu"           type="b2v1_1"/>
+    <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="cmpl"/>
 </firmware>
