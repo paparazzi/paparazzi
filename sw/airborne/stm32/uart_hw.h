@@ -42,17 +42,17 @@
 #define UART1_RxPort GPIOA
 #define UART1_Periph RCC_APB2Periph_GPIOA
 
-#define Uart2_TxPin GPIO_Pin_2
-#define Uart2_RxPin GPIO_Pin_3
-#define Uart2_TxPort GPIOA
-#define Uart2_RxPort GPIOA
-#define Uart2_Periph RCC_APB2Periph_GPIOA
+#define UART2_TxPin GPIO_Pin_2
+#define UART2_RxPin GPIO_Pin_3
+#define UART2_TxPort GPIOA
+#define UART2_RxPort GPIOA
+#define UART2_Periph RCC_APB2Periph_GPIOA
 
-#define Uart3_TxPin GPIO_Pin_10
-#define Uart3_RxPin GPIO_Pin_11
-#define Uart3_TxPort GPIOC
-#define Uart3_RxPort GPIOC
-#define Uart3_Periph RCC_APB2Periph_GPIOC
+#define UART3_TxPin GPIO_Pin_10
+#define UART3_RxPin GPIO_Pin_11
+#define UART3_TxPort GPIOC
+#define UART3_RxPort GPIOC
+#define UART3_Periph RCC_APB2Periph_GPIOC
 
 
 #if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
