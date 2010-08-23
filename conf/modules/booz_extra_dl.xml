@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="core">
+  <header>
+    <file name="extra_pprz_dl.h"/>
+  </header>
+  <event fun="ExtraDatalinkEvent()"/>
+  <makefile>
+    <flag name="EXTRA_DOWNLINK_DEVICE" value="Uart0"/>
+    <flag name="EXTRA_PPRZ_UART" value="Uart0"/>
+    <flag name="USE_UART0"/>
+    <flag name="UART0_BAUD" value="B57600"/>
+    <flag name="UART0_VIC_SLOT" value="5"/>
+    <file name="extra_pprz_dl.c"/>
+  </makefile>
+</module>
+
