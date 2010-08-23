@@ -1,5 +1,5 @@
-<firmware name="lisa_l_test_progs" boards="lisa_l_1.0,lisa_l_1.1"
-  description="test programs for lisa_l boards">
+<firmware name="booz_test_progs" boards="booz_v1.0"
+  description="test programs for booz boards">
 
    <target name="test telemetry" description="Sends ALIVE telemetry messages">
      <param name="MODEM_PORT" values="UART1,UART2,UART3"    default="UART2"/>
@@ -12,9 +12,9 @@
    </target>
 
   <target name="test spektrum" description="sends RADIO_CONTROL messages on telemetry">
-     <param name="MODEM_PORT"         values="UART1,UART2,UART3"    default="UART2"/>
+     <param name="MODEM_PORT"         values="UART0,UART1"    default="UART1"/>
      <param name="MODEM_BAUD"         values="B9600,B57600,B115200" default="B57600"/>
-     <param name="RADIO_CONTROL_LINK" values="UART1,UART2,UART3|UART5" default="UART3"/>
+     <param name="RADIO_CONTROL_LINK" values="UART0,UART1"   default="UART0"/>
   </target>
 
 </firmware>

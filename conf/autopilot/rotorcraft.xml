@@ -1,17 +1,27 @@
-<firmware name="rotorcraft" boards="lisa_l_1.0,lisa_l_1.1,booz"
+<firmware name="rotorcraft" boards="|lisa_l_1.0|lisa_l_1.1|booz_1.0|"
   description="autopilot and simulator for rotorcrafts">
 
+ <!-- a parameter that belongs to BOARD -->
+ <param name="FLASH_MODE" values="|IAP|JTAG|ISP|"/>
+
  <target name="ap" description="The autopilot">
+   <param name="MODEM_BAUD" values="|B57600|B9600|"/>
  </target>
 
  <target name="sim" description="The simulator">
  </target> 
 
- <susbsystem name="radio_control" types="ppm,spektrum">
+ <subsystem name="radio_control" types="ppm,spektrum">
    <type name="spektrum">
      <param name="RADIO_CONTROL_SPEKTRUM_MODEL" values="\"booz/radio_control/booz_radio_control_spektrum_dx7se.h\""/>
-     <param name="RADIO_CONTROL_LINK" values="UART1,UART2,UART3,UART5"/>
+     <param name="RADIO_CONTROL_LINK" values="UART1|UART2|UART3|UART5"/>
    </type>
  </subsystem>
+
+ <subsystem name="acuators"  types="asctec|asctec_v2|mkk"/>
+ <subsystem name="imu"       types="b2_v1.0|b2_v1.1|crista"/>
+ <subsystem name="gps"       types="skytraq|ublox"/>
+ <subsystem name="ahrs"      types="cmpl"/>
+ <subsystem name="ins"       types="hff"/>
 
 </firmware>

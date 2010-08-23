@@ -1,0 +1,31 @@
+<firmware name="fixedwing" boards="|twog_1|tiny_2.11|tiny_2.1|tiny_1.1|tiny_0.99|booz_1.0|lisa_l_1.0|pc|"
+  description="autopilot and simulator for fixed wing vehicles">
+
+
+ <target name="ap" description="The autopilot">
+   <param name="FLASH_MODE" values="|IAP|JTAG|ISP|"/>
+   <define name="AGR_CLIMB" />
+   <define name="TRAFFIC_INFO"/>
+   <define name="LOITER_TRIM"/>
+   <define name="ALT_KALMAN"/>
+ </target>
+
+ <target name="sim" description="The simulator">
+  <define name="TRAFFIC_INFO" />
+ </target> 
+
+ <subsystem name="radio_control" 	types="ppm"/>
+    <!-- Communication -->
+ <subsystem name="telemetry" 	types="transparent|xbee_api">
+   <param name="MODEM_BAUD"     values="B9600|B38400|B57600|B115200"/>
+ </subsystem>
+ <!-- Actuators -->
+ <subsystem name="actuators" 	types="4015|4017|ppm"/>
+ <!-- Sensors -->
+ <subsystem name="gyro"         types="roll|pitch"/>
+ <subsystem name="attitude"     types="infrared"/>
+ <subsystem name="gps" 		types="ublox_lea4p|lea5h"/>
+ <subsystem name="navigation"   types="NONE"/>
+ <subsystem name="navigation"   types="extra"/>
+
+</firmware>
