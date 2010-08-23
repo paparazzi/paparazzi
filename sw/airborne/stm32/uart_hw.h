@@ -36,14 +36,42 @@
 #define B57600   57600
 #define B115200 115200
 
-#ifdef USE_UART1
-
 #define UART1_TxPin GPIO_Pin_9
 #define UART1_RxPin GPIO_Pin_10
 #define UART1_TxPort GPIOA
 #define UART1_RxPort GPIOA
 #define UART1_Periph RCC_APB2Periph_GPIOA
 
+#define Uart2_TxPin GPIO_Pin_2
+#define Uart2_RxPin GPIO_Pin_3
+#define Uart2_TxPort GPIOA
+#define Uart2_RxPort GPIOA
+#define Uart2_Periph RCC_APB2Periph_GPIOA
+
+#define Uart3_TxPin GPIO_Pin_10
+#define Uart3_RxPin GPIO_Pin_11
+#define Uart3_TxPort GPIOC
+#define Uart3_RxPort GPIOC
+#define Uart3_Periph RCC_APB2Periph_GPIOC
+
+
+#if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
+extern void usart1_irq_handler(void);
+#endif
+
+#if defined USE_UART2 || OVERRIDE_UART2_IRQ_HANDLER
+extern void usart2_irq_handler(void);
+#endif
+
+#if defined USE_UART3 || OVERRIDE_UART3_IRQ_HANDLER
+extern void usart3_irq_handler(void);
+#endif
+
+#if defined USE_UART5 || OVERRIDE_UART5_IRQ_HANDLER
+extern void usart5_irq_handler(void);
+#endif
+
+#ifdef USE_UART1
 #define UART1_RX_BUFFER_SIZE 128
 #define UART1_TX_BUFFER_SIZE 128
 
@@ -53,8 +81,6 @@ extern uint8_t  uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
 extern volatile uint16_t uart1_tx_insert_idx, uart1_tx_extract_idx;
 extern volatile bool_t   uart1_tx_running;
 extern uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
-
-extern void usart1_irq_handler(void);
 
 #define Uart1ChAvailable() (uart1_rx_insert_idx != uart1_rx_extract_idx)
 #define Uart1Getch() ({							\
@@ -68,12 +94,6 @@ extern void usart1_irq_handler(void);
 
 #ifdef USE_UART2
 
-#define UART2_TxPin GPIO_Pin_2
-#define UART2_RxPin GPIO_Pin_3
-#define UART2_TxPort GPIOA
-#define UART2_RxPort GPIOA
-#define UART2_Periph RCC_APB2Periph_GPIOA
-
 #define UART2_RX_BUFFER_SIZE 128
 #define UART2_TX_BUFFER_SIZE 128
 
@@ -83,8 +103,6 @@ extern uint8_t  uart2_rx_buffer[UART2_RX_BUFFER_SIZE];
 extern volatile uint16_t uart2_tx_insert_idx, uart2_tx_extract_idx;
 extern volatile bool_t   uart2_tx_running;
 extern uint8_t  uart2_tx_buffer[UART2_TX_BUFFER_SIZE];
-
-extern void usart2_irq_handler(void);
 
 #define Uart2ChAvailable() (uart2_rx_insert_idx != uart2_rx_extract_idx)
 #define Uart2Getch() ({							\
@@ -98,12 +116,6 @@ extern void usart2_irq_handler(void);
 
 #ifdef USE_UART3
 
-#define UART3_TxPin  GPIO_Pin_10
-#define UART3_RxPin  GPIO_Pin_11
-#define UART3_TxPort GPIOC
-#define UART3_RxPort GPIOC
-#define UART3_Periph RCC_APB2Periph_GPIOC
-
 #define UART3_RX_BUFFER_SIZE 128
 #define UART3_TX_BUFFER_SIZE 128
 
@@ -113,8 +125,6 @@ extern uint8_t  uart3_rx_buffer[UART3_RX_BUFFER_SIZE];
 extern volatile uint16_t uart3_tx_insert_idx, uart3_tx_extract_idx;
 extern volatile bool_t   uart3_tx_running;
 extern uint8_t  uart3_tx_buffer[UART3_TX_BUFFER_SIZE];
-
-extern void usart3_irq_handler(void);
 
 #define Uart3ChAvailable() (uart3_rx_insert_idx != uart3_rx_extract_idx)
 #define Uart3Getch() ({							\
