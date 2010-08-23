@@ -41,6 +41,10 @@
 #include "traffic_info.h"
 #endif // TRAFFIC_INFO
 
+#ifdef TCAS
+#include "tcas.h"
+#endif
+
 #ifdef USE_JOYSTICK
 #include "joystick.h"
 #endif
@@ -78,6 +82,25 @@
 void dl_parse_msg(void) {
   datalink_time = 0;
   uint8_t msg_id = IdOfMsg(dl_buffer);
+#if 0 // not ready yet
+  uint8_t sender_id = SenderIdOfMsg(dl_buffer);
+
+  /* parse telemetry messages coming from other AC */
+  if (sender_id != 0) {
+    switch (msg_id) {
+#ifdef TCAS
+      case DL_TCAS_RA:
+        {
+          if (DL_TCAS_RESOLVE_ac_id(dl_buffer) == AC_ID && SenderIdOfMsg(dl_buffer) != AC_ID) {
+            uint8_t ac_id_conflict = SenderIdOfMsg(dl_buffer);
+            tcas_acs_status[the_acs_id[ac_id_conflict]].resolve = DL_TCAS_RA_resolve(dl_buffer);
+          }
+        }
+#endif
+    }
+    return;
+  }
+#endif
 
   if (msg_id == DL_PING) {
     DOWNLINK_SEND_PONG(DefaultChannel);
@@ -116,8 +139,14 @@ void dl_parse_msg(void) {
     SEND_NAVIGATION(DefaultChannel);
   } else
 #endif /** NAV */
+#ifdef TCAS
+  if (msg_id == DL_TCAS_RESOLVE && DL_TCAS_RESOLVE_ac_id(dl_buffer) == AC_ID) {
+    uint8_t ac_id_conflict = DL_TCAS_RESOLVE_ac_id_conflict(dl_buffer);
+    tcas_acs_status[the_acs_id[ac_id_conflict]].resolve = DL_TCAS_RESOLVE_resolve(dl_buffer);
+  } else
+#endif
 #ifdef WIND_INFO
-    if (msg_id == DL_WIND_INFO && DL_WIND_INFO_ac_id(dl_buffer) == AC_ID) {
+  if (msg_id == DL_WIND_INFO && DL_WIND_INFO_ac_id(dl_buffer) == AC_ID) {
     wind_east = DL_WIND_INFO_east(dl_buffer);
     wind_north = DL_WIND_INFO_north(dl_buffer);
 #ifndef USE_AIRSPEED

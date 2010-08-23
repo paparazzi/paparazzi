@@ -279,5 +279,12 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       Dl_Pprz.message_send "ground_dl" "FORMATION_SLOT" values
   | "FORMATION_STATUS_TM" ->
       Dl_Pprz.message_send "ground_dl" "FORMATION_STATUS" values
+  | "TCAS_RA" ->
+      let vs = [
+        "ac_id", Pprz.Int (ivalue "ac_id");
+        "ac_id_conflict", Pprz.Int (int_of_string a.id);
+        "resolve", Pprz.Int (ivalue "resolve")
+      ] in
+      Dl_Pprz.message_send "ground_dl" "TCAS_RESOLVE" vs
   | _ -> ()
 

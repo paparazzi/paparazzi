@@ -41,8 +41,9 @@ float tcas_alt_setpoint;
 float tcas_tau_ta, tcas_tau_ra, tcas_dmod, tcas_alim;
 
 uint8_t tcas_status;
+enum tcas_resolve tcas_resolve;
 uint8_t tcas_ac_RA;
-uint8_t tcas_acs_status[NB_ACS];
+struct tcas_ac_status tcas_acs_status[NB_ACS];
 
 #ifndef TCAS_TAU_TA     // Traffic Advisory
 #define TCAS_TAU_TA 2*CARROT
@@ -76,9 +77,25 @@ void tcas_init( void ) {
   tcas_dmod = TCAS_DMOD;
   tcas_alim = TCAS_ALIM;
   tcas_status = TCAS_NO_ALARM;
+  tcas_resolve = RA_NONE;
   tcas_ac_RA = AC_ID;
   uint8_t i;
-  for (i = 0; i < NB_ACS; i++) tcas_acs_status[i] = TCAS_NO_ALARM;
+  for (i = 0; i < NB_ACS; i++) {
+    tcas_acs_status[i].status = TCAS_NO_ALARM;
+    tcas_acs_status[i].resolve = RA_NONE;
+  }
+}
+
+static inline enum tcas_resolve tcas_test_direction(uint8_t id) {
+  struct ac_info_ * ac = get_ac_info(id);
+  float dz = ac->alt - estimator_z;
+  if (dz > tcas_alim) return RA_DESCEND;
+  else if (dz < -tcas_alim) return RA_CLIMB;
+  else // AC with the smallest ID descend
+  {
+    if (AC_ID < id) return RA_DESCEND;
+    else return RA_CLIMB;
+  }
 }
 
 
@@ -87,7 +104,7 @@ void tcas_periodic_task_1Hz( void ) {
   // no TCAS under security_height
   if (estimator_z < GROUND_ALT + SECURITY_HEIGHT) {
     uint8_t i;
-    for (i = 0; i < NB_ACS; i++) tcas_acs_status[i] = TCAS_NO_ALARM;
+    for (i = 0; i < NB_ACS; i++) tcas_acs_status[i].status = TCAS_NO_ALARM;
     return;
   }
   // test possible conflicts
@@ -100,7 +117,7 @@ void tcas_periodic_task_1Hz( void ) {
     if (the_acs[i].ac_id == 0) continue; // no AC data
     uint32_t dt = gps_itow - the_acs[i].itow;
     if (dt > 3*TCAS_DT_MAX) {
-      tcas_acs_status[i] = TCAS_NO_ALARM; // timeout, reset status
+      tcas_acs_status[i].status = TCAS_NO_ALARM; // timeout, reset status
       continue;
     }
     if (dt > TCAS_DT_MAX) continue; // lost com but keep current status
@@ -117,31 +134,39 @@ void tcas_periodic_task_1Hz( void ) {
     if (scal > 0.) tau = (ddh + ddv) / scal;
     // monitor conflicts
     uint8_t inside = TCAS_IsInside();
-    switch (tcas_acs_status[i]) {
+    //enum tcas_resolve test_dir = RA_NONE;
+    switch (tcas_acs_status[i].status) {
       case TCAS_RA:
-        if (tau >= TCAS_HUGE_TAU && !inside)
-          tcas_acs_status[i] = TCAS_NO_ALARM; // conflict is now resolved
+        if (tau >= TCAS_HUGE_TAU && !inside) {
+          tcas_acs_status[i].status = TCAS_NO_ALARM; // conflict is now resolved
+          tcas_acs_status[i].resolve = RA_NONE;
+          DOWNLINK_SEND_TCAS_RESOLVED(DefaultChannel,&(the_acs[i].ac_id));
+        }
         break;
       case TCAS_TA:
         if (tau < tcas_tau_ra || inside) {
-          tcas_acs_status[i] = TCAS_RA; // TA -> RA
+          tcas_acs_status[i].status = TCAS_RA; // TA -> RA
           // Downlink alert
-          DOWNLINK_SEND_TCAS_RA(DefaultChannel,&(the_acs[i].ac_id));
+          //test_dir = tcas_test_direction(the_acs[i].ac_id);
+          //DOWNLINK_SEND_TCAS_RA(DefaultChannel,&(the_acs[i].ac_id),&test_dir);// FIXME only one closest AC ???
           break;
         }
         if (tau > tcas_tau_ta && !inside)
-          tcas_acs_status[i] = TCAS_NO_ALARM; // conflict is now resolved
+          tcas_acs_status[i].status = TCAS_NO_ALARM; // conflict is now resolved
+          tcas_acs_status[i].resolve = RA_NONE;
+          DOWNLINK_SEND_TCAS_RESOLVED(DefaultChannel,&(the_acs[i].ac_id));
         break;
       case TCAS_NO_ALARM:
         if (tau < tcas_tau_ta || inside) {
-          tcas_acs_status[i] = TCAS_TA; // NO_ALARM -> TA
+          tcas_acs_status[i].status = TCAS_TA; // NO_ALARM -> TA
           // Downlink warning
           DOWNLINK_SEND_TCAS_TA(DefaultChannel,&(the_acs[i].ac_id));
         }
         if (tau < tcas_tau_ra || inside) {
-          tcas_acs_status[i] = TCAS_RA; // NO_ALARM -> RA = big problem ?
+          tcas_acs_status[i].status = TCAS_RA; // NO_ALARM -> RA = big problem ?
           // Downlink alert
-          DOWNLINK_SEND_TCAS_RA(DefaultChannel,&(the_acs[i].ac_id));
+          //test_dir = tcas_test_direction(the_acs[i].ac_id);
+          //DOWNLINK_SEND_TCAS_RA(DefaultChannel,&(the_acs[i].ac_id),&test_dir);
         }
         break;
     }
@@ -149,14 +174,42 @@ void tcas_periodic_task_1Hz( void ) {
     if (tau < tau_min) {
       tau_min = tau;
       ac_id_close = the_acs[i].ac_id;
+
     }
   }
   // set current conflict mode
-  if (!(tcas_status == TCAS_RA && tcas_ac_RA != AC_ID && tcas_acs_status[the_acs_id[tcas_ac_RA]] == TCAS_RA)) {
-    tcas_status = tcas_acs_status[the_acs_id[ac_id_close]];
-    if (tcas_status == TCAS_RA) tcas_ac_RA = ac_id_close;
-    else tcas_ac_RA = AC_ID; // no conflicts
+  if (tcas_status == TCAS_RA && tcas_ac_RA != AC_ID && tcas_acs_status[the_acs_id[tcas_ac_RA]].status == TCAS_RA) {
+    ac_id_close = tcas_ac_RA; // keep RA until resolved
   }
+  tcas_status = tcas_acs_status[the_acs_id[ac_id_close]].status;
+  // at least one in conflict, deal with closest one
+  if (tcas_status == TCAS_RA) {
+    tcas_ac_RA = ac_id_close;
+    tcas_resolve = tcas_test_direction(tcas_ac_RA);
+    uint8_t ac_resolve = tcas_acs_status[the_acs_id[tcas_ac_RA]].resolve;
+    if (ac_resolve != RA_NONE) { // first resolution, no message received
+      if (ac_resolve == tcas_resolve) { // same direction, lowest id go down
+        if (AC_ID < tcas_ac_RA) tcas_resolve = RA_DESCEND;
+        else tcas_resolve = RA_CLIMB;
+      }
+      tcas_acs_status[the_acs_id[tcas_ac_RA]].resolve = RA_LEVEL; // assuming level flight for now
+    }
+    else { // second resolution or message received
+      if (ac_resolve != RA_LEVEL) { // message received
+        if (ac_resolve == tcas_resolve) { // same direction, lowest id go down
+          if (AC_ID < tcas_ac_RA) tcas_resolve = RA_DESCEND;
+          else tcas_resolve = RA_CLIMB;
+        }
+      }
+      else { // no message
+        if (tcas_resolve == RA_CLIMB && the_acs[the_acs_id[tcas_ac_RA]].climb > 1.0) tcas_resolve = RA_DESCEND; // revert resolve
+        else if (tcas_resolve == RA_DESCEND && the_acs[the_acs_id[tcas_ac_RA]].climb < -1.0) tcas_resolve = RA_CLIMB; // revert resolve
+      }
+    }
+    // Downlink alert
+    DOWNLINK_SEND_TCAS_RA(DefaultChannel,&tcas_ac_RA,&tcas_resolve);
+  }
+  else tcas_ac_RA = AC_ID; // no conflict
 #ifdef TCAS_DEBUG
   if (tcas_status == TCAS_RA) DOWNLINK_SEND_TCAS_DEBUG(DefaultChannel,&ac_id_close,&tau_min);
 #endif
@@ -166,20 +219,25 @@ void tcas_periodic_task_1Hz( void ) {
 /* altitude control loop */
 void tcas_periodic_task_4Hz( void ) {
   // set alt setpoint
-  if (estimator_z > GROUND_ALT + SECURITY_HEIGHT) {
+  if (estimator_z > GROUND_ALT + SECURITY_HEIGHT && tcas_status == TCAS_RA) {
     struct ac_info_ * ac = get_ac_info(tcas_ac_RA);
-    float dz = ac->alt - estimator_z;
-    if (dz > tcas_alim) // go down
-      tcas_alt_setpoint = Min(nav_altitude, ac->alt - tcas_alim);
-    if (dz < -tcas_alim) // go up
-      tcas_alt_setpoint = Max(nav_altitude, ac->alt + tcas_alim);
-    else // AC with the smallest ID goes down
-    {
-      if (AC_ID < tcas_ac_RA) tcas_alt_setpoint = Min(nav_altitude, ac->alt - tcas_alim);
-      else tcas_alt_setpoint = Max(nav_altitude, ac->alt + tcas_alim);
+    switch (tcas_resolve) {
+      case RA_CLIMB :
+        tcas_alt_setpoint = Max(nav_altitude, ac->alt + tcas_alim);
+        break;
+      case RA_DESCEND :
+        tcas_alt_setpoint = Min(nav_altitude, ac->alt - tcas_alim);
+        break;
+      case RA_LEVEL :
+      case RA_NONE :
+        tcas_alt_setpoint = nav_altitude;
+        break;
     }
     // Bound alt
     tcas_alt_setpoint = Max(GROUND_ALT + SECURITY_HEIGHT, tcas_alt_setpoint);
   }
-  else tcas_alt_setpoint = nav_altitude;
+  else {
+    tcas_alt_setpoint = nav_altitude;
+    tcas_resolve = RA_NONE;
+  }
 }

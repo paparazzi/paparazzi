@@ -39,10 +39,18 @@ extern float tcas_tau_ta, tcas_tau_ra, tcas_dmod, tcas_alim;
 #define TCAS_NO_ALARM 0
 #define TCAS_TA 1
 #define TCAS_RA 2
+enum tcas_resolve { RA_NONE, RA_LEVEL, RA_CLIMB, RA_DESCEND };
+
 extern uint8_t tcas_status;
+extern enum tcas_resolve tcas_resolve;
 extern uint8_t tcas_ac_RA;
 
-extern uint8_t tcas_acs_status[NB_ACS];
+struct tcas_ac_status {
+  uint8_t status;
+  enum tcas_resolve resolve;
+};
+
+extern struct tcas_ac_status tcas_acs_status[NB_ACS];
 
 extern void tcas_init( void );
 extern void tcas_periodic_task_1Hz( void );
