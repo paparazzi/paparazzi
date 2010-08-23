@@ -32,6 +32,7 @@ ADC_GYRO_ROLL = ADC_3
 ADC_GYRO_PITCH = ADC_4
 ADC_GYRO_NB_SAMPLES = 16
 
+ADC_GENERIC_NB_SAMPLES = 16
 
 # All targets on the TINY board run on the same processor achitecture
 $(TARGET).ARCHDIR = $(ARCHI)
