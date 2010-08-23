@@ -11,6 +11,8 @@ JSBSIM_LIB = $(JSBSIM_ROOT)/lib
 SRC_BOOZ=booz
 SRC_BOOZ_SIM = $(SRC_BOOZ)/arch/sim
 
+SRC_BOARD=boards/$(BOARD)
+
 NPSDIR = $(SIMDIR)/nps
 
 
@@ -25,7 +27,7 @@ sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
 sim.CFLAGS  += -I$(NPSDIR) -I/usr/local/include -I$(JSBSIM_INC)
 sim.LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
 
-sim.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_SIM) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
+sim.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_SIM) -I$(SRC_BOARD) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
 
 sim.srcs = $(NPSDIR)/nps_main.c                      \
 	   $(NPSDIR)/nps_fdm_jsbsim.c                \
@@ -51,10 +53,10 @@ sim.srcs += math/pprz_trig_int.c             \
 
 
 
-sim.CFLAGS += -DBOARD_CONFIG=\"boards/booz2_v1_0.h\"
+sim.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 
 sim.srcs   += $(SRC_BOOZ_SIM)/booz2_unsimulated_peripherals.c
-sim.srcs   += $(SRC_BOOZ)/booz2_main.c
+sim.srcs   += firmwares/rotorcraft/main.c
 
 sim.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 # -DTIME_LED=1
@@ -77,15 +79,15 @@ sim.srcs += $(SRC_BOOZ)/booz2_datalink.c
 
 
 sim.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
-sim.srcs += $(SRC_BOOZ)/booz2_analog_baro.c
+sim.srcs += $(SRC_BOARD)/baro_board.c
 
 sim.CFLAGS += -DBOOZ2_ANALOG_BATTERY_PERIOD='SYS_TICS_OF_SEC((1./10.))'
 sim.srcs += $(SRC_BOOZ)/booz2_battery.c
 
 sim.srcs += $(SRC_BOOZ)/booz2_analog.c $(SRC_BOOZ_SIM)/booz2_analog_hw.c
 
-
-
+sim.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
+sim.CFLAGS += -DIMU_B2_VERSION_1_1
 
 sim.srcs += $(SRC_BOOZ)/booz2_autopilot.c
 

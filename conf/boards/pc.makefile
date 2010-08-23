@@ -6,6 +6,7 @@
 
 ARCH=sim
 ARCHI=sim
+BOARD = pc
 BOARD_CFG = \"tiny.h\"
 
 

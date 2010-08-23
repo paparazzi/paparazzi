@@ -1,3 +1,9 @@
+
+/*
+ * board specific fonctions for the lisa_l board
+ *
+ */
+
 #ifndef BOARDS_LISA_L_BARO_H
 #define BOARDS_LISA_L_BARO_H
 

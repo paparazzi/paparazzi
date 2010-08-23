@@ -94,6 +94,7 @@ extern void booz_fms_impl_set_enabled(bool_t enabled);
 
 #define BOOZ_FMS_TYPE_DATALINK    0
 #define BOOZ_FMS_TYPE_TEST_SIGNAL 1
+#define BOOZ_FMS_TYPE_OVERO_LINK  2
 
 #if defined BOOZ_FMS_TYPE
 #if BOOZ_FMS_TYPE == BOOZ_FMS_TYPE_DATALINK

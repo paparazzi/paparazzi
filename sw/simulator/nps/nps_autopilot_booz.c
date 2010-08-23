@@ -1,11 +1,11 @@
 #include "nps_autopilot_booz.h"
 
-#include "booz2_main.h"
+#include "firmwares/rotorcraft/main.h"
 #include "nps_sensors.h"
 #include "nps_radio_control.h"
 #include "booz_radio_control.h"
-#include "booz_imu.h"
-#include "booz2_analog_baro.h"
+#include "booz/booz_imu.h"
+#include "firmwares/rotorcraft/baro.h"
 
 #include "actuators/booz_supervision.h"
 
@@ -45,7 +45,7 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
  }
 
   if (nps_sensors_baro_available()) {
-    Booz2BaroISRHandler(sensors.baro.value);
+    baro_feed_value(sensors.baro.value);
     booz2_main_event();
   }
 
