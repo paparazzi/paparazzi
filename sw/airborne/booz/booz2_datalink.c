@@ -26,9 +26,7 @@
 
 #include "datalink.h"
 
-#ifdef USE_MODULES
 #include "modules.h"
-#endif
 
 #include "settings.h"
 #include "downlink.h"
@@ -123,8 +121,6 @@ void dl_parse_msg(void) {
   default:
     break;
   }
-#ifdef USE_MODULES
   /* Parse modules datalink */
   modules_parse_datalink(msg_id);
-#endif
 }

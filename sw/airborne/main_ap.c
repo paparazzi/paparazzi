@@ -160,9 +160,7 @@
 
 #define LOW_BATTERY_DECIVOLT (CATASTROPHIC_BAT_LEVEL*10)
 
-#ifdef USE_MODULES
 #include "modules.h"
-#endif
 
 /** FIXME: should be in rc_settings but required by telemetry (ap_downlink.h)*/
 uint8_t rc_settings_mode = 0;
@@ -689,9 +687,7 @@ void periodic_task_ap( void ) {
 #endif
     }
 
-#ifdef USE_MODULES
   modules_periodic_task();
-#endif
 }
 
 
@@ -811,9 +807,7 @@ void init_ap( void ) {
   max11040_init();
 #endif
 
-#ifdef USE_MODULES
   modules_init();
-#endif
 
   /** - start interrupt task */
   int_enable();
@@ -1032,8 +1026,6 @@ void event_task_ap( void ) {
     telecommand_task();
   }
 
-#ifdef USE_MODULES
   modules_event_task();
-#endif
 
 } /* event_task_ap() */

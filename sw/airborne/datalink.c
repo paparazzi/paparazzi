@@ -33,9 +33,7 @@
 #include <string.h>
 #include "datalink.h"
 
-#ifdef USE_MODULES
 #include "modules.h"
-#endif
 
 #ifdef TRAFFIC_INFO
 #include "traffic_info.h"
@@ -207,9 +205,7 @@ LED_TOGGLE(3);
     } else
 #endif // USE_RC_TELEMETRY
   { /* Last else */
-#ifdef USE_MODULES
     /* Parse modules datalink */
     modules_parse_datalink(msg_id);
-#endif
   }
 }

@@ -65,9 +65,7 @@
 #include "nps_autopilot_booz.h"
 #endif
 
-#ifdef USE_MODULES
 #include "modules.h"
-#endif
 
 static inline void on_gyro_accel_event( void );
 static inline void on_baro_abs_event( void );
@@ -131,9 +129,7 @@ STATIC_INLINE void booz2_main_init( void ) {
   booz_gps_init();
 #endif
 
-#ifdef USE_MODULES
   modules_init();
-#endif
 
   int_enable();
 
@@ -188,9 +184,7 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   booz2_analog_periodic();
 #endif
 
-#ifdef USE_MODULES
   modules_periodic_task();
-#endif
 
   if (booz2_autopilot_in_flight) {
     RunOnceEvery(512, { booz2_autopilot_flight_time++; datalink_time++; });
@@ -218,9 +212,7 @@ STATIC_INLINE void booz2_main_event( void ) {
   BoozDetectGroundEvent();
 #endif
 
-#ifdef USE_MODULES
   modules_event_task();
-#endif
 
 }
 

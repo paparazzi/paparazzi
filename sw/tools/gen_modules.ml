@@ -334,7 +334,6 @@ let () =
   and modules_dir = Sys.argv.(1) in
   try
     let xml = start_and_begin xml_file h_name in
-    fprintf out_h "#ifdef USE_MODULES\n\n";
     fprintf out_h "#define MODULES_IDLE  0\n";
     fprintf out_h "#define MODULES_RUN   1\n";
     fprintf out_h "#define MODULES_START 2\n";
@@ -355,7 +354,6 @@ let () =
       (List.map (fun m -> try Xml.attrib m "name" with _ -> "") modules_list) in
     check_dependencies modules_list modules_name;
     parse_modules modules_list;
-    fprintf out_h "\n#endif // USE_MODULES\n";
     finish h_name;
     write_settings xml_file out_set modules_list;
     close_out out_set;

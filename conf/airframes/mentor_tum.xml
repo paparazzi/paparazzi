@@ -15,7 +15,6 @@
       <define name="LOITER_TRIM"/>
       <define name="WIND_INFO"/>
       <define name="ALT_KALMAN"/>
-      <define name="USE_MODULES"/>
     </target>
 
     <target name="sim" 			board="pc">
@@ -23,7 +22,6 @@
       <define name="LOITER_TRIM"/>
       <define name="WIND_INFO"/>
       <define name="ALT_KALMAN"/>
-      <define name="USE_MODULES"/>
     </target>
 
     <subsystem name="radio_control" type="ppm"/>

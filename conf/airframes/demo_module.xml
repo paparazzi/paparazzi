@@ -202,16 +202,12 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 ap.srcs += nav_survey_rectangle.c
 ap.srcs += nav_line.c
 
-########## Modules
-ap.CFLAGS += -DUSE_MODULES
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 
 sim.srcs += nav_line.c nav_survey_rectangle.c
-
-sim.CFLAGS += -DUSE_MODULES
 
   </makefile>
 </airframe>

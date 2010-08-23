@@ -29,9 +29,7 @@
 #include "booz2_ins.h"
 
 #include "booz2_autopilot.h"
-#ifdef USE_MODULES
 #include "modules.h"
-#endif
 #include "flight_plan.h"
 
 #ifdef USE_FMS
