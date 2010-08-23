@@ -8,14 +8,16 @@
 <!ELEMENT event (handler*)>
 <!ELEMENT handler EMPTY>
 <!ELEMENT datalink EMPTY>
-<!ELEMENT makefile (flag|file|define|raw)*>
+<!ELEMENT makefile (flag|file|file_hw|define|raw)*>
 <!ELEMENT flag EMPTY>
 <!ELEMENT file EMPTY>
+<!ELEMENT file_hw EMPTY>
 <!ELEMENT define EMPTY>
 <!ELEMENT raw (#PCDATA)>
 
 <!ATTLIST module
-name CDATA #REQUIRED>
+name CDATA #REQUIRED
+dir CDATA #IMPLIED>
 
 <!ATTLIST depend
 require CDATA #IMPLIED
@@ -54,6 +56,9 @@ value CDATA #IMPLIED
 type CDATA #IMPLIED>
 
 <!ATTLIST file
+name CDATA #REQUIRED>
+
+<!ATTLIST file_hw
 name CDATA #REQUIRED>
 
 <!ATTLIST define

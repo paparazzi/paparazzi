@@ -86,15 +86,32 @@ let dump_module_section = fun xml f ->
       let modules_names =List.map (get_modules modules_dir) (Xml.children x) in
       List.iter (fun name -> files := name :: !files) modules_names;
       let modules_list = List.map Xml.parse_file modules_names in
+      (* Print modules directories and includes for all targets *)
+      fprintf f "\n# include modules directory for all targets\n";
+      let target_list = ref [] in
+      let dir_list = ref [] in
+      List.iter (fun m -> 
+        let dir = try Xml.attrib m "dir" with _ -> ExtXml.attrib m "name" in
+        dir_list := List.merge String.compare !dir_list [dir];
+        List.iter (fun l ->
+          if ExtXml.tag_is l "makefile" then
+            target_list := List.merge String.compare !target_list (targets_of_field l);
+        ) (Xml.children m)
+      ) modules_list;
+      List.iter (fun target -> fprintf f "%s.CFLAGS += -I modules\n" target) !target_list;
+      List.iter (fun dir -> let dir_name = (String.uppercase dir)^"_DIR" in fprintf f "%s = modules/%s\n" dir_name dir) !dir_list;
+      (* Parse each makefile *)
       List.iter (fun modul ->
         let name = ExtXml.attrib modul "name" in
-        let dir_name = (String.uppercase name)^"_DIR" in
+        let dir = try Xml.attrib modul "dir" with _ -> name in
+        let dir_name = (String.uppercase dir)^"_DIR" in
         fprintf f "\n# makefile for module %s\n" name;
-        fprintf f "%s = modules/%s\n" dir_name name;
+        (*fprintf f "%s = modules/%s\n" dir_name name;*)
         List.iter (fun l ->
           if ExtXml.tag_is l "makefile" then begin
             let targets = targets_of_field l in
-            List.iter (fun t -> fprintf f "%s.CFLAGS += -I $(%s)\n" t dir_name ) targets;
+            (* build the list of all the targets *)
+            (*List.iter (fun t -> fprintf f "%s.CFLAGS += -I $(%s)\n" t dir_name ) targets;*)
             List.iter (fun field ->
               match String.lowercase (Xml.tag field) with
                 "flag" -> 
@@ -111,6 +128,9 @@ let dump_module_section = fun xml f ->
               | "file" -> 
                   let name = Xml.attrib field "name" in
                   List.iter (fun target -> fprintf f "%s.srcs += $(%s)/%s\n" target dir_name name) targets
+              | "file_hw" -> 
+                  let name = Xml.attrib field "name" in
+                  List.iter (fun target -> fprintf f "%s.srcs += arch/$(ARCH)/$(%s)/%s\n" target dir_name name) targets
               | "define" -> 
                   let value = Xml.attrib field "value"
                   and name = Xml.attrib field "name" in
@@ -122,10 +142,10 @@ let dump_module_section = fun xml f ->
                   end
               | _ -> ()
 		      )
-              (Xml.children l)
+          (Xml.children l)
           end)
-          (Xml.children modul))
-	modules_list)
+        (Xml.children modul))
+      modules_list)
     (Xml.children xml);
   !files
 

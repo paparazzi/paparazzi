@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="core">
+<module name="sys_mon" dir="core">
   <header>
     <file name="sys_mon.h"/>
   </header>

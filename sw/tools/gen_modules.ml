@@ -46,10 +46,11 @@ let lprintf = fun out f ->
 let print_headers = fun modules ->
   lprintf out_h  "#include \"std.h\"\n";
   List.iter (fun m ->
+    let dir_name = try Xml.attrib m "dir" with _ -> Xml.attrib m "name" in
     try
       let headers = ExtXml.child m "header" in
       List.iter (fun h ->
-        lprintf out_h "#include \"%s\"\n" (Xml.attrib h "name"))
+        lprintf out_h "#include \"%s/%s\"\n" dir_name (Xml.attrib h "name"))
       (Xml.children headers)
     with _ -> ())
   modules
