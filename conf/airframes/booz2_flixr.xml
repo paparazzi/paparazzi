@@ -225,16 +225,15 @@
     <target name="ap" board="booz_1.0">
       <param  name="FLASH_MODE" value="IAP"/>   <!-- that is the default for the board but I'm putting it here as example-->
       <define name="MODEM_BAUD" value="B57600"/>
-      <define name="USE_ADAPT_HOVER" value="1"/>
-      <define name="USE_GPS_ACC4R" value="1"/>
-      <define name="USE_MODULES" value="1"/>
-      <define name="B2_GUIDANCE_H_USE_REF" value="1"/>
-      <define name="USE_INS_NAV_INIT" value="1"/>
+      <define name="USE_ADAPT_HOVER"/>
+      <define name="USE_GPS_ACC4R"/>
+      <define name="B2_GUIDANCE_H_USE_REF"/>
+      <define name="USE_INS_NAV_INIT"/>
     </target>
     <target name="sim" board="pc">
-      <define name="USE_ADAPT_HOVER" value="1"/>
-      <define name="B2_GUIDANCE_H_USE_REF" value="1"/>
-      <define name="USE_INS_NAV_INIT" value="1"/>
+      <define name="USE_ADAPT_HOVER"/>
+      <define name="B2_GUIDANCE_H_USE_REF"/>
+      <define name="USE_INS_NAV_INIT"/>
     </target>
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="actuators"     type="mkk"/>

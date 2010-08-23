@@ -168,7 +168,7 @@
       <define name="ALT_KALMAN" />
     </target>
 
-    <subsystem name="radio_control" 	type="ppm"/>
+    <subsystem name="radio_control" type="ppm"/>
 
     <!-- Communication -->
     <subsystem name="telemetry" 	type="transparent">
@@ -179,9 +179,9 @@
     <subsystem name="actuators" 	type="4017"/>
 
     <!-- Sensors -->
-    <subsystem name="gyro" type="roll"/>
+    <subsystem name="gyro"          type="roll"/>
     <subsystem name="attitude" 		type="infrared"/>
-    <subsystem name="gps" 		type="ublox_lea4p"/>
+    <subsystem name="gps" 		    type="ublox_lea4p"/>
     <subsystem name="navigation"/>
 
   </firmware>
