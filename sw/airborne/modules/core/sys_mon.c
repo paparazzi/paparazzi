@@ -25,6 +25,10 @@
 #include "sys_mon.h"
 #include "sys_time.h"
 
+#ifdef USE_USB_SERIAL
+#include "usb_serial.h"
+#endif
+
 /* Global vars */
 uint8_t cpu_load;
 uint16_t periodic_time, periodic_cycle, periodic_cycle_min, periodic_cycle_max;
