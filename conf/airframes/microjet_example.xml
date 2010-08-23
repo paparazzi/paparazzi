@@ -180,7 +180,10 @@
 
     <!-- Sensors -->
     <subsystem name="gyro"          type="roll"/>
-    <subsystem name="attitude" 		type="infrared"/>
+    <subsystem name="attitude" 		type="infrared">
+      <param name="ADC_IR1" value="ADC_1"/><!-- this is already the default if not set, change if needed -->
+      <param name="ADC_IR2" value="ADC_2"/><!-- this is already the default if not set, change if needed -->
+    </subsystem>
     <subsystem name="gps" 		    type="ublox_lea4p"/>
     <subsystem name="navigation"/>
 
