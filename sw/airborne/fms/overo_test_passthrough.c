@@ -110,7 +110,7 @@ static void main_init(void) {
   /* Initalize our SPI link to IO processor */
   if (spi_link_init()) {
     TRACE(TRACE_ERROR, "%s", "failed to open SPI link \n");
-    return -1;
+    return;
   }
   
   /* Initalize the event library */
@@ -119,7 +119,7 @@ static void main_init(void) {
   /* Initalize our ô so accurate periodic timer */
   if (fms_periodic_init(main_periodic)) {
     TRACE(TRACE_ERROR, "%s", "failed to start periodic generator\n");
-    return -1; 
+    return; 
   }
   
   /* Initialize our communications with ground segment */

@@ -11,8 +11,8 @@ struct OveroTestPassthrough {
   /* our sensors            */
   struct BoozImuFloat imu;
   uint8_t  rc_status;
-  int16_t  baro_abs;
-  int16_t  baro_diff;
+  int32_t  baro_abs;
+  int32_t  baro_diff;
 
   /* our actuators          */
   uint16_t servos_outputs_usecs[6]; /* FIXME */
