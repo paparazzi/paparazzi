@@ -102,7 +102,7 @@ let print_dl_settings = fun settings ->
     right ();
     lprintf "static uint8_t i;\\\n";
     lprintf "float var;\\\n";
-    lprintf "if (i >= %d) i = 0;;\\\n" nb_values;
+    lprintf "if (i >= %d) i = 0;\\\n" nb_values;
     let idx = ref 0 in
     lprintf "switch (i) { \\\n";
     right ();
