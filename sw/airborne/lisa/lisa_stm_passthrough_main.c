@@ -36,7 +36,7 @@
 #include "csc_msg_def.h"
 #include "csc_protocol.h"
 
-#include "rotorcraft/baro.h"
+#include "firmwares/rotorcraft/baro.h"
 
 
 static inline void main_init(void);
