@@ -172,7 +172,7 @@
 
     <!-- Communication -->
     <subsystem name="telemetry" 	type="transparent">
-      <param name="MODEM_BAUD" 		value="9600"/>
+      <param name="MODEM_BAUD" 		value="B9600"/>
     </subsystem>
 
     <!-- Actuators -->

@@ -11,15 +11,15 @@
 <airframe name="Funjet Tiny 2.11">
 
   <firmware name="fixedwing">
-    <target name="sim" 			board="pc" />
+    <target name="sim" 			board="pc"/>
     <target name="ap" 			board="tiny_2.11">
-      <param name="FLASH_MODE" 		value="IAP" />
-      <define name="AGR_CLIMB" />
-      <define name="LOITER_TRIM" />
-      <define name="ALT_KALMAN" />
+      <param name="FLASH_MODE" 		value="IAP"/>
+      <define name="AGR_CLIMB"/>
+      <define name="LOITER_TRIM"/>
+      <define name="ALT_KALMAN"/>
     </target>
 
-    <subsystem name="radio_control" 	type="ppm"/>
+    <subsystem name="radio_control" type="ppm"/>
     <subsystem name="joystick"/>
 
     <!-- Communication -->
@@ -30,15 +30,15 @@
 
     <!-- Sensors -->
     <subsystem name="attitude" 		type="infrared"/>
-    <subsystem name="gps" 		type="ublox_lea4p"/>
+    <subsystem name="gps" 		    type="ublox_lea4p"/>
 
     <subsystem name="navigation"/>
   </firmware>
 
 
   <firmware name="setup">
-    <target name="tunnel" 		board="tiny_2.11" />
-    <target name="setup_actuators" 	board="tiny_2.11" />
+    <target name="tunnel" 		    board="tiny_2.11"/>
+    <target name="setup_actuators" 	board="tiny_2.11"/>
   </firmware>
 
 <!-- commands section -->
@@ -119,7 +119,6 @@
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
-
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="-0.06"/> <!-- -0.024 -->
@@ -143,8 +142,7 @@
     <define name="AUTO_PITCH_MAX_PITCH" value="0.35"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="-0.35"/>
 
-   <define name="THROTTLE_SLEW" value="0.1"/>
-
+    <define name="THROTTLE_SLEW" value="0.1"/>
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
@@ -183,12 +181,10 @@
         <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
         <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
     <define name="HOME_RADIUS" value="100" unit="m"/>
-</section>
+  </section>
 
- <section name="SIMU">
+  <section name="SIMU">
     <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
- </section>
-
-include $(CFG_FIXEDWING)/subsystems/fixedwing_joystick.makefile
+  </section>
 
 </airframe>
