@@ -32,7 +32,8 @@ name CDATA #REQUIRED>
 
 <!ATTLIST target
 name CDATA #REQUIRED
-board CDATA #REQUIRED>
+board CDATA #REQUIRED
+processor CDATA #IMPLIED>
 
 <!ATTLIST subsystem
 name CDATA #REQUIRED

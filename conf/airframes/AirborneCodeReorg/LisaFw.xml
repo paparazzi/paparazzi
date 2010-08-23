@@ -160,7 +160,7 @@
   </section>
 
   <firmware name="fixedwing">
-    <target name="ap" 			board="lisa_l_1.0">
+    <target name="ap" 			board="lisa_l_1.0"	processor="stm32" >
       <param name="FLASH_MODE" 		value="IAP" />
       <define name="AGR_CLIMB" />
       <define name="ALT_KALMAN" />
@@ -173,7 +173,7 @@
     <!-- Communication -->
     <subsystem name="telemetry" 	type="transparent">
       <param name="MODEM_UART_NR" 	value="2"/>
-      <param name="MODEM_BAUD" 		value="9600"/>
+      <param name="MODEM_BAUD" 		value="B9600"/>
     </subsystem>
 
     <!-- Actuators -->

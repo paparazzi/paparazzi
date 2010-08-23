@@ -14,20 +14,15 @@ FLASH_MODE = IAP
 endif
 
 
-$(TARGET).ARCHDIR = $(ARCHI)
-$(TARGET).ARCH = arm7tdmi
-$(TARGET).TARGET = $(TARGET)
-$(TARGET).TARGETDIR = $(TARGET)
-
 LPC21ISP_BAUD = 38400
 LPC21ISP_XTAL = 12000
 
 
 ### default settings for tiny_2 and twog
 GPS_UART_NR	= 0
-GPS_BAUD	= 38400
+GPS_BAUD	= B38400
 MODEM_UART_NR	= 1
-MODEM_BAUD 	= 57600
+MODEM_BAUD 	= B57600
 
 ADC_IR_TOP = ADC_0
 ADC_IR1 = ADC_1
@@ -37,4 +32,10 @@ ADC_GYRO_ROLL = ADC_3
 ADC_GYRO_PITCH = ADC_4
 ADC_GYRO_NB_SAMPLES = 16
 
+
+# All targets on the TINY board run on the same processor achitecture
+$(TARGET).ARCHDIR = $(ARCHI)
+$(TARGET).ARCH = arm7tdmi
+$(TARGET).TARGET = $(TARGET)
+$(TARGET).TARGETDIR = $(TARGET)
 

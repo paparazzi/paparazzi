@@ -217,7 +217,7 @@ let parse_ap_only_commands = fun ap_only ->
       printf "  commands[COMMAND_%s] = ap_commands[COMMAND_%s];\\\n" com com
    | _ -> xml_error "copy"
 
-
+(**
 let parse_subsystem_defines = fun options ->
   match Xml.tag options with
     "param" ->
@@ -235,7 +235,7 @@ let parse_subsystems = fun subsystem ->
       printf "// -%s:\n"  (ExtXml.attrib subsystem "name");
       List.iter parse_subsystem_defines (Xml.children subsystem)
    | _ -> xml_error "subsystem"
-
+**)
 
 let parse_command = fun command no ->
    let command_name = "COMMAND_"^ExtXml.attrib command "name" in
@@ -300,10 +300,6 @@ let parse_section = fun s ->
   | "makefile" ->
       ()
       (** Ignoring this section *)
-  | "target" ->
-      printf "// Subsystems \n";
-      List.iter parse_subsystems (Xml.children s);
-      printf "// End Subsystems\n\n"
   | _ -> ()
      
 

@@ -25,9 +25,11 @@
 # This is the common Makefile for the stm32-target.
 #
 
+SRC_ARCH = stm32
+
 # Pretty Printer
 # Call with "make Q=''" to get full command display
-Q=@
+#Q=@
 
 MCU   = cortex-m3
 #DEBUG = dwarf-2

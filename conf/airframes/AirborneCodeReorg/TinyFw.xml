@@ -161,12 +161,12 @@
   </section>
 
   <firmware name="fixedwing">
-    <target name="sim" 			board="pc" />
     <target name="ap" 			board="tiny_2.11">
       <param name="FLASH_MODE" 		value="IAP" />
       <define name="AGR_CLIMB" />
       <define name="ALT_KALMAN" />
     </target>
+    <target name="sim" 			board="pc" />
 
     <subsystem name="radio_control" 	type="ppm"/>
 

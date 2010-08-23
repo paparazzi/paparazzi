@@ -190,7 +190,7 @@
 
   <firmware name="lisa_passthrough">
 
-    <target name="stm_passthrough"        board="lisa_l_1.0">
+    <target name="stm_passthrough"        board="lisa_l_1.0"		processor="stm32" >
     </target>
     <subsystem name="radio_control" type="spektrum">
       <param name="RADIO_CONTROL_SPEKTRUM_MODEL" 
@@ -199,7 +199,7 @@
     <subsystem name="imu" type="b2_v1.1"/>
 
 
-    <target name="overo_test_passthrough" board="lisa_l_1.0"  >
+    <target name="overo_test_passthrough" board="lisa_l_1.0" 		processor="omap" >
       <param name="HOST"          value="A7"/>
       <param name="USER"          value=""/>
       <param name="TARGET_DIR"    value="~"/>

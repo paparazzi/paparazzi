@@ -4,11 +4,30 @@
 # http://paparazzi.enac.fr/wiki/User/LisaL
 #
 
-ARCH=stm32
-ARCHI=stm32
-BOARD=lisa_l
-BOARD_VERSION=1.0
-BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
+
+# -----------------------------------------------------------------------
+ifeq ($(BOARD_PROCESSOR),'omap')
+
+	ARCHI  = omap
+	$(TARGET).LDFLAGS += -levent -lm
+
+# -----------------------------------------------------------------------
+else
+
+	ARCH=stm32
+	ARCHI=stm32
+	BOARD=lisa_l
+	BOARD_VERSION=1.0
+	BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
+
+	$(TARGET).ARCHDIR = $(ARCHI)
+# not needed?
+#	$(TARGET).ARCH = arm7tdmi
+	$(TARGET).TARGET = $(TARGET)
+	$(TARGET).TARGETDIR = $(TARGET)
+
+endif
+# -----------------------------------------------------------------------
 
 ifndef FLASH_MODE
 FLASH_MODE = JTAG
@@ -33,3 +52,5 @@ AHRS_ALIGNER_LED = 7
 GPS_PORT=UART1
 GPS_BAUD=B38400
 GPS_LED = 3
+
+

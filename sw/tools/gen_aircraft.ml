@@ -191,8 +191,19 @@ let parse_targets = fun makefile_ac tag target ->
                 (Xml.attrib c "value")
             end) in
 	  List.iter print_if_subsystem (Xml.children target);
+          let has_processor = ref false in
+          begin try
+            has_processor := not (String.compare (Xml.attrib target "processor") "" = 0)
+          with _ -> () end;
+          if !has_processor then
+            fprintf makefile_ac "BOARD_PROCESSOR = %s\n" 
+	      (Xml.attrib target "processor");
           fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib target "board");
-          fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/autopilot/%s.makefile\n" (Xml.attrib tag "name");
+(**          fprintf makefile_ac "%s.ARCHDIR = $(ARCHI)\n%s.ARCH = $(ARCH)\n%s.TARGET = %s\n%s.TARGETDIR = %s\n"
+		(Xml.attrib target "name") (Xml.attrib target "name")
+		(Xml.attrib target "name") (Xml.attrib target "name")
+		(Xml.attrib target "name") (Xml.attrib target "name");
+**)          fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/autopilot/%s.makefile\n" (Xml.attrib tag "name");
   	  let print_if_subsystem = (fun d ->
             if ExtXml.tag_is d "define" then begin
               fprintf makefile_ac "%s.CFLAGS += -D%s\n"
