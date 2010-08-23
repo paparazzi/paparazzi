@@ -1,6 +1,6 @@
 /*
  * Paparazzi mcu0 $Id$
- *  
+ *
  * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 /** \file infrared.c
@@ -41,7 +41,7 @@
 
 #ifdef UGEAR
 #include "osam_imu_ugear.h"
-#endif 
+#endif
 
 #if defined IR_ESTIMATED_PHI_PI_4 || defined IR_ESTIMATED_PHI_MINUS_PI_4 || defined IR_ESTIMATED_THETA_PI_4
 #error "IR_ESTIMATED_PHI_PI_4 correction has been deprecated. Please remove the definition from your airframe config file"
@@ -139,19 +139,14 @@ void ir_init(void) {
 #endif
 #endif
 
- 
+
   ir_roll_neutral  = RadOfDeg(IR_ROLL_NEUTRAL_DEFAULT);
   ir_pitch_neutral = RadOfDeg(IR_PITCH_NEUTRAL_DEFAULT);
 
-#if defined IR_CORRECTION_LEFT && defined IR_CORRECTION_RIGHT
   ir_correction_left = IR_CORRECTION_LEFT;
   ir_correction_right = IR_CORRECTION_RIGHT;
-#endif
-
-#if defined IR_CORRECTION_UP && defined IR_CORRECTION_DOWN
   ir_correction_up = IR_CORRECTION_UP;
   ir_correction_down = IR_CORRECTION_DOWN;
-#endif
 
   ir_lateral_correction = IR_LATERAL_CORRECTION;
   ir_longitudinal_correction = IR_LONGITUDINAL_CORRECTION;
@@ -194,7 +189,7 @@ void ir_init(void) {
 #ifdef ADC_CHANNEL_IR_TOP
 #ifndef IR_TopOfIr
 #define IR_TopOfIr(_ir) ((IR_TOP_SIGN)*(_ir))
-#endif 
+#endif
 #endif
 
 
@@ -216,7 +211,7 @@ void ir_update(void) {
 
 void estimator_update_state_infrared( void ) {
   estimator_phi  = atan2(ir_roll, ir_top) - ir_roll_neutral;
-  
+
   estimator_theta  = atan2(ir_pitch, ir_top) - ir_pitch_neutral;
 
   if (estimator_theta < -M_PI_2)
@@ -224,26 +219,22 @@ void estimator_update_state_infrared( void ) {
   else if (estimator_theta > M_PI_2)
     estimator_theta -= M_PI;
 
-#if defined IR_CORRECTION_LEFT && defined IR_CORRECTION_RIGHT
-    if (estimator_phi >= 0) 
-      estimator_phi *= ir_correction_right;
-    else
-      estimator_phi *= ir_correction_left;
-#endif
-    
-#if defined IR_CORRECTION_UP && defined IR_CORRECTION_DOWN
-    if (estimator_theta >= 0)
-      estimator_theta *= ir_correction_up;
-    else
-      estimator_theta *= ir_correction_down;
-#endif
+  if (estimator_phi >= 0)
+    estimator_phi *= ir_correction_right;
+  else
+    estimator_phi *= ir_correction_left;
+
+  if (estimator_theta >= 0)
+    estimator_theta *= ir_correction_up;
+  else
+    estimator_theta *= ir_correction_down;
 
 #if defined UGEAR
-	#if !(defined IMUIR)
-		ugear_debug3 = 333;
-  		estimator_phi  = (float)ugear_phi/10000 - ir_roll_neutral;  
-  		estimator_theta  = (float)ugear_theta/10000 - ir_pitch_neutral;
-	#endif
+    #if !(defined IMUIR)
+        ugear_debug3 = 333;
+        estimator_phi  = (float)ugear_phi/10000 - ir_roll_neutral;
+        estimator_theta  = (float)ugear_theta/10000 - ir_pitch_neutral;
+    #endif
 #endif
 
 }
