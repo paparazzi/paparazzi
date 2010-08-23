@@ -210,21 +210,21 @@
   <section name="BOOZ2_MODE" prefix="BOOZ2_MODE_">
     <define name="MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT" />
     <define name="AUTO1" value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD" />
-    <define name="AUTO2" value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD" />
+    <define name="AUTO2" value="BOOZ2_AP_MODE_HOVER_Z_HOLD" />
   </section>
 
 
   <makefile target="opening">
-    # prevents motors from ever starting
-    #ap.CFLAGS += -DKILL_MOTORS
-    #ap.CFLAGS += -DRADIO_CONTROL_KILL_SWITCH=RADIO_CONTROL_SWITCH1
+    #empty
   </makefile>
 
 
   <firmware name="rotorcraft">
     <target name="ap" board="booz_1.0">
       <param  name="FLASH_MODE" value="IAP"/>   <!-- that is the default for the board but I'm putting it here as example-->
-      <define name="MODEM_BAUD" value="B57600"/>
+      <define name="MODEM_BAUD" value="B57600"/><!-- that is the default for the board but I'm putting it here as example-->
+      <!--<define name="KILL_MOTORS"/>-->       <!-- prevent motors from ever starting -->
+      <!--<define name="RADIO_CONTROL_KILL_SWITCH" value="RADIO_CONTROL_SWITCH1"/>-->
       <define name="USE_ADAPT_HOVER"/>
       <define name="USE_GPS_ACC4R"/>
       <define name="B2_GUIDANCE_H_USE_REF"/>
@@ -234,6 +234,7 @@
       <define name="USE_ADAPT_HOVER"/>
       <define name="B2_GUIDANCE_H_USE_REF"/>
       <define name="USE_INS_NAV_INIT"/>
+      <subsystem name="simulator"   type="nps"/>
     </target>
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="actuators"     type="mkk"/>
@@ -250,16 +251,12 @@
   </firmware>
 
   <makefile target="closure" location="after">
-    CFG_BOOZ=$(PAPARAZZI_SRC)/conf/autopilot/
+    #CFG_BOOZ=$(PAPARAZZI_SRC)/conf/autopilot/
     # FIXME: make fms a module
     #include $(CFG_BOOZ)/subsystems/booz2_fms_test_signal.makefile
 
-    include $(CFG_BOOZ)/booz2_simulator_nps.makefile
-
     ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c
     sim.srcs += $(SRC_BOOZ_SIM)/booz2_pwm_hw.c
-
-    #ap.CFLAGS += -DBOOZ_FAILSAFE_GROUND_DETECT
   </makefile>
 
 </airframe>
