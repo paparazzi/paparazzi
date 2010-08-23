@@ -160,7 +160,7 @@
   </section>
 
   <firmware name="fixedwing">
-    <target name="ap" 			board="tiny_2.11">
+    <target name="ap" 			board="lisa_l_1.0">
       <param name="FLASH_MODE" 		value="IAP" />
       <define name="AGR_CLIMB" />
       <define name="ALT_KALMAN" />
