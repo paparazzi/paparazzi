@@ -86,6 +86,18 @@ val int32_assoc : string -> values -> Int32.t
 val hex_of_int_array : value -> string
 (** Returns the hexadecimal string of an array of integers *)
 
+val alt_unit_coef_of_xml : Xml.xml -> string
+(** Return coef for alternate unit
+    Default possible corrections:
+    deg -> rad
+    rad -> deg
+    m -> cm
+    cm -> m
+    m/s -> cm/s
+    cm/s -> m/s
+    decideg -> deg
+    *)
+
 exception Unknown_msg_name of string * string
 (** [Unknown_msg_name (name, class_name)] Raised if message [name] is not
 found in class [class_name]. *)

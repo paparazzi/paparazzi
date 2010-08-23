@@ -67,7 +67,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
 	  let literal_values = values_of_field f in
 	  let alt_value =
 	    try
-	      let coeff = ExtXml.float_attrib f "alt_unit_coef"
+	      let coeff = float_of_string (Pprz.alt_unit_coef_of_xml f)
 	      and unit = Xml.attrib f "alt_unit" in
 	      fun value -> sprintf "%s (%f%s)" value (coeff*.float_of_string value) unit
 	    with

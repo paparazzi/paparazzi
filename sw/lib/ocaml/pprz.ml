@@ -25,7 +25,7 @@
  *)
 
 open Printf
-
+open Latlong
 
 type message_id = int
 type ac_id = int
@@ -326,6 +326,20 @@ let hex_of_int_array = function
       failwith (sprintf "Error: expecting array in Pprz.hex_of_int_array, found %s" (string_of_value value))
 
   
+let alt_unit_coef_of_xml = function xml ->
+  try Xml.attrib xml "alt_unit_coef"
+  with _ ->
+    let u = try Xml.attrib xml "unit" with _ -> "" in
+    let au = try Xml.attrib xml "alt_unit" with _ -> "" in
+    match (u, au) with
+      ("deg", "rad") | ("deg/s", "rad/s") -> string_of_float (pi /. 180.)
+    | ("rad", "deg") | ("rad/s", "deg/s") -> string_of_float (180. /. pi)
+    | ("m", "cm") | ("m/s", "cm/s") -> "100."
+    | ("cm", "m") | ("cm/s", "m/s") -> "0.01"
+    | ("decideg", "deg") -> "0.1"
+    | (_, _) -> "1."
+
+
 
 exception Unknown_msg_name of string * string
 
