@@ -27,16 +27,9 @@
     </target>
 
     <subsystem name="radio_control" type="ppm"/>
-
-    <!-- Communication -->
-    <subsystem name="telemetry" type="transparent">
-      <!--<define name="TELEMETRY_MODE_FBW" value="1"/>-->
-    </subsystem>
-
-    <!-- Actuators -->
+    <!--<define name="TELEMETRY_MODE_FBW" value="1"/>-->
+    <subsystem name="telemetry" type="transparent"/>
     <subsystem name="actuators" type="4017"/>
-
-    <!-- Sensors -->
     <subsystem name="attitude" type="infrared"/>
     <subsystem name="gps" type="ublox_lea5h"/>
     <subsystem name="navigation"/>
