@@ -197,20 +197,13 @@
 
 
 
-<!--
-  <makefile target="opening">
-# prevents motors from ever starting
-#ap.CFLAGS += -DKILL_MOTORS
-#ap.CFLAGS += -DUSE_ADAPT_HOVER
-  </makefile>
--->
-
   <firmware name="rotorcraft">
     <target name="ap" board="booz_1.0">
       <param  name="FLASH_MODE" value="IAP"/>   <!-- default for the board but putting it here as example--> 
     </target>
-    <target name="sim" board="pc"/>
-    <subsystem name="simulator"     type="nps"/>
+    <target name="sim" board="pc">
+      <subsystem name="simulator"     type="nps"/>
+    </target>
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="actuators"     type="mkk"/>
     <subsystem name="imu"           type="b2_v1.0"/>
@@ -225,14 +218,5 @@
     <target name="test_spektrum"  board="booz_1.0"/>
   </firmware>
 
-<!--
-  <makefile target="closure" location="after">
-#CFG_BOOZ=$(PAPARAZZI_SRC)/conf/autopilot/
-# FIXME: make fms a module
-#include $(CFG_BOOZ)/subsystems/booz2_fms_test_signal.makefile
-#include $(CFG_BOOZ)/booz2_test_progs.makefile
-#include $(PAPARAZZI_SRC)/conf/autopilot/booz2_simulator_nps.makefile
-  </makefile>
--->
 
 </airframe>
