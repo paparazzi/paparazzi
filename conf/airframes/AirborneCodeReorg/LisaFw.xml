@@ -158,37 +158,36 @@
     	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
 	<define name="HOME_RADIUS" value="100" unit="m"/>
   </section>
- <makefile>
 
-# Config for AP
+  <firmware name="fixedwing">
+    <target name="ap" 			board="tiny_2.11">
+      <param name="FLASH_MODE" 		value="IAP" />
+      <define name="AGR_CLIMB" />
+      <define name="ALT_KALMAN" />
+      <define name="STM32" />		<!-- Temporary Hack -->
+    </target>
+    <target name="sim" 			board="pc" />
+    <subsystem name="navigation"/>
 
-# Board Specifics
-include $(PAPARAZZI_SRC)/conf/autopilot/lisa_l.makefile
 
-# Fixed Wing Specifics
-include $(PAPARAZZI_SRC)/conf/autopilot/fixedwing_common.makefile
-include $(CFG_FIXEDWING)/fixedwing_autopilot.makefile
-include $(CFG_FIXEDWING)/subsystems/fixedwing_navigation.makefile
+    <!-- Communication -->
+    <subsystem name="telemetry" 	type="transparent">
+      <param name="MODEM_UART_NR" 	value="2"/>
+      <param name="MODEM_BAUD" 		value="9600"/>
+    </subsystem>
 
-# Temporary problem solving
-ap.CFLAGS 	+= -DSTM32
+    <!-- Actuators -->
 
-GPS_UART_NR	= 1
-GPS_BAUD	= 38400
-include $(CFG_FIXEDWING)/subsystems/fixedwing_gps_ublox_lea4p.makefile
+    <!-- Sensors
+    <subsystem name="radio_control" 	type="ppm"/>
+    <subsystem name="actuators" 	type="4017"/>
+    <subsystem name="attitude"  	type="infrared"/>
+ -->
+    <subsystem name="gps" 		type="ublox_lea4p">
+      <param name="GPS_UART_NR"		value="1"/>
+    </subsystem>
 
-MODEM_UART_NR	= 2
-MODEM_BAUD	= 57600
-include $(CFG_FIXEDWING)/subsystems/fixedwing_telemetry_transparent.makefile
+  </firmware>
 
-# rest
-ap.CFLAGS += -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DTRAFFIC_INFO
-ap.srcs   += traffic_info.c
 
-# Config for SITL simulation
-
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.CFLAGS 	+= -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DTRAFFIC_INFO
-sim.srcs 	+= traffic_info.c
-  </makefile>
 </airframe>
