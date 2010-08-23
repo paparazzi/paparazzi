@@ -42,6 +42,10 @@
 #include "ins/booz2_hf_float.h"
 #endif
 
+#ifdef BOOZ2_SONAR
+#include "modules.h"
+#endif
+
 #ifdef SITL
 #include "nps_fdm.h"
 #include <stdio.h>
@@ -69,6 +73,10 @@ bool_t booz_ins_hf_realign;
 int32_t booz_ins_qfe;
 bool_t  booz_ins_baro_initialised;
 int32_t booz_ins_baro_alt;
+#ifdef BOOZ2_SONAR
+bool_t  booz_ins_update_on_agl;
+int32_t booz_ins_sonar_offset;
+#endif
 #endif
 bool_t  booz_ins_vf_realign;
 
@@ -83,7 +91,7 @@ struct EnuCoor_i booz_ins_enu_accel;
 
 void booz_ins_init() {
 #ifdef USE_INS_NAV_INIT
-  booz_ins_ltp_initialised  = TRUE;
+  booz_ins_ltp_initialised = TRUE;
 
   /** FIXME: should use the same code than MOVE_WP in booz2_datalink.c */
   struct LlaCoor_i llh; /* Height above the ellipsoid */
@@ -102,6 +110,9 @@ void booz_ins_init() {
 #endif
 #ifdef USE_VFF
   booz_ins_baro_initialised = FALSE;
+#ifdef BOOZ2_SONAR
+  booz_ins_update_on_agl = FALSE;
+#endif
   b2_vff_init(0., 0., 0.);
 #endif
   booz_ins_vf_realign = FALSE;
@@ -118,12 +129,6 @@ void booz_ins_init() {
 }
 
 void booz_ins_periodic( void ) {
-#ifndef USE_HFF
-  struct NedCoor_i d_pos;
-  VECT2_COPY(d_pos, booz_ins_ltp_speed);
-  INT32_VECT2_RSHIFT(d_pos, d_pos, 15);
-  VECT2_ADD(booz_ins_ltp_pos, d_pos);
-#endif
 }
 
 #ifdef USE_HFF
@@ -188,6 +193,9 @@ void booz_ins_update_baro() {
     if (booz_ins_vf_realign) {
       booz_ins_vf_realign = FALSE;
       booz_ins_qfe = baro.absolute;
+#ifdef BOOZ2_SONAR
+      booz_ins_sonar_offset = sonar_meas;
+#endif
       b2_vff_realign(0.);
       booz_ins_ltp_accel.z = ACCEL_BFP_OF_REAL(b2_vff_zdotdot);
       booz_ins_ltp_speed.z = SPEED_BFP_OF_REAL(b2_vff_zdot);
@@ -213,7 +221,6 @@ void booz_ins_update_gps(void) {
     }
     ned_of_ecef_point_i(&booz_ins_gps_pos_cm_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_pos);
     ned_of_ecef_vect_i(&booz_ins_gps_speed_cm_s_ned, &booz_ins_ltp_def, &booz_gps_state.ecef_vel);
-
 #ifdef USE_HFF
     VECT2_ASSIGN(booz_ins_gps_pos_m_ned, booz_ins_gps_pos_cm_ned.x, booz_ins_gps_pos_cm_ned.y);
     VECT2_SDIV(booz_ins_gps_pos_m_ned, booz_ins_gps_pos_m_ned, 100.);
@@ -232,7 +239,6 @@ void booz_ins_update_gps(void) {
 #endif
     }
     b2_hff_update_gps();
-
 #ifndef USE_VFF /* vff not used */
     booz_ins_ltp_pos.z =  (booz_ins_gps_pos_cm_ned.z * INT32_POS_OF_CM_NUM) / INT32_POS_OF_CM_DEN;
     booz_ins_ltp_speed.z =  (booz_ins_gps_speed_cm_s_ned.z * INT32_SPEED_OF_CM_S_NUM) INT32_SPEED_OF_CM_S_DEN;
@@ -263,4 +269,15 @@ void booz_ins_update_gps(void) {
 #endif /* USE_GPS */
 }
 
+void booz_ins_update_sonar() {
+#if defined BOOZ2_SONAR && defined USE_VFF
+  static int32_t sonar_filtered = 0;
+  sonar_filtered = (sonar_meas + 2*sonar_filtered) / 3;
+  /* update baro_qfe assuming a flat ground */
+  if (booz_ins_update_on_agl && booz2_analog_baro_status == BOOZ2_ANALOG_BARO_RUNNING) {
+    int32_t d_sonar = (((int32_t)sonar_filtered - booz_ins_sonar_offset) * BOOZ_INS_SONAR_SENS_NUM) / BOOZ_INS_SONAR_SENS_DEN;
+    booz_ins_qfe = (int32_t)booz2_analog_baro_value + (d_sonar * (BOOZ_INS_BARO_SENS_DEN))/BOOZ_INS_BARO_SENS_NUM;
+  }
+#endif
+}
 

@@ -39,6 +39,10 @@ extern struct NedCoor_i booz_ins_gps_speed_cm_s_ned;
 extern int32_t booz_ins_baro_alt;
 extern int32_t booz_ins_qfe;
 extern bool_t  booz_ins_baro_initialised;
+#ifdef BOOZ2_SONAR
+extern bool_t  booz_ins_update_on_agl; /* use sonar to update agl if available */
+extern int32_t booz_ins_sonar_offset;
+#endif
 #endif
 
 /* output LTP NED               */
@@ -65,6 +69,7 @@ extern void booz_ins_realign_v(float z);
 extern void booz_ins_propagate( void );
 extern void booz_ins_update_baro( void );
 extern void booz_ins_update_gps( void );
+extern void booz_ins_update_sonar( void );
 
 
 #endif /* BOOZ2_INS_H */
