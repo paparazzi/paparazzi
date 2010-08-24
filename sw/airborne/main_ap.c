@@ -59,7 +59,6 @@
 #else
 #include "gpio.h"
 #endif
-#include "light.h"
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
 #include "rc_settings.h"
@@ -496,10 +495,6 @@ void periodic_task_ap( void ) {
     break;
   }
 
-#ifdef USE_LIGHT
-  LightPeriodicTask(_1Hz);
-#endif
-
   switch(_4Hz) {
   case 0:
     estimator_propagate_state();
@@ -842,10 +837,6 @@ void init_ap( void ) {
 #endif
 
   power_switch = FALSE;
-
-#ifdef USE_LIGHT
-  LightInit();
-#endif
 
 #ifdef TRIGGER_EXT
   trig_ext_init();

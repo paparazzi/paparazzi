@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="light">
+  <header>
+    <file name="light.h"/>
+  </header>
+  <init fun="init_light()"/>
+  <periodic fun="periodic_light()" period="0.05" autorun="TRUE"/>
+  <makefile>
+    <flag name="LIGHT_LED_STROBE" value="3"/>
+    <flag name="LIGHT_LED_NAV" value="4"/>
+
+    <flag name="STROBE_LIGHT_MODE_DEFAULT" value="5"/>
+    <flag name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
+
+    <file name="light.c"/>
+  </makefile>
+</module>
+
