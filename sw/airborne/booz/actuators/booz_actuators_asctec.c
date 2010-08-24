@@ -14,6 +14,11 @@
 #define ACTUATORS_ASCTEC_DEVICE i2c0
 #endif
 
+/*
+ * Macros to generate i2cx_buf and i2cx_transmit from
+ * ACTUATORS_ASCTEC_DEVICE
+ *
+ */
 #define __Device(dev, _z) dev##_##_z 
 #define  _Device(dev, _z) __Device(dev, _z)
 #define  Device( _z) _Device(ACTUATORS_ASCTEC_DEVICE, _z)

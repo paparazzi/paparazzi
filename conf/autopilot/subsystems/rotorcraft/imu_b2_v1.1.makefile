@@ -63,6 +63,7 @@ endif
 #
 
 sim.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
+sim.CFLAGS += -DIMU_B2_VERSION_1_1
 sim.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_AMI601
 sim.srcs += $(SRC_BOOZ)/booz_imu.c                 \
             $(SRC_BOOZ)/imu/booz_imu_b2.c          \

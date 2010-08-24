@@ -16,6 +16,12 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
+  <!-- for the sim -->
+  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
+    <define name="NB" value="4"/>
+    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
+  </section>
+
 
   <section name="SUPERVISION" prefix="SUPERVISION_">
     <define name="MIN_MOTOR" value="3"/>
@@ -64,8 +70,8 @@
 
  <section name="AUTOPILOT">
    <define name="BOOZ2_MODE_MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="BOOZ2_MODE_AUTO1"  value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="BOOZ2_MODE_AUTO2"  value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="BOOZ2_MODE_AUTO1"  value="BOOZ2_AP_MODE_ATTITUDE_RC_CLIMB"/>
+   <define name="BOOZ2_MODE_AUTO2"  value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
  </section>
 
  <section name="BAT">
@@ -132,7 +138,8 @@
   </section>
 
   <section name="INS" prefix="BOOZ_INS_">
-    <define name="BARO_SENS" value="15." integer="16"/>
+<!--    <define name="BARO_SENS" value="15." integer="16"/> -->
+    <define name="BARO_SENS" value="10." integer="16"/>
   </section>
 
  <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
@@ -162,17 +169,33 @@
    <define name="BOOZ2_FACE_REINJ_1"  value="1024"/>
  </section>
 
+ <section name="SIMULATOR" prefix="NPS_">
+   <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
+   <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
+   <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
+ </section>
+
+<!-- -->
  <modules main_freq="512">
    <load name="vehicle_interface_datalink.xml"/>
  </modules>
+<!-- -->
  
   <firmware name="rotorcraft">
-    <target name="ap" board="lisa_l_1.0"/>
-    <subsystem name="radio_control" type="spektrum">
-      <param name="RADIO_CONTROL_SPEKTRUM_MODEL" 
+    <target name="ap" board="lisa_l_1.0">
+<!--      <define name="BOOZ_START_DELAY" value="1"/> -->
+      <subsystem name="radio_control" type="spektrum">
+        <param name="RADIO_CONTROL_SPEKTRUM_MODEL" 
              value="\\\"booz/radio_control/booz_radio_control_spektrum_dx7se.h\\\""/>
-    </subsystem>
-    <subsystem name="actuators"     type="asctec"/>
+      </subsystem>
+      <subsystem name="actuators"     type="asctec"/>
+    </target>
+    <target name="sim" board="pc">
+      <subsystem name="simulator"     type="nps"/>
+      <subsystem name="radio_control" type="ppm"/>
+      <subsystem name="actuators"     type="mkk"/>
+    </target>
+
     <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="cmpl"/>
