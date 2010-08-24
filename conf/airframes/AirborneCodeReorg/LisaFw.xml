@@ -160,7 +160,12 @@
   </section>
 
   <modules>
-    <load name="light.xml"/>
+    <load name="light.xml">
+      <param name="LIGHT_LED_STROBE" value="3"/>
+      <param name="LIGHT_LED_NAV" value="4"/>
+      <param name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
+      <param name="NAV_LIGHT_MODE_DEFAULT" value="0"/>
+    </load>
   </modules>
 
   <firmware name="fixedwing">
