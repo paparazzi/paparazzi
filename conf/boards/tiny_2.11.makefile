@@ -7,6 +7,14 @@
 # ARCH=lpc21
 ARCH=arm7
 ARCHI=arm7
+
+
+BOARD=tiny
+BOARD_VERSION=2.11
+
+#BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
+
+# TODO: update syntax
 BOARD_CFG = \"tiny_2_1_1.h\"
 
 ifndef FLASH_MODE

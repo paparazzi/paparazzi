@@ -7,6 +7,10 @@
 ARCH=sim
 ARCHI=sim
 BOARD = pc
+BOARD_VERSION=
+
+
+# TODO: update board
 BOARD_CFG = \"tiny.h\"
 
 

@@ -176,7 +176,6 @@
     </subsystem>
 
     <!-- Actuators -->
-    <subsystem name="actuators" 	type="4017"/>
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="gyro"          type="roll"/>
