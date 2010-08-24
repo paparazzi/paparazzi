@@ -24,7 +24,7 @@
 #include "booz_actuators.h"
 #include "actuators/booz_actuators_mkk.h"
 
-#include "booz2_commands.h"
+#include "booz/booz2_commands.h"
 #include "i2c.h"
 #include "sys_time.h"
 

@@ -3,10 +3,11 @@
 <airframe name="A1000 LISA">
 
   <servos min="0" neutral="0" max="0xff">
-    <servo name="FRONT"   no="0" min="0" neutral="0" max="255"/>
-    <servo name="BACK"    no="1" min="0" neutral="0" max="255"/>
-    <servo name="LEFT"    no="2" min="0" neutral="0" max="255"/>
-    <servo name="RIGHT"   no="3" min="0" neutral="0" max="255"/>
+    <servo name="FRONT"        no="0" min="0" neutral="0" max="255"/>
+    <servo name="BACK"         no="1" min="0" neutral="0" max="255"/>
+    <servo name="LEFT"         no="2" min="0" neutral="0" max="255"/>
+    <servo name="RIGHT"        no="3" min="0" neutral="0" max="255"/>
+    <servo name="ESC"          no="4" min="0" neutral="0" max="255"/>
   </servos>
 
   <commands>
@@ -16,6 +17,13 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
+  <command_laws>
+    <set servo="ESC"        value="motors_on?ESC_HOVER:ESC_STOPPED"/>
+    <set servo="FRONT"      value=" @PITCH$ + @YAW + @THRUST"/>
+    <set servo="BACK"       value="-@PITCH$ + @YAW + @THRUST"/>
+    <set servo="LEFT"       value=" @ROLL   - @YAW + @THRUST"/>
+    <set servo="RIGHT"      value="-@ROLL   - @YAW + @THRUST"/>
+  </command_laws>
 
   <section name="SUPERVISION" prefix="SUPERVISION_">
     <define name="MIN_MOTOR" value="3"/>
@@ -169,7 +177,7 @@
       <param name="RADIO_CONTROL_SPEKTRUM_MODEL" 
              value="\\\"booz/radio_control/booz_radio_control_spektrum_dx7se.h\\\""/>
     </subsystem>
-    <subsystem name="actuators"     type="asctec"/>
+    <subsystem name="actuators"     type="heli"/>
     <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="cmpl"/>
@@ -191,33 +199,7 @@
  </firmware>
 
  <makefile>
-
 include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
-
-<!-- old makefile version
-ARCH=stm32
-ARCHI=stm32
-BOARD_CFG=\"boards/lisa_0.99.h\"
-FLASH_MODE = JTAG
-
-ap.CFLAGS += -DMODEM_BAUD=B57600
-
-ap.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"radio_control/booz_radio_control_spektrum_dx7eu.h\"
-ap.CFLAGS += -DGPS_USE_LATLONG
-ap.CFLAGS += -DGPS_PORT_ID=GPS_PORT_UART1
-
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
-include $(CFG_BOOZ)/booz2_autopilot.makefile
-
-include $(CFG_BOOZ)/subsystems/booz2_radio_control_spektrum.makefile
-include $(CFG_BOOZ)/subsystems/booz2_actuators_asctec_v2.makefile
-include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1_1.makefile
-include $(CFG_BOOZ)/subsystems/booz_gps_ublox.makefile
-include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
-
-
-include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
--->
  </makefile>
 
 </airframe>
