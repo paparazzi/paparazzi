@@ -25,6 +25,7 @@
 #include "std.h"
 #include "vehicle_interface/vi.h"
 #include "math/pprz_algebra_int.h"
+#include "booz/booz_guidance.h"
 
 #ifndef VI_MAX_H_SPEED
 #define VI_MAX_H_SPEED 4.
@@ -63,7 +64,7 @@ extern void vi_update_wp(uint8_t wp_id);
 	      vi.input.h_sp.attitude.theta = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer);			\
 	      vi.input.h_sp.attitude.psi   = DL_BOOZ2_FMS_COMMAND_h_sp_3(_dl_buffer);			\
         ANGLE_REF_NORMALIZE(vi.input.h_sp.attitude.psi); \
-        BOOZ_FMS_LIMIT_ATTITUDE(vi.input.h_sp.attitude); \
+        VI_LIMIT_ATTITUDE(vi.input.h_sp.attitude); \
       }									\
       break;  \
     case BOOZ2_GUIDANCE_H_MODE_HOVER :					\
@@ -97,7 +98,7 @@ extern void vi_update_wp(uint8_t wp_id);
     }									\
   }
 
-#define BOOZ_FMS_NAV_STICK_PARSE_DL(_dl_buffer) { \
+#define VI_NAV_STICK_PARSE_DL(_dl_buffer) { \
   vi.last_msg = 0; \
   vi.input.h_mode = BOOZ2_GUIDANCE_H_MODE_NAV;	\
   vi.input.v_mode = BOOZ2_GUIDANCE_V_MODE_NAV;	\

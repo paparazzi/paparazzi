@@ -39,7 +39,7 @@ void vi_init(void) {
 
   vi.enabled = FALSE;
   vi.timeouted = TRUE;
-  vi.last_msg = BOOZ_FMS_TIMEOUT;
+  vi.last_msg = VI_TIMEOUT;
 
   vi.input.h_mode = BOOZ2_GUIDANCE_H_MODE_ATTITUDE;
   INT_EULERS_ZERO(vi.input.h_sp.attitude);
