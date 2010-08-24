@@ -77,20 +77,6 @@ void dl_parse_msg(void) {
     }
     break;
 
-#if defined BOOZ_FMS_TYPE && BOOZ_FMS_TYPE == BOOZ_FMS_TYPE_DATALINK
-  case DL_BOOZ2_FMS_COMMAND :
-    {
-      if (DL_BOOZ2_FMS_COMMAND_ac_id(dl_buffer) != AC_ID) break;
-      BOOZ_FMS_PARSE_DATALINK(dl_buffer);
-    }
-    break;
-  case DL_BOOZ_NAV_STICK :
-    {
-      if (DL_BOOZ_NAV_STICK_ac_id(dl_buffer) != AC_ID) break;
-      BOOZ_FMS_NAV_STICK_PARSE_DL(dl_buffer);
-    }
-    break;
-#endif
 #if defined USE_NAVIGATION
   case DL_BLOCK :
     {
