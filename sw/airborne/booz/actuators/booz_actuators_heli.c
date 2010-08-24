@@ -38,15 +38,12 @@
 #define ESC_HOVER   SERVOS_TICS_OF_USEC(1750) 
 #define Actuator(_x)  booz_actuators_pwm_values[_x]
 #define ChopServo(x,a,b) Chop(x, a, b)
-#define ActuatorsCommit()  booz_actuators_pwm_commit()
+#define ActuatorsCommit  booz_actuators_pwm_commit
 
 int32_t booz_actuators_pwm_values[BOOZ_ACTUATORS_PWM_NB];
 
-void actuators_init(void) {
+void actuators_init(void) { booz_actuators_pwm_arch_init(); }
 
-  booz_actuators_pwm_arch_init();
-  
-}
 
 void actuators_set(bool_t motors_on) {
 
