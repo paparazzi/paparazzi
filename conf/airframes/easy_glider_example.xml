@@ -167,7 +167,7 @@
 
     <!-- Actuators -->
     <subsystem name="actuators" 	type="4015"/>
-
+    <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="adc"           type="generic">
       <param name="ADC_GENERIC1" value="ADC_7"/> <!-- current sensor -->

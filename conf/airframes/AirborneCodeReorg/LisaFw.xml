@@ -171,7 +171,7 @@
     </target>
     <target name="sim" 			board="pc" />
     <subsystem name="navigation"/>
-
+    <subsystem name="control"/>
 
     <!-- Communication -->
     <subsystem name="telemetry" 	type="transparent">

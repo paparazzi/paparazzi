@@ -21,6 +21,7 @@
  </subsystem>
  <!-- Actuators -->
  <subsystem name="actuators" 	types="4015|4017|ppm"/>
+ <subsystem name="control"      types="NONE|adaptive|new"/>
  <!-- Sensors -->
  <subsystem name="gyro"         types="roll|pitch">
    <param name="ADC_GYRO_ROLL"  value="ADC_3"/><!-- this is already the default if not set, change if needed -->
