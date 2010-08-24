@@ -63,11 +63,15 @@
     <block name="circle">
       <circle radius="nav_radius" wp="p1"/>
     </block>
+
+<!--
     <block name="Joystick" pre_call="NavUpdateWPFromFms(WP_p1)" strip_button="Joystick" strip_icon="joystick.png">
       <set var="fms.enabled" value="TRUE"/>
       <call fun="NavSetWaypointHere(WP_p1)"/>
       <stay wp="p1"/>
     </block>
+-->
+
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
       <call fun="NavSetWaypointHere(WP_TD)"/>
     </block>

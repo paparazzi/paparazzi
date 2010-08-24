@@ -46,7 +46,6 @@
 #define BOOZ2_AP_MODE_HOVER_Z_HOLD      11
 #define BOOZ2_AP_MODE_NAV               12
 
-#define BOOZ2_AP_NAV_RATE 32
 
 extern uint8_t booz2_autopilot_mode;
 extern uint8_t booz2_autopilot_mode_auto2;

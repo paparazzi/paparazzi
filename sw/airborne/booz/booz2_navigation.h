@@ -28,6 +28,9 @@
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_geodetic_float.h"
 
+#define BOOZ2_NAV_FREQ 16
+#define BOOZ2_NAV_PRESCALER (PERIODIC_FREQ/BOOZ2_NAV_FREQ)
+
 extern struct EnuCoor_i booz2_navigation_target;
 extern struct EnuCoor_i booz2_navigation_carrot;
 
@@ -212,15 +215,7 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 #define GetPosY() POS_FLOAT_OF_BFP(booz_ins_enu_pos.y)
 #define GetPosAlt() (POS_FLOAT_OF_BFP(booz_ins_enu_pos.z+ground_alt))
 
-#ifdef USE_FMS
-#define NavFmsMaxHSpeed ((int32_t)SPEED_BFP_OF_REAL(4.))
-#define NavFmsMaxVSpeed ((int32_t)SPEED_BFP_OF_REAL(2.))
-#define NavFmsMaxHeadingRate ((int32_t)RATE_BFP_OF_REAL(RadOfDeg(60.)))
 
-extern void nav_update_wp_from_fms(uint8_t _wp);
-#define NavUpdateWPFromFms(_wp) { \
-  nav_update_wp_from_fms(_wp); \
-}
-#endif /* USE_FMS */
+extern void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int16_t heading_rate_sp );
 
 #endif /* BOOZ2_NAVIGATION_H */

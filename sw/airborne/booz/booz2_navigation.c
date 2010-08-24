@@ -25,16 +25,13 @@
 
 #include "booz2_navigation.h"
 
+#include "booz/booz2_debug.h"
 #include "booz_gps.h"
 #include "booz2_ins.h"
 
 #include "booz2_autopilot.h"
 #include "modules.h"
 #include "flight_plan.h"
-
-#ifdef USE_FMS
-#include "booz_fms.h"
-#endif
 
 #include "math/pprz_algebra_int.h"
 
@@ -317,28 +314,20 @@ void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos) {
   }
 }
 
-#ifdef USE_FMS
-void nav_update_wp_from_fms(uint8_t _wp) {
-  if (fms.enabled && _wp < nb_waypoint) {
-    int32_t s_heading, c_heading;
-    PPRZ_ITRIG_SIN(s_heading, nav_heading);
-    PPRZ_ITRIG_COS(c_heading, nav_heading);
-    struct Int32Vect3 dpos;
-    dpos.x = (NavFmsMaxHSpeed * fms.input.h_sp.speed.x >> (INT32_SPEED_FRAC - INT32_POS_FRAC)) / (BOOZ2_AP_NAV_RATE * 128);
-    dpos.y = (NavFmsMaxHSpeed * fms.input.h_sp.speed.y >> (INT32_SPEED_FRAC - INT32_POS_FRAC)) / (BOOZ2_AP_NAV_RATE * 128);
-    dpos.z = (NavFmsMaxVSpeed * fms.input.v_sp.climb >> (INT32_SPEED_FRAC - INT32_POS_FRAC)) / (BOOZ2_AP_NAV_RATE * 128);
-    waypoints[_wp].x += (s_heading * dpos.x + c_heading * dpos.y) >> INT32_TRIG_FRAC;
-    waypoints[_wp].y += (c_heading * dpos.x - s_heading * dpos.y) >> INT32_TRIG_FRAC;
-    waypoints[_wp].z += dpos.z;
-    int32_t dheading = (NavFmsMaxHeadingRate * fms.input.h_sp.speed.z >> (INT32_RATE_FRAC - INT32_ANGLE_FRAC)) / (BOOZ2_AP_NAV_RATE * 128);
-    if (dheading != 0) {
-      nav_heading += dheading;
-      INT32_COURSE_NORMALIZE(nav_heading);
-    }
-    RunOnceEvery(10,DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, &_wp, &(waypoints[_wp].x), &(waypoints[_wp].y), &(waypoints[_wp].z)));
-  }
+void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int16_t heading_rate_sp ) {
+  MY_ASSERT(_wp < nb_waypoint);
+  int32_t s_heading, c_heading;
+  PPRZ_ITRIG_SIN(s_heading, nav_heading);
+  PPRZ_ITRIG_COS(c_heading, nav_heading);
+  struct Int32Vect3 delta_pos;
+  VECT3_SDIV(delta_pos, speed_sp,BOOZ2_NAV_FREQ); /* fixme :make sure the division is really a >> */ 
+  waypoints[_wp].x += (s_heading * delta_pos.x + c_heading * delta_pos.y) >> INT32_TRIG_FRAC;
+  waypoints[_wp].y += (c_heading * delta_pos.x - s_heading * delta_pos.y) >> INT32_TRIG_FRAC;
+  waypoints[_wp].z += delta_pos.z;
+  nav_heading += heading_rate_sp / BOOZ2_NAV_FREQ;
+  INT32_COURSE_NORMALIZE(nav_heading);
+  RunOnceEvery(10,DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, &_wp, &(waypoints[_wp].x), &(waypoints[_wp].y), &(waypoints[_wp].z)));
 }
-#endif /* USE_FMS */
 
 bool_t nav_detect_ground(void) {
   if (!booz2_autopilot_detect_ground) return FALSE;

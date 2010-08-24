@@ -19,7 +19,7 @@
 
   <command_laws>
     <set servo="ESC"        value="motors_on?ESC_HOVER:ESC_STOPPED"/>
-    <set servo="FRONT"      value=" @PITCH + @YAW + @THRUST"/>
+    <set servo="FRONT"      value=" @PITCH + @YAW + (@THRUST<<5)"/>
     <set servo="BACK"       value="-@PITCH + @YAW + @THRUST"/>
     <set servo="LEFT"       value=" @ROLL  - @YAW + @THRUST"/>
     <set servo="RIGHT"      value="-@ROLL  - @YAW + @THRUST"/>
