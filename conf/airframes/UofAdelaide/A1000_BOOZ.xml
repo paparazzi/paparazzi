@@ -272,7 +272,7 @@ second attempt
 
  <firmware name="rotorcraft">
     <target name="ap" board="booz_1.0">
-      <param  name="FLASH_MODE" value="IAP"/>   <!-- default for the board but putting it here as example--> 
+      <param  name="FLASH_MODE" value="IAP"/>   <!-- default for the board but putting it here as example-->
       <param name="RADIO_CONTROL_KILL_SWITCH" value="RADIO_CONTROL_SWITCH1"/>
       <param name="MODEM_BAUD" value = "B57600"/>
       <param name="GPS_LAG" value = "0.8"/>
@@ -282,15 +282,15 @@ second attempt
       <define name="USE_GPS_ACC4R" />  
       <define name="GPS_USE_LATLONG"/>
       <define name="USE_ADAPT_HOVER"/>
-      <define name="USE_INS_NAV_INIT"/>
-       
+      <define name="USE_INS_NAV_INIT"/>     
     </target>
-    
+
+          
     <target name="sim" board="pc"/>
     <subsystem name="simulator"     type="nps"/>
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="actuators"     type="mkk"/>
-    <subsystem name="imu"           type="b2_v1.1"/>
+    <subsystem name="imu"           type="crista"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="cmpl"/>
     <subsystem name="ins"           type="hff"/>
