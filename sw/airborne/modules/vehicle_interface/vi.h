@@ -1,7 +1,7 @@
 /*
  * $Id:  $
  *
- * Copyright (C) 2008-2010 The Paparazzi Team
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -97,7 +97,7 @@ extern void vi_impl_periodic(void);
 extern void vi_impl_set_enabled(bool_t enabled);
 
 
-#define vi_SetEnabled(_val) {		\
+#define vi_SetEnabled(_val) {			\
     vi.enabled = _val;				\
     vi_set_enabled(_val);			\
   }

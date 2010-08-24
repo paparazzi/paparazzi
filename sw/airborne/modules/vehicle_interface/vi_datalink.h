@@ -1,5 +1,7 @@
 /*
- * $Id: booz_fms_datalink.h 5216 2010-08-04 17:13:43Z gautier $
+ * $Id$
+ *
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This is the implementation of the "external interface" to the autopilot.
  * using datalink messages. 
@@ -23,7 +25,7 @@
 #define VEHICLE_INTERFACE_DATALINK_H
 
 #include "std.h"
-#include "vehicle_interface/vi.h"
+#include "modules/vehicle_interface/vi.h"
 #include "math/pprz_algebra_int.h"
 
 #ifndef VI_MAX_H_SPEED
@@ -41,58 +43,62 @@
 extern void vi_update_wp(uint8_t wp_id);
 
 #ifdef VI_PHI_THETA_MAX
-#define VI_LIMIT_ATTITUDE(_att) { \
-  BoundAbs(_att.phi,   VI_PHI_THETA_MAX); \
-  BoundAbs(_att.theta, VI_PHI_THETA_MAX); \
-}
+#define VI_LIMIT_ATTITUDE(_att) {		\
+    BoundAbs(_att.phi,   VI_PHI_THETA_MAX);	\
+    BoundAbs(_att.theta, VI_PHI_THETA_MAX);	\
+  }
 #else
 #define VI_LIMIT_ATTITUDE(_x) {}
 #endif
 
-#define VI_PARSE_DATALINK(_dl_buffer) {				\
-    vi.last_msg = 0;						\
-    vi.input.h_mode = DL_BOOZ2_FMS_COMMAND_h_mode(_dl_buffer);	\
-    vi.input.v_mode = DL_BOOZ2_FMS_COMMAND_v_mode(_dl_buffer);	\
-    switch (vi.input.h_mode) {					\
+#define VI_PARSE_DATALINK(_dl_buffer) {					\
+    vi.last_msg = 0;							\
+    vi.input.h_mode = DL_BOOZ2_FMS_COMMAND_h_mode(_dl_buffer);		\
+    vi.input.v_mode = DL_BOOZ2_FMS_COMMAND_v_mode(_dl_buffer);		\
+    switch (vi.input.h_mode) {						\
     case BOOZ2_GUIDANCE_H_MODE_KILL:					\
     case BOOZ2_GUIDANCE_H_MODE_RATE :					\
       break;								\
     case BOOZ2_GUIDANCE_H_MODE_ATTITUDE :				\
       {									\
-	      vi.input.h_sp.attitude.phi   = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer);			\
-	      vi.input.h_sp.attitude.theta = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer);			\
-	      vi.input.h_sp.attitude.psi   = DL_BOOZ2_FMS_COMMAND_h_sp_3(_dl_buffer);			\
-        ANGLE_REF_NORMALIZE(vi.input.h_sp.attitude.psi); \
-        VI_LIMIT_ATTITUDE(vi.input.h_sp.attitude); \
+	vi.input.h_sp.attitude.phi   = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer);	\
+	      vi.input.h_sp.attitude.theta = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer); \
+	      vi.input.h_sp.attitude.psi   = DL_BOOZ2_FMS_COMMAND_h_sp_3(_dl_buffer); \
+	      ANGLE_REF_NORMALIZE(vi.input.h_sp.attitude.psi);		\
+        VI_LIMIT_ATTITUDE(vi.input.h_sp.attitude);			\
       }									\
-      break;  \
+      break;								\
     case BOOZ2_GUIDANCE_H_MODE_HOVER :					\
       {									\
-	      vi.input.h_sp.pos.x   = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer);			\
-	      vi.input.h_sp.pos.y   = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer);			\
+	vi.input.h_sp.pos.x   = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer); \
+	      vi.input.h_sp.pos.y   = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer); \
       }									\
-      break;  \
+      break;								\
     case BOOZ2_GUIDANCE_H_MODE_NAV :					\
-      { \
+      {									\
         vi.input.h_sp.speed.x = DL_BOOZ2_FMS_COMMAND_h_sp_1(_dl_buffer); \
         vi.input.h_sp.speed.y = DL_BOOZ2_FMS_COMMAND_h_sp_2(_dl_buffer); \
         vi.input.h_sp.speed.z = DL_BOOZ2_FMS_COMMAND_h_sp_3(_dl_buffer); \
-      } \
+      }									\
+      break;								\
+    default:								\
       break;								\
     }									\
-    switch (vi.input.v_mode) {					\
+    switch (vi.input.v_mode) {						\
     case BOOZ2_GUIDANCE_V_MODE_KILL:					\
     case BOOZ2_GUIDANCE_V_MODE_RC_DIRECT:				\
     case BOOZ2_GUIDANCE_V_MODE_RC_CLIMB:				\
       break;								\
     case BOOZ2_GUIDANCE_V_MODE_CLIMB :					\
-      vi.input.v_sp.climb = DL_BOOZ2_FMS_COMMAND_v_sp(_dl_buffer); \
+      vi.input.v_sp.climb = DL_BOOZ2_FMS_COMMAND_v_sp(_dl_buffer);	\
       break;								\
     case BOOZ2_GUIDANCE_V_MODE_HOVER :					\
-      vi.input.v_sp.height = DL_BOOZ2_FMS_COMMAND_v_sp(_dl_buffer); \
+      vi.input.v_sp.height = DL_BOOZ2_FMS_COMMAND_v_sp(_dl_buffer);	\
       break;								\
     case BOOZ2_GUIDANCE_V_MODE_NAV :					\
-      vi.input.v_sp.climb = DL_BOOZ2_FMS_COMMAND_v_sp(_dl_buffer); \
+      vi.input.v_sp.climb = DL_BOOZ2_FMS_COMMAND_v_sp(_dl_buffer);	\
+      break;								\
+    default:								\
       break;								\
     }									\
   }
