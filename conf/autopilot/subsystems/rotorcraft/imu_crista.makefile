@@ -71,3 +71,10 @@ ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2
 
 
 
+sim.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_crista.h\"
+sim.srcs += $(SRC_BOOZ)/booz_imu.c            \
+            $(SRC_BOOZ)/imu/booz_imu_crista.c \
+            $(SRC_BOOZ_SIM)/imu/booz_imu_crista_arch.c
+sim.CFLAGS += -DUSE_AMI601
+sim.srcs += $(SRC_BOOZ)/peripherals/booz_ami601.c
+sim.CFLAGS += -DUSE_I2C1

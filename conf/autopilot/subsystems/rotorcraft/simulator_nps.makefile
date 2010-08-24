@@ -86,8 +86,8 @@ sim.srcs += $(SRC_BOOZ)/booz2_battery.c
 
 sim.srcs += $(SRC_BOOZ)/booz2_analog.c $(SRC_BOOZ_SIM)/booz2_analog_hw.c
 
-sim.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
-sim.CFLAGS += -DIMU_B2_VERSION_1_1
+#sim.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
+#sim.CFLAGS += -DIMU_B2_VERSION_1_1
 
 sim.srcs += $(SRC_BOOZ)/booz2_autopilot.c
 

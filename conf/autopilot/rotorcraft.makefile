@@ -110,29 +110,29 @@ ap.srcs += $(SRC_BOOZ)/booz2_commands.c
 #
 # Radio control choice
 #
-# include radio_control_ppm.makefile
+# include subsystems/rotorcraft/radio_control_ppm.makefile
 # or
-# include radio_control_spektrum.makefile
+# include subsystems/rotorcraft/radio_control_spektrum.makefile
 #
 
 #
 # Actuator choice
 #
-# include actuators_mkk.makefile
+# include subsystems/rotorcraft/actuators_mkk.makefile
 # or
-# include actuators_asctec.makefile
+# include subsystems/rotorcraft/actuators_asctec.makefile
 # or
-# include actuators_asctec_v2.makefile
+# include subsystems/rotorcraft/actuators_asctec_v2.makefile
 #
 
 #
 # IMU choice
 #
-# include booz2_imu_b2v1.makefile
+# include subsystems/rotorcraft/imu_b2v1.makefile
 # or
-# include booz2_imu_b2v1_1.makefile
+# include subsystems/rotorcraft/imu_b2v1_1.makefile
 # or
-# include booz2_imu_crista.makefile
+# include subsystems/rotorcraft/imu_crista.makefile
 #
 
 #
@@ -163,7 +163,9 @@ endif
 #
 # GPS choice
 # 
-# include booz2_gps.makefile
+# include subsystems/rotorcraft/gps_ubx.makefile
+# or
+# include subsystems/rotorcraft/gps_skytraq.makefile
 # or
 # nothing
 #
@@ -172,9 +174,9 @@ endif
 #
 # AHRS choice
 #
-# include booz2_ahrs_cmpl.makefile
+# include subsystems/rotorcraft/ahrs_cmpl.makefile
 # or
-# include booz2_ahrs_lkf.makefile
+# include subsystems/rotorcraft/ahrs_lkf.makefile
 #
 
 ap.srcs += $(SRC_BOOZ)/booz2_autopilot.c
@@ -200,7 +202,7 @@ ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodeti
 #
 # INS choice
 #
-# include booz2_ins_hff.makefile
+# include subsystems/rotorcraft/ins_hff.makefile
 # or
 # nothing
 #
