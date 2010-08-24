@@ -42,8 +42,7 @@
    <param name="GPS_BAUD"       values="B9600|B38400|B57600|B115200"/>
  </subsystem>
  <subsystem name="airspeed"     types="ets"/>
- <subsystem name="navigation"   types="NONE"/>
- <subsystem name="navigation"   types="extra"/>
+ <subsystem name="navigation"   types="NONE|extra"/>
  <subsystem name="joystick"     types="NONE"/>
  <subsystem name="payload"      types="hum_baro"/>
 
