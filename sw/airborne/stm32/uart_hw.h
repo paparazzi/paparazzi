@@ -105,6 +105,10 @@
 #define Uart3_irq_handler usart3_irq_handler
 #define Uart5_irq_handler uart5_irq_handler
 
+#define UART1_IRQn Uart1_IRQn
+#define UART2_IRQn Uart2_IRQn
+#define UART3_IRQn Uart3_IRQn
+
 #define Uart1_IRQn USART1_IRQn
 #define Uart2_IRQn USART2_IRQn 
 #define Uart3_IRQn USART3_IRQn
