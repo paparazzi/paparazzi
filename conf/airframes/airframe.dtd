@@ -21,7 +21,7 @@
 <!ELEMENT linear EMPTY>
 <!ELEMENT makefile (#PCDATA)>
 <!ELEMENT modules (load)*>
-<!ELEMENT load EMPTY>
+<!ELEMENT load (param)*>
 <!ELEMENT param EMPTY>
 <!ELEMENT firmware (target|subsystem)*>
 <!ELEMENT target (param|define)*>
