@@ -107,6 +107,6 @@ extern void vi_update_wp(uint8_t wp_id);
   vi.input.v_sp.climb   = DL_BOOZ_NAV_STICK_vz_sp(_dl_buffer); \
 }
 
-#define NavUpdateWPFromVI(_wp) vi_update_wp(uint8_t _wp);
+#define NavUpdateWPFromVI(_wp) { if (vi.enabled) { vi_update_wp(uint8_t _wp); } }
 
 #endif /* VI_DATALINK_H */
