@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2008-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -23,7 +23,9 @@
 #ifndef BOOZ_STABILISATION_ATTITUDE_REF_INT_H
 #define BOOZ_STABILISATION_ATTITUDE_REF_INT_H
 
-extern struct Int32Eulers booz_stab_att_sp_euler;
+extern struct Int32Eulers booz_stab_att_sp_vi_euler; /* vehicle interface */
+extern struct Int32Eulers booz_stab_att_sp_rc_euler; /* radio control     */
+extern struct Int32Eulers booz_stab_att_sp_euler;    /* sum of the above  */
 extern struct Int32Quat   booz_stab_att_sp_quat;
 extern struct Int32Eulers booz_stab_att_ref_euler;
 extern struct Int32Quat   booz_stab_att_ref_quat;

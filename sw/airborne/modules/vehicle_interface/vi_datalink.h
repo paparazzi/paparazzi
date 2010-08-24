@@ -25,7 +25,6 @@
 #include "std.h"
 #include "vehicle_interface/vi.h"
 #include "math/pprz_algebra_int.h"
-#include "booz/booz_guidance.h"
 
 #ifndef VI_MAX_H_SPEED
 #define VI_MAX_H_SPEED 4.

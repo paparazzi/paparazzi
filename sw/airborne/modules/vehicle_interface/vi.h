@@ -31,6 +31,7 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 #include "booz/booz2_autopilot.h"
+#include "booz/booz_stabilization.h"
 #include "booz/booz_guidance.h"
 #include "booz/booz2_navigation.h"
 

@@ -29,7 +29,8 @@
 #include "math/pprz_geodetic_float.h"
 
 #define BOOZ2_NAV_FREQ 16
-#define BOOZ2_NAV_PRESCALER (PERIODIC_FREQ/BOOZ2_NAV_FREQ)
+// FIXME use periodic FREQ   
+#define BOOZ2_NAV_PRESCALER (512/BOOZ2_NAV_FREQ)
 
 extern struct EnuCoor_i booz2_navigation_target;
 extern struct EnuCoor_i booz2_navigation_carrot;

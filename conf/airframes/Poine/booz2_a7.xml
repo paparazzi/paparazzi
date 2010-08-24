@@ -162,6 +162,9 @@
    <define name="BOOZ2_FACE_REINJ_1"  value="1024"/>
  </section>
 
+ <modules main_freq="512">
+   <load name="vehicle_interface_datalink.xml"/>
+ </modules>
  
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_l_1.0"/>

@@ -238,10 +238,24 @@ struct Int64Vect3 {
   }
 
 
-#define INT32_VECT3_NORM(n, v) {					\
-    int32_t n2 = v.x*v.x + v.y*v.y + v.z*v.z;				\
-    INT32_SQRT(n, n2);							\
+#define INT32_VECT3_NORM(n, v) {		        \
+    int32_t n2 = v.x*v.x + v.y*v.y + v.z*v.z;		\
+    INT32_SQRT(n, n2);					\
   }
+
+#define INT32_VECT3_RSHIFT(_o, _i, _r) { \
+    (_o).x = ((_i).x >> (_r));		 \
+    (_o).y = ((_i).y >> (_r));		 \
+    (_o).z = ((_i).z >> (_r));		 \
+  }
+
+#define INT32_VECT3_LSHIFT(_o, _i, _l) { \
+    (_o).x = ((_i).x << (_l));		 \
+    (_o).y = ((_i).y << (_l));		 \
+    (_o).z = ((_i).z << (_l));		 \
+  }
+
+
 
 
 /*

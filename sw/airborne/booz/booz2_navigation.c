@@ -315,18 +315,23 @@ void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos) {
 }
 
 void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int16_t heading_rate_sp ) {
-  MY_ASSERT(_wp < nb_waypoint);
+  MY_ASSERT(wp < nb_waypoint);
   int32_t s_heading, c_heading;
   PPRZ_ITRIG_SIN(s_heading, nav_heading);
   PPRZ_ITRIG_COS(c_heading, nav_heading);
+  // FIXME : scale POS to SPEED
   struct Int32Vect3 delta_pos;
-  VECT3_SDIV(delta_pos, speed_sp,BOOZ2_NAV_FREQ); /* fixme :make sure the division is really a >> */ 
-  waypoints[_wp].x += (s_heading * delta_pos.x + c_heading * delta_pos.y) >> INT32_TRIG_FRAC;
-  waypoints[_wp].y += (c_heading * delta_pos.x - s_heading * delta_pos.y) >> INT32_TRIG_FRAC;
-  waypoints[_wp].z += delta_pos.z;
-  nav_heading += heading_rate_sp / BOOZ2_NAV_FREQ;
+  VECT3_SDIV(delta_pos, speed_sp,BOOZ2_NAV_FREQ); /* fixme :make sure the division is really a >> */
+  INT32_VECT3_RSHIFT(delta_pos, delta_pos, (INT32_SPEED_FRAC-INT32_POS_FRAC));
+  waypoints[wp].x += (s_heading * delta_pos.x + c_heading * delta_pos.y) >> INT32_TRIG_FRAC;
+  waypoints[wp].y += (c_heading * delta_pos.x - s_heading * delta_pos.y) >> INT32_TRIG_FRAC;
+  waypoints[wp].z += delta_pos.z;
+  int32_t delta_heading = heading_rate_sp / BOOZ2_NAV_FREQ;
+  delta_heading = delta_heading >> (INT32_SPEED_FRAC-INT32_POS_FRAC);
+  nav_heading += delta_heading;
+  
   INT32_COURSE_NORMALIZE(nav_heading);
-  RunOnceEvery(10,DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, &_wp, &(waypoints[_wp].x), &(waypoints[_wp].y), &(waypoints[_wp].z)));
+  RunOnceEvery(10,DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, &wp, &(waypoints[wp].x), &(waypoints[wp].y), &(waypoints[wp].z)));
 }
 
 bool_t nav_detect_ground(void) {
