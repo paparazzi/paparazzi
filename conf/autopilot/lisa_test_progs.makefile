@@ -1276,35 +1276,56 @@ test_gps.srcs += $(SRC_BOOZ)/gps/booz_gps_skytraq.c
 #
 # test ADC
 #
+#	test_adc.ARCHDIR = $(ARCHI)
+#	test_adc.TARGET = test_adc
+#	test_adc.TARGETDIR = test_adc
+#	test_adc.CFLAGS = -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+#	test_adc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
+#	test_adc.srcs += $(SRC_LISA)/test/lisa_test_adc.c \
+#			 $(SRC_ARCH)/stm32_exceptions.c   \
+#			 $(SRC_ARCH)/stm32_vector_table.c
+#	test_adc.CFLAGS += -DUSE_LED
+#	test_adc.srcs += $(SRC_ARCH)/led_hw.c
+#	test_adc.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+#	test_adc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
+#	test_adc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+#	
+#	test_adc.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+#	test_adc.srcs += $(SRC_ARCH)/uart_hw.c
+#	
+#	test_adc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+#	test_adc.srcs += downlink.c pprz_transport.c
+#	
+#	test_adc.srcs += $(SRC_ARCH)/adc_hw.c 
+
+#
+# test adc
+#
 test_adc.ARCHDIR = $(ARCHI)
 test_adc.TARGET = test_adc
 test_adc.TARGETDIR = test_adc
-test_adc.CFLAGS = -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
-test_adc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
-test_adc.srcs += $(SRC_LISA)/test/lisa_test_adc.c \
-		 $(SRC_ARCH)/stm32_exceptions.c   \
-		 $(SRC_ARCH)/stm32_vector_table.c
+test_adc.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_adc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_adc.srcs = $(SRC_ARCH)/adc_hw.c \
+		$(SRC_LISA)/test_adc.c \
+		$(SRC_ARCH)/stm32_exceptions.c \
+		$(SRC_ARCH)/stm32_vector_table.c
 test_adc.CFLAGS += -DUSE_LED
 test_adc.srcs += $(SRC_ARCH)/led_hw.c
 test_adc.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
-test_adc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
+test_adc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_adc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 test_adc.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_adc.srcs += $(SRC_ARCH)/uart_hw.c
+test_adc.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart2
 
 test_adc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
 test_adc.srcs += downlink.c pprz_transport.c
 
-test_adc.srcs += $(SRC_ARCH)/adc_hw.c 
-
-
-
-
-
-
-
-
+test_adc.CFLAGS += \
+	-DUSE_AD1 \
+	-DUSE_AD1_1
 
 
 ################################################################################

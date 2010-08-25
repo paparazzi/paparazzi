@@ -92,6 +92,7 @@ static inline void main_periodic_task( void ) {
 	cscp_transmit(0, 0, (uint8_t *)servos, 8);
 
 	LED_PERIODIC();
+	DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
 }
 
 

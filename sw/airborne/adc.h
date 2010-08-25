@@ -42,17 +42,32 @@
 #define DEFAULT_AV_NB_SAMPLE 0x20
 
 /** 
+ Generic interface for all ADC hardware drivers, independent from 
+ microcontroller architecture. 
 */
 
-/** Data structure used to store samples */
+/** 
+	Struct to collect samples from ADC and building an average 
+	over MAX_AV_NB_SAMPLE values. 
+	See @ref adc_buf_channel. 
+*/
 struct adc_buf {
-  uint16_t sum;
-  uint16_t values[MAX_AV_NB_SAMPLE];
-  uint8_t  head;
-  uint8_t  av_nb_sample;
+  uint16_t sum;											 /* Sum of samples in buffer (avg = sum / av_nb_sample) */
+  uint16_t values[MAX_AV_NB_SAMPLE]; /* Buffer for sample values from ADC */
+  uint8_t  head; 										 /* Position index of write head in buffer */
+  uint8_t  av_nb_sample;						 /* Number of samples to use in buffer (used for avg) */
 };
 
-/** Registers a buffer to be used to store the specified converted channel */
+/** 
+ 	Registers a buffer to be used to store the specified converted channel 
+	Usage: 
+@code
+	struct adc_buf channel_buf; 
+	adc_buf_channel(1, &channel_buf, 12); 
+@endcode
+	Registers channel_buf as buffer for ADC channel 1, with max index 12 
+	(12 samples). 
+*/
 void adc_buf_channel(uint8_t adc_channel, struct adc_buf* s, uint8_t av_nb_sample);
 
 /** Starts conversions */
