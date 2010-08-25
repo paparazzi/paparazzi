@@ -175,7 +175,7 @@
       <param name="MODEM_BAUD" 		value="B9600"/>
     </subsystem>
 
-    <!-- Actuators -->
+    <!-- Actuators are automatically chosen according to board -->
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="gyro"          type="roll"/>

@@ -26,7 +26,6 @@
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="actuators"     type="4017"/>
     <subsystem name="control"/>
     <subsystem name="attitude"      type="infrared"/>
     <subsystem name="gps"           type="ublox_lea5h"/>

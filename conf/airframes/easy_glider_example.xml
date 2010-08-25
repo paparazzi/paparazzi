@@ -165,8 +165,7 @@
       <param name="MODEM_BAUD" 		value="B9600"/>
     </subsystem>
 
-    <!-- Actuators -->
-    <subsystem name="actuators" 	type="4015"/>
+    <!-- Actuators are automatically chosen according to board -->
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="adc"           type="generic">
