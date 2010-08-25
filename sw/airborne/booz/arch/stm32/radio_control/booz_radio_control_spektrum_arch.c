@@ -25,36 +25,30 @@
 #include <stm32/gpio.h>
 #include <stm32/rcc.h>
 #include <stm32/tim.h>
-#include BOARD_CONFIG
+#include <stm32/misc.h>
+#include <stm32/usart.h>
 #include "uart.h"
 #include "booz_radio_control.h"
 #include "booz_radio_control_spektrum_arch.h"
+#include "booz2_autopilot.h"
 
-bool_t   rc_spk_parser_status;
-uint8_t  rc_spk_parser_idx;
-uint8_t  rc_spk_parser_buf[RADIO_CONTROL_NB_CHANNEL*2];
-const int16_t rc_spk_throw[RADIO_CONTROL_NB_CHANNEL] = RC_SPK_THROWS;
 
-/* set TIM1 to run at DELAY_TIM_FREQUENCY */ 
-static void delay_init( void );
-/* wait busy loop, microseconds */
-static void delay_us( uint16_t uSecs );
-/* wait busy loop, milliseconds */
-static void delay_ms( uint16_t mSecs ); 
- 
-/* The longest delay with micro second granularity */
 #define MAX_DELAY   INT16_MAX
 /* the frequency of the delay timer */
 #define DELAY_TIM_FREQUENCY 1000000
 /* Number of low pulses sent to satellite receivers */ 
-#define MASTER_RECEIVER_PULSES 3 
-#define SLAVE_RECEIVER_PULSES 4 
+#define MASTER_RECEIVER_PULSES 5 
+#define SLAVE_RECEIVER_PULSES 6
 
 /* The line that is pulled low at power up to initiate the bind process */  
 #define BIND_PIN GPIO_Pin_3
 #define BIND_PIN_PORT GPIOC
 #define BIND_PIN_PERIPH RCC_APB2Periph_GPIOC 
 
+#define TIM_FREQ_1000000 1000000
+#define TIM_TICS_FOR_100us 100
+#define MIN_FRAME_SPACE  70  // 7ms
+#define MAX_BYTE_SPACE  3   // .3ms
 
 /*
  * in the makefile we set RADIO_CONTROL_LINK to be Uartx
@@ -62,94 +56,620 @@ static void delay_ms( uint16_t mSecs );
  * defined as uartx these macros give us the glue 
  * that allows static calls at compile time 
  */
+ 
 
-#define Uart1_init uart1_init()
-#define Uart2_init uart2_init()
-#define Uart3_init uart3_init()
-#define Uart5_init uart5_init()
 
-#define __MasterRcLink(dev, _x) dev##_x
-#define _MasterRcLink(dev, _x)  __MasterRcLink(dev, _x)
-#define MasterRcLink(_x) _MasterRcLink(RADIO_CONTROL_LINK, _x)
+#define __PrimaryUart(dev, _x) dev##_x
+#define _PrimaryUart(dev, _x)  __PrimaryUart(dev, _x)
+#define PrimaryUart(_x) _PrimaryUart(RADIO_CONTROL_LINK, _x)
 
-#define __SlaveRcLink(dev, _x) dev##_x
-#define _SlaveRcLink(dev, _x)  __SlaveRcLink(dev, _x)
-#define SlaveRcLink(_x) _SlaveRcLink(RADIO_CONTROL_LINK_SLAVE, _x)
+#define __SecondaryUart(dev, _x) dev##_x
+#define _SecondaryUart(dev, _x)  __SecondaryUart(dev, _x)
+#define SecondaryUart(_x) _SecondaryUart(RADIO_CONTROL_LINK_SLAVE, _x)
 
-/*
- * bind() init must called on powerup as the spektrum 
- * satellites can only bind immediately after power up
- * also it must be called before we call uartx_init()
- * as we leave them with their Rx pins set as outputs
- */    
-void radio_control_spektrum_try_bind( void ) {
+SpektrumStateType PrimarySpektrumState = {1,0,0,0,0,0,0,0,0};
+#ifdef RADIO_CONTROL_LINK_SLAVE 
+SpektrumStateType SecondarySpektrumState = {1,0,0,0,0,0,0,0,0};
+#endif
 
+int16_t SpektrumBuf[SPEKTRUM_CHANNELS_PER_FRAME*MAX_SPEKTRUM_FRAMES];
+/* the order of the channels on a spektrum is always as follows :
+ *
+ * Throttle
+ * Aileron
+ * Elevator
+ * Rudder
+ * Gear
+ * Flap/Aux1
+ * Aux2
+ * Aux3
+ * Aux4
+ *
+ */
+int8_t SpektrumSigns[MAX_SPEKTRUM_CHANNELS] = {1,1,-1,1,1,-1,1,1,1,1,1,1};
+
+static uint8_t EncodingType = 0;
+static uint8_t ExpectedFrames = 0;
+
+void SpektrumUartInit(void);
+void SpektrumTimerInit(void);
+void DebugInit(void);
+ 
+
+void tim1_up_irq_handler(void);
+/* wait busy loop, microseconds */
+static void DelayUs( uint16_t uSecs );
+/* wait busy loop, milliseconds */
+static void DelayMs( uint16_t mSecs ); 
+/* setup timer 1 for busy wait delays */
+static void SpektrumDelayInit( void );
+
+
+void radio_control_impl_init(void) {
+  SpektrumTimerInit();
+  // DebugInit();  
+  SpektrumUartInit(); 
+}
+
+
+/*****************************************************************************
+ * The bind function means that the satellite receivers believe they are 
+ * connected to a 9 channel JR-R921 24 receiver thus during the bind process 
+ * they try to get the transmitter to transmit at the highest resolution that 
+ * it can manage. The data is contained in 16 byte packets transmitted at 
+ * 115200 baud. Depending on the transmitter either 1 or 2 frames are required 
+ * to contain the data for all channels. These frames are either 11ms or 22ms
+ * apart.
+ *
+ * The format of each frame for the main receiver is as follows
+ *
+ *  byte1:  frame loss data
+ *  byte2:  transmitter information
+ *  byte3:  and byte4:  channel data
+ *  byte5:  and byte6:  channel data
+ *  byte7:  and byte8:  channel data
+ *  byte9:  and byte10: channel data
+ *  byte11: and byte12: channel data
+ *  byte13: and byte14: channel data
+ *  byte15: and byte16: channel data
+ *
+ *
+ * The format of each frame for the secondary receiver is as follows
+ *
+ *  byte1:  frame loss data
+ *  byte2:  frame loss data
+ *  byte3:  and byte4:  channel data
+ *  byte5:  and byte6:  channel data
+ *  byte7:  and byte8:  channel data
+ *  byte9:  and byte10: channel data
+ *  byte11: and byte12: channel data
+ *  byte13: and byte14: channel data
+ *  byte15: and byte16: channel data
+ *
+ * The frame loss data bytes starts out containing 0 as long as the
+ * transmitter is switched on before the receivers. It then increments
+ * whenever frames are dropped.
+ *
+ * Three values for the transmitter information byte have been seen thus far
+ *
+ * 0x01 From a Spektrum DX7eu which transmits a single frame containing all
+ * channel data every 22ms with 10bit resolution.
+ * 0x02 From a Spektrum DM9 module which transmits two frames to carry the 
+ * data for all channels 11ms apart with 10bit resolution.
+ * 0x12 From a Spektrum DX7se which transmits two frames to carry the 
+ * data for all channels 11ms apart with 11bit resolution. 
+ * 0x12 From a JR X9503 which transmits two frames to carry the 
+ * data for all channels 11ms apart with 11bit resolution.
+ *
+ * Currently the assumption is that the data has the form :
+ *
+ * [0 0 0 R 0 0 N1 N0]
+ *
+ * where :
+ * 
+ * 0 means a '0' bit
+ * R: 0 for 10 bit resolution 1 for 11 bit resolution channel data
+ * N1 to N0 is the number of frames required to receive all channel
+ * data. 
+ *
+ * Channels can have either 10bit or 11bit resolution. Data from a tranmitter
+ * with 10 bit resolution has the form:
+ *
+ * [F 0 C3 C2 C1 C0 D9 D8 D7 D6 D5 D4 D3 D2 D1 D0]
+ * 
+ * Data from a tranmitter with 11 bit resolution has the form
+ *
+ * [F C3 C2 C1 C0 D10 D9 D8 D7 D6 D5 D4 D3 D2 D1 D0]
+ *
+ * where :
+ * 
+ * 0 means a '0' bit
+ * F: Normally 0 but set to 1 for the first channel of the 2nd frame if a 
+ * second frame is transmitted. 
+ *
+ * C3 to C0 is the channel number, 4 bit, matching the numbers allocated in 
+ * the transmitter.
+ *
+ * D9 to D0 is the channel data (10 bit) 0xaa..0x200..0x356 for 
+ * 100% transmitter-travel
+ *
+ *
+ * D10 to D0 is the channel data (11 bit) 0x154..0x400..0x6AC for
+ * 100% transmitter-travel
+ *****************************************************************************/
+ 
+ /*****************************************************************************
+ *
+ * Spektrum Parser captures frame data by using time between frames to sync on
+ *
+ *****************************************************************************/
+
+#define SpektrumParser(_c, _SpektrumState, _receiver)  {                      \
+                                                                              \
+  uint16_t ChannelData;                                                       \
+  uint8_t TimedOut;                                                           \
+  static uint8_t TmpEncType = 0;        /* 0 = 10bit, 1 = 11 bit        */    \
+  static uint8_t TmpExpFrames = 0;      /* # of frames for channel data */    \
+                                                                              \
+   TimedOut = (!_SpektrumState.SpektrumTimer) ? 1 : 0;                        \
+                                                                              \
+  /* If we have just started the resync process or */                         \
+  /* if we have recieved a character before our    */                         \
+  /* 7ms wait has finished                         */                         \
+  if ((_SpektrumState.ReSync == 1) ||                                         \
+      ((_SpektrumState.Sync == 0) && (!TimedOut))) {                          \
+                                                                              \
+    _SpektrumState.ReSync = 0;                                                \
+    _SpektrumState.SpektrumTimer = MIN_FRAME_SPACE;                           \
+    _SpektrumState.Sync = 0;                                                  \
+    _SpektrumState.ChannelCnt = 0;                                            \
+    _SpektrumState.FrameCnt = 0;                                              \
+    _SpektrumState.SecondFrame = 0;                                           \
+    return;                                                                   \
+  }                                                                           \
+                                                                              \
+  /* the first byte of a new frame. It was received */                        \
+  /* more than 7ms after the last received byte.    */                        \
+  /* It represents the number of lost frames so far.*/                        \
+  if (_SpektrumState.Sync == 0) {                                             \
+      _SpektrumState.LostFrameCnt = _c;                                       \
+      if(_receiver) /* secondary receiver */                                  \
+        _SpektrumState.LostFrameCnt = _SpektrumState.LostFrameCnt << 8;       \
+      _SpektrumState.Sync = 1;                                                \
+      _SpektrumState.SpektrumTimer = MAX_BYTE_SPACE;                          \
+      return;                                                                 \
+  }                                                                           \
+                                                                              \
+  /* all other bytes should be recieved within     */                         \
+  /* MAX_BYTE_SPACE time of the last byte received */                         \
+  /* otherwise something went wrong resynchronise  */                         \
+  if(TimedOut) {                                                              \
+    _SpektrumState.ReSync = 1;                                                \
+    /* next frame not expected sooner than 7ms     */                         \
+    _SpektrumState.SpektrumTimer = MIN_FRAME_SPACE;                           \
+    return;                                                                   \
+  }                                                                           \
+                                                                              \
+  /* second character determines resolution and frame rate for main */        \
+  /* receiver or low byte of LostFrameCount for secondary receiver  */        \
+  if(_SpektrumState.Sync == 1) {                                              \
+    if(_receiver) {                                                           \
+      _SpektrumState.LostFrameCnt +=_c;                                       \
+      TmpExpFrames = ExpectedFrames;                                          \
+    } else {                                                                  \
+      /* TODO: collect more data. I suspect that there is a low res         */\
+      /* protocol that is still 10 bit but without using the full range.    */\
+      TmpEncType =(_c & 0x10)>>4;      /* 0 = 10bit, 1 = 11 bit             */\
+      TmpExpFrames = _c & 0x03;        /* 1 = 1 frame contains all channels */\
+                                       /* 2 = 2 channel data in 2 frames    */\
+    }                                                                         \
+    _SpektrumState.Sync = 2;                                                  \
+    _SpektrumState.SpektrumTimer = MAX_BYTE_SPACE;                            \
+    return;                                                                   \
+  }                                                                           \
+                                                                              \
+  /* high byte of channel data if this is the first byte */                   \
+  /* of channel data and the most significant bit is set */                   \
+  /* then this is the second frame of channel data.      */                   \
+  if(_SpektrumState.Sync == 2) {                                              \
+    _SpektrumState.HighByte = _c;                                             \
+    if (_SpektrumState.ChannelCnt == 0) {                                     \
+      _SpektrumState.SecondFrame = (_SpektrumState.HighByte & 0x80) ? 1 : 0;  \
+    }                                                                         \
+    _SpektrumState.Sync = 3;                                                  \
+    _SpektrumState.SpektrumTimer = MAX_BYTE_SPACE;                            \
+    return;                                                                   \
+  }                                                                           \
+                                                                              \
+  /* low byte of channel data */                                              \
+  if(_SpektrumState.Sync == 3) {                                              \
+    _SpektrumState.Sync = 2;                                                  \
+    _SpektrumState.SpektrumTimer = MAX_BYTE_SPACE;                            \
+    /* we overwrite the buffer now so rc data is not available now */         \
+    _SpektrumState.RcAvailable = 0;                                           \
+    ChannelData = ((uint16_t)_SpektrumState.HighByte << 8) | _c;              \
+    _SpektrumState.values[_SpektrumState.ChannelCnt                           \
+                          + (_SpektrumState.SecondFrame * 7)] = ChannelData;  \
+    _SpektrumState.ChannelCnt ++;                                             \
+  }                                                                           \
+                                                                              \
+  /* If we have a whole frame */                                              \
+  if(_SpektrumState.ChannelCnt >= SPEKTRUM_CHANNELS_PER_FRAME) {              \
+    /* how many frames did we expect ? */                                     \
+    ++_SpektrumState.FrameCnt;                                                \
+    if (_SpektrumState.FrameCnt == TmpExpFrames)                              \
+    {                                                                         \
+      /* set the rc_available_flag */                                         \
+      _SpektrumState.RcAvailable = 1;                                         \
+      _SpektrumState.FrameCnt = 0;                                            \
+    }                                                                         \
+    if(!_receiver) { /* main receiver */                                      \
+      EncodingType = TmpEncType;         /* only update on a good */          \
+      ExpectedFrames = TmpExpFrames;     /* main receiver frame   */          \
+    }                                                                         \
+    _SpektrumState.Sync = 0;                                                  \
+    _SpektrumState.ChannelCnt = 0;                                            \
+    _SpektrumState.SecondFrame = 0;                                           \
+    _SpektrumState.SpektrumTimer = MIN_FRAME_SPACE;                           \
+  }                                                                           \
+}                                                                             \
+
+/*****************************************************************************
+ *
+ * RadioControlEventImp decodes channel data stored by uart irq handlers 
+ * and calls callback funtion
+ *
+ *****************************************************************************/
+
+void _RadioControlEventImp(void (*frame_handler)(void)) {                                                        
+  uint8_t ChannelCnt;
+  uint8_t ChannelNum;
+  uint16_t ChannelData;
+  uint8_t MaxChannelNum = 0;
+   
+#ifdef RADIO_CONTROL_LINK_SLAVE  
+  uint8_t BestReceiver;
+  if ((PrimarySpektrumState.RcAvailable) || 
+      (SecondarySpektrumState.RcAvailable)) {
+    
+    if ((PrimarySpektrumState.RcAvailable) && 
+        (SecondarySpektrumState.RcAvailable)) {
+      BestReceiver  = (PrimarySpektrumState.LostFrameCnt 
+                       <= SecondarySpektrumState.LostFrameCnt) ? 0 : 1;
+    } else {
+      BestReceiver  = (PrimarySpektrumState.RcAvailable) ? 0 : 1;
+    }
+    PrimarySpektrumState.RcAvailable = 0;
+    SecondarySpektrumState.RcAvailable = 0;  
+
+#else   
+  if(PrimarySpektrumState.RcAvailable) {
+    PrimarySpektrumState.RcAvailable = 0;
+#endif       
+    ChannelCnt = 0;
+    for(int i = 0; (i < SPEKTRUM_CHANNELS_PER_FRAME * ExpectedFrames); i++) {
+#ifndef RADIO_CONTROL_LINK_SLAVE 
+      ChannelData = PrimarySpektrumState.values[i];
+#else                     
+      ChannelData = (!BestReceiver) ? PrimarySpektrumState.values[i] :
+                                 SecondarySpektrumState.values[i];
+#endif                
+      switch(EncodingType) {
+        case(0) : /* 10 bit */
+          ChannelNum = (ChannelData >> 10) & 0x0f; 
+          /* don't bother decoding unused channels */
+          if (ChannelNum < RADIO_CONTROL_NB_CHANNEL) {
+           SpektrumBuf[ChannelNum] = ChannelData & 0x3ff;       
+           SpektrumBuf[ChannelNum] -= 0x200; 
+           SpektrumBuf[ChannelNum] *= MAX_PPRZ/0x156;
+           ChannelCnt++;
+          }           
+          break;
+        
+        case(1) : /* 11 bit */
+          ChannelNum = (ChannelData >> 11) & 0x0f;
+          /* don't bother decoding unused channels */
+          if (ChannelNum < RADIO_CONTROL_NB_CHANNEL) {
+            SpektrumBuf[ChannelNum] = ChannelData & 0x7ff;
+            SpektrumBuf[ChannelNum] -= 0x400;               
+            SpektrumBuf[ChannelNum] *= MAX_PPRZ/0x2AC;        
+            ChannelCnt++;                 
+          }
+          break;
+             
+        default : ChannelNum = 0x0F; break;  /* never going to get here */
+      }
+      if ((ChannelNum != 0x0F) && (ChannelNum > MaxChannelNum))
+        MaxChannelNum = ChannelNum; 
+        
+    }
+ 
+    if (ChannelCnt >= (MaxChannelNum + 1)) {
+      radio_control.frame_cpt++;					
+      radio_control.time_since_last_frame = 0;
+      radio_control.status = RADIO_CONTROL_OK;
+      for (int i = 0; i < (MaxChannelNum + 1); i++) {
+        radio_control.values[i] = SpektrumBuf[i];
+        if (i == 0) {
+          radio_control.values[i] += MAX_PPRZ;
+          radio_control.values[i] /= 2;
+        }
+        radio_control.values[i] *= SpektrumSigns[i];
+      }
+      (*frame_handler)();  
+    }   
+  }
+}
+
+ 
+/*****************************************************************************
+ *
+ * Initialise TIM1 to fire a IM1_UP_IRQ every 100 microseconds to provide
+ * timebase for SpektrumParser
+ *
+ *****************************************************************************/ 
+void SpektrumTimerInit( void ) {
+
+  /* enable TIM1 clock */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+  
+  /* TIM1 configuration */
+  TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+  TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+  /* 100 microseconds ie 0.1 millisecond */
+  TIM_TimeBaseStructure.TIM_Period = TIM_TICS_FOR_100us-1; 
+  TIM_TimeBaseStructure.TIM_Prescaler = ((AHB_CLK / TIM_FREQ_1000000) - 1);
+  TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;   
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Down; 
+  TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
+  
+  /* Enable TIM1 interrupts */
+  NVIC_InitTypeDef NVIC_InitStructure;
+  
+  /* Enable and configure TIM1 IRQ channel */
+  NVIC_InitStructure.NVIC_IRQChannel = TIM1_UP_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+  
+  /* Enable TIM1 Update interrupt */
+  TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
+  TIM_ClearFlag(TIM1, TIM_FLAG_Update); 
+  
+  /* TIM1 enable counter */
+  TIM_Cmd(TIM1, ENABLE);
+}
+
+/*****************************************************************************
+ *
+ * TIM1 interrupt request handler updates times used by SpektrumParser
+ *
+ *****************************************************************************/
+void tim1_up_irq_handler( void ) {
+  
+  TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
+  
+  if (PrimarySpektrumState.SpektrumTimer) 
+    --PrimarySpektrumState.SpektrumTimer; 
+#ifdef RADIO_CONTROL_LINK_SLAVE    
+  if (SecondarySpektrumState.SpektrumTimer) 
+    --SecondarySpektrumState.SpektrumTimer;
+#endif      
+}
+
+/*****************************************************************************
+ *
+ * Initialise the uarts for the spektrum satellite receivers 
+ *
+ *****************************************************************************/
+void SpektrumUartInit(void) {
+  /* init RCC */
+  PrimaryUart(_remap);
+  PrimaryUart(_clk)(PrimaryUart(_UartPeriph), ENABLE);;
+  //RCC_APB1PeriphClockCmd(PrimaryUart(_UartPeriph), ENABLE);
+ 
+  /* Enable USART interrupts */
+  NVIC_InitTypeDef nvic;
+  nvic.NVIC_IRQChannel = PrimaryUart(_IRQn);
+  nvic.NVIC_IRQChannelPreemptionPriority = 2;
+  nvic.NVIC_IRQChannelSubPriority = 1;
+  nvic.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&nvic);
+  /* Init GPIOS */
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  /* Primary UART Rx pin as floating input */
+  GPIO_InitStructure.GPIO_Pin   = PrimaryUart(_RxPin); 
+  GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(PrimaryUart(_RxPort), &GPIO_InitStructure);
+  /* Configure Primary UART */
+  USART_InitTypeDef usart;
+  usart.USART_BaudRate            = B115200;
+  usart.USART_WordLength          = USART_WordLength_8b;
+  usart.USART_StopBits            = USART_StopBits_1;
+  usart.USART_Parity              = USART_Parity_No;
+  usart.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  usart.USART_Mode                = USART_Mode_Rx;
+  USART_Init(PrimaryUart(_reg), &usart);
+  /* Enable Primary UART Receive interrupts */
+  USART_ITConfig(PrimaryUart(_reg), USART_IT_RXNE, ENABLE);
+  /* Enable the Primary UART */
+  USART_Cmd(PrimaryUart(_reg), ENABLE);
+  
+  
+#ifdef RADIO_CONTROL_LINK_SLAVE  
+   /* init RCC */
+  SecondaryUart(_remap);
+  SecondaryUart(_clk)(SecondaryUart(_UartPeriph), ENABLE);
+  //RCC_APB1PeriphClockCmd(SecondaryUart(_UartPeriph), ENABLE);
+  /* Enable USART interrupts */
+  nvic.NVIC_IRQChannel = SecondaryUart(_IRQn);
+  nvic.NVIC_IRQChannelPreemptionPriority = 2;
+  nvic.NVIC_IRQChannelSubPriority = 2;
+  nvic.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&nvic);
+  /* Init GPIOS */;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  /* Secondary UART Rx pin as floating input */
+  GPIO_InitStructure.GPIO_Pin   = SecondaryUart(_RxPin); 
+  GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(SecondaryUart(_RxPort), &GPIO_InitStructure);
+  /* Configure secondary UART */ 
+  usart.USART_BaudRate            = B115200;
+  usart.USART_WordLength          = USART_WordLength_8b;
+  usart.USART_StopBits            = USART_StopBits_1;
+  usart.USART_Parity              = USART_Parity_No;
+  usart.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  usart.USART_Mode                = USART_Mode_Rx;
+  USART_Init(SecondaryUart(_reg), &usart);
+  /* Enable Secondary UART Receive interrupts */
+  USART_ITConfig(SecondaryUart(_reg), USART_IT_RXNE, ENABLE);
+  /* Enable the Primary UART */
+  USART_Cmd(SecondaryUart(_reg), ENABLE);
+#endif  
+  
+}
+
+/*****************************************************************************
+ *
+ * The primary receiver UART interrupt request handler which passes the 
+ * received character to Spektrum Parser.
+ *
+ *****************************************************************************/
+void PrimaryUart(_irq_handler)(void) {
+  
+  if(USART_GetITStatus(PrimaryUart(_reg), USART_IT_TXE) != RESET) {
+      USART_ITConfig(PrimaryUart(_reg), USART_IT_TXE, DISABLE);
+  }
+  
+  if(USART_GetITStatus(PrimaryUart(_reg), USART_IT_RXNE) != RESET) {
+    uint8_t b =  USART_ReceiveData(PrimaryUart(_reg));
+    SpektrumParser(b, PrimarySpektrumState, 0);      
+  }
+}
+
+/*****************************************************************************
+ *
+ * The secondary receiver UART interrupt request handler which passes the 
+ * received character to Spektrum Parser.
+ *
+ *****************************************************************************/
+#ifdef RADIO_CONTROL_LINK_SLAVE
+void SecondaryUart(_irq_handler)(void) {
+  
+  if(USART_GetITStatus(SecondaryUart(_reg), USART_IT_TXE) != RESET) {
+      USART_ITConfig(SecondaryUart(_reg), USART_IT_TXE, DISABLE);
+  }
+  
+  if(USART_GetITStatus(SecondaryUart(_reg), USART_IT_RXNE) != RESET) {
+    uint8_t b =  USART_ReceiveData(SecondaryUart(_reg));
+    SpektrumParser(b, SecondarySpektrumState, 1);       
+  }
+}
+#endif
+
+/*****************************************************************************
+ *
+ * Use pin to output debug information.
+ *
+ *****************************************************************************/
+void DebugInit(void) {
+  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOC, ENABLE);
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);  
+  GPIO_WriteBit(GPIOC, GPIO_Pin_5 , Bit_RESET );	
+}
+
+/*****************************************************************************
+ *
+ * The following functions provide functionality to allow binding of 
+ * spektrum satellite receivers. The pulse train sent to them means
+ * that Lisa is emulating a 9 channel JR-R921 24.
+ *
+ *****************************************************************************/
+/*****************************************************************************
+ *
+ * radio_control_spektrum_try_bind(void) must called on powerup as spektrum 
+ * satellites can only bind immediately after power up also it must be called 
+ * before the call to SpektrumUartInit as we leave them with their Rx pins set 
+ * as outputs.
+ *
+ *****************************************************************************/    
+void radio_control_spektrum_try_bind(void) {
+  
+  /* init RCC */
   RCC_APB2PeriphClockCmd(BIND_PIN_PERIPH , ENABLE);
-  GPIO_InitTypeDef gpio;
-  gpio.GPIO_Pin = BIND_PIN;
-  gpio.GPIO_Mode = GPIO_Mode_IPU;
-  gpio.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_Init(BIND_PIN_PORT, &gpio);
-
-  /* exit if the BIND_PIN is high, it needs to be pulled low at startup to initiate bind */
+  
+  /* Init GPIO for the bind pin */
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin = BIND_PIN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_Init(BIND_PIN_PORT, &GPIO_InitStructure);
+  /* exit if the BIND_PIN is high, it needs to 
+     be pulled low at startup to initiate bind */
   if (GPIO_ReadInputDataBit(BIND_PIN_PORT, BIND_PIN)) 
     return;
 
   /* bind initiated, initialise the delay timer */
-  delay_init();
+  SpektrumDelayInit();
 
   /* initialise the uarts rx pins as  GPIOS */
-  RCC_APB2PeriphClockCmd(MasterRcLink(_Periph) , ENABLE);
+  RCC_APB2PeriphClockCmd(PrimaryUart(_Periph) , ENABLE);
   /* Master receiver Rx push-pull */
-  gpio.GPIO_Pin = MasterRcLink(_RxPin);
-  gpio.GPIO_Mode = GPIO_Mode_Out_PP;
-  gpio.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(MasterRcLink(_RxPort), &gpio);
+  GPIO_InitStructure.GPIO_Pin = PrimaryUart(_RxPin);
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(PrimaryUart(_RxPort), &GPIO_InitStructure);
   /* Master receiver RX line, drive high */
-  GPIO_WriteBit(MasterRcLink(_RxPort), MasterRcLink(_RxPin) , Bit_SET );
+  GPIO_WriteBit(PrimaryUart(_RxPort), PrimaryUart(_RxPin) , Bit_SET );
 
 #ifdef RADIO_CONTROL_LINK_SLAVE
-   RCC_APB2PeriphClockCmd(SlaveRcLink(_Periph) , ENABLE);
+   RCC_APB2PeriphClockCmd(SecondaryUart(_Periph) , ENABLE);
   /* Slave receiver Rx push-pull */
-  gpio.GPIO_Pin = SlaveRcLink(_RxPin);
-  gpio.GPIO_Mode = GPIO_Mode_Out_PP;
-  gpio.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(SlaveRcLink(_RxPort), &gpio);
+  GPIO_InitStructure.GPIO_Pin = SecondaryUart(_RxPin);
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(SecondaryUart(_RxPort), &GPIO_InitStructure);
   /* Slave receiver RX line, drive high */
-  GPIO_WriteBit(SlaveRcLink(_RxPort), SlaveRcLink(_RxPin) , Bit_SET );
+  GPIO_WriteBit(SecondaryUart(_RxPort), SecondaryUart(_RxPin) , Bit_SET );
 #endif
 
   /* We have no idea how long the window for allowing binding after  
      power up is .This works for the moment but will need revisiting */	
-  delay_ms(73);
+  DelayMs(61);
 
   for (int i = 0; i < MASTER_RECEIVER_PULSES ; i++) 
   {
-    GPIO_WriteBit(MasterRcLink(_RxPort), MasterRcLink(_RxPin), Bit_RESET );
-    delay_us(120);
-    GPIO_WriteBit(MasterRcLink(_RxPort), MasterRcLink(_RxPin), Bit_SET );
-    delay_us(120);
+    GPIO_WriteBit(PrimaryUart(_RxPort), PrimaryUart(_RxPin), Bit_RESET );
+    DelayUs(118);
+    GPIO_WriteBit(PrimaryUart(_RxPort), PrimaryUart(_RxPin), Bit_SET );
+    DelayUs(122);
   }
   
 #ifdef RADIO_CONTROL_LINK_SLAVE
   for (int i = 0; i < SLAVE_RECEIVER_PULSES; i++) 
   {
-    GPIO_WriteBit(SlaveRcLink(_RxPort), SlaveRcLink(_RxPin), Bit_RESET );
-    delay_us(120);
-    GPIO_WriteBit(SlaveRcLink(_RxPort), SlaveRcLink(_RxPin), Bit_SET );
-    delay_us(120);
+    GPIO_WriteBit(SecondaryUart(_RxPort), SecondaryUart(_RxPin), Bit_RESET );
+    DelayUs(120);
+    GPIO_WriteBit(SecondaryUart(_RxPort), SecondaryUart(_RxPin), Bit_SET );
+    DelayUs(120);
   }
 #endif /* RADIO_CONTROL_LINK_SLAVE */
 }
 
-
-/*
- *\Functions to implement busy wait loops with micro second granularity
+/*****************************************************************************
  *
- */
-
+ * Functions to implement busy wait loops with micro second granularity
+ *
+ *****************************************************************************/
+ 
 /* set TIM1 to run at DELAY_TIM_FREQUENCY */ 
-static void delay_init( void ) {
+static void SpektrumDelayInit( void ) {
   /* Enable timer clock */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
   /* Time base configuration */
@@ -166,23 +686,15 @@ static void delay_init( void ) {
 }
 
 /* wait busy loop, microseconds */
-static void delay_us( uint16_t uSecs ) {
+static void DelayUs( uint16_t uSecs ) {
   uint16_t start = TIM1->CNT;
   /* use 16 bit count wrap around */
   while((uint16_t)(TIM1->CNT - start) <= uSecs);
 }
 
 /* wait busy loop, milliseconds */
-static void delay_ms( uint16_t mSecs ) {
+static void DelayMs( uint16_t mSecs ) {
   for(int i = 0; i < mSecs; i++) {
-    delay_us(DELAY_TIM_FREQUENCY / 1000);
+    DelayUs(DELAY_TIM_FREQUENCY / 1000);
   }
 }
-
-
-void radio_control_impl_init(void) {
-  rc_spk_parser_status = RC_SPK_STA_UNINIT;
-  rc_spk_parser_idx = 0;
-}
-
-
