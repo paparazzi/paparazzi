@@ -23,15 +23,37 @@
 
 #include "modules/vehicle_interface/vi_overo_link.h"
 
-void vi_impl_init(void) {
+#include "lisa/lisa_overo_link.h"
 
+
+#include <string.h>
+
+static inline void on_overo_link_lost(void);
+
+void vi_impl_init(void) {
+  overo_link_init();
 }
 
 void vi_impl_periodic(void) {
-
+ OveroLinkPeriodic(on_overo_link_lost);
 }
 
 void vi_impl_set_enabled(bool_t enabled __attribute__ ((unused))) {
 
 }
 
+static inline void on_overo_link_lost(void) {
+
+}
+
+ void vi_overo_link_on_msg_received(void) {
+  
+  memcpy(&overo_link.up.msg, &overo_link.down.msg, 
+	 sizeof(union AutopilotMessage));
+  
+}
+
+
+void vi_overo_link_on_crc_err(void) {
+  
+}

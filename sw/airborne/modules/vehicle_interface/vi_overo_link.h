@@ -27,9 +27,13 @@
 #include "std.h"
 #include "modules/vehicle_interface/vi.h"
 #include "math/pprz_algebra_int.h"
+#include "lisa/lisa_overo_link.h"
 
+#define ViOveroLinkEvent() {						\
+    OveroLinkEvent(vi_overo_link_on_msg_received, vi_overo_link_on_crc_err); \
+  }
 
-
-
+extern void vi_overo_link_on_msg_received(void);
+extern void vi_overo_link_on_crc_err(void);
 
 #endif /* VEHICLE_INTERFACE_OVERO_LINK_H */

@@ -5,11 +5,17 @@
     <file name="vi_overo_link.h"/>
   </header>
   <init fun="vi_init()"/>
-  <periodic fun="vi_periodic()" freq="25"/>
+  <periodic fun="vi_periodic()" freq="512"/>
+  <event fun="ViOveroLinkEvent()"/>
   <makefile>
     <file name="vi.c"/>
     <file name="vi_overo_link.c"/>
-  <!--  <file name="lisa/lisa_overo_link.c"/> -->
+    <raw>ap.srcs   += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c</raw>
+    <raw>ap.CFLAGS +=  -DUSE_OVERO_LINK</raw>
+    <raw>ap.CFLAGS +=  -Ilisa/arch/stm32</raw>
+    <raw>ap.CFLAGS +=  -DOVERO_LINK_MSG_UP=AutopilotMessageFoo</raw>
+    <raw>ap.CFLAGS +=  -DOVERO_LINK_MSG_DOWN=AutopilotMessageFoo</raw>
+    <raw>ap.CFLAGS +=  -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=2 -DUSE_DMA1_C2_IRQ</raw>
   </makefile>
 </module>
 
