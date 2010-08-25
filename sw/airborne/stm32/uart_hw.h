@@ -37,30 +37,18 @@
 #define B115200 115200
 
 
-#define Uart1_TxPin UART1_TxPin 
-#define Uart2_TxPin UART2_TxPin
-#define Uart3_TxPin UART3_TxPin
 #define UART1_TxPin GPIO_Pin_9
 #define UART2_TxPin GPIO_Pin_2
 #define UART3_TxPin GPIO_Pin_10
 
-#define Uart1_RxPin UART1_RxPin  
-#define Uart2_RxPin UART2_RxPin
-#define Uart3_RxPin UART3_RxPin
 #define UART1_RxPin GPIO_Pin_10
 #define UART2_RxPin GPIO_Pin_3
 #define UART3_RxPin GPIO_Pin_11
 
-#define Uart1_TxPort UART1_TxPort
-#define Uart2_TxPort UART2_TxPort
-#define Uart3_TxPort UART3_TxPort
 #define UART1_TxPort GPIOA
 #define UART2_TxPort GPIOA
 #define UART3_TxPort GPIOC
 
-#define Uart1_RxPort UART1_RxPort
-#define Uart2_RxPort UART2_RxPort
-#define Uart3_RxPort UART3_RxPort
 #define UART1_RxPort GPIOA
 #define UART2_RxPort GPIOA
 #define UART3_RxPort GPIOC
@@ -68,62 +56,40 @@
 #define UART1_Periph RCC_APB2Periph_GPIOA
 #define UART2_Periph RCC_APB2Periph_GPIOA
 #define UART3_Periph RCC_APB2Periph_GPIOC
-#define Uart1_UartPeriph UART1_UartPeriph
-#define Uart2_UartPeriph UART2_UartPeriph
-#define Uart3_UartPeriph UART3_UartPeriph
 
-
-#define Uart1_Periph UART1_Periph
-#define Uart2_Periph UART2_Periph
-#define Uart3_Periph UART3_Periph
 #define UART1_UartPeriph RCC_APB2Periph_USART1
 #define UART2_UartPeriph RCC_APB1Periph_USART2
 #define UART3_UartPeriph RCC_APB1Periph_USART3
 
-#define UART1_remap Uart1_remap
-#define UART2_remap Uart2_remap
-#define UART3_remap Uart3_remap
-#define UART5_remap Uart5_remap
-#define Uart1_remap {}
-#define Uart2_remap {}
-#define Uart3_remap {RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE); \
+#define UART1_remap {}
+#define UART2_remap {}
+#define UART3_remap {RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE); \
                      GPIO_PinRemapConfig(GPIO_PartialRemap_USART3, ENABLE);}
-#define Uart5_remap {}
+#define UART5_remap {}
+
+#define UART1_clk(_periph, _val) RCC_APB2PeriphClockCmd(_periph, _val)
+#define UART2_clk(_periph, _val) RCC_APB1PeriphClockCmd(_periph, _val)
+#define UART3_clk(_periph, _val) RCC_APB1PeriphClockCmd(_periph, _val);
+ 
 
 #define Uart1_init uart1_init()
 #define Uart2_init uart2_init()
 #define Uart3_init uart3_init()
 #define Uart5_init uart5_init()
 
-#define UART1_irq_handler Uart1_irq_handler
-#define UART2_irq_handler Uart2_irq_handler
-#define UART3_irq_handler Uart3_irq_handler
-#define UART5_irq_handler Uart5_irq_handler
+#define UART1_irq_handler usart1_irq_handler
+#define UART2_irq_handler usart2_irq_handler
+#define UART3_irq_handler usart3_irq_handler
+#define UART5_irq_handler  uart5_irq_handler 
 
-#define Uart1_irq_handler usart1_irq_handler
-#define Uart2_irq_handler usart2_irq_handler
-#define Uart3_irq_handler usart3_irq_handler
-#define Uart5_irq_handler uart5_irq_handler
+#define UART1_IRQn USART1_IRQn
+#define UART2_IRQn USART2_IRQn 
+#define UART3_IRQn USART3_IRQn
 
-#define UART1_IRQn Uart1_IRQn
-#define UART2_IRQn Uart2_IRQn
-#define UART3_IRQn Uart3_IRQn
-
-#define Uart1_IRQn USART1_IRQn
-#define Uart2_IRQn USART2_IRQn 
-#define Uart3_IRQn USART3_IRQn
-#define Uart5_IRQn UART5_IRQn
-
-#define UART1_reg Uart1_reg 
-#define UART2_reg Uart2_reg
-#define UART3_reg Uart3_reg
-#define UART5_reg Uart5_reg 
-
-#define Uart1_reg USART1
-#define Uart2_reg USART2
-#define Uart3_reg USART3
-#define Uart5_reg UART5  
-
+#define UART1_reg USART1
+#define UART2_reg USART2
+#define UART3_reg USART3
+#define UART5_reg UART5  
 
 
 #if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
