@@ -35,8 +35,19 @@
 
 extern uint16_t cpu_time_sec;
 
+#define SYS_TICS_OF_USEC(us) SYS_TICS_OF_SEC((us) * 1e-6)
+#define SYS_TICS_OF_NSEC(ns) SYS_TICS_OF_SEC((ns) * 1e-9)
+#define SIGNED_SYS_TICS_OF_USEC(us) SIGNED_SYS_TICS_OF_SEC((us) * 1e-6)
+#define SIGNED_SYS_TICS_OF_NSEC(us) SIGNED_SYS_TICS_OF_SEC((us) * 1e-9)
+
+#define TIME_TICKS_PER_SEC SYS_TICS_OF_SEC( 1.)
+#define FIFTY_MS           SYS_TICS_OF_SEC( 50e-3 )
+#define AVR_PERIOD_MS      SYS_TICS_OF_SEC( 16.666e-3 )
+
 #ifndef READYBOARD_SYS_TIME
 #include "sys_time_hw.h"
 #endif
+
+
 
 #endif /* SYS_TIME_H */

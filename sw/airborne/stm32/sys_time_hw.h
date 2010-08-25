@@ -30,6 +30,8 @@
 #ifndef SYS_TIME_HW_H
 #define SYS_TIME_HW_H
 
+#include "sys_time.h"
+
 #include <stm32/gpio.h>
 #include <stm32/rcc.h>
 #include "std.h"
@@ -45,8 +47,8 @@ extern void sys_tick_irq_handler(void);
 extern volatile bool_t sys_time_period_elapsed;
 extern uint32_t cpu_time_ticks;
 
-#define SYS_TICS_OF_SEC(s)   (uint32_t)((s) * AHB_CLK + 0.5)
-#define TIME_TICKS_PER_SEC SYS_TICS_OF_SEC(1.)
+#define SYS_TICS_OF_SEC(s)        (uint32_t)((s) * AHB_CLK + 0.5)
+#define SIGNED_SYS_TICS_OF_SEC(s)  (int32_t)((s) * AHB_CLK + 0.5)
 
 static inline bool_t sys_time_periodic( void ) {
   if (sys_time_period_elapsed) {

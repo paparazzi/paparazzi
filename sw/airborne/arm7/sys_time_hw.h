@@ -29,7 +29,7 @@
 
 #ifndef SYS_TIME_HW_H
 #define SYS_TIME_HW_H
-
+#include "sys_time.h"
 #include "std.h"
 #include "LPC21xx.h"
 #include BOARD_CONFIG
@@ -118,25 +118,20 @@ static inline void sys_time_init( void ) {
 
 }
 
-#define SYS_TICS_OF_SEC(s)   (uint32_t)(s * PCLK / T0_PCLK_DIV + 0.5)
-#define SYS_TICS_OF_USEC(us) SYS_TICS_OF_SEC((us) * 1e-6)
-#define SYS_TICS_OF_NSEC(ns) SYS_TICS_OF_SEC((ns) * 1e-9)
+#define SYS_TICS_OF_SEC(s)       (uint32_t)(s * PCLK / T0_PCLK_DIV + 0.5)
 #define SIGNED_SYS_TICS_OF_SEC(s) (int32_t)(s * PCLK / T0_PCLK_DIV + 0.5)
-#define SIGNED_SYS_TICS_OF_USEC(us) SIGNED_SYS_TICS_OF_SEC((us) * 1e-6)
 
-#define SEC_OF_SYS_TICS(st) (st / PCLK * T0_PCLK_DIV)
+
+#define SEC_OF_SYS_TICS(st)  (st / PCLK * T0_PCLK_DIV)
 #define MSEC_OF_SYS_TICS(st) (st / (PCLK/1000) * T0_PCLK_DIV)
 #define USEC_OF_SYS_TICS(st) (st / (PCLK/1000000) * T0_PCLK_DIV)
 
 #define GET_CUR_TIME_FLOAT() ((float)cpu_time_sec + SEC_OF_SYS_TICS((float)cpu_time_ticks))
 
-#define FIFTY_MS          SYS_TICS_OF_SEC( 50e-3 )
-#define AVR_PERIOD_MS     SYS_TICS_OF_SEC( 16.666e-3 )
 #ifndef PERIODIC_TASK_PERIOD
 #define PERIODIC_TASK_PERIOD AVR_PERIOD_MS
 #endif
 
-#define TIME_TICKS_PER_SEC SYS_TICS_OF_SEC(1)
 
 #define InitSysTimePeriodic() last_periodic_event = T0TC;
 
