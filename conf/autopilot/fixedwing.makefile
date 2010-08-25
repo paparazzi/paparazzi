@@ -21,7 +21,6 @@ include $(CFG_FIXEDWING)/autopilot.makefile
 
 
 ifeq ($(BOARD),tiny)
-
   ifeq ($(BOARD_VERSION),1.1)
     include $(CFG_FIXEDWING)/actuators_4015.makefile
   else
@@ -31,6 +30,10 @@ ifeq ($(BOARD),tiny)
       include $(CFG_FIXEDWING)/actuators_4017.makefile
     endif
   endif
+endif
+
+ifeq ($(BOARD),twog)
+	include $(CFG_FIXEDWING)/actuators_4017.makefile
 endif
 
 ifeq ($(BOARD),lisa_l)
