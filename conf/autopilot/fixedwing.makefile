@@ -34,7 +34,7 @@ ifeq ($(BOARD),tiny)
 endif
 
 ifeq ($(BOARD),lisa_l)
-    include $(CFG_FIXEDWING)/actuators_lisa.makefile
+    include $(CFG_FIXEDWING)/actuators_direct.makefile
 endif
 
 

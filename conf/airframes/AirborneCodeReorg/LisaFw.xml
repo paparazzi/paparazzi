@@ -9,8 +9,8 @@
 <airframe name="Fixed Wing Lisa">
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="2" min="1130" neutral="1575" max="1880"/>
-    <servo name="AILEVON_RIGHT" no="6" min="1980" neutral="1465" max="1170"/>
+    <servo name="AILEVON_LEFT"  no="1" min="1130" neutral="1575" max="1880"/>
+    <servo name="AILEVON_RIGHT" no="2" min="1980" neutral="1465" max="1170"/>
   </servos>
 
   <commands>

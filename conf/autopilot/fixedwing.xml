@@ -20,7 +20,7 @@
    <param name="MODEM_BAUD"     values="B9600|B38400|B57600|B115200"/>
  </subsystem>
  <!-- Actuators -->
- <subsystem name="actuators" 	types="4015|4017|ppm"/>
+ <subsystem name="actuators" 	types="4015|4017|ppm|direct"/>
  <subsystem name="control"      types="NONE|adaptive|new"/>
  <!-- Sensors -->
  <subsystem name="gyro"         types="roll|pitch">
