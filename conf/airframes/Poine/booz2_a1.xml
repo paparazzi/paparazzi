@@ -196,13 +196,10 @@
  </section>
 
 
-
   <firmware name="rotorcraft">
-    <target name="ap" board="booz_1.0">
-      <param  name="FLASH_MODE" value="IAP"/>   <!-- default for the board but putting it here as example--> 
-    </target>
+    <target name="ap" board="booz_1.0"/>
     <target name="sim" board="pc">
-      <subsystem name="simulator"     type="nps"/>
+      <subsystem name="fdm"         type="nps"/>
     </target>
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="actuators"     type="mkk"/>
@@ -213,9 +210,10 @@
   </firmware>
 
   <firmware name="booz_test_progs">
-    <target name="test_telemetry" board="booz_1.0"/>
-    <target name="test_baro"      board="booz_1.0"/>
-    <target name="test_spektrum"  board="booz_1.0"/>
+    <target name="test_telemetry"   board="booz_1.0"/>
+    <target name="test_baro"        board="booz_1.0"/>
+    <target name="test_rc_spektrum" board="booz_1.0"/>
+    <target name="test_rc_ppm"      board="booz_1.0"/>
   </firmware>
 
 

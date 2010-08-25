@@ -3,7 +3,7 @@
 
 
  <target name="ap" description="The autopilot">
-   <param name="FLASH_MODE" values="|IAP|JTAG|ISP|"/>
+   <param name="FLASH_MODE" values="IAP|JTAG|ISP"/>
    <define name="AGR_CLIMB" />
    <define name="TRAFFIC_INFO"/>
    <define name="LOITER_TRIM"/>

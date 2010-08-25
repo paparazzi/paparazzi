@@ -54,6 +54,8 @@ static inline void main_init( void ) {
   int_enable();
 }
 
+extern uint32_t debug_len;
+
 static inline void main_periodic_task( void ) {
   
   RunOnceEvery(51, {/*LED_TOGGLE(2);*/ DOWNLINK_SEND_TIME(DefaultChannel, &cpu_time_sec);});  
@@ -69,6 +71,10 @@ static inline void main_periodic_task( void ) {
 						      &radio_control.values[RADIO_CONTROL_MODE],     \
 						      &foo,                                          \
 						      &radio_control.status);});
+  uint8_t bar;
+  RunOnceEvery(10, {  DOWNLINK_SEND_CHRONO(DefaultChannel, &bar, &debug_len)});
+
+
   LED_PERIODIC();
 }
 

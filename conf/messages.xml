@@ -344,7 +344,7 @@
   </message>
 
   <message name="CHRONO" id="48">
-    <field name="tag" type="uint8"/>
+    <field name="tag"  type="uint8"/>
     <field name="time" type="uint32" unit="us"/>
   </message>
 

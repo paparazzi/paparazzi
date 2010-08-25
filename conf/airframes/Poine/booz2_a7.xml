@@ -175,11 +175,11 @@
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
  </section>
 
-<!-- -->
+<!--
  <modules main_freq="512">
    <load name="vehicle_interface_overo_link.xml"/>
  </modules>
-<!-- -->
+-->
  
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_l_1.0">
@@ -191,7 +191,7 @@
       <subsystem name="actuators"     type="asctec"/>
     </target>
     <target name="sim" board="pc">
-      <subsystem name="simulator"     type="nps"/>
+      <subsystem name="fdm"           type="nps"/>
       <subsystem name="radio_control" type="ppm"/>
       <subsystem name="actuators"     type="mkk"/>
     </target>
@@ -202,9 +202,10 @@
   </firmware>
 
   <firmware name="lisa_l_test_progs">
-    <target name="test_telemetry" board="lisa_l_1.0"/>
-    <target name="test_baro"      board="lisa_l_1.0"/>
-    <target name="test_spektrum"  board="lisa_l_1.0"/>
+    <target name="test_telemetry"   board="lisa_l_1.0"/>
+    <target name="test_baro"        board="lisa_l_1.0"/>
+    <target name="test_rc_spektrum" board="lisa_l_1.0"/>
+    <target name="test_rc_ppm"      board="lisa_l_1.0"/>
   </firmware>
 
   <firmware name="lisa_passthrough">

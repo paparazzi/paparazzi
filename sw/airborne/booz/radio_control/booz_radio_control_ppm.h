@@ -56,7 +56,7 @@ extern volatile bool_t booz_radio_control_ppm_frame_available;
         radio_control.status = RADIO_CONTROL_OK;			\
         NormalizePpm();							\
         _received_frame_handler();					\
-      } \
+      }									\
       booz_radio_control_ppm_frame_available = FALSE;			\
     }									\
   }

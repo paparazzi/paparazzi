@@ -1,7 +1,7 @@
 #
 # Autopilot
 #
-ap.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_LED=1
+ap.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
 ap.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_ppm.h\"
 ap.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
 ap.srcs += $(SRC_BOOZ)/booz_radio_control.c                    \

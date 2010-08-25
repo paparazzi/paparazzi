@@ -121,7 +121,7 @@ test_baro.srcs += $(SRC_BOOZ)/booz2_battery.c
 
 
 #
-# test_spektrum :
+# test_rc_spektrum :
 #
 # TODO
 # 
@@ -131,3 +131,36 @@ test_baro.srcs += $(SRC_BOOZ)/booz2_battery.c
 
 
 
+#
+# test rc ppm
+#
+# configuration
+#   SYS_TIME_LED
+#   MODEM_PORT
+#   MODEM_BAUD
+#   RADIO_CONTROL_LED
+#
+test_rc_ppm.ARCHDIR   = $(ARCHI)
+test_rc_ppm.ARCH      = arm7tdmi
+test_rc_ppm.TARGET    = test_rc_ppm
+test_rc_ppm.TARGETDIR = test_rc_ppm
+
+test_rc_ppm.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_rc_ppm.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD)
+test_rc_ppm.CFLAGS += -DPERIPHERALS_AUTO_INIT
+test_rc_ppm.srcs   += $(SRC_BOOZ)/test/booz2_test_radio_control.c
+test_rc_ppm.CFLAGS += -DUSE_LED
+test_rc_ppm.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_rc_ppm.CFLAGS += -DTIME_LED=$(SYS_TIME_LED)
+test_rc_ppm.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+
+test_rc_ppm.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_rc_ppm.srcs   += $(SRC_ARCH)/uart_hw.c
+test_rc_ppm.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT) 
+test_rc_ppm.srcs   += downlink.c pprz_transport.c
+test_rc_ppm.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
+test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_ppm.h\"
+test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
+test_rc_ppm.srcs   += $(SRC_BOOZ)/booz_radio_control.c \
+                      $(SRC_BOOZ)/radio_control/booz_radio_control_ppm.c \
+                      $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_ppm_arch.c

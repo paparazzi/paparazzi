@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -26,4 +26,3 @@
  *
  */
 
-extern void booz_radio_control_ppm_hw_init ( void );

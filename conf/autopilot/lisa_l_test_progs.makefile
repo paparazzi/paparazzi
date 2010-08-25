@@ -117,40 +117,81 @@ test_baro.srcs   += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 
 #
-# test_spektrum : sends RADIO_CONTROL messages on telemetry
+# test_rc_spektrum : sends RADIO_CONTROL messages on telemetry
 #
 # configuration
-#   MODEM_PORT :
-#   MODEM_BAUD :
-#   RADIO_CONROL_LINK :
+#   SYS_TIME_LED
+#   MODEM_PORT
+#   MODEM_BAUD
+#   RADIO_CONTROL_LED
+#   RADIO_CONROL_LINK
 #
+test_rc_spektrum.ARCHDIR   = $(ARCHI)
+test_rc_spektrum.TARGET    = test_rc_spektrum
+test_rc_spektrum.TARGETDIR = test_rc_spektrum
+
+test_rc_spektrum.CFLAGS += -I$(SRC_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_rc_spektrum.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) 
+test_rc_spektrum.srcs   += $(SRC_BOOZ_TEST)/booz2_test_radio_control.c \
+                           $(SRC_ARCH)/stm32_exceptions.c              \
+                           $(SRC_ARCH)/stm32_vector_table.c
+
+test_rc_spektrum.CFLAGS += -DUSE_LED
+test_rc_spektrum.srcs   += $(SRC_ARCH)/led_hw.c
+test_rc_spektrum.CFLAGS += -DUSE_SYS_TIME
+test_rc_spektrum.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_rc_spektrum.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
+test_rc_spektrum.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_rc_spektrum.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_rc_spektrum.srcs   += $(SRC_ARCH)/uart_hw.c
+test_rc_spektrum.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
+test_rc_spektrum.srcs   += downlink.c pprz_transport.c
+test_rc_spektrum.CFLAGS += -DUSE_RADIO_CONTROL
+test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
+test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_spektrum.h\"
+test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"radio_control/booz_radio_control_spektrum_dx7se.h\"
+test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_LINK=$(RADIO_CONTROL_LINK)
+test_rc_spektrum.CFLAGS += -DUSE_$(RADIO_CONTROL_LINK) -D$(RADIO_CONTROL_LINK)_BAUD=B115200
+test_rc_spektrum.srcs   += $(SRC_BOOZ)/booz_radio_control.c                                 \
+                           $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c          \
+	                   $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_spektrum_arch.c
+
+
 #
-test_spektrum.ARCHDIR = $(ARCHI)
-test_spektrum.TARGET = test_spektrum
-test_spektrum.TARGETDIR = test_spektrum
-test_spektrum.CFLAGS += -I$(SRC_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
-test_spektrum.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) 
-test_spektrum.srcs   += $(SRC_BOOZ_TEST)/booz2_test_radio_control.c \
-                        $(SRC_ARCH)/stm32_exceptions.c              \
-                        $(SRC_ARCH)/stm32_vector_table.c
+# test_rc_ppm
+#
+# configuration
+#   SYS_TIME_LED
+#   MODEM_PORT
+#   MODEM_BAUD
+#   RADIO_CONTROL_LED
+#
+test_rc_ppm.ARCHDIR   = $(ARCHI)
+test_rc_ppm.TARGET    = test_rc_ppm
+test_rc_ppm.TARGETDIR = test_rc_ppm
 
-test_spektrum.CFLAGS += -DUSE_LED
-test_spektrum.srcs   += $(SRC_ARCH)/led_hw.c
-test_spektrum.CFLAGS += -DUSE_SYS_TIME
-test_spektrum.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
-test_spektrum.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
-test_spektrum.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-test_spektrum.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
-test_spektrum.srcs   += $(SRC_ARCH)/uart_hw.c
-test_spektrum.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
-test_spektrum.srcs   += downlink.c pprz_transport.c
-test_spektrum.CFLAGS += -DUSE_RADIO_CONTROL
-test_spektrum.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
-test_spektrum.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_spektrum.h\"
-test_spektrum.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"radio_control/booz_radio_control_spektrum_dx7se.h\"
-test_spektrum.CFLAGS += -DRADIO_CONTROL_LINK=$(RADIO_CONTROL_LINK)
-test_spektrum.CFLAGS += -DUSE_$(RADIO_CONTROL_LINK) -D$(RADIO_CONTROL_LINK)_BAUD=B115200
-test_spektrum.srcs   += $(SRC_BOOZ)/booz_radio_control.c                                 \
-                        $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c          \
-	                $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_spektrum_arch.c
+test_rc_ppm.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD)
+test_rc_ppm.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_rc_ppm.CFLAGS += -DPERIPHERALS_AUTO_INIT
+test_rc_ppm.srcs   += $(SRC_BOOZ)/test/booz2_test_radio_control.c \
+                      $(SRC_ARCH)/stm32_exceptions.c              \
+                      $(SRC_ARCH)/stm32_vector_table.c
 
+test_rc_ppm.CFLAGS += -DUSE_LED
+test_rc_ppm.srcs   += $(SRC_ARCH)/led_hw.c
+test_rc_ppm.CFLAGS += -DUSE_SYS_TIME
+test_rc_ppm.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_rc_ppm.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
+test_rc_ppm.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_rc_ppm.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_rc_ppm.srcs   += $(SRC_ARCH)/uart_hw.c
+test_rc_ppm.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT) 
+test_rc_ppm.srcs   += downlink.c pprz_transport.c
+test_rc_ppm.CFLAGS += -DUSE_RADIO_CONTROL
+test_rc_ppm.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
+test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_ppm.h\"
+test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
+test_rc_ppm.srcs   += $(SRC_BOOZ)/booz_radio_control.c \
+                      $(SRC_BOOZ)/radio_control/booz_radio_control_ppm.c \
+                      $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_ppm_arch.c
+test_rc_ppm.CFLAGS += -DUSE_TIM2_IRQ
