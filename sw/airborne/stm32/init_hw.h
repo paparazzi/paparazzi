@@ -125,7 +125,7 @@ static inline void hw_init(void) {
   led_init();
 #endif
   /* for now this means using spektrum */
-#if defined USE_RADIO_CONTROL & defined RADIO_CONTROL_LINK & defined RADIO_CONTROL_BIND_IMPL_FUNC
+#if defined USE_RADIO_CONTROL & defined RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT & defined RADIO_CONTROL_BIND_IMPL_FUNC
   RADIO_CONTROL_BIND_IMPL_FUNC();
 #endif
 #ifdef USE_UART1
