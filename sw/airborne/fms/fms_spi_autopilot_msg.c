@@ -47,7 +47,7 @@
 #include "rdyb_mahrs.h"
 
 static struct BoozImuFloat imu;
-static struct FloatEulers body_to_imu_eulers = LISA_BODY_TO_IMU_EULERS;
+static struct FloatQuat body_to_imu_quat = LISA_BODY_TO_IMU_QUAT;
 
 static void (* vane_callback)(uint8_t vane_id, float alpha, float beta) = NULL;
 static void (* pressure_absolute_callback)(uint8_t pressure_id, uint32_t pressure) = NULL;
@@ -90,10 +90,16 @@ int spi_ap_link_init()
   }
 
   // Initialize IMU->Body orientation
-  imu.body_to_imu_eulers = body_to_imu_eulers;
+  imu.body_to_imu_quat = body_to_imu_quat;
 
-  FLOAT_QUAT_OF_EULERS(imu.body_to_imu_quat, imu.body_to_imu_eulers);
+#ifdef IMU_ALIGN_BENCH
+	// This code is for aligning body to imu rotation, turn this on, put the vehicle in hover, pointed north, read BOOZ2_AHRS_REF_QUAT as body to imu (in wing frame)
+	struct FloatVect3 x_axis = { 0.0, 1.0, 0.0 };
+  FLOAT_QUAT_OF_AXIS_ANGLE(imu.body_to_imu_quat, x_axis, QUAT_SETPOINT_HOVER_PITCH);
+#endif
+
   FLOAT_QUAT_NORMALISE(imu.body_to_imu_quat);
+	FLOAT_EULERS_OF_QUAT(imu.body_to_imu_eulers, imu.body_to_imu_quat);
   FLOAT_RMAT_OF_QUAT(imu.body_to_imu_rmat, imu.body_to_imu_quat);
 
   struct FloatRates bias0 = { 0., 0., 0.};
@@ -111,10 +117,10 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
 
   // Fill pressure data
   if (msg_up->valid.pressure_absolute && pressure_absolute_callback)
-    pressure_absolute_callback(0, msg_up->pressure_absolute);
+    pressure_absolute_callback(0, (uint16_t) msg_up->pressure_absolute);
 
   if (msg_up->valid.pressure_differential && pressure_differential_callback)
-    pressure_differential_callback(0, msg_up->pressure_differential);
+    pressure_differential_callback(0, (uint16_t) msg_up->pressure_differential);
 
   // Fill radio data
   if (msg_up->valid.rc && radio_control_callback) {
