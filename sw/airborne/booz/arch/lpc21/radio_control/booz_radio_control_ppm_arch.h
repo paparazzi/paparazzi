@@ -28,6 +28,16 @@
 #include "LPC21xx.h"
 #include BOARD_CONFIG
 
+/** 
+ * On tiny (and booz) the ppm counter is running at the same speed as
+ * the systic counter. There is no reason for this to be true.
+ * Let's add a pair of macros to make it possible for them to be different.
+ *
+ */
+#define RC_PPM_TICS_OF_USEC        SYS_TICS_OF_USEC
+#define RC_PPM_SIGNED_TICS_OF_USEC SIGNED_SYS_TICS_OF_USEC
+
+
 extern uint8_t  booz_radio_control_ppm_cur_pulse;
 extern uint32_t booz_radio_control_ppm_last_pulse_time;
 

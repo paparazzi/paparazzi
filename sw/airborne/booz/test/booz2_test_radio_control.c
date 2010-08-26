@@ -1,22 +1,22 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2008-2010 The Paparazzi Team
  *
- * This file is part of paparazzi.
+ * This file is part of Paparazzi.
  *
- * paparazzi is free software; you can redistribute it and/or modify
+ * Paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
  *
- * paparazzi is distributed in the hope that it will be useful,
+ * Paparazzi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
+ * along with Paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA. 
  */
@@ -63,17 +63,19 @@ static inline void main_periodic_task( void ) {
   RunOnceEvery(10, {radio_control_periodic();});
 
   int16_t foo = 0;
-  RunOnceEvery(10, {DOWNLINK_SEND_BOOZ2_RADIO_CONTROL(DefaultChannel,                                \
-						      &radio_control.values[RADIO_CONTROL_ROLL],     \
-						      &radio_control.values[RADIO_CONTROL_PITCH],    \
-						      &radio_control.values[RADIO_CONTROL_YAW],	     \
-						      &radio_control.values[RADIO_CONTROL_THROTTLE], \
-						      &radio_control.values[RADIO_CONTROL_MODE],     \
-						      &foo,                                          \
-						      &radio_control.status);});
-  //  uint8_t bar;
-  //  RunOnceEvery(10, {  DOWNLINK_SEND_CHRONO(DefaultChannel, &bar, &debug_len)});
-
+  RunOnceEvery(10, 
+    {DOWNLINK_SEND_BOOZ2_RADIO_CONTROL(DefaultChannel,	\
+				       &radio_control.values[RADIO_CONTROL_ROLL], \
+				       &radio_control.values[RADIO_CONTROL_PITCH], \
+				       &radio_control.values[RADIO_CONTROL_YAW], \
+				       &radio_control.values[RADIO_CONTROL_THROTTLE], \
+				       &radio_control.values[RADIO_CONTROL_MODE], \
+				       &foo,				\
+				       &radio_control.status);});
+#ifdef RADIO_CONTROL_TYPE_PPM
+  RunOnceEvery(10, 
+	       {uint8_t blaa = 0; DOWNLINK_SEND_PPM(DefaultChannel,&blaa, 8, booz_radio_control_ppm_pulses);});
+#endif
 
   LED_PERIODIC();
 }

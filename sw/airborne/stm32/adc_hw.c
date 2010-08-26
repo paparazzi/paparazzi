@@ -1,7 +1,7 @@
 /*
- * $Id: adc_hw.c 5313 2010-08-11 18:46:20Z flixr $
+ * $Id$
  *
- * Copyright (C) 2008  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -23,16 +23,16 @@
  */
 
 /**
+ *
+ * This is the driver for the analog to digital converters
+ * on STM32
+ *
  * Usage: 
  * Define flags for ADCs to use and their channels: 
  *
  *   -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_3
  *
  * would enable ADC1 and it's channels 1 and 3. 
- *
- *
- *
- *
  *
  */
 
@@ -204,8 +204,6 @@ static inline void adc_init_rcc( void )
 	rcc_apb = RCC_APB1Periph_TIM2;
 #endif
 
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-
 	RCC_ADCCLKConfig(RCC_PCLK2_Div2);
 	RCC_APB1PeriphClockCmd(rcc_apb, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | 
@@ -218,6 +216,7 @@ static inline void adc_init_rcc( void )
 #endif
 	
 	/* Time Base configuration */
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure); 
 	TIM_TimeBaseStructure.TIM_Period        = 0xFF;          
 	TIM_TimeBaseStructure.TIM_Prescaler     = 0x8; 
