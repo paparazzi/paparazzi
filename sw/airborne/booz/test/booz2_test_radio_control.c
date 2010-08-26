@@ -62,7 +62,7 @@ static inline void main_periodic_task( void ) {
 
   RunOnceEvery(10, {radio_control_periodic();});
 
-  int16_t foo = 0;
+  int16_t foo = 0;//RC_PPM_SIGNED_TICS_OF_USEC(2050-1500);
   RunOnceEvery(10, 
     {DOWNLINK_SEND_BOOZ2_RADIO_CONTROL(DefaultChannel,	\
 				       &radio_control.values[RADIO_CONTROL_ROLL], \
