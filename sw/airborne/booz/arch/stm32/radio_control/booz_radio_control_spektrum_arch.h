@@ -42,19 +42,19 @@
 #define RADIO_CONTROL_ROLL       1
 #define RADIO_CONTROL_PITCH      2
 #define RADIO_CONTROL_YAW        3
-#define RADIO_CONTROL_GEAR       4
-#define RADIO_CONTROL_FLAP       5
 
 #ifndef RADIO_CONTROL_MODE
-#define RADIO_CONTROL_MODE       5
+#define RADIO_CONTROL_MODE       4
 #endif
 
-#define RADIO_CONTROL_AUX2       6
+#define RADIO_CONTROL_GEAR       4
+#define RADIO_CONTROL_FLAP       5
 
 #ifndef RADIO_CONTROL_KILL 
 #define RADIO_CONTROL_KILL       6
 #endif
 
+#define RADIO_CONTROL_AUX2       6
 #define RADIO_CONTROL_AUX3       7
 #define RADIO_CONTROL_AUX4       8
 #define RADIO_CONTROL_AUX5       9
