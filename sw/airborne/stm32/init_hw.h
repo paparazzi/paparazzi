@@ -54,8 +54,10 @@
 #ifdef USE_LED
 #include "led.h"
 #endif
-#if defined USE_RADIO_CONTROL & defined RADIO_CONTROL_LINK
+#if defined USE_RADIO_CONTROL 
+#if defined RADIO_CONTROL_LINK  || defined RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
 #include "booz/booz_radio_control.h"
+#endif
 #endif
 #if defined USE_UART1 || defined USE_UART2 || defined USE_UART3
 #include "uart.h"
