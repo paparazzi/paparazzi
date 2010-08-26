@@ -203,7 +203,6 @@ test_rc_ppm.CFLAGS += -DUSE_TIM2_IRQ
 #   SYS_TIME_LED
 #   MODEM_PORT
 #   MODEM_BAUD
-#   RADIO_CONTROL_LED
 #
 test_adc.ARCHDIR = $(ARCHI)
 test_adc.TARGET = test_adc
