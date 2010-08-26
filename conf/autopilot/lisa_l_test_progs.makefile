@@ -153,7 +153,7 @@ test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_con
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"radio_control/booz_radio_control_spektrum_dx7se.h\"
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_LINK=$(RADIO_CONTROL_LINK)
 #test_rc_spektrum.CFLAGS += -DUSE_$(RADIO_CONTROL_LINK) -D$(RADIO_CONTROL_LINK)_BAUD=B115200
-test_rc_spektrum.CFLAGS += -DOVERRIDE_UART3_IRQ_HANDLER
+test_rc_spektrum.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_LINK)_IRQ_HANDLER
 test_rc_spektrum.srcs   += $(SRC_BOOZ)/booz_radio_control.c                                 \
                            $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c          \
 	                   $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_spektrum_arch.c
