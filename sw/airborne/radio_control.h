@@ -59,6 +59,15 @@ extern uint8_t rc_values_contains_avg_channels;
 extern uint8_t time_since_last_ppm;
 extern uint8_t ppm_cpt, last_ppm_cpt;
 
+/* 
+ * On tiny (and booz) the ppm counter is running at the same speed as
+ * the systic counter. There is no reason for this to be true.
+ * Let's add a pair of macros to make it possible for them to be different.
+ *
+ */
+#define RC_PPM_TICS_OF_USEC        SYS_TICS_OF_USEC
+#define RC_PPM_SIGNED_TICS_OF_USEC SIGNED_SYS_TICS_OF_USEC
+
 
 /************* INIT ******************************************************/
 static inline void radio_control_init ( void ) {

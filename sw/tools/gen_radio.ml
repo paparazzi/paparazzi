@@ -70,9 +70,9 @@ let parse_channel =
 
 let norm1_ppm = fun c ->
   if c.neutral = c.min then
-    sprintf "tmp_radio * (MAX_PPRZ / (float)(SIGNED_SYS_TICS_OF_USEC(%d-%d)))" c.max c.min, "0"
+    sprintf "tmp_radio * (MAX_PPRZ / (float)(RC_PPM_SIGNED_TICS_OF_USEC(%d-%d)))" c.max c.min, "0"
   else
-    sprintf "tmp_radio * (tmp_radio >=0 ? (MAX_PPRZ/(float)(SIGNED_SYS_TICS_OF_USEC(%d-%d))) : (MIN_PPRZ/(float)(SIGNED_SYS_TICS_OF_USEC(%d-%d))))" c.max c.neutral c.min c.neutral, "MIN_PPRZ"
+    sprintf "tmp_radio * (tmp_radio >=0 ? (MAX_PPRZ/(float)(RC_PPM_SIGNED_TICS_OF_USEC(%d-%d))) : (MIN_PPRZ/(float)(RC_PPM_SIGNED_TICS_OF_USEC(%d-%d))))" c.max c.neutral c.min c.neutral, "MIN_PPRZ"
       
 let gen_normalize_ppm = fun channels ->
   printf "#define NormalizePpm() {\\\n";
@@ -84,7 +84,7 @@ let gen_normalize_ppm = fun channels ->
       if c.averaged then begin
 	printf "  avg_rc_values[RADIO_%s] += ppm_pulses[RADIO_%s];\\\n" c.name c.name
       end else begin
-	printf "  tmp_radio = ppm_pulses[RADIO_%s] - SYS_TICS_OF_USEC(%d);\\\n" c.name c.neutral;
+	printf "  tmp_radio = ppm_pulses[RADIO_%s] - RC_PPM_TICS_OF_USEC(%d);\\\n" c.name c.neutral;
 	printf "  rc_values[RADIO_%s] = %s;\\\n" c.name value;
 	printf "  Bound(rc_values[RADIO_%s], %s, MAX_PPRZ); \\\n\\\n" c.name min_pprz;
       end
@@ -97,7 +97,7 @@ let gen_normalize_ppm = fun channels ->
     (fun c ->
       if c.averaged then begin
 	let value, min_pprz = norm1_ppm c in
-	printf "    tmp_radio = avg_rc_values[RADIO_%s] / RC_AVG_PERIOD -  SYS_TICS_OF_USEC(%d);\\\n" c.name c.neutral;
+	printf "    tmp_radio = avg_rc_values[RADIO_%s] / RC_AVG_PERIOD -  RC_PPM_TICS_OF_USEC(%d);\\\n" c.name c.neutral;
 	printf "    rc_values[RADIO_%s] = %s;\\\n" c.name value;
 	printf "    avg_rc_values[RADIO_%s] = 0;\\\n" c.name;
 	printf "    Bound(rc_values[RADIO_%s], %s, MAX_PPRZ); \\\n\\\n" c.name min_pprz;
