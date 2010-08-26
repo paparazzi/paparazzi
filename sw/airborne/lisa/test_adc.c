@@ -79,8 +79,8 @@ static inline void main_event_task( void ) {
     adc_new_data_trigger = 0; 
     uint16_t v1 = 123;
     uint16_t v2 = 123;
-    v1 = (((adc0_buf.values[0]) >> 4) & 0x00ff);
-    v2 = (((adc1_buf.values[0]) >> 4) & 0x00ff);
+    v1 = (((adc0_buf.values[0])));
+    v2 = (((adc1_buf.values[0])));
     RunOnceEvery(100, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &v1, &v2)});
   }
 
