@@ -54,4 +54,12 @@ GPS_PORT=UART1
 GPS_BAUD=B38400
 GPS_LED = 3
 
-
+#
+# this is the DRDY pin of a max1168 on a booz IMU
+#
+# v 1.0
+#
+MAX_1168_DRDY_PORT = _GPIOD
+MAX_1168_DRDY_PORT_SOURCE = PortSourceGPIOD
+# v1.1 
+#MAX_1168_DRDY_PORT = GPIOB

@@ -28,6 +28,16 @@
 #include <stm32/misc.h>
 #include <stm32/dma.h>
 
+
+/* I can't use GPIOD as it's already defined in some system header */
+#define __DRDY_PORT(dev, _x) _x##dev
+#define _DRDY_PORT(dev, _x)  __DRDY_PORT(dev, _x)
+#define DRDY_PORT(_x) _DRDY_PORT(MAX_1168_DRDY_PORT, _x)
+
+#define __DRDY_PORT_SOURCE(dev, _x) _x##dev
+#define _DRDY_PORT_SOURCE(dev, _x)  __DRDY_PORT_SOURCE(dev, _x)
+#define DRDY_PORT_SOURCE(_x) _DRDY_PORT_SOURCE(MAX_1168_DRDY_PORT_SOURCE, _x)
+
 void exti2_irq_handler(void);
 
 void booz_max1168_arch_init( void ) {
@@ -41,15 +51,18 @@ void booz_max1168_arch_init( void ) {
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-  /* configure external interrupt exti2 on PD2( data ready ) */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD | RCC_APB2Periph_AFIO, ENABLE);
+  /* configure external interrupt exti2 on PD2( data ready ) v1.0*/
+  /*                                       PB2( data ready ) v1.1*/
+  //  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD | RCC_APB2Periph_AFIO, ENABLE);
+  RCC_APB2PeriphClockCmd(DRDY_PORT(RCC_APB2Periph) | RCC_APB2Periph_AFIO, ENABLE);
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOD, &GPIO_InitStructure);
 
   EXTI_InitTypeDef EXTI_InitStructure;
-  GPIO_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource2);
+  //  GPIO_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource2);
+  GPIO_EXTILineConfig(DRDY_PORT_SOURCE(GPIO_), GPIO_PinSource2);
   EXTI_InitStructure.EXTI_Line = EXTI_Line2;
   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
