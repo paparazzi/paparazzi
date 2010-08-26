@@ -646,7 +646,12 @@
     <field name="azimuth_sp" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
   </message>
 
- <!--109 is free --> 
+  <message name="BETH_CONTROLLER_TWIST" id="109">
+    <field name="S" type="float"/>
+    <field name="S_dot" type="float"/>
+    <field name="U_twt" type="float"/>
+    <field name="error" type="float"/>
+  </message>
 
   <message name="DC_SHOT" id="110">
     <field name="photo_nr" type="int16" unit=""></field>
@@ -667,7 +672,10 @@
     <field name="servo" type="uint16[]"/>
   </message>
 
- <!--112 is free --> 
+  <message name="BETH_CONTROLLER_SFB" id="112">
+    <field name="one" type="float"/>
+  </message> 
+
  <!--113 is free --> 
  <!--114 is free --> 
  <!--115 is free --> 
