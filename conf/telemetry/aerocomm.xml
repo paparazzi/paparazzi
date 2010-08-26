@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
+<telemetry>
+  <process name="Ap">
+    <mode name="default">
+      <message name="ALIVE"          period="5"/>
+      <message name="ATTITUDE"       period="1"/>
+      <message name="ESTIMATOR"      period="1"/>
+      <message name="WP_MOVED"       period="1.8"/>
+      <message name="CIRCLE"         period="1.95"/>
+      <message name="DESIRED"        period="1.95"/>
+      <message name="BAT"            period="1.9"/>
+      <message name="BARO_MS5534A"   period="1.0"/>
+      <message name="SEGMENT"        period="2.1"/>
+      <message name="CALIBRATION"    period="5.4"/>
+      <message name="NAVIGATION_REF" period="9.8"/>
+      <message name="PPRZ_MODE"      period="6.1"/>
+      <message name="DOWNLINK"       period="7.1"/>
+      <message name="DL_VALUE"       period="1.8"/>
+      <message name="IR_SENSORS"     period="3.1"/>
+      <message name="GYRO_RATES"     period="2.9"/>
+      <message name="SURVEY"         period="2.7"/>
+      <message name="GPS_SOL"        period="2.0"/>
+      <message name="AIRSPEED"       period="0.5"/>
+    </mode>
+  </process>
+  <process name="Fbw">
+    <mode name="default">
+      <message name="COMMANDS"       period="6"/>
+      <message name="FBW_STATUS"     period="6"/>
+      <message name="ACTUATORS"      period="15"/> <!-- For trimming -->
+    </mode>
+    <mode name="debug">
+      <message name="PPM"            period="0.5"/>
+      <message name="RC"             period="0.5"/>
+      <message name="COMMANDS"       period="0.5"/>
+      <message name="FBW_STATUS"     period="1"/>
+      <message name="ACTUATORS"      period="5"/> <!-- For trimming -->
+    </mode>
+  </process>
+</telemetry>
