@@ -49,7 +49,7 @@ static inline void main_init( void ) {
 	hw_init();
 	sys_time_init();
 	adc_init();	
-	adc_buf_channel(0, &adc0_buf, 3);
+	adc_buf_channel(0, &adc0_buf, 8);
 	adc_buf_channel(1, &adc1_buf, 3);
 	adc_buf_channel(2, &adc2_buf, 3);
 	adc_buf_channel(3, &adc3_buf, 3);
