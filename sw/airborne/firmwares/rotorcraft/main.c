@@ -88,9 +88,8 @@ int main( void ) {
 
 STATIC_INLINE void booz2_main_init( void ) {
 
-#ifndef RADIO_CONTROL_LINK
-  /* read the comment below the bind function needs to start as close to powerup as possible 
-     it also blocks for 73ms which is longer than this loop could this be moved elsewhere */
+#ifndef RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
+  /* IF THIS IS NEEDED SOME PERHIPHERAL THEN PLEASE MOVE IT THERE */
   for (uint32_t startup_counter=0; startup_counter<2000000; startup_counter++){
     __asm("nop");
   }
