@@ -195,3 +195,38 @@ test_rc_ppm.srcs   += $(SRC_BOOZ)/booz_radio_control.c \
                       $(SRC_BOOZ)/radio_control/booz_radio_control_ppm.c \
                       $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_ppm_arch.c
 test_rc_ppm.CFLAGS += -DUSE_TIM2_IRQ
+
+#
+# test_adc
+#
+# configuration
+#   SYS_TIME_LED
+#   MODEM_PORT
+#   MODEM_BAUD
+#   RADIO_CONTROL_LED
+#
+test_adc.ARCHDIR = $(ARCHI)
+test_adc.TARGET = test_adc
+test_adc.TARGETDIR = test_adc
+test_adc.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_adc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_adc.srcs = $(SRC_LISA)/test_adc.c \
+                $(SRC_ARCH)/stm32_exceptions.c \
+                $(SRC_ARCH)/stm32_vector_table.c
+test_adc.CFLAGS += -DUSE_LED
+test_adc.srcs   += $(SRC_ARCH)/led_hw.c
+test_adc.CFLAGS += -DUSE_SYS_TIME 
+test_adc.CFLAGS +=-DSYS_TIME_LED=$(SYS_TIME_LED)
+test_adc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_adc.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_adc.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_adc.srcs   += $(SRC_ARCH)/uart_hw.c
+test_adc.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart2
+
+test_adc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT) 
+test_adc.srcs   += downlink.c pprz_transport.c
+
+test_adc.srcs   += $(SRC_ARCH)/adc_hw.c
+test_adc.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
+test_adc.CFLAGS += -DUSE_ADC1_2_IRQ_HANDLER

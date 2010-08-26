@@ -206,6 +206,7 @@
     <target name="test_baro"        board="lisa_l_1.0"/>
     <target name="test_rc_spektrum" board="lisa_l_1.0"/>
     <target name="test_rc_ppm"      board="lisa_l_1.0"/>
+    <target name="test_adc"         board="lisa_l_1.0"/>
   </firmware>
 
   <firmware name="lisa_passthrough">

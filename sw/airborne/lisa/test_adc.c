@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -18,7 +18,8 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
+ *
  */
 
 #include <stm32/flash.h>
@@ -47,9 +48,7 @@ extern uint8_t adc_new_data_trigger;
 static inline void main_init( void ) {
 	hw_init();
 	sys_time_init();
-	led_init(); 
-	adc_init(); 
-	
+	adc_init();	
 	adc_buf_channel(0, &adc0_buf, 3);
 	adc_buf_channel(1, &adc1_buf, 3);
 	adc_buf_channel(2, &adc2_buf, 3);
@@ -57,32 +56,33 @@ static inline void main_init( void ) {
 }
 
 int main( void ) {
-	main_init(); 
-
-	while(1) {
-	      if (sys_time_periodic()) { 
-	      	main_periodic_task();
-	      	DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM); 
-	      }
-	
-	      main_event_task();
-	}
-	return 0;
+  main_init(); 
+  
+  while(1) {
+    if (sys_time_periodic()) { 
+      main_periodic_task();
+    }
+    main_event_task();
+  }
+  return 0;
 }
 
 static inline void main_periodic_task( void ) {
-	LED_PERIODIC();
+  RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
+  RunOnceEvery(100, {/*LED_TOGGLE(7);*/ DOWNLINK_SEND_TIME(DefaultChannel, &cpu_time_sec);});  
+  LED_PERIODIC();
 }
 
 static inline void main_event_task( void ) {
-	uint8_t down = 123;
-	
-	if (adc_new_data_trigger) { 
-		DOWNLINK_SEND_PONG(DefaultChannel);
-		adc_new_data_trigger = 0; 
-		LED_TOGGLE(7);
-//		down = (((adc0_buf.values[0]) >> 4) & 0x00ff);
-		DOWNLINK_SEND_BOOZ_DEBUG_FOO(DefaultChannel, &down);
-	}
+  
+  if (adc_new_data_trigger) { 
+    adc_new_data_trigger = 0; 
+    uint16_t v1 = 123;
+    uint16_t v2 = 123;
+    v1 = (((adc0_buf.values[0]) >> 4) & 0x00ff);
+    v2 = (((adc1_buf.values[0]) >> 4) & 0x00ff);
+    RunOnceEvery(100, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &v1, &v2)});
+  }
+
 }
 

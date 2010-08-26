@@ -152,6 +152,13 @@ extern void dma1_c4_irq_handler(void);
 #define DMA1_C4_IRQ_HANDLER null_handler
 #endif
 
+#ifdef USE_ADC1_2_IRQ_HANDLER
+extern void adc1_2_irq_handler(void);
+#define ADC1_2_IRQ_HANDLER adc1_2_irq_handler
+#else
+#define ADC1_2_IRQ_HANDLER null_handler
+#endif
+
 
 #ifdef USE_TIM1_UP_IRQ
 extern void tim1_up_irq_handler(void);
@@ -229,7 +236,7 @@ void (* const vector_table[])(void) = {
     null_handler,             /* dma1_channel5_irq_handler */
     null_handler,             /* dma1_channel6_irq_handler */
     null_handler,             /* dma1_channel7_irq_handler */
-    null_handler,             /* adc1_2_irq_handler */
+    ADC1_2_IRQ_HANDLER,       /* adc1_2_irq_handler */
     USB_HP_CAN1_TX_IRQ_HANDLER, /* usb_hp_can_tx_irq_handler */
     USB_LP_CAN1_RX0_IRQ_HANDLER, /* usb_lp_can_rx0_irq_handler */
     null_handler,             /* can_rx1_irq_handler */
