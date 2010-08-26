@@ -71,8 +71,8 @@ static inline void main_periodic_task( void ) {
 						      &radio_control.values[RADIO_CONTROL_MODE],     \
 						      &foo,                                          \
 						      &radio_control.status);});
-  uint8_t bar;
-  RunOnceEvery(10, {  DOWNLINK_SEND_CHRONO(DefaultChannel, &bar, &debug_len)});
+  //  uint8_t bar;
+  //  RunOnceEvery(10, {  DOWNLINK_SEND_CHRONO(DefaultChannel, &bar, &debug_len)});
 
 
   LED_PERIODIC();
