@@ -4,6 +4,9 @@
 #include "std.h"
 #include "stdio.h"
 
+#include "messages2.h"
+#include "overo_gcs_com.h"
+
 struct OveroController controller;
 
 void control_init(void) {
@@ -34,7 +37,7 @@ void control_init(void) {
 
   controller.one_over_J = 2.;
   controller.mass = 5.;
-  controller.azim_gain = 0.05;
+  controller.azim_gain = 0.005;
 
   controller.omega_cl = RadOfDeg(600);
   controller.xi_cl = 1.;
@@ -51,7 +54,16 @@ void control_init(void) {
   controller.armed = 0;
 }
 
+void control_send_messages(void) {
 
+  RunOnceEvery(15, {DOWNLINK_SEND_BETH_CONTROLLER(gcs_com.udp_transport,
+			&controller.cmd_pitch,&controller.cmd_thrust,
+			&controller.cmd_pitch_ff,&controller.cmd_pitch_fb,
+			&controller.cmd_thrust_ff,&controller.cmd_thrust_fb,
+  			&controller.tilt_sp,&controller.tilt_ref,&controller.tilt_dot_ref,
+			&controller.elevation_sp,&controller.elevation_ref,&controller.elevation_dot_ref,
+			&controller.azimuth_sp);});
+}
 
 void control_run(void) {
 

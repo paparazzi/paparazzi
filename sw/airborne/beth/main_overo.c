@@ -42,11 +42,12 @@
 #include "overo_file_logger.h"
 #include "overo_gcs_com.h"
 #include "overo_estimator.h"
-#include "overo_controller.h"
+#include CONTROLLER_H
 
 
 static void main_periodic(int);
 //static void main_parse_cmd_line(int argc, char *argv[]);
+static void drive_output(uint8_t last_state);
 static void main_exit(int sig);
 static void main_talk_with_stm32(void);
 
@@ -120,7 +121,7 @@ static void main_periodic(int my_sig_num) {
 
   BoozImuScaleGyro(booz_imu);
 
-  RunOnceEvery(15, {DOWNLINK_SEND_BETH(gcs_com.udp_transport,
+  RunOnceEvery(50, {DOWNLINK_SEND_BETH(gcs_com.udp_transport,
 			&msg_in.payload.msg_up.bench_sensor.x,&msg_in.payload.msg_up.bench_sensor.y,
 			&msg_in.payload.msg_up.bench_sensor.z,&msg_in.payload.msg_up.cnt,
 			&msg_in.payload.msg_up.can_errs,&msg_in.payload.msg_up.spi_errs,
@@ -142,6 +143,60 @@ static void main_periodic(int my_sig_num) {
 			msg_in.payload.msg_up.cnt,msg_in.payload.msg_up.can_errs);
   }
 
+
+  drive_output(last_state);
+
+  control_send_messages();
+
+  estimator_send_messages();
+
+  //file_logger_periodic();
+
+/*  RunOnceEvery(10, {DOWNLINK_SEND_IMU_GYRO_RAW(gcs_com.udp_transport,
+			     //&msg_in.payload.msg_up.gyro.p,&msg_in.payload.msg_up.gyro.q,&msg_in.payload.msg_up.gyro.r)
+				&booz_imu.gyro_unscaled.p,&booz_imu.gyro_unscaled.q,&booz_imu.gyro_unscaled.r);});
+  RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(gcs_com.udp_transport,
+			     //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z
+				&booz_imu.accel_unscaled.x,&booz_imu.accel_unscaled.y,&booz_imu.accel_unscaled.z);})
+  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_GYRO(gcs_com.udp_transport,
+			     //&msg_in.payload.msg_up.gyro.p,&msg_in.payload.msg_up.gyro.q,&msg_in.payload.msg_up.gyro.r)
+				&booz_imu.gyro.p,&booz_imu.gyro.q,&booz_imu.gyro.r);});
+
+  RunOnceEvery(50, {DOWNLINK_SEND_AHRS_EULER(gcs_com.udp_transport,
+			&estimator.tilt, &estimator.elevation, &estimator.azimuth );});
+  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_ACCEL(DefaultChannel,
+			     //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z
+				&booz_imu.accel.x,&booz_imu.accel.y,&booz_imu.accel.z);});*/
+
+  RunOnceEvery(33, gcs_com_periodic());
+
+}
+
+#if 0
+static void main_parse_cmd_line(int argc, char *argv[]) {
+
+  if (argc>1){
+    controller.kp = atof(argv[1]);
+    //    printf("kp set to %f\n",kp);
+    if (argc>2) {
+      controller.kd = atof(argv[2]);
+      //      printf("kd set to %f\n",kd);
+    } else {
+      controller.kd=1.0;
+      //      printf("using default value of kd %f\n",kd);
+    }
+  } else {
+    controller.kp = 0.05;
+    //    printf("using default value of kp %f\n",kp);
+  }
+/*
+  if (argc>1){
+    printf("args not currently supported\n");
+  }*/
+}
+#endif
+
+static void drive_output(uint8_t last_state) {
   switch (controller.armed) {
     case 0:
       if (last_state == 2) {
@@ -187,72 +242,7 @@ static void main_periodic(int my_sig_num) {
     default:
       break;
   }
-
-  RunOnceEvery(25, {DOWNLINK_SEND_BETH_ESTIMATOR(gcs_com.udp_transport,
-			&estimator.tilt,&estimator.tilt_dot,
-			&estimator.elevation,&estimator.elevation_dot,
-			&estimator.azimuth,&estimator.azimuth_dot);});
-
-  RunOnceEvery(25, {DOWNLINK_SEND_BETH_CONTROLLER(gcs_com.udp_transport,
-			&controller.cmd_pitch,&controller.cmd_thrust,
-			&controller.cmd_pitch_ff,&controller.cmd_pitch_fb,
-			&controller.cmd_thrust_ff,&controller.cmd_thrust_fb,
-  			&controller.tilt_sp,&controller.tilt_ref,&controller.tilt_dot_ref,
-			&controller.elevation_sp,&controller.elevation_ref,&controller.elevation_dot_ref,
-			&controller.azimuth_sp);});
-
-  //file_logger_periodic();
-
-
-/*  RunOnceEvery(10, {DOWNLINK_SEND_IMU_GYRO_RAW(gcs_com.udp_transport,
-			     //&msg_in.payload.msg_up.gyro.p,&msg_in.payload.msg_up.gyro.q,&msg_in.payload.msg_up.gyro.r)
-				&booz_imu.gyro_unscaled.p,&booz_imu.gyro_unscaled.q,&booz_imu.gyro_unscaled.r);});
-    
-
-  RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(gcs_com.udp_transport,
-			     //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z
-				&booz_imu.accel_unscaled.x,&booz_imu.accel_unscaled.y,&booz_imu.accel_unscaled.z);});
-*/
-
-/*  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_GYRO(gcs_com.udp_transport,
-			     //&msg_in.payload.msg_up.gyro.p,&msg_in.payload.msg_up.gyro.q,&msg_in.payload.msg_up.gyro.r)
-				&booz_imu.gyro.p,&booz_imu.gyro.q,&booz_imu.gyro.r);});
-
-  RunOnceEvery(50, {DOWNLINK_SEND_AHRS_EULER(gcs_com.udp_transport,
-			&estimator.tilt, &estimator.elevation, &estimator.azimuth );});
-*/    
-
-/*  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_ACCEL(DefaultChannel,
-			     //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z
-				&booz_imu.accel.x,&booz_imu.accel.y,&booz_imu.accel.z);});*/
-
-  RunOnceEvery(33, gcs_com_periodic());
-
 }
-
-#if 0
-static void main_parse_cmd_line(int argc, char *argv[]) {
-
-  if (argc>1){
-    controller.kp = atof(argv[1]);
-    //    printf("kp set to %f\n",kp);
-    if (argc>2) {
-      controller.kd = atof(argv[2]);
-      //      printf("kd set to %f\n",kd);
-    } else {
-      controller.kd=1.0;
-      //      printf("using default value of kd %f\n",kd);
-    }
-  } else {
-    controller.kp = 0.05;
-    //    printf("using default value of kp %f\n",kp);
-  }
-/*
-  if (argc>1){
-    printf("args not currently supported\n");
-  }*/
-}
-#endif
 
 static void main_exit(int sig) {
   printf("Initiating BETH shutdown...\n");
@@ -268,6 +258,7 @@ static void main_exit(int sig) {
   }
   printf("done\n");
 #endif
+
   //If a logfile is being used, close it.
   //file_logger_exit()
   printf("Main Overo Application Exiting...\n");

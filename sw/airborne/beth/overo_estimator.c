@@ -3,12 +3,23 @@
 #include "booz/booz_imu.h"
 #include <math.h>
 
+#include "messages2.h"
+#include "overo_gcs_com.h"
+
 struct OveroEstimator estimator;
 
 void estimator_init(void) {
   estimator.tilt_lp_coeff = 0.5;
   estimator.elevation_lp_coeff = 0.5;
   estimator.azimuth_lp_coeff = 0.5;
+}
+
+void estimator_send_messages(void) {
+
+  RunOnceEvery(25, {DOWNLINK_SEND_BETH_ESTIMATOR(gcs_com.udp_transport,
+			&estimator.tilt,&estimator.tilt_dot,
+			&estimator.elevation,&estimator.elevation_dot,
+			&estimator.azimuth,&estimator.azimuth_dot);});
 }
 
 //bench sensors z,y,x values passed in

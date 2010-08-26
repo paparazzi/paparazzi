@@ -1,7 +1,7 @@
-#ifndef OVERO_CONTROLLER_H
-#define OVERO_CONTROLLER_H
+#ifndef OVERO_TWIST_CONTROLLER_H
+#define OVERO_TWIST_CONTROLLER_H
 
-struct OveroController {
+struct OveroTwistController {
 //  float kp;
 //  float kd;
   
@@ -49,13 +49,33 @@ struct OveroController {
   float cmd_thrust;
 
   int armed;
+
+/***Twisting stuff***/
+
+  float  S[2];
+  float S_dot;
+  float U_twt[2];
+
+  /***** Coeficients twisting ****/
+  float ulim;
+  float Vm;
+  float VM;
+
+  float satval1;
+  float satval2;
+
+  float c;
+
+  float error;
+
 };
 
 
-extern struct OveroController controller;
+extern struct OveroTwistController controller;
 
 extern void control_init(void);
 extern void control_send_messages(void);
 extern void control_run(void);
+float get_U_twt(void);
 
-#endif /* OVERO_CONTROLLER_H */
+#endif /* OVERO_TWIST_CONTROLLER_H */

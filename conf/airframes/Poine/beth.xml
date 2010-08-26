@@ -238,8 +238,69 @@ main_overo.LDFLAGS += -levent -lm
 main_overo.srcs    += $(SRC_BETH)/overo_gcs_com.c
 main_overo.srcs    += $(SRC_BETH)/overo_file_logger.c
 main_overo.srcs    += $(SRC_BETH)/overo_estimator.c
+main_overo.CFLAGS  += -DCONTROLLER_H=\"overo_controller.h\"
 main_overo.srcs    += $(SRC_BETH)/overo_controller.c
 
+
+#
+# Overo twisting
+#
+
+USER =
+HOST = auto3
+TARGET_DIR = ~
+SRC_FMS=fms
+
+overo_twist.ARCHDIR = omap
+overo_twist.CFLAGS = -I. -I$(SRC_FMS)
+overo_twist.srcs  = $(SRC_BETH)/main_overo.c
+overo_twist.CFLAGS  += -DFMS_PERIODIC_FREQ=512
+overo_twist.srcs    += $(SRC_FMS)/fms_periodic.c
+overo_twist.srcs    += $(SRC_FMS)/fms_serial_port.c
+overo_twist.LDFLAGS += -lrt
+overo_twist.srcs += $(SRC_FMS)/fms_spi_link.c
+overo_twist.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageBethDown
+
+overo_twist.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
+overo_twist.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
+overo_twist.srcs    += $(SRC_FMS)/fms_network.c
+overo_twist.LDFLAGS += -levent -lm
+
+overo_twist.srcs    += $(SRC_BETH)/overo_gcs_com.c
+overo_twist.srcs    += $(SRC_BETH)/overo_file_logger.c
+overo_twist.srcs    += $(SRC_BETH)/overo_estimator.c
+overo_twist.CFLAGS  += -DCONTROLLER_H=\"overo_twist_controller.h\"
+overo_twist.srcs    += $(SRC_BETH)/overo_twist_controller.c
+
+#
+# Overo state feedback
+#
+
+USER =
+HOST = auto3
+TARGET_DIR = ~
+SRC_FMS=fms
+
+overo_sfb.ARCHDIR = omap
+overo_sfb.CFLAGS = -I. -I$(SRC_FMS)
+overo_sfb.srcs  = $(SRC_BETH)/main_overo.c
+overo_sfb.CFLAGS  += -DFMS_PERIODIC_FREQ=512
+overo_sfb.srcs    += $(SRC_FMS)/fms_periodic.c
+overo_sfb.srcs    += $(SRC_FMS)/fms_serial_port.c
+overo_sfb.LDFLAGS += -lrt
+overo_sfb.srcs += $(SRC_FMS)/fms_spi_link.c
+overo_sfb.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageBethDown
+
+overo_sfb.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
+overo_sfb.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
+overo_sfb.srcs    += $(SRC_FMS)/fms_network.c
+overo_sfb.LDFLAGS += -levent -lm
+
+overo_sfb.srcs    += $(SRC_BETH)/overo_gcs_com.c
+overo_sfb.srcs    += $(SRC_BETH)/overo_file_logger.c
+overo_sfb.srcs    += $(SRC_BETH)/overo_estimator.c
+overo_sfb.CFLAGS  += -DCONTROLLER_H=\"overo_sfb_controller.h\"
+overo_sfb.srcs    += $(SRC_BETH)/overo_sfb_controller.c
 
 #
 #
