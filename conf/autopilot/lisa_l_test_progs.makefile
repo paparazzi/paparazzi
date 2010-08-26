@@ -209,11 +209,14 @@ test_adc.TARGET = test_adc
 test_adc.TARGETDIR = test_adc
 test_adc.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
 test_adc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+
 test_adc.srcs = $(SRC_LISA)/test_adc.c \
                 $(SRC_ARCH)/stm32_exceptions.c \
                 $(SRC_ARCH)/stm32_vector_table.c
+
 test_adc.CFLAGS += -DUSE_LED
 test_adc.srcs   += $(SRC_ARCH)/led_hw.c
+
 test_adc.CFLAGS += -DUSE_SYS_TIME 
 test_adc.CFLAGS +=-DSYS_TIME_LED=$(SYS_TIME_LED)
 test_adc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'

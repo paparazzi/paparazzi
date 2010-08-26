@@ -1,7 +1,7 @@
 /*
- * $Id: adc_hw.c 5313 2010-08-11 18:46:20Z flixr $
+ * $Id$
  *
- * Copyright (C) 2008  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010  The Paparazzi Team
  *
  * This file is part of paparazzi.
  *

@@ -226,7 +226,7 @@
 
  <makefile>
 
-include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
+#include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
 
  </makefile>
 
