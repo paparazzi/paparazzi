@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: adc_hw.c 5313 2010-08-11 18:46:20Z flixr $
  *
- * Copyright (C) 2010  The Paparazzi Team
+ * Copyright (C) 2008  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -277,7 +277,7 @@ static inline void adc_init_single(ADC_TypeDef * adc_t,
 	/* Configure ADC */
 	
 	adc.ADC_Mode               = ADC_Mode_Independent; 
-	adc.ADC_ScanConvMode       = DISABLE;
+	adc.ADC_ScanConvMode       = ENABLE;
 	adc.ADC_ContinuousConvMode = DISABLE;
 	adc.ADC_ExternalTrigConv   = ADC_ExternalTrigConv_None;
 	adc.ADC_DataAlign          = ADC_DataAlign_Right;
@@ -335,15 +335,33 @@ static inline void adc_init_single(ADC_TypeDef * adc_t,
 
 void adc_init( void ) { 
 
+	/* initialize buffer pointers with 0 (not set). 
+	 	 buffer null pointers will be ignored in interrupt 
+		 handler, which is important as there are no 
+		 buffers registered at the time the ADC trigger 
+		 interrupt is enabled. 
+	*/
+	uint8_t channel;
+#ifdef USE_AD1
+	for(channel = 0; channel < NB_ADC1_CHANNELS; channel++)
+		adc1_buffers[channel] = 0; 
+#endif
+#ifdef USE_AD2
+	for(channel = 0; channel < NB_ADC2_CHANNELS; channel++)
+		adc2_buffers[channel] = 0; 
+#endif
+	
+	adc_new_data_trigger = 0;
 	adc_injected_channels[0] = ADC_InjectedChannel_1;
 	adc_injected_channels[1] = ADC_InjectedChannel_2;
 	adc_injected_channels[2] = ADC_InjectedChannel_3;
 	adc_injected_channels[3] = ADC_InjectedChannel_4;
+	// TODO: Channel selection should be configured 
+	// using defines. 
 	adc_channel_map[0] = ADC_Channel_8;
 	adc_channel_map[1] = ADC_Channel_9;
 	adc_channel_map[2] = ADC_Channel_13;
 	adc_channel_map[3] = ADC_Channel_15;
-	adc_new_data_trigger = 0;
 
 	adc_init_rcc(); 
 	adc_init_irq(); 
@@ -419,26 +437,26 @@ static inline void adc_push_sample(struct adc_buf * buf, uint16_t value) {
 void adc1_2_irq_handler(void)
 {
 	uint8_t channel = 0;
+	uint16_t value = 0; 
+	struct adc_buf * buf; 
 
-	LED_TOGGLE(5);
+	if(NB_ADC1_CHANNELS == 4) { LED_TOGGLE(3); }
+	else { LED_OFF(3); }
 
 #ifdef USE_AD1
 	// Clear Injected End Of Conversion
 	ADC_ClearITPendingBit(ADC1, ADC_IT_JEOC); 
 	for(channel = 0; channel < NB_ADC1_CHANNELS; channel++) { 
-		adc_push_sample(adc1_buffers[channel], 
-				ADC_GetInjectedConversionValue(ADC1, adc_injected_channels[channel]));
+		buf = adc1_buffers[channel];
+		if(buf) { 
+			value = ADC_GetInjectedConversionValue(ADC1, adc_injected_channels[channel]);
+			if(value == 0) { LED_ON(2); }
+			adc_push_sample(buf, value);
+		}
 	}
 	adc_new_data_trigger = 1;
 #endif
 #ifdef USE_AD2
-	// Clear Injected End Of Conversion
-	ADC_ClearITPendingBit(ADC2, ADC_IT_JEOC); 
-	for(channel = 0; channel < NB_ADC2_CHANNELS; channel++) { 
-		adc_push_sample(adc2_buffers[channel], 
-				ADC_GetInjectedConversionValue(ADC2, adc_injected_channels[channel]));
-	}
-	adc_new_data_trigger = 1;
 #endif
 }
 
