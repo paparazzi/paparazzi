@@ -1,7 +1,7 @@
 /*
- * Paparazzi $Id$
+ * Paparazzi $Id$  
  *  
- * Copyright (C) 2009-2010 The Paparazzi Team
+ * Copyright (C) 2010 Eric Parsonage <eric@eparsonage.com>
  *
  * This file is part of paparazzi.
  *
@@ -28,40 +28,41 @@
 #include "std.h"
 #include "uart.h"
 
-#include RADIO_CONTROL_SPEKTRUM_MODEL_H
+/* 
+ * All Spektrum and JR 2.4 GHz transmitters
+ * have the same channel assignments.
+ */ 
 
-#define SPEKTRUM_CHANNELS_PER_FRAME 7
-#define MAX_SPEKTRUM_FRAMES 2
-#define MAX_SPEKTRUM_CHANNELS 16
+#ifndef RADIO_CONTROL_NB_CHANNEL 
+#define RADIO_CONTROL_NB_CHANNEL 12
+#endif 
 
-extern int16_t SpektrumBuf[SPEKTRUM_CHANNELS_PER_FRAME*MAX_SPEKTRUM_FRAMES];
-extern int8_t SpektrumSigns[MAX_SPEKTRUM_CHANNELS];
 
-struct SpektrumStateStruct {
-    uint8_t ReSync;
-    uint8_t SpektrumTimer;
-    uint8_t Sync;
-    uint8_t ChannelCnt;
-    uint8_t FrameCnt;
-    uint8_t HighByte;
-    uint8_t SecondFrame;
-    uint16_t LostFrameCnt;
-    uint8_t RcAvailable;
-    int16_t values[SPEKTRUM_CHANNELS_PER_FRAME*MAX_SPEKTRUM_FRAMES];     
-};
+#define RADIO_CONTROL_THROTTLE   0
+#define RADIO_CONTROL_ROLL       1
+#define RADIO_CONTROL_PITCH      2
+#define RADIO_CONTROL_YAW        3
+#define RADIO_CONTROL_GEAR       4
+#define RADIO_CONTROL_FLAP       5
 
-typedef struct SpektrumStateStruct SpektrumStateType;
-
-extern SpektrumStateType PrimarySpektrumState;
-#ifdef RADIO_CONTROL_LINK_SLAVE 
-extern SpektrumStateType SecondarySpektrumState;
+#ifndef RADIO_CONTROL_MODE
+#define RADIO_CONTROL_MODE       5
 #endif
 
+#define RADIO_CONTROL_AUX2       6
 
-extern void _RadioControlEventImp(void (*_received_frame_handler)(void));
+#ifndef RADIO_CONTROL_KILL 
+#define RADIO_CONTROL_KILL       6
+#endif
 
-#define RadioControlEventImp(_received_frame_handler) _RadioControlEventImp(_received_frame_handler);
+#define RADIO_CONTROL_AUX3       7
+#define RADIO_CONTROL_AUX4       8
+#define RADIO_CONTROL_AUX5       9
+#define RADIO_CONTROL_AUX6       10
+#define RADIO_CONTROL_AUX7       11
 
 
 
+
+extern void RadioControlEventImp(void (*_received_frame_handler)(void));
 #endif /* BOOZ_RADIO_CONTROL_SPEKTRUM_ARCH_H */
