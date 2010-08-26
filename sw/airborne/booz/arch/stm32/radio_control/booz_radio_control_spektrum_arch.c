@@ -33,6 +33,10 @@
 #include "booz2_autopilot.h"
 
 
+#define SPEKTRUM_CHANNELS_PER_FRAME 7
+#define MAX_SPEKTRUM_FRAMES 2
+#define MAX_SPEKTRUM_CHANNELS 16
+
 #define MAX_DELAY   INT16_MAX
 /* the frequency of the delay timer */
 #define DELAY_TIM_FREQUENCY 1000000
@@ -51,51 +55,70 @@
 #define MAX_BYTE_SPACE  3   // .3ms
 
 /*
- * in the makefile we set RADIO_CONTROL_LINK to be Uartx
+ * in the makefile we set RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT to be Uartx
  * but in uart_hw.c the initialisation functions are 
  * defined as uartx these macros give us the glue 
  * that allows static calls at compile time 
  */
  
-
-
 #define __PrimaryUart(dev, _x) dev##_x
 #define _PrimaryUart(dev, _x)  __PrimaryUart(dev, _x)
-#define PrimaryUart(_x) _PrimaryUart(RADIO_CONTROL_LINK, _x)
+#define PrimaryUart(_x) _PrimaryUart(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT, _x)
 
 #define __SecondaryUart(dev, _x) dev##_x
 #define _SecondaryUart(dev, _x)  __SecondaryUart(dev, _x)
-#define SecondaryUart(_x) _SecondaryUart(RADIO_CONTROL_LINK_SLAVE, _x)
+#define SecondaryUart(_x) _SecondaryUart(RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT, _x)
+
+struct SpektrumStateStruct {
+    uint8_t ReSync;
+    uint8_t SpektrumTimer;
+    uint8_t Sync;
+    uint8_t ChannelCnt;
+    uint8_t FrameCnt;
+    uint8_t HighByte;
+    uint8_t SecondFrame;
+    uint16_t LostFrameCnt;
+    uint8_t RcAvailable;
+    int16_t values[SPEKTRUM_CHANNELS_PER_FRAME*MAX_SPEKTRUM_FRAMES];     
+};
+
+typedef struct SpektrumStateStruct SpektrumStateType;
 
 SpektrumStateType PrimarySpektrumState = {1,0,0,0,0,0,0,0,0};
-#ifdef RADIO_CONTROL_LINK_SLAVE 
+#ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT 
 SpektrumStateType SecondarySpektrumState = {1,0,0,0,0,0,0,0,0};
 #endif
 
 int16_t SpektrumBuf[SPEKTRUM_CHANNELS_PER_FRAME*MAX_SPEKTRUM_FRAMES];
 /* the order of the channels on a spektrum is always as follows :
  *
- * Throttle
- * Aileron
- * Elevator
- * Rudder
- * Gear
- * Flap/Aux1
- * Aux2
- * Aux3
- * Aux4
- *
+ * Throttle   0
+ * Aileron    1
+ * Elevator   2
+ * Rudder     3
+ * Gear       4
+ * Flap/Aux1  5
+ * Aux2       6 
+ * Aux3       7
+ * Aux4       8
+ * Aux5       9
+ * Aux6      10
+ * Aux7      11      
  */
-int8_t SpektrumSigns[MAX_SPEKTRUM_CHANNELS] = {1,1,-1,1,1,-1,1,1,1,1,1,1};
+ 
+/* reverse some channels to suit Paparazzi conventions          */
+/* the maximum number of channels a Spektrum can transmit is 12 */
+int8_t SpektrumSigns[] = {1,1,-1,1,1,-1,1,1,1,1,1,1};
 
+/* Parser state variables */ 
 static uint8_t EncodingType = 0;
 static uint8_t ExpectedFrames = 0;
-
+/* initialise the uarts used by the parser */
 void SpektrumUartInit(void);
+/* initialise the timer used by the parser to ensure sync */
 void SpektrumTimerInit(void);
+/* sets a GPIO pin as output for debugging */
 void DebugInit(void);
- 
-
 void tim1_up_irq_handler(void);
 /* wait busy loop, microseconds */
 static void DelayUs( uint16_t uSecs );
@@ -105,12 +128,16 @@ static void DelayMs( uint16_t mSecs );
 static void SpektrumDelayInit( void );
 
 
+ /*****************************************************************************
+ *
+ * Initialise the timer an uarts used by the Spektrum receiver subsystem
+ *
+ *****************************************************************************/
 void radio_control_impl_init(void) {
   SpektrumTimerInit();
   // DebugInit();  
   SpektrumUartInit(); 
 }
-
 
 /*****************************************************************************
  * The bind function means that the satellite receivers believe they are 
@@ -154,12 +181,27 @@ void radio_control_impl_init(void) {
  *
  * 0x01 From a Spektrum DX7eu which transmits a single frame containing all
  * channel data every 22ms with 10bit resolution.
+ *
  * 0x02 From a Spektrum DM9 module which transmits two frames to carry the 
  * data for all channels 11ms apart with 10bit resolution.
+ *
  * 0x12 From a Spektrum DX7se which transmits two frames to carry the 
  * data for all channels 11ms apart with 11bit resolution. 
+ *
  * 0x12 From a JR X9503 which transmits two frames to carry the 
  * data for all channels 11ms apart with 11bit resolution.
+ *
+ * 0x01 From a Spektrum DX7 which transmits a single frame containing all
+ * channel data every 22ms with 10bit resolution.
+ *
+ * 0x12 From a JR DSX12 which transmits two frames to carry the 
+ * data for all channels 11ms apart with 11bit resolution.
+ *
+ * 0x1 From a Spektru DX5e which transmits a single frame containing all
+ * channel data every 22ms with 10bit resolution.
+ *
+ * 0x01 From a Spektrum DX6i which transmits a single frame containing all
+ * channel data every 22ms with 10bit resolution.
  *
  * Currently the assumption is that the data has the form :
  *
@@ -321,39 +363,48 @@ void radio_control_impl_init(void) {
  *
  *****************************************************************************/
 
-void _RadioControlEventImp(void (*frame_handler)(void)) {                                                        
+void RadioControlEventImp(void (*frame_handler)(void)) {                                                        
   uint8_t ChannelCnt;
   uint8_t ChannelNum;
   uint16_t ChannelData;
   uint8_t MaxChannelNum = 0;
    
-#ifdef RADIO_CONTROL_LINK_SLAVE  
+#ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT 
+  /* If we have two receivers and at least one of them has new data */   
   uint8_t BestReceiver;
   if ((PrimarySpektrumState.RcAvailable) || 
       (SecondarySpektrumState.RcAvailable)) {
-    
+    /* if both receivers have new data select the one  */
+    /* that has had the least number of frames lost    */
     if ((PrimarySpektrumState.RcAvailable) && 
         (SecondarySpektrumState.RcAvailable)) {
       BestReceiver  = (PrimarySpektrumState.LostFrameCnt 
                        <= SecondarySpektrumState.LostFrameCnt) ? 0 : 1;
     } else {
+      /* if only one of the receivers have new data use it */
       BestReceiver  = (PrimarySpektrumState.RcAvailable) ? 0 : 1;
     }
+    /* clear the data ready flags */
     PrimarySpektrumState.RcAvailable = 0;
     SecondarySpektrumState.RcAvailable = 0;  
 
-#else   
+#else 
+  /* if we have one receiver and it has new data */  
   if(PrimarySpektrumState.RcAvailable) {
     PrimarySpektrumState.RcAvailable = 0;
 #endif       
     ChannelCnt = 0;
+    /* for every piece of channel data we have received */
     for(int i = 0; (i < SPEKTRUM_CHANNELS_PER_FRAME * ExpectedFrames); i++) {
-#ifndef RADIO_CONTROL_LINK_SLAVE 
+#ifndef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT 
       ChannelData = PrimarySpektrumState.values[i];
 #else                     
       ChannelData = (!BestReceiver) ? PrimarySpektrumState.values[i] :
                                  SecondarySpektrumState.values[i];
-#endif                
+#endif             
+      /* find out the channel number and its value by  */
+      /* using the EncodingType which is only received */
+      /* from the main receiver                        */  
       switch(EncodingType) {
         case(0) : /* 10 bit */
           ChannelNum = (ChannelData >> 10) & 0x0f; 
@@ -374,23 +425,25 @@ void _RadioControlEventImp(void (*frame_handler)(void)) {
             SpektrumBuf[ChannelNum] -= 0x400;               
             SpektrumBuf[ChannelNum] *= MAX_PPRZ/0x2AC;        
             ChannelCnt++;                 
-          }
+          } 
           break;
              
         default : ChannelNum = 0x0F; break;  /* never going to get here */
       }
+      /* store the value of the highest valid channel */
       if ((ChannelNum != 0x0F) && (ChannelNum > MaxChannelNum))
         MaxChannelNum = ChannelNum; 
         
     }
- 
+    
+    /* if we have a valid frame the pass it to the frame handler */ 
     if (ChannelCnt >= (MaxChannelNum + 1)) {
       radio_control.frame_cpt++;					
       radio_control.time_since_last_frame = 0;
       radio_control.status = RADIO_CONTROL_OK;
       for (int i = 0; i < (MaxChannelNum + 1); i++) {
         radio_control.values[i] = SpektrumBuf[i];
-        if (i == 0) {
+        if (i == RADIO_CONTROL_THROTTLE ) {
           radio_control.values[i] += MAX_PPRZ;
           radio_control.values[i] /= 2;
         }
@@ -452,7 +505,7 @@ void tim1_up_irq_handler( void ) {
   
   if (PrimarySpektrumState.SpektrumTimer) 
     --PrimarySpektrumState.SpektrumTimer; 
-#ifdef RADIO_CONTROL_LINK_SLAVE    
+#ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT    
   if (SecondarySpektrumState.SpektrumTimer) 
     --SecondarySpektrumState.SpektrumTimer;
 #endif      
@@ -498,7 +551,7 @@ void SpektrumUartInit(void) {
   USART_Cmd(PrimaryUart(_reg), ENABLE);
   
   
-#ifdef RADIO_CONTROL_LINK_SLAVE  
+#ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT  
    /* init RCC */
   SecondaryUart(_remap);
   SecondaryUart(_clk)(SecondaryUart(_UartPeriph), ENABLE);
@@ -555,7 +608,7 @@ void PrimaryUart(_irq_handler)(void) {
  * received character to Spektrum Parser.
  *
  *****************************************************************************/
-#ifdef RADIO_CONTROL_LINK_SLAVE
+#ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
 void SecondaryUart(_irq_handler)(void) {
   
   if(USART_GetITStatus(SecondaryUart(_reg), USART_IT_TXE) != RESET) {
@@ -628,7 +681,7 @@ void radio_control_spektrum_try_bind(void) {
   /* Master receiver RX line, drive high */
   GPIO_WriteBit(PrimaryUart(_RxPort), PrimaryUart(_RxPin) , Bit_SET );
 
-#ifdef RADIO_CONTROL_LINK_SLAVE
+#ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
    RCC_APB2PeriphClockCmd(SecondaryUart(_Periph) , ENABLE);
   /* Slave receiver Rx push-pull */
   GPIO_InitStructure.GPIO_Pin = SecondaryUart(_RxPin);
@@ -651,7 +704,7 @@ void radio_control_spektrum_try_bind(void) {
     DelayUs(122);
   }
   
-#ifdef RADIO_CONTROL_LINK_SLAVE
+#ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
   for (int i = 0; i < SLAVE_RECEIVER_PULSES; i++) 
   {
     GPIO_WriteBit(SecondaryUart(_RxPort), SecondaryUart(_RxPin), Bit_RESET );
@@ -659,7 +712,7 @@ void radio_control_spektrum_try_bind(void) {
     GPIO_WriteBit(SecondaryUart(_RxPort), SecondaryUart(_RxPin), Bit_SET );
     DelayUs(120);
   }
-#endif /* RADIO_CONTROL_LINK_SLAVE */
+#endif /* RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT */
 }
 
 /*****************************************************************************
