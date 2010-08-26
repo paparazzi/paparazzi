@@ -47,7 +47,7 @@ extern const int16_t rc_spk_throw[RADIO_CONTROL_NB_CHANNEL];
 
 #define __RcLink(dev, _x) dev##_x
 #define _RcLink(dev, _x)  __RcLink(dev, _x)
-#define RcLink(_x) _RcLink(RADIO_CONTROL_LINK, _x)
+#define RcLink(_x) _RcLink(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT, _x)
 
 #define RcLinkChAvailable() RcLink(ChAvailable())
 #define RcLinkGetCh() RcLink(Getch())
