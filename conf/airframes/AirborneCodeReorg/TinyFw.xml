@@ -165,6 +165,7 @@
       <param name="FLASH_MODE" 		value="IAP" />
       <define name="AGR_CLIMB" />
       <define name="ALT_KALMAN" />
+      <define name="GENERIC" value="1" />
     </target>
     <target name="sim" 			board="pc" />
 

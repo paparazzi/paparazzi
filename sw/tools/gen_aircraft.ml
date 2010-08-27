@@ -239,9 +239,16 @@ let parse_targets = fun makefile_ac tag target ->
 **)          fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/autopilot/%s.makefile\n" (Xml.attrib tag "name");
   	  let print_if_subsystem = (fun d ->
             if ExtXml.tag_is d "define" then begin
-              fprintf makefile_ac "%s.CFLAGS += -D%s\n"
+              let has_def_value = ref false in
+              begin try
+                has_def_value := not (String.compare (Xml.attrib d "value") "" = 0)
+              with _ -> () end;
+              fprintf makefile_ac "%s.CFLAGS += -D%s"
                 (Xml.attrib target "name")
-                (Xml.attrib d "name")
+                (Xml.attrib d "name");
+              if !has_def_value then
+                fprintf makefile_ac "=%s" (Xml.attrib d "value");
+              fprintf makefile_ac "\n"
             end) in
 	  List.iter print_if_subsystem (Xml.children target);
 	  List.iter (parse_subsystems makefile_ac tag) (Xml.children target ); (** dump target  subsystems **)
