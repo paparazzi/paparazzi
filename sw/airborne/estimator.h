@@ -32,7 +32,6 @@
 #include <inttypes.h>
 
 #include "std.h"
-//#ifndef READYBOARD_NO_BARO
 #ifdef BARO_MS5534A
 #include "baro_MS5534A.h"
 #endif
