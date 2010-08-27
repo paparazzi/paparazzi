@@ -497,6 +497,11 @@ void periodic_task_ap( void ) {
 
   switch(_4Hz) {
   case 0:
+#ifdef SITL
+#ifdef GPS_TRIGGERED_FUNCTION
+	GPS_TRIGGERED_FUNCTION();
+#endif
+#endif
     estimator_propagate_state();
     navigation_task();
     break;
@@ -906,12 +911,15 @@ void event_task_ap( void ) {
       UseGpsPosNoSend(estimator_update_state_gps);
       gps_downlink();
 #ifdef GPS_TRIGGERED_FUNCTION
+#ifndef SITL
 	GPS_TRIGGERED_FUNCTION();
+#endif
 #endif
       gps_pos_available = FALSE;
     }
   }
 #endif /** GPS */
+
 
 #if defined DATALINK 
 
