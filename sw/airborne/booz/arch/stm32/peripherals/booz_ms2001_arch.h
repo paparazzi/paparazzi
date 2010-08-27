@@ -126,7 +126,7 @@ extern int16_t ms2001_last_reading;
     /*  ASSERT((ms2001_status == MS2001_READING_RES),		\
      *   DEBUG_MS2001, MS2001_ERR_SPURIOUS_DMA_IRQ);		\
      */								\
-    if (abs(ms2001_last_reading) < 2000)			\
+    if (abs(ms2001_last_reading) < 1000)			\
       ms2001_values[ms2001_cur_axe] = ms2001_last_reading;	\
     Ms2001Unselect();						\
     ms2001_cur_axe++;						\
