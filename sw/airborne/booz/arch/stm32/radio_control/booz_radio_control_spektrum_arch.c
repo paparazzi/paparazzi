@@ -108,7 +108,7 @@ int16_t SpektrumBuf[SPEKTRUM_CHANNELS_PER_FRAME*MAX_SPEKTRUM_FRAMES];
  
 /* reverse some channels to suit Paparazzi conventions          */
 /* the maximum number of channels a Spektrum can transmit is 12 */
-int8_t SpektrumSigns[] = {1,1,-1,1,1,-1,1,1,1,1,1,1};
+int8_t SpektrumSigns[] = RADIO_CONTROL_SPEKTRUM_SIGNS;
 
 /* Parser state variables */ 
 static uint8_t EncodingType = 0;
