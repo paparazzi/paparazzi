@@ -25,20 +25,12 @@
 #ifndef BOOZ_RADIO_CONTROL_SPEKTRUM_ARCH_H
 #define BOOZ_RADIO_CONTROL_SPEKTRUM_ARCH_H
 
-#include "std.h"
-#include "uart.h"
 
 /* 
  * All Spektrum and JR 2.4 GHz transmitters
  * have the same channel assignments.
  */ 
  
-/* reverse some channels to suit Paparazzi conventions          */
-/* the maximum number of channels a Spektrum can transmit is 12 */
-#ifndef RADIO_CONTROL_SPEKTRUM_SIGNS 
-#define RADIO_CONTROL_SPEKTRUM_SIGNS {1,1,-1,1,1,-1,1,1,1,1,1,1}
-#endif
-
 
 #ifndef RADIO_CONTROL_NB_CHANNEL 
 #define RADIO_CONTROL_NB_CHANNEL 12
@@ -49,18 +41,9 @@
 #define RADIO_CONTROL_ROLL       1
 #define RADIO_CONTROL_PITCH      2
 #define RADIO_CONTROL_YAW        3
-
-#ifndef RADIO_CONTROL_MODE
-#define RADIO_CONTROL_MODE       4
-#endif
-
 #define RADIO_CONTROL_GEAR       4
 #define RADIO_CONTROL_FLAP       5
-
-#ifndef RADIO_CONTROL_KILL 
-#define RADIO_CONTROL_KILL       6
-#endif
-
+#define RADIO_CONTROL_AUX1       5
 #define RADIO_CONTROL_AUX2       6
 #define RADIO_CONTROL_AUX3       7
 #define RADIO_CONTROL_AUX4       8
@@ -68,9 +51,23 @@
 #define RADIO_CONTROL_AUX6       10
 #define RADIO_CONTROL_AUX7       11
 
+/* reverse some channels to suit Paparazzi conventions          */
+/* the maximum number of channels a Spektrum can transmit is 12 */
+#ifndef RADIO_CONTROL_SPEKTRUM_SIGNS 
+#define RADIO_CONTROL_SPEKTRUM_SIGNS {1,1,-1,1,1,-1,1,1,1,1,1,1}
+#endif
 
+/* really for a 9 channel transmitter 
+   we would swap the order of these */
+#ifndef RADIO_CONTROL_MODE
+#define RADIO_CONTROL_MODE       RADIO_CONTROL_GEAR 
+#endif
 
+#ifndef RADIO_CONTROL_KILL 
+#define RADIO_CONTROL_KILL       RADIO_CONTROL_AUX2
+#endif
 
 
 extern void RadioControlEventImp(void (*_received_frame_handler)(void));
+
 #endif /* BOOZ_RADIO_CONTROL_SPEKTRUM_ARCH_H */
