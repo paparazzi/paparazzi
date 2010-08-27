@@ -32,6 +32,13 @@
  * All Spektrum and JR 2.4 GHz transmitters
  * have the same channel assignments.
  */ 
+ 
+/* reverse some channels to suit Paparazzi conventions          */
+/* the maximum number of channels a Spektrum can transmit is 12 */
+#ifndef RADIO_CONTROL_SPEKTRUM_SIGNS 
+#define RADIO_CONTROL_SPEKTRUM_SIGNS {1,1,-1,1,1,-1,1,1,1,1,1,1}
+#endif
+
 
 #ifndef RADIO_CONTROL_NB_CHANNEL 
 #define RADIO_CONTROL_NB_CHANNEL 12
@@ -60,6 +67,7 @@
 #define RADIO_CONTROL_AUX5       9
 #define RADIO_CONTROL_AUX6       10
 #define RADIO_CONTROL_AUX7       11
+
 
 
 
