@@ -1,4 +1,4 @@
-<!-- this is an asctec frame equiped with  Lisa/L#3 and asctec V2 controllers -->
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="A1000 LISA">
 
@@ -58,10 +58,10 @@
 
  <section name="AUTOPILOT">
    <define name="BOOZ2_MODE_MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="BOOZ2_MODE_AUTO1"  value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="BOOZ2_MODE_AUTO2"  value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="BOOZ2_MODE_AUTO1" value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/>
+   <define name="BOOZ2_MODE_AUTO2" value="BOOZ2_AP_MODE_HOVER_Z_HOLD"/>
  </section>
-
+ 
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
@@ -158,11 +158,11 @@
 
  
   <firmware name="rotorcraft">
-    <target name="ap" board="lisa_l_1.0"/>
-    <subsystem name="radio_control" type="spektrum">
-      <param name="RADIO_CONTROL_SPEKTRUM_MODEL" 
-             value="\\\"booz/radio_control/booz_radio_control_spektrum_dx7se.h\\\""/>
-    </subsystem>
+    <target name="ap" board="lisa_l_1.1">
+      <define name = "RADIO_CONTROL_MODE" value = "RADIO_CONTROL_AUX2"/>
+      <define name = "RADIO_CONTROL_KILL_SWITCH" value = "RADIO_CONTROL_GEAR"/>
+    </target>
+    <subsystem name="radio_control" type="spektrum"/>
     <subsystem name="actuators"     type="heli"/>
     <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox"/>
@@ -177,10 +177,7 @@
 
   <firmware name="lisa_passthrough">
     <target name="stm_passthrough" board="lisa_l_1.0"/>
-      <subsystem name="radio_control" type="spektrum">
-        <param name="RADIO_CONTROL_SPEKTRUM_MODEL" 
-              value="\\\"booz/radio_control/booz_radio_control_spektrum_dx7se.h\\\""/>
-      </subsystem>
+      <subsystem name="radio_control" type="spektrum"/>
       <subsystem name="imu" type="b2_v1.1"/>
  </firmware>
 
