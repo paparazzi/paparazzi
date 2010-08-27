@@ -106,13 +106,6 @@ stm_passthrough.srcs += $(SRC_CSC)/csc_protocol.c
 # Battery monitor
 
 
-
-
-
-
-
-
-
 #
 #
 #
@@ -137,3 +130,19 @@ overo_test_passthrough.srcs    += $(SRC_FMS)/fms_gs_com.c
 overo_test_passthrough.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
 overo_test_passthrough.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
 overo_test_passthrough.srcs    += $(SRC_FMS)/fms_network.c
+
+# 
+# use the passthrough to calibrate throttle range for castle creations motor pwm motor controller
+# 
+overo_blmc_calibrate.ARCHDIR  = omap
+overo_blmc_calibrate.LDFLAGS += -levent -lm
+overo_blmc_calibrate.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
+overo_blmc_calibrate.CFLAGS  += -DOVERO_LINK_MSG_UP=AutopilotMessagePTUp -DOVERO_LINK_MSG_DOWN=AutopilotMessagePTDown
+overo_blmc_calibrate.srcs     = $(SRC_FMS)/overo_blmc_calibrate.c
+overo_blmc_calibrate.CFLAGS  += -DFMS_PERIODIC_FREQ=512
+overo_blmc_calibrate.srcs    += $(SRC_FMS)/fms_periodic.c
+overo_blmc_calibrate.srcs    += $(SRC_FMS)/fms_spi_link.c
+#overo_blmc_calibrate.srcs    += $(SRC_FMS)/fms_gs_com.c
+#overo_blmc_calibrate.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
+#overo_blmc_calibrate.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
+overo_blmc_calibrate.srcs    += $(SRC_FMS)/fms_network.c
