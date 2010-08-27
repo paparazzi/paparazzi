@@ -27,7 +27,6 @@
  *
 */
 
-
 #ifndef GPS_H
 #define GPS_H
 
@@ -118,6 +117,12 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 #define GpsToggleLed() LED_TOGGLE(GPS_LED)
 #else
 #define GpsToggleLed() {}
+#endif
+
+#ifdef GPS
+#define GpsTimeoutError (cpu_time_sec - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)
+#else
+#define GpsTimeoutError 1
 #endif
 
 #define UseGpsPosNoSend(_callback) {			\

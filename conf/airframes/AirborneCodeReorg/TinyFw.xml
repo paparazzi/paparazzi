@@ -162,14 +162,12 @@
 
   <firmware name="fixedwing">
     <target name="ap" 			board="tiny_2.11">
-      <param name="FLASH_MODE" 		value="IAP" />
       <define name="AGR_CLIMB" />
       <define name="ALT_KALMAN" />
-      <define name="GENERIC" value="1" />
     </target>
     <target name="sim" 			board="pc" />
 
-    <subsystem name="radio_control" 	type="ppm"/>
+    <subsystem name="radio_control" 	type="ppm" />
 
     <!-- Communication -->
     <subsystem name="telemetry" 	type="transparent">

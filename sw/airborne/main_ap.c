@@ -193,6 +193,7 @@ float energy; 		// Fuel consumption (mAh)
 
 bool_t gps_lost = FALSE;
 
+
 #define Min(x, y) (x < y ? x : y)
 #define Max(x, y) (x > y ? x : y)
 
@@ -346,7 +347,7 @@ static void navigation_task( void ) {
   /** If aircraft is launched and is in autonomus mode, go into
       PPRZ_MODE_GPS_OUT_OF_ORDER mode (Failsafe) if we lost the GPS */
   if (launch) {
-    if (cpu_time_sec - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS) {
+    if (GpsTimeoutError) {
       if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
 	last_pprz_mode = pprz_mode;
 	pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
