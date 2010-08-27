@@ -35,19 +35,6 @@
 #
 
 # imu Booz2 v1.1
-stm_passthrough.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
-stm_passthrough.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
-stm_passthrough.CFLAGS += -DIMU_B2_VERSION_1_1
-stm_passthrough.srcs += $(SRC_BOOZ)/booz_imu.c                   \
-           $(SRC_BOOZ)/imu/booz_imu_b2.c            \
-           $(SRC_BOOZ_ARCH)/imu/booz_imu_b2_arch.c
-
-stm_passthrough.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
-           $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
-
-stm_passthrough.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c \
-           $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
-
-stm_passthrough.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
-
-
+include conf/rotorcraft/imu_b2_v1.1.makefile
+stm_passthrough.CFLAGS += $(imu_CFLAGS)
+stm_passthrough.srcs += $(imu_srcs)

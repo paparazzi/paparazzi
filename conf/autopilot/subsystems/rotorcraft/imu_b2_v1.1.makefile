@@ -40,30 +40,34 @@
 
 
 # imu Booz2 v1.1
-ap.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
-ap.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
-ap.CFLAGS += -DIMU_B2_VERSION_1_1
-ap.srcs += $(SRC_BOOZ)/booz_imu.c                   \
+imu_CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
+imu_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
+imu_CFLAGS += -DIMU_B2_VERSION_1_1
+imu_srcs += $(SRC_BOOZ)/booz_imu.c                   \
            $(SRC_BOOZ)/imu/booz_imu_b2.c            \
            $(SRC_BOOZ_ARCH)/imu/booz_imu_b2_arch.c
 
-ap.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
+imu_srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
            $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
 
-ap.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c \
+imu_srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c \
            $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
 
 # FIXME : that would lpc21
 #ifeq ($(ap.ARCH), arm7tmdi)
 ifeq ($(ARCHI), arm7)
-ap.CFLAGS += -DSSP_VIC_SLOT=9
-ap.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
-ap.CFLAGS += -DMS2001_DRDY_VIC_SLOT=11
+imu_CFLAGS += -DSSP_VIC_SLOT=9
+imu_CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
+imu_CFLAGS += -DMS2001_DRDY_VIC_SLOT=11
 else ifeq ($(ARCHI), stm32) 
-ap.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
-ap.CFLAGS += -DMAX_1168_DRDY_PORT=$(MAX_1168_DRDY_PORT)
-ap.CFLAGS += -DMAX_1168_DRDY_PORT_SOURCE=$(MAX_1168_DRDY_PORT_SOURCE)
+imu_CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
+imu_CFLAGS += -DMAX_1168_DRDY_PORT=$(MAX_1168_DRDY_PORT)
+imu_CFLAGS += -DMAX_1168_DRDY_PORT_SOURCE=$(MAX_1168_DRDY_PORT_SOURCE)
 endif
+
+# Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
+ap.CFLAGS += $(imu_CFLAGS)
+ap.srcs += $(imu_srcs)
 
 #
 # Simulator
