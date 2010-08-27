@@ -66,6 +66,7 @@ imu_CFLAGS += -DMAX_1168_DRDY_PORT_SOURCE=$(MAX_1168_DRDY_PORT_SOURCE)
 endif
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
+# see: conf/autopilot/subsystems/lisa_passthrough/imu_b2_v1.1.makefile for example
 ap.CFLAGS += $(imu_CFLAGS)
 ap.srcs += $(imu_srcs)
 
