@@ -37,6 +37,10 @@
 #define B115200 115200
 
 
+/* sort out the problem of UART5 already defined in stm32.h */
+#define USART5               ((USART_TypeDef *) UART5_BASE)
+#undef UART5
+
 #define UART1_TxPin GPIO_Pin_9
 #define UART2_TxPin GPIO_Pin_2
 #define UART3_TxPin GPIO_Pin_10
@@ -44,6 +48,7 @@
 #define UART1_RxPin GPIO_Pin_10
 #define UART2_RxPin GPIO_Pin_3
 #define UART3_RxPin GPIO_Pin_11
+#define UART5_RxPin GPIO_Pin_2
 
 #define UART1_TxPort GPIOA
 #define UART2_TxPort GPIOA
@@ -52,14 +57,17 @@
 #define UART1_RxPort GPIOA
 #define UART2_RxPort GPIOA
 #define UART3_RxPort GPIOC
+#define UART5_RxPort GPIOD
 
 #define UART1_Periph RCC_APB2Periph_GPIOA
 #define UART2_Periph RCC_APB2Periph_GPIOA
 #define UART3_Periph RCC_APB2Periph_GPIOC
+#define UART5_Periph RCC_APB2Periph_GPIOD
 
 #define UART1_UartPeriph RCC_APB2Periph_USART1
 #define UART2_UartPeriph RCC_APB1Periph_USART2
 #define UART3_UartPeriph RCC_APB1Periph_USART3
+#define UART5_UartPeriph RCC_APB1Periph_UART5
 
 #define UART1_remap {}
 #define UART2_remap {}
@@ -70,7 +78,7 @@
 #define UART1_clk(_periph, _val) RCC_APB2PeriphClockCmd(_periph, _val)
 #define UART2_clk(_periph, _val) RCC_APB1PeriphClockCmd(_periph, _val)
 #define UART3_clk(_periph, _val) RCC_APB1PeriphClockCmd(_periph, _val);
- 
+#define UART5_clk(_periph, _val) RCC_APB1PeriphClockCmd(_periph, _val) 
 
 #define Uart1_init uart1_init()
 #define Uart2_init uart2_init()
@@ -80,7 +88,7 @@
 #define UART1_irq_handler usart1_irq_handler
 #define UART2_irq_handler usart2_irq_handler
 #define UART3_irq_handler usart3_irq_handler
-#define UART5_irq_handler  uart5_irq_handler 
+#define UART5_irq_handler usart5_irq_handler 
 
 #define UART1_IRQn USART1_IRQn
 #define UART2_IRQn USART2_IRQn 
@@ -89,7 +97,7 @@
 #define UART1_reg USART1
 #define UART2_reg USART2
 #define UART3_reg USART3
-#define UART5_reg UART5  
+#define UART5_reg USART5  
 
 
 #if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
