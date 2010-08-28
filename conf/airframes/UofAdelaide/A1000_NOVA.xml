@@ -246,7 +246,7 @@
     </target>
     
     <target name="sim" board="pc"/>
- <!--   <subsystem name="simulator"     type="nps"/> -->
+    <subsystem name="fdm"           type="nps"/>
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="actuators"     type="mkk"/>
     <subsystem name="imu"           type="b2_v1.1"/>

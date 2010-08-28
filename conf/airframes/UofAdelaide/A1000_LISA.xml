@@ -1,4 +1,4 @@
-<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+<!--<!DOCTYPE airframe SYSTEM "../airframe.dtd">-->
 
 <airframe name="A1000 LISA">
 
@@ -156,11 +156,14 @@
    <define name="BOOZ2_FACE_REINJ_1"  value="1024"/>
  </section>
 
- 
+<!-- the board isnt really a lisa_l_1.1 we just cable it to suit. In order to use a straight through imu cable 
+     we need to se the board to be lisa_l_1.0 --> 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_l_1.1">
       <define name = "RADIO_CONTROL_MODE" value = "RADIO_CONTROL_AUX2"/>
       <define name = "RADIO_CONTROL_KILL_SWITCH" value = "RADIO_CONTROL_GEAR"/>
+      <define name = "RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value = "UART5"/>
+      <define name = "OVERRIDE_UART5_IRQ_HANDLER"/>
     </target>
     <subsystem name="radio_control" type="spektrum"/>
     <subsystem name="actuators"     type="heli"/>
@@ -170,13 +173,13 @@
   </firmware>
 
   <firmware name="lisa_l_test_progs">
-    <target name="test_telemetry" board="lisa_l_1.0"/>
-    <target name="test_baro"      board="lisa_l_1.0"/>
-    <target name="test_spektrum"  board="lisa_l_1.0"/>
+    <target name="test_telemetry" board="lisa_l_1.1"/>
+    <target name="test_baro"      board="lisa_l_1.1"/>
+    <target name="test_spektrum"  board="lisa_l_1.1"/>
   </firmware>
 
   <firmware name="lisa_passthrough">
-    <target name="stm_passthrough" board="lisa_l_1.0"/>
+    <target name="stm_passthrough" board="lisa_l_1.1"/>
       <subsystem name="radio_control" type="spektrum"/>
       <subsystem name="imu" type="b2_v1.1"/>
  </firmware>
