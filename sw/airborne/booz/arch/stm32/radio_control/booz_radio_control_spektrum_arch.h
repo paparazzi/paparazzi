@@ -63,11 +63,6 @@
 #define RADIO_CONTROL_MODE       RADIO_CONTROL_GEAR 
 #endif
 
-#ifndef RADIO_CONTROL_KILL 
-#define RADIO_CONTROL_KILL       RADIO_CONTROL_AUX2
-#endif
-
-
 extern void RadioControlEventImp(void (*_received_frame_handler)(void));
 
 #endif /* BOOZ_RADIO_CONTROL_SPEKTRUM_ARCH_H */
