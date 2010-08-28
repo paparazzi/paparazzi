@@ -24,8 +24,8 @@
 #ifndef BOOZ_RADIO_CONTROL_PPM_ARCH_H
 #define BOOZ_RADIO_CONTROL_PPM_ARCH_H
 
-#define RC_PPM_TICS_OF_USEC        SYS_TICS_OF_USEC
-#define RC_PPM_SIGNED_TICS_OF_USEC SIGNED_SYS_TICS_OF_USEC
+#define RC_PPM_TICS_OF_USEC(_v)         (_v)
+#define RC_PPM_SIGNED_TICS_OF_USEC(_v)  (_v)
 
 extern void booz_radio_control_feed(void);
 
