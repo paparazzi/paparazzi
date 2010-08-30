@@ -683,9 +683,6 @@ void periodic_task_ap( void ) {
       inter_mcu_received_ap = TRUE;
 #endif
 
-#ifdef MOBILE_CAM
-    cam_periodic();
-#endif
     }
 
   modules_periodic_task();
