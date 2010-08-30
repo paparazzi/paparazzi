@@ -1,17 +1,13 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="cam_point" dir="vision">
+<module name="cam_roll" dir="vision">
   <header>
     <file name="cam.h"/>
-    <file name="point.h"/>
   </header>
   <init fun="cam_init()"/>
   <periodic fun="cam_periodic()" freq="10."/>
   <makefile>
-    <flag name="CAM"/>
     <flag name="MOBILE_CAM"/>
-    <flag name="POINT_CAM"/>
-    <file name="cam.c"/>
-    <file name="point.c"/>
+    <file name="cam_roll.c"/>
   </makefile>
 </module>
