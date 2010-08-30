@@ -11,6 +11,11 @@
      <param name="MODEM_BAUD" values="B9600,B57600,B115200" default="B57600"/>
    </target>
 
+   <target name="test imu b2" description="reads imu values over telemetry">
+     <param name="MODEM_PORT" values="UART1,UART2,UART3"    default="UART2"/>
+     <param name="MODEM_BAUD" values="B9600,B57600,B115200" default="B57600"/>
+   </target>
+
   <target name="test spektrum" description="sends RADIO_CONTROL messages on telemetry">
      <param name="MODEM_PORT"         values="UART1,UART2,UART3"    default="UART2"/>
      <param name="MODEM_BAUD"         values="B9600,B57600,B115200" default="B57600"/>
