@@ -48,7 +48,6 @@
 #include "autopilot.h"
 #include "estimator.h"
 #include "settings.h"
-#include "cam.h"
 #include "link_mcu.h"
 #include "sys_time.h"
 #include "flight_plan.h"
@@ -756,10 +755,6 @@ void init_ap( void ) {
 
 #ifdef DIGITAL_CAM
   dc_init();
-#endif
-
-#ifdef MOBILE_CAM
-  cam_init();
 #endif
 
 #ifdef DPICCO
