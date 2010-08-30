@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="cam_roll" dir="vision">
+<module name="cam_roll" dir="cam_control">
   <header>
     <file name="cam.h"/>
   </header>
