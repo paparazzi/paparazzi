@@ -120,9 +120,13 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 #endif
 
 #ifdef GPS
-#define GpsTimeoutError (cpu_time_sec - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)
+#  define GpsTimeoutError (cpu_time_sec - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)
 #else
-#define GpsTimeoutError 1
+#  ifdef SITL
+#    define GpsTimeoutError (cpu_time_sec - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)
+#  else
+#    define GpsTimeoutError 1
+#  endif
 #endif
 
 #define UseGpsPosNoSend(_callback) {			\
