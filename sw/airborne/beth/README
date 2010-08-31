@@ -17,6 +17,7 @@ overo_test_uart
 overo_test_uart target opens a serial port and parses gps messages from ublox receiver
 
 * gps_c.patch is used to patch sw/airborne/gps.c so that the overo_test_uart target will compile
+patch --dry-run  -p0 sw/airborne/gps.c < sw/airborne/beth/gps_c.patch
 
 * currently tested on USB/serial adapters but should work just fine on the overo serial ports (assuming proper voltage level translation is in place)
 
