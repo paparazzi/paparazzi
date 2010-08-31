@@ -45,6 +45,8 @@
 #include "messages.h"
 #include "periodic.h"
 
+//#include "modules.h"
+
 #if defined DOWNLINK
 #define Downlink(x) x
 #else
@@ -100,7 +102,7 @@
 #define PERIODIC_SEND_SETTINGS(_chan) {}
 #endif
 
-#ifdef INFRARED
+#if defined INFRARED || INFRARED_I2C
 #define PERIODIC_SEND_IR_SENSORS(_chan) DOWNLINK_SEND_IR_SENSORS(_chan, &ir_ir1, &ir_ir2, &ir_pitch, &ir_roll, &ir_top);
 #else
 #define PERIODIC_SEND_IR_SENSORS(_chan) ;
