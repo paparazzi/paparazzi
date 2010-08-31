@@ -19,4 +19,4 @@ ap.CFLAGS += -DINFRARED
 ap.srcs += $(SRC_FIXEDWING)/infrared.c
 
 sim.CFLAGS += -DINFRARED
-sim.srcs += $(SRC_FIXEDWING)/infrared.c $(SRC_ARCH)/sim_ap.c
+sim.srcs += $(SRC_FIXEDWING)/infrared.c $(SRC_ARCH)/sim_ir.c
