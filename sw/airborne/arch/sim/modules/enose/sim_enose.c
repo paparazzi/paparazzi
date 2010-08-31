@@ -1,4 +1,4 @@
-#include "enose.h"
+#include "enose/enose.h"
 
 uint8_t enose_status;
 uint8_t  enose_heat[ENOSE_NB_SENSOR];

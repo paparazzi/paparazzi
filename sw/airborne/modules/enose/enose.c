@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "enose.h"
+#include "enose/enose.h"
 
 #include "i2c.h"
 #include "adc.h"
