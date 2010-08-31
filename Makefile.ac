@@ -96,9 +96,9 @@ ifeq ($(MAKECMDGOALS),all_ac_h)
 -include $(MAKEFILE_AC)
 endif
 
-$(PERIODIC_H) : $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY) $(MAKEFILE_AC)
+$(PERIODIC_H) : $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY) $(MAKEFILE_AC)
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_periodic.out $(MESSAGES_XML) $(CONF)/$(TELEMETRY) $(PERIODIC_FREQ) > $@
+	$(Q)$(TOOLS)/gen_periodic.out $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF)/$(TELEMETRY) $(PERIODIC_FREQ) > $@
 	$(Q)chmod a+r $@
 	$(Q)cp $< $(AIRCRAFT_CONF_DIR)
 	$(Q)cp $(CONF)/$(TELEMETRY) $(AIRCRAFT_CONF_DIR)/telemetry
@@ -160,10 +160,10 @@ tiny_bl.upload:
 	lpc21isp -control $(AIRBORNE)/arm7/test/bootloader/bl.hex $(BOOTLOADER_DEVICE) 38400 12000
 
 jsbsim jsbsim.compile: ac_h
-	cd $(AIRBORNE); $(MAKE) TARGET=jsbsim ARCHI=jsbsim all
+	cd $(AIRBORNE); $(MAKE) TARGET=jsbsim ARCHI=jsbsim ARCH=jsbsim all
 
 sim: ac_h
-	cd $(AIRBORNE); $(MAKE) TARGET=sim ARCHI=sim all
+	cd $(AIRBORNE); $(MAKE) TARGET=sim ARCHI=sim ARCH=sim all
 
 # Rules for backward compatibility (old guys are used to !)
 fbw : fbw.compile
