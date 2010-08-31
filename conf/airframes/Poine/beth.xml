@@ -251,7 +251,7 @@ TARGET_DIR = ~
 SRC_FMS=fms
 
 overo_test_uart.ARCHDIR = omap
-overo_test_uart.CFLAGS = -I. -I$(SRC_FMS)
+overo_test_uart.CFLAGS = -I. -I$(SRC_FMS) -I$(SRC_BETH)
 overo_test_uart.srcs  = $(SRC_BETH)/overo_test_uart.c
 
 overo_test_uart.CFLAGS  += -DFMS_PERIODIC_FREQ=500
@@ -265,7 +265,7 @@ overo_test_uart.LDFLAGS += -levent -lm
 overo_test_uart.srcs    += $(SRC_BETH)/overo_gcs_com.c
 overo_test_uart.CFLAGS  += -DUBX -DGPS -DUSE_UART0 -DUART0_BAUD=B38400 -DGPS_LINK=Uart0 -DGPS_USE_LATLONG
 #overo_test_uart.CFLAGS  += -DUBX -DGPS -DUSE_UART1 -DUART1_BAUD=B9600 -DGPS_LINK=Uart1 -DGPS_USE_LATLONG
-overo_test_uart.srcs    += gps_ubx.c gps.c latlong.c $(SRC_FMS)/uart_hw.c
+overo_test_uart.srcs    += gps_ubx.c gps.c latlong.c $(SRC_BETH)/uart_hw.c
 
 #
 # Overo twisting
