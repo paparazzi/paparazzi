@@ -21,8 +21,9 @@
 <!ELEMENT linear EMPTY>
 <!ELEMENT makefile (#PCDATA)>
 <!ELEMENT modules (load)*>
-<!ELEMENT load (param)*>
+<!ELEMENT load (param|flag)*>
 <!ELEMENT param EMPTY>
+<!ELEMENT flag EMPTY>
 <!ELEMENT firmware (target|subsystem)*>
 <!ELEMENT target (param|define)*>
 <!ELEMENT subsystem (param)*>
@@ -94,6 +95,10 @@ name CDATA #REQUIRED
 value CDATA #IMPLIED
 unit CDATA #IMPLIED
 integer CDATA #IMPLIED>
+
+<!ATTLIST flag
+name CDATA #REQUIRED
+value CDATA #IMPLIED>
 
 <!ATTLIST param
 name CDATA #REQUIRED

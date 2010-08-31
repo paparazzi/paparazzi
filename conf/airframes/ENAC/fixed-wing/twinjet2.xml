@@ -14,8 +14,9 @@
     <!--load name="infrared_i2c.xml"/-->
     <!--load name="max3100.xml"/>
     <load name="gsm.xml"/-->
-    <load name="sys_mon.xml">
-      <param name="TEST" value="1"/>
+    <load name="demo_module.xml">
+      <flag name="TEST" value="1"/>
+      <flag name="TEST_FLAG"/>
     </load>
     <!--load name="enose.xml"/-->
     <load name="light.xml"/>
@@ -36,7 +37,7 @@
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="xbee_api"/>
-    <subsystem name="control_new"/>
+    <subsystem name="control"       type="new"/>
     <subsystem name="attitude"      type="infrared"/>
     <subsystem name="gps"           type="ublox_lea5h"/>
     <subsystem name="navigation"/>

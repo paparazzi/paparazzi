@@ -62,17 +62,61 @@ let check_unique_id_and_name = fun conf ->
 let pipe_regexp = Str.regexp "|"
 let targets_of_field = fun field ->
   try 
-    Str.split pipe_regexp (Xml.attrib field "target")
+    Str.split pipe_regexp (ExtXml.attrib_or_default field "target" "ap|sim")
   with
     _ -> []
 
+(** singletonize a sorted list *)
+let rec singletonize = fun l ->
+  match l with
+    [] | [_] -> l
+  | x :: ((y :: t) as yt) -> if x = y then singletonize yt else x :: singletonize yt
 
-let get_modules = fun dir m ->
-  match String.lowercase (Xml.tag m) with
-    "load" -> (dir // ExtXml.attrib m "name", Xml.children m)
-  | tag -> failwith (sprintf "Warning: tag load is undefined; found '%s'" tag)
+(** union of two lists *)
+let union = fun l1 l2 ->
+  let l = l1 @ l2 in
+  let sl = List.sort compare l in
+  singletonize sl
 
+let union_of_lists = fun l ->
+  let sl = List.sort compare (List.flatten l) in
+  singletonize sl
 
+(** [get_modules dir xml]
+ * [dir] is the conf directory for modules, [xml] is the parsed airframe.xml *)
+let get_modules = fun dir xml ->
+  (* extract all "modules" sections *)
+  let modules = List.map (fun x ->
+    match String.lowercase (Xml.tag x) with
+      "modules" -> Xml.children x
+    | _ -> []
+    ) (Xml.children xml) in
+  (* flatten the list (result is a list of "load" xml nodes) *)
+  let modules = List.flatten modules in
+  (* build a list (file name, (xml, xml list of flags)) *)
+  let extract = List.map (fun m ->
+    match String.lowercase (Xml.tag m) with
+      "load" -> let file = dir // ExtXml.attrib m "name" in
+        (file, (ExtXml.parse_file file, Xml.children m))
+    | tag -> failwith (sprintf "Warning: tag load is undefined; found '%s'" tag)
+    ) modules in
+  (* return a list of name and a list of pairs (xml, xml list) *)
+  List.split extract
+
+(** [get_targets_of_module xml] Returns the list of targets of a module *)
+let get_targets_of_module = fun m ->
+  let targets = List.map (fun x ->
+    match String.lowercase (Xml.tag x) with
+      "makefile" -> targets_of_field x
+    | _ -> []
+  ) (Xml.children m) in
+  (* return a singletonized list *)
+  singletonize (List.sort compare (List.flatten targets))
+
+(** [get_modules_dir xml] Returns the list of modules directories *)
+let get_modules_dir = fun modules ->
+  let dir = List.map (fun (m, _) -> try Xml.attrib m "dir" with _ -> ExtXml.attrib m "name") modules in
+  singletonize (List.sort compare dir)
 
 (** 
    Search and dump the module section : 
@@ -80,87 +124,72 @@ let get_modules = fun dir m ->
      f   : makefile.ac 
  **)
 let dump_module_section = fun xml f ->
-  let files = ref [] in
-  List.iter (fun x ->
-    if ExtXml.tag_is x "modules" then
-      let modules_names = List.map (get_modules modules_dir) (Xml.children x) in
-      List.iter (fun (name,_) -> files := name :: !files) modules_names;
-      let modules_list = List.map (fun (m,p) -> (Xml.parse_file m, p)) modules_names in
-      (* Print modules directories and includes for all targets *)
-      fprintf f "\n# include modules directory for all targets\n";
-      let target_list = ref [] in
-      let dir_list = ref [] in
-      List.iter (fun (m,_) -> 
-        let dir = try Xml.attrib m "dir" with _ -> ExtXml.attrib m "name" in
-        dir_list := List.merge String.compare !dir_list [dir];
-        List.iter (fun l ->
-          if ExtXml.tag_is l "makefile" then
-            target_list := List.merge String.compare !target_list (targets_of_field l);
-        ) (Xml.children m)
-      ) modules_list;
-      List.iter (fun target -> fprintf f "%s.CFLAGS += -I modules -I arch/$(ARCH)/modules\n" target) !target_list;
-      List.iter (fun dir -> let dir_name = (String.uppercase dir)^"_DIR" in fprintf f "%s = modules/%s\n" dir_name dir) !dir_list;
-      (* Parse each makefile *)
-      List.iter (fun (modul,params) ->
-        let name = ExtXml.attrib modul "name" in
-        let dir = try Xml.attrib modul "dir" with _ -> name in
-        let dir_name = (String.uppercase dir)^"_DIR" in
-        (* Extract the list of all the targes for this module *)
-        let module_target_list = ref [] in
-        List.iter (fun l ->
-          if ExtXml.tag_is l "makefile" then module_target_list := List.merge String.compare !module_target_list (targets_of_field l)
-        ) (Xml.children modul);
-        fprintf f "\n# makefile for module %s\n" name;
-        (* Print parameters as global copilation defines *)
-        List.iter (fun target ->
-          List.iter (fun param -> try
-            let name = Xml.attrib param "name"
-            and value = Xml.attrib param "value" in
-            fprintf f "%s.CFLAGS += -D%s=%s\n" target name value
-          with _ -> ()
-          ) params
-        ) !module_target_list;
-        (* Look for makefile section *)
-        List.iter (fun l ->
-          if ExtXml.tag_is l "makefile" then begin
-            let targets = targets_of_field l in
-            (* Look for defines, flags, files, ... *)
-            List.iter (fun field ->
-              match String.lowercase (Xml.tag field) with
-                "flag" -> 
-                  List.iter
-                  (fun target -> 
-                    let value = try "="^(Xml.attrib field "value") with _ -> ""
-                    and name = Xml.attrib field "name" in
-                    let flag_type = match (ExtXml.attrib_or_default field "type" "define") with
-                        "define" | "D" -> "D"
-                      | "include" | "I" -> "I"
-                      | _ -> "D" in
-                    fprintf f "%s.CFLAGS += -%s%s%s\n" target flag_type name value)
-                  targets
-              | "file" -> 
-                  let name = Xml.attrib field "name" in
-                  List.iter (fun target -> fprintf f "%s.srcs += $(%s)/%s\n" target dir_name name) targets
-              | "file_hw" -> 
-                  let name = Xml.attrib field "name" in
-                  List.iter (fun target -> fprintf f "%s.srcs += arch/$(ARCH)/$(%s)/%s\n" target dir_name name) targets
-              | "define" -> 
-                  let value = Xml.attrib field "value"
-                  and name = Xml.attrib field "name" in
-                  fprintf f "%s = %s\n" name value
-              | "raw" ->
-                  begin match Xml.children field with
-                    [Xml.PCData s] -> fprintf f "%s\n" s
-                  | _ -> fprintf stderr "Warning: wrong makefile section in module '%s'\n" name
-                  end
-              | _ -> ()
-		      )
-          (Xml.children l)
-          end)
-        (Xml.children modul))
-      modules_list)
-    (Xml.children xml);
-  !files
+  (* get modules *)
+  let (files, modules) = get_modules modules_dir xml in
+  (* print modules directories and includes for all targets *)
+  fprintf f "\n####################################################\n";
+  fprintf f   "# modules makefile section\n";
+  fprintf f   "####################################################\n";
+  fprintf f "\n# include modules directory for all targets\n";
+  (* get dir and target list *)
+  let dir_list = get_modules_dir modules in
+  let target_list = union_of_lists (List.map (fun (m,_) -> get_targets_of_module m) modules) in
+  List.iter (fun target -> fprintf f "%s.CFLAGS += -I modules -I arch/$(ARCH)/modules\n" target) target_list;
+  List.iter (fun dir -> let dir_name = (String.uppercase dir)^"_DIR" in fprintf f "%s = modules/%s\n" dir_name dir) dir_list;
+  (* parse each module *)
+  List.iter (fun (m, flags) ->
+    let name = ExtXml.attrib m "name" in
+    let dir = try Xml.attrib m "dir" with _ -> name in
+    let dir_name = (String.uppercase dir)^"_DIR" in
+    (* get the list of all the targes for this module *)
+    let module_target_list = get_targets_of_module m in
+    (* print global flags as compilation defines and flags *)
+    fprintf f "\n# makefile for module %s in modules/%s\n" name dir;
+    List.iter (fun target ->
+      List.iter (fun flag ->
+        let name = ExtXml.attrib flag "name"
+        and value = try "="^(Xml.attrib flag "value") with _ -> "" in
+        fprintf f "%s.CFLAGS += -D%s%s\n" target name value
+        ) flags
+      ) module_target_list;
+    (* Look for makefile section *)
+    List.iter (fun l ->
+      if ExtXml.tag_is l "makefile" then begin
+        let targets = targets_of_field l in
+        (* Look for defines, flags, files, ... *)
+        List.iter (fun field ->
+          match String.lowercase (Xml.tag field) with
+            "flag" -> 
+              List.iter (fun target -> 
+                let value = try "="^(Xml.attrib field "value") with _ -> ""
+                and name = Xml.attrib field "name" in
+                let flag_type = match (ExtXml.attrib_or_default field "type" "define") with
+                    "define" | "D" -> "D"
+                  | "include" | "I" -> "I"
+                  | _ -> "D" in
+                fprintf f "%s.CFLAGS += -%s%s%s\n" target flag_type name value
+                ) targets
+          | "file" -> 
+              let name = Xml.attrib field "name" in
+              List.iter (fun target -> fprintf f "%s.srcs += $(%s)/%s\n" target dir_name name) targets
+          | "file_hw" -> 
+              let name = Xml.attrib field "name" in
+              List.iter (fun target -> fprintf f "%s.srcs += arch/$(ARCH)/$(%s)/%s\n" target dir_name name) targets
+          | "define" -> 
+              let value = Xml.attrib field "value"
+              and name = Xml.attrib field "name" in
+              fprintf f "%s = %s\n" name value
+          | "raw" ->
+              begin match Xml.children field with
+                [Xml.PCData s] -> fprintf f "%s\n" s
+              | _ -> fprintf stderr "Warning: wrong makefile section in module '%s'\n" name
+              end
+          | _ -> ()
+          ) (Xml.children l)
+      end) (Xml.children m)
+    ) modules;
+  (** returns a list of modules file name *)
+  files
 
 (**
     Search and dump the makefile sections 
