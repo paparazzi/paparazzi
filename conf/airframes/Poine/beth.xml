@@ -90,7 +90,7 @@
 
 ARCH=stm32
 ARCHI=stm32
-BOARD_CFG = \"boards/lisa_0.99.h\"
+#BOARD_CFG = \"boards/lisa_l_1.0.h\"
 FLASH_MODE = JTAG
 
 SRC_ARCH = $(ARCH)
@@ -105,7 +105,7 @@ main_stm32.ARCHDIR = stm32
 main_stm32.TARGET = main_stm32
 main_stm32.TARGETDIR = main_stm32
 main_stm32.CFLAGS += -I$(SRC_LISA) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_LISA_ARCH) -DPERIPHERALS_AUTO_INIT
-main_stm32.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+main_stm32.CFLAGS += -DBOARD_CONFIG=\"boards/lisa_l_1.0.h\"
 main_stm32.srcs = $(SRC_BETH)/main_stm32.c \
                   $(SRC_ARCH)/stm32_exceptions.c   \
                   $(SRC_ARCH)/stm32_vector_table.c
