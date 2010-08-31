@@ -19,7 +19,6 @@
 #include "fw_h_ctl.h"
 #include "fw_v_ctl.h"
 #include "infrared.h"
-#include "cam.h"
 #include "commands.h"
 #include "main_ap.h"
 #include "ap_downlink.h"
