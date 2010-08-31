@@ -18,3 +18,5 @@ ap.CFLAGS += -DADC_CHANNEL_IR_NB_SAMPLES=$(ADC_IR_NB_SAMPLES)
 ap.CFLAGS += -DINFRARED
 ap.srcs += $(SRC_FIXEDWING)/infrared.c
 
+sim.CFLAGS += -DINFRARED
+sim.srcs += $(SRC_FIXEDWING)/infrared.c $(SRC_ARCH)/sim_ap.c
