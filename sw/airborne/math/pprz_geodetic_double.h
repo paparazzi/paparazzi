@@ -26,7 +26,7 @@ struct NedCoor_d {
   double z;
 };
 
-/* East North Down local tangeant plane */
+/* East North Up local tangeant plane */
 struct EnuCoor_d {
   double x;
   double y;
