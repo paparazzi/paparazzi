@@ -29,6 +29,7 @@
 
 #include "std.h"
 #include "airframe.h"
+#include "infrared.h"
 
 extern int16_t ir_i2c_ir1;
 extern int16_t ir_i2c_ir2;

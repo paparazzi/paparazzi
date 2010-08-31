@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="sensors">
+<module name="ir_i2c" dir="sensors">
   <header>
     <file name="infrared_i2c.h"/>
   </header>
@@ -9,7 +9,11 @@
   <periodic fun="infrared_i2cDownlink()" freq="1."/>
   <event fun="infrared_i2cEvent()"/>
   <makefile>
+    <flag name="INFRARED_I2C"/>
     <file name="infrared_i2c.c"/>
+  </makefile>
+  <makefile target="sim">
+    <raw>sim.srcs += $(SRC_ARCH)/sim_ir.c</raw>
   </makefile>
 </module>
 
