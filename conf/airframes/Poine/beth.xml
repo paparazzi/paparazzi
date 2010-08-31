@@ -246,7 +246,7 @@ main_overo.srcs    += $(SRC_BETH)/overo_controller.c
 #
 
 USER =
-HOST = 192.168.0.16
+HOST = auto3
 TARGET_DIR = ~
 SRC_FMS=fms
 
@@ -254,18 +254,18 @@ overo_test_uart.ARCHDIR = omap
 overo_test_uart.CFLAGS = -I. -I$(SRC_FMS)
 overo_test_uart.srcs  = $(SRC_BETH)/overo_test_uart.c
 
-overo_test_uart.CFLAGS  += -DFMS_PERIODIC_FREQ=2
+overo_test_uart.CFLAGS  += -DFMS_PERIODIC_FREQ=500
 overo_test_uart.srcs    += $(SRC_FMS)/fms_periodic.c
 overo_test_uart.srcs    += $(SRC_FMS)/fms_serial_port.c
-overo_test_uart.CFLAGS  += -DUBX -DGPS -DGPS_LINK=ttyUSB0
-overo_test_uart.srcs    += $(SRC_BETH)/gps_ubx.c
 overo_test_uart.LDFLAGS += -lrt
 overo_test_uart.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
 overo_test_uart.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
 overo_test_uart.srcs    += $(SRC_FMS)/fms_network.c
 overo_test_uart.LDFLAGS += -levent -lm
 overo_test_uart.srcs    += $(SRC_BETH)/overo_gcs_com.c
-
+overo_test_uart.CFLAGS  += -DUBX -DGPS -DUSE_UART0 -DUART0_BAUD=B38400 -DGPS_LINK=Uart0 -DGPS_USE_LATLONG
+#overo_test_uart.CFLAGS  += -DUBX -DGPS -DUSE_UART1 -DUART1_BAUD=B9600 -DGPS_LINK=Uart1 -DGPS_USE_LATLONG
+overo_test_uart.srcs    += gps_ubx.c gps.c latlong.c $(SRC_FMS)/uart_hw.c
 
 #
 # Overo twisting

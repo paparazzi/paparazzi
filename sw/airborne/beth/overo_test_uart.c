@@ -31,6 +31,8 @@
 
 #include <event.h>
 
+#include "gps.h"
+
 #include "messages2.h"
 #include "airframe.h"
 
@@ -39,6 +41,7 @@
 #include "fms_serial_port.h"
 
 #include "overo_gcs_com.h"
+#include "uart_hw.h"
 
 struct OveroController {
   int armed;
@@ -47,16 +50,23 @@ struct OveroController {
 static void main_periodic(int);
 static void main_exit(int sig);
 static void main_talk_with_tiny(void);
+void check_gps(void);
 
-static uint32_t foo = 0;
-struct FmsSerialPort* fmssp;
-int spfd;
+//make gps.c happy without incluing navigation code
+uint8_t nav_utm_zone0 = 5;
+
+static uint16_t foo = 0;
+//struct FmsSerialPort* fmssp;
+//int spfd;
 
 int main(int argc, char *argv[]) {
   
   (void) signal(SIGINT, main_exit);
 
-  fmssp = serial_port_new();
+  uart_init();
+  gps_init();
+
+/*  fmssp = serial_port_new();
   //speed_t speed;
 
   if (serial_port_open_raw(fmssp,"/dev/ttyUSB0",B9600)){
@@ -65,7 +75,7 @@ int main(int argc, char *argv[]) {
   } 
 
   spfd = (int)fmssp->fd;  
-
+*/
   /* Initalize the event library */
   event_init();
 
@@ -83,14 +93,54 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
+static uint16_t tempstatus = 0;
+
 static void main_periodic(int my_sig_num) {
 
-  RunOnceEvery(20, {DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);  printf("\n");});
- 
+
+  RunOnceEvery(10, {DOWNLINK_SEND_MOTOR(gcs_com.udp_transport, &tempstatus, &foo );});
+  
+  RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);});
+
+#ifdef USE_UART0 
+  uart0_handler();
+#elif USE_UART1
+  uart1_handler();
+#endif
   main_talk_with_tiny();
+  check_gps();
 
-  RunOnceEvery(2, gcs_com_periodic());
 
+  RunOnceEvery(20, gcs_com_periodic());
+
+}
+
+
+
+void check_gps(void){
+  if (ubx_status > tempstatus) tempstatus = ubx_status;
+
+/*  if (GpsTimeoutError) {
+    printf("gps timeout\n");
+  }
+*/
+  if (GpsBuffer()) {
+    ReadGpsBuffer();
+  }
+
+  if (gps_msg_received) {
+    printf("gps msg rx\n");
+    /* parse and use GPS messages */
+    parse_gps_msg();
+    gps_msg_received = FALSE;
+    if (gps_pos_available) {
+      printf("gps pos avail\n");
+      gps_verbose_downlink = 0;
+//      UseGpsPosNoSend(estimator_update_state_gps);
+      gps_downlink();
+      gps_pos_available = FALSE;
+    }
+  }
 }
 
 static void main_exit(int sig) {
@@ -101,18 +151,11 @@ static void main_exit(int sig) {
 }
 
 static void main_talk_with_tiny() {
-  unsigned char c='D';
-  write(spfd,&c,1);
-  if (read(spfd,&c,1)>0) write(STDOUT_FILENO,&c,1);
+  //unsigned char c='D';
+  //write(spfd,&c,1);
+  //if (read(spfd,&c,1)>0) write(STDOUT_FILENO,&c,1);
   //fprintf(spfd,"testing\n");
-  printf(".");
+  //printf(".");
   foo++;
-}
-
-int ttyUSB0Transmit(){
-
-}
-int ttyUSB0SendMessage(){
-
 }
 
