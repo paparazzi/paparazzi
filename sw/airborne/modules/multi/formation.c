@@ -11,7 +11,7 @@
 #endif
 #include "downlink.h"
 
-#include "formation.h"
+#include "multi/formation.h"
 #include "estimator.h"
 #include "fw_h_ctl.h"
 #include "fw_v_ctl.h"

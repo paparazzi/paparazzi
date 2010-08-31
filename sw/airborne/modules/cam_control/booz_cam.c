@@ -22,7 +22,7 @@
  * Boston, MA 02111-1307, USA.  
  */
 
-#include "booz_cam.h"
+#include "cam_control/booz_cam.h"
 #include "booz2_pwm_hw.h"
 #include "booz_ahrs.h"
 #include "booz2_navigation.h"
