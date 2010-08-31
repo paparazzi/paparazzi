@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="multi">
+<module name="formation_flight" dir="multi">
   <header>
     <file name="formation.h"/>
   </header>

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="multi">
+<module name="potential" dir="multi">
   <header>
     <file name="potential.h"/>
   </header>

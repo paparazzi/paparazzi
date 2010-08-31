@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ins">
+<module name="vn100" dir="ins">
   <!-- <depend conflict="ins" -->
   <header>
     <file name="ins_vn100.h"/>
