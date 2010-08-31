@@ -58,8 +58,19 @@ uint8_t nav_utm_zone0 = 5;
 static uint16_t foo = 0;
 //struct FmsSerialPort* fmssp;
 //int spfd;
+uint8_t portnum;
 
 int main(int argc, char *argv[]) {
+
+  if (argc > 1) {
+    if (portnum > 10 ) {
+      printf("Port number must be <11\n");
+      return -1;
+    }
+    portnum = atoi(argv[1]);
+  } else portnum = 0;
+
+  printf("Using /dev/ttyUSB%d\n",portnum);
   
   (void) signal(SIGINT, main_exit);
 
@@ -110,7 +121,6 @@ static void main_periodic(int my_sig_num) {
   main_talk_with_tiny();
   check_gps();
 
-
   RunOnceEvery(20, gcs_com_periodic());
 
 }
@@ -118,7 +128,6 @@ static void main_periodic(int my_sig_num) {
 
 
 void check_gps(void){
-  if (ubx_status > tempstatus) tempstatus = ubx_status;
 
 /*  if (GpsTimeoutError) {
     printf("gps timeout\n");
