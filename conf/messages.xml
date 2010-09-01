@@ -388,7 +388,37 @@
     <field name="groundspeed_sp" type="float" unit="m/s"/>
   </message>
 
- <!-- 55 is free --> 
+  <message name="XSENS" id="55">
+    <field name="counter" type="int16" unit=""/>
+
+    <field name="p" type="float" unit="deg/s"/>
+    <field name="q" type="float" unit="deg/s"/>
+    <field name="r" type="float" unit="deg/s"/>
+
+    <field name="phi" type="float" unit="deg"/>
+    <field name="theta" type="float" unit="deg"/>
+    <field name="psi" type="float" unit="deg"/>
+
+    <field name="ax" type="float" unit="m/s2"/>
+    <field name="ay" type="float" unit="m/s2"/>
+    <field name="az" type="float" unit="m/s2"/>
+
+    <field name="vx" type="float" unit="m/s"/>
+    <field name="vy" type="float" unit="m/s"/>
+    <field name="vz" type="float" unit="m/s"/>
+
+    <field name="lat" type="float" unit="deg"/>
+    <field name="lon" type="float" unit="deg"/>
+    <field name="alt" type="float" unit="m"/>
+
+    <field name="status" type="uint8" unit=""/>
+
+    <field name="hour" type="uint8" unit=""/>
+    <field name="min" type="uint8" unit=""/>
+    <field name="sec" type="uint8" unit=""/>
+    <field name="nanosec" type="uint32" unit=""/>
+
+  </message>
 
  <message name="BARO_ETS" id="56">
    <field name="adc" type="uint16"/>
@@ -1866,6 +1896,11 @@
     <field name="throttle_mode" type="uint8" unit="byte_mask"/>
     <field name="roll"  type="int8"/>
     <field name="pitch" type="int8"/>
+  </message>
+
+  <message name="KITE_COMMAND" id="96">
+    <field name="POWER"  	type="uint16"/>
+    <field name="TURN" 		type="uint16"/>
   </message>
 
  <message name="SET_ACTUATOR" id="100">

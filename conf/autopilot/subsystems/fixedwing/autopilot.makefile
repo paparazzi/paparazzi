@@ -25,7 +25,12 @@
 # All targets need the board config
 $(TARGET).CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 
-$(TARGET).CFLAGS += -DWIND_INFO -DTRAFFIC_INFO
+ifeq ($(OPTIONS), minimal)
+else
+  $(TARGET).CFLAGS += -DWIND_INFO 
+endif
+
+$(TARGET).CFLAGS += -DTRAFFIC_INFO
 
 sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DLED
 sim.srcs += latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c $(SRC_ARCH)/sim_ap.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c $(SRC_ARCH)/led_hw.c
