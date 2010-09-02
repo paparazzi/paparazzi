@@ -807,9 +807,11 @@ void i2c2_ev_irq_handler(void) {
 
 bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
   p->trans[p->trans_insert_idx] = t;
+  t->result = I2CTransPending;
   p->idx_buf = 0;
   p->status = I2CStartRequested;
   I2C_ZERO_EVENTS();
   I2C_ITConfig(I2C2, I2C_IT_EVT, ENABLE);
   I2C_GenerateSTART(I2C2, ENABLE);
+  return TRUE;
 }
