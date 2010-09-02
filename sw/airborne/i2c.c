@@ -126,71 +126,15 @@ void i2c1_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile
 
 struct i2c_periph i2c2;
 
-//struct i2c i2c2;
-
 void i2c2_init(void) {
-  //  i2c2.status = I2CIdle;
-  //  i2c2.finished = NULL;
-  //  i2c2_hw_init();
   i2c_init(&i2c2);
   i2c2_hw_init();
 }
 
-#if 0
-void i2c2_receive(uint8_t slave_addr, uint8_t len, volatile bool_t* finished) {
-  i2c2.transaction = I2CTransRx;
-  i2c2.slave_addr = slave_addr;
-  i2c2.len_r = len;
-  i2c2.finished = finished;
-  if (finished) *finished = FALSE;
-  i2c2.index = 0;
-  I2C_AcknowledgeConfig(I2C2, ENABLE); 
-  i2c2.status = I2CStartRequested;
-  I2C_ZERO_EVENTS();
-  //  I2c2SendStart();
-  I2C_ITConfig(I2C2, I2C_IT_EVT, ENABLE);
-  I2C_GenerateSTART(I2C2, ENABLE);
-}
-
-void i2c2_transmit(uint8_t slave_addr, uint8_t len, volatile bool_t* finished) {
-  //MY_ASSERT((i2c2.status == I2CIdle) || (i2c2.status == I2CComplete) || (i2c2.status == I2CFailed));
-  i2c2.transaction = I2CTransTx;
-  i2c2.slave_addr = slave_addr;
-  i2c2.len_w = len;
-  i2c2.finished = finished;
-  if (finished) *finished = FALSE;
-  i2c2.index = 0;
-  i2c2.status = I2CStartRequested;
-  I2C_ZERO_EVENTS();
-  //  I2c2SendStart();
-  I2C_ITConfig(I2C2, I2C_IT_EVT, ENABLE);
-  I2C_GenerateSTART(I2C2, ENABLE);
-}
-
-void i2c2_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile bool_t* finished) {
-  //MY_ASSERT((i2c2.status == I2CIdle) || (i2c2.status == I2CComplete) || (i2c2.status == I2CFailed));
-  i2c2.transaction = I2CTransTxRx;
-  i2c2.slave_addr = slave_addr;
-  i2c2.len_w = len_w;
-  i2c2.len_r = len_r;
-  i2c2.finished = finished;
-  if (finished) *finished = FALSE;
-  i2c2.index = 0;
-  I2C_AcknowledgeConfig(I2C2, ENABLE); 
-  i2c2.status = I2CStartRequested;
-  I2C_ZERO_EVENTS();
-  //  I2c2SendStart();
-  I2C_ITConfig(I2C2, I2C_IT_EVT, ENABLE);
-  I2C_GenerateSTART(I2C2, ENABLE);
-}
-#endif
-
 void   i2c_init(struct i2c_periph* p) {
-
   p->trans_insert_idx = 0;
   p->trans_extract_idx = 0;
   p->status = I2CIdle;
-
 }
 
 

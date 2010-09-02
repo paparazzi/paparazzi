@@ -128,6 +128,10 @@ extern volatile uint8_t i2c1_trx;
 
 extern volatile bool_t* i2c1_finished;
 
+
+extern struct i2c_periph i2c1;
+extern void i2c1_init(void);
+
 #endif /* USE_I2C1 */
 
 
@@ -135,7 +139,6 @@ extern volatile bool_t* i2c1_finished;
 #ifdef USE_I2C2
 
 extern struct i2c_periph i2c2;
-
 extern void i2c2_init(void);
 
 #endif /* USE_I2C2 */

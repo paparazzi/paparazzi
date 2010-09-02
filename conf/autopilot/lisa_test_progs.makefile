@@ -124,7 +124,7 @@ SRC_BOOZ=booz
 SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCHI)
 
 #BOARD_CFG=\"boards/olimex_stm32-h103.h\"
-BOARD_CFG=\"boards/lisa_0.99.h\"
+BOARD_CFG=\"boards/lisa_l_1.0.h\"
 #FLASH_MODE = SERIAL
 FLASH_MODE = JTAG
 

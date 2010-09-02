@@ -37,14 +37,14 @@ extern void baro_board_send_config_diff(void);
 
 #define BaroEvent(_b_abs_handler, _b_diff_handler) {			\
     if (baro_board.status == LBS_READING_ABS &&				\
-	baro_trans.result == I2CTransSuccess) {				\
+	baro_trans.status == I2CTransSuccess) {				\
       int16_t tmp = baro_trans.buf[0]<<8 | baro_trans.buf[1];		\
       baro.absolute = tmp;						\
       baro_board.status = LBS_READ_ABS;					\
       _b_abs_handler();							\
     }									\
     else  if (baro_board.status == LBS_READING_DIFF &&			\
-	      baro_trans.result == I2CTransSuccess) {			\
+	      baro_trans.status == I2CTransSuccess) {			\
       int16_t tmp = baro_trans.buf[0]<<8 | baro_trans.buf[1];		\
       baro.differential = tmp;						\
       baro_board.status = LBS_READ_DIFF;				\

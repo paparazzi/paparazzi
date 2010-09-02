@@ -45,7 +45,6 @@ void booz_ahrs_aligner_init(void) {
   samples_idx = 0;
   booz_ahrs_aligner.noise = 0;
   booz_ahrs_aligner.low_noise_cnt = 0;
-
 }
 
 #define LOW_NOISE_THRESHOLD 90000
