@@ -69,7 +69,7 @@ void control_init(void) {
 
   controller.armed = 0;
 
-  /***** Coeficients twisting ****/
+  /***** Coef twisting ****/
   controller.ulim = 1.0;
   controller.Vm = 0.1; //should this now be 1/512?
   controller.VM = 300.0;
@@ -80,11 +80,13 @@ void control_init(void) {
   controller.U_twt[1] = 0.0;
   controller.U_twt[0] = 0.0;
 
-  controller.satval1 = 0.176;
-  controller.satval2 = 1;
+  controller.satval1 = 0.087;
+  controller.satval2 = 0.141;
 
-  controller.c = 0.4;
+  controller.c = 4.5;
   controller.error = 0;
+  
+  printf("Vm=%f VM=%f satval1=%f satval2=%f c=%f\n",controller.Vm,controller.VM,controller.satval1,controller.satval2,controller.c);
 }
 
 
@@ -107,11 +109,12 @@ void control_run(void) {
   controller.elevation_ddot_ref = -2*controller.omega_elevation_ref*controller.xi_ref*controller.elevation_dot_ref 
     - controller.omega_elevation_ref*controller.omega_elevation_ref*(controller.elevation_ref - controller.elevation_sp); 
 
+#ifdef USE_AZIMUTH
   controller.azimuth_ref = controller.azimuth_ref + controller.azimuth_dot_ref * dt_ctl;
   controller.azimuth_dot_ref = controller.azimuth_dot_ref + controller.azimuth_ddot_ref * dt_ctl;
   controller.azimuth_ddot_ref = -2*controller.omega_azimuth_ref*controller.xi_ref*controller.azimuth_dot_ref 
     - controller.omega_azimuth_ref*controller.omega_azimuth_ref*(controller.azimuth_ref - controller.azimuth_sp); 
-
+#endif
   static int foo=0;
 
   /*
@@ -124,8 +127,10 @@ void control_run(void) {
   const float err_elevation = estimator.elevation - controller.elevation_ref;
   const float err_elevation_dot = estimator.elevation_dot - controller.elevation_dot_ref;
 
+#ifdef USE_AZIMUTH
   const float err_azimuth = estimator.azimuth - controller.azimuth_ref;
   const float err_azimuth_dot = estimator.azimuth_dot - controller.azimuth_dot_ref;
+#endif
 
   /*
    *  Compute feedforward and feedback commands
@@ -141,14 +146,17 @@ void control_run(void) {
   controller.cmd_thrust_ff = controller.mass * controller.elevation_ddot_ref;
   controller.cmd_thrust_fb = -controller.mass * (2 * controller.xi_cl * controller.omega_cl * err_elevation_dot) -
   			controller.mass * (controller.omega_cl * controller.omega_cl * err_elevation);
-
+#ifdef USE_AZIMUTH
   controller.cmd_azimuth_ff = controller.one_over_J * controller.azimuth_ddot_ref;
   controller.cmd_azimuth_fb = controller.one_over_J * (2 * controller.xi_cl * controller.omega_cl * err_azimuth_dot) +
                         controller.one_over_J * (controller.omega_cl * controller.omega_cl * err_azimuth);
+#endif
 
   controller.cmd_pitch =  /*controller.cmd_pitch_ff*/ + controller.cmd_pitch_fb;
 
-  //controller.tilt_sp = controller.azim_gain * (-controller.cmd_azimuth_fb );
+#ifdef USE_AZIMUTH
+  controller.tilt_sp = controller.azim_gain * (-controller.cmd_azimuth_fb );
+#endif
 
   controller.cmd_thrust = controller.cmd_thrust_ff + controller.cmd_thrust_fb + thrust_constant;
   controller.cmd_thrust = controller.cmd_thrust*(1/cos(estimator.elevation));
@@ -161,7 +169,7 @@ void control_run(void) {
     //printf("pitch : ff:%f fb:%f (%f)\n",controller.cmd_pitch_ff, controller.cmd_pitch_fb,estimator.tilt_dot);
     //printf("thrust: ff:%f fb:%f (%f %f)\n",controller.cmd_thrust_ff, controller.cmd_thrust_fb,estimator.elevation,estimator.elevation_dot);
     //printf("%f %f %f\n",controller.tilt_ref,controller.tilt_dot_ref,controller.tilt_ddot_ref);
-    printf("t: %f\n",controller.cmd_pitch_fb);
+    //printf("t: %f\n",controller.cmd_pitch_fb);
   }
   foo++; 
 
@@ -173,10 +181,7 @@ float get_U_twt()
 { 
 
 	/**Definition des constantes du modèle**/
-	const float Res = 0.4 ;
-	const double Kphi = 0.0129;
-	const double alpha = 3.2248e-7 ;
-	const float cte = 60.0  ;
+	const float Gain = -45;
 	const float Te = 1/512.;
 
 	/**Variables utilisés par la loi de commande**/
@@ -184,24 +189,14 @@ float get_U_twt()
 	static volatile float y[2] = {0.,0.}; 
 	//static float emax = 0.035;		// en rad, initialement 2
 
-	//Variables auxiliaires utilisés
-	static volatile int aux_y = 0;
-
 	/**Variables pour l'algorithme**/
 	float udot;
 	float sens;
 	
-	 /**Acquisiton des donnes**/
 	//Acquisition consigne
 	yd[1] = controller.tilt_ref;
 	//Acquisition mesure
 	y[1] = estimator.tilt;
-
-	//On initialise au début angle courant=angle anterieur
-	if (aux_y == 0){	
-		y[0] = y[1];
-		aux_y = 1;
-	} 
 
 	/***************************/
 
@@ -211,8 +206,8 @@ float get_U_twt()
 
 	//gain K=Te
 	//controller.S[1] = (double)( ( (1+controller.c) * (y[1]-yd[1]) - (y[0]-yd[0]) )  ) ;
-	controller.S[1] = (double)( ( (1+controller.c) * (y[1]-yd[1]) - estimator.tilt_dot ) * 0.8 ) ;
-	//controller.S[1] = (float)( ( controller.c * (y[1]-yd[1]) ) + (estimator.tilt_dot - controller.tilt_dot_ref)  );
+	//controller.S[1] = (double)( ( (1+controller.c) * (y[1]-yd[1]) - estimator.tilt_dot ) * 0.8 ) ;
+	controller.S[1] = (float)( controller.c * (y[1]-yd[1]) + estimator.tilt_dot - controller.tilt_dot_ref );
 	controller.S_dot = (controller.S[1] - controller.S[0]);
 	/*************************************/
 	
@@ -221,8 +216,11 @@ float get_U_twt()
 		U_twt[1] = U_twt[0];	
 	} else {*/
 		/**Algorithme twisting**/
-		if ( controller.S[1] < 0.0 ) sens = -1.0;
-		else if ( controller.S[1] > 0.0 ) sens = 1.0;
+		if ( controller.S[1] < 0.0 ) 
+			sens = -1.0;
+		else 
+			sens = 1.0;
+			
 		if ( abs(controller.U_twt[1]) < controller.ulim ) {
 			if ( (controller.S[1] * controller.S_dot) > 0) {
 				udot = -controller.VM * sens;
@@ -258,6 +256,6 @@ float get_U_twt()
 	 
 	controller.S[0] = controller.S[1];
 
-	return -80000. * (cte * Res * alpha/(2 * Kphi) ) * controller.U_twt[1];
+	return Gain * controller.U_twt[1];
 
 }

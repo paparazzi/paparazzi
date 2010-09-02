@@ -47,7 +47,7 @@
 
 static void main_periodic(int);
 //static void main_parse_cmd_line(int argc, char *argv[]);
-static void drive_output(uint8_t last_state);
+static void drive_output(void);
 static void main_exit(int sig);
 static void main_talk_with_stm32(void);
 
@@ -61,7 +61,8 @@ struct BoozImuFloat booz_imu_float;
 
 static uint32_t foo = 0;
 static uint8_t spi_crc_ok = 1;
-
+static uint8_t last_state = 1;
+  
 int main(int argc, char *argv[]) {
   
   (void) signal(SIGINT, main_exit);
@@ -103,7 +104,7 @@ int main(int argc, char *argv[]) {
 #define PITCH_MAGIC_NUMBER (121)
 
 static void main_periodic(int my_sig_num) {
-  static uint8_t last_state = 1;
+
 /*  static int bar=0;
   if (!(foo%2000)) {
     if (bar) {
@@ -144,7 +145,7 @@ static void main_periodic(int my_sig_num) {
   }
 
 
-  drive_output(last_state);
+  drive_output();
 
   control_send_messages();
 
@@ -196,7 +197,7 @@ static void main_parse_cmd_line(int argc, char *argv[]) {
 }
 #endif
 
-static void drive_output(uint8_t last_state) {
+static void drive_output() {
   switch (controller.armed) {
     case 0:
       if (last_state == 2) {
