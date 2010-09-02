@@ -5,10 +5,17 @@
 
 #include "i2c_hw.h"
 
-enum I2CTransaction { 
+enum I2CTransactionType { 
   I2CTransTx, 
   I2CTransRx, 
   I2CTransTxRx 
+};
+
+enum I2CTransactionResult {  
+  I2CTransPending, 
+  I2CTransRunning, 
+  I2CTransSuccess, 
+  I2CTransFailed 
 };
 
 enum I2CStatus { 
@@ -30,17 +37,28 @@ enum I2CStatus {
 #define I2C_BUF_LEN 32
 #endif
 
-struct i2c {
-  volatile enum I2CStatus status;
-  volatile enum I2CTransaction transaction;
-  volatile uint8_t  slave_addr;
-  volatile uint16_t len_r;
-  volatile uint8_t  len_w;
-  volatile bool_t   stop_after_transmit;
-  volatile uint8_t  index;
-  volatile bool_t*  finished;
+struct i2c_transaction {
+  enum I2CTransactionType type;
+  uint8_t  slave_addr;
+  uint16_t len_r;
+  uint8_t  len_w;
+  bool_t   stop_after_transmit;
   volatile uint8_t  buf[I2C_BUF_LEN];
+  volatile enum I2CTransactionResult result;
 };
+
+#define I2C_TRANSACTION_QUEUE_LEN 4
+
+struct i2c_periph {
+  /* circular buffer holding transactions */
+  struct i2c_transaction* trans[I2C_TRANSACTION_QUEUE_LEN];
+  uint8_t trans_insert_index;
+  uint8_t trans_extract_index;
+  /* internal state of the peripheral */
+  volatile enum I2CStatus status;
+  volatile uint8_t idx_buf;
+};
+
 
 struct i2c_errors {
   volatile uint16_t ack_fail_cnt;
@@ -58,20 +76,6 @@ struct i2c_errors {
   volatile enum I2CStatus status_chain[16];
 };
 
-
-#define I2C_START        0x08
-#define I2C_RESTART      0x10
-#define I2C_MT_SLA_ACK   0x18
-#define I2C_MT_SLA_NACK  0x20
-#define I2C_MT_DATA_ACK  0x28
-#define I2C_MR_SLA_ACK   0x40
-#define I2C_MR_SLA_NACK  0x48
-#define I2C_MR_DATA_ACK  0x50
-#define I2C_MR_DATA_NACK 0x58
-
-
-#define I2C_IDLE 0
-#define I2C_BUSY 1
 
 #ifdef USE_I2C0
 
@@ -244,7 +248,7 @@ extern volatile bool_t* i2c1_finished;
 #ifdef USE_I2C2
 
 
-extern struct i2c i2c2;
+extern struct i2c_periph i2c2;
 
 extern void i2c2_init(void);
 extern void i2c2_receive(uint8_t slave_addr, uint8_t len, volatile bool_t* finished);
@@ -252,6 +256,11 @@ extern void i2c2_transmit(uint8_t slave_addr, uint8_t len, volatile bool_t* fini
 extern void i2c2_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile bool_t* finished);
 
 #endif /* USE_I2C2 */
+
+extern struct i2c_periph i2c2;
+
+extern void   i2c_init(struct i2c_periph* p);
+extern bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t);
 
 
 #endif /* I2C_H */

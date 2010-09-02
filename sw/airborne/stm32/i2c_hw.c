@@ -793,3 +793,15 @@ void i2c2_ev_irq_handler(void) {
 
 
 #endif /* USE_I2C2 */
+
+
+
+void   i2c_init(struct i2c_periph* p) {
+
+
+}
+
+bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
+
+
+}

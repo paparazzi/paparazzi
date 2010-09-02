@@ -179,6 +179,8 @@ void i2c2_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile
   I2C_GenerateSTART(I2C2, ENABLE);
 }
 
+struct i2c_periph i2c2;
 
 
 #endif /* USE_I2C2 */
+
