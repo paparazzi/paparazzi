@@ -693,8 +693,8 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
 
   t->status = I2CTransPending;
   
-  // FIXME : disable IRQ
 
+  __disable_irq();
   /* put transacation in queue */
   p->trans[p->trans_insert_idx] = t;
   p->trans_insert_idx = temp;
@@ -703,6 +703,8 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
   if (p->status == I2CIdle)
     start_transaction(p);
   
+  __enable_irq();
+
   return TRUE;
 }
 

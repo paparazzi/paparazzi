@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -43,7 +43,8 @@ static inline void main_event_task( void );
 
 static inline void main_init_hw(void);
 
-static uint8_t i2c_done = FALSE;
+//static uint8_t i2c_done = FALSE;
+static struct i2c_transaction i2c_trans;
 #define INITIALISZED 6
 static uint8_t mag_state = 0;
 static volatile uint8_t mag_ready_for_read = FALSE;
@@ -92,19 +93,28 @@ static inline void main_periodic_task( void ) {
   
   switch (mag_state) {
   case 2:
-    i2c2.buf[0] = HMC5843_REG_CFGA;  // set to rate to 50Hz
-    i2c2.buf[1] = 0x00 | (0x06 << 2);
-    i2c2_transmit(HMC5843_ADDR, 2, &i2c_done);
+    i2c_trans.type = I2CTransTx;
+    i2c_trans.slave_addr = HMC5843_ADDR;
+    i2c_trans.buf[0] = HMC5843_REG_CFGA;  // set to rate to 50Hz
+    i2c_trans.buf[1] = 0x00 | (0x06 << 2);
+    i2c_trans.len_w = 2;
+    i2c_submit(&i2c2,&i2c_trans);
     break;
   case 3:
-    i2c2.buf[0] = HMC5843_REG_CFGB;  // set to gain to 1 Gauss
-    i2c2.buf[1] = 0x01<<5;
-    i2c2_transmit(HMC5843_ADDR, 2, &i2c_done);
+    i2c_trans.type = I2CTransTx;
+    i2c_trans.slave_addr = HMC5843_ADDR;
+    i2c_trans.buf[0] = HMC5843_REG_CFGB;  // set to gain to 1 Gauss
+    i2c_trans.buf[1] = 0x01<<5;
+    i2c_trans.len_w = 2;
+    i2c_submit(&i2c2,&i2c_trans);
     break;
   case 4:
-    i2c2.buf[0] = HMC5843_REG_MODE;  // set to continuous mode
-    i2c2.buf[1] = 0x00;
-    i2c2_transmit(HMC5843_ADDR, 2, &i2c_done);
+    i2c_trans.type = I2CTransTx;
+    i2c_trans.slave_addr = HMC5843_ADDR;
+    i2c_trans.buf[0] = HMC5843_REG_MODE;  // set to continuous mode
+    i2c_trans.buf[1] = 0x00;
+    i2c_trans.len_w = 2;
+    i2c_submit(&i2c2,&i2c_trans);
     break;
   case 5:
     break;
@@ -115,29 +125,32 @@ static inline void main_periodic_task( void ) {
   default:
     break;
   }
-
+  
   //  if (mag_state  == 4) mag_state=1;
-
+  
   if (mag_state  < INITIALISZED) mag_state++;
-
+  
 }
 
 
 static inline void main_event_task( void ) {
 
-  if (mag_state == INITIALISZED && mag_ready_for_read && i2c_done) {
+  if (mag_state == INITIALISZED && mag_ready_for_read && i2c_trans.status==I2CTransSuccess) {
     /* read mag */
-    i2c2_receive(HMC5843_ADDR, 7, &i2c_done);
+    i2c_trans.type = I2CTransRx;
+    i2c_trans.slave_addr = HMC5843_ADDR;
+    i2c_trans.len_r = 7;
+    i2c_submit(&i2c2,&i2c_trans);
     reading_mag = TRUE;
     mag_ready_for_read = FALSE;
   }
 
-  if (reading_mag && i2c_done) {
-    RunOnceEvery(10, 
+  if (reading_mag && i2c_trans.status==I2CTransSuccess) {
+    RunOnceEvery(10,
     {
-      int16_t mx   = i2c2.buf[0]<<8 | i2c2.buf[1];
-      int16_t my   = i2c2.buf[2]<<8 | i2c2.buf[3];
-      int16_t mz   = i2c2.buf[4]<<8 | i2c2.buf[5];
+      int16_t mx   = i2c_trans.buf[0]<<8 | i2c_trans.buf[1];
+      int16_t my   = i2c_trans.buf[2]<<8 | i2c_trans.buf[3];
+      int16_t mz   = i2c_trans.buf[4]<<8 | i2c_trans.buf[5];
       struct Int32Vect3 m;
       VECT3_ASSIGN(m, mx, my, mz);
       DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, &m.x, &m.y, &m.z);

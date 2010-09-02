@@ -224,7 +224,7 @@ test_adc.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 test_adc.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 test_adc.srcs   += $(SRC_ARCH)/uart_hw.c
-test_adc.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart2
+test_adc.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=$(MODEM_PORT)
 
 test_adc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT) 
 test_adc.srcs   += downlink.c pprz_transport.c
@@ -277,3 +277,30 @@ test_imu_b2.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c $(SRC_BOOZ_ARCH)/peri
 test_imu_b2.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c  $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
 
 
+#
+# test hmc5843
+#
+test_hmc5843.ARCHDIR = $(ARCHI)
+test_hmc5843.TARGET = test_hmc5843
+test_hmc5843.TARGETDIR = test_hmc5843
+test_hmc5843.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -Ibooz -DPERIPHERALS_AUTO_INIT
+test_hmc5843.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_hmc5843.srcs = lisa/test/lisa_test_hmc5843.c         \
+                    $(SRC_ARCH)/stm32_exceptions.c   \
+                    $(SRC_ARCH)/stm32_vector_table.c
+test_hmc5843.CFLAGS += -DUSE_LED
+test_hmc5843.srcs += $(SRC_ARCH)/led_hw.c
+test_hmc5843.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
+test_hmc5843.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_hmc5843.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_hmc5843.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_hmc5843.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_hmc5843.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT) 
+test_hmc5843.srcs += downlink.c pprz_transport.c
+
+test_hmc5843.CFLAGS += -DUSE_I2C2
+test_hmc5843.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+test_hmc5843.CFLAGS += -DIMU_OVERRIDE_CHANNELS
+test_hmc5843.CFLAGS += -DUSE_EXTI9_5_IRQ   # Mag Int on PB5
