@@ -3,6 +3,8 @@
 
 struct Baro baro;
 struct BaroBoard baro_board;
+struct i2c_transaction baro_trans;
+
 
 static inline void baro_board_write_to_register(uint8_t baro_addr, uint8_t reg_addr, uint8_t val_msb, uint8_t val_lsb);
 static inline void baro_board_read_from_register(uint8_t baro_addr, uint8_t reg_addr);
@@ -63,11 +65,6 @@ void baro_periodic(void) {
 }
 
 
-void baro_board_send_reset(void) {
-  i2c2.buf[0] = 0x06;
-  i2c2_transmit(0x00, 1, &baro_board.i2c_done);
-}
-
 void baro_board_send_config_abs(void) {
   baro_board_write_to_register(BARO_ABS_ADDR, 0x01, 0x86, 0x83);
 }
@@ -76,23 +73,49 @@ void baro_board_send_config_diff(void) {
   baro_board_write_to_register(BARO_DIFF_ADDR, 0x01, 0x84, 0x83);
 }
 
+void baro_board_send_reset(void) {
+  baro_trans.type = I2CTransTx;
+  baro_trans.slave_addr = 0x00;
+  baro_trans.len_w = 1;
+  baro_trans.buf[0] = 0x06;
+  i2c_submit(&i2c2,&baro_trans);
+}
+
 static inline void baro_board_write_to_register(uint8_t baro_addr, uint8_t reg_addr, uint8_t val_msb, uint8_t val_lsb) {
-  i2c2.buf[0] = reg_addr;
-  i2c2.buf[1] = val_msb;
-  i2c2.buf[2] = val_lsb;
-  i2c2_transmit(baro_addr, 3, &baro_board.i2c_done);
+  baro_trans.type = I2CTransTx;
+  baro_trans.slave_addr = baro_addr;
+  baro_trans.len_w = 3;
+  baro_trans.buf[0] = reg_addr;
+  baro_trans.buf[1] = val_msb;
+  baro_trans.buf[2] = val_lsb;
+  i2c_submit(&i2c2,&baro_trans);
 }
 
 static inline void baro_board_read_from_register(uint8_t baro_addr, uint8_t reg_addr) {
-  i2c2.buf[0] = reg_addr;
-  i2c2_transceive(baro_addr, 1, 2, &baro_board.i2c_done);
+  baro_trans.type = I2CTransTxRx;
+  baro_trans.slave_addr = baro_addr;
+  baro_trans.len_w = 1;
+  baro_trans.len_r = 2;
+  baro_trans.buf[0] = reg_addr;
+  i2c_submit(&i2c2,&baro_trans);
+  //  i2c2.buf[0] = reg_addr;
+  //  i2c2_transceive(baro_addr, 1, 2, &baro_board.i2c_done);
 }
 
 static inline void baro_board_set_current_register(uint8_t baro_addr, uint8_t reg_addr) {
-  i2c2.buf[0] = reg_addr;
-  i2c2_transmit(baro_addr, 1, &baro_board.i2c_done);
+  baro_trans.type = I2CTransTx;
+  baro_trans.slave_addr = baro_addr;
+  baro_trans.len_w = 1;
+  baro_trans.buf[0] = reg_addr;
+  i2c_submit(&i2c2,&baro_trans);
+  //  i2c2.buf[0] = reg_addr;
+  //  i2c2_transmit(baro_addr, 1, &baro_board.i2c_done);
 }
 
 static inline void baro_board_read_from_current_register(uint8_t baro_addr) {
-  i2c2_receive(baro_addr, 2, &baro_board.i2c_done);
+  baro_trans.type = I2CTransRx;
+  baro_trans.slave_addr = baro_addr;
+  baro_trans.len_r = 2;
+  i2c_submit(&i2c2,&baro_trans);
+  //  i2c2_receive(baro_addr, 2, &baro_board.i2c_done);
 }

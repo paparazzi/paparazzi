@@ -124,14 +124,19 @@ void i2c1_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile
 
 #include "booz/booz2_debug.h"
 
-struct i2c i2c2;
+struct i2c_periph i2c2;
+
+//struct i2c i2c2;
 
 void i2c2_init(void) {
-  i2c2.status = I2CIdle;
-  i2c2.finished = NULL;
+  //  i2c2.status = I2CIdle;
+  //  i2c2.finished = NULL;
+  //  i2c2_hw_init();
+  i2c_init(&i2c2);
   i2c2_hw_init();
 }
 
+#if 0
 void i2c2_receive(uint8_t slave_addr, uint8_t len, volatile bool_t* finished) {
   i2c2.transaction = I2CTransRx;
   i2c2.slave_addr = slave_addr;
@@ -178,8 +183,15 @@ void i2c2_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile
   I2C_ITConfig(I2C2, I2C_IT_EVT, ENABLE);
   I2C_GenerateSTART(I2C2, ENABLE);
 }
+#endif
 
-struct i2c_periph i2c2;
+void   i2c_init(struct i2c_periph* p) {
+
+  p->trans_insert_idx = 0;
+  p->trans_extract_idx = 0;
+  p->status = I2CIdle;
+
+}
 
 
 #endif /* USE_I2C2 */
