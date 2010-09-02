@@ -107,28 +107,6 @@ extern volatile bool_t* i2c0_finished;
 
 #ifdef USE_I2C1
 
-extern void i2c1_init(void);
-extern void i2c1_receive(uint8_t slave_addr, uint16_t len, volatile bool_t* finished);
-extern void i2c1_transmit(uint8_t slave_addr, uint8_t len, volatile bool_t* finished);
-extern void i2c1_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile bool_t* finished);
-
-extern volatile uint8_t i2c1_status;
-extern struct i2c i2c1;
-
-#ifndef I2C1_BUF_LEN
-#define I2C1_BUF_LEN 16
-#endif
-
-extern volatile uint8_t i2c1_buf[I2C1_BUF_LEN];
-extern volatile uint16_t i2c1_len_r;
-extern volatile uint8_t  i2c1_len_w;
-extern volatile uint16_t i2c1_index;
-extern volatile uint8_t i2c1_slave_addr;
-extern volatile uint8_t i2c1_trx;
-
-extern volatile bool_t* i2c1_finished;
-
-
 extern struct i2c_periph i2c1;
 extern void i2c1_init(void);
 

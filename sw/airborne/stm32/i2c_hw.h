@@ -34,20 +34,11 @@
 
 #ifdef USE_I2C1
 
+extern struct i2c_errors i2c1_errors;
+
 extern void i2c1_hw_init(void);
 extern void i2c1_ev_irq_handler(void);
 extern void i2c1_er_irq_handler(void);
-
-extern struct i2c_errors i2c1_errors;
-
-#define I2c1SendStart() { I2C_GenerateSTART(I2C1, ENABLE); I2C_ITConfig(I2C1, I2C_IT_EVT|I2C_IT_BUF, ENABLE);}
-
-#ifdef I2C1_STOP_HANDLER
-#include I2C1_STOP_HANDLER_HEADER
-#define I2c1StopHandler() I2C1_STOP_HANDLER()
-#else 
-#define I2c1StopHandler() {}
-#endif /* I2C1_STOP_HANDLER */
 
 #endif /* USE_I2C1 */
 
@@ -55,26 +46,12 @@ extern struct i2c_errors i2c1_errors;
 
 #ifdef USE_I2C2
 
-/* 
-   This is a hook for a caller module to provide
-   code to be called in the interrupt handler
-   at the end of a transfert 
-*/
-#ifdef I2C2_STOP_HANDLER
-#include I2C2_STOP_HANDLER_HEADER
-#define I2c2StopHandler() I2C2_STOP_HANDLER()
-#else 
-#define I2c2StopHandler() {}
-#endif /* I2C2_STOP_HANDLER */
-
+extern struct i2c_errors i2c2_errors;
 
 extern void i2c2_hw_init(void);
 extern void i2c2_ev_irq_handler(void);
 extern void i2c2_er_irq_handler(void);
 
-extern struct i2c_errors i2c2_errors;
-
-//#define I2c2SendStart() {I2C_GenerateSTART(I2C2, ENABLE); I2C_ITConfig(I2C2, I2C_IT_EVT, ENABLE);}
 #include <string.h>
 #define I2C_ZERO_EVENTS() {						\
     i2c2_errors.irq_cnt = 0;						\

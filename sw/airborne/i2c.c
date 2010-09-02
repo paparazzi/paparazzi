@@ -71,54 +71,15 @@ void i2c0_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile
 
 #ifdef USE_I2C1
 
-struct i2c i2c1;
-
-volatile uint8_t i2c1_status;
-volatile uint8_t i2c1_buf[I2C1_BUF_LEN];
-volatile uint16_t i2c1_len_r;
-volatile uint8_t  i2c1_len_w;
-volatile uint16_t i2c1_index;
-volatile uint8_t i2c1_slave_addr;
-volatile uint8_t i2c1_trx;
-
-volatile bool_t* i2c1_finished;
+struct i2c_periph i2c1;
 
 void i2c1_init(void) {
-  i2c1_status = I2C_IDLE;
-  i2c1_hw_init();
-  i2c1_finished = NULL;
-}
-
-
-void i2c1_receive(uint8_t slave_addr, uint16_t len, volatile bool_t* finished) {
-  i2c1_trx = 0;
-  i2c1_len_r = len;
-  i2c1_slave_addr = slave_addr | I2C_RECEIVE;
-  i2c1_finished = finished;
-  i2c1_status = I2C_BUSY;
-  I2c1SendStart();
-}
-
-void i2c1_transmit(uint8_t slave_addr, uint8_t len, volatile bool_t* finished) {
-  i2c1_trx = 0;
-  i2c1_len_w = len;
-  i2c1_slave_addr = slave_addr & ~I2C_RECEIVE;
-  i2c1_finished = finished;
-  i2c1_status = I2C_BUSY;
-  I2c1SendStart();
-}
-
-void i2c1_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile bool_t* finished) {
-  i2c1_trx = 1;
-  i2c1_len_w = len_w;
-  i2c1_len_r = len_r;
-  i2c1_slave_addr = slave_addr & ~I2C_RECEIVE;
-  i2c1_finished = finished;
-  i2c1_status = I2C_BUSY;
-  I2c1SendStart();
+  i2c_init(&i2c2);
+  i2c2_hw_init();
 }
 
 #endif /* USE_I2C1 */
+
 
 #ifdef USE_I2C2
 
@@ -131,12 +92,12 @@ void i2c2_init(void) {
   i2c2_hw_init();
 }
 
+#endif /* USE_I2C2 */
+
 void   i2c_init(struct i2c_periph* p) {
   p->trans_insert_idx = 0;
   p->trans_extract_idx = 0;
   p->status = I2CIdle;
 }
 
-
-#endif /* USE_I2C2 */
 

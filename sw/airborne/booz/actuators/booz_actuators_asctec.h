@@ -24,6 +24,8 @@
 #ifndef BOOZ_ACTUATORS_ASCTEC_H
 #define BOOZ_ACTUATORS_ASCTEC_H
 
+#include "i2c.h"
+
 enum actuators_astec_cmd { NONE,
 			   TEST,
 			   REVERSE,
@@ -46,7 +48,7 @@ struct ActuatorsAsctec {
   enum actuators_astec_addr cur_addr;
   enum actuators_astec_addr new_addr;
   int32_t cmds[CMD_NB];
-  volatile bool_t  i2c_done;
+  struct i2c_transaction i2c_trans;
   volatile uint32_t nb_err;
 };
 

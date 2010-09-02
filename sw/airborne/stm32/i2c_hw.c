@@ -18,6 +18,9 @@
     _i2c_err.er_irq_cnt = 0;				\
   }
 
+static void start_transaction(struct i2c_periph* p);
+
+
 
 #ifdef USE_I2C1
 
@@ -26,7 +29,6 @@ struct i2c_errors i2c1_errors;
 #include "my_debug_servo.h"
 
 #define I2C1_APPLY_CONFIG() {						\
-									\
     I2C_InitTypeDef  I2C_InitStructure;					\
     I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;				\
     I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;			\
@@ -35,20 +37,31 @@ struct i2c_errors i2c1_errors;
     I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit; \
     I2C_InitStructure.I2C_ClockSpeed = 200000;				\
     I2C_Init(I2C1, &I2C_InitStructure);					\
-									\
+  }
+
+#define I2C1_END_OF_TRANSACTION() {					\
+    i2c1.trans_extract_idx++;						\
+    if (i2c1.trans_extract_idx>=I2C_TRANSACTION_QUEUE_LEN)		\
+      i2c1.trans_extract_idx = 0;					\
+    /* if we have no more transaction to process, stop here */		\
+    if (i2c1.trans_extract_idx == i2c1.trans_insert_idx)		\
+      i2c1.status = I2CIdle;						\
+    /* if not, start next transaction */				\
+    else								\
+      start_transaction(&i2c1);						\
   }
 
 #define I2C1_ABORT_AND_RESET() {					\
-									\
-    if (i2c1_finished)							\
-      *i2c1_finished = TRUE;						\
-    i2c1_status = I2C_IDLE;						\
+    struct i2c_transaction* trans = i2c1.trans[i2c1.trans_extract_idx];	\
+    trans->status = I2CTransFailed;					\
+    i2c1.status = I2CFailed;						\
     I2C_ITConfig(I2C1, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);	\
     I2C_Cmd(I2C1, DISABLE);						\
+    I2C_DeInit(I2C1);							\
     I2C_Cmd(I2C1, ENABLE);						\
     I2C1_APPLY_CONFIG();						\
     I2C_ITConfig(I2C1, I2C_IT_ERR, ENABLE);				\
-    									\
+    I2C1_END_OF_TRANSACTION();						\
   }
 
 //
@@ -62,6 +75,8 @@ struct i2c_errors i2c1_errors;
 
 
 void i2c1_hw_init(void) {
+
+  i2c1.reg_addr = I2C1;
 
   /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c1_errors);
@@ -115,16 +130,17 @@ void i2c1_hw_init(void) {
 void i2c1_ev_irq_handler(void) {
 
   uint32_t event = I2C_GetLastEvent(I2C1);
+  struct i2c_transaction* trans = i2c2.trans[i2c2.trans_extract_idx];
   switch (event) {
     /* EV5 */
   case I2C_EVENT_MASTER_MODE_SELECT:        
-    if (i2c1.transaction == I2CTransTx || i2c1.transaction == I2CTransTxRx) {
+    if (trans->type == I2CTransTx || trans->type == I2CTransTxRx) {
       /* Master Transmitter : Send slave Address for write */
-      I2C_Send7bitAddress(I2C1, (i2c1_slave_addr&0xFE), I2C_Direction_Transmitter);
+      I2C_Send7bitAddress(I2C1, (trans->slave_addr&0xFE), I2C_Direction_Transmitter);
     }
     else {
       /* Master Receiver : Send slave Address for read */
-      I2C_Send7bitAddress(I2C1, (i2c1_slave_addr&0xFE), I2C_Direction_Receiver);
+      I2C_Send7bitAddress(I2C1, (trans->slave_addr&0xFE), I2C_Direction_Receiver);
     }
     break;
     
@@ -133,18 +149,18 @@ void i2c1_ev_irq_handler(void) {
   case I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED:  
     /* enable empty dr if we have more than one byte to send */
     //    if (i2c1_len_w > 1)
-      I2C_ITConfig(I2C1, I2C_IT_BUF, ENABLE);
+    I2C_ITConfig(I2C1, I2C_IT_BUF, ENABLE);
     /* Send the first data */
-    I2C_SendData(I2C1, i2c1_buf[0]);
-    i2c1_index = 1;
+    I2C_SendData(I2C1, trans->buf[0]);
+    i2c1.idx_buf = 1;
     break;
     
     /* Test on I2C1 EV8 and clear it */
   case I2C_EVENT_MASTER_BYTE_TRANSMITTING:  /* Without BTF, EV8 */     
     //    DEBUG_S5_TOGGLE();
-    if(i2c1_index < i2c1_len_w) {
-      I2C_SendData(I2C1, i2c1_buf[i2c1_index]);
-      i2c1_index++;
+    if(i2c1.idx_buf < trans->len_w) {
+      I2C_SendData(I2C1, trans->buf[i2c1.idx_buf]);
+      i2c1.idx_buf++;
     }
     else {
       I2C_GenerateSTOP(I2C1, ENABLE);
@@ -155,19 +171,16 @@ void i2c1_ev_irq_handler(void) {
 
   case I2C_EVENT_MASTER_BYTE_TRANSMITTED: /* With BTF EV8-2 */
     //    DEBUG_S6_TOGGLE();
-    if(i2c1_index < i2c1_len_w) {
-      I2C_SendData(I2C1, i2c1_buf[i2c1_index]);
-      i2c1_index++;
+    if(i2c1.idx_buf < trans->len_w) {
+      I2C_SendData(I2C1, trans->buf[i2c1.idx_buf]);
+      i2c1.idx_buf++;
     }
     else {
-      if (i2c1_finished)
-	*i2c1_finished = TRUE;
-      i2c1_status = I2C_IDLE;
-      // I2C_GenerateSTOP(I2C1, ENABLE);
+      trans->status = I2CTransSuccess;
       I2C_ITConfig(I2C1, I2C_IT_EVT, DISABLE);
+      I2C1_END_OF_TRANSACTION();
     }
-      //      while (I2C_GetFlagStatus(I2C1, I2C_FLAG_MSL));
-      //      I2c1StopHandler();
+    //      while (I2C_GetFlagStatus(I2C1, I2C_FLAG_MSL));
     break;
 
   default:
@@ -238,7 +251,6 @@ void i2c1_er_irq_handler(void) {
 //  196610   30002        BUSY  MSL |           ADDR
 //  
 
-static void start_transaction(struct i2c_periph* p);
 
 struct i2c_errors i2c2_errors;
 
@@ -333,6 +345,33 @@ static inline void on_status_restart_requested(struct i2c_transaction* trans, ui
 #define SPURIOUS_INTERRUPT(_status, _event) {}
 #define OUT_OF_SYNC_STATE_MACHINE(_status, _event) {}
 #endif
+
+
+#define I2C2_END_OF_TRANSACTION() {					\
+    i2c2.trans_extract_idx++;						\
+    if (i2c2.trans_extract_idx>=I2C_TRANSACTION_QUEUE_LEN)		\
+      i2c2.trans_extract_idx = 0;					\
+    /* if we have no more transaction to process, stop here */		\
+    if (i2c2.trans_extract_idx == i2c2.trans_insert_idx)		\
+      i2c2.status = I2CIdle;						\
+    /* if not, start next transaction */				\
+    else								\
+      start_transaction(&i2c2);						\
+  }
+
+#define I2C2_ABORT_AND_RESET() {					\
+    struct i2c_transaction* trans = i2c2.trans[i2c2.trans_extract_idx];	\
+    trans->status = I2CTransFailed;					\
+    I2C_ITConfig(I2C2, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);	\
+    I2C_Cmd(I2C2, DISABLE);						\
+    I2C_DeInit(I2C2);							\
+    I2C_Cmd(I2C2, ENABLE);						\
+    I2C2_APPLY_CONFIG();						\
+    I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);				\
+    I2C2_END_OF_TRANSACTION();						\
+  }
+
+
 
 /*
  * Start Requested
@@ -446,14 +485,7 @@ static inline void on_status_stop_requested(struct i2c_transaction* trans, uint3
   }
   I2C_ITConfig(I2C2, I2C_IT_EVT|I2C_IT_BUF, DISABLE);  // should only need to disable evt, buf already disabled
   trans->status = I2CTransSuccess;
-
-  i2c2.trans_extract_idx = (i2c2.trans_extract_idx+1)%I2C_TRANSACTION_QUEUE_LEN;
-  /* if we have no more transacation to process, stop here */
-  if (i2c2.trans_extract_idx == i2c2.trans_insert_idx)
-    i2c2.status = I2CIdle;
-  /* if not, start next transaction */
-  else
-    start_transaction(&i2c2);
+  I2C2_END_OF_TRANSACTION();
 }
 
 /*
@@ -618,26 +650,6 @@ void i2c2_ev_irq_handler(void) {
 }
 
 
-#define I2C2_ABORT_AND_RESET() {					\
-    struct i2c_transaction* trans = i2c2.trans[i2c2.trans_extract_idx];	\
-    trans->status = I2CTransFailed;					\
-    i2c2.status = I2CFailed;						\
-    I2C_ITConfig(I2C2, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);	\
-    I2C_Cmd(I2C2, DISABLE);						\
-    I2C_DeInit(I2C2);							\
-    I2C_Cmd(I2C2, ENABLE);						\
-    I2C2_APPLY_CONFIG();						\
-    I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);				\
-    									\
-    i2c2.trans_extract_idx++;						\
-    /* if we have no more transacation to process, stop here */		\
-    if (i2c2.trans_extract_idx == i2c2.trans_insert_idx)		\
-      i2c2.status = I2CIdle;						\
-    /* if not, start next transaction */				\
-    else								\
-      start_transaction(&i2c2);						\
-  }
-
 void i2c2_er_irq_handler(void) {
   //  DEBUG_S5_ON();
   i2c2_errors.er_irq_cnt;
@@ -687,7 +699,8 @@ void i2c2_er_irq_handler(void) {
 bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
 
   uint8_t temp;
-  temp = (p->trans_insert_idx + 1) % I2C_TRANSACTION_QUEUE_LEN;
+  temp = p->trans_insert_idx + 1;
+  if (temp >= I2C_TRANSACTION_QUEUE_LEN) temp = 0;
   if (temp == p->trans_extract_idx)
     return FALSE;                          // queue full
 
