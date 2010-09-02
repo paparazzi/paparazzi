@@ -11,11 +11,11 @@ enum I2CTransactionType {
   I2CTransTxRx 
 };
 
-enum I2CTransactionResult {  
+enum I2CTransactionStatus {  
   I2CTransPending, 
   I2CTransRunning, 
   I2CTransSuccess, 
-  I2CTransFailed 
+  I2CTransFailed
 };
 
 enum I2CStatus { 
@@ -44,10 +44,10 @@ struct i2c_transaction {
   uint8_t  len_w;
   bool_t   stop_after_transmit;
   volatile uint8_t  buf[I2C_BUF_LEN];
-  volatile enum I2CTransactionResult result;
+  volatile enum I2CTransactionStatus status;
 };
 
-#define I2C_TRANSACTION_QUEUE_LEN 4
+#define I2C_TRANSACTION_QUEUE_LEN 8
 
 struct i2c_periph {
   /* circular buffer holding transactions */
@@ -57,6 +57,7 @@ struct i2c_periph {
   /* internal state of the peripheral */
   volatile enum I2CStatus status;
   volatile uint8_t idx_buf;
+  void* reg_addr;
 };
 
 
@@ -247,17 +248,9 @@ extern volatile bool_t* i2c1_finished;
 
 #ifdef USE_I2C2
 
-
-//extern struct i2c i2c2;
-
-extern void i2c2_init(void);
-//extern void i2c2_receive(uint8_t slave_addr, uint8_t len, volatile bool_t* finished);
-//extern void i2c2_transmit(uint8_t slave_addr, uint8_t len, volatile bool_t* finished);
-//extern void i2c2_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile bool_t* finished);
-
 extern struct i2c_periph i2c2;
 
-
+extern void i2c2_init(void);
 
 #endif /* USE_I2C2 */
 

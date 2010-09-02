@@ -262,6 +262,8 @@ struct i2c_errors i2c2_errors;
 
 
 void i2c2_hw_init(void) {
+  
+  i2c2.reg_addr = I2C2;
 
   /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c2_errors);
@@ -316,7 +318,7 @@ void i2c2_hw_init(void) {
 
 
 
-static inline void on_status_start_requested(uint32_t event);
+static inline void on_status_start_requested(const struct i2c_transaction* trans, uint32_t event);
 static inline void on_status_addr_wr_sent(uint32_t event);
 static inline void on_status_sending_byte(uint32_t event);
 //static inline void on_status_sending_last_byte(uint32_t event);
@@ -338,9 +340,8 @@ static inline void on_status_restart_requested(uint32_t event);
  * Start Requested
  *
  */
-static inline void on_status_start_requested(uint32_t event) {
+static inline void on_status_start_requested(const struct i2c_transaction* trans, uint32_t event) {
   if (event & I2C_FLAG_SB) {
-    struct i2c_transaction* trans = i2c2.trans[i2c2.trans_extract_idx];
     if(trans->type == I2CTransRx) {
       I2C_Send7bitAddress(I2C2, trans->slave_addr, I2C_Direction_Receiver);
       i2c2.status = I2CAddrRdSent;
@@ -450,7 +451,7 @@ static inline void on_status_stop_requested(uint32_t event) {
   }
   I2C_ITConfig(I2C2, I2C_IT_EVT|I2C_IT_BUF, DISABLE);  // should only need to disable evt, buf already disabled
   // FIXME : lancer la transaction suivante
-  trans->result = I2CTransSuccess;
+  trans->status = I2CTransSuccess;
   i2c2.status = I2CIdle;
 }
 
@@ -562,16 +563,17 @@ static inline void on_status_restart_requested(uint32_t event) {
 void i2c2_ev_irq_handler(void) {
   //  DEBUG_S4_ON();
   uint32_t event = I2C_GetLastEvent(I2C2);
+  struct i2c_transaction* trans = i2c2.trans[i2c2.trans_extract_idx];
   //#if 0
   //  if (i2c2_errors.irq_cnt < 16) {
-    i2c2_errors.event_chain[i2c2_errors.irq_cnt] = event;
-    i2c2_errors.status_chain[i2c2_errors.irq_cnt] = i2c2.status;
-    i2c2_errors.irq_cnt++;
-    //  } else { while (1);}
-    //#endif
+  i2c2_errors.event_chain[i2c2_errors.irq_cnt] = event;
+  i2c2_errors.status_chain[i2c2_errors.irq_cnt] = i2c2.status;
+  i2c2_errors.irq_cnt++;
+  //  } else { while (1);}
+  //#endif
   switch (i2c2.status) {
   case I2CStartRequested:
-    on_status_start_requested(event);
+    on_status_start_requested(trans, event);
     break;
   case I2CAddrWrSent:
     on_status_addr_wr_sent(event);
@@ -621,7 +623,7 @@ void i2c2_ev_irq_handler(void) {
 
 #define I2C2_ABORT_AND_RESET() {					\
     struct i2c_transaction* trans = i2c2.trans[i2c2.trans_extract_idx];	\
-    trans->result = I2CTransFailed;					\
+    trans->status = I2CTransFailed;					\
     i2c2.status = I2CFailed;						\
     I2C_ITConfig(I2C2, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);	\
     I2C_Cmd(I2C2, DISABLE);						\
@@ -807,11 +809,11 @@ void i2c2_ev_irq_handler(void) {
 
 bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
   p->trans[p->trans_insert_idx] = t;
-  t->result = I2CTransPending;
+  t->status = I2CTransPending;
   p->idx_buf = 0;
   p->status = I2CStartRequested;
   I2C_ZERO_EVENTS();
-  I2C_ITConfig(I2C2, I2C_IT_EVT, ENABLE);
-  I2C_GenerateSTART(I2C2, ENABLE);
+  I2C_ITConfig(p->reg_addr, I2C_IT_EVT, ENABLE);
+  I2C_GenerateSTART(p->reg_addr, ENABLE);
   return TRUE;
 }
