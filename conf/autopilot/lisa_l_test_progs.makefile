@@ -321,16 +321,45 @@ test_itg3200.srcs += lisa/test/lisa_test_itg3200.c \
 test_itg3200.CFLAGS += -DUSE_LED
 test_itg3200.srcs += $(SRC_ARCH)/led_hw.c
 
-test_itg3200.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_itg3200.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_itg3200.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 test_itg3200.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
-test_itg3200.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_itg3200.CFLAGS +=  -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 test_itg3200.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_itg3200.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
+test_itg3200.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
 test_itg3200.srcs += downlink.c pprz_transport.c
 
 test_itg3200.CFLAGS += -DUSE_I2C2
 test_itg3200.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 test_itg3200.CFLAGS += -DUSE_EXTI15_10_IRQ   # Gyro Int on PC14
+
+
+#
+# test adxl345 with DMA
+#
+test_adxl345.ARCHDIR = $(ARCHI)
+test_adxl345.TARGET = test_adxl345
+test_adxl345.TARGETDIR = test_adxl345
+test_adxl345.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_adxl345.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
+test_adxl345.srcs += lisa/test/lisa_test_adxl345_dma.c \
+                       $(SRC_ARCH)/stm32_exceptions.c   \
+                       $(SRC_ARCH)/stm32_vector_table.c
+
+test_adxl345.CFLAGS += -DUSE_LED
+test_adxl345.srcs += $(SRC_ARCH)/led_hw.c
+
+test_adxl345.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_adxl345.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_adxl345.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_adxl345.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_adxl345.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_adxl345.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
+test_adxl345.srcs += downlink.c pprz_transport.c
+
+test_adxl345.CFLAGS += -DUSE_EXTI2_IRQ   # Accel Int on PD2
+test_adxl345.CFLAGS += -DUSE_DMA1_C4_IRQ # SPI2 Rx DMA

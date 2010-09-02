@@ -43,7 +43,6 @@ static inline void main_event_task( void );
 
 static inline void main_init_hw(void);
 
-//static uint8_t i2c_done = FALSE;
 static struct i2c_transaction i2c_trans;
 #define INITIALIZED 6
 static uint8_t mag_state = 0;
