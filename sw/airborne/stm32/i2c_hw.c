@@ -702,7 +702,7 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
   /* if peripheral is idle, start the transaction */
   if (p->status == I2CIdle)
     start_transaction(p);
-  
+  /* else it will be started by the interrupt handler when the previous transactions completes */
   __enable_irq();
 
   return TRUE;

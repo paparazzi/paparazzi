@@ -42,8 +42,12 @@ static inline void main_periodic_task( void );
 static inline void main_event_task( void );
 
 static inline void main_init_hw(void);
+static void send_config(void);
 
 static struct i2c_transaction i2c_trans;
+struct i2c_transaction t1;
+struct i2c_transaction t2;
+
 #define INITIALIZED 6
 static uint8_t mag_state = 0;
 static volatile uint8_t mag_ready_for_read = FALSE;
@@ -89,7 +93,9 @@ static inline void main_periodic_task( void ) {
 			       &i2c2_errors.unexpected_event_cnt,
 			       &i2c2_errors.last_unexpected_event);
     });
-  
+  if (mag_state == 2) send_config();
+
+#if 0
   switch (mag_state) {
   case 2:
     i2c_trans.type = I2CTransTx;
@@ -124,7 +130,7 @@ static inline void main_periodic_task( void ) {
   default:
     break;
   }
-  
+#endif  
   //  if (mag_state  == 4) mag_state=1;
   
   if (mag_state  < INITIALIZED) mag_state++;
@@ -161,8 +167,41 @@ static inline void main_event_task( void ) {
     reading_mag = FALSE;
   }
 
+}
+
+
+
+static void send_config(void) {
+
+  t1.type = I2CTransTx;
+  t1.slave_addr = HMC5843_ADDR;
+  t1.buf[0] = HMC5843_REG_CFGA;  // set to rate to 50Hz
+  t1.buf[1] = 0x00 | (0x06 << 2);
+  t1.len_w = 2;
+  i2c_submit(&i2c2,&t1);
+    
+  t2.type = I2CTransTx;
+  t2.slave_addr = HMC5843_ADDR;
+  t2.buf[0] = HMC5843_REG_CFGB;  // set to gain to 1 Gauss
+  t2.buf[1] = 0x01<<5;
+  t2.len_w = 2;
+  i2c_submit(&i2c2,&t2);
+
+  i2c_trans.type = I2CTransTx;
+  i2c_trans.slave_addr = HMC5843_ADDR;
+  i2c_trans.buf[0] = HMC5843_REG_MODE;  // set to continuous mode
+  i2c_trans.buf[1] = 0x00;
+  i2c_trans.len_w = 2;
+  i2c_submit(&i2c2,&i2c_trans);
 
 }
+
+
+
+
+
+
+
 
 static inline void main_init_hw( void ) {
   /* set mag ss as floating input (on PC12)    = shorted to I2C2 sda ----------*/

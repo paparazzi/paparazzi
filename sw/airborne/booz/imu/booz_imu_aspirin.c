@@ -13,7 +13,6 @@ static void configure_accel(void);
 void booz_imu_impl_init(void) {
 
   imu_aspirin.status = AspirinStatusUninit;
-  imu_aspirin.i2c_done = FALSE;
   imu_aspirin.gyro_available = FALSE;
   imu_aspirin.gyro_available_blaaa = FALSE;
   imu_aspirin.mag_ready_for_read = FALSE;
@@ -28,7 +27,7 @@ void booz_imu_impl_init(void) {
 void booz_imu_periodic(void) {
   if (imu_aspirin.status == AspirinStatusUninit) {
     configure_gyro();
-    //    configure_mag();
+    configure_mag();
     configure_accel();
     imu_aspirin.status = AspirinStatusIdle;
   }
@@ -40,47 +39,54 @@ void booz_imu_periodic(void) {
 /* sends a serie of I2C commands to configure the ITG3200 gyro */
 static void configure_gyro(void) {
   
+  struct i2c_transaction t;
+  t.type = I2CTransTx;
+  t.slave_addr = ITG3200_ADDR;
   /* set gyro range to 2000deg/s and low pass at 256Hz */
-  i2c2.buf[0] = ITG3200_REG_DLPF_FS;
-  i2c2.buf[1] = (0x03<<3);
-  i2c2_transmit(ITG3200_ADDR, 2, &imu_aspirin.i2c_done);
-  while (!imu_aspirin.i2c_done);
+  t.buf[0] = ITG3200_REG_DLPF_FS;
+  t.buf[1] = (0x03<<3);
+  t.len_w = 2;
+  i2c_submit(&i2c2,&t);
+  while (t.status != I2CTransSuccess);
   /* set sample rate to 533Hz */
-  i2c2.buf[0] = ITG3200_REG_SMPLRT_DIV;
-  i2c2.buf[1] = 0x0E;
-  i2c2_transmit(ITG3200_ADDR, 2, &imu_aspirin.i2c_done);
-  while (!imu_aspirin.i2c_done);
+  t.buf[0] = ITG3200_REG_SMPLRT_DIV;
+  t.buf[1] = 0x0E;
+  i2c_submit(&i2c2,&t);
+  while (t.status != I2CTransSuccess);
   /* switch to gyroX clock */
-  i2c2.buf[0] = ITG3200_REG_PWR_MGM;
-  i2c2.buf[1] = 0x01;
-  i2c2_transmit(ITG3200_ADDR, 2, &imu_aspirin.i2c_done);
-  while (!imu_aspirin.i2c_done);
+  t.buf[0] = ITG3200_REG_PWR_MGM;
+  t.buf[1] = 0x01;
+  i2c_submit(&i2c2,&t);
+  while (t.status != I2CTransSuccess);
   /* enable interrupt on data ready, idle hight */
-  i2c2.buf[0] = ITG3200_REG_INT_CFG;
-  i2c2.buf[1] = (0x01 | 0x01<<7);
-  i2c2_transmit(ITG3200_ADDR, 2, &imu_aspirin.i2c_done);
-  while (!imu_aspirin.i2c_done);
-
+  t.buf[0] = ITG3200_REG_INT_CFG;
+  t.buf[1] = (0x01 | 0x01<<7);
+  i2c_submit(&i2c2,&t);
+  while (t.status != I2CTransSuccess);
+  
 }
 
 /* sends a serie of I2C commands to configure the ITG3200 gyro */
 static void configure_mag(void) {
 
+  struct i2c_transaction t;
+  t.type = I2CTransTx;
+  t.slave_addr = HMC5843_ADDR;
   /* set to rate to 50Hz */
-  i2c2.buf[0] = HMC5843_REG_CFGA; 
-  i2c2.buf[1] = 0x00 | (0x06 << 2);
-  i2c2_transmit(HMC5843_ADDR, 2, &imu_aspirin.i2c_done);
-  while (!imu_aspirin.i2c_done);
+  t.buf[0] = HMC5843_REG_CFGA; 
+  t.buf[1] = 0x00 | (0x06 << 2);
+  i2c_submit(&i2c2,&t);
+  while (t.status != I2CTransSuccess);
   /* set to gain to 1 Gauss */
-  i2c2.buf[0] = HMC5843_REG_CFGB;
-  i2c2.buf[1] = 0x01<<5;
-  i2c2_transmit(HMC5843_ADDR, 2, &imu_aspirin.i2c_done);
-  while (!imu_aspirin.i2c_done);
+  t.buf[0] = HMC5843_REG_CFGB;
+  t.buf[1] = 0x01<<5;
+  i2c_submit(&i2c2,&t);
+  while (t.status != I2CTransSuccess);
   /* set to continuous mode */
-  i2c2.buf[0] = HMC5843_REG_MODE; 
-  i2c2.buf[1] = 0x00;
-  i2c2_transmit(HMC5843_ADDR, 2, &imu_aspirin.i2c_done);
-  while (!imu_aspirin.i2c_done);
+  t.buf[0] = HMC5843_REG_MODE; 
+  t.buf[1] = 0x00;
+  i2c_submit(&i2c2,&t);
+  while (t.status != I2CTransSuccess);
 
 }
 

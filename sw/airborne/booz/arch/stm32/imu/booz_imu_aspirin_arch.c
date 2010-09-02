@@ -223,18 +223,32 @@ void adxl345_start_reading_data(void) {
   DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, ENABLE);
 }
 
+/*
+ *
+ * Gyro data ready
+ *
+ */
 void exti15_10_irq_handler(void) {
 
   /* clear EXTI */
   if(EXTI_GetITStatus(EXTI_Line14) != RESET)
     EXTI_ClearITPendingBit(EXTI_Line14);
  
-  i2c2.buf[0] = ITG3200_REG_GYRO_XOUT_H;
-  i2c2_transceive(ITG3200_ADDR,1, 6, &imu_aspirin.i2c_done);
+  imu_aspirin.i2c_trans_gyro.type = I2CTransTxRx;
+  imu_aspirin.i2c_trans_gyro.buf[0] = ITG3200_REG_GYRO_XOUT_H;
+  imu_aspirin.i2c_trans_gyro.slave_addr = ITG3200_ADDR;
+  imu_aspirin.i2c_trans_gyro.len_w = 1;
+  imu_aspirin.i2c_trans_gyro.len_r = 6;
+  i2c_submit(&i2c2,&imu_aspirin.i2c_trans_gyro);
   imu_aspirin.status = AspirinStatusReadingGyro;
 
 }
 
+/*
+ *
+ * Mag data ready
+ *
+ */
 void exti9_5_irq_handler(void) {
 
   /* clear EXTI */
@@ -245,6 +259,11 @@ void exti9_5_irq_handler(void) {
 
 }
 
+/*
+ *
+ * Accel data ready
+ *
+ */
 void exti2_irq_handler(void) {
 
   /* clear EXTI */
@@ -255,6 +274,11 @@ void exti2_irq_handler(void) {
 
 }
 
+/*
+ *
+ * Accel end of DMA transfert
+ *
+ */
 void dma1_c4_irq_handler(void) {
   Adxl345Unselect();
   DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);

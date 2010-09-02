@@ -277,6 +277,54 @@ test_imu_b2.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c $(SRC_BOOZ_ARCH)/peri
 test_imu_b2.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c  $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
 
 
+
+#
+# test IMU aspirin
+#
+test_imu_aspirin.ARCHDIR = $(ARCHI)
+test_imu_aspirin.TARGET = test_imu_aspirin
+test_imu_aspirin.TARGETDIR = test_imu_aspirin
+test_imu_aspirin.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_imu_aspirin.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
+test_imu_aspirin.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
+                    $(SRC_ARCH)/stm32_exceptions.c   \
+                    $(SRC_ARCH)/stm32_vector_table.c
+
+test_imu_aspirin.CFLAGS += -DUSE_LED
+test_imu_aspirin.srcs += $(SRC_ARCH)/led_hw.c
+
+test_imu_aspirin.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_imu_aspirin.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_imu_aspirin.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_imu_aspirin.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_imu_aspirin.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_imu_aspirin.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
+test_imu_aspirin.srcs += downlink.c pprz_transport.c
+
+test_imu_aspirin.srcs += math/pprz_trig_int.c
+
+test_imu_aspirin.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_aspirin.h\" -DIMU_OVERRIDE_CHANNELS
+test_imu_aspirin.srcs += $(SRC_BOOZ)/booz_imu.c             \
+                        $(SRC_BOOZ)/imu/booz_imu_aspirin.c \
+                        $(SRC_BOOZ_ARCH)/imu/booz_imu_aspirin_arch.c
+
+test_imu_aspirin.CFLAGS += -DUSE_I2C2
+test_imu_aspirin.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+test_imu_aspirin.CFLAGS += -DUSE_EXTI15_10_IRQ  # Gyro Int on PC14
+test_imu_aspirin.CFLAGS += -DUSE_EXTI9_5_IRQ    # Mag Int on PB5
+test_imu_aspirin.CFLAGS += -DUSE_EXTI2_IRQ      # Accel Int on PD2
+test_imu_aspirin.CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
+
+
+
+
+
+
+
+
+
 #
 # test hmc5843
 #
@@ -363,3 +411,6 @@ test_adxl345.srcs += downlink.c pprz_transport.c
 
 test_adxl345.CFLAGS += -DUSE_EXTI2_IRQ   # Accel Int on PD2
 test_adxl345.CFLAGS += -DUSE_DMA1_C4_IRQ # SPI2 Rx DMA
+
+
+
