@@ -45,7 +45,7 @@ void lla_of_ecef_d(struct LlaCoor_d* lla, struct EcefCoor_d* ecef) {
   const double F = 54.*b2*z2;
   const double G = r2 + (1-e2)*z2 - e2*E2;
   const double c = (e2*e2*F*r2)/(G*G*G);
-  const double s = powf( (1 + c + sqrt(c*c + 2*c)), 1./3.);
+  const double s = pow( (1 + c + sqrt(c*c + 2*c)), 1./3.);
   const double s1 = 1+s+1/s;
   const double P = F/(3*s1*s1*G*G);
   const double Q = sqrt(1+2*e2*e2*P);
