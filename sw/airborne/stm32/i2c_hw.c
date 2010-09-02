@@ -238,7 +238,7 @@ void i2c1_er_irq_handler(void) {
 //  196610   30002        BUSY  MSL |           ADDR
 //  
 
-
+static void start_transaction(struct i2c_periph* p);
 
 struct i2c_errors i2c2_errors;
 
@@ -445,9 +445,15 @@ static inline void on_status_stop_requested(struct i2c_transaction* trans, uint3
     }
   }
   I2C_ITConfig(I2C2, I2C_IT_EVT|I2C_IT_BUF, DISABLE);  // should only need to disable evt, buf already disabled
-  // FIXME : lancer la transaction suivante
   trans->status = I2CTransSuccess;
-  i2c2.status = I2CIdle;
+
+  i2c2.trans_extract_idx = (i2c2.trans_extract_idx+1)%I2C_TRANSACTION_QUEUE_LEN;
+  /* if we have no more transacation to process, stop here */
+  if (i2c2.trans_extract_idx == i2c2.trans_insert_idx)
+    i2c2.status = I2CIdle;
+  /* if not, start next transaction */
+  else
+    start_transaction(&i2c2);
 }
 
 /*
@@ -623,6 +629,13 @@ void i2c2_ev_irq_handler(void) {
     I2C2_APPLY_CONFIG();						\
     I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);				\
     									\
+    i2c2.trans_extract_idx++;						\
+    /* if we have no more transacation to process, stop here */		\
+    if (i2c2.trans_extract_idx == i2c2.trans_insert_idx)		\
+      i2c2.status = I2CIdle;						\
+    /* if not, start next transaction */				\
+    else								\
+      start_transaction(&i2c2);						\
   }
 
 void i2c2_er_irq_handler(void) {
@@ -672,12 +685,32 @@ void i2c2_er_irq_handler(void) {
 
 
 bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
-  p->trans[p->trans_insert_idx] = t;
+
+  uint8_t temp;
+  temp = (p->trans_insert_idx + 1) % I2C_TRANSACTION_QUEUE_LEN;
+  if (temp == p->trans_extract_idx)
+    return FALSE;                          // queue full
+
   t->status = I2CTransPending;
+  
+  // FIXME : disable IRQ
+
+  /* put transacation in queue */
+  p->trans[p->trans_insert_idx] = t;
+  p->trans_insert_idx = temp;
+  
+  /* if peripheral is idle, start the transaction */
+  if (p->status == I2CIdle)
+    start_transaction(p);
+  
+  return TRUE;
+}
+
+
+static void start_transaction(struct i2c_periph* p) {
   p->idx_buf = 0;
   p->status = I2CStartRequested;
   I2C_ZERO_EVENTS();
   I2C_ITConfig(p->reg_addr, I2C_IT_EVT, ENABLE);
   I2C_GenerateSTART(p->reg_addr, ENABLE);
-  return TRUE;
 }
