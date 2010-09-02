@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -43,8 +43,8 @@ static inline void main_event_task( void );
 
 static inline void main_init_hw(void);
 
-static uint8_t i2c_done = FALSE;
-#define INITIALISZED 6
+static struct i2c_transaction i2c_trans;
+#define INITIALIZED 6
 static uint8_t gyro_state = 0;
 static volatile uint8_t gyro_ready_for_read = FALSE;
 static uint8_t reading_gyro = FALSE;
@@ -92,34 +92,50 @@ static inline void main_periodic_task( void ) {
   switch (gyro_state) {
 
   case 1:
-    i2c2.buf[0] = ITG3200_REG_TEMP_OUT_H;
-    i2c2_transmit(ITG3200_ADDR,1, &i2c_done);
+    /* dummy one byte write for testing */
+    i2c_trans.type = I2CTransTx;
+    i2c_trans.slave_addr = ITG3200_ADDR;
+    i2c_trans.buf[0] = ITG3200_REG_TEMP_OUT_H;
+    i2c_trans.len_w = 1;
+    i2c_submit(&i2c2,&i2c_trans);
     break;
   case 2:
     /* set gyro range to 2000deg/s and low pass at 256Hz */
-    i2c2.buf[0] = ITG3200_REG_DLPF_FS;
-    i2c2.buf[1] = (0x03<<3);
-    i2c2_transmit(ITG3200_ADDR, 2, &i2c_done);
+    i2c_trans.type = I2CTransTx;
+    i2c_trans.slave_addr = ITG3200_ADDR;
+    i2c_trans.buf[0] = ITG3200_REG_DLPF_FS;
+    i2c_trans.buf[1] = (0x03<<3);
+    i2c_trans.len_w = 2;
+    i2c_submit(&i2c2,&i2c_trans);
     break;
   case 3:
     /* set sample rate to 533Hz */
-    i2c2.buf[0] = ITG3200_REG_SMPLRT_DIV;
-    i2c2.buf[1] = 0x0E;
-    i2c2_transmit(ITG3200_ADDR, 2, &i2c_done);
+    i2c_trans.type = I2CTransTx;
+    i2c_trans.slave_addr = ITG3200_ADDR;
+    i2c_trans.buf[0] = ITG3200_REG_SMPLRT_DIV;
+    i2c_trans.buf[1] = 0x0E;
+    i2c_trans.len_w = 2;
+    i2c_submit(&i2c2,&i2c_trans);
     break;
   case 4:
     /* switch to gyroX clock */
-    i2c2.buf[0] = ITG3200_REG_PWR_MGM;
-    i2c2.buf[1] = 0x01;
-    i2c2_transmit(ITG3200_ADDR, 2, &i2c_done);
+    i2c_trans.type = I2CTransTx;
+    i2c_trans.slave_addr = ITG3200_ADDR;
+    i2c_trans.buf[0] = ITG3200_REG_PWR_MGM;
+    i2c_trans.buf[1] = 0x01;
+    i2c_trans.len_w = 2;
+    i2c_submit(&i2c2,&i2c_trans);
     break;
   case 5:
     /* enable interrupt on data ready, idle hight */
-    i2c2.buf[0] = ITG3200_REG_INT_CFG;
-    i2c2.buf[1] = (0x01 | 0x01<<7);
-    i2c2_transmit(ITG3200_ADDR, 2, &i2c_done);
+    i2c_trans.type = I2CTransTx;
+    i2c_trans.slave_addr = ITG3200_ADDR;
+    i2c_trans.buf[0] = ITG3200_REG_INT_CFG;
+    i2c_trans.buf[1] = (0x01 | 0x01<<7);
+    i2c_trans.len_w = 2;
+    i2c_submit(&i2c2,&i2c_trans);
     break;
-  case INITIALISZED:
+  case INITIALIZED:
     /* reads 8 bytes from address 0x1b */
     //    i2c2.buf[0] = ITG3200_REG_TEMP_OUT_H;
     //    i2c2_transceive(ITG3200_ADDR,1, 8, &i2c_done);
@@ -129,7 +145,7 @@ static inline void main_periodic_task( void ) {
   }
 
   //  if (gyro_state == 1) gyro_state = 0;
-  if (gyro_state  < INITIALISZED) gyro_state++;
+  if (gyro_state  < INITIALIZED) gyro_state++;
 
 }
 
@@ -140,36 +156,41 @@ static inline void main_periodic_task( void ) {
 
 static inline void main_event_task( void ) {
 
-  if (gyro_state == INITIALISZED && gyro_ready_for_read && i2c_done) {
+  if (gyro_state == INITIALIZED && gyro_ready_for_read && 
+      ( i2c_trans.status==I2CTransSuccess || i2c_trans.status==I2CTransFailed)) {
     /* reads 8 bytes from address 0x1b */
-    i2c2.buf[0] = ITG3200_REG_TEMP_OUT_H;
-    i2c2_transceive(ITG3200_ADDR,1, 8, &i2c_done);
+    i2c_trans.type = I2CTransTxRx;
+    i2c_trans.buf[0] = ITG3200_REG_TEMP_OUT_H;
+    i2c_trans.len_w = 1;
+    i2c_trans.len_r = 8;
+    i2c_submit(&i2c2,&i2c_trans);
     //   i2c2.buf[0] = ITG3200_REG_GYRO_XOUT_H;
     //    i2c2_transceive(ITG3200_ADDR,1, 6, &i2c_done);
     gyro_ready_for_read = FALSE;
     reading_gyro = TRUE;
   }
 
-  if (reading_gyro && i2c_done) {
+  if (reading_gyro && 
+      (i2c_trans.status==I2CTransSuccess || i2c_trans.status==I2CTransFailed)) {
     //    DEBUG_S5_ON();
     reading_gyro = FALSE;
     int16_t tgp, tgq, tgr;
-
-    int16_t ttemp = i2c2.buf[0]<<8 | i2c2.buf[1];
+    
+    int16_t ttemp = i2c_trans.buf[0]<<8 | i2c_trans.buf[1];
 #if 1
-    tgp = i2c2.buf[2]<<8 | i2c2.buf[3];
-    tgq = i2c2.buf[4]<<8 | i2c2.buf[5];
-    tgr = i2c2.buf[6]<<8 | i2c2.buf[7];
+    tgp = i2c_trans.buf[2]<<8 | i2c_trans.buf[3];
+    tgq = i2c_trans.buf[4]<<8 | i2c_trans.buf[5];
+    tgr = i2c_trans.buf[6]<<8 | i2c_trans.buf[7];
 #endif
 #if 0
-    tgp = __REVSH(*(int16_t*)(i2c2.buf+2));
-    tgq = __REVSH(*(int16_t*)(i2c2.buf+4));
-    tgr = __REVSH(*(int16_t*)(i2c2.buf+6));
+    tgp = __REVSH(*(int16_t*)(i2c_trans.buf+2));
+    tgq = __REVSH(*(int16_t*)(i2c_trans.buf+4));
+    tgr = __REVSH(*(int16_t*)(i2c_trans.buf+6));
 #endif
 #if 0
-    MyByteSwap16(*(int16_t*)(i2c2.buf+2), tgp);
-    MyByteSwap16(*(int16_t*)(i2c2.buf+4), tgq);
-    MyByteSwap16(*(int16_t*)(i2c2.buf+6), tgr);
+    MyByteSwap16(*(int16_t*)(i2c_trans.buf+2), tgp);
+    MyByteSwap16(*(int16_t*)(i2c_trans.buf+4), tgq);
+    MyByteSwap16(*(int16_t*)(i2c_trans.buf+6), tgr);
 #endif
     struct Int32Rates g;
     RATES_ASSIGN(g, tgp, tgq, tgr);
@@ -178,7 +199,7 @@ static inline void main_event_task( void ) {
       DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, &g.p, &g.q, &g.r);
       
       uint8_t tmp[8];
-      memcpy(tmp, i2c2.buf, 8);
+      memcpy(tmp, i2c_trans.buf, 8);
       DOWNLINK_SEND_DEBUG(DefaultChannel, 8, tmp);
 
 
@@ -242,7 +263,7 @@ void exti15_10_irq_handler(void) {
 
   //  DEBUG_S4_TOGGLE();
 
-  if (gyro_state == INITIALISZED) gyro_ready_for_read = TRUE;
+  if (gyro_state == INITIALIZED) gyro_ready_for_read = TRUE;
 
   //  DEBUG_S4_OFF();
 

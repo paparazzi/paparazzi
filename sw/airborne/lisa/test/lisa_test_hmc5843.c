@@ -45,7 +45,7 @@ static inline void main_init_hw(void);
 
 //static uint8_t i2c_done = FALSE;
 static struct i2c_transaction i2c_trans;
-#define INITIALISZED 6
+#define INITIALIZED 6
 static uint8_t mag_state = 0;
 static volatile uint8_t mag_ready_for_read = FALSE;
 static uint8_t reading_mag = FALSE;
@@ -118,7 +118,7 @@ static inline void main_periodic_task( void ) {
     break;
   case 5:
     break;
-  case INITIALISZED:
+  case INITIALIZED:
     //    i2c2_receive(HMC5843_ADDR, 7, &i2c_done);
     //    reading_mag = TRUE;
     break;
@@ -128,14 +128,14 @@ static inline void main_periodic_task( void ) {
   
   //  if (mag_state  == 4) mag_state=1;
   
-  if (mag_state  < INITIALISZED) mag_state++;
+  if (mag_state  < INITIALIZED) mag_state++;
   
 }
 
 
 static inline void main_event_task( void ) {
 
-  if (mag_state == INITIALISZED && mag_ready_for_read && i2c_trans.status==I2CTransSuccess) {
+  if (mag_state == INITIALIZED && mag_ready_for_read && i2c_trans.status==I2CTransSuccess) {
     /* read mag */
     i2c_trans.type = I2CTransRx;
     i2c_trans.slave_addr = HMC5843_ADDR;
@@ -210,5 +210,5 @@ void exti9_5_irq_handler(void) {
   if(EXTI_GetITStatus(EXTI_Line5) != RESET)
     EXTI_ClearITPendingBit(EXTI_Line5);
 
-  if (mag_state == INITIALISZED) mag_ready_for_read = TRUE;
+  if (mag_state == INITIALIZED) mag_ready_for_read = TRUE;
 }
