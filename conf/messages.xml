@@ -179,7 +179,7 @@
     <field name="chn" type="uint8"/>
     <field name="SVID" type="uint8"/>
     <field name="Flags" type="uint8"/>
-    <field name="QI" type="int8"/>
+    <field name="QI" type="uint8"/>
     <field name="CNO" type="uint8" unit="dbHz"/>
     <field name="Elev" type="int8" unit="deg"/>
     <field name="Azim" type="int16" unit="deg"/>
