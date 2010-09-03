@@ -199,28 +199,7 @@ extern void i2c1_hw_init(void);
 
 #ifdef USE_I2C2
 
-
-extern void i2c0_hw_init(void);
-
-#define I2c0SendAck()   { I2C0CONSET = _BV(AA); }
-#define I2c0Finished()  {                                               \
-    if (i2c0_finished) *i2c0_finished = TRUE;				\
-    i2c0_status = I2C_IDLE;						\
-}
-#define I2c0SendStop()  {						\
-    I2C0CONSET = _BV(STO);						\
-    I2c0Finished();                                                     \
-  }
-#define I2c0SendStart() { I2C0CONSET = _BV(STA); }
-#define I2c0SendByte(b) { I2C_DATA_REG = b; }
-
-#define I2c0Receive(_ack) {	    \
-    if (_ack) I2C0CONSET = _BV(AA); \
-    else I2C0CONCLR = _BV(AAC);	    \
-  }
-
-#define I2c0ClearStart() { I2C0CONCLR = _BV(STAC); }
-#define I2c0ClearIT() { I2C0CONCLR = _BV(SIC); }
+extern void i2c2_hw_init(void);
 
 #endif
 

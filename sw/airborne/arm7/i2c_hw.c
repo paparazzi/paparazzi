@@ -1,7 +1,7 @@
 /*
  * $Id$
  *  
- * Copyright (C) 2008  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -30,6 +30,142 @@
 #include "std.h"
 
 #include "interrupt_hw.h"
+
+
+///////////////////
+// I2C Automaton //
+///////////////////
+
+static inline void I2cSendStart(struct i2c_periph* p) {
+  p->status = I2CStartRequested;
+  ((i2cRegs_t *)(p->reg_addr))->conset = _BV(STA);
+}
+
+static inline void I2cSendAck(void* reg) {
+  ((i2cRegs_t *)reg)->conset = _BV(AA);
+}
+
+static inline void I2cEndOfTransaction(struct i2c_periph* p) {
+  // handle fifo here
+  p->trans_extract_idx++;
+  if (p->trans_extract_idx >= I2C_TRANSACTION_QUEUE_LEN)
+    p->trans_extract_idx = 0;
+  // if no more transaction to process, stop here, else start next transaction
+  if (p->trans_extract_idx == p->trans_insert_idx) {
+    p->status = I2CIdle;
+  }
+  else {
+    I2cSendStart(p);
+  }
+}
+
+static inline void I2cFinished(struct i2c_periph* p, struct i2c_transaction* t) {
+  // transaction finished with success
+  t->status = I2CTransSuccess;
+  I2cEndOfTransaction(p);
+}
+
+static inline void I2cSendStop(struct i2c_periph* p, struct i2c_transaction* t) {
+  ((i2cRegs_t *)(p->reg_addr))->conset = _BV(STO);
+  I2cFinished(p,t); 
+}
+
+static inline void I2cFail(struct i2c_periph* p, struct i2c_transaction* t) {
+  ((i2cRegs_t *)(p->reg_addr))->conset = _BV(STO);
+  t->status = I2CTransFailed;
+  p->status = I2CFailed;
+  // FIXME I2C should be reseted here
+  I2cEndOfTransaction(p);
+}
+
+static inline void I2cSendByte(void* reg, uint8_t b) {
+  ((i2cRegs_t *)reg)->dat = b;
+}
+
+static inline void I2cReceive(void* reg, bool_t ack) {
+  if (ack) ((i2cRegs_t *)reg)->conset = _BV(AA);
+  else ((i2cRegs_t *)reg)->conclr = _BV(AAC);
+}
+
+static inline void I2cClearStart(void* reg) {
+  ((i2cRegs_t *)reg)->conclr = _BV(STAC);
+}
+
+static inline void I2cClearIT(void* reg) {
+  ((i2cRegs_t *)reg)->conclr = _BV(SIC);
+}
+
+static inline void I2cAutomaton(int32_t state, struct i2c_periph* p) {
+  struct i2c_transaction* trans = p->trans[p->trans_extract_idx];
+  switch (state) {
+    case I2C_START:
+    case I2C_RESTART:
+      // Set R/W flag
+      switch (trans->type) {
+        case I2CTransRx :
+          SetBit(trans->slave_addr,0);
+          break;
+        case I2CTransTx: 
+        case I2CTransTxRx: 
+          ClearBit(trans->slave_addr,0);
+          break;
+      }
+      I2cSendByte(p->reg_addr,trans->slave_addr);
+      I2cClearStart(p->reg_addr);
+      p->idx_buf = 0;
+      break;
+    case I2C_MR_DATA_ACK:
+      if (p->idx_buf < trans->len_r) {
+        trans->buf[p->idx_buf] = ((i2cRegs_t *)(p->reg_addr))->dat;
+        p->idx_buf++;
+        I2cReceive(p->reg_addr,p->idx_buf < trans->len_r - 1);
+      }
+      else {
+        /* error , we should have got NACK */
+        I2cSendStop(p,trans);
+      }
+      break;
+    case I2C_MR_SLA_ACK: /* At least one char */
+      /* Wait and reply with ACK or NACK */
+      I2cReceive(p->reg_addr,p->idx_buf < trans->len_r - 1);
+      break;
+    case I2C_MR_SLA_NACK:
+    case I2C_MT_SLA_NACK:
+      I2cSendStart(p);
+      break;
+    case I2C_MT_SLA_ACK:
+    case I2C_MT_DATA_ACK:
+      if (p->idx_buf < trans->len_w) {
+        I2cSendByte(p->reg_addr,trans->buf[p->idx_buf]);
+        p->idx_buf++;
+      } else {
+        if (trans->type == I2CTransTxRx) {
+          trans->type = I2CTransRx;	/* FIXME should not change type */
+          p->idx_buf = 0;
+          trans->slave_addr |= 1;
+          I2cSendStart(p);
+        } else {
+          if (trans->stop_after_transmit) {
+            I2cSendStop(p,trans);
+          } else {
+            I2cFinished(p,trans);
+          }
+        }
+      }
+      break;
+    case I2C_MR_DATA_NACK:
+      if (p->idx_buf < trans->len_r) {
+        trans->buf[p->idx_buf] = ((i2cRegs_t *)(p->reg_addr))->dat;
+      }
+      I2cSendStop(p,trans);
+      break;
+    default:
+      I2cSendStop(p,trans);
+      //I2cFail(p,trans);
+      /* FIXME log error */
+      break;
+  }
+}
 
 
 #ifdef USE_I2C0
@@ -188,4 +324,110 @@ void i2c1_ISR(void)
 
 
 #endif /* USE_I2C1 */
+
+#ifdef USE_I2C2
+
+
+/* default clock speed 37.5KHz with our 15MHz PCLK 
+   I2C0_CLOCK = PCLK / (I2C0_SCLL + I2C0_SCLH)     */
+#ifndef I2C0_SCLL
+#define I2C0_SCLL 200
+#endif
+
+#ifndef I2C0_SCLH
+#define I2C0_SCLH 200
+#endif
+
+/* adjust for other PCLKs */
+
+#if (PCLK == 15000000)
+#define I2C0_SCLL_D I2C0_SCLL
+#define I2C0_SCLH_D I2C0_SCLH
+#else
+
+#if (PCLK == 30000000)
+#define I2C0_SCLL_D (2*I2C0_SCLL)
+#define I2C0_SCLH_D (2*I2C0_SCLH)
+#else
+
+#if (PCLK == 60000000)
+#define I2C0_SCLL_D (4*I2C0_SCLL)
+#define I2C0_SCLH_D (4*I2C0_SCLH)
+#else
+
+#error unknown PCLK frequency
+#endif
+#endif
+#endif
+
+#ifndef I2C0_VIC_SLOT
+#define I2C0_VIC_SLOT 9
+#endif
+
+void i2c0_ISR(void) __attribute__((naked));
+
+
+/* SDA0 on P0.3 */
+/* SCL0 on P0.2 */
+void i2c2_hw_init ( void ) {
+
+  i2c2.reg_addr = I2C0;
+
+  /* set P0.2 and P0.3 to I2C0 */
+  PINSEL0 |= 1 << 4 | 1 << 6;
+  /* clear all flags */
+  I2C0CONCLR = _BV(AAC) | _BV(SIC) | _BV(STAC) | _BV(I2ENC);
+  /* enable I2C */
+  I2C0CONSET = _BV(I2EN);
+  /* set bitrate */
+  I2C0SCLL = I2C0_SCLL_D;  
+  I2C0SCLH = I2C0_SCLH_D;  
+  
+  // initialize the interrupt vector
+  VICIntSelect &= ~VIC_BIT(VIC_I2C0);              // I2C0 selected as IRQ
+  VICIntEnable = VIC_BIT(VIC_I2C0);                // I2C0 interrupt enabled
+  _VIC_CNTL(I2C0_VIC_SLOT) = VIC_ENABLE | VIC_I2C0;
+  _VIC_ADDR(I2C0_VIC_SLOT) = (uint32_t)i2c0_ISR;    // address of the ISR
+}
+
+#define I2C_STATUS_REG I2C0STAT
+
+void i2c0_ISR(void)
+{
+  ISR_ENTRY();
+
+  uint32_t state = I2C_STATUS_REG;
+  I2cAutomaton(state,&i2c2);
+  I2cClearIT(i2c2.reg_addr);
+  
+  VICVectAddr = 0x00000000;             // clear this interrupt from the VIC
+  ISR_EXIT();                           // recover registers and return
+}
+
+
+bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
+
+  uint8_t idx;
+  idx = p->trans_insert_idx + 1;
+  if (idx >= I2C_TRANSACTION_QUEUE_LEN) idx = 0;
+  if (idx == p->trans_extract_idx)
+    return FALSE;                          // queue full
+
+  t->status = I2CTransPending;
+
+  // disable irq
+  int_disable();
+  p->trans[p->trans_insert_idx] = t;
+  p->trans_insert_idx = idx;
+  /* if peripheral is idle, start the transaction */
+  if (p->status == I2CIdle)
+    I2cSendStart(p);
+  /* else it will be started by the interrupt handler when the previous transactions completes */
+  // enable irq
+  int_enable();
+  return TRUE;
+}
+
+#endif /* USE_I2C2 */
+
 

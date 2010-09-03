@@ -79,7 +79,7 @@
 #include "srf08.h"
 #endif
 
-#if defined USE_I2C0 || USE_I2C1
+#if defined USE_I2C0 || USE_I2C1 || USE_I2C2
 #include "i2c.h"
 #endif
 
@@ -739,6 +739,10 @@ void init_ap( void ) {
 
 #ifdef USE_I2C1
   i2c1_init();
+#endif
+
+#ifdef USE_I2C2
+  i2c2_init();
 #endif
 
 #ifdef USE_AIRSPEED_ETS

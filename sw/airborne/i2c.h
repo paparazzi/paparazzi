@@ -15,7 +15,8 @@ enum I2CTransactionStatus {
   I2CTransPending, 
   I2CTransRunning, 
   I2CTransSuccess, 
-  I2CTransFailed
+  I2CTransFailed,
+  I2CTransDone
 };
 
 enum I2CStatus { 
@@ -144,5 +145,42 @@ extern void i2c2_init(void);
 
 extern void   i2c_init(struct i2c_periph* p);
 extern bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t);
+
+#define I2CReceive(_p, _t, _s_addr, _len) { \
+  _t.type = I2CTransRx; \
+  _t.slave_addr = _s_addr; \
+  _t.len_r = _len; \
+  _t.len_w = 0; \
+  _t.stop_after_transmit = TRUE; \
+  i2c_submit(&(_p),&(_t)); \
+}
+
+#define I2CTransmit(_p, _t, _s_addr, _len) { \
+  _t.type = I2CTransTx; \
+  _t.slave_addr = _s_addr; \
+  _t.len_r = 0; \
+  _t.len_w = _len; \
+  _t.stop_after_transmit = TRUE; \
+  i2c_submit(&(_p),&(_t)); \
+}
+
+#define I2CTransmitNoStop(_p, _t, _s_addr, _len) { \
+  _t.type = I2CTransTx; \
+  _t.slave_addr = _s_addr; \
+  _t.len_r = 0; \
+  _t.len_w = _len; \
+  _t.stop_after_transmit = FALSE; \
+  i2c_submit(&(_p),&(_t)); \
+}
+
+#define I2CTransceive(_p, _t, _s_addr, _len_w, _len_r) { \
+  _t.type = I2CTransTxRx; \
+  _t.slave_addr = _s_addr; \
+  _t.len_r = _len_r; \
+  _t.len_w = _len_w; \
+  _t.stop_after_transmit = TRUE; \
+  i2c_submit(&(_p),&(_t)); \
+}
+
 
 #endif /* I2C_H */
