@@ -74,8 +74,8 @@ void i2c0_transceive(uint8_t slave_addr, uint8_t len_w, uint16_t len_r, volatile
 struct i2c_periph i2c1;
 
 void i2c1_init(void) {
-  i2c_init(&i2c2);
-  i2c2_hw_init();
+  i2c_init(&i2c1);
+  i2c1_hw_init();
 }
 
 #endif /* USE_I2C1 */

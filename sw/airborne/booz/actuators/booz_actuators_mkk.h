@@ -25,58 +25,20 @@
 #define BOOZ_ACTUATORS_MKK_H
 
 #include "std.h"
+#include "i2c.h"
 
-#ifndef ACTUATORS_MKK_DEVICE
-#define ACTUATORS_MKK_DEVICE i2c0
-#endif
+#include "airframe.h"
 
-#define __Device(dev, _z) dev##_##_z 
-#define  _Device(dev, _z) __Device(dev, _z)
-#define  Device( _z) _Device(ACTUATORS_MKK_DEVICE, _z)
-
-#define   DeviceBuf                    Device(buf)
-#define   DeviceTransmit(_x, _y, _z)   Device(transmit(_x, _y, _z))
-
-enum actuators_mkk_status {IDLE, BUSY};
 
 struct ActuatorsMkk {
-  volatile enum actuators_mkk_status status;
-  volatile bool_t  i2c_done;
-  volatile uint8_t idx;
+  struct i2c_transaction trans[ACTUATORS_MKK_NB];
 };
 
 extern struct ActuatorsMkk actuators_mkk; 
 
-#include "actuators/booz_actuators_mkk_arch.h"
-/* must be defined by underlying achitecture */
-extern void booz_actuators_mkk_arch_init(void);
 
 
-#include "airframe.h"
 #include "actuators/booz_supervision.h"
-extern const uint8_t actuators_addr[];
 
-
-#ifdef KILL_MOTORS
-#define ActuatorsMkkI2cHandler() {					\
-    actuators_mkk.idx++;						\
-    if (actuators_mkk.idx<ACTUATORS_MKK_NB) {				\
-      DeviceBuf[0] = 0;							\
-      DeviceTransmit(actuators_addr[actuators_mkk.idx], 1, &actuators_mkk.i2c_done); \
-    }									\
-    else								\
-      actuators_mkk.status = IDLE;					\
-  }
-#else /* KILL_MOTORS */
-#define ActuatorsMkkI2cHandler() {					\
-    actuators_mkk.idx++;						\
-    if (actuators_mkk.idx<ACTUATORS_MKK_NB) {				\
-      DeviceBuf[0] = supervision.commands[actuators_mkk.idx];		\
-      DeviceTransmit(actuators_addr[actuators_mkk.idx], 1, &actuators_mkk.i2c_done); \
-    }									\
-    else								\
-      actuators_mkk.status = IDLE;					\
-  }
-#endif /* KILL_MOTORS */
 
 #endif /* BOOZ_ACTUATORS_MKK_H */

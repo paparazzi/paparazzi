@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_actuators.h"
-#include "actuators/booz_actuators_mkk.h"
+#include "booz/booz_actuators.h"
+#include "booz/actuators/booz_actuators_mkk.h"
 
 #include "booz/booz2_commands.h"
 #include "i2c.h"
@@ -31,7 +31,6 @@
 
 struct ActuatorsMkk actuators_mkk;
 
-const uint8_t actuators_addr[ACTUATORS_MKK_NB] = ACTUATORS_MKK_ADDR;
 
 uint32_t actuators_delay_time;
 bool_t   actuators_delay_done;
@@ -39,10 +38,14 @@ bool_t   actuators_delay_done;
 void actuators_init(void) {
 
   supervision_init();
-  actuators_mkk.status = IDLE;
-  actuators_mkk.i2c_done = TRUE;
-  actuators_mkk.idx = 0;
-
+  const uint8_t actuators_addr[ACTUATORS_MKK_NB] = ACTUATORS_MKK_ADDR;
+  for (uint8_t i=0; i<ACTUATORS_MKK_NB; i++) {
+    actuators_mkk.trans[i].type = I2CTransTx;
+    actuators_mkk.trans[i].len_w = 1;
+    actuators_mkk.trans[i].slave_addr = actuators_addr[i];
+    actuators_mkk.trans[i].status = I2CTransSuccess;
+  }
+  
 #if defined BOOZ_START_DELAY && ! defined SITL
   actuators_delay_done = FALSE;
   SysTimeTimerStart(actuators_delay_time);
@@ -50,9 +53,7 @@ void actuators_init(void) {
   actuators_delay_done = TRUE;
   actuators_delay_time = 0;
 #endif
-
-  booz_actuators_mkk_arch_init();
-
+  
 }
 
 
@@ -65,15 +66,12 @@ void actuators_set(bool_t motors_on) {
 #endif
 
   supervision_run(motors_on, FALSE, booz2_commands);
-  actuators_mkk.status = BUSY;
-  actuators_mkk.i2c_done = FALSE;
-  actuators_mkk.idx = 0;
-  BoozActuatorsMkkArchSend();
+  for (uint8_t i=0; i<ACTUATORS_MKK_NB; i++) {
 #ifdef KILL_MOTORS
-  DeviceBuf[0] = 0;
+    actuators_mkk.trans[i].buf[0] = 0;
 #else
-  DeviceBuf[0] = supervision.commands[actuators_mkk.idx];
+    actuators_mkk.trans[i].buf[0] = supervision.commands[i];
 #endif
-  DeviceTransmit(actuators_addr[actuators_mkk.idx], 1, &actuators_mkk.i2c_done);
-
+    i2c_submit(&ACTUATORS_MKK_DEVICE, &actuators_mkk.trans[i]);
+  }
 }

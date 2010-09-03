@@ -21,9 +21,54 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef BOOZ_ACTUATORS_MKK_ARCH_H
-#define BOOZ_ACTUATORS_MKK_ARCH_H
 
-#define BoozActuatorsMkkArchSend() {}
+#include "init_hw.h"
+#include "sys_time.h"
+#include "led.h"
 
-#endif /* BOOZ_ACTUATORS_MKK_ARCH_H */
+#include "i2c.h"
+#include "booz/booz2_commands.h"
+#include "booz/booz_actuators.h"
+
+static inline void main_init( void );
+static inline void main_periodic_task( void );
+static inline void main_event_task( void );
+
+int main(void) {
+  main_init();
+
+  while(1) {
+    if (sys_time_periodic())
+      main_periodic_task();
+    main_event_task();
+  }
+
+  return 0;
+}
+
+static inline void main_init( void ) {
+  hw_init();
+  sys_time_init();
+  actuators_init();
+}
+
+
+
+static inline void main_periodic_task( void ) {
+  
+  booz2_commands[COMMAND_ROLL]=0;
+  booz2_commands[COMMAND_PITCH]=0;
+  booz2_commands[COMMAND_YAW]=0;
+  booz2_commands[COMMAND_THRUST]=1;
+
+  actuators_set(TRUE);
+
+  LED_PERIODIC();
+
+}
+
+
+
+static inline void main_event_task( void ) {
+
+}

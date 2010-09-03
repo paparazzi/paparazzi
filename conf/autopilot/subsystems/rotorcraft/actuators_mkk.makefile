@@ -28,7 +28,6 @@
 #
 ap.srcs += $(SRC_BOOZ)/actuators/booz_supervision.c
 ap.srcs += $(SRC_BOOZ)/actuators/booz_actuators_mkk.c
-ap.srcs += $(SRC_BOOZ_ARCH)/actuators/booz_actuators_mkk_arch.c
 ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 ifeq ($(ARCHI), arm7)
@@ -36,13 +35,12 @@ ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
 ap.CFLAGS += -DI2C0_STOP_HANDLER=ActuatorsMkkI2cHandler
 ap.CFLAGS += -DI2C0_STOP_HANDLER_HEADER=\"actuators/booz_actuators_mkk.h\"
 else ifeq ($(ARCHI), stm32) 
-ap.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1  -DUSE_TIM2_IRQ
+ap.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1
 ap.CFLAGS += -DUSE_I2C1
 endif
 
 # Simulator
 sim.srcs += $(SRC_BOOZ)/actuators/booz_supervision.c
 sim.srcs += $(SRC_BOOZ)/actuators/booz_actuators_mkk.c
-sim.srcs += $(SRC_BOOZ_SIM)/actuators/booz_actuators_mkk_arch.c
 sim.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
 sim.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c

@@ -1,31 +1,13 @@
-#include "booz_actuators.h"
-#include "actuators/booz_actuators_asctec.h"
+#include "booz/booz_actuators.h"
+#include "booz/actuators/booz_actuators_asctec.h"
 
 #ifdef ACTUATORS_ASCTEC_V2_PROTOCOL
-#include "actuators/booz_supervision.h"
+#include "booz/actuators/booz_supervision.h"
 #endif
 
-#include "booz2_commands.h"
+#include "booz/booz2_commands.h"
 #include "i2c.h"
 #include "sys_time.h"
-
-
-#ifndef ACTUATORS_ASCTEC_DEVICE
-#define ACTUATORS_ASCTEC_DEVICE i2c0
-#endif
-
-/*
- * Macros to generate i2cx_buf and i2cx_transmit from
- * ACTUATORS_ASCTEC_DEVICE
- *
- */
-#define __Device(dev, _z) dev##_##_z 
-#define  _Device(dev, _z) __Device(dev, _z)
-#define  Device( _z) _Device(ACTUATORS_ASCTEC_DEVICE, _z)
-
-#define   DeviceBuf                    Device(buf)
-#define   DeviceTransmit(_x, _y, _z)   Device(transmit(_x, _y, _z))
-
 
 
 struct ActuatorsAsctec actuators_asctec; 
@@ -38,6 +20,13 @@ void actuators_init(void) {
   actuators_asctec.cur_addr = FRONT;
   actuators_asctec.new_addr = FRONT;
   actuators_asctec.i2c_trans.status = I2CTransSuccess;
+  actuators_asctec.i2c_trans.type = I2CTransTx;
+  actuators_asctec.i2c_trans.slave_addr = 0x02;
+#ifdef ACTUATORS_ASCTEC_V2_PROTOCOL
+  actuators_asctec.i2c_trans.len_w = 5;
+#else
+  actuators_asctec.i2c_trans.len_w = 4;
+#endif
   actuators_asctec.nb_err = 0;
 
 #if defined BOOZ_START_DELAY && ! defined SITL
@@ -117,9 +106,7 @@ void actuators_set(bool_t motors_on) {
   }
   actuators_asctec.cmd = NONE;
 
-  i2c_submit(&i2c1,&actuators_asctec.i2c_trans);
-  //  actuators_asctec.i2c_done = FALSE;
-  //  DeviceTransmit(0x02, 4, &actuators_asctec.i2c_done);
+  i2c_submit(&ACTUATORS_ASCTEC_DEVICE, &actuators_asctec.i2c_trans);
 
 }
 #else /* ! ACTUATORS_ASCTEC_V2_PROTOCOL */
@@ -141,12 +128,7 @@ void actuators_set(bool_t motors_on) {
                                              actuators_asctec.i2c_trans.buf[2] + actuators_asctec.i2c_trans.buf[3];
 #endif
 
-  i2c_submit(&i2c1,&actuators_asctec.i2c_trans);
-
-  //  if (actuators_asctec.i2c_done) {
-  //actuators_asctec.i2c_done = FALSE;
-  //  DeviceTransmit(0x02, 5, &actuators_asctec.i2c_done);
-  //  }
+  i2c_submit(&ACTUATORS_ASCTEC_DEVICE, &actuators_asctec.i2c_trans);
   
 }
 #endif /* ACTUATORS_ASCTEC_V2_PROTOCOL */

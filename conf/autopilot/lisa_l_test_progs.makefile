@@ -414,3 +414,106 @@ test_adxl345.CFLAGS += -DUSE_DMA1_C4_IRQ # SPI2 Rx DMA
 
 
 
+#
+# simple test of mikrokopter motor controllers
+#
+test_esc_mkk_simple.ARCHDIR = $(ARCHI)
+test_esc_mkk_simple.TARGET = test_esc_mkk_simple
+test_esc_mkk_simple.TARGETDIR = test_esc_mkk_simple
+test_esc_mkk_simple.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_esc_mkk_simple.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_esc_mkk_simple.srcs = test/test_esc_mkk_simple.c	    \
+                           $(SRC_ARCH)/stm32_exceptions.c   \
+                           $(SRC_ARCH)/stm32_vector_table.c
+test_esc_mkk_simple.CFLAGS += -DUSE_LED
+test_esc_mkk_simple.srcs += $(SRC_ARCH)/led_hw.c
+test_esc_mkk_simple.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_esc_mkk_simple.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_esc_mkk_simple.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_esc_mkk_simple.CFLAGS += -DUSE_I2C1
+test_esc_mkk_simple.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+
+#
+# simple test of asctec v1 motor controllers
+#
+test_esc_asctecv1_simple.ARCHDIR = $(ARCHI)
+test_esc_asctecv1_simple.TARGET = test_esc_asctecv1_simple
+test_esc_asctecv1_simple.TARGETDIR = test_esc_asctecv1_simple
+test_esc_asctecv1_simple.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_esc_asctecv1_simple.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_esc_asctecv1_simple.srcs = test/test_esc_asctecv1_simple.c  \
+                                $(SRC_ARCH)/stm32_exceptions.c   \
+                                $(SRC_ARCH)/stm32_vector_table.c
+test_esc_asctecv1_simple.CFLAGS += -DUSE_LED
+test_esc_asctecv1_simple.srcs += $(SRC_ARCH)/led_hw.c
+test_esc_asctecv1_simple.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_esc_asctecv1_simple.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_esc_asctecv1_simple.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_esc_asctecv1_simple.CFLAGS += -DUSE_I2C1
+test_esc_asctecv1_simple.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+
+#
+# test actuators mkk
+#
+test_actuators_mkk.ARCHDIR = $(ARCHI)
+test_actuators_mkk.TARGET = test_actuators_mkk
+test_actuators_mkk.TARGETDIR = test_actuators_mkk
+test_actuators_mkk.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_actuators_mkk.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_actuators_mkk.srcs = test/test_actuators.c \
+                          $(SRC_ARCH)/stm32_exceptions.c   \
+                          $(SRC_ARCH)/stm32_vector_table.c
+
+test_actuators_mkk.CFLAGS += -DUSE_LED
+test_actuators_mkk.srcs += $(SRC_ARCH)/led_hw.c
+
+test_actuators_mkk.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_actuators_mkk.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_actuators_mkk.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_actuators_mkk.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_actuators_mkk.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_actuators_mkk.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_actuators_mkk.srcs += downlink.c pprz_transport.c
+
+test_actuators_mkk.srcs += $(SRC_BOOZ)/booz2_commands.c
+test_actuators_mkk.srcs += $(SRC_BOOZ)/actuators/booz_actuators_mkk.c
+test_actuators_mkk.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1
+test_actuators_mkk.srcs += $(SRC_BOOZ)/actuators/booz_supervision.c
+test_actuators_mkk.CFLAGS += -DUSE_I2C1
+test_actuators_mkk.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+#
+# test actuators asctecv1
+#
+test_actuators_asctecv1.ARCHDIR = $(ARCHI)
+test_actuators_asctecv1.TARGET = test_actuators_asctecv1
+test_actuators_asctecv1.TARGETDIR = test_actuators_asctecv1
+test_actuators_asctecv1.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_actuators_asctecv1.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_actuators_asctecv1.srcs = test/test_actuators.c            \
+                               $(SRC_ARCH)/stm32_exceptions.c   \
+                               $(SRC_ARCH)/stm32_vector_table.c
+
+test_actuators_asctecv1.CFLAGS += -DUSE_LED
+test_actuators_asctecv1.srcs += $(SRC_ARCH)/led_hw.c
+
+test_actuators_asctecv1.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_actuators_asctecv1.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_actuators_asctecv1.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_actuators_asctecv1.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_actuators_asctecv1.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_actuators_asctecv1.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_actuators_asctecv1.srcs += downlink.c pprz_transport.c
+
+test_actuators_asctecv1.srcs += $(SRC_BOOZ)/booz2_commands.c
+test_actuators_asctecv1.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
+test_actuators_asctecv1.srcs += $(SRC_BOOZ)/actuators/booz_actuators_asctec.c
+test_actuators_asctecv1.CFLAGS += -DUSE_I2C1
+test_actuators_asctecv1.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+

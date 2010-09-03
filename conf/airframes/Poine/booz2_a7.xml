@@ -211,7 +211,11 @@
     <target name="test_adc"         board="lisa_l_1.0"/>
     <target name="test_hmc5843"     board="lisa_l_1.0"/>
     <target name="test_itg3200"     board="lisa_l_1.0"/>
-    <target name="test_adxl345"     board="lisa_l_1.0"/>
+    <target name="test_adxl345"             board="lisa_l_1.0"/>
+    <target name="test_esc_mkk_simple"      board="lisa_l_1.0"/>
+    <target name="test_esc_asctecv1_simple" board="lisa_l_1.0"/>
+    <target name="test_actuators_mkk"       board="lisa_l_1.0"/>
+    <target name="test_actuators_asctecv1"  board="lisa_l_1.0"/>
   </firmware>
 
   <firmware name="lisa_passthrough">
@@ -229,10 +233,5 @@
       <subsystem name="imu" type="b2_v1.1"/>
  </firmware>
 
- <makefile>
-
-#include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
-
- </makefile>
 
 </airframe>

@@ -5,18 +5,6 @@
 #include <stm32/flash.h>
 #include <stm32/misc.h>
 
-#define ZEROS_ERR_COUNTER(_i2c_err) {			\
-    _i2c_err.ack_fail_cnt = 0;				\
-    _i2c_err.miss_start_stop_cnt = 0;			\
-    _i2c_err.arb_lost_cnt = 0;				\
-    _i2c_err.over_under_cnt = 0;			\
-    _i2c_err.pec_recep_cnt = 0;				\
-    _i2c_err.timeout_tlow_cnt = 0;			\
-    _i2c_err.smbus_alert_cnt = 0;			\
-    _i2c_err.unexpected_event_cnt = 0;			\
-    _i2c_err.last_unexpected_event = 0;			\
-    _i2c_err.er_irq_cnt = 0;				\
-  }
 
 static void start_transaction(struct i2c_periph* p);
 
@@ -52,8 +40,8 @@ struct i2c_errors i2c1_errors;
   }
 
 #define I2C1_ABORT_AND_RESET() {					\
-    struct i2c_transaction* trans = i2c1.trans[i2c1.trans_extract_idx];	\
-    trans->status = I2CTransFailed;					\
+    struct i2c_transaction* trans2 = i2c1.trans[i2c1.trans_extract_idx]; \
+    trans2->status = I2CTransFailed;					\
     i2c1.status = I2CFailed;						\
     I2C_ITConfig(I2C1, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);	\
     I2C_Cmd(I2C1, DISABLE);						\
@@ -130,7 +118,7 @@ void i2c1_hw_init(void) {
 void i2c1_ev_irq_handler(void) {
 
   uint32_t event = I2C_GetLastEvent(I2C1);
-  struct i2c_transaction* trans = i2c2.trans[i2c2.trans_extract_idx];
+  struct i2c_transaction* trans = i2c1.trans[i2c1.trans_extract_idx];
   switch (event) {
     /* EV5 */
   case I2C_EVENT_MASTER_MODE_SELECT:        
@@ -321,7 +309,7 @@ void i2c2_hw_init(void) {
   I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);
 
   //  DEBUG_SERVO1_INIT();
-  DEBUG_SERVO2_INIT();
+  //  DEBUG_SERVO2_INIT();
 
 }
 
@@ -590,14 +578,14 @@ static inline void on_status_restart_requested(struct i2c_transaction* trans, ui
 }
 
 void i2c2_ev_irq_handler(void) {
-  DEBUG_S4_ON();
+  //  DEBUG_S4_ON();
   uint32_t event = I2C_GetLastEvent(I2C2);
   struct i2c_transaction* trans = i2c2.trans[i2c2.trans_extract_idx];
   //#if 0
   //  if (i2c2_errors.irq_cnt < 16) {
-  i2c2_errors.event_chain[i2c2_errors.irq_cnt] = event;
-  i2c2_errors.status_chain[i2c2_errors.irq_cnt] = i2c2.status;
-  i2c2_errors.irq_cnt++;
+  //  i2c2_errors.event_chain[i2c2_errors.irq_cnt] = event;
+  //  i2c2_errors.status_chain[i2c2_errors.irq_cnt] = i2c2.status;
+  //  i2c2_errors.irq_cnt++;
   //  } else { while (1);}
   //#endif
   switch (i2c2.status) {
@@ -646,7 +634,7 @@ void i2c2_ev_irq_handler(void) {
     OUT_OF_SYNC_STATE_MACHINE(i2c2.status, event);
     break;
   }
-  DEBUG_S4_OFF();
+  //  DEBUG_S4_OFF();
 }
 
 
@@ -725,7 +713,7 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
 static void start_transaction(struct i2c_periph* p) {
   p->idx_buf = 0;
   p->status = I2CStartRequested;
-  I2C_ZERO_EVENTS();
+  //  I2C_ZERO_EVENTS();
   I2C_ITConfig(p->reg_addr, I2C_IT_EVT, ENABLE);
   I2C_GenerateSTART(p->reg_addr, ENABLE);
 }

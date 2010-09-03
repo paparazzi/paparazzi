@@ -21,20 +21,52 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef BOOZ_ACTUATORS_MKK_ARCH_H
-#define BOOZ_ACTUATORS_MKK_ARCH_H
 
-#include <stm32/tim.h>
-#include <stm32/gpio.h>
+#include "init_hw.h"
+#include "sys_time.h"
+#include "led.h"
 
+#include "i2c.h"
 
+static inline void main_init( void );
+static inline void main_periodic_task( void );
+static inline void main_event_task( void );
 
+static struct i2c_transaction trans;
 
-#define BoozActuatorsMkkArchSend() {		\
-    /*DEBUG5_T();*/				\
-    TIM_SetCounter(TIM2, 0);			\
-    TIM_ClearITPendingBit(TIM2, TIM_IT_Update); \
-    TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);	\
+int main(void) {
+  main_init();
+
+  while(1) {
+    if (sys_time_periodic())
+      main_periodic_task();
+    main_event_task();
   }
 
-#endif /* BOOZ_ACTUATORS_MKK_ARCH_H */
+  return 0;
+}
+
+static inline void main_init( void ) {
+  hw_init();
+  sys_time_init();
+}
+
+
+
+static inline void main_periodic_task( void ) {
+  
+  trans.type = I2CTransTx;
+  trans.buf[0] = 0x04;
+  trans.len_w = 1;
+  trans.slave_addr = 0x58;
+  i2c_submit(&i2c1,&trans);
+
+  LED_PERIODIC();
+
+}
+
+
+
+static inline void main_event_task( void ) {
+
+}

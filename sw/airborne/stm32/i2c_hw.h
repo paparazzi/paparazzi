@@ -52,12 +52,6 @@ extern void i2c2_hw_init(void);
 extern void i2c2_ev_irq_handler(void);
 extern void i2c2_er_irq_handler(void);
 
-#include <string.h>
-#define I2C_ZERO_EVENTS() {						\
-    i2c2_errors.irq_cnt = 0;						\
-    memset((void*)i2c2_errors.event_chain, 0, sizeof(i2c2_errors.event_chain)); \
-    memset((void*)i2c2_errors.status_chain, 0, sizeof(i2c2_errors.status_chain)); \
-  }
 
 #endif /* USE_I2C2 */
 

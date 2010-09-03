@@ -26,11 +26,13 @@
 #include "sys_time.h"
 #include "led.h"
 
+#include "i2c.h"
+
 static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void );
 
-static uint8_t i2c_done;
+static struct i2c_transaction trans;
 
 int main(void) {
   main_init();
@@ -53,8 +55,14 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
   
-  i2c1_buf[0] = 0x04;
-  i2c1_transmit(0x58, 1, &i2c_done);
+  trans.type = I2CTransTx;
+  trans.slave_addr = 0x02;
+  trans.len_w = 4;
+  trans.buf[0] = 100;
+  trans.buf[1] = 100;
+  trans.buf[2] = 100;
+  trans.buf[3] = 1;
+  i2c_submit(&i2c1,&trans);
 
   LED_PERIODIC();
 
