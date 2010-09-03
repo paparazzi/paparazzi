@@ -164,3 +164,35 @@ test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
 test_rc_ppm.srcs   += $(SRC_BOOZ)/booz_radio_control.c \
                       $(SRC_BOOZ)/radio_control/booz_radio_control_ppm.c \
                       $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_ppm_arch.c
+
+
+#
+# test actuators mkk
+#
+test_actuators_mkk.ARCHDIR = $(ARCHI)
+test_actuators_mkk.ARCH      = arm7tdmi
+test_actuators_mkk.TARGET = test_actuators_mkk
+test_actuators_mkk.TARGETDIR = test_actuators_mkk
+test_actuators_mkk.CFLAGS = -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_actuators_mkk.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_actuators_mkk.srcs = test/test_actuators.c \
+                          $(SRC_ARCH)/armVIC.c
+
+test_actuators_mkk.CFLAGS += -DUSE_LED
+
+test_actuators_mkk.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
+test_actuators_mkk.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_actuators_mkk.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_actuators_mkk.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_actuators_mkk.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_actuators_mkk.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT) 
+test_actuators_mkk.srcs += downlink.c pprz_transport.c
+
+test_actuators_mkk.srcs += $(SRC_BOOZ)/booz2_commands.c
+test_actuators_mkk.srcs += $(SRC_BOOZ)/actuators/booz_actuators_mkk.c
+test_actuators_mkk.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c0
+test_actuators_mkk.srcs += $(SRC_BOOZ)/actuators/booz_supervision.c
+test_actuators_mkk.CFLAGS += -DUSE_I2C0
+test_actuators_mkk.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c

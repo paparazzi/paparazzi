@@ -15,7 +15,7 @@ void ami601_init( void ) {
   for (i=0; i< AMI601_NB_CHAN; i++) {
     ami601_values[i] = 0;
   }
-  ami601_i2c_done = TRUE;
+  ami601_i2c_trans.status = I2CTransSuccess;
   ami601_nb_err = 0;
   ami601_status = AMI601_IDLE;
 
@@ -27,11 +27,13 @@ void ami601_read( void ) {
     ami601_nb_err++;
   }
   else {
-    ami601_i2c_done = FALSE;
     ami601_status = AMI601_SENDING_REQ;
-    i2c1_buf[0] = 0x55;
-    i2c1_buf[1] = 0xAA;
-    i2c1_buf[2] = 0x14;
-    i2c1_transmit(AMI601_SLAVE_ADDR, 3, &ami601_i2c_done);
+    ami601_i2c_trans.type = I2CTransTx;
+    ami601_i2c_trans.len_w = 3;
+    ami601_i2c_trans.slave_addr = AMI601_SLAVE_ADDR;
+    ami601_i2c_trans.buf[0] = 0x55;
+    ami601_i2c_trans.buf[1] = 0xAA;
+    ami601_i2c_trans.buf[2] = 0x14;
+    i2c_submit(&i2c1, &ami601_i2c_trans);
   }
 }

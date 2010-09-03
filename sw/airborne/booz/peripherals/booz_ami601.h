@@ -36,7 +36,7 @@ extern volatile uint32_t ami601_nb_err;
 #define AMI601Event(_handler) {						\
     switch (ami601_status) {						\
     case AMI601_SENDING_REQ :						\
-      if ( ami601_i2c_done ) {						\
+      if ( ami601_i2c_trans.status == I2CTransSuccess ) {		\
 	/* trigger delay for measurement */				\
 	T0MR1 = T0TC + SYS_TICS_OF_USEC(12288);				\
 	/* clear match 1 interrupt */					\
@@ -47,14 +47,14 @@ extern volatile uint32_t ami601_nb_err;
       }									\
       break;								\
     case AMI601_READING_MEASURE :					\
-      if ( ami601_i2c_done ) {						\
-	ami601_foo1 = i2c1_buf[0]; /* AA ?  */				\
-	ami601_foo2 = i2c1_buf[1]; /* 55 ?  */				\
-	ami601_foo3 = i2c1_buf[2]; /* ERR ? */				\
+      if ( ami601_i2c_trans.status == I2CTransSuccess ) {		\
+	ami601_foo1 = ami601_i2c_trans.buf[0]; /* AA ?  */		\
+	ami601_foo2 = ami601_i2c_trans.buf[1]; /* 55 ?  */		\
+	ami601_foo3 = ami601_i2c_trans.buf[2]; /* ERR ? */		\
 	uint8_t i;							\
 	for (i=0; i< AMI601_NB_CHAN; i++) {				\
-	  ami601_values[i] = i2c1_buf[3 + 2 * i];			\
-	  ami601_values[i] += i2c1_buf[3 + 2 * i + 1] * 256;		\
+	  ami601_values[i] = ami601_i2c_trans.buf[3 + 2 * i];		\
+	  ami601_values[i] += ami601_i2c_trans.buf[3 + 2 * i + 1] * 256; \
 	}								\
 	ami601_status = AMI601_DATA_AVAILABLE;				\
 	_handler();							\
@@ -67,9 +67,11 @@ extern volatile uint32_t ami601_nb_err;
 #define AMI601_IT TIR_MR1I
 #define AMI601_ISR()  AMI601ReadMeasure()
 #define AMI601ReadMeasure() {						\
-    ami601_i2c_done = FALSE;						\
     ami601_status =  AMI601_READING_MEASURE;				\
-    i2c1_receive(AMI601_SLAVE_ADDR, 15, &ami601_i2c_done);		\
+    ami601_i2c_trans.type = I2CTransRx;					\
+    ami601_i2c_trans.len_r = 15;					\
+    ami601_i2c_trans.slave_addr = AMI601_SLAVE_ADDR;			\
+    i2c_submit(&i2c1, &ami601_i2c_trans);				\
   }
 
 #endif /* AMI601_H */
