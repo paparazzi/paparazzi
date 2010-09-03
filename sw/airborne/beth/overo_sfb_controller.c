@@ -3,6 +3,7 @@
 #include "overo_estimator.h"
 #include "std.h"
 #include "stdio.h"
+#include "stdlib.h"
 
 #include "messages2.h"
 #include "overo_gcs_com.h"
@@ -17,8 +18,6 @@ void control_send_messages(void) {
 			&_CO.tilt_sp);});
 
 }
-
-
 
 
 void control_init(void) {
@@ -37,6 +36,20 @@ void control_init(void) {
 
   _CO.cmd_pitch = 0.;
   _CO.cmd_thrust = 0.;
+  
+  _CO.a = 0.03;
+  _CO.b = 0.27;
+  _CO.u_t_ref = 40;
+  
+  /*omegas - natural frequencies*/
+  _CO.o_tilt = RadOfDeg(100);
+  _CO.o_elev = RadOfDeg(100);
+  _CO.o_azim = RadOfDeg(100);
+
+  /*zetas - damping ratios*/
+  _CO.z_tilt = 1;
+  _CO.z_elev = 1;
+  _CO.z_azim = 1;  
 
   _CO.armed = 0;
 }
@@ -64,30 +77,30 @@ void control_run(void) {
    *  Compute state feedback
    */
 
-  _CO.cmd_pitch =  1;
-    estimator.azimuth   
+  _CO.cmd_pitch = -1*( -1*
+    err_azimuth   
       * ( _CO.o_tilt * _CO.o_tilt * _CO.o_azim * _CO.o_azim * cos(estimator.tilt) ) 
       / ( _CO.b * _CO.a * _CO.u_t_ref) +
-    estimator.elevation    
+    err_elevation    
       * ( _CO.o_tilt * _CO.o_tilt * _CO.o_elev * _CO.o_elev * sin(estimator.tilt) ) 
       / ( _CO.b * _CO.a * _CO.u_t_ref) -
-    estimator.tilt         
-      * ( _CO.o_tilt * _CO.o_tilt ) / ( _CO.b ) +
-    estimator.azimuth_dot  
+    err_tilt         
+      * ( _CO.o_tilt * _CO.o_tilt ) / ( _CO.b ) -//+
+    err_azimuth_dot  
       * ( _CO.o_tilt * _CO.o_tilt * 2 * _CO.z_azim * _CO.o_azim * cos(estimator.tilt) ) 
       / ( _CO.b * _CO.a * _CO.u_t_ref) +
-    estimator.elevation_dot 
+    err_elevation_dot 
       * ( _CO.o_tilt * _CO.o_tilt * 2 * _CO.z_elev * _CO.o_elev * sin(estimator.tilt) ) 
       / ( _CO.b * _CO.a * _CO.u_t_ref) -
-    estimator.tilt_dot 
+    err_tilt_dot 
       * ( 2 * _CO.o_tilt * _CO.z_tilt ) 
-      / ( _CO.b ) ;
+      / ( _CO.b ) );
  
   _CO.cmd_thrust = 
-    estimator.azimuth           * _CO.o_azim * _CO.o_azim * sin(estimator.tilt) / _CO.a + 
-    estimator.elevation         * _CO.o_elev * _CO.o_elev * cos(estimator.tilt) / _CO.a + 
-    estimator.azimuth_dot   * 2 * _CO.z_azim * _CO.o_azim * sin(estimator.tilt) / _CO.a -
-    estimator.elevation_dot * 2 * _CO.z_elev * _CO.o_elev * cos(estimator.tilt) / _CO.a  ;
+    err_azimuth           * _CO.o_azim * _CO.o_azim * sin(estimator.tilt) / _CO.a - 
+    err_elevation         * _CO.o_elev * _CO.o_elev * cos(estimator.tilt) / _CO.a + 
+    err_azimuth_dot   * 2 * _CO.z_azim * _CO.o_azim * sin(estimator.tilt) / _CO.a -
+    err_elevation_dot * 2 * _CO.z_elev * _CO.o_elev * cos(estimator.tilt) / _CO.a  ;
 
   _CO.cmd_thrust = _CO.cmd_thrust*(1/cos(estimator.elevation));
 
@@ -96,7 +109,7 @@ void control_run(void) {
   Bound(_CO.cmd_pitch,-100,100);
 
   if (!(foo%100)) {
-    //printf("%f %f %f\n",_CO.tilt_ref,_CO.tilt_dot_ref,_CO.tilt_ddot_ref);
+    printf("P:%f T:%f \n",_CO.cmd_pitch,_CO.cmd_thrust);
   }
   foo++; 
 
