@@ -6,7 +6,7 @@ uint8_t ami601_foo3;
 uint16_t ami601_values[AMI601_NB_CHAN];
 
 volatile uint8_t ami601_status;
-volatile bool_t ami601_i2c_done;
+struct i2c_transaction  ami601_i2c_trans;
 volatile uint32_t ami601_nb_err;
 
 void ami601_init( void ) {

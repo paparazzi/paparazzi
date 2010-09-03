@@ -22,7 +22,7 @@ extern uint8_t ami601_foo3;
 #define AMI601_READING_MEASURE 3
 #define AMI601_DATA_AVAILABLE  4
 extern volatile uint8_t  ami601_status;
-extern volatile bool_t   ami601_i2c_done;
+extern struct i2c_transaction  ami601_i2c_trans;
 extern volatile uint32_t ami601_nb_err;
 
 #define AMI601_SLAVE_ADDR 0x60

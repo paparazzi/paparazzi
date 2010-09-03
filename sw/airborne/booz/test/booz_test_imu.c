@@ -86,7 +86,7 @@ static inline void main_periodic_task( void ) {
 			       &i2c2_errors.last_unexpected_event);
     });
 #endif
-  booz_imu_periodic();
+  if (cpu_time_sec > 1) booz_imu_periodic();
   RunOnceEvery(10, { LED_PERIODIC();});
 }
 

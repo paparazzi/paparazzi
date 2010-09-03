@@ -239,7 +239,8 @@ void exti15_10_irq_handler(void) {
   imu_aspirin.i2c_trans_gyro.slave_addr = ITG3200_ADDR;
   imu_aspirin.i2c_trans_gyro.len_w = 1;
   imu_aspirin.i2c_trans_gyro.len_r = 6;
-  if (!i2c_submit(&i2c2,&imu_aspirin.i2c_trans_gyro)) while(1);
+  //  if (!i2c_submit(&i2c2,&imu_aspirin.i2c_trans_gyro)) while(1);
+  i2c_submit(&i2c2,&imu_aspirin.i2c_trans_gyro);
   imu_aspirin.status = AspirinStatusReadingGyro;
 
 }

@@ -31,9 +31,8 @@ ap.srcs += $(SRC_BOOZ)/actuators/booz_actuators_mkk.c
 ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 ifeq ($(ARCHI), arm7)
+ap.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c0
 ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
-ap.CFLAGS += -DI2C0_STOP_HANDLER=ActuatorsMkkI2cHandler
-ap.CFLAGS += -DI2C0_STOP_HANDLER_HEADER=\"actuators/booz_actuators_mkk.h\"
 else ifeq ($(ARCHI), stm32) 
 ap.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1
 ap.CFLAGS += -DUSE_I2C1

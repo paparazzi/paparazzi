@@ -90,6 +90,20 @@ static void configure_mag(void) {
 
 }
 
+
+static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
+  uint8_t max_retry = 8;
+  uint8_t nb_retry = 0;
+  do {
+    i2c_submit(&i2c2,&t);
+    while (t.status == I2CTransPending || t.status == I2CTransRunning);
+    if (t.status == I2CTransFailed)
+      nb_retry++;
+  }
+  while (t.status != I2CTransSuccess || nb_retry < max_retry); 
+}
+
+
 static void configure_accel(void) {
 
   /* set data rate to 800Hz */
