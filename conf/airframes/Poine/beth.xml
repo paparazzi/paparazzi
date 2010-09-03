@@ -319,7 +319,8 @@ overo_sfb.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_
 overo_sfb.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
 overo_sfb.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
 overo_sfb.srcs    += $(SRC_FMS)/fms_network.c
-overo_sfb.LDFLAGS += -levent -lm
+overo_sfb.LDFLAGS += -levent 
+overo_sfb.LDFLAGS += -lm
 
 overo_sfb.srcs    += $(SRC_BETH)/overo_gcs_com.c
 overo_sfb.srcs    += $(SRC_BETH)/overo_file_logger.c

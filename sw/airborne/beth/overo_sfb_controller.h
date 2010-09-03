@@ -32,9 +32,15 @@ struct OveroController {
 
   float u_t_ref;
 
+  float cmd_sfb_pitch;
+  float cmd_sfb_thrust;
+
+  float cmd_df_pitch;
+  float cmd_df_thrust;
+  
   float cmd_pitch;
   float cmd_thrust;
-
+    
   int armed;
 };
 
@@ -44,5 +50,7 @@ extern struct OveroController controller;
 extern void control_init(void);
 extern void control_send_messages(void);
 extern void control_run(void);
+void calc_df_cmd(void);
+void calc_sfb_cmd(void);
 
 #endif /* OVERO_CONTROLLER_H */

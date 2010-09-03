@@ -12,10 +12,14 @@
 
 struct OveroController _CO;
 
+#define GAIN (2.)
+
+static float z2=0, z3=-GAIN, z4=0;
+
 void control_send_messages(void) {
 
   RunOnceEvery(15, {DOWNLINK_SEND_BETH_CONTROLLER_SFB(gcs_com.udp_transport,
-			&_CO.tilt_sp);});
+			&_CO.tilt_sp,&z2,&z3,&z4);});
 
 }
 
@@ -34,11 +38,17 @@ void control_init(void) {
   _CO.elevation_dot_ref = 0;
   _CO.azimuth_dot_ref = 0.;
 
+  _CO.cmd_sfb_pitch = 0.;
+  _CO.cmd_sfb_thrust = 0.;
+
+  _CO.cmd_df_pitch = 0.;
+  _CO.cmd_df_thrust = 0.;
+  
   _CO.cmd_pitch = 0.;
   _CO.cmd_thrust = 0.;
-  
-  _CO.a = 0.03;
-  _CO.b = 0.27;
+      
+  _CO.a = 0.03;//theoretical=19.62
+  _CO.b = 0.27;//theoretical=157.21
   _CO.u_t_ref = 40;
   
   /*omegas - natural frequencies*/
@@ -59,7 +69,59 @@ void control_init(void) {
 void control_run(void) {
 
   static int foo=0;
+  
+  calc_df_cmd();
+  
+  _CO.u_t_ref = _CO.cmd_df_thrust;
 
+  calc_sfb_cmd();
+  
+  _CO.cmd_pitch = _CO.cmd_sfb_pitch ;//+ _CO.cmd_df_pitch;
+  _CO.cmd_thrust = _CO.cmd_sfb_thrust + _CO.cmd_df_thrust;
+
+  if (!(foo%100)) {
+    printf("P:%f T:%f \n",_CO.cmd_df_pitch,_CO.cmd_df_thrust);
+  }
+  foo++; 
+  
+  Bound(_CO.cmd_thrust,0,100);
+  Bound(_CO.cmd_pitch,-100,100);   
+
+}
+
+void calc_df_cmd(void) {
+  
+  static uint32_t timecnt = 0;
+  static float time = 0;
+
+  const float dt = 1./512.;
+  const float g = 9.8;
+  const float freq = 1./(2. * 3.14159);
+  float x2,x3,x4;
+  const float const1 = 9.8/20.;
+  const float const2 = 1.;
+  
+  if (_CO.armed)
+    time = timecnt++ * dt;
+  
+  x2 = 0.;
+  x3 = 0.;
+  x4 = 0.;
+  
+  z2 = z2 + z3*dt ; 
+  z3 = z3 + z4*dt ;
+  z4 = GAIN*sin (2 * 3.14159 * freq * time); 
+
+  _CO.cmd_df_thrust = (1/const1) * sqrt( powf( x2,2) + powf( (z2 + g) ,2) ) ;
+  _CO.cmd_df_pitch  = (1/const2) * 
+    ( ( x4*(z2+1) - z4*x2 )*( powf(z2 + g,2) + powf(x2,2) ) - ( 2 * (z2 + g) * z3 + 2*x2*x3 ) * ( x3*(z2+g)-z3*x2 ) ) /
+    powf( ( powf(z2+g,2) + powf(x2,2) ) , 2);
+    
+  Bound(_CO.cmd_df_thrust,0,100);
+  Bound(_CO.cmd_df_pitch,-100,100);    
+}
+
+void calc_sfb_cmd(void) {
   /*
    *  calculate errors
    */
@@ -77,7 +139,7 @@ void control_run(void) {
    *  Compute state feedback
    */
 
-  _CO.cmd_pitch = -1*( -1*
+  _CO.cmd_sfb_pitch = -1*( -1*
     err_azimuth   
       * ( _CO.o_tilt * _CO.o_tilt * _CO.o_azim * _CO.o_azim * cos(estimator.tilt) ) 
       / ( _CO.b * _CO.a * _CO.u_t_ref) +
@@ -96,22 +158,15 @@ void control_run(void) {
       * ( 2 * _CO.o_tilt * _CO.z_tilt ) 
       / ( _CO.b ) );
  
-  _CO.cmd_thrust = 
+  _CO.cmd_sfb_thrust = 
     err_azimuth           * _CO.o_azim * _CO.o_azim * sin(estimator.tilt) / _CO.a - 
     err_elevation         * _CO.o_elev * _CO.o_elev * cos(estimator.tilt) / _CO.a + 
     err_azimuth_dot   * 2 * _CO.z_azim * _CO.o_azim * sin(estimator.tilt) / _CO.a -
     err_elevation_dot * 2 * _CO.z_elev * _CO.o_elev * cos(estimator.tilt) / _CO.a  ;
 
-  _CO.cmd_thrust = _CO.cmd_thrust*(1/cos(estimator.elevation));
+  _CO.cmd_sfb_thrust = _CO.cmd_sfb_thrust*(1/cos(estimator.elevation));
 
   //if (_CO.cmd_thrust<0.) _CO.cmd_thrust = 0;
-  Bound(_CO.cmd_thrust,0,100);
-  Bound(_CO.cmd_pitch,-100,100);
-
-  if (!(foo%100)) {
-    printf("P:%f T:%f \n",_CO.cmd_pitch,_CO.cmd_thrust);
-  }
-  foo++; 
-
+  Bound(_CO.cmd_sfb_thrust,0,100);
+  Bound(_CO.cmd_sfb_pitch,-100,100);
 }
-
