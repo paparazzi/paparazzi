@@ -77,5 +77,6 @@ extern void control_init(void);
 extern void control_send_messages(void);
 extern void control_run(void);
 float get_U_twt(void);
+float get_U_twt2(void);
 
 #endif /* OVERO_TWIST_CONTROLLER_H */
