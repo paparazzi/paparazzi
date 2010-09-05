@@ -101,7 +101,7 @@ void control_run(void) {
   const float thrust_constant = 40.;
 
   //make setpoint a cosine ; for testing  
-  float new_sp = controller.tilt_sp * cos(6.28/10.*foo/512.);
+  float new_sp = controller.tilt_sp * cos(6.28/5.*foo/512.);
   
   controller.tilt_ref = controller.tilt_ref + controller.tilt_dot_ref * dt_ctl;
   controller.tilt_dot_ref = controller.tilt_dot_ref + controller.tilt_ddot_ref * dt_ctl;
@@ -165,8 +165,8 @@ void control_run(void) {
 
   controller.cmd_thrust = get_U_twt2();
 //  controller.cmd_thrust = controller.cmd_thrust_ff + controller.cmd_thrust_fb + thrust_constant;
-
-  controller.cmd_thrust = controller.cmd_thrust*(1/cos(estimator.elevation));
+  //not needed as twisting doesn't care about this nonlinearity
+//  controller.cmd_thrust = controller.cmd_thrust*(1/cos(estimator.elevation));
 
   //if (controller.cmd_thrust<0.) controller.cmd_thrust = 0;
   Bound(controller.cmd_thrust,0,100);
@@ -176,7 +176,7 @@ void control_run(void) {
     //printf("pitch : ff:%f fb:%f (%f)\n",controller.cmd_pitch_ff, controller.cmd_pitch_fb,estimator.tilt_dot);
     //printf("thrust: ff:%f fb:%f (%f %f)\n",controller.cmd_thrust_ff, controller.cmd_thrust_fb,estimator.elevation,estimator.elevation_dot);
     //printf("%f %f %f\n",controller.tilt_ref,controller.tilt_dot_ref,controller.tilt_ddot_ref);
-    printf("t: %f\n",controller.cmd_thrust);
+    //printf("t: %f\n",controller.cmd_thrust);
   }
   foo++; 
 
@@ -189,7 +189,7 @@ float get_U_twt()
 { 
 
 	/**Definition des constantes du modèle**/
-	const float Gain = -45;
+	const float Gain = -65;
 	const float Te = 1/512.;
 
 	/**Variables utilisés par la loi de commande**/
@@ -272,7 +272,7 @@ float get_U_twt2()
 { 
 
 	/**Definition des constantes du modèle**/
-	const float Gain = 600.;
+	const float Gain = 800.;
 	const float Te = 1/512.;
 
 	/**Variables utilisés par la loi de commande**/
@@ -349,7 +349,23 @@ float get_U_twt2()
 	y2[0] = y2[1];
 	 
 	S2[0] = S2[1];
+	
+#define NUMSAMPS (1000)	
+	float retval = Gain * U2_twt[1];
 
-	return Gain * U2_twt[1];
+	static int sum = 0;
+	static int i = 0;
+
+	sum = sum + retval;
+	 
+        if (i == (NUMSAMPS-1)) {
+		i = 0;
+		printf("avg: %f\n",sum/(float)NUMSAMPS);
+		sum = 0;
+	} else {
+		i++;
+	}
+	
+	return retval;
 
 }
