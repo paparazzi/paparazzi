@@ -360,15 +360,15 @@ struct FloatRates {
 
 #define FLOAT_QUAT_NORM(_q) (sqrtf(SQUARE(_q.qi) + SQUARE(_q.qx)+	\
 				   SQUARE(_q.qy) + SQUARE(_q.qz)))	\
-
+    
 #define FLOAT_QUAT_NORMALISE(q) {		                        \
     float norm = FLOAT_QUAT_NORM(q);					\
-	  if (norm > FLT_MIN) {						 \
-      q.qi = q.qi / norm;							\
-      q.qx = q.qx / norm;							\
-      q.qy = q.qy / norm;							\
-      q.qz = q.qz / norm;							\
-		}																	\
+    if (norm > FLT_MIN) {						\
+	    q.qi = q.qi / norm;						\
+      q.qx = q.qx / norm;						\
+      q.qy = q.qy / norm;						\
+      q.qz = q.qz / norm;						\
+	  }								\
   }
 
 #define FLOAT_QUAT_INVERT(_qo, _qi) QUAT_INVERT(_qo, _qi)
@@ -380,9 +380,9 @@ struct FloatRates {
 
 /* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
 #define FLOAT_QUAT_COMP_NORM_SHORTEST(_a2c, _a2b, _b2c) {		\
-		FLOAT_QUAT_COMP(_a2c, _a2b, _b2c);										\
-		FLOAT_QUAT_WRAP_SHORTEST(_a2c);												\
-		FLOAT_QUAT_NORMALISE(_a2c);														\
+    FLOAT_QUAT_COMP(_a2c, _a2b, _b2c);					\
+    FLOAT_QUAT_WRAP_SHORTEST(_a2c);					\
+    FLOAT_QUAT_NORMALISE(_a2c);						\
   }
 
 /* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
@@ -396,10 +396,10 @@ struct FloatRates {
 #define FLOAT_QUAT_MULT(_a2c, _a2b, _b2c) FLOAT_QUAT_COMP(_a2c, _a2b, _b2c)
 
 /* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
-#define FLOAT_QUAT_COMP_INV_NORM_SHORTEST(_a2b, _a2c, _b2c) {				\
-		FLOAT_QUAT_COMP_INV(_a2b, _a2c, _b2c); 													\
-		FLOAT_QUAT_WRAP_SHORTEST(_a2b);																	\
-		FLOAT_QUAT_NORMALISE(_a2b);																			\
+#define FLOAT_QUAT_COMP_INV_NORM_SHORTEST(_a2b, _a2c, _b2c) {		\
+    FLOAT_QUAT_COMP_INV(_a2b, _a2c, _b2c);				\
+    FLOAT_QUAT_WRAP_SHORTEST(_a2b);					\
+    FLOAT_QUAT_NORMALISE(_a2b);						\
   }
 
 /* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
@@ -411,11 +411,11 @@ struct FloatRates {
   }
 
 /* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
-#define FLOAT_QUAT_INV_COMP_NORM_SHORTEST(_b2c, _a2b, _a2c) {				\
-		FLOAT_QUAT_INV_COMP(_b2c, _a2b, _a2c); 													\
-		FLOAT_QUAT_WRAP_SHORTEST(_b2c);																	\
-		FLOAT_QUAT_NORMALISE(_b2c);																			\
-}
+#define FLOAT_QUAT_INV_COMP_NORM_SHORTEST(_b2c, _a2b, _a2c) {		\
+    FLOAT_QUAT_INV_COMP(_b2c, _a2b, _a2c);				\
+    FLOAT_QUAT_WRAP_SHORTEST(_b2c);					\
+    FLOAT_QUAT_NORMALISE(_b2c);						\
+  }
 
 /* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
 #define FLOAT_QUAT_INV_COMP(_b2c, _a2b, _a2c) {				\
@@ -425,28 +425,28 @@ struct FloatRates {
     (_b2c).qz = (_a2b).qi*(_a2c).qz - (_a2b).qx*(_a2c).qy + (_a2b).qy*(_a2c).qx - (_a2b).qz*(_a2c).qi; \
   }
 
-#define FLOAT_QUAT_DIFFERENTIAL(q_out, w, dt) {                         \
-  const float v_norm = sqrt((w).p*(w).p + (w).q*(w).q + (w).r*(w).r); \
-  const float c2 = cos(dt*v_norm/2.0);                                     \
-  const float s2 = sin(dt*v_norm/2.0);                                     \
-  if (v_norm < 1e-8) {                                                  \
-    (q_out).qi = 1;                                                     \
-    (q_out).qx = 0;                                                     \
-    (q_out).qy = 0;                                                     \
-    (q_out).qz = 0;                                                     \
-  } else {                                                              \
-    (q_out).qi = c2;                                                      \
-    (q_out).qx = (w).p/v_norm * s2;                                       \
-    (q_out).qy = (w).q/v_norm * s2;                                       \
-    (q_out).qz = (w).r/v_norm * s2;                                       \
-  }                                                                     \
-}
+#define FLOAT_QUAT_DIFFERENTIAL(q_out, w, dt) {			      \
+    const float v_norm = sqrt((w).p*(w).p + (w).q*(w).q + (w).r*(w).r); \
+    const float c2 = cos(dt*v_norm/2.0);				\
+    const float s2 = sin(dt*v_norm/2.0);				\
+    if (v_norm < 1e-8) {						\
+      (q_out).qi = 1;							\
+      (q_out).qx = 0;							\
+      (q_out).qy = 0;							\
+      (q_out).qz = 0;							\
+    } else {								\
+      (q_out).qi = c2;							\
+      (q_out).qx = (w).p/v_norm * s2;					\
+      (q_out).qy = (w).q/v_norm * s2;					\
+      (q_out).qz = (w).r/v_norm * s2;					\
+    }									\
+  }
 
 #define FLOAT_QUAT_ROTATE_FRAME(q_out, q_in, q_rot) {                   \
-  struct FloatQuat q_temp;                                              \
-  FLOAT_QUAT_INV_COMP(q_temp, q_rot, q_in);                             \
-  print_quat(q_temp);                                                   \
-  FLOAT_QUAT_COMP(q_out, q_temp, q_rot);                                \
+    struct FloatQuat q_temp;						\
+    FLOAT_QUAT_INV_COMP(q_temp, q_rot, q_in);				\
+    print_quat(q_temp);							\
+    FLOAT_QUAT_COMP(q_out, q_temp, q_rot);				\
   }
 
 #define FLOAT_QUAT_VMULT(v_out, q, v_in) {				\
@@ -475,7 +475,7 @@ struct FloatRates {
   }
 
 /* _qd = -0.5*omega(_r) * _q  */
-#define FLOAT_QUAT_DERIVATIVE(_qd, _r, _q) {				 \
+#define FLOAT_QUAT_DERIVATIVE(_qd, _r, _q) {				\
     (_qd).qi = -0.5*( (_r).p*(_q).qx + (_r).q*(_q).qy + (_r).r*(_q).qz); \
     (_qd).qx = -0.5*(-(_r).p*(_q).qi - (_r).r*(_q).qy + (_r).q*(_q).qz); \
     (_qd).qy = -0.5*(-(_r).q*(_q).qi + (_r).r*(_q).qx - (_r).p*(_q).qz); \
@@ -483,9 +483,9 @@ struct FloatRates {
   }
 
 /* _qd = -0.5*omega(_r) * _q  */
-#define FLOAT_QUAT_DERIVATIVE_LAGRANGE(_qd, _r, _q) {			 \
-    const float K_LAGRANGE = 1.;					 \
-    const float c = K_LAGRANGE * ( 1 - FLOAT_QUAT_NORM(_q)) / -0.5;	 \
+#define FLOAT_QUAT_DERIVATIVE_LAGRANGE(_qd, _r, _q) {			\
+    const float K_LAGRANGE = 1.;					\
+    const float c = K_LAGRANGE * ( 1 - FLOAT_QUAT_NORM(_q)) / -0.5;	\
     (_qd).qi = -0.5*(      c*(_q).qi + (_r).p*(_q).qx + (_r).q*(_q).qy + (_r).r*(_q).qz); \
     (_qd).qx = -0.5*(-(_r).p*(_q).qi +      c*(_q).qx - (_r).r*(_q).qy + (_r).q*(_q).qz); \
     (_qd).qy = -0.5*(-(_r).q*(_q).qi + (_r).r*(_q).qx +      c*(_q).qy - (_r).p*(_q).qz); \
@@ -497,7 +497,7 @@ struct FloatRates {
     const float phi2   = (_e).phi/2.0;					\
     const float theta2 = (_e).theta/2.0;				\
     const float psi2   = (_e).psi/2.0;					\
-									\
+    									\
     const float s_phi2   = sinf( phi2 );				\
     const float c_phi2   = cosf( phi2 );				\
     const float s_theta2 = sinf( theta2 );				\

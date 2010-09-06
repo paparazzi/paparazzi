@@ -49,7 +49,7 @@ ap.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
 
 ap.CFLAGS += -DUSE_AMI601
 ap.srcs += $(SRC_BOOZ)/peripherals/booz_ami601.c
-ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
+ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11
 
 
 #

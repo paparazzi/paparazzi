@@ -309,8 +309,8 @@ void i2c1_hw_init ( void ) {
   I2C1SCLH = I2C1_SCLH_D;  
   
   // initialize the interrupt vector
-  VICIntSelect &= ~VIC_BIT(VIC_I2C1);              // I2C0 selected as IRQ
-  VICIntEnable = VIC_BIT(VIC_I2C1);                // I2C0 interrupt enabled
+  VICIntSelect &= ~VIC_BIT(VIC_I2C1);              // I2C1 selected as IRQ
+  VICIntEnable = VIC_BIT(VIC_I2C1);                // I2C1 interrupt enabled
   _VIC_CNTL(I2C1_VIC_SLOT) = VIC_ENABLE | VIC_I2C1;
   _VIC_ADDR(I2C1_VIC_SLOT) = (uint32_t)i2c1_ISR;    // address of the ISR
 }

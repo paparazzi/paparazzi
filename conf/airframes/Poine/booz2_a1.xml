@@ -214,7 +214,9 @@
     <target name="test_baro"          board="booz_1.0"/>
     <target name="test_rc_spektrum"   board="booz_1.0"/>
     <target name="test_rc_ppm"        board="booz_1.0"/>
+    <target name="test_esc_mkk_simple" board="booz_1.0"/>
     <target name="test_actuators_mkk" board="booz_1.0"/>
+    <target name="test_ami601"        board="booz_1.0"/>
   </firmware>
 
 

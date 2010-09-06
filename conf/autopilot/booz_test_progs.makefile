@@ -166,6 +166,28 @@ test_rc_ppm.srcs   += $(SRC_BOOZ)/booz_radio_control.c \
                       $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_ppm_arch.c
 
 
+
+#
+# simple test of mikrokopter motor controllers
+#
+test_esc_mkk_simple.ARCHDIR = $(ARCHI)
+test_esc_mkk_simple.ARCH    = arm7tdmi
+test_esc_mkk_simple.TARGET  = test_esc_mkk_simple
+test_esc_mkk_simple.TARGETDIR = test_esc_mkk_simple
+test_esc_mkk_simple.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
+test_esc_mkk_simple.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_esc_mkk_simple.srcs = test/test_esc_mkk_simple.c	    \
+                           $(SRC_ARCH)/armVIC.c
+test_esc_mkk_simple.CFLAGS += -DUSE_LED
+test_esc_mkk_simple.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_esc_mkk_simple.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_esc_mkk_simple.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_esc_mkk_simple.CFLAGS += -DACTUATORS_MKK_DEV=i2c0
+test_esc_mkk_simple.CFLAGS += -DUSE_I2C0
+test_esc_mkk_simple.CFLAGS += -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
+test_esc_mkk_simple.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+
 #
 # test actuators mkk
 #
@@ -194,5 +216,37 @@ test_actuators_mkk.srcs += $(SRC_BOOZ)/booz2_commands.c
 test_actuators_mkk.srcs += $(SRC_BOOZ)/actuators/booz_actuators_mkk.c
 test_actuators_mkk.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c0
 test_actuators_mkk.srcs += $(SRC_BOOZ)/actuators/booz_supervision.c
+test_actuators_mkk.CFLAGS += -DACTUATORS_MKK_DEV=i2c0
 test_actuators_mkk.CFLAGS += -DUSE_I2C0
 test_actuators_mkk.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+test_actuators_mkk.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
+
+
+#
+# test ami601
+#
+test_ami601.ARCHDIR = $(ARCHI)
+test_ami601.ARCH      = arm7tdmi
+test_ami601.TARGET = test_ami601
+test_ami601.TARGETDIR = test_ami601
+test_ami601.CFLAGS = -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_ami601.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_ami601.srcs = test/peripherals/test_ami601.c \
+                   $(SRC_ARCH)/armVIC.c
+
+test_ami601.CFLAGS += -DUSE_LED
+
+test_ami601.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
+test_ami601.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_ami601.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_ami601.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_ami601.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_ami601.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT) 
+test_ami601.srcs += downlink.c pprz_transport.c
+
+test_ami601.CFLAGS += -DUSE_AMI601
+test_ami601.srcs += $(SRC_BOOZ)/peripherals/booz_ami601.c
+test_ami601.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11
+test_ami601.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c

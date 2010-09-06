@@ -53,7 +53,7 @@ extern volatile uint32_t ami601_nb_err;
 	ami601_foo3 = ami601_i2c_trans.buf[2]; /* ERR ? */		\
 	uint8_t i;							\
 	for (i=0; i< AMI601_NB_CHAN; i++) {				\
-	  ami601_values[i] = ami601_i2c_trans.buf[3 + 2 * i];		\
+	  ami601_values[i]  = ami601_i2c_trans.buf[3 + 2 * i];		\
 	  ami601_values[i] += ami601_i2c_trans.buf[3 + 2 * i + 1] * 256; \
 	}								\
 	ami601_status = AMI601_DATA_AVAILABLE;				\
@@ -70,7 +70,6 @@ extern volatile uint32_t ami601_nb_err;
     ami601_status =  AMI601_READING_MEASURE;				\
     ami601_i2c_trans.type = I2CTransRx;					\
     ami601_i2c_trans.len_r = 15;					\
-    ami601_i2c_trans.slave_addr = AMI601_SLAVE_ADDR;			\
     i2c_submit(&i2c1, &ami601_i2c_trans);				\
   }
 
