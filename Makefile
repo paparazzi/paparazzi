@@ -51,12 +51,14 @@ MESSAGES2_H=$(STATICINCLUDE)/messages2.h
 UBX_PROTOCOL_H=$(STATICINCLUDE)/ubx_protocol.h
 XSENS_PROTOCOL_H=$(STATICINCLUDE)/xsens_protocol.h
 DL_PROTOCOL_H=$(STATICINCLUDE)/dl_protocol.h
+DL_PROTOCOL2_H=$(STATICINCLUDE)/dl_protocol2.h
 MESSAGES_XML = $(CONF)/messages.xml
 UBX_XML = $(CONF)/ubx.xml
 XSENS_XML = $(CONF)/xsens_MTi-G.xml
 TOOLS=$(PAPARAZZI_SRC)/sw/tools
 HAVE_ARM_NONE_EABI_GCC := $(wildcard /usr/bin/arm-none-eabi-gcc)
 ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
+#ARMGCC=/opt/paparazzi/bin/arm-elf-gcc
 ARMGCC=/usr/bin/arm-elf-gcc
 else
 ARMGCC=/usr/bin/arm-none-eabi-gcc
@@ -97,7 +99,7 @@ tmtc: lib
 multimon:
 	cd $(MULTIMON); $(MAKE)
 
-static_h: $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H)
+static_h: $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(DL_PROTOCOL2_H)
 
 usb_lib:
 	@[ -d sw/airborne/arm7/lpcusb ] && ((test -x $(ARMGCC) && (cd sw/airborne/arm7/lpcusb; $(MAKE))) || echo "Not building usb_lib: ARMGCC=$(ARMGCC) not found") || echo "Not building usb_lib: sw/airborne/arm7/lpcusb directory missing"
@@ -129,6 +131,11 @@ $(XSENS_PROTOCOL_H) : $(XSENS_XML) $(TOOLS)/gen_xsens.out
 $(DL_PROTOCOL_H) : $(MESSAGES_XML) $(TOOLS)/gen_messages.out
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_messages.out $< datalink > /tmp/dl.h
+	$(Q)mv /tmp/dl.h $@
+
+$(DL_PROTOCOL2_H) : $(MESSAGES_XML) $(TOOLS)/gen_messages2.out
+	@echo BUILD $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_messages2.out $< datalink > /tmp/dl.h
 	$(Q)mv /tmp/dl.h $@
 
 include Makefile.ac
