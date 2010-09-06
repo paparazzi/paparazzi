@@ -140,11 +140,13 @@ void event_task_fbw( void) {
   if (ppm_valid) {
     ppm_valid = FALSE;
     radio_control_event_task();
-    if (rc_values_contains_avg_channels) {
-      fbw_mode = FBW_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
+    if (rc_status == RC_OK) {
+      if (rc_values_contains_avg_channels) {
+        fbw_mode = FBW_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
+      }
+      if (fbw_mode == FBW_MODE_MANUAL)
+        SetCommandsFromRC(commands, rc_values);
     }
-    if (fbw_mode == FBW_MODE_MANUAL)
-      SetCommandsFromRC(commands, rc_values);
   }
 #endif
 

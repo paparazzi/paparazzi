@@ -47,6 +47,8 @@
 #define RC_AVG_PERIOD 8
 #define RC_LOST_TIME 30  /* 500ms with a 60Hz timer */
 #define RC_REALLY_LOST_TIME 60 /* ~1s */
+// Number of valid ppm frame to go back to RC OK
+#define RC_OK_CPT 15
 
 #define RC_OK          0
 #define RC_LOST        1
@@ -57,7 +59,7 @@ extern uint8_t rc_status;
 extern int32_t avg_rc_values[PPM_NB_PULSES];
 extern uint8_t rc_values_contains_avg_channels;
 extern uint8_t time_since_last_ppm;
-extern uint8_t ppm_cpt, last_ppm_cpt;
+extern uint8_t ppm_cpt, last_ppm_cpt, radio_ok_cpt;
 
 /* 
  * On tiny (and booz) the ppm counter is running at the same speed as
@@ -73,6 +75,7 @@ extern uint8_t ppm_cpt, last_ppm_cpt;
 static inline void radio_control_init ( void ) {
   rc_status = RC_REALLY_LOST; 
   time_since_last_ppm = RC_REALLY_LOST_TIME;
+  radio_ok_cpt = 0;
 }
 
 /************* PERIODIC ******************************************************/
@@ -89,8 +92,10 @@ static inline void radio_control_periodic_task ( void ) {
   if (time_since_last_ppm >= RC_REALLY_LOST_TIME) {
     rc_status = RC_REALLY_LOST;
   } else {
-    if (time_since_last_ppm >= RC_LOST_TIME)
+    if (time_since_last_ppm >= RC_LOST_TIME) {
       rc_status = RC_LOST;
+      radio_ok_cpt = RC_OK_CPT;
+    }
     time_since_last_ppm++;
   }
 
@@ -109,10 +114,14 @@ static inline void radio_control_periodic_task ( void ) {
 static inline void radio_control_event_task ( void ) {
   ppm_cpt++;
   time_since_last_ppm = 0;
-  rc_status = RC_OK;
 
-  /** From ppm values to normalised rc_values */
-  NormalizePpm();
+  /* Wait for enough valid frame to switch back to RC_OK */
+  if (radio_ok_cpt > 0) radio_ok_cpt--;
+  else {
+    rc_status = RC_OK;
+    /** From ppm values to normalised rc_values */
+    NormalizePpm();
+  }
 }
 
 #endif /* RADIO_CONTROL */
