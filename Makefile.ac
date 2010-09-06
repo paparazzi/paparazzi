@@ -56,7 +56,6 @@ MODULES_H=$(ACINCLUDE)/modules.h
 MODULES_DIR=$(PAPARAZZI_HOME)/conf/modules/
 AIRCRAFT_MD5=$(AIRCRAFT_CONF_DIR)/aircraft.md5
 
-
 # "make Q=''" to get full echo
 Q=@
 
@@ -130,13 +129,12 @@ $(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_modules.out $(CONF)/modules/
 	$(Q)$(TOOLS)/gen_modules.out $(MODULES_DIR) $(SETTINGS_MODULES) $< > $@
 	$(Q)chmod a+r $@
 
-
-ac_h :
+%.ac_h :
 	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
-	@echo BUILD $(AIRCRAFT)
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) Q=$(Q) $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
+	@echo BUILD $(AIRCRAFT), TARGET $*
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
 
-%.compile: ac_h
+%.compile: %.ac_h
 	cd $(AIRBORNE); $(MAKE) TARGET=$* all
 
 %.wr_fuses: %.compile

@@ -324,6 +324,36 @@ let write_settings = fun xml_file out_set modules ->
   fprintf out_set " </dl_settings>\n";
   fprintf out_set "</settings>\n"
 
+let get_targets_of_module = fun m ->
+  let pipe_regexp = Str.regexp "|" in
+  let targets_of_field = fun field -> try 
+    Str.split pipe_regexp (ExtXml.attrib_or_default field "target" "ap|sim") with _ -> [] in
+  let rec singletonize = fun l ->
+    match l with
+      [] | [_] -> l
+    | x :: ((y :: t) as yt) -> if x = y then singletonize yt else x :: singletonize yt
+  in
+  let targets = List.map (fun x ->
+    match String.lowercase (Xml.tag x) with
+      "makefile" -> targets_of_field x
+    | _ -> []
+  ) (Xml.children m) in
+  (* return a singletonized list *)
+  singletonize (List.sort compare (List.flatten targets))
+
+let unload_unused_modules = fun modules ->
+  let target = try Sys.getenv "TARGET" with _ -> "" in
+  let is_target_in_module = fun m ->
+    let target_is_in_module = List.exists (fun x -> String.compare target x = 0) (get_targets_of_module m) in
+    if not target_is_in_module then
+      Printf.fprintf stderr "Module %s unloaded, target %s not supported\n" (Xml.attrib m "name") target;
+    target_is_in_module
+  in
+  if String.length target = 0 then
+    modules
+  else
+    List.find_all is_target_in_module modules
+
 let h_name = "MODULES_H"
 
 let () =
@@ -349,6 +379,7 @@ let () =
     let main_freq = try (int_of_string (Xml.attrib modules "main_freq")) with _ -> !freq in
     freq := main_freq;
     let modules_list = List.map (get_modules modules_dir) (Xml.children modules) in
+    let modules_list = unload_unused_modules modules_list in
     let modules_name = 
       (List.map (fun l -> try Xml.attrib l "name" with _ -> "") (Xml.children modules)) @
       (List.map (fun m -> try Xml.attrib m "name" with _ -> "") modules_list) in
