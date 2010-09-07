@@ -4,6 +4,8 @@
 #include <inttypes.h>
 #include "math/pprz_algebra_int.h"
 #include "airframe.h"
+#include "adc.h"
+
 
 #define LISA_PWM_OUTPUT_NB 6
 
@@ -66,6 +68,10 @@ struct __attribute__ ((packed)) AutopilotMessageTWDown
  * Passthrough, aka biplan
  */
 
+struct __attribute__ ((packed)) ADCMessage { 
+	uint16_t channels[NB_ADC];
+};
+
 /* used to indicate parts of the message which actually represent a new measurement */
 struct __attribute__ ((packed)) PTUpValidFlags
 {
@@ -74,6 +80,7 @@ struct __attribute__ ((packed)) PTUpValidFlags
   unsigned pressure_differential:1;
   unsigned vane:1;
   unsigned imu:1;
+	unsigned adc:1; 
 };
 
 struct __attribute__ ((packed)) AutopilotMessagePTUp
@@ -95,6 +102,8 @@ struct __attribute__ ((packed)) AutopilotMessagePTUp
   uint8_t rc_status;
   float vane_angle1; 
   float vane_angle2; 
+	struct ADCMessage adc; 
+
   struct PTUpValidFlags valid;
   uint32_t stm_msg_cnt;
   uint32_t stm_crc_err_cnt;
