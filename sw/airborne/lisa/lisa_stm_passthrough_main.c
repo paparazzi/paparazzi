@@ -38,6 +38,7 @@
 
 #include "firmwares/rotorcraft/baro.h"
 
+#include "adc.h"
 
 static inline void main_init(void);
 static inline void main_periodic(void);
@@ -57,8 +58,17 @@ static bool_t new_radio_msg;
 static bool_t new_baro_diff;
 static bool_t new_baro_abs;
 static bool_t new_vane;
+static bool_t new_adc;
+
 
 struct CscVaneMsg csc_vane_msg;
+
+static struct adc_buf adc0_buf; 
+static struct adc_buf adc1_buf; 
+static struct adc_buf adc2_buf; 
+static struct adc_buf adc3_buf; 
+
+extern uint8_t adc_new_data_trigger;
 
 int main(void) {
 
@@ -75,26 +85,32 @@ int main(void) {
 
 static inline void main_init(void) {
 
-  hw_init();
-  sys_time_init();
-  booz_imu_init();
-  baro_init();
-  radio_control_init();
-  booz_actuators_init();
-  overo_link_init();
-  cscp_init();
-  //	csc_bat_monitor_init(); 
-  
-  cscp_register_callback(CSC_VANE_MSG_ID, on_vane_msg, (void *)&csc_vane_msg);
-  new_radio_msg = FALSE;
+	hw_init();
+	sys_time_init();
+	booz_imu_init();
+	baro_init();
+	radio_control_init();
+	booz_actuators_init();
+	overo_link_init();
+	cscp_init();
+	adc_init();	
+	
+	adc_buf_channel(0, &adc0_buf, 8);
+	adc_buf_channel(1, &adc1_buf, 8);
+	adc_buf_channel(2, &adc2_buf, 8);
+	adc_buf_channel(3, &adc3_buf, 8);
+	
+	cscp_register_callback(CSC_VANE_MSG_ID, on_vane_msg, (void *)&csc_vane_msg);
+	new_radio_msg = FALSE;
 
 }
 
 static inline void main_periodic(void) {
+	uint16_t v1 = 123;
+	uint16_t v2 = 123;
 
   booz_imu_periodic();
   OveroLinkPeriodic(on_overo_link_lost);
-  //	csc_bat_monitor_periodic(); 
 
   RunOnceEvery(10, {
       LED_PERIODIC(); 
@@ -103,7 +119,15 @@ static inline void main_periodic(void) {
     });
 
   RunOnceEvery(2, {baro_periodic();});
+	
+  if (adc_new_data_trigger) { 
+    adc_new_data_trigger = 0;
+		new_adc = 1; 
+    v1 = adc0_buf.sum / adc0_buf.av_nb_sample;
+    v2 = adc1_buf.values[0];
 
+    RunOnceEvery(10, { DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &v1, &v2) });
+	}
 }
 
 static inline void on_rc_message(void) {
@@ -153,12 +177,18 @@ static inline void on_overo_link_msg_received(void) {
   overo_link.up.msg.vane_angle1 = csc_vane_msg.vane_angle1;
   overo_link.up.msg.vane_angle2 = csc_vane_msg.vane_angle2;
   
+	overo_link.up.msg.adc.channels[0] = adc0_buf.sum / adc0_buf.av_nb_sample; 
+	overo_link.up.msg.adc.channels[1] = adc1_buf.sum / adc1_buf.av_nb_sample; 
+	overo_link.up.msg.adc.channels[2] = adc2_buf.sum / adc2_buf.av_nb_sample; 
+	overo_link.up.msg.adc.channels[3] = adc3_buf.sum / adc3_buf.av_nb_sample; 
+	overo_link.up.msg.valid.adc =  new_adc; 
+	new_adc = FALSE;
+
   /* pwm acuators down */
   for (int i = 0; i < LISA_PWM_OUTPUT_NB; i++) { 
     booz_actuators_pwm_values[i] = overo_link.down.msg.pwm_outputs_usecs[i];
   }
   booz_actuators_pwm_commit();
-  
 }
 
 static inline void on_overo_link_lost(void) {
@@ -208,7 +238,6 @@ static inline void main_event(void) {
   OveroLinkEvent(on_overo_link_msg_received, on_overo_link_crc_failed);
   RadioControlEvent(on_rc_message);
   cscp_event();
-
 }
 
 
