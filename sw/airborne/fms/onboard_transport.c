@@ -148,6 +148,10 @@ static int open_piped(char *filepath)
 		// copy from the read side of the pipe to the log
 		while (1) {
 			count = read(pipe_fd[0], buffer, LOG_BUFLEN);
+			if (count < 0) {
+				// error, presumably the pipe is closed
+				break;
+			}
 			retval = write(fd, buffer, count);
 		}
 	} else {
