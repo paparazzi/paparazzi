@@ -1,5 +1,4 @@
 /*
- * $Id$
  *
  * Copyright (C) 2010 The Paparazzi Team
  *
@@ -107,42 +106,6 @@ static inline void adc_init_irq( void );
   serve to resolve the number of channels on each ADC. 
 */
 
-// NB_ADCx_CHANNELS
-// {{{
-enum adc1_channels { 
-#ifdef USE_AD1_1
-	ADC1_C1,
-#endif
-#ifdef USE_AD1_2
-	ADC1_C2,
-#endif
-#ifdef USE_AD1_3
-	ADC1_C3,
-#endif
-#ifdef USE_AD1_4
-	ADC1_C4,
-#endif
-	NB_ADC1_CHANNELS
-};
-
-enum adc2_channels { 
-#ifdef USE_AD2_1
-	ADC2_C1,
-#endif
-#ifdef USE_AD2_2
-	ADC2_C2,
-#endif
-#ifdef USE_AD2_3
-	ADC2_C3,
-#endif
-#ifdef USE_AD2_4
-	ADC2_C4,
-#endif
-	NB_ADC2_CHANNELS
-};
-
-// }}}
-
 /* 
 	Separate buffers for each ADC. 
 	Every ADC has a list of buffers, one for each active 
@@ -204,6 +167,8 @@ static inline void adc_init_rcc( void )
 	rcc_apb = RCC_APB1Periph_TIM2;
 #endif
 
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+
 	RCC_ADCCLKConfig(RCC_PCLK2_Div2);
 	RCC_APB1PeriphClockCmd(rcc_apb, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | 
@@ -216,7 +181,6 @@ static inline void adc_init_rcc( void )
 #endif
 	
 	/* Time Base configuration */
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure); 
 	TIM_TimeBaseStructure.TIM_Period        = 0xFF;          
 	TIM_TimeBaseStructure.TIM_Prescaler     = 0x8; 
@@ -355,7 +319,7 @@ void adc_init( void ) {
 	adc_injected_channels[1] = ADC_InjectedChannel_2;
 	adc_injected_channels[2] = ADC_InjectedChannel_3;
 	adc_injected_channels[3] = ADC_InjectedChannel_4;
-	// TODO: Channel selection should be configured 
+	// TODO: Channel selection could be configured 
 	// using defines. 
 	adc_channel_map[0] = ADC_Channel_8;
 	adc_channel_map[1] = ADC_Channel_9;
@@ -436,11 +400,8 @@ static inline void adc_push_sample(struct adc_buf * buf, uint16_t value) {
 void adc1_2_irq_handler(void)
 {
 	uint8_t channel = 0;
-	uint16_t value = 0; 
+	uint16_t value  = 0; 
 	struct adc_buf * buf; 
-
-	if(NB_ADC1_CHANNELS == 4) { LED_TOGGLE(3); }
-	else { LED_OFF(3); }
 
 #ifdef USE_AD1
 	// Clear Injected End Of Conversion
@@ -449,7 +410,6 @@ void adc1_2_irq_handler(void)
 		buf = adc1_buffers[channel];
 		if(buf) { 
 			value = ADC_GetInjectedConversionValue(ADC1, adc_injected_channels[channel]);
-			if(value == 0) { LED_ON(2); }
 			adc_push_sample(buf, value);
 		}
 	}

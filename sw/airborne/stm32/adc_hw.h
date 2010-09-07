@@ -38,6 +38,43 @@
  *         PA0     ADC0   bat monitor        
  */
 
+// NB_ADCx_CHANNELS
+// {{{
+enum adc1_channels { 
+#ifdef USE_AD1_1
+	ADC1_C1,
+#endif
+#ifdef USE_AD1_2
+	ADC1_C2,
+#endif
+#ifdef USE_AD1_3
+	ADC1_C3,
+#endif
+#ifdef USE_AD1_4
+	ADC1_C4,
+#endif
+	NB_ADC1_CHANNELS
+};
+
+enum adc2_channels { 
+#ifdef USE_AD2_1
+	ADC2_C1,
+#endif
+#ifdef USE_AD2_2
+	ADC2_C2,
+#endif
+#ifdef USE_AD2_3
+	ADC2_C3,
+#endif
+#ifdef USE_AD2_4
+	ADC2_C4,
+#endif
+	NB_ADC2_CHANNELS
+};
+
+#define NB_ADC (NB_ADC1_CHANNELS + NB_ADC2_CHANNELS)
+
+// }}}
 
 #define AdcBank0(x) (x)
 #define AdcBank1(x) (x+NB_ADC)
