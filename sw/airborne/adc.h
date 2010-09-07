@@ -37,7 +37,13 @@
 #include <inttypes.h>
 #include "adc_hw.h"
 
+/* Allow driver implementation to define 
+ * number of available ADCs implicitly
+ */
+#ifndef NB_ADC
 #define NB_ADC 8
+#endif
+
 #define MAX_AV_NB_SAMPLE 0x20
 #define DEFAULT_AV_NB_SAMPLE 0x20
 
