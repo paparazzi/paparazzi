@@ -35,7 +35,6 @@
 #define _ADC_H_
 
 #include <inttypes.h>
-#include "adc_hw.h"
 
 /* Allow driver implementation to define 
  * number of available ADCs implicitly
