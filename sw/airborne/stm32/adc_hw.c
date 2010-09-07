@@ -35,7 +35,56 @@
  *
  */
 
+/*
+  For better understanding of timer and GPIO settings: 
+
+  Table of GPIO pins available per ADC: 
+
+  ADC1/2: 					ADC3: 
+		C0  -> PA0				C0  -> PA0
+		C1  -> PA1				C1  -> PA1
+		C2  -> PA2				C2  -> PA2
+		C3  -> PA3				C3  -> PA3
+		C4  -> PA4				C4  -> PF6
+		C5  -> PA5				C5  -> PF7
+		C6  -> PA6				C6  -> PF8
+		C7  -> PA7				C7  -> PF9
+		C8  -> PB0				C8  -> PF10
+		C9  -> PB1				
+		C10 -> PC0				C10 -> PC0
+		C11 -> PC1				C11 -> PC1
+		C12 -> PC2				C12 -> PC2
+		C13 -> PC3				C13 -> PC3
+		C14 -> PC4				
+		C15 -> PC5				
+
+  Table of timers available per ADC (from libstm/src/stm32_adc.c): 
+
+		T1_TRGO: 	Timer1 TRGO event (ADC1, ADC2 and ADC3)
+		T1_CC4: 	Timer1 capture compare4 (ADC1, ADC2 and ADC3)
+		T2_TRGO: 	Timer2 TRGO event (ADC1 and ADC2)
+		T2_CC1: 	Timer2 capture compare1 (ADC1 and ADC2)
+		T3_CC4: 	Timer3 capture compare4 (ADC1 and ADC2)
+		T4_TRGO: 	Timer4 TRGO event (ADC1 and ADC2)
+		TIM8_CC4: External interrupt line 15 or Timer8 capture compare4 event (ADC1 and ADC2)
+		T4_CC3: 	Timer4 capture compare3 (ADC3 only)
+		T8_CC2: 	Timer8 capture compare2 (ADC3 only)
+		T8_CC4: 	Timer8 capture compare4 (ADC3 only)
+		T5_TRGO: 	Timer5 TRGO event (ADC3 only)
+		T5_CC4: 	Timer5 capture compare4 (ADC3 only)
+  
+	By setting ADC_ExternalTrigInjecConv_None, injected conversion
+	is started by software instead of external trigger for any ADC. 
+
+	Table of APB per Timer (from libstm/src/stm32_tim.c): 
+
+		RCC_APB1: TIM2, TIM3, TIM4, TIM5, TIM7 (non-advanced timers)
+		RCC_APB2: TIM1, TIM8 (advanced timers)
+
+*/
+
 #include "adc.h"
+#include "adc_hw.h"
 #include <stm32/rcc.h>
 #include <stm32/misc.h>
 #include <stm32/adc.h>
@@ -92,8 +141,16 @@ static inline void adc_init_irq( void );
 /* 
   GPIO mapping for ADC2 pins. 
 	Can be changed by predefining ADC2_GPIO_INIT. 
+	Uses the same GPIOs as ADC1 (lisa specific). 
 */
 #ifdef USE_AD2
+#define ADC2_GPIO_INIT(gpio) { \
+	(gpio).GPIO_Pin  = GPIO_Pin_0 | GPIO_Pin_1; \
+	(gpio).GPIO_Mode = GPIO_Mode_AIN; \
+	GPIO_Init(GPIOB, (&gpio)); \
+	(gpio).GPIO_Pin  = GPIO_Pin_3 | GPIO_Pin_5; \
+	GPIO_Init(GPIOC, (&gpio)); \
+}
 #ifndef ADC2_GPIO_INIT
 #define ADC2_GPIO_INIT(gpio) { }
 #endif // ADC2_GPIO_INIT
@@ -159,11 +216,14 @@ static inline void adc_init_rcc( void )
 #if defined (USE_AD1) || defined (USE_AD2)
 	TIM_TypeDef * timer; 
 	uint32_t rcc_apb; 
-#ifdef USE_AD_TIM4
+#if defined(USE_AD_TIM4)
 	timer   = TIM4;
 	rcc_apb = RCC_APB1Periph_TIM4;
+#elif defined(USE_AD_TIM1)
+	timer   = TIM1;
+	rcc_apb = RCC_APB2Periph_TIM1;
 #else 
-	timer = TIM2;
+	timer 	= TIM2;
 	rcc_apb = RCC_APB1Periph_TIM2;
 #endif
 
@@ -272,8 +332,10 @@ static inline void adc_init_single(ADC_TypeDef * adc_t,
 
 
 	ADC_ExternalTrigInjectedConvCmd(adc_t, ENABLE);
-#ifdef USE_AD_TIM4
+#if defined(USE_AD_TIM4)
 	ADC_ExternalTrigInjectedConvConfig(adc_t, ADC_ExternalTrigInjecConv_T4_TRGO);
+#elif defined(USE_AD_TIM1)
+	ADC_ExternalTrigInjectedConvConfig(adc_t, ADC_ExternalTrigInjecConv_T1_TRGO);
 #else
 	ADC_ExternalTrigInjectedConvConfig(adc_t, ADC_ExternalTrigInjecConv_T2_TRGO);
 #endif
@@ -416,6 +478,16 @@ void adc1_2_irq_handler(void)
 	adc_new_data_trigger = 1;
 #endif
 #ifdef USE_AD2
+	// Clear Injected End Of Conversion
+	ADC_ClearITPendingBit(ADC2, ADC_IT_JEOC); 
+	for(channel = 0; channel < NB_ADC2_CHANNELS; channel++) { 
+		buf = adc2_buffers[channel];
+		if(buf) { 
+			value = ADC_GetInjectedConversionValue(ADC2, adc_injected_channels[channel]);
+			adc_push_sample(buf, value);
+		}
+	}
+	adc_new_data_trigger = 1;
 #endif
 }
 
