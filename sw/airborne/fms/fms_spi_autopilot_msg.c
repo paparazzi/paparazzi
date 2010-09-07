@@ -53,6 +53,7 @@ static void (* vane_callback)(uint8_t vane_id, float alpha, float beta) = NULL;
 static void (* pressure_absolute_callback)(uint8_t pressure_id, uint32_t pressure) = NULL;
 static void (* pressure_differential_callback)(uint8_t pressure_id, uint32_t pressure) = NULL;
 static void (* radio_control_callback)(void) = NULL;
+static void (* adc_callback)(uint16_t * adc_channels) = NULL;
 
 void spi_ap_link_downlink_send(struct DownlinkTransport *tp)
 {
@@ -80,6 +81,11 @@ void spi_ap_link_set_pressure_differential_callback(void (* pressure_differentia
 void spi_ap_link_set_radio_control_callback(void (* radio_control_cb)(void))
 {
   radio_control_callback = radio_control_cb;
+}
+
+void spi_ap_link_set_adc_callback(void (* adc_callback_fun)(uint16_t * adc_channels))
+{
+	adc_callback = adc_callback_fun; 
 }
 
 int spi_ap_link_init()
@@ -112,7 +118,6 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
 {
 
   if (msg_up->valid.vane && vane_callback)
-    // FIXME: placeholders since the vane data fields don't exist yet
     vane_callback(0, msg_up->vane_angle1, msg_up->vane_angle2);
 
   // Fill pressure data
@@ -121,6 +126,12 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
 
   if (msg_up->valid.pressure_differential && pressure_differential_callback)
     pressure_differential_callback(0, (uint16_t) msg_up->pressure_differential);
+
+	if (msg_up->valid.adc) {
+		if(adc_callback) {
+			adc_callback(&msg_up->adc.channels);
+		}
+	}
 
   // Fill radio data
   if (msg_up->valid.rc && radio_control_callback) {
