@@ -224,7 +224,6 @@ static inline void on_vane_msg(void *data) {
 
 static inline void main_on_baro_diff(void) {
   new_baro_diff = TRUE;
-  RunOnceEvery(5,{DOWNLINK_SEND_BARO_RAW(DefaultChannel, &baro.absolute, &baro.differential);});
 }
 
 static inline void main_on_baro_abs(void) {
