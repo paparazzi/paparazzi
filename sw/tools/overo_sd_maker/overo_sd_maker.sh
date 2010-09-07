@@ -1,4 +1,7 @@
-#!/bin/bash
+#! /bin/sh
+# (c) 2009 Graeme Gregory
+# modified by Steve Sakoman and Paul Cox
+# This script is GPLv3 licensed!
 
 echo "SD card creator for OMAP"
 if [ "$(id -u)" != "0" ]; then
@@ -8,11 +11,11 @@ fi
 
 echo "DANGEROUS: proceed carefully"
 
-if [ "$2" = "extra" ] && [ -e extras.bz2 ];then
- EXTRA=1
+if [ "$2" = "extras" ] && [ -e extras.bz2 ];then
+ EXTRAS=1
  echo "I will copy extras to rootfs."
 else 
- EXTRA=0
+ EXTRAS=0
 fi
 
 if [ -z $1 ];then
@@ -64,7 +67,10 @@ if [ $continue = "Y" ]; then
  umount $DRIVE2
  echo "formatting Linux partition..."
  mke2fs -j -L rootfs $DRIVE2 
-# wget http://paparazzi.enac.fr/overo/latest/rootfs.bz2 http://paparazzi.enac.fr/overo/latest/uImage.bin
+
+ echo "Fetching files..."
+ wget http://paparazzi.enac.fr/overo/latest/rootfs.bz2 http://paparazzi.enac.fr/overo/latest/uImage.bin
+
  echo -n "Writing files to FAT partition..."
  mount $DRIVE1 /mnt
  if [ $? -ne 0 ]; then
