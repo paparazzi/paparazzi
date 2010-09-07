@@ -38,6 +38,7 @@ void booz_imu_init(void) {
     Compute quaternion and rotation matrix
     for conversions between body and imu frame
   */
+#ifdef IMU_BODY_TO_IMU_PHI
   struct Int32Eulers body_to_imu_eulers =
     { ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_PHI), 
       ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_THETA), 
@@ -45,6 +46,7 @@ void booz_imu_init(void) {
   INT32_QUAT_OF_EULERS(booz_imu.body_to_imu_quat, body_to_imu_eulers);
   INT32_QUAT_NORMALISE(booz_imu.body_to_imu_quat);
   INT32_RMAT_OF_EULERS(booz_imu.body_to_imu_rmat, body_to_imu_eulers);
+#endif
 
   booz_imu_impl_init();
 }
