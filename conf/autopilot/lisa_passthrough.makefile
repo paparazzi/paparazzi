@@ -103,6 +103,16 @@ stm_passthrough.CFLAGS += -DUSE_CAN1 \
 stm_passthrough.srcs += can.c $(SRC_ARCH)/can_hw.c
 stm_passthrough.srcs += $(SRC_CSC)/csc_protocol.c 
 
+# ADC
+
+stm_passthrough.srcs += $(SRC_ARCH)/adc_hw.c
+stm_passthrough.CFLAGS += -DUSE_AD1 \
+	-DUSE_AD1_1 \
+	-DUSE_AD1_2 \
+	-DUSE_AD1_3 \
+	-DUSE_AD1_4
+
+
 # Battery monitor
 
 
