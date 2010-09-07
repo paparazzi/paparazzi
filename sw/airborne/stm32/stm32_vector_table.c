@@ -159,20 +159,18 @@ extern void adc1_2_irq_handler(void);
 #define ADC1_2_IRQ_HANDLER null_handler
 #endif
 
-
-#ifdef USE_TIM1_UP_IRQ
-extern void tim1_up_irq_handler(void);
-#define TIM1_UP_IRQ_HANDLER tim1_up_irq_handler
-#else
-#define TIM1_UP_IRQ_HANDLER null_handler
-#endif
-
-
 #ifdef USE_TIM2_IRQ
 extern void tim2_irq_handler(void);
 #define TIM2_IRQ_HANDLER tim2_irq_handler
 #else
 #define TIM2_IRQ_HANDLER null_handler
+#endif
+
+#ifdef USE_TIM6_IRQ
+extern void tim6_irq_handler(void);
+#define TIM6_IRQ_HANDLER tim6_irq_handler
+#else
+#define TIM6_IRQ_HANDLER null_handler
 #endif
 
 #ifdef USE_USB_HP_CAN1_TX_IRQ
@@ -243,7 +241,7 @@ void (* const vector_table[])(void) = {
     null_handler,             /* can_sce_irq_handler */
     EXTI9_5_IRQ_HANDLER,      /* exti9_5_irq_handler */
     null_handler,             /* tim1_brk_irq_handler */
-    TIM1_UP_IRQ_HANDLER,      /* tim1_up_irq_handler */
+    null_handler,             /* tim1_up_irq_handler */
     null_handler,             /* tim1_trg_com_irq_handler */
     null_handler,             /* tim1_cc_irq_handler */
     TIM2_IRQ_HANDLER,         /* tim2_irq_handler */
@@ -272,7 +270,7 @@ void (* const vector_table[])(void) = {
     null_handler,             /* spi3_irq_handler */
     null_handler,             /* uart4_irq_handler */
     USART5_IRQ_HANDLER,       /* uart5_irq_handler */
-    null_handler,             /* tim6_irq_handler */
+    TIM6_IRQ_HANDLER,         /* tim6_irq_handler */
     null_handler,             /* tim7_irq_handler */
     null_handler,             /* dma2_channel1_irq_handler */
     null_handler,             /* dma2_channel2_irq_handler */
