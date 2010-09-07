@@ -13,18 +13,22 @@
 <airframe name="Funjet Tiny 2.11">
 
   <modules>
+    <load name="light.xml">
+      <param name="LIGHT_LED_STROBE" value="5"/>
+      <param name="LIGHT_LED_NAV" value="3"/>
+    </load>
     <load name="infrared_i2c.xml"/>
   </modules>
 
   <firmware name="fixedwing">
-    <target name="sim" 			board="pc">
+    <target name="sim" board="pc">
       <define name="AGR_CLIMB"/>
       <define name="ALT_KALMAN"/>
       <define name="LOITER_TRIM"/>
       <define name="USE_I2C0"/>
     </target>
-    <target name="ap" 			board="tiny_2.11">
-      <param name="FLASH_MODE" 		value="IAP"/>
+    <target name="ap" board="tiny_2.11">
+      <param name="FLASH_MODE" value="IAP"/>
       <define name="AGR_CLIMB"/>
       <define name="ALT_KALMAN"/>
       <define name="LOITER_TRIM"/>
@@ -36,41 +40,47 @@
     <subsystem name="i2c"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" 	type="transparent"/>
+    <subsystem name="telemetry" type="transparent"/>
 
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control"/>
     <!-- Sensors -->
     <!--subsystem name="attitude" 		type="infrared"/-->
-    <subsystem name="gps" 		    type="ublox_lea5h"/>
-    <subsystem name="gyro"        type="roll"/>
+    <subsystem name="gps" type="ublox_lea5h"/>
+    <subsystem name="gyro" type="roll">
+      <param name="ADC_GYRO_ROLL" value="ADC_5"/>
+    </subsystem>
+
+    <subsystem name="current_sensor">
+      <param name="ADC_CURRENT_SENSOR" value="ADC_3"/>
+    </subsystem>
 
     <subsystem name="navigation"/>
   </firmware>
 
 
   <firmware name="setup">
-    <target name="tunnel" 		    board="tiny_2.11"/>
-    <target name="setup_actuators" 	board="tiny_2.11"/>
+    <target name="tunnel" board="tiny_2.11"/>
+    <target name="setup_actuators" board="tiny_2.11"/>
   </firmware>
 
 <!-- commands section -->
   <servos>
-    <servo name="MOTOR"         no="0" min="1040" neutral="1040" max="1670"/>
-    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1500" max="1050"/>
+    <servo name="MOTOR" no="0" min="1040" neutral="1040" max="2000"/>
+    <servo name="AILEVON_LEFT" no="2" min="1900" neutral="1500" max="1050"/>
     <servo name="AILEVON_RIGHT" no="6" min="1120" neutral="1500" max="1980"/>
   </servos>
 
   <commands>
     <axis name="THROTTLE" failsafe_value="0"/>
-    <axis name="ROLL"     failsafe_value="0"/>
-    <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="PITCH" failsafe_value="0"/>
   </commands>
 
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
-    <set command="ROLL"     value="@ROLL"/>
-    <set command="PITCH"    value="@PITCH"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
   </rc_commands>
 
   <section name="MIXER">
@@ -79,10 +89,10 @@
   </section>
 
   <command_laws>
-    <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
+    <let var="aileron" value="@ROLL  * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
-    <set servo="MOTOR"           value="@THROTTLE"/>
-    <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
+    <set servo="MOTOR" value="@THROTTLE"/>
+    <set servo="AILEVON_LEFT" value="$elevator + $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
   </command_laws>
 
@@ -92,12 +102,10 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="I2C_DEFAULT_CONF" value="0x1"/>
-
-    <define name="CORRECTION_UP" value="1."/>
-    <define name="CORRECTION_DOWN" value="1."/>
-    <define name="CORRECTION_LEFT" value="1."/>
-    <define name="CORRECTION_RIGHT" value="1."/>
+    <define name="IR1_NEUTRAL" value="-15"/>
+    <define name="IR2_NEUTRAL" value="0"/>
+    <define name="TOP_NEUTRAL" value="-20"/>
+    <define name="I2C_DEFAULT_CONF" value="1"/>
 
     <define name="LATERAL_CORRECTION" value="1"/>
     <define name="LONGITUDINAL_CORRECTION" value="1"/>
@@ -109,23 +117,21 @@
     <define name="TOP_SIGN" value="1"/>
 
     <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="7.73493003845" unit="deg"/>
   </section>
 
   <section name="GYRO" prefix="GYRO_">
-    <define name="ADC_ROLL_NEUTRAL" value="520"/>
-    <define name="ADC_TEMP_NEUTRAL" value="476"/>   
-    <define name="ADC_TEMP_SLOPE" value="0"/>  
-    <define name="DYNAMIC_RANGE" value="300" unit="deg/s"/>
+    <define name="ADC_ROLL_NEUTRAL" value="487"/>
     <define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+1.8))"/>
     <define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/>
     <define name="ROLL_SCALE" value="3.3*1000./1024./(GYRO_ADXRS300_SENSITIVITY*GYRO_ADXRS300_RESISTOR_BRIDGE)" unit="deg/s/adc_unit"/>
-    <define name="ROLL_DIRECTION" value="-1."/> 
+    <define name="ROLL_DIRECTION" value="1."/> 
   </section>
 
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="10000."/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="MilliAmpereOfAdc(_adc)" value="(_adc-156)*17.4"/>
   </section>
 
   <section name="MISC">
@@ -138,6 +144,7 @@
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
     <define name="MIN_CIRCLE_RADIUS" value="50."/>
+    
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -148,15 +155,15 @@
     <define name="ALTITUDE_MAX_CLIMB" value="3."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.3"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.600000023842"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-1000"/>
-    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.194000005722" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PGAIN" value="-0.01"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.04"/>
-    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.05"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.109999999404"/>
 
     <!-- auto pitch inner loop -->
     <define name="AUTO_PITCH_PGAIN" value="-0.03"/>
@@ -169,7 +176,7 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1."/>
+    <define name="COURSE_PGAIN" value="-1.20000004768"/>
     <define name="ROLL_MAX_SETPOINT" value="0.8" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
@@ -177,7 +184,7 @@
     <define name="ROLL_ATTITUDE_GAIN" value="-8000."/>
     <define name="ROLL_RATE_GAIN" value="-1000."/>
 
-    <define name="PITCH_PGAIN" value="-10000."/>
+    <define name="PITCH_PGAIN" value="-20000."/>
     <define name="PITCH_DGAIN" value="0.4"/>
 
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
