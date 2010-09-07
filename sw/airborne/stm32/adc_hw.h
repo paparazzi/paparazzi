@@ -72,6 +72,10 @@ enum adc2_channels {
 	NB_ADC2_CHANNELS
 };
 
+#ifdef NB_ADC
+#undef NB_ADC
+#endif
+
 #define NB_ADC (NB_ADC1_CHANNELS + NB_ADC2_CHANNELS)
 
 // }}}
