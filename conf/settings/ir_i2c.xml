@@ -3,7 +3,7 @@
 <settings>
   <dl_settings>
     <dl_settings NAME="IR I2C">
-      <dl_setting MAX="3" MIN="0" STEP="1" VAR="ir_i2c_conf_word" module="sensors/infrared_i2c" values="1|2|4|8"/>
+      <dl_setting MAX="3" MIN="0" STEP="1" VAR="ir_i2c_conf_word" module="sensors/infrared_i2c" values="1|2|4|8" handler="SetConfWord"/>
     </dl_settings>
   </dl_settings>
 </settings>
