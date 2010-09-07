@@ -119,7 +119,7 @@ void SpektrumUartInit(void);
 void SpektrumTimerInit(void);
 /* sets a GPIO pin as output for debugging */
 void DebugInit(void);
-void tim1_up_irq_handler(void);
+void tim6_irq_handler(void);
 /* wait busy loop, microseconds */
 static void DelayUs( uint16_t uSecs );
 /* wait busy loop, milliseconds */
@@ -457,16 +457,16 @@ void RadioControlEventImp(void (*frame_handler)(void)) {
  
 /*****************************************************************************
  *
- * Initialise TIM1 to fire a IM1_UP_IRQ every 100 microseconds to provide
+ * Initialise TIM6 to fire an interrupt every 100 microseconds to provide
  * timebase for SpektrumParser
  *
  *****************************************************************************/ 
 void SpektrumTimerInit( void ) {
 
-  /* enable TIM1 clock */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+  /* enable TIM6 clock */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM6, ENABLE);
   
-  /* TIM1 configuration */
+  /* TIM6 configuration */
   TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
   TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
   /* 100 microseconds ie 0.1 millisecond */
@@ -474,34 +474,34 @@ void SpektrumTimerInit( void ) {
   TIM_TimeBaseStructure.TIM_Prescaler = ((AHB_CLK / TIM_FREQ_1000000) - 1);
   TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;   
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Down; 
-  TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
+  TIM_TimeBaseInit(TIM6, &TIM_TimeBaseStructure);
   
-  /* Enable TIM1 interrupts */
+  /* Enable TIM6 interrupts */
   NVIC_InitTypeDef NVIC_InitStructure;
   
-  /* Enable and configure TIM1 IRQ channel */
-  NVIC_InitStructure.NVIC_IRQChannel = TIM1_UP_IRQn;
+  /* Enable and configure TIM6 IRQ channel */
+  NVIC_InitStructure.NVIC_IRQChannel = TIM6_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
   
-  /* Enable TIM1 Update interrupt */
-  TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
-  TIM_ClearFlag(TIM1, TIM_FLAG_Update); 
+  /* Enable TIM6 Update interrupt */
+  TIM_ITConfig(TIM6, TIM_IT_Update, ENABLE);
+  TIM_ClearFlag(TIM6, TIM_FLAG_Update); 
   
-  /* TIM1 enable counter */
-  TIM_Cmd(TIM1, ENABLE);
+  /* TIM6 enable counter */
+  TIM_Cmd(TIM6, ENABLE);
 }
 
 /*****************************************************************************
  *
- * TIM1 interrupt request handler updates times used by SpektrumParser
+ * TIM6 interrupt request handler updates times used by SpektrumParser
  *
  *****************************************************************************/
-void tim1_up_irq_handler( void ) {
+void tim6_irq_handler( void ) {
   
-  TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
+  TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
   
   if (PrimarySpektrumState.SpektrumTimer) 
     --PrimarySpektrumState.SpektrumTimer; 
@@ -721,10 +721,10 @@ void radio_control_spektrum_try_bind(void) {
  *
  *****************************************************************************/
  
-/* set TIM1 to run at DELAY_TIM_FREQUENCY */ 
+/* set TIM6 to run at DELAY_TIM_FREQUENCY */ 
 static void SpektrumDelayInit( void ) {
   /* Enable timer clock */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM6, ENABLE);
   /* Time base configuration */
   TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
   TIM_TimeBaseStructInit(&TIM_TimeBaseStructure); 
@@ -732,17 +732,17 @@ static void SpektrumDelayInit( void ) {
   TIM_TimeBaseStructure.TIM_Period = UINT16_MAX; 
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-  TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
+  TIM_TimeBaseInit(TIM6, &TIM_TimeBaseStructure);
   
  /* Enable counter */
-  TIM_Cmd(TIM1, ENABLE);
+  TIM_Cmd(TIM6, ENABLE);
 }
 
 /* wait busy loop, microseconds */
 static void DelayUs( uint16_t uSecs ) {
-  uint16_t start = TIM1->CNT;
+  uint16_t start = TIM6->CNT;
   /* use 16 bit count wrap around */
-  while((uint16_t)(TIM1->CNT - start) <= uSecs);
+  while((uint16_t)(TIM6->CNT - start) <= uSecs);
 }
 
 /* wait busy loop, milliseconds */
