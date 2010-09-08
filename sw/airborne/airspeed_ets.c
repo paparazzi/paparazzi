@@ -5,7 +5,7 @@
  * Notes:
  * Connect directly to TWOG/Tiny I2C port. Multiple sensors can be chained together.
  * Sensor should be in the proprietary mode (default) and not in 3rd party mode.
- * See conf/airframes/easystar2.xml for a configuration example.
+ * See /conf/airframes/easystar_ets_example.xml for a configuration example.
  *
  * Sensor module wire assignments:
  * Red wire: 5V
@@ -14,6 +14,7 @@
  * Brown wire: SCL
  *
  * Copyright (C) 2009 Vassilis Varveropoulos
+ * Modified by Mark Griffin on 8 September 2010 to work with new i2c transaction routines.
  *
  * This file is part of paparazzi.
  *
@@ -33,7 +34,6 @@
  * Boston, MA 02111-1307, USA.
  *
  */
-
 #include "airspeed_ets.h"
 #include "i2c.h"
 #include "nav.h"
@@ -44,7 +44,6 @@
 #endif
 
 #define AIRSPEED_ETS_ADDR 0xEA
-#define AIRSPEED_ETS_REG 0x07
 #ifndef AIRSPEED_ETS_SCALE
 #define AIRSPEED_ETS_SCALE 1.8
 #endif
@@ -65,6 +64,8 @@ float airspeed_ets;
 int airspeed_ets_buffer_idx;
 float airspeed_ets_buffer[AIRSPEED_ETS_NBSAMPLES_AVRG];
 
+struct i2c_transaction airspeed_ets_i2c_trans;
+
 // Local variables
 volatile bool_t airspeed_ets_i2c_done;
 bool_t airspeed_ets_offset_init;
@@ -81,18 +82,22 @@ void airspeed_ets_init( void ) {
   airspeed_ets_valid = TRUE;
   airspeed_ets_offset_init = FALSE;
   airspeed_ets_cnt = AIRSPEED_ETS_OFFSET_NBSAMPLES_INIT + AIRSPEED_ETS_OFFSET_NBSAMPLES_AVRG;
-  i2c0_buf[0] = 0;
-  i2c0_buf[1] = 0;
+
   airspeed_ets_buffer_idx = 0;
   for (n=0; n < AIRSPEED_ETS_NBSAMPLES_AVRG; ++n)
     airspeed_ets_buffer[n] = 0.0;
+
+  airspeed_ets_i2c_trans.status = I2CTransSuccess;
+  airspeed_ets_i2c_trans.slave_addr = AIRSPEED_ETS_ADDR;
+  airspeed_ets_i2c_trans.stop_after_transmit = TRUE;
 }
 
 void airspeed_ets_read( void ) {
-  // Initiate next read
-  i2c0_buf[0] = 0;
-  i2c0_buf[1] = 0;
-  i2c0_receive(AIRSPEED_ETS_ADDR, 2, &airspeed_ets_i2c_done); 
+  if (airspeed_ets_i2c_trans.status == I2CTransSuccess) {
+    airspeed_ets_i2c_trans.type = I2CTransRx;
+    airspeed_ets_i2c_trans.len_r = 2;
+    i2c_submit(&i2c0, &airspeed_ets_i2c_trans);
+  }
 }      
 
 void airspeed_ets_periodic( void ) {
@@ -100,9 +105,10 @@ void airspeed_ets_periodic( void ) {
   float airspeed_tmp = 0.0;
 
   // Read raw value
-  if (i2c0_status == I2C_IDLE) {
+
+  if (airspeed_ets_i2c_trans.status == I2CTransSuccess) {
     // Get raw airspeed from buffer
-    airspeed_ets_raw = ((uint16_t)(i2c0_buf[1]) << 8) | (uint16_t)(i2c0_buf[0]);
+    airspeed_ets_raw = ((uint16_t)(airspeed_ets_i2c_trans.buf[1]) << 8) | (uint16_t)(airspeed_ets_i2c_trans.buf[0]);
     // Check if this is valid airspeed
     if (airspeed_ets_raw == 0)
       airspeed_ets_valid = FALSE;
