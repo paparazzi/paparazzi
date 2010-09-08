@@ -31,6 +31,7 @@
 #include "booz/booz_imu.h"
 #include "booz/booz_radio_control.h"
 #include "lisa/lisa_overo_link.h"
+#include "airframe.h"
 
 #include "stm32/can.h"
 #include "csc_msg_def.h"
@@ -105,6 +106,18 @@ static inline void main_init(void) {
 
 }
 
+static void check_radio_lost(void)
+{
+	if (radio_control.status == RADIO_CONTROL_REALLY_LOST) {
+		const static int32_t commands_failsafe[COMMANDS_NB] = COMMANDS_FAILSAFE;
+#define ActuatorsCommit() booz_actuators_pwm_commit();
+#define actuators booz_actuators_pwm_values
+		SetActuatorsFromCommands(commands_failsafe);
+#undef actuators
+#undef ActuatorsCommit
+	}
+}
+
 static inline void main_periodic(void) {
 	uint16_t v1 = 123;
 	uint16_t v2 = 123;
@@ -116,6 +129,7 @@ static inline void main_periodic(void) {
       LED_PERIODIC(); 
       DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
       radio_control_periodic();
+			check_radio_lost();
     });
 
   RunOnceEvery(2, {baro_periodic();});
@@ -132,6 +146,15 @@ static inline void main_periodic(void) {
 
 static inline void on_rc_message(void) {
   new_radio_msg = TRUE;
+	if (radio_control.values[RADIO_CONTROL_MODE] >= 1) {
+		static int32_t commands[COMMANDS_NB];
+		SetCommandsFromRC(commands, radio_control.values);
+#define ActuatorsCommit() booz_actuators_pwm_commit();
+#define actuators booz_actuators_pwm_values
+		SetActuatorsFromCommands(commands);
+#undef actuators
+#undef ActuatorsCommit
+	}
 }
 
 static inline void on_overo_link_msg_received(void) {
@@ -172,11 +195,13 @@ static inline void on_overo_link_msg_received(void) {
   overo_link.up.msg.pressure_differential = baro.differential;
   overo_link.up.msg.pressure_absolute     = baro.absolute;
   
+	/* vane up */
   overo_link.up.msg.valid.vane =  new_vane;
   new_vane = FALSE;
   overo_link.up.msg.vane_angle1 = csc_vane_msg.vane_angle1;
   overo_link.up.msg.vane_angle2 = csc_vane_msg.vane_angle2;
   
+	/* adc up */
 	overo_link.up.msg.adc.channels[0] = adc0_buf.sum / adc0_buf.av_nb_sample; 
 	overo_link.up.msg.adc.channels[1] = adc1_buf.sum / adc1_buf.av_nb_sample; 
 	overo_link.up.msg.adc.channels[2] = adc2_buf.sum / adc2_buf.av_nb_sample; 
