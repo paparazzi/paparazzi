@@ -110,7 +110,8 @@ stm_passthrough.CFLAGS += -DUSE_AD1 \
 	-DUSE_AD1_1 \
 	-DUSE_AD1_2 \
 	-DUSE_AD1_3 \
-	-DUSE_AD1_4
+	-DUSE_AD1_4 \
+	-DUSE_ADC1_2_IRQ_HANDLER
 
 
 # Battery monitor
