@@ -243,7 +243,7 @@ let parse_command = fun command no ->
    let failsafe_value = int_of_string (ExtXml.attrib command "failsafe_value") in
    { failsafe_value = failsafe_value; foo = 0}
 
-let parse_section = fun s ->
+let rec parse_section = fun s ->
   match Xml.tag s with
     "section" ->
       let prefix = ExtXml.attrib_or_default s "prefix" "" in
@@ -297,6 +297,12 @@ let parse_section = fun s ->
       printf "#define SendCscFromActuators() { \\\n";
       List.iter parse_csc_boards (Xml.children s);
       printf "}\n"
+  | "include" ->
+      let filename = ExtXml.attrib s "href" in
+      let subxml = Xml.parse_file filename in
+      printf "/* XML %s */" filename;
+      nl ();
+      List.iter parse_section (Xml.children subxml)
   | "makefile" ->
       ()
       (** Ignoring this section *)
