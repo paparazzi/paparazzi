@@ -57,7 +57,7 @@
 #define PERIODIC_SEND_ALIVE(_chan)  DOWNLINK_SEND_ALIVE(_chan, 16, MD5SUM);
 
 #define PERIODIC_SEND_BAT(_chan) { \
-	uint16_t zero; \
+	uint16_t zero = 0; \
 	Downlink({ int16_t e = energy; \
 			   DOWNLINK_SEND_BAT(_chan, \
 								 &v_ctl_throttle_slewed, \

@@ -22,90 +22,177 @@
 #
 #
 
-# All targets need the board config
-$(TARGET).CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+######################################################################
+##
+## COMMON FIXEDWING ALL TARGETS (SIM + AP + FBW ...)
+##
+
+#
+# Board config + Include paths
+#
+
+$(TARGET).CFLAGS 	+= -DBOARD_CONFIG=$(BOARD_CFG)
+$(TARGET).CFLAGS 	+= $(FIXEDWING_INC)
+
+#
+# Common Options 
+#
 
 ifeq ($(OPTIONS), minimal)
 else
-  $(TARGET).CFLAGS += -DWIND_INFO 
+  $(TARGET).CFLAGS 	+= -DWIND_INFO 
 endif
 
-$(TARGET).CFLAGS += -DTRAFFIC_INFO
-
-sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DLED
-sim.srcs += latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c $(SRC_ARCH)/sim_ap.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c $(SRC_ARCH)/led_hw.c
-
-
-
-ap.CFLAGS += $(FIXEDWING_INC)
-ap.srcs    = $(SRC_FIXEDWING)/main.c
-
-ifeq ($(ARCHI), stm32)
-ap.srcs += lisa/plug_sys.c
-endif
-
-#
-# Interrupts
-#
-ifeq ($(ARCHI), arm7)
-ap.srcs += $(SRC_ARCH)/armVIC.c
-else ifeq ($(ARCHI), stm32)
-ap.srcs += $(SRC_ARCH)/stm32_exceptions.c
-ap.srcs += $(SRC_ARCH)/stm32_vector_table.c
-endif
+$(TARGET).CFLAGS 	+= -DTRAFFIC_INFO
 
 #
 # LEDs
 #
-ap.CFLAGS += -DUSE_LED -DLED -DTIME_LED=1
-ifeq ($(ARCHI), stm32)
-ap.srcs += $(SRC_ARCH)/led_hw.c
+
+$(TARGET).CFLAGS 	+= -DLED 
+ifneq ($(ARCHI), arm7)
+  $(TARGET).srcs 	+= $(SRC_ARCH)/led_hw.c
 endif
 
 #
-# Systime
+# Sys-time
 #
-ap.CFLAGS += -DUSE_SYS_TIME
-ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-#ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./60.))'
-ifeq ($(ARCHI), stm32)
-ap.CFLAGS += -DSYS_TIME_LED=1  -DPERIPHERALS_AUTO_INIT
-endif
 
-
-#
-# FlyByWire Main
-#
-ap.CFLAGS += -DFBW
-ap.srcs += $(SRC_FIXEDWING)/main_fbw.c
-
-#
-# AutoPilot Main
-#
-ap.CFLAGS += -DAP
-ap.srcs += $(SRC_FIXEDWING)/main_ap.c
-ap.srcs += $(SRC_FIXEDWING)/estimator.c
+$(TARGET).srcs 		+= sys_time.c
 
 #
 # InterMCU & Commands
 #
 
-ap.CFLAGS += -DINTER_MCU
-ap.srcs += $(SRC_FIXEDWING)/inter_mcu.c
-ap.srcs += $(SRC_FIXEDWING)/commands.c
+$(TARGET).CFLAGS 	+= -DINTER_MCU
+$(TARGET).srcs 		+= $(SRC_FIXEDWING)/inter_mcu.c
+
+######################################################################
+##
+## COMMON FOR ALL NON-SIMULATION TARGETS
+##
+
+#
+# Interrupt Vectors
+#
+
+ifeq ($(ARCHI), arm7)
+  ns_srcs 		+= $(SRC_ARCH)/armVIC.c
+else ifeq ($(ARCHI), stm32)
+  ns_srcs 		+= $(SRC_ARCH)/stm32_exceptions.c
+  ns_srcs 		+= $(SRC_ARCH)/stm32_vector_table.c
+  ns_CFLAGS 		+= -DPERIPHERALS_AUTO_INIT
+endif
+
+ifeq ($(ARCHI), stm32)
+  ns_srcs 		+= lisa/plug_sys.c
+endif
+
+
+#
+# Main
+#
+
+ns_srcs    	+= $(SRC_FIXEDWING)/main.c
+
+#
+# LEDs
+#
+
+ns_CFLAGS 		+= -DUSE_LED
+ifeq ($(ARCHI), stm32)
+  ns_CFLAGS 		+= -DSYS_TIME_LED=1
+else
+ ns_CFLAGS 		+= -DTIME_LED=1
+endif
+
+#
+# Sys-time
+#
+
+ns_CFLAGS 		+= -DUSE_SYS_TIME
+ns_CFLAGS 		+= -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./60.))'
+ns_srcs 		+= $(SRC_ARCH)/sys_time_hw.c
+
 
 #
 # UARTS
 #
-ap.srcs += $(SRC_ARCH)/uart_hw.c
 
+ns_srcs 		+= $(SRC_ARCH)/uart_hw.c
+
+#
+# ANALOG
+#
 
 ifeq ($(ARCHI), arm7)
-ap.CFLAGS += -DADC
-ap.srcs += $(SRC_ARCH)/adc_hw.c
+  ns_CFLAGS 		+= -DADC
+  ns_srcs 		+= $(SRC_ARCH)/adc_hw.c
 else ifeq ($(ARCHI), stm32)
-ap.srcs += lisa/lisa_analog_plug.c
+  ns_srcs 		+= lisa/lisa_analog_plug.c
 endif
 
+
+######################################################################
+##
+## FLY BY WIRE THREAD SPECIFIC
+##
+
+fbw_CFLAGS		+= -DFBW
+fbw_srcs 		+= $(SRC_FIXEDWING)/main_fbw.c
+fbw_srcs 		+= $(SRC_FIXEDWING)/commands.c
+
+######################################################################
+##
+## AUTOPILOT THREAD SPECIFIC
+##
+
+ap_CFLAGS 		+= -DAP
+ap_srcs 		+= $(SRC_FIXEDWING)/main_ap.c
+ap_srcs 		+= $(SRC_FIXEDWING)/estimator.c
+
+
+######################################################################
+##
+## SIMULATOR THREAD SPECIFIC
+##
+
+sim.CFLAGS 		+= $(fbw_CFLAGS) $(ap_CFLAGS)
+sim.srcs 		+= $(fbw_srcs) $(ap_srcs)
+
+sim.CFLAGS 		+= -DSITL 
+sim.srcs 		+= $(SRC_ARCH)/sim_ap.c
+
+sim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport 
+sim.srcs 		+= downlink.c datalink.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c 
+
+######################################################################
+##
+## Final Target Allocations
+##
+
+#
+# SINGLE MCU / DUAL MCU
+# 
+
+ifeq ($(BOARD),classix)
+  fbw.CFLAGS 		+= -DMCU_SPI_LINK -DUSE_SPI -DSPI_SLAVE
+  fbw.srcs 		+= $(SRC_FIXEDWING)/link_mcu.c $(SRC_FIXEDWING)/spi.c $(SRC_ARCH)/spi_hw.c
+  ap.CFLAGS 		+= -DMCU_SPI_LINK -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0
+  ap.srcs 		+= $(SRC_FIXEDWING)/link_mcu.c $(SRC_FIXEDWING)/spi.c $(SRC_ARCH)/spi_hw.c
+else
+  # Single MCU's run both
+  ap.CFLAGS 		+= $(fbw_CFLAGS) 
+  ap.srcs 		+= $(fbw_srcs) 
+endif
+
+#
+# No-Sim parameters 
+#
+
+fbw.CFLAGS 		+= $(fbw_CFLAGS) $(ns_CFLAGS)
+fbw.srcs 		+= $(fbw_srcs) $(ns_srcs)
+
+ap.CFLAGS 		+= $(ap_CFLAGS) $(ns_CFLAGS)
+ap.srcs 		+= $(ap_srcs) $(ns_srcs)
 

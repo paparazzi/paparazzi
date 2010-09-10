@@ -66,6 +66,9 @@ demo:
 	$(SUPERVISION)
 
 all_ac_h: $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(TUNING_H) $(MAKEFILE_AC) $(PERIODIC_H)
+	@echo -e "TARGET: $(TARGET)\n" > $(ACINCLUDE)/$(TARGET)_srcs.list
+	@echo -e "CFLAGS: $($(TARGET).CFLAGS)\n\n" >> $(ACINCLUDE)/$(TARGET)_srcs.list
+	@echo "srcs:  $($(TARGET).srcs)" >> $(ACINCLUDE)/$(TARGET)_srcs.list
 
 radio_ac_h : $(RADIO_H) $(CONF_RADIO_CONTROL_PPM_H)
 
