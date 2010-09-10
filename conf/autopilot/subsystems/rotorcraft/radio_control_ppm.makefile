@@ -7,6 +7,7 @@ ap.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
 ap.srcs += $(SRC_BOOZ)/booz_radio_control.c                    \
            $(SRC_BOOZ)/radio_control/booz_radio_control_ppm.c  \
            $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_ppm_arch.c
+ap.CFLAGS += -DUSE_TIM2_IRQ
 
 #
 # Simulator
@@ -17,3 +18,14 @@ sim.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
 sim.srcs += $(SRC_BOOZ)/booz_radio_control.c \
             $(SRC_BOOZ)/radio_control/booz_radio_control_ppm.c \
             $(SRC_BOOZ_SIM)/radio_control/booz_radio_control_ppm_arch.c
+
+#
+# test_rc_ppm
+#
+# configuration
+#   SYS_TIME_LED
+#   MODEM_PORT
+#   MODEM_BAUD
+#   RADIO_CONTROL_LED
+#
+
