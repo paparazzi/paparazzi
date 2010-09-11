@@ -15,3 +15,16 @@ ifeq ($(NORADIO), False)
 endif
 
 
+ifeq ($(ARCHI),stm32)
+  ap.CFLAGS  += -I$(SRC_FIXEDWING)/booz/
+  ap.CFLAGS  += -I$(SRC_FIXEDWING)/booz/arch/stm32/
+
+  ap.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
+  ap.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_ppm.h\"
+  ap.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
+  ap.srcs += $(SRC_FIXEDWING)/booz/booz_radio_control.c                    \
+             $(SRC_FIXEDWING)/booz/radio_control/booz_radio_control_ppm.c  \
+             $(SRC_FIXEDWING)/booz/arch/stm32/radio_control/booz_radio_control_ppm_arch.c
+  ap.CFLAGS += -DUSE_TIM2_IRQ
+
+endif

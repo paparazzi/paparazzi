@@ -11,6 +11,9 @@
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="AILEVON_LEFT"  no="1" min="1130" neutral="1575" max="1880"/>
     <servo name="AILEVON_RIGHT" no="2" min="1980" neutral="1465" max="1170"/>
+    <servo name="EXTRA1" 	no="3" min="1980" neutral="1465" max="1170"/>
+    <servo name="EXTRA2" 	no="4" min="1980" neutral="1465" max="1170"/>
+    <servo name="EXTRA3" 	no="5" min="1980" neutral="1465" max="1170"/>
   </servos>
 
   <commands>
@@ -35,8 +38,11 @@
     <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
     <set servo="MOTOR"           value="@THROTTLE"/>
-    <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
-    <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
+    <set servo="AILEVON_LEFT"  value="$aileron + $elevator"/>
+    <set servo="AILEVON_RIGHT" value="$aileron - $elevator"/>
+    <set servo="EXTRA1" value="@THROTTLE"/>
+    <set servo="EXTRA2" value="@THROTTLE"/>
+    <set servo="EXTRA3" value="@THROTTLE"/>
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -186,10 +192,9 @@
 
     <!-- Actuators -->
 
-    <!-- Sensors
+    <!-- Sensors -->
     <subsystem name="radio_control" 	type="ppm"/>
-    <subsystem name="actuators" 	type="4017"/>
-    <subsystem name="attitude"  	type="infrared"/>
+<!--    <subsystem name="attitude"  	type="infrared"/>
  -->
     <subsystem name="gps" 		type="ublox_lea4p">
       <param name="GPS_UART_NR"		value="1"/>
