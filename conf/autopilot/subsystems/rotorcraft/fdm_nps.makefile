@@ -141,7 +141,7 @@ sim.srcs += $(SRC_BOOZ)/booz2_ins.c
 
 #  vertical filter float version
 sim.srcs += $(SRC_BOOZ)/ins/booz2_vf_float.c
-sim.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)"
+sim.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./512.)'
 
 #
 # INS choice

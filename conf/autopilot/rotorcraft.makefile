@@ -209,7 +209,7 @@ ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodeti
 
 #  vertical filter float version
 ap.srcs += $(SRC_BOOZ)/ins/booz2_vf_float.c
-ap.CFLAGS += -DUSE_VFF -DDT_VFILTER="(1./512.)"
+ap.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./512.)'
 
 ap.srcs += $(SRC_BOOZ)/booz2_navigation.c
 
