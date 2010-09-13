@@ -65,10 +65,16 @@ init:
 demo:
 	$(SUPERVISION)
 
+ifeq ($(MAKECMDGOALS),all_ac_h) 
+-include $(MAKEFILE_AC)
+endif
+
+
+
 all_ac_h: $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(TUNING_H) $(MAKEFILE_AC) $(PERIODIC_H)
-	@echo -e "TARGET: $(TARGET)\n" > $(ACINCLUDE)/$(TARGET)_srcs.list
-	@echo -e "CFLAGS: $($(TARGET).CFLAGS)\n\n" >> $(ACINCLUDE)/$(TARGET)_srcs.list
-	@echo "srcs:  $($(TARGET).srcs)" >> $(ACINCLUDE)/$(TARGET)_srcs.list
+	@echo "TARGET: " $(TARGET) "\n" > $(ACINCLUDE)/$(TARGET)_srcs.list
+	@echo "CFLAGS: " $($(TARGET).CFLAGS) "\n"  >> $(ACINCLUDE)/$(TARGET)_srcs.list
+	@echo "srcs: " $($(TARGET).srcs) >> $(ACINCLUDE)/$(TARGET)_srcs.list
 
 radio_ac_h : $(RADIO_H) $(CONF_RADIO_CONTROL_PPM_H)
 
@@ -93,10 +99,6 @@ $(CONF_RADIO_CONTROL_PPM_H) : $(CONF)/$(RADIO) $(CONF_XML) $(TOOLS)/gen_conf_rad
 	$(Q)$(TOOLS)/gen_conf_radio_control_ppm.out $< > /tmp/conf_radio_control_ppm.h
 	$(Q)mv /tmp/conf_radio_control_ppm.h $@
 	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/radios
-
-ifeq ($(MAKECMDGOALS),all_ac_h) 
--include $(MAKEFILE_AC)
-endif
 
 $(PERIODIC_H) : $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY) $(MAKEFILE_AC)
 	@echo BUILD $@

@@ -6,5 +6,5 @@
 # can be adjusted in the "servos_ppm_hw.h" file to suit your particular receiver.
 
 ap.CFLAGS += -DACTUATORS=\"servos_ppm_hw.h\" -DSERVOS_PPM_MAT
-ap.srcs += $(SRC_FIXEDWING_ARCH)/servos_ppm_hw.c $(SRC_FIXEDWING)/actuators.c
+ap.srcs += $(SRC_ARCH)/servos_ppm_hw.c $(SRC_FIXEDWING)/actuators.c
 
