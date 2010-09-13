@@ -119,14 +119,10 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 #define GpsToggleLed() {}
 #endif
 
-#ifdef GPS
+#if defined(GPS) || defined(USE_GPS_XSENS) || defined(SITL) 
 #  define GpsTimeoutError (cpu_time_sec - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)
 #else
-#  ifdef SITL
-#    define GpsTimeoutError (cpu_time_sec - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)
-#  else
-#    define GpsTimeoutError 1
-#  endif
+#  define GpsTimeoutError 1
 #endif
 
 #define UseGpsPosNoSend(_callback) {			\

@@ -53,9 +53,9 @@
 #include "std.h"
 #include "led.h"
 #include "airframe.h"
-#include "ap_downlink.h"
 #include "estimator.h"
 #include "gps.h"
+
 
 extern uint8_t dc_timer;
 
@@ -81,18 +81,7 @@ extern uint8_t dc_shoot;
 
 #define SHUTTER_DELAY 2  /* 4Hz -> 0.5s */
 
-static inline uint8_t dc_shutter( void ) {
-  dc_timer = SHUTTER_DELAY; 
-  DC_PUSH(DC_SHUTTER_LED);
-
-  int16_t phi = DegOfRad(estimator_phi*10.0f);
-  int16_t theta = DegOfRad(estimator_theta*10.0f);
-  DOWNLINK_SEND_DC_SHOT(DefaultChannel, &dc_photo_nr, &gps_utm_east, &gps_utm_north, &estimator_z, &gps_utm_zone, &phi, &theta,  &gps_course, &gps_gspeed, &gps_itow);
-
-  dc_photo_nr++;
-
-  return 0;
-}
+uint8_t dc_shutter( void );
 
 static inline uint8_t dc_zoom( void ) {
   dc_timer = SHUTTER_DELAY; 
@@ -106,8 +95,11 @@ static inline uint8_t dc_zoom( void ) {
 #define dc_Zoom(_) ({ dc_zoom(); 0; })
 #define dc_Periodic(s) ({ dc_periodic_shutter = s; dc_shutter_timer = s; 0; })
 
+#ifndef DC_PERIODIC_SHUTTER
+#define DC_PERIODIC_SHUTTER 0
+#endif
 
-#define dc_init() { /* initialized as leds */ dc_periodic_shutter = 0; } /* Output */
+#define dc_init() { /* initialized as leds */ dc_periodic_shutter = DC_PERIODIC_SHUTTER; DC_PUSH(DC_SHUTTER_LED);} /* Output */
 
 
 #ifndef DC_GPS_TRIGGER_START 
@@ -116,6 +108,8 @@ static inline uint8_t dc_zoom( void ) {
 #ifndef DC_GPS_TRIGGER_STOP 
 #define DC_GPS_TRIGGER_STOP 3
 #endif
+
+static void dc_send_shot_position(void);
 
 static inline void dc_shoot_on_gps( void ) {
   static uint8_t gps_msg_counter = 0;
@@ -126,11 +120,8 @@ static inline void dc_shoot_on_gps( void ) {
     if (gps_msg_counter == 0)
     {
       DC_PUSH(DC_SHUTTER_LED);
-      int16_t phi = DegOfRad(estimator_phi*10.0f);
-      int16_t theta = DegOfRad(estimator_theta*10.0f);
-      float gps_z = ((float)gps_alt) / 100.0f;
-      DOWNLINK_SEND_DC_SHOT(DefaultChannel, &dc_photo_nr, &gps_utm_east, &gps_utm_north, &gps_z, &gps_utm_zone, &phi, &theta,  &gps_course, &gps_gspeed, &gps_itow);
-      dc_photo_nr++;
+
+      dc_send_shot_position();
     }
     else if (gps_msg_counter == DC_GPS_TRIGGER_START)
     {
@@ -154,16 +145,23 @@ static inline void dc_periodic( void ) {
 #endif
   }
 
-  if (dc_periodic_shutter) {
-    RunOnceEvery(4, 
-    {
-      if (dc_shutter_timer) {
-	dc_shutter_timer--;
-      } else {
-	dc_shutter();
-	dc_shutter_timer = dc_periodic_shutter;
-      }
-    });
+  if (dc_shoot > 0)
+  {
+    if (dc_periodic_shutter) {
+      RunOnceEvery(2, 
+      {
+        if (dc_shutter_timer) {
+  	  dc_shutter_timer--;
+        } else {
+	  dc_shutter();
+	  dc_shutter_timer = dc_periodic_shutter;
+        }
+      });
+    }
+  }
+  else
+  {
+    dc_shutter_timer = 0;
   }
 }
 

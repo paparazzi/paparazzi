@@ -83,10 +83,6 @@
 #include "i2c.h"
 #endif
 
-#ifdef DIGITAL_CAM
-#include "dc.h"
-#endif
-
 #ifdef DPICCO
 #include "i2c.h"
 #include "dpicco.h"
@@ -515,9 +511,6 @@ void periodic_task_ap( void ) {
     break;
     }
 
-#ifdef DIGITAL_CAM
-    dc_periodic();
-#endif
     break;
 
 #ifdef USE_GPIO
@@ -751,10 +744,6 @@ void init_ap( void ) {
 
 #ifdef USE_ADC_GENERIC
   adc_generic_init();
-#endif
-
-#ifdef DIGITAL_CAM
-  dc_init();
 #endif
 
 #ifdef DPICCO

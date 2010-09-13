@@ -189,7 +189,12 @@ void ins_periodic_task( void ) {
 void handle_ins_msg( void) {
   EstimatorSetAtt(ins_phi, ins_psi, ins_theta);
   EstimatorSetRate(ins_p,ins_q);
+  if (gps_mode != 0x03)
+    gps_gspeed = 0;
   EstimatorSetSpeedPol(gps_gspeed, ins_psi, ins_vz);
+  // EstimatorSetAlt(ins_z);
+  estimator_update_state_gps();
+  reset_gps_watchdog();
 }
 
 void parse_ins_msg( void ) {
@@ -231,7 +236,6 @@ void parse_ins_msg( void ) {
 #ifdef USE_GPS_XSENS
         gps_week = 0; // FIXME
         gps_itow = XSENS_DATA_RAWGPS_itow(xsens_msg_buf,offset) * 10;
-#ifdef USE_GPS_XSENS_RAW_DATA
         gps_lat = XSENS_DATA_RAWGPS_lat(xsens_msg_buf,offset);
         gps_lon = XSENS_DATA_RAWGPS_lon(xsens_msg_buf,offset);
         /* Set the real UTM zone */
@@ -248,7 +252,6 @@ void parse_ins_msg( void ) {
         ins_vy = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_n(xsens_msg_buf,offset) / 100.;
         ins_vz = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_d(xsens_msg_buf,offset) / 100.;
         gps_climb = -XSENS_DATA_RAWGPS_vel_d(xsens_msg_buf,offset) / 10;
-#endif
         gps_Pacc = XSENS_DATA_RAWGPS_hacc(xsens_msg_buf,offset) / 100;
         gps_Sacc = XSENS_DATA_RAWGPS_sacc(xsens_msg_buf,offset) / 100;
         gps_PDOP = 5;
@@ -324,6 +327,7 @@ void parse_ins_msg( void ) {
         offset += l * XSENS_DATA_Auxiliary_LENGTH / 2;
       }
       if (XSENS_MASK_Position(xsens_output_mode)) {
+#ifdef USE_GPS_XSENS_RAW_DATA
 #ifdef USE_GPS_XSENS
         float lat = XSENS_DATA_Position_lat(xsens_msg_buf,offset);
         float lon = XSENS_DATA_Position_lon(xsens_msg_buf,offset);
@@ -335,11 +339,11 @@ void parse_ins_msg( void ) {
         ins_y = latlong_utm_y;
         gps_utm_east  = ins_x * 100;
         gps_utm_north = ins_y * 100;
-        ins_z = -XSENS_DATA_Position_alt(xsens_msg_buf,offset);
+        ins_z = XSENS_DATA_Position_alt(xsens_msg_buf,offset);
 #ifndef USE_VFILTER
         gps_alt = ins_z * 100;
 #endif
-	reset_gps_watchdog();
+#endif
 #endif
         offset += XSENS_DATA_Position_LENGTH;
       }

@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "./module.dtd">
+
+<module name="digital_cam">
+  <header>
+    <file name="dc.h"/>
+  </header>
+  <init fun="dc_init()"/>
+  <periodic fun="dc_periodic()" freq="4" autorun="TRUE"/>
+  <makefile>
+    <raw>
+
+# ap.CFLAGS += -DGPS_TRIGGERED_FUNCTION="dc_shoot_on_gps" 
+# ap.CFLAGS += -DDC_GPS_TRIGGER_START=1 
+# ap.CFLAGS += -DDC_GPS_TRIGGER_STOP=3 
+
+    </raw>
+    <flag name="DIGITAL_CAM" />
+    <file name="dc.c"/>
+  </makefile>
+</module>
+

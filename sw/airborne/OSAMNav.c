@@ -1056,11 +1056,12 @@ bool_t FlightLine(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Befo
 		NavVerticalAutoThrottleMode(0); /* No pitch */
 		NavVerticalAltitudeMode(waypoints[From_WP].a, 0);
 		
-		nav_circle_XY(FLCircle.x, FLCircle.y, FLRadius);	
-	
+		nav_circle_XY(FLCircle.x, FLCircle.y, FLRadius);
+			
 		if(NavCircleCount() > 0.2 && NavQdrCloseTo(DegOfRad(FLQDR)))
 		{
 			CFLStatus = FLLine;
+			LINE_START_FUNCTION;
 			nav_init_stage();
 		}
 		break;	
@@ -1069,11 +1070,14 @@ bool_t FlightLine(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Befo
 
 		NavVerticalAutoThrottleMode(0); /* No pitch */
 		NavVerticalAltitudeMode(waypoints[From_WP].a, 0);
+		
 		nav_route_xy(FLFROMWP.x,FLFROMWP.y,FLTOWP.x,FLTOWP.y);
+		
 
 		if(nav_approaching_xy(FLTOWP.x,FLTOWP.y,FLFROMWP.x,FLFROMWP.y, 0))
 		{
 			CFLStatus = FLFinished;
+			LINE_STOP_FUNCTION;
 			nav_init_stage();
 		}			
 	break;	

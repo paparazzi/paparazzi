@@ -5,7 +5,7 @@
 #
 # TODO: move all to new directories
 # ARCH=lpc21
-ARCH=arm7
+ARCH=arm7tdmi
 ARCHI=arm7
 
 

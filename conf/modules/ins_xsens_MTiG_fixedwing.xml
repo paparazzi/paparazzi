@@ -14,6 +14,7 @@
     <flag name="INS_LINK" value="Uart1"/>
     <flag name="UART1_BAUD" value="B115200"/>
     <flag name="USE_GPS_XSENS"/>
+    <flag name="USE_GPS_XSENS_RAW_DATA" />
     <file name="ins_xsens.c"/>
   </makefile>
 </module>
