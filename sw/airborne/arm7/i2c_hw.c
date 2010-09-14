@@ -323,21 +323,21 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
   uint8_t idx;
   idx = p->trans_insert_idx + 1;
   if (idx >= I2C_TRANSACTION_QUEUE_LEN) idx = 0;
-  if (idx == p->trans_extract_idx)
-    return FALSE;                          // queue full
-
+  if (idx == p->trans_extract_idx) {
+    t->status = I2CTransFailed;
+    return FALSE;  /* queue full */
+  }
   t->status = I2CTransPending;
-
-  // disable irq
   int_disable();
   p->trans[p->trans_insert_idx] = t;
   p->trans_insert_idx = idx;
   /* if peripheral is idle, start the transaction */
   if (p->status == I2CIdle)
     I2cSendStart(p);
-  /* else it will be started by the interrupt handler when the previous transactions completes */
-  // enable irq
+  /* else it will be started by the interrupt handler */
+  /* when the previous transactions completes         */
   int_enable();
+
   return TRUE;
 }
 
