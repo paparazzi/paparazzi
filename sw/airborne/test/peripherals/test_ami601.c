@@ -33,6 +33,7 @@
 
 #include "i2c.h"
 #include "booz/peripherals/booz_ami601.h"
+#include "math/pprz_algebra_int.h"
 
 #include "interrupt_hw.h"
 
@@ -76,9 +77,7 @@ static inline void main_event_task( void ) {
 static inline void on_mag(void) {
   LED_TOGGLE(4); 
   ami601_status = AMI601_IDLE;
-  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, 
-			    &ami601_values[0],
-			    &ami601_values[1],
-			    &ami601_values[2]);
+  struct Int32Vect3 bla = {ami601_values[0], ami601_values[1], ami601_values[2]};
+  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, &bla.x, &bla.y, &bla.z);
   
 }
