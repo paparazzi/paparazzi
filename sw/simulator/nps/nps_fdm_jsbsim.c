@@ -1,5 +1,6 @@
 #include <FGFDMExec.h>
 #include <FGJSBBase.h>
+#include <models/FGPropulsion.h>
 #include <models/FGGroundReactions.h>
 #include <stdlib.h>
 #include "nps_fdm.h"
@@ -176,6 +177,9 @@ static void init_jsbsim(double dt) {
     delete FDMExec;
     exit(-1);
   }
+
+  //initRunning for all engines
+  FDMExec->GetPropulsion()->InitRunning(-1);
 
   JSBSim::FGInitialCondition *IC = FDMExec->GetIC();
   if ( ! IC->Load(NPS_INITIAL_CONDITITONS)) {

@@ -27,6 +27,7 @@
 
 #include <FGFDMExec.h>
 #include <FGJSBBase.h>
+#include <models/FGPropulsion.h>
 
 #include "std.h"
 #include "airframe.h"

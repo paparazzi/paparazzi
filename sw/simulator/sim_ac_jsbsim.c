@@ -221,6 +221,8 @@ void jsbsim_init(void) {
       IC->SetTerrainElevationFtIC(GROUND_ALT / FT2M);
       IC->SetPsiDegIC(QFU);
       IC->SetVgroundFpsIC(0.);
+      //initRunning for all engines
+      FDMExec->GetPropulsion()->InitRunning(-1);
       if (!FDMExec->RunIC()) {
         cerr << "Initialization from flight plan unsuccessful" << endl;
         exit(-1);
