@@ -87,7 +87,7 @@ tools: lib
 logalizer: lib
 	cd $(LOGALIZER); $(MAKE)
 
-sim_static :
+sim_static : lib
 	cd $(SIMULATOR); $(MAKE) PAPARAZZI_SRC=$(PAPARAZZI_SRC)
 
 cockpit: lib
@@ -104,36 +104,36 @@ static_h: $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(D
 usb_lib:
 	@[ -d sw/airborne/arm7/lpcusb ] && ((test -x $(ARMGCC) && (cd sw/airborne/arm7/lpcusb; $(MAKE))) || echo "Not building usb_lib: ARMGCC=$(ARMGCC) not found") || echo "Not building usb_lib: sw/airborne/arm7/lpcusb directory missing"
 
-$(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) $(TOOLS)/gen_messages.out
+$(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) tools
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_messages.out $< telemetry > /tmp/msg.h
 	$(Q)mv /tmp/msg.h $@
 	$(Q)chmod a+r $@
 
-$(MESSAGES2_H) : $(MESSAGES_XML) $(CONF_XML) $(TOOLS)/gen_messages2.out
+$(MESSAGES2_H) : $(MESSAGES_XML) $(CONF_XML) tools
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_messages2.out $< telemetry > /tmp/msg.h
 	$(Q)mv /tmp/msg.h $@
 	$(Q)chmod a+r $@
 
-$(UBX_PROTOCOL_H) : $(UBX_XML) $(TOOLS)/gen_ubx.out
+$(UBX_PROTOCOL_H) : $(UBX_XML) tools
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_ubx.out $< > /tmp/ubx.h
 	$(Q)mv /tmp/ubx.h $@
 
-$(XSENS_PROTOCOL_H) : $(XSENS_XML) $(TOOLS)/gen_xsens.out
+$(XSENS_PROTOCOL_H) : $(XSENS_XML) tools
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_xsens.out $< > /tmp/xsens.h
 	$(Q)mv /tmp/xsens.h $@
 
-$(DL_PROTOCOL_H) : $(MESSAGES_XML) $(TOOLS)/gen_messages.out
+$(DL_PROTOCOL_H) : $(MESSAGES_XML) tools
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_messages.out $< datalink > /tmp/dl.h
 	$(Q)mv /tmp/dl.h $@
 
-$(DL_PROTOCOL2_H) : $(MESSAGES_XML) $(TOOLS)/gen_messages2.out
+$(DL_PROTOCOL2_H) : $(MESSAGES_XML) tools
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_messages2.out $< datalink > /tmp/dl.h
 	$(Q)mv /tmp/dl.h $@
