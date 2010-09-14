@@ -36,6 +36,7 @@
 #include "math/pprz_algebra_int.h"
 
 #include "interrupt_hw.h"
+#include "std.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -64,8 +65,9 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic_task( void ) {
-  RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
-  ami601_read();
+  //  RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
+
+  RunOnceEvery(10, { ami601_read();});
 }
 
 static inline void main_event_task( void ) {
