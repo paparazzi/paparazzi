@@ -176,8 +176,6 @@ sim.srcs 		+= downlink.c datalink.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/ivy_transp
 JSBSIM_ROOT = /opt/jsbsim
 JSBSIM_INC = $(JSBSIM_ROOT)/include/JSBSim
 JSBSIM_LIB = $(JSBSIM_ROOT)/lib
-jsbsim.ARCHDIR = $(ARCHI)
-#jsbsim.ARCH = sitl
 
 jsbsim.CFLAGS 		+= $(fbw_CFLAGS) $(ap_CFLAGS)
 jsbsim.srcs 		+= $(fbw_srcs) $(ap_srcs)

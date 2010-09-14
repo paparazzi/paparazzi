@@ -14,7 +14,7 @@ BOARD_VERSION=
 BOARD_CFG = \"tiny.h\"
 
 
-sim.ARCHDIR = $(ARCHI)
+$(TARGET).ARCHDIR = $(ARCHI)
 sim.ARCH = sitl
 sim.TARGET = autopilot
 sim.TARGETDIR = autopilot
