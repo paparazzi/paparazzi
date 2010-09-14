@@ -118,26 +118,31 @@ caml_from_c_example : cserial.o convert.o caml_from_c_example.o camltm.o
 
 expr_parser.cmo expr_parser.cmx : expr_parser.cmi expr_syntax.cmi
 expr_parser.cmi : expr_parser.ml expr_syntax.cmi
+expr_lexer.ml : expr_parser.ml
 expr_lexer.cmi : expr_lexer.ml expr_syntax.cmi
 expr_lexer.cmo : expr_lexer.cmi
 expr_syntax.cmo : expr_syntax.cmi
 
 
 gtk_papget_editor.ml : widgets.glade
-	grep -v invisible_char $< > /tmp/$<
-	lablgladecc2 -root papget_editor -hide-default /tmp/$< | grep -B 1000000 "  end" > $@
+	grep -v invisible_char $< > /tmp/$@_$<
+	lablgladecc2 -root papget_editor -hide-default /tmp/$@_$< | grep -B 1000000 "  end" > $@
+	@rm /tmp/$@_$<
 
 gtk_papget_text_editor.ml : widgets.glade
-	grep -v invisible_char $< > /tmp/$<
-	lablgladecc2 -root table_text_editor -hide-default /tmp/$< | grep -B 1000000 "  end" > $@
+	grep -v invisible_char $< > /tmp/$@_$<
+	lablgladecc2 -root table_text_editor -hide-default /tmp/$@_$< | grep -B 1000000 "  end" > $@
+	@rm /tmp/$@_$<
 
 gtk_papget_gauge_editor.ml : widgets.glade
-	grep -v invisible_char $< > /tmp/$<
-	lablgladecc2 -root table_gauge_editor -hide-default /tmp/$< | grep -B 1000000 "  end" > $@
+	grep -v invisible_char $< > /tmp/$@_$<
+	lablgladecc2 -root table_gauge_editor -hide-default /tmp/$@_$< | grep -B 1000000 "  end" > $@
+	@rm /tmp/$@_$<
 
 gtk_papget_led_editor.ml : widgets.glade
-	grep -v invisible_char $< > /tmp/$<
-	lablgladecc2 -root table_led_editor -hide-default /tmp/$< | grep -B 1000000 "  end" > $@
+	grep -v invisible_char $< > /tmp/$@_$<
+	lablgladecc2 -root table_led_editor -hide-default /tmp/$@_$< | grep -B 1000000 "  end" > $@
+	@rm /tmp/$@_$<
 
 clean :
 	rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli
