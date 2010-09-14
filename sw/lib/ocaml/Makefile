@@ -118,7 +118,7 @@ caml_from_c_example : cserial.o convert.o caml_from_c_example.o camltm.o
 
 expr_parser.cmo expr_parser.cmx : expr_parser.cmi expr_syntax.cmi
 expr_parser.cmi : expr_parser.ml expr_syntax.cmi
-expr_lexer.cmi : expr_syntax.cmi
+expr_lexer.cmi : expr_lexer.ml expr_syntax.cmi
 expr_lexer.cmo : expr_lexer.cmi
 expr_syntax.cmo : expr_syntax.cmi
 
@@ -151,5 +151,5 @@ clean :
 	ocamldep *.ml* > .depend
 
 ifneq ($(MAKECMDGOALS),clean) 
--include .depend
+include .depend
 endif
