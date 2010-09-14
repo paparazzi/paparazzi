@@ -48,19 +48,19 @@ all : lib-pprz.cma xlib-pprz.cma myGtkInit.cmo xml_get.out opt
 opt : lib-pprz.cmxa xlib-pprz.cmxa
 
 
-lib-pprz.cma : $(SRC) $(CMO)
+lib-pprz.cma : $(CMO)
 	@echo OL $@
 	$(Q)ocamlmklib $(INCLUDES) -o lib-pprz $^
 
-lib-pprz.cmxa : $(SRC) $(CMX)
+lib-pprz.cmxa : $(CMX)
 	@echo OOL $@
 	$(Q)ocamlmklib $(INCLUDES) -o lib-pprz $^
 
-xlib-pprz.cma : $(XSRC) $(XCMO)
+xlib-pprz.cma : $(XCMO)
 	@echo OL $@
 	$(Q)ocamlmklib $(XINCLUDES) -o xlib-pprz $^
 
-xlib-pprz.cmxa : $(XSRC) $(XCMX)
+xlib-pprz.cmxa : $(XCMX)
 	@echo OOL $@
 	$(Q)ocamlmklib $(XINCLUDES) -o xlib-pprz $^
 
