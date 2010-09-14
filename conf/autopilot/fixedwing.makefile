@@ -1,5 +1,5 @@
 #
-# fixed_wings.makefile
+# fixedwing.makefile
 #
 #
 

@@ -24,6 +24,13 @@
       <define name="ALT_KALMAN"/>
     </target>
 
+    <target name="jsbsim" 		board="pc">
+      <define name="AGR_CLIMB"/>
+      <define name="LOITER_TRIM"/>
+      <define name="WIND_INFO"/>
+      <define name="ALT_KALMAN"/>
+    </target>
+
     <subsystem name="radio_control" type="ppm"/>
     <!--<define name="TELEMETRY_MODE_FBW" value="1"/>-->
     <subsystem name="telemetry" type="transparent"/>

@@ -35,12 +35,12 @@ $(TARGET).CFLAGS 	+= -DBOARD_CONFIG=$(BOARD_CFG)
 $(TARGET).CFLAGS 	+= $(FIXEDWING_INC)
 
 #
-# Common Options 
+# Common Options
 #
 
 ifeq ($(OPTIONS), minimal)
 else
-  $(TARGET).CFLAGS 	+= -DWIND_INFO 
+  $(TARGET).CFLAGS 	+= -DWIND_INFO
 endif
 
 $(TARGET).CFLAGS 	+= -DTRAFFIC_INFO
@@ -49,9 +49,11 @@ $(TARGET).CFLAGS 	+= -DTRAFFIC_INFO
 # LEDs
 #
 
-$(TARGET).CFLAGS 	+= -DLED 
+$(TARGET).CFLAGS 	+= -DLED
 ifneq ($(ARCHI), arm7)
-  $(TARGET).srcs 	+= $(SRC_ARCH)/led_hw.c
+  ifneq ($(ARCHI), jsbsim)
+    $(TARGET).srcs 	+= $(SRC_ARCH)/led_hw.c
+  endif
 endif
 
 #
@@ -93,7 +95,7 @@ endif
 # Main
 #
 
-ns_srcs    	+= $(SRC_FIXEDWING)/main.c
+ns_srcs	   	+= $(SRC_FIXEDWING)/main.c
 
 #
 # LEDs
@@ -101,9 +103,9 @@ ns_srcs    	+= $(SRC_FIXEDWING)/main.c
 
 ns_CFLAGS 		+= -DUSE_LED
 ifeq ($(ARCHI), stm32)
-  ns_CFLAGS 		+= -DSYS_TIME_LED=1
+  ns_CFLAGS 	+= -DSYS_TIME_LED=1
 else
- ns_CFLAGS 		+= -DTIME_LED=1
+  ns_CFLAGS 	+= -DTIME_LED=1
 endif
 
 #
@@ -160,11 +162,35 @@ ap_srcs 		+= $(SRC_FIXEDWING)/estimator.c
 sim.CFLAGS 		+= $(fbw_CFLAGS) $(ap_CFLAGS)
 sim.srcs 		+= $(fbw_srcs) $(ap_srcs)
 
-sim.CFLAGS 		+= -DSITL 
+sim.CFLAGS 		+= -DSITL
 sim.srcs 		+= $(SRC_ARCH)/sim_ap.c
 
-sim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport 
-sim.srcs 		+= downlink.c datalink.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c 
+sim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
+sim.srcs 		+= downlink.c datalink.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c
+
+######################################################################
+##
+## JSBSIM THREAD SPECIFIC
+##
+
+JSBSIM_ROOT = /opt/jsbsim
+JSBSIM_INC = $(JSBSIM_ROOT)/include/JSBSim
+JSBSIM_LIB = $(JSBSIM_ROOT)/lib
+jsbsim.ARCHDIR = $(ARCHI)
+#jsbsim.ARCH = sitl
+
+jsbsim.CFLAGS 		+= $(fbw_CFLAGS) $(ap_CFLAGS)
+jsbsim.srcs 		+= $(fbw_srcs) $(ap_srcs)
+
+jsbsim.CFLAGS 		+= -DSITL
+jsbsim.srcs 		+= $(SIMDIR)/sim_ac_jsbsim.c $(SIMDIR)/sim_ac_fw.c
+
+# external libraries
+jsbsim.CFLAGS 		+= -I$(SIMDIR) -I/usr/include -I$(JSBSIM_INC) `pkg-config glib-2.0 --cflags`
+jsbsim.LDFLAGS		+= `pkg-config glib-2.0 --libs` -lm -lpcre -lglibivy -L/usr/lib -L$(JSBSIM_LIB) -lJSBSim
+
+jsbsim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
+jsbsim.srcs 		+= downlink.c datalink.c $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/jsbsim_transport.c
 
 ######################################################################
 ##
@@ -173,7 +199,7 @@ sim.srcs 		+= downlink.c datalink.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/ivy_transp
 
 #
 # SINGLE MCU / DUAL MCU
-# 
+#
 
 ifeq ($(BOARD),classix)
   fbw.CFLAGS 		+= -DMCU_SPI_LINK -DUSE_SPI -DSPI_SLAVE
@@ -182,12 +208,12 @@ ifeq ($(BOARD),classix)
   ap.srcs 		+= $(SRC_FIXEDWING)/link_mcu.c $(SRC_FIXEDWING)/spi.c $(SRC_ARCH)/spi_hw.c
 else
   # Single MCU's run both
-  ap.CFLAGS 		+= $(fbw_CFLAGS) 
-  ap.srcs 		+= $(fbw_srcs) 
+  ap.CFLAGS 		+= $(fbw_CFLAGS)
+  ap.srcs 		+= $(fbw_srcs)
 endif
 
 #
-# No-Sim parameters 
+# No-Sim parameters
 #
 
 fbw.CFLAGS 		+= $(fbw_CFLAGS) $(ns_CFLAGS)
@@ -195,4 +221,3 @@ fbw.srcs 		+= $(fbw_srcs) $(ns_srcs)
 
 ap.CFLAGS 		+= $(ap_CFLAGS) $(ns_CFLAGS)
 ap.srcs 		+= $(ap_srcs) $(ns_srcs)
-
