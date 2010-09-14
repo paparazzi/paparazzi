@@ -12,7 +12,7 @@ endif
 ifeq ($(NORADIO), False)
   $(TARGET).CFLAGS 	+= -DRADIO_CONTROL
   $(TARGET).srcs 	+= $(SRC_FIXEDWING)/radio_control.c
-  ifeq ($(ARCHI),arm7)
+  ifneq ($(ARCHI),jsbsim)
     $(TARGET).srcs 	+= $(SRC_ARCH)/ppm_hw.c
   endif
 endif
