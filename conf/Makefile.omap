@@ -30,9 +30,9 @@ OVERO_OE := $(shell find -L /opt/paparazzi/omap ~ / -maxdepth 1 -type d -name ov
 CC_NAME = arm-angstrom-linux-gnueabi-gcc
 CCPATH1 = $(OVERO_OE)/tmp/cross/armv7a/bin
 CCPATH2 = $(OVERO_OE)/tmp/sysroots/i686-linux/usr/armv7a/bin
-CC := $(shell find -L $(CCPATH1) $(CCPATH2) -name $(CC_NAME) -type f 2>/dev/null | head -n 1)
+CCPATH3 = $(OVERO_OE)/tmp/sysroots/x86_64-linux/usr/armv7a/bin
+CC := $(shell find -L $(CCPATH1) $(CCPATH2) $(CCPATH3) -name $(CC_NAME) -type f 2>/dev/null | head -n 1)
 LD = $(CC)
-
 
 GLIB_INC = $(OVERO_OE)/tmp/work/armv7a-angstrom-linux-gnueabi/glib-2.0-2.22.4-r1/staging-pkg/staging/armv7a-angstrom-linux-gnueabi/usr/include/glib-2.0
 GLIB_LIB = $(OVERO_OE)/tmp/work/armv7a-angstrom-linux-gnueabi/glib-2.0-2.22.4-r1/staging-pkg/staging/armv7a-angstrom-linux-gnueabi/usr/lib/
@@ -46,7 +46,7 @@ CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
 
 # Compiler flags.
 CFLAGS += $(CINCS)
-CFLAGS += -O$(OPT)
+CFLAGS += -O$(OPT) -mfloat-abi=softfp -mtune=cortex-a8 -mfpu=vfp -march=armv7-a
 # CFLAGS += -malignment-traps
 CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
 CFLAGS += -Wpointer-arith -Wswitch
