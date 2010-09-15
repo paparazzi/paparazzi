@@ -139,7 +139,7 @@ $(SETTINGS_MODULES) : $(MODULES_H)
 %.ac_h : $(TOOLS)/gen_aircraft.out
 	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
 	@echo BUILD $(AIRCRAFT), TARGET $*
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
+	+$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
 
 %.compile: %.ac_h
 	cd $(AIRBORNE); $(MAKE) TARGET=$* all
