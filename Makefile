@@ -114,8 +114,8 @@ $(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) tools
 $(MESSAGES2_H) : $(MESSAGES_XML) $(CONF_XML) tools
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_messages2.out $< telemetry > /tmp/msg.h
-	$(Q)mv /tmp/msg.h $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_messages2.out $< telemetry > /tmp/msg2.h
+	$(Q)mv /tmp/msg2.h $@
 	$(Q)chmod a+r $@
 
 $(UBX_PROTOCOL_H) : $(UBX_XML) tools
@@ -135,8 +135,8 @@ $(DL_PROTOCOL_H) : $(MESSAGES_XML) tools
 
 $(DL_PROTOCOL2_H) : $(MESSAGES_XML) tools
 	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_messages2.out $< datalink > /tmp/dl.h
-	$(Q)mv /tmp/dl.h $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_messages2.out $< datalink > /tmp/dl2.h
+	$(Q)mv /tmp/dl2.h $@
 
 include Makefile.ac
 
