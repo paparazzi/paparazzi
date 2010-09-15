@@ -68,7 +68,8 @@ plot : ../lib/ocaml/lib-pprz.cmxa
 	@echo OOC $<
 	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -c $<
 
-
+export.cmo : gtk_export.cmo
+export.cmx : gtk_export.cmx
 
 gtk_export.ml : export.glade
 	grep -v invisible_char $< > /tmp/$<
