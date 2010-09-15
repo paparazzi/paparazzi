@@ -93,7 +93,7 @@ sim_static : lib
 cockpit: lib
 	cd $(COCKPIT); $(MAKE) all
 
-tmtc: lib
+tmtc: lib cockpit
 	cd $(TMTC); $(MAKE) all
 
 multimon:
