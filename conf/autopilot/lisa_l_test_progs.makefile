@@ -66,8 +66,6 @@ BOARD_CFG=\"boards/lisa_l_1.0.h\"
 #   MODEM_BAUD :
 #
 test_telemetry.ARCHDIR = $(ARCHI)
-test_telemetry.TARGET = test_telemetry
-test_telemetry.TARGETDIR = test_telemetry
 test_telemetry.CFLAGS += -I$(SRC_LISA) -I$(SRC_ARCH) -DPERIPHERALS_AUTO_INIT
 test_telemetry.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_telemetry.srcs = test/test_telemetry.c            \
@@ -95,8 +93,6 @@ test_telemetry.srcs   += $(SRC_ARCH)/uart_hw.c
 #   MODEM_BAUD
 #
 test_baro.ARCHDIR   = $(ARCHI)
-test_baro.TARGET    = test_baro
-test_baro.TARGETDIR = test_baro
 test_baro.CFLAGS = -I$(SRC_LISA) -I$(SRC_ARCH) -I$(SRC_BOARD) -DPERIPHERALS_AUTO_INIT
 test_baro.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_baro.srcs = $(SRC_BOARD)/test_baro.c      	  \
@@ -128,8 +124,6 @@ test_baro.srcs   += i2c.c $(SRC_ARCH)/i2c_hw.c
 #   RADIO_CONROL_LINK
 #
 test_rc_spektrum.ARCHDIR   = $(ARCHI)
-test_rc_spektrum.TARGET    = test_rc_spektrum
-test_rc_spektrum.TARGETDIR = test_rc_spektrum
 
 test_rc_spektrum.CFLAGS += -I$(SRC_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_rc_spektrum.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) 
@@ -167,8 +161,6 @@ test_rc_spektrum.srcs   += $(SRC_BOOZ)/booz_radio_control.c                     
 #   RADIO_CONTROL_LED
 #
 test_rc_ppm.ARCHDIR   = $(ARCHI)
-test_rc_ppm.TARGET    = test_rc_ppm
-test_rc_ppm.TARGETDIR = test_rc_ppm
 
 test_rc_ppm.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD)
 test_rc_ppm.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
@@ -205,8 +197,6 @@ test_rc_ppm.CFLAGS += -DUSE_TIM2_IRQ
 #   MODEM_BAUD
 #
 test_adc.ARCHDIR = $(ARCHI)
-test_adc.TARGET = test_adc
-test_adc.TARGETDIR = test_adc
 test_adc.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
 test_adc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 
@@ -242,8 +232,6 @@ test_adc.CFLAGS += -DUSE_ADC1_2_IRQ_HANDLER
 #   MODEM_BAUD
 #
 test_imu_b2.ARCHDIR = $(ARCHI)
-test_imu_b2.TARGET = test_imu_b2
-test_imu_b2.TARGETDIR = test_imu_b2
 test_imu_b2.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_imu_b2.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
 test_imu_b2.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
@@ -282,8 +270,6 @@ test_imu_b2.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c  $(SRC_BOOZ_ARCH)/peri
 # test IMU aspirin
 #
 test_imu_aspirin.ARCHDIR = $(ARCHI)
-test_imu_aspirin.TARGET = test_imu_aspirin
-test_imu_aspirin.TARGETDIR = test_imu_aspirin
 test_imu_aspirin.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_imu_aspirin.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
 test_imu_aspirin.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
@@ -329,8 +315,6 @@ test_imu_aspirin.CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
 # test hmc5843
 #
 test_hmc5843.ARCHDIR = $(ARCHI)
-test_hmc5843.TARGET = test_hmc5843
-test_hmc5843.TARGETDIR = test_hmc5843
 test_hmc5843.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -Ibooz -DPERIPHERALS_AUTO_INIT
 test_hmc5843.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_hmc5843.srcs = lisa/test/lisa_test_hmc5843.c         \
@@ -358,8 +342,6 @@ test_hmc5843.CFLAGS += -DUSE_EXTI9_5_IRQ   # Mag Int on PB5
 # test ITG3200
 #
 test_itg3200.ARCHDIR = $(ARCHI)
-test_itg3200.TARGET = test_itg3200
-test_itg3200.TARGETDIR = test_itg3200
 test_itg3200.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_itg3200.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
 test_itg3200.srcs += lisa/test/lisa_test_itg3200.c \
@@ -388,8 +370,6 @@ test_itg3200.CFLAGS += -DUSE_EXTI15_10_IRQ   # Gyro Int on PC14
 # test adxl345 with DMA
 #
 test_adxl345.ARCHDIR = $(ARCHI)
-test_adxl345.TARGET = test_adxl345
-test_adxl345.TARGETDIR = test_adxl345
 test_adxl345.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_adxl345.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
 test_adxl345.srcs += lisa/test/lisa_test_adxl345_dma.c \
@@ -418,8 +398,6 @@ test_adxl345.CFLAGS += -DUSE_DMA1_C4_IRQ # SPI2 Rx DMA
 # simple test of mikrokopter motor controllers
 #
 test_esc_mkk_simple.ARCHDIR = $(ARCHI)
-test_esc_mkk_simple.TARGET = test_esc_mkk_simple
-test_esc_mkk_simple.TARGETDIR = test_esc_mkk_simple
 test_esc_mkk_simple.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
 test_esc_mkk_simple.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_esc_mkk_simple.srcs = test/test_esc_mkk_simple.c	    \
@@ -438,8 +416,6 @@ test_esc_mkk_simple.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 # simple test of asctec v1 motor controllers
 #
 test_esc_asctecv1_simple.ARCHDIR = $(ARCHI)
-test_esc_asctecv1_simple.TARGET = test_esc_asctecv1_simple
-test_esc_asctecv1_simple.TARGETDIR = test_esc_asctecv1_simple
 test_esc_asctecv1_simple.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
 test_esc_asctecv1_simple.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_esc_asctecv1_simple.srcs = test/test_esc_asctecv1_simple.c  \
@@ -458,8 +434,6 @@ test_esc_asctecv1_simple.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 # test actuators mkk
 #
 test_actuators_mkk.ARCHDIR = $(ARCHI)
-test_actuators_mkk.TARGET = test_actuators_mkk
-test_actuators_mkk.TARGETDIR = test_actuators_mkk
 test_actuators_mkk.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_actuators_mkk.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_actuators_mkk.srcs = test/test_actuators.c \
@@ -490,8 +464,6 @@ test_actuators_mkk.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 # test actuators asctecv1
 #
 test_actuators_asctecv1.ARCHDIR = $(ARCHI)
-test_actuators_asctecv1.TARGET = test_actuators_asctecv1
-test_actuators_asctecv1.TARGETDIR = test_actuators_asctecv1
 test_actuators_asctecv1.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_actuators_asctecv1.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_actuators_asctecv1.srcs = test/test_actuators.c            \

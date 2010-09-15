@@ -7,8 +7,6 @@ ARCHI=avr
 
 main.ARCHDIR=$(ARCHI)
 main.ARCH = atmega8
-main.TARGET = main
-main.TARGETDIR = main
 
 # to check :  16MHz reso
 main.LOW_FUSE  = 2e

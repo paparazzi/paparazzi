@@ -7,8 +7,6 @@ ARCHI=avr
 
 main.ARCHDIR=$(ARCHI)
 main.ARCH = atmega128
-main.TARGET = main
-main.TARGETDIR = main
 
 # internal RC 8MHz
 LOW_FUSE  = e4

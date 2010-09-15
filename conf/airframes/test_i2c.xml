@@ -10,8 +10,6 @@
 ARCHI=arm7
 mb.ARCHDIR = $(ARCHI)
 mb.ARCH = arm7tdmi
-mb.TARGET = motor_bench
-mb.TARGETDIR = motor_bench
 
 LPC21ISP_BAUD = 38400
 LPC21ISP_XTAL = 12000

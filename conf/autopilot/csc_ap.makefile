@@ -43,8 +43,6 @@ SRC_CSC=csc
 
 ap.ARCHDIR = $(ARCHI)
 ap.ARCH = arm7tdmi
-ap.TARGET = main
-ap.TARGETDIR = main
 
 ap.CFLAGS += -I$(SRC_CSC)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
@@ -101,8 +99,6 @@ ap.CFLAGS += -DERROR_LED=4
 #
 test_uart.ARCHDIR = $(ARCHI)
 test_uart.ARCH = arm7tdmi
-test_uart.TARGET = test_uart
-test_uart.TARGETDIR = test_uart
 
 
 test_uart.CFLAGS += -I$(SRC_CSC)

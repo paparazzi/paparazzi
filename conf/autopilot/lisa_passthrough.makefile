@@ -16,8 +16,6 @@ CFG_LISA_PASSTHROUGH = $(PAPARAZZI_SRC)/conf/autopilot/subsystems/lisa_passthrou
 
 
 stm_passthrough.ARCHDIR = stm32
-stm_passthrough.TARGET = stm_passthrough
-stm_passthrough.TARGETDIR = stm_passthrough
 stm_passthrough.CFLAGS += -I$(SRC_LISA) -I$(SRC_LISA_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD)
 stm_passthrough.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 stm_passthrough.CFLAGS += -DPERIPHERALS_AUTO_INIT

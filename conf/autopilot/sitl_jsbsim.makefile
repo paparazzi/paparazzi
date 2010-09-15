@@ -1,7 +1,6 @@
 jsbsim.ARCHDIR = $(ARCHI)
 jsbsim.ARCH = sitl
-jsbsim.TARGET = autopilot
-jsbsim.TARGETDIR = autopilot
+
 # external libraries
 jsbsim.CFLAGS = -I$(SIMDIR) -I/usr/include `pkg-config glib-2.0 --cflags`
 jsbsim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lpcre -lglibivy -L/usr/lib -lJSBSim

@@ -12,8 +12,6 @@ FLASH_MODE = IAP
 #
 demo1.ARCHDIR = $(ARCHI)
 demo1.ARCH = arm7tdmi
-demo1.TARGET = demo1
-demo1.TARGETDIR = demo1
 
 demo1.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo1.srcs = main_demo1.c
@@ -23,8 +21,6 @@ demo1.srcs = main_demo1.c
 #
 demo2.ARCHDIR = $(ARCHI)
 demo2.ARCH = arm7tdmi
-demo2.TARGET = demo2
-demo2.TARGETDIR = demo2
 
 demo2.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo2.srcs = main_demo2.c
@@ -39,8 +35,6 @@ demo2.CFLAGS += -DLED
 #
 demo3.ARCHDIR = $(ARCHI)
 demo3.ARCH = arm7tdmi
-demo3.TARGET = demo3
-demo3.TARGETDIR = demo3
 
 demo3.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo3.srcs = main_demo3.c
@@ -61,8 +55,6 @@ demo3.srcs += $(SRC_ARCH)/uart_hw.c
 #
 demo4.ARCHDIR = $(ARCHI)
 demo4.ARCH = arm7tdmi
-demo4.TARGET = demo4
-demo4.TARGETDIR = demo4
 
 demo4.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo4.srcs = main_demo4.c
@@ -87,8 +79,6 @@ demo4.srcs += downlink.c pprz_transport.c
 #
 demo5.ARCHDIR = $(ARCHI)
 demo5.ARCH = arm7tdmi
-demo5.TARGET = demo5
-demo5.TARGETDIR = demo5
 
 demo5.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo5.srcs = main_demo5.c
@@ -114,8 +104,6 @@ demo5.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0
 #
 demo6.ARCHDIR = $(ARCHI)
 demo6.ARCH = arm7tdmi
-demo6.TARGET = demo6
-demo6.TARGETDIR = demo6
 
 demo6.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo6.srcs = main_demo6.c
@@ -144,8 +132,6 @@ demo6.srcs += downlink.c pprz_transport.c
 #
 test_spk.ARCHDIR = $(ARCHI)
 test_spk.ARCH = arm7tdmi
-test_spk.TARGET = test_spk
-test_spk.TARGETDIR = test_spk
 
 test_spk.CFLAGS += -DBOARD_CONFIG=\"booz2_board_usb.h\"
 test_spk.srcs = main_test_spk.c

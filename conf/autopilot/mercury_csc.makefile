@@ -44,8 +44,6 @@ SRC_CSC_ARCH=$(SRC_CSC)/$(ARCHI)
 
 ap.ARCHDIR = $(ARCHI)
 ap.ARCH = arm7tdmi
-ap.TARGET = main
-ap.TARGETDIR = main
 
 ap.CFLAGS += -I$(SRC_CSC) -I$(SRC_CSC_ARCH)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
@@ -97,8 +95,6 @@ ap.CFLAGS += -DERROR_LED=4
 #
 test_uart.ARCHDIR = $(ARCHI)
 test_uart.ARCH = arm7tdmi
-test_uart.TARGET = test_uart
-test_uart.TARGETDIR = test_uart
 
 
 test_uart.CFLAGS += -I$(SRC_CSC)
@@ -124,8 +120,6 @@ test_uart.srcs += downlink.c pprz_transport.c
 
 test_can1.ARCHDIR = $(ARCHI)
 test_can1.ARCH = arm7tdmi
-test_can1.TARGET = test_can1
-test_can1.TARGETDIR = test_can1
 
 
 test_can1.CFLAGS += -I$(SRC_CSC)

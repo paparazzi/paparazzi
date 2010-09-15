@@ -32,8 +32,6 @@ GPS_BAUD	= B38400
 # All targets on the TINY board run on the same processor achitecture
 $(TARGET).ARCHDIR = $(ARCHI)
 $(TARGET).ARCH = arm7tdmi
-$(TARGET).TARGET = $(TARGET)
-$(TARGET).TARGETDIR = $(TARGET)
 
 # Battery Voltage
 fbw.CFLAGS +=  -DUSE_AD0

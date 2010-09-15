@@ -11,8 +11,6 @@ WIND_TUNNEL=wind_tunnel
 
 ap.ARCHDIR = $(ARCHI)
 ap.ARCH = arm7tdmi
-ap.TARGET = ap
-ap.TARGETDIR = ap
 
 ap.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\" -I$(WIND_TUNNEL)
 ap.srcs = $(WIND_TUNNEL)/main.c
@@ -44,8 +42,6 @@ MB=motor_bench
 
 mb.ARCHDIR = $(ARCHI)
 mb.ARCH = arm7tdmi
-mb.TARGET = mb
-mb.TARGETDIR = mb
 
 mb.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\" -I$(WIND_TUNNEL) -I$(MB)
 mb.srcs = $(WIND_TUNNEL)/main_mb.c

@@ -65,8 +65,6 @@ BOARD_CFG=\"boards/booz_1.0.h\"
 #
 test_telemetry.ARCHDIR   = $(ARCHI)
 test_telemetry.ARCH      = arm7tdmi
-test_telemetry.TARGET    = test_telemetry
-test_telemetry.TARGETDIR = test_telemetry
 test_telemetry.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_telemetry.CFLAGS += -DPERIPHERALS_AUTO_INIT
 test_telemetry.srcs   += test/test_telemetry.c \
@@ -93,8 +91,6 @@ test_telemetry.srcs   += $(SRC_ARCH)/uart_hw.c
 #
 test_baro.ARCHDIR   = $(ARCHI)
 test_baro.ARCH      = arm7tdmi
-test_baro.TARGET    = test_baro
-test_baro.TARGETDIR = test_baro
 test_baro.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_baro.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_ARCH) -I$(SRC_BOARD)
 test_baro.CFLAGS += -DPERIPHERALS_AUTO_INIT
@@ -142,8 +138,6 @@ test_baro.srcs += $(SRC_BOOZ)/booz2_battery.c
 #
 test_rc_ppm.ARCHDIR   = $(ARCHI)
 test_rc_ppm.ARCH      = arm7tdmi
-test_rc_ppm.TARGET    = test_rc_ppm
-test_rc_ppm.TARGETDIR = test_rc_ppm
 
 test_rc_ppm.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_rc_ppm.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD)
@@ -172,8 +166,6 @@ test_rc_ppm.srcs   += $(SRC_BOOZ)/booz_radio_control.c \
 #
 test_esc_mkk_simple.ARCHDIR = $(ARCHI)
 test_esc_mkk_simple.ARCH    = arm7tdmi
-test_esc_mkk_simple.TARGET  = test_esc_mkk_simple
-test_esc_mkk_simple.TARGETDIR = test_esc_mkk_simple
 test_esc_mkk_simple.CFLAGS = -I$(SRC_LISA) -I$(ARCHI) -DPERIPHERALS_AUTO_INIT
 test_esc_mkk_simple.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_esc_mkk_simple.srcs = test/test_esc_mkk_simple.c	    \
@@ -193,8 +185,6 @@ test_esc_mkk_simple.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 #
 test_actuators_mkk.ARCHDIR = $(ARCHI)
 test_actuators_mkk.ARCH      = arm7tdmi
-test_actuators_mkk.TARGET = test_actuators_mkk
-test_actuators_mkk.TARGETDIR = test_actuators_mkk
 test_actuators_mkk.CFLAGS = -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_actuators_mkk.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_actuators_mkk.srcs = test/test_actuators.c \
@@ -227,8 +217,6 @@ test_actuators_mkk.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_V
 #
 test_ami601.ARCHDIR = $(ARCHI)
 test_ami601.ARCH      = arm7tdmi
-test_ami601.TARGET = test_ami601
-test_ami601.TARGETDIR = test_ami601
 test_ami601.CFLAGS = -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_ami601.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_ami601.srcs = test/peripherals/test_ami601.c \

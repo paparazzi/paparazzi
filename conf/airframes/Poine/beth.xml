@@ -102,8 +102,6 @@ SRC_LISA_ARCH=$(SRC_LISA)/arch/$(ARCH)
 
 main_stm32.ARCHDIR = stm32
 #main_stm32.LDSCRIPT = $(SRC_ARCH)/stm32f103re_flash.ld
-main_stm32.TARGET = main_stm32
-main_stm32.TARGETDIR = main_stm32
 main_stm32.CFLAGS += -I$(SRC_LISA) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_LISA_ARCH) -DPERIPHERALS_AUTO_INIT
 main_stm32.CFLAGS += -DBOARD_CONFIG=\"boards/lisa_l_1.0.h\"
 main_stm32.srcs = $(SRC_BETH)/main_stm32.c \
@@ -177,8 +175,6 @@ main_coders.OOCD_BOARD = olimex_stm32_h103
 #main_coders.CFLAGS += -DBOARD_CONFIG=\"boards/olimex_stm32-h103.h\"
 main_coders.CFLAGS += -DBOARD_CONFIG=\"boards/beth.h\"
 
-main_coders.TARGET = main_coders
-main_coders.TARGETDIR = main_coders
 main_coders.CFLAGS += -I$(SRC_LISA) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 main_coders.srcs = $(SRC_BETH)/main_coders.c \
                    $(SRC_ARCH)/stm32_exceptions.c   \

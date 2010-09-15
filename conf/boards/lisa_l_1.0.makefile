@@ -23,8 +23,6 @@ else
 	$(TARGET).ARCHDIR = $(ARCHI)
 # not needed?
 #	$(TARGET).ARCH = arm7tdmi
-	$(TARGET).TARGET = $(TARGET)
-	$(TARGET).TARGETDIR = $(TARGET)
 
 endif
 # -----------------------------------------------------------------------

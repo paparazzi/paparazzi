@@ -18,8 +18,6 @@ NPSDIR = $(SIMDIR)/nps
 
 sim.ARCHDIR = $(ARCHI)
 sim.ARCH = sitl
-sim.TARGET = sim
-sim.TARGETDIR = sim
 
 sim.CFLAGS  += -DSITL
 sim.CFLAGS  += `pkg-config glib-2.0 --cflags` -I /usr/include/meschach

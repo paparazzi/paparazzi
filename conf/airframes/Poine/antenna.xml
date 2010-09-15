@@ -11,8 +11,6 @@
 ARCHI=avr
 ant.ARCHDIR = $(ARCHI)
 ant.ARCH = atmega128
-ant.TARGET = ant
-ant.TARGETDIR = ant
 
 
 # 16MHz resonator

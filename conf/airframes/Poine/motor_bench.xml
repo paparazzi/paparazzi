@@ -10,8 +10,6 @@ MB=motor_bench
 
 main.ARCHDIR = $(ARCHI)
 main.ARCH = arm7tdmi
-main.TARGET = mb
-main.TARGETDIR = mb
 
 main.CFLAGS += -DBOARD_CONFIG=\"conf_motor_bench.h\" -I$(MB)
 main.srcs = $(MB)/main_motor_bench.c
@@ -57,8 +55,6 @@ main.srcs += $(MB)/mb_modes.c
 
 foo.ARCHDIR = $(ARCHI)
 foo.ARCH = arm7tdmi
-foo.TARGET = mb
-foo.TARGETDIR = mb
 
 foo.CFLAGS += -DBOARD_CONFIG=\"conf_motor_bench.h\" -I$(MB)
 foo.srcs = $(MB)/main_foo.c
@@ -79,8 +75,6 @@ foo.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c $(MB)/mb_twi_controller_asctech.c
 
 bar.ARCHDIR = $(ARCHI)
 bar.ARCH = arm7tdmi
-bar.TARGET = mb
-bar.TARGETDIR = mb
 
 bar.CFLAGS += -DBOARD_CONFIG=\"conf_motor_bench.h\" -I$(MB)
 bar.srcs = $(MB)/main_bar.c
