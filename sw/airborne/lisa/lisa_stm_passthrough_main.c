@@ -71,6 +71,9 @@ static struct adc_buf adc3_buf;
 
 extern uint8_t adc_new_data_trigger;
 
+#define ActuatorsCommit() booz_actuators_pwm_commit();
+#define actuators booz_actuators_pwm_values
+
 int main(void) {
 
   main_init();
@@ -110,11 +113,7 @@ static void check_radio_lost(void)
 {
 	if (radio_control.status == RADIO_CONTROL_REALLY_LOST) {
 		const static int32_t commands_failsafe[COMMANDS_NB] = COMMANDS_FAILSAFE;
-#define ActuatorsCommit() booz_actuators_pwm_commit();
-#define actuators booz_actuators_pwm_values
 		SetActuatorsFromCommands(commands_failsafe);
-#undef actuators
-#undef ActuatorsCommit
 	}
 }
 
@@ -146,14 +145,14 @@ static inline void main_periodic(void) {
 
 static inline void on_rc_message(void) {
   new_radio_msg = TRUE;
-	if (radio_control.values[RADIO_CONTROL_MODE] >= 1) {
+	if (radio_control.values[RADIO_CONTROL_MODE] >= 150) {
 		static int32_t commands[COMMANDS_NB];
 		SetCommandsFromRC(commands, radio_control.values);
-#define ActuatorsCommit() booz_actuators_pwm_commit();
-#define actuators booz_actuators_pwm_values
 		SetActuatorsFromCommands(commands);
-#undef actuators
-#undef ActuatorsCommit
+	}
+	if (radio_control.values[RADIO_CONTROL_KILL] > 150) {
+		actuators[SERVO_THROTTLE] = SERVO_THROTTLE_MIN;
+		ActuatorsCommit();
 	}
 }
 
@@ -180,10 +179,11 @@ static inline void on_overo_link_msg_received(void) {
 #ifdef RADIO_CONTROL_GEAR
   overo_link.up.msg.rc_gear   = radio_control.values[RADIO_CONTROL_GEAR];
 #endif
-  overo_link.up.msg.rc_aux3   = radio_control.values[RADIO_CONTROL_AUX3];
-  overo_link.up.msg.rc_aux4   = radio_control.values[RADIO_CONTROL_AUX4];
-  overo_link.up.msg.rc_status = radio_control.status;
-  
+	
+  overo_link.up.msg.rc_aux2   = radio_control.values[RADIO_CONTROL_AUX2];
+	overo_link.up.msg.rc_aux3   = radio_control.values[RADIO_CONTROL_AUX3];
+	overo_link.up.msg.rc_status = radio_control.status;
+   
   overo_link.up.msg.stm_msg_cnt     = overo_link.msg_cnt;
   overo_link.up.msg.stm_crc_err_cnt = overo_link.crc_err_cnt;
   
@@ -210,10 +210,15 @@ static inline void on_overo_link_msg_received(void) {
 	new_adc = FALSE;
 
   /* pwm acuators down */
-  for (int i = 0; i < LISA_PWM_OUTPUT_NB; i++) { 
-    booz_actuators_pwm_values[i] = overo_link.down.msg.pwm_outputs_usecs[i];
-  }
-  booz_actuators_pwm_commit();
+	if (radio_control.values[RADIO_CONTROL_MODE] <= 150) {
+		for (int i = 0; i < LISA_PWM_OUTPUT_NB; i++) { 
+			booz_actuators_pwm_values[i] = overo_link.down.msg.pwm_outputs_usecs[i];
+		}
+		if (radio_control.values[RADIO_CONTROL_KILL] > 150) {
+			actuators[SERVO_THROTTLE] = SERVO_THROTTLE_MIN;
+		}
+		booz_actuators_pwm_commit();
+	}
 }
 
 static inline void on_overo_link_lost(void) {
