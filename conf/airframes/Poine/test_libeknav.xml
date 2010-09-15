@@ -1,0 +1,27 @@
+<airframe name="FuckYou_1">
+
+
+  <makefile>
+
+    HOST=auto3
+
+    # test 1
+    test1.ARCHDIR = omap
+    test1.CXXFLAGS += -I /opt/paparazzi/omap/overo-oe/tmp/sysroots/armv7a-angstrom-linux-gnueabi/usr/include/eigen2
+    test1.cpp_srcs  = fms/libeknav/hello_world.cpp
+
+    # test network based telemetry on overo (using udp_transport2/messages2)
+    overo_test_telemetry2.ARCHDIR  = omap
+    overo_test_telemetry2.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
+    overo_test_telemetry2.srcs     = fms/overo_test_telemetry2.c
+    overo_test_telemetry2.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
+    overo_test_telemetry2.srcs    += fms/udp_transport2.c downlink.c
+    overo_test_telemetry2.srcs    += fms/fms_network.c
+    overo_test_telemetry2.LDFLAGS += -levent
+
+  </makefile>
+
+
+</airframe>
+
+

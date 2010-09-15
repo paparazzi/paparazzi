@@ -1,7 +1,7 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
 #   $Id$
-#   Copyright (C) 2009 Antoine Drouin
+#   Copyright (C) 2009-2010 The Paparazzi Team
 #
 # This file is part of paparazzi.
 #
@@ -53,7 +53,6 @@ CFLAGS += -Wpointer-arith -Wswitch
 CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 #CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 #CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
-#CFLAGS += -mtune=geode # optimize for geode
 
 # flags only for C
 CFLAGS + = -Wstrict-prototypes -Wmissing-declarations
@@ -62,8 +61,18 @@ CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS)		
 
 
-SRCOMAP  = $($(TARGET).srcs)
-COBJOMAP = $(SRCOMAP:%.c=$(OBJDIR)/%.o)
+CXX = /opt/paparazzi/omap/overo-oe/tmp/sysroots/i686-linux/usr/armv7a/bin/arm-angstrom-linux-gnueabi-g++
+CXXFLAGS = -pipe -O3 -fshow-column -ffast-math -DEIGEN_DONT_VECTORIZE -fPIC
+CXXFLAGS += -DEIGEN_DONT_ALIGN -DNDEBUG -g -ffunction-sections -fdata-sections -DTIME_OPS
+CXXFLAGS += -Wall -Wextra
+CXXFLAGS += $($(TARGET).CXXFLAGS)	
+
+
+SRC_C_OMAP  = $($(TARGET).srcs)
+OBJ_C_OMAP = $(SRC_C_OMAP:%.c=$(OBJDIR)/%.o)
+
+SRC_CPP_OMAP  = $($(TARGET).cpp_srcs)
+OBJ_CPP_OMAP = $(SRC_CPP_OMAP:%.cpp=$(OBJDIR)/%.o)
 
 all: build
 
@@ -77,16 +86,24 @@ load upload program: $(OBJDIR)/$(TARGET).elf
 
 # Link: create ELF output file from object files.
 .SECONDARY : $(OBJDIR)/$(TARGET).elf
-.PRECIOUS :   $(COBJOMAP)
-%.elf:   $(COBJOMAP)
+.PRECIOUS :   $(OBJ_C_OMAP) $(OBJ_CPP_OMAP)
+%.elf:   $(OBJ_C_OMAP) $(OBJ_CPP_OMAP)
 	@echo LD $@
-	$(Q)$(CC) $(CFLAGS) $(COBJOMAP)  --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS)
+	$(Q)if (expr "$($(TARGET).cpp_srcs)"); \
+          then $(CXX) $(CXXFLAGS) $(OBJ_CPP_OMAP) --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS) ; \
+          else $(CC) $(CFLAGS) $(OBJ_C_OMAP) --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS); fi
 
-# Compile: create object files from C source files. ARM-only
+# Compile: create object files from C source files
 $(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CC) -c $(CFLAGS) $< -o $@ 
+
+# Compile: create object files from C++ source files
+$(OBJDIR)/%.o : %.cpp $(OBJDIR)/../Makefile.ac
+	@echo CXX $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
+	$(Q)$(CXX) -c $(CXXFLAGS) $< -o $@ 
 
 # Listing of phony targets.
 .PHONY : all build elf clean clean_list
