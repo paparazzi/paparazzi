@@ -47,7 +47,7 @@
 #include "rdyb_mahrs.h"
 
 static struct BoozImuFloat imu;
-static struct FloatQuat body_to_imu_quat = LISA_BODY_TO_IMU_QUAT;
+static struct FloatQuat body_to_imu_quat = IMU_POSE_BODY_TO_IMU_QUAT;
 
 static void (* vane_callback)(uint8_t vane_id, float alpha, float beta) = NULL;
 static void (* pressure_absolute_callback)(uint8_t pressure_id, uint32_t pressure) = NULL;
@@ -57,7 +57,7 @@ static void (* adc_callback)(uint16_t * adc_channels) = NULL;
 
 void spi_ap_link_downlink_send(struct DownlinkTransport *tp)
 {
-  uint32_t timestamp = 0;
+  uint16_t timestamp = 0;
   DOWNLINK_SEND_EKF7_Y(tp, &timestamp, &imu.accel.x, &imu.accel.y, &imu.accel.z,
 		    &imu.mag.x, &imu.mag.y, &imu.mag.z,
 		    &imu.gyro.p, &imu.gyro.q, &imu.gyro.r);
@@ -129,7 +129,7 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
 
 	if (msg_up->valid.adc) {
 		if(adc_callback) {
-			adc_callback(&msg_up->adc.channels);
+			adc_callback(msg_up->adc.channels);
 		}
 	}
 
@@ -142,8 +142,8 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
     radio_control.values[RADIO_CONTROL_MODE] = msg_up->rc_mode;
     radio_control.values[RADIO_CONTROL_KILL] = msg_up->rc_kill;
     radio_control.values[RADIO_CONTROL_GEAR] = msg_up->rc_gear;
+    radio_control.values[RADIO_CONTROL_AUX2] = msg_up->rc_aux2;
     radio_control.values[RADIO_CONTROL_AUX3] = msg_up->rc_aux3;
-    radio_control.values[RADIO_CONTROL_AUX4] = msg_up->rc_aux4;
     radio_control_callback();
   }
   // always fill status, it may change even when in the case when there is no new data
