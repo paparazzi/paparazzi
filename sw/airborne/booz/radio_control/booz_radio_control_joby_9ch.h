@@ -32,14 +32,14 @@
 #define RADIO_CONTROL_ROLL       3
 #define RADIO_CONTROL_GEAR       4
 #define RADIO_CONTROL_MODE       5
-#define RADIO_CONTROL_KILL       6
+#define RADIO_CONTROL_AUX2       6
 #define RADIO_CONTROL_AUX3       7
-#define RADIO_CONTROL_AUX4       8
+#define RADIO_CONTROL_KILL       8
 
 #define RC_JOBY_SYNC_2 0x12
 
 #define RC_JOBY_SIGNS { 1, \
-                       -1, \
+                        1, \
                         1, \
                         1, \
                         1, \
