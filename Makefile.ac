@@ -134,6 +134,8 @@ $(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_modules.out $(CONF)/modules/
 	$(Q)$(TOOLS)/gen_modules.out $(MODULES_DIR) $(SETTINGS_MODULES) $< > $@
 	$(Q)chmod a+r $@
 
+$(SETTINGS_MODULES) : $(MODULES_H)
+
 %.ac_h : $(TOOLS)/gen_aircraft.out
 	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
 	@echo BUILD $(AIRCRAFT), TARGET $*
