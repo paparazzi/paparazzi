@@ -139,11 +139,11 @@ module Gen_onboard = struct
   let print_field = fun h (t, name, (_f: format option)) ->
     match t with 
       Basic _ ->
-	fprintf h "\t  tp->PutBytes(tp->impl, %s, %s, (uint8_t *) _%s); \n" (dl_type (Syntax.nameof t)) (Syntax.sizeof t) name
+	fprintf h "\t  tp->PutBytes(tp->impl, %s, %s, (void *) _%s); \n" (dl_type (Syntax.nameof t)) (Syntax.sizeof t) name
     | Array (t, varname) ->
 	let _s = Syntax.sizeof (Basic t) in
-	fprintf h "\t  tp->PutBytes(tp->impl, DL_TYPE_ARRAY_LENGTH, 1, (uint8_t *) &%s); \n" (Syntax.length_name varname);
-	fprintf h "\t  tp->PutBytes(tp->impl, %s, %s * %s, (uint8_t *) _%s); \n" (dl_type (Syntax.nameof (Basic t))) (Syntax.sizeof (Basic t)) (Syntax.length_name varname) name
+	fprintf h "\t  tp->PutBytes(tp->impl, DL_TYPE_ARRAY_LENGTH, 1, (void *) &%s); \n" (Syntax.length_name varname);
+	fprintf h "\t  tp->PutBytes(tp->impl, %s, %s * %s, (void *) _%s); \n" (dl_type (Syntax.nameof (Basic t))) (Syntax.sizeof (Basic t)) (Syntax.length_name varname) name
 
   let print_parameter h = function
       (Array (t, varname), s, _) -> fprintf h "uint8_t %s, %s *_%s" (Syntax.length_name s) (c_type (Syntax.nameof (Basic t))) s

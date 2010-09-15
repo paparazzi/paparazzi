@@ -22,9 +22,10 @@ static void put_named_uint8_t(struct udp_transport *udp, char *name __attribute_
   put_uint8_t(udp, byte);
 }
 
-static void put_bytes(void *impl, enum DownlinkDataType data_type __attribute__((unused)), uint8_t len, const uint8_t *bytes)
+static void put_bytes(void *impl, enum DownlinkDataType data_type __attribute__((unused)), uint8_t len, const void *buf)
 {
   struct udp_transport *udp = (struct udp_transport *) impl;
+	const uint8_t *bytes = (const uint8_t *) buf;
   for (int i = 0; i < len; i++) {
     put_uint8_t(udp, bytes[i]);
   }
@@ -38,7 +39,7 @@ static void header(struct udp_transport *udp, uint8_t payload_len)
   uint8_t msg_len = payload_len + PPRZ_PROTOCOL_OVERHEAD;
   udp->udpt_ck_a = udp->udpt_ck_b = 0;
   put_uint8_t(udp, msg_len);
-  put_bytes(udp, DL_TYPE_UINT32, 4, (uint8_t *) &msg_timestamp);
+  put_bytes(udp, DL_TYPE_UINT32, 4, &msg_timestamp);
 }
 
 static void start_message(void *impl, char *name, uint8_t msg_id, uint8_t payload_len)

@@ -14,13 +14,13 @@
 #define FILENAME_LEN 64
 #define TIMESTAMP_SCALE 10000
 
-static void put_bytes(void *impl, enum DownlinkDataType data_type, uint8_t len __attribute__((unused)), const uint8_t *bytes)
+static void put_bytes(void *impl, enum DownlinkDataType data_type, uint8_t len __attribute__((unused)), const void *bytes)
 {
   struct onboard_transport *onboard = (struct onboard_transport *) impl;
   uint32_t length = 0;
 
   if (data_type == DL_TYPE_ARRAY_LENGTH) {
-    onboard->array_length = (uint8_t) *bytes;
+    onboard->array_length = *((const uint8_t *) bytes);
     return;
   }
 
@@ -32,48 +32,48 @@ static void put_bytes(void *impl, enum DownlinkDataType data_type, uint8_t len _
     }
     switch (data_type) {
       case DL_TYPE_UINT8:
-        onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%hhu", *bytes);
-        bytes = bytes + 1;
+        onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%hhu", * (const uint8_t *)bytes);
+        bytes = (const uint8_t *) bytes + 1;
         break;
       case DL_TYPE_UINT16:
         onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%hu", * (const uint16_t *)bytes);
-        bytes = bytes + 2;
+        bytes = (const uint16_t *) bytes + 2;
         break;
       case DL_TYPE_UINT32:
         onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%u", * (const uint32_t *)bytes);
-        bytes = bytes + 4;
+        bytes = (const uint32_t *) bytes + 4;
         break;
       case DL_TYPE_UINT64:
         onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%llu", *(const uint64_t *)bytes);
-        bytes = bytes + 8;
+        bytes = (const uint64_t *) bytes + 8;
         break;
       case DL_TYPE_INT8:
         onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%hhi", * (const int8_t *)bytes);
-        bytes = bytes + 1;
+        bytes = (const int8_t *) bytes + 1;
         break;
       case DL_TYPE_INT16:
         onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%hi", * (const int16_t *)bytes);
-        bytes = bytes + 2;
+        bytes = (const int16_t *) bytes + 2;
         break;
       case DL_TYPE_INT32:
         onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%i", * (const int32_t *)bytes);
-        bytes = bytes + 4;
+        bytes = (const int32_t *) bytes + 4;
         break;
       case DL_TYPE_INT64:
         onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%lli", *(const int64_t *)bytes);
-        bytes = bytes + 8;
+        bytes = (const int64_t *) bytes + 8;
         break;
       case DL_TYPE_FLOAT:
         onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%#f", *(const float *)bytes);
-        bytes = bytes + 4;
+        bytes = (const float *) bytes + 4;
         break;
       case DL_TYPE_DOUBLE:
         onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%#f", *(const double *)bytes);
-        bytes = bytes + 8;
+        bytes = (const double *) bytes + 8;
         break;
       case DL_TYPE_TIMESTAMP:
         onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%u.%04u", (*(const uint32_t *)bytes) / TIMESTAMP_SCALE,(*(const uint32_t *)bytes) % TIMESTAMP_SCALE);
-        bytes = bytes + 4;
+        bytes = (const uint32_t *) bytes + 4;
         break;
       case DL_TYPE_ARRAY_LENGTH:
         break;
