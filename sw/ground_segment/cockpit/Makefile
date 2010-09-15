@@ -62,6 +62,9 @@ $(MAIN).opt : $(CMX)
 	@echo OOC $<
 	$(Q)$(OCAMLOPT) $(OCAMLCFLAGS) $(INCLUDES) -c $<
 
+saveSettings.cmo : gtk_save_settings.cmo
+saveSettings.cmx: gtk_save_settings.cmx
+
 gtk_strip.ml : gcs.glade
 	lablgladecc2 -root eventbox_strip -hide-default $< | grep -B 1000000 "  end" > $@
 
