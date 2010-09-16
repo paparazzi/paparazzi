@@ -21,14 +21,16 @@
 
 #include "ins_qkf.hpp"
 #include "assertions.hpp"
-#include "timer.hpp"
 
 #ifdef TIME_OPS
+#include "timer.hpp"
 #include <iostream>
 #endif
 
 using namespace Eigen;
 #define RANK_ONE_UPDATES
+
+#include <Eigen/LU>
 
 void
 basic_ins_qkf::obs_gyro_bias(const Vector3d& bias, const Vector3d& bias_error)

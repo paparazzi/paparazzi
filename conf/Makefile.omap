@@ -62,8 +62,9 @@ CFLAGS += $($(TARGET).CFLAGS)
 
 
 CXX = /opt/paparazzi/omap/overo-oe/tmp/sysroots/i686-linux/usr/armv7a/bin/arm-angstrom-linux-gnueabi-g++
-CXXFLAGS = -pipe -O3 -fshow-column -ffast-math -DEIGEN_DONT_VECTORIZE -fPIC
-CXXFLAGS += -DEIGEN_DONT_ALIGN -DNDEBUG -g -ffunction-sections -fdata-sections -DTIME_OPS
+CXXFLAGS = -pipe -O3 -fshow-column -ffast-math -fPIC
+CXXFLAGS += -g -ffunction-sections -fdata-sections 
+CXXFLAGS += -mfloat-abi=softfp -mtune=cortex-a8 -mfpu=vfp -march=armv7-a
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += $($(TARGET).CXXFLAGS)	
 
@@ -90,7 +91,7 @@ load upload program: $(OBJDIR)/$(TARGET).elf
 %.elf:   $(OBJ_C_OMAP) $(OBJ_CPP_OMAP)
 	@echo LD $@
 	$(Q)if (expr "$($(TARGET).cpp_srcs)"); \
-          then $(CXX) $(CXXFLAGS) $(OBJ_CPP_OMAP) --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS) ; \
+          then $(CXX) $(CXXFLAGS) $(OBJ_CPP_OMAP) $(OBJ_C_OMAP) --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS); \
           else $(CC) $(CFLAGS) $(OBJ_C_OMAP) --output $@ $(LDFLAGS) $($(TARGET).LDFLAGS); fi
 
 # Compile: create object files from C source files

@@ -5,10 +5,43 @@
 
     HOST=auto3
 
-    # test 1
+    LIB_EIGEN_DIR = /opt/paparazzi/omap/overo-oe/tmp/sysroots/armv7a-angstrom-linux-gnueabi/usr/include/eigen2
+    LIB_EIGEN_CFLAGS =  -I$(LIB_EIGEN_DIR) -DEIGEN_DONT_VECTORIZE  -DEIGEN_DONT_ALIGN -DNDEBUG 
+
+    LIBEKNAV_SRCS = fms/libeknav/basic_ins_qkf.cpp           \
+                    fms/libeknav/ins_qkf_predict.cpp         \
+                    fms/libeknav/ins_qkf_observe_vector.cpp  \
+                    fms/libeknav/ins_qkf_observe_gps_pvt.cpp \
+                    fms/libeknav/ins_qkf_observe_gps_p.cpp
+#    LIBEKNAV_CFLAGS = -DTIME_OPS
+    LIBEKNAV_CFLAGS =
+
+    # test 1: how do I build cpp for using libeigen ?
     test1.ARCHDIR = omap
-    test1.CXXFLAGS += -I /opt/paparazzi/omap/overo-oe/tmp/sysroots/armv7a-angstrom-linux-gnueabi/usr/include/eigen2
+    test1.CXXFLAGS += $(LIB_EIGEN_CFLAGS)
     test1.cpp_srcs  = fms/libeknav/hello_world.cpp
+
+    # test 2: now build with libeknav
+    test2.ARCHDIR = omap
+    test2.CXXFLAGS += $(LIB_EIGEN_CFLAGS)
+    test2.cpp_srcs  = fms/libeknav/test_libeknav_2.cpp
+    test2.CXXFLAGS += $(LIBEKNAV_CFLAGS)
+    test2.cpp_srcs += $(LIBEKNAV_SRCS)
+
+    # test 3: now try to add Paparazzi's C
+    test3.ARCHDIR = omap
+    test3.CXXFLAGS += $(LIB_EIGEN_CFLAGS)
+    test3.CXXFLAGS += -I$(PAPARAZZI_HOME)/var/$(AIRCRAFT)
+    test3.CXXFLAGS += -I$(PAPARAZZI_SRC)/sw/airborne
+    test3.CXXFLAGS += -I$(PAPARAZZI_SRC)/sw/include
+    test3.cpp_srcs  = fms/libeknav/test_libeknav_3.cpp
+    test3.CXXFLAGS += $(LIBEKNAV_CFLAGS)
+    test3.cpp_srcs += $(LIBEKNAV_SRCS)
+    test3.LDFLAGS  += -levent -lm
+    test3.CFLAGS   += -DFMS_PERIODIC_FREQ=512
+    test3.srcs     += fms/fms_periodic.c
+    test3.CXXFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessagePTUp -DOVERO_LINK_MSG_DOWN=AutopilotMessagePTDown
+    test3.srcs     += fms/fms_spi_link.c
 
     # test network based telemetry on overo (using udp_transport2/messages2)
     overo_test_telemetry2.ARCHDIR  = omap
