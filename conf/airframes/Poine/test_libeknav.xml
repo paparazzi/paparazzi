@@ -5,6 +5,11 @@
 
     HOST=auto3
 
+    PAPARAZZI_INC = -I$(PAPARAZZI_HOME)/var/$(AIRCRAFT) \
+                    -I$(PAPARAZZI_SRC)/sw/airborne      \
+                    -I$(PAPARAZZI_SRC)/sw/include
+
+
     LIB_EIGEN_DIR = /opt/paparazzi/omap/overo-oe/tmp/sysroots/armv7a-angstrom-linux-gnueabi/usr/include/eigen2
     LIB_EIGEN_CFLAGS =  -I$(LIB_EIGEN_DIR) -DEIGEN_DONT_VECTORIZE  -DEIGEN_DONT_ALIGN -DNDEBUG 
 
@@ -19,7 +24,7 @@
     # test 1: how do I build cpp for using libeigen ?
     test1.ARCHDIR = omap
     test1.CXXFLAGS += $(LIB_EIGEN_CFLAGS)
-    test1.cpp_srcs  = fms/libeknav/hello_world.cpp
+    test1.cpp_srcs  = fms/libeknav/test_libeknav_1.cpp
 
     # test 2: now build with libeknav
     test2.ARCHDIR = omap
@@ -31,9 +36,7 @@
     # test 3: now try to add Paparazzi's C
     test3.ARCHDIR = omap
     test3.CXXFLAGS += $(LIB_EIGEN_CFLAGS)
-    test3.CXXFLAGS += -I$(PAPARAZZI_HOME)/var/$(AIRCRAFT)
-    test3.CXXFLAGS += -I$(PAPARAZZI_SRC)/sw/airborne
-    test3.CXXFLAGS += -I$(PAPARAZZI_SRC)/sw/include
+    test3.CXXFLAGS += $(PAPARAZZI_INC)
     test3.cpp_srcs  = fms/libeknav/test_libeknav_3.cpp
     test3.CXXFLAGS += $(LIBEKNAV_CFLAGS)
     test3.cpp_srcs += $(LIBEKNAV_SRCS)
@@ -45,7 +48,7 @@
 
     # test network based telemetry on overo (using udp_transport2/messages2)
     overo_test_telemetry2.ARCHDIR  = omap
-    overo_test_telemetry2.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
+    overo_test_telemetry2.CFLAGS  += $(PAPARAZZI_INC)
     overo_test_telemetry2.srcs     = fms/overo_test_telemetry2.c
     overo_test_telemetry2.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
     overo_test_telemetry2.srcs    += fms/udp_transport2.c downlink.c

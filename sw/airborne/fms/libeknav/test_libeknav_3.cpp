@@ -88,26 +88,8 @@ static void main_init(void) {
 
 static void main_periodic(int my_sig_num __attribute__ ((unused))) {
 
-  static uint32_t cnt;
-  cnt++;
-
   main_dialog_with_io_proc();
-
-  const double dt = 1./512.;
-  Vector3d gyro(0., 0., 0.);
-  Vector3d accelerometer(0., 0., 9.81);
-  ins.predict(gyro, accelerometer, dt);
-
-  if (cnt % 10 == 0) { /* update mag at 50Hz */
-    Vector3d magnetometer = Vector3d::UnitZ();
-    const double   mag_noise = std::pow(5 / 180.0 * M_PI, 2);
-    ins.obs_vector(magnetometer, magnetometer, mag_noise);
-  }
-  if (cnt % 128 == 0) /* update gps at 4 Hz */ {
-    const Vector3d gps_pos_noise = Vector3d::Ones()  *10*10;
-    const Vector3d gps_speed_noise = Vector3d::Ones()*0.1*0.1;
-    ins.obs_gps_pv_report(pos_0_ecef, speed_0_ecef, gps_pos_noise, gps_speed_noise);
-  }
+  main_run_ins();
 
 }
 
@@ -127,4 +109,27 @@ static void main_dialog_with_io_proc() {
   ACCELS_FLOAT_OF_BFP(imu.accel, in->accel); 
   MAGS_FLOAT_OF_BFP(imu.mag, in->mag); 
 
+}
+
+static void main_run_ins() {
+
+  static uint32_t cnt;
+  cnt++;
+
+  const double dt = 1./512.;
+  Vector3d gyro(0., 0., 0.);
+  Vector3d accelerometer(0., 0., 9.81);
+  ins.predict(gyro, accelerometer, dt);
+  
+  if (cnt % 10 == 0) { /* update mag at 50Hz */
+    Vector3d magnetometer = Vector3d::UnitZ();
+    const double   mag_noise = std::pow(5 / 180.0 * M_PI, 2);
+    ins.obs_vector(magnetometer, magnetometer, mag_noise);
+  }
+  if (cnt % 128 == 0) /* update gps at 4 Hz */ {
+    const Vector3d gps_pos_noise = Vector3d::Ones()  *10*10;
+    const Vector3d gps_speed_noise = Vector3d::Ones()*0.1*0.1;
+    ins.obs_gps_pv_report(pos_0_ecef, speed_0_ecef, gps_pos_noise, gps_speed_noise);
+  }
+  
 }
