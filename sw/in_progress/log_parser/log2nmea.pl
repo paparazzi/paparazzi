@@ -2,7 +2,7 @@
 #Author: Paul Cox
 #This script reads a paparazzi log file and extracts the GPS messages
 #It outputs Time/Lat/Long/Alt
-#TODO: NMEA output, add speed
+#TODO: waypoints and remove intermediate file creation
 #Notes:
 #mode 
 #utm_east ALT_UNIT="m" UNIT="cm"
@@ -19,8 +19,22 @@
 #time    ID MSG M EAST     NORTH     C    ALT  S C   W    ITOW      ZO ERR
 #144.225 20 GPS 3 19779772 497668512 1819 3625 9 -20 1601 303393500 31 0
 
-
+#use strict; fast and loose is nice...
 use Geo::Coordinates::UTM;
+require "distance.pl";
+
+my $utw=0;
+my $cnt=0;
+my $toffset=0;
+my $solstart=0;
+my $totime=0;
+my $tdtime=0;
+my $hialt=0;
+my $maxdist=0;
+my $latitude=0;
+my $longitude=0;
+my $gndalt=0;
+my $delta=0;
 
 sub getnmeatime {
     my $utw_h = 0;
@@ -43,21 +57,19 @@ sub getnmeatime {
     return $time;
 } 
 
-open INFILE, "<10_09_15__14_13_55.data" or die $!;
-open OUTFILE, ">GPS_data.txt" or die $!;
-open NMEAFILE, ">NMEA.log" or die $!;
+#my $filename = '10_09_15__14_13_55';
+my $filename = $ARGV[0];
+my @filepts = split(/\_/,$filename);
+my $date = $filepts[2] . $filepts[1] . $filepts[0];
+printf "NMEA Date: $date\n";
+open DATAFILE, "<$filename.data" or die $!;
+#TODO: open .log file and create nmea waypoints from flightplan waypoints
+#open OUTFILE, ">GPS_data_$date.txt" or die $!;
+open NMEAFILE, ">NMEA_$date.log" or die $!;
 
-$cnt=0;
-$utw=0;
-$toffset=0;
-$solstart=0;
-$totime=0;
-$tdtime=0;
-$hialt=0;
-
-while (my $line = <INFILE>) {
+while (my $line = <DATAFILE>) {
   chomp($line); 
-  @fields = split(/ /,$line);
+  my @fields = split(/ /,$line);
   
   #Determine when GPS fix is acquired by looking for PDOP <1000 and numSV>3
   if ($fields[2] eq "GPS_SOL" and $fields[5] < 1000 and $fields[6] > 3) {
@@ -65,63 +77,71 @@ while (my $line = <INFILE>) {
       $solstart = $fields[0];
       printf "GPS SOL start time: $solstart\n";
     }
-    $pacc = $fields[3];
-    $sacc = $fields[4];
-    $pdop = $fields[5];
-    $numSV = $fields[6];
+    my $pacc = $fields[3];
+    my $sacc = $fields[4];
+    my $pdop = $fields[5];
+    my $numSV = $fields[6];
   }
   
   #We are going to look for GPS messages, in mode 3 (3D fix)
   # Skip messages that have the previous utw (duplicates)
   # Skip any messages with negative altitude (GPS not initialized yet)
   if ($fields[2] eq "GPS" and $fields[3] == "3" and $fields[11] != $utw and $fields[7] > 0 and $solstart != 0) {
-  
+        #store begin flight time
+    if ($toffset == 0) { 
+      $toffset = $fields[0];
+      printf "GPS Start Time: $toffset\n";
+    }
+    #Calculate delta and store for averaging at the end
+    if ($prevtime == 0) {
+      $prevtime = $fields[0];
+    } else {
+      $delta= $fields[0]-$prevtime;
+      if ($delta > 2) {printf "warning: delta %.1f at $fields[0] s.\n",$delta;}
+      $prevtime = $fields[0];
+      $sum += $delta;
+      $cnt++;
+    }
     #takeoff is considered to be > 4 m/s on hor and vert
     if ($fields[8] > 400 and $fields[9] > 400 and $totime == 0) {
       $totime = $fields[0];
-      my $gndalt = $fields[7];
+      $gndalt = $fields[7];
+      $olat=$latitude; $olon=$longitude;
+      #create waypoint
       printf "Takeoff detected at time : $totime s\n";
     }
     
     if ($fields[7] > $hialt and $totime != 0 ) {
       $hialt = $fields[7];
       $hialtt = $fields[0];
+      #store lat/lon for waypoint creation at end of program
     }
   
     #touchdown is considered when < 1 m/s on hor and vert
     if ($fields[8] < 100 and $fields[9] < 100 and $totime != 0 and $tdtime == 0) {
       $tdtime = $fields[0];
-      printf "Highest Alt : %.2f ($hialtt)\n",($hialt-$gndalt)/100;
+      printf "Max Alt : %.2f meters ($hialtt sec)\n",($hialt-$gndalt)/100;
+      printf "Max Dist: %.3f km ($maxdistt sec)\n",$maxdist;
       printf "Touchdown detected at time : $tdtime s (flight time: %.2f min)\n",($tdtime-$totime)/60;
     }
-  
-    #store begin flight time
-    if ($toffset == 0) { 
-      $toffset = $fields[0];
-      printf "GPS Start Time: $toffset\n";
-    }
-    #Calculate delta and store for averaging at the end
-    $delta= $fields[0]-$prevtime;
-    $prevtime = $fields[0];
-    $sum += $delta;
-    
+   
     $utw=$fields[11];
-    printf OUTFILE "Time: ";
-    printf OUTFILE '%.2f',$fields[0] - $toffset;
-#    printf OUTFILE " utme: $fields[4] utmn: $fields[5]";
-    printf OUTFILE " Alt: ";
-    printf OUTFILE '%.2f',($fields[7]/100);
-    my $zone = $fields[12] . "V";
     #divide by 100 as gps provides utm in centimeters
-    my ($latitude,$longitude)=utm_to_latlon('wgs84',$zone,$fields[4]/100,$fields[5]/100);
-    printf OUTFILE " Lat: ";
-    printf OUTFILE '%.6f',$latitude ;
-    printf OUTFILE " Lon: \ ";
-    printf OUTFILE '%.6f',$longitude;
-    printf OUTFILE "\n";
+    ($latitude,$longitude)=utm_to_latlon('wgs84',($fields[12] . "V"),$fields[4]/100,$fields[5]/100);
+    #printf OUTFILE "Time: %.2f Alt: %.2f Lat: %.6f Lon: %.6f\n",
+    #                 $fields[0] - $toffset,($fields[7]/100),$latitude,$longitude;
     
     if ($totime == 0) { next;}
-    if ($tdtime != 0) { break;}
+    if ($tdtime != 0) { last;}
+    
+    my $dist = distance($latitude, $longitude, $olat, $olon, "K");
+    if ( $dist > $maxdist ) { 
+      $maxdist = $dist; 
+      $maxdistt = $fields[0];
+      #create waypoint
+      #$GPWPL,4917.16,N,12310.64,W,003*65
+    }
+    
     #Begin NMEA output
     #RMC,GGA/GSA/VTG/GSV
     printf NMEAFILE "\$GPRMC,";
@@ -148,10 +168,9 @@ while (my $line = <INFILE>) {
     printf NMEAFILE '%.2f,',$fields[8]*.019438444; #gnd spd in knts from cm/s 
     printf NMEAFILE '%.2f,',$fields[6]/10; #trk angle in deg from decideg
 
-    # ($year,$month,$day) = Monday_of_Week($week,"2010");
-    # print
-    printf NMEAFILE "150910" . ",,\n"; #date and mag var TODO:use real date
-    $cnt++;
+    # ($year,$month,$day) = Monday_of_Week($week,"2010"); TODO:use week and day to calculate date?
+    printf NMEAFILE "$date,,\n"; #date and mag var 
+
     
     #$GPRMC,121518.000,A,4452.767,N,00049.573,W,0.45,0.00,150910,,*1F
     #$GPGGA,121518.000,4452.767,N,00049.573,W,1,00,0.0,0.000,M,0.0,M,,*7D
@@ -159,6 +178,7 @@ while (my $line = <INFILE>) {
     printf NMEAFILE "\$GPGGA,$time,$nmealat,$nmealon,1,$numSV,$pdop,%.2f,M,%.2f,M,,\n",$fields[7]/100,$fields[7]/100;
     printf NMEAFILE "\$GPVTG,0.000,T,0,M,%.2f,N,%.2f,K\n",$fields[8]*.019438444,$fields[8]*.03598272;  
   }
+  
 }
 
 printf "Number of GPS points: $cnt Avg. delta: ";
@@ -167,12 +187,12 @@ printf " Duration: ";
 printf '%.2f',$cnt/4/60;
 printf " minutes\n";
 
-close INFILE;
-close OUTFILE;
+close DATAFILE;
+#close OUTFILE;
 
-open NMEAFILE, "<NMEA.log" or die $!;
-open OUTFILE, ">gps.nmea" or die $!;
-
+open NMEAFILE, "<NMEA_$date.log" or die $!;
+$time = substr($time,0,6);
+open OUTFILE, ">gps_$date\_$time.nmea" or die $!;
 
 while (my $line = <NMEAFILE>) { 
   chomp($line);
@@ -189,6 +209,5 @@ while (my $line = <NMEAFILE>) {
 }
 
 close NMEAFILE;
+`rm NMEA_$date.log`;
 close OUTFILE;
-
-   
