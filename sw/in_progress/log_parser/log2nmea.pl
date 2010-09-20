@@ -2,7 +2,7 @@
 #Author: Paul Cox
 #This script reads a paparazzi log file and extracts the GPS messages
 #It outputs Time/Lat/Long/Alt
-#TODO: waypoints and remove intermediate file creation
+#TODO: waypoints and interpolation when delta is > 2 sec
 #Notes:
 #mode 
 #utm_east ALT_UNIT="m" UNIT="cm"
@@ -52,7 +52,7 @@ sub getnmeatime {
     #ensure proper leading zero for single digits
     $utw_m = sprintf("%02d",$utw_m);
     #calculate remaining seconds
-    my $utw_s = sprintf("%06.3f",$utw/1000-$utw_m*60-$utw_h*60*60-$utw_d*60*60*24);
+    my $utw_s = sprintf("%06.3f",$utw/1000-$utw_m*60-$utw_h*60*60-$utw_d*60*60*24-$_[0]);
     my $time = $utw_h . $utw_m . $utw_s; #Time UTC HHMMSS.mmm  303318000/60000=5055.3/60=84.255/24=3.510625
     return $time;
 } 
@@ -67,6 +67,11 @@ open DATAFILE, "<$filename.data" or die $!;
 #open OUTFILE, ">GPS_data_$date.txt" or die $!;
 open NMEAFILE, ">NMEA_$date.log" or die $!;
 
+my $sacc =0;
+my $pacc =0;
+my $pdop =0;
+my $numSV =0;
+
 while (my $line = <DATAFILE>) {
   chomp($line); 
   my @fields = split(/ /,$line);
@@ -77,10 +82,10 @@ while (my $line = <DATAFILE>) {
       $solstart = $fields[0];
       printf "GPS SOL start time: $solstart\n";
     }
-    my $pacc = $fields[3];
-    my $sacc = $fields[4];
-    my $pdop = $fields[5];
-    my $numSV = $fields[6];
+    $pacc = $fields[3];
+    $sacc = $fields[4];
+    $pdop = $fields[5];
+    $numSV = $fields[6];
   }
   
   #We are going to look for GPS messages, in mode 3 (3D fix)
@@ -144,16 +149,10 @@ while (my $line = <DATAFILE>) {
     
     #Begin NMEA output
     #RMC,GGA/GSA/VTG/GSV
-    printf NMEAFILE "\$GPRMC,";
-
-    $time = getnmeatime($utw);
-
-    printf NMEAFILE $time . ",A,";    #Active
 
     $degrees = abs(int($latitude));
     $minutes = (abs($latitude) - $degrees) * 60;
     $nmealat = sprintf("%02d%.4f",$degrees,$minutes). "," ."N";                               
-    printf NMEAFILE $nmealat . ","; #LAT
 
     $degrees = abs(int($longitude));
     $minutes = (abs($longitude) - $degrees) * 60;
@@ -163,20 +162,24 @@ while (my $line = <DATAFILE>) {
     } else {
       $nmealon .= ",W" ; #LON
     }
-    printf NMEAFILE $nmealon . ",";
 
-    printf NMEAFILE '%.2f,',$fields[8]*.019438444; #gnd spd in knts from cm/s 
-    printf NMEAFILE '%.2f,',$fields[6]/10; #trk angle in deg from decideg
+    $gprmc = sprintf '%.2f,',$fields[8]*.019438444; #gnd spd in knts from cm/s 
+    $gprmc .= sprintf '%.2f,',$fields[6]/10; #trk angle in deg from decideg
 
     # ($year,$month,$day) = Monday_of_Week($week,"2010"); TODO:use week and day to calculate date?
-    printf NMEAFILE "$date,,\n"; #date and mag var 
+    $gprmc .= sprintf "$date,,\n"; #date and mag var 
 
-    
     #$GPRMC,121518.000,A,4452.767,N,00049.573,W,0.45,0.00,150910,,*1F
-    #$GPGGA,121518.000,4452.767,N,00049.573,W,1,00,0.0,0.000,M,0.0,M,,*7D
+       #$GPGGA,121518.000,4452.767,N,00049.573,W,1,00,0.0,0.000,M,0.0,M,,*7D
+    #$GPGGA,121828.500,4452.7696,N,00049.5712,W,1,8,184,52.65,M,52.65,M,,*55
     #$GPVTG,0.000,T,0,M,0.450,N,0.833,K*59
-    printf NMEAFILE "\$GPGGA,$time,$nmealat,$nmealon,1,$numSV,$pdop,%.2f,M,%.2f,M,,\n",$fields[7]/100,$fields[7]/100;
-    printf NMEAFILE "\$GPVTG,0.000,T,0,M,%.2f,N,%.2f,K\n",$fields[8]*.019438444,$fields[8]*.03598272;  
+    for (my $i = int($delta-0.25); $i >= 0 ; $i-- ) {
+      $time= getnmeatime($i);
+      #if ($i>0) {printf NMEAFILE "-----\n";}
+      printf NMEAFILE "\$GPRMC,$time,A,$nmealat,$nmealon,". $gprmc;
+      printf NMEAFILE "\$GPGGA,$time,$nmealat,$nmealon,1,$numSV,$pdop,%.2f,M,%.2f,M,,\n",$fields[7]/100,$fields[7]/100;
+      printf NMEAFILE "\$GPVTG,0.000,T,0,M,%.2f,N,%.2f,K\n",$fields[8]*.019438444,$fields[8]*.03598272;  
+    } 
   }
   
 }
@@ -189,6 +192,7 @@ printf " minutes\n";
 
 close DATAFILE;
 #close OUTFILE;
+close NMEAFILE;
 
 open NMEAFILE, "<NMEA_$date.log" or die $!;
 $time = substr($time,0,6);

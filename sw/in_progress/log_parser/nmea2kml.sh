@@ -13,4 +13,4 @@
 #	  labels                (0/1) Display labels on track and routepoints  (default  
 #	  max_position_point    Retain at most this number of position points  (0  
 
-gpsbabel -i nmea -f "$@" -o kml,deficon=funjet,line_width=1,floating=1 -F ppzout.kml
+gpsbabel -i nmea -f "$@" -o kml,deficon=funjet,line_width=1,floating=1,labels=0 -F ppzout.kml
