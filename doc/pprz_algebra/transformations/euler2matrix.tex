@@ -1,0 +1,24 @@
+The transformation from euler angles $ \eu e$ to a rotational matrix depends on the order of rotation. Here, the default order is 321, which means first \Yawc{Yaw} (about the \emph{third} axis), then \Pitchc{Pitch} (the \emph{second} axis) and finally \Rollc{Roll}(the \emph{first} axis). Please note the important definition about perspectives (page \ref{Important definition}).
+\begin{equation}
+\mat R_m = \begin{pmatrix}
+cos(\Pitch)cos(\Yaw)									& cos(\Pitch)sin(\Yaw)									& -sin(\Pitch)			\\
+sin(\Roll)sin(\Pitch)cos(\Yaw) - cos(\Roll)cos(\Yaw)	& sin(\Roll)sin(\Pitch)sin(\Yaw) + cos(\Roll)cos(\Yaw)	& sin(\Roll)cos(\Pitch)	\\
+cos(\Roll)sin(\Pitch)cos(\Yaw) + sin(\Roll)sin(\Yaw)	& cos(\Roll)sin(\Pitch)sin(\Yaw) - sin(\Roll)cos(\Yaw)	& cos(\Roll)cos(\Pitch)
+\end{pmatrix}\end{equation}
+
+\inHfile{INT32\_RMAT\_OF\_EULERS(rm, e)}{pprz\_algebra\_int}
+\inHfile{INT32\_RMAT\_OF\_EULERS\_321(rm, e)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_RMAT\_OF\_EULERS(rm, e)}{pprz\_algebra\_float}
+\inHfile{FLOAT\_RMAT\_OF\_EULERS\_321(rm, e)}{pprz\_algebra\_float}
+You can also choose the 312 definition (First \Yawc{Yaw}, then  \Rollc{Roll} then \Pitchc{Pitch} $\Rightarrow \mat R(\Yaw) \mat R(\Roll)  \mat R(\Pitch)$). Again, remember the different order and sign:
+\begin{equation}
+\mat R_m = \mat R(-\Pitch) \mat R(-\Roll)  \mat R(-\Yaw)
+\end{equation}
+\begin{equation}
+\mat R_m = \begin{pmatrix}
+cos(\Pitch)cos(\Yaw)-sin(\Roll)sin(\Pitch)sin(\Yaw)		& cos(\Pitch)sin(\Yaw) + sin(\Roll)sin(\Pitch)cos(\Yaw)	& -cos(\Roll)sin(\Pitch) \\
+-cos(\Roll)sin(\Yaw)									& cos(\Roll)cos(\Yaw)									& sin(\Roll)		\\
+sin(\Pitch)cos(\Yaw) + sin(\Roll)cos(\Pitch)sin(\Yaw)	& sin(\Pitch)sin(\Yaw)-sin(\Roll)cos(\Pitch)cos(\Yaw)	& cos(\Roll)cos(\Pitch)
+\end{pmatrix}\end{equation}
+\inHfile{INT32\_RMAT\_OF\_EULERS\_312(rm, e)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_RMAT\_OF\_EULERS\_312(rm, e)}{pprz\_algebra\_float}

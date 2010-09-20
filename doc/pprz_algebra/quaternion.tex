@@ -1,0 +1,172 @@
+\section{Quaternion}
+\mynote{I hate the naming convention for the real part.}
+\subsection{Definition}
+The values are called
+\begin{equation}
+\quat{} = q_i + \mathrm{i} q_x + \mathrm{j} q_y + \mathrm{k} q_z
+ = \begin{pmatrix} q_i \\q_x\\q_y\\q_z\end{pmatrix}
+\end{equation}
+It is available for the following simple types:\\
+\begin{tabular}{c|c}
+type		& struct		\\ \hline
+int32\_t	& Int32Quat		\\
+float		& FloatQuat
+\end{tabular}
+
+
+
+
+\subsection{= Assigning}
+\subsubsection*{$\quat{} = $ Identity}
+Sets a quaternion to the identity rotation (no rotation).
+\begin{equation}
+\quat{} = 1 = \begin{pmatrix}1 \\ 0 \\0\\0\end{pmatrix}
+\end{equation}
+\inHfile{INT32\_QUAT\_ZERO(q)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_QUAT\_ZERO(q)}{pprz\_algebra\_float}
+
+\subsubsection*{$\quat{} = \transp{(\quat i,\quat x,\quat y,\quat z)}$}
+\begin{equation}
+\textit{i} is the real part of the quaternion.
+ \quat a = \begin{pmatrix}i\\ x \\ y \\ z \end{pmatrix}
+\end{equation}
+\inHfile{QUAT\_ASSIGN(q, i, x, y, z)}{pprz\_algebra}
+
+\subsubsection*{$\quat{o} = \quat{i}$}
+\begin{equation}
+\quat o = \quat i
+\end{equation}
+\inHfile{QUAT\_COPY(qo, qi)}{pprz\_algebra}
+\inHfile{FLOAT\_QUAT\_COPY(qo, qi)}{pprz\_algebra\_float}
+
+\subsubsection*{$\quat{b} = - \quat{a}$}
+\begin{equation}
+\quat b = - \quat a
+\end{equation}
+\inHfile{QUAT\_EXPLEMENTARY(b, a)}{pprz\_algebra}
+\inHfile{FLOAT\_QUAT\_EXPLEMENTARY(b, a)}{pprz\_algebra\_float}
+\mynote{Naming the other way round?}
+
+
+
+\subsection{+ Addition}
+\subsubsection*{$\quat{o} += \quat{i}$}
+\begin{equation}
+\quat o = \quat o + \quat i
+\end{equation}
+\inHfile{QUAT\_ADD(qo, qi)}{pprz\_algebra}
+\inHfile{FLOAT\_QUAT\_ADD(qo, qi)}{pprz\_algebra\_float}
+\mynote{No SUM function?}
+
+
+
+\subsection{- Subtraction}
+\subsubsection*{$\quat{c} = \quat{a} - \quat{b}$}
+\begin{equation}
+\quat c = \quat a - \quat b
+\end{equation}
+\inHfile{QUAT\_DIFF(qc, qa, qb)}{pprz\_algebra}
+\mynote{no SUB function?}
+
+
+
+\subsection{$\multiplication$ Multiplication}
+\subsubsection*{$\quat{o} = s \multiplication \quat{i}$ With a scalar}
+\begin{equation}
+	\quat{o} = s \multiplication \quat{i}
+\end{equation}
+\inHfile{QUAT\_SMUL(vo, vi, s)}{pprz\_algebra}
+\inHfile{FLOAT\_QUAT\_SMUL(vo, vi, s)}{pprz\_algebra\_float}
+
+\subsubsection*{$\quat{a2c} = \quat{b2c} \quatprod \quat{a2b}$ With a quaternion (composition)}
+Returns the multiplication/composition of two quaternions.
+\begin{equation}
+\quat{a2c} = \quat{b2c} \quatprod \quat{a2b}
+\end{equation}
+\begin{equation}
+\quat{a2c} = \begin{pmatrix}
+\quat{b2c,i} & -\quat{b2c,x} & -\quat{b2c,y} & -\quat{b2c,z} \\
+\quat{b2c,x} &  \quat{b2c,i} & -\quat{b2c,z} &  \quat{b2c,y} \\
+\quat{b2c,y} &  \quat{b2c,z} &  \quat{b2c,i} & -\quat{b2c,x} \\
+\quat{b2c,z} & -\quat{b2c,y} &  \quat{b2c,x} &  \quat{b2c,i}
+\end{pmatrix}\multiplication \begin{pmatrix}
+\quat{a2b,i}\\\quat{a2b,x}\\\quat{a2b,y}\\\quat{a2b,z}
+\end{pmatrix}
+\end{equation}
+\inHfile{INT32\_QUAT\_COMP(a2c, a2b, b2c) }{pprz\_algebra\_int}
+\inHfile{FLOAT\_QUAT\_COMP(a2c, a2b, b2c) }{pprz\_algebra\_float}
+\inHfile{FLOAT\_QUAT\_MULT(a2c, a2b, b2c) }{pprz\_algebra\_float}
+Also available with inversions/conjugations (please note, that a inversion and a conjugation is the same for a unit quaternion):
+\begin{equation}
+\quat{a2b} = \comp{\quat{b2c}} \quatprod \quat{a2c}
+\end{equation}
+\inHfile{INT32\_QUAT\_COMP\_INV(a2b, a2c, b2c) }{pprz\_algebra\_int}
+\inHfile{FLOAT\_QUAT\_COMP\_INV(a2b, a2c, b2c) }{pprz\_algebra\_float}
+\begin{equation}
+\quat{b2c} = \quat{a2c} \quatprod \comp{\quat{a2b}}
+\end{equation}
+\inHfile{INT32\_QUAT\_INV\_COMP(b2c, a2b, a2c)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_QUAT\_INV\_COMP(b2c, a2b, a2c)}{pprz\_algebra\_float}
+\emph{Note}
+Please note that due to the fact that it's done very often, the functions above are also available with Normalisation:
+\inHfile{FLOAT\_QUAT\_COMP\_INV\_NORM\_SHORTEST(a2b, a2c, b2c)}{pprz\_algebra\_float}
+\inHfile{FLOAT\_QUAT\_INV\_COMP\_NORM\_SHORTEST(b2c, a2b, a2c)}{pprz\_algebra\_float}
+
+\mynote{no Division?}
+
+\subsection{$\comp{}$ Complementary}
+\begin{equation}
+\quat o = \comp{\quat i}
+\end{equation}
+\inHfile{QUAT\_INVERT(qo, qi)}{pprz\_algebra}
+\inHfile{INT32\_QUAT\_INVERT(qo, qi)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_QUAT\_INVERT(qo, qi)}{pprz\_algebra\_float}
+
+
+
+\subsection{Transformation from Quaternions}
+\subsubsection*{to a rotational matrix}
+\input{transformations/quaternion2matrix}
+
+\subsubsection*{to euler angles}
+\input{transformations/quaternion2euler}
+
+
+
+\subsection{Transformation to Quaternions}
+\subsubsection*{from euler angles}
+\input{transformations/euler2quaternion}
+
+\subsubsection*{from a rotational matrix}
+\input{transformations/matrix2quaternion}
+
+\subsubsection*{from measured rates}
+\input{transformations/rates2quaternion}
+
+
+
+\subsection{Other}
+\subsubsection*{$\norm{\quat{}}$ Norm}
+Returns the 2-norm of a quaternion
+\begin{equation}
+n = \norm{\quat{}} = \sqrt{\quat{}\comp{\quat{}}} = \sqrt{\quat i^2 + \quat x^2 + \quat y^2 + \quat z^2}
+\end{equation}
+\inHfile{INT32\_QUAT\_NORM(n, q)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_QUAT\_NORM(n, q)}{pprz\_algebra\_float}
+It is also possible to directly normalise the quaternion
+\begin{equation}
+\quat{} := \frac{\quat{}}{\norm{\quat{}}}
+\end{equation}
+\inHfile{INT32\_QUAT\_NORMALISE(q)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_QUAT\_NORMALISE(q)}{pprz\_algebra\_float}
+
+\subsection*{Making the real value positive}
+It is possible to invert the quaternion if its real value is negative
+\begin{equation}
+\quat{} = \left\lbrace \begin{matrix}
+\quat{} \quad \quat i>0 \\
+-\quat{} \quad \quat i<0
+\end{matrix} \right.
+\end{equation}
+\inHfile{INT32\_QUAT\_WRAP\_SHORTEST(q)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_QUAT\_WRAP\_SHORTEST(q)}{pprz\_algebra\_float}

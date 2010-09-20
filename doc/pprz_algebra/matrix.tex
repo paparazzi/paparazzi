@@ -1,0 +1,126 @@
+\section{Matrix $3\times3$ / Rotation Matrix}
+The indices of a matrix are zero-indexed, i.e. the first element in the matrix has the row and column number \textbf{Zero}.
+\mynote{I choosed to start the indices with 1.}
+\subsection{Definition}
+The matrix is represented as an array with the length 9.
+\begin{equation}
+\mat M = \begin{pmatrix}
+m_0 & m_1 & m_2 \\
+m_3 & m_4 & m_5 \\
+m_6 & m_7 & m_8
+\end{pmatrix} = \begin{pmatrix}
+m[0] & m[1] & m[2] \\
+m[3] & m[4] & m[5] \\
+m[6] & m[7] & m[8]
+\end{pmatrix}
+\end{equation}
+It is available for the following simple types:\\
+\begin{tabular}{c|c|c}
+type		& struct Mat	& struct RMat	\\ \hline
+int32\_t	& Int32Mat33	& Int32RMat		\\
+float		& FloatMat33	& FloatRMat
+\end{tabular}
+
+
+
+\subsection{= Assigning}
+\subsubsection*{$\mat M = \mat 0$}
+\begin{equation}
+\mat M = \begin{pmatrix}
+0 & 0 & 0 \\
+0 & 0 & 0 \\
+0 & 0 & 0
+\end{pmatrix}
+\end{equation}
+\inHfile{FLOAT\_MAT33\_ZERO(m)}{pprz\_algebra\_float}
+\inHfile{FLOAT\_RMAT\_ZERO(m)}{pprz\_algebra\_float}
+
+\subsubsection*{$a_{ij}$ elements}
+Accessing an element is able with
+\inHfile{MAT33\_ELMT(m, row, col)}{pprz\_algebra}
+\inHfile{RMAT\_ELMT(m, row, col)}{pprz\_algebra}
+
+\subsubsection*{$\mat M = diag(d_{00}, d_{11}, d_{22})$}
+\begin{equation}
+\mat M = \begin{pmatrix}
+d_{00} & 0 & 0 \\
+0 & d_{11} & 0 \\
+0 & 0 & d_{22}
+\end{pmatrix}
+\end{equation}
+\inHfile{FLOAT\_MAT33\_DIAG(m, d00, d11, d22)}{pprz\_algebra\_float}
+
+\subsubsection*{$\mat{A} = \mat{B}$}
+\begin{equation}
+\mat {mat1} = \mat {mat2}
+\end{equation}
+\inHfile{MAT33\_COPY(mat1, mat2)}{pprz\_algebra}
+\inHfile{RMAT\_COPY(o, i)}{pprz\_algebra}
+
+
+\subsubsection*{$\mat M_{b2a} = \inv{\mat M_{a2b}} = \transp{\mat M_{a2b}}$}
+\begin{equation}
+\mat M_{b2a} = \inv{\mat M_{a2b}} = \transp{\mat M_{a2b}}
+\end{equation}
+\inHfile{FLOAT\_RMAT\_INV(m\_b2a, m\_a2b)}{pprz\_algebra\_float}
+
+\subsection{- Subtraction}
+\subsubsection*{$\mat C = \mat A - \mat B$}
+\begin{equation}
+\mat C = \mat A - \mat B
+\end{equation}
+\inHfile{RMAT\_DIFF(c, a, b)}{pprz\_algebra}
+
+
+
+\subsection{$\multiplication$ Multiplication}
+\subsubsection*{$\mat M_{a2c} = \mat M_{b2c} \multiplication \mat M_{a2b}$ with a Matrix (composition)}
+Makes a matrix-multiplication with additional Right-Shift about the decimal point.
+\mynote{Not quite sure about that}
+\begin{equation}
+\mat M_{a2c} = \mat M_{b2c} \multiplication \mat M_{a2b}
+\end{equation}
+\inHfile{INT32\_RMAT\_COMP(m\_a2c, m\_a2b, m\_b2c)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_RMAT\_COMP(m\_a2c, m\_a2b, m\_b2c)}{pprz\_algebra\_float}
+and with the inverse matrix
+\begin{equation}
+\mat M_{a2b} = \inv{\mat M_{b2c}} \multiplication \mat M_{a2c}
+\end{equation}
+\inHfile{INT32\_RMAT\_COMP\_INV(m\_a2b, m\_a2c, m\_b2c)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_RMAT\_COMP\_INV(m\_a2b, m\_a2c, m\_b2c)}{pprz\_algebra\_float}
+
+
+\subsection{Transformation from a Matrix}
+\subsubsection*{to euler angles}
+\input{transformations/matrix2euler}
+
+\subsubsection*{to a quaternion}
+\input{transformations/matrix2quaternion}
+
+
+
+\subsection{Tranformation to a Matrix}
+\subsubsection*{from an axis and an angle}
+\input{transformations/axisangle2matrix}
+
+\subsubsection*{from euler angles}
+\input{transformations/euler2matrix}
+
+\subsubsection*{from a quaternion}
+\input{transformations/quaternion2matrix}
+
+
+
+\subsection{Other}
+\subsubsection*{Trace}
+\begin{equation}
+tr(\mat{R}_m) = a_{11} + a_{22} + a_{33}
+\end{equation}
+\inHfile{RMAT\_TRACE(rm)}{pprz\_algebra}
+
+\subsubsection*{$\norm{\norm{\mat M}}_F$ Norm (Frobenius)}
+Calculates the Frobenius Norm of a matrix
+\begin{equation}
+\norm{\norm{\mat M}}_F = \sqrt{\sum_{i=1}^3 \sum_{i=1}^3 m_{ij}^2 }
+\end{equation}
+\inHfile{FLOAT\_RMAT\_NORM(m)}{pprz\_algebra\_float}

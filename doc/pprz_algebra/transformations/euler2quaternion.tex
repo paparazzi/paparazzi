@@ -1,0 +1,14 @@
+The transformation is given by
+\begin{equation}
+\quat{} = [\cos \tfrac{\Yaw}{2} + \mathbf{k} \sin \tfrac{\Yaw}{2}][\cos \tfrac{\Pitch}{2} + \mathbf{j} \sin \tfrac{\Pitch}{2}][\cos \tfrac{\Roll}{2} + \mathbf{i} \sin \tfrac{\Roll}{2}]
+\end{equation}
+In matrix notation:
+\begin{equation}
+\quat = \begin{pmatrix}
+\cos \tfrac{\Roll}{2} \cos \tfrac{\Pitch}{2} \cos \tfrac{\Yaw}{2} + \sin \tfrac{\Roll}{2} \sin \tfrac{\Pitch}{2} \sin \tfrac{\Yaw}{2} \\
+\sin \tfrac{\Roll}{2} \cos \tfrac{\Pitch}{2} \cos \tfrac{\Yaw}{2} - \cos \tfrac{\Roll}{2} \sin \tfrac{\Pitch}{2} \sin \tfrac{\Yaw}{2} \\
+\cos \tfrac{\Roll}{2} \sin \tfrac{\Pitch}{2} \cos \tfrac{\Yaw}{2} + \sin \tfrac{\Roll}{2} \cos \tfrac{\Pitch}{2} \sin \tfrac{\Yaw}{2} \\
+\cos \tfrac{\Roll}{2} \cos \tfrac{\Pitch}{2} \sin \tfrac{\Yaw}{2} - \sin \tfrac{\Roll}{2} \cos \tfrac{\Pitch}{2} \sin \tfrac{\Yaw}{2}
+\end{pmatrix}
+\end{equation}
+\inHfile{INT32\_QUAT\_OF\_EULERS(q, e)}{pprz\_algebra\_int}

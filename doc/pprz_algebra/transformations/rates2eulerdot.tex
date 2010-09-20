@@ -1,0 +1,30 @@
+The transformation from euler angles derivative to rates can be written as a matrix multiplication
+\begin{equation}
+\begin{pmatrix} p\\q\\r \end{pmatrix} = 
+\begin{pmatrix}
+- \sin (\Roll) \dot{\Yaw} + \dot{\Roll} \\
+\sin (\Roll) \cos (\Pitch) \dot{\Yaw} + \cos (\Roll) \dot{\Pitch} \\
+\cos (\Roll) \cos (\Pitch) \dot{\Yaw} - \sin (\Roll) \dot{\Pitch}
+\end{pmatrix} \Leftrightarrow \begin{pmatrix} p\\q\\r \end{pmatrix} = 
+\begin{pmatrix}
+1 & 0 				& -\sin (\Roll) \\
+0 & \cos (\Roll)	& \sin (\Roll) \cos (\Pitch) \\
+0 & -\sin (\Roll)	& \cos (\Roll) \cos (\Pitch)
+\end{pmatrix} \multiplication \begin{pmatrix}
+\dot{\Roll} \\
+\dot{\Pitch} \\
+\dot{\Yaw}
+\end{pmatrix}.
+\end{equation}
+This can be solved easily to
+\begin{equation}
+\begin{pmatrix}\dot{\Roll} \\ \dot{\Pitch} \\ \dot{\Yaw} \end{pmatrix} = 
+\begin{pmatrix}
+1 & \frac{ \sin^2 \Roll }{\cos \Pitch}	& \frac{\sin \Roll \cos \Roll}{\cos \Pitch}	\\
+0 & \cos \Roll							& -\sin \Roll	\\
+0 & \frac{\sin \Roll}{\cos \Pitch}		& \frac{\cos \Roll}{\cos \Pitch}
+\end{pmatrix} \multiplication \begin{pmatrix} p\\q\\r \end{pmatrix}.
+\end{equation}
+Please note the singularity at the \emph{gimbal lock} ($\Pitch = \pm 90^{\circ }$)!
+\inHfile{INT32\_EULERS\_DOT\_OF\_RATES(ed, e, r)}{pprz\_algebra\_int}
+\inHfile{INT32\_EULERS\_DOT\_321\_OF\_RATES(ed, e, r)}{pprz\_algebra\_int}

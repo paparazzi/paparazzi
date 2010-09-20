@@ -1,0 +1,25 @@
+With a known axis of rotation $\vect u$ and an angle $\alpha$ it is possible to compute a rotational matrix with
+\begin{equation}
+\mat R_m = \begin{pmatrix}
+0 & -u_z & u_y \\
+u_z & 0 & -u_x \\
+-u_y & u_x & 0
+\end{pmatrix} \sin \alpha + \left( \eye - \vect u \transp{\vect u} \right)\cos \alpha +  \vect u \transp{\vect u}.
+\end{equation}
+Please note again, that all angles are from the perspective of the aircraft (see section \ref{Important definition}). Therefore the angle is defined ngeative, leading to
+\begin{equation}
+\mat R_m = \begin{pmatrix}
+0 & u_z & -u_y \\
+-u_z & 0 & u_x \\
+u_y & -u_x & 0
+\end{pmatrix} \sin \alpha + \left( \eye - \vect u \transp{\vect u} \right)\cos \alpha +  \vect u \transp{\vect u}.
+\end{equation}
+Rearranging this equation leads to
+\begin{equation}
+\mat R_m = \begin{pmatrix}
+u_x^2+(1-u_x^2)\cos \alpha				& u_xu_y(1-\cos \alpha) + u_z \sin \alpha	& u_xu_z(1-\cos \alpha) - u_y \sin \alpha \\
+u_xu_y(1-\cos \alpha) - u_z \sin \alpha	& u_y^2+(1-u_y^2)\cos \alpha				& u_yu_z(1-\cos \alpha) + u_x \sin \alpha \\
+u_xu_z(1-\cos \alpha) + u_y \sin \alpha & u_yu_z(1-\cos \alpha) - u_x \sin \alpha	& u_z^2+(1-u_z^2)\cos \alpha
+\end{pmatrix}.
+\end{equation}
+\inHfile{FLOAT\_RMAT\_OF\_AXIS\_ANGLE(rm, uv, an)}{pprz\_algebra\_float}

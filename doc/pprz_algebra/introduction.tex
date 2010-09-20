@@ -1,0 +1,119 @@
+\section{Introduction}
+This is the documentation for the algebra files of the paparazzi project (paparazzi.nongnu.org). It should be a reference for the functions which are defined in the directory \texttt{(paparazzi)/sw/airborne/math}. The structure of this documentation is in the way how it should make most sense in a mathematical content. This documentation might be redundant.\\
+The Conversion between FLOAT, REAL and BFP(binary floating point) is not in this documentation yet.
+
+\section{Important definition} \label{Important definition}
+Unfortunately there are a lot of different definitions for rotations. There are 24 (some say 12, the author tends to think that there are much more) different ways to define euler angles. Therefore, paparazzi uses the convention, which is shown in \textit{figure \ref{Normal euler order}}.
+\begin{figure}[h!]\begin{center}
+	\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2cm,
+                    semithick]
+  \tikzstyle{every state}=[draw=black,text=white]
+
+  \node		   (A)                    {$\begin{matrix}Reference\\frame\end{matrix}$};
+  \node[state, fill=yawcolor]        (B) [right of=A] {\Large $\psi$};
+  \node[state, fill=pitchcolor]         (C) [right of=B] {\Large $\theta$};
+  \node[state, fill=rollcolor]         (D) [right of=C] {\Large $\phi$};
+  \node         (E)		   [right of=D] {$\begin{matrix}Aircraft\\frame\end{matrix}$};
+
+  \path (A) edge              node {} (B)
+  		(B) edge              node {} (C)
+  		(C) edge              node {} (D)
+  		(D) edge              node {} (E);
+
+	\end{tikzpicture}
+	\caption{The order of rotation from the reference frame to the body frame is first \Yawc{Yaw}, then \Pitchc{Pitch} and finally \Rollc{Roll}.}
+	\label{Normal euler order}
+\end{center}\end{figure}
+For instance, a resulting rotational matrix would be 
+\begin{equation}
+\mat R(\Yaw) \multiplication \mat R(\Pitch) \multiplication \mat R(\Roll)
+\end{equation}
+\begin{equation}
+\begin{pmatrix}
+cos(\Yaw) & -sin(\Yaw) & 0 \\
+sin(\Yaw) &  cos(\Yaw) & 0 \\
+0         &      0     & 1
+\end{pmatrix} \multiplication \begin{pmatrix}
+ cos(\Pitch) & 0 & sin(\Pitch) \\
+ 0         & 1 &     0     \\
+-sin(\Pitch) & 0 & cos(\Pitch) 
+\end{pmatrix} \multiplication \begin{pmatrix}
+1 & 0         &     0      \\
+0 & cos(\Roll) & -sin(\Roll) \\
+0 & sin(\Roll) &  cos(\Roll) 
+\end{pmatrix}
+\end{equation}
+\begin{equation}
+\begin{pmatrix}
+cos(\Pitch)cos(\Yaw)	& sin(\Roll)sin(\Pitch)cos(\Yaw) - cos(\Roll)cos(\Yaw)	& cos(\Roll)sin(\Pitch)cos(\Yaw) + sin(\Roll)sin(\Yaw)\\
+cos(\Pitch)sin(\Yaw)	& sin(\Roll)sin(\Pitch)sin(\Yaw) + cos(\Roll)cos(\Yaw)	& cos(\Roll)sin(\Pitch)sin(\Yaw) - sin(\Roll)cos(\Yaw) \\
+-sin(\Pitch)			& sin(\Roll)cos(\Pitch)									& cos(\Roll)cos(\Pitch)
+\end{pmatrix}
+\end{equation}
+
+An equivalent multiplication from a quaternion with a vector would be
+\begin{equation}
+\begin{pmatrix}0\\\vect v_o\end{pmatrix} = \quat{} \quatprod \begin{pmatrix}0\\\vect v_i\end{pmatrix} \quatprod \comp{\quat{}}
+\end{equation}
+
+
+But, since paparazzi is a library for aerospace, the \emph{choosen perspective is from the vehicle}. This is an important difference, because the attitude representation changes slightly, but it can mess up everything. In detail this means, that the order of the euler angles changes and also the sign\footnote{If you have problems understanding this, pages 123f and 130-134 of [1] help a lot!}(figure \ref{Aerospace euler order}).
+\mynote{I still need to fix the citation}
+\begin{figure}[h]\begin{center}
+	\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2cm,
+                    semithick]
+  \tikzstyle{every state}=[draw=black,text=white]
+
+  \node		   (A)                    {$\begin{matrix}Reference\\frame\end{matrix}$};
+  \node[state, fill=yawcolor]        (B) [right of=A] {\Large $-\psi$};
+  \node[state, fill=pitchcolor]         (C) [right of=B] {\Large $-\theta$};
+  \node[state, fill=rollcolor]         (D) [right of=C] {\Large $-\phi$};
+  \node         (E)		   [right of=D] {$\begin{matrix}Aircraft\\frame\end{matrix}$};
+
+  \path (C) edge              node {} (B)
+  		(D) edge              node {} (C)
+  		(E) edge              node {} (D)
+  		(B) edge              node {} (A);
+
+	\end{tikzpicture}
+	\caption{From the perspective of the vehicle the order and the sign of the euler angles change.}
+	\label{Aerospace euler order}
+\end{center}\end{figure}
+As a result the rotational matrix changes to the transposed/inverted.
+\begin{equation} \label{order of matrix multiplication}
+\mat R(-\Roll) \multiplication \mat R(-\Pitch) \multiplication \mat R(-\Yaw)
+\end{equation}
+\begin{equation}
+\begin{pmatrix}
+cos(\Pitch)cos(\Yaw)									& cos(\Pitch)sin(\Yaw)									& -sin(\Pitch)			\\
+sin(\Roll)sin(\Pitch)cos(\Yaw) - cos(\Roll)cos(\Yaw)	& sin(\Roll)sin(\Pitch)sin(\Yaw) + cos(\Roll)cos(\Yaw)	& sin(\Roll)cos(\Pitch)	\\
+cos(\Roll)sin(\Pitch)cos(\Yaw) + sin(\Roll)sin(\Yaw)	& cos(\Roll)sin(\Pitch)sin(\Yaw) - sin(\Roll)cos(\Yaw)	& cos(\Roll)cos(\Pitch)
+\end{pmatrix}
+\end{equation}
+Same for the quaternion multiplication
+\begin{equation}
+\begin{pmatrix}0\\\vect v_o\end{pmatrix} = \comp{\quat{}} \quatprod \begin{pmatrix}0\\\vect v_i\end{pmatrix} \quatprod \quat{}
+\end{equation}
+
+\section{Overview}
+An Overview of the implemented functions\\
+\newcommand{\YES}{$\surd$}
+\newcommand{\NO}{}
+\begin{tabular}{c|ccccccc}
+function	& VECT2	& VECT3	& MAT33	& RMAT	& EULER	& RATES	& QUAT	\\  \hline
+ZERO		& \YES	& \YES	& \NO	& \NO	& \NO	& \NO	& \NO	\\
+ASSIGN		& \YES	& \YES	&(\YES) &(\YES) & \YES	& \YES	& \YES	\\
+COPY		& \YES	& \YES	& \YES	& \YES	& \YES	& \YES	& \YES	\\
+ADD			& \YES	& \YES	& \NO	& \NO	& \YES	& \YES	& \YES	\\
+SUM			& \YES	& \YES	& \NO	& \NO	& \NO	& \YES	& \NO	\\
+SUB			& \YES	& \YES	& \NO	& \YES	& \YES	& \YES	& \NO	\\
+DIFF		& \YES	& \YES	& \NO	& \NO	& \YES	& \YES	& \YES	\\
+SMUL		& \YES	& \YES	& \NO	& \NO	& \YES	& \YES	& \YES	\\
+EW\_MUL		& \NO	& \YES	& \NO	& \NO	& \NO	& \YES	& \NO	\\
+SDIV		& \YES	& \YES	& \NO	& \NO	& \YES	& \YES	& \NO	\\
+EW\_DIV		& \NO	& \YES	& \NO	& \NO	& \NO	& \NO	& \NO	\\
+STRIM		& \YES	& \YES	& \NO	& \NO	& \NO	& \NO	& \NO	\\
+BOUND\_CUBE	& \NO	& \YES	& \NO	& \NO	& \YES	& \YES	& \NO	\\
+BOUND\_BOX	& \NO	& \YES	& \NO	& \NO	& \NO	& \YES	& \NO
+\end{tabular}
+\mynote{Add Compiler \#warning or \#error for wrong use of Bound and Strim?}

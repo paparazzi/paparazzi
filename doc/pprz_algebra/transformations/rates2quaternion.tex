@@ -1,0 +1,24 @@
+This function computes the differential quaternion of measured rates after an amount of time. \\
+Let $ \ra{} $ be the measured rates, then $\norm {\ra {}}$ represents the absolute value of rates. Therefore,
+\begin{equation}
+\Delta \alpha = \norm {\ra {}} \multiplication \Delta t
+\end{equation}
+is the rotational angle. The (normalized) axis of the rotation is then
+\begin{equation}
+\vect v = \frac{\ra{}}{\norm {\ra {}}}.
+\end{equation}
+The construction of a quaternion from an axis and an angle is
+\begin{equation}
+\quat{} = \begin{pmatrix}
+\cos \tfrac \alpha 2 \\
+\vect v \sin \tfrac \alpha 2
+\end{pmatrix},
+\end{equation}
+so that the resulting quaternion of measured rates becomes
+\begin{equation}
+\quat{} = \begin{pmatrix}
+\cos \tfrac{\norm {\ra {}} \multiplication \Delta t} 2 \\
+ \frac{\ra{}}{\norm {\ra {}}} \sin \tfrac{\norm {\ra {}} \multiplication \Delta t} 2
+\end{pmatrix}.
+\end{equation}
+\inHfile{FLOAT\_QUAT\_DIFFERENTIAL(q\_out, w, dt)}{pprz\_algebra\_float}

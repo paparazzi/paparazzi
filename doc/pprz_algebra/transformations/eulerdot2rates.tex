@@ -1,0 +1,31 @@
+This function requires the euler angles e and also their derivative ed.\\
+\begin{equation}
+\ra{r} = \begin{pmatrix} p\\q\\r \end{pmatrix} = 
+\eye \multiplication \eye \multiplication\begin{pmatrix} \dot{\Roll}\\0\\0 \end{pmatrix} + 
+\mat R(\Roll)\multiplication \eye \multiplication\begin{pmatrix} 0\\\dot{\Pitch}\\0 \end{pmatrix} + 
+\mat R(\Roll)\multiplication \mat R(\Pitch)\multiplication \begin{pmatrix} 0\\0\\\dot{\Yaw} \end{pmatrix}
+\end{equation}
+\begin{equation}
+\mat R(\Roll) = \begin{pmatrix}
+1 & 0         &     0      \\
+0 & cos(\Roll) & -sin(\Roll) \\
+0 & sin(\Roll) &  cos(\Roll) 
+\end{pmatrix}
+\end{equation}
+\begin{equation}
+\mat R(\Pitch) = \begin{pmatrix}
+ cos(\Pitch) & 0 & sin(\Pitch) \\
+ 0         & 1 &     0     \\
+-sin(\Pitch) & 0 & cos(\Pitch) 
+\end{pmatrix}
+\end{equation}
+\begin{equation}
+\ra r = \begin{pmatrix} p\\q\\r \end{pmatrix} = 
+\begin{pmatrix}
+- \sin (\Roll) \dot{\Yaw} + \dot{\Roll} \\
+\sin (\Roll) \cos (\Pitch) \dot{\Yaw} + \cos (\Roll) \dot{\Pitch} \\
+\cos (\Roll) \cos (\Pitch) \dot{\Yaw} - \sin (\Roll) \dot{\Pitch} \\
+\end{pmatrix}
+\end{equation}
+\inHfile{INT32\_RATES\_OF\_EULERS\_DOT(r, e, ed)}{pprz\_algebra\_int}
+\inHfile{INT32\_RATES\_OF\_EULERS\_DOT\_321(r, e, ed)}{pprz\_algebra\_int}

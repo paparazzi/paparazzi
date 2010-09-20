@@ -1,0 +1,26 @@
+This is done by constructing a rotational matrix out of a quaternion (note: not all elements need to be generated), 
+\begin{equation}
+\mat R_m = \begin{pmatrix}
+1-2(q_y^2 + q_z^2)		& 2(q_xq_y-q_iq_z)		& 2(q_xq_z + q_iq_y) \\
+						& 						& 2(q_yq_z - q_iq_x) \\
+						& 						& 1-2(q_x^2 + q_y^2)	
+\end{pmatrix},
+\end{equation}
+which is equivalent to a rotational matrix, that is constructed from euler angles
+\begin{equation}
+\mat R_m = \begin{pmatrix}
+cos(\Pitch)cos(\Yaw)	& cos(\Pitch)sin(\Yaw)	& -sin(\Pitch)			\\
+						& 						& sin(\Roll)cos(\Pitch)	\\
+						& 						& cos(\Roll)cos(\Pitch)
+\end{pmatrix}.
+\end{equation}
+The euler angles are then
+\begin{equation}
+\eu e = \begin{pmatrix}\Roll \\ \Pitch \\ \Yaw \end{pmatrix} = 
+\begin{pmatrix}
+\arctan2(r_{23}, r_{33}) \\
+-\arcsin(r_{13}) \\
+\arctan2(r_{12}, r_{11})
+\end{pmatrix}
+\end{equation}
+\inHfile{INT32\_EULERS\_OF\_QUAT(e, q)}{pprz\_algebra\_int}

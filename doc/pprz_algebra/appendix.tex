@@ -1,0 +1,89 @@
+\section{Optimization}
+Functions can be re-written to make them run faster, more accurate or making them small (less memory). The result is not often easy-to-read, so the optimazation steps are written down here.\\
+The functions are in alphabetical order.
+
+\subsection*{INT32\_QUAT\_VMULT}
+\subsubsection*{Step 1}
+Starting from the original matrix
+\begin{equation}
+\mat R_m \multiplication \vect v= \begin{pmatrix}
+1-2(q_y^2 + q_z^2)		& 2(q_xq_y-q_iq_z)		& 2(q_xq_z + q_iq_y) \\
+2(q_xq_y + q_iq_z)		& 1-2(q_x^2 + q_z^2)	& 2(q_yq_z - q_iq_x) \\
+2(q_xq_z - q_iq_y)		& 2(q_yq_z+q_iq_x)		& 1-2(q_x^2 + q_y^2)	
+\end{pmatrix} \multiplication \vect v,
+\end{equation}
+the first step is to rewrite the diagonal elements. Since
+\begin{equation}
+1 = q_i^2+q_x^2+q_y^2+q_z^2
+\end{equation}
+it is possible to rewrite the first element to
+\begin{eqnarray}
+1-2(q_y^2 + q_z^2) \\
+= 1-2(q_y^2 + q_z^2) +1-1 \\
+= 2-2(q_y^2 + q_z^2)-1 \\
+= 2(1 - q_y^2 + q_z^2)-1 \\
+= 2(q_i^2+q_x^2+q_y^2+q_z^2 - q_y^2 + q_z^2)-1 \\
+= 2(q_i^2+q_x^2)-1 \\
+= (2q_i^2-1)+2q_x^2
+\end{eqnarray}
+The same can be done for the other two elements
+\begin{equation}
+1-2(q_x^2 + q_z^2) = (2q_i^2-1)+2q_y^2
+\end{equation}
+\begin{equation}
+1-2(q_x^2 + q_y^2) = (2q_i^2-1)+2q_z^2
+\end{equation}
+Note that the diagonal elements differ only for the last summand. Additionaly you have nearly everywhere in the matrix a multiplication with two. A multiplication with two is the same like shifting one bit to the left and since this is in fixed point arithmetic, you have to shift anyway.
+\subsubsection*{Step 2}
+Since you're only interested in the output vector, it is not necessary to compute every single step. Mostly it's a good choice to have a single, big equation and letting the compiler decide how to deal with it (storing it into a register or onto the RAM). But be aware of Overflows with Fixed-Point Values!
+
+\subsection*{INT32\_RMAT\_OF\_QUAT}
+\subsubsection*{Step 1}
+Starting from the original matrix
+\begin{equation}
+\mat R_m = \begin{pmatrix}
+1-2(q_y^2 + q_z^2)		& 2(q_xq_y-q_iq_z)		& 2(q_xq_z + q_iq_y) \\
+2(q_xq_y + q_iq_z)		& 1-2(q_x^2 + q_z^2)	& 2(q_yq_z - q_iq_x) \\
+2(q_xq_z - q_iq_y)		& 2(q_yq_z+q_iq_x)		& 1-2(q_x^2 + q_y^2)	
+\end{pmatrix},
+\end{equation}
+the first step is to rewrite the diagonal elements. Since
+\begin{equation}
+1 = q_i^2+q_x^2+q_y^2+q_z^2
+\end{equation}
+it is possible to rewrite the first element to
+\begin{eqnarray}
+1-2(q_y^2 + q_z^2) \\
+= 1-2(q_y^2 + q_z^2) +1-1 \\
+= 2-2(q_y^2 + q_z^2)-1 \\
+= 2(1 - q_y^2 + q_z^2)-1 \\
+= 2(q_i^2+q_x^2+q_y^2+q_z^2 - q_y^2 + q_z^2)-1 \\
+= 2(q_i^2+q_x^2)-1 \\
+= (2q_i^2-1)+2q_x^2
+\end{eqnarray}
+The same can be done for the other two elements
+\begin{equation}
+1-2(q_x^2 + q_z^2) = (2q_i^2-1)+2q_y^2
+\end{equation}
+\begin{equation}
+1-2(q_x^2 + q_y^2) = (2q_i^2-1)+2q_z^2
+\end{equation}
+Note that the diagonal elements differ only for the last summand. Additionaly you have nearly everywhere in the matrix a multiplication with two. A multiplication with two is the same like shifting one bit to the left and since this is in fixed point arithmetic, you have to shift anyway.
+\subsubsection*{Step2}
+A further optimization step is to use the final matrix to store values in it:
+\begin{equation}
+\mat R_m = \begin{pmatrix}
+2q_x^2	& 2q_xq_y	& 2q_xq_z\\
+0		& 2q_y^2	& 2q_yq_z\\
+0		& 0			& 2q_z^2
+\end{pmatrix}
+\end{equation}
+And finally:
+\begin{equation}
+\mat R_m = \begin{pmatrix}
+\mat R_m(1,1) + (2q_i^2-1)	& \mat R_m(1,2) - 2q_iq_z		& \mat R_m(1,3) + 2q_iq_y	\\
+\mat R_m(1,2) + 2q_iq_z		& \mat R_m(2,2) + (2q_i^2-1)	& \mat R_m(2,3) - 2q_iq_x	\\
+\mat R_m(1,3) - 2q_iq_y		& \mat R_m(2,3) + 2q_iq_x		& \mat R_m(3,3) + (2q_i^2-1)
+\end{pmatrix}
+\end{equation}
+The last step can save much memory and a very small amount of time.

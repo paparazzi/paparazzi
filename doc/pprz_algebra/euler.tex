@@ -1,0 +1,136 @@
+\section{Euler Angles}
+\subsection{Definition}
+The values are called
+\begin{equation}
+\eu{e} = \begin{pmatrix} \Roll \\\Pitch\\\Yaw\\\end{pmatrix} = \begin{pmatrix} phi \\Pitch\\Yaw\\\end{pmatrix}
+\end{equation}
+It is available for the following simple types:\\
+\begin{tabular}{c|c}
+type		& struct		\\ \hline
+int16\_t	& Int16Eulers	\\
+int32\_t	& Int32Eulers	\\
+float		& FloatEulers
+\end{tabular}
+\textbf{IMPORTANT:}\label{paparazzi euler definition}\\
+Because there are many definitions of euler angles (some say 12, wikipedia says 24, the author tends to believe there are 48) and the choice of perspective, paparazzi choosed the following convention:
+
+
+
+
+\subsection{= Assigning}
+\subsubsection*{$\eu{e} = \eu{0}$}
+\begin{equation}
+\eu v = \begin{pmatrix} 0 \\ 0 \\ 0 \end{pmatrix}
+\end{equation}
+\inHfile{INT\_EULERS\_ZERO(e)}{pprz\_algebra\_int}
+
+\subsubsection*{$\eu a = \transp{(\Roll,\Pitch,\Yaw)}$}
+\begin{equation}
+\eu a = \transp{(\Roll,\Pitch,\Yaw)}
+\end{equation}
+\inHfile{EULERS\_ASSIGN(e, phi, theta, psi)}{pprz\_algebra}
+
+\subsubsection*{$\eu a = \eu b$}
+\begin{equation}
+\eu a = \eu b
+\end{equation}
+\inHfile{EULERS\_COPY(a, b)}{pprz\_algebra}
+
+
+
+\subsection{+ Addition}
+\subsubsection*{$\eu a += \eu b$}
+\begin{equation}
+\eu a = \eu a + \eu b
+\end{equation}
+\inHfile{EULERS\_ADD(a, b)}{pprz\_algebra}
+\mynote{No EULERS\_SUM function?}
+
+
+
+\subsection{- Subtraction}
+\subsubsection*{$\eu a -= \eu b$}
+\begin{equation}
+\eu a = \eu a - \eu b
+\end{equation}
+\inHfile{EULERS\_SUB(a, b)}{pprz\_algebra}
+
+\subsubsection*{$\eu c = \eu a - \eu b$}
+\begin{equation}
+\eu c = \eu a - \eu b
+\end{equation}
+\inHfile{EULERS\_DIFF(c, a, b)}{pprz\_algebra}
+
+
+
+
+\subsection{$\multiplication$ Multiplication}
+\subsubsection*{$\eu{e_o} = s \multiplication \eu{e_i}$ With a scalar}
+\begin{equation}
+\eu e_o = s \multiplication \eu{e_i}
+\end{equation}
+\inHfile{EULERS\_SMUL(eo, ei, s)}{pprz\_algebra}
+
+
+
+
+\subsection{$\division$ Division}
+\subsubsection*{$\eu{e_o} = \frac 1 s \multiplication \eu{e_i}$ With a scalar}
+\begin{equation}
+\eu{e_o} = \frac 1 s \multiplication \eu{e_i}
+\end{equation}
+\inHfile{EULERS\_SDIV(eo, ei, s)}{pprz\_algebra}
+
+
+
+\subsection{Transformation from euler angles}
+\subsubsection*{to a rotational matrix}
+\input{transformations/euler2matrix}
+
+\subsubsection*{to a quaternion}
+\input{transformations/euler2quaternion}
+
+\subsubsection*{to rates}
+\input{transformations/eulerdot2rates}
+
+
+
+
+\subsection{Transformation to euler angles}
+\subsubsection*{form a rotational matrix}
+\input{transformations/matrix2euler}
+
+\subsubsection*{from a quaternion}
+\input{transformations/quaternion2euler}
+
+\subsubsection*{euler angles derivative from rates}
+\input{transformations/rates2eulerdot}
+
+
+
+\subsection{Other}
+\subsubsection*{$-\pi \leq \alpha \leq \pi$ Normalizing}
+You have either the option to normalize a single angle to a value between
+\begin{equation}
+-\pi \leq \alpha \leq \pi
+\end{equation}
+\inHfile{INT32\_ANGLE\_NORMALIZE(a)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_ANGLE\_NORMALIZE(a)}{pprz\_algebra\_float}
+or between 
+\begin{equation}
+0 \leq \alpha \leq 2\pi
+\end{equation}
+\inHfile{INT32\_COURSE\_NORMALIZE(a)}{pprz\_algebra\_int}
+
+
+\subsubsection*{$min \leq \eu v \leq max$ Bounding}
+Bounds the euler angles so that every angle $\Roll$, $\Pitch$ and $\Yaw$ is between \textit{min} and \textit{max}.
+\begin{equation}
+\eu v \in \mathbb{I}^3, \qquad \mathbb{I} = [min; max]
+\end{equation}
+\textbf{WARNING:}\\
+The function  ``\texttt{EULERS\_BOUND\_CUBE}'' works different than the function \texttt{VECT3\_BOUND\_CUBE} in the case of $min > max$. Here, the lower border \textit{min} has a higher priority than the upper border \textit{max}. So, if $ min > max$ and a value of $ \vect e $ is between those, the value is set to min. \\
+\inHfile{EULERS\_BOUND\_CUBE(v, min, max)}{pprz\_algebra}
+\mynote{Better naming suggestion: choose e instead of v}
+\mynote{The difference between EULERS\_BOUND\_CUBE and VECT3\_BOUND\_CUBE is not very good}
+\mynote{No BOUND\_BOX ?}

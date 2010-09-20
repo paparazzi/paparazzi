@@ -1,0 +1,251 @@
+\section{Vector}
+\subsection{Definition}
+The main definition for every vector struct is that the values are called x, y and z (if it's a 3D-vector):
+\begin{equation}
+\vect v = \begin{pmatrix}x\\y\end{pmatrix} \quad oor \quad \vect v = \begin{pmatrix}x\\y\\z\end{pmatrix}
+\end{equation}
+It is available for the following simple types:\\
+\begin{tabular}{c|c|c}
+type		& struct 2D		& struct 3D\\ \hline
+uint16\_t	& 				& Uint16Vect3	\\
+int16\_t 	& 				& Int16Vect3	\\
+int32\_t	& Int32Vect2	& Int32Vect3	\\
+int64\_t	& Int32Vect2	& Int32Vect3	\\
+float		& FloatVect2	& FloatVect3	
+\end{tabular}
+
+
+\subsection{= Assigning}
+\subsubsection*{$\vect{v} = \vect{0}$}
+\begin{equation}
+ \vect v = \begin{pmatrix} 0 \\ 0 \end{pmatrix} \qquad or \qquad  \vect v = \begin{pmatrix} 0 \\ 0 \\ 0 \end{pmatrix}
+\end{equation}
+\inHfile{INT\_VECT2\_ZERO(v)}{pprz\_algebra\_int}
+\inHfile{INT\_VECT3\_ZERO(v)}{pprz\_algebra\_int}
+\inHfile{INT32\_VECT3\_ZERO(v)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_VECT2\_ZERO(v)}{pprz\_algebra\_float}
+\inHfile{FLOAT\_VECT3\_ZERO(v)}{pprz\_algebra\_float}
+
+\subsubsection*{$\vect{a} = \transp{(x,y)}$ or $\vect a = \transp{(x,y,z)}$}
+\begin{equation}
+ \vect a = \begin{pmatrix} x \\ y \end{pmatrix} \qquad or \qquad  \vect a = \begin{pmatrix} x \\ y \\ z \end{pmatrix}
+\end{equation}
+\inHfile{VECT2\_ASSIGN(a, x, y)}{pprz\_algebra}
+\inHfile{VECT3\_ASSIGN(a, x, y, z)}{pprz\_algebra}
+\inHfile{FLOAT\_VECT2\_ASSIGN(a, x, y)}{pprz\_algebra\_float}
+\inHfile{FLOAT\_VECT3\_ASSIGN(a,x,y,z)}{pprz\_algebra\_float}
+
+
+\subsubsection*{$\vect{a} = \vect{b}$}
+\begin{equation}
+\vect a = \vect b
+\end{equation}
+\inHfile{VECT2\_COPY(a, b)}{pprz\_algebra}
+\inHfile{VECT3\_COPY(a, b)}{pprz\_algebra}
+\inHfile{INT32\_VECT3\_COPY(o, i)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_VECT2\_COPY(a, b)}{pprz\_algebra\_float}
+
+
+
+
+\subsection{+ Addition}
+\subsubsection*{$\vect{a} += \vect{b}$}
+\begin{equation}
+\vect a = \vect a + \vect b
+\end{equation}
+\inHfile{VECT2\_ADD(a, b)}{pprz\_algebra}
+\inHfile{VECT3\_ADD(a, b)}{pprz\_algebra}
+\inHfile{INT32\_VECT3\_ADD(a, b)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_VECT2\_ADD(a, b)}{pprz\_algebra\_float}
+
+
+\subsubsection*{$\vect{c} = \vect{a} + \vect{b}$}
+\begin{equation}
+\vect c = \vect a + \vect b
+\end{equation}
+\inHfile{VECT2\_SUM(c, a, b)}{pprz\_algebra}
+\inHfile{VECT3\_SUM(c, a, b)}{pprz\_algebra}
+\inHfile{INT32\_VECT3\_SUM(c, a, b)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_VECT2\_SUM(c, a, b)}{pprz\_algebra\_float}
+
+
+
+\subsection{- Subtraction}
+\subsubsection*{$\vect{a} -= \vect{b}$}
+\begin{equation}
+\vect a = \vect a - \vect b
+\end{equation}
+\inHfile{VECT2\_SUB(a, b)}{pprz\_algebra}
+\inHfile{VECT3\_SUB(a, b)}{pprz\_algebra}
+\mynote{no INT32 vect3 sub?}
+\inHfile{FLOAT\_VECT2\_SUB(a, b)}{pprz\_algebra\_float}
+\inHfile{FLOAT\_VECT3\_SUB(a, b)}{pprz\_algebra\_float}
+
+\subsubsection*{$\vect{c} = \vect{a} - \vect{b}$}
+\begin{equation}
+\vect c = \vect a - \vect b
+\end{equation}
+\inHfile{VECT2\_DIFF(c, a, b}{pprz\_algebra}
+\inHfile{VECT3\_DIFF(c, a, b)}{pprz\_algebra}
+\inHfile{INT32\_VECT3\_DIFF(c, a, b)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_VECT2\_DIFF(c, a, b)}{pprz\_algebra\_float}
+\inHfile{FLOAT\_VECT3\_DIFF(c, a, b)}{pprz\_algebra\_float}
+
+
+
+
+
+
+\subsection{$\multiplication$ Multiplication}
+\subsubsection*{$\vect{v_o} = s \multiplication \vect{v_i}$ With a scalar}
+\begin{equation}
+	\vect{v_o} = s \multiplication \vect{v_i}
+\end{equation}
+\inHfile{VECT2\_SMUL(vo, vi, s)}{pprz\_algebra}
+\inHfile{VECT3\_SMUL(vo, vi, s)}{pprz\_algebra}
+\inHfile{FLOAT\_VECT2\_SMUL(vo, vi, s)}{pprz\_algebra\_float}
+\inHfile{FLOAT\_VECT3\_SMUL(vo, vi, s)}{pprz\_algebra\_float}
+or with a fraction
+\begin{equation}
+	\vect{a} = \frac{num}{den} \multiplication \vect{b}
+\end{equation}
+\inHfile{INT32\_VECT2\_SCALE\_2(a, b, num, den)}{pprz\_algebra\_int}
+\inHfile{INT32\_VECT3\_SCALE\_2(a, b, num, den)}{pprz\_algebra\_int}
+
+\subsubsection*{$\vect{v_o} = \vect{v_a} \ew\multiplication \vect{v_b} $ Element-wise}
+Also known as the ``Dot-Multiplication'' from MATLAB, Octave or FreeMat.
+\begin{equation}
+	\begin{pmatrix}x_o\\y_o\\z_o\end{pmatrix} = 
+	\begin{pmatrix}x_a \multiplication x_b\\y_a \multiplication y_b\\z_a \multiplication z_b\end{pmatrix}
+\end{equation}
+\inHfile{VECT3\_EW\_MUL(vo, va, vb)}{pprz\_algebra}
+\mynote{Nothing for VECT2?}
+
+\subsubsection*{$\vect v_o = \vect v_1 \cross \vect v_2$ Cross-Product}
+\begin{equation}
+\vect v_o = \vect v_1 \cross \vect v_2 = \begin{pmatrix}
+ 0   & -z_1 &  y_1 \\
+ z_1 &  0   & -x_1 \\
+-y_1 &  x_1 &  0
+\end{pmatrix} \multiplication \begin{pmatrix}x_2\\y_2\\z_2\end{pmatrix}
+\end{equation}
+\inHfile{FLOAT\_VECT3\_CROSS\_PRODUCT(vo, v1, v2)}{pprz\_algebra\_float}
+
+\subsubsection*{$\vect v_{out} = \mat{A} \multiplication \vect v_{in}$ With a Matrix}
+\begin{equation}
+\vect v_{out} = \mat A \multiplication \vect v_{in}
+\end{equation}
+\inHfile{MAT33\_VECT3\_MUL(vout, mat, vin)}{pprz\_algebra}
+\inHfile{RMAT\_VECT3\_MUL(vout, rmat, vin)}{pprz\_algebra}
+\inHfile{FLOAT\_RMAT\_VECT3\_MUL(vout, rmat, vin)}{pprz\_algebra\_float}
+\begin{equation}
+\vect v_{out} = \transp{\mat A} \multiplication \vect v_{in}
+\end{equation}
+\inHfile{MAT33\_VECT3\_TRANSP\_MUL(vout, mat, vin)}{pprz\_algebra}
+For rotational matrices, with additional right shift about the decimal point position:
+\begin{equation}
+\vect v_b = \mat M_{a2b} \multiplication \vect v_a
+\end{equation}
+\inHfile{INT32\_RMAT\_VMULT(vb, m\_a2b, va)}{pprz\_algebra\_int}
+With the transposed matrix
+\begin{equation}
+\vect v_b = \transp{\mat M_{b2a}} \multiplication \vect v_a
+\end{equation}
+\inHfile{INT32\_RMAT\_TRANSP\_VMULT(vb, m\_b2a, va)}{pprz\_algebra\_int}
+
+With choosable right-shift:
+\begin{equation}
+\vect v_{out} = 2^{-f} \mat M \multiplication \vect v
+\end{equation}
+\inHfile{INT32\_MAT33\_VECT3\_MULT(o, m, v, f)}{pprz\_algebra\_int}
+
+\subsubsection*{$\vect v_{out} = \quat{} \quatprod \vect v_{in}$ With a quaternion}
+The quaternion is transformed to a rotational matrix and then the vector is multiplied with the matrix
+\begin{equation}
+\vect v_{out} = \quat{} \quatprod \vect v_{in}
+\end{equation}
+\begin{equation}
+\vect v_{out} = \mat R_m(\quat{}) \multiplication \vect v_{in}
+\end{equation}
+\begin{equation}
+\vect v_{out} = \begin{pmatrix}
+1-2(q_y + q_z)		& 2(q_xq_y-q_iq_z)	& 2(q_xq_z + q_iq_y) \\
+2(q_xq_y + q_iq_z)	& 1-2(q_x + q_z)	& 2(q_yq_z - q_iq_x) \\
+2(q_xq_z - q_iq_y)	& 2(q_yq_z+q_iq_x)	& 1-2(q_x + q_y)	
+\end{pmatrix}
+ \multiplication \vect v_{in}
+\end{equation}
+\inHfile{INT32\_QUAT\_VMULT(v\_out, q, v\_in)}{pprz\_algebra\_int}
+
+
+
+\subsection{$\division$ Division}
+\subsubsection*{$\vect{v_o} = \frac 1 s \multiplication \vect{v_i}$ With a scalar}
+\begin{equation}
+	\vect{v_o} = \frac 1 s \multiplication \vect{v_i}
+\end{equation}
+\inHfile{VECT2\_SDIV(vo, vi, s)}{pprz\_algebra}
+\inHfile{VECT3\_SDIV(vo, vi, s)}{pprz\_algebra}
+\inHfile{INT32\_VECT3\_SDIV(a, b, s)}{pprz\_algebra\_int}
+
+\subsubsection*{$\vect{v_o} = \vect{v_a} \ew\division \vect{v_b} $ Element-wise}
+Also known as the ``Dot-Division'' from MATLAB, Octave or FreeMat.
+\begin{equation}
+	\begin{pmatrix}x_o\\y_o\\z_o\end{pmatrix} = 
+	\begin{pmatrix}x_a \division x_b\\y_a \division y_b\\z_a \division z_b\end{pmatrix}
+\end{equation}
+\inHfile{VECT3\_EW\_DIV(vo, va, vb)}{pprz\_algebra}
+\mynote{Nothing for VECT2?}
+
+
+
+
+
+\subsection{Other}
+\subsubsection*{$\norm{\vect{v}}$ Norm}
+Computes the 2-norm of a vector (the length).
+\begin{equation}
+n = \norm{\vect{v}} = \sqrt{\vect v \multiplication \vect v} = \sqrt{x \multiplication x + y \multiplication y} \quad or \quad \sqrt{x \multiplication x + y \multiplication y + z \multiplication z}
+\end{equation}
+\inHfile{INT32\_VECT2\_NORM(n, v)}{pprz\_algebra\_int}
+\inHfile{INT32\_VECT3\_NORM(n, v)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_VECT3\_NORM(v)}{pprz\_algebra\_float}
+\mynote{float differs from int!}
+Alternatively you can normalize a 3D - vector directly using
+\inHfile{FLOAT\_VECT3\_NORMALIZE(v)}{pprz\_algebra\_float}
+
+\subsubsection*{Right-Shift}
+Makes an bitwise right-shift with every value. This is close to the multiplication with $ 2^{-r} $, but not the same.
+\begin{equation}
+\vect v_o = 2^{-r} \vect v_i
+\end{equation}
+\inHfile{INT32\_VECT2\_RSHIFT(o, i, r)}{pprz\_algebra\_int}
+
+\subsubsection*{Left-Shift}
+Makes an bitwise left-shift with every value. This is close to the multiplication with $ 2^{l} $, but not the same.
+\begin{equation}
+\vect v_o = 2^{l} \vect v_i
+\end{equation}
+\inHfile{INT32\_VECT2\_LSHIFT(o, i, l)}{pprz\_algebra\_int}
+
+\subsubsection*{$min \leq \vect v \leq max$ Bounding}
+Bounds the vector so that every value is between \textit{min} and \textit{max}.
+\begin{eqnarray}
+\vect v \in \mathbb{I}^2 \qquad or \qquad \vect v \in \mathbb{I}^3, \\
+\mathbb{I} = [min; max]
+\end{eqnarray}
+\textbf{WARNING:}\\
+The functions ``\texttt{STRIM}'' have a higher priority for the lower border. So, if $ min > max$ and a value of $ \vect v $ is between those, the value is set to min. \\
+The function ``\texttt{BOUND\_CUBE}'' does that the other way round.\\
+\inHfile{VECT2\_STRIM(v, min, max)}{pprz\_algebra}
+\inHfile{VECT3\_STRIM(v, min, max)}{pprz\_algebra}
+\inHfile{VECT3\_BOUND\_CUBE(v, min, max)}{pprz\_algebra}
+\mynote{VECT3\_STRIM and VECT3\_BOUND\_CUBE do nearly the same.}
+
+\subsubsection*{$\vect{v}_{min} \leq \vect v \leq \vect{v}_{max}$ Bounding}
+Ensures that
+\begin{equation}
+\vect v_{min} \leq \vect v \leq \vect v_{max} \Leftrightarrow \begin{pmatrix} x_{min} \\ y_{min} \\ z_{min} \end{pmatrix} \leq \begin{pmatrix} x \\ y \\ z \end{pmatrix} \leq \begin{pmatrix} x_{max} \\ y_{max} \\ z_{max} \end{pmatrix}
+\end{equation}
+\inHfile{VECT3\_BOUND\_BOX(v, v\_min, v\_max}{pprz\_algebra}
+\mynote{Nothing for VECT2?}

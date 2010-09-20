@@ -1,0 +1,13 @@
+The most common definition for this transformation is
+\begin{equation}
+\mat R_m = \begin{pmatrix}
+1-2(q_y^2 + q_z^2)		& 2(q_xq_y-q_iq_z)		& 2(q_xq_z + q_iq_y) \\
+2(q_xq_y + q_iq_z)		& 1-2(q_x^2 + q_z^2)	& 2(q_yq_z - q_iq_x) \\
+2(q_xq_z - q_iq_y)		& 2(q_yq_z+q_iq_x)		& 1-2(q_x^2 + q_y^2)	
+\end{pmatrix}.
+\end{equation}
+
+\inHfile{INT32\_RMAT\_OF\_QUAT(rm, q)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_RMAT\_OF\_QUAT(rm, q)}{pprz\_algebra\_float}
+\mynote{I called the quicker function "INT32\_RMAT\_OF\_QUAT\_QUICKER"}
+

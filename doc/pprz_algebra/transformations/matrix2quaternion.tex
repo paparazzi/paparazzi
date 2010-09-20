@@ -1,0 +1,46 @@
+Since the construction of a matrix from a quaternion is known
+\begin{equation}
+\mat R_m = \begin{pmatrix}
+1-2(q_y^2 + q_z^2)		& 2(q_xq_y-q_iq_z)		& 2(q_xq_z + q_iq_y) \\
+2(q_xq_y + q_iq_z)		& 1-2(q_x^2 + q_z^2)	& 2(q_yq_z - q_iq_x) \\
+2(q_xq_z - q_iq_y)		& 2(q_yq_z+q_iq_x)		& 1-2(q_x^2 + q_y^2)	
+\end{pmatrix},
+\end{equation}
+the extraction of a quaternion is done vice versa. But there are obviously many opportunities to extract the quaternion. They differ in the way which element of the quaternion is extracted from the diaognal elements $r_{11}$, $r_{22}$ and $r_{33}$  of the matrix.
+\begin{equation}
+1 = q_i^2+q_x^2+q_y^2+q_z^2
+\end{equation}
+\textbf{First case}
+\begin{eqnarray}
+\zeta = \sqrt{1 + (r_{11}+r_{22}+r_{33})}  =  \sqrt{1 + (3q_i^2 -q_x^2 -q_y^2 -q_z^2)} = \sqrt{4 q_i^2} \\
+q_i = \tfrac 1 2 \zeta \\
+q_x =  \tfrac 1 {2 \zeta} (r_{23}-r_{32}) \\
+q_y =  \tfrac 1 {2 \zeta} (r_{31}-r_{13}) \\
+q_z =  \tfrac 1 {2 \zeta} (r_{12}-r_{21})
+\end{eqnarray}
+\textbf{Second case}
+\begin{eqnarray}
+\zeta = \sqrt{1 + (r_{11}-r_{22}-r_{33})}  =  \sqrt{1 + (-q_i^2+3q_x^2 -q_y^2 -q_z^2)} = \sqrt{4 q_x^2} \\
+q_i =  \tfrac 1 {2 \zeta} (r_{23}-r_{32}) \\
+q_x = \tfrac 1 2 \zeta \\
+q_y =  \tfrac 1 {2 \zeta} (r_{12}+r_{21}) \\
+q_z =  \tfrac 1 {2 \zeta} (r_{31}+r_{13})
+\end{eqnarray}
+\textbf{Third case}
+\begin{eqnarray}
+\zeta = \sqrt{1 + (-r_{11}+r_{22}-r_{33})}  =  \sqrt{1 + (-q_i^2 -q_x^2+3q_y^2 -q_z^2)} = \sqrt{4 q_y^2} \\
+q_i =  \tfrac 1 {2 \zeta} (r_{31}-r_{13}) \\
+q_x =  \tfrac 1 {2 \zeta} (r_{12}+r_{21}) \\
+q_y = \tfrac 1 2 \zeta \\
+q_z =  \tfrac 1 {2 \zeta} (r_{23}+r_{32})
+\end{eqnarray}
+\textbf{Fourth case}
+\begin{eqnarray}
+\zeta = \sqrt{1 + (-r_{11}-r_{22}+r_{33})}  =  \sqrt{1 + (-q_i^2 -q_x^2 -q_y^2+3q_z^2)} = \sqrt{4 q_z^2} \\
+q_i =  \tfrac 1 {2 \zeta} (r_{12}-r_{21}) \\
+q_x =  \tfrac 1 {2 \zeta} (r_{31}+r_{13}) \\
+q_y =  \tfrac 1 {2 \zeta} (r_{23}+r_{32}) \\
+q_z = \tfrac 1 2 \zeta
+\end{eqnarray}
+All are mathematicaly equivalent but numerically different. To avoid complex numbers and singularities the case with the biggest $\zeta$ should be choosen. 
+\inHfile{INT32\_QUAT\_OF\_RMAT(q, r)}{pprz\_algebra\_int}

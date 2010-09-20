@@ -1,0 +1,19 @@
+\mynote{This is only for the 321-convention}
+The rotation matrix from euler angles is known
+\begin{equation}
+\mat R_m = \begin{pmatrix}
+cos(\Pitch)cos(\Yaw)									& cos(\Pitch)sin(\Yaw)									& -sin(\Pitch)			\\
+sin(\Roll)sin(\Pitch)cos(\Yaw) - cos(\Roll)cos(\Yaw)	& sin(\Roll)sin(\Pitch)sin(\Yaw) + cos(\Roll)cos(\Yaw)	& sin(\Roll)cos(\Pitch)	\\
+cos(\Roll)sin(\Pitch)cos(\Yaw) + sin(\Roll)sin(\Yaw)	& cos(\Roll)sin(\Pitch)sin(\Yaw) - sin(\Roll)cos(\Yaw)	& cos(\Roll)cos(\Pitch)
+\end{pmatrix}
+\end{equation}
+and the extraction is done vice versa.
+\begin{equation}
+\eu e = \begin{pmatrix}\Roll \\ \Pitch \\ \Yaw \end{pmatrix} = 
+\begin{pmatrix}
+\arctan2(r_{23}, r_{33}) \\
+-\arcsin(r_{13}) \\
+\arctan2(r_{12}, r_{11})
+\end{pmatrix}
+\end{equation}
+\inHfile{INT32\_EULERS\_OF\_RMAT(e, rm)}{pprz\_algebra\_int}
