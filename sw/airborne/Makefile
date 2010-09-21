@@ -1,4 +1,5 @@
-# 
+# Hey Emacs, this is a -*- makefile -*-
+#
 #  $Id$
 #  Copyright (C) 2003-2005 Pascal Brisset, Antoine Drouin
 #
@@ -17,23 +18,19 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.  
-# 
+# Boston, MA 02111-1307, USA.
+#
 
 
 OBJDIR = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/$(TARGET)
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
 ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
-#
-# WTF is that for ? VARINCLUDE=$(PAPARAZZI_HOME)/var/include  and  -I $(PAPARAZZI_SRC)/var/include in the line below ?
-#
-
-INCLUDES = -I $(PAPARAZZI_SRC)/sw/include -I $(PAPARAZZI_SRC)/var/include -I $(PAPARAZZI_SRC)/sw/airborne -I $(PAPARAZZI_SRC)/conf/autopilot -I $(PAPARAZZI_SRC)/sw/airborne/$($(TARGET).ARCHDIR) -I $(VARINCLUDE) -I $(ACINCLUDE)
+INCLUDES = -I $(PAPARAZZI_SRC)/sw/include -I $(PAPARAZZI_SRC)/sw/airborne -I $(PAPARAZZI_SRC)/conf/autopilot -I $(PAPARAZZI_SRC)/sw/airborne/$($(TARGET).ARCHDIR) -I $(VARINCLUDE) -I $(ACINCLUDE)
 
 SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/$(ARCHDIR)
 
-ifneq ($(MAKECMDGOALS),clean) 
+ifneq ($(MAKECMDGOALS),clean)
 include $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/Makefile.ac
 $(TARGET).srcs += $($(TARGET).EXTRA_SRCS)
 include ../../conf/Makefile.local

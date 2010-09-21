@@ -1,3 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
+#
 #   Paparazzi main $Id$
 #   Copyright (C) 2004 Pascal Brisset Antoine Drouin
 #

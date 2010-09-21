@@ -1,6 +1,7 @@
+# Hey Emacs, this is a -*- makefile -*-
 #
 # $Id$
-#  
+#
 # Copyright (C) 2010 The Paparazzi Team
 #
 # This file is part of Paparazzi.
@@ -18,7 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA. 
+# Boston, MA 02111-1307, USA.
 #
 #
 
@@ -53,7 +54,7 @@ ap.CFLAGS += $(BOOZ_INC)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
 ap.srcs    = $(SRC_FIRMAWRE)/main.c
 
-ifeq ($(ARCHI), stm32) 
+ifeq ($(ARCHI), stm32)
 ap.srcs += lisa/plug_sys.c
 endif
 #
@@ -61,7 +62,7 @@ endif
 #
 ifeq ($(ARCHI), arm7)
 ap.srcs += $(SRC_ARCH)/armVIC.c
-else ifeq ($(ARCHI), stm32) 
+else ifeq ($(ARCHI), stm32)
 ap.srcs += $(SRC_ARCH)/stm32_exceptions.c
 ap.srcs += $(SRC_ARCH)/stm32_vector_table.c
 endif
@@ -70,7 +71,7 @@ endif
 # LEDs
 #
 ap.CFLAGS += -DUSE_LED
-ifeq ($(ARCHI), stm32) 
+ifeq ($(ARCHI), stm32)
 ap.srcs += $(SRC_ARCH)/led_hw.c
 endif
 
@@ -80,7 +81,7 @@ endif
 ap.CFLAGS += -DUSE_SYS_TIME
 ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
-ifeq ($(ARCHI), stm32) 
+ifeq ($(ARCHI), stm32)
 ap.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
 
@@ -89,10 +90,10 @@ endif
 #
 ap.srcs += $(SRC_ARCH)/uart_hw.c
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport
-ap.CFLAGS += -DDOWNLINK_DEVICE=$(MODEM_PORT) 
+ap.CFLAGS += -DDOWNLINK_DEVICE=$(MODEM_PORT)
 ap.srcs   += $(SRC_BOOZ)/booz2_telemetry.c \
-	     downlink.c \
-             pprz_transport.c
+		 downlink.c \
+			 pprz_transport.c
 ap.CFLAGS += -DDATALINK=PPRZ
 ap.CFLAGS += -DPPRZ_UART=$(MODEM_PORT)
 ap.srcs   += $(SRC_BOOZ)/booz2_datalink.c
@@ -139,7 +140,7 @@ ap.srcs += $(SRC_BOOZ)/booz2_commands.c
 ap.srcs += $(SRC_BOARD)/baro_board.c
 ifeq ($(BOARD), booz)
 ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED) -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
-else ifeq ($(BOARD), lisa_l) 
+else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
 endif
 
@@ -152,15 +153,15 @@ ap.srcs += $(SRC_BOOZ)/booz2_battery.c
 ap.CFLAGS += -DADC0_VIC_SLOT=2
 ap.CFLAGS += -DADC1_VIC_SLOT=3
 ap.srcs += $(SRC_BOOZ)/booz2_analog.c \
-           $(SRC_BOOZ_ARCH)/booz2_analog_hw.c
-else ifeq ($(ARCHI), stm32) 
+		   $(SRC_BOOZ_ARCH)/booz2_analog_hw.c
+else ifeq ($(ARCHI), stm32)
 ap.srcs += lisa/lisa_analog_plug.c
 endif
 
 
 #
 # GPS choice
-# 
+#
 # include subsystems/rotorcraft/gps_ubx.makefile
 # or
 # include subsystems/rotorcraft/gps_skytraq.makefile
@@ -218,8 +219,6 @@ ap.srcs += $(SRC_BOOZ)/booz2_navigation.c
 # include booz2_fms_test_signal.makefile
 # or
 # include booz2_fms_datalink.makefile
-# or 
+# or
 # nothing
 #
-
-
