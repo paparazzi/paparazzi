@@ -12,6 +12,8 @@
 
 *.depend
 
+*.aux
+
 /var
 /dox
 
@@ -22,6 +24,9 @@
 /conf/control_panel.xml
 /conf/%gconf.xml
 
+# /doc/pprz_algebra/
+/doc/pprz_algebra/headfile.log
+/doc/pprz_algebra/headfile.toc
 
 # /sw/ground_segment/cockpit/
 /sw/ground_segment/cockpit/gtk_save_settings.ml
@@ -54,6 +59,7 @@
 /sw/lib/ocaml/gtk_papget_editor.ml
 /sw/lib/ocaml/gtk_papget_text_editor.ml
 /sw/lib/ocaml/gtk_papget_gauge_editor.ml
+/sw/lib/ocaml/expr_lexer.ml
 /sw/lib/ocaml/expr_parser.ml
 /sw/lib/ocaml/expr_parser.mli
 /sw/lib/ocaml/gtk_papget_led_editor.ml
