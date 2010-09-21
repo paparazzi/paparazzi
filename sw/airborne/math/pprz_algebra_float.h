@@ -309,6 +309,7 @@ struct FloatRates {
 
 
 /* C n->b rotation matrix */
+#ifdef ALGEBRA_FLOAT_USE_SLOW_FUNCTIONS
 #define FLOAT_RMAT_OF_QUAT(_rm, _q) {	                                \
     const float qx2  = (_q).qx*(_q).qx;					\
     const float qy2  = (_q).qy*(_q).qy;					\
@@ -338,7 +339,30 @@ struct FloatRates {
     /* dcm22 = 1.0 - 2.*(  qx2 +  qy2 ); */				\
     RMAT_ELMT(_rm, 2, 2) = 1.0 - 2.*(  qx2 +  qy2 );			\
   }
-
+#else
+#define FLOAT_RMAT_OF_QUAT(_rm, _q) {					\
+	const float a = M_SQRT2*(_q).qi;				\
+	const float b = M_SQRT2*(_q).qx;				\
+	const float c = M_SQRT2*(_q).qy;				\
+	const float d = M_SQRT2*(_q).qz;				\
+	const float a2_1 = a*a-1;					\
+	const float ab = a*b;						\
+	const float ac = a*c;						\
+	const float ad = a*d;						\
+	const float bc = b*c;						\
+	const float bd = b*d;						\
+	const float cd = c*d;						\
+    RMAT_ELMT(_rm, 0, 0) = a2_1+b*b;					\
+    RMAT_ELMT(_rm, 0, 1) = bc+ad;					\
+    RMAT_ELMT(_rm, 0, 2) = bd-ac;					\
+    RMAT_ELMT(_rm, 1, 0) = bc-ad;					\
+    RMAT_ELMT(_rm, 1, 1) = a2_1+c*c;					\
+    RMAT_ELMT(_rm, 1, 2) = cd+ab;					\
+    RMAT_ELMT(_rm, 2, 0) = bd+ac;					\
+    RMAT_ELMT(_rm, 2, 1) = cd-ab;					\
+    RMAT_ELMT(_rm, 2, 2) = a2_1+d*d;					\
+  }
+#endif
 
 
 
@@ -445,10 +469,10 @@ struct FloatRates {
 #define FLOAT_QUAT_ROTATE_FRAME(q_out, q_in, q_rot) {                   \
     struct FloatQuat q_temp;						\
     FLOAT_QUAT_INV_COMP(q_temp, q_rot, q_in);				\
-    print_quat(q_temp);							\
     FLOAT_QUAT_COMP(q_out, q_temp, q_rot);				\
   }
 
+#ifdef ALGEBRA_FLOAT_USE_SLOW_FUNCTIONS
 #define FLOAT_QUAT_VMULT(v_out, q, v_in) {				\
     const float qi2  = q.qi*q.qi;					\
     const float qiqx = q.qi*q.qx;					\
@@ -473,6 +497,30 @@ struct FloatRates {
     v_out.y = m10 * v_in.x + m11 * v_in.y + m12 * v_in.z;		\
     v_out.z = m20 * v_in.x + m21 * v_in.y + m22 * v_in.z;		\
   }
+#else
+#define FLOAT_QUAT_VMULT_QUICKER(v_out, q, v_in) {			\
+    const float qi2_M1_2  = q.qi*q.qi - 0.5;				\
+    const float qiqx = q.qi*q.qx;					\
+    const float qiqy = q.qi*q.qy;					\
+    const float qiqz = q.qi*q.qz;					\
+    	  float m01  = q.qx*q.qy;	/* aka qxqy */			\
+    	  float m02  = q.qx*q.qz;	/* aka qxqz */			\
+    	  float m12  = q.qy*q.qz;	/* aka qyqz */			\
+\
+    const float m00  = qi2_M1_2 + q.qx*q.qx;				\
+    const float m10  = m01 - qiqz;					\
+    const float m20  = m02 + qiqy;					\
+    const float m21  = m12 - qiqx;					\
+    		m01 += qiqz;						\
+    		m02 -= qiqy;						\
+    		m12 += qiqx;						\
+    const float m11  = qi2_M1_2 + q.qy*q.qy;				\
+    const float m22  = qi2_M1_2 + q.qz*q.qz;				\
+    v_out.x = 2*(m00 * v_in.x + m01 * v_in.y + m02 * v_in.z);		\
+    v_out.y = 2*(m10 * v_in.x + m11 * v_in.y + m12 * v_in.z);		\
+    v_out.z = 2*(m20 * v_in.x + m21 * v_in.y + m22 * v_in.z);		\
+  }
+#endif
 
 /* _qd = -0.5*omega(_r) * _q  */
 #define FLOAT_QUAT_DERIVATIVE(_qd, _r, _q) {				\

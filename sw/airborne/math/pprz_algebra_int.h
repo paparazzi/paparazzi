@@ -322,6 +322,7 @@ struct Int64Vect3 {
 /*
  * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/quaternionstodirectioncosinematrix.html
  */
+#ifdef ALGEBRA_INT_USE_SLOW_FUNCTIONS
 #define INT32_RMAT_OF_QUAT(_rm, _q) {					    \
     const int32_t qx2  = INT_MULT_RSHIFT((_q).qx,(_q).qx, INT32_QUAT_FRAC); \
     const int32_t qy2  = INT_MULT_RSHIFT((_q).qy,(_q).qy, INT32_QUAT_FRAC); \
@@ -353,6 +354,32 @@ struct Int64Vect3 {
     /* dcm22 = 1.0 - 2.*(  qx2 +  qy2 ); */				    \
     _rm.m[8] = one - INT_MULT_RSHIFT( two, (qx2+qy2), INT32_TRIG_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC); \
   }
+#else
+  #define INT32_RMAT_OF_QUAT(_rm, _q) {					    			\
+	const int32_t _2qi2_m1	= INT_MULT_RSHIFT((_q).qi,(_q).qi, INT32_QUAT_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC-1)-TRIG_BFP_OF_REAL( 1);	\
+	_rm.m[0]	   	= INT_MULT_RSHIFT((_q).qx,(_q).qx, INT32_QUAT_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC-1);	\
+	_rm.m[4]		= INT_MULT_RSHIFT((_q).qy,(_q).qy, INT32_QUAT_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC-1);	\
+	_rm.m[8]	   	= INT_MULT_RSHIFT((_q).qz,(_q).qz, INT32_QUAT_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC-1);	\
+															\
+	const int32_t _2qiqx   = INT_MULT_RSHIFT((_q).qi,(_q).qx, INT32_QUAT_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC-1);	\
+	const int32_t _2qiqy   = INT_MULT_RSHIFT((_q).qi,(_q).qy, INT32_QUAT_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC-1);	\
+	const int32_t _2qiqz   = INT_MULT_RSHIFT((_q).qi,(_q).qz, INT32_QUAT_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC-1);	\
+	_rm.m[1]		= INT_MULT_RSHIFT((_q).qx,(_q).qy, INT32_QUAT_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC-1);	\
+	_rm.m[2]		= INT_MULT_RSHIFT((_q).qx,(_q).qz, INT32_QUAT_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC-1);	\
+	_rm.m[5]		= INT_MULT_RSHIFT((_q).qy,(_q).qz, INT32_QUAT_FRAC+INT32_QUAT_FRAC-INT32_TRIG_FRAC-1);	\
+							\
+	_rm.m[0] += _2qi2_m1;				\
+	_rm.m[3] = _rm.m[1]-_2qiqz;			\
+	_rm.m[6] = _rm.m[2]+_2qiqy;			\
+	_rm.m[7] = _rm.m[5]-_2qiqx;			\
+	_rm.m[4] = _2qi2_m1;				\
+	_rm.m[1] += _2qiqz;				\
+	_rm.m[2] -= _2qiqy;				\
+	_rm.m[5] += _2qiqx;				\
+	_rm.m[8] += _2qi2_m1;				\
+  }
+#endif
+
 
 /*
  * http://www.mathworks.com/access/helpdesk_r13/help/toolbox/aeroblks/euleranglestodirectioncosinematrix.html
@@ -510,6 +537,7 @@ struct Int64Vect3 {
     (_b2c).qz = ((_a2b).qi*(_a2c).qz - (_a2b).qx*(_a2c).qy + (_a2b).qy*(_a2c).qx - (_a2b).qz*(_a2c).qi)>>INT32_QUAT_FRAC; \
   }
 
+#ifdef ALGEBRA_INT_USE_SLOW_FUNCTIONS
 #define INT32_QUAT_VMULT(v_out, q, v_in) {				\
     const int32_t qi2  = (q.qi*q.qi)>>INT32_QUAT_FRAC;			\
     const int32_t qx2  = (q.qx*q.qx)>>INT32_QUAT_FRAC;			\
@@ -534,7 +562,23 @@ struct Int64Vect3 {
     v_out.y = (m10 * v_in.x + m11 * v_in.y + m12 * v_in.z)>>INT32_QUAT_FRAC; \
     v_out.z = (m20 * v_in.x + m21 * v_in.y + m22 * v_in.z)>>INT32_QUAT_FRAC; \
   }
-
+#else
+#define INT32_QUAT_VMULT(v_out, q, v_in) {				\
+    const int32_t _2qi2_m1 = ((q.qi*q.qi)>>(INT32_QUAT_FRAC-1)) - QUAT1_BFP_OF_REAL( 1);	\
+    const int32_t _2qx2    = (q.qx*q.qx)>>(INT32_QUAT_FRAC-1);		\
+    const int32_t _2qy2    = (q.qy*q.qy)>>(INT32_QUAT_FRAC-1);		\
+    const int32_t _2qz2    = (q.qz*q.qz)>>(INT32_QUAT_FRAC-1);		\
+    const int32_t _2qiqx   = (q.qi*q.qx)>>(INT32_QUAT_FRAC-1);		\
+    const int32_t _2qiqy   = (q.qi*q.qy)>>(INT32_QUAT_FRAC-1);		\
+    const int32_t _2qiqz   = (q.qi*q.qz)>>(INT32_QUAT_FRAC-1);		\
+    const int32_t m01 = ((q.qx*q.qy)>>(INT32_QUAT_FRAC-1)) + _2qiqz;				\
+    const int32_t m02 = ((q.qx*q.qz)>>(INT32_QUAT_FRAC-1)) - _2qiqy;				\
+    const int32_t m12 = ((q.qy*q.qz)>>(INT32_QUAT_FRAC-1)) + _2qiqx;				\
+    v_out.x = (_2qi2_m1*v_in.x + _2qx2 * v_in.x + m01 * v_in.y + m02 * v_in.z)>>INT32_QUAT_FRAC;				 \
+    v_out.y = (_2qi2_m1*v_in.y + m01 * v_in.x -2*_2qiqz*v_in.x+ _2qy2 * v_in.y + m12 * v_in.z)>>INT32_QUAT_FRAC; 		 \
+    v_out.z = (_2qi2_m1*v_in.z + m02 * v_in.x +2*_2qiqy*v_in.x+ m12 * v_in.y -2*_2qiqx*v_in.y+ _2qz2 * v_in.z)>>INT32_QUAT_FRAC; \
+  }
+#endif
 
 
 
@@ -750,7 +794,7 @@ struct Int64Vect3 {
     int32_t cphi_ctheta = INT_MULT_RSHIFT(cphi,   ctheta, INT32_TRIG_FRAC); \
     int32_t sphi_ctheta = INT_MULT_RSHIFT(sphi,   ctheta, INT32_TRIG_FRAC); \
 									\
-    (_r).p = - INT_MULT_RSHIFT(sphi, (_ed).psi, INT32_TRIG_FRAC) + (_ed).phi; \
+    (_r).p = - INT_MULT_RSHIFT(stheta, (_ed).psi, INT32_TRIG_FRAC) + (_ed).phi; \
     (_r).q = INT_MULT_RSHIFT(sphi_ctheta, (_ed).psi, INT32_TRIG_FRAC) + INT_MULT_RSHIFT(cphi, (_ed).theta, INT32_TRIG_FRAC); \
     (_r).r = INT_MULT_RSHIFT(cphi_ctheta, (_ed).psi, INT32_TRIG_FRAC) - INT_MULT_RSHIFT(sphi, (_ed).theta, INT32_TRIG_FRAC); \
 									\
