@@ -10,7 +10,8 @@ It is available for the following simple types:\\
 \begin{tabular}{c|c}
 type		& struct		\\ \hline
 int32\_t	& Int32Quat		\\
-float		& FloatQuat
+float		& FloatQuat		\\
+double		& DoubleQuat		
 \end{tabular}
 
 
@@ -71,6 +72,7 @@ Sets a quaternion to the identity rotation (no rotation).
 
 
 \subsection{$\multiplication$ Multiplication}
+\mynote{FLOAT\_QUAT\_ROTATE\_FRAME is stil missing. The function seems useless to me.}
 \subsubsection*{$\quat{o} = s \multiplication \quat{i}$ With a scalar}
 \begin{equation}
 	\quat{o} = s \multiplication \quat{i}
@@ -134,6 +136,9 @@ Please note that due to the fact that it's done very often, the functions above 
 
 
 \subsection{Transformation to Quaternions}
+\subsubsection*{from an axis and an angle}
+\input{transformations/axisangle2quaternion}
+
 \subsubsection*{from euler angles}
 \input{transformations/euler2quaternion}
 
@@ -170,3 +175,41 @@ It is possible to invert the quaternion if its real value is negative
 \end{equation}
 \inHfile{INT32\_QUAT\_WRAP\_SHORTEST(q)}{pprz\_algebra\_int}
 \inHfile{FLOAT\_QUAT\_WRAP\_SHORTEST(q)}{pprz\_algebra\_float}
+
+\subsection*{Derivative}
+Calculates the derivative of a quaternion using the rates. The resulting quaternion still needs to be normalized
+\begin{equation}
+\dot{\quat{}} = -\tfrac 1 2 \mat \Omega(\ra{}) \quatprod \quat{}
+\end{equation}
+\begin{equation}
+\dot{\quat{}} = -\tfrac 1 2 \begin{pmatrix} 
+  0		&  \ra p &  \ra q &  \ra r	\\
+-\ra p	&	0	 & -\ra r &  \ra q	\\
+-\ra q	&  \ra r &	0	  & -\ra p	\\
+-\ra r	& -\ra q &  \ra p &		0
+\end{pmatrix}
+\multiplication \quat{}
+\end{equation}
+\inHfile{FLOAT\_QUAT\_DERIVATIVE(qd, r, q)}{pprz\_algebra\_float}
+You can also use a method, which slightly normalizes the quaternion by itself. The intention is that you calculate a quaternion, which represents the difference to a unit quaternion
+\begin{eqnarray}
+\Delta n = \norm{\norm{\quat{}}}_2-1 \\
+\Delta \quat {} = \Delta n \multiplication \quat{}.
+\end{eqnarray}
+Now you substract this difference from the result
+\begin{eqnarray}
+\dot{\quat{}} = -\tfrac 1 2 \mat \Omega(\ra{}) \quatprod \quat{} - \Delta \quat {} \\
+\dot{\quat{}} = -\tfrac 1 2 \mat \Omega(\ra{}) \quatprod \quat{} - \Delta n \multiplication \quat{} \\
+\dot{\quat{}} = -\tfrac 1 2 \left( 2 \Delta n \eye + \mat \Omega(\ra{}) \right) \quatprod \quat{}
+\end{eqnarray}
+leading to
+\begin{equation}
+\dot{\quat{}} = -\tfrac 1 2 \begin{pmatrix} 
+2 \Delta n&  \ra p &  \ra q &  \ra r	\\
+-\ra p	&2 \Delta n& -\ra r &  \ra q	\\
+-\ra q	&  \ra r &2 \Delta n & -\ra p	\\
+-\ra r	& -\ra q &  \ra p &2 \Delta n
+\end{pmatrix}
+\multiplication \quat{}
+\end{equation}
+\inHfile{FLOAT\_QUAT\_DERIVATIVE\_LAGRANGE(qd, r, q)}{pprz\_algebra\_float}

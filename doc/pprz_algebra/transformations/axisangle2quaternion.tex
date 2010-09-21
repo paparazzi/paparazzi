@@ -1,0 +1,13 @@
+A quaternion can be easily constructed from an axis $\vect u_v$ and an angle $\alpha $ using
+\begin{equation}
+\quat {} = \begin{pmatrix}
+\cos \left( \tfrac \alpha 2 \right) \\
+\sin \left( \tfrac \alpha 2 \right) \vect u_v
+\end{pmatrix} = \begin{pmatrix}
+\cos \left( \tfrac \alpha 2 \right) \\
+\sin \left( \tfrac \alpha 2 \right) u_x \\
+\sin \left( \tfrac \alpha 2 \right) u_y \\
+\sin \left( \tfrac \alpha 2 \right) u_z
+\end{pmatrix}
+\end{equation}
+\inHfile{FLOAT\_QUAT\_OF\_AXIS\_ANGLE(q, uv, an)}{pprz\_algebra\_float}

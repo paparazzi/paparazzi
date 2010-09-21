@@ -9,7 +9,8 @@ It is available for the following simple types:\\
 type		& struct		\\ \hline
 int16\_t	& Int16Eulers	\\
 int32\_t	& Int32Eulers	\\
-float		& FloatEulers
+float		& FloatEulers	\\
+double		& DoubleEulers
 \end{tabular}
 \textbf{IMPORTANT:}\label{paparazzi euler definition}\\
 Because there are many definitions of euler angles (some say 12, wikipedia says 24, the author tends to believe there are 48) and the choice of perspective, paparazzi choosed the following convention:
@@ -23,6 +24,7 @@ Because there are many definitions of euler angles (some say 12, wikipedia says 
 \eu v = \begin{pmatrix} 0 \\ 0 \\ 0 \end{pmatrix}
 \end{equation}
 \inHfile{INT\_EULERS\_ZERO(e)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_EULERS\_ZERO(e)}{pprz\_algebra\_float}
 
 \subsubsection*{$\eu a = \transp{(\Roll,\Pitch,\Yaw)}$}
 \begin{equation}
@@ -122,6 +124,12 @@ or between
 \end{equation}
 \inHfile{INT32\_COURSE\_NORMALIZE(a)}{pprz\_algebra\_int}
 
+\subsubsection*{$\norm{\eu{e}} $ Norm}
+Calculates the 2-norm
+\begin{equation}
+\norm{\norm{\eu{e}}}_2 = \sqrt{\Roll^2+\Pitch^2+\Yaw^2}
+\end{equation}
+\inHfile{FLOAT\_EULERS\_NORM(e)}{pprz\_algebra\_float}
 
 \subsubsection*{$min \leq \eu v \leq max$ Bounding}
 Bounds the euler angles so that every angle $\Roll$, $\Pitch$ and $\Yaw$ is between \textit{min} and \textit{max}.

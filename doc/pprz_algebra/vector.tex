@@ -11,7 +11,8 @@ uint16\_t	& 				& Uint16Vect3	\\
 int16\_t 	& 				& Int16Vect3	\\
 int32\_t	& Int32Vect2	& Int32Vect3	\\
 int64\_t	& Int32Vect2	& Int32Vect3	\\
-float		& FloatVect2	& FloatVect3	
+float		& FloatVect2	& FloatVect3	\\
+double		& DoubleVect2	& DoubleVect3	
 \end{tabular}
 
 
@@ -67,6 +68,7 @@ float		& FloatVect2	& FloatVect3
 \inHfile{VECT3\_SUM(c, a, b)}{pprz\_algebra}
 \inHfile{INT32\_VECT3\_SUM(c, a, b)}{pprz\_algebra\_int}
 \inHfile{FLOAT\_VECT2\_SUM(c, a, b)}{pprz\_algebra\_float}
+\inHfile{DOUBLE\_VECT3\_SUM(c, a, b)}{pprz\_algebra\_double}
 
 
 
@@ -130,6 +132,7 @@ Also known as the ``Dot-Multiplication'' from MATLAB, Octave or FreeMat.
 \end{pmatrix} \multiplication \begin{pmatrix}x_2\\y_2\\z_2\end{pmatrix}
 \end{equation}
 \inHfile{FLOAT\_VECT3\_CROSS\_PRODUCT(vo, v1, v2)}{pprz\_algebra\_float}
+\inHfile{DOUBLE\_VECT3\_CROSS\_PRODUCT(vo, v1, v2)}{pprz\_algebra\_double}
 
 \subsubsection*{$\vect v_{out} = \mat{A} \multiplication \vect v_{in}$ With a Matrix}
 \begin{equation}
@@ -138,10 +141,12 @@ Also known as the ``Dot-Multiplication'' from MATLAB, Octave or FreeMat.
 \inHfile{MAT33\_VECT3\_MUL(vout, mat, vin)}{pprz\_algebra}
 \inHfile{RMAT\_VECT3\_MUL(vout, rmat, vin)}{pprz\_algebra}
 \inHfile{FLOAT\_RMAT\_VECT3\_MUL(vout, rmat, vin)}{pprz\_algebra\_float}
+\inHfile{DOUBLE\_MAT33\_VECT3\_MUL(vout, mat, vin)}{pprz\_algebra\_double}
 \begin{equation}
 \vect v_{out} = \transp{\mat A} \multiplication \vect v_{in}
 \end{equation}
 \inHfile{MAT33\_VECT3\_TRANSP\_MUL(vout, mat, vin)}{pprz\_algebra}
+\inHfile{DOUBLE\_MAT33\_VECT3\_TRANSP\_MUL(vout, mat, vin)}{pprz\_algebra\_double}
 For rotational matrices, with additional right shift about the decimal point position:
 \begin{equation}
 \vect v_b = \mat M_{a2b} \multiplication \vect v_a
@@ -176,6 +181,7 @@ The quaternion is transformed to a rotational matrix and then the vector is mult
  \multiplication \vect v_{in}
 \end{equation}
 \inHfile{INT32\_QUAT\_VMULT(v\_out, q, v\_in)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_QUAT\_VMULT(v\_out, q, v\_in)}{pprz\_algebra\_float}
 
 
 
@@ -249,3 +255,10 @@ Ensures that
 \end{equation}
 \inHfile{VECT3\_BOUND\_BOX(v, v\_min, v\_max}{pprz\_algebra}
 \mynote{Nothing for VECT2?}
+
+\subsubsection*{Rounding}
+Rounds the values of a double vector to integer values.
+\begin{equation}
+\vect v_{out} = rint(\vect v_{in})
+\end{equation}
+\inHfile{DOUBLE\_VECT3\_RINT(vout, vin)}{pprz\_algebra\_double}

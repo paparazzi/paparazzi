@@ -1,6 +1,6 @@
 \section{Introduction}
 This is the documentation for the algebra files of the paparazzi project (paparazzi.nongnu.org). It should be a reference for the functions which are defined in the directory \texttt{(paparazzi)/sw/airborne/math}. The structure of this documentation is in the way how it should make most sense in a mathematical content. This documentation might be redundant.\\
-The Conversion between FLOAT, REAL and BFP(binary floating point) is not in this documentation yet.
+The Conversion between FLOAT and REAL to BFP(binary floating point)and vice versa is not in this documentation yet.
 
 \section{Important definition} \label{Important definition}
 Unfortunately there are a lot of different definitions for rotations. There are 24 (some say 12, the author tends to think that there are much more) different ways to define euler angles. Therefore, paparazzi uses the convention, which is shown in \textit{figure \ref{Normal euler order}}.
@@ -112,6 +112,7 @@ SMUL		& \YES	& \YES	& \NO	& \NO	& \YES	& \YES	& \YES	\\
 EW\_MUL		& \NO	& \YES	& \NO	& \NO	& \NO	& \YES	& \NO	\\
 SDIV		& \YES	& \YES	& \NO	& \NO	& \YES	& \YES	& \NO	\\
 EW\_DIV		& \NO	& \YES	& \NO	& \NO	& \NO	& \NO	& \NO	\\
+NORM		& \YES	& \YES	& \NO	& \YES	& \YES	& \YES	& \YES	\\
 STRIM		& \YES	& \YES	& \NO	& \NO	& \NO	& \NO	& \NO	\\
 BOUND\_CUBE	& \NO	& \YES	& \NO	& \NO	& \YES	& \YES	& \NO	\\
 BOUND\_BOX	& \NO	& \YES	& \NO	& \NO	& \NO	& \YES	& \NO
