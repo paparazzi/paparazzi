@@ -8,8 +8,8 @@
 
   <makefile>
 
-ARCHI=avr
-ant.ARCHDIR = $(ARCHI)
+ARCH=avr
+ant.ARCHDIR = $(ARCH)
 ant.MCU = atmega128
 
 

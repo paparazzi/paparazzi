@@ -11,16 +11,15 @@ BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 # -----------------------------------------------------------------------
 ifeq ($(BOARD_PROCESSOR),'omap')
 
-	ARCHI  = omap
+	ARCH  = omap
 	$(TARGET).LDFLAGS += -levent -lm
 
 # -----------------------------------------------------------------------
 else
 
 	ARCH=stm32
-	ARCHI=stm32
 
-	$(TARGET).ARCHDIR = $(ARCHI)
+	$(TARGET).ARCHDIR = $(ARCH)
 # not needed?
 
 endif

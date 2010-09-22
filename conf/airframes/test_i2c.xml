@@ -7,8 +7,8 @@
 
   <makefile>
 
-ARCHI=arm7
-mb.ARCHDIR = $(ARCHI)
+ARCH=lpc21
+mb.ARCHDIR = $(ARCH)
 
 LPC21ISP_BAUD = 38400
 LPC21ISP_XTAL = 12000

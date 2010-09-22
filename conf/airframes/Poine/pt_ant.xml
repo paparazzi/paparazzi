@@ -8,17 +8,17 @@
 
   <makefile>
 
-tunnel.ARCHDIR = $(ARCHI)
+tunnel.ARCHDIR = $(ARCH)
 
 tunnel.CFLAGS += -DFBW -DBOARD_CONFIG=\"conf_demo.h\" -DLED -DTIME_LED=1
 tunnel.srcs += $(SRC_ARCH)/uart_tunnel.c
 
-ARCHI=arm7
+ARCH=lpc21
 
 FLASH_MODE = IAP
 PT_ANT = antenna
 
-main.ARCHDIR = $(ARCHI)
+main.ARCHDIR = $(ARCH)
 
 main.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\" -I$(PT_ANT)
 main.srcs = $(PT_ANT)/pt_ant_main.c

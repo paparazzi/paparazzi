@@ -5,7 +5,6 @@
 #
 
 ARCH=sim
-ARCHI=sim
 BOARD = pc
 BOARD_VERSION=
 
@@ -14,5 +13,5 @@ BOARD_VERSION=
 BOARD_CFG = \"tiny.h\"
 
 
-$(TARGET).ARCHDIR = $(ARCHI)
+$(TARGET).ARCHDIR = $(ARCH)
 

@@ -3,11 +3,8 @@
 #
 # http://paparazzi.enac.fr/wiki/Tiny_v2
 #
-# TODO: move all to new directories
-# ARCH=lpc21
-ARCH=lpc21
-ARCHI=arm7
 
+ARCH=lpc21
 
 BOARD=tiny
 BOARD_VERSION=2.11

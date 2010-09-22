@@ -2,7 +2,7 @@
 
   <makefile>
 
-ARCHI=arm7
+ARCH=lpc21
 
 FLASH_MODE = IAP
 
@@ -10,7 +10,7 @@ FLASH_MODE = IAP
 #
 # simple emtpy demo
 #
-demo1.ARCHDIR = $(ARCHI)
+demo1.ARCHDIR = $(ARCH)
 
 demo1.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo1.srcs = main_demo1.c
@@ -18,7 +18,7 @@ demo1.srcs = main_demo1.c
 #
 # hardware init ( pll ), system time and LEDs
 #
-demo2.ARCHDIR = $(ARCHI)
+demo2.ARCHDIR = $(ARCH)
 
 demo2.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo2.srcs = main_demo2.c
@@ -31,7 +31,7 @@ demo2.CFLAGS += -DLED
 #
 # UART (interrupts) and formated ascii printing
 #
-demo3.ARCHDIR = $(ARCHI)
+demo3.ARCHDIR = $(ARCH)
 
 demo3.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo3.srcs = main_demo3.c
@@ -50,7 +50,7 @@ demo3.srcs += $(SRC_ARCH)/uart_hw.c
 # DOWNLINK : send formated messages according to messages.xml description
 # requires "link" to run on the other side of the serial link
 #
-demo4.ARCHDIR = $(ARCHI)
+demo4.ARCHDIR = $(ARCH)
 
 demo4.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo4.srcs = main_demo4.c
@@ -73,7 +73,7 @@ demo4.srcs += downlink.c pprz_transport.c
 # which lets you adjust variables described in the settings.xml file 
 # IvySendMsg("1ME RAW_DATALINK 144 SETTING;0;0;%d", foo_value);
 #
-demo5.ARCHDIR = $(ARCHI)
+demo5.ARCHDIR = $(ARCH)
 
 demo5.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo5.srcs = main_demo5.c
@@ -97,7 +97,7 @@ demo5.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0
 #
 # Serial link over USB
 #
-demo6.ARCHDIR = $(ARCHI)
+demo6.ARCHDIR = $(ARCH)
 
 demo6.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo6.srcs = main_demo6.c
@@ -124,7 +124,7 @@ demo6.srcs += downlink.c pprz_transport.c
 #
 #
 #
-test_spk.ARCHDIR = $(ARCHI)
+test_spk.ARCHDIR = $(ARCH)
 
 test_spk.CFLAGS += -DBOARD_CONFIG=\"booz2_board_usb.h\"
 test_spk.srcs = main_test_spk.c

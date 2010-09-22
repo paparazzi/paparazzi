@@ -3,9 +3,9 @@
 
   <makefile>
 
-ARCHI=avr
+ARCH=avr
 
-main.ARCHDIR=$(ARCHI)
+main.ARCHDIR=$(ARCH)
 main.MCU = atmega128
 
 # internal RC 8MHz

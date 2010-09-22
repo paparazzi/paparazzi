@@ -2,14 +2,14 @@
 
   <makefile>
 
-ARCHI=arm7
+ARCH=lpc21
 
 FLASH_MODE = IAP
 
 
 WIND_TUNNEL=wind_tunnel
 
-ap.ARCHDIR = $(ARCHI)
+ap.ARCHDIR = $(ARCH)
 
 ap.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\" -I$(WIND_TUNNEL)
 ap.srcs = $(WIND_TUNNEL)/main.c
@@ -39,7 +39,7 @@ ap.srcs += $(WIND_TUNNEL)/wt_servo.c
 
 MB=motor_bench
 
-mb.ARCHDIR = $(ARCHI)
+mb.ARCHDIR = $(ARCH)
 
 mb.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\" -I$(WIND_TUNNEL) -I$(MB)
 mb.srcs = $(WIND_TUNNEL)/main_mb.c

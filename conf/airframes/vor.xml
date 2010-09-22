@@ -2,12 +2,12 @@
 
   <makefile>
 
-ARCHI=arm7
+ARCH=lpc21
 
 VOR=vor
 
 FLASH_MODE = IAP
-main.ARCHDIR = $(ARCHI)
+main.ARCHDIR = $(ARCH)
 
 main.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 main.srcs = $(VOR)/lpc_vor_main.c

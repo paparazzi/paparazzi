@@ -222,7 +222,6 @@
  </section>
 
   <makefile>
-ARCHI=arm7
 ARCH=lpc21
 FLASH_MODE=IAP
 BOARD_CFG = \"boards/booz2_v1_0.h\"

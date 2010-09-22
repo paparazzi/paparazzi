@@ -1,6 +1,6 @@
 #
 # $Id$
-#  
+#
 # Copyright (C) 2009 Antoine Drouin
 #
 # This file is part of paparazzi.
@@ -18,11 +18,11 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA. 
+# Boston, MA 02111-1307, USA.
 #
 #
 
-ARCHI=lpc21
+ARCH=lpc21
 
 FLASH_MODE = ISP
 LPC21ISP_PORT = /dev/ttyUSB0
@@ -40,9 +40,9 @@ BOARD_CFG = \"csc_board_v1_0.h\"
 
 
 SRC_CSC=csc
-SRC_CSC_ARCH=$(SRC_CSC)/$(ARCHI)
+SRC_CSC_ARCH=$(SRC_CSC)/$(ARCH)
 
-ap.ARCHDIR = $(ARCHI)
+ap.ARCHDIR = $(ARCH)
 
 ap.CFLAGS += -I$(SRC_CSC) -I$(SRC_CSC_ARCH)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
@@ -51,7 +51,7 @@ ap.CFLAGS += -DLED -DTIME_LED=1
 
 ap.CFLAGS += -DCSC_BOARD_ID=$(CSC_ID)
 
-ap.CFLAGS += -DUSE_PWM_INPUT 
+ap.CFLAGS += -DUSE_PWM_INPUT
 ap.CFLAGS += -DUSE_PWM_INPUT1
 ap.CFLAGS += -DUSE_PWM_INPUT2
 ap.CFLAGS += -DUSE_VANE_SENSOR
@@ -66,7 +66,7 @@ ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 #ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 #ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
-#	                  -DDOWNLINK_DEVICE=Uart0
+#					  -DDOWNLINK_DEVICE=Uart0
 #ap.srcs += downlink.c pprz_transport.c
 
 
@@ -74,7 +74,7 @@ ap.CFLAGS += -DAP_LINK_CAN -DCAN_LED=2
 ap.CFLAGS += -DUSE_CAN1 #-DCAN1_BTR=CANBitrate125k_3MHz
 ap.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN1_ERR_VIC_SLOT=7
 ap.srcs += $(SRC_CSC)/csc_can.c
-ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5    
+ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
 #ap.CFLAGS += -DUSE_CAN2 -DCAN2_BTR=CANBitrate125k_2MHz -DCAN2_VIC_SLOT=4
 
 ap.CFLAGS += -DACTUATORS=\"servos_direct_hw.h\"
@@ -92,7 +92,7 @@ ap.CFLAGS += -DERROR_LED=4
 #
 # test uart
 #
-test_uart.ARCHDIR = $(ARCHI)
+test_uart.ARCHDIR = $(ARCH)
 
 
 test_uart.CFLAGS += -I$(SRC_CSC)
@@ -108,7 +108,7 @@ test_uart.srcs += $(SRC_ARCH)/uart_hw.c
 
 test_uart.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 test_uart.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
-	                  -DDOWNLINK_DEVICE=Uart1
+					  -DDOWNLINK_DEVICE=Uart1
 test_uart.srcs += downlink.c pprz_transport.c
 
 
@@ -116,7 +116,7 @@ test_uart.srcs += downlink.c pprz_transport.c
 # TEST CAN1
 #
 
-test_can1.ARCHDIR = $(ARCHI)
+test_can1.ARCHDIR = $(ARCH)
 
 
 test_can1.CFLAGS += -I$(SRC_CSC)

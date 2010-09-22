@@ -5,7 +5,6 @@
 #
 
 ARCH=lpc21
-ARCHI=arm7
 
 
 BOARD=classix
