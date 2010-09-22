@@ -466,12 +466,6 @@ struct FloatRates {
     }									\
   }
 
-#define FLOAT_QUAT_ROTATE_FRAME(q_out, q_in, q_rot) {                   \
-    struct FloatQuat q_temp;						\
-    FLOAT_QUAT_INV_COMP(q_temp, q_rot, q_in);				\
-    FLOAT_QUAT_COMP(q_out, q_temp, q_rot);				\
-  }
-
 #ifdef ALGEBRA_FLOAT_USE_SLOW_FUNCTIONS
 #define FLOAT_QUAT_VMULT(v_out, q, v_in) {				\
     const float qi2  = q.qi*q.qi;					\
