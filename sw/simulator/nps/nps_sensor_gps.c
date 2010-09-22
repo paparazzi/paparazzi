@@ -85,7 +85,7 @@ void nps_sensor_gps_run_step(struct NpsSensorGps* gps, double time) {
   UpdateSensorLatency(time, &cur_lla_reading, &gps->lla_history, gps->pos_latency, &gps->lla_pos);
 
   double cur_hmsl_reading = fdm.hmsl;
-  UpdateSensorLatency(time, &cur_hmsl_reading, &gps->hmsl_history, gps->pos_latency, &gps->hmsl);
+  UpdateSensorLatency_Single(time, &cur_hmsl_reading, &gps->hmsl_history, gps->pos_latency, &gps->hmsl);
 
   gps->next_update += NPS_GPS_DT;
   gps->data_available = TRUE;
