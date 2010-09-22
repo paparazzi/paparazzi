@@ -54,7 +54,6 @@ imu_srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c \
            $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
 
 # FIXME : that would lpc21
-#ifeq ($(ap.ARCH), arm7tmdi)
 ifeq ($(ARCHI), arm7)
 imu_CFLAGS += -DSSP_VIC_SLOT=9
 imu_CFLAGS += -DMAX1168_EOC_VIC_SLOT=8

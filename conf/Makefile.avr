@@ -1,5 +1,5 @@
 # Hey Emacs, this is a -*- makefile -*-
-# 
+#
 #   $Id$
 #   Copyright (C) 2003-2005 Pascal Brisset, Antoine Drouin
 #
@@ -18,8 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.  
-# 
+# Boston, MA 02111-1307, USA.
+#
 
 
 #
@@ -36,7 +36,7 @@ VERIFY=--verify
 
 SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/avr
 
-CC		= $(ATMELBIN)/avr-gcc -mmcu=$($(TARGET).ARCH)
+CC		= $(ATMELBIN)/avr-gcc -mmcu=$($(TARGET).MCU)
 LD		= $(CC) $(ATMEL_LIBPATH)
 SIZE		= $(ATMELBIN)/avr-size
 OBJCOPY         = $(ATMELBIN)/avr-objcopy
@@ -115,7 +115,7 @@ check_fuses: check_arch
 	@if (grep -i 'Fuse Low Byte' $(TMPFILE) | cut -c24- | grep -iq $($(TARGET).LOW_FUSE)) && (grep -i 'Fuse High Byte' $(TMPFILE) |cut -c24- | grep -iq $($(TARGET).HIGH_FUSE)) && (grep -i 'Fuse Extended Byte' $(TMPFILE) |cut -c24- | grep -iq $($(TARGET).EXT_FUSE)) && (grep -i 'Lock Bits' $(TMPFILE) |cut -c24- | grep -iq $($(TARGET).LOCK_FUSE)); then echo "-> Fuses are Ok"; rm $(TMPFILE); else echo "-> Wrong fuses. Type 'make wr_fuses'"; rm $(TMPFILE); exit 1; fi
 
 # Define all object files.
-COBJ      = $(SRC:%.c=$(OBJDIR)/%.o) 
+COBJ      = $(SRC:%.c=$(OBJDIR)/%.o)
 COBJAVR   = $(SRCAVR:%.c=$(OBJDIR)/%.o)
 
 
@@ -156,7 +156,7 @@ $(OBJDIR)/%.o: %.c $(OBJDIR)/../Makefile.ac
 
 
 %.install: $(OBJDIR)/%.hex check_arch
-	# stk200 needs to be erased first
+# stk200 needs to be erased first
 	$(UISP) $(UISP_FLAGS) --erase
 	@echo SIZE
 	$(Q)$(SIZE) $<
@@ -166,9 +166,9 @@ erase: check_arch
 	$(UISP) $(ISP_FLAGS) --erase
 
 check_arch :
-	@echo "CHECKING link with device $($(TARGET).ARCH) on $(PROG_PORT)"
+	@echo "CHECKING link with device $($(TARGET).MCU) on $(PROG_PORT)"
 	$(Q)$(UISP) $(UISP_FLAGS)
-	$(Q)if ($(UISP) $(UISP_FLAGS) 2>&1 | tr '[:upper:]' '[:lower:]' | grep $($(TARGET).ARCH)); then : ; else echo "Wrong architecture (mcu0 vs mcu1 ?)"; exit 1; fi
+	$(Q)if ($(UISP) $(UISP_FLAGS) 2>&1 | tr '[:upper:]' '[:lower:]' | grep $($(TARGET).MCU)); then : ; else echo "Wrong architecture (mcu0 vs mcu1 ?)"; exit 1; fi
 
 avr_clean:
 	rm -rf $(OBJDIR)
@@ -183,8 +183,8 @@ $(OBJDIR)/.depend:
 	@test -d $(OBJDIR) || mkdir -p $(OBJDIR)
 	$(Q)$(CC) -MM -MG $(CFLAGS) $($(TARGET).srcs) | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $@
 
-ifneq ($(MAKECMDGOALS),clean) 
-ifneq ($(MAKECMDGOALS),erase) 
+ifneq ($(MAKECMDGOALS),clean)
+ifneq ($(MAKECMDGOALS),erase)
 -include $(OBJDIR)/.depend
 endif
 endif

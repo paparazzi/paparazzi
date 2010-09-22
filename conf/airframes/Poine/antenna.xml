@@ -10,7 +10,7 @@
 
 ARCHI=avr
 ant.ARCHDIR = $(ARCHI)
-ant.ARCH = atmega128
+ant.MCU = atmega128
 
 
 # 16MHz resonator

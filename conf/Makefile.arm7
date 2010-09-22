@@ -55,7 +55,7 @@ COPY = cp
 Q=@
 
 # MCU name and submodel
-MCU = $($(TARGET).ARCH)
+MCU = arm7tdmi
 THUMB    = -mthumb
 THUMB_IW = -mthumb-interwork
 
