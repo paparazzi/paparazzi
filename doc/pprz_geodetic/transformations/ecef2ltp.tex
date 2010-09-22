@@ -1,0 +1,15 @@
+Gets the LLA-coordinates and a transformation matrix from ECEF to ENU out of ECEF coordinates.
+
+First, the LLA coordinates (WGS-84) are computed from the ECEF coordinates. 
+
+With the LLA-coordinates it is possible to construct a rotational matrix.
+\begin{equation}
+\mat R_{ecef2enu} = \begin{pmatrix}
+-\sin \lon				& \cos \lon				&		0	\\
+-\sin \lat \cos \lon	& -\sin \lat \sin \lon	& \cos \lat	\\
+\cos \lat \cos \lon		& \cos \lat \sin \lon	& \sin \lat	
+\end{pmatrix}
+\end{equation}
+\inCfile{ltp\_def\_from\_ecef\_i(LtpDef\_i* def, EcefCoor\_i* ecef)}{pprz\_geodetic\_int}
+\inCfile{ltp\_def\_from\_ecef\_f(LtpDef\_f* def, EcefCoor\_f* ecef)}{pprz\_geodetic\_float}
+\inCfile{ltp\_def\_from\_ecef\_d(LtpDef\_d* def, EcefCoor\_d* ecef)}{pprz\_geodetic\_double}

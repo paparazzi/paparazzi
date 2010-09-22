@@ -1,0 +1,145 @@
+\section{Rates}
+\subsection{Definition}
+The values are called
+\begin{equation}
+\ra{} = \begin{pmatrix} p \\q\\r\end{pmatrix}
+\end{equation}
+It is available for the following simple types:\\
+\begin{tabular}{c|c}
+type		& struct		\\ \hline
+int16\_t	& Int16Rates	\\
+int32\_t	& Int32Rates	\\
+float 		& FloatRates	\\
+double 		& DoubleRates
+\end{tabular}
+
+\subsection{= Assigning}
+\subsubsection*{$\ra{} = 0$}
+\begin{equation}
+\ra{} = \begin{pmatrix}p\\q\\r\end{pmatrix} = \begin{pmatrix}0\\0\\0\end{pmatrix}
+\end{equation}
+\inHfile{FLOAT\_RATES\_ZERO(r)}{pprz\_algebra\_float}
+
+\subsubsection*{$\ra{} = \transp{(p, q, r)}$}
+\begin{equation}
+\ra = \transp{(p, q, r)}
+\end{equation}
+\inHfile{RATES\_ASSIGN(ra, p, q, r)}{pprz\_algebra}
+
+\subsubsection*{$\ra a = \ra b$}
+\begin{equation}
+\ra a = \ra b
+\end{equation}
+\inHfile{RATES\_COPY(a, b)}{pprz\_algebra}
+
+
+
+\subsection{+ Addition}
+\subsubsection*{$\ra a += \ra b$}
+\begin{equation}
+\ra a = \ra a + \ra b
+\end{equation}
+\inHfile{RATES\_ADD(a, b)}{pprz\_algebra}
+
+\subsubsection*{$\ra c = \ra a + \ra b$}
+\begin{equation}
+\ra c = \ra a + \ra b
+\end{equation}
+\inHfile{RATES\_SUM(c, a, b)}{pprz\_algebra}
+
+
+
+\subsection{- Subtraction}
+\subsubsection*{$\ra a -= \ra b$}
+\begin{equation}
+\ra a = \ra a - \ra b
+\end{equation}
+\inHfile{RATES\_SUB(a, b)}{pprz\_algebra}
+
+\subsubsection*{$\ra c = \ra a - \ra b$}
+\begin{equation}
+\ra c = \ra a - \ra b
+\end{equation}
+\inHfile{RATES\_DIFF(c, a, b)}{pprz\_algebra}
+
+
+
+\subsection{$\multiplication$ Multiplication}
+\subsubsection*{$\ra{ro} = s \multiplication \ra{ri}$ With a scalar}
+\begin{equation}
+\ra{ro} = s \multiplication \ra{ri}
+\end{equation}
+\inHfile{RATES\_SMUL(ro, ri, s)}{pprz\_algebra}
+
+\subsubsection*{$\ra c = 2^{-s} \multiplication \ra a \ew \multiplication \ra b$ Element-wise with bit-shift}
+Makes an element-wise multiplication (also known as ``Dot-Multiplication'' from languages like MATLAB, FreeMat or Octave) and an additional bitshift to the right about s. The bitwise shift operation often results in a multiplication like $2^{-s}$, but especially for the divisions of integer values it's not the same.
+\begin{equation}
+\ra c = \begin{pmatrix}p_c\\q_c\\r_c\end{pmatrix} = 
+\begin{pmatrix}
+2^{-s} \; p_a \multiplication p_b \\
+2^{-s} \; q_a \multiplication q_b \\
+2^{-s} \; r_a \multiplication r_b
+\end{pmatrix}
+\end{equation}
+
+\subsubsection*{$ \ra {vb} = \transp{\mat M_{b2a}} \multiplication \ra {va}$ With a rotational matrix}
+\begin{equation}
+\ra {vb} = \transp{\mat M_{b2a}} \multiplication \ra {va}
+\end{equation}
+\inHfile{INT32\_RMAT\_TRANSP\_RATEMULT(vb, m\_b2a, va)}{pprz\_algebra\_int}
+\inHfile{FLOAT\_RMAT\_TRANSP\_RATEMULT(vb, m\_b2a, va)}{pprz\_algebra\_float}
+or without the not-transposed matrix
+\begin{equation}
+\ra {vb} = \mat M_{a2b} \multiplication \ra {va}
+\end{equation}
+\inHfile{FLOAT\_RMAT\_RATEMULT(vb, m\_a2b, va)}{pprz\_algebra\_float}
+
+
+
+\subsection{$\division$ Division}
+\subsubsection*{$\ra{ro} = \frac 1 s \multiplication \ra{ri}$ With a scalar}
+\begin{equation}
+\ra{ro} = \frac 1 s \multiplication \ra{ri}
+\end{equation}
+\inHfile{EULERS\_SDIV(ro, ri, s)}{pprz\_algebra}
+
+
+\subsection{Transformation form rates}
+\subsubsection*{to euler angles (derivative)}
+\input{transformations/rates2eulerdot}
+
+\subsubsection*{to a quaternion}
+\input{transformations/rates2quaternion}
+
+
+\subsection{Transformation to rates}
+\subsubsection*{from euler angles (derivative)}
+\input{transformations/eulerdot2rates}
+
+
+
+\subsection{Other}
+\subsubsection*{$\norm{\ra{}}$ Norm}
+Computes the 2-norm of the rates (the length).
+\begin{equation}
+n = \norm{\ra{}} = \sqrt{p^2 +q^2+r^2}
+\end{equation}
+\inHfile{FLOAT\_RATES\_NORM(v)}{pprz\_algebra\_float}
+
+\subsubsection*{$min \leq \ra v \leq max$ Bounding}
+Bounds the rates so that every value (p, q, r) is between \textit{min} and \textit{max}.
+\begin{equation}
+\ra v \in \mathbb{I}^3, \quad \mathbb{I} = [min; max]
+\end{equation}
+The lower border \textit{min} has a higher priority than \textit{max}. So, if $ min > max$ and a value of $ \ra v $ is between those, the value is set to \textit{min}. \\
+\inHfile{RATES\_BOUND\_CUBE(v, min, max)}{pprz\_algebra}
+\mynote{See the note for euler angles and the naming is bad.}
+
+\subsubsection*{$\ra{v_{min}} \leq \ra v \leq \ra{v_{max}}$ Bounding}
+Ensures that
+\begin{equation}
+\ra {v_{min}} \leq \ra v \leq \ra{v_{max}} \Leftrightarrow \begin{pmatrix} p_{min} \\ q_{min} \\ r_{min} \end{pmatrix} \leq \begin{pmatrix} p \\ q \\ r \end{pmatrix} \leq \begin{pmatrix} p_{max} \\ q_{max} \\ r_{max} \end{pmatrix}
+\end{equation}
+The upper border \textit{max} has a higher priority than \textit{min}. So, if $ min > max$ and a value of $ \ra v $ is between those, the value is set to \textit{max}. \\
+\inHfile{RATES\_BOUND\_BOX(v, v\_min, v\_max}{pprz\_algebra}
+\mynote{Not very consequent with the priority}

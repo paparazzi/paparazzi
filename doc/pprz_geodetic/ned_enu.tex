@@ -1,0 +1,53 @@
+\section{NED / ENU}
+North-East-Down or East-North-Up coordinates are fixed in the local tangent plane. 
+
+NED and ENU coordinates are defined using
+\begin{equation}
+p_{NED} = \begin{pmatrix} x \\ y \\ z \end{pmatrix} \qquad
+p_{ENU} = \begin{pmatrix} x \\ y \\ z \end{pmatrix}
+\end{equation}
+available for the following simple types
+\begin{itemize}
+\item int32\_t - \texttt{NedCoor\_i} and \texttt{EnuCoor\_i}
+\item float - \texttt{NedCoor\_f} and \texttt{EnuCoor\_f}
+\item double - \texttt{NedCoor\_d} and \texttt{EnuCoor\_d}
+\end{itemize}
+
+\subsection{Transformation between NED and ENU}
+The transformation between NED and ENU is rather simple. It can be expressed using a rotational matrix:
+\begin{equation}
+p_{NED} = \begin{pmatrix}
+0 & 1 &  0 \\
+1 & 0 &  0 \\
+0 & 0 & -1
+\end{pmatrix}
+p_{ENU} \qquad p_{ENU} = \begin{pmatrix}
+0 & 1 &  0 \\
+1 & 0 &  0 \\
+0 & 0 & -1
+\end{pmatrix} p_{NED}
+\end{equation}
+or directly switching the values
+\begin{equation}
+\begin{pmatrix}x \\ y \\  z \end{pmatrix}_{NED} = 
+\begin{pmatrix}y \\ x \\ -z \end{pmatrix}_{NED}
+\end{equation}
+\inHfile{ENU\_OF\_TO\_NED(po, pi)}{pprz\_geodetic}
+\inHfile{INT32\_VECT2\_ENU\_OF\_NED(o, i)}{pprz\_geodetic\_int}
+\inHfile{INT32\_VECT2\_NED\_OF\_ENU(o, i)}{pprz\_geodetic\_int}
+\inHfile{INT32\_VECT3\_ENU\_OF\_NED(o, i)}{pprz\_geodetic\_int}
+\inHfile{INT32\_VECT3\_NED\_OF\_ENU(o, i)}{pprz\_geodetic\_int}
+
+
+
+\subsection{Transformation from NED/ENU}
+\subsubsection*{to ECEF}
+\input{transformations/ned_enu2ecef}
+
+
+\subsection{Transformation to NED/ENU}
+\subsubsection*{from ECEF}
+\input{transformations/ecef2ned_enu}
+
+\subsubsection*{from LLA}
+\input{transformations/lla2ned_enu}

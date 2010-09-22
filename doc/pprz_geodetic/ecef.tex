@@ -1,0 +1,40 @@
+\section{ECEF}
+Earth-Centered-Earth-Fixed coordinates belong to the easiest coordinates to compute, because they have a fixed frame and they don't have to regard the non-spherical shape of the earth. Though they are not intuitiv. \\
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=10cm]{ECEF}
+	\caption{ECEF coordinates}
+	\label{ECEF coordinates}
+\end{figure}
+
+ECEF coordinates are defined using
+\begin{equation}
+p_{ECEF} = \begin{pmatrix} x \\ y \\ z \end{pmatrix}
+\end{equation}
+available for the following simple types
+\begin{itemize}
+\item int32\_t - \texttt{EcefCoor\_i}
+\item float - \texttt{EcefCoor\_f}
+\item double - \texttt{EcefCoor\_d}
+\end{itemize}
+
+
+
+
+\subsection{Transformations from ECEF}
+\subsubsection*{to LTP}
+\input{transformations/ecef2ltp}
+
+\subsubsection*{to LLA}
+\input{transformations/ecef2lla}
+
+\subsubsection*{to NED/ENU}
+\input{transformations/ecef2ned_enu}
+
+
+\subsection{Transformations to ECEF}
+\subsubsection*{from LLA}
+\input{transformations/lla2ecef}
+
+\subsubsection*{from NED/ENU}
+\input{transformations/ned_enu2ecef}

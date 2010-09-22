@@ -1,0 +1,23 @@
+With a know transformation matrix (see section \ref{LTP}) it is quite easy to rotate a vector into the ENU frame:
+\begin{equation}
+\vect v_{ENU} = \mat R_{ecef2enu} \vect v_{ECEF}
+\end{equation}
+For a transformation into the NED-frame you have to do an additional ENU/NED-transformation.
+
+\inCfile{enu\_of\_ecef\_vect\_i(EnuCoor\_i* enu, LtpDef\_i* def, EcefCoor\_i* ecef)}{pprz\_geodetic\_int}
+\inCfile{ned\_of\_ecef\_vect\_i(NedCoor\_i* ned, LtpDef\_i* def, EcefCoor\_i* ecef)}{pprz\_geodetic\_int}
+\inCfile{enu\_of\_ecef\_vect\_f(EnuCoor\_f* enu, LtpDef\_f* def, EcefCoor\_f* ecef)}{pprz\_geodetic\_float}
+\inCfile{ned\_of\_ecef\_vect\_f(NedCoor\_f* ned, LtpDef\_f* def, EcefCoor\_f* ecef)}{pprz\_geodetic\_float}
+\inCfile{enu\_of\_ecef\_vect\_d(EnuCoor\_d* enu, LtpDef\_d* def, EcefCoor\_d* ecef)}{pprz\_geodetic\_double}
+\inCfile{ned\_of\_ecef\_vect\_d(NedCoor\_d* ned, LtpDef\_d* def, EcefCoor\_d* ecef)}{pprz\_geodetic\_double}
+
+The transformation of a point is very similiar. Instead of a point you use a difference vector between the desired point $p_d$ and the center of the local tangent plane $p_0$.
+\begin{equation}
+\vect v_{ECEF} = p_d - p_0
+\end{equation}
+\inCfile{enu\_of\_ecef\_point\_i(EnuCoor\_i* enu, LtpDef\_i* def, EcefCoor\_i* ecef)}{pprz\_geodetic\_int}
+\inCfile{ned\_of\_ecef\_point\_i(NedCoor\_i* ned, LtpDef\_i* def, EcefCoor\_i* ecef)}{pprz\_geodetic\_int}
+\inCfile{enu\_of\_ecef\_point\_f(EnuCoor\_f* enu, LtpDef\_f* def, EcefCoor\_f* ecef)}{pprz\_geodetic\_float}
+\inCfile{ned\_of\_ecef\_point\_f(NedCoor\_f* ned, LtpDef\_f* def, EcefCoor\_f* ecef)}{pprz\_geodetic\_float}
+\inCfile{enu\_of\_ecef\_point\_d(EnuCoor\_d* enu, LtpDef\_d* def, EcefCoor\_d* ecef)}{pprz\_geodetic\_double}
+\inCfile{ned\_of\_ecef\_point\_d(NedCoor\_d* ned, LtpDef\_d* def, EcefCoor\_d* ecef)}{pprz\_geodetic\_double}

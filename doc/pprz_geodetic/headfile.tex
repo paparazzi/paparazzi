@@ -29,9 +29,18 @@
 \end{center}\end{figure}
 }
 
-\newcommand{\inHfile}[2]{
-	Function \texttt{#1} in File \texttt{#2.h} \\
-}
+%\newcommand{\inHfile}[2]{
+%	Function \texttt{#1} in File \texttt{#2.h} \\
+%}
+%\newcommand{\inCfile}[2]{
+%	Function \texttt{#1} in File \texttt{#2.c} \\
+%}
+
+\newcommand{\inHfile}[2]{Function \texttt{#1}\\
+\indent in File \texttt{#2.h} \\}
+
+\newcommand{\inCfile}[2]{Function \texttt{#1}\\
+\indent in File \texttt{#2.c} \\}
 
 %\numberwithin{equation}{section}
 \newcommand{\vect}[1]{\ensuremath{\overrightarrow{#1}}}		%% How to mark Vectors
@@ -70,6 +79,8 @@
 \newcommand{\Roll}[0]{\ensuremath{\Rollc \phi}}
 \newcommand{\Pitch}[0]{\ensuremath{\Pitchc \theta }}
 \newcommand{\Yaw}[0]{\ensuremath{\Yawc \psi}}
+\newcommand{\lon}[0]{\ensuremath{\lambda}}
+\newcommand{\lat}[0]{\ensuremath{\varphi}}
 
 
 \newcommand{\mynote}[1]{\begin{flushright}\fbox{Martin: ``\textit{#1}''}\end{flushright}}
@@ -85,14 +96,11 @@
 %\maketitle
 \include{introduction}
 \tableofcontents
-\include{scalar}
-\include{vector}
-\include{matrix}
-\include{euler}
-\include{rates}
-\include{quaternion}
-\bibliographystyle{plain} 
+\include{ecef}
+\include{lla}
+\include{ltp}
+\include{ned_enu}
+\bibliographystyle{acm} 
 \bibliography{headfile}
-\include{appendix}
 %
 \end{document}

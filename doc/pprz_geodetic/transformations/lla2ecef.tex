@@ -1,0 +1,19 @@
+Calculating the ECEF coordinates out of LLA coordinates is a slightly easier task than the other way round. The following way refers to \cite{wiki:1}. With the known constants
+\begin{align}
+a	&= 6,378,137				\\
+f	&= \frac{1}{298.257223563}	\\
+e^2	&= \sqrt{2f-f^2}			
+\end{align}
+the value
+\begin{equation}
+\chi = \sqrt{1-e^2\sin^2 \lat}
+\end{equation}
+can be precomputed and used in
+\begin{align}
+x &= \left(\tfrac a \chi + h \right) \cos \lat \cos \lon \\
+y &= \left(\tfrac a \chi + h \right) \cos \lat \sin \lon \\
+z &= \left(\tfrac a \chi (1-e^2) + h \right) \sin \lat
+\end{align}
+\inCfile{ecef\_of\_lla\_i(EcefCoor\_i* out, LlaCoor\_i* in)}{pprz\_geodetic\_int}
+\inCfile{ecef\_of\_lla\_f(EcefCoor\_f* out, LlaCoor\_f* in)}{pprz\_geodetic\_float}
+\inCfile{ecef\_of\_lla\_d(EcefCoor\_d* ecef, LlaCoor\_d* lla)}{pprz\_geodetic\_double}

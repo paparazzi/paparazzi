@@ -1,0 +1,20 @@
+With a know transformation matrix (see section \ref{LTP}) it is quite easy to rotate a vector from the ENU-frame to the ECEF-frame.
+Since
+\begin{equation}
+\mat R_{enu2ecef} = \inv{\mat R_{ecef2enu}} = \transp{\mat R_{ecef2enu}}
+\end{equation}
+a transformation is done as follows
+\begin{equation}
+\vect v_{ECEF} = \mat R_{enu2ecef} \vect v_{ENU} 
+\end{equation}
+For a transformation from the NED-frame you have to do an additional ENU/NED-transformation before.
+
+\inCfile{ecef\_of\_enu\_vect\_d(EcefCoor\_d* ecef, LtpDef\_d* def, EnuCoor\_d* enu)}{pprz\_geodetic\_double}
+\inCfile{ecef\_of\_ned\_vect\_d(EcefCoor\_d* ecef, LtpDef\_d* def, NedCoor\_d* ned)}{pprz\_geodetic\_double}
+
+The transformation of a point is very similiar. After transforming into the ECEF-frame you add the position of the center  $p_0$ to the result.
+\begin{equation}
+\vect p_{ECEF} = p + p_0
+\end{equation}
+\inCfile{ecef\_of\_enu\_point\_d(EcefCoor\_d* ecef, LtpDef\_d* def, EnuCoor\_d* enu)}{pprz\_geodetic\_double}
+\inCfile{ecef\_of\_ned\_point\_d(EcefCoor\_d* ecef, LtpDef\_d* def, NedCoor\_d* ned)}{pprz\_geodetic\_double}

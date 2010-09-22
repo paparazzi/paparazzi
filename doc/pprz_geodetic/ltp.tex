@@ -1,0 +1,17 @@
+\section{LTP}\label{LTP}
+The Local Tangent Plane (LTP) is an approximation of the earth at a fixed position. It is defined using an ECEF position, a LLA position and a rotational matrix to convert between them. \emph{Please note that the matrix transforms from ECEF to ENU!}
+\begin{verbatim}
+LtpDef   = {      ecef      lla      ltp_of_ecef     }
+\end{verbatim}
+It is available for the following simple types:\\
+\begin{tabular}{c|cccc}
+sinmple type & struct name & $p_{ECEF}$ & $p_{LLA}$ & $\mat R_{ltp\_of\_ecef}$\\  \hline 
+int32\_t & LtpDef\_i & EcefCoor\_i  ecef & LlaCoor\_i   lla & INT32Mat33 ltp\_of\_ecef\\
+float & LtpDef\_f & EcefCoor\_f  ecef & LlaCoor\_f   lla & FloatMat33 ltp\_of\_ecef\\
+double & LtpDef\_d & EcefCoor\_d  ecef & LlaCoor\_d   lla & DoubleMat33 ltp\_of\_ecef 
+\end{tabular} 
+The fixed-point struct has hmsl (height above mean sea level) as an additional parameter.
+
+\subsection{Transformations to LTP}
+\subsubsection*{from ECEF}
+\input{transformations/ecef2ltp}

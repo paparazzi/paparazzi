@@ -1,0 +1,46 @@
+\section{LLA}
+LLA coordinates (longitude, lattitude, attitude) are the more intuitive way to express a position on the earth's surface. The values ``longitude'' and ``lattitude'' are angles and therefore in degrees or radians and the ``attitude'' is in meters above the surface of the earth's approximated shape. 
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=10cm]{ECEF}
+	\caption{LLA coordinates}
+	\label{LLA coordinates1}
+\end{figure}
+
+LLA coordinates are defined using
+\begin{equation}
+p_{LLA} = \begin{pmatrix} \lat \\ \lon \\ h \end{pmatrix}
+\end{equation}
+available for the following simple types
+\begin{itemize}
+\item int32\_t - \texttt{LlaCoor\_i}
+\item float - \texttt{LlaCoor\_f}
+\item double - \texttt{LlaCoor\_d}
+\end{itemize}
+
+\subsection{Simple Operations}
+\subsubsection*{Assigning}
+It is either possible to assign every single value of LLA-coordinate
+\begin{equation}
+pos = \begin{pmatrix}	\lat	\\
+						\lon	\\
+						h		\end{pmatrix}
+\end{equation}
+\inHfile{LLA\_ASSIGN(pos, lat, lon, alt)}{pprz\_geodetic}
+
+\noindent
+or to copy one coordinate to another
+
+\texttt{pos1 = pos2}\\
+\inHfile{LLA\_COPY(pos1, pos2)}{pprz\_geodetic}
+
+
+\subsection{Trasnformation from LLA}
+\subsubsection*{to ECEF}
+\input{transformations/lla2ecef}
+
+
+\subsection{Transforming to LLA}
+\subsubsection*{from ECEF}
+\input{transformations/ecef2lla}
