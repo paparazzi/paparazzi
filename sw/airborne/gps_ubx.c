@@ -89,7 +89,8 @@ uint8_t gps_utm_zone;
 uint8_t gps_mode;
 volatile bool_t gps_msg_received;
 bool_t gps_pos_available;
-uint8_t ubx_id, ubx_class,ubx_len;
+uint8_t ubx_id, ubx_class;
+uint16_t ubx_len;
 int32_t gps_lat, gps_lon;
 uint16_t gps_reset;
 
