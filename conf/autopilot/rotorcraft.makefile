@@ -40,28 +40,29 @@ SRC_FIRMAWRE=firmwares/rotorcraft
 
 SRC_BOOZ_PRIV=booz_priv
 
+SRC_ARCH=arch/$(ARCH)
+
 CFG_BOOZ=$(PAPARAZZI_SRC)/conf/autopilot/
 
 BOOZ_INC = -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD)
 
 
-ap.ARCHDIR = $(ARCHI)
-# this is supposedly ignored by the stm32 makefile
+ap.ARCHDIR = $(ARCH)
 
 
 ap.CFLAGS += $(BOOZ_INC)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
 ap.srcs    = $(SRC_FIRMAWRE)/main.c
 
-ifeq ($(ARCHI), stm32)
+ifeq ($(ARCH), stm32)
 ap.srcs += lisa/plug_sys.c
 endif
 #
 # Interrupts
 #
-ifeq ($(ARCHI), arm7)
+ifeq ($(ARCH), lpc21)
 ap.srcs += $(SRC_ARCH)/armVIC.c
-else ifeq ($(ARCHI), stm32)
+else ifeq ($(ARCH), stm32)
 ap.srcs += $(SRC_ARCH)/stm32_exceptions.c
 ap.srcs += $(SRC_ARCH)/stm32_vector_table.c
 endif
@@ -70,7 +71,7 @@ endif
 # LEDs
 #
 ap.CFLAGS += -DUSE_LED
-ifeq ($(ARCHI), stm32)
+ifeq ($(ARCH), stm32)
 ap.srcs += $(SRC_ARCH)/led_hw.c
 endif
 
@@ -80,7 +81,7 @@ endif
 ap.CFLAGS += -DUSE_SYS_TIME
 ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
-ifeq ($(ARCHI), stm32)
+ifeq ($(ARCH), stm32)
 ap.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
 
@@ -98,7 +99,7 @@ ap.CFLAGS += -DPPRZ_UART=$(MODEM_PORT)
 ap.srcs   += $(SRC_BOOZ)/booz2_datalink.c
 ap.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 
-ifeq ($(ARCHI), arm7)
+ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -D$(MODEM_PORT)_VIC_SLOT=6
 endif
 
@@ -146,14 +147,14 @@ endif
 #
 # Analog Backend
 #
-ifeq ($(ARCHI), arm7)
+ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -DBOOZ2_ANALOG_BATTERY_PERIOD='SYS_TICS_OF_SEC((1./10.))'
 ap.srcs += $(SRC_BOOZ)/booz2_battery.c
 ap.CFLAGS += -DADC0_VIC_SLOT=2
 ap.CFLAGS += -DADC1_VIC_SLOT=3
 ap.srcs += $(SRC_BOOZ)/booz2_analog.c \
 		   $(SRC_BOOZ_ARCH)/booz2_analog_hw.c
-else ifeq ($(ARCHI), stm32)
+else ifeq ($(ARCH), stm32)
 ap.srcs += lisa/lisa_analog_plug.c
 endif
 

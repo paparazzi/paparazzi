@@ -22,7 +22,7 @@
 #
 #
 
-ARCHI=arm7
+ARCHI=lpc21
 
 FLASH_MODE = ISP
 LPC21ISP_PORT = /dev/ttyUSB0

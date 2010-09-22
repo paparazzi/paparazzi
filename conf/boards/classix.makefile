@@ -3,9 +3,8 @@
 #
 # http://paparazzi.enac.fr/wiki/Classix
 #
-# TODO: move all to new directories
-# ARCH=lpc21
-ARCH=arm7tdmi
+
+ARCH=lpc21
 ARCHI=arm7
 
 
@@ -30,7 +29,7 @@ LPC21ISP_XTAL = 12000
 GPS_BAUD	= B38400
 
 # All targets on the TINY board run on the same processor achitecture
-$(TARGET).ARCHDIR = $(ARCHI)
+$(TARGET).ARCHDIR = $(ARCH)
 
 # Battery Voltage
 fbw.CFLAGS +=  -DUSE_AD0

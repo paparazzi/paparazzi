@@ -50,8 +50,8 @@ $(TARGET).CFLAGS 	+= -DTRAFFIC_INFO
 #
 
 $(TARGET).CFLAGS 	+= -DLED
-ifneq ($(ARCHI), arm7)
-  ifneq ($(ARCHI), jsbsim)
+ifneq ($(ARCH), lpc21)
+  ifneq ($(ARCH), jsbsim)
     $(TARGET).srcs 	+= $(SRC_ARCH)/led_hw.c
   endif
 endif
@@ -78,15 +78,15 @@ $(TARGET).srcs 		+= $(SRC_FIXEDWING)/inter_mcu.c
 # Interrupt Vectors
 #
 
-ifeq ($(ARCHI), arm7)
+ifeq ($(ARCH), lpc21)
   ns_srcs 		+= $(SRC_ARCH)/armVIC.c
-else ifeq ($(ARCHI), stm32)
+else ifeq ($(ARCH), stm32)
   ns_srcs 		+= $(SRC_ARCH)/stm32_exceptions.c
   ns_srcs 		+= $(SRC_ARCH)/stm32_vector_table.c
   ns_CFLAGS 		+= -DPERIPHERALS_AUTO_INIT
 endif
 
-ifeq ($(ARCHI), stm32)
+ifeq ($(ARCH), stm32)
   ns_srcs 		+= lisa/plug_sys.c
 endif
 
@@ -102,7 +102,7 @@ ns_srcs	   	+= $(SRC_FIXEDWING)/main.c
 #
 
 ns_CFLAGS 		+= -DUSE_LED
-ifeq ($(ARCHI), stm32)
+ifeq ($(ARCH), stm32)
   ns_CFLAGS 	+= -DSYS_TIME_LED=1
 else
   ns_CFLAGS 	+= -DTIME_LED=1
@@ -127,10 +127,10 @@ ns_srcs 		+= $(SRC_ARCH)/uart_hw.c
 # ANALOG
 #
 
-ifeq ($(ARCHI), arm7)
+ifeq ($(ARCH), lpc21)
   ns_CFLAGS 		+= -DADC
   ns_srcs 		+= $(SRC_ARCH)/adc_hw.c
-else ifeq ($(ARCHI), stm32)
+else ifeq ($(ARCH), stm32)
   ns_srcs 		+= lisa/lisa_analog_plug.c
 endif
 

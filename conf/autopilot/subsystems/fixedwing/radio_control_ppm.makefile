@@ -12,13 +12,13 @@ endif
 ifeq ($(NORADIO), False)
   $(TARGET).CFLAGS 	+= -DRADIO_CONTROL
   $(TARGET).srcs 	+= $(SRC_FIXEDWING)/radio_control.c
-  ifneq ($(ARCHI),jsbsim)
+  ifneq ($(ARCH),jsbsim)
     $(TARGET).srcs 	+= $(SRC_ARCH)/ppm_hw.c
   endif
 endif
 
 
-ifeq ($(ARCHI),stm32)
+ifeq ($(ARCH),stm32)
   ap.CFLAGS  += -I$(SRC_FIXEDWING)/booz/
   ap.CFLAGS  += -I$(SRC_FIXEDWING)/booz/arch/stm32/
 

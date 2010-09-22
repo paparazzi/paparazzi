@@ -16,7 +16,7 @@ SRC_BOARD=boards/$(BOARD)
 NPSDIR = $(SIMDIR)/nps
 
 
-sim.ARCHDIR = $(ARCHI)
+sim.ARCHDIR = $(ARCH)
 
 sim.CFLAGS  += -DSITL
 sim.CFLAGS  += `pkg-config glib-2.0 --cflags` -I /usr/include/meschach

@@ -4,7 +4,7 @@
 # http://paparazzi.enac.fr/wiki/Booz
 #
 ARCH=lpc21
-ARCHI=arm7
+ARCHI=lpc21
 BOARD=booz
 BOARD_VERSION=1.0
 BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"

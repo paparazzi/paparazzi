@@ -6,7 +6,7 @@ ap.srcs += $(SRC_BOOZ)/gps/booz_gps_skytraq.c
 ap.CFLAGS += -DUSE_$(GPS_PORT) -D$(GPS_PORT)_BAUD=$(GPS_BAUD)
 ap.CFLAGS += -DUSE_GPS -DGPS_LINK=$(GPS_PORT) -DGPS_LED=$(GPS_LED)
 
-ifeq ($(ARCHI), arm7)
+ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -D$(GPS_PORT)_VIC_SLOT=5
 endif
 

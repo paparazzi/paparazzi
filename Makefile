@@ -104,7 +104,7 @@ multimon:
 static_h: $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(DL_PROTOCOL2_H)
 
 usb_lib:
-	@[ -d sw/airborne/arm7/lpcusb ] && ((test -x $(ARMGCC) && (cd sw/airborne/arm7/lpcusb; $(MAKE))) || echo "Not building usb_lib: ARMGCC=$(ARMGCC) not found") || echo "Not building usb_lib: sw/airborne/arm7/lpcusb directory missing"
+	@[ -d sw/airborne/arch/lpc21/lpcusb ] && ((test -x $(ARMGCC) && (cd sw/airborne/arch/lpc21/lpcusb; $(MAKE))) || echo "Not building usb_lib: ARMGCC=$(ARMGCC) not found") || echo "Not building usb_lib: sw/airborne/arch/lpc21/lpcusb directory missing"
 
 $(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) tools
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
@@ -152,17 +152,17 @@ ac_h ac1 ac2 ac3 ac fbw ap: static conf
 #
 # call with : make bl PROC=[TINY|FBW|AP|GENERIC]
 bl:
-	cd $(AIRBORNE)/arm7/test/bootloader; make clean; make 
+	cd $(AIRBORNE)/arch/lpc21/test/bootloader; make clean; make 
 
 BOOTLOADER_DEV=/dev/ttyUSB0
 upload_bl bl.upload: bl
-	lpc21isp -control $(AIRBORNE)/arm7/test/bootloader/bl.hex $(BOOTLOADER_DEV) 38400 12000
+	lpc21isp -control $(AIRBORNE)/arch/lpc21/test/bootloader/bl.hex $(BOOTLOADER_DEV) 38400 12000
 
 JTAG_INTERFACE = olimex-jtag-tiny.cfg
 #JTAG_INTERFACE = olimex-arm-usb-ocd.cfg
 
 upload_jtag: bl
-	openocd -f interface/$(JTAG_INTERFACE)  -f board/olimex_lpc_h2148.cfg -c init -c halt -c "flash write_image erase $(AIRBORNE)/arm7/test/bootloader/bl.hex"  -c reset -c shutdown
+	openocd -f interface/$(JTAG_INTERFACE)  -f board/olimex_lpc_h2148.cfg -c init -c halt -c "flash write_image erase $(AIRBORNE)/arch/lpc21/test/bootloader/bl.hex"  -c reset -c shutdown
 
 
 
@@ -170,15 +170,15 @@ lpc21iap:
 	cd sw/ground_segment/lpc21iap; make
 
 upgrade_bl bl.upgrade: bl lpc21iap
-	$(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap $(AIRBORNE)/arm7/test/bootloader/bl_ram.elf
-	$(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap $(AIRBORNE)/arm7/test/bootloader/bl.elf
+	$(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap $(AIRBORNE)/arch/lpc21/test/bootloader/bl_ram.elf
+	$(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap $(AIRBORNE)/arch/lpc21/test/bootloader/bl.elf
 
 ms:
-	cd $(AIRBORNE)/arm7/lpcusb; make
-	cd $(AIRBORNE)/arm7/lpcusb/examples; make 
+	cd $(AIRBORNE)/arch/lpc21/lpcusb; make
+	cd $(AIRBORNE)/arch/lpc21/lpcusb/examples; make 
 
 upload_ms ms.upload: ms
-	$(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap $(AIRBORNE)/arm7/lpcusb/examples/msc.elf
+	$(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap $(AIRBORNE)/arch/lpc21/lpcusb/examples/msc.elf
 
 #####
 #####

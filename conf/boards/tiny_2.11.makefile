@@ -5,7 +5,7 @@
 #
 # TODO: move all to new directories
 # ARCH=lpc21
-ARCH=arm7
+ARCH=lpc21
 ARCHI=arm7
 
 
@@ -43,5 +43,5 @@ ADC_GYRO_NB_SAMPLES = 16
 ADC_GENERIC_NB_SAMPLES = 16
 
 # All targets on the TINY board run on the same processor achitecture
-$(TARGET).ARCHDIR = $(ARCHI)
+$(TARGET).ARCHDIR = $(ARCH)
 

@@ -1,5 +1,10 @@
 # Makefile for the Tiny board (1 arm7tdmi, 1 LEA-LA)
 
+#
+# can we remove this file?
+# the makefiles under conf/boards/ should be used now
+#
+
 ARCHI=arm7
 ARCH=arm7
 
