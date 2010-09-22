@@ -211,8 +211,9 @@ USER =
 #HOST = beth
 #HOST = overo
 #HOST = auto7
+HOST = 192.168.2.11
 #HOST= regis
-HOST = auto3
+#HOST = auto3
 TARGET_DIR = ~
 SRC_FMS=fms
 
@@ -221,7 +222,7 @@ main_overo.CFLAGS = -I. -I$(SRC_FMS)
 main_overo.srcs  = $(SRC_BETH)/main_overo.c
 main_overo.CFLAGS  += -DFMS_PERIODIC_FREQ=512
 main_overo.srcs    += $(SRC_FMS)/fms_periodic.c
-main_overo.srcs    += $(SRC_FMS)/fms_serial_port.c
+#main_overo.srcs    += $(SRC_FMS)/fms_serial_port.c
 main_overo.LDFLAGS += -lrt
 main_overo.srcs += $(SRC_FMS)/fms_spi_link.c
 main_overo.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageBethDown
@@ -241,11 +242,6 @@ main_overo.srcs    += $(SRC_BETH)/overo_controller.c
 # overo uart test
 #
 
-USER =
-HOST = auto3
-TARGET_DIR = ~
-SRC_FMS=fms
-
 overo_test_uart.ARCHDIR = omap
 overo_test_uart.CFLAGS = -I. -I$(SRC_FMS) -I$(SRC_BETH)
 overo_test_uart.srcs  = $(SRC_BETH)/overo_test_uart.c
@@ -259,18 +255,15 @@ overo_test_uart.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
 overo_test_uart.srcs    += $(SRC_FMS)/fms_network.c
 overo_test_uart.LDFLAGS += -levent -lm
 overo_test_uart.srcs    += $(SRC_BETH)/overo_gcs_com.c
-overo_test_uart.CFLAGS  += -DUBX -DGPS -DUSE_UART0 -DUART0_BAUD=B38400 -DGPS_LINK=Uart0 -DGPS_USE_LATLONG
-#overo_test_uart.CFLAGS  += -DUBX -DGPS -DUSE_UART1 -DUART1_BAUD=B9600 -DGPS_LINK=Uart1 -DGPS_USE_LATLONG
+#overo_test_uart.CFLAGS  += -DUBX -DGPS -DUSE_UART0 -DUART0_BAUD=B9600 -DGPS_CONFIGURE -DUSER_GPS_CONFIGURE=\"modules/gps_i2c/runtime_configure.h\" -DGPS_BAUD=B38400 -DGPS_LINK=Uart0 -DGPS_USE_LATLONG
+overo_test_uart.CFLAGS  += -DUBX -DGPS -DUSE_UART0 -DUART0_BAUD=B9600 -DGPS_CONFIGURE -DGPS_BAUD=B38400 -DGPS_LINK=Uart0 -DGPS_USE_LATLONG
 overo_test_uart.srcs    += gps_ubx.c gps.c latlong.c $(SRC_BETH)/uart_hw.c
+overo_test_uart.CFLAGS  +=-DUSE_UART1 -DUART1_BAUD=B57600 -DDOWNLINK_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ 
+overo_test_uart.srcs    += pprz_transport.c datalink.c
 
 #
 # Overo twisting
 #
-
-USER =
-HOST = auto3
-TARGET_DIR = ~
-SRC_FMS=fms
 
 overo_twist.ARCHDIR = omap
 overo_twist.CFLAGS = -I. -I$(SRC_FMS)
@@ -297,10 +290,6 @@ overo_twist.srcs    += $(SRC_BETH)/overo_twist_controller.c
 # Overo state feedback
 #
 
-USER =
-HOST = auto3
-TARGET_DIR = ~
-SRC_FMS=fms
 
 overo_sfb.ARCHDIR = omap
 overo_sfb.CFLAGS = -I. -I$(SRC_FMS)
