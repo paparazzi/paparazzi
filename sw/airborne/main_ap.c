@@ -499,6 +499,9 @@ void periodic_task_ap( void ) {
 #endif
 #endif
     estimator_propagate_state();
+#ifdef EXTRA_DOWNLINK_DEVICE
+    DOWNLINK_SEND_ATTITUDE(ExtraPprzTransport,&estimator_phi,&estimator_psi,&estimator_theta);
+#endif    
     navigation_task();
     break;
   case 1:
@@ -874,7 +877,7 @@ void event_task_ap( void ) {
 #endif /* UGEAR*/
 
 #ifdef GPS
-#ifndef HITL /** else comes through the datalink */
+#if !(defined HITL) && !(defined UBX_EXTERNAL) /** else comes through the datalink */
   if (GpsBuffer()) {
     ReadGpsBuffer();
   }
@@ -1008,5 +1011,4 @@ void event_task_ap( void ) {
   }
 
   modules_event_task();
-
 } /* event_task_ap() */

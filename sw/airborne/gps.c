@@ -31,7 +31,9 @@
 
 #include "gps.h"
 #include "latlong.h"
+#ifndef FMS_PERIODIC_FREQ
 #include "sys_time.h"
+#endif
 #include "airframe.h"
 #include "periodic.h"
 
@@ -45,9 +47,17 @@
 #define DOWNLINK_GPS_DEVICE DOWNLINK_AP_DEVICE
 #endif
 
+
+
+#ifdef FMS_PERIODIC_FREQ
+#include "messages2.h"
+#include "beth/overo_gcs_com.h"
+#define DefaultChannel gcs_com.udp_transport
+#else
 #define DOWNLINK_DEVICE DOWNLINK_GPS_DEVICE
 #include "messages.h"
 #include "downlink.h"
+#endif
 
 uint16_t last_gps_msg_t;	/** cputime of the last gps message */
 bool_t gps_verbose_downlink;

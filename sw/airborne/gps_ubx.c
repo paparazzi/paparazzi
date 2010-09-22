@@ -30,6 +30,12 @@
 #include <string.h> 
 #include <math.h>
 
+#ifdef FMS_PERIODIC_FREQ
+//for printf
+#include <stdio.h>
+//for baudrate
+#include "fms_serial_port.h"
+#endif 
 
 #include "flight_plan.h"
 #include "uart.h"
@@ -83,7 +89,7 @@ uint8_t gps_utm_zone;
 uint8_t gps_mode;
 volatile bool_t gps_msg_received;
 bool_t gps_pos_available;
-uint8_t ubx_id, ubx_class;
+uint8_t ubx_id, ubx_class,ubx_len;
 int32_t gps_lat, gps_lon;
 uint16_t gps_reset;
 
@@ -109,7 +115,6 @@ uint8_t ubx_msg_buf[UBX_MAX_PAYLOAD] __attribute__ ((aligned));
 #define GOT_CHECKSUM1 8
 
 static uint8_t  ubx_status;
-static uint16_t ubx_len;
 static uint8_t  ubx_msg_idx;
 static uint8_t ck_a, ck_b;
 uint8_t send_ck_a, send_ck_b;
@@ -153,10 +158,23 @@ void gps_init( void ) {
    change the uart rate. */
 #if GPS_PORT_ID == GPS_PORT_UART1 || GPS_PORT_ID == GPS_PORT_UART2
 void gps_configure_uart ( void ) {
+#ifdef FMS_PERIODIC_FREQ
+  UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x000008D0, 38400, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+  uint8_t loop=0;
+  while (GpsUartRunning) {
+    //doesn't work unless some printfs are used, so :
+    if (loop<9) { 
+      printf("."); loop++;  
+    } else {
+      printf("\b"); loop--;
+    }
+  }
+#else
   UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x000008D0, GPS_BAUD, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+  while (GpsUartRunning); /* FIXME */
+#endif
 
-  while (GpsUartRunning) ; /* FIXME */
-  GpsUartInitParam( UART_BAUD(GPS_BAUD),  UART_8N1, UART_FIFO_8);
+  GpsUartInitParam( GPS_BAUD,  UART_8N1, UART_FIFO_8);
 }
 #endif
 
@@ -166,7 +184,8 @@ void gps_configure_uart ( void ) {
 }
 #endif
 
-
+#define IGNORED 0
+#define RESERVED 0
 
 #ifdef USER_GPS_CONFIGURE
 #include USER_GPS_CONFIGURE
@@ -174,7 +193,9 @@ void gps_configure_uart ( void ) {
 static bool_t user_gps_configure(bool_t cpt) {
   switch (cpt) {
   case 0:
-    UbxSend_CFG_NAV(NAV_DYN_AIRBORNE_2G, 3, 16, 24, 20, 5, 0, 0x3C, 0x3C, 0x14, 0x03E8 ,0x0000, 0x0, 0x17, 0x00FA, 0x00FA, 0x0064, 0x012C, 0x000F, 0x00, 0x00);
+    //New ublox firmware v5 or higher uses CFG_NAV5 message, CFG_NAV is no longer available
+    //UbxSend_CFG_NAV(NAV_DYN_AIRBORNE_2G, 3, 16, 24, 20, 5, 0, 0x3C, 0x3C, 0x14, 0x03E8 ,0x0000, 0x0, 0x17, 0x00FA, 0x00FA, 0x0064, 0x012C, 0x000F, 0x00, 0x00);
+    UbxSend_CFG_NAV5(0x05, NAV5_DYN_AIRBORNE_2G, NAV5_3D_ONLY, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, RESERVED, RESERVED, RESERVED, RESERVED);
     break;
   case 1:
     UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_POSUTM_ID, 0, 1, 0, 0);

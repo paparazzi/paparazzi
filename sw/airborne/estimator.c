@@ -34,7 +34,9 @@
 #include "ap_downlink.h"
 #include "gps.h"
 #include "nav.h"
-
+#ifdef EXTRA_DOWNLINK_DEVICE
+#include "core/extra_pprz_dl.h"
+#endif
 
 /* position in meters */
 float estimator_x;
@@ -227,5 +229,8 @@ void estimator_update_state_gps( void ) {
   estimator_psi = atan2f(w_ve, w_vn);
   if (estimator_psi < 0.)
     estimator_psi += 2 * M_PI;
+#ifdef EXTRA_DOWNLINK_DEVICE    
+    DOWNLINK_SEND_ATTITUDE(ExtraPprzTransport,&estimator_phi,&estimator_psi,&estimator_theta);
+#endif    
 }
 

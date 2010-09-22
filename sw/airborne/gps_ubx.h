@@ -35,7 +35,7 @@
 
 extern uint16_t gps_reset;
 
-extern uint8_t ubx_id, ubx_class;
+extern uint8_t ubx_id, ubx_class,ubx_len;
 #define UBX_MAX_PAYLOAD 255
 extern uint8_t ubx_msg_buf[UBX_MAX_PAYLOAD];
 
