@@ -372,7 +372,7 @@ struct Int64Vect3 {
 	_rm.m[3] = _rm.m[1]-_2qiqz;			\
 	_rm.m[6] = _rm.m[2]+_2qiqy;			\
 	_rm.m[7] = _rm.m[5]-_2qiqx;			\
-	_rm.m[4] = _2qi2_m1;				\
+	_rm.m[4] += _2qi2_m1;				\
 	_rm.m[1] += _2qiqz;				\
 	_rm.m[2] -= _2qiqy;				\
 	_rm.m[5] += _2qiqx;				\
