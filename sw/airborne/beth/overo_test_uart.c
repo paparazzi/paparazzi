@@ -34,6 +34,7 @@
 #include "gps.h"
 
 #include "messages2.h"
+//#include "dl_protocol2.h"
 #include "airframe.h"
 
 #include "fms_periodic.h"
@@ -42,6 +43,8 @@
 
 #include "overo_gcs_com.h"
 #include "uart_hw.h"
+#include "pprz_transport.h"
+
 
 struct OveroController {
   int armed;
@@ -52,41 +55,44 @@ static void main_exit(int sig);
 static void main_talk_with_tiny(void);
 void check_gps(void);
 
-//make gps.c happy without incluing navigation code
-uint8_t nav_utm_zone0 = 5;
+//make gps.c happy without including navigation code
+uint8_t nav_utm_zone0 = 31;
 
 static uint16_t foo = 0;
 //struct FmsSerialPort* fmssp;
 //int spfd;
 uint8_t portnum;
+#ifdef GPS_CONFIGURE
+static uint8_t donegpsconf = 0;
+#endif
+static uint8_t configgps = 0;
 
 int main(int argc, char *argv[]) {
+  portnum = 0;
 
   if (argc > 1) {
+    portnum = atoi(argv[1]);
     if (portnum > 10 ) {
       printf("Port number must be <11\n");
       return -1;
     }
-    portnum = atoi(argv[1]);
-  } else portnum = 0;
+    if (argc > 2) configgps = atoi(argv[2]);
+    if (configgps)
+#ifdef GPS_CONFIGURE
+    printf("Will configure GPS.\n");
+#else
+    printf("Rebuild with GPS configure support.\n");
+#endif
+  }
+  
+  printf("Using /dev/ttyUSB%d for GPS\n",portnum);
 
-  printf("Using /dev/ttyUSB%d\n",portnum);
   
   (void) signal(SIGINT, main_exit);
 
-  uart_init();
+  uart_init(); 
   gps_init();
 
-/*  fmssp = serial_port_new();
-  //speed_t speed;
-
-  if (serial_port_open_raw(fmssp,"/dev/ttyUSB0",B9600)){
-    printf("error opening USB serial port!");
-    return -1;
-  } 
-
-  spfd = (int)fmssp->fd;  
-*/
   /* Initalize the event library */
   event_init();
 
@@ -96,7 +102,11 @@ int main(int argc, char *argv[]) {
     TRACE(TRACE_ERROR, "%s", "failed to start periodic generator\n");
     return -1; 
   }
-  
+
+#ifdef GPS_CONFIGURE  
+  //periodic task is launched so we are now ready to use uart to request gps baud change...
+  if (configgps) gps_configure_uart();
+#endif  
   event_dispatch();
   //should never occur!
   printf("goodbye! (%d)\n",foo);
@@ -104,20 +114,19 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-static uint16_t tempstatus = 0;
 
 static void main_periodic(int my_sig_num) {
 
-
-  RunOnceEvery(10, {DOWNLINK_SEND_MOTOR(gcs_com.udp_transport, &tempstatus, &foo );});
   
-  RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);});
+  //RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);});
 
 #ifdef USE_UART0 
   uart0_handler();
-#elif USE_UART1
+#endif
+#ifdef USE_UART1
   uart1_handler();
 #endif
+  DatalinkEvent()
   main_talk_with_tiny();
   check_gps();
 
@@ -125,22 +134,77 @@ static void main_periodic(int my_sig_num) {
 
 }
 
+#include "downlink.h"
+#if 0
+uint8_t downlink_nb_ovrn;
+uint16_t downlink_nb_bytes;
+uint16_t downlink_nb_msgs;
 
+#define __Transport(dev, _x) dev##_x
+#define _Transport(dev, _x) __Transport(dev, _x)
+#define Transport(_chan, _fun) _Transport(_chan, _fun)
+#define DownlinkIDsSize(_chan, _x) (_x+2)
+#define DownlinkSizeOf(_chan, _x) Transport(_chan, SizeOf(DownlinkIDsSize(_chan, _x)))
+
+#define DownlinkCheckFreeSpace(_chan, _x) Transport(_chan, CheckFreeSpace((uint8_t)(_x)))
+
+#define DownlinkPutUint8ByAddr(_chan, _x) Transport(_chan, PutUint8ByAddr(_x))
+#define DownlinkPutUint8Array(_chan, _n, _x) Transport(_chan, PutUint8Array(_n, _x))
+
+#define DownlinkOverrun(_chan) downlink_nb_ovrn++;
+#define DownlinkCountBytes(_chan, _n) downlink_nb_bytes += _n;
+
+#define DownlinkStartMessage(_chan, _name, msg_id, payload_len) { \
+  downlink_nb_msgs++; \
+  Transport(_chan, Header(DownlinkIDsSize(_chan, payload_len))); \
+  Transport(_chan, PutUint8(AC_ID)); \
+  Transport(_chan, PutNamedUint8(_name, msg_id)); \
+}
+
+#define DownlinkEndMessage(_chan) Transport(_chan, Trailer())
+
+
+#define __DOWNLINK_SEND_HITL_UBX(_chan, class, id, ac_id, nb_ubx_payload, ubx_payload){ \
+	if (DownlinkCheckFreeSpace(_chan, DownlinkSizeOf(_chan, 0+1+1+1+1+nb_ubx_payload*1))) {\
+	  DownlinkCountBytes(_chan, DownlinkSizeOf(_chan, 0+1+1+1+1+nb_ubx_payload*1)); \
+	  DownlinkStartMessage(_chan, "HITL_UBX", DL_HITL_UBX, 0+1+1+1+1+nb_ubx_payload*1) \
+	  DownlinkPutUint8ByAddr(_chan, (class)); \
+	  DownlinkPutUint8ByAddr(_chan, (id)); \
+	  DownlinkPutUint8ByAddr(_chan, (ac_id)); \
+	  DownlinkPutUint8Array(_chan, nb_ubx_payload, ubx_payload); \
+	  DownlinkEndMessage(_chan ) \
+	} else \
+	  DownlinkOverrun(_chan ); \
+}
+#endif
 
 void check_gps(void){
 
 /*  if (GpsTimeoutError) {
     printf("gps timeout\n");
-  }
-*/
+  }*/
   if (GpsBuffer()) {
     ReadGpsBuffer();
   }
 
   if (gps_msg_received) {
-    printf("gps msg rx\n");
-    /* parse and use GPS messages */
+#ifdef GPS_CONFIGURE
+    if (gps_configuring)
+      gps_configure();
+    else {
+      if (!donegpsconf) { 
+        printf("Finished GPS configuration.\n");
+	donegpsconf=1;
+      }  
+      parse_gps_msg(); 
+    }
+#else  
     parse_gps_msg();
+#endif
+    printf("gps msg rx %x %x\n",ubx_class,ubx_id);
+    const uint8_t ac_id = 3;
+    //DOWNLINK_SEND_HITL_UBX(gcs_com.udp_transport, &ubx_class, &ubx_id, &ac_id,  &ubx_len ,ubx_msg_buf);
+    DOWNLINK_SEND_HITL_UBX(PprzTransport, &ubx_class, &ubx_id, &ac_id, ubx_len ,ubx_msg_buf);
     gps_msg_received = FALSE;
     if (gps_pos_available) {
       printf("gps pos avail\n");
@@ -153,8 +217,6 @@ void check_gps(void){
 }
 
 static void main_exit(int sig) {
-  printf("Initiating shutdown...\n");
-
   printf("Application Exiting...\n");
   exit(EXIT_SUCCESS);
 }

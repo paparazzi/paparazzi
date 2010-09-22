@@ -21,21 +21,22 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-/*
- *\brief STM32 usart functions 
- *
- */
-
 #ifndef UART_HW_H
 #define UART_HW_H
 
 #include "std.h"
-/*
-#define B9600     9600
+//coment to avoid redefinition
+/*#define B9600     9600
 #define B38400   38400
-#define B57600   57600
+ #define B57600   57600
 #define B115200 115200
 */
+
+//junk for gps_configure_uart in gps_ubx.c to compile
+#define UART_8N1 1
+#define UART_FIFO_8 1
+#define UART_BAUD(baud) (baud)
+
 
 #define Uart1_init uart1_init()
 #define Uart2_init uart2_init()
@@ -99,5 +100,6 @@ extern uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
 
 
 void uart_init( void );
+void uart0_init_param( uint16_t baud, uint8_t mode, uint8_t fmode);
 
 #endif /* UART_HW_H */
