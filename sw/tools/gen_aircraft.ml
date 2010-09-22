@@ -261,7 +261,7 @@ let parse_targets = fun makefile_ac tag target ->
             fprintf makefile_ac "BOARD_PROCESSOR = %s\n" 
 	      (Xml.attrib target "processor");
           fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib target "board");
-(**          fprintf makefile_ac "%s.ARCHDIR = $(ARCHI)\n%s.ARCH = $(ARCH)\n%s.TARGET = %s\n%s.TARGETDIR = %s\n"
+(**          fprintf makefile_ac "%s.ARCHDIR = $(ARCHI)\n"
 		(Xml.attrib target "name") (Xml.attrib target "name")
 		(Xml.attrib target "name") (Xml.attrib target "name")
 		(Xml.attrib target "name") (Xml.attrib target "name");

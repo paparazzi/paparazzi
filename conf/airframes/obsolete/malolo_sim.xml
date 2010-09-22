@@ -224,7 +224,6 @@ include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 # Config for SITL simulation with JSBSim
 SIM_TYPE = JSBSIM
 sim.ARCHDIR = $(ARCHI)
-sim.ARCH = sitl
 
 sim.CFLAGS += -I$(SIMDIR) -I/home/cocoleon/usr/include/JSBSim -I/usr/include
 sim.CFLAGS += `pkg-config glib-2.0 --cflags`

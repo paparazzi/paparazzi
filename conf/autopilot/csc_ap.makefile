@@ -42,7 +42,6 @@ PERIODIC_FREQ = 40
 SRC_CSC=csc
 
 ap.ARCHDIR = $(ARCHI)
-ap.ARCH = arm7tdmi
 
 ap.CFLAGS += -I$(SRC_CSC)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
@@ -98,7 +97,6 @@ ap.CFLAGS += -DERROR_LED=4
 # test uart
 #
 test_uart.ARCHDIR = $(ARCHI)
-test_uart.ARCH = arm7tdmi
 
 
 test_uart.CFLAGS += -I$(SRC_CSC)

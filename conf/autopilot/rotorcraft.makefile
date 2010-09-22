@@ -47,7 +47,6 @@ BOOZ_INC = -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD)
 
 ap.ARCHDIR = $(ARCHI)
 # this is supposedly ignored by the stm32 makefile
-ap.ARCH = arm7tdmi
 
 
 ap.CFLAGS += $(BOOZ_INC)

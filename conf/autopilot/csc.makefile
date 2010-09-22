@@ -42,7 +42,6 @@ BOARD_CFG = \"csc_board_v1_0.h\"
 SRC_CSC=csc
 
 ap.ARCHDIR = $(ARCHI)
-ap.ARCH = arm7tdmi
 
 ap.CFLAGS += -I$(SRC_CSC)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
@@ -95,7 +94,6 @@ ap.CFLAGS += -DERROR_LED=4
 # test uart
 #
 test_uart.ARCHDIR = $(ARCHI)
-test_uart.ARCH = arm7tdmi
 
 
 test_uart.CFLAGS += -I$(SRC_CSC)
@@ -120,7 +118,6 @@ test_uart.srcs += downlink.c pprz_transport.c
 #
 
 test_can1.ARCHDIR = $(ARCHI)
-test_can1.ARCH = arm7tdmi
 
 
 test_can1.CFLAGS += -I$(SRC_CSC)

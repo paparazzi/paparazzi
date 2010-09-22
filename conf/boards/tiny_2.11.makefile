@@ -44,5 +44,4 @@ ADC_GENERIC_NB_SAMPLES = 16
 
 # All targets on the TINY board run on the same processor achitecture
 $(TARGET).ARCHDIR = $(ARCHI)
-$(TARGET).ARCH = arm7tdmi
 

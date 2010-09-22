@@ -22,7 +22,6 @@ else
 
 	$(TARGET).ARCHDIR = $(ARCHI)
 # not needed?
-#	$(TARGET).ARCH = arm7tdmi
 
 endif
 # -----------------------------------------------------------------------

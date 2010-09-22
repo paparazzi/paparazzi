@@ -11,7 +11,6 @@ FLASH_MODE = IAP
 # simple emtpy demo
 #
 demo1.ARCHDIR = $(ARCHI)
-demo1.ARCH = arm7tdmi
 
 demo1.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo1.srcs = main_demo1.c
@@ -20,7 +19,6 @@ demo1.srcs = main_demo1.c
 # hardware init ( pll ), system time and LEDs
 #
 demo2.ARCHDIR = $(ARCHI)
-demo2.ARCH = arm7tdmi
 
 demo2.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo2.srcs = main_demo2.c
@@ -34,7 +32,6 @@ demo2.CFLAGS += -DLED
 # UART (interrupts) and formated ascii printing
 #
 demo3.ARCHDIR = $(ARCHI)
-demo3.ARCH = arm7tdmi
 
 demo3.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo3.srcs = main_demo3.c
@@ -54,7 +51,6 @@ demo3.srcs += $(SRC_ARCH)/uart_hw.c
 # requires "link" to run on the other side of the serial link
 #
 demo4.ARCHDIR = $(ARCHI)
-demo4.ARCH = arm7tdmi
 
 demo4.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo4.srcs = main_demo4.c
@@ -78,7 +74,6 @@ demo4.srcs += downlink.c pprz_transport.c
 # IvySendMsg("1ME RAW_DATALINK 144 SETTING;0;0;%d", foo_value);
 #
 demo5.ARCHDIR = $(ARCHI)
-demo5.ARCH = arm7tdmi
 
 demo5.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo5.srcs = main_demo5.c
@@ -103,7 +98,6 @@ demo5.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0
 # Serial link over USB
 #
 demo6.ARCHDIR = $(ARCHI)
-demo6.ARCH = arm7tdmi
 
 demo6.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\"
 demo6.srcs = main_demo6.c
@@ -131,7 +125,6 @@ demo6.srcs += downlink.c pprz_transport.c
 #
 #
 test_spk.ARCHDIR = $(ARCHI)
-test_spk.ARCH = arm7tdmi
 
 test_spk.CFLAGS += -DBOARD_CONFIG=\"booz2_board_usb.h\"
 test_spk.srcs = main_test_spk.c

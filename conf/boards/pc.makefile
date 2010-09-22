@@ -15,5 +15,4 @@ BOARD_CFG = \"tiny.h\"
 
 
 $(TARGET).ARCHDIR = $(ARCHI)
-sim.ARCH = sitl
 

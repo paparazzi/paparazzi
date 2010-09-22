@@ -12,7 +12,6 @@ FLASH_MODE = IAP
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
 
 test_usb.ARCHDIR = $(ARCHI)
-test_usb.ARCH = arm7tdmi
 
 test_usb.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 test_usb.srcs += $(SRC_BOOZ_TEST)/atpt_main.c

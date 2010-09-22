@@ -44,7 +44,6 @@ SRC_CSC_ARCH=$(SRC_CSC)/$(ARCHI)
 SRC_BOOZ=booz
 
 ap.ARCHDIR = $(ARCHI)
-ap.ARCH = arm7tdmi
 
 ap.CFLAGS += -I$(SRC_CSC) -I$(SRC_BOOZ) -I$(SRC_CSC_ARCH)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
@@ -123,7 +122,6 @@ ap.CFLAGS += -DERROR_LED=4
 # test uart
 #
 test_uart.ARCHDIR = $(ARCHI)
-test_uart.ARCH = arm7tdmi
 
 
 test_uart.CFLAGS += -I$(SRC_CSC)

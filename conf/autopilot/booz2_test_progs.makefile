@@ -26,7 +26,6 @@
 # test_led : blinks all leds
 #
 test_led.ARCHDIR = $(ARCHI)
-test_led.ARCH = arm7tdmi
 
 test_led.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 test_led.CFLAGS += -DPERIPHERALS_AUTO_INIT
@@ -39,7 +38,6 @@ test_led.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 # test_downlink : sends a TIME message
 #
 test_downlink.ARCHDIR = $(ARCHI)
-test_downlink.ARCH = arm7tdmi
 
 test_downlink.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 test_downlink.CFLAGS += -DPERIPHERALS_AUTO_INIT
@@ -59,7 +57,6 @@ test_downlink.srcs   += downlink.c pprz_transport.c
 # test_max1168 : samples gyros and mags, sends values 
 #
 test_max1168.ARCHDIR = $(ARCHI)
-test_max1168.ARCH = arm7tdmi
 
 test_max1168.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
 test_max1168.CFLAGS += -DPERIPHERALS_AUTO_INIT
@@ -82,7 +79,6 @@ test_max1168.srcs   += $(SRC_BOOZ)/peripherals/booz_max1168.c \
 # test MICROMAG
 #
 test_micromag.ARCHDIR = $(ARCHI)
-test_micromag.ARCH = arm7tdmi
 
 test_micromag.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
 test_micromag.srcs += $(SRC_BOOZ_TEST)/booz2_test_micromag.c
@@ -108,7 +104,6 @@ test_micromag.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
 # tunnel hw
 #
 tunnel.ARCHDIR = $(ARCHI)
-tunnel.ARCH = arm7tdmi
 
 tunnel.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 tunnel.srcs += $(SRC_BOOZ_TEST)/booz2_tunnel.c
@@ -125,7 +120,6 @@ tunnel.srcs += $(SRC_ARCH)/uart_hw.c
 # tunnel bit banging
 #
 tunnel_bb.ARCHDIR = $(ARCHI)
-tunnel_bb.ARCH = arm7tdmi
 
 tunnel_bb.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 tunnel_bb.srcs += $(SRC_BOOZ_TEST)/booz2_tunnel_bb.c
@@ -139,7 +133,6 @@ tunnel_bb.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 # test GPS
 #
 test_gps.ARCHDIR = $(ARCHI)
-test_gps.ARCH = arm7tdmi
 
 test_gps.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
 test_gps.srcs += $(SRC_BOOZ_TEST)/booz2_test_gps.c
@@ -165,7 +158,6 @@ test_gps.srcs += $(SRC_BOOZ)/booz2_gps.c
 # test modem
 #
 test_modem.ARCHDIR = $(ARCHI)
-test_modem.ARCH = arm7tdmi
 
 test_modem.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 test_modem.srcs += $(SRC_BOOZ_TEST)/booz2_test_modem.c
@@ -187,7 +179,6 @@ test_modem.srcs += downlink.c pprz_transport.c
 # test USB telemetry
 #
 test_usb.ARCHDIR = $(ARCHI)
-test_usb.ARCH = arm7tdmi
 
 test_usb.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 test_usb.srcs += $(SRC_BOOZ_TEST)/booz2_test_usb.c
@@ -217,7 +208,6 @@ test_usb.srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 # test AMI
 #
 test_ami.ARCHDIR = $(ARCHI)
-test_ami.ARCH = arm7tdmi
 
 test_ami.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 test_ami.srcs += $(SRC_BOOZ_TEST)/booz2_test_ami.c
@@ -241,7 +231,6 @@ test_ami.srcs += AMI601.c
 # test crista
 #
 test_crista.ARCHDIR = $(ARCHI)
-test_crista.ARCH = arm7tdmi
 
 test_crista.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
 test_crista.srcs += $(SRC_BOOZ_TEST)/booz2_test_crista.c
@@ -266,7 +255,6 @@ test_crista.srcs += $(SRC_BOOZ)/booz2_imu_crista.c $(SRC_BOOZ_ARCH)/booz2_imu_cr
 # test MICROMAG
 #
 test_micromag2.ARCHDIR = $(ARCHI)
-test_micromag2.ARCH = arm7tdmi
 
 test_micromag2.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
 test_micromag2.srcs += $(SRC_BOOZ_TEST)/booz2_test_micromag_2.c
@@ -291,7 +279,6 @@ test_micromag2.srcs += downlink.c pprz_transport.c
 # test IMU b2
 #
 test_imu_b2.ARCHDIR = $(ARCHI)
-test_imu_b2.ARCH = arm7tdmi
 
 test_imu_b2.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
 test_imu_b2.srcs += $(SRC_BOOZ_TEST)/booz2_test_imu_b2.c
@@ -321,7 +308,6 @@ test_imu_b2.srcs += $(SRC_BOOZ)/booz2_imu.c
 #
 
 test_rc_spektrum.ARCHDIR = $(ARCHI)
-test_rc_spektrum.ARCH = arm7tdmi
 
 test_rc_spektrum.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) $(BOOZ_CFLAGS)
 test_rc_spektrum.CFLAGS += -DPERIPHERALS_AUTO_INIT
@@ -354,7 +340,6 @@ test_rc_spektrum.srcs += $(SRC_BOOZ)/booz_radio_control.c \
 #
 
 test_rc_ppm.ARCHDIR = $(ARCHI)
-test_rc_ppm.ARCH = arm7tdmi
 
 test_rc_ppm.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) $(BOOZ_CFLAGS)
 test_rc_ppm.CFLAGS += -DPERIPHERALS_AUTO_INIT
@@ -385,7 +370,6 @@ test_rc_ppm.srcs += $(SRC_BOOZ)/booz_radio_control.c \
 # test MC
 #
 test_mc.ARCHDIR = $(ARCHI)
-test_mc.ARCH = arm7tdmi
 
 test_mc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
 test_mc.srcs += $(SRC_BOOZ_TEST)/booz2_test_mc.c
@@ -410,7 +394,6 @@ test_mc.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 # test BUSS BLDC
 #
 test_buss_bldc.ARCHDIR = $(ARCHI)
-test_buss_bldc.ARCH = arm7tdmi
 
 test_buss_bldc.CFLAGS += -DPERIPHERALS_AUTO_INIT
 test_buss_bldc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
@@ -434,7 +417,6 @@ test_buss_bldc.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 # test asctec BLMC
 #
 test_amc.ARCHDIR = $(ARCHI)
-test_amc.ARCH = arm7tdmi
 
 test_amc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) 
 test_amc.srcs += $(SRC_BOOZ_TEST)/booz2_test_amc.c
@@ -464,7 +446,6 @@ test_amc.CFLAGS += -DFLOAT_T=float
 # test_mkk_bldc : 
 #
 test_mkk_bldc.ARCHDIR = $(ARCHI)
-test_mkk_bldc.ARCH = arm7tdmi
 
 test_mkk_bldc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) $(BOOZ_CFLAGS)
 test_mkk_bldc.CFLAGS += -DPERIPHERALS_AUTO_INIT
@@ -480,7 +461,6 @@ test_mkk_bldc.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 # test 24 bits baro
 #
 test_baro_24.ARCHDIR = $(ARCHI)
-test_baro_24.ARCH = arm7tdmi
 
 test_baro_24.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) $(BOOZ_CFLAGS)
 test_baro_24.srcs += $(SRC_BOOZ_TEST)/booz2_test_baro_24.c
@@ -503,7 +483,6 @@ test_baro_24.srcs += $(SRC_BOOZ)/booz2_baro_24.c
 # test_coders : blinks all leds
 #
 test_coder.ARCHDIR = $(ARCHI)
-test_coder.ARCH = arm7tdmi
 
 test_coder.CFLAGS += -DBOARD_CONFIG=\"boards/olimex_lpc_h2148.h\" $(BOOZ_CFLAGS)
 test_coder.CFLAGS += -DPERIPHERALS_AUTO_INIT

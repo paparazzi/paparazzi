@@ -9,7 +9,6 @@
   <makefile>
 
 tunnel.ARCHDIR = $(ARCHI)
-tunnel.ARCH = arm7tdmi
 
 tunnel.CFLAGS += -DFBW -DBOARD_CONFIG=\"conf_demo.h\" -DLED -DTIME_LED=1
 tunnel.srcs += $(SRC_ARCH)/uart_tunnel.c
@@ -20,7 +19,6 @@ FLASH_MODE = IAP
 PT_ANT = antenna
 
 main.ARCHDIR = $(ARCHI)
-main.ARCH = arm7tdmi
 
 main.CFLAGS += -DBOARD_CONFIG=\"conf_demo.h\" -I$(PT_ANT)
 main.srcs = $(PT_ANT)/pt_ant_main.c

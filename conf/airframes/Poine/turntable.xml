@@ -9,7 +9,6 @@ FLASH_MODE = IAP
 MB=motor_bench
 
 main.ARCHDIR = $(ARCHI)
-main.ARCH = arm7tdmi
 
 main.CFLAGS += -DBOARD_CONFIG=\"boards/olimex_lpc_h2148.h\" -I$(MB)
 main.CFLAGS += -DPERIPHERALS_AUTO_INIT

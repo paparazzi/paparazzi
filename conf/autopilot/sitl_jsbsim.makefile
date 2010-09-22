@@ -1,5 +1,4 @@
 jsbsim.ARCHDIR = $(ARCHI)
-jsbsim.ARCH = sitl
 
 # external libraries
 jsbsim.CFLAGS = -I$(SIMDIR) -I/usr/include `pkg-config glib-2.0 --cflags`
