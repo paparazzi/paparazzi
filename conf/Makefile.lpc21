@@ -26,6 +26,7 @@
 # This is the common Makefile for the arm7-target.
 #
 
+# this should not be needed
 #SRC_ARCH = lpc21
 
 # Define programs and commands.
