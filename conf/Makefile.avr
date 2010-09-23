@@ -34,7 +34,7 @@ PROG_PORT = /dev/parport0
 
 VERIFY=--verify
 
-SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/avr
+SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/arch/avr
 
 CC		= $(ATMELBIN)/avr-gcc -mmcu=$($(TARGET).MCU)
 LD		= $(CC) $(ATMEL_LIBPATH)
