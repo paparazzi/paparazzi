@@ -26,8 +26,10 @@
 # This is the common Makefile for the arm7-target.
 #
 
-# this should not be needed
-#SRC_ARCH = lpc21
+#TODO: this is not needed in some cases (e.g. ap target as it is defined there already)
+# but it is needed for other targets like tunnel
+# only define here or elsewhere?
+SRC_ARCH = arch/lpc21
 
 # Define programs and commands.
 HAVE_ARM_NONE_EABI_GCC := $(wildcard /usr/bin/arm-none-eabi-gcc)

@@ -26,7 +26,7 @@
 #
 
 # this should not be needed
-#SRC_ARCH = sim
+SRC_ARCH = arch/sim
 
 ifneq ($(SIM_TYPE),JSBSIM)
 CC = gcc
