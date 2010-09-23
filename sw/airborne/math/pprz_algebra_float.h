@@ -492,7 +492,7 @@ struct FloatRates {
     v_out.z = m20 * v_in.x + m21 * v_in.y + m22 * v_in.z;		\
   }
 #else
-#define FLOAT_QUAT_VMULT_QUICKER(v_out, q, v_in) {			\
+#define FLOAT_QUAT_VMULT(v_out, q, v_in) {			\
     const float qi2_M1_2  = q.qi*q.qi - 0.5;				\
     const float qiqx = q.qi*q.qx;					\
     const float qiqy = q.qi*q.qy;					\
