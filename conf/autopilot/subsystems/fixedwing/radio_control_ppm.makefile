@@ -3,19 +3,10 @@ NORADIO = False
 
 ifeq ($(BOARD),classix)
   ifeq ($(TARGET),ap)
-    NODRADIO = True
+    NORADIO = True
   endif
 endif
 
-
-
-ifeq ($(NORADIO), False)
-  $(TARGET).CFLAGS 	+= -DRADIO_CONTROL
-  $(TARGET).srcs 	+= $(SRC_FIXEDWING)/radio_control.c
-  ifneq ($(ARCH),jsbsim)
-    $(TARGET).srcs 	+= $(SRC_ARCH)/ppm_hw.c
-  endif
-endif
 
 
 ifeq ($(ARCH),stm32)
@@ -30,4 +21,13 @@ ifeq ($(ARCH),stm32)
              $(SRC_FIXEDWING)/booz/arch/stm32/radio_control/booz_radio_control_ppm_arch.c
   ap.CFLAGS += -DUSE_TIM2_IRQ
 
+  NORADIO = True
+endif
+
+ifeq ($(NORADIO), False)
+  $(TARGET).CFLAGS 	+= -DRADIO_CONTROL
+  $(TARGET).srcs 	+= $(SRC_FIXEDWING)/radio_control.c
+  ifneq ($(ARCH),jsbsim)
+    $(TARGET).srcs 	+= $(SRC_ARCH)/ppm_hw.c
+  endif
 endif
