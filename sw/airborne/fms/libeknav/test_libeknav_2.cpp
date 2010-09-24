@@ -20,7 +20,7 @@ int main(int, char *[]) {
   /* initial state */
   Vector3d pos_0_ecef(1017.67e3, -5079.282e3, 3709.041e3);
   Vector3d speed_0_ecef(0., 0., 0.);
-  //  Vector3d orientation(0., 0., 0.);
+    Quaterniond orientation(1., 0., 0., 0.);
   Vector3d bias_0(0., 0., 0.);
 
   /* initial covariance */
@@ -45,7 +45,7 @@ int main(int, char *[]) {
   Vector3d magnetometer = Vector3d::UnitZ();
 
   basic_ins_qkf ins(pos_0_ecef, pos_cov_0, bias_cov_0, speed_cov_0,
-		    gyro_white_noise, gyro_stability_noise, accel_white_noise);
+		    gyro_white_noise, gyro_stability_noise, accel_white_noise,orientation);
 
   const double dt = 1./512.; /* predict at 512Hz */
   for (int i=1; i<5000; i++) {

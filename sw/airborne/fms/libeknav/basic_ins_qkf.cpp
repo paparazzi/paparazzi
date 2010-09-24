@@ -30,6 +30,7 @@ basic_ins_qkf::basic_ins_qkf(
 		const Vector3d& gyro_white_noise,
 		const Vector3d& gyro_stability_noise,
 		const Vector3d& accel_white_noise,
+		Quaterniond initial_orientation,		// this is new
 		const Vector3d& vel_estimate)
 	: gyro_stability_noise(gyro_stability_noise)
 	, gyro_white_noise(gyro_white_noise)
@@ -37,7 +38,8 @@ basic_ins_qkf::basic_ins_qkf(
 {
 	avg_state.position = estimate;
 	avg_state.gyro_bias = Vector3d::Zero();
-	avg_state.orientation = Quaterniond::Identity();
+	//avg_state.orientation = Quaterniond::Identity();
+	avg_state.orientation = initial_orientation;
 	avg_state.velocity = vel_estimate;
 
 	cov << Matrix3d::Identity()*bias_error*bias_error, Matrix<double, 3, 9>::Zero(),
