@@ -156,7 +156,7 @@ void booz_stabilization_rate_run(bool_t in_flight) {
   RATES_ADD(booz_stabilization_rate_ref, _delta_ref);
 
   /* compute feed-forward command */
-  RATES_EWMULT_RSHIFT(booz_stabilization_rate_ff_cmd, booz_stabilization_rate_ddgain, booz_stabilization_rate_refdot, 16);
+  RATES_EWMULT_RSHIFT(booz_stabilization_rate_ff_cmd, booz_stabilization_rate_ddgain, booz_stabilization_rate_refdot, 14);
 
 
   /* compute feed-back command */
