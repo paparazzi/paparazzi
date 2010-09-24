@@ -20,7 +20,7 @@
  *  along with libeknav.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//#include "sigma_points.hpp"
+#include "sigma_points.hpp"
 #include "quaternions.hpp"
 #include <Eigen/StdVector>
 
@@ -155,13 +155,23 @@ struct basic_ins_qkf
 	 * @param gyro_stability_noise The diagonal matrix of gyro instability noise
 	 * @param accel_white_noise The diagonal matrix of accelerometer white noise
 	 */
+			//Old one without orientation_init()
+	basic_ins_qkf(const Vector3d& pos_estimate,
+			double pos_error, double bias_error, double v_error,
+			const Vector3d& gyro_white_noise,
+			const Vector3d& gyro_stability_noise,
+			const Vector3d& accel_white_noise,
+			Quaterniond initial_orientation = Quaterniond::Identity(),
+			const Vector3d& vel_estimate = Vector3d::Zero());
+	
+	/*		//Old one without orientation_init()
 	basic_ins_qkf(const Vector3d& pos_estimate,
 			double pos_error, double bias_error, double v_error,
 			const Vector3d& gyro_white_noise,
 			const Vector3d& gyro_stability_noise,
 			const Vector3d& accel_white_noise,
 			const Vector3d& vel_estimate = Vector3d::Zero());
-
+	*/
 	/**
 	 * Report an INS observation, to propagate the filter forward by one time
 	 * step. The coordinate system is maintained in ECEF coordinates.
@@ -236,7 +246,6 @@ struct basic_ins_qkf
 	 * @param bias_error The one-sigma estimate of the gyro bias error, in radians/sec
 	 */
 	void obs_gyro_bias(const Vector3d& bias, const Vector3d& bias_error);
-
 
 	/**
 	 * Measure the total angular error between the filter's attitude estimate

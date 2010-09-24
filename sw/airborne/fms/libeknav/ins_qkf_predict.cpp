@@ -19,11 +19,18 @@
  *  along with libeknav.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * This is a modified version by Martin Dieblich
+ * The general changes are a more consequent naming
+ * 
+ */
+
+
 #include "ins_qkf.hpp"
 #include "assertions.hpp"
+#include "timer.hpp"
 
 #ifdef TIME_OPS
-#include "timer.hpp"
 # include <iostream>
 #endif
 
@@ -51,13 +58,13 @@ linear_predict(basic_ins_qkf& _this, const Vector3d& gyro_meas, const Vector3d& 
 	// zero out the error vector in the z direction.
 	// accel_cov is the relationship between error vectors in the tangent space
 	// of the vehicle orientation and the translational reference frame.
-	Vector3d accel_body = _this.avg_state.orientation.conjugate()*accel_meas;		// accel_body is in ECEF!
-	std::cout << "   ACCEL_BODY(" << accel_body.transpose() << ")\n";
-	Vector3d accel_gravity = _this.avg_state.position.normalized()*9.81;
-	std::cout << "   ACCEL_GRAVITY(" << accel_gravity.transpose() << ")\n";
-	//Vector3d accel_resid = accel_body - accel_gravity;
-	Vector3d accel_resid = accel_body + accel_gravity;								// This is better!
-	std::cout << "   ACCEL_RESID(" << accel_resid.transpose() << ")\n";
+	
+	Matrix3d rot = _this.avg_state.orientation.conjugate().toRotationMatrix();
+	
+	Vector3d accel_ecef = rot*accel_meas;		// a_e = (q_e2b)^* x a_b = q_b2e x a_b
+	Vector3d accel_gravity = _this.avg_state.position.normalized()*(-9.81);         
+	Vector3d accel_resid = accel_ecef + accel_gravity;								// a = (xdd-g)+g = xdd;
+	
 #if 0
 	// This form works well with zero static acceleration.
 	Matrix<double, 3, 3> accel_cov =
@@ -65,12 +72,12 @@ linear_predict(basic_ins_qkf& _this, const Vector3d& gyro_meas, const Vector3d& 
 		* axis_scale(_this.avg_state.position.normalized(), 0) * 9.81;
 #elif 1
 	Matrix<double, 3, 3> accel_cov =
-		Eigen::AngleAxisd(-M_PI*0.5, accel_body.normalized())
-		* axis_scale(accel_body.normalized(), 0) * accel_meas.norm();
+		Eigen::AngleAxisd(-M_PI*0.5, accel_ecef.normalized())
+		* axis_scale(accel_ecef.normalized(), 0) * accel_meas.norm();
 #else
 	// The following form ends up being identical to the simpler one
 	// above
-	Matrix<double, 3, 3> accel_cov = 
+	Matrix<double, 3, 3> accel_cov =
 		Eigen::AngleAxisd(-M_PI*0.5, _this.avg_state.position.normalized())
 		* axis_scale(_this.avg_state.position.normalized(), 0) * 9.81
 		+ Eigen::AngleAxisd(-M_PI*0.5, accel_resid.normalized())
@@ -134,9 +141,10 @@ linear_predict(basic_ins_qkf& _this, const Vector3d& gyro_meas, const Vector3d& 
 
 	Quaterniond orientation = exp<double>((gyro_meas - _this.avg_state.gyro_bias) * dt)
 			* _this.avg_state.orientation;
-	Vector3d accel = accel_body - _this.avg_state.position.normalized() * 9.81;
-	Vector3d position = _this.avg_state.position + _this.avg_state.velocity * dt + 0.5*accel*dt*dt;
-	Vector3d velocity = _this.avg_state.velocity + accel*dt;
+	//Vector3d accel = accel_ecef - _this.avg_state.position.normalized() * 9.81;
+	//std::cout << "   ACCEL______(" << accel.transpose() << ")\n";
+	Vector3d position = _this.avg_state.position + _this.avg_state.velocity * dt + 0.5*accel_resid*dt*dt;
+	Vector3d velocity = _this.avg_state.velocity + accel_resid*dt;
 
 	_this.avg_state.position = position;
 	_this.avg_state.velocity = velocity;
