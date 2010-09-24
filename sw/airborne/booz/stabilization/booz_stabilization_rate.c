@@ -158,9 +158,15 @@ void booz_stabilization_rate_run(bool_t in_flight) {
   /* compute feed-forward command */
   RATES_EWMULT_RSHIFT(booz_stabilization_rate_ff_cmd, booz_stabilization_rate_ddgain, booz_stabilization_rate_refdot, 16);
 
+
   /* compute feed-back command */
+  /* error for feedback */
+  const struct Int32Rates _ref_scaled = {
+    OFFSET_AND_ROUND(booz_stabilization_rate_ref.p, (REF_FRAC - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND(booz_stabilization_rate_ref.q, (REF_FRAC - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND(booz_stabilization_rate_ref.r, (REF_FRAC - INT32_RATE_FRAC)) };
   struct Int32Rates _error;
-  RATES_DIFF(_error, booz_ahrs.body_rate, booz_stabilization_rate_sp);
+  RATES_DIFF(_error, booz_ahrs.body_rate, _ref_scaled);
   if (in_flight) {
     /* update integrator */
     RATES_ADD(booz_stabilization_rate_sum_err, _error);
