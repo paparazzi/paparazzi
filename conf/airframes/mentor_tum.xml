@@ -46,7 +46,11 @@
   </firmware>
 
   <modules main_freq="60">
-    <load name="servo_switch.xml"/>
+    <load name="servo_switch.xml">
+      <param name="SERVO_SWITCH_ON_VALUE"  value="1100"/>
+      <param name="SERVO_SWITCH_OFF_VALUE" value="1900"/>
+      <param name="SERVO_SWITCH_SERVO"     value="SERVO_SWITCH"/>
+    </load>
     <load name="sys_mon.xml"/>
   </modules>
 
@@ -56,7 +60,6 @@
     <axis name="ROLL" failsafe_value="0"/>
     <axis name="PITCH" failsafe_value="0"/>
     <axis name="YAW" failsafe_value="0"/>
-    <axis name="SWITCH" failsafe_value="0"/>
   </commands>
 
   <servos>
@@ -73,16 +76,10 @@
     <set command="PITCH" value="@PITCH"/>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="YAW" value="@YAW"/>
-    <!--<set command="SWITCH" value="@SWITCH"/>-->
   </rc_commands>
-
-  <ap_only_commands>
-    <copy command="SWITCH"/>
-  </ap_only_commands>
 
   <auto_rc_commands>
    <!-- <set command="YAW" value="@YAW"/> -->
-   <!-- <set command="SWITCH" value="@SWITCH"/> -->
   </auto_rc_commands>
 
   <section name="MIXER">
@@ -98,8 +95,6 @@
     <let var="roll" value="@ROLL"/>
     <set servo="AILERON_LEFT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
     <set servo="AILERON_RIGHT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
-
-    <set servo="SWITCH" value="@SWITCH"/>
   </command_laws>
 
 
