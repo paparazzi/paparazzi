@@ -22,7 +22,7 @@
  */
 
 #include "servo_switch/servo_switch.h"
-#include "inter_mcu.h"
+#include "actuators.h"
 
 bool_t servo_switch_on;
 int16_t servo_switch_value;
@@ -34,7 +34,7 @@ void servo_switch_init(void) {
 
 void servo_switch_periodic(void) {
   if (servo_switch_on == TRUE)
-    ap_state->commands[COMMAND_SWITCH] = SWITCH_ON_VALUE;
+    SetServo(SERVO_SWITCH_SERVO, SERVO_SWITCH_ON_VALUE)
   else
-    ap_state->commands[COMMAND_SWITCH] = SWITCH_OFF_VALUE;
+    SetServo(SERVO_SWITCH_SERVO, SERVO_SWITCH_OFF_VALUE)
 }

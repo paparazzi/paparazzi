@@ -30,12 +30,16 @@
 extern bool_t servo_switch_on;
 extern int16_t servo_switch_value;
 
-#ifndef SWITCH_ON_VALUE
-#define SWITCH_ON_VALUE MAX_PPRZ
+#ifndef SERVO_SWITCH_ON_VALUE
+#define SERVO_SWITCH_ON_VALUE 2000
 #endif
-#ifndef SWITCH_OFF_VALUE
-#define SWITCH_OFF_VALUE MIN_PPRZ
+#ifndef SERVO_SWITCH_OFF_VALUE
+#define SERVO_SWITCH_OFF_VALUE 1000
 #endif
+#ifndef SERVO_SWITCH_SERVO
+#define SERVO_SWITCH_SERVO SERVO_SWITCH
+#endif
+
 
 extern void servo_switch_init(void);
 extern void servo_switch_periodic(void);
