@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.  
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -42,6 +42,11 @@ extern void actuators_init( void );
 extern uint16_t actuators[SERVOS_NB];
 
 #include ACTUATORS
+
+#define SetServo(x, v) {                                        \
+    Actuator(x) = SERVOS_TICS_OF_USEC(ChopServo(v,700,2400));   \
+    actuators[x] = v;                                           \
+  }
 
 #endif /* ACTUATORS */
 
