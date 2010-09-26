@@ -10,7 +10,7 @@
 <airframe name="Mentor Twog AkaModell">
 
   <firmware name="fixedwing">
-    <target name="ap" 			board="tiny_2.11">
+    <target name="ap" 			board="twog_1">
       <define name="AGR_CLIMB"/>
       <define name="LOITER_TRIM"/>
       <define name="WIND_INFO"/>
