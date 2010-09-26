@@ -9,6 +9,7 @@
 
 #include <event.h>
 extern "C" {
+#include <unistd.h>
 #include "std.h"
 #include "fms/fms_debug.h"
 #include "fms/fms_periodic.h"
@@ -17,12 +18,22 @@ extern "C" {
 #include "booz/booz_imu.h"
   /* our sensors            */
   struct BoozImuFloat imu;
+  /* raw log */
+  static int raw_log_fd;
 }
+
+static void main_trick_libevent(void);
+static void on_foo_event(int fd, short event __attribute__((unused)), void *arg);
+static struct event foo_event;
+
+#include "math/pprz_algebra_float.h"
+static void main_rawlog_init(const char* filename);
+static void main_rawlog_dump(void);
 
 static void main_init(void);
 static void main_periodic(int my_sig_num);
 static void main_dialog_with_io_proc(void);
-
+static void main_run_ins(void);
 
 /* initial state */
 Vector3d pos_0_ecef(1017.67e3, -5079.282e3, 3709.041e3);
@@ -50,15 +61,20 @@ USING_PART_OF_NAMESPACE_EIGEN
 
 int main(int, char *[]) {
 
+  std::cout << "test libeknav 3" << std::endl;
+
   main_init();
-
-  std::cout << "test libeknav 1" << std::endl;
-
+  /* add dev/null as event source so that libevent doesn't die */
+  main_trick_libevent();
+  
+  
+  TRACE(TRACE_DEBUG, "%s", "Entering mainloop\n");
+  
   /* Enter our mainloop */
   event_dispatch();
   
   TRACE(TRACE_DEBUG, "%s", "leaving mainloop... goodbye!\n");
-
+  
   return 0;
 
 }
@@ -82,14 +98,17 @@ static void main_init(void) {
     TRACE(TRACE_ERROR, "%s", "failed to start periodic generator\n");
     return; 
   }
- 
+   
+  main_rawlog_init("/tmp/log_test3.bin");
+
 }
 
 
 static void main_periodic(int my_sig_num __attribute__ ((unused))) {
 
   main_dialog_with_io_proc();
-  main_run_ins();
+  //  main_run_ins();
+  main_rawlog_dump();
 
 }
 
@@ -108,6 +127,14 @@ static void main_dialog_with_io_proc() {
   RATES_FLOAT_OF_BFP(imu.gyro, in->gyro);
   ACCELS_FLOAT_OF_BFP(imu.accel, in->accel); 
   MAGS_FLOAT_OF_BFP(imu.mag, in->mag); 
+
+  {
+    static uint32_t foo=0;
+    foo++;
+    if (!(foo%100))
+      printf("%f %f %f\n",imu.gyro.p,imu.gyro.q,imu.gyro.r); 
+    
+  }
 
 }
 
@@ -133,3 +160,54 @@ static void main_run_ins() {
   }
   
 }
+
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+static void main_trick_libevent(void) {
+
+  int fd = open("/dev/ttyS0", O_RDONLY);
+  if (fd == -1) {
+    TRACE(TRACE_ERROR, "%s", "failed to open /dev/null \n");
+    return;
+  }
+  event_set(&foo_event, fd, EV_READ | EV_PERSIST, on_foo_event, NULL);
+  event_add(&foo_event, NULL);
+
+}
+
+static void on_foo_event(int fd __attribute__((unused)), short event __attribute__((unused)), void *arg __attribute__((unused))) {
+
+} 
+
+
+
+static void main_rawlog_init(const char* filename) {
+  
+  raw_log_fd = open(filename, O_WRONLY|O_CREAT);
+  if (raw_log_fd == -1) {
+    TRACE(TRACE_ERROR, "failed to open rawlog outfile (%s)\n", filename);
+    return;
+  }
+}
+
+struct raw_log_entry {
+  double time;
+  struct FloatRates   gyro;
+  struct FloatVect3   accel;
+  struct FloatVect3   mag;
+};
+
+static void main_rawlog_dump(void) {
+  struct raw_log_entry e;
+  RATES_COPY(e.gyro, imu.gyro);
+  VECT3_COPY(e.accel, imu.accel);
+  VECT3_COPY(e.mag, imu.mag);
+  write(raw_log_fd, &e, sizeof(e));
+
+}
+
+
+
