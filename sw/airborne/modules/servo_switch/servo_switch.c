@@ -22,6 +22,7 @@
  */
 
 #include "servo_switch/servo_switch.h"
+#include "airframe.h"
 #include "actuators.h"
 
 bool_t servo_switch_on;

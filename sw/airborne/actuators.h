@@ -50,4 +50,7 @@ extern uint16_t actuators[SERVOS_NB];
 
 #endif /* ACTUATORS */
 
+// define empty SetServo makro for sim
+#define SetServo(x, v) {}
+
 #endif /* ACTUATORS_H */
