@@ -21,21 +21,21 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_imu.h"
+#include "imu.h"
 
 #include "airframe.h"
 
-void booz_imu_b2_arch_init(void) {
+void imu_b2_arch_init(void) {
 
 }
 
-void booz_imu_periodic(void) {
+void imu_periodic(void) {
 
 }
 
 #include "nps_sensors.h"
 
-void booz_imu_feed_gyro_accel(void) {
+void imu_feed_gyro_accel(void) {
   booz_max1168_values[IMU_GYRO_P_CHAN]  = sensors.gyro.value.x;
   booz_max1168_values[IMU_GYRO_Q_CHAN]  = sensors.gyro.value.y;
   booz_max1168_values[IMU_GYRO_R_CHAN]  = sensors.gyro.value.z;
@@ -46,7 +46,7 @@ void booz_imu_feed_gyro_accel(void) {
 }
 
 
-void booz_imu_feed_mag(void) {
+void imu_feed_mag(void) {
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
   ms2001_values[IMU_MAG_X_CHAN] = sensors.mag.value.x;
   ms2001_values[IMU_MAG_Y_CHAN] = sensors.mag.value.y;

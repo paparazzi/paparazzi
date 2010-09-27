@@ -21,9 +21,9 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_imu.h"
+#include "imu.h"
 
-volatile uint8_t booz_imu_ssp_status;
+volatile uint8_t imu_ssp_status;
 static void SSP_ISR(void) __attribute__((naked));
 #if 0
 static inline bool_t isr_try_mag(void);
@@ -52,18 +52,18 @@ static inline bool_t isr_try_mag(void);
 #define SSP_PINSEL1_MOSI (2<<6)
 
 
-#define BoozImuSetSSP8bits() { \
+#define ImuSetSSP8bits() { \
     SSPCR0 = SSPCR0_VAL8;      \
 }
 
-#define BoozImuSetSSP16bits() { \
+#define ImuSetSSP16bits() { \
     SSPCR0 = SSPCR0_VAL16;	\
 }
 
 
-void booz_imu_b2_arch_init(void) {
+void imu_b2_arch_init(void) {
 
-  booz_imu_ssp_status = BOOZ_IMU_SSP_STA_IDLE;
+  imu_ssp_status = IMU_SSP_STA_IDLE;
 
   /* setup pins for SSP (SCK, MISO, MOSI) */
   PINSEL1 |= SSP_PINSEL1_SCK  | SSP_PINSEL1_MISO | SSP_PINSEL1_MOSI;
@@ -82,14 +82,14 @@ void booz_imu_b2_arch_init(void) {
 }
 
 
-void booz_imu_periodic(void) {
+void imu_periodic(void) {
   // check ssp idle
-  // ASSERT((booz_imu_status == BOOZ_IMU_STA_IDLE), DEBUG_IMU, IMU_ERR_OVERUN);
+  // ASSERT((imu_status == IMU_STA_IDLE), DEBUG_IMU, IMU_ERR_OVERUN);
 
   // setup 16 bits
-  BoozImuSetSSP16bits();
+  ImuSetSSP16bits();
   // read adc
-  booz_imu_ssp_status = BOOZ_IMU_SSP_STA_BUSY_MAX1168;
+  imu_ssp_status = IMU_SSP_STA_BUSY_MAX1168;
   booz_max1168_read();
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
   RunOnceEvery(10, { ami601_read(); });
@@ -147,36 +147,36 @@ static void SSP_ISR(void) {
 static void SSP_ISR(void) {
  ISR_ENTRY();
 
- switch (booz_imu_ssp_status) {
- case BOOZ_IMU_SSP_STA_BUSY_MAX1168:
+ switch (imu_ssp_status) {
+ case IMU_SSP_STA_BUSY_MAX1168:
    Max1168OnSpiInt();
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
   if (ms2001_status == MS2001_IDLE || ms2001_status == MS2001_GOT_EOC) {
-     BoozImuSetSSP8bits();
+     ImuSetSSP8bits();
      if (ms2001_status == MS2001_IDLE) {
        Ms2001SendReq();
      }
      else { /* MS2001_GOT_EOC */
        Ms2001ReadRes();
      }
-     booz_imu_ssp_status = BOOZ_IMU_SSP_STA_BUSY_MS2100;
+     imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
    }
    else {
 #endif
-     booz_imu_ssp_status = BOOZ_IMU_SSP_STA_IDLE;
+     imu_ssp_status = IMU_SSP_STA_IDLE;
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
    }
 #endif
   break;
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
- case BOOZ_IMU_SSP_STA_BUSY_MS2100:
+ case IMU_SSP_STA_BUSY_MS2100:
    Ms2001OnSpiIt();
    if (ms2001_status == MS2001_IDLE) {
     Ms2001SendReq();
-    booz_imu_ssp_status = BOOZ_IMU_SSP_STA_BUSY_MS2100;
+    imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
    }
    else
-     booz_imu_ssp_status = BOOZ_IMU_SSP_STA_IDLE;
+     imu_ssp_status = IMU_SSP_STA_IDLE;
    break;
 #endif
    // default:

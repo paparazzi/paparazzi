@@ -29,13 +29,13 @@
 #ifndef BOOZ_IMU_CRISTA_ARCH_H
 #define BOOZ_IMU_CRISTA_ARCH_H
 
-#include "booz/booz_imu.h"
+#include "imu.h"
 
 
-#define BoozImuCristaArchPeriodic() {}
+#define ImuCristaArchPeriodic() {}
 
-extern void booz_imu_feed_gyro_accel(void);
-extern void booz_imu_feed_mag(void);
+extern void imu_feed_gyro_accel(void);
+extern void imu_feed_mag(void);
 
 
 #endif /* BOOZ_IMU_CRISTA_HW_H */

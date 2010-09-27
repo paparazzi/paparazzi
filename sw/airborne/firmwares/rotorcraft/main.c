@@ -38,7 +38,7 @@
 #include "booz_actuators.h"
 #include "booz_radio_control.h"
 
-#include "booz_imu.h"
+#include "imu.h"
 #include "booz_gps.h"
 
 #include "booz/booz2_analog.h"
@@ -110,7 +110,7 @@ STATIC_INLINE void booz2_main_init( void ) {
 #endif
 
   booz2_battery_init();
-  booz_imu_init();
+  imu_init();
 
   booz_fms_init();
   autopilot_init();
@@ -137,7 +137,7 @@ STATIC_INLINE void booz2_main_init( void ) {
 
 STATIC_INLINE void booz2_main_periodic( void ) {
 
-  booz_imu_periodic();
+  imu_periodic();
 
   /* run control loops */
   autopilot_periodic();
@@ -199,7 +199,7 @@ STATIC_INLINE void booz2_main_event( void ) {
     RadioControlEvent(autopilot_on_rc_frame);
   }
 
-  BoozImuEvent(on_gyro_accel_event, on_mag_event);
+  ImuEvent(on_gyro_accel_event, on_mag_event);
 
   BaroEvent(on_baro_abs_event, on_baro_dif_event);
 
@@ -217,8 +217,8 @@ STATIC_INLINE void booz2_main_event( void ) {
 
 static inline void on_gyro_accel_event( void ) {
 
-  BoozImuScaleGyro(booz_imu);
-  BoozImuScaleAccel(booz_imu);
+  ImuScaleGyro(imu);
+  ImuScaleAccel(imu);
 
   if (booz_ahrs.status == BOOZ_AHRS_UNINIT) {
     booz_ahrs_aligner_run();
@@ -248,7 +248,7 @@ static inline void on_gps_event(void) {
 }
 
 static inline void on_mag_event(void) {
-  BoozImuScaleMag(booz_imu);
+  ImuScaleMag(imu);
   if (booz_ahrs.status == BOOZ_AHRS_RUNNING)
     booz_ahrs_update_mag();
 }

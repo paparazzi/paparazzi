@@ -27,10 +27,10 @@
  */
 
 #include "mercury_xsens.h"
-#include "booz/booz_imu.h"
+#include "imu.h"
 #include "booz/booz_ahrs.h"
 #include "booz/ahrs/booz_ahrs_aligner.h"
-#include "booz/booz_imu.h"
+#include "imu.h"
 #include "csc_booz2_ins.h"
 
 #include <inttypes.h>
@@ -202,7 +202,7 @@ static uint8_t xsens_msg_idx[XSENS_COUNT];
 static uint8_t ck[XSENS_COUNT];
 static uint8_t send_ck[XSENS_COUNT];
 
-void booz_imu_impl_init( void  )
+void imu_impl_init( void  )
 {
 
 }
@@ -220,17 +220,17 @@ void xsens_init( void )
     xsens_msg_buf_ci[i] = 0;
     FLOAT_RMAT_ZERO(xsens_rmat_neutral[i]);
   }
-  booz_imu.accel_neutral.x = IMU_ACCEL_X_NEUTRAL;
-  booz_imu.accel_neutral.y = IMU_ACCEL_Y_NEUTRAL;
-  booz_imu.accel_neutral.z = IMU_ACCEL_Z_NEUTRAL;
+  imu.accel_neutral.x = IMU_ACCEL_X_NEUTRAL;
+  imu.accel_neutral.y = IMU_ACCEL_Y_NEUTRAL;
+  imu.accel_neutral.z = IMU_ACCEL_Z_NEUTRAL;
 
-  booz_imu.gyro_neutral.p = IMU_GYRO_P_NEUTRAL;
-  booz_imu.gyro_neutral.q = IMU_GYRO_Q_NEUTRAL;
-  booz_imu.gyro_neutral.r = IMU_GYRO_R_NEUTRAL;
+  imu.gyro_neutral.p = IMU_GYRO_P_NEUTRAL;
+  imu.gyro_neutral.q = IMU_GYRO_Q_NEUTRAL;
+  imu.gyro_neutral.r = IMU_GYRO_R_NEUTRAL;
 
-  booz_imu.mag_neutral.x = IMU_MAG_X_NEUTRAL;
-  booz_imu.mag_neutral.y = IMU_MAG_Y_NEUTRAL;
-  booz_imu.mag_neutral.z = IMU_MAG_Z_NEUTRAL;
+  imu.mag_neutral.x = IMU_MAG_X_NEUTRAL;
+  imu.mag_neutral.y = IMU_MAG_Y_NEUTRAL;
+  imu.mag_neutral.z = IMU_MAG_Z_NEUTRAL;
   // Also TODO: set scenario to aerospace
   // set magnetic declination angle
   // Probably quicker to just set everything once via MT Manager software
@@ -301,18 +301,18 @@ void xsens_parse_msg( uint8_t xsens_id ) {
     uint8_t offset = 0;
     // test RAW modes else calibrated modes 
       if (XSENS_MASK_RAWInertial(xsens_output_mode[xsens_id])){// || (XSENS_MASK_RAWGPS(xsens2_output_mode))) {
-	booz_imu.accel_unscaled.x = XSENS_DATA_RAWInertial_accZ(xsens_msg_buf[xsens_id][buf_slot],offset);
-	booz_imu.accel_unscaled.y = XSENS_DATA_RAWInertial_accY(xsens_msg_buf[xsens_id][buf_slot],offset);
-	booz_imu.accel_unscaled.z = XSENS_DATA_RAWInertial_accX(xsens_msg_buf[xsens_id][buf_slot],offset);
-	booz_imu.gyro_unscaled.p = XSENS_DATA_RAWInertial_gyrZ(xsens_msg_buf[xsens_id][buf_slot],offset);
-	booz_imu.gyro_unscaled.q = XSENS_DATA_RAWInertial_gyrY(xsens_msg_buf[xsens_id][buf_slot],offset);
-	booz_imu.gyro_unscaled.r = XSENS_DATA_RAWInertial_gyrX(xsens_msg_buf[xsens_id][buf_slot],offset);
-        booz_imu.mag_unscaled.x  = XSENS_DATA_RAWInertial_magZ(xsens_msg_buf[xsens_id][buf_slot],offset);
-	booz_imu.mag_unscaled.y  = XSENS_DATA_RAWInertial_magY(xsens_msg_buf[xsens_id][buf_slot],offset);
-	booz_imu.mag_unscaled.z  = XSENS_DATA_RAWInertial_magX(xsens_msg_buf[xsens_id][buf_slot],offset);
-	BoozImuScaleGyro(booz_imu);
-	BoozImuScaleAccel(booz_imu);
-	BoozImuScaleMag(booz_imu);
+	imu.accel_unscaled.x = XSENS_DATA_RAWInertial_accZ(xsens_msg_buf[xsens_id][buf_slot],offset);
+	imu.accel_unscaled.y = XSENS_DATA_RAWInertial_accY(xsens_msg_buf[xsens_id][buf_slot],offset);
+	imu.accel_unscaled.z = XSENS_DATA_RAWInertial_accX(xsens_msg_buf[xsens_id][buf_slot],offset);
+	imu.gyro_unscaled.p = XSENS_DATA_RAWInertial_gyrZ(xsens_msg_buf[xsens_id][buf_slot],offset);
+	imu.gyro_unscaled.q = XSENS_DATA_RAWInertial_gyrY(xsens_msg_buf[xsens_id][buf_slot],offset);
+	imu.gyro_unscaled.r = XSENS_DATA_RAWInertial_gyrX(xsens_msg_buf[xsens_id][buf_slot],offset);
+        imu.mag_unscaled.x  = XSENS_DATA_RAWInertial_magZ(xsens_msg_buf[xsens_id][buf_slot],offset);
+	imu.mag_unscaled.y  = XSENS_DATA_RAWInertial_magY(xsens_msg_buf[xsens_id][buf_slot],offset);
+	imu.mag_unscaled.z  = XSENS_DATA_RAWInertial_magX(xsens_msg_buf[xsens_id][buf_slot],offset);
+	ImuScaleGyro(imu);
+	ImuScaleAccel(imu);
+	ImuScaleMag(imu);
 	
 	// Copied from booz2_main -- 5143134f060fcc57ce657e17d8b7fc2e72119fd7
 	// mmt 6/15/09

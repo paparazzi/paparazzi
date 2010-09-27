@@ -37,7 +37,7 @@
 #include "fms_debug.h"
 #include "fms_spi_link.h"
 #include "fms_autopilot_msg.h"
-#include "booz/booz_imu.h"
+#include "imu.h"
 
 #include "overo_file_logger.h"
 #include "overo_gcs_com.h"
@@ -55,8 +55,8 @@ static void main_talk_with_stm32(void);
 static struct AutopilotMessageCRCFrame   msg_in;
 static struct AutopilotMessageCRCFrame   msg_out;
 
-struct BoozImu booz_imu;
-struct BoozImuFloat booz_imu_float;
+struct Imu imu;
+struct ImuFloat imu_float;
 
 
 static uint32_t foo = 0;
@@ -68,9 +68,9 @@ int main(int argc, char *argv[]) {
   (void) signal(SIGINT, main_exit);
 
   //set IMU neutrals
-  RATES_ASSIGN(booz_imu.gyro_neutral,  IMU_GYRO_P_NEUTRAL,  IMU_GYRO_Q_NEUTRAL,  IMU_GYRO_R_NEUTRAL);
-  VECT3_ASSIGN(booz_imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
-  VECT3_ASSIGN(booz_imu.mag_neutral,   IMU_MAG_X_NEUTRAL,   IMU_MAG_Y_NEUTRAL,   IMU_MAG_Z_NEUTRAL);
+  RATES_ASSIGN(imu.gyro_neutral,  IMU_GYRO_P_NEUTRAL,  IMU_GYRO_Q_NEUTRAL,  IMU_GYRO_R_NEUTRAL);
+  VECT3_ASSIGN(imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
+  VECT3_ASSIGN(imu.mag_neutral,   IMU_MAG_X_NEUTRAL,   IMU_MAG_Y_NEUTRAL,   IMU_MAG_Z_NEUTRAL);
   
   if (spi_link_init()) {
     TRACE(TRACE_ERROR, "%s", "failed to open SPI link \n");
@@ -120,7 +120,7 @@ static void main_periodic(int my_sig_num) {
  
   main_talk_with_stm32();
 
-  BoozImuScaleGyro(booz_imu);
+  ImuScaleGyro(imu);
 
   RunOnceEvery(50, {DOWNLINK_SEND_BETH(gcs_com.udp_transport,
 			&msg_in.payload.msg_up.bench_sensor.x,&msg_in.payload.msg_up.bench_sensor.y,
@@ -155,19 +155,19 @@ static void main_periodic(int my_sig_num) {
 
 /*  RunOnceEvery(10, {DOWNLINK_SEND_IMU_GYRO_RAW(gcs_com.udp_transport,
 			     //&msg_in.payload.msg_up.gyro.p,&msg_in.payload.msg_up.gyro.q,&msg_in.payload.msg_up.gyro.r)
-				&booz_imu.gyro_unscaled.p,&booz_imu.gyro_unscaled.q,&booz_imu.gyro_unscaled.r);});
+				&imu.gyro_unscaled.p,&imu.gyro_unscaled.q,&imu.gyro_unscaled.r);});
   RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(gcs_com.udp_transport,
 			     //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z
-				&booz_imu.accel_unscaled.x,&booz_imu.accel_unscaled.y,&booz_imu.accel_unscaled.z);})
+				&imu.accel_unscaled.x,&imu.accel_unscaled.y,&imu.accel_unscaled.z);})
   RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_GYRO(gcs_com.udp_transport,
 			     //&msg_in.payload.msg_up.gyro.p,&msg_in.payload.msg_up.gyro.q,&msg_in.payload.msg_up.gyro.r)
-				&booz_imu.gyro.p,&booz_imu.gyro.q,&booz_imu.gyro.r);});
+				&imu.gyro.p,&imu.gyro.q,&imu.gyro.r);});
 
   RunOnceEvery(50, {DOWNLINK_SEND_AHRS_EULER(gcs_com.udp_transport,
 			&estimator.tilt, &estimator.elevation, &estimator.azimuth );});
   RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_ACCEL(DefaultChannel,
 			     //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z
-				&booz_imu.accel.x,&booz_imu.accel.y,&booz_imu.accel.z);});*/
+				&imu.accel.x,&imu.accel.y,&imu.accel.z);});*/
 
   RunOnceEvery(33, gcs_com_periodic());
 
@@ -293,12 +293,12 @@ static void main_talk_with_stm32() {
 
   foo++;
 
-  booz_imu.gyro_unscaled.p = (msg_in.payload.msg_up.gyro.p&0xFFFF);
-  booz_imu.gyro_unscaled.q = (msg_in.payload.msg_up.gyro.q&0xFFFF);
-  booz_imu.gyro_unscaled.r = (msg_in.payload.msg_up.gyro.r&0xFFFF);
-  booz_imu.accel_unscaled.x = (msg_in.payload.msg_up.accel.x&0xFFFF);
-  booz_imu.accel_unscaled.y = (msg_in.payload.msg_up.accel.y&0xFFFF);
-  booz_imu.accel_unscaled.z = (msg_in.payload.msg_up.accel.z&0xFFFF);
+  imu.gyro_unscaled.p = (msg_in.payload.msg_up.gyro.p&0xFFFF);
+  imu.gyro_unscaled.q = (msg_in.payload.msg_up.gyro.q&0xFFFF);
+  imu.gyro_unscaled.r = (msg_in.payload.msg_up.gyro.r&0xFFFF);
+  imu.accel_unscaled.x = (msg_in.payload.msg_up.accel.x&0xFFFF);
+  imu.accel_unscaled.y = (msg_in.payload.msg_up.accel.y&0xFFFF);
+  imu.accel_unscaled.z = (msg_in.payload.msg_up.accel.z&0xFFFF);
 
 }
 

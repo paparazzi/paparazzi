@@ -21,16 +21,16 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_imu.h"
+#include "imu.h"
 
 volatile bool_t ADS8344_available;
 uint16_t ADS8344_values[ADS8344_NB_CHANNELS];
 
-void booz_imu_impl_init(void) {
+void imu_impl_init(void) {
 
   ADS8344_available = FALSE;
 
-  booz_imu_crista_arch_init();
+  imu_crista_arch_init();
 
 #ifdef USE_AMI601
   ami601_init();
@@ -38,9 +38,9 @@ void booz_imu_impl_init(void) {
 
 }
 
-void booz_imu_periodic(void) {
+void imu_periodic(void) {
 
-  BoozImuCristaArchPeriodic();
+  ImuCristaArchPeriodic();
 #ifdef USE_AMI601
   RunOnceEvery(10, { ami601_read(); });
 #endif

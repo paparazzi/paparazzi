@@ -24,7 +24,7 @@
 
 #include "booz2_ins.h"
 
-#include "booz_imu.h"
+#include "imu.h"
 #include "firmwares/rotorcraft/baro.h"
 #include "booz_gps.h"
 
@@ -149,7 +149,7 @@ void booz_ins_realign_v(float z) {
 void booz_ins_propagate() {
   /* untilt accels */
   struct Int32Vect3 accel_body;
-  INT32_RMAT_TRANSP_VMULT(accel_body, booz_imu.body_to_imu_rmat, booz_imu.accel);
+  INT32_RMAT_TRANSP_VMULT(accel_body, imu.body_to_imu_rmat, imu.accel);
   struct Int32Vect3 accel_ltp;
   INT32_RMAT_TRANSP_VMULT(accel_ltp, booz_ahrs.ltp_to_body_rmat, accel_body);
   float z_accel_float = ACCEL_FLOAT_OF_BFP(accel_ltp.z);

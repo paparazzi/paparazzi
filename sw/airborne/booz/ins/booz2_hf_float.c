@@ -24,7 +24,7 @@
 
 #include "booz2_hf_float.h"
 #include "booz2_ins.h"
-#include "booz_imu.h"
+#include "imu.h"
 #include "booz_ahrs.h"
 #include "booz_gps.h"
 #include <stdlib.h>
@@ -112,7 +112,7 @@ struct AccBuf acc_body;
 struct Int32Vect3 acc_body_mean;
 
 void b2_hff_store_accel_body(void) {
-  INT32_RMAT_TRANSP_VMULT(acc_body.buf[acc_body.w], booz_imu.body_to_imu_rmat,  booz_imu.accel);
+  INT32_RMAT_TRANSP_VMULT(acc_body.buf[acc_body.w], imu.body_to_imu_rmat,  imu.accel);
   acc_body.w = (acc_body.w + 1) < acc_body.size ? (acc_body.w + 1) : 0;
 
   /* once the buffer is full it always has the last acc_body.size accel measurements */

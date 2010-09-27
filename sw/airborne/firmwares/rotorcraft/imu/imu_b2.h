@@ -21,10 +21,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_IMU_B2_H
-#define BOOZ_IMU_B2_H
+#ifndef IMU_B2_H
+#define IMU_B2_H
 
-#include "booz_imu.h"
+#include "imu.h"
 #include "airframe.h"
 
 #include "peripherals/booz_max1168.h"
@@ -112,11 +112,11 @@
 
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
 #include "peripherals/booz_ms2001.h"
-#define BoozImuMagEvent(_mag_handler) {					\
+#define ImuMagEvent(_mag_handler) {					\
     if (ms2001_status == MS2001_DATA_AVAILABLE) {			\
-      booz_imu.mag_unscaled.x = ms2001_values[IMU_MAG_X_CHAN];		\
-      booz_imu.mag_unscaled.y = ms2001_values[IMU_MAG_Y_CHAN];		\
-      booz_imu.mag_unscaled.z = ms2001_values[IMU_MAG_Z_CHAN];		\
+      imu.mag_unscaled.x = ms2001_values[IMU_MAG_X_CHAN];		\
+      imu.mag_unscaled.y = ms2001_values[IMU_MAG_Y_CHAN];		\
+      imu.mag_unscaled.z = ms2001_values[IMU_MAG_Z_CHAN];		\
       ms2001_status = MS2001_IDLE;					\
       _mag_handler();							\
     }									\
@@ -124,40 +124,40 @@
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
 #include "peripherals/booz_ami601.h"
 #define foo_handler() {}
-#define BoozImuMagEvent(_mag_handler) {					\
+#define ImuMagEvent(_mag_handler) {					\
     AMI601Event(foo_handler);						\
     if (ami601_status == AMI601_DATA_AVAILABLE) {			\
-      booz_imu.mag_unscaled.x = ami601_values[IMU_MAG_X_CHAN];		\
-      booz_imu.mag_unscaled.y = ami601_values[IMU_MAG_Y_CHAN];		\
-      booz_imu.mag_unscaled.z = ami601_values[IMU_MAG_Z_CHAN];		\
+      imu.mag_unscaled.x = ami601_values[IMU_MAG_X_CHAN];		\
+      imu.mag_unscaled.y = ami601_values[IMU_MAG_Y_CHAN];		\
+      imu.mag_unscaled.z = ami601_values[IMU_MAG_Z_CHAN];		\
       ami601_status = AMI601_IDLE;					\
       _mag_handler();							\
     }									\
   }
 #else
-#define BoozImuMagEvent(_mag_handler) {}
+#define ImuMagEvent(_mag_handler) {}
 #endif
 
 
-#define BoozImuEvent(_gyro_accel_handler, _mag_handler) {		\
+#define ImuEvent(_gyro_accel_handler, _mag_handler) {		\
     if (booz_max1168_status == STA_MAX1168_DATA_AVAILABLE) {		\
-      booz_imu.gyro_unscaled.p  = booz_max1168_values[IMU_GYRO_P_CHAN]; \
-      booz_imu.gyro_unscaled.q  = booz_max1168_values[IMU_GYRO_Q_CHAN]; \
-      booz_imu.gyro_unscaled.r  = booz_max1168_values[IMU_GYRO_R_CHAN]; \
-      booz_imu.accel_unscaled.x = booz_max1168_values[IMU_ACCEL_X_CHAN]; \
-      booz_imu.accel_unscaled.y = booz_max1168_values[IMU_ACCEL_Y_CHAN]; \
-      booz_imu.accel_unscaled.z = booz_max1168_values[IMU_ACCEL_Z_CHAN]; \
+      imu.gyro_unscaled.p  = booz_max1168_values[IMU_GYRO_P_CHAN]; \
+      imu.gyro_unscaled.q  = booz_max1168_values[IMU_GYRO_Q_CHAN]; \
+      imu.gyro_unscaled.r  = booz_max1168_values[IMU_GYRO_R_CHAN]; \
+      imu.accel_unscaled.x = booz_max1168_values[IMU_ACCEL_X_CHAN]; \
+      imu.accel_unscaled.y = booz_max1168_values[IMU_ACCEL_Y_CHAN]; \
+      imu.accel_unscaled.z = booz_max1168_values[IMU_ACCEL_Z_CHAN]; \
       booz_max1168_status = STA_MAX1168_IDLE;				\
       _gyro_accel_handler();						\
     }									\
-    BoozImuMagEvent(_mag_handler);					\
+    ImuMagEvent(_mag_handler);					\
   }
 
 
 /* underlying architecture */
-#include "imu/booz_imu_b2_arch.h"
+#include "imu_b2_arch.h"
 /* must be implemented by underlying architecture */
-extern void booz_imu_b2_arch_init(void);
+extern void imu_b2_arch_init(void);
 
 
-#endif /* BOOZ_IMU_B2_H */
+#endif /* IMU_B2_H */

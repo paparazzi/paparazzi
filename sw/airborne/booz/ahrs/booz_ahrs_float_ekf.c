@@ -121,7 +121,7 @@ extern void booz_ahrs_align(void);
 
 void booz_ahrs_propagate(void) {
   /* compute unbiased rates */
-  RATES_FLOAT_OF_BFP(bafe_rates, booz_imu.gyro);
+  RATES_FLOAT_OF_BFP(bafe_rates, imu.gyro);
   RATES_SUB(bafe_rates, bafe_bias);
 
   /* compute F 

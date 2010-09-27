@@ -28,7 +28,7 @@
 #include "booz/booz2_commands.h"
 #include "booz/booz_actuators.h"
 #include "booz/actuators/booz_actuators_pwm.h"
-#include "booz/booz_imu.h"
+#include "imu.h"
 #include "booz/booz_radio_control.h"
 #include "lisa/lisa_overo_link.h"
 #include "airframe.h"
@@ -91,7 +91,7 @@ static inline void main_init(void) {
 
 	hw_init();
 	sys_time_init();
-	booz_imu_init();
+	imu_init();
 	baro_init();
 	radio_control_init();
 	booz_actuators_init();
@@ -121,7 +121,7 @@ static inline void main_periodic(void) {
 	uint16_t v1 = 123;
 	uint16_t v2 = 123;
 
-  booz_imu_periodic();
+  imu_periodic();
   OveroLinkPeriodic(on_overo_link_lost);
 
   RunOnceEvery(10, {
@@ -160,9 +160,9 @@ static inline void on_overo_link_msg_received(void) {
 
   /* IMU up */ 
   overo_link.up.msg.valid.imu = 1;
-  RATES_COPY(overo_link.up.msg.gyro, booz_imu.gyro);
-  VECT3_COPY(overo_link.up.msg.accel, booz_imu.accel);
-  VECT3_COPY(overo_link.up.msg.mag, booz_imu.mag);
+  RATES_COPY(overo_link.up.msg.gyro, imu.gyro);
+  VECT3_COPY(overo_link.up.msg.accel, imu.accel);
+  VECT3_COPY(overo_link.up.msg.mag, imu.mag);
   
   /* RC up */
   overo_link.up.msg.valid.rc  = new_radio_msg;
@@ -228,12 +228,12 @@ static inline void on_overo_link_crc_failed(void) {
 }
 
 static inline void on_gyro_accel_event(void) {
-  BoozImuScaleGyro(booz_imu);
-  BoozImuScaleAccel(booz_imu);
+  ImuScaleGyro(imu);
+  ImuScaleAccel(imu);
 }
 
 static inline void on_mag_event(void) {
-  BoozImuScaleMag(booz_imu);
+  ImuScaleMag(imu);
 }
 
 static inline void on_vane_msg(void *data) { 
@@ -262,7 +262,7 @@ static inline void main_on_baro_abs(void) {
 
 static inline void main_event(void) {
 	
-  BoozImuEvent(on_gyro_accel_event, on_mag_event);
+  ImuEvent(on_gyro_accel_event, on_mag_event);
   BaroEvent(main_on_baro_abs, main_on_baro_diff);
   OveroLinkEvent(on_overo_link_msg_received, on_overo_link_crc_failed);
   RadioControlEvent(on_rc_message);

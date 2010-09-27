@@ -21,11 +21,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_IMU_ASPIRIN_H
-#define BOOZ_IMU_ASPIRIN_H
+#ifndef IMU_ASPIRIN_H
+#define IMU_ASPIRIN_H
 
 #include "airframe.h"
-#include "booz_imu.h"
+#include "imu.h"
 
 #include "i2c.h"
 #include "booz/peripherals/booz_itg3200.h"
@@ -56,7 +56,7 @@ enum AspirinStatus
     AspirinStatusReadingMag
   };
 
-struct BoozImuAspirin {
+struct ImuAspirin {
   volatile enum AspirinStatus status;
   struct i2c_transaction i2c_trans_gyro;
   struct i2c_transaction i2c_trans_mag;
@@ -69,18 +69,18 @@ struct BoozImuAspirin {
   volatile uint8_t accel_rx_buf[7];
 };
 
-extern struct BoozImuAspirin imu_aspirin;
+extern struct ImuAspirin imu_aspirin;
 
-#define BoozImuMagEvent(_mag_handler) {}
+#define ImuMagEvent(_mag_handler) {}
 
 
-#define BoozImuEvent(_gyro_accel_handler, _mag_handler) {		\
+#define ImuEvent(_gyro_accel_handler, _mag_handler) {		\
     if (imu_aspirin.status == AspirinStatusReadingGyro &&		\
-	imu_aspirin.i2c_trans_gyro.status == I2CTransSuccess) {		\
+    imu_aspirin.i2c_trans_gyro.status == I2CTransSuccess) {		\
       int16_t gp = imu_aspirin.i2c_trans_gyro.buf[0]<<8 | imu_aspirin.i2c_trans_gyro.buf[1]; \
       int16_t gq = imu_aspirin.i2c_trans_gyro.buf[2]<<8 | imu_aspirin.i2c_trans_gyro.buf[3]; \
       int16_t gr = imu_aspirin.i2c_trans_gyro.buf[4]<<8 | imu_aspirin.i2c_trans_gyro.buf[5]; \
-      RATES_ASSIGN(booz_imu.gyro_unscaled, gp, gq, gr);			\
+      RATES_ASSIGN(imu.gyro_unscaled, gp, gq, gr);			\
       if (imu_aspirin.mag_ready_for_read ) {				\
 	/* read mag */							\
 	imu_aspirin.i2c_trans_mag.type = I2CTransRx;			\
@@ -91,15 +91,15 @@ extern struct BoozImuAspirin imu_aspirin;
 	imu_aspirin.status = AspirinStatusReadingMag;			\
       }									\
       else {								\
-	imu_aspirin.status = AspirinStatusIdle;				\
+    imu_aspirin.status = AspirinStatusIdle;				\
       }									\
     }									\
     if (imu_aspirin.status == AspirinStatusReadingMag &&		\
-	imu_aspirin.i2c_trans_mag.status == I2CTransSuccess) {		\
+    imu_aspirin.i2c_trans_mag.status == I2CTransSuccess) {		\
       int16_t mx   = imu_aspirin.i2c_trans_mag.buf[0]<<8 | imu_aspirin.i2c_trans_mag.buf[1]; \
       int16_t my   = imu_aspirin.i2c_trans_mag.buf[2]<<8 | imu_aspirin.i2c_trans_mag.buf[3]; \
       int16_t mz   = imu_aspirin.i2c_trans_mag.buf[4]<<8 | imu_aspirin.i2c_trans_mag.buf[5]; \
-      VECT3_ASSIGN(booz_imu.mag_unscaled, mx, my, mz);			\
+      VECT3_ASSIGN(imu.mag_unscaled, mx, my, mz);			\
       imu_aspirin.mag_available = TRUE;					\
       imu_aspirin.status = AspirinStatusIdle;				\
 									\
@@ -117,15 +117,15 @@ extern struct BoozImuAspirin imu_aspirin;
       const int16_t ax = imu_aspirin.accel_rx_buf[1] | (imu_aspirin.accel_rx_buf[2]<<8); \
       const int16_t ay = imu_aspirin.accel_rx_buf[3] | (imu_aspirin.accel_rx_buf[4]<<8); \
       const int16_t az = imu_aspirin.accel_rx_buf[5] | (imu_aspirin.accel_rx_buf[6]<<8); \
-      VECT3_ASSIGN(booz_imu.accel_unscaled, ax, ay, az);		\
+      VECT3_ASSIGN(imu.accel_unscaled, ax, ay, az);		\
       _gyro_accel_handler();						\
     }									\
   }
 
 
 /* underlying architecture */
-#include "imu/booz_imu_aspirin_arch.h"
+#include "imu_aspirin_arch.h"
 /* must be implemented by underlying architecture */
-extern void booz_imu_b2_arch_init(void);
+extern void imu_b2_arch_init(void);
 
-#endif /* BOOZ_IMU_ASPIRIN_H */
+#endif /* IMU_ASPIRIN_H */

@@ -40,7 +40,7 @@
 
 #include "csc_msg_def.h"
 #include ACTUATORS
-#include "booz/booz_imu.h"
+#include "imu.h"
 #include "booz/ahrs/booz_ahrs_aligner.h"
 #include "booz/booz_ahrs.h"
 #include "mercury_xsens.h"
@@ -112,7 +112,7 @@ static inline void csc_main_init( void ) {
   Uart0Init();
   Uart1Init();
   
-  booz_imu_init();
+  imu_init();
 
   booz_ahrs_aligner_init();
   booz_ahrs_init();

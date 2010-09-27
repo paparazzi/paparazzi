@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "math/pprz_algebra_double.h"
-#include "booz_imu.h"
+#include "imu.h"
 #include "booz_ahrs.h"
 #include "ahrs/booz_ahrs_mlkf.h"
 
@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
   
   read_data(IN_FILE);
 
-  booz_imu_init();
+  imu_init();
   booz_ahrs_init();
 
   for (int i=0; i<nb_samples; i++) {
@@ -79,14 +79,14 @@ static void read_data(const char* filename) {
 
 static void feed_imu(int i) {
   if (i>0) {
-    RATES_COPY(booz_imu.gyro_prev, booz_imu.gyro);
+    RATES_COPY(imu.gyro_prev, imu.gyro);
   }
   else {
-    RATES_BFP_OF_REAL(booz_imu.gyro_prev, samples[0].gyro);
+    RATES_BFP_OF_REAL(imu.gyro_prev, samples[0].gyro);
   }
-  RATES_BFP_OF_REAL(booz_imu.gyro, samples[i].gyro);
-  ACCELS_BFP_OF_REAL(booz_imu.accel, samples[i].accel);
-  MAGS_BFP_OF_REAL(booz_imu.mag, samples[i].mag);
+  RATES_BFP_OF_REAL(imu.gyro, samples[i].gyro);
+  ACCELS_BFP_OF_REAL(imu.accel, samples[i].accel);
+  MAGS_BFP_OF_REAL(imu.mag, samples[i].mag);
 }
 
 

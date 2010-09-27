@@ -28,10 +28,10 @@
 #include "math/pprz_algebra_float.h"
 
 /* must be defined by underlying hardware */
-extern void booz_imu_impl_init(void);
-extern void booz_imu_periodic(void);
+extern void imu_impl_init(void);
+extern void imu_periodic(void);
 
-struct BoozImu {
+struct Imu {
   struct Int32Rates gyro;
   struct Int32Vect3 accel;
   struct Int32Vect3 mag;
@@ -48,7 +48,7 @@ struct BoozImu {
 };
 
 /* abstract IMU interface providing floating point interface  */
-struct BoozImuFloat {
+struct ImuFloat {
   struct FloatRates   gyro;
   struct FloatVect3   accel;
   struct FloatVect3   mag;
@@ -64,11 +64,11 @@ struct BoozImuFloat {
 #include BOOZ_IMU_TYPE_H
 #endif
 
-extern struct BoozImu booz_imu;
+extern struct Imu imu;
 
-extern void booz_imu_init(void);
+extern void imu_init(void);
 
-#define BoozImuScaleGyro(_imu) {					\
+#define ImuScaleGyro(_imu) {					\
     RATES_COPY(_imu.gyro_prev, _imu.gyro);				\
     _imu.gyro.p = ((_imu.gyro_unscaled.p - _imu.gyro_neutral.p)*IMU_GYRO_P_SIGN*IMU_GYRO_P_SENS_NUM)/IMU_GYRO_P_SENS_DEN; \
     _imu.gyro.q = ((_imu.gyro_unscaled.q - _imu.gyro_neutral.q)*IMU_GYRO_Q_SIGN*IMU_GYRO_Q_SENS_NUM)/IMU_GYRO_Q_SENS_DEN; \
@@ -76,7 +76,7 @@ extern void booz_imu_init(void);
   }
 
 
-#define BoozImuScaleAccel(_imu) {					\
+#define ImuScaleAccel(_imu) {					\
     VECT3_COPY(_imu.accel_prev, _imu.accel);				\
     _imu.accel.x = ((_imu.accel_unscaled.x - _imu.accel_neutral.x)*IMU_ACCEL_X_SIGN*IMU_ACCEL_X_SENS_NUM)/IMU_ACCEL_X_SENS_DEN; \
     _imu.accel.y = ((_imu.accel_unscaled.y - _imu.accel_neutral.y)*IMU_ACCEL_Y_SIGN*IMU_ACCEL_Y_SENS_NUM)/IMU_ACCEL_Y_SENS_DEN; \
@@ -84,7 +84,7 @@ extern void booz_imu_init(void);
   }
 
 #if defined IMU_MAG_45_HACK
-#define BoozImuScaleMag(_imu) {						\
+#define ImuScaleMag(_imu) {						\
     int32_t msx = ((_imu.mag_unscaled.x - _imu.mag_neutral.x) * IMU_MAG_X_SIGN * IMU_MAG_X_SENS_NUM) / IMU_MAG_X_SENS_DEN; \
     int32_t msy = ((_imu.mag_unscaled.y - _imu.mag_neutral.y) * IMU_MAG_Y_SIGN * IMU_MAG_Y_SENS_NUM) / IMU_MAG_Y_SENS_DEN; \
     _imu.mag.x = msx - msy;						\
@@ -92,7 +92,7 @@ extern void booz_imu_init(void);
     _imu.mag.z = ((_imu.mag_unscaled.z - _imu.mag_neutral.z) * IMU_MAG_Z_SIGN * IMU_MAG_Z_SENS_NUM) / IMU_MAG_Z_SENS_DEN; \
   }
 #else
-#define BoozImuScaleMag(_imu) {						\
+#define ImuScaleMag(_imu) {						\
     _imu.mag.x = ((_imu.mag_unscaled.x - _imu.mag_neutral.x) * IMU_MAG_X_SIGN * IMU_MAG_X_SENS_NUM) / IMU_MAG_X_SENS_DEN; \
     _imu.mag.y = ((_imu.mag_unscaled.y - _imu.mag_neutral.y) * IMU_MAG_Y_SIGN * IMU_MAG_Y_SENS_NUM) / IMU_MAG_Y_SENS_DEN; \
     _imu.mag.z = ((_imu.mag_unscaled.z - _imu.mag_neutral.z) * IMU_MAG_Z_SIGN * IMU_MAG_Z_SENS_NUM) / IMU_MAG_Z_SENS_DEN; \

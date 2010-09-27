@@ -24,7 +24,7 @@
 
 #include "max1167.h"
 
-#include "booz_imu.h"
+#include "imu.h"
 
 void max1167_hw_init( void ) {}
 

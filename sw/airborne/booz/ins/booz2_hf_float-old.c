@@ -24,7 +24,7 @@
 #include "booz2_hf_float.h"
 #include "booz2_ins.h"
 
-#include "booz_imu.h"
+#include "imu.h"
 #include "booz_ahrs.h"
 #include "math/pprz_algebra_int.h"
 
@@ -54,7 +54,7 @@ void b2ins_propagate(void) {
   VECT3_SDIV(scaled_biases, b2ins_accel_bias, (1<<(B2INS_ACCEL_BIAS_FRAC-B2INS_ACCEL_LTP_FRAC)));
   struct Int32Vect3 accel_imu;
   /* unbias accelerometers */
-  VECT3_DIFF(accel_imu, booz_imu.accel, scaled_biases);
+  VECT3_DIFF(accel_imu, imu.accel, scaled_biases);
   /* convert to LTP */
   //  BOOZ_IQUAT_VDIV(b2ins_accel_ltp, booz_ahrs.ltp_to_imu_quat, accel_imu);
   INT32_RMAT_TRANSP_VMULT(b2ins_accel_ltp,  booz_ahrs.ltp_to_imu_rmat, accel_imu);

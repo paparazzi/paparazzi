@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_imu.h"
+#include "imu.h"
 
 #include <stm32/gpio.h>
 #include <stm32/rcc.h>
@@ -44,7 +44,7 @@ static uint8_t buf_out[4];
 extern void dma1_c4_irq_handler(void);
 static void ADS8344_read_channel( void );
 
-void booz_imu_crista_arch_init(void) {
+void imu_crista_arch_init(void) {
 
   channel = 0;
   /* Enable SPI2 Periph clock -------------------------------------------------*/

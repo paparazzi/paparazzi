@@ -23,7 +23,7 @@
 
 #include "booz_ahrs_cmpl_euler.h"
 
-#include "booz_imu.h"
+#include "imu.h"
 #include "booz_ahrs_aligner.h"
 
 #include "airframe.h"
@@ -97,7 +97,7 @@ void booz_ahrs_propagate(void) {
 
   /* unbias gyro             */
   struct Int32Rates uf_rate;
-  RATES_DIFF(uf_rate, booz_imu.gyro, booz2_face_gyro_bias);
+  RATES_DIFF(uf_rate, imu.gyro, booz2_face_gyro_bias);
   /* low pass rate */  
   RATES_ADD(booz_ahrs.imu_rate, uf_rate);
   RATES_SDIV(booz_ahrs.imu_rate, booz_ahrs.imu_rate, 2);
@@ -130,24 +130,24 @@ void booz_ahrs_propagate(void) {
   INT32_RMAT_OF_EULERS(booz_ahrs.ltp_to_imu_rmat, booz_ahrs.ltp_to_imu_euler);
 
   /* Compute LTP to BODY quaternion */
-  INT32_QUAT_COMP_INV(booz_ahrs.ltp_to_body_quat, booz_ahrs.ltp_to_imu_quat, booz_imu.body_to_imu_quat);
+  INT32_QUAT_COMP_INV(booz_ahrs.ltp_to_body_quat, booz_ahrs.ltp_to_imu_quat, imu.body_to_imu_quat);
   /* Compute LTP to BODY rotation matrix */
-  INT32_RMAT_COMP_INV(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_imu_rmat, booz_imu.body_to_imu_rmat);
+  INT32_RMAT_COMP_INV(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_imu_rmat, imu.body_to_imu_rmat);
   /* compute LTP to BODY eulers */
   INT32_EULERS_OF_RMAT(booz_ahrs.ltp_to_body_euler, booz_ahrs.ltp_to_body_rmat);
   /* compute body rates */
-  INT32_RMAT_TRANSP_RATEMULT(booz_ahrs.body_rate, booz_imu.body_to_imu_rmat, booz_ahrs.imu_rate);
+  INT32_RMAT_TRANSP_RATEMULT(booz_ahrs.body_rate, imu.body_to_imu_rmat, booz_ahrs.imu_rate);
 
 }
 
 void booz_ahrs_update_accel(void) {
 
   /* build a measurement assuming constant acceleration ?!! */
-  INT32_ATAN2(measurement.phi, -booz_imu.accel.y, -booz_imu.accel.z);
+  INT32_ATAN2(measurement.phi, -imu.accel.y, -imu.accel.z);
   int32_t cphi;
   PPRZ_ITRIG_COS(cphi, measurement.phi);
-  int32_t cphi_ax = -INT_MULT_RSHIFT(cphi, booz_imu.accel.x, INT32_TRIG_FRAC);
-  INT32_ATAN2(measurement.theta, -cphi_ax, -booz_imu.accel.z);
+  int32_t cphi_ax = -INT_MULT_RSHIFT(cphi, imu.accel.x, INT32_TRIG_FRAC);
+  INT32_ATAN2(measurement.theta, -cphi_ax, -imu.accel.z);
   measurement.phi *= F_UPDATE;
   measurement.theta *= F_UPDATE;
 
@@ -171,17 +171,17 @@ void booz_ahrs_update_mag(void) {
   //int32_t cphi_ctheta = (cphi*ctheta)>>INT32_TRIG_FRAC;
 
   const int32_t mn =
-    ctheta      * booz_imu.mag.x +
-    sphi_stheta * booz_imu.mag.y +
-    cphi_stheta * booz_imu.mag.z;
+    ctheta      * imu.mag.x +
+    sphi_stheta * imu.mag.y +
+    cphi_stheta * imu.mag.z;
   const int32_t me =
-    0           * booz_imu.mag.x +
-    cphi        * booz_imu.mag.y +
-    -sphi       * booz_imu.mag.z;
+    0           * imu.mag.x +
+    cphi        * imu.mag.y +
+    -sphi       * imu.mag.z;
   //const int32_t md =
-  //  -stheta     * booz_imu.mag.x +
-  //  sphi_ctheta * booz_imu.mag.y +
-  //  cphi_ctheta * booz_imu.mag.z;
+  //  -stheta     * imu.mag.x +
+  //  sphi_ctheta * imu.mag.y +
+  //  cphi_ctheta * imu.mag.z;
   float m_psi = -atan2(me, mn);
   measurement.psi = ((m_psi - RadOfDeg(booz_ahrs_mag_offset))*(float)(1<<(INT32_ANGLE_FRAC))*F_UPDATE);
 

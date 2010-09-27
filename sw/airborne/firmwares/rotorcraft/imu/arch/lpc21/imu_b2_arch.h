@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_IMU_B2_ARCH_H
-#define BOOZ_IMU_B2_ARCH_H
+#ifndef IMU_B2_ARCH_H
+#define IMU_B2_ARCH_H
 
 /*
 
@@ -41,12 +41,12 @@
 #include "LPC21xx.h"
 #include "interrupt_hw.h"
 
-#define BOOZ_IMU_SSP_STA_IDLE           0
-#define BOOZ_IMU_SSP_STA_BUSY_MAX1168   1
-#define BOOZ_IMU_SSP_STA_BUSY_MS2100    2
-extern volatile uint8_t booz_imu_ssp_status;
+#define IMU_SSP_STA_IDLE           0
+#define IMU_SSP_STA_BUSY_MAX1168   1
+#define IMU_SSP_STA_BUSY_MS2100    2
+extern volatile uint8_t imu_ssp_status;
 
 
 
 
-#endif /* BOOZ_IMU_B2_ARCH_H */
+#endif /* IMU_B2_ARCH_H */

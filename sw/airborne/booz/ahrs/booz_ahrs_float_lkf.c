@@ -24,7 +24,7 @@
 
 #include "booz_ahrs_float_lkf.h"
 
-#include "booz_imu.h"
+#include "imu.h"
 #include "booz_ahrs_aligner.h"
 
 #include "airframe.h"
@@ -200,13 +200,13 @@ float bafl_R_mag;
 
 #define AHRS_LTP_TO_BODY() {																				\
 	/* Compute LTP to BODY quaternion */																	\
-	INT32_QUAT_COMP_INV(booz_ahrs.ltp_to_body_quat, booz_ahrs.ltp_to_imu_quat, booz_imu.body_to_imu_quat);	\
+	INT32_QUAT_COMP_INV(booz_ahrs.ltp_to_body_quat, booz_ahrs.ltp_to_imu_quat, imu.body_to_imu_quat);	\
 	/* Compute LTP to BODY rotation matrix */																\
-	INT32_RMAT_COMP_INV(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_imu_rmat, booz_imu.body_to_imu_rmat);	\
+	INT32_RMAT_COMP_INV(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_imu_rmat, imu.body_to_imu_rmat);	\
 	/* compute LTP to BODY eulers */																		\
 	INT32_EULERS_OF_RMAT(booz_ahrs.ltp_to_body_euler, booz_ahrs.ltp_to_body_rmat);							\
 	/* compute body rates */																				\
-	INT32_RMAT_TRANSP_RATEMULT(booz_ahrs.body_rate, booz_imu.body_to_imu_rmat, booz_ahrs.imu_rate);			\
+	INT32_RMAT_TRANSP_RATEMULT(booz_ahrs.body_rate, imu.body_to_imu_rmat, booz_ahrs.imu_rate);			\
 }
 
 
@@ -256,7 +256,7 @@ void booz_ahrs_align(void) {
 
 static inline void booz_ahrs_lowpass_accel(void) {
 	// get latest measurement
-	ACCELS_FLOAT_OF_BFP(bafl_accel_last, booz_imu.accel);
+	ACCELS_FLOAT_OF_BFP(bafl_accel_last, imu.accel);
 	// low pass it
 	VECT3_ADD(bafl_accel_measure, bafl_accel_last);
 	VECT3_SDIV(bafl_accel_measure, bafl_accel_measure, 2);
@@ -290,7 +290,7 @@ void booz_ahrs_propagate(void) {
     booz_ahrs_lowpass_accel();
 
 	/* compute unbiased rates */
-	RATES_FLOAT_OF_BFP(bafl_rates, booz_imu.gyro);
+	RATES_FLOAT_OF_BFP(bafl_rates, imu.gyro);
 	RATES_SUB(bafl_rates, bafl_bias);
 
 
@@ -647,7 +647,7 @@ static void booz_ahrs_do_update_mag(void) {
 	printf("Mag update.\n");
 #endif
 
-	MAGS_FLOAT_OF_BFP(bafl_mag, booz_imu.mag);
+	MAGS_FLOAT_OF_BFP(bafl_mag, imu.mag);
 
 	/* P_prio = P */
 	for (i = 0; i < BAFL_SSIZE; i++) {

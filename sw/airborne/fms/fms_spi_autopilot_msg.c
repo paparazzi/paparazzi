@@ -42,11 +42,11 @@
 
 #include "airframe.h"
 #include "actuators.h"
-#include "rdyb_booz_imu.h"
+#include "rdyb_imu.h"
 #include "booz_radio_control.h"
 #include "rdyb_mahrs.h"
 
-static struct BoozImuFloat imu;
+static struct ImuFloat imu;
 static struct FloatQuat body_to_imu_quat = IMU_POSE_BODY_TO_IMU_QUAT;
 
 static void (* vane_callback)(uint8_t vane_id, float alpha, float beta) = NULL;
@@ -163,7 +163,7 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
   imu.mag.z = MAG_FLOAT_OF_BFP(msg_up->mag.z);
 
   if (msg_up->valid.imu)
-    rdyb_booz_imu_update(&imu);
+    rdyb_imu_update(&imu);
 }
 
 static void passthrough_down_fill(struct AutopilotMessagePTDown *msg_down)

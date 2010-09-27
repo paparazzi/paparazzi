@@ -1,6 +1,6 @@
 #include "overo_estimator.h"
 
-#include "booz/booz_imu.h"
+#include "imu.h"
 #include <math.h>
 
 #include "messages2.h"
@@ -37,10 +37,10 @@ void estimator_run(uint16_t tilt_measure, uint16_t elevation_measure, uint16_t a
   Bound(estimator.tilt,-89,89);
   //low pass filter tilt gyro
   estimator.tilt_dot = estimator.tilt_dot + 
-                         estimator.tilt_lp_coeff * (RATE_FLOAT_OF_BFP(booz_imu.gyro.q) - estimator.tilt_dot);
+                         estimator.tilt_lp_coeff * (RATE_FLOAT_OF_BFP(imu.gyro.q) - estimator.tilt_dot);
   /* Second order filter yet to be tested
   estimator.tilt_dot = estimator.tilt_dot * (2 - estimator.tilt_lp_coeff1 - estimator.tilt_lp_coeff2) +
-                         estimator.tilt_lp_coeff1 * estimator.tilt_lp_coeff2 * RATE_FLOAT_OF_BFP(booz_imu.gyro.q) -
+                         estimator.tilt_lp_coeff1 * estimator.tilt_lp_coeff2 * RATE_FLOAT_OF_BFP(imu.gyro.q) -
                          estimator.tilt_dot_old * (1 - estimator.tilt_lp_coeff1 - estimator.tilt_lp_coeff2 +
                          estimator.tilt_lp_coeff1*estimator.tilt_lp_coeff2);
   */
@@ -49,8 +49,8 @@ void estimator_run(uint16_t tilt_measure, uint16_t elevation_measure, uint16_t a
   Bound(estimator.elevation,-45,45);
 
   //rotation compensation (mixing of two gyro values to generate a reading that reflects rate along beth axes
-  float rotated_elev_dot = RATE_FLOAT_OF_BFP(booz_imu.gyro.p) * cos(estimator.tilt) +
-                             RATE_FLOAT_OF_BFP(booz_imu.gyro.r) * sin(estimator.tilt);
+  float rotated_elev_dot = RATE_FLOAT_OF_BFP(imu.gyro.p) * cos(estimator.tilt) +
+                             RATE_FLOAT_OF_BFP(imu.gyro.r) * sin(estimator.tilt);
   //low pass filter -- should probably increase order and maybe move filtering to measured values.
   estimator.elevation_dot = estimator.elevation_dot + 
                               estimator.elevation_lp_coeff * (rotated_elev_dot - estimator.elevation_dot);
@@ -60,7 +60,7 @@ void estimator_run(uint16_t tilt_measure, uint16_t elevation_measure, uint16_t a
   //low pass filter azimuth gyro
   //TODO: compensate rotation and increase order
   estimator.azimuth_dot = estimator.azimuth_dot + 
-                         estimator.azimuth_lp_coeff * (RATE_FLOAT_OF_BFP(booz_imu.gyro.r) - estimator.azimuth_dot);
+                         estimator.azimuth_lp_coeff * (RATE_FLOAT_OF_BFP(imu.gyro.r) - estimator.azimuth_dot);
 
 }
 

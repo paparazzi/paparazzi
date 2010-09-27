@@ -23,7 +23,7 @@
 
 #include "vehicle_interface/vi.h"
 
-#include "booz/booz_imu.h"
+#include "imu.h"
 #include "booz/booz_gps.h"
 #include "booz/booz_ahrs.h"
 

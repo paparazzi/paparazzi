@@ -21,11 +21,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_imu.h"
+#include "imu.h"
 
-void booz_imu_impl_init(void) {
+void imu_impl_init(void) {
 
-  booz_imu_b2_arch_init();
+  imu_b2_arch_init();
 
   booz_max1168_init();
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001

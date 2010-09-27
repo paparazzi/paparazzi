@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_imu.h"
+#include "imu.h"
 
 #include "LPC21xx.h"
 #include "armVIC.h"
@@ -55,7 +55,7 @@
 static void SPI1_ISR(void) __attribute__((naked));
 static uint8_t channel;
 
-void booz_imu_crista_arch_init(void) {
+void imu_crista_arch_init(void) {
   channel = 0;
 
   /* setup pins for SSP (SCK, MISO, MOSI) */

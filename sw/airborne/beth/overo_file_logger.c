@@ -1,6 +1,6 @@
 #include "overo_file_logger.h"
 
-#include "booz/booz_imu.h"
+#include "imu.h"
 
 struct FileLogger file_logger;
 
@@ -15,8 +15,8 @@ void file_logger_init(char* filename) {
 void file_logger_periodic(void) {
   static uint32_t foo = 0;
   foo++;
-  fprintf(file_logger.outfile,"%f %d IMU_ACCEL_RAW %d %d %d\n",foo/512.,42,booz_imu.accel_unscaled.x,booz_imu.accel_unscaled.y,booz_imu.accel_unscaled.z);
-  fprintf(file_logger.outfile,"%f %d IMU_GYRO_RAW %d %d %d\n",foo/512.,42,booz_imu.gyro_unscaled.p,booz_imu.gyro_unscaled.q,booz_imu.gyro_unscaled.r);
+  fprintf(file_logger.outfile,"%f %d IMU_ACCEL_RAW %d %d %d\n",foo/512.,42,imu.accel_unscaled.x,imu.accel_unscaled.y,imu.accel_unscaled.z);
+  fprintf(file_logger.outfile,"%f %d IMU_GYRO_RAW %d %d %d\n",foo/512.,42,imu.gyro_unscaled.p,imu.gyro_unscaled.q,imu.gyro_unscaled.r);
 
 }
 

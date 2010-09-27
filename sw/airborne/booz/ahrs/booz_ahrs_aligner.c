@@ -24,7 +24,7 @@
 #include "booz_ahrs_aligner.h"
 
 #include <stdlib.h> /* for abs() */
-#include "booz_imu.h"
+#include "imu.h"
 #include "led.h"
 
 struct BoozAhrsAligner booz_ahrs_aligner;
@@ -52,11 +52,11 @@ void booz_ahrs_aligner_init(void) {
 
 void booz_ahrs_aligner_run(void) {
 
-  RATES_ADD(gyro_sum,  booz_imu.gyro);
-  VECT3_ADD(accel_sum, booz_imu.accel);
-  VECT3_ADD(mag_sum,   booz_imu.mag);
+  RATES_ADD(gyro_sum,  imu.gyro);
+  VECT3_ADD(accel_sum, imu.accel);
+  VECT3_ADD(mag_sum,   imu.mag);
 
-  ref_sensor_samples[samples_idx] = booz_imu.accel.z;
+  ref_sensor_samples[samples_idx] = imu.accel.z;
   samples_idx++;
 
 #ifdef AHRS_ALIGNER_LED

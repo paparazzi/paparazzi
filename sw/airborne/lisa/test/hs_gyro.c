@@ -31,7 +31,7 @@
 #include "messages.h"
 #include "downlink.h"
 
-#include "booz_imu.h"
+#include "imu.h"
 
 #include "interrupt_hw.h"
 
@@ -62,7 +62,7 @@ static inline void main_init( void ) {
 
   hw_init();
   sys_time_init();
-  booz_imu_init();
+  imu_init();
 
   int_enable();
 }
@@ -72,21 +72,21 @@ static inline void main_periodic_task( void ) {
       LED_TOGGLE(3);
       DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
     });
-  booz_imu_periodic();
+  imu_periodic();
   RunOnceEvery(10, { LED_PERIODIC();});
 }
 
 static inline void main_event_task( void ) {
 
-  BoozImuEvent(on_gyro_accel_event, on_mag_event);
+  ImuEvent(on_gyro_accel_event, on_mag_event);
 
 }
 
 #define NB_SAMPLES 20
 
 static inline void on_gyro_accel_event(void) {
-  BoozImuScaleGyro();
-  BoozImuScaleAccel();
+  ImuScaleGyro();
+  ImuScaleAccel();
   
   LED_TOGGLE(2);
   
@@ -95,16 +95,16 @@ static inline void on_gyro_accel_event(void) {
   const uint8_t axis = MEASURED_SENSOR_NB;
   cnt++;
   if (cnt > NB_SAMPLES) cnt = 0;
-  samples[cnt] = booz_imu.MEASURED_SENSOR;
+  samples[cnt] = imu.MEASURED_SENSOR;
   if (cnt == NB_SAMPLES-1) {
     DOWNLINK_SEND_IMU_HS_GYRO(DefaultChannel, &axis, NB_SAMPLES, samples);
   }
 
   if (cnt == 10) {
     DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,
-			       &booz_imu.gyro_unscaled.p,
-			       &booz_imu.gyro_unscaled.q,
-			       &booz_imu.gyro_unscaled.r);
+			       &imu.gyro_unscaled.p,
+			       &imu.gyro_unscaled.q,
+			       &imu.gyro_unscaled.r);
   }
   
 

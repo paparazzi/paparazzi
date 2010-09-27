@@ -4,7 +4,7 @@
 #include "nps_sensors.h"
 #include "nps_radio_control.h"
 #include "booz_radio_control.h"
-#include "booz/booz_imu.h"
+#include "imu.h"
 #include "firmwares/rotorcraft/baro.h"
 
 #include "actuators/booz_supervision.h"
@@ -35,12 +35,12 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
   }
 
   if (nps_sensors_gyro_available()) {
-    booz_imu_feed_gyro_accel();
+    imu_feed_gyro_accel();
     booz2_main_event();
   }
 
   if (nps_sensors_mag_available()) {
-    booz_imu_feed_mag();
+    imu_feed_mag();
     booz2_main_event();
  }
 

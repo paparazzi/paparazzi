@@ -65,21 +65,21 @@ extern int xsens_setzero;
 #include "booz_ahrs.h"
 
 #define PERIODIC_SEND_BOOZ2_GYRO() {			\
-    DOWNLINK_SEND_BOOZ2_GYRO(&booz_imu.gyro.p,		\
-			     &booz_imu.gyro.q,		\
-			     &booz_imu.gyro.r);		\
+    DOWNLINK_SEND_BOOZ2_GYRO(&imu.gyro.p,		\
+			     &imu.gyro.q,		\
+			     &imu.gyro.r);		\
   }
 
 #define PERIODIC_SEND_BOOZ2_ACCEL() {				\
-    DOWNLINK_SEND_BOOZ2_ACCEL(&booz_imu.accel.x,		\
-			      &booz_imu.accel.y,		\
-			      &booz_imu.accel.z);		\
+    DOWNLINK_SEND_BOOZ2_ACCEL(&imu.accel.x,		\
+			      &imu.accel.y,		\
+			      &imu.accel.z);		\
   }
 
 #define PERIODIC_SEND_BOOZ2_MAG() {				\
-    DOWNLINK_SEND_BOOZ2_MAG(&booz_imu.mag.x,			\
-			    &booz_imu.mag.y,			\
-			    &booz_imu.mag.z);			\
+    DOWNLINK_SEND_BOOZ2_MAG(&imu.mag.x,			\
+			    &imu.mag.y,			\
+			    &imu.mag.z);			\
   }
 
 #define PERIODIC_SEND_BOOZ2_AHRS_EULER() {			\

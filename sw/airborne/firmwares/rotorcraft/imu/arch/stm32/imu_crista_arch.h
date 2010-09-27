@@ -24,7 +24,7 @@
 #define BOOZ_IMU_CRISTA_ARCH_H
 
 
-#define BoozImuCristaArchPeriodic() {		\
+#define ImuCristaArchPeriodic() {		\
     ADS8344_start();				\
   }
 

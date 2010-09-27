@@ -26,7 +26,7 @@
 
 #include "booz_ahrs.h"
 
-#include "booz_imu.h"
+#include "imu.h"
 #include "booz_radio_control.h"
 #include "airframe.h"
 

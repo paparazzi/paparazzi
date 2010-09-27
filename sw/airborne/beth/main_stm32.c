@@ -31,7 +31,7 @@
 #include "booz/booz2_commands.h"
 #include "booz/booz_actuators.h"
 //#include "booz/booz_radio_control.h"
-#include "booz/booz_imu.h"
+#include "imu.h"
 #include "lisa/lisa_overo_link.h"
 #include "beth/bench_sensors.h"
 
@@ -65,7 +65,7 @@ static inline void main_init( void ) {
   sys_time_init();
   actuators_init();
   //radio_control_init();
-  booz_imu_init();
+  imu_init();
   overo_link_init();
   bench_sensors_init();
   booz2_commands[COMMAND_ROLL] = 0;
@@ -76,7 +76,7 @@ static inline void main_init( void ) {
 
 static inline void main_periodic( void ) {
   int8_t pitch_out,thrust_out;
-  booz_imu_periodic();
+  imu_periodic();
 
   OveroLinkPeriodic(main_on_overo_link_lost)
 
@@ -114,7 +114,7 @@ static inline void main_periodic( void ) {
 }
 
 static inline void main_event( void ) {
-  BoozImuEvent(on_gyro_accel_event, on_mag_event);
+  ImuEvent(on_gyro_accel_event, on_mag_event);
   OveroLinkEvent(main_on_overo_msg_received,main_on_overo_link_error);
 }
 
@@ -124,13 +124,13 @@ static inline void main_on_overo_msg_received(void) {
   overo_link.up.msg.bench_sensor.y = bench_sensors.angle_2;
   overo_link.up.msg.bench_sensor.z = bench_sensors.angle_3;
 
-  overo_link.up.msg.accel.x = booz_imu.accel_unscaled.x;
-  overo_link.up.msg.accel.y = booz_imu.accel_unscaled.y;
-  overo_link.up.msg.accel.z = booz_imu.accel_unscaled.z;
+  overo_link.up.msg.accel.x = imu.accel_unscaled.x;
+  overo_link.up.msg.accel.y = imu.accel_unscaled.y;
+  overo_link.up.msg.accel.z = imu.accel_unscaled.z;
 
-  overo_link.up.msg.gyro.p = booz_imu.gyro_unscaled.p;
-  overo_link.up.msg.gyro.q = booz_imu.gyro_unscaled.q;
-  overo_link.up.msg.gyro.r = booz_imu.gyro_unscaled.r;
+  overo_link.up.msg.gyro.p = imu.gyro_unscaled.p;
+  overo_link.up.msg.gyro.q = imu.gyro_unscaled.q;
+  overo_link.up.msg.gyro.r = imu.gyro_unscaled.r;
   
   //can_err_flags (uint16) represents the board number that is not communicating regularly
   //spi_errors (uint16) reflects the number of crc errors on the spi link
@@ -151,8 +151,8 @@ static inline void main_on_overo_link_lost(void) {
 
 
 static inline void on_gyro_accel_event(void) {
-  BoozImuScaleGyro(booz_imu);
-  BoozImuScaleAccel(booz_imu);
+  ImuScaleGyro(imu);
+  ImuScaleAccel(imu);
 
   //LED_TOGGLE(2);
   static uint8_t cnt;
@@ -161,46 +161,46 @@ static inline void on_gyro_accel_event(void) {
 
   if (cnt == 0) {
     DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,
-			       &booz_imu.gyro_unscaled.p,
-			       &booz_imu.gyro_unscaled.q,
-			       &booz_imu.gyro_unscaled.r);
+			       &imu.gyro_unscaled.p,
+			       &imu.gyro_unscaled.q,
+			       &imu.gyro_unscaled.r);
     
     DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,
-				&booz_imu.accel_unscaled.x,
-				&booz_imu.accel_unscaled.y,
-				&booz_imu.accel_unscaled.z);
+				&imu.accel_unscaled.x,
+				&imu.accel_unscaled.y,
+				&imu.accel_unscaled.z);
   }
   else if (cnt == 7) {
     DOWNLINK_SEND_BOOZ2_GYRO(DefaultChannel,
-			     &booz_imu.gyro.p,
-			     &booz_imu.gyro.q,
-			     &booz_imu.gyro.r);
+			     &imu.gyro.p,
+			     &imu.gyro.q,
+			     &imu.gyro.r);
     
     DOWNLINK_SEND_BOOZ2_ACCEL(DefaultChannel,
-			      &booz_imu.accel.x,
-			      &booz_imu.accel.y,
-			      &booz_imu.accel.z);
+			      &imu.accel.x,
+			      &imu.accel.y,
+			      &imu.accel.z);
   }
 }
 
 
 static inline void on_mag_event(void) {
-  BoozImuScaleMag(booz_imu);
+  ImuScaleMag(imu);
   static uint8_t cnt;
   cnt++;
   if (cnt > 1) cnt = 0;
 
   if (cnt%2) {
     DOWNLINK_SEND_BOOZ2_MAG(DefaultChannel,
-			    &booz_imu.mag.x,
-			    &booz_imu.mag.y,
-			    &booz_imu.mag.z);
+			    &imu.mag.x,
+			    &imu.mag.y,
+			    &imu.mag.z);
   }
   else {
     DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
-			      &booz_imu.mag_unscaled.x,
-			      &booz_imu.mag_unscaled.y,
-			      &booz_imu.mag_unscaled.z);
+			      &imu.mag_unscaled.x,
+			      &imu.mag_unscaled.y,
+			      &imu.mag_unscaled.z);
   }
 }
 

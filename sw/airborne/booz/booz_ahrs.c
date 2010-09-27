@@ -22,7 +22,7 @@
  */
 
 #include "booz_ahrs.h"
-#include "booz_imu.h"
+#include "imu.h"
 
 struct BoozAhrs booz_ahrs;
 struct BoozAhrsFloat booz_ahrs_float;

@@ -1,8 +1,8 @@
-#include "booz_imu.h"
+#include "imu.h"
 
 #include "i2c.h"
 
-struct BoozImuAspirin imu_aspirin;
+struct ImuAspirin imu_aspirin;
 
 /* initialize peripherals */
 static void configure_gyro(void);
@@ -10,7 +10,7 @@ static void configure_mag(void);
 static void configure_accel(void);
 
 
-void booz_imu_impl_init(void) {
+void imu_impl_init(void) {
 
   imu_aspirin.status = AspirinStatusUninit;
   imu_aspirin.gyro_available = FALSE;
@@ -19,12 +19,12 @@ void booz_imu_impl_init(void) {
   imu_aspirin.mag_available = FALSE;
   imu_aspirin.accel_available = FALSE;
 
-  booz_imu_aspirin_arch_init();
+  imu_aspirin_arch_init();
 
 }
 
 
-void booz_imu_periodic(void) {
+void imu_periodic(void) {
   if (imu_aspirin.status == AspirinStatusUninit) {
     configure_gyro();
     configure_mag();

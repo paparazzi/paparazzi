@@ -30,8 +30,8 @@
 #define BOOZ2_IMU_B2_ARCH_H
 
 
-extern void booz_imu_feed_gyro_accel(void);
-extern void booz_imu_feed_mag(void);
+extern void imu_feed_gyro_accel(void);
+extern void imu_feed_mag(void);
 
 
 #endif /* BOOZ2_IMU_B2_HW_H */

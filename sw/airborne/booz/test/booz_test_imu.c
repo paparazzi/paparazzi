@@ -31,7 +31,7 @@
 #include "messages.h"
 #include "downlink.h"
 
-#include "booz_imu.h"
+#include "imu.h"
 
 #include "interrupt_hw.h"
 
@@ -58,7 +58,7 @@ static inline void main_init( void ) {
 
   hw_init();
   sys_time_init();
-  booz_imu_init();
+  imu_init();
 
   DEBUG_SERVO1_INIT();
   DEBUG_SERVO2_INIT();
@@ -86,19 +86,19 @@ static inline void main_periodic_task( void ) {
 			       &i2c2_errors.last_unexpected_event);
     });
 #endif
-  if (cpu_time_sec > 1) booz_imu_periodic();
+  if (cpu_time_sec > 1) imu_periodic();
   RunOnceEvery(10, { LED_PERIODIC();});
 }
 
 static inline void main_event_task( void ) {
 
-  BoozImuEvent(on_gyro_accel_event, on_mag_event);
+  ImuEvent(on_gyro_accel_event, on_mag_event);
 
 }
 
 static inline void on_gyro_accel_event(void) {
-  BoozImuScaleGyro(booz_imu);
-  BoozImuScaleAccel(booz_imu);
+  ImuScaleGyro(imu);
+  ImuScaleAccel(imu);
 
   LED_TOGGLE(2);
   static uint8_t cnt;
@@ -107,45 +107,45 @@ static inline void on_gyro_accel_event(void) {
 
   if (cnt == 0) {
     DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,
-			       &booz_imu.gyro_unscaled.p,
-			       &booz_imu.gyro_unscaled.q,
-			       &booz_imu.gyro_unscaled.r);
+			       &imu.gyro_unscaled.p,
+			       &imu.gyro_unscaled.q,
+			       &imu.gyro_unscaled.r);
     
     DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,
-				&booz_imu.accel_unscaled.x,
-				&booz_imu.accel_unscaled.y,
-				&booz_imu.accel_unscaled.z);
+				&imu.accel_unscaled.x,
+				&imu.accel_unscaled.y,
+				&imu.accel_unscaled.z);
   }
   else if (cnt == 7) {
     DOWNLINK_SEND_BOOZ2_GYRO(DefaultChannel,
-			     &booz_imu.gyro.p,
-			     &booz_imu.gyro.q,
-			     &booz_imu.gyro.r);
+			     &imu.gyro.p,
+			     &imu.gyro.q,
+			     &imu.gyro.r);
     
     DOWNLINK_SEND_BOOZ2_ACCEL(DefaultChannel,
-			      &booz_imu.accel.x,
-			      &booz_imu.accel.y,
-			      &booz_imu.accel.z);
+			      &imu.accel.x,
+			      &imu.accel.y,
+			      &imu.accel.z);
   }
 }
 
 
 static inline void on_mag_event(void) {
-  BoozImuScaleMag(booz_imu);
+  ImuScaleMag(imu);
   static uint8_t cnt;
   cnt++;
   if (cnt > 1) cnt = 0;
 
   if (cnt%2) {
     DOWNLINK_SEND_BOOZ2_MAG(DefaultChannel,
-			    &booz_imu.mag.x,
-			    &booz_imu.mag.y,
-			    &booz_imu.mag.z);
+			    &imu.mag.x,
+			    &imu.mag.y,
+			    &imu.mag.z);
   }
   else {
     DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
-			      &booz_imu.mag_unscaled.x,
-			      &booz_imu.mag_unscaled.y,
-			      &booz_imu.mag_unscaled.z);
+			      &imu.mag_unscaled.x,
+			      &imu.mag_unscaled.y,
+			      &imu.mag_unscaled.z);
   }
 }

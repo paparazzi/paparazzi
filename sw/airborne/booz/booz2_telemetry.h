@@ -46,7 +46,7 @@
 #define PERIODIC_SEND_ALIVE(_chan) DOWNLINK_SEND_ALIVE(_chan, 16, MD5SUM)
 
 #include "booz2_battery.h"
-#include "booz_imu.h"
+#include "imu.h"
 #include "booz_gps.h"
 #include "booz2_ins.h"
 #include "booz_ahrs.h"
@@ -57,10 +57,10 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef USE_GPS
 #define PERIODIC_SEND_BOOZ_STATUS(_chan) {				\
-    uint32_t booz_imu_nb_err = 0;					\
+    uint32_t imu_nb_err = 0;					\
     uint8_t _twi_blmc_nb_err = 0;					\
     DOWNLINK_SEND_BOOZ_STATUS(_chan,					\
-			      &booz_imu_nb_err,				\
+			      &imu_nb_err,				\
 			      &_twi_blmc_nb_err,			\
 			      &radio_control.status,			\
 			      &booz_gps_state.fix,			\
@@ -75,11 +75,11 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 #else /* !USE_GPS */
 #define PERIODIC_SEND_BOOZ_STATUS(_chan) {				\
-    uint32_t booz_imu_nb_err = 0;					\
+    uint32_t imu_nb_err = 0;					\
     uint8_t twi_blmc_nb_err = 0;					\
     uint8_t  fix = BOOZ2_GPS_FIX_NONE;					\
     DOWNLINK_SEND_BOOZ_STATUS(_chan,					\
-			      &booz_imu_nb_err,				\
+			      &imu_nb_err,				\
 			      &twi_blmc_nb_err,				\
 			      &radio_control.status,			\
 			      &fix,					\
@@ -130,44 +130,44 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #define PERIODIC_SEND_BOOZ2_GYRO(_chan) {		\
     DOWNLINK_SEND_BOOZ2_GYRO(_chan,			\
-			     &booz_imu.gyro.p,		\
-			     &booz_imu.gyro.q,		\
-			     &booz_imu.gyro.r);		\
+			     &imu.gyro.p,		\
+			     &imu.gyro.q,		\
+			     &imu.gyro.r);		\
   }
 
 #define PERIODIC_SEND_BOOZ2_ACCEL(_chan) {			\
     DOWNLINK_SEND_BOOZ2_ACCEL(_chan,				\
-			      &booz_imu.accel.x,		\
-			      &booz_imu.accel.y,		\
-			      &booz_imu.accel.z);		\
+			      &imu.accel.x,		\
+			      &imu.accel.y,		\
+			      &imu.accel.z);		\
   }
 
 #define PERIODIC_SEND_BOOZ2_MAG(_chan) {			\
     DOWNLINK_SEND_BOOZ2_MAG(_chan,				\
-			    &booz_imu.mag.x,			\
-			    &booz_imu.mag.y,			\
-			    &booz_imu.mag.z);			\
+			    &imu.mag.x,			\
+			    &imu.mag.y,			\
+			    &imu.mag.z);			\
   }
 
 #define PERIODIC_SEND_IMU_GYRO_RAW(_chan) {				\
     DOWNLINK_SEND_IMU_GYRO_RAW(_chan,					\
-			       &booz_imu.gyro_unscaled.p,		\
-			       &booz_imu.gyro_unscaled.q,		\
-			       &booz_imu.gyro_unscaled.r);		\
+			       &imu.gyro_unscaled.p,		\
+			       &imu.gyro_unscaled.q,		\
+			       &imu.gyro_unscaled.r);		\
   }
 
 #define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) {				\
     DOWNLINK_SEND_IMU_ACCEL_RAW(_chan,					\
-				&booz_imu.accel_unscaled.x,		\
-				&booz_imu.accel_unscaled.y,		\
-				&booz_imu.accel_unscaled.z);		\
+				&imu.accel_unscaled.x,		\
+				&imu.accel_unscaled.y,		\
+				&imu.accel_unscaled.z);		\
   }
 
 #define PERIODIC_SEND_IMU_MAG_RAW(_chan) {				\
     DOWNLINK_SEND_IMU_MAG_RAW(_chan,					\
-			      &booz_imu.mag_unscaled.x,			\
-			      &booz_imu.mag_unscaled.y,			\
-			      &booz_imu.mag_unscaled.z);		\
+			      &imu.mag_unscaled.x,			\
+			      &imu.mag_unscaled.y,			\
+			      &imu.mag_unscaled.z);		\
   }
 
 /* FIXME: make that depend on board */
@@ -307,9 +307,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				       &booz_ahrs_aligner.lp_gyro.p,	\
 				       &booz_ahrs_aligner.lp_gyro.q,	\
 				       &booz_ahrs_aligner.lp_gyro.r,	\
-				       &booz_imu.gyro.p,		\
-				       &booz_imu.gyro.q,		\
-				       &booz_imu.gyro.r,		\
+				       &imu.gyro.p,		\
+				       &imu.gyro.q,		\
+				       &imu.gyro.r,		\
 				       &booz_ahrs_aligner.noise,	\
 				       &booz_ahrs_aligner.low_noise_cnt); \
   }

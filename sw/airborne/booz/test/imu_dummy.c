@@ -1,3 +1,3 @@
-#include "booz_imu.h"
+#include "imu.h"
 
-void booz_imu_impl_init(void) {}
+void imu_impl_init(void) {}

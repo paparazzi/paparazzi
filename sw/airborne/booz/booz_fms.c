@@ -23,7 +23,7 @@
 
 #include "booz_fms.h"
 
-#include "booz_imu.h"
+#include "imu.h"
 #include "booz_gps.h"
 #include "booz_ahrs.h"
 
@@ -71,9 +71,9 @@ void booz_fms_set_enabled(bool_t enabled) {
 
 void booz_fms_update_info(void) {
 
-  //  PPRZ_INT16_OF_INT32_RATES(booz_fms_info.imu.gyro,  booz_imu.gyro);
-  // PPRZ_INT16_OF_INT32_VECT3(booz_fms_info.imu.accel, booz_imu.accel);
-  //PPRZ_INT16_OF_INT32_VECT3(booz_fms_info.imu.mag,   booz_imu.mag);
+  //  PPRZ_INT16_OF_INT32_RATES(booz_fms_info.imu.gyro,  imu.gyro);
+  // PPRZ_INT16_OF_INT32_VECT3(booz_fms_info.imu.accel, imu.accel);
+  //PPRZ_INT16_OF_INT32_VECT3(booz_fms_info.imu.mag,   imu.mag);
 
   //PPRZ_INT32_VECT3_COPY(booz_fms_info.gps.pos, booz_gps_state.ecef_pos);
   //PPRZ_INT16_OF_INT32_VECT3(booz_fms_info.gps.speed, booz_gps_state.ecef_speed);

@@ -60,6 +60,9 @@
 
 
 
+# add imu arch to include directories
+ap.CFLAGS += -I$(SRC_FIRMWARE)/imu/arch/$(ARCH)
+
 ap.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/imu_crista.h\"
 ap.srcs += $(SRC_FIRMWARE)/imu.c            \
            $(SRC_FIRMWARE)/imu/imu_crista.c \
@@ -70,11 +73,17 @@ ap.srcs   += $(SRC_BOOZ)/peripherals/booz_ami601.c
 ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
 
 
+#
+# Simulator
+#
+
+# add imu arch to include directories
+sim.CFLAGS += -I$(SRC_FIRMWARE)/imu/arch/$(ARCH)
 
 sim.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/imu_crista.h\"
 sim.srcs   += $(SRC_FIRMWARE)/imu.c                 \
               $(SRC_FIRMWARE)/imu/imu_crista.c     \
-              $(SRC_FIRMWARE)/imu/imu_crista_arch.c
+              $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_crista_arch.c
 
 sim.CFLAGS += -DUSE_AMI601
 sim.srcs   += $(SRC_BOOZ)/peripherals/booz_ami601.c

@@ -2,14 +2,14 @@
 #define OVERO_TEST_PASSTHROUGH_H
 
 #include "std.h"
-#include "booz/booz_imu.h"
+#include "imu.h"
 
 struct OveroTestPassthrough {
   /* our network connection */
   char* gs_gw;
 
   /* our sensors            */
-  struct BoozImuFloat imu;
+  struct ImuFloat imu;
   uint8_t  rc_status;
   int32_t  baro_abs;
   int32_t  baro_diff;

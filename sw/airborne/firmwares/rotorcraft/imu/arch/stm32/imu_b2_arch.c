@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_imu.h"
+#include "imu.h"
 
 #include <stm32/gpio.h>
 #include <stm32/rcc.h>
@@ -34,12 +34,12 @@
 #define BOOZ_IMU_SSP_STA_BUSY_MAX1168   1
 #define BOOZ_IMU_SSP_STA_BUSY_MS2100    2
 
-volatile uint8_t booz_imu_ssp_status;
+volatile uint8_t imu_ssp_status;
 
 void dma1_c4_irq_handler(void);
 void spi2_irq_handler(void);
 
-void booz_imu_b2_arch_init(void) {
+void imu_b2_arch_init(void) {
 
   /* Enable SPI2 Periph clock -------------------------------------------------*/
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
@@ -70,13 +70,13 @@ void booz_imu_b2_arch_init(void) {
   };
   NVIC_Init(&NVIC_init_structure_spi);
 
-  booz_imu_ssp_status = BOOZ_IMU_SSP_STA_IDLE;
+  imu_ssp_status = BOOZ_IMU_SSP_STA_IDLE;
 }
 
-void booz_imu_periodic(void) {
+void imu_periodic(void) {
   // check ssp idle
-  // ASSERT((booz_imu_status == BOOZ_IMU_STA_IDLE), DEBUG_IMU, IMU_ERR_OVERUN);
-  booz_imu_ssp_status = BOOZ_IMU_SSP_STA_BUSY_MAX1168;
+  // ASSERT((imu_status == BOOZ_IMU_STA_IDLE), DEBUG_IMU, IMU_ERR_OVERUN);
+  imu_ssp_status = BOOZ_IMU_SSP_STA_BUSY_MAX1168;
   Max1168ConfigureSPI();
   SPI_Cmd(SPI2, ENABLE);
   booz_max1168_read();
@@ -84,27 +84,27 @@ void booz_imu_periodic(void) {
 }
 
 void dma1_c4_irq_handler(void) {
-  switch (booz_imu_ssp_status) {
+  switch (imu_ssp_status) {
   case BOOZ_IMU_SSP_STA_BUSY_MAX1168:
     Max1168OnDmaIrq();
     SPI_Cmd(SPI2, DISABLE);
     if (ms2001_status == MS2001_IDLE) {
       Ms2001SendReq();
-      booz_imu_ssp_status = BOOZ_IMU_SSP_STA_BUSY_MS2100;
+      imu_ssp_status = BOOZ_IMU_SSP_STA_BUSY_MS2100;
     }
     else if (ms2001_status == MS2001_WAITING_EOC && Ms2001HasEOC()) {
       Ms2001ReadRes();
-      booz_imu_ssp_status = BOOZ_IMU_SSP_STA_BUSY_MS2100;
+      imu_ssp_status = BOOZ_IMU_SSP_STA_BUSY_MS2100;
     }
     else
-      booz_imu_ssp_status = BOOZ_IMU_SSP_STA_IDLE;
+      imu_ssp_status = BOOZ_IMU_SSP_STA_IDLE;
     break;
   case BOOZ_IMU_SSP_STA_BUSY_MS2100:
     Ms2001OnDmaIrq();
     break;
   default:
     // POST_ERROR(DEBUG_IMU, IMU_ERR_SUPRIOUS_DMA1_C4_IRQ);
-    booz_imu_ssp_status = BOOZ_IMU_SSP_STA_IDLE;
+    imu_ssp_status = BOOZ_IMU_SSP_STA_IDLE;
   }
 }
 

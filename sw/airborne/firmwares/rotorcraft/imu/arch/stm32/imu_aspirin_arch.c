@@ -1,4 +1,4 @@
-#include "booz_imu.h"
+#include "imu.h"
 
 #include <stm32/gpio.h>
 #include <stm32/misc.h>
@@ -21,7 +21,7 @@ void exti2_irq_handler(void);
 /* accelerometer dma end of rx handler */
 void dma1_c4_irq_handler(void);
 
-void booz_imu_aspirin_arch_init(void) {
+void imu_aspirin_arch_init(void) {
 
   GPIO_InitTypeDef GPIO_InitStructure;
   EXTI_InitTypeDef EXTI_InitStructure;
