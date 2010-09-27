@@ -239,7 +239,7 @@ static inline void autopilot_check_motors_on( void ) {
 void autopilot_on_rc_frame(void) {
 
   uint8_t new_autopilot_mode = 0;
-  BOOZ_AP_MODE_OF_PPRZ(radio_control.values[RADIO_CONTROL_MODE], new_autopilot_mode);
+  AP_MODE_OF_PPRZ(radio_control.values[RADIO_CONTROL_MODE], new_autopilot_mode);
   autopilot_set_mode(new_autopilot_mode);
 
 #ifdef RADIO_CONTROL_KILL_SWITCH

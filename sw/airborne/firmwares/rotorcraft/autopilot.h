@@ -80,26 +80,26 @@ extern uint16_t autopilot_flight_time;
 #define TRESHOLD_1_PPRZ (MIN_PPRZ / 2)
 #define TRESHOLD_2_PPRZ (MAX_PPRZ / 2)
 
-#define BOOZ_AP_MODE_OF_PPRZ(_rc, _booz_mode) {				\
-    if      (_rc > TRESHOLD_2_PPRZ)					\
-      _booz_mode = autopilot_mode_auto2;				\
+#define AP_MODE_OF_PPRZ(_rc, _mode) {               \
+    if      (_rc > TRESHOLD_2_PPRZ)                 \
+      _mode = autopilot_mode_auto2;                 \
     else if (_rc > TRESHOLD_1_PPRZ)					\
-      _booz_mode = MODE_AUTO1;					\
-    else								\
-      _booz_mode = MODE_MANUAL;					\
+      _mode = MODE_AUTO1;                           \
+    else                                            \
+      _mode = MODE_MANUAL;                          \
   }
 
-#define autopilot_KillThrottle(_v) {	                        \
-    kill_throttle = _v;							\
+#define autopilot_KillThrottle(_v) {                            \
+    kill_throttle = _v;                                         \
     if (kill_throttle) autopilot_motors_on = FALSE;				\
-    else autopilot_motors_on = TRUE; \
+    else autopilot_motors_on = TRUE;                            \
   }
 
-#define autopilot_SetPowerSwitch(_v) { \
-  autopilot_power_switch = _v; \
-  if (_v) { LED_OFF(POWER_SWITCH_LED); } \
-  else { LED_ON(POWER_SWITCH_LED); } \
-}
+#define autopilot_SetPowerSwitch(_v) {          \
+    autopilot_power_switch = _v;                \
+    if (_v) { LED_OFF(POWER_SWITCH_LED); }      \
+    else { LED_ON(POWER_SWITCH_LED); }          \
+  }
 
 #ifndef TRESHOLD_GROUND_DETECT
 #define TRESHOLD_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)
