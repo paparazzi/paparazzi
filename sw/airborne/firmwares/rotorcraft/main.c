@@ -148,9 +148,9 @@ STATIC_INLINE void booz2_main_periodic( void ) {
     {						                        \
       radio_control_periodic();						\
       if (radio_control.status != RADIO_CONTROL_OK &&			\
-          autopilot_mode != BOOZ2_AP_MODE_KILL &&			\
-          autopilot_mode != BOOZ2_AP_MODE_NAV)			\
-        autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);		\
+          autopilot_mode != AP_MODE_KILL &&			\
+          autopilot_mode != AP_MODE_NAV)			\
+        autopilot_set_mode(AP_MODE_FAILSAFE);		\
     },									\
     {									\
       booz_fms_periodic();						\
@@ -174,8 +174,8 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   
 #ifdef USE_GPS
   if (radio_control.status != RADIO_CONTROL_OK &&			\
-      autopilot_mode == BOOZ2_AP_MODE_NAV && GpsIsLost())		\
-    autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);			\
+      autopilot_mode == AP_MODE_NAV && GpsIsLost())		\
+    autopilot_set_mode(AP_MODE_FAILSAFE);			\
   booz_gps_periodic();
 #endif
 
@@ -208,7 +208,7 @@ STATIC_INLINE void booz2_main_event( void ) {
 #endif
 
 #ifdef FAILSAFE_GROUND_DETECT
-  BoozDetectGroundEvent();
+  DetectGroundEvent();
 #endif
 
   modules_event_task();

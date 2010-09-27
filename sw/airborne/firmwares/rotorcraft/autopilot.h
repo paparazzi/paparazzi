@@ -32,19 +32,19 @@
 #include "airframe.h"
 #include "booz2_ins.h"
 
-#define BOOZ2_AP_MODE_FAILSAFE          0
-#define BOOZ2_AP_MODE_KILL              1
-#define BOOZ2_AP_MODE_RATE_DIRECT       2
-#define BOOZ2_AP_MODE_ATTITUDE_DIRECT   3
-#define BOOZ2_AP_MODE_RATE_RC_CLIMB     4
-#define BOOZ2_AP_MODE_ATTITUDE_RC_CLIMB 5
-#define BOOZ2_AP_MODE_ATTITUDE_CLIMB    6
-#define BOOZ2_AP_MODE_RATE_Z_HOLD       7
-#define BOOZ2_AP_MODE_ATTITUDE_Z_HOLD   8
-#define BOOZ2_AP_MODE_HOVER_DIRECT      9
-#define BOOZ2_AP_MODE_HOVER_CLIMB       10
-#define BOOZ2_AP_MODE_HOVER_Z_HOLD      11
-#define BOOZ2_AP_MODE_NAV               12
+#define AP_MODE_FAILSAFE          0
+#define AP_MODE_KILL              1
+#define AP_MODE_RATE_DIRECT       2
+#define AP_MODE_ATTITUDE_DIRECT   3
+#define AP_MODE_RATE_RC_CLIMB     4
+#define AP_MODE_ATTITUDE_RC_CLIMB 5
+#define AP_MODE_ATTITUDE_CLIMB    6
+#define AP_MODE_RATE_Z_HOLD       7
+#define AP_MODE_ATTITUDE_Z_HOLD   8
+#define AP_MODE_HOVER_DIRECT      9
+#define AP_MODE_HOVER_CLIMB       10
+#define AP_MODE_HOVER_Z_HOLD      11
+#define AP_MODE_NAV               12
 
 
 extern uint8_t autopilot_mode;
@@ -66,14 +66,14 @@ extern bool_t autopilot_detect_ground_once;
 
 extern uint16_t autopilot_flight_time;
 
-#ifndef BOOZ2_MODE_MANUAL
-#define BOOZ2_MODE_MANUAL BOOZ2_AP_MODE_RATE_DIRECT
+#ifndef MODE_MANUAL
+#define MODE_MANUAL AP_MODE_RATE_DIRECT
 #endif
-#ifndef BOOZ2_MODE_AUTO1
-#define BOOZ2_MODE_AUTO1 BOOZ2_AP_MODE_ATTITUDE_DIRECT
+#ifndef MODE_AUTO1
+#define MODE_AUTO1 AP_MODE_ATTITUDE_DIRECT
 #endif
-#ifndef BOOZ2_MODE_AUTO2
-#define BOOZ2_MODE_AUTO2 BOOZ2_AP_MODE_ATTITUDE_Z_HOLD
+#ifndef MODE_AUTO2
+#define MODE_AUTO2 AP_MODE_ATTITUDE_Z_HOLD
 #endif
 
 
@@ -84,9 +84,9 @@ extern uint16_t autopilot_flight_time;
     if      (_rc > TRESHOLD_2_PPRZ)					\
       _booz_mode = autopilot_mode_auto2;				\
     else if (_rc > TRESHOLD_1_PPRZ)					\
-      _booz_mode = BOOZ2_MODE_AUTO1;					\
+      _booz_mode = MODE_AUTO1;					\
     else								\
-      _booz_mode = BOOZ2_MODE_MANUAL;					\
+      _booz_mode = MODE_MANUAL;					\
   }
 
 #define autopilot_KillThrottle(_v) {	                        \
@@ -104,8 +104,8 @@ extern uint16_t autopilot_flight_time;
 #ifndef TRESHOLD_GROUND_DETECT
 #define TRESHOLD_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)
 #endif
-static inline void BoozDetectGroundEvent(void) {
-  if (autopilot_mode == BOOZ2_AP_MODE_FAILSAFE || autopilot_detect_ground_once) {
+static inline void DetectGroundEvent(void) {
+  if (autopilot_mode == AP_MODE_FAILSAFE || autopilot_detect_ground_once) {
     if (booz_ins_ltp_accel.z < -TRESHOLD_GROUND_DETECT ||
         booz_ins_ltp_accel.z > TRESHOLD_GROUND_DETECT) {
       autopilot_detect_ground = TRUE;

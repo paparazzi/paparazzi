@@ -53,13 +53,13 @@ uint16_t autopilot_flight_time;
 #define AUTOPILOT_YAW_TRESHOLD      (MAX_PPRZ * 19 / 20)
 
 void autopilot_init(void) {
-  autopilot_mode = BOOZ2_AP_MODE_KILL;
+  autopilot_mode = AP_MODE_KILL;
   autopilot_motors_on = FALSE;
   autopilot_in_flight = FALSE;
   kill_throttle = ! autopilot_motors_on;
   autopilot_motors_on_counter = 0;
   autopilot_in_flight_counter = 0;
-  autopilot_mode_auto2 = BOOZ2_MODE_AUTO2;
+  autopilot_mode_auto2 = MODE_AUTO2;
   autopilot_detect_ground = FALSE;
   autopilot_detect_ground_once = FALSE;
   autopilot_flight_time = 0;
@@ -73,16 +73,16 @@ void autopilot_periodic(void) {
 
   RunOnceEvery(BOOZ2_NAV_PRESCALER, nav_periodic_task());
 #ifdef FAILSAFE_GROUND_DETECT
-  if (autopilot_mode == BOOZ2_AP_MODE_FAILSAFE && autopilot_detect_ground) {
-    autopilot_set_mode(BOOZ2_AP_MODE_KILL);
+  if (autopilot_mode == AP_MODE_FAILSAFE && autopilot_detect_ground) {
+    autopilot_set_mode(AP_MODE_KILL);
     autopilot_detect_ground = FALSE;
   }
 #endif
   if ( !autopilot_motors_on ||
 #ifndef FAILSAFE_GROUND_DETECT
-       autopilot_mode == BOOZ2_AP_MODE_FAILSAFE ||
+       autopilot_mode == AP_MODE_FAILSAFE ||
 #endif
-       autopilot_mode == BOOZ2_AP_MODE_KILL ) {
+       autopilot_mode == AP_MODE_KILL ) {
     SetCommands(booz2_commands_failsafe,
 		autopilot_in_flight, autopilot_motors_on);
   }
@@ -101,32 +101,32 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
   if (new_autopilot_mode != autopilot_mode) {
     /* horizontal mode */
     switch (new_autopilot_mode) {
-    case BOOZ2_AP_MODE_FAILSAFE:
+    case AP_MODE_FAILSAFE:
 #ifndef BOOZ_KILL_AS_FAILSAFE
       booz_stab_att_sp_euler.phi = 0;
       booz_stab_att_sp_euler.theta = 0;
       booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_ATTITUDE);
       break;
 #endif
-    case BOOZ2_AP_MODE_KILL:
+    case AP_MODE_KILL:
       autopilot_motors_on = FALSE;
       booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_KILL);
       break;
-    case BOOZ2_AP_MODE_RATE_DIRECT:
-    case BOOZ2_AP_MODE_RATE_Z_HOLD:
+    case AP_MODE_RATE_DIRECT:
+    case AP_MODE_RATE_Z_HOLD:
       booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_RATE);
       break;
-    case BOOZ2_AP_MODE_ATTITUDE_DIRECT:
-    case BOOZ2_AP_MODE_ATTITUDE_CLIMB:
-    case BOOZ2_AP_MODE_ATTITUDE_Z_HOLD:
+    case AP_MODE_ATTITUDE_DIRECT:
+    case AP_MODE_ATTITUDE_CLIMB:
+    case AP_MODE_ATTITUDE_Z_HOLD:
       booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_ATTITUDE);
       break;
-    case BOOZ2_AP_MODE_HOVER_DIRECT:
-    case BOOZ2_AP_MODE_HOVER_CLIMB:
-    case BOOZ2_AP_MODE_HOVER_Z_HOLD:
+    case AP_MODE_HOVER_DIRECT:
+    case AP_MODE_HOVER_CLIMB:
+    case AP_MODE_HOVER_Z_HOLD:
       booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_HOVER);
       break;
-    case BOOZ2_AP_MODE_NAV:
+    case AP_MODE_NAV:
       booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_NAV);
       break;
     default:
@@ -134,34 +134,34 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
     }
     /* vertical mode */
     switch (new_autopilot_mode) {
-    case BOOZ2_AP_MODE_FAILSAFE:
+    case AP_MODE_FAILSAFE:
 #ifndef BOOZ_KILL_AS_FAILSAFE
       booz2_guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
       booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_CLIMB);
       break;
 #endif
-    case BOOZ2_AP_MODE_KILL:
+    case AP_MODE_KILL:
       booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_KILL);
       break;
-    case BOOZ2_AP_MODE_RATE_DIRECT:
-    case BOOZ2_AP_MODE_ATTITUDE_DIRECT:
-    case BOOZ2_AP_MODE_HOVER_DIRECT:
+    case AP_MODE_RATE_DIRECT:
+    case AP_MODE_ATTITUDE_DIRECT:
+    case AP_MODE_HOVER_DIRECT:
       booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_RC_DIRECT);
       break;
-    case BOOZ2_AP_MODE_RATE_RC_CLIMB:
-    case BOOZ2_AP_MODE_ATTITUDE_RC_CLIMB:
+    case AP_MODE_RATE_RC_CLIMB:
+    case AP_MODE_ATTITUDE_RC_CLIMB:
       booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_RC_CLIMB);
       break;
-    case BOOZ2_AP_MODE_ATTITUDE_CLIMB:
-    case BOOZ2_AP_MODE_HOVER_CLIMB:
+    case AP_MODE_ATTITUDE_CLIMB:
+    case AP_MODE_HOVER_CLIMB:
       booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_CLIMB);
       break;
-    case BOOZ2_AP_MODE_RATE_Z_HOLD:
-    case BOOZ2_AP_MODE_ATTITUDE_Z_HOLD:
-    case BOOZ2_AP_MODE_HOVER_Z_HOLD:
+    case AP_MODE_RATE_Z_HOLD:
+    case AP_MODE_ATTITUDE_Z_HOLD:
+    case AP_MODE_HOVER_Z_HOLD:
       booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_HOVER);
       break;
-    case BOOZ2_AP_MODE_NAV:
+    case AP_MODE_NAV:
       booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_NAV);
       break;
     default:
@@ -244,14 +244,14 @@ void autopilot_on_rc_frame(void) {
 
 #ifdef RADIO_CONTROL_KILL_SWITCH
   if (radio_control.values[RADIO_CONTROL_KILL_SWITCH] < 0)
-    autopilot_set_mode(BOOZ2_AP_MODE_KILL);
+    autopilot_set_mode(AP_MODE_KILL);
 #endif
 
   autopilot_check_motors_on();
   autopilot_check_in_flight();
   kill_throttle = !autopilot_motors_on;
 
-  if (autopilot_mode > BOOZ2_AP_MODE_FAILSAFE) {
+  if (autopilot_mode > AP_MODE_FAILSAFE) {
     booz2_guidance_v_read_rc();
     booz2_guidance_h_read_rc(autopilot_in_flight);
   }

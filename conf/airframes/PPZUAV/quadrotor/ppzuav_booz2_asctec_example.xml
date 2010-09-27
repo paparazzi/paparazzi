@@ -185,9 +185,9 @@
 
 
  <section name="AUTOPILOT">
-   <define name="BOOZ2_MODE_MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/><!--Attitude Stabilized Roll,Pitch,Yaw | Direct Throttle control-->
-   <define name="BOOZ2_MODE_AUTO1"  value="BOOZ2_AP_MODE_ATTITUDE_RC_CLIMB"/><!--Attitude Stabilized Roll,Pitch,Yaw | Throttle commanded climb rate control-->
-   <define name="BOOZ2_MODE_AUTO2"  value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD"/><!--Attitude Stabilized Roll,Pitch,Yaw | Altitude hold(100% throttle required) control-->
+   <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/><!--Attitude Stabilized Roll,Pitch,Yaw | Direct Throttle control-->
+   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_RC_CLIMB"/><!--Attitude Stabilized Roll,Pitch,Yaw | Throttle commanded climb rate control-->
+   <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_Z_HOLD"/><!--Attitude Stabilized Roll,Pitch,Yaw | Altitude hold(100% throttle required) control-->
  </section>
 
 

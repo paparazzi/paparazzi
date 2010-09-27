@@ -207,10 +207,10 @@
     <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;" />
   </section>
 
-  <section name="BOOZ2_MODE" prefix="BOOZ2_MODE_">
-    <define name="MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT" />
-    <define name="AUTO1" value="BOOZ2_AP_MODE_ATTITUDE_Z_HOLD" />
-    <define name="AUTO2" value="BOOZ2_AP_MODE_HOVER_Z_HOLD" />
+  <section name="MODE" prefix="MODE_">
+    <define name="MANUAL" value="AP_MODE_ATTITUDE_DIRECT" />
+    <define name="AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD" />
+    <define name="AUTO2" value="AP_MODE_HOVER_Z_HOLD" />
   </section>
 
 

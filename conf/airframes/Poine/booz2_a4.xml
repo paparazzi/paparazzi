@@ -131,9 +131,9 @@
  </section>
 
  <section name="AUTOPILOT">
-   <define name="BOOZ2_MODE_MANUAL" value="BOOZ2_AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="BOOZ2_MODE_AUTO1"  value="BOOZ2_AP_MODE_ATTITUDE_RC_CLIMB"/>
-   <define name="BOOZ2_MODE_AUTO2"  value="BOOZ2_AP_MODE_ATTITUDE_RC_CLIMB"/>
+   <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_RC_CLIMB"/>
+   <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_RC_CLIMB"/>
  </section>
 
 

@@ -64,12 +64,12 @@ uint8_t props_throttle_pass;
 
 
 void csc_ap_init(void) {
-  booz2_autopilot_mode = BOOZ2_AP_MODE_FAILSAFE;
+  booz2_autopilot_mode = AP_MODE_FAILSAFE;
   booz2_autopilot_motors_on = FALSE;
   booz2_autopilot_in_flight = FALSE;
   booz2_autopilot_motors_on_counter = 0;
   booz2_autopilot_in_flight_counter = 0;
-  booz2_autopilot_mode_auto2 = BOOZ2_MODE_AUTO2;
+  booz2_autopilot_mode_auto2 = MODE_AUTO2;
 
   props_throttle_pass = 0;
   for(uint8_t i = 0; i < PROPS_NB; i++){
