@@ -16,9 +16,9 @@
 #
 #
 
-ap.srcs += $(SRC_BOOZ)/actuators/booz_supervision.c
+ap.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
 ap.CFLAGS += -DACTUATORS_ASCTEC_V2_PROTOCOL
-ap.srcs += $(SRC_BOOZ)/actuators/booz_actuators_asctec.c
+ap.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
 ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 ifeq ($(ARCH), lpc21)
