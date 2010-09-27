@@ -1,2 +1,12 @@
 This directory contains tools used to calibrate an inertial measurement unit
 
+
+== The earth's magnetic field ==
+Go to 
+   http://www.ngdc.noaa.gov/geomagmodels/Declination.jsp		(Declination)
+   http://www.ngdc.noaa.gov/geomagmodels/IGRFWMM.jsp			(Everything)
+to find out!
+
+Location	Longitude	Lattitude	frame	Declination	Inclination
+Toulouse, ENAC	1.442595	43.602993	NED	-22' + 7' p.a.	59° 8' - 1' p.a.	
+
