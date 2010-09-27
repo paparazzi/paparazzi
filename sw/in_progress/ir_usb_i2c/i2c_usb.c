@@ -15,7 +15,7 @@
 
 /* mlx90614 chip address (default address) */
 #define MLX90614_ADDR    0x00
-#define MLX90614_ADDR_1  0x02
+#define MLX90614_ADDR_1  0x00
 #define MLX90614_ADDR_2  0x05
 
 #define LOOPS 100
@@ -391,9 +391,9 @@ int main(int argc, char *argv[]) {
   /* it to 10us doesn't do anything at all since this already is the default */
   i2c_tiny_usb_set(CMD_SET_DELAY, 10);
 
-  i=i;
+  i=0;
 
-#if 0
+#if 1
   /* -------- begin of mlx90614 client processing --------- */
   printf("Probing for MLX90614 ... ");
 
@@ -425,8 +425,11 @@ int main(int argc, char *argv[]) {
     printf("i2c addr = 0x%04X\n", tp);
 
     /* write new i2c address, always set bit0 ! */
-//    i2c_mlx_write_cmd_and_word(MLX90614_ADDR, 0x2E, 1);
-//    usleep(1000000);
+    i2c_mlx_write_cmd_and_word(MLX90614_ADDR, 0x2E, 0);
+    usleep(100000);
+    /* write new i2c address, always set bit0 ! */
+    i2c_mlx_write_cmd_and_word(MLX90614_ADDR, 0x2E, 0x3);
+    usleep(100000);
     
     tp = i2c_mlx_read_word_with_cmd(MLX90614_ADDR, 0x2E);
     printf("i2c addr = 0x%04X\n", tp);
@@ -443,6 +446,7 @@ int main(int argc, char *argv[]) {
   /* -------- end of mlx90614 client processing --------- */
 #endif
 
+#if 0
   /* -------- begin of mlx90614 multi client processing --------- */
 
   /* try to access mlx90614 at address MLX90614_ADDR_1 */
@@ -466,12 +470,12 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "USB error: %s\n", usb_strerror());
     goto quit;
   } 
-  
+#if 0  
   if(i2c_tiny_usb_get_status() != STATUS_ADDRESS_ACK) {
     printf("no device at address 0x%02x\n", MLX90614_ADDR_2);
     goto quit;
   }  
-  
+#endif  
   {  
     int tp1, tp2;
     
@@ -480,16 +484,18 @@ int main(int argc, char *argv[]) {
     while(1) {
       tp1 = i2c_mlx_read_word_with_cmd(MLX90614_ADDR_1, 0x07);
       if (tp1 == -1) goto quit;
-      tp2 = i2c_mlx_read_word_with_cmd(MLX90614_ADDR_2, 0x07);
+//      tp2 = i2c_mlx_read_word_with_cmd(MLX90614_ADDR_2, 0x07);
       if (tp2 == -1) goto quit;
       if ((tp2 == -2) || (tp2 == -2))
         printf("##########\n");
       else
-        printf("%2.2f°C\n", ((tp1*0.02)-273.15) - ((tp2*0.02)-273.15));
+        printf("%2.2f°C\n", ((tp1*0.02)-273.15));
+//        printf("%2.2f°C\n", ((tp1*0.02)-273.15) - ((tp2*0.02)-273.15));
 //      usleep(20000);
     }
   }
   /* -------- end of mlx90614 client processing --------- */
+#endif
 
  quit:
 #ifndef WIN

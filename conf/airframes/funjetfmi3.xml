@@ -2,20 +2,19 @@
 
 <!-- Funjet Multiplex (http://www.multiplex-rc.de/), Jeti ECO 25
      Tiny 2.11 board (http://paparazzi.enac.fr/wiki/index.php/Tiny_v2)
-     PerkinElmer TPS334 IR Sensors
      Tilted infrared sensor (http://paparazzi.enac.fr/wiki/index.php/Image:Tiny_v2_1_Funjet.jpg)
      XBee modem
      Payload: Sensirion humidity/temp, VTI pressure/temp, ETS airspeed
-     LEA 4P
+     LEA 5H
 -->
 
-<airframe name="Funjet FMI 1">
+<airframe name="Funjet FMI 3">
 
 <!-- commands section -->
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1521" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1510" max="1900"/>
+    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1515" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1502" max="1900"/>
   </servos>
 
   <commands>
@@ -65,14 +64,14 @@
     <define name="CORRECTION_LEFT" value="1."/>
     <define name="CORRECTION_RIGHT" value="1."/>
 
-    <define name="LATERAL_CORRECTION" value="-1"/>
+    <define name="LATERAL_CORRECTION" value="1"/>
     <define name="LONGITUDINAL_CORRECTION" value="1"/>
     <define name="VERTICAL_CORRECTION" value="1.5"/>
 
     <define name="HORIZ_SENSOR_TILTED" value="1"/>
-    <define name="IR1_SIGN" value="1"/>
+    <define name="IR1_SIGN" value="-1"/>
     <define name="IR2_SIGN" value="-1"/>
-    <define name="TOP_SIGN" value="-1"/>
+    <define name="TOP_SIGN" value="1"/>
 
     <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
@@ -259,9 +258,6 @@ ap.srcs += ir_mlx.c
 
 ap.CFLAGS += -DUSE_BARO_SCP
 ap.srcs += baro_scp_i2c.c
-
-#ap.CFLAGS += -DUSE_MAG_HMC
-#ap.srcs += mag_hmc5843.c
 
 ap.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=12 -DSSP_VIC_SLOT=11 -DUSE_MICROMAG_FW
 ap.srcs += micromag_fw.c $(SRC_ARCH)/micromag_fw_hw.c

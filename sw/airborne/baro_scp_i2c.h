@@ -17,5 +17,6 @@ extern volatile bool_t baro_scp_i2c_done;
 
 void baro_scp_init(void);
 void baro_scp_periodic(void);
+void baro_scp_event(void);
 
 #endif

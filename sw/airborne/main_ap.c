@@ -114,12 +114,32 @@
 #include "max11040.h"
 #endif
 
+#ifdef USE_AIRSPEED_ETS
+#include "airspeed_ets_o.h"
+#endif
+
+#ifdef USE_IR_MLX
+#include "ir_mlx.h"
+#endif
+
+#ifdef USE_MAG_HMC
+#include "mag_hmc5843.h"
+#endif
+
 #ifdef TRAFFIC_INFO
 #include "traffic_info.h"
 #endif
 
 #ifdef TCAS
 #include "tcas.h"
+#endif
+
+#ifdef ADC
+#ifdef USE_ACCEL_MEMSIC
+struct adc_buf xaccel_adc_buf;
+struct adc_buf yaccel_adc_buf;
+uint16_t maccel[3] = {512};
+#endif
 #endif
 
 #ifdef USE_USB_SERIAL
@@ -129,10 +149,6 @@
 #ifdef USE_MICROMAG_FW
 #include "micromag_fw.h"
 #endif
-
-#ifdef USE_AIRSPEED_ETS
-#include "airspeed_ets.h"
-#endif // USE_AIRSPEED_ETS
 
 #ifdef USE_BARO_ETS
 #include "baro_ets.h"
@@ -333,6 +349,19 @@ inline void telecommand_task( void ) {
     if (pprz_mode == PPRZ_MODE_AUTO2 && fbw_state->channels[RADIO_THROTTLE] > THROTTLE_THRESHOLD_TAKEOFF) {
       launch = TRUE;
     }
+//LED_TOGGLE(3);
+#ifdef USE_ACCEL_MEMSIC
+    if ((pprz_mode == PPRZ_MODE_AUTO2) && (maccel[1] < 510) && (maccel[1] > 300)) {
+      launch = TRUE;
+      estimator_flight_time = 1;
+      LED_ON(2);
+    }
+    if ((pprz_mode == PPRZ_MODE_AUTO2) && (maccel[1] < 700) && (maccel[1] > 522)) {
+      launch = TRUE;
+      estimator_flight_time = 1;
+      LED_ON(2);
+    }
+#endif
   }
 #endif
 }
@@ -419,6 +448,13 @@ static void navigation_task( void ) {
       v_ctl_throttle_setpoint = 0;
   }
   energy += ((float)current) / 3600.0f * 0.25f;	// mAh = mA * dt (4Hz -> hours)
+
+#ifdef ADC
+#ifdef USE_ACCEL_MEMSIC
+  maccel[0] = (((xaccel_adc_buf.sum/xaccel_adc_buf.av_nb_sample)));
+  maccel[1] = (((yaccel_adc_buf.sum/yaccel_adc_buf.av_nb_sample)));
+#endif
+#endif
 }
 
 
@@ -579,6 +615,12 @@ void periodic_task_ap( void ) {
     break;
 #endif
 
+#ifdef USE_AIRSPEED_ETS
+  case 7:
+    airspeed_ets_periodic();
+    break;
+#endif
+
 #ifdef USE_HUMID_SHT
   case 8:
     humid_sht_periodic();
@@ -592,17 +634,25 @@ void periodic_task_ap( void ) {
 #ifdef USE_BARO_SCP
   case 9:
     baro_scp_periodic();
-    if (baro_scp_available == TRUE) {
-      DOWNLINK_SEND_SCP_STATUS(DefaultChannel, &baro_scp_pressure, &baro_scp_temperature);
-      baro_scp_available = FALSE;
-    }
+    break;
+#endif
+
+#ifdef USE_IR_MLX
+  case 11:
+    ir_mlx_periodic();
     break;
 #endif
 
 #ifdef TCAS
-  case 14:
+  case 12:
     /** tcas altitude control loop at 4Hz just before navigation task */
     tcas_periodic_task_4Hz();
+    break;
+#endif
+
+#ifdef USE_MAG_HMC
+  case 14:
+    hmc5843_periodic();
     break;
 #endif
 
@@ -631,9 +681,6 @@ void periodic_task_ap( void ) {
   // I2C0 scheduler
   switch (_20Hz) {
     case 0:
-#ifdef USE_AIRSPEED_ETS
-      airspeed_ets_periodic(); // process airspeed
-#endif // USE_AIRSPEED_ETS
 #ifdef USE_BARO_ETS
       baro_ets_read(); // initiate next i2c read
 #endif // USE_BARO_ETS
@@ -642,9 +689,6 @@ void periodic_task_ap( void ) {
 #ifdef USE_BARO_ETS
       baro_ets_periodic(); // process altitude
 #endif // USE_BARO_ETS
-#ifdef USE_AIRSPEED_ETS
-      airspeed_ets_read(); // initiate next i2c read
-#endif // USE_AIRSPEED_ETS
       break;
     case 2:
       break;
@@ -743,10 +787,6 @@ void init_ap( void ) {
   i2c1_init();
 #endif
 
-#ifdef USE_AIRSPEED_ETS
-  airspeed_ets_init();
-#endif
-
 #ifdef USE_BARO_ETS
   baro_ets_init();
 #endif
@@ -774,6 +814,23 @@ void init_ap( void ) {
 
 #ifdef USE_BARO_SCP
   baro_scp_init();
+#endif
+
+#ifdef USE_AIRSPEED_ETS
+  airspeed_ets_init();
+#endif
+
+#ifdef USE_IR_MLX
+  ir_mlx_init();
+#endif
+
+#ifdef USE_MAG_HMC
+  hmc5843_init();
+#endif
+
+#ifdef USE_ACCEL_MEMSIC
+  adc_buf_channel(ADC_CHANNEL_ACC_X, &xaccel_adc_buf, 2);
+  adc_buf_channel(ADC_CHANNEL_ACC_Y, &yaccel_adc_buf, 2);
 #endif
 
   /************* Links initialization ***************/
@@ -1014,6 +1071,42 @@ void event_task_ap( void ) {
                 &cycle_time );
     trig_ext_valid = FALSE;
   }
+#endif
+
+#ifdef USE_AIRSPEED_ETS
+    airspeed_ets_event();
+#endif
+
+#ifdef USE_BARO_SCP
+    baro_scp_event();
+    if (baro_scp_available == TRUE) {
+      DOWNLINK_SEND_SCP_STATUS(DefaultChannel, &baro_scp_pressure, &baro_scp_temperature);
+      baro_scp_available = FALSE;
+if (baro_scp_pressure == 393216) LED_TOGGLE(2);
+    }
+#endif
+
+#ifdef USE_IR_MLX
+    ir_mlx_event();
+    if (ir_mlx_available == TRUE) {
+      ir_mlx_available = FALSE;
+      DOWNLINK_SEND_MLX_STATUS(DefaultChannel,
+                              &ir_mlx_itemp_case,
+                              &ir_mlx_temp_case,
+                              &ir_mlx_itemp_obj,
+                              &ir_mlx_temp_obj);
+    }
+#endif
+
+#ifdef USE_MAG_HMC
+    hmc5843_event();
+    if (hmc5843_available == TRUE) {
+      hmc5843_available = FALSE;
+      DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
+                &hmc5843_mag_x,
+                &hmc5843_mag_y,
+                &hmc5843_mag_z );
+    }
 #endif
 
   if (inter_mcu_received_fbw) {

@@ -508,10 +508,6 @@ let () =
     ignore (Glib.Io.add_watch [`HUP] hangup (GMain.Io.channel_of_descr fd));
     ignore (Glib.Io.add_watch [`IN] read_fd (GMain.Io.channel_of_descr fd));
 
-    if !uplink then begin
-      message_uplink device
-    end;
-
     (** Init and Periodic tasks *)
     begin
       ignore (Glib.Timeout.add status_msg_period (fun () -> send_status_msg (); true));
@@ -527,6 +523,9 @@ let () =
       | _ -> ()
     end;
 
+    if !uplink then begin
+      message_uplink device
+    end;
 
     (* Main Loop *)
     let loop = Glib.Main.create true in

@@ -21,7 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#define DBG 1
+//#define DBG 1
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,7 +44,11 @@
 
 #define Bound(_x, _min, _max) { if (_x > _max) _x = _max; else if (_x < _min) _x = _min; }
 
+#ifdef DBG
+#define TIMEOUT_PERIOD 200
+#else
 #define TIMEOUT_PERIOD 20
+#endif
 
 #define MB_ID 1
 
@@ -61,14 +65,35 @@
 #endif
 
 #if 1
+// Jamara RC Flight Simulator 06 5120/06 5121
+#define AXIS_YAW        ABS_X
+#define AXIS_ROLL       ABS_RZ
+#define AXIS_THROTTLE   ABS_Z
+#define AXIS_PITCH      ABS_Y
+
+#define THROTTLE_MIN        (75)
+#define THROTTLE_NEUTRAL    (0)
+#define THROTTLE_MAX        (-77)
+#define ROLL_MIN            (99)
+#define ROLL_NEUTRAL        (0)
+#define ROLL_MAX            (-114)
+#define PITCH_MIN           (-113)
+#define PITCH_NEUTRAL       (-11)
+#define PITCH_MAX           (93)
+#define YAW_MIN             (87)
+#define YAW_NEUTRAL         (-12)
+#define YAW_MAX             (-101)
+#endif
+
+#if 0
 // e-sky 0905A simulator fms
 //#define AXIS_YAW        ABS_X
 //#define AXIS_ROLL       ABS_Z
 //#define AXIS_THROTTLE   ABS_RY
 //#define AXIS_PITCH      ABS_Y
 #define AXIS_YAW        ABS_RY
-#define AXIS_ROLL       ABS_Y
-#define AXIS_THROTTLE   ABS_X
+#define AXIS_ROLL       ABS_X
+#define AXIS_THROTTLE   ABS_Y
 #define AXIS_PITCH      ABS_Z
 
 #define THROTTLE_MIN        (-90)
@@ -107,7 +132,7 @@ int aircraft_id                  = DEFAULT_AC_ID;
 
 /* Global variables about the initialized device */
 int device_handle;
-int axis_code[AXIS_COUNT] = {AXIS_ROLL, AXIS_PITCH, AXIS_THROTTLE, AXIS_YAW};
+int axis_code[AXIS_COUNT] = {AXIS_THROTTLE, AXIS_PITCH, AXIS_ROLL, AXIS_YAW};
 int axis_min[AXIS_COUNT], axis_max[AXIS_COUNT];
 int position[AXIS_COUNT] = {0, 0, 0};
 struct ff_effect effect;
@@ -293,6 +318,21 @@ static gboolean joystick_periodic(gpointer data __attribute__ ((unused))) {
   struct input_event event;
   static struct timeval time_now;
 
+  static struct timeval time_bef;
+  static struct timeval time_aft;
+
+  static int cp;
+
+gettimeofday(&time_aft, 0);
+
+if (cp++ > 50) 
+{
+cp=0;
+printf("%d\n", time_aft.tv_usec - time_bef.tv_usec);
+}
+
+gettimeofday(&time_bef, 0);
+
   /* Get events */
   do {
     res = read(device_handle,&event,sizeof(event));
@@ -319,16 +359,32 @@ static gboolean joystick_periodic(gpointer data __attribute__ ((unused))) {
     {
         dbgprintf(stdout, "pos  %d %d %d %d\n", position[0], position[1], position[2], position[3]);
 
-        if (position[3] > 125) mode = 2;
+        if (position[3] > 119) mode = 2;
         else if (position[3] < -125) mode = 1;
         else mode = 0;
 
         throttle = ((position[0] - THROTTLE_NEUTRAL -THROTTLE_MIN) * 63) / (THROTTLE_MAX-THROTTLE_MIN);
         Bound(throttle, 0, 63)
         roll = position[2] - ROLL_NEUTRAL;
-        Bound(roll, -128, 127)
-        pitch = position[1] - PITCH_NEUTRAL;
-        Bound(pitch, -128, 127)
+        if (roll > 0)
+        {
+            roll = (roll * 127) / (ROLL_MIN+ROLL_NEUTRAL);
+        } 
+        else
+        {
+            roll = (roll * 127) / (-ROLL_MAX-ROLL_NEUTRAL);
+        } 
+        Bound(roll, -127, 127)
+        pitch = -position[1] + PITCH_NEUTRAL;
+        if (pitch > 0)
+        {
+            pitch = (pitch * 127) / (-PITCH_MIN+PITCH_NEUTRAL);
+        } 
+        else
+        {
+            pitch = (pitch * 127) / (PITCH_MAX-PITCH_NEUTRAL);
+        } 
+        Bound(pitch, -127, 127)
 
         throttle_mode = (throttle << 2) | mode;
 
@@ -341,6 +397,7 @@ static gboolean joystick_periodic(gpointer data __attribute__ ((unused))) {
         }
     }
      
+
 	return 1;
 }
 

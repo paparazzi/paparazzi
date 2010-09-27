@@ -33,14 +33,14 @@ static void baro_scp_start_high_res_measurement(void) {
 void baro_scp_init( void ) {
   baro_scp_status = BARO_SCP_UNINIT;
   baro_scp_i2c_done = FALSE;
+  baro_scp_available = FALSE;
 }
 
 void baro_scp_periodic( void ) {
   if (baro_scp_status == BARO_SCP_UNINIT && cpu_time_sec > 1) {
     baro_scp_start_high_res_measurement();
-    baro_scp_status =  BARO_SCP_IDLE;
-  } else if (baro_scp_i2c_done) {
-    if (baro_scp_status == BARO_SCP_IDLE) {
+    baro_scp_status = BARO_SCP_IDLE;
+  } else if (baro_scp_status == BARO_SCP_IDLE) {
 
       /* initial measurement */
 
@@ -49,7 +49,40 @@ void baro_scp_periodic( void ) {
       baro_scp_status = BARO_SCP_RD_TEMP;
       baro_scp_i2c_done = FALSE;
       i2c0_transceive(SCP1000_SLAVE_ADDR, 1, 2, &baro_scp_i2c_done);
-//LED_ON(2);
+    }
+
+    else if (baro_scp_status == BARO_SCP_RD_TEMP) {
+
+      /* start one byte msb pressure */
+      i2c0_buf[0] = 0x7F;
+      baro_scp_status = BARO_SCP_RD_PRESS_0;
+      baro_scp_i2c_done = FALSE;
+      i2c0_transceive(SCP1000_SLAVE_ADDR, 1, 1, &baro_scp_i2c_done);
+    }
+
+    else if (baro_scp_status == BARO_SCP_RD_PRESS_0) {
+
+      /* start two byte lsb pressure */
+      i2c0_buf[0] = 0x80;
+      baro_scp_status = BARO_SCP_RD_PRESS_1;
+      baro_scp_i2c_done = FALSE;
+      i2c0_transceive(SCP1000_SLAVE_ADDR, 1, 2, &baro_scp_i2c_done);
+    }
+
+    else if (baro_scp_status == BARO_SCP_RD_PRESS_1) {
+
+      /* start two byte temperature */
+      i2c0_buf[0] = 0x81;
+      baro_scp_status = BARO_SCP_RD_TEMP;
+      baro_scp_i2c_done = FALSE;
+      i2c0_transceive(SCP1000_SLAVE_ADDR, 1, 2, &baro_scp_i2c_done);
+    }     
+}
+
+void baro_scp_event( void ) {
+  if (baro_scp_i2c_done == TRUE) {
+    baro_scp_i2c_done = FALSE;
+    if (baro_scp_status == BARO_SCP_IDLE) {
     }
 
     else if (baro_scp_status == BARO_SCP_RD_TEMP) {
@@ -61,24 +94,12 @@ void baro_scp_periodic( void ) {
         baro_scp_temperature |= 0xC000;
       }
       baro_scp_temperature *= 5;
-
-      /* start one byte msb pressure */
-      i2c0_buf[0] = 0x7F;
-      baro_scp_status = BARO_SCP_RD_PRESS_0;
-      baro_scp_i2c_done = FALSE;
-      i2c0_transceive(SCP1000_SLAVE_ADDR, 1, 1, &baro_scp_i2c_done);
     }
 
     else if (baro_scp_status == BARO_SCP_RD_PRESS_0) {
 
       /* read one byte pressure */
       baro_scp_pressure = i2c0_buf[0] << 16;
-
-      /* start two byte lsb pressure */
-      i2c0_buf[0] = 0x80;
-      baro_scp_status = BARO_SCP_RD_PRESS_1;
-      baro_scp_i2c_done = FALSE;
-      i2c0_transceive(SCP1000_SLAVE_ADDR, 1, 2, &baro_scp_i2c_done);
     }
 
     else if (baro_scp_status == BARO_SCP_RD_PRESS_1) {
@@ -88,13 +109,10 @@ void baro_scp_periodic( void ) {
       baro_scp_pressure |= i2c0_buf[1];
       baro_scp_pressure *= 25;
       baro_scp_available = TRUE;
-//LED_TOGGLE(2);
+LED_TOGGLE(3);
 
-      /* start two byte temperature */
-      i2c0_buf[0] = 0x81;
-      baro_scp_status = BARO_SCP_RD_TEMP;
-      baro_scp_i2c_done = FALSE;
-      i2c0_transceive(SCP1000_SLAVE_ADDR, 1, 2, &baro_scp_i2c_done);
+//if ((i2c0_buf[0] == 0) && (i2c0_buf[1] == 0)) LED_TOGGLE(2);
+
     }     
   }
 }

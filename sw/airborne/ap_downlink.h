@@ -170,11 +170,17 @@
 #define PERIODIC_SEND_BARO_MS5534A(_chan) {}
 #endif
 
-#ifdef USE_BARO_SCP
-#include "baro_scp.h"
-#define PERIODIC_SEND_SCP_STATUS(_chan) DOWNLINK_SEND_SCP_STATUS(_chan, &baro_scp_pressure, &baro_scp_temperature)
-#else
+//#ifdef USE_BARO_SCP
+//#include "baro_scp.h"
+//#define PERIODIC_SEND_SCP_STATUS(_chan) DOWNLINK_SEND_SCP_STATUS(_chan, &baro_scp_pressure, &baro_scp_temperature)
+//#else
 #define PERIODIC_SEND_SCP_STATUS(_chan) {}
+//#endif
+
+#ifdef USE_ACCEL_MEMSIC
+#define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) DOWNLINK_SEND_IMU_ACCEL_RAW(_chan, &maccel[0], &maccel[1], &maccel[2])
+#else
+#define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) {}
 #endif
 
 #ifdef USE_AIRSPEED
