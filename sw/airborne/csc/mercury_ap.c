@@ -26,7 +26,7 @@
 #include <inttypes.h>
 #include "commands.h"
 #include "mercury_xsens.h"
-#include "booz2_autopilot.h"
+#include "autopilot.h"
 #include "booz_stabilization.h"
 #include "stabilization/booz_stabilization_attitude.h"
 #include "led.h"

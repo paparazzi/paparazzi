@@ -34,7 +34,7 @@
 #include "booz_radio_control.h"
 #endif
 
-#include "booz2_autopilot.h"
+#include "autopilot.h"
 #include "booz_guidance.h"
 
 #include "actuators.h"

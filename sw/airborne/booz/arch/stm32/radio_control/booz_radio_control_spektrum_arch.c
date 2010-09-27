@@ -30,7 +30,7 @@
 #include "uart.h"
 #include "booz_radio_control.h"
 #include "booz_radio_control_spektrum_arch.h"
-#include "booz2_autopilot.h"
+#include "autopilot.h"
 
 
 #define SPEKTRUM_CHANNELS_PER_FRAME 7

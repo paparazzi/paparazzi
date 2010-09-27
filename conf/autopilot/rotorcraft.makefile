@@ -44,7 +44,7 @@ SRC_ARCH=arch/$(ARCH)
 
 CFG_BOOZ=$(PAPARAZZI_SRC)/conf/autopilot/
 
-BOOZ_INC = -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD)
+BOOZ_INC = -I$(SRC_FIRMWARE) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD)
 
 
 ap.ARCHDIR = $(ARCH)
@@ -178,7 +178,7 @@ endif
 # include subsystems/rotorcraft/ahrs_lkf.makefile
 #
 
-ap.srcs += $(SRC_BOOZ)/booz2_autopilot.c
+ap.srcs += $(SRC_FIRMWARE)/autopilot.c
 
 ap.srcs += math/pprz_trig_int.c
 ap.srcs += $(SRC_BOOZ)/booz_stabilization.c

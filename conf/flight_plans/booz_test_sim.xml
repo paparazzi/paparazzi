@@ -2,7 +2,7 @@
 
 <flight_plan alt="5" ground_alt="0" lat0="37.6136" lon0="-122.3569" max_dist_from_home="400" name="Booz Test Sim" security_height="2">
   <header>
-#include "booz2_autopilot.h"
+#include "autopilot.h"
   </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>

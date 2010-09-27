@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef BOOZ2_AUTOPILOT_H
-#define BOOZ2_AUTOPILOT_H
+#ifndef AUTOPILOT_H
+#define AUTOPILOT_H
 
 #include "std.h"
 
@@ -89,13 +89,13 @@ extern uint16_t booz2_autopilot_flight_time;
       _booz_mode = BOOZ2_MODE_MANUAL;					\
   }
 
-#define booz2_autopilot_KillThrottle(_v) {	                        \
+#define autopilot_KillThrottle(_v) {	                        \
     kill_throttle = _v;							\
     if (kill_throttle) booz2_autopilot_motors_on = FALSE;				\
     else booz2_autopilot_motors_on = TRUE; \
   }
 
-#define booz2_autopilot_SetPowerSwitch(_v) { \
+#define autopilot_SetPowerSwitch(_v) { \
   booz2_autopilot_power_switch = _v; \
   if (_v) { LED_OFF(POWER_SWITCH_LED); } \
   else { LED_ON(POWER_SWITCH_LED); } \
@@ -114,4 +114,4 @@ static inline void BoozDetectGroundEvent(void) {
   }
 }
 
-#endif /* BOOZ2_AUTOPILOT_H */
+#endif /* AUTOPILOT_H */

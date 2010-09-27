@@ -22,7 +22,7 @@
  *
  */
 
-#include "booz2_autopilot.h"
+#include "autopilot.h"
 
 #include "booz_radio_control.h"
 #include "booz2_commands.h"

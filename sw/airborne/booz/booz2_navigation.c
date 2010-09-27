@@ -29,7 +29,7 @@
 #include "booz_gps.h"
 #include "booz2_ins.h"
 
-#include "booz2_autopilot.h"
+#include "autopilot.h"
 #include "modules.h"
 #include "flight_plan.h"
 

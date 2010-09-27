@@ -47,7 +47,7 @@
 #include "booz2_battery.h"
 
 #include "booz_fms.h"
-#include "booz2_autopilot.h"
+#include "autopilot.h"
 
 #include "booz_stabilization.h"
 #include "booz_guidance.h"
