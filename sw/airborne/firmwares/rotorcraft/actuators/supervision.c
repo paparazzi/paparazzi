@@ -22,7 +22,7 @@
  *
  */
 
-#include "actuators/booz_supervision.h"
+#include "actuators/supervision.h"
 
 //#include <stdint.h>
 #ifndef INT32_MIN

@@ -25,10 +25,10 @@
 #include "init_hw.h"
 #include "sys_time.h"
 #include "booz2_commands.h"
-#include "booz_actuators.h"
+#include "actuators.h"
 #include "downlink.h"
 
-#include "actuators/booz_actuators_asctec.h"
+#include "actuators/actuators_asctec.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );

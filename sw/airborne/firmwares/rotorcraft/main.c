@@ -35,7 +35,7 @@
 #include "datalink.h"
 
 #include "booz2_commands.h"
-#include "booz_actuators.h"
+#include "actuators.h"
 #include "booz_radio_control.h"
 
 #include "imu.h"

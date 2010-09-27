@@ -8,6 +8,6 @@ ap.srcs += $(SRC_ARCH)/servos_direct_hw.c $(SRC_FIXEDWING)/actuators.c
 # Carefull: paths might get broken with this silly rotorcraft/fixedwing mixup of directories
 
 ifeq ($(ARCH), stm32)
-ap.srcs    += $(SRC_FIXEDWING)/booz/arch/stm32/actuators/booz_actuators_pwm_arch.c
+ap.srcs    += $(SRC_FIXEDWING)/booz/arch/stm32/actuators/actuators_pwm_arch.c
 ap.CFLAGS  += -I$(SRC_FIXEDWING)/booz/arch/stm32/
 endif

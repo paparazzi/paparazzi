@@ -26,8 +26,8 @@
 #include "sys_time.h"
 #include "downlink.h"
 #include "booz/booz2_commands.h"
-#include "booz/booz_actuators.h"
-#include "booz/actuators/booz_actuators_pwm.h"
+#include "actuators.h"
+#include "actuators/actuators_pwm.h"
 #include "imu.h"
 #include "booz/booz_radio_control.h"
 #include "lisa/lisa_overo_link.h"
@@ -71,8 +71,8 @@ static struct adc_buf adc3_buf;
 
 extern uint8_t adc_new_data_trigger;
 
-#define ActuatorsCommit() booz_actuators_pwm_commit();
-#define actuators booz_actuators_pwm_values
+#define ActuatorsCommit() actuators_pwm_commit();
+#define actuators actuators_pwm_values
 
 int main(void) {
 
@@ -94,7 +94,7 @@ static inline void main_init(void) {
 	imu_init();
 	baro_init();
 	radio_control_init();
-	booz_actuators_init();
+	actuators_init();
 	overo_link_init();
 	cscp_init();
 	adc_init();	
@@ -212,12 +212,12 @@ static inline void on_overo_link_msg_received(void) {
   /* pwm acuators down */
 	if (radio_control.values[RADIO_CONTROL_MODE] <= 150) {
 		for (int i = 0; i < LISA_PWM_OUTPUT_NB; i++) { 
-			booz_actuators_pwm_values[i] = overo_link.down.msg.pwm_outputs_usecs[i];
+			actuators_pwm_values[i] = overo_link.down.msg.pwm_outputs_usecs[i];
 		}
 		if (radio_control.values[RADIO_CONTROL_KILL] > 150) {
 			actuators[SERVO_THROTTLE] = SERVO_THROTTLE_MIN;
 		}
-		booz_actuators_pwm_commit();
+		actuators_pwm_commit();
 	}
 }
 

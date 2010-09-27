@@ -198,9 +198,9 @@ test_actuators_mkk.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOW
 test_actuators_mkk.srcs += downlink.c pprz_transport.c
 
 test_actuators_mkk.srcs += $(SRC_BOOZ)/booz2_commands.c
-test_actuators_mkk.srcs += $(SRC_BOOZ)/actuators/booz_actuators_mkk.c
+test_actuators_mkk.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
 test_actuators_mkk.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c0
-test_actuators_mkk.srcs += $(SRC_BOOZ)/actuators/booz_supervision.c
+test_actuators_mkk.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
 test_actuators_mkk.CFLAGS += -DACTUATORS_MKK_DEV=i2c0
 test_actuators_mkk.CFLAGS += -DUSE_I2C0
 test_actuators_mkk.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c

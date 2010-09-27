@@ -26,10 +26,10 @@
  * STM32 PWM servos handling
  */
 
-#ifndef BOOZ_ACTUATORS_PWM_ARCH_H
-#define BOOZ_ACTUATORS_PWM_ARCH_H
+#ifndef ACTUATORS_PWM_ARCH_H
+#define ACTUATORS_PWM_ARCH_H
 
-extern void booz_actuators_pwm_arch_init(void);
-extern void booz_actuators_pwm_commit(void);
+extern void actuators_pwm_arch_init(void);
+extern void actuators_pwm_commit(void);
 
-#endif /* BOOZ_ACTUATORS_PWM_ARCH_H */
+#endif /* ACTUATORS_PWM_ARCH_H */

@@ -22,7 +22,7 @@
  *
  */
 
-#include "booz/actuators/booz_actuators_pwm.h"
+#include "booz/actuators/actuators_pwm.h"
 
 #include <stm32/gpio.h>
 #include <stm32/rcc.h>
@@ -36,7 +36,7 @@
 #define SERVO_HZ 40
 #endif
 
-void booz_actuators_pwm_arch_init(void) {
+void actuators_pwm_arch_init(void) {
 
   /* TIM3 and TIM4 clock enable */
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
@@ -114,11 +114,11 @@ void booz_actuators_pwm_arch_init(void) {
 }
 
 /* set pulse widths from actuator values, assumed to be in us */
-void booz_actuators_pwm_commit(void) {
-  TIM_SetCompare1(TIM3, booz_actuators_pwm_values[0]);
-  TIM_SetCompare2(TIM3, booz_actuators_pwm_values[1]);
-  TIM_SetCompare3(TIM3, booz_actuators_pwm_values[2]);
-  TIM_SetCompare4(TIM3, booz_actuators_pwm_values[3]);
-  TIM_SetCompare3(TIM4, booz_actuators_pwm_values[4]);
-  TIM_SetCompare4(TIM4, booz_actuators_pwm_values[5]);
+void actuators_pwm_commit(void) {
+  TIM_SetCompare1(TIM3, actuators_pwm_values[0]);
+  TIM_SetCompare2(TIM3, actuators_pwm_values[1]);
+  TIM_SetCompare3(TIM3, actuators_pwm_values[2]);
+  TIM_SetCompare4(TIM3, actuators_pwm_values[3]);
+  TIM_SetCompare3(TIM4, actuators_pwm_values[4]);
+  TIM_SetCompare4(TIM4, actuators_pwm_values[5]);
 }

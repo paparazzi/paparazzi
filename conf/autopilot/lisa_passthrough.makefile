@@ -34,19 +34,19 @@ stm_passthrough.CFLAGS += -DSYS_TIME_LED=1
 stm_passthrough.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 # Telemetry
-stm_passthrough.CFLAGS += -DDOWNLINK 
-stm_passthrough.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+stm_passthrough.CFLAGS += -DDOWNLINK
+stm_passthrough.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 stm_passthrough.srcs += downlink.c pprz_transport.c
 stm_passthrough.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 stm_passthrough.srcs += $(SRC_ARCH)/uart_hw.c
 
 # Link Overo
 stm_passthrough.CFLAGS += -DUSE_OVERO_LINK
-stm_passthrough.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessagePTUp 
+stm_passthrough.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessagePTUp
 stm_passthrough.CFLAGS += -DOVERO_LINK_MSG_DOWN=AutopilotMessagePTDown
 stm_passthrough.CFLAGS += -DOVERO_LINK_LED_OK=3 -DOVERO_LINK_LED_KO=2 -DUSE_DMA1_C2_IRQ
 stm_passthrough.srcs += $(SRC_LISA)/lisa_overo_link.c           \
-			$(SRC_LISA_ARCH)/lisa_overo_link_arch.c
+            $(SRC_LISA_ARCH)/lisa_overo_link_arch.c
 
 # IMU
 #
@@ -67,9 +67,9 @@ stm_passthrough.srcs += $(SRC_BOOZ)/booz2_commands.c
 
 
 # Actuators
-#stm_passthrough.srcs += $(SRC_BOOZ)/actuators/booz_supervision.c
+#stm_passthrough.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
 #stm_passthrough.CFLAGS += -DACTUATORS_ASCTEC_V2_PROTOCOL
-#stm_passthrough.srcs += $(SRC_BOOZ)/actuators/booz_actuators_asctec.c
+#stm_passthrough.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
 #stm_passthrough.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 #
 #stm_passthrough.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
@@ -80,8 +80,8 @@ ifndef SERVOS_REFRESH_FREQ
 SERVOS_REFRESH_FREQ=50
 endif
 stm_passthrough.CFLAGS += -DSERVO_HZ=$(SERVOS_REFRESH_FREQ)
-stm_passthrough.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c
-stm_passthrough.srcs += $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_arch.c
+stm_passthrough.srcs += $(SRC_FIRMWARE)/actuators/actuators_pwm.c
+stm_passthrough.srcs += $(SRC_FIRMWARE)/actuators/arch/$(ARCH)/actuators_pwm_arch.c
 
 # Baro
 stm_passthrough.srcs += $(SRC_BOARD)/baro_board.c
@@ -89,27 +89,27 @@ stm_passthrough.CFLAGS += -DUSE_I2C2
 stm_passthrough.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 # Vanes
-stm_passthrough.CFLAGS += -I $(SRC_CSC) 
+stm_passthrough.CFLAGS += -I $(SRC_CSC)
 stm_passthrough.CFLAGS += -DUSE_CAN1 \
-	-DUSE_CAN1 \
-	-DUSE_USB_LP_CAN1_RX0_IRQ \
-	-DCAN_PRESCALER=12 \
-	-DCAN_SJW_TQ=CAN_SJW_1tq \
-	-DCAN_BS1_TQ=CAN_BS1_3tq \
-	-DCAN_BS2_TQ=CAN_BS2_4tq \
-	-DCAN_ERR_RESUME=DISABLE
+    -DUSE_CAN1 \
+    -DUSE_USB_LP_CAN1_RX0_IRQ \
+    -DCAN_PRESCALER=12 \
+    -DCAN_SJW_TQ=CAN_SJW_1tq \
+    -DCAN_BS1_TQ=CAN_BS1_3tq \
+    -DCAN_BS2_TQ=CAN_BS2_4tq \
+    -DCAN_ERR_RESUME=DISABLE
 stm_passthrough.srcs += can.c $(SRC_ARCH)/can_hw.c
-stm_passthrough.srcs += $(SRC_CSC)/csc_protocol.c 
+stm_passthrough.srcs += $(SRC_CSC)/csc_protocol.c
 
 # ADC
 
 stm_passthrough.srcs += $(SRC_ARCH)/adc_hw.c
 stm_passthrough.CFLAGS += -DUSE_AD1 \
-	-DUSE_AD1_1 \
-	-DUSE_AD1_2 \
-	-DUSE_AD1_3 \
-	-DUSE_AD1_4 \
-	-DUSE_ADC1_2_IRQ_HANDLER
+    -DUSE_AD1_1 \
+    -DUSE_AD1_2 \
+    -DUSE_AD1_3 \
+    -DUSE_AD1_4 \
+    -DUSE_ADC1_2_IRQ_HANDLER
 
 
 # Battery monitor
@@ -140,9 +140,9 @@ overo_test_passthrough.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
 overo_test_passthrough.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
 overo_test_passthrough.srcs    += $(SRC_FMS)/fms_network.c
 
-# 
+#
 # use the passthrough to calibrate throttle range for castle creations motor pwm motor controller
-# 
+#
 overo_blmc_calibrate.ARCHDIR  = omap
 overo_blmc_calibrate.LDFLAGS += -levent -lm
 overo_blmc_calibrate.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include

@@ -1,6 +1,6 @@
 /*
  * $Id: actuators_heli$
- *  
+ *
  * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -22,9 +22,8 @@
  *
  */
 
-#ifndef BOOZ_ACTUATORS_HELI_H
-#define BOOZ_ACTUATORS_HELI_H
+#ifndef ACTUATORS_HELI_H
+#define ACTUATORS_HELI_H
 
 
-#endif /* BOOZ_ACTUATORS_HELI_H */
-
+#endif /* ACTUATORS_HELI_H */

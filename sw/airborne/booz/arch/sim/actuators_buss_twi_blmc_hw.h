@@ -25,7 +25,7 @@
 #define ACTUATORS_BUSS_TWI_BLMC_HW_H
 
 #include "airframe.h"
-#include "actuators/booz_supervision.h"
+#include "actuators/supervision.h"
 
 #define BUSS_TWI_BLMC_NB 4
 extern uint8_t buss_twi_blmc_motor_power[BUSS_TWI_BLMC_NB];

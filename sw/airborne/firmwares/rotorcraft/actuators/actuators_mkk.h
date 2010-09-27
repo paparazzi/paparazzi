@@ -1,6 +1,6 @@
 /*
- * $Id: actuators_buss_twi_blmc_hw.h 3847 2009-08-02 21:47:31Z poine $
- *  
+ * $Id: actuators_mkk.h 3847 2009-08-02 21:47:31Z poine $
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_ACTUATORS_MKK_H
-#define BOOZ_ACTUATORS_MKK_H
+#ifndef ACTUATORS_MKK_H
+#define ACTUATORS_MKK_H
 
 #include "std.h"
 #include "i2c.h"
@@ -34,11 +34,11 @@ struct ActuatorsMkk {
   struct i2c_transaction trans[ACTUATORS_MKK_NB];
 };
 
-extern struct ActuatorsMkk actuators_mkk; 
+extern struct ActuatorsMkk actuators_mkk;
 
 
 
-#include "actuators/booz_supervision.h"
+#include "actuators/supervision.h"
 
 
-#endif /* BOOZ_ACTUATORS_MKK_H */
+#endif /* ACTUATORS_MKK_H */

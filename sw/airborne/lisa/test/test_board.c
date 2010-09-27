@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <inttypes.h>
@@ -39,7 +39,7 @@
 #include "settings.h"
 
 #include "lisa/lisa_baro.h"
-#include "booz/actuators/booz_actuators_pwm.h"
+#include "actuators/actuators_pwm.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -101,10 +101,10 @@ static inline void main_init( void ) {
   hw_init();
   sys_time_init();
   led_init();
-  
+
   baro_init();
-  booz_actuators_init();
-  
+  actuators_init();
+
   //  cur_test = TestTypeNone;
   cur_test = TestTypeBldc;
 
@@ -124,7 +124,7 @@ static inline void main_event_task( void ) {
   DatalinkEvent();
 
   tests[cur_test]._event();
-  
+
 }
 
 void start_test(void) {
@@ -153,26 +153,26 @@ static void test_none_event(void) {}
 static inline void test_baro_on_baro_diff(void);
 static inline void test_baro_on_baro_abs(void);
 static void test_baro_start(void) {all_led_green();}
-static void test_baro_periodic(void) { 
+static void test_baro_periodic(void) {
   RunOnceEvery(2, {baro_periodic();});
   RunOnceEvery(100,{
-      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, 
-			       &i2c2_errors.ack_fail_cnt,
-			       &i2c2_errors.miss_start_stop_cnt,
-			       &i2c2_errors.arb_lost_cnt,
-			       &i2c2_errors.over_under_cnt,
-			       &i2c2_errors.pec_recep_cnt,
-			       &i2c2_errors.timeout_tlow_cnt,
-			       &i2c2_errors.smbus_alert_cnt,
-			       &i2c2_errors.unexpected_event_cnt,
-			       &i2c2_errors.last_unexpected_event);
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel,
+                   &i2c2_errors.ack_fail_cnt,
+                   &i2c2_errors.miss_start_stop_cnt,
+                   &i2c2_errors.arb_lost_cnt,
+                   &i2c2_errors.over_under_cnt,
+                   &i2c2_errors.pec_recep_cnt,
+                   &i2c2_errors.timeout_tlow_cnt,
+                   &i2c2_errors.smbus_alert_cnt,
+                   &i2c2_errors.unexpected_event_cnt,
+                   &i2c2_errors.last_unexpected_event);
     });
 }
 static void test_baro_event(void) {BaroEvent(test_baro_on_baro_abs, test_baro_on_baro_diff);}
 static inline void test_baro_on_baro_abs(void) {
   RunOnceEvery(5,{DOWNLINK_SEND_BOOZ_BARO2_RAW(DefaultChannel, &baro.abs_raw, &baro.diff_raw);});
 }
-static inline void test_baro_on_baro_diff(void) { 
+static inline void test_baro_on_baro_diff(void) {
   RunOnceEvery(5,{DOWNLINK_SEND_BOOZ_BARO2_RAW(DefaultChannel, &baro.abs_raw, &baro.diff_raw);});
 }
 
@@ -190,16 +190,16 @@ static void test_bldc_periodic(void) {
   i2c1_transmit(0x58, 1, NULL);
 
   RunOnceEvery(100,{
-      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, 
-			       &i2c1_errors.ack_fail_cnt,
-			       &i2c1_errors.miss_start_stop_cnt,
-			       &i2c1_errors.arb_lost_cnt,
-			       &i2c1_errors.over_under_cnt,
-			       &i2c1_errors.pec_recep_cnt,
-			       &i2c1_errors.timeout_tlow_cnt,
-			       &i2c1_errors.smbus_alert_cnt,
-			       &i2c1_errors.unexpected_event_cnt,
-			       &i2c1_errors.last_unexpected_event);
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel,
+                   &i2c1_errors.ack_fail_cnt,
+                   &i2c1_errors.miss_start_stop_cnt,
+                   &i2c1_errors.arb_lost_cnt,
+                   &i2c1_errors.over_under_cnt,
+                   &i2c1_errors.pec_recep_cnt,
+                   &i2c1_errors.timeout_tlow_cnt,
+                   &i2c1_errors.smbus_alert_cnt,
+                   &i2c1_errors.unexpected_event_cnt,
+                   &i2c1_errors.last_unexpected_event);
     });
 }
 
@@ -217,8 +217,8 @@ static void test_srvo_periodic(void) {
   foo += 0.0025;
   int32_t bar = 1500 + 500. * sin(foo);
   for (uint8_t i=0; i<6; i++)
-    booz_actuators_pwm_values[i] = bar;
-  booz_actuators_pwm_commit();
+    actuators_pwm_values[i] = bar;
+  actuators_pwm_commit();
 }
 static void test_srvo_event(void) {}
 
@@ -243,7 +243,7 @@ static void test_uart_start(void) {
 }
 
 static void test_uart_periodic(void) {
-  
+
   if (idx_tx<sizeof(buf_src)) {
     switch (direction) {
     case OneToThree : uart1_transmit(buf_src[idx_tx]); break;
@@ -256,21 +256,21 @@ static void test_uart_periodic(void) {
 }
 
 static void test_uart_event(void) {
-  
+
   if (Uart3ChAvailable()) {
     buf_dest[idx_rx] = Uart3Getch();
     if (idx_rx<sizeof(buf_src)) {
       DOWNLINK_SEND_DEBUG(DefaultChannel, sizeof(buf_src), buf_dest);
       idx_rx++;
       if (idx_rx == sizeof(buf_src)) {
-	if ( memcmp(buf_dest, buf_src, sizeof(buf_src)) ) {
-	  all_led_red();  // test failed
-	}
-	else { // start test in other direction
-	    idx_rx = 0;
-	    idx_tx = 0;
-	    direction = ThreeToOne;
-	}
+    if ( memcmp(buf_dest, buf_src, sizeof(buf_src)) ) {
+      all_led_red();  // test failed
+    }
+    else { // start test in other direction
+        idx_rx = 0;
+        idx_tx = 0;
+        direction = ThreeToOne;
+    }
       }
     }
   }
@@ -281,12 +281,12 @@ static void test_uart_event(void) {
       DOWNLINK_SEND_DEBUG(DefaultChannel, sizeof(buf_src), buf_dest);
       idx_rx++;
       if (idx_rx == sizeof(buf_src)) {
-	if ( memcmp(buf_dest, buf_src, sizeof(buf_src)) ) {
-	  all_led_red();
-	}
-	else {
-	  all_led_green();
-	}
+    if ( memcmp(buf_dest, buf_src, sizeof(buf_src)) ) {
+      all_led_red();
+    }
+    else {
+      all_led_green();
+    }
       }
     }
   }
@@ -348,4 +348,3 @@ void dl_parse_msg(void) {
     break;
   }
 }
-

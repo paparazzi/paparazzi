@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of Paparazzi.
@@ -18,19 +18,19 @@
  * You should have received a copy of the GNU General Public License
  * along with Paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_ACTUATORS_PWM_H
-#define BOOZ_ACTUATORS_PWM_H
+#ifndef ACTUATORS_PWM_H
+#define ACTUATORS_PWM_H
 
 #include "std.h"
 
-#define BOOZ_ACTUATORS_PWM_NB 6
-extern int32_t booz_actuators_pwm_values[BOOZ_ACTUATORS_PWM_NB];
+#define ACTUATORS_PWM_NB 6
+extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
-extern void booz_actuators_init(void);
+extern void actuators_init(void);
 
-#include "actuators/booz_actuators_pwm_arch.h"
+#include "actuators_pwm_arch.h"
 
-#endif /* BOOZ_ACTUATORS_PWM_H */
+#endif /* ACTUATORS_PWM_H */

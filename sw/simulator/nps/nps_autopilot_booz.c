@@ -7,7 +7,7 @@
 #include "imu.h"
 #include "firmwares/rotorcraft/baro.h"
 
-#include "actuators/booz_supervision.h"
+#include "actuators/supervision.h"
 
 
 struct NpsAutopilot autopilot;

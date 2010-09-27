@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz/booz_actuators.h"
-#include "booz/actuators/booz_actuators_mkk.h"
+#include "actuators.h"
+#include "actuators/actuators_mkk.h"
 
 #include "booz/booz2_commands.h"
 #include "i2c.h"
@@ -46,7 +46,7 @@ void actuators_init(void) {
     actuators_mkk.trans[i].stop_after_transmit = TRUE;
     actuators_mkk.trans[i].status = I2CTransSuccess;
   }
-  
+
 #if defined BOOZ_START_DELAY && ! defined SITL
   actuators_delay_done = FALSE;
   SysTimeTimerStart(actuators_delay_time);
@@ -54,7 +54,7 @@ void actuators_init(void) {
   actuators_delay_done = TRUE;
   actuators_delay_time = 0;
 #endif
-  
+
 }
 
 

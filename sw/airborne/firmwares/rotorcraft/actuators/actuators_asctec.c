@@ -1,8 +1,8 @@
-#include "booz/booz_actuators.h"
-#include "booz/actuators/booz_actuators_asctec.h"
+#include "actuators.h"
+#include "actuators/actuators_asctec.h"
 
 #ifdef ACTUATORS_ASCTEC_V2_PROTOCOL
-#include "booz/actuators/booz_supervision.h"
+#include "actuators/supervision.h"
 #endif
 
 #include "booz/booz2_commands.h"
@@ -10,7 +10,7 @@
 #include "sys_time.h"
 
 
-struct ActuatorsAsctec actuators_asctec; 
+struct ActuatorsAsctec actuators_asctec;
 
 uint32_t actuators_delay_time;
 bool_t   actuators_delay_done;
@@ -124,11 +124,11 @@ void actuators_set(bool_t motors_on) {
   actuators_asctec.i2c_trans.buf[1] = supervision.commands[SERVO_BACK];
   actuators_asctec.i2c_trans.buf[2] = supervision.commands[SERVO_LEFT];
   actuators_asctec.i2c_trans.buf[3] = supervision.commands[SERVO_RIGHT];
-  actuators_asctec.i2c_trans.buf[4] = 0xAA + actuators_asctec.i2c_trans.buf[0] + actuators_asctec.i2c_trans.buf[1] + 
+  actuators_asctec.i2c_trans.buf[4] = 0xAA + actuators_asctec.i2c_trans.buf[0] + actuators_asctec.i2c_trans.buf[1] +
                                              actuators_asctec.i2c_trans.buf[2] + actuators_asctec.i2c_trans.buf[3];
 #endif
 
   i2c_submit(&ACTUATORS_ASCTEC_DEVICE, &actuators_asctec.i2c_trans);
-  
+
 }
 #endif /* ACTUATORS_ASCTEC_V2_PROTOCOL */

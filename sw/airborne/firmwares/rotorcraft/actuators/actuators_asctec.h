@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef BOOZ_ACTUATORS_ASCTEC_H
-#define BOOZ_ACTUATORS_ASCTEC_H
+#ifndef ACTUATORS_ASCTEC_H
+#define ACTUATORS_ASCTEC_H
 
 #include "i2c.h"
 
@@ -55,17 +55,17 @@ struct ActuatorsAsctec {
 
 extern struct ActuatorsAsctec actuators_asctec; 
 
-#define booz_actuators_asctec_SetCommand(_v) {  \
+#define actuators_asctec_SetCommand(_v) {  \
     actuators_asctec.cmd = _v;			\
 }
 
-#define booz_actuators_asctec_SetNewAddr(_v) {	\
+#define actuators_asctec_SetNewAddr(_v) {	\
     actuators_asctec.new_addr = _v;		\
 }
 
-#define booz_actuators_asctec_SetCurAddr(_v) {	\
+#define actuators_asctec_SetCurAddr(_v) {	\
     actuators_asctec.cur_addr = _v;		\
 }
 
 
-#endif /* BOOZ_ACTUATORS_ASCTEC_H */
+#endif /* ACTUATORS_ASCTEC_H */

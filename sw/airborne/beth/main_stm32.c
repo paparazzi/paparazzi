@@ -29,7 +29,7 @@
 #include "sys_time.h"
 #include "downlink.h"
 #include "booz/booz2_commands.h"
-#include "booz/booz_actuators.h"
+#include "booz/actuators.h"
 //#include "booz/booz_radio_control.h"
 #include "imu.h"
 #include "lisa/lisa_overo_link.h"

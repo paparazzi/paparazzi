@@ -25,7 +25,7 @@
 
 #include "init_hw.h"
 #include "sys_time.h"
-#include "actuators/booz_actuators_pwm.h"
+#include "actuators/actuators_pwm.h"
 
 static inline void main_init( void );
 static inline void main_periodic( void );
@@ -43,20 +43,20 @@ int main(void) {
 static inline void main_init( void ) {
   hw_init();
   sys_time_init();
-  booz_actuators_init();
+  actuators_init();
 }
 
 static inline void main_periodic( void ) {
   static float foo = 0.;
   foo += 0.0025;
   int32_t bar = 1500 + 500. * sin(foo);
-  booz_actuators_pwm_values[0] = bar;
-  booz_actuators_pwm_values[1] = bar;
-  booz_actuators_pwm_values[2] = bar;
-  booz_actuators_pwm_values[3] = bar;
-  booz_actuators_pwm_values[4] = bar;
-  booz_actuators_pwm_values[5] = bar;
-  booz_actuators_pwm_commit();
+  actuators_pwm_values[0] = bar;
+  actuators_pwm_values[1] = bar;
+  actuators_pwm_values[2] = bar;
+  actuators_pwm_values[3] = bar;
+  actuators_pwm_values[4] = bar;
+  actuators_pwm_values[5] = bar;
+  actuators_pwm_commit();
 
   LED_PERIODIC();
 }

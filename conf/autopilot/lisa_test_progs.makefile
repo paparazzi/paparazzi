@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA. 
+# Boston, MA 02111-1307, USA.
 #
 #
 
@@ -134,8 +134,8 @@ FLASH_MODE = JTAG
 test_led.ARCHDIR = $(ARCH)
 test_led.CFLAGS += -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_led.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_led.srcs += $(SRC_LISA)/test_led.c       	\
-                 $(SRC_ARCH)/led_hw.c     	\
+test_led.srcs += $(SRC_LISA)/test_led.c         \
+                 $(SRC_ARCH)/led_hw.c       \
                  $(SRC_ARCH)/stm32_exceptions.c   \
                  $(SRC_ARCH)/stm32_vector_table.c
 test_led.CFLAGS += -DUSE_LED
@@ -203,7 +203,7 @@ test_telemetry1.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_telemetry1.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_telemetry1.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_telemetry1.srcs += $(SRC_ARCH)/uart_hw.c
-test_telemetry1.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_telemetry1.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
 test_telemetry1.srcs += downlink.c pprz_transport.c
 
 
@@ -223,7 +223,7 @@ test_telemetry2.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_telemetry2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_telemetry2.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_telemetry2.srcs += $(SRC_ARCH)/uart_hw.c
-test_telemetry2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_telemetry2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_telemetry2.srcs += downlink.c pprz_transport.c
 
 
@@ -243,7 +243,7 @@ test_telemetry3.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_telemetry3.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_telemetry3.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B57600
 test_telemetry3.srcs += $(SRC_ARCH)/uart_hw.c
-test_telemetry3.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart3 
+test_telemetry3.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart3
 test_telemetry3.srcs += downlink.c pprz_transport.c
 
 #
@@ -262,7 +262,7 @@ test_datalink.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_datalink.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_datalink.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_datalink.srcs += $(SRC_ARCH)/uart_hw.c
-test_datalink.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_datalink.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_datalink.srcs += downlink.c pprz_transport.c
 test_datalink.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart2
 #test_datalink.srcs += $(SRC_BOOZ)/booz2_datalink.c
@@ -274,7 +274,7 @@ tunnel.ARCHDIR = $(ARCH)
 tunnel.CFLAGS  = -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 tunnel.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 tunnel.srcs += $(SRC_LISA)/test/lisa_tunnel.c \
-	       $(SRC_ARCH)/stm32_exceptions.c  \
+           $(SRC_ARCH)/stm32_exceptions.c  \
                $(SRC_ARCH)/stm32_vector_table.c
 tunnel.CFLAGS += -DUSE_LED
 tunnel.srcs += $(SRC_ARCH)/led_hw.c
@@ -313,7 +313,7 @@ test_float.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_float.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_float.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_float.srcs += $(SRC_ARCH)/uart_hw.c
-test_float.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_float.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_float.srcs += downlink.c pprz_transport.c
 test_float.srcs += lisa/plug_sys.c
 
@@ -336,7 +336,7 @@ SRC_BOOZ_TEST = $(SRC_BOOZ)/test
 
 test_rc_24.ARCHDIR = $(ARCH)
 test_rc_24.CFLAGS += -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -DPERIPHERALS_AUTO_INIT
-test_rc_24.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) 
+test_rc_24.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_rc_24.srcs += $(SRC_BOOZ_TEST)/booz2_test_radio_control.c \
                    $(SRC_ARCH)/stm32_exceptions.c   \
                    $(SRC_ARCH)/stm32_vector_table.c
@@ -350,7 +350,7 @@ test_rc_24.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 test_rc_24.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_rc_24.srcs += $(SRC_ARCH)/uart_hw.c
-test_rc_24.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_rc_24.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_rc_24.srcs += downlink.c pprz_transport.c
 
 test_rc_24.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_LED=2
@@ -373,7 +373,7 @@ test_servos.ARCHDIR = $(ARCH)
 test_servos.CFLAGS  = -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_servos.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_servos.LDFLAGS += -lm
-test_servos.srcs += $(SRC_LISA)/test_servos.c 	\
+test_servos.srcs += $(SRC_LISA)/test_servos.c   \
                     $(SRC_ARCH)/stm32_exceptions.c   \
                     $(SRC_ARCH)/stm32_vector_table.c
 test_servos.CFLAGS += -DUSE_LED
@@ -382,12 +382,12 @@ test_servos.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
 test_servos.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 test_servos.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
-test_servos.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_arch.c
+test_servos.srcs += $(SRC_FIRMWARE)/actuators/actuators_pwm.c $(SRC_FIRMWARE)/actuators/arch/$(ARCH)/actuators_pwm_arch.c
 
 
 #test_servos.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 #test_servos.srcs += $(SRC_ARCH)/uart_hw.c
-#test_servos.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+#test_servos.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
 #test_servos.srcs += downlink.c pprz_transport.c
 
 
@@ -415,7 +415,7 @@ test_imu_b2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_imu_b2.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_imu_b2.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_imu_b2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_imu_b2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_imu_b2.srcs += downlink.c pprz_transport.c
 
 test_imu_b2.srcs += math/pprz_trig_int.c
@@ -557,7 +557,7 @@ test_mc_asctec_v1_simple.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 test_mc_asctec_v1_simple.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_mc_asctec_v1_simple.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_mc_asctec_v1_simple.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_mc_asctec_v1_simple.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_mc_asctec_v1_simple.srcs += downlink.c pprz_transport.c
 
 
@@ -601,16 +601,16 @@ test_actuators_mkk.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_actuators_mkk.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_actuators_mkk.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_actuators_mkk.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_actuators_mkk.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_actuators_mkk.srcs += downlink.c pprz_transport.c
 
 test_actuators_mkk.srcs += $(SRC_BOOZ)/booz2_commands.c
-#test_actuators_mkk.srcs += $(SRC_BOOZ)/actuators/booz_actuators_mkk.c \
-#                           $(SRC_BOOZ_ARCH)/actuators/booz_actuators_mkk_arch.c
+#test_actuators_mkk.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c \
+#                           $(SRC_BOOZ_ARCH)/actuators/actuators_mkk_arch.c
 #test_actuators_mkk.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1  -DUSE_TIM2_IRQ
 test_actuators_mkk.CFLAGS += -DACTUATORS_ASCTEC_V2_PROTOCOL -DACTUATORS_ASCTEC_DEVICE=i2c1
-test_actuators_mkk.srcs += $(SRC_BOOZ)/actuators/booz_actuators_asctec.c
-test_actuators_mkk.srcs += $(SRC_BOOZ)/actuators/booz_supervision.c
+test_actuators_mkk.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
+test_actuators_mkk.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
 test_actuators_mkk.CFLAGS += -DUSE_I2C1
 test_actuators_mkk.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
@@ -635,13 +635,13 @@ test_actuators_asctec.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_actuators_asctec.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_actuators_asctec.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_actuators_asctec.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_actuators_asctec.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_actuators_asctec.srcs += downlink.c pprz_transport.c
 
 test_actuators_asctec.srcs += $(SRC_BOOZ)/booz2_commands.c
-test_actuators_asctec.srcs += $(SRC_BOOZ)/actuators/booz_actuators_asctec.c 
+test_actuators_asctec.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
 #\
-#                              $(SRC_BOOZ_ARCH)/actuators/booz_actuators_asctec_arch.c
+#                              $(SRC_BOOZ_ARCH)/actuators/actuators_asctec_arch.c
 test_actuators_asctec.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
 # -DBOOZ_START_DELAY=3
 #  -DUSE_TIM2_IRQ
@@ -688,7 +688,7 @@ test_baro.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_baro.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_baro.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_baro.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_baro.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_baro.srcs += downlink.c pprz_transport.c
 
 
@@ -710,7 +710,7 @@ test_baro2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_baro2.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_baro2.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_baro2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_baro2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_baro2.srcs += downlink.c pprz_transport.c
 
 test_baro2.srcs += $(SRC_LISA)/lisa_baro.c
@@ -736,7 +736,7 @@ test_baro3.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_baro3.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_baro3.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_baro3.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_baro3.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_baro3.srcs += downlink.c pprz_transport.c
 
 test_baro3.CFLAGS += -DUSE_I2C2
@@ -761,7 +761,7 @@ test_spi_slave.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_spi_slave.CFLAGS += -DUSE_SPI1_IRQ
 test_spi_slave.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_spi_slave.srcs += $(SRC_ARCH)/uart_hw.c
-test_spi_slave.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_spi_slave.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
 test_spi_slave.srcs += downlink.c pprz_transport.c
 
 
@@ -781,7 +781,7 @@ test_spi_slave2.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_spi_slave2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_spi_slave2.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_spi_slave2.srcs += $(SRC_ARCH)/uart_hw.c
-test_spi_slave2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_spi_slave2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
 test_spi_slave2.srcs += downlink.c pprz_transport.c
 
 
@@ -793,8 +793,8 @@ stm_test_spi_link.ARCHDIR = $(ARCH)
 stm_test_spi_link.CFLAGS += -Ilisa -Ilisa/arch/$(ARCH) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 stm_test_spi_link.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 stm_test_spi_link.srcs += lisa/stm_test_spi_link.c       \
-	                  $(SRC_ARCH)/stm32_exceptions.c   \
-		          $(SRC_ARCH)/stm32_vector_table.c
+                      $(SRC_ARCH)/stm32_exceptions.c   \
+                  $(SRC_ARCH)/stm32_vector_table.c
 
 stm_test_spi_link.CFLAGS += -DUSE_LED
 stm_test_spi_link.srcs += $(SRC_ARCH)/led_hw.c
@@ -880,7 +880,7 @@ test_max1168.srcs   += $(SRC_BOOZ)/peripherals/booz_max1168.c \
 test_max1168.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_max1168.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
 test_max1168.srcs += downlink.c pprz_transport.c
 
 #
@@ -909,7 +909,7 @@ test_ms2001.srcs   += $(SRC_BOOZ)/peripherals/booz_ms2001.c \
 test_ms2001.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_ms2001.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_ms2001.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+test_ms2001.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
 test_ms2001.srcs += downlink.c pprz_transport.c
 
 #
@@ -1012,7 +1012,7 @@ test_hmc5843.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_hmc5843.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_hmc5843.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_hmc5843.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_hmc5843.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_hmc5843.srcs += downlink.c pprz_transport.c
 
 test_hmc5843.CFLAGS += -DUSE_I2C2
@@ -1087,7 +1087,7 @@ ptw.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
 ptw.CFLAGS += -DUSE_OVERO_LINK_TELEMETRY
 #ptw.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 #ptw.srcs += $(SRC_ARCH)/uart_hw.c
-ptw.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=OveroLinkTelemetry 
+ptw.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=OveroLinkTelemetry
 ptw.srcs += downlink.c pprz_transport.c
 
 # IMU
@@ -1114,9 +1114,9 @@ ptw.CFLAGS += -DRADIO_CONTROL_LINK=Uart3
 ptw.srcs += $(SRC_ARCH)/uart_hw.c
 
 # Actuators
-ptw.srcs += $(SRC_BOOZ)/actuators/booz_supervision.c
-ptw.srcs += $(SRC_BOOZ)/actuators/booz_actuators_mkk.c
-ptw.srcs += $(SRC_BOOZ_ARCH)/actuators/booz_actuators_mkk_arch.c
+ptw.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
+ptw.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
+#ptw.srcs += $(SRC_BOOZ_ARCH)/actuators/actuators_mkk_arch.c
 ptw.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 ptw.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1  -DUSE_TIM2_IRQ
 ptw.CFLAGS += -DUSE_I2C1
@@ -1128,9 +1128,9 @@ test_csc_servo.ARCHDIR = $(ARCH)
 test_csc_servo.CFLAGS = -I $(SRC_CSC) -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_csc_servo.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_csc_servo.srcs = $(SRC_CSC)/csc_protocol.c \
-		$(SRC_LISA)/test_csc_servo.c      \
-		$(SRC_ARCH)/stm32_exceptions.c   \
-		$(SRC_ARCH)/stm32_vector_table.c
+        $(SRC_LISA)/test_csc_servo.c      \
+        $(SRC_ARCH)/stm32_exceptions.c   \
+        $(SRC_ARCH)/stm32_vector_table.c
 test_csc_servo.CFLAGS += -DUSE_LED
 test_csc_servo.srcs += $(SRC_ARCH)/led_hw.c
 test_csc_servo.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
@@ -1141,20 +1141,20 @@ test_csc_servo.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_csc_servo.srcs += $(SRC_ARCH)/uart_hw.c
 test_csc_servo.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart2
 
-test_csc_servo.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_csc_servo.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_csc_servo.srcs += downlink.c pprz_transport.c
 
 # setting CAN prescaler to generate 3MHz time quanta, drift compensiation to 1
 # time quanta, bit section 1 to 3 time quanta and bit section 2 to 4 time quanta
 # resulting in a 375kHz CAN bitrate expected by the CSC.
 test_csc_servo.CFLAGS += \
-	-DUSE_CAN1 \
-	-DUSE_USB_LP_CAN1_RX0_IRQ \
-	-DCAN_PRESCALER=12 \
-	-DCAN_SJW_TQ=CAN_SJW_1tq \
-	-DCAN_BS1_TQ=CAN_BS1_3tq \
-	-DCAN_BS2_TQ=CAN_BS2_4tq \
-	-DCAN_ERR_RESUME=DISABLE
+    -DUSE_CAN1 \
+    -DUSE_USB_LP_CAN1_RX0_IRQ \
+    -DCAN_PRESCALER=12 \
+    -DCAN_SJW_TQ=CAN_SJW_1tq \
+    -DCAN_BS1_TQ=CAN_BS1_3tq \
+    -DCAN_BS2_TQ=CAN_BS2_4tq \
+    -DCAN_ERR_RESUME=DISABLE
 test_csc_servo.srcs += can.c $(SRC_ARCH)/can_hw.c
 
 
@@ -1167,8 +1167,8 @@ test_gps.ARCHDIR = $(ARCH)
 test_gps.CFLAGS = -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_gps.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
 test_gps.srcs += $(SRC_BOOZ_TEST)/booz2_test_gps.c \
-		 $(SRC_ARCH)/stm32_exceptions.c    \
-		 $(SRC_ARCH)/stm32_vector_table.c
+         $(SRC_ARCH)/stm32_exceptions.c    \
+         $(SRC_ARCH)/stm32_vector_table.c
 test_gps.CFLAGS += -DUSE_LED
 test_gps.srcs += $(SRC_ARCH)/led_hw.c
 test_gps.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
@@ -1178,7 +1178,7 @@ test_gps.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_gps.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_gps.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_gps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_gps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_gps.srcs += downlink.c pprz_transport.c
 
 test_gps.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
@@ -1198,21 +1198,21 @@ test_gps.srcs += $(SRC_BOOZ)/gps/booz_gps_skytraq.c
 # test_adc.CFLAGS = -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 # test_adc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH)
 # test_adc.srcs += $(SRC_LISA)/test/lisa_test_adc.c \
-# 		 $(SRC_ARCH)/stm32_exceptions.c   \
-# 		 $(SRC_ARCH)/stm32_vector_table.c
+#        $(SRC_ARCH)/stm32_exceptions.c   \
+#        $(SRC_ARCH)/stm32_vector_table.c
 # test_adc.CFLAGS += -DUSE_LED
 # test_adc.srcs += $(SRC_ARCH)/led_hw.c
 # test_adc.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
 # test_adc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
 # test_adc.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-# 
+#
 # test_adc.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 # test_adc.srcs += $(SRC_ARCH)/uart_hw.c
-# 
-# test_adc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+#
+# test_adc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 # test_adc.srcs += downlink.c pprz_transport.c
-# 
-# test_adc.srcs += $(SRC_ARCH)/adc_hw.c 
+#
+# test_adc.srcs += $(SRC_ARCH)/adc_hw.c
 
 #
 # test adc
@@ -1221,9 +1221,9 @@ test_adc.ARCHDIR = $(ARCH)
 test_adc.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_adc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_adc.srcs = $(SRC_ARCH)/adc_hw.c \
-		$(SRC_LISA)/test_adc.c \
-		$(SRC_ARCH)/stm32_exceptions.c \
-		$(SRC_ARCH)/stm32_vector_table.c
+        $(SRC_LISA)/test_adc.c \
+        $(SRC_ARCH)/stm32_exceptions.c \
+        $(SRC_ARCH)/stm32_vector_table.c
 test_adc.CFLAGS += -DUSE_LED
 test_adc.srcs += $(SRC_ARCH)/led_hw.c
 test_adc.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
@@ -1234,7 +1234,7 @@ test_adc.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_adc.srcs += $(SRC_ARCH)/uart_hw.c
 test_adc.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart2
 
-test_adc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_adc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_adc.srcs += downlink.c pprz_transport.c
 
 test_adc.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
@@ -1262,7 +1262,7 @@ test_board.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_board.srcs += $(SRC_ARCH)/uart_hw.c
 test_board.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart2
 
-test_board.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_board.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_board.srcs += downlink.c pprz_transport.c
 
 test_board.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
@@ -1274,7 +1274,7 @@ test_board.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
 test_board.CFLAGS += -DUSE_I2C1
 
-test_board.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_arch.c
+test_board.srcs += $(SRC_FIRMWARE)/actuators/actuators_pwm.c $(SRC_FIRMWARE)/actuators/arch/$(ARCH)/actuators_pwm_arch.c
 
 
 
@@ -1390,5 +1390,3 @@ hs_gyro_crista.srcs += $(SRC_BOOZ)/booz_imu.c             \
 hs_gyro_crista.CFLAGS += -DUSE_DMA1_C4_IRQ
 
 hs_gyro_crista.CFLAGS += -DMEASURED_SENSOR=gyro_unscaled.p -DMEASURED_SENSOR_NB=0
-
-
