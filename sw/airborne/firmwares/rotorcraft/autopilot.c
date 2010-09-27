@@ -31,19 +31,19 @@
 #include "booz_stabilization.h"
 #include "led.h"
 
-uint8_t autopilot_mode;
-uint8_t autopilot_mode_auto2;
-bool_t  autopilot_motors_on;
-bool_t  autopilot_in_flight;
+uint8_t  autopilot_mode;
+uint8_t  autopilot_mode_auto2;
+bool_t   autopilot_motors_on;
+bool_t   autopilot_in_flight;
 uint32_t autopilot_motors_on_counter;
 uint32_t autopilot_in_flight_counter;
-bool_t kill_throttle;
-bool_t autopilot_rc;
+bool_t   kill_throttle;
+bool_t   autopilot_rc;
 
-bool_t autopilot_power_switch;
+bool_t   autopilot_power_switch;
 
-bool_t autopilot_detect_ground;
-bool_t autopilot_detect_ground_once;
+bool_t   autopilot_detect_ground;
+bool_t   autopilot_detect_ground_once;
 
 uint16_t autopilot_flight_time;
 
@@ -72,14 +72,14 @@ void autopilot_init(void) {
 void autopilot_periodic(void) {
 
   RunOnceEvery(BOOZ2_NAV_PRESCALER, nav_periodic_task());
-#ifdef BOOZ_FAILSAFE_GROUND_DETECT
+#ifdef FAILSAFE_GROUND_DETECT
   if (autopilot_mode == BOOZ2_AP_MODE_FAILSAFE && autopilot_detect_ground) {
     autopilot_set_mode(BOOZ2_AP_MODE_KILL);
     autopilot_detect_ground = FALSE;
   }
 #endif
   if ( !autopilot_motors_on ||
-#ifndef BOOZ_FAILSAFE_GROUND_DETECT
+#ifndef FAILSAFE_GROUND_DETECT
        autopilot_mode == BOOZ2_AP_MODE_FAILSAFE ||
 #endif
        autopilot_mode == BOOZ2_AP_MODE_KILL ) {

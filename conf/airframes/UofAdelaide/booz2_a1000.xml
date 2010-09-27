@@ -301,7 +301,7 @@ include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 
 #stuff from nova below
 
-ap.CFLAGS += -DBOOZ_FAILSAFE_GROUND_DETECT
+ap.CFLAGS += -DFAILSAFE_GROUND_DETECT
 
 include $(CFG_BOOZ)/subsystems/booz2_ins_hff.makefile
 #set GPS lag for horizontal filter

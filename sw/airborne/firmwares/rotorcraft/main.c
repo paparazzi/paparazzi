@@ -207,7 +207,7 @@ STATIC_INLINE void booz2_main_event( void ) {
   BoozGpsEvent(on_gps_event);
 #endif
 
-#ifdef BOOZ_FAILSAFE_GROUND_DETECT
+#ifdef FAILSAFE_GROUND_DETECT
   BoozDetectGroundEvent();
 #endif
 

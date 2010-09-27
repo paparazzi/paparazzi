@@ -8,7 +8,7 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="booz_1.0">
-      <define name="BOOZ_FAILSAFE_GROUND_DETECT"/>
+      <define name="FAILSAFE_GROUND_DETECT"/>
       <define name="USE_GPS_ACC4R"/>
     </target>
     <target name="sim" board="pc">

@@ -220,7 +220,7 @@ FLASH_MODE=IAP
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
 include $(CFG_BOOZ)/booz2_autopilot.makefile
 include $(CFG_BOOZ)/booz2_test_progs.makefile
-ap.CFLAGS += -DBOOZ_FAILSAFE_GROUND_DETECT
+ap.CFLAGS += -DFAILSAFE_GROUND_DETECT
 
 sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a2.h\"
 sim.CFLAGS += -DNPS_NO_SUPERVISION

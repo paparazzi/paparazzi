@@ -278,7 +278,7 @@ second attempt
 	  <define name="GPS_LAG" value = "0.8"/>
 	  <define name="BOOZ_START_DELAY" value = "3"/>
  <!-- <define name="KILL_MOTORS"/> -->
-	  <define name="BOOZ_FAILSAFE_GROUND_DETECT"/>
+	  <define name="FAILSAFE_GROUND_DETECT"/>
 	  <define name="USE_GPS_ACC4R" />
 	  <define name="GPS_USE_LATLONG"/>
 	  <define name="USE_ADAPT_HOVER"/>
@@ -340,7 +340,7 @@ include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 
 #stuff from nova below
 
-ap.CFLAGS += -DBOOZ_FAILSAFE_GROUND_DETECT
+ap.CFLAGS += -DFAILSAFE_GROUND_DETECT
 
 include $(CFG_BOOZ)/subsystems/booz2_ins_hff.makefile
 #set GPS lag for horizontal filter

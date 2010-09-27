@@ -231,7 +231,7 @@ FLASH_MODE=IAP
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
 include $(CFG_BOOZ)/booz2_autopilot.makefile
 include $(CFG_BOOZ)/booz2_test_progs.makefile
-ap.CFLAGS += -DBOOZ_FAILSAFE_GROUND_DETECT
+ap.CFLAGS += -DFAILSAFE_GROUND_DETECT
 
 ap.CFLAGS += -DMODEM_BAUD=B57600
 include $(CFG_BOOZ)/subsystems/booz2_actuators_mkk.makefile
