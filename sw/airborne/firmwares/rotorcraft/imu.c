@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "booz_imu.h"
@@ -33,15 +33,15 @@ void booz_imu_init(void) {
   RATES_ASSIGN(booz_imu.gyro_neutral,  IMU_GYRO_P_NEUTRAL,  IMU_GYRO_Q_NEUTRAL,  IMU_GYRO_R_NEUTRAL);
   VECT3_ASSIGN(booz_imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
   VECT3_ASSIGN(booz_imu.mag_neutral,   IMU_MAG_X_NEUTRAL,   IMU_MAG_Y_NEUTRAL,   IMU_MAG_Z_NEUTRAL);
-  
+
   /*
     Compute quaternion and rotation matrix
     for conversions between body and imu frame
   */
 #ifdef IMU_BODY_TO_IMU_PHI
   struct Int32Eulers body_to_imu_eulers =
-    { ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_PHI), 
-      ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_THETA), 
+    { ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_PHI),
+      ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_THETA),
       ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_PSI) };
   INT32_QUAT_OF_EULERS(booz_imu.body_to_imu_quat, body_to_imu_eulers);
   INT32_QUAT_NORMALISE(booz_imu.body_to_imu_quat);
@@ -50,4 +50,3 @@ void booz_imu_init(void) {
 
   booz_imu_impl_init();
 }
-
