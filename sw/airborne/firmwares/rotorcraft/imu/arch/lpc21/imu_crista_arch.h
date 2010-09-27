@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,20 +18,20 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
-/*
- *
- * simulator plug for the booz2 v1 imu arch dependant functions
- *
- */
-#ifndef BOOZ2_IMU_B2_ARCH_H
-#define BOOZ2_IMU_B2_ARCH_H
+#ifndef BOOZ_IMU_INT_HW_H
+#define BOOZ_IMU_INT_HW_H
+
+#include "std.h"
 
 
-extern void booz_imu_feed_gyro_accel(void);
-extern void booz_imu_feed_mag(void);
 
+#define BoozImuCristaArchPeriodic() {		\
+    ADS8344_start();				\
+  }
 
-#endif /* BOOZ2_IMU_B2_HW_H */
+extern void ADS8344_start( void );
+
+#endif /* BOOZ_IMU_INT_HW_H */

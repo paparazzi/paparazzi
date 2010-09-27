@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "booz_imu.h"
@@ -31,7 +31,7 @@
 #define ADS8344_SS_IODIR IO0DIR
 #define ADS8344_SS_IOSET IO0SET
 #define ADS8344_SS_IOCLR IO0CLR
-#define ADS8344_SS_PIN   20 
+#define ADS8344_SS_PIN   20
 
 #define ADS8344Select()   SetBit(ADS8344_SS_IOCLR,ADS8344_SS_PIN)
 #define ADS8344Unselect() SetBit(ADS8344_SS_IOSET,ADS8344_SS_PIN)
@@ -42,7 +42,7 @@
 /* SSPCR0 settings */
 #define SSP_DSS  0x07 << 0  /* data size            : 8 bits   */
 #define SSP_FRF  0x00 << 4  /* frame format         : SPI      */
-#define SSP_CPOL 0x00 << 6  /* clock polarity       : idle low */  
+#define SSP_CPOL 0x00 << 6  /* clock polarity       : idle low */
 #define SSP_CPHA 0x00 << 7  /* clock phase          : 1        */
 #define SSP_SCR  0x09 << 8  /* serial clock rate    : 1MHz     */
 
@@ -60,17 +60,17 @@ void booz_imu_crista_arch_init(void) {
 
   /* setup pins for SSP (SCK, MISO, MOSI) */
   PINSEL1 |= 2 << 2 | 2 << 4 | 2 << 6;
-  
+
   /* setup SSP */
   SSPCR0 = SSP_DSS | SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR;
   SSPCR1 = SSP_LBM | SSP_MS | SSP_SOD;
   SSPCPSR = 2; /* -> 50kHz */
-  
+
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   // SPI1 selected as IRQ
   VICIntEnable = VIC_BIT(VIC_SPI1);     // SPI1 interrupt enabled
   VICVectCntl7 = VIC_ENABLE | VIC_SPI1;
-  VICVectAddr7 = (uint32_t)SPI1_ISR;    // address of the ISR 
+  VICVectAddr7 = (uint32_t)SPI1_ISR;    // address of the ISR
 
   /* setup slave select */
   /* configure SS pin */
@@ -110,7 +110,7 @@ void SPI1_ISR(void) {
  if (channel > 7-1) {
    channel = 0;
    ADS8344_available = TRUE;
-   ADS8344Unselect();    
+   ADS8344Unselect();
  }
  else {
    send_request();

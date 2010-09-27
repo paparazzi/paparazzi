@@ -1,7 +1,7 @@
 /*
  * $Id$
- *  
- * Copyright (C) 2010 The Paparazzi Team
+ *
+ * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -18,25 +18,20 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
-/*
- *
- * simulator plug for the crista imu arch dependant functions
- *
- */
-#ifndef BOOZ_IMU_CRISTA_ARCH_H
-#define BOOZ_IMU_CRISTA_ARCH_H
+#include "booz_imu.h"
 
-#include "booz/booz_imu.h"
+void booz_imu_impl_init(void) {
 
+  booz_imu_b2_arch_init();
 
-#define BoozImuCristaArchPeriodic() {}
+  booz_max1168_init();
+#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
+  ms2001_init();
+#elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
+  ami601_init();
+#endif
 
-extern void booz_imu_feed_gyro_accel(void);
-extern void booz_imu_feed_mag(void);
-
-
-#endif /* BOOZ_IMU_CRISTA_HW_H */
-
+}

@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #ifndef BOOZ_IMU_ASPIRIN_H
@@ -49,7 +49,7 @@
 #define IMU_MAG_Z_SIGN    1
 #endif
 
-enum AspirinStatus 
+enum AspirinStatus
   { AspirinStatusUninit,
     AspirinStatusIdle,
     AspirinStatusReadingGyro,
@@ -88,7 +88,7 @@ extern struct BoozImuAspirin imu_aspirin;
 	imu_aspirin.i2c_trans_mag.len_r = 7;				\
 	i2c_submit(&i2c2,&imu_aspirin.i2c_trans_mag);			\
 	imu_aspirin.mag_ready_for_read = FALSE;				\
-    	imu_aspirin.status = AspirinStatusReadingMag;			\
+	imu_aspirin.status = AspirinStatusReadingMag;			\
       }									\
       else {								\
 	imu_aspirin.status = AspirinStatusIdle;				\
@@ -102,7 +102,7 @@ extern struct BoozImuAspirin imu_aspirin;
       VECT3_ASSIGN(booz_imu.mag_unscaled, mx, my, mz);			\
       imu_aspirin.mag_available = TRUE;					\
       imu_aspirin.status = AspirinStatusIdle;				\
-      									\
+									\
     }									\
     if (imu_aspirin.gyro_available_blaaa) {				\
       imu_aspirin.gyro_available_blaaa = FALSE;				\
@@ -129,4 +129,3 @@ extern struct BoozImuAspirin imu_aspirin;
 extern void booz_imu_b2_arch_init(void);
 
 #endif /* BOOZ_IMU_ASPIRIN_H */
-

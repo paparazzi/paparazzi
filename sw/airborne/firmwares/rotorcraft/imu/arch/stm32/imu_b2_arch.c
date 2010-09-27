@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 20010 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of Paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "booz_imu.h"
@@ -58,7 +58,7 @@ void booz_imu_b2_arch_init(void) {
     .NVIC_IRQChannel = DMA1_Channel4_IRQn,
     .NVIC_IRQChannelPreemptionPriority = 0,
     .NVIC_IRQChannelSubPriority = 0,
-    .NVIC_IRQChannelCmd = ENABLE 
+    .NVIC_IRQChannelCmd = ENABLE
   };
   NVIC_Init(&NVIC_init_struct);
   /* Enable SPI2 IRQ Channel */
@@ -80,7 +80,7 @@ void booz_imu_periodic(void) {
   Max1168ConfigureSPI();
   SPI_Cmd(SPI2, ENABLE);
   booz_max1168_read();
-  
+
 }
 
 void dma1_c4_irq_handler(void) {

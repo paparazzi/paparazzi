@@ -18,7 +18,7 @@ void booz_imu_impl_init(void) {
   imu_aspirin.mag_ready_for_read = FALSE;
   imu_aspirin.mag_available = FALSE;
   imu_aspirin.accel_available = FALSE;
-  
+
   booz_imu_aspirin_arch_init();
 
 }
@@ -32,13 +32,13 @@ void booz_imu_periodic(void) {
     imu_aspirin.status = AspirinStatusIdle;
   }
   else
-    imu_aspirin.gyro_available_blaaa = TRUE; 
+    imu_aspirin.gyro_available_blaaa = TRUE;
 }
 
 
 /* sends a serie of I2C commands to configure the ITG3200 gyro */
 static void configure_gyro(void) {
-  
+
   struct i2c_transaction t;
   t.type = I2CTransTx;
   t.slave_addr = ITG3200_ADDR;
@@ -63,7 +63,7 @@ static void configure_gyro(void) {
   t.buf[1] = (0x01 | 0x01<<7);
   i2c_submit(&i2c2,&t);
   while (t.status != I2CTransSuccess);
-  
+
 }
 
 /* sends a serie of I2C commands to configure the ITG3200 gyro */
@@ -73,7 +73,7 @@ static void configure_mag(void) {
   t.type = I2CTransTx;
   t.slave_addr = HMC5843_ADDR;
   /* set to rate to 50Hz */
-  t.buf[0] = HMC5843_REG_CFGA; 
+  t.buf[0] = HMC5843_REG_CFGA;
   t.buf[1] = 0x00 | (0x06 << 2);
   i2c_submit(&i2c2,&t);
   while (t.status != I2CTransSuccess);
@@ -83,7 +83,7 @@ static void configure_mag(void) {
   i2c_submit(&i2c2,&t);
   while (t.status != I2CTransSuccess);
   /* set to continuous mode */
-  t.buf[0] = HMC5843_REG_MODE; 
+  t.buf[0] = HMC5843_REG_MODE;
   t.buf[1] = 0x00;
   i2c_submit(&i2c2,&t);
   while (t.status != I2CTransSuccess);
@@ -100,7 +100,7 @@ static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
     if (t.status == I2CTransFailed)
       nb_retry++;
   }
-  while (t.status != I2CTransSuccess || nb_retry < max_retry); 
+  while (t.status != I2CTransSuccess || nb_retry < max_retry);
 }
 
 
@@ -111,7 +111,7 @@ static void configure_accel(void) {
   /* switch to measurememnt mode */
   adxl345_write_to_reg(ADXL345_REG_POWER_CTL, 1<<3);
   /* enable data ready interrupt */
-  adxl345_write_to_reg(ADXL345_REG_INT_ENABLE, 1<<7); 
+  adxl345_write_to_reg(ADXL345_REG_INT_ENABLE, 1<<7);
   /* Enable full res and interrupt active low */
   adxl345_write_to_reg(ADXL345_REG_DATA_FORMAT, 1<<3|1<<5);
   /* clear spi rx reg to make DMA happy */
