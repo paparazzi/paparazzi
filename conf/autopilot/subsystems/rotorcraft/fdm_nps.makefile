@@ -11,6 +11,8 @@ JSBSIM_LIB = $(JSBSIM_ROOT)/lib
 SRC_BOOZ=booz
 SRC_BOOZ_SIM = $(SRC_BOOZ)/arch/sim
 
+SRC_FIRMWARE=firmwares/rotorcraft
+
 SRC_BOARD=boards/$(BOARD)
 
 NPSDIR = $(SIMDIR)/nps
@@ -24,7 +26,7 @@ sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
 sim.CFLAGS  += -I$(NPSDIR) -I/usr/local/include -I$(JSBSIM_INC)
 sim.LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
 
-sim.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_SIM) -I$(SRC_BOARD) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
+sim.CFLAGS  += -I$(SRC_FIRMWARE) -I$(SRC_BOOZ) -I$(SRC_BOOZ_SIM) -I$(SRC_BOARD) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
 
 sim.srcs = $(NPSDIR)/nps_main.c                      \
 	   $(NPSDIR)/nps_fdm_jsbsim.c                \
