@@ -48,7 +48,7 @@ SRC_BOOZ_TEST = $(SRC_BOOZ)/test
 #SRC_ROTORCRAFT=rotorcraft
 SRC_BOARD=boards/$(BOARD)
 
-BOARD_CFG=\"boards/lisa_l_1.0.h\"
+
 
 #
 # default configuration expected from the board files
