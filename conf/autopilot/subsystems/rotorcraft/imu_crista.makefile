@@ -20,10 +20,10 @@
 #    <define name="GYRO_X_SENS" value="1.01" integer="16"/>
 #    <define name="GYRO_Y_SENS" value="1.01" integer="16"/>
 #    <define name="GYRO_Z_SENS" value="1.01" integer="16"/>
-# 
+#
 #    <define name="ACCEL_X_CHAN" value="3"/>
 #    <define name="ACCEL_Y_CHAN" value="5"/>
-#    <define name="ACCEL_Z_CHAN" value="6"/>    
+#    <define name="ACCEL_Z_CHAN" value="6"/>
 #
 #    <define name="ACCEL_X_SIGN" value="1"/>
 #    <define name="ACCEL_Y_SIGN" value="1"/>
@@ -46,13 +46,13 @@
 #    <define name="MAG_Z_SIGN" value="1"/>
 #
 #    <define name="MAG_X_NEUTRAL" value="2358"/>
-#    <define name="MAG_Y_NEUTRAL" value="2362"/> 
+#    <define name="MAG_Y_NEUTRAL" value="2362"/>
 #    <define name="MAG_Z_NEUTRAL" value="2119"/>
 #
 #    <define name="MAG_X_SENS" value="3.4936416" integer="16"/>
 #    <define name="MAG_Y_SENS" value="3.607713" integer="16"/>
 #    <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
-#    <define name="MAG_45_HACK" value="1"/> 
+#    <define name="MAG_45_HACK" value="1"/>
 #
 #  </section>
 #
@@ -60,21 +60,22 @@
 
 
 
-ap.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_crista.h\"
-ap.srcs += $(SRC_BOOZ)/booz_imu.c            \
-           $(SRC_BOOZ)/imu/booz_imu_crista.c \
-           $(SRC_BOOZ_ARCH)/imu/booz_imu_crista_arch.c
+ap.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/imu_crista.h\"
+ap.srcs += $(SRC_FIRMWARE)/imu.c            \
+           $(SRC_FIRMWARE)/imu/imu_crista.c \
+           $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_crista_arch.c
 
 ap.CFLAGS += -DUSE_AMI601
-ap.srcs += $(SRC_BOOZ)/peripherals/booz_ami601.c
+ap.srcs   += $(SRC_BOOZ)/peripherals/booz_ami601.c
 ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
 
 
 
-sim.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_crista.h\"
-sim.srcs += $(SRC_BOOZ)/booz_imu.c            \
-            $(SRC_BOOZ)/imu/booz_imu_crista.c \
-            $(SRC_BOOZ_SIM)/imu/booz_imu_crista_arch.c
+sim.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/imu_crista.h\"
+sim.srcs   += $(SRC_FIRMWARE)/imu.c                 \
+              $(SRC_FIRMWARE)/imu/imu_christa.c     \
+              $(SRC_FIRMWARE)/imu/imu_christa_arch.c
+
 sim.CFLAGS += -DUSE_AMI601
-sim.srcs += $(SRC_BOOZ)/peripherals/booz_ami601.c
+sim.srcs   += $(SRC_BOOZ)/peripherals/booz_ami601.c
 sim.CFLAGS += -DUSE_I2C1

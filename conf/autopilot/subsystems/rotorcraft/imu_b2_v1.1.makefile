@@ -40,18 +40,18 @@
 
 
 # imu Booz2 v1.1
-imu_CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
+imu_CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/imu_b2.h\"
 imu_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
 imu_CFLAGS += -DIMU_B2_VERSION_1_1
-imu_srcs += $(SRC_BOOZ)/booz_imu.c                   \
-		   $(SRC_BOOZ)/imu/booz_imu_b2.c            \
-		   $(SRC_BOOZ_ARCH)/imu/booz_imu_b2_arch.c
+ap.srcs += $(SRC_FIRMWARE)/imu.c                   \
+           $(SRC_FIRMWARE)/imu/imu_b2.c            \
+           $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
 
 imu_srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
-		   $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
+            $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
 
 imu_srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c \
-		   $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
+            $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
 
 ifeq ($(ARCH), lpc21)
 imu_CFLAGS += -DSSP_VIC_SLOT=9
@@ -72,17 +72,16 @@ ap.srcs += $(imu_srcs)
 # Simulator
 #
 
-sim.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
+sim.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/imu_b2.h\"
 sim.CFLAGS += -DIMU_B2_VERSION_1_1
 sim.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_AMI601
-sim.srcs += $(SRC_BOOZ)/booz_imu.c                 \
-			$(SRC_BOOZ)/imu/booz_imu_b2.c          \
-			$(SRC_BOOZ_SIM)/imu/booz_imu_b2_arch.c
-
+sim.srcs += $(SRC_FIRMWARE)/imu.c                   \
+            $(SRC_FIRMWARE)/imu/imu_b2.c            \
+            $(SRC_FIRMWARE)/imu/imu_b2_arch.c
 
 sim.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
-			$(SRC_BOOZ_SIM)/peripherals/booz_max1168_arch.c
+            $(SRC_BOOZ_SIM)/peripherals/booz_max1168_arch.c
 
 sim.CFLAGS += -DUSE_AMI601
-sim.srcs += $(SRC_BOOZ)/peripherals/booz_ami601.c
+sim.srcs   += $(SRC_BOOZ)/peripherals/booz_ami601.c
 sim.CFLAGS += -DUSE_I2C1
