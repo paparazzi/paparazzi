@@ -21,20 +21,20 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_AHRS_CMPL_EULER_H
-#define BOOZ_AHRS_CMPL_EULER_H
+#ifndef AHRS_CMPL_EULER_H
+#define AHRS_CMPL_EULER_H
 
-#include "booz_ahrs.h"
+#include "ahrs.h"
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 
-extern struct Int32Rates  booz2_face_gyro_bias;
-extern struct Int32Eulers booz2_face_measure;
-extern struct Int32Eulers booz2_face_residual;
-extern struct Int32Eulers booz2_face_uncorrected;
-extern struct Int32Eulers booz2_face_corrected;
+extern struct Int32Rates  face_gyro_bias;
+extern struct Int32Eulers face_measure;
+extern struct Int32Eulers face_residual;
+extern struct Int32Eulers face_uncorrected;
+extern struct Int32Eulers face_corrected;
 
-extern int32_t booz2_face_reinj_1;
+extern int32_t face_reinj_1;
 
 
-#endif /* BOOZ_AHRS_CMPL_EULER_H */
+#endif /* AHRS_CMPL_EULER_H */

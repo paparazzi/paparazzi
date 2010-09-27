@@ -24,7 +24,7 @@
 
 #include "booz_stabilization.h"
 
-#include "booz_ahrs.h"
+#include "ahrs.h"
 
 #include "imu.h"
 #include "booz_radio_control.h"
@@ -166,7 +166,7 @@ void booz_stabilization_rate_run(bool_t in_flight) {
     OFFSET_AND_ROUND(booz_stabilization_rate_ref.q, (REF_FRAC - INT32_RATE_FRAC)),
     OFFSET_AND_ROUND(booz_stabilization_rate_ref.r, (REF_FRAC - INT32_RATE_FRAC)) };
   struct Int32Rates _error;
-  RATES_DIFF(_error, booz_ahrs.body_rate, _ref_scaled);
+  RATES_DIFF(_error, ahrs.body_rate, _ref_scaled);
   if (in_flight) {
     /* update integrator */
     RATES_ADD(booz_stabilization_rate_sum_err, _error);

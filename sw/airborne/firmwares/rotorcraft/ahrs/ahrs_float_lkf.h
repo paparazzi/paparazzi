@@ -22,10 +22,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_AHRS_FLOAT_LKF_H
-#define BOOZ_AHRS_FLOAT_LKF_H
+#ifndef AHRS_FLOAT_LKF_H
+#define AHRS_FLOAT_LKF_H
 
-#include "booz_ahrs.h"
+#include "ahrs.h"
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 
@@ -58,14 +58,14 @@ extern float bafl_Q_att;
 extern float bafl_Q_gyro;
 
 
-#define booz_ahrs_float_lkf_SetRaccel(_v) { \
+#define ahrs_float_lkf_SetRaccel(_v) { \
   bafl_sigma_accel = _v; \
   bafl_R_accel = _v * _v; \
 }
-#define booz_ahrs_float_lkf_SetRmag(_v) { \
+#define ahrs_float_lkf_SetRmag(_v) { \
   bafl_sigma_mag = _v; \
   bafl_R_mag = _v * _v; \
 }
 
-#endif /* BOOZ_AHRS_FLOAT_LKF_H */
+#endif /* AHRS_FLOAT_LKF_H */
 

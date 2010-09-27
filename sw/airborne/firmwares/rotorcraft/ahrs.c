@@ -21,11 +21,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_ahrs.h"
+#include "ahrs.h"
 #include "imu.h"
 
-struct BoozAhrs booz_ahrs;
-struct BoozAhrsFloat booz_ahrs_float;
+struct Ahrs ahrs;
+struct AhrsFloat ahrs_float;
 
-float booz_ahrs_mag_offset;
+float ahrs_mag_offset;
 

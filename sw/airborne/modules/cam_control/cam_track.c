@@ -25,7 +25,7 @@
 #include "cam_track.h"
 
 #include "booz2_ins.h"
-#include "booz_ahrs.h"
+#include "ahrs.h"
 
 #ifdef USE_HFF
 #include "ins/booz2_hf_float.h"
@@ -72,7 +72,7 @@ void track_periodic_task(void) {
 
   cmd_msg[c++] = 'A';
   cmd_msg[c++] = ' ';
-  float phi = ANGLE_FLOAT_OF_BFP(booz_ahrs.ltp_to_body_euler.phi);
+  float phi = ANGLE_FLOAT_OF_BFP(ahrs.ltp_to_body_euler.phi);
   if (phi > 0) cmd_msg[c++] = ' ';
   else { cmd_msg[c++] = '-'; phi = -phi; }
   cmd_msg[c++] = '0' + ((unsigned int) phi % 10);
@@ -81,7 +81,7 @@ void track_periodic_task(void) {
   cmd_msg[c++] = '0' + ((unsigned int) (1000*phi) % 10);
   cmd_msg[c++] = '0' + ((unsigned int) (10000*phi) % 10);
   cmd_msg[c++] = ' ';
-  float theta = ANGLE_FLOAT_OF_BFP(booz_ahrs.ltp_to_body_euler.theta);
+  float theta = ANGLE_FLOAT_OF_BFP(ahrs.ltp_to_body_euler.theta);
   if (theta > 0) cmd_msg[c++] = ' ';
   else { cmd_msg[c++] = '-'; theta = -theta; }
   cmd_msg[c++] = '0' + ((unsigned int) theta % 10);
@@ -90,7 +90,7 @@ void track_periodic_task(void) {
   cmd_msg[c++] = '0' + ((unsigned int) (1000*theta) % 10);
   cmd_msg[c++] = '0' + ((unsigned int) (10000*theta) % 10);
   cmd_msg[c++] = ' ';
-  float psi = ANGLE_FLOAT_OF_BFP(booz_ahrs.ltp_to_body_euler.psi);
+  float psi = ANGLE_FLOAT_OF_BFP(ahrs.ltp_to_body_euler.psi);
   if (psi > 0) cmd_msg[c++] = ' ';
   else { cmd_msg[c++] = '-'; psi = -psi; }
   cmd_msg[c++] = '0' + ((unsigned int) psi % 10);

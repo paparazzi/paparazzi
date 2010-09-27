@@ -28,8 +28,8 @@
 
 #include "mercury_xsens.h"
 #include "imu.h"
-#include "booz/booz_ahrs.h"
-#include "booz/ahrs/booz_ahrs_aligner.h"
+#include "booz/ahrs.h"
+#include "booz/ahrs/ahrs_aligner.h"
 #include "imu.h"
 #include "csc_booz2_ins.h"
 
@@ -316,14 +316,14 @@ void xsens_parse_msg( uint8_t xsens_id ) {
 	
 	// Copied from booz2_main -- 5143134f060fcc57ce657e17d8b7fc2e72119fd7
 	// mmt 6/15/09
-	if (booz_ahrs.status == BOOZ_AHRS_UNINIT) {
+	if (ahrs.status == AHRS_UNINIT) {
 	  // 150
-	  booz_ahrs_aligner_run();
-	  if (booz_ahrs_aligner.status == BOOZ_AHRS_ALIGNER_LOCKED)
-	    booz_ahrs_align();
+	  ahrs_aligner_run();
+	  if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
+	    ahrs_align();
 	}
 	else {
-	  booz_ahrs_propagate();
+	  ahrs_propagate();
 	  booz_ins_propagate();
 	}
       }

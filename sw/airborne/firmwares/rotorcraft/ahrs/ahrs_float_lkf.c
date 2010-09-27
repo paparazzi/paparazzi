@@ -22,10 +22,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_ahrs_float_lkf.h"
+#include "ahrs_float_lkf.h"
 
 #include "imu.h"
-#include "booz_ahrs_aligner.h"
+#include "ahrs_aligner.h"
 
 #include "airframe.h"
 #include "math/pprz_algebra_float.h"
@@ -35,8 +35,8 @@
 
 #define BAFL_DEBUG
 
-static void booz_ahrs_do_update_accel(void);
-static void booz_ahrs_do_update_mag(void);
+static void ahrs_do_update_accel(void);
+static void ahrs_do_update_mag(void);
 
 
 /* our estimated attitude  (ltp <-> imu)      */
@@ -189,28 +189,28 @@ float bafl_R_mag;
 
 #define AHRS_TO_BFP() {												\
 	/* IMU rate */													\
-	RATES_BFP_OF_REAL(booz_ahrs.imu_rate, bafl_rates);				\
+	RATES_BFP_OF_REAL(ahrs.imu_rate, bafl_rates);				\
 	/* LTP to IMU eulers      */									\
-	EULERS_BFP_OF_REAL(booz_ahrs.ltp_to_imu_euler, bafl_eulers);	\
+	EULERS_BFP_OF_REAL(ahrs.ltp_to_imu_euler, bafl_eulers);	\
 	/* LTP to IMU quaternion */										\
-	QUAT_BFP_OF_REAL(booz_ahrs.ltp_to_imu_quat, bafl_quat);			\
+	QUAT_BFP_OF_REAL(ahrs.ltp_to_imu_quat, bafl_quat);			\
 	/* LTP to IMU rotation matrix */								\
-	RMAT_BFP_OF_REAL(booz_ahrs.ltp_to_imu_rmat, bafl_dcm);			\
+	RMAT_BFP_OF_REAL(ahrs.ltp_to_imu_rmat, bafl_dcm);			\
 }
 
 #define AHRS_LTP_TO_BODY() {																				\
 	/* Compute LTP to BODY quaternion */																	\
-	INT32_QUAT_COMP_INV(booz_ahrs.ltp_to_body_quat, booz_ahrs.ltp_to_imu_quat, imu.body_to_imu_quat);	\
+	INT32_QUAT_COMP_INV(ahrs.ltp_to_body_quat, ahrs.ltp_to_imu_quat, imu.body_to_imu_quat);	\
 	/* Compute LTP to BODY rotation matrix */																\
-	INT32_RMAT_COMP_INV(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_imu_rmat, imu.body_to_imu_rmat);	\
+	INT32_RMAT_COMP_INV(ahrs.ltp_to_body_rmat, ahrs.ltp_to_imu_rmat, imu.body_to_imu_rmat);	\
 	/* compute LTP to BODY eulers */																		\
-	INT32_EULERS_OF_RMAT(booz_ahrs.ltp_to_body_euler, booz_ahrs.ltp_to_body_rmat);							\
+	INT32_EULERS_OF_RMAT(ahrs.ltp_to_body_euler, ahrs.ltp_to_body_rmat);							\
 	/* compute body rates */																				\
-	INT32_RMAT_TRANSP_RATEMULT(booz_ahrs.body_rate, imu.body_to_imu_rmat, booz_ahrs.imu_rate);			\
+	INT32_RMAT_TRANSP_RATEMULT(ahrs.body_rate, imu.body_to_imu_rmat, ahrs.imu_rate);			\
 }
 
 
-void booz_ahrs_init(void) {
+void ahrs_init(void) {
 	int i, j;
 
 	for (i = 0; i < BAFL_SSIZE; i++) {
@@ -230,16 +230,16 @@ void booz_ahrs_init(void) {
 
 	FLOAT_QUAT_ZERO(bafl_quat);
 
-	booz_ahrs.status = BOOZ_AHRS_UNINIT;
-	INT_EULERS_ZERO(booz_ahrs.ltp_to_body_euler);
-	INT_EULERS_ZERO(booz_ahrs.ltp_to_imu_euler);
-	INT32_QUAT_ZERO(booz_ahrs.ltp_to_body_quat);
-	INT32_QUAT_ZERO(booz_ahrs.ltp_to_imu_quat);
-	INT_RATES_ZERO(booz_ahrs.body_rate);
-	INT_RATES_ZERO(booz_ahrs.imu_rate);
+	ahrs.status = AHRS_UNINIT;
+	INT_EULERS_ZERO(ahrs.ltp_to_body_euler);
+	INT_EULERS_ZERO(ahrs.ltp_to_imu_euler);
+	INT32_QUAT_ZERO(ahrs.ltp_to_body_quat);
+	INT32_QUAT_ZERO(ahrs.ltp_to_imu_quat);
+	INT_RATES_ZERO(ahrs.body_rate);
+	INT_RATES_ZERO(ahrs.imu_rate);
 
-	booz_ahrs_float_lkf_SetRaccel(BAFL_SIGMA_ACCEL);
-	booz_ahrs_float_lkf_SetRmag(BAFL_SIGMA_MAG);
+	ahrs_float_lkf_SetRaccel(BAFL_SIGMA_ACCEL);
+	ahrs_float_lkf_SetRmag(BAFL_SIGMA_MAG);
 
 	bafl_Q_att = BAFL_Q_ATT;
 	bafl_Q_gyro = BAFL_Q_GYRO;
@@ -248,13 +248,13 @@ void booz_ahrs_init(void) {
 
 }
 
-void booz_ahrs_align(void) {
-	RATES_FLOAT_OF_BFP(bafl_bias, booz_ahrs_aligner.lp_gyro);
-	ACCELS_FLOAT_OF_BFP(bafl_accel_measure, booz_ahrs_aligner.lp_accel);
-	booz_ahrs.status = BOOZ_AHRS_RUNNING;
+void ahrs_align(void) {
+	RATES_FLOAT_OF_BFP(bafl_bias, ahrs_aligner.lp_gyro);
+	ACCELS_FLOAT_OF_BFP(bafl_accel_measure, ahrs_aligner.lp_accel);
+	ahrs.status = AHRS_RUNNING;
 }
 
-static inline void booz_ahrs_lowpass_accel(void) {
+static inline void ahrs_lowpass_accel(void) {
 	// get latest measurement
 	ACCELS_FLOAT_OF_BFP(bafl_accel_last, imu.accel);
 	// low pass it
@@ -284,10 +284,10 @@ static inline void booz_ahrs_lowpass_accel(void) {
  *              [ r,  q, -p,  0 ]
  *
  */
-void booz_ahrs_propagate(void) {
+void ahrs_propagate(void) {
 	int i, j, k;
 
-    booz_ahrs_lowpass_accel();
+    ahrs_lowpass_accel();
 
 	/* compute unbiased rates */
 	RATES_FLOAT_OF_BFP(bafl_rates, imu.gyro);
@@ -405,11 +405,11 @@ void booz_ahrs_propagate(void) {
 #endif
 }
 
-void booz_ahrs_update_accel(void) {
-  RunOnceEvery(50, booz_ahrs_do_update_accel());
+void ahrs_update_accel(void) {
+  RunOnceEvery(50, ahrs_do_update_accel());
 }
 
-static void booz_ahrs_do_update_accel(void) {
+static void ahrs_do_update_accel(void) {
 	int i, j, k;
 
 #ifdef BAFL_DEBUG2
@@ -636,11 +636,11 @@ static void booz_ahrs_do_update_accel(void) {
 }
 
 
-void booz_ahrs_update_mag(void) {
-  RunOnceEvery(10, booz_ahrs_do_update_mag());
+void ahrs_update_mag(void) {
+  RunOnceEvery(10, ahrs_do_update_mag());
 }
 
-static void booz_ahrs_do_update_mag(void) {
+static void ahrs_do_update_mag(void) {
 	int i, j, k;
 
 #ifdef BAFL_DEBUG2
@@ -846,7 +846,7 @@ static void booz_ahrs_do_update_mag(void) {
 	AHRS_LTP_TO_BODY();
 }
 
-void booz_ahrs_update(void) {
-	booz_ahrs_update_accel();
-	booz_ahrs_update_mag();
+void ahrs_update(void) {
+	ahrs_update_accel();
+	ahrs_update_mag();
 }

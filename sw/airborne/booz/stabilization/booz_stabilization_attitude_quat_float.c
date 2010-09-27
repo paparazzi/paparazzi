@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_int.h"
-#include "booz_ahrs.h"
+#include "ahrs.h"
 #include "airframe.h"
 
 struct FloatAttitudeGains booz_stabilization_gains[BOOZ_STABILIZATION_ATTITUDE_GAIN_NB];
@@ -183,13 +183,13 @@ void booz_stabilization_attitude_run(bool_t enable_integrator) {
 
   /* attitude error                          */
   struct FloatQuat att_err; 
-  FLOAT_QUAT_INV_COMP(att_err, booz_ahrs_float.ltp_to_body_quat, booz_stab_att_ref_quat);
+  FLOAT_QUAT_INV_COMP(att_err, ahrs_float.ltp_to_body_quat, booz_stab_att_ref_quat);
   /* wrap it in the shortest direction       */
   FLOAT_QUAT_WRAP_SHORTEST(att_err);  
 
   /*  rate error                */
   struct FloatRates rate_err;
-  RATES_DIFF(rate_err, booz_ahrs_float.body_rate, booz_stab_att_ref_rate);
+  RATES_DIFF(rate_err, ahrs_float.body_rate, booz_stab_att_ref_rate);
 
   /* integrated error */
   if (enable_integrator) {
@@ -211,7 +211,7 @@ void booz_stabilization_attitude_run(bool_t enable_integrator) {
 
   attitude_run_ff(booz_stabilization_att_ff_cmd, &booz_stabilization_gains[gain_idx], &booz_stab_att_ref_accel);
 
-  attitude_run_fb(booz_stabilization_att_fb_cmd, &booz_stabilization_gains[gain_idx], &att_err, &rate_err, &booz_ahrs_float.body_rate_d, &booz_stabilization_att_sum_err_quat);
+  attitude_run_fb(booz_stabilization_att_fb_cmd, &booz_stabilization_gains[gain_idx], &att_err, &rate_err, &ahrs_float.body_rate_d, &booz_stabilization_att_sum_err_quat);
 
   for (int i = COMMAND_ROLL; i <= COMMAND_YAW_SURFACE; i++) {
 	booz_stabilization_cmd[i] = booz_stabilization_att_fb_cmd[i]+booz_stabilization_att_ff_cmd[i];

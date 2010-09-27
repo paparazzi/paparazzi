@@ -140,7 +140,7 @@
         <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_RATE_ATTITUDE:phi'"/>
         <arg flag="-c" constant="'*:telemetry:BOOZ_ATT_LOOP:est_phi:57.3'"/>
         <arg flag="-c" constant="'*:telemetry:BOOZ_ATT_LOOP:sp_phi:57.3'"/>
-        <arg flag="-c" constant="'*:telemetry:BOOZ_AHRS_MEASURE:phi:57.3'"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_MEASURE:phi:57.3'"/>
     </program>
 
     <program name="Real-time Plotter">
@@ -149,7 +149,7 @@
         <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_RATE_ATTITUDE:theta'"/>
         <arg flag="-c" constant="'*:telemetry:BOOZ_ATT_LOOP:est_theta:57.3'"/>
         <arg flag="-c" constant="'*:telemetry:BOOZ_ATT_LOOP:sp_theta:57.3'"/>
-        <arg flag="-c" constant="'*:telemetry:BOOZ_AHRS_MEASURE:theta:57.3'"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_MEASURE:theta:57.3'"/>
     </program>
 
     <program name="Real-time Plotter">
@@ -158,7 +158,7 @@
         <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_RATE_ATTITUDE:psi'"/>
 <!--        <arg flag="-c" constant="'*:telemetry:BOOZ_ATT_LOOP:est_psi:57.3'"/> -->
 <!--        <arg flag="-c" constant="'*:telemetry:BOOZ_ATT_LOOP:sp_psi:57.3'"/> -->
-        <arg flag="-c" constant="'*:telemetry:BOOZ_AHRS_MEASURE:psi:57.3'"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_MEASURE:psi:57.3'"/>
     </program>
 
     <program name="Real-time Plotter">

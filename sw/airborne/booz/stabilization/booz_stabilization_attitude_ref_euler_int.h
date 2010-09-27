@@ -75,7 +75,7 @@
       }									\
     }									\
     else { /* if not flying, use current yaw as setpoint */		\
-      _sp.psi = (booz_ahrs.ltp_to_body_euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));		\
+      _sp.psi = (ahrs.ltp_to_body_euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));		\
     }									\
   }
 
@@ -85,7 +85,7 @@
 }
 
 #define BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF(_sp) {		\
-    _sp.psi = booz_ahrs.ltp_to_body_euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC); \
+    _sp.psi = ahrs.ltp_to_body_euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC); \
     booz_stab_att_ref_euler.psi = _sp.psi;				\
     booz_stab_att_ref_rate.r = 0;					\
   }

@@ -74,16 +74,16 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 }
 
 #include "nps_fdm.h"
-#include "booz_ahrs.h"
+#include "ahrs.h"
 #include "math/pprz_algebra.h"
 void sim_overwrite_ahrs(void) {
 
-  EULERS_BFP_OF_REAL(booz_ahrs.ltp_to_body_euler, fdm.ltp_to_body_eulers);
+  EULERS_BFP_OF_REAL(ahrs.ltp_to_body_euler, fdm.ltp_to_body_eulers);
 
-  QUAT_BFP_OF_REAL(booz_ahrs.ltp_to_body_quat, fdm.ltp_to_body_quat);
+  QUAT_BFP_OF_REAL(ahrs.ltp_to_body_quat, fdm.ltp_to_body_quat);
 
-  RATES_BFP_OF_REAL(booz_ahrs.body_rate, fdm.body_ecef_rotvel);
+  RATES_BFP_OF_REAL(ahrs.body_rate, fdm.body_ecef_rotvel);
 
-  INT32_RMAT_OF_QUAT(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_body_quat);
+  INT32_RMAT_OF_QUAT(ahrs.ltp_to_body_rmat, ahrs.ltp_to_body_quat);
 
 }

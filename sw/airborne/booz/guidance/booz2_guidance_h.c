@@ -25,7 +25,7 @@
 //#define B2_GUIDANCE_H_USE_REF
 #include "booz2_guidance_h.h"
 
-#include "booz_ahrs.h"
+#include "ahrs.h"
 #include "booz_stabilization.h"
 #include "booz_fms.h"
 #include "booz2_ins.h"
@@ -251,8 +251,8 @@ static inline void  booz2_guidance_h_hover_run(void) {
 
   /* Rotate to body frame */
   int32_t s_psi, c_psi;
-  PPRZ_ITRIG_SIN(s_psi, booz_ahrs.ltp_to_body_euler.psi);
-  PPRZ_ITRIG_COS(c_psi, booz_ahrs.ltp_to_body_euler.psi);
+  PPRZ_ITRIG_SIN(s_psi, ahrs.ltp_to_body_euler.psi);
+  PPRZ_ITRIG_COS(c_psi, ahrs.ltp_to_body_euler.psi);
 
 
   // INT32_TRIG_FRAC - 2: 100mm erreur, gain 100 -> 10000 command | 2 degres = 36000, so multiply by 4
@@ -348,8 +348,8 @@ static inline void  booz2_guidance_h_nav_run(bool_t in_flight) {
 
   /* Rotate to body frame */
   int32_t s_psi, c_psi;
-  PPRZ_ITRIG_SIN(s_psi, booz_ahrs.ltp_to_body_euler.psi);
-  PPRZ_ITRIG_COS(c_psi, booz_ahrs.ltp_to_body_euler.psi);
+  PPRZ_ITRIG_SIN(s_psi, ahrs.ltp_to_body_euler.psi);
+  PPRZ_ITRIG_COS(c_psi, ahrs.ltp_to_body_euler.psi);
 
   // Restore angle ref resolution after rotation
   booz2_guidance_h_command_body.phi =

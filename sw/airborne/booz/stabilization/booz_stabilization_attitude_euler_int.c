@@ -22,7 +22,7 @@
  */
 
 #include "booz_stabilization.h"
-#include "booz_ahrs.h"
+#include "ahrs.h"
 #include "booz_radio_control.h"
 
 
@@ -108,7 +108,7 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
     OFFSET_AND_ROUND(booz_stab_att_ref_euler.theta, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)),
     OFFSET_AND_ROUND(booz_stab_att_ref_euler.psi,   (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)) };
   struct Int32Eulers att_err;
-  EULERS_DIFF(att_err, booz_ahrs.ltp_to_body_euler, att_ref_scaled);
+  EULERS_DIFF(att_err, ahrs.ltp_to_body_euler, att_ref_scaled);
   INT32_ANGLE_NORMALIZE(att_err.psi);
 
   if (in_flight) {
@@ -126,7 +126,7 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
     OFFSET_AND_ROUND(booz_stab_att_ref_rate.q, (REF_RATE_FRAC - INT32_RATE_FRAC)),
     OFFSET_AND_ROUND(booz_stab_att_ref_rate.r, (REF_RATE_FRAC - INT32_RATE_FRAC)) };
   struct Int32Rates rate_err;
-  RATES_DIFF(rate_err, booz_ahrs.body_rate, rate_ref_scaled);
+  RATES_DIFF(rate_err, ahrs.body_rate, rate_ref_scaled);
 
   /* PID                  */
   booz_stabilization_att_fb_cmd[COMMAND_ROLL] = 

@@ -28,7 +28,7 @@
 
 #include "airframe.h"
 #include "booz_stabilization.h"
-#include "booz_ahrs.h"
+#include "ahrs.h"
 
 #include "booz_stabilization_attitude_ref_float.h"
 #include "quat_setpoint.h"
@@ -56,7 +56,7 @@ static const float omega_r[] = BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_R;
 static const float zeta_r[] = BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_R;
 
 static void reset_psi_ref_from_body(void) {
-    booz_stab_att_ref_euler.psi = booz_ahrs_float.ltp_to_body_euler.psi;
+    booz_stab_att_ref_euler.psi = ahrs_float.ltp_to_body_euler.psi;
     booz_stab_att_ref_rate.r = 0;
     booz_stab_att_ref_accel.r = 0;
 }

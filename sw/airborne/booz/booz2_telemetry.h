@@ -49,7 +49,7 @@
 #include "imu.h"
 #include "booz_gps.h"
 #include "booz2_ins.h"
-#include "booz_ahrs.h"
+#include "ahrs.h"
 
 #include "i2c_hw.h"
 
@@ -215,12 +215,12 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #ifdef STABILISATION_ATTITUDE_TYPE_INT
 #define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE(_chan) {			\
     DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_INT(_chan,			\
-					  &booz_ahrs.body_rate.p,	\
-					  &booz_ahrs.body_rate.q,	\
-					  &booz_ahrs.body_rate.r,	\
-					  &booz_ahrs.ltp_to_body_euler.phi, \
-					  &booz_ahrs.ltp_to_body_euler.theta, \
-					  &booz_ahrs.ltp_to_body_euler.psi, \
+					  &ahrs.body_rate.p,	\
+					  &ahrs.body_rate.q,	\
+					  &ahrs.body_rate.r,	\
+					  &ahrs.ltp_to_body_euler.phi, \
+					  &ahrs.ltp_to_body_euler.theta, \
+					  &ahrs.ltp_to_body_euler.psi, \
 					  &booz_stab_att_sp_euler.phi, \
 					  &booz_stab_att_sp_euler.theta, \
 					  &booz_stab_att_sp_euler.psi, \
@@ -259,12 +259,12 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #ifdef STABILISATION_ATTITUDE_TYPE_FLOAT
 #define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE(_chan) {			\
     DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_FLOAT(_chan,			\
-					    &booz_ahrs_float.body_rate.p,	\
-					    &booz_ahrs_float.body_rate.q,	\
-					    &booz_ahrs_float.body_rate.r,	\
-					    &booz_ahrs_float.ltp_to_body_euler.phi, \
-					    &booz_ahrs_float.ltp_to_body_euler.theta, \
-					    &booz_ahrs_float.ltp_to_body_euler.psi, \
+					    &ahrs_float.body_rate.p,	\
+					    &ahrs_float.body_rate.q,	\
+					    &ahrs_float.body_rate.r,	\
+					    &ahrs_float.ltp_to_body_euler.phi, \
+					    &ahrs_float.ltp_to_body_euler.theta, \
+					    &ahrs_float.ltp_to_body_euler.psi, \
 					    &booz_stab_att_ref_euler.phi, \
 					    &booz_stab_att_ref_euler.theta, \
 					    &booz_stab_att_ref_euler.psi, \
@@ -301,17 +301,17 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #endif /* STABILISATION_ATTITUDE_TYPE_FLOAT */
 
 
-#include "ahrs/booz_ahrs_aligner.h"
+#include "ahrs/ahrs_aligner.h"
 #define PERIODIC_SEND_BOOZ2_FILTER_ALIGNER(_chan) {			\
     DOWNLINK_SEND_BOOZ2_FILTER_ALIGNER(_chan,				\
-				       &booz_ahrs_aligner.lp_gyro.p,	\
-				       &booz_ahrs_aligner.lp_gyro.q,	\
-				       &booz_ahrs_aligner.lp_gyro.r,	\
+				       &ahrs_aligner.lp_gyro.p,	\
+				       &ahrs_aligner.lp_gyro.q,	\
+				       &ahrs_aligner.lp_gyro.r,	\
 				       &imu.gyro.p,		\
 				       &imu.gyro.q,		\
 				       &imu.gyro.r,		\
-				       &booz_ahrs_aligner.noise,	\
-				       &booz_ahrs_aligner.low_noise_cnt); \
+				       &ahrs_aligner.noise,	\
+				       &ahrs_aligner.low_noise_cnt); \
   }
 
 
@@ -325,34 +325,34 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 
 #ifdef USE_AHRS_CMPL
-#include "ahrs/booz_ahrs_cmpl_euler.h"
+#include "ahrs/ahrs_cmpl_euler.h"
 #define PERIODIC_SEND_BOOZ2_FILTER(_chan) {				\
     DOWNLINK_SEND_BOOZ2_FILTER(_chan,					\
-			       &booz_ahrs.ltp_to_imu_euler.phi,		\
-			       &booz_ahrs.ltp_to_imu_euler.theta,	\
-			       &booz_ahrs.ltp_to_imu_euler.psi,		\
-			       &booz2_face_measure.phi,			\
-			       &booz2_face_measure.theta,		\
-			       &booz2_face_measure.psi,			\
-			       &booz2_face_corrected.phi,		\
-			       &booz2_face_corrected.theta,		\
-			       &booz2_face_corrected.psi,		\
-			       &booz2_face_residual.phi,		\
-			       &booz2_face_residual.theta,		\
-			       &booz2_face_residual.psi,		\
-			       &booz2_face_gyro_bias.p,			\
-			       &booz2_face_gyro_bias.q,			\
-			       &booz2_face_gyro_bias.r);		\
+			       &ahrs.ltp_to_imu_euler.phi,		\
+			       &ahrs.ltp_to_imu_euler.theta,	\
+			       &ahrs.ltp_to_imu_euler.psi,		\
+			       &face_measure.phi,			\
+			       &face_measure.theta,		\
+			       &face_measure.psi,			\
+			       &face_corrected.phi,		\
+			       &face_corrected.theta,		\
+			       &face_corrected.psi,		\
+			       &face_residual.phi,		\
+			       &face_residual.theta,		\
+			       &face_residual.psi,		\
+			       &face_gyro_bias.p,			\
+			       &face_gyro_bias.q,			\
+			       &face_gyro_bias.r);		\
   }
 #else
 #define PERIODIC_SEND_BOOZ2_FILTER(_chan) {}
 #endif
 
 #ifdef USE_AHRS_LKF
-#include "booz_ahrs.h"
-#include "ahrs/booz_ahrs_float_lkf.h"
-#define PERIODIC_SEND_BOOZ_AHRS_LKF(_chan) {				\
-    DOWNLINK_SEND_BOOZ_AHRS_LKF(&bafl_eulers.phi,			\
+#include "ahrs.h"
+#include "ahrs/ahrs_float_lkf.h"
+#define PERIODIC_SEND_AHRS_LKF(_chan) {				\
+    DOWNLINK_SEND_AHRS_LKF(&bafl_eulers.phi,			\
 				_chan,					\
 				&bafl_eulers.theta,			\
 				&bafl_eulers.psi,			\
@@ -370,8 +370,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				&bafl_mag.y,				\
 				&bafl_mag.z);				\
   }
-#define PERIODIC_SEND_BOOZ_AHRS_LKF_DEBUG(_chan) {		   \
-    DOWNLINK_SEND_BOOZ_AHRS_LKF_DEBUG(_chan,			   \
+#define PERIODIC_SEND_AHRS_LKF_DEBUG(_chan) {		   \
+    DOWNLINK_SEND_AHRS_LKF_DEBUG(_chan,			   \
 				      &bafl_X[0],		   \
 				      &bafl_X[1],		   \
 				      &bafl_X[2],		   \
@@ -388,8 +388,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				      &bafl_P[4][4],		   \
 				      &bafl_P[5][5]);		   \
   }
-#define PERIODIC_SEND_BOOZ_AHRS_LKF_ACC_DBG(_chan) {		    \
-    DOWNLINK_SEND_BOOZ_AHRS_LKF_ACC_DBG(_chan,			    \
+#define PERIODIC_SEND_AHRS_LKF_ACC_DBG(_chan) {		    \
+    DOWNLINK_SEND_AHRS_LKF_ACC_DBG(_chan,			    \
 					&bafl_q_a_err.qi,	    \
 					&bafl_q_a_err.qx,	    \
 					&bafl_q_a_err.qy,	    \
@@ -398,8 +398,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 					&bafl_b_a_err.q,	    \
 					&bafl_b_a_err.r);	    \
   }
-#define PERIODIC_SEND_BOOZ_AHRS_LKF_MAG_DBG(_chan) {	    \
-    DOWNLINK_SEND_BOOZ_AHRS_LKF_MAG_DBG(_chan,		    \
+#define PERIODIC_SEND_AHRS_LKF_MAG_DBG(_chan) {	    \
+    DOWNLINK_SEND_AHRS_LKF_MAG_DBG(_chan,		    \
 					&bafl_q_m_err.qi,   \
 					&bafl_q_m_err.qx,   \
 					&bafl_q_m_err.qy,   \
@@ -409,55 +409,55 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 					&bafl_b_m_err.r);   \
   }
 #else
-#define PERIODIC_SEND_BOOZ_AHRS_LKF(_chan) {}
-#define PERIODIC_SEND_BOOZ_AHRS_LKF_DEBUG(_chan) {}
-#define PERIODIC_SEND_BOOZ_AHRS_LKF_MAG_DBG(_chan) {}
-#define PERIODIC_SEND_BOOZ_AHRS_LKF_ACC_DBG(_chan) {}
+#define PERIODIC_SEND_AHRS_LKF(_chan) {}
+#define PERIODIC_SEND_AHRS_LKF_DEBUG(_chan) {}
+#define PERIODIC_SEND_AHRS_LKF_MAG_DBG(_chan) {}
+#define PERIODIC_SEND_AHRS_LKF_ACC_DBG(_chan) {}
 #endif
 
 
 #define PERIODIC_SEND_BOOZ2_AHRS_QUAT(_chan) {				\
     DOWNLINK_SEND_BOOZ2_AHRS_QUAT(_chan,				\
-				  &booz_ahrs.ltp_to_imu_quat.qi,	\
-				  &booz_ahrs.ltp_to_imu_quat.qx,	\
-				  &booz_ahrs.ltp_to_imu_quat.qy,	\
-				  &booz_ahrs.ltp_to_imu_quat.qz,	\
-				  &booz_ahrs.ltp_to_body_quat.qi,	\
-				  &booz_ahrs.ltp_to_body_quat.qx,	\
-				  &booz_ahrs.ltp_to_body_quat.qy,	\
-				  &booz_ahrs.ltp_to_body_quat.qz);	\
+				  &ahrs.ltp_to_imu_quat.qi,	\
+				  &ahrs.ltp_to_imu_quat.qx,	\
+				  &ahrs.ltp_to_imu_quat.qy,	\
+				  &ahrs.ltp_to_imu_quat.qz,	\
+				  &ahrs.ltp_to_body_quat.qi,	\
+				  &ahrs.ltp_to_body_quat.qx,	\
+				  &ahrs.ltp_to_body_quat.qy,	\
+				  &ahrs.ltp_to_body_quat.qz);	\
   }
 
 #define PERIODIC_SEND_BOOZ2_AHRS_EULER(_chan) {				\
     DOWNLINK_SEND_BOOZ2_AHRS_EULER(_chan,				\
-				   &booz_ahrs.ltp_to_imu_euler.phi,	\
-				   &booz_ahrs.ltp_to_imu_euler.theta,	\
-				   &booz_ahrs.ltp_to_imu_euler.psi,	\
-				   &booz_ahrs.ltp_to_body_euler.phi,	\
-				   &booz_ahrs.ltp_to_body_euler.theta,	\
-				   &booz_ahrs.ltp_to_body_euler.psi);	\
+				   &ahrs.ltp_to_imu_euler.phi,	\
+				   &ahrs.ltp_to_imu_euler.theta,	\
+				   &ahrs.ltp_to_imu_euler.psi,	\
+				   &ahrs.ltp_to_body_euler.phi,	\
+				   &ahrs.ltp_to_body_euler.theta,	\
+				   &ahrs.ltp_to_body_euler.psi);	\
   }
 
 #define PERIODIC_SEND_BOOZ2_AHRS_RMAT(_chan) {				\
     DOWNLINK_SEND_BOOZ2_AHRS_RMAT(_chan,				\
-				  &booz_ahrs.ltp_to_imu_rmat.m[0],	\
-				  &booz_ahrs.ltp_to_imu_rmat.m[1],	\
-				  &booz_ahrs.ltp_to_imu_rmat.m[2],	\
-				  &booz_ahrs.ltp_to_imu_rmat.m[3],	\
-				  &booz_ahrs.ltp_to_imu_rmat.m[4],	\
-				  &booz_ahrs.ltp_to_imu_rmat.m[5],	\
-				  &booz_ahrs.ltp_to_imu_rmat.m[6],	\
-				  &booz_ahrs.ltp_to_imu_rmat.m[7],	\
-				  &booz_ahrs.ltp_to_imu_rmat.m[8],	\
-				  &booz_ahrs.ltp_to_body_rmat.m[0],	\
-				  &booz_ahrs.ltp_to_body_rmat.m[1],	\
-				  &booz_ahrs.ltp_to_body_rmat.m[2],	\
-				  &booz_ahrs.ltp_to_body_rmat.m[3],	\
-				  &booz_ahrs.ltp_to_body_rmat.m[4],	\
-				  &booz_ahrs.ltp_to_body_rmat.m[5],	\
-				  &booz_ahrs.ltp_to_body_rmat.m[6],	\
-				  &booz_ahrs.ltp_to_body_rmat.m[7],	\
-				  &booz_ahrs.ltp_to_body_rmat.m[8]);	\
+				  &ahrs.ltp_to_imu_rmat.m[0],	\
+				  &ahrs.ltp_to_imu_rmat.m[1],	\
+				  &ahrs.ltp_to_imu_rmat.m[2],	\
+				  &ahrs.ltp_to_imu_rmat.m[3],	\
+				  &ahrs.ltp_to_imu_rmat.m[4],	\
+				  &ahrs.ltp_to_imu_rmat.m[5],	\
+				  &ahrs.ltp_to_imu_rmat.m[6],	\
+				  &ahrs.ltp_to_imu_rmat.m[7],	\
+				  &ahrs.ltp_to_imu_rmat.m[8],	\
+				  &ahrs.ltp_to_body_rmat.m[0],	\
+				  &ahrs.ltp_to_body_rmat.m[1],	\
+				  &ahrs.ltp_to_body_rmat.m[2],	\
+				  &ahrs.ltp_to_body_rmat.m[3],	\
+				  &ahrs.ltp_to_body_rmat.m[4],	\
+				  &ahrs.ltp_to_body_rmat.m[5],	\
+				  &ahrs.ltp_to_body_rmat.m[6],	\
+				  &ahrs.ltp_to_body_rmat.m[7],	\
+				  &ahrs.ltp_to_body_rmat.m[8]);	\
   }
 
 
@@ -670,9 +670,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			    &booz_ins_enu_speed.x,			\
 			    &booz_ins_enu_speed.y,			\
 			    &booz_ins_enu_speed.z,			\
-			    &booz_ahrs.ltp_to_body_euler.phi,		\
-			    &booz_ahrs.ltp_to_body_euler.theta,		\
-			    &booz_ahrs.ltp_to_body_euler.psi,		\
+			    &ahrs.ltp_to_body_euler.phi,		\
+			    &ahrs.ltp_to_body_euler.theta,		\
+			    &ahrs.ltp_to_body_euler.psi,		\
 			    &booz2_guidance_h_pos_sp.y,			\
 			    &booz2_guidance_h_pos_sp.x,			\
 			    &carrot_up,					\
@@ -752,12 +752,12 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				   &booz_stabilization_cmd[COMMAND_PITCH],     \
 				   &booz_stabilization_cmd[COMMAND_YAW],       \
 				   &booz_stabilization_cmd[COMMAND_THRUST],    \
-				   &booz_ahrs.ltp_to_imu_euler.phi,	       \
-				   &booz_ahrs.ltp_to_imu_euler.theta,	       \
-				   &booz_ahrs.ltp_to_imu_euler.psi,	       \
-				   &booz_ahrs.ltp_to_body_euler.phi,	       \
-				   &booz_ahrs.ltp_to_body_euler.theta,	       \
-				   &booz_ahrs.ltp_to_body_euler.psi	       \
+				   &ahrs.ltp_to_imu_euler.phi,	       \
+				   &ahrs.ltp_to_imu_euler.theta,	       \
+				   &ahrs.ltp_to_imu_euler.psi,	       \
+				   &ahrs.ltp_to_body_euler.phi,	       \
+				   &ahrs.ltp_to_body_euler.theta,	       \
+				   &ahrs.ltp_to_body_euler.psi	       \
 				   );					       \
   }
 

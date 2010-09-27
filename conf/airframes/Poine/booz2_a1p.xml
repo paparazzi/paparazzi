@@ -221,7 +221,7 @@ include $(CFG_BOOZ)/subsystems/booz2_actuators_mkk.makefile
 include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1.makefile
 include $(CFG_BOOZ)/subsystems/booz2_gps.makefile
 
-include $(CFG_BOOZ)/subsystems/booz_ahrs_mlkf.makefile
+include $(CFG_BOOZ)/subsystems/ahrs_mlkf.makefile
 
 include $(CFG_BOOZ)/subsystems/booz2_fms_test_signal.makefile
 

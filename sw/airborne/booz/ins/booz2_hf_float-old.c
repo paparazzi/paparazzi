@@ -25,7 +25,7 @@
 #include "booz2_ins.h"
 
 #include "imu.h"
-#include "booz_ahrs.h"
+#include "ahrs.h"
 #include "math/pprz_algebra_int.h"
 
 
@@ -56,8 +56,8 @@ void b2ins_propagate(void) {
   /* unbias accelerometers */
   VECT3_DIFF(accel_imu, imu.accel, scaled_biases);
   /* convert to LTP */
-  //  BOOZ_IQUAT_VDIV(b2ins_accel_ltp, booz_ahrs.ltp_to_imu_quat, accel_imu);
-  INT32_RMAT_TRANSP_VMULT(b2ins_accel_ltp,  booz_ahrs.ltp_to_imu_rmat, accel_imu);
+  //  BOOZ_IQUAT_VDIV(b2ins_accel_ltp, ahrs.ltp_to_imu_quat, accel_imu);
+  INT32_RMAT_TRANSP_VMULT(b2ins_accel_ltp,  ahrs.ltp_to_imu_rmat, accel_imu);
   /* correct for gravity */
   b2ins_accel_ltp.z += ACCEL_BFP_OF_REAL(9.81);
   /* propagate position */
@@ -111,7 +111,7 @@ void b2ins_update_gps(void) {
   VECT2_SDIV(speed_residual3, speed_residual, (1<<9));
   speed_residual3.z = 0;
   struct Int32Vect3 bias_cor_s;
-  INT32_RMAT_VMULT( bias_cor_s, booz_ahrs.ltp_to_imu_rmat, speed_residual3);
+  INT32_RMAT_VMULT( bias_cor_s, ahrs.ltp_to_imu_rmat, speed_residual3);
   VECT3_ADD(b2ins_accel_bias, bias_cor_s);
 #endif /* UPDATE_FROM_SPEED */
 

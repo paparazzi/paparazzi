@@ -89,8 +89,8 @@ float bafe_FP[4][7];
 #define BAFE_DT (1./512.)
 #endif
 
-extern void booz_ahrs_init(void);
-extern void booz_ahrs_align(void);
+extern void ahrs_init(void);
+extern void ahrs_align(void);
 
 
 /* 
@@ -119,7 +119,7 @@ extern void booz_ahrs_align(void);
  *
  */
 
-void booz_ahrs_propagate(void) {
+void ahrs_propagate(void) {
   /* compute unbiased rates */
   RATES_FLOAT_OF_BFP(bafe_rates, imu.gyro);
   RATES_SUB(bafe_rates, bafe_bias);
@@ -163,10 +163,10 @@ void booz_ahrs_propagate(void) {
 }
 
 
-extern void booz_ahrs_update(void);
+extern void ahrs_update(void);
 
 
 
 
-#endif /* BOOZ_AHRS_FLOAT_EKF_H */
+#endif /* AHRS_FLOAT_EKF_H */
 

@@ -24,7 +24,7 @@
 #include "booz_stabilization.h"
 
 #include "math/pprz_algebra_float.h"
-#include "booz_ahrs.h"
+#include "ahrs.h"
 #include "booz_radio_control.h"
 
 #include "airframe.h"
@@ -98,7 +98,7 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   /* Compute feedback                  */
   /* attitude error            */
   struct FloatEulers att_float;
-  EULERS_FLOAT_OF_BFP(att_float, booz_ahrs.ltp_to_body_euler);
+  EULERS_FLOAT_OF_BFP(att_float, ahrs.ltp_to_body_euler);
   struct FloatEulers att_err;
   EULERS_DIFF(att_err, att_float, booz_stab_att_ref_euler);
   FLOAT_ANGLE_NORMALIZE(att_err.psi);
@@ -114,7 +114,7 @@ void booz_stabilization_attitude_run(bool_t  in_flight) {
   
   /*  rate error                */
   struct FloatRates rate_float;
-  RATES_FLOAT_OF_BFP(rate_float, booz_ahrs.body_rate);
+  RATES_FLOAT_OF_BFP(rate_float, ahrs.body_rate);
   struct FloatRates rate_err;
   RATES_DIFF(rate_err, rate_float, booz_stab_att_ref_rate);
 

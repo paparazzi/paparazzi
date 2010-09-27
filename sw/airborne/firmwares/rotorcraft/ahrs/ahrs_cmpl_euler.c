@@ -1,6 +1,6 @@
 /*
  * $Id:  $
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,53 +18,53 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_ahrs_cmpl_euler.h"
+#include "ahrs_cmpl_euler.h"
 
 #include "imu.h"
-#include "booz_ahrs_aligner.h"
+#include "ahrs_aligner.h"
 
 #include "airframe.h"
 #include "math/pprz_trig_int.h"
 #include "math/pprz_algebra_int.h"
 
 
-struct Int32Rates  booz2_face_gyro_bias;
-struct Int32Eulers booz2_face_measure;
-struct Int32Eulers booz2_face_residual;
-struct Int32Eulers booz2_face_uncorrected;
-struct Int32Eulers booz2_face_corrected;
+struct Int32Rates  face_gyro_bias;
+struct Int32Eulers face_measure;
+struct Int32Eulers face_residual;
+struct Int32Eulers face_uncorrected;
+struct Int32Eulers face_corrected;
 
 struct Int32Eulers measurement;
 
-int32_t booz2_face_reinj_1;
+int32_t face_reinj_1;
 
-void booz_ahrs_init(void) {
-  booz_ahrs.status = BOOZ_AHRS_UNINIT;
-  INT_EULERS_ZERO(booz_ahrs.ltp_to_body_euler);
-  INT_EULERS_ZERO(booz_ahrs.ltp_to_imu_euler);
-  INT32_QUAT_ZERO(booz_ahrs.ltp_to_body_quat);
-  INT32_QUAT_ZERO(booz_ahrs.ltp_to_imu_quat);
-  INT_RATES_ZERO(booz_ahrs.body_rate);
-  INT_RATES_ZERO(booz_ahrs.imu_rate);
-  INT_RATES_ZERO(booz2_face_gyro_bias);
-  booz2_face_reinj_1 = BOOZ2_FACE_REINJ_1;
+void ahrs_init(void) {
+  ahrs.status = AHRS_UNINIT;
+  INT_EULERS_ZERO(ahrs.ltp_to_body_euler);
+  INT_EULERS_ZERO(ahrs.ltp_to_imu_euler);
+  INT32_QUAT_ZERO(ahrs.ltp_to_body_quat);
+  INT32_QUAT_ZERO(ahrs.ltp_to_imu_quat);
+  INT_RATES_ZERO(ahrs.body_rate);
+  INT_RATES_ZERO(ahrs.imu_rate);
+  INT_RATES_ZERO(face_gyro_bias);
+  face_reinj_1 = BOOZ2_FACE_REINJ_1;
 
-  INT_EULERS_ZERO(booz2_face_uncorrected);
+  INT_EULERS_ZERO(face_uncorrected);
 
 #ifdef IMU_MAG_OFFSET
-  booz_ahrs_mag_offset = IMU_MAG_OFFSET;
+  ahrs_mag_offset = IMU_MAG_OFFSET;
 #else
-  booz_ahrs_mag_offset = 0.;
+  ahrs_mag_offset = 0.;
 #endif
 }
 
-void booz_ahrs_align(void) {
+void ahrs_align(void) {
 
-  RATES_COPY( booz2_face_gyro_bias, booz_ahrs_aligner.lp_gyro);
-  booz_ahrs.status = BOOZ_AHRS_RUNNING;
+  RATES_COPY( face_gyro_bias, ahrs_aligner.lp_gyro);
+  ahrs.status = AHRS_RUNNING;
 
 }
 
@@ -93,54 +93,54 @@ void booz_ahrs_align(void) {
  *
  */
 
-void booz_ahrs_propagate(void) {
+void ahrs_propagate(void) {
 
   /* unbias gyro             */
   struct Int32Rates uf_rate;
-  RATES_DIFF(uf_rate, imu.gyro, booz2_face_gyro_bias);
-  /* low pass rate */  
-  RATES_ADD(booz_ahrs.imu_rate, uf_rate);
-  RATES_SDIV(booz_ahrs.imu_rate, booz_ahrs.imu_rate, 2);
+  RATES_DIFF(uf_rate, imu.gyro, face_gyro_bias);
+  /* low pass rate */
+  RATES_ADD(ahrs.imu_rate, uf_rate);
+  RATES_SDIV(ahrs.imu_rate, ahrs.imu_rate, 2);
 
   /* integrate eulers */
   struct Int32Eulers euler_dot;
-  INT32_EULERS_DOT_OF_RATES(euler_dot, booz_ahrs.ltp_to_imu_euler, booz_ahrs.imu_rate);
-  EULERS_ADD(booz2_face_corrected, euler_dot);
+  INT32_EULERS_DOT_OF_RATES(euler_dot, ahrs.ltp_to_imu_euler, ahrs.imu_rate);
+  EULERS_ADD(face_corrected, euler_dot);
 
   /* low pass measurement */
-  EULERS_ADD(booz2_face_measure, measurement);
-  EULERS_SDIV(booz2_face_measure, booz2_face_measure, 2);
+  EULERS_ADD(face_measure, measurement);
+  EULERS_SDIV(face_measure, face_measure, 2);
   /* compute residual */
-  EULERS_DIFF(booz2_face_residual, booz2_face_measure, booz2_face_corrected);
-  INTEG_EULER_NORMALIZE(booz2_face_residual.psi);
+  EULERS_DIFF(face_residual, face_measure, face_corrected);
+  INTEG_EULER_NORMALIZE(face_residual.psi);
 
   struct Int32Eulers correction;
   /* compute a correction */
-  EULERS_SDIV(correction, booz2_face_residual, booz2_face_reinj_1);
+  EULERS_SDIV(correction, face_residual, face_reinj_1);
   /* correct estimation */
-  EULERS_ADD(booz2_face_corrected, correction);
-  INTEG_EULER_NORMALIZE(booz2_face_corrected.psi);
+  EULERS_ADD(face_corrected, correction);
+  INTEG_EULER_NORMALIZE(face_corrected.psi);
 
 
   /* Compute LTP to IMU eulers      */
-  EULERS_SDIV(booz_ahrs.ltp_to_imu_euler, booz2_face_corrected, F_UPDATE);
+  EULERS_SDIV(ahrs.ltp_to_imu_euler, face_corrected, F_UPDATE);
   /* Compute LTP to IMU quaternion */
-  INT32_QUAT_OF_EULERS(booz_ahrs.ltp_to_imu_quat, booz_ahrs.ltp_to_imu_euler);
+  INT32_QUAT_OF_EULERS(ahrs.ltp_to_imu_quat, ahrs.ltp_to_imu_euler);
   /* Compute LTP to IMU rotation matrix */
-  INT32_RMAT_OF_EULERS(booz_ahrs.ltp_to_imu_rmat, booz_ahrs.ltp_to_imu_euler);
+  INT32_RMAT_OF_EULERS(ahrs.ltp_to_imu_rmat, ahrs.ltp_to_imu_euler);
 
   /* Compute LTP to BODY quaternion */
-  INT32_QUAT_COMP_INV(booz_ahrs.ltp_to_body_quat, booz_ahrs.ltp_to_imu_quat, imu.body_to_imu_quat);
+  INT32_QUAT_COMP_INV(ahrs.ltp_to_body_quat, ahrs.ltp_to_imu_quat, imu.body_to_imu_quat);
   /* Compute LTP to BODY rotation matrix */
-  INT32_RMAT_COMP_INV(booz_ahrs.ltp_to_body_rmat, booz_ahrs.ltp_to_imu_rmat, imu.body_to_imu_rmat);
+  INT32_RMAT_COMP_INV(ahrs.ltp_to_body_rmat, ahrs.ltp_to_imu_rmat, imu.body_to_imu_rmat);
   /* compute LTP to BODY eulers */
-  INT32_EULERS_OF_RMAT(booz_ahrs.ltp_to_body_euler, booz_ahrs.ltp_to_body_rmat);
+  INT32_EULERS_OF_RMAT(ahrs.ltp_to_body_euler, ahrs.ltp_to_body_rmat);
   /* compute body rates */
-  INT32_RMAT_TRANSP_RATEMULT(booz_ahrs.body_rate, imu.body_to_imu_rmat, booz_ahrs.imu_rate);
+  INT32_RMAT_TRANSP_RATEMULT(ahrs.body_rate, imu.body_to_imu_rmat, ahrs.imu_rate);
 
 }
 
-void booz_ahrs_update_accel(void) {
+void ahrs_update_accel(void) {
 
   /* build a measurement assuming constant acceleration ?!! */
   INT32_ATAN2(measurement.phi, -imu.accel.y, -imu.accel.z);
@@ -154,16 +154,16 @@ void booz_ahrs_update_accel(void) {
 }
 
 /* measure psi assuming magnetic vector is in earth plan (md = 0) */
-void booz_ahrs_update_mag(void) {
+void ahrs_update_mag(void) {
 
   int32_t sphi;
-  PPRZ_ITRIG_SIN(sphi, booz_ahrs.ltp_to_imu_euler.phi);
+  PPRZ_ITRIG_SIN(sphi, ahrs.ltp_to_imu_euler.phi);
   int32_t cphi;
-  PPRZ_ITRIG_COS(cphi, booz_ahrs.ltp_to_imu_euler.phi);
+  PPRZ_ITRIG_COS(cphi, ahrs.ltp_to_imu_euler.phi);
   int32_t stheta;
-  PPRZ_ITRIG_SIN(stheta, booz_ahrs.ltp_to_imu_euler.theta);
+  PPRZ_ITRIG_SIN(stheta, ahrs.ltp_to_imu_euler.theta);
   int32_t ctheta;
-  PPRZ_ITRIG_COS(ctheta, booz_ahrs.ltp_to_imu_euler.theta);
+  PPRZ_ITRIG_COS(ctheta, ahrs.ltp_to_imu_euler.theta);
 
   int32_t sphi_stheta = (sphi*stheta)>>INT32_TRIG_FRAC;
   int32_t cphi_stheta = (cphi*stheta)>>INT32_TRIG_FRAC;
@@ -183,7 +183,6 @@ void booz_ahrs_update_mag(void) {
   //  sphi_ctheta * imu.mag.y +
   //  cphi_ctheta * imu.mag.z;
   float m_psi = -atan2(me, mn);
-  measurement.psi = ((m_psi - RadOfDeg(booz_ahrs_mag_offset))*(float)(1<<(INT32_ANGLE_FRAC))*F_UPDATE);
+  measurement.psi = ((m_psi - RadOfDeg(ahrs_mag_offset))*(float)(1<<(INT32_ANGLE_FRAC))*F_UPDATE);
 
 }
-

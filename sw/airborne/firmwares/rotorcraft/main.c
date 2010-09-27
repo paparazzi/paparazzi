@@ -52,7 +52,7 @@
 #include "booz_stabilization.h"
 #include "booz_guidance.h"
 
-#include "booz_ahrs.h"
+#include "ahrs.h"
 #include "booz2_ins.h"
 
 #if defined USE_CAM || USE_DROP
@@ -119,8 +119,8 @@ STATIC_INLINE void booz2_main_init( void ) {
   booz2_guidance_v_init();
   booz_stabilization_init();
 
-  booz_ahrs_aligner_init();
-  booz_ahrs_init();
+  ahrs_aligner_init();
+  ahrs_init();
 
   booz_ins_init();
 
@@ -220,14 +220,14 @@ static inline void on_gyro_accel_event( void ) {
   ImuScaleGyro(imu);
   ImuScaleAccel(imu);
 
-  if (booz_ahrs.status == BOOZ_AHRS_UNINIT) {
-    booz_ahrs_aligner_run();
-    if (booz_ahrs_aligner.status == BOOZ_AHRS_ALIGNER_LOCKED)
-      booz_ahrs_align();
+  if (ahrs.status == AHRS_UNINIT) {
+    ahrs_aligner_run();
+    if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
+      ahrs_align();
   }
   else {
-    booz_ahrs_propagate();
-    booz_ahrs_update_accel();
+    ahrs_propagate();
+    ahrs_update_accel();
 #ifdef SITL
     if (nps_bypass_ahrs) sim_overwrite_ahrs();
 #endif
@@ -249,6 +249,6 @@ static inline void on_gps_event(void) {
 
 static inline void on_mag_event(void) {
   ImuScaleMag(imu);
-  if (booz_ahrs.status == BOOZ_AHRS_RUNNING)
-    booz_ahrs_update_mag();
+  if (ahrs.status == AHRS_RUNNING)
+    ahrs_update_mag();
 }

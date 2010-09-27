@@ -3,8 +3,8 @@
 
 #include "math/pprz_algebra_double.h"
 #include "imu.h"
-#include "booz_ahrs.h"
-#include "ahrs/booz_ahrs_mlkf.h"
+#include "ahrs.h"
+#include "ahrs/ahrs_mlkf.h"
 
 static void read_data(const char* filename);
 static void feed_imu(int i);
@@ -40,13 +40,13 @@ int main(int argc, char** argv) {
   read_data(IN_FILE);
 
   imu_init();
-  booz_ahrs_init();
+  ahrs_init();
 
   for (int i=0; i<nb_samples; i++) {
     feed_imu(i);
-    booz_ahrs_propagate();
-    booz_ahrs_update_accel();
-    booz_ahrs_update_mag();
+    ahrs_propagate();
+    ahrs_update_accel();
+    ahrs_update_mag();
     store_filter_output(i);
   }
   dump_output(OUT_FILE);
@@ -92,10 +92,10 @@ static void feed_imu(int i) {
 
 static void store_filter_output(int i) {
   
-  QUAT_COPY(output[i].quat_est, booz_ahrs_float.ltp_to_imu_quat);
-  RATES_COPY(output[i].bias_est, booz_ahrs_mlkf.gyro_bias);
-  RATES_COPY(output[i].rate_est, booz_ahrs_float.imu_rate);
-  memcpy(output[i].P, booz_ahrs_mlkf.P, sizeof(booz_ahrs_mlkf.P));
+  QUAT_COPY(output[i].quat_est, ahrs_float.ltp_to_imu_quat);
+  RATES_COPY(output[i].bias_est, ahrs_mlkf.gyro_bias);
+  RATES_COPY(output[i].rate_est, ahrs_float.imu_rate);
+  memcpy(output[i].P, ahrs_mlkf.P, sizeof(ahrs_mlkf.P));
 
 }
 

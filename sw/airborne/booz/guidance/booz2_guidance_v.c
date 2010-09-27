@@ -28,7 +28,7 @@
 
 #include "booz_radio_control.h"
 #include "booz_stabilization.h"
-#include "booz_ahrs.h"
+#include "ahrs.h"
 #include "booz_fms.h"
 #include "booz2_navigation.h"
 
@@ -264,8 +264,8 @@ static inline void run_hover_loop(bool_t in_flight) {
 #else
   booz2_guidance_v_ff_cmd = g_m_zdd / inv_m;
   int32_t cphi,ctheta,cphitheta;
-  PPRZ_ITRIG_COS(cphi, booz_ahrs.ltp_to_body_euler.phi);
-  PPRZ_ITRIG_COS(ctheta, booz_ahrs.ltp_to_body_euler.theta);
+  PPRZ_ITRIG_COS(cphi, ahrs.ltp_to_body_euler.phi);
+  PPRZ_ITRIG_COS(ctheta, ahrs.ltp_to_body_euler.theta);
   cphitheta = (cphi * ctheta) >> INT32_TRIG_FRAC;
   if (cphitheta < BOOZ2_MAX_BANK_COEF) cphitheta = BOOZ2_MAX_BANK_COEF;
   booz2_guidance_v_ff_cmd = (booz2_guidance_v_ff_cmd << INT32_TRIG_FRAC) / cphitheta;

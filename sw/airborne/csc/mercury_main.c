@@ -41,8 +41,8 @@
 #include "csc_msg_def.h"
 #include ACTUATORS
 #include "imu.h"
-#include "booz/ahrs/booz_ahrs_aligner.h"
-#include "booz/booz_ahrs.h"
+#include "booz/ahrs/ahrs_aligner.h"
+#include "booz/ahrs.h"
 #include "mercury_xsens.h"
 #include "csc_telemetry.h"
 #include "csc_adc.h"
@@ -114,8 +114,8 @@ static inline void csc_main_init( void ) {
   
   imu_init();
 
-  booz_ahrs_aligner_init();
-  booz_ahrs_init();
+  ahrs_aligner_init();
+  ahrs_init();
   
   xsens_init();
 
@@ -159,7 +159,7 @@ static inline void csc_main_periodic( void )
   baro_scp_periodic();
 
   csc_ap_periodic(pprz_mode == PPRZ_MODE_IN_FLIGHT,
-		  !(pprz_mode > PPRZ_MODE_MOTORS_OFF && booz_ahrs_aligner.status == BOOZ_AHRS_ALIGNER_LOCKED));
+		  !(pprz_mode > PPRZ_MODE_MOTORS_OFF && ahrs_aligner.status == AHRS_ALIGNER_LOCKED));
 
 }
 

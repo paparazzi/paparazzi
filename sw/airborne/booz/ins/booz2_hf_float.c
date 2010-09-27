@@ -25,7 +25,7 @@
 #include "booz2_hf_float.h"
 #include "booz2_ins.h"
 #include "imu.h"
-#include "booz_ahrs.h"
+#include "ahrs.h"
 #include "booz_gps.h"
 #include <stdlib.h>
 
@@ -440,7 +440,7 @@ void b2_hff_propagate(void) {
       /* compute float ltp mean acceleration */
       b2_hff_compute_accel_body_mean(HFF_PRESCALER);
       struct Int32Vect3 mean_accel_ltp;
-      INT32_RMAT_TRANSP_VMULT(mean_accel_ltp, booz_ahrs.ltp_to_body_rmat, acc_body_mean);
+      INT32_RMAT_TRANSP_VMULT(mean_accel_ltp, ahrs.ltp_to_body_rmat, acc_body_mean);
       b2_hff_xdd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.x);
       b2_hff_ydd_meas = ACCEL_FLOAT_OF_BFP(mean_accel_ltp.y);
 #ifdef GPS_LAG

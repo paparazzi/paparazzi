@@ -125,7 +125,7 @@ static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
 }
   
 
-#include "booz_ahrs.h"
+#include "ahrs.h"
 
 static void sim_run_one_step(void) {
 
@@ -195,20 +195,20 @@ static void sim_run_one_step(void) {
 
 #ifdef BYPASS_AHRS
 #include "booz_geometry_mixed.h"
-#include "booz_ahrs.h"
+#include "ahrs.h"
 static void sim_overwrite_ahrs(void) {
-  booz_ahrs.ltp_to_body_euler.phi   = BOOZ_ANGLE_I_OF_F(bfm.eulers->ve[AXIS_X]);
-  booz_ahrs.ltp_to_body_euler.theta = BOOZ_ANGLE_I_OF_F(bfm.eulers->ve[AXIS_Y]);
-  booz_ahrs.ltp_to_body_euler.psi   = BOOZ_ANGLE_I_OF_F(bfm.eulers->ve[AXIS_Z]);
+  ahrs.ltp_to_body_euler.phi   = BOOZ_ANGLE_I_OF_F(bfm.eulers->ve[AXIS_X]);
+  ahrs.ltp_to_body_euler.theta = BOOZ_ANGLE_I_OF_F(bfm.eulers->ve[AXIS_Y]);
+  ahrs.ltp_to_body_euler.psi   = BOOZ_ANGLE_I_OF_F(bfm.eulers->ve[AXIS_Z]);
 
-  booz_ahrs.ltp_to_body_quat.qi = BOOZ_INT_OF_FLOAT(bfm.quat->ve[QUAT_QI], IQUAT_RES);
-  booz_ahrs.ltp_to_body_quat.qx = BOOZ_INT_OF_FLOAT(bfm.quat->ve[QUAT_QX], IQUAT_RES);
-  booz_ahrs.ltp_to_body_quat.qy = BOOZ_INT_OF_FLOAT(bfm.quat->ve[QUAT_QY], IQUAT_RES);
-  booz_ahrs.ltp_to_body_quat.qz = BOOZ_INT_OF_FLOAT(bfm.quat->ve[QUAT_QZ], IQUAT_RES);
+  ahrs.ltp_to_body_quat.qi = BOOZ_INT_OF_FLOAT(bfm.quat->ve[QUAT_QI], IQUAT_RES);
+  ahrs.ltp_to_body_quat.qx = BOOZ_INT_OF_FLOAT(bfm.quat->ve[QUAT_QX], IQUAT_RES);
+  ahrs.ltp_to_body_quat.qy = BOOZ_INT_OF_FLOAT(bfm.quat->ve[QUAT_QY], IQUAT_RES);
+  ahrs.ltp_to_body_quat.qz = BOOZ_INT_OF_FLOAT(bfm.quat->ve[QUAT_QZ], IQUAT_RES);
 
-  booz_ahrs.body_rate.p = BOOZ_RATE_I_OF_F(bfm.ang_rate_body->ve[AXIS_X]);
-  booz_ahrs.body_rate.q = BOOZ_RATE_I_OF_F(bfm.ang_rate_body->ve[AXIS_Y]);
-  booz_ahrs.body_rate.r = BOOZ_RATE_I_OF_F(bfm.ang_rate_body->ve[AXIS_Z]);
+  ahrs.body_rate.p = BOOZ_RATE_I_OF_F(bfm.ang_rate_body->ve[AXIS_X]);
+  ahrs.body_rate.q = BOOZ_RATE_I_OF_F(bfm.ang_rate_body->ve[AXIS_Y]);
+  ahrs.body_rate.r = BOOZ_RATE_I_OF_F(bfm.ang_rate_body->ve[AXIS_Z]);
 
 }
 #endif /* BYPASS_AHRS */

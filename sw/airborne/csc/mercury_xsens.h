@@ -62,7 +62,7 @@ extern uint16_t xsens_time_stamp[XSENS_COUNT];
 
 extern int xsens_setzero;
 
-#include "booz_ahrs.h"
+#include "ahrs.h"
 
 #define PERIODIC_SEND_BOOZ2_GYRO() {			\
     DOWNLINK_SEND_BOOZ2_GYRO(&imu.gyro.p,		\
@@ -83,12 +83,12 @@ extern int xsens_setzero;
   }
 
 #define PERIODIC_SEND_BOOZ2_AHRS_EULER() {			\
-    DOWNLINK_SEND_BOOZ2_AHRS_EULER(&booz_ahrs.ltp_to_imu_euler.phi,	\
-				   &booz_ahrs.ltp_to_imu_euler.theta,	\
-				   &booz_ahrs.ltp_to_imu_euler.psi,	\
-				   &booz_ahrs.ltp_to_body_euler.phi,	\
-				   &booz_ahrs.ltp_to_body_euler.theta,	\
-				   &booz_ahrs.ltp_to_body_euler.psi);	\
+    DOWNLINK_SEND_BOOZ2_AHRS_EULER(&ahrs.ltp_to_imu_euler.phi,	\
+				   &ahrs.ltp_to_imu_euler.theta,	\
+				   &ahrs.ltp_to_imu_euler.psi,	\
+				   &ahrs.ltp_to_body_euler.phi,	\
+				   &ahrs.ltp_to_body_euler.theta,	\
+				   &ahrs.ltp_to_body_euler.psi);	\
   }
 
 

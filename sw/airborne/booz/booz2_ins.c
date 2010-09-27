@@ -32,7 +32,7 @@
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
 
-#include "booz_ahrs.h"
+#include "ahrs.h"
 
 #ifdef USE_VFF
 #include "ins/booz2_vf_float.h"
@@ -151,7 +151,7 @@ void booz_ins_propagate() {
   struct Int32Vect3 accel_body;
   INT32_RMAT_TRANSP_VMULT(accel_body, imu.body_to_imu_rmat, imu.accel);
   struct Int32Vect3 accel_ltp;
-  INT32_RMAT_TRANSP_VMULT(accel_ltp, booz_ahrs.ltp_to_body_rmat, accel_body);
+  INT32_RMAT_TRANSP_VMULT(accel_ltp, ahrs.ltp_to_body_rmat, accel_body);
   float z_accel_float = ACCEL_FLOAT_OF_BFP(accel_ltp.z);
 
 #ifdef USE_VFF
