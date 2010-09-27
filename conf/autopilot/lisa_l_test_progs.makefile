@@ -39,7 +39,7 @@
 ################################################################################
 
 ARCH=stm32
-SRC_ARCH=$(ARCH)
+SRC_ARCH=arch/$(ARCH)
 SRC_LISA=lisa
 SRC_LISA_ARCH=$(SRC_LISA)/arch/$(ARCH)
 SRC_BOOZ=booz

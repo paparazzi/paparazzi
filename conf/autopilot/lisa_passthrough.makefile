@@ -4,7 +4,7 @@
 #
 #
 
-SRC_ARCH=$(ARCH)
+SRC_ARCH=arch/$(ARCH)
 SRC_BOOZ=booz
 SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCH)
 SRC_LISA=lisa
