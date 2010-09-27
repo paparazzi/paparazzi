@@ -5,11 +5,13 @@
 #include <Eigen/Core>
 
 #include "ins_qkf.hpp"
+#include <stdint.h>
 
 
 #include <event.h>
 extern "C" {
 #include <unistd.h>
+#include <time.h>
 #include "std.h"
 #include "fms/fms_debug.h"
 #include "fms/fms_periodic.h"
@@ -34,6 +36,27 @@ static void main_init(void);
 static void main_periodic(int my_sig_num);
 static void main_dialog_with_io_proc(void);
 static void main_run_ins(void);
+
+int64_t counter = 0;
+
+
+/* time measurement */
+struct timespec start;
+struct timespec time_diff(struct timespec end, struct timespec start){
+	struct timespec dT = end;
+	dT.tv_sec -= start.tv_sec;
+	dT.tv_nsec -= start.tv_nsec;
+	
+	dT.tv_nsec += (dT.tv_nsec<0)?1e9:0;
+	return dT;
+}
+ 
+int64_t absTime(struct timespec T){
+	return (int64_t)((T.tv_sec)*1000000000 + T.tv_nsec);
+}
+#define TIMER CLOCK_MONOTONIC 
+
+
 
 /* initial state */
 Vector3d pos_0_ecef(1017.67e3, -5079.282e3, 3709.041e3);
@@ -62,7 +85,7 @@ USING_PART_OF_NAMESPACE_EIGEN
 int main(int, char *[]) {
 
   std::cout << "test libeknav 3" << std::endl;
-
+  clock_gettime(TIMER, &start);
   main_init();
   /* add dev/null as event source so that libevent doesn't die */
   main_trick_libevent();
@@ -194,14 +217,22 @@ static void main_rawlog_init(const char* filename) {
 }
 
 struct raw_log_entry {
-  double time;
+  float time;
   struct FloatRates   gyro;
   struct FloatVect3   accel;
   struct FloatVect3   mag;
 };
 
 static void main_rawlog_dump(void) {
+  struct timespec now;
+  clock_gettime(TIMER, &now);
   struct raw_log_entry e;
+  
+  static float blaa = 0;
+  
+  counter++;
+  
+  e.time = counter; //absTime(time_diff(now, start));
   RATES_COPY(e.gyro, imu.gyro);
   VECT3_COPY(e.accel, imu.accel);
   VECT3_COPY(e.mag, imu.mag);
