@@ -18,6 +18,7 @@ extern "C" {
 #include "fms/fms_spi_link.h"
 #include "fms/fms_autopilot_msg.h"
 #include "booz/booz_imu.h"
+#include "fms/libeknav/raw_log.h"
   /* our sensors            */
   struct BoozImuFloat imu;
   /* raw log */
@@ -185,6 +186,8 @@ static void main_run_ins() {
 }
 
 
+
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -207,21 +210,16 @@ static void on_foo_event(int fd __attribute__((unused)), short event __attribute
 
 
 
+
+
 static void main_rawlog_init(const char* filename) {
   
-  raw_log_fd = open(filename, O_WRONLY|O_CREAT);
+  raw_log_fd = open(filename, O_WRONLY|O_CREAT, 00644);
   if (raw_log_fd == -1) {
     TRACE(TRACE_ERROR, "failed to open rawlog outfile (%s)\n", filename);
     return;
   }
 }
-
-struct raw_log_entry {
-  float time;
-  struct FloatRates   gyro;
-  struct FloatVect3   accel;
-  struct FloatVect3   mag;
-};
 
 static void main_rawlog_dump(void) {
   struct timespec now;
