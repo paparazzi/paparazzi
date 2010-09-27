@@ -82,8 +82,8 @@ bool_t nav_detect_ground(void);
 
 void nav_home(void);
 
-#define NavKillThrottle() ({ if (booz2_autopilot_mode == BOOZ2_AP_MODE_NAV) { kill_throttle = 1; booz2_autopilot_motors_on = 0; } FALSE; })
-#define NavResurrect() ({ if (booz2_autopilot_mode == BOOZ2_AP_MODE_NAV) { kill_throttle = 0; booz2_autopilot_motors_on = 1; } FALSE; })
+#define NavKillThrottle() ({ if (autopilot_mode == BOOZ2_AP_MODE_NAV) { kill_throttle = 1; autopilot_motors_on = 0; } FALSE; })
+#define NavResurrect() ({ if (autopilot_mode == BOOZ2_AP_MODE_NAV) { kill_throttle = 0; autopilot_motors_on = 1; } FALSE; })
 
 #define InitStage() nav_init_stage();
 
@@ -195,7 +195,7 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
   nav_roll = ANGLE_BFP_OF_REAL(_roll); \
 }
 
-#define NavStartDetectGround() ({ booz2_autopilot_detect_ground_once = TRUE; FALSE; })
+#define NavStartDetectGround() ({ autopilot_detect_ground_once = TRUE; FALSE; })
 #define NavDetectGround() nav_detect_ground()
 
 #define nav_IncreaseShift(x) {}

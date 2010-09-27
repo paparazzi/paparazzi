@@ -113,7 +113,7 @@ STATIC_INLINE void booz2_main_init( void ) {
   booz_imu_init();
 
   booz_fms_init();
-  booz2_autopilot_init();
+  autopilot_init();
   booz2_nav_init();
   booz2_guidance_h_init();
   booz2_guidance_v_init();
@@ -140,17 +140,17 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   booz_imu_periodic();
 
   /* run control loops */
-  booz2_autopilot_periodic();
+  autopilot_periodic();
   /* set actuators     */
-  actuators_set(booz2_autopilot_motors_on);
+  actuators_set(autopilot_motors_on);
 
   PeriodicPrescaleBy10(							\
     {						                        \
       radio_control_periodic();						\
       if (radio_control.status != RADIO_CONTROL_OK &&			\
-          booz2_autopilot_mode != BOOZ2_AP_MODE_KILL &&			\
-          booz2_autopilot_mode != BOOZ2_AP_MODE_NAV)			\
-        booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);		\
+          autopilot_mode != BOOZ2_AP_MODE_KILL &&			\
+          autopilot_mode != BOOZ2_AP_MODE_NAV)			\
+        autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);		\
     },									\
     {									\
       booz_fms_periodic();						\
@@ -174,8 +174,8 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   
 #ifdef USE_GPS
   if (radio_control.status != RADIO_CONTROL_OK &&			\
-      booz2_autopilot_mode == BOOZ2_AP_MODE_NAV && GpsIsLost())		\
-    booz2_autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);			\
+      autopilot_mode == BOOZ2_AP_MODE_NAV && GpsIsLost())		\
+    autopilot_set_mode(BOOZ2_AP_MODE_FAILSAFE);			\
   booz_gps_periodic();
 #endif
 
@@ -185,8 +185,8 @@ STATIC_INLINE void booz2_main_periodic( void ) {
 
   modules_periodic_task();
 
-  if (booz2_autopilot_in_flight) {
-    RunOnceEvery(512, { booz2_autopilot_flight_time++; datalink_time++; });
+  if (autopilot_in_flight) {
+    RunOnceEvery(512, { autopilot_flight_time++; datalink_time++; });
   }
 
 }
@@ -195,8 +195,8 @@ STATIC_INLINE void booz2_main_event( void ) {
 
   DatalinkEvent();
 
-  if (booz2_autopilot_rc) {
-    RadioControlEvent(booz2_autopilot_on_rc_frame);
+  if (autopilot_rc) {
+    RadioControlEvent(autopilot_on_rc_frame);
   }
 
   BoozImuEvent(on_gyro_accel_event, on_mag_event);

@@ -1,5 +1,5 @@
 #
-# $Id: booz2_autopilot.makefile 4827 2010-04-21 08:02:18Z poine $
+# $Id: autopilot.makefile 4827 2010-04-21 08:02:18Z poine $
 #
 # Copyright (C) 2008 Antoine Drouin
 #

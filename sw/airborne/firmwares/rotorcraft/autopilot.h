@@ -47,24 +47,24 @@
 #define BOOZ2_AP_MODE_NAV               12
 
 
-extern uint8_t booz2_autopilot_mode;
-extern uint8_t booz2_autopilot_mode_auto2;
-extern bool_t  booz2_autopilot_motors_on;
-extern bool_t  booz2_autopilot_in_flight;
+extern uint8_t autopilot_mode;
+extern uint8_t autopilot_mode_auto2;
+extern bool_t  autopilot_motors_on;
+extern bool_t  autopilot_in_flight;
 extern bool_t kill_throttle;
-extern bool_t booz2_autopilot_rc;
+extern bool_t autopilot_rc;
 
-extern bool_t booz2_autopilot_power_switch;
+extern bool_t autopilot_power_switch;
 
-extern void booz2_autopilot_init(void);
-extern void booz2_autopilot_periodic(void);
-extern void booz2_autopilot_on_rc_frame(void);
-extern void booz2_autopilot_set_mode(uint8_t new_autopilot_mode);
+extern void autopilot_init(void);
+extern void autopilot_periodic(void);
+extern void autopilot_on_rc_frame(void);
+extern void autopilot_set_mode(uint8_t new_autopilot_mode);
 
-extern bool_t booz2_autopilot_detect_ground;
-extern bool_t booz2_autopilot_detect_ground_once;
+extern bool_t autopilot_detect_ground;
+extern bool_t autopilot_detect_ground_once;
 
-extern uint16_t booz2_autopilot_flight_time;
+extern uint16_t autopilot_flight_time;
 
 #ifndef BOOZ2_MODE_MANUAL
 #define BOOZ2_MODE_MANUAL BOOZ2_AP_MODE_RATE_DIRECT
@@ -82,7 +82,7 @@ extern uint16_t booz2_autopilot_flight_time;
 
 #define BOOZ_AP_MODE_OF_PPRZ(_rc, _booz_mode) {				\
     if      (_rc > TRESHOLD_2_PPRZ)					\
-      _booz_mode = booz2_autopilot_mode_auto2;				\
+      _booz_mode = autopilot_mode_auto2;				\
     else if (_rc > TRESHOLD_1_PPRZ)					\
       _booz_mode = BOOZ2_MODE_AUTO1;					\
     else								\
@@ -91,12 +91,12 @@ extern uint16_t booz2_autopilot_flight_time;
 
 #define autopilot_KillThrottle(_v) {	                        \
     kill_throttle = _v;							\
-    if (kill_throttle) booz2_autopilot_motors_on = FALSE;				\
-    else booz2_autopilot_motors_on = TRUE; \
+    if (kill_throttle) autopilot_motors_on = FALSE;				\
+    else autopilot_motors_on = TRUE; \
   }
 
 #define autopilot_SetPowerSwitch(_v) { \
-  booz2_autopilot_power_switch = _v; \
+  autopilot_power_switch = _v; \
   if (_v) { LED_OFF(POWER_SWITCH_LED); } \
   else { LED_ON(POWER_SWITCH_LED); } \
 }
@@ -105,11 +105,11 @@ extern uint16_t booz2_autopilot_flight_time;
 #define TRESHOLD_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)
 #endif
 static inline void BoozDetectGroundEvent(void) {
-  if (booz2_autopilot_mode == BOOZ2_AP_MODE_FAILSAFE || booz2_autopilot_detect_ground_once) {
+  if (autopilot_mode == BOOZ2_AP_MODE_FAILSAFE || autopilot_detect_ground_once) {
     if (booz_ins_ltp_accel.z < -TRESHOLD_GROUND_DETECT ||
         booz_ins_ltp_accel.z > TRESHOLD_GROUND_DETECT) {
-      booz2_autopilot_detect_ground = TRUE;
-      booz2_autopilot_detect_ground_once = FALSE;
+      autopilot_detect_ground = TRUE;
+      autopilot_detect_ground_once = FALSE;
     }
   }
 }

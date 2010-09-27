@@ -64,9 +64,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			      &_twi_blmc_nb_err,			\
 			      &radio_control.status,			\
 			      &booz_gps_state.fix,			\
-			      &booz2_autopilot_mode,			\
-			      &booz2_autopilot_in_flight,		\
-			      &booz2_autopilot_motors_on,		\
+			      &autopilot_mode,			\
+			      &autopilot_in_flight,		\
+			      &autopilot_motors_on,		\
 			      &booz2_guidance_h_mode,			\
 			      &booz2_guidance_v_mode,			\
 			      &booz2_battery_voltage,			\
@@ -83,9 +83,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			      &twi_blmc_nb_err,				\
 			      &radio_control.status,			\
 			      &fix,					\
-			      &booz2_autopilot_mode,			\
-			      &booz2_autopilot_in_flight,		\
-			      &booz2_autopilot_motors_on,		\
+			      &autopilot_mode,			\
+			      &autopilot_in_flight,		\
+			      &autopilot_motors_on,		\
 			      &booz2_guidance_h_mode,			\
 			      &booz2_guidance_v_mode,			\
 			      &booz2_battery_voltage,			\
@@ -678,7 +678,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			    &carrot_up,					\
 			    &booz2_guidance_h_command_body.psi,		\
 			    &booz_stabilization_cmd[COMMAND_THRUST], \
-          &booz2_autopilot_flight_time);	\
+          &autopilot_flight_time);	\
   }
 
 #ifdef USE_GPS
