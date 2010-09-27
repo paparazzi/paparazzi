@@ -28,9 +28,9 @@
 
 #include "ins_qkf.hpp"
 #include "assertions.hpp"
-#include "timer.hpp"
 
 #ifdef TIME_OPS
+#include "timer.hpp"
 # include <iostream>
 #endif
 
