@@ -20,7 +20,7 @@ int main(int, char *[]) {
   /* initial state */
   Vector3d pos_0_ecef(1017.67e3, -5079.282e3, 3709.041e3);
   Vector3d speed_0_ecef(0., 0., 0.);
-    Quaterniond orientation(1., 0., 0., 0.);
+  Quaterniond orientation(1., 0., 0., 0.);
   Vector3d bias_0(0., 0., 0.);
 
   /* initial covariance */

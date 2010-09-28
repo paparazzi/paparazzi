@@ -36,7 +36,7 @@ void
 basic_ins_qkf::obs_gps_v_report(const Vector3d& vel, const Vector3d& v_error)
 {
 	Vector3d residual = vel - avg_state.velocity;
-	std::cout << "diff_v(" <<residual(0) << ", " << residual(1) << ", " << residual(2) <<")\n";
+	//std::cout << "diff_v(" <<residual(0) << ", " << residual(1) << ", " << residual(2) <<")\n";
 
 #ifdef RANK_ONE_UPDATES
 	Matrix<double, 12, 1> update = Matrix<double, 12, 1>::Zero();
@@ -54,10 +54,10 @@ basic_ins_qkf::obs_gps_v_report(const Vector3d& vel, const Vector3d& v_error)
 	cov.part<Eigen::SelfAdjoint>() -= cov.block<12, 3>(0, 9) * kalman_gain_t; // .transpose() * cov.block<3, 12>(9, 0);
 	Matrix<double, 12, 1> update = kalman_gain_t.transpose() * residual;
 #endif
-	std::cout << "update(" << update.segment<6>(0).transpose()*180/M_PI << "\t" << update.segment<6>(6).transpose() << ")\n";
+	//std::cout << "update(" << update.segment<6>(0).transpose()*180/M_PI << "\t" << update.segment<6>(6).transpose() << ")\n";
 
 	//update.segment<6>(0) = Matrix<double, 6, 1>::Zero(); // only for debugging
-	std::cout << "update(" << update.segment<6>(0).transpose()*180/M_PI << "\t" << update.segment<6>(6).transpose() << ")\n";
+	//std::cout << "update(" << update.segment<6>(0).transpose()*180/M_PI << "\t" << update.segment<6>(6).transpose() << ")\n";
 	Quaterniond rotor = avg_state.apply_kalman_vec_update(update);
 	counter_rotate_cov(rotor);
 	assert(is_real());

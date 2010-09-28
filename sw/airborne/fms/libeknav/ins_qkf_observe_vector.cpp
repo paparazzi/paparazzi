@@ -142,7 +142,6 @@ basic_ins_qkf::obs_vector(const Vector3d& ref, const Vector3d& obs, double error
 
 	Vector3d obs_ref = avg_state.orientation.conjugate()*obs;
 	Vector3d v_residual = log<double>(Quaterniond().setFromTwoVectors(ref, obs_ref));
-	std::cout << "v_residual(" <<v_residual(0)*180/M_PI << ", " << v_residual(1)*180/M_PI << ", " << v_residual(2)*180/M_PI <<")\n";
 
 	Matrix<double, 3, 2> h_trans;
 	h_trans.col(0) = ref.cross(

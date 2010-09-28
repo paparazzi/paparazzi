@@ -3,7 +3,7 @@
 
   <makefile>
 
-    HOST=auto1
+    HOST=auto3
 
     PAPARAZZI_INC = -I$(PAPARAZZI_HOME)/var/$(AIRCRAFT) \
                     -I$(PAPARAZZI_SRC)/sw/airborne      \
@@ -45,6 +45,19 @@
     test3.srcs     += fms/fms_periodic.c
     test3.CXXFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessagePTUp -DOVERO_LINK_MSG_DOWN=AutopilotMessagePTDown
     test3.srcs     += fms/fms_spi_link.c
+    
+    # test 4: Flags like test3
+    test4.ARCHDIR = omap
+    test4.CXXFLAGS += $(LIB_EIGEN_CFLAGS)
+    test4.CXXFLAGS += $(PAPARAZZI_INC)
+    test4.cpp_srcs  = fms/libeknav/test_libeknav_4.cpp
+    test4.CXXFLAGS += $(LIBEKNAV_CFLAGS)
+    test4.cpp_srcs += $(LIBEKNAV_SRCS)
+    test4.LDFLAGS  += -levent -lm
+    test4.CFLAGS   += -DFMS_PERIODIC_FREQ=512
+    test4.srcs     += fms/fms_periodic.c
+    test4.CXXFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessagePTUp -DOVERO_LINK_MSG_DOWN=AutopilotMessagePTDown
+    test4.srcs     += fms/fms_spi_link.c
 
     # test network based telemetry on overo (using udp_transport2/messages2)
     overo_test_telemetry2.ARCHDIR  = omap

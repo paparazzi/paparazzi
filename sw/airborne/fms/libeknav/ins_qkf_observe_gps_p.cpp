@@ -36,7 +36,6 @@ void
 basic_ins_qkf::obs_gps_p_report(const Vector3d& pos, const Vector3d& p_error)
 {
 	Matrix<double, 3, 1> residual = pos - avg_state.position;	
-	std::cout << "diff_p(" <<residual(0) << ", " << residual(1) << ", " << residual(2) <<")\n";
 
 
 #ifdef RANK_ONE_UPDATES
@@ -58,7 +57,6 @@ basic_ins_qkf::obs_gps_p_report(const Vector3d& pos, const Vector3d& p_error)
 	cov.part<Eigen::SelfAdjoint>() -= kalman_gain * cov.block<3, 12>(6, 0);
 #endif
 	Quaterniond rotor = avg_state.apply_kalman_vec_update(update);
-	std::cout << "update(" << update.segment<6>(0).transpose()*180/M_PI << "\t" << update.segment<6>(6).transpose() << ")\n";
 	counter_rotate_cov(rotor);
 	assert(is_real());
 }
