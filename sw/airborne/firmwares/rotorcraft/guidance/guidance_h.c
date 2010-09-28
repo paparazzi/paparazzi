@@ -23,7 +23,7 @@
 
 #define GUIDANCE_H_C
 //#define GUIDANCE_H_USE_REF
-#include "guidance/guidance_h.h"
+#include <firmwares/rotorcraft/guidance/guidance_h.h>
 
 #include "ahrs.h"
 #include "booz_stabilization.h"

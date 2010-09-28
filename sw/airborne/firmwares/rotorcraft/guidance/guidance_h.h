@@ -27,7 +27,7 @@
 
 #include "math/pprz_algebra_int.h"
 
-#include "guidance/guidance_h_ref.h"
+#include <firmwares/rotorcraft/guidance/guidance_h_ref.h>
 
 #define GUIDANCE_H_MODE_KILL      0
 #define GUIDANCE_H_MODE_RATE      1

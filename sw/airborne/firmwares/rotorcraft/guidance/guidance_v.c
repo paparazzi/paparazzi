@@ -23,7 +23,7 @@
 
 #define GUIDANCE_V_C
 #define GUIDANCE_V_USE_REF
-#include "guidance/guidance_v.h"
+#include <firmwares/rotorcraft/guidance/guidance_v.h>
 
 
 #include "booz_radio_control.h"

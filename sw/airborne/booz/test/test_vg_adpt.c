@@ -28,7 +28,7 @@
 #include "std.h"
 #include "booz_geometry_mixed.h"
 #define GUIDANCE_V_C
-#include "guidance/guidance_v_adpt.h"
+#include <firmwares/rotorcraft/guidance/guidance_v_adpt.h>
 
 
 

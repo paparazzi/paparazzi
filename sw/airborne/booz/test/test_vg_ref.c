@@ -25,7 +25,7 @@
 
 #include "booz_geometry_mixed.h"
 #define GUIDANCE_V_C
-#include "guidance/guidance_v_ref.h"
+#include <firmwares/rotorcraft/guidance/guidance_v_ref.h>
 
 #define NB_STEP 10000
 #define DT (1./GV_FREQ)
