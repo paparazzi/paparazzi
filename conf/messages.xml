@@ -798,7 +798,7 @@
     <field name="mz"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
   </message>
 
-  <message name="BOOZ2_FILTER" id="134">
+  <message name="FILTER" id="134">
     <field name="phi"              type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
     <field name="theta"            type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
     <field name="psi"              type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
@@ -816,7 +816,7 @@
     <field name="br"               type="int32"/>
   </message>
 
-  <message name="BOOZ2_FILTER2" id="135">
+  <message name="FILTER2" id="135">
     <field name="px"  type="int32"/>
     <field name="py"  type="int32"/>
     <field name="pz"  type="int32"/>
@@ -847,7 +847,7 @@
     <field name="delta_t" type="int32"/>
   </message>
 
-  <message name="BOOZ2_FILTER_ALIGNER" id="137">
+  <message name="FILTER_ALIGNER" id="137">
     <field name="lp_gp"  type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
     <field name="lp_gq"  type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
     <field name="lp_gr"  type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
@@ -858,14 +858,14 @@
     <field name="cnt"    type="int32"/>
   </message>
 
-  <message name="BOOZ2_FILTER_Q" id="138">
+  <message name="FILTER_Q" id="138">
     <field name="qi"  type="int32"/>
     <field name="qx"  type="int32"/>
     <field name="qy"  type="int32"/>
     <field name="qz"  type="int32"/>
   </message>
 
-  <message name="BOOZ2_FILTER_COR" id="139">
+  <message name="FILTER_COR" id="139">
     <field name="mphi"   type="int32"/>
     <field name="mtheta" type="int32"/>
     <field name="mpsi"   type="int32"/>

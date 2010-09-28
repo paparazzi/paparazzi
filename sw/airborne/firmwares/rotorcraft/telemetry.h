@@ -302,8 +302,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 
 #include <firmwares/rotorcraft/ahrs/ahrs_aligner.h>
-#define PERIODIC_SEND_BOOZ2_FILTER_ALIGNER(_chan) {			\
-    DOWNLINK_SEND_BOOZ2_FILTER_ALIGNER(_chan,				\
+#define PERIODIC_SEND_FILTER_ALIGNER(_chan) {			\
+    DOWNLINK_SEND_FILTER_ALIGNER(_chan,				\
 				       &ahrs_aligner.lp_gyro.p,	\
 				       &ahrs_aligner.lp_gyro.q,	\
 				       &ahrs_aligner.lp_gyro.r,	\
@@ -326,8 +326,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef USE_AHRS_CMPL
 #include <firmwares/rotorcraft/ahrs/ahrs_cmpl_euler.h>
-#define PERIODIC_SEND_BOOZ2_FILTER(_chan) {				\
-    DOWNLINK_SEND_BOOZ2_FILTER(_chan,					\
+#define PERIODIC_SEND_FILTER(_chan) {				\
+    DOWNLINK_SEND_FILTER(_chan,					\
 			       &ahrs.ltp_to_imu_euler.phi,		\
 			       &ahrs.ltp_to_imu_euler.theta,	\
 			       &ahrs.ltp_to_imu_euler.psi,		\
@@ -345,7 +345,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			       &face_gyro_bias.r);		\
   }
 #else
-#define PERIODIC_SEND_BOOZ2_FILTER(_chan) {}
+#define PERIODIC_SEND_FILTER(_chan) {}
 #endif
 
 #ifdef USE_AHRS_LKF
@@ -463,8 +463,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 
 
-#define PERIODIC_SEND_BOOZ2_FILTER_Q(_chan) {				\
-    DOWNLINK_SEND_BOOZ2_FILTER_Q(_chan,					\
+#define PERIODIC_SEND_FILTER_Q(_chan) {				\
+    DOWNLINK_SEND_FILTER_Q(_chan,					\
 				 &booz2_filter_attitude_quat.qi,	\
 				 &booz2_filter_attitude_quat.qx,	\
 				 &booz2_filter_attitude_quat.qy,	\

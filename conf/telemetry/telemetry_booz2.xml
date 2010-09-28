@@ -50,7 +50,7 @@
       <message name="DL_VALUE"          period="0.5"/>
       <message name="ALIVE"             period="2.1"/>
 <!--      <message name="BOOZ2_ALIGNER"     period=".1"/> -->
-      <message name="BOOZ2_FILTER"      period=".5"/>
+      <message name="FILTER"      period=".5"/>
 <!--      <message name="BOOZ2_AHRS_QUAT"   period=".25"/> -->
       <message name="BOOZ2_AHRS_EULER"  period=".1"/>
 <!--      <message name="BOOZ2_AHRS_RMAT"   period=".5"/> -->
@@ -97,7 +97,7 @@
 
     <mode name="aligner">
       <message name="ALIVE"                   period="0.9"/>
-      <message name="BOOZ2_FILTER_ALIGNER"    period="0.02"/>
+      <message name="FILTER_ALIGNER"    period="0.02"/>
     </mode>
 
     <mode name="hs_att_roll">
