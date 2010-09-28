@@ -189,8 +189,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 
 #include <firmwares/rotorcraft/stabilization.h>
-#define PERIODIC_SEND_BOOZ2_RATE_LOOP(_chan) {                          \
-    DOWNLINK_SEND_BOOZ2_RATE_LOOP(_chan,                                \
+#define PERIODIC_SEND_RATE_LOOP(_chan) {                          \
+    DOWNLINK_SEND_RATE_LOOP(_chan,                                \
                                   &stabilization_rate_sp.p,        \
                                   &stabilization_rate_sp.q,        \
                                   &stabilization_rate_sp.r,        \

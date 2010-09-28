@@ -825,7 +825,7 @@
     <field name="gsz" type="int32"/>
   </message>
 
-  <message name="BOOZ2_RATE_LOOP" id="136">
+  <message name="RATE_LOOP" id="136">
     <field name="sp_p" type="int32"/>
     <field name="sp_q" type="int32"/>
     <field name="sp_r" type="int32"/>
