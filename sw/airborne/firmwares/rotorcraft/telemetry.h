@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ2_TELEMETRY_H
-#define BOOZ2_TELEMETRY_H
+#ifndef TELEMETRY_H
+#define TELEMETRY_H
 
 #include "std.h"
 #include "messages.h"
@@ -805,4 +805,4 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 
-#endif /* BOOZ2_TELEMETRY_H */
+#endif /* TELEMETRY_H */

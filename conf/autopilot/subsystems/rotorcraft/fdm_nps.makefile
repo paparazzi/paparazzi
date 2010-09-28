@@ -29,21 +29,21 @@ sim.LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
 sim.CFLAGS  += -I$(SRC_FIRMWARE) -I$(SRC_BOOZ) -I$(SRC_BOOZ_SIM) -I$(SRC_BOARD) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
 
 sim.srcs = $(NPSDIR)/nps_main.c                      \
-	   $(NPSDIR)/nps_fdm_jsbsim.c                \
-	   $(NPSDIR)/nps_random.c                    \
-	   $(NPSDIR)/nps_sensors.c                   \
-	   $(NPSDIR)/nps_sensors_utils.c             \
-	   $(NPSDIR)/nps_sensor_gyro.c               \
-	   $(NPSDIR)/nps_sensor_accel.c              \
-	   $(NPSDIR)/nps_sensor_mag.c                \
-	   $(NPSDIR)/nps_sensor_baro.c               \
-	   $(NPSDIR)/nps_sensor_gps.c                \
-	   $(NPSDIR)/nps_radio_control.c             \
-	   $(NPSDIR)/nps_radio_control_joystick.c    \
-	   $(NPSDIR)/nps_radio_control_spektrum.c    \
-	   $(NPSDIR)/nps_autopilot_booz.c            \
-	   $(NPSDIR)/nps_ivy.c                       \
-	   $(NPSDIR)/nps_flightgear.c                \
+       $(NPSDIR)/nps_fdm_jsbsim.c                \
+       $(NPSDIR)/nps_random.c                    \
+       $(NPSDIR)/nps_sensors.c                   \
+       $(NPSDIR)/nps_sensors_utils.c             \
+       $(NPSDIR)/nps_sensor_gyro.c               \
+       $(NPSDIR)/nps_sensor_accel.c              \
+       $(NPSDIR)/nps_sensor_mag.c                \
+       $(NPSDIR)/nps_sensor_baro.c               \
+       $(NPSDIR)/nps_sensor_gps.c                \
+       $(NPSDIR)/nps_radio_control.c             \
+       $(NPSDIR)/nps_radio_control_joystick.c    \
+       $(NPSDIR)/nps_radio_control_spektrum.c    \
+       $(NPSDIR)/nps_autopilot_booz.c            \
+       $(NPSDIR)/nps_ivy.c                       \
+       $(NPSDIR)/nps_flightgear.c                \
 
 
 sim.srcs += math/pprz_trig_int.c             \
@@ -63,8 +63,8 @@ sim.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 sim.srcs += sys_time.c
 
 
-sim.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport 
-sim.srcs += $(SRC_BOOZ)/booz2_telemetry.c \
+sim.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
+sim.srcs += $(SRC_FIRMWARE)/telemetry.c \
             downlink.c \
             $(SRC_ARCH)/ivy_transport.c
 
@@ -94,7 +94,7 @@ sim.srcs += $(SRC_FIRMWARE)/autopilot.c
 # in makefile section of airframe xml
 # include $(CFG_BOOZ)/subsystems/booz2_ahrs_lkf.makefile
 # or
-# include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile 
+# include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 #
 
 sim.srcs += $(SRC_FIRMWARE)/stabilization.c
@@ -152,5 +152,3 @@ sim.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./512.)'
 
 
 sim.srcs += $(SRC_BOOZ)/booz2_navigation.c
-
-

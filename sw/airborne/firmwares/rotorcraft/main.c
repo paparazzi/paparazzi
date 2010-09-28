@@ -31,7 +31,7 @@
 #include "interrupt_hw.h"
 
 #include "downlink.h"
-#include "booz2_telemetry.h"
+#include <firmwares/rotorcraft/telemetry.h>
 #include "datalink.h"
 
 #include "booz2_commands.h"
