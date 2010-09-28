@@ -26,12 +26,12 @@
  * simulator plug for the booz2 v1 imu arch dependant functions
  *
  */
-#ifndef BOOZ2_IMU_B2_ARCH_H
-#define BOOZ2_IMU_B2_ARCH_H
+#ifndef IMU_B2_ARCH_H
+#define IMU_B2_ARCH_H
 
 
 extern void imu_feed_gyro_accel(void);
 extern void imu_feed_mag(void);
 
 
-#endif /* BOOZ2_IMU_B2_HW_H */
+#endif /* IMU_B2_HW_H */

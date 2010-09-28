@@ -107,11 +107,11 @@ void imu_periodic(void) {
 static inline bool_t isr_try_mag(void) {
   switch (micromag_status) {
   case MS2001_IDLE :
-    Booz2ImuSetSSP8bits();
+    ImuSetSSP8bits();
     Ms2001SendReq();
     return TRUE;
   case MS2001_GOT_EOC:
-    Booz2ImuSetSSP8bits();
+    ImuSetSSP8bits();
     Ms2001ReadRes();
     return TRUE;
   }
@@ -121,17 +121,17 @@ static inline bool_t isr_try_mag(void) {
 static void SSP_ISR(void) {
  ISR_ENTRY();
 
- switch (booz2_imu_ssp_status) {
- case BOOZ2_IMU_SSP_STA_BUSY_MAX1168:
+ switch (imu_ssp_status) {
+ case IMU_SSP_STA_BUSY_MAX1168:
    Max1168OnSpiInt();
    if (isr_try_mag())
-     booz2_imu_ssp_status = BOOZ2_IMU_SSP_STA_BUSY_MS2100;
+     imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
    else
-     booz2_imu_ssp_status = BOOZ2_IMU_SSP_STA_IDLE;
+     imu_ssp_status = IMU_SSP_STA_IDLE;
    break;
- case BOOZ2_IMU_SSP_STA_BUSY_MS2100:
+ case IMU_SSP_STA_BUSY_MS2100:
    Ms2001OnSpiIt();
-   booz2_imu_ssp_status = BOOZ2_IMU_SSP_STA_IDLE;
+   imu_ssp_status = IMU_SSP_STA_IDLE;
    break;
  default:
    // spurious interrupt

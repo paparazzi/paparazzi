@@ -104,7 +104,7 @@ static void booz2_sim_init(void) {
 }
 
 #include "booz2_analog_baro.h"
-#include "booz2_imu.h"
+#include "imu.h"
 
 static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
 
@@ -161,7 +161,7 @@ static void sim_run_one_step(void) {
 #endif /* BYPASS_INS */
     }
     if (booz_sensors_model_gyro_available()) {
-      booz2_imu_feed_data();
+      imu_feed_data();
       main_event();
 #ifdef BYPASS_AHRS
       sim_overwrite_ahrs();

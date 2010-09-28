@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ2_BATTERY_H
-#define BOOZ2_BATTERY_H
+#ifndef BATTERY_H
+#define BATTERY_H
 
 #include "std.h"
 
@@ -40,4 +40,4 @@ static inline void BatteryISRHandler(uint16_t _val) {
 
 extern void battery_init(void);
 
-#endif /* BOOZ2_BATTERY_H */
+#endif /* BATTERY_H */

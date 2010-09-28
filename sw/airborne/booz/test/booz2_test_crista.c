@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <inttypes.h>
@@ -31,7 +31,7 @@
 #include "messages.h"
 #include "downlink.h"
 
-#include "booz2_imu.h"
+#include <firmwares/rotorcraft/imu.h>
 
 #include "interrupt_hw.h"
 
@@ -63,8 +63,8 @@ static inline void main_init( void ) {
 /*   LED_ON(7); */
 
   uart0_init();
-  booz2_imu_impl_init();
-  booz2_imu_init();
+  imu_impl_init();
+  imu_init();
 
   int_enable();
 }
@@ -79,19 +79,19 @@ static inline void main_periodic_task( void ) {
   //  DOWNLINK_SEND_BOOT(&foo);
   //#endif
   //  if (cpu_time_sec > 2)
-  
-  booz2_imu_periodic();
+
+  imu_periodic();
 }
 
 static inline void main_event_task( void ) {
 
-  Booz2ImuEvent(on_imu_event);
+  ImuEvent(on_imu_event);
 
 }
 
 static inline void on_imu_event(void) {
-  Booz2ImuScaleGyro();
-  Booz2ImuScaleAccel();
+  ImuScaleGyro();
+  ImuScaleAccel();
 
   //  LED_TOGGLE(6);
   static uint8_t cnt;
@@ -99,21 +99,21 @@ static inline void on_imu_event(void) {
   if (cnt > 15) cnt = 0;
 
   if (cnt == 0) {
-    DOWNLINK_SEND_IMU_GYRO_RAW(&booz2_imu_gyro_unscaled.x,
-			       &booz2_imu_gyro_unscaled.y,
-			       &booz2_imu_gyro_unscaled.z);
-    
-    DOWNLINK_SEND_IMU_ACCEL_RAW(&booz2_imu_accel_unscaled.x,
-				&booz2_imu_accel_unscaled.y,
-				&booz2_imu_accel_unscaled.z);
+    DOWNLINK_SEND_IMU_GYRO_RAW(&imu_gyro_unscaled.x,
+                   &imu_gyro_unscaled.y,
+                   &imu_gyro_unscaled.z);
+
+    DOWNLINK_SEND_IMU_ACCEL_RAW(&imu_accel_unscaled.x,
+                &imu_accel_unscaled.y,
+                &imu_accel_unscaled.z);
   }
   else if (cnt == 7) {
-    DOWNLINK_SEND_BOOZ2_GYRO(&booz2_imu_gyro.x,
-			     &booz2_imu_gyro.y,
-			     &booz2_imu_gyro.z);
-    
-    DOWNLINK_SEND_BOOZ2_ACCEL(&booz2_imu_accel.x,
-			      &booz2_imu_accel.y,
-			      &booz2_imu_accel.z);
-  }  
+    DOWNLINK_SEND_BOOZ2_GYRO(&imu_gyro.x,
+                 &imu_gyro.y,
+                 &imu_gyro.z);
+
+    DOWNLINK_SEND_BOOZ2_ACCEL(&imu_accel.x,
+                  &imu_accel.y,
+                  &imu_accel.z);
+  }
 }

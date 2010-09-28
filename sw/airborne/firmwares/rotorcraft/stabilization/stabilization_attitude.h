@@ -33,7 +33,7 @@ extern void stabilization_attitude_read_alpha_vane(float alpha);
 extern void stabilization_attitude_enter(void);
 extern void stabilization_attitude_run(bool_t  in_flight);
 
-#include "stabilization/stabilization_attitude_ref.h"
+#include <firmwares/rotorcraft/stabilization/stabilization_attitude_ref.h>
 #include STABILISATION_ATTITUDE_REF_H
 extern void stabilization_attitude_ref_init(void);
 extern void stabilization_attitude_ref_update(void);
@@ -43,4 +43,4 @@ extern void stabilization_attitude_ref_update(void);
     stabilization_att_sum_err.phi = 0;		\
   }
 
-#endif /* BOOZ2_STABILIZATION_ATTITUDE_H */
+#endif /* STABILIZATION_ATTITUDE_H */

@@ -100,4 +100,4 @@ extern void imu_init(void);
 #endif
 
 
-#endif /* BOOZ2_IMU_H */
+#endif /* IMU_H */
