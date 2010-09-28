@@ -3,7 +3,7 @@
 
   <makefile>
 
-    HOST=auto3
+    HOST=auto1
 
     PAPARAZZI_INC = -I$(PAPARAZZI_HOME)/var/$(AIRCRAFT) \
                     -I$(PAPARAZZI_SRC)/sw/airborne      \

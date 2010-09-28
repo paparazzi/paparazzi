@@ -17,10 +17,10 @@ extern "C" {
 #include "fms/fms_periodic.h"
 #include "fms/fms_spi_link.h"
 #include "fms/fms_autopilot_msg.h"
-#include "booz/booz_imu.h"
+#include "firmwares/rotorcraft/imu.h"
 #include "fms/libeknav/raw_log.h"
   /* our sensors            */
-  struct BoozImuFloat imu;
+  struct ImuFloat imu_float;
   /* raw log */
   static int raw_log_fd;
 }
@@ -147,15 +147,15 @@ static void main_dialog_with_io_proc() {
   spi_link_send(&msg_out, sizeof(struct AutopilotMessageCRCFrame), &msg_in, &crc_valid);
   
   struct AutopilotMessagePTUp *in = &msg_in.payload.msg_up; 
-  RATES_FLOAT_OF_BFP(imu.gyro, in->gyro);
-  ACCELS_FLOAT_OF_BFP(imu.accel, in->accel); 
-  MAGS_FLOAT_OF_BFP(imu.mag, in->mag); 
+  RATES_FLOAT_OF_BFP(imu_float.gyro, in->gyro);
+  ACCELS_FLOAT_OF_BFP(imu_float.accel, in->accel); 
+  MAGS_FLOAT_OF_BFP(imu_float.mag, in->mag); 
 
   {
     static uint32_t foo=0;
     foo++;
     if (!(foo%100))
-      printf("%f %f %f\n",imu.gyro.p,imu.gyro.q,imu.gyro.r); 
+      printf("%f %f %f\n",imu_float.gyro.p,imu_float.gyro.q,imu_float.gyro.r); 
     
   }
 
@@ -226,9 +226,9 @@ static void main_rawlog_dump(void) {
   struct raw_log_entry e;
   
   e.time = absTime(time_diff(now, start));
-  RATES_COPY(e.gyro, imu.gyro);
-  VECT3_COPY(e.accel, imu.accel);
-  VECT3_COPY(e.mag, imu.mag);
+  RATES_COPY(e.gyro, imu_float.gyro);
+  VECT3_COPY(e.accel, imu_float.accel);
+  VECT3_COPY(e.mag, imu_float.mag);
   write(raw_log_fd, &e, sizeof(e));
 
 }
