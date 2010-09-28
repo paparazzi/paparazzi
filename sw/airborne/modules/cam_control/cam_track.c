@@ -24,11 +24,11 @@
 
 #include "cam_track.h"
 
-#include "booz2_ins.h"
+#include "ins.h"
 #include "ahrs.h"
 
 #ifdef USE_HFF
-#include "ins/booz2_hf_float.h"
+#include "ins/hf_float.h"
 #endif
 
 struct FloatVect3 target_pos_ned;
@@ -57,8 +57,8 @@ uint8_t cam_status;
 uint8_t cam_data_len;
 
 void track_init(void) {
-  booz_ins_ltp_initialised = TRUE; // ltp is initialized and centered on the target
-  booz_ins_update_on_agl = TRUE;   // use sonar to update agl (assume flat ground)
+  ins_ltp_initialised = TRUE; // ltp is initialized and centered on the target
+  ins_update_on_agl = TRUE;   // use sonar to update agl (assume flat ground)
 
   cam_status = UNINIT;
   cam_data_len = CAM_DATA_LEN;
@@ -99,7 +99,7 @@ void track_periodic_task(void) {
   cmd_msg[c++] = '0' + ((unsigned int) (1000*psi) % 10);
   cmd_msg[c++] = '0' + ((unsigned int) (10000*psi) % 10);
   cmd_msg[c++] = ' ';
-  float alt = -POS_FLOAT_OF_BFP(booz_ins_ltp_pos.z);
+  float alt = -POS_FLOAT_OF_BFP(ins_ltp_pos.z);
   //alt = 0.40;
   if (alt > 0) cmd_msg[c++] = ' ';
   else { cmd_msg[c++] = '-'; alt = -alt; }
@@ -120,31 +120,31 @@ void track_periodic_task(void) {
 }
 
 void track_event(void) {
-  if (!booz_ins_ltp_initialised) {
-    booz_ins_ltp_initialised = TRUE;
-    booz_ins_hf_realign = TRUE;
+  if (!ins_ltp_initialised) {
+    ins_ltp_initialised = TRUE;
+    ins_hf_realign = TRUE;
   }
 
 #ifdef USE_HFF
-  if (booz_ins_hf_realign) {
-    booz_ins_hf_realign = FALSE;
+  if (ins_hf_realign) {
+    ins_hf_realign = FALSE;
     struct FloatVect2 pos, zero;
     pos.x = -target_pos_ned.x;
     pos.y = -target_pos_ned.y;
-    booz_ins_realign_h(pos, zero);
+    ins_realign_h(pos, zero);
   }
   const stuct FlotVect2 measuremet_noise = { 10.0, 10.0);
   b2_hff_update_pos(-target_pos_ned, measurement_noise);
-  booz_ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
-  booz_ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
-  booz_ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
-  booz_ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
-  booz_ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
-  booz_ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
+  ins_ltp_accel.x = ACCEL_BFP_OF_REAL(b2_hff_state.xdotdot);
+  ins_ltp_accel.y = ACCEL_BFP_OF_REAL(b2_hff_state.ydotdot);
+  ins_ltp_speed.x = SPEED_BFP_OF_REAL(b2_hff_state.xdot);
+  ins_ltp_speed.y = SPEED_BFP_OF_REAL(b2_hff_state.ydot);
+  ins_ltp_pos.x   = POS_BFP_OF_REAL(b2_hff_state.x);
+  ins_ltp_pos.y   = POS_BFP_OF_REAL(b2_hff_state.y);
 #else
   // store pos in ins
-  booz_ins_ltp_pos.x = -(POS_BFP_OF_REAL(target_pos_ned.x));
-  booz_ins_ltp_pos.y = -(POS_BFP_OF_REAL(target_pos_ned.y));
+  ins_ltp_pos.x = -(POS_BFP_OF_REAL(target_pos_ned.x));
+  ins_ltp_pos.y = -(POS_BFP_OF_REAL(target_pos_ned.y));
   // compute speed from last pos
   // TODO get delta T
   // store last pos

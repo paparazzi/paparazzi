@@ -215,11 +215,11 @@ static void sim_overwrite_ahrs(void) {
 
 
 #ifdef BYPASS_INS
-#include "booz2_ins.h"
+#include "ins.h"
 static void sim_overwrite_ins(void) {
-  booz_ins_position.z    = BOOZ_POS_I_OF_F(bfm.pos_ltp->ve[AXIS_Z]);
-  booz_ins_speed_earth.z = BOOZ_SPEED_I_OF_F(bfm.speed_ltp->ve[AXIS_Z]);
-  booz_ins_accel_earth.z = BOOZ_ACCEL_I_OF_F(bfm.accel_ltp->ve[AXIS_Z]);
+  ins_position.z    = BOOZ_POS_I_OF_F(bfm.pos_ltp->ve[AXIS_Z]);
+  ins_speed_earth.z = BOOZ_SPEED_I_OF_F(bfm.speed_ltp->ve[AXIS_Z]);
+  ins_accel_earth.z = BOOZ_ACCEL_I_OF_F(bfm.accel_ltp->ve[AXIS_Z]);
 }
 #endif /* BYPASS_INS */
 
@@ -358,9 +358,9 @@ static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
   int alt = atoi(argv[5]);
   lla.lat = INT32_RAD_OF_DEG(lat);
   lla.lon = INT32_RAD_OF_DEG(lon);
-  lla.alt = alt+booz_ins_ltp_def.lla.alt;
-  //printf("move rad %d %d %d (%d)\n",lla.lat,lla.lon,lla.alt,booz_ins_ltp_def.lla.alt);
-  enu_of_lla_point_i(&enu,&booz_ins_ltp_def,&lla);
+  lla.alt = alt+ins_ltp_def.lla.alt;
+  //printf("move rad %d %d %d (%d)\n",lla.lat,lla.lon,lla.alt,ins_ltp_def.lla.alt);
+  enu_of_lla_point_i(&enu,&ins_ltp_def,&lla);
   enu.x = POS_BFP_OF_REAL(enu.x)/100;
   enu.y = POS_BFP_OF_REAL(enu.y)/100;
   enu.z = POS_BFP_OF_REAL(enu.z)/100;

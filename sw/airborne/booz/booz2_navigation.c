@@ -27,7 +27,7 @@
 
 #include "booz/booz2_debug.h"
 #include "booz_gps.h"
-#include "booz2_ins.h"
+#include "ins.h"
 
 #include "autopilot.h"
 #include "modules.h"
@@ -110,7 +110,7 @@ void booz2_nav_run(void) {
 
   /* compute a vector to the waypoint */
   struct Int32Vect2 path_to_waypoint;
-  VECT2_DIFF(path_to_waypoint, booz2_navigation_target, booz_ins_enu_pos);
+  VECT2_DIFF(path_to_waypoint, booz2_navigation_target, ins_enu_pos);
 
   /* saturate it */
   VECT2_STRIM(path_to_waypoint, -(1<<15), (1<<15));
@@ -126,7 +126,7 @@ void booz2_nav_run(void) {
     struct Int32Vect2 path_to_carrot;
     VECT2_SMUL(path_to_carrot, path_to_waypoint, CARROT_DIST);
     VECT2_SDIV(path_to_carrot, path_to_carrot, dist_to_waypoint);
-    VECT2_SUM(booz2_navigation_carrot, path_to_carrot, booz_ins_enu_pos);
+    VECT2_SUM(booz2_navigation_carrot, path_to_carrot, ins_enu_pos);
   }
 #else
   // if H_REF is used, CARROT_DIST is not used
@@ -142,7 +142,7 @@ void nav_circle(uint8_t wp_center, int32_t radius) {
   }
   else {
     struct Int32Vect2 pos_diff;
-    VECT2_DIFF(pos_diff, booz_ins_enu_pos,waypoints[wp_center]);
+    VECT2_DIFF(pos_diff, ins_enu_pos,waypoints[wp_center]);
     // go back to half metric precision or values are too large
     //INT32_VECT2_RSHIFT(pos_diff,pos_diff,INT32_POS_FRAC/2);
     // store last qdr
@@ -186,7 +186,7 @@ void nav_circle(uint8_t wp_center, int32_t radius) {
 void nav_route(uint8_t wp_start, uint8_t wp_end) {
   struct Int32Vect2 wp_diff,pos_diff;
   VECT2_DIFF(wp_diff, waypoints[wp_end],waypoints[wp_start]);
-  VECT2_DIFF(pos_diff, booz_ins_enu_pos,waypoints[wp_start]);
+  VECT2_DIFF(pos_diff, ins_enu_pos,waypoints[wp_start]);
   // go back to metric precision or values are too large
   INT32_VECT2_RSHIFT(wp_diff,wp_diff,INT32_POS_FRAC);
   INT32_VECT2_RSHIFT(pos_diff,pos_diff,INT32_POS_FRAC);
@@ -222,7 +222,7 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx) {
   int32_t dist_to_point;
   struct Int32Vect2 diff;
   static uint8_t time_at_wp = 0;
-  VECT2_DIFF(diff, waypoints[wp_idx], booz_ins_enu_pos);
+  VECT2_DIFF(diff, waypoints[wp_idx], ins_enu_pos);
   INT32_VECT2_RSHIFT(diff,diff,INT32_POS_FRAC);
   INT32_VECT2_NORM(dist_to_point, diff);
   //printf("dist %d | %d %d\n", dist_to_point,diff.x,diff.y);
@@ -250,25 +250,25 @@ static inline void nav_set_altitude( void ) {
 
 /** Reset the geographic reference to the current GPS fix */
 unit_t nav_reset_reference( void ) {
-  booz_ins_ltp_initialised = FALSE;
-  booz_ins_hf_realign = TRUE;
-  booz_ins_vf_realign = TRUE;
+  ins_ltp_initialised = FALSE;
+  ins_hf_realign = TRUE;
+  ins_vf_realign = TRUE;
   return 0;
 }
 
 unit_t nav_reset_alt( void ) {
-  booz_ins_vf_realign = TRUE;
+  ins_vf_realign = TRUE;
 
 #ifdef USE_GPS
-  booz_ins_ltp_def.lla.alt = booz_gps_state.lla_pos.alt;
-  booz_ins_ltp_def.hmsl = booz_gps_state.hmsl;
+  ins_ltp_def.lla.alt = booz_gps_state.lla_pos.alt;
+  ins_ltp_def.hmsl = booz_gps_state.hmsl;
 #endif
 
   return 0;
 }
 
 void nav_init_stage( void ) {
-  INT32_VECT3_COPY(nav_last_point, booz_ins_enu_pos);
+  INT32_VECT3_COPY(nav_last_point, ins_enu_pos);
   stage_time = 0;
   nav_circle_radians = 0;
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
@@ -300,7 +300,7 @@ void nav_periodic_task() {
   /* run carrot loop */
   booz2_nav_run();
 
-  ground_alt = POS_BFP_OF_REAL((float)booz_ins_ltp_def.hmsl / 100.);
+  ground_alt = POS_BFP_OF_REAL((float)ins_ltp_def.hmsl / 100.);
 
 }
 

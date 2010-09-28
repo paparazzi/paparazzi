@@ -112,7 +112,7 @@ void nav_home(void);
 #define NavSetGroundReferenceHere() ({ nav_reset_reference(); FALSE; })
 #define NavSetAltitudeReferenceHere() ({ nav_reset_alt(); FALSE; })
 
-#define NavSetWaypointHere(_wp) ({ VECT2_COPY(waypoints[_wp], booz_ins_enu_pos); FALSE; })
+#define NavSetWaypointHere(_wp) ({ VECT2_COPY(waypoints[_wp], ins_enu_pos); FALSE; })
 #define NavCopyWaypoint(_wp1, _wp2) ({ VECT2_COPY(waypoints[_wp1], waypoints[_wp2]); FALSE; })
 
 #define WaypointX(_wp)    POS_FLOAT_OF_BFP(waypoints[_wp].x)
@@ -212,9 +212,9 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 }
 
 
-#define GetPosX() POS_FLOAT_OF_BFP(booz_ins_enu_pos.x)
-#define GetPosY() POS_FLOAT_OF_BFP(booz_ins_enu_pos.y)
-#define GetPosAlt() (POS_FLOAT_OF_BFP(booz_ins_enu_pos.z+ground_alt))
+#define GetPosX() POS_FLOAT_OF_BFP(ins_enu_pos.x)
+#define GetPosY() POS_FLOAT_OF_BFP(ins_enu_pos.y)
+#define GetPosAlt() (POS_FLOAT_OF_BFP(ins_enu_pos.z+ground_alt))
 
 
 extern void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int16_t heading_rate_sp );

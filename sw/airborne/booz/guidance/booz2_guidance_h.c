@@ -28,7 +28,7 @@
 #include "ahrs.h"
 #include "booz_stabilization.h"
 #include "booz_fms.h"
-#include "booz2_ins.h"
+#include "ins.h"
 #include "booz2_navigation.h"
 
 #include "airframe.h"
@@ -224,12 +224,12 @@ void booz2_guidance_h_run(bool_t  in_flight) {
 static inline void  booz2_guidance_h_hover_run(void) {
 
   /* compute position error    */
-  VECT2_DIFF(booz2_guidance_h_pos_err, booz_ins_ltp_pos, booz2_guidance_h_pos_sp);
+  VECT2_DIFF(booz2_guidance_h_pos_err, ins_ltp_pos, booz2_guidance_h_pos_sp);
   /* saturate it               */
   VECT2_STRIM(booz2_guidance_h_pos_err, -MAX_POS_ERR, MAX_POS_ERR);
 
   /* compute speed error    */
-  VECT2_COPY(booz2_guidance_h_speed_err, booz_ins_ltp_speed);
+  VECT2_COPY(booz2_guidance_h_speed_err, ins_ltp_speed);
   /* saturate it               */
   VECT2_STRIM(booz2_guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
 
@@ -293,13 +293,13 @@ static inline void  booz2_guidance_h_nav_run(bool_t in_flight) {
 #endif
 
   /* compute position error    */
-  VECT2_DIFF(booz2_guidance_h_pos_err, booz_ins_ltp_pos, booz2_guidance_h_pos_ref);
+  VECT2_DIFF(booz2_guidance_h_pos_err, ins_ltp_pos, booz2_guidance_h_pos_ref);
   /* saturate it               */
   VECT2_STRIM(booz2_guidance_h_pos_err, -MAX_POS_ERR, MAX_POS_ERR);
 
   /* compute speed error    */
-  //VECT2_COPY(booz2_guidance_h_speed_err, booz_ins_ltp_speed);
-  VECT2_DIFF(booz2_guidance_h_speed_err, booz_ins_ltp_speed, booz2_guidance_h_speed_ref);
+  //VECT2_COPY(booz2_guidance_h_speed_err, ins_ltp_speed);
+  VECT2_DIFF(booz2_guidance_h_speed_err, ins_ltp_speed, booz2_guidance_h_speed_ref);
   /* saturate it               */
   VECT2_STRIM(booz2_guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
 
@@ -313,16 +313,16 @@ static inline void  booz2_guidance_h_nav_run(bool_t in_flight) {
   }
   else { // Tracking algorithm, no integral
     int32_t vect_prod = 0;
-    int32_t scal_prod = booz_ins_ltp_speed.x * booz2_guidance_h_pos_err.x + booz_ins_ltp_speed.y * booz2_guidance_h_pos_err.y;
+    int32_t scal_prod = ins_ltp_speed.x * booz2_guidance_h_pos_err.x + ins_ltp_speed.y * booz2_guidance_h_pos_err.y;
     // compute vectorial product only if angle < pi/2 (scalar product > 0)
     if (scal_prod >= 0) {
-      vect_prod = ((booz_ins_ltp_speed.x * booz2_guidance_h_pos_err.y) >> (INT32_POS_FRAC + INT32_SPEED_FRAC - 10))
-                - ((booz_ins_ltp_speed.y * booz2_guidance_h_pos_err.x) >> (INT32_POS_FRAC + INT32_SPEED_FRAC - 10));
+      vect_prod = ((ins_ltp_speed.x * booz2_guidance_h_pos_err.y) >> (INT32_POS_FRAC + INT32_SPEED_FRAC - 10))
+                - ((ins_ltp_speed.y * booz2_guidance_h_pos_err.x) >> (INT32_POS_FRAC + INT32_SPEED_FRAC - 10));
     }
     // multiply by vector orthogonal to speed
     VECT2_ASSIGN(booz2_guidance_h_nav_err,
-        vect_prod * (-booz_ins_ltp_speed.y),
-        vect_prod * booz_ins_ltp_speed.x);
+        vect_prod * (-ins_ltp_speed.y),
+        vect_prod * ins_ltp_speed.x);
     // divide by 2 times dist ( >> 16 )
     VECT2_SDIV(booz2_guidance_h_nav_err, booz2_guidance_h_nav_err, dist*dist);
     // *2 ??
@@ -370,7 +370,7 @@ static inline void  booz2_guidance_h_nav_run(bool_t in_flight) {
 
 static inline void booz2_guidance_h_hover_enter(void) {
 
-  VECT2_COPY(booz2_guidance_h_pos_sp, booz_ins_ltp_pos);
+  VECT2_COPY(booz2_guidance_h_pos_sp, ins_ltp_pos);
 
   BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF( booz2_guidance_h_rc_sp );
 
@@ -383,8 +383,8 @@ static inline void booz2_guidance_h_nav_enter(void) {
   INT32_VECT2_NED_OF_ENU(booz2_guidance_h_pos_sp, booz2_navigation_carrot);
   struct Int32Vect2 pos,speed,zero;
   INT_VECT2_ZERO(zero);
-  VECT2_COPY(pos, booz_ins_ltp_pos);
-  VECT2_COPY(speed, booz_ins_ltp_speed);
+  VECT2_COPY(pos, ins_ltp_pos);
+  VECT2_COPY(speed, ins_ltp_speed);
   Booz2GuidanceHSetRef(pos, speed, zero);
 
   struct Int32Eulers tmp_sp;

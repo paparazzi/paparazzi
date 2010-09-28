@@ -1036,14 +1036,14 @@
     <field name="body_psi"   type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
   </message>
 
-  <message name="BOOZ2_INS" id="151">
+  <message name="INS" id="151">
     <field name="baro_alt"  type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
     <field name="ins_z"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
     <field name="ins_zd"    type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019"/>
     <field name="ins_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
   </message>
 
-  <message name="BOOZ2_INS2" id="152">
+  <message name="INS2" id="152">
     <field name="xdd" type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
     <field name="ydd" type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
     <field name="zdd" type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
@@ -1055,7 +1055,7 @@
     <field name="z"   type="int32" alt_unit="m"    alt_unit_coef="0.0039"/>
   </message>
 
-  <message name="BOOZ2_INS3" id="153">
+  <message name="INS3" id="153">
     <field name="gps_x_ned"  type="int32" alt_unit="m"    alt_unit_coef="0.00390625"/>
     <field name="gps_y_ned"  type="int32" alt_unit="m"    alt_unit_coef="0.00390625"/>
     <field name="gps_z_ned"  type="int32" alt_unit="m"    alt_unit_coef="0.00390625"/>
@@ -1064,7 +1064,7 @@
     <field name="gps_zd_ned" type="int32" alt_unit="m/s"  alt_unit_coef="0.0000019073"/>
   </message>
 
-  <message name="BOOZ2_INS_REF" id="154">
+  <message name="INS_REF" id="154">
     <field name="ecef_x0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
     <field name="ecef_y0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
     <field name="ecef_z0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>

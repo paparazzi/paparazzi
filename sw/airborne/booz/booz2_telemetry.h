@@ -48,7 +48,7 @@
 #include "booz2_battery.h"
 #include <firmwares/rotorcraft/imu.h>
 #include "booz_gps.h"
-#include "booz2_ins.h"
+#include "ins.h"
 #include "ahrs.h"
 
 #include "i2c_hw.h"
@@ -472,7 +472,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 #ifdef USE_VFF
-#include "ins/booz2_vf_float.h"
+#include "ins/vf_float.h"
 #define PERIODIC_SEND_BOOZ2_VFF(_chan) {		\
     DOWNLINK_SEND_BOOZ2_VFF(_chan,			\
 			    &b2_vff_z_meas,		\
@@ -488,7 +488,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #endif
 
 #ifdef USE_HFF
-#include "ins/booz2_hf_float.h"
+#include "ins/hf_float.h"
 #define PERIODIC_SEND_BOOZ2_HFF(_chan) {	\
     DOWNLINK_SEND_BOOZ2_HFF(_chan,		\
                             &b2_hff_state.x,			\
@@ -533,21 +533,21 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				 &booz2_guidance_h_held_pos.y);		\
   }
 
-#define PERIODIC_SEND_BOOZ2_INS(_chan) {				\
-    DOWNLINK_SEND_BOOZ2_INS(_chan,					\
-			    &booz_ins_baro_alt,				\
-			    &booz_ins_ltp_pos.z,			\
-			    &booz_ins_ltp_speed.z,			\
-			    &booz_ins_ltp_accel.z);			\
+#define PERIODIC_SEND_INS(_chan) {				\
+    DOWNLINK_SEND_INS(_chan,					\
+			    &ins_baro_alt,				\
+			    &ins_ltp_pos.z,			\
+			    &ins_ltp_speed.z,			\
+			    &ins_ltp_accel.z);			\
   }
 
 
-#define PERIODIC_SEND_BOOZ2_INS2(_chan) {			\
+#define PERIODIC_SEND_INS2(_chan) {			\
     struct Int32Vect3 pos_low_res;				\
     pos_low_res.x = (int32_t)(b2ins_pos_ltp.x>>20);		\
     pos_low_res.y = (int32_t)(b2ins_pos_ltp.y>>20);		\
     pos_low_res.z = (int32_t)(b2ins_pos_ltp.z>>20);		\
-    DOWNLINK_SEND_BOOZ2_INS2(_chan,				\
+    DOWNLINK_SEND_INS2(_chan,				\
 			     &b2ins_accel_ltp.x,		\
 			     &b2ins_accel_ltp.y,		\
 			     &b2ins_accel_ltp.z,		\
@@ -561,9 +561,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 #ifdef USE_GPS
-#include "ins/booz2_hf_float.h"
-#define PERIODIC_SEND_BOOZ2_INS3(_chan) {				\
-    DOWNLINK_SEND_BOOZ2_INS3(_chan,					\
+#include "ins/hf_float.h"
+#define PERIODIC_SEND_INS3(_chan) {				\
+    DOWNLINK_SEND_INS3(_chan,					\
 			     &b2ins_meas_gps_pos_ned.x,			\
 			     &b2ins_meas_gps_pos_ned.y,			\
 			     &b2ins_meas_gps_pos_ned.z,			\
@@ -573,32 +573,32 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			     );						\
   }
 #else /* !USE_GPS */
-#define PERIODIC_SEND_BOOZ2_INS3(_chan) {}
+#define PERIODIC_SEND_INS3(_chan) {}
 #endif /* USE_GPS */
 
 #define PERIODIC_SEND_BOOZ_INS(_chan) {			\
     DOWNLINK_SEND_BOOZ_INS(_chan,				\
-					   &booz_ins_ltp_pos.x,		\
-					   &booz_ins_ltp_pos.y,	    \
-					   &booz_ins_ltp_pos.z,		\
-					   &booz_ins_ltp_speed.x,	\
-					   &booz_ins_ltp_speed.y,	\
-					   &booz_ins_ltp_speed.z,	\
-					   &booz_ins_ltp_accel.x,	\
-					   &booz_ins_ltp_accel.y,	\
-					   &booz_ins_ltp_accel.z);	\
+					   &ins_ltp_pos.x,		\
+					   &ins_ltp_pos.y,	    \
+					   &ins_ltp_pos.z,		\
+					   &ins_ltp_speed.x,	\
+					   &ins_ltp_speed.y,	\
+					   &ins_ltp_speed.z,	\
+					   &ins_ltp_accel.x,	\
+					   &ins_ltp_accel.y,	\
+					   &ins_ltp_accel.z);	\
   }
 
-#define PERIODIC_SEND_BOOZ2_INS_REF(_chan) {				\
-    DOWNLINK_SEND_BOOZ2_INS_REF(_chan,					\
-				&booz_ins_ltp_def.ecef.x,		\
-				&booz_ins_ltp_def.ecef.y,		\
-				&booz_ins_ltp_def.ecef.z,		\
-				&booz_ins_ltp_def.lla.lat,		\
-				&booz_ins_ltp_def.lla.lon,		\
-				&booz_ins_ltp_def.lla.alt,		\
-				&booz_ins_ltp_def.hmsl,		\
-				&booz_ins_qfe);				\
+#define PERIODIC_SEND_INS_REF(_chan) {				\
+    DOWNLINK_SEND_INS_REF(_chan,					\
+				&ins_ltp_def.ecef.x,		\
+				&ins_ltp_def.ecef.y,		\
+				&ins_ltp_def.ecef.z,		\
+				&ins_ltp_def.lla.lat,		\
+				&ins_ltp_def.lla.lon,		\
+				&ins_ltp_def.lla.alt,		\
+				&ins_ltp_def.hmsl,		\
+				&ins_qfe);				\
   }
 
 
@@ -607,9 +607,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
     DOWNLINK_SEND_BOOZ2_VERT_LOOP(_chan,				\
 				  &booz2_guidance_v_z_sp,		\
 				  &booz2_guidance_v_zd_sp,		\
-				  &booz_ins_ltp_pos.z,			\
-				  &booz_ins_ltp_speed.z,		\
-				  &booz_ins_ltp_accel.z,		\
+				  &ins_ltp_pos.z,			\
+				  &ins_ltp_speed.z,		\
+				  &ins_ltp_accel.z,		\
 				  &booz2_guidance_v_z_ref,		\
 				  &booz2_guidance_v_zd_ref,		\
 				  &booz2_guidance_v_zdd_ref,		\
@@ -626,12 +626,12 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
     DOWNLINK_SEND_BOOZ2_HOVER_LOOP(_chan,				\
 				   &booz2_guidance_h_pos_sp.x,		\
 				   &booz2_guidance_h_pos_sp.y,		\
-				   &booz_ins_ltp_pos.x,			\
-				   &booz_ins_ltp_pos.y,			\
-				   &booz_ins_ltp_speed.x,		\
-				   &booz_ins_ltp_speed.y,		\
-				   &booz_ins_ltp_accel.x,		\
-				   &booz_ins_ltp_accel.y,		\
+				   &ins_ltp_pos.x,			\
+				   &ins_ltp_pos.y,			\
+				   &ins_ltp_speed.x,		\
+				   &ins_ltp_speed.y,		\
+				   &ins_ltp_accel.x,		\
+				   &ins_ltp_accel.y,		\
 				   &booz2_guidance_h_pos_err.x,		\
 				   &booz2_guidance_h_pos_err.y,		\
 				   &booz2_guidance_h_speed_err.x,	\
@@ -664,12 +664,12 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_BOOZ2_FP(_chan) {					\
     int32_t carrot_up = -booz2_guidance_v_z_sp;				\
     DOWNLINK_SEND_BOOZ2_FP( _chan,					\
-			    &booz_ins_enu_pos.x,			\
-			    &booz_ins_enu_pos.y,			\
-			    &booz_ins_enu_pos.z,			\
-			    &booz_ins_enu_speed.x,			\
-			    &booz_ins_enu_speed.y,			\
-			    &booz_ins_enu_speed.z,			\
+			    &ins_enu_pos.x,			\
+			    &ins_enu_pos.y,			\
+			    &ins_enu_pos.z,			\
+			    &ins_enu_speed.x,			\
+			    &ins_enu_speed.y,			\
+			    &ins_enu_speed.z,			\
 			    &ahrs.ltp_to_body_euler.phi,		\
 			    &ahrs.ltp_to_body_euler.theta,		\
 			    &ahrs.ltp_to_body_euler.psi,		\

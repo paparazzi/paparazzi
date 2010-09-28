@@ -32,7 +32,7 @@
 #include "booz_fms.h"
 #include "booz2_navigation.h"
 
-#include "booz2_ins.h"
+#include "ins.h"
 #include "math/pprz_algebra_int.h"
 
 #include "airframe.h"
@@ -126,7 +126,7 @@ void booz2_guidance_v_mode_changed(uint8_t new_mode) {
   case BOOZ2_GUIDANCE_V_MODE_HOVER:
   case BOOZ2_GUIDANCE_V_MODE_NAV:
     booz2_guidance_v_z_sum_err = 0;
-    Booz2GuidanceVSetRef(booz_ins_ltp_pos.z, booz_ins_ltp_speed.z, 0);
+    Booz2GuidanceVSetRef(ins_ltp_pos.z, ins_ltp_speed.z, 0);
     break;
   default:
     break;
@@ -150,18 +150,18 @@ void booz2_guidance_v_run(bool_t in_flight) {
   if (in_flight) {
     // we should use something after the supervision!!! fuck!!!
     int32_t cmd_hack = Chop(booz_stabilization_cmd[COMMAND_THRUST], 1, 200);
-    b2_gv_adapt_run(booz_ins_ltp_accel.z, cmd_hack);
+    b2_gv_adapt_run(ins_ltp_accel.z, cmd_hack);
   }
   else {
     // reset vertical filter until takeoff
-    //booz_ins_vf_realign = TRUE;
+    //ins_vf_realign = TRUE;
   }
 
   switch (booz2_guidance_v_mode) {
 
   case BOOZ2_GUIDANCE_V_MODE_RC_DIRECT:
-    booz2_guidance_v_z_sp = booz_ins_ltp_pos.z;  // not sure why we do that
-    Booz2GuidanceVSetRef(booz_ins_ltp_pos.z, 0, 0); // or that - mode enter should take care of it ?
+    booz2_guidance_v_z_sp = ins_ltp_pos.z;  // not sure why we do that
+    Booz2GuidanceVSetRef(ins_ltp_pos.z, 0, 0); // or that - mode enter should take care of it ?
     booz_stabilization_cmd[COMMAND_THRUST] = booz2_guidance_v_rc_delta_t;
     break;
 
@@ -236,9 +236,9 @@ static inline void run_hover_loop(bool_t in_flight) {
   booz2_guidance_v_zd_ref = b2_gv_zd_ref<<(INT32_SPEED_FRAC - B2_GV_ZD_REF_FRAC);
   booz2_guidance_v_zdd_ref = b2_gv_zdd_ref<<(INT32_ACCEL_FRAC - B2_GV_ZDD_REF_FRAC);
   /* compute the error to our reference */
-  int32_t err_z  =  booz_ins_ltp_pos.z - booz2_guidance_v_z_ref;
+  int32_t err_z  =  ins_ltp_pos.z - booz2_guidance_v_z_ref;
   Bound(err_z, BOOZ2_GUIDANCE_V_MIN_ERR_Z, BOOZ2_GUIDANCE_V_MAX_ERR_Z);
-  int32_t err_zd =  booz_ins_ltp_speed.z - booz2_guidance_v_zd_ref;
+  int32_t err_zd =  ins_ltp_speed.z - booz2_guidance_v_zd_ref;
   Bound(err_zd, BOOZ2_GUIDANCE_V_MIN_ERR_ZD, BOOZ2_GUIDANCE_V_MAX_ERR_ZD);
 
   if (in_flight) {

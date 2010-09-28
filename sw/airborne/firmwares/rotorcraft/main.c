@@ -53,7 +53,7 @@
 #include "booz_guidance.h"
 
 #include "ahrs.h"
-#include "booz2_ins.h"
+#include "ins.h"
 
 #if defined USE_CAM || USE_DROP
 #include "booz2_pwm_hw.h"
@@ -122,7 +122,7 @@ STATIC_INLINE void main_init( void ) {
   ahrs_aligner_init();
   ahrs_init();
 
-  booz_ins_init();
+  ins_init();
 
 #ifdef USE_GPS
   booz_gps_init();
@@ -231,12 +231,12 @@ static inline void on_gyro_accel_event( void ) {
 #ifdef SITL
     if (nps_bypass_ahrs) sim_overwrite_ahrs();
 #endif
-    booz_ins_propagate();
+    ins_propagate();
   }
 }
 
 static inline void on_baro_abs_event( void ) {
-  booz_ins_update_baro();
+  ins_update_baro();
 }
 
 static inline void on_baro_dif_event( void ) {
@@ -244,7 +244,7 @@ static inline void on_baro_dif_event( void ) {
 }
 
 static inline void on_gps_event(void) {
-  booz_ins_update_gps();
+  ins_update_gps();
 }
 
 static inline void on_mag_event(void) {

@@ -26,7 +26,7 @@
 #include "booz2_pwm_hw.h"
 #include "ahrs.h"
 #include "booz2_navigation.h"
-#include "booz2_ins.h"
+#include "ins.h"
 #include "flight_plan.h"
 
 uint8_t booz_cam_mode;
@@ -116,14 +116,14 @@ void booz_cam_periodic(void) {
 #ifdef WP_CAM
       {
         struct Int32Vect2 diff;
-        VECT2_DIFF(diff, waypoints[WP_CAM], booz_ins_enu_pos);
+        VECT2_DIFF(diff, waypoints[WP_CAM], ins_enu_pos);
         INT32_VECT2_RSHIFT(diff,diff,INT32_POS_FRAC);
         INT32_ATAN2(booz_cam_pan,diff.x,diff.y);
         nav_heading = booz_cam_pan;
 #ifdef BOOZ_CAM_USE_TILT_ANGLES
         int32_t dist, height;
         INT32_VECT2_NORM(dist, diff);
-        height = (waypoints[WP_CAM].z - booz_ins_enu_pos.z) >> INT32_POS_FRAC;
+        height = (waypoints[WP_CAM].z - ins_enu_pos.z) >> INT32_POS_FRAC;
         INT32_ATAN2(booz_cam_tilt, height, dist);
         Bound(booz_cam_tilt, CAM_TA_MIN, CAM_TA_MAX);
         booz_cam_tilt_pwm = BOOZ_CAM_TILT_MIN + (BOOZ_CAM_TILT_MAX - BOOZ_CAM_TILT_MIN) * (booz_cam_tilt - CAM_TA_MIN) / (CAM_TA_MAX - CAM_TA_MIN);

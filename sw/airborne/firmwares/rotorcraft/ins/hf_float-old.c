@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz2_hf_float.h"
-#include "booz2_ins.h"
+#include "hf_float.h"
+#include "ins.h"
 
 #include <firmwares/rotorcraft/imu.h>
 #include "ahrs.h"
@@ -79,7 +79,7 @@ void b2ins_update_gps(void) {
 #ifdef UPDATE_FROM_POS
   struct Int64Vect2 scaled_pos_meas;
   /* INT32 pos in cm -> INT64 pos in cm*/
-  VECT2_COPY(scaled_pos_meas, booz_ins_gps_pos_cm_ned);
+  VECT2_COPY(scaled_pos_meas, ins_gps_pos_cm_ned);
   /* to BFP but still in cm */
   VECT2_SMUL(scaled_pos_meas, scaled_pos_meas, (1<<B2INS_POS_LTP_FRAC));
   /* INT64 BFP pos in cm -> INT64 BFP pos in m */
@@ -95,7 +95,7 @@ void b2ins_update_gps(void) {
 #endif /* UPDATE_FROM_POS */
 
 #ifdef UPDATE_FROM_SPEED
-  INT32_VECT3_SCALE_2(b2ins_meas_gps_speed_ned, booz_ins_gps_speed_cm_s_ned, INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
+  INT32_VECT3_SCALE_2(b2ins_meas_gps_speed_ned, ins_gps_speed_cm_s_ned, INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
   struct Int32Vect2 scaled_speed_meas;
   VECT2_SMUL(scaled_speed_meas, b2ins_meas_gps_speed_ned, (1<<(B2INS_SPEED_LTP_FRAC-INT32_SPEED_FRAC)));
   struct Int32Vect2 speed_residual;

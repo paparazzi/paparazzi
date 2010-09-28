@@ -6,7 +6,7 @@
   </header>
   <init fun="maxbotix_init()"/>
   <periodic fun="maxbotix_read()" freq="10"/>
-  <event fun="SonarEvent(booz_ins_update_sonar)"/>
+  <event fun="SonarEvent(ins_update_sonar)"/>
   <makefile target="ap">
     <flag name="USE_EXTRA_ADC"/>
     <flag name="USE_ADC_1"/>

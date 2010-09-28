@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz2_vf_float.h"
+#include "vf_float.h"
 
 /*
 

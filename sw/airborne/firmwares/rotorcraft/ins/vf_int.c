@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz2_vf_int.h"
+#include "vf_int.h"
 
 #include "booz_geometry_mixed.h"
 
@@ -46,7 +46,7 @@ int32_t b2_vfi_P[B2_VFI_S_SIZE][B2_VFI_S_SIZE];
 #define VFI_R           BOOZ_INT_OF_FLOAT(1., B2_VFI_P_FRAC)
 
 
-void booz2_vfi_init(int32_t z0, int32_t zd0, int32_t bias0 ) {
+void vfi_init(int32_t z0, int32_t zd0, int32_t bias0 ) {
 
   // initialize state vector
   b2_vfi_z     = z0;
@@ -82,7 +82,7 @@ void booz2_vfi_init(int32_t z0, int32_t zd0, int32_t bias0 ) {
 
 */
 
-void booz2_vfi_propagate( int32_t accel_reading ) {
+void vfi_propagate( int32_t accel_reading ) {
 
   // compute unbiased vertical acceleration
   b2_vfi_zdd = accel_reading + BOOZ_INT_OF_FLOAT(9.81, B2_VFI_ZDD_FRAC) - b2_vfi_abias;
@@ -120,7 +120,7 @@ void booz2_vfi_propagate( int32_t accel_reading ) {
 }
 
 
-void booz2_vfi_update( int32_t z_meas ) {
+void vfi_update( int32_t z_meas ) {
 
   const int64_t y = (z_meas<<(B2_VFI_Z_FRAC-B2_VFI_MEAS_Z_FRAC)) - b2_vfi_z;
   const int32_t S = b2_vfi_P[0][0] + VFI_R;

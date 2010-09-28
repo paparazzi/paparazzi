@@ -41,7 +41,7 @@
 #include "booz2_navigation.h"
 
 #include "math/pprz_geodetic_int.h"
-#include "booz2_ins.h"
+#include "ins.h"
 
 #define IdOfMsg(x) (x[1])
 
@@ -94,8 +94,8 @@ void dl_parse_msg(void) {
       struct EnuCoor_i enu;
       lla.lat = INT32_RAD_OF_DEG(DL_MOVE_WP_lat(dl_buffer));
       lla.lon = INT32_RAD_OF_DEG(DL_MOVE_WP_lon(dl_buffer));
-      lla.alt = DL_MOVE_WP_alt(dl_buffer) - booz_ins_ltp_def.hmsl + booz_ins_ltp_def.lla.alt;
-      enu_of_lla_point_i(&enu,&booz_ins_ltp_def,&lla);
+      lla.alt = DL_MOVE_WP_alt(dl_buffer) - ins_ltp_def.hmsl + ins_ltp_def.lla.alt;
+      enu_of_lla_point_i(&enu,&ins_ltp_def,&lla);
       enu.x = POS_BFP_OF_REAL(enu.x)/100;
       enu.y = POS_BFP_OF_REAL(enu.y)/100;
       enu.z = POS_BFP_OF_REAL(enu.z)/100;

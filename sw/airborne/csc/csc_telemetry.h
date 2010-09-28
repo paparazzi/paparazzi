@@ -106,8 +106,8 @@ DOWNLINK_SEND_GPS_ERROR( _chan, 				\
 			   &csc_gps_errors.rate.z) 		\
     }			   
 	
-#define PERIODIC_SEND_BOOZ2_INS3(_chan) { \
-DOWNLINK_SEND_BOOZ2_INS3(_chan,	  \
+#define PERIODIC_SEND_INS3(_chan) { \
+DOWNLINK_SEND_INS3(_chan,	  \
 &booz_ins_gps_pos_cm_ned.x,	\
 &booz_ins_gps_pos_cm_ned.y,	    \
 &booz_ins_gps_pos_cm_ned.z,	    \

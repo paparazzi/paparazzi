@@ -5,7 +5,7 @@
     <mode name="default">
       <message name="ALIVE"          period="5"/>
       <message name="ATTITUDE"	     period="0.1"/>
-      <message name="BOOZ2_INS3"     period="0.25"/>
+      <message name="INS3"     period="0.25"/>
       <message name="GPS_SOL"	     period="1.5"/>
       <message name="VANE_SENSOR"    period="0.2"/>
       <message name="SIMPLE_COMMANDS" period="0.2"/>
@@ -28,7 +28,7 @@
       <message name="DL_VALUE"       period="0.5"/>
       <message name="RMAT_DEBUG"     period="1"/>
       <message name="GPS_SOL"	     period="1.5"/>
-      <message name="BOOZ2_INS3"     period="0.25"/>
+      <message name="INS3"     period="0.25"/>
     </mode>
   </process>
 </telemetry>

@@ -27,12 +27,12 @@
 #include "std.h"
 #include "booz_geometry_int.h"
 
-extern void booz2_vfi_init( int32_t z0, int32_t zd0, int32_t bias0 );
-extern void booz2_vfi_propagate( int32_t accel_reading );
+extern void vfi_init( int32_t z0, int32_t zd0, int32_t bias0 );
+extern void vfi_propagate( int32_t accel_reading );
 
 /* z_meas : altitude measurement in meter       */
 /* Q23.8 : accuracy 0.004m range 8388km         */
-extern void booz2_vfi_update( int32_t z_meas );
+extern void vfi_update( int32_t z_meas );
 #define B2_VFI_Z_MEAS_FRAC IPOS_FRAC
 
 /* propagate frequency : 512 Hz */
