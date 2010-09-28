@@ -21,7 +21,7 @@
   <periodic fun="pbn_periodic()" freq="10"/>
   <event fun="PbnEvent()"/>
 
-  <makefile target="ap"> 
+  <makefile> 
     <file name="pressure_board_navarro.c"/> 
   </makefile>
 
