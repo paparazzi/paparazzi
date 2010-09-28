@@ -42,7 +42,7 @@
 #include "booz_gps.h"
 
 #include "booz/booz2_analog.h"
-#include "firmwares/rotorcraft/baro.h"
+#include <firmwares/rotorcraft/baro.h>
 
 #include "booz2_battery.h"
 
@@ -75,18 +75,18 @@ static inline void on_mag_event( void );
 
 #ifndef SITL
 int main( void ) {
-  booz2_main_init();
+  main_init();
 
   while(1) {
     if (sys_time_periodic())
-      booz2_main_periodic();
-    booz2_main_event();
+      main_periodic();
+    main_event();
   }
   return 0;
 }
 #endif /* SITL */
 
-STATIC_INLINE void booz2_main_init( void ) {
+STATIC_INLINE void main_init( void ) {
 
 #ifndef RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
   /* IF THIS IS NEEDED SOME PERHIPHERAL THEN PLEASE MOVE IT THERE */
@@ -135,7 +135,7 @@ STATIC_INLINE void booz2_main_init( void ) {
 }
 
 
-STATIC_INLINE void booz2_main_periodic( void ) {
+STATIC_INLINE void main_periodic( void ) {
 
   imu_periodic();
 
@@ -145,7 +145,7 @@ STATIC_INLINE void booz2_main_periodic( void ) {
   actuators_set(autopilot_motors_on);
 
   PeriodicPrescaleBy10(							\
-    {						                        \
+    {                                               \
       radio_control_periodic();						\
       if (radio_control.status != RADIO_CONTROL_OK &&			\
           autopilot_mode != AP_MODE_KILL &&			\
@@ -159,7 +159,7 @@ STATIC_INLINE void booz2_main_periodic( void ) {
       /*BoozControlSurfacesSetFromCommands();*/				\
     },									\
     {									\
-      LED_PERIODIC();		     					\
+      LED_PERIODIC();                               \
     },									\
     { baro_periodic();
     },									\
@@ -171,7 +171,7 @@ STATIC_INLINE void booz2_main_periodic( void ) {
       Booz2TelemetryPeriodic();						\
     }									\
     );									\
-  
+
 #ifdef USE_GPS
   if (radio_control.status != RADIO_CONTROL_OK &&			\
       autopilot_mode == AP_MODE_NAV && GpsIsLost())		\
@@ -191,7 +191,7 @@ STATIC_INLINE void booz2_main_periodic( void ) {
 
 }
 
-STATIC_INLINE void booz2_main_event( void ) {
+STATIC_INLINE void main_event( void ) {
 
   DatalinkEvent();
 

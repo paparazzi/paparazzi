@@ -35,7 +35,7 @@
 #include "booz_rc_sim.h"
 #include "booz2_battery.h"
 
-#include "booz2_main.h"
+#include "main.h"
 
 
 char* fg_host = "10.31.4.107";
@@ -99,7 +99,7 @@ static void booz2_sim_init(void) {
 
   ivy_transport_init();
 
-  booz2_main_init();
+  main_init();
 
 }
 
@@ -151,18 +151,18 @@ static void sim_run_one_step(void) {
     // feed a rc frame and signal event
     BoozRcSimFeed(sim_time);
     // process it
-    booz2_main_event();
+    main_event();
 
     if (booz_sensors_model_baro_available()) {
       Booz2BaroISRHandler(bsm.baro);
-      booz2_main_event();
+      main_event();
 #ifdef BYPASS_INS
       sim_overwrite_ins();
 #endif /* BYPASS_INS */
     }
     if (booz_sensors_model_gyro_available()) {
       booz2_imu_feed_data();
-      booz2_main_event();
+      main_event();
 #ifdef BYPASS_AHRS
       sim_overwrite_ahrs();
 #endif /* BYPASS_AHRS */
@@ -173,18 +173,18 @@ static void sim_run_one_step(void) {
 
     if (booz_sensors_model_gps_available()) {
       sim_gps_feed_data();
-      booz2_main_event();
+      main_event();
     }
     
     if (booz_sensors_model_mag_available()) {
       sim_mag_feed_data();
-      booz2_main_event();
+      main_event();
 #ifdef BYPASS_AHRS
       sim_overwrite_ahrs();
 #endif /* BYPASS_AHRS */
     }
     
-    booz2_main_periodic();
+    main_periodic();
 
 
 }

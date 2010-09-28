@@ -20,7 +20,7 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
   nps_bypass_ahrs = TRUE;
   //  nps_bypass_ahrs = FALSE;
 
-  booz2_main_init();
+  main_init();
 
 }
 
@@ -31,34 +31,34 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 
   if (nps_radio_control_available(time)) {
     booz_radio_control_feed();
-    booz2_main_event();
+    main_event();
   }
 
   if (nps_sensors_gyro_available()) {
     imu_feed_gyro_accel();
-    booz2_main_event();
+    main_event();
   }
 
   if (nps_sensors_mag_available()) {
     imu_feed_mag();
-    booz2_main_event();
+    main_event();
  }
 
   if (nps_sensors_baro_available()) {
     baro_feed_value(sensors.baro.value);
-    booz2_main_event();
+    main_event();
   }
 
   if (nps_sensors_gps_available()) {
     booz_gps_feed_value();
-    booz2_main_event();
+    main_event();
   }
 
   if (nps_bypass_ahrs) {
     sim_overwrite_ahrs();
   }
 
-  booz2_main_periodic();
+  main_periodic();
 
   if (time < 8) { /* start with a little bit of hovering */
     int32_t init_cmd[4];
