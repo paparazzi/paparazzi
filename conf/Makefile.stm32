@@ -53,7 +53,7 @@ SIZE = $(GCC_BIN_PREFIX)-size
 RM   = rm
 OOCD = $(TOOLCHAIN_DIR)/bin/openocd
 
-LOADER=/home/poine/home_regis/work/stm32/stm32loader-a3c51c26ad6c/stm32loader.py
+LOADER=/home/poine/work/stm32/stm32loader-a3c51c26ad6c/stm32loader.py
 
 ifndef $(TARGET).OOCD_INTERFACE
 OOCD_INTERFACE = lisa-l

@@ -24,6 +24,7 @@
 #include "modules/vehicle_interface/vi_overo_link.h"
 
 #include "lisa/lisa_overo_link.h"
+#include "firmwares/rotorcraft/imu.h"
 
 
 #include <string.h>
@@ -46,14 +47,21 @@ static inline void on_overo_link_lost(void) {
 
 }
 
- void vi_overo_link_on_msg_received(void) {
+void vi_overo_link_on_msg_received(void) {
   
+#if 0
   memcpy(&overo_link.up.msg, &overo_link.down.msg, 
 	 sizeof(union AutopilotMessage));
-  
+#endif
+  overo_link.up.msg.valid.imu = 1;
+  RATES_COPY(overo_link.up.msg.gyro, imu.gyro);
+  VECT3_COPY(overo_link.up.msg.accel, imu.accel);
+  VECT3_COPY(overo_link.up.msg.mag, imu.mag);
+
 }
 
 
 void vi_overo_link_on_crc_err(void) {
   
+ 
 }

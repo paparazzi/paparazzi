@@ -23,9 +23,9 @@
 
 #include "vehicle_interface/vi.h"
 
-#include "imu.h"
+#include "firmwares/rotorcraft/imu.h"
 #include "booz/booz_gps.h"
-#include "booz/ahrs.h"
+#include "firmwares/rotorcraft/ahrs.h"
 
 #include "airframe.h"
 

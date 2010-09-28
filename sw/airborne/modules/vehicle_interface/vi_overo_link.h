@@ -4,7 +4,7 @@
  * Copyright (C) 2010 The Paparazzi Team
  *
  * This is the implementation of the "external interface" to the autopilot.
- * using datalink messages. 
+ * using overo_spi_link. 
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

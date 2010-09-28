@@ -57,6 +57,38 @@ SRC_FIRMWARE=firmwares/rotorcraft
 # MODEM_PORT   = UART2
 # MODEM_BAUD   = B57600
 
+#
+# test leds
+#
+test_led.ARCHDIR = $(ARCH)
+test_led.CFLAGS += -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
+test_led.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_led.srcs += $(SRC_LISA)/test_led.c       	  \
+                 $(SRC_ARCH)/stm32_exceptions.c   \
+                 $(SRC_ARCH)/stm32_vector_table.c
+test_led.CFLAGS += -DUSE_LED
+
+#
+# test servos
+#
+
+SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCH)
+
+test_servos.ARCHDIR = $(ARCH)
+test_servos.CFLAGS  = -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_servos.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_servos.LDFLAGS += -lm
+test_servos.srcs += $(SRC_LISA)/test_servos.c 	\
+                    $(SRC_ARCH)/stm32_exceptions.c   \
+                    $(SRC_ARCH)/stm32_vector_table.c
+test_servos.CFLAGS += -DUSE_LED
+test_servos.srcs += $(SRC_ARCH)/led_hw.c
+test_servos.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_servos.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_servos.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_servos.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_arch.c
+
 
 #
 # test_telemetry : Sends ALIVE telemetry messages
