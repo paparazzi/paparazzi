@@ -1,5 +1,5 @@
-#ifndef BOOZ_STABILIZATION_ATTITUDE_REF_H
-#define BOOZ_STABILIZATION_ATTITUDE_REF_H
+#ifndef STABILIZATION_ATTITUDE_REF_H
+#define STABILIZATION_ATTITUDE_REF_H
 
 #define SATURATE_SPEED_TRIM_ACCEL() {				\
     if (booz_stab_att_ref_rate.p >= REF_RATE_MAX_P) {		\
@@ -34,4 +34,4 @@
     }								\
   }
 
-#endif /* BOOZ_STABILIZATION_ATTITUDE_REF_H */
+#endif /* STABILIZATION_ATTITUDE_REF_H */

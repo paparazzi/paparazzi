@@ -21,18 +21,18 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_STABILIZATION_H
-#define BOOZ_STABILIZATION_H
+#ifndef STABILIZATION_H
+#define STABILIZATION_H
 
 #include "std.h"
 
 #include "airframe.h"
 
-#include "stabilization/booz_stabilization_rate.h"
-#include "stabilization/booz_stabilization_attitude.h"
+#include <firmwares/rotorcraft/stabilization/stabilization_rate.h>
+#include <firmwares/rotorcraft/stabilization/stabilization_attitude.h>
 
-extern void booz_stabilization_init(void);
+extern void stabilization_init(void);
 
-extern int32_t booz_stabilization_cmd[COMMANDS_NB];
+extern int32_t stabilization_cmd[COMMANDS_NB];
 
-#endif /* BOOZ_STABILIZATION_H */
+#endif /* STABILIZATION_H */

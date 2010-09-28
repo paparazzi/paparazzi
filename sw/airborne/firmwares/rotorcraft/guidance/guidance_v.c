@@ -27,7 +27,7 @@
 
 
 #include "booz_radio_control.h"
-#include "booz_stabilization.h"
+#include <firmwares/rotorcraft/stabilization.h>
 #include <firmwares/rotorcraft/ahrs.h>
 #include "booz_fms.h"
 #include "booz2_navigation.h"
@@ -149,7 +149,7 @@ void guidance_v_run(bool_t in_flight) {
   // AKA SUPERVISION and co
   if (in_flight) {
     // we should use something after the supervision!!! fuck!!!
-    int32_t cmd_hack = Chop(booz_stabilization_cmd[COMMAND_THRUST], 1, 200);
+    int32_t cmd_hack = Chop(stabilization_cmd[COMMAND_THRUST], 1, 200);
     gv_adapt_run(ins_ltp_accel.z, cmd_hack);
   }
   else {
@@ -162,14 +162,14 @@ void guidance_v_run(bool_t in_flight) {
   case GUIDANCE_V_MODE_RC_DIRECT:
     guidance_v_z_sp = ins_ltp_pos.z;  // not sure why we do that
     GuidanceVSetRef(ins_ltp_pos.z, 0, 0); // or that - mode enter should take care of it ?
-    booz_stabilization_cmd[COMMAND_THRUST] = guidance_v_rc_delta_t;
+    stabilization_cmd[COMMAND_THRUST] = guidance_v_rc_delta_t;
     break;
 
   case GUIDANCE_V_MODE_RC_CLIMB:
     guidance_v_zd_sp = guidance_v_rc_zd_sp;
     gv_update_ref_from_zd_sp(guidance_v_zd_sp);
     run_hover_loop(in_flight);
-    booz_stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
+    stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
     break;
 
   case GUIDANCE_V_MODE_CLIMB:
@@ -180,7 +180,7 @@ void guidance_v_run(bool_t in_flight) {
     gv_update_ref_from_zd_sp(guidance_v_zd_sp);
     run_hover_loop(in_flight);
     // saturate max authority with RC stick
-    booz_stabilization_cmd[COMMAND_THRUST] = Min( guidance_v_rc_delta_t, guidance_v_delta_t);
+    stabilization_cmd[COMMAND_THRUST] = Min( guidance_v_rc_delta_t, guidance_v_delta_t);
     break;
 
   case GUIDANCE_V_MODE_HOVER:
@@ -191,7 +191,7 @@ void guidance_v_run(bool_t in_flight) {
     gv_update_ref_from_z_sp(guidance_v_z_sp);
     run_hover_loop(in_flight);
     // saturate max authority with RC stick
-    booz_stabilization_cmd[COMMAND_THRUST] = Min( guidance_v_rc_delta_t, guidance_v_delta_t);
+    stabilization_cmd[COMMAND_THRUST] = Min( guidance_v_rc_delta_t, guidance_v_delta_t);
     break;
 
   case GUIDANCE_V_MODE_NAV:
@@ -213,9 +213,9 @@ void guidance_v_run(bool_t in_flight) {
       }
       /* use rc limitation if available */
       if (radio_control.status == RADIO_CONTROL_OK)
-        booz_stabilization_cmd[COMMAND_THRUST] = Min( guidance_v_rc_delta_t, guidance_v_delta_t);
+        stabilization_cmd[COMMAND_THRUST] = Min( guidance_v_rc_delta_t, guidance_v_delta_t);
       else
-        booz_stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
+        stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
       break;
     }
   default:

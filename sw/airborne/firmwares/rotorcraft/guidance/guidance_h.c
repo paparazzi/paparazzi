@@ -26,7 +26,7 @@
 #include <firmwares/rotorcraft/guidance/guidance_h.h>
 
 #include <firmwares/rotorcraft/ahrs.h>
-#include "booz_stabilization.h"
+#include <firmwares/rotorcraft/stabilization.h>
 #include "booz_fms.h"
 #include <firmwares/rotorcraft/ins.h>
 #include "booz2_navigation.h"
@@ -101,7 +101,7 @@ void guidance_h_mode_changed(uint8_t new_mode) {
 
   switch ( guidance_h_mode ) {
 	//      case GUIDANCE_H_MODE_RATE:
-	//	booz_stabilization_rate_exit();
+	//	stabilization_rate_exit();
 	//	break;
   default:
     break;
@@ -110,11 +110,11 @@ void guidance_h_mode_changed(uint8_t new_mode) {
   switch (new_mode) {
 
   case GUIDANCE_H_MODE_RATE:
-    booz_stabilization_rate_enter();
+    stabilization_rate_enter();
     break;
 
   case GUIDANCE_H_MODE_ATTITUDE:
-    booz_stabilization_attitude_enter();
+    stabilization_attitude_enter();
     break;
 
   case GUIDANCE_H_MODE_HOVER:
@@ -138,20 +138,20 @@ void guidance_h_read_rc(bool_t  in_flight) {
   switch ( guidance_h_mode ) {
 
   case GUIDANCE_H_MODE_RATE:
-    booz_stabilization_rate_read_rc();
+    stabilization_rate_read_rc();
     break;
 
   case GUIDANCE_H_MODE_ATTITUDE:
-    booz_stabilization_attitude_read_rc(in_flight);
+    stabilization_attitude_read_rc(in_flight);
     break;
 
   case GUIDANCE_H_MODE_HOVER:
-    BOOZ_STABILIZATION_ATTITUDE_READ_RC(guidance_h_rc_sp, in_flight);
+    STABILIZATION_ATTITUDE_READ_RC(guidance_h_rc_sp, in_flight);
     break;
 
   case GUIDANCE_H_MODE_NAV:
     if (radio_control.status == RADIO_CONTROL_OK) {
-      BOOZ_STABILIZATION_ATTITUDE_READ_RC(guidance_h_rc_sp, in_flight);
+      STABILIZATION_ATTITUDE_READ_RC(guidance_h_rc_sp, in_flight);
       guidance_h_rc_sp.psi = 0;
     }
     else {
@@ -169,16 +169,16 @@ void guidance_h_run(bool_t  in_flight) {
   switch ( guidance_h_mode ) {
 
   case GUIDANCE_H_MODE_RATE:
-    booz_stabilization_rate_run(in_flight);
+    stabilization_rate_run(in_flight);
     break;
 
   case GUIDANCE_H_MODE_ATTITUDE:
-    booz_stabilization_attitude_run(in_flight);
+    stabilization_attitude_run(in_flight);
     break;
 
   case GUIDANCE_H_MODE_HOVER:
     guidance_h_hover_run();
-    booz_stabilization_attitude_run(in_flight);
+    stabilization_attitude_run(in_flight);
     break;
 
   case GUIDANCE_H_MODE_NAV:
@@ -202,7 +202,7 @@ void guidance_h_run(bool_t  in_flight) {
         //guidance_h_hover_run();
         guidance_h_nav_run(in_flight);
       }
-      booz_stabilization_attitude_run(in_flight);
+      stabilization_attitude_run(in_flight);
       break;
     }
   default:
@@ -372,7 +372,7 @@ static inline void guidance_h_hover_enter(void) {
 
   VECT2_COPY(guidance_h_pos_sp, ins_ltp_pos);
 
-  BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF( guidance_h_rc_sp );
+  STABILIZATION_ATTITUDE_RESET_PSI_REF( guidance_h_rc_sp );
 
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
 
@@ -388,7 +388,7 @@ static inline void guidance_h_nav_enter(void) {
   GuidanceHSetRef(pos, speed, zero);
 
   struct Int32Eulers tmp_sp;
-  BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF( tmp_sp );
+  STABILIZATION_ATTITUDE_RESET_PSI_REF( tmp_sp );
   guidance_h_psi_sp = tmp_sp.psi;
 #ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
   nav_heading = (guidance_h_psi_sp >> (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));

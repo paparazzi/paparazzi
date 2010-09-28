@@ -1,6 +1,6 @@
 /*
- * $Id: booz_stabilization_attitude_ref_traj_euler.h 3796 2009-07-25 00:01:02Z poine $
- *  
+ * $Id: stabilization_attitude_ref_traj_euler.h 3796 2009-07-25 00:01:02Z poine $
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,24 +18,24 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_STABILIZATION_ATTITUDE_REF_EULER_FLOAT_H
-#define BOOZ_STABILIZATION_ATTITUDE_REF_EULER_FLOAT_H
+#ifndef STABILIZATION_ATTITUDE_REF_EULER_FLOAT_H
+#define STABILIZATION_ATTITUDE_REF_EULER_FLOAT_H
 
 #include "booz_radio_control.h"
 #include "math/pprz_algebra_float.h"
 
 
-#include "stabilization/booz_stabilization_attitude_ref_float.h"
+#include "stabilization_attitude_ref_float.h"
 
 /*
  * Radio Control
  */
-#define SP_MAX_PHI   BOOZ_STABILIZATION_ATTITUDE_SP_MAX_PHI
-#define SP_MAX_THETA BOOZ_STABILIZATION_ATTITUDE_SP_MAX_THETA
-#define SP_MAX_R     BOOZ_STABILIZATION_ATTITUDE_SP_MAX_R
+#define SP_MAX_PHI   STABILIZATION_ATTITUDE_SP_MAX_PHI
+#define SP_MAX_THETA STABILIZATION_ATTITUDE_SP_MAX_THETA
+#define SP_MAX_R     STABILIZATION_ATTITUDE_SP_MAX_R
 
 
 
@@ -44,20 +44,20 @@
 #define RC_UPDATE_FREQ 40.
 
 #define YAW_DEADBAND_EXCEEDED()						\
-  (radio_control.values[RADIO_CONTROL_YAW] >  BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R || \
-   radio_control.values[RADIO_CONTROL_YAW] < -BOOZ_STABILIZATION_ATTITUDE_DEADBAND_R)
+  (radio_control.values[RADIO_CONTROL_YAW] >  STABILIZATION_ATTITUDE_DEADBAND_R || \
+   radio_control.values[RADIO_CONTROL_YAW] < -STABILIZATION_ATTITUDE_DEADBAND_R)
 
-#define BOOZ_STABILIZATION_ATTITUDE_READ_RC(_sp, _inflight) {		\
-    									\
+#define STABILIZATION_ATTITUDE_READ_RC(_sp, _inflight) {		\
+                                        \
     _sp.phi =								\
       (-radio_control.values[RADIO_CONTROL_ROLL]  * SP_MAX_PHI / MAX_PPRZ); \
     _sp.theta =								\
       ( radio_control.values[RADIO_CONTROL_PITCH] * SP_MAX_THETA / MAX_PPRZ); \
     if (_inflight) {							\
       if (YAW_DEADBAND_EXCEEDED()) {					\
-	_sp.psi +=							\
-	  (-radio_control.values[RADIO_CONTROL_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ); \
-	FLOAT_ANGLE_NORMALIZE(_sp.psi);					\
+    _sp.psi +=							\
+      (-radio_control.values[RADIO_CONTROL_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ); \
+    FLOAT_ANGLE_NORMALIZE(_sp.psi);					\
       }									\
     }									\
     else { /* if not flying, use current yaw as setpoint */		\
@@ -65,11 +65,11 @@
     }									\
   }
 
-#define BOOZ_STABILIZATION_ATTITUDE_ADD_SP(_add_sp) {		\
+#define STABILIZATION_ATTITUDE_ADD_SP(_add_sp) {		\
     struct FloatEulers add_sp_float;				\
     EULERS_FLOAT_OF_BFP(add_sp_float, (_add_sp));		\
-    EULERS_ADD(booz_stabilization_att_sp,add_sp_float);		\
-    FLOAT_ANGLE_NORMALIZE(booz_stabilization_att_sp.psi);	\
+    EULERS_ADD(stabilization_att_sp,add_sp_float);		\
+    FLOAT_ANGLE_NORMALIZE(stabilization_att_sp.psi);	\
   }
 
 

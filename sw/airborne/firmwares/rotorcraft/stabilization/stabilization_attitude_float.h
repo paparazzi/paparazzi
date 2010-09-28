@@ -1,6 +1,6 @@
 /*
- * $Id: booz_stabilization_attitude.h 3794 2009-07-24 22:01:51Z poine $
- *  
+ * $Id: stabilization_attitude.h 3794 2009-07-24 22:01:51Z poine $
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,35 +18,34 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_STABILIZATION_ATTITUDE_FLOAT_H
-#define BOOZ_STABILIZATION_ATTITUDE_FLOAT_H
+#ifndef STABILIZATION_ATTITUDE_FLOAT_H
+#define STABILIZATION_ATTITUDE_FLOAT_H
 
 #include "math/pprz_algebra_float.h"
 
 #include "airframe.h"
 
 struct FloatAttitudeGains {
-	struct FloatVect3  p;
-	struct FloatVect3  d;
-	struct FloatVect3  dd;
-	struct FloatVect3  rates_d;
-	struct FloatVect3  i;
-	struct FloatVect3  surface_p;
-	struct FloatVect3  surface_d;
-	struct FloatVect3  surface_dd;
-	struct FloatVect3  surface_i;
+    struct FloatVect3  p;
+    struct FloatVect3  d;
+    struct FloatVect3  dd;
+    struct FloatVect3  rates_d;
+    struct FloatVect3  i;
+    struct FloatVect3  surface_p;
+    struct FloatVect3  surface_d;
+    struct FloatVect3  surface_dd;
+    struct FloatVect3  surface_i;
 };
 
-extern struct FloatAttitudeGains booz_stabilization_gains[];
-extern struct FloatEulers booz_stabilization_att_sum_err_eulers;
+extern struct FloatAttitudeGains stabilization_gains[];
+extern struct FloatEulers stabilization_att_sum_err_eulers;
 
-extern float booz_stabilization_att_fb_cmd[COMMANDS_NB];
-extern float booz_stabilization_att_ff_cmd[COMMANDS_NB];
+extern float stabilization_att_fb_cmd[COMMANDS_NB];
+extern float stabilization_att_ff_cmd[COMMANDS_NB];
 
-void booz_stabilization_attitude_gain_schedule(uint8_t idx);
+void stabilization_attitude_gain_schedule(uint8_t idx);
 
-#endif /* BOOZ_STABILIZATION_ATTITUDE_FLOAT_H */
-
+#endif /* STABILIZATION_ATTITUDE_FLOAT_H */

@@ -53,7 +53,7 @@
 #include "csc_baro.h"
 #include "booz_radio_control.h"
 
-#include "booz/stabilization/booz_stabilization_attitude.h"
+#include "booz/stabilization/stabilization_attitude.h"
 
 extern uint8_t vsupply;
 
@@ -119,7 +119,7 @@ static inline void csc_main_init( void ) {
   
   xsens_init();
 
-  booz_stabilization_attitude_init();
+  stabilization_attitude_init();
   booz2_guidance_v_init();
   booz_ins_init();
 
@@ -138,7 +138,7 @@ static inline void csc_main_init( void ) {
   csc_ap_init();
   int_enable();
 
-  booz_stabilization_attitude_enter();
+  stabilization_attitude_enter();
 }
 
 

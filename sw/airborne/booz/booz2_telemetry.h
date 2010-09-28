@@ -188,28 +188,28 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 
 
-#include "booz_stabilization.h"
+#include <firmwares/rotorcraft/stabilization.h>
 #define PERIODIC_SEND_BOOZ2_RATE_LOOP(_chan) {                          \
     DOWNLINK_SEND_BOOZ2_RATE_LOOP(_chan,                                \
-                                  &booz_stabilization_rate_sp.p,        \
-                                  &booz_stabilization_rate_sp.q,        \
-                                  &booz_stabilization_rate_sp.r,        \
-                                  &booz_stabilization_rate_ref.p,       \
-                                  &booz_stabilization_rate_ref.q,       \
-                                  &booz_stabilization_rate_ref.r,       \
-                                  &booz_stabilization_rate_refdot.p,    \
-                                  &booz_stabilization_rate_refdot.q,    \
-                                  &booz_stabilization_rate_refdot.r,    \
-                                  &booz_stabilization_rate_sum_err.p,    \
-                                  &booz_stabilization_rate_sum_err.q,    \
-                                  &booz_stabilization_rate_sum_err.r,    \
-                                  &booz_stabilization_rate_ff_cmd.p,    \
-                                  &booz_stabilization_rate_ff_cmd.q,    \
-                                  &booz_stabilization_rate_ff_cmd.r,    \
-                                  &booz_stabilization_rate_fb_cmd.p,    \
-                                  &booz_stabilization_rate_fb_cmd.q,    \
-                                  &booz_stabilization_rate_fb_cmd.r,    \
-                                  &booz_stabilization_cmd[COMMAND_THRUST]); \
+                                  &stabilization_rate_sp.p,        \
+                                  &stabilization_rate_sp.q,        \
+                                  &stabilization_rate_sp.r,        \
+                                  &stabilization_rate_ref.p,       \
+                                  &stabilization_rate_ref.q,       \
+                                  &stabilization_rate_ref.r,       \
+                                  &stabilization_rate_refdot.p,    \
+                                  &stabilization_rate_refdot.q,    \
+                                  &stabilization_rate_refdot.r,    \
+                                  &stabilization_rate_sum_err.p,    \
+                                  &stabilization_rate_sum_err.q,    \
+                                  &stabilization_rate_sum_err.r,    \
+                                  &stabilization_rate_ff_cmd.p,    \
+                                  &stabilization_rate_ff_cmd.q,    \
+                                  &stabilization_rate_ff_cmd.r,    \
+                                  &stabilization_rate_fb_cmd.p,    \
+                                  &stabilization_rate_fb_cmd.q,    \
+                                  &stabilization_rate_fb_cmd.r,    \
+                                  &stabilization_cmd[COMMAND_THRUST]); \
   }
 
 #ifdef STABILISATION_ATTITUDE_TYPE_INT
@@ -224,18 +224,18 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 					  &booz_stab_att_sp_euler.phi, \
 					  &booz_stab_att_sp_euler.theta, \
 					  &booz_stab_att_sp_euler.psi, \
-					  &booz_stabilization_att_sum_err.phi, \
-					  &booz_stabilization_att_sum_err.theta, \
-					  &booz_stabilization_att_sum_err.psi, \
-					  &booz_stabilization_att_fb_cmd[COMMAND_ROLL], \
-					  &booz_stabilization_att_fb_cmd[COMMAND_PITCH], \
-					  &booz_stabilization_att_fb_cmd[COMMAND_YAW], \
-					  &booz_stabilization_att_ff_cmd[COMMAND_ROLL], \
-					  &booz_stabilization_att_ff_cmd[COMMAND_PITCH], \
-					  &booz_stabilization_att_ff_cmd[COMMAND_YAW], \
-					  &booz_stabilization_cmd[COMMAND_ROLL], \
-					  &booz_stabilization_cmd[COMMAND_PITCH], \
-					  &booz_stabilization_cmd[COMMAND_YAW]); \
+					  &stabilization_att_sum_err.phi, \
+					  &stabilization_att_sum_err.theta, \
+					  &stabilization_att_sum_err.psi, \
+					  &stabilization_att_fb_cmd[COMMAND_ROLL], \
+					  &stabilization_att_fb_cmd[COMMAND_PITCH], \
+					  &stabilization_att_fb_cmd[COMMAND_YAW], \
+					  &stabilization_att_ff_cmd[COMMAND_ROLL], \
+					  &stabilization_att_ff_cmd[COMMAND_PITCH], \
+					  &stabilization_att_ff_cmd[COMMAND_YAW], \
+					  &stabilization_cmd[COMMAND_ROLL], \
+					  &stabilization_cmd[COMMAND_PITCH], \
+					  &stabilization_cmd[COMMAND_YAW]); \
   }
 
 
@@ -268,18 +268,18 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 					    &booz_stab_att_ref_euler.phi, \
 					    &booz_stab_att_ref_euler.theta, \
 					    &booz_stab_att_ref_euler.psi, \
-					    &booz_stabilization_att_sum_err.phi, \
-					    &booz_stabilization_att_sum_err.theta, \
-					    &booz_stabilization_att_sum_err.psi, \
-					    &booz_stabilization_att_fb_cmd[COMMAND_ROLL], \
-					    &booz_stabilization_att_fb_cmd[COMMAND_PITCH], \
-					    &booz_stabilization_att_fb_cmd[COMMAND_YAW], \
-					    &booz_stabilization_att_ff_cmd[COMMAND_ROLL], \
-					    &booz_stabilization_att_ff_cmd[COMMAND_PITCH], \
-					    &booz_stabilization_att_ff_cmd[COMMAND_YAW], \
-					    &booz_stabilization_cmd[COMMAND_ROLL], \
-					    &booz_stabilization_cmd[COMMAND_PITCH], \
-					    &booz_stabilization_cmd[COMMAND_YAW]); \
+					    &stabilization_att_sum_err.phi, \
+					    &stabilization_att_sum_err.theta, \
+					    &stabilization_att_sum_err.psi, \
+					    &stabilization_att_fb_cmd[COMMAND_ROLL], \
+					    &stabilization_att_fb_cmd[COMMAND_PITCH], \
+					    &stabilization_att_fb_cmd[COMMAND_YAW], \
+					    &stabilization_att_ff_cmd[COMMAND_ROLL], \
+					    &stabilization_att_ff_cmd[COMMAND_PITCH], \
+					    &stabilization_att_ff_cmd[COMMAND_YAW], \
+					    &stabilization_cmd[COMMAND_ROLL], \
+					    &stabilization_cmd[COMMAND_PITCH], \
+					    &stabilization_cmd[COMMAND_YAW]); \
   }
 
 #define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE_REF(_chan) {			\
@@ -317,10 +317,10 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #define PERIODIC_SEND_BOOZ2_CMD(_chan) {				\
     DOWNLINK_SEND_BOOZ2_CMD(_chan,					\
-			    &booz_stabilization_cmd[COMMAND_ROLL],	\
-			    &booz_stabilization_cmd[COMMAND_PITCH],	\
-			    &booz_stabilization_cmd[COMMAND_YAW],	\
-			    &booz_stabilization_cmd[COMMAND_THRUST]);	\
+			    &stabilization_cmd[COMMAND_ROLL],	\
+			    &stabilization_cmd[COMMAND_PITCH],	\
+			    &stabilization_cmd[COMMAND_YAW],	\
+			    &stabilization_cmd[COMMAND_THRUST]);	\
   }
 
 
@@ -677,7 +677,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			    &guidance_h_pos_sp.x,			\
 			    &carrot_up,					\
 			    &guidance_h_command_body.psi,		\
-			    &booz_stabilization_cmd[COMMAND_THRUST], \
+			    &stabilization_cmd[COMMAND_THRUST], \
           &autopilot_flight_time);	\
   }
 
@@ -748,10 +748,10 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				   &radio_control.values[RADIO_CONTROL_ROLL],  \
 				   &radio_control.values[RADIO_CONTROL_PITCH], \
 				   &radio_control.values[RADIO_CONTROL_YAW],   \
-				   &booz_stabilization_cmd[COMMAND_ROLL],      \
-				   &booz_stabilization_cmd[COMMAND_PITCH],     \
-				   &booz_stabilization_cmd[COMMAND_YAW],       \
-				   &booz_stabilization_cmd[COMMAND_THRUST],    \
+				   &stabilization_cmd[COMMAND_ROLL],      \
+				   &stabilization_cmd[COMMAND_PITCH],     \
+				   &stabilization_cmd[COMMAND_YAW],       \
+				   &stabilization_cmd[COMMAND_THRUST],    \
 				   &ahrs.ltp_to_imu_euler.phi,	       \
 				   &ahrs.ltp_to_imu_euler.theta,	       \
 				   &ahrs.ltp_to_imu_euler.psi,	       \

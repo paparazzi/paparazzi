@@ -97,8 +97,8 @@ sim.srcs += $(SRC_FIRMWARE)/autopilot.c
 # include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile 
 #
 
-sim.srcs += $(SRC_BOOZ)/booz_stabilization.c
-sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_rate.c
+sim.srcs += $(SRC_FIRMWARE)/stabilization.c
+sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
 
 NUM_TYPE=integer
 #NUM_TYPE=float
@@ -108,27 +108,27 @@ STAB_TYPE=euler
 
 ifeq ($(NUM_TYPE), integer)
   sim.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_INT
-  sim.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/booz_stabilization_attitude_int.h\"
+  sim.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/stabilization_attitude_int.h\"
   ifeq ($(STAB_TYPE), euler)
-    sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/booz_stabilization_attitude_ref_euler_int.h\"
-    sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_ref_euler_int.c
-    sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_euler_int.c
+    sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_euler_int.h\"
+    sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_euler_int.c
+    sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_euler_int.c
   else ifeq ($(STAB_TYPE), quaternion)
-    sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/booz_stabilization_attitude_ref_quat_int.h\"
-    sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_ref_quat_int.c
-    sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_quat_int.c
+    sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_quat_int.h\"
+    sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_quat_int.c
+    sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_quat_int.c
   endif
 else ifeq ($(NUM_TYPE), float)
   sim.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_FLOAT
-  sim.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/booz_stabilization_attitude_float.h\"
+  sim.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/stabilization_attitude_float.h\"
   ifeq ($(STAB_TYPE), euler)
-    sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/booz_stabilization_attitude_ref_euler_float.h\"
-    sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_ref_euler_float.c
-    sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_euler_float.c
+    sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_euler_float.h\"
+    sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_euler_float.c
+    sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_euler_float.c
   else ifeq ($(STAB_TYPE), quaternion)
-    sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/booz_stabilization_attitude_ref_quat_float.h\"
-    sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_ref_quat_float.c
-    sim.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_quat_float.c
+    sim.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_quat_float.h\"
+    sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_quat_float.c
+    sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_quat_float.c
   endif
 endif
 

@@ -27,8 +27,8 @@
 #include "commands.h"
 #include "mercury_xsens.h"
 #include <firmwares/rotorcraft/autopilot.h>
-#include "booz_stabilization.h"
-#include "stabilization/booz_stabilization_attitude.h"
+#include <firmwares/rotorcraft/stabilization.h>
+#include <firmwares/rotorcraft/stabilization/stabilization_attitude.h>
 #include "led.h"
 #include "math/pprz_algebra_float.h"
 #include "string.h"
@@ -148,14 +148,14 @@ void csc_ap_periodic(uint8_t _in_flight, uint8_t kill) {
   if(kill) booz2_autopilot_motors_on = FALSE;
   booz2_autopilot_in_flight = _in_flight;
 
-  booz_stabilization_attitude_read_rc(booz2_autopilot_in_flight);
-  booz_stabilization_attitude_run(booz2_autopilot_in_flight);
+  stabilization_attitude_read_rc(booz2_autopilot_in_flight);
+  stabilization_attitude_run(booz2_autopilot_in_flight);
   booz2_guidance_v_run(booz2_autopilot_in_flight);
 
-  booz_stabilization_cmd[COMMAND_THRUST] = (int32_t)radio_control.values[RADIO_CONTROL_THROTTLE] * 105 / 7200 + 95;
+  stabilization_cmd[COMMAND_THRUST] = (int32_t)radio_control.values[RADIO_CONTROL_THROTTLE] * 105 / 7200 + 95;
 
 
-  CscSetCommands(booz_stabilization_cmd,
+  CscSetCommands(stabilization_cmd,
 		 booz2_autopilot_in_flight,booz2_autopilot_motors_on);
 
 
@@ -163,9 +163,9 @@ void csc_ap_periodic(uint8_t _in_flight, uint8_t kill) {
 
 
   if(booz2_autopilot_motors_on && props_throttle_pass){
-    Bound(booz_stabilization_cmd[COMMAND_THRUST],0,255);
+    Bound(stabilization_cmd[COMMAND_THRUST],0,255);
     for(uint8_t i = 0; i < PROPS_NB; i++)
-      mixed_commands[i] = booz_stabilization_cmd[COMMAND_THRUST];
+      mixed_commands[i] = stabilization_cmd[COMMAND_THRUST];
 
   }
 
@@ -180,7 +180,7 @@ void csc_ap_periodic(uint8_t _in_flight, uint8_t kill) {
 
 
   MERCURY_SURFACES_SUPERVISION_RUN(Actuator,
-				   booz_stabilization_cmd,
+				   stabilization_cmd,
 				   mixed_commands,
 				   (!booz2_autopilot_in_flight));
   ActuatorsCommit();

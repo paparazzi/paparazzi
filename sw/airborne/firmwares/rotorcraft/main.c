@@ -49,7 +49,7 @@
 #include "booz_fms.h"
 #include <firmwares/rotorcraft/autopilot.h>
 
-#include "booz_stabilization.h"
+#include <firmwares/rotorcraft/stabilization.h>
 #include <firmwares/rotorcraft/guidance.h>
 
 #include <firmwares/rotorcraft/ahrs.h>
@@ -117,7 +117,7 @@ STATIC_INLINE void main_init( void ) {
   booz2_nav_init();
   guidance_h_init();
   guidance_v_init();
-  booz_stabilization_init();
+  stabilization_init();
 
   ahrs_aligner_init();
   ahrs_init();

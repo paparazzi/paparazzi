@@ -76,14 +76,14 @@ ap.CFLAGS += -DXSENS1_LINK=Uart0 -DIMU_TYPE_H=\"mercury_xsens.h\"
 ap.srcs += $(SRC_BOOZ)/ahrs/ahrs_cmpl_euler.c $(SRC_BOOZ)/ahrs/ahrs_aligner.c
 ap.CFLAGS += -DFLOAT_T=float
 
-ap.srcs += $(SRC_BOOZ)/booz_stabilization.c
-ap.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_rate.c
+ap.srcs += $(SRC_FIRMWARE)/stabilization.c
+ap.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
 
 ap.CFLAGS += -DSTABILISATION_ATTITUDE_TYPE_INT
-ap.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/booz_stabilization_attitude_int.h\"
-ap.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/booz_stabilization_attitude_ref_euler_int.h\"
-ap.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_ref_euler_int.c
-ap.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_euler_int.c
+ap.CFLAGS += -DSTABILISATION_ATTITUDE_H=\"stabilization/stabilization_attitude_int.h\"
+ap.CFLAGS += -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/stabilization_attitude_ref_euler_int.h\"
+ap.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_ref_euler_int.c
+ap.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_attitude_euler_int.c
 
 
 # AHI copied from booz w/ light modifications for vertical control

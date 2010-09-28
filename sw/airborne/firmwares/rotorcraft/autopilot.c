@@ -28,7 +28,7 @@
 #include "booz2_commands.h"
 #include "booz2_navigation.h"
 #include <firmwares/rotorcraft/guidance.h>
-#include "booz_stabilization.h"
+#include <firmwares/rotorcraft/stabilization.h>
 #include "led.h"
 
 uint8_t  autopilot_mode;
@@ -89,7 +89,7 @@ void autopilot_periodic(void) {
   else {
     guidance_v_run( autopilot_in_flight );
     guidance_h_run( autopilot_in_flight );
-    SetCommands(booz_stabilization_cmd,
+    SetCommands(stabilization_cmd,
         autopilot_in_flight, autopilot_motors_on);
   }
 

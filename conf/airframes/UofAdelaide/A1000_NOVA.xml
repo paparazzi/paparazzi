@@ -68,7 +68,7 @@
 
   </section>
 
-<section name="STABILIZATION_RATE" prefix="BOOZ_STABILIZATION_RATE_">
+<section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
 	  <!-- setpoints -->
 	<define name="SP_MAX_P" value="10000" />
 	<define name="SP_MAX_Q" value="10000" />
@@ -93,7 +93,7 @@
 		<define name="DDGAIN_R" value="300" />
 	</section>
 
-  <section name="STABILIZATION_ATTITUDE" prefix="BOOZ_STABILIZATION_ATTITUDE_">
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
 
 	<!-- setpoints -->
 	<define name="SP_MAX_PHI"     value="RadOfDeg(45.)"/>

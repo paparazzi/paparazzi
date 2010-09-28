@@ -1,4 +1,4 @@
-#include "booz_stabilization.h"
+#include <firmwares/rotorcraft/stabilization.h>
 
 
 struct FloatEulers booz_stab_att_sp_euler;
@@ -6,7 +6,7 @@ struct FloatEulers booz_stab_att_ref_euler;
 struct FloatRates  booz_stab_att_ref_rate;
 struct FloatRates  booz_stab_att_ref_accel;
 
-void booz_stabilization_attitude_ref_init(void) {
+void stabilization_attitude_ref_init(void) {
 
   FLOAT_EULERS_ZERO(booz_stab_att_sp_euler);
   FLOAT_EULERS_ZERO(booz_stab_att_ref_euler);
@@ -21,26 +21,26 @@ void booz_stabilization_attitude_ref_init(void) {
  */
 #define DT_UPDATE (1./512.)
 
-#define REF_ACCEL_MAX_P BOOZ_STABILIZATION_ATTITUDE_REF_MAX_PDOT
-#define REF_ACCEL_MAX_Q BOOZ_STABILIZATION_ATTITUDE_REF_MAX_QDOT
-#define REF_ACCEL_MAX_R BOOZ_STABILIZATION_ATTITUDE_REF_MAX_RDOT
+#define REF_ACCEL_MAX_P STABILIZATION_ATTITUDE_REF_MAX_PDOT
+#define REF_ACCEL_MAX_Q STABILIZATION_ATTITUDE_REF_MAX_QDOT
+#define REF_ACCEL_MAX_R STABILIZATION_ATTITUDE_REF_MAX_RDOT
 
-#define REF_RATE_MAX_P BOOZ_STABILIZATION_ATTITUDE_REF_MAX_P
-#define REF_RATE_MAX_Q BOOZ_STABILIZATION_ATTITUDE_REF_MAX_Q
-#define REF_RATE_MAX_R BOOZ_STABILIZATION_ATTITUDE_REF_MAX_R
+#define REF_RATE_MAX_P STABILIZATION_ATTITUDE_REF_MAX_P
+#define REF_RATE_MAX_Q STABILIZATION_ATTITUDE_REF_MAX_Q
+#define REF_RATE_MAX_R STABILIZATION_ATTITUDE_REF_MAX_R
 
-#define OMEGA_P   BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_P
-#define OMEGA_Q   BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_Q
-#define OMEGA_R   BOOZ_STABILIZATION_ATTITUDE_REF_OMEGA_R
+#define OMEGA_P   STABILIZATION_ATTITUDE_REF_OMEGA_P
+#define OMEGA_Q   STABILIZATION_ATTITUDE_REF_OMEGA_Q
+#define OMEGA_R   STABILIZATION_ATTITUDE_REF_OMEGA_R
 
-#define ZETA_P    BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_P
-#define ZETA_Q    BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_Q
-#define ZETA_R    BOOZ_STABILIZATION_ATTITUDE_REF_ZETA_R
+#define ZETA_P    STABILIZATION_ATTITUDE_REF_ZETA_P
+#define ZETA_Q    STABILIZATION_ATTITUDE_REF_ZETA_Q
+#define ZETA_R    STABILIZATION_ATTITUDE_REF_ZETA_R
 
 
 #define USE_REF 1
 
-void booz_stabilization_attitude_ref_update() {
+void stabilization_attitude_ref_update() {
 
 #ifdef USE_REF
 
@@ -77,7 +77,7 @@ void booz_stabilization_attitude_ref_update() {
     SATURATE_SPEED_TRIM_ACCEL();
 
 #else   /* !USE_REF */
-    EULERS_COPY(booz_stab_att_ref_euler, booz_stabilization_att_sp);
+    EULERS_COPY(booz_stab_att_ref_euler, stabilization_att_sp);
     FLOAT_RATES_ZERO(booz_stab_att_ref_rate);
     FLOAT_RATES_ZERO(booz_stab_att_ref_accel);
 #endif /* USE_REF */

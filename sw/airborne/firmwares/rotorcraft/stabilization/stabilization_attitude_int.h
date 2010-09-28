@@ -1,6 +1,6 @@
 /*
- * $Id: booz_stabilization_attitude.h 3794 2009-07-24 22:01:51Z poine $
- *  
+ * $Id: stabilization_attitude.h 3794 2009-07-24 22:01:51Z poine $
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,28 +18,27 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_STABILIZATION_ATTITUDE_INT_H
-#define BOOZ_STABILIZATION_ATTITUDE_INT_H
+#ifndef STABILIZATION_ATTITUDE_INT_H
+#define STABILIZATION_ATTITUDE_INT_H
 
 #include "math/pprz_algebra_int.h"
 
 #include "airframe.h"
 
 struct Int32AttitudeGains {
-	struct Int32Vect3  p;
-	struct Int32Vect3  d;
-	struct Int32Vect3  dd;
-	struct Int32Vect3  i;
+    struct Int32Vect3  p;
+    struct Int32Vect3  d;
+    struct Int32Vect3  dd;
+    struct Int32Vect3  i;
 };
 
-extern struct Int32AttitudeGains  booz_stabilization_gains;
-extern struct Int32Eulers booz_stabilization_att_sum_err;
+extern struct Int32AttitudeGains  stabilization_gains;
+extern struct Int32Eulers stabilization_att_sum_err;
 
-extern int32_t booz_stabilization_att_fb_cmd[COMMANDS_NB];
-extern int32_t booz_stabilization_att_ff_cmd[COMMANDS_NB];
+extern int32_t stabilization_att_fb_cmd[COMMANDS_NB];
+extern int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 
-#endif /* BOOZ_STABILIZATION_ATTITUDE_INT_H */
-
+#endif /* STABILIZATION_ATTITUDE_INT_H */
