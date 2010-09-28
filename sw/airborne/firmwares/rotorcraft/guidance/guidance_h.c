@@ -28,7 +28,7 @@
 #include "ahrs.h"
 #include "booz_stabilization.h"
 #include "booz_fms.h"
-#include "ins.h"
+#include <firmwares/rotorcraft/ins.h>
 #include "booz2_navigation.h"
 
 #include "airframe.h"

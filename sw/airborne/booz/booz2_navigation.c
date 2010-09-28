@@ -27,7 +27,7 @@
 
 #include "booz/booz2_debug.h"
 #include "booz_gps.h"
-#include "ins.h"
+#include <firmwares/rotorcraft/ins.h>
 
 #include "autopilot.h"
 #include "modules.h"

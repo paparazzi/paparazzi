@@ -48,7 +48,7 @@
 #include "booz2_battery.h"
 #include <firmwares/rotorcraft/imu.h>
 #include "booz_gps.h"
-#include "ins.h"
+#include <firmwares/rotorcraft/ins.h>
 #include "ahrs.h"
 
 #include "i2c_hw.h"

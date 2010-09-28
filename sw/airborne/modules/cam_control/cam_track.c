@@ -24,7 +24,7 @@
 
 #include "cam_track.h"
 
-#include "ins.h"
+#include <firmwares/rotorcraft/ins.h>
 #include "ahrs.h"
 
 #ifdef USE_HFF

@@ -41,7 +41,7 @@
 #include "booz2_navigation.h"
 
 #include "math/pprz_geodetic_int.h"
-#include "ins.h"
+#include <firmwares/rotorcraft/ins.h>
 
 #define IdOfMsg(x) (x[1])
 

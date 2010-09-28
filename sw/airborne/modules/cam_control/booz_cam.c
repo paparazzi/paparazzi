@@ -26,7 +26,7 @@
 #include "booz2_pwm_hw.h"
 #include "ahrs.h"
 #include "booz2_navigation.h"
-#include "ins.h"
+#include <firmwares/rotorcraft/ins.h>
 #include "flight_plan.h"
 
 uint8_t booz_cam_mode;

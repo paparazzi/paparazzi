@@ -215,7 +215,7 @@ static void sim_overwrite_ahrs(void) {
 
 
 #ifdef BYPASS_INS
-#include "ins.h"
+#include <firmwares/rotorcraft/ins.h>
 static void sim_overwrite_ins(void) {
   ins_position.z    = BOOZ_POS_I_OF_F(bfm.pos_ltp->ve[AXIS_Z]);
   ins_speed_earth.z = BOOZ_SPEED_I_OF_F(bfm.speed_ltp->ve[AXIS_Z]);
