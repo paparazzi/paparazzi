@@ -260,7 +260,7 @@ second attempt
  </section>
 
  <section name="MISC">
-   <define name="BOOZ2_FACE_REINJ_1" value="1024"/>
+   <define name="FACE_REINJ_1" value="1024"/>
    <define name="NOMINAL_AIRSPEED" value="1"/> 
 </section>
 

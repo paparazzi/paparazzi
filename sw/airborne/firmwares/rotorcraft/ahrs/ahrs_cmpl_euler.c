@@ -50,7 +50,7 @@ void ahrs_init(void) {
   INT_RATES_ZERO(ahrs.body_rate);
   INT_RATES_ZERO(ahrs.imu_rate);
   INT_RATES_ZERO(face_gyro_bias);
-  face_reinj_1 = BOOZ2_FACE_REINJ_1;
+  face_reinj_1 = FACE_REINJ_1;
 
   INT_EULERS_ZERO(face_uncorrected);
 

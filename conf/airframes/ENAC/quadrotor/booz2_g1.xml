@@ -204,7 +204,7 @@
 
  <section name="MISC">
    <define name="BOOZ_ANALOG_BARO_THRESHOLD" value="800"/>
-   <define name="BOOZ2_FACE_REINJ_1"  value="1024"/>
+   <define name="FACE_REINJ_1"  value="1024"/>
    <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
  </section>
 
