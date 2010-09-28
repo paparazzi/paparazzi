@@ -533,48 +533,13 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				 &guidance_h_held_pos.y);		\
   }
 
-#define PERIODIC_SEND_INS(_chan) {				\
-    DOWNLINK_SEND_INS(_chan,					\
+#define PERIODIC_SEND_INS_Z(_chan) {				\
+    DOWNLINK_SEND_INS_Z(_chan,					\
 			    &ins_baro_alt,				\
 			    &ins_ltp_pos.z,			\
 			    &ins_ltp_speed.z,			\
 			    &ins_ltp_accel.z);			\
   }
-
-
-#define PERIODIC_SEND_INS2(_chan) {			\
-    struct Int32Vect3 pos_low_res;				\
-    pos_low_res.x = (int32_t)(b2ins_pos_ltp.x>>20);		\
-    pos_low_res.y = (int32_t)(b2ins_pos_ltp.y>>20);		\
-    pos_low_res.z = (int32_t)(b2ins_pos_ltp.z>>20);		\
-    DOWNLINK_SEND_INS2(_chan,				\
-			     &b2ins_accel_ltp.x,		\
-			     &b2ins_accel_ltp.y,		\
-			     &b2ins_accel_ltp.z,		\
-			     &b2ins_speed_ltp.x,		\
-			     &b2ins_speed_ltp.y,		\
-			     &b2ins_speed_ltp.z,		\
-			     &pos_low_res.x,			\
-			     &pos_low_res.y,			\
-			     &pos_low_res.z			\
-			     );					\
-  }
-
-#ifdef USE_GPS
-#include <firmwares/rotorcraft/ins/hf_float.h>
-#define PERIODIC_SEND_INS3(_chan) {				\
-    DOWNLINK_SEND_INS3(_chan,					\
-			     &b2ins_meas_gps_pos_ned.x,			\
-			     &b2ins_meas_gps_pos_ned.y,			\
-			     &b2ins_meas_gps_pos_ned.z,			\
-			     &b2ins_meas_gps_speed_ned.x,		\
-			     &b2ins_meas_gps_speed_ned.y,		\
-			     &b2ins_meas_gps_speed_ned.z		\
-			     );						\
-  }
-#else /* !USE_GPS */
-#define PERIODIC_SEND_INS3(_chan) {}
-#endif /* USE_GPS */
 
 #define PERIODIC_SEND_INS(_chan) {			\
     DOWNLINK_SEND_INS(_chan,				\
@@ -600,8 +565,6 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				&ins_ltp_def.hmsl,		\
 				&ins_qfe);				\
   }
-
-
 
 #define PERIODIC_SEND_VERT_LOOP(_chan) {				\
     DOWNLINK_SEND_VERT_LOOP(_chan,				\
