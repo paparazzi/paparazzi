@@ -67,8 +67,8 @@
       <message name="ROTORCRAFT_STATUS"             period="1.2"/>
       <message name="DL_VALUE"                period="0.5"/>
       <message name="ALIVE"                   period="0.9"/>
-      <message name="BOOZ2_STAB_ATTITUDE"     period=".03"/>
-      <message name="BOOZ2_STAB_ATTITUDE_REF" period=".03"/>
+      <message name="STAB_ATTITUDE"     period=".03"/>
+      <message name="STAB_ATTITUDE_REF" period=".03"/>
     </mode>
 
     <mode name="vert_loop">
@@ -85,9 +85,9 @@
     <mode name="h_loop">
       <message name="ALIVE"                   period="0.9"/>
       <message name="BOOZ2_HOVER_LOOP"        period="0.062"/>
-      <message name="BOOZ2_STAB_ATTITUDE"     period=".4"/>
+      <message name="STAB_ATTITUDE"     period=".4"/>
       <message name="HFF_DBG"           period=".2"/>
-      <!--<message name="BOOZ2_STAB_ATTITUDE_REF" period=".4"/>-->
+      <!--<message name="STAB_ATTITUDE_REF" period=".4"/>-->
       <message name="BOOZ2_FP"                period="0.8"/>
       <message name="ROTORCRAFT_STATUS"             period="1.2"/>
       <message name="ROTORCRAFT_NAV_STATUS"        period="1.6"/>
@@ -104,7 +104,7 @@
       <message name="ROTORCRAFT_STATUS"                 period="1.2"/>
       <message name="ALIVE"                       period="0.9"/>
       <message name="DL_VALUE"                    period="0.5"/>
-<!--      <message name="BOOZ2_STAB_ATTITUDE_HS_ROLL" period="0.02"/> -->
+<!--      <message name="STAB_ATTITUDE_HS_ROLL" period="0.02"/> -->
     </mode>
 
     <mode name="tune_hover">

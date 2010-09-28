@@ -753,7 +753,7 @@
  <!--128 is free -->
  <!--129 is free -->
 
-  <message name="BOOZ2_STAB_ATTITUDE_FLOAT" id="130">
+  <message name="STAB_ATTITUDE_FLOAT" id="130">
     <field name="est_p"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>
     <field name="est_q"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>
     <field name="est_r"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>
@@ -875,7 +875,7 @@
     <field name="qz"  type="int32"/>
   </message>
 
- <message name="BOOZ2_STAB_ATTITUDE_INT" id="140">
+ <message name="STAB_ATTITUDE_INT" id="140">
     <field name="est_p"         type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
     <field name="est_q"         type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
     <field name="est_r"         type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
@@ -899,7 +899,7 @@
     <field name="delta_r"       type="int32"/>
  </message>
 
- <message name="BOOZ2_STAB_ATTITUDE_REF_INT" id="141">
+ <message name="STAB_ATTITUDE_REF_INT" id="141">
     <field name="sp_phi"    type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>
     <field name="sp_theta"  type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>
     <field name="sp_psi"    type="int32" alt_unit="degres" alt_unit_coef="0.0000546"/>
@@ -914,7 +914,7 @@
     <field name="ref_rd"    type="int32" alt_unit="degres/s2" alt_unit_coef="0.0139882"/>
  </message>
 
- <message name="BOOZ2_STAB_ATTITUDE_REF_FLOAT" id="142">
+ <message name="STAB_ATTITUDE_REF_FLOAT" id="142">
     <field name="sp_phi"    type="float" alt_unit="degres"    alt_unit_coef="57.29578"/>
     <field name="sp_theta"  type="float" alt_unit="degres"    alt_unit_coef="57.29578"/>
     <field name="sp_psi"    type="float" alt_unit="degres"    alt_unit_coef="57.29578"/>

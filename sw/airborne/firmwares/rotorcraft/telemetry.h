@@ -213,8 +213,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 #ifdef STABILISATION_ATTITUDE_TYPE_INT
-#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE(_chan) {			\
-    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_INT(_chan,			\
+#define PERIODIC_SEND_STAB_ATTITUDE(_chan) {			\
+    DOWNLINK_SEND_STAB_ATTITUDE_INT(_chan,			\
 					  &ahrs.body_rate.p,	\
 					  &ahrs.body_rate.q,	\
 					  &ahrs.body_rate.r,	\
@@ -239,8 +239,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 
-#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE_REF(_chan) {			\
-    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_REF_INT(_chan,			\
+#define PERIODIC_SEND_STAB_ATTITUDE_REF(_chan) {			\
+    DOWNLINK_SEND_STAB_ATTITUDE_REF_INT(_chan,			\
 					      &booz_stab_att_sp_euler.phi, \
 					      &booz_stab_att_sp_euler.theta, \
 					      &booz_stab_att_sp_euler.psi, \
@@ -257,8 +257,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #endif /* STABILISATION_ATTITUDE_TYPE_INT */
 
 #ifdef STABILISATION_ATTITUDE_TYPE_FLOAT
-#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE(_chan) {			\
-    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_FLOAT(_chan,			\
+#define PERIODIC_SEND_STAB_ATTITUDE(_chan) {			\
+    DOWNLINK_SEND_STAB_ATTITUDE_FLOAT(_chan,			\
 					    &ahrs_float.body_rate.p,	\
 					    &ahrs_float.body_rate.q,	\
 					    &ahrs_float.body_rate.r,	\
@@ -282,8 +282,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 					    &stabilization_cmd[COMMAND_YAW]); \
   }
 
-#define PERIODIC_SEND_BOOZ2_STAB_ATTITUDE_REF(_chan) {			\
-    DOWNLINK_SEND_BOOZ2_STAB_ATTITUDE_REF_FLOAT(_chan,			\
+#define PERIODIC_SEND_STAB_ATTITUDE_REF(_chan) {			\
+    DOWNLINK_SEND_STAB_ATTITUDE_REF_FLOAT(_chan,			\
 						&booz_stab_att_sp_euler.phi, \
 						&booz_stab_att_sp_euler.theta, \
 						&booz_stab_att_sp_euler.psi, \
