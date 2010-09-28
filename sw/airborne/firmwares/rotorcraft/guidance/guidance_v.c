@@ -23,7 +23,7 @@
 
 #define GUIDANCE_V_C
 #define GUIDANCE_V_USE_REF
-#include "guidance_v.h"
+#include "guidance/guidance_v.h"
 
 
 #include "booz_radio_control.h"
@@ -74,8 +74,8 @@ int32_t guidance_v_ki;
 int32_t guidance_v_z_sum_err;
 
 
-#define Booz2GuidanceVSetRef(_pos, _speed, _accel) { \
-    b2_gv_set_ref(_pos, _speed, _accel);	     \
+#define GuidanceVSetRef(_pos, _speed, _accel) { \
+    gv_set_ref(_pos, _speed, _accel);	     \
     guidance_v_z_ref = _pos;		     \
     guidance_v_zd_ref = _speed;		     \
     guidance_v_zdd_ref = _accel;		     \
@@ -95,7 +95,7 @@ void guidance_v_init(void) {
 
   guidance_v_z_sum_err = 0;
 
-  b2_gv_adapt_init();
+  gv_adapt_init();
 }
 
 
@@ -126,7 +126,7 @@ void guidance_v_mode_changed(uint8_t new_mode) {
   case GUIDANCE_V_MODE_HOVER:
   case GUIDANCE_V_MODE_NAV:
     guidance_v_z_sum_err = 0;
-    Booz2GuidanceVSetRef(ins_ltp_pos.z, ins_ltp_speed.z, 0);
+    GuidanceVSetRef(ins_ltp_pos.z, ins_ltp_speed.z, 0);
     break;
   default:
     break;
@@ -139,7 +139,7 @@ void guidance_v_mode_changed(uint8_t new_mode) {
 
 void guidance_v_notify_in_flight( bool_t in_flight) {
   if (in_flight)
-    b2_gv_adapt_init();
+    gv_adapt_init();
 }
 
 
@@ -150,7 +150,7 @@ void guidance_v_run(bool_t in_flight) {
   if (in_flight) {
     // we should use something after the supervision!!! fuck!!!
     int32_t cmd_hack = Chop(booz_stabilization_cmd[COMMAND_THRUST], 1, 200);
-    b2_gv_adapt_run(ins_ltp_accel.z, cmd_hack);
+    gv_adapt_run(ins_ltp_accel.z, cmd_hack);
   }
   else {
     // reset vertical filter until takeoff
@@ -161,13 +161,13 @@ void guidance_v_run(bool_t in_flight) {
 
   case GUIDANCE_V_MODE_RC_DIRECT:
     guidance_v_z_sp = ins_ltp_pos.z;  // not sure why we do that
-    Booz2GuidanceVSetRef(ins_ltp_pos.z, 0, 0); // or that - mode enter should take care of it ?
+    GuidanceVSetRef(ins_ltp_pos.z, 0, 0); // or that - mode enter should take care of it ?
     booz_stabilization_cmd[COMMAND_THRUST] = guidance_v_rc_delta_t;
     break;
 
   case GUIDANCE_V_MODE_RC_CLIMB:
     guidance_v_zd_sp = guidance_v_rc_zd_sp;
-    b2_gv_update_ref_from_zd_sp(guidance_v_zd_sp);
+    gv_update_ref_from_zd_sp(guidance_v_zd_sp);
     run_hover_loop(in_flight);
     booz_stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
     break;
@@ -177,7 +177,7 @@ void guidance_v_run(bool_t in_flight) {
     if (fms.enabled && fms.input.v_mode == GUIDANCE_V_MODE_CLIMB)
       guidance_v_zd_sp = fms.input.v_sp.climb;
 #endif
-    b2_gv_update_ref_from_zd_sp(guidance_v_zd_sp);
+    gv_update_ref_from_zd_sp(guidance_v_zd_sp);
     run_hover_loop(in_flight);
     // saturate max authority with RC stick
     booz_stabilization_cmd[COMMAND_THRUST] = Min( guidance_v_rc_delta_t, guidance_v_delta_t);
@@ -188,7 +188,7 @@ void guidance_v_run(bool_t in_flight) {
     if (fms.enabled && fms.input.v_mode == GUIDANCE_V_MODE_HOVER)
       guidance_v_z_sp = fms.input.v_sp.height;
 #endif
-    b2_gv_update_ref_from_z_sp(guidance_v_z_sp);
+    gv_update_ref_from_z_sp(guidance_v_z_sp);
     run_hover_loop(in_flight);
     // saturate max authority with RC stick
     booz_stabilization_cmd[COMMAND_THRUST] = Min( guidance_v_rc_delta_t, guidance_v_delta_t);
@@ -198,12 +198,12 @@ void guidance_v_run(bool_t in_flight) {
     {
       if (vertical_mode == VERTICAL_MODE_ALT) {
         guidance_v_z_sp = -nav_flight_altitude;
-        b2_gv_update_ref_from_z_sp(guidance_v_z_sp);
+        gv_update_ref_from_z_sp(guidance_v_z_sp);
         run_hover_loop(in_flight);
       }
       else if (vertical_mode == VERTICAL_MODE_CLIMB) {
         guidance_v_zd_sp = -nav_climb;
-        b2_gv_update_ref_from_zd_sp(guidance_v_zd_sp);
+        gv_update_ref_from_zd_sp(guidance_v_zd_sp);
         nav_flight_altitude = -guidance_v_z_sp;
         run_hover_loop(in_flight);
       }
@@ -231,10 +231,10 @@ void guidance_v_run(bool_t in_flight) {
 static inline void run_hover_loop(bool_t in_flight) {
 
   /* convert our reference to generic representation */
-  int64_t tmp  = b2_gv_z_ref>>(B2_GV_Z_REF_FRAC - INT32_POS_FRAC);
+  int64_t tmp  = gv_z_ref>>(GV_Z_REF_FRAC - INT32_POS_FRAC);
   guidance_v_z_ref = (int32_t)tmp;
-  guidance_v_zd_ref = b2_gv_zd_ref<<(INT32_SPEED_FRAC - B2_GV_ZD_REF_FRAC);
-  guidance_v_zdd_ref = b2_gv_zdd_ref<<(INT32_ACCEL_FRAC - B2_GV_ZDD_REF_FRAC);
+  guidance_v_zd_ref = gv_zd_ref<<(INT32_SPEED_FRAC - GV_ZD_REF_FRAC);
+  guidance_v_zdd_ref = gv_zdd_ref<<(INT32_ACCEL_FRAC - GV_ZDD_REF_FRAC);
   /* compute the error to our reference */
   int32_t err_z  =  ins_ltp_pos.z - guidance_v_z_ref;
   Bound(err_z, GUIDANCE_V_MIN_ERR_Z, GUIDANCE_V_MAX_ERR_Z);
@@ -250,9 +250,9 @@ static inline void run_hover_loop(bool_t in_flight) {
 
   /* our nominal command : (g + zdd)*m   */
 #ifdef GUIDANCE_V_INV_M
-  const int32_t inv_m = BFP_OF_REAL(GUIDANCE_V_INV_M, B2_GV_ADAPT_X_FRAC);
+  const int32_t inv_m = BFP_OF_REAL(GUIDANCE_V_INV_M, GV_ADAPT_X_FRAC);
 #else
-  const int32_t inv_m =  b2_gv_adapt_X>>(B2_GV_ADAPT_X_FRAC - FF_CMD_FRAC);
+  const int32_t inv_m =  gv_adapt_X>>(GV_ADAPT_X_FRAC - FF_CMD_FRAC);
 #endif
   const int32_t g_m_zdd = (int32_t)BFP_OF_REAL(9.81, FF_CMD_FRAC) -
                           (guidance_v_zdd_ref<<(FF_CMD_FRAC - INT32_ACCEL_FRAC));

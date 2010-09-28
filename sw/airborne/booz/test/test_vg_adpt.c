@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #define _GNU_SOURCE
@@ -28,7 +28,7 @@
 #include "std.h"
 #include "booz_geometry_mixed.h"
 #define GUIDANCE_V_C
-#include "guidance_v_adpt.h"
+#include "guidance/guidance_v_adpt.h"
 
 
 
@@ -63,8 +63,8 @@ double ffm[NB_STEP];
 double ffP[NB_STEP];
 
 static void float_filter_init(void) {
-  ffX[0] = B2_GV_ADAPT_X0_F;
-  ffP[0] = B2_GV_ADAPT_P0_F;
+  ffX[0] = GV_ADAPT_X0_F;
+  ffP[0] = GV_ADAPT_P0_F;
 }
 
 static void float_filter_run( int i) {
@@ -73,10 +73,10 @@ static void float_filter_run( int i) {
   ffX[i] = ffX[prev];
   ffP[i] = ffP[prev];
   if (delta_t[prev] == 0) return;
-  ffP[i] = ffP[i] + B2_GV_ADAPT_SYS_NOISE_F;
+  ffP[i] = ffP[i] + GV_ADAPT_SYS_NOISE_F;
   ffm[i] = (9.81 - (double)est_zdd[i]/(double)(1<<10)) / (double)delta_t[prev];
   double residual = ffm[i] - ffX[i];
-  double E = ffP[i] + B2_GV_ADAPT_MEAS_NOISE_F;
+  double E = ffP[i] + GV_ADAPT_MEAS_NOISE_F;
   double K = ffP[i] / E;
   ffP[i] = ffP[i] - K * ffP[i];
   ffX[i] = ffX[i] + K * residual;
@@ -88,19 +88,19 @@ static int read_data(const char* filename) {
   fp = fopen(filename, "r");
   if (fp == NULL)
     return -1;
-  
+
   char * line = NULL;
   size_t len = 0;
   size_t read;
   n_dat = 0;
   while ((read = getline(&line, &len, fp)) != -1 && n_dat< NB_STEP) {
-    if (sscanf(line, "%lf %*d BOOZ2_VERT_LOOP %d %d %d %d %d %d %d %d %d %d %d %d %d %d", 
-	       &time[n_dat], 
-	       &z_sp[n_dat], &zd_sp[n_dat],
-	       &est_z[n_dat], &est_zd[n_dat], &est_zdd[n_dat],
-	       &ref_z[n_dat], &ref_zd[n_dat], &ref_zdd[n_dat],
-	       &adp_inv_m[n_dat], &adp_cov[n_dat], &sum_err[n_dat],
-	       &ff_cmd[n_dat], &fb_cmd[n_dat], &delta_t[n_dat]) == 15) n_dat++;
+    if (sscanf(line, "%lf %*d BOOZ2_VERT_LOOP %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+           &time[n_dat],
+           &z_sp[n_dat], &zd_sp[n_dat],
+           &est_z[n_dat], &est_zd[n_dat], &est_zdd[n_dat],
+           &ref_z[n_dat], &ref_zd[n_dat], &ref_zdd[n_dat],
+           &adp_inv_m[n_dat], &adp_cov[n_dat], &sum_err[n_dat],
+           &ff_cmd[n_dat], &fb_cmd[n_dat], &delta_t[n_dat]) == 15) n_dat++;
   }
   if (line)
     free(line);
@@ -128,16 +128,16 @@ void dump_res(void) {
     printf("%f %d %d %d %f %f %f %d %d\n", time[i], est_zdd[i], delta_t[i], ref_zdd[i], ffX[i], ffP[i], ffm[i], ifX[i], ifP[i]);
     i++;
   }
-  
+
 }
 
 #define FF_CMD_FRAC 18
 void test_command(int i) {
 
-  const int32_t inv_m_i =  b2_gv_adapt_X>>(B2_GV_ADAPT_X_FRAC - FF_CMD_FRAC);
+  const int32_t inv_m_i =  gv_adapt_X>>(GV_ADAPT_X_FRAC - FF_CMD_FRAC);
   int32_t cmd_i = (BOOZ_INT_OF_FLOAT(9.81, FF_CMD_FRAC) - (ref_zdd[i]<<(FF_CMD_FRAC - IACCEL_RES))) / inv_m_i;
 
-  double inv_m_f = (double)BOOZ_FLOAT_OF_INT(b2_gv_adapt_X, B2_GV_ADAPT_X_FRAC);
+  double inv_m_f = (double)BOOZ_FLOAT_OF_INT(gv_adapt_X, GV_ADAPT_X_FRAC);
   double cmd_f = (9.81 - (double)BOOZ_FLOAT_OF_INT(ref_zdd[i], IACCEL_RES)) / inv_m_f;
 
   int32_t cmd_i_fixed;
@@ -149,26 +149,26 @@ void test_command(int i) {
   else
     cmd_i_fixed = (BOOZ_INT_OF_FLOAT(9.81, FF_CMD_FRAC) - (ref_zdd[i]<<(FF_CMD_FRAC - IACCEL_RES)) - (inv_m_i>>1) ) / inv_m_i;
 
-  printf("%d %f %d\n",cmd_i, cmd_f, cmd_i_fixed); 
+  printf("%d %f %d\n",cmd_i, cmd_f, cmd_i_fixed);
 }
 
 int main(int argc, char** argv) {
   //  gen_data();
   read_data("09_02_15__20_45_58.data");
   printf("read %d\n", n_dat);
-  b2_gv_adapt_init();
+  gv_adapt_init();
   float_filter_init();
   int i = 0;
   while (i<n_dat) {
     Bound(delta_t[i], 1, 200);
-    b2_gv_adapt_run(est_zdd[i], delta_t[i]);
-    ifX[i] = b2_gv_adapt_X;
-    ifP[i] = b2_gv_adapt_P;
+    gv_adapt_run(est_zdd[i], delta_t[i]);
+    ifX[i] = gv_adapt_X;
+    ifP[i] = gv_adapt_P;
     float_filter_run(i);
     //    test_command(i);
     i++;
   }
-  
+
   dump_res();
 
   return 0;

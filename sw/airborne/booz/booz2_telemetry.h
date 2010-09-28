@@ -613,9 +613,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				  &guidance_v_z_ref,		\
 				  &guidance_v_zd_ref,		\
 				  &guidance_v_zdd_ref,		\
-				  &b2_gv_adapt_X,			\
-				  &b2_gv_adapt_P,			\
-				  &b2_gv_adapt_Xmeas,			\
+				  &gv_adapt_X,			\
+				  &gv_adapt_P,			\
+				  &gv_adapt_Xmeas,			\
 				  &guidance_v_z_sum_err,		\
 				  &guidance_v_ff_cmd,		\
 				  &guidance_v_fb_cmd,		\

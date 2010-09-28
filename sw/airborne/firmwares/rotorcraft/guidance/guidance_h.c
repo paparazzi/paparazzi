@@ -23,7 +23,7 @@
 
 #define GUIDANCE_H_C
 //#define GUIDANCE_H_USE_REF
-#include "guidance_h.h"
+#include "guidance/guidance_h.h"
 
 #include "ahrs.h"
 #include "booz_stabilization.h"
@@ -70,7 +70,7 @@ static inline void guidance_h_nav_run(bool_t in_flight);
 static inline void guidance_h_hover_enter(void);
 static inline void guidance_h_nav_enter(void);
 
-#define Booz2GuidanceHSetRef(_pos, _speed, _accel) { \
+#define GuidanceHSetRef(_pos, _speed, _accel) { \
     b2_gh_set_ref(_pos, _speed, _accel); \
     VECT2_COPY(guidance_h_pos_ref,   _pos); \
     VECT2_COPY(guidance_h_speed_ref, _speed); \
@@ -385,7 +385,7 @@ static inline void guidance_h_nav_enter(void) {
   INT_VECT2_ZERO(zero);
   VECT2_COPY(pos, ins_ltp_pos);
   VECT2_COPY(speed, ins_ltp_speed);
-  Booz2GuidanceHSetRef(pos, speed, zero);
+  GuidanceHSetRef(pos, speed, zero);
 
   struct Int32Eulers tmp_sp;
   BOOZ_STABILIZATION_ATTITUDE_RESET_PSI_REF( tmp_sp );
