@@ -42,7 +42,7 @@ static const int32_t pitch_coef[SUPERVISION_NB_MOTOR]  = SUPERVISION_PITCH_COEF;
 static const int32_t yaw_coef[SUPERVISION_NB_MOTOR]    = SUPERVISION_YAW_COEF;
 static const int32_t thrust_coef[SUPERVISION_NB_MOTOR] = SUPERVISION_THRUST_COEF;
 
-struct BoozSupervision supervision;
+struct Supervision supervision;
 
 void supervision_init(void) {
   uint8_t i;
