@@ -24,7 +24,7 @@
 #ifndef IMU_CRISTA_H
 #define IMU_CRISTA_H
 
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 #include "airframe.h"
 
 #define ADS8344_NB_CHANNELS 8

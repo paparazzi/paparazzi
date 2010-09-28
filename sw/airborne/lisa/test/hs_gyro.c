@@ -31,7 +31,7 @@
 #include "messages.h"
 #include "downlink.h"
 
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 
 #include "interrupt_hw.h"
 

@@ -27,7 +27,7 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
-#include "ahrs/ahrs_aligner.h"
+#include <firmwares/rotorcraft/ahrs/ahrs_aligner.h>
 
 #define AHRS_UNINIT  0
 #define AHRS_RUNNING 1

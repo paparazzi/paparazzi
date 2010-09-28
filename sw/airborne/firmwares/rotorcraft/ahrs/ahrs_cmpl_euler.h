@@ -24,7 +24,7 @@
 #ifndef AHRS_CMPL_EULER_H
 #define AHRS_CMPL_EULER_H
 
-#include "ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 

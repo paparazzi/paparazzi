@@ -1,4 +1,4 @@
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 
 #include "i2c.h"
 

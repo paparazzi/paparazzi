@@ -24,7 +24,7 @@
 
 #include "max1167.h"
 
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 
 void max1167_hw_init( void ) {}
 

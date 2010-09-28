@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "math/pprz_algebra_double.h"
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 #include "ahrs.h"
 #include "ahrs/ahrs_mlkf.h"
 

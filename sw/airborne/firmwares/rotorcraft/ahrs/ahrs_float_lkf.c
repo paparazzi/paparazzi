@@ -24,8 +24,8 @@
 
 #include "ahrs_float_lkf.h"
 
-#include "imu.h"
-#include "ahrs_aligner.h"
+#include <firmwares/rotorcraft/imu.h>
+#include <firmwares/rotorcraft/ahrs/ahrs_aligner.h>
 
 #include "airframe.h"
 #include "math/pprz_algebra_float.h"

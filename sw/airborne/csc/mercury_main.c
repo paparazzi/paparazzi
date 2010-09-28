@@ -40,7 +40,7 @@
 
 #include "csc_msg_def.h"
 #include ACTUATORS
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 #include "booz/ahrs/ahrs_aligner.h"
 #include "booz/ahrs.h"
 #include "mercury_xsens.h"

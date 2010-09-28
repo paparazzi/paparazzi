@@ -1,6 +1,6 @@
 #include "overo_file_logger.h"
 
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 
 struct FileLogger file_logger;
 

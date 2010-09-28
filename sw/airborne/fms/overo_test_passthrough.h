@@ -2,7 +2,7 @@
 #define OVERO_TEST_PASSTHROUGH_H
 
 #include "std.h"
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 
 struct OveroTestPassthrough {
   /* our network connection */

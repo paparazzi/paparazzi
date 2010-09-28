@@ -28,7 +28,7 @@
 #include "booz/booz2_commands.h"
 #include "actuators.h"
 #include "actuators/actuators_pwm.h"
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 #include "booz/booz_radio_control.h"
 #include "lisa/lisa_overo_link.h"
 #include "airframe.h"

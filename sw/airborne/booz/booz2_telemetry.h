@@ -46,7 +46,7 @@
 #define PERIODIC_SEND_ALIVE(_chan) DOWNLINK_SEND_ALIVE(_chan, 16, MD5SUM)
 
 #include "booz2_battery.h"
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 #include "booz_gps.h"
 #include "booz2_ins.h"
 #include "ahrs.h"

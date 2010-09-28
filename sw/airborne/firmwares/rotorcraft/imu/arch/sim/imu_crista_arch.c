@@ -2,7 +2,7 @@
  * simulator ARCH for rotorcraft imu crista
  */
 
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 
 #include "airframe.h"
 

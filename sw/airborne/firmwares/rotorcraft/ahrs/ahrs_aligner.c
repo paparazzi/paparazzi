@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,13 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "ahrs_aligner.h"
 
 #include <stdlib.h> /* for abs() */
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 #include "led.h"
 
 struct AhrsAligner ahrs_aligner;
@@ -37,7 +37,7 @@ static int32_t ref_sensor_samples[SAMPLES_NB];
 static uint32_t samples_idx;
 
 void ahrs_aligner_init(void) {
-  
+
   ahrs_aligner.status = AHRS_ALIGNER_RUNNING;
   INT_RATES_ZERO(gyro_sum);
   INT_VECT3_ZERO(accel_sum);
@@ -70,7 +70,7 @@ void ahrs_aligner_run(void) {
     else
       avg_ref_sensor -= SAMPLES_NB / 2;
     avg_ref_sensor /= SAMPLES_NB;
-    
+
     ahrs_aligner.noise = 0;
     int i;
     for (i=0; i<SAMPLES_NB; i++) {
@@ -91,8 +91,8 @@ void ahrs_aligner_run(void) {
       ahrs_aligner.low_noise_cnt++;
     else
       if ( ahrs_aligner.low_noise_cnt > 0)
-	ahrs_aligner.low_noise_cnt--;
-    
+    ahrs_aligner.low_noise_cnt--;
+
     if (ahrs_aligner.low_noise_cnt > LOW_NOISE_TIME) {
       ahrs_aligner.status = AHRS_ALIGNER_LOCKED;
 #ifdef AHRS_ALIGNER_LED
@@ -102,4 +102,3 @@ void ahrs_aligner_run(void) {
   }
 
 }
-

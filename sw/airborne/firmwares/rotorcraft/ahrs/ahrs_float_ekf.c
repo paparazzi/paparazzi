@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "math/pprz_algebra_float.h"
@@ -93,7 +93,7 @@ extern void ahrs_init(void);
 extern void ahrs_align(void);
 
 
-/* 
+/*
  * Propagate our dynamic system
  *
  *      quat_dot = Wxq(pqr) * quat
@@ -124,18 +124,18 @@ void ahrs_propagate(void) {
   RATES_FLOAT_OF_BFP(bafe_rates, imu.gyro);
   RATES_SUB(bafe_rates, bafe_bias);
 
-  /* compute F 
+  /* compute F
      F is only needed later on to update the state covariance P.
      However, its [0:3][0:3] region is actually the Wxq(pqr) which is needed to
      compute the time derivative of the quaternion, so we compute F now
   */
-  
+
   /* Fill in Wxq(pqr) into F */
   bafe_F[0][0] = bafe_F[1][1] = bafe_F[2][2] = bafe_F[3][3] = 0;
   bafe_F[1][0] = bafe_F[2][3] = bafe_rates.p * 0.5;
   bafe_F[2][0] = bafe_F[3][1] = bafe_rates.q * 0.5;
   bafe_F[3][0] = bafe_F[1][2] = bafe_rates.r * 0.5;
-  
+
   bafe_F[0][1] = bafe_F[3][2] = -bafe_F[1][0];
   bafe_F[0][2] = bafe_F[1][3] = -bafe_F[2][0];
   bafe_F[0][3] = bafe_F[2][1] = -bafe_F[3][0];
@@ -143,7 +143,7 @@ void ahrs_propagate(void) {
   bafe_F[0][4] = bafe_F[2][6] = bafe_quat.qx * 0.5;
   bafe_F[0][5] = bafe_F[3][4] = bafe_quat.qy * 0.5;
   bafe_F[0][6] = bafe_F[1][5] = bafe_quat.qz * 0.5;
-  
+
   bafe_F[1][4] =  bafe_F[2][5] = bafe_F[3][6] = bafe_quat.qi * -0.5;
   bafe_F[3][5] = -bafe_F[0][4];
   bafe_F[1][6] = -bafe_F[0][5];
@@ -152,7 +152,7 @@ void ahrs_propagate(void) {
   bafe_qdot.qi=                           bafe_F[0][1]*bafe_quat.qx+bafe_F[0][2]*bafe_quat.qy+bafe_F[0][3] * bafe_quat.qz;
   bafe_qdot.qx= bafe_F[1][0]*bafe_quat.qi                          +bafe_F[1][2]*bafe_quat.qy+bafe_F[1][3] * bafe_quat.qz;
   bafe_qdot.qy= bafe_F[2][0]*bafe_quat.qi+bafe_F[2][1]*bafe_quat.qx                          +bafe_F[2][3] * bafe_quat.qz;
-  bafe_qdot.qz= bafe_F[3][0]*bafe_quat.qi+bafe_F[3][1]*bafe_quat.qx+bafe_F[3][2]*bafe_quat.qy                            ; 
+  bafe_qdot.qz= bafe_F[3][0]*bafe_quat.qi+bafe_F[3][1]*bafe_quat.qx+bafe_F[3][2]*bafe_quat.qy                            ;
   /* propagate quaternion */
   bafe_quat.qi += bafe_qdot.qi * BAFE_DT;
   bafe_quat.qx += bafe_qdot.qx * BAFE_DT;
@@ -169,4 +169,3 @@ extern void ahrs_update(void);
 
 
 #endif /* AHRS_FLOAT_EKF_H */
-

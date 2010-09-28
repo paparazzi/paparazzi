@@ -31,7 +31,7 @@
 #include "booz/booz2_commands.h"
 #include "booz/actuators.h"
 //#include "booz/booz_radio_control.h"
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 #include "lisa/lisa_overo_link.h"
 #include "beth/bench_sensors.h"
 

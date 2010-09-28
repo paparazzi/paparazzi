@@ -26,7 +26,7 @@
 
 #include "ahrs.h"
 
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 #include "booz_radio_control.h"
 #include "airframe.h"
 

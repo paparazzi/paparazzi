@@ -24,7 +24,7 @@
 #include "booz2_hf_float.h"
 #include "booz2_ins.h"
 
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 #include "ahrs.h"
 #include "math/pprz_algebra_int.h"
 

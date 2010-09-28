@@ -24,7 +24,7 @@
 #ifndef IMU_B2_H
 #define IMU_B2_H
 
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 #include "airframe.h"
 
 #include "peripherals/booz_max1168.h"

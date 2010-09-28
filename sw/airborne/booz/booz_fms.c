@@ -23,7 +23,7 @@
 
 #include "booz_fms.h"
 
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 #include "booz_gps.h"
 #include "ahrs.h"
 

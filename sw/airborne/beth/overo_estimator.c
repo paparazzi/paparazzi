@@ -1,6 +1,6 @@
 #include "overo_estimator.h"
 
-#include "imu.h"
+#include <firmwares/rotorcraft/imu.h>
 #include <math.h>
 
 #include "messages2.h"
