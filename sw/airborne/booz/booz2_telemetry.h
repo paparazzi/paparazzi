@@ -473,18 +473,18 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef USE_VFF
 #include "ins/vf_float.h"
-#define PERIODIC_SEND_BOOZ2_VFF(_chan) {		\
-    DOWNLINK_SEND_BOOZ2_VFF(_chan,			\
-			    &b2_vff_z_meas,		\
-			    &b2_vff_z,			\
-			    &b2_vff_zdot,		\
-			    &b2_vff_bias,		\
-			    & b2_vff_P[0][0],		\
-			    & b2_vff_P[1][1],		\
-			    & b2_vff_P[2][2]);		\
+#define PERIODIC_SEND_VFF(_chan) {		\
+    DOWNLINK_SEND_VFF(_chan,			\
+			    &vff_z_meas,		\
+			    &vff_z,			\
+			    &vff_zdot,		\
+			    &vff_bias,		\
+			    & vff_P[0][0],		\
+			    & vff_P[1][1],		\
+			    & vff_P[2][2]);		\
   }
 #else
-#define PERIODIC_SEND_BOOZ2_VFF(_chan) {}
+#define PERIODIC_SEND_VFF(_chan) {}
 #endif
 
 #ifdef USE_HFF

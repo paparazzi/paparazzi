@@ -1158,7 +1158,7 @@
       <field name="value_filtered" type="uint16"/>
   </message>
 
-  <message name="BOOZ2_VFF" id="162">
+  <message name="VFF" id="162">
       <field name="measure"        type="float"/>
       <field name="z"              type="float"/>
       <field name="zd"             type="float"/>

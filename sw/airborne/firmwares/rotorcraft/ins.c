@@ -113,7 +113,7 @@ void ins_init() {
 #ifdef BOOZ2_SONAR
   ins_update_on_agl = FALSE;
 #endif
-  b2_vff_init(0., 0., 0.);
+  vff_init(0., 0., 0.);
 #endif
   ins_vf_realign = FALSE;
   ins_hf_realign = FALSE;
@@ -142,7 +142,7 @@ void ins_realign_h(struct FloatVect2 pos __attribute__ ((unused)), struct FloatV
 
 void ins_realign_v(float z) {
 #ifdef USE_VFF
-  b2_vff_realign(z);
+  vff_realign(z);
 #endif
 }
 
@@ -156,10 +156,10 @@ void ins_propagate() {
 
 #ifdef USE_VFF
   if (baro.status == BS_RUNNING && ins_baro_initialised) {
-    b2_vff_propagate(z_accel_float);
-    ins_ltp_accel.z = ACCEL_BFP_OF_REAL(b2_vff_zdotdot);
-    ins_ltp_speed.z = SPEED_BFP_OF_REAL(b2_vff_zdot);
-    ins_ltp_pos.z   = POS_BFP_OF_REAL(b2_vff_z);
+    vff_propagate(z_accel_float);
+    ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
+    ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
+    ins_ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
   }
   else { // feed accel from the sensors
     ins_ltp_accel.z = ACCEL_BFP_OF_REAL(z_accel_float);
@@ -196,15 +196,15 @@ void ins_update_baro() {
 #ifdef BOOZ2_SONAR
       ins_sonar_offset = sonar_meas;
 #endif
-      b2_vff_realign(0.);
-      ins_ltp_accel.z = ACCEL_BFP_OF_REAL(b2_vff_zdotdot);
-      ins_ltp_speed.z = SPEED_BFP_OF_REAL(b2_vff_zdot);
-      ins_ltp_pos.z   = POS_BFP_OF_REAL(b2_vff_z);
+      vff_realign(0.);
+      ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
+      ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
+      ins_ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
       ins_enu_pos.z = -ins_ltp_pos.z;
       ins_enu_speed.z = -ins_ltp_speed.z;
       ins_enu_accel.z = -ins_ltp_accel.z;
     }
-    b2_vff_update(alt_float);
+    vff_update(alt_float);
   }
 #endif
 }
