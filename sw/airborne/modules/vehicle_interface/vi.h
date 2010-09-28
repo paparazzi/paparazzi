@@ -30,7 +30,7 @@
 
 #include "std.h"
 #include "math/pprz_algebra_int.h"
-#include "autopilot.h"
+#include <firmwares/rotorcraft/autopilot.h>
 #include "booz/booz_stabilization.h"
 #include <firmwares/rotorcraft/guidance.h>
 #include "booz/booz2_navigation.h"

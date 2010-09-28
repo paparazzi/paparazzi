@@ -29,7 +29,7 @@
 #include "booz_gps.h"
 #include <firmwares/rotorcraft/ins.h>
 
-#include "autopilot.h"
+#include <firmwares/rotorcraft/autopilot.h>
 #include "modules.h"
 #include "flight_plan.h"
 

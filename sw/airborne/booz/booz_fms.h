@@ -26,7 +26,7 @@
 
 #include "std.h"
 #include "math/pprz_algebra_int.h"
-#include "autopilot.h"
+#include <firmwares/rotorcraft/autopilot.h>
 #include <firmwares/rotorcraft/guidance.h>
 
 struct Booz_fms_imu_info {

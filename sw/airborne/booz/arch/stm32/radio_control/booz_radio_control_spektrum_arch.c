@@ -30,7 +30,7 @@
 #include "uart.h"
 #include "booz_radio_control.h"
 #include "booz_radio_control_spektrum_arch.h"
-#include "autopilot.h"
+#include <firmwares/rotorcraft/autopilot.h>
 
 
 #define SPEKTRUM_CHANNELS_PER_FRAME 7

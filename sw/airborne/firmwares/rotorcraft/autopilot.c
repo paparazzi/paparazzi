@@ -22,7 +22,7 @@
  *
  */
 
-#include "autopilot.h"
+#include <firmwares/rotorcraft/autopilot.h>
 
 #include "booz_radio_control.h"
 #include "booz2_commands.h"

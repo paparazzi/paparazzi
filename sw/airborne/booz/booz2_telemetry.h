@@ -34,7 +34,7 @@
 #include "booz_radio_control.h"
 #endif
 
-#include "autopilot.h"
+#include <firmwares/rotorcraft/autopilot.h>
 #include <firmwares/rotorcraft/guidance.h>
 
 #include <firmwares/rotorcraft/actuators.h>
@@ -472,7 +472,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 #ifdef USE_VFF
-#include "ins/vf_float.h"
+#include <firmwares/rotorcraft/ins/vf_float.h>
 #define PERIODIC_SEND_VFF(_chan) {		\
     DOWNLINK_SEND_VFF(_chan,			\
 			    &vff_z_meas,		\
@@ -488,7 +488,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #endif
 
 #ifdef USE_HFF
-#include "ins/hf_float.h"
+#include  <firmwares/rotorcraft/ins/hf_float.h>
 #define PERIODIC_SEND_HFF(_chan) {	\
     DOWNLINK_SEND_HFF(_chan,		\
                             &b2_hff_state.x,			\
@@ -561,7 +561,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 #ifdef USE_GPS
-#include "ins/hf_float.h"
+#include <firmwares/rotorcraft/ins/hf_float.h>
 #define PERIODIC_SEND_INS3(_chan) {				\
     DOWNLINK_SEND_INS3(_chan,					\
 			     &b2ins_meas_gps_pos_ned.x,			\
