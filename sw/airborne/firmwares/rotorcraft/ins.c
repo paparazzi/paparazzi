@@ -188,7 +188,7 @@ void ins_update_baro() {
       ins_qfe = baro.absolute;
       ins_baro_initialised = TRUE;
     }
-    ins_baro_alt = ((baro.absolute - ins_qfe) * BOOZ_INS_BARO_SENS_NUM)/BOOZ_INS_BARO_SENS_DEN;
+    ins_baro_alt = ((baro.absolute - ins_qfe) * INS_BARO_SENS_NUM)/INS_BARO_SENS_DEN;
     float alt_float = POS_FLOAT_OF_BFP(ins_baro_alt);
     if (ins_vf_realign) {
       ins_vf_realign = FALSE;
@@ -275,8 +275,8 @@ void ins_update_sonar() {
   sonar_filtered = (sonar_meas + 2*sonar_filtered) / 3;
   /* update baro_qfe assuming a flat ground */
   if (ins_update_on_agl && booz2_analog_baro_status == BOOZ2_ANALOG_BARO_RUNNING) {
-    int32_t d_sonar = (((int32_t)sonar_filtered - ins_sonar_offset) * BOOZ_INS_SONAR_SENS_NUM) / BOOZ_INS_SONAR_SENS_DEN;
-    ins_qfe = (int32_t)booz2_analog_baro_value + (d_sonar * (BOOZ_INS_BARO_SENS_DEN))/BOOZ_INS_BARO_SENS_NUM;
+    int32_t d_sonar = (((int32_t)sonar_filtered - ins_sonar_offset) * INS_SONAR_SENS_NUM) / INS_SONAR_SENS_DEN;
+    ins_qfe = (int32_t)booz2_analog_baro_value + (d_sonar * (INS_BARO_SENS_DEN))/INS_BARO_SENS_NUM;
   }
 #endif
 }

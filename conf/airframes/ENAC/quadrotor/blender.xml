@@ -150,7 +150,7 @@
     <define name="HACK_45" value="1"/>
   </section>
 
-  <section name="INS" prefix="BOOZ_INS_">
+  <section name="INS" prefix="INS_">
     <define name="BARO_SENS" value="16.5" integer="16"/>
   </section>
 

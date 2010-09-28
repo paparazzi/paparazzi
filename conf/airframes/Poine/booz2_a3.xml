@@ -120,7 +120,7 @@
     <define name="TRIM_R" value="0"/>
   </section>
 
-  <section name="INS" prefix="BOOZ_INS_">
+  <section name="INS" prefix="INS_">
     <define name="BARO_SENS" value="14.9" integer="16"/>
   </section>
 

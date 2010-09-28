@@ -576,8 +576,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_INS3(_chan) {}
 #endif /* USE_GPS */
 
-#define PERIODIC_SEND_BOOZ_INS(_chan) {			\
-    DOWNLINK_SEND_BOOZ_INS(_chan,				\
+#define PERIODIC_SEND_INS(_chan) {			\
+    DOWNLINK_SEND_INS(_chan,				\
 					   &ins_ltp_pos.x,		\
 					   &ins_ltp_pos.y,	    \
 					   &ins_ltp_pos.z,		\

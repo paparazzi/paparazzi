@@ -140,7 +140,7 @@
 
   </section>
 
-  <section name="INS" prefix="BOOZ_INS_">
+  <section name="INS" prefix="INS_">
     <define name="BARO_SENS" value="19." integer="16"/>
   </section>
 

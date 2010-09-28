@@ -1470,7 +1470,7 @@
       <field name="mag_z"    type="float" />
     </message>
 
-    <message name="BOOZ_INS" id="198">
+    <message name="INS" id="198">
       <field name="ins_x"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
       <field name="ins_y"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
       <field name="ins_z"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>

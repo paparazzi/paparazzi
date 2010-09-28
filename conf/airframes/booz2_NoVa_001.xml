@@ -170,7 +170,7 @@
 		<define name="ADDR" value="{ 0x52, 0x58, 0x54, 0x56 }" />
 	</section>
 
-  <section name="INS" prefix="BOOZ_INS_">
+  <section name="INS" prefix="INS_">
     <define name="BARO_SENS" value="14.9" integer="16"/>
   </section>
 
