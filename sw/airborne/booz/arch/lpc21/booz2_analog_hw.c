@@ -25,7 +25,7 @@
 
 /* analog_arch includes baro ??? naaaa we don't want double references */
 #include "firmwares/rotorcraft/baro.h"
-#include "booz2_battery.h"
+#include <firmwares/rotorcraft/battery.h>
 
 #ifndef USE_EXTRA_ADC
 /* Default mode
@@ -98,7 +98,7 @@ void ADC0_ISR ( void ) {
   ISR_ENTRY();
   uint32_t tmp = AD0GDR;
   uint16_t tmp2 = (uint16_t)(tmp >> 6) & 0x03FF;
-  Booz2BatteryISRHandler(tmp2);
+  BatteryISRHandler(tmp2);
   /* trigger next convertion */
   T0MR1 += BOOZ2_ANALOG_BATTERY_PERIOD;
   /* lower clock         */
@@ -199,7 +199,7 @@ void booz2_analog_baro_read(void) {
 void booz2_analog_bat_read(void) {
   uint32_t tmp = AD0DR2;
   uint16_t tmp2 = (uint16_t)(tmp >> 6) & 0x03FF;
-  Booz2BatteryISRHandler(tmp2);
+  BatteryISRHandler(tmp2);
 }
 
 void booz2_analog_extra_adc_read(void) {

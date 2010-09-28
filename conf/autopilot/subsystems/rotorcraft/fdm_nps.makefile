@@ -81,7 +81,7 @@ sim.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_
 sim.srcs += $(SRC_BOARD)/baro_board.c
 
 sim.CFLAGS += -DBOOZ2_ANALOG_BATTERY_PERIOD='SYS_TICS_OF_SEC((1./10.))'
-sim.srcs += $(SRC_BOOZ)/booz2_battery.c
+sim.srcs += $(SRC_FIRMWARE)/battery.c
 
 sim.srcs += $(SRC_BOOZ)/booz2_analog.c $(SRC_BOOZ_SIM)/booz2_analog_hw.c
 

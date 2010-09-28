@@ -45,7 +45,7 @@
 
 #define PERIODIC_SEND_ALIVE(_chan) DOWNLINK_SEND_ALIVE(_chan, 16, MD5SUM)
 
-#include "booz2_battery.h"
+#include <firmwares/rotorcraft/battery.h>
 #include <firmwares/rotorcraft/imu.h>
 #include "booz_gps.h"
 #include <firmwares/rotorcraft/ins.h>
@@ -69,7 +69,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			      &autopilot_motors_on,		\
 			      &guidance_h_mode,			\
 			      &guidance_v_mode,			\
-			      &booz2_battery_voltage,			\
+			      &battery_voltage,			\
 			      &cpu_time_sec				\
 			      );					\
   }
@@ -88,7 +88,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			      &autopilot_motors_on,		\
 			      &guidance_h_mode,			\
 			      &guidance_v_mode,			\
-			      &booz2_battery_voltage,			\
+			      &battery_voltage,			\
 			      &cpu_time_sec				\
 			      );					\
   }

@@ -21,10 +21,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz2_battery.h"
+#include <firmwares/rotorcraft/battery.h>
 
-uint8_t booz2_battery_voltage;
+uint8_t battery_voltage;
 
-void booz2_battery_init(void) {
-  booz2_battery_voltage = 0;
+void battery_init(void) {
+  battery_voltage = 0;
 }

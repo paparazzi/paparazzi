@@ -44,7 +44,7 @@
 #include "booz/booz2_analog.h"
 #include <firmwares/rotorcraft/baro.h>
 
-#include "booz2_battery.h"
+#include <firmwares/rotorcraft/battery.h>
 
 #include "booz_fms.h"
 #include <firmwares/rotorcraft/autopilot.h>
@@ -109,7 +109,7 @@ STATIC_INLINE void main_init( void ) {
   booz2_pwm_init_hw();
 #endif
 
-  booz2_battery_init();
+  battery_init();
   imu_init();
 
   booz_fms_init();

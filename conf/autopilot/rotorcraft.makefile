@@ -149,7 +149,7 @@ endif
 #
 ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -DBOOZ2_ANALOG_BATTERY_PERIOD='SYS_TICS_OF_SEC((1./10.))'
-ap.srcs += $(SRC_BOOZ)/booz2_battery.c
+ap.srcs += $(SRC_FIRMWARE)/battery.c
 ap.CFLAGS += -DADC0_VIC_SLOT=2
 ap.CFLAGS += -DADC1_VIC_SLOT=3
 ap.srcs += $(SRC_BOOZ)/booz2_analog.c \

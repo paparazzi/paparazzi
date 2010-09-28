@@ -111,7 +111,7 @@ test_baro.srcs += $(SRC_BOOZ)/booz2_analog.c \
 				  $(SRC_BOOZ_ARCH)/booz2_analog_hw.c
 # tell me why this shit needs to know battery !!!!
 test_baro.CFLAGS += -DBOOZ2_ANALOG_BATTERY_PERIOD='SYS_TICS_OF_SEC((1./10.))'
-test_baro.srcs += $(SRC_BOOZ)/booz2_battery.c
+test_baro.srcs += $(SRC_FIRMWARE)/battery.c
 
 
 #
