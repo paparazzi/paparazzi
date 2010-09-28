@@ -1,6 +1,6 @@
 /*
  * $Id:  $
- *  
+ *
  * Copyright (C) 2008-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -18,14 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "vehicle_interface/vi.h"
 
-#include "firmwares/rotorcraft/imu.h"
+#include <firmwares/rotorcraft/imu.h>
 #include "booz/booz_gps.h"
-#include "firmwares/rotorcraft/ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 
 #include "airframe.h"
 
@@ -51,7 +51,7 @@ void vi_init(void) {
 
 void vi_periodic(void) {
 #if (VI_TIMEOUT != 0)
-  if (vi.last_msg < VI_TIMEOUT) 
+  if (vi.last_msg < VI_TIMEOUT)
     vi.last_msg++;
   else {
     vi.timeouted = TRUE;

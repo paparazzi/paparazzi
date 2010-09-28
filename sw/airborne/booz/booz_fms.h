@@ -4,7 +4,7 @@
  * This is the "external interface" to the autopilot. It allows an external device to
  * fetch the vehicle state and input commands at different levels. We should support
  * different hardware peripherals like i2c, spi or uart.
- * For now we only have an implementation using datalink messages. 
+ * For now we only have an implementation using datalink messages.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 #include "autopilot.h"
-#include "guidance.h"
+#include <firmwares/rotorcraft/guidance.h>
 
 struct Booz_fms_imu_info {
   struct Int16Vect3 gyro;
@@ -127,5 +127,3 @@ extern void booz_fms_impl_set_enabled(bool_t enabled);
   }
 
 #endif /* BOOZ_FMS_H */
-
-

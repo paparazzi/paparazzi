@@ -27,7 +27,7 @@
 #include "booz_radio_control.h"
 #include "booz2_commands.h"
 #include "booz2_navigation.h"
-#include "guidance.h"
+#include <firmwares/rotorcraft/guidance.h>
 #include "booz_stabilization.h"
 #include "led.h"
 

@@ -8,7 +8,7 @@
  * This is the "external interface" to the autopilot. It allows an external device to
  * fetch the vehicle state and input commands at different levels. We should support
  * different hardware peripherals like i2c, spi or uart.
- * For now we only have an implementation using datalink messages. 
+ * For now we only have an implementation using datalink messages.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@
 #include "math/pprz_algebra_int.h"
 #include "autopilot.h"
 #include "booz/booz_stabilization.h"
-#include "booz/guidance.h"
+#include <firmwares/rotorcraft/guidance.h>
 #include "booz/booz2_navigation.h"
 
 struct Vi_imu_info {
@@ -103,5 +103,3 @@ extern void vi_impl_set_enabled(bool_t enabled);
   }
 
 #endif /* VI_H */
-
-

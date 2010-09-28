@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -18,13 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "modules/vehicle_interface/vi_overo_link.h"
 
 #include "lisa/lisa_overo_link.h"
-#include "firmwares/rotorcraft/imu.h"
+#include <firmwares/rotorcraft/imu.h>
 
 
 #include <string.h>
@@ -48,10 +48,10 @@ static inline void on_overo_link_lost(void) {
 }
 
 void vi_overo_link_on_msg_received(void) {
-  
+
 #if 0
-  memcpy(&overo_link.up.msg, &overo_link.down.msg, 
-	 sizeof(union AutopilotMessage));
+  memcpy(&overo_link.up.msg, &overo_link.down.msg,
+     sizeof(union AutopilotMessage));
 #endif
   overo_link.up.msg.valid.imu = 1;
   RATES_COPY(overo_link.up.msg.gyro, imu.gyro);
@@ -62,6 +62,6 @@ void vi_overo_link_on_msg_received(void) {
 
 
 void vi_overo_link_on_crc_err(void) {
-  
- 
+
+
 }

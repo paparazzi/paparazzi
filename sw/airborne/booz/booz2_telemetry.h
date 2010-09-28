@@ -35,7 +35,7 @@
 #endif
 
 #include "autopilot.h"
-#include "guidance.h"
+#include <firmwares/rotorcraft/guidance.h>
 
 #include "actuators.h"
 

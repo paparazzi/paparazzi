@@ -50,7 +50,7 @@
 #include "autopilot.h"
 
 #include "booz_stabilization.h"
-#include "guidance.h"
+#include <firmwares/rotorcraft/guidance.h>
 
 #include "ahrs.h"
 #include "ins.h"
