@@ -116,4 +116,3 @@ void b2ins_update_gps(void) {
 #endif /* UPDATE_FROM_SPEED */
 
 }
-

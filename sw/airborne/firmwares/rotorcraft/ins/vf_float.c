@@ -182,13 +182,13 @@ void b2_vff_update_z_conf(float z_meas, float conf) {
 static inline void update_vz_conf(float vz, float conf) {
   const float yd = vz - b2_vff_zdot;
   const float S = b2_vff_P[1][1] + conf;
-  const float K1 = b2_vff_P[0][1] * 1/S; 
-  const float K2 = b2_vff_P[1][1] * 1/S; 
-  const float K3 = b2_vff_P[2][1] * 1/S; 
-  
-  b2_vff_z    = b2_vff_z    + K1 * yd; 
-  b2_vff_zdot = b2_vff_zdot + K2 * yd; 
-  b2_vff_bias = b2_vff_bias + K3 * yd; 
+  const float K1 = b2_vff_P[0][1] * 1/S;
+  const float K2 = b2_vff_P[1][1] * 1/S;
+  const float K3 = b2_vff_P[2][1] * 1/S;
+
+  b2_vff_z    = b2_vff_z    + K1 * yd;
+  b2_vff_zdot = b2_vff_zdot + K2 * yd;
+  b2_vff_bias = b2_vff_bias + K3 * yd;
 
   const float P11 = -K1 * b2_vff_P[1][0] + b2_vff_P[0][0];
   const float P12 = -K1 * b2_vff_P[1][1] + b2_vff_P[0][1];

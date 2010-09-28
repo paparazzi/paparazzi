@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "booz2_vf_int.h"
@@ -32,7 +32,7 @@ int32_t b2_vfi_zdd;
 int32_t b2_vfi_P[B2_VFI_S_SIZE][B2_VFI_S_SIZE];
 
 /* initial covariance */
-#define VFI_INIT_PZZ    BOOZ_INT_OF_FLOAT(1., B2_VFI_P_FRAC) 
+#define VFI_INIT_PZZ    BOOZ_INT_OF_FLOAT(1., B2_VFI_P_FRAC)
 #define VFI_INIT_PZDZD  BOOZ_INT_OF_FLOAT(1., B2_VFI_P_FRAC)
 #define VFI_INIT_PABAB  BOOZ_INT_OF_FLOAT(1., B2_VFI_P_FRAC)
 
@@ -56,7 +56,7 @@ void booz2_vfi_init(int32_t z0, int32_t zd0, int32_t bias0 ) {
   // initialize covariance
   int i, j;
   for (i=0; i<B2_VFI_S_SIZE; i++)
-    for (j=0; j<B2_VFI_S_SIZE; j++) 
+    for (j=0; j<B2_VFI_S_SIZE; j++)
       b2_vfi_P[i][j] = 0;
   b2_vfi_P[B2_VFI_S_Z][B2_VFI_S_Z]   = VFI_INIT_PZZ;
   b2_vfi_P[B2_VFI_S_ZD][B2_VFI_S_ZD] = VFI_INIT_PZDZD;
@@ -69,21 +69,21 @@ void booz2_vfi_init(int32_t z0, int32_t zd0, int32_t bias0 ) {
  F = [ 1 dt -dt^2/2
        0  1 -dt
        0  0   1     ];
-   
+
  B = [ dt^2/2 dt 0]';
- 
+
  Q = [ 0.01  0     0
        0     0.01  0
        0     0     0.001 ];
- 
+
  Xk1 = F * Xk0 + B * accel;
- 
+
  Pk1 = F * Pk0 * F' + Q;
 
 */
 
 void booz2_vfi_propagate( int32_t accel_reading ) {
-  
+
   // compute unbiased vertical acceleration
   b2_vfi_zdd = accel_reading + BOOZ_INT_OF_FLOAT(9.81, B2_VFI_ZDD_FRAC) - b2_vfi_abias;
   // propagate state
@@ -124,14 +124,14 @@ void booz2_vfi_update( int32_t z_meas ) {
 
   const int64_t y = (z_meas<<(B2_VFI_Z_FRAC-B2_VFI_MEAS_Z_FRAC)) - b2_vfi_z;
   const int32_t S = b2_vfi_P[0][0] + VFI_R;
-  
-  const int32_t K1 = b2_vfi_P[0][0] / S; 
-  const int32_t K2 = b2_vfi_P[1][0] / S; 
-  const int32_t K3 = b2_vfi_P[2][0] / S; 
 
-  b2_vfi_z     = b2_vfi_z     + ((K1 * y)>>B2_VFI_P_FRAC); 
-  b2_vfi_zd    = b2_vfi_zd    + ((K2 * y)>>B2_VFI_P_FRAC); 
-  b2_vfi_abias = b2_vfi_abias + ((K3 * y)>>B2_VFI_P_FRAC); 
+  const int32_t K1 = b2_vfi_P[0][0] / S;
+  const int32_t K2 = b2_vfi_P[1][0] / S;
+  const int32_t K3 = b2_vfi_P[2][0] / S;
+
+  b2_vfi_z     = b2_vfi_z     + ((K1 * y)>>B2_VFI_P_FRAC);
+  b2_vfi_zd    = b2_vfi_zd    + ((K2 * y)>>B2_VFI_P_FRAC);
+  b2_vfi_abias = b2_vfi_abias + ((K3 * y)>>B2_VFI_P_FRAC);
 
 #if 0
 

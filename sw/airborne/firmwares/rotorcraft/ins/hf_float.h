@@ -81,4 +81,3 @@ extern int lag_counter_err;
 extern int save_counter;
 
 #endif /* BOOZ2_HF_FLOAT_H */
-

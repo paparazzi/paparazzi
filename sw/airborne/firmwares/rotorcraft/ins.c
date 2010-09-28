@@ -280,4 +280,3 @@ void booz_ins_update_sonar() {
   }
 #endif
 }
-

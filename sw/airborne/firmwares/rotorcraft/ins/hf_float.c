@@ -756,5 +756,3 @@ static inline void b2_hff_update_ydot(struct HfilterFloat* hff_work, float vel, 
   hff_work->yP[1][0] = P21;
   hff_work->yP[1][1] = P22;
 }
-
-
