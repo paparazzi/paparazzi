@@ -372,7 +372,7 @@ test_rc_24.srcs += $(SRC_BOOZ)/booz_radio_control.c \
 SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCH)
 
 test_servos.ARCHDIR = $(ARCH)
-test_servos.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_FIRMWARE)/actuators/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_servos.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_FIRMWARE)/actuators/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_servos.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_servos.LDFLAGS += -lm
 test_servos.srcs += $(SRC_LISA)/test_servos.c   \

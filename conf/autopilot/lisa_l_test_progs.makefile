@@ -75,7 +75,7 @@ test_led.CFLAGS += -DUSE_LED
 SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCH)
 
 test_servos.ARCHDIR = $(ARCH)
-test_servos.CFLAGS  = -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_servos.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_FIRMWARE)/actuators/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_servos.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_servos.LDFLAGS += -lm
 test_servos.srcs += $(SRC_LISA)/test_servos.c 	\
@@ -87,7 +87,7 @@ test_servos.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
 test_servos.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 test_servos.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
-test_servos.srcs += $(SRC_BOOZ)/actuators/booz_actuators_pwm.c $(SRC_BOOZ_ARCH)/actuators/booz_actuators_pwm_arch.c
+test_servos.srcs += $(SRC_FIRMWARE)/actuators/actuators_pwm.c $(SRC_FIRMWARE)/actuators/arch/$(ARCH)/actuators_pwm_arch.c
 
 
 #
