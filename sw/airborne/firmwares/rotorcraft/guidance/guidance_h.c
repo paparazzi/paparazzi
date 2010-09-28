@@ -161,7 +161,7 @@ void booz2_guidance_h_read_rc(bool_t  in_flight) {
   default:
     break;
   }
-  
+
 }
 
 
@@ -398,4 +398,3 @@ static inline void booz2_guidance_h_nav_enter(void) {
   INT_VECT2_ZERO(booz2_guidance_h_pos_err_sum);
 
 }
-

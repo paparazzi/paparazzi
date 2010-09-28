@@ -281,4 +281,3 @@ static inline void run_hover_loop(bool_t in_flight) {
 
 
 }
-

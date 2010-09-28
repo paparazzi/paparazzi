@@ -189,4 +189,3 @@ static inline void b2_gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp) {
 #endif /* B2_GUIDANCE_H_C */
 
 #endif /* BOOZ2_GUIDANCE_H_REF_H */
-

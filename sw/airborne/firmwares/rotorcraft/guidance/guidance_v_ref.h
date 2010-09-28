@@ -163,4 +163,3 @@ static inline void b2_gv_update_ref_from_zd_sp(int32_t zd_sp) {
 #endif /* B2_GUIDANCE_V_C */
 
 #endif /* BOOZ2_GUIDANCE_V_REF_H */
-
