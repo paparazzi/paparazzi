@@ -603,8 +603,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 
 
-#define PERIODIC_SEND_BOOZ2_VERT_LOOP(_chan) {				\
-    DOWNLINK_SEND_BOOZ2_VERT_LOOP(_chan,				\
+#define PERIODIC_SEND_VERT_LOOP(_chan) {				\
+    DOWNLINK_SEND_VERT_LOOP(_chan,				\
 				  &guidance_v_z_sp,		\
 				  &guidance_v_zd_sp,		\
 				  &ins_ltp_pos.z,			\
@@ -622,8 +622,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				  &guidance_v_delta_t);		\
   }
 
-#define PERIODIC_SEND_BOOZ2_HOVER_LOOP(_chan) {				\
-    DOWNLINK_SEND_BOOZ2_HOVER_LOOP(_chan,				\
+#define PERIODIC_SEND_HOVER_LOOP(_chan) {				\
+    DOWNLINK_SEND_HOVER_LOOP(_chan,				\
 				   &guidance_h_pos_sp.x,		\
 				   &guidance_h_pos_sp.y,		\
 				   &ins_ltp_pos.x,			\

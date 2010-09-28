@@ -75,7 +75,7 @@
       <message name="DL_VALUE"                period="0.5"/>
       <message name="ALIVE"                   period="0.9"/>
       <message name="VFF"               period=".1"/>
-      <message name="BOOZ2_VERT_LOOP"         period=".1"/>
+      <message name="VERT_LOOP"         period=".1"/>
 <!--      <message name="BOOZ2_CMD"               period=".05"/> -->
       <message name="INS"               period=".2"/>
       <message name="INS_REF"           period="5.1"/>
@@ -83,7 +83,7 @@
 
     <mode name="h_loop">
       <message name="ALIVE"                   period="0.9"/>
-      <message name="BOOZ2_HOVER_LOOP"        period="0.1"/>
+      <message name="HOVER_LOOP"        period="0.1"/>
       <message name="STAB_ATTITUDE"     period=".4"/>
       <message name="HFF_DBG"           period=".2"/>
       <!--<message name="STAB_ATTITUDE_REF" period=".4"/>-->

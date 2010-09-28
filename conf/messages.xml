@@ -943,7 +943,7 @@
     <field name="sp_pos_e" type="int32"/>
   </message>
 
-  <message name="BOOZ2_VERT_LOOP" id="145">
+  <message name="VERT_LOOP" id="145">
     <field name="z_sp"      type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
     <field name="zd_sp"     type="int32" alt_unit="m"    alt_unit_coef="0.0000019"/>
     <field name="est_z"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
@@ -962,7 +962,7 @@
   </message>
 
 
-  <message name="BOOZ2_HOVER_LOOP" id="146">
+  <message name="HOVER_LOOP" id="146">
     <field name="sp_x"      type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
     <field name="sp_y"      type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>
     <field name="est_x"     type="int32" alt_unit="m"    alt_unit_coef="0.0039063"/>

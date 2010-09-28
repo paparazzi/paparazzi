@@ -94,7 +94,7 @@ static int read_data(const char* filename) {
   size_t read;
   n_dat = 0;
   while ((read = getline(&line, &len, fp)) != -1 && n_dat< NB_STEP) {
-    if (sscanf(line, "%lf %*d BOOZ2_VERT_LOOP %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+    if (sscanf(line, "%lf %*d VERT_LOOP %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
            &time[n_dat],
            &z_sp[n_dat], &zd_sp[n_dat],
            &est_z[n_dat], &est_zd[n_dat], &est_zdd[n_dat],
