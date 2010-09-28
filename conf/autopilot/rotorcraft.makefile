@@ -192,8 +192,8 @@ ap.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_ref_euler_int.c
 ap.srcs += $(SRC_BOOZ)/stabilization/booz_stabilization_attitude_euler_int.c
 
 ap.CFLAGS += -DUSE_NAVIGATION
-ap.srcs += $(SRC_BOOZ)/guidance/booz2_guidance_h.c
-ap.srcs += $(SRC_BOOZ)/guidance/booz2_guidance_v.c
+ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
+ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
 
 ap.srcs += $(SRC_FIRMWARE)/ins.c
 ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c

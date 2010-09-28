@@ -41,9 +41,9 @@ void booz_fms_init(void) {
   fms.timeouted = TRUE;
   fms.last_msg = BOOZ_FMS_TIMEOUT;
 
-  fms.input.h_mode = BOOZ2_GUIDANCE_H_MODE_ATTITUDE;
+  fms.input.h_mode = GUIDANCE_H_MODE_ATTITUDE;
   INT_EULERS_ZERO(fms.input.h_sp.attitude);
-  fms.input.v_mode = BOOZ2_GUIDANCE_V_MODE_CLIMB;
+  fms.input.v_mode = GUIDANCE_V_MODE_CLIMB;
   fms.input.v_sp.climb = 0;
   booz_fms_impl_init();
 
@@ -55,9 +55,9 @@ void booz_fms_periodic(void) {
     fms.last_msg++;
   else {
     fms.timeouted = TRUE;
-    fms.input.h_mode = BOOZ2_GUIDANCE_H_MODE_ATTITUDE;
+    fms.input.h_mode = GUIDANCE_H_MODE_ATTITUDE;
     INT_EULERS_ZERO(fms.input.h_sp.attitude);
-    fms.input.v_mode = BOOZ2_GUIDANCE_V_MODE_CLIMB;
+    fms.input.v_mode = GUIDANCE_V_MODE_CLIMB;
     fms.input.v_sp.climb = 0;
   }
 #endif

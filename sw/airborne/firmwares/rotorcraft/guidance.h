@@ -1,7 +1,7 @@
-#ifndef BOOZ_GUIDANCE_H
-#define BOOZ_GUIDANCE_H
+#ifndef GUIDANCE_H
+#define GUIDANCE_H
 
-#include "guidance/booz2_guidance_h.h"
-#include "guidance/booz2_guidance_v.h"
+#include "guidance/guidance_h.h"
+#include "guidance/guidance_v.h"
 
-#endif /* BOOZ_GUIDANCE_H */
+#endif /* GUIDANCE_H */

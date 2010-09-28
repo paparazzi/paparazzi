@@ -118,7 +118,7 @@ void booz2_nav_run(void) {
   int32_t dist_to_waypoint;
   INT32_VECT2_NORM(dist_to_waypoint, path_to_waypoint);
 
-#ifndef B2_GUIDANCE_H_USE_REF
+#ifndef GUIDANCE_H_USE_REF
   if (dist_to_waypoint < CLOSE_TO_WAYPOINT) {
     VECT2_COPY(booz2_navigation_carrot, booz2_navigation_target);
   }

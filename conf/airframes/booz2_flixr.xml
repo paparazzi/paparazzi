@@ -164,7 +164,7 @@
     <define name="BARO_SENS" value="15." integer="16" />
   </section>
 
-  <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
     <define name="MIN_ERR_Z" value="POS_BFP_OF_REAL(-10.)" />
     <define name="MAX_ERR_Z" value="POS_BFP_OF_REAL( 10.)" />
     <define name="MIN_ERR_ZD" value="SPEED_BFP_OF_REAL(-10.)" />
@@ -180,7 +180,7 @@
   </section>
 
 
-  <section name="GUIDANCE_H" prefix="BOOZ2_GUIDANCE_H_">
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <define name="PGAIN" value="-70"/>
     <define name="DGAIN" value="-150"/>
     <define name="IGAIN" value="-15"/>
@@ -227,12 +227,12 @@
       <!--<define name="RADIO_CONTROL_KILL_SWITCH" value="RADIO_CONTROL_SWITCH1"/>-->
       <define name="USE_ADAPT_HOVER"/>
       <define name="USE_GPS_ACC4R"/>
-      <define name="B2_GUIDANCE_H_USE_REF"/>
+      <define name="GUIDANCE_H_USE_REF"/>
       <define name="USE_INS_NAV_INIT"/>
     </target>
     <target name="sim" board="pc">
       <define name="USE_ADAPT_HOVER"/>
-      <define name="B2_GUIDANCE_H_USE_REF"/>
+      <define name="GUIDANCE_H_USE_REF"/>
       <define name="USE_INS_NAV_INIT"/>
       <subsystem name="fdm"   type="nps"/>
     </target>

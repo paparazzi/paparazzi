@@ -50,7 +50,7 @@
 #include "autopilot.h"
 
 #include "booz_stabilization.h"
-#include "booz_guidance.h"
+#include "guidance.h"
 
 #include "ahrs.h"
 #include "ins.h"
@@ -115,8 +115,8 @@ STATIC_INLINE void main_init( void ) {
   booz_fms_init();
   autopilot_init();
   booz2_nav_init();
-  booz2_guidance_h_init();
-  booz2_guidance_v_init();
+  guidance_h_init();
+  guidance_v_init();
   booz_stabilization_init();
 
   ahrs_aligner_init();

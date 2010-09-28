@@ -41,9 +41,9 @@ void vi_init(void) {
   vi.timeouted = TRUE;
   vi.last_msg = VI_TIMEOUT;
 
-  vi.input.h_mode = BOOZ2_GUIDANCE_H_MODE_ATTITUDE;
+  vi.input.h_mode = GUIDANCE_H_MODE_ATTITUDE;
   INT_EULERS_ZERO(vi.input.h_sp.attitude);
-  vi.input.v_mode = BOOZ2_GUIDANCE_V_MODE_CLIMB;
+  vi.input.v_mode = GUIDANCE_V_MODE_CLIMB;
   vi.input.v_sp.climb = 0;
   vi_impl_init();
 
@@ -55,9 +55,9 @@ void vi_periodic(void) {
     vi.last_msg++;
   else {
     vi.timeouted = TRUE;
-    vi.input.h_mode = BOOZ2_GUIDANCE_H_MODE_ATTITUDE;
+    vi.input.h_mode = GUIDANCE_H_MODE_ATTITUDE;
     INT_EULERS_ZERO(vi.input.h_sp.attitude);
-    vi.input.v_mode = BOOZ2_GUIDANCE_V_MODE_CLIMB;
+    vi.input.v_mode = GUIDANCE_V_MODE_CLIMB;
     vi.input.v_sp.climb = 0;
   }
 #endif

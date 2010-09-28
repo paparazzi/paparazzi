@@ -35,7 +35,7 @@
 #endif
 
 #include "autopilot.h"
-#include "booz_guidance.h"
+#include "guidance.h"
 
 #include "actuators.h"
 
@@ -67,8 +67,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			      &autopilot_mode,			\
 			      &autopilot_in_flight,		\
 			      &autopilot_motors_on,		\
-			      &booz2_guidance_h_mode,			\
-			      &booz2_guidance_v_mode,			\
+			      &guidance_h_mode,			\
+			      &guidance_v_mode,			\
 			      &booz2_battery_voltage,			\
 			      &cpu_time_sec				\
 			      );					\
@@ -86,8 +86,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			      &autopilot_mode,			\
 			      &autopilot_in_flight,		\
 			      &autopilot_motors_on,		\
-			      &booz2_guidance_h_mode,			\
-			      &booz2_guidance_v_mode,			\
+			      &guidance_h_mode,			\
+			      &guidance_v_mode,			\
 			      &booz2_battery_voltage,			\
 			      &cpu_time_sec				\
 			      );					\
@@ -525,12 +525,12 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_BOOZ2_HFF_GPS(_chan) {}
 #endif
 
-#define PERIODIC_SEND_BOOZ2_GUIDANCE(_chan) {				\
-    DOWNLINK_SEND_BOOZ2_GUIDANCE(_chan,					\
-				 &booz2_guidance_h_cur_pos.x,		\
-				 &booz2_guidance_h_cur_pos.y,		\
-				 &booz2_guidance_h_held_pos.x,		\
-				 &booz2_guidance_h_held_pos.y);		\
+#define PERIODIC_SEND_GUIDANCE(_chan) {				\
+    DOWNLINK_SEND_GUIDANCE(_chan,					\
+				 &guidance_h_cur_pos.x,		\
+				 &guidance_h_cur_pos.y,		\
+				 &guidance_h_held_pos.x,		\
+				 &guidance_h_held_pos.y);		\
   }
 
 #define PERIODIC_SEND_INS(_chan) {				\
@@ -605,64 +605,64 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #define PERIODIC_SEND_BOOZ2_VERT_LOOP(_chan) {				\
     DOWNLINK_SEND_BOOZ2_VERT_LOOP(_chan,				\
-				  &booz2_guidance_v_z_sp,		\
-				  &booz2_guidance_v_zd_sp,		\
+				  &guidance_v_z_sp,		\
+				  &guidance_v_zd_sp,		\
 				  &ins_ltp_pos.z,			\
 				  &ins_ltp_speed.z,		\
 				  &ins_ltp_accel.z,		\
-				  &booz2_guidance_v_z_ref,		\
-				  &booz2_guidance_v_zd_ref,		\
-				  &booz2_guidance_v_zdd_ref,		\
+				  &guidance_v_z_ref,		\
+				  &guidance_v_zd_ref,		\
+				  &guidance_v_zdd_ref,		\
 				  &b2_gv_adapt_X,			\
 				  &b2_gv_adapt_P,			\
 				  &b2_gv_adapt_Xmeas,			\
-				  &booz2_guidance_v_z_sum_err,		\
-				  &booz2_guidance_v_ff_cmd,		\
-				  &booz2_guidance_v_fb_cmd,		\
-				  &booz2_guidance_v_delta_t);		\
+				  &guidance_v_z_sum_err,		\
+				  &guidance_v_ff_cmd,		\
+				  &guidance_v_fb_cmd,		\
+				  &guidance_v_delta_t);		\
   }
 
 #define PERIODIC_SEND_BOOZ2_HOVER_LOOP(_chan) {				\
     DOWNLINK_SEND_BOOZ2_HOVER_LOOP(_chan,				\
-				   &booz2_guidance_h_pos_sp.x,		\
-				   &booz2_guidance_h_pos_sp.y,		\
+				   &guidance_h_pos_sp.x,		\
+				   &guidance_h_pos_sp.y,		\
 				   &ins_ltp_pos.x,			\
 				   &ins_ltp_pos.y,			\
 				   &ins_ltp_speed.x,		\
 				   &ins_ltp_speed.y,		\
 				   &ins_ltp_accel.x,		\
 				   &ins_ltp_accel.y,		\
-				   &booz2_guidance_h_pos_err.x,		\
-				   &booz2_guidance_h_pos_err.y,		\
-				   &booz2_guidance_h_speed_err.x,	\
-				   &booz2_guidance_h_speed_err.y,	\
-				   &booz2_guidance_h_pos_err_sum.x,	\
-				   &booz2_guidance_h_pos_err_sum.y,	\
-				   &booz2_guidance_h_nav_err.x,	\
-				   &booz2_guidance_h_nav_err.y,	\
-				   &booz2_guidance_h_command_earth.x,	\
-				   &booz2_guidance_h_command_earth.y,	\
-				   &booz2_guidance_h_command_body.phi,	\
-				   &booz2_guidance_h_command_body.theta, \
-				   &booz2_guidance_h_command_body.psi);	\
+				   &guidance_h_pos_err.x,		\
+				   &guidance_h_pos_err.y,		\
+				   &guidance_h_speed_err.x,	\
+				   &guidance_h_speed_err.y,	\
+				   &guidance_h_pos_err_sum.x,	\
+				   &guidance_h_pos_err_sum.y,	\
+				   &guidance_h_nav_err.x,	\
+				   &guidance_h_nav_err.y,	\
+				   &guidance_h_command_earth.x,	\
+				   &guidance_h_command_earth.y,	\
+				   &guidance_h_command_body.phi,	\
+				   &guidance_h_command_body.theta, \
+				   &guidance_h_command_body.psi);	\
   }
 
-#define PERIODIC_SEND_BOOZ2_GUIDANCE_H_REF(_chan) { \
-  DOWNLINK_SEND_BOOZ2_GUIDANCE_H_REF_INT(_chan, \
-      &booz2_guidance_h_pos_sp.x, \
-      &booz2_guidance_h_pos_ref.x, \
-      &booz2_guidance_h_speed_ref.x, \
-      &booz2_guidance_h_accel_ref.x, \
-      &booz2_guidance_h_pos_sp.y, \
-      &booz2_guidance_h_pos_ref.y, \
-      &booz2_guidance_h_speed_ref.y, \
-      &booz2_guidance_h_accel_ref.y); \
+#define PERIODIC_SEND_GUIDANCE_H_REF(_chan) { \
+  DOWNLINK_SEND_GUIDANCE_H_REF_INT(_chan, \
+      &guidance_h_pos_sp.x, \
+      &guidance_h_pos_ref.x, \
+      &guidance_h_speed_ref.x, \
+      &guidance_h_accel_ref.x, \
+      &guidance_h_pos_sp.y, \
+      &guidance_h_pos_ref.y, \
+      &guidance_h_speed_ref.y, \
+      &guidance_h_accel_ref.y); \
 }
 
 #include "booz_gps.h"
 #include "booz2_navigation.h"
 #define PERIODIC_SEND_BOOZ2_FP(_chan) {					\
-    int32_t carrot_up = -booz2_guidance_v_z_sp;				\
+    int32_t carrot_up = -guidance_v_z_sp;				\
     DOWNLINK_SEND_BOOZ2_FP( _chan,					\
 			    &ins_enu_pos.x,			\
 			    &ins_enu_pos.y,			\
@@ -673,10 +673,10 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			    &ahrs.ltp_to_body_euler.phi,		\
 			    &ahrs.ltp_to_body_euler.theta,		\
 			    &ahrs.ltp_to_body_euler.psi,		\
-			    &booz2_guidance_h_pos_sp.y,			\
-			    &booz2_guidance_h_pos_sp.x,			\
+			    &guidance_h_pos_sp.y,			\
+			    &guidance_h_pos_sp.x,			\
 			    &carrot_up,					\
-			    &booz2_guidance_h_command_body.psi,		\
+			    &guidance_h_command_body.psi,		\
 			    &booz_stabilization_cmd[COMMAND_THRUST], \
           &autopilot_flight_time);	\
   }

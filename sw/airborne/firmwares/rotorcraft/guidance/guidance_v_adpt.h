@@ -27,15 +27,15 @@
  * needed by the invert dynamic model to produce a nominal command
  */
 
-#ifndef BOOZ2_GUIDANCE_V_ADPT
-#define BOOZ2_GUIDANCE_V_ADPT
+#ifndef GUIDANCE_V_ADPT
+#define GUIDANCE_V_ADPT
 
 extern int32_t b2_gv_adapt_X;
 extern int32_t b2_gv_adapt_P;
 extern int32_t b2_gv_adapt_Xmeas;
 
 
-#ifdef B2_GUIDANCE_V_C
+#ifdef GUIDANCE_V_C
 
 /* Our State
    Q13.18
@@ -142,6 +142,6 @@ static inline void b2_gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied) {
 }
 
 
-#endif /* B2_GUIDANCE_V_C */
+#endif /* GUIDANCE_V_C */
 
-#endif /* BOOZ2_GUIDANCE_V_ADPT */
+#endif /* GUIDANCE_V_ADPT */

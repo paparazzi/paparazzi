@@ -145,7 +145,7 @@
     <define name="SONAR_SENS" value="2.146" integer="16"/>
   </section>
 
-  <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
    <define name="MIN_ERR_Z"    value="POS_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_Z"    value="POS_BFP_OF_REAL( 10.)"/>
    <define name="MIN_ERR_ZD"   value="SPEED_BFP_OF_REAL(-10.)"/>
@@ -166,7 +166,7 @@
   </section>
 
 
-  <section name="GUIDANCE_H" prefix="BOOZ2_GUIDANCE_H_">
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
    <define name="PGAIN" value="-50"/>
    <define name="DGAIN" value="-100"/>
    <define name="IGAIN" value="-15"/>
@@ -223,14 +223,14 @@
 
   <makefile location="after">
 
-ap.CFLAGS += -DB2_GUIDANCE_H_USE_REF
+ap.CFLAGS += -DGUIDANCE_H_USE_REF
 ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3
 
 ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c
 
 sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a2.h\"
 sim.CFLAGS += -DNPS_NO_SUPERVISION
-sim.CFLAGS += -DB2_GUIDANCE_H_USE_REF
+sim.CFLAGS += -DGUIDANCE_H_USE_REF
 sim.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3
 
 sim.srcs += $(SRC_BOOZ_SIM)/booz2_pwm_hw.c

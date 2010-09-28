@@ -32,7 +32,7 @@
 #include "math/pprz_algebra_int.h"
 #include "autopilot.h"
 #include "booz/booz_stabilization.h"
-#include "booz/booz_guidance.h"
+#include "booz/guidance.h"
 #include "booz/booz2_navigation.h"
 
 struct Vi_imu_info {

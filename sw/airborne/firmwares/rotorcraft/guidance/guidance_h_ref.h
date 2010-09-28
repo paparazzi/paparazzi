@@ -1,5 +1,5 @@
 /*
- * $Id: booz2_guidance_v_ref.h 4173 2009-09-18 11:57:21Z flixr $
+ * $Id: guidance_v_ref.h 4173 2009-09-18 11:57:21Z flixr $
  *
  * Copyright (C) 2008-2009 ENAC <poinix@gmail.com>
  *
@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ2_GUIDANCE_H_REF_H
-#define BOOZ2_GUIDANCE_H_REF_H
+#ifndef GUIDANCE_H_REF_H
+#define GUIDANCE_H_REF_H
 
 #include "airframe.h"
 #include "inttypes.h"
@@ -50,34 +50,34 @@ extern struct Int64Vect2 b2_gh_pos_ref;
 #define B2_GH_POS_REF_FRAC (B2_GH_SPEED_REF_FRAC + B2_GH_FREQ_FRAC)
 
 /* Saturations definition */
-#ifndef BOOZ2_GUIDANCE_H_REF_MAX_ACCEL
-#define BOOZ2_GUIDANCE_H_REF_MAX_ACCEL ( tanf(RadOfDeg(30.))*9.81 )
+#ifndef GUIDANCE_H_REF_MAX_ACCEL
+#define GUIDANCE_H_REF_MAX_ACCEL ( tanf(RadOfDeg(30.))*9.81 )
 #endif
-#define B2_GH_MAX_ACCEL BFP_OF_REAL(BOOZ2_GUIDANCE_H_REF_MAX_ACCEL, B2_GH_ACCEL_REF_FRAC)
+#define B2_GH_MAX_ACCEL BFP_OF_REAL(GUIDANCE_H_REF_MAX_ACCEL, B2_GH_ACCEL_REF_FRAC)
 
-#ifndef BOOZ2_GUIDANCE_H_REF_MAX_SPEED
-#define BOOZ2_GUIDANCE_H_REF_MAX_SPEED ( 5. )
+#ifndef GUIDANCE_H_REF_MAX_SPEED
+#define GUIDANCE_H_REF_MAX_SPEED ( 5. )
 #endif
-#define B2_GH_MAX_SPEED BFP_OF_REAL(BOOZ2_GUIDANCE_H_REF_MAX_SPEED, B2_GH_SPEED_REF_FRAC)
+#define B2_GH_MAX_SPEED BFP_OF_REAL(GUIDANCE_H_REF_MAX_SPEED, B2_GH_SPEED_REF_FRAC)
 
 /* second order model natural frequency and damping */
-#ifndef BOOZ2_GUIDANCE_H_REF_OMEGA
-#define BOOZ2_GUIDANCE_H_REF_OMEGA RadOfDeg(67.)
+#ifndef GUIDANCE_H_REF_OMEGA
+#define GUIDANCE_H_REF_OMEGA RadOfDeg(67.)
 #endif
-#ifndef BOOZ2_GUIDANCE_H_REF_ZETA
-#define BOOZ2_GUIDANCE_H_REF_ZETA  0.85
+#ifndef GUIDANCE_H_REF_ZETA
+#define GUIDANCE_H_REF_ZETA  0.85
 #endif
 #define B2_GH_ZETA_OMEGA_FRAC 10
-#define B2_GH_ZETA_OMEGA BFP_OF_REAL((BOOZ2_GUIDANCE_H_REF_ZETA*BOOZ2_GUIDANCE_H_REF_OMEGA), B2_GH_ZETA_OMEGA_FRAC)
+#define B2_GH_ZETA_OMEGA BFP_OF_REAL((GUIDANCE_H_REF_ZETA*GUIDANCE_H_REF_OMEGA), B2_GH_ZETA_OMEGA_FRAC)
 #define B2_GH_OMEGA_2_FRAC 7
-#define B2_GH_OMEGA_2    BFP_OF_REAL((BOOZ2_GUIDANCE_H_REF_OMEGA*BOOZ2_GUIDANCE_H_REF_OMEGA), B2_GH_OMEGA_2_FRAC)
+#define B2_GH_OMEGA_2    BFP_OF_REAL((GUIDANCE_H_REF_OMEGA*GUIDANCE_H_REF_OMEGA), B2_GH_OMEGA_2_FRAC)
 
 /* first order time constant */
 #define B2_GH_REF_THAU_F  0.5
 #define B2_GH_REF_INV_THAU_FRAC 16
 #define B2_GH_REF_INV_THAU  BFP_OF_REAL((1./B2_GH_REF_THAU_F), B2_GH_REF_INV_THAU_FRAC)
 
-#ifdef B2_GUIDANCE_H_C
+#ifdef GUIDANCE_H_C
 static inline void b2_gh_set_ref(struct Int32Vect2 pos, struct Int32Vect2 speed, struct Int32Vect2 accel);
 static inline void b2_gh_update_ref_from_pos_sp(struct Int32Vect2 pos_sp);
 static inline void b2_gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp);
@@ -186,6 +186,6 @@ static inline void b2_gh_update_ref_from_speed_sp(struct Int32Vect2 speed_sp) {
   }
 }
 
-#endif /* B2_GUIDANCE_H_C */
+#endif /* GUIDANCE_H_C */
 
-#endif /* BOOZ2_GUIDANCE_H_REF_H */
+#endif /* GUIDANCE_H_REF_H */

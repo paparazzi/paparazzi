@@ -27,7 +27,7 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 #include "autopilot.h"
-#include "booz_guidance.h"
+#include "guidance.h"
 
 struct Booz_fms_imu_info {
   struct Int16Vect3 gyro;

@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ2_GUIDANCE_V_REF_H
-#define BOOZ2_GUIDANCE_V_REF_H
+#ifndef GUIDANCE_V_REF_H
+#define GUIDANCE_V_REF_H
 
 #include "airframe.h"
 #include "inttypes.h"
@@ -50,44 +50,44 @@ extern int64_t b2_gv_z_ref;
 #define B2_GV_Z_REF_FRAC (B2_GV_ZD_REF_FRAC + B2_GV_FREQ_FRAC)
 
 /* Saturations definition */
-#ifndef BOOZ2_GUIDANCE_V_REF_MIN_ZDD
-#define BOOZ2_GUIDANCE_V_REF_MIN_ZDD (-2.0*9.81)
+#ifndef GUIDANCE_V_REF_MIN_ZDD
+#define GUIDANCE_V_REF_MIN_ZDD (-2.0*9.81)
 #endif
-#define B2_GV_MIN_ZDD BFP_OF_REAL(BOOZ2_GUIDANCE_V_REF_MIN_ZDD, B2_GV_ZDD_REF_FRAC)
+#define B2_GV_MIN_ZDD BFP_OF_REAL(GUIDANCE_V_REF_MIN_ZDD, B2_GV_ZDD_REF_FRAC)
 
-#ifndef BOOZ2_GUIDANCE_V_REF_MAX_ZDD
-#define BOOZ2_GUIDANCE_V_REF_MAX_ZDD ( 0.8*9.81)
+#ifndef GUIDANCE_V_REF_MAX_ZDD
+#define GUIDANCE_V_REF_MAX_ZDD ( 0.8*9.81)
 #endif
-#define B2_GV_MAX_ZDD BFP_OF_REAL(BOOZ2_GUIDANCE_V_REF_MAX_ZDD, B2_GV_ZDD_REF_FRAC)
+#define B2_GV_MAX_ZDD BFP_OF_REAL(GUIDANCE_V_REF_MAX_ZDD, B2_GV_ZDD_REF_FRAC)
 
-#ifndef BOOZ2_GUIDANCE_V_REF_MIN_ZD
-#define BOOZ2_GUIDANCE_V_REF_MIN_ZD (-3.)
+#ifndef GUIDANCE_V_REF_MIN_ZD
+#define GUIDANCE_V_REF_MIN_ZD (-3.)
 #endif
-#define B2_GV_MIN_ZD  BFP_OF_REAL(BOOZ2_GUIDANCE_V_REF_MIN_ZD , B2_GV_ZD_REF_FRAC)
+#define B2_GV_MIN_ZD  BFP_OF_REAL(GUIDANCE_V_REF_MIN_ZD , B2_GV_ZD_REF_FRAC)
 
-#ifndef BOOZ2_GUIDANCE_V_REF_MAX_ZD
-#define BOOZ2_GUIDANCE_V_REF_MAX_ZD ( 3.)
+#ifndef GUIDANCE_V_REF_MAX_ZD
+#define GUIDANCE_V_REF_MAX_ZD ( 3.)
 #endif
-#define B2_GV_MAX_ZD  BFP_OF_REAL(BOOZ2_GUIDANCE_V_REF_MAX_ZD , B2_GV_ZD_REF_FRAC)
+#define B2_GV_MAX_ZD  BFP_OF_REAL(GUIDANCE_V_REF_MAX_ZD , B2_GV_ZD_REF_FRAC)
 
 /* second order model natural frequency and damping */
-#ifndef BOOZ2_GUIDANCE_V_REF_OMEGA
-#define BOOZ2_GUIDANCE_V_REF_OMEGA RadOfDeg(100.)
+#ifndef GUIDANCE_V_REF_OMEGA
+#define GUIDANCE_V_REF_OMEGA RadOfDeg(100.)
 #endif
-#ifndef BOOZ2_GUIDANCE_V_REF_ZETA
-#define BOOZ2_GUIDANCE_V_REF_ZETA  0.85
+#ifndef GUIDANCE_V_REF_ZETA
+#define GUIDANCE_V_REF_ZETA  0.85
 #endif
 #define B2_GV_ZETA_OMEGA_FRAC 10
-#define B2_GV_ZETA_OMEGA BFP_OF_REAL((BOOZ2_GUIDANCE_V_REF_ZETA*BOOZ2_GUIDANCE_V_REF_OMEGA), B2_GV_ZETA_OMEGA_FRAC)
+#define B2_GV_ZETA_OMEGA BFP_OF_REAL((GUIDANCE_V_REF_ZETA*GUIDANCE_V_REF_OMEGA), B2_GV_ZETA_OMEGA_FRAC)
 #define B2_GV_OMEGA_2_FRAC 7
-#define B2_GV_OMEGA_2    BFP_OF_REAL((BOOZ2_GUIDANCE_V_REF_OMEGA*BOOZ2_GUIDANCE_V_REF_OMEGA), B2_GV_OMEGA_2_FRAC)
+#define B2_GV_OMEGA_2    BFP_OF_REAL((GUIDANCE_V_REF_OMEGA*GUIDANCE_V_REF_OMEGA), B2_GV_OMEGA_2_FRAC)
 
 /* first order time constant */
 #define B2_GV_REF_THAU_F  0.25
 #define B2_GV_REF_INV_THAU_FRAC 16
 #define B2_GV_REF_INV_THAU  BFP_OF_REAL((1./0.25), B2_GV_REF_INV_THAU_FRAC)
 
-#ifdef B2_GUIDANCE_V_C
+#ifdef GUIDANCE_V_C
 static inline void b2_gv_set_ref(int32_t alt, int32_t speed, int32_t accel);
 static inline void b2_gv_update_ref_from_z_sp(int32_t z_sp);
 static inline void b2_gv_update_ref_from_zd_sp(int32_t zd_sp);
@@ -160,6 +160,6 @@ static inline void b2_gv_update_ref_from_zd_sp(int32_t zd_sp) {
   }
 }
 
-#endif /* B2_GUIDANCE_V_C */
+#endif /* GUIDANCE_V_C */
 
-#endif /* BOOZ2_GUIDANCE_V_REF_H */
+#endif /* GUIDANCE_V_REF_H */

@@ -220,7 +220,7 @@ second attempt
     <define name="BARO_SENS" value="14.9" integer="16"/>
   </section>
 
-  <section name="GUIDANCE_V" prefix="BOOZ2_GUIDANCE_V_">
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
    <define name="MIN_ERR_Z" value="POS_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_Z" value="POS_BFP_OF_REAL( 10.)"/>
    <define name="MIN_ERR_ZD" value="SPEED_BFP_OF_REAL(-10.)"/>
@@ -237,7 +237,7 @@ second attempt
   </section>
 
 
- <section name="GUIDANCE_H" prefix="BOOZ2_GUIDANCE_H_">
+ <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
    <define name="PGAIN" value="-100"/>
    <define name="DGAIN" value="-100"/>
    <define name="IGAIN" value="-0"/>

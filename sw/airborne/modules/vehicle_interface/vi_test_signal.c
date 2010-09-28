@@ -37,8 +37,8 @@ void booz_fms_impl_init(void) {
   fms_test_signal.period    = FMS_TEST_SIGNAL_DEFAULT_PERIOD;
   fms_test_signal.amplitude = FMS_TEST_SIGNAL_DEFAULT_AMPLITUDE;
   fms_test_signal.counter   = 0;
-  fms.input.h_mode = BOOZ2_GUIDANCE_H_MODE_ATTITUDE;
-  fms.input.v_mode = BOOZ2_GUIDANCE_V_MODE_HOVER;
+  fms.input.h_mode = GUIDANCE_H_MODE_ATTITUDE;
+  fms.input.v_mode = GUIDANCE_V_MODE_HOVER;
 }
 
 void booz_fms_impl_periodic(void) {
@@ -68,7 +68,7 @@ void booz_fms_impl_periodic(void) {
     break;
 #if 0    
   case BOOZ_FMS_TEST_SIGNAL_MODE_VERTICAL: {
-    if (booz2_guidance_v_mode < BOOZ2_GUIDANCE_V_MODE_HOVER)
+    if (guidance_v_mode < GUIDANCE_V_MODE_HOVER)
       booz_fms_test_signal_start_z = ins_ltp_pos.z;
     else {
       booz_fms_input.v_sp.height = (booz_fms_test_signal_counter < booz_fms_test_signal_period) ?

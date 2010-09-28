@@ -936,7 +936,7 @@
     <field name="cmd_thrust" type="int32"/>   
  </message>
 
-  <message name="BOOZ2_GUIDANCE" id="144">
+  <message name="GUIDANCE" id="144">
     <field name="pos_n"    type="int32"/>   
     <field name="pos_e"    type="int32"/>   
     <field name="sp_pos_n" type="int32"/>   
@@ -1009,7 +1009,7 @@
     <field name="tbd"      type="float"/>
   </message>
 
-  <message name="BOOZ2_GUIDANCE_H_REF_INT" id="149"> 
+  <message name="GUIDANCE_H_REF_INT" id="149">
     <field name="sp_x"    type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>   
     <field name="ref_x"   type="int32" alt_unit="m"     alt_unit_coef="0.0039063"/>
     <field name="ref_xd"  type="int32" alt_unit="m/s"   alt_unit_coef="0.0000019"/>

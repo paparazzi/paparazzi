@@ -27,7 +27,7 @@
 #include "booz_radio_control.h"
 #include "booz2_commands.h"
 #include "booz2_navigation.h"
-#include "booz_guidance.h"
+#include "guidance.h"
 #include "booz_stabilization.h"
 #include "led.h"
 
@@ -87,8 +87,8 @@ void autopilot_periodic(void) {
 		autopilot_in_flight, autopilot_motors_on);
   }
   else {
-    booz2_guidance_v_run( autopilot_in_flight );
-    booz2_guidance_h_run( autopilot_in_flight );
+    guidance_v_run( autopilot_in_flight );
+    guidance_h_run( autopilot_in_flight );
     SetCommands(booz_stabilization_cmd,
         autopilot_in_flight, autopilot_motors_on);
   }
@@ -105,29 +105,29 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
 #ifndef KILL_AS_FAILSAFE
       booz_stab_att_sp_euler.phi = 0;
       booz_stab_att_sp_euler.theta = 0;
-      booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_ATTITUDE);
+      guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
       break;
 #endif
     case AP_MODE_KILL:
       autopilot_motors_on = FALSE;
-      booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_KILL);
+      guidance_h_mode_changed(GUIDANCE_H_MODE_KILL);
       break;
     case AP_MODE_RATE_DIRECT:
     case AP_MODE_RATE_Z_HOLD:
-      booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_RATE);
+      guidance_h_mode_changed(GUIDANCE_H_MODE_RATE);
       break;
     case AP_MODE_ATTITUDE_DIRECT:
     case AP_MODE_ATTITUDE_CLIMB:
     case AP_MODE_ATTITUDE_Z_HOLD:
-      booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_ATTITUDE);
+      guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
       break;
     case AP_MODE_HOVER_DIRECT:
     case AP_MODE_HOVER_CLIMB:
     case AP_MODE_HOVER_Z_HOLD:
-      booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_HOVER);
+      guidance_h_mode_changed(GUIDANCE_H_MODE_HOVER);
       break;
     case AP_MODE_NAV:
-      booz2_guidance_h_mode_changed(BOOZ2_GUIDANCE_H_MODE_NAV);
+      guidance_h_mode_changed(GUIDANCE_H_MODE_NAV);
       break;
     default:
       break;
@@ -136,33 +136,33 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
     switch (new_autopilot_mode) {
     case AP_MODE_FAILSAFE:
 #ifndef KILL_AS_FAILSAFE
-      booz2_guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
-      booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_CLIMB);
+      guidance_v_zd_sp = SPEED_BFP_OF_REAL(0.5);
+      guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
       break;
 #endif
     case AP_MODE_KILL:
-      booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_KILL);
+      guidance_v_mode_changed(GUIDANCE_V_MODE_KILL);
       break;
     case AP_MODE_RATE_DIRECT:
     case AP_MODE_ATTITUDE_DIRECT:
     case AP_MODE_HOVER_DIRECT:
-      booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_RC_DIRECT);
+      guidance_v_mode_changed(GUIDANCE_V_MODE_RC_DIRECT);
       break;
     case AP_MODE_RATE_RC_CLIMB:
     case AP_MODE_ATTITUDE_RC_CLIMB:
-      booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_RC_CLIMB);
+      guidance_v_mode_changed(GUIDANCE_V_MODE_RC_CLIMB);
       break;
     case AP_MODE_ATTITUDE_CLIMB:
     case AP_MODE_HOVER_CLIMB:
-      booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_CLIMB);
+      guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
       break;
     case AP_MODE_RATE_Z_HOLD:
     case AP_MODE_ATTITUDE_Z_HOLD:
     case AP_MODE_HOVER_Z_HOLD:
-      booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_HOVER);
+      guidance_v_mode_changed(GUIDANCE_V_MODE_HOVER);
       break;
     case AP_MODE_NAV:
-      booz2_guidance_v_mode_changed(BOOZ2_GUIDANCE_V_MODE_NAV);
+      guidance_v_mode_changed(GUIDANCE_V_MODE_NAV);
       break;
     default:
       break;
@@ -252,8 +252,8 @@ void autopilot_on_rc_frame(void) {
   kill_throttle = !autopilot_motors_on;
 
   if (autopilot_mode > AP_MODE_FAILSAFE) {
-    booz2_guidance_v_read_rc();
-    booz2_guidance_h_read_rc(autopilot_in_flight);
+    guidance_v_read_rc();
+    guidance_h_read_rc(autopilot_in_flight);
   }
 
 }

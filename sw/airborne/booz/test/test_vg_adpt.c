@@ -27,8 +27,8 @@
 
 #include "std.h"
 #include "booz_geometry_mixed.h"
-#define B2_GUIDANCE_V_C
-#include "booz2_guidance_v_adpt.h"
+#define GUIDANCE_V_C
+#include "guidance_v_adpt.h"
 
 
 

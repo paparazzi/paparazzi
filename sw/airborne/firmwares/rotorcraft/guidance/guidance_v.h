@@ -21,47 +21,47 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ2_GUIDANCE_V
-#define BOOZ2_GUIDANCE_V
+#ifndef GUIDANCE_V
+#define GUIDANCE_V
 
 #include "std.h"
 
-#include "booz2_guidance_v_ref.h"
-#include "booz2_guidance_v_adpt.h"
+#include "guidance_v_ref.h"
+#include "guidance_v_adpt.h"
 
-#define BOOZ2_GUIDANCE_V_MODE_KILL      0
-#define BOOZ2_GUIDANCE_V_MODE_RC_DIRECT 1
-#define BOOZ2_GUIDANCE_V_MODE_RC_CLIMB  2
-#define BOOZ2_GUIDANCE_V_MODE_CLIMB     3
-#define BOOZ2_GUIDANCE_V_MODE_HOVER     4
-#define BOOZ2_GUIDANCE_V_MODE_NAV       5
+#define GUIDANCE_V_MODE_KILL      0
+#define GUIDANCE_V_MODE_RC_DIRECT 1
+#define GUIDANCE_V_MODE_RC_CLIMB  2
+#define GUIDANCE_V_MODE_CLIMB     3
+#define GUIDANCE_V_MODE_HOVER     4
+#define GUIDANCE_V_MODE_NAV       5
 
-extern uint8_t booz2_guidance_v_mode;
+extern uint8_t guidance_v_mode;
 
-extern int32_t booz2_guidance_v_z_sp;
-extern int32_t booz2_guidance_v_zd_sp;
-extern int32_t booz2_guidance_v_z_ref;
-extern int32_t booz2_guidance_v_zd_ref;
-extern int32_t booz2_guidance_v_zdd_ref;
-extern int32_t booz2_guidance_v_z_sum_err;
-extern int32_t booz2_guidance_v_ff_cmd;
-extern int32_t booz2_guidance_v_fb_cmd;
-extern int32_t booz2_guidance_v_delta_t;
+extern int32_t guidance_v_z_sp;
+extern int32_t guidance_v_zd_sp;
+extern int32_t guidance_v_z_ref;
+extern int32_t guidance_v_zd_ref;
+extern int32_t guidance_v_zdd_ref;
+extern int32_t guidance_v_z_sum_err;
+extern int32_t guidance_v_ff_cmd;
+extern int32_t guidance_v_fb_cmd;
+extern int32_t guidance_v_delta_t;
 
-extern int32_t booz2_guidance_v_kp;
-extern int32_t booz2_guidance_v_kd;
-extern int32_t booz2_guidance_v_ki;
+extern int32_t guidance_v_kp;
+extern int32_t guidance_v_kd;
+extern int32_t guidance_v_ki;
 
-extern void booz2_guidance_v_init(void);
-extern void booz2_guidance_v_read_rc(void);
-extern void booz2_guidance_v_mode_changed(uint8_t new_mode);
-extern void booz2_guidance_v_notify_in_flight(bool_t in_flight);
-extern void booz2_guidance_v_run(bool_t in_flight);
+extern void guidance_v_init(void);
+extern void guidance_v_read_rc(void);
+extern void guidance_v_mode_changed(uint8_t new_mode);
+extern void guidance_v_notify_in_flight(bool_t in_flight);
+extern void guidance_v_run(bool_t in_flight);
 
-#define booz2_guidance_v_SetKi(_val) {			\
-    booz2_guidance_v_ki = _val;				\
-    booz2_guidance_v_z_sum_err = 0;			\
+#define guidance_v_SetKi(_val) {			\
+    guidance_v_ki = _val;				\
+    guidance_v_z_sum_err = 0;			\
   }
 
 
-#endif /* BOOZ2_GUIDANCE_V */
+#endif /* GUIDANCE_V */
