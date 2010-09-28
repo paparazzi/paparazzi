@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_IMU_INT_HW_H
-#define BOOZ_IMU_INT_HW_H
+#ifndef IMU_INT_HW_H
+#define IMU_INT_HW_H
 
 #include "std.h"
 
@@ -34,4 +34,4 @@
 
 extern void ADS8344_start( void );
 
-#endif /* BOOZ_IMU_INT_HW_H */
+#endif /* IMU_INT_HW_H */

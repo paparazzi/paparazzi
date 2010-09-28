@@ -21,9 +21,9 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_IMU_B2_ARCH_H
-#define BOOZ_IMU_B2_ARCH_H
+#ifndef IMU_B2_ARCH_H
+#define IMU_B2_ARCH_H
 
 
 
-#endif /* BOOZ_IMU_B2_ARCH_H */
+#endif /* IMU_B2_ARCH_H */

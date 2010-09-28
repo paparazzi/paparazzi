@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_IMU_H
-#define BOOZ_IMU_H
+#ifndef IMU_H
+#define IMU_H
 
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
@@ -60,8 +60,8 @@ struct ImuFloat {
 };
 
 /* underlying hardware */
-#ifdef BOOZ_IMU_TYPE_H
-#include BOOZ_IMU_TYPE_H
+#ifdef IMU_TYPE_H
+#include IMU_TYPE_H
 #endif
 
 extern struct Imu imu;

@@ -39,7 +39,7 @@
 # add imu arch to include directories
 ap.CFLAGS += -I$(SRC_FIRMWARE)/imu/arch/$(ARCH)
 
-ap.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/imu_b2.h\"
+ap.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
 ap.CFLAGS += -DIMU_B2_VERSION_1_0
 ap.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_AMI601
 ap.CFLAGS += -DSSP_VIC_SLOT=9
@@ -63,7 +63,7 @@ ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11
 # add imu arch to include directories
 sim.CFLAGS += -I$(SRC_FIRMWARE)/imu/arch/$(ARCH)
 
-sim.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/imu_b2.h\"
+sim.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
 sim.CFLAGS += -DIMU_B2_VERSION_1_0
 sim.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_AMI601
 sim.srcs += $(SRC_FIRMWARE)/imu.c                   \

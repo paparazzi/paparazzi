@@ -26,8 +26,8 @@
  * simulator plug for the crista imu arch dependant functions
  *
  */
-#ifndef BOOZ_IMU_CRISTA_ARCH_H
-#define BOOZ_IMU_CRISTA_ARCH_H
+#ifndef IMU_CRISTA_ARCH_H
+#define IMU_CRISTA_ARCH_H
 
 #include "imu.h"
 
@@ -38,4 +38,4 @@ extern void imu_feed_gyro_accel(void);
 extern void imu_feed_mag(void);
 
 
-#endif /* BOOZ_IMU_CRISTA_HW_H */
+#endif /* IMU_CRISTA_HW_H */

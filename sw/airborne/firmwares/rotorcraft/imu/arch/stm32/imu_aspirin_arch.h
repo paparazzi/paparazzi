@@ -1,5 +1,5 @@
-#ifndef BOOZ_IMU_ASPIRIN_ARCH_H
-#define BOOZ_IMU_ASPIRIN_ARCH_H
+#ifndef IMU_ASPIRIN_ARCH_H
+#define IMU_ASPIRIN_ARCH_H
 
 #include "imu.h"
 
@@ -11,4 +11,4 @@ extern void adxl345_clear_rx_buf(void);
 extern void adxl345_start_reading_data(void);
 
 
-#endif /* BOOZ_IMU_ASPIRIN_ARCH_H */
+#endif /* IMU_ASPIRIN_ARCH_H */

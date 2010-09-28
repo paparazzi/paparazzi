@@ -40,12 +40,12 @@
 
 
 # imu Booz2 v1.1
-$(TARGET).CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
+$(TARGET).CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
 $(TARGET).CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
 $(TARGET).CFLAGS += -DIMU_B2_VERSION_1_1
-$(TARGET).srcs += $(SRC_BOOZ)/booz_imu.c                   \
-		   $(SRC_BOOZ)/imu/booz_imu_b2.c            \
-		   $(SRC_BOOZ_ARCH)/imu/booz_imu_b2_arch.c
+$(TARGET).srcs += $(SRC_BOOZ)/imu.c                   \
+		   $(SRC_BOOZ)/imu/imu_b2.c            \
+		   $(SRC_BOOZ_ARCH)/imu/imu_b2_arch.c
 
 $(TARGET).srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
 		   $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
@@ -67,12 +67,12 @@ endif
 # Simulator
 #
 
-sim.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
+sim.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
 sim.CFLAGS += -DIMU_B2_VERSION_1_1
 sim.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_AMI601
-sim.srcs += $(SRC_BOOZ)/booz_imu.c                 \
-			$(SRC_BOOZ)/imu/booz_imu_b2.c          \
-			$(SRC_BOOZ_SIM)/imu/booz_imu_b2_arch.c
+sim.srcs += $(SRC_BOOZ)/imu.c                 \
+			$(SRC_BOOZ)/imu/imu_b2.c          \
+			$(SRC_BOOZ_SIM)/imu/imu_b2_arch.c
 
 
 sim.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \

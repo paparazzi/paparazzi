@@ -30,9 +30,9 @@
 #include <stm32/misc.h>
 #include <stm32/dma.h>
 
-#define BOOZ_IMU_SSP_STA_IDLE           0
-#define BOOZ_IMU_SSP_STA_BUSY_MAX1168   1
-#define BOOZ_IMU_SSP_STA_BUSY_MS2100    2
+#define IMU_SSP_STA_IDLE           0
+#define IMU_SSP_STA_BUSY_MAX1168   1
+#define IMU_SSP_STA_BUSY_MS2100    2
 
 volatile uint8_t imu_ssp_status;
 
@@ -70,13 +70,13 @@ void imu_b2_arch_init(void) {
   };
   NVIC_Init(&NVIC_init_structure_spi);
 
-  imu_ssp_status = BOOZ_IMU_SSP_STA_IDLE;
+  imu_ssp_status = IMU_SSP_STA_IDLE;
 }
 
 void imu_periodic(void) {
   // check ssp idle
-  // ASSERT((imu_status == BOOZ_IMU_STA_IDLE), DEBUG_IMU, IMU_ERR_OVERUN);
-  imu_ssp_status = BOOZ_IMU_SSP_STA_BUSY_MAX1168;
+  // ASSERT((imu_status == IMU_STA_IDLE), DEBUG_IMU, IMU_ERR_OVERUN);
+  imu_ssp_status = IMU_SSP_STA_BUSY_MAX1168;
   Max1168ConfigureSPI();
   SPI_Cmd(SPI2, ENABLE);
   booz_max1168_read();
@@ -85,26 +85,26 @@ void imu_periodic(void) {
 
 void dma1_c4_irq_handler(void) {
   switch (imu_ssp_status) {
-  case BOOZ_IMU_SSP_STA_BUSY_MAX1168:
+  case IMU_SSP_STA_BUSY_MAX1168:
     Max1168OnDmaIrq();
     SPI_Cmd(SPI2, DISABLE);
     if (ms2001_status == MS2001_IDLE) {
       Ms2001SendReq();
-      imu_ssp_status = BOOZ_IMU_SSP_STA_BUSY_MS2100;
+      imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
     }
     else if (ms2001_status == MS2001_WAITING_EOC && Ms2001HasEOC()) {
       Ms2001ReadRes();
-      imu_ssp_status = BOOZ_IMU_SSP_STA_BUSY_MS2100;
+      imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
     }
     else
-      imu_ssp_status = BOOZ_IMU_SSP_STA_IDLE;
+      imu_ssp_status = IMU_SSP_STA_IDLE;
     break;
-  case BOOZ_IMU_SSP_STA_BUSY_MS2100:
+  case IMU_SSP_STA_BUSY_MS2100:
     Ms2001OnDmaIrq();
     break;
   default:
     // POST_ERROR(DEBUG_IMU, IMU_ERR_SUPRIOUS_DMA1_C4_IRQ);
-    imu_ssp_status = BOOZ_IMU_SSP_STA_IDLE;
+    imu_ssp_status = IMU_SSP_STA_IDLE;
   }
 }
 
