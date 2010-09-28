@@ -21,13 +21,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ2_HF_FLOAT_H
-#define BOOZ2_HF_FLOAT_H
+#ifndef HF_FLOAT_H
+#define HF_FLOAT_H
 
 #include "std.h"
 #include "math/pprz_algebra_float.h"
 
-#define B2_HFF_STATE_SIZE 2
+#define HFF_STATE_SIZE 2
 
 #ifndef HFF_PRESCALER
 #define HFF_PRESCALER 16
@@ -37,7 +37,7 @@
 #define HFF_FREQ (512./HFF_PRESCALER)
 #define DT_HFILTER (1./HFF_FREQ)
 
-#define B2_HFF_UPDATE_SPEED
+#define HFF_UPDATE_SPEED
 
 struct HfilterFloat {
   float x;
@@ -48,8 +48,8 @@ struct HfilterFloat {
   /* float ybias; */
   float ydot;
   float ydotdot;
-  float xP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];
-  float yP[B2_HFF_STATE_SIZE][B2_HFF_STATE_SIZE];
+  float xP[HFF_STATE_SIZE][HFF_STATE_SIZE];
+  float yP[HFF_STATE_SIZE][HFF_STATE_SIZE];
   uint8_t lag_counter;
   bool_t rollback;
 };
@@ -70,7 +70,7 @@ extern void b2_hff_update_pos(struct FloatVect2 pos, struct FloatVect2 Rpos);
 extern void b2_hff_update_vel(struct FloatVect2 vel, struct FloatVect2 Rvel);
 extern void b2_hff_realign(struct FloatVect2 pos, struct FloatVect2 vel);
 
-#define B2_HFF_LOST_LIMIT 1000
+#define HFF_LOST_LIMIT 1000
 extern uint16_t b2_hff_lost_limit;
 extern uint16_t b2_hff_lost_counter;
 
@@ -80,4 +80,4 @@ extern struct HfilterFloat *b2_hff_rb_last;
 extern int lag_counter_err;
 extern int save_counter;
 
-#endif /* BOOZ2_HF_FLOAT_H */
+#endif /* HF_FLOAT_H */

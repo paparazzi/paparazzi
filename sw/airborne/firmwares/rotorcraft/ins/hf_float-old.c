@@ -21,11 +21,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "hf_float.h"
-#include "ins.h"
+#include "hf_float-old.h"
+#include <firmwares/rotorcraft/ins.h>
 
 #include <firmwares/rotorcraft/imu.h>
-#include "ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 #include "math/pprz_algebra_int.h"
 
 

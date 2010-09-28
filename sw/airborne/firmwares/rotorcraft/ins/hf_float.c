@@ -23,9 +23,9 @@
  */
 
 #include "hf_float.h"
-#include "ins.h"
+#include <firmwares/rotorcraft/ins.h>
 #include <firmwares/rotorcraft/imu.h>
-#include "ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 #include "booz_gps.h"
 #include <stdlib.h>
 
@@ -46,25 +46,25 @@
 /* initial covariance diagonal */
 #define INIT_PXX 1.
 /* process noise (is the same for x and y)*/
-#ifndef B2_HFF_ACCEL_NOISE
-#define B2_HFF_ACCEL_NOISE 0.5
+#ifndef HFF_ACCEL_NOISE
+#define HFF_ACCEL_NOISE 0.5
 #endif
-#define Q       B2_HFF_ACCEL_NOISE*DT_HFILTER*DT_HFILTER/2.
-#define Qdotdot B2_HFF_ACCEL_NOISE*DT_HFILTER
+#define Q       HFF_ACCEL_NOISE*DT_HFILTER*DT_HFILTER/2.
+#define Qdotdot HFF_ACCEL_NOISE*DT_HFILTER
 
 //TODO: proper measurement noise
-#ifndef B2_HFF_R_POS
-#define B2_HFF_R_POS   8.
+#ifndef HFF_R_POS
+#define HFF_R_POS   8.
 #endif
-#ifndef B2_HFF_R_POS_MIN
-#define B2_HFF_R_POS_MIN 3.
+#ifndef HFF_R_POS_MIN
+#define HFF_R_POS_MIN 3.
 #endif
 
-#ifndef B2_HFF_R_SPEED
-#define B2_HFF_R_SPEED 2.
+#ifndef HFF_R_SPEED
+#define HFF_R_SPEED 2.
 #endif
-#ifndef B2_HFF_R_SPEED_MIN
-#define B2_HFF_R_SPEED_MIN 1.
+#ifndef HFF_R_SPEED_MIN
+#define HFF_R_SPEED_MIN 1.
 #endif
 
 /* gps measurement noise */
@@ -235,8 +235,8 @@ static inline void b2_hff_update_ydot(struct HfilterFloat* hff_work, float vel, 
 
 
 void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
-  Rgps_pos = B2_HFF_R_POS;
-  Rgps_vel = B2_HFF_R_SPEED;
+  Rgps_pos = HFF_R_POS;
+  Rgps_vel = HFF_R_SPEED;
   b2_hff_init_x(init_x, init_xdot);
   b2_hff_init_y(init_y, init_ydot);
   /* init buffer for mean accel calculation */
@@ -272,15 +272,15 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
   past_save_counter = SAVE_DONE;
   b2_hff_ps_counter = 1;
   b2_hff_lost_counter = 0;
-  b2_hff_lost_limit = B2_HFF_LOST_LIMIT;
+  b2_hff_lost_limit = HFF_LOST_LIMIT;
 }
 
 static inline void b2_hff_init_x(float init_x, float init_xdot) {
   b2_hff_state.x     = init_x;
   b2_hff_state.xdot  = init_xdot;
   int i, j;
-  for (i=0; i<B2_HFF_STATE_SIZE; i++) {
-    for (j=0; j<B2_HFF_STATE_SIZE; j++)
+  for (i=0; i<HFF_STATE_SIZE; i++) {
+    for (j=0; j<HFF_STATE_SIZE; j++)
       b2_hff_state.xP[i][j] = 0.;
 	b2_hff_state.xP[i][i] = INIT_PXX;
   }
@@ -291,8 +291,8 @@ static inline void b2_hff_init_y(float init_y, float init_ydot) {
   b2_hff_state.y     = init_y;
   b2_hff_state.ydot  = init_ydot;
   int i, j;
-  for (i=0; i<B2_HFF_STATE_SIZE; i++) {
-    for (j=0; j<B2_HFF_STATE_SIZE; j++)
+  for (i=0; i<HFF_STATE_SIZE; i++) {
+    for (j=0; j<HFF_STATE_SIZE; j++)
       b2_hff_state.yP[i][j] = 0.;
 	b2_hff_state.yP[i][i] = INIT_PXX;
   }
@@ -369,8 +369,8 @@ static inline void b2_hff_set_state(struct HfilterFloat* dest, struct HfilterFlo
   dest->y       = source->y;
   dest->ydot    = source->ydot;
   dest->ydotdot = source->ydotdot;
-  for (int i=0; i < B2_HFF_STATE_SIZE; i++) {
-	for (int j=0; j < B2_HFF_STATE_SIZE; j++) {
+  for (int i=0; i < HFF_STATE_SIZE; i++) {
+	for (int j=0; j < HFF_STATE_SIZE; j++) {
 	  dest->xP[i][j] = source->xP[i][j];
 	  dest->yP[i][j] = source->yP[i][j];
 	}
@@ -489,12 +489,12 @@ void b2_hff_update_gps(void) {
 
 #ifdef USE_GPS_ACC4R
   Rgps_pos = (float) booz_gps_state.pacc / 100.;
-  if (Rgps_pos < B2_HFF_R_POS_MIN)
-    Rgps_pos = B2_HFF_R_POS_MIN;
+  if (Rgps_pos < HFF_R_POS_MIN)
+    Rgps_pos = HFF_R_POS_MIN;
 
   Rgps_vel = (float) booz_gps_state.sacc / 100.;
-  if (Rgps_vel < B2_HFF_R_SPEED_MIN)
-    Rgps_vel = B2_HFF_R_SPEED_MIN;
+  if (Rgps_vel < HFF_R_SPEED_MIN)
+    Rgps_vel = HFF_R_SPEED_MIN;
 #endif
 
 #ifdef GPS_LAG
@@ -504,7 +504,7 @@ void b2_hff_update_gps(void) {
     /* update filter state with measurement */
     b2_hff_update_x(&b2_hff_state, ins_gps_pos_m_ned.x, Rgps_pos);
     b2_hff_update_y(&b2_hff_state, ins_gps_pos_m_ned.y, Rgps_pos);
-#ifdef B2_HFF_UPDATE_SPEED
+#ifdef HFF_UPDATE_SPEED
     b2_hff_update_xdot(&b2_hff_state, ins_gps_speed_m_s_ned.x, Rgps_vel);
     b2_hff_update_ydot(&b2_hff_state, ins_gps_speed_m_s_ned.y, Rgps_vel);
 #endif
@@ -526,7 +526,7 @@ void b2_hff_update_gps(void) {
       b2_hff_rb_last->rollback = TRUE;
       b2_hff_update_x(b2_hff_rb_last, ins_gps_pos_m_ned.x, Rgps_pos);
       b2_hff_update_y(b2_hff_rb_last, ins_gps_pos_m_ned.y, Rgps_pos);
-#ifdef B2_HFF_UPDATE_SPEED
+#ifdef HFF_UPDATE_SPEED
       b2_hff_update_xdot(b2_hff_rb_last, ins_gps_speed_m_s_ned.x, Rgps_vel);
       b2_hff_update_ydot(b2_hff_rb_last, ins_gps_speed_m_s_ned.y, Rgps_vel);
 #endif

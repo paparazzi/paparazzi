@@ -489,8 +489,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef USE_HFF
 #include "ins/hf_float.h"
-#define PERIODIC_SEND_BOOZ2_HFF(_chan) {	\
-    DOWNLINK_SEND_BOOZ2_HFF(_chan,		\
+#define PERIODIC_SEND_HFF(_chan) {	\
+    DOWNLINK_SEND_HFF(_chan,		\
                             &b2_hff_state.x,			\
                             &b2_hff_state.y,			\
                             &b2_hff_state.xdot,         \
@@ -498,8 +498,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                             &b2_hff_state.xdotdot,      \
                             &b2_hff_state.ydotdot);     \
   }
-#define PERIODIC_SEND_BOOZ2_HFF_DBG(_chan) {                \
-	DOWNLINK_SEND_BOOZ2_HFF_DBG(_chan,                      \
+#define PERIODIC_SEND_HFF_DBG(_chan) {                \
+	DOWNLINK_SEND_HFF_DBG(_chan,                      \
                                 &b2_hff_x_meas,             \
                                 &b2_hff_y_meas,             \
                                 &b2_hff_xd_meas,            \
@@ -510,19 +510,19 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                                 &b2_hff_state.yP[1][1]);    \
   }
 #ifdef GPS_LAG
-#define PERIODIC_SEND_BOOZ2_HFF_GPS(_chan) {	\
-    DOWNLINK_SEND_BOOZ2_HFF_GPS(_chan,			\
+#define PERIODIC_SEND_HFF_GPS(_chan) {	\
+    DOWNLINK_SEND_HFF_GPS(_chan,			\
 							  &b2_hff_rb_last->lag_counter,		\
 							  &lag_counter_err,	\
 							  &save_counter);	\
   }
 #else
-#define PERIODIC_SEND_BOOZ2_HFF_GPS(_chan) {}
+#define PERIODIC_SEND_HFF_GPS(_chan) {}
 #endif
 #else
-#define PERIODIC_SEND_BOOZ2_HFF(_chan) {}
-#define PERIODIC_SEND_BOOZ2_HFF_DBG(_chan) {}
-#define PERIODIC_SEND_BOOZ2_HFF_GPS(_chan) {}
+#define PERIODIC_SEND_HFF(_chan) {}
+#define PERIODIC_SEND_HFF_DBG(_chan) {}
+#define PERIODIC_SEND_HFF_GPS(_chan) {}
 #endif
 
 #define PERIODIC_SEND_GUIDANCE(_chan) {				\

@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ2_HF_FLOAT_H
-#define BOOZ2_HF_FLOAT_H
+#ifndef HF_FLOAT_H
+#define HF_FLOAT_H
 
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_int.h"
@@ -43,4 +43,4 @@ extern void b2ins_init(void);
 extern void b2ins_propagate(void);
 extern void b2ins_update_gps(void);
 
-#endif /* BOOZ2_HF_FLOAT_H */
+#endif /* HF_FLOAT_H */
