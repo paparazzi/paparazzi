@@ -2,7 +2,7 @@
  * $Id: fw_server.ml,v 1.1 2009/03/22 17:53:48 hecto Exp $
  *
  * Server part specific to booz vehicles
- *  
+ *
  * Copyright (C) ENAC
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -46,16 +46,16 @@ let rec norm_course =
 
 let fvalue = fun x ->
   match x with
-    Pprz.Float x -> x 
-    | Pprz.Int32 x -> Int32.to_float x 
-    | Pprz.Int x -> float_of_int x 
+    Pprz.Float x -> x
+    | Pprz.Int32 x -> Int32.to_float x
+    | Pprz.Int x -> float_of_int x
     | _ -> failwith (sprintf "Receive.log_and_parse: float expected, got '%s'" (Pprz.string_of_value x))
 
-	  
+
 let ivalue = fun x ->
   match x with
     Pprz.Int x -> x
-  | Pprz.Int32 x -> Int32.to_int x 
+  | Pprz.Int32 x -> Int32.to_int x
   | _ -> failwith "Receive.log_and_parse: int expected"
 
 (*
@@ -133,13 +133,13 @@ let hmsl_of_ref = fun nav_ref d_hmsl ->
 let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   let value = fun x -> try Pprz.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
 
-  let fvalue = fun x -> 
+  let fvalue = fun x ->
     let f = fvalue (value x) in
       match classify_float f with
-	FP_infinite | FP_nan ->
-	  let msg = sprintf "Non normal number: %f in '%s %s %s'" f ac_name msg.Pprz.name (string_of_values values) in
-	  raise (Telemetry_error (ac_name, format_string_field msg))
-	  
+    FP_infinite | FP_nan ->
+      let msg = sprintf "Non normal number: %f in '%s %s %s'" f ac_name msg.Pprz.name (string_of_values values) in
+      raise (Telemetry_error (ac_name, format_string_field msg))
+
       | _ -> f
   and ivalue = fun x -> ivalue (value x)
   (*and i32value = fun x -> i32value (value x)*)
@@ -179,7 +179,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.itow <- Int32.of_float (fvalue "itow");*)
       a.flight_time   <- ivalue "flight_time";
       if a.gspeed > 3. && a.ap_mode = _AUTO2 then
-	      Wind.update ac_name a.gspeed a.course
+          Wind.update ac_name a.gspeed a.course
   | "BOOZ_STATUS" ->
       a.fbw.rc_status <- get_rc_status (ivalue "rc_status");
       a.gps_mode      <- check_index (ivalue "gps_status") gps_modes "GPS_MODE";
@@ -195,7 +195,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       let nav_ref_ecef = LL.make_ecef [| x; y; z |] in
       a.nav_ref <- Some (Ltp nav_ref_ecef);
       a.d_hmsl <- hmsl -. alt;
-  | "BOOZ2_NAV_STATUS" ->
+  | "ROTORCRAFT_NAV_STATUS" ->
       a.block_time <- ivalue "block_time";
       a.stage_time <- ivalue "stage_time";
       a.cur_block <- ivalue "cur_block";
@@ -214,4 +214,3 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         | None -> (); (** Can't use this message  *)
       end
   | _ -> ()
-

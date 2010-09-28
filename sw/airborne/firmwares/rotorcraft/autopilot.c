@@ -26,7 +26,7 @@
 
 #include "booz_radio_control.h"
 #include "booz2_commands.h"
-#include "booz2_navigation.h"
+#include <firmwares/rotorcraft/navigation.h>
 #include <firmwares/rotorcraft/guidance.h>
 #include <firmwares/rotorcraft/stabilization.h>
 #include "led.h"
@@ -71,7 +71,7 @@ void autopilot_init(void) {
 
 void autopilot_periodic(void) {
 
-  RunOnceEvery(BOOZ2_NAV_PRESCALER, nav_periodic_task());
+  RunOnceEvery(NAV_PRESCALER, nav_periodic_task());
 #ifdef FAILSAFE_GROUND_DETECT
   if (autopilot_mode == AP_MODE_FAILSAFE && autopilot_detect_ground) {
     autopilot_set_mode(AP_MODE_KILL);

@@ -151,4 +151,4 @@ sim.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./512.)'
 #
 
 
-sim.srcs += $(SRC_BOOZ)/booz2_navigation.c
+sim.srcs += $(SRC_FIRMWARE)/navigation.c

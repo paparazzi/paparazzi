@@ -30,7 +30,7 @@
 #include <firmwares/rotorcraft/stabilization.h>
 #include <firmwares/rotorcraft/ahrs.h>
 #include "booz_fms.h"
-#include "booz2_navigation.h"
+#include <firmwares/rotorcraft/navigation.h>
 
 #include <firmwares/rotorcraft/ins.h>
 #include "math/pprz_algebra_int.h"

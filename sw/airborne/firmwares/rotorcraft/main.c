@@ -114,7 +114,7 @@ STATIC_INLINE void main_init( void ) {
 
   booz_fms_init();
   autopilot_init();
-  booz2_nav_init();
+  nav_init();
   guidance_h_init();
   guidance_v_init();
   stabilization_init();

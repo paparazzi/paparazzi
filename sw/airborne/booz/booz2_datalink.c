@@ -38,7 +38,7 @@
 #include "booz_fms.h"
 #endif
 
-#include "booz2_navigation.h"
+#include <firmwares/rotorcraft/navigation.h>
 
 #include "math/pprz_geodetic_int.h"
 #include <firmwares/rotorcraft/ins.h>

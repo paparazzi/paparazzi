@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,29 +18,29 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ2_NAVIGATION_H
-#define BOOZ2_NAVIGATION_H
+#ifndef NAVIGATION_H
+#define NAVIGATION_H
 
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_geodetic_float.h"
 
-#define BOOZ2_NAV_FREQ 16
-// FIXME use periodic FREQ   
-#define BOOZ2_NAV_PRESCALER (512/BOOZ2_NAV_FREQ)
+#define NAV_FREQ 16
+// FIXME use periodic FREQ
+#define NAV_PRESCALER (512/NAV_FREQ)
 
-extern struct EnuCoor_i booz2_navigation_target;
-extern struct EnuCoor_i booz2_navigation_carrot;
+extern struct EnuCoor_i navigation_target;
+extern struct EnuCoor_i navigation_carrot;
 
 extern struct EnuCoor_f waypoints_float[];
 extern struct EnuCoor_i waypoints[];
 extern const uint8_t nb_waypoint;
 
-extern void booz2_nav_init(void);
-extern void booz2_nav_run(void);
+extern void nav_init(void);
+extern void nav_run(void);
 
 extern uint16_t stage_time, block_time;
 
@@ -129,7 +129,7 @@ void nav_home(void);
 /*********** Navigation to  waypoint *************************************/
 #define NavGotoWaypoint(_wp) { \
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT; \
-  INT32_VECT3_COPY( booz2_navigation_target, waypoints[_wp]); \
+  INT32_VECT3_COPY( navigation_target, waypoints[_wp]); \
 }
 
 /*********** Navigation on a circle **************************************/
@@ -202,11 +202,11 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 
 #define nav_SetNavRadius(x) {}
 
-#define booz2_navigation_SetNavHeading(x) { \
+#define navigation_SetNavHeading(x) { \
   nav_heading = ANGLE_BFP_OF_REAL(x); \
 }
 
-#define booz2_navigation_SetFlightAltitude(x) { \
+#define navigation_SetFlightAltitude(x) { \
   flight_altitude = x; \
   nav_flight_altitude = POS_BFP_OF_REAL(flight_altitude) - ground_alt; \
 }
@@ -219,4 +219,4 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 
 extern void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int16_t heading_rate_sp );
 
-#endif /* BOOZ2_NAVIGATION_H */
+#endif /* NAVIGATION_H */

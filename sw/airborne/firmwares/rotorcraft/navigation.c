@@ -23,7 +23,7 @@
 
 #define NAV_C
 
-#include "booz2_navigation.h"
+#include <firmwares/rotorcraft/navigation.h>
 
 #include "booz/booz2_debug.h"
 #include "booz_gps.h"
@@ -39,8 +39,8 @@ const uint8_t nb_waypoint = NB_WAYPOINT;
 struct EnuCoor_f waypoints_float[NB_WAYPOINT] = WAYPOINTS;
 struct EnuCoor_i waypoints[NB_WAYPOINT];
 
-struct EnuCoor_i booz2_navigation_target;
-struct EnuCoor_i booz2_navigation_carrot;
+struct EnuCoor_i navigation_target;
+struct EnuCoor_i navigation_carrot;
 
 struct EnuCoor_i nav_last_point;
 
@@ -76,7 +76,7 @@ static inline void nav_set_altitude( void );
 #define ARRIVED_AT_WAYPOINT (3 << 8)
 #define CARROT_DIST (12 << 8)
 
-void booz2_nav_init(void) {
+void nav_init(void) {
   // init int32 waypoints
   uint8_t i = 0;
   for (i = 0; i < nb_waypoint; i++) {
@@ -90,8 +90,8 @@ void booz2_nav_init(void) {
   nav_altitude = POS_BFP_OF_REAL(SECURITY_HEIGHT);
   nav_flight_altitude = nav_altitude;
   flight_altitude = SECURITY_ALT;
-  INT32_VECT3_COPY( booz2_navigation_target, waypoints[WP_HOME]);
-  INT32_VECT3_COPY( booz2_navigation_carrot, waypoints[WP_HOME]);
+  INT32_VECT3_COPY( navigation_target, waypoints[WP_HOME]);
+  INT32_VECT3_COPY( navigation_carrot, waypoints[WP_HOME]);
 
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
   vertical_mode = VERTICAL_MODE_ALT;
@@ -106,11 +106,11 @@ void booz2_nav_init(void) {
 
 }
 
-void booz2_nav_run(void) {
+void nav_run(void) {
 
   /* compute a vector to the waypoint */
   struct Int32Vect2 path_to_waypoint;
-  VECT2_DIFF(path_to_waypoint, booz2_navigation_target, ins_enu_pos);
+  VECT2_DIFF(path_to_waypoint, navigation_target, ins_enu_pos);
 
   /* saturate it */
   VECT2_STRIM(path_to_waypoint, -(1<<15), (1<<15));
@@ -120,17 +120,17 @@ void booz2_nav_run(void) {
 
 #ifndef GUIDANCE_H_USE_REF
   if (dist_to_waypoint < CLOSE_TO_WAYPOINT) {
-    VECT2_COPY(booz2_navigation_carrot, booz2_navigation_target);
+    VECT2_COPY(navigation_carrot, navigation_target);
   }
   else {
     struct Int32Vect2 path_to_carrot;
     VECT2_SMUL(path_to_carrot, path_to_waypoint, CARROT_DIST);
     VECT2_SDIV(path_to_carrot, path_to_carrot, dist_to_waypoint);
-    VECT2_SUM(booz2_navigation_carrot, path_to_carrot, ins_enu_pos);
+    VECT2_SUM(navigation_carrot, path_to_carrot, ins_enu_pos);
   }
 #else
   // if H_REF is used, CARROT_DIST is not used
-  VECT2_COPY(booz2_navigation_carrot, booz2_navigation_target);
+  VECT2_COPY(navigation_carrot, navigation_target);
 #endif
 
   nav_set_altitude();
@@ -138,7 +138,7 @@ void booz2_nav_run(void) {
 
 void nav_circle(uint8_t wp_center, int32_t radius) {
   if (radius == 0) {
-    VECT2_COPY(booz2_navigation_target, waypoints[wp_center]);
+    VECT2_COPY(navigation_target, waypoints[wp_center]);
   }
   else {
     struct Int32Vect2 pos_diff;
@@ -169,12 +169,12 @@ void nav_circle(uint8_t wp_center, int32_t radius) {
     Bound(carrot_angle, (INT32_ANGLE_PI / 16), INT32_ANGLE_PI_4);
     carrot_angle = nav_circle_qdr - sign_radius * carrot_angle;
     int32_t s_carrot, c_carrot;
-    PPRZ_ITRIG_SIN(s_carrot, carrot_angle);	
-    PPRZ_ITRIG_COS(c_carrot, carrot_angle);	
+    PPRZ_ITRIG_SIN(s_carrot, carrot_angle);
+    PPRZ_ITRIG_COS(c_carrot, carrot_angle);
     // compute setpoint
     VECT2_ASSIGN(pos_diff, abs_radius * c_carrot, abs_radius * s_carrot);
     INT32_VECT2_RSHIFT(pos_diff, pos_diff, INT32_TRIG_FRAC);
-    VECT2_SUM(booz2_navigation_target, waypoints[wp_center], pos_diff);
+    VECT2_SUM(navigation_target, waypoints[wp_center], pos_diff);
   }
   nav_circle_centre = wp_center;
   nav_circle_radius = radius;
@@ -202,10 +202,10 @@ void nav_route(uint8_t wp_start, uint8_t wp_end) {
   VECT2_SMUL(progress_pos, wp_diff, nav_leg_progress);
   VECT2_SDIV(progress_pos, progress_pos, leg_length);
   INT32_VECT2_LSHIFT(progress_pos,progress_pos,INT32_POS_FRAC);
-  VECT2_SUM(booz2_navigation_target,waypoints[wp_start],progress_pos);
+  VECT2_SUM(navigation_target,waypoints[wp_start],progress_pos);
   //printf("target %d %d | p %d %d | s %d %d | l %d %d %d\n",
-  //    booz2_navigation_target.x,
-  //    booz2_navigation_target.y,
+  //    navigation_target.x,
+  //    navigation_target.y,
   //    progress_pos.x,
   //    progress_pos.y,
   //    waypoints[wp_start].x,
@@ -298,7 +298,7 @@ void nav_periodic_task() {
   auto_nav();
 
   /* run carrot loop */
-  booz2_nav_run();
+  nav_run();
 
   ground_alt = POS_BFP_OF_REAL((float)ins_ltp_def.hmsl / 100.);
 
@@ -321,15 +321,15 @@ void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int
   PPRZ_ITRIG_COS(c_heading, nav_heading);
   // FIXME : scale POS to SPEED
   struct Int32Vect3 delta_pos;
-  VECT3_SDIV(delta_pos, speed_sp,BOOZ2_NAV_FREQ); /* fixme :make sure the division is really a >> */
+  VECT3_SDIV(delta_pos, speed_sp,NAV_FREQ); /* fixme :make sure the division is really a >> */
   INT32_VECT3_RSHIFT(delta_pos, delta_pos, (INT32_SPEED_FRAC-INT32_POS_FRAC));
   waypoints[wp].x += (s_heading * delta_pos.x + c_heading * delta_pos.y) >> INT32_TRIG_FRAC;
   waypoints[wp].y += (c_heading * delta_pos.x - s_heading * delta_pos.y) >> INT32_TRIG_FRAC;
   waypoints[wp].z += delta_pos.z;
-  int32_t delta_heading = heading_rate_sp / BOOZ2_NAV_FREQ;
+  int32_t delta_heading = heading_rate_sp / NAV_FREQ;
   delta_heading = delta_heading >> (INT32_SPEED_FRAC-INT32_POS_FRAC);
   nav_heading += delta_heading;
-  
+
   INT32_COURSE_NORMALIZE(nav_heading);
   RunOnceEvery(10,DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, &wp, &(waypoints[wp].x), &(waypoints[wp].y), &(waypoints[wp].z)));
 }
@@ -341,4 +341,3 @@ bool_t nav_detect_ground(void) {
 }
 
 void nav_home(void) {}
-

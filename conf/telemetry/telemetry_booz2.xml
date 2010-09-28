@@ -11,7 +11,7 @@
       <message name="BOOZ2_FP"          period="0.25"/>
       <message name="ALIVE"             period="2.1"/>
       <message name="INS_REF"     period="5.1"/>
-      <message name="BOOZ2_NAV_STATUS"  period="1.6"/>
+      <message name="ROTORCRAFT_NAV_STATUS"  period="1.6"/>
       <message name="WP_MOVED"          period="1.3"/>
       <message name="BOOZ2_CAM"         period="1."/>
       <message name="BOOZ2_GPS"         period=".25"/>
@@ -90,7 +90,7 @@
       <!--<message name="BOOZ2_STAB_ATTITUDE_REF" period=".4"/>-->
       <message name="BOOZ2_FP"                period="0.8"/>
       <message name="BOOZ_STATUS"             period="1.2"/>
-      <message name="BOOZ2_NAV_STATUS"        period="1.6"/>
+      <message name="ROTORCRAFT_NAV_STATUS"        period="1.6"/>
 	  <message name="HFF_GPS"           period=".03"/>
       <message name="INS_REF"           period="5.1"/>
     </mode>

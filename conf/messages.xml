@@ -1134,7 +1134,7 @@
     <field name="body_m22" type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
   </message>
 
-  <message name="BOOZ2_NAV_STATUS" id="159">
+  <message name="ROTORCRAFT_NAV_STATUS" id="159">
     <field name="block_time" type="uint16" unit="s"/>
     <field name="stage_time" type="uint16" unit="s"/>
     <field name="cur_block" type="uint8"/>

@@ -33,7 +33,7 @@
 #include <firmwares/rotorcraft/autopilot.h>
 #include <firmwares/rotorcraft/stabilization.h>
 #include <firmwares/rotorcraft/guidance.h>
-#include "booz/booz2_navigation.h"
+#include <firmwares/rotorcraft/navigation.h>
 
 struct Vi_imu_info {
   struct Int16Vect3 gyro;

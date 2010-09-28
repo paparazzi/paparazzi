@@ -29,7 +29,7 @@
 #include <firmwares/rotorcraft/stabilization.h>
 #include "booz_fms.h"
 #include <firmwares/rotorcraft/ins.h>
-#include "booz2_navigation.h"
+#include <firmwares/rotorcraft/navigation.h>
 
 #include "airframe.h"
 
@@ -192,7 +192,7 @@ void guidance_h_run(bool_t  in_flight) {
 #endif
       }
       else {
-        INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, booz2_navigation_carrot);
+        INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
 #ifdef GUIDANCE_H_USE_REF
         b2_gh_update_ref_from_pos_sp(guidance_h_pos_sp);
 #endif
@@ -380,7 +380,7 @@ static inline void guidance_h_hover_enter(void) {
 
 static inline void guidance_h_nav_enter(void) {
 
-  INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, booz2_navigation_carrot);
+  INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
   struct Int32Vect2 pos,speed,zero;
   INT_VECT2_ZERO(zero);
   VECT2_COPY(pos, ins_ltp_pos);
