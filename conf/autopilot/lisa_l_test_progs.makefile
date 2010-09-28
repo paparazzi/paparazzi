@@ -434,7 +434,7 @@ test_esc_asctecv1_simple.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 # test actuators mkk
 #
 test_actuators_mkk.ARCHDIR = $(ARCH)
-test_actuators_mkk.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_actuators_mkk.CFLAGS = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_actuators_mkk.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_actuators_mkk.srcs = test/test_actuators.c \
 						  $(SRC_ARCH)/stm32_exceptions.c   \
@@ -464,7 +464,7 @@ test_actuators_mkk.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 # test actuators asctecv1
 #
 test_actuators_asctecv1.ARCHDIR = $(ARCH)
-test_actuators_asctecv1.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_actuators_asctecv1.CFLAGS = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_actuators_asctecv1.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_actuators_asctecv1.srcs = test/test_actuators.c            \
 							   $(SRC_ARCH)/stm32_exceptions.c   \
