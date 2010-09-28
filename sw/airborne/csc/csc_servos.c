@@ -3,20 +3,20 @@
 #include "LPC21xx.h"
 #include "std.h"
 #include "sys_time.h"
-#include "actuators.h"
+#include <firmwares/rotorcraft/actuators.h>
 #include "airframe.h"
 #include ACTUATORS
 
 #define CSC_SERVOS_NB 4
 
 static uint32_t csc_servos_rng[] = {SYS_TICS_OF_USEC(SERVO_S1_MAX-SERVO_S1_MIN),
-				    SYS_TICS_OF_USEC(SERVO_S2_MAX-SERVO_S2_MIN),
-				    SYS_TICS_OF_USEC(SERVO_S3_MAX-SERVO_S3_MIN),
-				    SYS_TICS_OF_USEC(SERVO_S4_MAX-SERVO_S4_MIN)};
+                    SYS_TICS_OF_USEC(SERVO_S2_MAX-SERVO_S2_MIN),
+                    SYS_TICS_OF_USEC(SERVO_S3_MAX-SERVO_S3_MIN),
+                    SYS_TICS_OF_USEC(SERVO_S4_MAX-SERVO_S4_MIN)};
 static uint32_t csc_servos_min[] = {SYS_TICS_OF_USEC(SERVO_S1_MIN),
-				    SYS_TICS_OF_USEC(SERVO_S2_MIN),
-				    SYS_TICS_OF_USEC(SERVO_S3_MIN),
-				    SYS_TICS_OF_USEC(SERVO_S4_MIN)};
+                    SYS_TICS_OF_USEC(SERVO_S2_MIN),
+                    SYS_TICS_OF_USEC(SERVO_S3_MIN),
+                    SYS_TICS_OF_USEC(SERVO_S4_MIN)};
 
 
 void csc_servos_init(void)
@@ -31,7 +31,7 @@ void csc_servo_normalized_set(uint8_t id, uint16_t val)
   if(val == 0) csc_servo_set(id,0);
   else{
     uint32_t ticks = csc_servos_rng[id]*(val-1);
-  
+
     csc_servo_set(id,ticks/((1<<16)-2) + csc_servos_min[id]);
   }
 }
@@ -74,5 +74,3 @@ void csc_servos_set(int32_t* val)
 
   csc_servos_commit();
 }
-
-

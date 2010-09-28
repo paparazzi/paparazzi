@@ -37,7 +37,7 @@
 #include "autopilot.h"
 #include <firmwares/rotorcraft/guidance.h>
 
-#include "actuators.h"
+#include <firmwares/rotorcraft/actuators.h>
 
 #ifndef TELEMETRY_STARTUP_DELAY
 #define TELEMETRY_STARTUP_DELAY 0

@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <inttypes.h>
@@ -34,7 +34,7 @@
 
 #include "commands.h"
 #include "i2c.h"
-#include "actuators.h"
+#include <firmwares/rotorcraft/actuators.h>
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -67,15 +67,14 @@ static inline void main_init( void ) {
 static inline void main_periodic_task( void ) {
   RunOnceEvery(50, {LED_TOGGLE(2); DOWNLINK_SEND_TIME(&cpu_time_sec);});
 
-  Actuator(SERVO_FRONT) = 20;				      
-  Actuator(SERVO_BACK)  = 20;				      
-  Actuator(SERVO_RIGHT) = 20;				      
-  Actuator(SERVO_LEFT)  = 20;				      
-  ActuatorsCommit();					      
+  Actuator(SERVO_FRONT) = 20;
+  Actuator(SERVO_BACK)  = 20;
+  Actuator(SERVO_RIGHT) = 20;
+  Actuator(SERVO_LEFT)  = 20;
+  ActuatorsCommit();
 
 }
 
 static inline void main_event_task( void ) {
 
 }
-

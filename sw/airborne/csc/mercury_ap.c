@@ -34,7 +34,7 @@
 #include "string.h"
 #include "booz_radio_control.h"
 #include "mercury_supervision.h"
-#include "actuators.h"
+#include <firmwares/rotorcraft/actuators.h>
 #include "props_csc.h"
 #include "csc_booz2_guidance_v.h"
 

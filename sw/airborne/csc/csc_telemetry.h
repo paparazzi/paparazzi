@@ -1,6 +1,6 @@
 /*
  * $Id: booz2_telemetry.c 3002 2009-02-10 11:36:07Z poine $
- *  
+ *
  * Copyright (C) 2008  Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,14 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
 #ifndef CSC_TELEMETRY_H
 #define CSC_TELEMETRY_H
 
-#include "actuators.h"
+#include <firmwares/rotorcraft/actuators.h>
 #include <inttypes.h>
 
 extern uint8_t telemetry_mode_Ap_DefaultChannel;
@@ -72,7 +72,7 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #include "booz_radio_control.h"
 #define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
 #define PERIODIC_SEND_FBW_STATUS(_chan) { uint16_t current; DOWNLINK_SEND_FBW_STATUS(_chan, &radio_control.status, &pprz_mode, &vsupply, &current); }
-#else 
+#else
 #ifdef RADIO_CONTROL
 #define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, PPM_NB_PULSES, rc_values)
 #define PERIODIC_SEND_FBW_STATUS(_chan) { uint16_t current; DOWNLINK_SEND_FBW_STATUS(_chan, &rc_status, &pprz_mode, &vsupply, &current); }
@@ -81,36 +81,36 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 
 #ifdef USE_GPS
 #define PERIODIC_SEND_BOOZ2_GPS(_chan) {			\
-DOWNLINK_SEND_BOOZ2_GPS( _chan,    				\
+DOWNLINK_SEND_BOOZ2_GPS( _chan,                 \
                          &booz_ins_gps_pos_cm_ned.x,		\
                          &booz_ins_gps_pos_cm_ned.y,		\
-			     &booz_ins_gps_pos_cm_ned.z,	\
-			     &booz_gps_state.ecef_speed.x,	\
-			     &booz_gps_state.ecef_speed.y,	\
-			     &booz_gps_state.ecef_speed.z,	\
-			     &booz_gps_state.pacc,		\
-			     &booz_gps_state.sacc,		\
-			     &booz_gps_state.pdop,		\
-			     &booz_gps_state.num_sv,		\
-			     &booz_gps_state.fix)		\
+                 &booz_ins_gps_pos_cm_ned.z,	\
+                 &booz_gps_state.ecef_speed.x,	\
+                 &booz_gps_state.ecef_speed.y,	\
+                 &booz_gps_state.ecef_speed.z,	\
+                 &booz_gps_state.pacc,		\
+                 &booz_gps_state.sacc,		\
+                 &booz_gps_state.pdop,		\
+                 &booz_gps_state.num_sv,		\
+                 &booz_gps_state.fix)		\
   }
 #endif
 
 #define PERIODIC_SEND_GPS_ERROR(_chan) {				\
-DOWNLINK_SEND_GPS_ERROR( _chan, 				\
-			     &csc_gps_errors.pos.x,		\
-			   &csc_gps_errors.pos.y,		\
-			   &csc_gps_errors.pos.z,		\
-			   &csc_gps_errors.rate.x,		\
-			   &csc_gps_errors.rate.y,		\
-			   &csc_gps_errors.rate.z) 		\
-    }			   
-	
+DOWNLINK_SEND_GPS_ERROR( _chan,                 \
+                 &csc_gps_errors.pos.x,		\
+               &csc_gps_errors.pos.y,		\
+               &csc_gps_errors.pos.z,		\
+               &csc_gps_errors.rate.x,		\
+               &csc_gps_errors.rate.y,		\
+               &csc_gps_errors.rate.z)      \
+    }
+
 #define PERIODIC_SEND_INS3(_chan) { \
-DOWNLINK_SEND_INS3(_chan,	  \
+DOWNLINK_SEND_INS3(_chan,     \
 &booz_ins_gps_pos_cm_ned.x,	\
-&booz_ins_gps_pos_cm_ned.y,	    \
-&booz_ins_gps_pos_cm_ned.z,	    \
+&booz_ins_gps_pos_cm_ned.y,     \
+&booz_ins_gps_pos_cm_ned.z,     \
 &booz_ins_gps_speed_cm_s_ned.x,   \
 &booz_ins_gps_speed_cm_s_ned.y,   \
 &booz_ins_gps_speed_cm_s_ned.z    \

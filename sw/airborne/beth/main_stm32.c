@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 
@@ -29,7 +29,7 @@
 #include "sys_time.h"
 #include "downlink.h"
 #include "booz/booz2_commands.h"
-#include "booz/actuators.h"
+#include <firmwares/rotorcraft/actuators.h>
 //#include "booz/booz_radio_control.h"
 #include <firmwares/rotorcraft/imu.h>
 #include "lisa/lisa_overo_link.h"
@@ -131,7 +131,7 @@ static inline void main_on_overo_msg_received(void) {
   overo_link.up.msg.gyro.p = imu.gyro_unscaled.p;
   overo_link.up.msg.gyro.q = imu.gyro_unscaled.q;
   overo_link.up.msg.gyro.r = imu.gyro_unscaled.r;
-  
+
   //can_err_flags (uint16) represents the board number that is not communicating regularly
   //spi_errors (uint16) reflects the number of crc errors on the spi link
   //TODO: if >10% of messages are coming in with crc errors, assume something is really wrong
@@ -161,25 +161,25 @@ static inline void on_gyro_accel_event(void) {
 
   if (cnt == 0) {
     DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,
-			       &imu.gyro_unscaled.p,
-			       &imu.gyro_unscaled.q,
-			       &imu.gyro_unscaled.r);
-    
+                   &imu.gyro_unscaled.p,
+                   &imu.gyro_unscaled.q,
+                   &imu.gyro_unscaled.r);
+
     DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,
-				&imu.accel_unscaled.x,
-				&imu.accel_unscaled.y,
-				&imu.accel_unscaled.z);
+                &imu.accel_unscaled.x,
+                &imu.accel_unscaled.y,
+                &imu.accel_unscaled.z);
   }
   else if (cnt == 7) {
     DOWNLINK_SEND_BOOZ2_GYRO(DefaultChannel,
-			     &imu.gyro.p,
-			     &imu.gyro.q,
-			     &imu.gyro.r);
-    
+                 &imu.gyro.p,
+                 &imu.gyro.q,
+                 &imu.gyro.r);
+
     DOWNLINK_SEND_BOOZ2_ACCEL(DefaultChannel,
-			      &imu.accel.x,
-			      &imu.accel.y,
-			      &imu.accel.z);
+                  &imu.accel.x,
+                  &imu.accel.y,
+                  &imu.accel.z);
   }
 }
 
@@ -192,15 +192,15 @@ static inline void on_mag_event(void) {
 
   if (cnt%2) {
     DOWNLINK_SEND_BOOZ2_MAG(DefaultChannel,
-			    &imu.mag.x,
-			    &imu.mag.y,
-			    &imu.mag.z);
+                &imu.mag.x,
+                &imu.mag.y,
+                &imu.mag.z);
   }
   else {
     DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
-			      &imu.mag_unscaled.x,
-			      &imu.mag_unscaled.y,
-			      &imu.mag_unscaled.z);
+                  &imu.mag_unscaled.x,
+                  &imu.mag_unscaled.y,
+                  &imu.mag_unscaled.z);
   }
 }
 

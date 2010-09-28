@@ -35,7 +35,7 @@
 #include "datalink.h"
 
 #include "booz2_commands.h"
-#include "actuators.h"
+#include <firmwares/rotorcraft/actuators.h>
 #include "booz_radio_control.h"
 
 #include <firmwares/rotorcraft/imu.h>
