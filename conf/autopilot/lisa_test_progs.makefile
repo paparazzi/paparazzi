@@ -433,8 +433,8 @@ test_imu_b2.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c  $(SRC_BOOZ_ARCH)/peri
 # test IMU crista
 #
 test_imu_crista.ARCHDIR = $(ARCH)
-test_imu_crista.CFLAGS  =  -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
-test_imu_crista.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
+test_imu_crista.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_FIRMWARE)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_imu_crista.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_imu_crista.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
                     $(SRC_ARCH)/stm32_exceptions.c   \
                     $(SRC_ARCH)/stm32_vector_table.c
@@ -465,8 +465,8 @@ test_imu_crista.CFLAGS += -DUSE_DMA1_C4_IRQ
 # test IMU aspirin
 #
 test_imu_aspirin.ARCHDIR = $(ARCH)
-test_imu_aspirin.CFLAGS  =  -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
-test_imu_aspirin.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
+test_imu_aspirin.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_FIRMWARE)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_imu_aspirin.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_imu_aspirin.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
                     $(SRC_ARCH)/stm32_exceptions.c   \
                     $(SRC_ARCH)/stm32_vector_table.c
