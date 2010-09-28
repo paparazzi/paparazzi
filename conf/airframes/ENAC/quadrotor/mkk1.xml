@@ -2,6 +2,39 @@
 
 <airframe name="Booz Mkk1 Enac">
 
+  <firmware name="rotorcraft">
+    <!--target name="ap" board="booz_1.0"-->
+    <target name="ap" board="lisa_l_1.0">
+      <define name="BOOZ_FAILSAFE_GROUND_DETECT"/>
+      <define name="USE_GPS_ACC4R"/>
+    </target>
+    <target name="sim" board="pc">
+      <subsystem name="fdm"         type="nps"/>
+    </target>
+    <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="actuators"     type="mkk"/>
+    <subsystem name="imu"           type="b2_v1.1"/>
+    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="ahrs"          type="cmpl"/>
+    <subsystem name="ins"           type="hff"/>
+  </firmware>
+
+  <firmware name="lisa_l_test_progs">
+    <target name="test_imu_b2"      board="lisa_l_1.0"/>
+    <target name="test_telemetry"   board="lisa_l_1.0"/>
+    <target name="test_baro"        board="lisa_l_1.0"/>
+    <target name="test_rc_spektrum" board="lisa_l_1.0"/>
+    <target name="test_rc_ppm"      board="lisa_l_1.0"/>
+    <target name="test_actuators_mkk"      board="lisa_l_1.0"/>
+  </firmware>
+  <!--firmware name="booz_test_progs">
+    <target name="test_telemetry"   board="booz_1.0"/>
+    <target name="test_baro"        board="booz_1.0"/>
+    <target name="test_rc_spektrum" board="booz_1.0"/>
+    <target name="test_rc_ppm"      board="booz_1.0"/>
+    <target name="test_actuators_mkk"      board="booz_1.0"/>
+  </firmware-->
+
   <servos min="0" neutral="0" max="0xff">
     <servo name="FRONT" no="0" min="0" neutral="0" max="255"/>
     <servo name="BACK"  no="1" min="0" neutral="0" max="255"/>
@@ -221,41 +254,17 @@
 
 
   <makefile>
-ARCH=lpc21
-BOARD_CFG = \"boards/booz2_v1_0.h\"
-FLASH_MODE=IAP
-
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
 
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
-include $(CFG_BOOZ)/booz2_autopilot.makefile
-include $(CFG_BOOZ)/booz2_test_progs.makefile
-ap.CFLAGS += -DFAILSAFE_GROUND_DETECT
-
-ap.CFLAGS += -DMODEM_BAUD=B57600
-include $(CFG_BOOZ)/subsystems/booz2_actuators_mkk.makefile
-include $(CFG_BOOZ)/subsystems/booz2_radio_control_ppm.makefile
-include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1_1.makefile
-include $(CFG_BOOZ)/subsystems/booz2_gps.makefile
-include $(CFG_BOOZ)/subsystems/booz2_analog_bat_baro.makefile
-include $(CFG_BOOZ)/subsystems/booz2_fms_datalink.makefile
-
-include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
-
-include $(CFG_BOOZ)/subsystems/booz2_ins_hff.makefile
 #set GPS lag for horizontal filter
 #ap.CFLAGS += -DUSE_GPS_ACC4R
 
 #ap.CFLAGS += -DB2_GUIDANCE_H_USE_REF
 ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT
 
-ap.CFLAGS += -DUSE_MODULES
-
-include $(CFG_BOOZ)/booz2_simulator_nps.makefile
 #sim.CFLAGS += -DB2_GUIDANCE_H_USE_REF
 sim.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT
-sim.CFLAGS += -DUSE_MODULES
 
   </makefile>
 
