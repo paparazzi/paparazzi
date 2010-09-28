@@ -70,7 +70,7 @@ ap.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
 ap.srcs += $(SRC_CSC)/csc_datalink.c
 
 ap.CFLAGS += -DPPRZ_TRIG_CONST=const
-ap.srcs += $(SRC_CSC)/mercury_xsens.c $(SRC_BOOZ)/imu.c math/pprz_trig_int.c
+ap.srcs += $(SRC_CSC)/mercury_xsens.c $(SRC_FIRMWARE)/imu.c math/pprz_trig_int.c
 ap.CFLAGS += -DXSENS1_LINK=Uart0 -DIMU_TYPE_H=\"mercury_xsens.h\"
 
 ap.srcs += $(SRC_BOOZ)/ahrs/ahrs_cmpl_euler.c $(SRC_BOOZ)/ahrs/ahrs_aligner.c
