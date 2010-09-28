@@ -7,7 +7,7 @@
 
     <mode name="default">
       <message name="DL_VALUE"          period="1.1"/>
-      <message name="BOOZ_STATUS"       period="1.2"/>
+      <message name="ROTORCRAFT_STATUS"       period="1.2"/>
       <message name="BOOZ2_FP"          period="0.25"/>
       <message name="ALIVE"             period="2.1"/>
       <message name="INS_REF"     period="5.1"/>
@@ -23,11 +23,11 @@
       <message name="PPM"                 period="0.5"/>
       <message name="RC"                  period="0.5"/>
       <message name="BOOZ2_RADIO_CONTROL" period="0.5"/>
-      <message name="BOOZ_STATUS"       period="1"/>
+      <message name="ROTORCRAFT_STATUS"       period="1"/>
     </mode>
 
     <mode name="raw_sensors">
-      <message name="BOOZ_STATUS"       period="1.2"/>
+      <message name="ROTORCRAFT_STATUS"       period="1.2"/>
       <message name="DL_VALUE"          period="0.5"/>
       <message name="ALIVE"             period="2.1"/>
       <message name="IMU_ACCEL_RAW"     period=".05"/>
@@ -37,7 +37,7 @@
     </mode>
 
     <mode name="scaled_sensors">
-      <message name="BOOZ_STATUS"       period="1.2"/>
+      <message name="ROTORCRAFT_STATUS"       period="1.2"/>
       <message name="DL_VALUE"          period="0.5"/>
       <message name="ALIVE"             period="2.1"/>
       <message name="BOOZ2_GYRO"        period=".075"/>
@@ -46,7 +46,7 @@
     </mode>
 
     <mode name="ahrs">
-      <message name="BOOZ_STATUS"       period="1.2"/>
+      <message name="ROTORCRAFT_STATUS"       period="1.2"/>
       <message name="DL_VALUE"          period="0.5"/>
       <message name="ALIVE"             period="2.1"/>
 <!--      <message name="BOOZ2_ALIGNER"     period=".1"/> -->
@@ -57,14 +57,14 @@
     </mode>
 
     <mode name="rate_loop">
-      <message name="BOOZ_STATUS"       period="1.2"/>
+      <message name="ROTORCRAFT_STATUS"       period="1.2"/>
       <message name="DL_VALUE"          period="0.5"/>
       <message name="ALIVE"             period="2.1"/>
       <message name="BOOZ2_RATE_LOOP"   period=".02"/>
     </mode>
 
     <mode name="attitude_loop">
-      <message name="BOOZ_STATUS"             period="1.2"/>
+      <message name="ROTORCRAFT_STATUS"             period="1.2"/>
       <message name="DL_VALUE"                period="0.5"/>
       <message name="ALIVE"                   period="0.9"/>
       <message name="BOOZ2_STAB_ATTITUDE"     period=".03"/>
@@ -72,7 +72,7 @@
     </mode>
 
     <mode name="vert_loop">
-      <message name="BOOZ_STATUS"             period="1.2"/>
+      <message name="ROTORCRAFT_STATUS"             period="1.2"/>
       <message name="DL_VALUE"                period="0.5"/>
       <message name="ALIVE"                   period="0.9"/>
       <message name="VFF"               period=".05"/>
@@ -89,7 +89,7 @@
       <message name="HFF_DBG"           period=".2"/>
       <!--<message name="BOOZ2_STAB_ATTITUDE_REF" period=".4"/>-->
       <message name="BOOZ2_FP"                period="0.8"/>
-      <message name="BOOZ_STATUS"             period="1.2"/>
+      <message name="ROTORCRAFT_STATUS"             period="1.2"/>
       <message name="ROTORCRAFT_NAV_STATUS"        period="1.6"/>
 	  <message name="HFF_GPS"           period=".03"/>
       <message name="INS_REF"           period="5.1"/>
@@ -101,7 +101,7 @@
     </mode>
 
     <mode name="hs_att_roll">
-      <message name="BOOZ_STATUS"                 period="1.2"/>
+      <message name="ROTORCRAFT_STATUS"                 period="1.2"/>
       <message name="ALIVE"                       period="0.9"/>
       <message name="DL_VALUE"                    period="0.5"/>
 <!--      <message name="BOOZ2_STAB_ATTITUDE_HS_ROLL" period="0.02"/> -->
@@ -109,7 +109,7 @@
 
     <mode name="tune_hover">
       <message name="DL_VALUE"          period="1.1"/>
-      <message name="BOOZ_STATUS"       period="1.2"/>
+      <message name="ROTORCRAFT_STATUS"       period="1.2"/>
       <message name="ALIVE"             period="2.1"/>
       <!--<message name="BOOZ2_SONAR"       period="0.1"/>-->
       <!--<message name="BOOZ2_TUNE_HOVER"               period=".1"/>-->

@@ -180,7 +180,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.flight_time   <- ivalue "flight_time";
       if a.gspeed > 3. && a.ap_mode = _AUTO2 then
           Wind.update ac_name a.gspeed a.course
-  | "BOOZ_STATUS" ->
+  | "ROTORCRAFT_STATUS" ->
       a.fbw.rc_status <- get_rc_status (ivalue "rc_status");
       a.gps_mode      <- check_index (ivalue "gps_status") gps_modes "GPS_MODE";
       a.ap_mode       <- check_index (get_pprz_mode (ivalue "ap_mode")) ap_modes "BOOZ_AP_MODE";

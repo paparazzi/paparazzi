@@ -1586,7 +1586,7 @@
  <!--229 is free --> 
  <!--230 is free --> 
 
-  <message name="BOOZ_STATUS" id="231">
+  <message name="ROTORCRAFT_STATUS" id="231">
     <field name="link_imu_nb_err" type="uint32"/>
     <field name="blmc_nb_err"  type="uint8"/>
     <field name="rc_status"    type="uint8" values="OK|LOST|REALLY_LOST"/>

@@ -6,7 +6,7 @@
   <process name="Controller">
     <mode name="default">
       <message name="ALIVE"             period="5."/>
-      <message name="BOOZ_STATUS"       period=".5"/>
+      <message name="ROTORCRAFT_STATUS"       period=".5"/>
 <!--      <message name="RC"                period="0.5"/>  -->
 <!--      <message name="BOOZ_FD"           period="0.05"/> -->
 <!--      <message name="BOOZ_DEBUG"        period="0.25"/> -->
