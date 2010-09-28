@@ -1,8 +1,8 @@
-#include "actuators.h"
-#include "actuators/actuators_asctec.h"
+#include "firmwares/rotorcraft/actuators.h"
+#include "firmwares/rotorcraft/actuators/actuators_asctec.h"
 
 #ifdef ACTUATORS_ASCTEC_V2_PROTOCOL
-#include "actuators/supervision.h"
+#include "firmwares/rotorcraft/actuators/supervision.h"
 #endif
 
 #include "booz/booz2_commands.h"

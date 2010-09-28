@@ -28,7 +28,7 @@
 
 #include "i2c.h"
 #include "booz/booz2_commands.h"
-#include "actuators.h"
+#include "firmwares/rotorcraft/actuators.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );

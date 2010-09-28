@@ -21,12 +21,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "actuators.h"
-#include "actuators/actuators_heli.h"
+#include "firmwares/rotorcraft/actuators.h"
+#include "firmwares/rotorcraft/actuators/actuators_heli.h"
 #include "booz/booz2_commands.h"
 
 /* let's start butchery now and use the actuators_pwm arch functions */
-#include "actuators/actuators_pwm.h"
+#include "firmwares/rotorcraft/actuators/actuators_pwm.h"
 
 /* get SetActuatorsFromCommands() macro */
 #include "airframe.h"

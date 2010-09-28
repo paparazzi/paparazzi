@@ -1,4 +1,4 @@
-#include "actuators/actuators_pwm.h"
+#include "firmwares/rotorcraft/actuators/actuators_pwm.h"
 
 int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 

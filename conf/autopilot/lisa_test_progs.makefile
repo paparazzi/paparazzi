@@ -372,7 +372,7 @@ test_rc_24.srcs += $(SRC_BOOZ)/booz_radio_control.c \
 SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCH)
 
 test_servos.ARCHDIR = $(ARCH)
-test_servos.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_FIRMWARE)/actuators/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
+test_servos.CFLAGS  = -I$(SRC_LISA) -I$(ARCH) -I$(SRC_FIRMWARE)/actuators/arch/$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_servos.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_servos.LDFLAGS += -lm
 test_servos.srcs += $(SRC_LISA)/test_servos.c   \
@@ -587,7 +587,7 @@ test_mc5.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 # test actuators mkk
 #
 test_actuators_mkk.ARCHDIR = $(ARCH)
-test_actuators_mkk.CFLAGS = -I$(SRC_FIRMWARE) -I$(SRC_FIRMWARE)/actuators/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_actuators_mkk.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -DPERIPHERALS_AUTO_INIT
 test_actuators_mkk.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_actuators_mkk.srcs = $(SRC_LISA)/test/lisa_test_actuators_mkk.c \
                           $(SRC_ARCH)/stm32_exceptions.c   \
@@ -607,11 +607,10 @@ test_actuators_mkk.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOW
 test_actuators_mkk.srcs += downlink.c pprz_transport.c
 
 test_actuators_mkk.srcs += $(SRC_BOOZ)/booz2_commands.c
-#test_actuators_mkk.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c \
-#                           $(SRC_FIRMWARE)/actuators/arch/$(ARCH)/actuators_mkk_arch.c
-#test_actuators_mkk.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1  -DUSE_TIM2_IRQ
-test_actuators_mkk.CFLAGS += -DACTUATORS_ASCTEC_V2_PROTOCOL -DACTUATORS_ASCTEC_DEVICE=i2c1
-test_actuators_mkk.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
+test_actuators_mkk.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
+test_actuators_mkk.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1  -DUSE_TIM2_IRQ
+#test_actuators_mkk.CFLAGS += -DACTUATORS_ASCTEC_V2_PROTOCOL -DACTUATORS_ASCTEC_DEVICE=i2c1
+#test_actuators_mkk.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
 test_actuators_mkk.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
 test_actuators_mkk.CFLAGS += -DUSE_I2C1
 test_actuators_mkk.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
@@ -621,7 +620,7 @@ test_actuators_mkk.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 # test actuators asctec
 #
 test_actuators_asctec.ARCHDIR = $(ARCH)
-test_actuators_asctec.CFLAGS = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_actuators_asctec.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -DPERIPHERALS_AUTO_INIT
 test_actuators_asctec.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_actuators_asctec.srcs = $(SRC_LISA)/test/lisa_test_actuators_mkk.c \
                           $(SRC_ARCH)/stm32_exceptions.c   \
@@ -642,8 +641,6 @@ test_actuators_asctec.srcs += downlink.c pprz_transport.c
 
 test_actuators_asctec.srcs += $(SRC_BOOZ)/booz2_commands.c
 test_actuators_asctec.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
-#\
-#                              $(SRC_FIRMWARE)/actuators/arch/$(ARCH)/actuators_asctec_arch.c
 test_actuators_asctec.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
 # -DBOOZ_START_DELAY=3
 #  -DUSE_TIM2_IRQ

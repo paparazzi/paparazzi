@@ -22,7 +22,7 @@
  *
  */
 
-#include "actuators/supervision.h"
+#include "firmwares/rotorcraft/actuators/supervision.h"
 
 //#include <stdint.h>
 #ifndef INT32_MIN
