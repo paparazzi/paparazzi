@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of Paparazzi.
@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with Paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
-#include "booz/actuators/actuators_pwm.h"
+#include "actuators/actuators_pwm.h"
 
 #include <stm32/gpio.h>
 #include <stm32/rcc.h>
@@ -43,8 +43,8 @@ void actuators_pwm_arch_init(void) {
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
 
   /* GPIOB and GPIOC clock enable */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | 
-			 RCC_APB2Periph_AFIO, ENABLE);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC |
+             RCC_APB2Periph_AFIO, ENABLE);
   /* GPIO C */
   /* PC6=servo1 PC7=servo2 PC8=servo3 PC9=servo4 */
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -53,7 +53,7 @@ void actuators_pwm_arch_init(void) {
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
   /* need to remate alternate function, pins 37, 38, 39, 40 on LQFP64 */
-  GPIO_PinRemapConfig(GPIO_FullRemap_TIM3, ENABLE);	
+  GPIO_PinRemapConfig(GPIO_FullRemap_TIM3, ENABLE);
 
   /* GPIO B */
   /* PB8=servo5 PB9=servo6 */
@@ -69,7 +69,7 @@ void actuators_pwm_arch_init(void) {
 
   TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
   TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
- 
+
   /* PWM1 Mode configuration: All Channels */
   TIM_OCInitTypeDef  TIM_OCInitStructure;
   TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;

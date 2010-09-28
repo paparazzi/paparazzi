@@ -25,11 +25,13 @@
 #define ACTUATORS_PWM_H
 
 #include "std.h"
+#include "actuators.h"
 
 #define ACTUATORS_PWM_NB 6
 extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
-extern void actuators_init(void);
+//already declared in actuators.h
+//extern void actuators_init(void);
 
 #include "actuators_pwm_arch.h"
 
