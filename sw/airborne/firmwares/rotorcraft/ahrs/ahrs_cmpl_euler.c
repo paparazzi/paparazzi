@@ -24,7 +24,7 @@
 #include "ahrs_cmpl_euler.h"
 
 #include <firmwares/rotorcraft/imu.h>
-#include "ahrs_aligner.h"
+#include <firmwares/rotorcraft/ahrs/ahrs_aligner.h>
 
 #include "airframe.h"
 #include "math/pprz_trig_int.h"

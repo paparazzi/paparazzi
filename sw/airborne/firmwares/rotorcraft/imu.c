@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <firmwares/rotorcraft/imu.h>
+#include "imu.h"
 
 #include "airframe.h"
 
