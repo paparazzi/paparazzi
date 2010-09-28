@@ -66,7 +66,7 @@ SRC_FIRMWARE=firmwares/rotorcraft
 #   MODEM_BAUD :
 #
 test_telemetry.ARCHDIR = $(ARCH)
-test_telemetry.CFLAGS += -I$(SRC_LISA) -I$(SRC_ARCH) -DPERIPHERALS_AUTO_INIT
+test_telemetry.CFLAGS += -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(SRC_ARCH) -DPERIPHERALS_AUTO_INIT
 test_telemetry.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_telemetry.srcs = test/test_telemetry.c            \
 					  $(SRC_ARCH)/stm32_exceptions.c   \
@@ -92,8 +92,8 @@ test_telemetry.srcs   += $(SRC_ARCH)/uart_hw.c
 #   MODEM_PORT
 #   MODEM_BAUD
 #
-test_baro.ARCHDIR   = $(ARCH)
-test_baro.CFLAGS = -I$(SRC_LISA) -I$(SRC_ARCH) -I$(SRC_BOARD) -DPERIPHERALS_AUTO_INIT
+test_baro.ARCHDIR = $(ARCH)
+test_baro.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(SRC_ARCH) -I$(SRC_BOARD) -DPERIPHERALS_AUTO_INIT
 test_baro.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_baro.srcs = $(SRC_BOARD)/test_baro.c	   	  \
 				 $(SRC_ARCH)/stm32_exceptions.c   \
@@ -125,7 +125,7 @@ test_baro.srcs   += i2c.c $(SRC_ARCH)/i2c_hw.c
 #
 test_rc_spektrum.ARCHDIR   = $(ARCH)
 
-test_rc_spektrum.CFLAGS += -I$(SRC_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_rc_spektrum.CFLAGS += -I$(SRC_FIRMWARE) -I$(SRC_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_rc_spektrum.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_rc_spektrum.srcs   += $(SRC_BOOZ_TEST)/booz2_test_radio_control.c \
 						   $(SRC_ARCH)/stm32_exceptions.c              \
@@ -162,7 +162,7 @@ test_rc_spektrum.srcs   += $(SRC_BOOZ)/booz_radio_control.c                     
 #
 test_rc_ppm.ARCHDIR   = $(ARCH)
 
-test_rc_ppm.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD)
+test_rc_ppm.CFLAGS += -I$(SRC_FIRMWARE) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD)
 test_rc_ppm.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_rc_ppm.CFLAGS += -DPERIPHERALS_AUTO_INIT
 test_rc_ppm.srcs   += $(SRC_BOOZ)/test/booz2_test_radio_control.c \
@@ -197,7 +197,7 @@ test_rc_ppm.CFLAGS += -DUSE_TIM2_IRQ
 #   MODEM_BAUD
 #
 test_adc.ARCHDIR = $(ARCH)
-test_adc.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
+test_adc.CFLAGS = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_adc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 
 test_adc.srcs = $(SRC_LISA)/test_adc.c \
@@ -315,7 +315,7 @@ test_imu_aspirin.CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
 # test hmc5843
 #
 test_hmc5843.ARCHDIR = $(ARCH)
-test_hmc5843.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -Ibooz -DPERIPHERALS_AUTO_INIT
+test_hmc5843.CFLAGS = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -Ibooz -DPERIPHERALS_AUTO_INIT
 test_hmc5843.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_hmc5843.srcs = lisa/test/lisa_test_hmc5843.c         \
 					$(SRC_ARCH)/stm32_exceptions.c   \
@@ -342,8 +342,8 @@ test_hmc5843.CFLAGS += -DUSE_EXTI9_5_IRQ   # Mag Int on PB5
 # test ITG3200
 #
 test_itg3200.ARCHDIR = $(ARCH)
-test_itg3200.CFLAGS  =  -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
-test_itg3200.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
+test_itg3200.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_itg3200.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_itg3200.srcs += lisa/test/lisa_test_itg3200.c \
 					   $(SRC_ARCH)/stm32_exceptions.c   \
 					   $(SRC_ARCH)/stm32_vector_table.c
@@ -370,7 +370,7 @@ test_itg3200.CFLAGS += -DUSE_EXTI15_10_IRQ   # Gyro Int on PC14
 # test adxl345 with DMA
 #
 test_adxl345.ARCHDIR = $(ARCH)
-test_adxl345.CFLAGS  =  -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_adxl345.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_adxl345.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
 test_adxl345.srcs += lisa/test/lisa_test_adxl345_dma.c \
 					   $(SRC_ARCH)/stm32_exceptions.c   \
@@ -398,7 +398,7 @@ test_adxl345.CFLAGS += -DUSE_DMA1_C4_IRQ # SPI2 Rx DMA
 # simple test of mikrokopter motor controllers
 #
 test_esc_mkk_simple.ARCHDIR = $(ARCH)
-test_esc_mkk_simple.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
+test_esc_mkk_simple.CFLAGS = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_esc_mkk_simple.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_esc_mkk_simple.srcs = test/test_esc_mkk_simple.c		\
 						   $(SRC_ARCH)/stm32_exceptions.c   \
@@ -416,7 +416,7 @@ test_esc_mkk_simple.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 # simple test of asctec v1 motor controllers
 #
 test_esc_asctecv1_simple.ARCHDIR = $(ARCH)
-test_esc_asctecv1_simple.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
+test_esc_asctecv1_simple.CFLAGS = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_esc_asctecv1_simple.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_esc_asctecv1_simple.srcs = test/test_esc_asctecv1_simple.c  \
 								$(SRC_ARCH)/stm32_exceptions.c   \
