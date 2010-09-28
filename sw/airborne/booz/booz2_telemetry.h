@@ -49,7 +49,7 @@
 #include <firmwares/rotorcraft/imu.h>
 #include "booz_gps.h"
 #include <firmwares/rotorcraft/ins.h>
-#include "ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 
 #include "i2c_hw.h"
 
@@ -301,7 +301,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #endif /* STABILISATION_ATTITUDE_TYPE_FLOAT */
 
 
-#include "ahrs/ahrs_aligner.h"
+#include <firmwares/rotorcraft/ahrs/ahrs_aligner.h>
 #define PERIODIC_SEND_BOOZ2_FILTER_ALIGNER(_chan) {			\
     DOWNLINK_SEND_BOOZ2_FILTER_ALIGNER(_chan,				\
 				       &ahrs_aligner.lp_gyro.p,	\
@@ -325,7 +325,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 
 #ifdef USE_AHRS_CMPL
-#include "ahrs/ahrs_cmpl_euler.h"
+#include <firmwares/rotorcraft/ahrs/ahrs_cmpl_euler.h>
 #define PERIODIC_SEND_BOOZ2_FILTER(_chan) {				\
     DOWNLINK_SEND_BOOZ2_FILTER(_chan,					\
 			       &ahrs.ltp_to_imu_euler.phi,		\
@@ -349,7 +349,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #endif
 
 #ifdef USE_AHRS_LKF
-#include "ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 #include "ahrs/ahrs_float_lkf.h"
 #define PERIODIC_SEND_AHRS_LKF(_chan) {				\
     DOWNLINK_SEND_AHRS_LKF(&bafl_eulers.phi,			\

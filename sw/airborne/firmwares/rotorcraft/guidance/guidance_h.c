@@ -25,7 +25,7 @@
 //#define GUIDANCE_H_USE_REF
 #include <firmwares/rotorcraft/guidance/guidance_h.h>
 
-#include "ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 #include "booz_stabilization.h"
 #include "booz_fms.h"
 #include <firmwares/rotorcraft/ins.h>

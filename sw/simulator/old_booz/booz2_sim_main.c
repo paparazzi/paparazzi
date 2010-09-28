@@ -125,7 +125,7 @@ static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
 }
   
 
-#include "ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 
 static void sim_run_one_step(void) {
 
@@ -195,7 +195,7 @@ static void sim_run_one_step(void) {
 
 #ifdef BYPASS_AHRS
 #include "booz_geometry_mixed.h"
-#include "ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 static void sim_overwrite_ahrs(void) {
   ahrs.ltp_to_body_euler.phi   = BOOZ_ANGLE_I_OF_F(bfm.eulers->ve[AXIS_X]);
   ahrs.ltp_to_body_euler.theta = BOOZ_ANGLE_I_OF_F(bfm.eulers->ve[AXIS_Y]);

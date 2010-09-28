@@ -74,7 +74,7 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 }
 
 #include "nps_fdm.h"
-#include "ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 #include "math/pprz_algebra.h"
 void sim_overwrite_ahrs(void) {
 

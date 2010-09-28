@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 #include <firmwares/rotorcraft/imu.h>
 
 struct Ahrs ahrs;

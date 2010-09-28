@@ -24,7 +24,7 @@
 #include "booz_stabilization.h"
 
 #include "math/pprz_algebra_float.h"
-#include "ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 #include "booz_radio_control.h"
 
 #include "airframe.h"

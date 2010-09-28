@@ -47,12 +47,12 @@
 #include "booz2_battery.h"
 
 #include "booz_fms.h"
-#include "autopilot.h"
+#include <firmwares/rotorcraft/autopilot.h>
 
 #include "booz_stabilization.h"
 #include <firmwares/rotorcraft/guidance.h>
 
-#include "ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 #include <firmwares/rotorcraft/ins.h>
 
 #if defined USE_CAM || USE_DROP

@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_int.h"
-#include "ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 #include "airframe.h"
 
 struct FloatAttitudeGains booz_stabilization_gains[BOOZ_STABILIZATION_ATTITUDE_GAIN_NB];

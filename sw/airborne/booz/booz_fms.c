@@ -25,7 +25,7 @@
 
 #include <firmwares/rotorcraft/imu.h>
 #include "booz_gps.h"
-#include "ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 
 #include "airframe.h"
 

@@ -28,7 +28,7 @@
 
 #include "airframe.h"
 #include "booz_stabilization.h"
-#include "ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 
 #include "booz_stabilization_attitude_ref_float.h"
 #include "quat_setpoint.h"

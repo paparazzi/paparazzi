@@ -3,7 +3,7 @@
 
 #include "math/pprz_algebra_double.h"
 #include <firmwares/rotorcraft/imu.h>
-#include "ahrs.h"
+#include <firmwares/rotorcraft/ahrs.h>
 #include "ahrs/ahrs_mlkf.h"
 
 static void read_data(const char* filename);
