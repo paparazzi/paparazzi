@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.  
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -35,7 +35,7 @@
 
 extern pprz_t commands[COMMANDS_NB];
 extern const pprz_t commands_failsafe[COMMANDS_NB];
-/** Storage of intermediate command values: these values come from 
+/** Storage of intermediate command values: these values come from
 the RC (MANUAL mode), from the autopilot (AUTO mode) or from control loops.
 They are asyncronisly used to set the servos */
 
