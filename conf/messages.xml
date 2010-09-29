@@ -1652,7 +1652,7 @@
     <field name="erno"   type="uint8"/>
   </message>
 
-  <message name="BOOZ_ERROR" id="247">
+  <message name="PPRZ_DEBUG" id="247">
     <field name="module"   type="uint8"/>
     <field name="errno"   type="uint8"/>
   </message>

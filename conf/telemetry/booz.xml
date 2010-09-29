@@ -9,7 +9,7 @@
       <message name="ROTORCRAFT_STATUS"       period=".5"/>
 <!--      <message name="RC"                period="0.5"/>  -->
 <!--      <message name="BOOZ_FD"           period="0.05"/> -->
-<!--      <message name="BOOZ_DEBUG"        period="0.25"/> -->
+<!--      <message name="PPRZ_DEBUG"        period="0.25"/> -->
       <message name="ACTUATORS"         period="0.5"/>
 <!--      <message name="BOOZ_HOV_LOOP"     period="0.05"/> -->
 <!--      <message name="BOOZ_VERT_LOOP"    period="0.05"/> -->
@@ -30,7 +30,7 @@
     <mode name="default">
 <!--      <message name="IMU_GYRO_LP"           period=".017"/> -->
       <message name="AHRS_STATE"            period=".5"/>
-      <message name="AHRS_COV"              period=".5"/> 
+      <message name="AHRS_COV"              period=".5"/>
       <message name="AHRS_MEASURE"          period=".5"/>
 <!--      <message name="IMU_ACCEL_RAW"         period=".02"/> -->
       <message name="IMU_ACCEL"             period=".5"/>
@@ -51,7 +51,7 @@
     </mode>
 
     <mode name="simulation">
-<!--      <message name="BOOZ_DEBUG"            period=".1"/>-->
+<!--      <message name="PPRZ_DEBUG"            period=".1"/>-->
       <message name="AHRS_STATE"            period=".1"/>
       <message name="AHRS_COV"              period=".1"/>
       <message name="IMU_GYRO"              period=".017"/>

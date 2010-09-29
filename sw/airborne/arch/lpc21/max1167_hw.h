@@ -12,7 +12,7 @@
 #include "interrupt_hw.h"  
 #include "spi_hw.h"
 
-//#include "booz_debug.h"
+//#include "pprz_debug.h"
 
 #define MAX1167_ERR_ISR_STATUS   0
 #define MAX1167_ERR_READ_OVERUN  1

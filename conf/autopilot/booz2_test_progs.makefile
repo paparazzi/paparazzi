@@ -93,7 +93,7 @@ test_micromag.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK
 test_micromag.srcs += downlink.c pprz_transport.c
 
 #test_micromag.CFLAGS += -I$(BOOZ)
-#test_micromag.srcs += $(BOOZ)/booz_debug.c
+#test_micromag.srcs += pprz_debug.c
 
 test_micromag.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=8 -DSSP_VIC_SLOT=9
 test_micromag.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c

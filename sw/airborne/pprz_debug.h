@@ -21,22 +21,22 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ2_DEBUG_H
-#define BOOZ2_DEBUG_H
+#ifndef PPRZ_DEBUG_H
+#define PPRZ_DEBUG_H
 
 #define MY_ASSERT(cond) {			\
     if (!(cond)) while(1);			\
   }
 
-#ifdef BOOZ_DEBUG
+#ifdef PPRZ_DEBUG
 
 #include "std.h"
 #include "uart.h"
 #include "messages.h"
 #include "downlink.h"
 
-extern uint8_t booz_debug_mod;
-extern uint8_t booz_debug_err;
+extern uint8_t pprz_debug_mod;
+extern uint8_t pprz_debug_err;
 
 #define DEBUG_IMU          0
 #define DEBUG_MAX_1117     1
@@ -46,9 +46,9 @@ extern uint8_t booz_debug_err;
 
 #define ASSERT(cond, mod, err) {                                    \
     if (!(cond)) {                                                  \
-      booz_debug_mod = mod;                                         \
-      booz_debug_err = err;                                         \
-      DOWNLINK_SEND_BOOZ_ERROR(&booz_debug_mod, &booz_debug_err);	\
+      pprz_debug_mod = mod;                                         \
+      pprz_debug_err = err;                                         \
+      DOWNLINK_SEND_PPRZ_DEBUG(&pprz_debug_mod, &pprz_debug_err);	\
     }                                                               \
   }
 #else
@@ -56,4 +56,4 @@ extern uint8_t booz_debug_err;
 #endif
 
 
-#endif /* BOOZ2_DEBUG_H */
+#endif /* PPRZ_DEBUG_H */

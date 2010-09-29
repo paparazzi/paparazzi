@@ -6,7 +6,7 @@
 #include "interrupt_hw.h"  
 #include "spi_hw.h"
 
-#include "booz_debug.h"
+#include "pprz_debug.h"
 
 /* FIXME : polling mode cause I'm loosing EOC interrupt */
 #define SCP1000_NO_EINT
