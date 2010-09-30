@@ -25,7 +25,7 @@
 
 #include <firmwares/rotorcraft/navigation.h>
 
-#include "booz/booz2_debug.h"
+// #include "booz/booz2_debug.h" FIXME
 #include "booz_gps.h"
 #include <firmwares/rotorcraft/ins.h>
 
@@ -315,7 +315,7 @@ void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos) {
 }
 
 void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int16_t heading_rate_sp ) {
-  MY_ASSERT(wp < nb_waypoint);
+  //  MY_ASSERT(wp < nb_waypoint); FIXME
   int32_t s_heading, c_heading;
   PPRZ_ITRIG_SIN(s_heading, nav_heading);
   PPRZ_ITRIG_COS(c_heading, nav_heading);

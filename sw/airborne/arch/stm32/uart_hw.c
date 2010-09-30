@@ -241,9 +241,7 @@ bool_t uart2_check_free_space( uint8_t len) {
   return (uint16_t)(space - 1) >= len;
 }
 
-
 void usart2_irq_handler(void) {
-  
   if(USART_GetITStatus(USART2, USART_IT_TXE) != RESET){
     // check if more data to send
     if (uart2_tx_insert_idx != uart2_tx_extract_idx) {

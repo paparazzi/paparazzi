@@ -16,10 +16,4 @@
 #define LED_2_GPIO_PIN GPIO_Pin_13
 
 
-
-// FIXME, this is just to make it compile
-#define POWER_SWITCH_LED 5
-
-
-
 #endif /* CONFIG_LISA_M_1_0_H */

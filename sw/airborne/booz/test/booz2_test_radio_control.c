@@ -29,7 +29,7 @@
 
 #include "downlink.h"
 
-#include "booz_radio_control.h"
+#include "booz/booz_radio_control.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -58,7 +58,11 @@ extern uint32_t debug_len;
 
 static inline void main_periodic_task( void ) {
   
-  RunOnceEvery(51, {/*LED_TOGGLE(2);*/ DOWNLINK_SEND_TIME(DefaultChannel, &cpu_time_sec);});  
+  RunOnceEvery(51, {
+    /*LED_TOGGLE(2);*/ 
+    uint32_t blaaa= cpu_time_sec; 
+    DOWNLINK_SEND_TIME(DefaultChannel, &blaaa);
+  });  
 
   RunOnceEvery(10, {radio_control_periodic();});
 

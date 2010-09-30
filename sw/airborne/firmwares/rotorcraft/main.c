@@ -46,7 +46,7 @@
 
 #include <firmwares/rotorcraft/battery.h>
 
-#include "booz_fms.h"
+// #include "booz_fms.h"  // FIXME
 #include <firmwares/rotorcraft/autopilot.h>
 
 #include <firmwares/rotorcraft/stabilization.h>
@@ -112,7 +112,7 @@ STATIC_INLINE void main_init( void ) {
   battery_init();
   imu_init();
 
-  booz_fms_init();
+  //  booz_fms_init(); // FIXME
   autopilot_init();
   nav_init();
   guidance_h_init();
@@ -153,7 +153,7 @@ STATIC_INLINE void main_periodic( void ) {
         autopilot_set_mode(AP_MODE_FAILSAFE);		\
     },									\
     {									\
-      booz_fms_periodic();						\
+      /* booz_fms_periodic(); FIXME */					\
     },									\
     {									\
       /*BoozControlSurfacesSetFromCommands();*/				\

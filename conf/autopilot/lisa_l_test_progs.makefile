@@ -63,10 +63,30 @@ SRC_FIRMWARE=firmwares/rotorcraft
 test_led.ARCHDIR = $(ARCH)
 test_led.CFLAGS += -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_led.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_led.srcs += $(SRC_LISA)/test_led.c       	  \
+test_led.srcs += $(SRC_LISA)/test_led2.c       	  \
                  $(SRC_ARCH)/stm32_exceptions.c   \
                  $(SRC_ARCH)/stm32_vector_table.c
 test_led.CFLAGS += -DUSE_LED
+
+#
+# test uart
+#
+test_uart.ARCHDIR = $(ARCH)
+test_uart.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
+test_uart.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_uart.srcs = $(SRC_LISA)/test_uart.c         \
+                 $(SRC_ARCH)/stm32_exceptions.c  \
+                 $(SRC_ARCH)/stm32_vector_table.c
+test_uart.CFLAGS += -DUSE_LED
+test_uart.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
+test_uart.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_uart.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_uart.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_uart.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_uart.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B57600
+test_uart.srcs += $(SRC_ARCH)/uart_hw.c
+
+
 
 #
 # test servos
@@ -83,7 +103,7 @@ test_servos.srcs += $(SRC_LISA)/test_servos.c 	\
                     $(SRC_ARCH)/stm32_vector_table.c
 test_servos.CFLAGS += -DUSE_LED
 test_servos.srcs += $(SRC_ARCH)/led_hw.c
-test_servos.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_servos.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_servos.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 test_servos.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
@@ -101,8 +121,8 @@ test_telemetry.ARCHDIR = $(ARCH)
 test_telemetry.CFLAGS += -I$(SRC_LISA) -I$(SRC_ARCH) -DPERIPHERALS_AUTO_INIT
 test_telemetry.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_telemetry.srcs = test/test_telemetry.c            \
-					  $(SRC_ARCH)/stm32_exceptions.c   \
-					  $(SRC_ARCH)/stm32_vector_table.c
+		      $(SRC_ARCH)/stm32_exceptions.c   \
+		      $(SRC_ARCH)/stm32_vector_table.c
 test_telemetry.CFLAGS += -DUSE_LED
 test_telemetry.srcs += $(SRC_ARCH)/led_hw.c
 test_telemetry.CFLAGS += -DUSE_SYS_TIME
@@ -153,15 +173,15 @@ test_baro.srcs   += i2c.c $(SRC_ARCH)/i2c_hw.c
 #   MODEM_PORT
 #   MODEM_BAUD
 #   RADIO_CONTROL_LED
-#   RADIO_CONROL_LINK
+#   RADIO_CONROL_SPEKTRUM_PRIMARY_PORT
 #
 test_rc_spektrum.ARCHDIR   = $(ARCH)
 
 test_rc_spektrum.CFLAGS += -I$(SRC_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_rc_spektrum.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_rc_spektrum.srcs   += $(SRC_BOOZ_TEST)/booz2_test_radio_control.c \
-						   $(SRC_ARCH)/stm32_exceptions.c              \
-						   $(SRC_ARCH)/stm32_vector_table.c
+			   $(SRC_ARCH)/stm32_exceptions.c              \
+			   $(SRC_ARCH)/stm32_vector_table.c
 
 test_rc_spektrum.CFLAGS += -DUSE_LED
 test_rc_spektrum.srcs   += $(SRC_ARCH)/led_hw.c
@@ -174,13 +194,16 @@ test_rc_spektrum.srcs   += $(SRC_ARCH)/uart_hw.c
 test_rc_spektrum.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
 test_rc_spektrum.srcs   += downlink.c pprz_transport.c
 test_rc_spektrum.CFLAGS += -DUSE_RADIO_CONTROL
+ifdef RADIO_CONTROL_LED
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
+endif
+test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_BIND_IMPL_FUNC=radio_control_spektrum_try_bind
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_spektrum.h\"
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_PRIMARY_PORT=$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)
-test_rc_spektrum.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HANDLER -DUSE_TIM1_UP_IRQ
+test_rc_spektrum.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HANDLER -DUSE_TIM6_IRQ
 test_rc_spektrum.srcs   += $(SRC_BOOZ)/booz_radio_control.c                                 \
-						   $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c          \
-					   $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_spektrum_arch.c
+			   $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c          \
+			   $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_spektrum_arch.c
 
 
 #
@@ -437,11 +460,12 @@ test_esc_mkk_simple.srcs = test/test_esc_mkk_simple.c		\
 						   $(SRC_ARCH)/stm32_vector_table.c
 test_esc_mkk_simple.CFLAGS += -DUSE_LED
 test_esc_mkk_simple.srcs += $(SRC_ARCH)/led_hw.c
-test_esc_mkk_simple.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_esc_mkk_simple.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_esc_mkk_simple.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_esc_mkk_simple.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_esc_mkk_simple.CFLAGS += -DUSE_I2C1
 test_esc_mkk_simple.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+test_esc_mkk_simple.CFLAGS += -DACTUATORS_MKK_DEV=i2c1
 
 
 #
@@ -520,3 +544,30 @@ test_actuators_asctecv1.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
 test_actuators_asctecv1.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
 test_actuators_asctecv1.CFLAGS += -DUSE_I2C1
 test_actuators_asctecv1.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+
+#
+# test bmp085
+#
+test_bmp085.ARCHDIR = $(ARCH)
+test_bmp085.CFLAGS = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
+test_bmp085.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_bmp085.srcs = lisa/test/lisa_test_bmp085.c     \
+		   $(SRC_ARCH)/stm32_exceptions.c   \
+		   $(SRC_ARCH)/stm32_vector_table.c
+test_bmp085.CFLAGS += -DUSE_LED
+test_bmp085.srcs += $(SRC_ARCH)/led_hw.c
+test_bmp085.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
+test_bmp085.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_bmp085.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_bmp085.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_bmp085.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_bmp085.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
+test_bmp085.srcs += downlink.c pprz_transport.c
+
+test_bmp085.CFLAGS += -DUSE_I2C2
+test_bmp085.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+#test_bmp085.CFLAGS += -DIMU_OVERRIDE_CHANNELS
+#test_bmp085.CFLAGS += -DUSE_EXTI9_5_IRQ   # Mag Int on PB5
