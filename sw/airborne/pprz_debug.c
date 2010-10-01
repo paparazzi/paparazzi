@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz2_debug.h"
+#include "pprz_debug.h"
 
 #ifdef PPRZ_DEBUG
 uint8_t pprz_debug_mod;

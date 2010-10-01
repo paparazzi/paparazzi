@@ -25,7 +25,7 @@
 
 #include <firmwares/rotorcraft/navigation.h>
 
-// #include "booz/booz2_debug.h" FIXME
+#include "pprz_debug.h"
 #include "booz_gps.h"
 #include <firmwares/rotorcraft/ins.h>
 

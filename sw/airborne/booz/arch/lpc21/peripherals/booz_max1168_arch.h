@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 
@@ -27,17 +27,17 @@
 
 
 /*
-  MAX1168 SPI ADC connected on SPI1 
+  MAX1168 SPI ADC connected on SPI1
   SS on P0.20
   EOC on P0.16 ( EINT0 )
 */
 
 #include "std.h"
 #include "LPC21xx.h"
-#include "interrupt_hw.h"  
+#include "interrupt_hw.h"
 #include "ssp_hw.h"
 
-#include "booz2_debug.h"
+#include "pprz_debug.h"
 
 #define MAX1168_ERR_ISR_STATUS   0
 #define MAX1168_ERR_READ_OVERUN  1
@@ -59,7 +59,7 @@
 
 #define Max1168OnSpiInt() {						\
     ASSERT((booz_max1168_status == STA_MAX1168_READING_RES),		\
-	   DEBUG_MAX_1168, MAX1168_ERR_ISR_STATUS);			\
+       DEBUG_MAX_1168, MAX1168_ERR_ISR_STATUS);			\
     /* store convertion result */					\
     booz_max1168_values[0] = SSPDR;					\
     booz_max1168_values[1] = SSPDR;					\
