@@ -25,6 +25,8 @@
 
 #include "lisa/lisa_overo_link.h"
 #include <firmwares/rotorcraft/imu.h>
+#include <booz/booz_gps.h>
+#include <firmwares/rotorcraft/baro.h>
 
 
 #include <string.h>
@@ -33,6 +35,7 @@ static inline void on_overo_link_lost(void);
 
 void vi_impl_init(void) {
   overo_link_init();
+  vi.available_sensors = 0;
 }
 
 void vi_impl_periodic(void) {
@@ -49,19 +52,41 @@ static inline void on_overo_link_lost(void) {
 
 void vi_overo_link_on_msg_received(void) {
 
-#if 0
-  memcpy(&overo_link.up.msg, &overo_link.down.msg,
-     sizeof(union AutopilotMessage));
-#endif
-  overo_link.up.msg.valid.imu = 1;
+  overo_link.up.msg.valid_sensors = vi.available_sensors;
+  
   RATES_COPY(overo_link.up.msg.gyro, imu.gyro);
   VECT3_COPY(overo_link.up.msg.accel, imu.accel);
-  VECT3_COPY(overo_link.up.msg.mag, imu.mag);
 
+  if (vi.available_sensors && (1<<MAG_DATA_VALID)) {
+    VECT3_COPY(overo_link.up.msg.mag, imu.mag);
+    vi.available_sensors &= ~(1<<MAG_DATA_VALID);
+  }
+  if (vi.available_sensors && (1<<GPS_DATA_VALID)) {
+    VECT3_COPY(overo_link.up.msg.ecef_pos, booz_gps_state.ecef_pos);
+    VECT3_COPY(overo_link.up.msg.ecef_vel, booz_gps_state.ecef_vel);
+    vi.available_sensors &= ~(1<<GPS_DATA_VALID);
+  }
+  if (vi.available_sensors && (1<<BARO_ABS_DATA_VALID)) {
+    overo_link.up.msg.pressure_absolute = baro.absolute;
+    vi.available_sensors &= ~(1<<BARO_ABS_DATA_VALID);
+  }
 }
 
 
 void vi_overo_link_on_crc_err(void) {
 
 
+}
+
+
+void vi_notify_gps(void) {
+  vi.available_sensors |= (1<<GPS_DATA_VALID);
+}
+
+void vi_notify_mag(void) {
+  vi.available_sensors |= (1<<MAG_DATA_VALID);
+}
+
+void vi_notify_baro_abs(void) {
+  vi.available_sensors |= (1<<BARO_ABS_DATA_VALID);
 }

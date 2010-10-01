@@ -17,7 +17,7 @@ extern "C" {
 #include "fms/fms_periodic.h"
 #include "fms/fms_spi_link.h"
 #include "fms/fms_autopilot_msg.h"
-#include "booz/booz_imu.h"
+#include "firmwares/rotorcraft/imu.h"
 #include "fms/libeknav/raw_log.h"
   /* our sensors            */
   struct BoozImuFloat imu;
@@ -146,7 +146,7 @@ static void main_dialog_with_io_proc() {
   
   spi_link_send(&msg_out, sizeof(struct AutopilotMessageCRCFrame), &msg_in, &crc_valid);
   
-  struct AutopilotMessagePTUp *in = &msg_in.payload.msg_up; 
+  struct AutopilotMessageVIUp *in = &msg_in.payload.msg_up; 
   RATES_FLOAT_OF_BFP(imu.gyro, in->gyro);
   ACCELS_FLOAT_OF_BFP(imu.accel, in->accel); 
   MAGS_FLOAT_OF_BFP(imu.mag, in->mag); 

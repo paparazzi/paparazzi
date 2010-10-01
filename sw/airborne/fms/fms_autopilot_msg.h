@@ -3,6 +3,7 @@
 
 #include <inttypes.h>
 #include "math/pprz_algebra_int.h"
+#include "math/pprz_geodetic_int.h"
 #include "airframe.h"
 //#include "adc.h"
 #define NB_ADC 8
@@ -114,6 +115,30 @@ struct __attribute__ ((packed)) AutopilotMessagePTDown
 {
   uint16_t pwm_outputs_usecs[LISA_PWM_OUTPUT_NB];
 };
+
+
+
+#define IMU_DATA_VALID      0
+#define MAG_DATA_VALID      1
+#define GPS_DATA_VALID      2
+#define BARO_ABS_DATA_VALID 3
+
+struct __attribute__ ((packed)) AutopilotMessageVIUp 
+{
+  struct Int16Rates gyro;
+  struct Int16Vect3 accel;
+  struct Int16Vect3 mag;
+  struct EcefCoor_i ecef_pos;    /* pos ECEF in cm        */
+  struct EcefCoor_i ecef_vel;    /* speed ECEF in cm/s    */
+  int16_t pressure_absolute;
+  uint8_t valid_sensors;
+};
+
+struct __attribute__ ((packed)) AutopilotMessageVIDown 
+{
+
+};
+
 
 /* Union for computing size of SPI transfer (largest of either up or down message) */
 union AutopilotMessage {

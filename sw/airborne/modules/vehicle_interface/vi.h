@@ -82,6 +82,7 @@ struct VehicleInterface {
   uint8_t last_msg;
   struct Vi_info info;
   struct Vi_command input;
+  uint8_t available_sensors;
 };
 
 extern struct VehicleInterface vi;
@@ -90,6 +91,10 @@ extern void vi_init(void);
 extern void vi_set_enabled(bool_t enabled);
 extern void vi_periodic(void);
 extern void vi_update_info(void);
+
+extern void vi_notify_gps(void);
+extern void vi_notify_mag(void);
+extern void vi_notify_baro_abs(void);
 
 /* must be implemented by specific module */
 extern void vi_impl_init(void);

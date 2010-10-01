@@ -92,8 +92,8 @@ ap.srcs += $(SRC_ARCH)/uart_hw.c
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport
 ap.CFLAGS += -DDOWNLINK_DEVICE=$(MODEM_PORT)
 ap.srcs   += $(SRC_FIRMWARE)/telemetry.c \
-		 downlink.c \
-			 pprz_transport.c
+		             downlink.c \
+			     pprz_transport.c
 ap.CFLAGS += -DDATALINK=PPRZ
 ap.CFLAGS += -DPPRZ_UART=$(MODEM_PORT)
 ap.srcs   += $(SRC_BOOZ)/booz2_datalink.c

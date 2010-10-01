@@ -572,3 +572,47 @@ test_bmp085.CFLAGS += -DUSE_I2C2
 test_bmp085.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 #test_bmp085.CFLAGS += -DIMU_OVERRIDE_CHANNELS
 #test_bmp085.CFLAGS += -DUSE_EXTI9_5_IRQ   # Mag Int on PB5
+
+
+
+#
+# Test manual : a simple test with rc and servos - I want to fly lisa/M
+#
+test_manual.ARCHDIR = $(ARCH)
+test_manual.CFLAGS  = -I$(SRC_FIRMWARE) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
+test_manual.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_manual.srcs    = test/test_manual.c               \
+		      $(SRC_ARCH)/stm32_exceptions.c   \
+		      $(SRC_ARCH)/stm32_vector_table.c
+test_manual.CFLAGS += -DUSE_LED
+test_manual.srcs   += $(SRC_ARCH)/led_hw.c
+test_manual.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
+test_manual.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_manual.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_manual.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_manual.srcs   += $(SRC_ARCH)/uart_hw.c
+
+test_manual.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
+test_manual.srcs   += downlink.c pprz_transport.c
+
+test_manual.srcs += $(SRC_BOOZ)/booz2_commands.c
+
+test_manual.CFLAGS += -I$(SRC_FIRMWARE)/actuators/arch/$(ARCH)
+#test_manual.srcs   += $(SRC_FIRMWARE)/actuators/actuators_pwm.c 
+test_manual.srcs   += $(SRC_FIRMWARE)/actuators/arch/$(ARCH)/actuators_pwm_arch.c
+test_manual.srcs   += $(SRC_FIRMWARE)/actuators/actuators_heli.c
+
+
+test_manual.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ)/arch/$(ARCH)
+test_manual.CFLAGS += -DUSE_RADIO_CONTROL
+ifdef RADIO_CONTROL_LED
+test_manual.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
+endif
+test_manual.CFLAGS += -DRADIO_CONTROL_BIND_IMPL_FUNC=radio_control_spektrum_try_bind
+test_manual.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_spektrum.h\"
+test_manual.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_PRIMARY_PORT=$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)
+test_manual.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HANDLER -DUSE_TIM6_IRQ
+test_manual.srcs   += $(SRC_BOOZ)/booz_radio_control.c                                 \
+	              $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c          \
+	              $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_spektrum_arch.c

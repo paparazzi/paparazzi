@@ -43,7 +43,7 @@
     test3.LDFLAGS  += -levent -lm
     test3.CFLAGS   += -DFMS_PERIODIC_FREQ=512
     test3.srcs     += fms/fms_periodic.c
-    test3.CXXFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessagePTUp -DOVERO_LINK_MSG_DOWN=AutopilotMessagePTDown
+    test3.CXXFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageVIUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageVIDown
     test3.srcs     += fms/fms_spi_link.c
     
     # test 4: Flags like test3
@@ -56,7 +56,7 @@
     test4.LDFLAGS  += -levent -lm
     test4.CFLAGS   += -DFMS_PERIODIC_FREQ=512
     test4.srcs     += fms/fms_periodic.c
-    test4.CXXFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessagePTUp -DOVERO_LINK_MSG_DOWN=AutopilotMessagePTDown
+    test4.CXXFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageVIUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageVIDown
     test4.srcs     += fms/fms_spi_link.c
 
     # test network based telemetry on overo (using udp_transport2/messages2)
