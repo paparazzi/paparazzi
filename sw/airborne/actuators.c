@@ -25,6 +25,7 @@
  *
  */
 
-#include "actuators.h"
+#include "firmwares/fixedwing/actuators.h"
+//#include "actuators.h"
 
 uint16_t actuators[SERVOS_NB];
