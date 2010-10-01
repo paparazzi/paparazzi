@@ -210,9 +210,10 @@ USER =
 #HOST = beth
 #HOST = overo
 #HOST = auto7
-HOST = 192.168.2.11
+#HOST = 192.168.2.11
+#HOST = 192.168.2.2
 #HOST= regis
-#HOST = auto3
+HOST = auto3
 TARGET_DIR = ~
 SRC_FMS=fms
 
@@ -255,7 +256,8 @@ overo_test_uart.srcs    += $(SRC_FMS)/fms_network.c
 overo_test_uart.LDFLAGS += -levent -lm
 overo_test_uart.srcs    += $(SRC_BETH)/overo_gcs_com.c
 #overo_test_uart.CFLAGS  += -DUBX -DGPS -DUSE_UART0 -DUART0_BAUD=B9600 -DGPS_CONFIGURE -DUSER_GPS_CONFIGURE=\"modules/gps_i2c/runtime_configure.h\" -DGPS_BAUD=B38400 -DGPS_LINK=Uart0 -DGPS_USE_LATLONG
-overo_test_uart.CFLAGS  += -DUBX -DGPS -DUSE_UART0 -DUART0_BAUD=B9600 -DGPS_CONFIGURE -DGPS_BAUD=B38400 -DGPS_LINK=Uart0 -DGPS_USE_LATLONG
+#overo_test_uart.CFLAGS  += -DUBX -DGPS -DUSE_UART0 -DUART0_BAUD=B9600 -DGPS_CONFIGURE -DGPS_BAUD=B38400 -DGPS_LINK=Uart0 -DGPS_USE_LATLONG
+overo_test_uart.CFLAGS  += -DUBX -DGPS -DUSE_UART0 -DUART0_BAUD=B38400 -DGPS_LINK=Uart0 -DGPS_USE_LATLONG
 overo_test_uart.srcs    += gps_ubx.c gps.c latlong.c $(SRC_BETH)/uart_hw.c
 overo_test_uart.CFLAGS  +=-DUSE_UART1 -DUART1_BAUD=B57600 -DDOWNLINK_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ 
 overo_test_uart.srcs    += pprz_transport.c $(SRC_BETH)/rcv_telemetry.c
