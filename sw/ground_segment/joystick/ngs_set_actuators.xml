@@ -1,0 +1,48 @@
+<joystick>
+  <input>
+    <axis index="0" name="one"/>
+    <axis index="1" name="two"/>
+    <axis index="2" name="three"/>
+    <axis index="3" name="four"/>
+    <axis index="4" name="dpad1"/>
+    <axis index="5" name="dpad2"/>
+    <button index="0" name="triangle"/>
+    <button index="1" name="circle"/>
+    <button index="2" name="cross"/>
+    <button index="3" name="square"/>
+    <button index="4" name="l2"/>
+    <button index="5" name="r2"/>
+    <button index="6" name="l1"/>
+    <button index="7" name="r1"/>
+    <button index="8" name="select"/>
+    <button index="9" name="start"/>
+    <button index="10" name="clickl"/>
+    <button index="11" name="clickr"/>
+  </input>
+
+  <messages period="0.1">
+    <!--message class="datalink" name="BOOZ2_FMS_COMMAND">
+      <field name="h_mode" value="IndexOfEnum(NAV)"/>
+      <field name="v_mode" value="IndexOfEnum(NAV)"/>
+      <field name="v_sp"   value="(up-down)*127"/>
+      <field name="h_sp_1" value="0-pitch"/>
+      <field name="h_sp_2" value="roll"/>
+      <field name="h_sp_3" value="(right-left)*127"/>
+    </message-->
+
+    <message class="datalink" name="SET_ACTUATOR" on_event="circle">
+      <field name="value" value="Scale(two,1400,1200)"/>
+      <field name="no" value="2"/>
+    </message>
+    <message class="datalink" name="SET_ACTUATOR" on_event="cross">
+      <field name="value" value="Scale(one,2000,1000)"/>
+      <field name="no" value="3"/>
+    </message>
+
+    <!--message class="ground" name="DL_SETTING">
+      <field name="index" value="IndexOfSetting(booz2_cam_tilt_pwm)"/>
+      <field name="value" value="Scale(throttle, 1000, 2000)"/>
+    </message-->
+
+  </messages>
+</joystick>
