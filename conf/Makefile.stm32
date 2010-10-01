@@ -197,6 +197,9 @@ upload:  $(OBJDIR)/$(TARGET).bin
 				-c "flash write_image erase $(OBJDIR)/$(TARGET).bin 0x08000000" \
 				-c reset \
 				-c shutdown
+else
+upload:
+	@echo unknown flash_mode $(FLASH_MODE)
 endif
 
 
