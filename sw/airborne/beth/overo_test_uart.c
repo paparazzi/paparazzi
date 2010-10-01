@@ -67,6 +67,17 @@ static uint8_t donegpsconf = 0;
 #endif
 static uint8_t configgps = 0;
 
+
+extern float phi;
+extern float psi;
+extern float theta;
+extern uint16_t throttle;
+extern uint16_t voltage;
+extern uint16_t amps;
+extern uint16_t energy;
+extern uint16_t adc1;
+extern uint16_t adc2;
+
 int main(int argc, char *argv[]) {
   portnum = 0;
 
@@ -118,7 +129,8 @@ int main(int argc, char *argv[]) {
 static void main_periodic(int my_sig_num) {
 
   
-  //RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);});
+  RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);});
+   RunOnceEvery(5, {DOWNLINK_SEND_ADC_GENERIC(gcs_com.udp_transport,&adc1,&adc2);});
 
 #ifdef USE_UART0 
   uart0_handler();
