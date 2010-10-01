@@ -16,6 +16,7 @@
       <define name="ALT_KALMAN"/>
       <define name="AGR_CLIMB"/>
       <define name="UBX_EXTERNAL"/>
+      <define name="USE_ADC_GENERIC"/>
     </target>
 
     <target name="sim" 			board="pc">
@@ -23,7 +24,13 @@
       <define name="ALT_KALMAN"/>
       <define name="AGR_CLIMB"/>
     </target>
+    
+   <subsystem name="adc" type="generic">
+     <param name="ADC_GENERIC1" value="ADC_3"/>
+     <param name="ADC_GENERIC2" value="ADC_5"/>
+    </subsystem>
 
+    
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="control"/>
@@ -31,6 +38,7 @@
     <subsystem name="gyro"          type="roll"/>
     <subsystem name="gps"           type="ublox_lea5h_hitl"/>
     <subsystem name="navigation"/>
+    <subsystem name="joystick"/>
   </firmware>
 
   <firmware name="setup">
@@ -46,6 +54,11 @@
     <servo name="THROTTLE"      no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="AILEVON_RIGHT" no="1" min="1230" neutral="1710" max="2100"/>
     <servo name="AILEVON_LEFT"  no="2" min="2120" neutral="1785" max="1300"/>
+    <servo name="CHAN3"  no="3" min="2120" neutral="1785" max="1300"/>
+    <servo name="CHAN4"  no="4" min="2120" neutral="1785" max="1300"/>
+    <servo name="CHAN5"  no="5" min="2120" neutral="1785" max="1300"/>
+    <servo name="CHAN6"  no="6" min="2120" neutral="1785" max="1300"/>
+    <servo name="CHAN7"  no="7" min="2120" neutral="1785" max="1300"/>
   </servos>
 
   <commands>
@@ -153,9 +166,9 @@
 
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="1000"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="10" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="6.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="7.0" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="7.3" unit="V"/>
   </section>
 
   <section name="MISC">
