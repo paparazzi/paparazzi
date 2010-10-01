@@ -19,6 +19,8 @@ extern "C" {
 #include "fms/libeknav/raw_log.h"
   /* our sensors            */
   struct ImuFloat imu_float;
+  struct EcefCoor_i imu_ecef_pos,
+										imu_ecef_vel;
   /* raw log */
   static int raw_log_fd;
 }
@@ -111,8 +113,8 @@ static void main_init(void);
 static void init_ins_state(void);
 static void set_reference_direction(void);
 static void main_periodic(int my_sig_num);
-static void main_dialog_with_io_proc(void);
-static void main_run_ins(void);
+static uint8_t main_dialog_with_io_proc(void);
+static void main_run_ins(uint8_t);
 
 
 

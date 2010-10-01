@@ -8,6 +8,8 @@ struct raw_log_entry {
   struct FloatRates   gyro;
   struct FloatVect3   accel;
   struct FloatVect3   mag;
+  struct FloatVect3		ecef_pos;
+  struct FloatVect3		ecef_vel;
 };
 
 #endif /* LIBEKNAV_RAW_LOG_H */

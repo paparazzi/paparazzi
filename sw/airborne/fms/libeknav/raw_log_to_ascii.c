@@ -50,6 +50,8 @@ void print_raw_log_entry(struct raw_log_entry* entry){
 	printf("%+f %+f %+f\t", entry->gyro.p, entry->gyro.q, entry->gyro.r);
 	printf("%+f %+f %+f\t", entry->accel.x, entry->accel.y, entry->accel.z);
 	printf("%+f %+f %+f\t", entry->mag.x, entry->mag.y, entry->mag.z);
+	printf("%+f %+f %+f\t", entry->ecef_pos.x, entry->ecef_pos.y, entry->ecef_pos.z);
+	printf("%+f %+f %+f\t", entry->ecef_vel.x, entry->ecef_vel.y, entry->ecef_vel.z);
 }
 
 

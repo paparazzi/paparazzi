@@ -65,14 +65,14 @@ static void main_init(void) {
 
 static void main_periodic(int my_sig_num __attribute__ ((unused))) {
 
-  main_dialog_with_io_proc();
-  main_run_ins();
+  uint8_t data_valid = main_dialog_with_io_proc();
+  main_run_ins(data_valid);
   main_rawlog_dump();
 
 }
 
 
-static void main_dialog_with_io_proc() {
+static uint8_t main_dialog_with_io_proc() {
 
   struct AutopilotMessageCRCFrame msg_in;
   struct AutopilotMessageCRCFrame msg_out;
@@ -85,40 +85,42 @@ static void main_dialog_with_io_proc() {
   struct AutopilotMessageVIUp *in = &msg_in.payload.msg_up; 
   RATES_FLOAT_OF_BFP(imu_float.gyro, in->gyro);
   ACCELS_FLOAT_OF_BFP(imu_float.accel, in->accel); 
+  
   if(in->valid_sensors & MAG_DATA_VALID){
 	  MAGS_FLOAT_OF_BFP(imu_float.mag, in->mag); 
   }
-
+  
+  if(in->valid_sensors & GPS_DATA_VALID){
+		VECT3_COPY(imu_ecef_pos, in->ecef_pos);
+		printf("GPS: %d %d %d\n", imu_ecef_pos.x, imu_ecef_pos.y, imu_ecef_pos.z);
+		VECT3_COPY(imu_ecef_vel, in->ecef_vel);
+	}
+  return in->valid_sensors;
 }
 
-static void main_run_ins() {
+static void main_run_ins(uint8_t data_valid) {
 
   struct timespec now;
   clock_gettime(TIMER, &now);
-  
-  double dt = absTime(time_diff(now, prev));
   
   double dt_imu_freq = 0.001953125; //  1/512; // doesn't work?
   
   ins.predict(RATES_AS_VECTOR(imu_float.gyro), COORDS_AS_VECTOR(imu_float.accel), dt_imu_freq);
   
-  //if (cnt % 10 == 0) { /* update mag at 50Hz */
-    //Vector3d magnetometer = Vector3d::UnitZ();
-    //const double   mag_noise = std::pow(5 / 180.0 * M_PI, 2);
-  
-  
-  //ins.obs_vector(reference_direction, COORDS_AS_VECTOR(imu_float.mag), mag_noise);
+  if(data_valid & MAG_DATA_VALID){
+		ins.obs_vector(reference_direction, COORDS_AS_VECTOR(imu_float.mag), mag_noise);
+	}
   
   if(ABS(FLOAT_VECT3_NORM(imu_float.accel)-9.81)<0.03){
 		// use the gravity as reference
 		ins.obs_vector(ins.avg_state.position.normalized(), COORDS_AS_VECTOR(imu_float.accel), 0.027);
 	}
   
-  
-  //if (cnt % 128 == 0) /* update gps at 4 Hz */ //
-    //const Vector3d gps_pos_noise = Vector3d::Ones()  *10*10;
-    //const Vector3d gps_speed_noise = Vector3d::Ones()*0.1*0.1;
-    //ins.obs_gps_pv_report(pos_0_ecef, speed_0_ecef, gps_pos_noise, gps_speed_noise);
+  if(data_valid & GPS_DATA_VALID){
+    const Vector3d gps_pos_noise = Vector3d::Ones()  *10*10;
+    const Vector3d gps_speed_noise = Vector3d::Ones()*0.1*0.1;
+		//ins.obs_gps_pv_report(COORDS_AS_VECTOR(imu_ecef_pos)/100, COORDS_AS_VECTOR(imu_ecef_vel)/100, gps_pos_noise, gps_speed_noise);
+	}
   
   print_estimator_state(absTime(time_diff(now, start)));
   
@@ -251,6 +253,8 @@ static void main_rawlog_dump(void) {
   RATES_COPY(e.gyro, imu_float.gyro);
   VECT3_COPY(e.accel, imu_float.accel);
   VECT3_COPY(e.mag, imu_float.mag);
+  VECT3_COPY(e.ecef_pos, imu_ecef_pos);
+  VECT3_COPY(e.ecef_vel, imu_ecef_vel);
   write(raw_log_fd, &e, sizeof(e));
 
 }
@@ -261,27 +265,31 @@ static void print_estimator_state(double time) {
 	
 	struct LtpDef_d		current_ltp;
 	struct EcefCoor_d pos_ecef,
-										cur_pos_ecef;
+										cur_pos_ecef,
+										cur_vel_ecef;
 	struct NedCoor_d	pos_ned,
 										vel_ned;
 										
 	VECTOR_AS_COORDS(pos_ecef,pos_0_ecef);
 	VECTOR_AS_COORDS(cur_pos_ecef,ins.avg_state.position);
+	VECTOR_AS_COORDS(cur_vel_ecef,ins.avg_state.velocity);
+	
 	ltp_def_from_ecef_d(&current_ltp, &pos_ecef);
 	
 	ned_of_ecef_point_d(&pos_ned, &current_ltp, &cur_pos_ecef);
+	ned_of_ecef_vect_d(&vel_ned, &current_ltp, &cur_vel_ecef);
 	
   int32_t xdd = 0;
   int32_t ydd = 0;
   int32_t zdd = 0;
-
-  int32_t xd = ins.avg_state.velocity(0)/0.0000019073;
-  int32_t yd = ins.avg_state.velocity(1)/0.0000019073;
-  int32_t zd = ins.avg_state.velocity(2)/0.0000019073;
   
-  int32_t x = ins.avg_state.position(0)/0.0039;
-  int32_t y = ins.avg_state.position(1)/0.0039;
-  int32_t z = ins.avg_state.position(2)/0.0039;
+  int32_t xd = vel_ned.x/0.0000019073;
+  int32_t yd = vel_ned.y/0.0000019073;
+  int32_t zd = vel_ned.z/0.0000019073;
+  
+  int32_t x = pos_ned.x/0.0039;
+  int32_t y = pos_ned.y/0.0039;
+  int32_t z = pos_ned.z/0.0039;
 
   fprintf(ins_logfile, "%f %d BOOZ2_INS2 %d %d %d %d %d %d %d %d %d\n", time, AC_ID, xdd, ydd, zdd, xd, yd, zd, x, y, z);
   
