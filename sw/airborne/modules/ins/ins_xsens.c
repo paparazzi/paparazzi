@@ -26,7 +26,7 @@
  * \brief Parser for the Xsens protocol
  */
 
-#include <firmwares/rotorcraft/ins.h>
+#include "ins/ins.h"
 
 #include <inttypes.h>
 
