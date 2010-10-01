@@ -1,83 +1,16 @@
 
-#include <iostream>
-#include <iomanip>
+#include "test_libeknav_4.hpp"
 
-#include <Eigen/Core>
-
-#include "ins_qkf.hpp"
-#include <stdint.h>
+#include <stdlib.h>
 
 
-#include <event.h>
-extern "C" {
-#include <unistd.h>
-#include <time.h>
-#include "std.h"
-#include "fms/fms_debug.h"
-#include "fms/fms_periodic.h"
-#include "fms/fms_spi_link.h"
-#include "fms/fms_autopilot_msg.h"
-#include "firmwares/rotorcraft/imu.h"
-#include "fms/libeknav/raw_log.h"
-  /* our sensors            */
-  struct BoozImuFloat imu;
-  /* raw log */
-  static int raw_log_fd;
-}
-
-static void main_trick_libevent(void);
-static void on_foo_event(int fd, short event __attribute__((unused)), void *arg);
-static struct event foo_event;
-
-#include "math/pprz_algebra_float.h"
-static void main_rawlog_init(const char* filename);
-static void main_rawlog_dump(void);
-
-static void main_init(void);
-static void main_periodic(int my_sig_num);
-static void main_dialog_with_io_proc(void);
-static void main_run_ins(void);
+struct timespec start, prev;
+FILE* ins_logfile;		// note: initilaized in init_ins_state
 
 
-/* time measurement */
-struct timespec start;
-
-float absTime(struct timespec T){
-	return (float)(T.tv_sec + T.tv_nsec*1e-9);
-}
-
-struct timespec time_diff(struct timespec end, struct timespec start){
-	float difference = absTime(end)-absTime(start);
-	struct timespec dT;
-	dT.tv_sec = (int)difference;
-	dT.tv_nsec = (difference-dT.tv_sec)*1000000000;
-	return dT;
-}
- 
-#define TIMER CLOCK_MONOTONIC 
-
-
-
-/* initial state */
-Vector3d pos_0_ecef(1017.67e3, -5079.282e3, 3709.041e3);
-Vector3d speed_0_ecef(0., 0., 0.);
-//  Vector3d orientation(0., 0., 0.);
-Vector3d bias_0(0., 0., 0.);
-
-/* initial covariance */
-const double pos_cov_0 =  1e2*1e2;
-const double speed_cov_0 =  3.*3.;
-//  const double orientation_cov_0 =  RadOfDeg(5.)*RadOfDeg(5.);
-const double bias_cov_0 =  0.447;
-
-/* system noise      */
-const Vector3d gyro_white_noise = Vector3d::Ones()*0.1*0.1;
-const Vector3d gyro_stability_noise = Vector3d::Ones()*0.00001;
-const Vector3d accel_white_noise = Vector3d::Ones()* 0.04*0.04;
-
-static basic_ins_qkf ins = basic_ins_qkf(pos_0_ecef, pos_cov_0, bias_cov_0, speed_cov_0,
-					 gyro_white_noise, gyro_stability_noise, accel_white_noise);
-
+//useless initialization (I hate C++)
+static basic_ins_qkf ins = basic_ins_qkf(Vector3d::Zero(), 0, 0, 0,
+					 Vector3d::Zero(), Vector3d::Zero(), Vector3d::Zero());
 
 // import most common Eigen types 
 USING_PART_OF_NAMESPACE_EIGEN
@@ -121,8 +54,11 @@ static void main_init(void) {
     TRACE(TRACE_ERROR, "%s", "failed to start periodic generator\n");
     return; 
   }
+  
+  init_ins_state();
+  set_reference_direction();
    
-  main_rawlog_init("/tmp/log_test3.bin");
+  main_rawlog_init(IMU_LOG_FILE);
 
 }
 
@@ -130,7 +66,7 @@ static void main_init(void) {
 static void main_periodic(int my_sig_num __attribute__ ((unused))) {
 
   main_dialog_with_io_proc();
-  //  main_run_ins();
+  main_run_ins();
   main_rawlog_dump();
 
 }
@@ -147,40 +83,45 @@ static void main_dialog_with_io_proc() {
   spi_link_send(&msg_out, sizeof(struct AutopilotMessageCRCFrame), &msg_in, &crc_valid);
   
   struct AutopilotMessageVIUp *in = &msg_in.payload.msg_up; 
-  RATES_FLOAT_OF_BFP(imu.gyro, in->gyro);
-  ACCELS_FLOAT_OF_BFP(imu.accel, in->accel); 
-  MAGS_FLOAT_OF_BFP(imu.mag, in->mag); 
-
-  {
-    static uint32_t foo=0;
-    foo++;
-    if (!(foo%100))
-      printf("%f %f %f\n",imu.gyro.p,imu.gyro.q,imu.gyro.r); 
-    
+  RATES_FLOAT_OF_BFP(imu_float.gyro, in->gyro);
+  ACCELS_FLOAT_OF_BFP(imu_float.accel, in->accel); 
+  if(in->valid_sensors & MAG_DATA_VALID){
+	  MAGS_FLOAT_OF_BFP(imu_float.mag, in->mag); 
   }
 
 }
 
 static void main_run_ins() {
 
-  static uint32_t cnt;
-  cnt++;
-
-  const double dt = 1./512.;
-  Vector3d gyro(0., 0., 0.);
-  Vector3d accelerometer(0., 0., 9.81);
-  ins.predict(gyro, accelerometer, dt);
+  struct timespec now;
+  clock_gettime(TIMER, &now);
   
-  if (cnt % 10 == 0) { /* update mag at 50Hz */
-    Vector3d magnetometer = Vector3d::UnitZ();
-    const double   mag_noise = std::pow(5 / 180.0 * M_PI, 2);
-    ins.obs_vector(magnetometer, magnetometer, mag_noise);
-  }
-  if (cnt % 128 == 0) /* update gps at 4 Hz */ {
-    const Vector3d gps_pos_noise = Vector3d::Ones()  *10*10;
-    const Vector3d gps_speed_noise = Vector3d::Ones()*0.1*0.1;
-    ins.obs_gps_pv_report(pos_0_ecef, speed_0_ecef, gps_pos_noise, gps_speed_noise);
-  }
+  double dt = absTime(time_diff(now, prev));
+  
+  double dt_imu_freq = 0.001953125; //  1/512; // doesn't work?
+  
+  ins.predict(RATES_AS_VECTOR(imu_float.gyro), COORDS_AS_VECTOR(imu_float.accel), dt_imu_freq);
+  
+  //if (cnt % 10 == 0) { /* update mag at 50Hz */
+    //Vector3d magnetometer = Vector3d::UnitZ();
+    //const double   mag_noise = std::pow(5 / 180.0 * M_PI, 2);
+  
+  
+  //ins.obs_vector(reference_direction, COORDS_AS_VECTOR(imu_float.mag), mag_noise);
+  
+  if(ABS(FLOAT_VECT3_NORM(imu_float.accel)-9.81)<0.03){
+		// use the gravity as reference
+		ins.obs_vector(ins.avg_state.position.normalized(), COORDS_AS_VECTOR(imu_float.accel), 0.027);
+	}
+  
+  
+  //if (cnt % 128 == 0) /* update gps at 4 Hz */ //
+    //const Vector3d gps_pos_noise = Vector3d::Ones()  *10*10;
+    //const Vector3d gps_speed_noise = Vector3d::Ones()*0.1*0.1;
+    //ins.obs_gps_pv_report(pos_0_ecef, speed_0_ecef, gps_pos_noise, gps_speed_noise);
+  
+  print_estimator_state(absTime(time_diff(now, start)));
+  
   
 }
 
@@ -208,8 +149,89 @@ static void on_foo_event(int fd __attribute__((unused)), short event __attribute
 } 
 
 
+static void init_ins_state(void){
+	
+	ins_logfile = fopen(INS_LOG_FILE, "w");
+	
+	LLA_ASSIGN(pos_0_lla, TOULOUSE_LATTITUDE, TOULOUSE_LONGITUDE, TOULOUSE_HEIGHT)
+	struct EcefCoor_f pos_0_ecef_pprz;
+	ecef_of_lla_f(&pos_0_ecef_pprz, &pos_0_lla);
+	pos_0_ecef = COORDS_AS_VECTOR(pos_0_ecef_pprz);
+	
+	printf("Starting position\t%f\t%f\t%f\n", pos_0_ecef(0), pos_0_ecef(1), pos_0_ecef(2));
+	
+	speed_0_ecef = Vector3d::Zero();
+	
+	ins.avg_state.position = pos_0_ecef;
+	ins.avg_state.gyro_bias = Vector3d::Zero();
+	ins.avg_state.orientation = Quaterniond::Identity();
+	ins.avg_state.velocity = speed_0_ecef;
+	
+	
+	Matrix<double, 12, 1> diag_cov;
+	diag_cov << Vector3d::Ones()*bias_cov_0*bias_cov_0,
+				Vector3d::Ones()*M_PI*M_PI*0.5,
+				Vector3d::Ones()*pos_cov_0*pos_cov_0,
+				Vector3d::Ones()*speed_cov_0*speed_cov_0;
+	ins.cov = diag_cov.asDiagonal();
+	
+}
+
+static void set_reference_direction(void){
+	DoubleVect3 ref_dir_ned,
+				ref_dir_ecef;
+	EARTHS_GEOMAGNETIC_FIELD_NORMED(ref_dir_ned);		// the "true" magnetic field
+	//LAB_REFERENCE(ref_dir_ned);						// measured in the LAB
+	
+	DoubleRMat ned2ecef;
+	/* copied and modified form pprz_geodetic */
+		const double sin_lat = sin(pos_0_lla.lat);
+		const double cos_lat = cos(pos_0_lla.lat);
+		const double sin_lon = sin(pos_0_lla.lon);
+		const double cos_lon = cos(pos_0_lla.lon);
+		ned2ecef.m[0] = -sin_lat*cos_lon;
+		ned2ecef.m[1] = -sin_lon;
+		ned2ecef.m[2] = -cos_lat*cos_lon;
+		ned2ecef.m[3] = sin_lat*sin_lon;
+		ned2ecef.m[4] = cos_lon;
+		ned2ecef.m[5] = -cos_lat*sin_lon;
+		ned2ecef.m[6] = cos_lat;
+		ned2ecef.m[7] = 0.;
+		ned2ecef.m[8] = -sin_lat;
+	
+	RMAT_VECT3_MUL(ref_dir_ecef, ned2ecef, ref_dir_ned);
+	//MAT33_VECT3_TRANSP_MUL(ref_dir_ecef, ned2ecef, ref_dir_ned);
+	reference_direction = COORDS_AS_VECTOR(ref_dir_ecef);
+	//reference_direction = Vector3d(1, 0, 0);
+	std::cout <<"reference direction: " << reference_direction.transpose() << std::endl;
+}
 
 
+
+/* helpstuff
+ * 
+ * 
+ * 
+ */
+/* time measurement */
+
+double absTime(struct timespec T){
+	return (double)(T.tv_sec + T.tv_nsec*1e-9);
+}
+
+struct timespec time_diff(struct timespec end, struct timespec start){
+	double difference = absTime(end)-absTime(start);
+	struct timespec dT;
+	dT.tv_sec = (int)difference;
+	dT.tv_nsec = (difference-dT.tv_sec)*1000000000;
+	return dT;
+}
+
+/* Logging
+ * 
+ * 
+ * 
+ */
 
 static void main_rawlog_init(const char* filename) {
   
@@ -226,12 +248,85 @@ static void main_rawlog_dump(void) {
   struct raw_log_entry e;
   
   e.time = absTime(time_diff(now, start));
-  RATES_COPY(e.gyro, imu.gyro);
-  VECT3_COPY(e.accel, imu.accel);
-  VECT3_COPY(e.mag, imu.mag);
+  RATES_COPY(e.gyro, imu_float.gyro);
+  VECT3_COPY(e.accel, imu_float.accel);
+  VECT3_COPY(e.mag, imu_float.mag);
   write(raw_log_fd, &e, sizeof(e));
 
 }
 
+static void print_estimator_state(double time) {
 
+#if FILTER_OUTPUT_IN_NED
+	
+	struct LtpDef_d		current_ltp;
+	struct EcefCoor_d pos_ecef,
+										cur_pos_ecef;
+	struct NedCoor_d	pos_ned,
+										vel_ned;
+										
+	VECTOR_AS_COORDS(pos_ecef,pos_0_ecef);
+	VECTOR_AS_COORDS(cur_pos_ecef,ins.avg_state.position);
+	ltp_def_from_ecef_d(&current_ltp, &pos_ecef);
+	
+	ned_of_ecef_point_d(&pos_ned, &current_ltp, &cur_pos_ecef);
+	
+  int32_t xdd = 0;
+  int32_t ydd = 0;
+  int32_t zdd = 0;
+
+  int32_t xd = ins.avg_state.velocity(0)/0.0000019073;
+  int32_t yd = ins.avg_state.velocity(1)/0.0000019073;
+  int32_t zd = ins.avg_state.velocity(2)/0.0000019073;
+  
+  int32_t x = ins.avg_state.position(0)/0.0039;
+  int32_t y = ins.avg_state.position(1)/0.0039;
+  int32_t z = ins.avg_state.position(2)/0.0039;
+
+  fprintf(ins_logfile, "%f %d BOOZ2_INS2 %d %d %d %d %d %d %d %d %d\n", time, AC_ID, xdd, ydd, zdd, xd, yd, zd, x, y, z);
+  
+  struct FloatQuat q;
+  QUAT_ASSIGN(q, ins.avg_state.orientation.coeffs()(3), ins.avg_state.orientation.coeffs()(0),
+	         ins.avg_state.orientation.coeffs()(1), ins.avg_state.orientation.coeffs()(2));
+  struct FloatEulers e;
+  FLOAT_EULERS_OF_QUAT(e, q);
+
+  fprintf(ins_logfile, "%f %d AHRS_EULER %f %f %f\n", time, AC_ID, e.phi, e.theta, e.psi);
+  fprintf(ins_logfile, "%f %d DEBUG_COVARIANCE %f %f %f %f %f %f %f %f %f %f %f %f\n", time, AC_ID,
+				sqrt(ins.cov( 0, 0)),  sqrt(ins.cov( 1, 1)),  sqrt(ins.cov( 2, 2)), 
+				sqrt(ins.cov( 3, 3)),  sqrt(ins.cov( 4, 4)),  sqrt(ins.cov( 5, 5)), 
+				sqrt(ins.cov( 6, 6)),  sqrt(ins.cov( 7, 7)),  sqrt(ins.cov( 8, 8)), 
+				sqrt(ins.cov( 9, 9)),  sqrt(ins.cov(10,10)),  sqrt(ins.cov(11,11)));
+  fprintf(ins_logfile, "%f %d BOOZ_SIM_GYRO_BIAS %f %f %f\n", time, AC_ID, ins.avg_state.gyro_bias(0), ins.avg_state.gyro_bias(1), ins.avg_state.gyro_bias(2));
+	
+#else
+  int32_t xdd = 0;
+  int32_t ydd = 0;
+  int32_t zdd = 0;
+
+  int32_t xd = ins.avg_state.velocity(0)/0.0000019073;
+  int32_t yd = ins.avg_state.velocity(1)/0.0000019073;
+  int32_t zd = ins.avg_state.velocity(2)/0.0000019073;
+  
+  int32_t x = ins.avg_state.position(0)/0.0039;
+  int32_t y = ins.avg_state.position(1)/0.0039;
+  int32_t z = ins.avg_state.position(2)/0.0039;
+
+  fprintf(ins_logfile, "%f %d BOOZ2_INS2 %d %d %d %d %d %d %d %d %d\n", time, AC_ID, xdd, ydd, zdd, xd, yd, zd, x, y, z);
+  
+  struct FloatQuat q;
+  QUAT_ASSIGN(q, ins.avg_state.orientation.coeffs()(3), ins.avg_state.orientation.coeffs()(0),
+	         ins.avg_state.orientation.coeffs()(1), ins.avg_state.orientation.coeffs()(2));
+  struct FloatEulers e;
+  FLOAT_EULERS_OF_QUAT(e, q);
+
+  fprintf(ins_logfile, "%f %d AHRS_EULER %f %f %f\n", time, AC_ID, e.phi, e.theta, e.psi);
+  fprintf(ins_logfile, "%f %d DEBUG_COVARIANCE %f %f %f %f %f %f %f %f %f %f %f %f\n", time, AC_ID,
+				sqrt(ins.cov( 0, 0)),  sqrt(ins.cov( 1, 1)),  sqrt(ins.cov( 2, 2)), 
+				sqrt(ins.cov( 3, 3)),  sqrt(ins.cov( 4, 4)),  sqrt(ins.cov( 5, 5)), 
+				sqrt(ins.cov( 6, 6)),  sqrt(ins.cov( 7, 7)),  sqrt(ins.cov( 8, 8)), 
+				sqrt(ins.cov( 9, 9)),  sqrt(ins.cov(10,10)),  sqrt(ins.cov(11,11)));
+  fprintf(ins_logfile, "%f %d BOOZ_SIM_GYRO_BIAS %f %f %f\n", time, AC_ID, ins.avg_state.gyro_bias(0), ins.avg_state.gyro_bias(1), ins.avg_state.gyro_bias(2));
+#endif
+}
 
