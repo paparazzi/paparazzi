@@ -26,6 +26,7 @@
 
 #include BOARD_CONFIG
 #include "init_hw.h"
+#include "led.h"
 
 void Delay(__IO uint32_t nCount);
 

@@ -63,10 +63,11 @@ SRC_FIRMWARE=firmwares/rotorcraft
 test_led.ARCHDIR = $(ARCH)
 test_led.CFLAGS += -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_led.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_led.srcs += $(SRC_LISA)/test_led2.c       	  \
+test_led.srcs += $(SRC_LISA)/test_led.c       	  \
                  $(SRC_ARCH)/stm32_exceptions.c   \
                  $(SRC_ARCH)/stm32_vector_table.c
 test_led.CFLAGS += -DUSE_LED
+test_led.srcs += $(SRC_ARCH)/led_hw.c
 
 #
 # test uart
