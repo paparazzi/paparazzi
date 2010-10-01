@@ -184,8 +184,4 @@
       <subsystem name="imu" type="b2_v1.1"/>
  </firmware>
 
- <makefile>
-include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
- </makefile>
-
 </airframe>
