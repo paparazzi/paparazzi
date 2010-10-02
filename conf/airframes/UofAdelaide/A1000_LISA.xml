@@ -3,10 +3,10 @@
 <airframe name="A1000 LISA">
 
   <servos>
-    <servo name="FRONT"  no="0" min="1000" neutral="1500" max="2000"/>
+    <servo name="FRONT"  no="3" min="1000" neutral="1500" max="2000"/>
     <servo name="BACK"   no="1" min="1000" neutral="1500" max="2000"/>
     <servo name="LEFT"   no="2" min="1000" neutral="1500" max="2000"/>
-    <servo name="RIGHT"  no="3" min="1000" neutral="1500" max="2000"/>
+    <servo name="RIGHT"  no="0" min="1000" neutral="1500" max="2000"/>
     <servo name="ESC"    no="4" min="1000" neutral="1000" max="2000"/>
   </servos>
 
@@ -19,10 +19,10 @@
 
   <command_laws>
     <set servo="ESC"        value="motors_on?ESC_HOVER:ESC_STOPPED"/>
-    <set servo="FRONT"      value=" @PITCH + @YAW + (@THRUST<<5)"/>
-    <set servo="BACK"       value="-@PITCH + @YAW + @THRUST"/>
-    <set servo="LEFT"       value=" @ROLL  - @YAW + @THRUST"/>
-    <set servo="RIGHT"      value="-@ROLL  - @YAW + @THRUST"/>
+    <set servo="FRONT"      value=" @PITCH + @YAW - (@THRUST<<5)"/>
+    <set servo="BACK"       value="-@PITCH + @YAW - (@THRUST<<5)"/>
+    <set servo="LEFT"       value=" @ROLL  - @YAW - (@THRUST<<5)"/>
+    <set servo="RIGHT"      value="-@ROLL  - @YAW - (@THRUST<<5)"/>
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
@@ -156,14 +156,15 @@
    <define name="FACE_REINJ_1"  value="1024"/>
  </section>
 
-<!-- the board isnt really a lisa_l_1.1 we just cable it to suit. In order to use a straight through imu cable 
-     we need to se the board to be lisa_l_1.0 --> 
+
   <firmware name="rotorcraft">
-    <target name="ap" board="lisa_l_1.1">
+    <target name="ap" board="lisa_l_1.0">
       <define name = "RADIO_CONTROL_MODE" value = "RADIO_CONTROL_AUX2"/>
       <define name = "RADIO_CONTROL_KILL_SWITCH" value = "RADIO_CONTROL_GEAR"/>
+ <!-- if we want a secondary spektrum reciever we need to set the board to be 
+      lisa_l_1.1 and rewired accordingly then set the following.    
       <define name = "RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value = "UART5"/>
-      <define name = "OVERRIDE_UART5_IRQ_HANDLER"/>
+      <define name = "OVERRIDE_UART5_IRQ_HANDLER"/> -->
     </target>
     <subsystem name="radio_control" type="spektrum"/>
     <subsystem name="actuators"     type="heli"/>
@@ -173,13 +174,13 @@
   </firmware>
 
   <firmware name="lisa_l_test_progs">
-    <target name="test_telemetry" board="lisa_l_1.1"/>
-    <target name="test_baro"      board="lisa_l_1.1"/>
-    <target name="test_spektrum"  board="lisa_l_1.1"/>
+    <target name="test_telemetry" board="lisa_l_1.0"/>
+    <target name="test_baro"      board="lisa_l_1.0"/>
+    <target name="test_spektrum"  board="lisa_l_1.0"/>
   </firmware>
 
   <firmware name="lisa_passthrough">
-    <target name="stm_passthrough" board="lisa_l_1.1"/>
+    <target name="stm_passthrough" board="lisa_l_1.0"/>
       <subsystem name="radio_control" type="spektrum"/>
       <subsystem name="imu" type="b2_v1.1"/>
  </firmware>
