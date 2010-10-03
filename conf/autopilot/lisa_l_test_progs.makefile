@@ -320,6 +320,47 @@ test_imu_b2.srcs += $(SRC_FIRMWARE)/imu/imu_b2.c $(SRC_FIRMWARE)/imu/arch/$(ARCH
 test_imu_b2.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
 test_imu_b2.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c  $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
 
+#
+# test IMU b2 1.2
+#
+# configuration
+#   SYS_TIME_LED
+#   MODEM_PORT
+#   MODEM_BAUD
+#
+test_imu_b2_2.ARCHDIR = $(ARCHI)
+test_imu_b2_2.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_imu_b2_2.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
+test_imu_b2_2.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
+                    $(SRC_ARCH)/stm32_exceptions.c   \
+                    $(SRC_ARCH)/stm32_vector_table.c
+
+test_imu_b2_2.CFLAGS += -DUSE_LED
+test_imu_b2_2.srcs += $(SRC_ARCH)/led_hw.c
+
+test_imu_b2_2.CFLAGS += -DUSE_SYS_TIME 
+test_imu_b2_2.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
+test_imu_b2_2.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_imu_b2_2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+
+test_imu_b2_2.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_imu_b2_2.srcs += $(SRC_ARCH)/uart_hw.c
+
+test_imu_b2_2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_imu_b2_2.srcs += downlink.c pprz_transport.c
+
+test_imu_b2_2.srcs += math/pprz_trig_int.c
+
+test_imu_b2_2.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/booz_imu_b2.h\"
+test_imu_b2_2.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_HMC5843 -DIMU_B2_VERSION_1_2
+test_imu_b2_2.srcs += $(SRC_BOOZ)/booz_imu.c
+test_imu_b2_2.CFLAGS += -DMAX_1168_DRDY_PORT=$(MAX_1168_DRDY_PORT)
+test_imu_b2_2.CFLAGS += -DMAX_1168_DRDY_PORT_SOURCE=$(MAX_1168_DRDY_PORT_SOURCE)
+test_imu_b2_2.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
+test_imu_b2_2.srcs += $(SRC_BOOZ)/imu/booz_imu_b2.c $(SRC_BOOZ_ARCH)/imu/booz_imu_b2_arch.c
+test_imu_b2_2.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
+test_imu_b2_2.srcs += $(SRC_BOOZ)/peripherals/booz_hmc5843.c # $(SRC_BOOZ_ARCH)/peripherals/booz_hmc5843.c
+
 
 
 #
