@@ -55,6 +55,7 @@ stm_passthrough.srcs += $(SRC_LISA)/lisa_overo_link.c           \
 
 
 stm_passthrough.srcs += math/pprz_trig_int.c
+stm_passthrough.srcs += lisa/plug_sys.c
 
 stm_passthrough.srcs += $(SRC_BOOZ)/booz2_commands.c
 
