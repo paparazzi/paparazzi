@@ -53,23 +53,26 @@ static inline void on_overo_link_lost(void) {
 void vi_overo_link_on_msg_received(void) {
 
   overo_link.up.msg.valid_sensors = vi.available_sensors;
-  
-  RATES_COPY(overo_link.up.msg.gyro, imu.gyro);
-  VECT3_COPY(overo_link.up.msg.accel, imu.accel);
 
-  if (vi.available_sensors && (1<<MAG_DATA_VALID)) {
-    VECT3_COPY(overo_link.up.msg.mag, imu.mag);
-    vi.available_sensors &= ~(1<<MAG_DATA_VALID);
+  if (vi.available_sensors & (1<<VI_IMU_DATA_VALID)) {
+    RATES_COPY(overo_link.up.msg.gyro, imu.gyro);
+    VECT3_COPY(overo_link.up.msg.accel, imu.accel);
+    vi.available_sensors &= ~(1<<VI_IMU_DATA_VALID);
   }
-  if (vi.available_sensors && (1<<GPS_DATA_VALID)) {
+  if (vi.available_sensors & (1<<VI_MAG_DATA_VALID)) {
+    VECT3_COPY(overo_link.up.msg.mag, imu.mag);
+    vi.available_sensors &= ~(1<<VI_MAG_DATA_VALID);
+  }
+  if (vi.available_sensors & (1<<VI_GPS_DATA_VALID)) {
     VECT3_COPY(overo_link.up.msg.ecef_pos, booz_gps_state.ecef_pos);
     VECT3_COPY(overo_link.up.msg.ecef_vel, booz_gps_state.ecef_vel);
-    vi.available_sensors &= ~(1<<GPS_DATA_VALID);
+    vi.available_sensors &= ~(1<<VI_GPS_DATA_VALID);
   }
-  if (vi.available_sensors && (1<<BARO_ABS_DATA_VALID)) {
+  if (vi.available_sensors & (1<<VI_BARO_ABS_DATA_VALID)) {
     overo_link.up.msg.pressure_absolute = baro.absolute;
-    vi.available_sensors &= ~(1<<BARO_ABS_DATA_VALID);
+    vi.available_sensors &= ~(1<<VI_BARO_ABS_DATA_VALID);
   }
+  
 }
 
 
@@ -79,14 +82,18 @@ void vi_overo_link_on_crc_err(void) {
 }
 
 
-void vi_notify_gps(void) {
-  vi.available_sensors |= (1<<GPS_DATA_VALID);
+void vi_notify_imu_available(void) {
+  vi.available_sensors |= (1<<VI_IMU_DATA_VALID);
 }
 
-void vi_notify_mag(void) {
-  vi.available_sensors |= (1<<MAG_DATA_VALID);
+void vi_notify_gps_available(void) {
+  vi.available_sensors |= (1<<VI_GPS_DATA_VALID);
 }
 
-void vi_notify_baro_abs(void) {
-  vi.available_sensors |= (1<<BARO_ABS_DATA_VALID);
+void vi_notify_mag_available(void) {
+  vi.available_sensors |= (1<<VI_MAG_DATA_VALID);
+}
+
+void vi_notify_baro_abs_available(void) {
+  vi.available_sensors |= (1<<VI_BARO_ABS_DATA_VALID);
 }

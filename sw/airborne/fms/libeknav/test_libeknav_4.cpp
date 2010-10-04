@@ -83,19 +83,25 @@ static uint8_t main_dialog_with_io_proc() {
   spi_link_send(&msg_out, sizeof(struct AutopilotMessageCRCFrame), &msg_in, &crc_valid);
   
   struct AutopilotMessageVIUp *in = &msg_in.payload.msg_up; 
-  RATES_FLOAT_OF_BFP(imu_float.gyro, in->gyro);
-  ACCELS_FLOAT_OF_BFP(imu_float.accel, in->accel); 
-  
-  if(in->valid_sensors & MAG_DATA_VALID){
-	  MAGS_FLOAT_OF_BFP(imu_float.mag, in->mag); 
+
+  if(in->valid_sensors & (1<< VI_IMU_DATA_VALID)){
+    RATES_FLOAT_OF_BFP(imu_float.gyro, in->gyro);
+    ACCELS_FLOAT_OF_BFP(imu_float.accel, in->accel); 
   }
   
-  if(in->valid_sensors & GPS_DATA_VALID){
-		VECT3_COPY(imu_ecef_pos, in->ecef_pos);
-		printf("GPS: %d %d %d\n", imu_ecef_pos.x, imu_ecef_pos.y, imu_ecef_pos.z);
-		VECT3_COPY(imu_ecef_vel, in->ecef_vel);
-	}
+  if(in->valid_sensors & (1<< VI_MAG_DATA_VALID)){
+    MAGS_FLOAT_OF_BFP(imu_float.mag, in->mag); 
+    printf("MAG: %f %f %f\n", imu_float.mag.x, imu_float.mag.y, imu_float.mag.z);
+  }
+  
+  if(in->valid_sensors & (1<<VI_GPS_DATA_VALID)){
+    VECT3_COPY(imu_ecef_pos, in->ecef_pos);
+    printf("GPS: %d %d %d\n", imu_ecef_pos.x, imu_ecef_pos.y, imu_ecef_pos.z);
+    VECT3_COPY(imu_ecef_vel, in->ecef_vel);
+  }
+  
   return in->valid_sensors;
+
 }
 
 static void main_run_ins(uint8_t data_valid) {
@@ -107,7 +113,7 @@ static void main_run_ins(uint8_t data_valid) {
   
   ins.predict(RATES_AS_VECTOR(imu_float.gyro), COORDS_AS_VECTOR(imu_float.accel), dt_imu_freq);
   
-  if(data_valid & MAG_DATA_VALID){
+  if(data_valid & VI_MAG_DATA_VALID){
 		ins.obs_vector(reference_direction, COORDS_AS_VECTOR(imu_float.mag), mag_noise);
 	}
   
@@ -116,7 +122,7 @@ static void main_run_ins(uint8_t data_valid) {
 		ins.obs_vector(ins.avg_state.position.normalized(), COORDS_AS_VECTOR(imu_float.accel), 0.027);
 	}
   
-  if(data_valid & GPS_DATA_VALID){
+  if(data_valid & VI_GPS_DATA_VALID){
     const Vector3d gps_pos_noise = Vector3d::Ones()  *10*10;
     const Vector3d gps_speed_noise = Vector3d::Ones()*0.1*0.1;
 		//ins.obs_gps_pv_report(COORDS_AS_VECTOR(imu_ecef_pos)/100, COORDS_AS_VECTOR(imu_ecef_vel)/100, gps_pos_noise, gps_speed_noise);

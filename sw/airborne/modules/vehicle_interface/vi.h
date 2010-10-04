@@ -92,9 +92,10 @@ extern void vi_set_enabled(bool_t enabled);
 extern void vi_periodic(void);
 extern void vi_update_info(void);
 
-extern void vi_notify_gps(void);
-extern void vi_notify_mag(void);
-extern void vi_notify_baro_abs(void);
+extern void vi_notify_imu_available(void);
+extern void vi_notify_mag_available(void);
+extern void vi_notify_gps_available(void);
+extern void vi_notify_baro_abs_available(void);
 
 /* must be implemented by specific module */
 extern void vi_impl_init(void);

@@ -233,10 +233,16 @@ static inline void on_gyro_accel_event( void ) {
 #endif
     ins_propagate();
   }
+#ifdef USE_VEHICLE_INTERFACE
+  vi_notify_imu_available();
+#endif
 }
 
 static inline void on_baro_abs_event( void ) {
   ins_update_baro();
+#ifdef USE_VEHICLE_INTERFACE
+  vi_notify_baro_abs_available();
+#endif
 }
 
 static inline void on_baro_dif_event( void ) {
@@ -245,10 +251,17 @@ static inline void on_baro_dif_event( void ) {
 
 static inline void on_gps_event(void) {
   ins_update_gps();
+#ifdef USE_VEHICLE_INTERFACE
+  if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D)
+    vi_notify_gps_available();
+#endif
 }
 
 static inline void on_mag_event(void) {
   ImuScaleMag(imu);
   if (ahrs.status == AHRS_RUNNING)
     ahrs_update_mag();
+#ifdef USE_VEHICLE_INTERFACE
+  vi_notify_mag_available();
+#endif
 }
