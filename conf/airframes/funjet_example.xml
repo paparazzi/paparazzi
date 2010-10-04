@@ -13,7 +13,6 @@
   <firmware name="fixedwing">
     <target name="sim" 			board="pc"/>
     <target name="ap" 			board="tiny_2.11">
-      <param name="FLASH_MODE" 		value="IAP"/>
       <define name="AGR_CLIMB"/>
       <define name="LOITER_TRIM"/>
       <define name="ALT_KALMAN"/>
