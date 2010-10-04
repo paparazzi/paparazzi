@@ -79,6 +79,7 @@ test_uart.srcs = $(SRC_LISA)/test_uart.c         \
                  $(SRC_ARCH)/stm32_exceptions.c  \
                  $(SRC_ARCH)/stm32_vector_table.c
 test_uart.CFLAGS += -DUSE_LED
+test_uart.srcs += $(SRC_ARCH)/led_hw.c
 test_uart.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_uart.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_uart.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c

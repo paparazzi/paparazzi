@@ -51,10 +51,21 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic( void ) {
-  uart2_transmit('a');
-  uart2_transmit('b');
-  uart2_transmit('c');
+  uart1_transmit('a');
+  uart1_transmit('b');
+  uart1_transmit('c');
+  uart1_transmit('\r');
+  uart1_transmit('\n');
+  uart2_transmit('d');
+  uart2_transmit('e');
+  uart2_transmit('f');
+  uart2_transmit('\r');
   uart2_transmit('\n');
+  uart3_transmit('g');
+  uart3_transmit('h');
+  uart3_transmit('i');
+  uart3_transmit('\r');
+  uart3_transmit('\n');
 }
 
 
