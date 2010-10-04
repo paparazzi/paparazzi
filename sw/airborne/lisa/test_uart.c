@@ -51,21 +51,55 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic( void ) {
-  uart1_transmit('a');
-  uart1_transmit('b');
-  uart1_transmit('c');
-  uart1_transmit('\r');
-  uart1_transmit('\n');
-  uart2_transmit('d');
-  uart2_transmit('e');
-  uart2_transmit('f');
-  uart2_transmit('\r');
-  uart2_transmit('\n');
-  uart3_transmit('g');
-  uart3_transmit('h');
-  uart3_transmit('i');
-  uart3_transmit('\r');
-  uart3_transmit('\n');
+  char ch;
+
+  Uart1Transmit('a');
+  Uart2Transmit('b');
+  Uart3Transmit('c');
+
+  if (Uart1ChAvailable()) {
+	ch = Uart1Getch();
+	if (ch == 'a') {
+		LED_OFF(0);
+		LED_ON(1);
+	} else {
+		LED_ON(0);
+		LED_ON(1);
+	}
+  } else {
+		LED_ON(0);
+		LED_OFF(1);
+  }
+
+  if (Uart2ChAvailable()) {
+	ch = Uart2Getch();
+	if (ch == 'b') {
+		LED_OFF(2);
+		LED_ON(3);
+	} else {
+		LED_ON(2);
+		LED_ON(3);
+	}
+  } else {
+		LED_ON(2);
+		LED_OFF(3);
+  }
+
+  if (Uart3ChAvailable()) {
+	ch = Uart3Getch();
+	if (ch == 'c') {
+		LED_OFF(4);
+		LED_ON(5);
+	} else {
+		LED_ON(4);
+		LED_ON(5);
+	}
+  } else {
+		LED_ON(4);
+		LED_OFF(5);
+  }
+
+  LED_PERIODIC();
 }
 
 
