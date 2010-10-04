@@ -30,10 +30,10 @@
 
 #include <stdlib.h>
 
-#include "adc.h"
 #include "infrared.h"
+#include "adc.h"
 #include "gps.h"
-#include "autopilot.h"
+#include <firmwares/fixedwing/autopilot.h>
 #include "estimator.h"
 #include "ap_downlink.h"
 #include "sys_time.h"

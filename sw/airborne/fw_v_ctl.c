@@ -32,7 +32,7 @@
 #include "estimator.h"
 #include "nav.h"
 #include "airframe.h"
-#include "autopilot.h"
+#include <firmwares/fixedwing/autopilot.h>
 
 /* mode */
 uint8_t v_ctl_mode;

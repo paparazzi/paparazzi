@@ -35,7 +35,7 @@
 #include "estimator.h"
 #include "fw_h_ctl.h"
 #include "fw_v_ctl.h"
-#include "autopilot.h"
+#include <firmwares/fixedwing/autopilot.h>
 #include "inter_mcu.h"
 #include "traffic_info.h"
 #include "latlong.h"
