@@ -4,8 +4,8 @@ raw_log_to_ascii: raw_log_to_ascii.c
 
 
 fetch_log:
-		scp @auto1:/tmp/log_test3.bin .
 		scp @auto1:/tmp/log_ins_test3.data .
+		scp @auto1:/tmp/log_test3.bin .
 		./raw_log_to_ascii > bla.dat
 
 clean:

@@ -6,6 +6,7 @@
 
 struct timespec start, prev;
 FILE* ins_logfile;		// note: initilaized in init_ins_state
+unsigned int counter;
 
 
 //useless initialization (I hate C++)
@@ -16,6 +17,7 @@ static basic_ins_qkf ins = basic_ins_qkf(Vector3d::Zero(), 0, 0, 0,
 USING_PART_OF_NAMESPACE_EIGEN
 
 int main(int, char *[]) {
+	counter = 0;
 
   std::cout << "test libeknav 3" << std::endl;
   clock_gettime(TIMER, &start);
@@ -37,6 +39,13 @@ int main(int, char *[]) {
 
 
 static void main_init(void) {
+	
+	printf("Filter output will be in ");
+	#if FILTER_OUTPUT_IN_NED
+	printf("NED\n");
+	#else
+	printf("ECEF\n");
+	#endif
 
   TRACE(TRACE_DEBUG, "%s", "Starting initialization\n");
 
@@ -64,6 +73,11 @@ static void main_init(void) {
 
 
 static void main_periodic(int my_sig_num __attribute__ ((unused))) {
+	
+	counter++;
+	if(counter%128 == 0){
+		printf("%f s\n", (double)counter/512);
+	}
 
   uint8_t data_valid = main_dialog_with_io_proc();
   main_run_ins(data_valid);
@@ -113,16 +127,18 @@ static void main_run_ins(uint8_t data_valid) {
   
   ins.predict(RATES_AS_VECTOR(imu_float.gyro), COORDS_AS_VECTOR(imu_float.accel), dt_imu_freq);
   
-  if(data_valid & VI_MAG_DATA_VALID){
-		ins.obs_vector(reference_direction, COORDS_AS_VECTOR(imu_float.mag), mag_noise);
+  if(data_valid & (1<<VI_MAG_DATA_VALID)){
+		//ins.obs_vector(reference_direction, COORDS_AS_VECTOR(imu_float.mag), mag_noise);
 	}
   
+  #if UPDATE_WITH_GRAVITY
   if(ABS(FLOAT_VECT3_NORM(imu_float.accel)-9.81)<0.03){
 		// use the gravity as reference
 		ins.obs_vector(ins.avg_state.position.normalized(), COORDS_AS_VECTOR(imu_float.accel), 0.027);
 	}
+  #endif
   
-  if(data_valid & VI_GPS_DATA_VALID){
+  if(data_valid & (1<<VI_GPS_DATA_VALID)){
     const Vector3d gps_pos_noise = Vector3d::Ones()  *10*10;
     const Vector3d gps_speed_noise = Vector3d::Ones()*0.1*0.1;
 		//ins.obs_gps_pv_report(COORDS_AS_VECTOR(imu_ecef_pos)/100, COORDS_AS_VECTOR(imu_ecef_vel)/100, gps_pos_noise, gps_speed_noise);
@@ -186,12 +202,12 @@ static void init_ins_state(void){
 }
 
 static void set_reference_direction(void){
-	DoubleVect3 ref_dir_ned,
+	struct DoubleVect3 ref_dir_ned,
 				ref_dir_ecef;
 	EARTHS_GEOMAGNETIC_FIELD_NORMED(ref_dir_ned);		// the "true" magnetic field
 	//LAB_REFERENCE(ref_dir_ned);						// measured in the LAB
 	
-	DoubleRMat ned2ecef;
+	struct DoubleRMat ned2ecef;
 	/* copied and modified form pprz_geodetic */
 		const double sin_lat = sin(pos_0_lla.lat);
 		const double cos_lat = cos(pos_0_lla.lat);
@@ -276,6 +292,12 @@ static void print_estimator_state(double time) {
 	struct NedCoor_d	pos_ned,
 										vel_ned;
 										
+	struct DoubleQuat q_ecef2body,
+										q_ecef2enu,
+										q_enu2body,
+										q_ned2enu,
+										q_ned2body;
+										
 	VECTOR_AS_COORDS(pos_ecef,pos_0_ecef);
 	VECTOR_AS_COORDS(cur_pos_ecef,ins.avg_state.position);
 	VECTOR_AS_COORDS(cur_vel_ecef,ins.avg_state.velocity);
@@ -299,11 +321,17 @@ static void print_estimator_state(double time) {
 
   fprintf(ins_logfile, "%f %d BOOZ2_INS2 %d %d %d %d %d %d %d %d %d\n", time, AC_ID, xdd, ydd, zdd, xd, yd, zd, x, y, z);
   
-  struct FloatQuat q;
-  QUAT_ASSIGN(q, ins.avg_state.orientation.coeffs()(3), ins.avg_state.orientation.coeffs()(0),
-	         ins.avg_state.orientation.coeffs()(1), ins.avg_state.orientation.coeffs()(2));
+  QUAT_ASSIGN(q_ecef2body, ins.avg_state.orientation.w(), ins.avg_state.orientation.x(),
+	         ins.avg_state.orientation.y(), ins.avg_state.orientation.z());
+  QUAT_ASSIGN(q_ned2enu, 0, M_SQRT1_2, M_SQRT1_2, 0);
+  
+  FLOAT_QUAT_OF_RMAT(q_ecef2enu, current_ltp.ltp_of_ecef);
+	FLOAT_QUAT_INV_COMP(q_enu2body, q_ecef2enu, q_ecef2body);		// q_enu2body = q_ecef2body * (q_ecef2enu)^*
+  FLOAT_QUAT_COMP(q_ned2body, q_ned2enu, q_enu2body)					// q_ned2body = q_enu2body * q_ned2enu
+
+  
   struct FloatEulers e;
-  FLOAT_EULERS_OF_QUAT(e, q);
+  FLOAT_EULERS_OF_QUAT(e, q_ned2body);
 
   fprintf(ins_logfile, "%f %d AHRS_EULER %f %f %f\n", time, AC_ID, e.phi, e.theta, e.psi);
   fprintf(ins_logfile, "%f %d DEBUG_COVARIANCE %f %f %f %f %f %f %f %f %f %f %f %f\n", time, AC_ID,
@@ -321,7 +349,6 @@ static void print_estimator_state(double time) {
   int32_t xd = ins.avg_state.velocity(0)/0.0000019073;
   int32_t yd = ins.avg_state.velocity(1)/0.0000019073;
   int32_t zd = ins.avg_state.velocity(2)/0.0000019073;
-  
   int32_t x = ins.avg_state.position(0)/0.0039;
   int32_t y = ins.avg_state.position(1)/0.0039;
   int32_t z = ins.avg_state.position(2)/0.0039;
@@ -329,8 +356,8 @@ static void print_estimator_state(double time) {
   fprintf(ins_logfile, "%f %d BOOZ2_INS2 %d %d %d %d %d %d %d %d %d\n", time, AC_ID, xdd, ydd, zdd, xd, yd, zd, x, y, z);
   
   struct FloatQuat q;
-  QUAT_ASSIGN(q, ins.avg_state.orientation.coeffs()(3), ins.avg_state.orientation.coeffs()(0),
-	         ins.avg_state.orientation.coeffs()(1), ins.avg_state.orientation.coeffs()(2));
+  QUAT_ASSIGN(q, ins.avg_state.orientation.w(), ins.avg_state.orientation.x(),
+	         ins.avg_state.orientation.y(), ins.avg_state.orientation.z());
   struct FloatEulers e;
   FLOAT_EULERS_OF_QUAT(e, q);
 

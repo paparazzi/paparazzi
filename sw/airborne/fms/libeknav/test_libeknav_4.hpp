@@ -33,6 +33,7 @@ extern "C" {
 #include <math.h>
 
 #define FILTER_OUTPUT_IN_NED 1
+#define UPDATE_WITH_GRAVITY 0
 
 
 /*
