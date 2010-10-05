@@ -94,7 +94,6 @@
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
-    <define name="MIN_CIRCLE_RADIUS" value="50."/>
   </section>
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">

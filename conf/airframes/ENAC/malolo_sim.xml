@@ -107,7 +107,6 @@
 
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="150."/>
-    <define name="MIN_CIRCLE_RADIUS" value="100."/>
   </section>
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">

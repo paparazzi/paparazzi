@@ -92,7 +92,6 @@
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="120."/>
-    <define name="MIN_CIRCLE_RADIUS" value="50."/>
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">

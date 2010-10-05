@@ -128,7 +128,6 @@
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
-    <define name="MIN_CIRCLE_RADIUS" value="50."/>
     <define name="LIGHT_LED_1" value="3"/>
     <define name="LIGHT_LED_2" value="5"/>
   </section>

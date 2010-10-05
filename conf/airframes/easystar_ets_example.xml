@@ -108,7 +108,6 @@
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="90."/>
-    <define name="MIN_CIRCLE_RADIUS" value="60."/>
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
