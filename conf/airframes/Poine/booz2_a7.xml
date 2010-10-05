@@ -54,14 +54,21 @@
     <define name="ACCEL_Y_SENS" value="2.57835230627" integer="16"/>
     <define name="ACCEL_Z_SENS" value="2.54311399868" integer="16"/>
 
+    <define name="MAG_X_NEUTRAL" value="58"/>
+    <define name="MAG_Y_NEUTRAL" value="92"/>
+    <define name="MAG_Z_NEUTRAL" value="-3"/>
+    <define name="MAG_X_SENS" value="4.70018395734" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.884119848" integer="16"/>
+    <define name="MAG_Z_SENS" value="2.59926404993" integer="16"/>
 
+<!-- old calibration
     <define name="MAG_X_NEUTRAL" value="30"/>
     <define name="MAG_Y_NEUTRAL" value="80"/>
     <define name="MAG_Z_NEUTRAL" value="19"/>
     <define name="MAG_X_SENS" value="4.73590916868" integer="16"/>
     <define name="MAG_Y_SENS" value="4.86013203775" integer="16"/>
     <define name="MAG_Z_SENS" value="2.5947951512" integer="16"/>
-
+-->
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_PSI"   value="RadOfDeg( 135.)"/>
@@ -184,10 +191,7 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_l_1.0">
 <!--      <define name="BOOZ_START_DELAY" value="1"/> -->
-      <subsystem name="radio_control" type="spektrum">
-        <param name="RADIO_CONTROL_SPEKTRUM_MODEL"
-             value="\\\"booz/radio_control/booz_radio_control_spektrum_dx7se.h\\\""/>
-      </subsystem>
+      <subsystem name="radio_control" type="spektrum"/>
       <subsystem name="actuators"     type="asctec"/>
     </target>
     <target name="sim" board="pc">
@@ -228,12 +232,10 @@
       <param name="TARGET_DIR"    value="~"/>
       <param name="PERIODIC_FREQ" value="512"/>
     </target>
-    <target name="stm_passthrough" board="lisa_l_1.0"/>
-      <subsystem name="radio_control" type="spektrum">
-        <param name="RADIO_CONTROL_SPEKTRUM_MODEL"
-              value="\\\"booz/radio_control/booz_radio_control_spektrum_dx7se.h\\\""/>
-      </subsystem>
+    <target name="stm_passthrough" board="lisa_l_1.0">
+      <subsystem name="radio_control" type="spektrum"/>
       <subsystem name="imu" type="b2_v1.1"/>
+    </target>
  </firmware>
 
 
