@@ -352,7 +352,7 @@ test_imu_b2_2.srcs += downlink.c pprz_transport.c
 
 test_imu_b2_2.srcs += math/pprz_trig_int.c
 
-test_imu_b2_2.CFLAGS += -DBOOZ_IMU_TYPE_H=\"imu/imu_b2.h\"
+test_imu_b2_2.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
 test_imu_b2_2.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_HMC5843 -DIMU_B2_VERSION_1_2
 test_imu_b2_2.srcs += $(SRC_FIRMWARE)/imu.c
 test_imu_b2_2.CFLAGS += -DMAX_1168_DRDY_PORT=$(MAX_1168_DRDY_PORT)
