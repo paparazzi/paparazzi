@@ -41,12 +41,13 @@
 #include "ready_main.h"
 
 #include "airframe.h"
-#include "actuators.h"
-#include "rdyb_imu.h"
+/* sort of a hack, we're not really fixed wing here but we need their declarations */
+#include "firmwares/fixedwing/actuators.h"
+#include "rdyb_booz_imu.h"
 #include "booz_radio_control.h"
 #include "rdyb_mahrs.h"
 
-static struct ImuFloat imu;
+static struct ImuFloat imuFloat;
 static struct FloatQuat body_to_imu_quat = IMU_POSE_BODY_TO_IMU_QUAT;
 
 static void (* vane_callback)(uint8_t vane_id, float alpha, float beta) = NULL;
@@ -57,10 +58,10 @@ static void (* adc_callback)(uint16_t * adc_channels) = NULL;
 
 void spi_ap_link_downlink_send(struct DownlinkTransport *tp)
 {
-  uint16_t timestamp = 0;
-  DOWNLINK_SEND_EKF7_Y(tp, &timestamp, &imu.accel.x, &imu.accel.y, &imu.accel.z,
-		    &imu.mag.x, &imu.mag.y, &imu.mag.z,
-		    &imu.gyro.p, &imu.gyro.q, &imu.gyro.r);
+  uint32_t timestamp = 0;
+  DOWNLINK_SEND_EKF7_Y(tp, &timestamp, &imuFloat.accel.x, &imuFloat.accel.y, &imuFloat.accel.z,
+		    &imuFloat.mag.x, &imuFloat.mag.y, &imuFloat.mag.z,
+		    &imuFloat.gyro.p, &imuFloat.gyro.q, &imuFloat.gyro.r);
 }
 
 void spi_ap_link_set_vane_callback(void (* vane_cb)(uint8_t vane_id, float alpha, float beta))
@@ -96,20 +97,21 @@ int spi_ap_link_init()
   }
 
   // Initialize IMU->Body orientation
-  imu.body_to_imu_quat = body_to_imu_quat;
+  imuFloat.body_to_imu_quat = body_to_imu_quat;
+  imuFloat.sample_count = 0;
 
 #ifdef IMU_ALIGN_BENCH
 	// This code is for aligning body to imu rotation, turn this on, put the vehicle in hover, pointed north, read BOOZ2_AHRS_REF_QUAT as body to imu (in wing frame)
-	struct FloatVect3 x_axis = { 0.0, 1.0, 0.0 };
-  FLOAT_QUAT_OF_AXIS_ANGLE(imu.body_to_imu_quat, x_axis, QUAT_SETPOINT_HOVER_PITCH);
+  struct FloatVect3 x_axis = { 0.0, 1.0, 0.0 };
+  FLOAT_QUAT_OF_AXIS_ANGLE(imuFloat.body_to_imu_quat, x_axis, QUAT_SETPOINT_HOVER_PITCH);
 #endif
 
-  FLOAT_QUAT_NORMALISE(imu.body_to_imu_quat);
-	FLOAT_EULERS_OF_QUAT(imu.body_to_imu_eulers, imu.body_to_imu_quat);
-  FLOAT_RMAT_OF_QUAT(imu.body_to_imu_rmat, imu.body_to_imu_quat);
+  FLOAT_QUAT_NORMALISE(imuFloat.body_to_imu_quat);
+	FLOAT_EULERS_OF_QUAT(imuFloat.body_to_imu_eulers, imuFloat.body_to_imu_quat);
+  FLOAT_RMAT_OF_QUAT(imuFloat.body_to_imu_rmat, imuFloat.body_to_imu_quat);
 
   struct FloatRates bias0 = { 0., 0., 0.};
-  rdyb_mahrs_init(imu.body_to_imu_quat, bias0);
+  rdyb_mahrs_init(imuFloat.body_to_imu_quat, bias0);
 
   return 0;
 }
@@ -122,10 +124,10 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
 
   // Fill pressure data
   if (msg_up->valid.pressure_absolute && pressure_absolute_callback)
-    pressure_absolute_callback(0, (uint16_t) msg_up->pressure_absolute);
+    pressure_absolute_callback(0, msg_up->pressure_absolute);
 
   if (msg_up->valid.pressure_differential && pressure_differential_callback)
-    pressure_differential_callback(0, (uint16_t) msg_up->pressure_differential);
+    pressure_differential_callback(0, (32768 + msg_up->pressure_differential));
 
 	if (msg_up->valid.adc) {
 		if(adc_callback) {
@@ -150,20 +152,22 @@ static void passthrough_up_parse(struct AutopilotMessagePTUp *msg_up)
   radio_control.status = msg_up->rc_status;
 
   // Fill IMU data
-  imu.gyro.p = RATE_FLOAT_OF_BFP(msg_up->gyro.p);
-  imu.gyro.q = RATE_FLOAT_OF_BFP(msg_up->gyro.q);
-  imu.gyro.r = RATE_FLOAT_OF_BFP(msg_up->gyro.r);
+  imuFloat.gyro.p = RATE_FLOAT_OF_BFP(msg_up->gyro.p);
+  imuFloat.gyro.q = RATE_FLOAT_OF_BFP(msg_up->gyro.q);
+  imuFloat.gyro.r = RATE_FLOAT_OF_BFP(msg_up->gyro.r);
 
-  imu.accel.x = ACCEL_FLOAT_OF_BFP(msg_up->accel.x);
-  imu.accel.y = ACCEL_FLOAT_OF_BFP(msg_up->accel.y);
-  imu.accel.z = ACCEL_FLOAT_OF_BFP(msg_up->accel.z);
+  imuFloat.accel.x = ACCEL_FLOAT_OF_BFP(msg_up->accel.x);
+  imuFloat.accel.y = ACCEL_FLOAT_OF_BFP(msg_up->accel.y);
+  imuFloat.accel.z = ACCEL_FLOAT_OF_BFP(msg_up->accel.z);
 
-  imu.mag.x = MAG_FLOAT_OF_BFP(msg_up->mag.x);
-  imu.mag.y = MAG_FLOAT_OF_BFP(msg_up->mag.y);
-  imu.mag.z = MAG_FLOAT_OF_BFP(msg_up->mag.z);
+  imuFloat.mag.x = MAG_FLOAT_OF_BFP(msg_up->mag.x);
+  imuFloat.mag.y = MAG_FLOAT_OF_BFP(msg_up->mag.y);
+  imuFloat.mag.z = MAG_FLOAT_OF_BFP(msg_up->mag.z);
+
+	imuFloat.sample_count = msg_up->imu_tick;
 
   if (msg_up->valid.imu)
-    rdyb_imu_update(&imu);
+    rdyb_booz_imu_update(&imuFloat);
 }
 
 static void passthrough_down_fill(struct AutopilotMessagePTDown *msg_down)
