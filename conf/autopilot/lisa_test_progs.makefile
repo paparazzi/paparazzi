@@ -1236,7 +1236,7 @@ test_adc.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart2
 test_adc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_adc.srcs += downlink.c pprz_transport.c
 
-test_adc.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
+test_adc.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4 -DUSE_ADC1_2_IRQ_HANDLER
 
 ################################################################################
 #
