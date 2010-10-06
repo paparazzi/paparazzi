@@ -329,8 +329,8 @@ test_imu_b2.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c  $(SRC_BOOZ_ARCH)/peri
 #   MODEM_PORT
 #   MODEM_BAUD
 #
-test_imu_b2_2.ARCHDIR = $(ARCHI)
-test_imu_b2_2.CFLAGS  =  -I$(SRC_LISA) -I$(ARCHI) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_imu_b2_2.ARCHDIR = $(ARCH)
+test_imu_b2_2.CFLAGS  =  -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_imu_b2_2.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
 test_imu_b2_2.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
                     $(SRC_ARCH)/stm32_exceptions.c   \
