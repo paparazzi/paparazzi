@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef STABILIZATION_ATTITUDE_REF_EULER_FLOAT_H
-#define STABILIZATION_ATTITUDE_REF_EULER_FLOAT_H
+#ifndef STABILIZATION_ATTITUDE_FLOAT_REF_EULER_FLOAT_H
+#define STABILIZATION_ATTITUDE_FLOAT_REF_EULER_FLOAT_H
 
 #include "booz_radio_control.h"
 #include "math/pprz_algebra_float.h"
@@ -33,9 +33,9 @@
 /*
  * Radio Control
  */
-#define SP_MAX_PHI   STABILIZATION_ATTITUDE_SP_MAX_PHI
-#define SP_MAX_THETA STABILIZATION_ATTITUDE_SP_MAX_THETA
-#define SP_MAX_R     STABILIZATION_ATTITUDE_SP_MAX_R
+#define SP_MAX_PHI   STABILIZATION_ATTITUDE_FLOAT_SP_MAX_PHI
+#define SP_MAX_THETA STABILIZATION_ATTITUDE_FLOAT_SP_MAX_THETA
+#define SP_MAX_R     STABILIZATION_ATTITUDE_FLOAT_SP_MAX_R
 
 
 
@@ -44,10 +44,10 @@
 #define RC_UPDATE_FREQ 40.
 
 #define YAW_DEADBAND_EXCEEDED()						\
-  (radio_control.values[RADIO_CONTROL_YAW] >  STABILIZATION_ATTITUDE_DEADBAND_R || \
-   radio_control.values[RADIO_CONTROL_YAW] < -STABILIZATION_ATTITUDE_DEADBAND_R)
+  (radio_control.values[RADIO_CONTROL_YAW] >  STABILIZATION_ATTITUDE_FLOAT_DEADBAND_R || \
+   radio_control.values[RADIO_CONTROL_YAW] < -STABILIZATION_ATTITUDE_FLOAT_DEADBAND_R)
 
-#define STABILIZATION_ATTITUDE_READ_RC(_sp, _inflight) {		\
+#define STABILIZATION_ATTITUDE_FLOAT_READ_RC(_sp, _inflight) {		\
                                         \
     _sp.phi =								\
       (-radio_control.values[RADIO_CONTROL_ROLL]  * SP_MAX_PHI / MAX_PPRZ); \
@@ -65,7 +65,7 @@
     }									\
   }
 
-#define STABILIZATION_ATTITUDE_ADD_SP(_add_sp) {		\
+#define STABILIZATION_ATTITUDE_FLOAT_ADD_SP(_add_sp) {		\
     struct FloatEulers add_sp_float;				\
     EULERS_FLOAT_OF_BFP(add_sp_float, (_add_sp));		\
     EULERS_ADD(stabilization_att_sp,add_sp_float);		\
@@ -74,4 +74,4 @@
 
 
 
-#endif /* STABILIZATION_ATTITUDE_REF_EULER_FLOAT_H */
+#endif /* STABILIZATION_ATTITUDE_FLOAT_REF_EULER_FLOAT_H */

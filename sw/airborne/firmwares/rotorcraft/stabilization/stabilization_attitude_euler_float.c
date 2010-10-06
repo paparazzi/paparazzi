@@ -42,24 +42,24 @@ void stabilization_attitude_init(void) {
   stabilization_attitude_ref_init();
 
   VECT3_ASSIGN(stabilization_gains.p,
-           STABILIZATION_ATTITUDE_PHI_PGAIN,
-           STABILIZATION_ATTITUDE_THETA_PGAIN,
-           STABILIZATION_ATTITUDE_PSI_PGAIN);
+           STABILIZATION_ATTITUDE_FLOAT_PHI_PGAIN,
+           STABILIZATION_ATTITUDE_FLOAT_THETA_PGAIN,
+           STABILIZATION_ATTITUDE_FLOAT_PSI_PGAIN);
 
   VECT3_ASSIGN(stabilization_gains.d,
-           STABILIZATION_ATTITUDE_PHI_DGAIN,
-           STABILIZATION_ATTITUDE_THETA_DGAIN,
-           STABILIZATION_ATTITUDE_PSI_DGAIN);
+           STABILIZATION_ATTITUDE_FLOAT_PHI_DGAIN,
+           STABILIZATION_ATTITUDE_FLOAT_THETA_DGAIN,
+           STABILIZATION_ATTITUDE_FLOAT_PSI_DGAIN);
 
   VECT3_ASSIGN(stabilization_gains.i,
-           STABILIZATION_ATTITUDE_PHI_IGAIN,
-           STABILIZATION_ATTITUDE_THETA_IGAIN,
-           STABILIZATION_ATTITUDE_PSI_IGAIN);
+           STABILIZATION_ATTITUDE_FLOAT_PHI_IGAIN,
+           STABILIZATION_ATTITUDE_FLOAT_THETA_IGAIN,
+           STABILIZATION_ATTITUDE_FLOAT_PSI_IGAIN);
 
   VECT3_ASSIGN(stabilization_gains.dd,
-           STABILIZATION_ATTITUDE_PHI_DDGAIN,
-           STABILIZATION_ATTITUDE_THETA_DDGAIN,
-           STABILIZATION_ATTITUDE_PSI_DDGAIN);
+           STABILIZATION_ATTITUDE_FLOAT_PHI_DDGAIN,
+           STABILIZATION_ATTITUDE_FLOAT_THETA_DDGAIN,
+           STABILIZATION_ATTITUDE_FLOAT_PSI_DDGAIN);
 
   FLOAT_EULERS_ZERO( stabilization_att_sum_err );
 
@@ -68,14 +68,14 @@ void stabilization_attitude_init(void) {
 
 void stabilization_attitude_read_rc(bool_t in_flight) {
 
-  STABILIZATION_ATTITUDE_READ_RC(booz_stab_att_sp_euler, in_flight);
+  STABILIZATION_ATTITUDE_FLOAT_READ_RC(booz_stab_att_sp_euler, in_flight);
 
 }
 
 
 void stabilization_attitude_enter(void) {
 
-  STABILIZATION_ATTITUDE_RESET_PSI_REF(  booz_stab_att_sp_euler );
+  STABILIZATION_ATTITUDE_FLOAT_RESET_PSI_REF(  booz_stab_att_sp_euler );
   FLOAT_EULERS_ZERO( stabilization_att_sum_err );
 
 }

@@ -33,9 +33,9 @@
 #include "stabilization_attitude_ref_float.h"
 #include "quat_setpoint.h"
 
-#define REF_ACCEL_MAX_P STABILIZATION_ATTITUDE_REF_MAX_PDOT
-#define REF_ACCEL_MAX_Q STABILIZATION_ATTITUDE_REF_MAX_QDOT
-#define REF_ACCEL_MAX_R STABILIZATION_ATTITUDE_REF_MAX_RDOT
+#define REF_ACCEL_MAX_P STABILIZATION_ATTITUDE_FLOAT_REF_MAX_PDOT
+#define REF_ACCEL_MAX_Q STABILIZATION_ATTITUDE_FLOAT_REF_MAX_QDOT
+#define REF_ACCEL_MAX_R STABILIZATION_ATTITUDE_FLOAT_REF_MAX_RDOT
 
 struct FloatEulers booz_stab_att_sp_euler;
 struct FloatQuat   booz_stab_att_sp_quat;
@@ -44,16 +44,16 @@ struct FloatQuat   booz_stab_att_ref_quat;
 struct FloatRates  booz_stab_att_ref_rate;
 struct FloatRates  booz_stab_att_ref_accel;
 
-struct FloatRefModel booz_stab_att_ref_model[STABILIZATION_ATTITUDE_GAIN_NB];
+struct FloatRefModel booz_stab_att_ref_model[STABILIZATION_ATTITUDE_FLOAT_GAIN_NB];
 
-static int ref_idx = STABILIZATION_ATTITUDE_GAIN_IDX_DEFAULT;
+static int ref_idx = STABILIZATION_ATTITUDE_FLOAT_GAIN_IDX_DEFAULT;
 
-static const float omega_p[] = STABILIZATION_ATTITUDE_REF_OMEGA_P;
-static const float zeta_p[] = STABILIZATION_ATTITUDE_REF_ZETA_P;
-static const float omega_q[] = STABILIZATION_ATTITUDE_REF_OMEGA_Q;
-static const float zeta_q[] = STABILIZATION_ATTITUDE_REF_ZETA_Q;
-static const float omega_r[] = STABILIZATION_ATTITUDE_REF_OMEGA_R;
-static const float zeta_r[] = STABILIZATION_ATTITUDE_REF_ZETA_R;
+static const float omega_p[] = STABILIZATION_ATTITUDE_FLOAT_REF_OMEGA_P;
+static const float zeta_p[] = STABILIZATION_ATTITUDE_FLOAT_REF_ZETA_P;
+static const float omega_q[] = STABILIZATION_ATTITUDE_FLOAT_REF_OMEGA_Q;
+static const float zeta_q[] = STABILIZATION_ATTITUDE_FLOAT_REF_ZETA_Q;
+static const float omega_r[] = STABILIZATION_ATTITUDE_FLOAT_REF_OMEGA_R;
+static const float zeta_r[] = STABILIZATION_ATTITUDE_FLOAT_REF_ZETA_R;
 
 static void reset_psi_ref_from_body(void) {
     booz_stab_att_ref_euler.psi = ahrs_float.ltp_to_body_euler.psi;
@@ -82,7 +82,7 @@ void stabilization_attitude_ref_init(void) {
   FLOAT_RATES_ZERO( booz_stab_att_ref_rate);
   FLOAT_RATES_ZERO( booz_stab_att_ref_accel);
 
-  for (int i = 0; i < STABILIZATION_ATTITUDE_GAIN_NB; i++) {
+  for (int i = 0; i < STABILIZATION_ATTITUDE_FLOAT_GAIN_NB; i++) {
     RATES_ASSIGN(booz_stab_att_ref_model[i].omega, omega_p[i], omega_q[i], omega_r[i]);
     RATES_ASSIGN(booz_stab_att_ref_model[i].zeta, zeta_p[i], zeta_q[i], zeta_r[i]);
   }

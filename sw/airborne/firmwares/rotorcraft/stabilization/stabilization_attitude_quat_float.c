@@ -33,7 +33,7 @@
 #include <firmwares/rotorcraft/ahrs.h>
 #include "airframe.h"
 
-struct FloatAttitudeGains stabilization_gains[STABILIZATION_ATTITUDE_GAIN_NB];
+struct FloatAttitudeGains stabilization_gains[STABILIZATION_ATTITUDE_FLOAT_GAIN_NB];
 
 struct FloatQuat stabilization_att_sum_err_quat;
 struct FloatEulers stabilization_att_sum_err_eulers;
@@ -41,43 +41,43 @@ struct FloatEulers stabilization_att_sum_err_eulers;
 float stabilization_att_fb_cmd[COMMANDS_NB];
 float stabilization_att_ff_cmd[COMMANDS_NB];
 
-static int gain_idx = STABILIZATION_ATTITUDE_GAIN_IDX_DEFAULT;
+static int gain_idx = STABILIZATION_ATTITUDE_FLOAT_GAIN_IDX_DEFAULT;
 
-static const float phi_pgain[] = STABILIZATION_ATTITUDE_PHI_PGAIN;
-static const float theta_pgain[] = STABILIZATION_ATTITUDE_THETA_PGAIN;
-static const float psi_pgain[] = STABILIZATION_ATTITUDE_PSI_PGAIN;
+static const float phi_pgain[] = STABILIZATION_ATTITUDE_FLOAT_PHI_PGAIN;
+static const float theta_pgain[] = STABILIZATION_ATTITUDE_FLOAT_THETA_PGAIN;
+static const float psi_pgain[] = STABILIZATION_ATTITUDE_FLOAT_PSI_PGAIN;
 
-static const float phi_dgain[] = STABILIZATION_ATTITUDE_PHI_DGAIN;
-static const float theta_dgain[] = STABILIZATION_ATTITUDE_THETA_DGAIN;
-static const float psi_dgain[] = STABILIZATION_ATTITUDE_PSI_DGAIN;
+static const float phi_dgain[] = STABILIZATION_ATTITUDE_FLOAT_PHI_DGAIN;
+static const float theta_dgain[] = STABILIZATION_ATTITUDE_FLOAT_THETA_DGAIN;
+static const float psi_dgain[] = STABILIZATION_ATTITUDE_FLOAT_PSI_DGAIN;
 
-static const float phi_igain[] = STABILIZATION_ATTITUDE_PHI_IGAIN;
-static const float theta_igain[] = STABILIZATION_ATTITUDE_THETA_IGAIN;
-static const float psi_igain[] = STABILIZATION_ATTITUDE_PSI_IGAIN;
+static const float phi_igain[] = STABILIZATION_ATTITUDE_FLOAT_PHI_IGAIN;
+static const float theta_igain[] = STABILIZATION_ATTITUDE_FLOAT_THETA_IGAIN;
+static const float psi_igain[] = STABILIZATION_ATTITUDE_FLOAT_PSI_IGAIN;
 
-static const float phi_ddgain[] = STABILIZATION_ATTITUDE_PHI_DDGAIN;
-static const float theta_ddgain[] = STABILIZATION_ATTITUDE_THETA_DDGAIN;
-static const float psi_ddgain[] = STABILIZATION_ATTITUDE_PSI_DDGAIN;
+static const float phi_ddgain[] = STABILIZATION_ATTITUDE_FLOAT_PHI_DDGAIN;
+static const float theta_ddgain[] = STABILIZATION_ATTITUDE_FLOAT_THETA_DDGAIN;
+static const float psi_ddgain[] = STABILIZATION_ATTITUDE_FLOAT_PSI_DDGAIN;
 
-static const float phi_dgain_d[] = STABILIZATION_ATTITUDE_PHI_DGAIN_D;
-static const float theta_dgain_d[] = STABILIZATION_ATTITUDE_THETA_DGAIN_D;
-static const float psi_dgain_d[] = STABILIZATION_ATTITUDE_PSI_DGAIN_D;
+static const float phi_dgain_d[] = STABILIZATION_ATTITUDE_FLOAT_PHI_DGAIN_D;
+static const float theta_dgain_d[] = STABILIZATION_ATTITUDE_FLOAT_THETA_DGAIN_D;
+static const float psi_dgain_d[] = STABILIZATION_ATTITUDE_FLOAT_PSI_DGAIN_D;
 
-static const float phi_pgain_surface[] = STABILIZATION_ATTITUDE_PHI_PGAIN_SURFACE;
-static const float theta_pgain_surface[] = STABILIZATION_ATTITUDE_THETA_PGAIN_SURFACE;
-static const float psi_pgain_surface[] = STABILIZATION_ATTITUDE_PSI_PGAIN_SURFACE;
+static const float phi_pgain_surface[] = STABILIZATION_ATTITUDE_FLOAT_PHI_PGAIN_SURFACE;
+static const float theta_pgain_surface[] = STABILIZATION_ATTITUDE_FLOAT_THETA_PGAIN_SURFACE;
+static const float psi_pgain_surface[] = STABILIZATION_ATTITUDE_FLOAT_PSI_PGAIN_SURFACE;
 
-static const float phi_dgain_surface[] = STABILIZATION_ATTITUDE_PHI_DGAIN_SURFACE;
-static const float theta_dgain_surface[] = STABILIZATION_ATTITUDE_THETA_DGAIN_SURFACE;
-static const float psi_dgain_surface[] = STABILIZATION_ATTITUDE_PSI_DGAIN_SURFACE;
+static const float phi_dgain_surface[] = STABILIZATION_ATTITUDE_FLOAT_PHI_DGAIN_SURFACE;
+static const float theta_dgain_surface[] = STABILIZATION_ATTITUDE_FLOAT_THETA_DGAIN_SURFACE;
+static const float psi_dgain_surface[] = STABILIZATION_ATTITUDE_FLOAT_PSI_DGAIN_SURFACE;
 
-static const float phi_igain_surface[] = STABILIZATION_ATTITUDE_PHI_IGAIN_SURFACE;
-static const float theta_igain_surface[] = STABILIZATION_ATTITUDE_THETA_IGAIN_SURFACE;
-static const float psi_igain_surface[] = STABILIZATION_ATTITUDE_PSI_IGAIN_SURFACE;
+static const float phi_igain_surface[] = STABILIZATION_ATTITUDE_FLOAT_PHI_IGAIN_SURFACE;
+static const float theta_igain_surface[] = STABILIZATION_ATTITUDE_FLOAT_THETA_IGAIN_SURFACE;
+static const float psi_igain_surface[] = STABILIZATION_ATTITUDE_FLOAT_PSI_IGAIN_SURFACE;
 
-static const float phi_ddgain_surface[] = STABILIZATION_ATTITUDE_PHI_DDGAIN_SURFACE;
-static const float theta_ddgain_surface[] = STABILIZATION_ATTITUDE_THETA_DDGAIN_SURFACE;
-static const float psi_ddgain_surface[] = STABILIZATION_ATTITUDE_PSI_DDGAIN_SURFACE;
+static const float phi_ddgain_surface[] = STABILIZATION_ATTITUDE_FLOAT_PHI_DDGAIN_SURFACE;
+static const float theta_ddgain_surface[] = STABILIZATION_ATTITUDE_FLOAT_THETA_DDGAIN_SURFACE;
+static const float psi_ddgain_surface[] = STABILIZATION_ATTITUDE_FLOAT_PSI_DDGAIN_SURFACE;
 
 #define IERROR_SCALE 1024
 
@@ -85,7 +85,7 @@ void stabilization_attitude_init(void) {
 
   stabilization_attitude_ref_init();
 
-  for (int i = 0; i < STABILIZATION_ATTITUDE_GAIN_NB; i++) {
+  for (int i = 0; i < STABILIZATION_ATTITUDE_FLOAT_GAIN_NB; i++) {
     VECT3_ASSIGN(stabilization_gains[i].p, phi_pgain[i], theta_pgain[i], psi_pgain[i]);
     VECT3_ASSIGN(stabilization_gains[i].d, phi_dgain[i], theta_dgain[i], psi_dgain[i]);
     VECT3_ASSIGN(stabilization_gains[i].i, phi_igain[i], theta_igain[i], psi_igain[i]);
@@ -103,7 +103,7 @@ void stabilization_attitude_init(void) {
 
 void stabilization_attitude_gain_schedule(uint8_t idx)
 {
-    if (gain_idx >= STABILIZATION_ATTITUDE_GAIN_NB) {
+    if (gain_idx >= STABILIZATION_ATTITUDE_FLOAT_GAIN_NB) {
         // This could be bad -- Just say no.
         return;
     }
