@@ -25,6 +25,8 @@
 #ifndef PPRZ_ALGEBRA_H
 #define PPRZ_ALGEBRA_H
 
+#include <float.h>  /* for FLT_EPSILON */
+
 #define SQUARE(_a) ((_a)*(_a))
 
 /*
@@ -370,6 +372,34 @@
                 MAT33_ELMT((_mat), 1, 2) * (_vin).y +	\
                 MAT33_ELMT((_mat), 2, 2) * (_vin).z;	\
   }
+
+/* invS = 1/det(S) com(S)' */
+#define MAT33_INV(_minv, _m) {						\
+    const float m00 = MAT33_ELMT((_m),1,1)*MAT33_ELMT((_m),2,2) - MAT33_ELMT((_m),1,2)*MAT33_ELMT((_m),2,1);		\
+    const float m10 = MAT33_ELMT((_m),0,1)*MAT33_ELMT((_m),2,2) - MAT33_ELMT((_m),0,2)*MAT33_ELMT((_m),2,1);		\
+    const float m20 = MAT33_ELMT((_m),0,1)*MAT33_ELMT((_m),1,2) - MAT33_ELMT((_m),0,2)*MAT33_ELMT((_m),1,1);		\
+    const float m01 = MAT33_ELMT((_m),1,0)*MAT33_ELMT((_m),2,2) - MAT33_ELMT((_m),1,2)*MAT33_ELMT((_m),2,0);		\
+    const float m11 = MAT33_ELMT((_m),0,0)*MAT33_ELMT((_m),2,2) - MAT33_ELMT((_m),0,2)*MAT33_ELMT((_m),2,0);		\
+    const float m21 = MAT33_ELMT((_m),0,0)*MAT33_ELMT((_m),1,2) - MAT33_ELMT((_m),0,2)*MAT33_ELMT((_m),1,0);		\
+    const float m02 = MAT33_ELMT((_m),1,0)*MAT33_ELMT((_m),2,1) - MAT33_ELMT((_m),1,1)*MAT33_ELMT((_m),2,0);		\
+    const float m12 = MAT33_ELMT((_m),0,0)*MAT33_ELMT((_m),2,1) - MAT33_ELMT((_m),0,1)*MAT33_ELMT((_m),2,0);		\
+    const float m22 = MAT33_ELMT((_m),0,0)*MAT33_ELMT((_m),1,1) - MAT33_ELMT((_m),0,1)*MAT33_ELMT((_m),1,0);		\
+    const float det = MAT33_ELMT((_m),0,0)*m00 - MAT33_ELMT((_m),1,0)*m10 + MAT33_ELMT((_m),2,0)*m20;	\
+    if (fabs(det) > FLT_EPSILON) {					\
+      MAT33_ELMT((_minv),0,0) =  m00 / det;						\
+      MAT33_ELMT((_minv),1,0) = -m01 / det;						\
+      MAT33_ELMT((_minv),2,0) =  m02 / det;						\
+      MAT33_ELMT((_minv),0,1) = -m10 / det;						\
+      MAT33_ELMT((_minv),1,1) =  m11 / det;						\
+      MAT33_ELMT((_minv),2,1) = -m12 / det;						\
+      MAT33_ELMT((_minv),0,2) =  m20 / det;						\
+      MAT33_ELMT((_minv),1,2) = -m21 / det;						\
+      MAT33_ELMT((_minv),2,2) =  m22 / det;						\
+    }									\
+  }
+
+
+
 
 //
 //
