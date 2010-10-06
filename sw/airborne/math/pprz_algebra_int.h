@@ -817,9 +817,9 @@ struct Int64Vect3 {
       int64_t cphi_stheta = INT_MULT_RSHIFT(cphi, stheta, INT32_TRIG_FRAC); \
       int64_t sphi_stheta = INT_MULT_RSHIFT(sphi, stheta, INT32_TRIG_FRAC); \
       									\
-      (_ed).phi = (_r).p + (int32_t)((sphi_stheta * (int64_t)(_r).q) / ctheta) + (int32_t)((cphi_stheta * (int64_t)(_r).r) / ctheta); \
-      (_ed).theta = INT_MULT_RSHIFT(cphi, (_r).q, INT32_TRIG_FRAC) - INT_MULT_RSHIFT(sphi, (_r).r, INT32_TRIG_FRAC); \
-      (_ed).psi = (int32_t)(((int64_t)sphi * (int64_t)(_r).q) / ctheta) + (int32_t)(((int64_t)cphi * (int64_t)(_r).r) / ctheta); \
+      (_ed).phi = (_r).p + (int32_t)((sphi_stheta * (int64_t)(_r).q) / ctheta) + (int32_t)((cphi_stheta * (int64_t)(_r).r) / ctheta);  \
+      (_ed).theta = INT_MULT_RSHIFT(cphi, (_r).q, INT32_TRIG_FRAC) - INT_MULT_RSHIFT(sphi, (_r).r, INT32_TRIG_FRAC);  \
+      (_ed).psi = (int32_t)(((int64_t)sphi * (int64_t)(_r).q) / ctheta) + (int32_t)(((int64_t)cphi * (int64_t)(_r).r) / ctheta);  \
     }									\
     /* FIXME: What do you wanna do when you hit the singularity ? */	\
     /* probably not return an uninitialized variable, or ?        */	\
