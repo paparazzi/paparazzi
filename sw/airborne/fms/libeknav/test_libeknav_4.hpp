@@ -4,6 +4,7 @@
 #include <Eigen/Core>
 
 #include "ins_qkf.hpp"
+#include "paparazzi_eigen_conversion.h"
 #include <stdint.h>
 
 #include <event.h>
@@ -32,106 +33,147 @@ extern "C" {
 #include "math/pprz_geodetic_double.c"
 #include <math.h>
 
-#define FILTER_OUTPUT_IN_NED 1
+
+/* constants */
+/** Compilation-control **/
+#define RUN_FILTER 1
 #define UPDATE_WITH_GRAVITY 0
+#define SYNTHETIC_MAG_MODE 1
+#define FILTER_OUTPUT_IN_NED 1
 
+#define PRINT_MAG 0
+#define PRINT_GPS 1
+#define PRINT_EULER_NED 0
 
-/*
- * 
- * Initialization
- * 
- */
-
-/* initial state */
-
+/** geodetic **/
 //Toulouse Lat: 	43° 35' 24''		Lon: 	1° 25' 48''
-#define TOULOUSE_LATTITUDE UGLY_ANGLE_IN_RADIANS(43,35,24)
-#define TOULOUSE_LONGITUDE UGLY_ANGLE_IN_RADIANS(1,25,48)
+#define TOULOUSE_LATTITUDE ARCSEC_ACRMIN_ANGLE_IN_RADIANS(43,35,24)
+#define TOULOUSE_LONGITUDE ARCSEC_ACRMIN_ANGLE_IN_RADIANS(1,25,48)
 #define TOULOUSE_HEIGHT 0
 //Toulouse Declination is  22' West	and	Inclination 59° 8' Down
-#define TOULOUSE_DECLINATION -UGLY_ANGLE_IN_RADIANS(0,22,0)
-#define TOULOUSE_INCLINATION -UGLY_ANGLE_IN_RADIANS(59,8,0)
+#define TOULOUSE_DECLINATION -ARCSEC_ACRMIN_ANGLE_IN_RADIANS(0,22,0)
+#define TOULOUSE_INCLINATION -ARCSEC_ACRMIN_ANGLE_IN_RADIANS(59,8,0)
 
-struct LlaCoor_f pos_0_lla;
-Vector3d pos_0_ecef;
-Vector3d speed_0_ecef;
-//  Vector3d orientation(0., 0., 0.);
-Vector3d bias_0(0., 0., 0.);
-
-/**
- * how to compute the magnetic field:
- *     http://gsc.nrcan.gc.ca/geomag/field/comp_e.php
- * 
- * online-calculator:
- *     http://geomag.nrcan.gc.ca/apps/mfcal-eng.php
- */
+/** magnetic field 
+ ** how to compute the magnetic field:
+ **     http://gsc.nrcan.gc.ca/geomag/field/comp_e.php
+ ** 
+ ** online-calculator:
+ **   http://geomag.nrcan.gc.ca/apps/mfcal-eng.php
+ **/
 #if 0
 #define EARTHS_GEOMAGNETIC_FIELD_NORMED(ref) {	\
-    ref.z = sin(TOULOUSE_INCLINATION);			\
-	double h = sqrt(1-ref.z*ref.z);				\
-	ref.x = h*cos(TOULOUSE_DECLINATION);		\
-	ref.y = h*sin(TOULOUSE_DECLINATION);		\
+  ref.z = sin(TOULOUSE_INCLINATION);						\
+	double h = sqrt(1-ref.z*ref.z);								\
+	ref.x = h*cos(TOULOUSE_DECLINATION);					\
+	ref.y = h*sin(TOULOUSE_DECLINATION);					\
 }
 #else
-#define EARTHS_GEOMAGNETIC_FIELD_NORMED(ref) VECT3_ASSIGN(ref, 0.51292422348174, -0.00331095113378, 0.85842750338526)
+//#define EARTHS_GEOMAGNETIC_FIELD_NORMED(ref) VECT3_ASSIGN(ref, 0.51292422348174, -0.00331095113378, 0.85842750338526)
+#define EARTHS_GEOMAGNETIC_FIELD_NORMED(ref) VECT3_ASSIGN(ref, 0.51562740288882, -0.05707735220832, 0.85490967783446)
+#endif
+Vector3d reference_direction;
+#if RUN_FILTER
+static void set_reference_direction(void);
 #endif
 
-// mean of the measurment data
-#define LAB_REFERENCE(ref) VECT3_ASSIGN(ref, -0.22496030821134, 0.70578892222179, 0.67175505729281)
+/** other **/
+#define GRAVITY 9.81
+#define MAX_DISTANCE_FROM_GRAVITY_FOR_UPDATE 0.03
 
-Vector3d reference_direction;
+/* Initialisation */
+static void main_init(void);
 
-/* initial covariance */
+/** initial state **/
+struct LlaCoor_f pos_0_lla;
+Vector3d pos_0_ecef;
+Vector3d speed_0_ecef = Vector3d::Zero();
+Vector3d bias_0(0., 0., 0.);
+#if RUN_FILTER
+static void init_ins_state(void);
+#endif
+
+/** initial covariance **/
 const double pos_cov_0 =  1e4;
 const double speed_cov_0 =  3.;
 //  const double orientation_cov_0 =  RadOfDeg(5.)*RadOfDeg(5.);
 const double bias_cov_0 =  0.447;
 const double mag_noise = std::pow(5 / 180.0 * M_PI, 2);
 
-/* system noise      */
-const double mag_error =  2.536e-3;
-const Vector3d gyro_white_noise(1.1328*1.1328e-4, 0.9192*0.9192e-4, 1.2291*1.2291e-4);
-const Vector3d gyro_stability_noise(-1.7605*1.7605e-4,    0.5592*0.5592e-4,    1.1486*1.1486e-4 );
-const Vector3d accel_white_noise(2.3707*2.3707e-4,    2.4575*2.4575e-4,    2.5139*2.5139e-4);
+
+/* system noise	*/
+const double   mag_error            = 2.536e-3;
+const Vector3d gyro_white_noise     (  1.1328*1.1328e-4,    0.9192*0.9192e-4,    1.2291*1.2291e-4);
+const Vector3d gyro_stability_noise ( -1.7605*1.7605e-4,    0.5592*0.5592e-4,    1.1486*1.1486e-4);
+const Vector3d accel_white_noise    (  2.3707*2.3707e-4,    2.4575*2.4575e-4,    2.5139*2.5139e-4);
+const Vector3d gps_pos_noise        = Vector3d::Ones() *10  *10  ;
+const Vector3d gps_speed_noise      = Vector3d::Ones() * 0.1* 0.1;
 
 
-/*
- * 
- * HEADERS
- * 
- */
-
-
+/* STM32 Communication */
+static void main_periodic(int my_sig_num);
 static void main_trick_libevent(void);
 static void on_foo_event(int fd, short event __attribute__((unused)), void *arg);
 static struct event foo_event;
-
-
-static void main_rawlog_init(const char* filename);
-static void main_rawlog_dump(void);
-
-static void main_init(void);
-static void init_ins_state(void);
-static void set_reference_direction(void);
-static void main_periodic(int my_sig_num);
 static uint8_t main_dialog_with_io_proc(void);
-static void main_run_ins(uint8_t);
 
+
+/* libeknav */
+#if RUN_FILTER
+static void main_run_ins(uint8_t);
+#endif
 
 
 /* Logging */
 #define IMU_LOG_FILE "/tmp/log_test3.bin"
-#define INS_LOG_FILE "/tmp/log_ins_test3.data"
+static void main_rawlog_init(const char* filename);
+static void main_rawlog_dump(uint8_t);
+
+#if RUN_FILTER
 static void print_estimator_state(double);
+#define INS_LOG_FILE "/tmp/log_ins_test3.data"
+#endif
+
 
 /* time measurement */
 #define TIMER CLOCK_MONOTONIC 
 double absTime(struct timespec);
 struct timespec time_diff(struct timespec, struct timespec);
 
+
 /* Other */
-#define UGLY_ANGLE_IN_RADIANS(degree, arcmin, arcsec) ((degree+arcmin/60+arcsec/3600)*M_PI/180)
-#define COORDS_AS_VECTOR(coords) Vector3d(coords.x, coords.y, coords.z)
-#define RATES_AS_VECTOR(rates) Vector3d(rates.p,rates.q,rates.r)
-#define ABS(a) ((a<0)?-a:a)
-#define VECTOR_AS_COORDS(coords, vector) { coords.x = vector(0); coords.y = vector(1); coords.z = vector(2);}
+	/** tiny little functions **/
+#define DEFINE_AutopilotMessageCRCFrame_IN_and_OUT(name)	\
+	struct AutopilotMessageCRCFrame name##_in;							\
+  struct AutopilotMessageCRCFrame name##_out
+void printmag(void);
+void printgps(void);
+
+	/** Sensors **/
+#define COPY_RATES_ACCEL_TO_IMU_FLOAT(pointer){						\
+  RATES_FLOAT_OF_BFP(imu_float.gyro, pointer->gyro);			\
+  ACCELS_FLOAT_OF_BFP(imu_float.accel, pointer->accel); 	\
+}
+#define COPY_MAG_TO_IMU_FLOAT(pointer) MAGS_FLOAT_OF_BFP(imu_float.mag, pointer->mag)
+#define COPY_GPS_TO_IMU(pointer){													\
+  VECT3_COPY(imu_ecef_pos, pointer->ecef_pos);						\
+  VECT3_COPY(imu_ecef_vel, pointer->ecef_vel);						\
+}
+
+#define IMU_READY(data_valid) (data_valid & (1<<VI_IMU_DATA_VALID))
+#define GPS_READY(data_valid) (data_valid & (1<<VI_GPS_DATA_VALID))
+#define MAG_READY(data_valid) (data_valid & (1<<VI_MAG_DATA_VALID))
+
+#define CLOSE_TO_GRAVITY(accel) (ABS(FLOAT_VECT3_NORM(accel)-GRAVITY)<MAX_DISTANCE_FROM_GRAVITY_FOR_UPDATE)
+
+	/** Converions	**/
+	/* copied and modified form pprz_geodetic */
+#define NED_TO_ECEF_MAT(lla, mat) {			\
+	const double sin_lat = sin(lla.lat);	\
+	const double cos_lat = cos(lla.lat);	\
+	const double sin_lon = sin(lla.lon);	\
+	const double cos_lon = cos(lla.lon);	\
+	MAT33_ROW(mat, 0, -sin_lat*cos_lon,	-sin_lon, -cos_lat*cos_lon);	\
+	MAT33_ROW(mat, 1,  sin_lat*sin_lon,  cos_lon, -cos_lat*sin_lon);	\
+	MAT33_ROW(mat, 2,  cos_lat        ,   0     , -sin_lat        );	\
+}

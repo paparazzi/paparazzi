@@ -164,6 +164,7 @@ struct basic_ins_qkf
 			Quaterniond initial_orientation = Quaterniond::Identity(),
 			const Vector3d& vel_estimate = Vector3d::Zero());
 	
+
 	/*		//Old one without orientation_init()
 	basic_ins_qkf(const Vector3d& pos_estimate,
 			double pos_error, double bias_error, double v_error,

@@ -28,10 +28,9 @@
 
 #include "ins_qkf.hpp"
 #include "assertions.hpp"
-
 #ifdef TIME_OPS
-#include "timer.hpp"
-# include <iostream>
+//#include "timer.hpp"
+#include <iostream>
 #endif
 
 using namespace Eigen;
@@ -59,11 +58,24 @@ linear_predict(basic_ins_qkf& _this, const Vector3d& gyro_meas, const Vector3d& 
 	// accel_cov is the relationship between error vectors in the tangent space
 	// of the vehicle orientation and the translational reference frame.
 	
+	
 	Matrix3d rot = _this.avg_state.orientation.conjugate().toRotationMatrix();
 	
 	Vector3d accel_ecef = rot*accel_meas;		// a_e = (q_e2b)^* x a_b = q_b2e x a_b
 	Vector3d accel_gravity = _this.avg_state.position.normalized()*(-9.81);         
 	Vector3d accel_resid = accel_ecef + accel_gravity;								// a = (xdd-g)+g = xdd;
+	
+	#if 0
+	printf("==================================================\n");
+	printf("Quaternion: % 1.4f % 1.4f % 1.4f % 1.4f\n",
+														_this.avg_state.orientation.w(),
+														_this.avg_state.orientation.x(),
+														_this.avg_state.orientation.y(),
+														_this.avg_state.orientation.z());
+	printf("Accel_meas: % 1.4f % 1.4f % 1.4f\n", accel_meas(0), accel_meas(1), accel_meas(2));
+	printf("Accel_ecef: % 1.4f % 1.4f % 1.4f\n", accel_ecef(0), accel_ecef(1), accel_ecef(2));
+	printf("Accel_grav: % 1.4f % 1.4f % 1.4f\n", accel_gravity(0), accel_gravity(1), accel_gravity(2));
+	#endif
 	
 #if 0
 	// This form works well with zero static acceleration.

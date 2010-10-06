@@ -47,6 +47,7 @@ int main(int argc, char** argv) {
 
 void print_raw_log_entry(struct raw_log_entry* entry){
 	printf("%f\t", entry->time);
+	printf("%d\t", entry->data_valid);
 	printf("%+f %+f %+f\t", entry->gyro.p, entry->gyro.q, entry->gyro.r);
 	printf("%+f %+f %+f\t", entry->accel.x, entry->accel.y, entry->accel.z);
 	printf("%+f %+f %+f\t", entry->mag.x, entry->mag.y, entry->mag.z);

@@ -4,7 +4,7 @@
   <makefile>
 
     HOST=auto1
-
+    USER=root
     PAPARAZZI_INC = -I$(PAPARAZZI_HOME)/var/$(AIRCRAFT) \
                     -I$(PAPARAZZI_SRC)/sw/airborne      \
                     -I$(PAPARAZZI_SRC)/sw/include
