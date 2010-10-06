@@ -6,6 +6,10 @@
 #include <unistd.h>
 #include <time.h>
 #include <string.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+
+
 #include "onboard_transport.h"
 #include "downlink_transport.h"
 
@@ -31,52 +35,52 @@ static void put_bytes(void *impl, enum DownlinkDataType data_type, uint8_t len _
       onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, " ");
     }
     switch (data_type) {
-      case DL_TYPE_UINT8:
-        onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%hhu", * (const uint8_t *)bytes);
-        bytes = (const uint8_t *) bytes + 1;
-        break;
-      case DL_TYPE_UINT16:
-        onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%hu", * (const uint16_t *)bytes);
-        bytes = (const uint16_t *) bytes + 2;
-        break;
-      case DL_TYPE_UINT32:
-        onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%u", * (const uint32_t *)bytes);
-        bytes = (const uint32_t *) bytes + 4;
-        break;
-      case DL_TYPE_UINT64:
-        onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%llu", *(const uint64_t *)bytes);
-        bytes = (const uint64_t *) bytes + 8;
-        break;
-      case DL_TYPE_INT8:
-        onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%hhi", * (const int8_t *)bytes);
-        bytes = (const int8_t *) bytes + 1;
-        break;
-      case DL_TYPE_INT16:
-        onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%hi", * (const int16_t *)bytes);
-        bytes = (const int16_t *) bytes + 2;
-        break;
-      case DL_TYPE_INT32:
-        onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%i", * (const int32_t *)bytes);
-        bytes = (const int32_t *) bytes + 4;
-        break;
-      case DL_TYPE_INT64:
-        onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%lli", *(const int64_t *)bytes);
-        bytes = (const int64_t *) bytes + 8;
-        break;
-      case DL_TYPE_FLOAT:
-        onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%#f", *(const float *)bytes);
-        bytes = (const float *) bytes + 4;
-        break;
-      case DL_TYPE_DOUBLE:
-        onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%#f", *(const double *)bytes);
-        bytes = (const double *) bytes + 8;
-        break;
-      case DL_TYPE_TIMESTAMP:
-        onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%u.%04u", (*(const uint32_t *)bytes) / TIMESTAMP_SCALE,(*(const uint32_t *)bytes) % TIMESTAMP_SCALE);
-        bytes = (const uint32_t *) bytes + 4;
-        break;
-      case DL_TYPE_ARRAY_LENGTH:
-        break;
+    case DL_TYPE_UINT8:
+      onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%hhu", * (const uint8_t *)bytes);
+      bytes = (const uint8_t *) bytes + 1;
+      break;
+    case DL_TYPE_UINT16:
+      onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%hu", * (const uint16_t *)bytes);
+      bytes = (const uint16_t *) bytes + 2;
+      break;
+    case DL_TYPE_UINT32:
+      onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%u", * (const uint32_t *)bytes);
+      bytes = (const uint32_t *) bytes + 4;
+      break;
+    case DL_TYPE_UINT64:
+      onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%llu", *(const uint64_t *)bytes);
+      bytes = (const uint64_t *) bytes + 8;
+      break;
+    case DL_TYPE_INT8:
+      onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%hhi", * (const int8_t *)bytes);
+      bytes = (const int8_t *) bytes + 1;
+      break;
+    case DL_TYPE_INT16:
+      onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%hi", * (const int16_t *)bytes);
+      bytes = (const int16_t *) bytes + 2;
+      break;
+    case DL_TYPE_INT32:
+      onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%i", * (const int32_t *)bytes);
+      bytes = (const int32_t *) bytes + 4;
+      break;
+    case DL_TYPE_INT64:
+      onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%lli", *(const int64_t *)bytes);
+      bytes = (const int64_t *) bytes + 8;
+      break;
+    case DL_TYPE_FLOAT:
+      onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%#f", *(const float *)bytes);
+      bytes = (const float *) bytes + 4;
+      break;
+    case DL_TYPE_DOUBLE:
+      onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%#f", *(const double *)bytes);
+      bytes = (const double *) bytes + 8;
+      break;
+    case DL_TYPE_TIMESTAMP:
+      onboard->buffer_idx += snprintf(onboard->buffer + onboard->buffer_idx, ONBOARD_BUFFER_LEN - onboard->buffer_idx, "%u.%04u", (*(const uint32_t *)bytes) / TIMESTAMP_SCALE,(*(const uint32_t *)bytes) % TIMESTAMP_SCALE);
+      bytes = (const uint32_t *) bytes + 4;
+      break;
+    case DL_TYPE_ARRAY_LENGTH:
+      break;
     }
   }
 }
@@ -115,78 +119,82 @@ static void count_bytes(void *onboard __attribute__((unused)), uint8_t bytes __a
 
 static int check_free_space(void *onboard __attribute__((unused)), uint8_t bytes __attribute__((unused)))
 {
-	return TRUE;
+  return TRUE;
 }
 
 static uint8_t size_of(void *onboard __attribute__((unused)), uint8_t len)
 {
-	return len + 2;
+  return len + 2;
 }
 
 static int open_piped(char *filepath)
 {
-	int fd;
-	int pipe_fd[2];
-	int flags;
-	ssize_t count;
-	char buffer[LOG_BUFLEN];
+  int fd;
+  int pipe_fd[2];
+  int flags;
+  ssize_t count;
+  char buffer[LOG_BUFLEN];
 
-	if (pipe(pipe_fd) == -1) {
-		perror("onboard transport: pipe");
-	}
+  if (pipe(pipe_fd) == -1) {
+    perror("onboard transport: pipe");
+  }
 
-	fd = open(filepath, O_CREAT | O_RDWR, 0644);
-	if (fd < 0) {
-		perror("onboard log: open");
-	}
+  fd = open(filepath, O_CREAT | O_RDWR, 0644);
+  if (fd < 0) {
+    perror("onboard log: open");
+  }
 
-	if (fork() == 0) {
-		// This is the child, close the write side of the pipe
-		close(pipe_fd[1]);
-		int retval;
+  if (fork() == 0) {
+    // This is the child, close the write side of the pipe
+    close(pipe_fd[1]);
+    int retval;
 
-		// copy from the read side of the pipe to the log
-		while (1) {
-			count = read(pipe_fd[0], buffer, LOG_BUFLEN);
-			if (count < 0) {
-				// error, presumably the pipe is closed
-				break;
-			}
-			retval = write(fd, buffer, count);
-		}
-	} else {
-		// This is the parent, close the read side of the pipe
-		close(pipe_fd[0]);
+    /* Lower our priority -- logging is not that important */
+    if (setpriority(PRIO_PROCESS, 0, 10) < 0) 
+      fprintf(stderr, "Couldn't renice logger for some reason!\n");
 
-		// Close the log file
-		close(fd);
+    // copy from the read side of the pipe to the log
+    while (1) {
+      count = read(pipe_fd[0], buffer, LOG_BUFLEN);
+      if (count < 0) {
+        // error, presumably the pipe is closed
+        break;
+      }
+      retval = write(fd, buffer, count);
+    }
+  } else {
+    // This is the parent, close the read side of the pipe
+    close(pipe_fd[0]);
 
-		// set non blocking on the write side of the pipe
-		flags = fcntl( pipe_fd[1], F_GETFL );
-		fcntl(pipe_fd[1], F_SETFL, flags | O_NONBLOCK);
+    // Close the log file
+    close(fd);
 
-		// return the write side of the pipe
-		fd = pipe_fd[1];
-	}
+    // set non blocking on the write side of the pipe
+    flags = fcntl( pipe_fd[1], F_GETFL );
+    fcntl(pipe_fd[1], F_SETFL, flags | O_NONBLOCK);
 
-	return fd;
+    // return the write side of the pipe
+    fd = pipe_fd[1];
+  }
+
+  return fd;
 }
 
 static void make_filename(char *filename)
 {
-	time_t t;
-	t = time(NULL);
-	struct tm *tmp;
+  time_t t;
+  t = time(NULL);
+  struct tm *tmp;
 
-	tmp = localtime(&t);
-	if (tmp == NULL) {
-		perror("localtime");
-	}
+  tmp = localtime(&t);
+  if (tmp == NULL) {
+    perror("localtime");
+  }
 
-	// format DM_HHMM_SS
-	if (strftime(filename, FILENAME_LEN, "log_%d_%H%M_%S.data", tmp) == 0) {
-		fprintf(stderr, "strftime returned 0");
-	}
+  // format DM_HHMM_SS
+  if (strftime(filename, FILENAME_LEN, "log_%d_%H%M_%S.data", tmp) == 0) {
+    fprintf(stderr, "strftime returned 0");
+  }
 }
 
 struct DownlinkTransport *onboard_transport_new(char *filepath, uint32_t *timestamp)
