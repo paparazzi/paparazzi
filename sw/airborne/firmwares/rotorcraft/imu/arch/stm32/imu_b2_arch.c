@@ -83,11 +83,13 @@ void imu_periodic(void) {
 
 }
 
+/* used for spi2 */
 void dma1_c4_irq_handler(void) {
   switch (imu_ssp_status) {
   case IMU_SSP_STA_BUSY_MAX1168:
     Max1168OnDmaIrq();
     SPI_Cmd(SPI2, DISABLE);
+#if IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
     if (ms2001_status == MS2001_IDLE) {
       Ms2001SendReq();
       imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
@@ -97,10 +99,13 @@ void dma1_c4_irq_handler(void) {
       imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
     }
     else
+#endif
       imu_ssp_status = IMU_SSP_STA_IDLE;
     break;
   case IMU_SSP_STA_BUSY_MS2100:
+#if IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
     Ms2001OnDmaIrq();
+#endif
     break;
   default:
     // POST_ERROR(DEBUG_IMU, IMU_ERR_SUPRIOUS_DMA1_C4_IRQ);
@@ -110,5 +115,7 @@ void dma1_c4_irq_handler(void) {
 
 
 void spi2_irq_handler(void) {
+#if IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
   Ms2001OnSpiIrq();
+#endif
 }
