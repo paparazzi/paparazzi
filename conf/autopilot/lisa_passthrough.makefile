@@ -11,12 +11,15 @@ SRC_LISA=lisa
 SRC_LISA_ARCH=$(SRC_LISA)/arch/$(ARCH)
 SRC_CSC=csc
 SRC_BOARD=boards/$(BOARD)
+SRC_FIRMWARE=firmwares/rotorcraft
+SRC_ROTOR_ARCH=$(SRC_FIRMWARE)/actuators/arch/$(ARCH)
+SRC_IMU_ARCH=$(SRC_FIRMWARE)/imu/arch/$(ARCH)
 
 CFG_LISA_PASSTHROUGH = $(PAPARAZZI_SRC)/conf/autopilot/subsystems/lisa_passthrough
 
 
 stm_passthrough.ARCHDIR = stm32
-stm_passthrough.CFLAGS += -I$(SRC_LISA) -I$(SRC_LISA_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD)
+stm_passthrough.CFLAGS += -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(SRC_LISA_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD) -I$(SRC_ROTOR_ARCH) -I$(SRC_IMU_ARCH)
 stm_passthrough.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 stm_passthrough.CFLAGS += -DPERIPHERALS_AUTO_INIT
 stm_passthrough.srcs = $(SRC_LISA)/lisa_stm_passthrough_main.c \
