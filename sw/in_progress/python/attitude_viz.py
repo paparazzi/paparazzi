@@ -321,7 +321,7 @@ class MainWindow(wx.Frame):
       
 if __name__ == "__main__":
   global VEHICLE_QUATS, BAR_VALUES
-  VEHICLE_QUATS = [ ["AP_EST2USER_0", 11, "Greg's estimator"], ["BOOZ2_AHRS_REF_QUAT", 2, "Reference"]]
+  VEHICLE_QUATS = [ ["AP_EST2USER_0", 11, "Loose Ins Gps"], ["BOOZ2_AHRS_REF_QUAT", 2, "Reference"]]
   BAR_VALUES = [ ["AIRSPEED", 3, "Airspeed (m/s) %i", 0, 1, 40], ["BOOZ2_RADIO_CONTROL", 5, "Throttle (%%) %i", 9600, 96 * 2, 100], ["AP_RC", 6, "RC_MODE %i", 0, 1, 2],["AP_RC", 7, "RC_AUX2 %i", 0, 1, 2]]
   window_title = "Attitude_Viz"
   try:
