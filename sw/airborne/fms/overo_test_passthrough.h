@@ -16,6 +16,7 @@ struct OveroTestPassthrough {
 
   /* our actuators          */
   uint16_t servos_outputs_usecs[6]; /* FIXME */
+  uint16_t csc_servo_outputs[4];
 
   /* the io proc status */
   uint32_t io_proc_msg_cnt;
