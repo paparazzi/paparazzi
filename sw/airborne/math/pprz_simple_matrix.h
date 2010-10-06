@@ -3,6 +3,12 @@
 
 #include <float.h>  /* for FLT_EPSILON */
 #include <math.h> 
+#ifdef HAVE_STDIO
+#include <stdio.h>  /* for printf'ing warnings */
+#define warn_message printf
+#else
+#define warn_message(...) do { } while(0)
+#endif
 
 //
 // C = A*B   A:(i,k) B:(k,j) C:(i,j)
@@ -57,18 +63,21 @@
     const float m02 = _S[1][0]*_S[2][1] - _S[1][1]*_S[2][0];		\
     const float m12 = _S[0][0]*_S[2][1] - _S[0][1]*_S[2][0];		\
     const float m22 = _S[0][0]*_S[1][1] - _S[0][1]*_S[1][0];		\
-    const float det = _S[0][0]*m00 - _S[1][0]*m10 + _S[2][0]*m20;	\
-    if (fabs(det) > FLT_EPSILON) {					\
-      _invS[0][0] =  m00 / det;						\
-      _invS[1][0] = -m01 / det;						\
-      _invS[2][0] =  m02 / det;						\
-      _invS[0][1] = -m10 / det;						\
-      _invS[1][1] =  m11 / det;						\
-      _invS[2][1] = -m12 / det;						\
-      _invS[0][2] =  m20 / det;						\
-      _invS[1][2] = -m21 / det;						\
-      _invS[2][2] =  m22 / det;						\
-    }									\
+    float det = _S[0][0]*m00 - _S[1][0]*m10 + _S[2][0]*m20;   	\
+    if (fabs(det) < FLT_EPSILON) {				\
+      /* If the determinant is too small then set it to epsilon preserving sign. */ \
+      warn_message("warning: %s:%d MAT_INV33 trying to invert non-invertable matrix '%s' and put result in '%s'.\n", __FILE__, __LINE__, #_S, #_invS); \
+      det = copysignf(FLT_EPSILON, det);  \
+    }                                     \
+    _invS[0][0] =  m00 / det;						\
+    _invS[1][0] = -m01 / det;						\
+    _invS[2][0] =  m02 / det;						\
+    _invS[0][1] = -m10 / det;						\
+    _invS[1][1] =  m11 / det;						\
+    _invS[2][1] = -m12 / det;						\
+    _invS[0][2] =  m20 / det;						\
+    _invS[1][2] = -m21 / det;						\
+    _invS[2][2] =  m22 / det;						\
   }
 
 
