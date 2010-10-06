@@ -23,6 +23,7 @@
  */
 
 #include "firmwares/rotorcraft/actuators/supervision.h"
+#include "paparazzi.h"
 
 //#include <stdint.h>
 #ifndef INT32_MIN
