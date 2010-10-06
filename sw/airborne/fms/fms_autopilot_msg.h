@@ -9,7 +9,7 @@
 #define NB_ADC 8
 
 
-#define LISA_PWM_OUTPUT_NB 6
+#define LISA_PWM_OUTPUT_NB 10
 
 /*
  * Testing
@@ -88,10 +88,11 @@ struct __attribute__ ((packed)) PTUpValidFlags
 struct __attribute__ ((packed)) AutopilotMessagePTUp
 {
   struct Int32Rates gyro;
-  struct Int16Vect3 accel;
-  struct Int16Vect3 mag;
-  int16_t pressure_absolute;
-  int16_t pressure_differential;
+  struct Int32Vect3 accel;
+  struct Int32Vect3 mag;
+	uint32_t imu_tick;
+  int32_t pressure_absolute;
+  int32_t pressure_differential;
   int16_t rc_pitch;
   int16_t rc_roll;
   int16_t rc_yaw;
@@ -139,6 +140,63 @@ struct __attribute__ ((packed)) AutopilotMessageVIDown
 
 };
 
+
+/* 
+ * For messages of arbitrary length using fixed DMA 
+ * buffer size. 
+ * A message consists of any amount of packages and 
+ * is recomposed to a raw byte array on application 
+ * level. 
+ * Advantage: Interleaving message exchange, constant 
+ * 	latency
+ * Disadvantage: Overhead of message / package counters
+ * 
+ * If there is no message to be transferred, an empty 
+ * package with message_cnt = 0 is sent. 
+ * The last package of a message has a negative 
+ * package_cntd that indicates the number of padding 
+ * (zero) bytes it contains at the end. 
+ * Example for a 22-byte message transfer with packages 
+ * of 8 bytes for one side: 
+ *
+ *   message_cnt:   0        message_cnt:  4
+ *   package_cntd:  x        package_cntd: 6
+ *   data: uint8_t[8]=0      data: uint8_t[8]
+ *
+ *   ^- invalid package, ignored
+ *
+ *   message_cnt:   2        message_cnt:  4
+ *   package_cntd:  3        package_cnt:  5
+ *   data: uint8_t[8]        data: uint8_t[8]
+ *
+ *   message_cnt:   2        message_cnt:  4
+ *   package_cntd:  2        package_cnt:  4
+ *   data: uint8_t[8]        data: uint8_t[8]
+ *
+ *   message_cnt:   2        message_cnt:  4
+ *   package_cntd: -5        package_cnt:  3
+ *   data: uint8_t[8]        data: uint8_t[8]
+ *
+ *   --> last package in message, padding in 
+ *       current message is 5 bytes (-5), so 
+ *       message length is (3*8)-5 = 22. 
+ *
+ * -- next message
+ *
+ *   message_cnt:   3        message_cnt:  4
+ *   package_cntd:  4        package_cnt:  2
+ *   data: uint8_t[8]        data: uint8_t[8]
+ *   ...
+ */
+#ifndef SPISTREAM_PACKAGE_SIZE 
+#define SPISTREAM_PACKAGE_SIZE 32
+#endif
+struct __attribute__ ((packed)) AutopilotMessagePTStream
+{
+	uint8_t message_cnt; 
+	int8_t package_cntd; 
+	uint8_t pkg_data[SPISTREAM_PACKAGE_SIZE];
+};
 
 /* Union for computing size of SPI transfer (largest of either up or down message) */
 union AutopilotMessage {
