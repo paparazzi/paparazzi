@@ -34,7 +34,6 @@
 
 #include "std.h"
 #include "fms_debug.h"
-#include "fms_periodic.h"
 
 /* stuff for io processor link */
 #include "fms_spi_link.h"
@@ -42,44 +41,16 @@
 
 struct OveroBLMCCalibrate blmc_calibrate;
 
-static void parse_command_line(int argc, char** argv);
 static void main_init(void);
-static void main_periodic(int my_sig_num);
 static void dialog_with_io_proc(void);
-
 
 int main(int argc, char *argv[]) {
 
-  parse_command_line(argc, argv);
-  
   main_init();
-  TRACE(TRACE_DEBUG, "%s", "Entering mainloop\n");
-
-  /* Enter our mainloop */
-  event_dispatch();
-  
-  TRACE(TRACE_DEBUG, "%s", "leaving mainloop... goodbye!\n");
 
   return 0;
 
 }
-
-static void main_periodic(int my_sig_num) {
-
-	static uint32_t counter = 0;
-  dialog_with_io_proc();
-
-	if (counter <= 4096) {
-		counter++;
-	} else if (counter > 4096) { 
-  	for (uint8_t i=0; i<LISA_PWM_OUTPUT_NB; i++) blmc_calibrate.servos_outputs_usecs[i] = 1000;
-		counter++;
-	} else if (counter > 8192) {
-  	for (uint8_t i=0; i<LISA_PWM_OUTPUT_NB; i++) blmc_calibrate.servos_outputs_usecs[i] = 1500;
-	}
-}
-
-
 
 static void dialog_with_io_proc() {
 
@@ -93,10 +64,7 @@ static void dialog_with_io_proc() {
 
 }
 
-
 static void main_init(void) {
-
-  TRACE(TRACE_DEBUG, "%s", "Starting initialization\n");
 
   /* Initalize our SPI link to IO processor */
   if (spi_link_init()) {
@@ -104,23 +72,17 @@ static void main_init(void) {
     return;
   }
   
-  /* Initalize the event library */
-  event_init();
-  
-  /* Initalize our ô so accurate periodic timer */
-  if (fms_periodic_init(main_periodic)) {
-    TRACE(TRACE_ERROR, "%s", "failed to start periodic generator\n");
-    return; 
-  }
-  
+	printf("Starting at 2000us\n");
   /* Initialize blaaa */
   for (uint8_t i=0; i<LISA_PWM_OUTPUT_NB; i++) blmc_calibrate.servos_outputs_usecs[i] = 2000;
-
-  TRACE(TRACE_DEBUG, "%s", "Initialization completed\n");
-}
-
-
-
-static void parse_command_line(int argc, char** argv) {
+  dialog_with_io_proc();
+	getchar();
+	printf("At 1000us\n");
+  for (uint8_t i=0; i<LISA_PWM_OUTPUT_NB; i++) blmc_calibrate.servos_outputs_usecs[i] = 1000;
+  dialog_with_io_proc();
+	getchar();
+	printf("At 1500us\n");
+  for (uint8_t i=0; i<LISA_PWM_OUTPUT_NB; i++) blmc_calibrate.servos_outputs_usecs[i] = 1500;
+  dialog_with_io_proc();
 
 }
