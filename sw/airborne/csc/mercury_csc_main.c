@@ -44,7 +44,7 @@
 #include "airspeed.h"
 #include "baro_ets.h"
 #include "airspeed_ets.h"
-#include "ams5812.h"
+// #include "ams5812.h"
 
 #include "interrupt_hw.h"
 #include "uart.h"
