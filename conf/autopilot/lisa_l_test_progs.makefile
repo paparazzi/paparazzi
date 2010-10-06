@@ -360,7 +360,9 @@ test_imu_b2_2.CFLAGS += -DMAX_1168_DRDY_PORT_SOURCE=$(MAX_1168_DRDY_PORT_SOURCE)
 test_imu_b2_2.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
 test_imu_b2_2.srcs += $(SRC_FIRMWARE)/imu/imu_b2.c $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
 test_imu_b2_2.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
-test_imu_b2_2.srcs += $(SRC_BOOZ)/peripherals/booz_hmc5843.c # $(SRC_BOOZ_ARCH)/peripherals/booz_hmc5843.c
+test_imu_b2_2.CFLAGS += -DUSE_I2C2
+test_imu_b2_2.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+test_imu_b2_2.srcs += $(SRC_BOOZ)/peripherals/booz_hmc5843.c
 
 
 

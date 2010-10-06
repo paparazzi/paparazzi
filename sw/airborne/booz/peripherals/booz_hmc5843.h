@@ -69,7 +69,7 @@ extern void hmc5843_periodic(void);
 #include <string.h>
 
 #define MagEvent(_m_handler) {						\
-    if (hmc5843.status == HMC5843_READING && hmc5843.i2c_done) {	\
+    if (hmc5843.status == HMC5843_READING && hmc5843_i2c_trans.status == I2CTransSuccess) {	\
       memcpy(hmc5843.data.buf, (const void*)i2c2.buf, 6);		\
       _m_handler();							\
       hmc5843.status = HMC5843_IDLE;					\
