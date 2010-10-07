@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 
- 
 struct timespec start, prev;
 FILE* ins_logfile;		// note: initilaized in init_ins_state
 unsigned int counter;
@@ -142,16 +141,28 @@ static void main_run_ins(uint8_t data_valid) {
   clock_gettime(TIMER, &now);
   
   double dt_imu_freq = 0.001953125; //  1/512; // doesn't work?
-  
+  #if SYNTHETIC_MAG_MODE
+  ins.predict(Vector3d::Zero(), Vector3d(0,0,-GRAVITY), dt_imu_freq);
+  #else
   ins.predict(RATES_AS_VECTOR3D(imu_float.gyro), VECT3_AS_VECTOR3D(imu_float.accel), dt_imu_freq);
+  #endif
   
   if(MAG_READY(data_valid)){
+		#if SYNTHETIC_MAG_MODE
+		DoubleVect3 ref_dir_ned;
+		EARTHS_GEOMAGNETIC_FIELD_NORMED(ref_dir_ned);
+		std::cout << "MAG-UPDATE\t";
+		ins.obs_vector(reference_direction, VECT3_AS_VECTOR3D(ref_dir_ned), mag_noise);
+		//ins.obs_vector(reference_direction, reference_direction, mag_noise);
+		#else
 		ins.obs_vector(reference_direction, VECT3_AS_VECTOR3D(imu_float.mag), mag_noise);
+		#endif
 	}
   
   #if UPDATE_WITH_GRAVITY
   if(CLOSE_TO_GRAVITY(imu_float.accel)){
 		// use the gravity as reference
+		std::cout << "GRAV-UPDATE\t";
 		ins.obs_vector(ins.avg_state.position.normalized(), VECT3_AS_VECTOR3D(imu_float.accel), 1.0392e-3);
 	}
   #endif
@@ -161,7 +172,6 @@ static void main_run_ins(uint8_t data_valid) {
 	}
   
   print_estimator_state(absTime(time_diff(now, start)));
-  
   
 }
 #endif
@@ -195,6 +205,11 @@ static void init_ins_state(void){
 	
 	LLA_ASSIGN(pos_0_lla, TOULOUSE_LATTITUDE, TOULOUSE_LONGITUDE, TOULOUSE_HEIGHT)
 	PPRZ_LLA_TO_EIGEN_ECEF(pos_0_lla, pos_0_ecef);
+	
+	#if SYNTHETIC_MAG_MODE
+	//pos_0_ecef = Vector3d(4627511.37,119627.69,4373302.43);			// measured at ??
+	pos_0_ecef = Vector3d(4625562,115469,4375209);			
+	#endif
 	
 	printf("Starting position\t%f\t%f\t%f\n", pos_0_ecef(0), pos_0_ecef(1), pos_0_ecef(2));
 	

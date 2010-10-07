@@ -37,7 +37,7 @@ extern "C" {
 /* constants */
 /** Compilation-control **/
 #define RUN_FILTER 1
-#define UPDATE_WITH_GRAVITY 0
+#define UPDATE_WITH_GRAVITY 1
 #define SYNTHETIC_MAG_MODE 1
 #define FILTER_OUTPUT_IN_NED 1
 
