@@ -167,6 +167,7 @@ static inline void main_periodic(void) {
 			DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
 			radio_control_periodic();
 			check_radio_lost();
+			DOWNLINK_SEND_BARO_RAW(DefaultChannel, &baro.absolute, &baro.differential);
 		});
 
 	RunOnceEvery(2, {baro_periodic();});
