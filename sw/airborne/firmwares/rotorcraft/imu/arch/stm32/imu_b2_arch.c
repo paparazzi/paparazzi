@@ -80,7 +80,9 @@ void imu_periodic(void) {
   Max1168ConfigureSPI();
   SPI_Cmd(SPI2, ENABLE);
   booz_max1168_read();
-
+#if IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC5843
+	hmc5843_periodic();
+#endif
 }
 
 /* used for spi2 */
