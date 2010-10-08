@@ -362,8 +362,8 @@ test_imu_b2_2.srcs += $(SRC_FIRMWARE)/imu/imu_b2.c $(SRC_FIRMWARE)/imu/arch/$(AR
 test_imu_b2_2.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
 test_imu_b2_2.CFLAGS += -DUSE_I2C2
 test_imu_b2_2.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-test_imu_b2_2.srcs += $(SRC_BOOZ)/peripherals/booz_hmc5843.c
-
+test_imu_b2_2.srcs += $(SRC_BOOZ)/peripherals/booz_hmc5843.c $(SRC_BOOZ_ARCH)/peripherals/hmc5843_arch.c
+test_imu_b2_2.CFLAGS += -DUSE_EXTI9_5_IRQ    # Mag Int on PB5
 
 
 #

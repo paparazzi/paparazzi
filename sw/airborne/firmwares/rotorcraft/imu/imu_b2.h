@@ -171,12 +171,12 @@
 #define foo_handler() {}
 #define ImuMagEvent(_mag_handler) {					\
 	  MagEvent(foo_handler); \
-    if (hmc5843.status == HMC5843_DATA_AVAILABLE) {			\
+    if (hmc5843.data_available) {			\
       imu.mag_unscaled.x = hmc5843.data.value[IMU_MAG_X_CHAN];		\
       imu.mag_unscaled.y = hmc5843.data.value[IMU_MAG_Y_CHAN];		\
       imu.mag_unscaled.z = hmc5843.data.value[IMU_MAG_Z_CHAN];		\
       _mag_handler();							\
-      hmc5843.status == HMC5843_IDLE;		\
+      hmc5843.data_available = FALSE;		\
     }									\
   }
 #else

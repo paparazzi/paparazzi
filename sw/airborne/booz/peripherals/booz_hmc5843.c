@@ -1,58 +1,69 @@
 #include "peripherals/booz_hmc5843.h"
 
-#include "i2c.h"
+#define bswap_16(x)   ((((x) & 0xFF00) >> 8) | (((x) & 0x00FF) << 8))
 
 struct Hmc5843 hmc5843;
-struct i2c_transaction hmc5843_i2c_trans;
+void exti9_5_irq_handler(void);
 
-void hmc5843_init(void) {
-  hmc5843.status = HMC5843_UNINITIALIZED1;
-  hmc5843.i2c_done = TRUE;
+void hmc5843_init(void)
+{
+	hmc5843.i2c_trans.status = I2CTransSuccess;
+	hmc5843.i2c_trans.slave_addr = HMC5843_ADDR;
+	hmc5843.i2c_trans.stop_after_transmit = TRUE;
 
-	hmc5843_i2c_trans.status = I2CTransSuccess;
-	hmc5843_i2c_trans.slave_addr = HMC5843_ADDR;
-	hmc5843_i2c_trans.stop_after_transmit = TRUE;
+	hmc5843_arch_init();
 }
 
-void hmc5843_periodic(void) {
-  
-  if (hmc5843_i2c_trans.status == I2CTransPending) return;
+// blocking, only intended to be called for initialization
+static void send_config(void)
+{
+  hmc5843.i2c_trans.type = I2CTransTx;
+  hmc5843.i2c_trans.buf[0] = HMC5843_REG_CFGA;  // set to rate to 50Hz
+  hmc5843.i2c_trans.buf[1] = 0x00 | (0x06 << 2);
+  hmc5843.i2c_trans.len_w = 2;
+  i2c_submit(&i2c2,&hmc5843.i2c_trans);
+	while(hmc5843.i2c_trans.status == I2CTransPending);
+    
+  hmc5843.i2c_trans.type = I2CTransTx;
+  hmc5843.i2c_trans.buf[0] = HMC5843_REG_CFGB;  // set to gain to 1 Gauss
+  hmc5843.i2c_trans.buf[1] = 0x01<<5;
+  hmc5843.i2c_trans.len_w = 2;
+  i2c_submit(&i2c2,&hmc5843.i2c_trans);
+	while(hmc5843.i2c_trans.status == I2CTransPending);
 
-  switch (hmc5843.status) {
-  case HMC5843_UNINITIALIZED1:
-    hmc5843_i2c_trans.buf[0] = HMC5843_REG_CFGA;  // set to rate to 50Hz
-    hmc5843_i2c_trans.buf[1] = 0x00 | (0x06 << 2);
-    hmc5843_i2c_trans.type = I2CTransTx;
-    hmc5843_i2c_trans.len_w = 2;
-    i2c_submit(&i2c2, &hmc5843_i2c_trans);
-    hmc5843.status = HMC5843_UNINITIALIZED2;
-    break;
-  case HMC5843_UNINITIALIZED2:
-    hmc5843_i2c_trans.buf[0] = HMC5843_REG_CFGB;  // set to gain to 1 Gauss
-    hmc5843_i2c_trans.buf[1] = 0x01<<5;
-    hmc5843_i2c_trans.type = I2CTransTx;
-    hmc5843_i2c_trans.len_w = 2;
-    i2c_submit(&i2c2, &hmc5843_i2c_trans);
-    hmc5843.status = HMC5843_UNINITIALIZED3;
-    break;
-  case HMC5843_UNINITIALIZED3:
-    hmc5843_i2c_trans.buf[0] = HMC5843_REG_MODE;  // set to continuous mode
-    hmc5843_i2c_trans.buf[1] = 0x00;
-    hmc5843_i2c_trans.type = I2CTransTx;
-    hmc5843_i2c_trans.len_w = 2;
-    i2c_submit(&i2c2, &hmc5843_i2c_trans);
-    hmc5843.status = HMC5843_IDLE;
-    break;
-  case HMC5843_IDLE:
-    hmc5843_i2c_trans.type = I2CTransRx;
-    hmc5843_i2c_trans.len_r = 7;
-    i2c_submit(&i2c2, &hmc5843_i2c_trans);
-    hmc5843.status = HMC5843_READING;
-    break;
-  default:
-    /* FIXME : report error */
-    break;
-  }
+  hmc5843.i2c_trans.type = I2CTransTx;
+  hmc5843.i2c_trans.buf[0] = HMC5843_REG_MODE;  // set to continuous mode
+  hmc5843.i2c_trans.buf[1] = 0x00;
+  hmc5843.i2c_trans.len_w = 2;
+  i2c_submit(&i2c2,&hmc5843.i2c_trans);
+	while(hmc5843.i2c_trans.status == I2CTransPending);
 
 }
 
+void hmc5843_idle_task(void)
+{
+	if (hmc5843.initialized && hmc5843.ready_for_read && (hmc5843.i2c_trans.status == I2CTransSuccess || hmc5843.i2c_trans.status == I2CTransFailed)) {
+		hmc5843.i2c_trans.type = I2CTransRx;
+		hmc5843.i2c_trans.len_r = 7;
+		i2c_submit(&i2c2, &hmc5843.i2c_trans);
+		hmc5843.reading = TRUE;
+		hmc5843.ready_for_read = FALSE;
+	}
+
+	if (hmc5843.reading && hmc5843.i2c_trans.status == I2CTransSuccess) {
+		hmc5843.data_available = TRUE;
+		hmc5843.reading = FALSE;
+		memcpy(hmc5843.data.buf, (const void *) hmc5843.i2c_trans.buf, 6);
+		for (int i = 0; i < 3; i++) {
+			hmc5843.data.value[i] = bswap_16(hmc5843.data.value[i]);
+		}
+	}
+}
+
+void hmc5843_periodic(void)
+{
+	if (!hmc5843.initialized) {
+		send_config();
+		hmc5843.initialized = TRUE;
+	}
+}

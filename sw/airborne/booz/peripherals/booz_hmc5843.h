@@ -25,30 +25,29 @@
 #define BOOZ_HMC5843_H
 
 #include "std.h"
+#include "i2c.h"
 
-enum Hmc5843Status {
-  HMC5843_UNINITIALIZED1,
-  HMC5843_UNINITIALIZED2,
-  HMC5843_UNINITIALIZED3,
-  HMC5843_IDLE,
-  HMC5843_DATA_AVAILABLE,
-  HMC5843_READING
-};
+#include "peripherals/hmc5843_arch.h"
 
 struct Hmc5843 {
-  volatile enum Hmc5843Status status;
-  volatile uint8_t i2c_done;
+	struct i2c_transaction i2c_trans;
   union {
     uint8_t buf[7];
     int16_t value[3];
   } data;
+	uint8_t initialized;
+	uint8_t reading;
+	uint8_t ready_for_read;
+	uint8_t data_available;
 };
 
 extern struct Hmc5843 hmc5843;
-extern struct i2c_transaction hmc5843_i2c_trans;
+
+extern void hmc5843_arch_init( void );
 
 extern void hmc5843_init(void);
 extern void hmc5843_periodic(void);
+extern void hmc5843_idle_task(void);
 
 /* default I2C address */
 #define HMC5843_ADDR 0x3C
@@ -71,12 +70,9 @@ extern void hmc5843_periodic(void);
 #include <string.h>
 
 #define MagEvent(_m_handler) {						\
-    if (hmc5843.status == HMC5843_READING && hmc5843_i2c_trans.status == I2CTransSuccess) {	\
-      memcpy(hmc5843.data.buf, (const void*)hmc5843_i2c_trans.buf, 6);		\
-      hmc5843.status = HMC5843_DATA_AVAILABLE;					\
-      _m_handler();							\
-    }	else if (hmc5843_i2c_trans.status != I2CTransPending) { \
-      hmc5843.status = HMC5843_IDLE;					\
+	  hmc5843_idle_task(); \
+    if (hmc5843.data_available) { \
+			_m_handler(); \
     } \
   }
 
