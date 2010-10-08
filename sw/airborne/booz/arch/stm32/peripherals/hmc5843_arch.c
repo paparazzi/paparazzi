@@ -28,6 +28,8 @@
 #include <stm32/exti.h>
 #include <stm32/misc.h>
 
+void exti9_5_irq_handler(void);
+
 void hmc5843_arch_init( void ) {
   /* configure external interrupt exti5 on PB5( mag int ) */
 	GPIO_InitTypeDef GPIO_InitStructure;
