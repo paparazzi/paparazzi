@@ -140,7 +140,7 @@ static inline void main_periodic_task( void ) {
 
 static inline void main_event_task( void ) {
 
-  if (mag_state == INITIALIZED && mag_ready_for_read && i2c_trans.status==I2CTransSuccess) {
+  if (mag_state == INITIALIZED && mag_ready_for_read && (i2c_trans.status==I2CTransSuccess || i2c_trans.status == I2CTransFailed)) {
     /* read mag */
     i2c_trans.type = I2CTransRx;
     i2c_trans.slave_addr = HMC5843_ADDR;
