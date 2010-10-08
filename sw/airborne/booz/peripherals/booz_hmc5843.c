@@ -16,7 +16,8 @@ void hmc5843_init(void) {
 
 void hmc5843_periodic(void) {
   
-  if (hmc5843_i2c_trans.status != I2CTransSuccess) return;
+  if (hmc5843_i2c_trans.status == I2CTransPending) return;
+
   switch (hmc5843.status) {
   case HMC5843_UNINITIALIZED1:
     hmc5843_i2c_trans.buf[0] = HMC5843_REG_CFGA;  // set to rate to 50Hz
