@@ -3,7 +3,7 @@
 #include "i2c.h"
 
 struct Hmc5843 hmc5843;
-static struct i2c_transaction hmc5843_i2c_trans;
+struct i2c_transaction hmc5843_i2c_trans;
 
 void hmc5843_init(void) {
   hmc5843.status = HMC5843_UNINITIALIZED1;

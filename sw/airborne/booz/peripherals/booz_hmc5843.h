@@ -44,6 +44,7 @@ struct Hmc5843 {
 };
 
 extern struct Hmc5843 hmc5843;
+extern struct i2c_transaction hmc5843_i2c_trans;
 
 extern void hmc5843_init(void);
 extern void hmc5843_periodic(void);
@@ -70,7 +71,7 @@ extern void hmc5843_periodic(void);
 
 #define MagEvent(_m_handler) {						\
     if (hmc5843.status == HMC5843_READING && hmc5843_i2c_trans.status == I2CTransSuccess) {	\
-      memcpy(hmc5843.data.buf, (const void*)i2c2.buf, 6);		\
+      memcpy(hmc5843.data.buf, (const void*)hmc5843_i2c_trans.buf, 6);		\
       _m_handler();							\
       hmc5843.status = HMC5843_IDLE;					\
     }									\
