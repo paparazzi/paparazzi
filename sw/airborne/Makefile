@@ -32,10 +32,16 @@ INCLUDES = -I $(PAPARAZZI_SRC)/sw/include -I $(PAPARAZZI_SRC)/sw/airborne -I $(P
 #SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/$(ARCHDIR)
 
 ifneq ($(MAKECMDGOALS),clean)
-include $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/Makefile.ac
-$(TARGET).srcs += $($(TARGET).EXTRA_SRCS)
-include ../../conf/Makefile.local
-include ../../conf/Makefile.$($(TARGET).ARCHDIR)
+  include $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/Makefile.ac
+  $(TARGET).srcs += $($(TARGET).EXTRA_SRCS)
+  include ../../conf/Makefile.local
+
+# check if ARCHDIR is set
+  ifeq ($($(TARGET).ARCHDIR), )
+    $(error Architecture not set, maybe you forgot to add the target? e.g. <target name="tunnel" board="twog_1"/>)
+  else
+    include ../../conf/Makefile.$($(TARGET).ARCHDIR)
+  endif
 endif
 
 $(TARGET).install : warn_conf
