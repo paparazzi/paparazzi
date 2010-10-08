@@ -107,7 +107,6 @@
 #endif /* IMU_B2_VERSION_1_1 */
 
 #ifdef IMU_B2_VERSION_1_2
-/* FIXME mag still based on 1.1 */
 /* Default IMU b2 sensors connection */
 #if !defined IMU_GYRO_P_CHAN & !defined IMU_GYRO_Q_CHAN & !defined IMU_GYRO_R_CHAN
 #define IMU_GYRO_P_CHAN  1
@@ -136,8 +135,8 @@
 #define IMU_ACCEL_Z_SIGN  1
 #endif
 #if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
-#define IMU_MAG_X_SIGN    1
-#define IMU_MAG_Y_SIGN   -1
+#define IMU_MAG_X_SIGN   -1
+#define IMU_MAG_Y_SIGN    1
 #define IMU_MAG_Z_SIGN   -1
 #endif
 #endif /* IMU_B2_VERSION_1_2 */
