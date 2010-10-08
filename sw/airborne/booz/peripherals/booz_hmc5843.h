@@ -31,6 +31,7 @@ enum Hmc5843Status {
   HMC5843_UNINITIALIZED2,
   HMC5843_UNINITIALIZED3,
   HMC5843_IDLE,
+  HMC5843_DATA_AVAILABLE,
   HMC5843_READING
 };
 
@@ -72,9 +73,11 @@ extern void hmc5843_periodic(void);
 #define MagEvent(_m_handler) {						\
     if (hmc5843.status == HMC5843_READING && hmc5843_i2c_trans.status == I2CTransSuccess) {	\
       memcpy(hmc5843.data.buf, (const void*)hmc5843_i2c_trans.buf, 6);		\
+      hmc5843.status = HMC5843_DATA_AVAILABLE;					\
       _m_handler();							\
+    }	else if (hmc5843_i2c_trans.status != I2CTransPending) { \
       hmc5843.status = HMC5843_IDLE;					\
-    }									\
+    } \
   }
 
 #endif /* BOOZ_HMC5843_H */

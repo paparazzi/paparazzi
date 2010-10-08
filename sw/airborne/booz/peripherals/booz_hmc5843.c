@@ -12,7 +12,6 @@ void hmc5843_init(void) {
 	hmc5843_i2c_trans.status = I2CTransSuccess;
 	hmc5843_i2c_trans.slave_addr = HMC5843_ADDR;
 	hmc5843_i2c_trans.stop_after_transmit = TRUE;
-
 }
 
 void hmc5843_periodic(void) {
