@@ -5,8 +5,8 @@
 # the makefiles under conf/boards/ should be used now
 #
 
-ARCHI=arm7
-ARCH=arm7
+ARCHI=lpc21
+ARCH=lpc21
 
 ap.ARCHDIR = $(ARCHI)
 
