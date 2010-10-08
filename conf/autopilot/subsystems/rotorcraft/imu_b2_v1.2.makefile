@@ -1,5 +1,5 @@
 #
-# Booz2 IMU booz2v1.1
+# Booz2 IMU booz2v1.2
 #
 #
 # required xml:
@@ -39,7 +39,7 @@
 
 
 
-# imu Booz2 v1.1
+# imu Booz2 v1.2
 
 # add imu arch to include directories
 imu_CFLAGS += -I$(SRC_FIRMWARE)/imu/arch/$(ARCH)
