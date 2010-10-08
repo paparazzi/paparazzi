@@ -134,15 +134,15 @@ static inline void on_mag_event(void) {
   ImuScaleMag(imu);
   static uint8_t cnt;
   cnt++;
-  if (cnt > 1) cnt = 0;
+  if (cnt > 10) cnt = 0;
 
-  if (cnt%2) {
+  if (cnt == 0) {
     DOWNLINK_SEND_BOOZ2_MAG(DefaultChannel,
                 &imu.mag.x,
                 &imu.mag.y,
                 &imu.mag.z);
   }
-  else {
+  else if (cnt == 5) {
     DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
                   &imu.mag_unscaled.x,
                   &imu.mag_unscaled.y,
