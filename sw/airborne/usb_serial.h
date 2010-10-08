@@ -40,6 +40,7 @@ int  VCOM_getchar(void);
 bool_t VCOM_check_free_space(uint8_t len);
 int VCOM_check_available(void);
 void VCOM_set_linecoding(uint8_t mode);
+void VCOM_allow_linecoding(uint8_t mode);
 
 #define UsbSInit() VCOM_init()
 #define UsbSCheckFreeSpace(_x) VCOM_check_free_space(_x)

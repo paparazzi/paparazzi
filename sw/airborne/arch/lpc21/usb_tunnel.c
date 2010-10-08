@@ -44,7 +44,7 @@
 
 int main( void ) {    
   unsigned char inc;
-  unsigned int rx_time, tx_time;
+  unsigned int rx_time=0, tx_time=0;
   
   hw_init();
   sys_time_init();

@@ -118,7 +118,6 @@ static void BulkOut(U8 bEP, U8 bEPStatus);
 
 #ifdef USE_USB_LINE_CODING
 void set_linecoding(TLineCoding linecoding);
-void VCOM_allow_linecoding(uint8_t mode);
 #endif
 
 void fifo_init(fifo_t *fifo, U8 *buf);
