@@ -33,8 +33,10 @@
   </firmware>
 
   <firmware name="setup">
-    <target name="tunnel" 		board="twog_1" />
-    <target name="setup_actuators" 	board="twog_1" />
+    <target name="tunnel"           board="twog_1" />
+    <target name="usb_tunnel_0"     board="twog_1" />
+    <target name="usb_tunnel_1"     board="twog_1" />
+    <target name="setup_actuators"  board="twog_1" />
   </firmware>
 
   <servos>
