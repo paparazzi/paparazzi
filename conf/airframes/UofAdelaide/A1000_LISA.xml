@@ -2,6 +2,10 @@
 
 <airframe name="A1000 LISA">
 
+  <modules main_freq="512">
+    <load name="deploy_sonar_buoy.xml"/>
+  </modules>
+
   <servos>
     <servo name="FRONT"  no="3" min="1000" neutral="1500" max="2000"/>
     <servo name="BACK"   no="1" min="1000" neutral="1500" max="2000"/>
