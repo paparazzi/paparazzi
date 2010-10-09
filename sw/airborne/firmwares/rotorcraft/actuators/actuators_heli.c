@@ -34,8 +34,14 @@
 /* define the glue between control and SetActuatorsFromCommands */
 #define actuators actuators_pwm_values
 #define SERVOS_TICS_OF_USEC(_v) (_v)
-#define ESC_STOPPED SERVOS_TICS_OF_USEC(1000)
-#define ESC_HOVER   SERVOS_TICS_OF_USEC(1750)
+#define ESC_STOPPED SERVOS_TICS_OF_USEC(0)
+
+#ifndef KILL_MOTORS
+#define ESC_HOVER   SERVOS_TICS_OF_USEC(7500)
+#else
+#define ESC_HOVER   SERVOS_TICS_OF_USEC(0)
+#endif
+
 #define Actuator(_x)  actuators_pwm_values[_x]
 #define ChopServo(x,a,b) Chop(x, a, b)
 #define ActuatorsCommit  actuators_pwm_commit
