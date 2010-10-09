@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="deploy_sonar_buoy">
+  <header>
+    <file name="deploy_sonar_buoy.h"/>
+  </header>
+  <init fun="deploy_sonar_buoy_init()"/>
+  <periodic fun="deploy_sonar_buoy_periodic()" freq="10."/>
+  <makefile>
+    <file name="deploy_sonar_buoy.c"/>
+  </makefile>
+</module>
+
+
