@@ -161,6 +161,7 @@
     <target name="ap" board="lisa_l_1.0">
       <define name = "RADIO_CONTROL_MODE" value = "RADIO_CONTROL_AUX2"/>
       <define name = "RADIO_CONTROL_KILL_SWITCH" value = "RADIO_CONTROL_GEAR"/>
+      <define name = "HELI"/>
  <!-- if we want a secondary spektrum reciever we need to set the board to be 
       lisa_l_1.1 and rewired accordingly then set the following.    
       <define name = "RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value = "UART5"/>
