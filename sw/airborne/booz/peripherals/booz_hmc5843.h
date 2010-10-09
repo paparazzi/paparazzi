@@ -37,8 +37,9 @@ struct Hmc5843 {
   } data;
 	uint8_t initialized;
 	uint8_t reading;
-	uint8_t ready_for_read;
+	volatile uint8_t ready_for_read;
 	uint8_t data_available;
+	uint32_t timeout;
 };
 
 extern struct Hmc5843 hmc5843;

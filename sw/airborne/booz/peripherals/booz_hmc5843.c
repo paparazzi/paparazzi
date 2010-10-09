@@ -1,5 +1,7 @@
 #include "peripherals/booz_hmc5843.h"
 
+#define HMC5843_TIMEOUT 100
+
 #define bswap_16(x)   ((((x) & 0xFF00) >> 8) | (((x) & 0x00FF) << 8))
 
 struct Hmc5843 hmc5843;
@@ -51,6 +53,7 @@ void hmc5843_idle_task(void)
 	}
 
 	if (hmc5843.reading && hmc5843.i2c_trans.status == I2CTransSuccess) {
+		hmc5843.timeout = 0;
 		hmc5843.data_available = TRUE;
 		hmc5843.reading = FALSE;
 		memcpy(hmc5843.data.buf, (const void *) hmc5843.i2c_trans.buf, 6);
@@ -65,5 +68,8 @@ void hmc5843_periodic(void)
 	if (!hmc5843.initialized) {
 		send_config();
 		hmc5843.initialized = TRUE;
+	} else if (hmc5843.timeout++ > HMC5843_TIMEOUT) {
+		hmc5843_arch_reset();
+		hmc5843.timeout = 0;
 	}
 }

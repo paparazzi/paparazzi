@@ -27,8 +27,10 @@
 #include <stm32/spi.h>
 #include <stm32/exti.h>
 #include <stm32/misc.h>
+#include "i2c.h"
 
 void exti9_5_irq_handler(void);
+void hmc5843_arch_reset(void);
 
 void hmc5843_arch_init( void ) {
   /* configure external interrupt exti5 on PB5( mag int ) */
@@ -53,6 +55,11 @@ void hmc5843_arch_init( void ) {
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure); 
+}
+
+void hmc5843_arch_reset(void)
+{
+	i2c2_er_irq_handler();
 }
 
 void exti9_5_irq_handler(void) {
