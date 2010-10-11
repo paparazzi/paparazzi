@@ -136,6 +136,6 @@ let ugly2nice = fun file ->
 (** Write XML and translate elements with no children *)
 let to_file = fun xml filename ->
   let chout = new Netchannels.output_channel (open_out filename) in
-  Nethtml.write chout (children xml);
+  Nethtml.write ~dtd:[] chout (children xml);
   chout#close_out ();
   ugly2nice filename
