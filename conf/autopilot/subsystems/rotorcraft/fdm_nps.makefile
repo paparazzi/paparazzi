@@ -23,10 +23,19 @@ sim.ARCHDIR = $(ARCH)
 sim.CFLAGS  += -DSITL
 sim.CFLAGS  += `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
 sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
-sim.CFLAGS  += -I$(NPSDIR) -I/usr/local/include -I$(JSBSIM_INC)
-sim.LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
+sim.CFLAGS  += -I$(NPSDIR) -I$(SRC_FIRMWARE) -I$(SRC_BOOZ) -I$(SRC_BOOZ_SIM) -I$(SRC_BOARD) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
 
-sim.CFLAGS  += -I$(SRC_FIRMWARE) -I$(SRC_BOOZ) -I$(SRC_BOOZ_SIM) -I$(SRC_BOARD) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
+# use the paparazzi-jsbsim package if it is installed, otherwise look for JSBsim under /opt/jsbsim
+JSBSIM_PKG = $(shell pkg-config JSBSim --exists && echo 'yes')
+ifeq ($(JSBSIM_PKG), yes)
+	sim.CFLAGS  += `pkg-config JSBSim --cflags`
+	sim.LDFLAGS += `pkg-config JSBSim --libs`
+else
+	JSBSIM_PKG = no
+	sim.CFLAGS  += -I/usr/local/include -I$(JSBSIM_INC)
+	sim.LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
+endif
+
 
 sim.srcs = $(NPSDIR)/nps_main.c                      \
        $(NPSDIR)/nps_fdm_jsbsim.c                \

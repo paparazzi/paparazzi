@@ -82,8 +82,19 @@ $(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
 $(TARGET).objso	= $($(TARGET).srcs:%.c=$(OBJDIR)/%.o)
 $(TARGET).objs	= $($(TARGET).objso:%.S=$(OBJDIR)/%.o)
 
+ifeq ($(SIM_TYPE),JSBSIM)
+all compile: check_jsbsim $(OBJDIR)/simsitl
+else
 all compile: $(OBJDIR)/simsitl
+endif
 
+check_jsbsim:
+	@echo Paparazzi jsbsim package found: $(JSBSIM_PKG)
+#	@if `pkg-config JSBSim --exists`; then       \
+#		echo "Using paparazzi JSBSim package.";     \
+#	else	\
+#		echo "Looking for JSBSim under /opt/jsbsim/"; \
+#	fi
 
 
 ifeq ($(SIM_TYPE),BOOZ)
