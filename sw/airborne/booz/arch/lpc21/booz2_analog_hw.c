@@ -131,10 +131,10 @@ void ADC1_ISR ( void ) {
 #include "LPC21xx.h"
 #include "sys_time.h"
 
-uint16_t booz2_adc_1; 
-uint16_t booz2_adc_2; 
-uint16_t booz2_adc_3; 
-uint16_t booz2_adc_4; 
+uint16_t booz2_adc_1;
+uint16_t booz2_adc_2;
+uint16_t booz2_adc_3;
+uint16_t booz2_adc_4;
 
 void booz2_analog_init_hw( void ) {
 
@@ -184,10 +184,10 @@ void booz2_analog_init_hw( void ) {
   AD1CR |= 1 << 0;
 #endif
 
-  booz2_adc_1 = 0; 
-  booz2_adc_2 = 0; 
-  booz2_adc_3 = 0; 
-  booz2_adc_4 = 0; 
+  booz2_adc_1 = 0;
+  booz2_adc_2 = 0;
+  booz2_adc_3 = 0;
+  booz2_adc_4 = 0;
 }
 
 void booz2_analog_baro_read(void) {
@@ -226,5 +226,4 @@ void booz2_analog_extra_adc_read(void) {
 #endif
 }
 
-#endif
-
+#endif // USE_EXTRA_ADC
