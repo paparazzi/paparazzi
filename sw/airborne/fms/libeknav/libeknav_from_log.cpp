@@ -1,37 +1,40 @@
 
-#include "test_libeknav_4.hpp"
+#include "libeknav_from_log.hpp"
 
-#include <stdlib.h>
 
-struct timespec start, prev;
 FILE* ins_logfile;		// note: initilaized in init_ins_state
-unsigned int counter;
 
-#if RUN_FILTER
 //useless initialization (I hate C++)
 static basic_ins_qkf ins = basic_ins_qkf(Vector3d::Zero(), 0, 0, 0,
 					 Vector3d::Zero(), Vector3d::Zero(), Vector3d::Zero());
 
 // import most common Eigen types 
-#endif
 USING_PART_OF_NAMESPACE_EIGEN
 
-int main(int, char *[]) {
-	counter = 0;
+int main(int, char *argv[]) {
 
   std::cout << "test libeknav 3" << std::endl;
-  clock_gettime(TIMER, &start);
   main_init();
-  /* add dev/null as event source so that libevent doesn't die */
-  main_trick_libevent();
   
   
-  TRACE(TRACE_DEBUG, "%s", "Entering mainloop\n");
+  int raw_log_fd = open(argv[1], O_RDONLY); 
   
-  /* Enter our mainloop */
-  event_dispatch();
+  if (raw_log_fd == -1) {
+    perror("opening log\n");
+    return -1;
+  }
   
-  TRACE(TRACE_DEBUG, "%s", "leaving mainloop... goodbye!\n");
+  while (1) {
+    struct raw_log_entry e;
+    ssize_t nb_read = read(raw_log_fd, &e, sizeof(e));
+    if (nb_read != sizeof(e)) break;
+    
+    COPY_RATES_ACCEL_TO_IMU_FLOAT(e);
+    COPY_MAG_TO_IMU_FLOAT(e);
+    COPY_GPS_TO_IMU(e);
+    main_run_ins(e.data_valid);
+    print_estimator_state(e.time);
+  }
   
   return 0;
 
@@ -39,105 +42,23 @@ int main(int, char *[]) {
 
 
 static void main_init(void) {
-	
-	#if RUN_FILTER
-		printf("FILTER output will be in ");
-		#if FILTER_OUTPUT_IN_NED
-			printf("NED\n");
-		#else
-			printf("ECEF\n");
-		#endif
+	printf("FILTER output will be in ");
+	#if FILTER_OUTPUT_IN_NED
+		printf("NED\n");
 	#else
-		printf("Filter wont run\n");
+		printf("ECEF\n");
 	#endif
 	
 	#if UPDATE_WITH_GRAVITY
 	printf("the orientation becomes UPDATED with the GRAVITY\n");
   #endif
 
-  TRACE(TRACE_DEBUG, "%s", "Starting initialization\n");
-
-  /* Initalize our SPI link to IO processor */
-  if (spi_link_init()) {
-    TRACE(TRACE_ERROR, "%s", "failed to open SPI link \n");
-    return;
-  }
-  
-  /* Initalize the event library */
-  event_init();
-  
-  /* Initalize our ô so accurate periodic timer */
-  if (fms_periodic_init(main_periodic)) {
-    TRACE(TRACE_ERROR, "%s", "failed to start periodic generator\n");
-    return; 
-  }
-  #if RUN_FILTER
   init_ins_state();
   set_reference_direction();
-  #endif 
-   
-  main_rawlog_init(IMU_LOG_FILE);
 
 }
 
-
-static void main_periodic(int my_sig_num __attribute__ ((unused))) {
-	
-	counter++;
-	if(counter%128 == 0){
-		printf("%6.2f s\t", (double)counter/512);
-		if(counter%512 == 0){
-			printf("\n");
-		}
-	}
-
-  uint8_t data_valid = main_dialog_with_io_proc();
-  #if RUN_FILTER
-  main_run_ins(data_valid);
-  #endif
-  main_rawlog_dump(data_valid);
-
-}
-
-
-static uint8_t main_dialog_with_io_proc() {
-	
-	DEFINE_AutopilotMessageCRCFrame_IN_and_OUT(message);
-  uint8_t crc_valid;
-  
-  //  for (uint8_t i=0; i<6; i++) msg_out.payload.msg_down.pwm_outputs_usecs[i] = otp.servos_outputs_usecs[i];
-  
-  spi_link_send(&message_out, sizeof(struct AutopilotMessageCRCFrame), &message_in, &crc_valid);
-  
-  struct AutopilotMessageVIUp *in = &message_in.payload.msg_up; 
-
-  if(IMU_READY(in->valid_sensors)){
-		COPY_RATES_ACCEL_TO_IMU_FLOAT(in);
-  }
-  
-  if(MAG_READY(in->valid_sensors)){
-		COPY_MAG_TO_IMU_FLOAT(in);
-    #if PRINT_MAG
-    printmag();
-    #endif
-  }
-  
-  if(GPS_READY(in->valid_sensors)){
-		COPY_GPS_TO_IMU(in);
-    #if PRINT_GPS
-    printgps();
-    #endif
-  }
-  
-  return in->valid_sensors;
-
-}
-
-#if RUN_FILTER
 static void main_run_ins(uint8_t data_valid) {
-
-  struct timespec now;
-  clock_gettime(TIMER, &now);
   
   double dt_imu_freq = 0.001953125; //  1/512; // doesn't work?
   ins.predict(RATES_AS_VECTOR3D(imu_float.gyro), VECT3_AS_VECTOR3D(imu_float.accel), dt_imu_freq);
@@ -157,34 +78,11 @@ static void main_run_ins(uint8_t data_valid) {
 		ins.obs_gps_pv_report(VECT3_AS_VECTOR3D(imu_ecef_pos)/100, VECT3_AS_VECTOR3D(imu_ecef_vel)/100, gps_pos_noise, gps_speed_noise);
 	}
   
-  print_estimator_state(absTime(time_diff(now, start)));
-  
-}
-#endif
-
-
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-static void main_trick_libevent(void) {
-
-  int fd = open("/dev/ttyS0", O_RDONLY);
-  if (fd == -1) {
-    TRACE(TRACE_ERROR, "%s", "failed to open /dev/null \n");
-    return;
-  }
-  event_set(&foo_event, fd, EV_READ | EV_PERSIST, on_foo_event, NULL);
-  event_add(&foo_event, NULL);
-
 }
 
-static void on_foo_event(int fd __attribute__((unused)), short event __attribute__((unused)), void *arg __attribute__((unused))) {
 
-}
 
-#if RUN_FILTER
+
 static void init_ins_state(void){
 	
 	ins_logfile = fopen(INS_LOG_FILE, "w");
@@ -238,62 +136,11 @@ static void set_reference_direction(void){
 	std::cout <<"reference direction NED : " << VECT3_AS_VECTOR3D(ref_dir_ned).transpose() << std::endl;
 	std::cout <<"reference direction ECEF: " << reference_direction.transpose() << std::endl;
 }
-#endif
 
 
 /* 		helpstuff	 	*/
-/** tiny little functions **/
-void printmag(void){
-	printf("MAG: %f %f %f\n", imu_float.mag.x, imu_float.mag.y, imu_float.mag.z);
-}
-
-void printgps(void){
-	printf("GPS: %d %d %d\n", imu_ecef_pos.x, imu_ecef_pos.y, imu_ecef_pos.z);
-}
-
-
-/** time measurement **/
-
-double absTime(struct timespec T){
-	return (double)(T.tv_sec + T.tv_nsec*1e-9);
-}
-
-struct timespec time_diff(struct timespec end, struct timespec start){
-	double difference = absTime(end)-absTime(start);
-	struct timespec dT;
-	dT.tv_sec = (int)difference;
-	dT.tv_nsec = (difference-dT.tv_sec)*1000000000;
-	return dT;
-}
-
 /** Logging **/
 
-static void main_rawlog_init(const char* filename) {
-  
-  raw_log_fd = open(filename, O_WRONLY|O_CREAT, 00644);
-  if (raw_log_fd == -1) {
-    TRACE(TRACE_ERROR, "failed to open rawlog outfile (%s)\n", filename);
-    return;
-  }
-}
-
-static void main_rawlog_dump(uint8_t data_valid) {
-  struct timespec now;
-  clock_gettime(TIMER, &now);
-  struct raw_log_entry e;
-  
-  e.time = absTime(time_diff(now, start));
-  RATES_COPY(e.gyro, imu_float.gyro);
-  VECT3_COPY(e.accel, imu_float.accel);
-  VECT3_COPY(e.mag, imu_float.mag);
-  VECT3_COPY(e.ecef_pos, imu_ecef_pos);
-  VECT3_COPY(e.ecef_vel, imu_ecef_vel);
-  e.data_valid = data_valid;
-  write(raw_log_fd, &e, sizeof(e));
-
-}
-
-#if RUN_FILTER
 static void print_estimator_state(double time) {
 
 #if FILTER_OUTPUT_IN_NED
@@ -386,4 +233,3 @@ static void print_estimator_state(double time) {
   fprintf(ins_logfile, "%f %d BOOZ_SIM_GYRO_BIAS %f %f %f\n", time, AC_ID, ins.avg_state.gyro_bias(0), ins.avg_state.gyro_bias(1), ins.avg_state.gyro_bias(2));
 #endif
 }
-#endif

@@ -1,48 +1,49 @@
-#include <iostream>
-#include <iomanip>
+//#include <iostream>
+//#include <iomanip>
 
 #include <Eigen/Core>
 
 #include "ins_qkf.hpp"
 #include "paparazzi_eigen_conversion.h"
 #include <stdint.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include <event.h>
-extern "C" {
+
+
+#include "math/pprz_algebra_float.h"
+#include "math/pprz_algebra_double.h"
+#include "math/pprz_geodetic.h"
+#include "math/pprz_geodetic_int.c"
+#include "math/pprz_geodetic_float.c"
+#include "math/pprz_geodetic_double.c"
+#include <math.h>
+
 #include <unistd.h>
 #include <time.h>
 #include "std.h"
-#include "fms/fms_debug.h"
-#include "fms/fms_periodic.h"
-#include "fms/fms_spi_link.h"
-#include "fms/fms_autopilot_msg.h"
 #include "firmwares/rotorcraft/imu.h"
+#include "fms/fms_autopilot_msg.h"
 #include "fms/libeknav/raw_log.h"
   /* our sensors            */
   struct ImuFloat imu_float;
   struct EcefCoor_i imu_ecef_pos,
 										imu_ecef_vel;
-  /* raw log */
-  static int raw_log_fd;
-}
 
-#include "math/pprz_algebra_float.h"
-#include "math/pprz_algebra_double.h"
-#include "math/pprz_geodetic.h"
-#include "math/pprz_geodetic_float.c"
-#include "math/pprz_geodetic_double.c"
-#include <math.h>
+
 
 
 /* constants */
 /** Compilation-control **/
-#define RUN_FILTER 0
 #define UPDATE_WITH_GRAVITY 1
 #define SYNTHETIC_MAG_MODE 0
 #define FILTER_OUTPUT_IN_NED 1
 
 #define PRINT_MAG 0
-#define PRINT_GPS 0
+#define PRINT_GPS 1
 #define PRINT_EULER_NED 0
 
 /** geodetic **/
@@ -73,9 +74,8 @@ extern "C" {
 #define EARTHS_GEOMAGNETIC_FIELD_NORMED(ref) VECT3_ASSIGN(ref, 0.51562740288882, -0.05707735220832, 0.85490967783446)
 #endif
 Vector3d reference_direction;
-#if RUN_FILTER
+
 static void set_reference_direction(void);
-#endif
 
 /** other **/
 #define GRAVITY 9.81
@@ -89,9 +89,7 @@ struct LlaCoor_f pos_0_lla;
 Vector3d pos_0_ecef;
 Vector3d speed_0_ecef = Vector3d::Zero();
 Vector3d bias_0(0., 0., 0.);
-#if RUN_FILTER
 static void init_ins_state(void);
-#endif
 
 /** initial covariance **/
 const double pos_cov_0 =  1e4;
@@ -110,55 +108,29 @@ const Vector3d gps_pos_noise        = Vector3d::Ones() *10  *10  ;
 const Vector3d gps_speed_noise      = Vector3d::Ones() * 0.1* 0.1;
 
 
-/* STM32 Communication */
-static void main_periodic(int my_sig_num);
-static void main_trick_libevent(void);
-static void on_foo_event(int fd, short event __attribute__((unused)), void *arg);
-static struct event foo_event;
-static uint8_t main_dialog_with_io_proc(void);
-
-
 /* libeknav */
-#if RUN_FILTER
 static void main_run_ins(uint8_t);
-#endif
 
 
 /* Logging */
-#define IMU_LOG_FILE "/tmp/log_test3.bin"
-static void main_rawlog_init(const char* filename);
-static void main_rawlog_dump(uint8_t);
-
-#if RUN_FILTER
 static void print_estimator_state(double);
-#define INS_LOG_FILE "/tmp/log_ins_test3.data"
-#endif
+#define INS_LOG_FILE "log_ins_test3.data"
 
-
-/* time measurement */
-#define TIMER CLOCK_MONOTONIC 
-double absTime(struct timespec);
-struct timespec time_diff(struct timespec, struct timespec);
 
 
 /* Other */
-	/** tiny little functions **/
-#define DEFINE_AutopilotMessageCRCFrame_IN_and_OUT(name)	\
-	struct AutopilotMessageCRCFrame name##_in;							\
-  struct AutopilotMessageCRCFrame name##_out
-void printmag(void);
-void printgps(void);
 
 	/** Sensors **/
 #define COPY_RATES_ACCEL_TO_IMU_FLOAT(pointer){						\
-  RATES_FLOAT_OF_BFP(imu_float.gyro, pointer->gyro);			\
-  ACCELS_FLOAT_OF_BFP(imu_float.accel, pointer->accel); 	\
+  RATES_FLOAT_OF_BFP(imu_float.gyro, pointer.gyro);			\
+  ACCELS_FLOAT_OF_BFP(imu_float.accel, pointer.accel); 	\
 }
-#define COPY_MAG_TO_IMU_FLOAT(pointer) MAGS_FLOAT_OF_BFP(imu_float.mag, pointer->mag)
+#define COPY_MAG_TO_IMU_FLOAT(pointer) MAGS_FLOAT_OF_BFP(imu_float.mag, pointer.mag)
 #define COPY_GPS_TO_IMU(pointer){													\
-  VECT3_COPY(imu_ecef_pos, pointer->ecef_pos);						\
-  VECT3_COPY(imu_ecef_vel, pointer->ecef_vel);						\
+  VECT3_COPY(imu_ecef_pos, pointer.ecef_pos);						\
+  VECT3_COPY(imu_ecef_vel, pointer.ecef_vel);						\
 }
+
 
 #define IMU_READY(data_valid) (data_valid & (1<<VI_IMU_DATA_VALID))
 #define GPS_READY(data_valid) (data_valid & (1<<VI_GPS_DATA_VALID))
@@ -166,7 +138,7 @@ void printgps(void);
 
 #define CLOSE_TO_GRAVITY(accel) (ABS(FLOAT_VECT3_NORM(accel)-GRAVITY)<MAX_DISTANCE_FROM_GRAVITY_FOR_UPDATE)
 
-	/** Converions	**/
+	/** Conversions	**/
 	/* copied and modified form pprz_geodetic */
 #define NED_TO_ECEF_MAT(lla, mat) {			\
 	const double sin_lat = sin(lla.lat);	\

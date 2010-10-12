@@ -59,6 +59,16 @@
     test4.CXXFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageVIUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageVIDown
     test4.srcs     += fms/fms_spi_link.c
 
+    # libeknav_from_log: first, this here
+    filter.ARCHDIR = omap
+    filter.CXXFLAGS += $(LIB_EIGEN_CFLAGS)
+    filter.CXXFLAGS += $(PAPARAZZI_INC)
+    filter.cpp_srcs  = fms/libeknav/libeknav_from_log.cpp
+    filter.CXXFLAGS += $(LIBEKNAV_CFLAGS)
+    filter.cpp_srcs += $(LIBEKNAV_SRCS)
+    filter.LDFLAGS  += -levent -lm
+    filter.CXXFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageVIUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageVIDown
+
     # test network based telemetry on overo (using udp_transport2/messages2)
     overo_test_telemetry2.ARCHDIR  = omap
     overo_test_telemetry2.CFLAGS  += $(PAPARAZZI_INC)

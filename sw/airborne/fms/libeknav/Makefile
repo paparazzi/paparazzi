@@ -8,5 +8,8 @@ fetch_log:
 		./raw_log_to_ascii > bla.dat
 		scp @auto1:/tmp/log_ins_test3.data .
 
+fetch_raw_data:
+		scp @auto1:/home/root/log_ins_test3.data .
+
 clean:
 	-rm -f *.o *~ *.d
