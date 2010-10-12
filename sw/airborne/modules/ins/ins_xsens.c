@@ -191,7 +191,14 @@ void handle_ins_msg( void) {
   EstimatorSetRate(ins_p,ins_q);
   if (gps_mode != 0x03)
     gps_gspeed = 0;
-  EstimatorSetSpeedPol(gps_gspeed, ins_psi, ins_vz);
+
+  //gps_course = ins_psi * 1800 / M_PI;
+  gps_course = (DegOfRad(atan2f((float)ins_vx, (float)ins_vy))*10.0f);
+  gps_climb = (int16_t)(-ins_vz * 100);
+  gps_gspeed = (uint16_t)(sqrt(ins_vx*ins_vx + ins_vy*ins_vy) * 100);
+
+  EstimatorSetAtt(ins_phi, RadOfDeg(((float)gps_course) / 10.0), ins_theta);
+  // EstimatorSetSpeedPol(gps_gspeed, gps_course, ins_vz);
   // EstimatorSetAlt(ins_z);
   estimator_update_state_gps();
   reset_gps_watchdog();
@@ -233,7 +240,7 @@ void parse_ins_msg( void ) {
         offset += XSENS_DATA_RAWInertial_LENGTH;
       }
       if (XSENS_MASK_RAWGPS(xsens_output_mode)) {
-#ifdef USE_GPS_XSENS
+#if defined(USE_GPS_XSENS_RAW_DATA) && defined(USE_GPS_XSENS)
         gps_week = 0; // FIXME
         gps_itow = XSENS_DATA_RAWGPS_itow(xsens_msg_buf,offset) * 10;
         gps_lat = XSENS_DATA_RAWGPS_lat(xsens_msg_buf,offset);
@@ -298,18 +305,12 @@ void parse_ins_msg( void ) {
           ins_phi   = atan2(dcm12, dcm22);
           ins_theta = -asin(dcm02);
           ins_psi   = atan2(dcm01, dcm00);
-#ifdef USE_GPS_XSENS
-          gps_course = ins_psi * 1800 / M_PI;
-#endif
           offset += XSENS_DATA_Quaternion_LENGTH;
         }
         if (XSENS_MASK_OrientationMode(xsens_output_settings) == 0x01) {
           ins_phi   = XSENS_DATA_Euler_roll(xsens_msg_buf,offset) * M_PI / 180;
           ins_theta = XSENS_DATA_Euler_pitch(xsens_msg_buf,offset) * M_PI / 180;
           ins_psi   = XSENS_DATA_Euler_yaw(xsens_msg_buf,offset) * M_PI / 180;
-#ifdef USE_GPS_XSENS
-          gps_course = (int16_t)(XSENS_DATA_Euler_yaw(xsens_msg_buf,offset) * 10);
-#endif
           offset += XSENS_DATA_Euler_LENGTH;
         }
         if (XSENS_MASK_OrientationMode(xsens_output_settings) == 0x10) {
@@ -327,8 +328,7 @@ void parse_ins_msg( void ) {
         offset += l * XSENS_DATA_Auxiliary_LENGTH / 2;
       }
       if (XSENS_MASK_Position(xsens_output_mode)) {
-#ifdef USE_GPS_XSENS_RAW_DATA
-#ifdef USE_GPS_XSENS
+#if (!defined(USE_GPS_XSENS_RAW_DATA)) && defined(USE_GPS_XSENS)
         float lat = XSENS_DATA_Position_lat(xsens_msg_buf,offset);
         float lon = XSENS_DATA_Position_lon(xsens_msg_buf,offset);
         gps_lat = (int32_t)(lat * 1e7);
@@ -340,22 +340,15 @@ void parse_ins_msg( void ) {
         gps_utm_east  = ins_x * 100;
         gps_utm_north = ins_y * 100;
         ins_z = XSENS_DATA_Position_alt(xsens_msg_buf,offset);
-#ifndef USE_VFILTER
         gps_alt = ins_z * 100;
-#endif
-#endif
 #endif
         offset += XSENS_DATA_Position_LENGTH;
       }
       if (XSENS_MASK_Velocity(xsens_output_mode)) {
-#ifdef USE_GPS_XSENS
+#if (!defined(USE_GPS_XSENS_RAW_DATA)) && defined(USE_GPS_XSENS)
         ins_vx = XSENS_DATA_Velocity_vx(xsens_msg_buf,offset);
         ins_vy = XSENS_DATA_Velocity_vy(xsens_msg_buf,offset);
         ins_vz = XSENS_DATA_Velocity_vz(xsens_msg_buf,offset);
-#ifndef USE_VFILTER
-        gps_climb = (int16_t)(-ins_vz * 100);
-#endif
-        gps_gspeed = (uint16_t)(sqrt(ins_vx*ins_vx + ins_vy*ins_vy) * 100);
 #endif
         offset += XSENS_DATA_Velocity_LENGTH;
       }
