@@ -11,5 +11,16 @@ fetch_log:
 fetch_raw_data:
 		scp @auto1:/home/root/log_ins_test3.data .
 
+LIBEKNAV_SRCS = basic_ins_qkf.cpp           \
+                ins_qkf_predict.cpp         \
+                ins_qkf_observe_vector.cpp  \
+                ins_qkf_observe_gps_pvt.cpp \
+                ins_qkf_observe_gps_p.cpp
+
+
+
+run_filter_on_log: ./libeknav_from_log.cpp $(LIBEKNAV_SRCS) ../../math/pprz_geodetic_double.c ../../math/pprz_geodetic_float.c
+	g++ -I/usr/include/eigen2 -I../.. -I../../../include -I../../../../var/FY  -DOVERO_LINK_MSG_UP=AutopilotMessageVIUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageVIDown -o $@ $^
+
 clean:
 	-rm -f *.o *~ *.d
