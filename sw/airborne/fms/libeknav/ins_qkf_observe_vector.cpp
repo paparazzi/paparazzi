@@ -148,11 +148,11 @@ basic_ins_qkf::obs_vector(const Vector3d& ref, const Vector3d& obs, double error
 			(abs(ref.dot(obs_ref)) < 0.9994) ? obs_ref :
 				(abs(ref.dot(Vector3d::UnitX())) < 0.707)
 				? Vector3d::UnitX() : Vector3d::UnitY()).normalized();
+  
 	h_trans.col(1) = -ref.cross(h_trans.col(0));
 	assert(!hasNaN(h_trans));
 	assert(h_trans.isUnitary());
 	Vector2d innovation = h_trans.transpose() * v_residual;
-
 #ifdef RANK_ONE_UPDATES
 	// Running a rank-one update here is a strict win.
 	Matrix<double, 12, 1> update = Matrix<double, 12, 1>::Zero();

@@ -113,11 +113,7 @@ static uint8_t main_dialog_with_io_proc() {
   }
   
   if(MAG_READY(in->valid_sensors)){
-		#if SYNTHETIC_MAG_MODE
-		EARTHS_GEOMAGNETIC_FIELD_NORMED(imu_float.mag);
-		#else
 		COPY_MAG_TO_IMU_FLOAT(in);
-		#endif
     #if PRINT_MAG
     printmag();
     #endif
@@ -141,28 +137,15 @@ static void main_run_ins(uint8_t data_valid) {
   clock_gettime(TIMER, &now);
   
   double dt_imu_freq = 0.001953125; //  1/512; // doesn't work?
-  #if SYNTHETIC_MAG_MODE
-  ins.predict(Vector3d::Zero(), Vector3d(0,0,-GRAVITY), dt_imu_freq);
-  #else
   ins.predict(RATES_AS_VECTOR3D(imu_float.gyro), VECT3_AS_VECTOR3D(imu_float.accel), dt_imu_freq);
-  #endif
   
   if(MAG_READY(data_valid)){
-		#if SYNTHETIC_MAG_MODE
-		DoubleVect3 ref_dir_ned;
-		EARTHS_GEOMAGNETIC_FIELD_NORMED(ref_dir_ned);
-		std::cout << "MAG-UPDATE\t";
-		ins.obs_vector(reference_direction, VECT3_AS_VECTOR3D(ref_dir_ned), mag_noise);
-		//ins.obs_vector(reference_direction, reference_direction, mag_noise);
-		#else
 		ins.obs_vector(reference_direction, VECT3_AS_VECTOR3D(imu_float.mag), mag_noise);
-		#endif
 	}
   
   #if UPDATE_WITH_GRAVITY
   if(CLOSE_TO_GRAVITY(imu_float.accel)){
 		// use the gravity as reference
-		std::cout << "GRAV-UPDATE\t";
 		ins.obs_vector(ins.avg_state.position.normalized(), VECT3_AS_VECTOR3D(imu_float.accel), 1.0392e-3);
 	}
   #endif
@@ -196,7 +179,7 @@ static void main_trick_libevent(void) {
 
 static void on_foo_event(int fd __attribute__((unused)), short event __attribute__((unused)), void *arg __attribute__((unused))) {
 
-} 
+}
 
 #if RUN_FILTER
 static void init_ins_state(void){
@@ -205,11 +188,6 @@ static void init_ins_state(void){
 	
 	LLA_ASSIGN(pos_0_lla, TOULOUSE_LATTITUDE, TOULOUSE_LONGITUDE, TOULOUSE_HEIGHT)
 	PPRZ_LLA_TO_EIGEN_ECEF(pos_0_lla, pos_0_ecef);
-	
-	#if SYNTHETIC_MAG_MODE
-	//pos_0_ecef = Vector3d(4627511.37,119627.69,4373302.43);			// measured at ??
-	pos_0_ecef = Vector3d(4625562,115469,4375209);			
-	#endif
 	
 	printf("Starting position\t%f\t%f\t%f\n", pos_0_ecef(0), pos_0_ecef(1), pos_0_ecef(2));
 	
@@ -239,12 +217,20 @@ static void set_reference_direction(void){
 	ltp_def_from_ecef_d(&current_ltp, &pos_0_ecef_pprz);
 	ecef_of_ned_vect_d(&ref_dir_ecef, &current_ltp, &ref_dir_ned);
 	
+	//		THIS SOMEWHERE ELSE!
+	DoubleQuat initial_orientation;
+	FLOAT_QUAT_ZERO(initial_orientation);
+	ENU_NED_transformation(current_ltp.ltp_of_ecef);
+	DOUBLE_QUAT_OF_RMAT(initial_orientation, current_ltp.ltp_of_ecef);
+	ins.avg_state.orientation = DOUBLEQUAT_AS_QUATERNIOND(initial_orientation);
+	//		THIS SOMEWHERE ELSE! (END)
+	
 	// old transformation:
 	//struct DoubleRMat ned2ecef;
 	//NED_TO_ECEF_MAT(pos_0_lla, ned2ecef.m);
 	//RMAT_VECT3_MUL(ref_dir_ecef, ned2ecef, ref_dir_ned);
 	
-	reference_direction = VECT3_AS_VECTOR3D(ref_dir_ecef);
+	reference_direction = VECT3_AS_VECTOR3D(ref_dir_ecef).normalized();
 	//reference_direction = Vector3d(1, 0, 0);
 	std::cout <<"reference direction NED : " << VECT3_AS_VECTOR3D(ref_dir_ned).transpose() << std::endl;
 	std::cout <<"reference direction ECEF: " << reference_direction.transpose() << std::endl;

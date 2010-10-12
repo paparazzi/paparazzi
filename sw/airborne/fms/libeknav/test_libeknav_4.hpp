@@ -38,7 +38,7 @@ extern "C" {
 /** Compilation-control **/
 #define RUN_FILTER 1
 #define UPDATE_WITH_GRAVITY 1
-#define SYNTHETIC_MAG_MODE 1
+#define SYNTHETIC_MAG_MODE 0
 #define FILTER_OUTPUT_IN_NED 1
 
 #define PRINT_MAG 0
