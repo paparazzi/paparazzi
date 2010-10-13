@@ -241,7 +241,9 @@
     <subsystem name="imu"           type="b2_v1.0"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="cmpl"/>
-    <subsystem name="ins"           type="hff"/>
+    <subsystem name="ins"           type="hff">
+      <define name="GPS_LAG=0.2"/>
+    </subsystem>
   </firmware>
 
   <firmware name="booz_test_progs">
