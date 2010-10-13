@@ -23,7 +23,7 @@ static void jsbsimvec_to_vec(DoubleVect3* fdm_vector, const FGColumnVector3* jsb
 static void jsbsimloc_to_loc(EcefCoor_d* fdm_location, const FGLocation* jsb_location);
 static void jsbsimquat_to_quat(DoubleQuat* fdm_quat, const FGQuaternion* jsb_quat);
 static void jsbsimvec_to_rate(DoubleRates* fdm_rate, const FGColumnVector3* jsb_vector);
-//static void jsbsimloc_to_lla(LlaCoor_d* fdm_lla, FGLocation* jsb_location);
+static void jsbsimloc_to_lla(LlaCoor_d* fdm_lla, FGPropagate* propagate);
 //static void rate_to_vec(DoubleVect3* vector, DoubleRates* rate);
 static void test123(LlaCoor_d* fdm_lla, FGPropagate* propagate);
 
@@ -115,8 +115,8 @@ static void fetch_state(void) {
   ned_of_ecef_vect_d(&fdm.ltpprz_ecef_accel, &ltpdef, &fdm.ecef_ecef_accel);
 
   /* lla */
-  //jsbsimloc_to_lla(&fdm.lla_pos, &VState->vLocation);
-  test123(&fdm.lla_pos, propagate);
+  jsbsimloc_to_lla(&fdm.lla_pos, propagate);
+  //test123(&fdm.lla_pos, propagate);
 
 
   /*
@@ -249,12 +249,16 @@ static void rate_to_vec(DoubleVect3* vector, DoubleRates* rate) {
   vector->z = rate->r;
 
 }
-
-void jsbsimloc_to_lla(LlaCoor_d* fdm_lla, FGLocation* jsb_location) {
-
-  fdm_lla->lat = jsb_location->GetGeodLatitudeRad();
-  fdm_lla->lon = jsb_location->GetLongitude();
-  fdm_lla->alt = MetersOfFeet(jsb_location->GetGeodeticAltitude());
-  //  printf("%f\n", jsb_location->GetGeodAltitude());
-}
 #endif
+
+void jsbsimloc_to_lla(LlaCoor_d* fdm_lla, FGPropagate* propagate) {
+
+  fdm_lla->lat = propagate->GetGeodLatitudeRad();
+  fdm_lla->lon = propagate->GetLongitude();
+  fdm_lla->alt = MetersOfFeet(propagate->GetDistanceAGL());
+  //printf("geodetic alt: %f\n", MetersOfFeet(propagate->GetGeodeticAltitude()));
+  //printf("ground alt: %f\n", MetersOfFeet(propagate->GetDistanceAGL()));
+  //printf("ASL alt: %f\n", MetersOfFeet(propagate->GetAltitudeASLmeters()));
+
+}
+
