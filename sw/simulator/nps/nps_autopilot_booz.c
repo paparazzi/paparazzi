@@ -1,11 +1,12 @@
 #include "nps_autopilot_booz.h"
 
-#include "firmwares/rotorcraft/main.h"
+#include <firmwares/rotorcraft/main.h>
 #include "nps_sensors.h"
 #include "nps_radio_control.h"
 #include "booz_radio_control.h"
 #include <firmwares/rotorcraft/imu.h>
-#include "firmwares/rotorcraft/baro.h"
+#include <firmwares/rotorcraft/baro.h>
+#include <firmwares/rotorcraft/battery.h>
 
 #include "actuators/supervision.h"
 
@@ -21,6 +22,12 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
   //  nps_bypass_ahrs = FALSE;
 
   main_init();
+
+#ifdef MAX_BAT_LEVEL
+  battery_voltage = MAX_BAT_LEVEL * 10;
+#else
+  battery_voltage = 111
+#endif
 
 }
 
