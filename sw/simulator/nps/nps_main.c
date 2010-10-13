@@ -39,13 +39,13 @@ static gboolean nps_main_periodic(gpointer data __attribute__ ((unused)));
 int pauseSignal = 0;
 
 void tstp_hdl(int n __attribute__ ((unused))) {
-	if (pauseSignal) {
-		pauseSignal = 0;
-		signal (SIGTSTP, SIG_DFL);
-		raise(SIGTSTP);
-	} else {
-		pauseSignal = 1;
-	}
+  if (pauseSignal) {
+    pauseSignal = 0;
+    signal (SIGTSTP, SIG_DFL);
+    raise(SIGTSTP);
+  } else {
+    pauseSignal = 1;
+  }
 }
 
 void cont_hdl (int n __attribute__ ((unused))) {
@@ -55,7 +55,7 @@ void cont_hdl (int n __attribute__ ((unused))) {
  }
 
 double time_to_double(timeval *t) {
-	return ((double)t->tv_sec + (double)(t->tv_usec * 1e-6));
+    return ((double)t->tv_sec + (double)(t->tv_usec * 1e-6));
 }
 
 int main ( int argc, char** argv) {
@@ -112,8 +112,6 @@ static void nps_main_init(void) {
 
 
 static void nps_main_run_sim_step(void) {
-
-
   //  printf("sim at %f\n", nps_main.sim_time);
 
   nps_fdm_run_step(autopilot.commands);
@@ -138,31 +136,31 @@ static gboolean nps_main_periodic(gpointer data __attribute__ ((unused))) {
   double  host_time_now;
 
   if (pauseSignal) {
-	char line[128];
-	double tf = 1.0;
-	double t1, t2, irt;
+    char line[128];
+    double tf = 1.0;
+    double t1, t2, irt;
 
-	gettimeofday(&tv_now, NULL);
-	t1 = time_to_double(&tv_now);
-	/* unscale to initial real time*/
-	irt = t1 - (t1 - nps_main.scaled_initial_time)*nps_main.host_time_factor;
+    gettimeofday(&tv_now, NULL);
+    t1 = time_to_double(&tv_now);
+    /* unscale to initial real time*/
+    irt = t1 - (t1 - nps_main.scaled_initial_time)*nps_main.host_time_factor;
 
     printf("Press <enter> to continue (or CTRL-Z to suspend).\nEnter a new time factor if needed (current: %f): ", nps_main.host_time_factor);
-	fflush(stdout);
-	if (fgets(line,127,stdin)) {
-	  if ((sscanf(line," %le ", &tf) == 1)) {
-	    if (tf > 0 && tf < 1000)
-	      nps_main.host_time_factor = tf;
-	  }
-	printf("Time factor is %f\n", nps_main.host_time_factor);
-	}
-	gettimeofday(&tv_now, NULL);
-	t2 = time_to_double(&tv_now);
-	/* add the pause to initial real time */
-	irt += t2 - t1;
-	/* convert to scaled initial real time */
-	nps_main.scaled_initial_time = t2 - (t2 - irt)/nps_main.host_time_factor;
-	pauseSignal = 0;
+    fflush(stdout);
+    if (fgets(line,127,stdin)) {
+      if ((sscanf(line," %le ", &tf) == 1)) {
+        if (tf > 0 && tf < 1000)
+          nps_main.host_time_factor = tf;
+      }
+    printf("Time factor is %f\n", nps_main.host_time_factor);
+    }
+    gettimeofday(&tv_now, NULL);
+    t2 = time_to_double(&tv_now);
+    /* add the pause to initial real time */
+    irt += t2 - t1;
+    /* convert to scaled initial real time */
+    nps_main.scaled_initial_time = t2 - (t2 - irt)/nps_main.host_time_factor;
+    pauseSignal = 0;
   }
 
   gettimeofday (&tv_now, NULL);
@@ -213,7 +211,7 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
     };
     int option_index = 0;
     int c = getopt_long(argc, argv, "j:",
-			long_options, &option_index);
+                        long_options, &option_index);
     if (c == -1)
       break;
 
@@ -221,15 +219,15 @@ static bool_t nps_main_parse_options(int argc, char** argv) {
     case 0:
       switch (option_index) {
       case 0:
-	nps_main.fg_host = strdup(optarg); break;
+        nps_main.fg_host = strdup(optarg); break;
       case 1:
-	nps_main.fg_port = atoi(optarg); break;
+        nps_main.fg_port = atoi(optarg); break;
       case 2:
-	nps_main.js_dev = strdup(optarg); break;
+        nps_main.js_dev = strdup(optarg); break;
       case 3:
-	nps_main.spektrum_dev = strdup(optarg); break;
+        nps_main.spektrum_dev = strdup(optarg); break;
       case 4:
-	nps_main.rc_script = atoi(optarg); break;
+        nps_main.rc_script = atoi(optarg); break;
       }
       break;
 
