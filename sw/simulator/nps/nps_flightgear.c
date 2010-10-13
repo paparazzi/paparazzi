@@ -22,7 +22,7 @@ struct FGNetGUI {
   float phi;                  // roll (radians)
   float theta;                // pitch (radians)
   float psi;                  // yaw or true heading (radians)
-  
+
   // Velocities
   float vcas;
   float climb_rate;           // feet per second
@@ -63,18 +63,18 @@ void nps_flightgear_init(const char* host,  unsigned int port) {
   int so_reuseaddr = 1;
   struct protoent * pte = getprotobyname("UDP");
   flightgear.socket = socket( PF_INET, SOCK_DGRAM, pte->p_proto);
-  setsockopt(flightgear.socket, SOL_SOCKET, SO_REUSEADDR, 
-	     &so_reuseaddr, sizeof(so_reuseaddr));
+  setsockopt(flightgear.socket, SOL_SOCKET, SO_REUSEADDR,
+         &so_reuseaddr, sizeof(so_reuseaddr));
   flightgear.addr.sin_family = PF_INET;
   flightgear.addr.sin_port = htons(port);
   flightgear.addr.sin_addr.s_addr = inet_addr(host);
 }
 
 void nps_flightgear_send() {
-  
+
   struct FGNetGUI gui;
 
-  gui.version = FG_NET_GUI_VERSION; 
+  gui.version = FG_NET_GUI_VERSION;
 
   gui.latitude  = fdm.lla_pos.lat;
   gui.longitude = fdm.lla_pos.lon;
@@ -82,11 +82,11 @@ void nps_flightgear_send() {
   //  printf("%f %f %f\n", gui.latitude, gui.longitude, gui.altitude);
 
   gui.agl = 1.111652;
-  
+
   gui.phi = fdm.ltp_to_body_eulers.phi;
   gui.theta = fdm.ltp_to_body_eulers.theta;
   gui.psi = fdm.ltp_to_body_eulers.psi;
-  
+
   gui.vcas = 0.;
   gui.climb_rate = 0.;
 

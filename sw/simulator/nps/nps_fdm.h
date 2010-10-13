@@ -17,7 +17,7 @@
 */
 
 struct NpsFdm {
-  
+
   double time;
   bool_t on_ground;
 
@@ -35,7 +35,7 @@ struct NpsFdm {
   struct EcefCoor_d  ecef_ecef_accel;
   /*  velocity and acceleration wrt ecef frame expressed in body frame     */
   struct DoubleVect3 body_ecef_vel;   /* aka UVW */
-  struct DoubleVect3 body_ecef_accel; 
+  struct DoubleVect3 body_ecef_accel;
   /*  velocity and acceleration wrt ecef frame expressed in ltp frame     */
   struct NedCoor_d ltp_ecef_vel;
   struct NedCoor_d ltp_ecef_accel;
