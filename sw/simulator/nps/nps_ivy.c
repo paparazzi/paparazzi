@@ -122,6 +122,17 @@ void nps_ivy_display(void) {
 	     DegOfRad(fdm.ltp_to_body_eulers.phi),
 	     DegOfRad(fdm.ltp_to_body_eulers.theta),
 	     DegOfRad(fdm.ltp_to_body_eulers.psi));
+  IvySendMsg("%d BOOZ_SIM_POS_LLH %f %f %f %f %f %f %f %f %f",
+             AC_ID,
+             (fdm.lla_pos_pprz.lat),
+             (fdm.lla_pos_geod.lat),
+             (fdm.lla_pos_geoc.lat),
+             (fdm.lla_pos_pprz.lon),
+             (fdm.lla_pos_geod.lon),
+             (fdm.lla_pos_pprz.alt),
+             (fdm.lla_pos_geod.alt),
+             (fdm.agl),
+             (fdm.hmsl));
   IvySendMsg("%d BOOZ_SIM_SPEED_POS %f %f %f %f %f %f %f %f %f",
 	     AC_ID,
 	     (fdm.ltpprz_ecef_accel.x),

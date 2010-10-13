@@ -1597,7 +1597,18 @@
 
  <!--236 is free -->
  <!--237 is free -->
- <!--238 is free -->
+
+  <message name="BOOZ_SIM_POS_LLH" id="238">
+    <field name="pprz_lat"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="lat_geod"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="lat_geoc"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="pprz_lon"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="lon"        type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.29578"/>
+    <field name="pprz_alt"   type="float" unit="m"/>
+    <field name="alt_geod"   type="float" unit="m"/>
+    <field name="agl"        type="float" unit="m"/>
+    <field name="asl"        type="float" unit="m"/>
+  </message>
 
   <message name="BOOZ_SIM_RPMS" id="239">
     <field name="front"    type="float" unit="RPM"/>

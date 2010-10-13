@@ -120,6 +120,12 @@ static void fetch_state(void) {
   llh_from_jsbsim(&fdm.lla_pos, propagate);
   //test123(&fdm.lla_pos, propagate);
 
+  //for debug
+  lla_from_jsbsim_geodetic(&fdm.lla_pos_geod, propagate);
+  lla_from_jsbsim_geocentric(&fdm.lla_pos_geoc, propagate);
+  lla_of_ecef_d(&fdm.lla_pos_pprz, &fdm.ecef_pos);
+  fdm.agl = MetersOfFeet(propagate->GetDistanceAGL());
+
 
   /*
    * attitude

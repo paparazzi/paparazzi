@@ -26,6 +26,11 @@ struct NpsFdm {
   struct NedCoor_d ltpprz_pos;
   struct LlaCoor_d lla_pos;
   double hmsl;
+  // for debugging
+  struct LlaCoor_d lla_pos_pprz; //lla converted by pprz from ecef
+  struct LlaCoor_d lla_pos_geod; //geodetic lla from jsbsim
+  struct LlaCoor_d lla_pos_geoc; //geocentric lla from jsbsim
+  double agl; //AGL from jsbsim in m
 
   /*  velocity and acceleration wrt inertial frame expressed in ecef frame */
   //  struct EcefCoor_d  ecef_inertial_vel;
