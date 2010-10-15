@@ -36,8 +36,11 @@
  * (could also be in math/algebra.h)
  */
 
+#define PI_180 1.74532925199433e-02
 #define ARCSEC_ACRMIN_ANGLE_IN_RADIANS(degree, arcmin, arcsec) ((degree+arcmin/60+arcsec/3600)*M_PI/180)
 #define ABS(a) ((a<0)?-a:a)
+#define MAX(a,b) ((a)>(b)?(a):(b))
+#define MAXABS(a,b) MAX(ABS(a),ABS(b))
 #define MAT33_TRANSP(_to,_from) {                		    \
     MAT33_ELMT((_to),0,0) = MAT33_ELMT((_from),0,0);	\
     MAT33_ELMT((_to),0,1) = MAT33_ELMT((_from),1,0);	\

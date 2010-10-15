@@ -6,20 +6,22 @@
 #include "ins_qkf.hpp"
 #include "paparazzi_eigen_conversion.h"
 #include <stdint.h>
+
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include <event.h>
+//#include <event.h>
 
 
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_double.h"
 #include "math/pprz_geodetic.h"
-#include "math/pprz_geodetic_int.c"
-#include "math/pprz_geodetic_float.c"
-#include "math/pprz_geodetic_double.c"
+#include "math/pprz_geodetic_int.h"
+#include "math/pprz_geodetic_float.h"
+#include "math/pprz_geodetic_double.h"
 #include <math.h>
 
 #include <unistd.h>
