@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="humid_dpicco" dir="meteo">
+  <header>
+    <file name="humid_dpicco.h"/>
+  </header>
+  <init fun="dpicco_init()"/>
+  <periodic fun="dpicco_periodic()" freq="4."/>
+  <event fun="dpicco_event()"/>
+  <makefile target="ap">
+    <file name="humid_dpicco.c"/>
+  </makefile>
+</module>
+

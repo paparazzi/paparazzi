@@ -3,16 +3,18 @@
 
 #include "std.h"
 
-#define STA_UNINIT       0
-#define STA_INITIALISING 1
-#define STA_IDLE         2
+#define BARO_SCP_UNINIT     0
+#define BARO_SCP_IDLE       1
+#define BARO_SCP_RD_TEMP    2
+#define BARO_SCP_RD_PRESS_0 3
+#define BARO_SCP_RD_PRESS_1 4
 
 extern uint8_t  baro_scp_status;
 extern uint32_t baro_scp_pressure;
 extern uint16_t baro_scp_temperature;
-extern bool_t baro_scp_available;
 
 void baro_scp_init(void);
 void baro_scp_periodic(void);
+void baro_scp_event(void);
 
 #endif

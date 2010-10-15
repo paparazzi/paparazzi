@@ -3,13 +3,17 @@
 
 #include "std.h"
 
+#ifdef STM32
+#error LPC21_only
+#endif
+
 /* GPIO P0.x defaults */
 #ifndef DAT_PIN
-#define DAT_PIN         13
+#define DAT_PIN         30
 #endif
 
 #ifndef SCK_PIN
-#define SCK_PIN         15
+#define SCK_PIN         4
 #endif
 
 #define noACK           0

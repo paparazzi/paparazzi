@@ -1,70 +1,20 @@
 <!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
-<!-- Funjet Multiplex (http://www.multiplex-rc.de/), Jeti ECO 25
+<!-- Funjet Ultra Multiplex (http://www.multiplex-rc.de/), Jeti Spin 33
      Tiny 2.11 board (http://paparazzi.enac.fr/wiki/index.php/Tiny_v2)
      Tilted infrared sensor (http://paparazzi.enac.fr/wiki/index.php/Image:Tiny_v2_1_Funjet.jpg)
      XBee modem
-     LEA 5H
+     /* Payload: Sensirion humidity/temp, VTI pressure/temp */
+     robbe 6107 SP, LEA 4P
 -->
 
-<airframe name="Funjet mm 1">
+<airframe name="Funjet mm 2">
 
-  <firmware name="fixedwing">
-    <target name="sim"                 board="pc">
-      <define name="AGR_CLIMB"/>
-      <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
-      <define name="WIND_INFO"/>
-      <define name="WIND_INFO_RET"/>
-    </target>
-
-    <target name="ap"                  board="tiny_2.11">
-      <define name="AGR_CLIMB"/>
-      <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
-      <define name="WIND_INFO"/>
-      <define name="WIND_INFO_RET"/>
-      <define name="USE_I2C0"/>
-    </target>
-
-    <subsystem name="radio_control"    type="ppm"/>
-
-    <!-- Communication -->
-    <subsystem name="telemetry"        type="xbee_api">
-      <param name="MODEM_BAUD"         value="B57600"/>
-    </subsystem>
-
-    <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="control"/>
-    <!-- Sensors -->
-    <subsystem name="attitude"         type="infrared"/>
-    <subsystem name="gps"              type="ublox_lea5h">
-      <param name="GPS_BAUD"           value="B38400"/>
-    </subsystem>
-    <subsystem name="navigation"/>
-    <subsystem name="i2c"/>
-  </firmware>
-
-  <firmware name="setup">
-    <target name="tunnel"              board="tiny_2.11"/>
-    <target name="usb_tunnel_0"        board="tiny_2.11"/>
-    <target name="usb_tunnel_1"        board="tiny_2.11"/>
-    <target name="setup_actuators"     board="tiny_2.11"/>
-  </firmware>
-
-
-  <!-- modules -->
-  <modules>
-    <load name="humid_dpicco.xml"/>
-    <load name="humid_sht.xml"/>
-    <load name="baro_scp_i2c.xml"/>
-  </modules>
-
-  <!-- commands section -->
+<!-- commands section -->
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1442" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1549" max="1900"/>
+    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1544" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1462" max="1900"/>
     <servo name="HATCH"         no="7" min="1070" neutral="1070" max="2200"/>
   </servos>
 
@@ -123,7 +73,7 @@
     <define name="VERTICAL_CORRECTION" value="1.5"/>
 
     <define name="HORIZ_SENSOR_TILTED" value="1"/>
-    <define name="IR1_SIGN" value="1"/>
+    <define name="IR1_SIGN" value="-1"/>
     <define name="IR2_SIGN" value="-1"/>
     <define name="TOP_SIGN" value="-1"/>
 
@@ -152,6 +102,7 @@
 
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="120."/>
+    <define name="MIN_CIRCLE_RADIUS" value="50."/>
   </section>
  
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -225,4 +176,99 @@
 	<define name="HOME_RADIUS" value="100" unit="m"/>
 </section>
 
+ <section name="DATALINK" prefix="DATALINK_">
+    <define name="DEVICE_TYPE" value="XBEE"/>
+    <define name="DEVICE_ADDRESS" value="...."/>
+  </section>
+ 
+ <section name="SIMU">
+    <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
+ </section>
+
+  <section name="MICROMAG">
+
+    <define name="MM_SS_PIN" value="20"/>
+    <define name="MM_SS_IODIR" value="IO0DIR"/>
+    <define name="MM_SS_IOSET" value="IO0SET"/>
+    <define name="MM_SS_IOCLR" value="IO0CLR"/>
+
+    <define name="MM_RESET_PIN" value="29"/>
+    <define name="MM_RESET_IODIR" value="IO0DIR"/>
+    <define name="MM_RESET_IOSET" value="IO0SET"/>
+    <define name="MM_RESET_IOCLR" value="IO0CLR"/>
+
+    <define name="MM_DRDY_PINSEL" value="PINSEL1"/>
+    <define name="MM_DRDY_PINSEL_BIT" value="0"/>
+    <define name="MM_DRDY_PINSEL_VAL" value="1"/>
+    <define name="MM_DRDY_EINT" value="0"/>
+    <define name="MM_DRDY_VIC_IT" value="VIC_EINT0"/>
+
+  </section>
+
+ <makefile>
+CONFIG = \"tiny_2_1.h\"
+
+include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
+
+FLASH_MODE=IAP
+
+ap.CFLAGS +=  -DFBW -DAP -DBOARD_CONFIG=$(CONFIG) -DLED -DTIME_LED=1
+ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_fbw.c main_ap.c main.c
+
+ap.srcs += commands.c
+
+ap.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\" -DSERVOS_4017
+ap.srcs += $(SRC_ARCH)/servos_4017_hw.c actuators.c
+
+ap.CFLAGS += -DRADIO_CONTROL
+ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
+
+ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=XBeeTransport -DXBEE_UART=Uart1 -DDATALINK=XBEE -DUART1_BAUD=B57600
+ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
+
+#TRANSPARENT
+#ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ -DUART1_BAUD=B9600
+#ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
+
+
+ap.CFLAGS += -DINTER_MCU
+ap.srcs += inter_mcu.c 
+
+ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_4
+ap.srcs += $(SRC_ARCH)/adc_hw.c
+
+ap.CFLAGS += -DGPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B38400
+# -DGPS_USE_LATLONG
+# -DGPS_LED=2
+ap.srcs += gps_ubx.c gps.c latlong.c
+
+ap.CFLAGS += -DINFRARED -DALT_KALMAN -DWIND_INFO -DWIND_INFO_RET
+ap.srcs += infrared.c estimator.c
+
+ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
+ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
+
+ap.srcs += nav_line.c
+ap.srcs += nav_survey_rectangle.c
+
+ap.srcs += humid_sht.c
+ap.CFLAGS += -DUSE_HUMID_SHT -DDAT_PIN=30  -DSCK_PIN=4
+
+ap.srcs += bomb.c
+
+ap.srcs += snav.c
+
+# distance sensor
+ap.CFLAGS += -DUSE_ADC_3 -DUSE_ADC_GENERIC -DADC_CHANNEL_GENERIC1=ADC_3 -DADC_CHANNEL_GENERIC_NB_SAMPLES=16
+ap.srcs += adc_generic.c
+
+# Config for SITL simulation
+include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
+sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
+sim.srcs += nav_line.c nav_survey_rectangle.c
+
+sim.srcs += bomb.c
+
+
+  </makefile>
 </airframe>

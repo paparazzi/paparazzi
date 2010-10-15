@@ -83,19 +83,6 @@
 #include "i2c.h"
 #endif
 
-#ifdef DPICCO
-#include "i2c.h"
-#include "dpicco.h"
-#endif
-
-#ifdef USE_HUMID_SHT
-#include "humid_sht.h"
-#endif
-
-#ifdef USE_BARO_SCP
-#include "baro_scp.h"
-#endif
-
 #ifdef USE_SPI
 #include "spi.h"
 #endif
@@ -522,15 +509,6 @@ void periodic_task_ap( void ) {
     break;
 #endif
 
-#ifdef DPICCO
-  case 5:
-    dpicco_periodic();
-    dpicco_humid = (dpicco_val[0] * DPICCO_HUMID_RANGE) / DPICCO_HUMID_MAX;
-    dpicco_temp = ((dpicco_val[1] * DPICCO_TEMP_RANGE) / DPICCO_TEMP_MAX) + DPICCO_TEMP_OFFS;    
-    DOWNLINK_SEND_DPICCO_STATUS(DefaultChannel, &dpicco_val[0], &dpicco_val[1], &dpicco_humid, &dpicco_temp);
-    break;
-#endif
-
 #ifdef USE_MAX11040
   case 5:
   {
@@ -574,26 +552,6 @@ void periodic_task_ap( void ) {
   case 6:
     adc_generic_periodic();
     DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &adc_generic_val1, &adc_generic_val2);
-    break;
-#endif
-
-#ifdef USE_HUMID_SHT
-  case 8:
-    humid_sht_periodic();
-    if (humid_sht_available == TRUE) {
-      DOWNLINK_SEND_SHT_STATUS(DefaultChannel, &humidsht, &tempsht, &fhumidsht, &ftempsht);
-      humid_sht_available = FALSE;
-    }
-    break;
-#endif
-
-#ifdef USE_BARO_SCP
-  case 9:
-    baro_scp_periodic();
-    if (baro_scp_available == TRUE) {
-      DOWNLINK_SEND_SCP_STATUS(DefaultChannel, &baro_scp_pressure, &baro_scp_temperature);
-      baro_scp_available = FALSE;
-    }
     break;
 #endif
 
@@ -747,19 +705,6 @@ void init_ap( void ) {
 
 #ifdef USE_ADC_GENERIC
   adc_generic_init();
-#endif
-
-#ifdef DPICCO
-  i2c0_init();
-  dpicco_init();
-#endif
-
-#ifdef USE_HUMID_SHT
-  humid_sht_init();
-#endif
-
-#ifdef USE_BARO_SCP
-  baro_scp_init();
 #endif
 
   /************* Links initialization ***************/

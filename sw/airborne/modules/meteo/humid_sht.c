@@ -8,6 +8,9 @@
 
 #include "std.h"
 #include "LPC21xx.h"
+#include "uart.h"
+#include "messages.h"
+#include "downlink.h"
 #include "humid_sht.h"
 
 #include "led.h"
@@ -313,6 +316,8 @@ void humid_sht_periodic(void) {
       s_connectionreset();
       s_start_measure(HUMI);
       humid_sht_status = SHT_MEASURING_HUMID;    
+      DOWNLINK_SEND_SHT_STATUS(DefaultChannel, &humidsht, &tempsht, &fhumidsht, &ftempsht);
+      humid_sht_available = FALSE;
     }
   }
 }

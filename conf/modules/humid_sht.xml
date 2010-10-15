@@ -1,0 +1,13 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="humid_sht" dir="meteo">
+  <header>
+    <file name="humid_sht.h"/>
+  </header>
+  <init fun="humid_sht_init()"/>
+  <periodic fun="humid_sht_periodic()" freq="4."/>
+  <makefile target="ap">
+    <file name="humid_sht.c"/>
+  </makefile>
+</module>
+

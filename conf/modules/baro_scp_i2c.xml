@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="baro_scp_i2c" dir="meteo">
+  <header>
+    <file name="baro_scp_i2c.h"/>
+  </header>
+  <init fun="baro_scp_init()"/>
+  <periodic fun="baro_scp_periodic()" freq="1.8"/>
+  <event fun="baro_scp_event()"/>
+  <makefile target="ap">
+    <file name="baro_scp_i2c.c"/>
+  </makefile>
+</module>
+

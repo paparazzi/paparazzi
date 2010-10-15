@@ -168,3 +168,11 @@ static void baro_scp_read(void) {
   SSPDR = 0;
   SpiEnable();
 }
+
+void baro_scp_event( void ) {
+  if (baro_scp_available == TRUE) {
+    DOWNLINK_SEND_SCP_STATUS(DefaultChannel, &baro_scp_pressure, &baro_scp_temperature);
+    baro_scp_available = FALSE;
+  }
+}
+
