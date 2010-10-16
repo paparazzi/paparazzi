@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="temp_tmp102" dir="meteo">
+  <header>
+    <file name="temp_tmp102.h"/>
+  </header>
+  <init fun="tmp102_init()"/>
+  <periodic fun="tmp102_periodic()" freq="8"/>
+  <event fun="tmp102_event()"/>
+  <makefile target="ap">
+    <file name="temp_tmp102.c"/>
+  </makefile>
+</module>
+

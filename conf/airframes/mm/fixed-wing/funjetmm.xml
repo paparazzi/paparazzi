@@ -55,9 +55,11 @@
 
   <!-- modules -->
   <modules>
+    <load name="ir_mlx.xml"/>
+    <!--load name="temp_tmp102.xml"/>
     <load name="humid_dpicco.xml"/>
     <load name="humid_sht.xml"/>
-    <load name="baro_scp_i2c.xml"/>
+    <load name="baro_scp_i2c.xml"/-->
   </modules>
 
   <!-- commands section -->

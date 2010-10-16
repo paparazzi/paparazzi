@@ -531,8 +531,18 @@
   </message>
 
  <!-- 84 is free -->
- <!-- 85 is free -->
- <!-- 86 is free -->
+
+  <message name="MLX_STATUS" id="85">
+   <field name="itemp_case" type="uint16"/>
+   <field name="temp_case"  type="float" unit="deg_celsius" format="%.2f"/>
+   <field name="itemp_obj"  type="uint16"/>
+   <field name="temp_obj"   type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
+
+  <message name="TMP_STATUS" id="86">
+    <field name="itemp"  type="uint16"/>
+    <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
 
   <message name="WIND_INFO_RET" id="87">
     <field name="east" type="float" unit="m/s"/>
@@ -548,8 +558,8 @@
   <message name="SHT_STATUS" id="89">
     <field name="ihumid" type="uint16"/>
     <field name="itemp"  type="uint16"/>
-    <field name="humid"  type="float" unit="rel_hum"/>
-    <field name="temp"   type="float" unit="deg_celsius"/>
+    <field name="humid"  type="float" unit="rel_hum" format="%.2f"/>
+    <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
   </message>
 
   <message name="ENOSE_STATUS" id="90">
@@ -563,8 +573,8 @@
   <message name="DPICCO_STATUS" id="91">
     <field name="humid" type="uint16"/>
     <field name="temp" type="uint16"/>
-    <field name="fhumid" type="float" unit="rel_hum"/>
-    <field name="ftemp" type="float" unit="deg_celsius"/>
+    <field name="fhumid" type="float" unit="rel_hum" format="%.2f"/>
+    <field name="ftemp" type="float" unit="deg_celsius" format="%.2f"/>
   </message>
 
   <message name="ANTENNA_DEBUG" id="92">

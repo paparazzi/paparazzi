@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ir_mlx" dir="meteo">
+  <header>
+    <file name="ir_mlx.h"/>
+  </header>
+  <init fun="ir_mlx_init()"/>
+  <periodic fun="ir_mlx_periodic()" freq="8"/>
+  <event fun="ir_mlx_event()"/>
+  <makefile target="ap">
+    <file name="ir_mlx.c"/>
+  </makefile>
+</module>
+
