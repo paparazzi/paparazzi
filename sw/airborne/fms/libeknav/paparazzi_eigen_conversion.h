@@ -118,6 +118,14 @@
       }									\
     }									\
   }
+  
+#define QUAT_ENU_FROM_TO_NED(from, to){	\
+	to.qi = -from.qx - from.qy;						\
+  to.qi =  from.qi + from.qz;						\
+  to.qi =  from.qi - from.qz;						\
+  to.qi = -from.qx + from.qy;						\
+  QUAT_SMUL(to, to, M_SQRT1_2);					\
+}
 
 
 /*
@@ -137,6 +145,7 @@
  */
 
 #define VECTOR_AS_VECT3(coords, vector) { coords.x = vector(0); coords.y = vector(1); coords.z = vector(2);}
+#define QUATERNIOND_AS_DOUBLEQUAT(doublequat, quaterniond) {doublequat.qi = quaterniond.w(); doublequat.qx = quaterniond.x(); doublequat.qy = quaterniond.y(); doublequat.qz = quaterniond.z();}
 #define PPRZ_LLA_TO_EIGEN_ECEF(lla, ecef){	\
 	struct EcefCoor_f ecef_pprz;							\
 	ecef_of_lla_f(&ecef_pprz, &lla);					\

@@ -13,9 +13,7 @@ USING_PART_OF_NAMESPACE_EIGEN
 
 int main(int, char *argv[]) {
 
-  std::cout << "test libeknav 3" << std::endl;
-  main_init();
-  
+  printf("==============================\nRunning libeknav from File...\n==============================\n");
   
   int raw_log_fd = open(argv[1], O_RDONLY); 
   
@@ -24,18 +22,13 @@ int main(int, char *argv[]) {
     return -1;
   }
   
-  while (1) {
-    struct raw_log_entry e;
-    ssize_t nb_read = read(raw_log_fd, &e, sizeof(e));
-    if (nb_read != sizeof(e)) break;
-    
-    COPY_RATES_ACCEL_TO_IMU_FLOAT(e);
-    COPY_MAG_TO_IMU_FLOAT(e);
-    COPY_GPS_TO_IMU(e);
-    main_run_ins(e.data_valid);
-    print_estimator_state(e.time);
-  }
+  printf("Initialisation...\n");
+  struct raw_log_entry e = first_entry_after_initialisation(raw_log_fd);
+  main_init();
+  printf("Running filter from file...\n");
+  main_run_from_file(raw_log_fd, next_GPS(raw_log_fd));
   
+  printf("Finished\n");
   return 0;
 
 }
@@ -56,6 +49,75 @@ static void main_init(void) {
   init_ins_state();
   set_reference_direction();
 
+}
+
+static struct raw_log_entry first_entry_after_initialisation(int file_descriptor){
+  int        imu_measurements = 0,      // => Gyro + Accel
+    magnetometer_measurements = 0,
+             gps_measurements = 0;      // only the position
+  
+  struct DoubleMat33 attitude_profile_matrix;
+  struct Orientation_Measurement  gravity,
+                                  magneto,
+                                  fake;  
+  struct DoubleQuat q_ned2body;
+  
+  /* Prepare the attitude profile matrix */
+  FLOAT_MAT33_ZERO(attitude_profile_matrix);
+  
+  /* set the gravity measurement */
+  VECT3_ASSIGN(gravity.reference_direction, 0,0,1);
+  gravity.weight_of_the_measurement = 1;
+  
+  /* set the magneto - measurement */
+  EARTHS_GEOMAGNETIC_FIELD_NORMED(magneto.reference_direction);
+  magneto.weight_of_the_measurement = 1;
+    
+  uint8_t read_ok = 1;
+  struct raw_log_entry e = next_GPS(file_descriptor);
+  
+  while( (read_ok) && NOT_ENOUGH_MEASUREMENTS(imu_measurements, magnetometer_measurements, gps_measurements) ){
+    if(IMU_READY(e.data_valid)){
+      imu_measurements++;
+      
+      // update the estimated bias
+      bias_0 = NEW_MEAN(bias_0, RATES_AS_VECTOR3D(e.gyro), imu_measurements);
+      
+      // update the attitude profile matrix
+      VECT3_COPY(gravity.measured_direction,e.accel);
+      add_orientation_measurement(&attitude_profile_matrix, gravity);
+    }
+    if(MAG_READY(e.data_valid)){
+      magnetometer_measurements++;
+      // update the attitude profile matrix
+      VECT3_COPY(magneto.measured_direction,e.mag);
+      add_orientation_measurement(&attitude_profile_matrix, magneto);
+      
+      // now, generate fake measurement with the last gravity measurement
+      fake = fake_orientation_measurement(gravity, magneto);
+      add_orientation_measurement(&attitude_profile_matrix, fake);
+    }
+    if(GPS_READY(e.data_valid)){
+      gps_measurements++;
+      // update the estimated bias
+      pos_0_ecef = NEW_MEAN(pos_0_ecef, VECT3_AS_VECTOR3D(e.ecef_pos)/100, gps_measurements);
+    }
+    
+    e = read_raw_log_entry(file_descriptor, &read_ok);
+  }
+  q_ned2body = estimated_attitude(attitude_profile_matrix, 1000, 1e-6);
+	orientation_0 = ecef2body_from_pprz_ned2body(pos_0_ecef,q_ned2body);
+  return e;
+}
+
+static void main_run_from_file(int file_descriptor, struct raw_log_entry first_entry){
+  struct raw_log_entry e = first_entry;
+  uint8_t read_ok = 1;
+  while (read_ok) {
+    main_run_ins(e.data_valid);
+    print_estimator_state(e.time);
+    e = read_raw_log_entry(file_descriptor, &read_ok);
+  }
 }
 
 static void main_run_ins(uint8_t data_valid) {
@@ -87,16 +149,35 @@ static void init_ins_state(void){
 	
 	ins_logfile = fopen(INS_LOG_FILE, "w");
 	
-	LLA_ASSIGN(pos_0_lla, TOULOUSE_LATTITUDE, TOULOUSE_LONGITUDE, TOULOUSE_HEIGHT)
-	PPRZ_LLA_TO_EIGEN_ECEF(pos_0_lla, pos_0_ecef);
-	
-	printf("Starting position\t%f\t%f\t%f\n", pos_0_ecef(0), pos_0_ecef(1), pos_0_ecef(2));
-	
 	ins.avg_state.position    = pos_0_ecef;
-	ins.avg_state.gyro_bias   = Vector3d::Zero();
-	ins.avg_state.orientation = Quaterniond::Identity();
+	ins.avg_state.gyro_bias   = bias_0;
+	ins.avg_state.orientation = orientation_0;
 	ins.avg_state.velocity    = speed_0_ecef;
-	
+  
+  struct DoubleQuat ecef2body;
+  struct DoubleEulers eu_ecef2body;
+  QUATERNIOND_AS_DOUBLEQUAT(ecef2body, orientation_0);
+  DOUBLE_EULERS_OF_QUAT(eu_ecef2body, ecef2body);
+
+  
+	printf("Initial state\n\n");
+  printf("Bias        % 7.2f\n", bias_0(0)*180*M_1_PI);
+  printf("Bias        % 7.2f\n", bias_0(1)*180*M_1_PI);
+  printf("Bias        % 7.2f\n", bias_0(2)*180*M_1_PI);
+  printf("\n");
+  printf("Orientation % 7.2f\n", orientation_0.w());
+  printf("Orientation % 7.2f %7.2f\n", orientation_0.x(),   eu_ecef2body.phi*180*M_1_PI);
+  printf("Orientation % 7.2f %7.2f\n", orientation_0.y(), eu_ecef2body.theta*180*M_1_PI);
+  printf("Orientation % 7.2f %7.2f\n", orientation_0.z(),   eu_ecef2body.psi*180*M_1_PI); 
+  printf("\n");
+  printf("Position    % 9.0f\n", pos_0_ecef(0));
+  printf("Position    % 9.0f\n", pos_0_ecef(1));
+  printf("Position    % 9.0f\n", pos_0_ecef(2));
+  printf("\n");
+  printf("Velocity    % 7.2f\n", speed_0_ecef(0));
+  printf("Velocity    % 7.2f\n", speed_0_ecef(1));
+  printf("Velocity    % 7.2f\n", speed_0_ecef(2));
+  printf("\n");
 	
 	Matrix<double, 12, 1> diag_cov;
 	diag_cov << Vector3d::Ones() * bias_cov_0  * bias_cov_0 ,
@@ -118,28 +199,53 @@ static void set_reference_direction(void){
 	ltp_def_from_ecef_d(&current_ltp, &pos_0_ecef_pprz);
 	ecef_of_ned_vect_d(&ref_dir_ecef, &current_ltp, &ref_dir_ned);
 	
-	//		THIS SOMEWHERE ELSE!
-	DoubleQuat initial_orientation;
-	FLOAT_QUAT_ZERO(initial_orientation);
-	ENU_NED_transformation(current_ltp.ltp_of_ecef);
-	DOUBLE_QUAT_OF_RMAT(initial_orientation, current_ltp.ltp_of_ecef);
-	ins.avg_state.orientation = DOUBLEQUAT_AS_QUATERNIOND(initial_orientation);
-	//		THIS SOMEWHERE ELSE! (END)
-	
-	// old transformation:
-	//struct DoubleRMat ned2ecef;
-	//NED_TO_ECEF_MAT(pos_0_lla, ned2ecef.m);
-	//RMAT_VECT3_MUL(ref_dir_ecef, ned2ecef, ref_dir_ned);
 	
 	reference_direction = VECT3_AS_VECTOR3D(ref_dir_ecef).normalized();
-	//reference_direction = Vector3d(1, 0, 0);
-	std::cout <<"reference direction NED : " << VECT3_AS_VECTOR3D(ref_dir_ned).transpose() << std::endl;
-	std::cout <<"reference direction ECEF: " << reference_direction.transpose() << std::endl;
 }
 
 
 /* 		helpstuff	 	*/
+/** Transformation **/
+Quaterniond ecef2body_from_pprz_ned2body(Vector3d ecef_pos, struct DoubleQuat q_ned2body){
+  Quaterniond       ecef2body;
+  struct LtpDef_d   current_ltp;
+	struct EcefCoor_d ecef_pos_pprz;
+  struct DoubleQuat q_ecef2enu,
+                    q_ecef2ned,
+                    q_ecef2body;
+  
+	VECTOR_AS_VECT3(ecef_pos_pprz, ecef_pos);
+  ltp_def_from_ecef_d(&current_ltp, &ecef_pos_pprz);
+  DOUBLE_QUAT_OF_RMAT(q_ecef2enu, current_ltp.ltp_of_ecef);
+  QUAT_ENU_FROM_TO_NED(q_ecef2enu, q_ecef2ned);
+  
+  FLOAT_QUAT_COMP(q_ecef2body, q_ecef2ned, q_ned2body);
+  
+  return DOUBLEQUAT_AS_QUATERNIOND(q_ecef2body);
+}
+
+
 /** Logging **/
+
+static struct raw_log_entry read_raw_log_entry(int file_descriptor, uint8_t *read_ok){
+  struct raw_log_entry e;
+  ssize_t nb_read = read(file_descriptor, &e, sizeof(e));
+  *read_ok =  (nb_read == sizeof(e));
+  
+  COPY_RATES_ACCEL_TO_IMU_FLOAT(e);
+  COPY_MAG_TO_IMU_FLOAT(e);
+  COPY_GPS_TO_IMU(e);
+  return e;
+}
+
+static struct raw_log_entry next_GPS(int file_descriptor){
+  uint8_t read_ok;
+  struct raw_log_entry e = read_raw_log_entry(file_descriptor, &read_ok);
+  while ((read_ok)&&(!GPS_READY(e.data_valid))) {
+    e = read_raw_log_entry(file_descriptor, &read_ok);
+  }
+  return e;
+}
 
 static void print_estimator_state(double time) {
 

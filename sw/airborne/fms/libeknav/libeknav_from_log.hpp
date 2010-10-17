@@ -5,6 +5,8 @@
 
 #include "ins_qkf.hpp"
 #include "paparazzi_eigen_conversion.h"
+#include "estimate_attitude.h"
+#include "estimate_attitude.c"
 #include <stdint.h>
 
 #include <stdio.h>
@@ -49,32 +51,7 @@
 #define PRINT_EULER_NED 0
 
 /** geodetic **/
-//Toulouse Lat: 	43° 35' 24''		Lon: 	1° 25' 48''
-#define TOULOUSE_LATTITUDE ARCSEC_ACRMIN_ANGLE_IN_RADIANS(43,35,24)
-#define TOULOUSE_LONGITUDE ARCSEC_ACRMIN_ANGLE_IN_RADIANS(1,25,48)
-#define TOULOUSE_HEIGHT 0
-//Toulouse Declination is  22' West	and	Inclination 59° 8' Down
-#define TOULOUSE_DECLINATION -ARCSEC_ACRMIN_ANGLE_IN_RADIANS(0,22,0)
-#define TOULOUSE_INCLINATION -ARCSEC_ACRMIN_ANGLE_IN_RADIANS(59,8,0)
-
-/** magnetic field 
- ** how to compute the magnetic field:
- **     http://gsc.nrcan.gc.ca/geomag/field/comp_e.php
- ** 
- ** online-calculator:
- **   http://geomag.nrcan.gc.ca/apps/mfcal-eng.php
- **/
-#if 0
-#define EARTHS_GEOMAGNETIC_FIELD_NORMED(ref) {	\
-  ref.z = sin(TOULOUSE_INCLINATION);						\
-	double h = sqrt(1-ref.z*ref.z);								\
-	ref.x = h*cos(TOULOUSE_DECLINATION);					\
-	ref.y = h*sin(TOULOUSE_DECLINATION);					\
-}
-#else
-//#define EARTHS_GEOMAGNETIC_FIELD_NORMED(ref) VECT3_ASSIGN(ref, 0.51292422348174, -0.00331095113378, 0.85842750338526)
 #define EARTHS_GEOMAGNETIC_FIELD_NORMED(ref) VECT3_ASSIGN(ref, 0.51562740288882, -0.05707735220832, 0.85490967783446)
-#endif
 Vector3d reference_direction;
 
 static void set_reference_direction(void);
@@ -85,12 +62,14 @@ static void set_reference_direction(void);
 
 /* Initialisation */
 static void main_init(void);
+static struct raw_log_entry first_entry_after_initialisation(int);
 
 /** initial state **/
 struct LlaCoor_f pos_0_lla;
-Vector3d pos_0_ecef;
-Vector3d speed_0_ecef = Vector3d::Zero();
-Vector3d bias_0(0., 0., 0.);
+Vector3d pos_0_ecef       = Vector3d::Zero();
+Vector3d speed_0_ecef     = Vector3d::Zero();
+Vector3d bias_0           = Vector3d::Zero();
+Quaterniond orientation_0 = Quaterniond::Identity();
 static void init_ins_state(void);
 
 /** initial covariance **/
@@ -111,16 +90,33 @@ const Vector3d gps_speed_noise      = Vector3d::Ones() * 0.1* 0.1;
 
 
 /* libeknav */
+static void main_run_from_file(int, struct raw_log_entry);
 static void main_run_ins(uint8_t);
 
 
 /* Logging */
+static struct raw_log_entry read_raw_log_entry(int, uint8_t *);
+static struct raw_log_entry next_GPS(int);
+
 static void print_estimator_state(double);
 #define INS_LOG_FILE "log_ins_test3.data"
 
 
 
 /* Other */
+/** Average-Calculation **/
+#define MINIMAL_IMU_MEASUREMENTS 100
+#define MINIMAL_MAGNETIC_FIELD_MEASUREMENTS 50
+#define MINIMAL_GPS_MEASUREMENTS 10
+
+#define NOT_ENOUGH_MEASUREMENTS(imu, mag, gps)      (NOT_ENOUGH_IMU_MEASUREMENTS(imu)            && \
+                                                     NOT_ENOUGH_MAGNETIC_FIELD_MEASUREMENTS(mag) && \
+                                                     NOT_ENOUGH_GPS_MEASUREMENTS(gps)               )
+#define NOT_ENOUGH_IMU_MEASUREMENTS(imu)            ((imu)<(MINIMAL_IMU_MEASUREMENTS)           )
+#define NOT_ENOUGH_MAGNETIC_FIELD_MEASUREMENTS(mag) ((mag)<(MINIMAL_MAGNETIC_FIELD_MEASUREMENTS))
+#define NOT_ENOUGH_GPS_MEASUREMENTS(gps)            ((gps)<(MINIMAL_GPS_MEASUREMENTS)           )
+
+#define NEW_MEAN(old_mean, new_observation, index) (((old_mean)*(index-1)+(new_observation))/(index))
 
 	/** Sensors **/
 #define COPY_RATES_ACCEL_TO_IMU_FLOAT(pointer){						\
@@ -141,6 +137,8 @@ static void print_estimator_state(double);
 #define CLOSE_TO_GRAVITY(accel) (ABS(FLOAT_VECT3_NORM(accel)-GRAVITY)<MAX_DISTANCE_FROM_GRAVITY_FOR_UPDATE)
 
 	/** Conversions	**/
+Quaterniond ecef2body_from_pprz_ned2body(Vector3d, struct DoubleQuat);
+
 	/* copied and modified form pprz_geodetic */
 #define NED_TO_ECEF_MAT(lla, mat) {			\
 	const double sin_lat = sin(lla.lat);	\
