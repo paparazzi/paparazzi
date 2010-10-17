@@ -530,7 +530,10 @@
     <field name="status" type="uint8"/>
   </message>
 
- <!-- 84 is free -->
+  <message name="BMP_STATUS" id="84">
+    <field name="press" type="int32" unit="Pa"/>
+    <field name="temp"  type="int32" unit="10x_deg_celsius"/>
+  </message>
 
   <message name="MLX_STATUS" id="85">
    <field name="itemp_case" type="uint16"/>
@@ -614,8 +617,17 @@
     <field name="throttle"   type="uint16"/>
   </message>
 
- <!-- 96 is free -->
- <!-- 97 is free -->
+  <message name="HIH_STATUS" id="96">
+    <field name="humid" type="uint16"/>
+    <field name="fhumid" type="float" unit="rel_hum" format="%.2f"/>
+    <field name="ftemp" type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
+
+  <message name="TEMT_STATUS" id="97">
+    <field name="light"  type="uint16"/>
+    <field name="f_light" type="float" unit="percent" format="%.2f"/>
+  </message>
+
  <!-- 98 is free -->
  <!-- 99 is free -->
 

@@ -8,6 +8,7 @@
 #define TMP102_T_LOW_REG    0x02
 #define TMP102_T_HIGH_REG   0x03
 
+extern float ftmp_temperature;
 
 void tmp102_init(void);
 void tmp102_periodic(void);

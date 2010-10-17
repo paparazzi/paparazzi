@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="humid_hih" dir="meteo">
+  <header>
+    <file name="humid_hih.h"/>
+  </header>
+  <init fun="humid_hih_init()"/>
+  <periodic fun="humid_hih_periodic()" freq="4"/>
+  <makefile target="ap">
+    <file name="humid_hih.c"/>
+    <flag name="ADC_CHANNEL_HUMID_HIH" value="ADC_3"/>
+    <flag name="USE_ADC_3"/>
+  </makefile>
+</module>
+

@@ -38,6 +38,7 @@
 #include "downlink.h"
 
 uint8_t  tmp_meas_started;
+float ftmp_temperature;
 struct i2c_transaction tmp_trans;
 
 #ifndef TMP_I2C_DEV
@@ -50,7 +51,9 @@ struct i2c_transaction tmp_trans;
    Addr: 0x90 0x92 0x94 0x96
 */
 
+#ifndef TMP102_SLAVE_ADDR
 #define TMP102_SLAVE_ADDR 0x90
+#endif
 
 /* OS=0 R1=1 R0=1 F1=0 POL=0 TM=0 SD=0 */
 #define TMP102_CONF1        0x60
@@ -78,7 +81,6 @@ void tmp102_event( void ) {
   if ((tmp_trans.status == I2CTransSuccess) && (tmp_meas_started == TRUE)) {
 
       uint16_t tmp_temperature;
-      float ftmp_temperature;
 
       /* read two byte temperature */
       tmp_temperature  = tmp_trans.buf[0] << 8;

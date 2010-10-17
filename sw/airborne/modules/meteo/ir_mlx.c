@@ -51,7 +51,9 @@ uint16_t ir_mlx_itemp_obj;
 float    ir_mlx_temp_obj;
 
 /* I2C address is set to 3 */
+#ifndef MLX90614_ADDR
 #define MLX90614_ADDR 0x06
+#endif
 
 //    printf("Ta    = %2.2f°C (0x%04X)\n", (tp*0.02)-273.15, tp);
 

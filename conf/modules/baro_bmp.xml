@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="baro_bmp" dir="meteo">
+  <header>
+    <file name="baro_bmp.h"/>
+  </header>
+  <init fun="baro_bmp_init()"/>
+  <periodic fun="baro_bmp_periodic()" freq="8"/>
+  <event fun="baro_bmp_event()"/>
+  <makefile target="ap">
+    <file name="baro_bmp.c"/>
+  </makefile>
+</module>
+

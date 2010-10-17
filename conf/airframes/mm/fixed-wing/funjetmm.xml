@@ -55,8 +55,13 @@
 
   <!-- modules -->
   <modules>
+    <load name="baro_bmp.xml"/>
+    <load name="baro_scp_i2c.xml"/>
+    <!--load name="light_temt.xml"/>
+    <load name="humid_hih.xml"/>
+    <load name="temp_tmp102.xml"/>
+    <load name="temp_lm75.xml"/>
     <load name="ir_mlx.xml"/>
-    <!--load name="temp_tmp102.xml"/>
     <load name="humid_dpicco.xml"/>
     <load name="humid_sht.xml"/>
     <load name="baro_scp_i2c.xml"/-->
