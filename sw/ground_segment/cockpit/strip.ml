@@ -51,6 +51,15 @@ type t =
       hide_buttons : unit -> unit; 
       show_buttons : unit -> unit >
 
+type strip_param = {
+  color : string;
+  min_bat : float;
+  max_bat : float;
+  alt_shift_plus_plus : float;
+  alt_shift_plus : float;
+  alt_shift_minus : float; }
+
+  
 let agl_max = 150.
 
 (** window for the strip panel *)
@@ -189,7 +198,15 @@ class hgauge = fun ?(color="green") gauge_da v_min v_max ->
   end
 
 (** add a strip to the panel *)
-let add = fun config color min_bat max_bat ->
+(*let add = fun config color min_bat max_bat ->*)
+let add = fun config strip_param ->
+  let color = strip_param.color
+  and min_bat = strip_param.min_bat
+  and max_bat = strip_param.max_bat
+  and alt_shift_plus_plus = strip_param.alt_shift_plus_plus
+  and alt_shift_plus = strip_param.alt_shift_plus
+  and alt_shift_minus = strip_param.alt_shift_minus in
+
   let strip_labels = ref  [] in
   let add_label = fun name value -> 
     strip_labels := (name, value) :: !strip_labels in
@@ -274,9 +291,9 @@ let add = fun config color min_bat max_bat ->
     [ strip#button_launch, "launch.png";
       strip#button_kill, "kill.png";
       strip#button_resurrect, "resurrect.png";
-      strip#button_minus_five, "down.png";
-      strip#button_plus_five, "up.png";
-      strip#button_plus_thirty, "upup.png";
+      strip#button_down, "down.png";
+      strip#button_up, "up.png";
+      strip#button_up_up, "upup.png";
       strip#button_left, "left.png";
       strip#button_center, "recenter.png";
       strip#button_right, "right.png";
@@ -305,12 +322,19 @@ let add = fun config color min_bat max_bat ->
     method set_label name value = set_label !strip_labels name value
     method set_color name value = set_color !strip_labels name value
     method add_widget w = strip#hbox_user#pack ~fill:false w
-
-     method connect_shift_alt callback = 
+    
+    method connect_shift_alt callback = 
+      let tooltips = GData.tooltips () in
+      let text = Printf.sprintf "Altitude %+.1fm" alt_shift_minus in
+      ignore (tooltips#set_tip strip#button_down#coerce ~text);
+      let text = Printf.sprintf "Altitude %+.1fm" alt_shift_plus in
+      ignore (tooltips#set_tip strip#button_up#coerce ~text);
+      let text = Printf.sprintf "Altitude %+.1fm" alt_shift_plus_plus in
+      ignore (tooltips#set_tip strip#button_up_up#coerce ~text);
       connect_buttons callback
-	[ strip#button_minus_five, -5.;
- 	  strip#button_plus_five, 5.;
-	  strip#button_plus_thirty, 30.]
+        [ strip#button_down, alt_shift_minus;
+          strip#button_up, alt_shift_plus;
+          strip#button_up_up, alt_shift_plus_plus]
 	
     method connect_shift_lateral = fun callback ->
       connect_buttons callback

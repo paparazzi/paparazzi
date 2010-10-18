@@ -52,8 +52,16 @@ type t = <
     connect : (unit -> unit) -> unit
 >
 
+type strip_param = {
+  color : string;
+  min_bat : float;
+  max_bat : float;
+  alt_shift_plus_plus : float;
+  alt_shift_plus : float;
+  alt_shift_minus : float; }
+
 
 val scrolled : GBin.scrolled_window
 
-val add : Pprz.values -> string -> float -> float -> t
-(** [add config color center_ac min_bat max_bat] *)
+val add : Pprz.values -> strip_param -> t
+(** [add config params] *)

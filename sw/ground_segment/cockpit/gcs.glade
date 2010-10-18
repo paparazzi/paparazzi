@@ -724,12 +724,11 @@
                                           </packing>
                                         </child>
                                         <child>
-                                          <widget class="GtkButton" id="button_minus_five">
+                                          <widget class="GtkButton" id="button_down">
                                             <property name="visible">True</property>
                                             <property name="sensitive">False</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="tooltip" translatable="yes">Altitude -5m</property>
                                             <child>
                                               <widget class="GtkImage" id="image4">
                                                 <property name="visible">True</property>
@@ -745,12 +744,11 @@
                                           </packing>
                                         </child>
                                         <child>
-                                          <widget class="GtkButton" id="button_plus_five">
+                                          <widget class="GtkButton" id="button_up">
                                             <property name="visible">True</property>
                                             <property name="sensitive">False</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="tooltip" translatable="yes">Altitude +5m</property>
                                             <child>
                                               <widget class="GtkImage" id="image11">
                                                 <property name="visible">True</property>
@@ -835,12 +833,11 @@
                                           </packing>
                                         </child>
                                         <child>
-                                          <widget class="GtkButton" id="button_plus_thirty">
+                                          <widget class="GtkButton" id="button_up_up">
                                             <property name="visible">True</property>
                                             <property name="sensitive">False</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="tooltip" translatable="yes">Altitude +30m</property>
                                             <child>
                                               <widget class="GtkImage" id="image5">
                                                 <property name="visible">True</property>

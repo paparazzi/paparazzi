@@ -337,6 +337,19 @@ let get_bat_levels = fun af_xml ->
     fvalue "CATASTROPHIC_BAT_LEVEL" default_catastrophic_level, fvalue "MAX_BAT_LEVEL" default_max_level
   with _ -> (default_catastrophic_level, default_max_level)
 
+let get_alt_shift = fun af_xml ->
+  let default_plus_plus = 30.
+  and default_plus = 5.
+  and default_minus = -5. in
+  try
+    let gcs_section = ExtXml.child af_xml ~select:(fun x -> Xml.attrib x "name" = "GCS") "section" in
+    let fvalue = fun name default ->
+      try ExtXml.float_attrib (ExtXml.child gcs_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
+    fvalue "ALT_SHIFT_PLUS_PLUS" default_plus_plus,
+    fvalue "ALT_SHIFT_PLUS" default_plus,
+    fvalue "ALT_SHIFT_MINUS" default_minus
+  with _ -> (default_plus_plus, default_plus, default_minus)
+
 
 
 let key_press_event = fun keys do_action ev ->
@@ -422,7 +435,13 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 
   (** Add a strip *)
   let min_bat, max_bat = get_bat_levels af_xml in
-  let strip = Strip.add config color min_bat max_bat in
+  let alt_shift_plus_plus, alt_shift_plus, alt_shift_minus = get_alt_shift af_xml in
+  let param = { Strip.color = color; min_bat = min_bat; max_bat = max_bat;
+            alt_shift_plus_plus = alt_shift_plus_plus;
+            alt_shift_plus = alt_shift_plus;
+            alt_shift_minus = alt_shift_minus; } in
+  (*let strip = Strip.add config color min_bat max_bat in*)
+  let strip = Strip.add config param in
   strip#connect (fun () -> select_ac acs_notebook ac_id);
   strip#connect_mark (mark geomap ac_id track !Plugin.frame);
 
@@ -1241,7 +1260,14 @@ let listen_tcas = fun a ->
   let get_alarm_tcas = fun a txt _sender vs ->
     let ac = find_ac _sender in
     let other_ac = get_ac vs in
-    log_and_say a ac.ac_name (sprintf "%s : %s -> %s" txt ac.ac_name other_ac.ac_name)
+    let resolve = try
+      match Pprz.int_assoc "resolve" vs with
+        1 -> "=> LEVEL"
+      | 2 -> "=> CLIMB"
+      | 3 -> "=> DESCEND"
+      | _ -> ""
+      with _ -> "" in
+    log_and_say a ac.ac_name (sprintf "%s : %s -> %s %s" txt ac.ac_name other_ac.ac_name resolve)
   in
   tele_bind "TCAS_TA" (get_alarm_tcas a "tcas TA");
   tele_bind "TCAS_RA" (get_alarm_tcas a "TCAS RA")
