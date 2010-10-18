@@ -25,9 +25,12 @@ ifeq ($(ARCH),stm32)
 endif
 
 ifeq ($(NORADIO), False)
-  $(TARGET).CFLAGS 	+= -DRADIO_CONTROL
-  $(TARGET).srcs 	+= $(SRC_FIXEDWING)/radio_control.c
+  $(TARGET).CFLAGS	+= -DRADIO_CONTROL
+	$(TARGET).CFLAGS 	+= -DRADIO_CONTROL_TYPE_H=\"radio_control/ppm.h\"
+	$(TARGET).CFLAGS 	+= -DRADIO_CONTROL_TYPE_PPM
+  $(TARGET).srcs		+= $(SRC_FIXEDWING)/radio_control.c
+  $(TARGET).srcs		+= $(SRC_FIXEDWING)/radio_control/ppm.c
   ifneq ($(ARCH),jsbsim)
-    $(TARGET).srcs 	+= $(SRC_ARCH)/ppm_hw.c
+    $(TARGET).srcs 	+= $(SRC_ARCH)/radio_control/ppm_arch.c
   endif
 endif

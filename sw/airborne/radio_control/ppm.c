@@ -22,9 +22,9 @@
  */
 
 #include "radio_control.h"
+#include "radio_control/ppm.h"
 
-
-uint16_t ppm_pulses[ RADIO_CONTROL_NB_CHANNEL ];
+uint16_t ppm_pulses[ PPM_NB_CHANNEL ];
 volatile bool_t ppm_frame_available;
 
 void radio_control_impl_init(void) {

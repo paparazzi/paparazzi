@@ -53,9 +53,13 @@
 #define PERIODIC_SEND_COMMANDS(_chan) DOWNLINK_SEND_COMMANDS(_chan, COMMANDS_NB, commands)
 
 #ifdef RADIO_CONTROL
-#define PERIODIC_SEND_FBW_STATUS(_chan) DOWNLINK_SEND_FBW_STATUS(_chan, &rc_status, &fbw_mode, &fbw_vsupply_decivolt, &fbw_current_milliamp)
-#define PERIODIC_SEND_PPM(_chan) DOWNLINK_SEND_PPM(_chan, &last_ppm_cpt, PPM_NB_PULSES, ppm_pulses)
-#define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, PPM_NB_PULSES, rc_values)
+#define PERIODIC_SEND_FBW_STATUS(_chan) DOWNLINK_SEND_FBW_STATUS(_chan, &(radio_control.status), &fbw_mode, &fbw_vsupply_decivolt, &fbw_current_milliamp)
+#ifdef RADIO_CONTROL_TYPE_PPM
+#define PERIODIC_SEND_PPM(_chan) DOWNLINK_SEND_PPM(_chan, &(radio_control.frame_rate), PPM_NB_CHANNEL, ppm_pulses)
+#else
+#define PERIODIC_SEND_PPM(_chan) {}
+#endif
+#define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
 #else // RADIO_CONTROL
 #define PERIODIC_SEND_FBW_STATUS(_chan) { uint8_t dummy = 0; DOWNLINK_SEND_FBW_STATUS(_chan, &dummy, &fbw_mode, &fbw_vsupply_decivolt, &fbw_current_milliamp); }
 #define PERIODIC_SEND_PPM(_chan) {}

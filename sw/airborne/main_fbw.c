@@ -108,8 +108,7 @@ void init_fbw( void ) {
   SetCommands(commands_failsafe);
 #endif
 #ifdef RADIO_CONTROL
-  ppm_init();
-  //  radio_control_init();
+  radio_control_init();
 #endif
 #ifdef INTER_MCU
   inter_mcu_init();
@@ -132,22 +131,19 @@ static inline void set_failsafe_mode( void ) {
   SetCommands(commands_failsafe);
 }
 
+#ifdef RADIO_CONTROL
+static inline void handle_rc_frame( void ) {
+  fbw_mode = FBW_MODE_OF_PPRZ(radio_control.values[RADIO_MODE]);
+  if (fbw_mode == FBW_MODE_MANUAL)
+    SetCommandsFromRC(commands, radio_control.values);
+}
+#endif
 
 /********** EVENT ************************************************************/
 
 void event_task_fbw( void) {
 #ifdef RADIO_CONTROL
-  if (ppm_valid) {
-    ppm_valid = FALSE;
-    radio_control_event_task();
-    if (rc_status == RC_OK) {
-      if (rc_values_contains_avg_channels) {
-        fbw_mode = FBW_MODE_OF_PPRZ(rc_values[RADIO_MODE]);
-      }
-      if (fbw_mode == FBW_MODE_MANUAL)
-        SetCommandsFromRC(commands, rc_values);
-    }
-  }
+  RadioControlEvent(handle_rc_frame);
 #endif
 
 
@@ -204,16 +200,9 @@ void periodic_task_fbw( void ) {
 
 #ifdef RADIO_CONTROL
   radio_control_periodic_task();
-  if (fbw_mode == FBW_MODE_MANUAL && rc_status == RC_REALLY_LOST) {
+  if (fbw_mode == FBW_MODE_MANUAL && radio_control.status == RC_REALLY_LOST) {
     fbw_mode = FBW_MODE_AUTO;
   }
-#ifdef RADIO_LED
-  if (rc_status != RC_OK) {
-    LED_OFF(RADIO_LED);
-  } else {
-    LED_ON(RADIO_LED);
-  }
-#endif
 #endif
 
 #ifdef INTER_MCU

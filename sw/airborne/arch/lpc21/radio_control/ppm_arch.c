@@ -22,9 +22,11 @@
  */
 
 #include "radio_control.h"
+#include "radio_control/ppm.h"
 
 uint8_t  ppm_cur_pulse;
 uint32_t ppm_last_pulse_time;
+bool_t   ppm_data_valid;
 
 void ppm_arch_init ( void ) {
   /* select pin for capture */
@@ -35,9 +37,10 @@ void ppm_arch_init ( void ) {
 #elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE
   T0CCR = PPM_CCR_CRF | PPM_CCR_CRI;
 #else
-#error "ppm_hw.h: Unknown PM_PULSE_TYPE"
+#error "ppm_arch.h: Unknown PM_PULSE_TYPE"
 #endif
   ppm_last_pulse_time = 0;
   ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;
+  ppm_data_valid = FALSE;
   ppm_frame_available = FALSE;
 }

@@ -21,30 +21,31 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef PPM_ARCH_H
-#define PPM_ARCH_H
+#include "radio_control/rc_datalink.h"
+#include "radio_control.h"
+
+int8_t rc_dl_values[ RC_DL_NB_CHANNEL ];
+volatile bool_t rc_dl_frame_available;
 
 
-#include "LPC21xx.h"
-#include BOARD_CONFIG
-
-/** 
- * On tiny (and booz) the ppm counter is running at the same speed as
- * the systic counter. There is no reason for this to be true.
- * Let's add a pair of macros to make it possible for them to be different.
- *
- */
-#define RC_PPM_TICS_OF_USEC        SYS_TICS_OF_USEC
-#define RC_PPM_SIGNED_TICS_OF_USEC SIGNED_SYS_TICS_OF_USEC
-
-#define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
-
-#define PPM_IT PPM_CRI
-
-#define PPM_ISR() {       \
-  uint32_t now = PPM_CR;  \
-  DecodePpmFrame(now);    \
+void radio_control_impl_init(void) {
+  rc_dl_frame_available = FALSE;
 }
 
 
-#endif /* PPM_ARCH_H */
+void parse_rc_datalink( uint8_t throttle_mode,
+                        int8_t roll,
+                        int8_t pitch)
+{
+  uint8_t throttle = throttle_mode & 0xFC;
+  uint8_t mode = throttle_mode & 0x03;
+
+  rc_dl_values[RADIO_ROLL] = roll;
+  rc_dl_values[RADIO_PITCH] = pitch;
+  rc_dl_values[RADIO_THROTTLE] = (int8_t)throttle;
+  rc_dl_values[RADIO_MODE] = (int8_t)mode;
+
+  rc_dl_frame_available = TRUE;
+}
+
+

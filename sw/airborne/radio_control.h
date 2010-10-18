@@ -27,55 +27,50 @@
 
 #if defined RADIO_CONTROL
 
-#define RadioControlEventCheckAndHandle(_user_callback) { \
-    if (ppm_valid) {					  \
-      ppm_valid = FALSE;				  \
-      radio_control_event_task();			  \
-      _user_callback();					  \
-    }							  \
-  }
-
-
-
 #include "led.h"
-#include "sys_time.h"
-#include "ppm.h"
-#include "radio.h"
 #include "airframe.h"
 #include "paparazzi.h"
 
-#define RC_AVG_PERIOD 8
+/* underlying hardware */
+#include RADIO_CONTROL_TYPE_H
+/* must be defined by underlying hardware */
+extern void radio_control_impl_init(void);
+/* RADIO_CONTROL_NB_CHANNEL has to be defined by the implementation */
+
+/* timeouts - for now assumes 60Hz periodic */
+#define RC_AVG_PERIOD 8  /* TODO remove if IIR filter is used */
 #define RC_LOST_TIME 30  /* 500ms with a 60Hz timer */
 #define RC_REALLY_LOST_TIME 60 /* ~1s */
-// Number of valid ppm frame to go back to RC OK
+/* Number of valid frames before going back to RC OK */
 #define RC_OK_CPT 15
 
 #define RC_OK          0
 #define RC_LOST        1
 #define RC_REALLY_LOST 2
 
-extern pprz_t rc_values[PPM_NB_PULSES];
-extern uint8_t rc_status;
-extern int32_t avg_rc_values[PPM_NB_PULSES];
-extern uint8_t rc_values_contains_avg_channels;
-extern uint8_t time_since_last_ppm;
-extern uint8_t ppm_cpt, last_ppm_cpt, radio_ok_cpt;
+struct RadioControl {
+  uint8_t status;
+  uint8_t time_since_last_frame;
+  uint8_t radio_ok_cpt;
+  uint8_t frame_rate;
+  uint8_t frame_cpt;
+  pprz_t  values[RADIO_CONTROL_NB_CHANNEL];
+};
 
-/* 
- * On tiny (and booz) the ppm counter is running at the same speed as
- * the systic counter. There is no reason for this to be true.
- * Let's add a pair of macros to make it possible for them to be different.
- *
- */
-#define RC_PPM_TICS_OF_USEC        SYS_TICS_OF_USEC
-#define RC_PPM_SIGNED_TICS_OF_USEC SIGNED_SYS_TICS_OF_USEC
+extern struct RadioControl radio_control;
 
 
 /************* INIT ******************************************************/
 static inline void radio_control_init ( void ) {
-  rc_status = RC_REALLY_LOST; 
-  time_since_last_ppm = RC_REALLY_LOST_TIME;
-  radio_ok_cpt = 0;
+  uint8_t i;
+  for (i=0; i<RADIO_CONTROL_NB_CHANNEL; i++)
+    radio_control.values[i] = 0;
+  radio_control.status = RC_REALLY_LOST;
+  radio_control.time_since_last_frame = RC_REALLY_LOST_TIME;
+  radio_control.radio_ok_cpt = 0;
+  radio_control.frame_rate = 0;
+  radio_control.frame_cpt = 0;
+  radio_control_impl_init();
 }
 
 /************* PERIODIC ******************************************************/
@@ -85,44 +80,34 @@ static inline void radio_control_periodic_task ( void ) {
 
   if (_1Hz >= 60) {
     _1Hz = 0;
-    last_ppm_cpt = ppm_cpt;
-    ppm_cpt = 0;
+    radio_control.frame_rate = radio_control.frame_cpt;
+    radio_control.frame_cpt = 0;
   }
 
-  if (time_since_last_ppm >= RC_REALLY_LOST_TIME) {
-    rc_status = RC_REALLY_LOST;
+  if (radio_control.time_since_last_frame >= RC_REALLY_LOST_TIME) {
+    radio_control.status = RC_REALLY_LOST;
   } else {
-    if (time_since_last_ppm >= RC_LOST_TIME) {
-      rc_status = RC_LOST;
-      radio_ok_cpt = RC_OK_CPT;
+    if (radio_control.time_since_last_frame >= RC_LOST_TIME) {
+      radio_control.status = RC_LOST;
+      radio_control.radio_ok_cpt = RC_OK_CPT;
     }
-    time_since_last_ppm++;
+    radio_control.time_since_last_frame++;
   }
 
-#if defined RC_LED
-  if (rc_status == RC_OK) {
-    LED_ON(RC_LED);
+#if defined RADIO_CONTROL_LED
+  if (radio_control.status == RC_OK) {
+    LED_ON(RADIO_CONTROL_LED);
   }
   else {
-    LED_OFF(RC_LED);
+    LED_OFF(RADIO_CONTROL_LED);
   }
 #endif
  
 }
 
 /********** EVENT ************************************************************/
-static inline void radio_control_event_task ( void ) {
-  ppm_cpt++;
-  time_since_last_ppm = 0;
+// Implemented in radio_control/*.h
 
-  /* Wait for enough valid frame to switch back to RC_OK */
-  if (radio_ok_cpt > 0) radio_ok_cpt--;
-  else {
-    rc_status = RC_OK;
-    /** From ppm values to normalised rc_values */
-    NormalizePpm();
-  }
-}
 
 #endif /* RADIO_CONTROL */
 

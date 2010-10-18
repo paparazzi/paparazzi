@@ -255,7 +255,7 @@ static inline void reporting_task( void ) {
 #endif
 
 /** \brief Function to be called when a message from FBW is available */
-inline void telecommand_task( void ) {
+static inline void telecommand_task( void ) {
   uint8_t mode_changed = FALSE;
   copy_from_to_fbw();
   

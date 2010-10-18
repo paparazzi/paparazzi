@@ -74,19 +74,19 @@ let norm1_ppm = fun c ->
   else
     sprintf "tmp_radio * (tmp_radio >=0 ? (MAX_PPRZ/(float)(RC_PPM_SIGNED_TICS_OF_USEC(%d-%d))) : (MIN_PPRZ/(float)(RC_PPM_SIGNED_TICS_OF_USEC(%d-%d))))" c.max c.neutral c.min c.neutral, "MIN_PPRZ"
       
-let gen_normalize_ppm = fun channels ->
-  printf "#define NormalizePpm() {\\\n";
+let gen_normalize_ppm_fir = fun channels ->
+  printf "#define NormalizePpmFIR(_ppm, _rc) {\\\n";
   printf "  static uint8_t avg_cpt = 0; /* Counter for averaging */\\\n";
   printf "  int16_t tmp_radio;\\\n";
   List.iter
     (fun c ->
       let value, min_pprz = norm1_ppm c in
       if c.averaged then begin
-        printf "  avg_rc_values[RADIO_%s] += ppm_pulses[RADIO_%s];\\\n" c.name c.name
+        printf "  _rc.avg_values[RADIO_%s] += _ppm[RADIO_%s];\\\n" c.name c.name
       end else begin
-        printf "  tmp_radio = ppm_pulses[RADIO_%s] - RC_PPM_TICS_OF_USEC(%d);\\\n" c.name c.neutral;
-        printf "  rc_values[RADIO_%s] = %s;\\\n" c.name value;
-        printf "  Bound(rc_values[RADIO_%s], %s, MAX_PPRZ); \\\n\\\n" c.name min_pprz;
+        printf "  tmp_radio = _ppm[RADIO_%s] - RC_PPM_TICS_OF_USEC(%d);\\\n" c.name c.neutral;
+        printf "  _rc.values[RADIO_%s] = %s;\\\n" c.name value;
+        printf "  Bound(_rc.values[RADIO_%s], %s, MAX_PPRZ); \\\n\\\n" c.name min_pprz;
       end
     )
     channels;
@@ -97,14 +97,13 @@ let gen_normalize_ppm = fun channels ->
     (fun c ->
       if c.averaged then begin
         let value, min_pprz = norm1_ppm c in
-        printf "    tmp_radio = avg_rc_values[RADIO_%s] / RC_AVG_PERIOD -  RC_PPM_TICS_OF_USEC(%d);\\\n" c.name c.neutral;
-        printf "    rc_values[RADIO_%s] = %s;\\\n" c.name value;
-        printf "    avg_rc_values[RADIO_%s] = 0;\\\n" c.name;
-        printf "    Bound(rc_values[RADIO_%s], %s, MAX_PPRZ); \\\n\\\n" c.name min_pprz;
+        printf "    tmp_radio = _rc.avg_values[RADIO_%s] / RC_AVG_PERIOD -  RC_PPM_TICS_OF_USEC(%d);\\\n" c.name c.neutral;
+        printf "    _rc.values[RADIO_%s] = %s;\\\n" c.name value;
+        printf "    _rc.avg_values[RADIO_%s] = 0;\\\n" c.name;
+        printf "    Bound(_rc.values[RADIO_%s], %s, MAX_PPRZ); \\\n\\\n" c.name min_pprz;
       end
     )
     channels;
-  printf "    rc_values_contains_avg_channels = TRUE;\\\n";
   printf " }\\\n";
   printf "}\n"
 
@@ -114,8 +113,8 @@ let norm1_ppm2 = fun c ->
   else
     sprintf "(tmp_radio >=0 ? (tmp_radio *  MAX_PPRZ) / (RC_PPM_SIGNED_TICS_OF_USEC(%d-%d)) : (tmp_radio * MIN_PPRZ) / (RC_PPM_SIGNED_TICS_OF_USEC(%d-%d)))" c.max c.neutral c.min c.neutral, "MIN_PPRZ"
 
-let gen_normalize_ppm2 = fun channels ->
-  printf "#define NormalizePpm2(_ppm, _rc) {\\\n";
+let gen_normalize_ppm_iir = fun channels ->
+  printf "#define NormalizePpmIIR(_ppm, _rc) {\\\n";
   printf "  int32_t tmp_radio;\\\n";
   printf "  int32_t tmp_value;\\\n\\\n";
   List.iter
@@ -125,12 +124,12 @@ let gen_normalize_ppm2 = fun channels ->
       printf "  tmp_value = %s;\\\n" value;
       printf "  Bound(tmp_value, %s, MAX_PPRZ); \\\n" min_pprz;
       if c.averaged then
-        printf "  _rc[RADIO_%s] = (pprz_t)((RADIO_FILTER * _rc[RADIO_%s] + tmp_value) / (RADIO_FILTER + 1));\\\n\\\n" c.name c.name
+        printf "  _rc.values[RADIO_%s] = (pprz_t)((RADIO_FILTER * _rc.values[RADIO_%s] + tmp_value) / (RADIO_FILTER + 1));\\\n\\\n" c.name c.name
       else
-        printf "  _rc[RADIO_%s] = (pprz_t)(tmp_value);\\\n\\\n" c.name
+        printf "  _rc.values[RADIO_%s] = (pprz_t)(tmp_value);\\\n\\\n" c.name
       )
     channels;
-  printf "  rc_values_contains_avg_channels = TRUE;\\\n";
+  (*printf "  rc_values_contains_avg_channels = TRUE;\\\n";*)
   printf "}\n"
 
 
@@ -151,6 +150,7 @@ let _ =
   Xml2h.warning ("RADIO MODEL: "^n);
   define_string "RADIO_NAME" n;
   nl ();
+  (*define "RADIO_CONTROL_NB_CHANNEL" (string_of_int (List.length channels));*)
   define "RADIO_CTL_NB" (string_of_int (List.length channels));
   nl ();
   define "RADIO_FILTER" "7";
@@ -183,10 +183,10 @@ let _ =
   printf "#define PPM_SYNC_MAX_LEN (%sul)\n" ppm_sync_max;
   nl ();
 
-  gen_normalize_ppm channels_params;
+  gen_normalize_ppm_fir channels_params;
   nl ();
-
-  gen_normalize_ppm2 channels_params;
+  gen_normalize_ppm_iir channels_params;
+  nl ();
   
   printf "\n#endif // %s\n" h_name
 	

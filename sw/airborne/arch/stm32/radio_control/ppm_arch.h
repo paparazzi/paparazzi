@@ -21,12 +21,10 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef PPM_ARCH_H
-#define PPM_ARCH_H
-
-
-#include "LPC21xx.h"
-#include BOARD_CONFIG
+/** \file booz_radio_control_ppm_hw.h
+ *  \brief STM32 ppm decoder
+ *
+ */
 
 /** 
  * On tiny (and booz) the ppm counter is running at the same speed as
@@ -34,17 +32,5 @@
  * Let's add a pair of macros to make it possible for them to be different.
  *
  */
-#define RC_PPM_TICS_OF_USEC        SYS_TICS_OF_USEC
-#define RC_PPM_SIGNED_TICS_OF_USEC SIGNED_SYS_TICS_OF_USEC
-
-#define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
-
-#define PPM_IT PPM_CRI
-
-#define PPM_ISR() {       \
-  uint32_t now = PPM_CR;  \
-  DecodePpmFrame(now);    \
-}
-
-
-#endif /* PPM_ARCH_H */
+#define RC_PPM_TICS_OF_USEC(_v)        SYS_TICS_OF_USEC((_v)/9)
+#define RC_PPM_SIGNED_TICS_OF_USEC(_v) SIGNED_SYS_TICS_OF_USEC((_v)/9)

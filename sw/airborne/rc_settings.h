@@ -37,14 +37,14 @@
 
 #ifndef RC_SETTINGS_H
 
+#if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
+
 #include "std.h"
 #include "radio.h"
 
 #define RC_SETTINGS_MODE_NONE      0
 #define RC_SETTINGS_MODE_DOWN      1
 #define RC_SETTINGS_MODE_UP        2
-
-#if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
 
 #define RcSettingsOff() (rc_settings_mode==RC_SETTINGS_MODE_NONE)
 

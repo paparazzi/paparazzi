@@ -24,10 +24,5 @@
 
 #include "radio_control.h"
 
-pprz_t rc_values[PPM_NB_PULSES];
-uint8_t rc_status;
-int32_t avg_rc_values[PPM_NB_PULSES];
-uint8_t rc_values_contains_avg_channels = FALSE;
-uint8_t time_since_last_ppm;
-uint8_t ppm_cpt, last_ppm_cpt, radio_ok_cpt;
+struct RadioControl radio_control;
 

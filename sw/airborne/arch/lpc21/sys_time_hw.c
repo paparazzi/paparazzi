@@ -13,8 +13,8 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
 #define ACTUATORS_IT 0x00
 #endif /* ACTUATORS */
 
-#ifdef RADIO_CONTROL
-#include "ppm.h"
+#if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_PPM
+#include "radio_control.h"
 #else
 #define PPM_IT 0x00
 #endif
@@ -86,7 +86,7 @@ void TIMER0_ISR ( void ) {
     }
 #endif /* ACTUATORS && (SERVOS_4017 || SERVOS_4015_MAT || SERVOS_PPM_MAT) */
 
-#ifdef RADIO_CONTROL
+#if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_PPM
     if (T0IR&PPM_IT) {
       PPM_ISR();
       T0IR = PPM_IT;

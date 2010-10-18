@@ -38,9 +38,6 @@
 #include <inttypes.h>
 
 #include "std.h"
-#if defined RADIO_CONTROL || RADIO_CONTROL_AUTO1
-#include "radio.h"
-#endif
 
 #include "paparazzi.h"
 #include "airframe.h"
@@ -50,7 +47,7 @@
 /** Data structure shared by fbw and ap processes */
 struct fbw_state {
 #if defined RADIO_CONTROL || RADIO_CONTROL_AUTO1
-  pprz_t channels[RADIO_CTL_NB];  
+  pprz_t channels[RADIO_CONTROL_NB_CHANNEL];  
   uint8_t ppm_cpt;
 #endif
   uint8_t status;
@@ -101,25 +98,19 @@ static inline void inter_mcu_fill_fbw_state (void) {
 
 #ifdef RADIO_CONTROL
   uint8_t i;
-  for(i = 0; i < RADIO_CTL_NB; i++)
-    fbw_state->channels[i] = rc_values[i];
+  for(i = 0; i < RADIO_CONTROL_NB_CHANNEL; i++)
+    fbw_state->channels[i] = radio_control.values[i];
 
-  fbw_state->ppm_cpt = last_ppm_cpt;
+  fbw_state->ppm_cpt = radio_control.frame_rate;
 
-  status = (rc_status == RC_OK ? _BV(STATUS_RADIO_OK) : 0);
-  status |= (rc_status == RC_REALLY_LOST ? _BV(STATUS_RADIO_REALLY_LOST) : 0);
+  status = (radio_control.status == RC_OK ? _BV(STATUS_RADIO_OK) : 0);
+  status |= (radio_control.status == RC_REALLY_LOST ? _BV(STATUS_RADIO_REALLY_LOST) : 0);
+  status |= (radio_control.status == RC_OK ? _BV(AVERAGED_CHANNELS_SENT) : 0); // Any valid frame contains averaged channels
 #endif // RADIO_CONTROL
 
   status |= (fbw_mode == FBW_MODE_AUTO ? _BV(STATUS_MODE_AUTO) : 0);
   status |= (fbw_mode == FBW_MODE_FAILSAFE ? _BV(STATUS_MODE_FAILSAFE) : 0);
   fbw_state->status  = status;
-
-#ifdef RADIO_CONTROL
-  if (rc_values_contains_avg_channels) {
-    fbw_state->status |= _BV(AVERAGED_CHANNELS_SENT);
-    rc_values_contains_avg_channels = FALSE;
-  }
-#endif // RADIO_CONTROL
 
   fbw_state->vsupply = fbw_vsupply_decivolt;
   fbw_state->current = fbw_current_milliamp;

@@ -21,30 +21,16 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef PPM_ARCH_H
-#define PPM_ARCH_H
+#include "radio_control.h"
 
+#include <inttypes.h>
+#include <caml/mlvalues.h>
 
-#include "LPC21xx.h"
-#include BOARD_CONFIG
-
-/** 
- * On tiny (and booz) the ppm counter is running at the same speed as
- * the systic counter. There is no reason for this to be true.
- * Let's add a pair of macros to make it possible for them to be different.
- *
- */
-#define RC_PPM_TICS_OF_USEC        SYS_TICS_OF_USEC
-#define RC_PPM_SIGNED_TICS_OF_USEC SIGNED_SYS_TICS_OF_USEC
-
-#define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
-
-#define PPM_IT PPM_CRI
-
-#define PPM_ISR() {       \
-  uint32_t now = PPM_CR;  \
-  DecodePpmFrame(now);    \
+value update_rc_channel(value c __attribute__ ((unused)), value v __attribute__ ((unused))) {
+  return Val_unit;
 }
 
+value send_ppm(value unit) {
+  return unit;
+}
 
-#endif /* PPM_ARCH_H */
