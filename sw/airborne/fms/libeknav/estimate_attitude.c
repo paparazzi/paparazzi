@@ -1,4 +1,6 @@
 #include "estimate_attitude.h"
+#include <stdio.h>
+
 
 struct DoubleMat44 square_skaled(struct DoubleMat44 A){
   double _1_max = 1/INFTY_NORM16(A);
@@ -58,6 +60,7 @@ DoubleVect4 dominant_Eigenvector(struct DoubleMat44 A, unsigned int maximum_iter
     x_k = x_kp1;
     
   }
+  printf("KONVERGE: %i\n", k);
   return x_k;
 }
 

@@ -50,7 +50,7 @@ static void main_init(void) {
   set_reference_direction();
 
 }
-
+#if 0
 static struct raw_log_entry first_entry_after_initialisation(int file_descriptor){
   int        imu_measurements = 0,      // => Gyro + Accel
     magnetometer_measurements = 0,
@@ -109,6 +109,68 @@ static struct raw_log_entry first_entry_after_initialisation(int file_descriptor
 	orientation_0 = ecef2body_from_pprz_ned2body(pos_0_ecef,q_ned2body);
   return e;
 }
+#else
+static struct raw_log_entry first_entry_after_initialisation(int file_descriptor){
+  int        imu_measurements = 0,      // => Gyro + Accel
+    magnetometer_measurements = 0,
+             gps_measurements = 0;      // only the position
+  
+  struct DoubleMat33 attitude_profile_matrix;
+  struct Orientation_Measurement  gravity,
+                                  magneto,
+                                  fake;  
+  struct DoubleQuat q_ned2body;
+  
+  /* Prepare the attitude profile matrix */
+  FLOAT_MAT33_ZERO(attitude_profile_matrix);
+  
+  /* set the gravity measurement */
+  VECT3_ASSIGN(gravity.reference_direction, 0,0,-1);
+  gravity.weight_of_the_measurement = 1;
+  
+  /* set the magneto - measurement */
+  EARTHS_GEOMAGNETIC_FIELD_NORMED(magneto.reference_direction);
+  magneto.weight_of_the_measurement = 1;
+    
+  uint8_t read_ok = 1;
+  struct raw_log_entry e = next_GPS(file_descriptor);
+  
+  while( (read_ok) && NOT_ENOUGH_MEASUREMENTS(imu_measurements, magnetometer_measurements, gps_measurements) ){
+    if(IMU_READY(e.data_valid)){
+      imu_measurements++;
+      
+      // update the estimated bias
+      bias_0 = NEW_MEAN(bias_0, RATES_AS_VECTOR3D(e.gyro), imu_measurements);
+      
+      // update the attitude profile matrix
+      VECT3_COPY(gravity.measured_direction,e.accel);
+      add_orientation_measurement(&attitude_profile_matrix, gravity);
+    }
+    if(MAG_READY(e.data_valid)){
+      magnetometer_measurements++;
+      // update the attitude profile matrix
+      VECT3_COPY(magneto.measured_direction,e.mag);
+      add_orientation_measurement(&attitude_profile_matrix, magneto);
+      
+      // now, generate fake measurement with the last gravity measurement
+      fake = fake_orientation_measurement(gravity, magneto);
+      add_orientation_measurement(&attitude_profile_matrix, fake);
+    }
+    if(GPS_READY(e.data_valid)){
+      gps_measurements++;
+      // update the estimated bias
+      pos_0_ecef = NEW_MEAN(pos_0_ecef, VECT3_AS_VECTOR3D(e.ecef_pos)/100, gps_measurements);
+    }
+    
+    e = read_raw_log_entry(file_descriptor, &read_ok);
+  }
+  q_ned2body = estimated_attitude(attitude_profile_matrix, 1000, 1e-6);
+  //printf("NED2BODY Quat: % 7.2f % 7.2f % 7.2f % 7.2f\n", q_ned2body.qi, q_ned2body.qx, q_ned2body.qy, q_ned2body.qz);
+	orientation_0 = ecef2body_from_pprz_ned2body(pos_0_ecef,q_ned2body);
+  return e;
+}
+#endif
+
 
 static void main_run_from_file(int file_descriptor, struct raw_log_entry first_entry){
   struct raw_log_entry e = first_entry;
@@ -180,8 +242,11 @@ static void init_ins_state(void){
   printf("\n");
 	
 	Matrix<double, 12, 1> diag_cov;
+  double angle_cov = 10*M_PI/180;
+  
 	diag_cov << Vector3d::Ones() * bias_cov_0  * bias_cov_0 ,
-							Vector3d::Ones() *  M_PI*0.5   *  M_PI*0.5  ,
+            //Vector3d::Ones() *  M_PI*0.5   *  M_PI*0.5  ,
+              Vector3d::Ones() *  angle_cov  *  angle_cov ,
 							Vector3d::Ones() *  pos_cov_0  *  pos_cov_0 ,
 							Vector3d::Ones() * speed_cov_0 * speed_cov_0;
 	ins.cov = diag_cov.asDiagonal();
@@ -219,7 +284,7 @@ Quaterniond ecef2body_from_pprz_ned2body(Vector3d ecef_pos, struct DoubleQuat q_
   DOUBLE_QUAT_OF_RMAT(q_ecef2enu, current_ltp.ltp_of_ecef);
   QUAT_ENU_FROM_TO_NED(q_ecef2enu, q_ecef2ned);
   
-  FLOAT_QUAT_COMP(q_ecef2body, q_ecef2ned, q_ned2body);
+  FLOAT_QUAT_COMP_NORM_SHORTEST(q_ecef2body, q_ecef2ned, q_ned2body);
   
   return DOUBLEQUAT_AS_QUATERNIOND(q_ecef2body);
 }

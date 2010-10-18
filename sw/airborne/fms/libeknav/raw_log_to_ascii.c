@@ -16,6 +16,8 @@ void print_raw_log_entry(struct raw_log_entry*);
 void build_fake_log(void);
 
 #define PRT(a) printf("%f ", a);
+#define VI_GPS_DATA_VALID      2
+#define GPS_READY(data_valid) (data_valid & (1<<VI_GPS_DATA_VALID))
 
 
 
@@ -35,9 +37,11 @@ int main(int argc, char** argv) {
     struct raw_log_entry e;
     ssize_t nb_read = read(raw_log_fd, &e, sizeof(e));
     if (nb_read != sizeof(e)) break;
-    print_raw_log_entry(&e);
+    if(GPS_READY(e.data_valid)){
+      print_raw_log_entry(&e);
+      printf("\n");
+    }
     //printf("%f %f %f %f", e.time, e.gyro.p, e.gyro.q, e.gyro.r);
-    printf("\n");
   }
 
   return 0;
