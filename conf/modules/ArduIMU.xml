@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ArduIMU">
+  <header>
+    <file name="ArduIMU.h"/>
+  </header>
+  <init fun="ArduIMU_init()"/>
+  <periodic fun="ArduIMU_periodic()" freq="15" autorun="TRUE"/>		<!-- 15 ist soll -->
+  <periodic fun="ArduIMU_periodicGPS()" freq="8" autorun="TRUE"/>       <!--  8 ist soll -->
+  <makefile target="ap">
+    <file name="ArduIMU.c"/>
+  </makefile>
+  <!--makefile target="sim">
+    <file name="sim_MPPT.c"/>
+  </makefile-->
+</module>
+
