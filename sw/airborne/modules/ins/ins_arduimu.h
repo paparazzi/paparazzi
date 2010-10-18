@@ -9,8 +9,8 @@
 
 extern float ArduIMU_data[NB_DATA];
 
-extern float arduimu_roll_neutral;
-extern float arduimu_pitch_neutral;
+extern float ins_roll_neutral;
+extern float ins_pitch_neutral;
 
 //mixer
 extern float pitch_of_throttle_gain;

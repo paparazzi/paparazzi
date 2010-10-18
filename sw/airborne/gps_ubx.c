@@ -81,21 +81,26 @@ uint32_t gps_t0_itow;
 uint32_t gps_t0_frac;
 #endif
 int32_t gps_alt;
+uint16_t gps_speed_3d;
 uint16_t gps_gspeed;
 int16_t gps_climb;
 int16_t gps_course;
 int32_t gps_utm_east, gps_utm_north;
 uint8_t gps_utm_zone;
 uint8_t gps_mode;
+uint8_t gps_status_flags;
+uint8_t gps_sol_flags;
 volatile bool_t gps_msg_received;
 bool_t gps_pos_available;
 uint8_t ubx_id, ubx_class;
 uint16_t ubx_len;
 int32_t gps_lat, gps_lon;
+int32_t gps_hmsl;
 uint16_t gps_reset;
 
 uint16_t gps_PDOP;
 uint32_t gps_Pacc, gps_Sacc;
+int32_t gps_ecefVZ;
 uint8_t gps_numSV;
 
 #define UTM_HEM_NORTH 0
@@ -250,11 +255,14 @@ void parse_gps_msg( void ) {
   if (ubx_class == UBX_NAV_ID) {
     if (ubx_id == UBX_NAV_STATUS_ID) {
       gps_mode = UBX_NAV_STATUS_GPSfix(ubx_msg_buf);
+      gps_status_flags = UBX_NAV_STATUS_Flags(ubx_msg_buf);
+      gps_sol_flags = UBX_NAV_SOL_Flags(ubx_msg_buf);
 #ifdef GPS_USE_LATLONG
   /* Computes from (lat, long) in the referenced UTM zone */
     } else if (ubx_id == UBX_NAV_POSLLH_ID) {
       gps_lat = UBX_NAV_POSLLH_LAT(ubx_msg_buf);
       gps_lon = UBX_NAV_POSLLH_LON(ubx_msg_buf);
+      gps_hmsl = UBX_NAV_POSLLH_HMSL(ubx_msg_buf);
 
       latlong_utm_of(RadOfDeg(gps_lat/1e7), RadOfDeg(gps_lon/1e7), nav_utm_zone0);
       
@@ -273,6 +281,7 @@ void parse_gps_msg( void ) {
       gps_utm_zone = UBX_NAV_POSUTM_ZONE(ubx_msg_buf);
 #endif
     } else if (ubx_id == UBX_NAV_VELNED_ID) {
+      gps_speed_3d = UBX_NAV_VELNED_Speed(ubx_msg_buf);
       gps_gspeed = UBX_NAV_VELNED_GSpeed(ubx_msg_buf);
       gps_climb = - UBX_NAV_VELNED_VEL_D(ubx_msg_buf);
       gps_course = UBX_NAV_VELNED_Heading(ubx_msg_buf) / 10000;
@@ -290,6 +299,7 @@ void parse_gps_msg( void ) {
       gps_mode = UBX_NAV_SOL_GPSfix(ubx_msg_buf);
       gps_PDOP = UBX_NAV_SOL_PDOP(ubx_msg_buf);
       gps_Pacc = UBX_NAV_SOL_Pacc(ubx_msg_buf);
+      gps_ecefVZ = UBX_NAV_SOL_ECEFVZ(ubx_msg_buf);
       gps_Sacc = UBX_NAV_SOL_Sacc(ubx_msg_buf);
       gps_numSV = UBX_NAV_SOL_numSV(ubx_msg_buf);
       gps_week = UBX_NAV_SOL_week(ubx_msg_buf);
