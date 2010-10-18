@@ -48,11 +48,14 @@ let find_file = fun path file ->
 	loop_ext extensions in
   loop_path path
 
-let regexp_plus = Str.regexp "\\+" 
+let regexp_plus_less = Str.regexp "[+-]" 
 let affine_transform = fun format ->
-  match Str.split regexp_plus format with
-    [a;b] -> float_of_string a, float_of_string b
-  | [a] -> float_of_string a, 0.
+  (* Split after removing blank spaces *)
+  match Str.full_split regexp_plus_less (Str.global_replace (Str.regexp "[ \t]+") "" format) with
+    [Str.Text a; Str.Delim "+" ; Str.Text b] -> float_of_string a, float_of_string b
+  | [Str.Text a; Str.Delim "-" ; Str.Text b] -> float_of_string a, -. float_of_string b
+  | [Str.Text a; Str.Delim "+"; Str.Delim "-" ; Str.Text b] -> float_of_string a, -. float_of_string b
+  | [Str.Text a] -> float_of_string a, 0.
   | _ -> 1., 0.
 
 (* Box-Muller transform to generate a normal distribution from a uniform one

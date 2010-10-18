@@ -34,7 +34,7 @@ class setting = fun (i:int) (xml:Xml.xml) (current_value:GMisc.label) set_defaul
     method index = i
     method xml = xml
     method current_value =
-      let auc = try Xml.attrib xml "alt_unit_coef" with _ -> "" in
+      let auc = Pprz.alt_unit_coef_of_xml xml in 
       let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
       (float_of_string current_value#text -. alt_b) /. alt_a
     method update = fun s ->
@@ -78,7 +78,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
   let page_incr = step_incr
   and page_size = step_incr
   and show_auto = try ExtXml.attrib dl_setting "auto" = "true" with _ -> false in
-  let auc = try Xml.attrib dl_setting "alt_unit_coef" with _ -> "" in
+  let auc = Pprz.alt_unit_coef_of_xml dl_setting in
   let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
   
   let hbox = GPack.hbox ~packing () in
@@ -275,7 +275,7 @@ class settings = fun ?(visible = fun _ -> true) xml_settings do_change strip ->
     method set = fun i v ->
       if visible self#widget then
 	let setting = variables.(i) in
-	let auc = ExtXml.attrib_or_default setting#xml "alt_unit_coef" "" in
+	let auc = Pprz.alt_unit_coef_of_xml setting#xml in
 	let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
 	let v = alt_a *. v +. alt_b in
 	let s = string_of_float v in

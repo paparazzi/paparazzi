@@ -157,12 +157,26 @@ let payload_size_of_message = fun message ->
     message.fields
     2 (** + message id + aircraft id *)
 
+  
+let alt_unit_coef_of_xml = function xml ->
+  try Xml.attrib xml "alt_unit_coef"
+  with _ ->
+    let u = try Xml.attrib xml "unit" with _ -> "" in
+    let au = try Xml.attrib xml "alt_unit" with _ -> "" in
+    match (u, au) with
+      ("deg", "rad") | ("deg/s", "rad/s") -> string_of_float (pi /. 180.)
+    | ("rad", "deg") | ("rad/s", "deg/s") -> string_of_float (180. /. pi)
+    | ("m", "cm") | ("m/s", "cm/s") -> "100."
+    | ("cm", "m") | ("cm/s", "m/s") -> "0.01"
+    | ("decideg", "deg") -> "0.1"
+    | (_, _) -> "1."
+
 let pipe_regexp = Str.regexp "|"
 let field_of_xml = fun xml ->
   let t = ExtXml.attrib xml "type" in
   let t = if is_array_type t then ArrayType (type_of_array_type t) else Scalar t in
   let f = try Xml.attrib xml "format" with _ -> default_format t in
-  let auc = try Xml.attrib xml "alt_unit_coef" with _ -> "" in
+  let auc = alt_unit_coef_of_xml xml in
   let values = try Str.split pipe_regexp (Xml.attrib xml "values") with _ -> [] in
 
   ( String.lowercase (ExtXml.attrib xml "name"), 
@@ -324,20 +338,6 @@ let hex_of_int_array = function
       s	
   | value ->
       failwith (sprintf "Error: expecting array in Pprz.hex_of_int_array, found %s" (string_of_value value))
-
-  
-let alt_unit_coef_of_xml = function xml ->
-  try Xml.attrib xml "alt_unit_coef"
-  with _ ->
-    let u = try Xml.attrib xml "unit" with _ -> "" in
-    let au = try Xml.attrib xml "alt_unit" with _ -> "" in
-    match (u, au) with
-      ("deg", "rad") | ("deg/s", "rad/s") -> string_of_float (pi /. 180.)
-    | ("rad", "deg") | ("rad/s", "deg/s") -> string_of_float (180. /. pi)
-    | ("m", "cm") | ("m/s", "cm/s") -> "100."
-    | ("cm", "m") | ("cm/s", "m/s") -> "0.01"
-    | ("decideg", "deg") -> "0.1"
-    | (_, _) -> "1."
 
 
 
