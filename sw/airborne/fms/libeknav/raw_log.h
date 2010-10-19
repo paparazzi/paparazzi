@@ -10,6 +10,7 @@ struct __attribute__ ((packed)) raw_log_entry{
   struct FloatVect3   mag;
   struct FloatVect3		ecef_pos;
   struct FloatVect3		ecef_vel;
+  int16_t pressure_absolute;
   uint8_t data_valid;
 };
 

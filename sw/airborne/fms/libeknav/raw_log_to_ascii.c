@@ -25,8 +25,7 @@ int main(int argc, char** argv) {
 
   //  build_fake_log();
 
-  const char* filename = "log_test3.bin";
-  int raw_log_fd = open(filename, O_RDONLY); 
+  int raw_log_fd = open(argv[1], O_RDONLY); 
   
   if (raw_log_fd == -1) {
     perror("opening log\n");
