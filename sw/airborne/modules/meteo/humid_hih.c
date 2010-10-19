@@ -28,7 +28,7 @@
  *   This reads the values for humidity from the Honeywell HIH-4030 sensor.
  */
 
-
+#include <std.h>
 #include "humid_hih.h"
 #include "temp_tmp102.h"
 #include "adc.h"

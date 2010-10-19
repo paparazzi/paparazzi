@@ -53,7 +53,7 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
 #endif
 
 #ifdef TRIGGER_EXT
-#include "trig_ext.h"
+#include "trig_ext_hw.h"
 #endif
 
 #define TIMER0_IT_MASK (ACTUATORS_IT         |\

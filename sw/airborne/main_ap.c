@@ -123,10 +123,6 @@
 #include "baro_ets.h"
 #endif // USE_BARO_ETS
 
-#ifdef TRIGGER_EXT
-#include "trig_ext.h"
-#endif // TRIGGER_EXT
-
 /*code added by Haiyang Chao for using Xsens IMU for fixed wing UAV 20080804*/
 #ifdef UGEAR
 #include "osam_imu_ugear.h"
@@ -773,10 +769,6 @@ void init_ap( void ) {
 
   power_switch = FALSE;
 
-#ifdef TRIGGER_EXT
-  trig_ext_init();
-#endif
-
   /************ Multi-uavs status ***************/
 
 #ifdef TRAFFIC_INFO
@@ -929,23 +921,6 @@ void event_task_ap( void ) {
                 &micromag_values[1],
                 &micromag_values[2] );
     micromag_status = MM_IDLE;
-  }
-#endif
-
-#ifdef TRIGGER_EXT
-  if (trig_ext_valid == TRUE) {
-    uint8_t turb_id = 0;
-    uint32_t sync_itow, cycle_time;
-
-    sync_itow = itow_from_ticks(trigger_t0);
-    cycle_time =  MSEC_OF_SYS_TICS(delta_t0);
-
-    DOWNLINK_SEND_WINDTURBINE_STATUS_(DefaultChannel,
-                &turb_id,
-                &turb_id,
-                &sync_itow,
-                &cycle_time );
-    trig_ext_valid = FALSE;
   }
 #endif
 

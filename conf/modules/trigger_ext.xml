@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="trigger_ext" dir="sensors">
+  <header>
+    <file name="trigger_ext.h"/>
+  </header>
+  <init fun="trigger_ext_init()"/>
+  <periodic fun="trigger_ext_periodic()" freq="10"/>
+  <makefile>
+    <raw>
+      ap.srcs += $(SRC_ARCH)/trig_ext_hw.c
+    </raw>
+    <file name="trigger_ext.c"/>
+    <flag name="TRIGGER_EXT"/>
+    <flag name="TRIG_EXT_PULSE_TYPE" value="TRIG_EXT_EDGE_FALLING"/>
+    <flag name="TURBINE_ID" value="42"/>
+    <flag name="GPS_TIMESTAMP"/>
+  </makefile>
+</module>
+
