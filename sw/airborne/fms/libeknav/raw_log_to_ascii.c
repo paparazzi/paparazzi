@@ -36,10 +36,8 @@ int main(int argc, char** argv) {
     struct raw_log_entry e;
     ssize_t nb_read = read(raw_log_fd, &e, sizeof(e));
     if (nb_read != sizeof(e)) break;
-    if(GPS_READY(e.data_valid)){
-      print_raw_log_entry(&e);
-      printf("\n");
-    }
+    print_raw_log_entry(&e);
+    printf("\n");
     //printf("%f %f %f %f", e.time, e.gyro.p, e.gyro.q, e.gyro.r);
   }
 
