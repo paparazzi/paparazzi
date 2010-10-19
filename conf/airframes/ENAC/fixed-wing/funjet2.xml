@@ -18,6 +18,14 @@
       <param name="LIGHT_LED_NAV" value="3"/>
     </load>
     <load name="infrared_i2c.xml"/>
+    <load name="pbn.xml"/>
+    <!--load name="airspeed_adc.xml">
+      <define name="ADC_AIRSPEED" value="ADC_4"/>
+      <flag name="AIRSPEED_SCALE" value="1"/>
+      <flag name="AIRSPEED_BIAS" value="0"/>
+    </load-->
+    <!--load name="airspeed_ets.xml"/>
+    <load name="baro_ets.xml"/-->
   </modules>
 
   <firmware name="fixedwing">
@@ -45,7 +53,6 @@
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control"/>
     <!-- Sensors -->
-    <!--subsystem name="attitude" 		type="infrared"/-->
     <subsystem name="gps" type="ublox_lea5h"/>
     <subsystem name="gyro" type="roll">
       <param name="ADC_GYRO_ROLL" value="ADC_5"/>
@@ -68,7 +75,7 @@
   <servos>
     <servo name="MOTOR" no="0" min="1040" neutral="1040" max="2000"/>
     <servo name="AILEVON_LEFT" no="2" min="1900" neutral="1500" max="1050"/>
-    <servo name="AILEVON_RIGHT" no="6" min="1120" neutral="1500" max="1980"/>
+    <servo name="AILEVON_RIGHT" no="6" min="1120" neutral="1540" max="1980"/>
   </servos>
 
   <commands>
@@ -116,8 +123,8 @@
     <define name="IR2_SIGN" value="1"/>
     <define name="TOP_SIGN" value="1"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="7.73493003845" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="2." unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="2." unit="deg"/>
   </section>
 
   <section name="GYRO" prefix="GYRO_">
@@ -139,7 +146,7 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
-    <define name="ALT_KALMAN_ENABLED" value="FALSE"/>
+    <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
@@ -154,15 +161,15 @@
     <define name="ALTITUDE_MAX_CLIMB" value="3."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.600000023842"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-1000"/>
-    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.194000005722" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.2" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PGAIN" value="-0.01"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.04"/>
-    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.109999999404"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.02"/>
 
     <!-- auto pitch inner loop -->
     <define name="AUTO_PITCH_PGAIN" value="-0.03"/>
@@ -175,19 +182,19 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.20000004768"/>
+    <define name="COURSE_PGAIN" value="-1."/>
     <define name="ROLL_MAX_SETPOINT" value="0.8" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-8000."/>
-    <define name="ROLL_RATE_GAIN" value="-1000."/>
+    <define name="ROLL_ATTITUDE_GAIN" value="-9000."/>
+    <define name="ROLL_RATE_GAIN" value="-3000."/>
 
     <define name="PITCH_PGAIN" value="-20000."/>
     <define name="PITCH_DGAIN" value="0.4"/>
 
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
-    <define name="ELEVATOR_OF_ROLL" value="1000"/>
+    <define name="ELEVATOR_OF_ROLL" value="1400"/>
   </section>
 
   <section name="NAV">
@@ -215,7 +222,7 @@
   </section>
 
   <section name="SIMU">
-    <define name="ROLL_RESPONSE_FACTOR" value="15"/>
+    <define name="ROLL_RESPONSE_FACTOR" value="10"/>
     <define name="MAX_ROLL_DOT" value="20" unit="rad/s"/>
   </section>
 
