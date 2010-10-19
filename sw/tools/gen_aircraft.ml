@@ -149,13 +149,20 @@ let dump_module_section = fun xml f ->
 	let module_target_list = get_targets_of_module m in
 	(* print global flags as compilation defines and flags *)
 	fprintf f "\n# makefile for module %s in modules/%s\n" name dir;
-	List.iter (fun target ->
-	  List.iter (fun flag ->
-		let name = ExtXml.attrib flag "name"
-		and value = try "="^(Xml.attrib flag "value") with _ -> "" in
-		fprintf f "%s.CFLAGS += -D%s%s\n" target name value
-		) flags
-	  ) module_target_list;
+	List.iter (fun flag ->
+      match String.lowercase (Xml.tag flag) with
+        "define" ->
+          let value = Xml.attrib flag "value"
+          and name = Xml.attrib flag "name" in
+          fprintf f "%s = %s\n" name value
+      | "flag" | "param" ->
+	      List.iter (fun target ->
+		    let name = ExtXml.attrib flag "name"
+		    and value = try "="^(Xml.attrib flag "value") with _ -> "" in
+		    fprintf f "%s.CFLAGS += -D%s%s\n" target name value
+	      ) module_target_list
+      | _ -> ()
+    ) flags;
 	(* Look for makefile section *)
 	List.iter (fun l ->
 	  if ExtXml.tag_is l "makefile" then begin
@@ -176,6 +183,9 @@ let dump_module_section = fun xml f ->
 		  | "file" ->
 			  let name = Xml.attrib field "name" in
 			  List.iter (fun target -> fprintf f "%s.srcs += $(%s)/%s\n" target dir_name name) targets
+		  | "file_arch" ->
+			  let name = Xml.attrib field "name" in
+			  List.iter (fun target -> fprintf f "%s.srcs += arch/$(ARCH)/$(%s)/%s\n" target dir_name name) targets
 		  | "file_hw" ->
 			  let name = Xml.attrib field "name" in
 			  List.iter (fun target -> fprintf f "%s.srcs += arch/$(ARCH)/$(%s)/%s\n" target dir_name name) targets
