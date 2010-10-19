@@ -188,7 +188,8 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
     match String.lowercase (Xml.tag x) with
       "strip_button" ->
 	let label = ExtXml.attrib x "name"
-	and sp_value = ExtXml.float_attrib x "value" in
+	and sp_value = ExtXml.float_attrib x "value"
+        and group = ExtXml.attrib_or_default x "group" "" in
 	let b =
 	  try (* Is it an icon ? *)
 	    let icon = Xml.attrib x "icon" in
@@ -211,7 +212,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
 	  | exc -> 
 	      prerr_endline (Printexc.to_string exc);
 	      GButton.button ~label () in
-	(strip b#coerce : unit);
+	(strip group b#coerce: unit);
 	ignore (b#connect#clicked (fun _ -> do_change i sp_value))
     | "key_press" -> add_key x (do_change i) keys
     | t -> failwith (sprintf "Page_settings.one_setting, Unexpected tag: '%s'" t))

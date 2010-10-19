@@ -25,7 +25,7 @@
  *)
 
 type t = <
-    add_widget : GObj.widget -> unit;
+    add_widget : ?group:string -> GObj.widget -> unit;
     (** Add a user widget in the low row of the strip *)
 
     connect_shift_alt : (float -> unit) -> unit;

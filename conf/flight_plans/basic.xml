@@ -18,7 +18,9 @@
     <waypoint name="_BASELEG" x="168.8" y="-13.8"/>
     <waypoint name="CLIMB" x="-114.5" y="162.3"/>
   </waypoints>
-  <exceptions/>
+  <exceptions>
+    <!--exception cond="datalink_time > 22" deroute="Standby"/-->
+  </exceptions>
   <blocks>
     <block name="Wait GPS">
       <set value="1" var="kill_throttle"/>
@@ -29,47 +31,47 @@
       <call fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Holding point">
+      <!--set var="nav_mode" value="NAV_MODE_ROLL"/-->
       <set value="1" var="kill_throttle"/>
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
-    <block key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+    <block key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png" group="home">
       <exception cond="estimator_z > ground_alt+25" deroute="Standby"/>
       <set value="0" var="kill_throttle"/>
       <set value="0" var="estimator_flight_time"/>
       <go from="HOME" throttle="1.0" vmode="throttle" wp="CLIMB" pitch="15"/>
     </block>
-    <block key="<Control>a" name="Standby" strip_button="Standby" strip_icon="home.png">
+    <block key="<Control>a" name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
       <circle radius="nav_radius" wp="STDBY"/>
     </block>
-    <block key="F8" name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
+    <block key="F8" name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png" group="base_pattern">
       <eight center="1" radius="nav_radius" turn_around="2"/>
     </block>
-    <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png">
+    <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png" group="base_pattern">
       <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
-    <block name="MOB" strip_button="Turn around here" strip_icon="mob.png">
+    <block name="MOB" strip_button="Turn around here" strip_icon="mob.png" group="base_pattern">
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <circle radius="nav_radius" wp="MOB"/>
     </block>
-    <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
-      <exception cond="datalink_time > 22" deroute="Standby"/>
+    <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png" group="extra_pattern">
       <call fun="nav_line_init()"/>
       <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
     </block>
-    <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">
+    <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png" group="extra_pattern">
       <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
     </block>
-    <block name="Path 1,2,S1,S2,STDBY" strip_button="Path (1,2,S1,S2,STDBY)" strip_icon="path.png">
+    <block name="Path 1,2,S1,S2,STDBY" strip_button="Path (1,2,S1,S2,STDBY)" strip_icon="path.png" group="extra_pattern">
       <path wpts="1,2 S1"/>
       <path wpts="S1, S2 STDBY" approaching_time="1" pitch="auto" throttle="0.4"/>
       <deroute block="Standby"/>
     </block>
-    <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
+    <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png" group="land">
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>
     </block>
-    <block name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png">
+    <block name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png" group="land">
       <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>
     </block>

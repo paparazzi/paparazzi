@@ -483,7 +483,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     end;
     try (* Is it a strip button ? *)
       let label = ExtXml.attrib block "strip_button"
-      and block_name = ExtXml.attrib block "name" in
+      and block_name = ExtXml.attrib block "name"
+      and group = ExtXml.attrib_or_default block "group" "" in
       let b =
 	try (* Is it an icon ? *)
 	  let icon = Xml.attrib block "strip_icon" in
@@ -507,7 +508,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	    fprintf stderr "Error: '%s' Using a standard button" (Printexc.to_string exc);
 	    GButton.button ~label ()
       in
-      strip#add_widget b#coerce;
+      strip#add_widget b#coerce ~group;
       ignore (b#connect#clicked (fun _ -> jump_to_block ac_id id))
     with
        _ -> ())
@@ -562,7 +563,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let dl_settings_page =
     try
       let xml_settings = Xml.children (ExtXml.child settings_xml "dl_settings") in
-      let settings_tab = new Page_settings.settings ~visible xml_settings dl_setting_callback (fun x -> strip#add_widget x) in
+      let settings_tab = new Page_settings.settings ~visible xml_settings dl_setting_callback (fun group x -> strip#add_widget ~group x) in
 
       (** Connect key shortcuts *)
       let key_press = fun ev ->

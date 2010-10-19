@@ -30,7 +30,7 @@ module LL=Latlong
 let (//) = Filename.concat
 
 type t =
-    < add_widget : GObj.widget -> unit;
+    < add_widget : ?group:string -> GObj.widget -> unit;
       connect_shift_alt : (float -> unit) -> unit;
       connect_shift_lateral : (float -> unit) -> unit;
       connect_launch : (float -> unit) -> unit;
@@ -301,6 +301,7 @@ let add = fun config strip_param ->
 
    object
     val mutable climb = 0.
+    val mutable button_tbl = Hashtbl.create 10
     method set_climb = fun v -> climb <- v
     method set_agl value = 
       let arrow = max (min 0.5 (climb /. 5.)) (-0.5) in
@@ -321,7 +322,19 @@ let add = fun config strip_param ->
 
     method set_label name value = set_label !strip_labels name value
     method set_color name value = set_color !strip_labels name value
-    method add_widget w = strip#hbox_user#pack ~fill:false w
+    (* add a button widget in a vertical box if it belongs to a group (create new group if needed) *)
+    method add_widget ?(group="") w =
+      let (vbox, pack) = match String.length group with
+          0 -> (GPack.vbox ~show:true (), true)
+        | _ -> try (Hashtbl.find button_tbl group, false) with
+                Not_found ->
+                  let vb = GPack.vbox ~show:true () in
+                  ignore(Hashtbl.add button_tbl group vb);
+                  (vb, true)
+      in
+      (*let vbox = GPack.vbox ~show:true () in*)
+      vbox#pack ~fill:false w;
+      if pack then strip#hbox_user#pack ~fill:false vbox#coerce else ()
     
     method connect_shift_alt callback = 
       let tooltips = GData.tooltips () in

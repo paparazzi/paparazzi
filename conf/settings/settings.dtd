@@ -42,6 +42,7 @@ values CDATA #IMPLIED
 name CDATA #REQUIRED
 value CDATA #REQUIRED
 icon CDATA #IMPLIED
+group CDATA #IMPLIED
 >
 
 <!ATTLIST key_press

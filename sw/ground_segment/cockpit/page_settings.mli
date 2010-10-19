@@ -25,7 +25,7 @@
 *)
 
 (** [new Page_settings.settings ?visible dl_settings callback short_button_receiver] *)
-class settings : ?visible:(GObj.widget -> bool) -> Xml.xml list -> (int -> float -> unit) -> (GObj.widget -> unit) ->
+class settings : ?visible:(GObj.widget -> bool) -> Xml.xml list -> (int -> float -> unit) -> (string -> GObj.widget -> unit) ->
   object
     method length : int (** Total number of settings *)
     method set : int -> float -> unit (** Set the current value *)
