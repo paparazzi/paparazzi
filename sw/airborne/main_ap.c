@@ -91,10 +91,6 @@
 #include "srf08.h"
 #endif
 
-#ifdef USE_BARO_MS5534A
-#include "baro_MS5534A.h"
-#endif
-
 #ifdef USE_MAX11040
 #include "max11040.h"
 #endif
@@ -573,12 +569,6 @@ void periodic_task_ap( void ) {
 #error "Only 20 and 60 allowed for CONTROL_RATE"
 #endif
 
-#ifdef USE_BARO_MS5534A
-  if (!_20Hz) {
-    baro_MS5534A_send();
-  }
-#endif
-
 #ifdef USE_I2C0
   // I2C0 scheduler
   switch (_20Hz) {
@@ -763,10 +753,6 @@ void init_ap( void ) {
   IO0SET = _BV(AEROCOMM_DATA_PIN);
 #endif
 
-#ifdef USE_BARO_MS5534A
-  baro_MS5534A_init();
-#endif
-
   power_switch = FALSE;
 
   /************ Multi-uavs status ***************/
@@ -892,20 +878,7 @@ void event_task_ap( void ) {
   }
 #endif
 
-#ifdef USE_BARO_MS5534A
-  if (spi_message_received) {
-    /* Got a message on SPI. */
-    spi_message_received = FALSE;
-    baro_MS5534A_event_task();
-    if (baro_MS5534A_available) {
-      baro_MS5534A_available = FALSE;
-      baro_MS5534A_z = ground_alt +((float)baro_MS5534A_ground_pressure - baro_MS5534A_pressure)*0.084;
-      if (alt_baro_enabled) {
-	EstimatorSetAlt(baro_MS5534A_z);
-      }
-    }
-  }
-#elif defined(USE_BARO_ETS)
+#if defined(USE_BARO_ETS)
   if (baro_ets_updated) {
     baro_ets_updated = FALSE;
     if (baro_ets_valid) {

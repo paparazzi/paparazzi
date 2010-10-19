@@ -24,7 +24,6 @@
       <define name="ALT_KALMAN"/>
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
-      <define name="USE_I2C0"/>
     </target>
 
     <subsystem name="radio_control"    type="ppm"/>
@@ -42,7 +41,7 @@
       <param name="GPS_BAUD"           value="B38400"/>
     </subsystem>
     <subsystem name="navigation"/>
-    <subsystem name="i2c"/>
+    <subsystem name="spi"/>
   </firmware>
 
   <firmware name="setup">
@@ -55,9 +54,10 @@
 
   <!-- modules -->
   <modules>
-    <load name="baro_bmp.xml"/>
+    <load name="baro_MS5534A.xml"/>
+    <!--load name="baro_bmp.xml"/>
     <load name="baro_scp_i2c.xml"/>
-    <!--load name="light_temt.xml"/>
+    <load name="light_temt.xml"/>
     <load name="humid_hih.xml"/>
     <load name="temp_tmp102.xml"/>
     <load name="temp_lm75.xml"/>

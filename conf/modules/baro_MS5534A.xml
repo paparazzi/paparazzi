@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="baro_MS5534A" dir="sensors">
+  <header>
+    <file name="baro_MS5534A.h"/>
+  </header>
+  <init fun="baro_MS5534A_init()"/>
+  <periodic fun="baro_MS5534A_send()" freq="20"/>
+  <event fun="baro_MS5534A_event()"/>
+  <makefile>
+    <file name="baro_MS5534A.c"/>
+    <flag name="USE_BARO_MS5534A"/>
+    <flag name="USE_SPI_SLAVE0"/>
+    <flag name="SPI_MASTER"/>
+    <define name="BARO_MS5534A_W1" value="0xAC20"/>
+    <define name="BARO_MS5534A_W2" value="0x87D9"/>
+    <define name="BARO_MS5534A_W3" value="0x8D9C"/>
+    <define name="BARO_MS5534A_W4" value="0xB080"/>
+  </makefile>
+</module>
+

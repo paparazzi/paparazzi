@@ -181,7 +181,7 @@
 #endif
 
 #ifdef USE_BARO_MS5534A
-#include "baro_MS5534A.h"
+//#include "baro_MS5534A.h"
 #define PERIODIC_SEND_BARO_MS5534A(_chan) DOWNLINK_SEND_BARO_MS5534A(_chan, &baro_MS5534A_pressure, &baro_MS5534A_temp, &baro_MS5534A_z)
 #else
 #define PERIODIC_SEND_BARO_MS5534A(_chan) {}

@@ -25,6 +25,7 @@
 /** \file baro_MS5534A.c
  *  \brief Handling of the MS5534a pressure sensor
  *
+ * uses: MOSI, MISO, SCK and 32kHz @ P0.7 with 5V for the -A type
  */
 
 #include "baro_MS5534A.h"
@@ -34,6 +35,7 @@
 #include "ap_downlink.h"
 #endif
 #include "nav.h"
+#include "estimator.h"
 
 bool_t baro_MS5534A_do_reset;
 uint32_t baro_MS5534A_pressure;
@@ -249,3 +251,19 @@ void baro_MS5534A_event_task( void ) {
     baro_MS5534A_send();
   }
 }
+
+void baro_MS5534A_event( void ) {
+  if (spi_message_received) {
+    /* Got a message on SPI. */
+    spi_message_received = FALSE;
+    baro_MS5534A_event_task();
+    if (baro_MS5534A_available) {
+      baro_MS5534A_available = FALSE;
+      baro_MS5534A_z = ground_alt +((float)baro_MS5534A_ground_pressure - baro_MS5534A_pressure)*0.084;
+      if (alt_baro_enabled) {
+	EstimatorSetAlt(baro_MS5534A_z);
+      }
+    }
+  }
+}
+
