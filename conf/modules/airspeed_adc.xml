@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<!--
+     Airspeed ADC module
+     @param ADC_AIRSPEED on which ADC the sensor is connected
+     @param AIRSPEED_SCALE/AIRSPEED_QUADRATIC_SCALE scale factor, quadratic is used if defined
+     @param AIRSPEED_BIAS offset on ADC
+     -->
+
+<module name="airspeed_adc" dir="sensors">
+
+  <header>
+    <file name="airspeed_adc.h"/>
+  </header>
+  <init fun="airspeed_adc_init()"/>
+  <periodic fun="airspeed_adc_update()" freq="10."/>
+
+  <makefile>
+    <file name="airspeed_adc.c"/> 
+  </makefile>
+  <makefile target="ap">
+    <flag name="ADC_CHANNEL_AIRSPEED" value="$(ADC_AIRSPEED)"/>
+    <flag name="USE_$(ADC_AIRSPEED)"/>
+  </makefile>
+
+</module>
+
