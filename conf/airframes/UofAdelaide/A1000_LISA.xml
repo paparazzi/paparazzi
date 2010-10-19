@@ -7,10 +7,11 @@
   </modules>
 
   <servos>
-    <servo name="FRONT"  no="2" min="1000" neutral="1500" max="2000"/>
-    <servo name="BACK"   no="0" min="1000" neutral="1500" max="2000"/>
-    <servo name="LEFT"   no="1" min="1000" neutral="1500" max="2000"/>
-    <servo name="RIGHT"  no="3" min="1000" neutral="1500" max="2000"/>
+    
+    <servo name="BACK"   no="0" min="2000" neutral="1500" max="1000"/>
+    <servo name="LEFT"   no="1" min="2000" neutral="1500" max="1000"/>
+    <servo name="FRONT"  no="2" min="2000" neutral="1500" max="1000"/>
+    <servo name="RIGHT"  no="3" min="2000" neutral="1500" max="1000"/>
     <servo name="ESC"    no="4" min="1000" neutral="1000" max="2000"/>
   </servos>
 
@@ -31,10 +32,10 @@
 -->
   <command_laws>
     <set servo="ESC"        value="motors_on?ESC_HOVER:ESC_STOPPED"/>
-    <set servo="FRONT"      value="-(@PITCH - @YAW + @THRUST)"/>
-    <set servo="BACK"       value="-(-@PITCH - @YAW + @THRUST)"/>
-    <set servo="LEFT"       value="-(@ROLL  + @YAW + @THRUST)"/>
-    <set servo="RIGHT"      value="-(-@ROLL  + @YAW + @THRUST)"/>
+    <set servo="FRONT"      value="@PITCH + @YAW + @THRUST"/>
+    <set servo="BACK"       value="-@PITCH + @YAW + @THRUST"/>
+    <set servo="LEFT"       value="@ROLL  - @YAW + @THRUST"/>
+    <set servo="RIGHT"      value="-@ROLL  - @YAW + @THRUST"/>
   </command_laws>
   <section name="IMU" prefix="IMU_">
 
@@ -142,14 +143,14 @@
     <define name="THETA_DGAIN"  value="-400"/>
     <define name="THETA_IGAIN"  value="-400"/>
 
-    <define name="PSI_PGAIN"  value="1000"/>
-    <define name="PSI_DGAIN"  value="350"/>
-    <define name="PSI_IGAIN"  value="10"/>
+    <define name="PSI_PGAIN"  value="-1000"/>
+    <define name="PSI_DGAIN"  value="-350"/>
+    <define name="PSI_IGAIN"  value="-10"/>
 
     <!-- feedforward -->
     <define name="PHI_DDGAIN"   value=" 300"/>
     <define name="THETA_DDGAIN" value=" 300"/>
-    <define name="PSI_DDGAIN"   value=" -300"/>
+    <define name="PSI_DDGAIN"   value=" 300"/>
 
   </section>
 
@@ -190,7 +191,7 @@
       <define name = "RADIO_CONTROL_MODE" value = "RADIO_CONTROL_AUX1"/>
       <define name = "RADIO_CONTROL_KILL_SWITCH" value = "RADIO_CONTROL_GEAR"/>
       <define name = "HELI"/>
- <!--     <define name = "KILL_MOTORS" /> -->
+      <define name = "KILL_MOTORS" /> 
  <!-- if we want a secondary spektrum reciever we need to set the board to be 
       lisa_l_1.1 and rewired accordingly then set the following.    
       <define name = "RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value = "UART5"/>
