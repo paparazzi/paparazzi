@@ -3,19 +3,10 @@
 
 
 #include "std.h"
-#include "max11040_hw.h"
 
 #define MAXM_NB_CHAN 16
 #define MAXM_NB_ADCS ((MAXM_NB_CHAN+3)/4)
 #define MAX11040_BUF_SIZE 320
-
-extern void max11040_init_ssp(void);
-extern void max11040_init( void );
-
-extern void max11040_reset( void);
-extern void max11040_periodic( void );
-
-extern void max11040_hw_init( void );
 
 extern volatile uint8_t max11040_status;
 extern volatile uint8_t max11040_data;
@@ -37,5 +28,9 @@ extern volatile uint32_t max11040_buf_out;
 #define MAX11040_IDLE            0
 #define MAX11040_DATA_AVAILABLE  1
 
+void max11040_init( void );
+void max11040_periodic(void);
+
 
 #endif /* MAX11040_H */
+

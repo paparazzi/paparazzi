@@ -1,15 +1,46 @@
+/*
+ * $Id$
+ *  
+ * Copyright (C) 2010 Martin Mueller
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA. 
+ *
+ */
 
-#include "max11040.h"
+/** \file max11040.c
+ *  \brief Maxim MAX11040 ADC hw interface
+ *
+ *  SS    on P0.20 (SSEL)
+ *  DRDY  on P0.16 (EINT0)
+ */
 
-volatile uint8_t max11040_status;
-volatile uint8_t max11040_data;
-volatile int32_t max11040_values[MAX11040_BUF_SIZE][MAXM_NB_CHAN] = {{0}};
-volatile uint32_t max11040_timestamp[MAX11040_BUF_SIZE] = {0};
-volatile uint8_t max11040_count = 0;
-volatile uint32_t max11040_buf_in = 0;
-volatile uint32_t max11040_buf_out = 0;
+#include "armVIC.h"
+#include "max11040_hw.h"
+#include "modules/adcs/max11040.h"
+
+#ifdef LOGGER
+extern unsigned int getclock(void);
+#endif
+
+volatile uint8_t num_irqs = 0;
 
 static void SSP_ISR(void) __attribute__((naked));
+static void EXTINT_ISR(void) __attribute__((naked));
 
 
 static void SSP_ISR(void) {
@@ -25,10 +56,10 @@ static void SSP_ISR(void) {
       foo = SSPDR;
       foo = SSPDR;
       /* write configuration register */
-      SSP_Send(0x60);    /* wr conf */
-      SSP_Send(0x30);      /* adc0: en24bit, xtalen, no faultdis */
+      SSP_Send(0x60);       /* wr conf */
+      SSP_Send(0x30);       /* adc0: en24bit, xtalen, no faultdis */
       for (i=1; i<MAXM_NB_ADCS; i++) {
-        SSP_Send(0x20);    /* adcx: en24bit, no xtalen, no faultdis */
+        SSP_Send(0x20);     /* adcx: en24bit, no xtalen, no faultdis */
       }
       max11040_status = MAX11040_CONF;
       SSP_ClearRti();
@@ -44,9 +75,9 @@ static void SSP_ISR(void) {
         foo = SSPDR;
       }
       /* write sampling instant register */
-      SSP_Send(0x40);    /* wr instant */
+      SSP_Send(0x40);       /* wr instant */
       for (i=0; i<MAXM_NB_ADCS; i++) {
-        SSP_Send(0);       /* adcx: no delay */
+        SSP_Send(0);        /* adcx: no delay */
         SSP_Send(0);
         SSP_Send(0);
         SSP_Send(0);
@@ -83,9 +114,9 @@ static void SSP_ISR(void) {
       foo = SSPDR;
       foo = SSPDR;
       /* read data register */
-      SSP_Send(0xF0);   /* rd data */
+      SSP_Send(0xF0);       /* rd data */
       for (i=0; i<MAXM_NB_ADCS; i++) {
-        SSP_Send(0x00);   /* adcx: data */
+        SSP_Send(0x00);     /* adcx: data */
         SSP_Send(0x00);
         SSP_Send(0x00);
         SSP_Send(0x00);
@@ -124,9 +155,9 @@ static void SSP_ISR(void) {
 
     /* read data */
       /* read data register */
-      SSP_Send(0xF0);   /* rd data */
+      SSP_Send(0xF0);       /* rd data */
       for (i=0; i<MAXM_NB_ADCS; i++) {
-        SSP_Send(0x00);   /* adc0: data */
+        SSP_Send(0x00);     /* adc0: data */
         SSP_Send(0x00);
         SSP_Send(0x00);
         SSP_Send(0x00);
@@ -200,8 +231,49 @@ static void SSP_ISR(void) {
   ISR_EXIT();
 }
 
-void max11040_init_ssp(void) {
+void EXTINT_ISR(void) {
+  ISR_ENTRY();
 
+  if (num_irqs++ == 5) 
+  {
+    /* switch SSEL P0.20 to be used as GPIO */
+    PINSEL1 &= ~(3 << 8);
+    IO0DIR |= 1 << 20;
+    max11040_status = MAX11040_DATA2;
+  }
+
+  if (max11040_status == MAX11040_DATA2) {
+
+#ifdef LOGGER
+    max11040_timestamp[max11040_buf_in] = getclock();
+#endif
+
+    MaxmSelect();
+
+    /* read data */
+    SSP_Send(0xF0);
+    SSP_Send(0x00);
+    SSP_Send(0x00);
+    SSP_Send(0x00);
+    SSP_Send(0x00);
+    SSP_Send(0x00);
+    SSP_Send(0x00);
+
+    max11040_count = 0;
+  }
+
+  /* clear EINT */
+  SetBit(EXTINT, MAXM_DRDY_EINT);
+
+  VICVectAddr = 0x00000000;    /* clear this interrupt from the VIC */
+  ISR_EXIT();
+}
+
+
+void max11040_hw_init( void ) {
+  int i;
+  
+  /* *** configure SPI ***  */
   /* setup pins for SSP (SCK, MISO, MOSI, SSEL) */
   PINSEL1 |= SSP_PINSEL1_SCK  | SSP_PINSEL1_MISO | SSP_PINSEL1_MOSI | SSP_PINSEL1_SSEL;
   
@@ -211,20 +283,26 @@ void max11040_init_ssp(void) {
   SSPCPSR = 0x02;
   
   /* initialize interrupt vector */
-  VICIntSelect &= ~VIC_BIT( VIC_SPI1 );  /* SPI1 selected as IRQ */
-  VICIntEnable = VIC_BIT( VIC_SPI1 );    /* enable it            */
+  VICIntSelect &= ~VIC_BIT( VIC_SPI1 );         /* SPI1 selected as IRQ */
+  VICIntEnable = VIC_BIT( VIC_SPI1 );           /* enable it            */
   _VIC_CNTL(SSP_VIC_SLOT) = VIC_ENABLE | VIC_SPI1;
-  _VIC_ADDR(SSP_VIC_SLOT) = (uint32_t)SSP_ISR;      /* address of the ISR   */
-}
+  _VIC_ADDR(SSP_VIC_SLOT) = (uint32_t)SSP_ISR;  /* address of the ISR   */
 
-void max11040_init( void ) {
-
-  int i;
-  max11040_hw_init();
   
-  max11040_status = MAX11040_RESET;
-  max11040_data = MAX11040_RESET;
-
+  /* *** configure DRDY pin***  */
+  /* connected pin to EXINT */ 
+  MAXM_DRDY_PINSEL |= MAXM_DRDY_PINSEL_VAL << MAXM_DRDY_PINSEL_BIT;
+  SetBit(EXTMODE, MAXM_DRDY_EINT);     /* EINT is edge trigered */
+  ClearBit(EXTPOLAR, MAXM_DRDY_EINT);  /* EINT is trigered on falling edge */
+  SetBit(EXTINT, MAXM_DRDY_EINT);      /* clear pending EINT */
+  
+  /* initialize interrupt vector */
+  VICIntSelect &= ~VIC_BIT( MAXM_DRDY_VIC_IT );                       /* select EINT as IRQ source */
+  VICIntEnable = VIC_BIT( MAXM_DRDY_VIC_IT );                         /* enable it                 */
+  _VIC_CNTL(MAX11040_DRDY_VIC_SLOT) = VIC_ENABLE | MAXM_DRDY_VIC_IT;
+  _VIC_ADDR(MAX11040_DRDY_VIC_SLOT) = (uint32_t)EXTINT_ISR;           /* address of the ISR        */
+  
+  
   /* write configuration register */
   SSP_Send(0x60);       /* wr conf */
   for (i=0; i<MAXM_NB_ADCS; i++) {
@@ -233,9 +311,5 @@ void max11040_init( void ) {
   SSP_Enable();
   SSP_ClearRti();
   SSP_EnableRti();
-}
-
-void max11040_reset() {
-  max11040_status = MAX11040_IDLE;
 }
 

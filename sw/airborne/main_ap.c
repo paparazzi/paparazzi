@@ -91,10 +91,6 @@
 #include "srf08.h"
 #endif
 
-#ifdef USE_MAX11040
-#include "max11040.h"
-#endif
-
 #ifdef TRAFFIC_INFO
 #include "traffic_info.h"
 #endif
@@ -501,45 +497,6 @@ void periodic_task_ap( void ) {
     break;
 #endif
 
-#ifdef USE_MAX11040
-  case 5:
-  {
-  float max11040_values_f[16];
-  int i;
-
-  if (max11040_data == MAX11040_DATA_AVAILABLE) {
-    LED_TOGGLE(3);
-    for (i=0; i<16; i++) {
-      /* we assume that the buffer will be full always in this test mode anyway */
-      max11040_values_f[i] = (max11040_values[max11040_buf_in][i] * 2.2) / 8388608.0;
-    }
-
-    DOWNLINK_SEND_TURB_PRESSURE_VOLTAGE(
-        DefaultChannel,
-        &max11040_values_f[0],
-        &max11040_values_f[1],
-        &max11040_values_f[2],
-        &max11040_values_f[3],
-        &max11040_values_f[4],
-        &max11040_values_f[5],
-        &max11040_values_f[6],
-        &max11040_values_f[7],
-        &max11040_values_f[8],
-        &max11040_values_f[9],
-        &max11040_values_f[10],
-        &max11040_values_f[11],
-        &max11040_values_f[12],
-        &max11040_values_f[13],
-        &max11040_values_f[14],
-        &max11040_values_f[15] );
-    max11040_data = MAX11040_IDLE;
-  }
-  }
-  break;
-
-#endif
-
-
 #ifdef USE_ADC_GENERIC
   case 6:
     adc_generic_periodic();
@@ -716,11 +673,6 @@ void init_ap( void ) {
 #ifdef USE_MICROMAG_FW
   micromag_init_ssp();
   micromag_init();
-#endif
-
-#ifdef USE_MAX11040
-  max11040_init_ssp();
-  max11040_init();
 #endif
 
   modules_init();

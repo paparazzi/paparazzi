@@ -5,11 +5,10 @@
 
 #include "LPC21xx.h"
 #include "interrupt_hw.h" 
-
 #include "ssp_hw.h"
+#include "airframe.h"
 #include BOARD_CONFIG
 
-#include "airframe.h"
 
 #define MAXM_DIVISOR_128  2
 #define MAXM_DIVISOR_256  3
@@ -58,4 +57,7 @@
 #define MaxmUnselect() SetBit(MAXM_SS_IOSET, MAXM_SS_PIN)
 
 
+void max11040_hw_init( void );
+
 #endif /* MAX11040_HW_H */
+
