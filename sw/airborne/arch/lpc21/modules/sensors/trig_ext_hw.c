@@ -1,5 +1,6 @@
 
 #include "std.h"
+#include "sys_time_hw.h"
 #include "LPC21xx.h"
 #include "trig_ext_hw.h"
 #include BOARD_CONFIG
@@ -11,10 +12,14 @@ volatile bool_t trig_ext_valid;
 
 void TRIG_ISR() {
   static uint32_t last;
+  uint32_t delta_t0_temp;
   trigger_t0 = PPM_CR;
-  delta_t0 = trigger_t0 - last;
-  last = trigger_t0;
-  trig_ext_valid = TRUE;
+  delta_t0_temp = trigger_t0 - last;
+  if (MSEC_OF_SYS_TICS(delta_t0_temp) > 10) {
+    delta_t0 = delta_t0_temp;
+    last = trigger_t0;
+    trig_ext_valid = TRUE;
+  }
 }
 
 void trig_ext_init ( void ) {
