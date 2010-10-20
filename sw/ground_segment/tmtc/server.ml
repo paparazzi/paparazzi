@@ -164,7 +164,8 @@ let send_cam_status = fun a ->
 let send_fbw = fun a ->
   let values = [ "ac_id", Pprz.String a.id;
 		 "rc_mode", Pprz.String a.fbw.rc_mode;
-		 "rc_status", Pprz.String a.fbw.rc_status ] in
+     "rc_status", Pprz.String a.fbw.rc_status;
+     "rc_rate", Pprz.Int a.fbw.rc_rate ] in
   Ground_Pprz.message_send my_id "FLY_BY_WIRE"  values
 
 let send_dl_values = fun a ->
@@ -661,6 +662,7 @@ let () =
       "-hostname", Arg.Set_string hostname, "<hostname> Set the address for the http server";
       "-http", Arg.Set http, "Send http: URLs (default is file:)";
       "-kml", Arg.Set Kml.enabled, "Enable KML file updating";
+      "-kml_no_http", Arg.Set Kml.no_http, "KML without web server (local files only)";
       "-kml_port", Arg.Set_int Kml.port, (sprintf "Port for KML files (default is %d)" !Kml.port);
       "-n", Arg.Clear logging, "Disable log";
       "-no_md5_check", Arg.Set no_md5_check, "Disable safety matching of live and current configurations";

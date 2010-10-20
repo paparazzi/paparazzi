@@ -30,9 +30,9 @@
    </message>
 
    <message name="ATTITUDE" id="6">
-     <field name="phi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-     <field name="psi"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-     <field name="theta" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+     <field name="phi"   type="float" unit="rad" alt_unit="deg"/>
+     <field name="psi"   type="float" unit="rad" alt_unit="deg"/>
+     <field name="theta" type="float" unit="rad" alt_unit="deg"/>
    </message>
 
    <message name="IR_SENSORS" id="7">
@@ -45,12 +45,12 @@
 
    <message name="GPS" id="8">
      <field name="mode"       type="uint8"  unit="byte_mask"/>
-     <field name="utm_east"   type="int32"  unit="cm" alt_unit="m" alt_unit_coef="0.01"/>
-     <field name="utm_north"  type="int32"  unit="cm" alt_unit="m" alt_unit_coef="0.01"/>
-     <field name="course"     type="int16"  unit="decideg" alt_unit="deg" alt_unit_coef="0.1"/>
-     <field name="alt"        type="int32"  unit="cm" alt_unit="m" alt_unit_coef="0.01"/>
-     <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s" alt_unit_coef="0.01"/>
-     <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s" alt_unit_coef="0.01"/>
+     <field name="utm_east"   type="int32"  unit="cm" alt_unit="m"/>
+     <field name="utm_north"  type="int32"  unit="cm" alt_unit="m"/>
+     <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
+     <field name="alt"        type="int32"  unit="cm" alt_unit="m"/>
+     <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
+     <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s"/>
      <field name="week"       type="uint16" unit="weeks"></field>
      <field name="itow"       type="uint32" unit="ms"/>
      <field name="utm_zone"   type="uint8"/>
@@ -85,7 +85,7 @@
 
    <message name="BAT" id="12">
      <field name="throttle" type="int16" unit="pprz"/>
-     <field name="voltage" type="uint16" unit="1e-1V" alt_unit="V" alt_unit_coef="0.1"/>
+     <field name="voltage" type="uint8" unit="1e-1V" alt_unit="V" alt_unit_coef="0.1"/>
      <field name="amps" type="int16" unit="A" alt_unit="A" />
      <field name="flight_time" type="uint16" unit="s"/>
      <field name="kill_auto_throttle" type="uint8" unit="bool"/>
@@ -374,8 +374,6 @@
    <field name="ir1" type="int16" unit="adc"/>
    <field name="ir2" type="int16" unit="adc"/>
    <field name="top" type="int16" unit="adc"/>
-   <field name="phi" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-   <field name="theta" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
  </message>
 
   <message name="AIRSPEED" id="54">
@@ -430,8 +428,16 @@
    <field name="scaled" type="float"/>
  </message>
 
- <!-- 58 is free -->
- <!-- 59 is free -->
+ <message name="PBN" id="58">
+   <field name="airspeed_adc" type="uint16"></field>
+   <field name="altitude_adc" type="uint16"></field>
+   <field name="airspeed" type="float"></field>
+   <field name="altitude" type="float"></field>
+   <field name="airspeed_offset" type="uint16"></field>
+   <field name="altitude_offset" type="uint16"></field>
+ </message>
+
+ <!-- 59 is free --> 
 
   <message name="H_CTL_A" id="60">
     <field name="roll_sum_err" type="float"/>
@@ -646,6 +652,7 @@
 
   <message name="FBW_STATUS" id="103">
     <field name="rc_status" type="uint8" values="OK|LOST|REALLY_LOST"/>
+    <field name="frame_rate" type="uint8" unit="Hz"/>
     <field name="mode" type="uint8" values="MANUAL|AUTO|FAILSAFE"/>
     <field name="vsupply" type="uint8" unit="decivolt"/>
     <field name="current" type="int32" unit="mA"/>
@@ -2085,6 +2092,7 @@
     <field name="ac_id" type="string"/>
     <field name="rc_status" type="string" values="OK|LOST|REALLY_LOST"/>
     <field name="rc_mode" type="string" values="MANUAL|AUTO|FAILSAFE"/>
+    <field name="rc_rate" type="uint8" unit="Hz"/>
   </message>
 
   <message name="INFLIGH_CALIB" id="19">

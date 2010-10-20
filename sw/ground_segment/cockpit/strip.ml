@@ -47,6 +47,7 @@ type t =
       set_climb : float -> unit;
       set_color : string -> string -> unit;
       set_label : string -> string -> unit;
+      set_rc : int -> string -> unit;
       connect : (unit -> unit) -> unit; 
       hide_buttons : unit -> unit; 
       show_buttons : unit -> unit >
@@ -263,8 +264,12 @@ let add = fun config strip_param ->
   add_label "telemetry_status_value" (eb, ts);
   ts#set_width_chars 3;
 
+  (* RC *)
+  strip#drawingarea_rc#misc#realize ();
+  let rc = new hgauge strip#drawingarea_rc 0. 10. in
+  rc#request_width "NONE";
+
   (* Labels *)
-  add_label "RC_value" (strip#eventbox_rc, strip#label_rc);
   add_label "AP_value" (strip#eventbox_mode, strip#label_mode);
   add_label "GPS_value" (strip#eventbox_gps, strip#label_gps);
 
@@ -322,6 +327,9 @@ let add = fun config strip_param ->
 
     method set_label name value = set_label !strip_labels name value
     method set_color name value = set_color !strip_labels name value
+
+    method set_rc rate status = rc#set (float_of_int rate) status
+
     (* add a button widget in a vertical box if it belongs to a group (create new group if needed) *)
     method add_widget ?(group="") w =
       let (vbox, pack) = match String.length group with

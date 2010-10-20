@@ -87,6 +87,7 @@
                                           <widget class="GtkVBox" id="vbox1">
                                             <property name="visible">True</property>
                                             <property name="spacing">2</property>
+                                            <property name="homogeneous">True</property>
                                             <child>
                                               <widget class="GtkEventBox" id="eventbox_mode">
                                                 <property name="visible">True</property>
@@ -94,7 +95,6 @@
                                                 <child>
                                                   <widget class="GtkLabel" id="label_mode">
                                                     <property name="visible">True</property>
-                                                    <property name="xalign">0</property>
                                                     <property name="label" translatable="yes">&lt;b&gt;AUTO2&lt;/b&gt;</property>
                                                     <property name="use_markup">True</property>
                                                   </widget>
@@ -109,11 +109,8 @@
                                                 <property name="visible">True</property>
                                                 <property name="tooltip" translatable="yes">Radio Command status</property>
                                                 <child>
-                                                  <widget class="GtkLabel" id="label_rc">
+                                                  <widget class="GtkDrawingArea" id="drawingarea_rc">
                                                     <property name="visible">True</property>
-                                                    <property name="xalign">0</property>
-                                                    <property name="label" translatable="yes">NO RC</property>
-                                                    <property name="use_markup">True</property>
                                                   </widget>
                                                 </child>
                                               </widget>
@@ -128,7 +125,6 @@
                                                 <child>
                                                   <widget class="GtkLabel" id="label_gps">
                                                     <property name="visible">True</property>
-                                                    <property name="xalign">0</property>
                                                     <property name="label" translatable="yes">3D</property>
                                                     <property name="use_markup">True</property>
                                                     <property name="justify">center</property>

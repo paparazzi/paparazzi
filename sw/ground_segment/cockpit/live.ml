@@ -771,14 +771,12 @@ let get_wind_msg = fun (geomap:G.widget) _sender vs ->
 
 let get_fbw_msg = fun _sender vs ->
   let ac = get_ac vs in
-  let status = Pprz.string_assoc "rc_status" vs in
-  ac.strip#set_label "RC" status;
-  ac.strip#set_color "RC"
-    (match status with
-      "OK" -> ok_color 
-    | _ -> warning_color)
+  let status = Pprz.string_assoc "rc_status" vs
+  and rate = (Pprz.int_assoc "rc_rate" vs) / 5 in
+  (* divide by 5 to have normal values between 0 and 10 *)
+  (* RC rate max approx. 50 Hz *)
+  ac.strip#set_rc rate status
 
-    
 
 let get_engine_status_msg = fun _sender vs ->
   let ac = get_ac vs in

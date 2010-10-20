@@ -32,7 +32,7 @@ type ac_cam = {
 
 type rc_status = string
 type rc_mode = string
-type fbw = { mutable rc_status : rc_status; mutable rc_mode : rc_mode; }
+type fbw = { mutable rc_status : rc_status; mutable rc_mode : rc_mode; mutable rc_rate : int }
 val gps_nb_channels : int
 type svinfo = {
     svid : int;

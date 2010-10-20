@@ -35,6 +35,7 @@ type rc_mode = string (** MANUAL, AUTO, FAILSAFE *)
 type fbw = {
     mutable rc_status : rc_status;
     mutable rc_mode : rc_mode;
+    mutable rc_rate : int;
   }
 
 let gps_nb_channels = 16
@@ -164,7 +165,7 @@ let new_aircraft = fun id name fp airframe ->
     gaz_mode= -1; lateral_mode= -1;
     gps_mode =0; gps_Pacc = 0; periodic_callbacks = [];
     cam = { phi = 0.; theta = 0. ; target=(0.,0.)};
-    fbw = { rc_status = "???"; rc_mode = "???" };
+    fbw = { rc_status = "???"; rc_mode = "???"; rc_rate=0 };
     svinfo = svsinfo_init;
     dl_setting_values = Array.create max_nb_dl_setting_values 42.;
     nb_dl_setting_values = 0;
