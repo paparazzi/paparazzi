@@ -30,7 +30,6 @@
 #include "i2c.h"
 
 void exti9_5_irq_handler(void);
-void hmc5843_arch_reset(void);
 
 void hmc5843_arch_init( void ) {
   /* configure external interrupt exti5 on PB5( mag int ) */

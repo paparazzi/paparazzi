@@ -45,6 +45,7 @@ struct Hmc5843 {
 extern struct Hmc5843 hmc5843;
 
 extern void hmc5843_arch_init( void );
+extern void hmc5843_arch_reset( void );
 
 extern void hmc5843_init(void);
 extern void hmc5843_periodic(void);
