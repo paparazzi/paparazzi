@@ -17,7 +17,7 @@ uint8_t dc_shoot = 0;
 #include "downlink.h"
 
 
-static void dc_send_shot_position(void)
+void dc_send_shot_position(void)
 {
       int16_t phi = DegOfRad(estimator_phi*10.0f);
       int16_t theta = DegOfRad(estimator_theta*10.0f);

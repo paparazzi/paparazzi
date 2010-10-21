@@ -3,16 +3,16 @@
 <settings>
   <dl_settings>
     <dl_settings NAME="DC">
-      <dl_setting MAX="1" MIN="1" STEP="1" VAR="dc_timer" module="dc" handler="Shutter" shortname="Shutter">
+      <dl_setting MAX="1" MIN="1" STEP="1" VAR="dc_timer" module="digital_cam/dc" handler="Shutter" shortname="Shutter">
        <strip_button name="Photo" icon="digital-camera.png" value="1"/>
       </dl_setting>
-      <dl_setting MAX="1" MIN="1" STEP="1" VAR="dc_timer" module="dc" handler="Zoom" shortname="Zoom">
+      <dl_setting MAX="1" MIN="1" STEP="1" VAR="dc_timer" handler="Zoom" shortname="Zoom">
        <strip_button name="Zoom" icon="zoom.png" value="1"/>
       </dl_setting>
-      <dl_setting MAX="60" MIN="0" STEP="1" VAR="dc_periodic_shutter" module="dc" handler="Periodic" shortname="Periodic"/>
+      <dl_setting MAX="60" MIN="0" STEP="1" VAR="dc_periodic_shutter" handler="Periodic" shortname="Periodic"/>
       <dl_setting MAX="5" MIN="0" STEP="1" VAR="dc_utm_threshold" shortname="UTM%"/>
 
-      <dl_setting MAX="1" MIN="0" STEP="1" VAR="dc_shoot" module="dc">
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="dc_shoot" >
        <strip_button name="Start Autoshoot" icon="on.png" value="1"/>
        <strip_button name="Stop Autoshoot" icon="off.png" value="0"/>
       </dl_setting>

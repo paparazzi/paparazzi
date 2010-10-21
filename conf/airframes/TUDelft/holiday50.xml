@@ -3,7 +3,7 @@
 <airframe name="Holiday 50 Delft Tiny 1.1">
 
   <modules>
-    <load name="opticflow.xml"/>
+    <load name="./TUDelft/opticflow.xml"/>
   </modules>
 
 <!-- commands section -->

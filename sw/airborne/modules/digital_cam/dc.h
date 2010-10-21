@@ -109,7 +109,7 @@ static inline uint8_t dc_zoom( void ) {
 #define DC_GPS_TRIGGER_STOP 3
 #endif
 
-static void dc_send_shot_position(void);
+void dc_send_shot_position(void);
 
 static inline void dc_shoot_on_gps( void ) {
   static uint8_t gps_msg_counter = 0;
