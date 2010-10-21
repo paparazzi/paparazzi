@@ -120,9 +120,7 @@ extern void alt_kalman( float );
 
 #endif
 
-#if defined USE_AIRSPEED || defined MEASURE_AIRSPEED 
 #define EstimatorSetAirspeed(airspeed) { estimator_airspeed = airspeed; }
-#endif
 
 #define EstimatorSetAtt(phi, psi, theta) { estimator_phi = phi; estimator_psi = psi; estimator_theta = theta; }
 #define EstimatorSetPhiPsi(phi, psi) { estimator_phi = phi; estimator_psi = psi; }
