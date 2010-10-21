@@ -16,7 +16,8 @@
   <event fun="AirspeedEtsEvent()"/>
 
   <makefile>
-    <file name="airspeed_ets.c"/> 
+    <file name="airspeed_ets.c"/>
+    <flag name="USE_AIRSPEED"/>
   </makefile>
 
 </module>
