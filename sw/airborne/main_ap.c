@@ -75,20 +75,12 @@
 #include "airspeed.h"
 #endif
 
-#ifdef TELEMETER
-#include "srf08.h"
-#endif
-
 #if defined USE_I2C0 || USE_I2C1
 #include "i2c.h"
 #endif
 
 #ifdef USE_SPI
 #include "spi.h"
-#endif
-
-#ifdef TELEMETER
-#include "srf08.h"
 #endif
 
 #ifdef TRAFFIC_INFO
@@ -446,15 +438,6 @@ void periodic_task_ap( void ) {
     kill_throttle |= launch && (dist2_to_home > Square(KILL_MODE_DISTANCE));
   }
   switch (_1Hz) {
-#ifdef TELEMETER
-  case 1:
-    srf08_initiate_ranging();
-    break;
-  case 5:
-    /** 65ms since initiate_ranging() (the spec ask for 65ms) */
-    srf08_receive();
-    break;
-#endif
 
 #ifdef TCAS
   case 6:
@@ -611,9 +594,6 @@ void init_ap( void ) {
 #endif
 #ifdef GPS
   gps_init();
-#endif
-#ifdef TELEMETER
-  srf08_init();
 #endif
 #ifdef USE_UART0
   Uart0Init();
@@ -808,19 +788,6 @@ void event_task_ap( void ) {
     dl_msg_available = FALSE;
   }
 #endif /** DATALINK */
-
-#ifdef TELEMETER
-  /** Handling of data sent by the device (initiated by srf08_receive() */
-  if (srf08_received) {
-    srf08_received = FALSE;
-    srf08_read();
-  }
-  if (srf08_got) {
-    srf08_got = FALSE;
-    srf08_copy();
-    DOWNLINK_SEND_RANGEFINDER(DefaultChannel, &srf08_range);
-  }
-#endif
 
 #ifdef MCU_SPI_LINK
   if (spi_message_received) {
