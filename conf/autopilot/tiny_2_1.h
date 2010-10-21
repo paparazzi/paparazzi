@@ -16,9 +16,23 @@
 /* CPU clock freq.               */
 #define CCLK (FOSC * PLL_MUL) 
 
+/* current @7V, Tiny2.11, Funjet4, no LED
+   PCLK   max   min
+   15MHz  99mA  92mA
+   30MHz 105mA  98mA
+   60MHz 116mA 108mA
+*/
+
+#ifdef USE_USB_HIGH_PCLK
+/* Peripheral bus speed mask  0x00-> 4, 0x01-> 1, 0x02-> 2   */
+/* change both PBSD_BITS/VAL     15MHz,    60MHz,    30MHz   */
+#define PBSD_BITS 0x02
+#define PBSD_VAL 2
+#else
 /* Peripheral bus speed mask 0x00->4, 0x01-> 1, 0x02 -> 2   */
 #define PBSD_BITS 0x00    
 #define PBSD_VAL 4
+#endif
 
 /* Peripheral bus clock freq. */
 #define PCLK (CCLK / PBSD_VAL) 
