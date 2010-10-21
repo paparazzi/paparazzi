@@ -31,7 +31,7 @@
 
 #include "armVIC.h"
 #include "max11040_hw.h"
-#include "modules/adcs/max11040.h"
+#include "adcs/max11040.h"
 
 #ifdef LOGGER
 extern unsigned int getclock(void);

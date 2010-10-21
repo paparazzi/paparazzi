@@ -15,7 +15,7 @@ Autoren@ZHAW: 	schmiemi
 
 // für das Senden von GPS-Daten an den ArduIMU
 #include "gps.h"
-int32_t GPS_Data[13];
+int32_t GPS_Data[14];
 
 #ifndef ARDUIMU_I2C_DEV
 #define ARDUIMU_I2C_DEV i2c0

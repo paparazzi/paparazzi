@@ -32,7 +32,7 @@
 #include "messages.h"
 #include "downlink.h"
 #include "max11040.h"
-#include "modules/adcs/max11040_hw.h"
+#include "adcs/max11040_hw.h"
 
 volatile uint8_t max11040_status;
 volatile uint8_t max11040_data;
