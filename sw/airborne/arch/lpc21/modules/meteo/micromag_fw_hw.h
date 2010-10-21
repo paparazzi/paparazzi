@@ -88,6 +88,6 @@ extern volatile uint8_t micromag_cur_axe;
     SpiEnableRti();							\
   }
 
-
+extern void micromag_hw_init( void );
 
 #endif /* MICROMAG_HW_H */

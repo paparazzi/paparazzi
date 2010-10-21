@@ -5,11 +5,11 @@
      PerkinElmer TPS334 IR Sensors
      Tilted infrared sensor (http://paparazzi.enac.fr/wiki/index.php/Image:Tiny_v2_1_Funjet.jpg)
      XBee modem
-     Payload: Sensirion humidity/temp, VTI pressure/temp
-     K66, LEA 4P
+     Payload: Sensirion humidity/temp, VTI pressure/temp, ETS airspeed
+     LEA 4P
 -->
 
-<airframe name="Funjet FMI 1 K66">
+<airframe name="Funjet FMI 1">
 
 <!-- commands section -->
   <servos>
@@ -37,7 +37,7 @@
 
   <command_laws>
     <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
-    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
+    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
     <set servo="MOTOR"           value="@THROTTLE"/>
     <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
@@ -83,9 +83,9 @@
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
                                         <!-- 0.0247311828 -->
                                         <!-- 0.02432905 -->
-    <define name="VoltageOfAdc(adc)" value="(0.02454*adc)"/>
+    <define name="VoltageOfAdc(adc)" value="(0.02454*adc)"/>    
   </section>
-
+ 
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="15." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
@@ -97,8 +97,9 @@
 
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="120."/>
+    <define name="MIN_CIRCLE_RADIUS" value="50."/>
   </section>
-
+ 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
@@ -164,9 +165,9 @@
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
 	<define name="DELAY_WITHOUT_GPS" value="2" unit="s"/>
-	<define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
-	<define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
-	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
+    	<define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
+    	<define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
+    	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
 	<define name="HOME_RADIUS" value="100" unit="m"/>
 </section>
 
@@ -174,10 +175,30 @@
     <define name="DEVICE_TYPE" value="XBEE"/>
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
-
+ 
  <section name="SIMU">
     <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
  </section>
+
+  <section name="MICROMAG">
+
+    <define name="MM_SS_PIN" value="20"/>
+    <define name="MM_SS_IODIR" value="IO0DIR"/>
+    <define name="MM_SS_IOSET" value="IO0SET"/>
+    <define name="MM_SS_IOCLR" value="IO0CLR"/>
+
+    <define name="MM_RESET_PIN" value="29"/>
+    <define name="MM_RESET_IODIR" value="IO0DIR"/>
+    <define name="MM_RESET_IOSET" value="IO0SET"/>
+    <define name="MM_RESET_IOCLR" value="IO0CLR"/>
+
+    <define name="MM_DRDY_PINSEL" value="PINSEL1"/>
+    <define name="MM_DRDY_PINSEL_BIT" value="0"/>
+    <define name="MM_DRDY_PINSEL_VAL" value="1"/>
+    <define name="MM_DRDY_EINT" value="0"/>
+    <define name="MM_DRDY_VIC_IT" value="VIC_EINT0"/>
+
+  </section>
 
  <makefile>
 CONFIG = \"tiny_2_1.h\"
@@ -195,7 +216,7 @@ ap.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\" -DSERVOS_4017
 ap.srcs += $(SRC_ARCH)/servos_4017_hw.c actuators.c
 
 ap.CFLAGS += -DRADIO_CONTROL
-ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
+ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
 
 ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=XBeeTransport -DXBEE_UART=Uart1 -DDATALINK=XBEE -DUART1_BAUD=B57600
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
@@ -206,7 +227,7 @@ ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 
 
 ap.CFLAGS += -DINTER_MCU
-ap.srcs += inter_mcu.c
+ap.srcs += inter_mcu.c 
 
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2
 ap.srcs += $(SRC_ARCH)/adc_hw.c
@@ -225,21 +246,30 @@ ap.srcs += nav_line.c
 ap.srcs += nav_survey_rectangle.c
 
 ap.srcs += humid_sht.c
-ap.CFLAGS += -DUSE_HUMID_SHT -DDAT_PIN=3  -DSCK_PIN=2
+ap.CFLAGS += -DUSE_HUMID_SHT -DDAT_PIN=30 -DSCK_PIN=4
 
-ap.srcs += baro_scp.c
+ap.CFLAGS += -DUSE_I2C0
+ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+
+ap.CFLAGS += -DUSE_AIRSPEED_ETS
+ap.srcs += airspeed_ets_o.c
+
+ap.CFLAGS += -DUSE_IR_MLX
+ap.srcs += ir_mlx.c
+
 ap.CFLAGS += -DUSE_BARO_SCP
+ap.srcs += baro_scp_i2c.c
 
-ap.srcs += joystick.c
-ap.CFLAGS += -DUSE_JOYSTICK
+#ap.CFLAGS += -DUSE_MAG_HMC
+#ap.srcs += mag_hmc5843.c
+
+ap.CFLAGS += -DMICROMAG_DRDY_VIC_SLOT=12 -DSSP_VIC_SLOT=11 -DUSE_MICROMAG_FW
+ap.srcs += micromag_fw.c $(SRC_ARCH)/micromag_fw_hw.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 sim.srcs += nav_line.c nav_survey_rectangle.c
-
-sim.srcs += joystick.c
-sim.CFLAGS += -DUSE_JOYSTICK
 
 
   </makefile>

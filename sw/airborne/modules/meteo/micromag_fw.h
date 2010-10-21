@@ -5,12 +5,12 @@
 #include "std.h"
 #define MM_NB_AXIS 3
 
-extern void micromag_init_ssp(void);
 extern void micromag_init( void );
 extern void micromag_read( void );
 
 extern void micromag_reset( void);
 extern void micromag_periodic( void );
+extern void micromag_event( void );
 
 #define MM_IDLE            0
 #define MM_BUSY            1
@@ -41,13 +41,24 @@ extern void micromag_periodic( void );
 #define SS_IOSET IO0SET
 #define SS_IOCLR IO0CLR
 
+#define SSPCR0_VAL (SSP_DDS |  SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR )
+#define SSPCR1_VAL (SSP_LBM |  SSP_SSE | SSP_MS | SSP_SOD )
+
+#define SSP_PINSEL1_SCK  (2<<2)
+#define SSP_PINSEL1_MISO (2<<4)
+#define SSP_PINSEL1_MOSI (2<<6)
+
+#define SSP_Enable()     SetBit(SSPCR1, SSE);
+#define SSP_Disable()    ClearBit(SSPCR1, SSE);
+#define SSP_EnableRxi()  SetBit(SSPIMSC, RXIM)
+#define SSP_DisableRxi() ClearBit(SSPIMSC, RXIM)
+#define SSP_EnableTxi()  SetBit(SSPIMSC, TXIM)
+#define SSP_DisableTxi() ClearBit(SSPIMSC, TXIM)
+#define SSP_EnableRti()  SetBit(SSPIMSC, RTIM);
+#define SSP_DisableRti() ClearBit(SSPIMSC, RTIM);
+#define SSP_ClearRti()   SetBit(SSPICR, RTIC);
 
 extern volatile uint8_t micromag_status;
 extern volatile int16_t micromag_values[MM_NB_AXIS];
-
-extern void micromag_hw_init( void );
-
-#include "micromag_fw_hw.h"
-
 
 #endif /* MICROMAG_H */

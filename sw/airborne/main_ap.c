@@ -95,10 +95,6 @@
 #include "usb_serial.h"
 #endif
 
-#ifdef USE_MICROMAG_FW
-#include "micromag_fw.h"
-#endif
-
 #ifdef USE_AIRSPEED_ETS
 #include "airspeed_ets.h"
 #endif // USE_AIRSPEED_ETS
@@ -497,10 +493,6 @@ void periodic_task_ap( void ) {
     /*  default: */
   }
 
-#ifdef USE_MICROMAG_FW
-    micromag_periodic();
-#endif
-
 #ifndef CONTROL_RATE
 #define CONTROL_RATE 20
 #endif
@@ -650,11 +642,6 @@ void init_ap( void ) {
 #endif
   nav_init();
 
-#ifdef USE_MICROMAG_FW
-  micromag_init_ssp();
-  micromag_init();
-#endif
-
   modules_init();
 
   /** - start interrupt task */
@@ -803,16 +790,6 @@ void event_task_ap( void ) {
     if (baro_ets_valid) {
       EstimatorSetAlt(baro_ets_altitude);
     }
-  }
-#endif
-
-#ifdef USE_MICROMAG_FW
-  if (micromag_status == MM_DATA_AVAILABLE) {
-    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
-                &micromag_values[0],
-                &micromag_values[1],
-                &micromag_values[2] );
-    micromag_status = MM_IDLE;
   }
 #endif
 
