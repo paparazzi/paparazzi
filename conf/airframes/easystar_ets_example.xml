@@ -15,6 +15,7 @@
       <define name="LOITER_TRIM"/>
       <define name="WIND_INFO"/>
       <define name="ALT_KALMAN"/>
+      <define name="USE_I2C0"/>
     </target>
 
     <target name="sim" 			board="pc">
@@ -22,6 +23,7 @@
       <define name="LOITER_TRIM"/>
       <define name="WIND_INFO"/>
       <define name="ALT_KALMAN"/>
+      <define name="USE_I2C0"/>
     </target>
 
     <subsystem name="radio_control" type="ppm"/>
@@ -29,14 +31,20 @@
     <subsystem name="control"/>
     <subsystem name="attitude"      type="infrared"/>
     <subsystem name="gps"           type="ublox_lea5h"/>
-    <subsystem name="airspeed"      type="ets"/>
+    <!--subsystem name="airspeed"      type="ets"/-->
     <subsystem name="navigation"    type="extra"/>
+    <subsystem name="i2c"/>
   </firmware>
 
   <firmware name="setup">
     <target name="tunnel" 		board="twog_1" />
     <target name="setup_actuators" 	board="twog_1" />
   </firmware>
+
+  <modules>
+    <load name="airspeed_ets.xml"/>
+    <load name="baro_ets.xml"/>
+  </modules>
 
 <!-- commands section -->
   <servos>
