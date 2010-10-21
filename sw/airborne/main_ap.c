@@ -95,10 +95,6 @@
 #include "usb_serial.h"
 #endif
 
-#ifdef USE_AIRSPEED_ETS
-#include "airspeed_ets.h"
-#endif // USE_AIRSPEED_ETS
-
 #ifdef USE_BARO_ETS
 #include "baro_ets.h"
 #endif // USE_BARO_ETS
@@ -501,30 +497,6 @@ void periodic_task_ap( void ) {
 #error "Only 20 and 60 allowed for CONTROL_RATE"
 #endif
 
-#ifdef USE_I2C0
-  // I2C0 scheduler
-  switch (_20Hz) {
-    case 0:
-#ifdef USE_AIRSPEED_ETS
-      airspeed_ets_periodic(); // process airspeed
-#endif // USE_AIRSPEED_ETS
-#ifdef USE_BARO_ETS
-      baro_ets_read(); // initiate next i2c read
-#endif // USE_BARO_ETS
-      break;
-    case 1:
-#ifdef USE_BARO_ETS
-      baro_ets_periodic(); // process altitude
-#endif // USE_BARO_ETS
-#ifdef USE_AIRSPEED_ETS
-      airspeed_ets_read(); // initiate next i2c read
-#endif // USE_AIRSPEED_ETS
-      break;
-    case 2:
-      break;
-  }
-#endif // USE_I2C0
-
 #if CONTROL_RATE == 20
   if (!_20Hz)
 #endif
@@ -534,9 +506,6 @@ void periodic_task_ap( void ) {
       gyro_update();
 #endif
 
-#if defined USE_AIRSPEED || defined MEASURE_AIRSPEED
-      airspeed_update();
-#endif
 #ifdef INFRARED
       ir_update();
       estimator_update_state_infrared();
@@ -581,9 +550,6 @@ void init_ap( void ) {
 #ifdef GYRO
   gyro_init();
 #endif
-#if defined USE_AIRSPEED || defined MEASURE_AIRSPEED
-  airspeed_init();
-#endif
 #ifdef GPS
   gps_init();
 #endif
@@ -608,14 +574,6 @@ void init_ap( void ) {
 
 #ifdef USE_I2C1
   i2c1_init();
-#endif
-
-#ifdef USE_AIRSPEED_ETS
-  airspeed_ets_init();
-#endif
-
-#ifdef USE_BARO_ETS
-  baro_ets_init();
 #endif
 
 #ifdef USE_ADC_GENERIC

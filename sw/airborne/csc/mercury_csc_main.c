@@ -134,12 +134,6 @@ static void csc_main_init( void ) {
 #ifdef USE_AIRSPEED
 	airspeed_init();
 #endif
-#ifdef USE_AIRSPEED_ETS
-	airspeed_ets_init();
-#endif
-#ifdef USE_BARO_ETS
-	baro_ets_init();
-#endif
 #ifdef USE_AMS5812
 		csc_ams5812_init();
 #endif
@@ -181,18 +175,9 @@ static void csc_main_periodic( void )
 	csc_adc_periodic();
 	
 	if ((csc_loops % AIRSPEED_TIMEOUT) == 0) {
-#ifdef USE_AIRSPEED_ETS
-		airspeed_ets_periodic();
-#endif
-#ifdef USE_BARO_ETS
-		baro_ets_read();
-#endif
 	} else if ((csc_loops % AIRSPEED_TIMEOUT) == 1) {
 #ifdef USE_BARO_ETS
 		baro_ets_periodic();
-#endif
-#ifdef USE_AIRSPEED_ETS
-		airspeed_ets_read();
 #endif
 #ifdef USE_AIRSPEED
 		csc_airspeed_periodic();
