@@ -32,6 +32,7 @@
 void ugear_init( void );
 void parse_ugear(uint8_t c);
 void parse_ugear_msg( void );
+void ugear_event( void );
 
 #define __UgearLink(dev, _x) dev##_x
 #define _UgearLink(dev, _x)  __UgearLink(dev, _x)
@@ -89,5 +90,6 @@ extern struct imu imupacket;
 extern struct gps gpspacket;
 extern uint8_t ugear_msg_buf[UGEAR_MAX_PAYLOAD];
 
-/* add the following function only to get rid of compilation error in datalink.c 20080608 Haiyang*/
-void ubxsend_cfg_rst(uint16_t, uint8_t); 
+extern float ins_roll_neutral;
+extern float ins_pitch_neutral;
+
