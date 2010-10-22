@@ -8,7 +8,7 @@
   <init fun="micromag_init()"/>
   <periodic fun="micromag_periodic()" freq="60"/>
   <event fun="micromag_event()"/>
-  <makefile>
+  <makefile target="ap">
     <file_hw name="micromag_fw_hw.c"/>
     <file name="micromag_fw.c"/>
   </makefile>

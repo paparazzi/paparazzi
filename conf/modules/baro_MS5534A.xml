@@ -7,7 +7,7 @@
   <init fun="baro_MS5534A_init()"/>
   <periodic fun="baro_MS5534A_send()" freq="20"/>
   <event fun="baro_MS5534A_event()"/>
-  <makefile>
+  <makefile target="ap">
     <file name="baro_MS5534A.c"/>
     <flag name="USE_BARO_MS5534A"/>
     <flag name="USE_SPI_SLAVE0"/>

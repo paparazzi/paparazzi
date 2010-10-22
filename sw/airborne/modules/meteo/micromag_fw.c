@@ -65,7 +65,7 @@ void micromag_read() {
     MmReadRes();
   }
   else if (micromag_status ==  MM_DATA_AVAILABLE) {
-    micromag_status == MM_IDLE;
+    micromag_status = MM_IDLE;
   }
 }
 

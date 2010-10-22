@@ -16,6 +16,7 @@
       <define name="ALT_KALMAN"/>
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
+      <define name="USE_I2C0"/>
     </target>
 
     <target name="ap"                  board="tiny_2.11">
@@ -24,19 +25,19 @@
       <define name="ALT_KALMAN"/>
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
+      <define name="USE_I2C0"/>
       <define name="SPI_MASTER"/>
       <define name="USE_MICROMAG_FW"/>
       <define name="MICROMAG_DRDY_VIC_SLOT" value="12"/>
       <define name="SSP_VIC_SLOT" value="11"/>
     </target>
 
+    <!-- RC -->
     <subsystem name="radio_control"    type="ppm"/>
-
     <!-- Communication -->
     <subsystem name="telemetry"        type="xbee_api">
       <param name="MODEM_BAUD"         value="B57600"/>
     </subsystem>
-
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control"/>
     <!-- Sensors -->
@@ -44,7 +45,9 @@
     <subsystem name="gps"              type="ublox_lea5h">
       <param name="GPS_BAUD"           value="B38400"/>
     </subsystem>
+    <!-- Nav -->
     <subsystem name="navigation"/>
+    <!-- Interfaces -->
     <subsystem name="i2c"/>
     <subsystem name="spi"/>
   </firmware>
@@ -56,14 +59,12 @@
     <target name="setup_actuators"     board="tiny_2.11"/>
   </firmware>
 
-
   <!-- modules -->
   <modules>
+    <load name="alt_srf08.xml"/>
     <load name="mag_micromag_fw.xml"/>
-    <!--load name="alt_srf08.xml"/>
-    <load name="baro_MS5534A.xml"/>
     <load name="baro_bmp.xml"/>
-    <load name="baro_scp_i2c.xml"/>
+    <load name="baro_scp.xml"/>
     <load name="light_temt.xml"/>
     <load name="humid_hih.xml"/>
     <load name="temp_tmp102.xml"/>
@@ -71,6 +72,8 @@
     <load name="ir_mlx.xml"/>
     <load name="humid_dpicco.xml"/>
     <load name="humid_sht.xml"/>
+    <load name="baro_MS5534A.xml"/>
+    <!--load name="adc_generic.xml"/>
     <load name="baro_scp_i2c.xml"/-->
   </modules>
 
