@@ -230,7 +230,7 @@ void guidance_v_run(bool_t in_flight) {
 
 #define FF_CMD_FRAC 18
 
-#define BOOZ2_MAX_BANK_COEF (BFP_OF_REAL(RadOfDeg(30.),INT32_TRIG_FRAC))
+#define MAX_BANK_COEF (BFP_OF_REAL(RadOfDeg(30.),INT32_TRIG_FRAC))
 
 static inline void run_hover_loop(bool_t in_flight) {
 
@@ -271,7 +271,7 @@ static inline void run_hover_loop(bool_t in_flight) {
   PPRZ_ITRIG_COS(cphi, ahrs.ltp_to_body_euler.phi);
   PPRZ_ITRIG_COS(ctheta, ahrs.ltp_to_body_euler.theta);
   cphitheta = (cphi * ctheta) >> INT32_TRIG_FRAC;
-  if (cphitheta < BOOZ2_MAX_BANK_COEF) cphitheta = BOOZ2_MAX_BANK_COEF;
+  if (cphitheta < MAX_BANK_COEF) cphitheta = MAX_BANK_COEF;
   guidance_v_ff_cmd = (guidance_v_ff_cmd << INT32_TRIG_FRAC) / cphitheta;
 #endif
 
