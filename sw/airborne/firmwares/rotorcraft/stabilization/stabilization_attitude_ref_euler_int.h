@@ -80,14 +80,14 @@
   }
 
 #define STABILIZATION_ATTITUDE_ADD_SP(_add_sp) {	\
-    EULERS_ADD(booz_stab_att_sp_euler,_add_sp);	\
-    ANGLE_REF_NORMALIZE(booz_stab_att_sp_euler.psi); \
+    EULERS_ADD(stab_att_sp_euler,_add_sp);	\
+    ANGLE_REF_NORMALIZE(stab_att_sp_euler.psi); \
 }
 
 #define STABILIZATION_ATTITUDE_RESET_PSI_REF(_sp) {		\
     _sp.psi = ahrs.ltp_to_body_euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC); \
-    booz_stab_att_ref_euler.psi = _sp.psi;				\
-    booz_stab_att_ref_rate.r = 0;					\
+    stab_att_ref_euler.psi = _sp.psi;				\
+    stab_att_ref_rate.r = 0;					\
   }
 
 

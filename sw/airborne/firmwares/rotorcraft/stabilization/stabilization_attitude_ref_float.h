@@ -25,18 +25,18 @@
 
 #include "airframe.h"
 
-extern struct FloatEulers booz_stab_att_sp_euler;
-extern struct FloatQuat   booz_stab_att_sp_quat;
-extern struct FloatEulers booz_stab_att_ref_euler;
-extern struct FloatQuat   booz_stab_att_ref_quat;
-extern struct FloatRates  booz_stab_att_ref_rate;
-extern struct FloatRates  booz_stab_att_ref_accel;
+extern struct FloatEulers stab_att_sp_euler;
+extern struct FloatQuat   stab_att_sp_quat;
+extern struct FloatEulers stab_att_ref_euler;
+extern struct FloatQuat   stab_att_ref_quat;
+extern struct FloatRates  stab_att_ref_rate;
+extern struct FloatRates  stab_att_ref_accel;
 
 struct FloatRefModel {
   struct FloatRates omega;
   struct FloatRates zeta;
 };
 
-extern struct FloatRefModel booz_stab_att_ref_model[];
+extern struct FloatRefModel stab_att_ref_model[];
 
 #endif /* BOOZ_STABILISATION_ATTITUDE_REF_FLOAT_H */

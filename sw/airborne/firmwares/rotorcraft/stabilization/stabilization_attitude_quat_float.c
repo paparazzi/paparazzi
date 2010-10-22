@@ -183,13 +183,13 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 
   /* attitude error                          */
   struct FloatQuat att_err;
-  FLOAT_QUAT_INV_COMP(att_err, ahrs_float.ltp_to_body_quat, booz_stab_att_ref_quat);
+  FLOAT_QUAT_INV_COMP(att_err, ahrs_float.ltp_to_body_quat, stab_att_ref_quat);
   /* wrap it in the shortest direction       */
   FLOAT_QUAT_WRAP_SHORTEST(att_err);
 
   /*  rate error                */
   struct FloatRates rate_err;
-  RATES_DIFF(rate_err, ahrs_float.body_rate, booz_stab_att_ref_rate);
+  RATES_DIFF(rate_err, ahrs_float.body_rate, stab_att_ref_rate);
 
   /* integrated error */
   if (enable_integrator) {
@@ -209,7 +209,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
     FLOAT_EULERS_ZERO( stabilization_att_sum_err_eulers );
   }
 
-  attitude_run_ff(stabilization_att_ff_cmd, &stabilization_gains[gain_idx], &booz_stab_att_ref_accel);
+  attitude_run_ff(stabilization_att_ff_cmd, &stabilization_gains[gain_idx], &stab_att_ref_accel);
 
   attitude_run_fb(stabilization_att_fb_cmd, &stabilization_gains[gain_idx], &att_err, &rate_err, &ahrs_float.body_rate_d, &stabilization_att_sum_err_quat);
 

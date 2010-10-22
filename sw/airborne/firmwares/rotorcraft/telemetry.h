@@ -221,9 +221,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 					  &ahrs.ltp_to_body_euler.phi, \
 					  &ahrs.ltp_to_body_euler.theta, \
 					  &ahrs.ltp_to_body_euler.psi, \
-					  &booz_stab_att_sp_euler.phi, \
-					  &booz_stab_att_sp_euler.theta, \
-					  &booz_stab_att_sp_euler.psi, \
+					  &stab_att_sp_euler.phi, \
+					  &stab_att_sp_euler.theta, \
+					  &stab_att_sp_euler.psi, \
 					  &stabilization_att_sum_err.phi, \
 					  &stabilization_att_sum_err.theta, \
 					  &stabilization_att_sum_err.psi, \
@@ -241,18 +241,18 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #define PERIODIC_SEND_STAB_ATTITUDE_REF(_chan) {			\
     DOWNLINK_SEND_STAB_ATTITUDE_REF_INT(_chan,			\
-					      &booz_stab_att_sp_euler.phi, \
-					      &booz_stab_att_sp_euler.theta, \
-					      &booz_stab_att_sp_euler.psi, \
-					      &booz_stab_att_ref_euler.phi, \
-					      &booz_stab_att_ref_euler.theta, \
-					      &booz_stab_att_ref_euler.psi, \
-					      &booz_stab_att_ref_rate.p, \
-					      &booz_stab_att_ref_rate.q, \
-					      &booz_stab_att_ref_rate.r, \
-					      &booz_stab_att_ref_accel.p, \
-					      &booz_stab_att_ref_accel.q, \
-					      &booz_stab_att_ref_accel.r); \
+					      &stab_att_sp_euler.phi, \
+					      &stab_att_sp_euler.theta, \
+					      &stab_att_sp_euler.psi, \
+					      &stab_att_ref_euler.phi, \
+					      &stab_att_ref_euler.theta, \
+					      &stab_att_ref_euler.psi, \
+					      &stab_att_ref_rate.p, \
+					      &stab_att_ref_rate.q, \
+					      &stab_att_ref_rate.r, \
+					      &stab_att_ref_accel.p, \
+					      &stab_att_ref_accel.q, \
+					      &stab_att_ref_accel.r); \
   }
 #endif /* STABILISATION_ATTITUDE_TYPE_INT */
 
@@ -265,9 +265,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 					    &ahrs_float.ltp_to_body_euler.phi, \
 					    &ahrs_float.ltp_to_body_euler.theta, \
 					    &ahrs_float.ltp_to_body_euler.psi, \
-					    &booz_stab_att_ref_euler.phi, \
-					    &booz_stab_att_ref_euler.theta, \
-					    &booz_stab_att_ref_euler.psi, \
+					    &stab_att_ref_euler.phi, \
+					    &stab_att_ref_euler.theta, \
+					    &stab_att_ref_euler.psi, \
 					    &stabilization_att_sum_err.phi, \
 					    &stabilization_att_sum_err.theta, \
 					    &stabilization_att_sum_err.psi, \
@@ -284,18 +284,18 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #define PERIODIC_SEND_STAB_ATTITUDE_REF(_chan) {			\
     DOWNLINK_SEND_STAB_ATTITUDE_REF_FLOAT(_chan,			\
-						&booz_stab_att_sp_euler.phi, \
-						&booz_stab_att_sp_euler.theta, \
-						&booz_stab_att_sp_euler.psi, \
-						&booz_stab_att_ref_euler.phi, \
-						&booz_stab_att_ref_euler.theta, \
-						&booz_stab_att_ref_euler.psi, \
-						&booz_stab_att_ref_rate.p,	\
-						&booz_stab_att_ref_rate.q,	\
-						&booz_stab_att_ref_rate.r,	\
-						&booz_stab_att_ref_accel.p, \
-						&booz_stab_att_ref_accel.q, \
-						&booz_stab_att_ref_accel.r); \
+						&stab_att_sp_euler.phi, \
+						&stab_att_sp_euler.theta, \
+						&stab_att_sp_euler.psi, \
+						&stab_att_ref_euler.phi, \
+						&stab_att_ref_euler.theta, \
+						&stab_att_ref_euler.psi, \
+						&stab_att_ref_rate.p,	\
+						&stab_att_ref_rate.q,	\
+						&stab_att_ref_rate.r,	\
+						&stab_att_ref_accel.p, \
+						&stab_att_ref_accel.q, \
+						&stab_att_ref_accel.r); \
   }
 
 #endif /* STABILISATION_ATTITUDE_TYPE_FLOAT */

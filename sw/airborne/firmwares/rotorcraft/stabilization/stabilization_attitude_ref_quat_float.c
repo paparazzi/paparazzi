@@ -37,14 +37,14 @@
 #define REF_ACCEL_MAX_Q STABILIZATION_ATTITUDE_FLOAT_REF_MAX_QDOT
 #define REF_ACCEL_MAX_R STABILIZATION_ATTITUDE_FLOAT_REF_MAX_RDOT
 
-struct FloatEulers booz_stab_att_sp_euler;
-struct FloatQuat   booz_stab_att_sp_quat;
-struct FloatEulers booz_stab_att_ref_euler;
-struct FloatQuat   booz_stab_att_ref_quat;
-struct FloatRates  booz_stab_att_ref_rate;
-struct FloatRates  booz_stab_att_ref_accel;
+struct FloatEulers stab_att_sp_euler;
+struct FloatQuat   stab_att_sp_quat;
+struct FloatEulers stab_att_ref_euler;
+struct FloatQuat   stab_att_ref_quat;
+struct FloatRates  stab_att_ref_rate;
+struct FloatRates  stab_att_ref_accel;
 
-struct FloatRefModel booz_stab_att_ref_model[STABILIZATION_ATTITUDE_FLOAT_GAIN_NB];
+struct FloatRefModel stab_att_ref_model[STABILIZATION_ATTITUDE_FLOAT_GAIN_NB];
 
 static int ref_idx = STABILIZATION_ATTITUDE_FLOAT_GAIN_IDX_DEFAULT;
 
@@ -56,35 +56,35 @@ static const float omega_r[] = STABILIZATION_ATTITUDE_FLOAT_REF_OMEGA_R;
 static const float zeta_r[] = STABILIZATION_ATTITUDE_FLOAT_REF_ZETA_R;
 
 static void reset_psi_ref_from_body(void) {
-    booz_stab_att_ref_euler.psi = ahrs_float.ltp_to_body_euler.psi;
-    booz_stab_att_ref_rate.r = 0;
-    booz_stab_att_ref_accel.r = 0;
+    stab_att_ref_euler.psi = ahrs_float.ltp_to_body_euler.psi;
+    stab_att_ref_rate.r = 0;
+    stab_att_ref_accel.r = 0;
 }
 
 static void update_ref_quat_from_eulers(void) {
     struct FloatRMat ref_rmat;
 
 #ifdef STICKS_RMAT312
-    FLOAT_RMAT_OF_EULERS_312(ref_rmat, booz_stab_att_ref_euler);
+    FLOAT_RMAT_OF_EULERS_312(ref_rmat, stab_att_ref_euler);
 #else
-    FLOAT_RMAT_OF_EULERS_321(ref_rmat, booz_stab_att_ref_euler);
+    FLOAT_RMAT_OF_EULERS_321(ref_rmat, stab_att_ref_euler);
 #endif
-    FLOAT_QUAT_OF_RMAT(booz_stab_att_ref_quat, ref_rmat);
-    FLOAT_QUAT_WRAP_SHORTEST(booz_stab_att_ref_quat);
+    FLOAT_QUAT_OF_RMAT(stab_att_ref_quat, ref_rmat);
+    FLOAT_QUAT_WRAP_SHORTEST(stab_att_ref_quat);
 }
 
 void stabilization_attitude_ref_init(void) {
 
-  FLOAT_EULERS_ZERO(booz_stab_att_sp_euler);
-  FLOAT_QUAT_ZERO(  booz_stab_att_sp_quat);
-  FLOAT_EULERS_ZERO(booz_stab_att_ref_euler);
-  FLOAT_QUAT_ZERO(  booz_stab_att_ref_quat);
-  FLOAT_RATES_ZERO( booz_stab_att_ref_rate);
-  FLOAT_RATES_ZERO( booz_stab_att_ref_accel);
+  FLOAT_EULERS_ZERO(stab_att_sp_euler);
+  FLOAT_QUAT_ZERO(  stab_att_sp_quat);
+  FLOAT_EULERS_ZERO(stab_att_ref_euler);
+  FLOAT_QUAT_ZERO(  stab_att_ref_quat);
+  FLOAT_RATES_ZERO( stab_att_ref_rate);
+  FLOAT_RATES_ZERO( stab_att_ref_accel);
 
   for (int i = 0; i < STABILIZATION_ATTITUDE_FLOAT_GAIN_NB; i++) {
-    RATES_ASSIGN(booz_stab_att_ref_model[i].omega, omega_p[i], omega_q[i], omega_r[i]);
-    RATES_ASSIGN(booz_stab_att_ref_model[i].zeta, zeta_p[i], zeta_q[i], zeta_r[i]);
+    RATES_ASSIGN(stab_att_ref_model[i].omega, omega_p[i], omega_q[i], omega_r[i]);
+    RATES_ASSIGN(stab_att_ref_model[i].zeta, zeta_p[i], zeta_q[i], zeta_r[i]);
   }
 
 }
@@ -114,35 +114,35 @@ void stabilization_attitude_ref_update() {
 
   /* integrate reference attitude            */
   struct FloatQuat qdot;
-  FLOAT_QUAT_DERIVATIVE(qdot, booz_stab_att_ref_rate, booz_stab_att_ref_quat);
+  FLOAT_QUAT_DERIVATIVE(qdot, stab_att_ref_rate, stab_att_ref_quat);
   QUAT_SMUL(qdot, qdot, DT_UPDATE);
-  QUAT_ADD(booz_stab_att_ref_quat, qdot);
-  FLOAT_QUAT_NORMALISE(booz_stab_att_ref_quat);
+  QUAT_ADD(stab_att_ref_quat, qdot);
+  FLOAT_QUAT_NORMALISE(stab_att_ref_quat);
 
   /* integrate reference rotational speeds   */
   struct FloatRates delta_rate;
-  RATES_SMUL(delta_rate, booz_stab_att_ref_accel, DT_UPDATE);
-  RATES_ADD(booz_stab_att_ref_rate, delta_rate);
+  RATES_SMUL(delta_rate, stab_att_ref_accel, DT_UPDATE);
+  RATES_ADD(stab_att_ref_rate, delta_rate);
 
   /* compute reference angular accelerations */
   struct FloatQuat err;
   /* compute reference attitude error        */
-  FLOAT_QUAT_INV_COMP(err, booz_stab_att_sp_quat, booz_stab_att_ref_quat);
+  FLOAT_QUAT_INV_COMP(err, stab_att_sp_quat, stab_att_ref_quat);
   /* wrap it in the shortest direction       */
   FLOAT_QUAT_WRAP_SHORTEST(err);
   /* propagate the 2nd order linear model    */
-  booz_stab_att_ref_accel.p = -2.*booz_stab_att_ref_model[ref_idx].zeta.p*booz_stab_att_ref_model[ref_idx].omega.p*booz_stab_att_ref_rate.p
-    - booz_stab_att_ref_model[ref_idx].omega.p*booz_stab_att_ref_model[ref_idx].omega.p*err.qx;
-  booz_stab_att_ref_accel.q = -2.*booz_stab_att_ref_model[ref_idx].zeta.q*booz_stab_att_ref_model[ref_idx].omega.q*booz_stab_att_ref_rate.q
-    - booz_stab_att_ref_model[ref_idx].omega.q*booz_stab_att_ref_model[ref_idx].omega.q*err.qy;
-  booz_stab_att_ref_accel.r = -2.*booz_stab_att_ref_model[ref_idx].zeta.r*booz_stab_att_ref_model[ref_idx].omega.r*booz_stab_att_ref_rate.r
-    - booz_stab_att_ref_model[ref_idx].omega.r*booz_stab_att_ref_model[ref_idx].omega.r*err.qz;
+  stab_att_ref_accel.p = -2.*stab_att_ref_model[ref_idx].zeta.p*stab_att_ref_model[ref_idx].omega.p*stab_att_ref_rate.p
+    - stab_att_ref_model[ref_idx].omega.p*stab_att_ref_model[ref_idx].omega.p*err.qx;
+  stab_att_ref_accel.q = -2.*stab_att_ref_model[ref_idx].zeta.q*stab_att_ref_model[ref_idx].omega.q*stab_att_ref_rate.q
+    - stab_att_ref_model[ref_idx].omega.q*stab_att_ref_model[ref_idx].omega.q*err.qy;
+  stab_att_ref_accel.r = -2.*stab_att_ref_model[ref_idx].zeta.r*stab_att_ref_model[ref_idx].omega.r*stab_att_ref_rate.r
+    - stab_att_ref_model[ref_idx].omega.r*stab_att_ref_model[ref_idx].omega.r*err.qz;
 
   /*	saturate acceleration */
   const struct FloatRates MIN_ACCEL = { -REF_ACCEL_MAX_P, -REF_ACCEL_MAX_Q, -REF_ACCEL_MAX_R };
   const struct FloatRates MAX_ACCEL = {  REF_ACCEL_MAX_P,  REF_ACCEL_MAX_Q,  REF_ACCEL_MAX_R };
-  RATES_BOUND_BOX(booz_stab_att_ref_accel, MIN_ACCEL, MAX_ACCEL);
+  RATES_BOUND_BOX(stab_att_ref_accel, MIN_ACCEL, MAX_ACCEL);
 
   /* compute ref_euler */
-  FLOAT_EULERS_OF_QUAT(booz_stab_att_ref_euler, booz_stab_att_ref_quat);
+  FLOAT_EULERS_OF_QUAT(stab_att_ref_euler, stab_att_ref_quat);
 }

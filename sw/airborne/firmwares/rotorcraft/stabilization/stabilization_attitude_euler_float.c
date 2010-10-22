@@ -68,14 +68,14 @@ void stabilization_attitude_init(void) {
 
 void stabilization_attitude_read_rc(bool_t in_flight) {
 
-  STABILIZATION_ATTITUDE_FLOAT_READ_RC(booz_stab_att_sp_euler, in_flight);
+  STABILIZATION_ATTITUDE_FLOAT_READ_RC(stab_att_sp_euler, in_flight);
 
 }
 
 
 void stabilization_attitude_enter(void) {
 
-  STABILIZATION_ATTITUDE_FLOAT_RESET_PSI_REF(  booz_stab_att_sp_euler );
+  STABILIZATION_ATTITUDE_FLOAT_RESET_PSI_REF(  stab_att_sp_euler );
   FLOAT_EULERS_ZERO( stabilization_att_sum_err );
 
 }
@@ -89,18 +89,18 @@ void stabilization_attitude_run(bool_t  in_flight) {
 
   /* Compute feedforward */
   stabilization_att_ff_cmd[COMMAND_ROLL] =
-    stabilization_gains.dd.x * booz_stab_att_ref_accel.p / 32.;
+    stabilization_gains.dd.x * stab_att_ref_accel.p / 32.;
   stabilization_att_ff_cmd[COMMAND_PITCH] =
-    stabilization_gains.dd.y * booz_stab_att_ref_accel.q / 32.;
+    stabilization_gains.dd.y * stab_att_ref_accel.q / 32.;
   stabilization_att_ff_cmd[COMMAND_YAW] =
-    stabilization_gains.dd.z * booz_stab_att_ref_accel.r / 32.;
+    stabilization_gains.dd.z * stab_att_ref_accel.r / 32.;
 
   /* Compute feedback                  */
   /* attitude error            */
   struct FloatEulers att_float;
   EULERS_FLOAT_OF_BFP(att_float, ahrs.ltp_to_body_euler);
   struct FloatEulers att_err;
-  EULERS_DIFF(att_err, att_float, booz_stab_att_ref_euler);
+  EULERS_DIFF(att_err, att_float, stab_att_ref_euler);
   FLOAT_ANGLE_NORMALIZE(att_err.psi);
 
   if (in_flight) {
@@ -116,7 +116,7 @@ void stabilization_attitude_run(bool_t  in_flight) {
   struct FloatRates rate_float;
   RATES_FLOAT_OF_BFP(rate_float, ahrs.body_rate);
   struct FloatRates rate_err;
-  RATES_DIFF(rate_err, rate_float, booz_stab_att_ref_rate);
+  RATES_DIFF(rate_err, rate_float, stab_att_ref_rate);
 
   /*  PID                  */
 

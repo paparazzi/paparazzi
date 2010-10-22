@@ -187,8 +187,8 @@ void guidance_h_run(bool_t  in_flight) {
 
       if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
 #ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
-        booz_stab_att_sp_euler.phi = nav_roll << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
-        booz_stab_att_sp_euler.theta = nav_pitch << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
+        stab_att_sp_euler.phi = nav_roll << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
+        stab_att_sp_euler.theta = nav_pitch << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
 #endif
       }
       else {
@@ -271,7 +271,7 @@ static inline void  guidance_h_hover_run(void) {
   ANGLE_REF_NORMALIZE(guidance_h_command_body.psi);
 #endif /* STABILISATION_ATTITUDE_TYPE_FLOAT */
 
-  EULERS_COPY(booz_stab_att_sp_euler, guidance_h_command_body);
+  EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
 
 }
 
@@ -364,7 +364,7 @@ static inline void  guidance_h_nav_run(bool_t in_flight) {
   ANGLE_REF_NORMALIZE(guidance_h_command_body.psi);
 
   // Set attitude setpoint
-  EULERS_COPY(booz_stab_att_sp_euler, guidance_h_command_body);
+  EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
 
 }
 

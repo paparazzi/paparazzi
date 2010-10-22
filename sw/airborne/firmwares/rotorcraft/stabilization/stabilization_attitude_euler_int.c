@@ -69,14 +69,14 @@ void stabilization_attitude_init(void) {
 
 void stabilization_attitude_read_rc(bool_t in_flight) {
 
-  STABILIZATION_ATTITUDE_READ_RC(booz_stab_att_sp_euler, in_flight);
+  STABILIZATION_ATTITUDE_READ_RC(stab_att_sp_euler, in_flight);
 
 }
 
 
 void stabilization_attitude_enter(void) {
 
-  STABILIZATION_ATTITUDE_RESET_PSI_REF(  booz_stab_att_sp_euler );
+  STABILIZATION_ATTITUDE_RESET_PSI_REF(  stab_att_sp_euler );
   INT_EULERS_ZERO( stabilization_att_sum_err );
 
 }
@@ -95,18 +95,18 @@ void stabilization_attitude_run(bool_t  in_flight) {
 
   /* compute feedforward command */
   stabilization_att_ff_cmd[COMMAND_ROLL] =
-    OFFSET_AND_ROUND(stabilization_gains.dd.x * booz_stab_att_ref_accel.p, 5);
+    OFFSET_AND_ROUND(stabilization_gains.dd.x * stab_att_ref_accel.p, 5);
   stabilization_att_ff_cmd[COMMAND_PITCH] =
-    OFFSET_AND_ROUND(stabilization_gains.dd.y * booz_stab_att_ref_accel.q, 5);
+    OFFSET_AND_ROUND(stabilization_gains.dd.y * stab_att_ref_accel.q, 5);
   stabilization_att_ff_cmd[COMMAND_YAW] =
-    OFFSET_AND_ROUND(stabilization_gains.dd.z * booz_stab_att_ref_accel.r, 5);
+    OFFSET_AND_ROUND(stabilization_gains.dd.z * stab_att_ref_accel.r, 5);
 
   /* compute feedback command */
   /* attitude error            */
   const struct Int32Eulers att_ref_scaled = {
-    OFFSET_AND_ROUND(booz_stab_att_ref_euler.phi,   (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)),
-    OFFSET_AND_ROUND(booz_stab_att_ref_euler.theta, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)),
-    OFFSET_AND_ROUND(booz_stab_att_ref_euler.psi,   (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)) };
+    OFFSET_AND_ROUND(stab_att_ref_euler.phi,   (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)),
+    OFFSET_AND_ROUND(stab_att_ref_euler.theta, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)),
+    OFFSET_AND_ROUND(stab_att_ref_euler.psi,   (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)) };
   struct Int32Eulers att_err;
   EULERS_DIFF(att_err, ahrs.ltp_to_body_euler, att_ref_scaled);
   INT32_ANGLE_NORMALIZE(att_err.psi);
@@ -122,9 +122,9 @@ void stabilization_attitude_run(bool_t  in_flight) {
 
   /* rate error                */
   const struct Int32Rates rate_ref_scaled = {
-    OFFSET_AND_ROUND(booz_stab_att_ref_rate.p, (REF_RATE_FRAC - INT32_RATE_FRAC)),
-    OFFSET_AND_ROUND(booz_stab_att_ref_rate.q, (REF_RATE_FRAC - INT32_RATE_FRAC)),
-    OFFSET_AND_ROUND(booz_stab_att_ref_rate.r, (REF_RATE_FRAC - INT32_RATE_FRAC)) };
+    OFFSET_AND_ROUND(stab_att_ref_rate.p, (REF_RATE_FRAC - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND(stab_att_ref_rate.q, (REF_RATE_FRAC - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND(stab_att_ref_rate.r, (REF_RATE_FRAC - INT32_RATE_FRAC)) };
   struct Int32Rates rate_err;
   RATES_DIFF(rate_err, ahrs.body_rate, rate_ref_scaled);
 
