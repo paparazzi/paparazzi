@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 #include "peripherals/hmc5843.h"
 
@@ -33,7 +33,7 @@ void exti9_5_irq_handler(void);
 
 void hmc5843_arch_init( void ) {
   /* configure external interrupt exti5 on PB5( mag int ) */
-	GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitTypeDef GPIO_InitStructure;
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
@@ -53,19 +53,19 @@ void hmc5843_arch_init( void ) {
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure); 
+  NVIC_Init(&NVIC_InitStructure);
 }
 
 void hmc5843_arch_reset(void)
 {
-	i2c2_er_irq_handler();
+    i2c2_er_irq_handler();
 }
 
 void exti9_5_irq_handler(void) {
-  
+
   /* clear EXTI */
   if(EXTI_GetITStatus(EXTI_Line5) != RESET)
     EXTI_ClearITPendingBit(EXTI_Line5);
 
-	hmc5843.ready_for_read = TRUE;
+    hmc5843.ready_for_read = TRUE;
 }
