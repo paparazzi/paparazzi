@@ -49,6 +49,7 @@ SRC_BOOZ_TEST = $(SRC_BOOZ)/test
 SRC_BOARD=boards/$(BOARD)
 
 SRC_FIRMWARE=firmwares/rotorcraft
+SRC_SUBSYSTEMS=subsystems
 
 #
 # default configuration expected from the board files
@@ -289,7 +290,7 @@ test_adc.CFLAGS += -DUSE_ADC1_2_IRQ_HANDLER
 #   MODEM_BAUD
 #
 test_imu_b2.ARCHDIR = $(ARCH)
-test_imu_b2.CFLAGS  = -I$(SRC_FIRMWARE)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_imu_b2.CFLAGS  = -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_imu_b2.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_imu_b2.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
 					$(SRC_ARCH)/stm32_exceptions.c   \
@@ -313,11 +314,11 @@ test_imu_b2.srcs += math/pprz_trig_int.c
 
 test_imu_b2.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
 test_imu_b2.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001 -DIMU_B2_VERSION_1_1
-test_imu_b2.srcs += $(SRC_FIRMWARE)/imu.c
+test_imu_b2.srcs += $(SRC_SUBSYSTEMS)/imu.c
 test_imu_b2.CFLAGS += -DMAX_1168_DRDY_PORT=$(MAX_1168_DRDY_PORT)
 test_imu_b2.CFLAGS += -DMAX_1168_DRDY_PORT_SOURCE=$(MAX_1168_DRDY_PORT_SOURCE)
 test_imu_b2.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
-test_imu_b2.srcs += $(SRC_FIRMWARE)/imu/imu_b2.c $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
+test_imu_b2.srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
 test_imu_b2.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
 test_imu_b2.srcs += peripherals/ms2001.c  $(SRC_ARCH)/peripherals/ms2001_arch.c
 
@@ -330,7 +331,7 @@ test_imu_b2.srcs += peripherals/ms2001.c  $(SRC_ARCH)/peripherals/ms2001_arch.c
 #   MODEM_BAUD
 #
 test_imu_b2_2.ARCHDIR = $(ARCH)
-test_imu_b2_2.CFLAGS  = -I$(SRC_FIRMWARE)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_imu_b2_2.CFLAGS  = -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_imu_b2_2.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
 test_imu_b2_2.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
                     $(SRC_ARCH)/stm32_exceptions.c   \
@@ -354,11 +355,11 @@ test_imu_b2_2.srcs += math/pprz_trig_int.c
 
 test_imu_b2_2.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
 test_imu_b2_2.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_HMC5843 -DIMU_B2_VERSION_1_2
-test_imu_b2_2.srcs += $(SRC_FIRMWARE)/imu.c
+test_imu_b2_2.srcs += $(SRC_SUBSYSTEMS)/imu.c
 test_imu_b2_2.CFLAGS += -DMAX_1168_DRDY_PORT=$(MAX_1168_DRDY_PORT)
 test_imu_b2_2.CFLAGS += -DMAX_1168_DRDY_PORT_SOURCE=$(MAX_1168_DRDY_PORT_SOURCE)
 test_imu_b2_2.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
-test_imu_b2_2.srcs += $(SRC_FIRMWARE)/imu/imu_b2.c $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
+test_imu_b2_2.srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
 test_imu_b2_2.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
 test_imu_b2_2.CFLAGS += -DUSE_I2C2
 test_imu_b2_2.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
@@ -370,7 +371,7 @@ test_imu_b2_2.CFLAGS += -DUSE_EXTI9_5_IRQ    # Mag Int on PB5
 # test IMU aspirin
 #
 test_imu_aspirin.ARCHDIR = $(ARCH)
-test_imu_aspirin.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_FIRMWARE)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_imu_aspirin.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_imu_aspirin.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
 test_imu_aspirin.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
 					$(SRC_ARCH)/stm32_exceptions.c   \
@@ -392,9 +393,9 @@ test_imu_aspirin.srcs += downlink.c pprz_transport.c
 test_imu_aspirin.srcs += math/pprz_trig_int.c
 
 test_imu_aspirin.CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin.h\" -DIMU_OVERRIDE_CHANNELS
-test_imu_aspirin.srcs += $(SRC_FIRMWARE)/imu.c             \
-						$(SRC_FIRMWARE)/imu/imu_aspirin.c \
-						$(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_aspirin_arch.c
+test_imu_aspirin.srcs += $(SRC_SUBSYSTEMS)/imu.c             \
+						$(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
+						$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_aspirin_arch.c
 
 test_imu_aspirin.CFLAGS += -DUSE_I2C2
 test_imu_aspirin.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c

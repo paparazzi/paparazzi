@@ -1,6 +1,6 @@
 #
 # $Id$
-#  
+#
 # Copyright (C) 2009 Antoine Drouin, Allen H. Ibara
 #
 # This file is part of paparazzi.
@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA. 
+# Boston, MA 02111-1307, USA.
 #
 #
 
@@ -42,6 +42,7 @@ PERIODIC_FREQ = 512
 SRC_CSC=csc
 SRC_CSC_ARCH=$(SRC_CSC)/$(ARCHI)
 SRC_BOOZ=booz
+SRC_SUBSYSTEMS=subsystems
 
 ap.ARCHDIR = $(ARCHI)
 
@@ -64,13 +65,13 @@ ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_0 -DUSE_AD0_1
 ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B230400 -DUART0_VIC_SLOT=5
 ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
-	                  -DDOWNLINK_DEVICE=Uart1
+                      -DDOWNLINK_DEVICE=Uart1
 ap.srcs += downlink.c pprz_transport.c $(SRC_CSC)/csc_telemetry.c
 ap.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
 ap.srcs += $(SRC_CSC)/csc_datalink.c
 
 ap.CFLAGS += -DPPRZ_TRIG_CONST=const
-ap.srcs += $(SRC_CSC)/mercury_xsens.c $(SRC_FIRMWARE)/imu.c math/pprz_trig_int.c
+ap.srcs += $(SRC_CSC)/mercury_xsens.c $(SRC_SUBSYSTEMS)/imu.c math/pprz_trig_int.c
 ap.CFLAGS += -DXSENS1_LINK=Uart0 -DIMU_TYPE_H=\"mercury_xsens.h\"
 
 ap.srcs += $(SRC_BOOZ)/ahrs/ahrs_cmpl_euler.c $(SRC_BOOZ)/ahrs/ahrs_aligner.c
@@ -137,6 +138,5 @@ test_uart.srcs += $(SRC_ARCH)/uart_hw.c
 
 test_uart.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 test_uart.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
-	                  -DDOWNLINK_DEVICE=Uart1
+                      -DDOWNLINK_DEVICE=Uart1
 test_uart.srcs += downlink.c pprz_transport.c
-

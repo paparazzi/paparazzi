@@ -124,6 +124,7 @@ SRC_BOOZ=booz
 SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCH)
 
 SRC_FIRMWARE=firmwares/rotorcraft
+SRC_SUBSYSTEMS=subsystems
 
 #BOARD_CFG=\"boards/olimex_stm32-h103.h\"
 BOARD_CFG=\"boards/lisa_l_1.0.h\"
@@ -401,7 +402,7 @@ test_servos.srcs += $(SRC_FIRMWARE)/actuators/actuators_pwm.c $(SRC_FIRMWARE)/ac
 # test IMU b2
 #
 test_imu_b2.ARCHDIR = $(ARCH)
-test_imu_b2.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_FIRMWARE)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_imu_b2.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_imu_b2.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
 test_imu_b2.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
                     $(SRC_ARCH)/stm32_exceptions.c   \
@@ -424,9 +425,9 @@ test_imu_b2.srcs += math/pprz_trig_int.c
 
 test_imu_b2.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
 test_imu_b2.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
-test_imu_b2.srcs += $(SRC_FIRMWARE)/imu.c
+test_imu_b2.srcs += $(SRC_SUBSYSTEMS)/imu.c
 test_imu_b2.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
-test_imu_b2.srcs += $(SRC_FIRMWARE)/imu/imu_b2.c $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
+test_imu_b2.srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
 test_imu_b2.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
 test_imu_b2.srcs += peripherals/ms2001.c  $(SRC_ARCH)/peripherals/ms2001_arch.c
 
@@ -435,7 +436,7 @@ test_imu_b2.srcs += peripherals/ms2001.c  $(SRC_ARCH)/peripherals/ms2001_arch.c
 # test IMU crista
 #
 test_imu_crista.ARCHDIR = $(ARCH)
-test_imu_crista.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_FIRMWARE)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_imu_crista.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_imu_crista.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_imu_crista.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
                     $(SRC_ARCH)/stm32_exceptions.c   \
@@ -457,9 +458,9 @@ test_imu_crista.srcs += downlink.c pprz_transport.c
 test_imu_crista.srcs += math/pprz_trig_int.c
 
 test_imu_crista.CFLAGS += -DIMU_TYPE_H=\"imu/imu_crista.h\" -DIMU_OVERRIDE_CHANNELS
-test_imu_crista.srcs += $(SRC_FIRMWARE)/imu.c             \
-                        $(SRC_FIRMWARE)/imu/imu_crista.c \
-                        $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_crista_arch.c
+test_imu_crista.srcs += $(SRC_SUBSYSTEMS)/imu.c             \
+                        $(SRC_SUBSYSTEMS)/imu/imu_crista.c \
+                        $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_crista_arch.c
 test_imu_crista.CFLAGS += -DUSE_DMA1_C4_IRQ
 
 
@@ -467,7 +468,7 @@ test_imu_crista.CFLAGS += -DUSE_DMA1_C4_IRQ
 # test IMU aspirin
 #
 test_imu_aspirin.ARCHDIR = $(ARCH)
-test_imu_aspirin.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_FIRMWARE)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_imu_aspirin.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_imu_aspirin.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_imu_aspirin.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
                     $(SRC_ARCH)/stm32_exceptions.c   \
@@ -489,9 +490,9 @@ test_imu_aspirin.srcs += downlink.c pprz_transport.c
 test_imu_aspirin.srcs += math/pprz_trig_int.c
 
 test_imu_aspirin.CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin.h\" -DIMU_OVERRIDE_CHANNELS
-test_imu_aspirin.srcs += $(SRC_FIRMWARE)/imu.c             \
-                        $(SRC_FIRMWARE)/imu/imu_aspirin.c \
-                        $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_aspirin_arch.c
+test_imu_aspirin.srcs += $(SRC_SUBSYSTEMS)/imu.c             \
+                        $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
+                        $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_aspirin_arch.c
 
 test_imu_aspirin.CFLAGS += -DUSE_I2C2
 test_imu_aspirin.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
@@ -1092,9 +1093,9 @@ ptw.srcs += downlink.c pprz_transport.c
 # IMU
 ptw.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
 ptw.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
-ptw.srcs += $(SRC_FIRMWARE)/imu.c
+ptw.srcs += $(SRC_SUBSYSTEMS)/imu.c
 ptw.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
-ptw.srcs += $(SRC_FIRMWARE)/imu/imu_b2.c $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
+ptw.srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
 ptw.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
 ptw.srcs += peripherals/ms2001.c  $(SRC_ARCH)/peripherals/ms2001_arch.c
 ptw.srcs += math/pprz_trig_int.c
@@ -1312,9 +1313,9 @@ hs_gyro_aspirin.srcs += downlink.c pprz_transport.c
 hs_gyro_aspirin.srcs += math/pprz_trig_int.c
 
 hs_gyro_aspirin.CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin.h\" -DIMU_OVERRIDE_CHANNELS
-hs_gyro_aspirin.srcs += $(SRC_FIRMWARE)/imu.c             \
-                        $(SRC_FIRMWARE)/imu/imu_aspirin.c \
-                        $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_aspirin_arch.c
+hs_gyro_aspirin.srcs += $(SRC_SUBSYSTEMS)/imu.c             \
+                        $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
+                        $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_aspirin_arch.c
 
 hs_gyro_aspirin.CFLAGS += -DUSE_I2C2
 hs_gyro_aspirin.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
@@ -1351,9 +1352,9 @@ hs_gyro_b2.srcs += math/pprz_trig_int.c
 
 hs_gyro_b2.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
 hs_gyro_b2.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
-hs_gyro_b2.srcs += $(SRC_FIRMWARE)/imu.c
+hs_gyro_b2.srcs += $(SRC_SUBSYSTEMS)/imu.c
 hs_gyro_b2.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
-hs_gyro_b2.srcs += $(SRC_FIRMWARE)/imu/imu_b2.c $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
+hs_gyro_b2.srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
 hs_gyro_b2.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
 hs_gyro_b2.srcs += peripherals/ms2001.c  $(SRC_ARCH)/peripherals/ms2001_arch.c
 
@@ -1383,9 +1384,9 @@ hs_gyro_crista.srcs += downlink.c pprz_transport.c
 hs_gyro_crista.srcs += math/pprz_trig_int.c
 
 hs_gyro_crista.CFLAGS += -DIMU_TYPE_H=\"imu/imu_crista.h\" -DIMU_OVERRIDE_CHANNELS
-hs_gyro_crista.srcs += $(SRC_FIRMWARE)/imu.c             \
-                        $(SRC_FIRMWARE)/imu/imu_crista.c \
-                        $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_crista_arch.c
+hs_gyro_crista.srcs += $(SRC_SUBSYSTEMS)/imu.c             \
+                        $(SRC_SUBSYSTEMS)/imu/imu_crista.c \
+                        $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_crista_arch.c
 hs_gyro_crista.CFLAGS += -DUSE_DMA1_C4_IRQ
 
 hs_gyro_crista.CFLAGS += -DMEASURED_SENSOR=gyro_unscaled.p -DMEASURED_SENSOR_NB=0
