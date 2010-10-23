@@ -634,7 +634,11 @@
     <field name="f_light" type="float" unit="percent" format="%.2f"/>
   </message>
 
- <!-- 98 is free -->
+  <message name="GP2Y_STATUS" id="98">
+    <field name="idensity"  type="uint16"/>
+    <field name="density"   type="float" unit="mg/m3" format="%.2f"/>
+  </message>
+
  <!-- 99 is free -->
 
   <message name="PPM" id="100">

@@ -61,6 +61,8 @@
 
   <!-- modules -->
   <modules>
+    <load name="dust_gp2y.xml"/>
+    <!--load name="adc_generic.xml"/>
     <load name="alt_srf08.xml"/>
     <load name="mag_micromag_fw.xml"/>
     <load name="baro_bmp.xml"/>
@@ -73,7 +75,6 @@
     <load name="humid_dpicco.xml"/>
     <load name="humid_sht.xml"/>
     <load name="baro_MS5534A.xml"/>
-    <!--load name="adc_generic.xml"/>
     <load name="baro_scp_i2c.xml"/-->
   </modules>
 
