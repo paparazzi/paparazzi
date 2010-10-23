@@ -36,13 +36,13 @@ void imu_periodic(void) {
 #include "nps_sensors.h"
 
 void imu_feed_gyro_accel(void) {
-  booz_max1168_values[IMU_GYRO_P_CHAN]  = sensors.gyro.value.x;
-  booz_max1168_values[IMU_GYRO_Q_CHAN]  = sensors.gyro.value.y;
-  booz_max1168_values[IMU_GYRO_R_CHAN]  = sensors.gyro.value.z;
-  booz_max1168_values[IMU_ACCEL_X_CHAN] = sensors.accel.value.x;
-  booz_max1168_values[IMU_ACCEL_Y_CHAN] = sensors.accel.value.y;
-  booz_max1168_values[IMU_ACCEL_Z_CHAN] = sensors.accel.value.z;
-  booz_max1168_status = STA_MAX1168_DATA_AVAILABLE;
+  max1168_values[IMU_GYRO_P_CHAN]  = sensors.gyro.value.x;
+  max1168_values[IMU_GYRO_Q_CHAN]  = sensors.gyro.value.y;
+  max1168_values[IMU_GYRO_R_CHAN]  = sensors.gyro.value.z;
+  max1168_values[IMU_ACCEL_X_CHAN] = sensors.accel.value.x;
+  max1168_values[IMU_ACCEL_Y_CHAN] = sensors.accel.value.y;
+  max1168_values[IMU_ACCEL_Z_CHAN] = sensors.accel.value.z;
+  max1168_status = STA_MAX1168_DATA_AVAILABLE;
 }
 
 

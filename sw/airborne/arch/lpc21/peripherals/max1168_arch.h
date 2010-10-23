@@ -22,8 +22,8 @@
  */
 
 
-#ifndef BOOZ_MAX1168_ARCH_H
-#define BOOZ_MAX1168_ARCH_H
+#ifndef MAX1168_ARCH_H
+#define MAX1168_ARCH_H
 
 
 /*
@@ -58,22 +58,22 @@
 #define Max1168Select() SetBit(MAX1168_SS_IOCLR, MAX1168_SS_PIN)
 
 #define Max1168OnSpiInt() {						\
-    ASSERT((booz_max1168_status == STA_MAX1168_READING_RES),		\
+    ASSERT((max1168_status == STA_MAX1168_READING_RES),		\
        DEBUG_MAX_1168, MAX1168_ERR_ISR_STATUS);			\
     /* store convertion result */					\
-    booz_max1168_values[0] = SSPDR;					\
-    booz_max1168_values[1] = SSPDR;					\
-    booz_max1168_values[2] = SSPDR;					\
-    booz_max1168_values[3] = SSPDR;					\
-    booz_max1168_values[4] = SSPDR;					\
-    booz_max1168_values[5] = SSPDR;					\
-    booz_max1168_values[6] = SSPDR;					\
-    booz_max1168_values[7] = SSPDR;					\
+    max1168_values[0] = SSPDR;					\
+    max1168_values[1] = SSPDR;					\
+    max1168_values[2] = SSPDR;					\
+    max1168_values[3] = SSPDR;					\
+    max1168_values[4] = SSPDR;					\
+    max1168_values[5] = SSPDR;					\
+    max1168_values[6] = SSPDR;					\
+    max1168_values[7] = SSPDR;					\
     SSP_ClearRti();							\
     SSP_DisableRti();							\
     SSP_Disable();							\
     Max1168Unselect();							\
-    booz_max1168_status = STA_MAX1168_DATA_AVAILABLE;			\
+    max1168_status = STA_MAX1168_DATA_AVAILABLE;			\
   }
 
-#endif /* BOOZ2_MAX1168_ARCH_H */
+#endif /* MAX1168_ARCH_H */

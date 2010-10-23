@@ -51,10 +51,10 @@ imu_srcs += $(SRC_FIRMWARE)/imu.c                   \
            $(SRC_FIRMWARE)/imu/imu_b2.c            \
            $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
 
-imu_srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
-            $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
+imu_srcs += peripherals/max1168.c \
+            $(SRC_ARCH)/peripherals/max1168_arch.c
 
-imu_srcs += $(SRC_BOOZ)/peripherals/booz_hmc5843.c \
+imu_srcs += peripherals/hmc5843.c \
             $(SRC_BOOZ_ARCH)/peripherals/hmc5843_arch.c
 
 ifeq ($(ARCH), lpc21)
@@ -87,9 +87,9 @@ sim.srcs += $(SRC_FIRMWARE)/imu.c                   \
             $(SRC_FIRMWARE)/imu/imu_b2.c            \
             $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
 
-sim.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
-            $(SRC_BOOZ_SIM)/peripherals/booz_max1168_arch.c
+sim.srcs += peripherals/max1168.c \
+            $(SRC_BOOZ_SIM)/peripherals/max1168_arch.c
 
 sim.CFLAGS += -DUSE_AMI601
-sim.srcs   += $(SRC_BOOZ)/peripherals/booz_ami601.c
+sim.srcs   += peripherals/ami601.c
 sim.CFLAGS += -DUSE_I2C1

@@ -29,7 +29,7 @@
 
 #include "i2c.h"
 #include "booz/peripherals/booz_itg3200.h"
-#include "booz/peripherals/booz_hmc5843.h"
+#include "booz/peripherals/hmc5843.h"
 #include "booz/peripherals/booz_adxl345.h"
 
 

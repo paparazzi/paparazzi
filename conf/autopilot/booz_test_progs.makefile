@@ -229,6 +229,6 @@ test_ami601.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_D
 test_ami601.srcs += downlink.c pprz_transport.c
 
 test_ami601.CFLAGS += -DUSE_AMI601
-test_ami601.srcs += $(SRC_BOOZ)/peripherals/booz_ami601.c
+test_ami601.srcs += peripherals/ami601.c
 test_ami601.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11
 test_ami601.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c

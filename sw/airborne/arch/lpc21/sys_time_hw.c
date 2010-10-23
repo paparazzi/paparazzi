@@ -47,7 +47,7 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
 #endif
 
 #ifdef USE_AMI601
-#include "booz/peripherals/booz_ami601.h"
+#include "booz/peripherals/ami601.h"
 #else
 #define AMI601_IT 0x00
 #endif

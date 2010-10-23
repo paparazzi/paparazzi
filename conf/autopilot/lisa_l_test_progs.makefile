@@ -318,8 +318,8 @@ test_imu_b2.CFLAGS += -DMAX_1168_DRDY_PORT=$(MAX_1168_DRDY_PORT)
 test_imu_b2.CFLAGS += -DMAX_1168_DRDY_PORT_SOURCE=$(MAX_1168_DRDY_PORT_SOURCE)
 test_imu_b2.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
 test_imu_b2.srcs += $(SRC_FIRMWARE)/imu/imu_b2.c $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
-test_imu_b2.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
-test_imu_b2.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c  $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
+test_imu_b2.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
+test_imu_b2.srcs += peripherals/ms2001.c  $(SRC_ARCH)/peripherals/ms2001_arch.c
 
 #
 # test IMU b2 1.2
@@ -359,10 +359,10 @@ test_imu_b2_2.CFLAGS += -DMAX_1168_DRDY_PORT=$(MAX_1168_DRDY_PORT)
 test_imu_b2_2.CFLAGS += -DMAX_1168_DRDY_PORT_SOURCE=$(MAX_1168_DRDY_PORT_SOURCE)
 test_imu_b2_2.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
 test_imu_b2_2.srcs += $(SRC_FIRMWARE)/imu/imu_b2.c $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
-test_imu_b2_2.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
+test_imu_b2_2.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
 test_imu_b2_2.CFLAGS += -DUSE_I2C2
 test_imu_b2_2.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-test_imu_b2_2.srcs += $(SRC_BOOZ)/peripherals/booz_hmc5843.c $(SRC_BOOZ_ARCH)/peripherals/hmc5843_arch.c
+test_imu_b2_2.srcs += peripherals/hmc5843.c $(SRC_BOOZ_ARCH)/peripherals/hmc5843_arch.c
 test_imu_b2_2.CFLAGS += -DUSE_EXTI9_5_IRQ    # Mag Int on PB5
 
 

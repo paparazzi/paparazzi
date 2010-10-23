@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,17 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
-/*
- *
- * simulator plug for max1168 SPI Analog to Digital converter
- *
- */
+#include "peripherals/max1168.h"
 
-#ifndef BOOZ2_MAX1168_HW_H
-#define BOOZ2_MAX1168_HW_H
+void max1168_arch_init( void ) {}
 
-
-#endif /* BOOZ2_MAX1168_HW_H */
+void max1168_read( void ) {}

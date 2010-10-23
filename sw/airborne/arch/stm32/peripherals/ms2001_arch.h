@@ -1,9 +1,9 @@
-#ifndef BOOZ_MS2001_ARCH_H
-#define BOOZ_MS2001_ARCH_H
+#ifndef MS2001_ARCH_H
+#define MS2001_ARCH_H
 
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <stm32/gpio.h>
@@ -36,7 +36,7 @@ extern int16_t ms2001_last_reading;
 #define Ms2001Reset() GPIOC->BSRR = GPIO_Pin_13;
 #define Ms2001Set()   GPIOC->BRR = GPIO_Pin_13
 
-#define Ms2001HasEOC() GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5) 
+#define Ms2001HasEOC() GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5)
 
 #define Ms2001SendReq() {						\
     Ms2001Select();							\
@@ -119,7 +119,7 @@ extern int16_t ms2001_last_reading;
 									\
     /* Enable DMA1 Channel4 Transfer Complete interrupt */		\
     DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, ENABLE);			\
-    									\
+									\
   }
 
 #define Ms2001OnDmaIrq() {					\
@@ -152,4 +152,4 @@ extern int16_t ms2001_last_reading;
     SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_RXNE, DISABLE);			\
   }
 
-#endif /* BOOZ_MS2001_ARCH_H */
+#endif /* MS2001_ARCH_H */

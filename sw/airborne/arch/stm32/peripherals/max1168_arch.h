@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,13 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_MAX1168_ARCH_H
-#define BOOZ_MAX1168_ARCH_H
+#ifndef MAX1168_ARCH_H
+#define MAX1168_ARCH_H
 
-/* 
+/*
  * max1168 analog to digital converter
  * connected on spi2
  * select on PB12
@@ -36,7 +36,7 @@
 #define Max1168Select() GPIOB->BRR = GPIO_Pin_12
 
 #define Max1168OnDmaIrq() {						\
-    /*  ASSERT((booz_max1168_status == STA_MAX1168_READING_RES),	\
+    /*  ASSERT((max1168_status == STA_MAX1168_READING_RES),	\
      *          DEBUG_MAX_1168, MAX1168_ERR_SPURIOUS_DMA_IRQ);		\
      */									\
     Max1168Unselect();							\
@@ -47,8 +47,8 @@
     /* Disable DMA1 Channel4 and 5 */					\
     DMA_Cmd(DMA1_Channel4, DISABLE);					\
     DMA_Cmd(DMA1_Channel5, DISABLE);					\
-									\
-    booz_max1168_status = STA_MAX1168_DATA_AVAILABLE;			\
+                                    \
+    max1168_status = STA_MAX1168_DATA_AVAILABLE;			\
   }
 
 
@@ -66,4 +66,4 @@
     SPI_Init(SPI2, &SPI_InitStructure);					\
   }
 
-#endif /* BOOZ_MAX1168_ARCH_H */
+#endif /* MAX1168_ARCH_H */

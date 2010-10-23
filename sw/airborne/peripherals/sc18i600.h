@@ -48,7 +48,7 @@ extern void sc18is600_tranceive(uint8_t addr, uint8_t len_tx, uint8_t len_rx);
 extern void sc18is600_write_to_register(uint8_t addr, uint8_t value);
 extern void sc18is600_read_from_register(uint8_t addr);
 
-#include "peripherals/booz_sc18is600_arch.h"
+#include "peripherals/sc18is600_arch.h"
 extern void sc18is600_arch_init(void);
 
 #endif /* SC18IS600_H */

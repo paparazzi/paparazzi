@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_ms2001.h"
+#include "ms2001.h"
 
 volatile uint8_t ms2001_status;
 volatile int16_t ms2001_values[MS2001_NB_AXIS];

@@ -79,7 +79,7 @@ void imu_periodic(void) {
   imu_ssp_status = IMU_SSP_STA_BUSY_MAX1168;
   Max1168ConfigureSPI();
   SPI_Cmd(SPI2, ENABLE);
-  booz_max1168_read();
+  max1168_read();
 #if IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC5843
 	hmc5843_periodic();
 #endif

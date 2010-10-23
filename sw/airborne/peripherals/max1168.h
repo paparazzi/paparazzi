@@ -21,28 +21,28 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_MAX1168_H
-#define BOOZ_MAX1168_H
+#ifndef MAX1168_H
+#define MAX1168_H
 
 #include "std.h"
 
 #define MAX1168_NB_CHAN 8
 
-extern void booz_max1168_init( void );
+extern void max1168_init( void );
 
 #define STA_MAX1168_IDLE           0
 #define STA_MAX1168_SENDING_REQ    1
 #define STA_MAX1168_READING_RES    2
 #define STA_MAX1168_DATA_AVAILABLE 3
-extern volatile uint8_t booz_max1168_status;
+extern volatile uint8_t max1168_status;
 
-extern uint16_t booz_max1168_values[MAX1168_NB_CHAN];
+extern uint16_t max1168_values[MAX1168_NB_CHAN];
 
 /* underlying architecture */
-#include "peripherals/booz_max1168_arch.h"
+#include "peripherals/max1168_arch.h"
 /* must be implemented by underlying architecture */
-extern void booz_max1168_arch_init( void );
-extern void booz_max1168_read( void );
+extern void max1168_arch_init( void );
+extern void max1168_read( void );
 
 
-#endif /* BOOZ_MAX1168_H */
+#endif /* MAX1168_H */

@@ -1,5 +1,5 @@
-#ifndef BOOZ_ADXL345_H
-#define BOOZ_ADXL345_H
+#ifndef ADXL345_H
+#define ADXL345_H
 
 
 #define ADXL345_REG_BW_RATE     0x2C
@@ -14,4 +14,4 @@
 #define ADXL345_REG_DATA_Z1     0x37
 
 
-#endif /* BOOZ_ADXL345_H */
+#endif /* ADXL345_H */

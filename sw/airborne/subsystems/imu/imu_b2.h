@@ -27,7 +27,7 @@
 #include <subsystems/imu.h>
 #include "airframe.h"
 
-#include "peripherals/booz_max1168.h"
+#include "peripherals/max1168.h"
 
 /* type of magnetometer */
 #define IMU_B2_MAG_NONE   0
@@ -143,7 +143,7 @@
 
 
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
-#include "peripherals/booz_ms2001.h"
+#include "peripherals/ms2001.h"
 #define ImuMagEvent(_mag_handler) {					\
     if (ms2001_status == MS2001_DATA_AVAILABLE) {			\
       imu.mag_unscaled.x = ms2001_values[IMU_MAG_X_CHAN];		\
@@ -154,7 +154,7 @@
     }									\
   }
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
-#include "peripherals/booz_ami601.h"
+#include "peripherals/ami601.h"
 #define foo_handler() {}
 #define ImuMagEvent(_mag_handler) {					\
     AMI601Event(foo_handler);						\
@@ -167,7 +167,7 @@
     }									\
   }
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC5843
-#include "peripherals/booz_hmc5843.h"
+#include "peripherals/hmc5843.h"
 #define foo_handler() {}
 #define ImuMagEvent(_mag_handler) {					\
 	  MagEvent(foo_handler); \
@@ -185,14 +185,14 @@
 
 
 #define ImuEvent(_gyro_accel_handler, _mag_handler) {		\
-    if (booz_max1168_status == STA_MAX1168_DATA_AVAILABLE) {		\
-      imu.gyro_unscaled.p  = booz_max1168_values[IMU_GYRO_P_CHAN]; \
-      imu.gyro_unscaled.q  = booz_max1168_values[IMU_GYRO_Q_CHAN]; \
-      imu.gyro_unscaled.r  = booz_max1168_values[IMU_GYRO_R_CHAN]; \
-      imu.accel_unscaled.x = booz_max1168_values[IMU_ACCEL_X_CHAN]; \
-      imu.accel_unscaled.y = booz_max1168_values[IMU_ACCEL_Y_CHAN]; \
-      imu.accel_unscaled.z = booz_max1168_values[IMU_ACCEL_Z_CHAN]; \
-      booz_max1168_status = STA_MAX1168_IDLE;				\
+    if (max1168_status == STA_MAX1168_DATA_AVAILABLE) {		\
+      imu.gyro_unscaled.p  = max1168_values[IMU_GYRO_P_CHAN]; \
+      imu.gyro_unscaled.q  = max1168_values[IMU_GYRO_Q_CHAN]; \
+      imu.gyro_unscaled.r  = max1168_values[IMU_GYRO_R_CHAN]; \
+      imu.accel_unscaled.x = max1168_values[IMU_ACCEL_X_CHAN]; \
+      imu.accel_unscaled.y = max1168_values[IMU_ACCEL_Y_CHAN]; \
+      imu.accel_unscaled.z = max1168_values[IMU_ACCEL_Z_CHAN]; \
+      max1168_status = STA_MAX1168_IDLE;				\
       _gyro_accel_handler();						\
     }									\
     ImuMagEvent(_mag_handler);					\

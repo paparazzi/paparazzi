@@ -1,5 +1,5 @@
-#ifndef BOOZ_ITG3200
-#define BOOZ_ITG3200
+#ifndef ITG3200
+#define ITG3200
 
 /* default I2C address */
 #define ITG3200_ADDR 0xD0
@@ -22,4 +22,4 @@
 
 
 
-#endif /* BOOZ_ITG3200 */
+#endif /* ITG3200 */

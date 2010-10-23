@@ -51,11 +51,11 @@ ap.srcs += $(SRC_SUBSYSTEMS)/imu.c                   \
            $(SRC_SUBSYSTEMS)/imu/imu_b2.c            \
            $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
 
-imu_srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
-            $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
+imu_srcs += peripherals/max1168.c \
+            $(SRC_ARCH)/peripherals/max1168_arch.c
 
-imu_srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c \
-            $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
+imu_srcs += peripherals/ms2001.c \
+            $(SRC_ARCH)/peripherals/ms2001_arch.c
 
 ifeq ($(ARCH), lpc21)
 imu_CFLAGS += -DSSP_VIC_SLOT=9
@@ -86,9 +86,9 @@ sim.srcs += $(SRC_SUBSYSTEMS)/imu.c                   \
             $(SRC_SUBSYSTEMS)/imu/imu_b2.c            \
             $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
 
-sim.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
-            $(SRC_BOOZ_SIM)/peripherals/booz_max1168_arch.c
+sim.srcs += peripherals/max1168.c \
+            $(SRC_BOOZ_SIM)/peripherals/max1168_arch.c
 
 sim.CFLAGS += -DUSE_AMI601
-sim.srcs   += $(SRC_BOOZ)/peripherals/booz_ami601.c
+sim.srcs   += peripherals/ami601.c
 sim.CFLAGS += -DUSE_I2C1

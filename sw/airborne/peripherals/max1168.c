@@ -22,19 +22,19 @@
  *
  */
 
-#include "booz_max1168.h"
+#include "max1168.h"
 
 
-volatile uint8_t booz_max1168_status;
-uint16_t booz_max1168_values[MAX1168_NB_CHAN];
+volatile uint8_t max1168_status;
+uint16_t max1168_values[MAX1168_NB_CHAN];
 
-extern void booz_max1168_init( void ) {
+extern void max1168_init( void ) {
 
-  booz_max1168_arch_init();
+  max1168_arch_init();
 
   uint8_t i;
   for (i=0; i<MAX1168_NB_CHAN; i++)
-    booz_max1168_values[i] = 0;
+    max1168_values[i] = 0;
 
-  booz_max1168_status = STA_MAX1168_IDLE;
+  max1168_status = STA_MAX1168_IDLE;
 }

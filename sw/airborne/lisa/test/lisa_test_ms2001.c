@@ -32,7 +32,7 @@
 #include "init_hw.h"
 #include "sys_time.h"
 #include "downlink.h"
-#include "peripherals/booz_ms2001.h"
+#include "peripherals/ms2001.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );

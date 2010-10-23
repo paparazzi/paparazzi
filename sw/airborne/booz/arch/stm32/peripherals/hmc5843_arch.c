@@ -20,7 +20,7 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA. 
  */
-#include "peripherals/booz_hmc5843.h"
+#include "peripherals/hmc5843.h"
 
 #include <stm32/gpio.h>
 #include <stm32/rcc.h>

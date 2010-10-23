@@ -33,7 +33,7 @@
 #include "downlink.h"
 
 #include "peripherals/booz_itg3200.h"
-#include "peripherals/booz_hmc5843.h"
+#include "peripherals/hmc5843.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );

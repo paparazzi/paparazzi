@@ -427,8 +427,8 @@ test_imu_b2.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
 test_imu_b2.srcs += $(SRC_FIRMWARE)/imu.c
 test_imu_b2.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
 test_imu_b2.srcs += $(SRC_FIRMWARE)/imu/imu_b2.c $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
-test_imu_b2.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
-test_imu_b2.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c  $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
+test_imu_b2.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
+test_imu_b2.srcs += peripherals/ms2001.c  $(SRC_ARCH)/peripherals/ms2001_arch.c
 
 
 #
@@ -851,8 +851,8 @@ test_sc18is600.srcs += downlink.c pprz_transport.c
 test_sc18is600.srcs += math/pprz_trig_int.c
 
 test_sc18is600.CFLAGS += -DUSE_EXTI2_IRQ  -DUSE_DMA1_C4_IRQ
-test_sc18is600.srcs += $(SRC_BOOZ)/peripherals/booz_sc18is600.c \
-                       $(SRC_BOOZ_ARCH)/peripherals/booz_sc18is600_arch.c
+test_sc18is600.srcs += peripherals/booz_sc18is600.c \
+                       $(SRC_ARCH)/peripherals/sc18is600_arch.c
 
 
 #
@@ -873,8 +873,8 @@ test_max1168.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_max1168.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 test_max1168.CFLAGS += -DUSE_SPI2 -DUSE_EXTI2_IRQ -DUSE_DMA1_C4_IRQ -DMAX1168_HANDLES_DMA_IRQ
-test_max1168.srcs   += $(SRC_BOOZ)/peripherals/booz_max1168.c \
-                       $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
+test_max1168.srcs   += peripherals/max1168.c \
+                       $(SRC_ARCH)/peripherals/max1168_arch.c
 
 test_max1168.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_max1168.srcs += $(SRC_ARCH)/uart_hw.c
@@ -902,8 +902,8 @@ test_ms2001.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_ms2001.CFLAGS += -DUSE_SPI2
 test_ms2001.CFLAGS += -DUSE_DMA1_C4_IRQ -DMS2001_HANDLES_DMA_IRQ
 test_ms2001.CFLAGS += -DUSE_SPI2_IRQ -DMS2001_HANDLES_SPI_IRQ
-test_ms2001.srcs   += $(SRC_BOOZ)/peripherals/booz_ms2001.c \
-                      $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
+test_ms2001.srcs   += peripherals/ms2001.c \
+                      $(SRC_ARCH)/peripherals/ms2001_arch.c
 
 test_ms2001.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_ms2001.srcs += $(SRC_ARCH)/uart_hw.c
@@ -1095,8 +1095,8 @@ ptw.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
 ptw.srcs += $(SRC_FIRMWARE)/imu.c
 ptw.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
 ptw.srcs += $(SRC_FIRMWARE)/imu/imu_b2.c $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
-ptw.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
-ptw.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c  $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
+ptw.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
+ptw.srcs += peripherals/ms2001.c  $(SRC_ARCH)/peripherals/ms2001_arch.c
 ptw.srcs += math/pprz_trig_int.c
 
 ptw.srcs += $(SRC_BOOZ)/booz2_commands.c
@@ -1354,8 +1354,8 @@ hs_gyro_b2.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
 hs_gyro_b2.srcs += $(SRC_FIRMWARE)/imu.c
 hs_gyro_b2.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
 hs_gyro_b2.srcs += $(SRC_FIRMWARE)/imu/imu_b2.c $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
-hs_gyro_b2.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
-hs_gyro_b2.srcs += $(SRC_BOOZ)/peripherals/booz_ms2001.c  $(SRC_BOOZ_ARCH)/peripherals/booz_ms2001_arch.c
+hs_gyro_b2.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
+hs_gyro_b2.srcs += peripherals/ms2001.c  $(SRC_ARCH)/peripherals/ms2001_arch.c
 
 #
 # Spits every samples of one axis of gyro on IMU crista

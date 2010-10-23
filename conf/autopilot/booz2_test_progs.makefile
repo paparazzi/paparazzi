@@ -72,8 +72,8 @@ test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_
 test_max1168.srcs   += downlink.c pprz_transport.c
 
 test_max1168.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8 -DSSP_VIC_SLOT=9
-test_max1168.srcs   += $(SRC_BOOZ)/peripherals/booz_max1168.c \
-					   $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
+test_max1168.srcs   += peripherals/max1168.c \
+					   $(SRC_ARCH)/peripherals/max1168_arch.c
 
 #
 # test MICROMAG

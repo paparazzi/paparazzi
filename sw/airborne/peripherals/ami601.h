@@ -1,5 +1,5 @@
-#ifndef BOOZ_AMI601_H
-#define BOOZ_AMI601_H
+#ifndef AMI601_H
+#define AMI601_H
 
 #include "std.h"
 #include "i2c.h"

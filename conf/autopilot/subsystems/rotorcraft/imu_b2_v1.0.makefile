@@ -48,11 +48,11 @@ ap.srcs += $(SRC_SUBSYSTEMS)/imu.c                   \
            $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
 
 ap.CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
-ap.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
-           $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
+ap.srcs += peripherals/max1168.c \
+           $(SRC_ARCH)/peripherals/max1168_arch.c
 
 ap.CFLAGS += -DUSE_AMI601
-ap.srcs += $(SRC_BOOZ)/peripherals/booz_ami601.c
+ap.srcs += peripherals/ami601.c
 ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11
 
 
@@ -70,9 +70,9 @@ sim.srcs += $(SRC_SUBSYSTEMS)/imu.c                   \
            $(SRC_SUBSYSTEMS)/imu/imu_b2.c            \
            $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
 
-sim.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
-            $(SRC_BOOZ_SIM)/peripherals/booz_max1168_arch.c
+sim.srcs += peripherals/max1168.c \
+            $(SRC_BOOZ_SIM)/peripherals/max1168_arch.c
 
 sim.CFLAGS += -DUSE_AMI601
-sim.srcs += $(SRC_BOOZ)/peripherals/booz_ami601.c
+sim.srcs += peripherals/ami601.c
 sim.CFLAGS += -DUSE_I2C1

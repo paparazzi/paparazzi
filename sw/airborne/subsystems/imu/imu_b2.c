@@ -27,7 +27,7 @@ void imu_impl_init(void) {
 
   imu_b2_arch_init();
 
-  booz_max1168_init();
+  max1168_init();
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
   ms2001_init();
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601

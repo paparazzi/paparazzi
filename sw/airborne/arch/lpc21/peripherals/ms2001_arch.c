@@ -6,7 +6,7 @@
   DRDY on P0.30 ( EINT3)
 */
 
-#include "peripherals/booz_ms2001.h"
+#include "peripherals/ms2001.h"
 
 volatile uint8_t ms2001_cur_axe;
 
@@ -25,17 +25,17 @@ void ms2001_arch_init( void ) {
   SetBit(MS2001_RESET_IODIR, MS2001_RESET_PIN); /* pin is output  */
 
   /* configure DRDY pin */
-  /* connected pin to EXINT */ 
+  /* connected pin to EXINT */
   MS2001_DRDY_PINSEL |= MS2001_DRDY_PINSEL_VAL << MS2001_DRDY_PINSEL_BIT;
   SetBit(EXTMODE, MS2001_DRDY_EINT); /* EINT is edge trigered */
   SetBit(EXTPOLAR,MS2001_DRDY_EINT); /* EINT is trigered on rising edge */
   SetBit(EXTINT,MS2001_DRDY_EINT);   /* clear pending EINT */
-  
+
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT( MS2001_DRDY_VIC_IT );                       /* select EINT as IRQ source */
   VICIntEnable = VIC_BIT( MS2001_DRDY_VIC_IT );                         /* enable it                 */
   _VIC_CNTL(MS2001_DRDY_VIC_SLOT) = VIC_ENABLE | MS2001_DRDY_VIC_IT;
-  _VIC_ADDR(MS2001_DRDY_VIC_SLOT) = (uint32_t)EXTINT_ISR;         // address of the ISR 
+  _VIC_ADDR(MS2001_DRDY_VIC_SLOT) = (uint32_t)EXTINT_ISR;         // address of the ISR
 
 }
 
@@ -48,4 +48,3 @@ void EXTINT_ISR(void) {
   VICVectAddr = 0x00000000;    /* clear this interrupt from the VIC */
   ISR_EXIT();
 }
-

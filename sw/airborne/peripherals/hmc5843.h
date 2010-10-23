@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_HMC5843_H
-#define BOOZ_HMC5843_H
+#ifndef HMC5843_H
+#define HMC5843_H
 
 #include "std.h"
 #include "i2c.h"
@@ -30,16 +30,16 @@
 #include "peripherals/hmc5843_arch.h"
 
 struct Hmc5843 {
-	struct i2c_transaction i2c_trans;
+    struct i2c_transaction i2c_trans;
   union {
     uint8_t buf[7];
     int16_t value[3];
   } data;
-	uint8_t initialized;
-	uint8_t reading;
-	volatile uint8_t ready_for_read;
-	uint8_t data_available;
-	uint32_t timeout;
+    uint8_t initialized;
+    uint8_t reading;
+    volatile uint8_t ready_for_read;
+    uint8_t data_available;
+    uint32_t timeout;
 };
 
 extern struct Hmc5843 hmc5843;
@@ -72,10 +72,10 @@ extern void hmc5843_idle_task(void);
 #include <string.h>
 
 #define MagEvent(_m_handler) {						\
-	  hmc5843_idle_task(); \
+      hmc5843_idle_task(); \
     if (hmc5843.data_available) { \
-			_m_handler(); \
+            _m_handler(); \
     } \
   }
 
-#endif /* BOOZ_HMC5843_H */
+#endif /* HMC5843_H */

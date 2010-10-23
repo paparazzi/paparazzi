@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_MS2001_H
-#define BOOZ_MS2001_H
+#ifndef MS2001_H
+#define MS2001_H
 
 
 #include "std.h"
@@ -44,7 +44,7 @@ extern volatile uint8_t ms2001_status;
 extern volatile int16_t ms2001_values[MS2001_NB_AXIS];
 
 /* underlying architecture */
-#include "peripherals/booz_ms2001_arch.h"
+#include "peripherals/ms2001_arch.h"
 /* must be implemented by underlying architecture */
 extern void ms2001_arch_init( void );
 
@@ -56,4 +56,4 @@ extern void ms2001_arch_init( void );
 #define MS2001_DIVISOR MS2001_DIVISOR_1024
 
 
-#endif /* BOOZ_MS2001_H */
+#endif /* MS2001_H */

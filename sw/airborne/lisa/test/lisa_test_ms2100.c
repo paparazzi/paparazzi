@@ -56,13 +56,13 @@ int main(void) {
 static inline void main_init( void ) {
   hw_init();
   sys_time_init();
-  booz_max1168_init();
+  max1168_init();
   main_spi2_init();
 }
 
 static inline void main_periodic_task( void ) {
   //  LED_TOGGLE(6);
-  booz_max1168_read();
+  max1168_read();
   RunOnceEvery(10, 
 	       {
 		 DOWNLINK_SEND_BOOT(DefaultChannel, &cpu_time_sec);
@@ -72,13 +72,13 @@ static inline void main_periodic_task( void ) {
 }
 
 static inline void main_event_task( void ) {
-  if (booz_max1168_status == STA_MAX1168_DATA_AVAILABLE) {
+  if (max1168_status == STA_MAX1168_DATA_AVAILABLE) {
     RunOnceEvery(10, {
-	DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, &booz_max1168_values[0], &booz_max1168_values[1], &booz_max1168_values[2]); 
-	DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, &booz_max1168_values[3], &booz_max1168_values[4], &booz_max1168_values[6]);
-	//	DOWNLINK_SEND_BOOT(DefaultChannel, &booz_max1168_values[7]); });
+	DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, &max1168_values[0], &max1168_values[1], &max1168_values[2]);
+	DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, &max1168_values[3], &max1168_values[4], &max1168_values[6]);
+	//	DOWNLINK_SEND_BOOT(DefaultChannel, &max1168_values[7]); });
       });
-    booz_max1168_status = STA_MAX1168_IDLE;
+    max1168_status = STA_MAX1168_IDLE;
   }
 }
 

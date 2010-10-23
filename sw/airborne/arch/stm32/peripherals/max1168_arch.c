@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,9 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
-#include "peripherals/booz_max1168.h"
+#include "peripherals/max1168.h"
 
 #include <stm32/rcc.h>
 #include <stm32/spi.h>
@@ -40,7 +40,7 @@
 
 void exti2_irq_handler(void);
 
-void booz_max1168_arch_init( void ) {
+void max1168_arch_init( void ) {
 
   /* set slave select as output and assert it ( on PB12) */
   Max1168Unselect();
@@ -74,8 +74,8 @@ void booz_max1168_arch_init( void ) {
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  
-  NVIC_Init(&NVIC_InitStructure); 
+
+  NVIC_Init(&NVIC_InitStructure);
 
 #ifdef MAX1168_HANDLES_DMA_IRQ
   /* Enable DMA1 channel4 IRQ Channel */
@@ -83,30 +83,30 @@ void booz_max1168_arch_init( void ) {
     .NVIC_IRQChannel = DMA1_Channel4_IRQn,
     .NVIC_IRQChannelPreemptionPriority = 0,
     .NVIC_IRQChannelSubPriority = 0,
-    .NVIC_IRQChannelCmd = ENABLE 
+    .NVIC_IRQChannelCmd = ENABLE
   };
   NVIC_Init(&NVIC_init_struct);
 #endif /* MAX1168_HANDLES_DMA_IRQ */
 }
 
-void booz_max1168_read( void ) {
-  /*  ASSERT((booz_max1168_status == STA_MAX1168_IDLE),	\
+void max1168_read( void ) {
+  /*  ASSERT((max1168_status == STA_MAX1168_IDLE),	\
    *   DEBUG_MAX_1168, MAX1168_ERR_READ_OVERUN);
    */
-  /* select max1168 */ 
+  /* select max1168 */
   Max1168Select();
 
   /* write control byte - wait EOC on extint */
   const uint16_t ctl_byte = (1 << 0 | 1 << 3 | 7 << 5) << 8;
   SPI_I2S_SendData(SPI2, ctl_byte);
-  booz_max1168_status = STA_MAX1168_SENDING_REQ;
-  
+  max1168_status = STA_MAX1168_SENDING_REQ;
+
 }
 
 void exti2_irq_handler(void) {
-  
-  /*  ASSERT((booz_max1168_status == STA_MAX1168_SENDING_REQ),	\
-   *	 DEBUG_MAX_1168, MAX1168_ERR_SPURIOUS_EOC);
+
+  /*  ASSERT((max1168_status == STA_MAX1168_SENDING_REQ),	\
+   *     DEBUG_MAX_1168, MAX1168_ERR_SPURIOUS_EOC);
    */
 
   /* clear EXTI */
@@ -118,44 +118,44 @@ void exti2_irq_handler(void) {
 
   /* trigger 8 frames read */
   /* SPI2_Rx_DMA_Channel configuration ------------------------------------*/
-  DMA_DeInit(DMA1_Channel4);						
+  DMA_DeInit(DMA1_Channel4);
   DMA_InitTypeDef DMA_initStructure_4 = {
     .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
-    .DMA_MemoryBaseAddr = (uint32_t)booz_max1168_values,
-    .DMA_DIR = DMA_DIR_PeripheralSRC,			
+    .DMA_MemoryBaseAddr = (uint32_t)max1168_values,
+    .DMA_DIR = DMA_DIR_PeripheralSRC,
     .DMA_BufferSize = MAX1168_NB_CHAN,
-    .DMA_PeripheralInc = DMA_PeripheralInc_Disable,	
+    .DMA_PeripheralInc = DMA_PeripheralInc_Disable,
     .DMA_MemoryInc = DMA_MemoryInc_Enable,
     .DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord,
-    .DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord,	
+    .DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord,
     .DMA_Mode = DMA_Mode_Normal,
-    .DMA_Priority = DMA_Priority_VeryHigh,		
+    .DMA_Priority = DMA_Priority_VeryHigh,
     .DMA_M2M = DMA_M2M_Disable
   };
   DMA_Init(DMA1_Channel4, &DMA_initStructure_4);
 
   /* SPI2_Tx_DMA_Channel configuration ------------------------------------*/
-  DMA_DeInit(DMA1_Channel5);  
+  DMA_DeInit(DMA1_Channel5);
   DMA_InitTypeDef DMA_initStructure_5 = {
     .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
-    .DMA_MemoryBaseAddr = (uint32_t)booz_max1168_values,
+    .DMA_MemoryBaseAddr = (uint32_t)max1168_values,
     .DMA_DIR = DMA_DIR_PeripheralDST,
     .DMA_BufferSize = MAX1168_NB_CHAN,
     .DMA_PeripheralInc = DMA_PeripheralInc_Disable,
     .DMA_MemoryInc = DMA_MemoryInc_Enable,
     .DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord,
-    .DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord,	
+    .DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord,
     .DMA_Mode = DMA_Mode_Normal,
     .DMA_Priority = DMA_Priority_Medium,
     .DMA_M2M = DMA_M2M_Disable
   };
   DMA_Init(DMA1_Channel5, &DMA_initStructure_5);
-  
+
   /* Enable SPI_2 Rx request */
   SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, ENABLE);
   /* Enable DMA1 Channel4 */
   DMA_Cmd(DMA1_Channel4, ENABLE);
-   
+
   /* Enable SPI_2 Tx request */
   SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, ENABLE);
   /* Enable DMA1 Channel5 */
@@ -164,11 +164,11 @@ void exti2_irq_handler(void) {
   /* Enable DMA1 Channel4 Transfer Complete interrupt */
   DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, ENABLE);
 
-  booz_max1168_status = STA_MAX1168_READING_RES;
+  max1168_status = STA_MAX1168_READING_RES;
 }
 
 #ifdef MAX1168_HANDLES_DMA_IRQ
 void dma1_c4_irq_handler(void) {
   Max1168OnDmaIrq();
 }
-#endif /*MAX1168_HANDLES_DMA_IRQ */ 
+#endif /*MAX1168_HANDLES_DMA_IRQ */

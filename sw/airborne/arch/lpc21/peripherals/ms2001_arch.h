@@ -1,11 +1,11 @@
-#ifndef BOOZ_MS2001_ARCH_H
-#define BOOZ_MS2001_ARCH_H
+#ifndef MS2001_ARCH_H
+#define MS2001_ARCH_H
 
 #include <stdlib.h>  // for abs
 
 #include "std.h"
 #include "LPC21xx.h"
-#include "interrupt_hw.h" 
+#include "interrupt_hw.h"
 
 #include "ssp_hw.h"
 #include BOARD_CONFIG
@@ -26,33 +26,33 @@ extern volatile uint8_t ms2001_cur_axe;
     switch (ms2001_status) {						\
     case MS2001_SENDING_REQ:						\
       {									\
-	/* read dummy control byte reply */				\
-	uint8_t foo __attribute__ ((unused)) = SSPDR;			\
-	ms2001_status = MS2001_WAITING_EOC;				\
-	Ms2001Unselect();						\
-	SSP_ClearRti();							\
-	SSP_DisableRti();						\
-	SSP_Disable();							\
+    /* read dummy control byte reply */				\
+    uint8_t foo __attribute__ ((unused)) = SSPDR;			\
+    ms2001_status = MS2001_WAITING_EOC;				\
+    Ms2001Unselect();						\
+    SSP_ClearRti();							\
+    SSP_DisableRti();						\
+    SSP_Disable();							\
       }									\
       break;								\
     case MS2001_READING_RES:						\
       {									\
-	int16_t new_val;						\
-	new_val = SSPDR << 8;						\
-	new_val += SSPDR;						\
-	if (abs(new_val) < 2000)					\
-	  ms2001_values[ms2001_cur_axe] = new_val;			\
-	Ms2001Unselect();						\
-	SSP_ClearRti();							\
-	SSP_DisableRti();						\
-	SSP_Disable();							\
-	ms2001_cur_axe++;						\
-	if (ms2001_cur_axe > 2) {					\
-	  ms2001_cur_axe = 0;						\
-	  ms2001_status = MS2001_DATA_AVAILABLE;			\
-	}								\
-	else								\
-	  ms2001_status = MS2001_IDLE;					\
+    int16_t new_val;						\
+    new_val = SSPDR << 8;						\
+    new_val += SSPDR;						\
+    if (abs(new_val) < 2000)					\
+      ms2001_values[ms2001_cur_axe] = new_val;			\
+    Ms2001Unselect();						\
+    SSP_ClearRti();							\
+    SSP_DisableRti();						\
+    SSP_Disable();							\
+    ms2001_cur_axe++;						\
+    if (ms2001_cur_axe > 2) {					\
+      ms2001_cur_axe = 0;						\
+      ms2001_status = MS2001_DATA_AVAILABLE;			\
+    }								\
+    else								\
+      ms2001_status = MS2001_IDLE;					\
       }									\
       break;								\
     }									\
@@ -85,4 +85,4 @@ extern volatile uint8_t ms2001_cur_axe;
 
 
 
-#endif /* BOOZ_MS2001_ARCH_H */
+#endif /* MS2001_ARCH_H */

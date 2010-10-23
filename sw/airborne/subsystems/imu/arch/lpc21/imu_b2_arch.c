@@ -90,7 +90,7 @@ void imu_periodic(void) {
   ImuSetSSP16bits();
   // read adc
   imu_ssp_status = IMU_SSP_STA_BUSY_MAX1168;
-  booz_max1168_read();
+  max1168_read();
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
   RunOnceEvery(10, { ami601_read(); });
 #endif
