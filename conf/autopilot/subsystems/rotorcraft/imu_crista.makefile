@@ -61,12 +61,12 @@
 
 
 # add imu arch to include directories
-ap.CFLAGS += -I$(SRC_FIRMWARE)/imu/arch/$(ARCH)
+ap.CFLAGS += -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)
 
 ap.CFLAGS += -DIMU_TYPE_H=\"imu/imu_crista.h\"
-ap.srcs += $(SRC_FIRMWARE)/imu.c            \
-           $(SRC_FIRMWARE)/imu/imu_crista.c \
-           $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_crista_arch.c
+ap.srcs += $(SRC_SUBSYSTEMS)/imu.c            \
+           $(SRC_SUBSYSTEMS)/imu/imu_crista.c \
+           $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_crista_arch.c
 
 ap.CFLAGS += -DUSE_AMI601
 ap.srcs   += $(SRC_BOOZ)/peripherals/booz_ami601.c
@@ -78,12 +78,12 @@ ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2
 #
 
 # add imu arch to include directories
-sim.CFLAGS += -I$(SRC_FIRMWARE)/imu/arch/$(ARCH)
+sim.CFLAGS += -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)
 
 sim.CFLAGS += -DIMU_TYPE_H=\"imu/imu_crista.h\"
-sim.srcs   += $(SRC_FIRMWARE)/imu.c                 \
-              $(SRC_FIRMWARE)/imu/imu_crista.c     \
-              $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_crista_arch.c
+sim.srcs   += $(SRC_SUBSYSTEMS)/imu.c                 \
+              $(SRC_SUBSYSTEMS)/imu/imu_crista.c     \
+              $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_crista_arch.c
 
 sim.CFLAGS += -DUSE_AMI601
 sim.srcs   += $(SRC_BOOZ)/peripherals/booz_ami601.c

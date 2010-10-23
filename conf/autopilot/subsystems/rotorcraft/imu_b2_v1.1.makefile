@@ -42,14 +42,14 @@
 # imu Booz2 v1.1
 
 # add imu arch to include directories
-ap.CFLAGS += -I$(SRC_FIRMWARE)/imu/arch/$(ARCH)
+ap.CFLAGS += -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)
 
 imu_CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
 imu_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
 imu_CFLAGS += -DIMU_B2_VERSION_1_1
-ap.srcs += $(SRC_FIRMWARE)/imu.c                   \
-           $(SRC_FIRMWARE)/imu/imu_b2.c            \
-           $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
+ap.srcs += $(SRC_SUBSYSTEMS)/imu.c                   \
+           $(SRC_SUBSYSTEMS)/imu/imu_b2.c            \
+           $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
 
 imu_srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
             $(SRC_BOOZ_ARCH)/peripherals/booz_max1168_arch.c
@@ -77,14 +77,14 @@ ap.srcs += $(imu_srcs)
 #
 
 # add imu arch to include directories
-sim.CFLAGS += -I$(SRC_FIRMWARE)/imu/arch/$(ARCH)
+sim.CFLAGS += -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)
 
 sim.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
 sim.CFLAGS += -DIMU_B2_VERSION_1_1
 sim.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_AMI601
-sim.srcs += $(SRC_FIRMWARE)/imu.c                   \
-            $(SRC_FIRMWARE)/imu/imu_b2.c            \
-            $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
+sim.srcs += $(SRC_SUBSYSTEMS)/imu.c                   \
+            $(SRC_SUBSYSTEMS)/imu/imu_b2.c            \
+            $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
 
 sim.srcs += $(SRC_BOOZ)/peripherals/booz_max1168.c \
             $(SRC_BOOZ_SIM)/peripherals/booz_max1168_arch.c

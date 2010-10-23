@@ -35,10 +35,11 @@ CFG_ROTORCRAFT=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/rotorcraft
 SRC_BOOZ=booz
 SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCH)
 SRC_BOOZ_TEST=$(SRC_BOOZ)/test
+SRC_BOOZ_PRIV=booz_priv
+
 SRC_BOARD=boards/$(BOARD)
 SRC_FIRMWARE=firmwares/rotorcraft
-
-SRC_BOOZ_PRIV=booz_priv
+SRC_SUBSYSTEMS=subsystems
 
 SRC_ARCH=arch/$(ARCH)
 
