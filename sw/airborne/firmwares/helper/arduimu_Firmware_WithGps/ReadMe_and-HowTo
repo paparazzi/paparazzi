@@ -20,27 +20,30 @@ airframe adjustments:
 conf/airframes:	"MyAirframe.xml"
 	1) insert the module:
 		<modules>
-	    	   <load name="ArduIMU.xml"/>
+	    	   <load name="ins_arduimu.xml"/>
 	  	</modules>
 
-	2) activate "i2c" and  "modules" :
-		ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-		ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150
-		ap.CFLAGS += -DUSE_MODULES
+	2) activate "i2c":
+		<target name="ap"                  board="...">
+		    ...
+		  <define name="USE_I2C0"/>
 
+		<subsystem name="i2c"/> 
 
-Copy the Modules and other Data
-´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´
-conf/modules: "ArduIMU.xml"
-	3) Copy "ArduIMU.xml" into the directory "conf/modules/"
+	3) have INS neutrals
 
-sw/airborne/modules/: "ArduIMU"
-	4) Copy the directory "ArduIMU" into the directory "sw/airborne/modules/"
+		<section name="INS" prefix="INS_">
+		  <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+		  <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+		</section>
+
+	4) use settings/tuning_ins.xml
+
 
 
 Flash the ArduImu
 ´´´´´´´´´´´´´´´´´´
-	5) Flash the ArduImu with the adapted Software. For Information concernig 
+	5) Flash the ArduImu with the adapted Software. For Information concerning 
 		flashing of the IMU, read: http://code.google.com/p/ardu-imu/wiki/HomePage?tm=6
 
 
