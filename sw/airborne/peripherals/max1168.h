@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,23 +18,31 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
- *
+ * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_max1168.h"
+#ifndef BOOZ_MAX1168_H
+#define BOOZ_MAX1168_H
+
+#include "std.h"
+
+#define MAX1168_NB_CHAN 8
+
+extern void booz_max1168_init( void );
+
+#define STA_MAX1168_IDLE           0
+#define STA_MAX1168_SENDING_REQ    1
+#define STA_MAX1168_READING_RES    2
+#define STA_MAX1168_DATA_AVAILABLE 3
+extern volatile uint8_t booz_max1168_status;
+
+extern uint16_t booz_max1168_values[MAX1168_NB_CHAN];
+
+/* underlying architecture */
+#include "peripherals/booz_max1168_arch.h"
+/* must be implemented by underlying architecture */
+extern void booz_max1168_arch_init( void );
+extern void booz_max1168_read( void );
 
 
-volatile uint8_t booz_max1168_status;
-uint16_t booz_max1168_values[MAX1168_NB_CHAN];
-
-extern void booz_max1168_init( void ) {
-
-  booz_max1168_arch_init();
-
-  uint8_t i;
-  for (i=0; i<MAX1168_NB_CHAN; i++)
-    booz_max1168_values[i] = 0;
-
-  booz_max1168_status = STA_MAX1168_IDLE;
-}
+#endif /* BOOZ_MAX1168_H */

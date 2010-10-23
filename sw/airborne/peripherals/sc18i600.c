@@ -8,4 +8,3 @@ void sc18is600_init(void) {
   sc18is600_arch_init();
 
 }
-

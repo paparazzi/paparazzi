@@ -25,7 +25,7 @@ static void send_config(void)
   hmc5843.i2c_trans.len_w = 2;
   i2c_submit(&i2c2,&hmc5843.i2c_trans);
 	while(hmc5843.i2c_trans.status == I2CTransPending);
-    
+
   hmc5843.i2c_trans.type = I2CTransTx;
   hmc5843.i2c_trans.buf[0] = HMC5843_REG_CFGB;  // set to gain to 1 Gauss
   hmc5843.i2c_trans.buf[1] = 0x01<<5;

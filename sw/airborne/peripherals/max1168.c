@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,24 +18,23 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
+ *
  */
 
-#include "booz_ms2001.h"
+#include "booz_max1168.h"
 
-volatile uint8_t ms2001_status;
-volatile int16_t ms2001_values[MS2001_NB_AXIS];
 
-void ms2001_init( void ) {
-  
-  ms2001_arch_init();
-  
+volatile uint8_t booz_max1168_status;
+uint16_t booz_max1168_values[MAX1168_NB_CHAN];
+
+extern void booz_max1168_init( void ) {
+
+  booz_max1168_arch_init();
+
   uint8_t i;
-  for (i=0; i<MS2001_NB_AXIS; i++)
-    ms2001_values[i] = 0;
-  ms2001_status = MS2001_IDLE;
-}
+  for (i=0; i<MAX1168_NB_CHAN; i++)
+    booz_max1168_values[i] = 0;
 
-void ms2001_reset() {
-  ms2001_status = MS2001_IDLE;
+  booz_max1168_status = STA_MAX1168_IDLE;
 }

@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,31 +18,42 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_MAX1168_H
-#define BOOZ_MAX1168_H
+#ifndef BOOZ_MS2001_H
+#define BOOZ_MS2001_H
+
 
 #include "std.h"
+#define MS2001_NB_AXIS 3
 
-#define MAX1168_NB_CHAN 8
+extern void ms2001_init( void );
+extern void ms2001_read( void );
+extern void ms2001_reset( void);
 
-extern void booz_max1168_init( void );
+#define MS2001_IDLE            0
+#define MS2001_BUSY            1
+#define MS2001_SENDING_REQ     2
+#define MS2001_WAITING_EOC     3
+#define MS2001_GOT_EOC         4
+#define MS2001_READING_RES     5
+#define MS2001_DATA_AVAILABLE  6
 
-#define STA_MAX1168_IDLE           0
-#define STA_MAX1168_SENDING_REQ    1
-#define STA_MAX1168_READING_RES    2 
-#define STA_MAX1168_DATA_AVAILABLE 3
-extern volatile uint8_t booz_max1168_status;
-
-extern uint16_t booz_max1168_values[MAX1168_NB_CHAN];
+extern volatile uint8_t ms2001_status;
+extern volatile int16_t ms2001_values[MS2001_NB_AXIS];
 
 /* underlying architecture */
-#include "peripherals/booz_max1168_arch.h"
+#include "peripherals/booz_ms2001_arch.h"
 /* must be implemented by underlying architecture */
-extern void booz_max1168_arch_init( void );
-extern void booz_max1168_read( void );
+extern void ms2001_arch_init( void );
+
+#define MS2001_DIVISOR_128  2
+#define MS2001_DIVISOR_256  3
+#define MS2001_DIVISOR_512  4
+#define MS2001_DIVISOR_1024 5
+
+#define MS2001_DIVISOR MS2001_DIVISOR_1024
 
 
-#endif /* BOOZ_MAX1168_H */
+#endif /* BOOZ_MS2001_H */

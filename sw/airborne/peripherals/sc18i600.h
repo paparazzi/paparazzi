@@ -52,4 +52,3 @@ extern void sc18is600_read_from_register(uint8_t addr);
 extern void sc18is600_arch_init(void);
 
 #endif /* SC18IS600_H */
-
