@@ -46,7 +46,7 @@
 #define PERIODIC_SEND_ALIVE(_chan) DOWNLINK_SEND_ALIVE(_chan, 16, MD5SUM)
 
 #include <firmwares/rotorcraft/battery.h>
-#include <firmwares/rotorcraft/imu.h>
+#include <subsystems/imu.h>
 #include "booz_gps.h"
 #include <firmwares/rotorcraft/ins.h>
 #include <firmwares/rotorcraft/ahrs.h>

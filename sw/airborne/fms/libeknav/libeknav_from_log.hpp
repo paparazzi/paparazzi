@@ -29,7 +29,7 @@
 #include <unistd.h>
 #include <time.h>
 #include "std.h"
-#include "firmwares/rotorcraft/imu.h"
+#include "subsystems/imu.h"
 #include "fms/fms_autopilot_msg.h"
 #include "fms/libeknav/raw_log.h"
   /* our sensors            */

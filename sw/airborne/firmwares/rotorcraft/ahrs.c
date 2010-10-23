@@ -22,7 +22,7 @@
  */
 
 #include <firmwares/rotorcraft/ahrs.h>
-#include <firmwares/rotorcraft/imu.h>
+#include <subsystems/imu.h>
 
 struct Ahrs ahrs;
 struct AhrsFloat ahrs_float;

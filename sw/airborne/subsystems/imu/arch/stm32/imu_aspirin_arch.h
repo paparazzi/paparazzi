@@ -1,7 +1,7 @@
 #ifndef IMU_ASPIRIN_ARCH_H
 #define IMU_ASPIRIN_ARCH_H
 
-#include <firmwares/rotorcraft/imu.h>
+#include <subsystems/imu.h>
 
 #include "led.h"
 

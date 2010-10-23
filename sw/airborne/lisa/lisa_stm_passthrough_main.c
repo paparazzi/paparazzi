@@ -28,7 +28,7 @@
 #include "booz/booz2_commands.h"
 #include "actuators.h"
 #include "actuators/actuators_pwm.h"
-#include <firmwares/rotorcraft/imu.h>
+#include <subsystems/imu.h>
 #include "booz/booz_radio_control.h"
 #include "autopilot.h"
 #include "ins.h"

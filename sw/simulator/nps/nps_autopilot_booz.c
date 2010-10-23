@@ -4,7 +4,7 @@
 #include "nps_sensors.h"
 #include "nps_radio_control.h"
 #include "booz_radio_control.h"
-#include <firmwares/rotorcraft/imu.h>
+#include <subsystems/imu.h>
 #include <firmwares/rotorcraft/baro.h>
 #include <firmwares/rotorcraft/battery.h>
 

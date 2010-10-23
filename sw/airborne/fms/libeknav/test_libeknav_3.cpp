@@ -17,7 +17,7 @@ extern "C" {
 #include "fms/fms_periodic.h"
 #include "fms/fms_spi_link.h"
 #include "fms/fms_autopilot_msg.h"
-#include "firmwares/rotorcraft/imu.h"
+#include "subsystems/imu.h"
 #include "fms/libeknav/raw_log.h"
   /* our sensors            */
   struct ImuFloat imu_float;

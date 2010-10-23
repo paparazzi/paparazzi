@@ -38,7 +38,7 @@
 #include <firmwares/rotorcraft/actuators.h>
 #include "booz_radio_control.h"
 
-#include <firmwares/rotorcraft/imu.h>
+#include <subsystems/imu.h>
 #include "booz_gps.h"
 
 #include "booz/booz2_analog.h"

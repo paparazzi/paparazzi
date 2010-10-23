@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <firmwares/rotorcraft/imu.h>
+#include <subsystems/imu.h>
 
 volatile bool_t ADS8344_available;
 uint16_t ADS8344_values[ADS8344_NB_CHANNELS];

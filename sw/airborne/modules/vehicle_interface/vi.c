@@ -23,7 +23,7 @@
 
 #include "vehicle_interface/vi.h"
 
-#include <firmwares/rotorcraft/imu.h>
+#include <subsystems/imu.h>
 #include <firmwares/rotorcraft/ahrs.h>
 #include "booz/booz_gps.h"
 

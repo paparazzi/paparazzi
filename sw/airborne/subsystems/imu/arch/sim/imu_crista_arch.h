@@ -29,7 +29,7 @@
 #ifndef IMU_CRISTA_ARCH_H
 #define IMU_CRISTA_ARCH_H
 
-#include <firmwares/rotorcraft/imu.h>
+#include <subsystems/imu.h>
 
 
 #define ImuCristaArchPeriodic() {}

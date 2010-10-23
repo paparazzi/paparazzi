@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <firmwares/rotorcraft/imu.h>
+#include <subsystems/imu.h>
 
 #include <stm32/gpio.h>
 #include <stm32/rcc.h>

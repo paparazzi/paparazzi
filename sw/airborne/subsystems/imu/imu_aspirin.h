@@ -25,7 +25,7 @@
 #define IMU_ASPIRIN_H
 
 #include "airframe.h"
-#include <firmwares/rotorcraft/imu.h>
+#include <subsystems/imu.h>
 
 #include "i2c.h"
 #include "booz/peripherals/booz_itg3200.h"

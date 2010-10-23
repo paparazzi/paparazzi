@@ -1,3 +1,3 @@
-#include <firmwares/rotorcraft/imu.h>
+#include <subsystems/imu.h>
 
 void imu_impl_init(void) {}
