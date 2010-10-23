@@ -1,0 +1,53 @@
+This File describes how to integrate an Arduimu to an existing Airframe/Paparazzi-Code.
+
+	1) The Arduimu communicates over I2C with the Paparazzi-AP. The Wireing ist
+		pretty easy to do. Connect SDA, SCL, Ground and provide the IMU with 
+		5V.
+	2) The integration into the software is realized as a Module. That is an easy way 
+		to connect and Test new Software. 
+	3) This Guide/Software is made to use the ArduImu without seperate GPS-Reciever 
+		and without Compass/Magnetometer. The GPS-Data is sent by the Tiny 2.11 
+		over I2C to the IMU.
+	4) There is a other Airframe/main-AP we wrote wich uses a Magnetometer for yaw-Drift 
+		compensation. We didn't wirte a Installationguide like this yet. But we try to do this 
+		as soon as possible. 
+		
+
+
+
+airframe adjustments:
+´´´´´´´´´´´´´´´´´´
+conf/airframes:	"MyAirframe.xml"
+	1) insert the module:
+		<modules>
+	    	   <load name="ArduIMU.xml"/>
+	  	</modules>
+
+	2) activate "i2c" and  "modules" :
+		ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+		ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150
+		ap.CFLAGS += -DUSE_MODULES
+
+
+Copy the Modules and other Data
+´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´´
+conf/modules: "ArduIMU.xml"
+	3) Copy "ArduIMU.xml" into the directory "conf/modules/"
+
+sw/airborne/modules/: "ArduIMU"
+	4) Copy the directory "ArduIMU" into the directory "sw/airborne/modules/"
+
+
+Flash the ArduImu
+´´´´´´´´´´´´´´´´´´
+	5) Flash the ArduImu with the adapted Software. For Information concernig 
+		flashing of the IMU, read: http://code.google.com/p/ardu-imu/wiki/HomePage?tm=6
+
+
+
+Have Fun !
+
+
+
+
+
