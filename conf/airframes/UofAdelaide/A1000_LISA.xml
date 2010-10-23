@@ -135,16 +135,16 @@
     <define name="PSI_DDGAIN"   value=" -300"/> -->
     
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="-2000"/>
-    <define name="PHI_DGAIN"  value="-400"/>
-    <define name="PHI_IGAIN"  value="-200"/>
+    <define name="PHI_PGAIN"  value="-1500"/>
+    <define name="PHI_DGAIN"  value="-30"/>
+    <define name="PHI_IGAIN"  value="-100"/>
 
-    <define name="THETA_PGAIN"  value="-2000"/>
-    <define name="THETA_DGAIN"  value="-400"/>
-    <define name="THETA_IGAIN"  value="-400"/>
+    <define name="THETA_PGAIN"  value="-1500"/>
+    <define name="THETA_DGAIN"  value="-300"/>
+    <define name="THETA_IGAIN"  value="-100"/>
 
     <define name="PSI_PGAIN"  value="-1000"/>
-    <define name="PSI_DGAIN"  value="-350"/>
+    <define name="PSI_DGAIN"  value="-300"/>
     <define name="PSI_IGAIN"  value="-10"/>
 
     <!-- feedforward -->
@@ -191,7 +191,7 @@
       <define name = "RADIO_CONTROL_MODE" value = "RADIO_CONTROL_AUX1"/>
       <define name = "RADIO_CONTROL_KILL_SWITCH" value = "RADIO_CONTROL_GEAR"/>
       <define name = "HELI"/>
-      <define name = "KILL_MOTORS" /> 
+ <!--     <define name = "KILL_MOTORS" />--> 
  <!-- if we want a secondary spektrum reciever we need to set the board to be 
       lisa_l_1.1 and rewired accordingly then set the following.    
       <define name = "RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value = "UART5"/>
