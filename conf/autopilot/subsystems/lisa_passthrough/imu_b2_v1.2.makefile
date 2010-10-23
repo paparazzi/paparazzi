@@ -88,7 +88,7 @@ sim.srcs += $(SRC_SUBSYSTEMS)/imu.c                   \
             $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
 
 sim.srcs += peripherals/max1168.c \
-            $(SRC_BOOZ_SIM)/peripherals/max1168_arch.c
+            $(SRC_ARCH)/peripherals/max1168_arch.c
 
 sim.CFLAGS += -DUSE_AMI601
 sim.srcs   += peripherals/ami601.c
