@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2003-2010  Paparazzi team
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -136,7 +136,7 @@ bool_t launch = FALSE;
 uint8_t vsupply;	// deciVolt
 static int32_t current;	// milliAmpere
 
-float energy; 		// Fuel consumption (mAh)
+float energy;       // Fuel consumption (mAh)
 
 bool_t gps_lost = FALSE;
 
@@ -187,10 +187,10 @@ static inline void copy_from_to_fbw ( void ) {
 
 
 
-/* 
+/*
    called at 20Hz.
    sends a serie of initialisation messages followed by a stream of periodic ones
-*/ 
+*/
 
 /** Define number of message at initialisation */
 #define INIT_MSG_NB 2
@@ -223,7 +223,7 @@ static inline void reporting_task( void ) {
 static inline void telecommand_task( void ) {
   uint8_t mode_changed = FALSE;
   copy_from_to_fbw();
-  
+
   uint8_t really_lost = bit_is_set(fbw_state->status, STATUS_RADIO_REALLY_LOST) && (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL);
   if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch) {
     if  (too_far_from_home) {
@@ -249,13 +249,13 @@ static inline void telecommand_task( void ) {
     PERIODIC_SEND_PPRZ_MODE(DefaultChannel);
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
-  /** In AUTO1 mode, compute roll setpoint and pitch setpoint from 
+  /** In AUTO1 mode, compute roll setpoint and pitch setpoint from
    * \a RADIO_ROLL and \a RADIO_PITCH \n
    */
   if (pprz_mode == PPRZ_MODE_AUTO1) {
     /** Roll is bounded between [-AUTO1_MAX_ROLL;AUTO1_MAX_ROLL] */
     h_ctl_roll_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_ROLL], 0., -AUTO1_MAX_ROLL);
-    
+
     /** Pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
     h_ctl_pitch_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
   } /** Else asynchronously set by \a h_ctl_course_loop() */
@@ -266,7 +266,7 @@ static inline void telecommand_task( void ) {
     v_ctl_throttle_setpoint = fbw_state->channels[RADIO_THROTTLE];
   }
   /** else asynchronously set by v_ctl_climb_loop(); */
-  
+
   mcu1_ppm_cpt = fbw_state->ppm_cpt;
 #endif // RADIO_CONTROL
 
@@ -274,7 +274,7 @@ static inline void telecommand_task( void ) {
   vsupply = fbw_state->vsupply;
   current = fbw_state->current;
 
-#ifdef RADIO_CONTROL  
+#ifdef RADIO_CONTROL
   if (!estimator_flight_time) {
     if (pprz_mode == PPRZ_MODE_AUTO2 && fbw_state->channels[RADIO_THROTTLE] > THROTTLE_THRESHOLD_TAKEOFF) {
       launch = TRUE;
@@ -296,10 +296,10 @@ static void navigation_task( void ) {
   if (launch) {
     if (GpsTimeoutError) {
       if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
-	last_pprz_mode = pprz_mode;
-	pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
-	PERIODIC_SEND_PPRZ_MODE(DefaultChannel);
-	gps_lost = TRUE;
+    last_pprz_mode = pprz_mode;
+    pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
+    PERIODIC_SEND_PPRZ_MODE(DefaultChannel);
+    gps_lost = TRUE;
       }
     } else /* GPS is ok */ if (gps_lost) {
       /** If aircraft was in failsafe mode, come back in previous mode */
@@ -310,7 +310,7 @@ static void navigation_task( void ) {
     }
   }
 #endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */
-  
+
   common_nav_periodic_task_4Hz();
   if (pprz_mode == PPRZ_MODE_HOME)
     nav_home();
@@ -318,7 +318,7 @@ static void navigation_task( void ) {
     nav_without_gps();
   else
     nav_periodic_task();
-  
+
 #ifdef TCAS
   CallTCAS();
 #endif
@@ -328,7 +328,7 @@ static void navigation_task( void ) {
 #endif
 
   SEND_CAM(DefaultChannel);
-  
+
   /* The nav task computes only nav_altitude. However, we are interested
      by desired_altitude (= nav_alt+alt_shift) in any case.
      So we always run the altitude control loop */
@@ -336,7 +336,7 @@ static void navigation_task( void ) {
     v_ctl_altitude_loop();
 
   if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME
-			|| pprz_mode == PPRZ_MODE_GPS_OUT_OF_ORDER) {
+            || pprz_mode == PPRZ_MODE_GPS_OUT_OF_ORDER) {
 #ifdef H_CTL_RATE_LOOP
     /* Be sure to be in attitude mode, not roll */
     h_ctl_auto1_rate = FALSE;
@@ -370,7 +370,7 @@ static void navigation_task( void ) {
 
 #ifndef KILL_MODE_DISTANCE
 #define KILL_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
-#endif 
+#endif
 
 
 /** Maximum time allowed for low battery level */
@@ -410,7 +410,7 @@ void periodic_task_ap( void ) {
   if (_1Hz>=60) _1Hz=0;
 
   reporting_task();
-  
+
   if (!_1Hz) {
     if (estimator_flight_time) estimator_flight_time++;
 #if defined DATALINK || defined SITL
@@ -438,18 +438,18 @@ void periodic_task_ap( void ) {
   case 0:
 #ifdef SITL
 #ifdef GPS_TRIGGERED_FUNCTION
-	GPS_TRIGGERED_FUNCTION();
+    GPS_TRIGGERED_FUNCTION();
 #endif
 #endif
     estimator_propagate_state();
 #ifdef EXTRA_DOWNLINK_DEVICE
     DOWNLINK_SEND_ATTITUDE(ExtraPprzTransport,&estimator_phi,&estimator_psi,&estimator_theta);
-#endif    
+#endif
     navigation_task();
     break;
   case 1:
-    if (!estimator_flight_time && 
-	estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
+    if (!estimator_flight_time &&
+    estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
       estimator_flight_time = 1;
       launch = TRUE; /* Not set in non auto launch */
       DOWNLINK_SEND_TAKEOFF(DefaultChannel, &cpu_time_sec);
@@ -525,7 +525,7 @@ void periodic_task_ap( void ) {
 void init_ap( void ) {
 #ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
   hw_init();
-  sys_time_init(); 
+  sys_time_init();
 
 #ifdef LED
   led_init();
@@ -658,7 +658,7 @@ void event_task_ap( void ) {
       gps_downlink();
 #ifdef GPS_TRIGGERED_FUNCTION
 #ifndef SITL
-	GPS_TRIGGERED_FUNCTION();
+    GPS_TRIGGERED_FUNCTION();
 #endif
 #endif
       gps_pos_available = FALSE;
@@ -667,7 +667,7 @@ void event_task_ap( void ) {
 #endif /** GPS */
 
 
-#if defined DATALINK 
+#if defined DATALINK
 
 #if DATALINK == PPRZ
   if (PprzBuffer()) {
