@@ -82,7 +82,7 @@ extern int16_t ms2001_last_reading;
     };									\
     SPI_Init(SPI2, &SPI_InitStructure);					\
     SPI_Cmd(SPI2, ENABLE);						\
-									\
+                                    \
     /* trigger 2 frames read */						\
     /* SPI2_Rx_DMA_Channel configuration ------------------------------------*/ \
     DMA_InitTypeDef  DMA_InitStructure;					\
@@ -106,20 +106,20 @@ extern int16_t ms2001_last_reading;
     DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;			\
     DMA_InitStructure.DMA_Priority = DMA_Priority_Medium;		\
     DMA_Init(DMA1_Channel5, &DMA_InitStructure);			\
-									\
+                                    \
     /* Enable SPI_2 Rx request */					\
     SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, ENABLE);			\
     /* Enable DMA1 Channel4 */						\
     DMA_Cmd(DMA1_Channel4, ENABLE);					\
-									\
+                                    \
     /* Enable SPI_2 Tx request */					\
     SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, ENABLE);			\
     /* Enable DMA1 Channel5 */						\
     DMA_Cmd(DMA1_Channel5, ENABLE);					\
-									\
+                                    \
     /* Enable DMA1 Channel4 Transfer Complete interrupt */		\
     DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, ENABLE);			\
-									\
+                                        \
   }
 
 #define Ms2001OnDmaIrq() {					\
