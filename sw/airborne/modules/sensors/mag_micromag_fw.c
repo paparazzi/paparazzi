@@ -1,5 +1,5 @@
-#include "micromag_fw.h"
-#include "meteo/micromag_fw_hw.h"
+#include "mag_micromag_fw.h"
+#include "sensors/mag_micromag_fw_hw.h"
 #include "led.h"
 #include "uart.h"
 #include "messages.h"

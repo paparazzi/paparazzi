@@ -1,16 +1,16 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="mag_micromag_fw" dir="meteo">
+<module name="mag_micromag_fw" dir="sensors">
   <header>
-    <file name="micromag_fw_hw.h"/>
-    <file name="micromag_fw.h"/>
+    <file name="mag_micromag_fw_hw.h"/>
+    <file name="mag_micromag_fw.h"/>
   </header>
   <init fun="micromag_init()"/>
   <periodic fun="micromag_periodic()" freq="60"/>
   <event fun="micromag_event()"/>
   <makefile target="ap">
-    <file_hw name="micromag_fw_hw.c"/>
-    <file name="micromag_fw.c"/>
+    <file_hw name="mag_micromag_fw_hw.c"/>
+    <file name="mag_micromag_fw.c"/>
   </makefile>
 </module>
 

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="baro_scp_i2c" dir="meteo">
+<module name="baro_scp_i2c" dir="sensors">
   <header>
     <file name="baro_scp_i2c.h"/>
   </header>

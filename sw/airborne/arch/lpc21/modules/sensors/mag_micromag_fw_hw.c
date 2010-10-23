@@ -7,8 +7,8 @@
 */
 
 #include "led.h"
-#include "micromag_fw_hw.h"
-#include "meteo/micromag_fw.h"
+#include "mag_micromag_fw_hw.h"
+#include "sensors/mag_micromag_fw.h"
 
 volatile uint8_t micromag_cur_axe;
 

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="baro_bmp" dir="meteo">
+<module name="baro_bmp" dir="sensors">
   <header>
     <file name="baro_bmp.h"/>
   </header>
