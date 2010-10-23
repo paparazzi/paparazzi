@@ -26,7 +26,7 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
 #ifdef MAX_BAT_LEVEL
   battery_voltage = MAX_BAT_LEVEL * 10;
 #else
-  battery_voltage = 111
+  battery_voltage = 111;
 #endif
 
 }
