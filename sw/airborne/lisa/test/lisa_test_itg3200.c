@@ -34,7 +34,7 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 
-#include "peripherals/booz_itg3200.h"
+#include "peripherals/itg3200.h"
 #include "my_debug_servo.h"
 
 static inline void main_init( void );

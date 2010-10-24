@@ -33,7 +33,7 @@
 #include "sys_time.h"
 #include "downlink.h"
 
-#include "peripherals/booz_adxl345.h"
+#include "peripherals/adxl345.h"
 #include "my_debug_servo.h"
 
 static inline void main_init( void );

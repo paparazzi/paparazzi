@@ -29,7 +29,7 @@
 #include "init_hw.h"
 #include "sys_time.h"
 #include "downlink.h"
-#include "booz/peripherals/booz_sc18is600.h"
+#include "peripherals/sc18is600.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );

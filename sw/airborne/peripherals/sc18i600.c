@@ -1,4 +1,4 @@
-#include "booz/peripherals/sc18is600.h"
+#include "peripherals/sc18is600.h"
 
 struct Sc18Is600 sc18is600;
 

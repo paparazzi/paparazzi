@@ -32,7 +32,7 @@
 #include "sys_time.h"
 #include "downlink.h"
 
-#include "peripherals/booz_itg3200.h"
+#include "peripherals/itg3200.h"
 #include "peripherals/hmc5843.h"
 
 static inline void main_init( void );

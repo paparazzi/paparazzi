@@ -852,7 +852,7 @@ test_sc18is600.srcs += downlink.c pprz_transport.c
 test_sc18is600.srcs += math/pprz_trig_int.c
 
 test_sc18is600.CFLAGS += -DUSE_EXTI2_IRQ  -DUSE_DMA1_C4_IRQ
-test_sc18is600.srcs += peripherals/booz_sc18is600.c \
+test_sc18is600.srcs += peripherals/sc18is600.c \
                        $(SRC_ARCH)/peripherals/sc18is600_arch.c
 
 

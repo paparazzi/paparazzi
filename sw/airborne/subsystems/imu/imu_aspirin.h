@@ -28,9 +28,9 @@
 #include <subsystems/imu.h>
 
 #include "i2c.h"
-#include "booz/peripherals/booz_itg3200.h"
-#include "booz/peripherals/hmc5843.h"
-#include "booz/peripherals/booz_adxl345.h"
+#include "peripherals/itg3200.h"
+#include "peripherals/hmc5843.h"
+#include "peripherals/adxl345.h"
 
 
 #if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN

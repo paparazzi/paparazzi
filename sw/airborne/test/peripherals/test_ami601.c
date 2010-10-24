@@ -32,7 +32,7 @@
 #include "downlink.h"
 
 #include "i2c.h"
-#include "booz/peripherals/ami601.h"
+#include "peripherals/ami601.h"
 #include "math/pprz_algebra_int.h"
 
 #include "interrupt_hw.h"
