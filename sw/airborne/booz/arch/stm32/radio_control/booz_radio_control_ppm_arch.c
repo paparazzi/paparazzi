@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_radio_control.h"
+#include <subsystems/radio_control.h>
 
 #include <stm32/rcc.h>
 #include <stm32/gpio.h>

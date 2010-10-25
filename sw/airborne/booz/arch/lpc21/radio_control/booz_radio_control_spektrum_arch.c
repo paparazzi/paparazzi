@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_radio_control.h"
+#include <subsystems/radio_control.h>
 #include "booz_radio_control_spektrum_arch.h"
 
 bool_t   rc_spk_parser_status;

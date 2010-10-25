@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_radio_control.h"
+#include <subsystems/radio_control.h>
 
 uint8_t  booz_radio_control_ppm_cur_pulse;
 uint32_t booz_radio_control_ppm_last_pulse_time;

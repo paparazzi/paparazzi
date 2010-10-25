@@ -36,7 +36,7 @@
 
 #include "booz2_commands.h"
 #include <firmwares/rotorcraft/actuators.h>
-#include "booz_radio_control.h"
+#include <subsystems/radio_control.h>
 
 #include <subsystems/imu.h>
 #include "booz_gps.h"

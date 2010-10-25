@@ -23,7 +23,7 @@
 
 #include <firmwares/rotorcraft/stabilization.h>
 #include <subsystems/ahrs.h>
-#include "booz_radio_control.h"
+#include <subsystems/radio_control.h>
 
 
 

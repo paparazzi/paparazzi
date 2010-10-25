@@ -27,7 +27,7 @@
 #include <subsystems/ahrs.h>
 
 #include <subsystems/imu.h>
-#include "booz_radio_control.h"
+#include <subsystems/radio_control.h>
 #include "airframe.h"
 
 #define F_UPDATE_RES 9

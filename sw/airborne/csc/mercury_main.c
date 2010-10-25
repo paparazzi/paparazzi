@@ -51,7 +51,7 @@
 #include "booz/guidance/booz2_guidance_v.h"
 #include "csc_can.h"
 #include "csc_baro.h"
-#include "booz_radio_control.h"
+#include <subsystems/radio_control.h>
 
 #include "booz/stabilization/stabilization_attitude.h"
 

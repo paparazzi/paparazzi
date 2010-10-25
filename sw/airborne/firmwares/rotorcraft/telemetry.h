@@ -31,7 +31,7 @@
 #include "downlink.h"
 
 #ifdef USE_RADIO_CONTROL
-#include "booz_radio_control.h"
+#include <subsystems/radio_control.h>
 #endif
 
 #include <firmwares/rotorcraft/autopilot.h>

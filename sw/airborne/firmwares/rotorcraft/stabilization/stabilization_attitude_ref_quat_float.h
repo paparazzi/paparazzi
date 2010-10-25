@@ -25,7 +25,7 @@
 
 #include <firmwares/rotorcraft/stabilization.h>
 
-#include "booz_radio_control.h"
+#include <subsystems/radio_control.h>
 #include <math/pprz_algebra_float.h>
 
 #include "stabilization_attitude_ref_float.h"

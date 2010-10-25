@@ -69,7 +69,7 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #endif
 
 #ifdef USE_RADIO_CONTROL
-#include "booz_radio_control.h"
+#include <subsystems/radio_control.h>
 #define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
 #define PERIODIC_SEND_FBW_STATUS(_chan) { uint16_t current; DOWNLINK_SEND_FBW_STATUS(_chan, &radio_control.status, &pprz_mode, &vsupply, &current); }
 #else

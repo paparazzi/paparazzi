@@ -32,7 +32,7 @@
 #include "led.h"
 #include <math/pprz_algebra_float.h>
 #include "string.h"
-#include "booz_radio_control.h"
+#include <subsystems/radio_control.h>
 #include "mercury_supervision.h"
 #include <firmwares/rotorcraft/actuators.h>
 #include "props_csc.h"
