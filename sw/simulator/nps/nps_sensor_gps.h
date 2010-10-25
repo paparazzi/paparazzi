@@ -3,10 +3,10 @@
 
 #include <glib.h>
 
-#include "math/pprz_algebra.h"
-#include "math/pprz_algebra_double.h"
-#include "math/pprz_algebra_float.h"
-#include "math/pprz_geodetic_double.h"
+#include <math/pprz_algebra.h>
+#include <math/pprz_algebra_double.h>
+#include <math/pprz_algebra_float.h>
+#include <math/pprz_geodetic_double.h>
 
 #include "std.h"
 

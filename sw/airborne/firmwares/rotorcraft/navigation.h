@@ -25,8 +25,8 @@
 #define NAVIGATION_H
 
 #include "std.h"
-#include "math/pprz_geodetic_int.h"
-#include "math/pprz_geodetic_float.h"
+#include <math/pprz_geodetic_int.h>
+#include <math/pprz_geodetic_float.h>
 
 #define NAV_FREQ 16
 // FIXME use periodic FREQ

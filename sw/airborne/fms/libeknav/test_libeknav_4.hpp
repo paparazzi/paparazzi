@@ -26,9 +26,9 @@ extern "C" {
   static int raw_log_fd;
 }
 
-#include "math/pprz_algebra_float.h"
-#include "math/pprz_algebra_double.h"
-#include "math/pprz_geodetic.h"
+#include <math/pprz_algebra_float.h>
+#include <math/pprz_algebra_double.h>
+#include <math/pprz_geodetic.h>
 #include "math/pprz_geodetic_float.c"
 #include "math/pprz_geodetic_double.c"
 #include <math.h>

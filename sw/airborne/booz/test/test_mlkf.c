@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "math/pprz_algebra_double.h"
+#include <math/pprz_algebra_double.h>
 #include <subsystems/imu.h>
 #include <subsystems/ahrs.h>
 #include "ahrs/ahrs_mlkf.h"

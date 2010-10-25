@@ -3,7 +3,7 @@
 #include "airframe.h"
 #include "nps_fdm.h"
 #include NPS_SENSORS_PARAMS
-#include "math/pprz_algebra_int.h"
+#include <math/pprz_algebra_int.h>
 #include "nps_random.h"
 
 void  nps_sensor_gyro_init(struct NpsSensorGyro* gyro, double time) {

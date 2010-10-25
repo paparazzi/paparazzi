@@ -24,7 +24,7 @@
 #ifndef STABILIZATION_RATE
 #define STABILIZATION_RATE
 
-#include "math/pprz_algebra_int.h"
+#include <math/pprz_algebra_int.h>
 
 extern void stabilization_rate_init(void);
 extern void stabilization_rate_read_rc(void);

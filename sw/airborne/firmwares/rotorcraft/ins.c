@@ -29,8 +29,8 @@
 #include "booz_gps.h"
 
 #include "airframe.h"
-#include "math/pprz_algebra_int.h"
-#include "math/pprz_algebra_float.h"
+#include <math/pprz_algebra_int.h>
+#include <math/pprz_algebra_float.h>
 
 #include <subsystems/ahrs.h>
 
@@ -52,7 +52,7 @@
 #endif
 
 
-#include "math/pprz_geodetic_int.h"
+#include <math/pprz_geodetic_int.h>
 
 #include "flight_plan.h"
 

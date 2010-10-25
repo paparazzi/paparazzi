@@ -25,7 +25,7 @@
 #include <math.h>
 #include <inttypes.h>
 
-#include "math/pprz_algebra_int.h"
+#include <math/pprz_algebra_int.h>
 
 #define IMU_ACCEL_X_NEUTRAL 32081
 #define IMU_ACCEL_X_SENS -2.50411474

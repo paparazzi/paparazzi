@@ -32,7 +32,7 @@
 #include "sys_time.h"
 #include "downlink.h"
 #include "std.h"
-#include "math/pprz_algebra_int.h"
+#include <math/pprz_algebra_int.h>
 
 #include "peripherals/itg3200.h"
 #include "my_debug_servo.h"

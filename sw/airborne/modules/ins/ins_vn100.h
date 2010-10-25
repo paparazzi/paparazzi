@@ -33,7 +33,7 @@
 
 #include "std.h"
 #include "VN100.h"
-#include "math/pprz_algebra_float.h"
+#include <math/pprz_algebra_float.h>
 
 /* state */
 extern struct FloatEulers ins_eulers;

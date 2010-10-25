@@ -29,7 +29,7 @@ static void main_trick_libevent(void);
 static void on_foo_event(int fd, short event __attribute__((unused)), void *arg);
 static struct event foo_event;
 
-#include "math/pprz_algebra_float.h"
+#include <math/pprz_algebra_float.h>
 static void main_rawlog_init(const char* filename);
 static void main_rawlog_dump(void);
 

@@ -25,7 +25,7 @@
 #define GUIDANCE_H_H
 
 
-#include "math/pprz_algebra_int.h"
+#include <math/pprz_algebra_int.h>
 
 #include <firmwares/rotorcraft/guidance/guidance_h_ref.h>
 

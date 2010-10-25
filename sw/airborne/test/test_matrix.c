@@ -1,6 +1,6 @@
 
 
-#include "math/pprz_simple_matrix.h"
+#include <math/pprz_simple_matrix.h>
 #include "pprz_simple_matrix_print.h"
 
 

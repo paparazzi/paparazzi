@@ -31,7 +31,7 @@
 #include "commands.h"
 #include "csc_xsens.h"
 #include "led.h"
-#include "math/pprz_algebra_float.h"
+#include <math/pprz_algebra_float.h>
 #include "string.h"
 #include "radio_control.h"
 #include "pwm_input.h"

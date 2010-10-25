@@ -2,7 +2,7 @@
 
 //#include <string.h>
 #include "6dof.h"
-#include "math/pprz_algebra.h"
+#include <math/pprz_algebra.h>
 
 void UpdateSensorLatency(double time, gpointer cur_reading, GSList **history, double latency, gpointer sensor_reading) {
   /* add new reading */

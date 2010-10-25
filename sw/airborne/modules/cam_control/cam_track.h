@@ -31,7 +31,7 @@
 #define CAM_TRACK_H
 
 #include <inttypes.h>
-#include "math/pprz_algebra_float.h"
+#include <math/pprz_algebra_float.h>
 
 extern struct FloatVect3 target_pos_ned;
 extern struct FloatVect3 target_speed_ned;

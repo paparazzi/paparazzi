@@ -17,12 +17,12 @@
 
 //#include <event.h>
 
-#include "math/pprz_algebra_float.h"
-#include "math/pprz_algebra_double.h"
-#include "math/pprz_geodetic.h"
-#include "math/pprz_geodetic_int.h"
-#include "math/pprz_geodetic_float.h"
-#include "math/pprz_geodetic_double.h"
+#include <math/pprz_algebra_float.h>
+#include <math/pprz_algebra_double.h>
+#include <math/pprz_geodetic.h>
+#include <math/pprz_geodetic_int.h>
+#include <math/pprz_geodetic_float.h>
+#include <math/pprz_geodetic_double.h>
 #include <math.h>
 
 #include <unistd.h>

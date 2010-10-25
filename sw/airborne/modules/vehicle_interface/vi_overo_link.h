@@ -26,7 +26,7 @@
 
 #include "std.h"
 #include "modules/vehicle_interface/vi.h"
-#include "math/pprz_algebra_int.h"
+#include <math/pprz_algebra_int.h>
 #include "lisa/lisa_overo_link.h"
 
 #define ViOveroLinkEvent() {						\

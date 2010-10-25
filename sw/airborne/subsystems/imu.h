@@ -24,8 +24,8 @@
 #ifndef IMU_H
 #define IMU_H
 
-#include "math/pprz_algebra_int.h"
-#include "math/pprz_algebra_float.h"
+#include <math/pprz_algebra_int.h>
+#include <math/pprz_algebra_float.h>
 
 /* must be defined by underlying hardware */
 extern void imu_impl_init(void);

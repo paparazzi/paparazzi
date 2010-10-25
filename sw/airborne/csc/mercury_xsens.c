@@ -41,7 +41,7 @@
 #include "messages.h"
 #include "uart.h"
 //#include "com_stats.h"
-#include "math/pprz_algebra_float.h"
+#include <math/pprz_algebra_float.h>
 #include "string.h"
 
 void parse_xsens_msg(uint8_t xsens_id, uint8_t c );

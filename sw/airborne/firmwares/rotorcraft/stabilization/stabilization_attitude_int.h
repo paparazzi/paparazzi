@@ -24,7 +24,7 @@
 #ifndef STABILIZATION_ATTITUDE_INT_H
 #define STABILIZATION_ATTITUDE_INT_H
 
-#include "math/pprz_algebra_int.h"
+#include <math/pprz_algebra_int.h>
 
 #include "airframe.h"
 

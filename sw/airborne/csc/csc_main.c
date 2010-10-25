@@ -57,7 +57,7 @@ static uint32_t can_msg_count = 0;
 
 // gps stuff stolen from antoine's code
 #include "booz/booz2_gps.h"
-#include "math/pprz_geodetic_int.h"
+#include <math/pprz_geodetic_int.h>
 
 struct LtpDef_i  booz_ins_ltp_def;
          bool_t  booz_ins_ltp_initialised;

@@ -25,7 +25,7 @@
 #define HF_FLOAT_H
 
 #include "std.h"
-#include "math/pprz_algebra_float.h"
+#include <math/pprz_algebra_float.h>
 
 #define HFF_STATE_SIZE 2
 

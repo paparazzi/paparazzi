@@ -24,7 +24,7 @@
 #ifndef STABILIZATION_ATTITUDE_FLOAT_H
 #define STABILIZATION_ATTITUDE_FLOAT_H
 
-#include "math/pprz_algebra_float.h"
+#include <math/pprz_algebra_float.h>
 
 #include "airframe.h"
 

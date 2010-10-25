@@ -25,8 +25,8 @@
 #define AHRS_H
 
 #include "std.h"
-#include "math/pprz_algebra_int.h"
-#include "math/pprz_algebra_float.h"
+#include <math/pprz_algebra_int.h>
+#include <math/pprz_algebra_float.h>
 #include <subsystems/ahrs/ahrs_aligner.h>
 
 #define AHRS_UNINIT  0

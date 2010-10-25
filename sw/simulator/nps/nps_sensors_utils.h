@@ -2,7 +2,7 @@
 #define NPS_SENSORS_UTILS_H
 
 #include <glib.h>
-#include "math/pprz_algebra_double.h"
+#include <math/pprz_algebra_double.h>
 
 struct BoozDatedSensor {
   struct DoubleVect3* value;

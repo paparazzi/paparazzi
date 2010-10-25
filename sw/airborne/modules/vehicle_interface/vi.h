@@ -29,7 +29,7 @@
 #define VEHICLE_INTERFACE_H
 
 #include "std.h"
-#include "math/pprz_algebra_int.h"
+#include <math/pprz_algebra_int.h>
 #include <firmwares/rotorcraft/autopilot.h>
 #include <firmwares/rotorcraft/stabilization.h>
 #include <firmwares/rotorcraft/guidance.h>
