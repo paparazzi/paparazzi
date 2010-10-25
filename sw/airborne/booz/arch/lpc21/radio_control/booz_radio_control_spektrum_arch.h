@@ -1,6 +1,6 @@
 /*
  * Paparazzi $Id$
- *  
+ *
  * Copyright (C) 2009-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -40,7 +40,7 @@ extern bool_t   rc_spk_parser_status;
 extern uint8_t  rc_spk_parser_idx;
 extern uint8_t  rc_spk_parser_buf[RADIO_CONTROL_NB_CHANNEL*2];
 
-#define MAX_SPK 344 
+#define MAX_SPK 344
 
 
 extern const int16_t rc_spk_throw[RADIO_CONTROL_NB_CHANNEL];
@@ -76,24 +76,24 @@ extern const int16_t rc_spk_throw[RADIO_CONTROL_NB_CHANNEL];
           radio_control.frame_cpt++;					\
           radio_control.time_since_last_frame = 0;			\
           radio_control.status = RADIO_CONTROL_OK;			\
-	  uint8_t i;							\
-	  for (i=0;i<RADIO_CONTROL_NB_CHANNEL;i++) {			\
-	    const int16_t tmp = (rc_spk_parser_buf[2*i]<<8) +		\
-	                         rc_spk_parser_buf[2*i+1];		\
-	    /*const int16_t chan = (tmp&0xFC00) >> 10;*/		\
-	    const int16_t val  = (tmp&0x03FF) - 512;			\
-	    radio_control.values[i] = val;				\
-	    radio_control.values[i] *= rc_spk_throw[i];			\
-	    if (i==RADIO_CONTROL_THROTTLE) {				\
-	      radio_control.values[i] += MAX_PPRZ;			\
-	      radio_control.values[i] /= 2;				\
-	    }								\
-	  }								\
-	  _received_frame_handler();					\
+      uint8_t i;							\
+      for (i=0;i<RADIO_CONTROL_NB_CHANNEL;i++) {			\
+        const int16_t tmp = (rc_spk_parser_buf[2*i]<<8) +		\
+                             rc_spk_parser_buf[2*i+1];		\
+        /*const int16_t chan = (tmp&0xFC00) >> 10;*/		\
+        const int16_t val  = (tmp&0x03FF) - 512;			\
+        radio_control.values[i] = val;				\
+        radio_control.values[i] *= rc_spk_throw[i];			\
+        if (i==RADIO_CONTROL_THROTTLE) {				\
+          radio_control.values[i] += MAX_PPRZ;			\
+          radio_control.values[i] /= 2;				\
+        }								\
+      }								\
+      _received_frame_handler();					\
         }                                                               \
         break;                                                          \
       default:								\
-	rc_spk_parser_status = RC_SPK_STA_UNINIT;			\
+    rc_spk_parser_status = RC_SPK_STA_UNINIT;			\
       }                                                                 \
     }                                                                   \
   }

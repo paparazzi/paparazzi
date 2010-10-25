@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,14 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "booz_radio_control_spektrum.h"
 
-/* Currently the functionality has been pushed into the arch directories 
+/* Currently the functionality has been pushed into the arch directories
  * both arch directories contain essentially the original parser.
  * The next step is to implement a new parser for lisa. Once this is complete
  * hardware dependent functions will be written for booz then the lisa parser
- * will end up in here 
+ * will end up in here
  */

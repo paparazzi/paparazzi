@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,25 +18,25 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #ifndef BOOZ_RADIO_CONTROL_PPM_H
 #define BOOZ_RADIO_CONTROL_PPM_H
 
-/** 
- * Architecture dependant code 
+/**
+ * Architecture dependant code
  */
 #include "radio_control/booz_radio_control_ppm_arch.h"
 /* must be implemented by arch dependant code */
 extern void booz_radio_control_ppm_arch_init ( void );
 
 /**
- * Generated code holding the description of a given 
- * transmitter  
+ * Generated code holding the description of a given
+ * transmitter
  */
-#include "conf_radio_control_ppm.h" 
-                                     
+#include "conf_radio_control_ppm.h"
+
 /**
  *  ppm pulse type : futaba is falling edge clocked whereas JR is rising edge
  */

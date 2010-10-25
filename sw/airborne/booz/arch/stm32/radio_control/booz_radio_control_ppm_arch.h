@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 /** \file booz_radio_control_ppm_hw.h
@@ -26,7 +26,7 @@
  *
  */
 
-/** 
+/**
  * On tiny (and booz) the ppm counter is running at the same speed as
  * the systic counter. There is no reason for this to be true.
  * Let's add a pair of macros to make it possible for them to be different.

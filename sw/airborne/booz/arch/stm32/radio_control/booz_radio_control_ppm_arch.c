@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "booz_radio_control.h"
@@ -56,18 +56,18 @@ void booz_radio_control_ppm_arch_init ( void ) {
 
   /* GPIOA clock enable */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-  
+
   /* Time Base configuration */
   TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-  TIM_TimeBaseStructInit(&TIM_TimeBaseStructure); 
-  TIM_TimeBaseStructure.TIM_Period        = 0xFFFF;          
-  TIM_TimeBaseStructure.TIM_Prescaler     = 0x8; 
-  TIM_TimeBaseStructure.TIM_ClockDivision = 0x0; 
-  TIM_TimeBaseStructure.TIM_CounterMode   = TIM_CounterMode_Up;  
+  TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+  TIM_TimeBaseStructure.TIM_Period        = 0xFFFF;
+  TIM_TimeBaseStructure.TIM_Prescaler     = 0x8;
+  TIM_TimeBaseStructure.TIM_ClockDivision = 0x0;
+  TIM_TimeBaseStructure.TIM_CounterMode   = TIM_CounterMode_Up;
   TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
-  
+
  /* TIM2 configuration: Input Capture mode ---------------------
-     The external signal is connected to TIM2 CH2 pin (PA.01)  
+     The external signal is connected to TIM2 CH2 pin (PA.01)
      The Rising edge is used as active edge,
   ------------------------------------------------------------ */
   TIM_ICInitTypeDef  TIM_ICInitStructure;
@@ -85,7 +85,7 @@ void booz_radio_control_ppm_arch_init ( void ) {
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
- 
+
   /* TIM2 enable counter */
   TIM_Cmd(TIM2, ENABLE);
 
@@ -100,33 +100,33 @@ void booz_radio_control_ppm_arch_init ( void ) {
 
 
 void tim2_irq_handler(void) {
-  
+
   if(TIM_GetITStatus(TIM2, TIM_IT_CC2) == SET) {
     TIM_ClearITPendingBit(TIM2, TIM_IT_CC2);
-    
+
     uint32_t now = TIM_GetCapture2(TIM2) + timer_rollover_cnt;
     uint32_t length = now - booz_radio_control_ppm_last_pulse_time;
-    booz_radio_control_ppm_last_pulse_time = now;			
-    
-    if (booz_radio_control_ppm_cur_pulse == RADIO_CONTROL_NB_CHANNEL) {	
-      if (length > RC_PPM_TICS_OF_USEC(PPM_SYNC_MIN_LEN) &&		
-	  length < RC_PPM_TICS_OF_USEC(PPM_SYNC_MAX_LEN)) {		
-	booz_radio_control_ppm_cur_pulse = 0;
-      }									
-    }									
-    else {								
-      if (length > RC_PPM_TICS_OF_USEC(PPM_DATA_MIN_LEN) &&		
-	  length < RC_PPM_TICS_OF_USEC(PPM_DATA_MAX_LEN)) {		
-	booz_radio_control_ppm_pulses[booz_radio_control_ppm_cur_pulse] = length;
-	booz_radio_control_ppm_cur_pulse++;				
-	if (booz_radio_control_ppm_cur_pulse == RADIO_CONTROL_NB_CHANNEL) { 
-	  booz_radio_control_ppm_frame_available = TRUE;		
-	}								
-      }									
-      else {
-	booz_radio_control_ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;	
+    booz_radio_control_ppm_last_pulse_time = now;
+
+    if (booz_radio_control_ppm_cur_pulse == RADIO_CONTROL_NB_CHANNEL) {
+      if (length > RC_PPM_TICS_OF_USEC(PPM_SYNC_MIN_LEN) &&
+      length < RC_PPM_TICS_OF_USEC(PPM_SYNC_MAX_LEN)) {
+    booz_radio_control_ppm_cur_pulse = 0;
       }
-    }									
+    }
+    else {
+      if (length > RC_PPM_TICS_OF_USEC(PPM_DATA_MIN_LEN) &&
+      length < RC_PPM_TICS_OF_USEC(PPM_DATA_MAX_LEN)) {
+    booz_radio_control_ppm_pulses[booz_radio_control_ppm_cur_pulse] = length;
+    booz_radio_control_ppm_cur_pulse++;
+    if (booz_radio_control_ppm_cur_pulse == RADIO_CONTROL_NB_CHANNEL) {
+      booz_radio_control_ppm_frame_available = TRUE;
+    }
+      }
+      else {
+    booz_radio_control_ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;
+      }
+    }
   }
   else if(TIM_GetITStatus(TIM2, TIM_IT_Update) == SET) {
     timer_rollover_cnt+=(1<<16);

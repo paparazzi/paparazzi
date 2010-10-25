@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #ifndef BOOZ_RADIO_CONTROL_PPM_ARCH_H
@@ -28,7 +28,7 @@
 #include "LPC21xx.h"
 #include BOARD_CONFIG
 
-/** 
+/**
  * On tiny (and booz) the ppm counter is running at the same speed as
  * the systic counter. There is no reason for this to be true.
  * Let's add a pair of macros to make it possible for them to be different.
@@ -44,28 +44,28 @@ extern uint32_t booz_radio_control_ppm_last_pulse_time;
 
 #define RADIO_CONTROL_PPM_IT PPM_CRI
 #define RADIO_CONTROL_PPM_ISR() {					\
-									\
+                                    \
     uint32_t now = PPM_CR;						\
     uint32_t length = now - booz_radio_control_ppm_last_pulse_time;	\
     booz_radio_control_ppm_last_pulse_time = now;			\
-    									\
+                                        \
     if (booz_radio_control_ppm_cur_pulse == RADIO_CONTROL_NB_CHANNEL) {	\
       if (length > SYS_TICS_OF_USEC(PPM_SYNC_MIN_LEN) &&		\
-	  length < SYS_TICS_OF_USEC(PPM_SYNC_MAX_LEN)) {		\
-	booz_radio_control_ppm_cur_pulse = 0;				\
+      length < SYS_TICS_OF_USEC(PPM_SYNC_MAX_LEN)) {		\
+    booz_radio_control_ppm_cur_pulse = 0;				\
       }									\
     }									\
     else {								\
       if (length > SYS_TICS_OF_USEC(PPM_DATA_MIN_LEN) &&		\
-	  length < SYS_TICS_OF_USEC(PPM_DATA_MAX_LEN)) {		\
-	booz_radio_control_ppm_pulses[booz_radio_control_ppm_cur_pulse] = length; \
-	booz_radio_control_ppm_cur_pulse++;				\
-	if (booz_radio_control_ppm_cur_pulse == RADIO_CONTROL_NB_CHANNEL) { \
-	  booz_radio_control_ppm_frame_available = TRUE;		\
-	}								\
+      length < SYS_TICS_OF_USEC(PPM_DATA_MAX_LEN)) {		\
+    booz_radio_control_ppm_pulses[booz_radio_control_ppm_cur_pulse] = length; \
+    booz_radio_control_ppm_cur_pulse++;				\
+    if (booz_radio_control_ppm_cur_pulse == RADIO_CONTROL_NB_CHANNEL) { \
+      booz_radio_control_ppm_frame_available = TRUE;		\
+    }								\
       }									\
       else								\
-	booz_radio_control_ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;	\
+    booz_radio_control_ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;	\
     }									\
   }
 

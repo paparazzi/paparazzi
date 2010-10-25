@@ -1,6 +1,6 @@
 /*
- * Paparazzi $Id$  
- *  
+ * Paparazzi $Id$
+ *
  * Copyright (C) 2010 Eric Parsonage <eric@eparsonage.com>
  *
  * This file is part of paparazzi.
@@ -26,15 +26,15 @@
 #define BOOZ_RADIO_CONTROL_SPEKTRUM_ARCH_H
 
 
-/* 
+/*
  * All Spektrum and JR 2.4 GHz transmitters
  * have the same channel assignments.
- */ 
- 
+ */
 
-#ifndef RADIO_CONTROL_NB_CHANNEL 
+
+#ifndef RADIO_CONTROL_NB_CHANNEL
 #define RADIO_CONTROL_NB_CHANNEL 12
-#endif 
+#endif
 
 
 #define RADIO_CONTROL_THROTTLE   0
@@ -53,14 +53,14 @@
 
 /* reverse some channels to suit Paparazzi conventions          */
 /* the maximum number of channels a Spektrum can transmit is 12 */
-#ifndef RADIO_CONTROL_SPEKTRUM_SIGNS 
+#ifndef RADIO_CONTROL_SPEKTRUM_SIGNS
 #define RADIO_CONTROL_SPEKTRUM_SIGNS {1,1,-1,1,1,-1,1,1,1,1,1,1}
 #endif
 
-/* really for a 9 channel transmitter 
+/* really for a 9 channel transmitter
    we would swap the order of these */
 #ifndef RADIO_CONTROL_MODE
-#define RADIO_CONTROL_MODE       RADIO_CONTROL_GEAR 
+#define RADIO_CONTROL_MODE       RADIO_CONTROL_GEAR
 #endif
 
 extern void RadioControlEventImp(void (*_received_frame_handler)(void));
