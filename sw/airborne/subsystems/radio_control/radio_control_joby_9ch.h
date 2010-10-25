@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_RADIO_CONTROL_JOBY_9CH_H
-#define BOOZ_RADIO_CONTROL_JOBY_9CH_H
+#ifndef RADIO_CONTROL_JOBY_9CH_H
+#define RADIO_CONTROL_JOBY_9CH_H
 
 #define RADIO_CONTROL_NB_CHANNEL 9
 
@@ -48,4 +48,4 @@
                         1, \
                         1 }
 
-#endif /* BOOZ_RADIO_CONTROL_JOBY_9CH_H */
+#endif /* RADIO_CONTROL_JOBY_9CH_H */

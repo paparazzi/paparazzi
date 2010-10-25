@@ -22,15 +22,15 @@
  *
  */
 
-#ifndef BOOZ_RADIO_CONTROL_SPEKTRUM_H
-#define BOOZ_RADIO_CONTROL_SPEKTRUM_H
+#ifndef RADIO_CONTROL_SPEKTRUM_H
+#define RADIO_CONTROL_SPEKTRUM_H
 
-/* implemented in booz/arch/xxx/radio_control/booz_radio_control_spektrum_arch.c */
+/* implemented in arch/xxx/subsystems/radio_control/spektrum_arch.c */
 extern void radio_control_spektrum_try_bind(void);
 
-#include "radio_control/booz_radio_control_spektrum_arch.h"
-/* implemented in booz/arch/xxx/radio_control/booz_radio_control_spektrum_arch.c */
+#include <subsystems/radio_control/spektrum_arch.h>
+/* implemented in arch/xxx/subsystems/radio_control/spektrum_arch.c */
 
 #define RadioControlEvent(_received_frame_handler) RadioControlEventImp(_received_frame_handler)
 
-#endif /* BOOZ_RADIO_CONTROL_SPEKTRUM_H */
+#endif /* RADIO_CONTROL_SPEKTRUM_H */

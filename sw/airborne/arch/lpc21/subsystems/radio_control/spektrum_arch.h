@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef BOOZ_RADIO_CONTROL_SPEKTRUM_ARCH_H
-#define BOOZ_RADIO_CONTROL_SPEKTRUM_ARCH_H
+#ifndef RADIO_CONTROL_SPEKTRUM_ARCH_H
+#define RADIO_CONTROL_SPEKTRUM_ARCH_H
 
 #include "std.h"
 #include "uart.h"
@@ -99,4 +99,4 @@ extern const int16_t rc_spk_throw[RADIO_CONTROL_NB_CHANNEL];
   }
 
 
-#endif /* BOOZ_RADIO_CONTROL_SPEKTRUM_ARCH_H */
+#endif /* RADIO_CONTROL_SPEKTRUM_ARCH_H */

@@ -22,8 +22,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_RADIO_CONTROL_JOBY_H
-#define BOOZ_RADIO_CONTROL_JOBY_H
+#ifndef RADIO_CONTROL_JOBY_H
+#define RADIO_CONTROL_JOBY_H
 
 #include "std.h"
 #include "uart.h"
@@ -72,4 +72,4 @@ void rc_joby_parse(int8_t c, void (* callback)(void));
   }
 
 
-#endif /* BOOZ_RADIO_CONTROL_JOBY_H */
+#endif /* RADIO_CONTROL_JOBY_H */

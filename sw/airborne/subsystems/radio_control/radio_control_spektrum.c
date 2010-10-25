@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_radio_control_spektrum.h"
+#include "spektrum.h"
 
 /* Currently the functionality has been pushed into the arch directories
  * both arch directories contain essentially the original parser.

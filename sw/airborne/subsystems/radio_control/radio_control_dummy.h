@@ -22,11 +22,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ_RADIO_CONTROL_NULL_H
-#define BOOZ_RADIO_CONTROL_NULL_H
+#ifndef RADIO_CONTROL_NULL_H
+#define RADIO_CONTROL_NULL_H
 
-#include "conf_radio_control_ppm.h"
+#include "radio.h"
 
 #define RadioControlEvent(_received_frame_handler) { }
 
-#endif /* BOOZ_RADIO_CONTROL_NULL_H */
+#endif /* RADIO_CONTROL_NULL_H */

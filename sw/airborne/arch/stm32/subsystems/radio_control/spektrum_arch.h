@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef BOOZ_RADIO_CONTROL_SPEKTRUM_ARCH_H
-#define BOOZ_RADIO_CONTROL_SPEKTRUM_ARCH_H
+#ifndef RADIO_CONTROL_SPEKTRUM_ARCH_H
+#define RADIO_CONTROL_SPEKTRUM_ARCH_H
 
 
 /*
@@ -65,4 +65,4 @@
 
 extern void RadioControlEventImp(void (*_received_frame_handler)(void));
 
-#endif /* BOOZ_RADIO_CONTROL_SPEKTRUM_ARCH_H */
+#endif /* RADIO_CONTROL_SPEKTRUM_ARCH_H */
