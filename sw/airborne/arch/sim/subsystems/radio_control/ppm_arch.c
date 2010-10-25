@@ -28,6 +28,10 @@
 #include <inttypes.h>
 #include <caml/mlvalues.h>
 
+#ifdef NPS
+#include "nps_radio_control.h"
+#endif
+
 uint8_t  ppm_cur_pulse;
 uint32_t ppm_last_pulse_time;
 bool_t   ppm_data_valid;
@@ -51,6 +55,35 @@ value send_ppm(value unit) {
   return unit;
 }
 
+#ifdef NPS
+#define PPM_OF_NPS(_nps, _neutral, _min, _max)                          \
+  ((_nps) >= 0 ? (_neutral) + (_nps) * ((_max)-(_neutral)) : (_neutral) + (_nps) * ((_neutral)- (_min)))
+
+void radio_control_feed(void) {
+  ppm_pulses[RADIO_ROLL]     = PPM_OF_NPS(nps_radio_control.roll,       \
+                                          RADIO_ROLL_NEUTRAL,          \
+                                          RADIO_ROLL_MIN,              \
+                                          RADIO_ROLL_MAX);
+  ppm_pulses[RADIO_PITCH]    = PPM_OF_NPS(nps_radio_control.pitch,      \
+                                          RADIO_PITCH_NEUTRAL,         \
+                                          RADIO_PITCH_MIN,             \
+                                          RADIO_PITCH_MAX);
+  ppm_pulses[RADIO_YAW]      = PPM_OF_NPS(nps_radio_control.yaw,        \
+                                          RADIO_YAW_NEUTRAL,           \
+                                          RADIO_YAW_MIN,               \
+                                          RADIO_YAW_MAX);
+  ppm_pulses[RADIO_THROTTLE] = PPM_OF_NPS(nps_radio_control.throttle,   \
+                                          RADIO_THROTTLE_NEUTRAL,      \
+                                          RADIO_THROTTLE_MIN,          \
+                                          RADIO_THROTTLE_MAX);
+  ppm_pulses[RADIO_MODE]     = PPM_OF_NPS(nps_radio_control.mode,       \
+                                          RADIO_MODE_NEUTRAL,          \
+                                          RADIO_MODE_MIN,              \
+                                          RADIO_MODE_MAX);
+  ppm_frame_available = TRUE;
+}
+#endif
+
 #else // RADIO_CONTROL
 
 value update_rc_channel(value c __attribute__ ((unused)), value v __attribute__ ((unused))) {
@@ -60,5 +93,9 @@ value update_rc_channel(value c __attribute__ ((unused)), value v __attribute__ 
 value send_ppm(value unit) {
   return unit;
 }
+
+#ifdef NPS
+void radio_control_feed(void) {}
+#endif
 
 #endif // RADIO_CONTROL

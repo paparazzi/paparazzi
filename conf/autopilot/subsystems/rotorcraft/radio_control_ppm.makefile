@@ -16,8 +16,8 @@ sim.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_LED=1
 sim.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/ppm.h\"
 sim.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
 sim.srcs += $(SRC_SUBSYSTEMS)/radio_control.c \
-            $(SRC_BOOZ)/subsystems/radio_control/ppm.c \
-            $(SRC_BOOZ_SIM)/subsystems/radio_control/ppm_arch.c
+            $(SRC_SUBSYSTEMS)/radio_control/ppm.c \
+            $(SRC_ARCH)/subsystems/radio_control/ppm_arch.c
 
 #
 # test_rc_ppm

@@ -36,4 +36,8 @@
 
 #define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
 
+#ifdef NPS
+extern void radio_control_feed(void);
+#endif
+
 #endif /* PPM_ARCH_H */

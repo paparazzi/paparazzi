@@ -37,7 +37,7 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
 void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 
   if (nps_radio_control_available(time)) {
-    booz_radio_control_feed();
+    radio_control_feed();
     main_event();
   }
 
