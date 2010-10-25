@@ -19,15 +19,12 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
 #define PPM_IT 0x00
 #endif
 
-#if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_PPM
-#include <subsystems/radio_control/ppm.h>
-#else
+//FIXME remove this and fix timer mask
 #define RADIO_CONTROL_PPM_IT 0x00
-#endif
 
 #ifdef MB_SCALE
 #include "mb_scale.h"
-#else 
+#else
 #define MB_SCALE_IT 0x00
 #endif
 
@@ -58,6 +55,7 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
 #define TRIGGER_IT 0x00
 #endif
 
+//FIXME: RADIO_CONTROL_PPM_IT not used anymore
 #define TIMER0_IT_MASK (ACTUATORS_IT         |\
                         PPM_IT               |\
                         RADIO_CONTROL_PPM_IT |\
@@ -85,7 +83,7 @@ void TIMER0_ISR ( void ) {
 #ifdef SERVOS_PPM_MAT
       ServosPPMMat_ISR();
 #endif
-      T0IR = ACTUATORS_IT; 
+      T0IR = ACTUATORS_IT;
     }
 #endif /* ACTUATORS && (SERVOS_4017 || SERVOS_4015_MAT || SERVOS_PPM_MAT) */
 
@@ -103,12 +101,6 @@ void TIMER0_ISR ( void ) {
 LED_TOGGLE(3);
     }
 #endif
-#if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_PPM
-    if (T0IR&RADIO_CONTROL_PPM_IT) {
-      RADIO_CONTROL_PPM_ISR();
-      T0IR = RADIO_CONTROL_PPM_IT;
-    }
-#endif
 #ifdef MB_SCALE
     if (T0IR&MB_SCALE_IT) {
       MB_SCALE_ICP_ISR();
@@ -124,31 +116,31 @@ LED_TOGGLE(3);
 #ifdef USE_PWM_INPUT1
     if (T0IR&PWM_INPUT_IT1) {
       PWM_INPUT_ISR_1();
-      T0IR = PWM_INPUT_IT1; 
+      T0IR = PWM_INPUT_IT1;
     }
 #endif
 #ifdef USE_PWM_INPUT2
     if (T0IR&PWM_INPUT_IT2) {
       PWM_INPUT_ISR_2();
-      T0IR = PWM_INPUT_IT2; 
+      T0IR = PWM_INPUT_IT2;
     }
 #endif
 #ifdef USE_PWM_INPUT3
     if (T0IR&PWM_INPUT_IT3) {
       PWM_INPUT_ISR_3();
-      T0IR = PWM_INPUT_IT3; 
+      T0IR = PWM_INPUT_IT3;
     }
 #endif
 #ifdef USE_PWM_INPUT4
     if (T0IR&PWM_INPUT_IT4) {
       PWM_INPUT_ISR_4();
-      T0IR = PWM_INPUT_IT4; 
+      T0IR = PWM_INPUT_IT4;
     }
 #endif
 #ifdef USE_AMI601
     if (T0IR&AMI601_IT) {
       AMI601_ISR();
-      T0IR = AMI601_IT; 
+      T0IR = AMI601_IT;
     }
 #endif
   }

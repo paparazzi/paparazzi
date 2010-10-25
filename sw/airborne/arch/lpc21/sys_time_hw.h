@@ -23,7 +23,7 @@
  */
 
 /*
- *\brief ARM7 timing functions 
+ *\brief ARM7 timing functions
  *
  */
 
@@ -100,7 +100,7 @@ static inline void sys_time_init( void ) {
   /* disable compare registers       */
   T0CCR = 0;
   /* disable external match register */
-  T0EMR = 0;                          
+  T0EMR = 0;
   /* enable timer 0                  */
   T0TCR = TCR_ENABLE;
 
@@ -110,11 +110,11 @@ static inline void sys_time_init( void ) {
   /* select TIMER0 as IRQ    */
   VICIntSelect &= ~VIC_BIT(VIC_TIMER0);
   /* enable TIMER0 interrupt */
-  VICIntEnable = VIC_BIT(VIC_TIMER0); 
+  VICIntEnable = VIC_BIT(VIC_TIMER0);
   /* on slot vic slot 1      */
   _VIC_CNTL(TIMER0_VIC_SLOT) = VIC_ENABLE | VIC_TIMER0;
   /* address of the ISR      */
-  _VIC_ADDR(TIMER0_VIC_SLOT) = (uint32_t)TIMER0_ISR; 
+  _VIC_ADDR(TIMER0_VIC_SLOT) = (uint32_t)TIMER0_ISR;
 
 }
 
