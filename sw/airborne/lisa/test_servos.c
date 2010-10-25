@@ -25,7 +25,7 @@
 
 #include "init_hw.h"
 #include "sys_time.h"
-#include "firmwares/rotorcraft/actuators/actuators_pwm.h"
+#include <firmwares/rotorcraft/actuators/actuators_pwm.h>
 
 static inline void main_init( void );
 static inline void main_periodic( void );

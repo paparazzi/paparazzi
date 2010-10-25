@@ -21,7 +21,7 @@
  */
 
 
-#include "firmwares/rotorcraft/baro.h"
+#include <firmwares/rotorcraft/baro.h>
 
 #include "airframe.h"
 #include "led.h"

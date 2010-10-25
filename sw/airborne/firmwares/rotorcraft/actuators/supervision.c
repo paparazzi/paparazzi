@@ -22,7 +22,7 @@
  *
  */
 
-#include "firmwares/rotorcraft/actuators/supervision.h"
+#include <firmwares/rotorcraft/actuators/supervision.h>
 #include "paparazzi.h"
 
 //#include <stdint.h>

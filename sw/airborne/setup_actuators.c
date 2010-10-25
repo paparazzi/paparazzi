@@ -3,7 +3,7 @@
 #include "interrupt_hw.h"
 #include "sys_time.h"
 #include "led.h"
-#include "firmwares/fixedwing/actuators.h"
+#include <firmwares/fixedwing/actuators.h>
 //#include "actuators.h"
 #include "airframe.h"
 #define DATALINK_C

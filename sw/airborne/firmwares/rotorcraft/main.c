@@ -59,7 +59,7 @@
 #include "booz2_pwm_hw.h"
 #endif
 
-#include "firmwares/rotorcraft/main.h"
+#include <firmwares/rotorcraft/main.h>
 
 #ifdef SITL
 #include "nps_autopilot_booz.h"

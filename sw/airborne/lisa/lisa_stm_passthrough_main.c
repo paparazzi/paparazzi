@@ -45,7 +45,7 @@
 #include "csc_msg_def.h"
 #include "csc_protocol.h"
 
-#include "firmwares/rotorcraft/baro.h"
+#include <firmwares/rotorcraft/baro.h>
 
 #include "adc.h"
 

@@ -42,7 +42,7 @@
 
 #include "airframe.h"
 /* sort of a hack, we're not really fixed wing here but we need their declarations */
-#include "firmwares/fixedwing/actuators.h"
+#include <firmwares/fixedwing/actuators.h>
 #include "rdyb_booz_imu.h"
 #include "booz_radio_control.h"
 #include "rdyb_mahrs.h"

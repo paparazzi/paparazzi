@@ -22,7 +22,7 @@
  *
  */
 
-#include "firmwares/rotorcraft/actuators/actuators_pwm.h"
+#include <firmwares/rotorcraft/actuators/actuators_pwm.h>
 
 #include <stm32/gpio.h>
 #include <stm32/rcc.h>
