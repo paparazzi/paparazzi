@@ -1,7 +1,7 @@
 
 
 # Radio control
-stm_passthrough.CFLAGS += -DUSE_RADIO_CONTROL
+stm_passthrough.CFLAGS += -DRADIO_CONTROL
 stm_passthrough.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_joby.h\"
 stm_passthrough.CFLAGS += -DRADIO_CONTROL_JOBY_MODEL_H=\"radio_control/booz_radio_control_joby_9ch.h\"
 stm_passthrough.srcs += $(SRC_SUBSYSTEMS)/radio_control.c \

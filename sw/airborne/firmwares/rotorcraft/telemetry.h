@@ -94,7 +94,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 #endif /* USE_GPS */
 
-#ifdef USE_RADIO_CONTROL
+#ifdef RADIO_CONTROL
 #define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
 #if defined RADIO_CONTROL_KILL_SWITCH
 #define PERIODIC_SEND_BOOZ2_RADIO_CONTROL(_chan) SEND_BOOZ2_RADIO_CONTROL( _chan, &radio_control.values[RADIO_KILL_SWITCH])
@@ -113,7 +113,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				      &radio_control.values[RADIO_MODE],            \
 				      _kill_switch,                                        \
 				      &radio_control.status);}
-#else /* ! USE_RADIO_CONTROL */
+#else /* ! RADIO_CONTROL */
 #define PERIODIC_SEND_RC(_chan) {}
 #define PERIODIC_SEND_BOOZ2_RADIO_CONTROL(_chan) {}
 #endif

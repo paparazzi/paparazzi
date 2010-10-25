@@ -68,7 +68,7 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #define PERIODIC_SEND_ACTUATORS(_chan) DOWNLINK_SEND_ACTUATORS(_chan, SERVOS_NB, actuators)
 #endif
 
-#ifdef USE_RADIO_CONTROL
+#ifdef RADIO_CONTROL
 #include <subsystems/radio_control.h>
 #define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
 #define PERIODIC_SEND_FBW_STATUS(_chan) { uint16_t current; DOWNLINK_SEND_FBW_STATUS(_chan, &radio_control.status, &pprz_mode, &vsupply, &current); }
@@ -77,7 +77,7 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, PPM_NB_PULSES, rc_values)
 #define PERIODIC_SEND_FBW_STATUS(_chan) { uint16_t current; DOWNLINK_SEND_FBW_STATUS(_chan, &rc_status, &pprz_mode, &vsupply, &current); }
 #endif
-#endif /* USE_RADIO_CONTROL */
+#endif /* RADIO_CONTROL */
 
 #ifdef USE_GPS
 #define PERIODIC_SEND_BOOZ2_GPS(_chan) {			\

@@ -22,7 +22,7 @@
  */
 
 /*
- *\brief STM low level hardware initialisation 
+ *\brief STM low level hardware initialisation
  * PLL, MAM, VIC
  *
  */
@@ -43,10 +43,10 @@
  */
 #define MyByteSwap16(in, out) {			\
     asm volatile (				\
-		  "rev16        %0, %1\n\t"	\
-		  : "=r" (out)			\
-		  : "r"(in)			\
-		  );				\
+          "rev16        %0, %1\n\t"	\
+          : "=r" (out)			\
+          : "r"(in)			\
+          );				\
   }
 
 
@@ -54,9 +54,9 @@
 #ifdef USE_LED
 #include "led.h"
 #endif
-#if defined USE_RADIO_CONTROL 
+#if defined RADIO_CONTROL
 #if defined RADIO_CONTROL_LINK  || defined RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
-#include "booz/booz_radio_control.h"
+#include <subsystems/radio_control.h>
 #endif
 #endif
 #if defined USE_UART1 || defined USE_UART2 || defined USE_UART3
@@ -77,9 +77,9 @@ extern void abort(void);
 static inline void hw_init(void) {
 
 #ifdef HSE_TYPE_EXT_CLK
-  /* Setup the microcontroller system. 
-   *  Initialize the Embedded Flash Interface,  
-   *  initialize the PLL and update the SystemFrequency variable. 
+  /* Setup the microcontroller system.
+   *  Initialize the Embedded Flash Interface,
+   *  initialize the PLL and update the SystemFrequency variable.
    */
   /* RCC system reset(for debug purpose) */
   RCC_DeInit();
@@ -97,14 +97,14 @@ static inline void hw_init(void) {
     /* Flash 2 wait state */
     FLASH_SetLatency(FLASH_Latency_2);
     /* HCLK = SYSCLK */
-    RCC_HCLKConfig(RCC_SYSCLK_Div1); 
+    RCC_HCLKConfig(RCC_SYSCLK_Div1);
     /* PCLK2 = HCLK */
-    RCC_PCLK2Config(RCC_HCLK_Div1); 
+    RCC_PCLK2Config(RCC_HCLK_Div1);
     /* PCLK1 = HCLK/2 */
     RCC_PCLK1Config(RCC_HCLK_Div2);
     /* PLLCLK = 8MHz * 9 = 72 MHz */
     RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);
-    /* Enable PLL */ 
+    /* Enable PLL */
     RCC_PLLCmd(ENABLE);
     /* Wait till PLL is ready */
     while (RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET) {}
@@ -125,7 +125,7 @@ static inline void hw_init(void) {
   led_init();
 #endif
   /* for now this means using spektrum */
-#if defined USE_RADIO_CONTROL & defined RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT & defined RADIO_CONTROL_BIND_IMPL_FUNC
+#if defined RADIO_CONTROL & defined RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT & defined RADIO_CONTROL_BIND_IMPL_FUNC
   RADIO_CONTROL_BIND_IMPL_FUNC();
 #endif
 #ifdef USE_UART1

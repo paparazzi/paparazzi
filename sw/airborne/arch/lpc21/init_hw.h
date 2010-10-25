@@ -23,7 +23,7 @@
  */
 
 /*
- *\brief ARM7 low level hardware initialisation 
+ *\brief ARM7 low level hardware initialisation
  * PLL, MAM, VIC
  *
  */
@@ -71,7 +71,7 @@ static inline void hw_init(void) {
   /* wait for PLL lock */
   while (!(PLLSTAT & PLLSTAT_LOCK))
     continue;
- 
+
   /* enable & connect PLL */
   PLLCON = PLLCON_PLLE | PLLCON_PLLC;
   /* commit changes                */
@@ -81,15 +81,15 @@ static inline void hw_init(void) {
   /* setup & enable the MAM */
   MAMTIM = MAMTIM_CYCLES;
   MAMCR = MAMCR_FULL;
-  
+
   /* setup & enable the MAM */
   MAMTIM = MAMTIM_CYCLES;
   MAMCR = MAMCR_FULL;
-  
+
   /* set the peripheral bus speed */
   /* value computed from config.h */
   VPBDIV = VPBDIV_VALUE;
- 
+
   /* set the interrupt controller defaults  */
   //#if defined(RAM_RUN)
   /* map interrupt vectors space into SRAM  */

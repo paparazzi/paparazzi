@@ -7,7 +7,7 @@ ifndef RADIO_CONTROL_SPEKTRUM_MODEL
 RADIO_CONTROL_SPEKTRUM_MODEL=\"subsystems/radio_control/spektrum_dx7se.h\"
 endif
 
-stm_passthrough.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_BIND_IMPL_FUNC=radio_control_spektrum_try_bind
+stm_passthrough.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_BIND_IMPL_FUNC=radio_control_spektrum_try_bind
 stm_passthrough.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/spektrum.h\"
 stm_passthrough.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=$(RADIO_CONTROL_SPEKTRUM_MODEL)
 stm_passthrough.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)

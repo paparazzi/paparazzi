@@ -356,7 +356,7 @@ test_rc_24.srcs += $(SRC_ARCH)/uart_hw.c
 test_rc_24.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_rc_24.srcs += downlink.c pprz_transport.c
 
-test_rc_24.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_LED=2
+test_rc_24.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_LED=2
 test_rc_24.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/spektrum.h\"
 test_rc_24.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"subsystems/radio_control/spektrum_dx7se.h\"
 test_rc_24.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B115200
@@ -1103,7 +1103,7 @@ ptw.srcs += math/pprz_trig_int.c
 ptw.srcs += $(SRC_BOOZ)/booz2_commands.c
 
 # Radio control
-ptw.CFLAGS += -DUSE_RADIO_CONTROL
+ptw.CFLAGS += -DRADIO_CONTROL
 ptw.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/spektrum.h\"
 ptw.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"subsystems/radio_control/spektrum_dx7se.h\"
 ptw.srcs += $(SRC_SUBSYSTEMS)/radio_control.c \

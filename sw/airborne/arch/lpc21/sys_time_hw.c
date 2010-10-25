@@ -19,7 +19,7 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
 #define PPM_IT 0x00
 #endif
 
-#if defined USE_RADIO_CONTROL && defined RADIO_CONTROL_TYPE_PPM
+#if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_PPM
 #include <subsystems/radio_control/ppm.h>
 #else
 #define RADIO_CONTROL_PPM_IT 0x00
@@ -103,7 +103,7 @@ void TIMER0_ISR ( void ) {
 LED_TOGGLE(3);
     }
 #endif
-#if defined USE_RADIO_CONTROL && defined RADIO_CONTROL_TYPE_PPM
+#if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_PPM
     if (T0IR&RADIO_CONTROL_PPM_IT) {
       RADIO_CONTROL_PPM_ISR();
       T0IR = RADIO_CONTROL_PPM_IT;

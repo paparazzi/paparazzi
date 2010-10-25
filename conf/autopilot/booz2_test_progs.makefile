@@ -326,7 +326,7 @@ test_rc_spektrum.srcs += downlink.c $(SRC_ARCH)/usb_ser_hw.c pprz_transport.c
 test_rc_spektrum.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
 test_rc_spektrum.srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 
-test_rc_spektrum.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_LED=1
+test_rc_spektrum.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_LED=1
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"booz_radio_control_spektrum.h\"
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"booz_radio_control_spektrum_dx7se.h\"
 test_rc_spektrum.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B115200
@@ -358,7 +358,7 @@ test_rc_ppm.srcs += downlink.c $(SRC_ARCH)/usb_ser_hw.c pprz_transport.c
 test_rc_ppm.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
 test_rc_ppm.srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 
-test_rc_ppm.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_LED=1
+test_rc_ppm.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_LED=1
 test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"booz_radio_control_ppm.h\"
 test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
 test_rc_ppm.srcs += $(SRC_SUBSYSTEMS)/radio_control.c \

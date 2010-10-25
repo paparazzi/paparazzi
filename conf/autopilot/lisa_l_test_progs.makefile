@@ -196,7 +196,7 @@ test_rc_spektrum.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD
 test_rc_spektrum.srcs   += $(SRC_ARCH)/uart_hw.c
 test_rc_spektrum.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
 test_rc_spektrum.srcs   += downlink.c pprz_transport.c
-test_rc_spektrum.CFLAGS += -DUSE_RADIO_CONTROL
+test_rc_spektrum.CFLAGS += -DRADIO_CONTROL
 ifdef RADIO_CONTROL_LED
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
 endif
@@ -237,7 +237,7 @@ test_rc_ppm.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 test_rc_ppm.srcs   += $(SRC_ARCH)/uart_hw.c
 test_rc_ppm.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
 test_rc_ppm.srcs   += downlink.c pprz_transport.c
-test_rc_ppm.CFLAGS += -DUSE_RADIO_CONTROL
+test_rc_ppm.CFLAGS += -DRADIO_CONTROL
 test_rc_ppm.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
 test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/ppm.h\"
 test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
@@ -650,7 +650,7 @@ test_manual.srcs   += $(SRC_FIRMWARE)/actuators/actuators_heli.c
 
 
 test_manual.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ)/arch/$(ARCH)
-test_manual.CFLAGS += -DUSE_RADIO_CONTROL
+test_manual.CFLAGS += -DRADIO_CONTROL
 ifdef RADIO_CONTROL_LED
 test_manual.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
 endif
