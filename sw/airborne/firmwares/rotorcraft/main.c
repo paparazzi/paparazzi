@@ -146,8 +146,8 @@ STATIC_INLINE void main_periodic( void ) {
 
   PeriodicPrescaleBy10(							\
     {                                               \
-      radio_control_periodic();						\
-      if (radio_control.status != RADIO_CONTROL_OK &&			\
+      radio_control_periodic_task();				\
+      if (radio_control.status != RC_OK &&			\
           autopilot_mode != AP_MODE_KILL &&			\
           autopilot_mode != AP_MODE_NAV)			\
         autopilot_set_mode(AP_MODE_FAILSAFE);		\
@@ -173,7 +173,7 @@ STATIC_INLINE void main_periodic( void ) {
     );									\
 
 #ifdef USE_GPS
-  if (radio_control.status != RADIO_CONTROL_OK &&			\
+  if (radio_control.status != RC_OK &&			\
       autopilot_mode == AP_MODE_NAV && GpsIsLost())		\
     autopilot_set_mode(AP_MODE_FAILSAFE);			\
   booz_gps_periodic();

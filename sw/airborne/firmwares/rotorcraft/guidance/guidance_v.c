@@ -216,7 +216,7 @@ void guidance_v_run(bool_t in_flight) {
         guidance_v_delta_t = nav_throttle;
       }
       /* use rc limitation if available */
-      if (radio_control.status == RADIO_CONTROL_OK)
+      if (radio_control.status == RC_OK)
         stabilization_cmd[COMMAND_THRUST] = Min( guidance_v_rc_delta_t, guidance_v_delta_t);
       else
         stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;

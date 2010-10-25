@@ -30,7 +30,7 @@
 
 #include "downlink.h"
 
-#ifdef USE_RADIO_CONTROL
+#ifdef RADIO_CONTROL
 #include <subsystems/radio_control.h>
 #endif
 
@@ -119,11 +119,11 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #endif
 
 #ifdef RADIO_CONTROL_TYPE_PPM
-#define PERIODIC_SEND_PPM(_chan)					\
-  DOWNLINK_SEND_PPM(_chan,						\
-		    &radio_control.frame_rate,				\
-		    RADIO_CONTROL_NB_CHANNEL,				\
-		    booz_radio_control_ppm_pulses)
+#define PERIODIC_SEND_PPM(_chan)                    \
+  DOWNLINK_SEND_PPM(_chan,                          \
+                    &radio_control.frame_rate,      \
+                    PPM_NB_CHANNEL,                 \
+                    ppm_pulses)
 #else
 #define PERIODIC_SEND_PPM(_chan) {}
 #endif
