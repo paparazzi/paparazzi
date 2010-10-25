@@ -146,7 +146,7 @@ static void check_radio_lost(void)
 #ifdef PASSTHROUGH_CYGNUS
 	return;
 #endif
-	if (radio_control.status == RADIO_CONTROL_REALLY_LOST) {
+	if (radio_control.status == RC_REALLY_LOST) {
 		const static int32_t commands_failsafe[COMMANDS_NB] = COMMANDS_FAILSAFE;
 		SetActuatorsFromCommands(commands_failsafe);
 	}

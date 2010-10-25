@@ -45,7 +45,7 @@ static void handle_channel(void (* callback)(void))
       // all channels read, reset parser and handle message
       parser.current_channel = -1;
       radio_control.frame_cpt++;
-      radio_control.status = RADIO_CONTROL_OK;
+      radio_control.status = RC_OK;
       radio_control.time_since_last_frame = 0;
       if (callback != NULL)
     callback();

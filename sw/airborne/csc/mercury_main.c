@@ -100,7 +100,7 @@ static void on_rc_cmd(struct CscRCMsg *msg)
   radio_control.values[RADIO_THROTTLE] = -CSC_RC_SCALE*((msg->left_stick_vertical_and_flap_mix & ~(3 << 13)) - CSC_RC_OFFSET);
 
   radio_control.time_since_last_frame = 0;
-  radio_control.status = RADIO_CONTROL_OK;
+  radio_control.status = RC_OK;
 }
 
 static inline void csc_main_init( void ) {

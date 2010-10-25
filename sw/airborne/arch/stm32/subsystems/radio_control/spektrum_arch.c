@@ -440,7 +440,7 @@ void RadioControlEventImp(void (*frame_handler)(void)) {
     if (ChannelCnt >= (MaxChannelNum + 1)) {
       radio_control.frame_cpt++;
       radio_control.time_since_last_frame = 0;
-      radio_control.status = RADIO_CONTROL_OK;
+      radio_control.status = RC_OK;
       for (int i = 0; i < (MaxChannelNum + 1); i++) {
         radio_control.values[i] = SpektrumBuf[i];
         if (i == RADIO_THROTTLE ) {

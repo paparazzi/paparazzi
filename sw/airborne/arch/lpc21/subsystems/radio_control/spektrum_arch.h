@@ -75,7 +75,7 @@ extern const int16_t rc_spk_throw[RADIO_CONTROL_NB_CHANNEL];
           rc_spk_parser_status = RC_SPK_STA_UNINIT;                     \
           radio_control.frame_cpt++;					\
           radio_control.time_since_last_frame = 0;			\
-          radio_control.status = RADIO_CONTROL_OK;			\
+          radio_control.status = RC_OK;			\
       uint8_t i;							\
       for (i=0;i<RADIO_CONTROL_NB_CHANNEL;i++) {			\
         const int16_t tmp = (rc_spk_parser_buf[2*i]<<8) +		\
