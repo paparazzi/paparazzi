@@ -201,12 +201,12 @@ ifdef RADIO_CONTROL_LED
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
 endif
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_BIND_IMPL_FUNC=radio_control_spektrum_try_bind
-test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_spektrum.h\"
+test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/spektrum.h\"
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_PRIMARY_PORT=$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)
 test_rc_spektrum.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HANDLER -DUSE_TIM6_IRQ
 test_rc_spektrum.srcs   += $(SRC_SUBSYSTEMS)/radio_control.c                                 \
-			   $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c          \
-			   $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_spektrum_arch.c
+			   subsystems/radio_control/spektrum.c          \
+			   $(SRC_ARCH)/subsystems/radio_control/spektrum_arch.c
 
 
 #
@@ -644,7 +644,7 @@ test_manual.srcs   += downlink.c pprz_transport.c
 test_manual.srcs += $(SRC_BOOZ)/booz2_commands.c
 
 test_manual.CFLAGS += -I$(SRC_FIRMWARE)/actuators/arch/$(ARCH)
-#test_manual.srcs   += $(SRC_FIRMWARE)/actuators/actuators_pwm.c 
+#test_manual.srcs   += $(SRC_FIRMWARE)/actuators/actuators_pwm.c
 test_manual.srcs   += $(SRC_FIRMWARE)/actuators/arch/$(ARCH)/actuators_pwm_arch.c
 test_manual.srcs   += $(SRC_FIRMWARE)/actuators/actuators_heli.c
 
@@ -655,9 +655,9 @@ ifdef RADIO_CONTROL_LED
 test_manual.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
 endif
 test_manual.CFLAGS += -DRADIO_CONTROL_BIND_IMPL_FUNC=radio_control_spektrum_try_bind
-test_manual.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_spektrum.h\"
+test_manual.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/spektrum.h\"
 test_manual.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_PRIMARY_PORT=$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)
 test_manual.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HANDLER -DUSE_TIM6_IRQ
 test_manual.srcs   += $(SRC_SUBSYSTEMS)/radio_control.c                                 \
-	              $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c          \
-	              $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_spektrum_arch.c
+	              subsystems/radio_control/spektrum.c          \
+	              $(SRC_ARCH)/subsystems/radio_control/spektrum_arch.c

@@ -9,11 +9,11 @@
  </target>
 
  <target name="sim" description="The simulator">
- </target> 
+ </target>
 
  <subsystem name="radio_control" types="ppm,spektrum">
    <type name="spektrum">
-     <param name="RADIO_CONTROL_SPEKTRUM_MODEL" values="\"booz/radio_control/booz_radio_control_spektrum_dx7se.h\""/>
+     <param name="RADIO_CONTROL_SPEKTRUM_MODEL" values="\"subsystems/radio_control/spektrum_dx7se.h\""/>
      <param name="RADIO_CONTROL_LINK" values="UART1|UART2|UART3|UART5"/>
    </type>
  </subsystem>

@@ -357,12 +357,12 @@ test_rc_24.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DE
 test_rc_24.srcs += downlink.c pprz_transport.c
 
 test_rc_24.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_LED=2
-test_rc_24.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_spektrum.h\"
-test_rc_24.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"radio_control/booz_radio_control_spektrum_dx7se.h\"
+test_rc_24.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/spektrum.h\"
+test_rc_24.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"subsystems/radio_control/spektrum_dx7se.h\"
 test_rc_24.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B115200
 test_rc_24.CFLAGS += -DRADIO_CONTROL_LINK=Uart3
 test_rc_24.srcs += $(SRC_SUBSYSTEMS)/radio_control.c \
-                   $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c
+                   $(SRC_BOOZ)/subsystems/radio_control/spektrum.c
 #                  $(SRC_ARCH)/uart_hw.c
 
 
@@ -1104,10 +1104,10 @@ ptw.srcs += $(SRC_BOOZ)/booz2_commands.c
 
 # Radio control
 ptw.CFLAGS += -DUSE_RADIO_CONTROL
-ptw.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_spektrum.h\"
-ptw.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"radio_control/booz_radio_control_spektrum_dx7se.h\"
+ptw.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/spektrum.h\"
+ptw.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"subsystems/radio_control/spektrum_dx7se.h\"
 ptw.srcs += $(SRC_SUBSYSTEMS)/radio_control.c \
-           $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c
+           $(SRC_BOOZ)/subsystems/radio_control/spektrum.c
 ptw.CFLAGS += -DRADIO_CONTROL_LED=6
 ptw.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B115200
 ptw.CFLAGS += -DRADIO_CONTROL_LINK=Uart3
