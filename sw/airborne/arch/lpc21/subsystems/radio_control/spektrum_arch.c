@@ -22,7 +22,7 @@
  */
 
 #include <subsystems/radio_control.h>
-#include "booz_radio_control_spektrum_arch.h"
+#include <subsystems/radio_control/spektrum_arch.h">
 
 bool_t   rc_spk_parser_status;
 uint8_t  rc_spk_parser_idx;

@@ -29,7 +29,7 @@
 #include <stm32/usart.h>
 #include "uart.h"
 #include <subsystems/radio_control.h>
-#include "booz_radio_control_spektrum_arch.h"
+#include <subsystems/radio_control/spektrum_arch.h>
 #include <firmwares/rotorcraft/autopilot.h>
 
 
