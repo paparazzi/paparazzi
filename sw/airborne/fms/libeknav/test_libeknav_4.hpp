@@ -37,9 +37,9 @@ extern "C" {
 /* constants */
 /** Compilation-control **/
 #define RUN_FILTER 0
-#define UPDATE_WITH_GRAVITY 1
+#define UPDATE_WITH_GRAVITY 0
 #define SYNTHETIC_MAG_MODE 0
-#define FILTER_OUTPUT_IN_NED 1
+#define FILTER_OUTPUT_IN_NED 0
 
 #define PRINT_MAG 0
 #define PRINT_GPS 0
@@ -98,7 +98,7 @@ const double pos_cov_0 =  1e4;
 const double speed_cov_0 =  3.;
 //  const double orientation_cov_0 =  RadOfDeg(5.)*RadOfDeg(5.);
 const double bias_cov_0 =  0.447;
-const double mag_noise = std::pow(5 / 180.0 * M_PI, 2);
+const double mag_noise = std::pow(5 / 180.0 * M_PI, 2); // UNUSED??
 
 
 /* system noise	*/
@@ -163,6 +163,8 @@ void printgps(void);
 #define IMU_READY(data_valid) (data_valid & (1<<VI_IMU_DATA_VALID))
 #define GPS_READY(data_valid) (data_valid & (1<<VI_GPS_DATA_VALID))
 #define MAG_READY(data_valid) (data_valid & (1<<VI_MAG_DATA_VALID))
+#define BARO_READY(data_valid) (data_valid & (1<<VI_BARO_ABS_DATA_VALID))
+
 
 #define CLOSE_TO_GRAVITY(accel) (ABS(FLOAT_VECT3_NORM(accel)-GRAVITY)<MAX_DISTANCE_FROM_GRAVITY_FOR_UPDATE)
 

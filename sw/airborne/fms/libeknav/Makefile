@@ -20,7 +20,7 @@ LIBEKNAV_SRCS = basic_ins_qkf.cpp           \
 
 
 run_filter_on_log: ./libeknav_from_log.cpp $(LIBEKNAV_SRCS) ../../math/pprz_geodetic_double.c ../../math/pprz_geodetic_float.c
-	g++ -I/usr/include/eigen2 -I../.. -I../../../include -I../../../../var/FY  -DOVERO_LINK_MSG_UP=AutopilotMessageVIUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageVIDown -o $@ $^
+	g++ -I/usr/include/eigen2 -I../.. -I../../../include -I../../../../var/FY  -DOVERO_LINK_MSG_UP=AutopilotMessageVIUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageVIDown -DEKNAV_FROM_LOG_DEBUG -o $@ $^
 
 clean:
 	-rm -f *.o *~ *.d

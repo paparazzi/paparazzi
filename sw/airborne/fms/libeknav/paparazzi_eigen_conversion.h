@@ -73,10 +73,12 @@
 	mat.m[8] = -mat.m[8];					\
 }
 
+#define DOUBLE_VECT3_NORM(_v) (sqrt((_v).x*(_v).x + (_v).y*(_v).y + (_v).z*(_v).z))
+
 #define DOUBLE_QUAT_OF_RMAT(_q, _r) {					\
     const double tr = RMAT_TRACE(_r);					\
     if (tr > 0) {							\
-      const double two_qi = sqrtf(1.+tr);				\
+      const double two_qi = sqrt(1.+tr);				\
       const double four_qi = 2. * two_qi;				\
       _q.qi = 0.5 * two_qi;						\
       _q.qx =  (RMAT_ELMT(_r, 1, 2)-RMAT_ELMT(_r, 2, 1))/four_qi;	\
@@ -87,7 +89,7 @@
     else {								\
       if (RMAT_ELMT(_r, 0, 0) > RMAT_ELMT(_r, 1, 1) &&			\
 	  RMAT_ELMT(_r, 0, 0) > RMAT_ELMT(_r, 2, 2)) {			\
-	const double two_qx = sqrtf(RMAT_ELMT(_r, 0, 0) -RMAT_ELMT(_r, 1, 1) \
+	const double two_qx = sqrt(RMAT_ELMT(_r, 0, 0) -RMAT_ELMT(_r, 1, 1) \
 				   -RMAT_ELMT(_r, 2, 2) + 1);		\
 	const double four_qx = 2. * two_qx;				\
 	_q.qi = (RMAT_ELMT(_r, 1, 2)-RMAT_ELMT(_r, 2, 1))/four_qx;	\
@@ -98,7 +100,7 @@
       }									\
       else if (RMAT_ELMT(_r, 1, 1) > RMAT_ELMT(_r, 2, 2)) {		\
 	const double two_qy =						\
-	  sqrtf(RMAT_ELMT(_r, 1, 1) - RMAT_ELMT(_r, 0, 0) - RMAT_ELMT(_r, 2, 2) + 1); \
+	  sqrt(RMAT_ELMT(_r, 1, 1) - RMAT_ELMT(_r, 0, 0) - RMAT_ELMT(_r, 2, 2) + 1); \
 	const double four_qy = 2. * two_qy;				\
 	_q.qi = (RMAT_ELMT(_r, 2, 0) - RMAT_ELMT(_r, 0, 2))/four_qy;	\
 	_q.qx = (RMAT_ELMT(_r, 0, 1) + RMAT_ELMT(_r, 1, 0))/four_qy;	\
@@ -108,7 +110,7 @@
       }									\
       else {								\
 	const double two_qz =						\
-	  sqrtf(RMAT_ELMT(_r, 2, 2) - RMAT_ELMT(_r, 0, 0) - RMAT_ELMT(_r, 1, 1) + 1); \
+	  sqrt(RMAT_ELMT(_r, 2, 2) - RMAT_ELMT(_r, 0, 0) - RMAT_ELMT(_r, 1, 1) + 1); \
 	const double four_qz = 2. * two_qz;				\
 	_q.qi = (RMAT_ELMT(_r, 0, 1)- RMAT_ELMT(_r, 1, 0))/four_qz;	\
 	_q.qx = (RMAT_ELMT(_r, 2, 0)+ RMAT_ELMT(_r, 0, 2))/four_qz;	\
@@ -127,6 +129,14 @@
   QUAT_SMUL(to, to, M_SQRT1_2);					\
 }
 
+#define QUAT_IMAGINARY_PART(quat, vector)	VECT3_ASSIGN(vector, (quat).qx, (quat).qy, (quat).qz)
+
+#define VECT3_TO_EULERS(vector, eulers){	\
+	(eulers).phi		= (vector).x;						\
+	(eulers).theta	= (vector).y;						\
+	(eulers).psi		= (vector).z;						\
+}
+	
 
 /*
  * transformations from paparazzi to Eigen
@@ -137,7 +147,7 @@
 #define RATES_AS_VECTOR3D(rates) Vector3d(rates.p,rates.q,rates.r)
 #define DOUBLEQUAT_AS_QUATERNIOND(quat) Quaterniond(quat.qi, -quat.qx, -quat.qy, -quat.qz)
 
-#define RMAT_TO_EIGENMATRIX(Eigen,c)	Eigen << c[0],c[3],c[6],c[1],c[4],c[7],c[2],c[5],c[8]
+#define RMAT_TO_EIGENMATRIX(Eigen,c)	Eigen << (c)[0],(c)[1],(c)[2],(c)[3],(c)[4],(c)[5],(c)[6],(c)[7],(c)[8]
 
 
 /*

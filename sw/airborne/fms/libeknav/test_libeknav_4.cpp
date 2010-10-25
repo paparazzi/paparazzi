@@ -7,6 +7,11 @@ struct timespec start, prev;
 FILE* ins_logfile;		// note: initilaized in init_ins_state
 unsigned int counter;
 
+// UGLY CODE WARNING
+int16_t baro_measurement;
+// UGLY CODE WARNING
+
+
 #if RUN_FILTER
 //useless initialization (I hate C++)
 static basic_ins_qkf ins = basic_ins_qkf(Vector3d::Zero(), 0, 0, 0,
@@ -110,7 +115,7 @@ static uint8_t main_dialog_with_io_proc() {
   spi_link_send(&message_out, sizeof(struct AutopilotMessageCRCFrame), &message_in, &crc_valid);
   
   struct AutopilotMessageVIUp *in = &message_in.payload.msg_up; 
-
+  //printf(" <%2i> ", in->valid_sensors);
   if(IMU_READY(in->valid_sensors)){
 		COPY_RATES_ACCEL_TO_IMU_FLOAT(in);
   }
@@ -121,6 +126,11 @@ static uint8_t main_dialog_with_io_proc() {
     printmag();
     #endif
   }
+  
+  if(BARO_READY(in->valid_sensors)){
+		//printf(" BARO!!! ");
+		baro_measurement = in->pressure_absolute;
+	}
   
   if(GPS_READY(in->valid_sensors)){
 		COPY_GPS_TO_IMU(in);
@@ -278,7 +288,7 @@ static void main_rawlog_init(const char* filename) {
 }
 
 static void main_rawlog_dump(uint8_t data_valid) {
-  struct timespec now;
+	struct timespec now;
   clock_gettime(TIMER, &now);
   struct raw_log_entry e;
   
@@ -288,6 +298,7 @@ static void main_rawlog_dump(uint8_t data_valid) {
   VECT3_COPY(e.mag, imu_float.mag);
   VECT3_COPY(e.ecef_pos, imu_ecef_pos);
   VECT3_COPY(e.ecef_vel, imu_ecef_vel);
+  e.pressure_absolute = baro_measurement;
   e.data_valid = data_valid;
   write(raw_log_fd, &e, sizeof(e));
 

@@ -28,10 +28,10 @@ typedef struct DoubleQuat DoubleVect4;
 }
 
 #define DOUBLE_MAT_VMULT4(out, mat, in){                                                  \
-  out.qi = M4(mat, 0,0)*in.qi + M4(mat, 0,1)*in.qx + M4(mat, 0,2)*in.qy + M4(mat, 0,3)*in.qz;  \
-  out.qx = M4(mat, 1,0)*in.qi + M4(mat, 1,1)*in.qx + M4(mat, 1,2)*in.qy + M4(mat, 1,3)*in.qz;  \
-  out.qy = M4(mat, 2,0)*in.qi + M4(mat, 2,1)*in.qx + M4(mat, 2,2)*in.qy + M4(mat, 2,3)*in.qz;  \
-  out.qz = M4(mat, 3,0)*in.qi + M4(mat, 3,1)*in.qx + M4(mat, 3,2)*in.qy + M4(mat, 3,3)*in.qz;  \
+  (out).qi = M4(mat, 0,0)*(in).qi + M4(mat, 0,1)*(in).qx + M4(mat, 0,2)*(in).qy + M4(mat, 0,3)*(in).qz;  \
+  (out).qx = M4(mat, 1,0)*(in).qi + M4(mat, 1,1)*(in).qx + M4(mat, 1,2)*(in).qy + M4(mat, 1,3)*(in).qz;  \
+  (out).qy = M4(mat, 2,0)*(in).qi + M4(mat, 2,1)*(in).qx + M4(mat, 2,2)*(in).qy + M4(mat, 2,3)*(in).qz;  \
+  (out).qz = M4(mat, 3,0)*(in).qi + M4(mat, 3,1)*(in).qx + M4(mat, 3,2)*(in).qy + M4(mat, 3,3)*(in).qz;  \
 }
 
 struct DoubleMat44 square_skaled(struct DoubleMat44);
@@ -50,8 +50,9 @@ struct DoubleMat44 square_skaled(struct DoubleMat44);
 #define NORM_VECT4(v) sqrt(SQUARE(v.qi)+SQUARE(v.qx)+SQUARE(v.qy)+SQUARE(v.qz))
 
 /** Wahba-solver **/
-DoubleVect4 dominant_Eigenvector(struct DoubleMat44, unsigned int, double);
-struct DoubleQuat  estimated_attitude(  struct DoubleMat33, unsigned int, double);
+       DoubleVect4 dominant_Eigenvector(struct DoubleMat44, unsigned int, double, struct DoubleMat44, DoubleVect4*);
+struct DoubleMat44 generate_K_matrix(   struct DoubleMat33);
+struct DoubleQuat  estimated_attitude(  struct DoubleMat33, unsigned int, double, struct DoubleMat33, struct DoubleQuat*);
 
 
 /** Attitude Measurement Handling **/

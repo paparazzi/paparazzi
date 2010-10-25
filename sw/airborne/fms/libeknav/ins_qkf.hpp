@@ -24,6 +24,8 @@
 #include "quaternions.hpp"
 #include <Eigen/StdVector>
 
+#define BARO_CENTER_OF_MASS 1
+
 using Eigen::Vector3f;
 using Eigen::Vector3d;
 using Eigen::Vector2d;
@@ -218,6 +220,20 @@ struct basic_ins_qkf
 	 * @param p_error The position error, in meters.
 	 */
 	void obs_gps_p_report(const Vector3d& pos, const Vector3d& p_error);
+  
+  /**
+   * Incoporate a barometer report, the altitude should be ein ENU coordinates (Up=Positive)
+   * It's also necessary to provide the ECEF2ENU matrix.
+   * @param altitude The altitude, in meters
+   * @param baro_error, The altitude error, in meters
+   * @param ecef2enu, The rotational martrix form ECEF to ENU
+   * @param pos_0, the position where ENU would be (0, 0, 0).
+   */
+  #if BARO_CENTER_OF_MASS
+  void obs_baro_report(double altitude, double baro_error);
+  #else
+  void obs_baro_report(double altitude, double baro_error, Matrix<double, 3, 3> ecef2enu, const Vector3d& pos_0);
+  #endif
 
 	/**
 	 * Incorporate a GPS velocity report, in ECEF 3d coordinates.

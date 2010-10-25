@@ -34,7 +34,7 @@ struct DoubleMat44 square_skaled(struct DoubleMat44 A){
  *      It ends if the steps are getting too close to each other.
  * 
  */ 
-DoubleVect4 dominant_Eigenvector(struct DoubleMat44 A, unsigned int maximum_iterations, double precision){
+DoubleVect4 dominant_Eigenvector(struct DoubleMat44 A, unsigned int maximum_iterations, double precision, struct DoubleMat44 sigma_A, DoubleVect4 *sigma_x){
   unsigned int  k;
   DoubleVect4 x_k,
               x_kp1;
@@ -43,7 +43,8 @@ DoubleVect4 dominant_Eigenvector(struct DoubleMat44 A, unsigned int maximum_iter
   
   FLOAT_QUAT_ZERO(x_k);
   
-  for(k=0; (k<maximum_iterations) && (delta>precision); k++){
+  //for(k=0; (k<maximum_iterations) && (delta>precision); k++){
+  for(k=0; k<maximum_iterations; k++){
     
     // Next step
     DOUBLE_MAT_VMULT4(x_kp1, A, x_k);
@@ -58,32 +59,33 @@ DoubleVect4 dominant_Eigenvector(struct DoubleMat44 A, unsigned int maximum_iter
     
     // Update the next step
     x_k = x_kp1;
+    if (delta<=precision){
+      DOUBLE_MAT_VMULT4(*sigma_x, sigma_A, x_k);
+      QUAT_SMUL(*sigma_x, *sigma_x, scale);
+      break;
+    }
     
   }
-  printf("KONVERGE: %i\n", k);
+  if(k==maximum_iterations){
+    printf("Orientation did not converge. Using maximum uncertainty\n");
+    //FLOAT_QUAT_ZERO(x_k);
+    QUAT_ASSIGN(*sigma_x, 0, M_PI_2, M_PI_2, M_PI_2);
+  }
   return x_k;
 }
 
-/*    This function estimates a quaternion from a set of observations
+/*    This function generates the "K"-matrix out of an attitude profile matrix
  * 
- * B is the "attitude profile matrix". Use the other functions to fill it with the attitude observations.
- * 
- * The function solves Wahba's problem using Paul Davenport's solution.
- * Unfortunatly Davenport unpublished his solution, but you can still find descriptions of it in the web
- * ( e.g: home.comcast.net/~mdshuster2/PUB_2006c_J_GenWahba_AAS.pdf )
- * 
+ * I don't know the real name of the "K"-Matrix, but everybody (see References from the other functions)
+ * names it "K", so I do it as well.
  */
-struct DoubleQuat estimated_attitude(struct DoubleMat33 B, unsigned int maximum_iterations, double precision){
-  double      traceB,
-              z1, z2, z3;
+struct DoubleMat44 generate_K_matrix(struct DoubleMat33 B){
   struct DoubleMat44 K;
-  struct DoubleQuat  q_guessed;
   
-  // pre-computation of some values
-  traceB  = RMAT_TRACE(B);
-  z1      = M3(B,1,2) - M3(B, 2,1);
-  z2      = M3(B,2,0) - M3(B, 0,2);
-  z3      = M3(B,0,1) - M3(B, 1,0);
+  double traceB  = RMAT_TRACE(B);
+  double z1      = M3(B,1,2) - M3(B, 2,1);
+  double z2      = M3(B,2,0) - M3(B, 0,2);
+  double z3      = M3(B,0,1) - M3(B, 1,0);
   
   /** The "K"-Matrix. See the references for it **/
   /* Fill the upper triangle matrix */
@@ -96,11 +98,34 @@ struct DoubleQuat estimated_attitude(struct DoubleMat33 B, unsigned int maximum_
   M4(K,2,0) = M4(K,0,2);  M4(K,2,1) = M4(K,1,2);
   M4(K,3,0) = M4(K,0,3);  M4(K,3,1) = M4(K,1,3);  M4(K,3,2) = M4(K,2,3);
   
+  return K;
+}
+
+/*    This function estimates a quaternion from a set of observations
+ * 
+ * B is the "attitude profile matrix". Use the other functions to fill it with the attitude observations.
+ * 
+ * The function solves Wahba's problem using Paul Davenport's solution.
+ * Unfortunatly Davenport unpublished his solution, but you can still find descriptions of it in the web
+ * ( e.g: home.comcast.net/~mdshuster2/PUB_2006c_J_GenWahba_AAS.pdf )
+ * 
+ */
+struct DoubleQuat estimated_attitude(struct DoubleMat33 B, unsigned int maximum_iterations, double precision, struct DoubleMat33 sigma_B, struct DoubleQuat* sigma_q){
+  double      traceB,
+              z1, z2, z3;
+  struct DoubleMat44 K, sigma_K;
+  struct DoubleQuat  q_guessed;
+  
+        K = generate_K_matrix(B);
+  sigma_K = generate_K_matrix(sigma_B);
+  
   /* compute the estimated quaternion */
-  q_guessed = dominant_Eigenvector(square_skaled(K), maximum_iterations, precision);    // K² is tricky. I'm mean, I know
+  q_guessed = dominant_Eigenvector(square_skaled(K), maximum_iterations, precision, sigma_K, sigma_q);    // K² is tricky. I'm mean, I know
   
   /* Final scaling, because the eigenvector hat not the length = 1 */
-  QUAT_SMUL(q_guessed, q_guessed, 1/NORM_VECT4(q_guessed));
+  double scale = 1/NORM_VECT4(q_guessed);
+  QUAT_SMUL(q_guessed, q_guessed, scale);
+  QUAT_SMUL(*sigma_q, *sigma_q, scale);
   return q_guessed;
 }
 

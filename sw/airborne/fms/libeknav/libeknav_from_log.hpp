@@ -6,7 +6,7 @@
 #include "ins_qkf.hpp"
 #include "paparazzi_eigen_conversion.h"
 #include "estimate_attitude.h"
-#include "estimate_attitude.c"
+#include "estimate_attitude.c" // should be done by the makefile
 #include <stdint.h>
 
 #include <stdio.h>
@@ -16,7 +16,6 @@
 #include <fcntl.h>
 
 //#include <event.h>
-
 
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_double.h"
@@ -46,9 +45,24 @@
 #define SYNTHETIC_MAG_MODE 0
 #define FILTER_OUTPUT_IN_NED 1
 
+#define WITH_GPS 0
+
 #define PRINT_MAG 0
-#define PRINT_GPS 1
+#define PRINT_GPS 0
 #define PRINT_EULER_NED 0
+
+/** baro-sensor **/
+// I only want the function
+#define NPS_SENSORS_PARAMS <math.h>
+// Params taken from trunk/conf/simulator/nps/nps_sensors_params_booz2_a1.h
+#define NPS_BARO_QNH             900.
+#define NPS_BARO_SENSITIVITY      17.066667
+#define NPS_BARO_DT              (1./100.)
+#define NPS_BARO_NOISE_STD_DEV     5.e-2
+// include stuff
+#include "../simulator/nps/nps_sensor_baro.h"
+#include "../simulator/nps/nps_sensor_baro.c"
+
 
 /** geodetic **/
 #define EARTHS_GEOMAGNETIC_FIELD_NORMED(ref) VECT3_ASSIGN(ref, 0.51562740288882, -0.05707735220832, 0.85490967783446)
@@ -73,20 +87,36 @@ Quaterniond orientation_0 = Quaterniond::Identity();
 static void init_ins_state(void);
 
 /** initial covariance **/
-const double pos_cov_0 =  1e4;
-const double speed_cov_0 =  3.;
 //  const double orientation_cov_0 =  RadOfDeg(5.)*RadOfDeg(5.);
-const double bias_cov_0 =  0.447;
-const double mag_noise = std::pow(5 / 180.0 * M_PI, 2);
+Vector3d bias_cov_0         = Vector3d::Ones()*0.447;
+Vector3d orientation_cov_0  = Vector3d::Ones()*10*M_PI/180;
+Vector3d pos_cov_0          = Vector3d::Ones()*1e4;
+Vector3d speed_cov_0        = Vector3d::Ones()*0.1;
+//const double mag_noise = std::pow(5 / 180.0 * M_PI, 2);
 
 
-/* system noise	*/
-const double   mag_error            = 2.536e-3;
-const Vector3d gyro_white_noise     (  1.1328*1.1328e-4,    0.9192*0.9192e-4,    1.2291*1.2291e-4);
-const Vector3d gyro_stability_noise ( -1.7605*1.7605e-4,    0.5592*0.5592e-4,    1.1486*1.1486e-4);
-const Vector3d accel_white_noise    (  2.3707*2.3707e-4,    2.4575*2.4575e-4,    2.5139*2.5139e-4);
-const Vector3d gps_pos_noise        = Vector3d::Ones() *10  *10  ;
-const Vector3d gps_speed_noise      = Vector3d::Ones() * 0.1* 0.1;
+/* Sensors	*/
+// NOTE: Measured during hovering in the air. Movement in the range of a 1 m³ cube with (approx.) max. 0.2 m/s speed.
+/// IMU
+const Vector3d gyroscope_noise      ( 1.0449e-1,  1.1191e-1,  4.5906e-2 );
+const Vector3d accelerometer_noise  ( 2.5457e+0,  1.8242e+0,  1.5660e+0 );
+const unsigned short imu_frequency  = 512;
+
+/// MAGnetometer
+const Vector3d magnetometer_noise   ( 1.5783e-2,  1.4736e-2,  1.0911e-2 );
+const unsigned short mag_frequency  = 13;
+
+/// GPS
+const Vector3d gps_pos_noise        ( 6.9348e+0,  1.4180e+0,  7.3982e+0 );
+const Vector3d gps_speed_noise      ( 1.4283e+0,  4.2384e-1,  1.5453e+0 );
+//const Vector3d gps_speed_noise      ( 1.7935e+0,  4.9214e-1,  6.6279e-1 );
+const unsigned short gps_frequency  = 4;
+//const Vector3d gps_pos_noise        = Vector3d::Ones() *10  *10  ;
+
+//const double   mag_error            = 2.536e-3;
+//const Vector3d gyro_white_noise     (  1.1328*1.1328e-4,    0.9192*0.9192e-4,    1.2291*1.2291e-4);
+//const Vector3d gyro_stability_noise ( -1.7605*1.7605e-4,    0.5592*0.5592e-4,    1.1486*1.1486e-4);
+//const Vector3d accel_white_noise    (  2.3707*2.3707e-4,    2.4575*2.4575e-4,    2.5139*2.5139e-4);
 
 
 /* libeknav */
@@ -105,12 +135,12 @@ static void print_estimator_state(double);
 
 /* Other */
 /** Average-Calculation **/
-#define MINIMAL_IMU_MEASUREMENTS 100
-#define MINIMAL_MAGNETIC_FIELD_MEASUREMENTS 50
+#define MINIMAL_IMU_MEASUREMENTS 1000
+#define MINIMAL_MAGNETIC_FIELD_MEASUREMENTS 30
 #define MINIMAL_GPS_MEASUREMENTS 10
 
-#define NOT_ENOUGH_MEASUREMENTS(imu, mag, gps)      (NOT_ENOUGH_IMU_MEASUREMENTS(imu)            && \
-                                                     NOT_ENOUGH_MAGNETIC_FIELD_MEASUREMENTS(mag) && \
+#define NOT_ENOUGH_MEASUREMENTS(imu, mag, gps)      (NOT_ENOUGH_IMU_MEASUREMENTS(imu)            || \
+                                                     NOT_ENOUGH_MAGNETIC_FIELD_MEASUREMENTS(mag) || \
                                                      NOT_ENOUGH_GPS_MEASUREMENTS(gps)               )
 #define NOT_ENOUGH_IMU_MEASUREMENTS(imu)            ((imu)<(MINIMAL_IMU_MEASUREMENTS)           )
 #define NOT_ENOUGH_MAGNETIC_FIELD_MEASUREMENTS(mag) ((mag)<(MINIMAL_MAGNETIC_FIELD_MEASUREMENTS))
@@ -138,6 +168,7 @@ static void print_estimator_state(double);
 
 	/** Conversions	**/
 Quaterniond ecef2body_from_pprz_ned2body(Vector3d, struct DoubleQuat);
+struct DoubleEulers sigma_euler_from_sigma_q(struct DoubleQuat, struct DoubleQuat);
 
 	/* copied and modified form pprz_geodetic */
 #define NED_TO_ECEF_MAT(lla, mat) {			\
@@ -149,3 +180,13 @@ Quaterniond ecef2body_from_pprz_ned2body(Vector3d, struct DoubleQuat);
 	MAT33_ROW(mat, 1,  sin_lat*sin_lon,  cos_lon, -cos_lat*sin_lon);	\
 	MAT33_ROW(mat, 2,  cos_lat        ,   0     , -sin_lat        );	\
 }
+
+
+
+
+
+#define DISPLAY_FLOAT_RMAT(text, mat) {					\
+    printf("%s\n %f %f %f\n %f %f %f\n %f %f %f\n",text, \
+	   mat.m[0], mat.m[1], mat.m[2], mat.m[3], mat.m[4], mat.m[5],	\
+	   mat.m[6], mat.m[7], mat.m[8]);				\
+  }

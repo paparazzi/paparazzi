@@ -73,7 +73,9 @@ basic_ins_qkf::obs_gps_pv_report(
 	clock.start();
 #endif
 #if 1
+  //std::cout<<"position"<<std::endl;
 	obs_gps_p_report(pos, p_error);
+  //std::cout<<"velocity"<<std::endl;
 	obs_gps_v_report(vel, v_error);
 #else
 
