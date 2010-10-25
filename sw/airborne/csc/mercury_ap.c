@@ -82,7 +82,7 @@ void csc_ap_init(void) {
 #define BOOZ2_AUTOPILOT_CHECK_IN_FLIGHT() {				\
     if (booz2_autopilot_in_flight) {					\
       if (booz2_autopilot_in_flight_counter > 0) {			\
-	if (radio_control.values[RADIO_CONTROL_THROTTLE] < BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD) { \
+	if (radio_control.values[RADIO_THROTTLE] < BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD) { \
 	  booz2_autopilot_in_flight_counter--;				\
 	  if (booz2_autopilot_in_flight_counter == 0) {			\
 	    booz2_autopilot_in_flight = FALSE;				\
@@ -96,7 +96,7 @@ void csc_ap_init(void) {
     else { /* not in flight */						\
       if (booz2_autopilot_in_flight_counter < BOOZ2_AUTOPILOT_IN_FLIGHT_TIME && \
 	  booz2_autopilot_motors_on) {					\
-	if (radio_control.values[RADIO_CONTROL_THROTTLE] > BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD) { \
+	if (radio_control.values[RADIO_THROTTLE] > BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD) { \
 	  booz2_autopilot_in_flight_counter++;				\
 	  if (booz2_autopilot_in_flight_counter == BOOZ2_AUTOPILOT_IN_FLIGHT_TIME) \
 	    booz2_autopilot_in_flight = TRUE;				\
@@ -110,9 +110,9 @@ void csc_ap_init(void) {
 
 #define BOOZ2_AUTOPILOT_CHECK_MOTORS_ON() {				\
     if(!booz2_autopilot_motors_on){					\
-      if (radio_control.values[RADIO_CONTROL_THROTTLE] < BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD && \
-	  (radio_control.values[RADIO_CONTROL_YAW] > BOOZ2_AUTOPILOT_YAW_TRESHOLD ||	\
-	   radio_control.values[RADIO_CONTROL_YAW] < -BOOZ2_AUTOPILOT_YAW_TRESHOLD)) {	\
+      if (radio_control.values[RADIO_THROTTLE] < BOOZ2_AUTOPILOT_THROTTLE_TRESHOLD && \
+	  (radio_control.values[RADIO_YAW] > BOOZ2_AUTOPILOT_YAW_TRESHOLD ||	\
+	   radio_control.values[RADIO_YAW] < -BOOZ2_AUTOPILOT_YAW_TRESHOLD)) {	\
 	  if ( booz2_autopilot_motors_on_counter <  BOOZ2_AUTOPILOT_MOTOR_ON_TIME) { \
 	    booz2_autopilot_motors_on_counter++;			\
 	    if (booz2_autopilot_motors_on_counter == BOOZ2_AUTOPILOT_MOTOR_ON_TIME){ \
@@ -152,7 +152,7 @@ void csc_ap_periodic(uint8_t _in_flight, uint8_t kill) {
   stabilization_attitude_run(booz2_autopilot_in_flight);
   booz2_guidance_v_run(booz2_autopilot_in_flight);
 
-  stabilization_cmd[COMMAND_THRUST] = (int32_t)radio_control.values[RADIO_CONTROL_THROTTLE] * 105 / 7200 + 95;
+  stabilization_cmd[COMMAND_THRUST] = (int32_t)radio_control.values[RADIO_THROTTLE] * 105 / 7200 + 95;
 
 
   CscSetCommands(stabilization_cmd,

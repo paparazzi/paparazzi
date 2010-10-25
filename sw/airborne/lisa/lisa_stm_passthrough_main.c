@@ -184,7 +184,7 @@ static inline void main_periodic(void) {
 
 static inline void on_rc_message(void) {
 	new_radio_msg = TRUE;
-	if (radio_control.values[RADIO_CONTROL_MODE] >= 150) {
+	if (radio_control.values[RADIO_MODE] >= 150) {
 #ifdef PASSTHROUGH_CYGNUS
 		autopilot_on_rc_frame();
 #else
@@ -194,7 +194,7 @@ static inline void on_rc_message(void) {
 #endif
 	}
 #ifndef PASSTHROUGH_CYGNUS
-	if (radio_control.values[RADIO_CONTROL_KILL] > 150) {
+	if (radio_control.values[RADIO_KILL] > 150) {
 		actuators[SERVO_THROTTLE] = SERVO_THROTTLE_MIN;
 		ActuatorsCommit();
 	}
@@ -213,20 +213,20 @@ static inline void on_overo_link_msg_received(void) {
 	overo_link.up.msg.valid.rc  = new_radio_msg;
 	new_radio_msg = FALSE;
 
-	overo_link.up.msg.rc_pitch  = radio_control.values[RADIO_CONTROL_PITCH];
-	overo_link.up.msg.rc_roll   = radio_control.values[RADIO_CONTROL_ROLL];
-	overo_link.up.msg.rc_yaw    = radio_control.values[RADIO_CONTROL_YAW];
-	overo_link.up.msg.rc_thrust = radio_control.values[RADIO_CONTROL_THROTTLE];
-	overo_link.up.msg.rc_mode   = radio_control.values[RADIO_CONTROL_MODE];
+	overo_link.up.msg.rc_pitch  = radio_control.values[RADIO_PITCH];
+	overo_link.up.msg.rc_roll   = radio_control.values[RADIO_ROLL];
+	overo_link.up.msg.rc_yaw    = radio_control.values[RADIO_YAW];
+	overo_link.up.msg.rc_thrust = radio_control.values[RADIO_THROTTLE];
+	overo_link.up.msg.rc_mode   = radio_control.values[RADIO_MODE];
 #ifdef RADIO_CONTROL_KILL
-	overo_link.up.msg.rc_kill   = radio_control.values[RADIO_CONTROL_KILL];
+	overo_link.up.msg.rc_kill   = radio_control.values[RADIO_KILL];
 #endif
 #ifdef RADIO_CONTROL_GEAR
-	overo_link.up.msg.rc_gear   = radio_control.values[RADIO_CONTROL_GEAR];
+	overo_link.up.msg.rc_gear   = radio_control.values[RADIO_GEAR];
 #endif
 
-	overo_link.up.msg.rc_aux2   = radio_control.values[RADIO_CONTROL_AUX2];
-	overo_link.up.msg.rc_aux3   = radio_control.values[RADIO_CONTROL_AUX3];
+	overo_link.up.msg.rc_aux2   = radio_control.values[RADIO_AUX2];
+	overo_link.up.msg.rc_aux3   = radio_control.values[RADIO_AUX3];
 	overo_link.up.msg.rc_status = radio_control.status;
 
 	overo_link.up.msg.stm_msg_cnt     = overo_link.msg_cnt;
@@ -266,11 +266,11 @@ static inline void on_overo_link_msg_received(void) {
 	cscp_transmit(0, CSC_SERVO_CMD_ID, (uint8_t *)&csc_servo_cmd, sizeof(csc_servo_cmd));
 #else
 	/* pwm acuators down */
-	if (radio_control.values[RADIO_CONTROL_MODE] <= 150) {
+	if (radio_control.values[RADIO_MODE] <= 150) {
 		for (int i = 0; i < 6; i++) { 
 			actuators_pwm_values[i] = overo_link.down.msg.pwm_outputs_usecs[i];
 		}
-		if (radio_control.values[RADIO_CONTROL_KILL] > 150) {
+		if (radio_control.values[RADIO_KILL] > 150) {
 			actuators[SERVO_THROTTLE] = SERVO_THROTTLE_MIN;
 		}
 		actuators_pwm_commit();

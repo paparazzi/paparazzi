@@ -60,7 +60,7 @@
 /* really for a 9 channel transmitter
    we would swap the order of these */
 #ifndef RADIO_MODE
-#define RADIO_MODE       RADIO_CONTROL_GEAR
+#define RADIO_MODE       RADIO_GEAR
 #endif
 
 extern void RadioControlEventImp(void (*_received_frame_handler)(void));

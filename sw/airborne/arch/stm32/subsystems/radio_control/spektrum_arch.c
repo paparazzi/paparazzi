@@ -443,7 +443,7 @@ void RadioControlEventImp(void (*frame_handler)(void)) {
       radio_control.status = RADIO_CONTROL_OK;
       for (int i = 0; i < (MaxChannelNum + 1); i++) {
         radio_control.values[i] = SpektrumBuf[i];
-        if (i == RADIO_CONTROL_THROTTLE ) {
+        if (i == RADIO_THROTTLE ) {
           radio_control.values[i] += MAX_PPRZ;
           radio_control.values[i] /= 2;
         }

@@ -90,14 +90,14 @@ static void on_rc_cmd(struct CscRCMsg *msg)
 {
   uint16_t aux2_flag;
 
-  radio_control.values[RADIO_CONTROL_ROLL]  = CSC_RC_SCALE*(msg->right_stick_horizontal - CSC_RC_OFFSET);
-  radio_control.values[RADIO_CONTROL_PITCH] = -CSC_RC_SCALE*(msg->right_stick_vertical - CSC_RC_OFFSET);
-  radio_control.values[RADIO_CONTROL_YAW]   =  CSC_RC_SCALE*((msg->left_stick_horizontal_and_aux2 & ~(3 << 13)) - CSC_RC_OFFSET);
+  radio_control.values[RADIO_ROLL]  = CSC_RC_SCALE*(msg->right_stick_horizontal - CSC_RC_OFFSET);
+  radio_control.values[RADIO_PITCH] = -CSC_RC_SCALE*(msg->right_stick_vertical - CSC_RC_OFFSET);
+  radio_control.values[RADIO_YAW]   =  CSC_RC_SCALE*((msg->left_stick_horizontal_and_aux2 & ~(3 << 13)) - CSC_RC_OFFSET);
   pprz_mode = (msg->left_stick_vertical_and_flap_mix & (3 << 13)) >> 13;
   aux2_flag = (msg->left_stick_horizontal_and_aux2 >> 13) & 0x1;
-  radio_control.values[RADIO_CONTROL_MODE2] = (aux2_flag == 0) ? -7000 : ( (aux2_flag == 1) ? 0 : 7000); 
-  radio_control.values[RADIO_CONTROL_MODE] = (pprz_mode == 0) ? -7000 : ( (pprz_mode == 1) ? 0 : 7000); 
-  radio_control.values[RADIO_CONTROL_THROTTLE] = -CSC_RC_SCALE*((msg->left_stick_vertical_and_flap_mix & ~(3 << 13)) - CSC_RC_OFFSET);
+  radio_control.values[RADIO_MODE2] = (aux2_flag == 0) ? -7000 : ( (aux2_flag == 1) ? 0 : 7000); 
+  radio_control.values[RADIO_MODE] = (pprz_mode == 0) ? -7000 : ( (pprz_mode == 1) ? 0 : 7000); 
+  radio_control.values[RADIO_THROTTLE] = -CSC_RC_SCALE*((msg->left_stick_vertical_and_flap_mix & ~(3 << 13)) - CSC_RC_OFFSET);
 
   radio_control.time_since_last_frame = 0;
   radio_control.status = RADIO_CONTROL_OK;
