@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -38,28 +38,28 @@ static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void );
 
-static struct adc_buf adc0_buf; 
-static struct adc_buf adc1_buf; 
-static struct adc_buf adc2_buf; 
-static struct adc_buf adc3_buf; 
+static struct adc_buf adc0_buf;
+static struct adc_buf adc1_buf;
+static struct adc_buf adc2_buf;
+static struct adc_buf adc3_buf;
 
 extern uint8_t adc_new_data_trigger;
 
 static inline void main_init( void ) {
-	hw_init();
-	sys_time_init();
-	adc_init();	
-	adc_buf_channel(0, &adc0_buf, 8);
-	adc_buf_channel(1, &adc1_buf, 3);
-	adc_buf_channel(2, &adc2_buf, 3);
-	adc_buf_channel(3, &adc3_buf, 3);
+    hw_init();
+    sys_time_init();
+    adc_init();
+    adc_buf_channel(0, &adc0_buf, 8);
+    adc_buf_channel(1, &adc1_buf, 3);
+    adc_buf_channel(2, &adc2_buf, 3);
+    adc_buf_channel(3, &adc3_buf, 3);
 }
 
 int main( void ) {
-  main_init(); 
-  
+  main_init();
+
   while(1) {
-    if (sys_time_periodic()) { 
+    if (sys_time_periodic()) {
       main_periodic_task();
     }
     main_event_task();
@@ -69,14 +69,14 @@ int main( void ) {
 
 static inline void main_periodic_task( void ) {
   RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
-  RunOnceEvery(100, {/*LED_TOGGLE(7);*/ DOWNLINK_SEND_TIME(DefaultChannel, &cpu_time_sec);});  
+  RunOnceEvery(100, {/*LED_TOGGLE(7);*/ DOWNLINK_SEND_TIME(DefaultChannel, &cpu_time_sec);});
   LED_PERIODIC();
 }
 
 static inline void main_event_task( void ) {
-  
-  if (adc_new_data_trigger) { 
-    adc_new_data_trigger = 0; 
+
+  if (adc_new_data_trigger) {
+    adc_new_data_trigger = 0;
     uint16_t v1 = 123;
     uint16_t v2 = 123;
     //    v1 = (((adc0_buf.values[0])));
@@ -86,4 +86,3 @@ static inline void main_event_task( void ) {
   }
 
 }
-
