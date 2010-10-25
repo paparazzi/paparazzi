@@ -24,14 +24,14 @@
 #ifndef RADIO_CONTROL_SPEKTRUM_DX7SE_H
 #define RADIO_CONTROL_SPEKTRUM_DX7SE_H
 
-#define RADIO_CONTROL_NB_CHANNEL 7
-#define RADIO_CONTROL_ROLL       0
-#define RADIO_CONTROL_THROTTLE   1
-#define RADIO_CONTROL_PITCH      2
-#define RADIO_CONTROL_YAW        3
-#define RADIO_CONTROL_AUX3       4
-#define RADIO_CONTROL_MODE       5
-#define RADIO_CONTROL_AUX4       6
+#define RADIO_NB_CHANNEL 7
+#define RADIO_ROLL       0
+#define RADIO_THROTTLE   1
+#define RADIO_PITCH      2
+#define RADIO_YAW        3
+#define RADIO_AUX3       4
+#define RADIO_MODE       5
+#define RADIO_AUX4       6
 
 #define RC_SPK_SYNC_2 0x12
 

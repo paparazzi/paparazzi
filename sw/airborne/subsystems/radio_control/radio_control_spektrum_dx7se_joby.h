@@ -26,12 +26,12 @@
 
 #define RADIO_CONTROL_NB_CHANNEL 7
 
-#define RADIO_CONTROL_ROLL       0
-#define RADIO_CONTROL_THROTTLE   5
-#define RADIO_CONTROL_PITCH      3
-#define RADIO_CONTROL_YAW        6
-#define RADIO_CONTROL_MODE       1
-#define RADIO_CONTROL_KILL_SWITCH 4
+#define RADIO_ROLL       0
+#define RADIO_THROTTLE   5
+#define RADIO_PITCH      3
+#define RADIO_YAW        6
+#define RADIO_MODE       1
+#define RADIO_KILL_SWITCH 4
 
 #define RC_SPK_SYNC_2 0x01
 

@@ -37,19 +37,19 @@
 #endif
 
 
-#define RADIO_CONTROL_THROTTLE   0
-#define RADIO_CONTROL_ROLL       1
-#define RADIO_CONTROL_PITCH      2
-#define RADIO_CONTROL_YAW        3
-#define RADIO_CONTROL_GEAR       4
-#define RADIO_CONTROL_FLAP       5
-#define RADIO_CONTROL_AUX1       5
-#define RADIO_CONTROL_AUX2       6
-#define RADIO_CONTROL_AUX3       7
-#define RADIO_CONTROL_AUX4       8
-#define RADIO_CONTROL_AUX5       9
-#define RADIO_CONTROL_AUX6       10
-#define RADIO_CONTROL_AUX7       11
+#define RADIO_THROTTLE   0
+#define RADIO_ROLL       1
+#define RADIO_PITCH      2
+#define RADIO_YAW        3
+#define RADIO_GEAR       4
+#define RADIO_FLAP       5
+#define RADIO_AUX1       5
+#define RADIO_AUX2       6
+#define RADIO_AUX3       7
+#define RADIO_AUX4       8
+#define RADIO_AUX5       9
+#define RADIO_AUX6       10
+#define RADIO_AUX7       11
 
 /* reverse some channels to suit Paparazzi conventions          */
 /* the maximum number of channels a Spektrum can transmit is 12 */
@@ -59,8 +59,8 @@
 
 /* really for a 9 channel transmitter
    we would swap the order of these */
-#ifndef RADIO_CONTROL_MODE
-#define RADIO_CONTROL_MODE       RADIO_CONTROL_GEAR
+#ifndef RADIO_MODE
+#define RADIO_MODE       RADIO_CONTROL_GEAR
 #endif
 
 extern void RadioControlEventImp(void (*_received_frame_handler)(void));

@@ -26,15 +26,15 @@
 
 #define RADIO_CONTROL_NB_CHANNEL 9
 
-#define RADIO_CONTROL_THROTTLE   0
-#define RADIO_CONTROL_YAW        1
-#define RADIO_CONTROL_PITCH      2
-#define RADIO_CONTROL_ROLL       3
-#define RADIO_CONTROL_GEAR       4
-#define RADIO_CONTROL_MODE       5
-#define RADIO_CONTROL_AUX2       6
-#define RADIO_CONTROL_AUX3       7
-#define RADIO_CONTROL_KILL       8
+#define RADIO_THROTTLE   0
+#define RADIO_YAW        1
+#define RADIO_PITCH      2
+#define RADIO_ROLL       3
+#define RADIO_GEAR       4
+#define RADIO_MODE       5
+#define RADIO_AUX2       6
+#define RADIO_AUX3       7
+#define RADIO_KILL       8
 
 #define RC_JOBY_SYNC_2 0x12
 
