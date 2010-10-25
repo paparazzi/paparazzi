@@ -53,12 +53,15 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
 #endif
 
 #ifdef TRIGGER_EXT
-#include "sensors/trig_ext_hw.h"
+#include "core/trigger_ext_hw.h"
+#else
+#define TRIGGER_IT 0x00
 #endif
 
 #define TIMER0_IT_MASK (ACTUATORS_IT         |\
                         PPM_IT               |\
                         RADIO_CONTROL_PPM_IT |\
+                        TRIGGER_IT           |\
                         MB_SCALE_IT          |\
                         MB_TACHO_IT          |\
                         PWM_INPUT_IT1        |\
@@ -93,7 +96,7 @@ void TIMER0_ISR ( void ) {
     }
 #endif
 #ifdef TRIGGER_EXT
-#define TRIGGER_IT PPM_CRI
+//#define TRIGGER_IT PPM_CRI
     if (T0IR&TRIGGER_IT) {
       TRIG_ISR();
       T0IR = TRIGGER_IT;
