@@ -38,7 +38,7 @@ extern struct ActuatorsMkk actuators_mkk;
 
 
 
-#include <firmwares/rotorcraft/actuators/supervision.h>
+#include "firmwares/rotorcraft/actuators/supervision.h"
 
 
 #endif /* ACTUATORS_MKK_H */

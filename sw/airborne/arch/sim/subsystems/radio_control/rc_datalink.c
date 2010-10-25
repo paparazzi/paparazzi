@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <subsystems/radio_control.h>
+#include "subsystems/radio_control.h"
 
 #include <inttypes.h>
 #include <caml/mlvalues.h>

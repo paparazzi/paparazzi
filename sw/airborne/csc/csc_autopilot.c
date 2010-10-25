@@ -33,7 +33,7 @@
 #include "led.h"
 #include <math/pprz_algebra_float.h>
 #include "string.h"
-#include <subsystems/radio_control.h>
+#include "subsystems/radio_control.h"
 #include "pwm_input.h"
 #include "LPC21xx.h"
 #include "print.h"

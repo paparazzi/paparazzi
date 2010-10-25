@@ -30,7 +30,7 @@
 #include <inttypes.h>
 #include "std.h"
 #include "inter_mcu.h"
-#include <firmwares/fixedwing/autopilot.h>
+#include "firmwares/fixedwing/autopilot.h"
 #include "estimator.h"
 #include "gps.h"
 #include "traffic_info.h"

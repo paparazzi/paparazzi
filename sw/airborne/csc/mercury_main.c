@@ -40,7 +40,7 @@
 
 #include "csc_msg_def.h"
 #include ACTUATORS
-#include <subsystems/imu.h>
+#include "subsystems/imu.h"
 #include "booz/ahrs/ahrs_aligner.h"
 #include "booz/ahrs.h"
 #include "mercury_xsens.h"
@@ -51,7 +51,7 @@
 #include "booz/guidance/booz2_guidance_v.h"
 #include "csc_can.h"
 #include "csc_baro.h"
-#include <subsystems/radio_control.h>
+#include "subsystems/radio_control.h"
 
 #include "booz/stabilization/stabilization_attitude.h"
 

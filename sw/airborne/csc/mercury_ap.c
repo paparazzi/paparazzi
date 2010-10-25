@@ -26,15 +26,15 @@
 #include <inttypes.h>
 #include "commands.h"
 #include "mercury_xsens.h"
-#include <firmwares/rotorcraft/autopilot.h>
-#include <firmwares/rotorcraft/stabilization.h>
-#include <firmwares/rotorcraft/stabilization/stabilization_attitude.h>
+#include "firmwares/rotorcraft/autopilot.h"
+#include "firmwares/rotorcraft/stabilization.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "led.h"
 #include <math/pprz_algebra_float.h>
 #include "string.h"
-#include <subsystems/radio_control.h>
+#include "subsystems/radio_control.h"
 #include "mercury_supervision.h"
-#include <firmwares/rotorcraft/actuators.h>
+#include "firmwares/rotorcraft/actuators.h"
 #include "props_csc.h"
 #include "csc_booz2_guidance_v.h"
 

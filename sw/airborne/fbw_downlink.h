@@ -44,7 +44,7 @@
 
 #include "uart.h"
 #include "main_fbw.h"
-#include <subsystems/radio_control.h>
+#include "subsystems/radio_control.h"
 #include "inter_mcu.h"
 
 #define DOWNLINK_DEVICE DOWNLINK_FBW_DEVICE

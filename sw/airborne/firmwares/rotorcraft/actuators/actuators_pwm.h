@@ -25,7 +25,7 @@
 #define ACTUATORS_PWM_H
 
 #include "std.h"
-#include <firmwares/rotorcraft/actuators.h>
+#include "firmwares/rotorcraft/actuators.h"
 
 #define ACTUATORS_PWM_NB 6
 extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];

@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <firmwares/rotorcraft/stabilization.h>
+#include "firmwares/rotorcraft/stabilization.h"
 
 int32_t stabilization_cmd[COMMANDS_NB];
 

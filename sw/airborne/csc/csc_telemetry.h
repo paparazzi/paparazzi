@@ -25,7 +25,7 @@
 #ifndef CSC_TELEMETRY_H
 #define CSC_TELEMETRY_H
 
-#include <firmwares/rotorcraft/actuators.h>
+#include "firmwares/rotorcraft/actuators.h"
 #include <inttypes.h>
 
 extern uint8_t telemetry_mode_Ap_DefaultChannel;
@@ -69,7 +69,7 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #endif
 
 #ifdef RADIO_CONTROL
-#include <subsystems/radio_control.h>
+#include "subsystems/radio_control.h"
 #define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
 #define PERIODIC_SEND_FBW_STATUS(_chan) { uint16_t current; DOWNLINK_SEND_FBW_STATUS(_chan, &radio_control.status, &pprz_mode, &vsupply, &current); }
 #else

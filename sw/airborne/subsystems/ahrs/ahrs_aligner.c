@@ -24,7 +24,7 @@
 #include "ahrs_aligner.h"
 
 #include <stdlib.h> /* for abs() */
-#include <subsystems/imu.h>
+#include "subsystems/imu.h"
 #include "led.h"
 
 struct AhrsAligner ahrs_aligner;

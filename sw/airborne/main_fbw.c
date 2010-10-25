@@ -47,8 +47,8 @@
 
 #include "sys_time.h"
 #include "commands.h"
-#include <firmwares/fixedwing/actuators.h>
-#include <subsystems/radio_control.h>
+#include "firmwares/fixedwing/actuators.h"
+#include "subsystems/radio_control.h"
 #include "fbw_downlink.h"
 #include "autopilot.h"
 #include "paparazzi.h"

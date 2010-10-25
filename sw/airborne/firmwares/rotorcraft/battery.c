@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <firmwares/rotorcraft/battery.h>
+#include "firmwares/rotorcraft/battery.h"
 
 uint8_t battery_voltage;
 

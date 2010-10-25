@@ -41,7 +41,7 @@
 
 #include "paparazzi.h"
 #include "airframe.h"
-#include <subsystems/radio_control.h>
+#include "subsystems/radio_control.h"
 #include "main_fbw.h"
 
 /** Data structure shared by fbw and ap processes */

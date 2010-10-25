@@ -23,13 +23,13 @@
 
 #define GUIDANCE_H_C
 //#define GUIDANCE_H_USE_REF
-#include <firmwares/rotorcraft/guidance/guidance_h.h>
+#include "firmwares/rotorcraft/guidance/guidance_h.h"
 
-#include <subsystems/ahrs.h>
-#include <firmwares/rotorcraft/stabilization.h>
+#include "subsystems/ahrs.h"
+#include "firmwares/rotorcraft/stabilization.h"
 // #include "booz_fms.h" FIXME
-#include <firmwares/rotorcraft/ins.h>
-#include <firmwares/rotorcraft/navigation.h>
+#include "firmwares/rotorcraft/ins.h"
+#include "firmwares/rotorcraft/navigation.h"
 
 #include "airframe.h"
 

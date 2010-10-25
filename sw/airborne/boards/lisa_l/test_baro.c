@@ -34,7 +34,7 @@
 
 #include "downlink.h"
 
-#include <firmwares/rotorcraft/baro.h>
+#include "firmwares/rotorcraft/baro.h"
 //#include "my_debug_servo.h"
 
 static inline void main_init( void );

@@ -21,11 +21,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <firmwares/rotorcraft/stabilization.h>
+#include "firmwares/rotorcraft/stabilization.h"
 
 #include <math/pprz_algebra_float.h>
-#include <subsystems/ahrs.h>
-#include <subsystems/radio_control.h>
+#include "subsystems/ahrs.h"
+#include "subsystems/radio_control.h"
 
 #include "airframe.h"
 

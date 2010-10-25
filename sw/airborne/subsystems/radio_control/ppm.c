@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <subsystems/radio_control.h>
-#include <subsystems/radio_control/ppm.h>
+#include "subsystems/radio_control.h"
+#include "subsystems/radio_control/ppm.h"
 
 uint16_t ppm_pulses[ PPM_NB_CHANNEL ];
 volatile bool_t ppm_frame_available;

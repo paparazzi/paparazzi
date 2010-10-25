@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <firmwares/rotorcraft/stabilization.h>
+#include "firmwares/rotorcraft/stabilization.h"
 
 struct Int32Eulers stab_att_sp_euler;
 struct Int32Eulers stab_att_ref_euler;

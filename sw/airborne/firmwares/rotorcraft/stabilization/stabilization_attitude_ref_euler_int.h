@@ -26,7 +26,7 @@
 
 #include "stabilization_attitude_ref_int.h"
 
-#include <subsystems/radio_control.h>
+#include "subsystems/radio_control.h"
 
 
 #define REF_ACCEL_FRAC 12

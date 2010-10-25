@@ -25,12 +25,12 @@
  * \brief Booz quaternion attitude stabilization
  */
 
-#include <firmwares/rotorcraft/stabilization.h>
+#include "firmwares/rotorcraft/stabilization.h"
 
 #include <stdio.h>
 #include <math/pprz_algebra_float.h>
 #include <math/pprz_algebra_int.h>
-#include <subsystems/ahrs.h>
+#include "subsystems/ahrs.h"
 #include "airframe.h"
 
 struct FloatAttitudeGains stabilization_gains[STABILIZATION_ATTITUDE_FLOAT_GAIN_NB];

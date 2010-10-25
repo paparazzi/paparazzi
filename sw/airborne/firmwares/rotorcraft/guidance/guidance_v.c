@@ -23,16 +23,16 @@
 
 #define GUIDANCE_V_C
 #define GUIDANCE_V_USE_REF
-#include <firmwares/rotorcraft/guidance/guidance_v.h>
+#include "firmwares/rotorcraft/guidance/guidance_v.h"
 
 
-#include <subsystems/radio_control.h>
-#include <firmwares/rotorcraft/stabilization.h>
-#include <subsystems/ahrs.h>
+#include "subsystems/radio_control.h"
+#include "firmwares/rotorcraft/stabilization.h"
+#include "subsystems/ahrs.h"
 // #include "booz_fms.h" FIXME
-#include <firmwares/rotorcraft/navigation.h>
+#include "firmwares/rotorcraft/navigation.h"
 
-#include <firmwares/rotorcraft/ins.h>
+#include "firmwares/rotorcraft/ins.h"
 #include <math/pprz_algebra_int.h>
 
 #include "airframe.h"

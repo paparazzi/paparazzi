@@ -24,8 +24,8 @@
 
 #include "cam_track.h"
 
-#include <firmwares/rotorcraft/ins.h>
-#include <subsystems/ahrs.h>
+#include "firmwares/rotorcraft/ins.h"
+#include "subsystems/ahrs.h"
 
 #ifdef USE_HFF
 #include "ins/hf_float.h"

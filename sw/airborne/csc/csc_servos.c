@@ -3,7 +3,7 @@
 #include "LPC21xx.h"
 #include "std.h"
 #include "sys_time.h"
-#include <firmwares/rotorcraft/actuators.h>
+#include "firmwares/rotorcraft/actuators.h"
 #include "airframe.h"
 #include ACTUATORS
 

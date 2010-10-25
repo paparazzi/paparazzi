@@ -31,35 +31,35 @@
 #include "interrupt_hw.h"
 
 #include "downlink.h"
-#include <firmwares/rotorcraft/telemetry.h>
+#include "firmwares/rotorcraft/telemetry.h"
 #include "datalink.h"
 
 #include "booz2_commands.h"
-#include <firmwares/rotorcraft/actuators.h>
-#include <subsystems/radio_control.h>
+#include "firmwares/rotorcraft/actuators.h"
+#include "subsystems/radio_control.h"
 
-#include <subsystems/imu.h>
+#include "subsystems/imu.h"
 #include "booz_gps.h"
 
 #include "booz/booz2_analog.h"
-#include <firmwares/rotorcraft/baro.h>
+#include "firmwares/rotorcraft/baro.h"
 
-#include <firmwares/rotorcraft/battery.h>
+#include "firmwares/rotorcraft/battery.h"
 
 // #include "booz_fms.h"  // FIXME
-#include <firmwares/rotorcraft/autopilot.h>
+#include "firmwares/rotorcraft/autopilot.h"
 
-#include <firmwares/rotorcraft/stabilization.h>
-#include <firmwares/rotorcraft/guidance.h>
+#include "firmwares/rotorcraft/stabilization.h"
+#include "firmwares/rotorcraft/guidance.h"
 
-#include <subsystems/ahrs.h>
-#include <firmwares/rotorcraft/ins.h>
+#include "subsystems/ahrs.h"
+#include "firmwares/rotorcraft/ins.h"
 
 #if defined USE_CAM || USE_DROP
 #include "booz2_pwm_hw.h"
 #endif
 
-#include <firmwares/rotorcraft/main.h>
+#include "firmwares/rotorcraft/main.h"
 
 #ifdef SITL
 #include "nps_autopilot_booz.h"

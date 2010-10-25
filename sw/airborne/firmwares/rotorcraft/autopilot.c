@@ -22,13 +22,13 @@
  *
  */
 
-#include <firmwares/rotorcraft/autopilot.h>
+#include "firmwares/rotorcraft/autopilot.h"
 
-#include <subsystems/radio_control.h>
+#include "subsystems/radio_control.h"
 #include "booz2_commands.h"
-#include <firmwares/rotorcraft/navigation.h>
-#include <firmwares/rotorcraft/guidance.h>
-#include <firmwares/rotorcraft/stabilization.h>
+#include "firmwares/rotorcraft/navigation.h"
+#include "firmwares/rotorcraft/guidance.h"
+#include "firmwares/rotorcraft/stabilization.h"
 #include "led.h"
 
 uint8_t  autopilot_mode;

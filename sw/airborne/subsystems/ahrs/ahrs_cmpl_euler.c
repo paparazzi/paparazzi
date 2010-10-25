@@ -23,8 +23,8 @@
 
 #include "ahrs_cmpl_euler.h"
 
-#include <subsystems/imu.h>
-#include <subsystems/ahrs/ahrs_aligner.h>
+#include "subsystems/imu.h"
+#include "subsystems/ahrs/ahrs_aligner.h"
 
 #include "airframe.h"
 #include <math/pprz_trig_int.h>

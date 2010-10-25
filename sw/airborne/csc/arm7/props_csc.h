@@ -2,7 +2,7 @@
 #define PROPS_CSC_H
 
 #include "airframe.h"
-#include <firmwares/rotorcraft/actuators.h>
+#include "firmwares/rotorcraft/actuators.h"
 #include "sys_time.h"
 #include "csc_ap_link.h"
 #include "csc_msg_def.h"

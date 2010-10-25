@@ -34,7 +34,7 @@
 
 #include "commands.h"
 #include "i2c.h"
-#include <firmwares/rotorcraft/actuators.h>
+#include "firmwares/rotorcraft/actuators.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );

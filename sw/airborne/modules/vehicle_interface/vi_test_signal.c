@@ -23,7 +23,7 @@
 
 #include "booz_fms.h"
 
-#include <firmwares/rotorcraft/ins.h>
+#include "firmwares/rotorcraft/ins.h"
 #include <math/pprz_algebra_int.h>
 
 #define FMS_TEST_SIGNAL_DEFAULT_MODE       STEP_YAW

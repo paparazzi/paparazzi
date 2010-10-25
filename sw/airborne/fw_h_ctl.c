@@ -35,7 +35,7 @@
 #include "nav.h"
 #include "airframe.h"
 #include "fw_v_ctl.h"
-#include <firmwares/fixedwing/autopilot.h>
+#include "firmwares/fixedwing/autopilot.h"
 
 
 /* outer loop parameters */

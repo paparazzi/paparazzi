@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <subsystems/imu.h>
+#include "subsystems/imu.h"
 
 void imu_impl_init(void) {
 

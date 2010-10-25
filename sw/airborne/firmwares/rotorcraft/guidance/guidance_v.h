@@ -26,8 +26,8 @@
 
 #include "std.h"
 
-#include <firmwares/rotorcraft/guidance/guidance_v_ref.h>
-#include <firmwares/rotorcraft/guidance/guidance_v_adpt.h>
+#include "firmwares/rotorcraft/guidance/guidance_v_ref.h"
+#include "firmwares/rotorcraft/guidance/guidance_v_adpt.h"
 
 #define GUIDANCE_V_MODE_KILL      0
 #define GUIDANCE_V_MODE_RC_DIRECT 1

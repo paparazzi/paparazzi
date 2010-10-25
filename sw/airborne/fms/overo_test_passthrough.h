@@ -2,7 +2,7 @@
 #define OVERO_TEST_PASSTHROUGH_H
 
 #include "std.h"
-#include <subsystems/imu.h>
+#include "subsystems/imu.h"
 
 struct OveroTestPassthrough {
   /* our network connection */

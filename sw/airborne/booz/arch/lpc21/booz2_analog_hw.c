@@ -24,8 +24,8 @@
 #include "booz2_analog.h"
 
 /* analog_arch includes baro ??? naaaa we don't want double references */
-#include <firmwares/rotorcraft/baro.h>
-#include <firmwares/rotorcraft/battery.h>
+#include "firmwares/rotorcraft/baro.h"
+#include "firmwares/rotorcraft/battery.h"
 
 #ifndef USE_EXTRA_ADC
 /* Default mode

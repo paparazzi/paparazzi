@@ -38,10 +38,10 @@
 #include "booz_fms.h"
 #endif
 
-#include <firmwares/rotorcraft/navigation.h>
+#include "firmwares/rotorcraft/navigation.h"
 
 #include <math/pprz_geodetic_int.h>
-#include <firmwares/rotorcraft/ins.h>
+#include "firmwares/rotorcraft/ins.h"
 
 #define IdOfMsg(x) (x[1])
 

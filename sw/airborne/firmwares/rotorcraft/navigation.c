@@ -23,13 +23,13 @@
 
 #define NAV_C
 
-#include <firmwares/rotorcraft/navigation.h>
+#include "firmwares/rotorcraft/navigation.h"
 
 #include "pprz_debug.h"
 #include "booz_gps.h"
-#include <firmwares/rotorcraft/ins.h>
+#include "firmwares/rotorcraft/ins.h"
 
-#include <firmwares/rotorcraft/autopilot.h>
+#include "firmwares/rotorcraft/autopilot.h"
 #include "modules.h"
 #include "flight_plan.h"
 

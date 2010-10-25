@@ -22,12 +22,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <firmwares/rotorcraft/stabilization.h>
+#include "firmwares/rotorcraft/stabilization.h"
 
-#include <subsystems/ahrs.h>
+#include "subsystems/ahrs.h"
 
-#include <subsystems/imu.h>
-#include <subsystems/radio_control.h>
+#include "subsystems/imu.h"
+#include "subsystems/radio_control.h"
 #include "airframe.h"
 
 #define F_UPDATE_RES 9

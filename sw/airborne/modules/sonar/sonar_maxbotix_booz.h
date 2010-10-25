@@ -39,7 +39,7 @@ extern bool_t sonar_data_available;
 extern void maxbotix_init(void);
 extern void maxbotix_read(void);
 
-#include <firmwares/rotorcraft/ins.h> // needed because ins is not a module
+#include "firmwares/rotorcraft/ins.h" // needed because ins is not a module
 
 #define SonarEvent(_handler) { \
   if (sonar_data_available) { \

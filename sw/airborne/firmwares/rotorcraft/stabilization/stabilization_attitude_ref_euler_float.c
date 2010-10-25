@@ -1,4 +1,4 @@
-#include <firmwares/rotorcraft/stabilization.h>
+#include "firmwares/rotorcraft/stabilization.h"
 
 
 struct FloatEulers stab_att_sp_euler;

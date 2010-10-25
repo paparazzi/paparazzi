@@ -24,9 +24,9 @@
 #include "modules/vehicle_interface/vi_overo_link.h"
 
 #include "lisa/lisa_overo_link.h"
-#include <subsystems/imu.h>
+#include "subsystems/imu.h"
 #include <booz/booz_gps.h>
-#include <firmwares/rotorcraft/baro.h>
+#include "firmwares/rotorcraft/baro.h"
 
 
 #include <string.h>

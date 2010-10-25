@@ -21,6 +21,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <subsystems/radio_control.h>
+#include "subsystems/radio_control.h"
 
 void radio_control_impl_init(void) { }

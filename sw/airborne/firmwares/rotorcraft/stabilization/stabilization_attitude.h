@@ -33,7 +33,7 @@ extern void stabilization_attitude_read_alpha_vane(float alpha);
 extern void stabilization_attitude_enter(void);
 extern void stabilization_attitude_run(bool_t  in_flight);
 
-#include <firmwares/rotorcraft/stabilization/stabilization_attitude_ref.h>
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref.h"
 #include STABILISATION_ATTITUDE_REF_H
 extern void stabilization_attitude_ref_init(void);
 extern void stabilization_attitude_ref_update(void);

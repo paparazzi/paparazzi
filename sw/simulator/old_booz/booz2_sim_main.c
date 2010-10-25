@@ -33,7 +33,7 @@
 #include "booz_sensors_model.h"
 #include "booz_wind_model.h"
 #include "booz_rc_sim.h"
-#include <firmwares/rotorcraft/battery.h>
+#include "firmwares/rotorcraft/battery.h"
 
 #include "main.h"
 
@@ -125,7 +125,7 @@ static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
 }
   
 
-#include <subsystems/ahrs.h>
+#include "subsystems/ahrs.h"
 
 static void sim_run_one_step(void) {
 
@@ -195,7 +195,7 @@ static void sim_run_one_step(void) {
 
 #ifdef BYPASS_AHRS
 #include "booz_geometry_mixed.h"
-#include <subsystems/ahrs.h>
+#include "subsystems/ahrs.h"
 static void sim_overwrite_ahrs(void) {
   ahrs.ltp_to_body_euler.phi   = BOOZ_ANGLE_I_OF_F(bfm.eulers->ve[AXIS_X]);
   ahrs.ltp_to_body_euler.theta = BOOZ_ANGLE_I_OF_F(bfm.eulers->ve[AXIS_Y]);
@@ -215,7 +215,7 @@ static void sim_overwrite_ahrs(void) {
 
 
 #ifdef BYPASS_INS
-#include <firmwares/rotorcraft/ins.h>
+#include "firmwares/rotorcraft/ins.h"
 static void sim_overwrite_ins(void) {
   ins_position.z    = BOOZ_POS_I_OF_F(bfm.pos_ltp->ve[AXIS_Z]);
   ins_speed_earth.z = BOOZ_SPEED_I_OF_F(bfm.speed_ltp->ve[AXIS_Z]);

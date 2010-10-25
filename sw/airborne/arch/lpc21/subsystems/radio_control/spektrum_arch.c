@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <subsystems/radio_control.h>
-#include <subsystems/radio_control/spektrum_arch.h">
+#include "subsystems/radio_control.h"
+#include "subsystems/radio_control/spektrum_arch.h"
 
 bool_t   rc_spk_parser_status;
 uint8_t  rc_spk_parser_idx;

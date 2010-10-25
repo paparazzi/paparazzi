@@ -28,7 +28,7 @@
 #include "booz/booz2_commands.h"
 #include "actuators.h"
 #include "actuators/actuators_pwm.h"
-#include <subsystems/imu.h>
+#include "subsystems/imu.h"
 #include "booz/booz_radio_control.h"
 #include "autopilot.h"
 #include "ins.h"
@@ -45,7 +45,7 @@
 #include "csc_msg_def.h"
 #include "csc_protocol.h"
 
-#include <firmwares/rotorcraft/baro.h>
+#include "firmwares/rotorcraft/baro.h"
 
 #include "adc.h"
 

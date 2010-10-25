@@ -22,7 +22,7 @@
  */
 
 #include "stdio.h"
-#include <subsystems/radio_control.h>
+#include "subsystems/radio_control.h"
 
 static struct rc_joby_parser_state parser;
 static const int16_t rc_joby_signs[RADIO_CONTROL_NB_CHANNEL] = RC_JOBY_SIGNS;

@@ -31,13 +31,13 @@
 #include "downlink.h"
 
 #ifdef RADIO_CONTROL
-#include <subsystems/radio_control.h>
+#include "subsystems/radio_control.h"
 #endif
 
-#include <firmwares/rotorcraft/autopilot.h>
-#include <firmwares/rotorcraft/guidance.h>
+#include "firmwares/rotorcraft/autopilot.h"
+#include "firmwares/rotorcraft/guidance.h"
 
-#include <firmwares/rotorcraft/actuators.h>
+#include "firmwares/rotorcraft/actuators.h"
 
 #ifndef TELEMETRY_STARTUP_DELAY
 #define TELEMETRY_STARTUP_DELAY 0
@@ -45,11 +45,11 @@
 
 #define PERIODIC_SEND_ALIVE(_chan) DOWNLINK_SEND_ALIVE(_chan, 16, MD5SUM)
 
-#include <firmwares/rotorcraft/battery.h>
-#include <subsystems/imu.h>
+#include "firmwares/rotorcraft/battery.h"
+#include "subsystems/imu.h"
 #include "booz_gps.h"
-#include <firmwares/rotorcraft/ins.h>
-#include <subsystems/ahrs.h>
+#include "firmwares/rotorcraft/ins.h"
+#include "subsystems/ahrs.h"
 
 #include "i2c_hw.h"
 
@@ -188,7 +188,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 
 
-#include <firmwares/rotorcraft/stabilization.h>
+#include "firmwares/rotorcraft/stabilization.h"
 #define PERIODIC_SEND_RATE_LOOP(_chan) {                          \
     DOWNLINK_SEND_RATE_LOOP(_chan,                                \
                                   &stabilization_rate_sp.p,        \
@@ -301,7 +301,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #endif /* STABILISATION_ATTITUDE_TYPE_FLOAT */
 
 
-#include <subsystems/ahrs/ahrs_aligner.h>
+#include "subsystems/ahrs/ahrs_aligner.h"
 #define PERIODIC_SEND_FILTER_ALIGNER(_chan) {			\
     DOWNLINK_SEND_FILTER_ALIGNER(_chan,				\
 				       &ahrs_aligner.lp_gyro.p,	\
@@ -325,7 +325,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 
 #ifdef USE_AHRS_CMPL
-#include <subsystems/ahrs/ahrs_cmpl_euler.h>
+#include "subsystems/ahrs/ahrs_cmpl_euler.h"
 #define PERIODIC_SEND_FILTER(_chan) {				\
     DOWNLINK_SEND_FILTER(_chan,					\
 			       &ahrs.ltp_to_imu_euler.phi,		\
@@ -349,7 +349,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #endif
 
 #ifdef USE_AHRS_LKF
-#include <subsystems/ahrs.h>
+#include "subsystems/ahrs.h"
 #include "ahrs/ahrs_float_lkf.h"
 #define PERIODIC_SEND_AHRS_LKF(_chan) {				\
     DOWNLINK_SEND_AHRS_LKF(&bafl_eulers.phi,			\
@@ -472,7 +472,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 #ifdef USE_VFF
-#include <firmwares/rotorcraft/ins/vf_float.h>
+#include "firmwares/rotorcraft/ins/vf_float.h"
 #define PERIODIC_SEND_VFF(_chan) {		\
     DOWNLINK_SEND_VFF(_chan,			\
 			    &vff_z_meas,		\
@@ -488,7 +488,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #endif
 
 #ifdef USE_HFF
-#include  <firmwares/rotorcraft/ins/hf_float.h>
+#include  "firmwares/rotorcraft/ins/hf_float.h"
 #define PERIODIC_SEND_HFF(_chan) {	\
     DOWNLINK_SEND_HFF(_chan,		\
                             &b2_hff_state.x,			\
@@ -623,7 +623,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 }
 
 #include "booz_gps.h"
-#include <firmwares/rotorcraft/navigation.h>
+#include "firmwares/rotorcraft/navigation.h"
 #define PERIODIC_SEND_BOOZ2_FP(_chan) {					\
     int32_t carrot_up = -guidance_v_z_sp;				\
     DOWNLINK_SEND_BOOZ2_FP( _chan,					\
@@ -667,7 +667,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_BOOZ2_GPS(_chan) {}
 #endif
 
-#include <firmwares/rotorcraft/navigation.h>
+#include "firmwares/rotorcraft/navigation.h"
 #define PERIODIC_SEND_ROTORCRAFT_NAV_STATUS(_chan) {				\
     DOWNLINK_SEND_ROTORCRAFT_NAV_STATUS(_chan,                      \
 				   &block_time,				\

@@ -25,7 +25,7 @@
 #ifndef AHRS_FLOAT_LKF_H
 #define AHRS_FLOAT_LKF_H
 
-#include <subsystems/ahrs.h>
+#include "subsystems/ahrs.h"
 #include "std.h"
 #include <math/pprz_algebra_int.h>
 

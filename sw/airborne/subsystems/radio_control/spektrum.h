@@ -28,7 +28,7 @@
 /* implemented in arch/xxx/subsystems/radio_control/spektrum_arch.c */
 extern void radio_control_spektrum_try_bind(void);
 
-#include <subsystems/radio_control/spektrum_arch.h>
+#include "subsystems/radio_control/spektrum_arch.h"
 /* implemented in arch/xxx/subsystems/radio_control/spektrum_arch.c */
 
 #define RadioControlEvent(_received_frame_handler) RadioControlEventImp(_received_frame_handler)

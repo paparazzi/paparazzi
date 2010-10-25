@@ -28,8 +28,8 @@
 
 #include "airframe.h"
 
-#include <firmwares/rotorcraft/stabilization/stabilization_rate.h>
-#include <firmwares/rotorcraft/stabilization/stabilization_attitude.h>
+#include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 
 extern void stabilization_init(void);
 

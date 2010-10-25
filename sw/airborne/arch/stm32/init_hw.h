@@ -56,7 +56,7 @@
 #endif
 #if defined RADIO_CONTROL
 #if defined RADIO_CONTROL_LINK  || defined RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
-#include <subsystems/radio_control.h>
+#include "subsystems/radio_control.h"
 #endif
 #endif
 #if defined USE_UART1 || defined USE_UART2 || defined USE_UART3

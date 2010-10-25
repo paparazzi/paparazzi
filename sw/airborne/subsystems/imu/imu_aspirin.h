@@ -25,7 +25,7 @@
 #define IMU_ASPIRIN_H
 
 #include "airframe.h"
-#include <subsystems/imu.h>
+#include "subsystems/imu.h"
 
 #include "i2c.h"
 #include "peripherals/itg3200.h"

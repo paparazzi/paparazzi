@@ -30,7 +30,7 @@
 #include "led.h"
 
 #include "airframe.h"
-#include <firmwares/rotorcraft/ins.h>
+#include "firmwares/rotorcraft/ins.h"
 
 #define AP_MODE_FAILSAFE          0
 #define AP_MODE_KILL              1

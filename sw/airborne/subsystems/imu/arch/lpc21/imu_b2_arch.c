@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <subsystems/imu.h>
+#include "subsystems/imu.h"
 
 volatile uint8_t imu_ssp_status;
 static void SSP_ISR(void) __attribute__((naked));

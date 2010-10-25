@@ -22,17 +22,17 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <firmwares/rotorcraft/ins.h>
+#include "firmwares/rotorcraft/ins.h"
 
-#include <subsystems/imu.h>
-#include <firmwares/rotorcraft/baro.h>
+#include "subsystems/imu.h"
+#include "firmwares/rotorcraft/baro.h"
 #include "booz_gps.h"
 
 #include "airframe.h"
 #include <math/pprz_algebra_int.h>
 #include <math/pprz_algebra_float.h>
 
-#include <subsystems/ahrs.h>
+#include "subsystems/ahrs.h"
 
 #ifdef USE_VFF
 #include "ins/vf_float.h"

@@ -62,7 +62,7 @@ extern uint16_t xsens_time_stamp[XSENS_COUNT];
 
 extern int xsens_setzero;
 
-#include <subsystems/ahrs.h>
+#include "subsystems/ahrs.h"
 
 #define PERIODIC_SEND_BOOZ2_GYRO() {			\
     DOWNLINK_SEND_BOOZ2_GYRO(&imu.gyro.p,		\

@@ -31,7 +31,7 @@
 #include "messages.h"
 #include "downlink.h"
 
-#include <subsystems/imu.h>
+#include "subsystems/imu.h"
 
 #include "interrupt_hw.h"
 

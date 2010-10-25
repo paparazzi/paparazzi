@@ -1,12 +1,12 @@
 #include "nps_autopilot_booz.h"
 
-#include <firmwares/rotorcraft/main.h>
+#include "firmwares/rotorcraft/main.h"
 #include "nps_sensors.h"
 #include "nps_radio_control.h"
-#include <subsystems/radio_control.h>
-#include <subsystems/imu.h>
-#include <firmwares/rotorcraft/baro.h>
-#include <firmwares/rotorcraft/battery.h>
+#include "subsystems/radio_control.h"
+#include "subsystems/imu.h"
+#include "firmwares/rotorcraft/baro.h"
+#include "firmwares/rotorcraft/battery.h"
 
 #include "actuators/supervision.h"
 
@@ -81,7 +81,7 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 }
 
 #include "nps_fdm.h"
-#include <subsystems/ahrs.h>
+#include "subsystems/ahrs.h"
 #include <math/pprz_algebra.h>
 void sim_overwrite_ahrs(void) {
 

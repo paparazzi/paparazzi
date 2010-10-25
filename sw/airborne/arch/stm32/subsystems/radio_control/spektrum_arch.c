@@ -28,9 +28,9 @@
 #include <stm32/misc.h>
 #include <stm32/usart.h>
 #include "uart.h"
-#include <subsystems/radio_control.h>
-#include <subsystems/radio_control/spektrum_arch.h>
-#include <firmwares/rotorcraft/autopilot.h>
+#include "subsystems/radio_control.h"
+#include "subsystems/radio_control/spektrum_arch.h"
+#include "firmwares/rotorcraft/autopilot.h"
 
 
 #define SPEKTRUM_CHANNELS_PER_FRAME 7

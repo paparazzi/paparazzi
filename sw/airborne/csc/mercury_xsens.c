@@ -27,10 +27,10 @@
  */
 
 #include "mercury_xsens.h"
-#include <subsystems/imu.h>
+#include "subsystems/imu.h"
 #include "booz/ahrs.h"
 #include "booz/ahrs/ahrs_aligner.h"
-#include <subsystems/imu.h>
+#include "subsystems/imu.h"
 #include "csc_booz2_ins.h"
 
 #include <inttypes.h>

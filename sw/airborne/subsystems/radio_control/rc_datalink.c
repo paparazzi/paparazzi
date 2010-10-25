@@ -22,7 +22,7 @@
  */
 
 #include "radio_control/rc_datalink.h"
-#include <subsystems/radio_control.h>
+#include "subsystems/radio_control.h"
 
 int8_t rc_dl_values[ RC_DL_NB_CHANNEL ];
 volatile bool_t rc_dl_frame_available;

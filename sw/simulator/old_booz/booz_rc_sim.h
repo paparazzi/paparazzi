@@ -1,7 +1,7 @@
 #ifndef BOOZ_RC_SIM_H
 #define BOOZ_RC_SIM_H
 
-#include <subsystems/radio_control.h>
+#include "subsystems/radio_control.h"
 
 #define MODE_SWITCH_MANUAL 1900
 #define MODE_SWITCH_AUTO1  1500
