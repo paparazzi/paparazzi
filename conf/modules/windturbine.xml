@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="windturbine" dir="meteo">
+  <depend require="trig_test.xml"/>
+  <header>
+    <file name="windturbine.h"/>
+  </header>
+  <periodic fun="windturbine_periodic()" freq="10"/>
+  <makefile>
+    <file name="windturbine.c"/>
+    <flag name="TURBINE_ID" value="42"/>
+    <flag name="GPS_TIMESTAMP"/>
+  </makefile>
+</module>
+

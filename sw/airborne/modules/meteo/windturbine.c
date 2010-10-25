@@ -22,16 +22,42 @@
  *
  */
 
-/** \file trigger_ext.c
- *  \brief Measure external trigger pulse at PPM input (default)
+/** \file windturbine.c
  *
- *   This measures a trigger pulse length
+ *   This measures a trigger pulse length (e.g. duration of a wind turbine
+ *   rotation) and sends a message with the info.
  */
 
 
+#include "meteo/windturbine.h"
 #include "core/trigger_ext.h"
+#include "gps.h"
+#include "sys_time.h"
 
-uint32_t trigger_t0;
-uint32_t trigger_delta_t0;
-volatile bool_t trigger_ext_valid;
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+
+#include "uart.h"
+#include "messages.h"
+#include "downlink.h"
+
+
+void windturbine_periodic( void ) {
+  if (trigger_ext_valid == TRUE) {
+    uint8_t ac_id = 0;
+    uint8_t turb_id = TURBINE_ID;
+    uint32_t sync_itow, cycle_time;
+
+    sync_itow = itow_from_ticks(trigger_t0);
+    cycle_time = MSEC_OF_SYS_TICS(trigger_delta_t0);
+
+    DOWNLINK_SEND_WINDTURBINE_STATUS_(DefaultChannel,
+                &ac_id,
+                &turb_id,
+                &sync_itow,
+                &cycle_time );
+    trigger_ext_valid = FALSE;
+  }
+}
 

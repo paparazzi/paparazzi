@@ -22,29 +22,11 @@
  *
  */
 
-/** \file trigger_ext.h
- *  \brief Measure external trigger pulse at PPM input (default)
- *
- *   This measures a trigger pulse length
- */
 
-#ifndef TRIGGER_EXT_H
-#define TRIGGER_EXT_H
-
+#include "core/trigger_ext_hw.h"
 #include "std.h"
 
-/**
- *  falling/rising edge
- */
-#define TRIG_EXT_EDGE_RISING 1
-#define TRIG_EXT_EDGE_FALLING 0
-
-extern uint32_t trigger_t0;
-extern uint32_t trigger_delta_t0;
-extern volatile bool_t trigger_ext_valid;
-
-void trigger_ext_init ( void );
-
-#endif
-
+void trigger_ext_init ( void ) {
+  trigger_ext_valid = FALSE;
+}
 

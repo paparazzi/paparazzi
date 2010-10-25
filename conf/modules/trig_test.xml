@@ -5,7 +5,7 @@
     <file name="trigger_ext.h"/>
   </header>
   <init fun="trigger_ext_init()"/>
-  <makefile target="ap">
+  <makefile>
     <file_hw name="trigger_ext_hw.c"/>
     <file name="trigger_ext.c"/>
     <flag name="TRIGGER_EXT"/>

@@ -22,28 +22,18 @@
  *
  */
 
-/** \file trigger_ext.h
- *  \brief Measure external trigger pulse at PPM input (default)
+/** \file windturbine.h
  *
- *   This measures a trigger pulse length
+ *   This measures a trigger pulse length (e.g. duration of a wind turbine
+ *   rotation) and sends a message with the info.
+ *
+ *   Module trigger_ext needs to be loaded
  */
 
-#ifndef TRIGGER_EXT_H
-#define TRIGGER_EXT_H
+#ifndef WINDTURBINE_H
+#define WINDTURBINE_H
 
-#include "std.h"
-
-/**
- *  falling/rising edge
- */
-#define TRIG_EXT_EDGE_RISING 1
-#define TRIG_EXT_EDGE_FALLING 0
-
-extern uint32_t trigger_t0;
-extern uint32_t trigger_delta_t0;
-extern volatile bool_t trigger_ext_valid;
-
-void trigger_ext_init ( void );
+void windturbine_periodic( void );
 
 #endif
 
