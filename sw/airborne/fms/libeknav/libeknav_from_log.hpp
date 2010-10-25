@@ -17,13 +17,13 @@
 
 //#include <event.h>
 
-#include <math/pprz_algebra_float.h>
-#include <math/pprz_algebra_double.h>
-#include <math/pprz_geodetic.h>
-#include <math/pprz_geodetic_int.h>
-#include <math/pprz_geodetic_float.h>
-#include <math/pprz_geodetic_double.h>
-#include <math.h>
+#include "math/pprz_algebra_float.h"
+#include "math/pprz_algebra_double.h"
+#include "math/pprz_geodetic.h"
+#include "math/pprz_geodetic_int.h"
+#include "math/pprz_geodetic_float.h"
+#include "math/pprz_geodetic_double.h"
+#include "math.h"
 
 #include <unistd.h>
 #include <time.h>
@@ -53,7 +53,7 @@
 
 /** baro-sensor **/
 // I only want the function
-#define NPS_SENSORS_PARAMS <math.h>
+#define NPS_SENSORS_PARAMS "math.h"
 // Params taken from trunk/conf/simulator/nps/nps_sensors_params_booz2_a1.h
 #define NPS_BARO_QNH             900.
 #define NPS_BARO_SENSITIVITY      17.066667

@@ -82,7 +82,7 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 
 #include "nps_fdm.h"
 #include "subsystems/ahrs.h"
-#include <math/pprz_algebra.h>
+#include "math/pprz_algebra.h"
 void sim_overwrite_ahrs(void) {
 
   EULERS_BFP_OF_REAL(ahrs.ltp_to_body_euler, fdm.ltp_to_body_eulers);

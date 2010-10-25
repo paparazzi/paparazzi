@@ -37,7 +37,7 @@
 #include "airspeed_ets.h"
 #include "i2c.h"
 #include "nav.h"
-#include <math.h>
+#include "math.h"
 
 #ifdef SITL
 #include "gps.h"

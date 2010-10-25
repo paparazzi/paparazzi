@@ -21,7 +21,7 @@
 /* I apologize for horrible coding. */
 
 
-#include <math.h>
+#include "math.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <glib.h>

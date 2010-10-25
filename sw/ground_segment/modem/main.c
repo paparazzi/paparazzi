@@ -2,7 +2,7 @@
 #include <avr/io.h>
 #include <avr/signal.h>
 #include <avr/interrupt.h>
-#include <math.h>
+#include "math.h"
 
 
 #include "timer.h"

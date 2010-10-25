@@ -33,7 +33,7 @@
 #include "modules.h"
 #include "flight_plan.h"
 
-#include <math/pprz_algebra_int.h>
+#include "math/pprz_algebra_int.h"
 
 const uint8_t nb_waypoint = NB_WAYPOINT;
 struct EnuCoor_f waypoints_float[NB_WAYPOINT] = WAYPOINTS;

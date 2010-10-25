@@ -28,7 +28,7 @@
 
 #define NAV_C
 
-#include <math.h>
+#include "math.h"
 
 #include "nav.h"
 #include "gps.h"

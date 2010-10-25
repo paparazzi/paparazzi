@@ -4,7 +4,7 @@
 
 #define FORMATION_C
 
-#include <math.h>
+#include "math.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE

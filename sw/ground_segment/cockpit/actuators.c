@@ -1,13 +1,13 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
-#include <math.h>
+#include "math.h"
 #include <stdlib.h>
 #include <string.h>
 
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
 
-#include <math.h>
+#include "math.h"
 
 gint ac_id = 42;
 GtkWidget *spin; /* awfull but a lot easier */

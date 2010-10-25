@@ -24,7 +24,7 @@
 #include "booz_fms.h"
 
 #include "firmwares/rotorcraft/ins.h"
-#include <math/pprz_algebra_int.h>
+#include "math/pprz_algebra_int.h"
 
 #define FMS_TEST_SIGNAL_DEFAULT_MODE       STEP_YAW
 #define FMS_TEST_SIGNAL_DEFAULT_PERIOD     40

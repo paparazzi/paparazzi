@@ -1,7 +1,7 @@
 /* OCaml binding to link the simulator to autopilot functions. */
 
 #include <assert.h>
-#include <math.h>
+#include "math.h"
 #include <inttypes.h>
 
 /** From airborne/autopilot/ */

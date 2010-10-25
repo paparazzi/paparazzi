@@ -1,7 +1,7 @@
 #include "nps_random.h"
 
 
-#include <math.h>
+#include "math.h"
 #include <limits.h>
 
 /*

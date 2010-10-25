@@ -27,8 +27,8 @@
 #include "subsystems/ahrs/ahrs_aligner.h"
 
 #include "airframe.h"
-#include <math/pprz_trig_int.h>
-#include <math/pprz_algebra_int.h>
+#include "math/pprz_trig_int.h"
+#include "math/pprz_algebra_int.h"
 
 
 struct Int32Rates  face_gyro_bias;

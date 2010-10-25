@@ -2,7 +2,7 @@
 #define PPRZ_SIMPLE_MATRIX_H
 
 #include <float.h>  /* for FLT_EPSILON */
-#include <math.h> 
+#include "math.h" 
 #ifdef HAVE_STDIO
 #include <stdio.h>  /* for printf'ing warnings */
 #define warn_message printf

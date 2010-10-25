@@ -28,8 +28,8 @@
 #include "firmwares/rotorcraft/stabilization.h"
 
 #include <stdio.h>
-#include <math/pprz_algebra_float.h>
-#include <math/pprz_algebra_int.h>
+#include "math/pprz_algebra_float.h"
+#include "math/pprz_algebra_int.h"
 #include "subsystems/ahrs.h"
 #include "airframe.h"
 

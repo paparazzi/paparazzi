@@ -5,7 +5,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdio.h>
-#include <math.h>
+#include "math.h"
 
 #include "std.h"
 

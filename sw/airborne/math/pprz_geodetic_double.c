@@ -1,6 +1,6 @@
 #include "pprz_geodetic_double.h"
 
-#include <math.h>
+#include "math.h"
 
 void ltp_def_from_ecef_d(struct LtpDef_d* def, struct EcefCoor_d* ecef) {
 

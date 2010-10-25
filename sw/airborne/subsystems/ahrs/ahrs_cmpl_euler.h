@@ -26,7 +26,7 @@
 
 #include "subsystems/ahrs.h"
 #include "std.h"
-#include <math/pprz_algebra_int.h>
+#include "math/pprz_algebra_int.h"
 
 extern struct Int32Rates  face_gyro_bias;
 extern struct Int32Eulers face_measure;

@@ -27,7 +27,7 @@
 
 #include "subsystems/ahrs.h"
 #include "std.h"
-#include <math/pprz_algebra_int.h>
+#include "math/pprz_algebra_int.h"
 
 extern struct FloatQuat   bafl_quat;
 extern struct FloatRates  bafl_bias;

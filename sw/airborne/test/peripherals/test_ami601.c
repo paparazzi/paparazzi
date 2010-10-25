@@ -33,7 +33,7 @@
 
 #include "i2c.h"
 #include "peripherals/ami601.h"
-#include <math/pprz_algebra_int.h>
+#include "math/pprz_algebra_int.h"
 
 #include "interrupt_hw.h"
 #include "std.h"

@@ -38,7 +38,7 @@
 #include "sensors/baro_ets.h"
 #include "i2c.h"
 #include "estimator.h"
-#include <math.h>
+#include "math.h"
 
 #ifdef SITL
 #include "gps.h"

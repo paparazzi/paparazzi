@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA. 
  */
 
-#include <math.h>
+#include "math.h"
 
 #include BOARD_CONFIG
 #include "init_hw.h"

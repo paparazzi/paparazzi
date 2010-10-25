@@ -32,7 +32,7 @@
 #include <sys/stat.h>
 #include <stdarg.h>
 #include <unistd.h>
-#include <math.h>
+#include "math.h"
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>

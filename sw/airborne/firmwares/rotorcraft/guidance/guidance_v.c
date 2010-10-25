@@ -33,7 +33,7 @@
 #include "firmwares/rotorcraft/navigation.h"
 
 #include "firmwares/rotorcraft/ins.h"
-#include <math/pprz_algebra_int.h>
+#include "math/pprz_algebra_int.h"
 
 #include "airframe.h"
 

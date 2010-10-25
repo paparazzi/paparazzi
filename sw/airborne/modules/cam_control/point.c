@@ -71,7 +71,7 @@
  *
  */
 
-#include <math.h>
+#include "math.h"
 #include "point.h"
 
 typedef struct {

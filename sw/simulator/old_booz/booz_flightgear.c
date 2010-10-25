@@ -8,7 +8,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
+#include "math.h"
 
 static int fg_socket;
 static struct sockaddr_in fg_addr;

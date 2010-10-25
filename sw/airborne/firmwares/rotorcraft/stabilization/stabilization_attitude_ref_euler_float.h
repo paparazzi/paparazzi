@@ -25,7 +25,7 @@
 #define STABILIZATION_ATTITUDE_FLOAT_REF_EULER_FLOAT_H
 
 #include "subsystems/radio_control.h"
-#include <math/pprz_algebra_float.h>
+#include "math/pprz_algebra_float.h"
 
 
 #include "stabilization_attitude_ref_float.h"

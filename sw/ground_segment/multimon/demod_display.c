@@ -27,7 +27,7 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <signal.h>
-#include <math.h>
+#include "math.h"
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>

@@ -25,8 +25,8 @@
 #define INS_H
 
 #include "std.h"
-#include <math/pprz_geodetic_int.h>
-#include <math/pprz_algebra_float.h>
+#include "math/pprz_geodetic_int.h"
+#include "math/pprz_algebra_float.h"
 
 /* gps transformed to LTP-NED  */
 extern struct LtpDef_i  ins_ltp_def;

@@ -3,13 +3,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include "math.h"
 
 #include "std.h"
 
-#include <math/pprz_algebra_float.h>
-#include <math/pprz_algebra_double.h>
-#include <math/pprz_algebra_int.h>
+#include "math/pprz_algebra_float.h"
+#include "math/pprz_algebra_double.h"
+#include "math/pprz_algebra_int.h"
 #include "pprz_algebra_print.h"
 
 

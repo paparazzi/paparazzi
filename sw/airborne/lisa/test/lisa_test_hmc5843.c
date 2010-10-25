@@ -35,7 +35,7 @@
 
 #include "peripherals/hmc5843.h"
 #include "my_debug_servo.h"
-#include <math/pprz_algebra_int.h>
+#include "math/pprz_algebra_int.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );

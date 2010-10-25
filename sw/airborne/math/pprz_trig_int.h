@@ -25,7 +25,7 @@
 #define PPRZ_TRIG_INT_H
 
 #include "std.h"
-#include <math/pprz_algebra_int.h>
+#include "math/pprz_algebra_int.h"
 
 /* Allow makefile to define BOOZ_TRIG_CONST in case we want
  to make the trig tables const and store them in flash.

@@ -26,12 +26,12 @@
 #include "csc_autopilot.h"
 
 #include <inttypes.h>
-#include <math.h>
+#include "math.h"
 
 #include "commands.h"
 #include "csc_xsens.h"
 #include "led.h"
-#include <math/pprz_algebra_float.h>
+#include "math/pprz_algebra_float.h"
 #include "string.h"
 #include "subsystems/radio_control.h"
 #include "pwm_input.h"

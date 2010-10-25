@@ -5,7 +5,7 @@
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 
-#include <math.h>
+#include "math.h"
 #include <time.h>
 
 #include "flight_gear.h"

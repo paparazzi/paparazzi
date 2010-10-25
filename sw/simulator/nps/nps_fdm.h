@@ -3,8 +3,8 @@
 
 
 #include "std.h"
-#include <math/pprz_geodetic_double.h>
-#include <math/pprz_algebra_double.h>
+#include "math/pprz_geodetic_double.h"
+#include "math/pprz_algebra_double.h"
 
 /*
   Notations for fdm variables

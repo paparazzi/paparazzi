@@ -26,8 +26,8 @@
 
 #include "airframe.h"
 #include "inttypes.h"
-#include <math/pprz_algebra.h>
-#include <math/pprz_algebra_int.h>
+#include "math/pprz_algebra.h"
+#include "math/pprz_algebra_int.h"
 
 /* update frequency                               */
 #define GV_FREQ_FRAC 9

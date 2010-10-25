@@ -1,7 +1,7 @@
 #include "pprz_geodetic_float.h"
 
 #include "pprz_algebra_float.h"
-#include <math.h>
+#include "math.h"
  
 void ltp_def_from_ecef_f(struct LtpDef_f* def, struct EcefCoor_f* ecef) {
 

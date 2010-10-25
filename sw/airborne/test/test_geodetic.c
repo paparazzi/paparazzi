@@ -4,14 +4,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+#include "math.h"
 
 #include "std.h"
 
-#include <math/pprz_algebra_float.h>
-#include <math/pprz_geodetic_double.h>
-#include <math/pprz_geodetic_float.h>
-#include <math/pprz_geodetic_int.h>
+#include "math/pprz_algebra_float.h"
+#include "math/pprz_geodetic_double.h"
+#include "math/pprz_geodetic_float.h"
+#include "math/pprz_geodetic_int.h"
 
 //#define DEBUG 1
 

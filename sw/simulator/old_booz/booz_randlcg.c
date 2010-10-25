@@ -3,7 +3,7 @@
 
 */
 
-#include <math.h>
+#include "math.h"
 #include <limits.h>
 
 #define ALL_BITS     0xffffffff

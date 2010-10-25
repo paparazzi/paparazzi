@@ -23,7 +23,7 @@
 
 #include "firmwares/rotorcraft/stabilization.h"
 
-#include <math/pprz_algebra_float.h>
+#include "math/pprz_algebra_float.h"
 #include "subsystems/ahrs.h"
 #include "subsystems/radio_control.h"
 
