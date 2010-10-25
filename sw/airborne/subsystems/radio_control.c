@@ -22,6 +22,6 @@
  *
  */
 
-#include "radio_control.h"
+#include <subsystems/radio_control.h>
 
 struct RadioControl radio_control;

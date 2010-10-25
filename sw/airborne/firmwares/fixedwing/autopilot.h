@@ -93,7 +93,7 @@ void periodic_task( void );
 //void telecommand_task(void);
 
 #ifdef RADIO_CONTROL
-#include "radio_control.h"
+#include <subsystems/radio_control.h>
 static inline void autopilot_process_radio_control ( void ) {
   pprz_mode = PPRZ_MODE_OF_PULSE(radio_control.values[RADIO_MODE], 0);
 }

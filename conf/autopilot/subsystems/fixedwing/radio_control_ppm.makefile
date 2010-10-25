@@ -10,15 +10,12 @@ endif
 
 
 ifeq ($(ARCH),stm32)
-  ap.CFLAGS  += -I$(SRC_FIXEDWING)/booz/
-  ap.CFLAGS  += -I$(SRC_FIXEDWING)/booz/arch/stm32/
-
-  ap.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
-  ap.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_ppm.h\"
+  ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
+  ap.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/ppm.h\"
   ap.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
-  ap.srcs += $(SRC_FIXEDWING)/booz/booz_radio_control.c                    \
-             $(SRC_FIXEDWING)/booz/radio_control/booz_radio_control_ppm.c  \
-             $(SRC_FIXEDWING)/booz/arch/stm32/radio_control/booz_radio_control_ppm_arch.c
+  ap.srcs += $(SRC_SUBSYSTEMS)/radio_control.c \
+             $(SRC_SUBSYSTEMS)/radio_control/ppm.c \
+             $(SRC_ARCH)/subsystems/radio_control/ppm_arch.c
   ap.CFLAGS += -DUSE_TIM2_IRQ
 
   NORADIO = True
@@ -26,11 +23,11 @@ endif
 
 ifeq ($(NORADIO), False)
   $(TARGET).CFLAGS	+= -DRADIO_CONTROL
-	$(TARGET).CFLAGS 	+= -DRADIO_CONTROL_TYPE_H=\"radio_control/ppm.h\"
-	$(TARGET).CFLAGS 	+= -DRADIO_CONTROL_TYPE_PPM
-  $(TARGET).srcs		+= $(SRC_FIXEDWING)/radio_control.c
-  $(TARGET).srcs		+= $(SRC_FIXEDWING)/radio_control/ppm.c
+  $(TARGET).CFLAGS 	+= -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/ppm.h\"
+  $(TARGET).CFLAGS 	+= -DRADIO_CONTROL_TYPE_PPM
+  $(TARGET).srcs	+= $(SRC_SUBSYSTEMS)/radio_control.c
+  $(TARGET).srcs	+= $(SRC_SUBSYSTEMS)/radio_control/ppm.c
   ifneq ($(ARCH),jsbsim)
-    $(TARGET).srcs 	+= $(SRC_ARCH)/radio_control/ppm_arch.c
+    $(TARGET).srcs 	+= $(SRC_ARCH)/subsystems/radio_control/ppm_arch.c
   endif
 endif

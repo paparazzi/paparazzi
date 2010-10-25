@@ -32,5 +32,5 @@ jsbsim.srcs += $(SIMDIR)/sim_ac_jsbsim.c
 # jsbsim.srcs += $(SIMDIR)/sim_ac_fw.c
 # jsbsim.srcs += $(SIMDIR)/sim_ac_booz.c
 
-#jsbsim.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE_H=\"radio_control/ppm.h\" -DRADIO_CONTROL_TYPE_PPM
+#jsbsim.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/ppm.h\" -DRADIO_CONTROL_TYPE_PPM
 #jsbsim.srcs	+= radio_control.c radio_control/ppm.c $(SRC_ARCH)/radio_control/ppm_arch.c

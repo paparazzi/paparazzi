@@ -22,8 +22,8 @@
  */
 
 #include "sys_time.h"
-#include "radio_control.h"
-#include "radio_control/ppm.h"
+#include <subsystems/radio_control.h>
+#include <subsystems/radio_control/ppm.h>
 
 #include <inttypes.h>
 #include <caml/mlvalues.h>

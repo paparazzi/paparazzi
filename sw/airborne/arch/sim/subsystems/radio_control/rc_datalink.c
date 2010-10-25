@@ -21,13 +21,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "radio_control.h"
-#include "radio_control/ppm.h"
+#include <subsystems/radio_control.h>
 
-uint16_t ppm_pulses[ PPM_NB_CHANNEL ];
-volatile bool_t ppm_frame_available;
+#include <inttypes.h>
+#include <caml/mlvalues.h>
 
-void radio_control_impl_init(void) {
-  ppm_frame_available = FALSE;
-  ppm_arch_init();
+value update_rc_channel(value c __attribute__ ((unused)), value v __attribute__ ((unused))) {
+  return Val_unit;
+}
+
+value send_ppm(value unit) {
+  return unit;
 }

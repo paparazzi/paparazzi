@@ -37,7 +37,7 @@
 #include "periodic.h"
 #include "airframe.h"
 #include "commands.h"
-#include "radio_control.h"
+#include <subsystems/radio_control.h>
 
 #include "csc_telemetry.h"
 #include "led.h"

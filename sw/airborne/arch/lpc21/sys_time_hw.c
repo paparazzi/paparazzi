@@ -14,13 +14,13 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
 #endif /* ACTUATORS */
 
 #if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_PPM
-#include "radio_control.h"
+#include <subsystems/radio_control.h>
 #else
 #define PPM_IT 0x00
 #endif
 
 #if defined USE_RADIO_CONTROL && defined RADIO_CONTROL_TYPE_PPM
-#include "radio_control/booz_radio_control_ppm.h"
+#include <subsystems/radio_control/ppm.h>
 #else
 #define RADIO_CONTROL_PPM_IT 0x00
 #endif

@@ -16,7 +16,7 @@ endif
 ap.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_PRIMARY_PORT=$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)
 ap.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HANDLER -DUSE_TIM6_IRQ
 
-ap.srcs += $(SRC_BOOZ)/booz_radio_control.c \
+ap.srcs += $(SRC_SUBSYSTEMS)/radio_control.c \
            $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c \
 	   $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_spektrum_arch.c
 

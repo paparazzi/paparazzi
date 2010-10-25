@@ -33,7 +33,7 @@
 
 #include "interrupt_hw.h"
 
-#include "radio_control.h"
+#include <subsystems/radio_control.h>
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );

@@ -37,7 +37,7 @@
 #include "periodic.h"
 #include "airframe.h"
 #include "commands.h"
-#include "radio_control.h"
+#include <subsystems/radio_control.h>
 #include "booz/booz2_gps.h"
 
 //#include "ap_downlink.h"

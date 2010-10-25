@@ -204,7 +204,7 @@ test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_BIND_IMPL_FUNC=radio_control_spektrum
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_spektrum.h\"
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_PRIMARY_PORT=$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)
 test_rc_spektrum.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HANDLER -DUSE_TIM6_IRQ
-test_rc_spektrum.srcs   += $(SRC_BOOZ)/booz_radio_control.c                                 \
+test_rc_spektrum.srcs   += $(SRC_SUBSYSTEMS)/radio_control.c                                 \
 			   $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c          \
 			   $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_spektrum_arch.c
 
@@ -239,11 +239,11 @@ test_rc_ppm.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_D
 test_rc_ppm.srcs   += downlink.c pprz_transport.c
 test_rc_ppm.CFLAGS += -DUSE_RADIO_CONTROL
 test_rc_ppm.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
-test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_ppm.h\"
+test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/ppm.h\"
 test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
-test_rc_ppm.srcs   += $(SRC_BOOZ)/booz_radio_control.c \
-					  $(SRC_BOOZ)/radio_control/booz_radio_control_ppm.c \
-					  $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_ppm_arch.c
+test_rc_ppm.srcs   += $(SRC_SUBSYSTEMS)/radio_control.c \
+					  $(SRC_SUBSYSTEMS)/radio_control/ppm.c \
+					  $(SRC_ARCH)/subsystems/radio_control/ppm_arch.c
 test_rc_ppm.CFLAGS += -DUSE_TIM2_IRQ
 
 #
@@ -658,6 +658,6 @@ test_manual.CFLAGS += -DRADIO_CONTROL_BIND_IMPL_FUNC=radio_control_spektrum_try_
 test_manual.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_spektrum.h\"
 test_manual.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_PRIMARY_PORT=$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)
 test_manual.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HANDLER -DUSE_TIM6_IRQ
-test_manual.srcs   += $(SRC_BOOZ)/booz_radio_control.c                                 \
+test_manual.srcs   += $(SRC_SUBSYSTEMS)/radio_control.c                                 \
 	              $(SRC_BOOZ)/radio_control/booz_radio_control_spektrum.c          \
 	              $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_spektrum_arch.c

@@ -149,12 +149,12 @@ test_rc_ppm.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 test_rc_ppm.srcs   += $(SRC_ARCH)/uart_hw.c
 test_rc_ppm.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
 test_rc_ppm.srcs   += downlink.c pprz_transport.c
-test_rc_ppm.CFLAGS += -DUSE_RADIO_CONTROL -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
-test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"radio_control/booz_radio_control_ppm.h\"
+test_rc_ppm.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
+test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/ppm.h\"
 test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
-test_rc_ppm.srcs   += $(SRC_BOOZ)/booz_radio_control.c \
-					  $(SRC_BOOZ)/radio_control/booz_radio_control_ppm.c \
-					  $(SRC_BOOZ_ARCH)/radio_control/booz_radio_control_ppm_arch.c
+test_rc_ppm.srcs   += subsystmes/radio_control.c \
+					  subsystems/radio_control/ppm.c \
+					  $(SRC_ARCH)/subsystems/radio_control/ppm_arch.c
 
 
 

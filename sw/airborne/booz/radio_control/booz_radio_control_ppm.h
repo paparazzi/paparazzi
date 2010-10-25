@@ -27,7 +27,7 @@
 /**
  * Architecture dependant code
  */
-#include "radio_control/booz_radio_control_ppm_arch.h"
+#include "subsystems/radio_control/ppm_arch.h"
 /* must be implemented by arch dependant code */
 extern void booz_radio_control_ppm_arch_init ( void );
 

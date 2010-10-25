@@ -21,15 +21,26 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "radio_control.h"
+#include <subsystems/radio_control.h>
+#include <subsystems/radio_control/ppm.h>
 
-#include <inttypes.h>
-#include <caml/mlvalues.h>
+uint8_t  ppm_cur_pulse;
+uint32_t ppm_last_pulse_time;
+bool_t   ppm_data_valid;
 
-value update_rc_channel(value c __attribute__ ((unused)), value v __attribute__ ((unused))) {
-  return Val_unit;
-}
-
-value send_ppm(value unit) {
-  return unit;
+void ppm_arch_init ( void ) {
+  /* select pin for capture */
+  PPM_PINSEL |= PPM_PINSEL_VAL << PPM_PINSEL_BIT;
+  /* enable capture 0.2 on falling or rising edge + trigger interrupt */
+#if defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_POSITIVE
+  T0CCR = PPM_CCR_CRR | PPM_CCR_CRI;
+#elif defined PPM_PULSE_TYPE && PPM_PULSE_TYPE == PPM_PULSE_TYPE_NEGATIVE
+  T0CCR = PPM_CCR_CRF | PPM_CCR_CRI;
+#else
+#error "ppm_arch.h: Unknown PM_PULSE_TYPE"
+#endif
+  ppm_last_pulse_time = 0;
+  ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;
+  ppm_data_valid = FALSE;
+  ppm_frame_available = FALSE;
 }
