@@ -3,6 +3,6 @@
 #
 
 ap.CFLAGS += -DUSE_AHRS_CMPL -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED) -DAHRS_FIXED_POINT
-stm_passthrough.srcs += $(SRC_FIRMWARE)/ahrs.c
-stm_passthrough.srcs += $(SRC_FIRMWARE)/ahrs/ahrs_aligner.c
-stm_passthrough.srcs += $(SRC_FIRMWARE)/ahrs/ahrs_cmpl_euler.c
+stm_passthrough.srcs += $(SRC_SUBSYSTEMS)/ahrs.c
+stm_passthrough.srcs += $(SRC_SUBSYSTEMS)/ahrs/ahrs_aligner.c
+stm_passthrough.srcs += $(SRC_SUBSYSTEMS)/ahrs/ahrs_cmpl_euler.c

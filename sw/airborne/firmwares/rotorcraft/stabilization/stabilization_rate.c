@@ -24,7 +24,7 @@
 
 #include <firmwares/rotorcraft/stabilization.h>
 
-#include <firmwares/rotorcraft/ahrs.h>
+#include <subsystems/ahrs.h>
 
 #include <subsystems/imu.h>
 #include "booz_radio_control.h"

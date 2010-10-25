@@ -24,7 +24,7 @@
 
 #include "cam_control/booz_cam.h"
 #include "booz2_pwm_hw.h"
-#include <firmwares/rotorcraft/ahrs.h>
+#include <subsystems/ahrs.h>
 #include <firmwares/rotorcraft/navigation.h>
 #include <firmwares/rotorcraft/ins.h>
 #include "flight_plan.h"

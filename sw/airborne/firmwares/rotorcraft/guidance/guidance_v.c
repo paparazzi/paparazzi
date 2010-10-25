@@ -28,7 +28,7 @@
 
 #include "booz_radio_control.h"
 #include <firmwares/rotorcraft/stabilization.h>
-#include <firmwares/rotorcraft/ahrs.h>
+#include <subsystems/ahrs.h>
 // #include "booz_fms.h" FIXME
 #include <firmwares/rotorcraft/navigation.h>
 

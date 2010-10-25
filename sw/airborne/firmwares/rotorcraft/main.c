@@ -52,7 +52,7 @@
 #include <firmwares/rotorcraft/stabilization.h>
 #include <firmwares/rotorcraft/guidance.h>
 
-#include <firmwares/rotorcraft/ahrs.h>
+#include <subsystems/ahrs.h>
 #include <firmwares/rotorcraft/ins.h>
 
 #if defined USE_CAM || USE_DROP

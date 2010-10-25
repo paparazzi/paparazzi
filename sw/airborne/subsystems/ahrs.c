@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2009 Felix Ruess <felix.ruess@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -21,20 +21,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef AHRS_CMPL_EULER_H
-#define AHRS_CMPL_EULER_H
+#include <subsystems/ahrs.h>
+#include <subsystems/imu.h>
 
-#include <firmwares/rotorcraft/ahrs.h>
-#include "std.h"
-#include "math/pprz_algebra_int.h"
+struct Ahrs ahrs;
+struct AhrsFloat ahrs_float;
 
-extern struct Int32Rates  face_gyro_bias;
-extern struct Int32Eulers face_measure;
-extern struct Int32Eulers face_residual;
-extern struct Int32Eulers face_uncorrected;
-extern struct Int32Eulers face_corrected;
+float ahrs_mag_offset;
 
-extern int32_t face_reinj_1;
-
-
-#endif /* AHRS_CMPL_EULER_H */

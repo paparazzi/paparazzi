@@ -25,7 +25,7 @@
 #include "hf_float.h"
 #include <firmwares/rotorcraft/ins.h>
 #include <subsystems/imu.h>
-#include <firmwares/rotorcraft/ahrs.h>
+#include <subsystems/ahrs.h>
 #include "booz_gps.h"
 #include <stdlib.h>
 

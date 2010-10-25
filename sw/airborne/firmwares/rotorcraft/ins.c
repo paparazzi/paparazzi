@@ -32,7 +32,7 @@
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
 
-#include <firmwares/rotorcraft/ahrs.h>
+#include <subsystems/ahrs.h>
 
 #ifdef USE_VFF
 #include "ins/vf_float.h"
