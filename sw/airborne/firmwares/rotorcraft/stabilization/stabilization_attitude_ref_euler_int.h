@@ -55,21 +55,21 @@
 #define RC_UPDATE_FREQ 40
 
 #define YAW_DEADBAND_EXCEEDED()						\
-  (radio_control.values[RADIO_CONTROL_YAW] >  STABILIZATION_ATTITUDE_DEADBAND_R || \
-   radio_control.values[RADIO_CONTROL_YAW] < -STABILIZATION_ATTITUDE_DEADBAND_R)
+  (radio_control.values[RADIO_YAW] >  STABILIZATION_ATTITUDE_DEADBAND_R || \
+   radio_control.values[RADIO_YAW] < -STABILIZATION_ATTITUDE_DEADBAND_R)
 
 #define STABILIZATION_ATTITUDE_READ_RC(_sp, _inflight) {		\
                                         \
     _sp.phi =								\
-      ((int32_t)-radio_control.values[RADIO_CONTROL_ROLL]  * (int32_t)SP_MAX_PHI / MAX_PPRZ) \
+      ((int32_t)-radio_control.values[RADIO_ROLL]  * (int32_t)SP_MAX_PHI / MAX_PPRZ) \
       << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);					\
     _sp.theta =								\
-      ((int32_t) radio_control.values[RADIO_CONTROL_PITCH] * (int32_t)SP_MAX_THETA / MAX_PPRZ) \
+      ((int32_t) radio_control.values[RADIO_PITCH] * (int32_t)SP_MAX_THETA / MAX_PPRZ) \
       << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);					\
     if (_inflight) {							\
       if (YAW_DEADBAND_EXCEEDED()) {					\
     _sp.psi +=							\
-      ((int32_t)-radio_control.values[RADIO_CONTROL_YAW] * (int32_t)SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ) \
+      ((int32_t)-radio_control.values[RADIO_YAW] * (int32_t)SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ) \
       << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);				\
     ANGLE_REF_NORMALIZE(_sp.psi);					\
       }									\

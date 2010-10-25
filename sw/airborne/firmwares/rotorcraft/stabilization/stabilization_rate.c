@@ -84,16 +84,16 @@ struct Int32Rates stabilization_rate_ff_cmd;
 #endif
 
 #define ROLL_RATE_DEADBAND_EXCEEDED()                                         \
-  (radio_control.values[RADIO_CONTROL_ROLL] >  STABILIZATION_RATE_DEADBAND_P || \
-   radio_control.values[RADIO_CONTROL_ROLL] < -STABILIZATION_RATE_DEADBAND_P)
+  (radio_control.values[RADIO_ROLL] >  STABILIZATION_RATE_DEADBAND_P || \
+   radio_control.values[RADIO_ROLL] < -STABILIZATION_RATE_DEADBAND_P)
 
 #define PITCH_RATE_DEADBAND_EXCEEDED()                                         \
-  (radio_control.values[RADIO_CONTROL_PITCH] >  STABILIZATION_RATE_DEADBAND_Q || \
-   radio_control.values[RADIO_CONTROL_PITCH] < -STABILIZATION_RATE_DEADBAND_Q)
+  (radio_control.values[RADIO_PITCH] >  STABILIZATION_RATE_DEADBAND_Q || \
+   radio_control.values[RADIO_PITCH] < -STABILIZATION_RATE_DEADBAND_Q)
 
 #define YAW_RATE_DEADBAND_EXCEEDED()                                         \
-  (radio_control.values[RADIO_CONTROL_YAW] >  STABILIZATION_RATE_DEADBAND_R || \
-   radio_control.values[RADIO_CONTROL_YAW] < -STABILIZATION_RATE_DEADBAND_R)
+  (radio_control.values[RADIO_YAW] >  STABILIZATION_RATE_DEADBAND_R || \
+   radio_control.values[RADIO_YAW] < -STABILIZATION_RATE_DEADBAND_R)
 
 
 void stabilization_rate_init(void) {
@@ -122,17 +122,17 @@ void stabilization_rate_init(void) {
 void stabilization_rate_read_rc( void ) {
 
   if(ROLL_RATE_DEADBAND_EXCEEDED())
-    stabilization_rate_sp.p = (int32_t)-radio_control.values[RADIO_CONTROL_ROLL] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
+    stabilization_rate_sp.p = (int32_t)-radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
   else
     stabilization_rate_sp.p = 0;
 
   if(PITCH_RATE_DEADBAND_EXCEEDED())
-    stabilization_rate_sp.q = (int32_t)radio_control.values[RADIO_CONTROL_PITCH] * STABILIZATION_RATE_SP_MAX_Q / MAX_PPRZ;
+    stabilization_rate_sp.q = (int32_t)radio_control.values[RADIO_PITCH] * STABILIZATION_RATE_SP_MAX_Q / MAX_PPRZ;
   else
     stabilization_rate_sp.q = 0;
 
   if(YAW_RATE_DEADBAND_EXCEEDED())
-    stabilization_rate_sp.r = (int32_t)-radio_control.values[RADIO_CONTROL_YAW] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
+    stabilization_rate_sp.r = (int32_t)-radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
   else
     stabilization_rate_sp.r = 0;
 }

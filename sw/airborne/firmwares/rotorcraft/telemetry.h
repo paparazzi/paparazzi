@@ -97,7 +97,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #ifdef USE_RADIO_CONTROL
 #define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
 #if defined RADIO_CONTROL_KILL_SWITCH
-#define PERIODIC_SEND_BOOZ2_RADIO_CONTROL(_chan) SEND_BOOZ2_RADIO_CONTROL( _chan, &radio_control.values[RADIO_CONTROL_KILL_SWITCH])
+#define PERIODIC_SEND_BOOZ2_RADIO_CONTROL(_chan) SEND_BOOZ2_RADIO_CONTROL( _chan, &radio_control.values[RADIO_KILL_SWITCH])
 #else /* ! RADIO_CONTROL_KILL_SWITCH */
 #define PERIODIC_SEND_BOOZ2_RADIO_CONTROL(_chan) {			                    \
     int16_t foo = -42;							                    \
@@ -106,11 +106,11 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #endif /* !RADIO_CONTROL_KILL_SWITCH */
 #define SEND_BOOZ2_RADIO_CONTROL(_chan, _kill_switch) {			                    \
     DOWNLINK_SEND_BOOZ2_RADIO_CONTROL(_chan,				                    \
-				      &radio_control.values[RADIO_CONTROL_ROLL],            \
-				      &radio_control.values[RADIO_CONTROL_PITCH],           \
-				      &radio_control.values[RADIO_CONTROL_YAW],	            \
-				      &radio_control.values[RADIO_CONTROL_THROTTLE],        \
-				      &radio_control.values[RADIO_CONTROL_MODE],            \
+				      &radio_control.values[RADIO_ROLL],            \
+				      &radio_control.values[RADIO_PITCH],           \
+				      &radio_control.values[RADIO_YAW],	            \
+				      &radio_control.values[RADIO_THROTTLE],        \
+				      &radio_control.values[RADIO_MODE],            \
 				      _kill_switch,                                        \
 				      &radio_control.status);}
 #else /* ! USE_RADIO_CONTROL */
@@ -708,9 +708,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #define PERIODIC_SEND_BOOZ2_TUNE_HOVER(_chan) {				       \
     DOWNLINK_SEND_BOOZ2_TUNE_HOVER(_chan,				       \
-				   &radio_control.values[RADIO_CONTROL_ROLL],  \
-				   &radio_control.values[RADIO_CONTROL_PITCH], \
-				   &radio_control.values[RADIO_CONTROL_YAW],   \
+				   &radio_control.values[RADIO_ROLL],  \
+				   &radio_control.values[RADIO_PITCH], \
+				   &radio_control.values[RADIO_YAW],   \
 				   &stabilization_cmd[COMMAND_ROLL],      \
 				   &stabilization_cmd[COMMAND_PITCH],     \
 				   &stabilization_cmd[COMMAND_YAW],       \

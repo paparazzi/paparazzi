@@ -173,10 +173,10 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
 }
 
 #define THROTTLE_STICK_DOWN()						\
-  (radio_control.values[RADIO_CONTROL_THROTTLE] < AUTOPILOT_THROTTLE_TRESHOLD)
+  (radio_control.values[RADIO_THROTTLE] < AUTOPILOT_THROTTLE_TRESHOLD)
 #define YAW_STICK_PUSHED()						\
-  (radio_control.values[RADIO_CONTROL_YAW] > AUTOPILOT_YAW_TRESHOLD || \
-   radio_control.values[RADIO_CONTROL_YAW] < -AUTOPILOT_YAW_TRESHOLD)
+  (radio_control.values[RADIO_YAW] > AUTOPILOT_YAW_TRESHOLD || \
+   radio_control.values[RADIO_YAW] < -AUTOPILOT_YAW_TRESHOLD)
 
 static inline void autopilot_check_in_flight( void) {
   if (autopilot_in_flight) {
@@ -239,11 +239,11 @@ static inline void autopilot_check_motors_on( void ) {
 void autopilot_on_rc_frame(void) {
 
   uint8_t new_autopilot_mode = 0;
-  AP_MODE_OF_PPRZ(radio_control.values[RADIO_CONTROL_MODE], new_autopilot_mode);
+  AP_MODE_OF_PPRZ(radio_control.values[RADIO_MODE], new_autopilot_mode);
   autopilot_set_mode(new_autopilot_mode);
 
 #ifdef RADIO_CONTROL_KILL_SWITCH
-  if (radio_control.values[RADIO_CONTROL_KILL_SWITCH] < 0)
+  if (radio_control.values[RADIO_KILL_SWITCH] < 0)
     autopilot_set_mode(AP_MODE_KILL);
 #endif
 
