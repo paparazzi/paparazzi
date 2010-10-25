@@ -39,10 +39,6 @@
 #include "traffic_info.h"
 #endif // TRAFFIC_INFO
 
-#ifdef TCAS
-#include "tcas.h"
-#endif
-
 #ifdef USE_JOYSTICK
 #include "joystick.h"
 #endif
@@ -137,12 +133,6 @@ void dl_parse_msg(void) {
     SEND_NAVIGATION(DefaultChannel);
   } else
 #endif /** NAV */
-#ifdef TCAS
-  if (msg_id == DL_TCAS_RESOLVE && DL_TCAS_RESOLVE_ac_id(dl_buffer) == AC_ID) {
-    uint8_t ac_id_conflict = DL_TCAS_RESOLVE_ac_id_conflict(dl_buffer);
-    tcas_acs_status[the_acs_id[ac_id_conflict]].resolve = DL_TCAS_RESOLVE_resolve(dl_buffer);
-  } else
-#endif
 #ifdef WIND_INFO
   if (msg_id == DL_WIND_INFO && DL_WIND_INFO_ac_id(dl_buffer) == AC_ID) {
     wind_east = DL_WIND_INFO_east(dl_buffer);

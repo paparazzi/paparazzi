@@ -1,0 +1,16 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="tcas" dir="multi">
+  <header>
+    <file name="tcas.h"/>
+  </header>
+  <init fun="tcas_init()"/>
+  <periodic fun="tcas_periodic_task_1Hz()" freq="1"/>
+  <periodic fun="tcas_periodic_task_4Hz()" freq="4"/>
+  <datalink message="TCAS_RESOLVE" fun="ParseTcasResolve()"/>
+  <makefile>
+    <file name="tcas.c"/>
+    <flag name="TCAS"/>
+  </makefile>
+</module>
+

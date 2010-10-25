@@ -1,7 +1,7 @@
 /*
- * Paparazzi mcu0 $Id$
+ * $Id$
  *  
- * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010 ENAC
  *
  * This file is part of paparazzi.
  *
@@ -57,5 +57,12 @@ extern void tcas_periodic_task_1Hz( void );
 extern void tcas_periodic_task_4Hz( void );
 
 #define CallTCAS() { if (tcas_status == TCAS_RA) v_ctl_altitude_setpoint = tcas_alt_setpoint; }
+
+#define ParseTcasResolve() { \
+  if (DL_TCAS_RESOLVE_ac_id(dl_buffer) == AC_ID) { \
+    uint8_t ac_id_conflict = DL_TCAS_RESOLVE_ac_id_conflict(dl_buffer); \
+    tcas_acs_status[the_acs_id[ac_id_conflict]].resolve = DL_TCAS_RESOLVE_resolve(dl_buffer); \
+  } \
+}
 
 #endif // TCAS

@@ -1,7 +1,7 @@
 /*
- * Paparazzi mcu0 $Id$
+ * $Id$
  *  
- * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010 ENAC
  *
  * This file is part of paparazzi.
  *
@@ -27,7 +27,7 @@
  * 
  */
 
-#include "tcas.h"
+#include "multi/tcas.h"
 #include "airframe.h"
 #include "estimator.h"
 #include "nav.h"
