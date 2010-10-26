@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2004-2006  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -103,7 +103,7 @@ extern void alt_kalman( float );
   } \
 }
 #endif /* ! USE_BARO_MS5534A */
-  
+
 #define EstimatorSetSpeedPol(vhmod, vhdir, vz) { \
   estimator_hspeed_mod = vhmod; \
   estimator_hspeed_dir = vhdir; \

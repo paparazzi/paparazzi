@@ -71,10 +71,6 @@
 #include "adc_generic.h"
 #endif
 
-#if defined USE_AIRSPEED || defined MEASURE_AIRSPEED
-#include "airspeed.h"
-#endif
-
 #if defined USE_I2C0 || USE_I2C1
 #include "i2c.h"
 #endif
