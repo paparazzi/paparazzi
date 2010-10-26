@@ -1,6 +1,6 @@
 
 raw_log_to_ascii: raw_log_to_ascii.c
-	gcc -I../../ -std=gnu99 -Wall raw_log_to_ascii.c -o raw_log_to_ascii
+	gcc -I../../ -I../../../include -std=gnu99 -Wall raw_log_to_ascii.c -DOVERO_LINK_MSG_UP=AutopilotMessageVIUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageVIDown -o raw_log_to_ascii
 
 
 fetch_log:
@@ -17,10 +17,13 @@ LIBEKNAV_SRCS = basic_ins_qkf.cpp           \
                 ins_qkf_observe_gps_pvt.cpp \
                 ins_qkf_observe_gps_p.cpp
 
+eknavOnLogFlags = 	-DOVERO_LINK_MSG_UP=AutopilotMessageVIUp	\
+			-DOVERO_LINK_MSG_DOWN=AutopilotMessageVIDown	\
+			-DEKNAV_FROM_LOG_DEBUG
 
 
 run_filter_on_log: ./libeknav_from_log.cpp $(LIBEKNAV_SRCS) ../../math/pprz_geodetic_double.c ../../math/pprz_geodetic_float.c
-	g++ -I/usr/include/eigen2 -I../.. -I../../../include -I../../../../var/FY  -DOVERO_LINK_MSG_UP=AutopilotMessageVIUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageVIDown -DEKNAV_FROM_LOG_DEBUG -o $@ $^
+	g++ -I/usr/include/eigen2 -I../.. -I../../../include -I../../../../var/FY  $(eknavOnLogFlags) -o $@ $^
 
 clean:
 	-rm -f *.o *~ *.d

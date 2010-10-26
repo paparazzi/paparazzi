@@ -96,16 +96,18 @@ static void main_periodic(int my_sig_num __attribute__ ((unused))) {
 		}
 	}
 
-  uint8_t data_valid = main_dialog_with_io_proc();
+  //uint8_t data_valid = main_dialog_with_io_proc();
+  main_dialog_with_io_proc();
   #if RUN_FILTER
   main_run_ins(data_valid);
   #endif
-  main_rawlog_dump(data_valid);
+  //main_rawlog_dump(data_valid);
 
 }
 
 
-static uint8_t main_dialog_with_io_proc() {
+//static uint8_t main_dialog_with_io_proc() {
+static void main_dialog_with_io_proc() {
 	
 	DEFINE_AutopilotMessageCRCFrame_IN_and_OUT(message);
   uint8_t crc_valid;
@@ -113,9 +115,12 @@ static uint8_t main_dialog_with_io_proc() {
   //  for (uint8_t i=0; i<6; i++) msg_out.payload.msg_down.pwm_outputs_usecs[i] = otp.servos_outputs_usecs[i];
   
   spi_link_send(&message_out, sizeof(struct AutopilotMessageCRCFrame), &message_in, &crc_valid);
+  main_rawlog_dump(&message_in.payload.msg_up);
   
-  struct AutopilotMessageVIUp *in = &message_in.payload.msg_up; 
-  //printf(" <%2i> ", in->valid_sensors);
+  
+  if(GPS_READY(message_in.payload.msg_up.valid_sensors)){printf("GPS!\n");}
+  /*struct AutopilotMessageVIUp *in = &message_in.payload.msg_up; 
+  
   if(IMU_READY(in->valid_sensors)){
 		COPY_RATES_ACCEL_TO_IMU_FLOAT(in);
   }
@@ -128,7 +133,6 @@ static uint8_t main_dialog_with_io_proc() {
   }
   
   if(BARO_READY(in->valid_sensors)){
-		//printf(" BARO!!! ");
 		baro_measurement = in->pressure_absolute;
 	}
   
@@ -139,7 +143,7 @@ static uint8_t main_dialog_with_io_proc() {
     #endif
   }
   
-  return in->valid_sensors;
+  return in->valid_sensors;*/
 
 }
 
@@ -280,19 +284,26 @@ struct timespec time_diff(struct timespec end, struct timespec start){
 
 static void main_rawlog_init(const char* filename) {
   
-  raw_log_fd = open(filename, O_WRONLY|O_CREAT, 00644);
+  raw_log_fd = open(filename, O_WRONLY|O_CREAT|O_TRUNC, 00644);
   if (raw_log_fd == -1) {
     TRACE(TRACE_ERROR, "failed to open rawlog outfile (%s)\n", filename);
     return;
   }
 }
 
-static void main_rawlog_dump(uint8_t data_valid) {
+//static void main_rawlog_dump(uint8_t data_valid) {
+static void main_rawlog_dump(struct AutopilotMessageVIUp* current_message) {
 	struct timespec now;
   clock_gettime(TIMER, &now);
   struct raw_log_entry e;
+  e.time = absTime(time_diff(now, start));
+  memcpy(&e.message, current_message, sizeof(*current_message));
+  
+  write(raw_log_fd, &e, sizeof(e));
+  /*struct raw_log_entry e;
   
   e.time = absTime(time_diff(now, start));
+  e.message = current_message;
   RATES_COPY(e.gyro, imu_float.gyro);
   VECT3_COPY(e.accel, imu_float.accel);
   VECT3_COPY(e.mag, imu_float.mag);
@@ -301,7 +312,7 @@ static void main_rawlog_dump(uint8_t data_valid) {
   e.pressure_absolute = baro_measurement;
   e.data_valid = data_valid;
   write(raw_log_fd, &e, sizeof(e));
-
+	*/
 }
 
 #if RUN_FILTER

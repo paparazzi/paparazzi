@@ -33,6 +33,7 @@
 #include "fms/libeknav/raw_log.h"
   /* our sensors            */
   struct ImuFloat imu_float;
+  double imu_baro_height;
   struct EcefCoor_i imu_ecef_pos,
 										imu_ecef_vel;
 
@@ -42,26 +43,15 @@
 /* constants */
 /** Compilation-control **/
 #define UPDATE_WITH_GRAVITY 1
-#define SYNTHETIC_MAG_MODE 0
 #define FILTER_OUTPUT_IN_NED 1
 
-#define WITH_GPS 0
+#define WITH_GPS 1
 
 #define PRINT_MAG 0
 #define PRINT_GPS 0
 #define PRINT_EULER_NED 0
 
 /** baro-sensor **/
-// I only want the function
-#define NPS_SENSORS_PARAMS <math.h>
-// Params taken from trunk/conf/simulator/nps/nps_sensors_params_booz2_a1.h
-#define NPS_BARO_QNH             900.
-#define NPS_BARO_SENSITIVITY      17.066667
-#define NPS_BARO_DT              (1./100.)
-#define NPS_BARO_NOISE_STD_DEV     5.e-2
-// include stuff
-#include "../simulator/nps/nps_sensor_baro.h"
-#include "../simulator/nps/nps_sensor_baro.c"
 
 
 /** geodetic **/
@@ -80,6 +70,7 @@ static struct raw_log_entry first_entry_after_initialisation(int);
 
 /** initial state **/
 struct LlaCoor_f pos_0_lla;
+double baro_0_height      = 0;
 Vector3d pos_0_ecef       = Vector3d::Zero();
 Vector3d speed_0_ecef     = Vector3d::Zero();
 Vector3d bias_0           = Vector3d::Zero();
@@ -113,6 +104,9 @@ const Vector3d gps_speed_noise      ( 1.4283e+0,  4.2384e-1,  1.5453e+0 );
 const unsigned short gps_frequency  = 4;
 //const Vector3d gps_pos_noise        = Vector3d::Ones() *10  *10  ;
 
+const double baro_noise             =  0.25;
+#define BARO_SCALING                  10.0
+
 //const double   mag_error            = 2.536e-3;
 //const Vector3d gyro_white_noise     (  1.1328*1.1328e-4,    0.9192*0.9192e-4,    1.2291*1.2291e-4);
 //const Vector3d gyro_stability_noise ( -1.7605*1.7605e-4,    0.5592*0.5592e-4,    1.1486*1.1486e-4);
@@ -129,31 +123,39 @@ static struct raw_log_entry read_raw_log_entry(int, uint8_t *);
 static struct raw_log_entry next_GPS(int);
 
 static void print_estimator_state(double);
+#define AC_ID 210
 #define INS_LOG_FILE "log_ins_test3.data"
 
 
 
 /* Other */
 /** Average-Calculation **/
-#define MINIMAL_IMU_MEASUREMENTS 1000
-#define MINIMAL_MAGNETIC_FIELD_MEASUREMENTS 30
-#define MINIMAL_GPS_MEASUREMENTS 10
+#define MINIMAL_IMU_MEASUREMENTS            1000
+#define MINIMAL_MAGNETIC_FIELD_MEASUREMENTS   30
+#define MINIMAL_BARO_MEASUREMENTS             30
+#define MINIMAL_GPS_MEASUREMENTS              10
 
-#define NOT_ENOUGH_MEASUREMENTS(imu, mag, gps)      (NOT_ENOUGH_IMU_MEASUREMENTS(imu)            || \
+#define NOT_ENOUGH_MEASUREMENTS(imu,mag,baro,gps)   (NOT_ENOUGH_IMU_MEASUREMENTS(imu)            || \
                                                      NOT_ENOUGH_MAGNETIC_FIELD_MEASUREMENTS(mag) || \
+                                                     NOT_ENOUGH_BARO_MEASUREMENTS(baro)          || \
                                                      NOT_ENOUGH_GPS_MEASUREMENTS(gps)               )
-#define NOT_ENOUGH_IMU_MEASUREMENTS(imu)            ((imu)<(MINIMAL_IMU_MEASUREMENTS)           )
-#define NOT_ENOUGH_MAGNETIC_FIELD_MEASUREMENTS(mag) ((mag)<(MINIMAL_MAGNETIC_FIELD_MEASUREMENTS))
-#define NOT_ENOUGH_GPS_MEASUREMENTS(gps)            ((gps)<(MINIMAL_GPS_MEASUREMENTS)           )
+#define NOT_ENOUGH_IMU_MEASUREMENTS(imu)            ((imu) <(MINIMAL_IMU_MEASUREMENTS)           )
+#define NOT_ENOUGH_MAGNETIC_FIELD_MEASUREMENTS(mag) ((mag) <(MINIMAL_MAGNETIC_FIELD_MEASUREMENTS))
+#define NOT_ENOUGH_BARO_MEASUREMENTS(baro)          ((baro)<(MINIMAL_BARO_MEASUREMENTS)          )
+#define NOT_ENOUGH_GPS_MEASUREMENTS(gps)            ((gps) <(MINIMAL_GPS_MEASUREMENTS)           )
 
 #define NEW_MEAN(old_mean, new_observation, index) (((old_mean)*(index-1)+(new_observation))/(index))
 
 	/** Sensors **/
+#define INT32_BARO_FRAC 8
+#define BARO_FLOAT_OF_BFP(_ai) (FLOAT_OF_BFP((_ai), INT32_BARO_FRAC)*BARO_SCALING)
+
 #define COPY_RATES_ACCEL_TO_IMU_FLOAT(pointer){						\
   RATES_FLOAT_OF_BFP(imu_float.gyro, pointer.gyro);			\
   ACCELS_FLOAT_OF_BFP(imu_float.accel, pointer.accel); 	\
 }
 #define COPY_MAG_TO_IMU_FLOAT(pointer) MAGS_FLOAT_OF_BFP(imu_float.mag, pointer.mag)
+#define COPY_BARO_TO_IMU(pointer) imu_baro_height = -BARO_FLOAT_OF_BFP(pointer.pressure_absolute)
 #define COPY_GPS_TO_IMU(pointer){													\
   VECT3_COPY(imu_ecef_pos, pointer.ecef_pos);						\
   VECT3_COPY(imu_ecef_vel, pointer.ecef_vel);						\
@@ -161,8 +163,9 @@ static void print_estimator_state(double);
 
 
 #define IMU_READY(data_valid) (data_valid & (1<<VI_IMU_DATA_VALID))
-#define GPS_READY(data_valid) (data_valid & (1<<VI_GPS_DATA_VALID))
 #define MAG_READY(data_valid) (data_valid & (1<<VI_MAG_DATA_VALID))
+#define BARO_READY(data_valid) (data_valid & (1<<VI_BARO_ABS_DATA_VALID))
+#define GPS_READY(data_valid) (data_valid & (1<<VI_GPS_DATA_VALID))
 
 #define CLOSE_TO_GRAVITY(accel) (ABS(FLOAT_VECT3_NORM(accel)-GRAVITY)<MAX_DISTANCE_FROM_GRAVITY_FOR_UPDATE)
 
@@ -189,4 +192,8 @@ struct DoubleEulers sigma_euler_from_sigma_q(struct DoubleQuat, struct DoubleQua
     printf("%s\n %f %f %f\n %f %f %f\n %f %f %f\n",text, \
 	   mat.m[0], mat.m[1], mat.m[2], mat.m[3], mat.m[4], mat.m[5],	\
 	   mat.m[6], mat.m[7], mat.m[8]);				\
+  }
+#define DISPLAY_FLOAT_QUAT(text, quat) {				\
+    double quat_norm = NORM_VECT4(quat);				\
+    printf("%s %f %f %f %f (%f)\n",text, quat.qi, quat.qx, quat.qy, quat.qz, quat_norm); \
   }

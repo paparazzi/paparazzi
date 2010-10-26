@@ -65,9 +65,22 @@ basic_ins_qkf::obs_gps_p_report(const Vector3d& pos, const Vector3d& p_error)
 #if BARO_CENTER_OF_MASS
 void
 basic_ins_qkf::obs_baro_report(double altitude, double baro_error){
+  double height_state = avg_state.position.norm();
+  Matrix<double, 1, 3> H = avg_state.position.transpose()/height_state;
+  Matrix<double, 1, 1> innovation_cov = H * cov.block<3,3>(6,6) * H.transpose();
+  
+  Matrix<double, 12, 1> kalman_gain = cov.block<12, 3>(0,6) * H.transpose() / (innovation_cov(0)+baro_error);
+  
+  Matrix<double, 12, 1> update = kalman_gain * (altitude - height_state);
+  //std::cout <<"Delta: " << (altitude - height_state) << std::endl;
+  //std::cout <<"Update: " << update.block<6,1>(0,0).transpose() << "\t" << update.block<6,1>(6,0).transpose() << std::endl;
+	Quaterniond rotor = avg_state.apply_kalman_vec_update(update);
+	counter_rotate_cov(rotor);
+  
+  cov.part<Eigen::SelfAdjoint>() -= kalman_gain * H * cov.block<3, 12>(6, 0);
   
 }
-#else
+#else  /* BARO_CENTER_OF_MASS */
 void
 basic_ins_qkf::obs_baro_report(double altitude, double baro_error, Matrix<double, 3, 3> ecef2enu, const Vector3d& pos_0){
   Matrix<double, 1, 3> h = ecef2enu.block<1, 3>(2,0);
@@ -83,5 +96,4 @@ basic_ins_qkf::obs_baro_report(double altitude, double baro_error, Matrix<double
 	Quaterniond rotor = avg_state.apply_kalman_vec_update(update);
 	counter_rotate_cov(rotor);
 }
-#endif
-
+#endif  /* BARO_CENTER_OF_MASS */

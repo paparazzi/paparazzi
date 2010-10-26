@@ -115,7 +115,8 @@ static void main_periodic(int my_sig_num);
 static void main_trick_libevent(void);
 static void on_foo_event(int fd, short event __attribute__((unused)), void *arg);
 static struct event foo_event;
-static uint8_t main_dialog_with_io_proc(void);
+//static uint8_t main_dialog_with_io_proc(void);
+static void main_dialog_with_io_proc(void);
 
 
 /* libeknav */
@@ -127,7 +128,8 @@ static void main_run_ins(uint8_t);
 /* Logging */
 #define IMU_LOG_FILE "/tmp/log_test3.bin"
 static void main_rawlog_init(const char* filename);
-static void main_rawlog_dump(uint8_t);
+//static void main_rawlog_dump(uint8_t);
+static void main_rawlog_dump(struct AutopilotMessageVIUp* );
 
 #if RUN_FILTER
 static void print_estimator_state(double);

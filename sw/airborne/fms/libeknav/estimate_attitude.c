@@ -66,6 +66,9 @@ DoubleVect4 dominant_Eigenvector(struct DoubleMat44 A, unsigned int maximum_iter
     }
     
   }
+  #ifdef EKNAV_FROM_LOG_DEBUG
+    printf("Number of iterations: %4i\n", k);
+  #endif
   if(k==maximum_iterations){
     printf("Orientation did not converge. Using maximum uncertainty\n");
     //FLOAT_QUAT_ZERO(x_k);
@@ -77,7 +80,7 @@ DoubleVect4 dominant_Eigenvector(struct DoubleMat44 A, unsigned int maximum_iter
 /*    This function generates the "K"-matrix out of an attitude profile matrix
  * 
  * I don't know the real name of the "K"-Matrix, but everybody (see References from the other functions)
- * names it "K", so I do it as well.
+ * calls it "K", so I do it as well.
  */
 struct DoubleMat44 generate_K_matrix(struct DoubleMat33 B){
   struct DoubleMat44 K;

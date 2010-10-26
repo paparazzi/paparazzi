@@ -5,6 +5,8 @@
 struct LtpDef_d current_ltp;
 // NOTE-END
 
+unsigned int entry_counter;
+
 FILE* ins_logfile;		// note: initilaized in init_ins_state
 
 //useless initialization (I hate C++)
@@ -15,7 +17,8 @@ static basic_ins_qkf ins = basic_ins_qkf(Vector3d::Zero(), 0, 0, 0,
 USING_PART_OF_NAMESPACE_EIGEN
 
 int main(int, char *argv[]) {
-
+  
+  entry_counter = 0;
   printf("==============================\nRunning libeknav from File...\n==============================\n");
   
   int raw_log_fd = open(argv[1], O_RDONLY); 
@@ -28,6 +31,7 @@ int main(int, char *argv[]) {
   printf("Initialisation...\n");
   struct raw_log_entry e = first_entry_after_initialisation(raw_log_fd);
   printf("Starting at t = %5.2f s\n", e.time);
+  printf("entry counter: %i\n", entry_counter);
   main_init();
   printf("Running filter from file...\n");
   main_run_from_file(raw_log_fd, e);
@@ -58,6 +62,7 @@ static void main_init(void) {
 static struct raw_log_entry first_entry_after_initialisation(int file_descriptor){
   int        imu_measurements = 0,      // => Gyro + Accel
     magnetometer_measurements = 0,
+            baro_measurements = 0,
              gps_measurements = 0;      // only the position
   
   struct DoubleMat33 attitude_profile_matrix, sigmaB;   // the attitude profile matrix is often called "B"
@@ -70,14 +75,19 @@ static struct raw_log_entry first_entry_after_initialisation(int file_descriptor
   FLOAT_MAT33_ZERO(attitude_profile_matrix);
   FLOAT_MAT33_ZERO(sigmaB);
   
+  // for faster converging, but probably more rounding error
+  #define MEASUREMENT_WEIGHT_SCALE 10
+  
   /* set the gravity measurement */
   VECT3_ASSIGN(gravity.reference_direction, 0,0,-1);
-  gravity.weight_of_the_measurement = 1./(double)(imu_frequency);    // originally 1/(imu_frequency*gravity.norm()
+  gravity.weight_of_the_measurement = MEASUREMENT_WEIGHT_SCALE/(double)(imu_frequency);    // originally 1/(imu_frequency*gravity.norm()
+  //gravity.weight_of_the_measurement = 1;
   
   /* set the magneto - measurement */
   EARTHS_GEOMAGNETIC_FIELD_NORMED(magneto.reference_direction);
-  magneto.weight_of_the_measurement = 1./(double)(mag_frequency);    // originally 1/(mag_frequency*reference_direction.norm()
-    
+  magneto.weight_of_the_measurement = MEASUREMENT_WEIGHT_SCALE/(double)(mag_frequency);    // originally 1/(mag_frequency*reference_direction.norm()
+  //magneto.weight_of_the_measurement = 1;
+  
   uint8_t read_ok;
   #if WITH_GPS
   struct raw_log_entry e = next_GPS(file_descriptor);
@@ -92,44 +102,69 @@ static struct raw_log_entry first_entry_after_initialisation(int file_descriptor
   #ifdef EKNAV_FROM_LOG_DEBUG
     int imu_ready = 0, 
         mag_ready = 0,
+        baro_ready = 0,
         gps_ready = 0;
   #endif
   
-  for(read_ok = 1; (read_ok) && NOT_ENOUGH_MEASUREMENTS(imu_measurements, magnetometer_measurements, gps_measurements); e = read_raw_log_entry(file_descriptor, &read_ok)){
-    if(IMU_READY(e.data_valid)){
+  for(read_ok = 1; (read_ok) && NOT_ENOUGH_MEASUREMENTS(imu_measurements, magnetometer_measurements, baro_measurements, gps_measurements); e = read_raw_log_entry(file_descriptor, &read_ok)){
+    if(IMU_READY(e.message.valid_sensors)){
       imu_measurements++;
       
       // update the estimated bias
-      bias_0 = NEW_MEAN(bias_0, RATES_AS_VECTOR3D(e.gyro), imu_measurements);
+      bias_0 = NEW_MEAN(bias_0, RATES_BFP_AS_VECTOR3D(e.message.gyro), imu_measurements);
       
       // update the attitude profile matrix
-      VECT3_COPY(gravity.measured_direction,e.accel);
+      ACCELS_FLOAT_OF_BFP(gravity.measured_direction,e.message.accel);
       add_orientation_measurement(&attitude_profile_matrix, gravity);
     }
-    if(MAG_READY(e.data_valid)){
+    if(MAG_READY(e.message.valid_sensors)){
       magnetometer_measurements++;
       // update the attitude profile matrix
-      VECT3_COPY(magneto.measured_direction,e.mag);
+      MAGS_FLOAT_OF_BFP(magneto.measured_direction,e.message.mag);
       add_orientation_measurement(&attitude_profile_matrix, magneto);
       
       // now, generate fake measurement with the last gravity measurement
       fake = fake_orientation_measurement(gravity, magneto);
       add_orientation_measurement(&attitude_profile_matrix, fake);
     }
-    if(GPS_READY(e.data_valid)){
+    if(BARO_READY(e.message.valid_sensors)){
+      baro_measurements++;
+      printf("baro_0_height before: %7f\n", baro_0_height);
+      //NEW_MEAN(baro_0_height, BARO_FLOAT_OF_BFP(e.message.pressure_absolute), baro_measurements);
+      baro_0_height = (baro_0_height*(baro_measurements-1)+BARO_FLOAT_OF_BFP(e.message.pressure_absolute))/baro_measurements;
+    }
+    if(GPS_READY(e.message.valid_sensors)){
       gps_measurements++;
       // update the estimated bias
-      pos_0_ecef = NEW_MEAN(pos_0_ecef, VECT3_AS_VECTOR3D(e.ecef_pos)/100, gps_measurements);
-      speed_0_ecef = NEW_MEAN(speed_0_ecef, VECT3_AS_VECTOR3D(e.ecef_vel)/100, gps_measurements);
+      pos_0_ecef = NEW_MEAN(pos_0_ecef, VECT3_AS_VECTOR3D(e.message.ecef_pos)/100, gps_measurements);
+      speed_0_ecef = NEW_MEAN(speed_0_ecef, VECT3_AS_VECTOR3D(e.message.ecef_vel)/100, gps_measurements);
     }
     
     #ifdef EKNAV_FROM_LOG_DEBUG
-    if(imu_ready==0){ imu_ready = !NOT_ENOUGH_IMU_MEASUREMENTS(imu_measurements); }
-    else if(imu_ready==1){printf("IMU READY %3i %3i %3i\n", imu_measurements, magnetometer_measurements, gps_measurements); imu_ready = 2;}
-    if(mag_ready==0){ mag_ready = !NOT_ENOUGH_MAGNETIC_FIELD_MEASUREMENTS(magnetometer_measurements); }
-    else if(mag_ready==1){printf("MAG READY %3i %3i %3i\n", imu_measurements, magnetometer_measurements, gps_measurements); mag_ready = 2;}
-    if(gps_ready==0){ gps_ready = !NOT_ENOUGH_GPS_MEASUREMENTS(gps_measurements);}
-    else if(gps_ready==1){printf("GPS READY %3i %3i %3i\n", imu_measurements, magnetometer_measurements, gps_measurements); gps_ready = 2;}
+    if(imu_ready==0){
+      if(!NOT_ENOUGH_IMU_MEASUREMENTS(imu_measurements)){
+        printf("IMU READY %3i %3i %3i %3i\n", imu_measurements, magnetometer_measurements, baro_measurements, gps_measurements);
+        imu_ready = 1;
+      }
+    }
+    if(mag_ready==0){
+      if(!NOT_ENOUGH_MAGNETIC_FIELD_MEASUREMENTS(magnetometer_measurements)){
+        printf("MAG READY %3i %3i %3i %3i\n", imu_measurements, magnetometer_measurements, baro_measurements, gps_measurements);
+        mag_ready = 1;
+      }
+    }
+    if(baro_ready==0){
+      if(!NOT_ENOUGH_BARO_MEASUREMENTS(baro_measurements)){
+        printf("BARO READY %3i %3i %3i %3i\n", imu_measurements, magnetometer_measurements, baro_measurements, gps_measurements);
+        baro_ready = 1;
+      }
+    }
+    if(gps_ready==0){
+      if(!NOT_ENOUGH_GPS_MEASUREMENTS(gps_measurements)){
+        printf("GPS READY %3i %3i %3i %3i\n", imu_measurements, magnetometer_measurements, baro_measurements, gps_measurements);
+        gps_ready = 1;
+      }
+    }
     #endif
   }
   // setting the covariance
@@ -144,8 +179,13 @@ static struct raw_log_entry first_entry_after_initialisation(int file_descriptor
   DISPLAY_FLOAT_RMAT("sigmaB", sigmaB);
   #endif
   
+  //  setting the initial orientation
   q_ned2body = estimated_attitude(attitude_profile_matrix, 1000, 1e-6, sigmaB, &sigma_q);
 	orientation_0 = ecef2body_from_pprz_ned2body(pos_0_ecef,q_ned2body);
+  
+  printf("baro_0_height before: %7f\n", baro_0_height);
+  baro_0_height += pos_0_ecef.norm();
+  printf("baro_0_height after:  %7f\n", baro_0_height);
   
   struct DoubleEulers sigma_eu = sigma_euler_from_sigma_q(q_ned2body, sigma_q);
   orientation_cov_0 = EULER_AS_VECTOR3D(sigma_eu);
@@ -164,13 +204,13 @@ static void main_run_from_file(int file_descriptor, struct raw_log_entry first_e
   int t = 10*(int)(1+e.time*0.1);
   while (read_ok) {
     if(e.time>t){
-      printf("%6.2f s\n", e.time);
+      printf("%6.2fs %6i\n", e.time, entry_counter);
       t += 10;
     }
-    if ((e.time<22.58)||(e.time>22.6)){
-      main_run_ins(e.data_valid);
+    //if ((e.time<22.58)||(e.time>22.6)){
+      main_run_ins(e.message.valid_sensors);
       print_estimator_state(e.time);
-    } 
+    //} 
     e = read_raw_log_entry(file_descriptor, &read_ok);
   }
 }
@@ -191,15 +231,17 @@ static void main_run_ins(uint8_t data_valid) {
 	}
   #endif
   
+  if(BARO_READY(data_valid)){
+    ins.obs_baro_report(baro_0_height+imu_baro_height, baro_noise);
+  }
+  
   if(GPS_READY(data_valid)){
 		ins.obs_gps_pv_report(VECT3_AS_VECTOR3D(imu_ecef_pos)/100, VECT3_AS_VECTOR3D(imu_ecef_vel)/100, 10*gps_pos_noise, 10*gps_speed_noise);
     
     Matrix<double, 3, 3> ecef2enu;
     RMAT_TO_EIGENMATRIX(ecef2enu,current_ltp.ltp_of_ecef.m);
-    ins.obs_baro_report(0, 1, ecef2enu, pos_0_ecef);
 
 	}
-  
 }
 
 
@@ -230,13 +272,13 @@ static void init_ins_state(void){
   printf("Orientation % 7.2f %6.1f° +-%6.1f°\n", orientation_0.y(), eu_ecef2body.theta*180*M_1_PI, orientation_cov_0(1)*180*M_1_PI);
   printf("Orientation % 7.2f %6.1f° +-%6.1f°\n", orientation_0.z(),   eu_ecef2body.psi*180*M_1_PI, orientation_cov_0(2)*180*M_1_PI); 
   printf("\n");
-  printf("Position    % 9.0f       +-%7.2f\n", pos_0_ecef(0), pos_cov_0(0));
-  printf("Position    % 9.0f       +-%7.2f\n", pos_0_ecef(1), pos_cov_0(1));
-  printf("Position    % 9.0f       +-%7.2f\n", pos_0_ecef(2), pos_cov_0(2));
+  printf("Position    % 9.0f m     +-%7.2f\n", pos_0_ecef(0), pos_cov_0(0));
+  printf("Position    % 9.0f m     +-%7.2f\n", pos_0_ecef(1), pos_cov_0(1));
+  printf("Position    % 9.0f m     +-%7.2f\n", pos_0_ecef(2), pos_cov_0(2));
   printf("\n");
-  printf("Velocity    % 7.2f         +-%7.2f\n", speed_0_ecef(0), speed_cov_0(0));
-  printf("Velocity    % 7.2f         +-%7.2f\n", speed_0_ecef(1), speed_cov_0(1));
-  printf("Velocity    % 7.2f         +-%7.2f\n", speed_0_ecef(2), speed_cov_0(2));
+  printf("Velocity    % 7.2f m/s     +-%7.2f\n", speed_0_ecef(0), speed_cov_0(0));
+  printf("Velocity    % 7.2f m/s     +-%7.2f\n", speed_0_ecef(1), speed_cov_0(1));
+  printf("Velocity    % 7.2f m/s     +-%7.2f\n", speed_0_ecef(2), speed_cov_0(2));
   printf("\n");
 	
 	Matrix<double, 12, 1> diag_cov;
@@ -285,6 +327,14 @@ Quaterniond ecef2body_from_pprz_ned2body(Vector3d ecef_pos, struct DoubleQuat q_
   
   FLOAT_QUAT_COMP_NORM_SHORTEST(q_ecef2body, q_ecef2ned, q_ned2body);
   
+  #ifdef EKNAV_FROM_LOG_DEBUG
+  printf("Right after initialization:\n");
+  DISPLAY_FLOAT_QUAT("\t ned2body quaternion:", q_ned2body);
+  DISPLAY_FLOAT_QUAT("\tecef2enu  quaternion:", q_ecef2enu);
+  DISPLAY_FLOAT_QUAT("\tecef2ned  quaternion:", q_ecef2ned);
+  DISPLAY_FLOAT_QUAT("\tecef2body quaternion:", q_ecef2body);
+  #endif
+  
   return DOUBLEQUAT_AS_QUATERNIOND(q_ecef2body);
 }
 
@@ -319,17 +369,19 @@ static struct raw_log_entry read_raw_log_entry(int file_descriptor, uint8_t *rea
   struct raw_log_entry e;
   ssize_t nb_read = read(file_descriptor, &e, sizeof(e));
   *read_ok =  (nb_read == sizeof(e));
+  entry_counter ++;
   
-  COPY_RATES_ACCEL_TO_IMU_FLOAT(e);
-  COPY_MAG_TO_IMU_FLOAT(e);
-  COPY_GPS_TO_IMU(e);
+  COPY_BARO_TO_IMU(e.message);
+  COPY_RATES_ACCEL_TO_IMU_FLOAT(e.message);
+  COPY_MAG_TO_IMU_FLOAT(e.message);
+  COPY_GPS_TO_IMU(e.message);
   return e;
 }
 
 static struct raw_log_entry next_GPS(int file_descriptor){
   uint8_t read_ok;
   struct raw_log_entry e = read_raw_log_entry(file_descriptor, &read_ok);
-  while ((read_ok)&&(!GPS_READY(e.data_valid))) {
+  while ((read_ok)&&(!GPS_READY(e.message.valid_sensors))) {
     e = read_raw_log_entry(file_descriptor, &read_ok);
   }
   return e;
