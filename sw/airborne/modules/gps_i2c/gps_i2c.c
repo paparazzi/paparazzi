@@ -2,7 +2,7 @@
  * Copyright (C) 2009  ENAC, Pascal Brisset, Michel Gorraz,Gautier Hattenberger
  *
  * This file is part of paparazzi.
- * 
+ *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -82,7 +82,7 @@ gps_i2c_event(void) {
       uint8_t data_size = Min(gps_i2c_tx_insert_idx-gps_i2c_tx_extract_idx, I2C0_BUF_LEN);
       uint8_t i;
       for(i = 0; i < data_size; i++, gps_i2c_tx_extract_idx++)
-	i2c0_buf[i] = gps_i2c_tx_buf[gps_i2c_tx_extract_idx];
+    i2c0_buf[i] = gps_i2c_tx_buf[gps_i2c_tx_extract_idx];
 
       /* Start i2c transmit */
       i2c0_transmit(GPS_I2C_SLAVE_ADDR, data_size, &gps_i2c_done);
@@ -90,8 +90,8 @@ gps_i2c_event(void) {
 
       /* Reset flag if finished */
       if (gps_i2c_tx_extract_idx >= gps_i2c_tx_insert_idx) {
-	gps_i2c_data_ready_to_transmit = FALSE;
-	gps_i2c_tx_insert_idx = 0;
+    gps_i2c_data_ready_to_transmit = FALSE;
+    gps_i2c_tx_insert_idx = 0;
       }
     }
     break;
@@ -101,7 +101,7 @@ gps_i2c_event(void) {
     gps_i2c_done = FALSE;
     gps_i2c_status = GPS_I2C_STATUS_READING_NB_AVAIL_BYTES;
     break;
-    
+
   case GPS_I2C_STATUS_READING_NB_AVAIL_BYTES:
     gps_i2c_nb_avail_bytes = (i2c0_buf[0]<<8) | i2c0_buf[1];
 
@@ -116,7 +116,7 @@ gps_i2c_event(void) {
   case GPS_I2C_STATUS_ASKING_DATA:
     data_buf_len = Min(gps_i2c_nb_avail_bytes, I2C0_BUF_LEN);
     gps_i2c_nb_avail_bytes -= data_buf_len;
-    
+
     i2c0_receive(GPS_I2C_SLAVE_ADDR, data_buf_len, &gps_i2c_done);
     gps_i2c_done = FALSE;
     gps_i2c_status = GPS_I2C_STATUS_READING_DATA;

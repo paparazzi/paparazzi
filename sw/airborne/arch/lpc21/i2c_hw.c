@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -64,7 +64,7 @@ static inline void I2cFinished(struct i2c_periph* p, struct i2c_transaction* t) 
 
 static inline void I2cSendStop(struct i2c_periph* p, struct i2c_transaction* t) {
   ((i2cRegs_t *)(p->reg_addr))->conset = _BV(STO);
-  I2cFinished(p,t); 
+  I2cFinished(p,t);
 }
 
 static inline void I2cFail(struct i2c_periph* p, struct i2c_transaction* t) {
@@ -102,8 +102,8 @@ static inline void I2cAutomaton(int32_t state, struct i2c_periph* p) {
         case I2CTransRx :
           SetBit(trans->slave_addr,0);
           break;
-        case I2CTransTx: 
-        case I2CTransTxRx: 
+        case I2CTransTx:
+        case I2CTransTxRx:
           ClearBit(trans->slave_addr,0);
           break;
       }
@@ -167,7 +167,7 @@ static inline void I2cAutomaton(int32_t state, struct i2c_periph* p) {
 
 #ifdef USE_I2C0
 
-/* default clock speed 37.5KHz with our 15MHz PCLK 
+/* default clock speed 37.5KHz with our 15MHz PCLK
    I2C0_CLOCK = PCLK / (I2C0_SCLL + I2C0_SCLH)     */
 #ifndef I2C0_SCLL
 #define I2C0_SCLL 200
@@ -208,11 +208,11 @@ void i2c0_ISR(void) __attribute__((naked));
 
 void i2c0_ISR(void) {
   ISR_ENTRY();
-  
+
   uint32_t state = I2C0STAT;
   I2cAutomaton(state,&i2c0);
   I2cClearIT(i2c0.reg_addr);
-  
+
   VICVectAddr = 0x00000000;             // clear this interrupt from the VIC
   ISR_EXIT();                           // recover registers and return
 }
@@ -231,9 +231,9 @@ void i2c0_hw_init ( void ) {
   /* enable I2C */
   I2C0CONSET = _BV(I2EN);
   /* set bitrate */
-  I2C0SCLL = I2C0_SCLL_D;  
-  I2C0SCLH = I2C0_SCLH_D;  
-  
+  I2C0SCLL = I2C0_SCLL_D;
+  I2C0SCLH = I2C0_SCLH_D;
+
   // initialize the interrupt vector
   VICIntSelect &= ~VIC_BIT(VIC_I2C0);              // I2C0 selected as IRQ
   VICIntEnable = VIC_BIT(VIC_I2C0);                // I2C0 interrupt enabled
@@ -247,7 +247,7 @@ void i2c0_hw_init ( void ) {
 
 #ifdef USE_I2C1
 
-/* default clock speed 37.5KHz with our 15MHz PCLK 
+/* default clock speed 37.5KHz with our 15MHz PCLK
    I2C1_CLOCK = PCLK / (I2C1_SCLL + I2C1_SCLH)     */
 #ifndef I2C1_SCLL
 #define I2C1_SCLL 200
@@ -283,11 +283,11 @@ void i2c1_ISR(void) __attribute__((naked));
 
 void i2c1_ISR(void) {
   ISR_ENTRY();
-  
+
   uint32_t state = I2C1STAT;
   I2cAutomaton(state,&i2c1);
   I2cClearIT(i2c1.reg_addr);
-  
+
   VICVectAddr = 0x00000000;             // clear this interrupt from the VIC
   ISR_EXIT();                           // recover registers and return
 }
@@ -305,9 +305,9 @@ void i2c1_hw_init ( void ) {
   /* enable I2C */
   I2C1CONSET = _BV(I2EN);
   /* set bitrate */
-  I2C1SCLL = I2C1_SCLL_D;  
-  I2C1SCLH = I2C1_SCLH_D;  
-  
+  I2C1SCLL = I2C1_SCLL_D;
+  I2C1SCLH = I2C1_SCLH_D;
+
   // initialize the interrupt vector
   VICIntSelect &= ~VIC_BIT(VIC_I2C1);              // I2C1 selected as IRQ
   VICIntEnable = VIC_BIT(VIC_I2C1);                // I2C1 interrupt enabled
@@ -340,6 +340,3 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
 
   return TRUE;
 }
-
-
-

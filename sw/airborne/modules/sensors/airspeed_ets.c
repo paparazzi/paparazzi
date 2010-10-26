@@ -98,7 +98,7 @@ void airspeed_ets_read_periodic( void ) {
   extern float sim_air_speed;
   EstimatorSetAirspeed(sim_air_speed);
 #endif //SITL
-}      
+}
 
 void airspeed_ets_read_event( void ) {
   int n;
@@ -112,8 +112,8 @@ void airspeed_ets_read_event( void ) {
   else
     airspeed_ets_valid = TRUE;
 
-  // Continue only if a new airspeed value was received  
-  if (airspeed_ets_valid) {  
+  // Continue only if a new airspeed value was received
+  if (airspeed_ets_valid) {
     // Calculate offset average if not done already
     if (!airspeed_ets_offset_init) {
       --airspeed_ets_cnt;
@@ -131,7 +131,7 @@ void airspeed_ets_read_event( void ) {
       // Check if averaging needs to continue
       else if (airspeed_ets_cnt <= AIRSPEED_ETS_OFFSET_NBSAMPLES_AVRG)
         airspeed_ets_offset_tmp += airspeed_ets_raw;
-    }    
+    }
     // Convert raw to m/s
     if (airspeed_ets_offset_init && airspeed_ets_raw > airspeed_ets_offset)
       airspeed_tmp = AIRSPEED_ETS_SCALE * sqrtf( (float)(airspeed_ets_raw-airspeed_ets_offset) ) - AIRSPEED_ETS_OFFSET;
@@ -157,7 +157,3 @@ void airspeed_ets_read_event( void ) {
   airspeed_ets_i2c_trans.status = I2CTransDone;
 
 }
-
-
-
-

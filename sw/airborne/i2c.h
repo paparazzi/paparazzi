@@ -5,30 +5,30 @@
 
 #include "i2c_hw.h"
 
-enum I2CTransactionType { 
-  I2CTransTx, 
-  I2CTransRx, 
-  I2CTransTxRx 
+enum I2CTransactionType {
+  I2CTransTx,
+  I2CTransRx,
+  I2CTransTxRx
 };
 
-enum I2CTransactionStatus {  
-  I2CTransPending, 
-  I2CTransRunning, 
-  I2CTransSuccess, 
+enum I2CTransactionStatus {
+  I2CTransPending,
+  I2CTransRunning,
+  I2CTransSuccess,
   I2CTransFailed,
   I2CTransDone
 };
 
-enum I2CStatus { 
-  I2CIdle, 
+enum I2CStatus {
+  I2CIdle,
   I2CStartRequested,
-  I2CAddrWrSent, 
-  I2CAddrRdSent, 
-  I2CSendingByte, 
+  I2CAddrWrSent,
+  I2CAddrRdSent,
+  I2CSendingByte,
   /*  I2CSendingLastByte, */
   I2CReadingByte,
   I2CReadingLastByte,
-  I2CStopRequested, 
+  I2CStopRequested,
   I2CRestartRequested,
   I2CComplete,
   I2CFailed
@@ -80,8 +80,8 @@ struct i2c_errors {
 
 
 #include <string.h>
-#define I2C_ZERO_EVENTS(_err) {					    \
-    _err.irq_cnt = 0;						    \
+#define I2C_ZERO_EVENTS(_err) {                     \
+    _err.irq_cnt = 0;                           \
     memset((void*)_err.event_chain, 0, sizeof(_err.event_chain));   \
     memset((void*)_err.status_chain, 0, sizeof(_err.status_chain)); \
   }
@@ -105,7 +105,7 @@ struct i2c_errors {
 extern struct i2c_periph i2c0;
 extern void i2c0_init(void);
 
-#endif /* USE_I2C0 */   
+#endif /* USE_I2C0 */
 
 
 
@@ -129,12 +129,12 @@ extern void   i2c_init(struct i2c_periph* p);
 extern bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t);
 
 #define I2CReceive(_p, _t, _s_addr, _len) { \
-    _t.type = I2CTransRx;		    \
-    _t.slave_addr = _s_addr;		    \
-    _t.len_r = _len;			    \
-    _t.len_w = 0;			    \
-    _t.stop_after_transmit = TRUE;	    \
-    i2c_submit(&(_p),&(_t));		    \
+    _t.type = I2CTransRx;           \
+    _t.slave_addr = _s_addr;            \
+    _t.len_r = _len;                \
+    _t.len_w = 0;               \
+    _t.stop_after_transmit = TRUE;      \
+    i2c_submit(&(_p),&(_t));            \
   }
 
 #define I2CTransmit(_p, _t, _s_addr, _len) {	\
@@ -156,12 +156,12 @@ extern bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t);
   }
 
 #define I2CTransceive(_p, _t, _s_addr, _len_w, _len_r) { \
-    _t.type = I2CTransTxRx;				 \
-    _t.slave_addr = _s_addr;				 \
-    _t.len_r = _len_r;					 \
-    _t.len_w = _len_w;					 \
-    _t.stop_after_transmit = TRUE;			 \
-    i2c_submit(&(_p),&(_t));				 \
+    _t.type = I2CTransTxRx;              \
+    _t.slave_addr = _s_addr;                 \
+    _t.len_r = _len_r;                   \
+    _t.len_w = _len_w;                   \
+    _t.stop_after_transmit = TRUE;           \
+    i2c_submit(&(_p),&(_t));                 \
   }
 
 

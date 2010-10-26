@@ -1,6 +1,6 @@
 /*
  * $Id: temp_tmp102.c $
- *  
+ *
  * Copyright (C) 2010 Martin Mueller
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -45,7 +45,7 @@ struct i2c_transaction tmp_trans;
 #define TMP_I2C_DEV i2c0
 #endif
 
-/* 
+/*
    address depends on to what pin A0 is connected to
    A0:    GND  Vcc  SDA  SCL
    Addr: 0x90 0x92 0x94 0x96
@@ -95,4 +95,3 @@ void tmp102_event( void ) {
       tmp_trans.status = I2CTransDone;
   }
 }
-

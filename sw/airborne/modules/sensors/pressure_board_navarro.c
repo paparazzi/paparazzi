@@ -83,7 +83,7 @@ void pbn_periodic( void ) {
     return;
   }
 
-  // Initiate next read  
+  // Initiate next read
   pbn_trans.buf[0] = 0;
   I2CTransceive(PBN_I2C_DEVICE, pbn_trans, PBN_I2C_ADDR, 1, 4);
 
@@ -102,7 +102,7 @@ void pbn_read_event( void ) {
     data_valid = FALSE;
   }
   else {
-    data_valid = TRUE;   
+    data_valid = TRUE;
 
     if (offset_cnt > 0) {
       // IIR filter to compute an initial offset
@@ -126,4 +126,3 @@ void pbn_read_event( void ) {
 
   }
 }
-

@@ -1,4 +1,3 @@
-
 /** \file baro_scp_i2c.c
  *  \brief VTI SCP1000 I2C sensor interface
  *
@@ -99,4 +98,3 @@ void baro_scp_event( void ) {
     else baro_scp_status = BARO_SCP_IDLE;
   }
 }
-
