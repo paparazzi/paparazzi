@@ -54,6 +54,10 @@
 #define BARO_ETS_R 0.5
 #define BARO_ETS_SIGMA2 0.1
 
+#ifndef BARO_ETS_I2C_DEV
+#define BARO_ETS_I2C_DEV i2c0
+#endif
+
 // Global variables
 uint16_t baro_ets_adc;
 uint16_t baro_ets_offset;
@@ -89,7 +93,7 @@ void baro_ets_read_periodic( void ) {
   // Initiate next read
 #ifndef SITL
   if (baro_ets_i2c_trans.status == I2CTransDone)
-    I2CReceive(i2c0, baro_ets_i2c_trans, BARO_ETS_ADDR, 2);
+    I2CReceive(BARO_ETS_I2C_DEV, baro_ets_i2c_trans, BARO_ETS_ADDR, 2);
 #else // SITL
   baro_ets_adc = 0;
   baro_ets_altitude = gps_alt / 100.0;

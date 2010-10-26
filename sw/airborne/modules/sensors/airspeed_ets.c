@@ -51,6 +51,10 @@
 #define AIRSPEED_ETS_OFFSET_NBSAMPLES_AVRG 60
 #define AIRSPEED_ETS_NBSAMPLES_AVRG 10
 
+#ifndef AIRSPEED_ETS_I2C_DEV
+#define AIRSPEED_ETS_I2C_DEV i2c0
+#endif
+
 // Global variables
 uint16_t airspeed_ets_raw;
 uint16_t airspeed_ets_offset;
@@ -88,7 +92,7 @@ void airspeed_ets_init( void ) {
 void airspeed_ets_read_periodic( void ) {
 #ifndef SITL
   if (airspeed_ets_i2c_trans.status == I2CTransDone)
-    I2CReceive(i2c0, airspeed_ets_i2c_trans, AIRSPEED_ETS_ADDR, 2);
+    I2CReceive(AIRSPEED_ETS_I2C_DEV, airspeed_ets_i2c_trans, AIRSPEED_ETS_ADDR, 2);
 #else // SITL
   extern float sim_air_speed;
   EstimatorSetAirspeed(sim_air_speed);

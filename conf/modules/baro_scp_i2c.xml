@@ -1,5 +1,10 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
+<!--
+     Baro SCP module (I2C)
+     @param SCP_I2C_DEV i2c device (default i2c0)
+     -->
+
 <module name="baro_scp_i2c" dir="sensors">
   <header>
     <file name="baro_scp_i2c.h"/>

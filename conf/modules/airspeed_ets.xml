@@ -4,6 +4,7 @@
      Airspeed ETS module (I2C)
      @param AIRSPEED_ETS_SCALE scale factor (default 1.8)
      @param AIRSPEED_ETS_OFFSET offset (default 0)
+     @param AIRSPEED_ETS_I2C_DEV i2c device (default i2c0)
      -->
 
 <module name="airspeed_ets" dir="sensors">
