@@ -122,10 +122,14 @@
   }
   
 #define QUAT_ENU_FROM_TO_NED(from, to){	\
-	to.qi = -from.qx - from.qy;						\
-  to.qi =  from.qi + from.qz;						\
-  to.qi =  from.qi - from.qz;						\
-  to.qi = -from.qx + from.qy;						\
+	to.qi =  from.qx + from.qy;						\
+  DISPLAY_FLOAT_QUAT("\tstep_1", to);			\
+  to.qx = -from.qi - from.qz;						\
+  DISPLAY_FLOAT_QUAT("\tstep_2", to);			\
+  to.qy = -from.qi + from.qz;						\
+  DISPLAY_FLOAT_QUAT("\tstep_3", to);			\
+  to.qz =  from.qx - from.qy;						\
+  DISPLAY_FLOAT_QUAT("\tstep_4", to);			\
   QUAT_SMUL(to, to, M_SQRT1_2);					\
 }
 
@@ -145,6 +149,7 @@
 #define VECT3_AS_VECTOR3D(coords) Vector3d(coords.x, coords.y, coords.z)
 #define EULER_AS_VECTOR3D(euler) -Vector3d(euler.phi, euler.theta, euler.psi);
 #define RATES_AS_VECTOR3D(rates) Vector3d(rates.p,rates.q,rates.r)
+#define RATES_BFP_AS_VECTOR3D(rates) Vector3d(RATE_FLOAT_OF_BFP(rates.p),RATE_FLOAT_OF_BFP(rates.q),RATE_FLOAT_OF_BFP(rates.r))
 #define DOUBLEQUAT_AS_QUATERNIOND(quat) Quaterniond(quat.qi, -quat.qx, -quat.qy, -quat.qz)
 
 #define RMAT_TO_EIGENMATRIX(Eigen,c)	Eigen << (c)[0],(c)[1],(c)[2],(c)[3],(c)[4],(c)[5],(c)[6],(c)[7],(c)[8]
