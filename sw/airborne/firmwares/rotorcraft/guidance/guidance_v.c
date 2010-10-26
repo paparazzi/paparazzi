@@ -32,7 +32,7 @@
 // #include "booz_fms.h" FIXME
 #include "firmwares/rotorcraft/navigation.h"
 
-#include "firmwares/rotorcraft/ins.h"
+#include "subsystems/ins.h"
 #include "math/pprz_algebra_int.h"
 
 #include "airframe.h"

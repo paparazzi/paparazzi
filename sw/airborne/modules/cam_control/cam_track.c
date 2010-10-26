@@ -24,11 +24,11 @@
 
 #include "cam_track.h"
 
-#include "firmwares/rotorcraft/ins.h"
+#include "subsystems/ins.h"
 #include "subsystems/ahrs.h"
 
 #ifdef USE_HFF
-#include "ins/hf_float.h"
+#include "subsystems/ins/hf_float.h"
 #endif
 
 struct FloatVect3 target_pos_ned;

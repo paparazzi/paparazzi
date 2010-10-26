@@ -48,7 +48,7 @@
 #include "firmwares/rotorcraft/battery.h"
 #include "subsystems/imu.h"
 #include "booz_gps.h"
-#include "firmwares/rotorcraft/ins.h"
+#include "subsystems/ins.h"
 #include "subsystems/ahrs.h"
 
 #include "i2c_hw.h"
@@ -472,7 +472,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 #ifdef USE_VFF
-#include "firmwares/rotorcraft/ins/vf_float.h"
+#include "subsystems/ins/vf_float.h"
 #define PERIODIC_SEND_VFF(_chan) {		\
     DOWNLINK_SEND_VFF(_chan,			\
 			    &vff_z_meas,		\
@@ -488,7 +488,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #endif
 
 #ifdef USE_HFF
-#include  "firmwares/rotorcraft/ins/hf_float.h"
+#include  "subsystems/ins/hf_float.h"
 #define PERIODIC_SEND_HFF(_chan) {	\
     DOWNLINK_SEND_HFF(_chan,		\
                             &b2_hff_state.x,			\

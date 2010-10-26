@@ -1,5 +1,3 @@
-
-
 #ifndef ArduIMU_H
 #define ArduIMU_H
 
@@ -16,7 +14,7 @@ extern float ins_pitch_neutral;
 extern float pitch_of_throttle_gain;
 extern float throttle_slew;
 
-void ArduIMU_init( void ); 
+void ArduIMU_init( void );
 void ArduIMU_periodic( void );
 void ArduIMU_periodicGPS( void );
 void IMU_Daten_verarbeiten( void );

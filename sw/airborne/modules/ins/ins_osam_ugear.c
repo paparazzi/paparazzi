@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2003-2006  Haiyang Chao
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -40,11 +40,11 @@
 #include "estimator.h"
 #include "xsens_protocol.h"
 
-#define UNINIT 		0
-#define GOT_SYNC1 	1
-#define GOT_SYNC2 	2
-#define GOT_ID        	3
-#define GOT_LEN      	4
+#define UNINIT      0
+#define GOT_SYNC1   1
+#define GOT_SYNC2   2
+#define GOT_ID          3
+#define GOT_LEN         4
 #define GOT_PAYLOAD     5
 #define GOT_CHECKSUM1   6
 #define GOT_CHECKSUM2   7
@@ -107,7 +107,7 @@ static uint8_t ck_a, ck_b;
 
 int16_t ugear_phi;
 int16_t ugear_psi;
-int16_t ugear_theta; 
+int16_t ugear_theta;
 
 int16_t gps_ve;
 int16_t gps_vn;
@@ -115,7 +115,7 @@ int16_t gps_vd;
 /* added 20080522 for debugging*/
 int16_t ugear_debug1;
 int16_t ugear_debug2;
-int16_t ugear_debug3; 
+int16_t ugear_debug3;
 int32_t ugear_debug4;
 int32_t ugear_debug5;
 int32_t ugear_debug6;
@@ -130,8 +130,8 @@ struct imu {
 };
 
 struct gps {
-   int32_t lon,lat,alt; 
-   int16_t ve,vn,vd; 
+   int32_t lon,lat,alt;
+   int16_t ve,vn,vd;
 };
 
 struct imu imupacket;
@@ -175,8 +175,8 @@ void parse_ugear( uint8_t c ) {
     ugear_status++;
     //ugear_theta = 30; // for debug
     if (ugear_type > 2)
-	goto restart;
-    break;  
+    goto restart;
+    break;
   case GOT_ID:
     ugear_len = c;
     ugear_msg_idx = 0;
@@ -203,7 +203,7 @@ void parse_ugear( uint8_t c ) {
     break;
   }
   return;
-error:  
+error:
 restart:
   ugear_status = UNINIT;
   return;
@@ -219,77 +219,77 @@ void decode_imupacket( struct imu *data, uint8_t* buffer){
 */
 void parse_ugear_msg( void ){
 
-	float ins_phi, ins_psi, ins_theta;
+    float ins_phi, ins_psi, ins_theta;
 
-	switch (ugear_type){
-		case 0:  /*gps*/
-			ugear_debug1 = ugear_debug1+1;
-      		gps_lat = UGEAR_NAV_POSLLH_LAT(ugear_msg_buf);
-			gps_lon = UGEAR_NAV_POSLLH_LON(ugear_msg_buf);
-			
-		  	nav_utm_zone0 = (gps_lon/10000000+180) / 6 + 1;
-			latlong_utm_of(RadOfDeg(gps_lat/1e7), RadOfDeg(gps_lon/1e7), nav_utm_zone0);
-			gps_utm_east = latlong_utm_x * 100;
-			gps_utm_north = latlong_utm_y * 100;
+    switch (ugear_type){
+        case 0:  /*gps*/
+            ugear_debug1 = ugear_debug1+1;
+            gps_lat = UGEAR_NAV_POSLLH_LAT(ugear_msg_buf);
+            gps_lon = UGEAR_NAV_POSLLH_LON(ugear_msg_buf);
 
-			gps_alt = UGEAR_NAV_POSLLH_HEIGHT(ugear_msg_buf);
-			gps_utm_zone = nav_utm_zone0;
-			
-			gps_gspeed = UGEAR_NAV_VELNED_GSpeed(ugear_msg_buf);
-      			gps_climb = - UGEAR_NAV_POSLLH_VD(ugear_msg_buf);
-      			gps_course = UGEAR_NAV_VELNED_Heading(ugear_msg_buf)/10000; /*in decdegree */
-      			gps_PDOP = UGEAR_NAV_SOL_PDOP(ugear_msg_buf);
-      			gps_Pacc = UGEAR_NAV_SOL_Pacc(ugear_msg_buf);
-      			gps_Sacc = UGEAR_NAV_SOL_Sacc(ugear_msg_buf);
-      			gps_numSV = UGEAR_NAV_SOL_numSV(ugear_msg_buf);
-			gps_week = 0; // FIXME
-			gps_itow = UGEAR_NAV_VELNED_ITOW(ugear_msg_buf);
+            nav_utm_zone0 = (gps_lon/10000000+180) / 6 + 1;
+            latlong_utm_of(RadOfDeg(gps_lat/1e7), RadOfDeg(gps_lon/1e7), nav_utm_zone0);
+            gps_utm_east = latlong_utm_x * 100;
+            gps_utm_north = latlong_utm_y * 100;
 
-			//ugear_debug2 = gps_climb;
-      		//ugear_debug4 = (int32_t)(UGEAR_NAV_VELNED_GSpeed(ugear_msg_buf));
-			//ugear_debug5 = UGEAR_NAV_VELNED_GSpeed(ugear_msg_buf);
-			//ugear_debug6 = (int16_t)estimator_phi*100;
+            gps_alt = UGEAR_NAV_POSLLH_HEIGHT(ugear_msg_buf);
+            gps_utm_zone = nav_utm_zone0;
 
-			gps_mode = 3;  /*force GPSfix to be valided*/
-			gps_pos_available = TRUE; /* The 3 UBX messages are sent in one rafale */
-			break;	
-		case 1:  /*IMU*/
-			ugear_debug2 = ugear_debug2+1;
-			ugear_phi = UGEAR_IMU_PHI(ugear_msg_buf);			
-			ugear_psi = UGEAR_IMU_PSI(ugear_msg_buf);
-			ugear_theta = UGEAR_IMU_THE(ugear_msg_buf);
-			ugear_debug4 = (int32_t)ugear_phi;
-			ugear_debug5 = (int32_t)ugear_theta;
-			ugear_debug6 = (int32_t)ugear_psi;
-			ugear_debug3 = 333;
-			ins_phi  = (float)ugear_phi/10000 - ins_roll_neutral;
-			ins_psi = 0;
-			ins_theta  = (float)ugear_theta/10000 - ins_pitch_neutral;
+            gps_gspeed = UGEAR_NAV_VELNED_GSpeed(ugear_msg_buf);
+                gps_climb = - UGEAR_NAV_POSLLH_VD(ugear_msg_buf);
+                gps_course = UGEAR_NAV_VELNED_Heading(ugear_msg_buf)/10000; /*in decdegree */
+                gps_PDOP = UGEAR_NAV_SOL_PDOP(ugear_msg_buf);
+                gps_Pacc = UGEAR_NAV_SOL_Pacc(ugear_msg_buf);
+                gps_Sacc = UGEAR_NAV_SOL_Sacc(ugear_msg_buf);
+                gps_numSV = UGEAR_NAV_SOL_numSV(ugear_msg_buf);
+            gps_week = 0; // FIXME
+            gps_itow = UGEAR_NAV_VELNED_ITOW(ugear_msg_buf);
+
+            //ugear_debug2 = gps_climb;
+            //ugear_debug4 = (int32_t)(UGEAR_NAV_VELNED_GSpeed(ugear_msg_buf));
+            //ugear_debug5 = UGEAR_NAV_VELNED_GSpeed(ugear_msg_buf);
+            //ugear_debug6 = (int16_t)estimator_phi*100;
+
+            gps_mode = 3;  /*force GPSfix to be valided*/
+            gps_pos_available = TRUE; /* The 3 UBX messages are sent in one rafale */
+            break;
+        case 1:  /*IMU*/
+            ugear_debug2 = ugear_debug2+1;
+            ugear_phi = UGEAR_IMU_PHI(ugear_msg_buf);
+            ugear_psi = UGEAR_IMU_PSI(ugear_msg_buf);
+            ugear_theta = UGEAR_IMU_THE(ugear_msg_buf);
+            ugear_debug4 = (int32_t)ugear_phi;
+            ugear_debug5 = (int32_t)ugear_theta;
+            ugear_debug6 = (int32_t)ugear_psi;
+            ugear_debug3 = 333;
+            ins_phi  = (float)ugear_phi/10000 - ins_roll_neutral;
+            ins_psi = 0;
+            ins_theta  = (float)ugear_theta/10000 - ins_pitch_neutral;
 #ifndef INFRARED
-			EstimatorSetAtt(ins_phi, ins_psi, ins_theta);
+            EstimatorSetAtt(ins_phi, ins_psi, ins_theta);
 #endif
-			break;	
-		case 2:  /*GPS status*/
+            break;
+        case 2:  /*GPS status*/
 //			ugear_debug1 = 2;
-    			gps_nb_channels = XSENS_GPSStatus_nch(ugear_msg_buf);
-			uint8_t is;
-			for(is = 0; is < Min(gps_nb_channels, 16); is++) {
-				uint8_t ch = XSENS_GPSStatus_chn(ugear_msg_buf,is);
-			      	if (ch > 16) continue;
-			      	gps_svinfos[ch].svid = XSENS_GPSStatus_svid(ugear_msg_buf, is);
-			      	gps_svinfos[ch].flags = XSENS_GPSStatus_bitmask(ugear_msg_buf, is);
-			      	gps_svinfos[ch].qi = XSENS_GPSStatus_qi(ugear_msg_buf, is);
-			      	gps_svinfos[ch].cno = XSENS_GPSStatus_cnr(ugear_msg_buf, is);
-			      	gps_svinfos[ch].elev = 0;
-			      	gps_svinfos[ch].azim = 0;
-			}
-			break;	
-		case 3:  /*servo*/
-			break;	
-		case 4:  /*health*/
-			break;	
+                gps_nb_channels = XSENS_GPSStatus_nch(ugear_msg_buf);
+            uint8_t is;
+            for(is = 0; is < Min(gps_nb_channels, 16); is++) {
+                uint8_t ch = XSENS_GPSStatus_chn(ugear_msg_buf,is);
+                    if (ch > 16) continue;
+                    gps_svinfos[ch].svid = XSENS_GPSStatus_svid(ugear_msg_buf, is);
+                    gps_svinfos[ch].flags = XSENS_GPSStatus_bitmask(ugear_msg_buf, is);
+                    gps_svinfos[ch].qi = XSENS_GPSStatus_qi(ugear_msg_buf, is);
+                    gps_svinfos[ch].cno = XSENS_GPSStatus_cnr(ugear_msg_buf, is);
+                    gps_svinfos[ch].elev = 0;
+                    gps_svinfos[ch].azim = 0;
+            }
+            break;
+        case 3:  /*servo*/
+            break;
+        case 4:  /*health*/
+            break;
 
-	}
+    }
 
 }
 
@@ -298,32 +298,30 @@ void ubxsend_cfg_rst(uint16_t bbr , uint8_t reset_mode) {
 }
 
 void ugear_event( void ) {
-	if (UgearBuffer()){
-		ReadUgearBuffer();
-	}
-	if (ugear_msg_received){
-		parse_ugear_msg();
-		ugear_msg_received = FALSE;
-		if (gps_pos_available){
-			//gps_downlink();
-			gps_verbose_downlink = !launch;
-			UseGpsPosNoSend(estimator_update_state_gps);
-			gps_msg_received_counter = gps_msg_received_counter+1;
-			#ifdef GX2			
-			if (gps_msg_received_counter == 1){
-				gps_send();
-				gps_msg_received_counter = 0;
-			}
-			#endif
-			#ifdef XSENSDL
-			if (gps_msg_received_counter == 25){
-				gps_send();
-				gps_msg_received_counter = 0;
-			}
-			#endif
-			gps_pos_available = FALSE;
-		}
-	}
+    if (UgearBuffer()){
+        ReadUgearBuffer();
+    }
+    if (ugear_msg_received){
+        parse_ugear_msg();
+        ugear_msg_received = FALSE;
+        if (gps_pos_available){
+            //gps_downlink();
+            gps_verbose_downlink = !launch;
+            UseGpsPosNoSend(estimator_update_state_gps);
+            gps_msg_received_counter = gps_msg_received_counter+1;
+            #ifdef GX2
+            if (gps_msg_received_counter == 1){
+                gps_send();
+                gps_msg_received_counter = 0;
+            }
+            #endif
+            #ifdef XSENSDL
+            if (gps_msg_received_counter == 25){
+                gps_send();
+                gps_msg_received_counter = 0;
+            }
+            #endif
+            gps_pos_available = FALSE;
+        }
+    }
 }
-
-

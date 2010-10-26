@@ -53,7 +53,7 @@
 #include "firmwares/rotorcraft/guidance.h"
 
 #include "subsystems/ahrs.h"
-#include "firmwares/rotorcraft/ins.h"
+#include "subsystems/ins.h"
 
 #if defined USE_CAM || USE_DROP
 #include "booz2_pwm_hw.h"

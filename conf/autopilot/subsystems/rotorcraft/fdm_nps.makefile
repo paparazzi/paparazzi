@@ -147,10 +147,10 @@ sim.CFLAGS += -DUSE_NAVIGATION
 sim.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
 sim.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
 sim.srcs += math/pprz_geodetic_int.c
-sim.srcs += $(SRC_FIRMWARE)/ins.c
+sim.srcs += $(SRC_SUBSYSTEMS)/ins.c
 
 #  vertical filter float version
-sim.srcs += $(SRC_FIRMWARE)/ins/vf_float.c
+sim.srcs += $(SRC_SUBSYSTEMS)/ins/vf_float.c
 sim.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./512.)'
 
 #

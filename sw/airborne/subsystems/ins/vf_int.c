@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "vf_int.h"
+#include "subsystems/ins/vf_int.h"
 
 #include "booz_geometry_mixed.h"
 

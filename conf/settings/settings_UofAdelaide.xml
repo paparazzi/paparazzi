@@ -59,7 +59,7 @@
       <dl_setting var="guidance_v_kd" min="-600" step="1" max="0"   module="guidance/guidance_v" shortname="kd"/>
       <dl_setting var="guidance_v_ki" min="-300" step="1" max="0"   module="guidance/guidance_v" shortname="ki" handler="SetKi" />
       <dl_setting var="guidance_v_z_sp" min="-5" step="0.5" max="3" module="guidance/guidance_v" shortname="sp" unit="2e-8m" alt_unit="m" alt_unit_coef="0.00390625"/>
-      <dl_setting var="ins_vf_realign" min="0" step="1" max="1" module="ins" shortname="vf_realign" values="OFF|ON"/>
+      <dl_setting var="ins_vf_realign" min="0" step="1" max="1" module="subsystems/ins" shortname="vf_realign" values="OFF|ON"/>
    </dl_settings>
 
    <dl_settings NAME="Horiz Loop">
@@ -71,7 +71,7 @@
       <dl_setting var="guidance_h_igain" min="-400" step="1" max="0" module="guidance/guidance_h" shortname="ki" handler="SetKi"/>
       <dl_setting var="guidance_h_ngain" min="-400" step="1" max="0" module="guidance/guidance_h" shortname="kn"/>
       <dl_setting var="guidance_h_again" min="-400" step="1" max="0" module="guidance/guidance_h" shortname="ka"/>
-      <dl_setting var="ins_hf_realign" min="0" step="1" max="1" module="ins" shortname="hf_realign" values="OFF|ON"/>
+      <dl_setting var="ins_hf_realign" min="0" step="1" max="1" module="subsystems/ins" shortname="hf_realign" values="OFF|ON"/>
    </dl_settings>
 
    <dl_settings NAME="NAV">

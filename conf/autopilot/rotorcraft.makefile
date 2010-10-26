@@ -196,7 +196,7 @@ ap.CFLAGS += -DUSE_NAVIGATION
 ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
 ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
 
-ap.srcs += $(SRC_FIRMWARE)/ins.c
+ap.srcs += $(SRC_SUBSYSTEMS)/ins.c
 ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c
 
 #
@@ -208,7 +208,7 @@ ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodeti
 #
 
 #  vertical filter float version
-ap.srcs += $(SRC_FIRMWARE)/ins/vf_float.c
+ap.srcs += $(SRC_SUBSYSTEMS)/ins/vf_float.c
 ap.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./512.)'
 
 ap.srcs += $(SRC_FIRMWARE)/navigation.c

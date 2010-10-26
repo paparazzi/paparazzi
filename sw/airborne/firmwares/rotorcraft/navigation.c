@@ -27,7 +27,7 @@
 
 #include "pprz_debug.h"
 #include "booz_gps.h"
-#include "firmwares/rotorcraft/ins.h"
+#include "subsystems/ins.h"
 
 #include "firmwares/rotorcraft/autopilot.h"
 #include "modules.h"

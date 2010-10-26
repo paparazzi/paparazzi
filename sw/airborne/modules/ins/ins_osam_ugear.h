@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2003-2006  Haiyang Chao
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -48,7 +48,7 @@ void ugear_event( void );
 #endif
 
 #define UGEAR_MAX_PAYLOAD 40
-/*#define UGEAR_MAX_PAYLOAD 24*/ /*Bugs!!! why work for the former version ??20080708*/ 
+/*#define UGEAR_MAX_PAYLOAD 24*/ /*Bugs!!! why work for the former version ??20080708*/
 /*#define GPS_NB_CHANNELS 16*/
 
 #define UGEAR_NAV_POSLLH_LAT(_ubx_payload) (int32_t)(*((uint8_t*)_ubx_payload+4)|*((uint8_t*)_ubx_payload+1+4)<<8|((int32_t)*((uint8_t*)_ubx_payload+2+4))<<16|((int32_t)*((uint8_t*)_ubx_payload+3+4))<<24)
@@ -76,15 +76,15 @@ extern float fi_alpha;
 /*define the following varables for communication with ugear by haiyang 20080508*/
 extern int16_t ugear_phi;
 extern int16_t ugear_psi;
-extern int16_t ugear_theta; 
+extern int16_t ugear_theta;
 
 /* added 20080522 for debugging*/
 extern int16_t ugear_debug1;
 extern int16_t ugear_debug2;
-extern int16_t ugear_debug3; 
+extern int16_t ugear_debug3;
 extern int32_t ugear_debug4;
 extern int32_t ugear_debug5;
-extern int32_t ugear_debug6; 
+extern int32_t ugear_debug6;
 
 extern struct imu imupacket;
 extern struct gps gpspacket;
@@ -92,4 +92,3 @@ extern uint8_t ugear_msg_buf[UGEAR_MAX_PAYLOAD];
 
 extern float ins_roll_neutral;
 extern float ins_pitch_neutral;
-

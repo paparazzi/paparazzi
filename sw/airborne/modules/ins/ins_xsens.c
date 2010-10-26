@@ -1,6 +1,6 @@
 /*
  * Paparazzi mcu0 $Id$
- *  
+ *
  * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -26,7 +26,7 @@
  * \brief Parser for the Xsens protocol
  */
 
-#include "ins/ins.h"
+#include "subsystems/ins.h"
 
 #include <inttypes.h>
 
@@ -83,14 +83,14 @@ volatile uint8_t ins_msg_received;
 }
 #define XsensTrailer() { uint8_t i8=0x100-send_ck; InsUartSend1(i8); }
 
-/** Includes macros generated from xsens_MTi-G.xml */ 
+/** Includes macros generated from xsens_MTi-G.xml */
 #include "xsens_protocol.h"
 
- 
+
 #define XSENS_MAX_PAYLOAD 254
 uint8_t xsens_msg_buf[XSENS_MAX_PAYLOAD];
 
-/* output mode : calibrated, orientation, position, velocity, status 
+/* output mode : calibrated, orientation, position, velocity, status
  * -----------
  *
  *	bit 0	temp
@@ -138,7 +138,7 @@ uint8_t xsens_msg_buf[XSENS_MAX_PAYLOAD];
  *	bit 24-27 Reseverd
  *
  *	bit 28-30 Reseverd
- *	bit 31	0=X-North-Z-Up, 1=North-East-Down 
+ *	bit 31	0=X-North-Z-Up, 1=North-East-Down
  */
 #ifndef XSENS_OUTPUT_SETTINGS
 #define XSENS_OUTPUT_SETTINGS 0x80000C05
@@ -413,7 +413,7 @@ void parse_ins_buffer( uint8_t c ) {
     break;
   }
   return;
- error:  
+ error:
  restart:
   xsens_status = UNINIT;
   return;
