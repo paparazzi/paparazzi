@@ -11,11 +11,10 @@
   </header>
   <init fun="baro_ets_init()"/>
   <periodic fun="baro_ets_read_periodic()" freq="10."/>
-  <event fun="BaroEtsEvent()"/>
+  <event fun="baro_ets_event()"/>
 
   <makefile>
-    <file name="baro_ets.c"/> 
+    <file name="baro_ets.c"/>
   </makefile>
 
 </module>
-
