@@ -82,14 +82,14 @@ void airspeed_ets_init( void ) {
   for (n=0; n < AIRSPEED_ETS_NBSAMPLES_AVRG; ++n)
     airspeed_ets_buffer[n] = 0.0;
 
-  airspeed_ets_i2c_trans.status = I2CTransSuccess;
+  airspeed_ets_i2c_trans.status = I2CTransDone;
   airspeed_ets_i2c_trans.slave_addr = AIRSPEED_ETS_ADDR;
   airspeed_ets_i2c_trans.stop_after_transmit = TRUE;
 }
 
 void airspeed_ets_read_periodic( void ) {
 #ifndef SITL
-  if (airspeed_ets_i2c_trans.status == I2CTransSuccess) {
+  if (airspeed_ets_i2c_trans.status == I2CTransDone) {
     airspeed_ets_i2c_trans.type = I2CTransRx;
     airspeed_ets_i2c_trans.len_r = 2;
     i2c_submit(&i2c0, &airspeed_ets_i2c_trans);
