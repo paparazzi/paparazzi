@@ -83,17 +83,12 @@ void airspeed_ets_init( void ) {
     airspeed_ets_buffer[n] = 0.0;
 
   airspeed_ets_i2c_trans.status = I2CTransDone;
-  airspeed_ets_i2c_trans.slave_addr = AIRSPEED_ETS_ADDR;
-  airspeed_ets_i2c_trans.stop_after_transmit = TRUE;
 }
 
 void airspeed_ets_read_periodic( void ) {
 #ifndef SITL
-  if (airspeed_ets_i2c_trans.status == I2CTransDone) {
-    airspeed_ets_i2c_trans.type = I2CTransRx;
-    airspeed_ets_i2c_trans.len_r = 2;
-    i2c_submit(&i2c0, &airspeed_ets_i2c_trans);
-  }
+  if (airspeed_ets_i2c_trans.status == I2CTransDone)
+    I2CReceive(i2c0, airspeed_ets_i2c_trans, AIRSPEED_ETS_ADDR, 2);
 #else // SITL
   extern float sim_air_speed;
   EstimatorSetAirspeed(sim_air_speed);
