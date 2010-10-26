@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -124,7 +124,7 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 #define GpsToggleLed() {}
 #endif
 
-#if defined(GPS) || defined(USE_GPS_XSENS) || defined(SITL) 
+#if defined(GPS) || defined(USE_GPS_XSENS) || defined(SITL)
 #  define GpsTimeoutError (cpu_time_sec - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)
 #else
 #  define GpsTimeoutError 1
@@ -148,21 +148,21 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 #else
 #define GpsParseOrConfigure() parse_gps_msg()
 #endif
-    
+
 
 #define GpsEventCheckAndHandle(_callback, _verbose) { \
-    if (GpsBuffer()) {				      \
-      ReadGpsBuffer();				      \
-    }						      \
-    if (gps_msg_received) {			      \
-      GpsParseOrConfigure();			      \
-      gps_msg_received = FALSE;			      \
-      if (gps_pos_available) {			      \
-	gps_verbose_downlink = _verbose;	      \
-	UseGpsPos(_callback);			      \
-	gps_pos_available = FALSE;		      \
-      }						      \
-    }						      \
+    if (GpsBuffer()) {                    \
+      ReadGpsBuffer();                    \
+    }                             \
+    if (gps_msg_received) {               \
+      GpsParseOrConfigure();                  \
+      gps_msg_received = FALSE;               \
+      if (gps_pos_available) {                \
+    gps_verbose_downlink = _verbose;          \
+    UseGpsPos(_callback);                 \
+    gps_pos_available = FALSE;            \
+      }                           \
+    }                             \
   }
 
 

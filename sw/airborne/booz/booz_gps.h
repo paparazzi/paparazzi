@@ -66,7 +66,7 @@ extern void booz_gps_impl_init(void);
 
 /*
  * This part is used by the simulator to feed simulated data
- * 
+ *
  */
 #ifdef SITL
 
@@ -102,7 +102,7 @@ static inline void  booz_gps_feed_value() {
 #else /* ! SITL */
 /*
  * This part is used by the autopilot to read data from a uart
- * 
+ *
  */
 
 

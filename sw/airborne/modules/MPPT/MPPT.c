@@ -1,10 +1,10 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009  ENAC, Pascal Brisset, Michel Gorraz
  *
  * This file is part of paparazzi.
- * 
+ *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -44,7 +44,7 @@ struct i2c_transaction mppt_trans;
  5: PSol (mW)
  6: IConv (mA)
  7: PConv (mW)
- 
+
  9: IBat + IConv
 */
 
@@ -86,7 +86,7 @@ static void MPPT_ask( void ) {
     DOWNLINK_SEND_MPPT(DefaultChannel, NB_DATA, MPPT_data);
     data_index = 0;
   }
-  
+
   mppt_trans.buf[0] = data_index;
   I2CTransmit(i2c0, mppt_trans, MPPT_SLAVE_ADDR, 1);
   MPPT_status = MPPT_STATUS_ASKING;
@@ -129,5 +129,3 @@ void MPPT_periodic( void ) {
     }
   }
 }
-
-

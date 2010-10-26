@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 Martin Mueller
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -70,7 +70,7 @@ void dust_gp2y_event( void ) {
 
     /* "just for reference and not for guarantee" */
     dust_gp2y_density_f = ((dust_gp2y_density / 1024.) * 3.3 * (51. / 33.) - 0.6) * (0.5 / 3.);
-    if (dust_gp2y_density_f < 0) 
+    if (dust_gp2y_density_f < 0)
       dust_gp2y_density_f = 0;
 
     DOWNLINK_SEND_GP2Y_STATUS(DefaultChannel, &dust_gp2y_density, &dust_gp2y_density_f);
@@ -78,5 +78,3 @@ void dust_gp2y_event( void ) {
     gp2y_trans.status = I2CTransDone;
   }
 }
-
-

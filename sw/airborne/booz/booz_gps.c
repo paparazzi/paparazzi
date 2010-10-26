@@ -43,11 +43,5 @@ void booz_gps_init(void) {
 #endif
 #ifdef BOOZ_GPS_TYPE_H
   booz_gps_impl_init();
-#endif  
+#endif
 }
-
-
-
-
-
-

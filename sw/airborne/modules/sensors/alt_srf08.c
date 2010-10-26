@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2005  Pascal Brisset, Antoine Drouin
  * Copyright (C) 2002  Chris efstathiou hendrix@otenet.gr
  *
@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 /** \file srf08.c
@@ -32,7 +32,7 @@
 #include "uart.h"
 #include "messages.h"
 #include "downlink.h"
-#include "led.h" 
+#include "led.h"
 
 #ifndef SRF08_I2C_DEV
 #define SRF08_I2C_DEV i2c0
@@ -50,7 +50,7 @@ void srf08_init(void)
 {
   srf08_received = FALSE;
   srf08_got = FALSE;
-  
+
   srf_trans.buf[0] = 0x00;
   srf_trans.buf[1] = 0x51;
   I2CTransmit(SRF08_I2C_DEV, srf_trans, SRF08_UNIT_0, 2);
@@ -104,27 +104,27 @@ uint32_t srf08_read_register(uint8_t srf08_register)
   uint8_t cnt;
 
   union i2c_union {
-    uint32_t  rx_word; 
+    uint32_t  rx_word;
     uint8_t   rx_byte[2];
   } i2c;
 
 
   srf_trans.buf[0] = srf08_register;
-  
-  /* get high byte msb first */ 
+
+  /* get high byte msb first */
   if (srf08_register>=2)
     cnt = 2;
   else
     cnt = 1;
 
   I2CTransceive(SRF08_I2C_DEV, srf_trans, SRF08_UNIT_0, 1, cnt);
-       
-  /* get high byte msb first */ 
+
+  /* get high byte msb first */
   if(srf08_register>=2) {
     i2c.rx_byte[1]=srf_trans.buf[1];
-  }                         
-       
-  /* get low byte msb first  */ 
+  }
+
+  /* get low byte msb first  */
   i2c.rx_byte[0]=srf_trans.buf[0];
 
   return(i2c.rx_word);
@@ -148,4 +148,3 @@ void srf08_event(void)
     }
   }
 }
-

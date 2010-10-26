@@ -1,6 +1,6 @@
 /*
  * $Id: baro_bmp.c $
- *  
+ *
  * Copyright (C) 2010 Martin Mueller
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -120,7 +120,7 @@ void baro_bmp_event( void ) {
       uint32_t bmp_b4, bmp_b7;
 
       /* get uncompensated pressure, oss=3 */
-      bmp_up = (bmp_trans.buf[0] << 11) | 
+      bmp_up = (bmp_trans.buf[0] << 11) |
                (bmp_trans.buf[1] << 3)  |
                 bmp_trans.buf[2];
       /* start temp measurement */
@@ -146,7 +146,7 @@ void baro_bmp_event( void ) {
       bmp_x3 = ((bmp_x1 + bmp_x2) +2) / (1<<2);
       bmp_b4 = bmp_ac4 * (uint32_t)(bmp_x3 + 32768) / (1<<15);
       bmp_b7 = ((uint32_t)bmp_up - bmp_b3) * (50000>>3);
-      if (bmp_b7 < 0x80000000) 
+      if (bmp_b7 < 0x80000000)
         bmp_p = (bmp_b7 * 2) / bmp_b4;
       else
         bmp_p = (bmp_b7 * bmp_b4) * 2;
@@ -161,4 +161,3 @@ void baro_bmp_event( void ) {
     }
   }
 }
-

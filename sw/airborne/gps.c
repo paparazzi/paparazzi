@@ -1,10 +1,10 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
- * 
+ *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -79,9 +79,9 @@ void gps_downlink( void ) {
 }
 
 void gps_send( void ) {
-  
+
   DOWNLINK_SEND_GPS(DefaultChannel, &gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_week, &gps_itow, &gps_utm_zone, &gps_nb_ovrn);
-  
+
   static uint8_t i;
   static uint8_t last_cnos[GPS_NB_CHANNELS];
   if (i == gps_nb_channels) i = 0;
@@ -95,8 +95,8 @@ void gps_send( void ) {
     for(j = 0; j < gps_nb_channels; j++) {
       uint8_t cno = gps_svinfos[j].cno;
       if (cno > 0 && j != i && abs(cno-last_cnos[j]) >= 2) {
-	DOWNLINK_SEND_SVINFO(DefaultChannel, &j, &gps_svinfos[j].svid, &gps_svinfos[j].flags, &gps_svinfos[j].qi, &cno, &gps_svinfos[j].elev, &gps_svinfos[j].azim);
-	last_cnos[j] = gps_svinfos[j].cno;
+    DOWNLINK_SEND_SVINFO(DefaultChannel, &j, &gps_svinfos[j].svid, &gps_svinfos[j].flags, &gps_svinfos[j].qi, &cno, &gps_svinfos[j].elev, &gps_svinfos[j].azim);
+    last_cnos[j] = gps_svinfos[j].cno;
       }
     }
   }
