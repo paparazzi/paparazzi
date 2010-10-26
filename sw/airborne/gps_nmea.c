@@ -35,7 +35,7 @@
 
 #include <inttypes.h>
 #include <string.h> 
-#include "math.h"
+#include <math.h>
 #ifdef LINUX
 // do debug-output if run on the linux-target
 #include <stdlib.h>

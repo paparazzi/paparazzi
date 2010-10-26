@@ -29,7 +29,7 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include "math.h"
+#include <math.h>
 #include <linux/input.h>
 #include <glib.h>
 #include <Ivy/ivy.h>

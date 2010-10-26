@@ -31,7 +31,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
-#include "math.h"
+#include <math.h>
 #include <glib.h>
 #include <linux/input.h>
 #include <sys/ioctl.h>

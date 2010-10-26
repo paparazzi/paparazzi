@@ -51,7 +51,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include "math.h"
+#include <math.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <glib.h>

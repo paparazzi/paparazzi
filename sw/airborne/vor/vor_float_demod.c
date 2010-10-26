@@ -1,7 +1,7 @@
 #include "vor_float_demod.h"
 
 #include <inttypes.h>
-#include "math.h"
+#include <math.h>
 
 #include  "vor_float_filters.h"
 

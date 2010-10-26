@@ -1,6 +1,6 @@
 #include "booz_flight_model_utils.h"
 
-#include "math.h"
+#include <math.h>
 #include "6dof.h"
 
 void rk4(ode_fun f, VEC* x, VEC* u, double dt) {

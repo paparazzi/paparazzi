@@ -26,7 +26,7 @@
  *
  */
 
-#include "math.h"
+#include <math.h>
 #include "cam.h"
 #include "common_nav.h"
 #include "autopilot.h"

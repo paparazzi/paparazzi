@@ -28,7 +28,7 @@
 
 #include <inttypes.h>
 #include <string.h> 
-#include "math.h"
+#include <math.h>
 
 #ifdef FMS_PERIODIC_FREQ
 //for printf

@@ -31,7 +31,7 @@ extern "C" {
 #include "math/pprz_geodetic.h"
 #include "math/pprz_geodetic_float.c"
 #include "math/pprz_geodetic_double.c"
-#include "math.h"
+#include <math.h>
 
 
 /* constants */

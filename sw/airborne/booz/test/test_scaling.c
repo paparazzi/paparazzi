@@ -22,7 +22,7 @@
  */
 
 #include <stdio.h>
-#include "math.h"
+#include <math.h>
 #include <inttypes.h>
 
 #include "math/pprz_algebra_int.h"

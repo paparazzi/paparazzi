@@ -1,6 +1,6 @@
 #include <glib.h>
 #include <stdio.h>
-#include "math.h"
+#include <math.h>
 #include <stdlib.h>
 
 #include "flight_gear.h"

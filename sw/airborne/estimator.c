@@ -27,7 +27,7 @@
  */
 
 #include <inttypes.h>
-#include "math.h"
+#include <math.h>
 
 #include "estimator.h"
 #include "uart.h"

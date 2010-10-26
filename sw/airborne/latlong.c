@@ -1,7 +1,7 @@
 /** c.f. sw/lib/ocaml/latlong.ml */
 
 #include <inttypes.h>
-#include "math.h"
+#include <math.h>
 #include "std.h"
 #include "latlong.h"
 #include "led.h"

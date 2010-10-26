@@ -36,7 +36,7 @@
  */
 #include "sensors/airspeed_ets.h"
 #include "estimator.h"
-#include "math.h"
+#include <math.h>
 
 #define AIRSPEED_ETS_ADDR 0xEA
 #ifndef AIRSPEED_ETS_SCALE

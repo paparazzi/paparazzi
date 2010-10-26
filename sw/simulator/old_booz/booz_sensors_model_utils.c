@@ -1,7 +1,7 @@
 #include "booz_sensors_model_utils.h"
 
 #include "6dof.h"
-#include "math.h"
+#include <math.h>
 
 void UpdateSensorLatency(double time, VEC* cur_reading, GSList **history,
 			 double latency, VEC* sensor_reading) {

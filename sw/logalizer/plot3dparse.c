@@ -27,7 +27,7 @@ pause -1
 #include <stdarg.h>
 #include <string.h>
 #include <unistd.h>
-#include "math.h"
+#include <math.h>
 #include <sys/time.h>
 
 int main( int argc, char* argv[] )

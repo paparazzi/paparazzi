@@ -26,7 +26,7 @@
 #include "csc_autopilot.h"
 
 #include <inttypes.h>
-#include "math.h"
+#include <math.h>
 
 #include "commands.h"
 #include "csc_xsens.h"

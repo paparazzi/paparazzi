@@ -2,7 +2,7 @@
 #define ESTIMATE_ATTITUDE_H
 
 /* for sqrt */
-#include "math.h"
+#include <math.h>
 
 #include "paparazzi_eigen_conversion.h"
 #include "../../math/pprz_algebra.h"

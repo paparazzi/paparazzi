@@ -1,7 +1,7 @@
 #include "booz_sensors_model.h"
 #include BSM_PARAMS
 
-#include "math.h"
+#include <math.h>
 
 #include "std.h"
 #include "booz_flight_model.h"

@@ -1,7 +1,7 @@
 /* Smooth navigation to wp_a along an arc (around wp_cd), a
    segment (from wp_rd to wp_ta) and a second arc (around wp_ca) */
 
-#include "math.h"
+#include <math.h>
 #include "airframe.h"
 #include "snav.h"
 #include "estimator.h"

@@ -27,7 +27,7 @@
 
 #include "pprz_algebra.h"
 
-#include "math.h"
+#include <math.h>
 #include <float.h> // for FLT_MIN
 
 struct FloatVect2 {

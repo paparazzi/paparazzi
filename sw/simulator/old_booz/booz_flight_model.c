@@ -50,7 +50,7 @@
   }
 
 
-#include "math.h"
+#include <math.h>
 
 #include "booz_flight_model_params.h"
 #include "booz_flight_model_utils.h"

@@ -34,7 +34,7 @@
 
 #include "vor_int_demod.h"
 
-#include "math.h"
+#include <math.h>
 
 #include  "vor_int_filters.h"
 
