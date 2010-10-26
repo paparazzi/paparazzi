@@ -6,6 +6,9 @@ ACTION!="add|change", GOTO="paparazzi_rules_end"
 # other bare FT232R FTDI chip without EEPROM
 SUBSYSTEM=="tty", ATTRS{product}=="FT232R USB UART", SYMLINK+="paparazzi/serial", GROUP="plugdev"
 
+# MaxStream xbee pro box
+SUBSYSTEM=="tty", ATTRS{product}=="MaxStream PKG-U", SYMLINK+="paparazzi/xbee", GROUP="plugdev"
+
 LABEL="tty_FTDI232_end"
 
 SUBSYSTEM!="usb", GOTO="paparazzi_rules_end"
@@ -13,9 +16,6 @@ SUBSYSTEM!="usb", GOTO="paparazzi_rules_end"
 ENV{DEVTYPE}!="usb_device", GOTO="paparazzi_rules_end"
 
 #SUBSYSTEMS=="usb", ATTRS{serial}=="*_fbw", NAME="test_fbw", SYMLINK+="paparazzi/%s{serial}", MODE="0666"
-
-# MaxStream xbee pro box
-SUBSYSTEMS=="usb", ATTRS{product}=="MaxStream PKG-U", KERNEL=="ttyUSB*", SYMLINK+="paparazzi/xbee", GROUP="plugdev"
 
 # FTDI 2232 parallel converter / Amontec JTAG-Tiny (access through libftdi)
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="cff8", GROUP="plugdev"
