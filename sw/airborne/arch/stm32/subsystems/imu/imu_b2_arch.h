@@ -1,6 +1,6 @@
 /*
  * $Id: imu_b2_arch.h 3732 2009-07-20 17:46:54Z poine $
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.

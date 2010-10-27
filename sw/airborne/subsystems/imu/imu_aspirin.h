@@ -124,7 +124,7 @@ extern struct ImuAspirin imu_aspirin;
 
 
 /* underlying architecture */
-#include "imu_aspirin_arch.h"
+#include "subsystems/imu/imu_aspirin_arch.h"
 /* must be implemented by underlying architecture */
 extern void imu_b2_arch_init(void);
 

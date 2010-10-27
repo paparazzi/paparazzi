@@ -64,7 +64,7 @@ extern volatile bool_t ADS8344_available;
 #endif
 
 /* underlying architecture */
-#include "imu_crista_arch.h"
+#include "subsystems/imu/imu_crista_arch.h"
 /* must be defined by underlying architecture */
 extern void imu_crista_arch_init(void);
 

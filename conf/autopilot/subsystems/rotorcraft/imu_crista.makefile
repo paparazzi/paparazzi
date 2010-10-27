@@ -58,32 +58,36 @@
 #
 #
 
+# imu Crista
 
+imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_crista.h\"
+imu_srcs += $(SRC_SUBSYSTEMS)/imu.c
+imu_srcs += $(SRC_SUBSYSTEMS)/imu/imu_crista.c
+imu_srcs += $(SRC_ARCH)/subsystems/imu/imu_crista_arch.c
 
-# add imu arch to include directories
-ap.CFLAGS += -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)
+imu_CFLAGS += -DUSE_AMI601
+imu_srcs   += peripherals/ami601.c
+imu_CFLAGS += -DUSE_I2C1
 
-ap.CFLAGS += -DIMU_TYPE_H=\"imu/imu_crista.h\"
-ap.srcs += $(SRC_SUBSYSTEMS)/imu.c            \
-           $(SRC_SUBSYSTEMS)/imu/imu_crista.c \
-           $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_crista_arch.c
+ifeq ($(ARCH), lpc21)
+imu_CFLAGS += -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
+else ifeq ($(ARCH), stm32)
+#FIXME
+endif
 
-ap.CFLAGS += -DUSE_AMI601
-ap.srcs   += peripherals/ami601.c
-ap.CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
-
+# Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
+# see: conf/autopilot/subsystems/lisa_passthrough/imu_b2_v1.1.makefile for example
+ap.CFLAGS += $(imu_CFLAGS)
+ap.srcs += $(imu_srcs)
 
 #
 # Simulator
 #
 
-# add imu arch to include directories
-sim.CFLAGS += -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)
-
-sim.CFLAGS += -DIMU_TYPE_H=\"imu/imu_crista.h\"
-sim.srcs   += $(SRC_SUBSYSTEMS)/imu.c                 \
-              $(SRC_SUBSYSTEMS)/imu/imu_crista.c     \
-              $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_crista_arch.c
+sim.CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_crista.h\"
+sim.srcs += $(SRC_SUBSYSTEMS)/imu.c
+sim.srcs += $(SRC_SUBSYSTEMS)/imu/imu_crista.c
+sim.srcs += $(SRC_ARCH)/subsystems/imu/imu_crista_arch.c
 
 sim.CFLAGS += -DUSE_AMI601
 sim.srcs   += peripherals/ami601.c

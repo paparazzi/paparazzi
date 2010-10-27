@@ -41,21 +41,18 @@
 
 # imu Booz2 v1.1
 
-# add imu arch to include directories
-ap.CFLAGS += -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)
-
-imu_CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
+imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\"
 imu_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
 imu_CFLAGS += -DIMU_B2_VERSION_1_1
-ap.srcs += $(SRC_SUBSYSTEMS)/imu.c                   \
-           $(SRC_SUBSYSTEMS)/imu/imu_b2.c            \
-           $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
+imu_srcs += $(SRC_SUBSYSTEMS)/imu.c
+imu_srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c
+imu_srcs += $(SRC_ARCH)/subsystems/imu/imu_b2_arch.c
 
-imu_srcs += peripherals/max1168.c \
-            $(SRC_ARCH)/peripherals/max1168_arch.c
+imu_srcs += peripherals/max1168.c
+imu_srcs += $(SRC_ARCH)/peripherals/max1168_arch.c
 
-imu_srcs += peripherals/ms2001.c \
-            $(SRC_ARCH)/peripherals/ms2001_arch.c
+imu_srcs += peripherals/ms2001.c
+imu_srcs += $(SRC_ARCH)/peripherals/ms2001_arch.c
 
 ifeq ($(ARCH), lpc21)
 imu_CFLAGS += -DSSP_VIC_SLOT=9
@@ -76,18 +73,15 @@ ap.srcs += $(imu_srcs)
 # Simulator
 #
 
-# add imu arch to include directories
-sim.CFLAGS += -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)
-
-sim.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
-sim.CFLAGS += -DIMU_B2_VERSION_1_1
+sim.CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\"
 sim.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_AMI601
-sim.srcs += $(SRC_SUBSYSTEMS)/imu.c                   \
-            $(SRC_SUBSYSTEMS)/imu/imu_b2.c            \
-            $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
+sim.CFLAGS += -DIMU_B2_VERSION_1_1
+sim.srcs += $(SRC_SUBSYSTEMS)/imu.c
+sim.srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c
+sim.srcs += $(SRC_ARCH)/subsystems/imu/imu_b2_arch.c
 
-sim.srcs += peripherals/max1168.c \
-            $(SRC_ARCH)/peripherals/max1168_arch.c
+sim.srcs += peripherals/max1168.c
+sim.srcs += $(SRC_ARCH)/peripherals/max1168_arch.c
 
 sim.CFLAGS += -DUSE_AMI601
 sim.srcs   += peripherals/ami601.c
