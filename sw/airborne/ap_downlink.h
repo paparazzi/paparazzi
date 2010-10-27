@@ -195,9 +195,9 @@
 #endif
 
 #ifdef MEASURE_AIRSPEED
-#define PERIODIC_SEND_AIRSPEED(_chan) DOWNLINK_SEND_AIRSPEED (_chan, &adc_airspeed_val,&estimator_airspeed,&estimator_airspeed,&estimator_airspeed,&estimator_airspeed)
+#define PERIODIC_SEND_AIRSPEED(_chan) DOWNLINK_SEND_AIRSPEED (_chan, &estimator_airspeed, &estimator_airspeed, &estimator_airspeed, &estimator_airspeed)
 #elif defined USE_AIRSPEED
-#define PERIODIC_SEND_AIRSPEED(_chan) DOWNLINK_SEND_AIRSPEED (_chan, &adc_airspeed_val,&estimator_airspeed,&v_ctl_auto_airspeed_setpoint,&v_ctl_auto_airspeed_controlled,&v_ctl_auto_groundspeed_setpoint)
+#define PERIODIC_SEND_AIRSPEED(_chan) DOWNLINK_SEND_AIRSPEED (_chan, &estimator_airspeed, &v_ctl_auto_airspeed_setpoint, &v_ctl_auto_airspeed_controlled, &v_ctl_auto_groundspeed_setpoint)
 #else
 #define PERIODIC_SEND_AIRSPEED(_chan) {}
 #endif

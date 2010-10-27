@@ -377,7 +377,6 @@
  </message>
 
   <message name="AIRSPEED" id="54">
-    <field name="adc" type="uint16"/>
     <field name="airspeed" type="float" unit="m/s"/>
     <field name="airspeed_sp" type="float" unit="m/s"/>
     <field name="airspeed_cnt" type="float" unit="m/s"/>
