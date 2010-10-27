@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.  
+# Boston, MA 02111-1307, USA.
 
 # The default is to produce a quiet echo of compilation commands
 # Launch with "make Q=''" to get full echo
@@ -73,8 +73,8 @@ static : lib center tools cockpit multimon tmtc logalizer lpc21iap sim_static st
 
 conf: conf/conf.xml conf/control_panel.xml
 
-conf/%.xml :conf/%.xml.example 
-	[ -L $@ ] || [ -f $@ ] || cp $< $@ 
+conf/%.xml :conf/%.xml.example
+	[ -L $@ ] || [ -f $@ ] || cp $< $@
 
 
 lib:
@@ -152,7 +152,7 @@ ac_h ac1 ac2 ac3 ac fbw ap: static conf
 #
 # call with : make bl PROC=[TINY|FBW|AP|GENERIC]
 bl:
-	cd $(AIRBORNE)/arch/lpc21/test/bootloader; make clean; make 
+	cd $(AIRBORNE)/arch/lpc21/test/bootloader; make clean; make
 
 BOOTLOADER_DEV=/dev/ttyUSB0
 upload_bl bl.upload: bl
@@ -175,7 +175,7 @@ upgrade_bl bl.upgrade: bl lpc21iap
 
 ms:
 	cd $(AIRBORNE)/arch/lpc21/lpcusb; make
-	cd $(AIRBORNE)/arch/lpc21/lpcusb/examples; make 
+	cd $(AIRBORNE)/arch/lpc21/lpcusb/examples; make
 
 upload_ms ms.upload: ms
 	$(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap $(AIRBORNE)/arch/lpc21/lpcusb/examples/msc.elf
@@ -209,7 +209,7 @@ fast_deb:
 clean:
 	rm -fr dox build-stamp configure-stamp conf/%gconf.xml debian/files debian/paparazzi-arm7 debian/paparazzi-avr debian/paparazzi-base debian/paparazzi-bin debian/paparazzi-dev
 	rm -f  $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(DL_PROTOCOL_H)
-	find . -mindepth 2 -name Makefile -exec sh -c '$(MAKE) -C `dirname {}` $@' \; 
+	find . -mindepth 2 -name Makefile -exec sh -c '$(MAKE) -C `dirname {}` $@' \;
 	find . -name '*~' -exec rm -f {} \;
 
 dist_clean : clean

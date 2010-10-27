@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.  
+# Boston, MA 02111-1307, USA.
 
 # Preprocessing of XML configuration files
 
@@ -39,7 +39,6 @@ endif
 
 PERIODIC_H=$(ACINCLUDE)/periodic.h
 RADIO_H=$(ACINCLUDE)/radio.h
-CONF_RADIO_CONTROL_PPM_H=$(ACINCLUDE)/conf_radio_control_ppm.h
 FLIGHT_PLAN_H=$(ACINCLUDE)/flight_plan.h
 FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml
 SETTINGS_H=$(ACINCLUDE)/settings.h
@@ -65,7 +64,7 @@ init:
 demo:
 	$(SUPERVISION)
 
-ifeq ($(MAKECMDGOALS),all_ac_h) 
+ifeq ($(MAKECMDGOALS),all_ac_h)
 -include $(MAKEFILE_AC)
 endif
 
@@ -76,7 +75,7 @@ all_ac_h: $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(TUNING_H) $(MAKEFILE_AC) $(
 	@echo "CFLAGS: " $($(TARGET).CFLAGS) "\n"  >> $(ACINCLUDE)/$(TARGET)_srcs.list
 	@echo "srcs: " $($(TARGET).srcs) >> $(ACINCLUDE)/$(TARGET)_srcs.list
 
-radio_ac_h : $(RADIO_H) $(CONF_RADIO_CONTROL_PPM_H)
+radio_ac_h : $(RADIO_H)
 
 flight_plan_ac_h : $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML)
 
@@ -92,12 +91,6 @@ $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(TOOLS)/gen_radio.out
 	@echo BUILD $@
 	$(Q)$(TOOLS)/gen_radio.out $< > /tmp/radio.h
 	$(Q)mv /tmp/radio.h $@
-	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/radios
-
-$(CONF_RADIO_CONTROL_PPM_H) : $(CONF)/$(RADIO) $(CONF_XML) $(TOOLS)/gen_conf_radio_control_ppm.out
-	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_conf_radio_control_ppm.out $< > /tmp/conf_radio_control_ppm.h
-	$(Q)mv /tmp/conf_radio_control_ppm.h $@
 	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/radios
 
 $(PERIODIC_H) : $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY) $(MAKEFILE_AC)

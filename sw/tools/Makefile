@@ -1,5 +1,5 @@
 # $Id$
-#  
+#
 # Copyright (C) 2003-2006  Pascal Brisset, Antoine Drouin
 #
 # This file is part of paparazzi.
@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA. 
+# Boston, MA 02111-1307, USA.
 
 # Quiet compilation
 Q=@
@@ -30,7 +30,7 @@ OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
 OCAMLLEX=ocamllex
 OCAMLYACC=ocamlyacc
 
-all: gen_aircraft.out gen_airframe.out gen_messages2.out gen_messages.out gen_ubx.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_tuning.out gen_xsens.out gen_modules.out gen_conf_radio_control_ppm.out find_free_msg_id.out
+all: gen_aircraft.out gen_airframe.out gen_messages2.out gen_messages.out gen_ubx.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_tuning.out gen_xsens.out gen_modules.out find_free_msg_id.out
 
 FP_CMO = fp_proc.cmo gen_flight_plan.cmo
 ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)
