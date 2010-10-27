@@ -14,6 +14,10 @@
 #include "messages.h"
 #include "downlink.h"
 
+#ifndef SENSOR_SYNC_SEND
+#warning set SENSOR_SYNC_SEND to use baro_scp_i2c
+#endif
+
 uint8_t  baro_scp_status;
 uint32_t baro_scp_pressure;
 uint16_t baro_scp_temperature;
@@ -90,7 +94,9 @@ void baro_scp_event( void ) {
       baro_scp_pressure |= scp_trans.buf[1];
       baro_scp_pressure *= 25;
 
+#ifdef SENSOR_SYNC_SEND
       DOWNLINK_SEND_SCP_STATUS(DefaultChannel, &baro_scp_pressure, &baro_scp_temperature);
+#endif
 
       baro_scp_status = BARO_SCP_IDLE;
     }

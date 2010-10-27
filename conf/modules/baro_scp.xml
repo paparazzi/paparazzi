@@ -1,5 +1,10 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
+<!--
+     VTI SCP1000 pressure sensor (SPI)
+     @flag SENSOR_SYNC_SEND to transmit the data as it is acquired
+     -->
+
 <module name="baro_scp" dir="sensors">
   <header>
     <file name="baro_scp.h"/>

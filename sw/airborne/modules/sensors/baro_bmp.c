@@ -38,6 +38,10 @@
 #include "messages.h"
 #include "downlink.h"
 
+#ifndef SENSOR_SYNC_SEND
+#warning set SENSOR_SYNC_SEND to use baro_bmp
+#endif
+
 #ifndef BMP_I2C_DEV
 #define BMP_I2C_DEV i2c0
 #endif
@@ -157,7 +161,9 @@ void baro_bmp_event( void ) {
 
       baro_bmp_temperature = bmp_t;
       baro_bmp_pressure = bmp_p;
+#ifdef SENSOR_SYNC_SEND
       DOWNLINK_SEND_BMP_STATUS(DefaultChannel, &bmp_p, &bmp_t);
+#endif
     }
   }
 }

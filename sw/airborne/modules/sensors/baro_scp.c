@@ -12,6 +12,10 @@
 
 #include "baro_scp.h"
 
+#ifndef SENSOR_SYNC_SEND
+#warning set SENSOR_SYNC_SEND to use baro_scp
+#endif
+
 #define STA_UNINIT       0
 #define STA_INITIALISING 1
 #define STA_IDLE         2
@@ -171,7 +175,9 @@ static void baro_scp_read(void) {
 
 void baro_scp_event( void ) {
   if (baro_scp_available == TRUE) {
+#ifdef SENSOR_SYNC_SEND
     DOWNLINK_SEND_SCP_STATUS(DefaultChannel, &baro_scp_pressure, &baro_scp_temperature);
+#endif
     baro_scp_available = FALSE;
   }
 }
