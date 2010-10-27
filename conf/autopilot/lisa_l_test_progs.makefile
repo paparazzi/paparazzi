@@ -64,7 +64,7 @@ SRC_SUBSYSTEMS=subsystems
 test_led.ARCHDIR = $(ARCH)
 test_led.CFLAGS += -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_led.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_led.srcs += $(SRC_LISA)/test_led.c       	  \
+test_led.srcs += $(SRC_LISA)/test_led.c           \
                  $(SRC_ARCH)/stm32_exceptions.c   \
                  $(SRC_ARCH)/stm32_vector_table.c
 test_led.CFLAGS += -DUSE_LED
@@ -101,7 +101,7 @@ test_servos.ARCHDIR = $(ARCH)
 test_servos.CFLAGS  = -I$(SRC_FIRMWARE)/actuators/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_servos.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_servos.LDFLAGS += -lm
-test_servos.srcs += $(SRC_LISA)/test_servos.c 	\
+test_servos.srcs += $(SRC_LISA)/test_servos.c   \
                     $(SRC_ARCH)/stm32_exceptions.c   \
                     $(SRC_ARCH)/stm32_vector_table.c
 test_servos.CFLAGS += -DUSE_LED
@@ -124,8 +124,8 @@ test_telemetry.ARCHDIR = $(ARCH)
 test_telemetry.CFLAGS += -I$(SRC_LISA) -I$(SRC_ARCH) -DPERIPHERALS_AUTO_INIT
 test_telemetry.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_telemetry.srcs = test/test_telemetry.c            \
-		      $(SRC_ARCH)/stm32_exceptions.c   \
-		      $(SRC_ARCH)/stm32_vector_table.c
+              $(SRC_ARCH)/stm32_exceptions.c   \
+              $(SRC_ARCH)/stm32_vector_table.c
 test_telemetry.CFLAGS += -DUSE_LED
 test_telemetry.srcs += $(SRC_ARCH)/led_hw.c
 test_telemetry.CFLAGS += -DUSE_SYS_TIME
@@ -150,9 +150,9 @@ test_telemetry.srcs   += $(SRC_ARCH)/uart_hw.c
 test_baro.ARCHDIR = $(ARCH)
 test_baro.CFLAGS  = -I$(SRC_LISA) -I$(SRC_ARCH) -I$(SRC_BOARD) -DPERIPHERALS_AUTO_INIT
 test_baro.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_baro.srcs = $(SRC_BOARD)/test_baro.c	   	  \
-				 $(SRC_ARCH)/stm32_exceptions.c   \
-				 $(SRC_ARCH)/stm32_vector_table.c
+test_baro.srcs = $(SRC_BOARD)/test_baro.c         \
+                 $(SRC_ARCH)/stm32_exceptions.c   \
+                 $(SRC_ARCH)/stm32_vector_table.c
 test_baro.CFLAGS += -DUSE_LED
 test_baro.srcs   += $(SRC_ARCH)/led_hw.c
 test_baro.CFLAGS += -DUSE_SYS_TIME
@@ -183,8 +183,8 @@ test_rc_spektrum.ARCHDIR   = $(ARCH)
 test_rc_spektrum.CFLAGS += -I$(SRC_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_rc_spektrum.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_rc_spektrum.srcs   += $(SRC_BOOZ_TEST)/booz2_test_radio_control.c \
-			   $(SRC_ARCH)/stm32_exceptions.c              \
-			   $(SRC_ARCH)/stm32_vector_table.c
+               $(SRC_ARCH)/stm32_exceptions.c              \
+               $(SRC_ARCH)/stm32_vector_table.c
 
 test_rc_spektrum.CFLAGS += -DUSE_LED
 test_rc_spektrum.srcs   += $(SRC_ARCH)/led_hw.c
@@ -205,8 +205,8 @@ test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/spe
 test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_PRIMARY_PORT=$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)
 test_rc_spektrum.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HANDLER -DUSE_TIM6_IRQ
 test_rc_spektrum.srcs   += $(SRC_SUBSYSTEMS)/radio_control.c                                 \
-			   subsystems/radio_control/spektrum.c          \
-			   $(SRC_ARCH)/subsystems/radio_control/spektrum_arch.c
+               subsystems/radio_control/spektrum.c          \
+               $(SRC_ARCH)/subsystems/radio_control/spektrum_arch.c
 
 
 #
@@ -224,8 +224,8 @@ test_rc_ppm.CFLAGS += -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD)
 test_rc_ppm.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_rc_ppm.CFLAGS += -DPERIPHERALS_AUTO_INIT
 test_rc_ppm.srcs   += $(SRC_BOOZ)/test/booz2_test_radio_control.c \
-					  $(SRC_ARCH)/stm32_exceptions.c              \
-					  $(SRC_ARCH)/stm32_vector_table.c
+                      $(SRC_ARCH)/stm32_exceptions.c              \
+                      $(SRC_ARCH)/stm32_vector_table.c
 
 test_rc_ppm.CFLAGS += -DUSE_LED
 test_rc_ppm.srcs   += $(SRC_ARCH)/led_hw.c
@@ -242,8 +242,8 @@ test_rc_ppm.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
 test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/ppm.h\"
 test_rc_ppm.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
 test_rc_ppm.srcs   += $(SRC_SUBSYSTEMS)/radio_control.c \
-					  $(SRC_SUBSYSTEMS)/radio_control/ppm.c \
-					  $(SRC_ARCH)/subsystems/radio_control/ppm_arch.c
+                      $(SRC_SUBSYSTEMS)/radio_control/ppm.c \
+                      $(SRC_ARCH)/subsystems/radio_control/ppm_arch.c
 test_rc_ppm.CFLAGS += -DUSE_TIM2_IRQ
 
 #
@@ -259,8 +259,8 @@ test_adc.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_adc.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 
 test_adc.srcs = $(SRC_LISA)/test_adc.c \
-				$(SRC_ARCH)/stm32_exceptions.c \
-				$(SRC_ARCH)/stm32_vector_table.c
+                $(SRC_ARCH)/stm32_exceptions.c \
+                $(SRC_ARCH)/stm32_vector_table.c
 
 test_adc.CFLAGS += -DUSE_LED
 test_adc.srcs   += $(SRC_ARCH)/led_hw.c
@@ -290,11 +290,11 @@ test_adc.CFLAGS += -DUSE_ADC1_2_IRQ_HANDLER
 #   MODEM_BAUD
 #
 test_imu_b2.ARCHDIR = $(ARCH)
-test_imu_b2.CFLAGS  = -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_imu_b2.CFLAGS  = -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_imu_b2.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_imu_b2.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
-					$(SRC_ARCH)/stm32_exceptions.c   \
-					$(SRC_ARCH)/stm32_vector_table.c
+                    $(SRC_ARCH)/stm32_exceptions.c   \
+                    $(SRC_ARCH)/stm32_vector_table.c
 
 test_imu_b2.CFLAGS += -DUSE_LED
 test_imu_b2.srcs += $(SRC_ARCH)/led_hw.c
@@ -312,13 +312,13 @@ test_imu_b2.srcs += downlink.c pprz_transport.c
 
 test_imu_b2.srcs += math/pprz_trig_int.c
 
-test_imu_b2.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
+test_imu_b2.CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\"
 test_imu_b2.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001 -DIMU_B2_VERSION_1_1
 test_imu_b2.srcs += $(SRC_SUBSYSTEMS)/imu.c
 test_imu_b2.CFLAGS += -DMAX_1168_DRDY_PORT=$(MAX_1168_DRDY_PORT)
 test_imu_b2.CFLAGS += -DMAX_1168_DRDY_PORT_SOURCE=$(MAX_1168_DRDY_PORT_SOURCE)
 test_imu_b2.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
-test_imu_b2.srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
+test_imu_b2.srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c $(SRC_ARCH)/subsystems/imu/imu_b2_arch.c
 test_imu_b2.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
 test_imu_b2.srcs += peripherals/ms2001.c  $(SRC_ARCH)/peripherals/ms2001_arch.c
 
@@ -331,7 +331,7 @@ test_imu_b2.srcs += peripherals/ms2001.c  $(SRC_ARCH)/peripherals/ms2001_arch.c
 #   MODEM_BAUD
 #
 test_imu_b2_2.ARCHDIR = $(ARCH)
-test_imu_b2_2.CFLAGS  = -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_imu_b2_2.CFLAGS  = -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_imu_b2_2.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
 test_imu_b2_2.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
                     $(SRC_ARCH)/stm32_exceptions.c   \
@@ -340,7 +340,7 @@ test_imu_b2_2.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
 test_imu_b2_2.CFLAGS += -DUSE_LED
 test_imu_b2_2.srcs += $(SRC_ARCH)/led_hw.c
 
-test_imu_b2_2.CFLAGS += -DUSE_SYS_TIME 
+test_imu_b2_2.CFLAGS += -DUSE_SYS_TIME
 test_imu_b2_2.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_imu_b2_2.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 test_imu_b2_2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
@@ -348,18 +348,18 @@ test_imu_b2_2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_imu_b2_2.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 test_imu_b2_2.srcs += $(SRC_ARCH)/uart_hw.c
 
-test_imu_b2_2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+test_imu_b2_2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_imu_b2_2.srcs += downlink.c pprz_transport.c
 
 test_imu_b2_2.srcs += math/pprz_trig_int.c
 
-test_imu_b2_2.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
+test_imu_b2_2.CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\"
 test_imu_b2_2.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_HMC5843 -DIMU_B2_VERSION_1_2
 test_imu_b2_2.srcs += $(SRC_SUBSYSTEMS)/imu.c
 test_imu_b2_2.CFLAGS += -DMAX_1168_DRDY_PORT=$(MAX_1168_DRDY_PORT)
 test_imu_b2_2.CFLAGS += -DMAX_1168_DRDY_PORT_SOURCE=$(MAX_1168_DRDY_PORT_SOURCE)
 test_imu_b2_2.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
-test_imu_b2_2.srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
+test_imu_b2_2.srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c $(SRC_ARCH)/subsystems/imu/imu_b2_arch.c
 test_imu_b2_2.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
 test_imu_b2_2.CFLAGS += -DUSE_I2C2
 test_imu_b2_2.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
@@ -371,11 +371,11 @@ test_imu_b2_2.CFLAGS += -DUSE_EXTI9_5_IRQ    # Mag Int on PB5
 # test IMU aspirin
 #
 test_imu_aspirin.ARCHDIR = $(ARCH)
-test_imu_aspirin.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_imu_aspirin.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_imu_aspirin.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
 test_imu_aspirin.srcs += $(SRC_BOOZ_TEST)/booz_test_imu.c \
-					$(SRC_ARCH)/stm32_exceptions.c   \
-					$(SRC_ARCH)/stm32_vector_table.c
+                    $(SRC_ARCH)/stm32_exceptions.c   \
+                    $(SRC_ARCH)/stm32_vector_table.c
 
 test_imu_aspirin.CFLAGS += -DUSE_LED
 test_imu_aspirin.srcs += $(SRC_ARCH)/led_hw.c
@@ -394,8 +394,8 @@ test_imu_aspirin.srcs += math/pprz_trig_int.c
 
 test_imu_aspirin.CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin.h\" -DIMU_OVERRIDE_CHANNELS
 test_imu_aspirin.srcs += $(SRC_SUBSYSTEMS)/imu.c             \
-						$(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
-						$(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_aspirin_arch.c
+                        $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
+                        $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c
 
 test_imu_aspirin.CFLAGS += -DUSE_I2C2
 test_imu_aspirin.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
@@ -419,8 +419,8 @@ test_hmc5843.ARCHDIR = $(ARCH)
 test_hmc5843.CFLAGS = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -Ibooz -DPERIPHERALS_AUTO_INIT
 test_hmc5843.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_hmc5843.srcs = lisa/test/lisa_test_hmc5843.c         \
-					$(SRC_ARCH)/stm32_exceptions.c   \
-					$(SRC_ARCH)/stm32_vector_table.c
+                    $(SRC_ARCH)/stm32_exceptions.c   \
+                    $(SRC_ARCH)/stm32_vector_table.c
 test_hmc5843.CFLAGS += -DUSE_LED
 test_hmc5843.srcs += $(SRC_ARCH)/led_hw.c
 test_hmc5843.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
@@ -446,8 +446,8 @@ test_itg3200.ARCHDIR = $(ARCH)
 test_itg3200.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_itg3200.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_itg3200.srcs += lisa/test/lisa_test_itg3200.c \
-					   $(SRC_ARCH)/stm32_exceptions.c   \
-					   $(SRC_ARCH)/stm32_vector_table.c
+                       $(SRC_ARCH)/stm32_exceptions.c   \
+                       $(SRC_ARCH)/stm32_vector_table.c
 
 test_itg3200.CFLAGS += -DUSE_LED
 test_itg3200.srcs += $(SRC_ARCH)/led_hw.c
@@ -474,8 +474,8 @@ test_adxl345.ARCHDIR = $(ARCH)
 test_adxl345.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_adxl345.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
 test_adxl345.srcs += lisa/test/lisa_test_adxl345_dma.c \
-					   $(SRC_ARCH)/stm32_exceptions.c   \
-					   $(SRC_ARCH)/stm32_vector_table.c
+                       $(SRC_ARCH)/stm32_exceptions.c   \
+                       $(SRC_ARCH)/stm32_vector_table.c
 
 test_adxl345.CFLAGS += -DUSE_LED
 test_adxl345.srcs += $(SRC_ARCH)/led_hw.c
@@ -502,8 +502,8 @@ test_esc_mkk_simple.ARCHDIR = $(ARCH)
 test_esc_mkk_simple.CFLAGS = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_esc_mkk_simple.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_esc_mkk_simple.srcs = test/test_esc_mkk_simple.c		\
-						   $(SRC_ARCH)/stm32_exceptions.c   \
-						   $(SRC_ARCH)/stm32_vector_table.c
+                           $(SRC_ARCH)/stm32_exceptions.c   \
+                           $(SRC_ARCH)/stm32_vector_table.c
 test_esc_mkk_simple.CFLAGS += -DUSE_LED
 test_esc_mkk_simple.srcs += $(SRC_ARCH)/led_hw.c
 test_esc_mkk_simple.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
@@ -521,8 +521,8 @@ test_esc_asctecv1_simple.ARCHDIR = $(ARCH)
 test_esc_asctecv1_simple.CFLAGS = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_esc_asctecv1_simple.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_esc_asctecv1_simple.srcs = test/test_esc_asctecv1_simple.c  \
-								$(SRC_ARCH)/stm32_exceptions.c   \
-								$(SRC_ARCH)/stm32_vector_table.c
+                                $(SRC_ARCH)/stm32_exceptions.c   \
+                                $(SRC_ARCH)/stm32_vector_table.c
 test_esc_asctecv1_simple.CFLAGS += -DUSE_LED
 test_esc_asctecv1_simple.srcs += $(SRC_ARCH)/led_hw.c
 test_esc_asctecv1_simple.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
@@ -539,8 +539,8 @@ test_actuators_mkk.ARCHDIR = $(ARCH)
 test_actuators_mkk.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -DPERIPHERALS_AUTO_INIT
 test_actuators_mkk.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_actuators_mkk.srcs = test/test_actuators.c \
-						  $(SRC_ARCH)/stm32_exceptions.c   \
-						  $(SRC_ARCH)/stm32_vector_table.c
+                          $(SRC_ARCH)/stm32_exceptions.c   \
+                          $(SRC_ARCH)/stm32_vector_table.c
 
 test_actuators_mkk.CFLAGS += -DUSE_LED
 test_actuators_mkk.srcs += $(SRC_ARCH)/led_hw.c
@@ -569,8 +569,8 @@ test_actuators_asctecv1.ARCHDIR = $(ARCH)
 test_actuators_asctecv1.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -DPERIPHERALS_AUTO_INIT
 test_actuators_asctecv1.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_actuators_asctecv1.srcs = test/test_actuators.c            \
-							   $(SRC_ARCH)/stm32_exceptions.c   \
-							   $(SRC_ARCH)/stm32_vector_table.c
+                               $(SRC_ARCH)/stm32_exceptions.c   \
+                               $(SRC_ARCH)/stm32_vector_table.c
 
 test_actuators_asctecv1.CFLAGS += -DUSE_LED
 test_actuators_asctecv1.srcs += $(SRC_ARCH)/led_hw.c
@@ -599,8 +599,8 @@ test_bmp085.ARCHDIR = $(ARCH)
 test_bmp085.CFLAGS = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_bmp085.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_bmp085.srcs = lisa/test/lisa_test_bmp085.c     \
-		   $(SRC_ARCH)/stm32_exceptions.c   \
-		   $(SRC_ARCH)/stm32_vector_table.c
+           $(SRC_ARCH)/stm32_exceptions.c   \
+           $(SRC_ARCH)/stm32_vector_table.c
 test_bmp085.CFLAGS += -DUSE_LED
 test_bmp085.srcs += $(SRC_ARCH)/led_hw.c
 test_bmp085.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
@@ -627,8 +627,8 @@ test_manual.ARCHDIR = $(ARCH)
 test_manual.CFLAGS  = -I$(SRC_FIRMWARE) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_manual.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_manual.srcs    = test/test_manual.c               \
-		      $(SRC_ARCH)/stm32_exceptions.c   \
-		      $(SRC_ARCH)/stm32_vector_table.c
+              $(SRC_ARCH)/stm32_exceptions.c   \
+              $(SRC_ARCH)/stm32_vector_table.c
 test_manual.CFLAGS += -DUSE_LED
 test_manual.srcs   += $(SRC_ARCH)/led_hw.c
 test_manual.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
@@ -659,5 +659,5 @@ test_manual.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/spektrum
 test_manual.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_PRIMARY_PORT=$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)
 test_manual.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HANDLER -DUSE_TIM6_IRQ
 test_manual.srcs   += $(SRC_SUBSYSTEMS)/radio_control.c                                 \
-	              subsystems/radio_control/spektrum.c          \
-	              $(SRC_ARCH)/subsystems/radio_control/spektrum_arch.c
+                  subsystems/radio_control/spektrum.c          \
+                  $(SRC_ARCH)/subsystems/radio_control/spektrum_arch.c
