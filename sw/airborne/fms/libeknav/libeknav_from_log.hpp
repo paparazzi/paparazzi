@@ -90,6 +90,7 @@ Vector3d speed_cov_0        = Vector3d::Ones()*0.1;
 // NOTE: Measured during hovering in the air. Movement in the range of a 1 m³ cube with (approx.) max. 0.2 m/s speed.
 /// IMU
 const Vector3d gyroscope_noise      ( 1.0449e-1,  1.1191e-1,  4.5906e-2 );
+const Vector3d gyro_stability_noise ( 1.0000e-6,  1.0000e-6,  1.0000e-6 );
 const Vector3d accelerometer_noise  ( 2.5457e+0,  1.8242e+0,  1.5660e+0 );
 const unsigned short imu_frequency  = 512;
 
@@ -105,7 +106,8 @@ const unsigned short gps_frequency  = 4;
 //const Vector3d gps_pos_noise        = Vector3d::Ones() *10  *10  ;
 
 const double baro_noise             =  0.25;
-#define BARO_SCALING                  10.0
+// measured with GPS while climbing approximately 80 m
+#define BARO_SCALING                  10.17
 
 //const double   mag_error            = 2.536e-3;
 //const Vector3d gyro_white_noise     (  1.1328*1.1328e-4,    0.9192*0.9192e-4,    1.2291*1.2291e-4);
@@ -193,7 +195,17 @@ struct DoubleEulers sigma_euler_from_sigma_q(struct DoubleQuat, struct DoubleQua
 	   mat.m[0], mat.m[1], mat.m[2], mat.m[3], mat.m[4], mat.m[5],	\
 	   mat.m[6], mat.m[7], mat.m[8]);				\
   }
-#define DISPLAY_FLOAT_QUAT(text, quat) {				\
+#define DISPLAY_DOUBLE_QUAT(text, quat) {				\
     double quat_norm = NORM_VECT4(quat);				\
     printf("%s %f %f %f %f (%f)\n",text, quat.qi, quat.qx, quat.qy, quat.qz, quat_norm); \
+  }
+#define DISPLAY_DOUBLE_EULERS_DEG(text, _e) {				\
+  printf("%s %f %f %f\n",text,  DegOfRad((_e).phi),			\
+  DegOfRad((_e).theta), DegOfRad((_e).psi));			\
+}
+
+#define DISPLAY_DOUBLE_QUAT_AS_EULERS_DEG(text, quat) {			\
+    struct DoubleEulers _fe;						\
+    DOUBLE_EULERS_OF_QUAT(_fe, quat);					\
+    DISPLAY_DOUBLE_EULERS_DEG(text, _fe);				\
   }

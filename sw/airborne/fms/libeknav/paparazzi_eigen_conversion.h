@@ -123,10 +123,10 @@
   }
   
 #define QUAT_ENU_FROM_TO_NED(from, to){	\
-	to.qi =  from.qx + from.qy;						\
-  to.qx = -from.qi - from.qz;						\
-  to.qy = -from.qi + from.qz;						\
-  to.qz =  from.qx - from.qy;						\
+	to.qi = - from.qx - from.qy;					\
+  to.qy = + from.qi + from.qz;					\
+  to.qx = + from.qi - from.qz;					\
+  to.qz = - from.qx + from.qy;					\
   QUAT_SMUL(to, to, M_SQRT1_2);					\
 }
 

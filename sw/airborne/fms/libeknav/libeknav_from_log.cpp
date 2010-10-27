@@ -11,7 +11,7 @@ FILE* ins_logfile;		// note: initilaized in init_ins_state
 
 //useless initialization (I hate C++)
 static basic_ins_qkf ins = basic_ins_qkf(Vector3d::Zero(), 0, 0, 0,
-					 gyroscope_noise,gyroscope_noise*0.1, accelerometer_noise);
+					 gyro_stability_noise,gyroscope_noise, accelerometer_noise);
 
 // import most common Eigen types 
 USING_PART_OF_NAMESPACE_EIGEN
@@ -129,7 +129,7 @@ static struct raw_log_entry first_entry_after_initialisation(int file_descriptor
     }
     if(BARO_READY(e.message.valid_sensors)){
       baro_measurements++;
-      printf("baro_0_height before: %7f\n", baro_0_height);
+      // TODO: Fix it!
       //NEW_MEAN(baro_0_height, BARO_FLOAT_OF_BFP(e.message.pressure_absolute), baro_measurements);
       baro_0_height = (baro_0_height*(baro_measurements-1)+BARO_FLOAT_OF_BFP(e.message.pressure_absolute))/baro_measurements;
     }
@@ -183,9 +183,7 @@ static struct raw_log_entry first_entry_after_initialisation(int file_descriptor
   q_ned2body = estimated_attitude(attitude_profile_matrix, 1000, 1e-6, sigmaB, &sigma_q);
 	orientation_0 = ecef2body_from_pprz_ned2body(pos_0_ecef,q_ned2body);
   
-  printf("baro_0_height before: %7f\n", baro_0_height);
   baro_0_height += pos_0_ecef.norm();
-  printf("baro_0_height after:  %7f\n", baro_0_height);
   
   struct DoubleEulers sigma_eu = sigma_euler_from_sigma_q(q_ned2body, sigma_q);
   orientation_cov_0 = EULER_AS_VECTOR3D(sigma_eu);
@@ -207,10 +205,10 @@ static void main_run_from_file(int file_descriptor, struct raw_log_entry first_e
       printf("%6.2fs %6i\n", e.time, entry_counter);
       t += 10;
     }
-    //if ((e.time<22.58)||(e.time>22.6)){
-      main_run_ins(e.message.valid_sensors);
+    if ((e.time<68.48)||(e.time>68.51)){
       print_estimator_state(e.time);
-    //} 
+      main_run_ins(e.message.valid_sensors);
+    } 
     e = read_raw_log_entry(file_descriptor, &read_ok);
   }
 }
@@ -288,7 +286,7 @@ static void init_ins_state(void){
               Vector3d::Ones() *  angle_cov  *  angle_cov ,
 							Vector3d::Ones() *  pos_cov_0  *  pos_cov_0 ,
 							Vector3d::Ones() * speed_cov_0 * speed_cov_0;*/
-  diag_cov << 0.1 * gyroscope_noise,
+  diag_cov << gyro_stability_noise,
               orientation_cov_0,
 							pos_cov_0,
 							speed_cov_0;
@@ -329,10 +327,14 @@ Quaterniond ecef2body_from_pprz_ned2body(Vector3d ecef_pos, struct DoubleQuat q_
   
   #ifdef EKNAV_FROM_LOG_DEBUG
   printf("Right after initialization:\n");
-  DISPLAY_FLOAT_QUAT("\t ned2body quaternion:", q_ned2body);
-  DISPLAY_FLOAT_QUAT("\tecef2enu  quaternion:", q_ecef2enu);
-  DISPLAY_FLOAT_QUAT("\tecef2ned  quaternion:", q_ecef2ned);
-  DISPLAY_FLOAT_QUAT("\tecef2body quaternion:", q_ecef2body);
+  DISPLAY_DOUBLE_QUAT("\t ned2body quaternion:", q_ned2body);
+  DISPLAY_DOUBLE_QUAT_AS_EULERS_DEG("\t\t\t", q_ned2body);
+  DISPLAY_DOUBLE_QUAT("\tecef2enu  quaternion:", q_ecef2enu);
+  DISPLAY_DOUBLE_QUAT_AS_EULERS_DEG("\t\t\t", q_ecef2enu);
+  DISPLAY_DOUBLE_QUAT("\tecef2ned  quaternion:", q_ecef2ned);
+  DISPLAY_DOUBLE_QUAT_AS_EULERS_DEG("\t\t\t", q_ecef2ned);
+  DISPLAY_DOUBLE_QUAT("\tecef2body quaternion:", q_ecef2body);
+  DISPLAY_DOUBLE_QUAT_AS_EULERS_DEG("\t\t\t", q_ecef2body);
   #endif
   
   return DOUBLEQUAT_AS_QUATERNIOND(q_ecef2body);
