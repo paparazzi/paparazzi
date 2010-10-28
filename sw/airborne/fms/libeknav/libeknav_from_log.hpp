@@ -51,8 +51,6 @@
 #define PRINT_GPS 0
 #define PRINT_EULER_NED 0
 
-/** baro-sensor **/
-
 
 /** geodetic **/
 #define EARTHS_GEOMAGNETIC_FIELD_NORMED(ref) VECT3_ASSIGN(ref, 0.51562740288882, -0.05707735220832, 0.85490967783446)
@@ -90,7 +88,8 @@ Vector3d speed_cov_0        = Vector3d::Ones()*0.1;
 // NOTE: Measured during hovering in the air. Movement in the range of a 1 m³ cube with (approx.) max. 0.2 m/s speed.
 /// IMU
 const Vector3d gyroscope_noise      ( 1.0449e-1,  1.1191e-1,  4.5906e-2 );
-const Vector3d gyro_stability_noise ( 1.0000e-6,  1.0000e-6,  1.0000e-6 );
+//const Vector3d gyroscope_noise      ( 1.0000e-1,  1.0000e-1,  1.0000e-1 );
+const Vector3d gyro_stability_noise ( 1.0000e-3,  1.0000e-3,  1.0000e-3 );
 const Vector3d accelerometer_noise  ( 2.5457e+0,  1.8242e+0,  1.5660e+0 );
 const unsigned short imu_frequency  = 512;
 

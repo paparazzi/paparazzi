@@ -46,13 +46,13 @@ static void main_init(void) {
 	printf("FILTER output will be in ");
 	#if FILTER_OUTPUT_IN_NED
 		printf("NED\n");
-	#else
+  #else /* FILTER_OUTPUT_IN_ECEF */
 		printf("ECEF\n");
-	#endif
+	#endif /* FILTER_OUTPUT_IN_NED / ECEF */
 	
 	#if UPDATE_WITH_GRAVITY
 	printf("the orientation becomes UPDATED with the GRAVITY\n");
-  #endif
+  #endif /* UPDATE_WITH_GRAVITY */
 
   init_ins_state();
   set_reference_direction();
@@ -91,20 +91,20 @@ static struct raw_log_entry first_entry_after_initialisation(int file_descriptor
   uint8_t read_ok;
   #if WITH_GPS
   struct raw_log_entry e = next_GPS(file_descriptor);
-  #else
+  #else /* WITH_GPS */
   struct raw_log_entry e = read_raw_log_entry(file_descriptor, &read_ok);
   pos_0_ecef = Vector3d(4627578.56, 119659.25, 4373248.00);
   pos_cov_0 = Vector3d::Ones()*100;
   speed_0_ecef    = Vector3d::Zero();
   speed_cov_0 = Vector3d::Ones();
-  #endif // WITH_GPS
+  #endif /* WITH_GPS */
   
   #ifdef EKNAV_FROM_LOG_DEBUG
     int imu_ready = 0, 
         mag_ready = 0,
         baro_ready = 0,
         gps_ready = 0;
-  #endif
+  #endif /* EKNAV_FROM_LOG_DEBUG */
   
   for(read_ok = 1; (read_ok) && NOT_ENOUGH_MEASUREMENTS(imu_measurements, magnetometer_measurements, baro_measurements, gps_measurements); e = read_raw_log_entry(file_descriptor, &read_ok)){
     if(IMU_READY(e.message.valid_sensors)){
@@ -165,7 +165,7 @@ static struct raw_log_entry first_entry_after_initialisation(int file_descriptor
         gps_ready = 1;
       }
     }
-    #endif
+    #endif /* EKNAV_FROM_LOG_DEBUG */
   }
   // setting the covariance
   gravity.weight_of_the_measurement *= imu_measurements;
@@ -177,7 +177,7 @@ static struct raw_log_entry first_entry_after_initialisation(int file_descriptor
   #ifdef EKNAV_FROM_LOG_DEBUG
   DISPLAY_FLOAT_RMAT("     B", attitude_profile_matrix);
   DISPLAY_FLOAT_RMAT("sigmaB", sigmaB);
-  #endif
+  #endif /* EKNAV_FROM_LOG_DEBUG */
   
   //  setting the initial orientation
   q_ned2body = estimated_attitude(attitude_profile_matrix, 1000, 1e-6, sigmaB, &sigma_q);
@@ -227,19 +227,15 @@ static void main_run_ins(uint8_t data_valid) {
 		// use the gravity as reference
 		ins.obs_vector(ins.avg_state.position.normalized(), VECT3_AS_VECTOR3D(imu_float.accel), accelerometer_noise.norm());
 	}
-  #endif
+  #endif /* UPDATE_WITH_GRAVITY */
   
-  if(BARO_READY(data_valid)){
+   if(BARO_READY(data_valid)){
     ins.obs_baro_report(baro_0_height+imu_baro_height, baro_noise);
-  }
+  }   // comment out multiple lines */
   
   if(GPS_READY(data_valid)){
 		ins.obs_gps_pv_report(VECT3_AS_VECTOR3D(imu_ecef_pos)/100, VECT3_AS_VECTOR3D(imu_ecef_vel)/100, 10*gps_pos_noise, 10*gps_speed_noise);
-    
-    Matrix<double, 3, 3> ecef2enu;
-    RMAT_TO_EIGENMATRIX(ecef2enu,current_ltp.ltp_of_ecef.m);
-
-	}
+	}   // comment out multiple lines */
 }
 
 
@@ -322,8 +318,9 @@ Quaterniond ecef2body_from_pprz_ned2body(Vector3d ecef_pos, struct DoubleQuat q_
   ltp_def_from_ecef_d(&current_ltp, &ecef_pos_pprz);
   DOUBLE_QUAT_OF_RMAT(q_ecef2enu, current_ltp.ltp_of_ecef);
   QUAT_ENU_FROM_TO_NED(q_ecef2enu, q_ecef2ned);
-  
-  FLOAT_QUAT_COMP_NORM_SHORTEST(q_ecef2body, q_ecef2ned, q_ned2body);
+//FLOAT_QUAT_COMP_NORM_SHORTEST(_a2c,          _a2b,        _b2c)
+// a = ecef b = ned c = body
+  FLOAT_QUAT_COMP_INV_NORM_SHORTEST(q_ecef2body, q_ecef2ned, q_ned2body);
   
   #ifdef EKNAV_FROM_LOG_DEBUG
   printf("Right after initialization:\n");
@@ -335,7 +332,7 @@ Quaterniond ecef2body_from_pprz_ned2body(Vector3d ecef_pos, struct DoubleQuat q_
   DISPLAY_DOUBLE_QUAT_AS_EULERS_DEG("\t\t\t", q_ecef2ned);
   DISPLAY_DOUBLE_QUAT("\tecef2body quaternion:", q_ecef2body);
   DISPLAY_DOUBLE_QUAT_AS_EULERS_DEG("\t\t\t", q_ecef2body);
-  #endif
+  #endif /* EKNAV_FROM_LOG_DEBUG */
   
   return DOUBLEQUAT_AS_QUATERNIOND(q_ecef2body);
 }
@@ -425,22 +422,30 @@ static void print_estimator_state(double time) {
   int32_t z = pos_ned.z/0.0039;
 
   fprintf(ins_logfile, "%f %d BOOZ2_INS2 %d %d %d %d %d %d %d %d %d\n", time, AC_ID, xdd, ydd, zdd, xd, yd, zd, x, y, z);
-  
+  #if 0
   QUAT_ASSIGN(q_ecef2body, ins.avg_state.orientation.w(), -ins.avg_state.orientation.x(),
 	         -ins.avg_state.orientation.y(), -ins.avg_state.orientation.z());
   QUAT_ASSIGN(q_ned2enu, 0, M_SQRT1_2, M_SQRT1_2, 0);
   
   FLOAT_QUAT_OF_RMAT(q_ecef2enu, current_ltp.ltp_of_ecef);
 	FLOAT_QUAT_INV_COMP(q_enu2body, q_ecef2enu, q_ecef2body);		// q_enu2body = q_ecef2body * (q_ecef2enu)^*
-  FLOAT_QUAT_COMP(q_ned2body, q_ned2enu, q_enu2body)					// q_ned2body = q_enu2body * q_ned2enu
+  FLOAT_QUAT_COMP(q_ned2body, q_ned2enu, q_enu2body);					// q_ned2body = q_enu2body * q_ned2enu
 
+  #else /* if 0 */
+  QUATERNIOND_AS_DOUBLEQUAT(q_ecef2body, ins.avg_state.orientation);
+  DOUBLE_QUAT_OF_RMAT(q_ecef2enu, current_ltp.ltp_of_ecef);
+  FLOAT_QUAT_INV_COMP(q_enu2body, q_ecef2enu, q_ecef2body);
+  QUAT_ENU_FROM_TO_NED(q_enu2body, q_ned2body);
+  
+  #endif /* if 0 */
   
   struct FloatEulers e;
   FLOAT_EULERS_OF_QUAT(e, q_ned2body);
-	
+  
+  
 	#if PRINT_EULER_NED
 		printf("EULER % 6.1f % 6.1f % 6.1f\n", e.phi*180*M_1_PI, e.theta*180*M_1_PI, e.psi*180*M_1_PI);
-	#endif
+	#endif /* PRINT_EULER_NED */
   fprintf(ins_logfile, "%f %d AHRS_EULER %f %f %f\n", time, AC_ID, e.phi, e.theta, e.psi);
   fprintf(ins_logfile, "%f %d DEBUG_COVARIANCE %f %f %f %f %f %f %f %f %f %f %f %f\n", time, AC_ID,
 				sqrt(ins.cov( 0, 0)),  sqrt(ins.cov( 1, 1)),  sqrt(ins.cov( 2, 2)), 
@@ -448,8 +453,8 @@ static void print_estimator_state(double time) {
 				sqrt(ins.cov( 6, 6)),  sqrt(ins.cov( 7, 7)),  sqrt(ins.cov( 8, 8)), 
 				sqrt(ins.cov( 9, 9)),  sqrt(ins.cov(10,10)),  sqrt(ins.cov(11,11)));
   fprintf(ins_logfile, "%f %d BOOZ_SIM_GYRO_BIAS %f %f %f\n", time, AC_ID, ins.avg_state.gyro_bias(0), ins.avg_state.gyro_bias(1), ins.avg_state.gyro_bias(2));
-	
-#else
+
+#else /* FILTER_OUTPUT_IN_ECEF */
   int32_t xdd = 0;
   int32_t ydd = 0;
   int32_t zdd = 0;
@@ -476,5 +481,5 @@ static void print_estimator_state(double time) {
 				sqrt(ins.cov( 6, 6)),  sqrt(ins.cov( 7, 7)),  sqrt(ins.cov( 8, 8)), 
 				sqrt(ins.cov( 9, 9)),  sqrt(ins.cov(10,10)),  sqrt(ins.cov(11,11)));
   fprintf(ins_logfile, "%f %d BOOZ_SIM_GYRO_BIAS %f %f %f\n", time, AC_ID, ins.avg_state.gyro_bias(0), ins.avg_state.gyro_bias(1), ins.avg_state.gyro_bias(2));
-#endif
+#endif /* FILTER_OUTPUT_IN_NED / ECEF */
 }
