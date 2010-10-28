@@ -26,7 +26,7 @@
  * \brief Parser for the Xsens protocol
  */
 
-#include "subsystems/ins.h"
+#include "ins_module.h"
 
 #include <inttypes.h>
 

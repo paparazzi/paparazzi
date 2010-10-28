@@ -44,6 +44,11 @@
 #include "subsystems/radio_control.h"
 #include "main_fbw.h"
 
+#ifndef SINGLE_MCU
+#include "radio.h"
+#define RADIO_CONTROL_NB_CHANNEL RADIO_CTL_NB
+#endif
+
 /** Data structure shared by fbw and ap processes */
 struct fbw_state {
 #if defined RADIO_CONTROL || RADIO_CONTROL_AUTO1
