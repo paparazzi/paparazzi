@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2008-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -21,20 +21,23 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef AHRS_CMPL_EULER_H
-#define AHRS_CMPL_EULER_H
+#ifndef AHRS_INT_CMPL_EULER_H
+#define AHRS_INT_CMPL_EULER_H
 
 #include "subsystems/ahrs.h"
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 
-extern struct Int32Rates  face_gyro_bias;
-extern struct Int32Eulers face_measure;
-extern struct Int32Eulers face_residual;
-extern struct Int32Eulers face_uncorrected;
-extern struct Int32Eulers face_corrected;
+struct AhrsIntCmplEuler {
+  struct Int32Rates  gyro_bias;
+  struct Int32Eulers measure;
+  struct Int32Eulers residual;
+  struct Int32Eulers uncorrected;
+  struct Int32Eulers corrected;
+  struct Int32Eulers measurement;
+  int32_t reinj_1;
+};
 
-extern int32_t face_reinj_1;
+extern struct AhrsIntCmplEuler ahrs_impl;
 
-
-#endif /* AHRS_CMPL_EULER_H */
+#endif /* AHRS_INT_CMPL_EULER_H */

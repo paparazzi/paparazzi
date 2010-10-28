@@ -1,5 +1,5 @@
 /*
- * $Id:  $
+ * $Id$
  *
  * Copyright (C) 2008-2010 The Paparazzi Team
  *
@@ -31,15 +31,7 @@
 #include "math/pprz_algebra_int.h"
 
 
-struct Int32Rates  face_gyro_bias;
-struct Int32Eulers face_measure;
-struct Int32Eulers face_residual;
-struct Int32Eulers face_uncorrected;
-struct Int32Eulers face_corrected;
-
-struct Int32Eulers measurement;
-
-int32_t face_reinj_1;
+struct AhrsIntCmplEuler ahrs_impl;
 
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
@@ -49,10 +41,10 @@ void ahrs_init(void) {
   INT32_QUAT_ZERO(ahrs.ltp_to_imu_quat);
   INT_RATES_ZERO(ahrs.body_rate);
   INT_RATES_ZERO(ahrs.imu_rate);
-  INT_RATES_ZERO(face_gyro_bias);
-  face_reinj_1 = FACE_REINJ_1;
+  INT_RATES_ZERO(ahrs_impl.gyro_bias);
+  ahrs_impl.reinj_1 = FACE_REINJ_1;
 
-  INT_EULERS_ZERO(face_uncorrected);
+  INT_EULERS_ZERO(ahrs_impl.uncorrected);
 
 #ifdef IMU_MAG_OFFSET
   ahrs_mag_offset = IMU_MAG_OFFSET;
@@ -63,7 +55,7 @@ void ahrs_init(void) {
 
 void ahrs_align(void) {
 
-  RATES_COPY( face_gyro_bias, ahrs_aligner.lp_gyro);
+  RATES_COPY( ahrs_impl.gyro_bias, ahrs_aligner.lp_gyro);
   ahrs.status = AHRS_RUNNING;
 
 }
@@ -97,7 +89,7 @@ void ahrs_propagate(void) {
 
   /* unbias gyro             */
   struct Int32Rates uf_rate;
-  RATES_DIFF(uf_rate, imu.gyro, face_gyro_bias);
+  RATES_DIFF(uf_rate, imu.gyro, ahrs_impl.gyro_bias);
   /* low pass rate */
   RATES_ADD(ahrs.imu_rate, uf_rate);
   RATES_SDIV(ahrs.imu_rate, ahrs.imu_rate, 2);
@@ -105,25 +97,25 @@ void ahrs_propagate(void) {
   /* integrate eulers */
   struct Int32Eulers euler_dot;
   INT32_EULERS_DOT_OF_RATES(euler_dot, ahrs.ltp_to_imu_euler, ahrs.imu_rate);
-  EULERS_ADD(face_corrected, euler_dot);
+  EULERS_ADD(ahrs_impl.corrected, euler_dot);
 
   /* low pass measurement */
-  EULERS_ADD(face_measure, measurement);
-  EULERS_SDIV(face_measure, face_measure, 2);
+  EULERS_ADD(ahrs_impl.measure, ahrs_impl.measurement);
+  EULERS_SDIV(ahrs_impl.measure, ahrs_impl.measure, 2);
   /* compute residual */
-  EULERS_DIFF(face_residual, face_measure, face_corrected);
-  INTEG_EULER_NORMALIZE(face_residual.psi);
+  EULERS_DIFF(ahrs_impl.residual, ahrs_impl.measure, ahrs_impl.corrected);
+  INTEG_EULER_NORMALIZE(ahrs_impl.residual.psi);
 
   struct Int32Eulers correction;
   /* compute a correction */
-  EULERS_SDIV(correction, face_residual, face_reinj_1);
+  EULERS_SDIV(correction, ahrs_impl.residual, ahrs_impl.reinj_1);
   /* correct estimation */
-  EULERS_ADD(face_corrected, correction);
-  INTEG_EULER_NORMALIZE(face_corrected.psi);
+  EULERS_ADD(ahrs_impl.corrected, correction);
+  INTEG_EULER_NORMALIZE(ahrs_impl.corrected.psi);
 
 
   /* Compute LTP to IMU eulers      */
-  EULERS_SDIV(ahrs.ltp_to_imu_euler, face_corrected, F_UPDATE);
+  EULERS_SDIV(ahrs.ltp_to_imu_euler, ahrs_impl.corrected, F_UPDATE);
   /* Compute LTP to IMU quaternion */
   INT32_QUAT_OF_EULERS(ahrs.ltp_to_imu_quat, ahrs.ltp_to_imu_euler);
   /* Compute LTP to IMU rotation matrix */
@@ -143,13 +135,13 @@ void ahrs_propagate(void) {
 void ahrs_update_accel(void) {
 
   /* build a measurement assuming constant acceleration ?!! */
-  INT32_ATAN2(measurement.phi, -imu.accel.y, -imu.accel.z);
+  INT32_ATAN2(ahrs_impl.measurement.phi, -imu.accel.y, -imu.accel.z);
   int32_t cphi;
-  PPRZ_ITRIG_COS(cphi, measurement.phi);
+  PPRZ_ITRIG_COS(cphi, ahrs_impl.measurement.phi);
   int32_t cphi_ax = -INT_MULT_RSHIFT(cphi, imu.accel.x, INT32_TRIG_FRAC);
-  INT32_ATAN2(measurement.theta, -cphi_ax, -imu.accel.z);
-  measurement.phi *= F_UPDATE;
-  measurement.theta *= F_UPDATE;
+  INT32_ATAN2(ahrs_impl.measurement.theta, -cphi_ax, -imu.accel.z);
+  ahrs_impl.measurement.phi *= F_UPDATE;
+  ahrs_impl.measurement.theta *= F_UPDATE;
 
 }
 
@@ -183,6 +175,6 @@ void ahrs_update_mag(void) {
   //  sphi_ctheta * imu.mag.y +
   //  cphi_ctheta * imu.mag.z;
   float m_psi = -atan2(me, mn);
-  measurement.psi = ((m_psi - RadOfDeg(ahrs_mag_offset))*(float)(1<<(INT32_ANGLE_FRAC))*F_UPDATE);
+  ahrs_impl.measurement.psi = ((m_psi - RadOfDeg(ahrs_mag_offset))*(float)(1<<(INT32_ANGLE_FRAC))*F_UPDATE);
 
 }
