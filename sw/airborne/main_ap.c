@@ -67,10 +67,6 @@
 #include "led.h"
 #endif
 
-#ifdef USE_ADC_GENERIC
-#include "adc_generic.h"
-#endif
-
 #if defined USE_I2C0 || USE_I2C1
 #include "i2c.h"
 #endif
@@ -86,10 +82,6 @@
 #ifdef USE_USB_SERIAL
 #include "usb_serial.h"
 #endif
-
-#ifdef USE_BARO_ETS
-#include "baro_ets.h"
-#endif // USE_BARO_ETS
 
 #if ! defined CATASTROPHIC_BAT_LEVEL && defined LOW_BATTERY
 #warning "LOW_BATTERY deprecated. Renamed into CATASTROPHIC_BAT_LEVEL (in airframe file)"
@@ -446,13 +438,6 @@ void periodic_task_ap( void ) {
     break;
 #endif
 
-#ifdef USE_ADC_GENERIC
-  case 6:
-    adc_generic_periodic();
-    DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &adc_generic_val1, &adc_generic_val2);
-    break;
-#endif
-
     /*  default: */
   }
 
@@ -541,10 +526,6 @@ void init_ap( void ) {
 
 #ifdef USE_I2C1
   i2c1_init();
-#endif
-
-#ifdef USE_ADC_GENERIC
-  adc_generic_init();
 #endif
 
   /************* Links initialization ***************/
@@ -670,15 +651,6 @@ void event_task_ap( void ) {
     /* Got a message on SPI. */
     spi_message_received = FALSE;
     link_mcu_event_task();
-  }
-#endif
-
-#if defined(USE_BARO_ETS)
-  if (baro_ets_updated) {
-    baro_ets_updated = FALSE;
-    if (baro_ets_valid) {
-      EstimatorSetAlt(baro_ets_altitude);
-    }
   }
 #endif
 

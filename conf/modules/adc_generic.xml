@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<!--
+     Generic ADC module
+     @param ADC_CHANNEL_GENERIC1 on which ADC input 1 is measured
+     @param ADC_CHANNEL_GENERIC2 on which ADC input 2 is measured
+     -->
+
+<module name="adc_generic" dir="adcs">
+  <header>
+    <file name="adc_generic.h"/>
+  </header>
+  <init fun="adc_generic_init()"/>
+  <periodic fun="adc_generic_periodic()" freq="4"/>
+  <makefile target="ap">
+    <file name="adc_generic.c"/>
+    <flag name="USE_$(ADC_CHANNEL_GENERIC1)"/>
+    <flag name="USE_$(ADC_CHANNEL_GENERIC2)"/>
+  </makefile>
+</module>
+

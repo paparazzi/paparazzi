@@ -10,15 +10,6 @@
 <airframe name="Funjet mm 1">
 
   <firmware name="fixedwing">
-    <target name="sim"                 board="pc">
-      <define name="AGR_CLIMB"/>
-      <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
-      <define name="WIND_INFO"/>
-      <define name="WIND_INFO_RET"/>
-      <define name="USE_I2C0"/>
-    </target>
-
     <target name="ap"                  board="tiny_2.11">
       <define name="AGR_CLIMB"/>
       <define name="LOITER_TRIM"/>
@@ -26,10 +17,19 @@
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
       <define name="USE_I2C0"/>
-      <define name="SPI_MASTER"/>
-      <define name="USE_MICROMAG_FW"/>
-      <define name="MICROMAG_DRDY_VIC_SLOT" value="12"/>
-      <define name="SSP_VIC_SLOT" value="11"/>
+      <define name="SENSOR_SYNC_SEND"/>
+      <define name="ADC_CHANNEL_GENERIC1" value="ADC_3"/>
+      <define name="ADC_CHANNEL_GENERIC2" value="ADC_4"/>
+      <define name="USE_ADC_3"/>
+      <define name="USE_ADC_4"/>
+    </target>
+
+    <target name="sim"                 board="pc">
+      <define name="AGR_CLIMB"/>
+      <define name="LOITER_TRIM"/>
+      <define name="ALT_KALMAN"/>
+      <define name="WIND_INFO"/>
+      <define name="WIND_INFO_RET"/>
     </target>
 
     <!-- RC -->
@@ -49,7 +49,6 @@
     <subsystem name="navigation"/>
     <!-- Interfaces -->
     <subsystem name="i2c"/>
-    <subsystem name="spi"/>
   </firmware>
 
   <firmware name="setup">
@@ -61,8 +60,12 @@
 
   <!-- modules -->
   <modules>
+    <load name="adc_generic.xml"/>
+    <!--load name="windturbine.xml"/>
+    <load name="trig_test.xml"/>
+    <load name="temp_temod.xml"/>
+    <load name="airspeed_ets.xml"/>
     <load name="dust_gp2y.xml"/>
-    <!--load name="adc_generic.xml"/>
     <load name="alt_srf08.xml"/>
     <load name="mag_micromag_fw.xml"/>
     <load name="baro_bmp.xml"/>
