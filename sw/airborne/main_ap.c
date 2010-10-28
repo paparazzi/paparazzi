@@ -83,10 +83,6 @@
 #include "traffic_info.h"
 #endif
 
-#ifdef TCAS
-#include "tcas.h"
-#endif
-
 #ifdef USE_USB_SERIAL
 #include "usb_serial.h"
 #endif
@@ -418,17 +414,6 @@ void periodic_task_ap( void ) {
     kill_throttle |= (t >= LOW_BATTERY_DELAY);
     kill_throttle |= launch && (dist2_to_home > Square(KILL_MODE_DISTANCE));
   }
-  switch (_1Hz) {
-
-#ifdef TCAS
-  case 6:
-    /** conflicts monitoring at 1Hz */
-    tcas_periodic_task_1Hz();
-    break;
-#endif
-  default:
-    break;
-  }
 
   switch(_4Hz) {
   case 0:
@@ -465,13 +450,6 @@ void periodic_task_ap( void ) {
   case 6:
     adc_generic_periodic();
     DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &adc_generic_val1, &adc_generic_val2);
-    break;
-#endif
-
-#ifdef TCAS
-  case 14:
-    /** tcas altitude control loop at 4Hz just before navigation task */
-    tcas_periodic_task_4Hz();
     break;
 #endif
 
@@ -621,10 +599,6 @@ void init_ap( void ) {
 
 #ifdef TRAFFIC_INFO
   traffic_info_init();
-#endif
-
-#ifdef TCAS
-  tcas_init();
 #endif
 
 }
