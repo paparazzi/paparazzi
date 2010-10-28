@@ -26,6 +26,9 @@
  *
  */
 
+#ifndef PPM_ARCH_H
+#define PPM_ARCH_H
+
 /**
  * On tiny (and booz) the ppm counter is running at the same speed as
  * the systic counter. There is no reason for this to be true.
@@ -34,3 +37,7 @@
  */
 #define RC_PPM_TICS_OF_USEC(_v)        SYS_TICS_OF_USEC((_v)/9)
 #define RC_PPM_SIGNED_TICS_OF_USEC(_v) SIGNED_SYS_TICS_OF_USEC((_v)/9)
+
+#define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
+
+#endif /* PPM_ARCH_H */
