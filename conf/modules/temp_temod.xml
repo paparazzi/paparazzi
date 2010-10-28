@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<!--
+     Hygrosens TEMOD-I2C-Rx temperature sensor
+     @param SCP_I2C_DEV i2c device (default i2c0)
+     @param TEMOD_TYPE device type (default TEMOD_I2C_R1)
+     -->
+
+<module name="temp_temod" dir="meteo">
+  <header>
+    <file name="temp_temod.h"/>
+  </header>
+  <init fun="temod_init()"/>
+  <periodic fun="temod_periodic()" freq="8"/>
+  <event fun="temod_event()"/>
+  <makefile target="ap">
+    <file name="temp_temod.c"/>
+  </makefile>
+</module>
+
