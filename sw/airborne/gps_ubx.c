@@ -304,9 +304,9 @@ void parse_gps_msg( void ) {
       gps_numSV = UBX_NAV_SOL_numSV(ubx_msg_buf);
       gps_week = UBX_NAV_SOL_week(ubx_msg_buf);
     } else if (ubx_id == UBX_NAV_SVINFO_ID) {
-      gps_nb_channels = UBX_NAV_SVINFO_NCH(ubx_msg_buf);
+      gps_nb_channels = Min(UBX_NAV_SVINFO_NCH(ubx_msg_buf), GPS_NB_CHANNELS);
       uint8_t i;
-      for(i = 0; i < Min(gps_nb_channels, GPS_NB_CHANNELS); i++) {
+      for(i = 0; i < gps_nb_channels; i++) {
 	gps_svinfos[i].svid = UBX_NAV_SVINFO_SVID(ubx_msg_buf, i);
 	gps_svinfos[i].flags = UBX_NAV_SVINFO_Flags(ubx_msg_buf, i);
 	gps_svinfos[i].qi = UBX_NAV_SVINFO_QI(ubx_msg_buf, i);
