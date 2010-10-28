@@ -325,24 +325,24 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 
 #ifdef USE_AHRS_CMPL
-#include "subsystems/ahrs/ahrs_cmpl_euler.h"
-#define PERIODIC_SEND_FILTER(_chan) {				\
-    DOWNLINK_SEND_FILTER(_chan,					\
-			       &ahrs.ltp_to_imu_euler.phi,		\
-			       &ahrs.ltp_to_imu_euler.theta,	\
-			       &ahrs.ltp_to_imu_euler.psi,		\
-			       &face_measure.phi,			\
-			       &face_measure.theta,		\
-			       &face_measure.psi,			\
-			       &face_corrected.phi,		\
-			       &face_corrected.theta,		\
-			       &face_corrected.psi,		\
-			       &face_residual.phi,		\
-			       &face_residual.theta,		\
-			       &face_residual.psi,		\
-			       &face_gyro_bias.p,			\
-			       &face_gyro_bias.q,			\
-			       &face_gyro_bias.r);		\
+#include "subsystems/ahrs/ahrs_int_cmpl_euler.h"
+#define PERIODIC_SEND_FILTER(_chan) {					\
+    DOWNLINK_SEND_FILTER(_chan,						\
+			 &ahrs.ltp_to_imu_euler.phi,			\
+			 &ahrs.ltp_to_imu_euler.theta,			\
+			 &ahrs.ltp_to_imu_euler.psi,			\
+			 &face_measure.phi,				\
+			 &face_measure.theta,				\
+			 &face_measure.psi,				\
+			 &face_corrected.phi,				\
+			 &face_corrected.theta,				\
+			 &face_corrected.psi,				\
+			 &face_residual.phi,				\
+			 &face_residual.theta,				\
+			 &face_residual.psi,				\
+			 &face_gyro_bias.p,				\
+			 &face_gyro_bias.q,				\
+			 &face_gyro_bias.r);				\
   }
 #else
 #define PERIODIC_SEND_FILTER(_chan) {}

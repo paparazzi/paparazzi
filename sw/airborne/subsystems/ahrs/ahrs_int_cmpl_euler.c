@@ -1,7 +1,7 @@
 /*
  * $Id:  $
  *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2008-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "ahrs_cmpl_euler.h"
+#include "ahrs_int_cmpl_euler.h"
 
 #include "subsystems/imu.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
