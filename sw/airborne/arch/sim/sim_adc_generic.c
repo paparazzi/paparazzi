@@ -1,5 +1,5 @@
 #include <caml/mlvalues.h>
-#include "adc_generic.h"
+#include <inttypes.h>
 
 uint16_t adc_generic_val1;
 uint16_t adc_generic_val2;
