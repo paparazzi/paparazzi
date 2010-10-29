@@ -16,6 +16,7 @@
       <define name="WIND_INFO"/>
       <define name="ALT_KALMAN"/>
       <define name="USE_I2C0"/>
+      <define name="USE_AIRSPEED"/>
     </target>
 
     <target name="sim" 			board="pc">
@@ -24,6 +25,7 @@
       <define name="WIND_INFO"/>
       <define name="ALT_KALMAN"/>
       <define name="USE_I2C0"/>
+      <define name="USE_AIRSPEED"/>
     </target>
 
     <subsystem name="radio_control" type="ppm"/>
