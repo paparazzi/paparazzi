@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2008  Antoine Drouin
+ * Copyright (C) 2008-2010  The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -29,6 +29,11 @@
 
 #include <math.h>
 #include <float.h> // for FLT_MIN
+
+/* this seems to be missing for some arch */
+#ifndef M_SQRT2
+#define M_SQRT2         1.41421356237309504880
+#endif
 
 struct FloatVect2 {
   float x;
@@ -121,10 +126,12 @@ struct FloatRates {
 
 #define FLOAT_VECT3_NORM(_v) (sqrtf((_v).x*(_v).x + (_v).y*(_v).y + (_v).z*(_v).z))
 
-#define FLOAT_VECT3_CROSS_PRODUCT(vo, v1, v2) {				\
-    vo.x = v1.y*v2.z - v1.z*v2.y;					\
-    vo.y = v1.z*v2.x - v1.x*v2.z;					\
-    vo.z = v1.x*v2.y - v1.y*v2.x;					\
+#define FLOAT_VECT3_DOT_PRODUCT(_v1, _v2) ((_v1).x*(_v2).x + (_v1).y*(_v2).y + (_v1).z*(_v2).z)
+
+#define FLOAT_VECT3_CROSS_PRODUCT(_vo, _v1, _v2) {			\
+    (_vo).x = (_v1).y*(_v2).z - (_v1).z*(_v2).y;			\
+    (_vo).y = (_v1).z*(_v2).x - (_v1).x*(_v2).z;			\
+    (_vo).z = (_v1).x*(_v2).y - (_v1).y*(_v2).x;			\
   }
 
 #define FLOAT_VECT3_NORMALIZE(_v) {		\
@@ -138,6 +145,11 @@ struct FloatRates {
 
 #define FLOAT_RATES_NORM(_v) (sqrtf((_v).p*(_v).p + (_v).q*(_v).q + (_v).r*(_v).r))
 
+#define FLOAT_RATES_ADD_SCALED_VECT(_ro, _v, _s) {	\
+    _ro.p += _v.x * _s;					\
+    _ro.q += _v.y * _s;					\
+    _ro.r += _v.z * _s;					\
+  }
 
 /*
  * 3x3 matrices
@@ -202,13 +214,13 @@ struct FloatRates {
 /* multiply _vin by _rmat, store in _vout */
 #define FLOAT_RMAT_VECT3_MUL(_vout, _rmat, _vin) RMAT_VECT3_MUL(_vout, _rmat, _vin)
 
-#define FLOAT_RMAT_TRANSP_RATEMULT(_vb, _m_b2a, _va) {				                         \
+#define FLOAT_RMAT_TRANSP_RATEMULT(_vb, _m_b2a, _va) {			\
     (_vb).p = ( (_m_b2a).m[0]*(_va).p + (_m_b2a).m[3]*(_va).q + (_m_b2a).m[6]*(_va).r); \
     (_vb).q = ( (_m_b2a).m[1]*(_va).p + (_m_b2a).m[4]*(_va).q + (_m_b2a).m[7]*(_va).r); \
     (_vb).r = ( (_m_b2a).m[2]*(_va).p + (_m_b2a).m[5]*(_va).q + (_m_b2a).m[8]*(_va).r); \
   }
 
-#define FLOAT_RMAT_RATEMULT(_vb, _m_a2b, _va) {				                         \
+#define FLOAT_RMAT_RATEMULT(_vb, _m_a2b, _va) {				\
     (_vb).p = ( (_m_a2b).m[0]*(_va).p + (_m_a2b).m[1]*(_va).q + (_m_a2b).m[2]*(_va).r); \
     (_vb).q = ( (_m_a2b).m[3]*(_va).p + (_m_a2b).m[4]*(_va).q + (_m_a2b).m[5]*(_va).r); \
     (_vb).r = ( (_m_a2b).m[6]*(_va).p + (_m_a2b).m[7]*(_va).q + (_m_a2b).m[8]*(_va).r); \
@@ -341,17 +353,17 @@ struct FloatRates {
   }
 #else
 #define FLOAT_RMAT_OF_QUAT(_rm, _q) {					\
-	const float _a = M_SQRT2*(_q).qi;				\
-	const float _b = M_SQRT2*(_q).qx;				\
-	const float _c = M_SQRT2*(_q).qy;				\
-	const float _d = M_SQRT2*(_q).qz;				\
-	const float a2_1 = _a*_a-1;					\
-	const float ab = _a*_b;						\
-	const float ac = _a*_c;						\
-	const float ad = _a*_d;						\
-	const float bc = _b*_c;						\
-	const float bd = _b*_d;						\
-	const float cd = _c*_d;						\
+    const float _a = M_SQRT2*(_q).qi;					\
+    const float _b = M_SQRT2*(_q).qx;					\
+    const float _c = M_SQRT2*(_q).qy;					\
+    const float _d = M_SQRT2*(_q).qz;					\
+    const float a2_1 = _a*_a-1;						\
+    const float ab = _a*_b;						\
+    const float ac = _a*_c;						\
+    const float ad = _a*_d;						\
+    const float bc = _b*_c;						\
+    const float bd = _b*_d;						\
+    const float cd = _c*_d;						\
     RMAT_ELMT(_rm, 0, 0) = a2_1+_b*_b;					\
     RMAT_ELMT(_rm, 0, 1) = bc+ad;					\
     RMAT_ELMT(_rm, 0, 2) = bd-ac;					\
@@ -364,6 +376,16 @@ struct FloatRates {
   }
 #endif
 
+static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
+
+  struct FloatVect3* r0 = (struct FloatVect3*)(&RMAT_ELMT(*rm, 0,0));
+  struct FloatVect3* r1 = (struct FloatVect3*)(&RMAT_ELMT(*rm, 1,0));
+  float _err = -0.5*FLOAT_VECT3_DOT_PRODUCT(*r0, *r1);
+  
+
+
+  return _err;
+}
 
 
 /*
