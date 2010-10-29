@@ -638,7 +638,10 @@
     <field name="density"   type="float" unit="mg/m3" format="%.2f"/>
   </message>
 
- <!-- 99 is free -->
+  <message name="SHT_SERIAL" id="99">
+    <field name="serial0" type="uint32"/>
+    <field name="serial1" type="uint32"/>
+  </message>
 
   <message name="PPM" id="100">
     <field name="ppm_rate" type="uint8"></field>

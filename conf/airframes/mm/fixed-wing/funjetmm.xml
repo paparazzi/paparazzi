@@ -60,17 +60,18 @@
 
   <!-- modules -->
   <modules>
-    <load name="adc_generic.xml"/>
+    <load name="humid_sht_i2c.xml"/>
     <!--load name="windturbine.xml"/>
-    <load name="trig_test.xml"/>
-    <load name="temp_temod.xml"/>
-    <load name="airspeed_ets.xml"/>
     <load name="dust_gp2y.xml"/>
+    <load name="light_temt.xml"/>
+    <load name="temp_temod.xml"/>
+    <load name="adc_generic.xml"/>
+    <load name="trig_test.xml"/>
+    <load name="airspeed_ets.xml"/>
     <load name="alt_srf08.xml"/>
     <load name="mag_micromag_fw.xml"/>
     <load name="baro_bmp.xml"/>
     <load name="baro_scp.xml"/>
-    <load name="light_temt.xml"/>
     <load name="humid_hih.xml"/>
     <load name="temp_tmp102.xml"/>
     <load name="temp_lm75.xml"/>

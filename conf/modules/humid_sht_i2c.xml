@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<!--
+     Sensirion SHT25 humidity sensor (I2C)
+     @param SCP_I2C_DEV i2c device (default i2c0)
+     -->
+
+<module name="humid_sht_i2c" dir="meteo">
+  <header>
+    <file name="humid_sht_i2c.h"/>
+  </header>
+  <init fun="humid_sht_init()"/>
+  <periodic fun="humid_sht_periodic()" freq="4"/>
+  <periodic fun="humid_sht_p_temp()" freq="4" delay="6"/>
+  <periodic fun="humid_sht_p_humid()"  freq="4" delay="9"/>
+  <event fun="humid_sht_event()"/>
+  <makefile target="ap">
+    <file name="humid_sht_i2c.c"/>
+  </makefile>
+</module>
+
