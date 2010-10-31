@@ -1,4 +1,4 @@
-<firmware name="fixedwing" boards="|twog_1|tiny_2.11|tiny_2.1|tiny_1.1|tiny_0.99|booz_1.0|lisa_l_1.0|pc|"
+<firmware name="fixedwing" boards="|twog_1.0|tiny_2.11|tiny_2.1|tiny_1.1|tiny_0.99|booz_1.0|lisa_l_1.0|pc|"
   description="autopilot and simulator for fixed wing vehicles">
 
 

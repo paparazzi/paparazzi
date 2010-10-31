@@ -38,7 +38,7 @@ ifneq ($(MAKECMDGOALS),clean)
 
 # check if ARCHDIR is set
   ifeq ($($(TARGET).ARCHDIR), )
-    $(error Architecture not set, maybe you forgot to add the target? e.g. <target name="tunnel" board="twog_1"/>)
+    $(error Architecture not set, maybe you forgot to add the target? e.g. <target name="tunnel" board="twog_1.0"/>)
   else
     include ../../conf/Makefile.$($(TARGET).ARCHDIR)
   endif

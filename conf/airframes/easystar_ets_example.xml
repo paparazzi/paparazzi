@@ -10,7 +10,7 @@
 <airframe name="EasyStar2 - TWOG v1">
 
   <firmware name="fixedwing">
-    <target name="ap" 			board="twog_1">
+    <target name="ap" 			board="twog_1.0">
       <define name="AGR_CLIMB"/>
       <define name="LOITER_TRIM"/>
       <define name="WIND_INFO"/>
@@ -38,8 +38,8 @@
   </firmware>
 
   <firmware name="setup">
-    <target name="tunnel" 		board="twog_1" />
-    <target name="setup_actuators" 	board="twog_1" />
+    <target name="tunnel" 		board="twog_1.0" />
+    <target name="setup_actuators" 	board="twog_1.0" />
   </firmware>
 
   <modules>
