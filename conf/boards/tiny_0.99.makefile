@@ -18,4 +18,5 @@ BOARD_CFG = \"tiny_0_99.h\"
 
 
 GPS_UART_NR	= 1
+GPS_LED = none
 MODEM_UART_NR = 0

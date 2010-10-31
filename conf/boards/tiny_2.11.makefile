@@ -26,6 +26,7 @@ LPC21ISP_XTAL = 12000
 ### default settings for tiny_2 and twog
 GPS_UART_NR	= 0
 GPS_BAUD	= B38400
+GPS_LED     = 2
 MODEM_UART_NR	= 1
 MODEM_BAUD 	= B57600
 
