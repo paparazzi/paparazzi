@@ -16,10 +16,10 @@
 
  <subsystem name="radio_control" 	types="ppm"/>
     <!-- Communication -->
- <subsystem name="telemetry" 	types="transparent|xbee_api">
+ <subsystem name="telemetry" 	types="transparent|xbee_api|transparent_usb">
    <param name="MODEM_BAUD"     values="B9600|B38400|B57600|B115200"/>
  </subsystem>
- <!-- Actuators -->
+ <!-- Actuators (automatically used according to board) -->
  <subsystem name="actuators" 	types="4015|4017|ppm|direct"/>
  <subsystem name="control"      types="NONE|adaptive|new"/>
  <!-- Sensors -->
@@ -34,17 +34,11 @@
    <param name="ADC_IR_TOP"     value="ADC_0"/><!-- this is already the default if not set, change if needed -->
    <param name="ADC_IR_NB_SAMPLES" value="16"/><!-- this is already the default if not set, change if needed -->
  </subsystem>
- <subsystem name="adc"          types="generic">
-   <param name="ADC_GENERIC1"   value="ADC_5"/> <!-- e.g. current sensor -->
-   <param name="ADC_GENERIC2"   value="ADC_7"/> <!-- only set ADCs are used -->
-   <param name="ADC_GENERIC_NB_SAMPLES" value="16"/><!-- this is already the default if not set, change if needed -->
- </subsystem>
  <subsystem name="gps" 		    types="ublox_lea4p|lea5h">
    <param name="GPS_BAUD"       values="B9600|B38400|B57600|B115200"/>
+   <param name="GPS_LED"        values="1,2,3,4,none"/>
  </subsystem>
- <subsystem name="airspeed"     types="ets"/>
  <subsystem name="navigation"   types="NONE|extra"/>
  <subsystem name="joystick"     types="NONE"/>
- <subsystem name="payload"      types="hum_baro"/>
 
 </firmware>
