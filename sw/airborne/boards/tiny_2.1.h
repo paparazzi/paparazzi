@@ -8,13 +8,13 @@
 #endif /* SITL */
 
 /* Master oscillator freq.       */
-#define FOSC (12000000) 
+#define FOSC (12000000)
 
 /* PLL multiplier                */
-#define PLL_MUL (5)         
+#define PLL_MUL (5)
 
 /* CPU clock freq.               */
-#define CCLK (FOSC * PLL_MUL) 
+#define CCLK (FOSC * PLL_MUL)
 
 /* current @7V, Tiny2.11, Funjet4, no LED
    PCLK   max   min
@@ -30,12 +30,12 @@
 #define PBSD_VAL 2
 #else
 /* Peripheral bus speed mask 0x00->4, 0x01-> 1, 0x02 -> 2   */
-#define PBSD_BITS 0x00    
+#define PBSD_BITS 0x00
 #define PBSD_VAL 4
 #endif
 
 /* Peripheral bus clock freq. */
-#define PCLK (CCLK / PBSD_VAL) 
+#define PCLK (CCLK / PBSD_VAL)
 
 #define LED_1_BANK 1
 #define LED_1_PIN 17

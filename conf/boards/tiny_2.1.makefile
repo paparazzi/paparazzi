@@ -10,10 +10,5 @@ include $(PAPARAZZI_SRC)/conf/boards/tiny_2.11.makefile
 BOARD=tiny
 BOARD_VERSION=2.1
 
-#BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
-
-# TODO: update syntax
-BOARD_CFG = \"tiny_2_1.h\"
-
-
+BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 

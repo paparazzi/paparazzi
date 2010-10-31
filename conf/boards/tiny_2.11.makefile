@@ -9,10 +9,7 @@ ARCH=lpc21
 BOARD=tiny
 BOARD_VERSION=2.11
 
-#BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
-
-# TODO: update syntax
-BOARD_CFG = \"tiny_2_1_1.h\"
+BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 
 ifndef FLASH_MODE
 FLASH_MODE = IAP
