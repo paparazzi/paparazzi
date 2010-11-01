@@ -102,48 +102,46 @@ void baro_ets_read_periodic( void ) {
 #endif
 }
 
-void baro_ets_event( void ) {
-  if (baro_ets_i2c_trans.status == I2CTransSuccess) {
-    // Get raw altimeter from buffer
-    baro_ets_adc = ((uint16_t)(baro_ets_i2c_trans.buf[1]) << 8) | (uint16_t)(baro_ets_i2c_trans.buf[0]);
-    // Check if this is valid altimeter
-    if (baro_ets_adc == 0)
-      baro_ets_valid = FALSE;
-    else
-      baro_ets_valid = TRUE;
+void baro_ets_read_event( void ) {
+  // Get raw altimeter from buffer
+  baro_ets_adc = ((uint16_t)(baro_ets_i2c_trans.buf[1]) << 8) | (uint16_t)(baro_ets_i2c_trans.buf[0]);
+  // Check if this is valid altimeter
+  if (baro_ets_adc == 0)
+    baro_ets_valid = FALSE;
+  else
+    baro_ets_valid = TRUE;
 
-    // Continue only if a new altimeter value was received
-    if (baro_ets_valid) {
-      // Calculate offset average if not done already
-      if (!baro_ets_offset_init) {
-        --baro_ets_cnt;
-        // Check if averaging completed
-        if (baro_ets_cnt == 0) {
-          // Calculate average
-          baro_ets_offset = (uint16_t)(baro_ets_offset_tmp / BARO_ETS_OFFSET_NBSAMPLES_AVRG);
-          // Limit offset
-          if (baro_ets_offset < BARO_ETS_OFFSET_MIN)
-            baro_ets_offset = BARO_ETS_OFFSET_MIN;
-          if (baro_ets_offset > BARO_ETS_OFFSET_MAX)
-            baro_ets_offset = BARO_ETS_OFFSET_MAX;
-          baro_ets_offset_init = TRUE;
-        }
-        // Check if averaging needs to continue
-        else if (baro_ets_cnt <= BARO_ETS_OFFSET_NBSAMPLES_AVRG)
-          baro_ets_offset_tmp += baro_ets_adc;
+  // Continue only if a new altimeter value was received
+  if (baro_ets_valid) {
+    // Calculate offset average if not done already
+    if (!baro_ets_offset_init) {
+      --baro_ets_cnt;
+      // Check if averaging completed
+      if (baro_ets_cnt == 0) {
+        // Calculate average
+        baro_ets_offset = (uint16_t)(baro_ets_offset_tmp / BARO_ETS_OFFSET_NBSAMPLES_AVRG);
+        // Limit offset
+        if (baro_ets_offset < BARO_ETS_OFFSET_MIN)
+          baro_ets_offset = BARO_ETS_OFFSET_MIN;
+        if (baro_ets_offset > BARO_ETS_OFFSET_MAX)
+          baro_ets_offset = BARO_ETS_OFFSET_MAX;
+        baro_ets_offset_init = TRUE;
       }
-      // Convert raw to m/s
-      if (baro_ets_offset_init)
-        baro_ets_altitude = BARO_ETS_SCALE * (float)(baro_ets_offset-baro_ets_adc);
-      else
-        baro_ets_altitude = 0.0;
-      // New value available
-      EstimatorSetAlt(baro_ets_altitude);
-    } else {
-      baro_ets_altitude = 0.0;
+      // Check if averaging needs to continue
+      else if (baro_ets_cnt <= BARO_ETS_OFFSET_NBSAMPLES_AVRG)
+        baro_ets_offset_tmp += baro_ets_adc;
     }
-
-    // Transaction has been read
-    baro_ets_i2c_trans.status = I2CTransDone;
+    // Convert raw to m/s
+    if (baro_ets_offset_init)
+      baro_ets_altitude = BARO_ETS_SCALE * (float)(baro_ets_offset-baro_ets_adc);
+    else
+      baro_ets_altitude = 0.0;
+    // New value available
+    EstimatorSetAlt(baro_ets_altitude);
+  } else {
+    baro_ets_altitude = 0.0;
   }
+
+  // Transaction has been read
+  baro_ets_i2c_trans.status = I2CTransDone;
 }

@@ -16,7 +16,7 @@
   <periodic fun="airspeed_adc_update()" freq="10."/>
 
   <makefile>
-    <file name="airspeed_adc.c"/> 
+    <file name="airspeed_adc.c"/>
   </makefile>
   <makefile target="ap">
     <flag name="ADC_CHANNEL_AIRSPEED" value="$(ADC_AIRSPEED)"/>

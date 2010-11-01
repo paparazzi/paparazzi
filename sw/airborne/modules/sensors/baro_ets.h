@@ -56,6 +56,8 @@ extern struct i2c_transaction baro_ets_i2c_trans;
 
 extern void baro_ets_init( void );
 extern void baro_ets_read_periodic( void );
-extern void baro_ets_event( void );
+extern void baro_ets_read_event( void );
+
+#define BaroEtsEvent() { if (baro_ets_i2c_trans.status == I2CTransSuccess) baro_ets_read_event(); }
 
 #endif // BARO_ETS_H
