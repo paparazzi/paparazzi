@@ -1,6 +1,6 @@
 /*
  * Paparazzi AVR adc functions
- *  
+ *
  * Copyright (C) 2006 Pascal Brisset, Antoine Drouin, Michel Gorraz
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -62,7 +62,7 @@ void adc_buf_channel(uint8_t adc_channel, struct adc_buf* s, uint8_t av_nb_sampl
 
 /**
  * Called when the voltage conversion is finished
- * 
+ *
  *  8.913kHz on mega128 16MHz 1kHz/channel ??
 */
 SIGNAL( SIG_ADC )
@@ -77,7 +77,7 @@ SIGNAL( SIG_ADC )
     buf->sum -= buf->values[new_head];
     buf->values[new_head] = adc_value;
     buf->sum += adc_value;
-    buf->head = new_head;   
+    buf->head = new_head;
   }
 
   /* Find the next input */
@@ -114,7 +114,7 @@ SIGNAL( SIG_ADC )
 
 /**
  * Called when the voltage conversion is finished
- * 
+ *
  *  8.913kHz on mega128 16MHz 1kHz/channel ??
 */
 SIGNAL( SIG_ADC )
@@ -129,7 +129,7 @@ SIGNAL( SIG_ADC )
     buf->sum -= buf->values[new_head];
     buf->values[new_head] = adc_value;
     buf->sum += adc_value;
-    buf->head = new_head;   
+    buf->head = new_head;
   }
 
   /* Find the next input */
@@ -165,4 +165,3 @@ void adc_init( void ) {
   for(i = 0; i < NB_ADC; i++)
     buffers[i] = (struct adc_buf*)0;
 }
-
