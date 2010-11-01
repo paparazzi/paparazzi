@@ -43,7 +43,7 @@
 #include "actuators.h"
 
 #include "uart.h"
-#include "main_fbw.h"
+#include "firmwares/fixedwing/main_fbw.h"
 #include "subsystems/radio_control.h"
 #include "inter_mcu.h"
 

@@ -26,7 +26,7 @@ endif
 
 jsbsim.CFLAGS += -DSITL -DAP -DFBW -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DINFRARED -DNAV -DLED -DWIND_INFO -Ifirmwares/fixedwing
 jsbsim.srcs = $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_gps.c $(SRC_ARCH)/jsbsim_ir.c $(SRC_ARCH)/jsbsim_transport.c $(SRC_ARCH)/ivy_transport.c
-jsbsim.srcs += latlong.c downlink.c commands.c gps.c inter_mcu.c infrared.c fw_h_ctl.c fw_v_ctl.c nav.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c
+jsbsim.srcs += latlong.c downlink.c commands.c gps.c inter_mcu.c infrared.c fw_h_ctl.c fw_v_ctl.c nav.c estimator.c sys_time.c $(SRC_FIRMWARE)/main_fbw.c $(SRC_FIRMWARE)/main_ap.c datalink.c
 jsbsim.srcs += $(SIMDIR)/sim_ac_jsbsim.c
 # Choose in your airframe file type of airframe
 # jsbsim.srcs += $(SIMDIR)/sim_ac_fw.c

@@ -95,7 +95,7 @@ endif
 # Main
 #
 
-ns_srcs	   	+= $(SRC_FIXEDWING)/main.c
+ns_srcs	   	+= $(SRC_FIRMWARE)/main.c
 
 #
 # LEDs
@@ -141,7 +141,7 @@ endif
 ##
 
 fbw_CFLAGS		+= -DFBW
-fbw_srcs 		+= $(SRC_FIXEDWING)/main_fbw.c
+fbw_srcs 		+= $(SRC_FIRMWARE)/main_fbw.c
 fbw_srcs 		+= $(SRC_FIXEDWING)/commands.c
 
 ######################################################################
@@ -150,7 +150,7 @@ fbw_srcs 		+= $(SRC_FIXEDWING)/commands.c
 ##
 
 ap_CFLAGS 		+= -DAP
-ap_srcs 		+= $(SRC_FIXEDWING)/main_ap.c
+ap_srcs 		+= $(SRC_FIRMWARE)/main_ap.c
 ap_srcs 		+= $(SRC_FIXEDWING)/estimator.c
 
 

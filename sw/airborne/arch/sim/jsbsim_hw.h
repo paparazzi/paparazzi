@@ -42,7 +42,7 @@
 #include "fw_v_ctl.h"
 #include "infrared.h"
 #include "commands.h"
-#include "main_ap.h"
+#include "firmwares/fixedwing/main_ap.h"
 #include "ap_downlink.h"
 #include "sim_uart.h"
 #include "latlong.h"

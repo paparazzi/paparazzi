@@ -24,8 +24,8 @@
 
 #include <string.h>
 #include "sim_ac_jsbsim.h"
-#include "main_ap.h"
-#include "main_fbw.h"
+#include "firmwares/fixedwing/main_ap.h"
+#include "firmwares/fixedwing/main_fbw.h"
 
 using namespace JSBSim;
 

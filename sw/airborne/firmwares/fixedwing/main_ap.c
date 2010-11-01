@@ -33,7 +33,7 @@
 
 #include <math.h>
 
-#include "main_ap.h"
+#include "firmwares/fixedwing/main_ap.h"
 
 #include "interrupt_hw.h"
 #include "init_hw.h"

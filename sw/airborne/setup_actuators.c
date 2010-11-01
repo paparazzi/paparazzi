@@ -10,7 +10,7 @@
 #include "datalink.h"
 #include "uart.h"
 #include "pprz_transport.h"
-#include "main_fbw.h"
+#include "firmwares/fixedwing/main_fbw.h"
 #include "downlink.h"
 #include "settings.h"
 

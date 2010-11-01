@@ -1,6 +1,6 @@
 /*
  * Paparazzi $Id$
- *  
+ *
  * Copyright (C) 2005 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,34 +18,51 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
+/** \file main.c
+ * \brief main loop used both on single and dual MCU configuration */
 
-/** \file main_fbw.h
- *  \brief FBW ( FlyByWire ) process API
- *
- */
 
-#ifndef FBW_H
-#define FBW_H
+#include "sys_time.h"
 
-#include "std.h"
-#include "adc.h"
-
-/** Fly by wire modes */
-#define FBW_MODE_MANUAL   0
-#define FBW_MODE_AUTO     1
-#define FBW_MODE_FAILSAFE 2
-#define FBW_MODE_OF_PPRZ(mode) ((mode) < TRESHOLD_MANUAL_PPRZ ? FBW_MODE_MANUAL : FBW_MODE_AUTO)
-
-extern uint8_t fbw_mode;
-extern uint8_t fbw_vsupply_decivolt;
-extern int32_t fbw_current_milliamp;
-extern bool_t failsafe_mode;
-
-void init_fbw( void );
-void periodic_task_fbw( void );
-void event_task_fbw( void );
-
+#ifdef FBW
+#include "firmwares/fixedwing/main_fbw.h"
+#define Fbw(f) f ## _fbw()
+#else
+#define Fbw(f)
 #endif
+
+#ifdef AP
+#include "firmwares/fixedwing/main_ap.h"
+#define Ap(f) f ## _ap()
+#else
+#define Ap(f)
+#endif
+
+#ifdef STM32
+#include "init_hw.h"
+#endif
+
+int main( void ) {
+#ifdef STM32
+  hw_init();
+  sys_time_init();
+#endif
+  Fbw(init);
+  Ap(init);
+  InitSysTimePeriodic();
+  while (1) {
+    if (sys_time_periodic()) {
+      Fbw(periodic_task);
+      Ap(periodic_task);
+#ifdef STM32
+      LED_PERIODIC();
+#endif
+    }
+    Fbw(event_task);
+    Ap(event_task);
+  }
+  return 0;
+}

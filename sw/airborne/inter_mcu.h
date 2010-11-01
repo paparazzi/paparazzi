@@ -42,7 +42,7 @@
 #include "paparazzi.h"
 #include "airframe.h"
 #include "subsystems/radio_control.h"
-#include "main_fbw.h"
+#include "firmwares/fixedwing/main_fbw.h"
 
 #ifndef SINGLE_MCU
 #include "radio.h"

@@ -7,7 +7,7 @@ Autoren@ZHAW:   schmiemi
 
 #include <stdbool.h>
 #include "ins_arduimu.h"
-#include "main_fbw.h"
+#include "firmwares/fixedwing/main_fbw.h"
 #include "i2c.h"
 
 // test
