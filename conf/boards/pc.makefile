@@ -10,7 +10,7 @@ BOARD_VERSION=
 
 
 # TODO: update board
-BOARD_CFG = \"tiny.h\"
+BOARD_CFG = \"tiny_sim.h\"
 
 
 $(TARGET).ARCHDIR = $(ARCH)
