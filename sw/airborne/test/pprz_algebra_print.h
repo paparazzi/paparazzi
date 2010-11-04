@@ -8,6 +8,9 @@
     printf("%s %f %f %f\n",text,  (_v).x, (_v).y, (_v).z);	\
   }
 
+#define DISPLAY_FLOAT_RATES(text, _v) {				\
+    printf("%s %f %f %f\n",text,  (_v).p, (_v).q, (_v).r);	\
+  }
 
 #define DISPLAY_FLOAT_RMAT(text, mat) {					\
     printf("%s\n %f %f %f\n %f %f %f\n %f %f %f\n",text, \
