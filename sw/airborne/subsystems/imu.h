@@ -59,6 +59,8 @@ struct ImuFloat {
   uint32_t sample_count;
 };
 
+extern void imu_float_init(struct ImuFloat* imuf);
+
 /* underlying hardware */
 #ifdef IMU_TYPE_H
 #include IMU_TYPE_H
