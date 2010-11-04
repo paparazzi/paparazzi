@@ -59,3 +59,28 @@ MAX_1168_DRDY_PORT = _GPIOD
 MAX_1168_DRDY_PORT_SOURCE = PortSourceGPIOD
 # v1.1 
 #MAX_1168_DRDY_PORT = GPIOB
+
+
+#
+# definitions below were added to get fixedwing firmware to build
+#
+# modem is usualy connected there
+ifndef MODEM_UART_NR
+MODEM_UART_NR = 2
+endif
+
+ifndef ADC_IR1
+ADC_IR1    = 1
+endif
+ifndef ADC_IR2
+ADC_IR2    = 2
+endif
+ifndef ADC_IR3
+ADC_IR_TOP = 3
+endif
+ifndef ADC_IR_NB_SAMPLES
+ADC_IR_NB_SAMPLES = 16
+endif
+ifndef GPS_UART_NR
+GPS_UART_NR	= 1
+endif
