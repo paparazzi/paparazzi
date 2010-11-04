@@ -32,4 +32,8 @@
 extern void actuators_pwm_arch_init(void);
 extern void actuators_pwm_commit(void);
 
+#define ChopServo(x,a,b) Chop(x, a, b)
+#define Actuator(_x)  actuators_pwm_values[_x]
+#define SERVOS_TICS_OF_USEC(_v) (_v)
+
 #endif /* ACTUATORS_PWM_ARCH_H */
