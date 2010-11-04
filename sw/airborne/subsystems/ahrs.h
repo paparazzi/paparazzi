@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2008-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -27,7 +27,8 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
-#include "subsystems/ahrs/ahrs_aligner.h"
+// FIXME : this should no be needed here
+//#include "subsystems/ahrs/ahrs_aligner.h"
 
 #define AHRS_UNINIT  0
 #define AHRS_RUNNING 1
@@ -69,17 +70,17 @@ extern struct AhrsFloat ahrs_float;
 
 extern float ahrs_mag_offset;
 
-#define AHRS_FLOAT_OF_INT32() {                                     \
+#define AHRS_FLOAT_OF_INT32() {						       \
     QUAT_FLOAT_OF_BFP(ahrs_float.ltp_to_body_quat, ahrs.ltp_to_body_quat);     \
     EULERS_FLOAT_OF_BFP(ahrs_float.ltp_to_body_euler, ahrs.ltp_to_body_euler); \
-    RATES_FLOAT_OF_BFP(ahrs_float.body_rate, ahrs.body_rate);                  \
+    RATES_FLOAT_OF_BFP(ahrs_float.body_rate, ahrs.body_rate);		       \
   }
 
-#define AHRS_INT_OF_FLOAT() {                                  \
-    QUAT_BFP_OF_REAL(ahrs.ltp_to_body_quat, ahrs_float.ltp_to_body_quat);     \
-    EULERS_BFP_OF_REAL(ahrs.ltp_to_body_euler, ahrs_float.ltp_to_body_euler); \
-    RMAT_BFP_OF_REAL(ahrs.ltp_to_body_rmat, ahrs_float.ltp_to_body_rmat);     \
-    RATES_BFP_OF_REAL(ahrs.body_rate, ahrs_float.body_rate);                  \
+#define AHRS_INT_OF_FLOAT() {                                                  \
+    QUAT_BFP_OF_REAL(ahrs.ltp_to_body_quat, ahrs_float.ltp_to_body_quat);      \
+    EULERS_BFP_OF_REAL(ahrs.ltp_to_body_euler, ahrs_float.ltp_to_body_euler);  \
+    RMAT_BFP_OF_REAL(ahrs.ltp_to_body_rmat, ahrs_float.ltp_to_body_rmat);      \
+    RATES_BFP_OF_REAL(ahrs.body_rate, ahrs_float.body_rate);                   \
   }
 
 extern void ahrs_init(void);
