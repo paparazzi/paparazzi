@@ -47,8 +47,6 @@
 #include "sim_uart.h"
 #include "latlong.h"
 #include "datalink.h"
-#include "adc_generic.h"
-#include "ppm.h"
 
 
 void sim_use_gps_pos(double lat, double lon, double alt, double course, double gspeed, double climb, double time);
