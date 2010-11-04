@@ -128,6 +128,13 @@
     (_c).z = (_a).z + (_b).z;			\
   }
 
+/* c = a + _s * b */
+#define VECT3_SUM_SCALED(_c, _a, _b, _s) {		\
+    (_c).x = (_a).x + (_s)*(_b).x;			\
+    (_c).y = (_a).y + (_s)*(_b).y;			\
+    (_c).z = (_a).z + (_s)*(_b).z;			\
+  }
+
 /* c = a - b */
 #define VECT3_DIFF(_c, _a, _b) {                \
     (_c).x = (_a).x - (_b).x;			\
@@ -384,7 +391,7 @@
     const float m02 = MAT33_ELMT((_m),1,0)*MAT33_ELMT((_m),2,1) - MAT33_ELMT((_m),1,1)*MAT33_ELMT((_m),2,0);		\
     const float m12 = MAT33_ELMT((_m),0,0)*MAT33_ELMT((_m),2,1) - MAT33_ELMT((_m),0,1)*MAT33_ELMT((_m),2,0);		\
     const float m22 = MAT33_ELMT((_m),0,0)*MAT33_ELMT((_m),1,1) - MAT33_ELMT((_m),0,1)*MAT33_ELMT((_m),1,0);		\
-    const float det = MAT33_ELMT((_m),0,0)*m00 - MAT33_ELMT((_m),1,0)*m10 + MAT33_ELMT((_m),2,0)*m20;	\
+    const float det = MAT33_ELMT((_m),0,0)*m00 - MAT33_ELMT((_m),1,0)*m10 + MAT33_ELMT((_m),2,0)*m20; \
     if (fabs(det) > FLT_EPSILON) {					\
       MAT33_ELMT((_minv),0,0) =  m00 / det;						\
       MAT33_ELMT((_minv),1,0) = -m01 / det;						\
