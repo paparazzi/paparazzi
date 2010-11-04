@@ -27,6 +27,12 @@
 #include <stm32/exti.h>
 #include <stm32/spi.h>
 
+/*
+ *           lisa/L   lisa/M
+ * mag drdy  PB5      PB5
+ *
+ */
+
 #include BOARD_CONFIG
 #include "init_hw.h"
 #include "sys_time.h"

@@ -215,13 +215,13 @@ static inline void main_init_hw( void ) {
   GPIO_Init(GPIOB, &GPIO_InitStructure);
 
   /* configure external interrupt exti2 on PD2( accel int ) */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD | RCC_APB2Periph_AFIO, ENABLE);
+  RCC_APB2PeriphClockCmd(IMU_ACC_DRDY_RCC_GPIO | RCC_APB2Periph_AFIO, ENABLE);
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOD, &GPIO_InitStructure);
+  GPIO_Init(IMU_ACC_DRDY_GPIO, &GPIO_InitStructure);
   EXTI_InitTypeDef EXTI_InitStructure;
-  GPIO_EXTILineConfig(GPIO_PortSourceGPIOD, GPIO_PinSource2);
+  GPIO_EXTILineConfig(IMU_ACC_DRDY_GPIO_PORTSOURCE, GPIO_PinSource2);
   EXTI_InitStructure.EXTI_Line = EXTI_Line2;
   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;

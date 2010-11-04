@@ -21,6 +21,13 @@
  * Boston, MA 02111-1307, USA. 
  */
 
+/*               lisa/L   lisa/M
+ *   gyro-drdy   PC14     
+ *
+ *
+ */
+
+
 #include <stm32/gpio.h>
 #include <stm32/flash.h>
 #include <stm32/misc.h>
