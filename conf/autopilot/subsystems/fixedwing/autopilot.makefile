@@ -127,12 +127,12 @@ ns_srcs 		+= $(SRC_ARCH)/uart_hw.c
 # ANALOG
 #
 
-ifeq ($(ARCH), lpc21)
+#ifeq ($(ARCH), lpc21)
   ns_CFLAGS 		+= -DADC
   ns_srcs 		+= $(SRC_ARCH)/adc_hw.c
-else ifeq ($(ARCH), stm32)
-  ns_srcs 		+= lisa/lisa_analog_plug.c
-endif
+#else ifeq ($(ARCH), stm32)
+#  ns_srcs 		+= lisa/lisa_analog_plug.c
+#endif
 
 
 ######################################################################

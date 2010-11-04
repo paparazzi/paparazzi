@@ -10,7 +10,10 @@ endif
 
 
 ifeq ($(ARCH),stm32)
-  ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
+  ap.CFLAGS += -DRADIO_CONTROL
+ifdef RADIO_CONTROL_LED
+  ap.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
+endif
   ap.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/ppm.h\"
   ap.CFLAGS += -DRADIO_CONTROL_TYPE_PPM
   ap.srcs += $(SRC_SUBSYSTEMS)/radio_control.c \
