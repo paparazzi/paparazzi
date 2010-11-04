@@ -30,10 +30,9 @@
 
 struct AhrsIntCmplEuler {
   struct Int32Rates  gyro_bias;
+  struct Int32Eulers hi_res_euler;
   struct Int32Eulers measure;
   struct Int32Eulers residual;
-  struct Int32Eulers uncorrected;
-  struct Int32Eulers corrected;
   struct Int32Eulers measurement;
   int32_t reinj_1;
 };

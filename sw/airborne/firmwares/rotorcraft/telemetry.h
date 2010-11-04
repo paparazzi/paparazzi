@@ -334,9 +334,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			 &ahrs_impl.measure.phi,			\
 			 &ahrs_impl.measure.theta,			\
 			 &ahrs_impl.measure.psi,			\
-			 &ahrs_impl.corrected.phi,			\
-			 &ahrs_impl.corrected.theta,			\
-			 &ahrs_impl.corrected.psi,			\
+			 &ahrs_impl.hi_res_euler.phi,			\
+			 &ahrs_impl.hi_res_euler.theta,			\
+			 &ahrs_impl.hi_res_euler.psi,			\
 			 &ahrs_impl.residual.phi,			\
 			 &ahrs_impl.residual.theta,			\
 			 &ahrs_impl.residual.psi,			\
