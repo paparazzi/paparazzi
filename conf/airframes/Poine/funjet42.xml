@@ -1,16 +1,16 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- miniswift
-     Lisa/M board (http://paparazzi.enac.fr/wiki/Lisa)
+<!-- Funjet Multiplex (http://www.multiplex-rc.de/), Jeti ECO 25
+     Lisa/L board (http://paparazzi.enac.fr/wiki/Lisa)
      XBee modem with AT firmware
      LEA 5H GPS
 -->
 
-<airframe name="miniswift">
+<airframe name="Delta Wing">
 
   <firmware name="fixedwing">
     <target name="sim" 			board="pc"/>
-    <target name="ap" 			board="lisa_m_1.0"/>
+    <target name="ap" 			board="lisa_l_1.0"/>
 
     <subsystem name="radio_control"     type="ppm"/>
     <subsystem name="telemetry" 	type="transparent"/>
@@ -144,55 +144,3 @@
   </section>
 
 </airframe>
-
-
-<!--
-
-<airframe name="miniswift 1">
-
-  <commands>
-    <axis name="PITCH"  failsafe_value="0"/>
-    <axis name="ROLL"   failsafe_value="0"/>
-    <axis name="YAW"    failsafe_value="0"/>
-    <axis name="THRUST" failsafe_value="0"/>
-  </commands>
-
-  <servos>
-    <servo name="S1"  no="0" min="1000" neutral="1500" max="2000"/>
-    <servo name="S2"  no="1" min="1000" neutral="1500" max="2000"/>
-    <servo name="S3"  no="2" min="1000" neutral="1500" max="2000"/>
-    <servo name="S4"  no="3" min="1000" neutral="1500" max="2000"/>
-    <servo name="S5"  no="4" min="1000" neutral="1500" max="2000"/>
-    <servo name="S6"  no="5" min="1000" neutral="1500" max="2000"/>
-  </servos>
-
-  <command_laws>
-    <set servo="S1"         value="@ROLL"/>
-    <set servo="S2"         value="@PITCH"/>
-    <set servo="S3"         value="@YAW"/>
-    <set servo="S4"         value="@THRUST"/>
-    <set servo="S5"         value="@ROLL"/>
-    <set servo="S6"         value="@ROLL"/>
-  </command_laws>
-
-  <firmware name="lisa_l_test_progs">
-    <target name="test_led"            board="lisa_m_1.0"/>
-    <target name="test_uart"           board="lisa_m_1.0"/>
-    <target name="test_servos"         board="lisa_m_1.0"/>
-    <target name="test_telemetry"      board="lisa_m_1.0">
-      <param name="MODEM_PORT" value="UART2"/>
-    </target>
-    <target name="test_bmp085"         board="lisa_m_1.0"/>
-    <target name="test_esc_mkk_simple" board="lisa_m_1.0"/>
-    <target name="test_rc_spektrum"    board="lisa_m_1.0"/>
-    <target name="test_manual"         board="lisa_m_1.0"/>
-    <target name="test_esc_mkk_simple" board="lisa_m_1.0"/>
-    <target name="test_hmc5843"        board="lisa_m_1.0"/>
-    <target name="test_itg3200"        board="lisa_m_1.0"/>
-    <target name="test_adxl345"        board="lisa_m_1.0"/>
-    <target name="test_adc"            board="lisa_m_1.0"/>
-  </firmware>
-
-</airframe>
-
- -->
