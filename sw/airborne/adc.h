@@ -1,7 +1,7 @@
 /*
  * Paparazzi adc functions
  *
- * Copyright (C) 2003-2010 Paparazzi team
+ * Copyright (C) 2003-2010 The Paparazzi team
  *
  * This file is part of Paparazzi.
  *
@@ -58,10 +58,10 @@
     See @ref adc_buf_channel.
 */
 struct adc_buf {
-  uint16_t sum;                                          /* Sum of samples in buffer (avg = sum / av_nb_sample) */
-  uint16_t values[MAX_AV_NB_SAMPLE]; /* Buffer for sample values from ADC */
-  uint8_t  head;                                         /* Position index of write head in buffer */
-  uint8_t  av_nb_sample;                         /* Number of samples to use in buffer (used for avg) */
+  uint16_t sum;                      /* Sum of samples in buffer (avg = sum / av_nb_sample) */
+  uint16_t values[MAX_AV_NB_SAMPLE]; /* Buffer for sample values from ADC                   */
+  uint8_t  head;                     /* Position index of write head in buffer              */
+  uint8_t  av_nb_sample;             /* Number of samples to use in buffer (used for avg)   */
 };
 
 /**
