@@ -124,7 +124,9 @@ struct FloatRates {
 /* _vo = _vi * _s */
 #define FLOAT_VECT3_SMUL(_vo, _vi, _s) VECT3_SMUL(_vo, _vi, _s)
 
-#define FLOAT_VECT3_NORM(_v) (sqrtf((_v).x*(_v).x + (_v).y*(_v).y + (_v).z*(_v).z))
+#define FLOAT_VECT3_NORM2(_v) ((_v).x*(_v).x + (_v).y*(_v).y + (_v).z*(_v).z)
+
+#define FLOAT_VECT3_NORM(_v) (sqrtf(FLOAT_VECT3_NORM2(_v)))
 
 #define FLOAT_VECT3_DOT_PRODUCT(_v1, _v2) ((_v1).x*(_v2).x + (_v1).y*(_v2).y + (_v1).z*(_v2).z)
 
@@ -376,15 +378,34 @@ struct FloatRates {
   }
 #endif
 
+static inline float renorm_factor(float n) {
+  if (n < 1.5625f && n > 0.64f)
+    return .5 * (3-n);
+  else if (n < 100.0f && n > 0.01f)
+    return  1. / sqrtf(n);
+  else
+    return 0.;
+}
+
 static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
 
   struct FloatVect3* r0 = (struct FloatVect3*)(&RMAT_ELMT(*rm, 0,0));
   struct FloatVect3* r1 = (struct FloatVect3*)(&RMAT_ELMT(*rm, 1,0));
+  struct FloatVect3* r2 = (struct FloatVect3*)(&RMAT_ELMT(*rm, 2,0));
   float _err = -0.5*FLOAT_VECT3_DOT_PRODUCT(*r0, *r1);
-  
-
-
+  struct FloatVect3 r0_t;
+  VECT3_SUM_SCALED(r0_t, *r0, *r1, _err);
+  VECT3_SUM_SCALED(*r1,  *r1, *r0, _err);
+  VECT3_COPY(*r0, r0_t);
+  FLOAT_VECT3_CROSS_PRODUCT(*r2, *r0, *r1);
+  float s = renorm_factor(FLOAT_VECT3_NORM2(*r0));
+  FLOAT_VECT3_SMUL(*r0, *r0, s);
+  s = renorm_factor(FLOAT_VECT3_NORM2(*r1));
+  FLOAT_VECT3_SMUL(*r1, *r1, s);
+  s = renorm_factor(FLOAT_VECT3_NORM2(*r2));
+  FLOAT_VECT3_SMUL(*r2, *r2, s);
   return _err;
+
 }
 
 
