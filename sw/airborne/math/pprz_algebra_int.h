@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2008  Antoine Drouin
+ * Copyright (C) 2008-2010  The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -261,6 +261,30 @@ struct Int64Vect3 {
 /*
  * 3x3 Matrices
  */
+#define INT32_MAT33_ZERO(_m) {						\
+    MAT33_ELMT(_m, 0, 0) = 0;						\
+    MAT33_ELMT(_m, 0, 1) = 0;						\
+    MAT33_ELMT(_m, 0, 2) = 0;						\
+    MAT33_ELMT(_m, 1, 0) = 0;						\
+    MAT33_ELMT(_m, 1, 1) = 0;						\
+    MAT33_ELMT(_m, 1, 2) = 0;						\
+    MAT33_ELMT(_m, 2, 0) = 0;						\
+    MAT33_ELMT(_m, 2, 1) = 0;						\
+    MAT33_ELMT(_m, 2, 2) = 0;						\
+  }
+
+#define INT32_MAT33_DIAG(_m, _d00, _d11, _d22) {			\
+    MAT33_ELMT(_m, 0, 0) = _d00;					\
+    MAT33_ELMT(_m, 0, 1) = 0;						\
+    MAT33_ELMT(_m, 0, 2) = 0;						\
+    MAT33_ELMT(_m, 1, 0) = 0;						\
+    MAT33_ELMT(_m, 1, 1) = _d11;					\
+    MAT33_ELMT(_m, 1, 2) = 0;						\
+    MAT33_ELMT(_m, 2, 0) = 0;						\
+    MAT33_ELMT(_m, 2, 1) = 0;						\
+    MAT33_ELMT(_m, 2, 2) = _d22;					\
+  }
+
 
 #define INT32_MAT33_VECT3_MULT(_o, _m, _v, _f) {			\
     (_o).x = ((_m)[0]*(_v).x + (_m)[1]*(_v).y + (_m)[2]*(_v).z)>>(_f);	\
@@ -271,6 +295,9 @@ struct Int64Vect3 {
 /*
  * Rotation matrices
  */
+
+#define INT32_RMAT_ZERO(_rm)						\
+  INT32_MAT33_DIAG(_rm, TRIG_BFP_OF_REAL( 1.), TRIG_BFP_OF_REAL( 1.), TRIG_BFP_OF_REAL( 1.))
 
 /* _m_a2c = _m_a2b comp _m_b2c , aka  _m_a2c = _m_b2c * _m_a2b */
 #define INT32_RMAT_COMP(_m_a2c, _m_a2b, _m_b2c) {			\
@@ -621,14 +648,10 @@ struct Int64Vect3 {
 
 #define INT32_QUAT_OF_RMAT(_q, _r) {					\
     const int32_t tr = RMAT_TRACE(_r);					\
-    /*printf("tr %d\n", tr);*/						\
     if (tr > 0) {							\
-      /*printf("#tr > 0\n");*/						\
       const int32_t two_qi_two = TRIG_BFP_OF_REAL(1.) + tr;		\
-      /*printf("two_qi_two %d\n", two_qi_two);*/			\
       int32_t two_qi;							\
       INT32_SQRT(two_qi, (two_qi_two<<INT32_TRIG_FRAC));		\
-      /*printf("two_qi %d\n", two_qi);*/				\
       two_qi = two_qi << (INT32_QUAT_FRAC - INT32_TRIG_FRAC);		\
       _q.qi = two_qi / 2;						\
       _q.qx = ((RMAT_ELMT(_r, 1, 2) - RMAT_ELMT(_r, 2, 1)) <<		\
@@ -644,7 +667,6 @@ struct Int64Vect3 {
     else {								\
       if (RMAT_ELMT(_r, 0, 0) > RMAT_ELMT(_r, 1, 1) &&			\
 	  RMAT_ELMT(_r, 0, 0) > RMAT_ELMT(_r, 2, 2)) {			\
-	/*printf("#OO biggest\n");*/					\
 	const int32_t two_qx_two = RMAT_ELMT(_r, 0, 0) - RMAT_ELMT(_r, 1, 1) \
 	  - RMAT_ELMT(_r, 2, 2) + TRIG_BFP_OF_REAL(1.);			\
 	int32_t two_qx;							\
@@ -662,7 +684,6 @@ struct Int64Vect3 {
 	  / two_qx;							\
       }									\
       else if (RMAT_ELMT(_r, 1, 1) > RMAT_ELMT(_r, 2, 2)) {		\
-	/*printf("#11 biggest\n");*/					\
 	const int32_t two_qy_two = RMAT_ELMT(_r, 1, 1) - RMAT_ELMT(_r, 0, 0) \
 	  - RMAT_ELMT(_r, 2, 2) + TRIG_BFP_OF_REAL(1.);			\
 	int32_t two_qy;							\
@@ -680,7 +701,6 @@ struct Int64Vect3 {
 	  / two_qy;							\
       }									\
       else {								\
-	/*printf("#22 biggest\n");*/					\
 	const int32_t two_qz_two = RMAT_ELMT(_r, 2, 2) - RMAT_ELMT(_r, 0, 0) \
 	  - RMAT_ELMT(_r, 1, 1) + TRIG_BFP_OF_REAL(1.);			\
 	int32_t two_qz;							\
