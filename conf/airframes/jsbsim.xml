@@ -199,14 +199,15 @@
 #### Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 
-sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
+sim.CFLAGS += -DBOARD_CONFIG=\"tiny_sim.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 sim.srcs += nav_line.c nav_survey_rectangle.c
 
 
 #### Config for SITL simulation with JSBSim
+SRC_FIRMWARE = firmwares/fixedwing
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl_jsbsim.makefile
 
-jsbsim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
+jsbsim.CFLAGS += -DBOARD_CONFIG=\"tiny_sim.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 jsbsim.srcs += nav_line.c nav_survey_rectangle.c
 jsbsim.srcs += $(SIMDIR)/sim_ac_fw.c
 
