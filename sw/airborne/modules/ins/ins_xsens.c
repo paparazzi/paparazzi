@@ -158,6 +158,17 @@ uint16_t xsens_time_stamp;
 uint16_t xsens_output_mode;
 uint32_t xsens_output_settings;
 
+int8_t xsens_hour;
+int8_t xsens_min;
+int8_t xsens_sec;
+int32_t xsens_nanosec;
+int16_t xsens_year;
+int8_t xsens_month;
+int8_t xsens_day;
+float xsens_lat;
+float xsens_lon;
+
+
 static uint8_t xsens_id;
 static uint8_t xsens_status;
 static uint8_t xsens_len;
@@ -329,12 +340,12 @@ void parse_ins_msg( void ) {
       }
       if (XSENS_MASK_Position(xsens_output_mode)) {
 #if (!defined(USE_GPS_XSENS_RAW_DATA)) && defined(USE_GPS_XSENS)
-        float lat = XSENS_DATA_Position_lat(xsens_msg_buf,offset);
-        float lon = XSENS_DATA_Position_lon(xsens_msg_buf,offset);
-        gps_lat = (int32_t)(lat * 1e7);
-        gps_lon = (int32_t)(lon * 1e7);
-        gps_utm_zone = (lon+180) / 6 + 1;
-        latlong_utm_of(RadOfDeg(lat), RadOfDeg(lon), gps_utm_zone);
+        xsens_lat = XSENS_DATA_Position_lat(xsens_msg_buf,offset);
+        xsens_lon = XSENS_DATA_Position_lon(xsens_msg_buf,offset);
+        gps_lat = (int32_t)(xsens_lat * 1e7);
+        gps_lon = (int32_t)(xsens_lon * 1e7);
+        gps_utm_zone = (xsens_lon+180) / 6 + 1;
+        latlong_utm_of(RadOfDeg(xsens_lat), RadOfDeg(xsens_lon), gps_utm_zone);
         ins_x = latlong_utm_x;
         ins_y = latlong_utm_y;
         gps_utm_east  = ins_x * 100;
@@ -367,6 +378,17 @@ void parse_ins_msg( void ) {
         gps_itow = xsens_time_stamp;
 #endif
         offset += XSENS_DATA_TimeStamp_LENGTH;
+      }
+      if (XSENS_MASK_UTC(xsens_output_settings)) {
+        xsens_hour = XSENS_DATA_UTC_hour(xsens_msg_buf,offset);
+        xsens_min = XSENS_DATA_UTC_min(xsens_msg_buf,offset);
+        xsens_sec = XSENS_DATA_UTC_sec(xsens_msg_buf,offset);
+        xsens_nanosec = XSENS_DATA_UTC_nanosec(xsens_msg_buf,offset);
+        xsens_year = XSENS_DATA_UTC_year(xsens_msg_buf,offset);
+        xsens_month = XSENS_DATA_UTC_month(xsens_msg_buf,offset);
+        xsens_day = XSENS_DATA_UTC_day(xsens_msg_buf,offset);
+
+        offset += XSENS_DATA_UTC_LENGTH;
       }
     //}
   }

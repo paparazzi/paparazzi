@@ -230,6 +230,17 @@
     <field name="ts" format="U2"/>
   </data>
 
+  <data name="UTC" length="12">
+    <field name="nanosec" format="U4"/>
+    <field name="year" format="U2"/>
+    <field name="month" format="U1"/>
+    <field name="day" format="U1"/>
+    <field name="hour" format="U1"/>
+    <field name="min" format="U1"/>
+    <field name="sec" format="U1"/>
+    <field name="valid" format="U1"/>
+  </data>
+
   <mask name="Temp"         bitmask="0x0001"/>
   <mask name="Calibrated"   bitmask="0x0002"/>
   <mask name="Orientation"  bitmask="0x0004"/>
@@ -240,7 +251,8 @@
   <mask name="RAWGPS"       bitmask="0x1000"/>
   <mask name="RAWInertial"  bitmask="0x4000"/>
 
-  <mask name="TimeStamp"        bitmask="0x00000003"/>
+  <mask name="TimeStamp"        bitmask="0x00000001"/>
+  <mask name="UTC"        	bitmask="0x00000002"/>
   <mask name="OrientationMode"  bitmask="0x0000000C" shift=">>2"/>
   <mask name="AccOut"           bitmask="0x00000010"/>
   <mask name="GyrOut"           bitmask="0x00000020"/>

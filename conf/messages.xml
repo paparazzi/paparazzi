@@ -412,6 +412,9 @@
     <field name="min" type="uint8" unit=""/>
     <field name="sec" type="uint8" unit=""/>
     <field name="nanosec" type="uint32" unit=""/>
+    <field name="year" type="uint16" unit=""/>
+    <field name="month" type="uint8" unit=""/>
+    <field name="day" type="uint8" unit=""/>
 
   </message>
 
