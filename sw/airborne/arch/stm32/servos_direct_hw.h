@@ -7,7 +7,7 @@
 #define ACTUATORS_PWM_NB 6
 extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
-#include "actuators/actuators_pwm_arch.h"
+#include "actuators_pwm_arch.h"
 
 #define SERVOS_TICS_OF_USEC(_v) (_v)
 #define Actuator(_x)  actuators_pwm_values[_x]
