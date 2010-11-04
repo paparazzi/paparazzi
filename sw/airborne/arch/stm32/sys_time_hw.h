@@ -67,4 +67,10 @@ static inline bool_t sys_time_periodic( void ) {
     return FALSE;
 }
 
+/** Busy wait, in microseconds */
+/* for now empty shell */
+static inline void sys_time_usleep(uint32_t us) {
+
+}
+
 #endif /* SYS_TIME_HW_H */
