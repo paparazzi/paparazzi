@@ -28,7 +28,7 @@
  *
  */
 
-#include "firmwares/fixedwing/guidance.h"
+#include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "estimator.h"
 #include "nav.h"
 #include "airframe.h"

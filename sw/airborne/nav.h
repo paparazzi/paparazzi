@@ -34,7 +34,7 @@
 
 #include "std.h"
 #include "paparazzi.h"
-#include "firmwares/fixedwing/guidance.h"
+#include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "nav_survey_rectangle.h"
 #include "common_nav.h"
 

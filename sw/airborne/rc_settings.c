@@ -32,7 +32,7 @@
 #include "nav.h"
 #include "estimator.h"
 #include "inter_mcu.h"
-#include "firmwares/fixedwing/stabilization.h"
+#include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 
 
 #define ParamValInt16(param_init_val, param_travel, cur_pulse, init_pulse) \
