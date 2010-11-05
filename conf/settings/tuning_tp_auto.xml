@@ -30,7 +30,7 @@
 
 
       <dl_settings NAME="attitude">
-        <dl_setting MAX="0" MIN="-15000" STEP="250" VAR="h_ctl_roll_attitude_gain" shortname="roll pgain" module="fw_h_ctl"/>
+        <dl_setting MAX="0" MIN="-15000" STEP="250" VAR="h_ctl_roll_attitude_gain" shortname="roll pgain" module="stabilization/stabilization_attitude"/>
         <dl_setting MAX="0" MIN="-25000" STEP="250" VAR="h_ctl_roll_rate_gain" shortname="roll dgain"/>
         <dl_setting MAX="1" MIN="0" STEP="0.05" VAR="h_ctl_roll_max_setpoint" shortname="max_roll"/>
         <dl_setting MAX="000" MIN="-25000" STEP="250" VAR="h_ctl_pitch_pgain" shortname="pitch_pgain"/>
