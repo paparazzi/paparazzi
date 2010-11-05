@@ -22,6 +22,9 @@
 #
 #
 
+
+
+
 ################################################################################
 #
 #
@@ -474,8 +477,8 @@ test_adxl345.ARCHDIR = $(ARCH)
 test_adxl345.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
 test_adxl345.CFLAGS +=  -DBOARD_CONFIG=$(BOARD_CFG)
 test_adxl345.srcs += lisa/test/lisa_test_adxl345_dma.c \
-                       $(SRC_ARCH)/stm32_exceptions.c   \
-                       $(SRC_ARCH)/stm32_vector_table.c
+                     $(SRC_ARCH)/stm32_exceptions.c   \
+		     $(SRC_ARCH)/stm32_vector_table.c
 
 test_adxl345.CFLAGS += -DUSE_LED
 test_adxl345.srcs += $(SRC_ARCH)/led_hw.c
@@ -499,19 +502,19 @@ test_adxl345.CFLAGS += -DUSE_DMA1_C4_IRQ # SPI2 Rx DMA
 # simple test of mikrokopter motor controllers
 #
 test_esc_mkk_simple.ARCHDIR = $(ARCH)
-test_esc_mkk_simple.CFLAGS = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
+test_esc_mkk_simple.CFLAGS  = -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 test_esc_mkk_simple.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_esc_mkk_simple.srcs = test/test_esc_mkk_simple.c		\
-                           $(SRC_ARCH)/stm32_exceptions.c   \
-                           $(SRC_ARCH)/stm32_vector_table.c
+test_esc_mkk_simple.srcs    = test/test_esc_mkk_simple.c		\
+			      $(SRC_ARCH)/stm32_exceptions.c   \
+			      $(SRC_ARCH)/stm32_vector_table.c
 test_esc_mkk_simple.CFLAGS += -DUSE_LED
-test_esc_mkk_simple.srcs += $(SRC_ARCH)/led_hw.c
+test_esc_mkk_simple.srcs   += $(SRC_ARCH)/led_hw.c
 test_esc_mkk_simple.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_esc_mkk_simple.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-test_esc_mkk_simple.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-test_esc_mkk_simple.CFLAGS += -DUSE_I2C1
-test_esc_mkk_simple.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-test_esc_mkk_simple.CFLAGS += -DACTUATORS_MKK_DEV=i2c1
+test_esc_mkk_simple.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_esc_mkk_simple.CFLAGS += -DUSE_I2C2
+test_esc_mkk_simple.srcs   += i2c.c $(SRC_ARCH)/i2c_hw.c
+test_esc_mkk_simple.CFLAGS += -DACTUATORS_MKK_DEV=i2c2
 
 
 #

@@ -11,13 +11,31 @@
   <firmware name="fixedwing">
     <target name="sim" 			board="pc"/>
     <target name="ap" 			board="lisa_m_1.0"/>
-
-    <subsystem name="radio_control"     type="ppm"/>
+<!--    <subsystem name="radio_control"     type="ppm"/> -->
+    <subsystem name="radio_control"     type="spektrum"/>
     <subsystem name="telemetry" 	type="transparent"/>
     <subsystem name="control"/>
     <subsystem name="attitude" 		type="infrared"/>
     <subsystem name="gps" 		type="ublox_lea5h"/>
     <subsystem name="navigation"/>
+  </firmware>
+
+  <firmware name="lisa_l_test_progs">
+    <target name="test_led"            board="lisa_m_1.0"/>
+    <target name="test_uart"           board="lisa_m_1.0"/>
+    <target name="test_servos"         board="lisa_m_1.0"/>
+    <target name="test_telemetry"      board="lisa_m_1.0">
+      <param name="MODEM_PORT" value="UART2"/>
+    </target>
+    <target name="test_bmp085"         board="lisa_m_1.0"/>
+    <target name="test_esc_mkk_simple" board="lisa_m_1.0"/>
+    <target name="test_rc_spektrum"    board="lisa_m_1.0"/>
+    <target name="test_manual"         board="lisa_m_1.0"/>
+    <target name="test_esc_mkk_simple" board="lisa_m_1.0"/>
+    <target name="test_hmc5843"        board="lisa_m_1.0"/>
+    <target name="test_itg3200"        board="lisa_m_1.0"/>
+    <target name="test_adxl345"        board="lisa_m_1.0"/>
+    <target name="test_adc"            board="lisa_m_1.0"/>
   </firmware>
 
   <servos>
@@ -174,24 +192,6 @@
     <set servo="S5"         value="@ROLL"/>
     <set servo="S6"         value="@ROLL"/>
   </command_laws>
-
-  <firmware name="lisa_l_test_progs">
-    <target name="test_led"            board="lisa_m_1.0"/>
-    <target name="test_uart"           board="lisa_m_1.0"/>
-    <target name="test_servos"         board="lisa_m_1.0"/>
-    <target name="test_telemetry"      board="lisa_m_1.0">
-      <param name="MODEM_PORT" value="UART2"/>
-    </target>
-    <target name="test_bmp085"         board="lisa_m_1.0"/>
-    <target name="test_esc_mkk_simple" board="lisa_m_1.0"/>
-    <target name="test_rc_spektrum"    board="lisa_m_1.0"/>
-    <target name="test_manual"         board="lisa_m_1.0"/>
-    <target name="test_esc_mkk_simple" board="lisa_m_1.0"/>
-    <target name="test_hmc5843"        board="lisa_m_1.0"/>
-    <target name="test_itg3200"        board="lisa_m_1.0"/>
-    <target name="test_adxl345"        board="lisa_m_1.0"/>
-    <target name="test_adc"            board="lisa_m_1.0"/>
-  </firmware>
 
 </airframe>
 

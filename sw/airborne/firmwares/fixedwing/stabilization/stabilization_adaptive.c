@@ -1,7 +1,7 @@
 /*
  * Paparazzi $Id: fw_h_ctl.c 3603 2009-07-01 20:06:53Z hecto $
  *  
- * Copyright (C) 2009-2010 ENAC
+ * Copyright (C) 2009-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -30,12 +30,12 @@
 
 #include "std.h"
 #include "led.h"
-#include "fw_h_ctl.h"
-#include "fw_h_ctl_a.h"
+#include "firmwares/fixedwing/stabilization.h"
+#include "firmwares/fixedwing/stabilization/stabilization_adaptive.h"
 #include "estimator.h"
 #include "nav.h"
 #include "airframe.h"
-#include "fw_v_ctl.h"
+#include "firmwares/fixedwing/guidance.h"
 #include "autopilot.h"
 
 

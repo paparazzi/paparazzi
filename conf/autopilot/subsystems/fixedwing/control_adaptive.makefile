@@ -1,4 +1,5 @@
 # fixed wing control loops with adaptive horizontal control
 
 
-$(TARGET).srcs += $(SRC_FIXEDWING)/fw_h_ctl_a.c $(SRC_FIXEDWING)/fw_v_ctl.c
+$(TARGET).srcs += $(SRC_FIRMWARE)/stabilization/stabilization_adaptive.c $(SRC_FIRMWARE)/guidance/guidance_v.c
+

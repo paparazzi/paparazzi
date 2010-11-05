@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2003-2010  Paparazzi team
+ * Copyright (C) 2003-2010  The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -38,8 +38,8 @@
 #include "interrupt_hw.h"
 #include "init_hw.h"
 #include "adc.h"
-#include "fw_h_ctl.h"
-#include "fw_v_ctl.h"
+#include "firmwares/fixedwing/stabilization.h"
+#include "firmwares/fixedwing/guidance.h"
 #include "gps.h"
 #include "infrared.h"
 #include "gyro.h"

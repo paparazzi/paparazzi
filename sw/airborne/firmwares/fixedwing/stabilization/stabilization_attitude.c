@@ -28,13 +28,13 @@
  *
  */
 
+#include "firmwares/fixedwing/stabilization.h"
 #include "std.h"
 #include "led.h"
-#include "fw_h_ctl.h"
 #include "estimator.h"
 #include "nav.h"
 #include "airframe.h"
-#include "fw_v_ctl.h"
+#include "firmwares/fixedwing/guidance.h"
 #include "firmwares/fixedwing/autopilot.h"
 
 

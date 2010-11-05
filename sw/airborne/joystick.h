@@ -2,7 +2,7 @@
 #define JOYSTICK_H
 
 #include "std.h"
-#include "fw_h_ctl.h"
+#include "firmwares/fixedwing/stabilization.h"
 
 extern uint8_t joystick_block;
 

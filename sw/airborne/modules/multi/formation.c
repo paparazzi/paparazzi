@@ -13,8 +13,8 @@
 
 #include "multi/formation.h"
 #include "estimator.h"
-#include "fw_h_ctl.h"
-#include "fw_v_ctl.h"
+#include "firmwares/fixedwing/stabilization.h"
+#include "firmwares/fixedwing/guidance.h"
 #include "autopilot.h"
 #include "gps.h"
 #include "flight_plan.h"

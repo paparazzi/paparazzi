@@ -28,8 +28,8 @@
  *
  */
 
-#include "fw_v_ctl.h"
-#include "fw_v_ctl_n.h"
+#include "firmwares/fixedwing/guidance/guidance_v.h"
+#include "firmwares/fixedwing/guidance/guidance_v_n.h"
 #include "estimator.h"
 #include "nav.h"
 #include "airframe.h"
