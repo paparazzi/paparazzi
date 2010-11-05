@@ -55,7 +55,7 @@
       </dl_settings>
 
       <dl_settings name="auto_throttle">
-        <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_cruise_throttle" shortname="cruise throttle" module="fw_v_ctl" handler="SetCruiseThrottle" param="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE">
+        <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_cruise_throttle" shortname="cruise throttle" module="guidance/guidance_v" handler="SetCruiseThrottle" param="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE">
           <strip_button name="Loiter" value="0.1"/>
           <strip_button name="Cruise" value="0"/>
           <strip_button name="Dash" value="1"/>
