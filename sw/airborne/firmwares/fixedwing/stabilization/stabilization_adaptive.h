@@ -1,6 +1,6 @@
 /*
  * Paparazzi $Id: fw_h_ctl.h 3784 2009-07-24 14:55:54Z poine $
- *  
+ *
  * Copyright (C) 2009  ENAC
  *
  * This file is part of paparazzi.
@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
-/** 
+/**
  *
  * fixed wing horizontal adaptive control
  *

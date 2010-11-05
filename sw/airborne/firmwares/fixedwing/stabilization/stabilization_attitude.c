@@ -1,6 +1,6 @@
 /*
  * Paparazzi $Id$
- *  
+ *
  * Copyright (C) 2006  Pascal Brisset, Antoine Drouin, Michel Gorraz
  *
  * This file is part of paparazzi.
@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
-/** 
+/**
  *
  * fixed wing horizontal control
  *
@@ -164,8 +164,8 @@ nav_ratio=0;
 #endif
 }
 
-/** 
- * \brief 
+/**
+ * \brief
  *
  */
 void h_ctl_course_loop ( void ) {
@@ -180,7 +180,7 @@ void h_ctl_course_loop ( void ) {
   const float reference_advance = (NOMINAL_AIRSPEED / 2.);
   float advance = cos(err) * estimator_hspeed_mod / reference_advance;
 
-  if ( 
+  if (
        (advance < 1.)  &&                          // Path speed is small
        (estimator_hspeed_mod < reference_advance)  // Small path speed is due to wind (small groundspeed)
      )
@@ -203,12 +203,12 @@ void h_ctl_course_loop ( void ) {
     // Heading error
     float herr = estimator_psi - h_ctl_course_setpoint; //+crab);
     NormRadAngle(herr);
-   
+
     if (advance < -0.5)              //<! moving in the wrong direction / big > 90 degree turn
     {
       err = herr;
     }
-    else if (advance < 0.)           //<! 
+    else if (advance < 0.)           //<!
     {
       err = (-advance)*2. * herr;
     }
@@ -259,7 +259,7 @@ void h_ctl_course_loop ( void ) {
   }
 #endif
 
-  float speed_depend_nav = estimator_hspeed_mod/NOMINAL_AIRSPEED; 
+  float speed_depend_nav = estimator_hspeed_mod/NOMINAL_AIRSPEED;
   Bound(speed_depend_nav, 0.66, 1.5);
 
   float cmd = h_ctl_course_pgain * speed_depend_nav * (err + d_err * h_ctl_course_dgain);
@@ -272,11 +272,11 @@ void h_ctl_course_loop ( void ) {
     if (v_ctl_auto_throttle_submode == V_CTL_AUTO_THROTTLE_AGRESSIVE || V_CTL_AUTO_THROTTLE_BLENDED) {
       BoundAbs(cmd, h_ctl_roll_max_setpoint); /* bound cmd before NAV_RATIO and again after */
       if (v_ctl_altitude_error < 0) {
-	nav_ratio = AGR_CLIMB_NAV_RATIO + (1 - AGR_CLIMB_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
-	Bound (nav_ratio, AGR_CLIMB_NAV_RATIO, 1);
+    nav_ratio = AGR_CLIMB_NAV_RATIO + (1 - AGR_CLIMB_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
+    Bound (nav_ratio, AGR_CLIMB_NAV_RATIO, 1);
       } else {
-	nav_ratio = AGR_DESCENT_NAV_RATIO + (1 - AGR_DESCENT_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
-	Bound (nav_ratio, AGR_DESCENT_NAV_RATIO, 1);
+    nav_ratio = AGR_DESCENT_NAV_RATIO + (1 - AGR_DESCENT_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
+    Bound (nav_ratio, AGR_DESCENT_NAV_RATIO, 1);
       }
       cmd *= nav_ratio;
     }
@@ -316,7 +316,7 @@ inline static void h_ctl_roll_loop( void ) {
     - h_ctl_roll_rate_gain * estimator_p
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
 
-  h_ctl_aileron_setpoint = TRIM_PPRZ(cmd); 
+  h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
 }
 
 #else // H_CTL_ROLL_ATTITUDE_GAIN
@@ -324,7 +324,7 @@ inline static void h_ctl_roll_loop( void ) {
 /** Computes h_ctl_aileron_setpoint from h_ctl_roll_setpoint */
 inline static void h_ctl_roll_loop( void ) {
   float err = estimator_phi - h_ctl_roll_setpoint;
-  float cmd = h_ctl_roll_pgain * err 
+  float cmd = h_ctl_roll_pgain * err
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
   h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
 
@@ -336,7 +336,7 @@ inline static void h_ctl_roll_loop( void ) {
   } else {
     h_ctl_roll_rate_setpoint = h_ctl_roll_rate_setpoint_pgain * err;
     BoundAbs(h_ctl_roll_rate_setpoint, H_CTL_ROLL_RATE_MAX_SETPOINT);
-    
+
     float saved_aileron_setpoint = h_ctl_aileron_setpoint;
     h_ctl_roll_rate_loop();
     h_ctl_aileron_setpoint = Blend(h_ctl_aileron_setpoint, saved_aileron_setpoint, h_ctl_roll_rate_mode) ;
@@ -348,23 +348,23 @@ inline static void h_ctl_roll_loop( void ) {
 
 static inline void h_ctl_roll_rate_loop() {
   float err = estimator_p - h_ctl_roll_rate_setpoint;
-  
+
   /* I term calculation */
   static float roll_rate_sum_err = 0.;
   static uint8_t roll_rate_sum_idx = 0;
   static float roll_rate_sum_values[H_CTL_ROLL_RATE_SUM_NB_SAMPLES];
-  
+
   roll_rate_sum_err -= roll_rate_sum_values[roll_rate_sum_idx];
   roll_rate_sum_values[roll_rate_sum_idx] = err;
   roll_rate_sum_err += err;
   roll_rate_sum_idx++;
   if (roll_rate_sum_idx >= H_CTL_ROLL_RATE_SUM_NB_SAMPLES) roll_rate_sum_idx = 0;
-  
+
   /* D term calculations */
   static float last_err = 0;
   float d_err = err - last_err;
   last_err = err;
-  
+
   float throttle_dep_pgain =
     Blend(h_ctl_hi_throttle_roll_rate_pgain, h_ctl_lo_throttle_roll_rate_pgain, v_ctl_throttle_setpoint/((float)MAX_PPRZ));
   float cmd = throttle_dep_pgain * ( err + h_ctl_roll_rate_igain * roll_rate_sum_err / H_CTL_ROLL_RATE_SUM_NB_SAMPLES + h_ctl_roll_rate_dgain * d_err);
@@ -414,7 +414,7 @@ inline static void h_ctl_pitch_loop( void ) {
     h_ctl_elevator_of_roll = 0.;
 
   h_ctl_pitch_loop_setpoint =
-    h_ctl_pitch_setpoint 
+    h_ctl_pitch_setpoint
     - h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(estimator_phi);
 
   float err = estimator_theta - h_ctl_pitch_loop_setpoint;
@@ -426,5 +426,3 @@ inline static void h_ctl_pitch_loop( void ) {
 #endif
   h_ctl_elevator_setpoint = TRIM_PPRZ(cmd);
 }
-
-

@@ -1,6 +1,6 @@
 /*
  * Paparazzi $Id: fw_h_ctl.c 3603 2009-07-01 20:06:53Z hecto $
- *  
+ *
  * Copyright (C) 2009-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
-/** 
+/**
  *
  * fixed wing horizontal adaptive control
  *
@@ -150,8 +150,8 @@ void h_ctl_init( void ) {
 
 }
 
-/** 
- * \brief 
+/**
+ * \brief
  *
  */
 void h_ctl_course_loop ( void ) {
@@ -165,7 +165,7 @@ void h_ctl_course_loop ( void ) {
   last_err = err;
   NormRadAngle(d_err);
 
-  float speed_depend_nav = estimator_hspeed_mod/NOMINAL_AIRSPEED; 
+  float speed_depend_nav = estimator_hspeed_mod/NOMINAL_AIRSPEED;
   Bound(speed_depend_nav, 0.66, 1.5);
 
   h_ctl_roll_setpoint = h_ctl_course_pre_bank_correction * h_ctl_course_pre_bank
@@ -264,7 +264,7 @@ inline static void h_ctl_roll_loop( void ) {
   //x  cmd /= airspeed_ratio2;
 
   // Set aileron commands
-  h_ctl_aileron_setpoint = TRIM_PPRZ(cmd); 
+  h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
 }
 
 
@@ -342,4 +342,3 @@ inline static void h_ctl_pitch_loop( void ) {
 
   h_ctl_elevator_setpoint = TRIM_PPRZ(cmd);
 }
-

@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2006  Pascal Brisset, Antoine Drouin, Michel Gorraz
  *
  * This file is part of paparazzi.
@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
-/** 
+/**
  *  \file v_ctl_ctl
  *  \brief Vertical control for fixed wing vehicles.
  *
@@ -123,14 +123,14 @@ void v_ctl_init( void ) {
   /* "auto throttle" inner loop parameters */
   v_ctl_auto_throttle_nominal_cruise_throttle = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
   v_ctl_auto_throttle_cruise_throttle = v_ctl_auto_throttle_nominal_cruise_throttle;
-  v_ctl_auto_throttle_climb_throttle_increment = 
+  v_ctl_auto_throttle_climb_throttle_increment =
     V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT;
   v_ctl_auto_throttle_pgain = V_CTL_AUTO_THROTTLE_PGAIN;
   v_ctl_auto_throttle_igain = V_CTL_AUTO_THROTTLE_IGAIN;
   v_ctl_auto_throttle_dgain = 0.;
   v_ctl_auto_throttle_sum_err = 0.;
-  v_ctl_auto_throttle_pitch_of_vz_pgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN; 
-  v_ctl_auto_throttle_pitch_of_vz_dgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_DGAIN; 
+  v_ctl_auto_throttle_pitch_of_vz_pgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN;
+  v_ctl_auto_throttle_pitch_of_vz_dgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_DGAIN;
 
 #ifdef V_CTL_AUTO_PITCH_PGAIN
   /* "auto pitch" inner loop parameters */
@@ -161,7 +161,7 @@ void v_ctl_init( void ) {
   #define AGR_CLIMB_THROTTLE agr_climb_throttle
   agr_climb_pitch = AGR_CLIMB_PITCH;
   #undef   AGR_CLIMB_PITCH
-  #define   AGR_CLIMB_PITCH agr_climb_pitch 
+  #define   AGR_CLIMB_PITCH agr_climb_pitch
   agr_climb_nav_ratio = AGR_CLIMB_NAV_RATIO;
   #undef   AGR_CLIMB_NAV_RATIO
   #define   AGR_CLIMB_NAV_RATIO agr_climb_nav_ratio
@@ -177,9 +177,9 @@ void v_ctl_init( void ) {
 #endif
 }
 
-/** 
+/**
  * outer loop
- * \brief Computes v_ctl_climb_setpoint and sets v_ctl_auto_throttle_submode 
+ * \brief Computes v_ctl_climb_setpoint and sets v_ctl_auto_throttle_submode
  */
 void v_ctl_altitude_loop( void ) {
   float altitude_pgain_boost = 1.0;
@@ -228,9 +228,9 @@ void v_ctl_climb_loop ( void ) {
   }
 }
 
-/** 
+/**
  * auto throttle inner loop
- * \brief 
+ * \brief
  */
 
 #ifndef USE_AIRSPEED
@@ -242,12 +242,12 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
   float err  = estimator_z_dot - v_ctl_climb_setpoint;
   float d_err = err - last_err;
   last_err = err;
-  float controlled_throttle = v_ctl_auto_throttle_cruise_throttle 
-    + v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint 
-    + v_ctl_auto_throttle_pgain * 
+  float controlled_throttle = v_ctl_auto_throttle_cruise_throttle
+    + v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint
+    + v_ctl_auto_throttle_pgain *
     (err + v_ctl_auto_throttle_igain * v_ctl_auto_throttle_sum_err
      + v_ctl_auto_throttle_dgain * d_err);
-  
+
   /* pitch pre-command */
   float v_ctl_pitch_of_vz = (v_ctl_climb_setpoint + d_err * v_ctl_auto_throttle_pitch_of_vz_dgain) * v_ctl_auto_throttle_pitch_of_vz_pgain;
 
@@ -257,15 +257,15 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
     if (v_ctl_climb_setpoint > 0) { /* Climbing */
       f_throttle =  AGR_CLIMB_THROTTLE;
       nav_pitch = AGR_CLIMB_PITCH;
-    } 
+    }
     else { /* Going down */
       f_throttle =  AGR_DESCENT_THROTTLE;
       nav_pitch = AGR_DESCENT_PITCH;
     }
     break;
-    
+
   case V_CTL_AUTO_THROTTLE_BLENDED: {
-    float ratio = (fabs(v_ctl_altitude_error) - AGR_BLEND_END) 
+    float ratio = (fabs(v_ctl_altitude_error) - AGR_BLEND_END)
       / (AGR_BLEND_START - AGR_BLEND_END);
     f_throttle = (1-ratio) * controlled_throttle;
     nav_pitch = (1-ratio) * v_ctl_pitch_of_vz;
@@ -280,7 +280,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
     }
     break;
   }
-    
+
   case V_CTL_AUTO_THROTTLE_STANDARD:
   default:
 #endif
@@ -346,7 +346,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
 #endif // USE_AIRSPEED
 
 
-/** 
+/**
  * auto pitch inner loop
  * \brief computes a nav_pitch from a climb_setpoint given a fixed throttle
  */
@@ -356,7 +356,7 @@ inline static void v_ctl_climb_auto_pitch_loop(void) {
   v_ctl_throttle_setpoint = nav_throttle_setpoint;
   v_ctl_auto_pitch_sum_err += err;
   BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR);
-  nav_pitch = v_ctl_auto_pitch_pgain * 
+  nav_pitch = v_ctl_auto_pitch_pgain *
     (err + v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err);
   Bound(nav_pitch, V_CTL_AUTO_PITCH_MIN_PITCH, V_CTL_AUTO_PITCH_MAX_PITCH);
 }

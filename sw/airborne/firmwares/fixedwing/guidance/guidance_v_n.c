@@ -1,6 +1,6 @@
 /*
  * $Id: $
- *  
+ *
  * Copyright (C) 2010 ENAC
  *
  * This file is part of paparazzi.
@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
-/** 
+/**
  *  \file v_ctl_ctl_n
  *  \brief Vertical control for fixed wing vehicles.
  *
@@ -120,8 +120,8 @@ void v_ctl_init( void ) {
   v_ctl_auto_throttle_igain = V_CTL_AUTO_THROTTLE_IGAIN;
   v_ctl_auto_throttle_dgain = 0.;
   v_ctl_auto_throttle_sum_err = 0.;
-  v_ctl_auto_throttle_pitch_of_vz_pgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN; 
-  v_ctl_auto_throttle_pitch_of_vz_dgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_DGAIN; 
+  v_ctl_auto_throttle_pitch_of_vz_pgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN;
+  v_ctl_auto_throttle_pitch_of_vz_dgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_DGAIN;
 
   /* "auto pitch" inner loop parameters */
   v_ctl_auto_pitch_pgain = V_CTL_AUTO_PITCH_PGAIN;
@@ -146,9 +146,9 @@ void v_ctl_init( void ) {
   v_ctl_throttle_setpoint = 0;
 }
 
-/** 
+/**
  * outer loop
- * \brief Computes v_ctl_climb_setpoint and sets v_ctl_auto_throttle_submode 
+ * \brief Computes v_ctl_climb_setpoint and sets v_ctl_auto_throttle_submode
  */
 
 // Don't use lead controller unless you know what you're doing
@@ -172,7 +172,7 @@ void v_ctl_altitude_loop( void ) {
   float diff_climb = v_ctl_climb_setpoint - v_ctl_climb_setpoint_last;
   BoundAbs(diff_climb, V_CTL_AUTO_CLIMB_LIMIT);
   v_ctl_climb_setpoint = v_ctl_climb_setpoint_last + diff_climb;
-  
+
   // Limit climb setpoint
   BoundAbs(v_ctl_climb_setpoint, V_CTL_ALTITUDE_MAX_CLIMB);
   v_ctl_climb_setpoint_last = v_ctl_climb_setpoint;
@@ -289,4 +289,3 @@ void v_ctl_throttle_slew( void ) {
   BoundAbs(diff_throttle, TRIM_PPRZ(V_CTL_THROTTLE_SLEW*MAX_PPRZ));
   v_ctl_throttle_slewed += diff_throttle;
 }
-
