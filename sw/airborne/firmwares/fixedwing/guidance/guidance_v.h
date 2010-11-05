@@ -113,12 +113,12 @@ extern float v_ctl_auto_groundspeed_sum_err;
 /** Computes throttle_slewed from throttle_setpoint */
 extern void v_ctl_throttle_slew( void );
 
-#define fw_v_ctl_SetCruiseThrottle(_v) { \
+#define guidance_v_SetCruiseThrottle(_v) { \
   v_ctl_auto_throttle_cruise_throttle = (_v ? _v : v_ctl_auto_throttle_nominal_cruise_throttle); \
   Bound(v_ctl_auto_throttle_cruise_throttle, V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE); \
 }
 
-#define fw_v_ctl_SetAutoThrottleIgain(_v) {	\
+#define guidance_v_SetAutoThrottleIgain(_v) {	\
     v_ctl_auto_throttle_igain = _v;		\
     v_ctl_auto_throttle_sum_err = 0;		\
   }
