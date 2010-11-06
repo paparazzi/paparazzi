@@ -43,25 +43,25 @@ void booz_gps_impl_init(void) {
 
   booz_gps_skytraq.status = UNINIT;
 
-  
+
   DEBUG_SERVO1_INIT();
 
 }
 
 
 void booz_gps_skytraq_read_message(void) {
-  
+
   DEBUG_S1_ON();
 
   if (booz_gps_skytraq.msg_id == SKYTRAQ_ID_NAVIGATION_DATA) {
-    booz_gps_state.ecef_pos.x  = SKYTRAQ_NAVIGATION_DATA_ECEFX(booz_gps_skytraq.msg_buf); 
-    booz_gps_state.ecef_pos.y  = SKYTRAQ_NAVIGATION_DATA_ECEFY(booz_gps_skytraq.msg_buf); 
-    booz_gps_state.ecef_pos.z  = SKYTRAQ_NAVIGATION_DATA_ECEFZ(booz_gps_skytraq.msg_buf); 
-    booz_gps_state.ecef_vel.x  = SKYTRAQ_NAVIGATION_DATA_ECEFVX(booz_gps_skytraq.msg_buf); 
-    booz_gps_state.ecef_vel.y  = SKYTRAQ_NAVIGATION_DATA_ECEFVY(booz_gps_skytraq.msg_buf); 
-    booz_gps_state.ecef_vel.z  = SKYTRAQ_NAVIGATION_DATA_ECEFVZ(booz_gps_skytraq.msg_buf); 
-    booz_gps_state.lla_pos.lat = SKYTRAQ_NAVIGATION_DATA_LAT(booz_gps_skytraq.msg_buf); 
-    booz_gps_state.lla_pos.lon = SKYTRAQ_NAVIGATION_DATA_LON(booz_gps_skytraq.msg_buf); 
+    booz_gps_state.ecef_pos.x  = SKYTRAQ_NAVIGATION_DATA_ECEFX(booz_gps_skytraq.msg_buf);
+    booz_gps_state.ecef_pos.y  = SKYTRAQ_NAVIGATION_DATA_ECEFY(booz_gps_skytraq.msg_buf);
+    booz_gps_state.ecef_pos.z  = SKYTRAQ_NAVIGATION_DATA_ECEFZ(booz_gps_skytraq.msg_buf);
+    booz_gps_state.ecef_vel.x  = SKYTRAQ_NAVIGATION_DATA_ECEFVX(booz_gps_skytraq.msg_buf);
+    booz_gps_state.ecef_vel.y  = SKYTRAQ_NAVIGATION_DATA_ECEFVY(booz_gps_skytraq.msg_buf);
+    booz_gps_state.ecef_vel.z  = SKYTRAQ_NAVIGATION_DATA_ECEFVZ(booz_gps_skytraq.msg_buf);
+    booz_gps_state.lla_pos.lat = SKYTRAQ_NAVIGATION_DATA_LAT(booz_gps_skytraq.msg_buf);
+    booz_gps_state.lla_pos.lon = SKYTRAQ_NAVIGATION_DATA_LON(booz_gps_skytraq.msg_buf);
     booz_gps_state.lla_pos.alt = SKYTRAQ_NAVIGATION_DATA_AEL(booz_gps_skytraq.msg_buf);
     booz_gps_state.hmsl        = SKYTRAQ_NAVIGATION_DATA_ASL(booz_gps_skytraq.msg_buf);
     //   pacc;
@@ -81,7 +81,7 @@ void booz_gps_skytraq_read_message(void) {
     }
 #endif
   }
- 
+
   DEBUG_S1_OFF();
 }
 
@@ -110,7 +110,7 @@ void booz_gps_skytraq_parse(uint8_t c) {
     if (booz_gps_skytraq.len > GPS_SKYTRAQ_MAX_PAYLOAD) {
       booz_gps_skytraq.error_last = GPS_SKYTRAQ_ERR_MSG_TOO_LONG;
       goto error;
-    } 
+    }
     break;
   case GOT_LEN2:
     booz_gps_skytraq.msg_id = c;
@@ -153,4 +153,3 @@ void booz_gps_skytraq_parse(uint8_t c) {
   booz_gps_skytraq.status = UNINIT;
   return;
 }
-

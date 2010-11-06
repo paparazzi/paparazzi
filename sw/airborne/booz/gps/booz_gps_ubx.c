@@ -56,7 +56,7 @@ void booz_gps_impl_init(void) {
 
 
 void booz_gps_ubx_read_message(void) {
-  
+
   if (booz_gps_ubx.msg_class == UBX_NAV_ID) {
     if (booz_gps_ubx.msg_id == UBX_NAV_SOL_ID) {
       booz_gps_state.fix        = UBX_NAV_SOL_GPSfix(booz_gps_ubx.msg_buf);

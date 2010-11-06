@@ -13,7 +13,7 @@
 #define SKYTRAQ_SYNC4 0x0A
 
 
-#define SKYTRAQ_ID_NAVIGATION_DATA 0XA8 
+#define SKYTRAQ_ID_NAVIGATION_DATA 0XA8
 
 #define SKYTRAQ_NAVIGATION_DATA_FixMode(_payload) (uint8_t) (*((uint8_t*)_payload+2-2))
 #define SKYTRAQ_NAVIGATION_DATA_NumSV(_payload)   (uint8_t) (*((uint8_t*)_payload+3-2))
@@ -74,7 +74,7 @@ extern void booz_gps_skytraq_parse(uint8_t c);
       if (booz_gps_skytraq.msg_id == SKYTRAQ_ID_NAVIGATION_DATA) {	\
         if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D)                     \
           booz_gps_state.lost_counter = 0;				\
-	_sol_available_callback();					\
+    _sol_available_callback();					\
       }									\
       booz_gps_skytraq.msg_available = FALSE;				\
     }									\
@@ -85,4 +85,3 @@ extern void booz_gps_skytraq_parse(uint8_t c);
       booz_gps_skytraq_parse(GpsLink(Getch()));				\
   }
 #endif /* BOOZ_GPS_SKYTRAQ_H */
-

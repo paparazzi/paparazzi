@@ -28,10 +28,10 @@ extern void booz_gps_ubx_parse(uint8_t c);
     if (booz_gps_ubx.msg_available) {					\
       booz_gps_ubx_read_message();					\
       if (booz_gps_ubx.msg_class == UBX_NAV_ID &&			\
-	  booz_gps_ubx.msg_id == UBX_NAV_SOL_ID) {			\
+      booz_gps_ubx.msg_id == UBX_NAV_SOL_ID) {			\
         if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D)                     \
           booz_gps_state.lost_counter = 0;				\
-	_sol_available_callback();					\
+    _sol_available_callback();					\
       }									\
       booz_gps_ubx.msg_available = FALSE;				\
     }									\
