@@ -1,6 +1,6 @@
 /*
  * Paparazzi mcu0 $Id$
- *  
+ *
  * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -27,7 +27,7 @@
  */
 
 #include <inttypes.h>
-#include <string.h> 
+#include <string.h>
 #include <math.h>
 
 #ifdef FMS_PERIODIC_FREQ
@@ -35,7 +35,7 @@
 #include <stdio.h>
 //for baudrate
 #include "fms_serial_port.h"
-#endif 
+#endif
 
 #include "flight_plan.h"
 #include "uart.h"
@@ -47,7 +47,7 @@
 #ifdef GPS_TIMESTAMP
 #include "sys_time.h"
 #define MSEC_PER_WEEK (1000*60*60*24*7)
-#endif 
+#endif
 
 #define UbxInitCheksum() { send_ck_a = send_ck_b = 0; }
 #define UpdateChecksum(c) { send_ck_a += c; send_ck_b += send_ck_a; }
@@ -69,7 +69,7 @@
 }
 
 
-/** Includes macros generated from ubx.xml */ 
+/** Includes macros generated from ubx.xml */
 #include "ubx_protocol.h"
 
 
@@ -169,8 +169,8 @@ void gps_configure_uart ( void ) {
   uint8_t loop=0;
   while (GpsUartRunning) {
     //doesn't work unless some printfs are used, so :
-    if (loop<9) { 
-      printf("."); loop++;  
+    if (loop<9) {
+      printf("."); loop++;
     } else {
       printf("\b"); loop--;
     }
@@ -195,7 +195,7 @@ void gps_configure_uart ( void ) {
 
 #ifdef USER_GPS_CONFIGURE
 #include USER_GPS_CONFIGURE
-#else 
+#else
 static bool_t user_gps_configure(bool_t cpt) {
   switch (cpt) {
   case 0:
@@ -222,14 +222,14 @@ static bool_t user_gps_configure(bool_t cpt) {
     UbxSend_CFG_SBAS(0x00, 0x00, 0x00, 0x00, 0x00);
     break;
   case 7:
-    UbxSend_CFG_RATE(0x00FA, 0x0001, 0x0000);   
+    UbxSend_CFG_RATE(0x00FA, 0x0001, 0x0000);
     return FALSE;
   }
   return TRUE; /* Continue, except for the last case */
 }
 #endif // ! USER_GPS_CONFIGURE
 
-/* GPS configuration. Must be called on ack message reception while 
+/* GPS configuration. Must be called on ack message reception while
    gps_status_config < GPS_CONFIG_DONE */
 void gps_configure ( void ) {
   if (ubx_class == UBX_ACK_ID) {
@@ -265,7 +265,7 @@ void parse_gps_msg( void ) {
       gps_hmsl = UBX_NAV_POSLLH_HMSL(ubx_msg_buf);
 
       latlong_utm_of(RadOfDeg(gps_lat/1e7), RadOfDeg(gps_lon/1e7), nav_utm_zone0);
-      
+
       gps_utm_east = latlong_utm_x * 100;
       gps_utm_north = latlong_utm_y * 100;
       gps_alt = UBX_NAV_POSLLH_HMSL(ubx_msg_buf) / 10;
@@ -276,7 +276,7 @@ void parse_gps_msg( void ) {
       gps_utm_north = UBX_NAV_POSUTM_NORTH(ubx_msg_buf);
       uint8_t hem = UBX_NAV_POSUTM_HEM(ubx_msg_buf);
       if (hem == UTM_HEM_SOUTH)
-	gps_utm_north -= 1000000000; /* Subtract false northing: -10000km */
+    gps_utm_north -= 1000000000; /* Subtract false northing: -10000km */
       gps_alt = UBX_NAV_POSUTM_ALT(ubx_msg_buf);
       gps_utm_zone = UBX_NAV_POSUTM_ZONE(ubx_msg_buf);
 #endif
@@ -286,7 +286,7 @@ void parse_gps_msg( void ) {
       gps_climb = - UBX_NAV_VELNED_VEL_D(ubx_msg_buf);
       gps_course = UBX_NAV_VELNED_Heading(ubx_msg_buf) / 10000;
       gps_itow = UBX_NAV_VELNED_ITOW(ubx_msg_buf);
-      
+
       gps_pos_available = TRUE; /* The 3 UBX messages are sent in one rafale */
     } else if (ubx_id == UBX_NAV_SOL_ID) {
 #ifdef GPS_TIMESTAMP
@@ -307,12 +307,12 @@ void parse_gps_msg( void ) {
       gps_nb_channels = Min(UBX_NAV_SVINFO_NCH(ubx_msg_buf), GPS_NB_CHANNELS);
       uint8_t i;
       for(i = 0; i < gps_nb_channels; i++) {
-	gps_svinfos[i].svid = UBX_NAV_SVINFO_SVID(ubx_msg_buf, i);
-	gps_svinfos[i].flags = UBX_NAV_SVINFO_Flags(ubx_msg_buf, i);
-	gps_svinfos[i].qi = UBX_NAV_SVINFO_QI(ubx_msg_buf, i);
-	gps_svinfos[i].cno = UBX_NAV_SVINFO_CNO(ubx_msg_buf, i);
-	gps_svinfos[i].elev = UBX_NAV_SVINFO_Elev(ubx_msg_buf, i);
-	gps_svinfos[i].azim = UBX_NAV_SVINFO_Azim(ubx_msg_buf, i);
+    gps_svinfos[i].svid = UBX_NAV_SVINFO_SVID(ubx_msg_buf, i);
+    gps_svinfos[i].flags = UBX_NAV_SVINFO_Flags(ubx_msg_buf, i);
+    gps_svinfos[i].qi = UBX_NAV_SVINFO_QI(ubx_msg_buf, i);
+    gps_svinfos[i].cno = UBX_NAV_SVINFO_CNO(ubx_msg_buf, i);
+    gps_svinfos[i].elev = UBX_NAV_SVINFO_Elev(ubx_msg_buf, i);
+    gps_svinfos[i].azim = UBX_NAV_SVINFO_Azim(ubx_msg_buf, i);
       }
     }
   }
@@ -351,7 +351,7 @@ void parse_ubx( uint8_t c ) {
   case GOT_CLASS:
     ubx_id = c;
     ubx_status++;
-    break;    
+    break;
   case GOT_ID:
     ubx_len = c;
     ubx_status++;
@@ -385,7 +385,7 @@ void parse_ubx( uint8_t c ) {
     goto error;
   }
   return;
- error:  
+ error:
  restart:
   ubx_status = UNINIT;
   return;
@@ -417,4 +417,3 @@ uint32_t itow_from_ticks(uint32_t clock_ticks)
   return itow_now;
 }
 #endif
-

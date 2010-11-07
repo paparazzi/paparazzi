@@ -1,5 +1,5 @@
 /*
- *  
+ *
  * Copyright (C) 2008 Marcus Wolschon
  *
  * This file is part of paparazzi.
@@ -17,11 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
-/** 
+/**
  * file gps_nmea.c
  * brief Parser for the NMEA protocol
  *
@@ -34,7 +34,7 @@
  */
 
 #include <inttypes.h>
-#include <string.h> 
+#include <string.h>
 #include <math.h>
 #ifdef LINUX
 // do debug-output if run on the linux-target
@@ -101,7 +101,7 @@ void ubxsend_cfg_rst(uint16_t bbr , uint8_t reset_mode) {
 #include "uart.h"
 
 void gps_configure_uart ( void ) {
-  //UbxSend_CFG_PRT(0x01, 0x0, 0x0, 0x000008D0, GPS_BAUD, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);  
+  //UbxSend_CFG_PRT(0x01, 0x0, 0x0, 0x000008D0, GPS_BAUD, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
   //while (GpsUartRunning) ; /* FIXME */
   GpsUartInitParam( UART_BAUD(GPS_BAUD),  UART_8N1, UART_FIFO_8);
 }
@@ -124,7 +124,7 @@ int  nmea_msg_len = 0;
 
 int GpsFixValid() {
    return gps_pos_available;
-} 
+}
 
 /**
  * parse GPGSA-nmea-messages stored in
@@ -199,7 +199,7 @@ void parse_nmea_GPRMC() {
            printf("parse_nmea_GPRMC() - skipping incomplete message\n");
 #endif
            return;
-	   }
+       }
      }
 
       // get warning
@@ -210,7 +210,7 @@ void parse_nmea_GPRMC() {
            printf("parse_nmea_GPRMC() - skipping incomplete message\n");
 #endif
            return;
-	   }
+       }
      }
       // get lat
       // ignored
@@ -220,7 +220,7 @@ void parse_nmea_GPRMC() {
            printf("parse_nmea_GPRMC() - skipping incomplete message\n");
 #endif
            return;
-	   }
+       }
      }
       // get North/South
       // ignored
@@ -230,7 +230,7 @@ void parse_nmea_GPRMC() {
            printf("parse_nmea_GPRMC() - skipping incomplete message\n");
 #endif
            return;
-	   }
+       }
      }
       // get lon
       // ignored
@@ -240,7 +240,7 @@ void parse_nmea_GPRMC() {
            printf("parse_nmea_GPRMC() - skipping incomplete message\n");
 #endif
            return;
-	   }
+       }
      }
       // get eath/west
       // ignored
@@ -250,7 +250,7 @@ void parse_nmea_GPRMC() {
            printf("parse_nmea_GPRMC() - skipping incomplete message\n");
 #endif
            return;
-	   }
+       }
      }
       // get speed
       double speed = strtod(&nmea_msg_buf[i], &endptr);
@@ -264,7 +264,7 @@ void parse_nmea_GPRMC() {
            printf("parse_nmea_GPRMC() - skipping incomplete message\n");
 #endif
            return;
-	   }
+       }
      }
 
 
@@ -284,7 +284,7 @@ void parse_nmea_GPGGA() {
       if(nmea_msg_buf[i]==',' && nmea_msg_buf[i+1]==',') {
 #ifdef LINUX
             printf("parse_nmea_GPGGA() - skipping empty message\n");
-#endif 
+#endif
             return;
       }
 
@@ -294,8 +294,8 @@ void parse_nmea_GPGGA() {
          if (i >= nmea_msg_len) {
 #ifdef LINUX
            printf("parse_nmea_GPGGA() - skipping incomplete message\n");
-#endif 
-	   return;
+#endif
+       return;
          }
       }
 
@@ -310,24 +310,24 @@ void parse_nmea_GPGGA() {
          if (i >= nmea_msg_len) {
 #ifdef LINUX
            printf("parse_nmea_GPGGA() - skipping incomplete message\n");
-#endif 
-	   return;
-	 }
+#endif
+       return;
+     }
       }
-     
+
       // correct latitute for N/S
       if(nmea_msg_buf[i] == 'S')
          lat = -lat;
       while(nmea_msg_buf[i++] != ',') {              // next field: longitude
          if (i >= nmea_msg_len)
-	   return;
+       return;
       }
 
       gps_lat = lat * 1e7; // convert to fixed-point
 #ifdef LINUX
       printf("parse_nmea_GPGGA() - lat=%f gps_lat=%i\n", lat, gps_lat);
-#endif 
-     
+#endif
+
       // get longitude [ddmm.mmmmm]
       double lon = strtod(&nmea_msg_buf[i], &endptr);
       // convert to pure degrees [dd.dddd] format
@@ -337,21 +337,21 @@ void parse_nmea_GPGGA() {
       //GpsInfo.PosLLA.lon.f *= (M_PI/180);
       while(nmea_msg_buf[i++] != ',') {              // next field: E/W indicator
          if (i >= nmea_msg_len)
-	   return;
+       return;
       }
- 
+
       // correct latitute for E/W
       if(nmea_msg_buf[i] == 'W')
          lon = -lon;
       while(nmea_msg_buf[i++] != ',') {              // next field: position fix status
          if (i >= nmea_msg_len)
-	   return;
+       return;
       }
- 
+
       gps_lon = lon * 1e7; // convert to fixed-point
 #ifdef LINUX
       printf("parse_nmea_GPGGA() - lon=%f gps_lon=%i\n", lon, gps_lon);
-#endif 
+#endif
 
       latlong_utm_of(RadOfDeg(lat), RadOfDeg(lon), nav_utm_zone0);
 
@@ -367,69 +367,69 @@ void parse_nmea_GPGGA() {
         gps_pos_available = TRUE;
 #ifdef LINUX
         printf("parse_nmea_GPGGA() - gps_pos_available == true\n");
-#endif 
+#endif
       } else {
         gps_pos_available = FALSE;
 #ifdef LINUX
         printf("parse_nmea_GPGGA() - gps_pos_available == false\n");
-#endif 
+#endif
       }
       while(nmea_msg_buf[i++] != ',') {              // next field: satellites used
          if (i >= nmea_msg_len) {
 #ifdef LINUX
            printf("parse_nmea_GPGGA() - skipping incomplete message\n");
-#endif 
-	   return;
-	 }
+#endif
+       return;
+     }
       }
-     
+
       // get number of satellites used in GPS solution
       gps_numSV = atoi(&nmea_msg_buf[i]);
 #ifdef LINUX
       printf("parse_nmea_GPGGA() - gps_numSatlitesUsed=%i\n", gps_numSV);
-#endif 
+#endif
       while(nmea_msg_buf[i++] != ',') {              // next field: HDOP (horizontal dilution of precision)
          if (i >= nmea_msg_len) {
 #ifdef LINUX
            printf("parse_nmea_GPGGA() - skipping incomplete message\n");
-#endif 
-	   return;
-	 }
+#endif
+       return;
+     }
       }
       while(nmea_msg_buf[i++] != ',') {              // next field: altitude
          if (i >= nmea_msg_len) {
 #ifdef LINUX
            printf("parse_nmea_GPGGA() - skipping incomplete message\n");
-#endif 
-	   return;
-	 }
+#endif
+       return;
+     }
       }
-     
+
       // get altitude (in meters)
       double alt = strtod(&nmea_msg_buf[i], &endptr);
       gps_alt = alt * 10;
 #ifdef LINUX
       printf("parse_nmea_GPGGA() - gps_alt=%i\n", gps_alt);
-#endif 
+#endif
       while(nmea_msg_buf[i++] != ',') {              // next field: altitude units, always 'M'
          if (i >= nmea_msg_len)
-	   return;
+       return;
       }
       while(nmea_msg_buf[i++] != ',') {              // next field: geoid seperation
          if (i >= nmea_msg_len)
-	   return;
+       return;
       }
       while(nmea_msg_buf[i++] != ',') {              // next field: seperation units
          if (i >= nmea_msg_len)
-	   return;
+       return;
       }
       while(nmea_msg_buf[i++] != ',') {              // next field: DGPS age
          if (i >= nmea_msg_len)
-	   return;
+       return;
       }
       while(nmea_msg_buf[i++] != ',') {              // next field: DGPS station ID
          if (i >= nmea_msg_len)
-	   return;
+       return;
       }
       //while(nmea_msg_buf[i++] != '*');              // next field: checksum
 }
@@ -445,27 +445,27 @@ void parse_gps_msg( void ) {
          nmea_msg_buf[nmea_msg_len] = 0;
 #ifdef LINUX
          printf("parse_gps_msg() - parsing RMC gps-message \"%s\"\n",nmea_msg_buf);
-#endif 
+#endif
          parse_nmea_GPRMC();
       } else
       if(nmea_msg_len > 7 && !strncmp(nmea_msg_buf + 1 , "$GPGGA", 6)) {
          nmea_msg_buf[nmea_msg_len] = 0;
 #ifdef LINUX
          printf("parse_gps_msg() - parsing GGA gps-message \"%s\"\n",nmea_msg_buf);
-#endif 
+#endif
          parse_nmea_GPGGA();
       } else
       if(nmea_msg_len > 7 && !strncmp(nmea_msg_buf + 1 , "$GPGSA", 6)) {
          nmea_msg_buf[nmea_msg_len] = 0;
 #ifdef LINUX
          printf("parse_gps_msg() - parsing GSA gps-message \"%s\"\n",nmea_msg_buf);
-#endif 
+#endif
          parse_nmea_GPGSA();
       } else {
          nmea_msg_buf[nmea_msg_len] = 0;
 #ifdef LINUX
          printf("parse_gps_msg() - ignoring unknown gps-message \"%s\" len=%i\n",nmea_msg_buf, nmea_msg_len);
-#endif 
+#endif
       }
 
       // reset message-buffer
