@@ -41,8 +41,8 @@
   </firmware>
 
   <firmware name="setup">
-    <target name="tunnel" 		board="tiny_2.11" />
-    <target name="setup_actuators" 	board="tiny_2.11" />
+    <target name="tunnel" 		board="twog_1.0" />
+    <target name="setup_actuators" 	board="twog_1.0" />
   </firmware>
 
   <modules main_freq="60">
