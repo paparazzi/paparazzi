@@ -1,4 +1,4 @@
-# 
+#
 #   $Id$
 #   Copyright (C) 2003 Pascal Brisset, Antoine Drouin
 #
@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.  
+# Boston, MA 02111-1307, USA.
 #
 
 # Quiet compilation
@@ -95,10 +95,10 @@ ant_track : ant_track.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
 test_enose : test_enose.c sliding_plot.c
-	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS) -lgtkdatabox 
+	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS) -lgtkdatabox
 
 actuators : actuators.c
-	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS) 
+	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
 
 #
@@ -108,6 +108,6 @@ actuators : actuators.c
 .depend: Makefile
 	ocamldep -I ../../lib/ocaml *.ml* > .depend
 
-ifneq ($(MAKECMDGOALS),clean) 
+ifneq ($(MAKECMDGOALS),clean)
 -include .depend
 endif

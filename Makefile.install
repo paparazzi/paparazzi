@@ -29,7 +29,7 @@ install_data:
 
 
 install_conf:
-	$(INSTALL) -d $(DESTDIR)/conf	
+	$(INSTALL) -d $(DESTDIR)/conf
 	$(INSTALLDATA) conf/conf.xml.example $(DESTDIR)/conf/conf.xml
 	$(INSTALLDATA) conf/control_panel.xml.example $(DESTDIR)/conf/control_panel.xml
 	$(INSTALLDATA) conf/messages.xml $(DESTDIR)/conf/
