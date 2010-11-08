@@ -20,9 +20,10 @@
 # Boston, MA 02111-1307, USA.  
 #
 
+
 Q=@
 
-INCLUDES= -I +xml-light -I +pcre -I +site-lib/netstring
+INCLUDES= -I +xml-light -I +pcre -I +netstring
 XINCLUDES= -I +lablgl -I +lablgtk2 -I +xml-light
 OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
