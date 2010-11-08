@@ -25,9 +25,8 @@
 
 #include <sys/types.h>
 #include <fcntl.h>
-#include <termio.h>
-#include <stdio.h>
 #include <sys/termios.h>
+#include <stdio.h>
 #include "caml/mlvalues.h"
 #include "caml/alloc.h"
 

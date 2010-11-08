@@ -22,7 +22,7 @@
 
 Q=@
 
-INCLUDES= -I +xml-light -I +pcre -I +netstring
+INCLUDES= -I +xml-light -I +pcre -I +site-lib/netstring
 XINCLUDES= -I +lablgl -I +lablgtk2 -I +xml-light
 OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
