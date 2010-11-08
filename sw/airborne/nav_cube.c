@@ -1,6 +1,6 @@
 /*
  * $Id: nav_cube.c 3600 2009-07-01 20:05:12Z hecto $
- *  
+ *
  * Copyright (C) 2010  Martin Mueller
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -53,7 +53,7 @@ bool_t nav_cube_init(uint8_t center, uint8_t tb, uint8_t te) {
   /* sanity checks */
   if (cube_nsect_x <= 0) cube_nsect_x = 1;
   if (cube_nsect_z <= 0) cube_nsect_z = 1;
-  if ((cube_sect <= 0) || 
+  if ((cube_sect <= 0) ||
       (cube_sect > (cube_nsect_x*cube_nsect_z))) cube_sect = 1;
 
   /* total number of lines/layers to fly */
@@ -128,11 +128,11 @@ bool_t nav_cube_init(uint8_t center, uint8_t tb, uint8_t te) {
   cube_nline_x--;
   cube_nline_z--;
 
-  return FALSE; 
+  return FALSE;
 }
 
 bool_t nav_cube(int8_t j, int8_t i,
-                uint8_t dest_b, uint8_t dest_e, 
+                uint8_t dest_b, uint8_t dest_e,
                 uint8_t src_b, uint8_t src_e) {
 
   if (i > cube_nline_x) return FALSE;
@@ -150,6 +150,5 @@ bool_t nav_cube(int8_t j, int8_t i,
   /* always keep at least security altitude */
   if (waypoints[dest_e].a < (ground_alt+SECURITY_HEIGHT)) waypoints[dest_e].a = ground_alt+SECURITY_HEIGHT;
 
-  return FALSE; 
+  return FALSE;
 }
-

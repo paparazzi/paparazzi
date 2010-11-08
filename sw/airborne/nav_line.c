@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2007  Anton Kochevar, ENAC
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -55,37 +55,37 @@ bool_t nav_line(uint8_t l1, uint8_t l2, float radius) {
 
   /* The half circle centers and the other leg */
   struct point l2_c1 = { waypoints[l1].x + radius * u_y,
-			 waypoints[l1].y + radius * -u_x,
-			 alt  };
+             waypoints[l1].y + radius * -u_x,
+             alt  };
   struct point l2_c2 = { waypoints[l1].x + 1.732*radius * u_x,
-			 waypoints[l1].y + 1.732*radius * u_y,
-			 alt  };
+             waypoints[l1].y + 1.732*radius * u_y,
+             alt  };
   struct point l2_c3 = { waypoints[l1].x + radius * -u_y,
-			 waypoints[l1].y + radius * u_x,
-			 alt  };
-  
+             waypoints[l1].y + radius * u_x,
+             alt  };
+
   struct point l1_c1 = { waypoints[l2].x + radius * -u_y,
-			 waypoints[l2].y + radius * u_x,
-			 alt  };
+             waypoints[l2].y + radius * u_x,
+             alt  };
   struct point l1_c2 = { waypoints[l2].x +1.732*radius * -u_x,
-			 waypoints[l2].y + 1.732*radius * -u_y,
-			 alt  };
+             waypoints[l2].y + 1.732*radius * -u_y,
+             alt  };
   struct point l1_c3 = { waypoints[l2].x + radius * u_y,
-			 waypoints[l2].y + radius * -u_x,
-			 alt  };
+             waypoints[l2].y + radius * -u_x,
+             alt  };
   float qdr_out_2_1 = M_PI/3. - atan2(u_y, u_x);
- 
+
   float qdr_out_2_2 = -M_PI/3. - atan2(u_y, u_x);
   float qdr_out_2_3 = M_PI - atan2(u_y, u_x);
 
   /* Vertical target */
   NavVerticalAutoThrottleMode(0); /* No pitch */
   NavVerticalAltitudeMode(WaypointAlt(l1), 0.);
- 
+
   switch (line_status) {
   case LR12: /* From wp l2 to wp l1 */
     NavSegment(l2, l1);
-    if (NavApproachingFrom(l1, l2, CARROT)) { 
+    if (NavApproachingFrom(l1, l2, CARROT)) {
       line_status = LQC21;
       nav_init_stage();
     }
@@ -113,7 +113,7 @@ bool_t nav_line(uint8_t l1, uint8_t l2, float radius) {
     break;
   case LR21: /* From wp l1 to wp l2 */
     NavSegment(l1, l2);
-    if (NavApproachingFrom(l2, l1, CARROT)) { 
+    if (NavApproachingFrom(l2, l1, CARROT)) {
       line_status = LQC12;
       nav_init_stage();
     }

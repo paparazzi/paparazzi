@@ -1,6 +1,6 @@
 /*
  * $Id: nav_cube.h 1936 2007-10-23 12:12:38Z hecto $
- *  
+ *
  * Copyright (C) 2010  Martin Mueller
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -32,7 +32,7 @@
 
 extern bool_t nav_cube_init(uint8_t turb, uint8_t tb, uint8_t te);
 bool_t nav_cube(int8_t j, int8_t i,
-                uint8_t dest_b, uint8_t dest_e, 
+                uint8_t dest_b, uint8_t dest_e,
                 uint8_t src_b, uint8_t src_e);
 
 extern int32_t cube_alpha;     /* angle of flight direction to north, clockwise */
@@ -95,7 +95,7 @@ extern int32_t cube_nline_z;   /* number of lines z (vertical) */
                                  | (grid_z)  |
    --------->                    -           |
                                  -           | (size_z)
-   --------->                    | (offs_z)  | 
+   --------->                    | (offs_z)  |
                       o [alt]    -           |
    --------->                                -
 
@@ -110,8 +110,8 @@ extern int32_t cube_nline_z;   /* number of lines z (vertical) */
   |   1   |  ^
   |       |  |
   s-------   |
-  
-  ----> 
+
+  ---->
 
 
  back view, 3x2 sectors:
@@ -125,11 +125,10 @@ extern int32_t cube_nline_z;   /* number of lines z (vertical) */
   |   1   |   2   |   3   |  ^
   |       |       |       |  |
   s-------s-------s-------   | (nsect_z)
-  
-  ---->   ---->   ----> 
+
+  ---->   ---->   ---->
    (nsect_x)
 
 */
 
 #endif /* NAV_CUBE_H */
-

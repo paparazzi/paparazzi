@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2003-2009  ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,13 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
 /** \file nav.h
  *  \brief Navigation library
- * 
+ *
  * This collection of macros and functions is used by the C code generated
  * from the XML flight plan
  */
@@ -181,5 +181,5 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
 
 #define nav_SetNavRadius(x) { if (x==1) nav_radius = DEFAULT_CIRCLE_RADIUS; else if (x==-1) nav_radius = -DEFAULT_CIRCLE_RADIUS; else nav_radius = x; }
 
-#define NavKillThrottle() { kill_throttle = 1; } 
+#define NavKillThrottle() { kill_throttle = 1; }
 #endif /* NAV_H */

@@ -27,7 +27,7 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
   nav_survey_south = Min(waypoints[wp1].y, waypoints[wp2].y);
   nav_survey_north = Max(waypoints[wp1].y, waypoints[wp2].y);
   survey_orientation = so;
-  
+
   if (survey_orientation == NS) {
     survey_from.x = survey_to.x = Min(Max(estimator_x, nav_survey_west+grid/2.), nav_survey_east-grid/2.);
     if (estimator_y > nav_survey_north || (estimator_y > nav_survey_south && estimator_hspeed_dir > M_PI/2. && estimator_hspeed_dir < 3*M_PI/2)) {
@@ -81,62 +81,62 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
   if (! survey_uturn) { /* S-N, N-S, W-E or E-W straight route */
     if ((estimator_y < nav_survey_north && SurveyGoingNorth()) ||
         (estimator_y > nav_survey_south && SurveyGoingSouth()) ||
-	(estimator_x < nav_survey_east && SurveyGoingEast()) ||
+    (estimator_x < nav_survey_east && SurveyGoingEast()) ||
         (estimator_x > nav_survey_west && SurveyGoingWest())) {
       /* Continue ... */
       nav_route_xy(survey_from.x, survey_from.y, survey_to.x, survey_to.y);
     } else {
       if (survey_orientation == NS) {
-	/* North or South limit reached, prepare U-turn and next leg */
-	float x0 = survey_from.x; /* Current longitude */
-	if (x0+nav_survey_shift < nav_survey_west || x0+nav_survey_shift > nav_survey_east) {
-	  x0 += nav_survey_shift / 2;
-	  nav_survey_shift = -nav_survey_shift;
-	}
-	
-	x0 = x0 + nav_survey_shift; /* Longitude of next leg */
-	survey_from.x = survey_to.x = x0;
-	
-	/* Swap South and North extremities */
-	float tmp = survey_from.y;
-	survey_from.y = survey_to.y;
-	survey_to.y = tmp;
-	
-	/** Do half a circle around WP 0 */
-	waypoints[0].x = x0 - nav_survey_shift/2.;
-	waypoints[0].y = survey_from.y;
-	
+    /* North or South limit reached, prepare U-turn and next leg */
+    float x0 = survey_from.x; /* Current longitude */
+    if (x0+nav_survey_shift < nav_survey_west || x0+nav_survey_shift > nav_survey_east) {
+      x0 += nav_survey_shift / 2;
+      nav_survey_shift = -nav_survey_shift;
+    }
+
+    x0 = x0 + nav_survey_shift; /* Longitude of next leg */
+    survey_from.x = survey_to.x = x0;
+
+    /* Swap South and North extremities */
+    float tmp = survey_from.y;
+    survey_from.y = survey_to.y;
+    survey_to.y = tmp;
+
+    /** Do half a circle around WP 0 */
+    waypoints[0].x = x0 - nav_survey_shift/2.;
+    waypoints[0].y = survey_from.y;
+
       /* Computes the right direction for the circle */
-	survey_radius = nav_survey_shift / 2.;
-	if (SurveyGoingNorth()) {
-	  survey_radius = -survey_radius;
-	}
+    survey_radius = nav_survey_shift / 2.;
+    if (SurveyGoingNorth()) {
+      survey_radius = -survey_radius;
+    }
       } else { /* (survey_orientation == WE) */
-	/* East or West limit reached, prepare U-turn and next leg */
-	/* There is a y0 declared in math.h (for ARM) !!! */
-	float my_y0 = survey_from.y; /* Current latitude */
-	if (my_y0+nav_survey_shift < nav_survey_south || my_y0+nav_survey_shift > nav_survey_north) {
-	  my_y0 += nav_survey_shift / 2;
-	  nav_survey_shift = -nav_survey_shift;
-	}
-	
-	my_y0 = my_y0 + nav_survey_shift; /* Longitude of next leg */
-	survey_from.y = survey_to.y = my_y0;
-	
-	/* Swap West and East extremities */
-	float tmp = survey_from.x;
-	survey_from.x = survey_to.x;
-	survey_to.x = tmp;
-	
-	/** Do half a circle around WP 0 */
-	waypoints[0].x = survey_from.x;
-	waypoints[0].y = my_y0 - nav_survey_shift/2.;
-	
+    /* East or West limit reached, prepare U-turn and next leg */
+    /* There is a y0 declared in math.h (for ARM) !!! */
+    float my_y0 = survey_from.y; /* Current latitude */
+    if (my_y0+nav_survey_shift < nav_survey_south || my_y0+nav_survey_shift > nav_survey_north) {
+      my_y0 += nav_survey_shift / 2;
+      nav_survey_shift = -nav_survey_shift;
+    }
+
+    my_y0 = my_y0 + nav_survey_shift; /* Longitude of next leg */
+    survey_from.y = survey_to.y = my_y0;
+
+    /* Swap West and East extremities */
+    float tmp = survey_from.x;
+    survey_from.x = survey_to.x;
+    survey_to.x = tmp;
+
+    /** Do half a circle around WP 0 */
+    waypoints[0].x = survey_from.x;
+    waypoints[0].y = my_y0 - nav_survey_shift/2.;
+
       /* Computes the right direction for the circle */
-	survey_radius = nav_survey_shift / 2.;
-	if (SurveyGoingWest()) {
-	  survey_radius = -survey_radius;
-	}
+    survey_radius = nav_survey_shift / 2.;
+    if (SurveyGoingWest()) {
+      survey_radius = -survey_radius;
+    }
       }
 
       nav_in_segment = FALSE;
@@ -145,9 +145,9 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
     }
   } else { /* U-turn */
     if ((SurveyGoingNorth() && NavCourseCloseTo(0)) ||
-	(SurveyGoingSouth() && NavCourseCloseTo(180)) ||
-	(SurveyGoingEast() && NavCourseCloseTo(90)) ||
-	(SurveyGoingWest() && NavCourseCloseTo(270))) {
+    (SurveyGoingSouth() && NavCourseCloseTo(180)) ||
+    (SurveyGoingEast() && NavCourseCloseTo(90)) ||
+    (SurveyGoingWest() && NavCourseCloseTo(270))) {
       /* U-turn finished, back on a segment */
       survey_uturn = FALSE;
       nav_in_circle = FALSE;
@@ -159,4 +159,3 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
   NavVerticalAutoThrottleMode(0.); /* No pitch */
   NavVerticalAltitudeMode(WaypointAlt(wp1), 0.); /* No preclimb */
 }
-
