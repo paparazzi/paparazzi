@@ -302,7 +302,7 @@ let attributes_pretty_printer = fun attribs ->
   let valid = fun a ->
     let a = String.lowercase a in
     a <> "no" && a <> "strip_icon" && a <> "strip_button" && a <> "pre_call"
-      && a <> "post_call" && a <> "key" in
+      && a <> "post_call" && a <> "key" && a <> "group" in
 
   let sprint_opt = fun b s ->
     if String.length b > 0 then
