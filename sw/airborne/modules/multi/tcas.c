@@ -89,8 +89,8 @@ void tcas_init( void ) {
 static inline enum tcas_resolve tcas_test_direction(uint8_t id) {
   struct ac_info_ * ac = get_ac_info(id);
   float dz = ac->alt - estimator_z;
-  if (dz > tcas_alim) return RA_DESCEND;
-  else if (dz < -tcas_alim) return RA_CLIMB;
+  if (dz > tcas_alim/2) return RA_DESCEND;
+  else if (dz < -tcas_alim/2) return RA_CLIMB;
   else // AC with the smallest ID descend
   {
     if (AC_ID < id) return RA_DESCEND;
