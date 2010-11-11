@@ -1,9 +1,8 @@
 <!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
-<!-- Aircraft flying slow and fast, roxxy bl730
+<!-- Aircraft flying slow and fast, hacker b50-18l
      Tiny 2.11 board (http://paparazzi.enac.fr/wiki/index.php/Tiny_v2)
-     PerkinElmer TPS334 IR Sensors
-     Tilted infrared sensor (http://paparazzi.enac.fr/wiki/index.php/Image:Tiny_v2_1_Funjet.jpg)
+     Tilted infrared sensor
      XBee modem
      R6107SP, LEA 5H
 -->
@@ -99,7 +98,7 @@
   </section>
  
   <section name="MISC">
-    <define name="NOMINAL_AIRSPEED" value="17." unit="m/s"/>
+    <define name="NOMINAL_AIRSPEED" value="21." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
