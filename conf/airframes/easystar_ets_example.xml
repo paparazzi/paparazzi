@@ -10,23 +10,15 @@
 <airframe name="EasyStar2 - TWOG v1">
 
   <firmware name="fixedwing">
-    <target name="ap" 			board="twog_1.0">
-      <define name="AGR_CLIMB"/>
-      <define name="LOITER_TRIM"/>
-      <define name="WIND_INFO"/>
-      <define name="ALT_KALMAN"/>
-      <define name="USE_I2C0"/>
-      <define name="USE_AIRSPEED"/>
-    </target>
+    <target name="ap" 			board="twog_1.0"/>
+    <target name="sim" 			board="pc"/>
 
-    <target name="sim" 			board="pc">
-      <define name="AGR_CLIMB"/>
-      <define name="LOITER_TRIM"/>
-      <define name="WIND_INFO"/>
-      <define name="ALT_KALMAN"/>
-      <define name="USE_I2C0"/>
-      <define name="USE_AIRSPEED"/>
-    </target>
+    <define name="AGR_CLIMB"/>
+    <define name="LOITER_TRIM"/>
+    <define name="WIND_INFO"/>
+    <define name="ALT_KALMAN"/>
+    <define name="USE_I2C0"/>
+    <define name="USE_AIRSPEED"/>
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>

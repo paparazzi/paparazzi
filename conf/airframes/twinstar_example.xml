@@ -12,17 +12,12 @@
 <airframe name="Twinstar">
 
   <firmware name="fixedwing">
-    <target name="ap" 			board="twog_1.0">
-      <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
-      <define name="AGR_CLIMB"/>
-    </target>
+    <target name="ap" 			board="twog_1.0"/>
+    <target name="sim" 			board="pc"/>
 
-    <target name="sim" 			board="pc">
-      <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
-      <define name="AGR_CLIMB"/>
-    </target>
+    <define name="LOITER_TRIM"/>
+    <define name="ALT_KALMAN"/>
+    <define name="AGR_CLIMB"/>
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>

@@ -10,26 +10,14 @@
 <airframe name="Mentor Twog AkaModell">
 
   <firmware name="fixedwing">
-    <target name="ap" 			board="twog_1.0">
-      <define name="AGR_CLIMB"/>
-      <define name="LOITER_TRIM"/>
-      <define name="WIND_INFO"/>
-      <define name="ALT_KALMAN"/>
-    </target>
+    <target name="ap" 			board="twog_1.0"/>
+    <target name="sim" 			board="pc"/>
+    <target name="jsbsim" 		board="pc"/>
 
-    <target name="sim" 			board="pc">
-      <define name="AGR_CLIMB"/>
-      <define name="LOITER_TRIM"/>
-      <define name="WIND_INFO"/>
-      <define name="ALT_KALMAN"/>
-    </target>
-
-    <target name="jsbsim" 		board="pc">
-      <define name="AGR_CLIMB"/>
-      <define name="LOITER_TRIM"/>
-      <define name="WIND_INFO"/>
-      <define name="ALT_KALMAN"/>
-    </target>
+    <define name="AGR_CLIMB"/>
+    <define name="LOITER_TRIM"/>
+    <define name="WIND_INFO"/>
+    <define name="ALT_KALMAN"/>
 
     <subsystem name="radio_control" type="ppm"/>
     <!--<define name="TELEMETRY_MODE_FBW" value="1"/>-->

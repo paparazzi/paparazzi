@@ -12,11 +12,11 @@
 
   <firmware name="fixedwing">
     <target name="sim" 			board="pc"/>
-    <target name="ap" 			board="tiny_2.11">
-      <define name="AGR_CLIMB"/>
-      <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
-    </target>
+    <target name="ap" 			board="tiny_2.11"/>
+
+    <define name="AGR_CLIMB"/>
+    <define name="LOITER_TRIM"/>
+    <define name="ALT_KALMAN"/>
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="joystick"/>

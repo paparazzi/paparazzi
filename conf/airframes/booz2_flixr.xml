@@ -1,5 +1,36 @@
 <airframe name="BOOZ2_F1">
 
+  <firmware name="rotorcraft">
+    <target name="ap" board="booz_1.0">
+      <!--<define name="KILL_MOTORS"/>-->       <!-- prevent motors from ever starting -->
+      <!--<define name="RADIO_CONTROL_KILL_SWITCH" value="RADIO_CONTROL_SWITCH1"/>-->
+      <define name="USE_GPS_ACC4R"/>
+      <define name="USE_INS_NAV_INIT"/>
+    </target>
+
+    <target name="sim" board="pc">
+      <subsystem name="fdm"   type="nps"/>
+    </target>
+
+    <define name="USE_ADAPT_HOVER"/>
+    <define name="GUIDANCE_H_USE_REF"/>
+
+    <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="actuators"     type="mkk"/>
+    <subsystem name="imu"           type="b2_v1.0"/>
+    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="ahrs"          type="cmpl"/>
+    <subsystem name="ins"           type="hff">
+      <define name="GPS_LAG=0.2"/>
+    </subsystem>
+  </firmware>
+
+  <firmware name="booz_test_progs">
+    <target name="test_telemetry" board="booz_1.0"/>
+    <target name="test_baro"      board="booz_1.0"/>
+    <target name="test_spektrum"  board="booz_1.0"/>
+  </firmware>
+
   <modules main_freq="512">
     <load name="booz_drop.xml"/>
     <load name="sys_mon.xml"/>
@@ -218,39 +249,6 @@
   <makefile target="opening">
     #empty
   </makefile>
-
-
-  <firmware name="rotorcraft">
-    <target name="ap" board="booz_1.0">
-      <param  name="FLASH_MODE" value="IAP"/>   <!-- that is the default for the board but I'm putting it here as example-->
-      <define name="MODEM_BAUD" value="B57600"/><!-- that is the default for the board but I'm putting it here as example-->
-      <!--<define name="KILL_MOTORS"/>-->       <!-- prevent motors from ever starting -->
-      <!--<define name="RADIO_CONTROL_KILL_SWITCH" value="RADIO_CONTROL_SWITCH1"/>-->
-      <define name="USE_ADAPT_HOVER"/>
-      <define name="USE_GPS_ACC4R"/>
-      <define name="GUIDANCE_H_USE_REF"/>
-      <define name="USE_INS_NAV_INIT"/>
-    </target>
-    <target name="sim" board="pc">
-      <define name="USE_ADAPT_HOVER"/>
-      <define name="GUIDANCE_H_USE_REF"/>
-      <subsystem name="fdm"   type="nps"/>
-    </target>
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="actuators"     type="mkk"/>
-    <subsystem name="imu"           type="b2_v1.0"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="ahrs"          type="cmpl"/>
-    <subsystem name="ins"           type="hff">
-      <define name="GPS_LAG=0.2"/>
-    </subsystem>
-  </firmware>
-
-  <firmware name="booz_test_progs">
-    <target name="test_telemetry" board="booz_1.0"/>
-    <target name="test_baro"      board="booz_1.0"/>
-    <target name="test_spektrum"  board="booz_1.0"/>
-  </firmware>
 
   <makefile target="closure" location="after">
     ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c
