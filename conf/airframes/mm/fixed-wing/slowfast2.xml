@@ -196,6 +196,7 @@
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
 
+<!--
  <makefile>
 CONFIG = \"tiny_2_1.h\"
 
@@ -251,4 +252,18 @@ sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 sim.srcs += nav_line.c nav_survey_rectangle.c
 
   </makefile>
+-->
+  <firmware name="fixedwing">
+    <target name="sim" 			board="pc"/>
+    <target name="ap" 			board="tiny_2.1"/>
+
+    <subsystem name="radio_control"     type="ppm"/>
+    <subsystem name="telemetry" 	type="xbee_api"/>
+    <subsystem name="control"/>
+    <subsystem name="attitude" 		type="infrared"/>
+    <subsystem name="gps" 		type="ublox_lea5h"/>
+    <subsystem name="navigation"/>
+  </firmware>
+
+
 </airframe>

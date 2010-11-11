@@ -53,11 +53,8 @@
 #include "flight_plan.h"
 #include "datalink.h"
 #include "xbee.h"
-#ifdef STM32
-#include <stm32/gpio.h>
-#else
+
 #include "gpio.h"
-#endif
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
 #include "rc_settings.h"
@@ -554,9 +551,7 @@ void init_ap( void ) {
   int_enable();
 
   /** wait 0.5s (historical :-) */
-#ifndef STM32
   sys_time_usleep(500000);
-#endif
 
 #if defined GPS_CONFIGURE
   gps_configure_uart();
