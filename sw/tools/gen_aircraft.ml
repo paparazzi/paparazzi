@@ -298,6 +298,10 @@ let parse_targets = fun makefile_ac tag target ->
 	  List.iter (parse_subsystems makefile_ac tag) (Xml.children tag );    (** dump firware subsystems **)
 		  fprintf makefile_ac "endif\n\n";
 		with _ -> () end;
+  | "define" ->
+      let name = ExtXml.attrib target "name"
+      and value = try "="^(Xml.attrib target "value") with _ -> "" in
+      fprintf makefile_ac "$(TARGET).CFLAGS += -D%s%s\n" name value;
    | _ -> ()
 
 

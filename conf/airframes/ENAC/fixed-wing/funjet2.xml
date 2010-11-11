@@ -29,18 +29,14 @@
   </modules>
 
   <firmware name="fixedwing">
-    <target name="sim" board="pc">
-      <define name="AGR_CLIMB"/>
-      <define name="ALT_KALMAN"/>
-      <define name="LOITER_TRIM"/>
-      <define name="USE_I2C0"/>
-    </target>
+    <define name="USE_I2C0"/>
+    <define name="AGR_CLIMB"/>
+    <define name="ALT_KALMAN"/>
+    <define name="LOITER_TRIM"/>
+
+    <target name="sim" board="pc"/>
     <target name="ap" board="tiny_2.11">
       <param name="FLASH_MODE" value="IAP"/>
-      <define name="AGR_CLIMB"/>
-      <define name="ALT_KALMAN"/>
-      <define name="LOITER_TRIM"/>
-      <define name="USE_I2C0"/>
     </target>
 
     <subsystem name="radio_control" type="ppm"/>

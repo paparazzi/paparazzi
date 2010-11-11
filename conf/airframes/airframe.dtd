@@ -25,7 +25,7 @@
 <!ELEMENT load (param|flag|define)*>
 <!ELEMENT param EMPTY>
 <!ELEMENT flag EMPTY>
-<!ELEMENT firmware (target|subsystem)*>
+<!ELEMENT firmware (target|subsystem|define)*>
 <!ELEMENT target (param|define)*>
 <!ELEMENT subsystem (param)*>
 
