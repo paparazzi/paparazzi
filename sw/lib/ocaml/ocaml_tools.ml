@@ -51,11 +51,26 @@ let find_file = fun path file ->
 let regexp_plus_less = Str.regexp "[+-]" 
 let affine_transform = fun format ->
   (* Split after removing blank spaces *)
-  match Str.full_split regexp_plus_less (Str.global_replace (Str.regexp "[ \t]+") "" format) with
-    [Str.Text a; Str.Delim "+" ; Str.Text b] -> float_of_string a, float_of_string b
-  | [Str.Text a; Str.Delim "-" ; Str.Text b] -> float_of_string a, -. float_of_string b
-  | [Str.Text a; Str.Delim "+"; Str.Delim "-" ; Str.Text b] -> float_of_string a, -. float_of_string b
-  | [Str.Text a] -> float_of_string a, 0.
+  let split = Str.full_split regexp_plus_less (Str.global_replace (Str.regexp "[ \t]+") "" format) in
+  let first_sign = match List.hd split with
+    Str.Text _ | Str.Delim "+" -> 1.
+  | Str.Delim "-" -> -. 1.
+  | _ -> 0.
+  in
+  let second_sign = match split with
+    [_; Str.Delim "+"; _] | [_; _; Str.Delim "+"; _] -> 1.
+  | [_; Str.Delim "-"; _]
+  | [_; Str.Delim "+"; Str.Delim "-"; _]
+  | [_; _; Str.Delim "-"; _]
+  | [_; _; Str.Delim "+"; Str.Delim "-"; _] -> -1.
+  | _ -> 0.
+  in
+  match split with
+    [Str.Text a; _; Str.Text b]
+  | [_; Str.Text a; _; Str.Text b]
+  | [Str.Text a; _; _; Str.Text b]
+  | [_; Str.Text a; _; _; Str.Text b] -> first_sign *. float_of_string a, second_sign *. float_of_string b
+  | [Str.Text a] | [_; Str.Text a] -> first_sign *. float_of_string a, 0.
   | _ -> 1., 0.
 
 (* Box-Muller transform to generate a normal distribution from a uniform one
