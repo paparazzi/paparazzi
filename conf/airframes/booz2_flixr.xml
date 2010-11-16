@@ -3,7 +3,7 @@
   <firmware name="rotorcraft">
     <target name="ap" board="booz_1.0">
       <!--<define name="KILL_MOTORS"/>-->       <!-- prevent motors from ever starting -->
-      <!--<define name="RADIO_CONTROL_KILL_SWITCH" value="RADIO_CONTROL_SWITCH1"/>-->
+      <!--<define name="RADIO_KILL_SWITCH" value="RADIO_CONTROL_SWITCH1"/>-->
       <define name="USE_GPS_ACC4R"/>
       <define name="USE_INS_NAV_INIT"/>
     </target>

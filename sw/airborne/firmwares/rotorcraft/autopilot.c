@@ -242,7 +242,7 @@ void autopilot_on_rc_frame(void) {
   AP_MODE_OF_PPRZ(radio_control.values[RADIO_MODE], new_autopilot_mode);
   autopilot_set_mode(new_autopilot_mode);
 
-#ifdef RADIO_CONTROL_KILL_SWITCH
+#ifdef RADIO_KILL_SWITCH
   if (radio_control.values[RADIO_KILL_SWITCH] < 0)
     autopilot_set_mode(AP_MODE_KILL);
 #endif

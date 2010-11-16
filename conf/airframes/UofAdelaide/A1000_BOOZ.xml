@@ -273,7 +273,7 @@ second attempt
  <firmware name="rotorcraft">
 	<target name="ap" board="booz_1.0">
 	  <param  name="FLASH_MODE" value="IAP"/>   <!-- default for the board but putting it here as example-->
-	  <define name="RADIO_CONTROL_KILL_SWITCH" value="RADIO_CONTROL_SWITCH1"/>
+	  <define name="RADIO_KILL_SWITCH" value="RADIO_CONTROL_SWITCH1"/>
 	  <define name="MODEM_BAUD" value = "B57600"/>
 	  <define name="GPS_LAG" value = "0.8"/>
 	  <define name="BOOZ_START_DELAY" value = "3"/>
@@ -323,7 +323,7 @@ ap.CFLAGS += -DMODEM_BAUD=B57600
 #ap.CFLAGS += -DGPS_USE_LATLONG now included in NOVA section, include if NOVA section removed
 
 #throttle killswitch
-ap.CFLAGS += -DRADIO_CONTROL_KILL_SWITCH=RADIO_CONTROL_SWITCH1
+ap.CFLAGS += -DRADIO_KILL_SWITCH=RADIO_CONTROL_SWITCH1
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
 include $(CFG_BOOZ)/booz2_autopilot.makefile

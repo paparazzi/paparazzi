@@ -96,14 +96,14 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef RADIO_CONTROL
 #define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
-#if defined RADIO_CONTROL_KILL_SWITCH
+#if defined RADIO_KILL_SWITCH
 #define PERIODIC_SEND_BOOZ2_RADIO_CONTROL(_chan) SEND_BOOZ2_RADIO_CONTROL( _chan, &radio_control.values[RADIO_KILL_SWITCH])
-#else /* ! RADIO_CONTROL_KILL_SWITCH */
+#else /* ! RADIO_KILL_SWITCH */
 #define PERIODIC_SEND_BOOZ2_RADIO_CONTROL(_chan) {			                    \
     int16_t foo = -42;							                    \
     SEND_BOOZ2_RADIO_CONTROL( _chan, &foo)				                    \
 }
-#endif /* !RADIO_CONTROL_KILL_SWITCH */
+#endif /* !RADIO_KILL_SWITCH */
 #define SEND_BOOZ2_RADIO_CONTROL(_chan, _kill_switch) {			                    \
     DOWNLINK_SEND_BOOZ2_RADIO_CONTROL(_chan,				                    \
 				      &radio_control.values[RADIO_ROLL],            \
