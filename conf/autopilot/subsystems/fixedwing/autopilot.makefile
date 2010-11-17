@@ -27,9 +27,10 @@
 ## COMMON FIXEDWING ALL TARGETS (SIM + AP + FBW ...)
 ##
 
-# temporary hack
+# temporary hack for ADCs
 ifeq ($(ARCH), stm32)
 $(TARGET).CFLAGS += -DSTM32
+$(TARGET).CFLAGS += -DUSE_AD1_3
 endif
 #
 # Board config + Include paths
