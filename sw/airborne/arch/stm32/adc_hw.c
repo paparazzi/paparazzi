@@ -91,6 +91,8 @@
 #include <stm32/gpio.h>
 #include <stm32/rcc.h>
 #include <stm32/tim.h>
+#include <string.h>
+#include "std.h"
 #include "led.h"
 #include BOARD_CONFIG
 
@@ -369,14 +371,14 @@ void adc_init( void ) {
     uint8_t channel;
 #ifdef USE_AD1
     for(channel = 0; channel < NB_ADC1_CHANNELS; channel++)
-        adc1_buffers[channel] = 0;
+        adc1_buffers[channel] = NULL;
 #endif
 #ifdef USE_AD2
     for(channel = 0; channel < NB_ADC2_CHANNELS; channel++)
-        adc2_buffers[channel] = 0;
+        adc2_buffers[channel] = NULL;
 #endif
 
-    adc_new_data_trigger = 0;
+    adc_new_data_trigger = FALSE;
     adc_injected_channels[0] = ADC_InjectedChannel_1;
     adc_injected_channels[1] = ADC_InjectedChannel_2;
     adc_injected_channels[2] = ADC_InjectedChannel_3;

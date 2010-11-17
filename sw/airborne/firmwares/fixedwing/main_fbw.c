@@ -89,19 +89,29 @@ void init_fbw( void ) {
 #ifdef LED
   led_init();
 #endif
+
 #ifdef USE_UART0
   uart0_init();
 #endif
 #ifdef USE_UART1
   uart1_init();
 #endif
+#ifdef USE_UART2
+  uart2_init();
+#endif
+#ifdef USE_UART3
+  uart3_init();
+#endif
+  // FIXME: remove STM32 flag
+#ifndef STM32
 #ifdef ADC
   adc_init();
   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);
 #  ifdef ADC_CHANNEL_CURRENT
-  adc_buf_channel(ADC_CHANNEL_CURRENT, &current_adc_buf, DEFAULT_AV_NB_SAMPLE);
+    adc_buf_channel(ADC_CHANNEL_CURRENT, &current_adc_buf, DEFAULT_AV_NB_SAMPLE);
 #  endif
 #endif
+#endif /* ! STM32 */
 #ifdef ACTUATORS
   actuators_init();
   /* Load the failsafe defaults */

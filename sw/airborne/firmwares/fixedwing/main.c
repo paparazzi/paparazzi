@@ -41,15 +41,7 @@
 #define Ap(f)
 #endif
 
-#ifdef STM32
-#include "init_hw.h"
-#endif
-
 int main( void ) {
-#ifdef STM32
-  hw_init();
-  sys_time_init();
-#endif
   Fbw(init);
   Ap(init);
   InitSysTimePeriodic();
@@ -57,9 +49,7 @@ int main( void ) {
     if (sys_time_periodic()) {
       Fbw(periodic_task);
       Ap(periodic_task);
-#ifdef STM32
       LED_PERIODIC();
-#endif
     }
     Fbw(event_task);
     Ap(event_task);

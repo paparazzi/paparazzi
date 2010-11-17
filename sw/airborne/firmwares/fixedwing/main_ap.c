@@ -508,7 +508,12 @@ void init_ap( void ) {
 #ifdef USE_UART1
   Uart1Init();
 #endif
-
+#ifdef USE_UART2
+  Uart2Init();
+#endif
+#ifdef USE_UART3
+  Uart3Init();
+#endif
 #ifdef USE_USB_SERIAL
   VCOM_init();
 #endif
@@ -520,9 +525,11 @@ void init_ap( void ) {
 #ifdef USE_I2C0
   i2c0_init();
 #endif
-
 #ifdef USE_I2C1
   i2c1_init();
+#endif
+#ifdef USE_I2C2
+  i2c2_init();
 #endif
 
   /************* Links initialization ***************/
