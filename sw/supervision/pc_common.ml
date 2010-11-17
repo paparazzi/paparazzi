@@ -107,7 +107,7 @@ let run_and_monitor = fun ?(once = false) ?file gui log com_name com args ->
     let (pi, out, unixfd, io_watch) = run_and_log log ("exec "^c) in
     pid := pi;
     outchan := unixfd;
-    let io_watch' = Glib.Io.add_watch [`HUP] (fun _ -> callback true;false) out in
+    let io_watch' = Glib.Io.add_watch [`HUP;`OUT] (fun _ -> callback true;false) out in
     watches := [ io_watch; io_watch'] in
 
   let remove_callback = fun () ->
