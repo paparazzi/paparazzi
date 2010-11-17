@@ -27,6 +27,10 @@
 ## COMMON FIXEDWING ALL TARGETS (SIM + AP + FBW ...)
 ##
 
+# temporary hack
+ifeq ($(ARCH), stm32)
+$(TARGET).CFLAGS += -DSTM32
+endif
 #
 # Board config + Include paths
 #
@@ -83,7 +87,7 @@ ifeq ($(ARCH), lpc21)
 else ifeq ($(ARCH), stm32)
   ns_srcs 		+= $(SRC_ARCH)/stm32_exceptions.c
   ns_srcs 		+= $(SRC_ARCH)/stm32_vector_table.c
-  ns_CFLAGS 		+= -DPERIPHERALS_AUTO_INIT
+#  ns_CFLAGS 		+= -DPERIPHERALS_AUTO_INIT
 endif
 
 ifeq ($(ARCH), stm32)
@@ -127,13 +131,15 @@ ns_srcs 		+= $(SRC_ARCH)/uart_hw.c
 # ANALOG
 #
 
-#ifeq ($(ARCH), lpc21)
   ns_CFLAGS 		+= -DADC
+#ifeq ($(ARCH), lpc21)
   ns_srcs 		+= $(SRC_ARCH)/adc_hw.c
 #else ifeq ($(ARCH), stm32)
 #  ns_srcs 		+= lisa/lisa_analog_plug.c
 #endif
-
+ifeq ($(ARCH), stm32)
+  ns_CFLAGS 		+= -DUSE_ADC1_2_IRQ_HANDLER
+endif
 
 ######################################################################
 ##

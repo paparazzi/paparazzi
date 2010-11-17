@@ -281,7 +281,8 @@ test_adc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVI
 test_adc.srcs   += downlink.c pprz_transport.c
 
 test_adc.srcs   += $(SRC_ARCH)/adc_hw.c
-test_adc.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
+test_adc.CFLAGS += -DUSE_AD1 -DUSE_AD1_1
+# -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
 test_adc.CFLAGS += -DUSE_ADC1_2_IRQ_HANDLER
 
 #
@@ -664,3 +665,20 @@ test_manual.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HAND
 test_manual.srcs   += $(SRC_SUBSYSTEMS)/radio_control.c                                 \
                   subsystems/radio_control/spektrum.c          \
                   $(SRC_ARCH)/subsystems/radio_control/spektrum_arch.c
+
+
+
+#
+# tunnel
+#
+tunnel.ARCHDIR = $(ARCH)
+tunnel.CFLAGS += -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
+tunnel.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+tunnel.srcs   += $(SRC_LISA)/tunnel_hw.c          \
+                 $(SRC_ARCH)/stm32_exceptions.c   \
+                 $(SRC_ARCH)/stm32_vector_table.c
+tunnel.CFLAGS += -DUSE_LED
+tunnel.srcs   += $(SRC_ARCH)/led_hw.c
+tunnel.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
+tunnel.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+tunnel.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
