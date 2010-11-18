@@ -499,7 +499,7 @@ void init_ap( void ) {
 #ifdef GYRO
   gyro_init();
 #endif
-#ifdef GPS
+#ifdef USE_GPS
   gps_init();
 #endif
 #ifdef USE_UART0
@@ -590,7 +590,7 @@ void init_ap( void ) {
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
 
-#ifdef GPS
+#ifdef USE_GPS
 #if !(defined HITL) && !(defined UBX_EXTERNAL) /** else comes through the datalink */
   if (GpsBuffer()) {
     ReadGpsBuffer();
@@ -617,7 +617,7 @@ void event_task_ap( void ) {
       gps_pos_available = FALSE;
     }
   }
-#endif /** GPS */
+#endif /** USE_GPS */
 
 
 #if defined DATALINK

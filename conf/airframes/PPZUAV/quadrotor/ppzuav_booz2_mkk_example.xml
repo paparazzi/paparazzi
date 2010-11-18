@@ -3,7 +3,7 @@
 <!-- PPZUAV_BOOZ2_MKK_EXAMPLE
      Booz2 main board
      Booz2 IMU
-     LEA-5H GPS configured for Booz2
+     LEA-5H USE_GPS configured for Booz2
      Datamodems configured for 57600 baud
      MKK style speed controllers-->
 

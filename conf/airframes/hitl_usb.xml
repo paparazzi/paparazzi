@@ -136,7 +136,7 @@ ap.srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 ap.CFLAGS += -DINTER_MCU
 ap.srcs += inter_mcu.c
 
-ap.CFLAGS += -DGPS -DUBX
+ap.CFLAGS += -DUSE_GPS -DUBX
 
 ap.srcs += gps_ubx.c gps.c latlong.c
 

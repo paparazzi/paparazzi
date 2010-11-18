@@ -205,7 +205,7 @@ ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c pprz_transport.c
 ap.CFLAGS += -DINTER_MCU -DMCU_SPI_LINK -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0
 ap.srcs += inter_mcu.c link_mcu.c spi.c $(SRC_ARCH)/spi_hw.c
 
-ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400
+ap.CFLAGS += -DUSE_GPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400
 ap.srcs += gps_ubx.c gps.c latlong.c
 
 # ADCs for infrared

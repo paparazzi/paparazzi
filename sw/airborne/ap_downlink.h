@@ -167,7 +167,7 @@
 
 #define PERIODIC_SEND_TUNE_ROLL(_chan) DOWNLINK_SEND_TUNE_ROLL(_chan, &estimator_p,&estimator_phi, &h_ctl_roll_setpoint);
 
-#if defined GPS || defined SITL || defined USE_GPS_XSENS
+#if defined USE_GPS || defined SITL || defined USE_GPS_XSENS
 #define PERIODIC_SEND_GPS_SOL(_chan) DOWNLINK_SEND_GPS_SOL(_chan, &gps_Pacc, &gps_Sacc, &gps_PDOP, &gps_numSV)
 #endif
 

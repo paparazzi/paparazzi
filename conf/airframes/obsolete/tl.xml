@@ -106,7 +106,7 @@ ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c pprz_transport.c $(TL)/tl_telemetry.
 ap.CFLAGS += -DTL_AP_MODE_AUTO=TL_AP_MODE_NAV -DDT_VFILTER="(1./60.)"
 ap.srcs += $(TL)/tl_autopilot.c $(TL)/tl_control.c $(TL)/tl_estimator.c $(TL)/tl_vfilter.c
 
-ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400 -DDOWNLINK_GPS_DEVICE=DOWNLINK_AP_DEVICE -DGPS_CONFIGURE -DUSER_GPS_CONFIGURE=\"$(TL)/tl_gps_configure.h\" -DGPS_BAUD=38400
+ap.CFLAGS += -DUSE_GPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400 -DDOWNLINK_GPS_DEVICE=DOWNLINK_AP_DEVICE -DGPS_CONFIGURE -DUSER_GPS_CONFIGURE=\"$(TL)/tl_gps_configure.h\" -DGPS_BAUD=38400
 ap.srcs += gps_ubx.c gps.c latlong.c
 
 ap.srcs += $(TL)/tl_imu.c

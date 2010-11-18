@@ -270,7 +270,7 @@ ap.srcs += $(SRC_ARCH)/adc_hw.c
 ap.CFLAGS += -DGYRO -DADXRS150
 ap.srcs += gyro.c
 
-ap.CFLAGS += -DGPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B38400 -DGPS_USE_LATLONG
+ap.CFLAGS += -DUSE_GPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B38400 -DGPS_USE_LATLONG
 # -DGPS_LED=2
 ap.srcs += gps_ubx.c gps.c latlong.c
 

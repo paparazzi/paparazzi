@@ -223,7 +223,7 @@ ap.srcs += inter_mcu.c
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_4
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
-ap.CFLAGS += -DGPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B38400
+ap.CFLAGS += -DUSE_GPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B38400
 
 ap.srcs += gps_ubx.c gps.c latlong.c
 

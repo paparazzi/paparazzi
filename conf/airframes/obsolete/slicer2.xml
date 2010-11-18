@@ -2,7 +2,7 @@
 
 <!-- Slicer (http://www.recherche.enac.fr/wiki/index.php/Image:Slicer.jpg)
      Two ailevons
-     Tiny 1.1, tilted infrared sensor, roll gyro, unconfigured GPS at 9600
+     Tiny 1.1, tilted infrared sensor, roll gyro, unconfigured USE_GPS at 9600
      3 cells lipo
      Fixed camera pointing down -->
 
@@ -193,7 +193,7 @@ ap.srcs += $(SRC_ARCH)/adc_hw.c
 ap.CFLAGS += -DGYRO -DADXRS150
 ap.srcs += gyro.c
 
-ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B9600 -DGPS_LED=2 -DDOWNLINK_GPS_1Hz
+ap.CFLAGS += -DUSE_GPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B9600 -DGPS_LED=2 -DDOWNLINK_GPS_1Hz
 ap.CFLAGS += -DGPS_CONFIGURE -DGPS_BAUD=38400
 
 ap.srcs += gps_ubx.c gps.c latlong.c
