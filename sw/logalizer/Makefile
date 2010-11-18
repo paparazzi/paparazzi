@@ -25,17 +25,17 @@ Q=@
 
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
-INCLUDES= -I +xml-light -I +lablgtk2 -I ../lib/ocaml 
+INCLUDES= $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format lablgtk2) -I ../lib/ocaml 
 
 all: play plotter plot sd2log
 
 play : log_file.cmo play_core.cmo play.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo $^
+	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma $(shell ocamlfind query -r -i-format lablgtk2) -I ../lib/ocaml lablgtk.cma lib-pprz.cma gtkInit.cmo $^
 
 play-nox : play_core.cmo play-nox.cmo
 	@echo OL $@
-	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma -I +lablgtk2 -I ../lib/ocaml lablgtk.cma lib-pprz.cma  $^
+	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma $(shell ocamlfind query -r -i-format lablgtk2) -I ../lib/ocaml lablgtk.cma lib-pprz.cma  $^
 
 plotter : plotter.cmo
 	@echo OL $@
