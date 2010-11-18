@@ -455,10 +455,10 @@ void periodic_task_ap( void ) {
       gyro_update();
 #endif
 
-#ifdef INFRARED
+#ifdef USE_INFRARED
       ir_update();
       estimator_update_state_infrared();
-#endif /* INFRARED */
+#endif /* USE_INFRARED */
       h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
       v_ctl_throttle_slew();
       ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
@@ -493,7 +493,7 @@ void init_ap( void ) {
 #endif /* SINGLE_MCU */
 
   /************* Sensors initialization ***************/
-#ifdef INFRARED
+#ifdef USE_INFRARED
   ir_init();
 #endif
 #ifdef GYRO

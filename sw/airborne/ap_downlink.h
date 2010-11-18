@@ -115,7 +115,7 @@
 #define PERIODIC_SEND_SETTINGS(_chan) {}
 #endif
 
-#if defined INFRARED || INFRARED_I2C
+#if defined USE_INFRARED || USE_INFRARED_I2C
 #define PERIODIC_SEND_IR_SENSORS(_chan) DOWNLINK_SEND_IR_SENSORS(_chan, &ir_ir1, &ir_ir2, &ir_pitch, &ir_roll, &ir_top);
 #else
 #define PERIODIC_SEND_IR_SENSORS(_chan) ;

@@ -21,7 +21,7 @@ value set_ir(value roll __attribute__ ((unused)),
              value top __attribute__ ((unused)),
 	     value air_speed
 	     ) {
-#if defined  INFRARED || INFRARED_I2C
+#if defined  USE_INFRARED || USE_INFRARED_I2C
   ir_roll = Int_val(roll);
   ir_pitch = Int_val(front);
   ir_top = Int_val(top);
