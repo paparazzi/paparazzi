@@ -31,12 +31,12 @@ int main(int argc, char** argv) {
 
   /* Initalize event library */
   event_init();
-  
+
   if (fms_periodic_init(main_periodic)) {
     TRACE(TRACE_ERROR, "%s", "failed to start periodic generator\n");
-    return -1; 
+    return -1;
   }
-  
+
   if (spi_link_init()) {
     TRACE(TRACE_ERROR, "%s", "failed to open SPI link\n");
     return -1;
@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
   struct event datalink_event;
   event_set(&datalink_event, network->socket_in, EV_READ, on_datalink_event, &datalink_event);
   event_add(&datalink_event, NULL);
-  
+
   event_dispatch();
 
   return 0;

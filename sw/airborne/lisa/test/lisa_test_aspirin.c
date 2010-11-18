@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <stm32/gpio.h>
@@ -78,7 +78,7 @@ static uint8_t foo=0;
 
 static inline void main_periodic_task( void ) {
   //  LED_TOGGLE(6);
-  RunOnceEvery(10, 
+  RunOnceEvery(10,
 	       {
 		 DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
 		 LED_PERIODIC();
@@ -118,7 +118,7 @@ static inline void main_periodic_task( void ) {
     break;
   case 7:
     /* set mag to continuous measurements */
-    i2c2.buf[0] = HMC5843_REG_MODE; 
+    i2c2.buf[0] = HMC5843_REG_MODE;
     i2c2.buf[1] = 0x00;
     i2c2_transmit(HMC5843_ADDR, 2, &i2c_done);
     break;
@@ -135,7 +135,7 @@ static inline void main_periodic_task( void ) {
 
 
   //  AccToggleSelect();
- 
+
 }
 
 
@@ -145,7 +145,7 @@ static inline void main_event_task( void ) {
 }
 
 static inline void main_init_hw( void ) {
-  
+
   /* set mag ss as output and assert it (on PC12)    = sda         ------------------------------*/
   /*     mag drdy  (on PB5)                          = mag int                                   */
   /* set mag reset as output and assert it (on PC13) = scl         ------------------------------*/
@@ -209,8 +209,8 @@ static inline void main_init_hw( void ) {
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  
-  NVIC_Init(&NVIC_InitStructure); 
+
+  NVIC_Init(&NVIC_InitStructure);
 
 
 
@@ -220,46 +220,46 @@ static inline void main_init_hw( void ) {
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
-  
+
   GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource5);
   EXTI_InitStructure.EXTI_Line = EXTI_Line3;
   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
   EXTI_Init(&EXTI_InitStructure);
-  
+
   NVIC_InitStructure.NVIC_IRQChannel = EXTI3_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  
-  NVIC_Init(&NVIC_InitStructure); 
 
-  
+  NVIC_Init(&NVIC_InitStructure);
+
+
   /* Enable SPI2 Periph clock -------------------------------------------------*/
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
-  
+
   /* Configure GPIOs: SCK, MISO and MOSI  --------------------------------*/
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
-  
+
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO , ENABLE);
   SPI_Cmd(SPI2, ENABLE);
 
   /* configure SPI */
-  SPI_InitTypeDef SPI_InitStructure;					
-  SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;	
-  SPI_InitStructure.SPI_Mode = SPI_Mode_Master;			
-  SPI_InitStructure.SPI_DataSize = SPI_DataSize_16b;			
-  SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;				
-  SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;			
-  SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;				
-  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;	
-  SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;			
-  SPI_InitStructure.SPI_CRCPolynomial = 7;				
-  SPI_Init(SPI2, &SPI_InitStructure);					
+  SPI_InitTypeDef SPI_InitStructure;
+  SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
+  SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
+  SPI_InitStructure.SPI_DataSize = SPI_DataSize_16b;
+  SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;
+  SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
+  SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
+  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
+  SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
+  SPI_InitStructure.SPI_CRCPolynomial = 7;
+  SPI_Init(SPI2, &SPI_InitStructure);
 
 
 }

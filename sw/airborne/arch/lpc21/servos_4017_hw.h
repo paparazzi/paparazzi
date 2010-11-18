@@ -27,7 +27,7 @@ extern uint8_t servos_4017_idx;
 
 #define ACTUATORS_IT TIR_MR1I
 
-#ifndef SERVOS_4017_CLOCK_FALLING    
+#ifndef SERVOS_4017_CLOCK_FALLING
 #define SERVOS_4017_ISR() {					\
     if (servos_4017_idx >= _4017_NB_CHANNELS) {			\
       SetBit(IO1SET, SERVO_RESET_PIN);				\
@@ -74,6 +74,6 @@ extern uint8_t servos_4017_idx;
       servos_4017_idx++;					\
     }								\
   }
-#endif /* SERVOS_4017_CLOCK_ON_RESET */	
+#endif /* SERVOS_4017_CLOCK_ON_RESET */
 
 #endif /* SERVOS_4017_HW_H */

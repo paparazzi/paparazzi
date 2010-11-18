@@ -145,7 +145,7 @@ void stabilization_attitude_run(bool_t  in_flight) {
     OFFSET_AND_ROUND2((stabilization_gains.i.z  * stabilization_att_sum_err.psi), 10);
 
   /* sum feedforward and feedback */
-#ifdef USE_HELI 
+#ifdef USE_HELI
   stabilization_cmd[COMMAND_ROLL] =
     OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_ROLL]+stabilization_att_ff_cmd[COMMAND_ROLL]), 12);
 
@@ -163,6 +163,6 @@ void stabilization_attitude_run(bool_t  in_flight) {
 
   stabilization_cmd[COMMAND_YAW] =
     OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_YAW]+stabilization_att_ff_cmd[COMMAND_YAW]), 16);
- #endif   
+ #endif
 
 }

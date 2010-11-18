@@ -1,6 +1,6 @@
 /*
  * $Id: booz2_main.c 3049 2009-02-24 16:51:25Z poine $
- *  
+ *
  * Copyright (C) 2008  Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -92,9 +92,9 @@ static void on_rc_cmd(struct CscRCMsg *msg)
   rc_values[RADIO_PITCH] = -CSC_RC_SCALE*(msg->right_stick_vertical - CSC_RC_OFFSET);
   rc_values[RADIO_YAW]   =  CSC_RC_SCALE*((msg->left_stick_horizontal_and_aux2 & ~(3 << 13)) - CSC_RC_OFFSET);
   uint8_t mode = (msg->left_stick_vertical_and_flap_mix & (3 << 13)) >> 13;
-  rc_values[RADIO_MODE]  =  mode ? -7000 : ( (mode == 1) ? 0 : 7000); 
+  rc_values[RADIO_MODE]  =  mode ? -7000 : ( (mode == 1) ? 0 : 7000);
   aux2_flag = (msg->left_stick_horizontal_and_aux2 >> 13) & 0x1;
-  rc_values[RADIO_MODE2] = (aux2_flag == 0) ? -7000 : ( (aux2_flag == 1) ? 0 : 7000); 
+  rc_values[RADIO_MODE2] = (aux2_flag == 0) ? -7000 : ( (aux2_flag == 1) ? 0 : 7000);
   rc_values[RADIO_THROTTLE] = -CSC_RC_SCALE*((msg->left_stick_vertical_and_flap_mix & ~(3 << 13)) - CSC_RC_OFFSET);
 
   time_since_last_ppm = 0;
@@ -134,9 +134,9 @@ static void on_gpspos_cmd( struct CscGPSPosMsg *msg )
       booz_ins_gps_pos_cm_ned.z = msg->val;
       break;
     default:
-      // Invalid msg 
+      // Invalid msg
       break;
-  } 
+  }
 }
 
 static void csc_main_init( void ) {
@@ -175,7 +175,7 @@ static void csc_main_init( void ) {
 static void csc_main_periodic( void )
 {
   static uint32_t csc_loops = 0;
-  
+
   PeriodicSendAp(DefaultChannel);
   radio_control_periodic_task();
 

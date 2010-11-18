@@ -14,7 +14,7 @@
 #define STX_UDP_TX  0x99
 #define STX_UDP_RX  0x99
 #define PPRZ_PROTOCOL_OVERHEAD 4
-#define UdpTransportPutTimestamp(x) {} 
+#define UdpTransportPutTimestamp(x) {}
 #endif
 
 #ifndef MSG_TIMESTAMP

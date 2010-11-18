@@ -29,8 +29,8 @@
 *                             LPC2000 ARM7 Interface (c)2005 Martin Thomas    *
 \*****************************************************************************/
 
-#ifndef __LPC2000_SPI_H_ 
-#define __LPC2000_SPI_H_ 
+#ifndef __LPC2000_SPI_H_
+#define __LPC2000_SPI_H_
 
 #ifndef FALSE
 #define FALSE	0x00

@@ -74,7 +74,7 @@ inline int32_t vor_int_filter_bp_ref( int16_t xn) {
   int32_t ret = _yn;
 
   _yn = (_yn/VIF_FACT);
-  
+
   x6 = x5;
   x5 = x4;
   x4 = x3;
@@ -91,7 +91,7 @@ inline int32_t vor_int_filter_bp_ref( int16_t xn) {
 
 #undef VIF_RES
 #define VIF_RES  11
-  
+
   return (ret/VIF_FACT);
 }
 
@@ -109,7 +109,7 @@ inline int32_t vor_int_filter_lp_ref( int16_t xn) {
   const int32_t b1 = VIF_NCOEF(-1.3532012520987992676424482851871289312840);
   const int32_t b2 = VIF_PCOEF(0.8279475542861756132140271802200004458427);
   const int32_t b3 = VIF_NCOEF(-0.1745393568578767484744673765817424282432);
-  
+
   // printf("Num : %d %d %d %d\n",a0,a1,a2,a3);
   // printf("Den : %d %d %d %d\n",b0,b1,b2,b3);
 
@@ -128,11 +128,11 @@ inline int32_t vor_int_filter_lp_ref( int16_t xn) {
                - b1 * _y1
                - b2 * _y2
                - b3 * _y3;
-  
+
   int32_t ret = _yn;
 
   _yn = (_yn/VIF_FACT);
-  
+
   x3 = x2;
   x2 = x1;
   x1 = xn;
@@ -143,12 +143,12 @@ inline int32_t vor_int_filter_lp_ref( int16_t xn) {
 
 #undef VIF_RES
 #define VIF_RES  7
-  
+
   return (ret/VIF_FACT);
 }
 
 inline int32_t vor_int_filter_bp_var( int16_t xn) {
-  
+
 #undef VIF_RES
 #define VIF_RES  13
 
@@ -161,7 +161,7 @@ inline int32_t vor_int_filter_bp_var( int16_t xn) {
   const int32_t b1 = VIF_NCOEF(-2.3715994101489439000000000000000000000000);
   const int32_t b2 = VIF_PCOEF(1.9257572822812750000000000000000000000000);
   const int32_t b3 = VIF_NCOEF(-0.5307171049756953500000000000000000000000);
-  
+
   // printf("Num : %d %d %d %d\n",a0,a1,a2,a3);
   // printf("Den : %d %d %d %d\n",b0,b1,b2,b3);
 
@@ -182,7 +182,7 @@ inline int32_t vor_int_filter_bp_var( int16_t xn) {
 	     - b3 * _y3;
 
   _yn = (_yn/VIF_FACT);
-  
+
   x3 = x2;
   x2 = x1;
   x1 = xn;
@@ -208,7 +208,7 @@ inline int32_t vor_int_filter_lp_decim1v( int16_t xn) {
   const int32_t b1 = VIF_NCOEF(-2.3740947437093518068706998747074976563454);
   const int32_t b2 = VIF_PCOEF(1.9293556690912150308747641247464343905449);
   const int32_t b3 = VIF_NCOEF(-0.5320753683120916788240606365434359759092);
-  
+
   // printf("Num : %d %d %d %d\n",a0,a1,a2,a3);
   // printf("Den : %d %d %d %d\n",b0,b1,b2,b3);
 
@@ -227,7 +227,7 @@ inline int32_t vor_int_filter_lp_decim1v( int16_t xn) {
                - b1 * _y1
                - b2 * _y2
                - b3 * _y3;
-  
+
   _yn = (_yn/VIF_FACT);
 
   x3 = x2;
@@ -274,9 +274,9 @@ inline int32_t vor_int_filter_lp_decim1r( int16_t xn) {
                - b1 * _y1
                - b2 * _y2
                - b3 * _y3;
-  
+
   _yn = (_yn/VIF_FACT);
-  
+
   x3 = x2;
   x2 = x1;
   x1 = xn;
@@ -302,7 +302,7 @@ inline int32_t vor_int_filter_lp_decim2v( int16_t xn) {
   const int32_t b1 = VIF_NCOEF(-2.3740947437093518068706998747074976563454);
   const int32_t b2 = VIF_PCOEF(1.9293556690912150308747641247464343905449);
   const int32_t b3 = VIF_NCOEF(-0.5320753683120916788240606365434359759092);
-  
+
   // printf("Num : %d %d %d %d\n",a0,a1,a2,a3);
   // printf("Den : %d %d %d %d\n",b0,b1,b2,b3);
 
@@ -321,11 +321,11 @@ inline int32_t vor_int_filter_lp_decim2v( int16_t xn) {
                - b1 * _y1
                - b2 * _y2
                - b3 * _y3;
-  
+
   int32_t ret = _yn;
 
   _yn = (_yn/VIF_FACT);
-  
+
   x3 = x2;
   x2 = x1;
   x1 = xn;
@@ -336,7 +336,7 @@ inline int32_t vor_int_filter_lp_decim2v( int16_t xn) {
 
 #undef VIF_RES
 #define VIF_RES  12
-  
+
   return (ret/VIF_FACT);
 }
 
@@ -354,7 +354,7 @@ inline int32_t vor_int_filter_lp_decim2r( int16_t xn) {
   const int32_t b1 = VIF_NCOEF(-2.3740947437093518068706998747074976563454);
   const int32_t b2 = VIF_PCOEF(1.9293556690912150308747641247464343905449);
   const int32_t b3 = VIF_NCOEF(-0.5320753683120916788240606365434359759092);
-  
+
   // printf("Num : %d %d %d %d\n",a0,a1,a2,a3);
   // printf("Den : %d %d %d %d\n",b0,b1,b2,b3);
 
@@ -373,9 +373,9 @@ inline int32_t vor_int_filter_lp_decim2r( int16_t xn) {
                - b1 * _y1
                - b2 * _y2
                - b3 * _y3;
-  
+
   _yn = (_yn/VIF_FACT);
-  
+
   x3 = x2;
   x2 = x1;
   x1 = xn;
@@ -403,7 +403,7 @@ inline int32_t vor_int_filter_lp_var3( int16_t xn) {
   const int32_t b1 = VIF_NCOEF(-2.2545578663321697021615364064928144216537);
   const int32_t b2 = VIF_PCOEF(1.7624338481987593674205072602489963173866);
   const int32_t b3 = VIF_NCOEF(-0.4704842938088966697307569120312109589577);
-  
+
   // printf("Num : %d %d %d %d\n",a0,a1,a2,a3);
   // printf("Den : %d %d %d %d\n",b0,b1,b2,b3);
 
@@ -422,9 +422,9 @@ inline int32_t vor_int_filter_lp_var3( int16_t xn) {
                - b1 * _y1
                - b2 * _y2
                - b3 * _y3;
-  
+
   _yn = (_yn/VIF_FACT);
-  
+
   x3 = x2;
   x2 = x1;
   x1 = xn;
@@ -450,7 +450,7 @@ inline int32_t vor_int_filter_lp_fm3( int16_t xn) {
   const int32_t b1 = VIF_NCOEF(-2.2545578663321697021615364064928144216537);
   const int32_t b2 = VIF_PCOEF(1.7624338481987593674205072602489963173866);
   const int32_t b3 = VIF_NCOEF(-0.4704842938088966697307569120312109589577);
-  
+
   // printf("Num : %d %d %d %d\n",a0,a1,a2,a3);
   // printf("Den : %d %d %d %d\n",b0,b1,b2,b3);
 
@@ -469,9 +469,9 @@ inline int32_t vor_int_filter_lp_fm3( int16_t xn) {
                - b1 * _y1
                - b2 * _y2
                - b3 * _y3;
-  
+
   _yn = (_yn/VIF_FACT);
-  
+
   x3 = x2;
   x2 = x1;
   x1 = xn;
@@ -521,9 +521,9 @@ inline int32_t vor_int_filter_lp_var4( int16_t xn) {
                - b2 * _y2
                - b3 * _y3
                - b4 * _y4;
-  
+
   _yn = (_yn/VIF_FACT);
-  
+
   x4 = x3;
   x3 = x2;
   x2 = x1;
@@ -573,9 +573,9 @@ inline int32_t vor_int_filter_lp_fm4( int16_t xn) {
                - b2 * _y2
                - b3 * _y3
                - b4 * _y4;
-  
+
   _yn = (_yn/VIF_FACT);
-  
+
   x4 = x3;
   x3 = x2;
   x2 = x1;

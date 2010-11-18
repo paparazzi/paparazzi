@@ -7,24 +7,24 @@
 #define CSC_GPS_AXIS_IDX_Y		1
 #define CSC_GPS_AXIS_IDX_Z		2
 
-typedef enum { 
-	CSC_SERVO_CMD_ID 				=  0, 
-	CSC_MOTOR_CMD_ID 				=  1, 
-	CSC_PROP_CMD_ID 				=  2, 
-	CSC_MOTOR_STATUS_ID			=  3, 
-	CSC_BOARD_STATUS_ID			=  4, 
-	CSC_BOARD_ADCVOLTS_ID		=  5, 
-	CSC_RC_ID								=  6, 
-	CSC_GPS_FIX_ID					=  7, 
-	CSC_GPS_POS_ID					=  8, 
-	CSC_GPS_ACC_ID					=  9, 
-	CSC_PROP2_CMD_ID				= 10, 
-	CSC_VANE_MSG_ID					= 11, 
-	CSC_PRESSURE_MSG_ID			= 12, 
-	CSC_BARO_MSG_ID 				= 13, 
-	CSC_BAT_MSG_ID 					= 14, 
-	CSC_AIRSPEED_MSG_ID 		= 15, 
-	
+typedef enum {
+	CSC_SERVO_CMD_ID 				=  0,
+	CSC_MOTOR_CMD_ID 				=  1,
+	CSC_PROP_CMD_ID 				=  2,
+	CSC_MOTOR_STATUS_ID			=  3,
+	CSC_BOARD_STATUS_ID			=  4,
+	CSC_BOARD_ADCVOLTS_ID		=  5,
+	CSC_RC_ID								=  6,
+	CSC_GPS_FIX_ID					=  7,
+	CSC_GPS_POS_ID					=  8,
+	CSC_GPS_ACC_ID					=  9,
+	CSC_PROP2_CMD_ID				= 10,
+	CSC_VANE_MSG_ID					= 11,
+	CSC_PRESSURE_MSG_ID			= 12,
+	CSC_BARO_MSG_ID 				= 13,
+	CSC_BAT_MSG_ID 					= 14,
+	CSC_AIRSPEED_MSG_ID 		= 15,
+
 	CSC_ID_COUNT
 } csc_can_msg_id;
 

@@ -35,7 +35,7 @@
 #include "efs.h"
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * esint8 efs_init(EmbeddedFileSystem * efs,eint8* opts)
  * Description: This function initialises all subelements of a filesystem.
  * It sets the pointerchain and verifies each step.
@@ -51,7 +51,7 @@ esint8 efs_init(EmbeddedFileSystem * efs,eint8* opts)
 		if(efs->myPart.activePartition==-1){
 			efs->myDisc.partitions[0].type=0x0B;
 			efs->myDisc.partitions[0].LBA_begin=0;
-			efs->myDisc.partitions[0].numSectors=efs->myCard.sectorCount;	
+			efs->myDisc.partitions[0].numSectors=efs->myCard.sectorCount;
 			/*efs->myPart.activePartition = 0;*/
 			/*efs->myPart.disc = &(efs->myDisc);*/
 			part_initPartition(&efs->myPart, &efs->myDisc);

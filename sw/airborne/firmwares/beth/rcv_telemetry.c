@@ -1,6 +1,6 @@
 /*
  * $Id: datalink.c 5626 2010-08-23 18:10:19Z flixr $
- *  
+ *
  * Copyright (C) 2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 /** \file rcv_telemetry.c
@@ -70,7 +70,7 @@ uint16_t adc2;
 10 NAVIGATION
 12 BAT
 16 DESIRED
-35 
+35
 36
 37 ENERGY
 42 ESTIMATOR
@@ -97,8 +97,8 @@ void dl_parse_msg(void) {
       adc1 = DL_ADC_GENERIC_val1(dl_buffer);
       adc2 = DL_ADC_GENERIC_val2(dl_buffer);
       printf("ADC: %d %d\n",adc1,adc2);
-  }  
-  
+  }
+
   else {
     //printf("Tiny msg_id %d unknown\n",msg_id);
   }

@@ -1,5 +1,5 @@
 /*
-	LPCUSB, an USB device driver for LPC microcontrollers	
+	LPCUSB, an USB device driver for LPC microcontrollers
 	Copyright (C) 2006 Bertrik Sikken (bertrik@sikken.nl)
 
 	This library is free software; you can redistribute it and/or
@@ -40,20 +40,20 @@ static void HandleUsbReset(U8 bDevStatus)
 	=======
 		Initialises the USB hardware and sets up the USB stack by
 		installing default callbacks.
-	
+
 **************************************************************************/
 BOOL USBInit(void)
 {
 	// init hardware
 	USBHwInit();
-	
+
 	// register bus reset handler
 	USBHwRegisterDevIntHandler(HandleUsbReset);
-	
+
 	// register control transfer handler on EP0
 	USBHwRegisterEPIntHandler(0x00, MAX_PACKET_SIZE0, USBHandleControlTransfer);
 	USBHwRegisterEPIntHandler(0x80, MAX_PACKET_SIZE0, USBHandleControlTransfer);
-	
+
 	// register standard request handler
 	USBRegisterRequestHandler(REQTYPE_TYPE_STANDARD, USBHandleStandardRequest);
 

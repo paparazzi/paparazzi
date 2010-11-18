@@ -57,7 +57,7 @@ static uint8_t spistream_msg[123];
 int main(int argc, char *argv[]) {
 
   parse_command_line(argc, argv);
-  
+
   main_init();
   TRACE(TRACE_DEBUG, "%s", "Entering mainloop\n");
 
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 	while(1) {
 		sleep(100);
 	}
-  
+
   TRACE(TRACE_DEBUG, "%s", "leaving mainloop, goodbye!\n");
 
   return 0;
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 static void main_periodic(int my_sig_num) {
 #if 0
 	static int32_t every_100 = 1000;
-	if(every_100-- == 0) { 
+	if(every_100-- == 0) {
 		every_100 = 1000;
 		spistream_send_msg(spistream_msg, 21, SPISTREAM_NO_WAIT);
 /*
@@ -84,7 +84,7 @@ static void main_periodic(int my_sig_num) {
 */
 	}
 #endif
-	spistream_event(); 
+	spistream_event();
 }
 
 static void spistream_event() {
@@ -92,15 +92,15 @@ static void spistream_event() {
   struct AutopilotMessagePTStream msg_in;
   struct AutopilotMessagePTStream msg_out;
   static uint8_t pkg_size = sizeof(msg_in.pkg_data);
-  uint8_t crc_valid; 
-  uint8_t cnt; 
+  uint8_t crc_valid;
+  uint8_t cnt;
 
-  spistream_write_pkg(&msg_out); 
+  spistream_write_pkg(&msg_out);
 
-	if(msg_out.message_cnt != 0) { 
-		printf("Package out: Size: %3d MID: %3d PCNTD: %3d | ", 
+	if(msg_out.message_cnt != 0) {
+		printf("Package out: Size: %3d MID: %3d PCNTD: %3d | ",
 				pkg_size, msg_out.message_cnt, msg_out.package_cntd);
-		for(cnt = 0; cnt < pkg_size; cnt++) { 
+		for(cnt = 0; cnt < pkg_size; cnt++) {
 			printf("%3d ", msg_out.pkg_data[cnt]);
 		}
 		printf("\n");
@@ -108,51 +108,51 @@ static void spistream_event() {
 
   spi_link_send(&msg_out, sizeof(struct AutopilotMessageCRCFrame), &msg_in, &crc_valid);
 /*
-	if(msg_in.message_cnt != 0) { 
-		printf("Package in:  Size: %3d MID: %3d PCNTD: %3d | ", 
+	if(msg_in.message_cnt != 0) {
+		printf("Package in:  Size: %3d MID: %3d PCNTD: %3d | ",
 				pkg_size, msg_in.message_cnt, msg_in.package_cntd);
-		for(cnt = 0; cnt < pkg_size; cnt++) { 
+		for(cnt = 0; cnt < pkg_size; cnt++) {
 			printf("%3d ", msg_in.pkg_data[cnt]);
 		}
 		printf("\n");
 	}
 */
-  spistream_read_pkg(&msg_in); 
+  spistream_read_pkg(&msg_in);
 }
 
-static void on_spistream_msg_received(uint8_t msg_id, 
-                                      uint8_t * data, 
+static void on_spistream_msg_received(uint8_t msg_id,
+                                      uint8_t * data,
                                       uint16_t num_bytes) {
-	static uint16_t plot_freq = 100; 
+	static uint16_t plot_freq = 100;
 
-	uint16_t log_bytes; 
-  uint8_t cnt; 
-	struct tm * timeinfo; 
+	uint16_t log_bytes;
+  uint8_t cnt;
+	struct tm * timeinfo;
 	time_t c_time;
 	char time_str[30];
 
-	plot_freq = 100; 
-	time(&c_time); 
+	plot_freq = 100;
+	time(&c_time);
 
 	timeinfo = localtime(&c_time);
-	strftime(time_str, 30, " %X ", timeinfo); 
+	strftime(time_str, 30, " %X ", timeinfo);
 
-	log_bytes = num_bytes; 
-	if(log_bytes > 48) { log_bytes = 48; } 
+	log_bytes = num_bytes;
+	if(log_bytes > 48) { log_bytes = 48; }
 	printf("SPI message received: ");
 	printf("%s | Length: %3d | id: %3d | UART%d | ", time_str, num_bytes, msg_id, data[0]);
-	for(cnt = 1; cnt < log_bytes; cnt++) { 
+	for(cnt = 1; cnt < log_bytes; cnt++) {
 		printf("%02X ", data[cnt]);
 	}
 	printf("\n");
 }
 
-static void on_spistream_msg_sent(void) { 
+static void on_spistream_msg_sent(void) {
 //  TRACE(TRACE_DEBUG, "%s", "SPI message sent \n");
 }
 
 static void main_init(void) {
-  uint8_t byte_idx; 
+  uint8_t byte_idx;
 
   TRACE(TRACE_DEBUG, "%s", "Starting initialization\n");
 
@@ -162,29 +162,29 @@ static void main_init(void) {
     return;
   }
 
-  spistream_init(&on_spistream_msg_received, 
-                 &on_spistream_msg_sent); 
+  spistream_init(&on_spistream_msg_received,
+                 &on_spistream_msg_sent);
 /*
-	spistream_msg[0] = 0; 
-  for(byte_idx=1; byte_idx < 123; byte_idx += 4) { 
+	spistream_msg[0] = 0;
+  for(byte_idx=1; byte_idx < 123; byte_idx += 4) {
     spistream_msg[byte_idx]   = 0xDE;
     spistream_msg[byte_idx+1] = 0xAD;
     spistream_msg[byte_idx+2] = 0xBE;
     spistream_msg[byte_idx+3] = 0xEF;
   }
 */
-  for(byte_idx=1; byte_idx < 123; byte_idx++) { 
-    spistream_msg[byte_idx] = byte_idx; 
+  for(byte_idx=1; byte_idx < 123; byte_idx++) {
+    spistream_msg[byte_idx] = byte_idx;
   }
   /* Initalize the event library */
   event_init();
-  
+
   /* Initalize our ô so accurate periodic timer */
   if (fms_periodic_init(main_periodic)) {
     TRACE(TRACE_ERROR, "%s", "failed to start periodic generator\n");
-    return; 
+    return;
   }
-  
+
   TRACE(TRACE_DEBUG, "%s", "Initialization completed\n");
 }
 

@@ -10,7 +10,7 @@
 #include <unistd.h>
 
 //#define TRACE(type,fmt,args...)    fprintf(stderr, fmt, args)
-#define TRACE(type,fmt,args...) 
+#define TRACE(type,fmt,args...)
 #define TRACE_ERROR 1
 
 struct FmsSerialPort* serial_port_new(void) {
@@ -52,7 +52,7 @@ int  serial_port_open_raw(struct FmsSerialPort* me, const char* device, speed_t 
     TRACE(TRACE_ERROR,"%s, get term settings failed: %s (%d)\n", device, strerror(errno), errno);
     close(me->fd);
     return -1;
-  }   
+  }
   me->cur_termios = me->orig_termios;
   /* input modes  */
   me->cur_termios.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|INPCK|ISTRIP|INLCR|IGNCR
@@ -80,7 +80,7 @@ int  serial_port_open_raw(struct FmsSerialPort* me, const char* device, speed_t 
 
 int  serial_port_open(struct FmsSerialPort* me, const char* device,
 		      void(*term_conf_callback)(struct termios*, speed_t*)) {
-  
+
   speed_t speed;
   if ((me->fd = open(device, O_RDWR | O_NONBLOCK)) < 0) {
     TRACE(TRACE_ERROR,"%s, open failed: %s (%d)\n", device, strerror(errno), errno);
@@ -90,7 +90,7 @@ int  serial_port_open(struct FmsSerialPort* me, const char* device,
     TRACE(TRACE_ERROR,"%s, get term settings failed: %s (%d)\n", device, strerror(errno), errno);
     close(me->fd);
     return -1;
-  }   
+  }
   me->cur_termios = me->orig_termios;
   term_conf_callback(&me->cur_termios, &speed);
   if (cfsetispeed(&me->cur_termios, speed)) {
@@ -105,7 +105,7 @@ int  serial_port_open(struct FmsSerialPort* me, const char* device,
   }
   serial_port_flush(me);
   return 0;
-  
+
 }
 
 void serial_port_close(struct FmsSerialPort* me) {
@@ -116,16 +116,16 @@ void serial_port_close(struct FmsSerialPort* me) {
   if (tcflush(me->fd, TCIOFLUSH)) {
     TRACE(TRACE_ERROR,"flushing (%s) (%d)\n", strerror(errno), errno);
     close(me->fd);
-    return; 
+    return;
   }
   if (tcsetattr(me->fd, TCSADRAIN, &me->orig_termios)) {        // Restore modes.
     TRACE(TRACE_ERROR,"restoring term attributes (%s) (%d)\n", strerror(errno), errno);
     close(me->fd);
-    return; 
+    return;
   }
   if (close(me->fd)) {
     TRACE(TRACE_ERROR,"closing %s (%d)\n", strerror(errno), errno);
-    return; 
+    return;
   }
   return;
 

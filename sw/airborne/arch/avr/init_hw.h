@@ -23,7 +23,7 @@
  */
 
 /*
- *\brief AVR low level hardware initialisation 
+ *\brief AVR low level hardware initialisation
  *
  */
 

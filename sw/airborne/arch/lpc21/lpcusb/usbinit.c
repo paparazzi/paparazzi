@@ -1,5 +1,5 @@
 /*
-	LPCUSB, an USB device driver for LPC microcontrollers	
+	LPCUSB, an USB device driver for LPC microcontrollers
 	Copyright (C) 2006 Bertrik Sikken (bertrik@sikken.nl)
 
 	Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
 	THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
 	IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 	OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-	IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, 
+	IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
 	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
 	NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
@@ -41,7 +41,7 @@ static U8	abStdReqData[8];
 
 /**
 	USB reset handler
-	
+
 	@param [in] bDevStatus	Device status
  */
 static void HandleUsbReset(U8 bDevStatus)
@@ -55,25 +55,25 @@ static void HandleUsbReset(U8 bDevStatus)
 /**
 	Initialises the USB hardware and sets up the USB stack by
 	installing default callbacks.
-	
+
 	@return TRUE if initialisation was successful
  */
 BOOL USBInit(void)
 {
 	// init hardware
 	USBHwInit();
-	
+
 	// register bus reset handler
 	USBHwRegisterDevIntHandler(HandleUsbReset);
-	
+
 	// register control transfer handler on EP0
 	USBHwRegisterEPIntHandler(0x00, USBHandleControlTransfer);
 	USBHwRegisterEPIntHandler(0x80, USBHandleControlTransfer);
-	
+
 	// setup control endpoints
 	USBHwEPConfig(0x00, MAX_PACKET_SIZE0);
 	USBHwEPConfig(0x80, MAX_PACKET_SIZE0);
-	
+
 	// register standard request handler
 	USBRegisterRequestHandler(REQTYPE_TYPE_STANDARD, USBHandleStandardRequest, abStdReqData);
 

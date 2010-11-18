@@ -12,7 +12,7 @@ static inline void baro_board_set_current_register(uint8_t baro_addr, uint8_t re
 static inline void baro_board_read_from_current_register(uint8_t baro_addr);
 
 // absolute
-#define BARO_ABS_ADDR  0x90   
+#define BARO_ABS_ADDR  0x90
 // differential
 #define BARO_DIFF_ADDR 0x92
 

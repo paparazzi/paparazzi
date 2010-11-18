@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.  
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -37,7 +37,7 @@
  * now, the time of the last pulse will be equal to the last pulse
  * we measured.  Unfortunately, the Input Capture Flag (ICF1) will
  * not be set since the interrupt routine disables it.
- * 
+ *
  * Sync pulses are timed with Timer2, which runs at Clk/1024.  This
  * is slow enough at both 4 and 8 Mhz to measure the lengthy (10ms
  * or longer) pulse.
@@ -50,7 +50,7 @@
 uint16_t ppm_pulses[ PPM_NB_PULSES ];
 volatile bool_t ppm_valid;
 
-/* MC3030, Trame PPM7: 25ms, 10.4 au neutre, 
+/* MC3030, Trame PPM7: 25ms, 10.4 au neutre,
    sync pulse = 16.2ms with low value on every channels */
 
 #if CLOCK == 8
@@ -82,7 +82,7 @@ SIGNAL( SIG_INPUT_CAPTURE1 )
 #endif
   width		= this - last;
   last		= this;
-  
+
   if( state == 0 ) {
     uint16_t end = TCNT2;
 #if CLOCK == 8
@@ -93,7 +93,7 @@ SIGNAL( SIG_INPUT_CAPTURE1 )
 #endif
     sync_start = end;
 
-    /* The frame period of the mc3030 seems to be 25ms. 
+    /* The frame period of the mc3030 seems to be 25ms.
      * One pulse lasts from 1.05ms to 2.150ms.
      * Sync pulse is at least 7ms : (7000*CLOCK)/1024 = 109
      */
@@ -101,10 +101,10 @@ SIGNAL( SIG_INPUT_CAPTURE1 )
 	diff < LONG_SYS_TICS_OF_USEC(PPM_SYNC_MAX_LEN) ) {
       state = 1;
     }
-  } 
+  }
   else {
     /* Read a data pulses */
-    if( width > SYS_TICS_OF_USEC(PPM_DATA_MAX_LEN) || 
+    if( width > SYS_TICS_OF_USEC(PPM_DATA_MAX_LEN) ||
 	width < SYS_TICS_OF_USEC(PPM_DATA_MIN_LEN))
       RestartPpmCycle();
     ppm_pulses[state - 1] = width;
@@ -112,7 +112,7 @@ SIGNAL( SIG_INPUT_CAPTURE1 )
     if (state >= PPM_NB_PULSES) {
       ppm_valid	= TRUE;
       RestartPpmCycle();
-    } else 
+    } else
       state++;
   }
   return;

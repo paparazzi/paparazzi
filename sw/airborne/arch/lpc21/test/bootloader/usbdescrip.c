@@ -1,5 +1,5 @@
 /*
-	LPCUSB, an USB device driver for LPC microcontrollers	
+	LPCUSB, an USB device driver for LPC microcontrollers
 	Copyright (C) 2006 Bertrik Sikken (bertrik@sikken.nl)
 
 	This library is free software; you can redistribute it and/or
@@ -50,7 +50,7 @@ void USBRegisterDescriptors(const U8 *pabDescriptors)
 	===================
 		Parses a previously installed descriptor block and attempts to find
 		the specified USB descriptor.
-		
+
 	IN		wTypeIndex	Type and index of the descriptor
 			wLangID		Language ID of the descriptor (currently unused)
 	OUT		*piLen		Descriptor length
@@ -62,15 +62,15 @@ BOOL USBHandleDescriptor(U16 wTypeIndex, U16 wLangID, int *piLen, U8 **ppbData)
 	U8	bType, bIndex;
 	U8	*pab;
 	int iCurIndex;
-	
+
 	ASSERT(pabDescrip != NULL);
 
 	bType = GET_DESC_TYPE(wTypeIndex);
 	bIndex = GET_DESC_INDEX(wTypeIndex);
-	
+
 	pab = (U8 *)pabDescrip;
 	iCurIndex = 0;
-	
+
 	while (pab[0] != 0) {
 		if (pab[1] == bType) {
 			if (iCurIndex == bIndex) {

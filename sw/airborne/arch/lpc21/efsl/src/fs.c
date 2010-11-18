@@ -38,7 +38,7 @@
 #include "dir.h"
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * eint16 fs_initFs(FileSystem *fs,Partition *part)
  * Description: This functions glues the initialisation of the filesystem together.
  * It loads the volumeID, computes the FS type and searches for the rootsector.
@@ -55,12 +55,12 @@ eint16 fs_initFs(FileSystem *fs,Partition *part)
   	fs_countDataSectors(fs);
 	fs_determineFatType(fs);
 	fs_findFirstSectorRootDir(fs);
-	fs_initCurrentDir(fs); 
+	fs_initCurrentDir(fs);
 	return(0);
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * eint16 fs_isValidFat(Partition *part)
  * Description: This functions loads the volumeID and checks if the magic
  * value is present.
@@ -69,7 +69,7 @@ eint16 fs_initFs(FileSystem *fs,Partition *part)
 eint16 fs_isValidFat(Partition *part)
 {
 	euint8 *buf;
-	
+
 	buf=part_getSect(part,0,IOM_MODE_READONLY|IOM_MODE_EXP_REQ); /* Load Volume label */
 	if( ex_getb16(buf,0x1FE) != 0xAA55 ){
 		return (0);
@@ -77,18 +77,18 @@ eint16 fs_isValidFat(Partition *part)
 	part_relSect(part,buf);
 	return(1);
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * void fs_loadVolumeId(FileSystem *fs, Partition *part)
  * Description: This function loads all relevant fields from the volumeid.
 */
 void fs_loadVolumeId(FileSystem *fs, Partition *part)
 {
 	euint8 *buf;
-	
+
 	buf=part_getSect(part,0,IOM_MODE_READONLY|IOM_MODE_EXP_REQ);
-	
+
 	fs->volumeId.BytesPerSector=ex_getb16(buf,0x0B);
 	fs->volumeId.SectorsPerCluster=*((eint8*)(buf+0x0D));
 	fs->volumeId.ReservedSectorCount=ex_getb16(buf,0x0E);
@@ -99,13 +99,13 @@ void fs_loadVolumeId(FileSystem *fs, Partition *part)
 	fs->volumeId.SectorCount32=ex_getb32(buf,0x20);
 	fs->volumeId.FatSectorCount32=ex_getb32(buf,0x24);
 	fs->volumeId.RootCluster=ex_getb32(buf,0x2C);
-	
-	part_relSect(part,buf);
-	
-}
-/*****************************************************************************/ 
 
-/* ****************************************************************************  
+	part_relSect(part,buf);
+
+}
+/*****************************************************************************/
+
+/* ****************************************************************************
  * esint16 fs_verifySanity(FileSystem *fs)
  * Description: Does some sanity calculations.
  * Return value: 1 on success, 0 when discrepancies were found.
@@ -130,12 +130,12 @@ esint16 fs_verifySanity(FileSystem *fs)
 		if(fs->volumeId.FatSectorCount16 > fs->part->disc->partitions[fs->part->activePartition].numSectors)sane=0;
 	}else{
 		if(fs->volumeId.FatSectorCount32 > fs->part->disc->partitions[fs->part->activePartition].numSectors)sane=0;
-	} 
+	}
 	return(sane);
 }
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * void fs_countDataSectors(FileSystem *fs)
  * Description: This functions calculates the sectorcounts, fatsectorcounts and
  * dataclustercounts. It fills in the general fields.
@@ -177,9 +177,9 @@ void fs_countDataSectors(FileSystem *fs)
 
   fs->DataClusterCount=dataSectorCount/fs->volumeId.SectorsPerCluster;
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * void fs_determineFatType(FileSystem *fs)
  * Description: This function looks af the Dataclustercount and determines the
  * FAT type. It fills in fs->type.
@@ -201,9 +201,9 @@ void fs_determineFatType(FileSystem *fs)
 		fs->type=FAT32;
 	}
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * void fs_findFirstSectorRootDir(FileSystem *fs)
  * Description: This functions fills in the fs->FirstSectorRootDir field, even
  * for FAT32, although that is not necessary (because you have FirstClusterRootDir).
@@ -211,14 +211,14 @@ void fs_determineFatType(FileSystem *fs)
 void fs_findFirstSectorRootDir(FileSystem *fs)
 {
 	if(fs->type==FAT32)
-		fs->FirstSectorRootDir = fs->volumeId.ReservedSectorCount + 
+		fs->FirstSectorRootDir = fs->volumeId.ReservedSectorCount +
 		                         (fs->volumeId.NumberOfFats*fs->volumeId.FatSectorCount32) +
 								 (fs->volumeId.RootCluster-2)*fs->volumeId.SectorsPerCluster;
 	else
-		fs->FirstSectorRootDir = fs->volumeId.ReservedSectorCount + 
+		fs->FirstSectorRootDir = fs->volumeId.ReservedSectorCount +
 		                         (fs->volumeId.NumberOfFats*fs->volumeId.FatSectorCount16);
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
 void fs_initCurrentDir(FileSystem *fs)
 {
@@ -226,7 +226,7 @@ void fs_initCurrentDir(FileSystem *fs)
 }
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * long fs_clusterToSector(FileSystem *fs,euint32 cluster)
  * Description: This function converts a clusternumber in the effective sector
  * number where this cluster starts. Boundary check is not implemented
@@ -235,7 +235,7 @@ void fs_initCurrentDir(FileSystem *fs)
 euint32 fs_clusterToSector(FileSystem *fs,euint32 cluster)
 {
 	eint32 base;
-	
+
 	if(fs->type==FAT32)
 	{
 		base=
@@ -251,13 +251,13 @@ euint32 fs_clusterToSector(FileSystem *fs,euint32 cluster)
 	}
 	return( base + (cluster-2)*fs->volumeId.SectorsPerCluster );
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
 /* Function is unused, but may be usefull */
 euint32 fs_sectorToCluster(FileSystem *fs,euint32 sector)
 {
 	eint32 base;
-	
+
 	if(fs->type==FAT32)
 	{
 		base=
@@ -275,18 +275,18 @@ euint32 fs_sectorToCluster(FileSystem *fs,euint32 sector)
 }
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * euint32 fs_getNextFreeCluster(FileSystem *fs,euint32 startingcluster)
  * Description: This functions searches for a free cluster, starting it's search at
- * cluster startingcluster. This allow to speed up searches and try to avoid 
+ * cluster startingcluster. This allow to speed up searches and try to avoid
  * fragmentation. Implementing rollover search is still to be done.
- * Return value: If a free cluster is found it's number is returned. If none is 
+ * Return value: If a free cluster is found it's number is returned. If none is
  * found 0 is returned.
 */
 euint32 fs_getNextFreeCluster(FileSystem *fs,euint32 startingcluster)
 {
 	euint32 r;
-	
+
 	while(startingcluster<fs->DataClusterCount){
 		r=fat_getNextClusterAddress(fs,startingcluster,0);
 		if(r==0){
@@ -296,23 +296,23 @@ euint32 fs_getNextFreeCluster(FileSystem *fs,euint32 startingcluster)
 	}
 	return(0);
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * euint32 fs_giveFreeClusterHint(FileSystem *fs)
- * 
+ *
  * Description: This function should return a clusternumber that is free or
- * lies close before free clusters. The result MUST be checked to see if 
+ * lies close before free clusters. The result MUST be checked to see if
  * it is free! Implementationhint: search the largest clusternumber in the
  * files in the rootdirectory.
- * 
+ *
  * Return value: Returns it's best guess.
 */
 euint32 fs_giveFreeClusterHint(FileSystem *fs)
 {
 	return(2); /* Now THIS is a hint ;) */
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
 /* ****************************************************************************
  * esint8 fs_findFile(FileSystem *fs,eint8* filename,FileLocation *loc,euint32 *lastDir)
@@ -324,7 +324,7 @@ euint32 fs_giveFreeClusterHint(FileSystem *fs)
  * currentdir (That you can change with chdir()) as startingpoint.
  * The lastdir pointer will be the first cluster of the last directory fs_findfile
  * enters. It starts out at the root/current dir and then traverses the path along with
- * fs_findFile. 
+ * fs_findFile.
  * It is set to 0 in case of errors (like dir/dir/dir/file/dir/dir...)
  * Return value: Returns 0 when nothing was found, 1 when the thing found
  * was a file and 2 if the thing found was a directory.
@@ -334,7 +334,7 @@ esint8 fs_findFile(FileSystem *fs,eint8* filename,FileLocation *loc,euint32 *las
 {
 	euint32 fccd,tmpclus;
 	eint8 ffname[11],*next,it=0,filefound=0;
-	
+
 	if(*filename=='/'){
 		fccd = fs_getFirstClusterRootDir(fs);
 		filename++;
@@ -346,8 +346,8 @@ esint8 fs_findFile(FileSystem *fs,eint8* filename,FileLocation *loc,euint32 *las
 		fccd = fs->FirstClusterCurrentDir;
 		if(lastDir)*lastDir=fccd;
 	}
-	
-	
+
+
 	while((next=file_normalToFatName(filename,ffname))!=0){
 		if((tmpclus=dir_findinDir(fs,ffname,fccd,loc,DIRFIND_FILE))==0){
 			/* We didn't find what we wanted */
@@ -356,7 +356,7 @@ esint8 fs_findFile(FileSystem *fs,eint8* filename,FileLocation *loc,euint32 *las
 			 */
 			if((file_normalToFatName(next,ffname))!=0){
 				if(lastDir)*lastDir=0;
-			}			 
+			}
 			return(0);
 		}
 		it++;
@@ -371,11 +371,11 @@ esint8 fs_findFile(FileSystem *fs,eint8* filename,FileLocation *loc,euint32 *las
 				if(lastDir)*lastDir=0;
 				return(0);
 			}else{
-				filename=next;	
+				filename=next;
 			}
 		}
 	}
-	
+
 	if(it==0)return(0);
 	if(loc->attrib&ATTR_DIRECTORY || !filefound)return(2);
 	return(1);
@@ -386,7 +386,7 @@ esint16 fs_findFreeFile(FileSystem *fs,eint8* filename,FileLocation *loc,euint8 
 {
 	euint32 targetdir=0;
 	eint8 ffname[11];
-	
+
 	if(fs_findFile(fs,filename,loc,&targetdir))return(0);
 	if(!dir_getFatFileName(filename,ffname))return(0);
 	if(dir_findinDir(fs,ffname,targetdir,loc,DIRFIND_FREE)){
@@ -400,12 +400,12 @@ esint16 fs_findFreeFile(FileSystem *fs,eint8* filename,FileLocation *loc,euint8 
 			}
 		}
 	}
-		
+
 	return(0);
 }
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * euint32 fs_getLastCluster(FileSystem *fs,ClusterChain *Cache)
  * Description: This function searches the last cluster of a chain.
  * Return value: The LastCluster (also stored in cache);
@@ -416,7 +416,7 @@ euint32 fs_getLastCluster(FileSystem *fs,ClusterChain *Cache)
 		Cache->DiscCluster=Cache->FirstCluster;
 		Cache->LogicCluster=0;
 	}
-	
+
 	if(Cache->LastCluster==0)
 	{
 		while(fat_getNextClusterChain(fs, Cache)==0)
@@ -477,7 +477,7 @@ esint8 fs_clearCluster(FileSystem *fs,euint32 cluster)
 {
 	euint16 c;
 	euint8* buf;
-	
+
 	for(c=0;c<(fs->volumeId.SectorsPerCluster);c++){
 		buf = part_getSect(fs->part,fs_clusterToSector(fs,cluster)+c,IOM_MODE_READWRITE);
 		memClr(buf,512);
@@ -489,7 +489,7 @@ esint8 fs_clearCluster(FileSystem *fs,euint32 cluster)
 esint8 fs_getFsInfo(FileSystem *fs,euint8 force_update)
 {
 	euint8 *buf;
-		
+
  	if(!fs->type==FAT32)return(0);
 	buf = part_getSect(fs->part,FS_INFO_SECTOR,IOM_MODE_READONLY);
 	if(ex_getb32(buf,0)!=FSINFO_MAGIC_BEGIN || ex_getb32(buf,508)!=FSINFO_MAGIC_END){

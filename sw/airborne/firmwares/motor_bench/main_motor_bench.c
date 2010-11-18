@@ -73,7 +73,7 @@ static inline void main_periodic_task( void ) {
   float torque = 0.;
 
   mb_mode_periodic(rpm, thrust, amps);
-  
+
   float throttle = mb_modes_throttle;
 
 #if defined USE_TWI_CONTROLLER
@@ -124,5 +124,5 @@ static inline void main_dl_parse_msg(void) {
     float var = DL_SETTING_value(dl_buffer);
     DlSetting(i, var);
     DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &var);
-  }  
+  }
 }

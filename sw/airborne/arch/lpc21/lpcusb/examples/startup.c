@@ -1,5 +1,5 @@
 /*
-	LPCUSB, an USB device driver for LPC microcontrollers	
+	LPCUSB, an USB device driver for LPC microcontrollers
 	Copyright (C) 2006 Bertrik Sikken (bertrik@sikken.nl)
 
 	Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
 	THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
 	IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 	OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-	IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, 
+	IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
 	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
 	NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
@@ -27,7 +27,7 @@
 
 /*
 	Initialisation functions for exception handlers, PLL and MAM
-	
+
 	Partially copied from Jim Lynch's tutorial
 */
 
@@ -58,21 +58,21 @@ void UNDEF_Routine (void) __attribute__ ((interrupt("UNDEF")));
 /*  ----------------------------------------------------  */
 
 void IRQ_Routine (void) {
-	while (1) ;	
+	while (1) ;
 }
 
 void FIQ_Routine (void)  {
-	while (1) ;	
+	while (1) ;
 }
 
 
 void SWI_Routine (void)  {
-	while (1) ;	
+	while (1) ;
 }
 
 
 void UNDEF_Routine (void) {
-	while (1) ;	
+	while (1) ;
 }
 
 
@@ -89,29 +89,29 @@ static void feed(void)
 }
 
 
-void Initialize(void)  
+void Initialize(void)
 {
-	
- 
+
+
 	// 				Setting the Phased Lock Loop (PLL)
 	//               ----------------------------------
 	//
 	// Olimex LPC-P2148 has a 12.0000 mhz crystal
 	//
 	// We'd like the LPC2148 to run at 60 mhz (has to be an even multiple of crystal)
-	// 
+	//
 	// According to the Philips LPC2148 manual:   M = cclk / Fosc	where:	M    = PLL multiplier (bits 0-4 of PLLCFG)
 	//																		cclk = 60000000 hz
 	//																		Fosc = 12000000 hz
 	//
-	// Solving:	M = 60000000 / 12000000 = 5           
+	// Solving:	M = 60000000 / 12000000 = 5
 	//
 	//			Note: M - 1 must be entered into bits 0-4 of PLLCFG (assign 4 to these bits)
 	//
 	//
 	// The Current Controlled Oscilator (CCO) must operate in the range 156 mhz to 320 mhz
 	//
-	// According to the Philips LPC2148 manual:	Fcco = cclk * 2 * P    where:	Fcco = CCO frequency 
+	// According to the Philips LPC2148 manual:	Fcco = cclk * 2 * P    where:	Fcco = CCO frequency
 	//																			cclk = 60000000 hz
 	//																			P = PLL divisor (bits 5-6 of PLLCFG)
 	//
@@ -127,26 +127,26 @@ void Initialize(void)
 	// Final note: to load PLLCFG register, we must use the 0xAA followed 0x55 write sequence to the PLLFEED register
 	//             this is done in the short function feed() below
 	//
-   
+
 	// Setting Multiplier and Divider values
   	PLLCFG = 0x24;
   	feed();
-  
-	// Enabling the PLL */	
+
+	// Enabling the PLL */
 	PLLCON = 0x1;
 	feed();
-  
+
 	// Wait for the PLL to lock to set frequency
 	while(!(PLLSTAT & PLOCK)) ;
-  
+
 	// Connect the PLL as the clock source
 	PLLCON = 0x3;
 	feed();
-  
+
 	// Enabling MAM and setting number of clocks used for Flash memory fetch
 	MAMTIM = 0x3;
 	MAMCR = 0x2;
-  
+
 	// Setting peripheral Clock (pclk) to System Clock (cclk)
 	VPBDIV = 0x1;
 }

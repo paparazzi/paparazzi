@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <inttypes.h>
@@ -87,9 +87,9 @@ static inline void main_event_task( void ) {
 static inline void on_gyro_accel_event(void) {
   ImuScaleGyro();
   ImuScaleAccel();
-  
+
   LED_TOGGLE(2);
-  
+
   static uint8_t cnt;
   static int32_t samples[NB_SAMPLES];
   const uint8_t axis = MEASURED_SENSOR_NB;
@@ -106,11 +106,11 @@ static inline void on_gyro_accel_event(void) {
 			       &imu.gyro_unscaled.q,
 			       &imu.gyro_unscaled.r);
   }
-  
+
 
 }
 
 
 static inline void on_mag_event(void) {
-  
+
 }

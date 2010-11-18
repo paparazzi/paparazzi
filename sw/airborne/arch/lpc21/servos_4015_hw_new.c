@@ -21,9 +21,9 @@ uint16_t servos_values[_4015_NB_CHANNELS];
 
 void actuators_init ( void ) {
   /* PWM selected as IRQ */
-  VICIntSelect &= ~VIC_BIT(VIC_PWM);   
+  VICIntSelect &= ~VIC_BIT(VIC_PWM);
   /* PWM interrupt enabled */
-  VICIntEnable = VIC_BIT(VIC_PWM);  
+  VICIntEnable = VIC_BIT(VIC_PWM);
   VICVectCntl3 = VIC_ENABLE | VIC_PWM;
   /* address of the ISR */
   VICVectAddr3 = (uint32_t)PWM_ISR;
@@ -37,9 +37,9 @@ void actuators_init ( void ) {
   SERV1_CLOCK_PINSEL |= SERV1_CLOCK_PINSEL_VAL << SERV1_CLOCK_PINSEL_BIT;
 
   /* set first pulse to be very long */
-  PWMMR0 = 0XFFFFFF;  
-  PWMMR_SERV1 = 0XFFF;  
-  PWMMR_SERV0 = 0X0;  
+  PWMMR0 = 0XFFFFFF;
+  PWMMR_SERV1 = 0XFFF;
+  PWMMR_SERV0 = 0X0;
   /* commit above changes            */
   PWMLER = PWMLER_LATCH0 | PWMLER_LATCH_SERV0 | PWMLER_LATCH_SERV1;
   /* enable interrupt on serv1 PWM match    */
@@ -51,7 +51,7 @@ void actuators_init ( void ) {
   PWMPR = PWM_PRESCALER-1;
 
   /* enable PWM timer counter and PWM mode  */
-  PWMTCR = PWMTCR_COUNTER_ENABLE | PWMTCR_PWM_ENABLE; 
+  PWMTCR = PWMTCR_COUNTER_ENABLE | PWMTCR_PWM_ENABLE;
   /* Load failsafe values              */
   /* Set all servos at their midpoints */
   /* compulsory for unaffected servos  */
@@ -79,9 +79,9 @@ void PWM_ISR ( void ) {
     /* raise serv0 data  */
     IO1SET = _BV(SERV0_DATA_PIN);
     /* start pulsing serv0 */
-    PWMMR_SERV0 = 0XFFF;  
+    PWMMR_SERV0 = 0XFFF;
     /* stop pulsing serv1 */
-    PWMMR_SERV1 = 0X0;  
+    PWMMR_SERV1 = 0X0;
     PWMMR0 = servos_values[servos_idx];
     servos_delay = SERVO_REFRESH_TICS - servos_values[servos_idx];
     PWMLER = PWMLER_LATCH0 | PWMLER_LATCH_SERV0 | PWMLER_LATCH_SERV1;
@@ -107,7 +107,7 @@ void PWM_ISR ( void ) {
     /* stop pulsing serv0 */
     PWMMR_SERV0 = 0;
     /* start pulsing serv1 */
-    PWMMR_SERV1 = 0XFFF;  
+    PWMMR_SERV1 = 0XFFF;
     /* disable serv0 interrupt, enable serv1 match interrupt */
     PWMMCR = PWMMCR_MR0R | PWMMCR_MRI_SERV1;
     /* fill next servo value */
@@ -137,5 +137,5 @@ void PWM_ISR ( void ) {
   PWMIR = PWMIR_MRI_SERV1;
   PWMIR = PWMIR_MRI_SERV0;
   VICVectAddr = 0x00000000;
-  ISR_EXIT();  
+  ISR_EXIT();
 }

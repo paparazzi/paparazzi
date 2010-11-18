@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -62,12 +62,12 @@ void uart0_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
   U0IIR;                                // clear interrupt ID
   U0RBR;                                // clear receive register
   U0LSR;                                // clear line status register
-  
+
   // set the baudrate
-  U0LCR = ULCR_DLAB_ENABLE;             // select divisor latches 
+  U0LCR = ULCR_DLAB_ENABLE;             // select divisor latches
   U0DLL = (uint8_t)baud;                // set for baud low byte
   U0DLM = (uint8_t)(baud >> 8);         // set for baud high byte
-  
+
   // set the number of characters and other
   // user specified operating parameters
   U0LCR = (mode & ~ULCR_DLAB_ENABLE);
@@ -96,7 +96,7 @@ bool_t uart0_check_free_space( uint8_t len) {
   int16_t space = uart0_tx_extract_idx - uart0_tx_insert_idx;
   if (space <= 0)
     space += UART0_TX_BUFFER_SIZE;
-  
+
   return (uint16_t)(space - 1) >= len;
 }
 
@@ -234,7 +234,7 @@ bool_t uart1_check_free_space( uint8_t len) {
   int16_t space = uart1_tx_extract_idx - uart1_tx_insert_idx;
   if (space <= 0)
     space += UART1_TX_BUFFER_SIZE;
-  
+
   return (uint16_t)(space - 1) >= len;
 }
 
@@ -252,12 +252,12 @@ void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
   U1IIR;                                // clear interrupt ID
   U1RBR;                                // clear receive register
   U1LSR;                                // clear line status register
-  
+
   // set the baudrate
-  U1LCR = ULCR_DLAB_ENABLE;             // select divisor latches 
+  U1LCR = ULCR_DLAB_ENABLE;             // select divisor latches
   U1DLL = (uint8_t)baud;                // set for baud low byte
   U1DLM = (uint8_t)(baud >> 8);         // set for baud high byte
-  
+
   // set the number of characters and other
   // user specified operating parameters
   U1LCR = (mode & ~ULCR_DLAB_ENABLE);

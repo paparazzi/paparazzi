@@ -2,7 +2,7 @@
 //
 // Philips LPC2129 ARM7TDMI LED/Switch Example
 //
-// This example demonstrates writing to and reading from 
+// This example demonstrates writing to and reading from
 // the GPIO port.
 // (1) flash the LED 10 times
 // (2) wait for key-press, turn off LED if key is pressed
@@ -45,23 +45,23 @@ int main(void)
     delay();
     i++;
   }
-	
-  while (1)	
+
+  while (1)
     {
-      if (BUTTTON1_OFF()) { 
+      if (BUTTTON1_OFF()) {
 	YELLOW_LED_ON();
       }
       else {
 	YELLOW_LED_OFF();
       }
-		
-      if (BUTTTON2_OFF())	{ 
+
+      if (BUTTTON2_OFF())	{
 	GREEN_LED_ON();
       }
       else {
 	GREEN_LED_OFF();
       }
     }
-	
+
   return 0; // never reached
 }

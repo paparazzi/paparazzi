@@ -25,10 +25,10 @@
 #include "deploy_sonar_buoy.h"
 #include "airframe.h"
 
-/* simple module to toggle two gpio pins on Lisa. 
- * The application in this was written for drops 
- * two sonar buoys. TODO extend to a generalised 
- * GPIO  module 
+/* simple module to toggle two gpio pins on Lisa.
+ * The application in this was written for drops
+ * two sonar buoys. TODO extend to a generalised
+ * GPIO  module
  */
 
 bool_t buoy_1;
@@ -42,19 +42,19 @@ void deploy_sonar_buoy_init(void) {
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);  
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
   /* set port C pin 5 to be low */
   GPIO_WriteBit(GPIOC, GPIO_Pin_5 , Bit_RESET );
-  
+
   /* initialise peripheral clock for port B */
   RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOB, ENABLE);
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
-  /* set port B pin 0 to be low */  
+  /* set port B pin 0 to be low */
   GPIO_WriteBit(GPIOB, GPIO_Pin_0 , Bit_RESET );
-  
+
   /* set the variables of interest to be FALSE */
   buoy_1 = FALSE;
   buoy_2 = FALSE;

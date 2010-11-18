@@ -1,5 +1,5 @@
 /*
-	LPCUSB, an USB device driver for LPC microcontrollers	
+	LPCUSB, an USB device driver for LPC microcontrollers
 	Copyright (C) 2006 Bertrik Sikken (bertrik@sikken.nl)
 
 	Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
 	THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
 	IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 	OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-	IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, 
+	IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
 	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
 	NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
@@ -25,12 +25,12 @@
 	THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/* 
+/*
     Connects a microSD card to the SPI port of the Paparazzi Tiny. Keep cables
     short, microSD card can be directly soldered to Molex cable. For now only
     non SDHC SD cards (<= 2GB) are supported. martinmm@pfump.org
 
-    microSD         TinyV2 SPI J3 
+    microSD         TinyV2 SPI J3
     8 nc
     7 DO            5 MISO
     6 GND           1 GND
@@ -43,7 +43,7 @@
     Looking onto the gold plated connector side of the microSD card:
 
     ---------------
-    I 8 
+    I 8
     I 7
     I 6
     I 5
@@ -78,9 +78,9 @@ static U8 abClassReqData[4];
 
 static const U8 abDescriptors[] = {
 
-// device descriptor	
+// device descriptor
 	0x12,
-	DESC_DEVICE,			
+	DESC_DEVICE,
 	LE_WORD(0x0200),		// bcdUSB
 	0x00,					// bDeviceClass
 	0x00,					// bDeviceSubClass
@@ -155,7 +155,7 @@ static const U8 abDescriptors[] = {
 	HandleClassRequest
 	==================
 		Handle mass storage class request
-	
+
 **************************************************************************/
 static BOOL HandleClassRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
 {
@@ -183,7 +183,7 @@ static BOOL HandleClassRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
 		}
 		MSCBotReset();
 		break;
-		
+
 	default:
 		DBG("Unhandled class\n");
 		return FALSE;
@@ -211,7 +211,7 @@ int main(void)
 
 	// initialise stack
 	USBInit();
-	
+
 	// enable bulk-in interrupts on NAKs
 	// these are required to get the BOT protocol going again after a STALL
 	USBHwNakIntEnable(INACK_BI);
@@ -221,7 +221,7 @@ int main(void)
 
 	// register class request handler
 	USBRegisterRequestHandler(REQTYPE_TYPE_CLASS, HandleClassRequest, abClassReqData);
-	
+
 	// register endpoint handlers
 	USBHwRegisterEPIntHandler(MSC_BULK_IN_EP, MSCBotBulkIn);
 	USBHwRegisterEPIntHandler(MSC_BULK_OUT_EP, MSCBotBulkOut);
@@ -235,7 +235,7 @@ int main(void)
 	while (1) {
 		USBHwISR();
 	}
-	
+
 	return 0;
 }
 

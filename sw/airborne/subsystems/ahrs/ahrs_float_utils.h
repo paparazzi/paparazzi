@@ -4,10 +4,10 @@
 static inline void ahrs_float_get_euler_from_accel_mag(struct FloatEulers* e, struct Int32Vect3* accel, struct Int32Vect3* mag) {
   /* get phi and theta from accelerometer */
   struct FloatVect3 accelf;
-  ACCELS_FLOAT_OF_BFP(accelf, *accel);  
+  ACCELS_FLOAT_OF_BFP(accelf, *accel);
   const float phi   = atan2f(-accelf.y, -accelf.z);
   const float cphi = cosf(phi);
-  const float theta = atan2f(cphi*accelf.x, -accelf.z); 
+  const float theta = atan2f(cphi*accelf.x, -accelf.z);
   /* get psi from magnetometer */
   /* project mag on local tangeant plane */
   struct FloatVect3 magf;

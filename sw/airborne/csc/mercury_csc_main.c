@@ -1,6 +1,6 @@
 /*
  * $Id: booz2_main.c 3049 2009-02-24 16:51:25Z poine $
- *  
+ *
  * Copyright (C) 2008  Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -83,14 +83,14 @@ static void csc_main_init( void ) {
 	hw_init();
 	sys_time_init();
 	led_init();
-	
+
 	actuators_init();
 
-	
+
 #ifdef USE_UART0
 	Uart0Init();
 #endif
-	
+
 #ifdef USE_UART1
 	Uart1Init();
 #endif
@@ -121,8 +121,8 @@ static void csc_main_init( void ) {
 #ifdef ADC
 	csc_adc_init();
 #endif
-	
-	
+
+
 #ifdef USE_I2C0
 	i2c0_init();
 #endif
@@ -142,10 +142,10 @@ static void csc_main_init( void ) {
 #endif
 
 #ifdef USE_BAT_MONITOR
-	csc_bat_monitor_init(); 
+	csc_bat_monitor_init();
 #endif
-	
-	int_enable(); 
+
+	int_enable();
 
 }
 
@@ -167,13 +167,13 @@ static void csc_main_periodic( void )
 	} else {
 		servo_cmd_timeout++;
 	}
-	
+
 	if ((++csc_loops % CSC_STATUS_TIMEOUT) == 0) {
 		csc_ap_link_send_status(csc_loops, can_msg_count);
 	}
-	
+
 	csc_adc_periodic();
-	
+
 	if ((csc_loops % AIRSPEED_TIMEOUT) == 0) {
 	} else if ((csc_loops % AIRSPEED_TIMEOUT) == 1) {
 #ifdef USE_BARO_ETS
@@ -198,7 +198,7 @@ static void csc_main_periodic( void )
 #endif
 
 #ifdef USE_BAT_MONITOR
-	csc_bat_monitor_periodic(); 
+	csc_bat_monitor_periodic();
 #endif
 
 }
@@ -227,7 +227,7 @@ static void on_prop_cmd(struct CscPropCmd *cmd, int idx)
 	motors_commit(idx == 1);
 
 	++can_msg_count;
-}	
+}
 #else
 static void on_prop_cmd(struct CscPropCmd *cmd, int idx) {}
 #endif
@@ -238,7 +238,7 @@ static void on_servo_cmd(struct CscServoCmd *cmd)
 	uint8_t i;
 
 	//	uint32_t servos_checked[4];
-	for(i = 0; i < 4; i++) { 
+	for(i = 0; i < 4; i++) {
 		csc_servo_normalized_set(i,servos[i]);
 	}
 	csc_servos_commit();

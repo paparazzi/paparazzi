@@ -72,7 +72,7 @@ void vi_overo_link_on_msg_received(void) {
     overo_link.up.msg.pressure_absolute = baro.absolute;
     vi.available_sensors &= ~(1<<VI_BARO_ABS_DATA_VALID);
   }
-  
+
 }
 
 

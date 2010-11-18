@@ -22,7 +22,7 @@
 #define HUMI            1
 
 //adr    command  r/w
-//000    0011     0                                
+//000    0011     0
 #define STATUS_REG_W    0x06
 //000    0011     1
 #define STATUS_REG_R    0x07

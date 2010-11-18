@@ -28,14 +28,14 @@ void gcs_com_init(void) {
 
   gcs_com.network = network_new(GCS_HOST,GCS_PORT,DATALINK_PORT,FALSE);
   gcs_com.udp_transport = udp_transport_new(gcs_com.network);
-  
+
   event_set(&gcs_com.datalink_event, gcs_com.network->socket_in, EV_READ| EV_PERSIST, on_datalink_event, gcs_com.udp_transport);
   event_add(&gcs_com.datalink_event, NULL);
-  
+
 }
 
 void gcs_com_periodic(void) {
-  if (gcs_com.udp_transport->Periodic) 
+  if (gcs_com.udp_transport->Periodic)
     gcs_com.udp_transport->Periodic(gcs_com.udp_transport->impl);
 }
 
@@ -58,7 +58,7 @@ static void on_datalink_event(int fd, short event __attribute__((unused)), void 
       udp_impl->udp_dl_msg_received = FALSE;
     }
   }
- 
+
 }
 
 #define IdOfMsg(x) (x[1])
@@ -66,11 +66,11 @@ static void on_datalink_event(int fd, short event __attribute__((unused)), void 
 static void dl_handle_msg(struct DownlinkTransport *tp) {
   uint8_t msg_id = IdOfMsg(gcs_com.my_dl_buffer);
   switch (msg_id) {
-  
+
   case  DL_PING:
     DOWNLINK_SEND_PONG(tp);
     break;
-    
+
   case DL_SETTING :
     {
       uint8_t i = DL_SETTING_index(gcs_com.my_dl_buffer);

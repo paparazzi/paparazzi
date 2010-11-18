@@ -32,7 +32,7 @@ uint16_t gps_reset;
 
 
 void sim_use_gps_pos(double lat, double lon, double alt, double course, double gspeed, double climb, double time) {
-    
+
   gps_mode = 3; // Mode 3D
   gps_course = DegOfRad(course) * 10.;
   gps_alt = alt * 100.;
@@ -67,7 +67,7 @@ void sim_update_sv(void) {
   }
   gps_PDOP = gps_Sacc = gps_Pacc = 500+200*sin(time/100.);
   gps_numSV = 7;
-      
+
   gps_verbose_downlink = !launch;
   UseGpsPosNoSend(estimator_update_state_gps);
   gps_downlink();

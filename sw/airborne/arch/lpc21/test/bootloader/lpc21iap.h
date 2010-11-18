@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.  
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -41,7 +41,7 @@
 #define ADDR_NOT_MAPPED             14
 #define CMD_LOCKED                  15
 #define INVALID_CODE                16
-#define INVALID_BAUD_RATE           17 
+#define INVALID_BAUD_RATE           17
 #define INVALID_STOP_BIT            18
 #define CODE_READ_PROTECTION_ENABLED    19
 

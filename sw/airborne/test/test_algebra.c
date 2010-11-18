@@ -77,7 +77,7 @@ static void test_1(void) {
   struct Int32Eulers euler_i;
   EULERS_BFP_OF_REAL(euler_i, euler_f);
   DISPLAY_INT32_EULERS("euler_i", euler_i);
-  
+
   struct FloatQuat quat_f;
   FLOAT_QUAT_OF_EULERS(quat_f, euler_f);
   DISPLAY_FLOAT_QUAT("quat_f", quat_f);
@@ -89,12 +89,12 @@ static void test_1(void) {
   struct Int32RMat rmat_i;
   INT32_RMAT_OF_QUAT(rmat_i, quat_i);
   DISPLAY_INT32_RMAT("rmat_i", rmat_i);
-  
+
 }
 
 
 static void test_2(void) {
-  
+
   struct Int32Vect3 v1 = { 5000, 5000, 5000 };
   DISPLAY_INT32_VECT3("v1", v1);
 
@@ -173,7 +173,7 @@ static void test_3(void) {
   struct Int32Quat l2i_q;
   INT32_QUAT_OF_EULERS(l2i_q, l2i_e);
   DISPLAY_INT32_QUAT_AS_EULERS_DEG("l2i_q", l2i_q);
- 
+
   /* Compute LTP to IMU rotation matrix */
   struct Int32RMat l2i_r;
   INT32_RMAT_OF_EULERS(l2i_r, l2i_e);
@@ -214,7 +214,7 @@ static void test_3(void) {
   struct Int32Eulers l2b_e2;
   INT32_EULERS_OF_QUAT(l2b_e2, l2b_q);
   DISPLAY_INT32_EULERS_AS_FLOAT_DEG("l2b_e2", l2b_e2);
-  
+
 }
 
 
@@ -240,7 +240,7 @@ static void test_4_int(void) {
   INT32_EULERS_OF_QUAT(_e2, _q);
   DISPLAY_INT32_EULERS_AS_FLOAT_DEG("back to euler ", _e2);
 
-  
+
 }
 
 
@@ -288,7 +288,7 @@ static void test_5(void) {
 
 
 float test_eulers_of_quat(struct FloatQuat fq, int display) {
-  
+
   struct FloatEulers fe;
   FLOAT_EULERS_OF_QUAT(fe, fq);
   struct Int32Quat iq;
@@ -300,7 +300,7 @@ float test_eulers_of_quat(struct FloatQuat fq, int display) {
   EULERS_SUB(fe2, ie);
   float norm_err = FLOAT_EULERS_NORM(fe2);
 
-  if (display) { 
+  if (display) {
     printf("euler of quat\n");
     DISPLAY_FLOAT_QUAT("fq", fq);
     DISPLAY_FLOAT_EULERS_DEG("fe", fe);
@@ -325,7 +325,7 @@ float test_eulers_of_rmat(struct FloatRMat frm, int display) {
   EULERS_SUB(fe2, ie);
   float norm_err = FLOAT_EULERS_NORM(fe2);
 
-  if (display) { 
+  if (display) {
     printf("euler of rmat\n");
     //    DISPLAY_FLOAT_RMAT("fr", fr);
     DISPLAY_FLOAT_EULERS_DEG("fe", fe);
@@ -349,17 +349,17 @@ static void test_6(void) {
   struct FloatEulers eb2c;
   EULERS_ASSIGN(eb2c, RadOfDeg(0.), RadOfDeg(0.), RadOfDeg(90.));
   DISPLAY_FLOAT_EULERS_DEG("eb2c", eb2c);
-  struct FloatRMat fa2b; 
+  struct FloatRMat fa2b;
   FLOAT_RMAT_OF_EULERS(fa2b, ea2b);
-  struct FloatRMat fb2c; 
+  struct FloatRMat fb2c;
   FLOAT_RMAT_OF_EULERS(fb2c, eb2c);
 
   printf("\n");
   test_rmat_comp(fa2b, fb2c, 1);
 
-  struct FloatQuat qa2b; 
+  struct FloatQuat qa2b;
   FLOAT_QUAT_OF_EULERS(qa2b, ea2b);
-  struct FloatQuat qb2c; 
+  struct FloatQuat qb2c;
   FLOAT_QUAT_OF_EULERS(qb2c, eb2c);
 
   printf("\n");
@@ -385,12 +385,12 @@ float test_rmat_comp(struct FloatRMat ma2b_f, struct FloatRMat mb2c_f, int displ
   RMAT_DIFF(err, ma2c_f, ma2c_i);
   float norm_err = FLOAT_RMAT_NORM(err);
 
-  if (display) { 
+  if (display) {
     printf("rmap comp\n");
     DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("a2cf", ma2c_f);
     DISPLAY_INT32_RMAT_AS_EULERS_DEG("a2ci", ma2c_i);
   }
-  
+
   return norm_err;
 
 }
@@ -411,12 +411,12 @@ float test_quat_comp(struct FloatQuat qa2b_f, struct FloatQuat qb2c_f, int displ
   QUAT_DIFF(err, qa2c_f, qa2c_i);
   float norm_err = FLOAT_QUAT_NORM(err);
 
-  if (display) { 
+  if (display) {
     printf("quat comp\n");
     DISPLAY_FLOAT_QUAT_AS_EULERS_DEG("a2cf", qa2c_f);
     DISPLAY_INT32_QUAT_AS_EULERS_DEG("a2ci", qa2c_i);
   }
-  
+
   return norm_err;
 
 }
@@ -424,9 +424,9 @@ float test_quat_comp(struct FloatQuat qa2b_f, struct FloatQuat qb2c_f, int displ
 
 
 static void test_7(void) {
- 
 
-  
+
+
 
 
 
@@ -434,21 +434,21 @@ static void test_7(void) {
   struct FloatEulers ea2c;
   EULERS_ASSIGN(ea2c, RadOfDeg(29.742755), RadOfDeg(-40.966522), RadOfDeg(69.467265));
   DISPLAY_FLOAT_EULERS_DEG("ea2c", ea2c);
-  
+
   struct FloatEulers eb2c;
   EULERS_ASSIGN(eb2c, RadOfDeg(0.), RadOfDeg(0.), RadOfDeg(90.));
   DISPLAY_FLOAT_EULERS_DEG("eb2c", eb2c);
-  struct FloatRMat fa2c; 
+  struct FloatRMat fa2c;
   FLOAT_RMAT_OF_EULERS(fa2c, ea2c);
-  struct FloatRMat fb2c; 
+  struct FloatRMat fb2c;
   FLOAT_RMAT_OF_EULERS(fb2c, eb2c);
 
   printf("\n");
   test_rmat_comp_inv(fa2c, fb2c, 1);
 
-  struct FloatQuat qa2c; 
+  struct FloatQuat qa2c;
   FLOAT_QUAT_OF_EULERS(qa2c, ea2c);
-  struct FloatQuat qb2c; 
+  struct FloatQuat qb2c;
   FLOAT_QUAT_OF_EULERS(qb2c, eb2c);
 
   printf("\n");
@@ -492,14 +492,14 @@ static void test_9(void) {
 }
 
 static void test_10(void) {
- 
+
   struct FloatEulers euler;
   EULERS_ASSIGN(euler , RadOfDeg(0.), RadOfDeg(10.), RadOfDeg(0.));
   DISPLAY_FLOAT_EULERS_DEG("euler", euler);
   struct FloatQuat quat;
   FLOAT_QUAT_OF_EULERS(quat, euler);
   DISPLAY_FLOAT_QUAT("####quat", quat);
-  
+
   struct Int32Eulers euleri;
   EULERS_BFP_OF_REAL(euleri, euler);
   DISPLAY_INT32_EULERS("euleri", euleri);
@@ -509,11 +509,11 @@ static void test_10(void) {
   struct Int32RMat rmati;
   INT32_RMAT_OF_EULERS(rmati, euleri);
   DISPLAY_INT32_RMAT("####rmat", rmati);
- 
+
   struct Int32Quat quat_ltp_to_body;
   struct Int32Quat body_to_imu_quat;
   INT32_QUAT_ZERO( body_to_imu_quat);
-  
+
 
   INT32_QUAT_COMP_INV(quat_ltp_to_body, body_to_imu_quat, quati);
   DISPLAY_INT32_QUAT("####quat_ltp_to_body", quat_ltp_to_body);
@@ -535,12 +535,12 @@ float test_rmat_comp_inv(struct FloatRMat ma2c_f, struct FloatRMat mb2c_f, int d
   RMAT_DIFF(err, ma2b_f, ma2b_i);
   float norm_err = FLOAT_RMAT_NORM(err);
 
-  if (display) { 
+  if (display) {
     printf("rmap comp_inv\n");
     DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("a2cf", ma2b_f);
     DISPLAY_INT32_RMAT_AS_EULERS_DEG("a2ci", ma2b_i);
   }
-  
+
   return norm_err;
 
 }
@@ -560,12 +560,12 @@ float test_quat_comp_inv(struct FloatQuat qa2c_f, struct FloatQuat qb2c_f, int d
   QUAT_DIFF(err, qa2b_f, qa2b_i);
   float norm_err = FLOAT_QUAT_NORM(err);
 
-  if (display) { 
+  if (display) {
     printf("quat comp_inv\n");
     DISPLAY_FLOAT_QUAT_AS_EULERS_DEG("a2bf", qa2b_f);
     DISPLAY_INT32_QUAT_AS_EULERS_DEG("a2bi", qa2b_i);
   }
-  
+
   return norm_err;
 
 }
@@ -590,7 +590,7 @@ void test_of_axis_angle(void) {
   DISPLAY_FLOAT_RMAT("rmat1", my_r1);
 
   struct FloatMat33 my_r;
-  FLOAT_RMAT_OF_AXIS_ANGLE(my_r, axis, angle); 
+  FLOAT_RMAT_OF_AXIS_ANGLE(my_r, axis, angle);
   DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat", my_r);
   DISPLAY_FLOAT_RMAT("rmat", my_r);
 
@@ -624,7 +624,7 @@ void test_of_axis_angle(void) {
   FLOAT_RMAT_OF_EULERS(rmat1, eul);
   DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat1", rmat1);
   DISPLAY_FLOAT_RMAT("rmat1", rmat1);
-  
+
 }
 
 float test_quat_of_rmat(void) {
@@ -632,7 +632,7 @@ float test_quat_of_rmat(void) {
   //  struct FloatEulers eul = {-0.280849, 0.613423, -1.850440};
   struct FloatEulers eul = {RadOfDeg(0.131579),  RadOfDeg(-62.397659), RadOfDeg(-110.470299)};
   //  struct FloatEulers eul = {RadOfDeg(0.13), RadOfDeg(180.), RadOfDeg(-61.)};
-  
+
   struct FloatMat33 rm;
   FLOAT_RMAT_OF_EULERS(rm, eul);
   DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat", rm);
@@ -651,13 +651,13 @@ float test_quat_of_rmat(void) {
 
   struct FloatMat33 r_att;
   struct FloatEulers e312 = { eul.phi, eul.theta, eul.psi };
-  FLOAT_RMAT_OF_EULERS_312(r_att, e312); 
+  FLOAT_RMAT_OF_EULERS_312(r_att, e312);
   DISPLAY_FLOAT_RMAT("r_att  ", r_att);
   DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("r_att  ", r_att);
 
   struct FloatQuat q_att;
   FLOAT_QUAT_OF_RMAT(q_att, r_att);
-  
+
   struct FloatEulers e_att;
   FLOAT_EULERS_OF_RMAT(e_att, r_att);
   DISPLAY_FLOAT_EULERS_DEG("of rmat", e_att);
@@ -673,19 +673,19 @@ float test_rmat_of_eulers_312(void) {
 
   struct FloatEulers eul312_f;
   EULERS_ASSIGN(eul312_f, RadOfDeg(45.), RadOfDeg(22.), RadOfDeg(0.));
-  DISPLAY_FLOAT_EULERS_DEG("eul312_f", eul312_f);  
+  DISPLAY_FLOAT_EULERS_DEG("eul312_f", eul312_f);
   struct Int32Eulers eul312_i;
   EULERS_BFP_OF_REAL(eul312_i, eul312_f);
   DISPLAY_INT32_EULERS("eul312_i", eul312_i);
-  
+
   struct FloatRMat rmat_f;
   FLOAT_RMAT_OF_EULERS_312(rmat_f, eul312_f);
-  DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat float", rmat_f);  
+  DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat float", rmat_f);
 
   struct Int32RMat rmat_i;
   INT32_RMAT_OF_EULERS_312(rmat_i, eul312_i);
-  DISPLAY_INT32_RMAT_AS_EULERS_DEG("rmat int", rmat_i);  
-  
+  DISPLAY_INT32_RMAT_AS_EULERS_DEG("rmat int", rmat_i);
+
   return 0;
 
 }
@@ -693,7 +693,7 @@ float test_rmat_of_eulers_312(void) {
 
 void test1234(void) {
   struct FloatEulers eul = {RadOfDeg(33.), RadOfDeg(25.), RadOfDeg(26.)};
- 
+
   struct FloatVect3 uz = { 0., 0., 1.};
   struct FloatMat33 r_yaw;
   FLOAT_RMAT_OF_AXIS_ANGLE(r_yaw, uz, eul.psi);
@@ -705,7 +705,7 @@ void test1234(void) {
   struct FloatVect3 ux = { 1., 0., 0.};
   struct FloatMat33 r_roll;
   FLOAT_RMAT_OF_AXIS_ANGLE(r_roll, ux, eul.phi);
-  
+
   struct FloatMat33 r_tmp;
   FLOAT_RMAT_COMP(r_tmp, r_yaw, r_roll);
 
@@ -713,12 +713,12 @@ void test1234(void) {
   FLOAT_RMAT_COMP(r_att, r_tmp, r_pitch);
   DISPLAY_FLOAT_RMAT("r_att_ref  ", r_att);
 
-  FLOAT_RMAT_OF_EULERS_312(r_att, eul); 
+  FLOAT_RMAT_OF_EULERS_312(r_att, eul);
   DISPLAY_FLOAT_RMAT("r_att312  ", r_att);
 
 
 
-  
+
 }
 
 
@@ -766,20 +766,20 @@ float test_quat(void) {
 }
 
 float test_quat2(void) {
-  
+
   struct FloatEulers eula2b;
   EULERS_ASSIGN(eula2b, RadOfDeg(70.), RadOfDeg(0.), RadOfDeg(0.));
-  //  DISPLAY_FLOAT_EULERS_DEG("eula2b", eula2b); 
-  
+  //  DISPLAY_FLOAT_EULERS_DEG("eula2b", eula2b);
+
   struct FloatQuat qa2b;
   FLOAT_QUAT_OF_EULERS(qa2b, eula2b);
-  DISPLAY_FLOAT_QUAT("qa2b", qa2b); 
+  DISPLAY_FLOAT_QUAT("qa2b", qa2b);
 
   struct DoubleEulers eula2b_d;
   EULERS_ASSIGN(eula2b_d, RadOfDeg(70.), RadOfDeg(0.), RadOfDeg(0.));
   struct DoubleQuat qa2b_d;
   DOUBLE_QUAT_OF_EULERS(qa2b_d, eula2b_d);
-  DISPLAY_FLOAT_QUAT("qa2b_d", qa2b_d); 
+  DISPLAY_FLOAT_QUAT("qa2b_d", qa2b_d);
 
    struct FloatVect3 u = { 1., 0., 0.};
    float angle = RadOfDeg(70.);
@@ -789,30 +789,30 @@ float test_quat2(void) {
   DISPLAY_FLOAT_QUAT("q ", q);
 
 
-  
+
 
 
   struct FloatEulers eula2c;
   EULERS_ASSIGN(eula2c, RadOfDeg(80.), RadOfDeg(0.), RadOfDeg(0.));
-  //  DISPLAY_FLOAT_EULERS_DEG("eula2c", eula2c); 
-  
+  //  DISPLAY_FLOAT_EULERS_DEG("eula2c", eula2c);
+
   struct FloatQuat qa2c;
   FLOAT_QUAT_OF_EULERS(qa2c, eula2c);
-  DISPLAY_FLOAT_QUAT("qa2c", qa2c); 
+  DISPLAY_FLOAT_QUAT("qa2c", qa2c);
 
 
   struct FloatQuat qb2a;
   FLOAT_QUAT_INVERT(qb2a, qa2b);
-  DISPLAY_FLOAT_QUAT("qb2a", qb2a); 
+  DISPLAY_FLOAT_QUAT("qb2a", qb2a);
 
 
   struct FloatQuat qb2c1;
   FLOAT_QUAT_COMP(qb2c1, qb2a, qa2c);
-  DISPLAY_FLOAT_QUAT("qb2c1", qb2c1); 
+  DISPLAY_FLOAT_QUAT("qb2c1", qb2c1);
 
   struct FloatQuat qb2c2;
   FLOAT_QUAT_INV_COMP(qb2c2, qa2b, qa2c);
-  DISPLAY_FLOAT_QUAT("qb2c2", qb2c2); 
+  DISPLAY_FLOAT_QUAT("qb2c2", qb2c2);
 
   return 0.;
 
@@ -820,35 +820,35 @@ float test_quat2(void) {
 
 
 float test_INT32_QUAT_OF_RMAT(struct FloatEulers* eul_f, bool_t display) {
-  
+
   struct Int32Eulers eul312_i;
   EULERS_BFP_OF_REAL(eul312_i, (*eul_f));
   if (display)  DISPLAY_INT32_EULERS("eul312_i", eul312_i);
-  
+
   struct FloatRMat rmat_f;
   FLOAT_RMAT_OF_EULERS_312(rmat_f, (*eul_f));
-  if (display) DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat float", rmat_f);  
-  if (display) DISPLAY_FLOAT_RMAT("rmat float", rmat_f);  
+  if (display) DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat float", rmat_f);
+  if (display) DISPLAY_FLOAT_RMAT("rmat float", rmat_f);
 
   struct Int32RMat rmat_i;
   INT32_RMAT_OF_EULERS_312(rmat_i, eul312_i);
-  if (display) DISPLAY_INT32_RMAT_AS_EULERS_DEG("rmat int", rmat_i);  
-  if (display) DISPLAY_INT32_RMAT("rmat int", rmat_i);  
-  if (display) DISPLAY_INT32_RMAT_AS_FLOAT("rmat int", rmat_i);  
+  if (display) DISPLAY_INT32_RMAT_AS_EULERS_DEG("rmat int", rmat_i);
+  if (display) DISPLAY_INT32_RMAT("rmat int", rmat_i);
+  if (display) DISPLAY_INT32_RMAT_AS_FLOAT("rmat int", rmat_i);
 
   struct FloatQuat qf;
   FLOAT_QUAT_OF_RMAT(qf, rmat_f);
   FLOAT_QUAT_WRAP_SHORTEST(qf);
-  if (display) DISPLAY_FLOAT_QUAT("qf", qf); 
+  if (display) DISPLAY_FLOAT_QUAT("qf", qf);
 
   struct Int32Quat qi;
   INT32_QUAT_OF_RMAT(qi, rmat_i);
   INT32_QUAT_WRAP_SHORTEST(qi);
-  if (display) DISPLAY_INT32_QUAT("qi", qi); 
-  if (display) DISPLAY_INT32_QUAT_2("qi", qi); 
+  if (display) DISPLAY_INT32_QUAT("qi", qi);
+  if (display) DISPLAY_INT32_QUAT_2("qi", qi);
 
   struct FloatQuat qif;
-  QUAT_FLOAT_OF_BFP(qif, qi); 
+  QUAT_FLOAT_OF_BFP(qif, qi);
   struct FloatQuat qerr;
   QUAT_DIFF(qerr, qif, qf);
 

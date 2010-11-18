@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2007  Arnold Schroeter
  *
  * This file is part of paparazzi.
@@ -18,23 +18,23 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
-/** \file flightzone.h 
- *  \brief check whether a point is inside the polygon limiting the 
- *         competition area	
- * 
+/** \file flightzone.h
+ *  \brief check whether a point is inside the polygon limiting the
+ *         competition area
+ *
  * filename:        flightzone.h
  * project:     	MAV 2007
  * description:     check whether a point is inside the polygon limiting
  *                  the competition area
- *                  
- *                 
- *				   
+ *
+ *
+ *
  * author:          Arnold Schroeter
- * history:         
+ * history:
  *                  2.9.07 initial version
  *
  */
@@ -42,4 +42,4 @@
 #define COORD_TYPE float
 
 void vInitIsInsideBoundaries(void);
-int iIsInsideBoundaries(COORD_TYPE x, COORD_TYPE y); 
+int iIsInsideBoundaries(COORD_TYPE x, COORD_TYPE y);

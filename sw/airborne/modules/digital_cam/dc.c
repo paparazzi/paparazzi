@@ -23,12 +23,12 @@ void dc_send_shot_position(void)
       int16_t theta = DegOfRad(estimator_theta*10.0f);
       float gps_z = ((float)gps_alt) / 100.0f;
       DOWNLINK_SEND_DC_SHOT(DefaultChannel, &dc_photo_nr, &gps_utm_east, &gps_utm_north, &gps_z, &gps_utm_zone, &phi, &theta,  &gps_course, &gps_gspeed, &gps_itow);
-      dc_photo_nr++;	
+      dc_photo_nr++;
 }
 
 uint8_t dc_shutter( void )
 {
-  dc_timer = SHUTTER_DELAY; 
+  dc_timer = SHUTTER_DELAY;
   DC_PUSH(DC_SHUTTER_LED);
   dc_send_shot_position();
 

@@ -1,6 +1,6 @@
 /*
  * Paparazzi $Id$
- *  
+ *
  * Copyright (C) 2003-2008  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,17 +18,17 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
 /** \file dc.h
  *  \brief Digital Camera Control
- * 
+ *
  * Provides the control of the shutter and the zoom of a digital camera
  * through standard binary IOs of the board.
  *
- * Configuration: 
+ * Configuration:
  *  Since the API of led.h is used, connected pins must be defined as led
  *  numbers (usually in the airframe file):
  *   <define name="DC_SHUTTER_LED" value="6"/>
@@ -84,7 +84,7 @@ extern uint8_t dc_shoot;
 uint8_t dc_shutter( void );
 
 static inline uint8_t dc_zoom( void ) {
-  dc_timer = SHUTTER_DELAY; 
+  dc_timer = SHUTTER_DELAY;
 #ifdef DC_ZOOM_LED
   DC_PUSH(DC_ZOOM_LED);
 #endif
@@ -102,10 +102,10 @@ static inline uint8_t dc_zoom( void ) {
 #define dc_init() { /* initialized as leds */ dc_periodic_shutter = DC_PERIODIC_SHUTTER; DC_PUSH(DC_SHUTTER_LED);} /* Output */
 
 
-#ifndef DC_GPS_TRIGGER_START 
+#ifndef DC_GPS_TRIGGER_START
 #define DC_GPS_TRIGGER_START 1
 #endif
-#ifndef DC_GPS_TRIGGER_STOP 
+#ifndef DC_GPS_TRIGGER_STOP
 #define DC_GPS_TRIGGER_STOP 3
 #endif
 
@@ -127,12 +127,12 @@ static inline void dc_shoot_on_gps( void ) {
     {
       DC_RELEASE(DC_SHUTTER_LED);
     }
-  
+
     gps_msg_counter++;
     if (gps_msg_counter >= DC_GPS_TRIGGER_STOP)
       gps_msg_counter = 0;
   }
-}	
+}
 
 /* 4Hz */
 static inline void dc_periodic( void ) {
@@ -148,7 +148,7 @@ static inline void dc_periodic( void ) {
   if (dc_shoot > 0)
   {
     if (dc_periodic_shutter) {
-      RunOnceEvery(2, 
+      RunOnceEvery(2,
       {
         if (dc_shutter_timer) {
   	  dc_shutter_timer--;

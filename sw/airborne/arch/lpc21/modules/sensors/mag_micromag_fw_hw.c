@@ -1,5 +1,5 @@
 /* PNI micromag3 connected on SPI1 */
-/* 
+/*
    Tiny2 (fixed wing)
    SS    on P0.20 (SSEL)
    RESET on P0.29 (ADC5)
@@ -27,7 +27,7 @@ static void SSP_ISR(void) {
 
 void EXTINT_ISR(void) {
   ISR_ENTRY();
-//LED_TOGGLE(3); 
+//LED_TOGGLE(3);
 
   /* no, we won't do anything asynchronously, so just notify */
   micromag_status = MM_GOT_EOC;
@@ -41,12 +41,12 @@ void EXTINT_ISR(void) {
 void micromag_hw_init( void ) {
   /* setup pins for SSP (SCK, MISO, MOSI, SSEL) */
   PINSEL1 |= SSP_PINSEL1_SCK  | SSP_PINSEL1_MISO | SSP_PINSEL1_MOSI;
-  
+
   /* setup SSP */
   SSPCR0 = SSPCR0_VAL;;
   SSPCR1 = SSPCR1_VAL;
   SSPCPSR = 0x02;
-  
+
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT( VIC_SPI1 );  /* SPI1 selected as IRQ */
   VICIntEnable = VIC_BIT( VIC_SPI1 );    /* enable it            */
@@ -62,17 +62,17 @@ void micromag_hw_init( void ) {
   MmReset();                            /* pin idles low  */
 
   /* configure DRDY pin */
-  /* connected pin to EXINT */ 
+  /* connected pin to EXINT */
   MM_DRDY_PINSEL |= MM_DRDY_PINSEL_VAL << MM_DRDY_PINSEL_BIT;
   SetBit(EXTMODE, MM_DRDY_EINT); /* EINT is edge trigered */
   SetBit(EXTPOLAR,MM_DRDY_EINT); /* EINT is trigered on rising edge */
   SetBit(EXTINT,MM_DRDY_EINT);   /* clear pending EINT */
-  
+
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT( MM_DRDY_VIC_IT );                       /* select EINT as IRQ source */
   VICIntEnable = VIC_BIT( MM_DRDY_VIC_IT );                         /* enable it                 */
   _VIC_CNTL(MICROMAG_DRDY_VIC_SLOT) = VIC_ENABLE | MM_DRDY_VIC_IT;
-  _VIC_ADDR(MICROMAG_DRDY_VIC_SLOT) = (uint32_t)EXTINT_ISR;         // address of the ISR 
+  _VIC_ADDR(MICROMAG_DRDY_VIC_SLOT) = (uint32_t)EXTINT_ISR;         // address of the ISR
 }
 
 

@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 /*
@@ -58,12 +58,12 @@ static inline void main_init( void ) {
 
 
 static inline void main_periodic_task( void ) {
-  
+
 
   RunOnceEvery(256, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
-  RunOnceEvery(256, 
+  RunOnceEvery(256,
     {
-      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, 
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel,
 			       &i2c1_errors.ack_fail_cnt,
 			       &i2c1_errors.miss_start_stop_cnt,
 			       &i2c1_errors.arb_lost_cnt,

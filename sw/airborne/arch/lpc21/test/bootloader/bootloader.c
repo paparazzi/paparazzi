@@ -58,9 +58,9 @@ static unsigned int start_adr;
 
 static const U8 abDescriptors[] = {
 
-// device descriptor	
+// device descriptor
     0x12,
-    DESC_DEVICE,	
+    DESC_DEVICE,
     LE_WORD(0x0110),            // bcdUSB
     0x00,                       // bDeviceClass
     0x00,                       // bDeviceSubClass
@@ -468,7 +468,7 @@ int main(void)
     start_app = 0;
 
     // call USB interrupt handler continuously
-    while (1) 
+    while (1)
     {
         USBHwISR();
 

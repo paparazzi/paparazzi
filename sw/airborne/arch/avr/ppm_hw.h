@@ -8,7 +8,7 @@
  * If you require actual microsecond values, divide by CLOCK.
  * For an 8 Mhz clock and typical servo values, these will range
  * from 0x1F00 to 0x4000.
- * 
+ *
  * Copied from autopilot (autopilot.sf.net) thanx alot Trammell
  *
  * (c) 2002 Trammell Hudson <hudson@rotomotion.com>
@@ -29,7 +29,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.  
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -62,10 +62,10 @@ ppm_init( void )
 #endif
   /* No noise cancelation */
   sbi( TCCR1B, ICNC1 );
-  
+
   /* Set ICP to input, no internal pull up */
   cbi( PPM_DDR, PPM_PIN);
-  
+
   /* Enable interrupt on input capture */
   sbi( TIMSK, TICIE1 );
 

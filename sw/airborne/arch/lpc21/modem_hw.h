@@ -49,7 +49,7 @@ static inline void modem_init ( void ) {
   /* enable interrupt on match register 0 */
   T1MCR |= TMCR_MR0_I | TMCR_MR0_R;
   /* enable timer 1 */
-  T1TCR = TCR_ENABLE; 
+  T1TCR = TCR_ENABLE;
 }
 
 

@@ -21,15 +21,15 @@ void actuators_init ( void ) {
 
   /* enable match 1 interrupt */
   T0MCR |= TMCR_MR1_I;
-  
+
 #ifndef SERVOS_4017_CLOCK_FALLING
   /* lower clock         */
-  T0EMR &= ~TEMR_EM1;	
+  T0EMR &= ~TEMR_EM1;
   /* set high on match 1 */
   T0EMR |= TEMR_EMC1_2;
 #else
   /* assert clock       */
-  T0EMR |= TEMR_EM1;	
+  T0EMR |= TEMR_EM1;
   /* set low on match 1 */
   T0EMR |= TEMR_EMC1_1;
 #endif

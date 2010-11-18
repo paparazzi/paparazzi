@@ -45,7 +45,7 @@
 /* Pin Connect Block */
 #define PINSEL0        (*((volatile unsigned long *) 0xE002C000))
 #define PINSEL1        (*((volatile unsigned long *) 0xE002C004))
-#define PINSEL2        (*((volatile unsigned long *) 0xE002C014))    
+#define PINSEL2        (*((volatile unsigned long *) 0xE002C014))
 
 /* SSP Controller */
 #define SSPCR0         (*((volatile unsigned short* ) 0xE0068000))
@@ -58,7 +58,7 @@
 #define SSPMIS         (*((volatile unsigned char * ) 0xE006801C))
 #define SSPICR         (*((volatile unsigned char * ) 0xE0068020))
 #define SSPDMACR       (*((volatile unsigned char * ) 0xE0068024))
-    
+
 // SSPCR0  Bit-Definitions
 #define CPOL    6
 #define CPHA    7
@@ -78,7 +78,7 @@
 #define SPI_MISO_PIN   18   /* from Card   P0.18  in  */
 #define SPI_MOSI_PIN   19   /* to Card     P0.19  out */
 /* Card-Select P0.20 - GPIO out during startup */
-#define SPI_SS_PIN     20   
+#define SPI_SS_PIN     20
 
 #define SPI_PINSEL     PINSEL1
 #define SPI_SCK_FUNCBIT   2
@@ -87,7 +87,7 @@
 #define SPI_SS_FUNCBIT    8
 
 #define SPI_PRESCALE_REG  SSPCPSR
-   
+
 /* only needed during init: */
 #define SELECT_CARD()   IOCLR0 = (1<<SPI_SS_PIN)
 #define UNSELECT_CARD()	IOSET0 = (1<<SPI_SS_PIN)
@@ -104,7 +104,7 @@ static U8 my_SPISend(U8 outgoing)
 {
 	while( !(SSPSR & (1<<TNF)) ) { ; }
 	SSPDR = outgoing;
-	while( !(SSPSR & (1<<RNE)) ) { ; }    
+	while( !(SSPSR & (1<<RNE)) ) { ; }
 	return SSPDR;
 }
 
@@ -132,7 +132,7 @@ void SPIInit(void)
 
 	// set Chip-Select high - unselect card
 	UNSELECT_CARD();
-	
+
 	// setup Pin-Functions - keep automatic CS disabled during init
 	SPI_PINSEL |= ( (2<<SPI_SCK_FUNCBIT) | (2<<SPI_MISO_FUNCBIT) |
 		(2<<SPI_MOSI_FUNCBIT) | (0<<SPI_SS_FUNCBIT) );
@@ -152,7 +152,7 @@ void SPIInit(void)
 	SSPCR1 &= ~(1<<SSE); // disable interface
 	SPI_PINSEL |= ( (2<<SPI_SCK_FUNCBIT) | (2<<SPI_MISO_FUNCBIT) |
 		(2<<SPI_MOSI_FUNCBIT) | (2<<SPI_SS_FUNCBIT) );
-	SSPCR1 |= (1<<SSE); // enable interface    
+	SSPCR1 |= (1<<SSE); // enable interface
 
 	// SPI clock 15MHz @60MHz PCLK
 	SPISetSpeed(2);

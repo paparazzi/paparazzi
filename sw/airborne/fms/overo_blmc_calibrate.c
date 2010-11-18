@@ -56,7 +56,7 @@ static void dialog_with_io_proc() {
 
   struct AutopilotMessageCRCFrame msg_in;
   struct AutopilotMessageCRCFrame msg_out;
-  uint8_t crc_valid; 
+  uint8_t crc_valid;
 
   for (uint8_t i=0; i<LISA_PWM_OUTPUT_NB; i++) msg_out.payload.msg_down.pwm_outputs_usecs[i] = blmc_calibrate.servos_outputs_usecs[i];
 
@@ -71,7 +71,7 @@ static void main_init(void) {
     TRACE(TRACE_ERROR, "%s", "failed to open SPI link \n");
     return;
   }
-  
+
 	printf("Starting at 2000us\n");
   /* Initialize blaaa */
   for (uint8_t i=0; i<LISA_PWM_OUTPUT_NB; i++) blmc_calibrate.servos_outputs_usecs[i] = 2000;

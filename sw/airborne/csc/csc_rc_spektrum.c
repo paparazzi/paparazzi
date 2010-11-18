@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -60,7 +60,7 @@ static uint8_t msg_buf[SPEKTRUM_BUFFER_SIZE];
 
 void spektrum_init( void )
 {
- 
+
 }
 
 void spektrum_periodic_task ( void )
@@ -106,7 +106,7 @@ static void spektrum_parse_msg( )
 
   msg.left_stick_vertical_and_flap_mix = msg.left_stick_vertical_and_flap_mix | flap_flag;
   msg.left_stick_horizontal_and_aux2 |= aux2_flag << 13;
-  
+
   csc_ap_send_msg(CSC_RC_ID, (const uint8_t *) &msg, sizeof(struct CscRCMsg));
 }
 
@@ -123,7 +123,7 @@ static void parse_spektrum_stream( uint8_t c )
     // Look for start byte 1
     if (c != SYNC1)
       parser_status = UNINIT;
-    parser_status++; 
+    parser_status++;
     break;
   case GOT_SYNC1:
     // Look for start byte 2
@@ -143,7 +143,7 @@ static void parse_spektrum_stream( uint8_t c )
   }
 }
 
-void spektrum_event_task( void ) 
+void spektrum_event_task( void )
 {
   while (SpektrumLink(ChAvailable()) && !msg_received) {
     parse_spektrum_stream(SpektrumLink(Getch()));

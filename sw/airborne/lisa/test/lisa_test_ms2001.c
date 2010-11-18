@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <stm32/gpio.h>
@@ -61,7 +61,7 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic_task( void ) {
-  RunOnceEvery(10, 
+  RunOnceEvery(10,
 	       {
 		 DOWNLINK_SEND_BOOT(DefaultChannel, &cpu_time_sec);
 		 LED_PERIODIC();
@@ -82,7 +82,7 @@ static inline void main_periodic_task( void ) {
 static inline void main_event_task( void ) {
   if (ms2001_status == MS2001_DATA_AVAILABLE) {
     RunOnceEvery(10, {
-	DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, 
+	DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
 				  &ms2001_values[0],
 				  &ms2001_values[1],
 				  &ms2001_values[2]);
@@ -92,7 +92,7 @@ static inline void main_event_task( void ) {
 }
 
 static inline void main_spi2_init( void ) {
-  
+
   /* set max1168 slave select as output and assert it ( on PB12) */
   GPIOB->BSRR = GPIO_Pin_12;
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
@@ -101,23 +101,23 @@ static inline void main_spi2_init( void ) {
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
-  
+
   /* Enable SPI2 Periph clock -------------------------------------------------*/
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
-  
+
   /* Configure GPIOs: SCK, MISO and MOSI  --------------------------------*/
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
-  
+
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO , ENABLE);
 
 
   /* Enable SPI_2 DMA clock ---------------------------------------------------*/
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
-  
- 
+
+
 
 }
 

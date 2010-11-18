@@ -1,6 +1,6 @@
 /*
  * $Id: booz_fms_test_signal.c 4675 2010-03-13 22:59:46Z poine $
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "booz_fms.h"
@@ -44,7 +44,7 @@ void booz_fms_impl_init(void) {
 void booz_fms_impl_periodic(void) {
 
   switch (fms_test_signal.mode) {
-    
+
   case STEP_ROLL: {
     if (fms_test_signal.counter < fms_test_signal.period) {
       EULERS_ASSIGN(fms.input.h_sp.attitude, fms_test_signal.amplitude, 0, 0);
@@ -66,13 +66,13 @@ void booz_fms_impl_periodic(void) {
   case STEP_PITCH:
   case STEP_VERT:
     break;
-#if 0    
+#if 0
   case BOOZ_FMS_TEST_SIGNAL_MODE_VERTICAL: {
     if (guidance_v_mode < GUIDANCE_V_MODE_HOVER)
       booz_fms_test_signal_start_z = ins_ltp_pos.z;
     else {
       booz_fms_input.v_sp.height = (booz_fms_test_signal_counter < booz_fms_test_signal_period) ?
-	booz_fms_test_signal_start_z : 
+	booz_fms_test_signal_start_z :
 	booz_fms_test_signal_start_z - 256;
       //BOOZ_INT_OF_FLOAT(-0.5, IPOS_FRAC)
     }

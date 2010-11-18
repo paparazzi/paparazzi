@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 /*               lisa/L   lisa/M
- *   gyro-drdy   PC14     
+ *   gyro-drdy   PC14
  *
  *
  */
@@ -78,13 +78,13 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
   //  LED_TOGGLE(6);
-  RunOnceEvery(10, 
+  RunOnceEvery(10,
   {
     DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
     LED_PERIODIC();
   });
   RunOnceEvery(256, {
-   DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, 
+   DOWNLINK_SEND_I2C_ERRORS(DefaultChannel,
 			    &i2c2_errors.ack_fail_cnt,
 			    &i2c2_errors.miss_start_stop_cnt,
 			    &i2c2_errors.arb_lost_cnt,
@@ -163,7 +163,7 @@ static inline void main_periodic_task( void ) {
 
 static inline void main_event_task( void ) {
 
-  if (gyro_state == INITIALIZED && gyro_ready_for_read && 
+  if (gyro_state == INITIALIZED && gyro_ready_for_read &&
       ( i2c_trans.status==I2CTransSuccess || i2c_trans.status==I2CTransFailed)) {
     /* reads 8 bytes from address 0x1b */
     i2c_trans.type = I2CTransTxRx;
@@ -177,12 +177,12 @@ static inline void main_event_task( void ) {
     reading_gyro = TRUE;
   }
 
-  if (reading_gyro && 
+  if (reading_gyro &&
       (i2c_trans.status==I2CTransSuccess || i2c_trans.status==I2CTransFailed)) {
     //    DEBUG_S5_ON();
     reading_gyro = FALSE;
     int16_t tgp, tgq, tgr;
-    
+
     int16_t ttemp = i2c_trans.buf[0]<<8 | i2c_trans.buf[1];
 #if 1
     tgp = i2c_trans.buf[2]<<8 | i2c_trans.buf[3];
@@ -201,10 +201,10 @@ static inline void main_event_task( void ) {
 #endif
     struct Int32Rates g;
     RATES_ASSIGN(g, tgp, tgq, tgr);
-    RunOnceEvery(10, 
+    RunOnceEvery(10,
     {
       DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, &g.p, &g.q, &g.r);
-      
+
       uint8_t tmp[8];
       memcpy(tmp, i2c_trans.buf, 8);
       DOWNLINK_SEND_DEBUG(DefaultChannel, 8, tmp);
@@ -252,7 +252,7 @@ static inline void main_init_hw( void ) {
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure); 
+  NVIC_Init(&NVIC_InitStructure);
 
   DEBUG_SERVO1_INIT();
   DEBUG_SERVO2_INIT();

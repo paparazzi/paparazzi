@@ -7,7 +7,7 @@
 
 static short*    wav_buf;
 static float*    float_buf;
-static uint16_t* adc_buf; 
+static uint16_t* adc_buf;
 unsigned nb_samples;
 
 static void vor_audio_read_wav(const char* filename) {

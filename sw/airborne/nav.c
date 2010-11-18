@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 /** \file nav.c
@@ -124,7 +124,7 @@ void nav_circle_XY(float x, float y, float radius) {
   radius += -nav_shift;
 
   float abs_radius = fabs(radius);
-  
+
   /** Computes a prebank. Go straight if inside or outside the circle */
   circle_bank =
     (dist2_center > Square(abs_radius + dist_carrot)
@@ -235,7 +235,7 @@ static inline bool_t nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t w
   waypoints[wp_baseleg].y = waypoints[wp_af].y - x_1 * nav_radius;
   waypoints[wp_baseleg].a = waypoints[wp_af].a;
   baseleg_out_qdr = M_PI - atan2(-y_1, -x_1);
-  if (nav_radius < 0) 
+  if (nav_radius < 0)
     baseleg_out_qdr += M_PI;
 
   return FALSE;
@@ -269,7 +269,7 @@ static inline bool_t compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float g
 
 
 
-static inline void nav_follow(uint8_t _ac_id, float _distance, float _height) { 
+static inline void nav_follow(uint8_t _ac_id, float _distance, float _height) {
   struct ac_info_ * ac = get_ac_info(_ac_id);
   NavVerticalAutoThrottleMode(0.);
   NavVerticalAltitudeMode(Max(ac->alt + _height, ground_alt+SECURITY_HEIGHT), 0.);
@@ -294,7 +294,7 @@ float fp_pitch; /* deg */
 
 /** \brief Decide if the UAV is approaching the current waypoint.
  *  Computes \a dist2_to_wp and compare it to square \a carrot.
- *  Return true if it is smaller. Else computes by scalar products if 
+ *  Return true if it is smaller. Else computes by scalar products if
  *  uav has not gone past waypoint.
  *  Return true if it is the case.
  */
@@ -310,7 +310,7 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
     return TRUE;
 
   float scal_prod = (x - from_x) * pw_x + (y - from_y) * pw_y;
-  
+
   return (scal_prod < 0.);
 }
 
@@ -318,8 +318,8 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
 /**
  *  \brief Computes \a desired_x, \a desired_y and \a desired_course.
  */
-//static inline void fly_to_xy(float x, float y) { 
-void fly_to_xy(float x, float y) { 
+//static inline void fly_to_xy(float x, float y) {
+void fly_to_xy(float x, float y) {
   desired_x = x;
   desired_y = y;
   if (nav_mode == NAV_MODE_COURSE) {
@@ -380,7 +380,7 @@ static void nav_set_altitude(void) {
 /** \brief Home mode navigation (circle around HOME) */
 void nav_home(void) {
   NavCircleWaypoint(WP_HOME, FAILSAFE_HOME_RADIUS);
-  /** Nominal speed */ 
+  /** Nominal speed */
   nav_pitch = 0.;
   v_ctl_mode = V_CTL_MODE_AUTO_ALT;
   nav_altitude = ground_alt+SECURITY_HEIGHT;
@@ -389,7 +389,7 @@ void nav_home(void) {
   nav_set_altitude();
 }
 
-/** 
+/**
  *  \brief Navigation main: call to the code generated from the XML flight
  * plan
  */
@@ -425,14 +425,14 @@ void nav_init(void) {
   nav_mode = NAV_MODE_COURSE;
 
 #ifdef NAV_GROUND_SPEED_PGAIN
-  nav_ground_speed_pgain = NAV_GROUND_SPEED_PGAIN; 
+  nav_ground_speed_pgain = NAV_GROUND_SPEED_PGAIN;
   nav_ground_speed_setpoint = NOMINAL_AIRSPEED;
 #endif
 }
 
-/** 
+/**
  *  \brief Failsafe navigation without position estimation
- * 
+ *
  * Just set attitude and throttle to FAILSAFE values
  * to prevent the plane from crashing.
  */
@@ -492,7 +492,7 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
   }
 
   /* The other center */
-  struct point c2 = { 
+  struct point c2 = {
     waypoints[target].x - d*u_x,
     waypoints[target].y - d*u_y,
     alt };
@@ -505,7 +505,7 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
     waypoints[c1].x - radius * -u_y,
     waypoints[c1].y - radius * u_x,
     alt };
-  
+
   struct point c2_in = {
     c2.x + radius * -u_y,
     c2.y + radius * u_x,
@@ -514,11 +514,11 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
     c2.x - radius * -u_y,
     c2.y - radius * u_x,
     alt };
-  
+
   float qdr_out = M_PI - atan2(u_y, u_x);
   if (radius < 0)
     qdr_out += M_PI;
-  
+
   switch (eight_status) {
   case C1 :
     NavCircleWaypoint(c1, radius);
@@ -530,7 +530,7 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
 
   case R1T:
     nav_route_xy(c1_out.x, c1_out.y, c2_in.x, c2_in.y);
-    if (nav_approaching_xy(waypoints[target].x, waypoints[target].y, c1_out.x, c1_out.y, 0)) { 
+    if (nav_approaching_xy(waypoints[target].x, waypoints[target].y, c1_out.x, c1_out.y, 0)) {
       eight_status = RT2;
       InitStage();
     }
@@ -538,7 +538,7 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
 
   case RT2:
     nav_route_xy(c1_out.x, c1_out.y, c2_in.x, c2_in.y);
-    if (nav_approaching_xy(c2_in.x, c2_in.y, c1_out.x, c1_out.y, CARROT)) { 
+    if (nav_approaching_xy(c2_in.x, c2_in.y, c1_out.x, c1_out.y, CARROT)) {
       eight_status = C2;
       InitStage();
     }
@@ -551,10 +551,10 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
       InitStage();
     }
     return;
-    
+
   case R2T:
     nav_route_xy(c2_out.x, c2_out.y, c1_in.x, c1_in.y);
-    if (nav_approaching_xy(waypoints[target].x, waypoints[target].y, c2_out.x, c2_out.y, 0)) { 
+    if (nav_approaching_xy(waypoints[target].x, waypoints[target].y, c2_out.x, c2_out.y, 0)) {
       eight_status = RT1;
       InitStage();
     }
@@ -562,7 +562,7 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
 
   case RT1:
     nav_route_xy(c2_out.x, c2_out.y, c1_in.x, c1_in.y);
-    if (nav_approaching_xy(c1_in.x, c1_in.y, c2_out.x, c2_out.y, CARROT)) { 
+    if (nav_approaching_xy(c1_in.x, c1_in.y, c2_out.x, c2_out.y, CARROT)) {
       eight_status = C1;
       InitStage();
     }
@@ -576,9 +576,9 @@ void nav_eight(uint8_t target, uint8_t c1, float radius) {
 /************** Oval Navigation **********************************************/
 
 /** Navigation along a figure O. One side leg is defined by waypoints [p1] and
-    [p2]. 
+    [p2].
     The navigation goes through 4 states: OC1 (half circle next to [p1]),
-    OR21 (route [p2] to [p1], OC2 (half circle next to [p2]) and OR12 
+    OR21 (route [p2] to [p1], OC2 (half circle next to [p2]) and OR12
     (opposite leg).
 
     Initial state is the route along the desired segment (OC2).
@@ -612,14 +612,14 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
   struct point p1_out = { waypoints[p1].x + 2*radius * -u_y,
 			  waypoints[p1].y + 2*radius * u_x,
 			  alt  };
-  
+
   struct point p2_in = { waypoints[p2].x + 2*radius * -u_y,
 			 waypoints[p2].y + 2*radius * u_x,
 			 alt  };
   struct point p2_center = { waypoints[p2].x + radius * -u_y,
 			     waypoints[p2].y + radius * u_x,
 			     alt  };
- 
+
   float qdr_out_2 = M_PI - atan2(u_y, u_x);
   float qdr_out_1 = qdr_out_2 + M_PI;
   if (radius < 0) {
@@ -627,7 +627,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
     qdr_out_1 += M_PI;
   }
   float qdr_anticipation = (radius > 0 ? -15 : 15);
-  
+
   switch (oval_status) {
   case OC1 :
     nav_circle_XY(p1_center.x,p1_center.y, -radius);
@@ -640,7 +640,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
 
   case OR12:
     nav_route_xy(p1_out.x, p1_out.y, p2_in.x, p2_in.y);
-    if (nav_approaching_xy(p2_in.x, p2_in.y, p1_out.x, p1_out.y, CARROT)) { 
+    if (nav_approaching_xy(p2_in.x, p2_in.y, p1_out.x, p1_out.y, CARROT)) {
       oval_status = OC2;
       nav_oval_count++;
       InitStage();
@@ -659,7 +659,7 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius) {
 
   case OR21:
     nav_route_xy(waypoints[p2].x, waypoints[p2].y, waypoints[p1].x, waypoints[p1].y);
-    if (nav_approaching_xy(waypoints[p1].x, waypoints[p1].y, waypoints[p2].x, waypoints[p2].y, CARROT)) { 
+    if (nav_approaching_xy(waypoints[p1].x, waypoints[p1].y, waypoints[p2].x, waypoints[p2].y, CARROT)) {
       oval_status = OC1;
       InitStage();
       LINE_STOP_FUNCTION;

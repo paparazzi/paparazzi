@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2003-2006  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -60,12 +60,12 @@ void link_mcu_event_task( void ) {
   /* A message has been received */
   ComputeChecksum(link_mcu_from_ap_msg);
   link_mcu_received = TRUE;
-  if (link_mcu_from_ap_msg.checksum == crc) 
+  if (link_mcu_from_ap_msg.checksum == crc)
     inter_mcu_received_ap = TRUE;
   else
     fbw_state->nb_err++;
 }
-   
+
 #endif /* FBW */
 
 
@@ -86,7 +86,7 @@ void link_mcu_send(void) {
     SpiOverRun();
     return;
   }
-  
+
   ComputeChecksum(link_mcu_from_ap_msg);
   link_mcu_from_ap_msg.checksum = crc;
   spi_buffer_input = (uint8_t*)&link_mcu_from_fbw_msg;
@@ -99,7 +99,7 @@ void link_mcu_send(void) {
 void link_mcu_event_task( void ) {
   /* A message has been received */
   ComputeChecksum(link_mcu_from_fbw_msg);
-  if (link_mcu_from_fbw_msg.checksum == crc) 
+  if (link_mcu_from_fbw_msg.checksum == crc)
     inter_mcu_received_fbw = TRUE;
   else
     link_mcu_nb_err++;

@@ -2,14 +2,14 @@
 #define MAX1167_HW_H
 
 /*
-  MAX1167 SPI ADC connected on SPI1 
+  MAX1167 SPI ADC connected on SPI1
   SS on P1.29
   EOC on P0.16 ( EINT0 )
 */
 
 #include "std.h"
 #include "LPC21xx.h"
-#include "interrupt_hw.h"  
+#include "interrupt_hw.h"
 #include "spi_hw.h"
 
 //#include "pprz_debug.h"

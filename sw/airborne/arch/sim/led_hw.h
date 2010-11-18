@@ -9,4 +9,4 @@ extern value * leds_closure;
 #define LED_ON(i) { if (leds_closure) callback2(*leds_closure, Val_int(i), Val_int(1)); }
 #define LED_OFF(i) { if (leds_closure) callback2(*leds_closure, Val_int(i), Val_int(0)); }
 #define LED_TOGGLE(i) { if (leds_closure) callback2(*leds_closure, Val_int(i), Val_int(2)); }
- 
+

@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009  ENAC
  *
  * This file is part of paparazzi.
@@ -18,12 +18,12 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
 #include "LPC21xx.h"
-#include "interrupt_hw.h"  
+#include "interrupt_hw.h"
 #include "max3100_hw.h"
 
 #include "ap_downlink.h"
@@ -56,7 +56,7 @@ static void SPI1_ISR(void) __attribute__((naked));
 #define SSP_DSS  0x0F << 0  /* data size            : 16 bits   */
 // #define SSP_DSS  0x07 << 0  /* data size            : 8 bits   */
 #define SSP_FRF  0x00 << 4  /* frame format         : SPI      */
-#define SSP_CPOL 0x00 << 6  /* clock polarity       : idle low */  
+#define SSP_CPOL 0x00 << 6  /* clock polarity       : idle low */
 #define SSP_CPHA 0x00 << 7  /* clock phase          : 0        */
 #define SSP_SCR  0x0F << 8  /* serial clock rate    : 29.3kHz, SSP input clock / 16 */
 
@@ -109,7 +109,7 @@ void max3100_init( void ) {
   VICIntSelect &= ~VIC_BIT( MAX3100_VIC_EINT );    // EXTINT selected as IRQ
   VICIntEnable = VIC_BIT( MAX3100_VIC_EINT );             // EXTINT interrupt enabled
   VICVectCntl8 = VIC_ENABLE | MAX3100_VIC_EINT;
-  VICVectAddr8 = (uint32_t)EXTINT_ISR;   // address of the ISR 
+  VICVectAddr8 = (uint32_t)EXTINT_ISR;   // address of the ISR
 
   /* Configure interrupt vector for SPI */
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   /* SPI1 selected as IRQ */
@@ -128,7 +128,7 @@ void EXTINT_ISR(void) {
   ISR_ENTRY();
 
   max3100_data_available = true;
-  
+
   SetBit(EXTINT, MAX3100_IRQ_EINT);   /* clear extint */
   VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
 
@@ -151,7 +151,7 @@ void SPI1_ISR(void) {
     }
   }
   SpiClearRti();                  /* clear interrupt */
-  SpiDisableRti();    
+  SpiDisableRti();
   SpiDisable ();
   Max3100Unselect();
   max3100_status = MAX3100_STATUS_IDLE;

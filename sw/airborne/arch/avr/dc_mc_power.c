@@ -15,7 +15,7 @@
 
 void dc_mc_power_init(void) {
   /* OC1A output    */
-  DDRB |= _BV(1); 
+  DDRB |= _BV(1);
 
   /* fast PWM TOP in ICR1 match in OCR1A */
   ICR1 = DC_MC_POWER_RESOLUTION;

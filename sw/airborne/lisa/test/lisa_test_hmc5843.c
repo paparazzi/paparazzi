@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <stm32/gpio.h>
@@ -81,14 +81,14 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
   //  LED_TOGGLE(6);
-  RunOnceEvery(10, 
+  RunOnceEvery(10,
   {
     DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
     LED_PERIODIC();
   });
-  RunOnceEvery(256, 
+  RunOnceEvery(256,
     {
-      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, 
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel,
 			       &i2c2_errors.ack_fail_cnt,
 			       &i2c2_errors.miss_start_stop_cnt,
 			       &i2c2_errors.arb_lost_cnt,
@@ -136,11 +136,11 @@ static inline void main_periodic_task( void ) {
   default:
     break;
   }
-#endif  
+#endif
   //  if (mag_state  == 4) mag_state=1;
-  
+
   if (mag_state  < INITIALIZED) mag_state++;
-  
+
 }
 
 
@@ -185,7 +185,7 @@ static void send_config(void) {
   t1.buf[1] = 0x00 | (0x06 << 2);
   t1.len_w = 2;
   i2c_submit(&i2c2,&t1);
-    
+
   t2.type = I2CTransTx;
   t2.slave_addr = HMC5843_ADDR;
   t2.buf[0] = HMC5843_REG_CFGB;  // set to gain to 1 Gauss
@@ -239,7 +239,7 @@ static inline void main_init_hw( void ) {
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure); 
+  NVIC_Init(&NVIC_InitStructure);
 
   DEBUG_SERVO1_INIT();
   DEBUG_SERVO2_INIT();

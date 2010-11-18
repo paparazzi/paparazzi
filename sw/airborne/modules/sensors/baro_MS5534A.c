@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2007  ENAC
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -205,9 +205,9 @@ static void calibration( void ) {
   c4 = words[2] >> 6;
   uint16_t c5 = ((words[0] & 0x1) << 10) | (words[1] >> 6);
   c6 = words[1] & 0x3f;
-  
+
   ut1 = (c5 << 3) + 20224;
-  
+
 #ifndef BARO_NO_DOWNLINK
   DOWNLINK_SEND_BARO_WORDS(DefaultChannel, &words[0], &words[1], &words[2], &words[3]);
 #endif

@@ -1,5 +1,5 @@
 /*
-	LPCUSB, an USB device driver for LPC microcontrollers	
+	LPCUSB, an USB device driver for LPC microcontrollers
 	Copyright (C) 2006 Bertrik Sikken (bertrik@sikken.nl)
 
 	Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
 	THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
 	IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 	OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-	IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, 
+	IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
 	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
 	NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
@@ -30,7 +30,7 @@
 
 	This is the SCSI layer of the USB mass storage application example.
 	This layer depends directly on the blockdev layer.
-	
+
 	Windows peculiarities:
 	* Size of REQUEST SENSE CDB is 12 bytes instead of expected 6
 	* Windows requires VERIFY(10) command to do a format.
@@ -90,7 +90,7 @@ U8		abInquiry[] = {
 };
 
 //	Data for "request sense" command. The 0xFF are filled in later
-static const U8 abSense[] = { 0x70, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x0A, 
+static const U8 abSense[] = { 0x70, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x0A,
 							  0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00,
 							  0x00, 0x00 };
 
@@ -110,7 +110,7 @@ typedef struct {
 	SCSIReset
 	=========
 		Resets any SCSI state
-		
+
 **************************************************************************/
 void SCSIReset(void)
 {
@@ -123,14 +123,14 @@ void SCSIReset(void)
 	=============
 		Verifies a SCSI CDB and indicates the direction and amount of data
 		that the device wants to transfer.
-		
+
 	If this call fails, a sense code is set in dwSense.
 
 	IN		pbCDB		Command data block
 			iCDBLen		Command data block len
 	OUT		*piRspLen	Length of intended response data:
 			*pfDevIn	TRUE if data is transferred from device-to-host
-	
+
 	Returns a pointer to the data exchange buffer if successful,
 	return NULL otherwise.
 **************************************************************************/
@@ -141,12 +141,12 @@ U8 * SCSIHandleCmd(U8 *pbCDB, U8 iCDBLen, int *piRspLen, BOOL *pfDevIn)
 	TCDB6	*pCDB;
 	U32		dwLen, dwLBA;
 	U8		bGroupCode;
-	
+
 	pCDB = (TCDB6 *)pbCDB;
-	
+
 	// default direction is from device to host
 	*pfDevIn = TRUE;
-	
+
 	// check CDB length
 	bGroupCode = (pCDB->bOperationCode >> 5) & 0x7;
 	if (iCDBLen < aiCDBLen[bGroupCode]) {
@@ -161,32 +161,32 @@ U8 * SCSIHandleCmd(U8 *pbCDB, U8 iCDBLen, int *piRspLen, BOOL *pfDevIn)
 		DBG("TEST UNIT READY\n");
 		*piRspLen = 0;
 		break;
-	
+
 	// request sense (6)
 	case SCSI_CMD_REQUEST_SENSE:
 		DBG("REQUEST SENSE (%06X)\n", dwSense);
 		// check params
 		*piRspLen = MIN(18, pCDB->bLength);
 		break;
-	
+
 	case SCSI_CMD_FORMAT_UNIT:
 		DBG("FORMAT UNIT %02X\n", pbCDB[1]);
 		*piRspLen = 0;
 		break;
-	
+
 	// inquiry (6)
 	case SCSI_CMD_INQUIRY:
 		DBG("INQUIRY\n");
 		// see SPC3r23, 4.3.4.6
 		*piRspLen = MIN(36, pCDB->bLength);
 		break;
-		
+
 	// read capacity (10)
 	case SCSI_CMD_READ_CAPACITY_10:
 		DBG("READ CAPACITY\n");
 		*piRspLen = 8;
 		break;
-		
+
 	// read (10)
 	case SCSI_CMD_READ_10:
 		dwLBA = (pbCDB[2] << 24) | (pbCDB[3] << 16) | (pbCDB[4] << 8) | (pbCDB[5]);
@@ -213,9 +213,9 @@ U8 * SCSIHandleCmd(U8 *pbCDB, U8 iCDBLen, int *piRspLen, BOOL *pfDevIn)
 		}
 		*piRspLen = 0;
 		break;
-	
+
 	default:
-		DBG("Unhandled SCSI: ");		
+		DBG("Unhandled SCSI: ");
 		for (i = 0; i < iCDBLen; i++) {
 			DBG(" %02X", pbCDB[i]);
 		}
@@ -225,8 +225,8 @@ U8 * SCSIHandleCmd(U8 *pbCDB, U8 iCDBLen, int *piRspLen, BOOL *pfDevIn)
 		*piRspLen = 0;
 		return NULL;
 	}
-	
-	
+
+
 	return abBlockBuf;
 }
 
@@ -235,12 +235,12 @@ U8 * SCSIHandleCmd(U8 *pbCDB, U8 iCDBLen, int *piRspLen, BOOL *pfDevIn)
 	SCSIHandleData
 	==============
 		Handles a block of SCSI data.
-		
+
 	IN		pbCDB		Command data block
 			iCDBLen		Command data block len
 	IN/OUT	pbData		Data buffer
 	IN		dwOffset	Offset in data
-	
+
 	Returns a pointer to the next data to be exchanged if successful,
 	returns NULL otherwise.
 **************************************************************************/
@@ -250,9 +250,9 @@ U8 * SCSIHandleData(U8 *pbCDB, U8 iCDBLen, U8 *pbData, U32 dwOffset)
 	U32		dwLBA;
 	U32		dwBufPos, dwBlockNr;
 	U32		dwDevSize, dwMaxBlock;
-	
+
 	pCDB = (TCDB6 *)pbCDB;
-	
+
 	switch (pCDB->bOperationCode) {
 
 	// test unit ready
@@ -261,7 +261,7 @@ U8 * SCSIHandleData(U8 *pbCDB, U8 iCDBLen, U8 *pbData, U32 dwOffset)
 			return NULL;
 		}
 		break;
-	
+
 	// request sense
 	case SCSI_CMD_REQUEST_SENSE:
 		memcpy(pbData, abSense, 18);
@@ -272,23 +272,23 @@ U8 * SCSIHandleData(U8 *pbCDB, U8 iCDBLen, U8 *pbData, U32 dwOffset)
 		// reset sense data
 		dwSense = 0;
 		break;
-	
+
 	case SCSI_CMD_FORMAT_UNIT:
 		// nothing to do, ignore this command
 		break;
-	
+
 	// inquiry
 	case SCSI_CMD_INQUIRY:
 		memcpy(pbData, abInquiry, sizeof(abInquiry));
 		break;
-		
+
 	// read capacity
 	case SCSI_CMD_READ_CAPACITY_10:
 		// get size of drive (bytes)
 		BlockDevGetSize(&dwDevSize);
 		// calculate highest LBA
 		dwMaxBlock = (dwDevSize - 1) / 512;
-		
+
 		pbData[0] = (dwMaxBlock >> 24) & 0xFF;
 		pbData[1] = (dwMaxBlock >> 16) & 0xFF;
 		pbData[2] = (dwMaxBlock >> 8) & 0xFF;
@@ -298,7 +298,7 @@ U8 * SCSIHandleData(U8 *pbCDB, U8 iCDBLen, U8 *pbData, U32 dwOffset)
 		pbData[6] = (BLOCKSIZE >> 8) & 0xFF;
 		pbData[7] = (BLOCKSIZE >> 0) & 0xFF;
 		break;
-		
+
 	// read10
 	case SCSI_CMD_READ_10:
 		dwLBA = (pbCDB[2] << 24) | (pbCDB[3] << 16) | (pbCDB[4] << 8) | (pbCDB[5]);
@@ -321,7 +321,7 @@ U8 * SCSIHandleData(U8 *pbCDB, U8 iCDBLen, U8 *pbData, U32 dwOffset)
 	// write10
 	case SCSI_CMD_WRITE_10:
 		dwLBA = (pbCDB[2] << 24) | (pbCDB[3] << 16) | (pbCDB[4] << 8) | (pbCDB[5]);
-		
+
 		// copy data to block buffer
 		dwBufPos = ((dwOffset + 64) & (BLOCKSIZE - 1));
 		if (dwBufPos == 0) {
@@ -336,17 +336,17 @@ U8 * SCSIHandleData(U8 *pbCDB, U8 iCDBLen, U8 *pbData, U32 dwOffset)
 		}
 		// return pointer to next data
 		return abBlockBuf + dwBufPos;
-		
+
 	case SCSI_CMD_VERIFY_10:
 		// dummy implementation
 		break;
-		
+
 	default:
 		// unsupported command
 		dwSense = INVALID_CMD_OPCODE;
 		return NULL;
 	}
-	
+
 	// default: return pointer to start of block buffer
 	return abBlockBuf;
 }

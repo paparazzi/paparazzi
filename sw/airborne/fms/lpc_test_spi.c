@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <inttypes.h>
@@ -93,10 +93,10 @@ static inline void main_event_task( void ) {
 static inline void main_spi_init(void) {
   /* setup pins for SPI0 (SCK, MISO, MOSI, SS) */
   PINSEL0 |= PINSEL0_SCK | PINSEL0_MISO | PINSEL0_MOSI | PINSEL0_SSEL;
-  
+
   S0SPCR = S0SPCR_LSF_VAL;
   S0SPCCR = CPSDVSR;
- 
+
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT(VIC_SPI0);   // SPI1 selected as IRQ
   VICIntEnable = VIC_BIT(VIC_SPI0);     // SPI1 interrupt enabled
@@ -110,11 +110,11 @@ static inline void main_spi_init(void) {
 
 static void SPI0_ISR(void) {
  ISR_ENTRY();
- 
+
  static uint8_t cnt = 0;
  LED_TOGGLE(1);
 
- if ( bit_is_set(S0SPSR, SPIF)) { /* transfer complete  */ 
+ if ( bit_is_set(S0SPSR, SPIF)) { /* transfer complete  */
    uint8_t foo = S0SPDR;
    S0SPDR = cnt;
    cnt++;

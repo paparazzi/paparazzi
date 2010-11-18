@@ -1,5 +1,5 @@
 /*
-	LPCUSB, an USB device driver for LPC microcontrollers	
+	LPCUSB, an USB device driver for LPC microcontrollers
 	Copyright (C) 2006 Bertrik Sikken (bertrik@sikken.nl)
 
 	This library is free software; you can redistribute it and/or
@@ -19,11 +19,11 @@
 
 /*
 	Standard request handler.
-	
+
 	This modules handles the 'chapter 9' processing, specifically the
 	standard device requests in table 9-3 from the universal serial bus
 	specification revision 2.0
-	
+
 	Specific types of devices may specify additional requests (for example
 	HID devices add a GET_DESCRIPTOR request for interfaces), but they
 	will not be part of this module.
@@ -32,7 +32,7 @@
 // TODO some requests have to return a request error if device not configured:
 // TODO GET_INTERFACE, GET_STATUS, SET_INTERFACE, SYNCH_FRAME
 // TODO this applies to the following if endpoint != 0:
-// TODO SET_FEATURE, GET_FEATURE 
+// TODO SET_FEATURE, GET_FEATURE
 
 #include "type.h"
 #include "usbdebug.h"
@@ -49,7 +49,7 @@ static TFnGetDescriptor	*pfnGetDescriptor = NULL;
 	HandleStdDeviceReq
 	==================
 		Local function to handle a standard device request
-		
+
 	IN		pSetup		The setup packet
 	IN/OUT	*piLen		Pointer to data length
 			ppbData		Data buffer.
@@ -61,7 +61,7 @@ static BOOL HandleStdDeviceReq(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
 	U8	*pbData = *ppbData;
 
 	switch (pSetup->bRequest) {
-	
+
 	case REQ_GET_STATUS:
 		// bit 0: self-powered
 		// bit 1: remote wakeup
@@ -69,7 +69,7 @@ static BOOL HandleStdDeviceReq(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
 		pbData[1] = 0;
 		*piLen = 2;
 		break;
-		
+
 	case REQ_SET_ADDRESS:
 		USBHwSetAddress(pSetup->wValue);
 		break;
@@ -110,7 +110,7 @@ static BOOL HandleStdDeviceReq(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
 		DBG("Illegal device req %d\n", pSetup->bRequest);
 		return FALSE;
 	}
-	
+
 	return TRUE;
 }
 
@@ -119,7 +119,7 @@ static BOOL HandleStdDeviceReq(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
 	HandleStdInterfaceReq
 	=====================
 		Local function to handle a standard interface request
-		
+
 	IN		pSetup		The setup packet
 	IN/OUT	*piLen		Pointer to data length
 			ppbData		Data buffer.
@@ -143,13 +143,13 @@ static BOOL HandleStdInterfaceReq(TSetupPacket	*pSetup, int *piLen, U8 **ppbData
 	case REQ_SET_FEATURE:
 		// not defined for interface
 		return FALSE;
-	
+
 	case REQ_GET_INTERFACE:	// TODO use bNumInterfaces
         // there is only one interface, return n-1 (= 0)
 		pbData[0] = 0;
 		*piLen = 1;
 		break;
-	
+
 	case REQ_SET_INTERFACE:	// TODO use bNumInterfaces
 		// there is only one interface (= 0)
 		if (pSetup->wValue == 0) {
@@ -173,7 +173,7 @@ static BOOL HandleStdInterfaceReq(TSetupPacket	*pSetup, int *piLen, U8 **ppbData
 	HandleStdEndPointReq
 	====================
 		Local function to handle a standard endpoint request
-		
+
 	IN		pSetup		The setup packet
 	IN/OUT	*piLen		Pointer to data length
 			ppbData		Data buffer.
@@ -191,7 +191,7 @@ static BOOL HandleStdEndPointReq(TSetupPacket	*pSetup, int *piLen, U8 **ppbData)
 		pbData[1] = 0;
 		*piLen = 2;
 		break;
-		
+
 	case REQ_CLEAR_FEATURE:
 		if (pSetup->wValue == FEA_ENDPOINT_HALT) {
 			// clear HALT by unstalling
@@ -200,7 +200,7 @@ static BOOL HandleStdEndPointReq(TSetupPacket	*pSetup, int *piLen, U8 **ppbData)
 		}
 		// only ENDPOINT_HALT defined for endpoints
 		return FALSE;
-	
+
 	case REQ_SET_FEATURE:
 		if (pSetup->wValue == FEA_ENDPOINT_HALT) {
 			// set HALT by stalling
@@ -218,7 +218,7 @@ static BOOL HandleStdEndPointReq(TSetupPacket	*pSetup, int *piLen, U8 **ppbData)
 		DBG("Illegal EP req %d\n", pSetup->bRequest);
 		return FALSE;
 	}
-	
+
 	return TRUE;
 }
 
@@ -227,7 +227,7 @@ static BOOL HandleStdEndPointReq(TSetupPacket	*pSetup, int *piLen, U8 **ppbData)
 	USBHandleStandardRequest
 	===================
 		Local function to handle a standard request
-		
+
 	IN		pSetup		The setup packet
 	IN/OUT	*piLen		Pointer to data length
 			ppbData		Data buffer.
@@ -249,7 +249,7 @@ BOOL USBHandleStandardRequest(TSetupPacket	*pSetup, int *piLen, U8 **ppbData)
 	USBRegisterDescriptorHandler
 	=========================
 		Registers a callback for handling descriptors
-		
+
 	IN		pfnGetDesc	Callback function pointer
 
 **************************************************************************/

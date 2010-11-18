@@ -73,7 +73,7 @@ extern bool read_bytes;
 #if MAX3100_FOSC == 1843200
 #define MAX3100_B115200 0x0
 #define MAX3100_B57600 0x1
-#define MAX3100_B19200 0x9 
+#define MAX3100_B19200 0x9
 #define MAX3100_B9600 0xA
 #elif MAX3100_FOSC == 3686400
 #define MAX3100_B9600 0xB
@@ -116,11 +116,11 @@ static inline void max3100_transmit(uint16_t data) {
 #define Max3100ReadData() max3100_transmit(MAX3100_READ_DATA)
 
 
-static inline void max3100_read_data(void) { 
+static inline void max3100_read_data(void) {
   Max3100ReadData();
   max3100_status = MAX3100_STATUS_READING;
 }
-  
+
 static inline void max3100_flush( void ) {
   if (max3100_status == MAX3100_STATUS_IDLE
       && max3100_tx_extract_idx != max3100_tx_insert_idx

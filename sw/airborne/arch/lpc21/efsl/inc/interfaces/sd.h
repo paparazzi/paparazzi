@@ -31,8 +31,8 @@
 *                                                    (c)2006 Michael De Nil   *
 \*****************************************************************************/
 
-#ifndef __SD_H_ 
-#define __SD_H_ 
+#ifndef __SD_H_
+#define __SD_H_
 
 #include "config.h"
 #include "types.h"

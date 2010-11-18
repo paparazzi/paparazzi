@@ -70,5 +70,5 @@ static inline void main_dl_parse_msg(void) {
     float var = DL_SETTING_value(dl_buffer);
     DlSetting(i, var);
     DOWNLINK_SEND_DL_VALUE(&i, &var);
-  }  
+  }
 }

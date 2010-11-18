@@ -29,7 +29,7 @@ inline float vor_float_filter_bp_var( float xn) {
             - b1 * y1
             - b2 * y2
             - b3 * y3;
-  
+
   x3 = x2;
   x2 = x1;
   x1 = xn;
@@ -85,7 +85,7 @@ inline float vor_float_filter_bp_ref( float xn) {
             - b4 * y4
             - b5 * y5
             - b6 * y6;
-  
+
   x6 = x5;
   x5 = x4;
   x4 = x3;
@@ -186,7 +186,7 @@ inline float vor_float_filter_lp_var( float xn) {
            - b4 * y4
            - b5 * y5
            - b6 * y6;
-  
+
   x6 = x5;
   x5 = x4;
   x4 = x3;
@@ -288,7 +288,7 @@ inline float vor_float_filter_lp_fm( float xn) {
            - b4 * y4
            - b5 * y5
            - b6 * y6;
-  
+
   x6 = x5;
   x5 = x4;
   x4 = x3;

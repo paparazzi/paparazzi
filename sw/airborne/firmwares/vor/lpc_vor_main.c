@@ -33,7 +33,7 @@ int main( void ) {
       vor_adc_sample_available = FALSE;
     }
   }
-  
+
   return 0;
 }
 

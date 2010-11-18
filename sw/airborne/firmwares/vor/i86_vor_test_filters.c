@@ -11,9 +11,9 @@
 
 
 int main(int argc, char** argv) {
-  
+
   vor_audio_read_wav("signal_VOR_BF_50_200dB.wav");
-  
+
   int i;
   float te = 1/29880.;
 
@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
     int32_t yi_i = vor_int_filter_bp_ref(adc_buf[i]);
 
 
-    printf("%f\t%f\t%f\t%d\t%d\t%f\n", 
+    printf("%f\t%f\t%f\t%d\t%d\t%f\n",
 	   t, float_buf[i], yi_f, adc_buf[i], yi_i, (float)yi_i / (float)VIF_SFACT / (1<<5));
   }
 

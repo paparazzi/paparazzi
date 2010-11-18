@@ -114,7 +114,7 @@ static void overrun(void *impl)
 
 static void count_bytes(void *onboard __attribute__((unused)), uint8_t bytes __attribute__((unused)))
 {
-	
+
 }
 
 static int check_free_space(void *onboard __attribute__((unused)), uint8_t bytes __attribute__((unused)))
@@ -150,7 +150,7 @@ static int open_piped(char *filepath)
     int retval;
 
     /* Lower our priority -- logging is not that important */
-    if (setpriority(PRIO_PROCESS, 0, 10) < 0) 
+    if (setpriority(PRIO_PROCESS, 0, 10) < 0)
       fprintf(stderr, "Couldn't renice logger for some reason!\n");
 
     // copy from the read side of the pipe to the log

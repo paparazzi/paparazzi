@@ -30,7 +30,7 @@ int main (int argc, char** argv) {
   while(1) {
     tx = bit_is_set(IO0PIN, RXD0_PIN);
     if (tx != tx_shadow) {
-      if (tx) {  
+      if (tx) {
         SetBit(IO0SET, TXD1_PIN);
       } else {
         SetBit(IO0CLR, TXD1_PIN);

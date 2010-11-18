@@ -12,7 +12,7 @@ int main(void) {
   angle = 360. * 257 + 10.;
   NormCourse(angle);
   assert(angle > 360);
-  
+
   assert(CloseDegAngles(180, 175+10*360));
   assert(CloseDegAngles(175+10*360, 180));
   assert(CloseDegAngles(355, 4+5*360));

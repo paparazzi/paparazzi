@@ -136,10 +136,10 @@ void vor_int_demod_run ( int16_t sample) {
   // Le signal arrive sur 10 bits, on le met sur 16 bits
   sample = sample*(1<<6);
 
-  // get VAR signal by bandpassing input signal 
+  // get VAR signal by bandpassing input signal
   vid_var_sig = vor_int_filter_bp_var(sample);
 
-  // get REF signal by bandpassing input signal 
+  // get REF signal by bandpassing input signal
   vid_ref_sig = vor_int_filter_bp_ref(sample);
 
   //=================================================================
@@ -149,12 +149,12 @@ void vor_int_demod_run ( int16_t sample) {
     case 1 : {
 
       decim2++;
-    
+
       pllREF()
 
       // filter 30 REF before decimation 2
       vid_ref_err_decim1 = vor_int_filter_lp_decim1r(vid_ref_err);
-      
+
       fix_var_sig = vid_var_sig;
 
       break;
@@ -164,7 +164,7 @@ void vor_int_demod_run ( int16_t sample) {
     //---------------------------------------------------------------
     case vid_DECIM1 : {
 
-      decim1 = 0; 
+      decim1 = 0;
 
       // filter 30 VAR before decimation 2
       vid_var_err_decim1 = vor_int_filter_lp_decim1v(fix_var_sig);
@@ -178,7 +178,7 @@ void vor_int_demod_run ( int16_t sample) {
           decim3++;
 
           // filter 30 REF before decimation 3
-          vid_ref_err_decim2 = 
+          vid_ref_err_decim2 =
           vor_int_filter_lp_decim2r(vid_ref_err_decim1);
 
           fix_var_err_decim1 = vid_var_err_decim1;
@@ -191,7 +191,7 @@ void vor_int_demod_run ( int16_t sample) {
         case (vid_DECIM2-1) : {
 
           // filter 30 VAR before decimation 3
-          vid_var_err_decim2 = 
+          vid_var_err_decim2 =
           vor_int_filter_lp_decim2v(fix_var_err_decim1);
 
           break;
@@ -238,7 +238,7 @@ void vor_int_demod_run ( int16_t sample) {
               break;
             }
             //-------------------------------------------------------
-          }  
+          }
           //=========================================================
 
           break;

@@ -41,16 +41,16 @@ float mb_tacho_get_averaged( void ) {
   float ret;
   float tacho;
   const float tach_to_rpm = 15000000.*60./(float)MB_TACHO_NB_SLOT;
-  if (mb_tacho_nb_pulse) 
+  if (mb_tacho_nb_pulse)
     tacho = mb_tacho_averaged / (float)mb_tacho_nb_pulse ;
   else
    tacho = 0.;
-  
+
   if (tacho ==0)
     ret = 0;
   else
     ret = tach_to_rpm/tacho;
-  
+
   mb_tacho_averaged = 0.;
   mb_tacho_nb_pulse = 0;
   int_enable();

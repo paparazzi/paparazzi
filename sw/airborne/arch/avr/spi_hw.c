@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -94,8 +94,8 @@ volatile uint8_t spi_cur_slave;
 uint8_t spi_nb_ovrn;
 
 void spi_init( void) {
-  /* Set MOSI and SCK output, all others input */ 
-  MASTER_SPI_DDR |= _BV(MASTER_SPI_MOSI_PIN)| _BV(MASTER_SPI_SCK_PIN); 
+  /* Set MOSI and SCK output, all others input */
+  MASTER_SPI_DDR |= _BV(MASTER_SPI_MOSI_PIN)| _BV(MASTER_SPI_SCK_PIN);
 
   /* enable pull up for miso */
   //  SPI_PORT |= _BV(MASTER_SPI_MISO_PIN);
@@ -108,7 +108,7 @@ void spi_init( void) {
   /* Set SS1 output */
   SetBit( MASTER_SPI_SS1_DDR, MASTER_SPI_SS1_PIN);
   /* SS1 idles high (don't select slave yet)*/
-  
+
   /* Set SS2 output */
   SetBit( MASTER_SPI_SS2_DDR, MASTER_SPI_SS2_PIN);
   /* SS2 idles high (don't select slave yet)*/

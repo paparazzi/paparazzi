@@ -1,5 +1,5 @@
 /*
-	LPCUSB, an USB device driver for LPC microcontrollers	
+	LPCUSB, an USB device driver for LPC microcontrollers
 	Copyright (C) 2006 Bertrik Sikken (bertrik@sikken.nl)
 
 	This library is free software; you can redistribute it and/or
@@ -54,8 +54,8 @@ static TFnFrameHandler	*_pfnFrameHandler = NULL;
 	Wait4DevInt
 	===========
 		Local function to wait for a device interrupt (and clear it)
-		
-	IN		dwIntr		Interrupts to wait for	
+
+	IN		dwIntr		Interrupts to wait for
 
 **************************************************************************/
 static void Wait4DevInt(U32 dwIntr)
@@ -69,7 +69,7 @@ static void Wait4DevInt(U32 dwIntr)
 	USBHwCmd
 	========
 		Local function to send a command to the USB protocol engine
-		
+
 	IN		bCmd		Command to send
 
 **************************************************************************/
@@ -87,7 +87,7 @@ static void USBHwCmd(U8 bCmd)
 	USBHwCmdWrite
 	=============
 		Local function to send a command + data to the USB protocol engine
-		
+
 	IN		bCmd		Command to send
 			bData		Data to send
 
@@ -108,7 +108,7 @@ static void USBHwCmdWrite(U8 bCmd, U16 bData)
 	============
 		Local function to send a command to the USB protocol engine
 		and read data
-		
+
 	IN		bCmd		Command to send
 
 	Returns the data
@@ -117,7 +117,7 @@ static U8 USBHwCmdRead(U8 bCmd)
 {
 	// write command code
 	USBHwCmd(bCmd);
-	
+
 	// get data
 	USBCmdCode = 0x00000200 | (bCmd << 16);
 	Wait4DevInt(CDFULL);
@@ -130,11 +130,11 @@ static U8 USBHwCmdRead(U8 bCmd)
 	==============
 		'Realizes' an endpoint, meaning that buffer space is reserved for
 		it. An endpoint needs to be realised before it can be used.
-		
+
 	From experiments, it appears that a USB reset causes USBReEP to
 	re-initialise to 3 (= just the control endpoints).
 	However, a USB bus reset does not disturb the USBMaxPSize settings.
-		
+
 	IN		bEP		Endpoint number
 
 **************************************************************************/
@@ -151,7 +151,7 @@ static void USBHwEPRealize(int idx, U16 wMaxPSize)
 	USBHwEPEnable
 	=============
 		Enables or disables an endpoint
-		
+
 	IN		bEP		Endpoint number
 			fEnable	TRUE to enable, FALSE to disable
 
@@ -166,7 +166,7 @@ static void USBHwEPEnable(int idx, BOOL fEnable)
 	USBHwRegisterEPIntHandler
 	=========================
 		Registers an endpoint event callback
-		
+
 	IN		bEP				Endpoint number
 			wMaxPacketSize	Maximum packet size for this endpoint
 			pfnHandler		Callback function
@@ -175,18 +175,18 @@ static void USBHwEPEnable(int idx, BOOL fEnable)
 void USBHwRegisterEPIntHandler(U8 bEP, U16 wMaxPacketSize, TFnEPIntHandler *pfnHandler)
 {
 	int idx;
-	
+
 	idx = EP2IDX(bEP);
 
 	ASSERT(idx<32);
 
 	/* add handler to list of EP handlers */
 	_apfnEPIntHandlers[idx / 2] = pfnHandler;
-	
+
 	/* enable EP interrupt*/
 	USBEpIntEn |= (1 << idx);
 	USBDevIntEn |= EP_SLOW;
-	
+
 	// realise endpoint
 	USBHwEPRealize(idx, wMaxPacketSize);
 
@@ -198,14 +198,14 @@ void USBHwRegisterEPIntHandler(U8 bEP, U16 wMaxPacketSize, TFnEPIntHandler *pfnH
 	USBHwRegisterDevIntHandler
 	==========================
 		Registers an device status callback
-		
+
 	IN		pfnHandler	Callback function
 
 **************************************************************************/
 void USBHwRegisterDevIntHandler(TFnDevIntHandler *pfnHandler)
 {
 	_pfnDevIntHandler = pfnHandler;
-	
+
 	// enable device interrupt
 	USBDevIntEn |= DEV_STAT;
 
@@ -217,14 +217,14 @@ void USBHwRegisterDevIntHandler(TFnDevIntHandler *pfnHandler)
 	USBHwRegisterFrameHandler
 	=========================
 		Registers the frame callback
-		
+
 	IN		pfnHandler	Callback function
 
 **************************************************************************/
 void USBHwRegisterFrameHandler(TFnFrameHandler *pfnHandler)
 {
 	_pfnFrameHandler = pfnHandler;
-	
+
 	// enable device interrupt
 	USBDevIntEn |= FRAME;
 
@@ -236,7 +236,7 @@ void USBHwRegisterFrameHandler(TFnFrameHandler *pfnHandler)
 	USBHwSetAddress
 	===============
 		Sets the USB address.
-		
+
 	IN		bAddr		Device address to set
 
 **************************************************************************/
@@ -261,10 +261,10 @@ void USBHwConnect(BOOL fConnect)
 	USBHwGetEPStall
 	============
 		Gets the stalled property of an endpoint
-		
+
 	IN		bEP		Endpoint number
-			
-	Returns TRUE if stalled, FALSE if unstalled			
+
+	Returns TRUE if stalled, FALSE if unstalled
 **************************************************************************/
 BOOL USBHwGetEPStall(U8 bEP)
 {
@@ -278,10 +278,10 @@ BOOL USBHwGetEPStall(U8 bEP)
 	USBHwEPStall
 	============
 		Sets the stalled property of an endpoint
-		
+
 	IN		bEP		Endpoint number
 			fStall	TRUE to stall, FALSE to unstall
-			
+
 **************************************************************************/
 void USBHwEPStall(U8 bEP, BOOL fStall)
 {
@@ -295,28 +295,28 @@ void USBHwEPStall(U8 bEP, BOOL fStall)
 	USBHwEPWrite
 	============
 		Writes data to an endpoint buffer
-		
+
 	IN		bEP		Endpoint number
 			pbBuf	Endpoint data
 			iLen	Number of bytes to write
-			
+
 	Returns TRUE if the data was successfully written
 **************************************************************************/
 BOOL USBHwEPWrite(U8 bEP, U8 *pbBuf, int iLen)
 {
 	int idx;
-	
+
 	idx = EP2IDX(bEP);
-	
+
 //	DBG("<%d", iLen);
 	DBG("<");
 
 	// set write enable for specific endpoint
 	USBCtrl = WR_EN | ((bEP & 0xF) << 2);
-	
+
 	// set packet length
 	USBTxPLen = iLen;
-	
+
 	// write data
 	while (USBCtrl & WR_EN) {
 		USBTxData = (pbBuf[3] << 24) | (pbBuf[2] << 16) | (pbBuf[1] << 8) | pbBuf[0];
@@ -326,7 +326,7 @@ BOOL USBHwEPWrite(U8 bEP, U8 *pbBuf, int iLen)
 	// select endpoint and validate buffer
 	USBHwCmd(CMD_EP_SELECT | idx);
 	USBHwCmd(CMD_EP_VALIDATE_BUFFER);
-	
+
 	return TRUE;
 }
 
@@ -335,37 +335,37 @@ BOOL USBHwEPWrite(U8 bEP, U8 *pbBuf, int iLen)
 	USBHwEPRead
 	============
 		Reads data from an endpoint buffer
-		
+
 	IN		bEP		Endpoint number
 			pbBuf	Endpoint data
 			iLen	Number of bytes to write
-			
+
 	Returns TRUE if the data was successfully read
 **************************************************************************/
 BOOL USBHwEPRead(U8 bEP, U8 *pbBuf, int *piLen)
 {
 	int idx;
 	U32	dwData, dwLen;
-	
+
 	idx = EP2IDX(bEP);
-	
+
 	// set read enable bit for specific endpoint
 	USBCtrl = RD_EN | ((bEP & 0xF) << 2);
-	
+
 	// wait for PKT_RDY
 	do {
 		dwLen = USBRxPLen;
 	} while ((dwLen & PKT_RDY) == 0);
-	
+
 	// packet valid?
 	if ((dwLen & DV) == 0) {
 		*piLen = 0;
 		return FALSE;
 	}
-	
+
 	// get length
 	dwLen &= PKT_LNGTH_MASK;
-	
+
 	// get data in 4-byte units
 	while (USBCtrl & RD_EN) {
 		dwData = USBRxData;
@@ -380,7 +380,7 @@ BOOL USBHwEPRead(U8 bEP, U8 *pbBuf, int *piLen)
 	// select endpoint and clear buffer
 	USBHwCmd(CMD_EP_SELECT | idx);
 	USBHwCmd(CMD_EP_CLEAR_BUFFER);
-	
+
 	*piLen = dwLen;
 
 //	DBG(">%d", dwLen);
@@ -394,10 +394,10 @@ BOOL USBHwEPRead(U8 bEP, U8 *pbBuf, int *piLen)
 	USBHwConfigDevice
 	=================
 		Sets the 'configured' state.
-		
+
 	All registered endpoints are 'realised' and enabled, and the
 	'configured' bit is set in the device status register.
-		
+
 	IN		fConfigure	If TRUE, configure device, else unconfigure
 
 **************************************************************************/
@@ -424,10 +424,10 @@ void USBHwConfigDevice(BOOL fConfigured)
 	USBHwISR
 	========
 		USB interrupt handler
-		
+
 	Interrupt mapping:
 	* endpoint interrupts are mapped to the slow interrupt
-	
+
 	TODO: should we cause interrupt on NAK?
 
 **************************************************************************/
@@ -437,12 +437,12 @@ void USBHwISR(void)
 	U32 dwIntBit;
 	U8	bEPStat, bDevStat, bStat;
 	int i;
-	
+
 	dwStatus = USBDevIntSt;
 
 	// handle device dwStatus interrupts
 	if (dwStatus & DEV_STAT) {
-DEBUG_LED_ON(8);		
+DEBUG_LED_ON(8);
 		bDevStat = USBHwCmdRead(CMD_DEV_STATUS);
 		if (bDevStat & (CON_CH | SUS_CH | RST)) {
 			// convert device status into something HW independent
@@ -456,12 +456,12 @@ DEBUG_LED_ON(8);
 		}
 		// clear DEV_STAT;
 		USBDevIntClr = DEV_STAT;
-DEBUG_LED_OFF(8);		
+DEBUG_LED_OFF(8);
 	}
-	
+
 	// check endpoint interrupts
 	if (dwStatus & EP_SLOW) {
-DEBUG_LED_ON(9);		
+DEBUG_LED_ON(9);
 		dwEPIntStat = USBEpIntSt;
 		for (i = 0; i < 32; i++) {
 			dwIntBit = (1 << i);
@@ -486,7 +486,7 @@ DEBUG_LED_ON(9);
 		USBDevIntClr = EP_SLOW;
 DEBUG_LED_OFF(9);
 	}
-	
+
 	// handle frame interrupt
 	if (dwStatus & FRAME) {
 DEBUG_LED_ON(10);
@@ -505,15 +505,15 @@ DEBUG_LED_OFF(10);
 	USBHwInit
 	=========
 		Initialises the USB hardware
-		
+
 	This function assumes that the hardware is connected as shown in
 	section 10.1 of the LPC2148 data sheet:
 	* P0.31 controls a switch to connect a 1.5k pull-up to D+ if low.
 	* P0.23 is connected to USB VCC.
-	
+
 	Embedded artists board: make sure to disconnect P0.23 LED as it
 	acts as a pull-up and so prevents detection of USB disconnect.
-		
+
 	Returns TRUE if the hardware was successfully initialised
 **************************************************************************/
 BOOL USBHwInit(void)
@@ -545,7 +545,7 @@ BOOL USBHwInit(void)
 	PINSEL1 = (PINSEL1 & ~(3 << 30)) | (2 << 30);	// P0.31
 
 	// enable PUSB
-	PCONP |= (1 << 31);		
+	PCONP |= (1 << 31);
 
 	// initialise USB PLL
 	PLL1CON = 1;			// enable USB PLL
@@ -571,7 +571,7 @@ BOOL USBHwInit(void)
 	// enable/clear control endpoints
 	USBHwEPEnable(0, TRUE);
 	USBHwEPEnable(1, TRUE);
-	
+
 	// init debug leds
 	DEBUG_LED_INIT(8);
 	DEBUG_LED_INIT(9);

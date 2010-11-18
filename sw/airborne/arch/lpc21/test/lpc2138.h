@@ -38,14 +38,14 @@ struct PLLCON_reg {
 #define PLLCFG         (*((volatile uint8_t*) 0xE01FC084))
 #define PLLCFG_bit     (*(struct PLLCFG_reg*) 0xE01FC084)
 struct PLLCFG_reg {
-  unsigned char MSEL:5; 
+  unsigned char MSEL:5;
   unsigned char PSEL:2;
 };
 
 #define PLLSTAT        (*((volatile uint16_t*) 0xE01FC088))
 #define PLLSTAT_bit    (*(struct PLLSTAT_reg*) 0xE01FC088)
 struct PLLSTAT_reg {
-  unsigned short MSEL:5; 
+  unsigned short MSEL:5;
   unsigned short PSEL:2;
   unsigned short _:1;
   unsigned short PLLE:1;
@@ -56,7 +56,7 @@ struct PLLSTAT_reg {
 #define PLLFEED        (*((volatile uint8_t*) 0xE01FC08C))
 #define PLLFEED_bit    (*(struct PLLFEED_reg*) 0xE01FC08C)
 struct PLLFEED_reg {
-  unsigned char FEED:8; 
+  unsigned char FEED:8;
 };
 
 
@@ -64,38 +64,38 @@ struct PLLFEED_reg {
 #define PCON           (*((volatile uint8_t *)  0xE01FC0C0))
 #define PCON_bit       (*(struct PCON_reg*)      0xE01FC0C0)
 struct PCON_reg {
-  uint8_t IDL:1; 
-  uint8_t PD:1; 
-  uint8_t PDBOD:2; 
+  uint8_t IDL:1;
+  uint8_t PD:1;
+  uint8_t PDBOD:2;
 };
 #define PCONP          (*((volatile uint32_t *) 0xE01FC0C4))
 #define PCONP_bit      (*(struct PCONP_reg*)     0xE01FC0C4)
 struct PCONP_reg {
-  uint32_t _1:1; 
+  uint32_t _1:1;
   uint32_t PCTIM0:1;
   uint32_t PCTIM1:1;
-  uint32_t PCUART0:1; 
-  uint32_t PCUART1:1; 
-  uint32_t PCPWM0:1; 
-  uint32_t _2:1; 
-  uint32_t PCI2C0:1; 
-  uint32_t PCSPI0:1; 
-  uint32_t PCRTC:1; 
-  uint32_t PCSPI1:1; 
-  uint32_t _3:1; 
-  uint32_t PCAD0:1; 
-  uint32_t _4:6; 
-  uint32_t PCI2C1:1; 
-  uint32_t PCAD1:1; 
-  uint32_t _5:11; 
+  uint32_t PCUART0:1;
+  uint32_t PCUART1:1;
+  uint32_t PCPWM0:1;
+  uint32_t _2:1;
+  uint32_t PCI2C0:1;
+  uint32_t PCSPI0:1;
+  uint32_t PCRTC:1;
+  uint32_t PCSPI1:1;
+  uint32_t _3:1;
+  uint32_t PCAD0:1;
+  uint32_t _4:6;
+  uint32_t PCI2C1:1;
+  uint32_t PCAD1:1;
+  uint32_t _5:11;
 };
 
 /* VPB Divider */
 #define VPBDIV         (*((volatile uint8_t *)  0xE01FC100))
 #define VPBDIV_bit     (*(struct VPBDIV_reg*)    0xE01FC100)
 struct VPBDIV_reg {
-  uint8_t VPB_DIV:2; 
-  uint8_t _:6; 
+  uint8_t VPB_DIV:2;
+  uint8_t _:6;
 };
 
 /* External Interrupts */
@@ -111,8 +111,8 @@ struct VPBDIV_reg {
 struct RSIR_reg {
   uint8_t POR:1;
   uint8_t EXTR:1;
-  uint8_t WDTR:1; 
-  uint8_t BODR:1; 
+  uint8_t WDTR:1;
+  uint8_t BODR:1;
   uint8_t _:4;
 };
 
@@ -138,7 +138,7 @@ struct T0IR_reg {
 struct T0TCR_reg {
   uint8_t CE:1;
   uint8_t CR:1;
-  uint8_t _:6;  
+  uint8_t _:6;
 };
 
 #define T0TC           (*((volatile uint32_t *) 0xE0004008))
@@ -150,17 +150,17 @@ struct T0TCR_reg {
 struct T0MCR_reg {
   uint32_t MR0I:1;
   uint32_t MR0R:1;
-  uint32_t MR0S:1; 
+  uint32_t MR0S:1;
   uint32_t MR1I:1;
   uint32_t MR1R:1;
-  uint32_t MR1S:1; 
+  uint32_t MR1S:1;
   uint32_t MR2I:1;
   uint32_t MR2R:1;
-  uint32_t MR2S:1; 
+  uint32_t MR2S:1;
   uint32_t MR3I:1;
   uint32_t MR3R:1;
-  uint32_t MR3S:1; 
-  uint32_t _:4;  
+  uint32_t MR3S:1;
+  uint32_t _:4;
 };
 
 

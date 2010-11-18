@@ -1,5 +1,5 @@
 /*
-	LPCUSB, an USB device driver for LPC microcontrollers	
+	LPCUSB, an USB device driver for LPC microcontrollers
 	Copyright (C) 2006 Bertrik Sikken (bertrik@sikken.nl)
 
 	This library is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@
 	stage, status stage). We simply follow the host: if it sends data, we store
 	it in the control data buffer and if it asks for data, we just send the next
 	block.
-	
+
 */
 
 #include "type.h"
@@ -67,10 +67,10 @@ static TFnHandleRequest *apfnPreReqHandler = NULL;
 	=================
 		Local function to handle a request before data arrived by calling
 		a special installed request handler.
-		
-	Called in case of data going from host to device, the handler can 
+
+	Called in case of data going from host to device, the handler can
 	update the data pointer *ppbData.
-		
+
 	IN		pSetup		The setup packet
 	IN/OUT	*piLen		Pointer to data length
 			ppbData		Data buffer.
@@ -80,7 +80,7 @@ static TFnHandleRequest *apfnPreReqHandler = NULL;
 static BOOL _PreHandleRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
 {
 	TFnHandleRequest *pfnHandler;
-	
+
 	pfnHandler = apfnPreReqHandler;
 	if (pfnHandler == NULL) {
 		// no pre-handler installed
@@ -96,11 +96,11 @@ static BOOL _PreHandleRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
 	==============
 		Local function to handle a request by calling one of the installed
 		request handlers.
-		
+
 	In case of data going from host to device, the data is at *ppbData.
 	In case of data going from device to host, the handler can either
 	choose to write its data at *ppbData or update the data pointer.
-		
+
 	IN		pSetup		The setup packet
 	IN/OUT	*piLen		Pointer to data length
 			ppbData		Data buffer.
@@ -111,7 +111,7 @@ static BOOL _HandleRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
 {
 	TFnHandleRequest *pfnHandler;
 	int iType;
-	
+
 	iType = REQTYPE_GET_TYPE(pSetup->bmRequestType);
 	pfnHandler = apfnReqHandlers[iType];
 	if (pfnHandler == NULL) {
@@ -210,7 +210,7 @@ void USBHandleControlTransfer(U8 bEP, U8 bEPStat)
 				}
 			}
 		}
-		else {		
+		else {
 			if (iResidue > 0) {
 				// store data
 				iChunk = 0;
@@ -252,7 +252,7 @@ void USBHandleControlTransfer(U8 bEP, U8 bEPStat)
 	USBRegisterPreRequestHandler
 	============================
 		Registers a callback for pre-handling requests
-		
+
 	IN		*pfnHandler	Callback function pointer
 
 **************************************************************************/
@@ -266,7 +266,7 @@ void USBRegisterPreRequestHandler(TFnHandleRequest *pfnHandler)
 	USBRegisterRequestHandler
 	=========================
 		Registers a callback for handling requests
-		
+
 	IN		iType		Type of request, e.g. REQTYPE_TYPE_STANDARD
 			*pfnHandler	Callback function pointer
 

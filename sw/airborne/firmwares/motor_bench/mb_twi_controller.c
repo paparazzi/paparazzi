@@ -16,7 +16,7 @@ void mb_twi_controller_init(void) {
 }
 
 void mb_twi_controller_set( float throttle ) {
-  
+
   LED_TOGGLE(1);
 
   if (mb_twi_i2c_done) {

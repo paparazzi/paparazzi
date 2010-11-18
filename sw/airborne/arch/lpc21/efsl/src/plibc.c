@@ -34,7 +34,7 @@
 #include "plibc.h"
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * unsigned short strMatch(char* bufa, char*bufb, unsigned long n)
  * Description: Compares bufa and bufb for a length of n bytes.
  * Return value: Returns the number of character NOT matching.
@@ -46,10 +46,10 @@ euint16 strMatch(eint8* bufa, eint8*bufb,euint32 n)
 	for(c=0;c<n;c++)if(bufa[c]!=bufb[c])res++;
 	return(res);
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * void memCpy(void* psrc, void* pdest, unsigned long size)
  * Description: Copies the contents of psrc into pdest on a byte per byte basis.
  * The total number of bytes copies is size.
@@ -61,7 +61,7 @@ void memCpy(void* psrc, void* pdest, euint32 size)
 		size--;
 	}
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
 void memClr(void *pdest,euint32 size)
 {

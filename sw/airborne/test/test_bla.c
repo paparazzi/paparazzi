@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 
   struct FloatEulers eb = { RadOfDeg(42.), RadOfDeg(45.), RadOfDeg(0.)};
   DISPLAY_FLOAT_EULERS("eb", eb);
-  
+
   struct FloatRMat ra;
   FLOAT_RMAT_OF_EULERS(ra, ea);
   struct FloatRMat rb;

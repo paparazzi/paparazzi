@@ -26,7 +26,7 @@ extern void micromag_event( void );
 /* SSPCR0 settings */
 #define SSP_DDS  0x07 << 0  /* data size         : 8 bits        */
 #define SSP_FRF  0x00 << 4  /* frame format      : SPI           */
-#define SSP_CPOL 0x00 << 6  /* clock polarity    : data captured on first clock transition */  
+#define SSP_CPOL 0x00 << 6  /* clock polarity    : data captured on first clock transition */
 #define SSP_CPHA 0x00 << 7  /* clock phase       : SCK idles low */
 #define SSP_SCR  0x0F << 8  /* serial clock rate : divide by 16  */
 

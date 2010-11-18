@@ -44,15 +44,15 @@ struct AhrsFloatCmplRmat ahrs_impl;
 
 void ahrs_init(void) {
   ahrs_float.status = AHRS_UNINIT;
- 
-  /* 
+
+  /*
    * Initialises our IMU alignement variables
    * This should probably done in the IMU code instead
    */
   struct FloatEulers body_to_imu_euler =
-    {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI}; 
-  FLOAT_QUAT_OF_EULERS(ahrs_impl.body_to_imu_quat, body_to_imu_euler); 
-  FLOAT_RMAT_OF_EULERS(ahrs_impl.body_to_imu_rmat, body_to_imu_euler);  
+    {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
+  FLOAT_QUAT_OF_EULERS(ahrs_impl.body_to_imu_quat, body_to_imu_euler);
+  FLOAT_RMAT_OF_EULERS(ahrs_impl.body_to_imu_rmat, body_to_imu_euler);
 
   /* set ltp_to_body to zero */
   FLOAT_QUAT_ZERO(ahrs_float.ltp_to_body_quat);
@@ -90,7 +90,7 @@ void ahrs_align(void) {
 
 
 void ahrs_propagate(void) {
-  
+
   /* converts gyro to floating point */
   struct FloatRates gyro_float;
   RATES_FLOAT_OF_BFP(gyro_float, imu.gyro_prev);
@@ -140,7 +140,7 @@ void ahrs_update_accel(void) {
   const float gravity_bias_update_gain = -5e-6;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual, weight*gravity_bias_update_gain);
   /* FIXME: saturate bias */
-  
+
 }
 
 void ahrs_update_mag(void) {
@@ -190,13 +190,13 @@ void ahrs_update_mag2(void) {
 
 }
 
-/* 
+/*
  * Compute ltp to imu rotation in euler angles and quaternion representations
- * from the rotation matrice representation 
+ * from the rotation matrice representation
  */
 static inline void compute_imu_quat_and_euler_from_rmat(void) {
   FLOAT_QUAT_OF_RMAT(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_rmat);
-  FLOAT_EULERS_OF_RMAT(ahrs_float.ltp_to_imu_euler, ahrs_float.ltp_to_imu_rmat); 
+  FLOAT_EULERS_OF_RMAT(ahrs_float.ltp_to_imu_euler, ahrs_float.ltp_to_imu_rmat);
 }
 
 /*
@@ -204,9 +204,9 @@ static inline void compute_imu_quat_and_euler_from_rmat(void) {
  */
 static inline void compute_body_orientation_and_rates(void) {
 
-  FLOAT_QUAT_COMP_INV(ahrs_float.ltp_to_body_quat, 
+  FLOAT_QUAT_COMP_INV(ahrs_float.ltp_to_body_quat,
 		      ahrs_float.ltp_to_imu_quat, ahrs_impl.body_to_imu_quat);
-  FLOAT_RMAT_COMP_INV(ahrs_float.ltp_to_body_rmat, 
+  FLOAT_RMAT_COMP_INV(ahrs_float.ltp_to_body_rmat,
 		      ahrs_float.ltp_to_imu_rmat, ahrs_impl.body_to_imu_rmat);
   FLOAT_EULERS_OF_RMAT(ahrs_float.ltp_to_body_euler, ahrs_float.ltp_to_body_rmat);
   FLOAT_RMAT_TRANSP_RATEMULT(ahrs_float.body_rate, ahrs_impl.body_to_imu_rmat, ahrs_float.imu_rate);

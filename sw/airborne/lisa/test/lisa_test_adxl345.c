@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 /*              lisa/L  lisa/M
@@ -117,7 +117,7 @@ static void read_data(void) {
   values[0] = SPI_I2S_ReceiveData(SPI2);
   SPI_I2S_SendData(SPI2, 0x00);
   while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET); 
+  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
   values[1] = SPI_I2S_ReceiveData(SPI2);
 
   SPI_I2S_SendData(SPI2, 0x00);
@@ -126,7 +126,7 @@ static void read_data(void) {
   values[2] = SPI_I2S_ReceiveData(SPI2);
   SPI_I2S_SendData(SPI2, 0x00);
   while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET); 
+  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
   values[3] = SPI_I2S_ReceiveData(SPI2);
 
   SPI_I2S_SendData(SPI2, 0x00);
@@ -135,7 +135,7 @@ static void read_data(void) {
   values[4] = SPI_I2S_ReceiveData(SPI2);
   SPI_I2S_SendData(SPI2, 0x00);
   while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET); 
+  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
   values[5] = SPI_I2S_ReceiveData(SPI2);
 
   AccUnselect();
@@ -146,14 +146,14 @@ static void read_data(void) {
 static inline void main_periodic_task( void ) {
 
 
-  RunOnceEvery(10, 
+  RunOnceEvery(10,
     {
       DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
       LED_PERIODIC();
     });
 
   switch (acc_status) {
-  case 1: 
+  case 1:
     {
       /* read data rate */
       //      uint8_t bar = read_fom_reg(ADXL345_REG_BW_RATE);
@@ -183,7 +183,7 @@ static inline void main_periodic_task( void ) {
   default:
     break;
   }
-  
+
   if (acc_status < CONFIGURED) acc_status++;
 
 }
@@ -203,7 +203,7 @@ static inline void main_event_task( void ) {
 }
 
 static inline void main_init_hw( void ) {
-  
+
   /* configure acc slave select */
   /* set acc slave select as output and assert it ( on PB12) */
   AccUnselect();
@@ -232,33 +232,33 @@ static inline void main_init_hw( void ) {
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure); 
+  NVIC_Init(&NVIC_InitStructure);
 
 
   /* Enable SPI2 Periph clock -------------------------------------------------*/
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
-  
+
   /* Configure GPIOs: SCK, MISO and MOSI  --------------------------------*/
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
-  
+
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO , ENABLE);
   SPI_Cmd(SPI2, ENABLE);
 
   /* configure SPI */
-  SPI_InitTypeDef SPI_InitStructure;					
-  SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;	
-  SPI_InitStructure.SPI_Mode = SPI_Mode_Master;			
-  SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;			
-  SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;				
-  SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;			
-  SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;				
-  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;	
-  SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;			
-  SPI_InitStructure.SPI_CRCPolynomial = 7;				
-  SPI_Init(SPI2, &SPI_InitStructure);					
+  SPI_InitTypeDef SPI_InitStructure;
+  SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
+  SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
+  SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
+  SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;
+  SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
+  SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
+  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;
+  SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
+  SPI_InitStructure.SPI_CRCPolynomial = 7;
+  SPI_Init(SPI2, &SPI_InitStructure);
 
   DEBUG_SERVO2_INIT();
 
@@ -274,7 +274,7 @@ void exti2_irq_handler(void) {
   DEBUG_S4_TOGGLE();
 
   acc_ready_for_read = TRUE;
-  
+
 
 }
 

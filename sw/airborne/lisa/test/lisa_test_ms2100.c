@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <stm32/gpio.h>
@@ -63,7 +63,7 @@ static inline void main_init( void ) {
 static inline void main_periodic_task( void ) {
   //  LED_TOGGLE(6);
   max1168_read();
-  RunOnceEvery(10, 
+  RunOnceEvery(10,
 	       {
 		 DOWNLINK_SEND_BOOT(DefaultChannel, &cpu_time_sec);
 		 LED_PERIODIC();
@@ -84,7 +84,7 @@ static inline void main_event_task( void ) {
 
 
 static inline void main_spi2_init( void ) {
-  
+
   /* set mag ss as output and assert it (on PC12) ------------------------------*/
   /* set mag reset as output and assert it (on PC13) ------------------------------*/
   GPIOC->BSRR = GPIO_Pin_12;
@@ -96,16 +96,16 @@ static inline void main_spi2_init( void ) {
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
-  
+
   /* Enable SPI2 Periph clock -------------------------------------------------*/
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
-  
+
   /* Configure GPIOs: SCK, MISO and MOSI  --------------------------------*/
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
-  
+
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO , ENABLE);
 
  /* SPI Master configuration --------------------------------------------------*/
@@ -120,7 +120,7 @@ static inline void main_spi2_init( void ) {
   SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
   SPI_InitStructure.SPI_CRCPolynomial = 7;
   SPI_Init(SPI2, &SPI_InitStructure);
-  
+
   /* Enable SPI */
   SPI_Cmd(SPI2, ENABLE);
 

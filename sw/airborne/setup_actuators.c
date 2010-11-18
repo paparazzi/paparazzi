@@ -42,7 +42,7 @@ void dl_parse_msg( void ) {
     float val = settings_get_value(i);
     DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &val);
   }
-#endif 
+#endif
 }
 
 #define PprzUartInit() Link(Init())
@@ -71,7 +71,7 @@ void periodic_task_fbw(void) {
    /* t += 1./60.; */
    /* uint16_t servo_value = 1500+ 500*sin(t); */
    /* SetServo(SERVO_THROTTLE, servo_value); */
-  
+
   RunOnceEvery(300, DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM));
   RunOnceEvery(300, DOWNLINK_SEND_ACTUATORS(DefaultChannel, SERVOS_NB, actuators ));
 }
@@ -84,7 +84,7 @@ void event_task_fbw(void) {
     pprz_msg_received = FALSE;
     pprz_parse_payload();
     LED_TOGGLE(3);
-  } 
+  }
   if (dl_msg_available) {
     dl_parse_msg();
     dl_msg_available = FALSE;

@@ -1,6 +1,6 @@
 /*
  * Paparazzi $Id$
- *  
+ *
  * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -200,7 +200,7 @@ static inline void parse_pprz( uint8_t c ) {
 
 static inline void pprz_parse_payload(void) {
   uint8_t i;
-  for(i = 0; i < pprz_payload_len; i++) 
+  for(i = 0; i < pprz_payload_len; i++)
     dl_buffer[i] = pprz_payload[i];
   dl_msg_available = TRUE;
 }

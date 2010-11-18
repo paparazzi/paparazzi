@@ -16,13 +16,13 @@ int main(int argc, char** argv) {
 
   float C[2][3] = {{ 1., 2., 3.},
 		   { 4., 5., 6.}};
-  
+
   float D[2][2];
 
   float E[3][3] = {{ 1., 2., 3.},
 		   { 5., 1., 3.},
 		   { 3., 4., 6.}};
-  
+
   float F[3][3];
 
   printf("\n");

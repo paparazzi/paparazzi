@@ -102,7 +102,7 @@ void guidance_v_init(void) {
 void guidance_v_read_rc(void) {
 
   // used in RC_DIRECT directly and as saturation in CLIMB and HOVER
-#ifndef USE_HELI  
+#ifndef USE_HELI
   guidance_v_rc_delta_t = (int32_t)radio_control.values[RADIO_THROTTLE] * 200 / MAX_PPRZ;
 #else
   guidance_v_rc_delta_t = (int32_t)radio_control.values[RADIO_THROTTLE] * 4 / 5;

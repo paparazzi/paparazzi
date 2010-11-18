@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009 ENAC, Arnaud Quintard, Pascal Brisset
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -100,7 +100,7 @@ Receiving:
 
 static bool gsm_line_received;
 static bool prompt_received;
-static bool waiting_for_reply; /* An AT command has been sent and an answer is expected */ 
+static bool waiting_for_reply; /* An AT command has been sent and an answer is expected */
 
 // static char msg_status[16];
 // static char msg_date[32];
@@ -158,7 +158,7 @@ void gsm_init(void) {
   //} else { /* Second call */
   //  gsm_buf_idx = 0;
   //  gsm_line_received = false;
-  //  
+  //
   //  Send_AT();
   //  gsm_status = STATUS_SEND_AT;
   //  gsm_gsm_init_status = FALSE;
@@ -208,7 +208,7 @@ static void gsm_got_line(void)
     gsm_receive_content();
     Suppr_SMS(index_msg);
     gsm_status = STATUS_DELETE_SMS;
-  } else if (gsm_status == STATUS_IDLE 
+  } else if (gsm_status == STATUS_IDLE
       && strncmp(CMTI, gsm_buf, strlen(CMTI)) == 0) {
     /* A SMS is available */
     /* Extracting the index of the message */
@@ -226,7 +226,7 @@ static void gsm_got_line(void)
       waiting_for_reply = false;
 
       switch(gsm_status) {
-        case STATUS_CSQ :			
+        case STATUS_CSQ :
           gsm_send_report_continue();
           gsm_status = STATUS_WAITING_PROMPT;
           break;
@@ -264,7 +264,7 @@ static void gsm_got_line(void)
           gsm_status = STATUS_IDLE;
           break;
 
-        default:				
+        default:
           break;
       }
     } else { /** We did not get the expected answer */
@@ -349,7 +349,7 @@ static void gsm_receive_content(void)
 void Suppr_SMS(int index_)
 {
   char demande_suppression[20];
-	
+
   sprintf(demande_suppression, "AT+CMGD=%d", index_);
   strcpy(expected_ack, "OK");
   waiting_for_reply = true;
@@ -362,11 +362,11 @@ static void gsm_got_prompt(void)
 {
   if (gsm_status == STATUS_WAITING_PROMPT) { // We were waiting for a prompt
     char string[strlen(data_to_send) +3];
-    
+
     sprintf(string, "%s%c", data_to_send, CTRLZ);
     Send(string);
   }
-  
+
   gsm_status = STATUS_IDLE;
 }
 
@@ -376,13 +376,13 @@ static void parse_msg_header(void)
 {
   /* Extraction du flag*/
   /** Extraction(buffer2, '"', 1, 1, '"', 1, 0, msg_status); */
-	
+
   /* Extraction de l'expediteur*/
   // Extraction(buffer2, '"', 2, 1, '"', 1, 0, origin);
-	
+
   /* Extraction de date heure*/
   // Extraction(buffer2, '"', 4, 1, '"', 1, 0, msg_date);
-	
+
   //pb d'ecriture du flag => solution de fortune (pb si flag != rec unread)
   //??????? strncpy(flag, flag, 10);
 }
@@ -397,7 +397,7 @@ void gsm_send_report()
     // Checking the network coverage
     Send_CSQ();
     gsm_status = STATUS_CSQ;
-  } 
+  }
 }
 
 
@@ -407,7 +407,7 @@ void gsm_send_report_continue(void)
   //We got "+CSQ: <rssi>,<ber>" <rssi> and <ber> on 2 digits (cf 3.5.4.4.4)
   // and we expect "OK" on the second line
   uint8_t rssi = atoi(gsm_buf + strlen("+CSQ: "));
-	
+
   // Donnee GPS :ne sont pas envoyes gps_mode, gps_itow, gps_utm_zone, gps_nb_ovrn
   // Donnees batterie (seuls vsupply et estimator_flight_time sont envoyes)
   // concatenation de toutes les infos en un seul message à transmettre
@@ -443,19 +443,19 @@ static void Send_AT(void)
 {
   strcpy(expected_ack, "OK");
   waiting_for_reply = true;
- 
+
   Send("ATE0");
 }
 
 static void Send_CMGF(void)
-{ 
+{
   strcpy(expected_ack, "OK");
   waiting_for_reply = true;
   Send("AT+CMGF=1");
 }
 
 static void Send_CSQ(void)
-{ 
+{
   /***** FIXME ******  strcpy(expected_ack, "+CSQ:"); ****/
   strcpy(expected_ack, "OK");
   waiting_for_reply = true;
@@ -463,14 +463,14 @@ static void Send_CSQ(void)
 }
 
 static void Send_CNMI(void)
-{ 
+{
   strcpy(expected_ack, "OK");
   waiting_for_reply = true;
   Send("AT+CNMI=1,1,0,0,0");
 }
 
 static void Send_CPMS(void)
-{ 
+{
   strcpy(expected_ack, "+CPMS:");
   waiting_for_reply = true;
   Send("AT+CPMS=\"SM\"");
@@ -491,7 +491,7 @@ static void gsm_parse(uint8_t c) {
       gsm_buf_idx=0;
       break;
     default:
-      if (gsm_buf_idx < GSM_MAX_PAYLOAD) { 
+      if (gsm_buf_idx < GSM_MAX_PAYLOAD) {
         gsm_buf[gsm_buf_idx] = c;
         gsm_buf_idx++;
       } /* else extra characters are ignored */

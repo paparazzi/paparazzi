@@ -1,6 +1,6 @@
 /*
  * Paparazzi mcu0 $Id: quad_xsens.c,v 1.2 2008/05/07 12:54:23 gautier Exp $
- *  
+ *
  * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -103,10 +103,10 @@ void parse_xsens_msg(uint8_t xsens_id, uint8_t c );
 #define Xsens1Trailer() { uint8_t i8=0x100-send_ck[0]; Xsens1UartSend1(i8); }
 
 
-/** Includes macros generated from xsens_MTi.xml */ 
+/** Includes macros generated from xsens_MTi.xml */
 #include "xsens_protocol.h"
 
-uint8_t xsens_mode[XSENS_COUNT]; // Receiver status 
+uint8_t xsens_mode[XSENS_COUNT]; // Receiver status
 volatile uint8_t xsens_msg_received[XSENS_COUNT];
 
 float xsens_phi[XSENS_COUNT];
@@ -257,7 +257,7 @@ void xsens_periodic_task ( void )
   xsens_setzero = 0;
 }
 
-void xsens_event_task( void ) 
+void xsens_event_task( void )
 {
   while (Xsens1Link(ChAvailable()) && !xsens_msg_received[0]) {
     parse_xsens_msg(0, Xsens1Link(Getch()));
@@ -287,7 +287,7 @@ void xsens_event_task( void )
   }
 }
 
-// Called after receipt of valid message to 
+// Called after receipt of valid message to
 void xsens_parse_msg( uint8_t xsens_id ) {
   uint8_t buf_slot = xsens_msg_buf_ci[xsens_id];
 
@@ -299,7 +299,7 @@ void xsens_parse_msg( uint8_t xsens_id ) {
   }
   else if (msg_id[xsens_id][buf_slot] == XSENS_MTData_ID) {
     uint8_t offset = 0;
-    // test RAW modes else calibrated modes 
+    // test RAW modes else calibrated modes
       if (XSENS_MASK_RAWInertial(xsens_output_mode[xsens_id])){// || (XSENS_MASK_RAWGPS(xsens2_output_mode))) {
 	imu.accel_unscaled.x = XSENS_DATA_RAWInertial_accZ(xsens_msg_buf[xsens_id][buf_slot],offset);
 	imu.accel_unscaled.y = XSENS_DATA_RAWInertial_accY(xsens_msg_buf[xsens_id][buf_slot],offset);
@@ -313,7 +313,7 @@ void xsens_parse_msg( uint8_t xsens_id ) {
 	ImuScaleGyro(imu);
 	ImuScaleAccel(imu);
 	ImuScaleMag(imu);
-	
+
 	// Copied from booz2_main -- 5143134f060fcc57ce657e17d8b7fc2e72119fd7
 	// mmt 6/15/09
 	if (ahrs.status == AHRS_UNINIT) {
@@ -350,7 +350,7 @@ void xsens_parse_msg( uint8_t xsens_id ) {
           float tilt_comp_x = xsens_mag_x[xsens_id] * cos(pitch)
                             + xsens_mag_y[xsens_id] * sin(roll) * sin(pitch)
                             - xsens_mag_z[xsens_id] * cos(roll) * sin(pitch);
-          float tilt_comp_y = xsens_mag_y[xsens_id] * cos(roll) 
+          float tilt_comp_y = xsens_mag_y[xsens_id] * cos(roll)
                             + xsens_mag_z[xsens_id] * sin(roll);
           xsens_mag_heading[xsens_id] = -atan2( tilt_comp_y, tilt_comp_x);
         }
@@ -376,7 +376,7 @@ void xsens_parse_msg( uint8_t xsens_id ) {
           xsens_rmat[xsens_id].m[6] = XSENS_DATA_Matrix_g(xsens_msg_buf[xsens_id][buf_slot],offset);
           xsens_rmat[xsens_id].m[7] = XSENS_DATA_Matrix_h(xsens_msg_buf[xsens_id][buf_slot],offset);
           xsens_rmat[xsens_id].m[8] = XSENS_DATA_Matrix_i(xsens_msg_buf[xsens_id][buf_slot],offset);
-	  
+
 	  FLOAT_RMAT_COMP_INV(xsens_rmat_adj[xsens_id], xsens_rmat_neutral[xsens_id], xsens_rmat[xsens_id]);
 
           // Calculate roll, pitch, yaw from rotation matrix ( p 31-33 MTi-G USer Man and Tech Doc)
@@ -414,10 +414,10 @@ void parse_xsens_msg( uint8_t xsens_id, uint8_t c ) {
   ck[xsens_id] += c;
   switch (xsens_status[xsens_id]) {
   case UNINIT:
-    // Look for xsens start byte 
+    // Look for xsens start byte
     if (c != XSENS_START)
       goto error;
-    xsens_status[xsens_id]++; 
+    xsens_status[xsens_id]++;
     ck[xsens_id] = 0; // Reset checksum
     break;
   case GOT_START:
@@ -434,7 +434,7 @@ void parse_xsens_msg( uint8_t xsens_id, uint8_t c ) {
   case GOT_MID:
     // Save message length
     xsens_len[xsens_id][buf_slot] = c;
-    // check for valid message length 
+    // check for valid message length
     if (xsens_len[xsens_id][buf_slot] > XSENS_MAX_PAYLOAD)
       goto error;
     xsens_msg_idx[xsens_id] = 0; // Reset buffer index
@@ -461,7 +461,7 @@ void parse_xsens_msg( uint8_t xsens_id, uint8_t c ) {
     break;
   }
   return;
- error:  
+ error:
  restart:
   // Start over (Reset parser state)
   xsens_status[xsens_id] = UNINIT;

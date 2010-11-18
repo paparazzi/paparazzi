@@ -13,11 +13,11 @@ void mb_servo_set_ns(uint32_t duration_ns);
 void wt_servo_init(void) {
 
   /* set P0.21 as PWM5 output */
-  PINSEL1 |= (0X01 << 10);  
+  PINSEL1 |= (0X01 << 10);
   /* enable and select the type of PWM channel */
   PWMPCR |= PWMPCR_ENA5;
   /* set Match0 value (refresh rate) */
-  PWMMR0 = MY_NB_CLOCK_TIMER_PWM(20000);  
+  PWMMR0 = MY_NB_CLOCK_TIMER_PWM(20000);
   /* commit PWMMRx changes */
   PWMLER = PWMLER_LATCH0;
   /* enable PWM timer in PWM mode */

@@ -10,7 +10,7 @@ extern void max1167_read( void );
 
 #define STA_MAX1167_IDLE           0
 #define STA_MAX1167_SENDING_REQ    1
-#define STA_MAX1167_READING_RES    2 
+#define STA_MAX1167_READING_RES    2
 #define STA_MAX1167_DATA_AVAILABLE 3
 extern volatile uint8_t max1167_status;
 

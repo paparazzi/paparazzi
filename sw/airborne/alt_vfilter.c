@@ -4,9 +4,9 @@
 
 X = [ z zdot bias ]
 
-temps : 
+temps :
   predict 86us
-  update  46us      
+  update  46us
 
 */
 /* initial covariance diagonal */
@@ -31,7 +31,7 @@ void alt_vf_init(float init_z, float init_zdot, float init_bias) {
   alt_vf_bias = init_bias;
   int i, j;
   for (i=0; i<STATE_SIZE; i++) {
-    for (j=0; j<STATE_SIZE; j++) 
+    for (j=0; j<STATE_SIZE; j++)
       alt_vf_P[i][j] = 0.;
     alt_vf_P[i][i] = INIT_PXX;
   }
@@ -44,15 +44,15 @@ void alt_vf_init(float init_z, float init_zdot, float init_bias) {
  F = [ 1 dt -dt^2/2
        0  1 -dt
        0  0   1     ];
-   
+
  B = [ dt^2/2 dt 0]';
- 
+
  Q = [ 0.01  0     0
        0     0.01  0
        0     0     0.001 ];
- 
+
  Xk1 = F * Xk0 + B * accel;
- 
+
  Pk1 = F * Pk0 * F' + Q;
 
 */
@@ -60,18 +60,18 @@ void alt_vf_predict(float accel) {
   /* update state */
   float u = accel + 9.81;
   alt_vf_z = alt_vf_z + DT_VFILTER * alt_vf_zdot;
-  alt_vf_zdot = alt_vf_zdot + DT_VFILTER * ( u - alt_vf_bias); 
+  alt_vf_zdot = alt_vf_zdot + DT_VFILTER * ( u - alt_vf_bias);
   /* update covariance */
-  const float FPF00 = alt_vf_P[0][0] + DT_VFILTER * ( alt_vf_P[1][0] + alt_vf_P[0][1] + DT_VFILTER * alt_vf_P[1][1] );  
+  const float FPF00 = alt_vf_P[0][0] + DT_VFILTER * ( alt_vf_P[1][0] + alt_vf_P[0][1] + DT_VFILTER * alt_vf_P[1][1] );
   const float FPF01 = alt_vf_P[0][1] + DT_VFILTER * ( alt_vf_P[1][1] - alt_vf_P[0][2] - DT_VFILTER * alt_vf_P[1][2] );
   const float FPF02 = alt_vf_P[0][2] + DT_VFILTER * ( alt_vf_P[1][2] );
-  const float FPF10 = alt_vf_P[1][0] + DT_VFILTER * (-alt_vf_P[2][0] + alt_vf_P[1][1] - DT_VFILTER * alt_vf_P[2][1] );  
-  const float FPF11 = alt_vf_P[1][1] + DT_VFILTER * (-alt_vf_P[2][1] - alt_vf_P[1][2] + DT_VFILTER * alt_vf_P[2][2] ); 
+  const float FPF10 = alt_vf_P[1][0] + DT_VFILTER * (-alt_vf_P[2][0] + alt_vf_P[1][1] - DT_VFILTER * alt_vf_P[2][1] );
+  const float FPF11 = alt_vf_P[1][1] + DT_VFILTER * (-alt_vf_P[2][1] - alt_vf_P[1][2] + DT_VFILTER * alt_vf_P[2][2] );
   const float FPF12 = alt_vf_P[1][2] + DT_VFILTER * (-alt_vf_P[2][2] );
   const float FPF20 = alt_vf_P[2][0] + DT_VFILTER * ( alt_vf_P[2][1] );
   const float FPF21 = alt_vf_P[2][1] + DT_VFILTER * (-alt_vf_P[2][2] );
   const float FPF22 = alt_vf_P[2][2];
- 
+
   alt_vf_P[0][0] = FPF00 + Qzz;
   alt_vf_P[0][1] = FPF01;
   alt_vf_P[0][2] = FPF02;
@@ -103,13 +103,13 @@ void alt_vf_update_z(float z_meas) {
 
   const float y = z_meas - alt_vf_z;
   const float S = alt_vf_P[0][0] + R;
-  const float K1 = alt_vf_P[0][0] * 1/S; 
-  const float K2 = alt_vf_P[1][0] * 1/S; 
-  const float K3 = alt_vf_P[2][0] * 1/S; 
-  
-  alt_vf_z    = alt_vf_z    + K1 * y; 
-  alt_vf_zdot = alt_vf_zdot + K2 * y; 
-  alt_vf_bias = alt_vf_bias + K3 * y; 
+  const float K1 = alt_vf_P[0][0] * 1/S;
+  const float K2 = alt_vf_P[1][0] * 1/S;
+  const float K3 = alt_vf_P[2][0] * 1/S;
+
+  alt_vf_z    = alt_vf_z    + K1 * y;
+  alt_vf_zdot = alt_vf_zdot + K2 * y;
+  alt_vf_bias = alt_vf_bias + K3 * y;
 
   const float P11 = (1. - K1) * alt_vf_P[0][0];
   const float P12 = (1. - K1) * alt_vf_P[0][1];
@@ -150,13 +150,13 @@ void alt_vf_update_z(float z_meas) {
 void alt_vf_update_vz(float vz) {
   const float yd = vz - alt_vf_zdot;
   const float S = alt_vf_P[1][1] + R;
-  const float K1 = alt_vf_P[0][1] * 1/S; 
-  const float K2 = alt_vf_P[1][1] * 1/S; 
-  const float K3 = alt_vf_P[2][1] * 1/S; 
-  
-  alt_vf_z    = alt_vf_z    + K1 * yd; 
-  alt_vf_zdot = alt_vf_zdot + K2 * yd; 
-  alt_vf_bias = alt_vf_bias + K3 * yd; 
+  const float K1 = alt_vf_P[0][1] * 1/S;
+  const float K2 = alt_vf_P[1][1] * 1/S;
+  const float K3 = alt_vf_P[2][1] * 1/S;
+
+  alt_vf_z    = alt_vf_z    + K1 * yd;
+  alt_vf_zdot = alt_vf_zdot + K2 * yd;
+  alt_vf_bias = alt_vf_bias + K3 * yd;
 
   const float P11 = -K1 * alt_vf_P[1][0] + alt_vf_P[0][0];
   const float P12 = -K1 * alt_vf_P[1][1] + alt_vf_P[0][1];

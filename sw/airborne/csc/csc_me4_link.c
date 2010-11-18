@@ -22,7 +22,7 @@ void SPI1_ISR(void) __attribute__((naked));
 #define S1SPCR_LSBF  (0<<6)  /* lsb first            */
 #define S1SPCR_SPIE  (1<<7)  /* interrupt enable     */
 
-#define S1SPCR_VAL (S1SPCR_CPHA|S1SPCR_CPOL|S1SPCR_MSTR|S1SPCR_LSBF|S1SPCR_SPIE) 
+#define S1SPCR_VAL (S1SPCR_CPHA|S1SPCR_CPOL|S1SPCR_MSTR|S1SPCR_LSBF|S1SPCR_SPIE)
 #define S1SPCCR_VAL 0x64
 
 
@@ -58,13 +58,13 @@ void SPI1_ISR(void) {
   static uint8_t cnt = 0;
   LED_TOGGLE(2);
 
-  /* transfer complete  */ 
-  if ( bit_is_set(S1SPSR, SPIF)) { 
+  /* transfer complete  */
+  if ( bit_is_set(S1SPSR, SPIF)) {
     uint8_t foo __attribute__ ((unused)) = S1SPDR;
     S1SPDR = cnt;
     cnt++;
   }
-  
+
   /* clear_it */
   S1SPINT = 1<<SPI1IF;
 

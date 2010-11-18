@@ -124,13 +124,13 @@ static uint16_t baro_scp_read_reg_16(uint8_t regno)
 
 void baro_scp_init( void )
 {
-  
+
   SSP1_SCK_PINSEL();
   SSP1_MISO_PINSEL();
   SSP1_MOSI_PINSEL();
   SSP1_SSEL_PINSEL();
   DRDY1_PINSEL();
-  
+
   S1SPCR = _BV(3) | _BV(4) | _BV(5);
   S1SPCCR = 0x80;
 
@@ -153,7 +153,7 @@ void spi1_isr()
     //}
     baro_scp_temperature = baro_scp_temperature & (0xFFFF >> 2);
     baro_scp_temperature *= 5;
-  
+
     baro_scp_pressure = lsb;
     baro_scp_pressure |= (msb << 16);
     baro_scp_pressure *= 25;

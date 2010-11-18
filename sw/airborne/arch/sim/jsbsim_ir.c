@@ -1,4 +1,4 @@
-/** 
+/**
  *  \brief Regroup functions to simulate autopilot/infrared.c
  *
  * Infrared soft simulation.

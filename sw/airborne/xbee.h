@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2006  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -110,7 +110,7 @@ void xbee_init( void );
   }
 #endif
 
-  
+
 #define XBeeTransportPutInt8ByAddr(_x) XBeeTransportPut1ByteByAddr(_x)
 #define XBeeTransportPutUint8ByAddr(_x) XBeeTransportPut1ByteByAddr((const uint8_t*)_x)
 #define XBeeTransportPutInt16ByAddr(_x) XBeeTransportPut2ByteByAddr((const uint8_t*)_x)
@@ -216,7 +216,7 @@ static inline void xbee_parse_payload(void) {
   case XBEE_TX_ID: /* Useful if A/C is connected to the PC with a cable */
     XbeeGetRSSI();
     uint8_t i;
-    for(i = XBEE_RFDATA_OFFSET; i < xbee_payload_len; i++) 
+    for(i = XBEE_RFDATA_OFFSET; i < xbee_payload_len; i++)
       dl_buffer[i-XBEE_RFDATA_OFFSET] = xbee_payload[i];
     dl_msg_available = TRUE;
     break;

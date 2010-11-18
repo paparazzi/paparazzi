@@ -4,11 +4,11 @@
 struct OveroTwistController {
 //  float kp;
 //  float kd;
-  
+
   float tilt_sp;
   float elevation_sp;
   float azimuth_sp;
-  
+
   /* modele de reference */
   float tilt_ref;
   float tilt_dot_ref;

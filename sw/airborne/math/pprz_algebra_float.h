@@ -427,7 +427,7 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
 
 #define FLOAT_QUAT_NORM(_q) (sqrtf(SQUARE(_q.qi) + SQUARE(_q.qx)+	\
 				   SQUARE(_q.qy) + SQUARE(_q.qz)))	\
-    
+
 #define FLOAT_QUAT_NORMALISE(q) {		                        \
     float norm = FLOAT_QUAT_NORM(q);					\
     if (norm > FLT_MIN) {						\

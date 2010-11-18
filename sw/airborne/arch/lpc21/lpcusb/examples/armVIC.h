@@ -46,8 +46,8 @@
  *    routines to operate properly with THUMB code.  The MACRO performs
  *    the following steps:
  *
- *    1 - Recover SPSR value from stack       
- *    2 - and restore  its value                   
+ *    1 - Recover SPSR value from stack
+ *    2 - and restore  its value
  *    3 - Pop the return address & the saved general registers from
  *        the IRQ stack & return
  *
@@ -63,7 +63,7 @@
  * Description:
  *    This function sets the IRQ disable bit in the status register
  *
- * Calling Sequence: 
+ * Calling Sequence:
  *    void
  *
  * Returns:
@@ -79,7 +79,7 @@ unsigned disableIRQ(void);
  * Description:
  *    This function clears the IRQ disable bit in the status register
  *
- * Calling Sequence: 
+ * Calling Sequence:
  *    void
  *
  * Returns:
@@ -96,7 +96,7 @@ unsigned enableIRQ(void);
  *    This function restores the IRQ disable bit in the status register
  *    to the value contained within passed oldCPSR
  *
- * Calling Sequence: 
+ * Calling Sequence:
  *    void
  *
  * Returns:
@@ -112,7 +112,7 @@ unsigned restoreIRQ(unsigned oldCPSR);
  * Description:
  *    This function sets the FIQ disable bit in the status register
  *
- * Calling Sequence: 
+ * Calling Sequence:
  *    void
  *
  * Returns:
@@ -128,7 +128,7 @@ unsigned disableFIQ(void);
  * Description:
  *    This function clears the FIQ disable bit in the status register
  *
- * Calling Sequence: 
+ * Calling Sequence:
  *    void
  *
  * Returns:
@@ -145,7 +145,7 @@ unsigned enableFIQ(void);
  *    This function restores the FIQ disable bit in the status register
  *    to the value contained within passed oldCPSR
  *
- * Calling Sequence: 
+ * Calling Sequence:
  *    void
  *
  * Returns:

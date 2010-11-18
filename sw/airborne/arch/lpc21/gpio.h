@@ -16,7 +16,7 @@ extern bool_t gpio1_status;
 #define GpioOn1() { \
  gpio1_status = TRUE; \
  IO0SET = _BV(GPIO_1_PIN); \
-} 
+}
 
 #define GpioOff1() { \
  gpio1_status = FALSE; \

@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,11 +18,11 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 /*
- *\brief STM32 usart functions 
+ *\brief STM32 usart functions
  *
  */
 
@@ -78,7 +78,7 @@
 #define UART1_clk(_periph, _val) RCC_APB2PeriphClockCmd(_periph, _val)
 #define UART2_clk(_periph, _val) RCC_APB1PeriphClockCmd(_periph, _val)
 #define UART3_clk(_periph, _val) RCC_APB1PeriphClockCmd(_periph, _val);
-#define UART5_clk(_periph, _val) RCC_APB1PeriphClockCmd(_periph, _val) 
+#define UART5_clk(_periph, _val) RCC_APB1PeriphClockCmd(_periph, _val)
 
 #define Uart1_init uart1_init()
 #define Uart2_init uart2_init()
@@ -88,16 +88,16 @@
 #define UART1_irq_handler usart1_irq_handler
 #define UART2_irq_handler usart2_irq_handler
 #define UART3_irq_handler usart3_irq_handler
-#define UART5_irq_handler usart5_irq_handler 
+#define UART5_irq_handler usart5_irq_handler
 
 #define UART1_IRQn USART1_IRQn
-#define UART2_IRQn USART2_IRQn 
+#define UART2_IRQn USART2_IRQn
 #define UART3_IRQn USART3_IRQn
 
 #define UART1_reg USART1
 #define UART2_reg USART2
 #define UART3_reg USART3
-#define UART5_reg USART5  
+#define UART5_reg USART5
 
 
 #if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER

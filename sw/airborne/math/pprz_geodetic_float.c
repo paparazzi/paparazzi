@@ -2,7 +2,7 @@
 
 #include "pprz_algebra_float.h"
 #include <math.h>
- 
+
 void ltp_def_from_ecef_f(struct LtpDef_f* def, struct EcefCoor_f* ecef) {
 
   /* store the origin of the tangeant plane       */
@@ -80,7 +80,7 @@ void ecef_of_ned_vect_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct Ne
   ENU_OF_TO_NED(enu, *ned);
   ecef_of_enu_vect_f(ecef, def, &enu);
 }
-#endif 
+#endif
 
 
 
@@ -92,13 +92,13 @@ void lla_of_ecef_f(struct LlaCoor_f* out, struct EcefCoor_f* in) {
   static const float a = 6378137.0;           /* earth semimajor axis in meters */
   static const float f = 1./298.257223563;    /* reciprocal flattening          */
   const float b = a*(1.-f);                   /* semi-minor axis                */
-  const float b2 = b*b;                       
- 
+  const float b2 = b*b;
+
   const float e2 = 2.*f-(f*f);                /* first eccentricity squared     */
   const float ep2 = f*(2.-f)/((1.-f)*(1.-f)); /* second eccentricity squared    */
   const float E2 = a*a - b2;
- 
-  
+
+
   const float z2 = in->z*in->z;
   const float r2 = in->x*in->x+in->y*in->y;
   const float r = sqrtf(r2);
@@ -114,7 +114,7 @@ void lla_of_ecef_f(struct LlaCoor_f* out, struct EcefCoor_f* in) {
   const float U = sqrtf( tmp + z2 );
   const float V = sqrtf( tmp + (1-e2)*z2 );
   const float zo = (b2*in->z)/(a*V);
- 
+
   out->alt = U*(1 - b2/(a*V));
   out->lat = atanf((in->z + ep2*zo)/r);
   out->lon = atan2f(in->y,in->x);

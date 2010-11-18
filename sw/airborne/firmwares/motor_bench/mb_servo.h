@@ -8,7 +8,7 @@
 #define MAX_SERVO_US 2000
 #define MIN_SERVO_NS 1000000
 #define MAX_SERVO_NS 2000000
-#define RANGE_SERVO_US (MAX_SERVO_US - MIN_SERVO_US) 
+#define RANGE_SERVO_US (MAX_SERVO_US - MIN_SERVO_US)
 
 void mb_servo_init( void );
 void mb_servo_set_range( uint32_t min_pulse_ns, uint32_t max_pulse_ns );

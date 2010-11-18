@@ -16,47 +16,47 @@ struct DoubleMat44 square_skaled(struct DoubleMat44 A){
 }
 
 /* the following solver uses the Power Iteration
- * 
+ *
  * It is rather simple:
  * 1. You choose a starting vektor x_0 (shouldn't be zero)
  * 2. apply it on the Matrix
  *               x_(k+1) = A * x_k
  * 3. Repeat this very often.
- * 
+ *
  * The vector converges to the dominat eigenvector, which belongs to the eigenvalue with the biggest absolute value.
- * 
+ *
  * But there is a problem:
  * With every step, the norm of vector grows. Therefore it's necessary to scale it with every step.
- * 
+ *
  * Important warnings:
  * I.   This function does not converge if the Matrix is singular
  * II.  Pay attention to the loop-condition! It does not end if it's close to the eigenvector!
  *      It ends if the steps are getting too close to each other.
- * 
- */ 
+ *
+ */
 DoubleVect4 dominant_Eigenvector(struct DoubleMat44 A, unsigned int maximum_iterations, double precision, struct DoubleMat44 sigma_A, DoubleVect4 *sigma_x){
   unsigned int  k;
   DoubleVect4 x_k,
               x_kp1;
   double delta = 1,
          scale;
-  
+
   FLOAT_QUAT_ZERO(x_k);
-  
+
   //for(k=0; (k<maximum_iterations) && (delta>precision); k++){
   for(k=0; k<maximum_iterations; k++){
-    
+
     // Next step
     DOUBLE_MAT_VMULT4(x_kp1, A, x_k);
-    
+
     // Scale the vector
     scale = 1/INFTY_NORM4(x_kp1);
     QUAT_SMUL(x_kp1, x_kp1, scale);
-    
+
     // Calculate the difference between to steps for the loop condition. Store temporarily in x_k
     QUAT_DIFF(x_k, x_k, x_kp1);
     delta = INFTY_NORM4(x_k);
-    
+
     // Update the next step
     x_k = x_kp1;
     if (delta<=precision){
@@ -64,7 +64,7 @@ DoubleVect4 dominant_Eigenvector(struct DoubleMat44 A, unsigned int maximum_iter
       QUAT_SMUL(*sigma_x, *sigma_x, scale);
       break;
     }
-    
+
   }
   #ifdef EKNAV_FROM_LOG_DEBUG
     printf("Number of iterations: %4i\n", k);
@@ -78,53 +78,53 @@ DoubleVect4 dominant_Eigenvector(struct DoubleMat44 A, unsigned int maximum_iter
 }
 
 /*    This function generates the "K"-matrix out of an attitude profile matrix
- * 
+ *
  * I don't know the real name of the "K"-Matrix, but everybody (see References from the other functions)
  * calls it "K", so I do it as well.
  */
 struct DoubleMat44 generate_K_matrix(struct DoubleMat33 B){
   struct DoubleMat44 K;
-  
+
   double traceB  = RMAT_TRACE(B);
   double z1      = M3(B,1,2) - M3(B, 2,1);
   double z2      = M3(B,2,0) - M3(B, 0,2);
   double z3      = M3(B,0,1) - M3(B, 1,0);
-  
+
   /** The "K"-Matrix. See the references for it **/
   /* Fill the upper triangle matrix */
   M4(K,0,0) = traceB; M4(K,0,1) = z1;                 M4(K,0,2) = z2;                   M4(K,0,3) = z3;
-                      M4(K,1,1) = 2*M3(B,0,0)-traceB; M4(K,1,2) = M3(B,0,1)+M3(B,1,0);  M4(K,1,3) = M3(B,0,2)+M3(B,2,0); 
+                      M4(K,1,1) = 2*M3(B,0,0)-traceB; M4(K,1,2) = M3(B,0,1)+M3(B,1,0);  M4(K,1,3) = M3(B,0,2)+M3(B,2,0);
                                                       M4(K,2,2) = 2*M3(B,1,1)-traceB;   M4(K,2,3) = M3(B,1,2)+M3(B,2,1);
                                                                                         M4(K,3,3) = 2*M3(B,2,2)-traceB;
   /* Copy to  lower triangle matrix */
   M4(K,1,0) = M4(K,0,1);
   M4(K,2,0) = M4(K,0,2);  M4(K,2,1) = M4(K,1,2);
   M4(K,3,0) = M4(K,0,3);  M4(K,3,1) = M4(K,1,3);  M4(K,3,2) = M4(K,2,3);
-  
+
   return K;
 }
 
 /*    This function estimates a quaternion from a set of observations
- * 
+ *
  * B is the "attitude profile matrix". Use the other functions to fill it with the attitude observations.
- * 
+ *
  * The function solves Wahba's problem using Paul Davenport's solution.
  * Unfortunatly Davenport unpublished his solution, but you can still find descriptions of it in the web
  * ( e.g: home.comcast.net/~mdshuster2/PUB_2006c_J_GenWahba_AAS.pdf )
- * 
+ *
  */
 struct DoubleQuat estimated_attitude(struct DoubleMat33 B, unsigned int maximum_iterations, double precision, struct DoubleMat33 sigma_B, struct DoubleQuat* sigma_q){
   double      traceB,
               z1, z2, z3;
   struct DoubleMat44 K, sigma_K;
   struct DoubleQuat  q_guessed;
-  
+
         K = generate_K_matrix(B);
   sigma_K = generate_K_matrix(sigma_B);
-  
+
   /* compute the estimated quaternion */
   q_guessed = dominant_Eigenvector(square_skaled(K), maximum_iterations, precision, sigma_K, sigma_q);    // K² is tricky. I'm mean, I know
-  
+
   /* Final scaling, because the eigenvector hat not the length = 1 */
   double scale = 1/NORM_VECT4(q_guessed);
   QUAT_SMUL(q_guessed, q_guessed, scale);
@@ -133,14 +133,14 @@ struct DoubleQuat estimated_attitude(struct DoubleMat33 B, unsigned int maximum_
 }
 
 /*  Adds an orientation observation to the "attitude profile matrix" B
- *  
+ *
  *  This is done with
  *        B += a * W * V'
  *  where
  *      a     is the weight of the current measurment (how good it is, how often...)
  *      W     is the observed vector
  *      V'    is the (transposed) reference direction, that belongs to W.
- * 
+ *
  *  See Davenport's solution for Wabha's problem for more information
  */
 void add_orientation_measurement(struct DoubleMat33* B, struct Orientation_Measurement a){
@@ -156,9 +156,9 @@ void add_orientation_measurement(struct DoubleMat33* B, struct Orientation_Measu
 }
 
 /*  Generates a "faked" orientation measurement out of two true observations
- *  
+ *
  *  This is necessary because othwerwise the attitude profile matrix has only two degrees of freedom.
- *  
+ *
  *  The third reference direction is the cross product of the other two, same for the measurement.
  */
 struct Orientation_Measurement fake_orientation_measurement(struct Orientation_Measurement a, struct Orientation_Measurement b){

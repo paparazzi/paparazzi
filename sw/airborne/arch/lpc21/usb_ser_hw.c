@@ -1,5 +1,5 @@
 /*
-	LPCUSB, an USB device driver for LPC microcontrollers	
+	LPCUSB, an USB device driver for LPC microcontrollers
 	Copyright (C) 2006 Bertrik Sikken (bertrik@sikken.nl)
     adapted to pprz    Martin Mueller (martinmm@pfump.org)
 
@@ -17,7 +17,7 @@
 	THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
 	IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 	OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-	IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, 
+	IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
 	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
 	NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
 	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
@@ -81,7 +81,7 @@
 #define VCOM_FIFO_SIZE          128
 
 #define EOF                     (-1)
-#define ASSERT(x) 
+#define ASSERT(x)
 
 typedef struct {
     int         head;
@@ -216,7 +216,7 @@ static const uint8_t abDescriptors[] = {
 	0x02,						// bmAttributes = bulk
 	LE_WORD(MAX_PACKET_SIZE),	// wMaxPacketSize
 	0x00,						// bInterval
-	
+
 	// string descriptors
 	0x04,
 	DESC_STRING,
@@ -251,31 +251,31 @@ void fifo_init(fifo_t *fifo, U8 *buf)
 BOOL fifo_put(fifo_t *fifo, U8 c)
 {
 	int next;
-	
+
 	// check if FIFO has room
 	next = (fifo->head + 1) % VCOM_FIFO_SIZE;
 	if (next == fifo->tail) {
 		// full
 		return FALSE;
 	}
-	
+
 	fifo->buf[fifo->head] = c;
 	fifo->head = next;
-	
+
 	return TRUE;
 }
 
 BOOL fifo_get(fifo_t *fifo, U8 *pc)
 {
 	int next;
-	
+
 	// check if FIFO has data
 	if (fifo->head == fifo->tail) {
 		return FALSE;
 	}
-	
+
 	next = (fifo->tail + 1) % VCOM_FIFO_SIZE;
-	
+
 	*pc = fifo->buf[fifo->tail];
 	fifo->tail = next;
 
@@ -297,10 +297,10 @@ void set_linecoding(TLineCoding linecoding)
 {
     uint16_t baud;
     uint8_t mode;
-  
+
     // set the baudrate
     baud = (uint16_t)((PCLK / ((linecoding.dwDTERate) * 16.0)) + 0.5);
-        
+
     // set the number of characters and other
     // user specified operating parameters
     switch (linecoding.bCharFormat)
@@ -341,25 +341,25 @@ void set_linecoding(TLineCoding linecoding)
             break;
         case 8:  mode += ULCR_CHAR_8;
             break;
-        case 16:  
+        case 16:
         default: mode += ULCR_CHAR_8;
             break;
     }
- 
+
 #ifdef USE_UART0
-    U0LCR = ULCR_DLAB_ENABLE;             // select divisor latches 
+    U0LCR = ULCR_DLAB_ENABLE;             // select divisor latches
     U0DLL = (uint8_t)baud;                // set for baud low byte
     U0DLM = (uint8_t)(baud >> 8);         // set for baud high byte
     U0LCR = (mode & ~ULCR_DLAB_ENABLE);
 #endif
 #ifdef USE_UART1
-    U1LCR = ULCR_DLAB_ENABLE;             // select divisor latches 
+    U1LCR = ULCR_DLAB_ENABLE;             // select divisor latches
     U1DLL = (uint8_t)baud;                // set for baud low byte
     U1DLM = (uint8_t)(baud >> 8);         // set for baud high byte
     U1LCR = (mode & ~ULCR_DLAB_ENABLE);
 #endif
 }
-#endif        
+#endif
 
 #ifdef USE_USB_LINE_CODING
 void VCOM_allow_linecoding(uint8_t mode)
@@ -370,7 +370,7 @@ void VCOM_allow_linecoding(uint8_t mode)
 
 /**
 	Writes one character to VCOM port
-	
+
 	@param [in] c character to write
 	@returns character written, or EOF if character could not be written
  */
@@ -381,16 +381,16 @@ int VCOM_putchar(int c)
 
 /**
 	Reads one character from VCOM port
-	
+
 	@returns character read, or EOF if character could not be read
  */
 int VCOM_getchar(void)
 {
   int result;
   U8 c;
-  
+
   result = fifo_get(&rxfifo, &c) ? c : EOF;
-  
+
   if (BulkOut_is_blocked && fifo_free(&rxfifo) >= MAX_PACKET_SIZE) {
     disableIRQ();
     // get more data from usb bus
@@ -404,7 +404,7 @@ int VCOM_getchar(void)
 
 /**
 	Checks if buffer free in VCOM buffer
-	
+
 	@returns TRUE if len bytes are free
  */
 bool_t VCOM_check_free_space(uint8_t len)
@@ -415,7 +415,7 @@ bool_t VCOM_check_free_space(uint8_t len)
 
 /**
 	Checks if data available in VCOM buffer
-	
+
 	@returns character read, or EOF if character could not be read
  */
 int VCOM_check_available(void)
@@ -426,7 +426,7 @@ int VCOM_check_available(void)
 
 /**
 	Local function to handle incoming bulk data
-		
+
 	@param [in] bEP
 	@param [in] bEPStatus
  */
@@ -455,7 +455,7 @@ static void BulkOut(U8 bEP, U8 bEPStatus)
 
 /**
 	Local function to handle outgoing bulk data
-		
+
 	@param [in] bEP
 	@param [in] bEPStatus
  */
@@ -476,7 +476,7 @@ static void BulkIn(U8 bEP, U8 bEPStatus)
 		}
 	}
 	iLen = i;
-	
+
 	// send over USB
 	if (iLen > 0) {
 		USBHwEPWrite(bEP, abBulkBuf, iLen);
@@ -486,7 +486,7 @@ static void BulkIn(U8 bEP, U8 bEPStatus)
 
 /**
 	Local function to handle the USB-CDC class requests
-		
+
 	@param [in] pSetup
 	@param [out] piLen
 	@param [out] ppbData
@@ -504,7 +504,7 @@ static BOOL HandleClassRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
         {
             set_linecoding(LineCoding);
         }
-#endif        
+#endif
 		break;
 
 	// get line coding
@@ -527,13 +527,13 @@ static BOOL HandleClassRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
 
 /**
 	Interrupt handler
-	
+
 	Simply calls the USB ISR, then signals end of interrupt to VIC
  */
 static void USBIntHandler(void)
 {
 	USBHwISR();
-	VICVectAddr = 0x00;    // dummy write to VIC to signal end of ISR 	
+	VICVectAddr = 0x00;    // dummy write to VIC to signal end of ISR
 }
 
 
@@ -552,7 +552,7 @@ void VCOM_init(void) {
 #ifdef USE_USB_LINE_CODING
 	// set default line coding
     set_linecoding(LineCoding);
-#endif        
+#endif
 
 	// register descriptors
 	USBRegisterDescriptors(abDescriptors);
@@ -564,7 +564,7 @@ void VCOM_init(void) {
 	USBHwRegisterEPIntHandler(INT_IN_EP, NULL);
 	USBHwRegisterEPIntHandler(BULK_IN_EP, BulkIn);
 	USBHwRegisterEPIntHandler(BULK_OUT_EP, BulkOut);
-	
+
 	// register frame handler
 	USBHwRegisterFrameHandler(USBFrameHandler);
 
@@ -581,7 +581,7 @@ void VCOM_init(void) {
 
 	VICVectCntl10 = VIC_ENABLE | VIC_USB;
 	VICVectAddr10 = (uint32_t)USBIntHandler;
-	
+
 	// connect to bus
 	USBHwConnect(TRUE);
 }

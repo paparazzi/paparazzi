@@ -8,7 +8,7 @@
 #define HSE_TYPE_EXT_CLK
 
 /* Onboard LEDs */
-#define LED_1_BANK 
+#define LED_1_BANK
 #define LED_STP08
 
 // FIXME, this is just to make it compile

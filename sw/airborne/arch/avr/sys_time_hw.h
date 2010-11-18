@@ -23,7 +23,7 @@
  */
 
 /*
- *\brief AVR timer functions 
+ *\brief AVR timer functions
  *
  */
 
@@ -111,7 +111,7 @@ static inline bool_t sys_time_periodic( void ) {
 
   return (tmr2_ov_cnt & 0x1);
 }
-#else 
+#else
 //#define TMR2_PER_SEC 7812
 static inline bool_t sys_time_periodic( void ) {
   if( !bit_is_set( TIFR, TOV2 ) )

@@ -29,7 +29,7 @@
 #include <stm32/gpio.h>
 #include "std.h"
 
-#ifdef USE_UART1 
+#ifdef USE_UART1
 
 volatile uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
 uint8_t  uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
@@ -119,7 +119,7 @@ bool_t uart1_check_free_space( uint8_t len) {
 }
 
 void usart1_irq_handler(void) {
-  
+
   if(USART_GetITStatus(USART1, USART_IT_TXE) != RESET){
     // check if more data to send
     if (uart1_tx_insert_idx != uart1_tx_extract_idx) {
@@ -152,7 +152,7 @@ void usart1_irq_handler(void) {
 
 
 
-#ifdef USE_UART2 
+#ifdef USE_UART2
 
 volatile uint16_t uart2_rx_insert_idx, uart2_rx_extract_idx;
 uint8_t  uart2_rx_buffer[UART2_RX_BUFFER_SIZE];
@@ -273,7 +273,7 @@ void usart2_irq_handler(void) {
 
 
 
-#ifdef USE_UART3 
+#ifdef USE_UART3
 
 volatile uint16_t uart3_rx_insert_idx, uart3_rx_extract_idx;
 uint8_t  uart3_rx_buffer[UART3_RX_BUFFER_SIZE];
@@ -303,12 +303,12 @@ void uart3_init( void ) {
   GPIO_PinRemapConfig(GPIO_PartialRemap_USART3, ENABLE);
   GPIO_InitTypeDef gpio;
   /* GPIOC: GPIO_Pin_10 USART3 Tx push-pull */
-  gpio.GPIO_Pin   = UART3_TxPin; 
+  gpio.GPIO_Pin   = UART3_TxPin;
   gpio.GPIO_Mode  = GPIO_Mode_AF_PP;
   gpio.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(UART3_TxPort, &gpio);
   /* GPIOC: GPIO_Pin_11 USART3 Rx pin as floating input */
-  gpio.GPIO_Pin   = UART3_RxPin; 
+  gpio.GPIO_Pin   = UART3_RxPin;
   gpio.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
   GPIO_Init(UART3_RxPort, &gpio);
 
@@ -368,7 +368,7 @@ bool_t uart3_check_free_space( uint8_t len) {
 
 
 void usart3_irq_handler(void) {
-  
+
   if(USART_GetITStatus(USART3, USART_IT_TXE) != RESET){
     // check if more data to send
     if (uart3_tx_insert_idx != uart3_tx_extract_idx) {
@@ -397,13 +397,13 @@ void usart3_irq_handler(void) {
 
 void uart_init( void )
 {
-#ifdef USE_UART1 
+#ifdef USE_UART1
   uart1_init();
 #endif
-#ifdef USE_UART2 
+#ifdef USE_UART2
   uart2_init();
 #endif
-#ifdef USE_UART3 
+#ifdef USE_UART3
   uart3_init();
 #endif
 }

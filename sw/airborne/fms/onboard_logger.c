@@ -35,7 +35,7 @@ static void got_pprz_message(const u_char *buf, const struct timeval *ts)
   printf("%i.%06i ", (unsigned) ts->tv_sec - start_secs, (unsigned) ts->tv_usec);
   printf("%d ", (uint32_t) buf[1]); 	   // paparazzi timestamp; see udp_transport.h
   printf("%i %i ", buf[5], buf[6]);	   // AC_ID MSG_ID
-  for(i = 6; i < length - 3; i++)	   
+  for(i = 6; i < length - 3; i++)
   {
     printf("%02x ", buf[i]);
   }
@@ -78,13 +78,13 @@ static void got_packet (u_char *args, const struct pcap_pkthdr *header,
     if (payload[i] != 0x98) {
       // printf("missing start byte\n");
       break;
-    } 
+    }
     i++;
     msg_length = payload[i];
     if ((i + msg_length <= udp_length) && msg_length >= MIN_MSG_LENGTH) {
       got_pprz_message(payload + i, &header->ts);
       i += payload[i] - 1;
-    } 
+    }
   }
 }
 
@@ -112,7 +112,7 @@ static int init_capture(char *device, pcap_t **handle)
   if (pcap_compile(*handle, &fp, filter_exp, 0, net) == -1) {
     fprintf(stderr, "Couldn't parse filter %s: %s\n", filter_exp, pcap_geterr(*handle));
     return 2;
-  } 
+  }
 
   if (pcap_setfilter(*handle, &fp) == -1) {
     fprintf(stderr, "Couldn't install filter %s: %s\n", filter_exp, pcap_geterr(*handle));
@@ -141,6 +141,6 @@ int main(int argc, char *argv[])
   pcap_loop(handle, -1, got_packet, NULL);
 
   pcap_close(handle);
-  
+
   return 0;
 }

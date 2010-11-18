@@ -79,7 +79,7 @@ extern void overo_link_arch_prepare_next_transfert(void);
 /*
  *
  * Passing telemetry through Overo Link
- * 
+ *
  */
 
 #ifdef USE_OVERO_LINK_TELEMETRY

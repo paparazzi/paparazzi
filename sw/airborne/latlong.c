@@ -18,7 +18,7 @@ float latlong_lat, latlong_lon; /* rad */
 #define N (K0*A)
 
 static const float serie_coeff_proj_mercator[5] = {
-  0.99832429842242842444, 
+  0.99832429842242842444,
   0.00083632803657738403,
   0.00000075957783563707,
   0.00000000119563131778,
@@ -72,7 +72,7 @@ static inline float inverse_isometric_latitude(float lat, float e, float epsilon
 /** us on arm7@60MHz, i.e. % of cputime at 4Hz
     specialize CSin: 951us i.e.
     One CSin: 120us
-    init: 
+    init:
      iso_lat: 155, 172
     for loop: 258
 

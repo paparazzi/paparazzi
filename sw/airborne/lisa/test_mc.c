@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 // addr 4
@@ -107,7 +107,7 @@ static inline void main_i2c_init( void ) {
 
 
   /* I2C configuration ----------------------------------------------------------*/
-  I2C_InitTypeDef  I2C_InitStructure; 
+  I2C_InitTypeDef  I2C_InitStructure;
   I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
   I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
   I2C_InitStructure.I2C_OwnAddress1 = 0x02;
@@ -115,7 +115,7 @@ static inline void main_i2c_init( void ) {
   //  I2C_InitStructure.I2C_Ack = I2C_Ack_Disable;
   I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
   I2C_InitStructure.I2C_ClockSpeed = 200000;
-  
+
   /* I2C Peripheral Enable */
   I2C_Cmd(I2C1, ENABLE);
   /* Apply I2C configuration after enabling it */
@@ -137,14 +137,14 @@ static inline void main_test_send( void ) {
   /* Send  address */
   //  I2C_Send7bitAddress(I2C1, 0x52, I2C_Direction_Transmitter);
   I2C_Send7bitAddress(I2C1, 0x58, I2C_Direction_Transmitter);
-  
+
   //  return;
 
   /* Test on EV6 and clear it */
   while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
 
   //  return;
-  
+
   /* Snd data */
   I2C_SendData(I2C1, 0x06);
 

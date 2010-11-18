@@ -32,15 +32,15 @@ int main(int argc, char** argv) {
 
   //  build_fake_log();
 
-  int raw_log_fd = open(argv[1], O_RDONLY); 
-  
+  int raw_log_fd = open(argv[1], O_RDONLY);
+
   if (raw_log_fd == -1) {
     perror("opening log\n");
     return -1;
   }
   //printf("%i\n", sizeof(struct raw_log_entry));
   //return 0;
-  
+
   while (1) {
     struct raw_log_entry entry;
     ssize_t nb_read = read(raw_log_fd, &entry, sizeof(entry));

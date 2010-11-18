@@ -52,8 +52,8 @@ void vor_adc_init( void ) {
   /* start convertion on T0M1 match */
   ADGSR = 4 << 24;
 
-  /* clear match */					
-  T0EMR &= ~TEMR_EM1;					
+  /* clear match */
+  T0EMR &= ~TEMR_EM1;
   /* set high on match 1 */
   T0EMR |= TEMR_EMC11;
   /* first match in a while */
@@ -77,7 +77,7 @@ void adcISR0 ( void ) {
   /* trigger next convertion */
   T0MR1 += PERIODIC_TASK_PERIOD;
   /* lower clock         */
-  T0EMR &= ~TEMR_EM1;	
+  T0EMR &= ~TEMR_EM1;
 
   VICVectAddr = 0x00000000;                 // clear this interrupt from the VIC
   ISR_EXIT();                               // recover registers and return

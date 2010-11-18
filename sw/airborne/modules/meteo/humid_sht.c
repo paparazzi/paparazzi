@@ -38,7 +38,7 @@ uint8_t s_write_byte(uint8_t value)
   uint8_t i, error=0;
 
   for (i=0x80;i>0;i/=2)                 //shift bit for masking
-  { 
+  {
     if (i & value) DATA_SET;            //masking value with i , write to SENSI-BUS
      else DATA_CLR;
      SCK_SET;                           //clk for SENSI-BUS
@@ -60,7 +60,7 @@ uint8_t s_read_byte(uint8_t ack)
 
   DATA_SET;                             //release DATA-line
   for (i=0x80;i>0;i/=2)                 //shift bit for masking
-  { 
+  {
     SCK_SET;                            //clk for SENSI-BUS
     if (DATA_IN) val=(val | i);         //read bit
     SCK_CLR;
@@ -190,7 +190,7 @@ uint8_t s_read_measure(uint16_t *p_value, uint8_t *p_checksum)
 }
 
 void calc_sht(uint16_t hum, uint16_t tem, float *fhum ,float *ftem)
-{ 
+{
 // calculates temperature [ C] and humidity [%RH]
 // input : humi [Ticks] (12 bit)
 //             temp [Ticks] (14 bit)
@@ -237,23 +237,23 @@ void humid_sht_init( void )
 
 #if (DAT_PIN<16)
     PINSEL0 &= ~(_BV(DAT_PIN*2)|_BV(DAT_PIN*2+1));
-#else  
+#else
     PINSEL1 &= ~(_BV((DAT_PIN-16)*2)|_BV((DAT_PIN-16)*2+1));
 #endif
 
 #if (SCK_PIN<16)
     PINSEL0 &= ~(_BV(SCK_PIN*2)|_BV(SCK_PIN*2+1));
-#else  
+#else
     PINSEL1 &= ~(_BV((SCK_PIN-16)*2)|_BV((SCK_PIN-16)*2+1));
-#endif  
+#endif
 
-  IO0DIR &= ~(_BV(DAT_PIN)); 
+  IO0DIR &= ~(_BV(DAT_PIN));
   IO0CLR = _BV(DAT_PIN);
   IO0DIR = _BV(SCK_PIN);
   IO0CLR = _BV(SCK_PIN);
 
   humid_sht_available = FALSE;
-  humid_sht_status = SHT_IDLE;  
+  humid_sht_status = SHT_IDLE;
 }
 
 #if 0
@@ -285,7 +285,7 @@ void humid_sht_periodic(void) {
     /* init humidity read */
     s_connectionreset();
     s_start_measure(HUMI);
-    humid_sht_status = SHT_MEASURING_HUMID;    
+    humid_sht_status = SHT_MEASURING_HUMID;
   }
   else if (humid_sht_status == SHT_MEASURING_HUMID) {
     /* get data */
@@ -315,7 +315,7 @@ void humid_sht_periodic(void) {
       humid_sht_available = TRUE;
       s_connectionreset();
       s_start_measure(HUMI);
-      humid_sht_status = SHT_MEASURING_HUMID;    
+      humid_sht_status = SHT_MEASURING_HUMID;
       DOWNLINK_SEND_SHT_STATUS(DefaultChannel, &humidsht, &tempsht, &fhumidsht, &ftempsht);
       humid_sht_available = FALSE;
     }

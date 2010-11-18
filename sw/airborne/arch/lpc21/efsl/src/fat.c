@@ -35,16 +35,16 @@
 #include "fs.h"
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * unsigned long fat_getSectorAddressFatEntry(FileSystem *fs,unsigned long cluster_addr)
  * Description: Returns the sectornumber that holds the fat entry for cluster cluster_addr.
  * This works for all FAT types.
  * Return value: Sectornumber, or 0. Warning, no boundary check.
 */
 euint32 fat_getSectorAddressFatEntry(FileSystem *fs,euint32 cluster_addr)
-{ 
+{
 	euint32 base = fs->volumeId.ReservedSectorCount,res;
-	
+
 	switch(fs->type){
 		case FAT12:
 			res=(cluster_addr*3/1024);
@@ -69,14 +69,14 @@ euint32 fat_getSectorAddressFatEntry(FileSystem *fs,euint32 cluster_addr)
 			}else{
 				return(base+res);
 			}
-			break; 
+			break;
 	}
 	return(0);
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * unsigned long fat_getNextClusterAddress(FileSystem *fs,unsigned long cluster_addr
  * Description: This function loads the sector of the fat which contains the entry
  * for cluster_addr. It then fetches and (if required) calculates it's value.
@@ -85,20 +85,20 @@ euint32 fat_getSectorAddressFatEntry(FileSystem *fs,euint32 cluster_addr)
 */
 euint32 fat_getNextClusterAddress(FileSystem *fs,euint32 cluster_addr,euint16 *linear)
 {
-	euint8 *buf; 
+	euint8 *buf;
 	euint8 hb,lb;
 	euint16 offset;
 	euint32 sector;
 	euint32 nextcluster=0;
-	
+
 	sector=fat_getSectorAddressFatEntry(fs,cluster_addr);
 	if( (fs->FatSectorCount <= (sector-fs->volumeId.ReservedSectorCount)) || sector==0 )
 	{
 		return(0);
 	}
-	
+
 	buf=part_getSect(fs->part,sector,IOM_MODE_READONLY);
-		
+
 	switch(fs->type)
 	{
 		case FAT12:
@@ -126,34 +126,34 @@ euint32 fat_getNextClusterAddress(FileSystem *fs,euint32 cluster_addr,euint16 *l
 			nextcluster = *((euint32 *)buf + offset);
 			break;
 	}
-	
+
 	part_relSect(fs->part,buf);
-	
+
 	return(nextcluster);
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * void fat_setNextClusterAddress(FileSystem *fs,unsigned long cluster_addr,unsigned long next_cluster_addr)
  * Description: This function makes an entry in the fattable for cluster_addr. The value it puts there
- * is next_cluster_addr. 
+ * is next_cluster_addr.
 */
 void fat_setNextClusterAddress(FileSystem *fs,euint32 cluster_addr,euint32 next_cluster_addr)
 {
-	euint8 *buf,*buf2; 
+	euint8 *buf,*buf2;
 	euint16 offset;
 	euint32 sector;
-	
+
 	sector=fat_getSectorAddressFatEntry(fs,cluster_addr);
-	
+
 	if(( fs->FatSectorCount <= (sector - fs->volumeId.ReservedSectorCount )||(sector==0))){
 	    DBG((TXT("HARDERROR:::fat_getNextClusterAddress READ PAST FAT BOUNDARY\n")));
 	    return;
 	}
-	
+
 	buf=part_getSect(fs->part,sector,IOM_MODE_READWRITE);
-		
+
 	switch(fs->type){
 		case FAT12:
 			offset = ((cluster_addr%1024)*3/2)%512;
@@ -192,12 +192,12 @@ void fat_setNextClusterAddress(FileSystem *fs,euint32 cluster_addr,euint32 next_
 			part_relSect(fs->part,buf);
 			break;
 	}
-	
+
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * short fat_isEocMarker(FileSystem *fs,unsigned long fat_entry)
  * Description: Checks if a certain value is the EoC marker for the filesystem
  * noted in fs->type.
@@ -224,10 +224,10 @@ eint16 fat_isEocMarker(FileSystem *fs,euint32 fat_entry)
 	}
 	return(1);
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * unsigned long fat_giveEocMarker(FileSystem *fs)
  * Description: Returns an EoC markernumber valid for the filesystem noted in
  * fs->type.
@@ -251,9 +251,9 @@ euint32 fat_giveEocMarker(FileSystem *fs)
 	}
 	return(0);
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * euint32 fat_getNextClusterAddressWBuf(FileSystem *fs,euint32 cluster_addr, euint8* buf)
  * Description: This function retrieves the contents of a FAT field. It does not fetch
  * it's own buffer, it is given as a parameter. (ioman makes this function rather obsolete)
@@ -266,7 +266,7 @@ euint32 fat_getNextClusterAddressWBuf(FileSystem *fs,euint32 cluster_addr, euint
 	euint8 hb,lb;
 	euint16 offset;
 	euint32 nextcluster=0;
-	
+
 	switch(fs->type)
 	{
 		case FAT12:
@@ -296,9 +296,9 @@ euint32 fat_getNextClusterAddressWBuf(FileSystem *fs,euint32 cluster_addr, euint
 	}
 	return(nextcluster);
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * void fat_setNextClusterAddressWBuf(FileSystem *fs,euint32 cluster_addr,euint32 next_cluster_addr,euint8* buf)
  * Description: This function fills in a fat entry. The entry is cluster_addr and the
  * data entered is next_cluster_addr. This function is also given a *buf, so it does
@@ -310,7 +310,7 @@ void fat_setNextClusterAddressWBuf(FileSystem *fs,euint32 cluster_addr,euint32 n
 {
 	euint16 offset;
 	euint8 *buf2;
-		
+
 	switch(fs->type)
 	{
 		case FAT12:
@@ -350,10 +350,10 @@ void fat_setNextClusterAddressWBuf(FileSystem *fs,euint32 cluster_addr,euint32 n
 }
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * esint16 fat_getNextClusterChain(FileSystem *fs, ClusterChain *Cache)
  * Description: This function is to advance the clusterchain of a Cache.
- * First, the function verifies if the Cache is valid. It could correct it if it 
+ * First, the function verifies if the Cache is valid. It could correct it if it
  * is not, but this is not done at the time. If the cachen is valid, the next step is
  * to see what the next cluster is, if this is the End of Clustermark, the cache is
  * updated to know the lastcluster but will remain untouched otherwise. -1 is returned.
@@ -384,29 +384,29 @@ esint16 fat_getNextClusterChain(FileSystem *fs, ClusterChain *Cache)
 		part_relSect(fs->part,buf);
 		return(-1);
 	}
-	
+
 	Cache->DiscCluster=dc;
 	Cache->LogicCluster++;
-		
+
 	lr=Cache->DiscCluster-1;
 	nlr=lr+1;
-	
+
 	while(nlr-1==lr && fat_getSectorAddressFatEntry(fs,nlr)==sect)
 	{
 		lr=nlr;
 		nlr=fat_getNextClusterAddressWBuf(fs,lr,buf);
-		lin++;	
+		lin++;
 	}
-	
+
 	Cache->Linear=lin-1<0?0:lin-1;
-	
+
 	part_relSect(fs->part,buf);
 	return(0);
 }
 /*****************************************************************************/
 
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * esint16 fat_LogicToDiscCluster(FileSystem *fs, ClusterChain *Cache,euint32 logiccluster)
  * Description: This function is used to follow clusterchains. When called it will convert
  * a logical cluster, to a disc cluster, using a Cache object. All it does is call
@@ -422,11 +422,11 @@ esint16 fat_LogicToDiscCluster(FileSystem *fs, ClusterChain *Cache,euint32 logic
 		Cache->DiscCluster=Cache->FirstCluster;
 		Cache->Linear=0;
 	}
-	
+
 	if(Cache->LogicCluster==logiccluster){
 		return(0);
 	}
-	
+
 	while(Cache->LogicCluster!=logiccluster)
 	{
 		if(Cache->Linear!=0)
@@ -446,10 +446,10 @@ esint16 fat_LogicToDiscCluster(FileSystem *fs, ClusterChain *Cache,euint32 logic
 }
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * eint16 fat_allocClusterChain(FileSystem *fs,ClusterChain *Cache,euint32 num_clusters)
  * Description: This function extends a clusterchain by num_clusters. It returns the
- * number of clusters it *failed* to allocate. 
+ * number of clusters it *failed* to allocate.
  * Return value: 0 on success, all other values are the number of clusters it could
  * not allocate.
 */
@@ -460,10 +460,10 @@ eint16 fat_allocClusterChain(FileSystem *fs,ClusterChain *Cache,euint32 num_clus
 	euint8  overflow=0;
 
 	if(Cache->FirstCluster<=1)return(num_clusters);
-	
+
 	lc=fs_getLastCluster(fs,Cache);
 	cc=lc;
-	
+
 	while(ncl > 0){
 		cc++;
 		if(cc>=fs->DataClusterCount+1){
@@ -498,7 +498,7 @@ eint16 fat_allocClusterChain(FileSystem *fs,ClusterChain *Cache,euint32 num_clus
 	return(0);
 }
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * eint16 fat_unlinkClusterChain(FileSystem *fs,ClusterChain *Cache)
  * Description: This function removes a clusterchain. Starting at FirstCluster
  * it follows the chain until the end, resetting all values to 0.
@@ -507,12 +507,12 @@ eint16 fat_allocClusterChain(FileSystem *fs,ClusterChain *Cache,euint32 num_clus
 eint16 fat_unlinkClusterChain(FileSystem *fs,ClusterChain *Cache)
 {
 	euint32 c,tbd=0;
-	
+
 	Cache->LogicCluster=0;
 	Cache->DiscCluster=Cache->FirstCluster;
-	
+
 	c=0;
-	
+
 	while(!fat_LogicToDiscCluster(fs,Cache,c++)){
 		if(tbd!=0){
 			fat_setNextClusterAddress(fs,tbd,0);
@@ -520,7 +520,7 @@ eint16 fat_unlinkClusterChain(FileSystem *fs,ClusterChain *Cache)
 		tbd=Cache->DiscCluster;
 	}
 	fat_setNextClusterAddress(fs,Cache->DiscCluster,0);
-	fs->FreeClusterCount+=c;	
+	fs->FreeClusterCount+=c;
  	return(0);
 }
 
@@ -528,14 +528,14 @@ euint32 fat_countClustersInChain(FileSystem *fs,euint32 firstcluster)
 {
 	ClusterChain cache;
 	euint32 c=0;
-	
+
 	if(firstcluster<=1)return(0);
-	
+
 	cache.DiscCluster = cache.LogicCluster = cache.LastCluster = cache.Linear = 0;
 	cache.FirstCluster = firstcluster;
-	
+
 	while(!(fat_LogicToDiscCluster(fs,&cache,c++)));
-	
+
 	return(c-1);
 }
 
@@ -543,10 +543,10 @@ euint32 fat_DiscToLogicCluster(FileSystem *fs,euint32 firstcluster,euint32 discc
 {
 	ClusterChain cache;
 	euint32 c=0,r=0;
-	
+
 	cache.DiscCluster = cache.LogicCluster = cache.LastCluster = cache.Linear = 0;
 	cache.FirstCluster = firstcluster;
-	
+
 	while(!(fat_LogicToDiscCluster(fs,&cache,c++)) && !r){
 		if(cache.DiscCluster == disccluster){
 			r = cache.LogicCluster;
@@ -558,7 +558,7 @@ euint32 fat_DiscToLogicCluster(FileSystem *fs,euint32 firstcluster,euint32 discc
 euint32 fat_countFreeClusters(FileSystem *fs)
 {
 	euint32 c=2,fc=0;
-	
+
 	while(c<=fs->DataClusterCount+1){
 		if(fat_getNextClusterAddress(fs,c,0)==0)fc++;
 		c++;

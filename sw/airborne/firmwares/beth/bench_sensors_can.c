@@ -46,7 +46,7 @@ static void can_rx_callback(uint32_t id, uint8_t *buf, int len) {
     if ((tempangle == 0 )||(tempangle > 6000)) {can_err_flags = 0x20;} else {bench_sensors.angle_3 = tempangle;}
     rx_bd2 = 0;
     LED_TOGGLE(4);
-  } 
+  }
   else {
     tempangle = (buf[3]<<8) | buf[2];
     if ((tempangle == 0 )||(tempangle > 6000)) {can_err_flags = 0x10;} else {bench_sensors.angle_1 = tempangle;}

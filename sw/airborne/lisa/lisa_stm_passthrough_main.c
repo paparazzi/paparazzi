@@ -267,7 +267,7 @@ static inline void on_overo_link_msg_received(void) {
 #else
 	/* pwm acuators down */
 	if (radio_control.values[RADIO_MODE] <= 150) {
-		for (int i = 0; i < 6; i++) { 
+		for (int i = 0; i < 6; i++) {
 			actuators_pwm_values[i] = overo_link.down.msg.pwm_outputs_usecs[i];
 		}
 		if (radio_control.values[RADIO_KILL] > 150) {

@@ -2,11 +2,11 @@
 #define OVERO_CONTROLLER_H
 
 struct OveroController {
-  
+
   float tilt_sp;
   float elevation_sp;
   float azimuth_sp;
-  
+
   float tilt_ref;
   float elevation_ref;
   float azimuth_ref;
@@ -37,10 +37,10 @@ struct OveroController {
 
   float cmd_df_pitch;
   float cmd_df_thrust;
-  
+
   float cmd_pitch;
   float cmd_thrust;
-    
+
   int armed;
 };
 

@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <stm32/flash.h>
@@ -52,7 +52,7 @@ int main(void) {
       main_periodic();
     main_event();
   }
-  
+
   return 0;
 }
 
@@ -77,14 +77,14 @@ static inline void on_overo_link_lost(void) {
 }
 
 static inline void on_overo_link_msg_received(void) {
-  
+
   DEBUG_S1_TOGGLE();
 
-  memcpy(&overo_link.up.msg, &overo_link.down.msg, 
+  memcpy(&overo_link.up.msg, &overo_link.down.msg,
 	 sizeof(union AutopilotMessage));
-  
+
 }
 
 static inline void on_overo_link_crc_err(void) {
-  
+
 }

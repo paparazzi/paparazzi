@@ -63,12 +63,12 @@ static void end_message(void *impl)
 
 static void overrun(void *impl __attribute__((unused)))
 {
-  
+
 }
 
 static void count_bytes(void *udp __attribute__((unused)), uint8_t bytes __attribute__((unused)))
 {
-	
+
 }
 
 static int check_free_space(void *udp __attribute__((unused)), uint8_t bytes __attribute__((unused)))

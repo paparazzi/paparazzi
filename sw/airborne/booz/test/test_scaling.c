@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <stdio.h>
@@ -51,17 +51,17 @@ void test_1(void) {
 
     double neutral_f = (double)IMU_ACCEL_X_NEUTRAL;
     double sensitivity_f = 1./IMU_ACCEL_X_SENS;
-    
+
     double  sensor_raw_f = ACCEL_BFP_OF_REAL(value_f) * sensitivity_f + neutral_f;
     int32_t sensor_raw_i = rint(sensor_raw_f);
-    
+
     double  scaled_sensor_f = ACCEL_BFP_OF_REAL(value_f);
 #if 1
     int32_t scaled_sensor_i = ((sensor_raw_i - IMU_ACCEL_X_NEUTRAL) * IMU_ACCEL_X_SENS_NUM) / IMU_ACCEL_X_SENS_DEN;
 #endif
 
 #if 0
-    int32_t scaled_sensor_i = (sensor_raw_i * IMU_ACCEL_X_SENS_NUM / IMU_ACCEL_X_SENS_DEN) - 
+    int32_t scaled_sensor_i = (sensor_raw_i * IMU_ACCEL_X_SENS_NUM / IMU_ACCEL_X_SENS_DEN) -
                               (IMU_ACCEL_X_NEUTRAL * IMU_ACCEL_X_SENS_NUM / IMU_ACCEL_X_SENS_DEN);
 #endif
 
@@ -82,15 +82,15 @@ void test_1(void) {
 }
 
 void test_2(void) {
-    
-  int a;    
+
+  int a;
   for (a=-7; a<7; a++) {
     int b = a/-2;
     int c = (a>0 ? a+1 : a-1)/-2;
     double d = rint((double)a/-2.);
     printf("%- d %- d %- d %- .1f\n", a, b, c, d);
   }
-    
+
 }
 
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
@@ -98,7 +98,7 @@ void test_2(void) {
 #define N_OFFSET 2
 void test_3(void) {
 
- int a;    
+ int a;
  for (a=-(1<<N_OFFSET); a<=(1<<N_OFFSET); a++) {
    int32_t b = (a>>N_OFFSET);
    int32_t c;
@@ -114,6 +114,6 @@ void test_3(void) {
    double e;
    e = (double)a/(double)(1<<N_OFFSET);
 
-   printf("%- d %- d %- d %- d %.1f\n", a, b, c, d, e); 
+   printf("%- d %- d %- d %- d %.1f\n", a, b, c, d, e);
  }
 }

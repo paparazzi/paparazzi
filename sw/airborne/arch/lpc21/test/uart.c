@@ -44,7 +44,7 @@ unsigned int processor_clock_frequency(void) {
   return OSCILLATOR_CLOCK_FREQUENCY * (PLLCON & 1 ? (PLLCFG & 0xF) + 1 : 1);
 }
 
-/* 
+/*
    VPBDIV - determines the relationship between the processor clock (cclk)
    and the clock used by peripheral devices (pclk).
 */
@@ -65,13 +65,13 @@ void uart0_init ( unsigned int baud ) {
   U0LCR_bit.PE    = 0x0;    //no parity
   U0LCR_bit.DLAB  = 0x1;    //enable DLAB
   //U0LCR = 0x83;
-  
+
   unsigned int divisor = peripheral_clock_frequency() / (16 * baud);
 
   U0DLL = divisor & 0xFF;
   U0DLM = (divisor >> 8) & 0xFF;
   U0LCR &= ~0x80;
-  
+
   PINSEL0 = PINSEL0 & ~0xF | 0x5;
 }
 

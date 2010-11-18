@@ -17,26 +17,26 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.  
+ * Boston, MA 02111-1307, USA.
  *
  */
 
 /** \brief handling of arm7 inter mcu link
- *  
+ *
  */
 
 #ifndef LINK_MCU_HW_H
 #define LINK_MCU_HW_H
 
-#define CRC_INIT 0x0 	 
-#define CrcLow(x) ((x)&0xff) 	 
-#define CrcHigh(x) ((x)>>8) 	 
+#define CRC_INIT 0x0
+#define CrcLow(x) ((x)&0xff)
+#define CrcHigh(x) ((x)>>8)
 
-static inline uint16_t CrcUpdate(uint16_t crc, uint8_t data) { 	 
-  uint8_t a = ((uint8_t)CrcHigh(crc)) + data; 	 
-  uint8_t b = ((uint8_t)CrcLow(crc)) + a; 	 
-  crc = b | a << 8; 	 
-  return crc; 	 
+static inline uint16_t CrcUpdate(uint16_t crc, uint8_t data) {
+  uint8_t a = ((uint8_t)CrcHigh(crc)) + data;
+  uint8_t b = ((uint8_t)CrcLow(crc)) + a;
+  crc = b | a << 8;
+  return crc;
 }
 
 #endif /* LINK_MCU_HW_H */

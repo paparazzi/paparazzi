@@ -86,7 +86,7 @@ void spi_ap_link_set_radio_control_callback(void (* radio_control_cb)(void))
 
 void spi_ap_link_set_adc_callback(void (* adc_callback_fun)(uint16_t * adc_channels))
 {
-	adc_callback = adc_callback_fun; 
+	adc_callback = adc_callback_fun;
 }
 
 int spi_ap_link_init()

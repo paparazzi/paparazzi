@@ -6,8 +6,8 @@
 #include "std.h"
 #include "pprz_algebra_int.h"
 
-/* 
-   Earth Centered Earth Fixed in centimeters 
+/*
+   Earth Centered Earth Fixed in centimeters
 */
 struct EcefCoor_i {
   int32_t x;

@@ -95,13 +95,13 @@ int main(int argc, char *argv[]) {
     printf("Rebuild with GPS configure support.\n");
 #endif
   }
-  
+
   printf("Using /dev/ttyUSB%d for GPS\n",portnum);
 
-  
+
   (void) signal(SIGINT, main_exit);
 
-  uart_init(); 
+  uart_init();
   gps_init();
 
   /* Initalize the event library */
@@ -111,13 +111,13 @@ int main(int argc, char *argv[]) {
 
   if (fms_periodic_init(main_periodic)) {
     TRACE(TRACE_ERROR, "%s", "failed to start periodic generator\n");
-    return -1; 
+    return -1;
   }
 
-#ifdef GPS_CONFIGURE  
+#ifdef GPS_CONFIGURE
   //periodic task is launched so we are now ready to use uart to request gps baud change...
   if (configgps) gps_configure_uart();
-#endif  
+#endif
   event_dispatch();
   //should never occur!
   printf("goodbye! (%d)\n",foo);
@@ -128,11 +128,11 @@ int main(int argc, char *argv[]) {
 
 static void main_periodic(int my_sig_num) {
 
-  
+
   RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);});
    RunOnceEvery(5, {DOWNLINK_SEND_ADC_GENERIC(gcs_com.udp_transport,&adc1,&adc2);});
 
-#ifdef USE_UART0 
+#ifdef USE_UART0
   uart0_handler();
 #endif
 #ifdef USE_UART1
@@ -204,13 +204,13 @@ void check_gps(void){
     if (gps_configuring)
       gps_configure();
     else {
-      if (!donegpsconf) { 
+      if (!donegpsconf) {
         printf("Finished GPS configuration.\n");
 	donegpsconf=1;
-      }  
-      parse_gps_msg(); 
+      }
+      parse_gps_msg();
     }
-#else  
+#else
     parse_gps_msg();
 #endif
     printf("gps msg rx %x %x\n",ubx_class,ubx_id);

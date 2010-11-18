@@ -36,7 +36,7 @@ static struct test_output output[MAX_SAMPLE];
 
 
 int main(int argc, char** argv) {
-  
+
   read_data(IN_FILE);
 
   imu_init();
@@ -91,7 +91,7 @@ static void feed_imu(int i) {
 
 
 static void store_filter_output(int i) {
-  
+
   QUAT_COPY(output[i].quat_est, ahrs_float.ltp_to_imu_quat);
   RATES_COPY(output[i].bias_est, ahrs_mlkf.gyro_bias);
   RATES_COPY(output[i].rate_est, ahrs_float.imu_rate);
@@ -103,9 +103,9 @@ static void dump_output(const char* filename) {
   FILE* fd = fopen(filename, "w");
   int i;
   for (i=0; i<nb_samples; i++) {
-    fprintf(fd, "%.16f [%.16f %.16f %.16f %.16f] [%.16f %.16f %.16f] [%.16f %.16f %.16f] [%.16f %.16f %.16f %.16f %.16f %.16f]\n", 
+    fprintf(fd, "%.16f [%.16f %.16f %.16f %.16f] [%.16f %.16f %.16f] [%.16f %.16f %.16f] [%.16f %.16f %.16f %.16f %.16f %.16f]\n",
 	    samples[i].time,
-	    output[i].quat_est.qi, output[i].quat_est.qx, output[i].quat_est.qy, output[i].quat_est.qz, // quaternion 
+	    output[i].quat_est.qi, output[i].quat_est.qx, output[i].quat_est.qy, output[i].quat_est.qz, // quaternion
 	    output[i].rate_est.p, output[i].rate_est.q, output[i].rate_est.r,                           // omega
 	    output[i].bias_est.p, output[i].bias_est.q, output[i].bias_est.r,                           // bias
             output[i].P[0][0], output[i].P[1][1], output[i].P[2][2],                                    // covariance

@@ -44,13 +44,13 @@ bool_t disc_survey( uint8_t center, float radius) {
 	status = DOWNWIND;
       } else {
 	float w = sqrt(radius*radius - d*d) - 1.5*grid;
-	
+
 	float crosswind_x = - upwind_y;
 	float crosswind_y = upwind_x;
-	
+
 	c2.x = waypoints[center].x+d*upwind_x-w*sign*crosswind_x;
 	c2.y = waypoints[center].y+d*upwind_y-w*sign*crosswind_y;
-	
+
 	status = SEGMENT;
       }
       nav_init_stage();

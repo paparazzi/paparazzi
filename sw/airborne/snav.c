@@ -60,16 +60,16 @@ bool_t snav_init(uint8_t a, float desired_course_rad, float radius) {
     u_y = wp_ca.y - wp_cd.y;
     cd_ca = sqrt(u_x*u_x+u_y*u_y);
   }
-  
+
   u_x /= cd_ca;
   u_y /= cd_ca;
-  
+
   if (a_radius * d_radius > 0) {
     /* Both arcs are in the same direction */
     /* CD_TD orthogonal to CD_CA */
     wp_td.x = wp_cd.x - d_radius * u_y;
     wp_td.y = wp_cd.y + d_radius * u_x;
-    
+
     /* CA_TA also orthogonal to CD_CA */
     wp_ta.x = wp_ca.x - a_radius * u_y;
     wp_ta.y = wp_ca.y + a_radius * u_x;
@@ -78,7 +78,7 @@ bool_t snav_init(uint8_t a, float desired_course_rad, float radius) {
     float alpha = atan2(u_y, u_x) + acos(d_radius/(cd_ca/2));
     wp_td.x = wp_cd.x + d_radius * cos(alpha);
     wp_td.y = wp_cd.y + d_radius * sin(alpha);
-    
+
     wp_ta.x = wp_ca.x + a_radius * cos(alpha);
     wp_ta.y = wp_ca.y + a_radius * sin(alpha);
   }
@@ -87,7 +87,7 @@ bool_t snav_init(uint8_t a, float desired_course_rad, float radius) {
   wp_td.a = wp_cd.a;
   wp_ta.a = wp_ca.a;
   ground_speed_timer = 0;
-  
+
   return FALSE;
 }
 
@@ -105,7 +105,7 @@ bool_t snav_route(void) {
   NavVerticalAutoThrottleMode(0); /* No pitch */
   NavVerticalAltitudeMode(wp_cd.a, 0.);
   nav_route_xy(wp_td.x, wp_td.y, wp_ta.x, wp_ta.y);
-  
+
   return (! nav_approaching_xy(wp_ta.x, wp_ta.y, wp_td.x, wp_td.y, CARROT));
 }
 
@@ -183,7 +183,7 @@ bool_t snav_on_time(float nominal_radius) {
   float radius = remaining_time / nominal_time * nominal_radius;
   if (radius > 2. * nominal_radius)
     radius = nominal_radius;
-  
+
   NavVerticalAutoThrottleMode(0); /* No pitch */
   NavVerticalAltitudeMode(wp_cd.a, 0.);
 
@@ -191,7 +191,7 @@ bool_t snav_on_time(float nominal_radius) {
   wp_ca.x = WaypointX(wp_a) + radius * u_a_ca_x;
   wp_ca.y = WaypointY(wp_a) + radius * u_a_ca_y;
   nav_circle_XY(wp_ca.x, wp_ca.y, radius);
-  
+
   /* Stay in this mode until the end of time */
   return(remaining_time > 0);
 }

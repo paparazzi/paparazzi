@@ -34,7 +34,7 @@ uint16_t adc_values[ADC_NB_CSC];
 
 void csc_adc_init(void)
 {
-  adc_init(); 
+  adc_init();
   for (int i = 0; i < ADC_NB_CSC; i++) {
     adc_buf_channel(i, &adc_bufs[i], ADC_AV_NB);
   }

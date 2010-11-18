@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 /** \file i2c_ap.c
@@ -124,7 +124,7 @@ uint8_t i2c_start(void) {
 uint8_t i2c_sla(uint8_t a) {
   TWDR= a;
   TWCR=_BV(TWINT)|_BV(TWEN);
-  
+
   while (! (TWCR & (1<<TWINT)));
 
   return ((TWSR & 0xF8) != MT_SLA_ACK);
@@ -133,7 +133,7 @@ uint8_t i2c_sla(uint8_t a) {
 uint8_t i2c_transmit(uint8_t byte) {
   TWDR= byte;
   TWCR=_BV(TWINT)|_BV(TWEN);
-  
+
   while (! (TWCR & (1<<TWINT)));
 
   /***/return I2C_NO_ERROR;
@@ -155,7 +155,7 @@ void i2c_init(void) {
   TWBR = 72;
   cbi(TWSR, TWPS1);
   cbi(TWSR, TWPS0);
-  /** 10 KHz 
+  /** 10 KHz
   TWBR = 198;
   cbi(TWSR, TWPS1);
   sbi(TWSR, TWPS0);

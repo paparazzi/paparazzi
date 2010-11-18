@@ -29,18 +29,18 @@ int main( void ) {
 
   /* setup PC_TX as output */
   UART_PC_DDR |= _BV(UART_PC_TX);
-  
+
   /* setup PC_RX as input, no pullup */
   UART_PC_DDR &= ~_BV(UART_PC_RX);
   UART_PC_PORT &= ~_BV(UART_PC_RX);
-  
+
   /* setup PERPH_TX as output */
   UART_PERPH_DDR |= _BV(UART_PERPH_TX);
-  
+
   /* setup PERPH_RX as input, no pullup */
   UART_PERPH_DDR &= ~_BV(UART_PERPH_RX);
   UART_PERPH_PORT &= ~_BV(UART_PERPH_RX);
-  
+
   while(1)
   {
     if (bit_is_set(UART_PERPH_PIN, UART_PERPH_RX)) {
@@ -53,9 +53,9 @@ int main( void ) {
     } else {
       cbi(UART_PERPH_PORT, UART_PERPH_TX);
     }
-    
+
   }
-  
+
   return 0;
 
 }

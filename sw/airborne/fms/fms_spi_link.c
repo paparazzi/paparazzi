@@ -43,7 +43,7 @@ int spi_link_init(void) {
 
 int spi_link_send(void *buf_out, size_t count, void *buf_in, uint8_t* crc_valid) {
 
- int ret; 
+ int ret;
 
  struct spi_ioc_transfer tr = {
    .tx_buf        = (unsigned long)buf_out,
@@ -75,7 +75,7 @@ int spi_link_send(void *buf_out, size_t count, void *buf_in, uint8_t* crc_valid)
 #define WIDTH  (8 * sizeof(uint8_t))
 #define TOPBIT (1 << (WIDTH - 1))
 uint8_t crc_calc_block_crc8(const uint8_t buf[], uint32_t len) {
-  uint8_t  _remainder = 0;	
+  uint8_t  _remainder = 0;
   for (uint32_t byte = 0; byte < len; ++byte)  {
     _remainder ^= (buf[byte] << (WIDTH - 8));
     for (uint8_t bit = 8; bit > 0; --bit)  {
@@ -86,7 +86,7 @@ uint8_t crc_calc_block_crc8(const uint8_t buf[], uint32_t len) {
     }
   }
   return (_remainder);
-} 
+}
 
 
 #if 0

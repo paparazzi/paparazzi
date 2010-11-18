@@ -1,6 +1,6 @@
 /*
  * Paparazzi $Id$
- *  
+ *
  * Copyright (C) 2005-2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -46,7 +46,7 @@ extern volatile uint8_t spi_idx_buf;
 
 #ifdef SPI_MASTER
 
-/* Enable SPI, Master, clock fck/16, interrupt */ 
+/* Enable SPI, Master, clock fck/16, interrupt */
 #define SpiStart() { \
   SPCR = _BV(SPE) | _BV(MSTR) | _BV(SPR0); \
   uint8_t foo; \

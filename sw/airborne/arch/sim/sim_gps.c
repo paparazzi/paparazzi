@@ -73,7 +73,7 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
   }
   gps_PDOP = gps_Sacc = gps_Pacc = 500+200*sin(time/100.);
   gps_numSV = 7;
-      
+
   gps_verbose_downlink = !launch;
   UseGpsPosNoSend(estimator_update_state_gps);
   gps_downlink();

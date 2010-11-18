@@ -20,7 +20,7 @@
 /*
  *
  *  PC.01 (ADC Channel11) ext1-20 coder_values[1]
-Paul : using channel 10 instead of 14 
+Paul : using channel 10 instead of 14
  *  PC.04 (ADC Channel14) ext2-12 coder_values[0]
  *
  *  PB.10 I2C2 SCL        ext2-14
@@ -83,13 +83,13 @@ static inline void main_init( void ) {
 static inline void main_periodic( void ) {
 
   /*RunOnceEvery(10, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});*/
-  
+
   //RunOnceEvery(5, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &coder_values[0], &coder_values[1]);});
   //RunOnceEvery(5, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &can1_status, &can1_pending);});
 
   /*RunOnceEvery(5, {DOWNLINK_SEND_BETH(DefaultChannel, &bench_sensors.angle_1,
     &bench_sensors.angle_2,&bench_sensors.angle_3, &bench_sensors.current);});*/
-  
+
   servos[0]=coder_values[0];
   servos[1]=coder_values[1];
   //use id=1 for azimuth board
@@ -104,7 +104,7 @@ static inline void main_event( void ) {
 
 
 /*static inline void main_on_bench_sensors( void ) {
- 
+
 }*/
 
 
@@ -122,7 +122,7 @@ void i2c2_init(void) {
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
   /* Enable GPIOB clock */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-  
+
   /* NVIC configuration ------------------------------------------------------*/
   NVIC_InitTypeDef  NVIC_InitStructure;
   NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
@@ -132,12 +132,12 @@ void i2c2_init(void) {
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
-  /* Configure and enable I2C2 error interrupt -------------------------------*/  
+  /* Configure and enable I2C2 error interrupt -------------------------------*/
   NVIC_InitStructure.NVIC_IRQChannel = I2C2_ER_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
   NVIC_Init(&NVIC_InitStructure);
 
-  
+
   /* GPIO configuration ------------------------------------------------------*/
   GPIO_InitTypeDef GPIO_InitStructure;
   /* Configure I2C2 pins: SCL and SDA ----------------------------------------*/
@@ -145,7 +145,7 @@ void i2c2_init(void) {
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
- 
+
   /* Enable I2C2 -------------------------------------------------------------*/
   I2C_Cmd(I2C2, ENABLE);
   /* I2C2 configuration ------------------------------------------------------*/
@@ -170,9 +170,9 @@ void i2c2_ev_irq_handler(void) {
   {
     /* Slave Transmitter ---------------------------------------------------*/
   case I2C_EVENT_SLAVE_TRANSMITTER_ADDRESS_MATCHED:  /* EV1 */
-    memcpy(i2c2_buf, coder_values, MY_I2C2_BUF_LEN); 
+    memcpy(i2c2_buf, coder_values, MY_I2C2_BUF_LEN);
     i2c2_idx = 0;
-    
+
   case I2C_EVENT_SLAVE_BYTE_TRANSMITTED:             /* EV3 */
     /* Transmit I2C2 data */
     if (i2c2_idx < MY_I2C2_BUF_LEN) {
@@ -180,7 +180,7 @@ void i2c2_ev_irq_handler(void) {
       i2c2_idx++;
     }
     break;
-    
+
 
   case I2C_EVENT_SLAVE_STOP_DETECTED:                /* EV4 */
     LED_ON(1);
@@ -216,17 +216,17 @@ static inline void main_init_adc(void) {
 
   /* Enable DMA1 clock */
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
-  
+
   /* Enable ADC1 and GPIOC clock */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2 | 
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 | RCC_APB2Periph_ADC2 |
 			 RCC_APB2Periph_GPIOC, ENABLE);
-  
+
   /* Configure PC.01 (ADC Channel11) and PC.04 (ADC Channel14) as analog input-*/
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
-  
+
  /* DMA1 channel1 configuration ----------------------------------------------*/
   DMA_InitTypeDef DMA_InitStructure;
   DMA_DeInit(DMA1_Channel1);
@@ -242,10 +242,10 @@ static inline void main_init_adc(void) {
   DMA_InitStructure.DMA_Priority = DMA_Priority_High;
   DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
   DMA_Init(DMA1_Channel1, &DMA_InitStructure);
-  
+
   /* Enable DMA1 channel1 */
   DMA_Cmd(DMA1_Channel1, ENABLE);
-     
+
   /* ADC1 configuration ------------------------------------------------------*/
   ADC_InitTypeDef ADC_InitStructure;
   ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;
@@ -256,15 +256,15 @@ static inline void main_init_adc(void) {
   ADC_InitStructure.ADC_NbrOfChannel = 1;
   ADC_Init(ADC1, &ADC_InitStructure);
 
-  /* ADC1 regular channel14 configuration */ 
+  /* ADC1 regular channel14 configuration */
   //ADC_RegularChannelConfig(ADC1, ADC_Channel_14, 1, ADC_SampleTime_239Cycles5);
   //Paul: Changing to use chan 10 instead
   ADC_RegularChannelConfig(ADC1, ADC_Channel_10, 1, ADC_SampleTime_239Cycles5);
 
   /* Enable ADC1 DMA */
   ADC_DMACmd(ADC1, ENABLE);
-  
-  
+
+
   /* ADC2 configuration ------------------------------------------------------*/
   ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;
   ADC_InitStructure.ADC_ScanConvMode = ENABLE;
@@ -273,16 +273,16 @@ static inline void main_init_adc(void) {
   ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
   ADC_InitStructure.ADC_NbrOfChannel = 1;
   ADC_Init(ADC2, &ADC_InitStructure);
-  /* ADC2 regular channels configuration */ 
+  /* ADC2 regular channels configuration */
   ADC_RegularChannelConfig(ADC2, ADC_Channel_11, 1, ADC_SampleTime_239Cycles5);
   /* Enable ADC2 external trigger conversion */
   ADC_ExternalTrigConvCmd(ADC2, ENABLE);
 
- 
+
   /* Enable ADC1 */
   ADC_Cmd(ADC1, ENABLE);
 
-  /* Enable ADC1 reset calibaration register */   
+  /* Enable ADC1 reset calibaration register */
   ADC_ResetCalibration(ADC1);
   /* Check the end of ADC1 reset calibration register */
   while(ADC_GetResetCalibrationStatus(ADC1));
@@ -295,7 +295,7 @@ static inline void main_init_adc(void) {
   /* Enable ADC2 */
   ADC_Cmd(ADC2, ENABLE);
 
-  /* Enable ADC2 reset calibaration register */   
+  /* Enable ADC2 reset calibaration register */
   ADC_ResetCalibration(ADC2);
   /* Check the end of ADC2 reset calibration register */
   while(ADC_GetResetCalibrationStatus(ADC2));
@@ -306,8 +306,8 @@ static inline void main_init_adc(void) {
   while(ADC_GetCalibrationStatus(ADC2));
 
 
-  /* Start ADC1 Software Conversion */ 
-  ADC_SoftwareStartConvCmd(ADC1, ENABLE); 
+  /* Start ADC1 Software Conversion */
+  ADC_SoftwareStartConvCmd(ADC1, ENABLE);
 
 }
 

@@ -9,7 +9,7 @@ extern void mb_twi_controller_set( float throttle );
 
 #define MB_TWI_CONTROLLER_MAX_CMD 65535
 /*
-  Slave address 
+  Slave address
   front = 0x52
   back  = 0x54
   right = 0x56

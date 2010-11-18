@@ -77,7 +77,7 @@ bool_t nav_anemotaxis( uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume ) {
       waypoints[c].y = waypoints[c2].y + DEFAULT_CIRCLE_RADIUS*upwind_y;
 
       // DownlinkSendWp(c);
-     
+
       sign = -sign;
       status = UTURN;
       nav_init_stage();
@@ -88,7 +88,7 @@ bool_t nav_anemotaxis( uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume ) {
       waypoints[c].y = estimator_y + DEFAULT_CIRCLE_RADIUS*upwind_y;
 
       // DownlinkSendWp(c);
-     
+
       sign = -sign;
       status = UTURN;
       nav_init_stage();

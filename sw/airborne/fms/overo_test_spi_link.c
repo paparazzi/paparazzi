@@ -41,25 +41,25 @@ static void print_down_msg(struct AutopilotMessageCRCFrame * msg);
 
 
 int main(int argc, char *argv[]) {
-  
-  uint32_t us_delay; 
-  
-  if(argc > 1) { 
+
+  uint32_t us_delay;
+
+  if(argc > 1) {
     us_delay = atoi(argv[1]);
   }
-  else { 
-    us_delay = 1953; 
+  else {
+    us_delay = 1953;
   }
 
-  printf("Delay: %dus\n", us_delay); 
-  
+  printf("Delay: %dus\n", us_delay);
+
   if (spi_link_init()) {
     TRACE(TRACE_ERROR, "%s", "failed to open SPI link \n");
     return -1;
   }
-  
-  uint8_t skip_buf_check = 0; 
-  uint8_t skip_crc_check = 0; 
+
+  uint8_t skip_buf_check = 0;
+  uint8_t skip_crc_check = 0;
 
   uint32_t buf_check_errors = 0;
 
@@ -68,14 +68,14 @@ int main(int argc, char *argv[]) {
     struct AutopilotMessageCRCFrame msg_out_prev;
     struct AutopilotMessageCRCFrame crc_msg_in;
     uint8_t crc_valid;
-    
+
     /* backup message for later comparison */
     memcpy(&msg_out_prev, &crc_msg_out, sizeof(struct AutopilotMessageCRCFrame));
-    /* fill message with data */ 
+    /* fill message with data */
     fill_msg(&crc_msg_out);
     /* send it over spi */
     spi_link_send(&crc_msg_out, sizeof(struct AutopilotMessageCRCFrame), &crc_msg_in, &crc_valid);
-    
+
     /* check that received message is identical to the one previously sent */
     if (!skip_buf_check && spi_link.msg_cnt > 1) {
       if (memcmp(&crc_msg_in.payload, &msg_out_prev.payload, sizeof(struct OVERO_LINK_MSG_DOWN))) {
@@ -87,46 +87,46 @@ int main(int argc, char *argv[]) {
     }
     /* report crc error */
     if (!skip_crc_check & !crc_valid) {
-      printf("CRC checksum failed: received %04X != computed %04X\n", 
-	     crc_msg_in.crc,  
+      printf("CRC checksum failed: received %04X != computed %04X\n",
+	     crc_msg_in.crc,
 	     crc_calc_block_crc8((uint8_t*)&crc_msg_in.payload, sizeof(struct OVERO_LINK_MSG_DOWN)));
     }
     /* report message count */
     if (!(spi_link.msg_cnt % 1000))
-      printf("msg %d, buf err %d, CRC errors: %d\n", spi_link.msg_cnt, 
+      printf("msg %d, buf err %d, CRC errors: %d\n", spi_link.msg_cnt,
 	     buf_check_errors, spi_link.crc_err_cnt);
 
     /* give it some rest */
     if(us_delay > 0)
       usleep(us_delay);
   }
-  
+
   return 0;
 }
 
 
 static void print_up_msg(struct AutopilotMessageCRCFrame * msg) {
-  printf("UP: %08X %08X %08X %08X %08X %08X %08X %08X CRC: %08X\n", 
-	 msg->payload.msg_up.foo, 
-	 msg->payload.msg_up.bar, 
-	 msg->payload.msg_up.bla, 
-	 msg->payload.msg_up.ble, 
-	 msg->payload.msg_up.bli, 
-	 msg->payload.msg_up.blo, 
-	 msg->payload.msg_up.blu, 
-	 msg->payload.msg_up.bly, 
+  printf("UP: %08X %08X %08X %08X %08X %08X %08X %08X CRC: %08X\n",
+	 msg->payload.msg_up.foo,
+	 msg->payload.msg_up.bar,
+	 msg->payload.msg_up.bla,
+	 msg->payload.msg_up.ble,
+	 msg->payload.msg_up.bli,
+	 msg->payload.msg_up.blo,
+	 msg->payload.msg_up.blu,
+	 msg->payload.msg_up.bly,
 	 msg->crc);
 }
 static void print_down_msg(struct AutopilotMessageCRCFrame * msg) {
-  printf("DW: %08X %08X %08X %08X %08X %08X %08X %08X CRC: %08X\n", 
-	 msg->payload.msg_down.foo, 
-	 msg->payload.msg_down.bar, 
-	 msg->payload.msg_down.bla, 
-	 msg->payload.msg_down.ble, 
-	 msg->payload.msg_down.bli, 
-	 msg->payload.msg_down.blo, 
-	 msg->payload.msg_up.blu, 
-	 msg->payload.msg_up.bly, 
+  printf("DW: %08X %08X %08X %08X %08X %08X %08X %08X CRC: %08X\n",
+	 msg->payload.msg_down.foo,
+	 msg->payload.msg_down.bar,
+	 msg->payload.msg_down.bla,
+	 msg->payload.msg_down.ble,
+	 msg->payload.msg_down.bli,
+	 msg->payload.msg_down.blo,
+	 msg->payload.msg_up.blu,
+	 msg->payload.msg_up.bly,
 	 msg->crc);
 }
 
@@ -141,9 +141,9 @@ static void fill_msg_counter(struct AutopilotMessageCRCFrame * msg) {
   msg->payload.msg_up.blo = 0xff;
   msg->payload.msg_up.blu = 0;
   msg->payload.msg_up.bly = 0;
- 
-  foo--; 
-  if(foo == 0) { 
+
+  foo--;
+  if(foo == 0) {
     foo = 5000;
   }
 }

@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2007-2009  ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -33,7 +33,7 @@ float dist2_to_wp;
 bool_t too_far_from_home;
 
 const uint8_t nb_waypoint = NB_WAYPOINT;
-struct point waypoints[NB_WAYPOINT] = WAYPOINTS; 
+struct point waypoints[NB_WAYPOINT] = WAYPOINTS;
 
 uint8_t nav_stage, nav_block;
 uint16_t stage_time, block_time;
@@ -63,7 +63,7 @@ void compute_dist2_to_home(void) {
 
 
 static float previous_ground_alt;
-	     
+
 /** Reset the geographic reference to the current GPS fix */
 unit_t nav_reset_reference( void ) {
 #ifdef GPS_USE_LATLONG
@@ -94,7 +94,7 @@ unit_t nav_update_waypoints_alt( void ) {
   return 0;
 }
 
-void nav_init_block(void) { 
+void nav_init_block(void) {
   if (nav_block >= NB_BLOCK)
     nav_block=NB_BLOCK-1;
   nav_stage = 0;

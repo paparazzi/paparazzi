@@ -48,7 +48,7 @@ void mb_mode_init(void) {
 
 }
 
-void mb_mode_event(void) {} 
+void mb_mode_event(void) {}
 
 void mb_mode_periodic(float rpm, float thrust, float current) {
   switch (mb_modes_mode) {

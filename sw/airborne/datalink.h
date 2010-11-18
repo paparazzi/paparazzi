@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2005  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 /** \file datalink.h
@@ -36,11 +36,11 @@
 #endif
 
 #ifdef __IEEE_BIG_ENDIAN /* From machine/ieeefp.h */
-#define Swap32IfBigEndian(_u) { _u = (_u << 32) | (_u >> 32); } 
+#define Swap32IfBigEndian(_u) { _u = (_u << 32) | (_u >> 32); }
 #else
 #define Swap32IfBigEndian(_) {}
 #endif
- 
+
 #include "std.h"
 #include "dl_protocol.h"
 

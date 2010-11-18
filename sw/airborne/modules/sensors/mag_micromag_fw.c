@@ -46,7 +46,7 @@ void micromag_event( void ) {
 void micromag_init( void ) {
 
   micromag_hw_init();
-  
+
   uint8_t i;
   for (i=0; i<MM_NB_AXIS; i++)
     micromag_values[i] = 0;

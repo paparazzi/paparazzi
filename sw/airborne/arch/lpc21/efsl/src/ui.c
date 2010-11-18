@@ -56,7 +56,7 @@ short listFiles(FileSystem *fs, char *dirname)
 	unsigned char buf[512];
 	File dir;
 	unsigned short i;
-	
+
 	/* Find out if we are searching in the root dir or in */
 	if(dirname[0]=='/' && dirname[1]=='\0')
 	{
@@ -79,11 +79,11 @@ short listFiles(FileSystem *fs, char *dirname)
 			FUNC_OUT((TXT("")));
 			return(-1);
 		}
-	
+
 		/* Find out what the startcluster of the directory is */
 		part_readBuf(fs->part,loc.Sector, buf);
 		fileEntry = *(((FileRecord*)buf) + loc.Offset);
-		startCluster = (((unsigned long)fileEntry.FirstClusterHigh)<<16) 
+		startCluster = (((unsigned long)fileEntry.FirstClusterHigh)<<16)
 			+ fileEntry.FirstClusterLow;
 
 	    /* Init of dir */
@@ -91,7 +91,7 @@ short listFiles(FileSystem *fs, char *dirname)
 		dir.Cache.LogicCluster=-1;
 		dir.Cache.FirstCluster=startCluster;
 		dir.DirEntry.Attribute=ATTR_DIRECTORY;
-	
+
 		while((file_fread(&dir,offset,512,buf)))
 		{
 			DBG((TXT("Read 512 bytes from dir with offset %li.\n"),offset));
@@ -115,15 +115,15 @@ short listFiles(FileSystem *fs, char *dirname)
 			offset+=512;
 		}
 	}
-	
+
 	FUNC_OUT((TXT("")));
 	return(counter);
-	
+
 	return(-1);
 }
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * esint16 rmfile(FileSystem *fs,euint8* filename)
  * Description: This function takes a filename as argument and deletes it,
  * by freeing it's clusterchain, and deleting it's entry from the directory.
@@ -135,7 +135,7 @@ esint16 rmfile(FileSystem *fs,euint8* filename)
 	ClusterChain cache;
 	euint8* buf;
 	euint32 firstCluster=0;
-	
+
 	if((fs_findFile(fs,(eint8*)filename,&loc,0))==1){
 		buf=part_getSect(fs->part,loc.Sector,IOM_MODE_READWRITE);
 		firstCluster = ex_getb16(buf,loc.Offset*32+20);
@@ -164,26 +164,26 @@ esint8 mkdir(FileSystem *fs,eint8* dirname)
 	euint32 nc,parentdir;
 	euint8* buf;
 	eint8 ffname[11];
-	
+
 	if( fs_findFile(fs,dirname,&loc,&parentdir) ){
 		return(-1);
 	}
 	if(parentdir==0)return(-2);
-	
+
 	if(!fs_findFreeFile(fs,dirname,&loc,0))return(-3);
-	
+
 	/* You may never search for a free cluster, and the call
 	 * functions that may cause changes to the FAT table, that
 	 * is why getNextFreeCluster has to be called AFTER calling
 	 * fs_findFreeFile, which may have to expand a directory in
-	 * order to store the new filerecord !! 
+	 * order to store the new filerecord !!
 	 */
-	
+
 	nc = fs_getNextFreeCluster(fs,fs_giveFreeClusterHint(fs));
 	if(nc==0)return(0);
-	
+
 	fs_clearCluster(fs,nc);
-	
+
 	buf = part_getSect(fs->part,loc.Sector,IOM_MODE_READWRITE);
 
 	dir_getFatFileName(dirname,ffname);
@@ -194,11 +194,11 @@ esint8 mkdir(FileSystem *fs,eint8* dirname)
 	direntry.FirstClusterLow=nc&0xFFFF;
 	direntry.Attribute = ATTR_DIRECTORY;
 	memCpy(&direntry,buf+(32*loc.Offset),32);
-		
+
 	part_relSect(fs->part,buf);
-	
+
 	buf = part_getSect(fs->part,fs_clusterToSector(fs,nc),IOM_MODE_READWRITE);
-	
+
 	memClr(&direntry,sizeof(direntry));
 	memCpy(".          ",&direntry,11);
 	direntry.Attribute = ATTR_DIRECTORY;
@@ -206,14 +206,14 @@ esint8 mkdir(FileSystem *fs,eint8* dirname)
 	direntry.FirstClusterHigh=nc>>16;
 	direntry.FirstClusterLow=nc&0xFFFF;
 	memCpy(&direntry,buf,32);
-	
+
 	if(fs->type == FAT32 && parentdir == fs->volumeId.RootCluster){
 		parentdir = 0;
 	}
 	if(fs->type != FAT32 && parentdir<=1){
 		parentdir = 0;
-	} 
-	
+	}
+
 	memClr(&direntry,sizeof(direntry));
 	memCpy("..         ",&direntry,11);
 	direntry.Attribute = ATTR_DIRECTORY;
@@ -223,7 +223,7 @@ esint8 mkdir(FileSystem *fs,eint8* dirname)
 	memCpy(&direntry,buf+32,32);
 
 	part_relSect(fs->part,buf);
-	
+
 	fat_setNextClusterAddress(fs,nc,fat_giveEocMarker(fs));
 
 	return(0);

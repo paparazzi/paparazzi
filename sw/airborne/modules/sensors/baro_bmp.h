@@ -26,7 +26,7 @@
 #define BMP085_DAT_MSB      0xF6
 #define BMP085_DAT_LSB      0xF7
 #define BMP085_DAT_XLSB     0xF8
-				
+
 #define BARO_BMP_UNINIT       0
 #define BARO_BMP_IDLE         1
 #define BARO_BMP_START_TEMP   2

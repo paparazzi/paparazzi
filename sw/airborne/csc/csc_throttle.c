@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -39,7 +39,7 @@
 #define THROTTLE_START1 0xAC
 #define THROTTLE_START2 0xBE
 
-#define THROTTLE_ID 0	
+#define THROTTLE_ID 0
 
 uint32_t throttle_err_count;
 uint32_t throttle_recv_count;
@@ -103,7 +103,7 @@ static uint16_t calculate_checksum(struct throttle_msg *send)
   return send->throttle_id + send->cmd_id + send->arg1 + send->arg2;
 }
 
-void csc_throttle_event_task( void ) 
+void csc_throttle_event_task( void )
 {
   while (!uart_msg_received && ThrottleLink(ChAvailable())) {
     parse_uart_msg(ThrottleLink(Getch()));
@@ -175,7 +175,7 @@ static void parse_uart_msg( uint8_t c ) {
     // Look for throttle start byte 1
     if (c != THROTTLE_START1)
       goto error;
-    throttle_status++; 
+    throttle_status++;
     break;
   case GOT_START1:
     // Look for throttle start byte 2
@@ -226,7 +226,7 @@ static void parse_uart_msg( uint8_t c ) {
     break;
   }
   return;
- error:  
+ error:
  restart:
   // Start over (Reset parser state)
   throttle_status = UNINIT;

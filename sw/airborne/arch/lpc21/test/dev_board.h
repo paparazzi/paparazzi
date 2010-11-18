@@ -8,28 +8,28 @@
 
 #if 1 // DEV_BOARD_TYPE
 // OLIMEX
- 
+
 // LEDs on P0.12/P0.13 (active low)
 #define LED1PIN  	12
 #define LED2PIN  	13
 
 // define LED-Pins as outputs
 #define LED_INIT() {  IODIR0 |= (1<<LED1PIN)|(1<<LED2PIN); }
-#define YELLOW_LED_ON() { IOCLR0 = (1<<LED1PIN); } 
+#define YELLOW_LED_ON() { IOCLR0 = (1<<LED1PIN); }
 #define YELLOW_LED_OFF() { IOSET0 = (1<<LED1PIN); } // LEDs active low
 #define GREEN_LED_ON() { IOCLR0 = (1<<LED2PIN); }
 #define GREEN_LED_OFF() { IOSET0 = (1<<LED2PIN); }
 
 #else
 // KEIL
- 
+
 // LEDs on P1.16/P1.17 (active high)
 #define LED1PIN  	16
 #define LED2PIN  	17
 
 // define LED-Pins as outputs
 #define LED_INIT() {  IODIR1 |= (1<<LED1PIN)|(1<<LED2PIN); }
-#define YELLOW_LED_OFF() { IOCLR1 = (1<<LED1PIN); } 
+#define YELLOW_LED_OFF() { IOCLR1 = (1<<LED1PIN); }
 #define YELLOW_LED_ON() { IOSET1 = (1<<LED1PIN); } // LEDs active low
 #define GREEN_LED_OFF() { IOCLR1 = (1<<LED2PIN); }
 #define GREEN_LED_ON() { IOSET1 = (1<<LED2PIN); }

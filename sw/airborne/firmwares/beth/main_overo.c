@@ -62,38 +62,38 @@ struct ImuFloat imu_float;
 static uint32_t foo = 0;
 static uint8_t spi_crc_ok = 1;
 static uint8_t last_state = 1;
-  
+
 int main(int argc, char *argv[]) {
-  
+
   (void) signal(SIGINT, main_exit);
 
   //set IMU neutrals
   RATES_ASSIGN(imu.gyro_neutral,  IMU_GYRO_P_NEUTRAL,  IMU_GYRO_Q_NEUTRAL,  IMU_GYRO_R_NEUTRAL);
   VECT3_ASSIGN(imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
   VECT3_ASSIGN(imu.mag_neutral,   IMU_MAG_X_NEUTRAL,   IMU_MAG_Y_NEUTRAL,   IMU_MAG_Z_NEUTRAL);
-  
+
   if (spi_link_init()) {
     TRACE(TRACE_ERROR, "%s", "failed to open SPI link \n");
     return -1;
   }
-  
+
   /* Initalize the event library */
   event_init();
 
   control_init();
   estimator_init();
-  
+
   //  file_logger_init("my_log.data");
 
   gcs_com_init();
 
   if (fms_periodic_init(main_periodic)) {
     TRACE(TRACE_ERROR, "%s", "failed to start periodic generator\n");
-    return -1; 
+    return -1;
   }
 
   //main_parse_cmd_line(argc, argv);
-  
+
   event_dispatch();
   //should never occur!
   printf("goodbye! (%d)\n",foo);
@@ -109,7 +109,7 @@ static void main_periodic(int my_sig_num) {
   if (!(foo%2000)) {
     if (bar) {
       controller.tilt_sp = -0.4; bar=0;
-    }else{ 
+    }else{
       controller.tilt_sp = 0.4; bar=1;
     }
   }
@@ -117,7 +117,7 @@ static void main_periodic(int my_sig_num) {
   //if (foo >2000 ) { controller.armed=1;}
 
   RunOnceEvery(50, {DOWNLINK_SEND_ALIVE(gcs_com.udp_transport, 16, MD5SUM);});
- 
+
   main_talk_with_stm32();
 
   ImuScaleGyro(imu);
@@ -127,10 +127,10 @@ static void main_periodic(int my_sig_num) {
 			&msg_in.payload.msg_up.bench_sensor.z,&msg_in.payload.msg_up.cnt,
 			&msg_in.payload.msg_up.can_errs,&msg_in.payload.msg_up.spi_errs,
 			&msg_in.payload.msg_up.thrust_out,&msg_in.payload.msg_up.pitch_out);});
- 
+
   estimator_run(msg_in.payload.msg_up.bench_sensor.z,msg_in.payload.msg_up.bench_sensor.y,
 		msg_in.payload.msg_up.bench_sensor.x);
- 
+
   if ( msg_in.payload.msg_up.cnt == 0) printf("STM indicates overo link is lost! %d %d\n",
 			msg_in.payload.msg_up.cnt,msg_in.payload.msg_up.can_errs);
   if ( msg_in.payload.msg_up.cnt == 1) printf("STM indicates overo link is regained. %d %d\n",

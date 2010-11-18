@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2010 The Paparazzi Team
  *
  * This file is part of Paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <inttypes.h>
@@ -57,17 +57,17 @@ static inline void main_init( void ) {
 extern uint32_t debug_len;
 
 static inline void main_periodic_task( void ) {
-  
+
   RunOnceEvery(51, {
-    /*LED_TOGGLE(2);*/ 
-    uint32_t blaaa= cpu_time_sec; 
+    /*LED_TOGGLE(2);*/
+    uint32_t blaaa= cpu_time_sec;
     DOWNLINK_SEND_TIME(DefaultChannel, &blaaa);
-  });  
+  });
 
   RunOnceEvery(10, {radio_control_periodic();});
 
   int16_t foo = 0;//RC_PPM_SIGNED_TICS_OF_USEC(2050-1500);
-  RunOnceEvery(10, 
+  RunOnceEvery(10,
     {DOWNLINK_SEND_BOOZ2_RADIO_CONTROL(DefaultChannel,	\
 				       &radio_control.values[RADIO_ROLL], \
 				       &radio_control.values[RADIO_PITCH], \
@@ -77,7 +77,7 @@ static inline void main_periodic_task( void ) {
 				       &foo,				\
 				       &radio_control.status);});
 #ifdef RADIO_CONTROL_TYPE_PPM
-  RunOnceEvery(10, 
+  RunOnceEvery(10,
 	       {uint8_t blaa = 0; DOWNLINK_SEND_PPM(DefaultChannel,&blaa, 8, booz_radio_control_ppm_pulses);});
 #endif
 
@@ -85,9 +85,9 @@ static inline void main_periodic_task( void ) {
 }
 
 static inline void main_event_task( void ) {
- 
+
   RadioControlEvent(main_on_radio_control_frame);
- 
+
 }
 
 static void main_on_radio_control_frame( void ) {

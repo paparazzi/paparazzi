@@ -14,7 +14,7 @@ uint8_t tx_bit_idx;
 #define NB_STATE 2
 #define NB_PHASE 2
 
-static const uint16_t modem_sample[NB_STATE][NB_PHASE][SAMPLES_PER_PERIOD] = 
+static const uint16_t modem_sample[NB_STATE][NB_PHASE][SAMPLES_PER_PERIOD] =
   {
     {{512, 1023, 512, 1},
      {512 ,1 , 512 , 1023}},
@@ -41,7 +41,7 @@ static inline uint8_t get_next_bit( void ) {
     ret = 1;
   }
   tx_bit_idx++;
-  
+
   if (tx_bit_idx >= 10) {
     /*  if we have nothing left to transmit */
     if( tx_head == tx_tail ) {
@@ -49,11 +49,11 @@ static inline uint8_t get_next_bit( void ) {
       tx_bit_idx--;
     } else {
       /* else load next byte                  */
-      tx_byte = tx_buf[tx_tail];	       
-      tx_bit_idx = 0;				
-      tx_tail++;				
+      tx_byte = tx_buf[tx_tail];
+      tx_bit_idx = 0;
+      tx_tail++;
       if( tx_tail >= TX_BUF_SIZE )
-	tx_tail = 0; 
+	tx_tail = 0;
     }
   }
   return ret;
@@ -62,7 +62,7 @@ static inline uint8_t get_next_bit( void ) {
 void TIMER1_ISR ( void ) {
   ISR_ENTRY();
   static uint8_t modem_bit;
-  
+
   DACR = modem_sample[modem_bit][modem_phase][modem_sample_idx] << 6;
   modem_sample_idx++;
   if (modem_sample_idx == SAMPLES_PER_PERIOD) {

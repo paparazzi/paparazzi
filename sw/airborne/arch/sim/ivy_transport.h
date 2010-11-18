@@ -45,4 +45,4 @@ extern char* ivy_p;
 #define IvyTransportPutUint16Array(_n, _x) IvyTransportPutArray(IvyTransportPutUintByAddr, _n, _x)
 #define IvyTransportPutUint32Array(_n, _x) IvyTransportPutArray(IvyTransportPutUintByAddr, _n, _x)
 #define IvyTransportPutFloatArray(_n, _x) IvyTransportPutArray(IvyTransportPutOneFloatByAddr, _n, _x)
-#define IvyTransportPutDoubleArray(_n, _x) IvyTransportPutFloatArray(_n, _x) 
+#define IvyTransportPutDoubleArray(_n, _x) IvyTransportPutFloatArray(_n, _x)

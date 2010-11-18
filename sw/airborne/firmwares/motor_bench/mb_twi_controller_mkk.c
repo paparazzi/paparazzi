@@ -12,7 +12,7 @@ uint8_t mb_buss_twi_i2c_done;
 
 #define MB_BUSS_TWI_CONTROLLER_MAX_CMD 200
 /*
-  Slave address 
+  Slave address
   front = 0x52
   back  = 0x54
   right = 0x56

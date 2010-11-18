@@ -93,15 +93,15 @@ static void Resp8bError(U8 value)
 	case 0x04:	DBG("Illegal command.\n"); 						break;
 	case 0x02:	DBG("Erase reset (see SanDisk docs p5-13).\n");	break;
 	case 0x01:	DBG("Card is initialising.\n"); 				break;
-	default: 	
-		DBG("Unknown error 0x%x (see SanDisk docs p5-13).\n", value); 
+	default:
+		DBG("Unknown error 0x%x (see SanDisk docs p5-13).\n", value);
 		break;
 	}
 }
 
 
 /* ****************************************************************************
- calculates size of card from CSD 
+ calculates size of card from CSD
  (extension by Martin Thomas, inspired by code from Holger Klabunde)
  */
 int BlockDevGetSize(U32 *pdwDriveSize)

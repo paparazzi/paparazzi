@@ -14,10 +14,10 @@ int main(int argc, char** argv) {
 
 
   vor_int_demod_init();
- 
+
   int i;
   for (i=0; i<nb_samples; i++) {
-    
+
     vor_int_demod_run (adc_buf[i]);
 
     const float te = 512./15000000.;
@@ -25,8 +25,8 @@ int main(int argc, char** argv) {
 
 #if 1
     printf("%f %d %d %d %d %d %d %d %f %d %d %d %d %f\n",
-	   ti, adc_buf[i], 
-	   vid_var_sig, vid_ref_err, vid_ref_phi, vid_var_phi, vid_fm_phi, vid_qdr, 
+	   ti, adc_buf[i],
+	   vid_var_sig, vid_ref_err, vid_ref_phi, vid_var_phi, vid_fm_phi, vid_qdr,
 	   vid_fm_local_sig_float, vid_ref_y, vid_ref_angle, vid_ref_sig, vid_ref_err_decim, vid_var_local_sig_float );
 #endif
 

@@ -49,7 +49,7 @@ void timeout_cb(int fd, short event, void *arg) {
   float  foof = 3.14159265358979323846;
   double food = 3.14159265358979323846;
   DOWNLINK_SEND_TEST_FORMAT(udp_transport, &food, &foof);
-  
+
   if (udp_transport->Periodic) {
     udp_transport->Periodic(udp_transport->impl);
   }
@@ -79,13 +79,13 @@ uint8_t my_dl_buffer[DL_MSG_SIZE]  __attribute__ ((aligned));
 static void dl_handle_msg(struct DownlinkTransport *tp) {
   uint8_t msg_id = IdOfMsg(my_dl_buffer);
   switch (msg_id) {
-  
+
   case  DL_PING:
     {
       DOWNLINK_SEND_PONG(tp);
     }
     break;
-    
+
   case DL_SETTING :
     {
       uint8_t i = DL_SETTING_index(my_dl_buffer);

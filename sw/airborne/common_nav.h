@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2007-2009  ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -47,7 +47,7 @@ extern void nav_move_waypoint(uint8_t wp_id, float utm_east, float utm_north, fl
 
 extern const uint8_t nb_waypoint;
 extern struct point waypoints[];
-/** size == nb_waypoint, waypoint 0 is a dummy waypoint */ 
+/** size == nb_waypoint, waypoint 0 is a dummy waypoint */
 
 /** In s */
 extern uint16_t stage_time, block_time;

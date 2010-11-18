@@ -1,6 +1,6 @@
 /*
  * Paparazzi $Id$
- *  
+ *
  * Copyright (C) 2005 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -58,7 +58,7 @@ void _3dmg_capture_neutral ( void ) {
      state++;					 \
     }						 \
   }
-  
+
 #define READ_LSB(my_short, my_char) {		\
     {						\
     my_short += (((int16_t)my_char)&0x00FF);	\
@@ -119,7 +119,7 @@ static inline void on_3dmg_receive(uint8_t c) {
   case 12:
     READ_LSB(foo, c);
     /* accel_z_lsb */
-    break ;  
+    break ;
   case 13:
     READ_MSB(_3dmg_roll_dot, c);
     break ;
@@ -137,7 +137,7 @@ static inline void on_3dmg_receive(uint8_t c) {
     break ;
   case 18:
     READ_LSB(_3dmg_yaw_dot, c);
-    break ;  
+    break ;
   case 19:
     READ_MSB(_3dmg_timer_tick, c);
     break ;
@@ -145,7 +145,7 @@ static inline void on_3dmg_receive(uint8_t c) {
     READ_LSB(_3dmg_timer_tick, c);
     break ;
   case 21:
-    checksum_read = (((uint16_t)c)&0x00FF)<<8; 
+    checksum_read = (((uint16_t)c)&0x00FF)<<8;
     state++;
     break ;
   case 22:

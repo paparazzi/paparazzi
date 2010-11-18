@@ -53,13 +53,13 @@
 #define FILE_STATUS_WRITE 1
 
 /*****************************************************************************\
- *                              File                                         
- *                             ------                                        
- * FileRecord		DirEntry		Copy of the FileRecord for this file         
+ *                              File
+ *                             ------
+ * FileRecord		DirEntry		Copy of the FileRecord for this file
  * FileLocation	Location		Location of the direntry
- * FileSystem		*fs				Pointer to the filesystem this file is on    
- * FileCache		Cache			Pointer to the cache object of the file   
- * euint8			FileStatus		Contains bitfield regarding filestatus   
+ * FileSystem		*fs				Pointer to the filesystem this file is on
+ * FileCache		Cache			Pointer to the cache object of the file
+ * euint8			FileStatus		Contains bitfield regarding filestatus
  * euint32			FilePtr			Offsetpointer for fread/fwrite functions
  * euint32 		FileSize		Working copy of the filesize, always use this,
  									it is more up to date than DirEntry->FileSize,
@@ -83,7 +83,7 @@ esint16 file_setpos(File *file,euint32 pos);
 euint32 file_fread(File *file,euint32 offset, euint32 size,euint8 *buf);
 euint32 file_read (File *file,euint32 size,euint8 *buf);
 euint32 file_fwrite(File* file,euint32 offset,euint32 size,euint8* buf);
-euint32 file_write (File* file,euint32 size,euint8* buf); 
+euint32 file_write (File* file,euint32 size,euint8* buf);
 eint8* file_normalToFatName(eint8* filename,eint8* fatfilename);
 euint8 file_validateChar(euint8 c);
 void file_initFile(File *file, FileSystem *fs, FileLocation *loc);

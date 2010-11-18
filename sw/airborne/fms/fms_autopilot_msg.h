@@ -71,7 +71,7 @@ struct __attribute__ ((packed)) AutopilotMessageTWDown
  * Passthrough, aka biplan
  */
 
-struct __attribute__ ((packed)) ADCMessage { 
+struct __attribute__ ((packed)) ADCMessage {
 	uint16_t channels[NB_ADC];
 };
 
@@ -83,7 +83,7 @@ struct __attribute__ ((packed)) PTUpValidFlags
   unsigned pressure_differential:1;
   unsigned vane:1;
   unsigned imu:1;
-  unsigned adc:1; 
+  unsigned adc:1;
 };
 
 struct __attribute__ ((packed)) AutopilotMessagePTUp
@@ -104,9 +104,9 @@ struct __attribute__ ((packed)) AutopilotMessagePTUp
   int16_t rc_aux2;
   int16_t rc_aux3;
   uint8_t rc_status;
-  float vane_angle1; 
-  float vane_angle2; 
-  struct ADCMessage adc; 
+  float vane_angle1;
+  float vane_angle2;
+  struct ADCMessage adc;
 
   struct PTUpValidFlags valid;
   uint32_t stm_msg_cnt;
@@ -125,7 +125,7 @@ struct __attribute__ ((packed)) AutopilotMessagePTDown
 #define VI_GPS_DATA_VALID      2
 #define VI_BARO_ABS_DATA_VALID 3
 
-struct __attribute__ ((packed)) AutopilotMessageVIUp 
+struct __attribute__ ((packed)) AutopilotMessageVIUp
 {
   struct Int16Rates gyro;
   struct Int16Vect3 accel;
@@ -136,29 +136,29 @@ struct __attribute__ ((packed)) AutopilotMessageVIUp
   uint8_t valid_sensors;
 };
 
-struct __attribute__ ((packed)) AutopilotMessageVIDown 
+struct __attribute__ ((packed)) AutopilotMessageVIDown
 {
 
 };
 
 
-/* 
- * For messages of arbitrary length using fixed DMA 
- * buffer size. 
- * A message consists of any amount of packages and 
- * is recomposed to a raw byte array on application 
- * level. 
- * Advantage: Interleaving message exchange, constant 
+/*
+ * For messages of arbitrary length using fixed DMA
+ * buffer size.
+ * A message consists of any amount of packages and
+ * is recomposed to a raw byte array on application
+ * level.
+ * Advantage: Interleaving message exchange, constant
  * 	latency
  * Disadvantage: Overhead of message / package counters
- * 
- * If there is no message to be transferred, an empty 
- * package with message_cnt = 0 is sent. 
- * The last package of a message has a negative 
- * package_cntd that indicates the number of padding 
- * (zero) bytes it contains at the end. 
- * Example for a 22-byte message transfer with packages 
- * of 8 bytes for one side: 
+ *
+ * If there is no message to be transferred, an empty
+ * package with message_cnt = 0 is sent.
+ * The last package of a message has a negative
+ * package_cntd that indicates the number of padding
+ * (zero) bytes it contains at the end.
+ * Example for a 22-byte message transfer with packages
+ * of 8 bytes for one side:
  *
  *   message_cnt:   0        message_cnt:  4
  *   package_cntd:  x        package_cntd: 6
@@ -178,9 +178,9 @@ struct __attribute__ ((packed)) AutopilotMessageVIDown
  *   package_cntd: -5        package_cnt:  3
  *   data: uint8_t[8]        data: uint8_t[8]
  *
- *   --> last package in message, padding in 
- *       current message is 5 bytes (-5), so 
- *       message length is (3*8)-5 = 22. 
+ *   --> last package in message, padding in
+ *       current message is 5 bytes (-5), so
+ *       message length is (3*8)-5 = 22.
  *
  * -- next message
  *
@@ -189,13 +189,13 @@ struct __attribute__ ((packed)) AutopilotMessageVIDown
  *   data: uint8_t[8]        data: uint8_t[8]
  *   ...
  */
-#ifndef SPISTREAM_PACKAGE_SIZE 
+#ifndef SPISTREAM_PACKAGE_SIZE
 #define SPISTREAM_PACKAGE_SIZE 32
 #endif
 struct __attribute__ ((packed)) AutopilotMessagePTStream
 {
-	uint8_t message_cnt; 
-	int8_t package_cntd; 
+	uint8_t message_cnt;
+	int8_t package_cntd;
 	uint8_t pkg_data[SPISTREAM_PACKAGE_SIZE];
 };
 
@@ -207,8 +207,8 @@ union AutopilotMessage {
 
 struct __attribute__ ((packed)) AutopilotMessageCRCFrame
 {
-  union AutopilotMessage payload; 
-  uint8_t crc; 
-}; 
+  union AutopilotMessage payload;
+  uint8_t crc;
+};
 
 #endif /* FMS_AUTOPILOT_H */

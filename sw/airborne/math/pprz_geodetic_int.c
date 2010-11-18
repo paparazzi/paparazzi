@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include "pprz_geodetic_int.h"
@@ -40,14 +40,14 @@ void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef) {
 
 #if 1
   int32_t sin_lat = rint(BFP_OF_REAL(sinf(RAD_OF_EM7RAD((float)def->lla.lat)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lat = rint(BFP_OF_REAL(cosf(RAD_OF_EM7RAD((float)def->lla.lat)), HIGH_RES_TRIG_FRAC)); 
+  int32_t cos_lat = rint(BFP_OF_REAL(cosf(RAD_OF_EM7RAD((float)def->lla.lat)), HIGH_RES_TRIG_FRAC));
   int32_t sin_lon = rint(BFP_OF_REAL(sinf(RAD_OF_EM7RAD((float)def->lla.lon)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lon = rint(BFP_OF_REAL(cosf(RAD_OF_EM7RAD((float)def->lla.lon)), HIGH_RES_TRIG_FRAC)); 
+  int32_t cos_lon = rint(BFP_OF_REAL(cosf(RAD_OF_EM7RAD((float)def->lla.lon)), HIGH_RES_TRIG_FRAC));
 #else
   int32_t sin_lat = rint(BFP_OF_REAL(sin(RAD_OF_EM7RAD((double)def->lla.lat)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lat = rint(BFP_OF_REAL(cos(RAD_OF_EM7RAD((double)def->lla.lat)), HIGH_RES_TRIG_FRAC)); 
+  int32_t cos_lat = rint(BFP_OF_REAL(cos(RAD_OF_EM7RAD((double)def->lla.lat)), HIGH_RES_TRIG_FRAC));
   int32_t sin_lon = rint(BFP_OF_REAL(sin(RAD_OF_EM7RAD((double)def->lla.lon)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lon = rint(BFP_OF_REAL(cos(RAD_OF_EM7RAD((double)def->lla.lon)), HIGH_RES_TRIG_FRAC)); 
+  int32_t cos_lon = rint(BFP_OF_REAL(cos(RAD_OF_EM7RAD((double)def->lla.lon)), HIGH_RES_TRIG_FRAC));
 #endif
 
 
@@ -73,7 +73,7 @@ void enu_of_ecef_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct Ece
   VECT3_DIFF(delta, *ecef, def->ecef);
   const int64_t tmpx = (int64_t)def->ltp_of_ecef.m[0]*delta.x +
                        (int64_t)def->ltp_of_ecef.m[1]*delta.y +
-                       0;                                     
+                       0;
   enu->x = (int32_t)(tmpx>>HIGH_RES_TRIG_FRAC);
   const int64_t tmpy = (int64_t)def->ltp_of_ecef.m[3]*delta.x +
                        (int64_t)def->ltp_of_ecef.m[4]*delta.y +
@@ -88,7 +88,7 @@ void enu_of_ecef_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct Ece
 
 
 void ned_of_ecef_point_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
-  
+
   struct EnuCoor_i enu;
   enu_of_ecef_point_i(&enu, def, ecef);
   ENU_OF_TO_NED(*ned, enu);
@@ -99,7 +99,7 @@ void enu_of_ecef_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct Ecef
 
   const int64_t tmpx = (int64_t)def->ltp_of_ecef.m[0]*ecef->x +
                        (int64_t)def->ltp_of_ecef.m[1]*ecef->y +
-                       0;                                     
+                       0;
   enu->x = (int32_t)(tmpx>>HIGH_RES_TRIG_FRAC);
   const int64_t tmpy = (int64_t)def->ltp_of_ecef.m[3]*ecef->x +
                        (int64_t)def->ltp_of_ecef.m[4]*ecef->y +
@@ -114,7 +114,7 @@ void enu_of_ecef_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct Ecef
 
 
 void ned_of_ecef_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
-  
+
   struct EnuCoor_i enu;
   enu_of_ecef_vect_i(&enu, def, ecef);
   ENU_OF_TO_NED(*ned, enu);
@@ -124,9 +124,9 @@ void ned_of_ecef_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct Ecef
 
 
 
-/* 
+/*
    For now we cheat and call the floating point version
-   Anyone up for writing it in fixed point ? 
+   Anyone up for writing it in fixed point ?
 */
 #include "pprz_geodetic_float.h"
 #include "pprz_geodetic_double.h"

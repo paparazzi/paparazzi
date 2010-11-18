@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <stm32/flash.h>
@@ -78,7 +78,7 @@ static inline void main_spi_slave_init( void ) {
 
   /* Enable SPI1 Periph clock -------------------------------------------------*/
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
-  
+
   /* Configure GPIOs: SCK, MISO and MOSI  -------------------------------------*/
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7;
@@ -108,7 +108,7 @@ static inline void main_spi_slave_init( void ) {
   SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
   SPI_InitStructure.SPI_CRCPolynomial = 7;
   SPI_Init(SPI1, &SPI_InitStructure);
-  
+
   /* Enable SPI_SLAVE RXNE interrupt */
   SPI_I2S_ITConfig(SPI1, SPI_I2S_IT_RXNE, ENABLE);
   /* Enable SPI_SLAVE */

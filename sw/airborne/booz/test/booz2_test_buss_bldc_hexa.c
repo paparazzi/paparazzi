@@ -1,6 +1,6 @@
 /*
  * $Id: booz2_test_mc.c 3701 2009-07-13 09:57:55Z poine $
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <inttypes.h>
@@ -33,8 +33,8 @@
 
 #define NB_MOTORS 6
 static const uint8_t motor_addr[] = {0x52, 0x54, 0x56, 0x58, 0x5A, 0x5C};
-uint8_t motor = 0; 
-uint8_t thrust = 10; 
+uint8_t motor = 0;
+uint8_t thrust = 10;
 static bool_t  i2c_done;
 
 //static uint8_t addr = 0x52; /* 1 : back right   */

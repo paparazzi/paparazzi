@@ -24,7 +24,7 @@
 
 /** \file temp_temod.c
  *  \brief Hygrosens TEMOD-I2C-Rx temperature sensor interface for PT1000
- *         e.g. Heraeus PT 1000 M 222 KL. B 
+ *         e.g. Heraeus PT 1000 M 222 KL. B
  */
 
 

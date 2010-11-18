@@ -152,7 +152,7 @@ static void feed_imu(int i) {
 /*
  *
  */
-#if   defined AHRS_TYPE && AHRS_TYPE == AHRS_TYPE_FLQ  
+#if   defined AHRS_TYPE && AHRS_TYPE == AHRS_TYPE_FLQ
 static void store_filter_output(int i) {
 #ifdef OUTPUT_IN_BODY_FRAME
   QUAT_COPY(output[i].quat_est, ahrs_float.ltp_to_body_quat);
@@ -197,9 +197,9 @@ static void dump_output(const char* filename) {
   FILE* fd = fopen(filename, "w");
   int i;
   for (i=0; i<nb_samples; i++) {
-    fprintf(fd, "%.16f\t%.16f %.16f %.16f %.16f\t%.16f %.16f %.16f\t%.16f %.16f %.16f\t%.16f %.16f %.16f %.16f %.16f %.16f\n", 
+    fprintf(fd, "%.16f\t%.16f %.16f %.16f %.16f\t%.16f %.16f %.16f\t%.16f %.16f %.16f\t%.16f %.16f %.16f %.16f %.16f %.16f\n",
             samples[i].time,
-            output[i].quat_est.qi, output[i].quat_est.qx, output[i].quat_est.qy, output[i].quat_est.qz, // quaternion 
+            output[i].quat_est.qi, output[i].quat_est.qx, output[i].quat_est.qy, output[i].quat_est.qz, // quaternion
             output[i].rate_est.p, output[i].rate_est.q, output[i].rate_est.r,                           // omega
             output[i].bias_est.p, output[i].bias_est.q, output[i].bias_est.r,                           // bias
             output[i].P[0][0], output[i].P[1][1], output[i].P[2][2],                                    // covariance

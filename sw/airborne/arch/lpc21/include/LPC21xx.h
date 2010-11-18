@@ -3,7 +3,7 @@
  * $RCSfile$
  * $Revision$
  *
- * Header file for Philips LPC21xx ARM Processors 
+ * Header file for Philips LPC21xx ARM Processors
  * Copyright 2004 R O SoftWare
  *
  * No guarantees, warrantees, or promises, implied or otherwise.
@@ -356,7 +356,7 @@
 // Digital to Analog Converter
 #define DACR   (*(REG32*) 0xE006C000)
 
- 
+
 ///////////////////////////////////////////////////////////////////////////////
 // System Contol Block
 #define SCB             ((scbRegs_t *)0xE01FC000)

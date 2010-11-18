@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <inttypes.h>
@@ -77,9 +77,9 @@ static inline void main_event_task( void ) {
 }
 
 static inline void on_mag(void) {
-  LED_TOGGLE(4); 
+  LED_TOGGLE(4);
   ami601_status = AMI601_IDLE;
   struct Int32Vect3 bla = {ami601_values[0], ami601_values[1], ami601_values[2]};
   DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, &bla.x, &bla.y, &bla.z);
-  
+
 }

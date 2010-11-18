@@ -27,8 +27,8 @@
 struct AhrsFloatCmplRmat {
   struct FloatRates gyro_bias;
   struct FloatRates rate_correction;
-  /* 
-     Holds float version of IMU alignement 
+  /*
+     Holds float version of IMU alignement
      in order to be able to run against the fixed point
      version of the IMU
   */

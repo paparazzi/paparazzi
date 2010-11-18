@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008  Antoine Blais, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -27,7 +27,7 @@
 // 30khz 33 us
 // processing 30Kz with sine 100 us
 // processing 30Kz without sine 23-26 us
-// 
+//
 // total processing : 270us
 // total processing without sine 54us
 //
@@ -115,12 +115,12 @@ void vor_int_demod_run ( int16_t sample) {
   // test sign ?
   ///  const int32_t vid_ref_local_sig = VID_ANGLE_INT_OF_PFLOAT(vid_ref_local_sig_float);
   vid_ref_local_sig = vid_ref_local_sig_float * (float)(1<<15);
-  // get REF signal by bandpassing input signal 
+  // get REF signal by bandpassing input signal
   ///  const int32_t vid_ref_sig = vor_int_filter_bp_ref(sample);
   vid_ref_sig = vor_int_filter_bp_ref(sample);
   // multiply input signal by local oscillator signal
-  //  const int32_t vid_ref_y = vid_ref_sig * vid_ref_local_sig; 
-  vid_ref_y = vid_ref_sig * vid_ref_local_sig; 
+  //  const int32_t vid_ref_y = vid_ref_sig * vid_ref_local_sig;
+  vid_ref_y = vid_ref_sig * vid_ref_local_sig;
   vid_ref_y = vid_ref_y >> 15;
   // get phase error by low passing the result of the multiplication.
   vid_ref_err = vor_int_filter_lp_ref(vid_ref_y);
@@ -129,8 +129,8 @@ void vor_int_demod_run ( int16_t sample) {
   // const int32_t vid_ref_err_decim = vor_int_filter_lp_decim(vid_ref_err);
   vid_ref_err_decim = vor_int_filter_lp_decim(vid_ref_err<<3);
   vid_ref_err_decim = vid_ref_err_decim >> 3;
-  
-  // get VAR signal by bandpassing input signal 
+
+  // get VAR signal by bandpassing input signal
   vid_var_sig = vor_int_filter_bp_var(sample);
 
   if (1) {
@@ -154,10 +154,10 @@ void vor_int_demod_run ( int16_t sample) {
     vid_var_local_sig_float = -sin(vid_var_phase_float);
 
     //  FIXME - INT mult multiply input signal by local oscillator signal
-    const int32_t vid_var_y = vid_var_sig * vid_var_local_sig_float; 
+    const int32_t vid_var_y = vid_var_sig * vid_var_local_sig_float;
     // get phase error by low passing the result of the multiplication.
     vid_var_err = vor_int_filter_lp_var(vid_var_y);
-    
+
 
     // phase error re-injection
     int32_t dfm_phi = vid_fm_alpha * vid_fm_err;
@@ -176,7 +176,7 @@ void vor_int_demod_run ( int16_t sample) {
     vid_fm_local_sig_float = -sin(vid_fm_phase_float);
 
     // FIXME - INT mult multiply input signal by local oscillator signal
-    const int32_t vid_fm_y = vid_ref_err_decim * vid_fm_local_sig_float; 
+    const int32_t vid_fm_y = vid_ref_err_decim * vid_fm_local_sig_float;
     // get phase error by low passing the result of the multiplication.
     vid_fm_err = vor_int_filter_lp_fm(vid_fm_y);
 

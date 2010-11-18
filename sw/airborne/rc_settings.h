@@ -1,6 +1,6 @@
 /*
  * Paparazzi $Id$
- *  
+ *
  * Copyright (C) 2006- Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,13 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
 
 /** \file rc_settings.h
- *  \brief Variable setting though the radio control 
+ *  \brief Variable setting though the radio control
  *
  * The 'rc_control' section of a XML flight plan allows the user to change the
  * value of an autopilot internal variable through the rc transmitter.

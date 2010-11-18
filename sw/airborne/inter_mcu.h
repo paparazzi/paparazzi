@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.  
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -52,7 +52,7 @@
 /** Data structure shared by fbw and ap processes */
 struct fbw_state {
 #if defined RADIO_CONTROL || RADIO_CONTROL_AUTO1
-  pprz_t channels[RADIO_CONTROL_NB_CHANNEL];  
+  pprz_t channels[RADIO_CONTROL_NB_CHANNEL];
   uint8_t ppm_cpt;
 #endif
   uint8_t status;
@@ -62,7 +62,7 @@ struct fbw_state {
 };
 
 struct ap_state {
-  pprz_t commands[COMMANDS_NB];  
+  pprz_t commands[COMMANDS_NB];
 };
 
 // Status bits from FBW to AUTOPILOT

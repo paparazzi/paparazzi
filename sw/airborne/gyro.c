@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2006  Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -66,7 +66,7 @@ void gyro_init( void) {
 void gyro_update( void ) {
 #ifndef SITL
   float pitch_rate = 0.;
-  roll_rate_adc = (buf_roll.sum/buf_roll.av_nb_sample) - GYRO_ADC_ROLL_NEUTRAL; 
+  roll_rate_adc = (buf_roll.sum/buf_roll.av_nb_sample) - GYRO_ADC_ROLL_NEUTRAL;
 #if defined ADC_CHANNEL_GYRO_TEMP
   temp_comp = buf_temp.sum/buf_temp.av_nb_sample - GYRO_ADC_TEMP_NEUTRAL;
   roll_rate_adc += GYRO_ADC_TEMP_SLOPE * temp_comp;

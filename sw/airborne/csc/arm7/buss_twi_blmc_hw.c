@@ -42,17 +42,17 @@ void motors_set_motor(uint8_t id, int16_t value)
 
 static void buss_twi_blmc_send_next()
 {
-  i2c0_buf[0] = motor_power[buss_twi_blmc_idx];		             
-  i2c0_transmit(buss_twi_blmc_addr[buss_twi_blmc_idx], 1, &buss_twi_blmc_i2c_done); 
+  i2c0_buf[0] = motor_power[buss_twi_blmc_idx];
+  i2c0_transmit(buss_twi_blmc_addr[buss_twi_blmc_idx], 1, &buss_twi_blmc_i2c_done);
 }
 
 void motors_commit_next( void )
 {
-    buss_twi_blmc_idx++;				
+    buss_twi_blmc_idx++;
     if (buss_twi_blmc_idx < BUSS_TWI_BLMC_NB_SEND)
       buss_twi_blmc_send_next();
-    else						
-      buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_IDLE;	
+    else
+      buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_IDLE;
 }
 
 void motors_commit(int force)
@@ -60,8 +60,8 @@ void motors_commit(int force)
 
   if (force || buss_twi_blmc_status == BUSS_TWI_BLMC_STATUS_IDLE) {
     I2c0SendStop();
-    buss_twi_blmc_idx = 0;						
-    buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_BUSY;			
+    buss_twi_blmc_idx = 0;
+    buss_twi_blmc_status = BUSS_TWI_BLMC_STATUS_BUSY;
     buss_twi_blmc_send_next();
 
     commit_start_time = T0TC;

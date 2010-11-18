@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <stm32/flash.h>
@@ -65,7 +65,7 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic_task( void ) {
-  RunOnceEvery(10, 
+  RunOnceEvery(10,
 	       {
 		 DOWNLINK_SEND_BOOT(DefaultChannel, &cpu_time_sec);
 		 LED_PERIODIC();
@@ -98,7 +98,7 @@ static inline void main_spi_slave_init( void ) {
 
   /* Enable SPI1 Periph clock -------------------------------------------------*/
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
-  
+
   /* Configure GPIOs: NSS, SCK, MISO and MOSI  --------------------------------*/
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7;
@@ -120,7 +120,7 @@ static inline void main_spi_slave_init( void ) {
   SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
   SPI_InitStructure.SPI_CRCPolynomial = 7;
   SPI_Init(SPI1, &SPI_InitStructure);
-  
+
   /* Enable SPI_SLAVE */
   SPI_Cmd(SPI1, ENABLE);
 
@@ -136,22 +136,22 @@ static inline void main_spi_slave_init( void ) {
 
 static void main_setup_dma(void) {
   /* SPI_SLAVE_Rx_DMA_Channel configuration ------------------------------------*/
-  DMA_InitTypeDef  DMA_InitStructure;					
-  DMA_DeInit(DMA1_Channel2);						
-  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(SPI1_BASE+0x0C); 
+  DMA_InitTypeDef  DMA_InitStructure;
+  DMA_DeInit(DMA1_Channel2);
+  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(SPI1_BASE+0x0C);
   DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)SPI_SLAVE_Buffer_Rx;
-  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;			
-  DMA_InitStructure.DMA_BufferSize = BufferSize;			
-  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;	
-  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;		
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+  DMA_InitStructure.DMA_BufferSize = BufferSize;
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
   DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;	
-  DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;			
-  DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;		
-  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;			
-  DMA_Init(DMA1_Channel2, &DMA_InitStructure);			
+  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+  DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
+  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+  DMA_Init(DMA1_Channel2, &DMA_InitStructure);
   /* SPI_SLAVE_Tx_DMA_Channel configuration ------------------------------------*/
-  DMA_DeInit(DMA1_Channel3);  
+  DMA_DeInit(DMA1_Channel3);
   DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(SPI1_BASE+0x0C);
   DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)SPI_SLAVE_Buffer_Tx;
   DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;

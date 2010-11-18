@@ -19,7 +19,7 @@ extern       int32_t vid_ref_err_decim2;
 extern       int32_t vid_var_sig;
 extern       int32_t vid_var_err_decim1;
 extern       int32_t vid_var_err_decim2;
- 
+
 extern       int32_t vid_loVAR;
 extern	     int32_t vid_yVAR;
 extern	     int32_t vid_var_err;

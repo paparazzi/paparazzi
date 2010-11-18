@@ -4,7 +4,7 @@
 #include <avr/io.h>
 
 /*
-  Slave address 
+  Slave address
   front = 0x52
   back  = 0x54
   right = 0x56
@@ -65,9 +65,9 @@ void dc_mc_link_periodic(void) {
 
 #include "led.h"
 
-ISR (TWI_vect) {  
+ISR (TWI_vect) {
   switch (TWSR & 0xF8) {
-    case SR_SLA_ACK:  
+    case SR_SLA_ACK:
       //      LED_OFF(1);
       dc_mc_link_twi_rx_buf_idx = 0;
       TWCR |= _BV(TWINT) | _BV(TWEA);
@@ -86,16 +86,16 @@ ISR (TWI_vect) {
       //      LED_ON(1);
       dc_mc_link_event = TRUE;
       break;
-    case SW_SLA_ACK:  
+    case SW_SLA_ACK:
     case SW_DATA_ACK:
       TWCR |= (1<<TWINT);
       break;
     case TWI_BUS_ERR_2:
     case TWI_BUS_ERR_1:
-      TWCR |=(1<<TWSTO) | (1<<TWINT); 
+      TWCR |=(1<<TWSTO) | (1<<TWINT);
       TWCR =(1<<TWEA) | (1<<TWINT) | (1<<TWEN) | (1<<TWIE); // TWI Reset
       break;
-    
+
       //    default:
       //      LED_TOGGLE(1);
   }

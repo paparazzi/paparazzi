@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 Martin Mueller
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -49,18 +49,18 @@ uint16_t humidsht, tempsht;
 float fhumidsht, ftempsht;
 
 int8_t humid_sht_crc(volatile uint8_t* data) {
-  uint8_t i, bit, crc = 0;	
+  uint8_t i, bit, crc = 0;
 
   for (i = 0; i < 2; i++) {
     crc ^= (data[i]);
     for (bit = 8; bit > 0; bit--) {
-      if (crc & 0x80) 
+      if (crc & 0x80)
         crc = (crc << 1) ^ 0x131;
       else
         crc = (crc << 1);
     }
   }
-  if (crc != data[2]) 
+  if (crc != data[2])
     return -1;
   else
     return 0;
@@ -72,7 +72,7 @@ void humid_sht_init(void) {
 
 void humid_sht_periodic( void ) {
   switch (sht_status) {
- 
+
   case SHT_UNINIT:
     /* do soft reset, then wait at least 15ms */
     sht_status = SHT_RESET;

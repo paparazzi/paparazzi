@@ -90,7 +90,7 @@
 #define SPI_MOSI_PIN   19   /* to Card     P0.19  out */
 /* Card-Select P0.20 - GPIO out during startup
    Function 03 during normal operation */
-#define SPI_SS_PIN	   20   
+#define SPI_SS_PIN	   20
 
 #define SPI_PINSEL     PINSEL1
 #define SPI_SCK_FUNCBIT   2
@@ -117,9 +117,9 @@
 esint8 if_initInterface(hwInterface* file, eint8* opts)
 {
 	euint32 sc;
-	
+
 	if_spiInit(file); /* init at low speed */
-	
+
 	if(sd_Init(file)<0)	{
 		DBG((TXT("Card failed to init, breaking up...\n")));
 		return(-1);
@@ -128,27 +128,27 @@ esint8 if_initInterface(hwInterface* file, eint8* opts)
 		DBG((TXT("Card didn't return the ready state, breaking up...\n")));
 		return(-2);
 	}
-	
+
 	// file->sectorCount=4; /* FIXME ASAP!! */
-	
+
 	sd_getDriveSize(file, &sc);
 	file->sectorCount = sc/512;
 	if( (sc%512) != 0) {
 		file->sectorCount--;
 	}
 	DBG((TXT("Drive Size is %lu Bytes (%lu Sectors)\n"), sc, file->sectorCount));
-	
+
 	 /* increase speed after init */
 #if ( HW_ENDPOINT_LPC2000_SPINUM == 1 )
 	SSPCR0 = ((8-1)<<0) | (0<<CPOL);
 #endif
 	if_spiSetSpeed(SPI_PRESCALE_MIN);
 	// if_spiSetSpeed(100); /* debug - slower */
-	
+
 	DBG((TXT("Init done...\n")));
 	return(0);
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
 esint8 if_readBuf(hwInterface* file,euint32 address,euint8* buf)
 {
@@ -160,13 +160,13 @@ esint8 if_writeBuf(hwInterface* file,euint32 address,euint8* buf)
 {
 	return(sd_writeSector(file,address, buf));
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
 esint8 if_setPos(hwInterface* file,euint32 address)
 {
 	return(0);
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
 // Utility-functions which does not toogle CS.
 // Only needed during card-init. During init
@@ -177,7 +177,7 @@ static euint8 my_if_spiSend(hwInterface *iface, euint8 outgoing)
 	euint8 incoming;
 
 	// SELECT_CARD(); // not here!
-	
+
 #if ( HW_ENDPOINT_LPC2000_SPINUM == 0 )
 	S0SPDR = outgoing;
 	while( !(S0SPSR & (1<<SPIF)) ) ;
@@ -194,20 +194,20 @@ static euint8 my_if_spiSend(hwInterface *iface, euint8 outgoing)
 
 	return(incoming);
 }
-/*****************************************************************************/ 
+/*****************************************************************************/
 
 void if_spiInit(hwInterface *iface)
 {
-	euint8 i; 
+	euint8 i;
 
 	// setup GPIO
 	SPI_IODIR |= (1<<SPI_SCK_PIN)|(1<<SPI_MOSI_PIN)|(1<<SPI_SS_PIN);
 	SPI_IODIR &= ~(1<<SPI_MISO_PIN);
-	
+
 	// set Chip-Select high - unselect card
 	UNSELECT_CARD();
 
-	// reset Pin-Functions	
+	// reset Pin-Functions
 	SPI_PINSEL &= ~( (3<<SPI_SCK_FUNCBIT) | (3<<SPI_MISO_FUNCBIT) |
 		(3<<SPI_MOSI_FUNCBIT) | (3<<SPI_SS_FUNCBIT) );
 
@@ -228,16 +228,16 @@ void if_spiInit(hwInterface *iface)
 	SSPCR0 = ((8-1)<<0) | (0<<CPOL) | (0x20<<SCR); //  (0xff<<SCR);
 	SSPCR1 = (1<<SSE);
 #endif
-	
+
 	// low speed during init
-	if_spiSetSpeed(254); 
+	if_spiSetSpeed(254);
 
 	/* Send 20 spi commands with card not selected */
 	for(i=0;i<21;i++)
 		my_if_spiSend(iface,0xff);
 
 #if ( HW_ENDPOINT_LPC2000_SPINUM == 0 )
-	// SPI0 does not offer automatic CS for slaves on LPC2138 
+	// SPI0 does not offer automatic CS for slaves on LPC2138
 	// ( the SSEL-Pin is input-only )
 	// SELECT_CARD();
 #endif
@@ -249,7 +249,7 @@ void if_spiInit(hwInterface *iface)
 		(2<<SPI_MOSI_FUNCBIT) | (2<<SPI_SS_FUNCBIT) );
 	SSPCR1 |= (1<<SSE); // enable interface
 #endif
-	
+
 }
 /*****************************************************************************/
 
@@ -283,7 +283,7 @@ euint8 if_spiSend(hwInterface *iface, euint8 outgoing)
 	// UNSELECT_CARD();  // done by hardware
 #endif
 
-	
+
 
 	return(incoming);
 }

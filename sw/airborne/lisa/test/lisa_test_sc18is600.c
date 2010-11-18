@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  */
 
 #include <stm32/gpio.h>
@@ -59,7 +59,7 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
   //  LED_TOGGLE(6);
-  RunOnceEvery(10, 
+  RunOnceEvery(10,
 	       {
 		 DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
 		 LED_PERIODIC();
@@ -89,7 +89,7 @@ static inline void main_periodic_task( void ) {
   }
 
   if (foo< 5) foo++;
-  
+
 }
 
 static inline void main_event_task( void ) {
@@ -98,7 +98,7 @@ static inline void main_event_task( void ) {
 
 
 static inline void main_spi2_init( void ) {
-  
+
   /* set mag ss as output and assert it (on PC12) ------------------------------*/
   /* set mag reset as output and assert it (on PC13) ------------------------------*/
   /* set eeprom ss as output and assert it (on PC14) ------------------------------*/
@@ -112,6 +112,6 @@ static inline void main_spi2_init( void ) {
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
-  
+
 }
 

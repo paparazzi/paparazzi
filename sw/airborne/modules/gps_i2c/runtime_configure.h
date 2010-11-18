@@ -20,7 +20,7 @@ static bool_t user_gps_configure(bool_t cpt) {
     UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SOL_ID, 8, 0, 0, 0);
     break;
   case 5:
-    UbxSend_CFG_RATE(250 /*ms*/, 0x0001, 0x0000);   
+    UbxSend_CFG_RATE(250 /*ms*/, 0x0001, 0x0000);
     return FALSE;
   }
   return TRUE; /* Continue, except for the last case */

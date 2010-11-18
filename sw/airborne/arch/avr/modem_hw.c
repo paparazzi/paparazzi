@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -49,7 +49,7 @@ SIGNAL( MODEM_CLK_INT_SIG ) {
   /*  start bit         */
   if (tx_byte_idx == 0)
     cbi(MODEM_TX_PORT, MODEM_TX_DATA);
-  /* 8 data bits        */ 
+  /* 8 data bits        */
   else if (tx_byte_idx < 9) {
     if (tx_byte & 0x01)
       sbi(MODEM_TX_PORT, MODEM_TX_DATA);
@@ -59,7 +59,7 @@ SIGNAL( MODEM_CLK_INT_SIG ) {
   }
   /* stop_bit           */
   else {
-    sbi(MODEM_TX_PORT, MODEM_TX_DATA); 
+    sbi(MODEM_TX_PORT, MODEM_TX_DATA);
   }
   tx_byte_idx++;
   /* next byte          */
@@ -70,7 +70,7 @@ SIGNAL( MODEM_CLK_INT_SIG ) {
       cbi( EIMSK, MODEM_CLK_INT );
     } else {
       /* else load next byte                  */
-      MODEM_LOAD_NEXT_BYTE();  
+      MODEM_LOAD_NEXT_BYTE();
     }
   }
 }

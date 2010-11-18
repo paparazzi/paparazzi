@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008 Joby Energy
- *  
+ *
  *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -93,4 +93,4 @@ void csc_ap_update_gains(struct control_reference *errors, struct control_gains 
 
 #define PERIODIC_SEND_VANE_SENSOR(_chan) DOWNLINK_SEND_VANE_SENSOR(_chan, &csc_vane_angle)
 
-#endif 
+#endif

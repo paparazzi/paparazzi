@@ -45,7 +45,7 @@
 /* Pin Connect Block */
 #define PINSEL0        (*((volatile unsigned long *) 0xE002C000))
 #define PINSEL1        (*((volatile unsigned long *) 0xE002C004))
-#define PINSEL2        (*((volatile unsigned long *) 0xE002C014))    
+#define PINSEL2        (*((volatile unsigned long *) 0xE002C014))
 
 /* SPI0 (Serial Peripheral Interface 0) */
 #define S0SPCR			*(volatile unsigned int *)0xE0020000
@@ -95,7 +95,7 @@
 static U8 my_SPISend(U8 outgoing)
 {
 	S0SPDR = outgoing;
-	while( !(S0SPSR & (1<<SPIF)) ) { ; }    
+	while( !(S0SPSR & (1<<SPIF)) ) { ; }
 
 	return S0SPDR;
 }
@@ -125,7 +125,7 @@ void SPIInit(void)
 
 	// set Chip-Select high - unselect card
 	UNSELECT_CARD();
-	
+
 	SPI_PINSEL |= ( (1<<SPI_SCK_FUNCBIT) | (1<<SPI_MISO_FUNCBIT) |
 		(1<<SPI_MOSI_FUNCBIT) );
 	// enable SPI-Master

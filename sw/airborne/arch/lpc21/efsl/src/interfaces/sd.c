@@ -40,7 +40,7 @@ esint8 sd_Init(hwInterface *iface)
 {
 	esint16 i;
 	euint8 resp;
-	
+
 	/* Try to send reset command up to 100 times */
 	i=100;
 	do{
@@ -48,7 +48,7 @@ esint8 sd_Init(hwInterface *iface)
 		resp=sd_Resp8b(iface);
 	}
 	while(resp!=1 && i--);
-	
+
 	if(resp!=1){
 		if(resp==0xff){
 			return(-1);
@@ -64,18 +64,18 @@ esint8 sd_Init(hwInterface *iface)
 	i=32000;
 	do{
 		sd_Command(iface,1, 0, 0);
-		
+
 		resp=sd_Resp8b(iface);
 		if(resp!=0)
 			sd_Resp8bError(iface,resp);
 	}
 	while(resp==1 && i--);
-	
+
 	if(resp!=0){
 		sd_Resp8bError(iface,resp);
 		return(-3);
 	}
-	
+
 	return(0);
 }
 /*****************************************************************************/
@@ -100,14 +100,14 @@ euint8 sd_Resp8b(hwInterface *iface)
 {
 	euint8 i;
 	euint8 resp;
-	
+
 	/* Respone will come after 1 - 8 pings */
 	for(i=0;i<8;i++){
 		resp = if_spiSend(iface,0xff);
 		if(resp != 0xff)
 			return(resp);
 	}
-		
+
 	return(resp);
 }
 /*****************************************************************************/
@@ -115,10 +115,10 @@ euint8 sd_Resp8b(hwInterface *iface)
 euint16 sd_Resp16b(hwInterface *iface)
 {
 	euint16 resp;
-	
+
 	resp = ( sd_Resp8b(iface) << 8 ) & 0xff00;
 	resp |= if_spiSend(iface,0xff);
-	
+
 	return(resp);
 }
 /*****************************************************************************/
@@ -158,7 +158,7 @@ void sd_Resp8bError(hwInterface *iface,euint8 value)
 esint8 sd_State(hwInterface *iface)
 {
 	eint16 value;
-	
+
 	sd_Command(iface,13, 0, 0);
 	value=sd_Resp16b(iface);
 
@@ -220,7 +220,7 @@ esint8 sd_writeSector(hwInterface *iface,euint32 address, euint8* buf)
 	euint32 place;
 	euint16 i;
 	euint16 t=0;
-	
+
 	/*DBG((TXT("Trying to write %u to sector %u.\n"),(void *)&buf,address));*/
 	place=512*address;
 	sd_Command(iface,CMDWRITE, (euint16) (place >> 16), (euint16) place);
@@ -228,7 +228,7 @@ esint8 sd_writeSector(hwInterface *iface,euint32 address, euint8* buf)
 	sd_Resp8b(iface); /* Card response */
 
 	if_spiSend(iface,0xfe); /* Start block */
-	for(i=0;i<512;i++) 
+	for(i=0;i<512;i++)
 		if_spiSend(iface,buf[i]); /* Send data */
 	if_spiSend(iface,0xff); /* Checksum part 1 */
 	if_spiSend(iface,0xff); /* Checksum part 2 */
@@ -269,19 +269,19 @@ esint8 sd_readSector(hwInterface *iface,euint32 address, euint8* buf, euint16 le
 	/*DBG((TXT("sd_readSector::Trying to read sector %u and store it at %p.\n"),address,&buf[0]));*/
 	place=512*address;
 	sd_Command(iface,CMDREAD, (euint16) (place >> 16), (euint16) place);
-	
-	cardresp=sd_Resp8b(iface); /* Card response */ 
+
+	cardresp=sd_Resp8b(iface); /* Card response */
 
 	/* Wait for startblock */
 	do
-		firstblock=sd_Resp8b(iface); 
+		firstblock=sd_Resp8b(iface);
 	while(firstblock==0xff && fb_timeout--);
 
 	if(cardresp!=0x00 || firstblock!=0xfe){
 		sd_Resp8bError(iface,firstblock);
 		return(-1);
 	}
-	
+
 	for(i=0;i<512;i++){
 		c = if_spiSend(iface,0xff);
 		if(i<len)
@@ -297,7 +297,7 @@ esint8 sd_readSector(hwInterface *iface,euint32 address, euint8* buf, euint16 le
 /*****************************************************************************/
 
 /* ****************************************************************************
- calculates size of card from CSD 
+ calculates size of card from CSD
  (extension by Martin Thomas, inspired by code from Holger Klabunde)
  */
 esint8 sd_getDriveSize(hwInterface *iface, euint32* drive_size )
@@ -305,9 +305,9 @@ esint8 sd_getDriveSize(hwInterface *iface, euint32* drive_size )
 	euint8 cardresp, i, by;
 	euint8 iob[16];
 	euint16 c_size, c_size_mult, read_bl_len;
-	
+
 	sd_Command(iface, CMDREADCSD, 0, 0);
-	
+
 	do {
 		cardresp = sd_Resp8b(iface);
 	} while ( cardresp != 0xFE );
@@ -321,7 +321,7 @@ esint8 sd_getDriveSize(hwInterface *iface, euint32* drive_size )
 
 	if_spiSend(iface,0xff);
 	if_spiSend(iface,0xff);
-	
+
 	c_size = iob[6] & 0x03; // bits 1..0
 	c_size <<= 10;
 	c_size += (euint16)iob[7]<<2;
@@ -345,8 +345,8 @@ DBG((TXT(" by %d"), by));
 	c_size_mult <<= (2+by);
 
 DBG((TXT(" c_size_mult %d"), c_size_mult));
-	
+
 	*drive_size = (euint32)(c_size+1) * (euint32)c_size_mult * (euint32)read_bl_len;
-	
+
 	return 0;
 }

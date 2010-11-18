@@ -64,7 +64,7 @@ void enose_periodic( void ) {
     }
     else if (enose_status == ENOSE_IDLE) {
       enose_status = ENOSE_MEASURING_WR;
-      const uint8_t msg[] = { ENOSE_DATA_ADDR };  
+      const uint8_t msg[] = { ENOSE_DATA_ADDR };
       memcpy((void*)i2c0_buf, msg, sizeof(msg));
       i2c0_transmit(ENOSE_SLAVE_ADDR, sizeof(msg), &enose_i2c_done);
       enose_i2c_done = FALSE;
@@ -76,13 +76,13 @@ void enose_periodic( void ) {
     }
     else if (enose_status == ENOSE_MEASURING_RD) {
       uint16_t val = (i2c0_buf[0]<<8) | i2c0_buf[1];
-      if (val < 5000) 
+      if (val < 5000)
 	enose_val[0] = val;
       val = (i2c0_buf[2]<<8) | i2c0_buf[3];
-      if (val < 5000) 
+      if (val < 5000)
 	enose_val[1] = val;
       val = (i2c0_buf[4]<<8) | i2c0_buf[5];
-      if (val < 5000) 
+      if (val < 5000)
 	enose_val[2] = val;
       enose_status = ENOSE_IDLE;
     }

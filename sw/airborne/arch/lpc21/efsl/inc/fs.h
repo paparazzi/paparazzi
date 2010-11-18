@@ -51,16 +51,16 @@
 
 /*****************************************************************************************\
               VolumeId
-               ------  
+               ------
 * ushort BytesPerSector		Must be 512 or shit happens.
 * uchar  SectorsPerCluster	Must be multiple of 2 (1,2,4,8,16 or 32)
 * ushort ReservedSectorCount	Number of sectors after which the first FAT begins.
 * uchar	 NumberOfFats		Should be 2
 * ushort RootEntryCount		Number of filerecords the Rootdir can contain. NOT for FAT32
-* ushort SectorCount16		Number of Sectors for 12/16 bit FAT 
+* ushort SectorCount16		Number of Sectors for 12/16 bit FAT
 * ushort FatSectorCount16	Number of Sectors for 1 FAT on FAT12/16 bit FAT's
 * ulong  SectorCount32		Number of Sectors for 32 bit FAT
-* ulong FatSectorCount32	Number of Sectors for 1 FAT on FAT32 
+* ulong FatSectorCount32	Number of Sectors for 1 FAT on FAT32
 * ulong RootCluster			Clusternumber of the first cluster of the RootDir on FAT 32
 This is NOT a complete volumeId copy, no direct I/O is possible.
 \*****************************************************************************************/
@@ -86,7 +86,7 @@ typedef struct VolumeId VolumeId;
 * ulong			DataClusterCount	Number of dataclusters. This number determines the FATType.
 * ulong			FatSectorCount		Number of sectors for 1 FAT, regardless of FATType
 * ulong			SectorCount			Number of sectors, regardless of FATType
-* ulong 		FirstSectorRootDir	First sector of the RootDir. 
+* ulong 		FirstSectorRootDir	First sector of the RootDir.
 * uchar			type				Determines FATType (FAT12 FAT16 or FAT32 are defined)
 
 \**************************************************************************************************/
@@ -118,16 +118,16 @@ struct FileLocation{
 typedef struct FileLocation FileLocation;
 
 /*****************************************************************************\
-*                               FileCache                                    
-*                              -----------                                   
-* This struct acts as cache for the current file. It contains the current    
-* FATPointer (next location in the FAT table), LogicCluster                  
-* (the last part of the file that was read) and DataCluster                  
-* (the last cluster that was read).     
+*                               FileCache
+*                              -----------
+* This struct acts as cache for the current file. It contains the current
+* FATPointer (next location in the FAT table), LogicCluster
+* (the last part of the file that was read) and DataCluster
+* (the last cluster that was read).
 * euint8		Linear				For how many more clusters the file is nonfragmented
 * euint32		LogicCluster		This field determines the n'th cluster of the file as current
 * euint32		DiscCluster		If this field is 0, it means the cache is invalid. Otherwise
-									it is the clusternumber corresponding with 
+									it is the clusternumber corresponding with
 									logic(FirstCluster+LogicCluster).
 * euint32		FirstCluster		First cluster of the chain. Zero or one are invalid.
 * euint32		LastCluster		Last cluster of the chain (is not always filled in)

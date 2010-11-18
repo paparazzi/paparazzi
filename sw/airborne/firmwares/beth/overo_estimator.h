@@ -8,7 +8,7 @@ struct OveroEstimator {
   float azimuth;
   float elevation;
   float tilt;
-  
+
   float azimuth_dot;
   float elevation_dot;
   float tilt_dot;

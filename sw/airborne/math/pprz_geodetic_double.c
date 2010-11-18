@@ -32,13 +32,13 @@ void lla_of_ecef_d(struct LlaCoor_d* lla, struct EcefCoor_d* ecef) {
   static const double a = 6378137.0;           /* earth semimajor axis in meters */
   static const double f = 1./298.257223563;    /* reciprocal flattening          */
   const double b = a*(1.-f);                   /* semi-minor axis                */
-  const double b2 = b*b;                       
- 
+  const double b2 = b*b;
+
   const double e2 = 2.*f-(f*f);                /* first eccentricity squared     */
   const double ep2 = f*(2.-f)/((1.-f)*(1.-f)); /* second eccentricity squared    */
   const double E2 = a*a - b2;
- 
-  
+
+
   const double z2 = ecef->z*ecef->z;
   const double r2 = ecef->x*ecef->x+ecef->y*ecef->y;
   const double r = sqrt(r2);
@@ -54,7 +54,7 @@ void lla_of_ecef_d(struct LlaCoor_d* lla, struct EcefCoor_d* ecef) {
   const double U = sqrt( tmp + z2 );
   const double V = sqrt( tmp + (1-e2)*z2 );
   const double zo = (b2*ecef->z)/(a*V);
- 
+
   lla->alt = U*(1 - b2/(a*V));
   lla->lat = atan((ecef->z + ep2*zo)/r);
   lla->lon = atan2(ecef->y,ecef->x);

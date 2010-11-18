@@ -18,29 +18,29 @@
 
 
 /* Initialize Serial Interface       */
-void ConsoleInit(int iDivider)  
-{               
+void ConsoleInit(int iDivider)
+{
 	PINSEL0 = (PINSEL0 & ~0x0000000F) | 0x00000005;	/* Enable RxD0 and TxD0              */
 	U0LCR = 0x83;                          			/* 8 bits, no Parity, 1 Stop bit     */
 	U0DLL = iDivider & 0xFF;						/* set divider / baud rate */
 	U0DLM = iDivider >> 8;
 	U0LCR = 0x03;                          			/* DLAB = 0                          */
-	
+
 	// enable FIFO
 	U0FCR = 1;
 }
 
 
 /* Write character to Serial Port    */
-int putchar(int ch)  
-{             
+int putchar(int ch)
+{
 	if (ch == '\n') {
 		while (!(U0LSR & 0x20));
 		U0THR = '\r';
 	}
 	while (!(U0LSR & 0x20));
 	U0THR = ch;
-	
+
 	return ch;
 }
 

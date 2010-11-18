@@ -43,12 +43,12 @@ struct SpiLink {
 
 struct SpiLink spi_link;
 
-/* 
- * initialize peripheral 
+/*
+ * initialize peripheral
  */
 extern int spi_link_init(void);
 
-/* 
+/*
  *  exchange a data buffer
  *  the last byte of buf_out will be overwiten with a crc
  *  the last byte of buf_in  will contain the received crc

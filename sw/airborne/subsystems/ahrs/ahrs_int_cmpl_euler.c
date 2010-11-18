@@ -65,12 +65,12 @@ void ahrs_init(void) {
 }
 
 void ahrs_align(void) {
-  
+
   get_phi_theta_measurement_fom_accel(&ahrs_impl.hi_res_euler.phi, &ahrs_impl.hi_res_euler.theta, ahrs_aligner.lp_accel);
-  get_psi_measurement_from_mag(&ahrs_impl.hi_res_euler.psi, 
+  get_psi_measurement_from_mag(&ahrs_impl.hi_res_euler.psi,
 			       ahrs_impl.hi_res_euler.phi/F_UPDATE, ahrs_impl.hi_res_euler.theta/F_UPDATE, ahrs_aligner.lp_mag);
 
-  EULERS_COPY(ahrs_impl.measure, ahrs_impl.hi_res_euler); 
+  EULERS_COPY(ahrs_impl.measure, ahrs_impl.hi_res_euler);
   EULERS_COPY(ahrs_impl.measurement, ahrs_impl.hi_res_euler);
 
   /* Compute LTP to IMU eulers      */
@@ -133,7 +133,7 @@ void ahrs_propagate(void) {
 
   /* Compute LTP to IMU eulers      */
   EULERS_SDIV(ahrs.ltp_to_imu_euler, ahrs_impl.hi_res_euler, F_UPDATE);
-  
+
   compute_imu_quat_and_rmat_from_euler();
 
   compute_body_orientation();
@@ -150,7 +150,7 @@ void ahrs_update_accel(void) {
 void ahrs_update_mag(void) {
 
   get_psi_measurement_from_mag(&ahrs_impl.measurement.psi, ahrs.ltp_to_imu_euler.phi, ahrs.ltp_to_imu_euler.theta, imu.mag);
-  
+
 }
 
 /* measures phi and theta assuming no dynamic acceleration ?!! */
@@ -168,7 +168,7 @@ static inline void get_phi_theta_measurement_fom_accel(int32_t* phi_meas, int32_
 
 /* measure psi by projecting magnetic vector in local tangeant plan */
 static inline void get_psi_measurement_from_mag(int32_t* psi_meas, int32_t phi_est, int32_t theta_est, struct Int32Vect3 mag) {
-   
+
   int32_t sphi;
   PPRZ_ITRIG_SIN(sphi, phi_est);
   int32_t cphi;
@@ -197,12 +197,12 @@ static inline void get_psi_measurement_from_mag(int32_t* psi_meas, int32_t phi_e
 /* Compute ltp to imu rotation in quaternion and rotation matrice representation
    from the euler angle representation */
 static inline void compute_imu_quat_and_rmat_from_euler(void) {
-  
+
   /* Compute LTP to IMU quaternion */
   INT32_QUAT_OF_EULERS(ahrs.ltp_to_imu_quat, ahrs.ltp_to_imu_euler);
   /* Compute LTP to IMU rotation matrix */
   INT32_RMAT_OF_EULERS(ahrs.ltp_to_imu_rmat, ahrs.ltp_to_imu_euler);
-  
+
 }
 
 static inline void compute_body_orientation(void) {

@@ -35,7 +35,7 @@
 #include "file.h"
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * euint32 file_fread(File *file,euint32 offset, euint32 size,euint8 *buf)
  * Description: This function reads 'size' bytes from 'file' starting at
  * 'offset' and puts the result in '*buf'.
@@ -49,21 +49,21 @@ euint32 file_fread(File *file,euint32 offset, euint32 size,euint8 *buf)
 	euint32 rclus,rsec;
 	euint32 btr;
 	euint8 *tbuf;
-		
+
 	if(!file_getAttr(file,FILE_STATUS_OPEN))return(0);
-	
+
 	if(offset>=file->FileSize)
 		size_left=0; /* Offset check */
-	
+
 	if( (offset+size > file->FileSize) && size_left!=0)
 		size_left=file->FileSize-offset;
-	
+
 	while(size_left>0){
-	
+
 		cclus = coffset/(512*file->fs->volumeId.SectorsPerCluster);
 		csec = (coffset/(512))%file->fs->volumeId.SectorsPerCluster;
 		cbyte = coffset%512;
-		
+
 		if(cbyte!=0 || size_left<512){
 			btr = 512-(coffset%512)>=size_left?size_left:512-(coffset%512);
 		}else{
@@ -75,8 +75,8 @@ euint32 file_fread(File *file,euint32 offset, euint32 size,euint8 *buf)
 		}
 		rclus=file->Cache.DiscCluster;
 		rsec=fs_clusterToSector(file->fs,rclus);
-		
-		
+
+
 		if(btr==512){
 			/*part_readBuf(file->fs->part,rsec+csec,buf+bytes_read);*/
 			part_directSectorRead(file->fs->part,rsec+csec,buf+bytes_read);
@@ -86,17 +86,17 @@ euint32 file_fread(File *file,euint32 offset, euint32 size,euint8 *buf)
 			memCpy(tbuf+(coffset%512),buf+bytes_read,btr);
 			part_relSect(file->fs->part,tbuf);
 		}
-		
+
 		coffset+=btr;
 		bytes_read+=btr;
 		size_left-=btr;
 	}
-		
+
 	return(bytes_read);
 }
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * euint32 file_read (File *file,euint32 size,euint8 *buf)
  * Description: This function reads from a file, taking the FilePtr into account
  * and advancing it according to the freadcall.
@@ -105,14 +105,14 @@ euint32 file_fread(File *file,euint32 offset, euint32 size,euint8 *buf)
 euint32 file_read(File *file,euint32 size,euint8 *buf)
 {
 	euint32 r;
-	
+
 	r=file_fread(file,file->FilePtr,size,buf);
 	file->FilePtr+=r;
 	return(r);
 }
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * euint32 file_write(File *file, euint32 size,euint8 *buf)
  * Description: This function writes to a file, taking FilePtr into account
  * and advancing it according to the fwritecall.
@@ -121,14 +121,14 @@ euint32 file_read(File *file,euint32 size,euint8 *buf)
 euint32 file_write(File *file, euint32 size,euint8 *buf)
 {
 	euint32 r;
-	
+
 	r=file_fwrite(file,file->FilePtr,size,buf);
 	file->FilePtr+=r;
 	return(r);
 }
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * esint16 file_setpos(File *file,euint32 pos)
  * Description: This function does a sanity check on the requested position
  * and changes the fileptr accordingly.
@@ -144,7 +144,7 @@ esint16 file_setpos(File *file,euint32 pos)
 }
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * euint32 file_fwrite(File* file,euint32 offset,euint32 size,euint8* buf)
  * Description: This function writes to a file, at offset 'offset' and size 'size'.
  * It also updates the FileSize in the object, and discstructure.
@@ -161,25 +161,25 @@ euint32 file_fwrite(File* file,euint32 offset,euint32 size,euint8* buf)
 	euint8 *tbuf;
 
 	if(!file_getAttr(file,FILE_STATUS_OPEN) || !file_getAttr(file,FILE_STATUS_WRITE))return(0);
-	
+
 	if(offset>file->FileSize){
 		offset=file->FileSize;
 	}
-	
+
 	need_cluster = file_requiredCluster(file,offset,size);
-	
+
 	if(need_cluster){
 		if(fat_allocClusterChain(file->fs,&(file->Cache),need_cluster+CLUSTER_PREALLOC_FILE)!=0){
 			return(0);
 		}
 	}
-	
+
 	while(size_left>0){
-	
+
 		cclus = coffset/(512*file->fs->volumeId.SectorsPerCluster);
 		csec = (coffset/(512))%file->fs->volumeId.SectorsPerCluster;
 		cbyte = coffset%512;
-		
+
 		if(cbyte!=0 || size_left<512){
 			btr = 512-(coffset%512)>=size_left?size_left:512-(coffset%512);
 		}else{
@@ -193,7 +193,7 @@ euint32 file_fwrite(File* file,euint32 offset,euint32 size,euint8* buf)
 		}
 		rclus=file->Cache.DiscCluster;
 		rsec=fs_clusterToSector(file->fs,rclus);
-		
+
 		if(btr==512){
 			/*part_writeBuf(file->fs->part,rsec+csec,buf+bytes_written);*/
 			part_directSectorWrite(file->fs->part,rsec+csec,buf+bytes_written);
@@ -204,23 +204,23 @@ euint32 file_fwrite(File* file,euint32 offset,euint32 size,euint8* buf)
 			/*part_writeBuf(file->fs->part,rsec+csec,tbuf);*/
 			part_relSect(file->fs->part,tbuf);
 		}
-		
+
 		coffset+=btr;
 		bytes_written+=btr;
 		size_left-=btr;
 	}
-	
+
 	if(bytes_written>file->FileSize-offset){
 		file->FileSize+=bytes_written-(file->FileSize-offset);
     }
-	
-	return(bytes_written);	
+
+	return(bytes_written);
 }
 
 /* ***************************************************************************\
- * signed eint8 file_fopen(FileSystem *fs,File* file,eint8* filename)      
- * Description: This functions opens a file.                               
- * This function is about to be redesigned. No Docs.                       
+ * signed eint8 file_fopen(FileSystem *fs,File* file,eint8* filename)
+ * Description: This functions opens a file.
+ * This function is about to be redesigned. No Docs.
  * Return value:
 */
 esint8 file_fopen(File* file,FileSystem *fs,eint8* filename,eint8 mode)
@@ -231,7 +231,7 @@ esint8 file_fopen(File* file,FileSystem *fs,eint8* filename,eint8 mode)
     euint32 sec;
 
     dir_getFatFileName(filename,fatfilename);
-	
+
     switch(mode)
 	{
         case MODE_READ:
@@ -320,7 +320,7 @@ esint8 file_fopen(File* file,FileSystem *fs,eint8* filename,eint8 mode)
 }
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * esint8 file_fclose(File *file)
  * Description: This function closes a file, by clearing the object.
  * Return value: 0 on success.
@@ -340,7 +340,7 @@ esint8 file_fclose(File *file)
 			dir_setFileSize(file->fs,&(file->Location),file->FileSize);
 		}
 	}
-	
+
 	memClr(file,sizeof(*file));
 	file_setAttr(file,FILE_STATUS_OPEN,0);
 	file_setAttr(file,FILE_STATUS_WRITE,0);
@@ -348,7 +348,7 @@ esint8 file_fclose(File *file)
 }
 
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * void file_initFile(File *file, FileSystem *fs, FileLocation *loc)
  * Description: This function initialises a new file object, by filling in
  * the fs pointer, filesize (note, that DirEntry must already be filled in)
@@ -363,18 +363,18 @@ void file_initFile(File *file, FileSystem *fs, FileLocation *loc)
 	file->Location.Sector=loc->Sector;
 	file->Location.Offset=loc->Offset;
 	file->Cache.Linear=0;
-	file->Cache.FirstCluster=(((euint32)file->DirEntry.FirstClusterHigh)<<16)+ 
+	file->Cache.FirstCluster=(((euint32)file->DirEntry.FirstClusterHigh)<<16)+
 	                                    file->DirEntry.FirstClusterLow;
-	file->Cache.LastCluster=0; 
+	file->Cache.LastCluster=0;
 	file->Cache.LogicCluster=0;
 	file->Cache.DiscCluster=file->Cache.FirstCluster;
 }
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * euint8* file_normalToFatName(eint8* filename,eint8* fatfilename)
- * Description: This function converts a human readable filename (limited to 
- * 8.3 eint8 character) to a valid FAT (not VFAT) filename. Invalid characters are 
+ * Description: This function converts a human readable filename (limited to
+ * 8.3 eint8 character) to a valid FAT (not VFAT) filename. Invalid characters are
  * changed to capital X and only the first 11 characters are used.
  * Furthermore all letters are capitalised.
  * Return value: pointer after the filename
@@ -382,14 +382,14 @@ void file_initFile(File *file, FileSystem *fs, FileLocation *loc)
 eint8* file_normalToFatName(eint8* filename,eint8* fatfilename)
 {
 	euint8 c,dot=0,vc=0;
-	
+
 	for(c=0;c<11;c++)fatfilename[c]=' ';
-	
+
 	c=0;
-	
+
 	if(*filename == '.'){
 		fatfilename[0]='.';
-		vc++; 
+		vc++;
 		if(*(filename+1) == '.'){
 			fatfilename[1]='.';
 			filename+=2;
@@ -405,7 +405,7 @@ eint8* file_normalToFatName(eint8* filename,eint8* fatfilename)
 				if(dot){
 					if(c<=10){
 						fatfilename[c]=file_validateChar(*filename);
-						c++; 
+						c++;
 					}
 				}else{
 					if(c<=7){
@@ -417,7 +417,7 @@ eint8* file_normalToFatName(eint8* filename,eint8* fatfilename)
 			filename++;
 		}
 	}
-	
+
 	if(vc>0){
 		if(*filename=='\0'){
 			return(filename);
@@ -430,12 +430,12 @@ eint8* file_normalToFatName(eint8* filename,eint8* fatfilename)
 }
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  *
  * Description: This function takes the character c, and if it is not a       *
  * valid FAT Filename character returns X. If it is a lowercase letter the    *
  * uppercase equivalent is returned. The remaining characters are returned    *
- * as they are.      
+ * as they are.
  * Return value: The validated char
 */
 euint8 file_validateChar(euint8 c)
@@ -449,7 +449,7 @@ euint8 file_validateChar(euint8 c)
 }
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * void ioman_setAttr(IOManager *ioman,euint16 bufplace,euint8 attribute,euint8 val)
  * Description: This sets the attribute of 'bufplace' to the given value (binary).
  *
@@ -465,7 +465,7 @@ void file_setAttr(File* file,euint8 attribute,euint8 val)
 }
 /*****************************************************************************/
 
-/* ****************************************************************************  
+/* ****************************************************************************
  * euint8 ioman_getAttr(IOManager *ioman,euint16 bufplace,euint8 attribute)
  * Description: This function retrieves an attribute from the bufstat array.
  * It returns nonzero when it attribute is true and 0 when it is false.

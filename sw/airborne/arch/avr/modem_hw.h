@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -48,7 +48,7 @@
 #define MODEM_TX_EN     7
 #define MODEM_TX_DATA   6
 
-#ifdef CTL_BRD_V1_2 
+#ifdef CTL_BRD_V1_2
 #define MODEM_CLK_DDR   DDRD
 #define MODEM_CLK_PORT  PORTD
 #define MODEM_CLK       0

@@ -23,7 +23,7 @@
  */
 
 /*
- *\brief STM32 timing functions 
+ *\brief STM32 timing functions
  *
  */
 
@@ -39,7 +39,7 @@
 #include "led.h"
 #endif
 
-#define InitSysTimePeriodic() 
+#define InitSysTimePeriodic()
 
 extern void sys_time_init( void );
 extern void sys_tick_irq_handler(void);

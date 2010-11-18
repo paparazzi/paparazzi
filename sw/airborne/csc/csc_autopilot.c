@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -187,11 +187,11 @@ static void calculate_errors(struct control_reference *errors)
   errors->eulers.phi = xsens_eulers.phi - csc_reference.eulers.phi;
   errors->eulers.theta = xsens_eulers.theta - csc_reference.eulers.theta;
   // The following mess mixes in the wind vane and the GPS errors in
-  // an arbitrary fashion.  
-  errors->eulers.psi = (csc_vane_angle*csc_vane_weight) 
-    + (xsens_eulers.psi - csc_reference.eulers.psi)*(1 - csc_vane_weight);    
+  // an arbitrary fashion.
+  errors->eulers.psi = (csc_vane_angle*csc_vane_weight)
+    + (xsens_eulers.psi - csc_reference.eulers.psi)*(1 - csc_vane_weight);
   errors->eulers.psi = (1 - csc_gps_weight)*errors->eulers.psi
-    + csc_gps_weight*(cos(xsens_eulers.psi)*csc_gps_errors.pos.x 
+    + csc_gps_weight*(cos(xsens_eulers.psi)*csc_gps_errors.pos.x
        + sin(xsens_eulers.psi)*csc_gps_errors.pos.y);
 
   errors->rates.p = xsens_rates.p - csc_reference.rates.p;
@@ -210,10 +210,10 @@ static void calculate_errors(struct control_reference *errors)
   } else if (errors->eulers.psi <= yaw_deadband*2 && errors->eulers.psi >= -yaw_deadband*2) {
     if (errors->eulers.psi < 0) {
       errors->eulers.psi = (errors->eulers.psi + yaw_deadband)*2;
-    } else 
+    } else
       errors->eulers.psi = (errors->eulers.psi - yaw_deadband)*2;
   }
-  
+
   bound_ierror(csc_gains.roll_ki, &errors->eulers_i.phi);
   bound_ierror(csc_gains.pitch_ki, &errors->eulers_i.theta);
   bound_ierror(csc_gains.yaw_ki, &errors->eulers_i.psi);

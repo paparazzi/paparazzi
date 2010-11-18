@@ -80,7 +80,7 @@ value sim_init(value unit) {
       perror("make pipe");
       exit (10);
     }
-  }	
+  }
   if ( !(pipe_stream = fopen(link_pipe_name, "w")) ) {
     perror("open pipe");
     exit (10);
@@ -91,7 +91,7 @@ value sim_init(value unit) {
 }
 
 value update_bat(value bat) {
-  fbw_vsupply_decivolt = Int_val(bat);  
+  fbw_vsupply_decivolt = Int_val(bat);
   return Val_unit;
 }
 
@@ -111,7 +111,7 @@ value set_datalink_message(value s) {
   assert(n <= MSG_SIZE);
 
   int i;
-  for(i = 0; i < n; i++) 
+  for(i = 0; i < n; i++)
     dl_buffer[i] = ss[i];
 
   dl_parse_msg();

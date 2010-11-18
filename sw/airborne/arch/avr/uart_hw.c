@@ -1,6 +1,6 @@
 /*
  * Paparazzi $Id$
- *  
+ *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -48,29 +48,29 @@ static uint8_t           tx_buf[ TX_BUF_SIZE ];
  */
 
 void uart0_init_tx( void ) {
-  UBRRH = 0; 
+  UBRRH = 0;
   UBRRL = F_CPU/(16*UART0_BAUD)-1;
 
-  /* single speed */ 
-  UCSRA = 0; 
-  /* Enable transmitter */ 
-  UCSRB = _BV(TXEN); 
-  /* Set frame format: 8data, 1stop bit */ 
-  UCSRC = _BV(URSEL) | _BV(UCSZ1) | _BV(UCSZ0); 
+  /* single speed */
+  UCSRA = 0;
+  /* Enable transmitter */
+  UCSRB = _BV(TXEN);
+  /* Set frame format: 8data, 1stop bit */
+  UCSRC = _BV(URSEL) | _BV(UCSZ1) | _BV(UCSZ0);
 }
 
 void uart0_init_rx( void ) {
-  /* Enable receiver               */ 
-  UCSRB |= _BV(RXEN); 
+  /* Enable receiver               */
+  UCSRB |= _BV(RXEN);
   /* Enable uart receive interrupt */
-  sbi( UCSRB, RXCIE ); 
+  sbi( UCSRB, RXCIE );
 }
 
 bool_t uart0_check_free_space( uint8_t len) {
   int8_t space;
   if ((space = (tx_tail - tx_head)) <= 0)
     space += TX_BUF_SIZE;
-  
+
   return (uint8_t)(space - 1) >= len;
 }
 
@@ -119,11 +119,11 @@ void uart0_init_tx( void ) {
   UBRR0H = 0;
   UBRR0L = F_CPU/(16*UART0_BAUD)-1;
 
-  /* single speed */ 
-  UCSR0A = 0; 
-  /* Enable transmitter */ 
+  /* single speed */
+  UCSR0A = 0;
+  /* Enable transmitter */
   UCSR0B = _BV(TXEN);
-  /* Set frame format: 8data, 1stop bit */ 
+  /* Set frame format: 8data, 1stop bit */
   UCSR0C = _BV(UCSZ1) | _BV(UCSZ0);
 
   tx_head0 = 0;
@@ -131,9 +131,9 @@ void uart0_init_tx( void ) {
 }
 
 void uart0_init_rx( void ) {
-  /* Enable receiver */ 
+  /* Enable receiver */
   UCSR0B |= _BV(RXEN);
-  
+
   /* Enable uart receive interrupt */
   sbi(UCSR0B, RXCIE );
 }
@@ -142,7 +142,7 @@ bool_t uart0_check_free_space( uint8_t len) {
   int8_t space;
   if ((space = (tx_tail0 - tx_head0)) <= 0)
     space += TX_BUF_SIZE;
-  
+
   return (uint16_t)(space - 1) >= len;
 }
 
@@ -190,14 +190,14 @@ uint8_t uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
 
 void uart1_init_tx( void ) {
   /* set baud rate */
-  UBRR1H = 0; 
+  UBRR1H = 0;
   UBRR1L = F_CPU/(16*UART1_BAUD)-1;
 
-  /* single speed */ 
-  UCSR1A = 0; 
-  /* Enable transmitter */ 
+  /* single speed */
+  UCSR1A = 0;
+  /* Enable transmitter */
   UCSR1B = _BV(TXEN);
-  /* Set frame format: 8data, 1stop bit */ 
+  /* Set frame format: 8data, 1stop bit */
   UCSR1C = _BV(UCSZ1) | _BV(UCSZ0);
 
   tx_head1 = 0;
@@ -205,17 +205,17 @@ void uart1_init_tx( void ) {
 }
 
 void uart1_init_rx( void ) {
-  /* Enable receiver */ 
+  /* Enable receiver */
   UCSR1B |= _BV(RXEN);
   /* Enable uart receive interrupt */
-  sbi(UCSR1B, RXCIE ); 
+  sbi(UCSR1B, RXCIE );
 }
 
 bool_t uart1_check_free_space( uint8_t len) {
   int8_t space;
   if ((space = (tx_tail1 - tx_head1)) <= 0)
     space += TX_BUF_SIZE;
-  
+
   return (uint16_t)(space - 1) >= len;
 }
 

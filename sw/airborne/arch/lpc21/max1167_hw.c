@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008  Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -29,7 +29,7 @@
 static void EXTINT0_ISR(void) __attribute__((naked));
 
 extern void max1167_hw_init( void ) {
-  
+
   /* SS pin is output */
   SetBit(MAX1167_SS_IODIR, MAX1167_SS_PIN);
   /* unselected max1167 */
@@ -48,14 +48,14 @@ extern void max1167_hw_init( void ) {
   VICIntSelect &= ~VIC_BIT( VIC_EINT0 );                     // EXTINT0 selected as IRQ
   VICIntEnable = VIC_BIT( VIC_EINT0 );                       // EXTINT0 interrupt enabled
   _VIC_CNTL(MAX1167_EOC_VIC_SLOT) = VIC_ENABLE | VIC_EINT0;
-  _VIC_ADDR(MAX1167_EOC_VIC_SLOT) = (uint32_t)EXTINT0_ISR;   // address of the ISR 
+  _VIC_ADDR(MAX1167_EOC_VIC_SLOT) = (uint32_t)EXTINT0_ISR;   // address of the ISR
 }
 
 
 void max1167_read( void ) {
   //ASSERT((max1167_status == STA_MAX1167_IDLE),		\
 	// DEBUG_MAX_1117, MAX1167_ERR_READ_OVERUN);
-  /* select max1167 */ 
+  /* select max1167 */
   Max1167Select();
   /* enable SPI */
   SpiClearRti();
@@ -82,7 +82,7 @@ void EXTINT0_ISR(void) {
   SpiClearRti();
   SpiEnableRti();
   max1167_status = STA_MAX1167_READING_RES;
-  
+
   SetBit(EXTINT, MAX1167_EOC_EINT);   /* clear extint0 */
   VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
 

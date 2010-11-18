@@ -11,10 +11,10 @@ int main(int argc, char** argv) {
   // vor_audio_read_wav("signal_VOR_BF_FM_pure.wav");
 
   vor_int_demod_init();
- 
+
   int i;
   for (i=0; i<nb_samples; i++) {
-    
+
     vor_int_demod_run (adc_buf[i]);
 
     const float te = 512./15000000.;

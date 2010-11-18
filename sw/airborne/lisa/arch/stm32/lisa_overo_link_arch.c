@@ -55,9 +55,9 @@ void overo_link_arch_init(void) {
 
 
 void overo_link_arch_prepare_next_transfert(void) {
-  
+
   /* Disable SPI module */
-  SPI_Cmd(SPI1, DISABLE); 
+  SPI_Cmd(SPI1, DISABLE);
 
   /* Make sure RX register is empty */
   uint8_t foo __attribute__ ((unused)) = SPI1->DR;
@@ -99,7 +99,7 @@ void overo_link_arch_prepare_next_transfert(void) {
     .DMA_M2M                = DMA_M2M_Disable
   };
   DMA_Init(DMA1_Channel3, (DMA_InitTypeDef*)&DMA_InitStructure_tx);
-  
+
   /* Enable SPI_1 Rx request */
   SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx, ENABLE);
   /* Enable DMA1 Channel2 */
@@ -111,10 +111,10 @@ void overo_link_arch_prepare_next_transfert(void) {
 
   /* Enable DMA1 Channel2 Transfer Complete interrupt */
   DMA_ITConfig(DMA1_Channel2, DMA_IT_TC, ENABLE);
-  
+
   /* resets CRC module */
-  SPI_CalculateCRC(SPI1, DISABLE); 
-  SPI_CalculateCRC(SPI1, ENABLE); 
+  SPI_CalculateCRC(SPI1, DISABLE);
+  SPI_CalculateCRC(SPI1, ENABLE);
 
   /* enable SPI */
   SPI_Cmd(SPI1, ENABLE);

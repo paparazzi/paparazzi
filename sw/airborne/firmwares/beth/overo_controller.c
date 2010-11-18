@@ -72,21 +72,21 @@ void control_run(void) {
    */
   const float dt_ctl = 1./512.;
   const float thrust_constant = 40.;
-  
+
   controller.tilt_ref = controller.tilt_ref + controller.tilt_dot_ref * dt_ctl;
   controller.tilt_dot_ref = controller.tilt_dot_ref + controller.tilt_ddot_ref * dt_ctl;
-  controller.tilt_ddot_ref = -2*controller.omega_tilt_ref*controller.xi_ref*controller.tilt_dot_ref 
-    - controller.omega_tilt_ref*controller.omega_tilt_ref*(controller.tilt_ref - controller.tilt_sp); 
+  controller.tilt_ddot_ref = -2*controller.omega_tilt_ref*controller.xi_ref*controller.tilt_dot_ref
+    - controller.omega_tilt_ref*controller.omega_tilt_ref*(controller.tilt_ref - controller.tilt_sp);
 
   controller.elevation_ref = controller.elevation_ref + controller.elevation_dot_ref * dt_ctl;
   controller.elevation_dot_ref = controller.elevation_dot_ref + controller.elevation_ddot_ref * dt_ctl;
-  controller.elevation_ddot_ref = -2*controller.omega_elevation_ref*controller.xi_ref*controller.elevation_dot_ref 
-    - controller.omega_elevation_ref*controller.omega_elevation_ref*(controller.elevation_ref - controller.elevation_sp); 
+  controller.elevation_ddot_ref = -2*controller.omega_elevation_ref*controller.xi_ref*controller.elevation_dot_ref
+    - controller.omega_elevation_ref*controller.omega_elevation_ref*(controller.elevation_ref - controller.elevation_sp);
 
   controller.azimuth_ref = controller.azimuth_ref + controller.azimuth_dot_ref * dt_ctl;
   controller.azimuth_dot_ref = controller.azimuth_dot_ref + controller.azimuth_ddot_ref * dt_ctl;
-  controller.azimuth_ddot_ref = -2*controller.omega_azimuth_ref*controller.xi_ref*controller.azimuth_dot_ref 
-    - controller.omega_azimuth_ref*controller.omega_azimuth_ref*(controller.azimuth_ref - controller.azimuth_sp); 
+  controller.azimuth_ddot_ref = -2*controller.omega_azimuth_ref*controller.xi_ref*controller.azimuth_dot_ref
+    - controller.omega_azimuth_ref*controller.omega_azimuth_ref*(controller.azimuth_ref - controller.azimuth_sp);
 
   static int foo=0;
 
@@ -119,9 +119,9 @@ void control_run(void) {
   controller.cmd_azimuth_fb = controller.one_over_J * (2 * controller.xi_cl * controller.omega_cl * err_azimuth_dot) +
                         controller.one_over_J * (controller.omega_cl * controller.omega_cl * err_azimuth);
 
-  controller.cmd_pitch =  controller.cmd_pitch_ff + controller.cmd_pitch_fb;// + 
-  controller.tilt_sp = 
-                            controller.azim_gain * (-controller.cmd_azimuth_fb );//+ controller.cmd_azimuth_ff); 
+  controller.cmd_pitch =  controller.cmd_pitch_ff + controller.cmd_pitch_fb;// +
+  controller.tilt_sp =
+                            controller.azim_gain * (-controller.cmd_azimuth_fb );//+ controller.cmd_azimuth_ff);
   controller.cmd_thrust = controller.cmd_thrust_ff + controller.cmd_thrust_fb + thrust_constant;
   controller.cmd_thrust = controller.cmd_thrust*(1/cos(estimator.elevation));
 
@@ -134,7 +134,7 @@ void control_run(void) {
     //printf("thrust: ff:%f fb:%f (%f %f)\n",controller.cmd_thrust_ff, controller.cmd_thrust_fb,estimator.elevation,estimator.elevation_dot);
     //printf("%f %f %f\n",controller.tilt_ref,controller.tilt_dot_ref,controller.tilt_ddot_ref);
   }
-  foo++; 
+  foo++;
 
 }
 

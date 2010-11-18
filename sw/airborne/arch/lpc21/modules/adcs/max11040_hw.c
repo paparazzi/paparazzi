@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 Martin Mueller
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -197,7 +197,7 @@ static void SSP_ISR(void) {
       max11040_values[max11040_buf_in][max11040_count]  = SSPDR << 16;
       max11040_values[max11040_buf_in][max11040_count] |= SSPDR << 8;
       max11040_values[max11040_buf_in][max11040_count] |= SSPDR;
-      if (max11040_values[max11040_buf_in][max11040_count] & 0x800000) 
+      if (max11040_values[max11040_buf_in][max11040_count] & 0x800000)
         max11040_values[max11040_buf_in][max11040_count] |= 0xFF000000;
 
       max11040_count++;
@@ -205,7 +205,7 @@ static void SSP_ISR(void) {
       max11040_values[max11040_buf_in][max11040_count]  = SSPDR << 16;
       max11040_values[max11040_buf_in][max11040_count] |= SSPDR << 8;
       max11040_values[max11040_buf_in][max11040_count] |= SSPDR;
-      if (max11040_values[max11040_buf_in][max11040_count] & 0x800000) 
+      if (max11040_values[max11040_buf_in][max11040_count] & 0x800000)
         max11040_values[max11040_buf_in][max11040_count] |= 0xFF000000;
 
       max11040_count++;
@@ -234,7 +234,7 @@ static void SSP_ISR(void) {
 void EXTINT_ISR(void) {
   ISR_ENTRY();
 
-  if (num_irqs++ == 5) 
+  if (num_irqs++ == 5)
   {
     /* switch SSEL P0.20 to be used as GPIO */
     PINSEL1 &= ~(3 << 8);
@@ -272,37 +272,37 @@ void EXTINT_ISR(void) {
 
 void max11040_hw_init( void ) {
   int i;
-  
+
   /* *** configure SPI ***  */
   /* setup pins for SSP (SCK, MISO, MOSI, SSEL) */
   PINSEL1 |= SSP_PINSEL1_SCK  | SSP_PINSEL1_MISO | SSP_PINSEL1_MOSI | SSP_PINSEL1_SSEL;
-  
+
   /* setup SSP */
   SSPCR0 = SSPCR0_VAL;;
   SSPCR1 = SSPCR1_VAL;
   SSPCPSR = 0x02;
-  
+
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT( VIC_SPI1 );         /* SPI1 selected as IRQ */
   VICIntEnable = VIC_BIT( VIC_SPI1 );           /* enable it            */
   _VIC_CNTL(SSP_VIC_SLOT) = VIC_ENABLE | VIC_SPI1;
   _VIC_ADDR(SSP_VIC_SLOT) = (uint32_t)SSP_ISR;  /* address of the ISR   */
 
-  
+
   /* *** configure DRDY pin***  */
-  /* connected pin to EXINT */ 
+  /* connected pin to EXINT */
   MAXM_DRDY_PINSEL |= MAXM_DRDY_PINSEL_VAL << MAXM_DRDY_PINSEL_BIT;
   SetBit(EXTMODE, MAXM_DRDY_EINT);     /* EINT is edge trigered */
   ClearBit(EXTPOLAR, MAXM_DRDY_EINT);  /* EINT is trigered on falling edge */
   SetBit(EXTINT, MAXM_DRDY_EINT);      /* clear pending EINT */
-  
+
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT( MAXM_DRDY_VIC_IT );                       /* select EINT as IRQ source */
   VICIntEnable = VIC_BIT( MAXM_DRDY_VIC_IT );                         /* enable it                 */
   _VIC_CNTL(MAX11040_DRDY_VIC_SLOT) = VIC_ENABLE | MAXM_DRDY_VIC_IT;
   _VIC_ADDR(MAX11040_DRDY_VIC_SLOT) = (uint32_t)EXTINT_ISR;           /* address of the ISR        */
-  
-  
+
+
   /* write configuration register */
   SSP_Send(0x60);       /* wr conf */
   for (i=0; i<MAXM_NB_ADCS; i++) {

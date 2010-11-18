@@ -20,7 +20,7 @@ bool nav_poles_init(uint8_t wp1, uint8_t wp2,
 
   WaypointX(wp2c) = WaypointX(wp2) - (x * SAFETY_MARGIN + y) * radius;
   WaypointY(wp2c) = WaypointY(wp2) - (y * SAFETY_MARGIN - x) * radius;
-  
+
   WaypointX(wp1c) = WaypointX(wp1) + (x * SAFETY_MARGIN - y) * radius;
   WaypointY(wp1c) = WaypointY(wp1) + (y * SAFETY_MARGIN + x) * radius;
 

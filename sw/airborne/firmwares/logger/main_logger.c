@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009  Martin Mueller
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -45,7 +45,7 @@
          2 MSG_PAYLOAD
          . DATA (messages.xml)
      E XBEE_CHECKSUM (sum[A->D])
-     
+
     ID is AC_ID for aircraft, 0x100 for ground station
   */
 
@@ -163,7 +163,7 @@ int do_log(void);
 
 DirList list;
 EmbeddedFileSystem efs;
-EmbeddedFile filer;	
+EmbeddedFile filer;
 EmbeddedFile filew;
 
 unsigned char xbeel_payload[XBEE_PAYLOAD_LEN];
@@ -185,7 +185,7 @@ void set_filename(unsigned int local, char* name)
 {
     /* do not use sprintf or similar */
     int i;
-    
+
     for (i=7; i>=0; i--) {
         name[i] = (local % 10) + '0';
         local /= 10;
@@ -221,7 +221,7 @@ unsigned int getclock(void)
 void log_payload(int len, unsigned char source, unsigned int timestamp)
 {
   unsigned char chk;
-  
+
   /* start delimiter */
   log_buffer[0] = STX;
 
@@ -230,7 +230,7 @@ void log_payload(int len, unsigned char source, unsigned int timestamp)
 
   /* source */
   log_buffer[2] = source;
-    
+
   /* add a 32bit timestamp */
   log_buffer[3] = (timestamp) & 0xFF;       // LSB first
   log_buffer[4] = (timestamp >> 8)  & 0xFF;
@@ -245,11 +245,11 @@ void log_payload(int len, unsigned char source, unsigned int timestamp)
   /* write data, start+length+timestamp+data+checksum */
   chk = file_write(&filew, LOG_DATA_OFFSET+len+1, log_buffer);
 
-  if (len != chk) 
+  if (len != chk)
   {
     nb_fail_write++;
   }
-  
+
   bytes += chk;
   nb_messages++;
 //  dl_parse_msg();
@@ -373,7 +373,7 @@ int do_log(void)
     unsigned int count;
     unsigned char name[13];
     unsigned char inc;
-    int temp;               
+    int temp;
 
 	if(efs_init(&efs, 0) != 0) {
 		return(-1);
@@ -387,7 +387,7 @@ int do_log(void)
         file_fclose(&filer);
     }
 
-    if (file_fopen(&filew, &efs.myFs, name, 'w' ) != 0) 
+    if (file_fopen(&filew, &efs.myFs, name, 'w' ) != 0)
     {
 		return(-1);
     }
@@ -426,12 +426,12 @@ int do_log(void)
 #ifdef USE_UART0
         temp = 0;
         while (Uart0ChAvailable() && (temp++ < 128))
-        {   
+        {
 //			LED_TOGGLE(3);
 			inc = Uart0Getch();
 #ifdef LOG_XBEE
             log_xbee(inc, LOG_SOURCE_UART0);
-#else 
+#else
 #ifdef LOG_PPRZ
             log_pprz(inc, LOG_SOURCE_UART0);
 #else
@@ -443,12 +443,12 @@ int do_log(void)
 #ifdef USE_UART1
         temp = 0;
         while (Uart1ChAvailable() && (temp++ < 128))
-        {   
+        {
 //			LED_TOGGLE(3);
 			inc = Uart1Getch();
 #ifdef LOG_XBEE
             log_xbee(inc, LOG_SOURCE_UART1);
-#else 
+#else
 #ifdef LOG_PPRZ
             log_pprz(inc, LOG_SOURCE_UART1);
 #else
@@ -491,9 +491,9 @@ int main(void)
         } else {
           LED_OFF(2);
         }
-        if (((IO0PIN & _BV(LOG_STOP_KEY))>>LOG_STOP_KEY) == 1) { 
+        if (((IO0PIN & _BV(LOG_STOP_KEY))>>LOG_STOP_KEY) == 1) {
           waitloop=0;
-        } else { 
+        } else {
           waitloop++;
         }
       }
@@ -506,8 +506,8 @@ int main(void)
       }
     }
     LED_ON(2);
-    while (((IO0PIN & _BV(LOG_STOP_KEY))>>LOG_STOP_KEY) == 0); 
-  } 
+    while (((IO0PIN & _BV(LOG_STOP_KEY))>>LOG_STOP_KEY) == 0);
+  }
 
   return 0;
 }

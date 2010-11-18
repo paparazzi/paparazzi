@@ -58,8 +58,8 @@
 	#define ioman_setError(ioman,errval) ioman->error = errval
 	#define ioman_getError(ioman)        ioman->error
 #else
-	#define IOMAN_ERR_EUINT8 
-	#define ioman_setError(ioman,errval) 
+	#define IOMAN_ERR_EUINT8
+	#define ioman_setError(ioman,errval)
 	#define ioman_getError(ioman) 0
 #endif
 
@@ -68,8 +68,8 @@
 	#define disc_setError(disc,errval) disc->error = errval
 	#define disc_getError(disc)        disc->error
 #else
-	#define DISC_ERR_EUINT8 
-	#define disc_setError(disc,errval) 
+	#define DISC_ERR_EUINT8
+	#define disc_setError(disc,errval)
 	#define disc_getError(disc) 0
 #endif
 
@@ -78,8 +78,8 @@
 	#define part_setError(part,errval) part->error = errval
 	#define part_getError(part)        part->error
 #else
-	#define PART_ERR_EUINT8 
-	#define part_setError(part,errval) 
+	#define PART_ERR_EUINT8
+	#define part_setError(part,errval)
 	#define part_getError(part) 0
 #endif
 
@@ -88,8 +88,8 @@
 	#define fs_setError(fs,errval) fs->error = errval
 	#define fs_getError(fs)        fs->error
 #else
-	#define FILESYSTEM_ERR_EUINT8 
-	#define fs_setError(fs,errval) 
+	#define FILESYSTEM_ERR_EUINT8
+	#define fs_setError(fs,errval)
 	#define fs_getError(fs) 0
 #endif
 
@@ -98,8 +98,8 @@
 	#define file_setError(file,errval) file->error = errval
 	#define file_getError(file)        file->error
 #else
-	#define FILE_ERR_EUINT8 
-	#define file_setError(file,errval) 
+	#define FILE_ERR_EUINT8
+	#define file_setError(file,errval)
 	#define file_getError(file) 0
 #endif
 

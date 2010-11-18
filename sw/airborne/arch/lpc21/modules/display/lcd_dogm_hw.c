@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009  ENAC
  *
  * This file is part of paparazzi.
@@ -18,13 +18,13 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
 #include "LPC21xx.h"
-#include "interrupt_hw.h" 
-#include "lcd_dogm_hw.h"  
+#include "interrupt_hw.h"
+#include "lcd_dogm_hw.h"
 
 
 static void SPI1_ISR(void) __attribute__((naked));
@@ -36,7 +36,7 @@ static void SPI1_ISR(void) __attribute__((naked));
 /* SSPCR0 settings */
 #define SSP_DSS  0x07 << 0  /* data size            : 8 bits    */
 #define SSP_FRF  0x00 << 4  /* frame format         : SPI       */
-#define SSP_CPOL 0x01 << 6  /* clock polarity       : idle high */  
+#define SSP_CPOL 0x01 << 6  /* clock polarity       : idle high */
 #define SSP_CPHA 0x01 << 7  /* clock phase          : low->high */
 #define SSP_SCR  0x1F << 8  /* serial clock rate    : 29.3kHz, SSP input clock / 16 */
 
@@ -88,7 +88,7 @@ void SPI1_ISR(void) {
     foo = SSPDR;
   }
   SpiClearRti();                  /* clear interrupt */
-  SpiDisableRti();    
+  SpiDisableRti();
   SpiDisable ();
   lcddogmUnselect();
 

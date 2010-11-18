@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2009 Joby Energy
- *  
+ *
  *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -43,4 +43,4 @@ void spektrum_init(void);
 void spektrum_event_task(void);
 void spektrum_periodic_task(void);
 
-#endif 
+#endif

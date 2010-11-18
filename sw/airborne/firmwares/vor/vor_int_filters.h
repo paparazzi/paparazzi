@@ -46,7 +46,7 @@ inline int32_t vor_int_filter_bp_var( int16_t xn) {
               - b3 * y3;
   //  printf("%d\n", _yn);
   _yn = (_yn >> VIF_CRES);
-  
+
   x3 = x2;
   x2 = x1;
   x1 = xn;
@@ -110,7 +110,7 @@ inline int32_t vor_int_filter_bp_ref( int16_t xn) {
               - b6 * y6;
   //  printf("%d\n", _yn);
   _yn = (_yn >> VIF_CRES);
-  
+
   x6 = x5;
   x5 = x4;
   x4 = x3;
@@ -176,7 +176,7 @@ inline int32_t vor_int_filter_lp_decim( int16_t xn) {
               - b3 * y3;
   //  printf("%d\n", _yn);
   _yn = (_yn >> VIF_CRES);
-  
+
   x3 = x2;
   x2 = x1;
   x1 = xn;
@@ -241,7 +241,7 @@ inline int32_t vor_int_filter_lp_var( int32_t xn) {
               - b6 * y6;
   //  printf("%d\n", _yn);
   _yn = (_yn >> VIF_CRES);
-  
+
   x6 = x5;
   x5 = x4;
   x4 = x3;
@@ -293,7 +293,7 @@ inline int32_t vor_int_filter_lp_ref( int32_t xn) {
               - b3 * y3;
   //  printf("%d\n", _yn);
   _yn = (_yn >> VIF_CRES);
-  
+
   x3 = x2;
   x2 = x1;
   x1 = xn;
@@ -357,7 +357,7 @@ inline int32_t vor_int_filter_lp_fm( int32_t xn) {
               - b6 * y6;
   //  printf("%d\n", _yn);
   _yn = (_yn >> VIF_CRES);
-  
+
   x6 = x5;
   x5 = x4;
   x4 = x3;

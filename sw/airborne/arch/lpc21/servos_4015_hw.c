@@ -21,9 +21,9 @@ uint16_t servos_values[_4015_NB_CHANNELS];
 
 void actuators_init ( void ) {
   /* PWM selected as IRQ */
-  VICIntSelect &= ~VIC_BIT(VIC_PWM);   
+  VICIntSelect &= ~VIC_BIT(VIC_PWM);
   /* PWM interrupt enabled */
-  VICIntEnable = VIC_BIT(VIC_PWM);  
+  VICIntEnable = VIC_BIT(VIC_PWM);
   VICVectCntl3 = VIC_ENABLE | VIC_PWM;
   /* address of the ISR */
   VICVectAddr3 = (uint32_t)PWM_ISR;
@@ -33,8 +33,8 @@ void actuators_init ( void ) {
   SERV1_CLOCK_PINSEL |= SERV1_CLOCK_PINSEL_VAL << SERV1_CLOCK_PINSEL_BIT;
 
   /* set match5 to go of a long time from now */
-  PWMMR0 = 0XFFFFFF;  
-  PWMMR_SERV1 = 0XFFF;  
+  PWMMR0 = 0XFFFFFF;
+  PWMMR_SERV1 = 0XFFF;
   /* commit above change        */
   PWMLER = PWMLER_LATCH0 | PWMLER_LATCH_SERV1;
   /* interrupt on PWMMR5 match  */
@@ -46,7 +46,7 @@ void actuators_init ( void ) {
   PWMPR = PWM_PRESCALER-1;
 
   /* enable PWM timer counter and PWM mode  */
-  PWMTCR = PWMTCR_COUNTER_ENABLE | PWMTCR_PWM_ENABLE; 
+  PWMTCR = PWMTCR_COUNTER_ENABLE | PWMTCR_PWM_ENABLE;
   /* Load failsafe values              */
    /* Set all servos at their midpoints */
   /* compulsory for unaffected servos  */
@@ -102,5 +102,5 @@ void PWM_ISR ( void ) {
   /* clear the interrupt */
   PWMIR = PWMIR_MRI_SERV1;
   VICVectAddr = 0x00000000;
-  ISR_EXIT();  
+  ISR_EXIT();
 }

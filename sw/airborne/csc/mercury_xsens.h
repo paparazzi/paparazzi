@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008 Joby Energy
- *  
+ *
  *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -29,7 +29,7 @@
 
 #define XSENS_COUNT 1
 
-extern uint8_t xsens_mode[XSENS_COUNT]; // Receiver status 
+extern uint8_t xsens_mode[XSENS_COUNT]; // Receiver status
 extern volatile uint8_t xsens_msg_received[XSENS_COUNT];
 
 extern float xsens_phi[XSENS_COUNT];
@@ -100,4 +100,4 @@ void xsens_parse_msg(uint8_t xsens_id);
 void xsens_event_task(void);
 void xsens_periodic_task(void);
 
-#endif 
+#endif

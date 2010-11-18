@@ -67,13 +67,13 @@ static void can1_hw_init(void)
   AFMR = 0x00000002;
 
   // Go into Reset mode
-  C1MOD =  1; 
+  C1MOD =  1;
   // Clear Status register (including error counters)
   C1GSR = 0;
 
   // Set bit timing
   C1BTR = CAN1_BTR;
-  
+
   // Disable All Interrupts
   C1IER = 0;
 
@@ -81,9 +81,9 @@ static void can1_hw_init(void)
 #ifdef  CAN1_ERR_VIC_SLOT
   C1IER =  (1<<0) | /* RIE */
            (1<<2) | /* EIE */
-           (1<<6) | /* ALIE */ 
-           (1<<7) | /* BEIE */ 
-           (1<<7)   /* BEIE */ 
+           (1<<6) | /* ALIE */
+           (1<<7) | /* BEIE */
+           (1<<7)   /* BEIE */
     ;
 #endif
 
@@ -105,7 +105,7 @@ void csc_can1_init(void(* callback)(struct CscCanMsg *msg))
   VICIntSelect &= ~VIC_BIT(VIC_CAN);                  // VIC_CAN selected as IRQ
   VICIntEnable = VIC_BIT(VIC_CAN);                    // VIC_CAN interrupt enabled
   _VIC_CNTL(CAN1_ERR_VIC_SLOT) = VIC_ENABLE | VIC_CAN; //
-  _VIC_ADDR(CAN1_ERR_VIC_SLOT) = (uint32_t)CAN1_Err_ISR; 
+  _VIC_ADDR(CAN1_ERR_VIC_SLOT) = (uint32_t)CAN1_Err_ISR;
 #endif
 
   // Set bit 18
@@ -148,25 +148,25 @@ void csc_can1_send(struct CscCanMsg* msg) {
     return;
   }
   //  LED_OFF(2);
-  
+
   // Write DLC, RTR and FF
   C1TFI1 = (msg->frame &  0xC00F0000L);
   // Write CAN ID
   C1TID1 = msg->id;
-  // Write first 4 data bytes 
+  // Write first 4 data bytes
   C1TDA1 = msg->dat_a;
-  // Write second 4 data bytes 
+  // Write second 4 data bytes
   C1TDB1 = msg->dat_b;
   // Write self reception request
   //  C1CMR = 0x30;
   // write transmission request
   C1CMR = 0x21;
-  
+
 }
 
 void CAN1_Rx_ISR ( void ) {
  ISR_ENTRY();
- 
+
  can1_rx_msg.id = C1RID;
  if (BOARDID_OF_CANMSG_ID(can1_rx_msg.id) == CSC_BOARD_ID) {
    can1_rx_msg.frame  = C1RFS;
@@ -175,7 +175,7 @@ void CAN1_Rx_ISR ( void ) {
    can1_msg_received = TRUE;
     if (! msg_queue_full(&can1_rx_queue)) {
       msg_enqueue(&can1_rx_queue, &can1_rx_msg);
-   } 
+   }
   }
 
 

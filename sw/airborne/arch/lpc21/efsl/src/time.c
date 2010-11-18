@@ -41,11 +41,11 @@ euint16 fs_makeDate(void)
 #else
 	euint8 m,d;
 	euint16 y;
-	
+
 	y = time_getYear()-1980;
 	m = time_getMonth();
 	d = time_getDay();
-	
+
 	return(
 		(y>127?127<<9:(y&0x3F)<<9)   |
 		((m==0||m>12)?1:(m&0xF)<<5)  |
@@ -61,11 +61,11 @@ euint16 fs_makeTime(void)
 	return(0);
 #else
 	euint8 s,m,h;
-	
+
 	s = time_getSecond();
 	m = time_getMinute();
 	h = time_getHour();
-	
+
 	return(
 		(h>23?0:(h&0x1F)<<11) |
 		(m>59?0:(m&0x3F)<<5)  |

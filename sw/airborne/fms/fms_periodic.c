@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -45,7 +45,7 @@ struct FmsPeriodic {
 
 
 int fms_periodic_init(void(*periodic_handler)(int) ) {
-  
+
   pid_t my_pid = fork();
   if (my_pid == -1) {
     TRACE(TRACE_ERROR,"fms_periodic : unable to fork : %s (%d)\n", strerror(errno), errno);
@@ -56,14 +56,14 @@ int fms_periodic_init(void(*periodic_handler)(int) ) {
     fms_periodic_run();
   }
   /* succesful fork parent process */
-  
+
   /* install signal handler */
   struct sigaction my_sigaction = {.sa_handler = periodic_handler };
   if (sigaction(SIGUSR1, &my_sigaction, NULL)) {
     TRACE(TRACE_ERROR,"fms_periodic : unable to install signal handler : %s (%d)\n", strerror(errno), errno);
     return -1;
   }
-  
+
   /* set main process priority */
   struct sched_param param;
   param.sched_priority = 49;
@@ -104,7 +104,7 @@ static void fms_periodic_run(void) {
     clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &periodic_next, NULL);
     kill(father_pid, SIGUSR1);
   }
-  
+
   _exit(EXIT_SUCCESS);
-  
+
 }

@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2007-2009  ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -58,8 +58,8 @@ static void integrate( uint8_t wp_target ) {
   int i = 0;
   while (bomb_z > 0. && i < MAX_STEPS) {
     /* relative wind experienced by the ball */
-    float airx = -bomb_vx + wind_east;     
-    float airy = -bomb_vy + wind_north;     
+    float airx = -bomb_vx + wind_east;
+    float airy = -bomb_vy + wind_north;
     float airz = -bomb_vz;
 
     /* alpha / m * air */
@@ -129,7 +129,7 @@ unit_t bomb_compute_approach( uint8_t wp_target, uint8_t wp_start, float bomb_ra
   waypoints[WP_BASELEG].y = waypoints[wp_start].y - x1 * bomb_radius;
   waypoints[WP_BASELEG].a = waypoints[wp_start].a;
   bomb_start_qdr = M_PI - atan2(-y_1, -x1);
-  if (bomb_radius < 0) 
+  if (bomb_radius < 0)
     bomb_start_qdr += M_PI;
 
   bomb_vx = x1 * airspeed + wind_east;

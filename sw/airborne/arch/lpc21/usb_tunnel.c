@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009  Martin Mueller
  *
  * This file is part of paparazzi.
@@ -18,14 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
 /** \file usb_tunnel.c
  *  \brief USB tunnel application
  *
- *   This creates a USB serial port that connects to UART0 or UART1 
+ *   This creates a USB serial port that connects to UART0 or UART1
  * port of the LPC processor. This enables you to configure the gps
  * receiver or the modem without removing it.
  */
@@ -42,10 +42,10 @@
 /* minimum LED blink on time 10Hz = 100ms */
 #define BLINK_MIN 10
 
-int main( void ) {    
+int main( void ) {
   unsigned char inc;
   unsigned int rx_time=0, tx_time=0;
-  
+
   hw_init();
   sys_time_init();
   led_init();
@@ -60,11 +60,11 @@ int main( void ) {
 #error no serial port defined
 #endif
 #endif
-    
+
 #ifdef USE_USB_SERIAL
   VCOM_init();
 #endif
-    
+
   int_enable();
 
   LED_ON(3);
@@ -104,7 +104,7 @@ int main( void ) {
     }
   }
 #endif
-  
+
   return 0;
 }
 

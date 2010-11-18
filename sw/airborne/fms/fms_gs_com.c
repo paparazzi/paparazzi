@@ -23,15 +23,15 @@ uint8_t telemetry_mode_Main_DefaultChannel;
 static void on_datalink_event(int fd, short event __attribute__((unused)), void *arg);
 static void on_datalink_message(void);
 
-uint8_t fms_gs_com_init(const char* gs_host, uint16_t gs_port, 
+uint8_t fms_gs_com_init(const char* gs_host, uint16_t gs_port,
 			       uint16_t datalink_port, uint8_t broadcast) {
 
   fms_gs_com.network = network_new(gs_host, gs_port, datalink_port, broadcast);
   fms_gs_com.udp_transport = udp_transport_new(fms_gs_com.network);
-  event_set(&fms_gs_com.datalink_event, fms_gs_com.network->socket_in, EV_READ | EV_PERSIST, 
+  event_set(&fms_gs_com.datalink_event, fms_gs_com.network->socket_in, EV_READ | EV_PERSIST,
 	    on_datalink_event, fms_gs_com.udp_transport);
   event_add(&fms_gs_com.datalink_event, NULL);
-  
+
   return 0;
 }
 
@@ -57,13 +57,13 @@ static void on_datalink_event(int fd, short event __attribute__((unused)), void 
     }
     i++;
   }
-  
+
 }
 
 static void on_datalink_message(void) {
 
   struct udp_transport *tp = fms_gs_com.udp_transport->impl;
-  uint8_t msg_id = tp->udp_dl_payload[1]; 
+  uint8_t msg_id = tp->udp_dl_payload[1];
 
   switch (msg_id) {
   case  DL_PING:
