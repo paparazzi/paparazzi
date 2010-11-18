@@ -224,7 +224,7 @@ ap.CFLAGS += -DGPS -DGPS_LED=2 -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B
 
 ap.srcs += gps_ubx.c gps.c
 
-ap.CFLAGS += -DINFRARED
+ap.CFLAGS += -DUSE_INFRARED
 # -DALT_KALMAN
 ap.srcs += infrared.c estimator.c
 

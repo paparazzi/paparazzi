@@ -217,7 +217,7 @@ ap.srcs += gps_ubx.c gps.c latlong.c
 ap.CFLAGS += -DADC -DUSE_AD1 -DUSE_AD1_5 -DUSE_AD1_6 -DUSE_AD1_7
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
-ap.CFLAGS += -DINFRARED
+ap.CFLAGS += -DUSE_INFRARED
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM

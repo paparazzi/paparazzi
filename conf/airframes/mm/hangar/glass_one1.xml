@@ -234,7 +234,7 @@ ap.CFLAGS += -DGPS_BAUD=38400
 
 ap.srcs += gps_ubx.c gps.c
 
-ap.CFLAGS += -DINFRARED
+ap.CFLAGS += -DUSE_INFRARED
 ap.srcs += infrared.c estimator.c
 # -DALT_KALMAN
 

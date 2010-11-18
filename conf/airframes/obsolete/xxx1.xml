@@ -237,7 +237,7 @@ ap.srcs += $(SRC_ARCH)/adc_hw.c
 ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400 -DGPS_LED=2
 ap.srcs += gps_ubx.c gps.c latlong.c
 
-ap.CFLAGS += -DINFRARED -DALT_KALMAN -DIR_360
+ap.CFLAGS += -DUSE_INFRARED -DALT_KALMAN -DIR_360
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM

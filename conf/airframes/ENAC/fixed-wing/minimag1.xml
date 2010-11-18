@@ -203,7 +203,7 @@ ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B19200
 
 ap.srcs += gps_ubx.c gps.c latlong.c
 
-ap.CFLAGS += -DINFRARED -DALT_KALMAN
+ap.CFLAGS += -DUSE_INFRARED -DALT_KALMAN
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM

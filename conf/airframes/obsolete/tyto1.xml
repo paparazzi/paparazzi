@@ -233,7 +233,7 @@ ap.CFLAGS += -DGPS_CONFIGURE -DGPS_BAUD=38400
 # -DGPS_LED=2
 ap.srcs += gps_ubx.c gps.c latlong.c
 
-ap.CFLAGS += -DINFRARED -DALT_KALMAN
+ap.CFLAGS += -DUSE_INFRARED -DALT_KALMAN
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
