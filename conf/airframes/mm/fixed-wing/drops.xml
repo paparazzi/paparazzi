@@ -1,14 +1,36 @@
-<!DOCTYPE airframe SYSTEM "airframe.dtd">
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
 <!-- Twinstar II, 2x Jeti 12 advance
      Tiny 2.11 board (http://paparazzi.enac.fr/wiki/index.php/Tiny_v2)
-     PerkinElmer TPS334 IR Sensors
      Tilted infrared sensor
      XBee modem
-     K66, LEA 5H
+     R6107SP, LEA 5H
 -->
 
-<airframe name="Drops K66">
+<airframe name="Drops">
+
+  <firmware name="fixedwing">
+    <target name="sim" 			board="pc"/>
+    <target name="ap" 			board="tiny_2.1">
+      <define name="AGR_CLIMB"/>
+      <define name="LOITER_TRIM"/>
+      <define name="ALT_KALMAN"/>
+      <define name="WIND_INFO"/>
+      <define name="WIND_INFO_RET"/>
+    </target>
+
+    <subsystem name="radio_control"     type="ppm"/>
+    <subsystem name="telemetry" 	type="xbee_api"/>
+    <subsystem name="control_adaptive"/>
+    <subsystem name="attitude" 		type="infrared"/>
+    <subsystem name="gps" 		type="ublox_lea5h"/>
+    <subsystem name="navigation"/>
+    <subsystem name="navigation_bomb"/>
+
+    <subsystem name="gyro" type="roll">
+      <param name="ADC_GYRO_ROLL" value="ADC_3"/>
+    </subsystem>
+  </firmware>
 
 <!-- commands section -->
   <servos>
@@ -70,7 +92,7 @@
     <define name="IR_TOP" value="ADC_0"/>
     <define name="IR_NB_SAMPLES" value="16"/>
     <define name="GYRO_ROLL" value="ADC_3"/>
-    <define name="GYRO_NB_SAMPLES" value="32"/> 
+    <!--define name="GYRO_NB_SAMPLES" value="32"/--> 
   </section>
 
   <section name="INFRARED" prefix="IR_">
@@ -120,8 +142,6 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
-<!--    <define name="XBEE_INIT" value="&quot;ATPL2\rATRN1\rATTT80\r&quot;"/> -->
-<!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="ALT_KALMAN_ENABLED" value="FALSE"/>
 
     <define name="TRIGGER_DELAY" value="1."/>
@@ -154,7 +174,7 @@
     <define name="AUTO_PITCH_MAX_PITCH" value="0.35"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="-0.35"/>
 
-   <define name="THROTTLE_SLEW" value="0.1"/>
+    <define name="THROTTLE_SLEW" value="0.1"/>
 
   </section>
 
@@ -168,14 +188,19 @@
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
     <define name="PITCH_PGAIN" value="-8898.3046875"/>
     <define name="PITCH_DGAIN" value="-1694.91503906"/>
+    <define name="PITCH_IGAIN" value="0"/>
 
     <define name="ELEVATOR_OF_ROLL" value="1520.73706055"/>
 
     <define name="ROLL_ATTITUDE_GAIN" value="-5847.45800781"/>
     <define name="ROLL_RATE_GAIN" value="-2923.72900391"/>
-
-    <define name="ROLL_KFF" value="-500"/>
     <define name="ROLL_IGAIN" value="-5000"/>
+
+    <define name="ROLL_KFFA" value="500"/>
+    <define name="ROLL_KFFD" value="0"/>
+
+    <define name="PITCH_KFFA" value="0"/>
+    <define name="PITCH_KFFD" value="0"/>
   </section>
 
   <section name="NAV">
@@ -209,13 +234,9 @@
     	<define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
     	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
 	<define name="HOME_RADIUS" value="100" unit="m"/>
-</section>
-
- <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="XBEE"/>
-    <define name="DEVICE_ADDRESS" value="...."/>
   </section>
- <makefile>
+
+<!--makefile>
 CONFIG = \"tiny_2_1.h\"
 
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
@@ -280,5 +301,7 @@ sim.srcs += nav_line.c nav_survey_rectangle.c
 
 sim.srcs += bomb.c
 
-  </makefile>
+</makefile-->
+
 </airframe>
+

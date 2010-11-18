@@ -34,7 +34,7 @@
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="attitude"         type="infrared"/>
-    <subsystem name="gps"              type="ublox_lea5h"/>
+    <subsystem name="gps"              type="ublox_lea4p"/>
     <!-- Nav -->
     <subsystem name="navigation"/>
     <!-- Interfaces -->
@@ -57,7 +57,7 @@
   <!-- commands section -->
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1500" max="1100"/>
+    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1529" max="1100"/>
     <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1500" max="1900"/>
   </servos>
 

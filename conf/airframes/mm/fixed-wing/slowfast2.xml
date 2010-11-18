@@ -9,6 +9,38 @@
 
 <airframe name="SlowFast">
 
+  <firmware name="fixedwing">
+    <target name="sim" 			board="pc"/>
+    <target name="ap" 			board="tiny_2.1">
+      <define name="AGR_CLIMB"/>
+      <define name="LOITER_TRIM"/>
+      <define name="ALT_KALMAN"/>
+      <define name="WIND_INFO"/>
+      <define name="WIND_INFO_RET"/>
+      <define name="USE_I2C0"/>
+    </target>
+
+    <subsystem name="radio_control"     type="ppm"/>
+    <subsystem name="telemetry" 	type="xbee_api"/>
+    <subsystem name="control"/>
+    <subsystem name="attitude" 		type="infrared"/>
+    <subsystem name="gps" 		type="ublox_lea5h"/>
+    <subsystem name="navigation"/>
+
+    <subsystem name="i2c"/>
+    <subsystem name="gyro" type="roll">
+      <param name="ADC_GYRO_ROLL" value="ADC_3"/>
+    </subsystem>
+  </firmware>
+
+  <!-- modules -->
+  <modules>
+    <load name="airspeed_ets.xml">
+      <!--param name="USE_AIRSPEED" value="1"/-->
+      <param name="SENSOR_SYNC_SEND" value="1"/>
+    </load>
+  </modules>
+
 <!-- commands section -->
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
@@ -138,6 +170,16 @@
 
    <define name="THROTTLE_SLEW" value="0.1"/>
 
+    <!-- airspeed control -->
+    <define name="AUTO_AIRSPEED_SETPOINT" value="15."/>
+    <define name="AUTO_AIRSPEED_PGAIN" value="0.05"/>
+    <define name="AUTO_AIRSPEED_IGAIN" value="0.01"/>
+    <define name="AUTO_GROUNDSPEED_SETPOINT" value="15"/>
+    <define name="AUTO_GROUNDSPEED_PGAIN" value="1."/>
+    <define name="AUTO_GROUNDSPEED_IGAIN" value="0."/>
+    <define name="AIRSPEED_MAX" value="45"/>
+    <define name="AIRSPEED_MIN" value="14"/>
+
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
@@ -189,11 +231,6 @@
     <define name="ROLL_RATE_PGAIN" value="1000.0"/>
     <define name="ROLL_RATE_IGAIN" value="0.0"/>
     <define name="ROLL_RATE_DGAIN" value="0.0"/>
-  </section>
-
- <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="XBEE"/>
-    <define name="DEVICE_ADDRESS" value="...."/>
   </section>
 
 <!--
@@ -253,17 +290,6 @@ sim.srcs += nav_line.c nav_survey_rectangle.c
 
   </makefile>
 -->
-  <firmware name="fixedwing">
-    <target name="sim" 			board="pc"/>
-    <target name="ap" 			board="tiny_2.1"/>
-
-    <subsystem name="radio_control"     type="ppm"/>
-    <subsystem name="telemetry" 	type="xbee_api"/>
-    <subsystem name="control"/>
-    <subsystem name="attitude" 		type="infrared"/>
-    <subsystem name="gps" 		type="ublox_lea5h"/>
-    <subsystem name="navigation"/>
-  </firmware>
-
 
 </airframe>
+

@@ -6,7 +6,7 @@
      LEA 5H
 -->
 
-<airframe name="Funjet mm 1">
+<airframe name="Funjet mm 1 arduimu">
 
   <firmware name="fixedwing">
     <target name="sim"                 board="pc">
@@ -40,7 +40,9 @@
     <subsystem name="gps"              type="ublox_lea5h">
       <param name="GPS_BAUD"           value="B38400"/>
     </subsystem>
+    <!-- Nav -->
     <subsystem name="navigation"/>
+    <!-- Interfaces -->
     <subsystem name="i2c"/>
   </firmware>
 
@@ -60,8 +62,8 @@
   <!-- commands section -->
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1442" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1549" max="1900"/>
+    <servo name="AILEVON_LEFT"  no="2" min="1900" neutral="1479" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="6" min="1100" neutral="1496" max="1900"/>
     <servo name="HATCH"         no="7" min="1070" neutral="1070" max="2200"/>
   </servos>
 
