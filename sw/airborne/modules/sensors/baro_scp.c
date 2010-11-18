@@ -43,7 +43,7 @@ void baro_scp_periodic(void) {
 /* SSPCR0 settings */
 #define SSP_DDS  0x07 << 0  /* data size         : 8 bits        */
 #define SSP_FRF  0x00 << 4  /* frame format      : SPI           */
-#define SSP_CPOL 0x00 << 6  /* clock polarity    : data captured on first clock transition */  
+#define SSP_CPOL 0x00 << 6  /* clock polarity    : data captured on first clock transition */
 #define SSP_CPHA 0x00 << 7  /* clock phase       : SCK idles low */
 #define SSP_SCR  0x0F << 8  /* serial clock rate : divide by 16  */
 
@@ -64,7 +64,7 @@ void baro_scp_periodic(void) {
 void baro_scp_init( void ) {
   /* setup pins for SSP (SCK, MISO, MOSI) */
   PINSEL1 |= 2 << 2 | 2 << 4 | 2 << 6;
-  
+
   /* setup SSP */
   SSPCR0 = SSP_DDS | SSP_FRF | SSP_CPOL | SSP_CPHA | SSP_SCR;
   SSPCR1 = SSP_LBM | SSP_MS | SSP_SOD;
@@ -75,25 +75,25 @@ void baro_scp_init( void ) {
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   // SPI1 selected as IRQ
   VICIntEnable = VIC_BIT(VIC_SPI1);     // SPI1 interrupt enabled
   VICVectCntl7 = VIC_ENABLE | VIC_SPI1;
-  VICVectAddr7 = (uint32_t)SPI1_ISR;    // address of the ISR 
-  
+  VICVectAddr7 = (uint32_t)SPI1_ISR;    // address of the ISR
+
   /* configure SS pin */
   SetBit(SS_IODIR, SS_PIN); /* pin is output  */
   ScpUnselect();            /* pin idles high */
 
   /* configure DRDY pin */
-  /* connected pin to EXINT */ 
+  /* connected pin to EXINT */
   SPI1_DRDY_PINSEL |= SPI1_DRDY_PINSEL_VAL << SPI1_DRDY_PINSEL_BIT;
   SetBit(EXTMODE, SPI1_DRDY_EINT); /* EINT is edge trigered */
   SetBit(EXTPOLAR,SPI1_DRDY_EINT); /* EINT is trigered on rising edge */
   SetBit(EXTINT,SPI1_DRDY_EINT);   /* clear pending EINT */
-  
+
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT( SPI1_DRDY_VIC_IT );  /* select EINT as IRQ source */
   VICIntEnable = VIC_BIT( SPI1_DRDY_VIC_IT );    /* enable it */
   VICVectCntl11 = VIC_ENABLE | SPI1_DRDY_VIC_IT;
-  VICVectAddr11 = (uint32_t)EXTINT_ISR;         // address of the ISR 
-  
+  VICVectAddr11 = (uint32_t)EXTINT_ISR;         // address of the ISR
+
   baro_scp_status = STA_UNINIT;
 }
 
@@ -107,7 +107,7 @@ void SPI1_ISR(void) {
     foo1=foo2;
   }
   else if (baro_scp_status == STA_IDLE) {
-  
+
     uint8_t foo0 = SSPDR;
     baro_scp_temperature = SSPDR<<8;
     baro_scp_temperature += SSPDR;
@@ -161,7 +161,7 @@ static void baro_scp_read(void) {
   uint8_t cmd0 = 0x21 << 2;
   uint8_t cmd1 = 0x1F << 2;
   uint8_t cmd2 = 0x20 << 2;
-  ScpSelect(); 
+  ScpSelect();
   SSPDR = cmd0;
   SSPDR = 0;
   SSPDR = 0;
@@ -181,4 +181,3 @@ void baro_scp_event( void ) {
     baro_scp_available = FALSE;
   }
 }
-

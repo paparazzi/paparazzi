@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.  
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -42,25 +42,25 @@ extern volatile uint8_t spi_rx_idx;
   SpiTransmit();      /* fill fifo */                                   \
 }
 
-#define SpiTransmit() {						        \
-    while (spi_tx_idx < spi_buffer_length	                 	\
-	   && bit_is_set(SSPSR, TNF)) {					\
-      SpiSend(spi_buffer_output[spi_tx_idx]);	                        \
-      spi_tx_idx++;						        \
-    }			                                                \
-    if (spi_tx_idx == spi_buffer_length)	        		\
+#define SpiTransmit() {                             \
+    while (spi_tx_idx < spi_buffer_length                       \
+       && bit_is_set(SSPSR, TNF)) {					\
+      SpiSend(spi_buffer_output[spi_tx_idx]);                           \
+      spi_tx_idx++;                             \
+    }                                                           \
+    if (spi_tx_idx == spi_buffer_length)                    \
       SpiDisableTxi();                                                  \
 }
 
-#define SpiReceive() {		         				\
+#define SpiReceive() {                              \
     while (bit_is_set(SSPSR, RNE)) {					\
       if (spi_rx_idx < spi_buffer_length) {                             \
           SpiRead(spi_buffer_input[spi_rx_idx])                         \
-          spi_rx_idx++;						        \
+          spi_rx_idx++;                             \
       }                                                                 \
       else {                                                            \
          uint8_t foo;                                                   \
-	 SpiRead(foo);                                                  \
+     SpiRead(foo);                                                  \
       }                                                                 \
     }									\
   }
@@ -110,9 +110,9 @@ extern volatile uint8_t spi_rx_idx;
   }
 
 #ifdef SPI_SLAVE
-#define SpiStart() {						      \
-    SpiEnable();						      \
-    SpiInitBuf();						      \
+#define SpiStart() {                              \
+    SpiEnable();                              \
+    SpiInitBuf();                             \
     SpiEnableTxi();     /* enable tx fifo half empty interrupt */     \
   }
 
@@ -135,9 +135,9 @@ extern volatile uint8_t spi_rx_idx;
    SpiEnableTxi();     /* enable tx fifo half empty interrupt */        \
 }
 
-/* 
+/*
  * Slave0 select : P0.20  PINSEL1 00 << 8
- * Slave1 select : P1.20  
+ * Slave1 select : P1.20
  *
  */
 
