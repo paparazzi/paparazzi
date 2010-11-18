@@ -27,9 +27,11 @@
 #include <unistd.h>
 #include <errno.h>
 #include <assert.h>
+
+#ifndef __APPLE__
 #include <sys/soundcard.h>
 #include <sys/ioctl.h>
-
+#endif
 
 #include <caml/mlvalues.h>
 #include <caml/fail.h>
@@ -71,6 +73,7 @@ static int process_buffer(short *buf, int len)
 value ml_init_gen_hdlc(value device) {
   /** From multimon, gen.c:output_sound() */
 
+#ifndef __APPLE__
   char *ifname=String_val(device);
   int sample_rate = DEFAULT_SAMPLE_RATE;
 
@@ -159,12 +162,16 @@ value ml_init_gen_hdlc(value device) {
   idx_start = idx_end = 0;
 
   return Val_int(fd);
+#else
+  failwith("Not supported under OSX");  
+#endif
+
 }
 
 
 value ml_init_dec_hdlc(value dev) {
   char *ifname = String_val(dev);
-
+#ifndef __APPLE__
   if ((fd = open(ifname, O_RDONLY)) < 0) {
     caml_failwith("Hdlc.init_dec: open failed");
   }
@@ -198,10 +205,15 @@ value ml_init_dec_hdlc(value dev) {
   afsk12_init(&dem_st);
   dem_st.dem_par = &demod_afsk1200;
   return Val_int(fd);
+#else
+  failwith("Not supported under OSX");  
+#endif
+
 }
 
 
 value ml_gen_hdlc(value val_data) {
+#ifndef __APPLE__
   /** Handling the data input */
   int data_len = string_length(val_data);
   if (data_len + 16 > sizeof(params.p.hdlc.pkt))
@@ -235,11 +247,16 @@ value ml_gen_hdlc(value val_data) {
   }
 
   return Val_unit;
+#else
+  failwith("Not supported under OSX");  
+#endif
+
 }
 
 
 /* max ospace = 8192 = 4096 samples = 4096/22050 seconds = 0.18 */
 value ml_write_to_dsp(value _) {
+#ifndef __APPLE__
   audio_buf_info bi;
   ioctl(fd, SNDCTL_DSP_GETOSPACE, &bi);
   int ospace = bi.bytes;
@@ -265,7 +282,11 @@ value ml_write_to_dsp(value _) {
 		  
   assert(num == n*sizeof(short));
 
-  return Val_unit;
+  return Val_unit
+#else
+  failwith("Not supported under OSX");  
+#endif
+;
 }
 
 static union {
@@ -277,6 +298,7 @@ static unsigned int fbuf_cnt = 0;
 
 
 value ml_get_hdlc(value unit) {
+#ifndef __APPLE__
   unsigned int overlap = demod_afsk1200.overlap;
   short *sp;
   int i = read(fd, sp = b.s, sizeof(b.s));
@@ -305,4 +327,8 @@ value ml_get_hdlc(value unit) {
   for(i = 0; i < hdlc_data_received_idx; i++)
     Byte(result, i) = hdlc_data_received[i];
   CAMLreturn(result);
+#else
+  failwith("Not supported under OSX");  
+#endif
+
 }
