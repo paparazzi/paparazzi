@@ -18,7 +18,22 @@ OD		= objdump
 RM		= rm
 TAR		= tar
 
-CFLAGS  = -Wall -g
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+  FPIC=-fPIC
+else
+  FPIC=
+endif
+
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+  INCLUDES=-I/opt/local/include/
+  LIBRARYS=-L/opt/local/lib	
+endif
+
+
+
+CFLAGS  = -Wall -g $(FPIC) $(INCLUDES) $(LIBRARYS)
 
 SOURCES =	lpc21iap.c elf.c lpcusb.c
 
