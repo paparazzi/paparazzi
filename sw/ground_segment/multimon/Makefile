@@ -6,17 +6,18 @@ MACHINE := $(shell uname -m)
 
 CFLAGS		=-Wall -Wstrict-prototypes -I/usr/X11R6/include -I `ocamlc -where`
 ifeq ($(DEBUG),y)
-CFLAGS		+=-g -O 
+  CFLAGS		+=-g -O 
 else
-CFLAGS		+=-O3 
+  CFLAGS		+=-O3 
 endif 		
 
-ifeq ($(MACHINE),'i686')
-CFLAGS		+= -march=i486 -falign-loops=2 -falign-jumps=2 \
-	  	-falign-functions=2 -DARCH_I386
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+  CFLAGS          += -fPIC
 else
-CFLAGS		+= -fPIC
+  CFLAGS          += -march=i486 -falign-loops=2 -falign-jumps=2 -falign-functions=2 -DARCH_I386
 endif
+
 LDFLAGSX	=-lX11 -L/usr/X11R6/lib
 
 
@@ -38,8 +39,26 @@ STRIP		=strip
 MKDIR		=mkdir
 OCAMLC	 	=ocamlc
 
-# all:		$(BINDIR) $(BINDIR)/multimon $(BINDIR)/gen
-all:		$(BINDIR)/multimon multimon.cma
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Linux")
+  OBJFILES=pprzlib.o hdlc.o demod_afsk12.o demodml.o costabi.o gen_hdlc.o ml_hdlc.o demod.cmo hdlc.cmo
+  ALLTARGETS=$(BINDIR)/multimon multimon.cma
+endif
+ifeq ("$(UNAME)","linux")
+  OBJFILES=pprzlib.o hdlc.o demod_afsk12.o demodml.o costabi.o gen_hdlc.o ml_hdlc.o demod.cmo hdlc.cmo
+  ALLTARGETS=$(BINDIR)/multimon multimon.cma
+endif
+ifeq ("$(UNAME)","Darwin")
+  OBJFILES=demodml.o ml_hdlc.o demod.cmo hdlc.cmo
+  ALLTARGETS=multimon.cma
+endif
+
+all:    $(ALLTARGETS) 
+
+multimon.cma:   $(OBJFILES)
+	@echo OLD $@
+	$(Q)ocamlmklib -o multimon $^
+
 
 $(BINDIR)/%.s:	%.c
 		$(CC) $(CFLAGS) -S -o $@ $<
@@ -79,9 +98,6 @@ $(BINDIR)/mkcostab:	$(BINDIR)/mkcostab.o
 costabi.c costabf.c:	$(BINDIR)/mkcostab
 			$(BINDIR)/mkcostab
 
-multimon.cma : pprzlib.o hdlc.o demod_afsk12.o demodml.o costabi.o gen_hdlc.o ml_hdlc.o demod.cmo hdlc.cmo
-	@echo OLD $@
-	$(Q)ocamlmklib -o multimon $^
 
 libtest: pprzlib.o demodml.c demod.ml test.ml
 	ocamlc -custom -o $@ pprzlib.o demodml.c -I +lablgtk2 unix.cma lablgtk.cma demod.ml test.ml
