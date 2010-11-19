@@ -23,7 +23,7 @@ GLIBINC=`pkg-config --cflags glib-2.0`
 
 LBITS := $(shell getconf LONG_BIT)
 ifeq ($(LBITS),64)
-  CFLAGS          += -fPIC
+  FPIC=-fPIC
 endif
 
 
