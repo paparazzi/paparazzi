@@ -188,8 +188,8 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_l_1.0">
-      <define name = "RADIO_CONTROL_MODE" value = "RADIO_CONTROL_AUX1"/>
-      <define name = "RADIO_KILL_SWITCH" value = "RADIO_CONTROL_GEAR"/>
+      <define name = "RADIO_CONTROL_MODE" value = "RADIO_AUX1"/>
+      <define name = "RADIO_KILL_SWITCH" value = "RADIO_GEAR"/>
       <define name = "HELI"/>
  <!--     <define name = "KILL_MOTORS" />--> 
  <!-- if we want a secondary spektrum reciever we need to set the board to be 
