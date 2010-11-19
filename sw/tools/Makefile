@@ -24,7 +24,7 @@ Q=@
 
 OCAML=ocaml
 OCAMLC=ocamlc
-INCLUDES=-I ../lib/ocaml -I +xml-light
+INCLUDES=-I ../lib/ocaml $(shell ocamlfind query -r -i-format xml-light)
 OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring)
 OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
 OCAMLLEX=ocamllex
@@ -48,7 +48,7 @@ gen_flight_plan.cmo : fp_proc.cmi
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ unix.cma str.cma ivy-ocaml.cma xml-light.cma lib-pprz.cma $<
 	@cat ../../pprz_src_test.sh > $@
-	@echo '$(OCAML) -I +xml-light $(OCAMLNETINCLUDES) -I $$PAPARAZZI_SRC/sw/lib/ocaml unix.cma str.cma ivy-ocaml.cma xml-light.cma $(OCAMLNETCMA) lib-pprz.cma $$PAPARAZZI_BIN/$< $$*' >> $@
+	@echo '$(OCAML) $(shell ocamlfind query -r -i-format xml-light) $(OCAMLNETINCLUDES) -I $$PAPARAZZI_SRC/sw/lib/ocaml unix.cma str.cma ivy-ocaml.cma xml-light.cma $(OCAMLNETCMA) lib-pprz.cma $$PAPARAZZI_BIN/$< $$*' >> $@
 	@chmod a+x $@
 
 %.cmo : %.ml ../lib/ocaml/lib-pprz.cma
