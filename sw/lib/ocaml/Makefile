@@ -23,8 +23,15 @@
 
 Q=@
 
-INCLUDES= -I +xml-light -I +pcre -I +netstring
-XINCLUDES= -I +lablgl -I +lablgtk2 -I +xml-light
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+  FPIC = -ccopt -fPIC   
+else
+  FPIC =
+endif
+
+INCLUDES=  $(shell ocamlfind query -r -i-format xml-light)  $(shell ocamlfind query -r -i-format netstring) $(shell ocamlfind query -r -i-format pcre)
+XINCLUDES= -I +lablgl $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light)
 OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
 OCAMLLEX=ocamllex
@@ -78,7 +85,7 @@ GTKCFLAGS := `pkg-config --cflags gtk+-2.0`
 
 %.o   : %.c
 	@echo OC $<
-	$(Q)$(OCAMLC) $(INCLUDES) -c $<
+	$(Q)$(OCAMLC) $(FPIC) $(INCLUDES) -c $<
 
 ml_gtk_drag.o : ml_gtk_drag.c
 	@echo OC $<
