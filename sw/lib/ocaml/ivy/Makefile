@@ -48,16 +48,12 @@ TKIVYCMI= $(TKIVY:.ml=.cmi)
 TKIVYCMX= $(TKIVY:.ml=.cmx)
 
 UNAME = $(shell uname -s)
-ifeq ("$(UNAME)","Linux")
-  LIBS = ivy-ocaml.cma ivy-ocaml.cmxa glibivy-ocaml.cma glibivy-ocaml.cmxa tkivy-ocaml.cma tkivy-ocaml.cmxa
-endif
-ifeq ("$(UNAME)","linux")
-  LIBS = ivy-ocaml.cma ivy-ocaml.cmxa glibivy-ocaml.cma glibivy-ocaml.cmxa tkivy-ocaml.cma tkivy-ocaml.cmxa
-endif
+
 ifeq ("$(UNAME)","Darwin")
   LIBRARYS = -L/opt/local/lib
-  LIBS = ivy-ocaml.cma ivy-ocaml.cmxa glibivy-ocaml.cma glibivy-ocaml.cmxa
 endif
+
+LIBS = ivy-ocaml.cma ivy-ocaml.cmxa glibivy-ocaml.cma glibivy-ocaml.cmxa
 
 all : $(LIBS)
 
