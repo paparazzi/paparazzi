@@ -21,6 +21,13 @@ CFLAGS=-Wall
 OCAMLINC=-I `ocamlc -where`
 GLIBINC=`pkg-config --cflags glib-2.0`
 
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+  CFLAGS          += -fPIC
+endif
+
+
+
 IVY = ivy.ml ivyLoop.ml
 
 IVYCMO= $(IVY:.ml=.cmo)
@@ -40,8 +47,17 @@ TKIVYCMO= $(TKIVY:.ml=.cmo)
 TKIVYCMI= $(TKIVY:.ml=.cmi)
 TKIVYCMX= $(TKIVY:.ml=.cmx)
 
-LIBS = ivy-ocaml.cma ivy-ocaml.cmxa glibivy-ocaml.cma glibivy-ocaml.cmxa
-# tkivy-ocaml.cma tkivy-ocaml.cmxa
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Linux")
+  LIBS = ivy-ocaml.cma ivy-ocaml.cmxa glibivy-ocaml.cma glibivy-ocaml.cmxa tkivy-ocaml.cma tkivy-ocaml.cmxa
+endif
+ifeq ("$(UNAME)","linux")
+  LIBS = ivy-ocaml.cma ivy-ocaml.cmxa glibivy-ocaml.cma glibivy-ocaml.cmxa tkivy-ocaml.cma tkivy-ocaml.cmxa
+endif
+ifeq ("$(UNAME)","Darwin")
+  LIBRARYS = -L/opt/local/lib
+  LIBS = ivy-ocaml.cma ivy-ocaml.cmxa glibivy-ocaml.cma glibivy-ocaml.cmxa
+endif
 
 all : $(LIBS)
 
@@ -51,7 +67,7 @@ deb :
 	cp debian/changelog.$(DISTRO) debian/changelog
 	dpkg-buildpackage -rfakeroot
 
-ivy : ivy-ocaml.cma ivy-ocaml.cmxa
+ivy : ivy-ocaml.cma ivy-ocaml.cmxa 
 glibivy : glibivy-ocaml.cma glibivy-ocaml.cmxa
 tkivy : tkivy-ocaml.cma tkivy-ocaml.cmxa
 
@@ -66,22 +82,22 @@ desinstall :
 	cd `ocamlc -where`; rm -f $(INST_FILES)
 
 ivy-ocaml.cma : $(IVYCMO) civy.o civyloop.o
-	ocamlmklib -o ivy-ocaml $^ -livy
+	ocamlmklib -o ivy-ocaml $^ $(LIBRARYS)  -livy
 
 ivy-ocaml.cmxa : $(IVYCMX) civy.o civyloop.o
-	ocamlmklib -o ivy-ocaml $^ -livy
+	ocamlmklib -o ivy-ocaml $^ $(LIBRARYS)  -livy
 
 glibivy-ocaml.cma : $(GLIBIVYCMO) civy.o cglibivy.o
-	ocamlmklib -o glibivy-ocaml $^ -lglibivy `pkg-config --libs glib-2.0` -lpcre
+	ocamlmklib -o glibivy-ocaml $^ $(LIBRARYS) -lglibivy  `pkg-config --libs glib-2.0` -lpcre
 
 glibivy-ocaml.cmxa : $(GLIBIVYCMX) civy.o cglibivy.o
-	ocamlmklib -o glibivy-ocaml $^ -lglibivy `pkg-config --libs glib-2.0` -lpcre
+	ocamlmklib -o glibivy-ocaml $^ $(LIBRARYS) -lglibivy `pkg-config --libs glib-2.0` -lpcre
 
 tkivy-ocaml.cma : $(TKIVYCMO) civy.o ctkivy.o
-	ocamlmklib -o tkivy-ocaml $^ -livy -ltclivy
+	ocamlmklib -o tkivy-ocaml $^ $(LIBRARYS) -livy -ltclivy
 
 tkivy-ocaml.cmxa : $(TKIVYCMX) civy.o ctkivy.o
-	ocamlmklib -o tkivy-ocaml $^ -livy -ltclivy
+	ocamlmklib -o tkivy-ocaml $^ $(LIBRARYS) -livy -ltclivy
 
 .SUFFIXES:
 .SUFFIXES: .ml .mli .mly .mll .cmi .cmo .cmx .c .o .out .opt
@@ -89,7 +105,8 @@ tkivy-ocaml.cmxa : $(TKIVYCMX) civy.o ctkivy.o
 .ml.cmo :
 	$(OCAMLC) $(OCAMLFLAGS) $(INCLUDES) -c $<
 .c.o :
-	$(CC) -Wall -c $(OCAMLINC) $(GLIBINC) $<
+    
+	$(CC) -Wall -c $(FPIC) -I /opt/local/include/  $(OCAMLINC) $(GLIBINC) $<
 .mli.cmi :
 	$(OCAMLMLI) $(OCAMLFLAGS) -c $<
 .ml.cmx :
