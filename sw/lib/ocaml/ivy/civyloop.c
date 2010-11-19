@@ -25,7 +25,7 @@ value ivy_mainLoop(value unit)
 void timer_cb(TimerId id, void *data, unsigned long delta)
 {
   value closure = *(value*)data;
-  callback(closure, Val_int((int) id));
+  callback(closure, Val_long((int) id));	
 }
 
 value ivy_timerRepeatafter(value nb_ticks,value delay, value closure_name)
@@ -58,13 +58,13 @@ value ivy_channelSetUp(value fd, value closure_name)
 
 value ivy_timerRemove(value t)
 {
-  TimerRemove((TimerId)Int_val(t));
+  TimerRemove((TimerId)Long_val(t));
   return Val_unit;
 }
 
 
 value ivy_channelClose(value ch)
 {
-  IvyChannelRemove((Channel)Int_val(ch));
+  IvyChannelRemove((Channel)Long_val(ch));
   return Val_unit;
 }

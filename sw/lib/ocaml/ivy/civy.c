@@ -54,29 +54,29 @@ void ClosureCallback(IvyClientPtr app, void *closure, int argc, char **argv)
   /* Copie de argv dans t avec ajout d'un pointeur nul a la fin */
   for(i=0; i < argc; i++) t[i] = argv[i];
   t[argc] = (char*)0L;
-  callback2(*(value*)closure, Val_int((int)app), copy_string_array((char const **)t));
+  callback2(*(value*)closure, Val_long(app), copy_string_array((char const **)t));
 }
 
 value ivy_bindMsg(value cb_name, value regexp)
 {
   value * closure = caml_named_value(String_val(cb_name));
   MsgRcvPtr id = IvyBindMsg(ClosureCallback, (void*)closure, String_val(regexp));
-  return Val_int((int)id);
+  return Val_long(id);
 }
 
 value ivy_unbindMsg(value id)
 {
-  IvyUnbindMsg((MsgRcvPtr)Int_val(id));
+  IvyUnbindMsg((MsgRcvPtr)Long_val(id));
   return Val_unit;
 }
 
 value ivy_name_of_client(value c)
 {
-  return copy_string(IvyGetApplicationName((IvyClientPtr)Int_val(c)));
+  return copy_string(IvyGetApplicationName((IvyClientPtr)Long_val(c)));
 }
 value ivy_host_of_client(value c)
 {
-  return copy_string(IvyGetApplicationHost((IvyClientPtr)Int_val(c)));
+  return copy_string(IvyGetApplicationHost((IvyClientPtr)Long_val(c)));	
 }
 
 void cb_delete_channel(void *delete_read)

@@ -38,6 +38,6 @@ value ivy_GtkchannelSetUp(value fd, value closure_name)
 
 value ivy_GtkchannelClose(value ch)
 {
-  IvyChannelRemove((Channel)Int_val(ch));
+  IvyChannelRemove((Channel)Long_val(ch));
   return Val_unit;
 }
