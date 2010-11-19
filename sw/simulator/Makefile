@@ -23,6 +23,13 @@
 # Quiet compilation
 Q=@
 
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+  FPIC = -ccopt -fPIC   
+else
+  FPIC =
+endif
+
 include ../../conf/Makefile.local
 
 SIMML = stdlib.ml data.ml flightModel.ml gps.ml
@@ -35,7 +42,7 @@ SIMSCMX=$(SIMSML:%.ml=%.cmx)
 
 OCAMLC = ocamlc -g
 OCAMLOPT=ocamlopt
-INCLUDES= -I +lablgtk2 -I ../lib/ocaml -I +xml-light
+INCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) -I ../lib/ocaml $(shell ocamlfind query -r -i-format xml-light)
 
 AIRBORNE = ../airborne
 VARINCLUDE=$(PAPARAZZI_HOME)/var/include
@@ -70,7 +77,7 @@ diffusion : stdlib.cmo diffusion.cmo
 
 %.o : %.c
 	@echo OC $<
-	$(Q)$(OCAMLC) -c $<
+	$(Q)$(OCAMLC) $(FPIC) -c $<
 
 %.cmx : %.ml
 	@echo OOC $<
