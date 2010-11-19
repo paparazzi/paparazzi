@@ -23,14 +23,22 @@
 # Quiet compilation
 Q=@
 
-OCAMLC=ocamlc
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+   FPIC=-fPIC
+   OCAMLCFLAGS=-thread -ccopt -fPIC
+else
+   FPIC=
+   OCAMLCFLAGS=-thread
+endif
+FPIC=-fPIC
 
-OCAMLCFLAGS=-thread
+OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
 OCAMLOPTFLAGS=-thread
 OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring)
 OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
-INCLUDES=-I +lablgtk2 -I ../../lib/ocaml -I +xml-light $(OCAMLNETINCLUDES)
+INCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) -I ../../lib/ocaml $(shell ocamlfind query -r -i-format xml-light) $(OCAMLNETINCLUDES)
 LIBS=$(OCAMLNETCMA) glibivy-ocaml.cma lablgtk.cma lablglade.cma lib-pprz.cma lablgnomecanvas.cma xlib-pprz.cma
 CMXA=$(LIBS:.cma=.cmxa)
 
@@ -87,7 +95,7 @@ clean:
 
 
 CC = gcc
-CFLAGS=-g -O2 -Wall `pkg-config gtk+-2.0 --cflags`
+CFLAGS=-g -O2 -Wall `pkg-config gtk+-2.0 --cflags` $(FPIC)
 LDFLAGS=`pkg-config gtk+-2.0 --libs` -s `pcre-config --libs` -lglibivy
 
 
