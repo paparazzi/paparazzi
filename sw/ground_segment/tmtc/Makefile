@@ -23,6 +23,14 @@
 # Quiet
 Q=@
 
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+  FPIC = -fPIC   
+else
+  FPIC =
+endif
+
+
 include ../../../conf/Makefile.local
 CONF = ../../../conf
 VAR = ../../../var
@@ -130,10 +138,10 @@ settings.cmo : ../cockpit/page_settings.cmi
 
 
 CC = gcc
-GLIB_CFLAGS  = -Wall  `pkg-config glib-2.0 --cflags`
-GLIB_LDFLAGS =  `pkg-config glib-2.0 --libs` -lglibivy -lpcre
-GTK_CFLAGS  = -Wall  `pkg-config gtk+-2.0 --cflags`
-GTK_LDFLAGS =  `pkg-config gtk+-2.0 --libs` -lglibivy -lpcre
+GLIB_CFLAGS  = -Wall  `pkg-config glib-2.0 --cflags` $(FPIC)
+GLIB_LDFLAGS =  `pkg-config glib-2.0 --libs` -lglibivy -lpcre $(FPIC)
+GTK_CFLAGS  = -Wall  `pkg-config gtk+-2.0 --cflags` $(FPIC)
+GTK_LDFLAGS =  `pkg-config gtk+-2.0 --libs` -lglibivy -lpcre $(FPIC)
 
 gpsd2ivy: gpsd2ivy.c
 	$(CC) $(GLIB_CFLAGS) -o $@ $< $(GLIB_LDFLAGS) -lgps
