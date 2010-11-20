@@ -4,7 +4,7 @@
   <header>
 #include "subsystems/navigation/nav_line.h"
 #include "datalink.h"
-#include "snav.h"
+#include "subsystems/navigation/snav.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>

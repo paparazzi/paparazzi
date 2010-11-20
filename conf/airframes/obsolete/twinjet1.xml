@@ -227,7 +227,7 @@ ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c
 ap.srcs += subsystems/navigation/nav_line.c
 # chemotaxis.c anemotaxis.c subsystems/navigation/discsurvey.c
 
-ap.srcs += subsystems/navigation/nav_survey_rectangle.c snav.c
+ap.srcs += subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/snav.c
 
 ap.srcs += light.c
 ap.CFLAGS += -DUSE_LIGHT
@@ -246,7 +246,7 @@ sim.CFLAGS += -DBOARD_CONFIG=\"classix.h\" -DAGR_CLIMB -DLOITER_TRIM
 #sim.srcs += traffic_info.c
 #sim.srcs += subsystems/navigation/nav_line.c chemotaxis.c anemotaxis.c subsystems/navigation/discsurvey.c bomb.c subsystems/navigation/nav_survey_rectangle.c
 
-sim.srcs += subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/nav_line.c light.c snav.c
+sim.srcs += subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/nav_line.c light.c subsystems/navigation/snav.c
 sim.CFLAGS += -DUSE_LIGHT
 
 sim.CFLAGS += -DUSE_ADC_GENERIC

@@ -256,7 +256,7 @@ ap.CFLAGS += -DUSE_HUMID_SHT -DDAT_PIN=30  -DSCK_PIN=4
 
 ap.srcs += bomb.c
 
-ap.srcs += snav.c
+ap.srcs += subsystems/navigation/snav.c
 
 # distance sensor
 ap.CFLAGS += -DUSE_ADC_3 -DUSE_ADC_GENERIC -DADC_CHANNEL_GENERIC1=ADC_3 -DADC_CHANNEL_GENERIC_NB_SAMPLES=16

@@ -263,7 +263,7 @@ ap.srcs += subsystems/navigation/nav_survey_rectangle.c
 
 ap.srcs += bomb.c
 
-ap.srcs += snav.c
+ap.srcs += subsystems/navigation/snav.c
 
 # Config for SITL simulation
 # include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile

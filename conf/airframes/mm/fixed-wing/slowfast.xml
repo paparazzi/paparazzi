@@ -264,7 +264,7 @@ ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c
 
 ap.srcs += subsystems/navigation/nav_line.c
 ap.srcs += subsystems/navigation/nav_survey_rectangle.c
-ap.srcs += snav.c
+ap.srcs += subsystems/navigation/snav.c
 
 ap.CFLAGS += -DGYRO -DADXRS150
 ap.srcs += gyro.c

@@ -3,7 +3,7 @@
 
 #include <math.h>
 #include "airframe.h"
-#include "snav.h"
+#include "subsystems/navigation/snav.h"
 #include "estimator.h"
 #include "subsystems/nav.h"
 #include "gps.h"

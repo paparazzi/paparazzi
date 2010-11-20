@@ -243,7 +243,7 @@ ap.srcs += subsystems/nav.c fw_h_ctl_a.c fw_v_ctl.c
 ap.srcs += subsystems/navigation/nav_line.c
 ap.srcs += subsystems/navigation/nav_survey_rectangle.c
 
-ap.srcs += snav.c
+ap.srcs += subsystems/navigation/snav.c
 
 # Config for SITL simulation
 sim.ARCHDIR = $(ARCHI)

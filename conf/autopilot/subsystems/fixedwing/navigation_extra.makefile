@@ -11,5 +11,5 @@ $(TARGET).srcs += $(SRC_FIXEDWING)/subsystems/navigation/nav_survey_rectangle.c 
 $(TARGET).srcs += $(SRC_FIXEDWING)/subsystems/navigation/nav_cube.c
 $(TARGET).srcs += $(SRC_FIXEDWING)/subsystems/navigation/discsurvey.c
 $(TARGET).srcs += $(SRC_FIXEDWING)/subsystems/navigation/OSAMNav.c
-$(TARGET).srcs += $(SRC_FIXEDWING)/snav.c
+$(TARGET).srcs += $(SRC_FIXEDWING)/subsystems/navigation/snav.c
 
