@@ -221,7 +221,7 @@ ap.CFLAGS += -DINFRARED
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
+ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c
 
 ap.srcs += subsystems/navigation/nav_line.c
 

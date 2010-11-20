@@ -289,7 +289,7 @@ ap.CFLAGS += -DINFRARED -DALT_KALMAN -DWIND_INFO -DWIND_INFO_RET -DSTRONG_WIND
 ap.srcs += infrared.c estimator.c gyro.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
+ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c
 
 ap.srcs += subsystems/navigation/nav_line.c subsystems/navigation/nav_survey_rectangle.c
 

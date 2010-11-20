@@ -203,7 +203,7 @@ ap.CFLAGS += -DINFRARED -DALT_KALMAN
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM -DWIND_INFO
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/nav_line.c
+ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/nav_line.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile

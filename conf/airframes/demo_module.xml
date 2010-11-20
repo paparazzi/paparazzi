@@ -197,7 +197,7 @@ ap.srcs += infrared.c estimator.c
 
 ########## Nav
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
+ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c
 ap.srcs += subsystems/navigation/nav_survey_rectangle.c
 ap.srcs += subsystems/navigation/nav_line.c
 

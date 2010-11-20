@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  *
  */
-/** \file nav.c
+/** \file subsystems/nav.c
  *  \brief Regroup functions to compute navigation
  *
  */

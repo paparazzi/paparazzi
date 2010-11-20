@@ -213,7 +213,7 @@ ap.srcs += infrared.c estimator.c
 # -DALT_KALMAN
 
 ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c latlong.c subsystems/navigation/nav_survey_rectangle.c
+ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c latlong.c subsystems/navigation/nav_survey_rectangle.c
 
 #ap.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM -DPOINT_CAM_PITCH
 #ap.srcs += point.c cam.c
