@@ -28,7 +28,7 @@
  */
 
 #include "airframe.h"
-#include "nav_cube.h"
+#include "subsystems/navigation/nav_cube.h"
 #include "nav.h"
 #include "flight_plan.h"
 

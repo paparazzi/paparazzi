@@ -1,4 +1,4 @@
-#include "nav_survey_rectangle.h"
+#include "subsystems/navigation/nav_survey_rectangle.h"
 #include "estimator.h"
 
 static struct point survey_from;

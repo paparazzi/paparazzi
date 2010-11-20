@@ -28,7 +28,7 @@
  */
 
 #include "airframe.h"
-#include "nav_line.h"
+#include "subsystems/navigation/nav_line.h"
 #include "nav.h"
 
 /** Status along the pattern */

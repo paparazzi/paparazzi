@@ -6,7 +6,7 @@
 #include "anemotaxis.h"
 #include "chemotaxis.h"
 #include "discsurvey.h"
-#include "nav_line.h"
+#include "subsystems/navigation/nav_line.h"
 #include "bomb.h"
 #include "datalink.h"
 </header>

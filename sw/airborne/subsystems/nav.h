@@ -35,7 +35,7 @@
 #include "std.h"
 #include "paparazzi.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
-#include "nav_survey_rectangle.h"
+#include "subsystems/navigation/nav_survey_rectangle.h"
 #include "subsystems/navigation/common_nav.h"
 
 #define G 9.806

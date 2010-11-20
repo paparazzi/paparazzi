@@ -1,4 +1,4 @@
-#include "nav_poles.h"
+#include "subsystems/navigation/nav_poles.h"
 #include "subsystems/navigation/common_nav.h"
 
 uint8_t nav_poles_count = 0;
