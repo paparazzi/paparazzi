@@ -1,4 +1,4 @@
-#include "OSAMNav.h"
+#include "subsystems/navigation/OSAMNav.h"
 
 /************** Flower Navigation **********************************************/
 
