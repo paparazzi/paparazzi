@@ -33,7 +33,7 @@
 //#include "booz/booz_radio_control.h"
 #include "subsystems/imu.h"
 #include "lisa/lisa_overo_link.h"
-#include "beth/bench_sensors.h"
+#include "bench_sensors.h"
 
 static inline void main_init( void );
 static inline void main_periodic( void );
