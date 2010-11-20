@@ -15,7 +15,7 @@
 #include "traffic_info.h"
 #include "flight_plan.h"
 #include "settings.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "ffirmwares/fixedwing/guidance/guidance_v.h"
 #include "infrared.h"

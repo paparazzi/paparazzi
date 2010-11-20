@@ -29,7 +29,7 @@
 
 #include "airframe.h"
 #include "subsystems/navigation/nav_line.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 
 /** Status along the pattern */
 enum line_status { LR12, LQC21, LTC2, LQC22, LR21, LQC12, LTC1, LQC11 };

@@ -33,7 +33,7 @@
 #include "uart.h"
 #include "ap_downlink.h"
 #include "gps.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #ifdef EXTRA_DOWNLINK_DEVICE
 #include "core/extra_pprz_dl.h"
 #endif

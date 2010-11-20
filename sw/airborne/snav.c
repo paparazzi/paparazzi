@@ -5,7 +5,7 @@
 #include "airframe.h"
 #include "snav.h"
 #include "estimator.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "gps.h"
 
 #define Sign(_x) ((_x) > 0 ? 1 : (-1))

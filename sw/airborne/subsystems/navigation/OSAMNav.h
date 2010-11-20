@@ -2,7 +2,7 @@
 #define OSAMNav_H
 
 #include "std.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "estimator.h"
 #include "autopilot.h"
 #include "flight_plan.h"

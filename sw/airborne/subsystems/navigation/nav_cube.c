@@ -29,7 +29,7 @@
 
 #include "airframe.h"
 #include "subsystems/navigation/nav_cube.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "flight_plan.h"
 
 int32_t cube_alpha;

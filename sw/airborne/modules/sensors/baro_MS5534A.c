@@ -34,7 +34,7 @@
 #ifndef BARO_NO_DOWNLINK
 #include "ap_downlink.h"
 #endif
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "estimator.h"
 
 bool_t baro_MS5534A_do_reset;

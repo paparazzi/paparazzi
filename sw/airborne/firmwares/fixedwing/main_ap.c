@@ -44,7 +44,7 @@
 #include "infrared.h"
 #include "gyro.h"
 #include "ap_downlink.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "autopilot.h"
 #include "estimator.h"
 #include "settings.h"

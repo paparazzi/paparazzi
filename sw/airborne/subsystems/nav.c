@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "gps.h"
 #include "estimator.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"

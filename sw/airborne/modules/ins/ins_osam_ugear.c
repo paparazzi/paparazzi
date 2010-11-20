@@ -36,7 +36,7 @@
 #include "latlong.h"
 #include "sys_time.h"
 #include "airframe.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "estimator.h"
 #include "xsens_protocol.h"
 

@@ -28,12 +28,12 @@
 
 #include <math.h>
 #include "cam.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "autopilot.h"
 #include "flight_plan.h"
 #include "estimator.h"
 #include "inter_mcu.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 
 #define MIN_PPRZ_CAM ((int16_t)(MAX_PPRZ * 0.05))
 #define DELTA_ALPHA 0.2

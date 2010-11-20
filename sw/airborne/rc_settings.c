@@ -29,7 +29,7 @@
 #include "radio.h"
 #include "autopilot.h"
 #include "infrared.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "estimator.h"
 #include "inter_mcu.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"

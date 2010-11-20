@@ -46,7 +46,7 @@
 #include "uart.h"
 #include "gps.h"
 //include "gps_ubx.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "latlong.h"
 
 

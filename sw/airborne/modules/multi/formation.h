@@ -7,7 +7,7 @@
 #ifndef FORMATION_H
 #define FORMATION_H
 
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "traffic_info.h"
 
 #define FORM_MODE_GLOBAL 0

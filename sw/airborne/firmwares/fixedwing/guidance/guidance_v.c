@@ -30,7 +30,7 @@
 
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "estimator.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "airframe.h"
 #include "firmwares/fixedwing/autopilot.h"
 

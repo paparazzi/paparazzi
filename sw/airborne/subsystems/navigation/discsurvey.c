@@ -3,7 +3,7 @@
 #include "airframe.h"
 #include "estimator.h"
 #include "std.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "flight_plan.h"
 #include "ap_downlink.h"
 
