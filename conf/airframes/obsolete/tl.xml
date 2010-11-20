@@ -118,7 +118,7 @@ ap.srcs += $(TL)/tl_baro.c
 ap.srcs += micromag.c $(SRC_ARCH)/micromag_hw.c
 
 ap.CFLAGS += -DNAV
-ap.srcs += common_nav.c $(TL)/tl_nav.c
+ap.srcs += subsystems/navigation/common_nav.c $(TL)/tl_nav.c
 
 
 #ap.CFLAGS += -D TL_BARO_W1=0xABDC -D TL_BARO_W2=0x849A -D TL_BARO_W3=0X939E -D TL_BARO_W4=0xB259

@@ -22,7 +22,7 @@
  *
  */
 
-#include "common_nav.h"
+#include "subsystems/navigation/common_nav.h"
 #include "estimator.h"
 #include "flight_plan.h"
 #include "gps.h"

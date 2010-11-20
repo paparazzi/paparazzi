@@ -52,7 +52,7 @@
 #endif
 
 
-#include "common_nav.h"
+#include "subsystems/navigation/common_nav.h"
 #include "settings.h"
 #include "latlong.h"
 

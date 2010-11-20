@@ -36,7 +36,7 @@
 #include "paparazzi.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "nav_survey_rectangle.h"
-#include "common_nav.h"
+#include "subsystems/navigation/common_nav.h"
 
 #define G 9.806
 #define Square(_x) ((_x)*(_x))

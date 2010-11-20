@@ -28,7 +28,7 @@
 
 #include <math.h>
 #include "cam.h"
-#include "common_nav.h"
+#include "subsystems/navigation/common_nav.h"
 #include "autopilot.h"
 #include "flight_plan.h"
 #include "estimator.h"

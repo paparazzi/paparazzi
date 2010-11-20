@@ -72,7 +72,7 @@ Receiving:
 #include "gps.h"
 #include "autopilot.h"
 #include "estimator.h"
-#include "common_nav.h"
+#include "subsystems/navigation/common_nav.h"
 #include "settings.h"
 
 #ifndef GSM_LINK
