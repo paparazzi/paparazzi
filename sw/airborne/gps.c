@@ -51,7 +51,7 @@
 
 #ifdef FMS_PERIODIC_FREQ
 #include "messages2.h"
-#include "beth/overo_gcs_com.h"
+#include "firmwares/beth/overo_gcs_com.h"
 #define DefaultChannel gcs_com.udp_transport
 #else
 #define DOWNLINK_DEVICE DOWNLINK_GPS_DEVICE
