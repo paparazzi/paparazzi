@@ -269,8 +269,8 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
 
 ap.CFLAGS += -DGYRO -DADXRS150
-ap.srcs += gyro.c nav_line.c
-ap.srcs += nav_survey_rectangle.c
+ap.srcs += gyro.c subsystems/navigation/nav_line.c
+ap.srcs += subsystems/navigation/nav_survey_rectangle.c
 # chemotaxis.c anemotaxis.c discsurvey.c
 
 ########## Barometer (SPI)
@@ -303,7 +303,7 @@ sim.srcs = latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c inf
 
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 
-sim.srcs += nav_line.c nav_survey_rectangle.c
+sim.srcs += subsystems/navigation/nav_line.c subsystems/navigation/nav_survey_rectangle.c
 # -DENOSE
 #sim.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 #sim.CFLAGS += -DUSE_I2C -DUSE_I2C0

@@ -227,7 +227,7 @@ ap.srcs += gyro.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\"
-sim.srcs += nav_survey_rectangle.c traffic_info.c nav_line.c
+sim.srcs += subsystems/navigation/nav_survey_rectangle.c traffic_info.c subsystems/navigation/nav_line.c
 sim.CFLAGS += -DGYRO -DADXRS150
 sim.srcs += gyro.c
 

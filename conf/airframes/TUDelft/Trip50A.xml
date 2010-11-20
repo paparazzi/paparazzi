@@ -286,7 +286,7 @@ ap.srcs += infrared.c estimator.c gyro.c
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
 ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
-ap.srcs += nav_line.c nav_survey_rectangle.c
+ap.srcs += subsystems/navigation/nav_line.c subsystems/navigation/nav_survey_rectangle.c
 
 #ap.srcs += baro_bmp.c $(SRC_ARCH)/i2c_hw.c i2c.c
 #ap.CFLAGS += -DUSE_I2C0 -DUSE_BARO_BMP -DBARO_BMP_ACCEL
@@ -294,7 +294,7 @@ ap.srcs += nav_line.c nav_survey_rectangle.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
-sim.srcs += nav_line.c nav_survey_rectangle.c
+sim.srcs += subsystems/navigation/nav_line.c subsystems/navigation/nav_survey_rectangle.c
 
 sim.srcs += joystick.c
 sim.CFLAGS += -DUSE_JOYSTICK
