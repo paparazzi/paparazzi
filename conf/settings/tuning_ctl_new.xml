@@ -21,7 +21,7 @@
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="telemetry_mode_Fbw_DefaultChannel" shortname="tele_FBW" module="downlink"/>
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="gps_reset" module="gps_ubx" handler="Reset" shortname="GPS reset"/>
 
-      <dl_setting MAX="200" MIN="-200" STEP="10" VAR="nav_radius" module="nav" handler="SetNavRadius">
+      <dl_setting MAX="200" MIN="-200" STEP="10" VAR="nav_radius" module="subsystems/nav" handler="SetNavRadius">
         <strip_button icon="circle-right.png" name="Circle right" value="1" group="circle"/>
         <strip_button icon="circle-left.png" name="Circle left" value="-1" group="circle"/>
         <key_press key="greater" value="1"/>
@@ -115,7 +115,7 @@
         <dl_setting MAX="5" MIN="-5" STEP="0.5" VAR="nav_climb"/>
         <dl_setting MAX="20" MIN="-20" STEP="1" VAR="fp_pitch"/>
         <dl_setting MAX="1" MIN="0" STEP="0.1" VAR="fp_throttle"/>
-        <dl_setting MAX="50" MIN="-50" STEP="5" VAR="nav_shift" module="nav" handler="IncreaseShift" shortname="inc. shift"/>
+        <dl_setting MAX="50" MIN="-50" STEP="5" VAR="nav_shift" module="subsystems/nav" handler="IncreaseShift" shortname="inc. shift"/>
         <dl_setting MAX="50" MIN="5" STEP="0.5" VAR="nav_ground_speed_setpoint" shortname="ground speed"/>
         <dl_setting MAX="0." MIN="-0.2" STEP="0.01" VAR="nav_ground_speed_pgain" shortname="ground speed pgain"/>
         <dl_setting MAX="500" MIN="50" STEP="5" VAR="nav_survey_shift"/>
