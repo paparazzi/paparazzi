@@ -254,7 +254,7 @@ ap.srcs += subsystems/navigation/nav_survey_rectangle.c
 ap.srcs += humid_sht.c
 ap.CFLAGS += -DUSE_HUMID_SHT -DDAT_PIN=30  -DSCK_PIN=4
 
-ap.srcs += bomb.c
+ap.srcs += subsystems/navigation/bomb.c
 
 ap.srcs += subsystems/navigation/snav.c
 
@@ -267,7 +267,7 @@ include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 sim.srcs += subsystems/navigation/nav_line.c subsystems/navigation/nav_survey_rectangle.c
 
-sim.srcs += bomb.c
+sim.srcs += subsystems/navigation/bomb.c
 
 
   </makefile>

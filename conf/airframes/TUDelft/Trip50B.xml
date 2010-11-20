@@ -311,7 +311,7 @@ sim.CFLAGS += -DUSE_JOYSTICK
 sim.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM -DPOINT_CAM_PITCH_ROLL
 # -DTEST_CAM
 sim.srcs += cam.c point.c
-sim.srcs += bomb.c
+sim.srcs += subsystems/navigation/bomb.c
 
 
 

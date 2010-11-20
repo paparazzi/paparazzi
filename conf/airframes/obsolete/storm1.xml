@@ -275,7 +275,7 @@ ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c
 # ap.srcs += gyro.c
 
 ap.srcs += traffic_info.c subsystems/navigation/nav_survey_rectangle.c
-ap.srcs += bomb.c
+ap.srcs += subsystems/navigation/bomb.c
 
 # Hack to use the same tuning file than slayer1
 ap.CFLAGS += -DUSE_GPIO
@@ -291,7 +291,7 @@ ap.srcs += $(SRC_ARCH)/gpio.c
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360
 sim.srcs += traffic_info.c
-sim.srcs += bomb.c  subsystems/navigation/nav_survey_rectangle.c
+sim.srcs += subsystems/navigation/bomb.c  subsystems/navigation/nav_survey_rectangle.c
 
   </makefile>
 </airframe>

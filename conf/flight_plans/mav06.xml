@@ -1,6 +1,6 @@
 <flight_plan alt="100" ground_alt="59" lat0="30.6478" lon0="-86.3253" max_dist_from_home="1500" name="MAV06" qfu="90" security_height="25">
 <header>
-#include "bomb.h"
+#include "subsystems/navigation/bomb.h"
 #include "subsystems/navigation/nav_line.h"
 </header>
   <waypoints>

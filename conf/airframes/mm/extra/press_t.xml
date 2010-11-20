@@ -280,7 +280,7 @@ ap.CFLAGS += -DUSE_BARO_SCP
 ap.srcs += joystick.c
 ap.CFLAGS += -DUSE_JOYSTICK
 
-ap.srcs += bomb.c
+ap.srcs += subsystems/navigation/bomb.c
 
 ap.srcs += subsystems/navigation/snav.c
 

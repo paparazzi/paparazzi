@@ -261,7 +261,7 @@ ap.srcs += $(SRC_ARCH)/gpio.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny_1_1.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM
-sim.srcs += bomb.c subsystems/navigation/nav_survey_rectangle.c
+sim.srcs += subsystems/navigation/bomb.c subsystems/navigation/nav_survey_rectangle.c
 
 sim.srcs += traffic_info.c subsystems/navigation/nav_line.c
 

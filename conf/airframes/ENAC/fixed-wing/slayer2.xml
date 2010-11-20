@@ -247,7 +247,7 @@ ap.CFLAGS += -DLED_3_BANK=0 -DLED_3_PIN=10 -DPOWER_SWITCH_LED=3
 ap.CFLAGS += -DGYRO -DADXRS150
 # -DIDG300
 ap.srcs += gyro.c
-# ap.srcs += bomb.c
+# ap.srcs += subsystems/navigation/bomb.c
 
 # Hack to use the same tuning file than slayer1
 ap.CFLAGS += -DUSE_GPIO

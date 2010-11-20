@@ -301,7 +301,7 @@ ap.srcs += cam.c point.c
 # traffic_info.c
 
 ap.CFLAGS += -DWIND_INFO -DSTRONG_WIND
-ap.srcs += bomb.c
+ap.srcs += subsystems/navigation/bomb.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
@@ -314,7 +314,7 @@ sim.CFLAGS += -DUSE_MODULES
 sim.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM -DPOINT_CAM_PITCH_ROLL
 # -DTEST_CAM
 sim.srcs += cam.c point.c
-sim.srcs += bomb.c
+sim.srcs += subsystems/navigation/bomb.c
 
   </makefile>
 </airframe>

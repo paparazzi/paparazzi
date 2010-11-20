@@ -252,7 +252,7 @@ ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c
 ap.CFLAGS += -DGYRO -DADXRS150
 ap.srcs += gyro.c
 
-ap.srcs += bomb.c
+ap.srcs += subsystems/navigation/bomb.c
 
 #Cap.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM
 #Cap.srcs += traffic_info.c point.c cam.c
@@ -271,7 +271,7 @@ ap.srcs += $(SRC_ARCH)/gpio.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DIR_360
-sim.srcs += bomb.c
+sim.srcs += subsystems/navigation/bomb.c
 
 #Csim.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM
 #Csim.srcs += traffic_info.c point.c

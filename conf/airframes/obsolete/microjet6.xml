@@ -254,7 +254,7 @@ ap.srcs += subsystems/navigation/nav_line.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DUSE_BARO_MS5534A
-sim.srcs += subsystems/navigation/nav_survey_rectangle.c $(SRC_ARCH)/sim_baro.c bomb.c subsystems/navigation/nav_line.c
+sim.srcs += subsystems/navigation/nav_survey_rectangle.c $(SRC_ARCH)/sim_baro.c subsystems/navigation/bomb.c subsystems/navigation/nav_line.c
 
   </makefile>
 </airframe>
