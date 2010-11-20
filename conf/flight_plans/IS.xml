@@ -5,7 +5,7 @@
 #include "chemo_detect.h"
 #include "anemotaxis.h"
 #include "chemotaxis.h"
-#include "discsurvey.h"
+#include "subsystems/navigation/discsurvey.h"
 #include "subsystems/navigation/nav_line.h"
 #include "bomb.h"
 #include "datalink.h"
