@@ -15,7 +15,7 @@
 
 #include <string.h>
 
-#include "beth/bench_sensors.h"
+#include "firmwares/beth/bench_sensors.h"
 
 /*
  *
