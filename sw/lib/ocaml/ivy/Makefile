@@ -17,7 +17,7 @@ OCAMLFLAGS =
 endif
 
 OCAMLOPTFLAGS=
-CFLAGS=-Wall
+CFLAGS+=-Wall
 OCAMLINC=-I `ocamlc -where`
 GLIBINC=`pkg-config --cflags glib-2.0`
 
