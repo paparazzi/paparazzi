@@ -743,7 +743,12 @@
   </message>
 
  <!--113 is free -->
- <!--114 is free -->
+
+  <message name="PAYLOAD" id="114">
+    <field name="values" type="uint8[]" unit="none"/>
+  </message>
+
+
  <!--115 is free -->
  <!--116 is free -->
  <!--117 is free -->
@@ -1929,6 +1934,11 @@
   <message name="KITE_COMMAND" id="96">
     <field name="POWER"     type="uint16"/>
     <field name="TURN"      type="uint16"/>
+  </message>
+
+  <message name="PAYLOAD_COMMAND" id="97" link="forwarded">
+    <field name="ac_id" type="uint8"/>
+    <field name="command"     type="uint8[]"/>
   </message>
 
  <message name="SET_ACTUATOR" id="100" link="forwarded">
