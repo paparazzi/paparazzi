@@ -33,7 +33,7 @@
 #include "firmwares/fixedwing/autopilot.h"
 #include "estimator.h"
 #include "gps.h"
-#include "traffic_info.h"
+#include "subsystems/navigation/traffic_info.h"
 #include "flight_plan.h"
 #include "airframe.h"
 #include "settings.h"

@@ -27,7 +27,7 @@
  */
 
 #include <inttypes.h>
-#include "traffic_info.h"
+#include "subsystems/navigation/traffic_info.h"
 #include "airframe.h"
 
 uint8_t acs_idx;

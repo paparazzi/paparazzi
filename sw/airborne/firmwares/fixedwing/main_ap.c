@@ -73,7 +73,7 @@
 #endif
 
 #ifdef TRAFFIC_INFO
-#include "traffic_info.h"
+#include "subsystems/navigation/traffic_info.h"
 #endif
 
 #ifdef USE_USB_SERIAL

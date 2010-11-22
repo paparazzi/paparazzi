@@ -36,7 +36,7 @@
 #include "modules.h"
 
 #ifdef TRAFFIC_INFO
-#include "traffic_info.h"
+#include "subsystems/navigation/traffic_info.h"
 #endif // TRAFFIC_INFO
 
 #ifdef USE_JOYSTICK

@@ -32,7 +32,7 @@
 #include "autopilot.h"
 #include "flight_plan.h"
 #include "estimator.h"
-#include "traffic_info.h"
+#include "subsystems/navigation/traffic_info.h"
 #ifdef POINT_CAM
 #include "point.h"
 #endif // POINT_CAM

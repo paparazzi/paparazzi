@@ -12,7 +12,7 @@
 #include "autopilot.h"
 #include "estimator.h"
 #include "gps.h"
-#include "traffic_info.h"
+#include "subsystems/navigation/traffic_info.h"
 #include "flight_plan.h"
 #include "settings.h"
 #include "subsystems/nav.h"

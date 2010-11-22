@@ -255,7 +255,7 @@ ap.srcs += gyro.c
 ap.srcs += subsystems/navigation/bomb.c
 
 #Cap.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM
-#Cap.srcs += traffic_info.c point.c cam.c
+#Cap.srcs += subsystems/navigation/traffic_info.c point.c cam.c
 
 
 # Video switch
@@ -274,7 +274,7 @@ sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_T
 sim.srcs += subsystems/navigation/bomb.c
 
 #Csim.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM
-#Csim.srcs += traffic_info.c point.c
+#Csim.srcs += subsystems/navigation/traffic_info.c point.c
 
 
   </makefile>

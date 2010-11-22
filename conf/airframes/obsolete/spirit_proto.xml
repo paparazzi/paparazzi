@@ -218,7 +218,7 @@ ap.srcs += adc_generic.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
-sim.srcs += subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/nav_line.c traffic_info.c
+sim.srcs += subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/nav_line.c subsystems/navigation/traffic_info.c
 
 ap.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0 -DUSE_BARO_MS5534A
 ap.srcs += spi.c $(SRC_ARCH)/spi_hw.c $(SRC_ARCH)/baro_MS5534A.c

@@ -34,7 +34,7 @@ ant.srcs += downlink.c pprz_transport.c
 ant.CFLAGS += -DDOWNLINK_AP_DEVICE=Uart0 -DAP
 ant.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0
 ant.srcs += datalink.c
-ant.srcs += traffic_info.c
+ant.srcs += subsystems/navigation/traffic_info.c
 
 ant.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B9600
 ant.srcs += estimator.c gps_ubx.c gps.c

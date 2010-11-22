@@ -31,7 +31,7 @@
 #define TCAS_H
 
 #include "std.h"
-#include "traffic_info.h"
+#include "subsystems/navigation/traffic_info.h"
 
 extern float tcas_alt_setpoint;
 extern float tcas_tau_ta, tcas_tau_ra, tcas_dmod, tcas_alim;
