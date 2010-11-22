@@ -221,7 +221,7 @@ void guidance_h_run(bool_t  in_flight) {
 //#define MAX_BANK (65536)
 #define MAX_BANK (98000)
 
-static inline void  guidance_h_hover_run(void) {
+__attribute__ ((always_inline)) static inline void  guidance_h_hover_run(void) {
 
   /* compute position error    */
   VECT2_DIFF(guidance_h_pos_err, ins_ltp_pos, guidance_h_pos_sp);
@@ -279,7 +279,7 @@ static inline void  guidance_h_hover_run(void) {
 #define NAV_MAX_BANK BFP_OF_REAL(0.35,REF_ANGLE_FRAC)
 #define HOLD_DISTANCE POS_BFP_OF_REAL(10.)
 
-static inline void  guidance_h_nav_run(bool_t in_flight) {
+__attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in_flight) {
 
   /* convert our reference to generic representation */
 #ifdef GUIDANCE_H_USE_REF
@@ -368,7 +368,7 @@ static inline void  guidance_h_nav_run(bool_t in_flight) {
 
 }
 
-static inline void guidance_h_hover_enter(void) {
+__attribute__ ((always_inline)) static inline void guidance_h_hover_enter(void) {
 
   VECT2_COPY(guidance_h_pos_sp, ins_ltp_pos);
 
@@ -378,7 +378,7 @@ static inline void guidance_h_hover_enter(void) {
 
 }
 
-static inline void guidance_h_nav_enter(void) {
+__attribute__ ((always_inline)) static inline void guidance_h_nav_enter(void) {
 
   INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
   struct Int32Vect2 pos,speed,zero;

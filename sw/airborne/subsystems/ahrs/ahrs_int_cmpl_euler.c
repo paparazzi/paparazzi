@@ -154,7 +154,7 @@ void ahrs_update_mag(void) {
 }
 
 /* measures phi and theta assuming no dynamic acceleration ?!! */
-static inline void get_phi_theta_measurement_fom_accel(int32_t* phi_meas, int32_t* theta_meas, struct Int32Vect3 accel) {
+__attribute__ ((always_inline)) static inline void get_phi_theta_measurement_fom_accel(int32_t* phi_meas, int32_t* theta_meas, struct Int32Vect3 accel) {
 
   INT32_ATAN2(*phi_meas, -accel.y, -accel.z);
   int32_t cphi;
@@ -167,7 +167,7 @@ static inline void get_phi_theta_measurement_fom_accel(int32_t* phi_meas, int32_
 }
 
 /* measure psi by projecting magnetic vector in local tangeant plan */
-static inline void get_psi_measurement_from_mag(int32_t* psi_meas, int32_t phi_est, int32_t theta_est, struct Int32Vect3 mag) {
+__attribute__ ((always_inline)) static inline void get_psi_measurement_from_mag(int32_t* psi_meas, int32_t phi_est, int32_t theta_est, struct Int32Vect3 mag) {
 
   int32_t sphi;
   PPRZ_ITRIG_SIN(sphi, phi_est);
@@ -196,7 +196,7 @@ static inline void get_psi_measurement_from_mag(int32_t* psi_meas, int32_t phi_e
 
 /* Compute ltp to imu rotation in quaternion and rotation matrice representation
    from the euler angle representation */
-static inline void compute_imu_quat_and_rmat_from_euler(void) {
+__attribute__ ((always_inline)) static inline void compute_imu_quat_and_rmat_from_euler(void) {
 
   /* Compute LTP to IMU quaternion */
   INT32_QUAT_OF_EULERS(ahrs.ltp_to_imu_quat, ahrs.ltp_to_imu_euler);
@@ -205,7 +205,7 @@ static inline void compute_imu_quat_and_rmat_from_euler(void) {
 
 }
 
-static inline void compute_body_orientation(void) {
+__attribute__ ((always_inline)) static inline void compute_body_orientation(void) {
 
   /* Compute LTP to BODY quaternion */
   INT32_QUAT_COMP_INV(ahrs.ltp_to_body_quat, ahrs.ltp_to_imu_quat, imu.body_to_imu_quat);

@@ -122,7 +122,7 @@ void vff_propagate(float accel) {
   // update covariance
   Pp = Pm - K*H*Pm;
 */
-static inline void update_z_conf(float z_meas, float conf) {
+__attribute__ ((always_inline)) static inline void update_z_conf(float z_meas, float conf) {
   vff_z_meas = z_meas;
 
   const float y = z_meas - vff_z;
@@ -179,7 +179,7 @@ void vff_update_z_conf(float z_meas, float conf) {
   // update covariance
   Pp = Pm - K*H*Pm;
 */
-static inline void update_vz_conf(float vz, float conf) {
+__attribute__ ((always_inline)) static inline void update_vz_conf(float vz, float conf) {
   const float yd = vz - vff_zdot;
   const float S = vff_P[1][1] + conf;
   const float K1 = vff_P[0][1] * 1/S;
