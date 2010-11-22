@@ -16,5 +16,7 @@
 #define LED_1_BANK 1
 #define LED_1_PIN 24
 
+#define LED_2_BANK 1
+#define LED_2_PIN 23
 
 #endif /* CONFIG_OLIMEX_H2148_H */

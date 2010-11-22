@@ -55,7 +55,7 @@ void vor_adc_init( void ) {
   /* clear match */
   T0EMR &= ~TEMR_EM1;
   /* set high on match 1 */
-  T0EMR |= TEMR_EMC11;
+  T0EMR |= (3<<6);//TEMR_EMC1_1;
   /* first match in a while */
   T0MR1 = 1024;
   vor_adc_overrun = FALSE;
@@ -64,6 +64,9 @@ void vor_adc_init( void ) {
 
 void adcISR0 ( void ) {
   ISR_ENTRY();
+
+  LED_TOGGLE(2);
+
   uint32_t tmp = AD0GDR;
   //  uint32_t tmp = AD0DR3;
   //  uint8_t  channel = (uint8_t)(tmp >> 24) & 0x07;

@@ -70,7 +70,7 @@ value c_init_serial(value device, value speed)
   cur_termios.c_lflag &= ~(ISIG|ICANON|IEXTEN|ECHO|FLUSHO|PENDIN);
   cur_termios.c_lflag |= NOFLSH;
   
-  if (cfsetispeed(&cur_termios, br)) failwith("setting modem serial device speed");
+  if (cfsetspeed(&cur_termios, br)) failwith("setting modem serial device speed");
 
   if (tcsetattr(fd, TCSADRAIN, &cur_termios)) failwith("setting modem serial device attr");
   

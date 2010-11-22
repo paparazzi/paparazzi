@@ -93,11 +93,12 @@ ARCH=stm32
 FLASH_MODE = JTAG
 
 SRC_ARCH = $(ARCH)
-SRC_BETH=beth
+SRC_BETH=firmwares/beth
 SRC_BOOZ=booz
 SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCH)
 SRC_LISA=lisa
 SRC_LISA_ARCH=$(SRC_LISA)/arch/$(ARCH)
+SRC_FIRMWARE=subsystems
 
 main_stm32.ARCHDIR = stm32
 #main_stm32.LDSCRIPT = $(SRC_ARCH)/stm32f103re_flash.ld
@@ -136,13 +137,13 @@ main_stm32.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
 #crista IMU
 main_stm32.srcs += math/pprz_trig_int.c
 main_stm32.CFLAGS += -DIMU_TYPE_H=\"imu/imu_crista.h\" -DIMU_OVERRIDE_CHANNELS
-main_stm32.srcs += $(SRC_FIRMWARE)/imu.c             \
-                        $(SRC_FIRMWARE)/imu/imu_crista.c \
-                        $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_crista_arch.c
+main_stm32.srcs += subsystems/imu.c             \
+                        subsystems/imu/imu_crista.c \
+                        arch/$(ARCH)/subsystems/imu/imu_crista_arch.c
 main_stm32.CFLAGS += -DUSE_DMA1_C4_IRQ
 
 main_stm32.srcs += $(SRC_BOOZ)/booz2_commands.c
-main_stm32.srcs += $(SRC_BOOZ)/actuators/actuators_asctec.c 
+main_stm32.srcs += firmwares/rotorcraft/actuators/actuators_asctec.c 
 #\
 #                             $(SRC_BOOZ_ARCH)/actuators/actuators_asctec_arch.c
 main_stm32.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
@@ -317,7 +318,7 @@ overo_sfb.srcs    += $(SRC_BETH)/overo_sfb_controller.c
 #
 #
 #
-include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
+include $(PAPARAZZI_SRC)/conf/autopilot/obsolete/lisa_test_progs.makefile
 
   </makefile>
 
