@@ -33,16 +33,16 @@
 // I2C Automaton //
 ///////////////////
 
-static inline void I2cSendStart(struct i2c_periph* p) {
+__attribute__ ((always_inline)) static inline void I2cSendStart(struct i2c_periph* p) {
   p->status = I2CStartRequested;
   ((i2cRegs_t *)(p->reg_addr))->conset = _BV(STA);
 }
 
-static inline void I2cSendAck(void* reg) {
+__attribute__ ((always_inline)) static inline void I2cSendAck(void* reg) {
   ((i2cRegs_t *)reg)->conset = _BV(AA);
 }
 
-static inline void I2cEndOfTransaction(struct i2c_periph* p) {
+__attribute__ ((always_inline)) static inline void I2cEndOfTransaction(struct i2c_periph* p) {
   // handle fifo here
   p->trans_extract_idx++;
   if (p->trans_extract_idx >= I2C_TRANSACTION_QUEUE_LEN)
@@ -56,18 +56,18 @@ static inline void I2cEndOfTransaction(struct i2c_periph* p) {
   }
 }
 
-static inline void I2cFinished(struct i2c_periph* p, struct i2c_transaction* t) {
+__attribute__ ((always_inline)) static inline void I2cFinished(struct i2c_periph* p, struct i2c_transaction* t) {
   // transaction finished with success
   t->status = I2CTransSuccess;
   I2cEndOfTransaction(p);
 }
 
-static inline void I2cSendStop(struct i2c_periph* p, struct i2c_transaction* t) {
+__attribute__ ((always_inline)) static inline void I2cSendStop(struct i2c_periph* p, struct i2c_transaction* t) {
   ((i2cRegs_t *)(p->reg_addr))->conset = _BV(STO);
   I2cFinished(p,t);
 }
 
-static inline void I2cFail(struct i2c_periph* p, struct i2c_transaction* t) {
+__attribute__ ((always_inline)) static inline void I2cFail(struct i2c_periph* p, struct i2c_transaction* t) {
   ((i2cRegs_t *)(p->reg_addr))->conset = _BV(STO);
   t->status = I2CTransFailed;
   p->status = I2CFailed;
@@ -75,24 +75,24 @@ static inline void I2cFail(struct i2c_periph* p, struct i2c_transaction* t) {
   I2cEndOfTransaction(p);
 }
 
-static inline void I2cSendByte(void* reg, uint8_t b) {
+__attribute__ ((always_inline)) static inline void I2cSendByte(void* reg, uint8_t b) {
   ((i2cRegs_t *)reg)->dat = b;
 }
 
-static inline void I2cReceive(void* reg, bool_t ack) {
+__attribute__ ((always_inline)) static inline void I2cReceive(void* reg, bool_t ack) {
   if (ack) ((i2cRegs_t *)reg)->conset = _BV(AA);
   else ((i2cRegs_t *)reg)->conclr = _BV(AAC);
 }
 
-static inline void I2cClearStart(void* reg) {
+__attribute__ ((always_inline)) static inline void I2cClearStart(void* reg) {
   ((i2cRegs_t *)reg)->conclr = _BV(STAC);
 }
 
-static inline void I2cClearIT(void* reg) {
+__attribute__ ((always_inline)) static inline void I2cClearIT(void* reg) {
   ((i2cRegs_t *)reg)->conclr = _BV(SIC);
 }
 
-static inline void I2cAutomaton(int32_t state, struct i2c_periph* p) {
+__attribute__ ((always_inline)) static inline void I2cAutomaton(int32_t state, struct i2c_periph* p) {
   struct i2c_transaction* trans = p->trans[p->trans_extract_idx];
   switch (state) {
     case I2C_START:

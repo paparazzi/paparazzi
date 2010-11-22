@@ -82,7 +82,7 @@ int32_t guidance_v_z_sum_err;
   }
 
 
-static inline void run_hover_loop(bool_t in_flight);
+__attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flight);
 
 
 void guidance_v_init(void) {
@@ -232,7 +232,7 @@ void guidance_v_run(bool_t in_flight) {
 
 #define MAX_BANK_COEF (BFP_OF_REAL(RadOfDeg(30.),INT32_TRIG_FRAC))
 
-static inline void run_hover_loop(bool_t in_flight) {
+__attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flight) {
 
   /* convert our reference to generic representation */
   int64_t tmp  = gv_z_ref>>(GV_Z_REF_FRAC - INT32_POS_FRAC);

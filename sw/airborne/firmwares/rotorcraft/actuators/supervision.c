@@ -59,13 +59,13 @@ void supervision_init(void) {
   supervision.nb_failure = 0;
 }
 
-static inline void offset_commands(int32_t offset) {
+__attribute__ ((always_inline)) static inline void offset_commands(int32_t offset) {
   uint8_t j;
   for (j=0; j<SUPERVISION_NB_MOTOR; j++)
     supervision.commands[j] += (offset);
 }
 
-static inline void bound_commands(void) {
+__attribute__ ((always_inline)) static inline void bound_commands(void) {
   uint8_t j;
   for (j=0; j<SUPERVISION_NB_MOTOR; j++)
     Bound(supervision.commands[j],
