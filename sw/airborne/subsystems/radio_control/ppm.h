@@ -37,7 +37,7 @@ extern void ppm_arch_init(void);
  * Generated code holding the description of a given
  * transmitter
  */
-#include "radio.h"
+#include "generated/radio.h"
 
 /**
  * Define number of channels

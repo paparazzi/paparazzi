@@ -35,7 +35,7 @@
 #include "gps_ubx.h"
 #include "latlong.h"
 #include "sys_time.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "nav.h"
 #include "estimator.h"
 #include "xsens_protocol.h"

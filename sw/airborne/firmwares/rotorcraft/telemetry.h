@@ -759,10 +759,10 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_CAM_TRACK(_chan) {}
 #endif
 
-#include "settings.h"
+#include "generated/settings.h"
 #define PERIODIC_SEND_DL_VALUE(_chan) PeriodicSendDlValue(_chan)
 
-#include "periodic.h"
+#include "generated/periodic.h"
 #define Booz2TelemetryPeriodic() {			\
     PeriodicSendMain(DefaultChannel);			\
   }

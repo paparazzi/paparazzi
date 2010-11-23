@@ -40,7 +40,7 @@
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
 
 #include "std.h"
-#include "radio.h"
+#include "generated/radio.h"
 
 #define RC_SETTINGS_MODE_NONE      0
 #define RC_SETTINGS_MODE_DOWN      1

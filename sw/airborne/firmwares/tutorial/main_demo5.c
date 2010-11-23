@@ -59,7 +59,7 @@ bool_t dl_msg_available;
 #define MSG_SIZE 128
 uint8_t dl_buffer[MSG_SIZE]  __attribute__ ((aligned));
 
-#include "settings.h"
+#include "generated/settings.h"
 
 #define IdOfMsg(x) (x[1])
 

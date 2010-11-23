@@ -30,7 +30,7 @@
 #define COMMANDS_H
 
 #include "paparazzi.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 
 extern pprz_t commands[COMMANDS_NB];

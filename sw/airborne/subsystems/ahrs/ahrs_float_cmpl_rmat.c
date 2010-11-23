@@ -29,7 +29,7 @@
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_simple_matrix.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #include <string.h>
 

@@ -29,7 +29,7 @@
 #include "booz_gps.h"
 #include <stdlib.h>
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #ifdef SITL
 #include <stdio.h>

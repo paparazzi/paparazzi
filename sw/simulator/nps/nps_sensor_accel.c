@@ -1,6 +1,6 @@
 #include "nps_sensor_accel.h"
 
-#include "airframe.h" /* to get NPS_SENSORS_PARAMS */
+#include "generated/airframe.h" /* to get NPS_SENSORS_PARAMS */
 
 #include "nps_fdm.h"
 #include "nps_random.h"

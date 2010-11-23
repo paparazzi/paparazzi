@@ -1,7 +1,7 @@
 #include "nps_sensor_gps.h"
 
 
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "nps_fdm.h"
 #include "nps_random.h"
 #include "nps_sensors_utils.h"

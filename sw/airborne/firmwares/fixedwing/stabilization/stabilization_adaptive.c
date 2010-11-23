@@ -34,7 +34,7 @@
 #include "firmwares/fixedwing/stabilization/stabilization_adaptive.h"
 #include "estimator.h"
 #include "nav.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "autopilot.h"
 

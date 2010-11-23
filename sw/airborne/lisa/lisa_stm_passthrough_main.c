@@ -35,7 +35,7 @@
 #include "guidance.h"
 #include "navigation.h"
 #include "lisa/lisa_overo_link.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "ahrs.h"
 #ifdef PASSTHROUGH_CYGNUS
 #include "stabilization.h"

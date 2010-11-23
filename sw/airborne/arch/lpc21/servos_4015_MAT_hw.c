@@ -29,7 +29,7 @@
 
 #include "actuators.h"
 #include "paparazzi.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 uint8_t servos_4015_idx;
 uint32_t servos_delay = SERVO_REFRESH_TICS;

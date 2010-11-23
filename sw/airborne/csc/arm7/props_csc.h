@@ -1,7 +1,7 @@
 #ifndef PROPS_CSC_H
 #define PROPS_CSC_H
 
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "firmwares/rotorcraft/actuators.h"
 #include "sys_time.h"
 #include "csc_ap_link.h"

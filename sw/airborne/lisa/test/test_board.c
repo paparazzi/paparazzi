@@ -36,7 +36,7 @@
 #include "uart.h"
 
 #include "datalink.h"
-#include "settings.h"
+#include "generated/settings.h"
 
 #include "lisa/lisa_baro.h"
 #include "actuators/actuators_pwm.h"

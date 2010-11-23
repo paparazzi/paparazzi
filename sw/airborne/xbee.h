@@ -28,7 +28,7 @@
 #define XBEE_H
 
 #include "datalink.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #ifdef XBEE868
 #include "xbee868.h"

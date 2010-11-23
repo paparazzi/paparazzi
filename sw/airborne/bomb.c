@@ -25,8 +25,8 @@
 #include "estimator.h"
 #include "nav.h"
 #include "bomb.h"
-#include "flight_plan.h"
-#include "airframe.h"
+#include "generated/flight_plan.h"
+#include "generated/airframe.h"
 #include "inter_mcu.h"
 
 

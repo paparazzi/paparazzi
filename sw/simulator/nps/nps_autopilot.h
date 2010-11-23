@@ -1,7 +1,7 @@
 #ifndef NPS_AUTOPILOT_H
 #define NPS_AUTOPILOT_H
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #include "nps_radio_control.h"
 

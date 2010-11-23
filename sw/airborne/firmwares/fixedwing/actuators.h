@@ -33,7 +33,7 @@
 #include "paparazzi.h"
 
 /** Defines SetActuatorsFromCommands() macro */
-#include "airframe.h"
+#include "generated/airframe.h"
 
 /** Must be defined by specific hardware implementation */
 extern void actuators_init( void );

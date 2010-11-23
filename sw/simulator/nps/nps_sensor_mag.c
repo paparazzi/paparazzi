@@ -1,6 +1,6 @@
 #include "nps_sensor_mag.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "nps_fdm.h"
 #include NPS_SENSORS_PARAMS
 #include "math/pprz_algebra_int.h"

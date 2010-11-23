@@ -2,7 +2,7 @@
 #define ONBOARD_TRANSPORT_H
 
 #include "std.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #ifndef MSG_TIMESTAMP
 #define MSG_TIMESTAMP 0

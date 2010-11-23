@@ -30,7 +30,7 @@
 
 #include <inttypes.h>
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #include "downlink.h"
 #include "messages.h"

@@ -323,7 +323,7 @@ static void ivy_transport_init(void) {
 }
 
 #include "std.h"
-#include "settings.h"
+#include "generated/settings.h"
 #include "dl_protocol.h"
 #include "downlink.h"
 static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 

@@ -34,8 +34,8 @@
 #ifndef FMS_PERIODIC_FREQ
 #include "sys_time.h"
 #endif
-#include "airframe.h"
-#include "periodic.h"
+#include "generated/airframe.h"
+#include "generated/periodic.h"
 
 #ifdef USE_USB_SERIAL
 #include "usb_serial.h"

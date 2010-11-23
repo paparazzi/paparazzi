@@ -27,7 +27,7 @@
 #include "subsystems/ahrs.h"
 #include "booz/booz_gps.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 struct VehicleInterface vi;
 

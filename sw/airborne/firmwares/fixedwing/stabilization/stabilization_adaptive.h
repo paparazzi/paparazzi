@@ -34,7 +34,7 @@
 #include <inttypes.h>
 #include "std.h"
 #include "paparazzi.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 extern float h_ctl_roll_sum_err;
 extern float h_ctl_pitch_sum_err;

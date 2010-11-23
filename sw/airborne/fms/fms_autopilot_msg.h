@@ -5,7 +5,7 @@
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_geodetic_int.h"
 // FIXME: why is including airframe.h needed ?
-//#include "airframe.h"
+//#include "generated/airframe.h"
 //#include "adc.h"
 #define NB_ADC 8
 

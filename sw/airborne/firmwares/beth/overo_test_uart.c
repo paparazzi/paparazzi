@@ -35,7 +35,7 @@
 
 #include "messages2.h"
 //#include "dl_protocol2.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #include "fms_periodic.h"
 #include "fms_debug.h"

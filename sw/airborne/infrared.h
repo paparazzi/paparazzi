@@ -26,7 +26,7 @@
 #define INFRARED_H
 
 #include "std.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 extern float ir_roll_neutral; /* Rad */
 extern float ir_pitch_neutral; /* Rad */

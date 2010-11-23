@@ -33,11 +33,11 @@
 #include <string.h>
 #include "datalink.h"
 
-#include "modules.h"
+#include "generated/modules.h"
 
 #include <stdio.h>
 #include "common_nav.h"
-#include "settings.h"
+#include "generated/settings.h"
 #include "latlong.h"
 
 

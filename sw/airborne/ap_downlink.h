@@ -37,15 +37,15 @@
 
 #include <inttypes.h>
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #include "downlink.h"
 
 #include "messages.h"
-#include "periodic.h"
+#include "generated/periodic.h"
 
-//#include "modules.h"
+//#include "generated/modules.h"
 
 #if defined DOWNLINK
 #define Downlink(x) x

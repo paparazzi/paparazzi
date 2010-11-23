@@ -1,7 +1,7 @@
 #ifndef BOOZ2_SUPERVISION_H
 #define BOOZ2_SUPERVISION_H
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 extern pprz_t mercury_supervision_yaw_servo_gain;
 extern pprz_t mercury_supervision_pitch_servo_gain;

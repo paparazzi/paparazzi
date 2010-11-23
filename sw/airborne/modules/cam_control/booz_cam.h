@@ -25,7 +25,7 @@
 #ifndef BOOZ_CAM_H
 #define BOOZ_CAM_H
 
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "std.h"
 #include "led.h"
 

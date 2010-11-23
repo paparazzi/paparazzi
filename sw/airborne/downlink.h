@@ -32,9 +32,9 @@
 
 #include <inttypes.h>
 
-#include "modules.h"
+#include "generated/modules.h"
 #include "messages.h"
-#include "airframe.h" // AC_ID is required
+#include "generated/airframe.h" // AC_ID is required
 
 #if defined SITL
 

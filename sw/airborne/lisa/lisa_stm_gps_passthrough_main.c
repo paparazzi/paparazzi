@@ -26,7 +26,7 @@
 #include "sys_time.h"
 #include "lisa/lisa_overo_link.h"
 #include "lisa/lisa_spistream.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "uart.h"
 
 static inline void main_init(void);

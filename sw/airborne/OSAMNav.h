@@ -5,7 +5,7 @@
 #include "nav.h"
 #include "estimator.h"
 #include "autopilot.h"
-#include "flight_plan.h"
+#include "generated/flight_plan.h"
 
 struct Point2D {float x; float y;};
 struct Line {float m;float b;float x;};

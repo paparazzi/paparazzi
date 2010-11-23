@@ -6,7 +6,7 @@
 #include "LPC21xx.h"
 #include "interrupt_hw.h"
 #include "ssp_hw.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 #include BOARD_CONFIG
 
 

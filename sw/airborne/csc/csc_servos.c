@@ -4,7 +4,7 @@
 #include "std.h"
 #include "sys_time.h"
 #include "firmwares/rotorcraft/actuators.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 #include ACTUATORS
 
 #define CSC_SERVOS_NB 4

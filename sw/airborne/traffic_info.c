@@ -28,7 +28,7 @@
 
 #include <inttypes.h>
 #include "traffic_info.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 uint8_t acs_idx;
 uint8_t the_acs_id[NB_ACS_ID];

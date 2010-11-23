@@ -1,6 +1,6 @@
 #include "nps_sensors.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 #include NPS_SENSORS_PARAMS
 
 struct NpsSensors sensors;

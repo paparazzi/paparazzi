@@ -17,8 +17,8 @@
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "autopilot.h"
 #include "gps.h"
-#include "flight_plan.h"
-#include "airframe.h"
+#include "generated/flight_plan.h"
+#include "generated/airframe.h"
 #include "dl_protocol.h"
 
 #include <stdio.h>

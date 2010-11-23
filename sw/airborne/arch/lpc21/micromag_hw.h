@@ -10,7 +10,7 @@
 #include "ssp_hw.h"
 #include BOARD_CONFIG
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #define MM_DIVISOR_128  2
 #define MM_DIVISOR_256  3

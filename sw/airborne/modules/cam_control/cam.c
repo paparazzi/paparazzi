@@ -30,7 +30,7 @@
 #include "cam.h"
 #include "common_nav.h"
 #include "autopilot.h"
-#include "flight_plan.h"
+#include "generated/flight_plan.h"
 #include "estimator.h"
 #include "traffic_info.h"
 #ifdef POINT_CAM

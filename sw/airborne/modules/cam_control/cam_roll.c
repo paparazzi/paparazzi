@@ -30,7 +30,7 @@
 #include "cam.h"
 #include "nav.h"
 #include "autopilot.h"
-#include "flight_plan.h"
+#include "generated/flight_plan.h"
 #include "estimator.h"
 #include "inter_mcu.h"
 #include "nav.h"

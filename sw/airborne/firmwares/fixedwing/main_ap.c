@@ -47,10 +47,10 @@
 #include "nav.h"
 #include "autopilot.h"
 #include "estimator.h"
-#include "settings.h"
+#include "generated/settings.h"
 #include "link_mcu.h"
 #include "sys_time.h"
-#include "flight_plan.h"
+#include "generated/flight_plan.h"
 #include "datalink.h"
 #include "xbee.h"
 
@@ -87,7 +87,7 @@
 
 #define LOW_BATTERY_DECIVOLT (CATASTROPHIC_BAT_LEVEL*10)
 
-#include "modules.h"
+#include "generated/modules.h"
 
 /** FIXME: should be in rc_settings but required by telemetry (ap_downlink.h)*/
 uint8_t rc_settings_mode = 0;

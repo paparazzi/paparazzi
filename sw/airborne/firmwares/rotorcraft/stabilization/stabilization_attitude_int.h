@@ -26,7 +26,7 @@
 
 #include "math/pprz_algebra_int.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 struct Int32AttitudeGains {
     struct Int32Vect3  p;

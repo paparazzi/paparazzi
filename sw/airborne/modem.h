@@ -33,7 +33,7 @@ extern uint8_t modem_nb_ovrn;
 
 #ifdef MODEM
 
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "modem_hw.h"
 
 

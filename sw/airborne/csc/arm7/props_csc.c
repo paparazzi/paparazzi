@@ -1,5 +1,5 @@
 #include "props_csc.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "csc_ap_link.h"
 #include "csc_msg_def.h"
 

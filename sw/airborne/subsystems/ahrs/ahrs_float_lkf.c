@@ -27,7 +27,7 @@
 #include "subsystems/imu.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "math/pprz_algebra_float.h"
 
 #include <stdio.h>

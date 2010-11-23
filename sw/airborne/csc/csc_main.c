@@ -34,7 +34,7 @@
 #include "interrupt_hw.h"
 #include "uart.h"
 #include "csc_telemetry.h"
-#include "periodic.h"
+#include "generated/periodic.h"
 #include "downlink.h"
 #include "i2c.h"
 

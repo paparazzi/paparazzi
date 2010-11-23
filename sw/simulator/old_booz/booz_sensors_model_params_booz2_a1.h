@@ -25,7 +25,7 @@
 #ifndef BOOZ_SENSORS_MODEL_PARAMS_H
 #define BOOZ_SENSORS_MODEL_PARAMS_H
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 
 #define BSM_BODY_TO_IMU_PHI    RadOfDeg(4.)

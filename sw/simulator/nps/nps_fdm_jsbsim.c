@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "nps_fdm.h"
 #include "6dof.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "math/pprz_geodetic.h"
 #include "math/pprz_geodetic_double.h"
 #include "math/pprz_geodetic_float.h"

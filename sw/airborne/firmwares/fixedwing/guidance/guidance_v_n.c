@@ -32,7 +32,7 @@
 #include "firmwares/fixedwing/guidance/guidance_v_n.h"
 #include "estimator.h"
 #include "nav.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "autopilot.h"
 
 /* mode */

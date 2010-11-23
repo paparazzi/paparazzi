@@ -12,7 +12,7 @@
 #define DATALINK_PORT         4243
 #define FMS_NETWORK_BROADCAST TRUE
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #include "fms_periodic.h"
 #include "downlink.h"

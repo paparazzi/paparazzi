@@ -7,8 +7,8 @@
 +#ifndef FMS_PERIODIC_FREQ
  #include "sys_time.h"
 +#endif
- #include "airframe.h"
- #include "periodic.h"
+ #include "generated/airframe.h"
+ #include "generated/periodic.h"
  
 @@ -46,8 +48,15 @@
  #endif

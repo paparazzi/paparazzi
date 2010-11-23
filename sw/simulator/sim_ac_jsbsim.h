@@ -30,8 +30,8 @@
 #include <models/FGPropulsion.h>
 
 #include "std.h"
-#include "airframe.h"
-#include "flight_plan.h"
+#include "generated/airframe.h"
+#include "generated/flight_plan.h"
 
 #include <Ivy/ivy.h>
 

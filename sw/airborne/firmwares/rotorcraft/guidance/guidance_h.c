@@ -31,7 +31,7 @@
 #include "subsystems/ins.h"
 #include "firmwares/rotorcraft/navigation.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 uint8_t guidance_h_mode;
 

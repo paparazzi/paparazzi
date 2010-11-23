@@ -27,7 +27,7 @@
 #include "subsystems/ahrs.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "subsystems/ins.h"
-#include "flight_plan.h"
+#include "generated/flight_plan.h"
 
 uint8_t booz_cam_mode;
 

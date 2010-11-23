@@ -25,7 +25,7 @@
 #ifndef NPS_SENSORS_PARAMS_H
 #define NPS_SENSORS_PARAMS_H
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #if 1
 #define NPS_BODY_TO_IMU_PHI    IMU_BODY_TO_IMU_PHI

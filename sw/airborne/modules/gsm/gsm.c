@@ -73,7 +73,7 @@ Receiving:
 #include "autopilot.h"
 #include "estimator.h"
 #include "common_nav.h"
-#include "settings.h"
+#include "generated/settings.h"
 
 #ifndef GSM_LINK
 #define GSM_LINK Uart3100

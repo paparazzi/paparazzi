@@ -23,7 +23,7 @@
 #include <stm32/gpio.h>
 #include <stm32/rcc.h>
 #include "deploy_sonar_buoy.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 /* simple module to toggle two gpio pins on Lisa.
  * The application in this was written for drops
