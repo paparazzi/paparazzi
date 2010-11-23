@@ -96,14 +96,14 @@ int64_t gv_z_ref;
 int32_t gv_zd_ref;
 int32_t gv_zdd_ref;
 
-static inline void gv_set_ref(int32_t alt, int32_t speed, int32_t accel) {
+__attribute__ ((always_inline)) static inline void gv_set_ref(int32_t alt, int32_t speed, int32_t accel) {
   int64_t new_z = ((int64_t)alt)<<(GV_Z_REF_FRAC - INT32_POS_FRAC);
   gv_z_ref   = new_z;
   gv_zd_ref  = speed>>(INT32_SPEED_FRAC - GV_ZD_REF_FRAC);
   gv_zdd_ref = accel>>(INT32_ACCEL_FRAC - GV_ZDD_REF_FRAC);
 }
 
-static inline void gv_update_ref_from_z_sp(int32_t z_sp) {
+__attribute__ ((always_inline)) static inline void gv_update_ref_from_z_sp(int32_t z_sp) {
 
   gv_z_ref  += gv_zd_ref;
   gv_zd_ref += gv_zdd_ref;
@@ -135,7 +135,7 @@ static inline void gv_update_ref_from_z_sp(int32_t z_sp) {
 }
 
 
-static inline void gv_update_ref_from_zd_sp(int32_t zd_sp) {
+__attribute__ ((always_inline)) static inline void gv_update_ref_from_zd_sp(int32_t zd_sp) {
 
   gv_z_ref  += gv_zd_ref;
   gv_zd_ref += gv_zdd_ref;
