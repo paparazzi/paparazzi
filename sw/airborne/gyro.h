@@ -32,6 +32,10 @@
 
 #include <inttypes.h>
 
+#ifdef GYRO
+#error "The flag GYRO has been deprecated. Please replace it with USE_GYRO."
+#endif
+
 /** Raw (for debug), taking into accound neutral and temp compensation (if any) */
 extern int16_t roll_rate_adc;
 

@@ -33,6 +33,10 @@
 #include "std.h"
 #include "gps_hw.h"
 
+#ifdef GPS
+#error "The flag GPS has been deprecated. Please replace it with USE_GPS."
+#endif
+
 #ifdef UBX
 #include "gps_ubx.h"
 #elif defined USE_GPS_XSENS
