@@ -47,10 +47,10 @@
 #include "subsystems/nav.h"
 #include "autopilot.h"
 #include "estimator.h"
-#include "settings.h"
+#include "generated/settings.h"
 #include "link_mcu.h"
 #include "sys_time.h"
-#include "flight_plan.h"
+#include "generated/flight_plan.h"
 #include "datalink.h"
 #include "xbee.h"
 
@@ -87,7 +87,7 @@
 
 #define LOW_BATTERY_DECIVOLT (CATASTROPHIC_BAT_LEVEL*10)
 
-#include "modules.h"
+#include "generated/modules.h"
 
 /** FIXME: should be in rc_settings but required by telemetry (ap_downlink.h)*/
 uint8_t rc_settings_mode = 0;
@@ -451,14 +451,14 @@ void periodic_task_ap( void ) {
 #endif
     {
 
-#if defined GYRO
+#ifdef USE_GYRO
       gyro_update();
 #endif
 
-#ifdef INFRARED
+#ifdef USE_INFRARED
       ir_update();
       estimator_update_state_infrared();
-#endif /* INFRARED */
+#endif /* USE_INFRARED */
       h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
       v_ctl_throttle_slew();
       ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
@@ -493,13 +493,13 @@ void init_ap( void ) {
 #endif /* SINGLE_MCU */
 
   /************* Sensors initialization ***************/
-#ifdef INFRARED
+#ifdef USE_INFRARED
   ir_init();
 #endif
-#ifdef GYRO
+#ifdef USE_GYRO
   gyro_init();
 #endif
-#ifdef GPS
+#ifdef USE_GPS
   gps_init();
 #endif
 #ifdef USE_UART0
@@ -590,7 +590,7 @@ void init_ap( void ) {
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
 
-#ifdef GPS
+#ifdef USE_GPS
 #if !(defined HITL) && !(defined UBX_EXTERNAL) /** else comes through the datalink */
   if (GpsBuffer()) {
     ReadGpsBuffer();
@@ -617,7 +617,7 @@ void event_task_ap( void ) {
       gps_pos_available = FALSE;
     }
   }
-#endif /** GPS */
+#endif /** USE_GPS */
 
 
 #if defined DATALINK

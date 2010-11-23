@@ -48,11 +48,11 @@ ctl_init(time);
 sensors_init(time);
 
 for i=2:length(time)
-  
-  ctl_run(i-1, fo_traj(:,:,i-1)); 
+
+  ctl_run(i-1, fo_traj(:,:,i-1));
   fdm_run(i, ctl_motor_cmd(:,i-1));
   sensors_run(i);
-  
+
 end
 
 set("current_figure",1);

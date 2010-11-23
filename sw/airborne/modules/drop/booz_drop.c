@@ -23,7 +23,7 @@
 
 #include "booz_drop.h"
 #include "booz2_pwm_hw.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 bool_t booz_drop_ball;
 int16_t booz_drop_servo;

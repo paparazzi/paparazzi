@@ -16,7 +16,7 @@
 /* gravity in m/s2                                 */
 #define G 9.81
 /* mass in kg                                      */
-#define MASS 0.724                 
+#define MASS 0.724
 /* inertia on x axis in kg * m2                    */
 #define Ix .007
 /* inertia on y axis in kg * m2                    */
@@ -26,7 +26,7 @@
 /* lenght between centers of vehicle and prop in m */
 #define L  0.25
 
-/* motors parameters 
+/* motors parameters
 
   from http://cherokee.stanford.edu/~starmac/docs/DynamicsSummary
 
@@ -35,7 +35,7 @@
 */
 #define BAT_VOLTAGE 11.
 
-#define THAU     0.05 
+#define THAU     0.05
 #define Kq       0.12
 #define Kv     304.
 

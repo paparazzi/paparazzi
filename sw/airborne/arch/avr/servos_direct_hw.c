@@ -7,7 +7,7 @@
 #include "servos_direct_hw.h"
 #include "std.h"
 #include "actuators.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 void actuators_init ( void ) {
  /* OC3A, OC3B, OC3C outputs    */

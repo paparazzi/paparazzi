@@ -26,7 +26,7 @@
 
 #include <inttypes.h>
 #include "rc_settings.h"
-#include "radio.h"
+#include "generated/radio.h"
 #include "autopilot.h"
 #include "infrared.h"
 #include "subsystems/nav.h"
@@ -44,7 +44,7 @@
 #define RcChannel(x) (fbw_state->channels[x])
 
 /** Includes generated code from tuning_rc.xml */
-#include "settings.h"
+#include "generated/settings.h"
 
 
 void rc_settings(bool_t mode_changed __attribute__ ((unused))) {

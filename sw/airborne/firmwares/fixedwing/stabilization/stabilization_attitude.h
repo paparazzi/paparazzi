@@ -34,7 +34,7 @@
 #include <inttypes.h>
 #include "std.h"
 #include "paparazzi.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 /* outer loop parameters */
 extern float h_ctl_course_setpoint; /* rad, CW/north */

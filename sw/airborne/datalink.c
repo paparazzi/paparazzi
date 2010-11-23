@@ -33,7 +33,7 @@
 #include <string.h>
 #include "datalink.h"
 
-#include "modules.h"
+#include "generated/modules.h"
 
 #ifdef TRAFFIC_INFO
 #include "subsystems/navigation/traffic_info.h"
@@ -53,7 +53,7 @@
 
 
 #include "subsystems/navigation/common_nav.h"
-#include "settings.h"
+#include "generated/settings.h"
 #include "latlong.h"
 
 

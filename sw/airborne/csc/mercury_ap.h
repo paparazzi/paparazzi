@@ -25,7 +25,7 @@
 #ifndef __MERCURY_AP_H__
 #define __MERCURY_AP_H__
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 extern pprz_t mixed_commands[PROPS_NB];
 extern uint8_t props_enable[PROPS_NB];

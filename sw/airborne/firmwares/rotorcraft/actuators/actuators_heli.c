@@ -29,7 +29,7 @@
 #include "firmwares/rotorcraft/actuators/actuators_pwm.h"
 
 /* get SetActuatorsFromCommands() macro */
-#include "airframe.h"
+#include "generated/airframe.h"
 
 /* define the glue between control and SetActuatorsFromCommands */
 #define actuators actuators_pwm_values

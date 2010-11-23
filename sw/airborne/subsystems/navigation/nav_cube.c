@@ -27,10 +27,10 @@
  *
  */
 
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "subsystems/navigation/nav_cube.h"
 #include "subsystems/nav.h"
-#include "flight_plan.h"
+#include "generated/flight_plan.h"
 
 int32_t cube_alpha;
 int32_t cube_size_x, cube_size_y, cube_size_z;

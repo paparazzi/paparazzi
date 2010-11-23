@@ -257,7 +257,7 @@ static inline bool_t compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float g
 }
 
 
-#include "flight_plan.h"
+#include "generated/flight_plan.h"
 
 
 #ifndef LINE_START_FUNCTION

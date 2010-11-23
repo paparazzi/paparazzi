@@ -2,14 +2,14 @@
 #define BOOZ_FLIGHT_MODEL_H
 
 #include <matrix.h>
-#include "airframe.h"
+#include "generated/airframe.h"
 
 
 
 struct BoozFlightModel {
   /* are we flying ? */
   int on_ground;
- 
+
   double time;
   /* battery voltage in V */
   double bat_voltage;

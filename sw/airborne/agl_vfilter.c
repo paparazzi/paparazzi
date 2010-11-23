@@ -1,7 +1,7 @@
 #include "agl_vfilter.h"
 
 #include BOARD_CONFIG
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "std.h"
 
 /*

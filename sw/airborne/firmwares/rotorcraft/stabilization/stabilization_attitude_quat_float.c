@@ -31,7 +31,7 @@
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_int.h"
 #include "subsystems/ahrs.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 struct FloatAttitudeGains stabilization_gains[STABILIZATION_ATTITUDE_FLOAT_GAIN_NB];
 

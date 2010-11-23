@@ -22,9 +22,9 @@ void booz_wind_model_init( void ) {
 
   bwm.velocity = v_get(AXIS_NB);
   v_zero(bwm.velocity);
-  bwm.velocity->ve[AXIS_X] = INIT_WIND_X; 
-  bwm.velocity->ve[AXIS_Y] = INIT_WIND_Y; 
-  bwm.velocity->ve[AXIS_Z] = INIT_WIND_Z; 
+  bwm.velocity->ve[AXIS_X] = INIT_WIND_X;
+  bwm.velocity->ve[AXIS_Y] = INIT_WIND_Y;
+  bwm.velocity->ve[AXIS_Z] = INIT_WIND_Z;
 
 
   bwm.state = v_get(BWM_STATE_SIZE);
@@ -43,7 +43,7 @@ void booz_wind_model_run( double dt __attribute__ ((unused))) {
   static VEC *one = VNULL;
   one = v_resize(one, AXIS_NB);
   one = v_ones(one);
-  u = v_mltadd(one, u, -2., u); 
+  u = v_mltadd(one, u, -2., u);
   u = sv_mlt((BWM_STD_DEV * BWM_STD_DEV), u, u);
 
   rk4(booz_wind_model_get_derivatives, bwm.state, u, dt);

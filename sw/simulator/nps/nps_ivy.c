@@ -4,7 +4,7 @@
 #include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
 
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "math/pprz_algebra_double.h"
 #include "nps_autopilot.h"
 #include "nps_fdm.h"
@@ -49,7 +49,7 @@ void nps_ivy_init(void) {
 //FIXME currently parsed correctly for booz only
 
 
-#include "settings.h"
+#include "generated/settings.h"
 #include "dl_protocol.h"
 #include "downlink.h"
 static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),

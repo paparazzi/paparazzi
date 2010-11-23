@@ -5,7 +5,7 @@
 #include "udp_transport2.h"
 
 /* generated : holds PeriodicSendMain */
-#include "periodic.h"
+#include "generated/periodic.h"
 /* holds the definitions of PERIODIC_SEND_XXX */
 #include "overo_test_passthrough_telemetry.h"
 /* holds the definitions of DOWNLINK_SEND_XXX */
@@ -13,7 +13,7 @@
 
 #include "dl_protocol.h"
 /* generated : holds DlSetting() and PeriodicSendDlValue() */
-#include "settings.h"
+#include "generated/settings.h"
 
 struct FmsGsCom fms_gs_com;
 uint8_t telemetry_mode_Main_DefaultChannel;

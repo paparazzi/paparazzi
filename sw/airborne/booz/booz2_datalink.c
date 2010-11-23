@@ -26,9 +26,9 @@
 
 #include "datalink.h"
 
-#include "modules.h"
+#include "generated/modules.h"
 
-#include "settings.h"
+#include "generated/settings.h"
 #include "downlink.h"
 #include "messages.h"
 #include "dl_protocol.h"

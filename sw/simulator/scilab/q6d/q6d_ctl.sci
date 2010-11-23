@@ -36,9 +36,9 @@ function ctl_run(i, fo_tra)
   ctl_diff_flat_ref(:,i) = df_ref_of_fo(fo_tra);
   global ctl_u;
   ctl_u(:,i) = ctl_diff_flat_cmd(:,i);
-  motor_of_cmd = [ 0.25    0.     0.5   -0.25  
-                   0.25   -0.5    0.     0.25  
-                   0.25    0.    -0.5   -0.25  
+  motor_of_cmd = [ 0.25    0.     0.5   -0.25
+                   0.25   -0.5    0.     0.25
+                   0.25    0.    -0.5   -0.25
                    0.25    0.5    0.     0.25 ];
   global ctl_motor_cmd;
   ctl_motor_cmd(:,i) =  1/fdm_Ct0 * motor_of_cmd * ctl_u(:,i);

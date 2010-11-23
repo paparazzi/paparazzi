@@ -6,8 +6,8 @@
 //
 function poly_display_traj(time, traj)
 
-  [n_compo, n_order, n_sample] = size(traj); 
- 
+  [n_compo, n_order, n_sample] = size(traj);
+
   for compo=1:n_compo
     for order=1:n_order
       subplot(n_order, n_compo, compo+(order-1)*n_compo);
@@ -15,20 +15,20 @@ function poly_display_traj(time, traj)
       xtitle(sprintf('$X^{%d}_{%d}$', order-1, compo));
     end
   end
-  
+
 endfunction
 
 
 //
 // compute the values of a set of polynomials along a time vector
-// 
+//
 //
 function [traj] = poly_gen_traj(time, coefs)
- 
+
   [n_comp, n_order, n_coef] = size(coefs);
- 
+
   traj = zeros(n_comp, n_coef/2, length(time));
-  for compo=1:n_comp 
+  for compo=1:n_comp
     for order=1:n_order
       for i=1:length(time)
 	traj(compo, order, i) = ...
@@ -51,7 +51,7 @@ function [v] = poly_compute_val(coefs, t0, t)
     v = v * dt;
     v = v + coefs(length(coefs)-i); // assume coef(1) = a_0
   end
-  
+
 endfunction
 
 
@@ -64,20 +64,20 @@ function [coefs] = poly_get_coef_from_bound(time, b0,b1)
 
   [n_comp, n_order] = size(b0);
   n_coef = 2*n_order
-  coefs = zeros(n_comp, n_order, n_coef); 
-  
+  coefs = zeros(n_comp, n_order, n_coef);
+
   // refer to paper for notations
-  
+
   for compo=1:n_comp
 
-    // invert of the top left corner block  
+    // invert of the top left corner block
     invA1 = zeros(n_order, n_order);
     for i=1:n_order
       invA1(i,i) = 1/Arr(i-1,i-1);
     end
     // first half of the coefficients
     coefs(compo, 1, 1:n_order) = (invA1*b0(compo,:)')';
-    
+
     // bottom left block : triangular
     A3 = zeros(n_order, n_order);
     dt = time($) - time(1);
@@ -86,7 +86,7 @@ function [coefs] = poly_get_coef_from_bound(time, b0,b1)
 	A3(i,j) = Arr(i-1,j-1) * dt^(j-i);
       end
     end
-    // bottom right block 
+    // bottom right block
     A4 = zeros(n_order, n_order);
     for i=1:n_order
       for j=1:n_order
@@ -95,14 +95,14 @@ function [coefs] = poly_get_coef_from_bound(time, b0,b1)
     end
     coefs(compo, 1, n_order+1:2*n_order) = ...
 	(inv(A4)*(b1(compo,:)' - A3*matrix(coefs(compo,1, 1:n_order), n_order, 1)))';
-    // fill in the coefficients for the succesive time derivatives  
+    // fill in the coefficients for the succesive time derivatives
     for order=2:n_order
       for pow=0:2*n_order-order
 	coefs(compo, order, pow+1) = Arr(order-1,pow-1+order)*coefs(compo, 1, pow+order);
       end
     end
   end
-  
+
 endfunction
 
 

@@ -23,7 +23,7 @@
 #ifndef BOOZ_STABILISATION_ATTITUDE_REF_FLOAT_H
 #define BOOZ_STABILISATION_ATTITUDE_REF_FLOAT_H
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 extern struct FloatEulers stab_att_sp_euler;
 extern struct FloatQuat   stab_att_sp_quat;

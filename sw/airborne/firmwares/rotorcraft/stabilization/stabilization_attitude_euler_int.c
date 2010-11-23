@@ -27,7 +27,7 @@
 
 
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 struct Int32AttitudeGains  stabilization_gains;
 

@@ -30,8 +30,8 @@
 #include "subsystems/ins.h"
 
 #include "firmwares/rotorcraft/autopilot.h"
-#include "modules.h"
-#include "flight_plan.h"
+#include "generated/modules.h"
+#include "generated/flight_plan.h"
 
 #include "math/pprz_algebra_int.h"
 

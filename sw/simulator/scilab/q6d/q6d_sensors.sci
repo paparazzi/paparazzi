@@ -18,21 +18,21 @@ global sensor_gps_pos;
 global sensor_gps_speed;
 
 
-function sensors_init(time) 
+function sensors_init(time)
 
   global sensor_gyro;
-  sensor_gyro = sensor_noise_gyro * rand(AXIS_NB, length(time),'normal'); 
+  sensor_gyro = sensor_noise_gyro * rand(AXIS_NB, length(time),'normal');
   global sensor_accel;
-  sensor_accel = sensor_noise_accel * rand(AXIS_NB, length(time),'normal'); 
+  sensor_accel = sensor_noise_accel * rand(AXIS_NB, length(time),'normal');
   global sensor_mag;
-  sensor_mag = sensor_noise_mag * rand(AXIS_NB, length(time),'normal'); 
+  sensor_mag = sensor_noise_mag * rand(AXIS_NB, length(time),'normal');
   global sensor_baro;
-  sensor_baro = zeros(1, length(time)); 
+  sensor_baro = zeros(1, length(time));
   global sensor_gps_pos;
-  sensor_gps_pos = zeros(AXIS_NB, length(time)); 
+  sensor_gps_pos = zeros(AXIS_NB, length(time));
   global sensor_gps_speed;
-  sensor_gps_speed = zeros(AXIS_NB, length(time)); 
-  
+  sensor_gps_speed = zeros(AXIS_NB, length(time));
+
 endfunction
 
 
@@ -58,11 +58,11 @@ function sensors_run(i)
   mag_earth = [0.4912 0.1225 0.8624]';
   mag_body = quat_vect_mult(fdm_state(FDM_SQI:FDM_SQZ,i), mag_earth);
   sensor_mag(:,i) = sensor_mag(:,i) + mag_body;
-  
+
   sensor_gps_pos(:,i) = fdm_state(FDM_SX:FDM_SZ, i);
 
   sensor_gps_speed(:,i) = fdm_state(FDM_SXD:FDM_SZD, i);
-  
+
 //  sensor_baro(:,i) = fdm_state(FDM_SZ, i);
 
 endfunction

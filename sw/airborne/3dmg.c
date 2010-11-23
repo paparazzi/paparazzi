@@ -22,7 +22,7 @@
  *
  */
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #include "std.h"
 #include "3dmg.h"

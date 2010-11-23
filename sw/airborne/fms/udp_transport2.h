@@ -4,7 +4,7 @@
 #include "fms_network.h"
 #include "fms_debug.h"
 #include "std.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #define STX_UDP_TX  0x98
 #define STX_UDP_RX  0x99

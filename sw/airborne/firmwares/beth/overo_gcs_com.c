@@ -7,7 +7,7 @@
 #include "messages2.h"
 #include "udp_transport2.h"
 #include "dl_protocol.h"
-#include "settings.h"
+#include "generated/settings.h"
 
 //bill laptop
 //#define GCS_HOST "10.31.4.5"

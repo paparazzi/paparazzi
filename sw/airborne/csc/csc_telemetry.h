@@ -31,7 +31,7 @@
 extern uint8_t telemetry_mode_Ap_DefaultChannel;
 
 #include "downlink.h"
-#include "settings.h"
+#include "generated/settings.h"
 
 
 #define PERIODIC_SEND_DL_VALUE(_chan) PeriodicSendDlValue(_chan)

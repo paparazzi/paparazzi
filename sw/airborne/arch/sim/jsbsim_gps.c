@@ -5,8 +5,8 @@
 #include <inttypes.h>
 
 /** From airborne/autopilot/ */
-#include "airframe.h"
-#include "flight_plan.h"
+#include "generated/airframe.h"
+#include "generated/flight_plan.h"
 #include "autopilot.h"
 #include "gps.h"
 #include "estimator.h"

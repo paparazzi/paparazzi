@@ -24,7 +24,7 @@
 #ifndef GUIDANCE_V_REF_H
 #define GUIDANCE_V_REF_H
 
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "inttypes.h"
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_int.h"

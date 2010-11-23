@@ -40,7 +40,7 @@
 #include "fms/fms_network.h"
 #include "ready_main.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 /* sort of a hack, we're not really fixed wing here but we need their declarations */
 #include "firmwares/fixedwing/actuators.h"
 #include "rdyb_booz_imu.h"

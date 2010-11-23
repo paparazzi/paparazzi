@@ -48,7 +48,7 @@ Q_SIZE = 4;
 
 
 //
-// 
+//
 //
 function [quat] = quat_null()
   quat = [1 0 0 0]';
@@ -88,26 +88,26 @@ endfunction
 //
 //
 //
-function [quat] = quat_of_euler(euler) 
+function [quat] = quat_of_euler(euler)
 
   phi2   = euler(EULER_PHI) / 2.0;
   theta2 = euler(EULER_THETA) / 2.0;
-  psi2   = euler(EULER_PSI) / 2.0;  
-                           
-  sinphi2 = sin( phi2 );   
-  cosphi2 = cos( phi2 );   
-  sintheta2 = sin( theta2 ); 
-  costheta2 = cos( theta2 ); 
-  sinpsi2   = sin( psi2 );   
-  cospsi2   = cos( psi2 );   
-  
+  psi2   = euler(EULER_PSI) / 2.0;
+
+  sinphi2 = sin( phi2 );
+  cosphi2 = cos( phi2 );
+  sintheta2 = sin( theta2 );
+  costheta2 = cos( theta2 );
+  sinpsi2   = sin( psi2 );
+  cospsi2   = cos( psi2 );
+
   q0 =  cosphi2 * costheta2 * cospsi2 + sinphi2 * sintheta2 * sinpsi2;
   q1 = -cosphi2 * sintheta2 * sinpsi2 + sinphi2 * costheta2 * cospsi2;
   q2 =  cosphi2 * sintheta2 * cospsi2 + sinphi2 * costheta2 * sinpsi2;
   q3 =  cosphi2 * costheta2 * sinpsi2 - sinphi2 * sintheta2 * cospsi2;
-  
+
   quat = [q0 q1 q2 q3]';
-  
+
 endfunction
 
 //
@@ -132,7 +132,7 @@ endfunction
 //
 //
 function [qo] = quat_normalize(qi)
-  qo = qi / norm(qi); 
+  qo = qi / norm(qi);
 endfunction
 
 //

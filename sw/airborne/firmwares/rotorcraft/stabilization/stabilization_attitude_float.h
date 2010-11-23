@@ -26,7 +26,7 @@
 
 #include "math/pprz_algebra_float.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 struct FloatAttitudeGains {
     struct FloatVect3  p;

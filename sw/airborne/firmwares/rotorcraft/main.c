@@ -65,7 +65,7 @@
 #include "nps_autopilot_booz.h"
 #endif
 
-#include "modules.h"
+#include "generated/modules.h"
 
 static inline void on_gyro_accel_event( void );
 static inline void on_baro_abs_event( void );

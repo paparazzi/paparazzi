@@ -52,7 +52,7 @@
 
 #include "std.h"
 #include "led.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "estimator.h"
 #include "gps.h"
 

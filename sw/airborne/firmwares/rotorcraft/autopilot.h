@@ -29,7 +29,7 @@
 
 #include "led.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "subsystems/ins.h"
 
 #define AP_MODE_FAILSAFE          0

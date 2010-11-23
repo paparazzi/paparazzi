@@ -48,7 +48,7 @@ if 1
     fo_traj(DF_FO_PSI, 2, i) =  omega*  cos(omega*time(i));
     fo_traj(DF_FO_PSI, 3, i) = -omega^2*sin(omega*time(i));
   end
-end  
+end
   // x and y
   disp_xy = b1(1:2) - b0(1:2);
   [pulse_dt, pulse_ampl, traj_dt] = compute_step(norm(disp_xy), dyn(1,:), max_accel(1), max_speed(1));
@@ -68,9 +68,9 @@ end
       sp = 0;
     end
     fo_traj(1:2,1:4,i) = fo_traj(1:2,1:4,i-1) + fo_traj(1:2,2:5,i-1)* (time(i)-time(i-1));
-    fo_traj(1:2,5,i) = -2*dyn(1,2)*dyn(1,1)*fo_traj(1:2,4,i)-dyn(1,1)^2*(fo_traj(1:2,3,i)-sp*u);  
+    fo_traj(1:2,5,i) = -2*dyn(1,2)*dyn(1,1)*fo_traj(1:2,4,i)-dyn(1,1)^2*(fo_traj(1:2,3,i)-sp*u);
   end
-  
+
   // z
   disp_z = b1(3) - b0(3);
   [pulse_dt, pulse_ampl, traj_dt] = compute_step(norm(disp_z), dyn(2,:), max_accel(2), max_speed(2));
@@ -87,7 +87,7 @@ end
     fo_traj(3,1:4,i) = fo_traj(3,1:4,i-1) + fo_traj(3,2:5,i-1)*(time(i)-time(i-1));
     fo_traj(3,5,i) = -2*dyn(2,2)*dyn(2,1)*fo_traj(3,4,i)-dyn(2,1)^2*(fo_traj(3,3,i)-sp*sign(disp_z));
   end
-  
+
 endfunction
 
 

@@ -5,14 +5,14 @@
 #include "led.h"
 #include "firmwares/fixedwing/actuators.h"
 //#include "actuators.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 #define DATALINK_C
 #include "datalink.h"
 #include "uart.h"
 #include "pprz_transport.h"
 #include "firmwares/fixedwing/main_fbw.h"
 #include "downlink.h"
-#include "settings.h"
+#include "generated/settings.h"
 
 
 #define IdOfMsg(x) (x[1])

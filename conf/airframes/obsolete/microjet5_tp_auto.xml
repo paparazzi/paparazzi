@@ -205,18 +205,18 @@ ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD1 -DUSE_AD1_5 -DUSE
 #ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_1 -DUSE_AD0_2 -DUSE_AD0_3 -DUSE_AD1 -DUSE_AD1_5 -DUSE_AD1_7 -DUSE_AD1_3 -DUSE_AD1_5
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
-ap.CFLAGS += -DGPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B19200
+ap.CFLAGS += -DUSE_GPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B19200
 
 ap.srcs += gps_ubx.c gps.c
 
-ap.CFLAGS += -DINFRARED
+ap.CFLAGS += -DUSE_INFRARED
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV
 ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c
 
 
-ap.CFLAGS += -DGYRO -DADXRS150
+ap.CFLAGS += -DUSE_GYRO -DADXRS150
 ap.srcs += gyro.c
 
 # Harware In The Loop
@@ -228,7 +228,7 @@ ap.srcs += gyro.c
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\"
 sim.srcs += subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/traffic_info.c subsystems/navigation/nav_line.c
-sim.CFLAGS += -DGYRO -DADXRS150
+sim.CFLAGS += -DUSE_GYRO -DADXRS150
 sim.srcs += gyro.c
 
 

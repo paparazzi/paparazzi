@@ -26,7 +26,7 @@
 
 #include "std.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 /* decivolts */
 extern uint8_t battery_voltage;

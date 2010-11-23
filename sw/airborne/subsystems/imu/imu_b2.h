@@ -25,7 +25,7 @@
 #define IMU_B2_H
 
 #include "subsystems/imu.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #include "peripherals/max1168.h"
 

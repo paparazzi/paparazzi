@@ -28,7 +28,7 @@
 
 #include "subsystems/imu.h"
 #include "subsystems/radio_control.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #define F_UPDATE_RES 9
 #define REF_DOT_FRAC 11

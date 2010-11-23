@@ -31,7 +31,7 @@
 #include "gyro.h"
 #include "std.h"
 #include "adc.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "estimator.h"
 
 int16_t roll_rate_adc;

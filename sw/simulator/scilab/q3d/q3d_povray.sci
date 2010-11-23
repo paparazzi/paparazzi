@@ -26,6 +26,6 @@ function povray_draw( time, diff_flat_ref )
 
   mplayer_cmd = "mencoder ""mf://povray/foo*.png"" -mf fps=25 -o povray/test.avi -ovc lavc -lavcopts vcodec=msmpeg4v2:vbitrate=800";
   unix_g(mplayer_cmd);
-  
+
 endfunction
 

@@ -28,7 +28,7 @@
 
 #include "ins_vn100.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "led.h"
 
 #include "downlink.h"

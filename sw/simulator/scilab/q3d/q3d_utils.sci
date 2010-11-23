@@ -56,7 +56,7 @@ function draw_quad(i, _rect)
     earth_lines(j) = dcmt*body_lines(j)';
     plot2d(earth_lines(j)(1,:)+fdm_state(FDM_SX,i),earth_lines(j)(2,:)+fdm_state(FDM_SZ,i),1, rect=_rect);
   end
- 
+
 endfunction
 
 
@@ -68,9 +68,9 @@ function gen_video()
   min_z = min(fdm_state(FDM_SZ,:))-margin;
   max_z = max(fdm_state(FDM_SZ,:))+margin;
   _rect = [min_x min_z max_x max_z];
-  
+
   dt_display = 1/25;
-  
+
   time_display = 0;
   frame_idx = 1;
   for i=1:length(fdm_time)
@@ -94,6 +94,6 @@ function gen_video()
       frame_idx = frame_idx + 1;
     end
   end
-  
+
 endfunction
 

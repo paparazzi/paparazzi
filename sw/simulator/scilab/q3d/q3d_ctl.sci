@@ -23,7 +23,7 @@ ctl_gain = [ 0    0    0      0     0    0
 else
 ctl_gain = [    0   -1    0      0       -1    0
              0.95    0   -3      1.2      0   -3 ];
-	
+
 end
 
 function ctl_init(time)
@@ -46,7 +46,7 @@ function ctl_run(i, model_a, model_b)
   global ctl_diff_flat_ref;
   ctl_diff_flat_ref(:,i) = df_state_of_fo(fo_traj(:,:,i));
   global ctl_fb_cmd;
-  ctl_fb_cmd(:,i) = ctl_compute_feeback(fdm_state(:,i), ctl_diff_flat_ref(:,i), ctl_diff_flat_cmd(:,i), model_a, model_b); 
+  ctl_fb_cmd(:,i) = ctl_compute_feeback(fdm_state(:,i), ctl_diff_flat_ref(:,i), ctl_diff_flat_cmd(:,i), model_a, model_b);
   global ctl_u;
   ctl_u(:,i) = ctl_diff_flat_cmd(:,i) + ctl_fb_cmd(:,i);
   MotorsOfCmds = 0.5*[1 -1 ; 1 1];
@@ -70,8 +70,8 @@ function [fb_cmd] = ctl_compute_feeback(fdm_state, s_ref, u_ref, a, b)
   o2_t = fb_o_t^2;
   xo2_t = 2*fb_x_t*fb_o_t;
   ut = u_ref(1);
-   
-  
+
+
   gain = [ o2_x*st/a            -o2_z*ct/a                0      xo2_x*st/a             -xo2_z*ct/a                   0
            o2_t/b*o2_x*ct/a/ut   o2_t/b*o2_z*st/a/ut   -o2_t/b   o2_t/b*xo2_x*ct/a/ut   o2_t/b*xo2_z*st/a/ut    -xo2_t/b];
 

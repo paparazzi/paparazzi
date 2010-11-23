@@ -28,7 +28,7 @@
 #include "math/pprz_trig_int.h"
 #include "math/pprz_algebra_int.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 struct AhrsIntCmplEuler ahrs_impl;
 

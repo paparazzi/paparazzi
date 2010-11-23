@@ -35,7 +35,7 @@
 #include "subsystems/ins.h"
 #include "math/pprz_algebra_int.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 uint8_t guidance_v_mode;
 int32_t guidance_v_ff_cmd;

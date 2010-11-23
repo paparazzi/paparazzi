@@ -1,9 +1,9 @@
 #include "chemotaxis.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "estimator.h"
 #include "std.h"
 #include "subsystems/nav.h"
-#include "flight_plan.h"
+#include "generated/flight_plan.h"
 #include "ap_downlink.h"
 #include "chemo_detect.h"
 

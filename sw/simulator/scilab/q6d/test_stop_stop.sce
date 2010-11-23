@@ -47,12 +47,12 @@ clf();
 display_df_cmd(time, diff_flat_cmd)
 
 
-motor_of_cmd = [ 0.25    0.     0.5   -0.25  
-                 0.25   -0.5    0.     0.25  
-                 0.25    0.    -0.5   -0.25  
+motor_of_cmd = [ 0.25    0.     0.5   -0.25
+                 0.25   -0.5    0.     0.25
+                 0.25    0.    -0.5   -0.25
                  0.25    0.5    0.     0.25  ];
 
-motor_cmd = zeros(4,length(time));	    
+motor_cmd = zeros(4,length(time));
 
 for i=1:length(time)
   motor_cmd(:,i) = 1/fdm_Ct0 * motor_of_cmd * diff_flat_cmd(:,i);
@@ -63,7 +63,7 @@ display_motor_cmd(time, motor_cmd);
 X0 = [diff_flat_ref(DF_REF_X,1)  ; diff_flat_ref(DF_REF_Y,1) ; diff_flat_ref(DF_REF_Z,1)
       diff_flat_ref(DF_REF_XD,1) ; diff_flat_ref(DF_REF_YD,1); diff_flat_ref(DF_REF_ZD,1)
       quat_of_euler([diff_flat_ref(DF_REF_PHI,1) diff_flat_ref(DF_REF_THETA,1) diff_flat_ref(DF_REF_PSI,1)])
-      diff_flat_ref(DF_REF_P,1)  ; diff_flat_ref(DF_REF_Q,1) ; diff_flat_ref(DF_REF_R,1) 
+      diff_flat_ref(DF_REF_P,1)  ; diff_flat_ref(DF_REF_Q,1) ; diff_flat_ref(DF_REF_R,1)
       ];
 
 fdm_init(time, X0);

@@ -257,7 +257,7 @@
 # prevents motors from ever starting
 #ap.CFLAGS += -DKILL_MOTORS
 
-#set GPS lag for horizontal filter
+#set USE_GPS lag for horizontal filter
 #ap.CFLAGS += -DUSE_GPS_ACC4R
 
 #ap.CFLAGS += -DGUIDANCE_H_USE_REF

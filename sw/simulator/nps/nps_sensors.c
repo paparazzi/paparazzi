@@ -1,13 +1,13 @@
 #include "nps_sensors.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 #include NPS_SENSORS_PARAMS
 
 struct NpsSensors sensors;
 
 void nps_sensors_init(double time) {
 
-  struct DoubleEulers body_to_imu_eulers = 
+  struct DoubleEulers body_to_imu_eulers =
     { NPS_BODY_TO_IMU_PHI, NPS_BODY_TO_IMU_THETA, NPS_BODY_TO_IMU_PSI };
   DOUBLE_RMAT_OF_EULERS(sensors.body_to_imu_rmat, body_to_imu_eulers);
 

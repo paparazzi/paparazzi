@@ -27,7 +27,7 @@
 #include "std.h"
 #include "i2c.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 
 struct ActuatorsMkk {

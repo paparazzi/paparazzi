@@ -34,10 +34,10 @@ fdm_inertia = 0.0078;
 fdm_la  = 0.25;                        // arm length
 
 //fdm_Ct0 = 4. * fdm_mass * fdm_g / 2;   // thrust coefficient
-//fdm_V0  = 1e9;	                       // 
+//fdm_V0  = 1e9;	                       //
 fdm_Cd  = 1e-9;                        // drag coefficient
 
-fdm_min_thrust =  0.05; //  5%  
+fdm_min_thrust =  0.05; //  5%
 fdm_max_thrust =  1.00; // 100%
 
 fdm_wind = [0 0]';
@@ -63,7 +63,7 @@ global fdm_state;                    // state
 global fdm_accel;                    // aceleration (used for sensors)
 global fdm_perturb;                  // perturbation
 
-function fdm_init(time, fdm_X0, cmd0) 
+function fdm_init(time, fdm_X0, cmd0)
 
   global fdm_time;
   fdm_time = time;
@@ -81,7 +81,7 @@ endfunction
 
 // propagate dynamic model from step i-1 to step i
 function fdm_run(i, cmd)
- 
+
   cmd = trim_vect(cmd, fdm_min_thrust, fdm_max_thrust);
   global fdm_state;
 //  global fdm_time;
@@ -95,36 +95,36 @@ endfunction
 function [Xdot] = fdm_get_derivatives(t, X, U, perturb)
 
   Xdot = zeros(length(X),1);
-  
+
   Xdot(FDM_SX:FDM_STHETA) = X(FDM_SXD:FDM_STHETAD);
-  
+
   // forces :
   gspeed_ltp =  X(FDM_SXD:FDM_SZD);
   airspeed_ltp = gspeed_ltp - fdm_wind;
-   
+
   stheta = sin(X(FDM_STHETA));
   ctheta = cos(X(FDM_STHETA));
-  
+
   DCM = [ctheta stheta ; -stheta ctheta];
   airspeed_body = DCM * airspeed_ltp;
-  
+
   thrust = fdm_get_thrust(airspeed_body,X(FDM_STHETAD),U);
-  
+
   lift_body = [0; sum(thrust)];
-  lift_ltp = DCM'*lift_body; 
+  lift_ltp = DCM'*lift_body;
   weight_ltp = [0; -fdm_g * fdm_mass];
   drag_ltp = -fdm_Cd * norm(airspeed_ltp) * airspeed_ltp;
   Xdot(FDM_SXD:FDM_SZD) = 1/fdm_mass*(lift_ltp+weight_ltp+drag_ltp);
-  
+
   // moments
   Xdot(FDM_STHETAD) = fdm_la / fdm_inertia * (thrust(FDM_MOTOR_LEFT) - thrust(FDM_MOTOR_RIGHT));
-  
+
   // add perturbation
   Xdot(FDM_SXD:FDM_STHETAD) = Xdot(FDM_SXD:FDM_STHETAD)+perturb;
 endfunction
 
 function thrust = fdm_get_thrust(airspeed_body,rates_body,U)
-  
+
   vel_of_rate = [rates_body*fdm_la; -rates_body*fdm_la];
 
   for i = 1:FDM_MOTOR_NB

@@ -2,7 +2,7 @@
 
 <flight_plan alt="75" ground_alt="0" lat0="43.46223" lon0="1.27289" max_dist_from_home="1500" name="Demo module" security_height="25">
   <header>
-#include "modules.h"
+#include "generated/modules.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>

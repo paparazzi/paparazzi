@@ -2,7 +2,7 @@
 #define SUPERVISION_H
 
 #include "std.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 struct Supervision {
   int32_t commands[SUPERVISION_NB_MOTOR];

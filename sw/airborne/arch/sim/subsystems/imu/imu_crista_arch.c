@@ -4,7 +4,7 @@
 
 #include "subsystems/imu.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 void imu_crista_arch_init(void) {
 

@@ -74,19 +74,19 @@ void r250_init(int sd)
 	int j, k;
 	unsigned int mask, msb;
 
-#ifdef TRUST_RAND        
+#ifdef TRUST_RAND
 
-#if BITS == 32 || BITS == 31       
+#if BITS == 32 || BITS == 31
 	srand48( sd );
 #else
 	srand( sd );
-#endif	
+#endif
 
 
 #else
 	set_seed( sd );
 #endif
-	
+
 	r250_index = 0;
 	for (j = 0; j < 250; j++)      /* fill r250 buffer with BITS-1 bit values */
 #ifdef TRUST_RAND
@@ -214,7 +214,7 @@ void main(int argc, char **argv)
 			printf("%f\n", dr250() );
 		exit(0);
 	}
-	
+
 	bin_inc = 1.0 / nmr_bins;
 	for (j = 0; j < nmr_bins; j++)	/* initialize bins to zero */
 	{
@@ -238,7 +238,7 @@ void main(int argc, char **argv)
 
 	for (j = 0; j < nmr_bins; j++)
 		printf("%d\n", bins[j]);
-	
+
 }
 
 #endif

@@ -38,13 +38,13 @@ if (0)
   // analytic definition
   [fo_traj] = fo_traj_circle(time, [0 0], 2, rad_of_deg(45));
 end
- 
- 
+
+
 fdm_init(time, df_state_of_fo(fo_traj(:,:,1)), [0.25 0.25]');
 ctl_init(time);
 
 for i=2:length(time)
-  ctl_run(i-1, fdm_Ct0/fdm_mass, fdm_la*fdm_Ct0/fdm_inertia); 
+  ctl_run(i-1, fdm_Ct0/fdm_mass, fdm_la*fdm_Ct0/fdm_inertia);
   fdm_run(i, ctl_motor_cmd(:,i-1));
 end
 

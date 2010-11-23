@@ -26,7 +26,7 @@
  *
  */
 
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "subsystems/ahrs.h"
 

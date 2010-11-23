@@ -37,7 +37,7 @@
 #include "fms_serial_port.h"
 #endif
 
-#include "flight_plan.h"
+#include "generated/flight_plan.h"
 #include "uart.h"
 #include "gps.h"
 #include "gps_ubx.h"

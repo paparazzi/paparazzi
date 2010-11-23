@@ -23,7 +23,7 @@
 #include "sensors/airspeed_adc.h"
 #include "adc.h"
 #include BOARD_CONFIG
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "estimator.h"
 
 uint16_t adc_airspeed_val;

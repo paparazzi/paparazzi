@@ -9,7 +9,7 @@
 #include "downlink.h"
 
 #include "datalink.h"
-#include "settings.h"
+#include "generated/settings.h"
 #include "dl_protocol.h"
 
 #include "i2c.h"

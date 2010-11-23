@@ -25,7 +25,7 @@
 #define BOOZ2_COMMANDS_H
 
 #include "paparazzi.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 extern int32_t booz2_commands[COMMANDS_NB];
 extern const int32_t booz2_commands_failsafe[COMMANDS_NB];

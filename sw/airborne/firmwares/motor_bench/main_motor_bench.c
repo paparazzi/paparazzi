@@ -17,7 +17,7 @@
 #include "messages.h"
 #include "downlink.h"
 
-#include "settings.h"
+#include "generated/settings.h"
 
 #include "adc.h"
 

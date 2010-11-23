@@ -20,7 +20,7 @@ static void handle_frame(void);
 
 
 int nps_radio_control_spektrum_init(const char* device) {
- 
+
   if ((sp_fd = open(device, O_RDWR | O_NONBLOCK)) < 0) {
     printf("opening %s (%s)\n", device, strerror(errno));
     return -1;
@@ -38,7 +38,7 @@ int nps_radio_control_spektrum_init(const char* device) {
   termios.c_lflag |= NOFLSH;
   /* speed        */
   speed_t speed = B115200;
-  
+
   if (cfsetispeed(&termios, speed)) {
     printf("setting term speed (%s)\n", strerror(errno));
     return -1;

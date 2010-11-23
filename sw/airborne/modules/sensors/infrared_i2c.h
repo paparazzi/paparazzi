@@ -28,7 +28,7 @@
 #define INFRARED_I2C_H
 
 #include "std.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "infrared.h"
 #include "i2c.h"
 

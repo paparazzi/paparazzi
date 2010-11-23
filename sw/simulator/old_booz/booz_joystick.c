@@ -27,7 +27,7 @@ void booz_joystick_init(const char* device) {
   int i;
   for (i=0; i<JS_NB_AXIS; i++)
     booz_joystick_value[i] = 0.;
-  booz_joystick_value[JS_MODE] = -0.7; 
+  booz_joystick_value[JS_MODE] = -0.7;
 
   int fd = open(device, O_RDONLY | O_NONBLOCK);
   if (fd == -1) {
@@ -37,23 +37,23 @@ void booz_joystick_init(const char* device) {
   GIOChannel* channel = g_io_channel_unix_new(fd);
   g_io_channel_set_encoding(channel, NULL, NULL);
   g_io_add_watch (channel, G_IO_IN , on_data_received, NULL);
-  
+
 }
 
 
-static gboolean on_data_received(GIOChannel *source, 
-				 GIOCondition condition __attribute__ ((unused)), 
+static gboolean on_data_received(GIOChannel *source,
+				 GIOCondition condition __attribute__ ((unused)),
 				 gpointer data __attribute__ ((unused))) {
 
   struct js_event js;
   gsize len;
   GError *err = NULL;
   g_io_channel_read_chars(source, (void*)(&js), sizeof(struct js_event), &len, &err);
-  
+
   if (js.type == JS_EVENT_AXIS) {
     if (js.number < JS_NB_AXIS) {
-      //      if (js.number == JS_THROTTLE) printf("joystick value %d\n",js.value); 
-      booz_joystick_value[js.number] = (double)(js.value - booz_joystick_neutral[js.number]) / 
+      //      if (js.number == JS_THROTTLE) printf("joystick value %d\n",js.value);
+      booz_joystick_value[js.number] = (double)(js.value - booz_joystick_neutral[js.number]) /
 	(booz_joystick_max[js.number] - booz_joystick_min[js.number]);
     }
   }

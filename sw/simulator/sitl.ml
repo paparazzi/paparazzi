@@ -2,7 +2,7 @@
  *  $Id$
  *
  * Software in the loop basic simulator (handling GPS, infrared and commands)
- *  
+ *
  * Copyright (C) 2004 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -44,7 +44,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
   let servos_period = 1./.40. (* s *)
   let periodic_period = 1./.60. (* s *)
   let rc_period = 1./.40. (* s *)
-      
+
   let msg = fun name ->
     ExtXml.child Data.messages_ap ~select:(fun x -> ExtXml.attrib x "name" = name) "message"
 
@@ -52,7 +52,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 (* Commands handling (rcommands is the intermediate storage) *)
   let rc_channels = Array.of_list (Xml.children A.ac.Data.radio)
   let nb_channels = Array.length rc_channels
-  let rc_channel_no = fun x -> 
+  let rc_channel_no = fun x ->
     List.assoc x (Array.to_list (Array.mapi (fun i c -> Xml.attrib c "function", i) rc_channels))
 
   let rcommands = ref [||]
@@ -110,7 +110,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 	let inv = not ((List.mem f inverted) == (ma < mi)) in
 	let _scale = GRange.scale `HORIZONTAL ~inverted:inv ~adjustment:adj ~packing:hbox#add () in
 	let update = fun () -> update_channel i adj#value in
-	
+
 	ignore (adj#connect#value_changed update);
 	update ())
       rc_channels;
@@ -185,10 +185,10 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 	  Some x -> message_bind msg.Pprz.name x
 	| _ -> ())
       Dl_Pprz.messages;;
-      
+
 (* Functions called by the simulator *)
   let commands = fun s -> rcommands := s
-      
+
   external set_ir : int -> int -> int -> float -> unit = "set_ir"
   let infrared = fun ir_left ir_front ir_top air_speed ->
     (** ADC neutral is not taken into account in the soft sim (c.f. sim_ir.c)*)

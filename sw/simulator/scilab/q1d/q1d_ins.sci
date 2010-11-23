@@ -17,24 +17,24 @@ function [Xi1, Pi1] = ins_run(Xi, Pi, sensors_i, sensors_i1, dt)
         0  1 -dt
         0  0   1     ];
   B = [ dt^2/2 dt 0]';
-  
+
   Qz  = 0.01*dt^2/2;
   Qzd = 0.01*dt;
-  
+
   // FIXME: Qz and Qzd noise mismatch with dt
   //Qz  = 0.01*dt;
   //Qzd = 0.01*dt^2/2;
 
-  
+
   Qbias = 0.0001 * dt;
   Q = [ Qz  0    0
          0  Qzd  0
          0  0    Qbias ];
 
   accel = sensors_i( SENSORS_ACCEL ) - 9.81;
-    
+
   Xi1m = F * Xi + B * accel;
- 
+
   Pi1m = F * Pi * F' + Q;
 
   //
@@ -53,7 +53,7 @@ function [Xi1, Pi1] = ins_run(Xi, Pi, sensors_i, sensors_i1, dt)
   // update covariance
   Pi1 = Pi1m - K*H*Pi1m;
   Xi1(4) = accel - Xi1(INS_BIAS);
-  
+
 endfunction
 
 function [Pi] = getP(n, P,i)

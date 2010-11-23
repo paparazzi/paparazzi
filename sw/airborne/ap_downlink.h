@@ -37,15 +37,15 @@
 
 #include <inttypes.h>
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #include "downlink.h"
 
 #include "messages.h"
-#include "periodic.h"
+#include "generated/periodic.h"
 
-//#include "modules.h"
+//#include "generated/modules.h"
 
 #if defined DOWNLINK
 #define Downlink(x) x
@@ -115,7 +115,7 @@
 #define PERIODIC_SEND_SETTINGS(_chan) {}
 #endif
 
-#if defined INFRARED || INFRARED_I2C
+#if defined USE_INFRARED || USE_INFRARED_I2C
 #define PERIODIC_SEND_IR_SENSORS(_chan) DOWNLINK_SEND_IR_SENSORS(_chan, &ir_ir1, &ir_ir2, &ir_pitch, &ir_roll, &ir_top);
 #else
 #define PERIODIC_SEND_IR_SENSORS(_chan) ;
@@ -167,7 +167,7 @@
 
 #define PERIODIC_SEND_TUNE_ROLL(_chan) DOWNLINK_SEND_TUNE_ROLL(_chan, &estimator_p,&estimator_phi, &h_ctl_roll_setpoint);
 
-#if defined GPS || defined SITL || defined USE_GPS_XSENS
+#if defined USE_GPS || defined SITL || defined USE_GPS_XSENS
 #define PERIODIC_SEND_GPS_SOL(_chan) DOWNLINK_SEND_GPS_SOL(_chan, &gps_Pacc, &gps_Sacc, &gps_PDOP, &gps_numSV)
 #endif
 

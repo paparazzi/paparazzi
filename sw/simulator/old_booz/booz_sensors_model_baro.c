@@ -32,7 +32,7 @@ void booz_sensors_model_baro_run( double time ) {
     //  double p = ( z / 0.084 ) + BSM_BARO_QNH;
     //  double baro_reading = p * BSM_BARO_SENSITIVITY;
     double baro_reading = BSM_BARO_QNH + z * BSM_BARO_SENSITIVITY;
-    
+
     /* FIXME : add noise and random walk */
     baro_reading = rint(baro_reading);
     bsm.baro = baro_reading;

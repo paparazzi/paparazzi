@@ -24,7 +24,7 @@
 
 #include "subsystems/navigation/common_nav.h"
 #include "estimator.h"
-#include "flight_plan.h"
+#include "generated/flight_plan.h"
 #include "gps.h"
 
 float dist2_to_home;

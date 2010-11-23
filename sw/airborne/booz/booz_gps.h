@@ -74,7 +74,7 @@ extern bool_t booz_gps_available;
 #define GPS_LINKChAvailable() (FALSE)
 #define GPS_LINKGetch() (TRUE)
 #include "nps_sensors.h"
-#include "flight_plan.h"
+#include "generated/flight_plan.h"
 
 static inline void  booz_gps_feed_value() {
   booz_gps_state.ecef_pos.x = sensors.gps.ecef_pos.x * 100.;

@@ -11,7 +11,7 @@ static survey_orientation_t survey_orientation = NS;
 #define SurveyGoingEast() ((survey_orientation == WE) && (survey_to.x > survey_from.x))
 #define SurveyGoingWest() ((survey_orientation == WE) && (survey_to.x < survey_from.x))
 
-#include "flight_plan.h"
+#include "generated/flight_plan.h"
 
 #ifndef LINE_START_FUNCTION
 #define LINE_START_FUNCTION {}

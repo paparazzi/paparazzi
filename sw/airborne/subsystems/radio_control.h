@@ -28,7 +28,7 @@
 #if defined RADIO_CONTROL
 
 #include "led.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "paparazzi.h"
 
 /* underlying hardware */

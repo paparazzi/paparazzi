@@ -1,6 +1,6 @@
 #include "nps_sensor_baro.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #include "std.h"
 #include "nps_fdm.h"

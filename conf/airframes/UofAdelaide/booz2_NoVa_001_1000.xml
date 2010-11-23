@@ -248,7 +248,7 @@ include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
 
 
 include $(CFG_BOOZ)/subsystems/ins_hff.makefile
-#set GPS lag for horizontal filter
+#set USE_GPS lag for horizontal filter
 ap.CFLAGS += -DGPS_LAG=0.8
 #-DUSE_GPS_ACC4R
 ap.CFLAGS += -DGPS_USE_LATLONG

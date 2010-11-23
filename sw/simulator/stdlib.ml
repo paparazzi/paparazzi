@@ -2,7 +2,7 @@
  *  $Id$
  *
  * Utilities for the simulators
- *  
+ *
  * Copyright (C) 2004 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -33,7 +33,7 @@ let rec norm_angle = fun x ->
   if x > pi then norm_angle (x-.2.*.pi)
   else if x < -.pi then norm_angle (x+.2.*.pi)
   else x
-  
+
 let deg_of_rad = fun rad -> rad /. pi *. 180.
 
 let rad_of_deg = fun x -> x /. 180. *. pi
@@ -48,9 +48,9 @@ let ms x = max 0 (truncate (1000.*.x))
 class type value = object method value : float end
 
 let timer ?scale p f =
-  let scale = 
-    match scale with 
-      None -> object method value = 1. end 
+  let scale =
+    match scale with
+      None -> object method value = 1. end
     | Some s -> (s :> value) in
   let rec loop = fun expected ->
     let next = expected +. p /. scale#value in
@@ -58,10 +58,10 @@ let timer ?scale p f =
     if dt < 1 then begin (* No timer needed, simply loop *)
       f (); loop next
     end else
-      GMain.Timeout.add 
+      GMain.Timeout.add
 	dt
-	(fun () -> 
+	(fun () ->
 	  ignore (loop next);
-	  f (); 
+	  f ();
 	  false) in
   ignore (loop (Unix.gettimeofday()))

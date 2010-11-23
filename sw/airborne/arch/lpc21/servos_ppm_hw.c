@@ -28,7 +28,7 @@
  */
 #include "actuators.h"
 #include "paparazzi.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 uint8_t servos_PPM_idx;
 uint8_t ppm_pulse;

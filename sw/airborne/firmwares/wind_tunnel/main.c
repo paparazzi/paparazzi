@@ -9,7 +9,7 @@
 #include "downlink.h"
 
 #include "datalink.h"
-#include "settings.h"
+#include "generated/settings.h"
 #include "dl_protocol.h"
 
 #include "wt_servo.h"

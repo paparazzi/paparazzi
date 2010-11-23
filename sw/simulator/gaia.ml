@@ -2,7 +2,7 @@
  *  $Id$
  *
  * World environment (time, wind, ...) for multi-AC simulation
- *  
+ *
  * Copyright (C) 2004 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -71,7 +71,7 @@ let _ =
   let world_send = fun () ->
     Ground_Pprz.message_send my_id "WORLD_ENV" (world_values []) in
 
-  List.iter 
+  List.iter
     (fun (a:GData.adjustment) -> ignore (a#connect#value_changed world_send))
     [time_scale; wind_dir_adj; wind_speed_adj; infrared_contrast_adj];
   ignore (gps_sa#connect#toggled world_send);
@@ -83,7 +83,7 @@ let _ =
   let hbox = GPack.hbox ~packing:vbox#pack () in
   let _ =  GMisc.label ~text:"Time scale:" ~packing:hbox#pack () in
   let _ts = GEdit.spin_button ~adjustment:time_scale ~packing:hbox#add () in
-        
+
   let hbox = GPack.hbox ~packing:vbox#pack () in
   ignore (GMisc.label ~text:"Wind dir:" ~packing:hbox#pack ());
   ignore (GRange.scale ~digits:0 `HORIZONTAL ~adjustment:wind_dir_adj ~packing:hbox#add ());
@@ -91,7 +91,7 @@ let _ =
   let hbox = GPack.hbox ~packing:vbox#pack () in
   ignore (GMisc.label ~text:"Wind speed:" ~packing:hbox#pack ());
   ignore (GRange.scale `HORIZONTAL ~adjustment:wind_speed_adj ~packing:hbox#add ());
-  
+
   vbox#pack gps_sa#coerce;
 
   Ivy.init "Paparazzi gaia" "READY" (fun _ _ -> ());

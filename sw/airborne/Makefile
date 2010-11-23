@@ -28,8 +28,6 @@ ACINCLUDE = $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
 
 INCLUDES = -I $(PAPARAZZI_SRC)/sw/include -I $(PAPARAZZI_SRC)/sw/airborne -I $(PAPARAZZI_SRC)/conf/autopilot -I $(PAPARAZZI_SRC)/sw/airborne/arch/$($(TARGET).ARCHDIR) -I $(VARINCLUDE) -I $(ACINCLUDE)
 
-# doesn't seem to be used/needed
-#SRC_ARCH = $(PAPARAZZI_SRC)/sw/airborne/$(ARCHDIR)
 
 ifneq ($(MAKECMDGOALS),clean)
   include $(PAPARAZZI_HOME)/var/$(AIRCRAFT)/Makefile.ac
@@ -49,9 +47,9 @@ $(TARGET).install : warn_conf
 warn_conf :
 	@echo
 	@echo '###########################################################'
-	@grep AIRFRAME_NAME $(ACINCLUDE)/airframe.h
-	@grep RADIO_NAME $(ACINCLUDE)/radio.h
-	@grep FLIGHT_PLAN_NAME $(ACINCLUDE)/flight_plan.h
+	@grep AIRFRAME_NAME $(ACINCLUDE)/generated/airframe.h
+	@grep RADIO_NAME $(ACINCLUDE)/generated/radio.h
+	@grep FLIGHT_PLAN_NAME $(ACINCLUDE)/generated/flight_plan.h
 	@echo '###########################################################'
 	@echo
 

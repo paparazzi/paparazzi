@@ -36,7 +36,7 @@
 #include "latlong.h"
 #include "sys_time.h"
 #include "airframe.h"
-#include "subsystems/nav.h"
+#include "generated/subsystems/nav.h"
 #include "estimator.h"
 #include "xsens_protocol.h"
 
@@ -265,7 +265,7 @@ void parse_ugear_msg( void ){
             ins_phi  = (float)ugear_phi/10000 - ins_roll_neutral;
             ins_psi = 0;
             ins_theta  = (float)ugear_theta/10000 - ins_pitch_neutral;
-#ifndef INFRARED
+#ifndef USE_INFRARED
             EstimatorSetAtt(ins_phi, ins_psi, ins_theta);
 #endif
             break;

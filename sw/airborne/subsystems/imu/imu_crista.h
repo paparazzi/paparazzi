@@ -25,7 +25,7 @@
 #define IMU_CRISTA_H
 
 #include "subsystems/imu.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 
 #define ADS8344_NB_CHANNELS 8
 extern uint16_t ADS8344_values[ADS8344_NB_CHANNELS];

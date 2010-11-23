@@ -1,7 +1,7 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <!-- to be configured with
-ap.CFLAGS += -DGPS -DUBX -DGPS_LINK=gps_i2c -DGPS_LED=2
+ap.CFLAGS += -DUSE_GPS -DUBX -DGPS_LINK=gps_i2c -DGPS_LED=2
 ap.CFLAGS += -DGPS_CONFIGURE -DGPS_PORT_ID=GPS_PORT_DDC
 -->
 

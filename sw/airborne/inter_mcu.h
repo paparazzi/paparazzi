@@ -40,12 +40,12 @@
 #include "std.h"
 
 #include "paparazzi.h"
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "subsystems/radio_control.h"
 #include "firmwares/fixedwing/main_fbw.h"
 
 #ifndef SINGLE_MCU
-#include "radio.h"
+#include "generated/radio.h"
 #define RADIO_CONTROL_NB_CHANNEL RADIO_CTL_NB
 #endif
 

@@ -25,7 +25,7 @@
 #ifndef RADIO_CONTROL_NULL_H
 #define RADIO_CONTROL_NULL_H
 
-#include "radio.h"
+#include "generated/radio.h"
 
 #define RadioControlEvent(_received_frame_handler) { }
 

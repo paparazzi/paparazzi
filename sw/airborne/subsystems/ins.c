@@ -28,7 +28,7 @@
 #include "firmwares/rotorcraft/baro.h"
 #include "booz_gps.h"
 
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
 
@@ -43,7 +43,7 @@
 #endif
 
 #ifdef BOOZ2_SONAR
-#include "modules.h"
+#include "generated/modules.h"
 #endif
 
 #ifdef SITL
@@ -54,7 +54,7 @@
 
 #include "math/pprz_geodetic_int.h"
 
-#include "flight_plan.h"
+#include "generated/flight_plan.h"
 
 /* gps transformed to LTP-NED  */
 struct LtpDef_i  ins_ltp_def;

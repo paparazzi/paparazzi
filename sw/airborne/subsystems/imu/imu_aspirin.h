@@ -24,7 +24,7 @@
 #ifndef IMU_ASPIRIN_H
 #define IMU_ASPIRIN_H
 
-#include "airframe.h"
+#include "generated/airframe.h"
 #include "subsystems/imu.h"
 
 #include "i2c.h"
