@@ -151,8 +151,7 @@ let send_cam_status = fun a ->
 	  let alpha = -. a.course in
 	  let east = dx *. cos alpha -. dy *. sin alpha
 	  and north = dx *. sin alpha +. dy *. cos alpha in
-	  let utm = LL.utm_add (LL.utm_of WGS84 a.pos) (east, north) in
-	  let wgs84 = LL.of_utm WGS84 utm in
+    let wgs84 = Aircraft.add_pos_to_nav_ref (Geo a.pos) (east, north) in
 	  let twgs84 = Aircraft.add_pos_to_nav_ref nav_ref a.cam.target in
 	  let values = ["ac_id", Pprz.String a.id; 
 			"cam_lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
