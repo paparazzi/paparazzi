@@ -267,7 +267,7 @@ ap.srcs += inter_mcu.c
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 
-ap.CFLAGS += -DGYRO -DADXRS150
+ap.CFLAGS += -DUSE_GYRO -DADXRS150
 ap.srcs += gyro.c
 
 ap.CFLAGS += -DUSE_GPS -DUBX -DUSE_UART0 -DGPS_LINK=Uart0 -DUART0_BAUD=B38400 -DGPS_USE_LATLONG

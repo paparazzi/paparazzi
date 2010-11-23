@@ -451,7 +451,7 @@ void periodic_task_ap( void ) {
 #endif
     {
 
-#if defined GYRO
+#ifdef USE_GYRO
       gyro_update();
 #endif
 
@@ -496,7 +496,7 @@ void init_ap( void ) {
 #ifdef USE_INFRARED
   ir_init();
 #endif
-#ifdef GYRO
+#ifdef USE_GYRO
   gyro_init();
 #endif
 #ifdef USE_GPS

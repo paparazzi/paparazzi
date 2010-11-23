@@ -228,7 +228,7 @@ ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
 
 ap.srcs += nav_line.c nav_survey_rectangle.c
 
-ap.CFLAGS += -DGYRO -DIDG300
+ap.CFLAGS += -DUSE_GYRO -DIDG300
 ap.srcs += gyro.c bomb.c
 
 # Video switch
