@@ -36,12 +36,12 @@ void rk4(ode_fun f, VEC* x, VEC* u, double dt) {
 
   /* adjust x */
   v_mltadd(x,temp,dt/6.0,x);    /* x = x+(h/6) * temp     */
-  
+
 }
 
 
 MAT* dcm_of_eulers (VEC* eulers, MAT* dcm ) {
-  
+
   dcm = m_resize(dcm, 3,3);
 
   double sinPHI   = sin(eulers->ve[EULER_PHI]);
@@ -66,17 +66,17 @@ MAT* dcm_of_eulers (VEC* eulers, MAT* dcm ) {
 
 
 VEC* quat_of_eulers(VEC* quat, VEC* eulers) {
-  
+
   double phi2   = eulers->ve[EULER_PHI]   / 2.0;
   double theta2 = eulers->ve[EULER_THETA] / 2.0;
-  double psi2   = eulers->ve[EULER_PSI]   / 2.0;  
-                           
-  double sinphi2 = sin( phi2 );   
-  double cosphi2 = cos( phi2 );   
-  double sintheta2 = sin( theta2 ); 
-  double costheta2 = cos( theta2 ); 
-  double sinpsi2   = sin( psi2 );   
-  double cospsi2   = cos( psi2 );   
+  double psi2   = eulers->ve[EULER_PSI]   / 2.0;
+
+  double sinphi2 = sin( phi2 );
+  double cosphi2 = cos( phi2 );
+  double sintheta2 = sin( theta2 );
+  double costheta2 = cos( theta2 );
+  double sinpsi2   = sin( psi2 );
+  double cospsi2   = cos( psi2 );
 
   quat->ve[QUAT_QI] =  cosphi2 * costheta2 * cospsi2 + sinphi2 * sintheta2 * sinpsi2;
   quat->ve[QUAT_QX] = -cosphi2 * sintheta2 * sinpsi2 + sinphi2 * costheta2 * cospsi2;

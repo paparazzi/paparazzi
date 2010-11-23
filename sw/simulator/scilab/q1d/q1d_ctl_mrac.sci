@@ -16,7 +16,7 @@ function [Xadpi1p] = ctl_mrac(Xadpim1, Xinsi, Xrefim1, Uim1)
   s = err_zd + mrac_lbd*err_z;
   Xadpi1p = Xadpim1 + mrac_gma*s*(Uim1- ...
       Xinsi(INS_ZD) * abs(Xinsi(INS_ZD)) * fdm_Cd);
-  
+
 endfunction
 
 

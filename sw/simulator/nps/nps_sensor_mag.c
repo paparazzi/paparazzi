@@ -8,13 +8,13 @@
 void nps_sensor_mag_init(struct NpsSensorMag* mag, double time) {
   VECT3_ASSIGN(mag->value, 0., 0., 0.);
   //  mag->resolution = NPS_MAG_RESOLUTION;
-  FLOAT_MAT33_DIAG(mag->sensitivity, 
+  FLOAT_MAT33_DIAG(mag->sensitivity,
 		   NPS_MAG_SENSITIVITY_XX, NPS_MAG_SENSITIVITY_YY, NPS_MAG_SENSITIVITY_ZZ);
-  VECT3_ASSIGN(mag->neutral, 
+  VECT3_ASSIGN(mag->neutral,
 	       NPS_MAG_NEUTRAL_X, NPS_MAG_NEUTRAL_Y, NPS_MAG_NEUTRAL_Z);
-  VECT3_ASSIGN(mag->noise_std_dev, 
+  VECT3_ASSIGN(mag->noise_std_dev,
 	       NPS_MAG_NOISE_STD_DEV_X, NPS_MAG_NOISE_STD_DEV_Y, NPS_MAG_NOISE_STD_DEV_Z);
-  struct DoubleEulers imu_to_sensor_eulers = 
+  struct DoubleEulers imu_to_sensor_eulers =
     { NPS_MAG_IMU_TO_SENSOR_PHI, NPS_MAG_IMU_TO_SENSOR_THETA, NPS_MAG_IMU_TO_SENSOR_PSI };
   DOUBLE_RMAT_OF_EULERS(mag->imu_to_sensor_rmat, imu_to_sensor_eulers);
   mag->next_update = time;
@@ -25,15 +25,15 @@ void nps_sensor_mag_run_step(struct NpsSensorMag* mag, double time, struct Doubl
 
   if (time < mag->next_update)
     return;
-  
+
   /* transform magnetic field to body frame */
   struct DoubleVect3 h_body;
   FLOAT_QUAT_VMULT(h_body, fdm.ltp_to_body_quat, fdm.ltp_h);
-  
+
   /* transform to imu frame */
   struct DoubleVect3 h_imu;
   MAT33_VECT3_MUL(h_imu, *body_to_imu, h_body );
-  
+
   /* transform to sensor frame */
   struct DoubleVect3 h_sensor;
   MAT33_VECT3_MUL(h_sensor, mag->imu_to_sensor_rmat, h_imu );
@@ -42,12 +42,12 @@ void nps_sensor_mag_run_step(struct NpsSensorMag* mag, double time, struct Doubl
   MAT33_VECT3_MUL(mag->value, mag->sensitivity, h_sensor);
   VECT3_ADD(mag->value, mag->neutral);
   /* FIXME: ADD error reading */
-  
+
   /* round signal to account for adc discretisation */
   DOUBLE_VECT3_ROUND(mag->value);
   /* saturate                                       */
-  //  VECT3_BOUND_CUBE(mag->value, 0, mag->resolution); 
-  
+  //  VECT3_BOUND_CUBE(mag->value, 0, mag->resolution);
+
   mag->next_update += NPS_MAG_DT;
   mag->data_available = TRUE;
 }

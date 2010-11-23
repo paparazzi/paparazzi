@@ -37,7 +37,7 @@ for i=1:length(fdm_time)-1
   stabilization_sp_thrust(i+1) = guidance_mass / guidance_Ct0 * 9.81;
 
   stabilization_run(i+1);
-  
+
 end
 
 if 0
@@ -48,7 +48,7 @@ if 0
   drawlater();
   ahrs_display();
   drawnow();
-  
+
   set("current_figure",1);
   clf();
   f=get("current_figure");

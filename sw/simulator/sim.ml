@@ -2,7 +2,7 @@
  *  $Id$
  *
  * Hardware in the loop basic simulator (handling GPS, infrared and commands)
- *  
+ *
  * Copyright (C) 2004-2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -51,7 +51,7 @@ let cb_register = fun closure ->
   s
 
 
-module type AIRCRAFT = 
+module type AIRCRAFT =
   sig
     val init : int -> GPack.box -> unit
     (** [init ac_id box] *)
@@ -60,16 +60,16 @@ module type AIRCRAFT =
 
     val commands : pprz_t array -> unit
 	(** Called once at init *)
-	
+
     val infrared : float -> float -> float -> float -> unit
 	(** [infrared ir_left ir_front ir_top air_speed] Called on timer *)
-	
+
     val gps : Gps.state -> unit
 	(** [gps state] Called on timer *)
   end
 
 
-module type AIRCRAFT_ITL = 
+module type AIRCRAFT_ITL =
     functor (A : Data.MISSION) -> functor (FM: FlightModel.SIG) -> AIRCRAFT
 
 external fg_sizeof : unit -> int = "fg_sizeof"
@@ -109,11 +109,11 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
   let qfu = try float_attrib flight_plan "qfu" with _ -> 0.
 
   (* Try to get the ground alt from the SRTM data, default to flight plan *)
-  
+
   let alt0 =
     let ground_alt =
       Srtm.add_path (Env.paparazzi_home ^ "/data/srtm");
-      try 
+      try
 	float (Srtm.of_wgs84 !pos0)
       with Srtm.Tile_not_found x ->
 	float_attrib flight_plan "ground_alt" in
@@ -125,18 +125,18 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let quit = fun () -> GMain.Main.quit (); exit 0 in
     ignore (window#connect#destroy ~callback:quit);
     let vbox = GPack.vbox ~packing:window#add () in
-    
+
     Aircraft.init A.ac.Data.id vbox;
 
     let gps_period = 0.25 in
-    
+
     let compute_gps_state = Gps.state pos0 alt0 in
 
     let initial_state = FM.init (pi/.2. -. qfu/.180.*.pi) in
 
     let state = ref initial_state in
 
-    let _reset = fun () -> state := initial_state in 
+    let _reset = fun () -> state := initial_state in
 
     let commands = Array.create FM.nb_commands 0 in
 
@@ -158,9 +158,9 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     let world_update = fun _ vs ->
       gps_availability := Pprz.int_assoc "gps_availability" vs;
-      wind_x := Pprz.float_assoc "wind_east" vs;      
-      wind_y := Pprz.float_assoc "wind_north" vs;      
-      wind_z := Pprz.float_assoc "wind_up" vs;      
+      wind_x := Pprz.float_assoc "wind_east" vs;
+      wind_y := Pprz.float_assoc "wind_north" vs;
+      wind_z := Pprz.float_assoc "wind_up" vs;
       infrared_contrast := Pprz.float_assoc "ir_contrast" vs;
       time_scale#set_value (Pprz.float_assoc "time_scale" vs)
     in
@@ -168,9 +168,9 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let ask_for_world_env = fun () ->
       try
 	let (x, y, z) = FlightModel.get_xyz !state in
-	
+
 	let gps_sol = compute_gps_state (x,y,z) (FlightModel.get_time !state) in
-	
+
 	let float = fun f -> Pprz.Float f in
 	let values = ["east", float x; "north", float y; "up", float z;
 		      "lat", float ((Rad>>Deg)gps_sol.Gps.wgs84.posn_lat);
@@ -197,18 +197,18 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 	      end
 	  | None -> 0. in
       FM.state_update !state FM.nominal_airspeed (!wind_x, !wind_y, !wind_z) agl fm_period
-       
+
     and ir_task = fun () ->
       let phi, theta, _ = FlightModel.get_attitude !state in
 
       let phi_sensor = phi +. FM.roll_neutral_default
       and theta_sensor = theta +. FM.pitch_neutral_default in
-   
+
       let ir_left = sin phi_sensor *. !infrared_contrast
       and ir_front = sin theta_sensor *. !infrared_contrast
       and ir_top = cos phi_sensor *. cos theta_sensor *. !infrared_contrast in
       Aircraft.infrared ir_left ir_front ir_top (FlightModel.get_air_speed !state)
-	    
+
     and gps_task = fun () ->
       let (x,y,z) = FlightModel.get_xyz !state in
       east_label#set_text (Printf.sprintf "%.0f" x);
@@ -269,8 +269,8 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 	with
 	  e -> fprintf stderr "Error while connecting to fg: %s" (Printexc.to_string e)
     in
-    
-    let take_off = fun () -> FlightModel.set_air_speed !state FM.nominal_airspeed in 
+
+    let take_off = fun () -> FlightModel.set_air_speed !state FM.nominal_airspeed in
 
     let hbox = GPack.hbox ~spacing:4 ~packing:vbox#pack () in
     let s = GButton.button ~label:"Set Pos" ~packing:hbox#pack () in
@@ -290,7 +290,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       ignore (s#connect#clicked ~callback)
     end else
       set_pos_and_boot ();
-    
+
     if not !autolaunch then begin
       let t = GButton.button ~label:"Launch" ~packing:hbox#pack () in
       let callback = fun () ->

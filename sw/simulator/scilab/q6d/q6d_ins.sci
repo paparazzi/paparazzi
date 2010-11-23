@@ -21,7 +21,7 @@ function ins_init()
   ins_state = zeros(INS_SSIZE, length(fdm_time));
   global ins_accel;
   ins_accel = zeros(AXIS_NB, length(fdm_time));
- 
+
 endfunction
 
 // propagate from i-1 to i
@@ -42,8 +42,8 @@ function ins_propagate(i)
   state_dot = [ ins_state(INS_SXD:INS_SZD, i-1); ins_accel(:,i); 0; 0; 0];
   // propagate
   dt = fdm_time(i) - fdm_time(i-1);
-  ins_state(:,i) = ins_state(:,i-1) + state_dot * dt; 
-  
+  ins_state(:,i) = ins_state(:,i-1) + state_dot * dt;
+
 endfunction
 
 
@@ -54,7 +54,7 @@ function ins_display()
   global ins_state;
   global fdm_state;
   global fdm_time;
-  
+
   subplot(nr,nc,1);
   plot2d(fdm_time, fdm_state(FDM_SX,:),3);
   plot2d(fdm_time, ins_state(INS_SX,:),2);

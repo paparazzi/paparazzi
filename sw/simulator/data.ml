@@ -2,7 +2,7 @@
  *  $Id$
  *
  * Usefull data for simulation
- *  
+ *
  * Copyright (C) 2004 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -44,7 +44,7 @@ let messages_ap =
 type aircraft = {
     name : string;
     id : int;
-    airframe : Xml.xml; 
+    airframe : Xml.xml;
     flight_plan : Xml.xml;
     radio: Xml.xml
   }
@@ -55,7 +55,7 @@ let aircraft = fun name ->
     let rec loop = function
 	[] -> failwith ("Aircraft not found : "^name)
       | x::_ when Xml.tag x = "aircraft" && Xml.attrib x "name" = name ->
-	  begin 
+	  begin
 	    try
 	      (x, int_of_string (Xml.attrib x "ac_id"))
 	    with
@@ -64,7 +64,7 @@ let aircraft = fun name ->
 	  end
       | _x::xs -> loop xs in
     loop (Xml.children conf_xml) in
-  
+
   let airframe_file = user_conf_path // ExtXml.attrib aircraft_xml "airframe" in
 
   { id = id; name = name;

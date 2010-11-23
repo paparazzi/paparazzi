@@ -15,8 +15,8 @@ global guidance_cmd_fb;
 global guidance_output_quat;
 global guidance_output_thrust;
 
-guidance_omega_ref = [ rad_of_deg(90); rad_of_deg(90); rad_of_deg(270) ]; 
-guidance_zeta_ref  = [ 0.8; 0.8; 0.8 ]; 
+guidance_omega_ref = [ rad_of_deg(90); rad_of_deg(90); rad_of_deg(270) ];
+guidance_zeta_ref  = [ 0.8; 0.8; 0.8 ];
 
 guidance_vsat = [ -3  3
                   -8 16
@@ -24,7 +24,7 @@ guidance_vsat = [ -3  3
 guidance_hsat = [ -3  3
                   -3  3
 		 -10 10 ];
-	      
+
 guidance_thau = [ -1/1. -1/0.6 -1/0.25
                   -1/1. -1/0.6 -1/0.25
 		  -1/0.36 -1/0.15 -1/0.7  ];
@@ -36,10 +36,10 @@ guidance_Kp = 0.5* [ -0.1; -0.1; -0.1];
 guidance_Kd = 1.5* [ -0.1; -0.1; -0.1];
 
 
-function guidance_init() 
+function guidance_init()
 
   global fdm_time;
-  
+
   global guidance_sp_psi;
   guidance_sp_psi = zeros(1, length(fdm_time));
   global guidance_sp_pos;
@@ -50,15 +50,15 @@ function guidance_init()
   guidance_ref_speed = zeros(AXIS_NB, length(fdm_time));
   global guidance_ref_accel;
   guidance_ref_accel = zeros(AXIS_NB, length(fdm_time));
-  
+
   global guidance_output_quat;
   guidance_output_quat = zeros(Q_SIZE, length(fdm_time));
   global guidance_output_thrust;
-  guidance_output_thrust = zeros(1, length(fdm_time)); 
+  guidance_output_thrust = zeros(1, length(fdm_time));
 
 endfunction
 
-function guidance_run(i) 
+function guidance_run(i)
 
 // guidance_step_phi(i);
 // guidance_step_theta(i);
@@ -96,7 +96,7 @@ function guidance_hover(i)
   global guidance_ref_accel;
   global ins_state;
   global ahrs_state;
-  
+
   pos_err = ins_state(INS_SX:INS_SZ,i) - guidance_ref_pos(:,i);
   speed_err = ins_state(INS_SXD:INS_SZD,i) - guidance_ref_speed(:,i);
 
@@ -107,19 +107,19 @@ function guidance_hover(i)
   thrust_ltp =  nli_thrust_ltp + corr_thrust_ltp;
 
   axis_foo = cross_product(thrust_ltp/norm(thrust_ltp), [0; 0; -1]);
-  
+
   angle_foo = asin(norm(axis_foo));
-  
+
   quat_foo = [ cos(angle_foo); -axis_foo];
-  
+
 //  printf("%f %f %f\n", nli_thrust_ltp(1), nli_thrust_ltp(2), nli_thrust_ltp(3));
 //  printf("%f %f %f %f\n", quat_foo(1), quat_foo(2), quat_foo(3), quat_foo(4));
-  
+
 //  thrust_body = quat_vect_mult(ahrs_state(AHRS_QI:AHRS_QZ, i), thrust_ltp);
 
   global guidance_output_thrust;
   guidance_output_thrust(i) = norm(thrust_ltp);
-  
+
   global guidance_output_quat;
   guidance_output_quat(:, i) = quat_foo; //[1; 0; 0; 0];
 endfunction
@@ -143,7 +143,7 @@ function guidance_update_ref_old(i)
   dt = 1/512;
   guidance_ref_speed(:,i) = guidance_ref_speed(:,i-1) + dt * guidance_ref_accel(:,i-1);
   guidance_ref_pos(:,i) = guidance_ref_pos(:,i-1) + dt * guidance_ref_speed(:,i-1);
-			
+
 endfunction
 
 function guidance_update_ref(i)
@@ -177,7 +177,7 @@ function guidance_update_ref(i)
 //  sp_acceld(2) = trim(sp_acceld(2), guidance_hsat(3,1),  guidance_hsat(3,2));
   sp_acceld(3) = trim(sp_acceld(3), guidance_vsat(3,1),  guidance_vsat(3,2));
   guidance_ref_acceld(:,i) = sp_acceld;
-			
+
 endfunction
 
 
@@ -190,7 +190,7 @@ function guidance_step_x(i)
     pos_sp = [ 10; 0; 0];
   else
     pos_sp = [ -10; 0; 0];
-  end  
+  end
   global guidance_sp_pos;
   guidance_sp_pos(:,i) = pos_sp;
 endfunction
@@ -204,7 +204,7 @@ function guidance_step_y(i)
     pos_sp = [ 0; 5; 0];
   else
     pos_sp = [ 0; -5; 0];
-  end  
+  end
   global guidance_sp_pos;
   guidance_sp_pos(:,i) = pos_sp;
 endfunction
@@ -218,7 +218,7 @@ function guidance_step_z(i)
     pos_sp = [ 0; 0; -1];
   else
     pos_sp = [ 0; 0; 0];
-  end  
+  end
   global guidance_sp_pos;
   guidance_sp_pos(:,i) = pos_sp;
 endfunction
@@ -234,7 +234,7 @@ function guidance_step_phi(i)
     euler_sp = [ rad_of_deg(10); 0; 0];
   else
     euler_sp = [ rad_of_deg(-10); 0; 0];
-  end  
+  end
   global guidance_output_quat;
   guidance_output_quat(:, i) = quat_of_euler(euler_sp);
 endfunction
@@ -247,8 +247,8 @@ function guidance_step_theta(i)
   if modulo(i,512) < 256
    euler_sp = [ 0; rad_of_deg(10); 0];
   else
-   euler_sp = [ 0; rad_of_deg(-10); 0]; 
-  end  
+   euler_sp = [ 0; rad_of_deg(-10); 0];
+  end
   global guidance_output_quat;
   guidance_output_quat(:, i) = quat_of_euler(euler_sp);
 endfunction
@@ -262,7 +262,7 @@ function guidance_step_psi(i)
     euler_sp = [ 0; 0; rad_of_deg(10)];
   else
     euler_sp = [ 0; 0; rad_of_deg(-10)];
-  end  
+  end
   global guidance_output_quat;
   guidance_output_quat(:, i) = quat_of_euler(euler_sp);
 endfunction
@@ -299,7 +299,7 @@ function guidance_display()
   plot2d(fdm_time, guidance_sp_pos(AXIS_Z,:),5);
   legends(["setpoint", "INS", "ref"],[5 2 3], with_box=%f, opt="ur");
   xtitle('Z');
- 
+
   subplot(nr,nc,4);
   plot2d(fdm_time, ins_state(INS_SXD,:),2);
   plot2d(fdm_time, guidance_ref_speed(AXIS_X,:),3);
@@ -315,7 +315,7 @@ function guidance_display()
   plot2d(fdm_time, guidance_ref_speed(AXIS_Z,:),3);
   legends(["setpoint", "INS", "ref"],[5 2 3], with_box=%f, opt="ur");
   xtitle('Zdot');
- 
+
   subplot(nr,nc,7);
   plot2d(fdm_time, ins_accel(AXIS_X,:),2);
   plot2d(fdm_time, guidance_ref_accel(AXIS_X,:),3);
@@ -331,7 +331,7 @@ function guidance_display()
   plot2d(fdm_time, guidance_ref_accel(AXIS_Z,:),3);
   legends(["setpoint", "INS", "ref"],[5 2 3], with_box=%f, opt="ur");
   xtitle('Zdotdot');
-  
+
   subplot(nr,nc,12);
   plot2d(fdm_time, guidance_output_thrust,3);
   legends(["setpoint", "INS", "ref"],[5 2 3], with_box=%f, opt="ur");

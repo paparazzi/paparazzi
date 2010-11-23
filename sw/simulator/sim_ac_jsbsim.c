@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008 Gautier Hattenberger
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -85,10 +85,10 @@ static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
   copy_outputs_from_jsbsim(FDMExec);
 
   /* run the airborne code */
-  
+
 //  airborne_run_one_step();
-  autopilot_event_task();                                                       
-  autopilot_periodic_task();                                                    
+  autopilot_event_task();
+  autopilot_periodic_task();
 
   return result;
 }
@@ -101,7 +101,7 @@ int main ( int argc, char** argv) {
   sim_init();
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-  
+
   g_timeout_add(JSBSIM_PERIOD, sim_periodic, NULL);
 
   g_main_loop_run(ml);
@@ -176,7 +176,7 @@ void jsbsim_init(void) {
     exit(0);
   }
   string pprzRoot = string(root);
-  
+
 #ifdef JSBSIM_MODEL
   AircraftName = JSBSIM_MODEL;
 #endif

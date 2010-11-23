@@ -52,14 +52,14 @@ adp_init(time, [16.5 110]', []);
 sensors_init(time)
 
 for i=2:length(time)
-  ctl_run(i-1, adp_est(1,i-1), adp_est(2,i-1)); 
-//  ctl_run(i-1, 16, 100); 
+  ctl_run(i-1, adp_est(1,i-1), adp_est(2,i-1));
+//  ctl_run(i-1, 16, 100);
   fdm_run(i, ctl_motor_cmd(:,i-1));
   sensors_run(i);
   adp_run(i);
 end
 
-  
+
 set("current_figure",1);
 display_control(time, ctl_diff_flat_ref, fdm_state, ctl_diff_flat_cmd, ctl_fb_cmd, ctl_motor_cmd );
 

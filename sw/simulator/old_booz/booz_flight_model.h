@@ -9,7 +9,7 @@
 struct BoozFlightModel {
   /* are we flying ? */
   int on_ground;
- 
+
   double time;
   /* battery voltage in V */
   double bat_voltage;

@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008 Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -74,14 +74,14 @@ static void     booz2_sim_display(void);
 static void     booz_sim_read_actuators(void);
 
 static void ivy_transport_init(void);
-static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 
-			  void *user_data __attribute__ ((unused)), 
+static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
+			  void *user_data __attribute__ ((unused)),
 			  int argc __attribute__ ((unused)), char *argv[]);
-static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)), 
-			  void *user_data __attribute__ ((unused)), 
+static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)),
+			  void *user_data __attribute__ ((unused)),
 			  int argc __attribute__ ((unused)), char *argv[]);
-static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)), 
-			  void *user_data __attribute__ ((unused)), 
+static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
+			  void *user_data __attribute__ ((unused)),
 			  int argc __attribute__ ((unused)), char *argv[]);
 
 
@@ -90,7 +90,7 @@ static void booz2_sim_init(void) {
   gettimeofday (&host_time_start, NULL);
   sim_time = 0.;
   disp_time = 0.;
-  
+
   booz_flight_model_init();
 
   booz_sensors_model_init(sim_time);
@@ -113,17 +113,17 @@ static gboolean booz2_sim_periodic(gpointer data __attribute__ ((unused))) {
   host_time_elapsed = host_time_factor *
     ((host_time_now.tv_sec  - host_time_start.tv_sec) +
      (host_time_now.tv_usec - host_time_start.tv_usec)*1e-6);
-  
+
   while (sim_time <= host_time_elapsed) {
     sim_run_one_step();
     sim_time += SIM_DT;
-  }  
-    
-  
-    
+  }
+
+
+
   return TRUE;
 }
-  
+
 
 #include "subsystems/ahrs.h"
 
@@ -131,7 +131,7 @@ static void sim_run_one_step(void) {
 
    /* read actuators positions */
     booz_sim_read_actuators();
-    
+
     /* run our models */
     if (sim_time > 13.)
       bfm.on_ground = FALSE;
@@ -142,12 +142,12 @@ static void sim_run_one_step(void) {
 
     booz_sensors_model_run(sim_time);
     battery_voltage = bfm.bat_voltage * 10;
-    
+
     /* outputs models state */
     booz2_sim_display();
 
     /* run the airborne code */
-  
+
     // feed a rc frame and signal event
     BoozRcSimFeed(sim_time);
     // process it
@@ -175,7 +175,7 @@ static void sim_run_one_step(void) {
       sim_gps_feed_data();
       main_event();
     }
-    
+
     if (booz_sensors_model_mag_available()) {
       sim_mag_feed_data();
       main_event();
@@ -183,7 +183,7 @@ static void sim_run_one_step(void) {
       sim_overwrite_ahrs();
 #endif /* BYPASS_AHRS */
     }
-    
+
     main_periodic();
 
 
@@ -233,7 +233,7 @@ static void sim_gps_feed_data(void) {
   // speed?
   //  booz2_gps_vel_n = rint(bsm.gps_speed->ve[AXIS_X] * 100.);
   //  booz2_gps_vel_e = rint(bsm.gps_speed->ve[AXIS_Y] * 100.);
-  
+
 
   booz_gps_state.ecef_pos.x = rint(bsm.gps_pos_ecef.x);
   booz_gps_state.ecef_pos.y = rint(bsm.gps_pos_ecef.y);
@@ -260,41 +260,41 @@ static void booz2_sim_display(void) {
   if (sim_time >= disp_time) {
     disp_time+= DT_DISPLAY;
     //    booz_flightgear_send();
-    IvySendMsg("%d BOOZ_SIM_RPMS %f %f %f %f",  
+    IvySendMsg("%d BOOZ_SIM_RPMS %f %f %f %f",
 	       AC_ID,
-	       RPM_OF_RAD_S(bfm.omega->ve[SERVO_FRONT]), 
-	       RPM_OF_RAD_S(bfm.omega->ve[SERVO_BACK]), 
+	       RPM_OF_RAD_S(bfm.omega->ve[SERVO_FRONT]),
+	       RPM_OF_RAD_S(bfm.omega->ve[SERVO_BACK]),
 	       RPM_OF_RAD_S(bfm.omega->ve[SERVO_RIGHT]),
 	       RPM_OF_RAD_S(bfm.omega->ve[SERVO_LEFT]) );
-    IvySendMsg("%d BOOZ_SIM_RATE_ATTITUDE %f %f %f %f %f %f",  
+    IvySendMsg("%d BOOZ_SIM_RATE_ATTITUDE %f %f %f %f %f %f",
 	       AC_ID,
-	       DegOfRad(bfm.ang_rate_body->ve[AXIS_X]), 
-	       DegOfRad(bfm.ang_rate_body->ve[AXIS_Y]), 
+	       DegOfRad(bfm.ang_rate_body->ve[AXIS_X]),
+	       DegOfRad(bfm.ang_rate_body->ve[AXIS_Y]),
 	       DegOfRad(bfm.ang_rate_body->ve[AXIS_Z]),
-	       DegOfRad(bfm.eulers->ve[AXIS_X]), 
-	       DegOfRad(bfm.eulers->ve[AXIS_Y]), 
+	       DegOfRad(bfm.eulers->ve[AXIS_X]),
+	       DegOfRad(bfm.eulers->ve[AXIS_Y]),
 	       DegOfRad(bfm.eulers->ve[AXIS_Z]));
-    IvySendMsg("%d BOOZ_SIM_SPEED_POS %f %f %f %f %f %f",  
+    IvySendMsg("%d BOOZ_SIM_SPEED_POS %f %f %f %f %f %f",
 	       AC_ID,
-	       (bfm.speed_ltp->ve[AXIS_X]), 
-	       (bfm.speed_ltp->ve[AXIS_Y]), 
+	       (bfm.speed_ltp->ve[AXIS_X]),
+	       (bfm.speed_ltp->ve[AXIS_Y]),
 	       (bfm.speed_ltp->ve[AXIS_Z]),
-	       (bfm.pos_ltp->ve[AXIS_X]), 
-	       (bfm.pos_ltp->ve[AXIS_Y]), 
+	       (bfm.pos_ltp->ve[AXIS_X]),
+	       (bfm.pos_ltp->ve[AXIS_Y]),
 	       (bfm.pos_ltp->ve[AXIS_Z]));
 #if 0
-    IvySendMsg("%d BOOZ_SIM_WIND %f %f %f",  
+    IvySendMsg("%d BOOZ_SIM_WIND %f %f %f",
     	       AC_ID,
-	       bwm.velocity->ve[AXIS_X], 
-    	       bwm.velocity->ve[AXIS_Y], 
+	       bwm.velocity->ve[AXIS_X],
+    	       bwm.velocity->ve[AXIS_Y],
     	       bwm.velocity->ve[AXIS_Z]);
 #endif
-    IvySendMsg("%d BOOZ_SIM_ACCEL_LTP %f %f %f",  
+    IvySendMsg("%d BOOZ_SIM_ACCEL_LTP %f %f %f",
     	       AC_ID,
-	       bfm.accel_ltp->ve[AXIS_X], 
-    	       bfm.accel_ltp->ve[AXIS_Y], 
+	       bfm.accel_ltp->ve[AXIS_X],
+    	       bfm.accel_ltp->ve[AXIS_Y],
     	       bfm.accel_ltp->ve[AXIS_Z]);
-    
+
   }
 }
 
@@ -305,7 +305,7 @@ int main ( int argc, char** argv) {
   booz2_sim_init();
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-  
+
   g_timeout_add(HOST_TIMEOUT_PERIOD, booz2_sim_periodic, NULL);
 
   g_main_loop_run(ml);
@@ -326,8 +326,8 @@ static void ivy_transport_init(void) {
 #include "generated/settings.h"
 #include "dl_protocol.h"
 #include "downlink.h"
-static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 
-			  void *user_data __attribute__ ((unused)), 
+static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
+			  void *user_data __attribute__ ((unused)),
 			  int argc __attribute__ ((unused)), char *argv[]){
   uint8_t index = atoi(argv[2]);
   float value = atof(argv[3]);
@@ -336,8 +336,8 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
   //  printf("setting %d %f\n", index, value);
 }
 
-static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)), 
-			  void *user_data __attribute__ ((unused)), 
+static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)),
+			  void *user_data __attribute__ ((unused)),
 			  int argc __attribute__ ((unused)), char *argv[]){
   int block = atoi(argv[1]);
   nav_goto_block(block);
@@ -345,8 +345,8 @@ static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)),
 
 #include "pprz_geodetic_int.h"
 #include "stdio.h"
-static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)), 
-			  void *user_data __attribute__ ((unused)), 
+static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
+			  void *user_data __attribute__ ((unused)),
 			  int argc __attribute__ ((unused)), char *argv[]){
   int wp_id = atoi(argv[1]);
   //int ac_id = atoi(argv[1]);
@@ -376,8 +376,8 @@ static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
 #include "actuators.h"
 static void booz_sim_read_actuators(void) {
 
-  
-//  printf("actatuors %d %d %d %d\n",  
+
+//  printf("actatuors %d %d %d %d\n",
 //	 Actuator(SERVO_FRONT), Actuator(SERVO_BACK), Actuator(SERVO_RIGHT), Actuator(SERVO_LEFT));
   int32_t ut_front = Actuator(SERVO_FRONT) - TRIM_FRONT;
   int32_t ut_back  = Actuator(SERVO_BACK)  - TRIM_BACK;
@@ -425,7 +425,7 @@ static void booz2_sim_parse_options(int argc, char** argv) {
 			long_options, &option_index);
     if (c == -1)
       break;
-    
+
     switch (c) {
     case 0:
       switch (option_index) {
@@ -441,7 +441,7 @@ static void booz2_sim_parse_options(int argc, char** argv) {
     case 'j':
       joystick_dev = strdup(optarg);
       break;
-    
+
     default: /* ’?’ */
       printf("?? getopt returned character code 0%o ??\n", c);
       fprintf(stderr, usage, argv[0]);

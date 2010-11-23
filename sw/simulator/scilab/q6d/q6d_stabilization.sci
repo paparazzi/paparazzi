@@ -16,11 +16,11 @@ global stabilization_cmd_axis;
 global stabilization_cmd_motors;
 
 
-stab_omega_ref = [ rad_of_deg(720); rad_of_deg(720); rad_of_deg(720) ]; 
-stab_zeta_ref  = [ 0.8; 0.8; 0.8 ]; 
+stab_omega_ref = [ rad_of_deg(720); rad_of_deg(720); rad_of_deg(720) ];
+stab_zeta_ref  = [ 0.8; 0.8; 0.8 ];
 
 
-function stabilization_init() 
+function stabilization_init()
 
   global fdm_time;
 
@@ -40,7 +40,7 @@ function stabilization_init()
   stabilization_ref_euler = zeros(EULER_NB, length(fdm_time));
   stabilization_ref_rate = zeros(AXIS_NB, length(fdm_time));
   stabilization_ref_raccel = zeros(AXIS_NB, length(fdm_time));
-  
+
   global stabilization_cmd_ff;
   global stabilization_cmd_fb;
   global stabilization_cmd_axis;
@@ -56,7 +56,7 @@ Kp  = [ -0.5; -0.5; -0.5 ];
 Kd  = [ -0.5; -0.5; -0.5 ];
 Kdd = [  0.007;  0.007;  0.007 ];
 
-function stabilization_run(i) 
+function stabilization_run(i)
 
   global ahrs_state;
   global stabilization_sp_euler;
@@ -64,8 +64,8 @@ function stabilization_run(i)
   stabilization_sp_euler(:,i) = euler_of_quat(stabilization_sp_quat(:,i));
 
   stabilization_update_ref(i);
-  
-  err_angle = quat_div(stabilization_ref_quat(:,i), ahrs_state(AHRS_QI:AHRS_QZ,i)); 
+
+  err_angle = quat_div(stabilization_ref_quat(:,i), ahrs_state(AHRS_QI:AHRS_QZ,i));
   err_rate = ahrs_rate(:,i) - stabilization_ref_rate(:,i);
 
   global stabilization_cmd_fb;
@@ -89,30 +89,30 @@ function stabilization_update_ref(i)
   global stabilization_ref_raccel;
 
 //  pause
-  
-//  error_quat = quat_mult_inv(stabilization_sp_quat(:,i-1), stabilization_ref_quat(:,i-1)); 
-//  error_quat = quat_inv_comp(stabilization_ref_quat(:,i-1), stabilization_sp_quat(:,i-1)); 
-  error_quat = quat_div(stabilization_sp_quat(:,i-1), stabilization_ref_quat(:,i-1)); 
+
+//  error_quat = quat_mult_inv(stabilization_sp_quat(:,i-1), stabilization_ref_quat(:,i-1));
+//  error_quat = quat_inv_comp(stabilization_ref_quat(:,i-1), stabilization_sp_quat(:,i-1));
+  error_quat = quat_div(stabilization_sp_quat(:,i-1), stabilization_ref_quat(:,i-1));
   error_quat = quat_wrap_shortest(error_quat);
-  
+
   ref_accel_0 = -stab_omega_ref^2 .* error_quat(Q_QX:Q_QZ);
   ref_accel_1 = -2. * stab_zeta_ref .* stab_omega_ref .* stabilization_ref_rate(:,i-1);
-  
+
   stabilization_ref_raccel(:,i) = ref_accel_0 + ref_accel_1;
-  
+
   W = get_omega_quat(stabilization_ref_rate(:,i-1));
   K_lagrange = 1.;
   quat = stabilization_ref_quat(:,i-1);
   quat_dot =  -1/2 * W * quat;
   quat_dot = quat_dot + K_lagrange * ( 1 - norm(quat)) * quat;
   dt = 1/512;
-  stabilization_ref_quat(:,i) = stabilization_ref_quat(:,i-1) + dt * quat_dot;  
-  
+  stabilization_ref_quat(:,i) = stabilization_ref_quat(:,i-1) + dt * quat_dot;
+
   stabilization_ref_rate(:,i) = stabilization_ref_rate(:,i-1) + dt * stabilization_ref_raccel(:,i-1);
-  
+
   global stabilization_ref_euler;
   stabilization_ref_euler(:,i) = euler_of_quat(stabilization_ref_quat(:,i));
-  
+
 endfunction
 
 
@@ -128,7 +128,7 @@ function stabilization_mix(i)
                       1  0  1  1 ];
 
   stabilization_cmd_motors(:,i) = motors_of_axis * stabilization_cmd_axis(:,i);
-  
+
 endfunction
 
 
@@ -140,11 +140,11 @@ function stabilization_display()
   nc = 3;
   global stabilization_ref_euler;
   global stabilization_sp_euler;
-  
+
   global fdm_state;
   global fdm_euler;
   global fdm_time;
-  
+
   subplot(nr,nc,1);
   plot2d(fdm_time, deg_of_rad(stabilization_ref_euler(EULER_PHI,:)),2);
   plot2d(fdm_time, deg_of_rad(stabilization_sp_euler(EULER_PHI,:)),5);
@@ -182,9 +182,9 @@ function stabilization_display()
   xtitle('R');
 
 
-  
 
-  
+
+
   global stabilization_cmd_axis;
   global stabilization_cmd_motors;
 
@@ -202,6 +202,6 @@ function stabilization_display()
   plot2d(fdm_time, stabilization_cmd_motors(FDM_MOTOR_LEFT,:),4);
   legends(["f", "r", "b", "l"],[1 2 3 4], with_box=%f, opt="ur");
   xtitle('Cmd motor');
-  
+
 endfunction
 

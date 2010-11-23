@@ -24,7 +24,7 @@ time = t0:dt:t1;
 [fo_traj] = poly_gen_traj(time, coefs);
 
 
-  
+
 set("current_figure",0);
 clf();
 f=get("current_figure");

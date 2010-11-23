@@ -11,7 +11,7 @@ function [fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1)
   order = 5;
   fo_traj = zeros(n_comp, order, length(time));
 
-  for compo=1:n_comp 
+  for compo=1:n_comp
     // compute trajectory caracteristics
     dist = b1(compo)-b0(compo);
     if (abs(dist) > 0.01)
@@ -40,21 +40,21 @@ function [fo_traj] = sbb_gen_traj(time, dyn, max_speed, max_accel, b0, b1)
     printf('step_dt   :%f\n', step_dt);
     printf('step_xdd  :%f\n', step_xdd);
     printf('total time:%f\n', t_tot);
-  
-  
+
+
     fo_traj(compo,1,1) = b0(compo);
       for i=2:length(time)
         if time(i)-time(1) < step_dt
-          sp = sign(dist)*step_xdd;      
+          sp = sign(dist)*step_xdd;
         elseif time(i)-time(1) < t_tot - step_dt & time(i)-time(1) >= t_tot -  2 * step_dt
-          sp = -sign(dist)*step_xdd;      
+          sp = -sign(dist)*step_xdd;
         else
           sp = 0;
         end
-        fo_traj(compo,:,i) = propagate_traj(fo_traj(compo,:,i-1), dyn(compo,:), sp, time(i) - time(i-1)); 
+        fo_traj(compo,:,i) = propagate_traj(fo_traj(compo,:,i-1), dyn(compo,:), sp, time(i) - time(i-1));
       end
     end
-    
+
 endfunction
 
 function [Xi1] = propagate_traj(Xi, dyn, sp, dt)

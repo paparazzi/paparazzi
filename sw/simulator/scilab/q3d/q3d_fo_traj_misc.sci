@@ -1,20 +1,20 @@
 
 
 function [fo_traj] = fo_traj_circle(time, _center, radius, omega)
-  
+
   n_comp = 2;
   order = 5;
   fo_traj = zeros(n_comp, order, length(time));
 
   for i=1:length(time)
-    
+
     alpha = omega*time(i);
     fo_traj(1,1,i) = _center(1) + radius * cos(alpha);
     fo_traj(2,1,i) = _center(1) + radius * sin(alpha);
 
     fo_traj(1,2,i) = -omega * radius * sin(alpha);
     fo_traj(2,2,i) =  omega * radius * cos(alpha);
-    
+
     fo_traj(1,3,i) = -omega^2 * radius * cos(alpha);
     fo_traj(2,3,i) = -omega^2 * radius * sin(alpha);
 
@@ -23,8 +23,8 @@ function [fo_traj] = fo_traj_circle(time, _center, radius, omega)
 
     fo_traj(1,5,i) =  omega^4 * radius * cos(alpha);
     fo_traj(2,5,i) =  omega^4 * radius * sin(alpha);
-  
-  end	
+
+  end
 
 
 endfunction
@@ -37,23 +37,23 @@ function [fo_traj] = fo_traj_swing(time)
   fo_traj = zeros(n_comp, order, length(time));
 
  for i=1:length(time)
-    
+
     alpha = omega*time(i);
     radius = 2;
 
     fo_traj(1,1,i) = radius * cos(alpha);
 
     fo_traj(1,2,i) = -omega * radius * sin(alpha);
-    
+
     fo_traj(1,3,i) = -omega^2 * radius * cos(alpha);
 
     fo_traj(1,4,i) =  omega^3 * radius * sin(alpha);
 
     fo_traj(1,5,i) =  omega^4 * radius * cos(alpha);
-  
-  end	
 
- 
+  end
+
+
 
 
 endfunction

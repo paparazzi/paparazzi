@@ -32,16 +32,16 @@ unsigned long int randlcg()       /* returns a random unsigned integer */
     {
       long int high_part = seed_val / quotient;
       long int low_part  = seed_val % quotient;
-      
+
       long int test = 16807L * low_part - my_remainder * high_part;
-      
+
       if ( test > 0 )
 	seed_val = test;
       else
 	seed_val = test + LONG_MAX;
-      
+
     }
-  
+
   return seed_val;
 }
 

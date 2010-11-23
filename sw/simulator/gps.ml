@@ -2,7 +2,7 @@
  *  $Id$
  *
  * Basic GPS parameters simulation
- *  
+ *
  * Copyright (C) 2004 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,14 +20,14 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
 open Stdlib
 open Latlong
 
-type state = { 
+type state = {
     mutable availability : bool;
     wgs84 : Latlong.geographic;
     alt : float;
@@ -58,7 +58,7 @@ let state = fun pos0 alt0 ->
       last_course := norm_angle (pi/.2. -. atan2 dy dx);
       last_climb := (z -. !last_z) /. dt
     end; (** Else use previous derivatives *)
-    
+
     let utm0 = utm_of WGS84 !pos0 in
     let utm = utm_add utm0 (x, y) in
     let wgs84 = of_utm WGS84 utm
@@ -70,7 +70,7 @@ let state = fun pos0 alt0 ->
     last_t := t;
 
     let course = if !last_course < 0. then !last_course +. 2. *. pi else !last_course in
-    
+
     {
      wgs84 = wgs84;
      alt = alt;
@@ -80,4 +80,4 @@ let state = fun pos0 alt0 ->
      course = course;
      availability = true;
    }
-      
+

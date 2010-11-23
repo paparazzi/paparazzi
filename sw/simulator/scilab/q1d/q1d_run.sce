@@ -102,9 +102,9 @@ ctl_max = zeros(1, length(time));
 ctl_max(1) = 0;
 ctl_min = zeros(1, length(time));
 ctl_min(1) = 0;
-			       
+
 for i = 1:length(time)-1
-  
+
   ti  = time(i);
   ti1 = time(i+1);
   // run control
@@ -140,7 +140,7 @@ for i = 1:length(time)-1
   Xfdmi1 = fdm_run(Xfdmi, Ui, ti, ti1, fdm_perturb(:,i), fdm_param(i));
   fdm_state(:,i+1) = Xfdmi1;
   // run sensor model
-  Xsensorsi1 = sensors_run(ti, Xfdmi); 
+  Xsensorsi1 = sensors_run(ti, Xfdmi);
   sensors_state(:,i+1) = Xsensorsi1;
   // run ins
   Pinsi = getP(INS_SIZE, ins_cov, i);
@@ -170,7 +170,7 @@ if 0
   drawlater();
   fdm_display_simple(fdm_state, time);
   drawnow();
-  
+
   set("current_figure",1);
   clf();
   f=get("current_figure");
@@ -203,7 +203,7 @@ drawnow();
 end
 
 if 0
-  
+
 set("current_figure",4);
 clf();
 f=get("current_figure");
@@ -238,7 +238,7 @@ drawlater();
   plot2d(time, sensors_state(SENSORS_BARO,:),3);
   plot2d(time, bflt_state(BF_Z, :), 5);
   plot2d(time, fdm_state(FDM_Z,:),2);
-  legends(["Estimation", "Truth", "Measurement"],[5 2 3], with_box=%f, opt="ur");  
+  legends(["Estimation", "Truth", "Measurement"],[5 2 3], with_box=%f, opt="ur");
   xtitle('Z');
 
   subplot(4, 2, 3);
@@ -250,14 +250,14 @@ drawlater();
   subplot(4, 2, 5);
   plot2d(time, sensors_state(SENSORS_ACCEL_BIAS,:),2);
   plot2d(time, bflt_state(BF_BIAS, :), 5);
-  legends(["Estimation", "Truth"],[5 2], with_box=%f, opt="ur"); 
+  legends(["Estimation", "Truth"],[5 2], with_box=%f, opt="ur");
   xtitle('BIAS');
 
   subplot(4, 2, 7);
   plot2d(time, bflt_state(BF_C, :));
   xtitle('C');
 
-  
+
   subplot(4, 2, 2);
   foo=[];
   for i=1:length(time)
@@ -265,7 +265,7 @@ drawlater();
   end
   plot2d(time, foo);
   xtitle('COV ZZ');
-  
+
 
   subplot(4, 2, 4);
   foo=[];
@@ -290,6 +290,6 @@ drawlater();
   end
   plot2d(time, foo);
   xtitle('COV CC');
-  
+
   drawnow();
 

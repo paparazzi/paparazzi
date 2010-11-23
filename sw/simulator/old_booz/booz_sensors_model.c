@@ -29,7 +29,7 @@ extern void booz_sensors_model_gps_run(double time);
 
 
 void booz_sensors_model_init(double time) {
- 
+
   VEC* tmp_eulers = v_get(AXIS_NB);
   tmp_eulers->ve[EULER_PHI]   = BSM_BODY_TO_IMU_PHI;
   tmp_eulers->ve[EULER_THETA] = BSM_BODY_TO_IMU_THETA;
@@ -44,7 +44,7 @@ void booz_sensors_model_init(double time) {
   booz_sensors_model_baro_init(time);
   booz_sensors_model_gps_init(time);
 
-} 
+}
 
 void booz_sensors_model_run(double time) {
 
@@ -55,7 +55,7 @@ void booz_sensors_model_run(double time) {
   booz_sensors_model_baro_run(time);
   booz_sensors_model_gps_run(time);
 
-} 
+}
 
 
 
