@@ -56,7 +56,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     List.assoc x (Array.to_list (Array.mapi (fun i c -> Xml.attrib c "function", i) rc_channels))
 
   let rcommands = ref [||]
-  let adj_bat = GData.adjustment ~value:FM.max_bat_level ~lower:0. ~upper:23. ~step_incr:0.1 ()
+  let adj_bat = GData.adjustment ~value:FM.max_bat_level ~lower:0. ~upper:(FM.max_bat_level+.2.) ~step_incr:0.1 ~page_size:0. ()
 
   external get_commands : Stdlib.pprz_t array -> int = "get_commands"
 (** Returns gaz servo value (us) *)
