@@ -71,7 +71,7 @@ static inline void guidance_h_hover_enter(void);
 static inline void guidance_h_nav_enter(void);
 
 #define GuidanceHSetRef(_pos, _speed, _accel) { \
-    b2_gh_set_ref(_pos, _speed, _accel); \
+    guidance_h_set_ref(_pos, _speed, _accel); \
     VECT2_COPY(guidance_h_pos_ref,   _pos); \
     VECT2_COPY(guidance_h_speed_ref, _speed); \
     VECT2_COPY(guidance_h_accel_ref, _accel); \
@@ -194,7 +194,7 @@ void guidance_h_run(bool_t  in_flight) {
       else {
         INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
 #ifdef GUIDANCE_H_USE_REF
-        b2_gh_update_ref_from_pos_sp(guidance_h_pos_sp);
+        guidance_h_update_ref_from_pos_sp(guidance_h_pos_sp);
 #endif
 #ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
         guidance_h_psi_sp = (nav_heading << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
@@ -283,9 +283,9 @@ __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in
 
   /* convert our reference to generic representation */
 #ifdef GUIDANCE_H_USE_REF
-  INT32_VECT2_RSHIFT(guidance_h_pos_ref,   b2_gh_pos_ref,   (B2_GH_POS_REF_FRAC - INT32_POS_FRAC));
-  INT32_VECT2_LSHIFT(guidance_h_speed_ref, b2_gh_speed_ref, (INT32_SPEED_FRAC - B2_GH_SPEED_REF_FRAC));
-  INT32_VECT2_LSHIFT(guidance_h_accel_ref, b2_gh_accel_ref, (INT32_ACCEL_FRAC - B2_GH_ACCEL_REF_FRAC));
+  INT32_VECT2_RSHIFT(guidance_h_pos_ref,   guidance_h_pos_ref,   (GUIDANCE_H_POS_REF_FRAC - INT32_POS_FRAC));
+  INT32_VECT2_LSHIFT(guidance_h_speed_ref, guidance_h_speed_ref, (INT32_SPEED_FRAC - GUIDANCE_H_SPEED_REF_FRAC));
+  INT32_VECT2_LSHIFT(guidance_h_accel_ref, guidance_h_accel_ref, (INT32_ACCEL_FRAC - GUIDANCE_H_ACCEL_REF_FRAC));
 #else
   VECT2_COPY(guidance_h_pos_ref, guidance_h_pos_sp);
   INT_VECT2_ZERO(guidance_h_speed_ref);
