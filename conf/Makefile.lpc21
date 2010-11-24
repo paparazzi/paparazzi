@@ -34,6 +34,7 @@ SRC_ARCH = arch/lpc21
 # Define programs and commands.
 HAVE_ARM_NONE_EABI_GCC := $(shell which arm-none-eabi-gcc)
 ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
+$(info Using gcc-arm 3.4.4 packaged by paparazzi.)
 CC		= arm-elf-gcc
 LD		= $(CC)
 SHELL = sh
@@ -42,6 +43,7 @@ OBJDUMP = arm-elf-objdump
 SIZE = arm-elf-size
 NM = arm-elf-nm
 else
+$(info Using gcc-arm-none-eabi.)
 CC		= arm-none-eabi-gcc
 LD		= $(CC)
 SHELL = sh
@@ -91,6 +93,7 @@ CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 CFLAGS += -ffunction-sections -fdata-sections
+CFLAGS += -finline-limit=1200 --param inline-unit-growth=100
 
 # flags only for C
 CFLAGS + = -Wstrict-prototypes -Wmissing-declarations
