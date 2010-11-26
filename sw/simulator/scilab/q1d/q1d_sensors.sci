@@ -25,7 +25,7 @@ function [Xsensorsi] = sensors_run(ti, Xfdmi)
                              accel_bias +...
 			     accel_noise_std_dev * rand(1,1,'normal');
   Xsensorsi(SENSORS_ACCEL_BIAS) = accel_bias;
-  
+
   baro_real = Xfdmi(FDM_Z) + baro_noise_std_dev * rand(1,1,'normal');
   baro_disc = round(baro_real/baro_step) * baro_step;
   Xsensorsi(SENSORS_BARO) = baro_disc;

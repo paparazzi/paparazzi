@@ -11,11 +11,11 @@
 #define BFMS_PSI   8
 #define BFMS_P     9
 #define BFMS_Q    10
-#define BFMS_R    11 
+#define BFMS_R    11
 #define BFMS_OM_B 12
 #define BFMS_OM_F 13
-#define BFMS_OM_R 14 
-#define BFMS_OM_L 15 
+#define BFMS_OM_R 14
+#define BFMS_OM_L 15
 #define BFMS_SIZE 16
 
 #define BoozFlighModelGetPos(_dest) {		\
@@ -70,7 +70,7 @@ static void booz_flight_model_get_derivatives(VEC* X, VEC* u, VEC* Xdot);
 
 void booz_flight_model_init( void ) {
   bfm.on_ground = TRUE;
-  
+
   bfm.time = 0.;
   bfm.bat_voltage = BAT_VOLTAGE;
   bfm.mot_voltage = v_get(SERVOS_NB);
@@ -143,12 +143,12 @@ void booz_flight_model_init( void ) {
 #define WRAP(x,a) { while (x > a) x -= 2 * a; while (x <= -a) x += 2 * a;}
 
 void booz_flight_model_run( double dt, double* commands ) {
-  
+
 
   int i;
   for (i=0; i<SERVOS_NB; i++)
     bfm.mot_voltage->ve[i] = bfm.bat_voltage * commands[i];
-  //  rk4(motor_model_derivative, bfm.mot_omega, bfm.mot_voltage, dt); 
+  //  rk4(motor_model_derivative, bfm.mot_omega, bfm.mot_voltage, dt);
   rk4(booz_flight_model_get_derivatives, bfm.state, bfm.mot_voltage, dt);
   /* wrap euler angles */
   WRAP( bfm.state->ve[BFMS_PHI], M_PI);
@@ -165,7 +165,7 @@ static void booz_flight_model_update_byproducts(void) {
   BoozFlighModelGetAngles( bfm.eulers);
   /* extract body rotational rates from state */
   BoozFlighModelGetRate( bfm.ang_rate_body);
-  
+
   /* direct cosine matrix ( inertial to body )*/
   dcm_of_eulers(bfm.eulers, bfm.dcm);
   /* transpose of dcm ( body to inertial ) */
@@ -188,18 +188,18 @@ static void booz_flight_model_update_byproducts(void) {
   /* rotate speed and accel to body frame */
   mv_mlt(bfm.dcm, bfm.speed_ltp, bfm.speed_body);
   mv_mlt(bfm.dcm, bfm.accel_ltp, bfm.accel_body);
-  
+
 
   /* rotational accelerations  */
-  
+
 
 }
 
 
 
-/* 
-   compute the sum of external forces. 
-   assumes that dcm and omega_square are already precomputed from X 
+/*
+   compute the sum of external forces.
+   assumes that dcm and omega_square are already precomputed from X
 */
 static VEC* booz_get_forces_ltp(VEC* F , VEC* speed_ltp, MAT* dcm_t, VEC* omega_square) {
 
@@ -219,7 +219,7 @@ static VEC* booz_get_forces_ltp(VEC* F , VEC* speed_ltp, MAT* dcm_t, VEC* omega_
     F = v_add(F, prop_thrust_ltp, F);
 
     // gravity
-    F = v_mltadd(F, bfm.g_ltp, bfm.mass, F); 
+    F = v_mltadd(F, bfm.g_ltp, bfm.mass, F);
 
     // drag
     static VEC *airspeed_ltp = VNULL;
@@ -232,9 +232,9 @@ static VEC* booz_get_forces_ltp(VEC* F , VEC* speed_ltp, MAT* dcm_t, VEC* omega_
   return F;
 }
 
-/* 
-   compute the sum of external moments. 
-   assumes that omega_square is already precomputed from X 
+/*
+   compute the sum of external moments.
+   assumes that omega_square is already precomputed from X
 */
 static VEC* booz_get_moments_body_frame(VEC* M, VEC* omega_square ) {
   if (bfm.on_ground) {
@@ -305,7 +305,7 @@ static void booz_flight_model_get_derivatives(VEC* X, VEC* u, VEC* Xdot) {
   euler_dot_of_pqr->me[EULER_PSI][AXIS_R] = cosPHI/cosTHETA;
   static VEC *euler_dot = VNULL;
   euler_dot = v_resize(euler_dot, AXIS_NB);
-  euler_dot = mv_mlt(euler_dot_of_pqr, rate_body, euler_dot); 
+  euler_dot = mv_mlt(euler_dot_of_pqr, rate_body, euler_dot);
   Xdot->ve[BFMS_PHI] = euler_dot->ve[EULER_PHI];
   Xdot->ve[BFMS_THETA] = euler_dot->ve[EULER_THETA];
   Xdot->ve[BFMS_PSI] = euler_dot->ve[EULER_PSI];
@@ -356,7 +356,7 @@ static void motor_model_derivative(VEC* x, VEC* u, VEC* xdot) {
   // omega_dot = -1/THAU*omega - Kq*omega^2 + Kv/THAU * V;
   temp1 = sv_mlt(-1./THAU, x, temp1);        /* temp1 = -1/THAU * x       */
   temp2 = v_star(x, x, temp2);               /* temp2 = x^2               */
-  xdot = v_mltadd(temp1, temp2, -Kq, xdot);  /* xdot = temp1 - Kq*temp2   */ 
-  xdot = v_mltadd(xdot, u, Kv/THAU, xdot);   /* xdot = xdot + Kv/THAU * u */ 
+  xdot = v_mltadd(temp1, temp2, -Kq, xdot);  /* xdot = temp1 - Kq*temp2   */
+  xdot = v_mltadd(xdot, u, Kv/THAU, xdot);   /* xdot = xdot + Kv/THAU * u */
 }
 #endif

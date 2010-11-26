@@ -1,6 +1,6 @@
 open Stdlib
 
-let _ = 
+let _ =
   Arg.parse
     (Sim.common_options@[set_string "-a" Sim.ac_name "aircraft name"])
     (fun x -> Printf.fprintf stderr "Warning: Don't do anythig with %s\n" x)

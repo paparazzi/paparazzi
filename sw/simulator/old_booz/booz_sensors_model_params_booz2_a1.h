@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008 Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -34,8 +34,8 @@
 //#define BSM_BODY_TO_IMU_THETA  RadOfDeg(0.)
 #define BSM_BODY_TO_IMU_PSI    RadOfDeg(0.)
 
-/* 
- * Accelerometer 
+/*
+ * Accelerometer
  */
 #define BSM_ACCEL_RESOLUTION      (65536)
 /* ms-2 */
@@ -64,8 +64,8 @@
 
 
 
-/* 
- * Gyrometer 
+/*
+ * Gyrometer
  */
 #define BSM_GYRO_RESOLUTION       65536
 
@@ -157,9 +157,9 @@
 #define BSM_GPS_POS_BIAS_INITIAL_X             0.
 #define BSM_GPS_POS_BIAS_INITIAL_Y             0.
 #define BSM_GPS_POS_BIAS_INITIAL_Z             0.
-#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_X 0. 
-#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y 0. 
-#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z 0. 
+#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_X 0.
+#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y 0.
+#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z 0.
 #define BSM_GPS_POS_LATENCY                    0.
 
 #else
@@ -170,9 +170,9 @@
 #define BSM_GPS_POS_BIAS_INITIAL_X             0e-1
 #define BSM_GPS_POS_BIAS_INITIAL_Y            -0e-1
 #define BSM_GPS_POS_BIAS_INITIAL_Z            -0e-1
-#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_X 1e-3 
-#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y 1e-3 
-#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z 1e-3 
+#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_X 1e-3
+#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Y 1e-3
+#define BSM_GPS_POS_BIAS_RANDOM_WALK_STD_DEV_Z 1e-3
 #define BSM_GPS_POS_LATENCY                    0.25
 
 #endif /* GPS_PERFECT */

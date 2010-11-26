@@ -34,13 +34,13 @@ value fg_msg_native(value s, value lat, value lon, value z, value phi, value the
   msg.phi = Double_val(phi);
   msg.theta = Double_val(theta);
   msg.psi = - Double_val(psi) + M_PI_2;
-  
+
   msg.vcas = 0.;
   msg.climb_rate = 0.;
-  
+
   msg.num_tanks = 1;
   msg.fuel_quantity[0] = 10.;
-  
+
   msg.cur_time = 3213092700ul;//time(NULL);
   msg.warp = 0;
   msg.ground_elev = 0.;

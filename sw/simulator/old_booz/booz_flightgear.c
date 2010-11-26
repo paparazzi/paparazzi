@@ -22,9 +22,9 @@ void booz_flightgear_init(const char* host,  unsigned int port) {
   int so_reuseaddr = 1;
   struct protoent * pte = getprotobyname("UDP");
   fg_socket = socket( PF_INET, SOCK_DGRAM, pte->p_proto);
-  setsockopt(fg_socket, SOL_SOCKET, SO_REUSEADDR, 
+  setsockopt(fg_socket, SOL_SOCKET, SO_REUSEADDR,
 	     &so_reuseaddr, sizeof(so_reuseaddr));
-  
+
   fg_addr.sin_family = PF_INET;
   fg_addr.sin_port = htons(port);
   fg_addr.sin_addr.s_addr = inet_addr(host);
@@ -44,7 +44,7 @@ void booz_flightgear_send() {
 
   gui.latitude = lat;
   gui.longitude = lon;
-  gui.altitude = 1.1 - bfm.state->ve[BFMS_Z];  
+  gui.altitude = 1.1 - bfm.state->ve[BFMS_Z];
 
   gui.phi = bfm.state->ve[BFMS_PHI];
   gui.theta = bfm.state->ve[BFMS_THETA];
@@ -58,16 +58,16 @@ void booz_flightgear_send() {
 }
 
 void net_gui_init (struct FGNetGUI* gui) {
-  gui->version = FG_NET_GUI_VERSION; 
+  gui->version = FG_NET_GUI_VERSION;
   gui->latitude = 0.656480;
   gui->longitude = -2.135537;
   gui->altitude = 0.807609;
   gui->agl = 1.111652;
-  
+
   gui->phi = 0.;
   gui->theta = 0.;
   gui->psi = 5.20;
-  
+
   gui->vcas = 0.;
   gui->climb_rate = 0.;
 

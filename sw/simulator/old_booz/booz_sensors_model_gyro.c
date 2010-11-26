@@ -66,8 +66,8 @@ void booz_sensors_model_gyro_run( double time ) {
   rate_imu = v_resize(rate_imu, AXIS_NB);
   mv_mlt(bsm.body_to_imu, bfm.ang_rate_body, rate_imu);
   /* compute gyros readings */
-  bsm.gyro = mv_mlt(bsm.gyro_sensitivity, rate_imu, bsm.gyro); 
-  bsm.gyro = v_add(bsm.gyro, bsm.gyro_neutral, bsm.gyro); 
+  bsm.gyro = mv_mlt(bsm.gyro_sensitivity, rate_imu, bsm.gyro);
+  bsm.gyro = v_add(bsm.gyro, bsm.gyro_neutral, bsm.gyro);
 
   /* compute gyro error readings */
   static VEC *gyro_error = VNULL;
@@ -76,24 +76,24 @@ void booz_sensors_model_gyro_run( double time ) {
   /* add a gaussian noise */
   gyro_error = v_add_gaussian_noise(gyro_error, bsm.gyro_noise_std_dev, gyro_error);
   /* update random walk bias */
-  bsm.gyro_bias_random_walk_value = 
-    v_update_random_walk(bsm.gyro_bias_random_walk_value, 
-  			 bsm.gyro_bias_random_walk_std_dev, BSM_GYRO_DT, 
+  bsm.gyro_bias_random_walk_value =
+    v_update_random_walk(bsm.gyro_bias_random_walk_value,
+  			 bsm.gyro_bias_random_walk_std_dev, BSM_GYRO_DT,
   			 bsm.gyro_bias_random_walk_value);
-  gyro_error = v_add(gyro_error, bsm.gyro_bias_random_walk_value, gyro_error); 
+  gyro_error = v_add(gyro_error, bsm.gyro_bias_random_walk_value, gyro_error);
   /* scale to adc units FIXME : should use full adc gain ? sum ? */
-  gyro_error->ve[AXIS_P] = 
+  gyro_error->ve[AXIS_P] =
     gyro_error->ve[AXIS_P] * bsm.gyro_sensitivity->me[AXIS_P][AXIS_P];
-  gyro_error->ve[AXIS_Q] = 
+  gyro_error->ve[AXIS_Q] =
     gyro_error->ve[AXIS_Q] * bsm.gyro_sensitivity->me[AXIS_Q][AXIS_Q];
-  gyro_error->ve[AXIS_R] = 
+  gyro_error->ve[AXIS_R] =
     gyro_error->ve[AXIS_R] * bsm.gyro_sensitivity->me[AXIS_R][AXIS_R];
   /* add per gyro error reading */
-  bsm.gyro =  v_add(bsm.gyro, gyro_error, bsm.gyro); 
+  bsm.gyro =  v_add(bsm.gyro, gyro_error, bsm.gyro);
   /* round signal to account for adc discretisation */
   RoundSensor(bsm.gyro);
   /* saturation                                     */
-  BoundSensor(bsm.gyro, 0, bsm.gyro_resolution); 
+  BoundSensor(bsm.gyro, 0, bsm.gyro_resolution);
 
   bsm.gyro_next_update += BSM_GYRO_DT;
   bsm.gyro_available = TRUE;

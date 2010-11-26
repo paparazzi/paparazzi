@@ -13,7 +13,7 @@ global ahrs_state;
 global ahrs_euler;
 global ahrs_rate;
 
-function ahrs_init() 
+function ahrs_init()
 
   global fdm_time;
 
@@ -24,7 +24,7 @@ function ahrs_init()
   ahrs_euler = zeros(AXIS_NB, length(fdm_time));
   global ahrs_rate;
   ahrs_rate = zeros(AXIS_NB, length(fdm_time));
-  
+
 endfunction
 
 
@@ -45,10 +45,10 @@ function ahrs_propagate(i)
   quat_dot =  -1/2 * W * quat;
   quat_dot = quat_dot + K_lagrange * ( 1 - norm(quat)) * quat;
   dt = 1/512;
-  ahrs_state(AHRS_QI:AHRS_QZ, i) = ahrs_state(AHRS_QI:AHRS_QZ, i-1) + dt * quat_dot;  
-  
+  ahrs_state(AHRS_QI:AHRS_QZ, i) = ahrs_state(AHRS_QI:AHRS_QZ, i-1) + dt * quat_dot;
+
   ahrs_euler(:,i) = euler_of_quat(ahrs_state(AHRS_QI:AHRS_QZ,i));
-  
+
 endfunction
 
 function ahrs_display()
@@ -59,7 +59,7 @@ function ahrs_display()
   global fdm_raccel;
 
   global fdm_time;
-  
+
   subplot(nr,nc,1);
   plot2d(fdm_time, deg_of_rad(fdm_euler(EULER_PHI,:)),3);
   plot2d(fdm_time, deg_of_rad(ahrs_euler(EULER_PHI,:)),2);
@@ -101,7 +101,7 @@ legends(["setpoint", "reference", "fdm"],[5 2 3], with_box=%f, opt="ur");
   plot2d(fdm_time, fdm_raccel(AXIS_Z,:),3);
 legends(["setpoint", "reference", "fdm"],[5 2 3], with_box=%f, opt="ur");
   xtitle('Rd');
-  
-  
-  
+
+
+
 endfunction

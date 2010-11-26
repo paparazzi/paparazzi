@@ -65,13 +65,13 @@ void booz_sensors_model_accel_run( double time ) {
   static VEC* accel_imu = VNULL;
   accel_imu = v_resize(accel_imu, AXIS_NB);
   mv_mlt(bsm.body_to_imu, accel_body, accel_imu);
-  
+
 
 
   //  printf(" accel_body ~ %f %f %f\n", accel_body->ve[AXIS_X], accel_body->ve[AXIS_Y], accel_body->ve[AXIS_Z]);
 
   /* compute accel reading */
-  mv_mlt(bsm.accel_sensitivity, accel_imu, bsm.accel); 
+  mv_mlt(bsm.accel_sensitivity, accel_imu, bsm.accel);
   v_add(bsm.accel, bsm.accel_neutral, bsm.accel);
 
   /* compute accel error readings */
@@ -81,19 +81,19 @@ void booz_sensors_model_accel_run( double time ) {
   /* add a gaussian noise */
   accel_error = v_add_gaussian_noise(accel_error, bsm.accel_noise_std_dev, accel_error);
   /* constant bias  */
-  accel_error = v_add(accel_error, bsm.accel_bias, accel_error); 
+  accel_error = v_add(accel_error, bsm.accel_bias, accel_error);
   /* scale to adc units FIXME : should use full adc gain ? sum ? */
   accel_error->ve[AXIS_X] = accel_error->ve[AXIS_X] * bsm.accel_sensitivity->me[AXIS_X][AXIS_X];
   accel_error->ve[AXIS_Y] = accel_error->ve[AXIS_Y] * bsm.accel_sensitivity->me[AXIS_Y][AXIS_Y];
   accel_error->ve[AXIS_Z] = accel_error->ve[AXIS_Z] * bsm.accel_sensitivity->me[AXIS_Z][AXIS_Z];
   /* add per accel error reading */
-  bsm.accel =  v_add(bsm.accel, accel_error, bsm.accel); 
+  bsm.accel =  v_add(bsm.accel, accel_error, bsm.accel);
   /* round signal to account for adc discretisation */
   RoundSensor(bsm.accel);
   /* saturation                                     */
-  BoundSensor(bsm.accel, 0, bsm.accel_resolution); 
+  BoundSensor(bsm.accel, 0, bsm.accel_resolution);
 
-  //  printf("sim adc %f %f %f\n",bsm.accel->ve[AXIS_X] ,bsm.accel->ve[AXIS_Y] ,bsm.accel->ve[AXIS_Z]); 
+  //  printf("sim adc %f %f %f\n",bsm.accel->ve[AXIS_X] ,bsm.accel->ve[AXIS_Y] ,bsm.accel->ve[AXIS_Z]);
   bsm.accel_next_update += BSM_ACCEL_DT;
   bsm.accel_available = TRUE;
 }

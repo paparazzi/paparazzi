@@ -47,7 +47,7 @@ function [Xrefi1] = ctl_update_ref(Xrefi, Xspi, dt)
     sp_zdd = min(sp_zdd, ref_max_accel);
   else
     sp_zdd = max(sp_zdd, ref_min_accel);
-  end 
+  end
   Xrefi1(REF_ZDD) = sp_zdd;
 
 endfunction
@@ -98,19 +98,19 @@ function  ctl_display(ctl_type, ctl_list, ctl_sp, ctl_ref_state, ins_state, ctl_
   plot2d(time, ctl_sp, 5);
   legends(["setpoint", "reference", "achieved"],[5 2 3], with_box=%f, opt="ur");
   xtitle('Altitude');
-  
+
   subplot(nr,nc,3);
   plot2d(time, ins_state(INS_ZD,:),3);
   plot2d(time, ctl_ref_state(REF_ZD,:),2);
   legends(["reference", "achieved"],[2 3], with_box=%f, opt="ur");
   xtitle('Vertical Speed');
-  
+
   subplot(nr,nc,5);
   plot2d(time, ins_state(INS_ZDD,:),3);
   plot2d(time, ctl_ref_state(REF_ZDD,:),2);
   legends(["reference", "achieved"],[2 3], with_box=%f, opt="ur");
   xtitle('Vertical Acceleration');
-  
+
   select ctl_type
   case CTL_MIAC
     subplot(nr,nc,2);
@@ -121,7 +121,7 @@ function  ctl_display(ctl_type, ctl_list, ctl_sp, ctl_ref_state, ins_state, ctl_
     plot2d(time, ctl_adp_state,2);
     legends(["estimation", "measure"],[2 3], with_box=%f, opt="ur");
     xtitle('Parameter adaptation');
-  
+
     subplot(nr,nc,4);
     _rect = [time(1), 0., time($), 0.003];
     plot2d(time, ctl_adp_cov,2, rect=_rect);

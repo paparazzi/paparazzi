@@ -14,7 +14,7 @@ let source = fun () -> { utm_x = muret.LL.utm_x -. 300.; utm_y = muret.LL.utm_y 
 let available_ids = ref []
 let gen_id =
   let x = ref 0 in
-  fun () -> 
+  fun () ->
     match !available_ids with
       [] ->
 	incr x; !x
@@ -31,7 +31,7 @@ let ivy_bus = ref "127.255.255.255:2010"
 
 
 let plumes = Hashtbl.create 97
-let t = ref 0 
+let t = ref 0
 
 let one_step = fun () ->
   incr t;
@@ -39,7 +39,7 @@ let one_step = fun () ->
   (* New plume *)
   if !t mod 5 = 0 then
     Hashtbl.add plumes (gen_id ()) (source ());
-  
+
   (* Eddy + wind *)
   Hashtbl.iter (fun id plume ->
     let a = Random.float (2.*.LL.pi) in
@@ -50,7 +50,7 @@ let one_step = fun () ->
       Hashtbl.remove plumes id;
       available_ids := id :: !available_ids;
     end)
-    plumes 
+    plumes
 
 
 let my_id = "diffusion"

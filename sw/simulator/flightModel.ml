@@ -2,7 +2,7 @@
  *  $Id$
  *
  * Basic flight model for simulation
- *  
+ *
  * Copyright (C) 2004-2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -97,16 +97,16 @@ module Make(A:Data.MISSION) = struct
     try float_of_string x with Failure "float_of_string" ->
       failwith (sprintf "float_of_string: %s" x)
 
-  let simu_section = 
+  let simu_section =
     try section "SIMU" with _ -> Xml.Element("", [], [])
 
-  let roll_response_factor = 
+  let roll_response_factor =
     try float_value simu_section "ROLL_RESPONSE_FACTOR" with _ -> 15.
 
-  let yaw_response_factor = 
+  let yaw_response_factor =
     try float_value simu_section "YAW_RESPONSE_FACTOR" with _ -> 1.
 
-  let weight = 
+  let weight =
     try float_value simu_section "WEIGHT" with _ -> 1.
 
   let max_bat_level =
@@ -129,10 +129,10 @@ module Make(A:Data.MISSION) = struct
       Not_found ->
 	failwith (Printf.sprintf "Child 'commands' expected in '%s'\n" (Xml.to_string A.ac.airframe))
 
-  let command = fun n -> 
+  let command = fun n ->
     try List.assoc n commands with
       Not_found -> failwith (sprintf "Unknown command '%s'" n)
-	  
+
   let misc_section = section "MISC"
 
   let infrared_section = try section "INFRARED" with _ -> Xml.Element("",[],[])
@@ -150,11 +150,11 @@ module Make(A:Data.MISSION) = struct
 
   let min_thrust =  0
   let max_thrust =  max_pprz
-      
+
   let command_throttle = command "THROTTLE"
   let command_roll = command "ROLL"
   let command_pitch = command "PITCH"
-     
+
   let float_attrib = fun x a -> float_of_string (ExtXml.attrib x a)
   let int_attrib = fun x a -> int_of_string (ExtXml.attrib x a)
 
@@ -216,7 +216,7 @@ module Make(A:Data.MISSION) = struct
       let z_dot_dot = lift /. weight *. cos state.theta *. cos state.phi -. g in
       state.z_dot <- state.z_dot +. z_dot_dot *.dt;
       state.z <- state.z +. state.z_dot *. dt;
-      
+
       (* Constant Cx, drag to get expected cruise and maximum throttle *)
       let drag = cruise_thrust +. (v2 -. vn2)*.(1.-. cruise_thrust)/.(maximum_airspeed ** 2. -. vn2) in
       let air_speed_dot = max_power /. state.air_speed *. (state.thrust -. drag) /. weight -. g *. sin gamma in

@@ -1,6 +1,6 @@
 /*
  * $Id: sim_ac_fw.c 3499 2009-06-16 17:38:56Z gov $
- *  
+ *
  * Copyright (C) 2008 Gautier Hattenberger
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -53,7 +53,7 @@ void autopilot_event_task(void) {
 }
 
 void copy_inputs_to_jsbsim(FGFDMExec* FDMExec) {
-  
+
   FGPropertyManager* cur_node;
   double cur_value;
   char buf[64];
@@ -72,7 +72,7 @@ void copy_inputs_to_jsbsim(FGFDMExec* FDMExec) {
 }
 
 void copy_outputs_from_jsbsim(FGFDMExec* FDMExec) {
-    
+
   FGPropertyManager* cur_node;
   double cur_value, factor=1;
   char buf[64];
@@ -86,7 +86,7 @@ void copy_outputs_from_jsbsim(FGFDMExec* FDMExec) {
   cur_node = FDMExec->GetPropertyManager()->GetNode("sim-time-sec");
   cur_value = cur_node->getDoubleValue();
   cout << state[i] << cur_value << endl;
-  
+
   for (i=1; i<12+1; i++) {
     sprintf(buf,"ic/%s",state[i]);
     if (strstr(state[i],"rad_")!=NULL) factor=RAD2DEG;

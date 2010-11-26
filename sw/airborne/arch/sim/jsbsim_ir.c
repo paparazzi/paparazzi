@@ -20,7 +20,7 @@ void set_ir(double roll, double pitch) {
   double ir_contrast = 150; //FIXME
   double roll_sensor = roll + JSBSIM_IR_ROLL_NEUTRAL; // ir_roll_neutral;
   double pitch_sensor = pitch + JSBSIM_IR_PITCH_NEUTRAL; // ir_pitch_neutral;
-#ifdef INFRARED
+#ifdef USE_INFRARED
   ir_roll = sin(roll_sensor) * ir_contrast;
   ir_pitch = sin(pitch_sensor) * ir_contrast;
   ir_top = cos(roll_sensor) * cos(pitch_sensor) * ir_contrast;

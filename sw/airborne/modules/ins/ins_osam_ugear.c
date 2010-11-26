@@ -265,7 +265,7 @@ void parse_ugear_msg( void ){
             ins_phi  = (float)ugear_phi/10000 - ins_roll_neutral;
             ins_psi = 0;
             ins_theta  = (float)ugear_theta/10000 - ins_pitch_neutral;
-#ifndef INFRARED
+#ifndef USE_INFRARED
             EstimatorSetAtt(ins_phi, ins_psi, ins_theta);
 #endif
             break;

@@ -2,7 +2,7 @@
  *  $Id$
  *
  * Hardware In The Loop
- *  
+ *
  * Copyright (C) 2004 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -58,12 +58,12 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 	      "class", Pprz.Int class_id;
 	      "id", Pprz.Int msg_id;
 	      "ubx_payload", Pprz.String s] in
-    
+
     try
       DatalinkPprz.message_send "hitl" "HITL_UBX" vs
     with
       exc -> prerr_endline (Printexc.to_string exc)
-	
+
 
   let gps = fun gps ->
     let utm = LL.utm_of LL.WGS84 gps.wgs84
@@ -86,7 +86,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 				      "VEL_D", -scale gps.climb 1e2;
 				      "GSpeed", scale gps.gspeed 1e2;
 				      "Heading", scale (deg_of_rad gps.course) 1e5]
-	
+
   let infrared = fun ir_left ir_front ir_top _air_speed ->
     try
       DatalinkPprz.message_send "hitl" "HITL_INFRARED"
@@ -96,7 +96,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 	 "pitch", Pprz.Int (truncate ir_front)]
     with
       exc -> prerr_endline (Printexc.to_string exc)
-	
+
   let sep_reg = Str.regexp Pprz.separator
   let read_commands = fun commands _sender values ->
     let s = Pprz.string_assoc "values" values in

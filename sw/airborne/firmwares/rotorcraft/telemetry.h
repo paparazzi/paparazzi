@@ -63,6 +63,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			      &imu_nb_err,				\
 			      &_twi_blmc_nb_err,			\
 			      &radio_control.status,			\
+			      &radio_control.frame_rate,			\
 			      &booz_gps_state.fix,			\
 			      &autopilot_mode,			\
 			      &autopilot_in_flight,		\
@@ -82,6 +83,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			      &imu_nb_err,				\
 			      &twi_blmc_nb_err,				\
 			      &radio_control.status,			\
+			      &radio_control.frame_rate,			\
 			      &fix,					\
 			      &autopilot_mode,			\
 			      &autopilot_in_flight,		\

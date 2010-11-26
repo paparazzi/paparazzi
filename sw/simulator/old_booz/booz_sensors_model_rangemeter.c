@@ -19,7 +19,7 @@ void booz_sensors_model_rangemeter_init(double time) {
 
   bsm.rangemeter_next_update = time;
   bsm.rangemeter_available = FALSE;
-  
+
 }
 
 

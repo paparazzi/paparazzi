@@ -8,16 +8,16 @@ FDM_ZD   = 2;
 FDM_ZDD  = 3;
 FDM_SIZE = 3;
 
-// u 
+// u
 
 // Parameters
 fdm_mass = 0.5;                           // mass in kg
 fdm_g = 9.81;                             // gravity acceleration m/s2
 fdm_max_thrust = 4.   * fdm_mass * fdm_g; // actuators high saturation
 fdm_min_thrust = 0.05 * fdm_mass * fdm_g; // actuators low saturation
-fdm_Cd   =  0.01;                         // non dimentional drag coefficient 
-fdm_Ct0  =   fdm_max_thrust;              // non dimentional lift coefficient 
-fdm_Ctzd =  -fdm_max_thrust/7;            // non dimensional lift coefficient 
+fdm_Cd   =  0.01;                         // non dimentional drag coefficient
+fdm_Ct0  =   fdm_max_thrust;              // non dimentional lift coefficient
+fdm_Ctzd =  -fdm_max_thrust/7;            // non dimensional lift coefficient
 
 function [Xdot] = fdm_get_derivatives(t, X, U, perturb, param)
 
@@ -27,7 +27,7 @@ function [Xdot] = fdm_get_derivatives(t, X, U, perturb, param)
    u_trim = trim(U(1), 0.01, 1.);
    thrust = u_trim * (fdm_Ct0 + fdm_Ctzd * X(FDM_ZD));
    Xdot(FDM_ZD) = 1/mass*(thrust - fdm_Cd * X(FDM_ZD) * abs(X(FDM_ZD))) - fdm_g + perturb;
- 
+
 endfunction
 
 //

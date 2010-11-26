@@ -53,7 +53,7 @@ void booz_sensors_model_mag_init( double time ) {
 void booz_sensors_model_mag_run( double time ) {
   if (time < bsm.mag_next_update)
     return;
-  
+
   /* rotate h to body frame */
   static VEC *h_body = VNULL;
   h_body = v_resize(h_body, AXIS_NB);
@@ -67,27 +67,27 @@ void booz_sensors_model_mag_run( double time ) {
   h_sensor = v_resize(h_sensor, AXIS_NB);
   mv_mlt(bsm.mag_imu_to_sensor, h_imu, h_sensor);
 
-  mv_mlt(bsm.mag_sensitivity, h_sensor, bsm.mag); 
-  v_add(bsm.mag, bsm.mag_neutral, bsm.mag); 
+  mv_mlt(bsm.mag_sensitivity, h_sensor, bsm.mag);
+  v_add(bsm.mag, bsm.mag_neutral, bsm.mag);
 
-  /* compute mag error readings */  
+  /* compute mag error readings */
   static VEC *mag_error = VNULL;
   mag_error = v_resize(mag_error, AXIS_NB);
   /* add hard iron now ? */
   mag_error = v_zero(mag_error);
   /* add a gaussian noise */
   mag_error = v_add_gaussian_noise(mag_error, bsm.mag_noise_std_dev, mag_error);
-  
+
   mag_error->ve[AXIS_X] = mag_error->ve[AXIS_X] * bsm.mag_sensitivity->me[AXIS_X][AXIS_X];
   mag_error->ve[AXIS_Y] = mag_error->ve[AXIS_Y] * bsm.mag_sensitivity->me[AXIS_Y][AXIS_Y];
   mag_error->ve[AXIS_Z] = mag_error->ve[AXIS_Z] * bsm.mag_sensitivity->me[AXIS_Z][AXIS_Z];
 
   /* add error */
-  v_add(bsm.mag, mag_error, bsm.mag); 
+  v_add(bsm.mag, mag_error, bsm.mag);
 
   //  printf("h body %f %f %f\n", h_body->ve[AXIS_X], h_body->ve[AXIS_Y], h_body->ve[AXIS_Z]);
   //  printf("mag %f %f %f\n", bsm.mag->ve[AXIS_X], bsm.mag->ve[AXIS_Y], bsm.mag->ve[AXIS_Z]);
-  /* round signal to account for adc discretisation */  
+  /* round signal to account for adc discretisation */
   RoundSensor(bsm.mag);
 
   bsm.mag_next_update += BSM_MAG_DT;

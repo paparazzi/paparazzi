@@ -15,17 +15,17 @@ miac_vnull = 7.;
 function [Xadpi1p, Padpi1p, Madpi1] = ctl_adapt_model(Xadpip, Padpip, Xinsi, Ui)
 
   if (Ui < adp_min_cmd)
-    Xadpi1p = Xadpip 
+    Xadpi1p = Xadpip
     // so propagate covariance only
     Padpi1p = Padpip; // + adp_sys_noise;
     Madpi1 = 0;
   else
     // Propagate
     // we're estimating a constant
-    Xadpi1m = Xadpip 
+    Xadpi1m = Xadpip
     // so propagate covariance only
     Padpi1m = Padpip + adp_sys_noise;
-    
+
     // Update
     // our measurement
     Madpi1 = (Xinsi(INS_ZDD) + fdm_g) / ( Ui );
@@ -42,7 +42,7 @@ function [Xadpi1p, Padpi1p, Madpi1] = ctl_adapt_model(Xadpip, Padpip, Xinsi, Ui)
     Padpi1p = Padpi1m - K * Padpi1m;
     Xadpi1p = Xadpi1m + K * res;
   end
-    
+
 endfunction
 
 

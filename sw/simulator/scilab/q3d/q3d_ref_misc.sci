@@ -6,10 +6,10 @@ endfunction
 
 
 function [time_out, ref_out] = get_reference_circle(time_in, ref_in, center, radius, duration)
-   
+
   dt = 1/512;
   time = time_in($)+dt:dt:time_in($)+duration;
-  
+
   omega = 2*%pi/period;
   X0 = radius * sin(omega * time) + center(AXIS_X);
   Z0 = radius * -cos(omega * time) + center(AXIS_Z);
@@ -19,7 +19,7 @@ function [time_out, ref_out] = get_reference_circle(time_in, ref_in, center, rad
 
   X2 = omega^2 * radius * -sin(omega * time);
   Z2 = omega^2 * radius * cos(omega * time);
-  
+
   X3 = omega^3 * radius * -cos(omega * time);
   Z3 = omega^3 * radius * -sin(omega * time);
 
@@ -28,7 +28,7 @@ function [time_out, ref_out] = get_reference_circle(time_in, ref_in, center, rad
 
   time_out = [time_in time];
   ref_out = [ref_in X0;Z0;X1;Z1;X2;Z2;X3;Z3;X4;Z4];
-  
+
 endfunction
 
 
@@ -42,16 +42,16 @@ function [time, Xref] = get_reference_looping(t0, duration, center, radius)
 
   X0 = radius *  sin(2*delta) + center(AXIS_X);
   Z0 = -radius * (cos(2*delta)-1) + center(AXIS_Z);
-  
+
   X1 = +2*radius*delta_dot.*cos(2*delta);
   Z1 = +2*radius*delta_dot.*sin(2*delta);
 
   X2 = -4*radius*(delta_dot^2).*sin(2*delta);
   Z2 = +4*radius*(delta_dot^2).*cos(2*delta);
-  
+
   X3 = -8*radius*(delta_dot^3).*cos(2*delta);
   Z3 = -8*radius*(delta_dot^3).*sin(2*delta);
-  
+
   X4 = +16*radius*(delta_dot^4).*sin(2*delta);
   Z4 = -16*radius*(delta_dot^4).*cos(2*delta);
 
@@ -69,17 +69,17 @@ function [time_out, Xref] = get_reference_poly(duration, a, b)
   p3 = b(1:2);
   p1 = p0 - a(3:4);
   p2 = p3 - b(3:4);
-   
+
   d0 = p1 - p0;
   d1 = p2 - p1;
   d2 = p3 - p2;
-  
+
   dd0 = d1 - d0;
   dd1 = d2 - d1;
 
   ddd0 = dd1 - dd0;
-  
-  dt = 1/512; 
+
+  dt = 1/512;
   dt = 1/512;
   time = 0:dt:duration;
 
@@ -91,8 +91,8 @@ function [time_out, Xref] = get_reference_poly(duration, a, b)
     Xref(5:6,i) = 2*((1-t)*dd0 + t * dd1 );
     Xref(7:8,i) = ddd0;
   end
-  
-  
+
+
 endfunction
 
 
@@ -134,16 +134,16 @@ function [time, Xref] = get_reference_poly2(duration, a, b)
   p0_7 = 1/4*(p1_7 - p0_8);
   p1_6 = 1/4*(p2_6 - p1_7);
   p2_5 = 1/4*(p3_5 - p2_6);
-  
+
   p0_6 = 1/5*(p1_6 - p0_7);
   p1_5 = 1/5*(p2_5 - p1_6);
-  
+
   p0_5 = 1/6*(p1_5 - p0_6);
 
   p1_4 = p0_4 + p0_5;
  // p2_4 = ;
  // p2_3 = ;
-  
+
  // p3_4 = ;
  // p3_3 = ;
  // p3_4 = ;
@@ -153,8 +153,8 @@ function [time, Xref] = get_reference_poly2(duration, a, b)
  // p4_3 = ;
  // p4_2 = ;
  // p4_1 = ;
-  
-  dt = 1/512; 
+
+  dt = 1/512;
   dt = 1/512;
   time = 0:dt:duration;
 
@@ -167,7 +167,7 @@ function [time, Xref] = get_reference_poly2(duration, a, b)
 //    Xref(7:8,i)  = p3_0*(1-t)^6 + p3_1*t*(1-t)^5 + p3_2*t^2*(1-t)^4 + p3_3*t^3*(1-t)^3 + p3_4*t^4*(1-t)^2 + p3_5*t^5*(1-t)^1 + p3_6*t^6*;
 //    Xref(9:10,i) = p4_0*(1-t)^5 + p4_1*t*(1-t)^4 + p4_2*t^2*(1-t)^3 + p4_3*t^3*(1-t)^2 + p4_4*t^4*(1-t)^1 + p4_5*t^5;
   end
-  
+
 endfunction
 
 function [time_out, ref_out] = get_reference_poly3(time_in, ref_in, duration, state_out)
@@ -213,18 +213,18 @@ function [time_out, ref_out] = get_reference_lti4(time_in, ref_in, duration, pos
     xdot = lti4_get_derivatives(0, refi, pos_out)
     ref_out = [ref_out [refi; xdot(7:8)]];
   end
-  
+
 endfunction
 
-lti4_omega1 = [ rad_of_deg(35); rad_of_deg(35)]; 
-lti4_zeta1  = [ 0.9; 0.9 ]; 
+lti4_omega1 = [ rad_of_deg(35); rad_of_deg(35)];
+lti4_zeta1  = [ 0.9; 0.9 ];
 
-lti4_omega2 = [ rad_of_deg(720); rad_of_deg(720)]; 
-lti4_zeta2  = [ 0.9; 0.9 ]; 
+lti4_omega2 = [ rad_of_deg(720); rad_of_deg(720)];
+lti4_zeta2  = [ 0.9; 0.9 ];
 
 lti4_a0 = lti4_omega1^2 .* lti4_omega2^2;
 lti4_a1 = 2 * lti4_zeta1 .* lti4_omega1 .* lti4_omega2^2 + ...
-    2 * lti4_zeta2 .* lti4_omega2 .* lti4_omega1^2; 
+    2 * lti4_zeta2 .* lti4_omega2 .* lti4_omega1^2;
 lti4_a2 = lti4_omega1^2 + ...
     2 * lti4_zeta1 .* lti4_omega1 .* lti4_zeta2 .* lti4_omega2 + ...
     lti4_omega2^2;

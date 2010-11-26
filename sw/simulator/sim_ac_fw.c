@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2008 Gautier Hattenberger
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -34,33 +34,33 @@ using namespace std;
 using namespace JSBSim;
 
 /* Datalink Ivy function */
-static void on_DL_PING(IvyClientPtr app __attribute__ ((unused)), 
-			  void *user_data __attribute__ ((unused)), 
+static void on_DL_PING(IvyClientPtr app __attribute__ ((unused)),
+			  void *user_data __attribute__ ((unused)),
 			  int argc __attribute__ ((unused)), char *argv[]){
   parse_dl_ping(argv);
 }
-static void on_DL_ACINFO(IvyClientPtr app __attribute__ ((unused)), 
-			  void *user_data __attribute__ ((unused)), 
+static void on_DL_ACINFO(IvyClientPtr app __attribute__ ((unused)),
+			  void *user_data __attribute__ ((unused)),
 			  int argc __attribute__ ((unused)), char *argv[]){
   parse_dl_acinfo(argv);
 }
-static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)), 
-			  void *user_data __attribute__ ((unused)), 
+static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
+			  void *user_data __attribute__ ((unused)),
 			  int argc __attribute__ ((unused)), char *argv[]){
   parse_dl_setting(argv);
 }
-static void on_DL_GET_SETTING(IvyClientPtr app __attribute__ ((unused)), 
-			  void *user_data __attribute__ ((unused)), 
+static void on_DL_GET_SETTING(IvyClientPtr app __attribute__ ((unused)),
+			  void *user_data __attribute__ ((unused)),
 			  int argc __attribute__ ((unused)), char *argv[]){
   parse_dl_get_setting(argv);
 }
-static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)), 
-			  void *user_data __attribute__ ((unused)), 
+static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)),
+			  void *user_data __attribute__ ((unused)),
 			  int argc __attribute__ ((unused)), char *argv[]){
   parse_dl_block(argv);
 }
-static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)), 
-			  void *user_data __attribute__ ((unused)), 
+static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
+			  void *user_data __attribute__ ((unused)),
 			  int argc __attribute__ ((unused)), char *argv[]){
   parse_dl_move_wp(argv);
 }
@@ -103,7 +103,7 @@ void print(FGFDMExec* FDMExec) {
   cur_node = FDMExec->GetPropertyManager()->GetNode("simulation/sim-time-sec");
   cur_value = cur_node->getDoubleValue();
   cout << state[i] << " " << cur_value << endl;
-  
+
   for (i=1; i<3+1; i++) {
     if (strstr(state[i],"rad_")!=NULL) factor=RAD2DEG;
     if (strstr(state[i],"fps")!=NULL || strstr(state[i],"ft")!=NULL) factor=FT2M;
