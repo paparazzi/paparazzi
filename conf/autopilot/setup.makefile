@@ -5,7 +5,8 @@
 
 SRC_ARCH=arch/$(ARCH)
 
-CFG_SETUP=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/setup
+CFG_SHARED=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/shared
+#CFG_SETUP=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/setup
 
 
 SRC_SETUP=.
@@ -54,25 +55,25 @@ usb_tunnel_1.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 ifeq ($(ACTUATORS),)
   ifeq ($(BOARD),tiny)
     ifeq ($(BOARD_VERSION),1.1)
-      include $(CFG_SETUP)/actuators_4015.makefile
+      include $(CFG_SHARED)/actuators_4015.makefile
     else
       ifeq ($(BOARD_VERSION),0.99)
-        include $(CFG_SETUP)/actuators_4015.makefile
+        include $(CFG_SHARED)/actuators_4015.makefile
       else
-        include $(CFG_SETUP)/actuators_4017.makefile
+        include $(CFG_SHARED)/actuators_4017.makefile
       endif
     endif
   endif
   ifeq ($(BOARD),twog)
-	include $(CFG_SETUP)/actuators_4017.makefile
+	include $(CFG_SHARED)/actuators_4017.makefile
   endif
 
   ifeq ($(BOARD),lisa_l)
-    include $(CFG_SETUP)/actuators_direct.makefile
+    include $(CFG_SHARED)/actuators_direct.makefile
   endif
 
 else
-  include $(CFG_SETUP)/$(ACTUATORS).makefile
+  include $(CFG_SHARED)/$(ACTUATORS).makefile
 endif
 
 
