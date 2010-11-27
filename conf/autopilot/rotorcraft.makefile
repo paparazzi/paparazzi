@@ -30,6 +30,7 @@
 # MODEM_BAUD
 #
 
+CFG_SHARED=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/shared
 CFG_ROTORCRAFT=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/rotorcraft
 
 SRC_BOOZ=booz
