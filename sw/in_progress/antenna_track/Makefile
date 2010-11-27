@@ -30,6 +30,4 @@ ant_track_pmm : ant_track_pmm.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f *~* *.cm* *.o *.out *.opt .depend 
-
-
+	rm -f *~* *.cm* *.o *.out *.opt .depend
