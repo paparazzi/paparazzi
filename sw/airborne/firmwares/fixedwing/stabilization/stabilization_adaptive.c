@@ -36,7 +36,7 @@
 #include "nav.h"
 #include "generated/airframe.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
-#include "autopilot.h"
+#include "firmwares/fixedwing/autopilot.h"
 
 
 /* outer loop parameters */
