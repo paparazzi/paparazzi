@@ -232,7 +232,7 @@ let parse_subsystems = fun makefile_ac tag firmware ->
    match Xml.tag firmware with
 	"subsystem" ->
 		begin try
-		  fprintf makefile_ac "# -subsystem: '%s' \n" (Xml.attrib firmware "name");
+		  fprintf makefile_ac "# -subsystem: '%s'\n" (Xml.attrib firmware "name");
 		  let has_subtype = ref false in
 		  begin try
 			has_subtype := not (String.compare (Xml.attrib firmware "type") "" = 0)
@@ -258,8 +258,8 @@ let parse_targets = fun makefile_ac tag target ->
    match Xml.tag target with
    | "target" ->
 		begin try
-		  fprintf makefile_ac "\n###########\n# -target: '%s' \n" (Xml.attrib target "name");
-		  fprintf makefile_ac "ifeq ($(TARGET), %s) \n" (Xml.attrib target "name");
+		  fprintf makefile_ac "\n###########\n# -target: '%s'\n" (Xml.attrib target "name");
+		  fprintf makefile_ac "ifeq ($(TARGET), %s)\n" (Xml.attrib target "name");
   	  let print_if_subsystem = (fun c ->
 			if ExtXml.tag_is c "param" then begin
 			  fprintf makefile_ac "%s = %s\n"
@@ -313,7 +313,7 @@ let dump_firmware_sections = fun xml makefile_ac ->
 	if ExtXml.tag_is tag "firmware" then begin
 	  begin try
 		fprintf makefile_ac "\n####################################################\n";
-		fprintf makefile_ac   "# makefile firmware '%s' \n" (Xml.attrib tag "name");
+		fprintf makefile_ac   "# makefile firmware '%s'\n" (Xml.attrib tag "name");
 		fprintf makefile_ac   "####################################################\n";
 	List.iter (parse_targets makefile_ac tag) (Xml.children tag )
 	  with _ -> () end;
