@@ -58,12 +58,12 @@ MESSAGES_XML = $(CONF)/messages.xml
 UBX_XML = $(CONF)/ubx.xml
 XSENS_XML = $(CONF)/xsens_MTi-G.xml
 TOOLS=$(PAPARAZZI_SRC)/sw/tools
-HAVE_ARM_NONE_EABI_GCC := $(wildcard /usr/bin/arm-none-eabi-gcc)
+HAVE_ARM_NONE_EABI_GCC := $(shell which arm-none-eabi-gcc)
 ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
 #ARMGCC=/opt/paparazzi/bin/arm-elf-gcc
 ARMGCC=/usr/bin/arm-elf-gcc
 else
-ARMGCC=/usr/bin/arm-none-eabi-gcc
+ARMGCC=$(HAVE_ARM_NONE_EABI_GCC)
 endif
 
 

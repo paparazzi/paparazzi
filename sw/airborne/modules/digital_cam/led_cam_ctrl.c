@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2006  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -22,34 +20,14 @@
  *
  */
 
-/** \file gyro.h
- * \brief Basic code for gyro acquisition on ADC channels
- *
-*/
+#include "led_cam_ctrl.h"
 
-#ifndef GYRO_H
-#define GYRO_H
+// Include Digital IO
+#include "led.h"
 
-#include <inttypes.h>
-
-#ifdef GYRO
-#error "The flag GYRO has been deprecated. Please replace it with USE_GYRO."
-#endif
-
-/** Raw (for debug), taking into accound neutral and temp compensation (if any) */
-extern int16_t roll_rate_adc;
+// Button Timer
+uint8_t dc_timer;
 
 
-/** Hardware dependent code */
-#if defined ADXRS150
-extern float temp_comp;
-#elif defined IDG300
-extern int16_t pitch_rate_adc;
-#endif
 
-void gyro_init( void );
 
-/** Sets roll_rate_adc and pitch_rate_adc (or temp_comp), and estimator_p */
-void gyro_update( void );
-
-#endif /* GYRO_H */

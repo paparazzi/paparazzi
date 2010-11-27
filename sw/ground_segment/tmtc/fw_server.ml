@@ -103,6 +103,8 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
     a.last_msg_date <- U.gettimeofday ();
   match msg.Pprz.name with
     "GPS" ->
+      a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
+      if a.gps_mode = _3D then begin
       let p = { LL.utm_x = fvalue "utm_east" /. 100.;
         utm_y = fvalue "utm_north" /. 100.;
         utm_zone = ivalue "utm_zone" } in
@@ -114,9 +116,9 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       if !heading_from_course then
         a.heading <- a.course;
       a.agl     <- a.alt -. float (try Srtm.of_wgs84 a.pos with _ -> 0);
-      a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
       if a.gspeed > 3. && a.ap_mode = _AUTO2 then
 	      Wind.update ac_name a.gspeed a.course
+      end
   | "GPS_LLA" ->
       let lat = ivalue "lat"
       and lon = ivalue "lon" in
@@ -143,9 +145,6 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         Some nav_ref ->
           let x = (try fvalue "x" with _ -> fvalue "desired_x")
           and y = (try fvalue "y" with _ -> fvalue "desired_y") in
-	        (*let target_utm = LL.utm_add (LL.utm_of nav_ref) (x, y) in
-	        let target_geo = LL.of_utm WGS84 target_utm in 
-          a.desired_pos <- target_geo;*)
           a.desired_pos <- Aircraft.add_pos_to_nav_ref nav_ref (x, y);
       | None -> ()
       end;

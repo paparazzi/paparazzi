@@ -10,7 +10,7 @@ CFG_FIXEDWING=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/fixedwing
 
 
 SRC_FIXEDWING=.
-SRC_ARCH=$(SRC_FIXEDWING)/arch/$(ARCH)
+SRC_ARCH=arch/$(ARCH)
 SRC_FIXEDWING_TEST=$(SRC_FIXEDWING)/
 
 SRC_FIRMWARE=firmwares/fixedwing

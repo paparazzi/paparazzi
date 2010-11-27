@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2006  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -22,34 +20,32 @@
  *
  */
 
-/** \file gyro.h
- * \brief Basic code for gyro acquisition on ADC channels
- *
-*/
+#ifndef ATMEGA_I2C_CAM_CTRL_H
+#define ATMEGA_I2C_CAM_CTRL_H
 
-#ifndef GYRO_H
-#define GYRO_H
+// Include Standard Camera Control Interface
+#include "dc.h"
 
-#include <inttypes.h>
 
-#ifdef GYRO
-#error "The flag GYRO has been deprecated. Please replace it with USE_GYRO."
+void atmega_i2c_cam_ctrl_init(void);
+void atmega_i2c_cam_ctrl_periodic(void);
+void atmega_i2c_cam_ctrl_event(void);
+void atmega_i2c_cam_ctrl_send(uint8_t cmd);
+
+// In I2C mode we can not inline this function:
+static inline void dc_send_command(uint8_t cmd)
+{
+  atmega_i2c_cam_ctrl_send(cmd);
+}
+
+// Allow commands to be set by datalink
+#define ParseCameraCommand() { 								\
+  {											\
+    if ( DL_PAYLOAD_COMMAND_command_length(dl_buffer) == 1){				\
+      dc_send_command(DL_PAYLOAD_COMMAND_command(dl_buffer)[0]);			\
+    }											\
+  } 											\
+}
+
+
 #endif
-
-/** Raw (for debug), taking into accound neutral and temp compensation (if any) */
-extern int16_t roll_rate_adc;
-
-
-/** Hardware dependent code */
-#if defined ADXRS150
-extern float temp_comp;
-#elif defined IDG300
-extern int16_t pitch_rate_adc;
-#endif
-
-void gyro_init( void );
-
-/** Sets roll_rate_adc and pitch_rate_adc (or temp_comp), and estimator_p */
-void gyro_update( void );
-
-#endif /* GYRO_H */
