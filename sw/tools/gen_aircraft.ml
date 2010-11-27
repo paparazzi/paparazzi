@@ -233,9 +233,9 @@ let parse_subsystems = fun makefile_ac tag firmware ->
 	"subsystem" ->
 		begin try
 		  fprintf makefile_ac "# -subsystem: '%s'\n" (Xml.attrib firmware "name");
-		  let has_subtype = ref false in
+		  let has_no_subtype = ref false in
 		  begin try
-			has_subtype := not (String.compare (Xml.attrib firmware "type") "" = 0)
+			has_no_subtype := not (String.compare (Xml.attrib firmware "type") "" = 0)
 		  with _ -> () end;
 		  let print_if_subsystem_define = (fun d ->
 			if ExtXml.tag_is d "param" then begin
@@ -244,13 +244,23 @@ let parse_subsystems = fun makefile_ac tag firmware ->
 			  (Xml.attrib d "value");
 			end) in
 		  List.iter print_if_subsystem_define (Xml.children firmware);
-		  fprintf makefile_ac "include $(CFG_%s)/%s"
-   		(String.uppercase(Xml.attrib tag "name"))
+		  fprintf makefile_ac "ifneq ($(strip $(wildcard $(CFG_%s)/%s" (String.uppercase(Xml.attrib tag "name")) (Xml.attrib firmware "name");
+		  if !has_no_subtype then
+			fprintf makefile_ac "_%s" (Xml.attrib firmware "type");
+		  fprintf makefile_ac ".makefile)),)\n";
+		  (** fprintf makefile_ac "ifneq ($(strip $(have_shared)),)\n"; **)
+		  fprintf makefile_ac "\tinclude $(CFG_%s)/%s" (String.uppercase(Xml.attrib tag "name")) (Xml.attrib firmware "name");
+		  if !has_no_subtype then
+			fprintf makefile_ac "_%s" (Xml.attrib firmware "type");
+		  fprintf makefile_ac ".makefile\n";
+		  fprintf makefile_ac "else\n";
+		  fprintf makefile_ac "\tinclude $(CFG_SHARED)/%s"
 		(Xml.attrib firmware "name");
-		  if !has_subtype then
+		  if !has_no_subtype then
 			fprintf makefile_ac "_%s"
 		  (Xml.attrib firmware "type");
-		  fprintf makefile_ac ".makefile\n"
+		  fprintf makefile_ac ".makefile\n";
+		  fprintf makefile_ac "endif\n";
 		with _ -> () end;
    | _ -> ()
 
@@ -295,7 +305,7 @@ let parse_targets = fun makefile_ac tag target ->
 			end) in
 	  List.iter print_if_subsystem (Xml.children target);
 	  List.iter (parse_subsystems makefile_ac tag) (Xml.children target ); (** dump target  subsystems **)
-	  List.iter (parse_subsystems makefile_ac tag) (Xml.children tag );    (** dump firware subsystems **)
+	  List.iter (parse_subsystems makefile_ac tag) (Xml.children tag );    (** dump firmware subsystems **)
 		  fprintf makefile_ac "endif\n\n";
 		with _ -> () end;
   | "define" ->
