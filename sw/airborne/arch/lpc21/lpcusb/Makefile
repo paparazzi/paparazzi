@@ -5,7 +5,7 @@ PKG_NAME	= target
 DATE		= $$(date +%Y%m%d)
 
 # Tool definitions
-HAVE_ARM_NONE_EABI_GCC := $(wildcard /usr/bin/arm-none-eabi-gcc)
+HAVE_ARM_NONE_EABI_GCC := $(shell which arm-none-eabi-gcc)
 
 ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
 CC      = arm-elf-gcc

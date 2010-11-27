@@ -43,7 +43,7 @@ OBJDUMP = arm-elf-objdump
 SIZE = arm-elf-size
 NM = arm-elf-nm
 else
-$(info Using gcc-arm-none-eabi.)
+$(info Using arm-none-eabi-gcc.)
 CC		= arm-none-eabi-gcc
 LD		= $(CC)
 SHELL = sh
