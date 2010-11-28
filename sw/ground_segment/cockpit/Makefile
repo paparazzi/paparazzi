@@ -102,6 +102,9 @@ LDFLAGS=`pkg-config gtk+-2.0 --libs` -s `pcre-config --libs` -lglibivy
 ant_track : ant_track.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
+ant_track_pmm : ant_track_pmm.c
+	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
+
 test_enose : test_enose.c sliding_plot.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS) -lgtkdatabox
 
