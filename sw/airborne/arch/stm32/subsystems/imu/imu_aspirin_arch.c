@@ -130,27 +130,6 @@ void imu_aspirin_arch_init(void) {
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
 
-  /* Mag   */
-  /* configure external interrupt exti5 on PB5( mag int ) */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-  GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource5);
-  EXTI_InitStructure.EXTI_Line = EXTI_Line5;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
-
-  NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
-
 }
 
 
@@ -242,21 +221,6 @@ void exti15_10_irq_handler(void) {
   //  if (!i2c_submit(&i2c2,&imu_aspirin.i2c_trans_gyro)) while(1);
   i2c_submit(&i2c2,&imu_aspirin.i2c_trans_gyro);
   imu_aspirin.status = AspirinStatusReadingGyro;
-
-}
-
-/*
- *
- * Mag data ready
- *
- */
-void exti9_5_irq_handler(void) {
-
-  /* clear EXTI */
-  if(EXTI_GetITStatus(EXTI_Line5) != RESET)
-    EXTI_ClearITPendingBit(EXTI_Line5);
-
-  imu_aspirin.mag_ready_for_read = TRUE;
 
 }
 
