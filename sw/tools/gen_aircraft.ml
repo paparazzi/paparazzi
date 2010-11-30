@@ -214,12 +214,12 @@ let dump_makefile_section = fun xml makefile_ac airframe_infile location ->
       let loc = ExtXml.attrib_or_default x "location" "before" in
       match (location, loc) with
         ("before", "before") | ("after", "after") ->
-          fprintf makefile_ac "\n# makefile target '%s'\n" (Xml.attrib x "target");
+          fprintf makefile_ac "\n# raw makefile\n";
           begin match Xml.children x with
             [Xml.PCData s] -> fprintf makefile_ac "%s\n" s
           | _ -> failwith (sprintf "Warning: wrong makefile section in '%s': %s\n" airframe_infile (Xml.to_string_fmt x))
           end
-      | (_, _) -> failwith (sprintf "Warning: wrong location in makefile section in '%s'" airframe_infile)
+      | (_, _) -> ()
     end) 
   (Xml.children xml)
 
