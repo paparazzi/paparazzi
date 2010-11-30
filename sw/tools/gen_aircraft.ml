@@ -269,6 +269,8 @@ let parse_firmware = fun makefile_ac firmware ->
     let t_params = List.filter (fun x -> ExtXml.tag_is x "param") (Xml.children target) in
     (* get the list of defines for this target *)
     let t_defines = List.filter (fun x -> ExtXml.tag_is x "define") (Xml.children target) in
+    (* get the list of subsystems for this target *)
+    let t_subsystems = List.filter (fun x -> ExtXml.tag_is x "subsystem") (Xml.children target) in
     (* print makefile for this target *)
     fprintf makefile_ac "\n###########\n# -target: '%s'\n" (Xml.attrib target "name");
     fprintf makefile_ac "ifeq ($(TARGET), %s)\n" (Xml.attrib target "name");
@@ -279,6 +281,7 @@ let parse_firmware = fun makefile_ac firmware ->
     fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib target "board");
     fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/autopilot/%s.makefile\n" (Xml.attrib firmware "name");
     List.iter (print_firmware_subsystem makefile_ac firmware) subsystems;
+    List.iter (print_firmware_subsystem makefile_ac firmware) t_subsystems;
     fprintf makefile_ac "endif\n\n"
   ) targets
 
