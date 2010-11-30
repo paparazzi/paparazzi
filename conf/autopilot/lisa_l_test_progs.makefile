@@ -400,6 +400,7 @@ test_imu_aspirin.CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin.h\" -DIMU_OVERRIDE_CHA
 test_imu_aspirin.srcs += $(SRC_SUBSYSTEMS)/imu.c             \
                         $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
                         $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c
+test_imu_aspirin.srcs += peripherals/hmc5843.c $(SRC_ARCH)/peripherals/hmc5843_arch.c
 
 test_imu_aspirin.CFLAGS += -DUSE_I2C2
 test_imu_aspirin.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
