@@ -724,7 +724,7 @@ let () =
       printf "\n";
 
       printf "#include \"std.h\"\n";
-      printf "#include \"modules.h\"\n";
+      printf "#include \"generated/modules.h\"\n";
 
       begin
     try
