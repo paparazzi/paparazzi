@@ -2,7 +2,7 @@
  * $Id$
  *
  * XML preprocessing for airframe parameters
- *  
+ *
  * Copyright (C) 2003-2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -59,7 +59,7 @@ let define_macro name n x =
   | 2 -> printf "x1,x2) (%s*(x1)+ %s*(x2))\n" (a "coeff1") (a "coeff2")
   | 3 -> printf "x1,x2,x3) (%s*(x1)+ %s*(x2)+%s*(x3))\n" (a "coeff1") (a "coeff2") (a "coeff3")
   | _ -> failwith "define_macro"
-	  
+
 let define_integer name v n =
   let max_val = 1 lsl n in
   let print = fun name num den ->
@@ -84,11 +84,11 @@ let define_integer name v n =
 let parse_element = fun prefix s ->
   match Xml.tag s with
     "define" -> begin
-			try	
-      	define (prefix^ExtXml.attrib s "name") (ExtXml.display_entities (ExtXml.attrib s "value"));
-      	define_integer (prefix^(ExtXml.attrib s "name")) (ExtXml.float_attrib s "value") (ExtXml.int_attrib s "integer");
-			with _ -> ();
-		end
+            try
+        define (prefix^ExtXml.attrib s "name") (ExtXml.display_entities (ExtXml.attrib s "value"));
+        define_integer (prefix^(ExtXml.attrib s "name")) (ExtXml.float_attrib s "value") (ExtXml.int_attrib s "integer");
+            with _ -> ();
+        end
   | "linear" ->
       let name = ExtXml.attrib s "name"
       and n = int_of_string (ExtXml.attrib s "arity") in
@@ -107,7 +107,7 @@ let parse_servo = fun driver c ->
   let min = fos (ExtXml.attrib c "min" )
   and neutral = fos (ExtXml.attrib c "neutral")
   and max = fos (ExtXml.attrib c "max" ) in
-  
+
   let travel_up = (max-.neutral) /. max_pprz
   and travel_down = (neutral-.min) /. max_pprz in
 
@@ -153,7 +153,7 @@ let parse_command_laws = fun command ->
        let var = a "var"
        and value = a "value" in
        let v = preprocess_value value "values" "COMMAND" in
-       printf "  int16_t _var_%s = %s;\\\n" var v 
+       printf "  int16_t _var_%s = %s;\\\n" var v
    | "define" ->
        parse_element "" command
    | _ -> xml_error "set|let"
@@ -162,7 +162,7 @@ let parse_csc_fields = fun csc_fields ->
   let a = fun s -> ExtXml.attrib csc_fields s in
    match Xml.tag csc_fields with
      "field_map" ->
-       let servo_id = a "servo_id" 
+       let servo_id = a "servo_id"
        and field = a "field" in
        printf "  temp.%s = actuators[%s]; \\\n" field servo_id;
       | _ -> xml_error "field_map"
@@ -171,8 +171,8 @@ let parse_csc_messages = (let msg_index_ref = ref 0 in fun csc_id csc_messages -
   let a = fun s -> ExtXml.attrib csc_messages s in
    match Xml.tag csc_messages with
      "msg" ->
-       let msg_id = a "id" 
-       and msg_type = a "type" 
+       let msg_id = a "id"
+       and msg_type = a "type"
        and msg_index = msg_index_ref.contents in
        msg_index_ref.contents <- msg_index + 1;
        printf "{\\\n  struct Csc%s temp; \\\n" msg_type;
@@ -204,7 +204,7 @@ let parse_rc_commands = fun rc ->
        let var = a "var"
        and value = a "value" in
        let v = preprocess_value value "rc_values" "RADIO" in
-       printf "  int16_t _var_%s = %s;\\\n" var v 
+       printf "  int16_t _var_%s = %s;\\\n" var v
    | "define" ->
        parse_element "" rc
    | _ -> xml_error "set|let"
@@ -221,7 +221,7 @@ let parse_ap_only_commands = fun ap_only ->
 let parse_subsystem_defines = fun options ->
   match Xml.tag options with
     "param" ->
-      printf "//   -param: %s\n"  (ExtXml.attrib options "name") 
+      printf "//   -param: %s\n"  (ExtXml.attrib options "name")
    | "define" ->
       printf "#define %s %s\n"  (ExtXml.attrib options "name")  (ExtXml.attrib options "value")
    | _ -> xml_error "define|param"
@@ -230,7 +230,7 @@ let parse_subsystem_defines = fun options ->
 let parse_subsystems = fun subsystem ->
   match Xml.tag subsystem with
     "param" ->
-      printf "// subsystem parameter: %s\n"  (ExtXml.attrib subsystem "name") 
+      printf "// subsystem parameter: %s\n"  (ExtXml.attrib subsystem "name")
    | "subsystem" ->
       printf "// -%s:\n"  (ExtXml.attrib subsystem "name");
       List.iter parse_subsystem_defines (Xml.children subsystem)
@@ -307,7 +307,7 @@ let rec parse_section = fun s ->
       ()
       (** Ignoring this section *)
   | _ -> ()
-     
+
 
 let h_name = "AIRFRAME_H"
 
@@ -319,7 +319,7 @@ let hex_to_bin = fun s ->
     b.[4*i] <- '\\';
     Scanf.sscanf (String.sub s (2*i) 2) "%2x"
       (fun x ->
-	String.blit (sprintf "%03o" x) 0 b (4*i+1) 3)
+    String.blit (sprintf "%03o" x) 0 b (4*i+1) 3)
   done;
   b
 
