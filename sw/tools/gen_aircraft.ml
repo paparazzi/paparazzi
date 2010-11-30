@@ -280,8 +280,8 @@ let parse_firmware = fun makefile_ac firmware ->
     List.iter (print_firmware_define makefile_ac) t_defines;
     fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib target "board");
     fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/autopilot/%s.makefile\n" (Xml.attrib firmware "name");
-    List.iter (print_firmware_subsystem makefile_ac firmware) subsystems;
     List.iter (print_firmware_subsystem makefile_ac firmware) t_subsystems;
+    List.iter (print_firmware_subsystem makefile_ac firmware) subsystems;
     fprintf makefile_ac "endif\n\n"
   ) targets
 
