@@ -3,6 +3,7 @@
 
 #include "std.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
+#include "autopilot.h"
 
 extern uint8_t joystick_block;
 

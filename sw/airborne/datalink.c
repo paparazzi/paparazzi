@@ -39,6 +39,10 @@
 #include "traffic_info.h"
 #endif // TRAFFIC_INFO
 
+#if defined NAV || defined WIND_INFO
+#include "estimator.h"
+#endif
+
 #ifdef USE_JOYSTICK
 #include "joystick.h"
 #endif
@@ -52,7 +56,7 @@
 #endif
 
 
-#include "common_nav.h"
+#include "nav.h"
 #include "generated/settings.h"
 #include "latlong.h"
 
