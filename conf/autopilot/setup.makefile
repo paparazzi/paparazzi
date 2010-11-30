@@ -3,17 +3,14 @@
 #
 #
 
-SRC_ARCH=arch/$(ARCH)
 
 CFG_SHARED=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/shared
 #CFG_SETUP=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/setup
 
+SRC_ARCH=arch/$(ARCH)
+SRC_FIRMWARE=firmwares/setup
 
-SRC_SETUP=.
-SRC_SETUP_ARCH=$(SRC_SETUP)/$(ARCH)
-SRC_SETUP_TEST=$(SRC_SETUP)/
-
-SETUP_INC = -I$(SRC_SETUP) -I$(SRC_SETUP_ARCH)
+SETUP_INC = -I$(SRC_FIRMWARE)
 
 
 # for the usb_tunnel we need to set PCLK higher
@@ -83,4 +80,4 @@ setup_actuators.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DDOWNLINK_DEVICE=Uart
 setup_actuators.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDATALINK=PPRZ
 setup_actuators.CFLAGS += -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1
 setup_actuators.CFLAGS += $(SETUP_INC) -Ifirmwares/fixedwing
-setup_actuators.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c pprz_transport.c downlink.c setup_actuators.c $(SRC_ARCH)/uart_hw.c firmwares/fixedwing/main.c
+setup_actuators.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c pprz_transport.c downlink.c $(SRC_FIRMWARE)/setup_actuators.c $(SRC_ARCH)/uart_hw.c firmwares/fixedwing/main.c
