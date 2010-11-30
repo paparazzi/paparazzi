@@ -2,7 +2,7 @@
  * $Id$
  *
  * XML preprocessing for dynamic tuning
- *  
+ *
  * Copyright (C) 2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -44,50 +44,50 @@ let rec flatten = fun xml r ->
     match Xml.children xml with
       [] -> r
     | x::xs ->
-	List.iter (fun y -> assert(ExtXml.tag_is y (Xml.tag x))) xs;
-	List.fold_right flatten (x::xs) r
+    List.iter (fun y -> assert(ExtXml.tag_is y (Xml.tag x))) xs;
+    List.fold_right flatten (x::xs) r
 
 
 module StringSet = Set.Make(struct type t = string let compare = compare end)
-	  
+
 
 let print_dl_settings = fun settings ->
   let settings = flatten settings [] in
 
   (** include  headers **)
   let modules = ref StringSet.empty in
-  List.iter 
+  List.iter
     (fun s ->
       try
-	modules := StringSet.add (ExtXml.attrib s "module") !modules
+    modules := StringSet.add (ExtXml.attrib s "module") !modules
       with ExtXml.Error e -> ()
-    ) 
+    )
     settings;
 
   lprintf "\n";
   StringSet.iter (fun m -> lprintf "#include \"%s.h\"\n" m) !modules;
-  lprintf "#include \"modules.h\"\n";
+  lprintf "#include \"generated/modules.h\"\n";
   lprintf "\n";
-    
+
   (** Macro to call to set one variable *)
   lprintf "#define DlSetting(_idx, _value) { \\\n";
   right ();
   lprintf "switch (_idx) { \\\n";
   right ();
   let idx = ref 0 in
-  List.iter 
+  List.iter
     (fun s ->
       let v = ExtXml.attrib s "var" in
-	begin
-	try
-	  let h = ExtXml.attrib s "handler" and
-	      m =  ExtXml.attrib s "module" in
-	  lprintf "case %d: %s_%s( _value ); _value = %s; break;\\\n" !idx (Filename.basename m) h v
-	with  
-	  ExtXml.Error e -> lprintf "case %d: %s = _value; break;\\\n" !idx v
-	end;
-	incr idx
-    ) 
+    begin
+    try
+      let h = ExtXml.attrib s "handler" and
+          m =  ExtXml.attrib s "module" in
+      lprintf "case %d: %s_%s( _value ); _value = %s; break;\\\n" !idx (Filename.basename m) h v
+    with
+      ExtXml.Error e -> lprintf "case %d: %s = _value; break;\\\n" !idx v
+    end;
+    incr idx
+    )
     settings;
   lprintf "default: break;\\\n";
   left ();
@@ -106,10 +106,10 @@ let print_dl_settings = fun settings ->
     let idx = ref 0 in
     lprintf "switch (i) { \\\n";
     right ();
-    List.iter 
+    List.iter
       (fun s ->
-	let v = ExtXml.attrib s "var" in
-	lprintf "case %d: var = %s; break;\\\n" !idx v; incr idx) 
+    let v = ExtXml.attrib s "var" in
+    lprintf "case %d: var = %s; break;\\\n" !idx v; incr idx)
       settings;
     lprintf "default: var = 0.; break;\\\n";
     left ();
@@ -126,16 +126,16 @@ let print_dl_settings = fun settings ->
   let idx = ref 0 in
   lprintf "switch (i) { \\\n";
   right ();
-  List.iter 
+  List.iter
     (fun s ->
       let v = ExtXml.attrib s "var" in
-      lprintf "case %d: return %s;\n" !idx v; incr idx) 
+      lprintf "case %d: return %s;\n" !idx v; incr idx)
     settings;
   lprintf "default: return 0.;\n";
   lprintf "}\n";
   left ();
   lprintf "}\n"
-  
+
 
 
 
@@ -190,12 +190,12 @@ let join_xml_files = fun xml_files ->
   and rc_settings = ref [] in
   List.iter (fun xml_file ->
     let xml = Xml.parse_file xml_file in
-    let these_rc_settings = 
+    let these_rc_settings =
       try Xml.children (ExtXml.child xml "rc_settings") with
-	Not_found -> [] in
-    let these_dl_settings = 
-      try Xml.children (ExtXml.child xml "dl_settings") with 
-	Not_found -> [] in
+    Not_found -> [] in
+    let these_dl_settings =
+      try Xml.children (ExtXml.child xml "dl_settings") with
+    Not_found -> [] in
     rc_settings := these_rc_settings @ !rc_settings;
     dl_settings := these_dl_settings @ !dl_settings)
     xml_files;
@@ -211,11 +211,11 @@ let _ =
   for i = 2 to Array.length Sys.argv - 1 do
     xml_files := Sys.argv.(i) :: !xml_files;
   done;
-  
+
   try
     printf "/* This file has been generated from %s */\n" (String.concat " " !xml_files);
     printf "/* Please DO NOT EDIT */\n\n";
-    
+
     printf "#ifndef %s\n" h_name;
     define h_name "";
     nl ();

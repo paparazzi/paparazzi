@@ -2,7 +2,7 @@
  * $Id$
  *
  * XML preprocessing for modules
- *  
+ *
  * Copyright (C) 2009 Gautier Hattenberger
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -102,7 +102,7 @@ let remove_dup = fun l ->
     match l with
       [] | [_] -> l
     | x::((x'::_) as xs) ->
-	if x = x' then loop xs else x::loop xs in
+    if x = x' then loop xs else x::loop xs in
   loop (List.sort compare l)
 
 let print_periodic_functions = fun modules ->
@@ -117,7 +117,7 @@ let print_periodic_functions = fun modules ->
   let functions_modulo = List.flatten (List.map (fun m ->
     let periodic = List.filter (fun i -> (String.compare (Xml.tag i) "periodic") == 0) (Xml.children m) in
     let module_name = ExtXml.attrib m "name" in
-    List.map (fun x -> 
+    List.map (fun x ->
       try
         let p = float_of_string (Xml.attrib x "period") in
         let _ = try let _ = Xml.attrib x "freq" in fprintf stderr "Warning: both period and freq are defined but only period is used for function %s\n" (ExtXml.attrib x "fun") with _ -> () in
@@ -178,7 +178,7 @@ let print_periodic_functions = fun modules ->
           lprintf out_h "}\n";
         end
       end
-    else 
+    else
       begin
         if (test_delay func) then begin
           (** Delay is set by user *)
@@ -229,7 +229,7 @@ let print_event_functions = fun modules ->
 
 let print_datalink_functions = fun modules ->
   lprintf out_h "\n#include \"messages.h\"\n";
-  lprintf out_h "#include \"airframe.h\"\n";
+  lprintf out_h "#include \"generated/airframe.h\"\n";
   lprintf out_h "static inline void modules_parse_datalink(uint8_t msg_id __attribute__ ((unused))) {\n";
   right ();
   let else_ = ref "" in
@@ -267,16 +267,16 @@ let get_modules = fun dir m ->
       let name = ExtXml.attrib m "name" in
       let xml = Xml.parse_file (dir^name) in
       xml
-		end
+        end
   | _ -> xml_error "load"
 
 let test_section_modules = fun xml ->
-  List.fold_right (fun x r -> ExtXml.tag_is x "modules" || r) (Xml.children xml) false 
+  List.fold_right (fun x r -> ExtXml.tag_is x "modules" || r) (Xml.children xml) false
 
 (** Check dependencies *)
 let pipe_regexp = Str.regexp "|"
 let dep_of_field = fun field att ->
-  try 
+  try
     Str.split pipe_regexp (Xml.attrib field att)
   with
     _ -> []
@@ -310,7 +310,7 @@ let write_settings = fun xml_file out_set modules ->
       match Xml.tag i with
         "periodic" ->
           if not (is_status_lock i) then begin
-            if (not !setting_exist) then begin 
+            if (not !setting_exist) then begin
               fprintf out_set "   <dl_settings name=\"Modules\">\n";
               setting_exist := true;
             end;
@@ -326,7 +326,7 @@ let write_settings = fun xml_file out_set modules ->
 
 let get_targets_of_module = fun m ->
   let pipe_regexp = Str.regexp "|" in
-  let targets_of_field = fun field -> try 
+  let targets_of_field = fun field -> try
     Str.split pipe_regexp (ExtXml.attrib_or_default field "target" "ap|sim") with _ -> [] in
   let rec singletonize = fun l ->
     match l with
@@ -380,7 +380,7 @@ let () =
     freq := main_freq;
     let modules_list = List.map (get_modules modules_dir) (Xml.children modules) in
     let modules_list = unload_unused_modules modules_list in
-    let modules_name = 
+    let modules_name =
       (List.map (fun l -> try Xml.attrib l "name" with _ -> "") (Xml.children modules)) @
       (List.map (fun m -> try Xml.attrib m "name" with _ -> "") modules_list) in
     check_dependencies modules_list modules_name;

@@ -1,5 +1,5 @@
 #
-# Makefile for radio_control susbsytem in rotorcraft firmware
+# Makefile for shared radio_control spektrum susbsytem
 #
 ifndef RADIO_CONTROL_SPEKTRUM_MODEL
 RADIO_CONTROL_SPEKTRUM_MODEL=\"subsystems/radio_control/spektrum_dx7se.h\"
@@ -19,4 +19,3 @@ ap.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HANDLER -DUSE
 ap.srcs += $(SRC_SUBSYSTEMS)/radio_control.c \
            $(SRC_SUBSYSTEMS)/radio_control/spektrum.c \
            $(SRC_ARCH)/subsystems/radio_control/spektrum_arch.c
-

@@ -26,7 +26,7 @@
 <!ELEMENT param EMPTY>
 <!ELEMENT flag EMPTY>
 <!ELEMENT firmware (target|subsystem|define)*>
-<!ELEMENT target (param|define)*>
+<!ELEMENT target (param|define|subsystem)*>
 <!ELEMENT subsystem (param)*>
 
 <!ATTLIST include
