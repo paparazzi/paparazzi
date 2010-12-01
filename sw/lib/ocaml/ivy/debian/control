@@ -1,7 +1,7 @@
 Source: ivy-ocaml
 Section: net
 Priority: optional
-Maintainer: Pascal Brisset (Hecto) <pascal.brisset@enac.fr>
+Maintainer: Gautier Hattenberger <gautier.hattenberger@enac.fr>
 Build-Depends: debhelper (>= 4.0.0), ocaml-nox, ivy-c-dev (>=3.8), libglib2.0-dev, libpcre3-dev, ivy-c(>=3.8)
 Standards-Version: 3.6.1
 

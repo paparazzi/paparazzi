@@ -76,7 +76,7 @@ value ivy_name_of_client(value c)
 }
 value ivy_host_of_client(value c)
 {
-  return copy_string(IvyGetApplicationHost((IvyClientPtr)Long_val(c)));	
+  return copy_string(IvyGetApplicationHost((IvyClientPtr)Long_val(c)));
 }
 
 void cb_delete_channel(void *delete_read)
