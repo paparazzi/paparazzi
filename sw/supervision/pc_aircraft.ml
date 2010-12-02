@@ -98,12 +98,24 @@ let gcs_or_edit = fun file ->
     
 type ac_data =
     Label of GMisc.label
-  | Tree of GTree.view
+  | Tree of Gtk_tools.tree
+
+let string_of_ac_data = fun d ->
+  match d with
+    Label l -> l#text
+  | Tree  t -> Gtk_tools.tree_values t
+
+(* FIXME ugly globals *)
+let make_tree = fun t ->
+  let cols = new GTree.column_list in
+  let col_name = cols#add Gobject.Data.string in
+  let store = GTree.list_store cols in
+  Gtk_tools.tree t store col_name
 
 let ac_files = fun gui ->
   ["airframe", "airframes", Label gui#label_airframe, gui#button_browse_airframe, gui#button_edit_airframe, edit, None;
    "flight_plan", "flight_plans", Label gui#label_flight_plan, gui#button_browse_flight_plan, gui#button_edit_flight_plan, gcs_or_edit, None;
-   "settings", "settings", Tree gui#label_settings, gui#button_browse_settings, gui#button_edit_settings, edit, Some gui#button_remove_settings;
+   "settings", "settings", Tree (make_tree gui#tree_settings), gui#button_browse_settings, gui#button_edit_settings, edit, Some gui#button_remove_settings;
    "radio", "radios", Label gui#label_radio, gui#button_browse_radio, gui#button_edit_radio, edit, None;
    "telemetry", "telemetry", Label gui#label_telemetry, gui#button_browse_telemetry, gui#button_edit_telemetry, edit, None]
 
@@ -294,8 +306,8 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
   List.iter (fun (name, subdir, label, button_browse, button_edit, editor, remove) ->
     let callback = fun _ ->
       let rel_files = match label with
-                        Label -> Str.split regexp_space l#text
-                      | Tree -> ""
+                        Label l -> Str.split regexp_space l#text
+                      | Tree _ -> []
       in
       let abs_files = List.map (Filename.concat Utils.conf_dir) rel_files in
       let quoted_files = List.map (fun s -> "'"^s^"'") abs_files in
