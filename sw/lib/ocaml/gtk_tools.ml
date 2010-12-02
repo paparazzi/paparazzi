@@ -106,3 +106,32 @@ let combo_connect = fun ((combo: #GEdit.combo_box), (_,column)) cb ->
 		  let data = combo#model#get ~row ~column in
 		  cb data))
 	    
+
+type tree = GTree.view * (GTree.list_store * string GTree.column)
+let tree_widget = fst
+let tree_model = snd
+
+let tree = fun (t:GTree.view) (m:GTree.list_store) (c:string GTree.column) ->
+  (t , (m, c))
+
+let tree_values = fun (tree : tree) ->
+  let (store, column) = tree_model tree in
+  let values = ref "" in
+  store#foreach (fun _ row ->
+    values := !values^" "^(store#get ~row ~column);
+    false);
+  !values
+
+(* TODO function tree *)
+
+let add_to_tree = fun (tree : tree) string ->
+  let (store, column) = tree_model tree in
+  let row = store#append () in
+  store#set ~row ~column string
+
+let get_selected_in_tree = fun  (tree : tree) ->
+  let (store, column) = tree_model tree in
+  let t = tree_widget tree in
+  let sel_paths = t#selection#get_selected_rows in
+  List.map (fun p -> store#get_row_reference p) sel_paths
+

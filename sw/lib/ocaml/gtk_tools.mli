@@ -58,3 +58,14 @@ val combo_separator : string
 val combo_value : combo -> string
 val select_in_combo : combo -> string -> unit
 val combo_connect : combo -> (string -> unit) -> unit
+
+(*** Utilities for a tree view widget ***)
+type tree
+val tree_widget : tree -> GTree.view
+val tree_model : tree -> (GTree.list_store * string GTree.column)
+
+val tree : GTree.view -> GTree.list_store -> string GTree.column -> tree
+
+val tree_values : tree -> string
+val add_to_tree : tree -> string -> unit
+val get_selected_in_tree : tree -> GTree.row_reference list
