@@ -96,12 +96,16 @@ let gcs_or_edit = fun file ->
   | 2 -> ignore (Sys.command (sprintf "%s -edit '%s'&" gcs file))
   | _ -> failwith "Internal error: gcs_or_edit"
     
+type ac_data =
+    Label of GMisc.label
+  | Tree of GTree.view
+
 let ac_files = fun gui ->
-  ["airframe", "airframes", gui#label_airframe, gui#button_browse_airframe, gui#button_edit_airframe, edit, false;
-   "flight_plan", "flight_plans", gui#label_flight_plan, gui#button_browse_flight_plan, gui#button_edit_flight_plan, gcs_or_edit, false;
-   "settings", "settings", gui#label_settings, gui#button_browse_settings, gui#button_edit_settings, edit, true;
-   "radio", "radios", gui#label_radio, gui#button_browse_radio, gui#button_edit_radio, edit, false;
-   "telemetry", "telemetry", gui#label_telemetry, gui#button_browse_telemetry, gui#button_edit_telemetry, edit, false]
+  ["airframe", "airframes", Label gui#label_airframe, gui#button_browse_airframe, gui#button_edit_airframe, edit, None;
+   "flight_plan", "flight_plans", Label gui#label_flight_plan, gui#button_browse_flight_plan, gui#button_edit_flight_plan, gcs_or_edit, None;
+   "settings", "settings", Tree gui#label_settings, gui#button_browse_settings, gui#button_edit_settings, edit, Some gui#button_remove_settings;
+   "radio", "radios", Label gui#label_radio, gui#button_browse_radio, gui#button_edit_radio, edit, None;
+   "telemetry", "telemetry", Label gui#label_telemetry, gui#button_browse_telemetry, gui#button_edit_telemetry, edit, None]
 
 
 (* Awful but easier *)
@@ -124,6 +128,7 @@ let correct_ac_name = fun s ->
   with
     Exit -> false
 
+    (*TODO function text of date_type*)
 let save_callback = fun ?user_save gui ac_combo () ->
   let ac_name = Gtk_tools.combo_value ac_combo
   and ac_id = gui#entry_ac_id#text in
@@ -209,26 +214,28 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
       let aircraft = Hashtbl.find Utils.aircrafts ac_name in
       let sample = aircraft_sample ac_name "42" in
       let value = fun a ->
-	try (ExtXml.attrib aircraft a) with _ -> Xml.attrib sample a in
-      List.iter
-	(fun (a, _subdir, label, _, _, _, _) -> label#set_text (value a))
-	(ac_files gui);
-	let ac_id = ExtXml.attrib aircraft "ac_id"
-	and gui_color = ExtXml.attrib_or_default aircraft "gui_color" "white" in
-	gui#button_clean#misc#set_sensitive true;
-	gui#button_build#misc#set_sensitive true;
-	gui#eventbox_gui_color#misc#modify_bg [`NORMAL, `NAME gui_color];
-	current_color := gui_color;
-	gui#entry_ac_id#set_text ac_id;
-	(Gtk_tools.combo_widget target_combo)#misc#set_sensitive true;
-	parse_ac_targets target_combo (ExtXml.attrib aircraft "airframe");
+        try (ExtXml.attrib aircraft a) with _ -> Xml.attrib sample a in
+      List.iter	(fun (a, _subdir, label, _, _, _, _) ->
+        match label with
+          Label l -> l#set_text (value a)
+        | Tree t -> ()
+      ) (ac_files gui);
+      let ac_id = ExtXml.attrib aircraft "ac_id"
+      and gui_color = ExtXml.attrib_or_default aircraft "gui_color" "white" in
+      gui#button_clean#misc#set_sensitive true;
+      gui#button_build#misc#set_sensitive true;
+      gui#eventbox_gui_color#misc#modify_bg [`NORMAL, `NAME gui_color];
+      current_color := gui_color;
+      gui#entry_ac_id#set_text ac_id;
+      (Gtk_tools.combo_widget target_combo)#misc#set_sensitive true;
+      parse_ac_targets target_combo (ExtXml.attrib aircraft "airframe");
     with
       Not_found ->
-	gui#label_airframe#set_text "";
-	gui#label_flight_plan#set_text "";
-	gui#button_clean#misc#set_sensitive false;
-	gui#button_build#misc#set_sensitive false;
-	(Gtk_tools.combo_widget target_combo)#misc#set_sensitive false
+        gui#label_airframe#set_text "";
+        gui#label_flight_plan#set_text "";
+        gui#button_clean#misc#set_sensitive false;
+        gui#button_build#misc#set_sensitive false;
+        (Gtk_tools.combo_widget target_combo)#misc#set_sensitive false
   in
   Gtk_tools.combo_connect ac_combo update_params;
 
@@ -284,9 +291,12 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
   ignore(gui#entry_ac_id#connect#changed ~callback:(fun () -> save_callback gui ac_combo ()));
   
   (* Conf *)
-  List.iter (fun (name, subdir, label, button_browse, button_edit, editor, multiple) ->
+  List.iter (fun (name, subdir, label, button_browse, button_edit, editor, remove) ->
     let callback = fun _ ->
-      let rel_files = Str.split regexp_space label#text in
+      let rel_files = match label with
+                        Label -> Str.split regexp_space l#text
+                      | Tree -> ""
+      in
       let abs_files = List.map (Filename.concat Utils.conf_dir) rel_files in
       let quoted_files = List.map (fun s -> "'"^s^"'") abs_files in
       let arg = String.concat " " quoted_files in
