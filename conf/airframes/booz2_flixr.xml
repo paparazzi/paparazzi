@@ -245,12 +245,7 @@
     <define name="AUTO2" value="AP_MODE_HOVER_Z_HOLD" />
   </section>
 
-
-  <makefile target="opening">
-    #empty
-  </makefile>
-
-  <makefile target="closure" location="after">
+  <makefile location="after">
     ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c
     sim.srcs += $(SRC_BOOZ_SIM)/booz2_pwm_hw.c
   </makefile>

@@ -44,7 +44,7 @@
 #include "gyro.h"
 #include "ap_downlink.h"
 #include "nav.h"
-#include "autopilot.h"
+#include "firmwares/fixedwing/autopilot.h"
 #include "estimator.h"
 #include "generated/settings.h"
 #include "link_mcu.h"

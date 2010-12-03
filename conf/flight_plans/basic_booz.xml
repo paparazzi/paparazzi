@@ -1,9 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
 <flight_plan alt="152" ground_alt="147" lat0="43 33 50.83" lon0="1 28 52.61" max_dist_from_home="400" name="Booz Test Enac" security_height="2">
-  <header>
-    #include "booz_fms.h"
-  </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
     <waypoint name="CLIMB" x="0.0" y="5.0"/>
@@ -63,15 +60,6 @@
     <block name="circle">
       <circle radius="nav_radius" wp="p1"/>
     </block>
-
-<!--
-    <block name="Joystick" pre_call="NavUpdateWPFromFms(WP_p1)" strip_button="Joystick" strip_icon="joystick.png">
-      <set var="fms.enabled" value="TRUE"/>
-      <call fun="NavSetWaypointHere(WP_p1)"/>
-      <stay wp="p1"/>
-    </block>
--->
-
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
       <call fun="NavSetWaypointHere(WP_TD)"/>
     </block>
