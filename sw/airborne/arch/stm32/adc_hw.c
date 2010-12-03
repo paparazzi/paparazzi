@@ -125,16 +125,16 @@ static inline void adc_init_irq( void );
 // {{{
 
 /*
-  GPIO mapping for ADC1 pins (PA.B, PB.1, PC.3, PC.5).
+  GPIO mapping for ADC1 pins (PB.1, PB.0, PC.5, PC.3).
     Can be changed by predefining ADC1_GPIO_INIT.
 */
 #ifdef USE_AD1
 #ifndef ADC1_GPIO_INIT
 #define ADC1_GPIO_INIT(gpio) { \
-    (gpio).GPIO_Pin  = GPIO_Pin_0 | GPIO_Pin_1; \
+    (gpio).GPIO_Pin  = GPIO_Pin_1 | GPIO_Pin_0; \
     (gpio).GPIO_Mode = GPIO_Mode_AIN; \
     GPIO_Init(GPIOB, (&gpio)); \
-    (gpio).GPIO_Pin  = GPIO_Pin_3 | GPIO_Pin_5; \
+    (gpio).GPIO_Pin  = GPIO_Pin_5 | GPIO_Pin_3; \
     GPIO_Init(GPIOC, (&gpio)); \
 }
 #endif // ADC1_GPIO_INIT
@@ -387,7 +387,9 @@ void adc_init( void ) {
     // using defines.
     adc_channel_map[0] = ADC_Channel_8;
     adc_channel_map[1] = ADC_Channel_9;
-    adc_channel_map[2] = ADC_Channel_13;
+    //    adc_channel_map[2] = ADC_Channel_13;
+    // FIXME for now we get battery voltage this way
+    adc_channel_map[2] = ADC_Channel_0;
     adc_channel_map[3] = ADC_Channel_15;
 
     adc_init_rcc();

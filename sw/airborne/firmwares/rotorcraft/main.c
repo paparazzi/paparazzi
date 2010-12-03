@@ -25,10 +25,9 @@
 #define MODULES_C
 
 #include <inttypes.h>
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "led.h"
-#include "interrupt_hw.h"
 
 #include "downlink.h"
 #include "firmwares/rotorcraft/telemetry.h"
@@ -95,7 +94,7 @@ STATIC_INLINE void main_init( void ) {
   }
 #endif
 
-  hw_init();
+  mcu_init();
 
   sys_time_init();
 
@@ -130,7 +129,7 @@ STATIC_INLINE void main_init( void ) {
 
   modules_init();
 
-  int_enable();
+  mcu_int_enable();
 
 }
 

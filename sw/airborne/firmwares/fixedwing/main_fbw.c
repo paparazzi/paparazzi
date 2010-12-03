@@ -1,22 +1,22 @@
 /*
  * Paparazzi $Id$
  *
- * Copyright (C) 2003-2006 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2010 The Paparazzi Team
  *
- * This file is part of paparazzi.
+ * This file is part of Paparazzi.
  *
- * paparazzi is free software; you can redistribute it and/or modify
+ * Paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
  *
- * paparazzi is distributed in the hope that it will be useful,
+ * Paparazzi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
+ * along with Paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
@@ -31,11 +31,11 @@
  * ( for parameters like the supply )
  */
 
-#include "firmwares/fixedwing/main_fbw.h"
 #include "generated/airframe.h"
 
-#include "init_hw.h"
-#include "interrupt_hw.h"
+#include "firmwares/fixedwing/main_fbw.h"
+#include "mcu.h"
+
 #include "led.h"
 #include "uart.h"
 #include "spi.h"
@@ -84,33 +84,17 @@ uint8_t fbw_mode;
 
 /********** INIT *************************************************************/
 void init_fbw( void ) {
-  hw_init();
+  mcu_init();
   sys_time_init();
-#ifdef LED
-  led_init();
-#endif
 
-#ifdef USE_UART0
-  uart0_init();
-#endif
-#ifdef USE_UART1
-  uart1_init();
-#endif
-#ifdef USE_UART2
-  uart2_init();
-#endif
-#ifdef USE_UART3
-  uart3_init();
-#endif
-  // FIXME: remove STM32 flag
 #ifdef ADC
   adc_init();
-#ifndef STM32
+#ifdef ADC_CHANNEL_VSUPPLY
   adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);
-#  ifdef ADC_CHANNEL_CURRENT
+#endif
+#ifdef ADC_CHANNEL_CURRENT
   adc_buf_channel(ADC_CHANNEL_CURRENT, &current_adc_buf, DEFAULT_AV_NB_SAMPLE);
-#  endif
-#endif /* ! STM32 */
+#endif
 #endif /* ADC     */
 
 #ifdef ACTUATORS
@@ -229,10 +213,12 @@ void periodic_task_fbw( void ) {
   if (!_10Hz)
   {
 #ifdef ADC
+#ifdef ADC_CHANNEL_VSUPPLY
       fbw_vsupply_decivolt = VoltageOfAdc((10*(vsupply_adc_buf.sum/vsupply_adc_buf.av_nb_sample)));
-#   ifdef ADC_CHANNEL_CURRENT
+#endif
+#ifdef ADC_CHANNEL_CURRENT
       fbw_current_milliamp = MilliAmpereOfAdc((current_adc_buf.sum/current_adc_buf.av_nb_sample));
-#   endif
+#endif
 #endif
 
 #if ((! defined ADC_CHANNEL_CURRENT) && defined MILLIAMP_AT_FULL_THROTTLE)

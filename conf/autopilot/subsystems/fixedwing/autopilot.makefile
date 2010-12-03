@@ -29,7 +29,7 @@
 
 # temporary hack for ADCs
 ifeq ($(ARCH), stm32)
-$(TARGET).CFLAGS += -DSTM32
+# FIXME : this is for the battery
 $(TARGET).CFLAGS += -DUSE_AD1_3
 endif
 #
@@ -37,7 +37,11 @@ endif
 #
 
 $(TARGET).CFLAGS 	+= -DBOARD_CONFIG=$(BOARD_CFG)
+$(TARGET).CFLAGS 	+= -DPERIPHERALS_AUTO_INIT
 $(TARGET).CFLAGS 	+= $(FIXEDWING_INC)
+
+$(TARGET).srcs 	+= mcu.c
+$(TARGET).srcs 	+= $(SRC_ARCH)/mcu_arch.c
 
 #
 # Common Options
@@ -54,7 +58,7 @@ $(TARGET).CFLAGS 	+= -DTRAFFIC_INFO
 # LEDs
 #
 
-$(TARGET).CFLAGS 	+= -DLED
+$(TARGET).CFLAGS 	+= -DUSE_LED
 ifneq ($(ARCH), lpc21)
   ifneq ($(ARCH), jsbsim)
     $(TARGET).srcs 	+= $(SRC_ARCH)/led_hw.c
@@ -135,9 +139,6 @@ ns_srcs 		+= $(SRC_ARCH)/uart_hw.c
   ns_CFLAGS 		+= -DADC
 #ifeq ($(ARCH), lpc21)
   ns_srcs 		+= $(SRC_ARCH)/adc_hw.c
-#else ifeq ($(ARCH), stm32)
-#  ns_srcs 		+= lisa/lisa_analog_plug.c
-#endif
 ifeq ($(ARCH), stm32)
   ns_CFLAGS 		+= -DUSE_ADC1_2_IRQ_HANDLER
 endif
