@@ -28,16 +28,15 @@
 
 #include "micromag.h"
 
-#include "6dof.h"
 
 void micromag_hw_init( void ) {}
 
 void micromag_read( void ) {}
 
 void micromag_hw_feed_value(VEC* mag) {
-  micromag_values[0] =  mag->ve[AXIS_X];
-  micromag_values[1] =  mag->ve[AXIS_Y];
-  micromag_values[2] =  mag->ve[AXIS_Z];
+  micromag_values[0] =  mag->ve[0];
+  micromag_values[1] =  mag->ve[1];
+  micromag_values[2] =  mag->ve[2];
   micromag_status = MM_DATA_AVAILABLE;
 }
 
