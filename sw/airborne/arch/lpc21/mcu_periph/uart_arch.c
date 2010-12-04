@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2008  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2008-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -26,7 +26,7 @@
  * Brief LPC21 uart code
  */
 
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "armVIC.h"
 
 #ifdef USE_UART0

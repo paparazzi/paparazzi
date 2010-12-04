@@ -26,7 +26,7 @@
  *  \brief avr uart low level functions
  *
  */
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "sys_time.h"
 
 #define B2400  2400UL

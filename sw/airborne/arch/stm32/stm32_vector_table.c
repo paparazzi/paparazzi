@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of Paparazzi.
  *
@@ -35,28 +35,28 @@
 #endif
 
 #if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #define USART1_IRQ_HANDLER usart1_irq_handler
 #else
 #define USART1_IRQ_HANDLER null_handler
 #endif
 
 #if defined USE_UART2 || OVERRIDE_UART2_IRQ_HANDLER
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #define USART2_IRQ_HANDLER usart2_irq_handler
 #else
 #define USART2_IRQ_HANDLER null_handler
 #endif
 
 #if defined USE_UART3 || OVERRIDE_UART3_IRQ_HANDLER
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #define USART3_IRQ_HANDLER usart3_irq_handler
 #else
 #define USART3_IRQ_HANDLER null_handler
 #endif
 
 #if defined USE_UART5 || OVERRIDE_UART5_IRQ_HANDLER
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #define USART5_IRQ_HANDLER usart5_irq_handler
 #else
 #define USART5_IRQ_HANDLER null_handler

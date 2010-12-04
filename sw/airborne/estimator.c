@@ -30,7 +30,7 @@
 #include <math.h>
 
 #include "estimator.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "ap_downlink.h"
 #include "gps.h"
 #include "nav.h"

@@ -71,7 +71,7 @@ void parse_ins_msg( void );
 void parse_ins_buffer( uint8_t );
 
 #ifndef SITL
-#include "uart.h"
+#include "mcu_periph/uart.h"
 
 #define __InsLink(dev, _x) dev##_x
 #define _InsLink(dev, _x)  __InsLink(dev, _x)

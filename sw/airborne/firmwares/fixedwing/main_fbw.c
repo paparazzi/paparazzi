@@ -37,7 +37,6 @@
 #include "mcu.h"
 
 #include "led.h"
-#include "uart.h"
 #include "spi.h"
 #include "adc.h"
 

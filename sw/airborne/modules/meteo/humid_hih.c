@@ -32,7 +32,7 @@
 #include "humid_hih.h"
 #include "temp_tmp102.h"
 #include "adc.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 

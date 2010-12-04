@@ -24,10 +24,10 @@
 #include <inttypes.h>
 
 #include "std.h"
-#include "init_hw.h"
+#include "mcu.h"
+#include "mcu_periph/uart.h"
 #include "sys_time.h"
 #include "led.h"
-#include "uart.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );

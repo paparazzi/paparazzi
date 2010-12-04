@@ -1,6 +1,6 @@
 #include "adc_generic.h"
 #include "adc.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 #include BOARD_CONFIG

@@ -42,7 +42,7 @@
 #include "commands.h"
 #include "actuators.h"
 
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "firmwares/fixedwing/main_fbw.h"
 #include "subsystems/radio_control.h"
 #include "inter_mcu.h"

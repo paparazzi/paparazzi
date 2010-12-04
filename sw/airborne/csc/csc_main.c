@@ -28,11 +28,11 @@
 
 #include "std.h"
 
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "led.h"
 #include "interrupt_hw.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "csc_telemetry.h"
 #include "generated/periodic.h"
 #include "downlink.h"
@@ -66,7 +66,7 @@ struct NedCoor_i booz_ins_gps_speed_cm_s_ned;
 
 static void csc_main_init( void ) {
 
-  hw_init();
+  mcu_init();
   sys_time_init();
   led_init();
 
@@ -100,7 +100,7 @@ static void csc_main_init( void ) {
 #ifdef USE_CSC_THROTTLE
   csc_throttle_init();
 #endif
-  int_enable();
+  mcu_int_enable();
 
 
 }

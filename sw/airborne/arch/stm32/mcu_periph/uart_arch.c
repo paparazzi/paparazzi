@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "uart.h"
+#include "mcu_periph/uart.h"
 
 #include <stm32/rcc.h>
 #include <stm32/misc.h>
@@ -281,9 +281,6 @@ uint8_t  uart3_rx_buffer[UART3_RX_BUFFER_SIZE];
 volatile uint16_t uart3_tx_insert_idx, uart3_tx_extract_idx;
 volatile bool_t uart3_tx_running;
 uint8_t  uart3_tx_buffer[UART3_TX_BUFFER_SIZE];
-
-#include "led.h"
-
 
 void uart3_init( void ) {
 

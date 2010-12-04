@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef UART_HW_H
-#define UART_HW_H
+#ifndef LPC21_UART_ARCH_H
+#define LPC21_UART_ARCH_H
 
 #include "types.h"
 #include "LPC21xx.h"
@@ -93,4 +93,4 @@ extern void uart0_init_param( uint16_t baud, uint8_t mode, uint8_t fmode);
 extern uint8_t uart0_tx_running;
 extern uint8_t uart1_tx_running;
 
-#endif /* UART_HW_H */
+#endif /* LPC21_UART_ARCH_H */

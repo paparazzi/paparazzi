@@ -30,7 +30,7 @@
 
 #include "baro_MS5534A.h"
 #include "spi.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #ifndef BARO_NO_DOWNLINK
 #include "ap_downlink.h"
 #endif

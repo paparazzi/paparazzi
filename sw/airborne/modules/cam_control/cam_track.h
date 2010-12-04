@@ -45,7 +45,7 @@ extern volatile uint8_t cam_msg_received;
 extern void parse_cam_msg( void );
 extern void parse_cam_buffer( uint8_t );
 
-#include "uart.h"
+#include "mcu_periph/uart.h"
 
 #define __CamLink(dev, _x) dev##_x
 #define _CamLink(dev, _x)  __CamLink(dev, _x)

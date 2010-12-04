@@ -26,7 +26,7 @@
 
 #include "std.h"
 #include "messages.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 
 #include "downlink.h"
 

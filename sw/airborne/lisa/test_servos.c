@@ -50,6 +50,8 @@ static inline void main_periodic( void ) {
   static float foo = 0.;
   foo += 0.0025;
   int32_t bar = 1500 + 500. * sin(foo);
+  //  int32_t bar = 1450;
+  //  int32_t bar = 1950;
   actuators_pwm_values[0] = bar;
   actuators_pwm_values[1] = bar;
   actuators_pwm_values[2] = bar;

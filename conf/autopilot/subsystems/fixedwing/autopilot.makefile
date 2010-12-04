@@ -130,7 +130,7 @@ ns_srcs 		+= $(SRC_ARCH)/sys_time_hw.c
 # UARTS
 #
 
-ns_srcs 		+= $(SRC_ARCH)/uart_hw.c
+ns_srcs 		+= $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 #
 # ANALOG

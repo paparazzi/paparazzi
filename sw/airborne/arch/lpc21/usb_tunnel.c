@@ -31,12 +31,10 @@
  */
 
 #include "std.h"
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "led.h"
-#include "interrupt_hw.h"
-#include "uart_hw.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "usb_serial.h"
 
 /* minimum LED blink on time 10Hz = 100ms */
@@ -46,20 +44,10 @@ int main( void ) {
   unsigned char inc;
   unsigned int rx_time=0, tx_time=0;
 
-  hw_init();
+  mcu_init();
   sys_time_init();
   led_init();
   VCOM_allow_linecoding(1);
-
-#ifdef USE_UART0
-  Uart0Init();
-#else
-#ifdef USE_UART1
-  Uart1Init();
-#else
-#error no serial port defined
-#endif
-#endif
 
 #ifdef USE_USB_SERIAL
   VCOM_init();

@@ -58,7 +58,7 @@ Receiving:
 #include <stdlib.h>
 
 #include "gsm.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "std.h"
 #ifdef USE_USB_SERIAL
 #include "usb_serial.h"
@@ -66,7 +66,7 @@ Receiving:
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "downlink.h"
 #include "ap_downlink.h"
 #include "gps.h"

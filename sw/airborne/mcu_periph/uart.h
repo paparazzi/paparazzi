@@ -1,7 +1,7 @@
 /*
  * Paparazzi $Id$
  *
- * Copyright (C) 2006 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -22,15 +22,15 @@
  *
  */
 
-/** \file uart.h
+/** \file mcu_periph/uart.h
  *  \brief arch independant UART (Universal Asynchronous Receiver/Transmitter) API
  *
  */
 
-#ifndef UART_H
-#define UART_H
+#ifndef MCU_PERIPH_UART_H
+#define MCU_PERIPH_UART_H
 
-#include "uart_hw.h"
+#include "mcu_periph/uart_arch.h"
 #include "std.h"
 
 
@@ -121,4 +121,4 @@ extern bool_t uart3_check_free_space( uint8_t len);
 
 #endif /* USE_UART3 */
 
-#endif /* UART_H */
+#endif /* MCU_PERIPH_UART_H */

@@ -92,7 +92,7 @@ void ins_periodic_task( void ) {
 
 }
 
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 

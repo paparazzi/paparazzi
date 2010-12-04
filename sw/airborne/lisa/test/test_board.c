@@ -29,11 +29,11 @@
 #include "test_board.h"
 
 #include "std.h"
-#include "init_hw.h"
+#include "mcu.h"
+#include "mcu_periph/uart.h"
 #include "sys_time.h"
 #include "downlink.h"
 #include "led.h"
-#include "uart.h"
 
 #include "datalink.h"
 #include "generated/settings.h"

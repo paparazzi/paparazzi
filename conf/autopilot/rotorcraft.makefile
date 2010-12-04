@@ -92,7 +92,7 @@ endif
 #
 # Telemetry/Datalink
 #
-ap.srcs += $(SRC_ARCH)/uart_hw.c
+ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport
 ap.CFLAGS += -DDOWNLINK_DEVICE=$(MODEM_PORT)
 ap.srcs   += $(SRC_FIRMWARE)/telemetry.c \

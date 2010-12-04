@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2009-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef UART_HW_H
-#define UART_HW_H
+#ifndef STM32_UART_ARCH_H
+#define STM32_UART_ARCH_H
 
 #include "std.h"
 
@@ -183,4 +183,4 @@ extern uint8_t  uart3_tx_buffer[UART3_TX_BUFFER_SIZE];
 
 void uart_init( void );
 
-#endif /* UART_HW_H */
+#endif /* STM32_UART_ARCH_H */

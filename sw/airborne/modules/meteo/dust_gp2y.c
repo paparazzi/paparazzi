@@ -33,7 +33,7 @@
 #include "dust_gp2y.h"
 #include "i2c.h"
 #include "sys_time.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 

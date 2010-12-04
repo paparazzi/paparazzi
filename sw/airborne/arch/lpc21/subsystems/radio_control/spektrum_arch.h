@@ -26,7 +26,7 @@
 #define RADIO_CONTROL_SPEKTRUM_ARCH_H
 
 #include "std.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 
 #include RADIO_CONTROL_SPEKTRUM_MODEL_H
 

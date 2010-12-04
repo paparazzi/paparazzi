@@ -78,12 +78,10 @@
   */
 
 #include "std.h"
-#include "init_hw.h"
+#include "mcu.h"
+#include "mcu_periph/uart.h"
 #include "sys_time.h"
 #include "led.h"
-#include "interrupt_hw.h"
-#include "uart_hw.h"
-#include "uart.h"
 
 #include "usb_msc_hw.h"
 
@@ -513,16 +511,9 @@ int main(void)
 }
 
 static inline void main_init( void ) {
-  hw_init();
+  mcu_init();
   sys_time_init();
   led_init();
-
-#ifdef USE_UART0
-    Uart0Init();
-#endif
-#ifdef USE_UART1
-    Uart1Init();
-#endif
 
 #ifdef USE_MAX11040
   max11040_init_ssp();

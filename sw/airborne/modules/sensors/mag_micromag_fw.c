@@ -1,7 +1,7 @@
 #include "mag_micromag_fw.h"
 #include "sensors/mag_micromag_fw_hw.h"
 #include "led.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 

@@ -31,7 +31,7 @@
 #include "humid_sht_i2c.h"
 
 #include "i2c.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 

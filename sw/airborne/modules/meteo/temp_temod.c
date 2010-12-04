@@ -31,7 +31,7 @@
 #include "temp_temod.h"
 #include "i2c.h"
 #include "led.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 

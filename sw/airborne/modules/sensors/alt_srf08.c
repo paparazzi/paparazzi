@@ -29,7 +29,7 @@
 
 #include "i2c.h"
 #include "alt_srf08.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 #include "led.h"
