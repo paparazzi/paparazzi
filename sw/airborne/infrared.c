@@ -1,7 +1,7 @@
 /*
- * Paparazzi mcu0 $Id$
+ * $Id$
  *
- * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2010  The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -197,12 +197,13 @@ void ir_init(void) {
  */
 void ir_update(void) {
 #if ! (defined SITL || defined HITL)
-  ir_ir1 = (IR_IR1_SIGN)*(buf_ir1.sum/buf_ir1.av_nb_sample - IR_ADC_IR1_NEUTRAL);
-  ir_ir2 = (IR_IR2_SIGN)*(buf_ir2.sum/buf_ir2.av_nb_sample - IR_ADC_IR2_NEUTRAL);
+  ir_ir1 = (IR_IR1_SIGN)*((int32_t)(buf_ir1.sum/buf_ir1.av_nb_sample) - IR_ADC_IR1_NEUTRAL);
+  ir_ir2 = (IR_IR2_SIGN)*((int32_t)(buf_ir2.sum/buf_ir2.av_nb_sample) - IR_ADC_IR2_NEUTRAL);
   ir_roll = ir_lateral_correction * IR_RollOfIrs(ir_ir1, ir_ir2);
   ir_pitch = ir_longitudinal_correction * IR_PitchOfIrs(ir_ir1, ir_ir2);
 #ifdef ADC_CHANNEL_IR_TOP
-  ir_top =  ir_vertical_correction * IR_TopOfIr(buf_ir_top.sum/buf_ir_top.av_nb_sample - IR_ADC_TOP_NEUTRAL);
+  const int16_t ir3 = (int32_t)(buf_ir_top.sum/buf_ir_top.av_nb_sample) - IR_ADC_TOP_NEUTRAL;
+  ir_top =  ir_vertical_correction * IR_TopOfIr(ir3);
 #endif // IR_TOP
 #endif /* !SITL && !HITL */
 /** #else ir_roll set by simulator in sim_ir.c */
