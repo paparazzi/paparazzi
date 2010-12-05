@@ -28,8 +28,8 @@
  */
 
 
-#include "temp_temod.h"
-#include "i2c.h"
+#include "modules/meteo/temp_temod.h"
+#include "mcu_periph/i2c.h"
 #include "led.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"

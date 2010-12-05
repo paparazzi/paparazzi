@@ -1,4 +1,4 @@
-#include "adc.h"
+#include "mcu_periph/adc.h"
 
 void adc_buf_channel(uint8_t adc_channel __attribute__ ((unused)),
              struct adc_buf* s __attribute__ ((unused)),

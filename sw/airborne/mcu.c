@@ -37,7 +37,7 @@
 #include "mcu_periph/uart.h"
 #endif
 #if defined USE_I2C1 || defined USE_I2C2
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 #endif
 #endif /* PERIPHERALS_AUTO_INIT */
 

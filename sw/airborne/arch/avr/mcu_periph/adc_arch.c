@@ -31,7 +31,7 @@
 #endif
 #include <avr/interrupt.h>
 #include <avr/io.h>
-#include "adc.h"
+#include "mcu_periph/adc.h"
 #include "std.h"
 
 

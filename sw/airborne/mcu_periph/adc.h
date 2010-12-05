@@ -35,7 +35,7 @@
 #define _ADC_H_
 
 #include <inttypes.h>
-#include "adc_hw.h"
+#include "mcu_periph/adc_arch.h"
 
 /* Allow driver implementation to define
  * number of available ADCs implicitly

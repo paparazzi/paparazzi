@@ -50,8 +50,8 @@
 #include "booz_gps.h"
 #include "subsystems/ins.h"
 #include "subsystems/ahrs.h"
-
-#include "i2c_hw.h"
+//FIXME: wtf ??!!
+#include "mcu_periph/i2c_arch.h"
 
 extern uint8_t telemetry_mode_Main_DefaultChannel;
 

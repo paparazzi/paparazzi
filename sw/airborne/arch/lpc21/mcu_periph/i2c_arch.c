@@ -22,7 +22,7 @@
  *
  */
 
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 
 #include "std.h"
 #include "interrupt_hw.h"

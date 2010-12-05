@@ -1,4 +1,4 @@
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 
 #include <stm32/rcc.h>
 #include <stm32/gpio.h>

@@ -1,9 +1,9 @@
 #include <string.h>
 
-#include "enose/enose.h"
+#include "modules/enose/enose.h"
 
-#include "i2c.h"
-#include "adc.h"
+#include "mcu_periph/i2c.h"
+#include "mcu_periph/adc.h"
 #include BOARD_CONFIG
 
 

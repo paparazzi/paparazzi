@@ -1,5 +1,5 @@
 #include "adc_generic.h"
-#include "adc.h"
+#include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"

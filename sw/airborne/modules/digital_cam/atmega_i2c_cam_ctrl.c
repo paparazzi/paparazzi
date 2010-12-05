@@ -30,7 +30,7 @@
 
 #include "atmega_i2c_cam_ctrl.h"
 
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 #include "led.h"
 
 #ifndef DOWNLINK_DEVICE

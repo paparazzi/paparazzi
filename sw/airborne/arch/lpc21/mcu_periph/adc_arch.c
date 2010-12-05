@@ -22,7 +22,7 @@
  *
  */
 
-#include "adc.h"
+#include "mcu_periph/adc.h"
 
 #include "LPC21xx.h"
 #include "armVIC.h"

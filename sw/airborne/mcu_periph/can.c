@@ -24,8 +24,8 @@
 
 #include <stdint.h>
 
-#include "can.h"
-#include "can_hw.h"
+#include "mcu_periph/can.h"
+#include "mcu_periph/can_arch.h"
 
 can_rx_callback_t can_rx_callback;
 

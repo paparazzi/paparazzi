@@ -1,5 +1,5 @@
-#ifndef I2C_HW_H
-#define I2C_HW_H
+#ifndef SIM_MCU_PERIPH_I2C_ARCH_H
+#define SIM_MCU_PERIPH_I2C_ARCH_H
 
 #define I2cSendStart() {}
 
@@ -10,4 +10,4 @@
 #define I2c0SendStart() {}
 #define I2c1SendStart() {}
 
-#endif /* I2C_HW_H */
+#endif /* SIM_MCU_PERIPH_I2C_ARCH_H */

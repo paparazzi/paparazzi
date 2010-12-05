@@ -26,7 +26,7 @@
 #include <stdbool.h>
 #include "MPPT.h"
 #include "firmwares/fixedwing/main_fbw.h"
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 
 
 #define MPPT_SLAVE_ADDR 0x40

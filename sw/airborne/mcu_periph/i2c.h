@@ -1,9 +1,9 @@
-#ifndef I2C_H
-#define I2C_H
+#ifndef MCU_PERIPH_I2C_H
+#define MCU_PERIPH_I2C_H
 
 #include "std.h"
 
-#include "i2c_hw.h"
+#include "mcu_periph/i2c_arch.h"
 
 enum I2CTransactionType {
   I2CTransTx,

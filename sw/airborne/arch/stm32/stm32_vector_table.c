@@ -64,7 +64,7 @@
 
 
 #ifdef USE_I2C1
-#include "i2c_hw.h"
+#include "mcu_periph/i2c_arch.h"
 #define I2C1_EV_IRQ_HANDLER i2c1_ev_irq_handler
 #define I2C1_ER_IRQ_HANDLER i2c1_er_irq_handler
 #else
@@ -73,7 +73,7 @@
 #endif
 
 #ifdef USE_I2C2
-#include "i2c_hw.h"
+#include "mcu_periph/i2c_arch.h"
 #define I2C2_EV_IRQ_HANDLER i2c2_ev_irq_handler
 #define I2C2_ER_IRQ_HANDLER i2c2_er_irq_handler
 #else

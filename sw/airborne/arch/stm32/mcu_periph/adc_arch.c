@@ -83,8 +83,7 @@
 
 */
 
-#include "adc.h"
-#include "adc_hw.h"
+#include "mcu_periph/adc.h"
 #include <stm32/rcc.h>
 #include <stm32/misc.h>
 #include <stm32/adc.h>

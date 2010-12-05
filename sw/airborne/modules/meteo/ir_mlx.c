@@ -29,10 +29,10 @@
  */
 
 
-#include "ir_mlx.h"
+#include "modules/meteo/ir_mlx.h"
 
 #include "sys_time.h"
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 #include "led.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"

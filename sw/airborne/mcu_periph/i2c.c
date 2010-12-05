@@ -1,4 +1,4 @@
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 
 #ifdef USE_I2C0
 

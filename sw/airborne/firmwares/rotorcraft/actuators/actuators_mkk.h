@@ -25,7 +25,7 @@
 #define ACTUATORS_MKK_H
 
 #include "std.h"
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 
 #include "generated/airframe.h"
 

@@ -31,7 +31,7 @@
 #include <stdlib.h>
 
 #include "infrared.h"
-#include "adc.h"
+#include "mcu_periph/adc.h"
 #include "gps.h"
 #include "firmwares/fixedwing/autopilot.h"
 #include "estimator.h"

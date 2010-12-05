@@ -27,7 +27,7 @@
  *
  */
 
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 #include "alt_srf08.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"

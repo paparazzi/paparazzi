@@ -138,7 +138,7 @@ ns_srcs 		+= $(SRC_ARCH)/mcu_periph/uart_arch.c
 
   ns_CFLAGS 		+= -DADC
 #ifeq ($(ARCH), lpc21)
-  ns_srcs 		+= $(SRC_ARCH)/adc_hw.c
+  ns_srcs 		+= $(SRC_ARCH)/mcu_periph/adc_arch.c
 ifeq ($(ARCH), stm32)
   ns_CFLAGS 		+= -DUSE_ADC1_2_IRQ_HANDLER
 endif

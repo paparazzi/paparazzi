@@ -6,9 +6,9 @@ Autoren@ZHAW:   schmiemi
 
 
 #include <stdbool.h>
-#include "ins_arduimu.h"
+#include "modules/ins/ins_arduimu.h"
 #include "firmwares/fixedwing/main_fbw.h"
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 
 // test
 #include "estimator.h"

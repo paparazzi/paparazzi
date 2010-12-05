@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "can_hw.h"
+#include "mcu_periph/can.h"
 
 #include <stm32/rcc.h>
 #include <stm32/gpio.h>

@@ -36,7 +36,7 @@
 #include "firmwares/fixedwing/main_ap.h"
 #include "mcu.h"
 
-#include "adc.h"
+#include "mcu_periph/adc.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "gps.h"

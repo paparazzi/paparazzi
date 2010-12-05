@@ -2,7 +2,7 @@
 
 //#include "mb_static.h"
 
-#include "adc.h"
+#include "mcu_periph/adc.h"
 #include "sys_time.h"
 
 

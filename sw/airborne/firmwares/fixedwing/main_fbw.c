@@ -38,7 +38,7 @@
 
 #include "led.h"
 #include "spi.h"
-#include "adc.h"
+#include "mcu_periph/adc.h"
 
 #ifdef USE_USB_SERIAL
 #include "usb_serial.h"

@@ -28,7 +28,7 @@
 #ifndef I2C_HW_H
 #define I2C_HW_H
 
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 #include <stm32/i2c.h>
 
 

@@ -31,7 +31,7 @@
 #define FBW_H
 
 #include "std.h"
-#include "adc.h"
+#include "mcu_periph/adc.h"
 
 /** Fly by wire modes */
 #define FBW_MODE_MANUAL   0

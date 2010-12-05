@@ -6,7 +6,7 @@
 
 #include "LPC21xx.h"
 #include "led.h"
-#include "adc.h"
+#include "mcu_periph/adc.h"
 #include ACTUATORS
 #include "csc_servos.h"
 #include "sys_time.h"

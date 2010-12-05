@@ -22,10 +22,10 @@
  */
 
 #include "firmwares/rotorcraft/actuators.h"
-#include "actuators_mkk.h"
+#include "firmwares/rotorcraft/actuators/actuators_mkk.h"
 
 #include "booz/booz2_commands.h"
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 #include "sys_time.h"
 
 
