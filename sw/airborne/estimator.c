@@ -1,7 +1,7 @@
 /*
  * Paparazzi autopilot $Id$
  *
- * Copyright (C) 2004-2005 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -236,9 +236,9 @@ void estimator_update_state_gps( void ) {
 
 #include "subsystems/sensors/infrared.h"
 void estimator_update_state_infrared( void ) {
-  estimator_phi  = atan2(ir_roll, ir_top) - ir_roll_neutral;
+  estimator_phi  = atan2(infrared.roll, infrared.top) - infrared.roll_neutral;
 
-  estimator_theta  = atan2(ir_pitch, ir_top) - ir_pitch_neutral;
+  estimator_theta  = atan2(infrared.pitch, infrared.top) - infrared.pitch_neutral;
 
   if (estimator_theta < -M_PI_2)
     estimator_theta += M_PI;
@@ -246,13 +246,13 @@ void estimator_update_state_infrared( void ) {
     estimator_theta -= M_PI;
 
   if (estimator_phi >= 0)
-    estimator_phi *= ir_correction_right;
+    estimator_phi *= infrared.correction_right;
   else
-    estimator_phi *= ir_correction_left;
+    estimator_phi *= infrared.correction_left;
 
   if (estimator_theta >= 0)
-    estimator_theta *= ir_correction_up;
+    estimator_theta *= infrared.correction_up;
   else
-    estimator_theta *= ir_correction_down;
+    estimator_theta *= infrared.correction_down;
 
 }

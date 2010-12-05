@@ -448,7 +448,7 @@ void periodic_task_ap( void ) {
 #endif
 
 #ifdef USE_INFRARED
-      ir_update();
+      infrared_update();
       estimator_update_state_infrared();
 #endif /* USE_INFRARED */
       h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
@@ -483,7 +483,7 @@ void init_ap( void ) {
 
   /************* Sensors initialization ***************/
 #ifdef USE_INFRARED
-  ir_init();
+  infrared_init();
 #endif
 #ifdef USE_GYRO
   gyro_init();
