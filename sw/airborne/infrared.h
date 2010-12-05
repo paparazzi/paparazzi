@@ -44,7 +44,6 @@ extern float ir_correction_down;
 
 void ir_init(void);
 void ir_update(void);
-void estimator_update_state_infrared( void );
 
 extern float ir_lateral_correction;
 extern float ir_longitudinal_correction;

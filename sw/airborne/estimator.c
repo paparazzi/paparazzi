@@ -233,3 +233,26 @@ void estimator_update_state_gps( void ) {
     DOWNLINK_SEND_ATTITUDE(ExtraPprzTransport,&estimator_phi,&estimator_psi,&estimator_theta);
 #endif
 }
+
+#include "infrared.h"
+void estimator_update_state_infrared( void ) {
+  estimator_phi  = atan2(ir_roll, ir_top) - ir_roll_neutral;
+
+  estimator_theta  = atan2(ir_pitch, ir_top) - ir_pitch_neutral;
+
+  if (estimator_theta < -M_PI_2)
+    estimator_theta += M_PI;
+  else if (estimator_theta > M_PI_2)
+    estimator_theta -= M_PI;
+
+  if (estimator_phi >= 0)
+    estimator_phi *= ir_correction_right;
+  else
+    estimator_phi *= ir_correction_left;
+
+  if (estimator_theta >= 0)
+    estimator_theta *= ir_correction_up;
+  else
+    estimator_theta *= ir_correction_down;
+
+}

@@ -32,9 +32,6 @@
 
 #include "infrared.h"
 #include "mcu_periph/adc.h"
-#include "gps.h"
-#include "firmwares/fixedwing/autopilot.h"
-#include "estimator.h"
 #include "ap_downlink.h"
 #include "sys_time.h"
 #include "generated/airframe.h"
@@ -209,24 +206,3 @@ void ir_update(void) {
 /** #else ir_roll set by simulator in sim_ir.c */
 }
 
-void estimator_update_state_infrared( void ) {
-  estimator_phi  = atan2(ir_roll, ir_top) - ir_roll_neutral;
-
-  estimator_theta  = atan2(ir_pitch, ir_top) - ir_pitch_neutral;
-
-  if (estimator_theta < -M_PI_2)
-    estimator_theta += M_PI;
-  else if (estimator_theta > M_PI_2)
-    estimator_theta -= M_PI;
-
-  if (estimator_phi >= 0)
-    estimator_phi *= ir_correction_right;
-  else
-    estimator_phi *= ir_correction_left;
-
-  if (estimator_theta >= 0)
-    estimator_theta *= ir_correction_up;
-  else
-    estimator_theta *= ir_correction_down;
-
-}
