@@ -150,9 +150,9 @@ void dl_parse_msg(void) {
   /** Infrared and GPS sensors are replaced by messages on the datalink */
   if (msg_id == DL_HITL_INFRARED) {
     /** This code simulates infrared.c:ir_update() */
-    ir_roll = DL_HITL_INFRARED_roll(dl_buffer);
-    ir_pitch = DL_HITL_INFRARED_pitch(dl_buffer);
-    ir_top = DL_HITL_INFRARED_top(dl_buffer);
+    infrared.roll = DL_HITL_INFRARED_roll(dl_buffer);
+    infrared.pitch = DL_HITL_INFRARED_pitch(dl_buffer);
+    infrared.top = DL_HITL_INFRARED_top(dl_buffer);
   } else if (msg_id == DL_HITL_UBX) {
     /** This code simulates gps_ubx.c:parse_ubx() */
     if (gps_msg_received) {
