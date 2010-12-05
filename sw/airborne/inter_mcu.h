@@ -42,6 +42,7 @@
 #include "paparazzi.h"
 #include "generated/airframe.h"
 #include "subsystems/radio_control.h"
+#include "subsystems/electrical.h"
 #include "firmwares/fixedwing/main_fbw.h"
 
 #ifndef SINGLE_MCU
@@ -117,8 +118,8 @@ static inline void inter_mcu_fill_fbw_state (void) {
   status |= (fbw_mode == FBW_MODE_FAILSAFE ? _BV(STATUS_MODE_FAILSAFE) : 0);
   fbw_state->status  = status;
 
-  fbw_state->vsupply = fbw_vsupply_decivolt;
-  fbw_state->current = fbw_current_milliamp;
+  fbw_state->vsupply = electrical.vsupply;
+  fbw_state->current = electrical.current;
 }
 
 /** Prepares date for next comm with AP. Set ::ap_ok to TRUE */

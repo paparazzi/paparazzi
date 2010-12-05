@@ -150,6 +150,7 @@ endif
 
 fbw_CFLAGS		+= -DFBW
 fbw_srcs 		+= $(SRC_FIRMWARE)/main_fbw.c
+fbw_srcs 		+= subsystems/electrical.c
 fbw_srcs 		+= $(SRC_FIXEDWING)/commands.c
 
 ######################################################################

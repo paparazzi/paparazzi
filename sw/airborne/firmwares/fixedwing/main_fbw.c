@@ -47,6 +47,7 @@
 #include "sys_time.h"
 #include "commands.h"
 #include "firmwares/fixedwing/actuators.h"
+#include "subsystems/electrical.h"
 #include "subsystems/radio_control.h"
 #include "fbw_downlink.h"
 #include "firmwares/fixedwing/autopilot.h"
@@ -58,24 +59,9 @@
 #endif
 
 #ifdef MILLIAMP_PER_PERCENT
-#  warning "deprecated MILLIAMP_PER_PERCENT --> Please use MILLIAMP_AT_FULL_THROTTLE"
+#  error "deprecated MILLIAMP_PER_PERCENT --> Please use MILLIAMP_AT_FULL_THROTTLE"
 #endif
 
-#ifdef ADC
-struct adc_buf vsupply_adc_buf;
-#ifndef VoltageOfAdc
-#define VoltageOfAdc(adc) DefaultVoltageOfAdc(adc)
-#endif
-#ifdef ADC_CHANNEL_CURRENT
-struct adc_buf current_adc_buf;
-#ifndef MilliAmpereOfAdc
-#define MilliAmpereOfAdc(adc) DefaultMilliAmpereOfAdc(adc)
-#endif
-#endif
-#endif
-
-uint8_t fbw_vsupply_decivolt;
-int32_t fbw_current_milliamp;
 
 uint8_t fbw_mode;
 
@@ -88,12 +74,7 @@ void init_fbw( void ) {
 
 #ifdef ADC
   adc_init();
-#ifdef ADC_CHANNEL_VSUPPLY
-  adc_buf_channel(ADC_CHANNEL_VSUPPLY, &vsupply_adc_buf, DEFAULT_AV_NB_SAMPLE);
-#endif
-#ifdef ADC_CHANNEL_CURRENT
-  adc_buf_channel(ADC_CHANNEL_CURRENT, &current_adc_buf, DEFAULT_AV_NB_SAMPLE);
-#endif
+  electrical_init();
 #endif /* ADC     */
 
 #ifdef ACTUATORS
@@ -115,7 +96,7 @@ void init_fbw( void ) {
   fbw_mode = FBW_MODE_FAILSAFE;
 
 #ifndef SINGLE_MCU
-  int_enable();
+  mcu_int_enable();
 #endif
 }
 
@@ -209,22 +190,8 @@ void periodic_task_fbw( void ) {
   fbw_downlink_periodic_task();
 #endif
 
-  if (!_10Hz)
-  {
-#ifdef ADC
-#ifdef ADC_CHANNEL_VSUPPLY
-      fbw_vsupply_decivolt = VoltageOfAdc((10*(vsupply_adc_buf.sum/vsupply_adc_buf.av_nb_sample)));
-#endif
-#ifdef ADC_CHANNEL_CURRENT
-      fbw_current_milliamp = MilliAmpereOfAdc((current_adc_buf.sum/current_adc_buf.av_nb_sample));
-#endif
-#endif
-
-#if ((! defined ADC_CHANNEL_CURRENT) && defined MILLIAMP_AT_FULL_THROTTLE)
-#ifdef COMMAND_THROTTLE
-    fbw_current_milliamp = Min(((float)commands[COMMAND_THROTTLE]) * ((float)MILLIAMP_AT_FULL_THROTTLE) / ((float)MAX_PPRZ), 65000);
-#endif
-#   endif
+  if (!_10Hz) { 
+    electrical_periodic();  
   }
 
 #ifdef ACTUATORS
