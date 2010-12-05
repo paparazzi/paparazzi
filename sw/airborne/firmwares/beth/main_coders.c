@@ -1,6 +1,6 @@
 #include BOARD_CONFIG
 #include "init_hw.h"
-#include "can.h"
+#include "mcu_periph/can.h"
 #include "sys_time.h"
 #include "downlink.h"
 

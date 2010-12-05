@@ -1,6 +1,6 @@
 
 
-#include "firmwares/rotorcraft/baro.h"
+#include "subsystems/sensors/baro.h"
 
 
 struct Baro baro;

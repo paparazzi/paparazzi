@@ -34,14 +34,13 @@
 #include <math.h>
 
 #include "firmwares/fixedwing/main_ap.h"
+#include "mcu.h"
 
-#include "interrupt_hw.h"
-#include "init_hw.h"
-#include "adc.h"
+#include "mcu_periph/adc.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "gps.h"
-#include "infrared.h"
+#include "subsystems/sensors/infrared.h"
 #include "gyro.h"
 #include "ap_downlink.h"
 #include "subsystems/nav.h"
@@ -60,16 +59,9 @@
 #include "rc_settings.h"
 #endif
 
-#ifdef LED
-#include "led.h"
-#endif
-
-#if defined USE_I2C0 || USE_I2C1
-#include "i2c.h"
-#endif
 
 #ifdef USE_SPI
-#include "spi.h"
+#include "mcu_periph/spi.h"
 #endif
 
 #ifdef TRAFFIC_INFO
@@ -480,12 +472,9 @@ void periodic_task_ap( void ) {
 
 void init_ap( void ) {
 #ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
-  hw_init();
+  mcu_init();
   sys_time_init();
 
-#ifdef LED
-  led_init();
-#endif
 
 #ifdef ADC
   adc_init();
@@ -502,35 +491,11 @@ void init_ap( void ) {
 #ifdef USE_GPS
   gps_init();
 #endif
-#ifdef USE_UART0
-  Uart0Init();
-#endif
-#ifdef USE_UART1
-  Uart1Init();
-#endif
-#ifdef USE_UART2
-  Uart2Init();
-#endif
-#ifdef USE_UART3
-  Uart3Init();
-#endif
-#ifdef USE_USB_SERIAL
-  VCOM_init();
-#endif
 
 #ifdef USE_GPIO
   GpioInit();
 #endif
 
-#ifdef USE_I2C0
-  i2c0_init();
-#endif
-#ifdef USE_I2C1
-  i2c1_init();
-#endif
-#ifdef USE_I2C2
-  i2c2_init();
-#endif
 
   /************* Links initialization ***************/
 #if defined USE_SPI
@@ -555,7 +520,7 @@ void init_ap( void ) {
   modules_init();
 
   /** - start interrupt task */
-  int_enable();
+  mcu_int_enable();
 
   /** wait 0.5s (historical :-) */
   sys_time_usleep(500000);

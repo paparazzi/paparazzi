@@ -5,9 +5,9 @@
 
 #include "std.h"
 #include "LPC21xx.h"
-#include "interrupt_hw.h"
+#include "mcu.h"
 
-#include "spi_hw.h"
+#include "mcu_periph/spi.h"
 #include BOARD_CONFIG
 
 #include "generated/airframe.h"

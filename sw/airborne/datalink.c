@@ -39,6 +39,10 @@
 #include "subsystems/navigation/traffic_info.h"
 #endif // TRAFFIC_INFO
 
+#if defined NAV || defined WIND_INFO
+#include "estimator.h"
+#endif
+
 #ifdef USE_JOYSTICK
 #include "joystick.h"
 #endif
@@ -60,7 +64,7 @@
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "downlink.h"
 #include "ap_downlink.h"
 

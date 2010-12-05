@@ -25,7 +25,7 @@
 
 #include <inttypes.h>
 #include "extra_pprz_dl.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 
 volatile bool_t extra_pprz_msg_received = FALSE;
 uint8_t extra_pprz_ovrn, extra_pprz_error;

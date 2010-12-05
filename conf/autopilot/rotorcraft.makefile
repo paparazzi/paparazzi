@@ -55,6 +55,8 @@ ap.ARCHDIR = $(ARCH)
 ap.CFLAGS += $(ROTORCRAFT_INC)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG) -DPERIPHERALS_AUTO_INIT
 ap.srcs    = $(SRC_FIRMWARE)/main.c
+ap.srcs   += mcu.c
+ap.srcs   += $(SRC_ARCH)/mcu_arch.c
 
 ifeq ($(ARCH), stm32)
 ap.srcs += lisa/plug_sys.c
@@ -90,7 +92,7 @@ endif
 #
 # Telemetry/Datalink
 #
-ap.srcs += $(SRC_ARCH)/uart_hw.c
+ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport
 ap.CFLAGS += -DDOWNLINK_DEVICE=$(MODEM_PORT)
 ap.srcs   += $(SRC_FIRMWARE)/telemetry.c \

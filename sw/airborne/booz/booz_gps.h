@@ -26,7 +26,7 @@
 
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 
 struct Booz_gps_state {
   struct EcefCoor_i ecef_pos;    /* pos ECEF in cm        */

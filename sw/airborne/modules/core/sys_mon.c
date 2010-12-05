@@ -57,7 +57,7 @@ void init_sysmon(void) {
   sum_n_event = 0;
 }
 
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE

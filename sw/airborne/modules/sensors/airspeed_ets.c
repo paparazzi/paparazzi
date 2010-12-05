@@ -36,8 +36,8 @@
  */
 #include "sensors/airspeed_ets.h"
 #include "estimator.h"
-#include "i2c.h"
-#include "uart.h"
+#include "mcu_periph/i2c.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 #include <math.h>

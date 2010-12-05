@@ -30,13 +30,13 @@
 
 #include "atmega_i2c_cam_ctrl.h"
 
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 #include "led.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 #include "estimator.h"

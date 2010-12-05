@@ -29,9 +29,9 @@
  */
 
 
-#include "light_temt.h"
-#include "adc.h"
-#include "uart.h"
+#include "modules/meteo/light_temt.h"
+#include "mcu_periph/adc.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 

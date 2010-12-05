@@ -25,7 +25,7 @@
 #ifndef PRINT_H
 #define PRINT_H
 
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "usb_serial.h"
 
 #define _PrintString(out_fun, s) { \

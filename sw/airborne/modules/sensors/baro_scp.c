@@ -1,16 +1,15 @@
 #include "std.h"
-#include "init_hw.h"
 #include "sys_time.h"
 #include "led.h"
-#include "interrupt_hw.h"
+#include "mcu.h"
 
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 
-#include "spi_hw.h"
+#include "mcu_periph/spi.h"
 
-#include "baro_scp.h"
+#include "modules/sensors/baro_scp.h"
 
 #ifndef SENSOR_SYNC_SEND
 #warning set SENSOR_SYNC_SEND to use baro_scp

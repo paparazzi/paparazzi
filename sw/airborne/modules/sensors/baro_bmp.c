@@ -32,9 +32,9 @@
 #include "baro_bmp.h"
 
 #include "sys_time.h"
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 #include "led.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 

@@ -1,7 +1,5 @@
 #include "gps.h"
 
-#include "6dof.h"
-
 /* in gps_ubx.c */
 volatile uint8_t gps_msg_received;
 bool_t gps_pos_available;

@@ -34,7 +34,7 @@
 #include "modules/sensors/trig_ext_hw.h"
 #include "gps.h"
 #include "sys_time.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 

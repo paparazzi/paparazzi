@@ -8,9 +8,7 @@
 #endif
 
 #ifdef USE_CAN1
-#include "can.h"
-#include "can_hw.h"
-#include <stm32/can.h>
+#include "mcu_periph/can.h"
 extern uint16_t can_err_flags;
 #endif
 

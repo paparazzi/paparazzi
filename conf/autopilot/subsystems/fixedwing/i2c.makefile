@@ -1,3 +1,5 @@
 #generic i2c driver
-ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
-sim.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+ap.srcs += mcu_periph/i2c.c
+ap.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
+sim.srcs += mcu_periph/i2c.c
+sim.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c

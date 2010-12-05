@@ -20,8 +20,8 @@
  *
  */
 
-#include "sensors/airspeed_adc.h"
-#include "adc.h"
+#include "modules/sensors/airspeed_adc.h"
+#include "mcu_periph/adc.h"
 #include BOARD_CONFIG
 #include "generated/airframe.h"
 #include "estimator.h"

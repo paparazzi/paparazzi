@@ -28,7 +28,7 @@
  */
 
 #include "led.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 #include "max11040.h"

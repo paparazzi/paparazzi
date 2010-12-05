@@ -7,7 +7,7 @@ endif
 
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_BIND_IMPL_FUNC=radio_control_spektrum_try_bind
 ap.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/spektrum.h\"
-ifeq ($(BOARD), booz)
+ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=$(RADIO_CONTROL_SPEKTRUM_MODEL)
 endif
 ifdef RADIO_CONTROL_LED
