@@ -23,8 +23,8 @@
 
     <dl_settings NAME="control">
       <dl_settings NAME="ir">
-        <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ir_roll_neutral" shortname="roll_neutral" module="infrared"/>
-        <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="ir_pitch_neutral" shortname="pitch_neutral"/>
+        <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="infrared.roll_neutral" shortname="roll_neutral" module="infrared"/>
+        <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="infrared.pitch_neutral" shortname="pitch_neutral"/>
 
       </dl_settings>
 
