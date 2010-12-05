@@ -22,7 +22,7 @@
  *
  */
 
-/** \file spi.h
+/** \file mcu_periph/spi.h
  * \brief arch independant SPI (Serial Peripheral Interface) API */
 
 
@@ -32,7 +32,7 @@
 #ifdef USE_SPI
 
 #include "std.h"
-#include "spi_hw.h"
+#include "mcu_periph/spi_arch.h"
 
 extern uint8_t* spi_buffer_input;
 extern uint8_t* spi_buffer_output;

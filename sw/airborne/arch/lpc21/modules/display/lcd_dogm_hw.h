@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include "std.h"
-#include "spi_hw.h"
+#include "mcu_periph/spi.h"
 #include "led.h"
 
 

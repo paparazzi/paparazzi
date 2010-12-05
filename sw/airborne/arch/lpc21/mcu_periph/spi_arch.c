@@ -25,7 +25,7 @@
  *  for now only SPI1 ( aka SSP )
  */
 
-#include "spi.h"
+#include "mcu_periph/spi.h"
 
 #include "std.h"
 #include "LPC21xx.h"

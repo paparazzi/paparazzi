@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include "std.h"
-#include "spi_hw.h"
+#include "mcu_periph/spi_hw.h"
 #include "led.h"
 
 /* Pin configuration for max3100 IRQ */

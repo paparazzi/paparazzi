@@ -11,7 +11,7 @@
 #include "generated/settings.h"
 #include "dl_protocol.h"
 
-#include "spi.h"
+#include "mcu_periph/spi.h"
 #include "sd_card.h"
 
 static inline void main_init( void );

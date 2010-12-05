@@ -27,7 +27,7 @@
  */
 
 #include CONFIG
-#include "spi.h"
+#include "mcu_periph/spi.h"
 
 #include <inttypes.h>
 #include <avr/io.h>

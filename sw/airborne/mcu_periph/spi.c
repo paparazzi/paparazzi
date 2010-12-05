@@ -23,7 +23,7 @@
  */
 
 #include "std.h"
-#include "spi.h"
+#include "mcu_periph/spi.h"
 
 uint8_t* spi_buffer_input;
 uint8_t* spi_buffer_output;

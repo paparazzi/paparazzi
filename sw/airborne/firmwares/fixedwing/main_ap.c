@@ -61,7 +61,7 @@
 
 
 #ifdef USE_SPI
-#include "spi.h"
+#include "mcu_periph/spi.h"
 #endif
 
 #ifdef TRAFFIC_INFO

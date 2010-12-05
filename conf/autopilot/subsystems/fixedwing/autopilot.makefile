@@ -208,9 +208,9 @@ jsbsim.srcs 		+= downlink.c datalink.c $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsi
 
 ifeq ($(BOARD),classix)
   fbw.CFLAGS 		+= -DMCU_SPI_LINK -DUSE_SPI -DSPI_SLAVE
-  fbw.srcs 		+= $(SRC_FIXEDWING)/link_mcu.c $(SRC_FIXEDWING)/spi.c $(SRC_ARCH)/spi_hw.c
+  fbw.srcs 		+= $(SRC_FIXEDWING)/link_mcu.c mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
   ap.CFLAGS 		+= -DMCU_SPI_LINK -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0
-  ap.srcs 		+= $(SRC_FIXEDWING)/link_mcu.c $(SRC_FIXEDWING)/spi.c $(SRC_ARCH)/spi_hw.c
+  ap.srcs 		+= $(SRC_FIXEDWING)/link_mcu.c mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 else
   # Single MCU's run both
   ap.CFLAGS 		+= $(fbw_CFLAGS)
