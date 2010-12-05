@@ -28,7 +28,7 @@
 #include "rc_settings.h"
 #include "generated/radio.h"
 #include "autopilot.h"
-#include "infrared.h"
+#include "subsystems/sensors/infrared.h"
 #include "nav.h"
 #include "estimator.h"
 #include "inter_mcu.h"

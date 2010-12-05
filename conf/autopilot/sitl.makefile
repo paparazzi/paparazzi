@@ -6,7 +6,7 @@ sim.srcs += latlong.c\
             commands.c\
             gps.c\
             inter_mcu.c\
-            infrared.c\
+            subsystems/sensors/infrared.c\
             $(SRC_FIRMWARE)/stabilization/stabilization_attitude.c\
             $(SRC_FIRMWARE)/guidance/guidance_v.c                 \
             nav.c\

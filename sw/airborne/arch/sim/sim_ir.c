@@ -6,7 +6,7 @@
 
 
 #include <inttypes.h>
-#include "infrared.h"
+#include "subsystems/sensors/infrared.h"
 #include "generated/airframe.h"
 
 #include <caml/mlvalues.h>

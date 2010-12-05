@@ -29,7 +29,7 @@
 
 #include "std.h"
 #include "generated/airframe.h"
-#include "infrared.h"
+#include "subsystems/sensors/infrared.h"
 #include "mcu_periph/i2c.h"
 
 extern int16_t ir_i2c_ir1;

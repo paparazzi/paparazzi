@@ -40,7 +40,7 @@
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "gps.h"
-#include "infrared.h"
+#include "subsystems/sensors/infrared.h"
 #include "gyro.h"
 #include "ap_downlink.h"
 #include "nav.h"

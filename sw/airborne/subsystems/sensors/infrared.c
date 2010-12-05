@@ -30,7 +30,7 @@
 
 #include <stdlib.h>
 
-#include "infrared.h"
+#include "subsystems/sensors/infrared.h"
 #include "mcu_periph/adc.h"
 #include "ap_downlink.h"
 #include "sys_time.h"

@@ -234,7 +234,7 @@ void estimator_update_state_gps( void ) {
 #endif
 }
 
-#include "infrared.h"
+#include "subsystems/sensors/infrared.h"
 void estimator_update_state_infrared( void ) {
   estimator_phi  = atan2(ir_roll, ir_top) - ir_roll_neutral;
 

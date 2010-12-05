@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef INFRARED_H
-#define INFRARED_H
+#ifndef SUBSYSTEMS_SENSORS_INFRARED_H
+#define SUBSYSTEMS_SENSORS_INFRARED_H
 
 #include "std.h"
 #include "generated/airframe.h"
@@ -50,4 +50,4 @@ extern float ir_longitudinal_correction;
 extern float ir_vertical_correction;
 
 
-#endif /* INFRARED_H */
+#endif /* SUBSYSTEMS_SENSORS_INFRARED_H */
