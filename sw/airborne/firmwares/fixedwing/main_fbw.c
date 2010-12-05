@@ -52,7 +52,6 @@
 #include "fbw_downlink.h"
 #include "firmwares/fixedwing/autopilot.h"
 #include "paparazzi.h"
-#include "estimator.h"
 
 #ifdef MCU_SPI_LINK
 #include "link_mcu.h"
