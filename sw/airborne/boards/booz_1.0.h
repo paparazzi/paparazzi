@@ -93,6 +93,8 @@
 #define PWM1_PINSEL_BIT 14
 
 
+#define BOARD_HAS_BARO
+
 /*
  * Modem
  */

@@ -25,7 +25,7 @@
 #include "subsystems/ins.h"
 
 #include "subsystems/imu.h"
-#include "firmwares/rotorcraft/baro.h"
+#include "subsystems/sensors/baro.h"
 #include "booz_gps.h"
 
 #include "generated/airframe.h"

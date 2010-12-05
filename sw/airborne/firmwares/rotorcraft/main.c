@@ -41,7 +41,7 @@
 #include "booz_gps.h"
 
 #include "booz/booz2_analog.h"
-#include "firmwares/rotorcraft/baro.h"
+#include "subsystems/sensors/baro.h"
 
 #include "firmwares/rotorcraft/battery.h"
 
