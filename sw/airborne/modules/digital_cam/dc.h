@@ -74,7 +74,7 @@ static inline void dc_send_command(uint8_t cmd);
 /* Auotmatic Digital Camera Photo Triggering */
 typedef enum {
 	DC_AUTOSHOOT_STOP = 0,
-	DC_AUTOSHOOT_PERIODIC = 1, 
+	DC_AUTOSHOOT_PERIODIC = 1,
 	DC_AUTOSHOOT_DISTANCE = 2,
 	DC_AUTOSHOOT_EXT_TRIG = 3
 } dc_autoshoot_type;
@@ -89,7 +89,7 @@ extern uint8_t dc_autoshoot_meter_grid;
 /* Send Down the coordinates of where the photo was taken */
 #ifdef SENSOR_SYNC_SEND
 void dc_send_shot_position(void);
-#else 
+#else
 #define dc_send_shot_position() {}
 #endif
 
@@ -109,7 +109,7 @@ static inline void dc_init(void)
 }
 
 /* shoot on grid */
-static inline void dc_shot_on_utm_north_close_to_100m_grid( void ) 
+static inline void dc_shot_on_utm_north_close_to_100m_grid( void )
 {
   uint32_t dist_to_100m_grid = (gps_utm_north / 100) % 100;
   if (dist_to_100m_grid < dc_autoshoot_meter_grid || 100 - dist_to_100m_grid < dc_autoshoot_meter_grid)
@@ -119,14 +119,14 @@ static inline void dc_shot_on_utm_north_close_to_100m_grid( void )
 }
 
 /* periodic 4Hz function */
-static inline void dc_periodic_4Hz( void ) 
+static inline void dc_periodic_4Hz( void )
 {
   static uint8_t dc_shutter_timer = 0;
 
 #ifdef DC_AUTOSHOOT_QUARTERSEC_PERIOD
   if (dc_autoshoot == DC_AUTOSHOOT_PERIODIC)
   {
-    if (dc_shutter_timer) 
+    if (dc_shutter_timer)
     {
       dc_shutter_timer--;
     } else {
@@ -145,6 +145,6 @@ static inline void dc_periodic_4Hz( void )
 }
 
 
- 
+
 
 #endif // DC_H

@@ -53,7 +53,7 @@
 void mcu_init(void) {
 
   mcu_arch_init();
-  
+
 #ifdef PERIPHERALS_AUTO_INIT
 #ifdef USE_LED
   led_init();
@@ -99,5 +99,5 @@ void mcu_init(void) {
   spi_init();
 #endif
 #endif /* PERIPHERALS_AUTO_INIT */
- 
+
 }

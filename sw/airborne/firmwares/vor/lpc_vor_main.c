@@ -22,18 +22,18 @@ int main( void ) {
     if (vor_adc_sample_available) {
       int16_t off_sample = vor_adc_sample - 512;
       //      off_sample *= 2;
-      
+
       vor_int_demod_run (off_sample);
-      
+
       if (vid_qdr_available) {
       	vid_qdr_available = FALSE;
 	main_report();
       }
-      
+
       VorDacSet(vor_adc_sample);
       vor_adc_sample_available = FALSE;
     }
-    
+
   }
   return 0;
 }

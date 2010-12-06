@@ -49,7 +49,7 @@
 
 extern uint8_t dc_timer;
 
-static inline void led_cam_ctrl_init(void) 
+static inline void led_cam_ctrl_init(void)
 {
   // Call common DC init
   dc_init();
@@ -104,7 +104,7 @@ static inline void dc_send_command(uint8_t cmd)
 
 
 /* 4Hz Periodic */
-static inline void led_cam_ctrl_periodic( void ) 
+static inline void led_cam_ctrl_periodic( void )
 {
   if (dc_timer) {
     dc_timer--;

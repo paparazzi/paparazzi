@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef SPI_HW_H
-#define SPI_HW_H
+#ifndef SPI_ARCH_H
+#define SPI_ARCH_H
 
 /** Index in SPI buffers: one is enough for full duplex communication */
 extern volatile uint8_t spi_idx_buf;
@@ -83,4 +83,4 @@ extern volatile uint8_t spi_idx_buf;
 #endif /* SPI_MASTER */
 
 
-#endif /* SPI_HW_H */
+#endif /* SPI_ARCH_H */

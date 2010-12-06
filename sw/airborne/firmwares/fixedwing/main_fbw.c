@@ -169,8 +169,8 @@ void periodic_task_fbw( void ) {
   fbw_downlink_periodic_task();
 #endif
 
-  if (!_10Hz) { 
-    electrical_periodic();  
+  if (!_10Hz) {
+    electrical_periodic();
   }
 
 #ifdef ACTUATORS
