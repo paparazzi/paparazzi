@@ -59,17 +59,11 @@
 #endif
 
 
-#ifdef USE_SPI
-#include "mcu_periph/spi.h"
-#endif
 
 #ifdef TRAFFIC_INFO
 #include "subsystems/navigation/traffic_info.h"
 #endif
 
-#ifdef USE_USB_SERIAL
-#include "usb_serial.h"
-#endif
 
 #if ! defined CATASTROPHIC_BAT_LEVEL && defined LOW_BATTERY
 #warning "LOW_BATTERY deprecated. Renamed into CATASTROPHIC_BAT_LEVEL (in airframe file)"
@@ -492,9 +486,6 @@ void init_ap( void ) {
 
 
   /************* Links initialization ***************/
-#if defined USE_SPI
-  spi_init();
-#endif
 #if defined MCU_SPI_LINK
   link_mcu_init();
 #endif

@@ -35,12 +35,6 @@
 
 #include "firmwares/fixedwing/main_fbw.h"
 #include "mcu.h"
-
-#include "led.h"
-#include "mcu_periph/spi.h"
-#include "mcu_periph/adc.h"
-
-
 #include "sys_time.h"
 #include "commands.h"
 #include "firmwares/fixedwing/actuators.h"
@@ -82,7 +76,6 @@ void init_fbw( void ) {
   inter_mcu_init();
 #endif
 #ifdef MCU_SPI_LINK
-  spi_init();
   link_mcu_restart();
 #endif
 

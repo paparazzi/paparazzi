@@ -45,6 +45,9 @@
 #ifdef USE_USB_SERIAL
 #include "mcu_periph/usb_serial.h"
 #endif
+#ifdef USE_SPI
+#include "mcu_periph/spi.h"
+#endif
 #endif /* PERIPHERALS_AUTO_INIT */
 
 void mcu_init(void) {
@@ -86,11 +89,14 @@ void mcu_init(void) {
 #ifdef USE_I2C2
   i2c2_init();
 #endif
+#ifdef USE_ADC
+  adc_init();
+#endif
 #ifdef USE_USB_SERIAL
   VCOM_init();
 #endif
-#ifdef USE_ADC
-  adc_init();
+#ifdef USE_SPI
+  spi_init();
 #endif
 #endif /* PERIPHERALS_AUTO_INIT */
  
