@@ -91,7 +91,7 @@ value sim_init(value unit) {
 }
 
 value update_bat(value bat) {
-  fbw_vsupply_decivolt = Int_val(bat);
+  electrical.vsupply = Int_val(bat);
   return Val_unit;
 }
 
