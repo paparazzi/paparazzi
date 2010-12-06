@@ -40,8 +40,8 @@
 #include "firmwares/fixedwing/actuators.h"
 #include "subsystems/electrical.h"
 #include "subsystems/radio_control.h"
-#include "fbw_downlink.h"
 #include "firmwares/fixedwing/autopilot.h"
+#include "fbw_downlink.h"
 #include "paparazzi.h"
 
 #ifdef MCU_SPI_LINK
@@ -49,7 +49,7 @@
 #endif
 
 #ifdef MILLIAMP_PER_PERCENT
-#  error "deprecated MILLIAMP_PER_PERCENT --> Please use MILLIAMP_AT_FULL_THROTTLE"
+#error "deprecated MILLIAMP_PER_PERCENT --> Please use MILLIAMP_AT_FULL_THROTTLE"
 #endif
 
 
