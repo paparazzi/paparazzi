@@ -25,8 +25,8 @@
  *  for now only SPI1 ( aka SSP )
  */
 
-#ifndef SPI_HW_H
-#define SPI_HW_H
+#ifndef SPI_ARCH_H
+#define SPI_ARCH_H
 
 #include "std.h"
 #include "LPC21xx.h"
@@ -192,4 +192,4 @@ extern volatile uint8_t spi_rx_idx;
 #define SpiClrCPHA() (SSPCR0 &= ~(_BV(7)))
 
 
-#endif /* SPI_HW_H */
+#endif /* SPI_ARCH_H */
