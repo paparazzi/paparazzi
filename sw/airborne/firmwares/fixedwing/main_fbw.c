@@ -110,14 +110,7 @@ void event_task_fbw( void) {
 
 #ifdef INTER_MCU
 #ifdef MCU_SPI_LINK
-  if (spi_message_received) {
-    /* Got a message on SPI. */
-    spi_message_received = FALSE;
-
-    /* Sets link_mcu_received */
-    /* Sets inter_mcu_received_ap if checksum is ok */
     link_mcu_event_task();
-  }
 #endif /* MCU_SPI_LINK */
 
 

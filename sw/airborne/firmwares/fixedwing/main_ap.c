@@ -599,11 +599,7 @@ void event_task_ap( void ) {
 #endif /** DATALINK */
 
 #ifdef MCU_SPI_LINK
-  if (spi_message_received) {
-    /* Got a message on SPI. */
-    spi_message_received = FALSE;
     link_mcu_event_task();
-  }
 #endif
 
   if (inter_mcu_received_fbw) {

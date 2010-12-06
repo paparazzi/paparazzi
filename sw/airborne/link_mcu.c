@@ -57,13 +57,18 @@ void link_mcu_restart(void) {
 }
 
 void link_mcu_event_task( void ) {
-  /* A message has been received */
-  ComputeChecksum(link_mcu_from_ap_msg);
-  link_mcu_received = TRUE;
-  if (link_mcu_from_ap_msg.checksum == crc)
-    inter_mcu_received_ap = TRUE;
-  else
-    fbw_state->nb_err++;
+  if (spi_message_received) {
+    /* Got a message on SPI. */
+    spi_message_received = FALSE;
+
+    /* A message has been received */
+    ComputeChecksum(link_mcu_from_ap_msg);
+    link_mcu_received = TRUE;
+    if (link_mcu_from_ap_msg.checksum == crc)
+      inter_mcu_received_ap = TRUE;
+    else
+      fbw_state->nb_err++;
+  }
 }
 
 #endif /* FBW */
@@ -97,12 +102,16 @@ void link_mcu_send(void) {
 }
 
 void link_mcu_event_task( void ) {
-  /* A message has been received */
-  ComputeChecksum(link_mcu_from_fbw_msg);
-  if (link_mcu_from_fbw_msg.checksum == crc)
-    inter_mcu_received_fbw = TRUE;
-  else
-    link_mcu_nb_err++;
+  if (spi_message_received) {
+    /* Got a message on SPI. */
+    spi_message_received = FALSE;
+    /* A message has been received */
+    ComputeChecksum(link_mcu_from_fbw_msg);
+    if (link_mcu_from_fbw_msg.checksum == crc)
+      inter_mcu_received_fbw = TRUE;
+    else
+      link_mcu_nb_err++;
+  }
 }
 
 #endif /* AP */
