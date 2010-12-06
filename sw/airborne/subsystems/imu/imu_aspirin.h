@@ -63,6 +63,7 @@ struct ImuAspirin {
   volatile enum AspirinStatus status;
   struct i2c_transaction i2c_trans_gyro;
   struct i2c_transaction i2c_trans_mag;
+  uint8_t gyro_eoc;
   uint8_t gyro_available;
   uint8_t gyro_available_blaaa;
   uint8_t mag_available;
@@ -97,6 +98,15 @@ extern struct ImuAspirin imu_aspirin;
       RATES_ASSIGN(imu.gyro_unscaled, gp, gq, gr);			\
       imu_aspirin.status = AspirinStatusIdle;				\
     }									\
+    if (imu_aspirin.gyro_eoc && i2c2.status == I2CIdle) { \
+      imu_aspirin.i2c_trans_gyro.type = I2CTransTxRx; \
+      imu_aspirin.i2c_trans_gyro.buf[0] = ITG3200_REG_GYRO_XOUT_H; \
+      imu_aspirin.i2c_trans_gyro.slave_addr = ITG3200_ADDR; \
+      imu_aspirin.i2c_trans_gyro.len_w = 1; \
+      imu_aspirin.i2c_trans_gyro.len_r = 6; \
+      i2c_submit(&i2c2,&imu_aspirin.i2c_trans_gyro); \
+      imu_aspirin.gyro_eoc = FALSE; \
+    } \
     if (imu_aspirin.gyro_available_blaaa) {				\
       imu_aspirin.gyro_available_blaaa = FALSE;				\
       _gyro_accel_handler();						\

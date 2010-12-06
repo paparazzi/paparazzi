@@ -213,13 +213,7 @@ void exti15_10_irq_handler(void) {
   if(EXTI_GetITStatus(EXTI_Line14) != RESET)
     EXTI_ClearITPendingBit(EXTI_Line14);
 
-  imu_aspirin.i2c_trans_gyro.type = I2CTransTxRx;
-  imu_aspirin.i2c_trans_gyro.buf[0] = ITG3200_REG_GYRO_XOUT_H;
-  imu_aspirin.i2c_trans_gyro.slave_addr = ITG3200_ADDR;
-  imu_aspirin.i2c_trans_gyro.len_w = 1;
-  imu_aspirin.i2c_trans_gyro.len_r = 6;
-  //  if (!i2c_submit(&i2c2,&imu_aspirin.i2c_trans_gyro)) while(1);
-  i2c_submit(&i2c2,&imu_aspirin.i2c_trans_gyro);
+  imu_aspirin.gyro_eoc = TRUE;
   imu_aspirin.status = AspirinStatusReadingGyro;
 
 }
