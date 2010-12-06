@@ -1249,6 +1249,25 @@ let get_ts = fun _sender vs ->
 let listen_telemetry_status = fun () ->
   safe_bind "TELEMETRY_STATUS" get_ts
 
+
+let mark_dcshot = fun (geomap:G.widget) _sender vs ->
+  let ac = find_ac !active_ac in
+(*  let ac = get_ac vs in *)
+    match ac.track#last with
+      Some geo ->
+	begin
+	  let group = geomap#background in
+	  let point = geomap#circle ~group ~fill_color:"yellow" geo 3. in
+	  point#raise_to_top ()
+	end
+    | None -> ()
+
+(*  mark geomap ac.ac_name track !Plugin.frame *)
+  
+
+let listen_dcshot = fun _geom ->
+  tele_bind "DC_SHOT" (mark_dcshot _geom)
+
 let listen_error = fun a ->
   let get_error = fun _sender vs ->
     let msg = Pprz.string_assoc "message" vs in
@@ -1292,6 +1311,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt
   listen_alert my_alert;
   listen_error my_alert;
   listen_tcas my_alert;
+  listen_dcshot geomap;
 
   (** Select the active aircraft on notebook page selection *)
   let callback = fun i ->
