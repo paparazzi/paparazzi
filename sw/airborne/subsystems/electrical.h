@@ -4,10 +4,10 @@
 #include "std.h"
 
 struct Electrical {
-  
+
   uint8_t vsupply; /* supply in decivolts */
   int32_t current; /* current in miliamps */
-  
+
 };
 
 extern struct Electrical electrical;

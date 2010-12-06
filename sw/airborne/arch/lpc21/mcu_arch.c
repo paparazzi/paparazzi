@@ -64,7 +64,7 @@ void mcu_arch_init(void) {
 
   /* set the interrupt controller to flash */
   MEMMAP = MEMMAP_FLASH;
-  
+
   /* clear all interrupts     */
   VICIntEnClear = 0xFFFFFFFF;
   /* clear all FIQ selections */
