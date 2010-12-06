@@ -1,10 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<<<<<<< HEAD
 <airframe name="Microjet BR Tiny 1.1">
-=======
-<airframe name="Microjet BDW Tiny 1.1">
->>>>>>> a4d3b4c95367a2e3ab2e21ebb81c7e7dc530d6ac
 
 <!-- commands section -->
   <servos>
