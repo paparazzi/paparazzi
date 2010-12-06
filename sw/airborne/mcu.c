@@ -39,6 +39,12 @@
 #if defined USE_I2C1 || defined USE_I2C2
 #include "mcu_periph/i2c.h"
 #endif
+#if defined USE_ADC
+#include "mcu_periph/adc.h"
+#endif
+#ifdef USE_USB_SERIAL
+#include "mcu_periph/usb_serial.h"
+#endif
 #endif /* PERIPHERALS_AUTO_INIT */
 
 void mcu_init(void) {
@@ -82,6 +88,9 @@ void mcu_init(void) {
 #endif
 #ifdef USE_USB_SERIAL
   VCOM_init();
+#endif
+#ifdef USE_ADC
+  adc_init();
 #endif
 #endif /* PERIPHERALS_AUTO_INIT */
  

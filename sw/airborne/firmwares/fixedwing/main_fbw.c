@@ -40,9 +40,6 @@
 #include "mcu_periph/spi.h"
 #include "mcu_periph/adc.h"
 
-#ifdef USE_USB_SERIAL
-#include "usb_serial.h"
-#endif
 
 #include "sys_time.h"
 #include "commands.h"
@@ -68,13 +65,10 @@ uint8_t fbw_mode;
 
 /********** INIT *************************************************************/
 void init_fbw( void ) {
+
   mcu_init();
   sys_time_init();
-
-#ifdef ADC
-  adc_init();
   electrical_init();
-#endif /* ADC     */
 
 #ifdef ACTUATORS
   actuators_init();

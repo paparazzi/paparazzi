@@ -18,7 +18,6 @@
 
 #include "generated/settings.h"
 
-#include "adc.h"
 
 #include "mb_modes.h"
 //#include "mb_static.h"
@@ -54,7 +53,6 @@ static inline void main_init( void ) {
   mb_servo_init();
   mb_servo_set_range( 1090000, 1910000 );
 
-  adc_init();
   mb_current_init();
   mb_scale_init();
 

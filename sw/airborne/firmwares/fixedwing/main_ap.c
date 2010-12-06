@@ -36,7 +36,6 @@
 #include "firmwares/fixedwing/main_ap.h"
 #include "mcu.h"
 
-#include "mcu_periph/adc.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "gps.h"
@@ -474,11 +473,6 @@ void init_ap( void ) {
 #ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
   mcu_init();
   sys_time_init();
-
-
-#ifdef ADC
-  adc_init();
-#endif
 #endif /* SINGLE_MCU */
 
   /************* Sensors initialization ***************/

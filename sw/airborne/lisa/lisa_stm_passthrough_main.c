@@ -111,7 +111,6 @@ static inline void main_init(void) {
 	actuators_init();
 	overo_link_init();
 	cscp_init();
-	adc_init();
 
 #ifdef PASSTHROUGH_CYGNUS
 	autopilot_init();

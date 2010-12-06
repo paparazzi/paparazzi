@@ -136,7 +136,7 @@ ns_srcs 		+= $(SRC_ARCH)/mcu_periph/uart_arch.c
 # ANALOG
 #
 
-  ns_CFLAGS 		+= -DADC
+  ns_CFLAGS 		+= -DUSE_ADC
 #ifeq ($(ARCH), lpc21)
   ns_srcs 		+= $(SRC_ARCH)/mcu_periph/adc_arch.c
 ifeq ($(ARCH), stm32)
