@@ -61,7 +61,7 @@ Receiving:
 #include "mcu_periph/uart.h"
 #include "std.h"
 #ifdef USE_USB_SERIAL
-#include "usb_serial.h"
+#include "mcu_periph/usb_serial.h"
 #endif
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE

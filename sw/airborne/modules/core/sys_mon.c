@@ -26,7 +26,7 @@
 #include "sys_time.h"
 
 #ifdef USE_USB_SERIAL
-#include "usb_serial.h"
+#include "mcu_periph/usb_serial.h"
 #endif
 
 /* Global vars */

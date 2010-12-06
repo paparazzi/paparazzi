@@ -48,7 +48,7 @@
 #endif
 
 #ifdef USE_USB_SERIAL
-#include "usb_serial.h"
+#include "mcu_periph/usb_serial.h"
 #endif
 
 #ifdef HITL
