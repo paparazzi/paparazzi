@@ -34,10 +34,14 @@ void electrical_init(void) {
 }
 
 void electrical_periodic(void) {
-
+#ifndef SITL
   electrical.vsupply = VoltageOfAdc((10*(electrical_priv.vsupply_adc_buf.sum/electrical_priv.vsupply_adc_buf.av_nb_sample)));
+#endif
+
 #ifdef ADC_CHANNEL_CURRENT
+#ifndef SITL
       electrical.current = MilliAmpereOfAdc((electrical_priv.current_adc_buf.sum/electrical_priv.current_adc_buf.av_nb_sample));
+#endif
 #else
 #if defined MILLIAMP_AT_FULL_THROTTLE && defined COMMAND_THROTTLE
       electrical.current = Min(((float)commands[COMMAND_THROTTLE]) * ((float)MILLIAMP_AT_FULL_THROTTLE) / ((float)MAX_PPRZ), 65000);
