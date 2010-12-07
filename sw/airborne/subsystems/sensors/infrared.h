@@ -29,17 +29,17 @@
 #include "generated/airframe.h"
 
 struct Infrared {
-  /* the 3 channels of the sensor 
+  /* the 3 channels of the sensor
    */
   int16_t ir1;
   int16_t ir2;
   int16_t ir3;
-  /* neutrals in radians 
+  /* neutrals in radians
    */
   float roll_neutral;
   float pitch_neutral;
   float pitch_vneutral;
-  /* roll, pitch, yaw unscaled reading 
+  /* roll, pitch, yaw unscaled reading
    */
   int16_t roll;
   int16_t pitch;
@@ -51,8 +51,8 @@ struct Infrared {
   float longitudinal_correction;
   float vertical_correction;
   /* coefficients used to compensate
-     for masking 
-  */ 
+     for masking
+  */
   float correction_left;
   float correction_right;
   float correction_up;

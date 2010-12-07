@@ -12,6 +12,8 @@ ARCH=stm32
 $(TARGET).ARCHDIR = $(ARCH)
 # not needed?
 $(TARGET).OOCD_INTERFACE=flossjtag
+#$(TARGET).OOCD_INTERFACE=jtagkey-tiny
+
 # -----------------------------------------------------------------------
 
 ifndef FLASH_MODE
@@ -64,13 +66,16 @@ MODEM_UART_NR = 2
 endif
 
 ifndef ADC_IR1
-ADC_IR1    = 1
+ADC_IR1      = 1
+ADC_IR1_CHAN = 0
 endif
 ifndef ADC_IR2
-ADC_IR2    = 2
+ADC_IR2      = 2
+ADC_IR2_CHAN = 1
 endif
 ifndef ADC_IR3
-ADC_IR_TOP = 3
+ADC_IR_TOP      = 4
+ADC_IR_TOP_CHAN = 3
 endif
 ifndef ADC_IR_NB_SAMPLES
 ADC_IR_NB_SAMPLES = 16

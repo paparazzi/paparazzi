@@ -35,7 +35,7 @@
 #include "sys_time.h"
 #include "led.h"
 #include "mcu_periph/uart.h"
-#include "usb_serial.h"
+#include "mcu_periph/usb_serial.h"
 
 /* minimum LED blink on time 10Hz = 100ms */
 #define BLINK_MIN 10

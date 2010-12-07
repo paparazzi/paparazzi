@@ -10,7 +10,7 @@
 #include "csc_booz2_ins.h"
 #include "csc_ap_link.h"
 
-#include "spi_hw.h"
+#include "mcu_periph/spi_arch.h"
 
 #include "csc_baro.h"
 

@@ -26,7 +26,7 @@
 #define PRINT_H
 
 #include "mcu_periph/uart.h"
-#include "usb_serial.h"
+#include "mcu_periph/usb_serial.h"
 
 #define _PrintString(out_fun, s) { \
   uint8_t i = 0;                  \

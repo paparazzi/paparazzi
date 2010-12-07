@@ -2,36 +2,26 @@
 
 <!-- Funjet Multiplex (http://www.multiplex-rc.de/), Jeti ECO 25
      Lisa/L board (http://paparazzi.enac.fr/wiki/Lisa)
-     XBee modem with AT firmware
+     XBee modem
      LEA 5H GPS
+     robbe R6107SP mk
 -->
 
-<airframe name="Delta Wing">
+<airframe name="Funjet Lisa/L">
 
   <firmware name="fixedwing">
     <target name="sim" 			board="pc"/>
-    <target name="ap" 			board="lisa_l_1.0"/>
-      <define name="LOITER_TRIM"/>
-      <define name="ARDUIMU_I2C_DEV" value="i2c2"/>
-      <define name="PERIPHERALS_AUTO_INIT"/>
-      <define name="USE_I2C2"/>
-      <define name="USE_AD1"/>
+    <target name="ap" 			board="lisa_m_1.0"/>
 
-    <subsystem name="radio_control"     type="spektrum"/>
+    <subsystem name="radio_control"     type="ppm"/>
     <subsystem name="telemetry" 	type="transparent"/>
     <subsystem name="control"/>
-    <!--subsystem name="attitude" 		type="infrared"/-->
-    <subsystem name="gps" 		type="ublox_lea5h"/>
+    <subsystem name="attitude" 		type="infrared"/>
+    <subsystem name="gps" 		type="ublox_lea5h">
+      <param name="GPS_UART_NR"         value="3"/>
+    </subsystem>
     <subsystem name="navigation"/>
-    <!-- Interfaces -->
-    <subsystem name="i2c"/>
   </firmware>
-
-  <!-- modules -->
-  <modules>
-    <load name="ins_arduimu.xml">
-    </load>
-  </modules>
 
   <firmware name="lisa_l_test_progs">
     <target name="tunnel"           board="lisa_l_1.0"/>
@@ -59,8 +49,8 @@
 
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="1" min="1900" neutral="1521" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="2" min="1100" neutral="1510" max="1900"/>
+    <servo name="AILEVON_LEFT"  no="1" min="1900" neutral="1534" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="2" min="1100" neutral="1468" max="1900"/>
   </servos>
 
   <commands>
@@ -91,11 +81,6 @@
   <section name="AUTO1" prefix="AUTO1_">
     <define name="MAX_ROLL" value="RadOfDeg(50)"/>
     <define name="MAX_PITCH" value="RadOfDeg(35)"/>
-  </section>
-
-  <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
   </section>
 
   <section name="INFRARED" prefix="IR_">
@@ -144,8 +129,6 @@
     <define name="AUTO_THROTTLE_PGAIN" value="-0.023"/> <!-- -0.012 -->
     <define name="AUTO_THROTTLE_IGAIN" value="0.01"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.05"/>
-    <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000"/>
-    <define name="AUTO_THROTTLE_DASH_TRIM" value="-1200"/>
 
     <!-- auto pitch inner loop -->
     <define name="AUTO_PITCH_PGAIN" value="-0.06"/> <!-- -0.03 -->

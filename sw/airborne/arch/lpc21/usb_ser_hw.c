@@ -51,7 +51,7 @@
 #include <stdbool.h>
 #include "LPC21xx.h"
 #include "armVIC.h"
-#include "usb_serial.h"
+#include "mcu_periph/usb_serial.h"
 #include BOARD_CONFIG
 
 #include "lpcusb/usbapi.h"

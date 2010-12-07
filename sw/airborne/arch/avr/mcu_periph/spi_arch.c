@@ -22,7 +22,7 @@
  *
  */
 
-/** \file spi_hw.c
+/** \file mcu_periph/spi_arch.c
  *  \brief handling of hardware dependant SPI on AVR architecture
  */
 

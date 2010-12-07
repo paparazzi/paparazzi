@@ -62,7 +62,7 @@
 #endif
 #define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
 #else // RADIO_CONTROL
-#define PERIODIC_SEND_FBW_STATUS(_chan) { uint8_t dummy = 0; DOWNLINK_SEND_FBW_STATUS(_chan, &dummy, &dummy, &fbw_mode, &fbw_vsupply_decivolt, &fbw_current_milliamp); }
+#define PERIODIC_SEND_FBW_STATUS(_chan) { uint8_t dummy = 0; DOWNLINK_SEND_FBW_STATUS(_chan, &dummy, &dummy, &fbw_mode, &electrical.vsupply, &electrical.current); }
 #define PERIODIC_SEND_PPM(_chan) {}
 #define PERIODIC_SEND_RC(_chan) {}
 #endif // RADIO_CONTROL
