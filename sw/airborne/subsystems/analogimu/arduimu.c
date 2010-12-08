@@ -8,7 +8,7 @@
 
 #include "dcm.h"
 
-// Released under Creative Commons License 
+// Released under Creative Commons License
 // Code by Jordi Munoz and William Premerlani, Supported by Chris Anderson (Wired) and Nathan Sindle (SparkFun).
 // Version 1.0 for flat board updated by Doug Weibel and Jose Julio
 // Version 1.7 includes support for SCP1000 absolute pressure sensor
@@ -32,7 +32,7 @@
 // Ublox gps is recommended!
 #define GPS_PROTOCOL 1    // 1 - Ublox,  2 - EM406,  3 - NMEA    We have only tested with Ublox
 
-// Enable Air Start uses Remove Before Fly flag - connection to pin 6 on ArduPilot 
+// Enable Air Start uses Remove Before Fly flag - connection to pin 6 on ArduPilot
 #define ENABLE_AIR_START 1  //  1 if using airstart/groundstart signaling, 0 if not
 #define GROUNDSTART_PIN 8    //  Pin number used for ground start signal (recommend 10 on v1 and 8 on v2 hardware)
 
@@ -57,10 +57,10 @@
 #define PERFORMANCE_REPORTING 1  //Will include performance reports in the binary output ~ 1/2 min
 
 /* Support for optional magnetometer (1 enabled, 0 dissabled) */
-#define USE_MAGNETOMETER 0 // use 1 if you want to make yaw gyro drift corrections using the optional magnetometer                   
+#define USE_MAGNETOMETER 0 // use 1 if you want to make yaw gyro drift corrections using the optional magnetometer
 
 /* Support for optional barometer (1 enabled, 0 dissabled) */
-#define USE_BAROMETER 0 	// use 1 if you want to get altitude using the optional absolute pressure sensor                  
+#define USE_BAROMETER 0 	// use 1 if you want to get altitude using the optional absolute pressure sensor
 #define ALT_MIX	50			// For binary messages: GPS or barometric altitude.  0 to 100 = % of barometric.  For example 75 gives 25% GPS alt and 75% baro
 
 //**********************************************************************
@@ -72,7 +72,7 @@
 // ADC : Voltage reference 3.3v / 10bits(1024 steps) => 3.22mV/ADC step
 // ADXL335 Sensitivity(from datasheet) => 330mV/g, 3.22mV/ADC step => 330/3.22 = 102.48
 // Tested value : 101
-//#define GRAVITY 101 //this equivalent to 1G in the raw data coming from the accelerometer 
+//#define GRAVITY 101 //this equivalent to 1G in the raw data coming from the accelerometer
 //#define GRAVITY 9.81
 
 // olri #define Accel_Scale(x) x*(GRAVITY/9.81)//Scaling the raw data of the accel to actual acceleration in meters for seconds square
@@ -111,7 +111,7 @@ float G_Dt=0.05;
 long timeNow=0; // Hold the milliseond value for now
 long timer=0;   //general purpuse timer
 long timer_old;
-long timer24=0; //Second timer used to print values 
+long timer24=0; //Second timer used to print values
 boolean groundstartDone = false;    // Used to not repeat ground start
 
 float AN[8]; //array that store the 6 ADC filtered data
@@ -135,9 +135,9 @@ float roll;
 float pitch;
 float yaw;
 
-float errorRollPitch[3]= {0,0,0}; 
+float errorRollPitch[3]= {0,0,0};
 float errorYaw[3]= {0,0,0};
-float errorCourse=180; 
+float errorCourse=180;
 float COGX=0; //Course overground X axis
 float COGY=1; //Course overground Y axis
 
@@ -151,7 +151,7 @@ float DCM_Matrix[3][3]= {
     0,1,0  }
   ,{
     0,0,1  }
-}; 
+};
 float Update_Matrix[3][3]={{0,1,2},{3,4,5},{6,7,8}}; //Gyros here
 
 
@@ -163,8 +163,8 @@ float Temporary_Matrix[3][3]={
   ,{
     0,0,0  }
 };
- 
-//GPS 
+
+//GPS
 
 //GPS stuff
 union long_union {
@@ -190,7 +190,7 @@ float speed_3d=0; //Speed (3-D)
 float ground_speed=0;// This is the velocity your "plane" is traveling in meters for second, 1Meters/Second= 3.6Km/H = 1.944 knots
 float ground_course=90;//This is the runaway direction of you "plane" in degrees
 float gc_offset = 0; // Force yaw output to ground course when fresh data available (only implemented for ublox&binary message)
-byte numSV=0; //Number of Sats used. 
+byte numSV=0; //Number of Sats used.
 float ecefVZ=0; //Vertical Speed in m/s
 unsigned long GPS_timer=0;
 
@@ -220,12 +220,12 @@ volatile uint8_t analog_count[8];
   uint8_t sensors[6] = {0,2,1,3,5,4};   // Use these two lines for Hardware v1 (w/ daughterboards)
   int SENSOR_SIGN[]= {1,-1,1,-1,1,-1,-1,-1,-1};  //Sensor: GYROX, GYROY, GYROZ, ACCELX, ACCELY, ACCELZ
  #endif
- 
+
  #if BOARD_VERSION == 2
   uint8_t sensors[6] = {6,7,3,0,1,2};  // For Hardware v2 flat
   int SENSOR_SIGN[] = {1,-1,-1,1,-1,1,-1,-1,-1};
  #endif
- 
+
  // Performance Monitoring variables
  // Data collected and reported for ~1/2 minute intervals
  #if PERFORMANCE_REPORTING == 1
@@ -246,11 +246,11 @@ volatile uint8_t analog_count[8];
 
 //**********************************************************************
 //  This section contains SCP1000_D11 PARAMETERS !!!
-//********************************************************************** 
+//**********************************************************************
 #if USE_BAROMETER == 1
 #define SCP_MODE        (9)             // 9 = high speed mode, 10 = high resolution mode
 #define PRESSURE_ADDR   (0x11U)          // IIC address of the SCP1000
-// ************   #define START_ALTITUDE  (217U)           // default initial altitude in m above sea level 
+// ************   #define START_ALTITUDE  (217U)           // default initial altitude in m above sea level
 
 // When we have to manage data transfers via IIC directly we need to use the following addresses
 // IIC address of the SCP1000 device forms the Top 7 bits of the address with the R/W bit as the LSB

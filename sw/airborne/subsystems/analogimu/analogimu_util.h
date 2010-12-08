@@ -1,6 +1,6 @@
 /*
  * $Id: analogimu_imu.h $
- *  
+ *
  * Copyright (C) 2010 Christoph Niemann
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -36,7 +36,7 @@
 /** defines for gyro[] indicies */
 enum gyro_idx_t { G_ROLL, G_PITCH, G_YAW, G_LAST };
 /** defines for accel[] indicies */
-enum accel_idx_t { ACC_X, ACC_Y, ACC_Z, ACC_LAST }; 
+enum accel_idx_t { ACC_X, ACC_Y, ACC_Z, ACC_LAST };
 /** defines for stick[] indicies */
 enum stick_idx_t { STICK_ROLL, STICK_PITCH, STICK_YAW, STICK_THRUST,
 		   STICK_SWR, STICK_SWL, STICK_CH6, STICK_CH7, STICK_LAST };

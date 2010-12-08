@@ -92,7 +92,7 @@ extern long timeNow;
 extern float G_Dt;
 #define FALSE 0
 #define TRUE 1
-//#define GRAVITY 101 //this equivalent to 1G in the raw data coming from the accelerometer 
+//#define GRAVITY 101 //this equivalent to 1G in the raw data coming from the accelerometer
 //chni:
 #define GRAVITY 9.9074 // typical 9.81 sensor depend, hier Z Sensor Wert unserer IMU in Normallage
 

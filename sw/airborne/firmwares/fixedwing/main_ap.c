@@ -435,7 +435,7 @@ void periodic_task_ap( void ) {
 #error "Only 20 and 60 allowed for CONTROL_RATE"
 #endif
 
-#ifdef ANALOG_IMU 
+#ifdef ANALOG_IMU
   if (!_20Hz) {
       estimator_update_state_analog_imu();
       analog_imu_downlink();

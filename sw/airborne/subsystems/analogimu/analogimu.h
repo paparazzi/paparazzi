@@ -1,6 +1,6 @@
 /*
  * $Id: analogimu.h $
- *  
+ *
  * Copyright (C) 2010 Oliver Riesener, Christoph Niemann
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -54,7 +54,7 @@ extern float imu_pitch_neutral;
 
 //functions
 void analog_imu_init( void );
-void analog_imu_update( void ); 
+void analog_imu_update( void );
 void analog_imu_downlink( void );
 void analogconversion( void );
 void matrix_transpose(float *c, float *a, short m, short n);
