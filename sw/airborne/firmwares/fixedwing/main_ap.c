@@ -65,6 +65,10 @@
 #endif
 
 
+#ifdef ANALOG_IMU
+#include "subsystems/analogimu/analogimu.h"
+#endif
+
 #if ! defined CATASTROPHIC_BAT_LEVEL && defined LOW_BATTERY
 #warning "LOW_BATTERY deprecated. Renamed into CATASTROPHIC_BAT_LEVEL (in airframe file)"
 #define CATASTROPHIC_BAT_LEVEL LOW_BATTERY
@@ -431,6 +435,13 @@ void periodic_task_ap( void ) {
 #error "Only 20 and 60 allowed for CONTROL_RATE"
 #endif
 
+#ifdef ANALOG_IMU 
+  if (!_20Hz) {
+      estimator_update_state_analog_imu();
+      analog_imu_downlink();
+    }
+#endif // ANALOG_IMU
+
 #if CONTROL_RATE == 20
   if (!_20Hz)
 #endif
@@ -485,6 +496,10 @@ void init_ap( void ) {
 #endif
 
 
+#ifdef ANALOG_IMU
+  analog_imu_init();
+#endif
+
   /************* Links initialization ***************/
 #if defined MCU_SPI_LINK
   link_mcu_init();
@@ -534,6 +549,11 @@ void init_ap( void ) {
   traffic_info_init();
 #endif
 
+#ifdef ANALOG_IMU
+  //wait 10secs for init
+  sys_time_usleep(10000000);
+  analog_imu_offset_set();
+#endif
 }
 
 
