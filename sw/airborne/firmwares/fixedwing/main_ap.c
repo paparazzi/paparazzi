@@ -66,7 +66,7 @@
 
 
 #ifdef ANALOG_IMU
-#include "subsystems/analogimu/analogimu.h"
+#include "subsystems/ahrs/dcm/analogimu.h"
 #endif
 
 #if ! defined CATASTROPHIC_BAT_LEVEL && defined LOW_BATTERY
