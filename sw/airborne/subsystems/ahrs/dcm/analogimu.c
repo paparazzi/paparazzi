@@ -38,7 +38,6 @@
 // AHRS attitude computations
 #include "dcm.h"
 #include "estimator.h"
-#include "analogimu_util.h"
 #include "analogimu.h"
 
 // Debugging and output
