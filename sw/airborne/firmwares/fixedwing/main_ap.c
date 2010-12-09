@@ -65,7 +65,7 @@
 #endif
 
 
-#ifdef ANALOG_IMU
+#ifdef USE_ANALOG_IMU
 #include "subsystems/ahrs/dcm/analogimu.h"
 #endif
 
@@ -435,12 +435,12 @@ void periodic_task_ap( void ) {
 #error "Only 20 and 60 allowed for CONTROL_RATE"
 #endif
 
-#ifdef ANALOG_IMU
+#ifdef USE_ANALOG_IMU
   if (!_20Hz) {
       estimator_update_state_analog_imu();
       analog_imu_downlink();
     }
-#endif // ANALOG_IMU
+#endif // USE_ANALOG_IMU
 
 #if CONTROL_RATE == 20
   if (!_20Hz)
@@ -496,7 +496,7 @@ void init_ap( void ) {
 #endif
 
 
-#ifdef ANALOG_IMU
+#ifdef USE_ANALOG_IMU
   analog_imu_init();
 #endif
 
@@ -549,7 +549,7 @@ void init_ap( void ) {
   traffic_info_init();
 #endif
 
-#ifdef ANALOG_IMU
+#ifdef USE_ANALOG_IMU
   //wait 10secs for init
   sys_time_usleep(10000000);
   analog_imu_offset_set();
