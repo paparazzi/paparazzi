@@ -210,7 +210,7 @@
     <!-- Actuators are automatically chosen according to the board-->
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="attitude" 		type="analogimu">
+    <subsystem name="imu" 		type="analog">
       <param name="GYRO_P" value="ADC_0"/>
       <param name="GYRO_Q" value="ADC_1"/>
       <param name="GYRO_R" value="ADC_2"/>
@@ -218,6 +218,8 @@
       <param name="ACCEL_Y" value="ADC_6"/>
       <param name="ACCEL_Z" value="ADC_7"/>
     </subsystem>
+
+    <subsystem name="attitude"  type="dcm"/>
     <subsystem name="gps" 		type="ublox_lea5h"/>
     <subsystem name="navigation"/>
   </firmware>
