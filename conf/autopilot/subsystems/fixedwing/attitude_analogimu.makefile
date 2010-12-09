@@ -2,22 +2,22 @@
 
 
 ifeq ($(ARCH), lpc21)
-ap.CFLAGS += -DANALOG_IMU -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3 -DUSE_ADC_4  -DUSE_ADC_5 -DUSE_ADC_6 -DUSE_ADC_7 
+ap.CFLAGS += -DANALOG_IMU -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3 -DUSE_ADC_4  -DUSE_ADC_5 -DUSE_ADC_6 -DUSE_ADC_7
 
-ap.srcs += $(SRC_FIXEDWING)/subsystems/ahrs/dcm/dcm.c
-ap.srcs += $(SRC_FIXEDWING)/subsystems/ahrs/dcm/analogimu.c 
-ap.srcs += $(SRC_FIXEDWING)/subsystems/imu/imu_analog.c 
-ap.srcs += $(SRC_FIXEDWING)/subsystems/ahrs/dcm/analogimu_util.c
+ap.srcs += $(SRC_SUBSYSTEMS)/ahrs/dcm/dcm.c
+ap.srcs += $(SRC_SUBSYSTEMS)/ahrs/dcm/analogimu.c
+ap.srcs += $(SRC_SUBSYSTEMS)/imu/imu_analog.c
+ap.srcs += $(SRC_SUBSYSTEMS)/ahrs/dcm/analogimu_util.c
 
 endif
 
-# since there is currently no SITL sim for the Analog IMU, we use the infrared sim 
+# since there is currently no SITL sim for the Analog IMU, we use the infrared sim
 
 ifeq ($(TARGET), sim)
 
-sim.CFLAGS += -DIR_ROLL_NEUTRAL_DEFAULT=0 
+sim.CFLAGS += -DIR_ROLL_NEUTRAL_DEFAULT=0
 
-sim.CFLAGS += -DIR_PITCH_NEUTRAL_DEFAULT=0 
+sim.CFLAGS += -DIR_PITCH_NEUTRAL_DEFAULT=0
 
 $(TARGET).CFLAGS += -DUSE_INFRARED
 $(TARGET).srcs += subsystems/sensors/infrared.c
