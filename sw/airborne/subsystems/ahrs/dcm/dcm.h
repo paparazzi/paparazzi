@@ -1,8 +1,8 @@
 #include "math/pprz_algebra_float.h"
 
 // Inputs for DCM
-extern float Gyro_Vector[3];
-extern float Accel_Vector[3];
+extern struct FloatRates gyro_float;
+extern struct FloatVect3 accel_float;
 
 // Integrate Inertial
 void Matrix_update(void);

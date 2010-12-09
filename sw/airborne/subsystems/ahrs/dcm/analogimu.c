@@ -94,39 +94,23 @@ void analog_imu_downlink( void ) {
 
 void estimator_update_state_analog_imu( void ) {
 
-  /* Offset is set dynamic on Ground*/
-  /*Gyro_Vector[0]= -gyro_to_zero[G_ROLL]   + gyro[G_ROLL];
-  Gyro_Vector[1]= -gyro_to_zero[G_PITCH]  + gyro[G_PITCH];
-  Gyro_Vector[2]= -gyro_to_zero[G_PITCH]  + gyro[G_YAW];*/
-
   //FIXME run aligner to set gyro neutrals on ground
 
   /* converts gyro to floating point */
-  struct FloatRates gyro_float;
   RATES_FLOAT_OF_BFP(gyro_float, imu.gyro);
-  Gyro_Vector[0]= gyro_float.p;
-  Gyro_Vector[1]= gyro_float.q;
-  Gyro_Vector[2]= gyro_float.r;
-
-  struct FloatVect3 accel_float;
   ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
-  Accel_Vector[0] = accel_float.x;
-  Accel_Vector[1] = accel_float.y;
-  Accel_Vector[2] = accel_float.z;
-
 
   Matrix_update();
   Normalize();
 
+  // FIXME convert gps data here
 
   Drift_correction();
   Euler_angles();
 
-  // return euler angles to phi and theta
+  // export results to estimator
   estimator_phi = euler.phi-imu_roll_neutral;
-  //estimator_phi = angle[ANG_ROLL];
   estimator_theta = euler.theta-imu_pitch_neutral;
-  //estimator_theta = angle[ANG_PITCH];
   estimator_psi = euler.psi;
 
 }
