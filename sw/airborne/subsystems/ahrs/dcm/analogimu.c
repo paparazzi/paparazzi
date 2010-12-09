@@ -26,6 +26,9 @@
  *  \brief Analog IMU Routines
  *
  */
+
+#include "generated/airframe.h"
+
 #if ! (defined SITL || defined HITL)
 
 
@@ -33,22 +36,24 @@
 #include "subsystems/imu/imu_analog.h"
 
 // AHRS attitude computations
+#include "dcm.h"
+#include "estimator.h"
+#include "analogimu_util.h"
+#include "analogimu.h"
+
+// Debugging and output
 #include "led.h"
 #include "mcu_periph/uart.h"
 //#include "downlink.h"
 //#include "ap_downlink.h"
-#include "estimator.h"
 #include "sys_time.h"
 
-#include "dcm.h"
-#include "analogimu_util.h"
-#include "analogimu.h"
 
 #endif
 
 // variables
-uint16_t analog_imu_offset[NB_ANALOG_IMU_ADC] = {0,};
-int adc_average[16] = { 0 };
+uint16_t analog_imu_offset[NB_ANALOG_IMU_ADC];
+int adc_average[NB_ANALOG_IMU_ADC];
 
 // remotely settable
 float imu_roll_neutral = RadOfDeg(IMU_ROLL_NEUTRAL_DEFAULT);
@@ -62,7 +67,7 @@ float imu_pitch_neutral = RadOfDeg(IMU_PITCH_NEUTRAL_DEFAULT);
  *
  * \return accel[ACC_X], accel[ACC_Y], accel[ACC_Z]  
  */
-void accel2ms2( void ) {
+static void accel2ms2( void ) {
   accel[ACC_X] = (float)(adc_average[3]) * IMU_ACCEL_X_SENS;
   accel[ACC_Y] = (float)(adc_average[4]) * IMU_ACCEL_Y_SENS;
   accel[ACC_Z] = (float)(adc_average[5]) * IMU_ACCEL_Z_SENS;
@@ -72,7 +77,7 @@ void accel2ms2( void ) {
  *
  * \return gyro[G_ROLL], gyro[G_PITCH], gyro[G_YAW] 
  */
-void gyro2rads( void ) {
+static void gyro2rads( void ) {
   /** 150 grad/sec 10Bit, 3,3Volt, 1rad = 2Pi/1024 => Pi/512 */
   gyro[G_ROLL]  = (float)(adc_average[0]) * IMU_GYRO_P_SENS;
   gyro[G_PITCH] = (float)(adc_average[1]) * IMU_GYRO_Q_SENS;
@@ -114,9 +119,6 @@ void analog_imu_update( void ) {
   gyro2rads();
 }
 
-/** earth accelecation */
-volatile float g = 0.;
-
 // functions
 
 void analog_imu_downlink( void ) {  
@@ -130,69 +132,7 @@ void analog_imu_downlink( void ) {
 }
 
 
-
-/**
- * Minimalistic version to get angles from acceleration
- *
- * \todo why has this function 3 callers ?
- * \return g, angle[ANG_ROLL], angle[ANG_PITCH] 
- */
-void accel2euler( void ) {
-    // Calculate g ( ||g_vec|| )
-    g = sqrt(accel[ACC_X] * accel[ACC_X] +
-             accel[ACC_Y] * accel[ACC_Y] +
-             accel[ACC_Z] * accel[ACC_Z]);
-    if( g < 0.01 && g > -0.01 )
-    {
-      g=0.01;
-    }else{
-      //nothing
-    }
-    //values in radians
-#define NEW
-#ifdef OLD
-    angle[ANG_PITCH] = -asinf( accel[ACC_X] / g );
-    angle[ANG_ROLL] = asinf( accel[ACC_Y] / g );
-    angle[ANG_YAW] = 0.0;
-#endif
-
-#ifdef NEW
-  
-  float a1 = accel[ACC_X] / -g;
-  
-  if(a1 > 1.0 && a1 >= 0.0){ 
-      a1 = 1.0;
-    } else if(a1 < -1.0 && a1 < 0.0){
-      a1 = -1.0;
-    }
-  
-  angle[ANG_PITCH] = asinf( a1 );
-  
-  if(accel[ACC_Z] < 0 && angle[ANG_PITCH] > 0) angle[ANG_PITCH] = + 3.145/2 + (3.145/2 - angle[ANG_PITCH]);
-  else if (accel[ACC_Z] < 0 && angle[ANG_PITCH] < 0) angle[ANG_PITCH] =  -3.145/2 - (3.145/2 + angle[ANG_PITCH]);
-  
-  
-  if( accel[ACC_Z] < 0.01 && accel[ACC_Z] > -0.01 )
-  {
-      accel[ACC_Z]=0.01;
-  }else{
-      //nothing
-  }
-  
-  
-  angle[ANG_ROLL] = atan2f( accel[ACC_Y], accel[ACC_Z] );
-  //angle[ANG_PITCH] = -atan2f( accel[ACC_X] , accel[ACC_Z] );
-  angle[ANG_YAW] = 0.0;
-#endif
-}
-
-
 void estimator_update_state_analog_imu( void ) {
-#undef ANGLE_FROM_ACCEL
-#ifdef ANGLE_FROM_ACCEL
-  estimator_phi = (float)(atan2f((float)((analog_raw[6]-510)),(float)(-(analog_raw[7]-510))));
-  estimator_theta = (float)(atan2f((float)(-(analog_raw[5]-510)),(float)(-(analog_raw[7]-510))));
-#else
 
   analog_imu_update();
 
@@ -208,6 +148,8 @@ void estimator_update_state_analog_imu( void ) {
   
   Matrix_update();
   Normalize();
+
+
   Drift_correction();
   Euler_angles();
 
@@ -218,6 +160,5 @@ void estimator_update_state_analog_imu( void ) {
   //estimator_theta = angle[ANG_PITCH];
   estimator_psi = euler[EULER_YAW];
 
-#endif
 }
 #endif

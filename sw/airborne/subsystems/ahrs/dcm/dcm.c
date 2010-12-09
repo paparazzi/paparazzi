@@ -1,48 +1,98 @@
-#include <math.h>
 
-#include "vector.h"
-#include "matrix.h"
-
-#ifdef ANALOG_IMU
-#include "analogimu.h"
-#include "analogimu_util.h"
-#endif // ANALOG_IMU
+#include "std.h"
 
 #include "dcm.h"
-
-// Own Math
-#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
-#define abs(x) ((x)>0?(x):-(x))
-
-// DCM Working variables
-float Gyro_Vector[3] = {0,0,0};
-float Accel_Vector[3] = {0,0,0};
 
 // Axis definition: X axis pointing forward, Y axis pointing to the right and Z axis pointing down.
 // Positive pitch : nose up
 // Positive roll : right wing down
 // Positive yaw : clockwise
 
+
+// DCM Working variables
 float G_Dt=0.05;
 
-float Omega_Vector[3]= {0,0,0}; //Corrected Gyro_Vector data
-float Omega_P[3]= {0,0,0};//Omega Proportional correction
-float Omega_I[3]= {0,0,0};//Omega Integrator
-float Omega[3]= {0,0,0};
+float Gyro_Vector[3] = {0,0,0};
+float Accel_Vector[3] = {0,0,0};
 
+float Omega_Vector[3]= {0,0,0}; 	//Corrected Gyro_Vector data
+float Omega_P[3]= {0,0,0};		//Omega Proportional correction
+float Omega_I[3]= {0,0,0};		//Omega Integrator
+float Omega[3]= {0,0,0};
 
 float DCM_Matrix[3][3]       = {{1,0,0},{0,1,0},{0,0,1}};
 float Update_Matrix[3][3]    = {{0,1,2},{3,4,5},{6,7,8}}; //Gyros here
 float Temporary_Matrix[3][3] = {{0,0,0},{0,0,0},{0,0,0}};
 
-
-
-/**
-*	Estimated angles as Euler
-*/
 float euler[EULER_LAST] = {0.};
 
 /**************************************************/
+
+// Algebra
+
+//Computes the dot product of two vectors
+static inline float Vector_Dot_Product(float vector1[3],float vector2[3])
+{
+  return vector1[0]*vector2[0] + vector1[1]*vector2[1] + vector1[2]*vector2[2];
+}
+
+//Computes the cross product of two vectors
+static inline void Vector_Cross_Product(float vectorOut[3], float v1[3],float v2[3])
+{
+  vectorOut[0]= (v1[1]*v2[2]) - (v1[2]*v2[1]);
+  vectorOut[1]= (v1[2]*v2[0]) - (v1[0]*v2[2]);
+  vectorOut[2]= (v1[0]*v2[1]) - (v1[1]*v2[0]);
+}
+
+//Multiply the vector by a scalar.
+static inline void Vector_Scale(float vectorOut[3],float vectorIn[3], float scale2)
+{
+  vectorOut[0]=vectorIn[0]*scale2;
+  vectorOut[1]=vectorIn[1]*scale2;
+  vectorOut[2]=vectorIn[2]*scale2;
+}
+
+static inline void Vector_Add(float vectorOut[3],float vectorIn1[3], float vectorIn2[3])
+{
+  vectorOut[0]=vectorIn1[0]+vectorIn2[0];
+  vectorOut[1]=vectorIn1[1]+vectorIn2[1];
+  vectorOut[2]=vectorIn1[2]+vectorIn2[2];
+}
+
+/*
+#define Matrix_Multiply( _m_a2b, _m_b2c, _m_a2c) {			\
+    _m_a2c[0] = (_m_b2c[0]*_m_a2b[0] + _m_b2c[1]*_m_a2b[3] + _m_b2c[2]*_m_a2b[6]); \
+    _m_a2c[1] = (_m_b2c[0]*_m_a2b[1] + _m_b2c[1]*_m_a2b[4] + _m_b2c[2]*_m_a2b[7]); \
+    _m_a2c[2] = (_m_b2c[0]*_m_a2b[2] + _m_b2c[1]*_m_a2b[5] + _m_b2c[2]*_m_a2b[8]); \
+    _m_a2c[3] = (_m_b2c[3]*_m_a2b[0] + _m_b2c[4]*_m_a2b[3] + _m_b2c[5]*_m_a2b[6]); \
+    _m_a2c[4] = (_m_b2c[3]*_m_a2b[1] + _m_b2c[4]*_m_a2b[4] + _m_b2c[5]*_m_a2b[7]); \
+    _m_a2c[5] = (_m_b2c[3]*_m_a2b[2] + _m_b2c[4]*_m_a2b[5] + _m_b2c[5]*_m_a2b[8]); \
+    _m_a2c[6] = (_m_b2c[6]*_m_a2b[0] + _m_b2c[7]*_m_a2b[3] + _m_b2c[8]*_m_a2b[6]); \
+    _m_a2c[7] = (_m_b2c[6]*_m_a2b[1] + _m_b2c[7]*_m_a2b[4] + _m_b2c[8]*_m_a2b[7]); \
+    _m_a2c[8] = (_m_b2c[6]*_m_a2b[2] + _m_b2c[7]*_m_a2b[5] + _m_b2c[8]*_m_a2b[8]); \
+  }
+*/
+
+static inline void Matrix_Multiply(float a[3][3], float b[3][3],float mat[3][3])
+{
+  float op[3];
+  for(int x=0; x<3; x++)
+  {
+    for(int y=0; y<3; y++)
+    {
+      for(int w=0; w<3; w++)
+      {
+        op[w]=a[x][w]*b[w][y];
+      }
+      mat[x][y]=op[0]+op[1]+op[2];
+    }
+  }
+}
+
+
+
+
+
 void Normalize(void)
 {
   float error=0;
@@ -218,12 +268,12 @@ void Drift_correction(void)
   Accel_magnitude = Accel_magnitude / GRAVITY; // Scale to gravity.
   // Dynamic weighting of accelerometer info (reliability filter)
   // Weight for accelerometer info (<0.5G = 0.0, 1G = 1.0 , >1.5G = 0.0)
-  Accel_weight = constrain(1 - 2*abs(1 - Accel_magnitude),0,1);  //  
+  Accel_weight = Chop(1 - 2*fabs(1 - Accel_magnitude),0,1);  //  
   
   #if PERFORMANCE_REPORTING == 1
     tempfloat = ((Accel_weight - 0.5) * 256.0f);    //amount added was determined to give imu_health a time constant about twice the time constant of the roll/pitch drift correction
     imu_health += tempfloat;
-    imu_health = constrain(imu_health,129,65405);
+    Bound(imu_health,129,65405);
   #endif
   
   Vector_Cross_Product(&errorRollPitch[0],&Accel_Vector[0],&DCM_Matrix[2][0]); //adjust the ground of reference
@@ -280,21 +330,18 @@ void Drift_correction(void)
 }
 /**************************************************/
 
-void Accel_adjust(void)
-{
-    Accel_Vector[1] += speed_3d*Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
-    Accel_Vector[2] -= speed_3d*Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY 
-}
-/**************************************************/
-
 void Matrix_update(void)
 {
   Vector_Add(&Omega[0], &Gyro_Vector[0], &Omega_I[0]);  //adding proportional term
   Vector_Add(&Omega_Vector[0], &Omega[0], &Omega_P[0]); //adding Integrator term
 
- if (gps_mode==3) Accel_adjust();    //Remove centrifugal acceleration.
+  if (gps_mode==3)    //Remove centrifugal acceleration.
+  {
+    Accel_Vector[1] += speed_3d*Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
+    Accel_Vector[2] -= speed_3d*Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY 
+  }
+
   
-#define OUTPUTMODE 1
  #if OUTPUTMODE==1    // With corrected data (drift correction)     
   Update_Matrix[0][0]=0;
   Update_Matrix[0][1]=-G_Dt*Omega_Vector[2];//-z
@@ -330,25 +377,16 @@ void Matrix_update(void)
 
 void Euler_angles(void)
 {
-  //#define OUTPUTMODE 2
   #if (OUTPUTMODE==2)         // Only accelerometer info (debugging purposes)
     euler[EULER_ROLL] = atan2(Accel_Vector[1],Accel_Vector[2]);    // atan2(acc_y,acc_z)
-    //euler[EULER_PITCH] = -asin((Accel_Vector[0])/(double)GRAVITY); // asin(acc_x)
-    //todo: chni:ordentlich lösen!
-    euler[EULER_PITCH] = -asin((Accel_Vector[0])/9.81); // asin(acc_x)
+    euler[EULER_PITCH] = -asin((Accel_Vector[0])/GRAVITY); // asin(acc_x)
     euler[EULER_YAW] = 0;
   #else
     //pitch = -asin(DCM_Matrix[2][0]);
     //roll = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
     //yaw = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
-    #ifndef ANALOGIMU_ROTATED
-     euler[EULER_PITCH] = -asin(DCM_Matrix[2][0]);
-     euler[EULER_ROLL] = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
-    #else
-     euler[EULER_ROLL] = -asin(DCM_Matrix[2][0]);
-     euler[EULER_PITCH] = -atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
-    #endif
-     
+    euler[EULER_PITCH] = -asin(DCM_Matrix[2][0]);
+    euler[EULER_ROLL] = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
     euler[EULER_YAW] = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
     euler[EULER_YAW] += M_PI; // Rotating the angle 180deg to fit for PPRZ
   #endif
