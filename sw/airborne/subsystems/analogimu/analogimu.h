@@ -57,7 +57,6 @@ void analog_imu_init( void );
 void analog_imu_update( void );
 void analog_imu_downlink( void );
 void analogconversion( void );
-void matrix_transpose(float *c, float *a, short m, short n);
 void accel2euler( void );
 void accel2ms2( void );
 void estimator_update_state_analog_imu( void );

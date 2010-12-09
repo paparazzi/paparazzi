@@ -35,6 +35,33 @@
     <set servo="ELEVATOR" value="@PITCH"/>
   </command_laws>
 
+  <section name="IMU" prefix="IMU_">
+<!--
+      <define name="GYRO_P_CHAN" value="1"/>
+      <define name="GYRO_Q_CHAN" value="0"/>
+      <define name="GYRO_R_CHAN" value="2"/>
+-->
+    <define name="GYRO_P_NEUTRAL" value="31948"/>
+    <define name="GYRO_Q_NEUTRAL" value="31834"/>
+    <define name="GYRO_R_NEUTRAL" value="32687"/>
+
+    <define name="GYRO_P_SENS" value="0.017f" integer="16"/>
+    <define name="GYRO_Q_SENS" value="0.017f" integer="16"/>
+    <define name="GYRO_R_SENS" value="0.017f" integer="16"/>
+<!--
+      <define name="ACCEL_X_CHAN" value="3"/>
+      <define name="ACCEL_Y_CHAN" value="5"/>
+      <define name="ACCEL_Z_CHAN" value="6"/>
+-->
+    <define name="ACCEL_X_SENS" value="0.1f" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="0.1f" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="0.1f" integer="16"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="32771"/>
+    <define name="ACCEL_Y_NEUTRAL" value="32895"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32148"/>
+
+  </section>
 
   <section name="AUTO1" prefix="AUTO1_">
     <define name="MAX_ROLL" value="1.0"/>
@@ -44,12 +71,15 @@
   <!-- Configure the pinning of the ADC -->
 
   <section name="adc" prefix="ADC_CHANNEL_">
-    <define name="IMU_GROLL" value="ADC_0"/>
-    <define name="IMU_GPITCH" value="ADC_1"/>
-    <define name="IMU_GYAW" value="ADC_2"/>
-    <define name="IMU_ACCX" value="ADC_5"/>
-    <define name="IMU_ACCY" value="ADC_6"/>
-    <define name="IMU_ACCZ" value="ADC_7"/>
+    <define name="GYRO_NB_SAMPLES" value="16" />
+    <define name="ACCEL_NB_SAMPLES" value="32" />
+
+    <define name="GYRO_P" value="ADC_0"/>
+    <define name="GYRO_Q" value="ADC_1"/>
+    <define name="GYRO_R" value="ADC_2"/>
+    <define name="ACCEL_X" value="ADC_5"/>
+    <define name="ACCEL_Y" value="ADC_6"/>
+    <define name="ACCEL_Z" value="ADC_7"/>
   </section>
 
   <!-- settings for the Analog IMU -->

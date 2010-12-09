@@ -3,7 +3,6 @@
 #include "wiring.h"
 #include "vector.h"
 #include "matrix.h"
-#include "read_adc.h"
 #include "arduimu.h"
 
 #include "dcm.h"
