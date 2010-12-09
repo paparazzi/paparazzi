@@ -23,8 +23,6 @@
 
 #include "subsystems/imu.h"
 
-#include "generated/airframe.h"
-
 struct Imu imu;
 
 void imu_init(void) {
