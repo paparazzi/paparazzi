@@ -1,6 +1,6 @@
 /*
  * $Id: analogimu.c $
- *  
+ *
  * Copyright (C) 2010 Oliver Riesener, Christoph Niemann
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -65,7 +65,7 @@ float imu_pitch_neutral = RadOfDeg(IMU_PITCH_NEUTRAL_DEFAULT);
 /**
  * accel2ms2():
  *
- * \return accel[ACC_X], accel[ACC_Y], accel[ACC_Z]  
+ * \return accel[ACC_X], accel[ACC_Y], accel[ACC_Z]
  */
 static void accel2ms2( void ) {
   accel[ACC_X] = (float)(adc_average[3]) * IMU_ACCEL_X_SENS;
@@ -75,7 +75,7 @@ static void accel2ms2( void ) {
 /**
  * gyro2rads():
  *
- * \return gyro[G_ROLL], gyro[G_PITCH], gyro[G_YAW] 
+ * \return gyro[G_ROLL], gyro[G_PITCH], gyro[G_YAW]
  */
 static void gyro2rads( void ) {
   /** 150 grad/sec 10Bit, 3,3Volt, 1rad = 2Pi/1024 => Pi/512 */
@@ -84,7 +84,7 @@ static void gyro2rads( void ) {
   gyro[G_YAW]   = (float)(adc_average[2]) * IMU_GYRO_R_SENS;
 }
 
-void analog_imu_init( void ) { 
+void analog_imu_init( void ) {
   imu_impl_init();
 }
 
@@ -99,13 +99,13 @@ void analog_imu_offset_set( void ) {
   }
 
   // Z channel should read
-  analog_imu_offset[5] +=  (9.81f / IMU_ACCEL_Z_SENS); 
+  analog_imu_offset[5] +=  (9.81f / IMU_ACCEL_Z_SENS);
 }
 /**
  * analog_imu_update():
  */
 
-void analog_imu_update( void ) {  
+void analog_imu_update( void ) {
   uint8_t i;
 
   // read IMU
@@ -121,7 +121,7 @@ void analog_imu_update( void ) {
 
 // functions
 
-void analog_imu_downlink( void ) {  
+void analog_imu_downlink( void ) {
   //uint8_t id = 0;
   //float time = GET_CUR_TIME_FLOAT();
   //time *= 1000;//secs to msecs
@@ -140,12 +140,12 @@ void estimator_update_state_analog_imu( void ) {
   Gyro_Vector[0]= -gyro_to_zero[G_ROLL]   + gyro[G_ROLL];
   Gyro_Vector[1]= -gyro_to_zero[G_PITCH]  + gyro[G_PITCH];
   Gyro_Vector[2]= -gyro_to_zero[G_PITCH]  + gyro[G_YAW];
-  
+
   Accel_Vector[0] = accel[ACC_X];
   Accel_Vector[1] = accel[ACC_Y];
   Accel_Vector[2] = accel[ACC_Z];
 
-  
+
   Matrix_update();
   Normalize();
 
