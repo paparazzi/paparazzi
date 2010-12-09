@@ -126,11 +126,11 @@ void estimator_update_state_analog_imu( void ) {
   Euler_angles();
 
   // return euler angles to phi and theta
-  estimator_phi = euler[EULER_ROLL]-imu_roll_neutral;
+  estimator_phi = euler.phi-imu_roll_neutral;
   //estimator_phi = angle[ANG_ROLL];
-  estimator_theta = euler[EULER_PITCH]-imu_pitch_neutral;
+  estimator_theta = euler.theta-imu_pitch_neutral;
   //estimator_theta = angle[ANG_PITCH];
-  estimator_psi = euler[EULER_YAW];
+  estimator_psi = euler.psi;
 
 }
 #endif

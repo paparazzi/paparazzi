@@ -1,4 +1,6 @@
 
+#include "math/pprz_algebra_float.h"
+
 // Inputs for DCM
 extern float Gyro_Vector[3];
 extern float Accel_Vector[3];
@@ -14,8 +16,7 @@ void Drift_correction(void);
 
 // Get outputs
 void Euler_angles(void);
-enum euler_idx_t { EULER_ROLL, EULER_PITCH, EULER_YAW, EULER_LAST };
-extern float euler[3];
+extern struct FloatEulers euler;
 
 // DCM Parameters
 
@@ -32,6 +33,16 @@ extern float euler[3];
 // Mode 0 = DCM integration without Ki gyro bias
 // Mode 1 = DCM integration with Kp and Ki
 // Mode 2 = direct accelerometer -> euler
+
+#define MAGNETOMETER 1
+extern float MAG_Heading;
+
+#define PERFORMANCE_REPORTING 1
+#if PERFORMANCE_REPORTING == 1
+extern int renorm_sqrt_count;
+extern int renorm_blowup_count;
+extern float imu_health;
+#endif
 
 
 
