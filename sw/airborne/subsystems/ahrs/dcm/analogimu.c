@@ -68,9 +68,11 @@ void analog_imu_offset_set( void ) {
   imu.gyro_neutral.p = analog_imu_values[0];
   imu.gyro_neutral.q = analog_imu_values[1];
   imu.gyro_neutral.r = analog_imu_values[2];
-  imu.accel_neutral.x = analog_imu_values[3];
-  imu.accel_neutral.y = analog_imu_values[4];
-  imu.accel_neutral.z  = analog_imu_values[5];
+
+  // do not set accel neutrals on startup, use the neutrals from the airfame file
+  //imu.accel_neutral.x = analog_imu_values[3];
+  //imu.accel_neutral.y = analog_imu_values[4];
+  //imu.accel_neutral.z  = analog_imu_values[5];
 
   // Z channel should read
   // FIXME uugh...
