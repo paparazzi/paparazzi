@@ -29,16 +29,13 @@
 
 #ifndef _ANALOGIMU_H_
 #define _ANALOGIMU_H_
-// types
-#define uint16_t short int
 
-#include "std.h"
+#include <inttypes.h>
+
 #include "generated/airframe.h"
 
 extern float imu_roll_neutral;
 extern float imu_pitch_neutral;
-
-
 
 //functions
 void analog_imu_init( void );

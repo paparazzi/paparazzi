@@ -195,6 +195,16 @@ void estimator_update_state_analog_imu( void ) {
 #else
 
   analog_imu_update();
+
+  /* Offset is set dynamic on Ground*/
+  Gyro_Vector[0]= -gyro_to_zero[G_ROLL]   + gyro[G_ROLL];
+  Gyro_Vector[1]= -gyro_to_zero[G_PITCH]  + gyro[G_PITCH];
+  Gyro_Vector[2]= -gyro_to_zero[G_PITCH]  + gyro[G_YAW];
+  
+  Accel_Vector[0] = accel[ACC_X];
+  Accel_Vector[1] = accel[ACC_Y];
+  Accel_Vector[2] = accel[ACC_Z];
+
   
   Matrix_update();
   Normalize();

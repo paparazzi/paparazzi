@@ -2,7 +2,6 @@
 
 #include "vector.h"
 #include "matrix.h"
-#include "arduimu.h"
 
 #ifdef ANALOG_IMU
 #include "analogimu.h"
@@ -14,6 +13,28 @@
 // Own Math
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 #define abs(x) ((x)>0?(x):-(x))
+
+// DCM Working variables
+float Gyro_Vector[3] = {0,0,0};
+float Accel_Vector[3] = {0,0,0};
+
+// Axis definition: X axis pointing forward, Y axis pointing to the right and Z axis pointing down.
+// Positive pitch : nose up
+// Positive roll : right wing down
+// Positive yaw : clockwise
+
+float G_Dt=0.05;
+
+float Omega_Vector[3]= {0,0,0}; //Corrected Gyro_Vector data
+float Omega_P[3]= {0,0,0};//Omega Proportional correction
+float Omega_I[3]= {0,0,0};//Omega Integrator
+float Omega[3]= {0,0,0};
+
+
+float DCM_Matrix[3][3]       = {{1,0,0},{0,1,0},{0,0,1}};
+float Update_Matrix[3][3]    = {{0,1,2},{3,4,5},{6,7,8}}; //Gyros here
+float Temporary_Matrix[3][3] = {{0,0,0},{0,0,0},{0,0,0}};
+
 
 
 /**
@@ -229,8 +250,8 @@ void Drift_correction(void)
     if(gps_mode==3 && ground_speed>= 0.5)  //hwarm
   {
 
-    COGX = cos(ToRad(ground_course));
-    COGY = sin(ToRad(ground_course));
+    COGX = cos(RadOfDeg(ground_course));
+    COGY = sin(RadOfDeg(ground_course));
     errorCourse=(DCM_Matrix[0][0]*COGY) - (DCM_Matrix[1][0]*COGX);  //Calculating YAW error
     Vector_Scale(errorYaw,&DCM_Matrix[2][0],errorCourse); //Applys the yaw correction to the XYZ rotation of the aircraft, depeding the position.
   
@@ -243,8 +264,8 @@ void Drift_correction(void)
   #endif
   //  Here we will place a limit on the integrator so that the integrator cannot ever exceed half the saturation limit of the gyros
   Integrator_magnitude = sqrt(Vector_Dot_Product(Omega_I,Omega_I));
-  if (Integrator_magnitude > ToRad(300)) {
-    Vector_Scale(Omega_I,Omega_I,0.5f*ToRad(300)/Integrator_magnitude);
+  if (Integrator_magnitude > DegOfRad(300)) {
+    Vector_Scale(Omega_I,Omega_I,0.5f*DegOfRad(300)/Integrator_magnitude);
 #if PRINT_DEBUG != 0
     Serial.print("!!!INT:1,MAG:");
     Serial.print (ToDeg(Integrator_magnitude));
@@ -268,16 +289,6 @@ void Accel_adjust(void)
 
 void Matrix_update(void)
 {
-  /* Offset is set dynamic on Ground*/
-  Gyro_Vector[0]= -gyro_to_zero[G_ROLL]   + gyro[G_ROLL];
-  Gyro_Vector[1]= -gyro_to_zero[G_PITCH]  + gyro[G_PITCH];
-  Gyro_Vector[2]= -gyro_to_zero[G_PITCH]  + gyro[G_YAW];
-  
-  Accel_Vector[0] = accel[ACC_X];
-  Accel_Vector[1] = accel[ACC_Y];
-  Accel_Vector[2] = accel[ACC_Z];
-  
-  
   Vector_Add(&Omega[0], &Gyro_Vector[0], &Omega_I[0]);  //adding proportional term
   Vector_Add(&Omega_Vector[0], &Omega[0], &Omega_P[0]); //adding Integrator term
 

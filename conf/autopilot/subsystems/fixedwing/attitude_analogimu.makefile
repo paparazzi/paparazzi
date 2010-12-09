@@ -4,7 +4,7 @@
 ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -DANALOG_IMU -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3 -DUSE_ADC_4  -DUSE_ADC_5 -DUSE_ADC_6 -DUSE_ADC_7 
 
-ap.srcs += $(SRC_FIXEDWING)/subsystems/ahrs/dcm/dcm.c $(SRC_FIXEDWING)/subsystems/ahrs/dcm/arduimu.c $(SRC_FIXEDWING)/subsystems/ahrs/dcm/matrix.c $(SRC_FIXEDWING)/subsystems/ahrs/dcm//vector.c
+ap.srcs += $(SRC_FIXEDWING)/subsystems/ahrs/dcm/dcm.c $(SRC_FIXEDWING)/subsystems/ahrs/dcm/matrix.c $(SRC_FIXEDWING)/subsystems/ahrs/dcm//vector.c
 
 ap.srcs += $(SRC_FIXEDWING)/subsystems/ahrs/dcm/analogimu.c $(SRC_FIXEDWING)/subsystems/imu/imu_analog.c $(SRC_FIXEDWING)/subsystems/ahrs/dcm/analogimu_util.c
 endif
