@@ -66,8 +66,8 @@ static inline void led_cam_ctrl_init(void)
 #define DC_RELEASE LED_OFF
 #endif
 
-#ifndef SHUTTER_DELAY
-#define SHUTTER_DELAY 2  /* 4Hz -> 0.5s */
+#ifndef DC_SHUTTER_DELAY
+#define DC_SHUTTER_DELAY 2  /* 4Hz -> 0.5s */
 #endif
 
 #ifndef DC_SHUTTER_LED
@@ -77,7 +77,7 @@ static inline void led_cam_ctrl_init(void)
 /* Command The Camera */
 static inline void dc_send_command(uint8_t cmd)
 {
-  dc_timer = SHUTTER_DELAY;
+  dc_timer = DC_SHUTTER_DELAY
   switch (cmd)
   {
     case DC_SHOOT:
