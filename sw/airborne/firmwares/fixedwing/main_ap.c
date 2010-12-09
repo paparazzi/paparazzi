@@ -549,12 +549,6 @@ void init_ap( void ) {
 #ifdef TRAFFIC_INFO
   traffic_info_init();
 #endif
-
-#ifdef USE_ANALOG_IMU
-  //wait 10secs for init
-  sys_time_usleep(10000000);
-  analog_imu_offset_set();
-#endif
 }
 
 

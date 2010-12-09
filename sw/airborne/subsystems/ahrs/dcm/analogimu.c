@@ -43,8 +43,6 @@
 // Debugging and output
 #include "led.h"
 #include "mcu_periph/uart.h"
-//#include "downlink.h"
-//#include "ap_downlink.h"
 #include "sys_time.h"
 #include "math/pprz_algebra_int.h"
 
@@ -56,24 +54,6 @@ float imu_roll_neutral = RadOfDeg(IMU_ROLL_NEUTRAL_DEFAULT);
 float imu_pitch_neutral = RadOfDeg(IMU_PITCH_NEUTRAL_DEFAULT);
 
 #if ! (defined SITL || defined HITL)
-
-void analog_imu_offset_set( void ) {
-  // read IMU, really?
-  imu_periodic();
-
-  imu.gyro_neutral.p = analog_imu_values[0];
-  imu.gyro_neutral.q = analog_imu_values[1];
-  imu.gyro_neutral.r = analog_imu_values[2];
-
-  // do not set accel neutrals on startup, use the neutrals from the airfame file
-  //imu.accel_neutral.x = analog_imu_values[3];
-  //imu.accel_neutral.y = analog_imu_values[4];
-  //imu.accel_neutral.z  = analog_imu_values[5];
-
-  // Z channel should read
-  // FIXME uugh...
-  //imu.accel_neutral.z +=  (9.81f / IMU_ACCEL_Z_SENS);
-}
 
 void estimator_update_state_analog_imu( void ) {
 
