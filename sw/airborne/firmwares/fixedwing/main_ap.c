@@ -441,7 +441,6 @@ void periodic_task_ap( void ) {
 #ifdef USE_ANALOG_IMU
   if (!_20Hz) {
     imu_periodic();
-    //analog_imu_downlink();
   }
 #endif // USE_ANALOG_IMU
 

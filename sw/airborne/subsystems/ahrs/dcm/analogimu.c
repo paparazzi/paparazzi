@@ -75,19 +75,6 @@ void analog_imu_offset_set( void ) {
   //imu.accel_neutral.z +=  (9.81f / IMU_ACCEL_Z_SENS);
 }
 
-// functions
-
-void analog_imu_downlink( void ) {
-  //uint8_t id = 0;
-  //float time = GET_CUR_TIME_FLOAT();
-  //time *= 1000;//secs to msecs
-  //int mx = 0;
-  //int my = 0;
-  //int mz = 0;
-  //DOWNLINK_SEND_HB_FILTER( DefaultChannel,&time, &accel[ACC_X],&accel[ACC_Y],&accel[ACC_Z],&gyro[G_ROLL],&gyro[G_PITCH],&gyro[G_YAW],&heading,&mx,&my,&mz,&euler[EULER_ROLL],&euler[EULER_PITCH],&euler[EULER_YAW], &imu_roll_neutral, &imu_pitch_neutral );
-}
-
-
 void estimator_update_state_analog_imu( void ) {
 
   //FIXME run aligner to set gyro neutrals on ground

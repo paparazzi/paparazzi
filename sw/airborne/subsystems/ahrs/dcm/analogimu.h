@@ -35,7 +35,6 @@
 extern float imu_roll_neutral;
 extern float imu_pitch_neutral;
 
-void analog_imu_downlink( void );
 void estimator_update_state_analog_imu( void );
 void analog_imu_offset_set( void );
 
