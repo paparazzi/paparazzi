@@ -51,10 +51,6 @@
 
 #endif
 
-// variables
-uint16_t analog_imu_offset[NB_ANALOG_IMU_ADC];
-int adc_average[NB_ANALOG_IMU_ADC];
-
 // remotely settable
 float imu_roll_neutral = RadOfDeg(IMU_ROLL_NEUTRAL_DEFAULT);
 float imu_pitch_neutral = RadOfDeg(IMU_PITCH_NEUTRAL_DEFAULT);
