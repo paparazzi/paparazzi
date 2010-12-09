@@ -22,9 +22,7 @@
  */
 
 #include "imu_analog.h"
-#include "generated/airframe.h"
 #include "mcu_periph/adc.h"
-#include "subsystems/imu.h"
 #include "mcu_periph/uart.h"
 
 volatile bool_t analog_imu_available;

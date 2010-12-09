@@ -46,7 +46,7 @@ extern volatile bool_t analog_imu_available;
   }
 
 #define ImuMagEvent(_mag_handler) {             \
-    if (false) {                                \
+    if (0) {                                    \
       _mag_handler();                           \
     }                                           \
   }
