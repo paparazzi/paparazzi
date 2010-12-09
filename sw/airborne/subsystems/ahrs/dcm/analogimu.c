@@ -47,6 +47,7 @@
 //#include "downlink.h"
 //#include "ap_downlink.h"
 #include "sys_time.h"
+#include "math/pprz_algebra_int.h"
 
 
 #endif
@@ -61,62 +62,24 @@ float imu_pitch_neutral = RadOfDeg(IMU_PITCH_NEUTRAL_DEFAULT);
 
 #if ! (defined SITL || defined HITL)
 
-// functions
-/**
- * accel2ms2():
- *
- * \return accel[ACC_X], accel[ACC_Y], accel[ACC_Z]
- */
-static void accel2ms2( void ) {
-  accel[ACC_X] = (float)(adc_average[3]) * IMU_ACCEL_X_SENS;
-  accel[ACC_Y] = (float)(adc_average[4]) * IMU_ACCEL_Y_SENS;
-  accel[ACC_Z] = (float)(adc_average[5]) * IMU_ACCEL_Z_SENS;
-}
-/**
- * gyro2rads():
- *
- * \return gyro[G_ROLL], gyro[G_PITCH], gyro[G_YAW]
- */
-static void gyro2rads( void ) {
-  /** 150 grad/sec 10Bit, 3,3Volt, 1rad = 2Pi/1024 => Pi/512 */
-  gyro[G_ROLL]  = (float)(adc_average[0]) * IMU_GYRO_P_SENS;
-  gyro[G_PITCH] = (float)(adc_average[1]) * IMU_GYRO_Q_SENS;
-  gyro[G_YAW]   = (float)(adc_average[2]) * IMU_GYRO_R_SENS;
-}
-
 void analog_imu_init( void ) {
   imu_impl_init();
 }
 
 void analog_imu_offset_set( void ) {
-  uint8_t i;
-
-  // read IMU
+  // read IMU, really?
   imu_periodic();
 
-  for(i = 0; i < NB_ANALOG_IMU_ADC; i++) {
-    analog_imu_offset[i] = analog_imu_values[i];
-  }
+  imu.gyro_neutral.p = analog_imu_values[0];
+  imu.gyro_neutral.q = analog_imu_values[1];
+  imu.gyro_neutral.r = analog_imu_values[2];
+  imu.accel_neutral.x = analog_imu_values[3];
+  imu.accel_neutral.y = analog_imu_values[4];
+  imu.accel_neutral.z  = analog_imu_values[5];
 
   // Z channel should read
-  analog_imu_offset[5] +=  (9.81f / IMU_ACCEL_Z_SENS);
-}
-/**
- * analog_imu_update():
- */
-
-void analog_imu_update( void ) {
-  uint8_t i;
-
-  // read IMU
-  imu_periodic();
-
-  for(i = 0; i < NB_ANALOG_IMU_ADC; i++) {
-    adc_average[i] -= analog_imu_offset[i];
-  }
-
-  accel2ms2();
-  gyro2rads();
+  // FIXME uugh...
+  //imu.accel_neutral.z +=  (9.81f / IMU_ACCEL_Z_SENS);
 }
 
 // functions
@@ -134,16 +97,25 @@ void analog_imu_downlink( void ) {
 
 void estimator_update_state_analog_imu( void ) {
 
-  analog_imu_update();
-
   /* Offset is set dynamic on Ground*/
-  Gyro_Vector[0]= -gyro_to_zero[G_ROLL]   + gyro[G_ROLL];
+  /*Gyro_Vector[0]= -gyro_to_zero[G_ROLL]   + gyro[G_ROLL];
   Gyro_Vector[1]= -gyro_to_zero[G_PITCH]  + gyro[G_PITCH];
-  Gyro_Vector[2]= -gyro_to_zero[G_PITCH]  + gyro[G_YAW];
+  Gyro_Vector[2]= -gyro_to_zero[G_PITCH]  + gyro[G_YAW];*/
 
-  Accel_Vector[0] = accel[ACC_X];
-  Accel_Vector[1] = accel[ACC_Y];
-  Accel_Vector[2] = accel[ACC_Z];
+  //FIXME run aligner to set gyro neutrals on ground
+
+  /* converts gyro to floating point */
+  struct FloatRates gyro_float;
+  RATES_FLOAT_OF_BFP(gyro_float, imu.gyro);
+  Gyro_Vector[0]= gyro_float.p;
+  Gyro_Vector[1]= gyro_float.q;
+  Gyro_Vector[2]= gyro_float.r;
+
+  struct FloatVect3 accel_float;
+  ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
+  Accel_Vector[0] = accel_float.x;
+  Accel_Vector[1] = accel_float.y;
+  Accel_Vector[2] = accel_float.z;
 
 
   Matrix_update();

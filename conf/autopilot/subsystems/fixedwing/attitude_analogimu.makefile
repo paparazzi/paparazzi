@@ -7,7 +7,7 @@ ap.CFLAGS += -DUSE_ANALOG_IMU -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_AD
 ap.srcs += $(SRC_SUBSYSTEMS)/ahrs/dcm/dcm.c
 ap.srcs += $(SRC_SUBSYSTEMS)/ahrs/dcm/analogimu.c
 ap.srcs += $(SRC_SUBSYSTEMS)/imu/imu_analog.c
-ap.srcs += $(SRC_SUBSYSTEMS)/ahrs/dcm/analogimu_util.c
+ap.srcs += $(SRC_SUBSYSTEMS)/imu.c
 
 endif
 

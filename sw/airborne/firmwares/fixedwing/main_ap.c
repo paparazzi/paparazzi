@@ -66,7 +66,10 @@
 
 
 #ifdef USE_ANALOG_IMU
+#include "subsystems/imu/imu_analog.h"
 #include "subsystems/ahrs/dcm/analogimu.h"
+static inline void on_gyro_accel_event( void );
+static inline void on_mag_event( void );
 #endif
 
 #if ! defined CATASTROPHIC_BAT_LEVEL && defined LOW_BATTERY
@@ -437,9 +440,9 @@ void periodic_task_ap( void ) {
 
 #ifdef USE_ANALOG_IMU
   if (!_20Hz) {
-      estimator_update_state_analog_imu();
-      analog_imu_downlink();
-    }
+    imu_periodic();
+    //analog_imu_downlink();
+  }
 #endif // USE_ANALOG_IMU
 
 #if CONTROL_RATE == 20
@@ -494,7 +497,6 @@ void init_ap( void ) {
 #ifdef USE_GPIO
   GpioInit();
 #endif
-
 
 #ifdef USE_ANALOG_IMU
   analog_imu_init();
@@ -559,6 +561,10 @@ void init_ap( void ) {
 
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
+
+#ifdef USE_ANALOG_IMU
+  ImuEvent(on_gyro_accel_event, on_mag_event);
+#endif // USE_ANALOG_IMU
 
 #ifdef USE_GPS
 #if !(defined HITL) && !(defined UBX_EXTERNAL) /** else comes through the datalink */
@@ -630,3 +636,15 @@ void event_task_ap( void ) {
 
   modules_event_task();
 } /* event_task_ap() */
+
+#ifdef USE_ANALOG_IMU
+static inline void on_gyro_accel_event( void ) {
+  ImuScaleGyro(imu);
+  ImuScaleAccel(imu);
+  estimator_update_state_analog_imu();
+}
+
+static inline void on_mag_event(void) {
+  //ImuScaleMag(imu);
+}
+#endif // USE_ANALOG_IMU
