@@ -39,18 +39,6 @@ extern float imu_roll_neutral;
 extern float imu_pitch_neutral;
 
 
-// ADC0 Slots
-#define ADC_YAW 1
-#define ADC_PITCH 2
-#define ADC_ROLL 3
-#define ADC_OFF 4
-
-// ADC1 Slots
-#define ADC_ACCX (3+8)
-#define ADC_ACCY (4+8)
-#define ADC_ACCZ (5+8)
-#define ADC_VBAT (6+8)
-#define ADC_ALT  (7+8)
 
 //functions
 void analog_imu_init( void );
