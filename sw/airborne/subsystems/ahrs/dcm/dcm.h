@@ -34,5 +34,15 @@ extern struct FloatEulers euler;
 // Mode 1 = DCM integration with Kp and Ki
 // Mode 2 = direct accelerometer -> euler
 
+#define MAGNETOMETER 1
+extern float MAG_Heading;
+
+#define PERFORMANCE_REPORTING 1
+#if PERFORMANCE_REPORTING == 1
+extern int renorm_sqrt_count;
+extern int renorm_blowup_count;
+extern float imu_health;
+#endif
+
 
 
