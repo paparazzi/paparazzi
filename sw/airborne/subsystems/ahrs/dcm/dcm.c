@@ -24,7 +24,9 @@ float DCM_Matrix[3][3]       = {{1,0,0},{0,1,0},{0,0,1}};
 float Update_Matrix[3][3]    = {{0,1,2},{3,4,5},{6,7,8}}; //Gyros here
 float Temporary_Matrix[3][3] = {{0,0,0},{0,0,0},{0,0,0}};
 
-float euler[EULER_LAST] = {0.};
+struct FloatEulers euler= {0, 0, 0};
+float speed_3d = 0;
+
 
 /**************************************************/
 
@@ -235,9 +237,6 @@ float MAG_Heading;
 #endif
 
 
-// Stored for Accelerometer Tab
-float speed_3d = 0;
-
 void Drift_correction(void)
 {
   //Compensation the Roll, Pitch and Yaw drift.
@@ -378,17 +377,17 @@ void Matrix_update(void)
 void Euler_angles(void)
 {
   #if (OUTPUTMODE==2)         // Only accelerometer info (debugging purposes)
-    euler[EULER_ROLL] = atan2(Accel_Vector[1],Accel_Vector[2]);    // atan2(acc_y,acc_z)
-    euler[EULER_PITCH] = -asin((Accel_Vector[0])/GRAVITY); // asin(acc_x)
-    euler[EULER_YAW] = 0;
+    euler.phi = atan2(Accel_Vector[1],Accel_Vector[2]);    // atan2(acc_y,acc_z)
+    euler.theta = -asin((Accel_Vector[0])/GRAVITY); // asin(acc_x)
+    euler.psi = 0;
   #else
     //pitch = -asin(DCM_Matrix[2][0]);
     //roll = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
     //yaw = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
-    euler[EULER_PITCH] = -asin(DCM_Matrix[2][0]);
-    euler[EULER_ROLL] = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
-    euler[EULER_YAW] = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
-    euler[EULER_YAW] += M_PI; // Rotating the angle 180deg to fit for PPRZ
+    euler.phi = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
+    euler.theta = -asin(DCM_Matrix[2][0]);
+    euler.psi = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
+    euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
   #endif
 }
 

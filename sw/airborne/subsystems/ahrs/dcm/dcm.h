@@ -1,4 +1,6 @@
 
+#include "math/pprz_algebra_float.h"
+
 // Inputs for DCM
 extern float Gyro_Vector[3];
 extern float Accel_Vector[3];
@@ -14,8 +16,7 @@ void Drift_correction(void);
 
 // Get outputs
 void Euler_angles(void);
-enum euler_idx_t { EULER_ROLL, EULER_PITCH, EULER_YAW, EULER_LAST };
-extern float euler[3];
+extern struct FloatEulers euler;
 
 // DCM Parameters
 

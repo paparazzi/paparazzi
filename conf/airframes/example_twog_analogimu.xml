@@ -74,12 +74,6 @@
     <define name="GYRO_NB_SAMPLES" value="16" />
     <define name="ACCEL_NB_SAMPLES" value="32" />
 
-    <define name="GYRO_P" value="ADC_0"/>
-    <define name="GYRO_Q" value="ADC_1"/>
-    <define name="GYRO_R" value="ADC_2"/>
-    <define name="ACCEL_X" value="ADC_5"/>
-    <define name="ACCEL_Y" value="ADC_6"/>
-    <define name="ACCEL_Z" value="ADC_7"/>
   </section>
 
   <!-- settings for the Analog IMU -->
@@ -199,7 +193,14 @@
     <!-- Actuators are automatically chosen according to the board-->
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="attitude" 		type="analogimu"/>
+    <subsystem name="attitude" 		type="analogimu">
+      <param name="GYRO_P" value="ADC_0"/>
+      <param name="GYRO_Q" value="ADC_1"/>
+      <param name="GYRO_R" value="ADC_2"/>
+      <param name="ACCEL_X" value="ADC_5"/>
+      <param name="ACCEL_Y" value="ADC_6"/>
+      <param name="ACCEL_Z" value="ADC_7"/>
+    </subsystem>
     <subsystem name="gps" 		type="ublox_lea5h"/>
     <subsystem name="navigation"/>
   </firmware>
