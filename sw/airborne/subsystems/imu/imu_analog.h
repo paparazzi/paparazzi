@@ -31,27 +31,27 @@
 extern uint16_t analog_imu_values[NB_ANALOG_IMU_ADC];
 extern volatile bool_t analog_imu_available;
 
-#define ImuEvent(_gyro_accel_handler, _mag_handler) {		\
-    if (ADSanalog_imu_available) {				\
-      analog_imu_available = FALSE;				\
-      imu.gyro_unscaled.p = analog_imu_values[0];		\
-      imu.gyro_unscaled.q = analog_imu_values[1];		\
-      imu.gyro_unscaled.r = analog_imu_values[2];		\
-      imu.accel_unscaled.x = analog_imu_values[3];		\
-      imu.accel_unscaled.y = analog_imu_values[4];		\
-      imu.accel_unscaled.z = analog_imu_values[5];		\
-      _gyro_accel_handler();					\
-    }								\
-    ImuMagEvent(_mag_handler);					\
+#define ImuEvent(_gyro_accel_handler, _mag_handler) {   \
+    if (analog_imu_available) {                         \
+      analog_imu_available = FALSE;                     \
+      imu.gyro_unscaled.p = analog_imu_values[0];       \
+      imu.gyro_unscaled.q = analog_imu_values[1];       \
+      imu.gyro_unscaled.r = analog_imu_values[2];       \
+      imu.accel_unscaled.x = analog_imu_values[3];      \
+      imu.accel_unscaled.y = analog_imu_values[4];      \
+      imu.accel_unscaled.z = analog_imu_values[5];      \
+      _gyro_accel_handler();                            \
+    }                                                   \
+    ImuMagEvent(_mag_handler);                          \
   }
 
-#define ImuMagEvent(_mag_handler) {					\
-    if (false) {							\
-      _mag_handler();							\
-    }									\
+#define ImuMagEvent(_mag_handler) {             \
+    if (false) {                                \
+      _mag_handler();                           \
+    }                                           \
   }
 
 
 
 
-#endif /* IMU_CRISTA_H */
+#endif /* IMU_ANALOG_H */
