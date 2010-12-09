@@ -11,8 +11,8 @@
 // DCM Working variables
 float G_Dt=0.05;
 
-float Gyro_Vector[3] = {0,0,0};
-float Accel_Vector[3] = {0,0,0};
+struct FloatRates gyro_float = {0,0,0};
+struct FloatVect3 accel_float = {0,0,0};
 
 float Omega_Vector[3]= {0,0,0};     //Corrected Gyro_Vector data
 float Omega_P[3]= {0,0,0};		//Omega Proportional correction
@@ -207,7 +207,7 @@ void Drift_correction(void)
   //*****Roll and Pitch***************
 
   // Calculate the magnitude of the accelerometer vector
-  Accel_magnitude = sqrt(Accel_Vector[0]*Accel_Vector[0] + Accel_Vector[1]*Accel_Vector[1] + Accel_Vector[2]*Accel_Vector[2]);
+  Accel_magnitude = sqrt(accel_float.x*accel_float.x + accel_float.y*accel_float.y + accel_float.z*accel_float.z);
   Accel_magnitude = Accel_magnitude / GRAVITY; // Scale to gravity.
   // Dynamic weighting of accelerometer info (reliability filter)
   // Weight for accelerometer info (<0.5G = 0.0, 1G = 1.0 , >1.5G = 0.0)
@@ -222,7 +222,7 @@ void Drift_correction(void)
   }
   #endif
 
-  Vector_Cross_Product(&errorRollPitch[0],&Accel_Vector[0],&DCM_Matrix[2][0]); //adjust the ground of reference
+  Vector_Cross_Product(&errorRollPitch[0],&accel_float.x,&DCM_Matrix[2][0]); //adjust the ground of reference
   Vector_Scale(&Omega_P[0],&errorRollPitch[0],Kp_ROLLPITCH*Accel_weight);
 
   Vector_Scale(&Scaled_Omega_I[0],&errorRollPitch[0],Ki_ROLLPITCH*Accel_weight);
@@ -270,13 +270,13 @@ void Drift_correction(void)
 
 void Matrix_update(void)
 {
-  Vector_Add(&Omega[0], &Gyro_Vector[0], &Omega_I[0]);  //adding proportional term
+  Vector_Add(&Omega[0], &gyro_float.p, &Omega_I[0]);  //adding proportional term
   Vector_Add(&Omega_Vector[0], &Omega[0], &Omega_P[0]); //adding Integrator term
 
   if (gps_mode==3)    //Remove centrifugal acceleration.
   {
-    Accel_Vector[1] += speed_3d*Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
-    Accel_Vector[2] -= speed_3d*Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY
+    accel_float.y += speed_3d*Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
+    accel_float.z -= speed_3d*Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY
   }
 
 
@@ -292,13 +292,13 @@ void Matrix_update(void)
   Update_Matrix[2][2]=0;
  #else                    // Uncorrected data (no drift correction)
   Update_Matrix[0][0]=0;
-  Update_Matrix[0][1]=-G_Dt*Gyro_Vector[2];//-z
-  Update_Matrix[0][2]=G_Dt*Gyro_Vector[1];//y
-  Update_Matrix[1][0]=G_Dt*Gyro_Vector[2];//z
+  Update_Matrix[0][1]=-G_Dt*gyro_float.r;//-z
+  Update_Matrix[0][2]=G_Dt*gyro_float.q;//y
+  Update_Matrix[1][0]=G_Dt*gyro_float.r;//z
   Update_Matrix[1][1]=0;
-  Update_Matrix[1][2]=-G_Dt*Gyro_Vector[0];
-  Update_Matrix[2][0]=-G_Dt*Gyro_Vector[1];
-  Update_Matrix[2][1]=G_Dt*Gyro_Vector[0];
+  Update_Matrix[1][2]=-G_Dt*gyro_float.p;
+  Update_Matrix[2][0]=-G_Dt*gyro_float.q;
+  Update_Matrix[2][1]=G_Dt*gyro_float.p;
   Update_Matrix[2][2]=0;
  #endif
 
