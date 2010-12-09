@@ -1,6 +1,5 @@
 #include <math.h>
 
-#include "wiring.h"
 #include "vector.h"
 #include "matrix.h"
 #include "arduimu.h"
@@ -11,8 +10,13 @@
 #endif // ANALOG_IMU
 
 #include "dcm.h"
+
+// Own Math
+#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
+#define abs(x) ((x)>0?(x):-(x))
+
+
 /**
-*	Geschätzte Winkel in der Eulerdarstellung
 *	Estimated angles as Euler
 */
 float euler[EULER_LAST] = {0.};
@@ -155,6 +159,14 @@ void Normalize(void)
   extern short gps_climb;
   extern short gps_mode;
 
+#ifdef USE_MAGNETOMETER
+float MAG_Heading;
+#endif
+
+
+// Stored for Accelerometer Tab
+float speed_3d = 0;
+
 void Drift_correction(void)
 {
   //Compensation the Roll, Pitch and Yaw drift. 
@@ -163,11 +175,21 @@ void Drift_correction(void)
   float Accel_magnitude;
   float Accel_weight;
   float Integrator_magnitude;
+
+  // Local Working Variables
+  float errorRollPitch[3];
+  float errorYaw[3];
+  float errorCourse;
+  float ground_speed; // This is the velocity your "plane" is traveling in meters for second, 1Meters/Second= 3.6Km/H = 1.944 knots
+  float ground_course; //This is the runaway direction of you "plane" in degrees
+  float COGX; //Course overground X axis
+  float COGY; //Course overground Y axis
+
   // hwarm
     ground_course=gps_course/10.-180.;
     ground_speed=gps_gspeed/100.;
     float ground_climb=gps_climb/100.;
-    speed_3d= sqrt(ground_speed*ground_speed+ground_climb*ground_climb);
+    speed_3d = sqrt(ground_speed*ground_speed+ground_climb*ground_climb);
   //*****Roll and Pitch***************
 
   // Calculate the magnitude of the accelerometer vector
@@ -236,15 +258,11 @@ void Drift_correction(void)
   
 }
 /**************************************************/
+
 void Accel_adjust(void)
 {
-  #ifndef ANALOGIMU_ROTATED
-    Accel_Vector[1] += Accel_Scale(speed_3d*Omega[2]);  // Centrifugal force on Acc_y = GPS_speed*GyroZ
-    Accel_Vector[2] -= Accel_Scale(speed_3d*Omega[1]);  // Centrifugal force on Acc_z = GPS_speed*GyroY 
-  #else
-    Accel_Vector[0] -= Accel_Scale(speed_3d*Omega[2]);  // Centrifugal force on Acc_x = GPS_speed*GyroZ (ok, wenn x beim rollen nach rechts negativ)
-    Accel_Vector[2] -= Accel_Scale(speed_3d*Omega[0]);  // Centrifugal force on Acc_z = GPS_speed*GyroX (ok, wenn nase hoch positiv)
-  #endif
+    Accel_Vector[1] += speed_3d*Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
+    Accel_Vector[2] -= speed_3d*Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY 
 }
 /**************************************************/
 
@@ -262,10 +280,8 @@ void Matrix_update(void)
   
   Vector_Add(&Omega[0], &Gyro_Vector[0], &Omega_I[0]);  //adding proportional term
   Vector_Add(&Omega_Vector[0], &Omega[0], &Omega_P[0]); //adding Integrator term
-//#define USE_GPS
-#ifdef USE_GPS
+
  if (gps_mode==3) Accel_adjust();    //Remove centrifugal acceleration.
-#endif
   
 #define OUTPUTMODE 1
  #if OUTPUTMODE==1    // With corrected data (drift correction)     
