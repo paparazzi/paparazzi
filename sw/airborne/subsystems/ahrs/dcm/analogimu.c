@@ -57,10 +57,6 @@ float imu_pitch_neutral = RadOfDeg(IMU_PITCH_NEUTRAL_DEFAULT);
 
 #if ! (defined SITL || defined HITL)
 
-void analog_imu_init( void ) {
-  imu_impl_init();
-}
-
 void analog_imu_offset_set( void ) {
   // read IMU, really?
   imu_periodic();

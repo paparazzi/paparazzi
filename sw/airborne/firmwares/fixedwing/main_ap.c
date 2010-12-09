@@ -499,7 +499,7 @@ void init_ap( void ) {
 #endif
 
 #ifdef USE_ANALOG_IMU
-  analog_imu_init();
+  imu_init();
 #endif
 
   /************* Links initialization ***************/
