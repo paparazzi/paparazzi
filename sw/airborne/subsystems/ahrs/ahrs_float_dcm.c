@@ -35,6 +35,10 @@
 
 #include "subsystems/ahrs/ahrs_float_dcm_algebra.h"
 
+#ifdef USE_GPS
+#include "gps.h"
+#endif
+
 #include <string.h>
 
 //FIXME this is still needed for fixedwing integration
@@ -65,7 +69,9 @@ float DCM_Matrix[3][3]       = {{1,0,0},{0,1,0},{0,0,1}};
 float Update_Matrix[3][3]    = {{0,1,2},{3,4,5},{6,7,8}}; //Gyros here
 float Temporary_Matrix[3][3] = {{0,0,0},{0,0,0},{0,0,0}};
 
-float speed_3d = 0;
+#ifdef USE_MAGNETOMETER
+float MAG_Heading;
+#endif
 
 static inline void compute_body_orientation_and_rates(void);
 void Normalize(void);
@@ -153,12 +159,12 @@ void ahrs_update_accel(void)
 {
   ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
 
-  //FIXME
-  /*if (gps_mode==3) {    //Remove centrifugal acceleration.
-    accel_float.y += speed_3d*Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
-    accel_float.z -= speed_3d*Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY
+#ifdef USE_GPS
+  if (gps_mode==3) {    //Remove centrifugal acceleration.
+    accel_float.y += gps_speed_3d/100. * Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
+    accel_float.z -= gps_speed_3d/100. * Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY
   }
-  */
+#endif
 
   Drift_correction();
 }
@@ -256,17 +262,6 @@ void Normalize(void)
   }
 }
 
-/**************************************************/
-//FIXME
-/*  extern short gps_course;
-  extern short gps_gspeed;
-  extern short gps_climb;
-  extern short gps_mode;
-*/
-#ifdef USE_MAGNETOMETER
-float MAG_Heading;
-#endif
-
 
 void Drift_correction(void)
 {
@@ -281,18 +276,7 @@ void Drift_correction(void)
   float errorRollPitch[3];
   float errorYaw[3];
   float errorCourse;
-  float ground_speed; // This is the velocity your "plane" is traveling in meters for second, 1Meters/Second= 3.6Km/H = 1.944 knots
-  float ground_course; //This is the runaway direction of you "plane" in degrees
-  float COGX; //Course overground X axis
-  float COGY; //Course overground Y axis
 
-  // hwarm
-  /* FIXME
-    ground_course=gps_course/10.-180.;
-    ground_speed=gps_gspeed/100.;
-    float ground_climb=gps_climb/100.;
-    speed_3d = sqrt(ground_speed*ground_speed+ground_climb*ground_climb);
-  */
   //*****Roll and Pitch***************
 
   // Calculate the magnitude of the accelerometer vector
@@ -319,11 +303,27 @@ void Drift_correction(void)
 
   //*****YAW***************
 
-  #if USE_MAGNETOMETER==1
-    // We make the gyro YAW drift correction based on compass magnetic heading
-    mag_heading_x = cos(MAG_Heading);
-    mag_heading_y = sin(MAG_Heading);
-    errorCourse=(DCM_Matrix[0][0]*mag_heading_y) - (DCM_Matrix[1][0]*mag_heading_x);  //Calculating YAW error
+#if USE_MAGNETOMETER==1
+  // We make the gyro YAW drift correction based on compass magnetic heading
+  mag_heading_x = cos(MAG_Heading);
+  mag_heading_y = sin(MAG_Heading);
+  errorCourse=(DCM_Matrix[0][0]*mag_heading_y) - (DCM_Matrix[1][0]*mag_heading_x);  //Calculating YAW error
+  Vector_Scale(errorYaw,&DCM_Matrix[2][0],errorCourse); //Applys the yaw correction to the XYZ rotation of the aircraft, depeding the position.
+
+  Vector_Scale(&Scaled_Omega_P[0],&errorYaw[0],Kp_YAW);
+  Vector_Add(Omega_P,Omega_P,Scaled_Omega_P);//Adding  Proportional.
+
+  Vector_Scale(&Scaled_Omega_I[0],&errorYaw[0],Ki_YAW);
+  Vector_Add(Omega_I,Omega_I,Scaled_Omega_I);//adding integrator to the Omega_I
+
+#elif defined USE_GPS // Use GPS Ground course to correct yaw gyro drift
+
+  if(gps_mode==3 && gps_gspeed>= 500) { //got a 3d fix and ground speed is more than 0.5 m/s
+    float ground_course = gps_course/10. - 180.; //This is the runaway direction of you "plane" in degrees
+    float COGX = cos(RadOfDeg(ground_course)); //Course overground X axis
+    float COGY = sin(RadOfDeg(ground_course)); //Course overground Y axis
+
+    errorCourse=(DCM_Matrix[0][0]*COGY) - (DCM_Matrix[1][0]*COGX);  //Calculating YAW error
     Vector_Scale(errorYaw,&DCM_Matrix[2][0],errorCourse); //Applys the yaw correction to the XYZ rotation of the aircraft, depeding the position.
 
     Vector_Scale(&Scaled_Omega_P[0],&errorYaw[0],Kp_YAW);
@@ -331,22 +331,9 @@ void Drift_correction(void)
 
     Vector_Scale(&Scaled_Omega_I[0],&errorYaw[0],Ki_YAW);
     Vector_Add(Omega_I,Omega_I,Scaled_Omega_I);//adding integrator to the Omega_I
-  #else  // Use GPS Ground course to correct yaw gyro drift
-    /* FIXME
-    if(gps_mode==3 && ground_speed>= 0.5) {  //hwarm
-      COGX = cos(RadOfDeg(ground_course));
-      COGY = sin(RadOfDeg(ground_course));
-      errorCourse=(DCM_Matrix[0][0]*COGY) - (DCM_Matrix[1][0]*COGX);  //Calculating YAW error
-      Vector_Scale(errorYaw,&DCM_Matrix[2][0],errorCourse); //Applys the yaw correction to the XYZ rotation of the aircraft, depeding the position.
+  }
+#endif
 
-      Vector_Scale(&Scaled_Omega_P[0],&errorYaw[0],Kp_YAW);
-      Vector_Add(Omega_P,Omega_P,Scaled_Omega_P);//Adding  Proportional.
-
-      Vector_Scale(&Scaled_Omega_I[0],&errorYaw[0],Ki_YAW);
-      Vector_Add(Omega_I,Omega_I,Scaled_Omega_I);//adding integrator to the Omega_I
-    }
-    */
-  #endif
   //  Here we will place a limit on the integrator so that the integrator cannot ever exceed half the saturation limit of the gyros
   Integrator_magnitude = sqrt(Vector_Dot_Product(Omega_I,Omega_I));
   if (Integrator_magnitude > DegOfRad(300)) {
