@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -22,13 +20,10 @@
  */
 
 #include "imu_analog.h"
-#include "generated/airframe.h"
 #include "mcu_periph/adc.h"
-#include "subsystems/imu.h"
 #include "mcu_periph/uart.h"
 
 volatile bool_t analog_imu_available;
-uint16_t analog_imu_values[NB_ANALOG_IMU_ADC];
 
 static struct adc_buf analog_imu_adc_buf[NB_ANALOG_IMU_ADC];
 
@@ -46,10 +41,12 @@ void imu_impl_init(void) {
 }
 
 void imu_periodic(void) {
-  uint8_t i;
-  for(i = 0; i < NB_ANALOG_IMU_ADC; i++) {
-    analog_imu_values[i] = analog_imu_adc_buf[i].sum / analog_imu_adc_buf[i].av_nb_sample;
-  }
-
+  imu.gyro_unscaled.p = analog_imu_adc_buf[0].sum / ADC_CHANNEL_GYRO_NB_SAMPLES;
+  imu.gyro_unscaled.q = analog_imu_adc_buf[1].sum / ADC_CHANNEL_GYRO_NB_SAMPLES;
+  imu.gyro_unscaled.r = analog_imu_adc_buf[2].sum / ADC_CHANNEL_GYRO_NB_SAMPLES;
+  imu.accel_unscaled.x = analog_imu_adc_buf[3].sum / ADC_CHANNEL_ACCEL_NB_SAMPLES;
+  imu.accel_unscaled.y = analog_imu_adc_buf[4].sum / ADC_CHANNEL_ACCEL_NB_SAMPLES;
+  imu.accel_unscaled.z = analog_imu_adc_buf[5].sum / ADC_CHANNEL_ACCEL_NB_SAMPLES;
+  
   analog_imu_available = TRUE;
 }

@@ -91,7 +91,7 @@ void ahrs_aligner_run(void) {
       ahrs_aligner.low_noise_cnt++;
     else
       if ( ahrs_aligner.low_noise_cnt > 0)
-    ahrs_aligner.low_noise_cnt--;
+        ahrs_aligner.low_noise_cnt--;
 
     if (ahrs_aligner.low_noise_cnt > LOW_NOISE_TIME) {
       ahrs_aligner.status = AHRS_ALIGNER_LOCKED;

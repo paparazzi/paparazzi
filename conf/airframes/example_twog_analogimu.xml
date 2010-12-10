@@ -29,7 +29,7 @@
     <set command="PITCH" value="@PITCH"/>
   </rc_commands>
 
-  <command_laws>  
+  <command_laws>
     <set servo="THROTTLE" value="@THROTTLE"/>
     <set servo="AILERON" value="@ROLL"/>
     <set servo="ELEVATOR" value="@PITCH"/>
@@ -45,22 +45,39 @@
     <define name="GYRO_Q_NEUTRAL" value="512"/>
     <define name="GYRO_R_NEUTRAL" value="512"/>
 
-    <define name="GYRO_P_SENS" value="0.017f" integer="16"/>
-    <define name="GYRO_Q_SENS" value="0.017f" integer="16"/>
-    <define name="GYRO_R_SENS" value="-0.017f" integer="16"/>
+    <define name="GYRO_P_SENS" value="0.017" integer="16"/>
+    <define name="GYRO_Q_SENS" value="0.017" integer="16"/>
+    <define name="GYRO_R_SENS" value="0.017" integer="16"/>
+
+    <define name="GYRO_P_SIGN" value="1" />
+    <define name="GYRO_Q_SIGN" value="1" />
+    <define name="GYRO_R_SIGN" value="-1" />
+
 <!--
       <define name="ACCEL_X_CHAN" value="3"/>
       <define name="ACCEL_Y_CHAN" value="4"/>
       <define name="ACCEL_Z_CHAN" value="5"/>
 -->
-    <define name="ACCEL_X_SENS" value="0.1f" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="-0.1f" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="0.1f" integer="16"/>
+    <define name="ACCEL_X_SENS" value="0.1" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="0.1" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="0.1" integer="16"/>
 
     <define name="ACCEL_X_NEUTRAL" value="512"/>
     <define name="ACCEL_Y_NEUTRAL" value="512"/>
     <define name="ACCEL_Z_NEUTRAL" value="512"/>
 
+    <define name="ACCEL_X_SIGN" value="1"/>
+    <define name="ACCEL_Y_SIGN" value="-1"/>
+    <define name="ACCEL_Z_SIGN" value="1"/>
+
+<!-- this should not be needed if no mag is used -->
+    <define name="MAG_X_NEUTRAL" value="512"/>
+    <define name="MAG_Y_NEUTRAL" value="512"/>
+    <define name="MAG_Z_NEUTRAL" value="512"/>
+
+    <define name="BODY_TO_IMU_PHI" value="RadOfDeg(0.)" />
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(0.)" />
+    <define name="BODY_TO_IMU_PSI" value="RadOfDeg(0.)" />
   </section>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -151,7 +168,7 @@
     <define name="PITCH_PGAIN" value="-9000."/>
     <define name="PITCH_DGAIN" value="1.5"/>
     <define name="ELEVATOR_OF_ROLL" value="1250"/>
-    
+
   </section>
 
   <section name="NAV">
@@ -171,29 +188,29 @@
   </section>
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
-	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
-    	<define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
-    	<define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
-    	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
-	<define name="HOME_RADIUS" value="100" unit="m"/>
+    <define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
+        <define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
+        <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
+        <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
+    <define name="HOME_RADIUS" value="100" unit="m"/>
   </section>
 
   <firmware name="fixedwing">
-    <target name="sim" 			board="pc"/>
-    <target name="ap" 			board="twog_1.0">
+    <target name="sim"          board="pc"/>
+    <target name="ap"           board="twog_1.0">
       <define name="AGR_CLIMB" />
       <define name="LOITER_TRIM" />
       <define name="ALT_KALMAN" />
     </target>
-    <subsystem name="radio_control" 	type="ppm"/>
+    <subsystem name="radio_control"     type="ppm"/>
     <!-- Communication -->
-    <subsystem name="telemetry" 	type="xbee_api">
-      <param name="MODEM_BAUD" 		value="B9600"/>
+    <subsystem name="telemetry"     type="transparent">
+      <param name="MODEM_BAUD"      value="B9600"/>
     </subsystem>
     <!-- Actuators are automatically chosen according to the board-->
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="attitude" 		type="analogimu">
+    <subsystem name="imu" 		type="analog">
       <param name="GYRO_P" value="ADC_0"/>
       <param name="GYRO_Q" value="ADC_1"/>
       <param name="GYRO_R" value="ADC_2"/>
@@ -201,6 +218,8 @@
       <param name="ACCEL_Y" value="ADC_6"/>
       <param name="ACCEL_Z" value="ADC_7"/>
     </subsystem>
+
+    <subsystem name="attitude"  type="dcm"/>
     <subsystem name="gps" 		type="ublox_lea5h"/>
     <subsystem name="navigation"/>
   </firmware>
@@ -208,16 +227,6 @@
   <makefile location="after">
       ap.CFLAGS += -DANALOGIMU_ROTATED
       ap.CFLAGS += -DANALOGIMU_ZERO_AVERAGE
-     
-      ap.CFLAGS += -DGPS_USE_LATLONG
-      
-      //ap.CFLAGS += -DWIND_INFO -DSTRONG_WIND
-
-      //sim.CFLAGS += -DWIND_INFO -DSTRONG_WIND
   </makefile>
 
 </airframe>
-
-
-
-

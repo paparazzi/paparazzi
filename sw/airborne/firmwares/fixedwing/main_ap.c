@@ -65,8 +65,13 @@
 #endif
 
 
-#ifdef ANALOG_IMU
-#include "subsystems/ahrs/dcm/analogimu.h"
+#ifdef USE_ANALOG_IMU
+#include "subsystems/ahrs.h"
+#include "subsystems/ahrs/ahrs_aligner.h"
+#include "subsystems/ahrs/ahrs_float_dcm.h"
+#include "subsystems/imu/imu_analog.h"
+static inline void on_gyro_accel_event( void );
+static inline void on_mag_event( void );
 #endif
 
 #if ! defined CATASTROPHIC_BAT_LEVEL && defined LOW_BATTERY
@@ -435,12 +440,11 @@ void periodic_task_ap( void ) {
 #error "Only 20 and 60 allowed for CONTROL_RATE"
 #endif
 
-#ifdef ANALOG_IMU
+#ifdef USE_ANALOG_IMU
   if (!_20Hz) {
-      estimator_update_state_analog_imu();
-      analog_imu_downlink();
-    }
-#endif // ANALOG_IMU
+    imu_periodic();
+  }
+#endif // USE_ANALOG_IMU
 
 #if CONTROL_RATE == 20
   if (!_20Hz)
@@ -495,9 +499,10 @@ void init_ap( void ) {
   GpioInit();
 #endif
 
-
-#ifdef ANALOG_IMU
-  analog_imu_init();
+#ifdef USE_ANALOG_IMU
+  imu_init();
+  ahrs_aligner_init();
+  ahrs_init();
 #endif
 
   /************* Links initialization ***************/
@@ -548,17 +553,15 @@ void init_ap( void ) {
 #ifdef TRAFFIC_INFO
   traffic_info_init();
 #endif
-
-#ifdef ANALOG_IMU
-  //wait 10secs for init
-  sys_time_usleep(10000000);
-  analog_imu_offset_set();
-#endif
 }
 
 
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
+
+#ifdef USE_ANALOG_IMU
+  ImuEvent(on_gyro_accel_event, on_mag_event);
+#endif // USE_ANALOG_IMU
 
 #ifdef USE_GPS
 #if !(defined HITL) && !(defined UBX_EXTERNAL) /** else comes through the datalink */
@@ -630,3 +633,30 @@ void event_task_ap( void ) {
 
   modules_event_task();
 } /* event_task_ap() */
+
+#ifdef USE_ANALOG_IMU
+static inline void on_gyro_accel_event( void ) {
+  ImuScaleGyro(imu);
+  ImuScaleAccel(imu);
+  if (ahrs.status == AHRS_UNINIT) {
+    ahrs_aligner_run();
+    if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
+      ahrs_align();
+  }
+  else {
+    ahrs_propagate();
+    ahrs_update_accel();
+    ahrs_update_fw_estimator();
+  }
+}
+
+static inline void on_mag_event(void) {
+  /*
+  ImuScaleMag(imu);
+  if (ahrs.status == AHRS_RUNNING) {
+    ahrs_update_mag();
+    ahrs_update_fw_estimator();
+  }
+  */
+}
+#endif // USE_ANALOG_IMU
