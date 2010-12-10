@@ -66,8 +66,10 @@
 
 
 #ifdef USE_ANALOG_IMU
+#include "subsystems/ahrs.h"
+#include "subsystems/ahrs/ahrs_aligner.h"
+#include "subsystems/ahrs/ahrs_float_dcm.h"
 #include "subsystems/imu/imu_analog.h"
-#include "subsystems/ahrs/dcm/analogimu.h"
 static inline void on_gyro_accel_event( void );
 static inline void on_mag_event( void );
 #endif
@@ -499,6 +501,8 @@ void init_ap( void ) {
 
 #ifdef USE_ANALOG_IMU
   imu_init();
+  ahrs_aligner_init();
+  ahrs_init();
 #endif
 
   /************* Links initialization ***************/
@@ -634,10 +638,25 @@ void event_task_ap( void ) {
 static inline void on_gyro_accel_event( void ) {
   ImuScaleGyro(imu);
   ImuScaleAccel(imu);
-  estimator_update_state_analog_imu();
+  if (ahrs.status == AHRS_UNINIT) {
+    ahrs_aligner_run();
+    if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
+      ahrs_align();
+  }
+  else {
+    ahrs_propagate();
+    ahrs_update_accel();
+    ahrs_update_fw_estimator();
+  }
 }
 
 static inline void on_mag_event(void) {
-  //ImuScaleMag(imu);
+  /*
+  ImuScaleMag(imu);
+  if (ahrs.status == AHRS_RUNNING) {
+    ahrs_update_mag();
+    ahrs_update_fw_estimator();
+  }
+  */
 }
 #endif // USE_ANALOG_IMU

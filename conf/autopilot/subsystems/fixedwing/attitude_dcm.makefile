@@ -4,8 +4,9 @@
 ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -DUSE_ANALOG_IMU
 
-ap.srcs += $(SRC_SUBSYSTEMS)/ahrs/dcm/dcm.c
-ap.srcs += $(SRC_SUBSYSTEMS)/ahrs/dcm/analogimu.c
+ap.srcs += $(SRC_SUBSYSTEMS)/ahrs.c
+ap.srcs += $(SRC_SUBSYSTEMS)/ahrs/ahrs_aligner.c
+ap.srcs += $(SRC_SUBSYSTEMS)/ahrs/ahrs_float_dcm.c
 
 endif
 

@@ -46,9 +46,9 @@
       </dl_settings>-->
 
       <dl_settings NAME="IMU">
-        <dl_setting MAX="45" MIN="-45" STEP="0.1" VAR="imu_roll_neutral" shortname="roll neutral" module="subsystems/ahrs/dcm/analogimu" param="IMU_NEUTRAL_DEFAULT" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-        <dl_setting MAX="45" MIN="-45" STEP="0.1" VAR="imu_pitch_neutral" shortname="pitch neutral" param="IMU_NEUTRAL_DEFAULT" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-	  
+        <dl_setting MAX="45" MIN="-45" STEP="0.1" VAR="imu_roll_neutral" shortname="roll neutral" module="subsystems/ahrs/ahrs_float_dcm" param="IMU_NEUTRAL_DEFAULT" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+        <dl_setting MAX="45" MIN="-45" STEP="0.1" VAR="imu_pitch_neutral" shortname="pitch neutral" module="subsystems/ahrs/ahrs_float_dcm" param="IMU_NEUTRAL_DEFAULT" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+
       </dl_settings>
 
 
