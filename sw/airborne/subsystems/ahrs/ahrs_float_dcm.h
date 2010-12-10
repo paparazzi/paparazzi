@@ -65,8 +65,6 @@ void ahrs_update_fw_estimator(void);
 // Mode 1 = DCM integration with Kp and Ki
 // Mode 2 = direct accelerometer -> euler
 
-#define MAGNETOMETER 1
-extern float MAG_Heading;
 
 #define PERFORMANCE_REPORTING 0
 #if PERFORMANCE_REPORTING == 1
