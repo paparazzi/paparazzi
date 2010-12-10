@@ -56,7 +56,6 @@ float imu_pitch_neutral = RadOfDeg(IMU_PITCH_NEUTRAL_DEFAULT);
 // DCM Working variables
 float G_Dt=0.05;
 
-struct FloatRates gyro_float = {0,0,0};
 struct FloatVect3 accel_float = {0,0,0};
 
 float Omega_Vector[3]= {0,0,0}; //Corrected Gyro_Vector data
@@ -141,12 +140,11 @@ void ahrs_align(void)
 void ahrs_propagate(void)
 {
   /* convert imu data to floating point */
+  struct FloatRates gyro_float;
   RATES_FLOAT_OF_BFP(gyro_float, imu.gyro);
 
   /* unbias rate measurement */
-  RATES_SUB(gyro_float, ahrs_impl.gyro_bias);
-  /* and save rate in ahrs */
-  RATES_COPY(ahrs_float.imu_rate, gyro_float);
+  RATES_DIFF(ahrs_float.imu_rate, gyro_float, ahrs_impl.gyro_bias);
 
   Matrix_update();
   Normalize();
@@ -354,7 +352,7 @@ void Drift_correction(void)
 
 void Matrix_update(void)
 {
-  Vector_Add(&Omega[0], &gyro_float.p, &Omega_I[0]);  //adding proportional term
+  Vector_Add(&Omega[0], &ahrs_float.imu_rate.p, &Omega_I[0]);  //adding proportional term
   Vector_Add(&Omega_Vector[0], &Omega[0], &Omega_P[0]); //adding Integrator term
 
  #if OUTPUTMODE==1    // With corrected data (drift correction)
@@ -369,13 +367,13 @@ void Matrix_update(void)
   Update_Matrix[2][2]=0;
  #else                    // Uncorrected data (no drift correction)
   Update_Matrix[0][0]=0;
-  Update_Matrix[0][1]=-G_Dt*gyro_float.r;//-z
-  Update_Matrix[0][2]=G_Dt*gyro_float.q;//y
-  Update_Matrix[1][0]=G_Dt*gyro_float.r;//z
+  Update_Matrix[0][1]=-G_Dt*ahrs_float.imu_rate.r;//-z
+  Update_Matrix[0][2]=G_Dt*ahrs_float.imu_rate.q;//y
+  Update_Matrix[1][0]=G_Dt*ahrs_float.imu_rate.r;//z
   Update_Matrix[1][1]=0;
-  Update_Matrix[1][2]=-G_Dt*gyro_float.p;
-  Update_Matrix[2][0]=-G_Dt*gyro_float.q;
-  Update_Matrix[2][1]=G_Dt*gyro_float.p;
+  Update_Matrix[1][2]=-G_Dt*ahrs_float.imu_rate.p;
+  Update_Matrix[2][0]=-G_Dt*ahrs_float.imu_rate.q;
+  Update_Matrix[2][1]=G_Dt*ahrs_float.imu_rate.p;
   Update_Matrix[2][2]=0;
  #endif
 
