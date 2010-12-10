@@ -152,11 +152,21 @@
     </section>
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
-	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
+      <define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
     	<define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
     	<define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
     	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
-	<define name="HOME_RADIUS" value="100" unit="m"/>
+	    <define name="HOME_RADIUS" value="100" unit="m"/>
+  </section>
+
+  <section name="EXTRA_IO" >
+    <define name="LED_6_BANK" value="0" />
+    <define name="LED_6_PIN" value="2" />
+    <define name="LED_7_BANK" value="0" />
+    <define name="LED_7_PIN" value="3" />
+  </section>
+  <section name="DIFITAL_CAMERA" prefix="DC_" >
+    <define name="AUTOSHOOT_QUARTERSEC_PERIOD" value="6" unit="quarter_sec" />
   </section>
 
   <modules>
@@ -166,6 +176,12 @@
       <param name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
       <param name="NAV_LIGHT_MODE_DEFAULT" value="0"/>
     </load>
+    
+    <load name="digital_cam.xml">
+      <flag name="DC_SHUTTER_LED" value="6" />
+      <flag name="DC_ZOOM_IN_LED" value="7" />
+    </load>
+    
   </modules>
 
   <firmware name="fixedwing">
