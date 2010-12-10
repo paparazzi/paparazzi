@@ -175,17 +175,23 @@ void Normalize(void)
   float renorm=0;
   boolean problem=FALSE;
 
+  // Find the non-orthogonality of X wrt Y
   error= -Vector_Dot_Product(&DCM_Matrix[0][0],&DCM_Matrix[1][0])*.5; //eq.19
 
+  // Add half the XY error to X, and half to Y
   Vector_Scale(&temporary[0][0], &DCM_Matrix[1][0], error);           //eq.19
   Vector_Scale(&temporary[1][0], &DCM_Matrix[0][0], error);           //eq.19
-
   Vector_Add(&temporary[0][0], &temporary[0][0], &DCM_Matrix[0][0]);  //eq.19
   Vector_Add(&temporary[1][0], &temporary[1][0], &DCM_Matrix[1][0]);  //eq.19
 
+  // The third axis is simply set perpendicular to the first 2. (there is not correction of XY based on Z)
   Vector_Cross_Product(&temporary[2][0],&temporary[0][0],&temporary[1][0]); // c= a x b //eq.20
 
+  // Normalize lenght of X
   renorm= Vector_Dot_Product(&temporary[0][0],&temporary[0][0]);
+  // a) if norm is close to 1, use the fast 1st element from the tailer expansion of SQRT
+  // b) if the norm is further from 1, use a real sqrt
+  // c) norm is huge: disaster! reset! mayday!
   if (renorm < 1.5625f && renorm > 0.64f) {
     renorm= .5 * (3-renorm);                                          //eq.21
   } else if (renorm < 100.0f && renorm > 0.01f) {
@@ -199,8 +205,9 @@ void Normalize(void)
     renorm_blowup_count++;
 #endif
   }
-      Vector_Scale(&DCM_Matrix[0][0], &temporary[0][0], renorm);
+  Vector_Scale(&DCM_Matrix[0][0], &temporary[0][0], renorm);
 
+  // Normalize lenght of Y
   renorm= Vector_Dot_Product(&temporary[1][0],&temporary[1][0]);
   if (renorm < 1.5625f && renorm > 0.64f) {
     renorm= .5 * (3-renorm);                                                 //eq.21
@@ -217,6 +224,7 @@ void Normalize(void)
   }
   Vector_Scale(&DCM_Matrix[1][0], &temporary[1][0], renorm);
 
+  // Normalize lenght of Z
   renorm= Vector_Dot_Product(&temporary[2][0],&temporary[2][0]);
   if (renorm < 1.5625f && renorm > 0.64f) {
     renorm= .5 * (3-renorm);                                                 //eq.21
@@ -233,6 +241,7 @@ void Normalize(void)
   }
   Vector_Scale(&DCM_Matrix[2][0], &temporary[2][0], renorm);
 
+  // Reset on trouble
   if (problem) {                // Our solution is blowing up and we will force back to initial condition.  Hope we are not upside down!
       DCM_Matrix[0][0]= 1.0f;
       DCM_Matrix[0][1]= 0.0f;
