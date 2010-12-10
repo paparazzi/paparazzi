@@ -32,8 +32,6 @@
 #include "subsystems/ahrs/ahrs_float_utils.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/imu.h"
-#include "math/pprz_algebra_float.h"
-#include "math/pprz_algebra_int.h"
 
 #include "subsystems/ahrs/ahrs_float_dcm_algebra.h"
 
