@@ -230,6 +230,8 @@ let policies = [CacheOrHttp; NoHttp; NoCache]
 let policy = ref CacheOrHttp
 let set_policy = fun p ->
   policy := p
+let get_policy = fun () ->
+  !policy
 
 let remove_last_char = fun s -> String.sub s 0 (String.length s - 1)
 

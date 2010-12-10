@@ -413,10 +413,14 @@ let create_geomap = fun switch_fullscreen editor_frame ->
   let maps_policy_menu = map_menu_fact#add_submenu "Maps Policy" in
   let maps_policy_fact = new GMenu.factory maps_policy_menu in
   let group = ref None in
+  (* Determine a decent default selected item *)
+  let active_policy = if Gm.get_policy () = Gm.NoHttp then Gm.NoHttp
+  else Gm.CacheOrHttp in
   List.iter
     (fun policy ->
       let callback = fun b -> if b then Gm.set_policy policy in
-      let menu_item = maps_policy_fact#add_radio_item ~group: !group ~callback (Gm.string_of_policy policy) in
+      let active = (policy = active_policy) in
+      let menu_item = maps_policy_fact#add_radio_item ~group: !group ~active ~callback (Gm.string_of_policy policy) in
       group := menu_item#group)
     Gm.policies;
 

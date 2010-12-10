@@ -53,6 +53,7 @@ type policy =  CacheOrHttp | NoHttp | NoCache
 val string_of_policy : policy -> string
 val policies : policy list
 val set_policy : policy -> unit
+val get_policy : unit -> policy
 (** Initialized to CacheOrHttp using cache and http access *)
 
 val set_maps_source : maps_source -> unit
