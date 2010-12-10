@@ -1,5 +1,5 @@
-#include "mag_micromag_fw.h"
-#include "sensors/mag_micromag_fw_hw.h"
+#include "modules/sensors/mag_micromag_fw.h"
+#include "modules/sensors/mag_micromag_fw_hw.h"
 #include "led.h"
 
 #ifndef DOWNLINK_DEVICE
