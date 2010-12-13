@@ -38,6 +38,10 @@
 #include "messages.h"
 #include "downlink.h"
 
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+
 #ifndef MLX_I2C_DEV
 #define MLX_I2C_DEV i2c0
 #endif
