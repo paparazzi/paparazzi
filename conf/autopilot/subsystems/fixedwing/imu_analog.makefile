@@ -43,6 +43,9 @@
 
 
 ifeq ($(ARCH), lpc21)
+
+imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_analog.h\"
+
 imu_CFLAGS += -DADC
 imu_CFLAGS += -DUSE_$(GYRO_P) -DUSE_$(GYRO_Q) -DUSE_$(GYRO_R)
 imu_CFLAGS += -DUSE_$(ACCEL_X) -DUSE_$(ACCEL_y) -DUSE_$(ACCEL_Z)

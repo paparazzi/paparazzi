@@ -66,10 +66,10 @@
 
 
 #ifdef USE_ANALOG_IMU
+#include "subsystems/imu.h"
 #include "subsystems/ahrs.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/ahrs/ahrs_float_dcm.h"
-#include "subsystems/imu/imu_analog.h"
 static inline void on_gyro_accel_event( void );
 static inline void on_mag_event( void );
 #endif

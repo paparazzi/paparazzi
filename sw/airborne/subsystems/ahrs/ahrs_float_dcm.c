@@ -378,8 +378,8 @@ void Matrix_update(void)
 void Euler_angles(void)
 {
 #if (OUTPUTMODE==2)         // Only accelerometer info (debugging purposes)
-  ahrs_float.ltp_to_imu_euler.phi = atan2(Accel_Vector[1],Accel_Vector[2]);    // atan2(acc_y,acc_z)
-  ahrs_float.ltp_to_imu_euler.theta = -asin((Accel_Vector[0])/GRAVITY); // asin(acc_x)
+  ahrs_float.ltp_to_imu_euler.phi = atan2(accel_float.y,accel_float.z);    // atan2(acc_y,acc_z)
+  ahrs_float.ltp_to_imu_euler.theta = -asin((accel_float.x)/GRAVITY); // asin(acc_x)
   ahrs_float.ltp_to_imu_euler.psi = 0;
 #else
   ahrs_float.ltp_to_imu_euler.phi = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);

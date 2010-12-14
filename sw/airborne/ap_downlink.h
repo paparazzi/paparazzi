@@ -138,6 +138,19 @@
 
 #define PERIODIC_SEND_SEGMENT(_chan) if (nav_in_segment) { DOWNLINK_SEND_SEGMENT(_chan, &nav_segment_x_1, &nav_segment_y_1, &nav_segment_x_2, &nav_segment_y_2); }
 
+#ifdef IMU_TYPE_H
+#include "subsystems/imu.h"
+#define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) { DOWNLINK_SEND_IMU_ACCEL_RAW(_chan, &imu.accel_unscaled.x, &imu.accel_unscaled.y, &imu.accel_unscaled.z)}
+#define PERIODIC_SEND_IMU_GYRO_RAW(_chan) { DOWNLINK_SEND_IMU_GYRO_RAW(_chan, &imu.gyro_unscaled.p, &imu.gyro_unscaled.q, &imu.gyro_unscaled.r)}
+#define PERIODIC_SEND_IMU_ACCEL(_chan) { DOWNLINK_SEND_IMU_ACCEL_RAW(_chan, &imu.accel.x, &imu.accel.y, &imu.accel.z)}
+#define PERIODIC_SEND_IMU_GYRO(_chan) { DOWNLINK_SEND_IMU_GYRO_RAW(_chan, &imu.gyro.p, &imu.gyro.q, &imu.gyro.r)}
+#else
+#define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) {}
+#define PERIODIC_SEND_IMU_GYRO_RAW(_chan) {}
+#define PERIODIC_SEND_IMU_ACCEL(_chan) {}
+#define PERIODIC_SEND_IMU_GYRO(_chan) {}
+#endif
+
 #ifdef IMU_ANALOG
 #define PERIODIC_SEND_IMU(_chan) { int16_t dummy = 42; DOWNLINK_SEND_IMU(_chan, &(from_fbw.euler_dot[0]), &(from_fbw.euler_dot[1]), &(from_fbw.euler_dot[2]), &dummy, &dummy, &dummy); }
 #else
