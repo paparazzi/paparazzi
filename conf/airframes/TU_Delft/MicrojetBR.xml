@@ -34,7 +34,7 @@
 
   <command_laws>
     <let var="aileron" value="@ROLL  * AILEVON_AILERON_RATE"/>
-    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
+    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
 
     <set servo="THROTTLE" value="@THROTTLE"/>
     <set servo="AILEVON_LEFT" value="$elevator + $aileron"/>
@@ -78,14 +78,14 @@
     <define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+2.2))"/>
     <define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/>
     <define name="ROLL_SCALE" value="3.0*1000./1024./(GYRO_ADXRS300_SENSITIVITY*GYRO_ADXRS300_RESISTOR_BRIDGE)" unit="deg/s/adc_unit"/>
-    <define name="ROLL_DIRECTION" value="1."/> 
+    <define name="ROLL_DIRECTION" value="1."/>
   </section>
 
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="25000"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
- 
+
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="17." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
@@ -154,7 +154,7 @@
     <define name="ELEVATOR_OF_ROLL" value="1250."/>
     <define name="ROLL_RATE_GAIN" value="-112.781997681"/>
     <define name="ROLL_ATTITUDE_GAIN" value="-4957.62695312"/>
-    
+
     <!--  roll rate loop -->
     <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>
     <define name="ROLL_RATE_SETPOINT_PGAIN" value="-10." unit="rad/s/rad"/>
@@ -257,10 +257,10 @@
     </subsystem>
 
     <!-- Sensors -->
-    <subsystem name="gyro"		type="roll">
+<!--    <subsystem name="gyro"		type="roll">
       <param name="ADC_GYRO_ROLL" 	value="ADC_3" />
     </subsystem>
-    <subsystem name="attitude" 		type="infrared"/>
+-->    <subsystem name="attitude" 		type="infrared"/>
     <subsystem name="gps" 		type="ublox_lea4p"/>
     <subsystem name="control"	/>
     <subsystem name="navigation"	type="extra"/>

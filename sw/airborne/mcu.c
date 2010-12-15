@@ -36,7 +36,7 @@
 #if defined USE_UART0 || defined USE_UART1  || defined USE_UART2 || defined USE_UART3 || defined USE_UART4  || defined USE_UART5
 #include "mcu_periph/uart.h"
 #endif
-#if defined USE_I2C1 || defined USE_I2C2
+#if defined USE_I2C0  || defined USE_I2C1  || defined USE_I2C2 
 #include "mcu_periph/i2c.h"
 #endif
 #if defined USE_ADC
