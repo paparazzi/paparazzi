@@ -40,8 +40,8 @@
 struct AhrsFloatDCM ahrs_impl;
 
 // remotely settable
-float imu_roll_neutral = RadOfDeg(IMU_ROLL_NEUTRAL_DEFAULT);
-float imu_pitch_neutral = RadOfDeg(IMU_PITCH_NEUTRAL_DEFAULT);
+float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
+float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 
 // Axis definition: X axis pointing forward, Y axis pointing to the right and Z axis pointing down.
 // Positive pitch : nose up
@@ -82,8 +82,8 @@ void ahrs_update_fw_estimator( void )
   //compute_body_orientation_and_rates();
 
   // export results to estimator
-  estimator_phi   = ahrs_float.ltp_to_imu_euler.phi - imu_roll_neutral;
-  estimator_theta = ahrs_float.ltp_to_imu_euler.theta - imu_pitch_neutral;
+  estimator_phi   = ahrs_float.ltp_to_imu_euler.phi - ins_roll_neutral;
+  estimator_theta = ahrs_float.ltp_to_imu_euler.theta - ins_pitch_neutral;
   estimator_psi   = ahrs_float.ltp_to_imu_euler.psi;
 }
 

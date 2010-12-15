@@ -33,6 +33,12 @@
 #define AHRS_UNINIT  0
 #define AHRS_RUNNING 1
 
+/* underlying includes (needed for parameters) */
+#ifdef AHRS_TYPE_H
+#include AHRS_TYPE_H
+#endif
+
+
 struct Ahrs {
 
     struct Int32Quat   ltp_to_imu_quat;

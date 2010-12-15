@@ -37,8 +37,8 @@ struct AhrsFloatDCM {
 };
 extern struct AhrsFloatDCM ahrs_impl;
 
-extern float imu_roll_neutral;
-extern float imu_pitch_neutral;
+extern float ins_roll_neutral;
+extern float ins_pitch_neutral;
 
 void ahrs_update_fw_estimator(void);
 

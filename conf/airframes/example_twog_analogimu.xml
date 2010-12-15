@@ -1,6 +1,10 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<!-- Reely Condor
+<!-- 
+    Use settings/tuning_ins.xml
+    Use telemetry/default_fixedwing_imu.xml
+
+     Reely Condor
      TWOG v1.0 Board (http://paparazzi.enac.fr/wiki/TWOG)
      Sparkfun Razor IMU with Premerlani Code
      wi.232 Radiomodems
@@ -95,9 +99,9 @@
 
   <!-- settings for the Analog IMU -->
 
-  <section name="IMU" prefix="IMU_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+  <section name="INS" prefix="INS_">
+    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(0)" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(0)" unit="deg"/>
   </section>
 
   <!-- 3S LiPo with 1050mAh, connected to an 20A ESC -->
