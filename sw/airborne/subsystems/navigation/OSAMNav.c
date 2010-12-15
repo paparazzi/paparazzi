@@ -364,7 +364,7 @@ bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Or
 	struct Point2D Corners[PolygonSize];
 
 	CSurveyStatus = Init;
-	
+
 	if (Size == 0)
 	  return TRUE;
 

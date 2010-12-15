@@ -5,7 +5,7 @@ $(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm.h\"
 
 ifeq ($(ARCH), lpc21)
 
-ap.CFLAGS += -DUSE_ANALOG_IMU 
+ap.CFLAGS += -DUSE_ANALOG_IMU
 
 ap.srcs += $(SRC_SUBSYSTEMS)/ahrs.c
 ap.srcs += $(SRC_SUBSYSTEMS)/ahrs/ahrs_aligner.c
