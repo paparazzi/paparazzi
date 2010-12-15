@@ -30,6 +30,7 @@
     </dl_settings>
 
     <dl_settings NAME="control">
+
       <dl_settings NAME="ins">
         <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ins_roll_neutral" shortname="roll_neutral" param="INS_ROLL_NEUTRAL_DEFAULT" unit="rad"/>
         <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="ins_pitch_neutral" shortname="pitch_neutral" param="INS_PITCH_NEUTRAL_DEFAULT" unit="rad"/>
@@ -79,8 +80,8 @@
 
       <dl_settings name="nav">
         <dl_setting MAX="-0.1" MIN="-3" STEP="0.05" VAR="h_ctl_course_pgain" shortname="course pgain" param="H_CTL_COURSE_PGAIN"/>
-        <dl_setting MAX="2" MIN="0" STEP="0.1" VAR="h_ctl_course_dgain" shortname="course dgain"/>
-        <dl_setting MAX="2" MIN="0.1" STEP="0.05" VAR="h_ctl_course_pre_bank_correction" shortname="pre bank cor"/>
+        <dl_setting MAX="2" MIN="0" STEP="0.1" VAR="h_ctl_course_dgain" shortname="course dgain" param="H_CTL_COURSE_DGAIN"/>
+        <dl_setting MAX="2" MIN="0.1" STEP="0.05" VAR="h_ctl_course_pre_bank_correction" shortname="pre bank cor" param="H_CTL_COURSE_PRE_BANK_CORRECTION"/>
         <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="nav_glide_pitch_trim" shortname="glide pitch trim" param="NAV_GLIDE_PITCH_TRIM"/>
         <dl_setting MAX="1" MIN="0.02" STEP="0.01" VAR="h_ctl_roll_slew" shortname="roll slew"/>
         <dl_setting MAX="500" MIN="-500" STEP="5" VAR="nav_radius"/>
