@@ -26,6 +26,7 @@
 
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
+#include "generated/airframe.h"
 
 /* must be defined by underlying hardware */
 extern void imu_impl_init(void);

@@ -38,6 +38,10 @@
 #include "messages.h"
 #include "downlink.h"
 
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+
 #ifndef SENSOR_SYNC_SEND
 #warning set SENSOR_SYNC_SEND to use baro_bmp
 #endif

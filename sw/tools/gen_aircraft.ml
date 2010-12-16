@@ -247,6 +247,9 @@ let print_firmware_subsystem = fun f firmware s ->
   (* print params *)
   let s_params = List.filter (fun x -> ExtXml.tag_is x "param") (Xml.children s) in
   List.iter (print_firmware_param f) s_params;
+  (* print defines *)
+  let s_defines = List.filter (fun x -> ExtXml.tag_is x "define") (Xml.children s) in
+  List.iter (print_firmware_define f) s_defines;
   (* include subsystem *) (* TODO test if file exists with the generator ? *)
   let s_name = name^s_type^".makefile" in
   let s_dir = "CFG_"^(String.uppercase (Xml.attrib firmware "name")) in

@@ -720,7 +720,7 @@
   </message>
 
   <message name="DC_SHOT" id="110">
-    <field name="photo_nr" type="int16" unit=""></field>
+    <field name="photo_nr" type="int16"></field>
     <field name="utm_east"  type="int32" unit="cm"></field>
     <field name="utm_north" type="int32" unit="cm"></field>
     <field name="z" type="float" unit="m"/>

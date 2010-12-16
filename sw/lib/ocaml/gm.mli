@@ -2,7 +2,7 @@
  * $Id$
  *
  * Google Maps utilities
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -38,7 +38,7 @@ type tile_t = {
 type maps_source = Google | OSM | MS
 val string_of_maps_source : maps_source -> string
 val maps_sources : maps_source list
-      
+
 val tile_of_geo : Latlong.geographic -> int -> tile_t
 (** [tile_string geo zoom] Returns the tile description containing a
   given point with a the smallest available zoom greater or equal to [zoom]. *)
@@ -53,6 +53,7 @@ type policy =  CacheOrHttp | NoHttp | NoCache
 val string_of_policy : policy -> string
 val policies : policy list
 val set_policy : policy -> unit
+val get_policy : unit -> policy
 (** Initialized to CacheOrHttp using cache and http access *)
 
 val set_maps_source : maps_source -> unit

@@ -212,6 +212,13 @@ clean:
 	find . -mindepth 2 -name Makefile -exec sh -c '$(MAKE) -C `dirname {}` $@' \;
 	find . -name '*~' -exec rm -f {} \;
 
+cleanspaces:
+	find ./sw/airborne -name '*.[ch]' -exec sed -i {} -e 's/[ \t]*$$//' \;
+	find ./conf -name '*.makefile' -exec sed -i {} -e 's/[ \t]*$$//' ';'
+	find ./sw -name '*.ml' -exec sed -i {} -e 's/[ \t]*$$//' ';'
+	find ./sw -name '*.mli' -exec sed -i {} -e 's/[ \t]*$$//' ';'
+	find ./conf -name '*.xml' -exec sed -i {} -e 's/[ \t]*$$//' ';'
+
 dist_clean : clean
 
 

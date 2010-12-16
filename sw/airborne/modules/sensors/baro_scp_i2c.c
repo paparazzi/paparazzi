@@ -10,12 +10,20 @@
 #include "sys_time.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 
 #ifndef SENSOR_SYNC_SEND
 #warning set SENSOR_SYNC_SEND to use baro_scp_i2c
+#endif
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 
 uint8_t  baro_scp_status;

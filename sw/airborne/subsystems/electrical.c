@@ -44,7 +44,7 @@ void electrical_periodic(void) {
 #endif
 #else
 #if defined MILLIAMP_AT_FULL_THROTTLE && defined COMMAND_THROTTLE
-      electrical.current = Min(((float)commands[COMMAND_THROTTLE]) * ((float)MILLIAMP_AT_FULL_THROTTLE) / ((float)MAX_PPRZ), 65000);
+      electrical.current = ((float)commands[COMMAND_THROTTLE]) * ((float)MILLIAMP_AT_FULL_THROTTLE) / ((float)MAX_PPRZ);
 #endif
 #endif /* ADC_CHANNEL_CURRENT */
 

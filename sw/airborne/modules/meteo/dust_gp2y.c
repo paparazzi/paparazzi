@@ -43,6 +43,10 @@ float dust_gp2y_density_f;
 
 struct i2c_transaction gp2y_trans;
 
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+
 #ifndef GP2Y_I2C_DEV
 #define GP2Y_I2C_DEV i2c0
 #endif

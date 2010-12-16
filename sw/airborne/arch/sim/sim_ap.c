@@ -13,7 +13,6 @@
 #include "estimator.h"
 #include "gps.h"
 #include "subsystems/navigation/traffic_info.h"
-#include "generated/flight_plan.h"
 #include "generated/settings.h"
 #include "subsystems/nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
@@ -25,6 +24,7 @@
 #include "sim_uart.h"
 #include "latlong.h"
 #include "datalink.h"
+#include "generated/flight_plan.h"
 
 #include <caml/mlvalues.h>
 #include <caml/memory.h>

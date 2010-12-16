@@ -13,6 +13,10 @@
 #include "messages.h"
 #include "downlink.h"
 
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+
 #ifndef DPICCO_I2C_DEV
 #define DPICCO_I2C_DEV i2c0
 #endif

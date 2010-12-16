@@ -80,6 +80,16 @@
     settings="settings/basic.xml"
     gui_color="#6293ba"
   />
+  <aircraft
+   name="Tiny_IMU"
+   ac_id="7"
+   airframe="airframes/example_twog_analogimu.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
+   flight_plan="flight_plans/versatile.xml"
+   settings="settings/tuning_ins.xml"
+   gui_color="blue"
+  />
 
   <aircraft
     name="Twinjet"

@@ -1,0 +1,29 @@
+--- PushletClient.java	6 May 2005 20:08:20 -0000	1.16
++++ PushletClient.java	28 Oct 2006 23:19:12 -0000
+@@ -142,7 +142,13 @@
+ 		}
+ 
+ 		dataEventListener = new DataEventListener(aListener, listenURL);
+-		dataEventListener.start();
++		synchronized (dataEventListener) {
++			dataEventListener.start();
++			try {
++				dataEventListener.wait();
++			} catch (InterruptedException e) {
++			}
++		}
+ 	}
+ 
+ 	/** Immediate listener. */
+@@ -354,6 +360,11 @@
+ 					// Connect to server
+ 					reader = openURL(listenURL);
+ 
++					synchronized (this) {
++						// Inform the calling thread we're ready to receive events.
++						this.notify();
++					}
++
+ 					// Get events while we're alive.
+ 					while (receiveThread != null && receiveThread.isAlive()) {
+ 						Event event = null;

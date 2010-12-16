@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML>
+<HEAD>
+	<!--
+ Copyright (c) 2004 Just Objects B.V. <just@justobjects.nl>
+ Distributable under LGPL license. See terms of license at gnu.org.
+
+ This file represents the network interface towards the pushlet server
+ for Dhtml clients.
+  See also http://www.irt.org/script/frame.htm
+
+ $Id: js-pushlet-net.html,v 1.7 2007/11/10 14:17:18 justb Exp $
+ -->
+	<title>Pushlet Networking Component</title>
+	<META HTTP-EQUIV="Content-Type" content="text/html; charset=iso-8859-1">
+	<META HTTP-EQUIV="Pragma" content="no-cache">
+	<META HTTP-EQUIV="refresh" CONTENT="999999999;">
+	<META HTTP-EQUIV="expired" CONTENT="01-Mar-94 00:00:01 GMT">
+	<SCRIPT language="JavaScript">
+
+		var flag = false;
+		var label = 'js-pushlet-net.html';
+		var controlReady = false;
+		var listenReady = false;
+
+
+		function debug(msg) {
+
+			if (!parent.p_debug) {
+				//alert(msg);
+				return;
+			}
+
+			parent.p_debug(flag, label, msg);
+		}
+
+		// Callback from pushed JavaScript
+		function push() {
+			debug('push() called');
+
+			if (!parent._push) {
+				debug('parent._push() not available');
+				return;
+			}
+
+			parent._push(push.arguments);
+		}
+
+		// Is everything loaded ?
+		function isLoaded() {
+			return (controlReady == true && listenReady == true);
+		}
+
+		// Can control frame accept new URI ?
+		function isControlReady() {
+			return controlReady == true;
+		}
+
+		// Can listen frame accept new URI ?
+		function isListenReady() {
+			return listenReady == true;
+		}
+
+		function setControlURI(uri) {
+			debug('setControlURI() uri=' + uri);
+			controlReady = false;
+			controlFrame.location.href = uri;
+		}
+
+		function listen(uri) {
+			listenFrame.location.href = uri;
+			debug('listen() called uri=' + uri);
+		}
+
+		// Signals that control frame can accept next URI
+		function _controlFrameReady() {
+			//	debug('_controlFrameReady() loaded ' + controlFrame.location.href );
+			controlReady = true;
+		}
+
+		// Signals that control frame can accept next URI
+		function _framesReady() {
+			debug('_framesReady() ok ' + controlFrame.location.href);
+			controlReady = true;
+			listenReady = true;
+		}
+
+		// Signals that listen frame can accept next URI
+		function _listenFrameReady() {
+			//	debug('_listenFrameReady() loaded ' + listenFrame.location.href );
+			listenReady = true;
+		}
+
+		// Show network debug window
+		function p_setDebug(aFlag) {
+			flag = aFlag;
+		}
+
+	</SCRIPT>
+
+</HEAD>
+
+<FRAMESET BORDER="0" ROWS="0,*" ONLOAD="_framesReady()">
+	<FRAME SRC="about:blank" NAME="controlFrame" ONLOAD="_controlFrameReady()">
+	<FRAME SRC="about:blank" NAME="listenFrame" ONLOAD="_listenFrameReady()">
+</FRAMESET>
+
+</HTML>
+
