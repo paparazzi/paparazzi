@@ -50,7 +50,10 @@ float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 // Positive yaw : clockwise
 
 // DCM Working variables
-float G_Dt=1.0f / 60.0f; // 0.05;
+#ifndef PERIODIC_FREQUENCY
+#define PERIODIC_FREQUENCY 60
+#endif
+float G_Dt=1. / ((float) PERIODIC_FREQUENCY );
 
 struct FloatVect3 accel_float = {0,0,0};
 
