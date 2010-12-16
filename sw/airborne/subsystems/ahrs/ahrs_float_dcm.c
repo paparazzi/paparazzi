@@ -36,6 +36,7 @@
 
 //FIXME this is still needed for fixedwing integration
 #include "estimator.h"
+#include "led.h"
 
 struct AhrsFloatDCM ahrs_impl;
 
@@ -49,7 +50,7 @@ float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 // Positive yaw : clockwise
 
 // DCM Working variables
-float G_Dt=0.05;
+float G_Dt=1.0f / 60.0f; // 0.05;
 
 struct FloatVect3 accel_float = {0,0,0};
 

@@ -369,11 +369,35 @@ static void navigation_task( void ) {
  *
  */
 
+
 void periodic_task_ap( void ) {
+
   static uint8_t _20Hz   = 0;
   static uint8_t _10Hz   = 0;
   static uint8_t _4Hz   = 0;
   static uint8_t _1Hz   = 0;
+
+#ifdef PERIODIC_FREQUENCY
+#warning Using HighSpeed Periodic: Manually check to make sure PERIODIC_FREQUENCY is a multiple of 60. 
+  static uint8_t _60Hz = 0;
+  _60Hz++;
+  if (_60Hz >= (PERIODIC_FREQUENCY / 60))
+  {  
+    _60Hz = 0;
+  }
+  else
+  {
+    return;
+  }
+#endif
+
+
+#ifdef USE_IMU
+//  if (!_20Hz) {
+    imu_periodic();
+//  }
+#endif // USE_IMU
+
 
   _20Hz++;
   if (_20Hz>=3) _20Hz=0;
@@ -440,11 +464,6 @@ void periodic_task_ap( void ) {
 #error "Only 20 and 60 allowed for CONTROL_RATE"
 #endif
 
-#ifdef USE_ANALOG_IMU
-  if (!_20Hz) {
-    imu_periodic();
-  }
-#endif // USE_ANALOG_IMU
 
 #if CONTROL_RATE == 20
   if (!_20Hz)
@@ -636,8 +655,12 @@ void event_task_ap( void ) {
 
 #ifdef USE_ANALOG_IMU
 static inline void on_gyro_accel_event( void ) {
+  static uint8_t _60Hz = 0;
+  LED_ON(2);
   ImuScaleGyro(imu);
   ImuScaleAccel(imu);
+
+  
   if (ahrs.status == AHRS_UNINIT) {
     ahrs_aligner_run();
     if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
@@ -645,9 +668,15 @@ static inline void on_gyro_accel_event( void ) {
   }
   else {
     ahrs_propagate();
-    ahrs_update_accel();
-    ahrs_update_fw_estimator();
+
+    if (_60Hz >= 8)
+    {
+      _60Hz = 0;
+      ahrs_update_accel();
+      ahrs_update_fw_estimator();
+    }
   }
+  LED_OFF(2);
 }
 
 static inline void on_mag_event(void) {
