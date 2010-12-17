@@ -27,7 +27,7 @@
 #include "lisa/lisa_overo_link.h"
 #include "lisa/lisa_spistream.h"
 #include "generated/airframe.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 
 static inline void main_init(void);
 static inline void main_periodic(void);

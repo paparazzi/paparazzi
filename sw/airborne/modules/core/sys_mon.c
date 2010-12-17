@@ -26,7 +26,7 @@
 #include "sys_time.h"
 
 #ifdef USE_USB_SERIAL
-#include "usb_serial.h"
+#include "mcu_periph/usb_serial.h"
 #endif
 
 /* Global vars */
@@ -57,7 +57,7 @@ void init_sysmon(void) {
   sum_n_event = 0;
 }
 
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE

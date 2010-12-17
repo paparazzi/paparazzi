@@ -33,13 +33,13 @@
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 #include "estimator.h"
 
 
-void atmega_i2c_cam_ctrl_init(void) 
+void atmega_i2c_cam_ctrl_init(void)
 {
   dc_init();
 }
@@ -75,16 +75,16 @@ void atmega_i2c_cam_ctrl_send(uint8_t cmd)
   else if (cmd == DC_GET_STATUS)
   {
     mode++;
-    if (mode > 15) 
+    if (mode > 15)
       mode = 0;
   }
-  
+
   cam_ret[0] = mode + zoom * 0x20;
   RunOnceEvery(6,DOWNLINK_SEND_PAYLOAD(DefaultChannel, 1, cam_ret ));
-  
+
 }
 
-void atmega_i2c_cam_ctrl_event( void ) 
+void atmega_i2c_cam_ctrl_event( void )
 {
 }
 

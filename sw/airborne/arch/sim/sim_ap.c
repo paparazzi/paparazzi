@@ -12,19 +12,19 @@
 #include "autopilot.h"
 #include "estimator.h"
 #include "gps.h"
-#include "traffic_info.h"
-#include "generated/flight_plan.h"
+#include "subsystems/navigation/traffic_info.h"
 #include "generated/settings.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
-#include "infrared.h"
+#include "subsystems/sensors/infrared.h"
 #include "commands.h"
 #include "firmwares/fixedwing/main_ap.h"
 #include "ap_downlink.h"
 #include "sim_uart.h"
 #include "latlong.h"
 #include "datalink.h"
+#include "generated/flight_plan.h"
 
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
@@ -91,7 +91,7 @@ value sim_init(value unit) {
 }
 
 value update_bat(value bat) {
-  fbw_vsupply_decivolt = Int_val(bat);
+  electrical.vsupply = Int_val(bat);
   return Val_unit;
 }
 

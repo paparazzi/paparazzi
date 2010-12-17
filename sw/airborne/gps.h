@@ -106,7 +106,7 @@ struct svinfo {
 extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 
 #ifndef SITL
-#include "uart.h"
+#include "mcu_periph/uart.h"
 
 #define __GpsLink(dev, _x) dev##_x
 #define _GpsLink(dev, _x)  __GpsLink(dev, _x)
@@ -128,7 +128,7 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 #define GpsToggleLed() {}
 #endif
 
-#if defined(GPS) || defined(USE_GPS_XSENS) || defined(SITL)
+#if defined(USE_GPS) || defined(USE_GPS_XSENS) || defined(SITL)
 #  define GpsTimeoutError (cpu_time_sec - last_gps_msg_t > FAILSAFE_DELAY_WITHOUT_GPS)
 #else
 #  define GpsTimeoutError 1

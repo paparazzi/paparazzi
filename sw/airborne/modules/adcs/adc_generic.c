@@ -1,6 +1,6 @@
 #include "adc_generic.h"
-#include "adc.h"
-#include "uart.h"
+#include "mcu_periph/adc.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 #include BOARD_CONFIG
@@ -16,6 +16,10 @@ uint16_t adc_generic_val2;
 
 #ifndef ADC_CHANNEL_GENERIC_NB_SAMPLES
 #define ADC_CHANNEL_GENERIC_NB_SAMPLES DEFAULT_AV_NB_SAMPLE
+#endif
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 
 #ifdef ADC_CHANNEL_GENERIC1

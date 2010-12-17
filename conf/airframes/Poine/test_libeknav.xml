@@ -63,7 +63,7 @@
     filter.ARCHDIR = omap
     filter.CXXFLAGS += $(LIB_EIGEN_CFLAGS)
     filter.CXXFLAGS += $(PAPARAZZI_INC)
-    filter.cpp_srcs  = fms/libeknav/libeknav_from_log.cpp
+    filter.cpp_srcs  = fms/libeknav/libeksubsystems/navigation/nav_from_log.cpp
     filter.CXXFLAGS += $(LIBEKNAV_CFLAGS)
     filter.cpp_srcs += $(LIBEKNAV_SRCS)
     filter.LDFLAGS  += -levent -lm

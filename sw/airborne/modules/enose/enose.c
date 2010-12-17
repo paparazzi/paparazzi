@@ -1,9 +1,9 @@
 #include <string.h>
 
-#include "enose/enose.h"
+#include "modules/enose/enose.h"
 
-#include "i2c.h"
-#include "adc.h"
+#include "mcu_periph/i2c.h"
+#include "mcu_periph/adc.h"
 #include BOARD_CONFIG
 
 
@@ -47,7 +47,7 @@ void enose_set_heat(uint8_t no_sensor, uint8_t value) {
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 

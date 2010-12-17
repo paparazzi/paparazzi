@@ -36,7 +36,7 @@
 #include "generated/modules.h"
 
 #ifdef TRAFFIC_INFO
-#include "traffic_info.h"
+#include "subsystems/navigation/traffic_info.h"
 #endif // TRAFFIC_INFO
 
 #if defined NAV || defined WIND_INFO
@@ -48,7 +48,7 @@
 #endif
 
 #ifdef USE_USB_SERIAL
-#include "usb_serial.h"
+#include "mcu_periph/usb_serial.h"
 #endif
 
 #ifdef HITL
@@ -56,7 +56,7 @@
 #endif
 
 
-#include "nav.h"
+#include "subsystems/navigation/common_nav.h"
 #include "generated/settings.h"
 #include "latlong.h"
 
@@ -64,7 +64,7 @@
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "downlink.h"
 #include "ap_downlink.h"
 
@@ -150,9 +150,9 @@ void dl_parse_msg(void) {
   /** Infrared and GPS sensors are replaced by messages on the datalink */
   if (msg_id == DL_HITL_INFRARED) {
     /** This code simulates infrared.c:ir_update() */
-    ir_roll = DL_HITL_INFRARED_roll(dl_buffer);
-    ir_pitch = DL_HITL_INFRARED_pitch(dl_buffer);
-    ir_top = DL_HITL_INFRARED_top(dl_buffer);
+    infrared.roll = DL_HITL_INFRARED_roll(dl_buffer);
+    infrared.pitch = DL_HITL_INFRARED_pitch(dl_buffer);
+    infrared.top = DL_HITL_INFRARED_top(dl_buffer);
   } else if (msg_id == DL_HITL_UBX) {
     /** This code simulates gps_ubx.c:parse_ubx() */
     if (gps_msg_received) {

@@ -23,8 +23,8 @@
 
     <dl_settings NAME="control">
       <dl_settings NAME="ir">
-        <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ir_roll_neutral" shortname="roll_neutral" module="infrared"/>
-        <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="ir_pitch_neutral" shortname="pitch_neutral"/>
+        <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="infrared.roll_neutral" shortname="roll_neutral" module="infrared"/>
+        <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="infrared.pitch_neutral" shortname="pitch_neutral"/>
 
       </dl_settings>
 
@@ -71,7 +71,7 @@
         <dl_setting MAX="500" MIN="-500" STEP="5" VAR="nav_radius"/>
         <dl_setting MAX="359" MIN="0" STEP="5" VAR="nav_course"/>
         <dl_setting MAX="5" MIN="-5" STEP="0.5" VAR="nav_climb"/>
-        <dl_setting MAX="50" MIN="-50" STEP="5" VAR="nav_shift" module="nav" handler="IncreaseShift" shortname="inc. shift">
+        <dl_setting MAX="50" MIN="-50" STEP="5" VAR="nav_shift" module="subsystems/nav" handler="IncreaseShift" shortname="inc. shift">
 	</dl_setting>
 	<dl_setting MAX="20" MIN="10" STEP="0.5" VAR="nav_ground_speed_setpoint" shortname="ground speed"/>
 	<dl_setting MAX="0." MIN="-0.05" STEP="0.01" VAR="nav_ground_speed_pgain" shortname="ground speed pgain"/>

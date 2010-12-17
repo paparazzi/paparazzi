@@ -32,7 +32,7 @@
 #include "downlink.h"
 #include "messages.h"
 #include "dl_protocol.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 
 #ifdef BOOZ_FMS_TYPE
 #include "booz_fms.h"

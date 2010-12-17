@@ -24,7 +24,7 @@
 #ifndef ACTUATORS_ASCTEC_H
 #define ACTUATORS_ASCTEC_H
 
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 
 enum actuators_astec_cmd { NONE,
                TEST,

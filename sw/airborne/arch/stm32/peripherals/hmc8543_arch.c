@@ -27,7 +27,7 @@
 #include <stm32/spi.h>
 #include <stm32/exti.h>
 #include <stm32/misc.h>
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 
 void exti9_5_irq_handler(void);
 

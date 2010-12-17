@@ -166,40 +166,41 @@ let parse_ac_targets = fun target_combo ac_file ->
   store#clear ();
   (** Clear ComboBox 
   **)
-  let af_xml = Xml.parse_file (Env.paparazzi_src // "conf" // ac_file) in
-  List.iter (fun tag ->
-    if ExtXml.tag_is tag "firmware" then begin
-      begin try
-	  List.iter (fun tar ->
-	    if ExtXml.tag_is tar "target" then begin
-	      begin try
-                (** Temp Hack: remove these 3 lines once the bottom parts is ready *)
-		let (store, column) = Gtk_tools.combo_model target_combo in
-		let row = store#append () in
-		store#set ~row ~column (Xml.attrib tar "name");
-		(* this is the way to go *)
-		strings :=  (Xml.attrib tar "name") :: !strings;
-                count := !count + 1
-	      with _ -> () end;
-	    end)
-	    (Xml.children tag)
-      with _ -> () end;
-    end)
-    (Xml.children af_xml);
-    if !count = 0 then begin
-	let (store, column) = Gtk_tools.combo_model target_combo in
-	let row = store#append () in
-	store#set ~row ~column "sim";
-	let (store, column) = Gtk_tools.combo_model target_combo in
-	let row = store#append () in
-	store#set ~row ~column "ap";
-    end;
-    let combo_box = Gtk_tools.combo_widget target_combo in
-    combo_box#set_active 0
+  (try
+    let af_xml = Xml.parse_file (Env.paparazzi_src // "conf" // ac_file) in
+    List.iter (fun tag ->
+      if ExtXml.tag_is tag "firmware" then begin
+        begin try
+            List.iter (fun tar ->
+              if ExtXml.tag_is tar "target" then begin
+                begin try
+                  (** Temp Hack: remove these 3 lines once the bottom parts is ready *)
+                  let (store, column) = Gtk_tools.combo_model target_combo in
+                  let row = store#append () in
+                  store#set ~row ~column (Xml.attrib tar "name");
+                  (* this is the way to go *)
+                  strings :=  (Xml.attrib tar "name") :: !strings;
+                  count := !count + 1
+                with _ -> () end;
+              end)
+              (Xml.children tag)
+        with _ -> () end;
+      end)
+      (Xml.children af_xml);
+      if !count = 0 then begin
+        let (store, column) = Gtk_tools.combo_model target_combo in
+        let row = store#append () in
+        store#set ~row ~column "sim";
+        let (store, column) = Gtk_tools.combo_model target_combo in
+        let row = store#append () in
+        store#set ~row ~column "ap";
+      end;
+      let combo_box = Gtk_tools.combo_widget target_combo in
+      combo_box#set_active 0
 (** 
     Gtk_tools.combo (!strings) target_combo
 **)
-
+  with _ -> ())
 
 
 (* Link A/C to airframe & flight_plan labels *)
@@ -332,12 +333,14 @@ let build_handler = fun ~file gui ac_combo (target_combo:Gtk_tools.combo) (log:s
   
   (* Build button *)
   let callback = fun () ->
-    let ac_name = Gtk_tools.combo_value ac_combo
-    and target = Gtk_tools.combo_value target_combo in
-    let target = if target="sim" then target else sprintf "%s.compile" target in
-    Utils.command ~file gui log ac_name target in
-  ignore (gui#button_build#connect#clicked ~callback);
-  
+    try (
+      let ac_name = Gtk_tools.combo_value ac_combo
+      and target = Gtk_tools.combo_value target_combo in
+      let target = if target="sim" then target else sprintf "%s.compile" target in
+      Utils.command ~file gui log ac_name target
+    ) with _ -> log "ERROR: Nothing to build!!!\n" in
+    ignore (gui#button_build#connect#clicked ~callback);
+
   (* Upload button *)
   let callback = fun () ->
     let ac_name = Gtk_tools.combo_value ac_combo

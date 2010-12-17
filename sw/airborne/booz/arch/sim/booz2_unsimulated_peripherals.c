@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "uart.h"
-#include "i2c.h"
+#include "mcu_periph/uart.h"
+//#include "mcu_periph/i2c.h"
 
 void uart0_init( void ) {}
 void uart1_init( void ) {}

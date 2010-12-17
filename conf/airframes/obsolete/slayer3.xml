@@ -226,7 +226,7 @@ ap.CFLAGS += -DUSE_INFRARED -DALT_KALMAN -DIR_360
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
+ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c
 
 
 ap.CFLAGS += -DUSE_GYRO -DADXRS150
@@ -245,7 +245,7 @@ ap.srcs += $(SRC_ARCH)/gpio.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN -DIR_360
-sim.srcs += nav_survey_rectangle.c
+sim.srcs += subsystems/navigation/nav_survey_rectangle.c
 
   </makefile>
 </airframe>

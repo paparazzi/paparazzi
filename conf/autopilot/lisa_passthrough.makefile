@@ -103,12 +103,12 @@ stm_passthrough.CFLAGS += -DUSE_CAN1 \
     -DCAN_BS1_TQ=CAN_BS1_3tq \
     -DCAN_BS2_TQ=CAN_BS2_4tq \
     -DCAN_ERR_RESUME=DISABLE
-stm_passthrough.srcs += can.c $(SRC_ARCH)/can_hw.c
+stm_passthrough.srcs += mcu_periph/can.c $(SRC_ARCH)/mcu_periph/can_arch.c
 stm_passthrough.srcs += $(SRC_CSC)/csc_protocol.c
 
 # ADC
 
-stm_passthrough.srcs += $(SRC_ARCH)/adc_hw.c
+stm_passthrough.srcs += $(SRC_ARCH)/mcu_periph/adc_arch.c
 stm_passthrough.CFLAGS += -DUSE_AD1 \
     -DUSE_AD1_1 \
     -DUSE_AD1_2 \

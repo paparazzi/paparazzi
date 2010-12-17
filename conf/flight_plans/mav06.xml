@@ -1,7 +1,7 @@
 <flight_plan alt="100" ground_alt="59" lat0="30.6478" lon0="-86.3253" max_dist_from_home="1500" name="MAV06" qfu="90" security_height="25">
 <header>
-#include "bomb.h"
-#include "nav_line.h"
+#include "subsystems/navigation/bomb.h"
+#include "subsystems/navigation/nav_line.h"
 </header>
   <waypoints>
     <waypoint alt="59." name="TARGET" x="85.1922610838" y="8.50236448925"/>

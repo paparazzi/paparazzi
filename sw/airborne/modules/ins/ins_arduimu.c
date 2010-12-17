@@ -6,9 +6,9 @@ Autoren@ZHAW:   schmiemi
 
 
 #include <stdbool.h>
-#include "ins_arduimu.h"
+#include "modules/ins/ins_arduimu.h"
 #include "firmwares/fixedwing/main_fbw.h"
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 
 // test
 #include "estimator.h"
@@ -30,7 +30,7 @@ int32_t GPS_Data[14];
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 

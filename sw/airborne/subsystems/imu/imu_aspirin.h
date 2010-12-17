@@ -27,7 +27,7 @@
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
 
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 #include "peripherals/itg3200.h"
 #include "peripherals/hmc5843.h"
 #include "peripherals/adxl345.h"

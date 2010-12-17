@@ -35,13 +35,13 @@
 #include <stdio.h>
 //for baudrate
 #include "fms_serial_port.h"
-#endif
+#endif /* FMS_PERIODIC_FREQ */
 
 #include "generated/flight_plan.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "gps.h"
 #include "gps_ubx.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "latlong.h"
 
 #ifdef GPS_TIMESTAMP
@@ -152,7 +152,6 @@ void gps_init( void ) {
 #ifdef GPS_CONFIGURE
 /* GPS dynamic configuration */
 
-#include "uart.h"
 
 #ifndef GPS_PORT_ID
 #define GPS_PORT_ID GPS_PORT_UART1

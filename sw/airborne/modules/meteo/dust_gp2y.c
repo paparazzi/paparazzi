@@ -30,10 +30,10 @@
  */
 
 
-#include "dust_gp2y.h"
-#include "i2c.h"
+#include "modules/meteo/dust_gp2y.h"
+#include "mcu_periph/i2c.h"
 #include "sys_time.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 
@@ -42,6 +42,10 @@ uint16_t dust_gp2y_density;
 float dust_gp2y_density_f;
 
 struct i2c_transaction gp2y_trans;
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 
 #ifndef GP2Y_I2C_DEV
 #define GP2Y_I2C_DEV i2c0

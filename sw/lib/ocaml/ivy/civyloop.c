@@ -25,7 +25,7 @@ value ivy_mainLoop(value unit)
 void timer_cb(TimerId id, void *data, unsigned long delta)
 {
   value closure = *(value*)data;
-  callback(closure, Val_long(id));	
+  callback(closure, Val_long(id));
 }
 
 value ivy_timerRepeatafter(value nb_ticks,value delay, value closure_name)

@@ -24,16 +24,15 @@
 #include <inttypes.h>
 
 #include "std.h"
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "led.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 
 #include "subsystems/imu.h"
 
-#include "interrupt_hw.h"
 
 #ifndef MEASURED_SENSOR
 #define MEASURED_SENSOR gyro_unscaled.p
@@ -60,11 +59,11 @@ int main( void ) {
 
 static inline void main_init( void ) {
 
-  hw_init();
+  mcu_init();
   sys_time_init();
   imu_init();
 
-  int_enable();
+  mcu_int_enable();
 }
 
 static inline void main_periodic_task( void ) {

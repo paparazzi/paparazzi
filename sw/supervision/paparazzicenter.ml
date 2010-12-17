@@ -98,10 +98,12 @@ let write_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Gtk_tools.combo) 
     add_entry xml "last session" session_name in
   
   (* Save target *)
-  let xml = 
-    let name = Gtk_tools.combo_value target_combo in
-    add_entry xml "last target" name in
-  
+  let xml = (
+    try
+      let name = Gtk_tools.combo_value target_combo in
+      add_entry xml "last target" name
+    with _ -> xml) in
+
   let xml =
     try
       (* Save window size *)

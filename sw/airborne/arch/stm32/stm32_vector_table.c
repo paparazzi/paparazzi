@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of Paparazzi.
  *
@@ -35,28 +35,28 @@
 #endif
 
 #if defined USE_UART1 || OVERRIDE_UART1_IRQ_HANDLER
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #define USART1_IRQ_HANDLER usart1_irq_handler
 #else
 #define USART1_IRQ_HANDLER null_handler
 #endif
 
 #if defined USE_UART2 || OVERRIDE_UART2_IRQ_HANDLER
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #define USART2_IRQ_HANDLER usart2_irq_handler
 #else
 #define USART2_IRQ_HANDLER null_handler
 #endif
 
 #if defined USE_UART3 || OVERRIDE_UART3_IRQ_HANDLER
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #define USART3_IRQ_HANDLER usart3_irq_handler
 #else
 #define USART3_IRQ_HANDLER null_handler
 #endif
 
 #if defined USE_UART5 || OVERRIDE_UART5_IRQ_HANDLER
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #define USART5_IRQ_HANDLER usart5_irq_handler
 #else
 #define USART5_IRQ_HANDLER null_handler
@@ -64,7 +64,7 @@
 
 
 #ifdef USE_I2C1
-#include "i2c_hw.h"
+#include "mcu_periph/i2c_arch.h"
 #define I2C1_EV_IRQ_HANDLER i2c1_ev_irq_handler
 #define I2C1_ER_IRQ_HANDLER i2c1_er_irq_handler
 #else
@@ -73,7 +73,7 @@
 #endif
 
 #ifdef USE_I2C2
-#include "i2c_hw.h"
+#include "mcu_periph/i2c_arch.h"
 #define I2C2_EV_IRQ_HANDLER i2c2_ev_irq_handler
 #define I2C2_ER_IRQ_HANDLER i2c2_er_irq_handler
 #else

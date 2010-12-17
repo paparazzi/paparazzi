@@ -224,12 +224,12 @@ ap.CFLAGS += -DUSE_INFRARED -DALT_KALMAN
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
+ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c
 
-ap.srcs += nav_line.c nav_survey_rectangle.c
+ap.srcs += subsystems/navigation/nav_line.c subsystems/navigation/nav_survey_rectangle.c
 
 ap.CFLAGS += -DUSE_GYRO -DIDG300
-ap.srcs += gyro.c bomb.c
+ap.srcs += gyro.c subsystems/navigation/bomb.c
 
 # Video switch
 ap.CFLAGS += -DLIGHT_PIN_1=3 -DUSE_GPIO
@@ -244,7 +244,7 @@ ap.srcs += $(SRC_ARCH)/gpio.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DH_CTL_RATE_LOOP -DLOITER_TRIM -DALT_KALMAN
-sim.srcs += bomb.c nav_survey_rectangle.c nav_line.c
+sim.srcs += subsystems/navigation/bomb.c subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/nav_line.c
 
   </makefile>
 </airframe>

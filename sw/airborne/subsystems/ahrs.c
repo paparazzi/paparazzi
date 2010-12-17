@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2009 Felix Ruess <felix.ruess@gmail.com>
+ * Copyright (C) 2008-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *

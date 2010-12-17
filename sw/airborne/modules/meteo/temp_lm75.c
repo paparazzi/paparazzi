@@ -29,13 +29,17 @@
  */
 
 
-#include "temp_lm75.h"
+#include "modules/meteo/temp_lm75.h"
 
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 #include "led.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 
 uint8_t  lm75_meas_started;
 struct i2c_transaction lm75_trans;

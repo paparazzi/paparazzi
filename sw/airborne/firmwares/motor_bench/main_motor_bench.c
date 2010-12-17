@@ -1,9 +1,8 @@
 
 #include "std.h"
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "led.h"
-#include "interrupt_hw.h"
 #include "mb_tacho.h"
 #include "mb_servo.h"
 #include "i2c.h"
@@ -13,13 +12,12 @@
 #include "mb_scale.h"
 
 
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 
 #include "generated/settings.h"
 
-#include "adc.h"
 
 #include "mb_modes.h"
 //#include "mb_static.h"
@@ -42,7 +40,7 @@ int main( void ) {
 
 static inline void main_init( void ) {
 
-  hw_init();
+  mcu_init();
   led_init();
   sys_time_init();
   mb_tacho_init();
@@ -55,14 +53,13 @@ static inline void main_init( void ) {
   mb_servo_init();
   mb_servo_set_range( 1090000, 1910000 );
 
-  adc_init();
   mb_current_init();
   mb_scale_init();
 
   uart0_init();
   mb_mode_init();
 
-  int_enable();
+  mcu_int_enable();
 }
 
 static inline void main_periodic_task( void ) {

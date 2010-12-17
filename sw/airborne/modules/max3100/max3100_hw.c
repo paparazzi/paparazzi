@@ -27,7 +27,7 @@
 #include "max3100_hw.h"
 
 #include "ap_downlink.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 
 
 uint8_t volatile max3100_status;

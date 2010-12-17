@@ -127,4 +127,6 @@ extern void alt_kalman( float );
 
 #define EstimatorSetRate(p, q) { estimator_p = p; estimator_q = q; }
 
+extern void estimator_update_state_infrared( void );
+
 #endif /* ESTIMATOR_H */

@@ -27,12 +27,16 @@
  *
  */
 
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 #include "alt_srf08.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 #include "led.h"
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 
 #ifndef SRF08_I2C_DEV
 #define SRF08_I2C_DEV i2c0

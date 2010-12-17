@@ -3,14 +3,13 @@
  */
 
 
-#include "interrupt_hw.h"
 #include "std.h"
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
-#include "adc.h"
+#include "mcu_periph/adc.h"
 #include "messages.h"
 #include "led.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "downlink.h"
 
 
@@ -20,7 +19,7 @@
 static struct adc_buf buf_adc[NB_ADC];
 
 int main (int argc, char** argv) {
-  hw_init();
+  mcu_init();
   sys_time_init();
   led_init();
   adc_init();
@@ -49,7 +48,7 @@ int main (int argc, char** argv) {
   Uart1Init();
 #endif
 
-  int_enable();
+  mcu_int_enable();
 
   while(1) {
     if (sys_time_periodic()) {

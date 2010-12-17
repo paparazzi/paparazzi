@@ -3,7 +3,7 @@
 #include "sys_time.h"
 #include "led.h"
 #include "interrupt_hw.h"
-#include "usb_serial.h"
+#include "mcu_periph/usb_serial.h"
 
 #include "messages.h"
 #include "downlink.h"

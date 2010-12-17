@@ -36,7 +36,7 @@
 #define PRESSURE_BOARD_NAVARRO_H
 
 #include "std.h"
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 
 extern uint16_t altitude_adc;
 extern uint16_t airspeed_adc;

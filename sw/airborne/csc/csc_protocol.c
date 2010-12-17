@@ -26,7 +26,7 @@
 #include <string.h>
 
 #include "csc_protocol.h"
-#include "can.h"
+#include "mcu_periph/can.h"
 #include "csc_msg_def.h"
 
 // #include "init_hw.h"

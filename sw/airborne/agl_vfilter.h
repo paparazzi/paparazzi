@@ -1,7 +1,7 @@
 #ifndef AGL_VFILTER_H
 #define AGL_VFILTER_H
 
-#include "adc.h"
+#include "mcu_periph/adc.h"
 
 #define STATE_SIZE 3
 

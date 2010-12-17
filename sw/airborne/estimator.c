@@ -1,7 +1,7 @@
 /*
  * Paparazzi autopilot $Id$
  *
- * Copyright (C) 2004-2005 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2004-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -30,10 +30,10 @@
 #include <math.h>
 
 #include "estimator.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "ap_downlink.h"
 #include "gps.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #ifdef EXTRA_DOWNLINK_DEVICE
 #include "core/extra_pprz_dl.h"
 #endif
@@ -232,4 +232,27 @@ void estimator_update_state_gps( void ) {
 #ifdef EXTRA_DOWNLINK_DEVICE
     DOWNLINK_SEND_ATTITUDE(ExtraPprzTransport,&estimator_phi,&estimator_psi,&estimator_theta);
 #endif
+}
+
+#include "subsystems/sensors/infrared.h"
+void estimator_update_state_infrared( void ) {
+  estimator_phi  = atan2(infrared.roll, infrared.top) - infrared.roll_neutral;
+
+  estimator_theta  = atan2(infrared.pitch, infrared.top) - infrared.pitch_neutral;
+
+  if (estimator_theta < -M_PI_2)
+    estimator_theta += M_PI;
+  else if (estimator_theta > M_PI_2)
+    estimator_theta -= M_PI;
+
+  if (estimator_phi >= 0)
+    estimator_phi *= infrared.correction_right;
+  else
+    estimator_phi *= infrared.correction_left;
+
+  if (estimator_theta >= 0)
+    estimator_theta *= infrared.correction_up;
+  else
+    estimator_theta *= infrared.correction_down;
+
 }

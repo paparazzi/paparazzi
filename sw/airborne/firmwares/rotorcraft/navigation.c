@@ -306,7 +306,7 @@ void nav_periodic_task() {
 
 #include "downlink.h"
 #include "messages.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos) {
   if (wp_id < nb_waypoint) {
     INT32_VECT3_COPY(waypoints[wp_id],(*new_pos));

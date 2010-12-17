@@ -28,7 +28,8 @@
 #
 ap.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
 ap.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
-ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+ap.srcs += mcu_periph/i2c.c
+ap.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c0
@@ -42,4 +43,5 @@ endif
 sim.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
 sim.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
 sim.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10 -DACTUATORS_MKK_DEVICE=i2c1
-sim.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
+sim.srcs += mcu_periph/i2c.c
+sim.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c

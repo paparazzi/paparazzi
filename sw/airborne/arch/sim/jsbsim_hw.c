@@ -28,7 +28,7 @@ uint16_t adc_generic_val2;
 uint8_t ac_id;
 
 void update_bat(double bat) {
-  fbw_vsupply_decivolt = (int) (bat * 10.);
+  electrical.vsupply = (int) (bat * 10.);
 }
 
 void adc_generic_init( void ) {}

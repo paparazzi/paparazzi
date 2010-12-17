@@ -8,12 +8,16 @@
 
 #include "std.h"
 #include "LPC21xx.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 #include "humid_sht.h"
 
 #include "led.h"
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 
 uint16_t humidsht, tempsht;
 float fhumidsht, ftempsht;

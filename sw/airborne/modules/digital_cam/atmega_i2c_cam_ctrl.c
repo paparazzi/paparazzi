@@ -22,7 +22,7 @@
 
 
 /** \file atmega_i2c_cam_ctrl.c
- *  \brief Interface with digital camera though AVR AtMega chip 
+ *  \brief Interface with digital camera though AVR AtMega chip
  *
  *   Send Commands over I2C
  */
@@ -30,13 +30,13 @@
 
 #include "atmega_i2c_cam_ctrl.h"
 
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 #include "led.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 #include "estimator.h"
@@ -55,7 +55,7 @@ static struct i2c_transaction atmega_i2c_cam_ctrl_trans;
 
 uint8_t atmega_i2c_cam_ctrl_just_sent_command = 0;
 
-void atmega_i2c_cam_ctrl_init(void) 
+void atmega_i2c_cam_ctrl_init(void)
 {
   atmega_i2c_cam_ctrl_trans.status = I2CTransDone;
   dc_init();
@@ -89,9 +89,9 @@ void atmega_i2c_cam_ctrl_send(uint8_t cmd)
   }
 }
 
-void atmega_i2c_cam_ctrl_event( void ) 
+void atmega_i2c_cam_ctrl_event( void )
 {
-  if (atmega_i2c_cam_ctrl_trans.status == I2CTransSuccess) 
+  if (atmega_i2c_cam_ctrl_trans.status == I2CTransSuccess)
   {
     unsigned char cam_ret[1];
     cam_ret[0] = atmega_i2c_cam_ctrl_trans.buf[0];

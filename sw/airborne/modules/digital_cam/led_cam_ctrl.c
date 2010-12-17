@@ -22,9 +22,6 @@
 
 #include "led_cam_ctrl.h"
 
-// Include Digital IO
-#include "led.h"
-
 // Button Timer
 uint8_t dc_timer;
 

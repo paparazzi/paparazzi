@@ -36,7 +36,7 @@
 #include "generated/modules.h"
 
 #include <stdio.h>
-#include "common_nav.h"
+#include "subsystems/navigation/common_nav.h"
 #include "generated/settings.h"
 #include "latlong.h"
 

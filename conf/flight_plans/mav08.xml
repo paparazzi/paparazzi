@@ -2,7 +2,7 @@
 
 <flight_plan alt="240" ground_alt="170" lat0="27.0936" lon0="77.9145" max_dist_from_home="650" name="MAV08" security_height="25">
   <header>
-#include "nav_line.h"
+#include "subsystems/navigation/nav_line.h"
 #include "datalink.h"
 </header>
   <waypoints>

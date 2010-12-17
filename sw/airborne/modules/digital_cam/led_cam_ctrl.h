@@ -47,9 +47,12 @@
 // Include Standard Camera Control Interface
 #include "dc.h"
 
+// Include Digital IO
+#include "led.h"
+
 extern uint8_t dc_timer;
 
-static inline void led_cam_ctrl_init(void) 
+static inline void led_cam_ctrl_init(void)
 {
   // Call common DC init
   dc_init();
@@ -66,8 +69,8 @@ static inline void led_cam_ctrl_init(void)
 #define DC_RELEASE LED_OFF
 #endif
 
-#ifndef SHUTTER_DELAY
-#define SHUTTER_DELAY 2  /* 4Hz -> 0.5s */
+#ifndef DC_SHUTTER_DELAY
+#define DC_SHUTTER_DELAY 2  /* 4Hz -> 0.5s */
 #endif
 
 #ifndef DC_SHUTTER_LED
@@ -77,7 +80,7 @@ static inline void led_cam_ctrl_init(void)
 /* Command The Camera */
 static inline void dc_send_command(uint8_t cmd)
 {
-  dc_timer = SHUTTER_DELAY;
+  dc_timer = DC_SHUTTER_DELAY;
   switch (cmd)
   {
     case DC_SHOOT:
@@ -85,12 +88,12 @@ static inline void dc_send_command(uint8_t cmd)
       dc_send_shot_position();
       break;
 #ifdef DC_ZOOM_IN_LED
-    case DC_ZOOM_IN:
+    case DC_TALLER:
       DC_PUSH(DC_ZOOM_IN_LED);
       break;
 #endif
 #ifdef DC_ZOOM_OUT_LED
-    case DC_ZOOM_OUT:
+    case DC_WIDER:
       DC_PUSH(DC_ZOOM_OUT_LED);
       break;
 #endif
@@ -104,7 +107,7 @@ static inline void dc_send_command(uint8_t cmd)
 
 
 /* 4Hz Periodic */
-static inline void led_cam_ctrl_periodic( void ) 
+static inline void led_cam_ctrl_periodic( void )
 {
   if (dc_timer) {
     dc_timer--;

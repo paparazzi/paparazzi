@@ -10,10 +10,7 @@ ARCH=lpc21
 BOARD=classix
 BOARD_VERSION=1.0
 
-#BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
-
-# TODO: update syntax
-BOARD_CFG = \"classix.h\"
+BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 
 ifndef FLASH_MODE
 FLASH_MODE = IAP
