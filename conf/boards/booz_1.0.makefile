@@ -34,6 +34,10 @@ endif
 
 AHRS_ALIGNER_LED = 3
 
+ifndef GPS_PORT
 GPS_PORT=UART0
+endif
+ifndef GPS_BAUD
 GPS_BAUD=B38400
+endif
 GPS_LED=4
