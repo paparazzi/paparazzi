@@ -64,8 +64,10 @@ type tree
 val tree_widget : tree -> GTree.view
 val tree_model : tree -> (GTree.list_store * string GTree.column)
 
-val tree : GTree.view -> GTree.list_store -> string GTree.column -> tree
+val tree : GTree.view -> tree
+val tree_of : GTree.view -> (GTree.list_store * string GTree.column) -> tree
 
 val tree_values : tree -> string
-val add_to_tree : tree -> string -> unit
 val get_selected_in_tree : tree -> GTree.row_reference list
+val add_to_tree : tree -> string -> unit
+val remove_selected_from_tree : tree -> unit
