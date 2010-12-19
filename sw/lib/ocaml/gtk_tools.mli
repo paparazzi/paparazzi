@@ -71,3 +71,4 @@ val tree_values : tree -> string
 val get_selected_in_tree : tree -> GTree.row_reference list
 val add_to_tree : tree -> string -> unit
 val remove_selected_from_tree : tree -> unit
+val clear_tree : tree -> unit

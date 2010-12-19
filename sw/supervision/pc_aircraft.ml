@@ -229,9 +229,11 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
       List.iter	(fun (a, _subdir, label, _, _, _, _) ->
         match label with
           Label l -> l#set_text (value a)
-        | Tree t -> let names = Str.split regexp_space (value a) in
-        Printf.printf "%d\n" (List.length names); flush stdout;
-                    List.iter (fun n -> prerr_endline n; Gtk_tools.add_to_tree t n) names
+        | Tree t ->
+            ignore (Gtk_tools.clear_tree tree_set);
+            let names = Str.split regexp_space (value a) in
+            Printf.printf "%d\n" (List.length names); flush stdout;
+            List.iter (fun n -> prerr_endline n; Gtk_tools.add_to_tree t n) names
       ) (ac_files gui model);
       let ac_id = ExtXml.attrib aircraft "ac_id"
       and gui_color = ExtXml.attrib_or_default aircraft "gui_color" "white" in

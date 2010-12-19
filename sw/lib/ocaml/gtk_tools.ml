@@ -147,3 +147,6 @@ let remove_selected_from_tree = fun (tree : tree) ->
   let (store, _) = tree_model tree in
   List.iter (fun r -> ignore (store#remove r#iter)) selected
 
+let clear_tree = fun (tree : tree) ->
+  let (store, _) = tree_model tree in
+  store#clear ()
