@@ -29,7 +29,7 @@ jsbsim.srcs = $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_gps.c $(SRC_ARCH)/jsbsi
 jsbsim.srcs += latlong.c downlink.c commands.c gps.c inter_mcu.c subsystems/sensors/infrared.c \
                $(SRC_FIXEDWING)/stabilization/stabilization_attitude.c \
                $(SRC_FIXEDWING)/guidance/guidance_v.c\
-               subsystems/nav.c estimator.c sys_time.c $(SRC_FIRMWARE)/main_fbw.c $(SRC_FIRMWARE)/main_ap.c datalink.c
+               subsystems/nav.c estimator.c sys_time.c $(SRC_FIRMWARE)/main_fbw.c $(SRC_FIRMWARE)/main_ap.c $(SRC_FIRMWARE)/datalink.c
 jsbsim.srcs += $(SIMDIR)/sim_ac_jsbsim.c
 # Choose in your airframe file type of airframe
 # jsbsim.srcs += $(SIMDIR)/sim_ac_fw.c
