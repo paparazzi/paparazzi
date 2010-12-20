@@ -189,8 +189,9 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_l_1.0">
+      <define name="GPS_UART_NR"     value="3"/>
 <!--      <define name="BOOZ_START_DELAY" value="1"/> -->
-      <subsystem name="radio_control" type="spektrum"/>
+      <subsystem name="radio_control" type="ppm"/>
       <subsystem name="actuators"     type="mkk"/>
     </target>
     <target name="sim" board="pc">

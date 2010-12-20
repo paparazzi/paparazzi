@@ -265,13 +265,13 @@ ap.CFLAGS += -DUSE_INFRARED -DALT_KALMAN
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
+ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c
 
 
 ap.CFLAGS += -DUSE_GYRO -DADXRS150
-ap.srcs += gyro.c nav_line.c
-ap.srcs += nav_survey_rectangle.c
-# chemotaxis.c anemotaxis.c discsurvey.c
+ap.srcs += gyro.c subsystems/navigation/nav_line.c
+ap.srcs += subsystems/navigation/nav_survey_rectangle.c
+# chemotaxis.c anemotaxis.c subsystems/navigation/discsurvey.c
 
 ########## Barometer (SPI)
 #ap.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0 -DUSE_BARO_MS5534A
@@ -299,15 +299,15 @@ ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150
 #include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.ARCHDIR = $(ARCHI)
 sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DUSE_INFRARED -DNAV -DLED -DWIND_INFO
-sim.srcs = latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c infrared.c fw_h_ctl.c fw_v_ctl.c nav.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_ir.c $(SRC_ARCH)/sim_ap.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c $(SRC_ARCH)/led_hw.c
+sim.srcs = latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c infrared.c fw_h_ctl.c fw_v_ctl.c subsystems/nav.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_ir.c $(SRC_ARCH)/sim_ap.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c $(SRC_ARCH)/led_hw.c
 
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
 
-sim.srcs += nav_line.c nav_survey_rectangle.c
+sim.srcs += subsystems/navigation/nav_line.c subsystems/navigation/nav_survey_rectangle.c
 # -DENOSE
 #sim.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 #sim.CFLAGS += -DUSE_I2C -DUSE_I2C0
-# chemotaxis.c anemotaxis.c discsurvey.c $(SRC_ARCH)/sim_enose.c chemo_detect.c
+# chemotaxis.c anemotaxis.c subsystems/navigation/discsurvey.c $(SRC_ARCH)/sim_enose.c chemo_detect.c
 
 #sim.CFLAGS += -DDIGITAL_CAM -DPOWER_SWITCH_LED=4
 #sim.srcs += dc.c

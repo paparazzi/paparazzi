@@ -2,7 +2,7 @@
 * $Id$
 *
 * Multi aircrafts map display and flight plan editor
-*  
+*
 * Copyright (C) 2004-2009 ENAC, Pascal Brisset, Antoine Drouin
 *
 * This file is part of paparazzi.
@@ -20,7 +20,7 @@
 * You should have received a copy of the GNU General Public License
 * along with paparazzi; see the file COPYING.  If not, write to
 * the Free Software Foundation, 59 Temple Place - Suite 330,
-* Boston, MA 02111-1307, USA. 
+* Boston, MA 02111-1307, USA.
 *
 *)
 
@@ -36,7 +36,7 @@ let default_path_srtm = home // "data" // "srtm"
 let default_path_maps = home // "data" // "maps"
 let layout_path = home // "conf" // "gcs"
 let var_maps_path = home // "var" // "maps"
-let _ = 
+let _ =
   ignore (Sys.command (sprintf "mkdir -p %s" var_maps_path))
 
 let ign = ref false
@@ -61,32 +61,32 @@ let display_map = fun (geomap:G.widget) xml_map ->
       truncate (ExtXml.float_attrib p "x"), truncate (ExtXml.float_attrib p "y") in
     let geo_ref = fun p ->
       try Latlong.of_string (Xml.attrib p "geo") with
-	_ -> (* Compatibility with the old UTM format *)
-	  let utm_x = ExtXml.float_attrib p "utm_x"
-	  and utm_y = ExtXml.float_attrib p "utm_y" in
-	  let utm_zone = ExtXml.int_attrib xml_map "utm_zone" in
-	  let utm = {utm_x = utm_x;  utm_y = utm_y; utm_zone = utm_zone } in
-	  Latlong.of_utm WGS84 utm in
-    
+    _ -> (* Compatibility with the old UTM format *)
+      let utm_x = ExtXml.float_attrib p "utm_x"
+      and utm_y = ExtXml.float_attrib p "utm_y" in
+      let utm_zone = ExtXml.int_attrib xml_map "utm_zone" in
+      let utm = {utm_x = utm_x;  utm_y = utm_y; utm_zone = utm_zone } in
+      Latlong.of_utm WGS84 utm in
+
     match Xml.children xml_map with
       p1::p2::_ ->
-	let x1y1 = pix_ref p1
-	and x2y2 = pix_ref p2
-	and geo1 = geo_ref p1
-	and geo2 = geo_ref p2 in
-	
-	(* Take this point as a reference for the display if none currently *)
-	Map2d.set_georef_if_none geomap geo1;
-	
-	ignore (geomap#display_pixbuf ?opacity ((x1y1),geo1) ((x2y2),geo2) (GdkPixbuf.from_file image));
-	geomap#center geo1
+    let x1y1 = pix_ref p1
+    and x2y2 = pix_ref p2
+    and geo1 = geo_ref p1
+    and geo2 = geo_ref p2 in
+
+    (* Take this point as a reference for the display if none currently *)
+    Map2d.set_georef_if_none geomap geo1;
+
+    ignore (geomap#display_pixbuf ?opacity ((x1y1),geo1) ((x2y2),geo2) (GdkPixbuf.from_file image));
+    geomap#center geo1
     | _ -> failwith (sprintf "display_map: two ref points required")
   with
     Xml.File_not_found f ->
       GToolbox.message_box "Error" (sprintf "File does not exist: %s" f)
   | ExtXml.Error s ->
       GToolbox.message_box "Error" (sprintf "Error in XML file: %s" s)
-	
+
 
 
 let load_map = fun (geomap:G.widget) () ->
@@ -104,14 +104,14 @@ let save_map = fun geomap ?(projection=geomap#projection) pixbuf nw se ->
       let jpg = Filename.chop_extension xml_file ^ ".png" in
       GdkPixbuf.save jpg "png" pixbuf;
       let point = fun (x,y) wgs84 ->
-	Xml.Element ("point", ["x",soi x;"y",soi y;"geo", Latlong.string_of wgs84], []) in
+    Xml.Element ("point", ["x",soi x;"y",soi y;"geo", Latlong.string_of wgs84], []) in
       let width = GdkPixbuf.get_width pixbuf
       and height = GdkPixbuf.get_height pixbuf in
       let points = [point (0, 0) nw; point (width, height) se] in
-      let xml = Xml.Element ("map", 
-			     ["file", Filename.basename jpg;
-			      "projection", projection],
-			     points) in
+      let xml = Xml.Element ("map",
+                 ["file", Filename.basename jpg;
+                  "projection", projection],
+                 points) in
       let f = open_out xml_file in
       Printf.fprintf f "%s\n" (Xml.to_string_fmt xml);
       close_out f
@@ -132,7 +132,7 @@ let map_from_region = fun (geomap:G.widget) () ->
       let (x0, y0) = geomap#canvas#get_scroll_offsets in
       let src_x = xc1 - x0 and src_y = yc1 - y0 in
       GdkPixbuf.get_from_drawable ~dest ~width ~height ~src_x ~src_y
-	geomap#canvas#misc#window;
+    geomap#canvas#misc#window;
       let nw = geomap#of_world (xw1,yw1)
       and se = geomap#of_world (xw2,yw2) in
       save_map geomap dest nw se
@@ -161,7 +161,7 @@ module TodoList = struct
       Mutex.unlock mutex;
       f ();
       exec_todo_list todo_list
-	
+
   let add = fun f ->
     Mutex.lock mutex;
     (** Add the function to the queue *)
@@ -171,36 +171,36 @@ module TodoList = struct
       doer := Some (Thread.create exec_todo_list queue);
     Mutex.unlock mutex
 end
-  
+
 
 (************ Google, OSM Maps handling *****************************************)
 module GM = struct
   (** Fill the visible background with Google, OSM tiles *)
-  let fill_tiles = fun geomap -> 
+  let fill_tiles = fun geomap ->
     TodoList.add (fun () -> MapGoogle.fill_window geomap)
 
   let auto = ref false
   let update = fun geomap ->
     if !auto then fill_tiles geomap
-  let active_auto = fun geomap x -> 
+  let active_auto = fun geomap x ->
     auto := x;
-    update geomap      
+    update geomap
 
 (** Creates a calibrated map from the Google, OSM tiles (selected region) *)
   let map_from_tiles = fun (geomap:G.widget) () ->
     match geomap#region with
       None -> GToolbox.message_box "Error" "Select a region (shift-left drag)"
     | Some ((xw1,yw1), (xw2,yw2)) ->
-	let geo1 = geomap#of_world (xw1,yw1)
-	and geo2 = geomap#of_world (xw2,yw2) in
-	let sw = { posn_lat = min geo1.posn_lat geo2.posn_lat;
-		   posn_long = min geo1.posn_long geo2.posn_long }
-	and ne = { posn_lat = max geo1.posn_lat geo2.posn_lat;
-		   posn_long = max geo1.posn_long geo2.posn_long } in
-	let pix = MapGoogle.pixbuf sw ne in
-	let nw = { posn_lat = ne.posn_lat; posn_long = sw.posn_long }
-	and se = { posn_lat = sw.posn_lat; posn_long = ne.posn_long } in
-	save_map geomap ~projection:"Mercator" pix nw se
+    let geo1 = geomap#of_world (xw1,yw1)
+    and geo2 = geomap#of_world (xw2,yw2) in
+    let sw = { posn_lat = min geo1.posn_lat geo2.posn_lat;
+           posn_long = min geo1.posn_long geo2.posn_long }
+    and ne = { posn_lat = max geo1.posn_lat geo2.posn_lat;
+           posn_long = max geo1.posn_long geo2.posn_long } in
+    let pix = MapGoogle.pixbuf sw ne in
+    let nw = { posn_lat = ne.posn_lat; posn_long = sw.posn_long }
+    and se = { posn_lat = sw.posn_lat; posn_long = ne.posn_long } in
+    save_map geomap ~projection:"Mercator" pix nw se
 end (* GM module *)
 
 let bdortho_size = 400
@@ -219,16 +219,16 @@ let display_bdortho = fun  (geomap:G.widget) wgs84 () ->
       let nw = of_lambertIIe {lbt_x = lx - r; lbt_y = ly + r}
       and se = of_lambertIIe {lbt_x = lx + r; lbt_y = ly - r} in
       ignore (geomap#display_pixbuf ((0,0), nw) ((bdortho_size, bdortho_size), se)  (GdkPixbuf.from_file f));
-      
+
     in
     if Sys.file_exists f then
       display f
     else
       TodoList.add
-	(fun () ->
-	  let c = sprintf "%s %d %d %d %s" !get_bdortho lx ly r f in
-	  ignore (Sys.command c);
-	  display f)
+    (fun () ->
+      let c = sprintf "%s %d %d %d %s" !get_bdortho lx ly r f in
+      ignore (Sys.command c);
+      display f)
   end
 
 
@@ -252,9 +252,9 @@ let fill_ortho = fun (geomap:G.widget) ->
       display_bdortho geomap geo ()
     done
   done
-    
 
-    
+
+
 
 (******* Mouse motion handling **********************************************)
 let motion_notify = fun (_geomap:G.widget) _ev -> false
@@ -267,25 +267,25 @@ let button_press = fun (geomap:G.widget) ev ->
   let state = GdkEvent.Button.state ev in
   if GdkEvent.Button.button ev = 3 then begin
     (** Display a tile from Google Maps or IGN *)
-    let xc = GdkEvent.Button.x ev 
+    let xc = GdkEvent.Button.x ev
     and yc = GdkEvent.Button.y ev in
     let (xw,yw) = geomap#window_to_world xc yc in
-    
+
     let wgs84 = geomap#of_world (xw,yw) in
-    let display_ign = fun () ->	
+    let display_ign = fun () ->
       TodoList.add (fun () -> MapIGN.display_tile geomap wgs84)
     and display_gm = fun () ->
       TodoList.add
-	(fun () ->
-	  try ignore (MapGoogle.display_tile geomap wgs84) with
-	    Gm.Not_available -> ()) in
-    
+    (fun () ->
+      try ignore (MapGoogle.display_tile geomap wgs84) with
+        Gm.Not_available -> ()) in
+
     let m = if !ign then [`I ("Load IGN tile", display_ign)] else [] in
     let m =
       if !get_bdortho <> "" then
-	(`I ("Load BDORTHO", display_bdortho geomap wgs84))::m
-      else 
-	m in
+    (`I ("Load BDORTHO", display_bdortho geomap wgs84))::m
+      else
+    m in
     GToolbox.popup_menu ~entries:([`I ("Load Google tile", display_gm)]@m)
       ~button:3 ~time:(Int32.of_int 0);
     true
@@ -296,7 +296,7 @@ let button_press = fun (geomap:G.widget) ev ->
     let geo = geomap#of_world xyw in
     ignore (EditFP.create_wp geomap geo);
     true
-  else 
+  else
     false
 
 
@@ -372,7 +372,7 @@ let options =
 let quit = fun () ->
   match GToolbox.question_box ~title:"Leaving GCS" ~buttons:["Quit"; "Cancel"] "Do you want to quit ?" with
     1 ->
-      GMain.Main.quit (); 
+      GMain.Main.quit ();
       exit 0
   | _ -> ()
 
@@ -407,16 +407,20 @@ let create_geomap = fun switch_fullscreen editor_frame ->
       let callback = fun b -> if b then Gm.set_maps_source maps_source in
       let menu_item = maps_source_fact#add_radio_item ~group: !group ~callback (Gm.string_of_maps_source maps_source) in
       group := menu_item#group)
-    Gm.maps_sources;  
+    Gm.maps_sources;
 
   (* Choose the map policy *)
   let maps_policy_menu = map_menu_fact#add_submenu "Maps Policy" in
   let maps_policy_fact = new GMenu.factory maps_policy_menu in
   let group = ref None in
+  (* Determine a decent default selected item *)
+  let active_policy = if Gm.get_policy () = Gm.NoHttp then Gm.NoHttp
+  else Gm.CacheOrHttp in
   List.iter
     (fun policy ->
       let callback = fun b -> if b then Gm.set_policy policy in
-      let menu_item = maps_policy_fact#add_radio_item ~group: !group ~callback (Gm.string_of_policy policy) in
+      let active = (policy = active_policy) in
+      let menu_item = maps_policy_fact#add_radio_item ~group: !group ~active ~callback (Gm.string_of_policy policy) in
       group := menu_item#group)
     Gm.policies;
 
@@ -434,12 +438,12 @@ let create_geomap = fun switch_fullscreen editor_frame ->
   ignore (map_menu_fact#add_item "Map of Region" ~key:GdkKeysyms._R ~callback:(map_from_region geomap));
   ignore (map_menu_fact#add_item "Dump map of Tiles" ~key:GdkKeysyms._T ~callback:(GM.map_from_tiles geomap));
   ignore (map_menu_fact#add_item "Load sector" ~callback:(Sectors.load geomap));
-  
+
   (** Connect Google Maps display to view change *)
   geomap#connect_view (fun () -> GM.update geomap);
   if !auto_ortho then
     geomap#connect_view (fun () -> fill_ortho geomap);
-  
+
   (** Flight plan editing *)
   if !edit then begin
     let fp_menu = geomap#factory#add_submenu "Edit" in
@@ -469,9 +473,9 @@ let resize = fun (widget:GObj.widget) orientation size ->
   match size with
     Some size ->
       if orientation = `HORIZONTAL then
-	widget#misc#set_size_request ~width:size ()
+    widget#misc#set_size_request ~width:size ()
       else
-	widget#misc#set_size_request ~height:size ()
+    widget#misc#set_size_request ~height:size ()
   | None -> ()
 
 
@@ -481,15 +485,15 @@ let rec pack_widgets = fun orientation xml widgets packing ->
     "widget" ->
       let name = ExtXml.attrib xml "name" in
       let widget =
-	try List.assoc name widgets with
-	  Not_found -> failwith (sprintf "Unknown widget: '%s'" name)
+    try List.assoc name widgets with
+      Not_found -> failwith (sprintf "Unknown widget: '%s'" name)
       in
       resize widget orientation size;
       packing widget
   | "rows" ->
       let resize = match size with None -> fun _ -> () | Some width -> fun (x:GObj.widget) -> x#misc#set_size_request ~width () in
       pack_list resize `VERTICAL (Xml.children xml) widgets packing
-  | "columns" -> 
+  | "columns" ->
       let resize = match size with None -> fun _ -> () | Some height -> fun (x:GObj.widget) -> x#misc#set_size_request ~height () in
       pack_list resize `HORIZONTAL (Xml.children xml) widgets packing
   | x -> failwith (sprintf "pack_widgets: %s" x)
@@ -508,10 +512,10 @@ let rec find_widget_children = fun name xml ->
     "widget" when ExtXml.attrib xml "name" = name -> xmls
   | "rows" | "columns" ->
       let rec loop = function
-	  [] -> raise Not_found
-	| x::xs ->
-	    try find_widget_children name x with
-	      Not_found -> loop xs in
+      [] -> raise Not_found
+    | x::xs ->
+        try find_widget_children name x with
+          Not_found -> loop xs in
       loop xmls
   | _ -> raise Not_found
 
@@ -522,16 +526,16 @@ let rec replace_widget_children = fun name children xml ->
   match tag with
     "widget" ->
       Xml.Element("widget",
-		  Xml.attribs xml,
-		  if ExtXml.attrib xml "name" = name then children else xmls)
+          Xml.attribs xml,
+          if ExtXml.attrib xml "name" = name then children else xmls)
   | "rows" | "columns" ->
       let rec loop = function
-	  [] -> []
-	| x::xs ->
-	    replace_widget_children name children x :: loop xs in
+      [] -> []
+    | x::xs ->
+        replace_widget_children name children x :: loop xs in
       Xml.Element(tag,
-		  Xml.attribs xml,
-		  loop xmls)
+          Xml.attribs xml,
+          loop xmls)
   | _ -> xml
 
 
@@ -587,37 +591,37 @@ let () =
   let kill_plugin = fun () ->
     match !pid_plugin with
       None -> ()
-    | Some pid -> 
-	try 
-	  Unix.kill pid (-9);
-	  ignore (Unix.waitpid [] pid)
-	with _ -> () in
+    | Some pid ->
+    try
+      Unix.kill pid (-9);
+      ignore (Unix.waitpid [] pid)
+    with _ -> () in
   let destroy = fun _ ->
     kill_plugin ();
     exit 0 in
-  
+
   (** The whole window map2d **)
   let window, switch_fullscreen =
     match !wid with
       None ->
-	let icon = GdkPixbuf.from_file Env.icon_file in
-  	let window = GWindow.window ~icon ~title:"GCS" ~border_width:1 ~width ~height ~allow_shrink:true () in
-	if !maximize then
-	  window#maximize ();
-	if !fullscreen then
-	  window#fullscreen ();
-	ignore (window#connect#destroy ~callback:destroy);
-	let switch_fullscreen = fun () ->
-	  fullscreen := not !fullscreen;
-	  if !fullscreen then
-	    window#fullscreen ()
-	  else
-	    window#unfullscreen () in
-	(window:>GWindow.window_skel),switch_fullscreen
+    let icon = GdkPixbuf.from_file Env.icon_file in
+    let window = GWindow.window ~icon ~title:"GCS" ~border_width:1 ~width ~height ~allow_shrink:true () in
+    if !maximize then
+      window#maximize ();
+    if !fullscreen then
+      window#fullscreen ();
+    ignore (window#connect#destroy ~callback:destroy);
+    let switch_fullscreen = fun () ->
+      fullscreen := not !fullscreen;
+      if !fullscreen then
+        window#fullscreen ()
+      else
+        window#unfullscreen () in
+    (window:>GWindow.window_skel),switch_fullscreen
 
     | Some window ->
-	(GWindow.plug ~window ~width ~height ():>GWindow.window_skel), fun _ -> () in
-	
+    (GWindow.plug ~window ~width ~height ():>GWindow.window_skel), fun _ -> () in
+
   (* Editor frame *)
   let editor_frame = GBin.frame () in
 
@@ -641,13 +645,13 @@ let () =
   let plugin_width = 400 and plugin_height = 300 in
   let plugin_frame = GPack.vbox ~width:plugin_width () in
 
-  let widgets = ["map2d", map_frame#coerce; 
-		 "strips", Strip.scrolled#coerce;
-		 "aircraft", ac_notebook#coerce;
-		 "editor", editor_frame#coerce;
-		 "alarms", alert_page#coerce;
-		 "altgraph", alt_graph#drawing_area#coerce;
-		 "plugin", plugin_frame#coerce] in
+  let widgets = ["map2d", map_frame#coerce;
+         "strips", Strip.scrolled#coerce;
+         "aircraft", ac_notebook#coerce;
+         "editor", editor_frame#coerce;
+         "alarms", alert_page#coerce;
+         "altgraph", alt_graph#drawing_area#coerce;
+         "plugin", plugin_frame#coerce] in
 
   let the_layout = ExtXml.child layout "0" in
   pack_widgets `HORIZONTAL the_layout widgets window#add;
@@ -668,7 +672,7 @@ let () =
 
   if !mplayer <> "" then
     plugin_window := sprintf "mplayer -really-quiet -nomouseinput %s -wid " !mplayer;
-  if !plugin_window <> "" then begin  
+  if !plugin_window <> "" then begin
     if plugin_frame#misc#parent = None then
       failwith "Error: \"plugin\" widget required in layout description";
     let frame = GBin.event_box ~packing:plugin_frame#add ~width:plugin_width ~height:plugin_height () in
@@ -677,8 +681,8 @@ let () =
 
     let restart = fun () ->
       begin match !pid_plugin with
-	None -> ()
-      | Some p -> try Unix.kill p Sys.sigkill with _ -> () 
+    None -> ()
+      | Some p -> try Unix.kill p Sys.sigkill with _ -> ()
       end;
       let com = sprintf "exec %s" com in
       let dev_null = Unix.descr_of_out_channel (open_out "/dev/null") in
@@ -687,9 +691,9 @@ let () =
     restart ();
 
     ignore (menu_fact#add_item "Restart plugin" ~key:GdkKeysyms._P ~callback:restart);
-    
+
     Plugin.frame := Some frame;
-    
+
     let swap = fun _ ->
       (** Keep the center of the geo canvas *)
       let c = geomap#get_center () in
@@ -700,16 +704,16 @@ let () =
       child1#misc#reparent plugin_frame#coerce;
 
       (* Strange: the centering does not work if done inside this callback.
-	 It is postponed to be called by the mainloop(). *)
+     It is postponed to be called by the mainloop(). *)
       ignore (GMain.Idle.add (fun () -> geomap#center c; false));
     in
 
     let callback = fun ev ->
       match GdkEvent.Button.button ev with
-	1 -> swap (); true
+    1 -> swap (); true
       | 3 -> restart (); true
       | _ -> false in
-      
+
     ignore (frame#event#connect#button_press ~callback);
     ignore (menu_fact#add_item "Swap plugin/map" ~callback:(fun _ -> swap ()));
   end;

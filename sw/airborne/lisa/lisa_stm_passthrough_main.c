@@ -22,7 +22,7 @@
  *
  */
 
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "downlink.h"
 #include "booz/booz2_commands.h"
@@ -45,9 +45,9 @@
 #include "csc_msg_def.h"
 #include "csc_protocol.h"
 
-#include "firmwares/rotorcraft/baro.h"
+#include "subsystems/sensors/baro.h"
 
-#include "adc.h"
+#include "mcu_periph/adc.h"
 
 static inline void main_init(void);
 static inline void main_periodic(void);
@@ -103,7 +103,7 @@ int main(void) {
 
 static inline void main_init(void) {
 
-	hw_init();
+	mcu_init();
 	sys_time_init();
 	imu_init();
 	baro_init();
@@ -111,7 +111,6 @@ static inline void main_init(void) {
 	actuators_init();
 	overo_link_init();
 	cscp_init();
-	adc_init();
 
 #ifdef PASSTHROUGH_CYGNUS
 	autopilot_init();

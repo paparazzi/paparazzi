@@ -31,7 +31,7 @@
 
 //#include "downlink.h"
 //#include "messages.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "csc_ap_link.h"
 //#include "print.h"
 //#include "com_stats.h"

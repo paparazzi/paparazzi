@@ -3,7 +3,7 @@
 <flight_plan alt="75" ground_alt="1" lat0="78.22157" lon0="15.679379" max_dist_from_home="4500" name="KV Svalbard" security_height="25">
 
   <header>
-#include "nav_line.h"
+#include "subsystems/navigation/nav_line.h"
 #include "datalink.h"
 </header>
   <waypoints>

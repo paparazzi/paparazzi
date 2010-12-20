@@ -29,7 +29,7 @@
 
 # temporary hack for ADCs
 ifeq ($(ARCH), stm32)
-$(TARGET).CFLAGS += -DSTM32
+# FIXME : this is for the battery
 $(TARGET).CFLAGS += -DUSE_AD1_3
 endif
 #
@@ -37,7 +37,11 @@ endif
 #
 
 $(TARGET).CFLAGS 	+= -DBOARD_CONFIG=$(BOARD_CFG)
+$(TARGET).CFLAGS 	+= -DPERIPHERALS_AUTO_INIT
 $(TARGET).CFLAGS 	+= $(FIXEDWING_INC)
+
+$(TARGET).srcs 	+= mcu.c
+$(TARGET).srcs 	+= $(SRC_ARCH)/mcu_arch.c
 
 #
 # Common Options
@@ -54,7 +58,7 @@ $(TARGET).CFLAGS 	+= -DTRAFFIC_INFO
 # LEDs
 #
 
-$(TARGET).CFLAGS 	+= -DLED
+$(TARGET).CFLAGS 	+= -DUSE_LED
 ifneq ($(ARCH), lpc21)
   ifneq ($(ARCH), jsbsim)
     $(TARGET).srcs 	+= $(SRC_ARCH)/led_hw.c
@@ -126,18 +130,15 @@ ns_srcs 		+= $(SRC_ARCH)/sys_time_hw.c
 # UARTS
 #
 
-ns_srcs 		+= $(SRC_ARCH)/uart_hw.c
+ns_srcs 		+= $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 #
 # ANALOG
 #
 
-  ns_CFLAGS 		+= -DADC
+  ns_CFLAGS 		+= -DUSE_ADC
 #ifeq ($(ARCH), lpc21)
-  ns_srcs 		+= $(SRC_ARCH)/adc_hw.c
-#else ifeq ($(ARCH), stm32)
-#  ns_srcs 		+= lisa/lisa_analog_plug.c
-#endif
+  ns_srcs 		+= $(SRC_ARCH)/mcu_periph/adc_arch.c
 ifeq ($(ARCH), stm32)
   ns_CFLAGS 		+= -DUSE_ADC1_2_IRQ_HANDLER
 endif
@@ -149,6 +150,7 @@ endif
 
 fbw_CFLAGS		+= -DFBW
 fbw_srcs 		+= $(SRC_FIRMWARE)/main_fbw.c
+fbw_srcs 		+= subsystems/electrical.c
 fbw_srcs 		+= $(SRC_FIXEDWING)/commands.c
 
 ######################################################################
@@ -173,7 +175,7 @@ sim.CFLAGS 		+= -DSITL
 sim.srcs 		+= $(SRC_ARCH)/sim_ap.c
 
 sim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
-sim.srcs 		+= downlink.c datalink.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c
+sim.srcs 		+= downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c
 
 ######################################################################
 ##
@@ -194,7 +196,7 @@ jsbsim.CFLAGS 		+= -I$(SIMDIR) -I/usr/include -I$(JSBSIM_INC) `pkg-config glib-2
 jsbsim.LDFLAGS		+= `pkg-config glib-2.0 --libs` -lm -lpcre -lglibivy -L/usr/lib -lJSBSim
 
 jsbsim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
-jsbsim.srcs 		+= downlink.c datalink.c $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/jsbsim_transport.c
+jsbsim.srcs 		+= downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/jsbsim_transport.c
 
 ######################################################################
 ##
@@ -207,9 +209,9 @@ jsbsim.srcs 		+= downlink.c datalink.c $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsi
 
 ifeq ($(BOARD),classix)
   fbw.CFLAGS 		+= -DMCU_SPI_LINK -DUSE_SPI -DSPI_SLAVE
-  fbw.srcs 		+= $(SRC_FIXEDWING)/link_mcu.c $(SRC_FIXEDWING)/spi.c $(SRC_ARCH)/spi_hw.c
+  fbw.srcs 		+= $(SRC_FIXEDWING)/link_mcu.c mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
   ap.CFLAGS 		+= -DMCU_SPI_LINK -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0
-  ap.srcs 		+= $(SRC_FIXEDWING)/link_mcu.c $(SRC_FIXEDWING)/spi.c $(SRC_ARCH)/spi_hw.c
+  ap.srcs 		+= $(SRC_FIXEDWING)/link_mcu.c mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_arch.c
 else
   # Single MCU's run both
   ap.CFLAGS 		+= $(fbw_CFLAGS)

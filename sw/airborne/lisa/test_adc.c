@@ -26,11 +26,10 @@
 #include <stm32/misc.h>
 
 #include BOARD_CONFIG
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "led.h"
-#include "adc.h"
-#include "adc_hw.h"
+#include "mcu_periph/adc.h"
 #include "downlink.h"
 
 int main_periodic(void);
@@ -46,7 +45,7 @@ static struct adc_buf adc3_buf;
 extern uint8_t adc_new_data_trigger;
 
 static inline void main_init( void ) {
-    hw_init();
+    mcu_init();
     sys_time_init();
     adc_init();
     adc_buf_channel(0, &adc0_buf, 8);

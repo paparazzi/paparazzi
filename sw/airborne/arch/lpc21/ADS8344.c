@@ -27,7 +27,7 @@
 #include "armVIC.h"
 #include BOARD_CONFIG
 #include "led.h"
-#include "spi_hw.h"
+#include "mcu_periph/spi.h"
 
 #define ADS8344_SS_IODIR IO0DIR
 #define ADS8344_SS_IOSET IO0SET

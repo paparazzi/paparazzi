@@ -195,7 +195,7 @@ test_usb.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 test_usb.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DUSE_USB_SERIAL
 test_usb.CFLAGS += -DDOWNLINK_DEVICE=UsbS -DPPRZ_UART=UsbS -DDATALINK=PPRZ
 test_usb.srcs += downlink.c $(SRC_ARCH)/uart_hw.c $(SRC_ARCH)/usb_ser_hw.c pprz_transport.c
-# datalink.c
+# $(SRC_FIRMWARE)/datalink.c
 test_usb.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
 test_usb.srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 
@@ -430,7 +430,7 @@ test_amc.srcs += $(SRC_ARCH)/uart_hw.c
 test_amc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
 test_amc.srcs += downlink.c pprz_transport.c
 test_amc.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart1
-test_amc.srcs += $(SRC_BOOZ)/booz2_datalink.c
+test_amc.srcs += $(SRC_FIRMWARE)/datalink.c
 
 test_amc.CFLAGS += -DACTUATORS=\"actuators_asctec_twi_blmc_hw.h\"
 test_amc.srcs += $(SRC_BOOZ_ARCH)/actuators_asctec_twi_blmc_hw.c actuators.c

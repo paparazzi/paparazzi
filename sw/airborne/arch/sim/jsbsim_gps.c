@@ -11,7 +11,7 @@
 #include "gps.h"
 #include "estimator.h"
 #include "latlong.h"
-#include "common_nav.h"
+#include "subsystems/navigation/common_nav.h"
 
 uint8_t gps_mode;
 uint16_t  gps_week;    /* weeks */

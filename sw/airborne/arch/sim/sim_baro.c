@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include "estimator.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "gps.h"
 #include "baro_MS5534A.h"
 

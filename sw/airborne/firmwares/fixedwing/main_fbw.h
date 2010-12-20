@@ -31,7 +31,6 @@
 #define FBW_H
 
 #include "std.h"
-#include "adc.h"
 
 /** Fly by wire modes */
 #define FBW_MODE_MANUAL   0
@@ -40,8 +39,6 @@
 #define FBW_MODE_OF_PPRZ(mode) ((mode) < TRESHOLD_MANUAL_PPRZ ? FBW_MODE_MANUAL : FBW_MODE_AUTO)
 
 extern uint8_t fbw_mode;
-extern uint8_t fbw_vsupply_decivolt;
-extern int32_t fbw_current_milliamp;
 extern bool_t failsafe_mode;
 
 void init_fbw( void );

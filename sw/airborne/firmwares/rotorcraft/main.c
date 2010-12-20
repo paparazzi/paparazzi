@@ -25,10 +25,9 @@
 #define MODULES_C
 
 #include <inttypes.h>
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "led.h"
-#include "interrupt_hw.h"
 
 #include "downlink.h"
 #include "firmwares/rotorcraft/telemetry.h"
@@ -42,7 +41,7 @@
 #include "booz_gps.h"
 
 #include "booz/booz2_analog.h"
-#include "firmwares/rotorcraft/baro.h"
+#include "subsystems/sensors/baro.h"
 
 #include "firmwares/rotorcraft/battery.h"
 
@@ -95,7 +94,7 @@ STATIC_INLINE void main_init( void ) {
   }
 #endif
 
-  hw_init();
+  mcu_init();
 
   sys_time_init();
 
@@ -130,7 +129,7 @@ STATIC_INLINE void main_init( void ) {
 
   modules_init();
 
-  int_enable();
+  mcu_int_enable();
 
 }
 
@@ -144,33 +143,32 @@ STATIC_INLINE void main_periodic( void ) {
   /* set actuators     */
   actuators_set(autopilot_motors_on);
 
-  PeriodicPrescaleBy10(							\
-    {                                               \
-      radio_control_periodic_task();				\
-      if (radio_control.status != RC_OK &&			\
-          autopilot_mode != AP_MODE_KILL &&			\
-          autopilot_mode != AP_MODE_NAV)			\
-        autopilot_set_mode(AP_MODE_FAILSAFE);		\
-    },									\
-    {									\
-      /* booz_fms_periodic(); FIXME */					\
-    },									\
-    {									\
-      /*BoozControlSurfacesSetFromCommands();*/				\
-    },									\
-    {									\
-      LED_PERIODIC();                               \
-    },									\
-    { baro_periodic();
-    },									\
-    {},									\
-    {},									\
-    {},									\
-    {},									\
-    {									\
-      Booz2TelemetryPeriodic();						\
-    }									\
-    );									\
+  PeriodicPrescaleBy10(                                     \
+    {                                                       \
+      radio_control_periodic_task();                        \
+      if (radio_control.status != RC_OK &&                  \
+          autopilot_mode != AP_MODE_KILL &&                 \
+          autopilot_mode != AP_MODE_NAV)                    \
+        autopilot_set_mode(AP_MODE_FAILSAFE);               \
+    },                                                      \
+    {                                                       \
+      /* booz_fms_periodic(); FIXME */                      \
+    },                                                      \
+    {                                                       \
+      /*BoozControlSurfacesSetFromCommands();*/             \
+    },                                                      \
+    {                                                       \
+      LED_PERIODIC();                                       \
+    },                                                      \
+    { baro_periodic();                                      \
+    },                                                      \
+    {},                                                     \
+    {},                                                     \
+    {},                                                     \
+    {},                                                     \
+    {                                                       \
+      Booz2TelemetryPeriodic();                             \
+    } );
 
 #ifdef USE_GPS
   if (radio_control.status != RC_OK &&			\

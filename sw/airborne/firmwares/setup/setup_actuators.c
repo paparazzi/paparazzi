@@ -1,6 +1,5 @@
 #include "std.h"
-#include "init_hw.h"
-#include "interrupt_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "led.h"
 #include "firmwares/fixedwing/actuators.h"
@@ -8,7 +7,7 @@
 #include "generated/airframe.h"
 #define DATALINK_C
 #include "datalink.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "pprz_transport.h"
 #include "firmwares/fixedwing/main_fbw.h"
 #include "downlink.h"
@@ -48,7 +47,7 @@ void dl_parse_msg( void ) {
 #define PprzUartInit() Link(Init())
 
 void init_fbw( void ) {
-  hw_init();
+  mcu_init();
   sys_time_init();
   led_init();
 
@@ -63,7 +62,7 @@ void init_fbw( void ) {
 
   //  SetServo(SERVO_GAZ, SERVO_GAZ_MIN);
 
-  int_enable();
+  mcu_int_enable();
 }
 
 void periodic_task_fbw(void) {

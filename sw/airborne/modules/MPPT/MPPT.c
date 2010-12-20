@@ -26,7 +26,7 @@
 #include <stdbool.h>
 #include "MPPT.h"
 #include "firmwares/fixedwing/main_fbw.h"
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 
 
 #define MPPT_SLAVE_ADDR 0x40
@@ -53,7 +53,7 @@ struct i2c_transaction mppt_trans;
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 

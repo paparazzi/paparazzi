@@ -29,14 +29,18 @@
  */
 
 
-#include "ir_mlx.h"
+#include "modules/meteo/ir_mlx.h"
 
 #include "sys_time.h"
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 #include "led.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 
 #ifndef MLX_I2C_DEV
 #define MLX_I2C_DEV i2c0

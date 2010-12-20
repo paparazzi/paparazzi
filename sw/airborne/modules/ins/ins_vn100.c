@@ -176,7 +176,7 @@ void parse_ins_msg( void ) {
 
 }
 
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 

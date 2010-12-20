@@ -28,15 +28,19 @@
  */
 
 
-#include "temp_temod.h"
-#include "i2c.h"
+#include "modules/meteo/temp_temod.h"
+#include "mcu_periph/i2c.h"
 #include "led.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 
 float ftmd_temperature;
 struct i2c_transaction tmd_trans;
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 
 #ifndef TEMOD_I2C_DEV
 #define TEMOD_I2C_DEV i2c0
@@ -47,7 +51,6 @@ struct i2c_transaction tmd_trans;
 #endif
 
 #define TEMOD_SLAVE_ADDR 0xF0
-
 
 void temod_init(void) {
       tmd_trans.status = I2CTransDone;

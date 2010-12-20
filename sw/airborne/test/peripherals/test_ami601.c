@@ -24,18 +24,17 @@
 #include <inttypes.h>
 
 #include "std.h"
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "led.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 #include "peripherals/ami601.h"
 #include "math/pprz_algebra_int.h"
 
-#include "interrupt_hw.h"
 #include "std.h"
 
 static inline void main_init( void );
@@ -55,13 +54,13 @@ int main( void ) {
 }
 
 static inline void main_init( void ) {
-  hw_init();
+  mcu_init();
   sys_time_init();
 
   LED_ON(4);
   ami601_init();
 
-  int_enable();
+  mcu_int_enable();
 }
 
 static inline void main_periodic_task( void ) {

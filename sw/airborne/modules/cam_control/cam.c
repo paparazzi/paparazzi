@@ -28,11 +28,11 @@
 
 #include <math.h>
 #include "cam.h"
-#include "common_nav.h"
+#include "subsystems/navigation/common_nav.h"
 #include "autopilot.h"
 #include "generated/flight_plan.h"
 #include "estimator.h"
-#include "traffic_info.h"
+#include "subsystems/navigation/traffic_info.h"
 #ifdef POINT_CAM
 #include "point.h"
 #endif // POINT_CAM

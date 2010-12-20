@@ -43,10 +43,9 @@
 
 
 #include "generated/flight_plan.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "gps.h"
-//include "gps_ubx.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "latlong.h"
 
 
@@ -97,8 +96,6 @@ void ubxsend_cfg_rst(uint16_t bbr , uint8_t reset_mode) {
 
 #ifdef GPS_CONFIGURE
 /* GPS dynamic configuration */
-
-#include "uart.h"
 
 void gps_configure_uart ( void ) {
   //UbxSend_CFG_PRT(0x01, 0x0, 0x0, 0x000008D0, GPS_BAUD, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);

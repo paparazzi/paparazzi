@@ -1,8 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
- * Copyright (C) 2009 Felix Ruess <felix.ruess@gmail.com>
+ * Copyright (C) 2008-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -25,7 +22,7 @@
 #include "subsystems/ins.h"
 
 #include "subsystems/imu.h"
-#include "firmwares/rotorcraft/baro.h"
+#include "subsystems/sensors/baro.h"
 #include "booz_gps.h"
 
 #include "generated/airframe.h"

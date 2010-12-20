@@ -26,8 +26,8 @@
  * \brief driver for the VectorNav VN100 (Fixed-Wing part)
  */
 
-#include "ins_vn100.h"
-#include "spi.h"
+#include "modules/ins/ins_vn100.h"
+#include "mcu_periph/spi.h"
 
 void ins_init( void ) {
 
@@ -92,7 +92,7 @@ void ins_periodic_task( void ) {
 
 }
 
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 

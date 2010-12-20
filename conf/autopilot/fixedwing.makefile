@@ -24,7 +24,13 @@ FIXEDWING_INC = -I$(SRC_FIRMWARE) -I$(SRC_FIXEDWING)
 include $(CFG_FIXEDWING)/autopilot.makefile
 
 # automatically include correct actuators for the ap target
-ifeq ($(TARGET),ap)
+ifeq ($(BOARD),classix)
+  ACTUATOR_TARGET = fbw
+else
+  ACTUATOR_TARGET = ap
+endif
+
+ifeq ($(TARGET),$(ACTUATOR_TARGET))
 
   ifeq ($(ACTUATORS),)
     ifeq ($(BOARD),tiny)

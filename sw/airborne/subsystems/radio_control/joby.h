@@ -26,7 +26,7 @@
 #define RADIO_CONTROL_JOBY_H
 
 #include "std.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 
 #define RC_JOBY_MAGIC_START   13999
 

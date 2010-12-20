@@ -39,7 +39,7 @@
 #define AIRSPEED_ETS_H
 
 #include "std.h"
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 
 extern uint16_t airspeed_ets_raw;
 extern uint16_t airspeed_ets_offset;

@@ -5,13 +5,17 @@
  */
 
 
-#include "humid_dpicco.h"
+#include "modules/meteo/humid_dpicco.h"
 
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 #include "led.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 
 #ifndef DPICCO_I2C_DEV
 #define DPICCO_I2C_DEV i2c0

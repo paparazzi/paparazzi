@@ -2,7 +2,7 @@
 
 <flight_plan alt="225" ground_alt="175" lat0="43.53900" lon0="1.24500" max_dist_from_home="1500" name="MAV07" qfu="0" security_height="25">
   <header>
-#include "bomb.h"
+#include "subsystems/navigation/bomb.h"
 #include "datalink.h"
 </header>
   <waypoints>

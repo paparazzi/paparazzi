@@ -36,8 +36,8 @@
  */
 #include "sensors/airspeed_ets.h"
 #include "estimator.h"
-#include "i2c.h"
-#include "uart.h"
+#include "mcu_periph/i2c.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 #include <math.h>
@@ -63,6 +63,10 @@
 
 #ifndef AIRSPEED_ETS_I2C_DEV
 #define AIRSPEED_ETS_I2C_DEV i2c0
+#endif
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 
 // Global variables

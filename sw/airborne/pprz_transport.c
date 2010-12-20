@@ -24,7 +24,7 @@
 
 #include <inttypes.h>
 #include "pprz_transport.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 
 uint8_t ck_a, ck_b;
 volatile bool_t pprz_msg_received = FALSE;

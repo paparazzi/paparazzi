@@ -2,7 +2,7 @@
 
 <flight_plan alt="1450" ground_alt="1350" lat0="41.820661" lon0="-111.987935" max_dist_from_home="1500" name="Basic" security_height="25">
   <header>
-#include "nav_line.h"
+#include "subsystems/navigation/nav_line.h"
 #include "datalink.h"
 </header>
   <waypoints>

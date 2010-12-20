@@ -200,8 +200,8 @@
  ap.CFLAGS += -DUSE_INFRARED
  ap.srcs += infrared.c estimator.c
  ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DWIND_INFO
- ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
- ap.srcs += nav_line.c nav_survey_rectangle.c
+ ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c
+ ap.srcs += subsystems/navigation/nav_line.c subsystems/navigation/nav_survey_rectangle.c
 
  ap.CFLAGS += -DTRAFFIC_INFO -DALT_KALMAN
  sim.CFLAGS += -DTRAFFIC_INFO

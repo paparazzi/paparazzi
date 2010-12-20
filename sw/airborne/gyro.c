@@ -30,7 +30,7 @@
 #include BOARD_CONFIG
 #include "gyro.h"
 #include "std.h"
-#include "adc.h"
+#include "mcu_periph/adc.h"
 #include "generated/airframe.h"
 #include "estimator.h"
 

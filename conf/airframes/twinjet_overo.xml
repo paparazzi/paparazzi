@@ -13,7 +13,6 @@
   <firmware name="fixedwing">
     <target name="ap"           board="twog_1.0">
       <define name="UBX_EXTERNAL"/>
-      <define name="USE_ADC_GENERIC"/>
     </target>
 
     <target name="sim"          board="pc"/>
@@ -21,11 +20,6 @@
     <define name="LOITER_TRIM"/>
     <define name="ALT_KALMAN"/>
     <define name="AGR_CLIMB"/>
-
-    <subsystem name="adc" type="generic">
-      <param name="ADC_GENERIC1" value="ADC_3"/>
-      <param name="ADC_GENERIC2" value="ADC_5"/>
-    </subsystem>
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
@@ -44,6 +38,12 @@
 
   <modules>
     <load name="twog_extra_dl.xml"/>
+    <load name="adc_generic.xml">
+      <flag name="ADC_CHANNEL_GENERIC1" value="ADC_3"/>
+      <flag name="ADC_CHANNEL_GENERIC2" value="ADC_5"/>
+      <flag name="USE_ADC_3"/>
+      <flag name="USE_ADC_5"/>
+    </load>
   </modules>
 
   <servos>

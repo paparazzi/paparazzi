@@ -39,7 +39,7 @@
 #define BARO_ETS_H
 
 #include "std.h"
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 
 #define BARO_ETS_DT 0.05
 

@@ -20,8 +20,9 @@
 #define IMU_ACC_DRDY_GPIO_PORTSOURCE  GPIO_PortSourceGPIOD
 
 
-#define ADC_CHANNEL_VSUPPLY 4
-#define DefaultVoltageOfAdc(adc) (0.01787109375*adc)
+#define ADC_CHANNEL_VSUPPLY 2
+#define DefaultVoltageOfAdc(adc) (0.0059*adc)
 
+#define BOARD_HAS_BARO
 
 #endif /* CONFIG_LISA_V1_0_H */

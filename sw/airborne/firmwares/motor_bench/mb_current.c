@@ -1,6 +1,6 @@
 #include "mb_current.h"
 
-#include "adc.h"
+#include "mcu_periph/adc.h"
 
 static struct adc_buf mb_current_buf;
 

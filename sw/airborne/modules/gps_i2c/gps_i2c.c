@@ -20,8 +20,8 @@
  *
  */
 
-#include "gps_i2c.h"
-#include "i2c.h"
+#include "modules/gps_i2c.h"
+#include "mcu_periph/i2c.h"
 #include "gps.h"
 
 uint8_t gps_i2c_rx_buf[GPS_I2C_BUF_SIZE];

@@ -1,5 +1,5 @@
 #include "bench_sensors.h"
-#include "can.h"
+#include "mcu_periph/can.h"
 #include "led.h"
 
 //uint16_t halfw1,halfw2,halfw3,halfw4;

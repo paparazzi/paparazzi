@@ -22,11 +22,11 @@
  */
 
 
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "led.h"
 
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 #include "booz/booz2_commands.h"
 #include "firmwares/rotorcraft/actuators.h"
 
@@ -47,7 +47,7 @@ int main(void) {
 }
 
 static inline void main_init( void ) {
-  hw_init();
+  mcu_init();
   sys_time_init();
   actuators_init();
 }

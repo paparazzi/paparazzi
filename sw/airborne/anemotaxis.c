@@ -2,7 +2,7 @@
 #include "generated/airframe.h"
 #include "estimator.h"
 #include "std.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "generated/flight_plan.h"
 #include "ap_downlink.h"
 #include "chemo_detect.h"

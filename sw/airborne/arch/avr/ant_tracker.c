@@ -1,6 +1,6 @@
 #include "ant_tracker.h"
 
-#include "traffic_info.h"
+#include "subsystems/navigation/traffic_info.h"
 
 uint8_t ant_track_mode;
 float ant_track_azim;

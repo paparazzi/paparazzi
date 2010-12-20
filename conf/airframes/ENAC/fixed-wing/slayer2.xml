@@ -238,7 +238,7 @@ ap.CFLAGS += -DUSE_INFRARED -DALT_KALMAN
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c traffic_info.c nav_line.c
+ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/traffic_info.c subsystems/navigation/nav_line.c
 
 # Camera power switch on ADC_7 pin
 ap.CFLAGS += -DLED_3_BANK=0 -DLED_3_PIN=10 -DPOWER_SWITCH_LED=3
@@ -247,7 +247,7 @@ ap.CFLAGS += -DLED_3_BANK=0 -DLED_3_PIN=10 -DPOWER_SWITCH_LED=3
 ap.CFLAGS += -DUSE_GYRO -DADXRS150
 # -DIDG300
 ap.srcs += gyro.c
-# ap.srcs += bomb.c
+# ap.srcs += subsystems/navigation/bomb.c
 
 # Hack to use the same tuning file than slayer1
 ap.CFLAGS += -DUSE_GPIO
@@ -272,11 +272,11 @@ ap.CFLAGS += -D BARO_MS5534A_W1=0xAC20 -D BARO_MS5534A_W2=0x87D9 -D BARO_MS5534A
 #include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.ARCHDIR = $(ARCHI)
 sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DUSE_INFRARED -DNAV -DLED -DWIND_INFO
-sim.srcs = latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c infrared.c fw_v_ctl.c nav.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_ir.c $(SRC_ARCH)/sim_ap.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c $(SRC_ARCH)/led_hw.c
+sim.srcs = latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c infrared.c fw_v_ctl.c subsystems/nav.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_ir.c $(SRC_ARCH)/sim_ap.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c $(SRC_ARCH)/led_hw.c
 
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN  -DUSE_BARO_MS5534A 
 
-sim.srcs += nav_survey_rectangle.c nav_line.c $(SRC_ARCH)/sim_baro.c 
+sim.srcs += subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/nav_line.c $(SRC_ARCH)/sim_baro.c 
 
 sim.srcs += fw_h_ctl.c
 # sim.srcs += fw_h_ctl_a.c

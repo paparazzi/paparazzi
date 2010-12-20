@@ -7,8 +7,8 @@
 #ifndef POTENTIAL_H
 #define POTENTIAL_H
 
-#include "nav.h"
-#include "traffic_info.h"
+#include "subsystems/nav.h"
+#include "subsystems/navigation/traffic_info.h"
 
 struct force_ {
   float east;

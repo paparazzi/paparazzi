@@ -6,7 +6,7 @@
 
 
 #include <inttypes.h>
-#include "infrared.h"
+#include "subsystems/sensors/infrared.h"
 #include "generated/airframe.h"
 
 #include <caml/mlvalues.h>
@@ -22,9 +22,9 @@ value set_ir(value roll __attribute__ ((unused)),
 	     value air_speed
 	     ) {
 #if defined  USE_INFRARED || USE_INFRARED_I2C
-  ir_roll = Int_val(roll);
-  ir_pitch = Int_val(front);
-  ir_top = Int_val(top);
+  infrared.roll = Int_val(roll);
+  infrared.pitch = Int_val(front);
+  infrared.top = Int_val(top);
 #endif
   sim_air_speed = Double_val(air_speed);
   return Val_unit;

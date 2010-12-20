@@ -6,15 +6,15 @@ sim.srcs += latlong.c\
             commands.c\
             gps.c\
             inter_mcu.c\
-            infrared.c\
+            subsystems/sensors/infrared.c\
             $(SRC_FIRMWARE)/stabilization/stabilization_attitude.c\
             $(SRC_FIRMWARE)/guidance/guidance_v.c                 \
-            nav.c\
+            subsystems/nav.c\
             estimator.c\
             sys_time.c\
             $(SRC_FIRMWARE)/main_fbw.c \
             $(SRC_FIRMWARE)/main_ap.c \
-            datalink.c \
+            $(SRC_FIRMWARE)/datalink.c \
             $(SRC_ARCH)/ppm_hw.c \
             $(SRC_ARCH)/sim_gps.c\
             $(SRC_ARCH)/sim_ir.c \

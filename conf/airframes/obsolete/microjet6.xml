@@ -235,7 +235,7 @@ ap.CFLAGS += -DUSE_INFRARED -DALT_KALMAN -DWIND_INFO
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c
+ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c subsystems/navigation/nav_survey_rectangle.c
 
 
 ap.CFLAGS += -DUSE_GYRO -DADXRS150
@@ -244,7 +244,7 @@ ap.srcs += gyro.c
 ap.CFLAGS += -DUSE_SPI -DSPI_MASTER -DUSE_SPI_SLAVE0 -DUSE_BARO_MS5534A
 ap.srcs += spi.c $(SRC_ARCH)/spi_hw.c $(SRC_ARCH)/baro_MS5534A.c
 
-ap.srcs += nav_line.c
+ap.srcs += subsystems/navigation/nav_line.c
 
 # Harware In The Loop
 
@@ -254,7 +254,7 @@ ap.srcs += nav_line.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DUSE_BARO_MS5534A
-sim.srcs += nav_survey_rectangle.c $(SRC_ARCH)/sim_baro.c bomb.c nav_line.c
+sim.srcs += subsystems/navigation/nav_survey_rectangle.c $(SRC_ARCH)/sim_baro.c subsystems/navigation/bomb.c subsystems/navigation/nav_line.c
 
   </makefile>
 </airframe>

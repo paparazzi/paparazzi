@@ -26,7 +26,7 @@
 #include "lisa/lisa_overo_link.h"
 #include "subsystems/imu.h"
 #include <booz/booz_gps.h>
-#include "firmwares/rotorcraft/baro.h"
+#include "subsystems/sensors/baro.h"
 
 
 #include <string.h>

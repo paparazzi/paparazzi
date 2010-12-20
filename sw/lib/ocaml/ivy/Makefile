@@ -117,7 +117,7 @@ tkivy-ocaml.cmxa : $(TKIVYCMX) civy.o ctkivy.o
 	$(OCAMLOPT) -o $@ unix.cmxa -I . ivy-ocaml.cmxa $< -cclib -livy
 
 clean:
-	\rm -fr *.cm* *.o *.a .depend *~ *.out *.opt .depend *.so *-stamp debian/changelog debian/ivy-ocaml debian/files debian/ivy-ocaml.debhelper.log debian/ivy-ocaml.substvars debian/*~
+	\rm -fr *.cm* *.o *.a .depend *~ *.out *.opt .depend *.so *-stamp debian/ivy-ocaml debian/files debian/ivy-ocaml.debhelper.log debian/ivy-ocaml.substvars debian/*~
 
 .depend:
 	$(OCAMLDEP) $(INCLUDES) *.mli *.ml > .depend

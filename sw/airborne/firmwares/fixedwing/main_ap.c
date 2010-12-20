@@ -34,17 +34,15 @@
 #include <math.h>
 
 #include "firmwares/fixedwing/main_ap.h"
+#include "mcu.h"
 
-#include "interrupt_hw.h"
-#include "init_hw.h"
-#include "adc.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "gps.h"
-#include "infrared.h"
+#include "subsystems/sensors/infrared.h"
 #include "gyro.h"
 #include "ap_downlink.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "firmwares/fixedwing/autopilot.h"
 #include "estimator.h"
 #include "generated/settings.h"
@@ -60,24 +58,20 @@
 #include "rc_settings.h"
 #endif
 
-#ifdef LED
-#include "led.h"
-#endif
 
-#if defined USE_I2C0 || USE_I2C1
-#include "i2c.h"
-#endif
-
-#ifdef USE_SPI
-#include "spi.h"
-#endif
 
 #ifdef TRAFFIC_INFO
-#include "traffic_info.h"
+#include "subsystems/navigation/traffic_info.h"
 #endif
 
-#ifdef USE_USB_SERIAL
-#include "usb_serial.h"
+
+#ifdef USE_ANALOG_IMU
+#include "subsystems/imu.h"
+#include "subsystems/ahrs.h"
+#include "subsystems/ahrs/ahrs_aligner.h"
+#include "subsystems/ahrs/ahrs_float_dcm.h"
+static inline void on_gyro_accel_event( void );
+static inline void on_mag_event( void );
 #endif
 
 #if ! defined CATASTROPHIC_BAT_LEVEL && defined LOW_BATTERY
@@ -446,6 +440,12 @@ void periodic_task_ap( void ) {
 #error "Only 20 and 60 allowed for CONTROL_RATE"
 #endif
 
+#ifdef USE_ANALOG_IMU
+  if (!_20Hz) {
+    imu_periodic();
+  }
+#endif // USE_ANALOG_IMU
+
 #if CONTROL_RATE == 20
   if (!_20Hz)
 #endif
@@ -456,7 +456,7 @@ void periodic_task_ap( void ) {
 #endif
 
 #ifdef USE_INFRARED
-      ir_update();
+      infrared_update();
       estimator_update_state_infrared();
 #endif /* USE_INFRARED */
       h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
@@ -480,21 +480,13 @@ void periodic_task_ap( void ) {
 
 void init_ap( void ) {
 #ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
-  hw_init();
+  mcu_init();
   sys_time_init();
-
-#ifdef LED
-  led_init();
-#endif
-
-#ifdef ADC
-  adc_init();
-#endif
 #endif /* SINGLE_MCU */
 
   /************* Sensors initialization ***************/
 #ifdef USE_INFRARED
-  ir_init();
+  infrared_init();
 #endif
 #ifdef USE_GYRO
   gyro_init();
@@ -502,40 +494,18 @@ void init_ap( void ) {
 #ifdef USE_GPS
   gps_init();
 #endif
-#ifdef USE_UART0
-  Uart0Init();
-#endif
-#ifdef USE_UART1
-  Uart1Init();
-#endif
-#ifdef USE_UART2
-  Uart2Init();
-#endif
-#ifdef USE_UART3
-  Uart3Init();
-#endif
-#ifdef USE_USB_SERIAL
-  VCOM_init();
-#endif
 
 #ifdef USE_GPIO
   GpioInit();
 #endif
 
-#ifdef USE_I2C0
-  i2c0_init();
-#endif
-#ifdef USE_I2C1
-  i2c1_init();
-#endif
-#ifdef USE_I2C2
-  i2c2_init();
+#ifdef USE_ANALOG_IMU
+  imu_init();
+  ahrs_aligner_init();
+  ahrs_init();
 #endif
 
   /************* Links initialization ***************/
-#if defined USE_SPI
-  spi_init();
-#endif
 #if defined MCU_SPI_LINK
   link_mcu_init();
 #endif
@@ -555,7 +525,7 @@ void init_ap( void ) {
   modules_init();
 
   /** - start interrupt task */
-  int_enable();
+  mcu_int_enable();
 
   /** wait 0.5s (historical :-) */
   sys_time_usleep(500000);
@@ -583,12 +553,15 @@ void init_ap( void ) {
 #ifdef TRAFFIC_INFO
   traffic_info_init();
 #endif
-
 }
 
 
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
+
+#ifdef USE_ANALOG_IMU
+  ImuEvent(on_gyro_accel_event, on_mag_event);
+#endif // USE_ANALOG_IMU
 
 #ifdef USE_GPS
 #if !(defined HITL) && !(defined UBX_EXTERNAL) /** else comes through the datalink */
@@ -649,11 +622,7 @@ void event_task_ap( void ) {
 #endif /** DATALINK */
 
 #ifdef MCU_SPI_LINK
-  if (spi_message_received) {
-    /* Got a message on SPI. */
-    spi_message_received = FALSE;
     link_mcu_event_task();
-  }
 #endif
 
   if (inter_mcu_received_fbw) {
@@ -664,3 +633,30 @@ void event_task_ap( void ) {
 
   modules_event_task();
 } /* event_task_ap() */
+
+#ifdef USE_ANALOG_IMU
+static inline void on_gyro_accel_event( void ) {
+  ImuScaleGyro(imu);
+  ImuScaleAccel(imu);
+  if (ahrs.status == AHRS_UNINIT) {
+    ahrs_aligner_run();
+    if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
+      ahrs_align();
+  }
+  else {
+    ahrs_propagate();
+    ahrs_update_accel();
+    ahrs_update_fw_estimator();
+  }
+}
+
+static inline void on_mag_event(void) {
+  /*
+  ImuScaleMag(imu);
+  if (ahrs.status == AHRS_RUNNING) {
+    ahrs_update_mag();
+    ahrs_update_fw_estimator();
+  }
+  */
+}
+#endif // USE_ANALOG_IMU

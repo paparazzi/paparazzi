@@ -1,6 +1,6 @@
 #include "subsystems/imu.h"
 
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 
 struct ImuAspirin imu_aspirin;
 

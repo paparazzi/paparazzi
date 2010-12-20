@@ -2,7 +2,7 @@
  * $Id$
  *
  * Google Maps utilities
- *  
+ *
  * Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -77,11 +77,11 @@ let gm_pos_and_scale = fun keyholeString tLat latHeight tLon lonWidth ->
     height = top_lat -. bot_lat }
 
 
-(** Returns a keyhole string for a longitude (x), latitude (y), and zoom 
+(** Returns a keyhole string for a longitude (x), latitude (y), and zoom
    for Google Maps (http://www.ponies.me.uk/maps/GoogleTileUtils.java) *)
 let tile_of_geo = fun wgs84 zoom ->
   let zoom = zoom_max - zoom in
-  
+
   (* first convert the lat lon to transverse mercator coordinates *)
   let lon = (Rad>>Deg)wgs84.posn_long in
   let lon = if lon > 180. then lon -. 180. else lon in
@@ -112,7 +112,7 @@ let tile_of_geo = fun wgs84 zoom ->
       if ((!tLon +. !latLonSize) > lon) then begin
         Buffer.add_char keyholeString 'q';
       end
-      else begin  
+      else begin
         tLon +.= !latLonSize;
         Buffer.add_char keyholeString 'r';
       end
@@ -122,17 +122,17 @@ let tile_of_geo = fun wgs84 zoom ->
 
 let tile_of_key = fun keyholeStr ->
   assert(keyholeStr.[0] = 't');
-  
+
   let lon  = ref (-1.)
-  and lat       = ref (-1.) 
+  and lat       = ref (-1.)
   and latLonSize = ref 2. in
-  
+
   for i = 1 to String.length keyholeStr - 1  do
     latLonSize /.= 2.;
 
     match keyholeStr.[i] with
       's' -> lon +.= !latLonSize
-    | 'r' -> 
+    | 'r' ->
         lat +.= !latLonSize;
         lon +.= !latLonSize
     | 'q' -> lat +.= !latLonSize
@@ -156,9 +156,9 @@ let get_from_cache = fun dir f ->
       let fi = files.(i) in
       let fi_key = try Filename.chop_extension fi with _ -> fi in
       if fi_key <> "" && is_prefix fi_key f then
-	(tile_of_key fi_key, dir // fi)
+    (tile_of_key fi_key, dir // fi)
       else
-	loop (i+1)
+    loop (i+1)
     else
       raise Not_found in
   loop 0
@@ -188,17 +188,17 @@ let ms_key = fun key ->
   for i = 1 to n - 1 do
     ms_key.[i-1] <-
       match key.[i] with
-	'q' -> '0'
+    'q' -> '0'
       |	'r' -> '1'
       | 's' -> '3'
       | 't' -> '2'
       | _ -> invalid_arg "Gm.ms_key"
   done;
   (ms_key, ms_key.[n-2])
-    
+
 let google_version = 65
 
-let url_of_tile_key = fun maps_source s -> 
+let url_of_tile_key = fun maps_source s ->
   let (x, y, z) = xyz_of_qsrt s in
   match maps_source with
     Google -> sprintf "http://khm0.google.com/kh/v=%d&x=%d&s=&y=%d&z=%d" google_version x y z
@@ -217,7 +217,7 @@ let get_cache_dir = function
     Google -> !cache_path (* Historic ! Should be // Google *)
   | OSM -> !cache_path // "OSM"
   | MS -> !cache_path // "MS"
-  
+
 
 exception Not_available
 
@@ -230,6 +230,8 @@ let policies = [CacheOrHttp; NoHttp; NoCache]
 let policy = ref CacheOrHttp
 let set_policy = fun p ->
   policy := p
+let get_policy = fun () ->
+  !policy
 
 let remove_last_char = fun s -> String.sub s 0 (String.length s - 1)
 
@@ -244,17 +246,17 @@ let get_image = fun key ->
     Not_found ->
       if !policy = NoHttp then raise Not_available;
       let rec loop = fun k ->
-	if String.length k >= 1 then
-	  let url = url_of_tile_key !maps_source k in
-	  let jpg_file = cache_dir // (k ^ ".jpg") in
-	  try
-	    ignore (Http.file_of_url ~dest:jpg_file url);
-	    tile_of_key k, jpg_file
-	  with
-	    Http.Failure _ -> loop (remove_last_char k)
-	else
-	  raise Not_available in
-      loop key 
+    if String.length k >= 1 then
+      let url = url_of_tile_key !maps_source k in
+      let jpg_file = cache_dir // (k ^ ".jpg") in
+      try
+        ignore (Http.file_of_url ~dest:jpg_file url);
+        tile_of_key k, jpg_file
+      with
+        Http.Failure _ -> loop (remove_last_char k)
+    else
+      raise Not_available in
+      loop key
 
 
 let rec get_tile = fun wgs84 zoom ->

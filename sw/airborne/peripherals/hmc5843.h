@@ -25,7 +25,7 @@
 #define HMC5843_H
 
 #include "std.h"
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 
 #include "peripherals/hmc5843_arch.h"
 

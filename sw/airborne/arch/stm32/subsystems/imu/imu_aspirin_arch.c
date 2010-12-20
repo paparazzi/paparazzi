@@ -7,7 +7,7 @@
 #include <stm32/spi.h>
 #include <stm32/dma.h>
 
-#include "i2c.h"
+#include "mcu_periph/i2c.h"
 
 /* gyro int handler */
 void exti15_10_irq_handler(void);

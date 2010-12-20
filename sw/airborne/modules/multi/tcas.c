@@ -30,7 +30,7 @@
 #include "multi/tcas.h"
 #include "generated/airframe.h"
 #include "estimator.h"
-#include "nav.h"
+#include "subsystems/nav.h"
 #include "gps.h"
 #include "generated/flight_plan.h"
 

@@ -23,8 +23,6 @@
 
 #include "subsystems/imu.h"
 
-#include "generated/airframe.h"
-
 struct Imu imu;
 
 void imu_init(void) {
@@ -32,6 +30,7 @@ void imu_init(void) {
   /* initialises neutrals */
   RATES_ASSIGN(imu.gyro_neutral,  IMU_GYRO_P_NEUTRAL,  IMU_GYRO_Q_NEUTRAL,  IMU_GYRO_R_NEUTRAL);
   VECT3_ASSIGN(imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
+  //FIXME should not assume that every imu has a mag and this id defined?
   VECT3_ASSIGN(imu.mag_neutral,   IMU_MAG_X_NEUTRAL,   IMU_MAG_Y_NEUTRAL,   IMU_MAG_Z_NEUTRAL);
 
   /*

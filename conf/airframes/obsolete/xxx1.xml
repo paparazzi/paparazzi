@@ -241,13 +241,12 @@ ap.CFLAGS += -DUSE_INFRARED -DALT_KALMAN -DIR_360
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DH_CTL_RATE_LOOP -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
+ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c
 
 
 ap.CFLAGS += -DUSE_GYRO -DADXRS150
-ap.srcs += gyro.c nav_line.c
-ap.srcs += nav_survey_rectangle.c
-
+ap.srcs += gyro.c subsystems/navigation/nav_line.c
+ap.srcs += subsystems/navigation/nav_survey_rectangle.c
 
 # Hack to use the same tuning file than slayer1
 ap.CFLAGS += -DUSE_GPIO
@@ -271,7 +270,7 @@ ap.CFLAGS += -DMOBILE_CAM
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM
 # -DMOBILE_CAM
-sim.srcs += nav_line.c nav_survey_rectangle.c
+sim.srcs += subsystems/navigation/nav_line.c subsystems/navigation/nav_survey_rectangle.c
 # cam_roll.c jeremy_tuning.c
 
 

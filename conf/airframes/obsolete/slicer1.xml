@@ -220,21 +220,21 @@ ap.CFLAGS += -DUSE_INFRARED
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DWIND_INFO
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c
+ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c
 
-ap.srcs += nav_line.c nav_survey_rectangle.c
+ap.srcs += subsystems/navigation/nav_line.c subsystems/navigation/nav_survey_rectangle.c
 
 ap.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM -DPOINT_CAM_PITCH_ROLL
 # -DTEST_CAM
 ap.srcs += cam.c point.c
-# traffic_info.c
+# subsystems/navigation/traffic_info.c
 
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
-sim.srcs += nav_survey_rectangle.c nav_line.c
+sim.srcs += subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/nav_line.c
 sim.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM -DPOINT_CAM_PITCH_ROLL
-sim.srcs += cam.c point.c traffic_info.c
+sim.srcs += cam.c point.c subsystems/navigation/traffic_info.c
 
   </makefile>
 </airframe>
