@@ -103,9 +103,9 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="IR1_NEUTRAL" value="-15"/>
+    <define name="IR1_NEUTRAL" value="-5"/>
     <define name="IR2_NEUTRAL" value="0"/>
-    <define name="TOP_NEUTRAL" value="-20"/>
+    <define name="TOP_NEUTRAL" value="-10"/>
     <define name="I2C_DEFAULT_CONF" value="1"/>
 
     <define name="LATERAL_CORRECTION" value="1"/>
@@ -136,7 +136,7 @@
   </section>
 
   <section name="MISC">
-    <define name="NOMINAL_AIRSPEED" value="15." unit="m/s"/>
+    <define name="NOMINAL_AIRSPEED" value="16." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
@@ -158,30 +158,30 @@
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85"/>
-    <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000"/>
-    <define name="AUTO_THROTTLE_DASH_TRIM" value="-1000"/>
+    <!--define name="AUTO_THROTTLE_LOITER_TRIM" value="1000"/>
+    <define name="AUTO_THROTTLE_DASH_TRIM" value="-1000"/-->
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.2" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.01"/>
-    <define name="AUTO_THROTTLE_IGAIN" value="0.04"/>
-    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.02"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="-0.02"/>
+    <define name="AUTO_THROTTLE_IGAIN" value="-0.01"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.1"/>
 
     <!-- auto pitch inner loop -->
-    <define name="AUTO_PITCH_PGAIN" value="-0.03"/>
+    <define name="AUTO_PITCH_PGAIN" value="-0.05"/>
     <define name="AUTO_PITCH_DGAIN" value="-0.0"/>
-    <define name="AUTO_PITCH_IGAIN" value="-0.0"/>
-    <define name="AUTO_PITCH_CLIMB_THROTTLE_INCREMENT" value="0.14"/>
+    <define name="AUTO_PITCH_IGAIN" value="-0.01"/>
+    <!--define name="AUTO_PITCH_CLIMB_THROTTLE_INCREMENT" value="0.14"/-->
     <define name="AUTO_PITCH_MAX_PITCH" value="0.35"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="-0.35"/>
 
     <!-- airspeed control -->
-    <define name="AUTO_AIRSPEED_SETPOINT" value="15."/>
-    <define name="AUTO_AIRSPEED_PGAIN" value="0.05"/>
-    <define name="AUTO_AIRSPEED_IGAIN" value="0.01"/>
+    <define name="AUTO_AIRSPEED_SETPOINT" value="16."/>
+    <define name="AUTO_AIRSPEED_PGAIN" value="0.08"/>
+    <define name="AUTO_AIRSPEED_IGAIN" value="0.001"/>
     <define name="AUTO_GROUNDSPEED_SETPOINT" value="15"/>
     <define name="AUTO_GROUNDSPEED_PGAIN" value="1."/>
     <define name="AUTO_GROUNDSPEED_IGAIN" value="0."/>
     <define name="AIRSPEED_MAX" value="22"/>
-    <define name="AIRSPEED_MIN" value="8"/>
+    <define name="AIRSPEED_MIN" value="12"/>
 
     <!-- pitch trim -->
     <define name="PITCH_LOITER_TRIM" value="RadOfDeg(5.)"/>
@@ -191,26 +191,26 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1."/>
+    <define name="COURSE_PGAIN" value="-0.7"/>
     <define name="ROLL_MAX_SETPOINT" value="0.8" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
     <define name="ROLL_ATTITUDE_GAIN" value="-9000."/>
     <define name="ROLL_RATE_GAIN" value="-3000."/>
-    <define name="ROLL_IGAIN" value="-500"/>
-    <define name="ROLL_KFFA" value="-500"/>
-    <define name="ROLL_KFFD" value="-500"/>
+    <define name="ROLL_IGAIN" value="-0"/>
+    <define name="ROLL_KFFA" value="0"/>
+    <define name="ROLL_KFFD" value="0"/>
 
     <define name="PITCH_PGAIN" value="-20000."/>
-    <define name="PITCH_DGAIN" value="0.4"/>
-    <define name="PITCH_IGAIN" value="-500"/>
+    <define name="PITCH_DGAIN" value="-1000"/>
+    <define name="PITCH_IGAIN" value="-300"/>
     <define name="PITCH_KFFA" value="0."/>
     <define name="PITCH_KFFD" value="0."/>
 
-    <define name="PITCH_OF_ROLL" value="RadOfDeg(0.2)"/>
+    <define name="PITCH_OF_ROLL" value="RadOfDeg(0.0)"/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
-    <define name="ELEVATOR_OF_ROLL" value="1400"/>
+    <define name="ELEVATOR_OF_ROLL" value="0"/>
   </section>
 
   <section name="NAV">
