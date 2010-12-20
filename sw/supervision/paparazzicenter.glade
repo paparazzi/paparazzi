@@ -547,8 +547,10 @@
                                         <property name="visible">True</property>
                                         <child>
                                           <widget class="GtkTreeView" id="tree_settings">
+                                            <property name="height_request">4</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
+                                            <property name="headers_visible">False</property>
                                           </widget>
                                           <packing>
                                             <property name="position">0</property>
@@ -568,13 +570,14 @@
                                             <property name="visible">True</property>
                                             <child>
                                               <widget class="GtkButton" id="button_browse_settings">
-                                                <property name="label" translatable="yes">...</property>
+                                                <property name="label">gtk-add</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
                                                 <property name="has_tooltip">True</property>
-                                                <property name="tooltip" translatable="yes">Browse (multiple selection allowed)</property>
+                                                <property name="tooltip" translatable="yes">Add a settings file</property>
                                                 <property name="use_underline">True</property>
+                                                <property name="use_stock">True</property>
                                               </widget>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -589,7 +592,7 @@
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
                                                 <property name="has_tooltip">True</property>
-                                                <property name="tooltip" translatable="yes">Launch an editor on the selected settings file</property>
+                                                <property name="tooltip" translatable="yes">Launch an editor on all the settings file</property>
                                                 <property name="use_stock">True</property>
                                               </widget>
                                               <packing>
@@ -608,12 +611,15 @@
                                                 <property name="use_stock">True</property>
                                               </widget>
                                               <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">False</property>
                                                 <property name="position">2</property>
                                               </packing>
                                             </child>
                                           </widget>
                                           <packing>
                                             <property name="expand">False</property>
+                                            <property name="fill">False</property>
                                             <property name="position">2</property>
                                           </packing>
                                         </child>

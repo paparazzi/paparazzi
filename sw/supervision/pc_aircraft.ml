@@ -218,6 +218,8 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
   (* build tree for settings *)
   let tree_set = Gtk_tools.tree gui#tree_settings in
   let model = Gtk_tools.tree_model tree_set in
+  (* attach vertical scrollbar *)
+  gui#tree_settings#set_vadjustment gui#tree_settings_scrollbar#adjustment;
 
   (* Update_params callback *)
   let update_params = fun ac_name ->
@@ -232,8 +234,7 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
         | Tree t ->
             ignore (Gtk_tools.clear_tree tree_set);
             let names = Str.split regexp_space (value a) in
-            Printf.printf "%d\n" (List.length names); flush stdout;
-            List.iter (fun n -> prerr_endline n; Gtk_tools.add_to_tree t n) names
+            List.iter (fun n -> Gtk_tools.add_to_tree t n) names
       ) (ac_files gui model);
       let ac_id = ExtXml.attrib aircraft "ac_id"
       and gui_color = ExtXml.attrib_or_default aircraft "gui_color" "white" in
@@ -334,7 +335,9 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo ->
       Some r ->
         let callback = fun _ ->
           match label with
-            Tree t -> Gtk_tools.remove_selected_from_tree t
+            Tree t ->
+              Gtk_tools.remove_selected_from_tree t;
+              save_callback gui ac_combo model ()
           | _ -> ()
         in
         ignore (r#connect#clicked ~callback)
