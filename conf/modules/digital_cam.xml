@@ -6,11 +6,11 @@
 
   <section name="DIGITAL_CAMERA" prefix="DC_">
 
-    <define name="PUSH" value"LED_ON" />
-    <define name="RELEASE" value"LED_OFF" />
+    <configure name="PUSH" value"LED_ON" />
+    <configure name="RELEASE" value"LED_OFF" />
 
-    <define name="AUTOSHOOT_QUARTERSEC_PERIOD" value="6" unit="quarter_second"/>
-    <define name="AUTOSHOOT_METER_GRID" value="50" unit="meter"/>
+    <configure name="AUTOSHOOT_QUARTERSEC_PERIOD" value="6" unit="quarter_second"/>
+    <configure name="AUTOSHOOT_METER_GRID" value="50" unit="meter"/>
   </section>
 
 # ap.CFLAGS += -DGPS_TRIGGERED_FUNCTION="dc_shoot_on_gps" 
@@ -30,10 +30,10 @@
 
   <makefile >
 
-    <flag name="DIGITAL_CAM" />
+    <define name="DIGITAL_CAM" />
     <file name="led_cam_ctrl.c"/>
     <file name="dc.c"/>
-      <flag name="SENSOR_SYNC_SEND" value="1" />
+      <define name="SENSOR_SYNC_SEND" value="1" />
 
   </makefile>
 

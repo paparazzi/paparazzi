@@ -2,7 +2,7 @@
 
 <!--
      VTI SCP1000 pressure sensor (SPI)
-     @flag SENSOR_SYNC_SEND to transmit the data as it is acquired
+     @define SENSOR_SYNC_SEND to transmit the data as it is acquired
      -->
 
 <module name="baro_scp" dir="sensors">
@@ -14,8 +14,8 @@
   <event fun="baro_scp_event()"/>
   <makefile target="ap">
     <file name="baro_scp.c"/>
-    <flag name="SPI_MASTER"/>
-    <flag name="USE_SPI"/>
+    <define name="SPI_MASTER"/>
+    <define name="USE_SPI"/>
   </makefile>
 </module>
 

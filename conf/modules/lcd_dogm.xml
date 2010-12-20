@@ -8,7 +8,7 @@
   </header>
   <init fun="lcd_dogm_init()"/>
   <makefile target="ap">
-    <file_hw name="lcd_dogm_hw.c"/>
+    <file_arch name="lcd_dogm_hw.c"/>
     <file name="lcd_dogm.c"/>
   </makefile>
 </module>

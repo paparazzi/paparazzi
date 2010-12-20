@@ -8,13 +8,13 @@
   <init fun="ins_init()"/>
   <periodic fun="ins_periodic_task()" freq="60"/>
   <makefile>
-    <flag name="USE_UART0"/>
-    <flag name="INS_LINK" value="Uart0"/>
-    <flag name="UART0_BAUD" value="B115200"/>
+    <define name="USE_UART0"/>
+    <define name="INS_LINK" value="Uart0"/>
+    <define name="UART0_BAUD" value="B115200"/>
     <!-- calibrated, orientation, status -->
-    <flag name="XSENS_OUTPUT_MODE" value="0x0806"/>
+    <define name="XSENS_OUTPUT_MODE" value="0x0806"/>
     <!-- timestamp, euler, acc, rate, mag, float, no aux, NED -->
-    <flag name="XSENS_OUTPUT_SETTINGS" value="0x80000C05"/>
+    <define name="XSENS_OUTPUT_SETTINGS" value="0x80000C05"/>
     <file name="ins_xsens.c"/>
   </makefile>
 </module>

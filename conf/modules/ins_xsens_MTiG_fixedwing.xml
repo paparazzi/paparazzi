@@ -10,11 +10,11 @@
   <periodic fun="ins_periodic_task()" freq="60"/>
   <event fun="InsEventCheckAndHandle(handle_ins_msg())"/>
   <makefile>
-    <flag name="USE_UART1"/>
-    <flag name="INS_LINK" value="Uart1"/>
-    <flag name="UART1_BAUD" value="B115200"/>
-    <flag name="USE_GPS_XSENS"/>
-    <flag name="USE_GPS_XSENS_RAW_DATA" />
+    <define name="USE_UART1"/>
+    <define name="INS_LINK" value="Uart1"/>
+    <define name="UART1_BAUD" value="B115200"/>
+    <define name="USE_GPS_XSENS"/>
+    <define name="USE_GPS_XSENS_RAW_DATA" />
     <file name="ins_xsens.c"/>
   </makefile>
 </module>

@@ -19,8 +19,8 @@
     <file name="airspeed_adc.c"/>
   </makefile>
   <makefile target="ap">
-    <flag name="ADC_CHANNEL_AIRSPEED" value="$(ADC_AIRSPEED)"/>
-    <flag name="USE_$(ADC_AIRSPEED)"/>
+    <define name="ADC_CHANNEL_AIRSPEED" value="$(ADC_AIRSPEED)"/>
+    <define name="USE_$(ADC_AIRSPEED)"/>
   </makefile>
 
 </module>
