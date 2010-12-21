@@ -84,7 +84,7 @@ static void dialog_with_io_proc() {
   uint8_t crc_valid;
 
   for (uint8_t i=0; i<6; i++) msg_out.payload.msg_down.pwm_outputs_usecs[i] = otp.servos_outputs_usecs[i];
-  for (uint8_t i=0; i<4; i++) msg_out.payload.msg_down.csc_servo_cmd[i] = otp.csc_servo_outputs[i];
+//  for (uint8_t i=0; i<4; i++) msg_out.payload.msg_down.csc_servo_cmd[i] = otp.csc_servo_outputs[i];
 
   spi_link_send(&msg_out, sizeof(struct AutopilotMessageCRCFrame), &msg_in, &crc_valid);
 

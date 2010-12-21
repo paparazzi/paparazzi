@@ -28,7 +28,8 @@
 #include <stm32/misc.h>
 
 #include BOARD_CONFIG
-#include "init_hw.h"
+#include "mcu.h"
+#include "mcu_periph/uart.h"
 #include "sys_time.h"
 
 static inline void main_init( void );
@@ -46,7 +47,7 @@ int main(void) {
 }
 
 static inline void main_init( void ) {
-  hw_init();
+  mcu_init();
   sys_time_init();
 }
 
