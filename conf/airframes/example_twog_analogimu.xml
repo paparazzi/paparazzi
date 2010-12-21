@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<!-- 
+<!--
     Use settings/tuning_ins.xml
     Use telemetry/default_fixedwing_imu.xml
 
@@ -209,22 +209,22 @@
     <subsystem name="radio_control"     type="ppm"/>
     <!-- Communication -->
     <subsystem name="telemetry"     type="transparent">
-      <param name="MODEM_BAUD"      value="B9600"/>
+      <configure name="MODEM_BAUD"      value="B9600"/>
     </subsystem>
     <!-- Actuators are automatically chosen according to the board-->
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="imu" 		type="analog">
-      <param name="GYRO_P" value="ADC_0"/>
-      <param name="GYRO_Q" value="ADC_1"/>
-      <param name="GYRO_R" value="ADC_2"/>
-      <param name="ACCEL_X" value="ADC_5"/>
-      <param name="ACCEL_Y" value="ADC_6"/>
-      <param name="ACCEL_Z" value="ADC_7"/>
+    <subsystem name="imu"       type="analog">
+      <configure name="GYRO_P" value="ADC_0"/>
+      <configure name="GYRO_Q" value="ADC_1"/>
+      <configure name="GYRO_R" value="ADC_2"/>
+      <configure name="ACCEL_X" value="ADC_5"/>
+      <configure name="ACCEL_Y" value="ADC_6"/>
+      <configure name="ACCEL_Z" value="ADC_7"/>
     </subsystem>
 
     <subsystem name="attitude"  type="dcm"/>
-    <subsystem name="gps" 		type="ublox_lea5h"/>
+    <subsystem name="gps"       type="ublox_lea5h"/>
     <subsystem name="navigation"/>
   </firmware>
   <!-- Carefull: add the location after!! -->

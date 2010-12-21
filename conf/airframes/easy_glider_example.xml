@@ -162,14 +162,14 @@
 
     <!-- Communication -->
     <subsystem name="telemetry" 	type="transparent">
-      <param name="MODEM_BAUD" 		value="B9600"/>
+      <configure name="MODEM_BAUD" 		value="B9600"/>
     </subsystem>
 
     <!-- Actuators are automatically chosen according to board -->
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="adc"           type="generic">
-      <param name="ADC_GENERIC1" value="ADC_7"/> <!-- current sensor -->
+      <configure name="ADC_GENERIC1" value="ADC_7"/> <!-- current sensor -->
     </subsystem>
     <subsystem name="attitude" 		type="infrared"/>
     <subsystem name="gps" 		    type="ublox_lea4p"/>
