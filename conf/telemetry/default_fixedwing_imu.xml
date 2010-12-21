@@ -7,7 +7,7 @@
       <message name="ALIVE"          period="5"/>
       <message name="GPS"            period="0.25"/>
       <message name="NAVIGATION"     period="1."/>
-      <message name="ATTITUDE"       period="0.5"/>
+      <message name="ATTITUDE"       period="0.1"/>
       <message name="ESTIMATOR"      period="0.5"/>
       <message name="ENERGY"         period="2.5"/>
       <message name="WP_MOVED"       period="0.5"/>
@@ -26,8 +26,8 @@
       <message name="GYRO_RATES"     period="1.1"/>
       <message name="SURVEY"         period="2.1"/>
       <message name="GPS_SOL"        period="2.0"/>
-      <message name="IMU_ACCEL"      period=".1"/>
-      <message name="IMU_GYRO"       period=".05"/>
+      <message name="IMU_ACCEL"      period=".8"/>
+      <message name="IMU_GYRO"       period=".6"/>
     </mode>
     <mode name="minimal">
       <message name="ALIVE"          period="5"/>

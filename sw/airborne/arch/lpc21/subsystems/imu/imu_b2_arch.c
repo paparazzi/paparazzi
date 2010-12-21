@@ -84,7 +84,8 @@ void imu_b2_arch_init(void) {
 
 void imu_periodic(void) {
   // check ssp idle
-  // ASSERT((imu_status == IMU_STA_IDLE), DEBUG_IMU, IMU_ERR_OVERUN);
+  if (imu_ssp_status != IMU_SSP_STA_IDLE)
+    return; //, DEBUG_IMU, IMU_ERR_OVERUN);
 
   // setup 16 bits
   ImuSetSSP16bits();

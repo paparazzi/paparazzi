@@ -65,8 +65,10 @@
 #endif
 
 
-#ifdef USE_ANALOG_IMU
+#ifdef USE_IMU
 #include "subsystems/imu.h"
+#endif
+#ifdef USE_AHRS
 #include "subsystems/ahrs.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/ahrs/ahrs_float_dcm.h"
@@ -377,6 +379,21 @@ void periodic_task_ap( void ) {
   static uint8_t _4Hz   = 0;
   static uint8_t _1Hz   = 0;
 
+#ifdef USE_IMU
+  // Run at PERIODIC_FREQUENCY (60Hz if not defined)
+
+#ifdef AHRS_CPU_LED
+    LED_ON(AHRS_CPU_LED);
+#endif
+
+  imu_periodic();
+#ifdef AHRS_CPU_LED
+    LED_OFF(AHRS_CPU_LED);
+#endif
+
+#endif // USE_IMU
+
+
 #ifdef PERIODIC_FREQUENCY
 #warning Using HighSpeed Periodic: Manually check to make sure PERIODIC_FREQUENCY is a multiple of 60. 
   static uint8_t _60Hz = 0;
@@ -392,13 +409,8 @@ void periodic_task_ap( void ) {
 #endif
 
 
-#ifdef USE_IMU
-//  if (!_20Hz) {
-    imu_periodic();
-//  }
-#endif // USE_IMU
 
-
+  // Rest of the periodic function still runs at 60Hz like always
   _20Hz++;
   if (_20Hz>=3) _20Hz=0;
   _10Hz++;
@@ -518,8 +530,10 @@ void init_ap( void ) {
   GpioInit();
 #endif
 
-#ifdef USE_ANALOG_IMU
+#ifdef USE_IMU
   imu_init();
+#endif
+#ifdef USE_AHRS
   ahrs_aligner_init();
   ahrs_init();
 #endif
@@ -578,9 +592,9 @@ void init_ap( void ) {
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
 
-#ifdef USE_ANALOG_IMU
+#ifdef USE_AHRS
   ImuEvent(on_gyro_accel_event, on_mag_event);
-#endif // USE_ANALOG_IMU
+#endif // USE_AHRS
 
 #ifdef USE_GPS
 #if !(defined HITL) && !(defined UBX_EXTERNAL) /** else comes through the datalink */
@@ -653,10 +667,14 @@ void event_task_ap( void ) {
   modules_event_task();
 } /* event_task_ap() */
 
-#ifdef USE_ANALOG_IMU
+#ifdef USE_AHRS
 static inline void on_gyro_accel_event( void ) {
-  static uint8_t _60Hz = 0;
-  LED_ON(2);
+  static uint8_t _reduced_rate = 0;
+
+#ifdef AHRS_CPU_LED
+    LED_ON(AHRS_CPU_LED);
+#endif
+
   ImuScaleGyro(imu);
   ImuScaleAccel(imu);
 
@@ -667,16 +685,26 @@ static inline void on_gyro_accel_event( void ) {
       ahrs_align();
   }
   else {
-    ahrs_propagate();
 
-    if (_60Hz >= 8)
+    //if (_reduced_rate % 4)
     {
-      _60Hz = 0;
+      ahrs_propagate();
+    }
+
+
+    _reduced_rate++;
+    if (_reduced_rate >= (PERIODIC_FREQUENCY / 60))
+    {
+      _reduced_rate = 0;
       ahrs_update_accel();
       ahrs_update_fw_estimator();
     }
+
   }
-  LED_OFF(2);
+  
+#ifdef AHRS_CPU_LED
+    LED_OFF(AHRS_CPU_LED);
+#endif
 }
 
 static inline void on_mag_event(void) {
@@ -688,4 +716,4 @@ static inline void on_mag_event(void) {
   }
   */
 }
-#endif // USE_ANALOG_IMU
+#endif // USE_AHRS

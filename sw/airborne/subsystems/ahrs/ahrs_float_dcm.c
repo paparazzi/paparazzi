@@ -73,14 +73,23 @@ float MAG_Heading;
 static inline void compute_body_orientation_and_rates(void);
 void Normalize(void);
 void Drift_correction(void);
-void Euler_angles(void);
 void Matrix_update(void);
 
 /**************************************************/
 
 void ahrs_update_fw_estimator( void )
 {
-  Euler_angles();
+#if (OUTPUTMODE==2)         // Only accelerometer info (debugging purposes)
+  ahrs_float.ltp_to_imu_euler.phi = atan2(accel_float.y,accel_float.z);    // atan2(acc_y,acc_z)
+  ahrs_float.ltp_to_imu_euler.theta = -asin((accel_float.x)/GRAVITY); // asin(acc_x)
+  ahrs_float.ltp_to_imu_euler.psi = 0;
+#else
+  ahrs_float.ltp_to_imu_euler.phi = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
+  ahrs_float.ltp_to_imu_euler.theta = -asin(DCM_Matrix[2][0]);
+  ahrs_float.ltp_to_imu_euler.psi = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
+  ahrs_float.ltp_to_imu_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
+#endif
+
 
   //warning, only eulers written to ahrs struct so far
   //compute_body_orientation_and_rates();
@@ -89,6 +98,8 @@ void ahrs_update_fw_estimator( void )
   estimator_phi   = ahrs_float.ltp_to_imu_euler.phi - ins_roll_neutral;
   estimator_theta = ahrs_float.ltp_to_imu_euler.theta - ins_pitch_neutral;
   estimator_psi   = ahrs_float.ltp_to_imu_euler.psi;
+
+//  estimator_p     = 
 }
 
 
@@ -147,13 +158,18 @@ void ahrs_propagate(void)
   /* unbias rate measurement */
   RATES_DIFF(ahrs_float.imu_rate, gyro_float, ahrs_impl.gyro_bias);
 
+  ahrs_float.imu_rate.p += (ahrs_float.imu_rate.r / 75);
+
+
   Matrix_update();
-  Normalize();
-  //INFO, ahrs struct only updated in ahrs_update_fw_estimator
+  // INFO, ahrs struct only updated in ahrs_update_fw_estimator
+
+  // Normalize();
 }
 
 void ahrs_update_accel(void)
 {
+
   ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
 
 #ifdef USE_GPS
@@ -377,20 +393,6 @@ void Matrix_update(void)
       DCM_Matrix[x][y]+=Temporary_Matrix[x][y];
     }
   }
-}
-
-void Euler_angles(void)
-{
-#if (OUTPUTMODE==2)         // Only accelerometer info (debugging purposes)
-  ahrs_float.ltp_to_imu_euler.phi = atan2(accel_float.y,accel_float.z);    // atan2(acc_y,acc_z)
-  ahrs_float.ltp_to_imu_euler.theta = -asin((accel_float.x)/GRAVITY); // asin(acc_x)
-  ahrs_float.ltp_to_imu_euler.psi = 0;
-#else
-  ahrs_float.ltp_to_imu_euler.phi = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
-  ahrs_float.ltp_to_imu_euler.theta = -asin(DCM_Matrix[2][0]);
-  ahrs_float.ltp_to_imu_euler.psi = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
-  ahrs_float.ltp_to_imu_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
-#endif
 }
 
 /*
