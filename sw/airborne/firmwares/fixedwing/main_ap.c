@@ -669,6 +669,15 @@ static inline void on_gyro_accel_event( void ) {
     LED_ON(AHRS_CPU_LED);
 #endif
 
+  // Run aligner on raw data as it also makes averages.
+  if (ahrs.status == AHRS_UNINIT) {
+    ImuScaleGyro(imu);
+    ImuScaleAccel(imu);
+    ahrs_aligner_run();
+    if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
+      ahrs_align();
+    return;
+  }
 
 
   gyr_avg.x += imu.gyro_unscaled.p;
@@ -692,29 +701,18 @@ static inline void on_gyro_accel_event( void ) {
 
     ImuScaleGyro(imu);
 
-    
-    if (ahrs.status == AHRS_UNINIT) {
+    ahrs_propagate();
+
+    _reduced_correction_rate++;
+    if (_reduced_correction_rate >= (AHRS_PROPAGATE_FREQUENCY / AHRS_CORRECT_FREQUENCY))
+    {
+      _reduced_correction_rate = 0;
+      INT32_VECT3_SDIV(acc_avg, acc_avg, (PERIODIC_FREQUENCY / AHRS_CORRECT_FREQUENCY) );
+      INT32_VECT3_COPY(imu.accel_unscaled, acc_avg);
+      INT_VECT3_ZERO(acc_avg);
       ImuScaleAccel(imu);
-      ahrs_aligner_run();
-      if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
-        ahrs_align();
-    }
-    else {
-
-      ahrs_propagate();
-
-      _reduced_correction_rate++;
-      if (_reduced_correction_rate >= (AHRS_PROPAGATE_FREQUENCY / AHRS_CORRECT_FREQUENCY))
-      {
-        _reduced_correction_rate = 0;
-        INT32_VECT3_SDIV(acc_avg, acc_avg, (PERIODIC_FREQUENCY / AHRS_CORRECT_FREQUENCY) );
-        INT32_VECT3_COPY(imu.accel_unscaled, acc_avg);
-        INT_VECT3_ZERO(acc_avg);
-        ImuScaleAccel(imu);
-        ahrs_update_accel();
-        ahrs_update_fw_estimator();
-      }
-
+      ahrs_update_accel();
+      ahrs_update_fw_estimator();
     }
   }
   

@@ -50,7 +50,7 @@ float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 // Positive yaw : clockwise
 
 // DCM Working variables
-float G_Dt=1. / ((float) AHRS_PROPAGATE_FREQUENCY );
+const float G_Dt = 1. / ((float) AHRS_PROPAGATE_FREQUENCY );
 
 struct FloatVect3 accel_float = {0,0,0};
 
@@ -71,6 +71,13 @@ static inline void compute_body_orientation_and_rates(void);
 void Normalize(void);
 void Drift_correction(void);
 void Matrix_update(void);
+
+#if PERFORMANCE_REPORTING == 1
+int renorm_sqrt_count = 0;
+int renorm_blowup_count = 0;
+float imu_health = 0.;
+#endif
+
 
 /**************************************************/
 
@@ -95,6 +102,8 @@ void ahrs_update_fw_estimator( void )
   estimator_phi   = ahrs_float.ltp_to_imu_euler.phi - ins_roll_neutral;
   estimator_theta = ahrs_float.ltp_to_imu_euler.theta - ins_pitch_neutral;
   estimator_psi   = ahrs_float.ltp_to_imu_euler.psi;
+
+  estimator_p = Omega_Vector[0];
 
 //  estimator_p     = 
 }
