@@ -34,9 +34,18 @@
 
 #include <string.h>
 
-//FIXME this is still needed for fixedwing integration
+// FIXME this is still needed for fixedwing integration
 #include "estimator.h"
 #include "led.h"
+
+// FIXME Debugging Only
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+#include "mcu_periph/uart.h"
+#include "messages.h"
+#include "downlink.h"
+
 
 struct AhrsFloatDCM ahrs_impl;
 
@@ -105,6 +114,21 @@ void ahrs_update_fw_estimator( void )
 
   estimator_p = Omega_Vector[0];
 
+  RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel, 
+    &(DCM_Matrix[0][0]),
+    &(DCM_Matrix[0][1]),
+    &(DCM_Matrix[0][2]),
+
+    &(DCM_Matrix[1][0]),
+    &(DCM_Matrix[1][1]),
+    &(DCM_Matrix[1][2]),
+
+    &(DCM_Matrix[2][0]),
+    &(DCM_Matrix[2][1]),
+    &(DCM_Matrix[2][2])
+
+  ));
+
 //  estimator_p     = 
 }
 
@@ -170,7 +194,7 @@ void ahrs_propagate(void)
   Matrix_update();
   // INFO, ahrs struct only updated in ahrs_update_fw_estimator
 
-  // Normalize();
+  //Normalize();
 }
 
 void ahrs_update_accel(void)
