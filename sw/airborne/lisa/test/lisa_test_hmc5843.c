@@ -34,11 +34,12 @@
  */
 
 #include BOARD_CONFIG
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "downlink.h"
 #include "std.h"
 
+#include "mcu_periph/uart.h"
 #include "peripherals/hmc5843.h"
 #include "my_debug_servo.h"
 #include "math/pprz_algebra_int.h"
@@ -74,7 +75,7 @@ int main(void) {
 }
 
 static inline void main_init( void ) {
-  hw_init();
+  mcu_init();
   sys_time_init();
   main_init_hw();
 }

@@ -81,7 +81,7 @@ sim.srcs += $(SRC_FIRMWARE)/telemetry.c \
 
 sim.srcs   += $(SRC_BOOZ)/booz2_commands.c
 
-sim.srcs += $(SRC_BOOZ)/booz2_datalink.c
+sim.srcs += $(SRC_FIRMWARE)/datalink.c
 
 #
 #

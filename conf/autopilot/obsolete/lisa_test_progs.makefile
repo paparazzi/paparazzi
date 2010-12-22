@@ -268,7 +268,7 @@ test_datalink.srcs += $(SRC_ARCH)/uart_hw.c
 test_datalink.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_datalink.srcs += downlink.c pprz_transport.c
 test_datalink.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart2
-#test_datalink.srcs += $(SRC_BOOZ)/booz2_datalink.c
+#test_datalink.srcs += $(SRC_FIRMWARE)/datalink.c
 
 #
 # tunnel

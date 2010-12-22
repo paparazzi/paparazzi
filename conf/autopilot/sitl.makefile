@@ -14,7 +14,7 @@ sim.srcs += latlong.c\
             sys_time.c\
             $(SRC_FIRMWARE)/main_fbw.c \
             $(SRC_FIRMWARE)/main_ap.c \
-            datalink.c \
+            $(SRC_FIRMWARE)/datalink.c \
             $(SRC_ARCH)/ppm_hw.c \
             $(SRC_ARCH)/sim_gps.c\
             $(SRC_ARCH)/sim_ir.c \

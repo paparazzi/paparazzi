@@ -1039,7 +1039,8 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
       end else if agl > 25. then
 	ac.ground_prox <- false;
       try
-	draw_altgraph alt_graph geomap aircrafts
+        if not (alt_graph#drawing_area#misc#parent = None) then
+          draw_altgraph alt_graph geomap aircrafts
       with _ -> ()
 
   in

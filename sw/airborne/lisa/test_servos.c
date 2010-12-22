@@ -23,7 +23,7 @@
 
 #include <inttypes.h>
 
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "firmwares/rotorcraft/actuators/actuators_pwm.h"
 
@@ -41,7 +41,7 @@ int main(void) {
 }
 
 static inline void main_init( void ) {
-  hw_init();
+  mcu_init();
   sys_time_init();
   actuators_init();
 }

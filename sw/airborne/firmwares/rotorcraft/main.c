@@ -143,33 +143,32 @@ STATIC_INLINE void main_periodic( void ) {
   /* set actuators     */
   actuators_set(autopilot_motors_on);
 
-  PeriodicPrescaleBy10(							\
-    {                                               \
-      radio_control_periodic_task();				\
-      if (radio_control.status != RC_OK &&			\
-          autopilot_mode != AP_MODE_KILL &&			\
-          autopilot_mode != AP_MODE_NAV)			\
-        autopilot_set_mode(AP_MODE_FAILSAFE);		\
-    },									\
-    {									\
-      /* booz_fms_periodic(); FIXME */					\
-    },									\
-    {									\
-      /*BoozControlSurfacesSetFromCommands();*/				\
-    },									\
-    {									\
-      LED_PERIODIC();                               \
-    },									\
-    { baro_periodic();
-    },									\
-    {},									\
-    {},									\
-    {},									\
-    {},									\
-    {									\
-      Booz2TelemetryPeriodic();						\
-    }									\
-    );									\
+  PeriodicPrescaleBy10(                                     \
+    {                                                       \
+      radio_control_periodic_task();                        \
+      if (radio_control.status != RC_OK &&                  \
+          autopilot_mode != AP_MODE_KILL &&                 \
+          autopilot_mode != AP_MODE_NAV)                    \
+        autopilot_set_mode(AP_MODE_FAILSAFE);               \
+    },                                                      \
+    {                                                       \
+      /* booz_fms_periodic(); FIXME */                      \
+    },                                                      \
+    {                                                       \
+      /*BoozControlSurfacesSetFromCommands();*/             \
+    },                                                      \
+    {                                                       \
+      LED_PERIODIC();                                       \
+    },                                                      \
+    { baro_periodic();                                      \
+    },                                                      \
+    {},                                                     \
+    {},                                                     \
+    {},                                                     \
+    {},                                                     \
+    {                                                       \
+      Booz2TelemetryPeriodic();                             \
+    } );
 
 #ifdef USE_GPS
   if (radio_control.status != RC_OK &&			\

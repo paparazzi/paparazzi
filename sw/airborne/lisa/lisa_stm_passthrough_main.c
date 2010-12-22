@@ -23,20 +23,21 @@
  */
 
 #include "mcu.h"
+#include "mcu_periph/uart.h"
 #include "sys_time.h"
 #include "downlink.h"
 #include "booz/booz2_commands.h"
 #include "actuators.h"
 #include "actuators/actuators_pwm.h"
 #include "subsystems/imu.h"
-#include "booz/booz_radio_control.h"
+#include "subsystems/radio_control.h"
 #include "autopilot.h"
-#include "ins.h"
+#include "subsystems/ins.h"
 #include "guidance.h"
 #include "navigation.h"
 #include "lisa/lisa_overo_link.h"
 #include "generated/airframe.h"
-#include "ahrs.h"
+#include "subsystems/ahrs.h"
 #ifdef PASSTHROUGH_CYGNUS
 #include "stabilization.h"
 #endif
