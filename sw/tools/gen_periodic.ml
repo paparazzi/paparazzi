@@ -44,15 +44,6 @@ let lprintf = fun c f ->
 
 (**let freq = ref 60 *)
 
-let remove_dup = fun l ->
-  let rec loop = fun l ->
-    match l with
-      [] | [_] -> l
-    | x::((x'::_) as xs) ->
-	if x = x' then loop xs else x::loop xs in
-  loop (List.sort compare l)
-
-
 let output_modes = fun avr_h process_name channel_name modes freq modules ->       
   let min_period = 1./.float freq in
   let max_period = 65536. /. float freq in
@@ -74,7 +65,7 @@ let output_modes = fun avr_h process_name channel_name modes freq modules ->
           fprintf stderr "Warning: period is bound between %.3fs and %.3fs for message %s\n%!" min_period max_period (ExtXml.attrib x "name");
         (x, min 65535 (max 1 (int_of_float (p*.float_of_int freq))))
         ) filtered_msg in
-      let modulos = remove_dup (List.map snd messages) in
+      let modulos = singletonize (List.map snd messages) in
       List.iter (fun m ->
         let v = sprintf "i%d" m in
         let _type = if m >= 256 then "uint16_t" else "uint8_t" in
@@ -106,52 +97,6 @@ let output_modes = fun avr_h process_name channel_name modes freq modules ->
       left ();
       lprintf avr_h "}\\\n")
     modes
-
-(** [get_targets_of_module xml] Returns the list of targets of a module *)
-let get_targets_of_module = fun m ->
-  let pipe_regexp = Str.regexp "|" in
-  let targets_of_field = fun field -> try 
-    Str.split pipe_regexp (ExtXml.attrib_or_default field "target" "ap|sim") with _ -> [] in
-  let rec singletonize = fun l ->
-    match l with
-      [] | [_] -> l
-    | x :: ((y :: t) as yt) -> if x = y then singletonize yt else x :: singletonize yt
-  in
-  let targets = List.map (fun x ->
-    match String.lowercase (Xml.tag x) with
-      "makefile" -> targets_of_field x
-    | _ -> []
-  ) (Xml.children m) in
-  (* return a singletonized list *)
-  singletonize (List.sort compare (List.flatten targets))
-
-let unload_unused_modules = fun modules ->
-  let target = try Sys.getenv "TARGET" with _ -> "" in
-  let is_target_in_module = fun m ->
-    let target_is_in_module = List.exists (fun x -> String.compare target x = 0) (get_targets_of_module m) in
-    target_is_in_module
-  in
-  if String.length target = 0 then
-    modules
-  else
-    List.find_all is_target_in_module modules
-
-(** [get_modules_name dir xml] Returns a list of modules name *)
-let get_modules_name = fun dir xml ->
-  (* extract all "modules" sections *)
-  let modules = List.map (fun x ->
-    match String.lowercase (Xml.tag x) with
-      "modules" -> Xml.children x
-    | _ -> []
-    ) (Xml.children xml) in
-  (* flatten the list (result is a list of "load" xml nodes) *)
-  let modules = List.flatten modules in
-  (* parse modules *)
-  let modules = List.map (fun m -> ExtXml.parse_file (dir // ExtXml.attrib m "name")) modules in
-  (* filter the list if target is not supported *)
-  let modules = unload_unused_modules modules in
-  (* return a list of modules name *)
-  List.map (fun m -> ExtXml.attrib m "name") modules
 
 
 let _ =

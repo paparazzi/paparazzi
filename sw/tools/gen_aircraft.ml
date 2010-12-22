@@ -66,22 +66,6 @@ let targets_of_field = fun field ->
   with
     _ -> []
 
-(** singletonize a sorted list *)
-let rec singletonize = fun l ->
-  match l with
-    [] | [_] -> l
-  | x :: ((y :: t) as yt) -> if x = y then singletonize yt else x :: singletonize yt
-
-(** union of two lists *)
-let union = fun l1 l2 ->
-  let l = l1 @ l2 in
-  let sl = List.sort compare l in
-  singletonize sl
-
-let union_of_lists = fun l ->
-  let sl = List.sort compare (List.flatten l) in
-  singletonize sl
-
 (** [get_modules dir xml]
  * [dir] is the conf directory for modules, [xml] is the parsed airframe.xml *)
 let get_modules = fun dir xml ->
@@ -102,21 +86,6 @@ let get_modules = fun dir xml ->
     ) modules in
   (* return a list of name and a list of pairs (xml, xml list) *)
   List.split extract
-
-(** [get_targets_of_module xml] Returns the list of targets of a module *)
-let get_targets_of_module = fun m ->
-  let targets = List.map (fun x ->
-    match String.lowercase (Xml.tag x) with
-      "makefile" -> targets_of_field x
-    | _ -> []
-  ) (Xml.children m) in
-  (* return a singletonized list *)
-  singletonize (List.sort compare (List.flatten targets))
-
-(** [get_modules_dir xml] Returns the list of modules directories *)
-let get_modules_dir = fun modules ->
-  let dir = List.map (fun (m, _) -> try Xml.attrib m "dir" with _ -> ExtXml.attrib m "name") modules in
-  singletonize (List.sort compare dir)
 
 (**
    Search and dump the module section :

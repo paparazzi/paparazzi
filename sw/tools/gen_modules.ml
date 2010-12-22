@@ -97,14 +97,6 @@ let print_init_functions = fun modules ->
   left ();
   lprintf out_h "}\n"
 
-let remove_dup = fun l ->
-  let rec loop = fun l ->
-    match l with
-      [] | [_] -> l
-    | x::((x'::_) as xs) ->
-    if x = x' then loop xs else x::loop xs in
-  loop (List.sort compare l)
-
 let print_periodic_functions = fun modules ->
   let min_period = 1. /. float !freq
   and max_period = 65536. /. float !freq
@@ -131,7 +123,7 @@ let print_periodic_functions = fun modules ->
         ((x, module_name), min 65535 (max 1 (int_of_float (float_of_int !freq /. f))))
       )
     periodic) modules) in
-  let modulos = remove_dup (List.map snd functions_modulo) in
+  let modulos = singletonize (List.map snd functions_modulo) in
   (** Print modulos *)
   List.iter (fun modulo ->
     let v = sprintf "i%d" modulo in
@@ -261,15 +253,6 @@ let parse_modules modules =
   nl ();
   fprintf out_h "#endif // MODULES_DATALINK_C\n"
 
-let get_modules = fun dir m ->
-  match Xml.tag m with
-    "load" -> begin
-      let name = ExtXml.attrib m "name" in
-      let xml = Xml.parse_file (dir^name) in
-      xml
-        end
-  | _ -> xml_error "load"
-
 let test_section_modules = fun xml ->
   List.fold_right (fun x r -> ExtXml.tag_is x "modules" || r) (Xml.children xml) false
 
@@ -323,36 +306,6 @@ let write_settings = fun xml_file out_set modules ->
   if !setting_exist then fprintf out_set "   </dl_settings>\n";
   fprintf out_set " </dl_settings>\n";
   fprintf out_set "</settings>\n"
-
-let get_targets_of_module = fun m ->
-  let pipe_regexp = Str.regexp "|" in
-  let targets_of_field = fun field -> try
-    Str.split pipe_regexp (ExtXml.attrib_or_default field "target" "ap|sim") with _ -> [] in
-  let rec singletonize = fun l ->
-    match l with
-      [] | [_] -> l
-    | x :: ((y :: t) as yt) -> if x = y then singletonize yt else x :: singletonize yt
-  in
-  let targets = List.map (fun x ->
-    match String.lowercase (Xml.tag x) with
-      "makefile" -> targets_of_field x
-    | _ -> []
-  ) (Xml.children m) in
-  (* return a singletonized list *)
-  singletonize (List.sort compare (List.flatten targets))
-
-let unload_unused_modules = fun modules ->
-  let target = try Sys.getenv "TARGET" with _ -> "" in
-  let is_target_in_module = fun m ->
-    let target_is_in_module = List.exists (fun x -> String.compare target x = 0) (get_targets_of_module m) in
-    if not target_is_in_module then
-      Printf.fprintf stderr "Module %s unloaded, target %s not supported\n" (Xml.attrib m "name") target;
-    target_is_in_module
-  in
-  if String.length target = 0 then
-    modules
-  else
-    List.find_all is_target_in_module modules
 
 let h_name = "MODULES_H"
 
