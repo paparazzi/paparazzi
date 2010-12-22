@@ -8,11 +8,11 @@
 <!ELEMENT event (handler*)>
 <!ELEMENT handler EMPTY>
 <!ELEMENT datalink EMPTY>
-<!ELEMENT makefile (flag|file|file_hw|define|raw)*>
-<!ELEMENT flag EMPTY>
-<!ELEMENT file EMPTY>
-<!ELEMENT file_hw EMPTY>
+<!ELEMENT makefile (configure|define|file|file_arch|raw)*>
+<!ELEMENT configure EMPTY>
 <!ELEMENT define EMPTY>
+<!ELEMENT file EMPTY>
+<!ELEMENT file_arch EMPTY>
 <!ELEMENT raw (#PCDATA)>
 
 <!ATTLIST module
@@ -48,9 +48,13 @@ message CDATA #REQUIRED
 fun CDATA #REQUIRED>
 
 <!ATTLIST makefile
-target CDATA "ap|sim|jsbsim">
+target CDATA #IMPLIED>
 
-<!ATTLIST flag
+<!ATTLIST configure
+name CDATA #REQUIRED
+value CDATA #REQUIRED>
+
+<!ATTLIST define
 name CDATA #REQUIRED
 value CDATA #IMPLIED
 type CDATA #IMPLIED>
@@ -58,10 +62,6 @@ type CDATA #IMPLIED>
 <!ATTLIST file
 name CDATA #REQUIRED>
 
-<!ATTLIST file_hw
+<!ATTLIST file_arch
 name CDATA #REQUIRED>
-
-<!ATTLIST define
-name CDATA #REQUIRED
-value CDATA #REQUIRED>
 

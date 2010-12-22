@@ -3,7 +3,7 @@
 
 
  <target name="ap" description="The autopilot">
-   <param name="FLASH_MODE" values="IAP|JTAG|ISP"/>
+   <configure name="FLASH_MODE" values="IAP|JTAG|ISP"/>
    <define name="AGR_CLIMB" />
    <define name="TRAFFIC_INFO"/>
    <define name="LOITER_TRIM"/>
@@ -17,26 +17,26 @@
  <subsystem name="radio_control" 	types="ppm"/>
     <!-- Communication -->
  <subsystem name="telemetry" 	types="transparent|xbee_api|transparent_usb">
-   <param name="MODEM_BAUD"     values="B9600|B38400|B57600|B115200"/>
+   <configure name="MODEM_BAUD"     values="B9600|B38400|B57600|B115200"/>
  </subsystem>
  <!-- Actuators (automatically used according to board) -->
  <subsystem name="actuators" 	types="4015|4017|ppm|direct"/>
  <subsystem name="control"      types="NONE|adaptive|new"/>
  <!-- Sensors -->
  <subsystem name="gyro"         types="roll|pitch">
-   <param name="ADC_GYRO_ROLL"  value="ADC_3"/><!-- this is already the default if not set, change if needed -->
-   <param name="ADC_GYRO_PITCH" value="ADC_4"/><!-- this is already the default if not set, change if needed -->
-   <param name="ADC_GYRO_NB_SAMPLES" value="16"/><!-- this is already the default if not set, change if needed -->
+   <configure name="ADC_GYRO_ROLL"  value="ADC_3"/><!-- this is already the default if not set, change if needed -->
+   <configure name="ADC_GYRO_PITCH" value="ADC_4"/><!-- this is already the default if not set, change if needed -->
+   <configure name="ADC_GYRO_NB_SAMPLES" value="16"/><!-- this is already the default if not set, change if needed -->
  </subsystem>
  <subsystem name="attitude"     types="infrared">
-   <param name="ADC_IR1"        value="ADC_1"/><!-- this is already the default if not set, change if needed -->
-   <param name="ADC_IR2"        value="ADC_2"/><!-- this is already the default if not set, change if needed -->
-   <param name="ADC_IR_TOP"     value="ADC_0"/><!-- this is already the default if not set, change if needed -->
-   <param name="ADC_IR_NB_SAMPLES" value="16"/><!-- this is already the default if not set, change if needed -->
+   <configure name="ADC_IR1"        value="ADC_1"/><!-- this is already the default if not set, change if needed -->
+   <configure name="ADC_IR2"        value="ADC_2"/><!-- this is already the default if not set, change if needed -->
+   <configure name="ADC_IR_TOP"     value="ADC_0"/><!-- this is already the default if not set, change if needed -->
+   <configure name="ADC_IR_NB_SAMPLES" value="16"/><!-- this is already the default if not set, change if needed -->
  </subsystem>
  <subsystem name="gps" 		    types="ublox_lea4p|lea5h">
-   <param name="GPS_BAUD"       values="B9600|B38400|B57600|B115200"/>
-   <param name="GPS_LED"        values="1,2,3,4,none"/>
+   <configure name="GPS_BAUD"       values="B9600|B38400|B57600|B115200"/>
+   <configure name="GPS_LED"        values="1,2,3,4,none"/>
  </subsystem>
  <subsystem name="navigation"   types="NONE|extra"/>
  <subsystem name="joystick"     types="NONE"/>

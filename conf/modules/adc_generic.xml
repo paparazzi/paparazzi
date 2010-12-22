@@ -14,8 +14,8 @@
   <periodic fun="adc_generic_periodic()" freq="4"/>
   <makefile target="ap">
     <file name="adc_generic.c"/>
-    <flag name="USE_$(ADC_CHANNEL_GENERIC1)"/>
-    <flag name="USE_$(ADC_CHANNEL_GENERIC2)"/>
+    <define name="USE_$(ADC_CHANNEL_GENERIC1)"/>
+    <define name="USE_$(ADC_CHANNEL_GENERIC2)"/>
   </makefile>
 </module>
 

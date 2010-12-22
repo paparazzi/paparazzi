@@ -7,7 +7,7 @@
   <init fun="max11040_init()"/>
   <periodic fun="max11040_periodic()" freq="4"/>
   <makefile>
-    <file_hw name="max11040_hw.c"/>
+    <file_arch name="max11040_hw.c"/>
     <file name="max11040.c"/>
   </makefile>
 </module>

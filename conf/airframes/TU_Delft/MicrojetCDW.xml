@@ -192,7 +192,7 @@
 
     <!-- Communication -->
     <subsystem name="telemetry" 	type="xbee_api">
-      <param name="MODEM_BAUD" 		value="B57600"/>
+      <configure name="MODEM_BAUD" 		value="B57600"/>
     </subsystem>
 
     <subsystem name="control"/>
@@ -212,8 +212,8 @@
 
   <modules>
     <load name="light.xml">
-      <param name="LIGHT_LED_STROBE" value="2"/>
-      <param name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
+      <define name="LIGHT_LED_STROBE" value="2"/>
+      <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
     </load>
   </modules>
 

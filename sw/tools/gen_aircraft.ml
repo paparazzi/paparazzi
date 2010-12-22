@@ -151,11 +151,11 @@ let dump_module_section = fun xml f ->
     fprintf f "\n# makefile for module %s in modules/%s\n" name dir;
     List.iter (fun flag ->
       match String.lowercase (Xml.tag flag) with
-        "define" ->
+        "configure" ->
           let value = Xml.attrib flag "value"
           and name = Xml.attrib flag "name" in
           fprintf f "%s = %s\n" name value
-      | "flag" | "param" ->
+      | "define" ->
           List.iter (fun target ->
             let name = ExtXml.attrib flag "name"
             and value = try "="^(Xml.attrib flag "value") with _ -> "" in
@@ -170,7 +170,11 @@ let dump_module_section = fun xml f ->
         (* Look for defines, flags, files, ... *)
         List.iter (fun field ->
           match String.lowercase (Xml.tag field) with
-            "flag" ->
+            "configure" ->
+              let value = Xml.attrib field "value"
+              and name = Xml.attrib field "name" in
+              fprintf f "%s = %s\n" name value
+          | "define" ->
               List.iter (fun target ->
                 let value = try "="^(Xml.attrib field "value") with _ -> ""
                 and name = Xml.attrib field "name" in
@@ -186,13 +190,6 @@ let dump_module_section = fun xml f ->
           | "file_arch" ->
               let name = Xml.attrib field "name" in
               List.iter (fun target -> fprintf f "%s.srcs += arch/$(ARCH)/$(%s)/%s\n" target dir_name name) targets
-          | "file_hw" ->
-              let name = Xml.attrib field "name" in
-              List.iter (fun target -> fprintf f "%s.srcs += arch/$(ARCH)/$(%s)/%s\n" target dir_name name) targets
-          | "define" ->
-              let value = Xml.attrib field "value"
-              and name = Xml.attrib field "name" in
-              fprintf f "%s = %s\n" name value
           | "raw" ->
               begin match Xml.children field with
                 [Xml.PCData s] -> fprintf f "%s\n" s
@@ -227,8 +224,8 @@ let dump_makefile_section = fun xml makefile_ac airframe_infile location ->
  * Firmware Children
  * **)
 
-(* print a param (firmware) *)
-let print_firmware_param = fun f p ->
+(* print a configure (firmware) *)
+let print_firmware_configure = fun f p ->
   let name = (String.uppercase (Xml.attrib p "name"))
   and value = (Xml.attrib p "value") in
   fprintf f "%s = %s\n" name value
@@ -244,9 +241,9 @@ let print_firmware_subsystem = fun f firmware s ->
   let name = ExtXml.attrib s "name"
   and s_type = try "_"^(Xml.attrib s "type") with _ -> "" in
   fprintf f "# -subsystem: '%s'\n" name;
-  (* print params *)
-  let s_params = List.filter (fun x -> ExtXml.tag_is x "param") (Xml.children s) in
-  List.iter (print_firmware_param f) s_params;
+  (* print config *)
+  let s_config = List.filter (fun x -> ExtXml.tag_is x "configure") (Xml.children s) in
+  List.iter (print_firmware_configure f) s_config;
   (* print defines *)
   let s_defines = List.filter (fun x -> ExtXml.tag_is x "define") (Xml.children s) in
   List.iter (print_firmware_define f) s_defines;
@@ -260,6 +257,8 @@ let print_firmware_subsystem = fun f firmware s ->
   fprintf f "endif\n"
 
 let parse_firmware = fun makefile_ac firmware ->
+  (* get the list of configure for this firmware *)
+  let config = List.filter (fun x -> ExtXml.tag_is x "configure") (Xml.children firmware) in
   (* get the list of targets for this firmware *)
   let targets = List.filter (fun x -> ExtXml.tag_is x "target") (Xml.children firmware) in
   (* get the list of subsystems for this firmware *)
@@ -268,8 +267,8 @@ let parse_firmware = fun makefile_ac firmware ->
   let defines = List.filter (fun x -> ExtXml.tag_is x "define") (Xml.children firmware) in
   (* iter on all targets *)
   List.iter (fun target ->
-    (* get the list of params for this target *)
-    let t_params = List.filter (fun x -> ExtXml.tag_is x "param") (Xml.children target) in
+    (* get the list of configure for this target *)
+    let t_config = List.filter (fun x -> ExtXml.tag_is x "configure") (Xml.children target) in
     (* get the list of defines for this target *)
     let t_defines = List.filter (fun x -> ExtXml.tag_is x "define") (Xml.children target) in
     (* get the list of subsystems for this target *)
@@ -278,7 +277,8 @@ let parse_firmware = fun makefile_ac firmware ->
     fprintf makefile_ac "\n###########\n# -target: '%s'\n" (Xml.attrib target "name");
     fprintf makefile_ac "ifeq ($(TARGET), %s)\n" (Xml.attrib target "name");
     try fprintf makefile_ac "BOARD_PROCESSOR = %s\n" (Xml.attrib target "processor") with _ -> ();
-    List.iter (print_firmware_param makefile_ac) t_params;
+    List.iter (print_firmware_configure makefile_ac) config;
+    List.iter (print_firmware_configure makefile_ac) t_config;
     List.iter (print_firmware_define makefile_ac) defines;
     List.iter (print_firmware_define makefile_ac) t_defines;
     fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib target "board");
