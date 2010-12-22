@@ -23,6 +23,7 @@
 
 #include "subsystems/imu.h"
 
+int imu_overrun_error = 0;
 volatile uint8_t imu_ssp_status;
 static void SSP_ISR(void) __attribute__((naked));
 #if 0

@@ -381,15 +381,7 @@ void periodic_task_ap( void ) {
 
 #ifdef USE_IMU
   // Run at PERIODIC_FREQUENCY (60Hz if not defined)
-
-#ifdef AHRS_CPU_LED
-    LED_ON(AHRS_CPU_LED);
-#endif
-
   imu_periodic();
-#ifdef AHRS_CPU_LED
-    LED_OFF(AHRS_CPU_LED);
-#endif
 
 #endif // USE_IMU
 
@@ -669,42 +661,67 @@ void event_task_ap( void ) {
 
 #ifdef USE_AHRS
 static inline void on_gyro_accel_event( void ) {
-  static uint8_t _reduced_rate = 0;
+  static uint8_t _reduced_propagation_rate = 0;
+  static uint8_t _reduced_correction_rate = 0;
+  static struct Int32Vect3 acc_avg, gyr_avg;
 
 #ifdef AHRS_CPU_LED
     LED_ON(AHRS_CPU_LED);
 #endif
 
-  ImuScaleGyro(imu);
-  ImuScaleAccel(imu);
 
-  
-  if (ahrs.status == AHRS_UNINIT) {
-    ahrs_aligner_run();
-    if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
-      ahrs_align();
+
+  gyr_avg.x += imu.gyro_unscaled.p;
+  gyr_avg.y += imu.gyro_unscaled.q;
+  gyr_avg.z += imu.gyro_unscaled.r;
+  INT32_VECT3_ADD(acc_avg, imu.accel_unscaled);
+
+  _reduced_propagation_rate++;
+  if (_reduced_propagation_rate < (PERIODIC_FREQUENCY / AHRS_PROPAGATE_FREQUENCY))
+  {
   }
-  else {
+  else
+  {
+    _reduced_propagation_rate = 0;
 
-    //if (_reduced_rate % 4)
-    {
+    INT32_VECT3_SDIV(gyr_avg, gyr_avg, (PERIODIC_FREQUENCY / AHRS_PROPAGATE_FREQUENCY) );
+    imu.gyro_unscaled.p = gyr_avg.x;
+    imu.gyro_unscaled.q = gyr_avg.y;
+    imu.gyro_unscaled.r = gyr_avg.z; 
+    INT_VECT3_ZERO(gyr_avg);
+
+    ImuScaleGyro(imu);
+
+    
+    if (ahrs.status == AHRS_UNINIT) {
+      ImuScaleAccel(imu);
+      ahrs_aligner_run();
+      if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
+        ahrs_align();
+    }
+    else {
+
       ahrs_propagate();
+
+      _reduced_correction_rate++;
+      if (_reduced_correction_rate >= (AHRS_PROPAGATE_FREQUENCY / AHRS_CORRECT_FREQUENCY))
+      {
+        _reduced_correction_rate = 0;
+        INT32_VECT3_SDIV(acc_avg, acc_avg, (PERIODIC_FREQUENCY / AHRS_CORRECT_FREQUENCY) );
+        INT32_VECT3_COPY(imu.accel_unscaled, acc_avg);
+        INT_VECT3_ZERO(acc_avg);
+        ImuScaleAccel(imu);
+        ahrs_update_accel();
+        ahrs_update_fw_estimator();
+      }
+
     }
-
-
-    _reduced_rate++;
-    if (_reduced_rate >= (PERIODIC_FREQUENCY / 60))
-    {
-      _reduced_rate = 0;
-      ahrs_update_accel();
-      ahrs_update_fw_estimator();
-    }
-
   }
   
 #ifdef AHRS_CPU_LED
     LED_OFF(AHRS_CPU_LED);
 #endif
+
 }
 
 static inline void on_mag_event(void) {

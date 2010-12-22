@@ -184,9 +184,11 @@
 
   <firmware name="fixedwing">
     <target name="ap" 			board="tiny_1.1">
-      <param name="PERIODIC_FREQUENCY" value="960" />
-      <param name="AHRS_ALIGNER_LED" value="1" />
-      <param name="CPU_LED" value="2" />
+      <configure name="PERIODIC_FREQUENCY" value="960" /> <!-- IMU FREQ -->
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="120" />
+      <configure name="AHRS_CORRECT_FREQUENCY" value="60" />
+      <configure name="AHRS_ALIGNER_LED" value="1" />
+      <configure name="CPU_LED" value="2" />
     </target>
     <target name="sim" 			board="pc" />
 
