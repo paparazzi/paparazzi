@@ -41,8 +41,8 @@
 
   <modules main_freq="60">
     <load name="cam_point.xml">
-      <param name="POINT_CAM_YAW_PITCH"  value="1"/>
-      <param name="SHOW_CAM_COORDINATES" value="1"/>
+      <define name="POINT_CAM_YAW_PITCH"  value="1"/>
+      <define name="SHOW_CAM_COORDINATES" value="1"/>
     </load>
     <load name="sys_mon.xml"/>
   </modules>

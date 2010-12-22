@@ -15,25 +15,20 @@
     <!--load name="max3100.xml"/>
     <load name="gsm.xml"/-->
     <load name="demo_module.xml">
-      <flag name="TEST" value="1"/>
-      <flag name="TEST_FLAG"/>
+      <define name="TEST" value="1"/>
+      <define name="TEST_FLAG"/>
     </load>
     <!--load name="enose.xml"/-->
     <load name="light.xml"/>
   </modules>
 
   <firmware name="fixedwing">
-    <target name="ap" 			board="tiny_2.11">
-      <define name="PITCH_TRIM"/>
-      <define name="ALT_KALMAN"/>
-      <define name="USE_I2C0"/>
-    </target>
+    <define name="PITCH_TRIM"/>
+    <define name="ALT_KALMAN"/>
+    <define name="USE_I2C0"/>
 
-    <target name="sim" 			board="pc">
-      <define name="PITCH_TRIM"/>
-      <define name="ALT_KALMAN"/>
-      <define name="USE_I2C0"/>
-    </target>
+    <target name="ap" 			board="tiny_2.11"/>
+    <target name="sim" 			board="pc"/>
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="xbee_api"/>

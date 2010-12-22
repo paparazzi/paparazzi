@@ -11,12 +11,12 @@
     <raw>
 #Exemple of RAW makefile part
     </raw>
-    <flag name="DEMO_MODULE_LED" value="2"/>
+    <define name="DEMO_MODULE_LED" value="2"/>
     <file name="demo_module.c"/>
   </makefile>
   <makefile target="demo">
-    <flag name="SOME_FLAG"/>
-    <define name="SOME_DEFINE" value="bla"/>
+    <define name="SOME_FLAG"/>
+    <configure name="SOME_DEFINE" value="bla"/>
   </makefile>
 </module>
 

@@ -229,8 +229,8 @@
 
   <modules>
     <load name="light.xml">
-      <param name="LIGHT_LED_STROBE" value="3"/>
-      <param name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
+      <define name="LIGHT_LED_STROBE" value="3"/>
+      <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
     </load>
   </modules>
 
@@ -253,7 +253,7 @@
 
     <!-- Communication -->
     <subsystem name="telemetry" 	type="transparent">
-      <param name="MODEM_BAUD" 		value="57600"/>
+      <configure name="MODEM_BAUD" 		value="57600"/>
     </subsystem>
 
     <!-- Sensors -->

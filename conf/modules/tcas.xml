@@ -10,7 +10,7 @@
   <datalink message="TCAS_RESOLVE" fun="ParseTcasResolve()"/>
   <makefile>
     <file name="tcas.c"/>
-    <flag name="TCAS"/>
+    <define name="TCAS"/>
   </makefile>
 </module>
 
