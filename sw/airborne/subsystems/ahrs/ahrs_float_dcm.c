@@ -194,7 +194,7 @@ void ahrs_propagate(void)
   Matrix_update();
   // INFO, ahrs struct only updated in ahrs_update_fw_estimator
 
-  //Normalize();
+  Normalize();
 }
 
 void ahrs_update_accel(void)
