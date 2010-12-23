@@ -2,8 +2,8 @@
 
 <!--
      Hygrosens TEMOD-I2C-Rx temperature sensor
-     @param SCP_I2C_DEV i2c device (default i2c0)
-     @param TEMOD_TYPE device type (default TEMOD_I2C_R1)
+     @define SCP_I2C_DEV i2c device (default i2c0)
+     @define TEMOD_TYPE device type (default TEMOD_I2C_R1)
      -->
 
 <module name="temp_temod" dir="meteo">
