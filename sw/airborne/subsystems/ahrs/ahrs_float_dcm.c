@@ -129,7 +129,6 @@ void ahrs_update_fw_estimator( void )
 
   ));
 
-//  estimator_p     = 
 }
 
 
@@ -188,8 +187,20 @@ void ahrs_propagate(void)
   /* unbias rate measurement */
   RATES_DIFF(ahrs_float.imu_rate, gyro_float, ahrs_impl.gyro_bias);
 
-  ahrs_float.imu_rate.p += (ahrs_float.imu_rate.r / 75);
+  /* Uncouple Motions */
+#ifdef GYRO_P_Q
+  float dp=0,dq=0,dr=0;
+  dp += ahrs_float.imu_rate.q * GYRO_P_Q;
+  dp += ahrs_float.imu_rate.r * GYRO_P_R;
+  dq += ahrs_float.imu_rate.p * GYRO_Q_P;
+  dq += ahrs_float.imu_rate.r * GYRO_Q_R;
+  dr += ahrs_float.imu_rate.p * GYRO_R_P;
+  dr += ahrs_float.imu_rate.q * GYRO_R_Q;
 
+  ahrs_float.imu_rate.p += dp;
+  ahrs_float.imu_rate.q += dq;
+  ahrs_float.imu_rate.r += dr;
+#endif
 
   Matrix_update();
   // INFO, ahrs struct only updated in ahrs_update_fw_estimator

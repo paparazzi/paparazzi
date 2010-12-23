@@ -27,6 +27,7 @@
 #define NB_ANALOG_IMU_ADC 6
 
 extern volatile bool_t analog_imu_available;
+extern int imu_overrun;
 
 #define ImuEvent(_gyro_accel_handler, _mag_handler) {   \
     if (analog_imu_available) {                         \

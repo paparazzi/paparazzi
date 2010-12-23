@@ -4,13 +4,13 @@
 
 <!-- commands section -->
   <servos>
-    <servo name="THROTTLE"      no="0" min="1110" neutral="1110" max="1900"/>
-    <servo name="AILEVON_LEFT"  no="1" min="1000" neutral="1450" max="2000"/>
-    <servo name="AILEVON_RIGHT" no="2" min="2000" neutral="1450" max="1000"/>
+    <servo name="THROTTLE"      no="0" min="1050" neutral="1050" max="1900"/>
+    <servo name="AILEVON_RIGHT" no="1" min="1850" neutral="1480" max="1100"/> <!-- 400 - 380 --> 
+    <servo name="AILEVON_LEFT"  no="2" min="1250" neutral="1580" max="1980"/> <!-- 300 - 400 -->
   </servos>
 
   <commands>
-    <axis name="THROTTLE" failsafe_value="0"/>
+    <axis name="THROTTLE" failsafe_value="9600"/>
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
   </commands>
@@ -22,8 +22,8 @@
   </rc_commands>
 
   <section name="MIXER">
-    <define name="AILEVON_AILERON_RATE" value="0.4"/>
-    <define name="AILEVON_ELEVATOR_RATE" value="0.7"/>
+    <define name="AILEVON_AILERON_RATE" value="0.75"/>
+    <define name="AILEVON_ELEVATOR_RATE" value="0.9"/>
   </section>
 
   <command_laws>
@@ -60,6 +60,13 @@
     <define name="GYRO_P_SENS" value="2.234" integer="16"/>
     <define name="GYRO_Q_SENS" value="2.234" integer="16"/>
     <define name="GYRO_R_SENS" value="2.234" integer="16"/>
+
+    <define name="GYRO_P_Q" value="0." />
+    <define name="GYRO_P_R" value="(1.0f/75.0f)" />
+    <define name="GYRO_Q_P" value="0." />
+    <define name="GYRO_Q_R" value="0." />
+    <define name="GYRO_R_P" value="0." />
+    <define name="GYRO_R_Q" value="0." />
 
     <define name="GYRO_P_SIGN" value="1"/>
     <define name="GYRO_Q_SIGN" value="-1"/>
@@ -145,18 +152,18 @@
     <define name="COURSE_PGAIN" value="-1.4"/>
 
     <define name="ROLL_MAX_SETPOINT" value="0.6" unit="radians"/>
-    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.4" unit="radians"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.4" unit="radians"/>
 
-    <define name="PITCH_PGAIN" value="-10000."/>
-    <define name="PITCH_DGAIN" value="0."/>
+    <define name="PITCH_PGAIN" value="-6000."/>
+    <define name="PITCH_DGAIN" value="5."/>
 
-    <define name="ELEVATOR_OF_ROLL" value="0."/>
+    <define name="ELEVATOR_OF_ROLL" value="1200."/>
 
     <define name="ROLL_SLEW" value="0."/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-10000."/>
-    <define name="ROLL_RATE_GAIN" value="0."/>
+    <define name="ROLL_ATTITUDE_GAIN" value="-5000."/>
+    <define name="ROLL_RATE_GAIN" value="500."/>
   </section>
 
   <section name="AGGRESSIVE" prefix="AGR_">
