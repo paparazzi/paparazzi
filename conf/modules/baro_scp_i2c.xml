@@ -2,7 +2,7 @@
 
 <!--
      VTI SCP1000 pressure sensor (I2C)
-     @param SCP_I2C_DEV i2c device (default i2c0)
+     @define SCP_I2C_DEV i2c device (default i2c0)
      @define SENSOR_SYNC_SEND to transmit the data as it is acquired
      -->
 
