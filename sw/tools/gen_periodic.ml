@@ -25,12 +25,9 @@
  *)
 
 open Printf
+module GC = Gen_common
 
 let (//) = Filename.concat
-
-let paparazzi_conf = Env.paparazzi_home // "conf" 
-let modules_dir = paparazzi_conf // "modules"
-
 
 let margin = ref 0
 let step = 2
@@ -42,9 +39,7 @@ let lprintf = fun c f ->
   fprintf c "%s" (String.make !margin ' ');
   fprintf c f
 
-(**let freq = ref 60 *)
-
-let output_modes = fun avr_h process_name channel_name modes freq modules ->       
+let output_modes = fun avr_h process_name channel_name modes freq modules ->
   let min_period = 1./.float freq in
   let max_period = 65536. /. float freq in
   (** For each mode in this process *)
@@ -65,7 +60,7 @@ let output_modes = fun avr_h process_name channel_name modes freq modules ->
           fprintf stderr "Warning: period is bound between %.3fs and %.3fs for message %s\n%!" min_period max_period (ExtXml.attrib x "name");
         (x, min 65535 (max 1 (int_of_float (p*.float_of_int freq))))
         ) filtered_msg in
-      let modulos = singletonize (List.map snd messages) in
+      let modulos = GC.singletonize (List.map snd messages) in
       List.iter (fun m ->
         let v = sprintf "i%d" m in
         let _type = if m >= 256 then "uint16_t" else "uint8_t" in
@@ -111,7 +106,7 @@ let _ =
     with Dtd.Check_error e -> failwith (Dtd.check_error e)
       
   in
-  let modules_name = get_modules_name modules_dir (ExtXml.parse_file Sys.argv.(1)) in
+  let modules_name = GC.get_modules_name (ExtXml.parse_file Sys.argv.(1)) in
 
   let avr_h = stdout in
 

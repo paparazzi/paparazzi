@@ -26,6 +26,7 @@
 
 open Printf
 open Xml2h
+module GC = Gen_common
 
 (** Default main frequency = 60Hz *)
 let freq = ref 60
@@ -123,7 +124,7 @@ let print_periodic_functions = fun modules ->
         ((x, module_name), min 65535 (max 1 (int_of_float (float_of_int !freq /. f))))
       )
     periodic) modules) in
-  let modulos = singletonize (List.map snd functions_modulo) in
+  let modulos = GC.singletonize (List.map snd functions_modulo) in
   (** Print modulos *)
   List.iter (fun modulo ->
     let v = sprintf "i%d" modulo in
@@ -310,11 +311,10 @@ let write_settings = fun xml_file out_set modules ->
 let h_name = "MODULES_H"
 
 let () =
-  if Array.length Sys.argv <> 4 then
-    failwith (Printf.sprintf "Usage: %s conf_modules_dir out_settings_file xml_file" Sys.argv.(0));
-  let xml_file = Sys.argv.(3)
-  and out_set = open_out Sys.argv.(2)
-  and modules_dir = Sys.argv.(1) in
+  if Array.length Sys.argv <> 3 then
+    failwith (Printf.sprintf "Usage: %s out_settings_file xml_file" Sys.argv.(0));
+  let xml_file = Sys.argv.(2)
+  and out_set = open_out Sys.argv.(1) in
   try
     let xml = start_and_begin xml_file h_name in
     fprintf out_h "#define MODULES_IDLE  0\n";
@@ -331,8 +331,8 @@ let () =
     let modules = try (ExtXml.child xml "modules") with _ -> Xml.Element("modules",[],[]) in
     let main_freq = try (int_of_string (Xml.attrib modules "main_freq")) with _ -> !freq in
     freq := main_freq;
-    let modules_list = List.map (get_modules modules_dir) (Xml.children modules) in
-    let modules_list = unload_unused_modules modules_list in
+    let modules_list = List.map GC.get_module_conf (Xml.children modules) in
+    let modules_list = GC.unload_unused_modules modules_list false in
     let modules_name =
       (List.map (fun l -> try Xml.attrib l "name" with _ -> "") (Xml.children modules)) @
       (List.map (fun m -> try Xml.attrib m "name" with _ -> "") modules_list) in

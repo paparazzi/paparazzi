@@ -26,12 +26,12 @@
 
 open Printf
 module U = Unix
+module GC = Gen_common
 
 let (//) = Filename.concat
 
 let paparazzi_conf = Env.paparazzi_home // "conf"
 let conf_xml = paparazzi_conf // "conf.xml"
-let modules_dir = paparazzi_conf // "modules"
 
 let mkdir = fun d ->
   assert (Sys.command (sprintf "mkdir -p %s" d) = 0)
@@ -59,31 +59,12 @@ let check_unique_id_and_name = fun conf ->
 
 
 
-let pipe_regexp = Str.regexp "|"
-let targets_of_field = fun field ->
-  try
-    Str.split pipe_regexp (ExtXml.attrib_or_default field "target" "ap|sim")
-  with
-    _ -> []
-
 (** [get_modules dir xml]
  * [dir] is the conf directory for modules, [xml] is the parsed airframe.xml *)
 let get_modules = fun dir xml ->
-  (* extract all "modules" sections *)
-  let modules = List.map (fun x ->
-    match String.lowercase (Xml.tag x) with
-      "modules" -> Xml.children x
-    | _ -> []
-    ) (Xml.children xml) in
-  (* flatten the list (result is a list of "load" xml nodes) *)
-  let modules = List.flatten modules in
+  let modules = GC.get_modules_of_airframe xml in
   (* build a list (file name, (xml, xml list of flags)) *)
-  let extract = List.map (fun m ->
-    match String.lowercase (Xml.tag m) with
-      "load" -> let file = dir // ExtXml.attrib m "name" in
-        (file, (ExtXml.parse_file file, Xml.children m))
-    | tag -> failwith (sprintf "Warning: tag load is undefined; found '%s'" tag)
-    ) modules in
+  let extract = List.map GC.get_full_module_conf modules in
   (* return a list of name and a list of pairs (xml, xml list) *)
   List.split extract
 
@@ -94,14 +75,14 @@ let get_modules = fun dir xml ->
  **)
 let dump_module_section = fun xml f ->
   (* get modules *)
-  let (files, modules) = get_modules modules_dir xml in
+  let (files, modules) = get_modules GC.modules_dir xml in
   (* print modules directories and includes for all targets *)
   fprintf f "\n####################################################\n";
   fprintf f   "# modules makefile section\n";
   fprintf f   "####################################################\n";
   fprintf f "\n# include modules directory for all targets\n";
   (* get dir and target list *)
-  let dir_list = get_modules_dir modules in
+  let dir_list = GC.get_modules_dir modules in
 (**
   let target_list = union_of_lists (List.map (fun (m,_) -> get_targets_of_module m) modules) in
   List.iter (fun target -> fprintf f "%s.CFLAGS += -I modules -I arch/$(ARCH)/modules\n" target) target_list;
@@ -115,7 +96,7 @@ let dump_module_section = fun xml f ->
     let dir = try Xml.attrib m "dir" with _ -> name in
     let dir_name = (String.uppercase dir)^"_DIR" in
     (* get the list of all the targets for this module *)
-    let module_target_list = get_targets_of_module m in
+    let module_target_list = GC.get_targets_of_module m in
     (* print global flags as compilation defines and flags *)
     fprintf f "\n# makefile for module %s in modules/%s\n" name dir;
     List.iter (fun flag ->
@@ -135,7 +116,7 @@ let dump_module_section = fun xml f ->
     (* Look for makefile section *)
     List.iter (fun l ->
       if ExtXml.tag_is l "makefile" then begin
-        let targets = targets_of_field l in
+        let targets = GC.targets_of_field l in
         (* Look for defines, flags, files, ... *)
         List.iter (fun field ->
           match String.lowercase (Xml.tag field) with
