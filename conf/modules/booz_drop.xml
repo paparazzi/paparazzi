@@ -8,9 +8,9 @@
   <init fun="booz_drop_init()"/>
   <periodic fun="booz_drop_periodic()" freq="10."/>
   <makefile>
-    <flag name="USE_DROP"/>
-    <flag name="DROP_SERVO_OPEN" value="2120"/>
-    <flag name="DROP_SERVO_CLOSED" value="1060"/>
+    <define name="USE_DROP"/>
+    <define name="DROP_SERVO_OPEN" value="2120"/>
+    <define name="DROP_SERVO_CLOSED" value="1060"/>
     <file name="booz_drop.c"/>
   </makefile>
 </module>

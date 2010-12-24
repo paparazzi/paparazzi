@@ -2,8 +2,9 @@
 
 <!--
      Generic ADC module
-     @param ADC_CHANNEL_GENERIC1 on which ADC input 1 is measured
-     @param ADC_CHANNEL_GENERIC2 on which ADC input 2 is measured
+     @define ADC_CHANNEL_GENERIC1 on which ADC input 1 is measured
+     @define ADC_CHANNEL_GENERIC2 on which ADC input 2 is measured
+     @define USE_ADC_x  with x as the number of the ADC input (once for every ADC channel you want to use)
      -->
 
 <module name="adc_generic" dir="adcs">
@@ -14,8 +15,17 @@
   <periodic fun="adc_generic_periodic()" freq="4"/>
   <makefile target="ap">
     <file name="adc_generic.c"/>
-    <flag name="USE_$(ADC_CHANNEL_GENERIC1)"/>
-    <flag name="USE_$(ADC_CHANNEL_GENERIC2)"/>
+    <raw>
+
+ifneq ($(ADC_CHANNEL_GENERIC1),)
+ap.CFLAGS += -DADC_CHANNEL_GENERIC1=$(ADC_CHANNEL_GENERIC1) -DUSE_$(ADC_CHANNEL_GENERIC1)
+endif
+    
+ifneq ($(ADC_CHANNEL_GENERIC2),)
+ap.CFLAGS += -DADC_CHANNEL_GENERIC2=$(ADC_CHANNEL_GENERIC2) -DUSE_$(ADC_CHANNEL_GENERIC2)
+endif
+    
+    </raw>
   </makefile>
 </module>
 

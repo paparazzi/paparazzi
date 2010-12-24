@@ -9,7 +9,7 @@
   <event fun="wind_gfi_event()"/>
   <makefile target="ap">
     <file name="wind_gfi.c"/>
-     <define name="ZERO_OFFSET_DEGREES" value="56."/>
+     <configure name="ZERO_OFFSET_DEGREES" value="56."/>
   </makefile>
 </module>
 

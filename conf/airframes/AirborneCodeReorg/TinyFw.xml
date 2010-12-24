@@ -161,10 +161,10 @@
 
   <modules>
     <load name="light.xml">
-      <param name="LIGHT_LED_STROBE" value="3"/>
-      <param name="LIGHT_LED_NAV" value="4"/>
-      <param name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
-      <param name="NAV_LIGHT_MODE_DEFAULT" value="0"/>
+      <define name="LIGHT_LED_STROBE" value="3"/>
+      <define name="LIGHT_LED_NAV" value="4"/>
+      <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
+      <define name="NAV_LIGHT_MODE_DEFAULT" value="0"/>
     </load>
   </modules>
 
@@ -179,7 +179,7 @@
 
     <!-- Communication -->
     <subsystem name="telemetry" 	type="transparent">
-      <param name="MODEM_BAUD" 		value="B9600"/>
+      <configure name="MODEM_BAUD" 		value="B9600"/>
     </subsystem>
 
     <!-- Actuators -->

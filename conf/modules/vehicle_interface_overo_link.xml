@@ -13,14 +13,14 @@
   </makefile>
   <makefile target="ap">
     <raw>ap.srcs   += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c</raw>
-    <flag name="USE_VEHICLE_INTERFACE"/>
-    <flag name="USE_OVERO_LINK"/>
-    <flag name="lisa/arch/stm32" type="include"/>
-    <flag name="OVERO_LINK_MSG_UP" value="AutopilotMessageVIUp"/>
-    <flag name="OVERO_LINK_MSG_DOWN" value="AutopilotMessageVIDown"/>
-    <flag name="OVERO_LINK_LED_OK" value="3"/>
-    <flag name="OVERO_LINK_LED_KO" value="2"/>
-    <flag name="USE_DMA1_C2_IRQ"/>
+    <define name="USE_VEHICLE_INTERFACE"/>
+    <define name="USE_OVERO_LINK"/>
+    <define name="lisa/arch/stm32" type="include"/>
+    <define name="OVERO_LINK_MSG_UP" value="AutopilotMessageVIUp"/>
+    <define name="OVERO_LINK_MSG_DOWN" value="AutopilotMessageVIDown"/>
+    <define name="OVERO_LINK_LED_OK" value="3"/>
+    <define name="OVERO_LINK_LED_KO" value="2"/>
+    <define name="USE_DMA1_C2_IRQ"/>
   </makefile>
 </module>
 

@@ -14,15 +14,15 @@
 
   <modules>
     <load name="light.xml">
-      <param name="LIGHT_LED_STROBE" value="5"/>
-      <param name="LIGHT_LED_NAV" value="3"/>
+      <define name="LIGHT_LED_STROBE" value="5"/>
+      <define name="LIGHT_LED_NAV" value="3"/>
     </load>
     <load name="infrared_i2c.xml"/>
     <load name="pbn.xml"/>
     <!--load name="airspeed_adc.xml">
-      <define name="ADC_AIRSPEED" value="ADC_4"/>
-      <flag name="AIRSPEED_SCALE" value="1"/>
-      <flag name="AIRSPEED_BIAS" value="0"/>
+      <configure name="ADC_AIRSPEED" value="ADC_4"/>
+      <define name="AIRSPEED_SCALE" value="1"/>
+      <define name="AIRSPEED_BIAS" value="0"/>
     </load-->
     <!--load name="airspeed_ets.xml"/>
     <load name="baro_ets.xml"/-->
@@ -36,7 +36,7 @@
 
     <target name="sim" board="pc"/>
     <target name="ap" board="tiny_2.11">
-      <param name="FLASH_MODE" value="IAP"/>
+      <configure name="FLASH_MODE" value="IAP"/>
     </target>
 
     <subsystem name="radio_control" type="ppm"/>
@@ -51,11 +51,11 @@
     <!-- Sensors -->
     <subsystem name="gps" type="ublox_lea5h"/>
     <subsystem name="gyro" type="roll">
-      <param name="ADC_GYRO_ROLL" value="ADC_5"/>
+      <configure name="ADC_GYRO_ROLL" value="ADC_5"/>
     </subsystem>
 
     <subsystem name="current_sensor">
-      <param name="ADC_CURRENT_SENSOR" value="ADC_3"/>
+      <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
     </subsystem>
 
     <subsystem name="navigation"/>

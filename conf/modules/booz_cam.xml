@@ -8,7 +8,7 @@
   <init fun="booz_cam_init()"/>
   <periodic fun="booz_cam_periodic()" freq="10."/>
   <makefile>
-    <flag name="USE_CAM"/>
+    <define name="USE_CAM"/>
     <file name="booz_cam.c"/>
   </makefile>
 </module>

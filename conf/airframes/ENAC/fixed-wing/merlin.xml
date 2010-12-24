@@ -10,19 +10,15 @@
 <airframe name="Merlin">
 
   <firmware name="fixedwing">
-    <target name="ap" 			board="tiny_2.11">
-      <define name="PITCH_TRIM"/>
-      <define name="ALT_KALMAN"/>
-    </target>
+    <define name="PITCH_TRIM"/>
+    <define name="ALT_KALMAN"/>
 
-    <target name="sim" 			board="pc">
-      <define name="PITCH_TRIM"/>
-      <define name="ALT_KALMAN"/>
-    </target>
+    <target name="ap" 			board="tiny_2.11"/>
+    <target name="sim" 			board="pc"/>
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="control_new"/>
+    <subsystem name="control"/>
     <subsystem name="attitude"      type="infrared"/>
     <subsystem name="gps"           type="ublox_lea5h"/>
     <subsystem name="navigation"/>
@@ -169,6 +165,7 @@
     <define name="PITCH_KFFD" value="0."/>
 
     <define name="PITCH_OF_ROLL" value="RadOfDeg(0.2)"/>
+    <define name="ELEVATOR_OF_ROLL" value="0"/>
  </section>
 
   <section name="NAV">

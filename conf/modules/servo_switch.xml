@@ -10,9 +10,9 @@
 
 <!-- these parameters should be set for that module in the airframe file unless you want the defaults
      Servo value in usec
-    <param name="SERVO_SWITCH_ON_VALUE"  value="2000"/>
-    <param name="SERVO_SWITCH_OFF_VALUE" value="1000"/>
-    <param name="SERVO_SWITCH_SERVO"     value="SERVO_SWITCH"/>
+    <define name="SERVO_SWITCH_ON_VALUE"  value="2000"/>
+    <define name="SERVO_SWITCH_OFF_VALUE" value="1000"/>
+    <define name="SERVO_SWITCH_SERVO"     value="SERVO_SWITCH"/>
 -->
 
     <file name="servo_switch.c"/>

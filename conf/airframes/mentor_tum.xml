@@ -35,9 +35,9 @@
 
   <modules main_freq="60">
     <load name="servo_switch.xml">
-      <param name="SERVO_SWITCH_ON_VALUE"  value="1100"/>
-      <param name="SERVO_SWITCH_OFF_VALUE" value="1900"/>
-      <param name="SERVO_SWITCH_SERVO"     value="SERVO_SWITCH"/>
+      <define name="SERVO_SWITCH_ON_VALUE"  value="1100"/>
+      <define name="SERVO_SWITCH_OFF_VALUE" value="1900"/>
+      <define name="SERVO_SWITCH_SERVO"     value="SERVO_SWITCH"/>
     </load>
     <load name="sys_mon.xml"/>
   </modules>

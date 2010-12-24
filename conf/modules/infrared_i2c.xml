@@ -9,7 +9,7 @@
   <!--periodic fun="infrared_i2cDownlink()" freq="1."/-->
   <event fun="infrared_i2cEvent()"/>
   <makefile>
-    <flag name="INFRARED_I2C"/>
+    <define name="INFRARED_I2C"/>
     <file name="infrared_i2c.c"/>
   </makefile>
   <makefile target="sim">
