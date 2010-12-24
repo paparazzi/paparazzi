@@ -15,6 +15,17 @@
   <periodic fun="adc_generic_periodic()" freq="4"/>
   <makefile target="ap">
     <file name="adc_generic.c"/>
+    <raw>
+
+ifneq ($(ADC_CHANNEL_GENERIC1),)
+ap.CFLAGS += -DADC_CHANNEL_GENERIC1=$(ADC_CHANNEL_GENERIC1) -DUSE_$(ADC_CHANNEL_GENERIC1)
+endif
+    
+ifneq ($(ADC_CHANNEL_GENERIC2),)
+ap.CFLAGS += -DADC_CHANNEL_GENERIC2=$(ADC_CHANNEL_GENERIC2) -DUSE_$(ADC_CHANNEL_GENERIC2)
+endif
+    
+    </raw>
   </makefile>
 </module>
 
