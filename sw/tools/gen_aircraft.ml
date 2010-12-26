@@ -26,7 +26,8 @@
 
 open Printf
 module U = Unix
-module GC = Gen_common
+
+open Gen_common
 
 let (//) = Filename.concat
 
@@ -62,9 +63,9 @@ let check_unique_id_and_name = fun conf ->
 (** [get_modules dir xml]
  * [dir] is the conf directory for modules, [xml] is the parsed airframe.xml *)
 let get_modules = fun dir xml ->
-  let modules = GC.get_modules_of_airframe xml in
+  let modules = Gen_common.get_modules_of_airframe xml in
   (* build a list (file name, (xml, xml list of flags)) *)
-  let extract = List.map GC.get_full_module_conf modules in
+  let extract = List.map Gen_common.get_full_module_conf modules in
   (* return a list of name and a list of pairs (xml, xml list) *)
   List.split extract
 
@@ -75,14 +76,14 @@ let get_modules = fun dir xml ->
  **)
 let dump_module_section = fun xml f ->
   (* get modules *)
-  let (files, modules) = get_modules GC.modules_dir xml in
+  let (files, modules) = get_modules Gen_common.modules_dir xml in
   (* print modules directories and includes for all targets *)
   fprintf f "\n####################################################\n";
   fprintf f   "# modules makefile section\n";
   fprintf f   "####################################################\n";
   fprintf f "\n# include modules directory for all targets\n";
   (* get dir and target list *)
-  let dir_list = GC.get_modules_dir modules in
+  let dir_list = Gen_common.get_modules_dir modules in
 (**
   let target_list = union_of_lists (List.map (fun (m,_) -> get_targets_of_module m) modules) in
   List.iter (fun target -> fprintf f "%s.CFLAGS += -I modules -I arch/$(ARCH)/modules\n" target) target_list;
@@ -96,7 +97,7 @@ let dump_module_section = fun xml f ->
     let dir = try Xml.attrib m "dir" with _ -> name in
     let dir_name = (String.uppercase dir)^"_DIR" in
     (* get the list of all the targets for this module *)
-    let module_target_list = GC.get_targets_of_module m in
+    let module_target_list = Gen_common.get_targets_of_module m in
     (* print global flags as compilation defines and flags *)
     fprintf f "\n# makefile for module %s in modules/%s\n" name dir;
     List.iter (fun flag ->
@@ -116,7 +117,7 @@ let dump_module_section = fun xml f ->
     (* Look for makefile section *)
     List.iter (fun l ->
       if ExtXml.tag_is l "makefile" then begin
-        let targets = GC.targets_of_field l in
+        let targets = Gen_common.targets_of_field l in
         (* Look for defines, flags, files, ... *)
         List.iter (fun field ->
           match String.lowercase (Xml.tag field) with
