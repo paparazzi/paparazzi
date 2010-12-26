@@ -2,9 +2,8 @@
 
 <!--
      Generic ADC module
-     @define ADC_CHANNEL_GENERIC1 on which ADC input 1 is measured
-     @define ADC_CHANNEL_GENERIC2 on which ADC input 2 is measured
-     @define USE_ADC_x  with x as the number of the ADC input (once for every ADC channel you want to use)
+     @configure ADC_CHANNEL_GENERIC1 on which ADC input 1 is measured
+     @configure ADC_CHANNEL_GENERIC2 on which ADC input 2 is measured
      -->
 
 <module name="adc_generic" dir="adcs">
@@ -20,12 +19,11 @@
 ifneq ($(ADC_CHANNEL_GENERIC1),)
 ap.CFLAGS += -DADC_CHANNEL_GENERIC1=$(ADC_CHANNEL_GENERIC1) -DUSE_$(ADC_CHANNEL_GENERIC1)
 endif
-    
+
 ifneq ($(ADC_CHANNEL_GENERIC2),)
 ap.CFLAGS += -DADC_CHANNEL_GENERIC2=$(ADC_CHANNEL_GENERIC2) -DUSE_$(ADC_CHANNEL_GENERIC2)
 endif
-    
+
     </raw>
   </makefile>
 </module>
-

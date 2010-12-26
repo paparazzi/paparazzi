@@ -180,8 +180,7 @@
 
   <modules>
     <load name="adc_generic.xml">
-      <define name="ADC_CHANNEL_GENERIC1" value="ADC_7"/> <!-- current sensor -->
-      <define name="USE_ADC_7"/>
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_7"/> <!-- current sensor -->
     </load>
   </modules>
 
