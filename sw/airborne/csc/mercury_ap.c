@@ -127,7 +127,7 @@ void csc_ap_init(void) {
   }
 
 
-// adapted from booz2_commands.h - cb6e74ae259a2384046f431c35735dc8018c0ecd
+// adapted from commands.h - cb6e74ae259a2384046f431c35735dc8018c0ecd
 // mmt -- 06/16/09
 const pprz_t csc_ap_commands_failsafe[COMMANDS_NB] = COMMANDS_FAILSAFE;
 

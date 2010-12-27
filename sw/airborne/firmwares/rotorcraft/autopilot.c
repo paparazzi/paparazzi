@@ -83,7 +83,7 @@ void autopilot_periodic(void) {
        autopilot_mode == AP_MODE_FAILSAFE ||
 #endif
        autopilot_mode == AP_MODE_KILL ) {
-    SetCommands(booz2_commands_failsafe,
+    SetCommands(commands_failsafe,
 		autopilot_in_flight, autopilot_motors_on);
   }
   else {

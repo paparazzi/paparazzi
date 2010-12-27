@@ -53,7 +53,7 @@ void actuators_init(void) { actuators_pwm_arch_init(); }
 
 void actuators_set(bool_t motors_on) {
 
-  SetActuatorsFromCommands(booz2_commands);
+  SetActuatorsFromCommands(commands);
 
 }
 

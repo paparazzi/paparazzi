@@ -66,7 +66,7 @@ void actuators_set(bool_t motors_on) {
   }
 #endif
 
-  supervision_run(motors_on, FALSE, booz2_commands);
+  supervision_run(motors_on, FALSE, commands);
   for (uint8_t i=0; i<ACTUATORS_MKK_NB; i++) {
 #ifdef KILL_MOTORS
     actuators_mkk.trans[i].buf[0] = 0;

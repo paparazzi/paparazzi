@@ -27,14 +27,14 @@
 #include "paparazzi.h"
 #include "generated/airframe.h"
 
-extern int32_t booz2_commands[COMMANDS_NB];
-extern const int32_t booz2_commands_failsafe[COMMANDS_NB];
+extern int32_t commands[COMMANDS_NB];
+extern const int32_t commands_failsafe[COMMANDS_NB];
 
 #define SetCommands(_in_cmd, _in_flight, _motors_on) {			\
-    booz2_commands[COMMAND_PITCH]  = _in_cmd[COMMAND_PITCH];		\
-    booz2_commands[COMMAND_ROLL]   = _in_cmd[COMMAND_ROLL];		\
-    booz2_commands[COMMAND_YAW]    = (_in_flight) ? _in_cmd[COMMAND_YAW] : 0; \
-    booz2_commands[COMMAND_THRUST] = (_motors_on) ? _in_cmd[COMMAND_THRUST] : 0; \
+    commands[COMMAND_PITCH]  = _in_cmd[COMMAND_PITCH];		\
+    commands[COMMAND_ROLL]   = _in_cmd[COMMAND_ROLL];		\
+    commands[COMMAND_YAW]    = (_in_flight) ? _in_cmd[COMMAND_YAW] : 0; \
+    commands[COMMAND_THRUST] = (_motors_on) ? _in_cmd[COMMAND_THRUST] : 0; \
   }
 
 #endif /* COMMANDS_H */
