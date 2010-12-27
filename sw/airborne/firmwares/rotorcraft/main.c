@@ -33,7 +33,7 @@
 #include "firmwares/rotorcraft/telemetry.h"
 #include "datalink.h"
 
-#include "booz2_commands.h"
+#include "firmwares/rotorcraft/commands.h"
 #include "firmwares/rotorcraft/actuators.h"
 #include "subsystems/radio_control.h"
 

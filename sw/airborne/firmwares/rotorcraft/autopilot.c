@@ -25,7 +25,7 @@
 #include "firmwares/rotorcraft/autopilot.h"
 
 #include "subsystems/radio_control.h"
-#include "booz2_commands.h"
+#include "firmwares/rotorcraft/commands.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/stabilization.h"

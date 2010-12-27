@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef BOOZ2_COMMANDS_H
-#define BOOZ2_COMMANDS_H
+#ifndef COMMANDS_H
+#define COMMANDS_H
 
 #include "paparazzi.h"
 #include "generated/airframe.h"
@@ -37,4 +37,4 @@ extern const int32_t booz2_commands_failsafe[COMMANDS_NB];
     booz2_commands[COMMAND_THRUST] = (_motors_on) ? _in_cmd[COMMAND_THRUST] : 0; \
   }
 
-#endif /* BOOZ2_COMMANDS_H */
+#endif /* COMMANDS_H */

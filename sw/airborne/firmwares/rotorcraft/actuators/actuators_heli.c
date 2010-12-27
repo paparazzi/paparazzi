@@ -23,7 +23,7 @@
 
 #include "firmwares/rotorcraft/actuators.h"
 #include "actuators_heli.h"
-#include "booz/booz2_commands.h"
+#include "firmwares/rotorcraft/commands.h"
 
 /* let's start butchery now and use the actuators_pwm arch functions */
 #include "firmwares/rotorcraft/actuators/actuators_pwm.h"

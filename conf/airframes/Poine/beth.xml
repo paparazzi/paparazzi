@@ -142,7 +142,7 @@ main_stm32.srcs += subsystems/imu.c             \
                         arch/$(ARCH)/subsystems/imu/imu_crista_arch.c
 main_stm32.CFLAGS += -DUSE_DMA1_C4_IRQ
 
-main_stm32.srcs += $(SRC_BOOZ)/booz2_commands.c
+main_stm32.srcs += $(SRC_FIRMWARE)/commands.c
 main_stm32.srcs += firmwares/rotorcraft/actuators/actuators_asctec.c 
 #\
 #                             $(SRC_BOOZ_ARCH)/actuators/actuators_asctec_arch.c

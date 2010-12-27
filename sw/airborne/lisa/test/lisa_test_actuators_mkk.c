@@ -24,7 +24,7 @@
 
 #include "init_hw.h"
 #include "sys_time.h"
-#include "booz2_commands.h"
+#include "firmwares/rotorcraft/commands.h"
 #include "actuators.h"
 #include "downlink.h"
 

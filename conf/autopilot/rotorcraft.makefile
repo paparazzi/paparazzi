@@ -108,7 +108,7 @@ ap.CFLAGS += -D$(MODEM_PORT)_VIC_SLOT=6
 endif
 
 
-ap.srcs += $(SRC_BOOZ)/booz2_commands.c
+ap.srcs += $(SRC_FIRMWARE)/commands.c
 
 #
 # Radio control choice

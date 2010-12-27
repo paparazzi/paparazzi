@@ -5,7 +5,7 @@
 #include "firmwares/rotorcraft/actuators/supervision.h"
 #endif
 
-#include "booz/booz2_commands.h"
+#include "firmwares/rotorcraft/commands.h"
 #include "mcu_periph/i2c.h"
 #include "sys_time.h"
 

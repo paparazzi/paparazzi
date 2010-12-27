@@ -20,7 +20,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz2_commands.h"
+#include "firmwares/rotorcraft/commands.h"
 
 int32_t booz2_commands[COMMANDS_NB];
 const int32_t booz2_commands_failsafe[COMMANDS_NB] = COMMANDS_FAILSAFE;
