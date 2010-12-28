@@ -40,13 +40,6 @@
     <!--load name="sonar_maxbotix_booz.xml"/-->
   </modules>
 
-  <servos min="0" neutral="0" max="0xff">
-    <servo name="FRONT" no="0" min="0" neutral="0" max="255" />
-    <servo name="BACK" no="1" min="0" neutral="0" max="255" />
-    <servo name="RIGHT" no="2" min="0" neutral="0" max="255" />
-    <servo name="LEFT" no="3" min="0" neutral="0" max="255" />
-  </servos>
-
   <commands>
     <axis name="PITCH" failsafe_value="0" />
     <axis name="ROLL" failsafe_value="0" />
@@ -85,10 +78,6 @@
     <define name="GYRO_P_SENS" value="1.1032765" integer="16" />
     <define name="GYRO_Q_SENS" value="1.1360802599" integer="16" />
     <define name="GYRO_R_SENS" value="1.1249874614" integer="16" />
-
-    <define name="ACCEL_X_CHAN" value="3" />
-    <define name="ACCEL_Y_CHAN" value="5" />
-    <define name="ACCEL_Z_CHAN" value="6" />
 
     <define name="ACCEL_X_SENS" value="2.45932966" integer="16"/>
     <define name="ACCEL_Y_SENS" value="2.45106376" integer="16"/>
