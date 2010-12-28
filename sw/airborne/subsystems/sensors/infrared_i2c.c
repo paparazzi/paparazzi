@@ -34,102 +34,20 @@
 #define IR_START_CONV (1 << 7)
 
 
-#ifndef IR_IR1_NEUTRAL
-#define IR_IR1_NEUTRAL 0
+#ifndef IR_I2C_IR1_NEUTRAL
+#define IR_I2C_IR1_NEUTRAL 0
 #endif
 
-#ifndef IR_IR2_NEUTRAL
-#define IR_IR2_NEUTRAL 0
+#ifndef IR_I2C_IR2_NEUTRAL
+#define IR_I2C_IR2_NEUTRAL 0
 #endif
 
-#ifndef IR_TOP_NEUTRAL
-#define IR_TOP_NEUTRAL 0
+#ifndef IR_I2C_TOP_NEUTRAL
+#define IR_I2C_TOP_NEUTRAL 0
 #endif
 
-// Standard infrared interface
-int16_t ir_ir1;
-int16_t ir_ir2;
-int16_t ir_roll;
-int16_t ir_pitch;
-int16_t ir_top;
-
-#ifndef IR_IR1_SIGN
-#define IR_IR1_SIGN 1
-#endif // IR_IR1_SIGN
-
-#ifndef IR_IR2_SIGN
-#define IR_IR2_SIGN 1
-#endif // IR_IR2_SIGN
-
-#ifndef IR_TOP_SIGN
-#define IR_TOP_SIGN 1
-#endif // IR_TOP_SIGN
-
-float ir_roll_neutral;
-float ir_pitch_neutral;
-
-float ir_correction_left;
-float ir_correction_right;
-float ir_correction_down;
-float ir_correction_up;
-
-#ifndef IR_CORRECTION_LEFT
-#define IR_CORRECTION_LEFT 1.
-#endif
-
-#ifndef IR_CORRECTION_RIGHT
-#define IR_CORRECTION_RIGHT 1.
-#endif
-
-#ifndef IR_CORRECTION_UP
-#define IR_CORRECTION_UP 1.
-#endif
-
-#ifndef IR_CORRECTION_DOWN
-#define IR_CORRECTION_DOWN 1.
-#endif
-
-float ir_lateral_correction;
-float ir_longitudinal_correction;
-float ir_vertical_correction;
-
-#ifndef IR_LATERAL_CORRECTION
-#define IR_LATERAL_CORRECTION 1.
-#endif
-
-#ifndef IR_LONGITUDINAL_CORRECTION
-#define IR_LONGITUDINAL_CORRECTION 1.
-#endif
-
-#ifndef IR_VERTICAL_CORRECTION
-#define IR_VERTICAL_CORRECTION 1.
-#endif
-
-/* Sensor installation */
-#if defined IR_HORIZ_SENSOR_ALIGNED
-/* IR1 on the lateral axis, IR2 on the longitudal axis */
-#define IR_RollOfIrs(_ir1, _ir2) (_ir1)
-#define IR_PitchOfIrs(_ir1, _ir2) (_ir2)
-#elif IR_HORIZ_SENSOR_TILTED
-/* IR1 rear-left -- front-right, IR2 rear-right -- front-left
-   IR1_SIGN and IR2_SIGN give positive values when it's warm on the right side
-*/
-#define IR_RollOfIrs(_ir1, _ir2) (_ir1 + _ir2)
-#define IR_PitchOfIrs(_ir1, _ir2) (-(_ir1) + _ir2)
-#endif
-/* Vertical sensor, TOP_SIGN gives positice values when it's warm on the bottom */
-#define IR_TopOfIr(_ir) ((IR_TOP_SIGN)*(_ir))
-
-
-
-// Global variables
-int16_t ir_i2c_ir1;
-int16_t ir_i2c_ir2;
-int16_t ir_i2c_top;
-
-float ir_i2c_phi, ir_i2c_theta;
-
-bool_t ir_i2c_data_available;
+struct Infrared_raw ir_i2c;
+bool_t ir_i2c_data_hor_available, ir_i2c_data_ver_available;
 uint8_t ir_i2c_conf_word;
 bool_t ir_i2c_conf_hor_done, ir_i2c_conf_ver_done;
 
@@ -149,35 +67,33 @@ static uint8_t ir_i2c_hor_status;
 // I2C structure
 struct i2c_transaction irh_trans, irv_trans;
 
-//FIXME standard infrared should not ba ADC-dependent
-void ir_init(void) {}
+// Standard infrared implementation
+void infrared_init(void) {
+  infrared_i2c_init();
+  infrared_struct_init();
+}
+
+void infrared_update(void) {
+  infrared_i2c_update();
+}
+
+void infrared_event(void) {
+  infrared_i2cEvent();
+}
 
 /** Initialisation
  */
 void infrared_i2c_init( void ) {
-  ir_i2c_data_available = FALSE;
+  ir_i2c_data_hor_available = FALSE;
+  ir_i2c_data_ver_available = FALSE;
   ir_i2c_hor_status = IR_I2C_IDLE;
   ir_i2c_conf_word = IR_I2C_DEFAULT_CONF;
   ir_i2c_conf_hor_done = FALSE;
   ir_i2c_conf_ver_done = FALSE;
   irh_trans.status = I2CTransDone;
   irv_trans.status = I2CTransDone;
-
-  // Initialisation of standard infrared interface
-  ir_roll_neutral  = RadOfDeg(IR_ROLL_NEUTRAL_DEFAULT);
-  ir_pitch_neutral = RadOfDeg(IR_PITCH_NEUTRAL_DEFAULT);
-
-  ir_correction_left = IR_CORRECTION_LEFT;
-  ir_correction_right = IR_CORRECTION_RIGHT;
-  ir_correction_up = IR_CORRECTION_UP;
-  ir_correction_down = IR_CORRECTION_DOWN;
-
-  ir_lateral_correction = IR_LATERAL_CORRECTION;
-  ir_longitudinal_correction = IR_LONGITUDINAL_CORRECTION;
-  ir_vertical_correction = IR_VERTICAL_CORRECTION;
 }
 
-#include "led.h"
 void infrared_i2c_update( void ) {
 #if ! (defined SITL || defined HITL)
   // IR horizontal
@@ -189,7 +105,7 @@ void infrared_i2c_update( void ) {
     } else {
       // Read next values
       I2CReceive(i2c0, irh_trans, IR_HOR_I2C_ADDR, 3);
-      ir_i2c_data_available = FALSE;
+      ir_i2c_data_hor_available = FALSE;
       ir_i2c_hor_status = IR_I2C_READ_IR1;
     }
   }
@@ -201,12 +117,12 @@ void infrared_i2c_update( void ) {
     } else {
       // Read next values
       I2CReceive(i2c0, irv_trans, IR_VER_I2C_ADDR, 2);
-      ir_i2c_data_available = FALSE;
+      ir_i2c_data_ver_available = FALSE;
     }
   }
 #else /* SITL || HITL */
 /** ir_roll and ir_pitch set by simulator in sim_ir.c */
-  estimator_update_state_infrared();
+  //estimator_update_state_infrared();
 #endif
 }
 
@@ -225,7 +141,8 @@ void infrared_i2c_hor_event( void ) {
       }
       // Read IR1 value
       int16_t ir1 = (irh_trans.buf[0]<<8) | irh_trans.buf[1];
-      ir_i2c_ir1 = FilterIR(ir_i2c_ir1, ir1);
+      ir1 = ir1 - (IR_I2C_IR1_NEUTRAL << ir_i2c_conf_word);
+      ir_i2c.ir1 = FilterIR(ir_i2c.ir1, ir1);
       // Select IR2 channel
       irh_trans.buf[0] = IR_HOR_I2C_SELECT_IR2 | IR_HOR_OC_BIT | ir_i2c_conf_word | IR_START_CONV;
       I2CTransmit(i2c0, irh_trans, IR_HOR_I2C_ADDR, 1);
@@ -243,11 +160,19 @@ void infrared_i2c_hor_event( void ) {
         break;
       }
       int16_t ir2 = (irh_trans.buf[0]<<8) | irh_trans.buf[1];
-      ir_i2c_ir2 = FilterIR(ir_i2c_ir2, ir2);
+      ir2 = ir2 - (IR_I2C_IR2_NEUTRAL << ir_i2c_conf_word);
+      ir_i2c.ir2 = FilterIR(ir_i2c.ir2, ir2);
       // Update estimator
-      ir_i2c_data_available = TRUE;
-      ir_update();
-      estimator_update_state_infrared();
+      ir_i2c_data_hor_available = TRUE;
+#ifndef IR_I2C_READ_ONLY
+      if (ir_i2c_data_ver_available) {
+        ir_i2c_data_hor_available = FALSE;
+        ir_i2c_data_ver_available = FALSE;
+        UpdateIRValue(ir_i2c);
+      }
+#endif
+      //ir_update();
+      //estimator_update_state_infrared();
       // Select IR1 channel
       irh_trans.buf[0] = IR_HOR_I2C_SELECT_IR1 | IR_HOR_OC_BIT | ir_i2c_conf_word | IR_START_CONV;
       I2CTransmit(i2c0, irh_trans, IR_HOR_I2C_ADDR, 1);
@@ -271,11 +196,19 @@ void infrared_i2c_ver_event( void ) {
   irv_trans.status = I2CTransDone;
   // Read TOP value
   if (irv_trans.type == I2CTransRx) {
-    int16_t top = (irv_trans.buf[0]<<8) | irv_trans.buf[1];
-    ir_i2c_top = FilterIR(ir_i2c_top, top);
-    ir_i2c_data_available = TRUE;
-    ir_update();
-    estimator_update_state_infrared();
+    int16_t ir3 = (irv_trans.buf[0]<<8) | irv_trans.buf[1];
+    ir3 = ir3 - (IR_I2C_TOP_NEUTRAL << ir_i2c_conf_word);
+    ir_i2c.ir3 = FilterIR(ir_i2c.ir3, ir3);
+    ir_i2c_data_ver_available = TRUE;
+#ifndef IR_I2C_READ_ONLY
+    if (ir_i2c_data_hor_available) {
+      ir_i2c_data_hor_available = FALSE;
+      ir_i2c_data_ver_available = FALSE;
+      UpdateIRValue(ir_i2c);
+    }
+#endif
+    //ir_update();
+    //estimator_update_state_infrared();
   }
   if (irv_trans.type == I2CTransTx) {
     ir_i2c_conf_ver_done = TRUE;
@@ -283,6 +216,7 @@ void infrared_i2c_ver_event( void ) {
 #endif /* !SITL && !HITL */
 }
 
+/*
 #include "stdio.h"
 
 void ir_update(void) {
@@ -314,3 +248,4 @@ void estimator_update_state_infrared(void) {
     estimator_theta *= ir_correction_down;
 
 }
+*/

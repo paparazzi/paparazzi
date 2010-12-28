@@ -9,8 +9,11 @@
   <!--periodic fun="infrared_i2cDownlink()" freq="1."/-->
   <event fun="infrared_i2cEvent()"/>
   <makefile>
-    <define name="INFRARED_I2C"/>
-    <file name="infrared_i2c.c"/>
+    <define name="USE_INFRARED_I2C"/>
+    <raw>
+      ap.srcs += subsystems/sensors/infrared.c
+      ap.srcs += subsystems/sensors/infrared_i2c.c
+    </raw>
   </makefile>
   <makefile target="sim">
     <raw>sim.srcs += $(SRC_ARCH)/sim_ir.c</raw>

@@ -39,7 +39,9 @@
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "gps.h"
+#ifdef USE_INFRARED
 #include "subsystems/sensors/infrared.h"
+#endif
 #include "gyro.h"
 #include "ap_downlink.h"
 #include "subsystems/nav.h"
@@ -558,6 +560,10 @@ void init_ap( void ) {
 
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
+
+#ifdef USE_INFRARED
+  infrared_event();
+#endif
 
 #ifdef USE_ANALOG_IMU
   ImuEvent(on_gyro_accel_event, on_mag_event);
