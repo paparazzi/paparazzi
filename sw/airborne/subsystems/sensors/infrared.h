@@ -133,7 +133,6 @@ struct Infrared {
 
 extern struct Infrared infrared;
 
-//TODO Trigger some estimator update
 #define UpdateIRValue(_v) {                  \
   infrared.value.ir1 = (IR_IR1_SIGN)*_v.ir1; \
   infrared.value.ir2 = (IR_IR2_SIGN)*_v.ir2; \

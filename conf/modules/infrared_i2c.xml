@@ -10,10 +10,10 @@
   <event fun="infrared_i2cEvent()"/>
   <makefile>
     <define name="USE_INFRARED_I2C"/>
-    <raw>
-      ap.srcs += subsystems/sensors/infrared.c
-      ap.srcs += subsystems/sensors/infrared_i2c.c
-    </raw>
+    <raw>ap.srcs += subsystems/sensors/infrared.c</raw>
+    <raw>ap.srcs += subsystems/sensors/infrared_i2c.c</raw>
+    <raw>sim.srcs += subsystems/sensors/infrared.c</raw>
+    <raw>sim.srcs += subsystems/sensors/infrared_i2c.c</raw>
   </makefile>
   <makefile target="sim">
     <raw>sim.srcs += $(SRC_ARCH)/sim_ir.c</raw>
