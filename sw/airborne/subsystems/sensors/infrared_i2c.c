@@ -123,7 +123,7 @@ void infrared_i2c_update( void ) {
   }
 #else /* SITL || HITL */
 /** ir_roll and ir_pitch set by simulator in sim_ir.c */
-  //estimator_update_state_infrared();
+  estimator_update_state_infrared();
 #endif
 }
 
@@ -172,8 +172,6 @@ void infrared_i2c_hor_event( void ) {
         UpdateIRValue(ir_i2c);
       }
 #endif
-      //ir_update();
-      //estimator_update_state_infrared();
       // Select IR1 channel
       irh_trans.buf[0] = IR_HOR_I2C_SELECT_IR1 | IR_HOR_OC_BIT | ir_i2c_conf_word | IR_START_CONV;
       I2CTransmit(i2c0, irh_trans, IR_HOR_I2C_ADDR, 1);
@@ -208,8 +206,6 @@ void infrared_i2c_ver_event( void ) {
       UpdateIRValue(ir_i2c);
     }
 #endif
-    //ir_update();
-    //estimator_update_state_infrared();
   }
   if (irv_trans.type == I2CTransTx) {
     ir_i2c_conf_ver_done = TRUE;
@@ -217,36 +213,3 @@ void infrared_i2c_ver_event( void ) {
 #endif /* !SITL && !HITL */
 }
 
-/*
-#include "stdio.h"
-
-void ir_update(void) {
-  ir_ir1 = (IR_IR1_SIGN)*(ir_i2c_ir1 - (IR_IR1_NEUTRAL << ir_i2c_conf_word));
-  ir_ir2 = (IR_IR2_SIGN)*(ir_i2c_ir2 - (IR_IR2_NEUTRAL << ir_i2c_conf_word));
-  ir_roll = ir_lateral_correction * IR_RollOfIrs(ir_ir1, ir_ir2);
-  ir_pitch = ir_longitudinal_correction * IR_PitchOfIrs(ir_ir1, ir_ir2);
-  ir_top =  ir_vertical_correction * IR_TopOfIr(ir_i2c_top - (IR_TOP_NEUTRAL << ir_i2c_conf_word));
-}
-
-void estimator_update_state_infrared(void) {
-
-  estimator_phi = atan2(ir_roll, ir_top) - ir_roll_neutral;
-  estimator_theta = atan2(ir_pitch, ir_top) - ir_pitch_neutral;
-
-  if (estimator_theta < -M_PI_2)
-    estimator_theta += M_PI;
-  else if (estimator_theta > M_PI_2)
-    estimator_theta -= M_PI;
-
-  if (estimator_phi >= 0)
-    estimator_phi *= ir_correction_right;
-  else
-    estimator_phi *= ir_correction_left;
-
-  if (estimator_theta >= 0)
-    estimator_theta *= ir_correction_up;
-  else
-    estimator_theta *= ir_correction_down;
-
-}
-*/
