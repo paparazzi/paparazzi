@@ -70,7 +70,6 @@ struct i2c_transaction irh_trans, irv_trans;
 // Standard infrared implementation
 void infrared_init(void) {
   infrared_i2c_init();
-  infrared_struct_init();
 }
 
 void infrared_update(void) {
@@ -92,6 +91,8 @@ void infrared_i2c_init( void ) {
   ir_i2c_conf_ver_done = FALSE;
   irh_trans.status = I2CTransDone;
   irv_trans.status = I2CTransDone;
+
+  infrared_struct_init();
 }
 
 void infrared_i2c_update( void ) {

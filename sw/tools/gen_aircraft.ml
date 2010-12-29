@@ -137,10 +137,12 @@ let dump_module_section = fun xml f ->
                 ) targets
           | "file" ->
               let name = Xml.attrib field "name" in
-              List.iter (fun target -> fprintf f "%s.srcs += $(%s)/%s\n" target dir_name name) targets
+              let dir_name = ExtXml.attrib_or_default field "dir" ("$("^dir_name^")") in
+              List.iter (fun target -> fprintf f "%s.srcs += %s/%s\n" target dir_name name) targets
           | "file_arch" ->
               let name = Xml.attrib field "name" in
-              List.iter (fun target -> fprintf f "%s.srcs += arch/$(ARCH)/$(%s)/%s\n" target dir_name name) targets
+              let dir_name = ExtXml.attrib_or_default field "dir" ("$("^dir_name^")") in
+              List.iter (fun target -> fprintf f "%s.srcs += arch/$(ARCH)/%s/%s\n" target dir_name name) targets
           | "raw" ->
               begin match Xml.children field with
                 [Xml.PCData s] -> fprintf f "%s\n" s

@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<!-- @define IR_ADC_READ_ONLY for read only module -->
+
+<module name="ir_adc" dir="sensors">
+  <header>
+    <file name="infrared_adc.h"/>
+  </header>
+  <init fun="infrared_adc_init()"/>
+  <periodic fun="infrared_adc_update()" freq="60."/>
+  <makefile>
+    <define name="USE_INFRARED_TELEMETRY"/>
+    <file name="infrared.c" dir="subsystems/sensors"/>
+    <file name="infrared_adc.c" dir="subsystems/sensors"/>
+  </makefile>
+  <makefile target="sim">
+    <file_arch name="sim_ir.c" dir="."/>
+  </makefile>
+</module>
+
+

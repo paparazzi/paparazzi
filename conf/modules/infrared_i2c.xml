@@ -1,4 +1,5 @@
 <!DOCTYPE module SYSTEM "module.dtd">
+<!-- @define IR_I2C_READ_ONLY for read only module -->
 
 <module name="ir_i2c" dir="sensors">
   <header>
@@ -9,14 +10,12 @@
   <!--periodic fun="infrared_i2cDownlink()" freq="1."/-->
   <event fun="infrared_i2cEvent()"/>
   <makefile>
-    <define name="USE_INFRARED_I2C"/>
-    <raw>ap.srcs += subsystems/sensors/infrared.c</raw>
-    <raw>ap.srcs += subsystems/sensors/infrared_i2c.c</raw>
-    <raw>sim.srcs += subsystems/sensors/infrared.c</raw>
-    <raw>sim.srcs += subsystems/sensors/infrared_i2c.c</raw>
+    <define name="USE_INFRARED_TELEMETRY"/>
+    <file name="infrared.c" dir="subsystems/sensors"/>
+    <file name="infrared_i2c.c" dir="subsystems/sensors"/>
   </makefile>
   <makefile target="sim">
-    <raw>sim.srcs += $(SRC_ARCH)/sim_ir.c</raw>
+    <file_arch name="sim_ir.c" dir="."/>
   </makefile>
 </module>
 
