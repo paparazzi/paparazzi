@@ -30,8 +30,10 @@
 #include "std.h"
 #include "subsystems/sensors/infrared.h"
 
-void infrared_adc_init();
-void infrared_adc_update();
+extern struct Infrared_raw ir_adc;
+
+extern void infrared_adc_init(void);
+extern void infrared_adc_update(void);
 
 #endif // SUBSYSTEMS_SENSORS_INFRARED_ADC_H
 
