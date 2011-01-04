@@ -53,7 +53,7 @@ int main( void ) {
   VCOM_init();
 #endif
 
-  int_enable();
+  mcu_int_enable();
 
   LED_ON(3);
 

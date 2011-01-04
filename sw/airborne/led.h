@@ -31,8 +31,7 @@
 #ifndef LED_H
 #define LED_H
 
-// FIXME : remove LED
-#if defined USE_LED || defined LED
+#if defined USE_LED
 
 #include "led_hw.h"
 

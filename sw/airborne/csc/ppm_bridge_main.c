@@ -28,11 +28,11 @@
 
 #include "std.h"
 
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "led.h"
 #include "interrupt_hw.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "downlink.h"
 #include "generated/periodic.h"
 #include "generated/airframe.h"
@@ -52,7 +52,7 @@ static uint16_t cpu_time = 0;
 
 static void csc_main_init( void ) {
 
-  hw_init();
+  mcu_init();
   sys_time_init();
   led_init();
 
@@ -66,7 +66,7 @@ static void csc_main_init( void ) {
   IO0DIR = IO0DIR | (0x1 << 21);
   IO0PIN = IO0DIR | (0x1 << 21);
 
-  int_enable();
+  mcu_int_enable();
 
 }
 
