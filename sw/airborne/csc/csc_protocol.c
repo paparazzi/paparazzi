@@ -29,7 +29,7 @@
 #include "mcu_periph/can.h"
 #include "csc_msg_def.h"
 
-// #include "init_hw.h"
+// #include "mcu.h"
 // #include "sys_time.h"
 // #include "downlink.h"
 

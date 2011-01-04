@@ -25,7 +25,7 @@
 
 #include "std.h"
 
-#include "init_hw.h"
+#include "mcu.h"
 #include "led.h"
 
 #define TXD0_PIN 0

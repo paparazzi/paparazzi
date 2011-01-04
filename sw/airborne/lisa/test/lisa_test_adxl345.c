@@ -35,7 +35,7 @@
 #include <stm32/spi.h>
 
 #include BOARD_CONFIG
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "downlink.h"
 

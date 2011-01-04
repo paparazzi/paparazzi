@@ -26,7 +26,7 @@
 #include <stm32/misc.h>
 
 #include BOARD_CONFIG
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "downlink.h"
 #include "peripherals/sc18is600.h"

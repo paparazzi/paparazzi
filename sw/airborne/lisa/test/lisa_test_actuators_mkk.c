@@ -22,7 +22,7 @@
  */
 
 
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "booz2_commands.h"
 #include "actuators.h"

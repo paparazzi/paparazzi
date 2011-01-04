@@ -30,7 +30,7 @@
 #include <stm32/i2c.h>
 
 #include BOARD_CONFIG
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 
 static inline void main_init( void );

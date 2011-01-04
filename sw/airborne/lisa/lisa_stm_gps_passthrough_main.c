@@ -22,7 +22,7 @@
  *
  */
 
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "lisa/lisa_overo_link.h"
 #include "lisa/lisa_spistream.h"
