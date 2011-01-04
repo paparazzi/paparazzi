@@ -32,7 +32,7 @@
 #include "sys_time.h"
 #include "led.h"
 #include "interrupt_hw.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "downlink.h"
 #include "generated/periodic.h"
 #include "generated/airframe.h"

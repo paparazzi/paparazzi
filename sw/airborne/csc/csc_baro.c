@@ -4,7 +4,7 @@
 #include "led.h"
 #include "interrupt_hw.h"
 
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
 #include "csc_booz2_ins.h"

@@ -47,7 +47,7 @@
 // #include "ams5812.h"
 
 #include "interrupt_hw.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "csc_telemetry.h"
 
 #include "generated/periodic.h"
