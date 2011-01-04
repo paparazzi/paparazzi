@@ -27,10 +27,11 @@
     </subsystem>
   </firmware>
 
-  <firmware name="booz_test_progs">
+  <firmware name="booz2_test_progs">
     <target name="test_telemetry" board="booz_1.0"/>
     <target name="test_baro"      board="booz_1.0"/>
     <target name="test_spektrum"  board="booz_1.0"/>
+    <target name="tunnel"         board="booz_1.0"/>
   </firmware>
 
   <modules main_freq="512">

@@ -22,6 +22,8 @@
 #
 #
 
+include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
+
 #
 # test_led : blinks all leds
 #
