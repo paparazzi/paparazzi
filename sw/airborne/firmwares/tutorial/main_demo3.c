@@ -23,7 +23,7 @@ static inline void main_init( void ) {
   sys_time_init();
   led_init();
   uart0_init_tx();
-  int_enable();
+  mcu_int_enable();
 }
 
 static inline void main_periodic_task( void ) {

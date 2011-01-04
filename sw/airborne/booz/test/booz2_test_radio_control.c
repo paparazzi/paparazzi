@@ -52,7 +52,7 @@ static inline void main_init( void ) {
   mcu_init();
   sys_time_init();
   radio_control_init();
-  int_enable();
+  mcu_int_enable();
 }
 
 extern uint32_t debug_len;

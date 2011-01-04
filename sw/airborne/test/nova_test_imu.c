@@ -35,7 +35,7 @@ static inline void main_init( void ) {
 
   ADS8344_init();
 
-  int_enable();
+  mcu_int_enable();
 
   ADS8344_start();
 }

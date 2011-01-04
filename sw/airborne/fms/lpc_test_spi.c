@@ -53,7 +53,7 @@ static inline void main_init( void ) {
   mcu_init();
   sys_time_init();
   main_spi_init();
-  int_enable();
+  mcu_int_enable();
 }
 
 static inline void main_periodic_task( void ) {

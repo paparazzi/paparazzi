@@ -35,7 +35,7 @@ static inline void main_init( void ) {
   mcu_init();
   sys_time_init();
   main_init_tacho();
-  int_enable();
+  mcu_int_enable();
 }
 
 #define NB_STEP 256

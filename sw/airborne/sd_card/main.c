@@ -42,7 +42,7 @@ static inline void main_init( void ) {
   spi_init();
   sd_card_init();
 
-  int_enable();
+  mcu_int_enable();
 }
 
 static inline void main_periodic_task( void ) {

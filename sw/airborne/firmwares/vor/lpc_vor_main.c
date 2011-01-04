@@ -93,7 +93,7 @@ static inline void main_init( void ) {
   vor_int_demod_init();
   VorDacInit();
   vor_adc_init();
-  int_enable();
+  mcu_int_enable();
 }
 
 

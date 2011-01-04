@@ -520,7 +520,7 @@ static inline void main_init( void ) {
   max11040_init();
 #endif
 
-  int_enable();
+  mcu_int_enable();
 }
 
 static inline void main_periodic_task( void ) {

@@ -72,7 +72,7 @@ static inline void main_init( void ) {
   main_init_ssp();
   micromag_init();
 
-  int_enable();
+  mcu_int_enable();
 }
 
 static inline void main_periodic_task( void ) {

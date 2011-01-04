@@ -66,7 +66,7 @@ static void csc_main_init( void ) {
   IO0DIR = IO0DIR | (0x1 << 21);
   IO0PIN = IO0DIR | (0x1 << 21);
 
-  int_enable();
+  mcu_int_enable();
 
 }
 

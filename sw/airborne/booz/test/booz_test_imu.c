@@ -64,7 +64,7 @@ static inline void main_init( void ) {
   DEBUG_SERVO2_INIT();
 
 
-  int_enable();
+  mcu_int_enable();
 }
 
 static inline void main_periodic_task( void ) {

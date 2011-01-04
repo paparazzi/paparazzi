@@ -136,7 +136,7 @@ static inline void csc_main_init( void ) {
   props_init();
 
   csc_ap_init();
-  int_enable();
+  mcu_int_enable();
 
   stabilization_attitude_enter();
 }
