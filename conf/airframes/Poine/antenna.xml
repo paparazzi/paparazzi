@@ -23,7 +23,7 @@ ant.LOCK_FUSE = ff
 ant.CFLAGS += -DBOARD_CONFIG=\"antenna.h\"
 ant.srcs = main_antenna.c sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
-ant.CFLAGS += -DLED
+ant.CFLAGS += -DUSE_LED
 
 ant.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
 ant.srcs += $(SRC_ARCH)/uart_hw.c

@@ -46,7 +46,7 @@ ap.ARCHDIR = $(ARCHI)
 ap.CFLAGS += -I$(SRC_CSC)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 ap.srcs += $(SRC_CSC)/csc_main.c
-ap.CFLAGS += -DLED -DTIME_LED=1
+ap.CFLAGS += -DUSE_LED -DTIME_LED=1
 
 ap.CFLAGS += -DCSC_BOARD_ID=$(CSC_ID)
 
@@ -99,7 +99,7 @@ test_uart.ARCHDIR = $(ARCHI)
 test_uart.CFLAGS += -I$(SRC_CSC)
 test_uart.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_uart.srcs += $(SRC_CSC)/csc_test_uart.c
-test_uart.CFLAGS += -DLED
+test_uart.CFLAGS += -DUSE_LED
 
 # -DTIME_LED=1
 test_uart.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
@@ -123,7 +123,7 @@ test_can1.ARCHDIR = $(ARCHI)
 test_can1.CFLAGS += -I$(SRC_CSC)
 test_can1.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_can1.srcs += $(SRC_CSC)/test_can1.c
-test_can1.CFLAGS += -DLED
+test_can1.CFLAGS += -DUSE_LED
 
 # -DTIME_LED=1
 test_can1.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
