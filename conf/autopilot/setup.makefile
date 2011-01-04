@@ -38,29 +38,30 @@ usb_tunnel_1.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 
 
-
-ifeq ($(ACTUATORS),)
-  ifeq ($(BOARD),tiny)
-    ifeq ($(BOARD_VERSION),1.1)
-      include $(CFG_SHARED)/actuators_4015.makefile
-    else
-      ifeq ($(BOARD_VERSION),0.99)
+ifeq ($(TARGET), setup_actuators)
+  ifeq ($(ACTUATORS),)
+    ifeq ($(BOARD),tiny)
+      ifeq ($(BOARD_VERSION),1.1)
         include $(CFG_SHARED)/actuators_4015.makefile
       else
-        include $(CFG_SHARED)/actuators_4017.makefile
+        ifeq ($(BOARD_VERSION),0.99)
+          include $(CFG_SHARED)/actuators_4015.makefile
+        else
+          include $(CFG_SHARED)/actuators_4017.makefile
+        endif
       endif
     endif
-  endif
-  ifeq ($(BOARD),twog)
-	include $(CFG_SHARED)/actuators_4017.makefile
-  endif
+    ifeq ($(BOARD),twog)
+      include $(CFG_SHARED)/actuators_4017.makefile
+    endif
 
-  ifeq ($(BOARD),lisa_l)
-    include $(CFG_SHARED)/actuators_direct.makefile
-  endif
+    ifeq ($(BOARD),lisa_l)
+      include $(CFG_SHARED)/actuators_direct.makefile
+    endif
 
-else
-  include $(CFG_SHARED)/$(ACTUATORS).makefile
+  else
+    include $(CFG_SHARED)/$(ACTUATORS).makefile
+  endif
 endif
 
 
