@@ -192,7 +192,7 @@ ap.CFLAGS += -DRADIO_CONTROL -DUSE_RC_TELEMETRY
 ap.srcs += radio_control.c ppm_telemetry.c
 
 ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=XBeeTransport -DXBEE_UART=Uart1 -DDATALINK=XBEE -DUART1_BAUD=B57600
-ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
+ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c xbee.c
 
 ap.CFLAGS += -DINTER_MCU
 ap.srcs += inter_mcu.c 

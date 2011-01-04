@@ -70,7 +70,7 @@ ap.CFLAGS += -DLOG_XBEE
 #set the speed
 ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUSE_UART0_RX_ONLY
 ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUSE_UART1_RX_ONLY
-ap.srcs += $(SRC_ARCH)/uart_hw.c
+ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 #set SPI interface for SD card (0 or 1)
 ap.CFLAGS += -DHW_ENDPOINT_LPC2000_SPINUM=0

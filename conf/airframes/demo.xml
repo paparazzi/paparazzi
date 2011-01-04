@@ -44,7 +44,7 @@ demo3.CFLAGS += -DUSE_LED
 demo3.srcs += $(SRC_ARCH)/armVIC.c
 
 demo3.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
-demo3.srcs += $(SRC_ARCH)/uart_hw.c
+demo3.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 #
 # DOWNLINK : send formated messages according to messages.xml description
@@ -63,7 +63,7 @@ demo4.CFLAGS += -DUSE_LED
 demo4.srcs += $(SRC_ARCH)/armVIC.c
 
 demo4.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
-demo4.srcs += $(SRC_ARCH)/uart_hw.c
+demo4.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 demo4.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
 demo4.srcs += downlink.c pprz_transport.c
@@ -86,7 +86,7 @@ demo5.CFLAGS += -DUSE_LED
 demo5.srcs += $(SRC_ARCH)/armVIC.c
 
 demo5.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
-demo5.srcs += $(SRC_ARCH)/uart_hw.c
+demo5.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 demo5.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
 demo5.srcs += downlink.c pprz_transport.c
@@ -143,7 +143,7 @@ test_spk.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
 test_spk.srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 
 test_spk.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B115200
-test_spk.srcs += $(SRC_ARCH)/uart_hw.c
+test_spk.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
   </makefile>
 

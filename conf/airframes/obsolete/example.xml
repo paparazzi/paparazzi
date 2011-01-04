@@ -25,7 +25,7 @@ example_gps.CFLAGS += -DUSE_LED
 example_gps.srcs += $(SRC_ARCH)/armVIC.c
 
 example_gps.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
-example_gps.srcs += $(SRC_ARCH)/uart_hw.c
+example_gps.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 example_gps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0
 example_gps.srcs += downlink.c pprz_transport.c

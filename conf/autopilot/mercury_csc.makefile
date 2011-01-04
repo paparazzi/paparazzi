@@ -79,7 +79,7 @@ ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B57600 -DUART0_VIC_SLOT=5
 
 ap.CFLAGS += -DACTUATORS=\"servos_direct_hw.h\"
 ap.srcs += actuators.c
-ap.srcs += $(SRC_ARCH)/uart_hw.c
+ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 ap.srcs += $(SRC_ARCH)/servos_direct_hw.c
 ap.srcs += $(SRC_CSC)/csc_servos.c
 ap.srcs += $(SRC_CSC)/csc_bat_monitor.c
@@ -104,7 +104,7 @@ test_uart.CFLAGS += -DUSE_LED
 test_uart.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
 test_uart.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-test_uart.srcs += $(SRC_ARCH)/uart_hw.c
+test_uart.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_uart.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 test_uart.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \

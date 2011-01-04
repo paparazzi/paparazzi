@@ -30,7 +30,7 @@ main.CFLAGS += -DUSE_LED
 #-DTIME_LED=1
 
 main.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
-main.srcs += $(SRC_ARCH)/uart_hw.c
+main.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
 main.srcs += downlink.c pprz_transport.c

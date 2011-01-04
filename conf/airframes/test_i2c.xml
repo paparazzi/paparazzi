@@ -22,7 +22,7 @@ mb.srcs = $(SRC_ARCH)/main_test_i2c.c sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC
 mb.CFLAGS += -DUSE_LED
 
 mb.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
-mb.srcs += $(SRC_ARCH)/uart_hw.c
+mb.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 mb.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
 mb.srcs += downlink.c pprz_transport.c
