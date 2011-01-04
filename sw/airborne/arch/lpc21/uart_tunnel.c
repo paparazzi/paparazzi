@@ -3,7 +3,7 @@
 
 #include "std.h"
 
-#include "init_hw.h"
+#include "mcu.h"
 #include "led.h"
 
 #define TXD0_PIN 0
@@ -14,7 +14,7 @@
 int main (int argc, char** argv) {
   int tx=0, rx=0;
   int tx_shadow=1, rx_shadow=1;
-  hw_init();
+  mcu_init();
   led_init();
   LED_ON(1);
 
