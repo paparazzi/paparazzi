@@ -34,7 +34,7 @@
 #define RXD1_PIN 9
 
 int main (int argc, char** argv) {
-  hw_init();
+  mcu_init();
   led_init();
 
   /* TXD0 and TXD1 output */

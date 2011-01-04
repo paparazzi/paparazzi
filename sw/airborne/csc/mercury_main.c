@@ -105,7 +105,7 @@ static void on_rc_cmd(struct CscRCMsg *msg)
 
 static inline void csc_main_init( void ) {
 
-  hw_init();
+  mcu_init();
   sys_time_init();
   led_init();
 

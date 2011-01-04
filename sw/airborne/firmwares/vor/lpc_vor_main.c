@@ -86,7 +86,7 @@ static inline void main_report( void ) {
 
 
 static inline void main_init( void ) {
-  hw_init();
+  mcu_init();
   sys_time_init();
   led_init();
   uart0_init();

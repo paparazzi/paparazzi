@@ -52,7 +52,7 @@ void Delay(__IO uint32_t nCount) {
 
 int main(void) {
 
-  hw_init();
+  mcu_init();
   sys_time_init();
 
 

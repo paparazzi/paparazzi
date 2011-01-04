@@ -52,7 +52,7 @@ static uint16_t cpu_time = 0;
 
 static void csc_main_init( void ) {
 
-  hw_init();
+  mcu_init();
   sys_time_init();
   led_init();
 

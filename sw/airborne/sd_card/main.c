@@ -34,7 +34,7 @@ int main( void ) {
 }
 
 static inline void main_init( void ) {
-  hw_init();
+  mcu_init();
   sys_time_init();
   led_init();
   Uart0Init();

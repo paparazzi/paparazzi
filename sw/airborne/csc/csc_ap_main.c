@@ -141,7 +141,7 @@ static void on_gpspos_cmd( struct CscGPSPosMsg *msg )
 
 static void csc_main_init( void ) {
 
-  hw_init();
+  mcu_init();
   sys_time_init();
   led_init();
 
