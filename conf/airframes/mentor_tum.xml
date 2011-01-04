@@ -29,8 +29,9 @@
   </firmware>
 
   <firmware name="setup">
-    <target name="tunnel" 		board="twog_1.0" />
-    <target name="setup_actuators" 	board="twog_1.0" />
+    <target name="tunnel"          board="twog_1.0" />
+    <target name="usb_tunnel_0"    board="twog_1.0" />
+    <target name="setup_actuators" board="twog_1.0" />
   </firmware>
 
   <modules main_freq="60">
