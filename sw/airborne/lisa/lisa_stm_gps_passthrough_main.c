@@ -22,7 +22,7 @@
  *
  */
 
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "lisa/lisa_overo_link.h"
 #include "lisa/lisa_spistream.h"
@@ -91,7 +91,7 @@ int main(void) {
 
 static inline void main_init(void) {
 
-  hw_init();
+  mcu_init();
   sys_time_init();
   overo_link_init();
 

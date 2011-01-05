@@ -25,7 +25,7 @@
 
 #include "std.h"
 
-#include "init_hw.h"
+#include "mcu.h"
 #include "led.h"
 
 #define TXD0_PIN 0
@@ -34,7 +34,7 @@
 #define RXD1_PIN 9
 
 int main (int argc, char** argv) {
-  hw_init();
+  mcu_init();
   led_init();
 
   /* TXD0 and TXD1 output */

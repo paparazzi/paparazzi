@@ -39,7 +39,9 @@
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "gps.h"
+#ifdef USE_INFRARED
 #include "subsystems/sensors/infrared.h"
+#endif
 #include "gyro.h"
 #include "ap_downlink.h"
 #include "subsystems/nav.h"
@@ -387,11 +389,11 @@ void periodic_task_ap( void ) {
 
 
 #ifdef PERIODIC_FREQUENCY
-#warning Using HighSpeed Periodic: Manually check to make sure PERIODIC_FREQUENCY is a multiple of 60. 
+#warning Using HighSpeed Periodic: Manually check to make sure PERIODIC_FREQUENCY is a multiple of 60.
   static uint8_t _60Hz = 0;
   _60Hz++;
   if (_60Hz >= (PERIODIC_FREQUENCY / 60))
-  {  
+  {
     _60Hz = 0;
   }
   else
@@ -584,6 +586,10 @@ void init_ap( void ) {
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
 
+#ifdef USE_INFRARED
+  infrared_event();
+#endif
+
 #ifdef USE_AHRS
   ImuEvent(on_gyro_accel_event, on_mag_event);
 #endif // USE_AHRS
@@ -696,7 +702,7 @@ static inline void on_gyro_accel_event( void ) {
     INT32_VECT3_SDIV(gyr_avg, gyr_avg, (PERIODIC_FREQUENCY / AHRS_PROPAGATE_FREQUENCY) );
     imu.gyro_unscaled.p = gyr_avg.x;
     imu.gyro_unscaled.q = gyr_avg.y;
-    imu.gyro_unscaled.r = gyr_avg.z; 
+    imu.gyro_unscaled.r = gyr_avg.z;
     INT_VECT3_ZERO(gyr_avg);
 
     ImuScaleGyro(imu);
@@ -715,7 +721,7 @@ static inline void on_gyro_accel_event( void ) {
       ahrs_update_fw_estimator();
     }
   }
-  
+
 #ifdef AHRS_CPU_LED
     LED_OFF(AHRS_CPU_LED);
 #endif

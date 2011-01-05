@@ -1,3 +1,10 @@
+paparazzi (3.3-1) unstable; urgency=low
+
+  * New build system with modules and subsystems
+  * Change dependency from subversion to git
+
+ -- Gautier Hattenberger <gautier.hattenberger@enac.fr>  Wed, 29 Dec 2010 12:49:00 +0100
+
 paparazzi (3.2-10) unstable; urgency=low
 
   * Dependencie over gpsd, libgps-dev, python-lxml, python-wxgtk2.8 added

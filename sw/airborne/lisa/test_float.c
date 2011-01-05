@@ -24,7 +24,7 @@
 #include <math.h>
 
 #include BOARD_CONFIG
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "downlink.h"
 static inline void main_init( void );
@@ -43,7 +43,7 @@ int main(void) {
 }
 
 static inline void main_init( void ) {
-  hw_init();
+  mcu_init();
   sys_time_init();
 }
 

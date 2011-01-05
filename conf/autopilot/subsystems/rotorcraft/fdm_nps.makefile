@@ -70,7 +70,7 @@ sim.srcs   += firmwares/rotorcraft/main.c
 
 sim.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 # -DTIME_LED=1
-#sim.CFLAGS += -DLED
+#sim.CFLAGS += -DUSE_LED
 sim.srcs += sys_time.c
 
 

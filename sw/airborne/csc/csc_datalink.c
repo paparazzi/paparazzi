@@ -5,7 +5,7 @@
 #include "downlink.h"
 #include "messages.h"
 #include "dl_protocol.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 
 #define IdOfMsg(x) (x[1])
 

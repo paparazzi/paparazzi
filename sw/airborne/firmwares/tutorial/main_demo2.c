@@ -1,6 +1,6 @@
 
 #include "std.h"
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "led.h"
 
@@ -17,7 +17,7 @@ int main( void ) {
 }
 
 static inline void main_init( void ) {
-  hw_init();
+  mcu_init();
   sys_time_init();
   led_init();
 }

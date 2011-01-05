@@ -21,43 +21,12 @@
  */
 
 /*
- * Driver for i2c infrared sensor
+ * Wrapper for i2c infrared sensor module
  */
 
 #ifndef INFRARED_I2C_H
 #define INFRARED_I2C_H
 
-#include "std.h"
-#include "generated/airframe.h"
-#include "subsystems/sensors/infrared.h"
-#include "mcu_periph/i2c.h"
-
-extern int16_t ir_i2c_ir1;
-extern int16_t ir_i2c_ir2;
-extern int16_t ir_i2c_top;
-extern volatile bool_t ir_i2c_done;
-extern bool_t ir_i2c_data_available;
-extern uint8_t ir_i2c_conf_word;
-extern bool_t ir_i2c_conf_hor_done, ir_i2c_conf_ver_done;
-
-extern struct i2c_transaction irh_trans, irv_trans;
-
-extern void infrared_i2c_init( void );
-extern void infrared_i2c_update( void );
-extern void infrared_i2c_hor_event( void );
-extern void infrared_i2c_ver_event( void );
-
-#define infrared_i2cEvent() { \
-  if (irh_trans.status == I2CTransSuccess) infrared_i2c_hor_event(); \
-  if (irv_trans.status == I2CTransSuccess) infrared_i2c_ver_event(); \
-}
-
-#define infrared_i2cDownlink() DOWNLINK_SEND_DEBUG_IR_I2C(DefaultChannel, &ir_i2c_ir1, &ir_i2c_ir2, &ir_i2c_top)
-
-#define infrared_i2c_SetConfWord(_v) { \
-  ir_i2c_conf_hor_done = FALSE; \
-  ir_i2c_conf_ver_done = FALSE; \
-  ir_i2c_conf_word = _v; \
-}
+#include "subsystems/sensors/infrared_i2c.h"
 
 #endif // INFRARED_I2C_H
