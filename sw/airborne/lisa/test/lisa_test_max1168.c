@@ -29,7 +29,7 @@
 #include <stm32/exti.h>
 
 #include BOARD_CONFIG
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "downlink.h"
 #include "peripherals/max1168.h"
@@ -54,7 +54,7 @@ int main(void) {
 
 
 static inline void main_init( void ) {
-  hw_init();
+  mcu_init();
   sys_time_init();
   max1168_init();
   main_spi2_init();

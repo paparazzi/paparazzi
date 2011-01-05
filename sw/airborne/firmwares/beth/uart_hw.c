@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "uart.h"
+#include "mcu_periph/uart.h"
 
 #include <stdint.h>
 #include <unistd.h>

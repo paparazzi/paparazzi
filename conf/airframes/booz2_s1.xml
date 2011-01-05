@@ -196,7 +196,7 @@ BOARD_CFG = \"boards/booz2_v1_0.h\"
 
 
 # Enables Canon Hack Development Kit features.
-ap.CFLAGS += -DLED -DCANON_CHDK
+ap.CFLAGS += -DUSE_LED -DCANON_CHDK
 ap.srcs += $(PAPARAZZI_SRC)/sw/airborne/chdk.c
 
 include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile

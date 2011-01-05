@@ -28,11 +28,11 @@
 
 #include "std.h"
 
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "led.h"
 #include "interrupt_hw.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "downlink.h"
 #include "generated/periodic.h"
 #include "generated/airframe.h"
@@ -105,7 +105,7 @@ static void on_rc_cmd(struct CscRCMsg *msg)
 
 static inline void csc_main_init( void ) {
 
-  hw_init();
+  mcu_init();
   sys_time_init();
   led_init();
 
@@ -136,7 +136,7 @@ static inline void csc_main_init( void ) {
   props_init();
 
   csc_ap_init();
-  int_enable();
+  mcu_int_enable();
 
   stabilization_attitude_enter();
 }
