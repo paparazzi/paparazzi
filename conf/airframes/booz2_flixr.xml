@@ -68,10 +68,6 @@
   </section>
 
   <section name="IMU" prefix="IMU_">
-    <define name="GYRO_P_CHAN" value="1" />
-    <define name="GYRO_Q_CHAN" value="0" />
-    <define name="GYRO_R_CHAN" value="2" />
-
     <define name="GYRO_P_NEUTRAL" value="32362" />
     <define name="GYRO_Q_NEUTRAL" value="32080" />
     <define name="GYRO_R_NEUTRAL" value="32096" />
