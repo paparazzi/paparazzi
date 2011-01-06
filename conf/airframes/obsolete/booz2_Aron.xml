@@ -1,37 +1,37 @@
 <airframe name="BOOZ2_A2">
 
-	<servos min="0" neutral="0" max="0xff">
-		<servo name="FRONT" no="0" min="0" neutral="0" max="255" />
-		<servo name="BACK" no="1" min="0" neutral="0" max="255" />
-		<servo name="RIGHT" no="2" min="0" neutral="0" max="255" />
-		<servo name="LEFT" no="3" min="0" neutral="0" max="255" />
-	</servos>
-	
-	<commands>
-		<axis name="PITCH" failsafe_value="0" />
-		<axis name="ROLL" failsafe_value="0" />
-		<axis name="YAW" failsafe_value="0" />
-		<axis name="THRUST" failsafe_value="0" />
-	</commands>
-	
-	<section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
-		<define name="NB" value="4" />
-		<define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }" />
-	</section>
-	
-	<section name="SUPERVISION" prefix="SUPERVISION_">
-		<define name="MIN_MOTOR" value="2" />
-		<define name="MAX_MOTOR" value="210" />
-		<define name="TRIM_A" value="0" />
-		<define name="TRIM_E" value="0" />
-		<define name="TRIM_R" value="0" />
-		<define name="NB_MOTOR" value="4" />
-		<define name="SCALE" value="256"/>
-		<define name="ROLL_COEF"   value="{   0,    0, -256,  256}" />
-		<define name="PITCH_COEF"  value="{ 256, -256,    0,    0}" />
-		<define name="YAW_COEF"    value="{ 256,  256, -256, -256}" />
-		<define name="THRUST_COEF" value="{ 256,  256,  256,  256}"/>
-	</section>
+    <servos min="0" neutral="0" max="0xff">
+        <servo name="FRONT" no="0" min="0" neutral="0" max="255" />
+        <servo name="BACK" no="1" min="0" neutral="0" max="255" />
+        <servo name="RIGHT" no="2" min="0" neutral="0" max="255" />
+        <servo name="LEFT" no="3" min="0" neutral="0" max="255" />
+    </servos>
+
+    <commands>
+        <axis name="PITCH" failsafe_value="0" />
+        <axis name="ROLL" failsafe_value="0" />
+        <axis name="YAW" failsafe_value="0" />
+        <axis name="THRUST" failsafe_value="0" />
+    </commands>
+
+    <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
+        <define name="NB" value="4" />
+        <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }" />
+    </section>
+
+    <section name="SUPERVISION" prefix="SUPERVISION_">
+        <define name="MIN_MOTOR" value="2" />
+        <define name="MAX_MOTOR" value="210" />
+        <define name="TRIM_A" value="0" />
+        <define name="TRIM_E" value="0" />
+        <define name="TRIM_R" value="0" />
+        <define name="NB_MOTOR" value="4" />
+        <define name="SCALE" value="256"/>
+        <define name="ROLL_COEF"   value="{   0,    0, -256,  256}" />
+        <define name="PITCH_COEF"  value="{ 256, -256,    0,    0}" />
+        <define name="YAW_COEF"    value="{ 256,  256, -256, -256}" />
+        <define name="THRUST_COEF" value="{ 256,  256,  256,  256}"/>
+    </section>
 
   <section name="IMU" prefix="IMU_">
 
@@ -46,10 +46,10 @@
     <define name="GYRO_P_SENS" value=" -0.85" integer="16"/>
     <define name="GYRO_Q_SENS" value=" -0.85" integer="16"/>
     <define name="GYRO_R_SENS" value=" 0.85" integer="16"/>
-  
+
     <define name="ACCEL_X_CHAN" value="5"/>
     <define name="ACCEL_Y_CHAN" value="2"/>
-    <define name="ACCEL_Z_CHAN" value="6"/>    
+    <define name="ACCEL_Z_CHAN" value="6"/>
 
 <define name="ACCEL_X_SENS" value="6.23079413" integer="16"/>
 <define name="ACCEL_Y_SENS" value="-6.38411981" integer="16"/>
@@ -62,9 +62,9 @@
     <define name="MAG_X_CHAN" value="0"/>
     <define name="MAG_Y_CHAN" value="4"/>
     <define name="MAG_Z_CHAN" value="2"/>
-    
+
     <define name="MAG_X_NEUTRAL" value="2339"/>
-    <define name="MAG_Y_NEUTRAL" value="2106"/> 
+    <define name="MAG_Y_NEUTRAL" value="2106"/>
     <define name="MAG_Z_NEUTRAL" value="1902"/>
 
     <define name="MAG_X_SENS" value="-4.4039655" integer="16"/>
