@@ -14,8 +14,8 @@
 
   <modules>
     <load name="light.xml">
-      <param name="LIGHT_LED_STROBE" value="5"/>
-      <param name="LIGHT_LED_NAV" value="3"/>
+      <define name="LIGHT_LED_STROBE" value="5"/>
+      <define name="LIGHT_LED_NAV" value="3"/>
     </load>
     <load name="infrared_i2c.xml"/>
     <load name="pbn.xml"/>
@@ -23,20 +23,15 @@
   </modules>
 
   <firmware name="fixedwing">
-    <target name="sim" board="pc">
-      <define name="AGR_CLIMB"/>
-      <define name="ALT_KALMAN"/>
-      <define name="PITCH_TRIM"/>
-      <define name="USE_I2C0"/>
-      <define name="USE_AIRSPEED"/>
-    </target>
+    <define name="AGR_CLIMB"/>
+    <define name="ALT_KALMAN"/>
+    <define name="PITCH_TRIM"/>
+    <define name="USE_I2C0"/>
+    <define name="USE_AIRSPEED"/>
+
+    <target name="sim" board="pc"/>
     <target name="ap" board="tiny_2.11">
-      <param name="FLASH_MODE" value="IAP"/>
-      <define name="AGR_CLIMB"/>
-      <define name="ALT_KALMAN"/>
-      <define name="PITCH_TRIM"/>
-      <define name="USE_I2C0"/>
-      <define name="USE_AIRSPEED"/>
+      <configure name="FLASH_MODE" value="IAP"/>
       <define name="SPI_MASTER"/>
       <define name="USE_SPI_SLAVE0"/>
     </target>
@@ -54,11 +49,11 @@
     <!-- Sensors -->
     <subsystem name="gps" type="ublox_lea5h"/>
     <subsystem name="gyro" type="roll">
-      <param name="ADC_GYRO_ROLL" value="ADC_5"/>
+      <configure name="ADC_GYRO_ROLL" value="ADC_5"/>
     </subsystem>
 
     <subsystem name="current_sensor">
-      <param name="ADC_CURRENT_SENSOR" value="ADC_3"/>
+      <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
     </subsystem>
 
     <subsystem name="navigation"/>

@@ -8,9 +8,9 @@
   <init fun="cam_init()"/>
   <periodic fun="cam_periodic()" freq="10."/>
   <makefile>
-    <flag name="CAM"/>
-    <flag name="MOBILE_CAM"/>
-    <flag name="POINT_CAM"/>
+    <define name="CAM"/>
+    <define name="MOBILE_CAM"/>
+    <define name="POINT_CAM"/>
     <file name="cam.c"/>
     <file name="point.c"/>
   </makefile>

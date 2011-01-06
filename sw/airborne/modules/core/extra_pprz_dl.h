@@ -138,7 +138,7 @@ extern uint8_t extra_pprz_ovrn, extra_pprz_error;
 extern volatile uint8_t extra_pprz_payload_len;
 
 #include "led.h"
-//#include "uart.h"
+//#include "mcu_periph/uart.h"
 //#include "messages.h"
 //#include "downlink.h"
 static inline void parse_extra_pprz( uint8_t c ) {

@@ -90,7 +90,7 @@ void ins_init() {
 #ifdef USE_INS_NAV_INIT
   ins_ltp_initialised = TRUE;
 
-  /** FIXME: should use the same code than MOVE_WP in booz2_datalink.c */
+  /** FIXME: should use the same code than MOVE_WP in firmwares/rotorcraft/datalink.c */
   struct LlaCoor_i llh; /* Height above the ellipsoid */
   llh.lat = INT32_RAD_OF_DEG(NAV_LAT0);
   llh.lon = INT32_RAD_OF_DEG(NAV_LON0);

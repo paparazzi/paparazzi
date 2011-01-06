@@ -35,7 +35,9 @@
 #include <stm32/spi.h>
 
 #include BOARD_CONFIG
-#include "init_hw.h"
+#include "mcu.h"
+#include "mcu_periph/uart.h"
+#include "mcu_periph/i2c.h"
 #include "sys_time.h"
 #include "downlink.h"
 #include "std.h"
@@ -71,7 +73,7 @@ int main(void) {
 }
 
 static inline void main_init( void ) {
-  hw_init();
+  mcu_init();
   sys_time_init();
   main_init_hw();
 }

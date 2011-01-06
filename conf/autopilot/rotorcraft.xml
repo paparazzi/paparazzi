@@ -2,10 +2,10 @@
   description="autopilot and simulator for rotorcrafts">
 
  <!-- a parameter that belongs to BOARD -->
- <param name="FLASH_MODE" values="|IAP|JTAG|ISP|"/>
+ <configure name="FLASH_MODE" values="|IAP|JTAG|ISP|"/>
 
  <target name="ap" description="The autopilot">
-   <param name="MODEM_BAUD" values="|B57600|B9600|"/>
+   <configure name="MODEM_BAUD" values="|B57600|B9600|"/>
  </target>
 
  <target name="sim" description="The simulator">
@@ -13,8 +13,8 @@
 
  <subsystem name="radio_control" types="ppm,spektrum">
    <type name="spektrum">
-     <param name="RADIO_CONTROL_SPEKTRUM_MODEL" values="\"subsystems/radio_control/spektrum_dx7se.h\""/>
-     <param name="RADIO_CONTROL_LINK" values="UART1|UART2|UART3|UART5"/>
+     <configure name="RADIO_CONTROL_SPEKTRUM_MODEL" values="\"subsystems/radio_control/spektrum_dx7se.h\""/>
+     <configure name="RADIO_CONTROL_LINK" values="UART1|UART2|UART3|UART5"/>
    </type>
  </subsystem>
 

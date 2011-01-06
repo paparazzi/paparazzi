@@ -15,7 +15,7 @@
   </makefile>
   <makefile target="sim">
     <!--file name="$(SRC_ARCH)/sim_enose.c"/-->
-    <file_hw name="sim_enose.c"/>
+    <file_arch name="sim_enose.c"/>
     <file name="chemo_detect.c"/>
   </makefile>
 </module>

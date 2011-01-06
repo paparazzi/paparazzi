@@ -22,7 +22,7 @@
  */
 
 
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "csc_msg_def.h"
 #include "csc_protocol.h"

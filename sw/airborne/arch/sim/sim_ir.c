@@ -21,7 +21,8 @@ value set_ir(value roll __attribute__ ((unused)),
              value top __attribute__ ((unused)),
 	     value air_speed
 	     ) {
-#if defined  USE_INFRARED || USE_INFRARED_I2C
+  // INFRARED_TELEMETRY : Stupid hack to use with modules
+#if defined  USE_INFRARED || USE_INFRARED_TELEMETRY
   infrared.roll = Int_val(roll);
   infrared.pitch = Int_val(front);
   infrared.top = Int_val(top);

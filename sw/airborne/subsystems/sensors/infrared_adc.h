@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2010 ENAC
  *
  * This file is part of paparazzi.
  *
@@ -19,9 +17,23 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
-#ifndef HMC5843_ARCH_H
-#define HMC5843_ARCH_H
+/*
+ * Driver for adc infrared sensor
+ */
 
-#endif /* HMC5843_ARCH_H */
+#ifndef SUBSYSTEMS_SENSORS_INFRARED_ADC_H
+#define SUBSYSTEMS_SENSORS_INFRARED_ADC_H
+
+#include "std.h"
+#include "subsystems/sensors/infrared.h"
+
+extern struct Infrared_raw ir_adc;
+
+extern void infrared_adc_init(void);
+extern void infrared_adc_update(void);
+
+#endif // SUBSYSTEMS_SENSORS_INFRARED_ADC_H
+

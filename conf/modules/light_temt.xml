@@ -8,8 +8,8 @@
   <periodic fun="light_temt_periodic()" freq="4"/>
   <makefile target="ap">
     <file name="light_temt.c"/>
-    <flag name="ADC_CHANNEL_LIGHT_TEMT" value="ADC_4"/>
-    <flag name="USE_ADC_4"/>
+    <define name="ADC_CHANNEL_LIGHT_TEMT" value="ADC_4"/>
+    <define name="USE_ADC_4"/>
   </makefile>
 </module>
 

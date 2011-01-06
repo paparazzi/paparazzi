@@ -166,10 +166,10 @@
 
   <modules>
     <load name="light.xml">
-      <param name="LIGHT_LED_STROBE" value="3"/>
-      <param name="LIGHT_LED_NAV" value="4"/>
-      <param name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
-      <param name="NAV_LIGHT_MODE_DEFAULT" value="0"/>
+      <define name="LIGHT_LED_STROBE" value="3"/>
+      <define name="LIGHT_LED_NAV" value="4"/>
+      <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
+      <define name="NAV_LIGHT_MODE_DEFAULT" value="0"/>
     </load>
   </modules>
 
@@ -185,8 +185,8 @@
 
     <!-- Communication -->
     <subsystem name="telemetry" 	type="transparent">
-      <param name="MODEM_UART_NR" 	value="2"/>
-      <param name="MODEM_BAUD" 		value="B57600"/>
+      <configure name="MODEM_UART_NR" 	value="2"/>
+      <configure name="MODEM_BAUD" 		value="B57600"/>
     </subsystem>
 
     <!-- Actuators -->
@@ -194,14 +194,14 @@
     <!-- Sensors -->
     <subsystem name="radio_control" 	type="ppm"/>
     <!--<subsystem name="attitude"  	type="infrared">
-      <param name="ADC_IR1"        value="ADC_1"/>
-      <param name="ADC_IR2"        value="ADC_2"/>
-      <param name="ADC_IR_TOP"     value="ADC_0"/>
-      <param name="ADC_IR_NB_SAMPLES" value="16"/>
+      <configure name="ADC_IR1"        value="ADC_1"/>
+      <configure name="ADC_IR2"        value="ADC_2"/>
+      <configure name="ADC_IR_TOP"     value="ADC_0"/>
+      <configure name="ADC_IR_NB_SAMPLES" value="16"/>
     </subsystem>-->
 
     <subsystem name="gps" 		type="ublox_lea4p">
-      <param name="GPS_UART_NR"		value="1"/>
+      <configure name="GPS_UART_NR"		value="1"/>
     </subsystem>
 
   </firmware>

@@ -25,7 +25,7 @@
 #include <stm32/misc.h>
 
 #include BOARD_CONFIG
-#include "init_hw.h"
+#include "mcu.h"
 #include "led.h"
 
 void Delay(__IO uint32_t nCount);
@@ -38,7 +38,7 @@ const int LED_PROG_OFF[LED_PROGRAM_SIZE] = {-1, -1, -1, -1,    3,  5,  7,  1,   
 
 int main(void) {
   int i = 0;
-  hw_init();
+  mcu_init();
   while (1) {
     for (i=0; i< LED_PROGRAM_SIZE; i++)
     {

@@ -2,9 +2,9 @@
 
 <!--
      Airspeed ADC module
-     @param ADC_AIRSPEED on which ADC the sensor is connected
-     @param AIRSPEED_SCALE/AIRSPEED_QUADRATIC_SCALE scale factor, quadratic is used if defined
-     @param AIRSPEED_BIAS offset on ADC
+     @configure ADC_AIRSPEED on which ADC the sensor is connected
+     @define AIRSPEED_SCALE/AIRSPEED_QUADRATIC_SCALE scale factor, quadratic is used if defined
+     @define AIRSPEED_BIAS offset on ADC
      -->
 
 <module name="airspeed_adc" dir="sensors">
@@ -19,8 +19,8 @@
     <file name="airspeed_adc.c"/>
   </makefile>
   <makefile target="ap">
-    <flag name="ADC_CHANNEL_AIRSPEED" value="$(ADC_AIRSPEED)"/>
-    <flag name="USE_$(ADC_AIRSPEED)"/>
+    <define name="ADC_CHANNEL_AIRSPEED" value="$(ADC_AIRSPEED)"/>
+    <define name="USE_$(ADC_AIRSPEED)"/>
   </makefile>
 
 </module>

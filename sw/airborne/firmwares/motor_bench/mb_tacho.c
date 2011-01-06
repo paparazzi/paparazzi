@@ -31,7 +31,7 @@ uint32_t mb_tacho_get_duration( void ) {
     my_duration = mb_tacho_duration;
   }
   got_one_pulse = FALSE;
-  int_enable();
+  mcu_int_enable();
   return my_duration;
 }
 
@@ -53,7 +53,7 @@ float mb_tacho_get_averaged( void ) {
 
   mb_tacho_averaged = 0.;
   mb_tacho_nb_pulse = 0;
-  int_enable();
+  mcu_int_enable();
 
   return ret;
 

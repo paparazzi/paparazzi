@@ -7,6 +7,6 @@ MODEM_UART = Uart$(MODEM_UART_NR)
 
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_FBW_DEVICE=$(MODEM_UART) -DDOWNLINK_AP_DEVICE=$(MODEM_UART) -DPPRZ_UART=$(MODEM_UART)
 ap.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDATALINK=PPRZ
-ap.srcs += $(SRC_FIXEDWING)/downlink.c $(SRC_FIXEDWING)/datalink.c $(SRC_FIXEDWING)/pprz_transport.c
+ap.srcs += $(SRC_FIXEDWING)/downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_FIXEDWING)/pprz_transport.c
 
 

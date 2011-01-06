@@ -9,7 +9,7 @@
   <periodic fun="micromag_periodic()" freq="60"/>
   <event fun="micromag_event()"/>
   <makefile target="ap">
-    <file_hw name="mag_micromag_fw_hw.c"/>
+    <file_arch name="mag_micromag_fw_hw.c"/>
     <file name="mag_micromag_fw.c"/>
   </makefile>
 </module>

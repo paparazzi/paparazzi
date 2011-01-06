@@ -46,14 +46,14 @@ ap.ARCHDIR = $(ARCHI)
 ap.CFLAGS += -I$(SRC_CSC)
 ap.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 ap.srcs += $(SRC_CSC)/csc_ap_main.c
-ap.CFLAGS += -DLED -DTIME_LED=1
+ap.CFLAGS += -DUSE_LED -DTIME_LED=1
 
 ap.CFLAGS += -DCSC_BOARD_ID=$(CSC_ID)
 
 ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./40.))' -DTIMER0_VIC_SLOT=1
 ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-ap.srcs += $(SRC_ARCH)/uart_hw.c
+ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 ap.srcs += $(SRC_ARCH)/adc_hw.c
 ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_0 -DUSE_AD0_1
 
@@ -102,13 +102,13 @@ test_uart.ARCHDIR = $(ARCHI)
 test_uart.CFLAGS += -I$(SRC_CSC)
 test_uart.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 test_uart.srcs += $(SRC_CSC)/csc_test_uart.c
-test_uart.CFLAGS += -DLED
+test_uart.CFLAGS += -DUSE_LED
 
 # -DTIME_LED=1
 test_uart.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
 test_uart.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
-test_uart.srcs += $(SRC_ARCH)/uart_hw.c
+test_uart.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_uart.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 test_uart.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \

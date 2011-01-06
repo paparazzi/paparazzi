@@ -12,6 +12,6 @@
   <event fun="srf08_event()"/>
   <makefile>
     <file name="alt_srf08.c"/>
-    <flag name="TELEMETER"/>
+    <define name="TELEMETER"/>
   </makefile>
 </module>
