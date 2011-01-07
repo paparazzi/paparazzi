@@ -185,7 +185,7 @@
 
     <!-- Communication -->
     <subsystem name="telemetry" 	type="transparent">
-      <configure name="MODEM_UART_NR" 	value="2"/>
+      <configure name="MODEM_PORT" 	value="UART2"/>
       <configure name="MODEM_BAUD" 		value="B57600"/>
     </subsystem>
 
@@ -201,7 +201,7 @@
     </subsystem>-->
 
     <subsystem name="gps" 		type="ublox_lea4p">
-      <configure name="GPS_UART_NR"		value="1"/>
+      <configure name="GPS_PORT"		value="UART1"/>
     </subsystem>
 
   </firmware>

@@ -18,7 +18,7 @@
     <subsystem name="control"/>
     <subsystem name="attitude" 		type="infrared"/>
     <subsystem name="gps" 		type="ublox_lea5h">
-      <param name="GPS_UART_NR"         value="3"/>
+      <configure name="GPS_PORT"         value="UART3"/>
     </subsystem>
     <subsystem name="navigation"/>
   </firmware>

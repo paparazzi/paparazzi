@@ -30,22 +30,12 @@ MODEM_BAUD = B57600
 endif
 
 ifndef GPS_PORT
-GPS_PORT=UART1
+GPS_PORT = UART1
 endif
 ifndef GPS_BAUD
-GPS_BAUD=B38400
+GPS_BAUD = B38400
 endif
 
-#
-# definitions below were added to get fixedwing firmware to build
-#
-# modem is usualy connected there
-ifndef MODEM_UART_NR
-MODEM_UART_NR = 0
-endif
-ifndef GPS_UART_NR
-GPS_UART_NR	= 1
-endif
 
 ifndef ADC_IR1
 ADC_IR1      = 1
