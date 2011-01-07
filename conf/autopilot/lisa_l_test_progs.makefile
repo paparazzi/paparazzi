@@ -298,8 +298,7 @@ test_adc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVI
 test_adc.srcs   += downlink.c pprz_transport.c
 
 test_adc.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
-test_adc.CFLAGS += -DUSE_AD1 -DUSE_AD1_1
-# -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
+test_adc.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
 test_adc.CFLAGS += -DUSE_ADC1_2_IRQ_HANDLER
 
 #
