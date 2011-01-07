@@ -4,7 +4,6 @@
 #include <models/FGGroundReactions.h>
 #include <stdlib.h>
 #include "nps_fdm.h"
-#include "6dof.h"
 #include "generated/airframe.h"
 #include "math/pprz_geodetic.h"
 #include "math/pprz_geodetic_double.h"

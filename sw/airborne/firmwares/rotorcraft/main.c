@@ -42,6 +42,7 @@
 
 #include "booz/booz2_analog.h"
 #include "subsystems/sensors/baro.h"
+#include "baro_board.h"
 
 #include "firmwares/rotorcraft/battery.h"
 
