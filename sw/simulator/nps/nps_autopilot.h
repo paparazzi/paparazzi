@@ -6,7 +6,7 @@
 #include "nps_radio_control.h"
 
 struct NpsAutopilot {
-  double commands[SERVOS_NB];
+  double commands[COMMANDS_NB];
 };
 
 extern struct NpsAutopilot autopilot;

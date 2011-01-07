@@ -63,7 +63,7 @@ static void feed_jsbsim(double* commands) {
   string property;
 
   int i;
-  for (i=0; i<SERVOS_NB; i++) {
+  for (i=0; i<COMMANDS_NB; i++) {
     sprintf(buf,"fcs/%s",names[i]);
     property = string(buf);
     FDMExec->GetPropertyManager()->SetDouble(property,commands[i]);
