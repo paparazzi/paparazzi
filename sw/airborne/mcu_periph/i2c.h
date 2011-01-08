@@ -48,7 +48,9 @@ struct i2c_transaction {
   volatile enum I2CTransactionStatus status;
 };
 
+#ifndef I2C_TRANSACTION_QUEUE_LEN
 #define I2C_TRANSACTION_QUEUE_LEN 8
+#endif
 
 struct i2c_periph {
   /* circular buffer holding transactions */
