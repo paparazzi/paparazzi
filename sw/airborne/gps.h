@@ -56,7 +56,7 @@ extern uint8_t gps_status_flags;
 extern uint8_t gps_sol_flags;
 extern uint16_t gps_week;    /* weeks */
 extern uint32_t gps_itow;    /* ms */
-extern int32_t  gps_alt;    /* cm       */
+extern int32_t  gps_alt;    /* above MSL in cm       */
 extern uint16_t gps_speed_3d;  /* cm/s     */
 extern uint16_t gps_gspeed;  /* cm/s     */
 extern int16_t  gps_climb;  /* m/s     */
