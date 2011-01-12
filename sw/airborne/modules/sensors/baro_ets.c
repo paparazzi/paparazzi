@@ -40,6 +40,8 @@
 #include "estimator.h"
 #include <math.h>
 
+#include "subsystems/nav.h"
+
 #ifdef SITL
 #include "gps.h"
 #endif
@@ -133,7 +135,7 @@ void baro_ets_read_event( void ) {
     }
     // Convert raw to m/s
     if (baro_ets_offset_init)
-      baro_ets_altitude = BARO_ETS_SCALE * (float)(baro_ets_offset-baro_ets_adc);
+      baro_ets_altitude = ground_alt + BARO_ETS_SCALE * (float)(baro_ets_offset-baro_ets_adc);
     else
       baro_ets_altitude = 0.0;
     // New value available
