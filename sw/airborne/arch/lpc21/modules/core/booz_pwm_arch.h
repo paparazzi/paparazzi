@@ -1,7 +1,7 @@
 /*
  * $Id: $
  *
- * Copyright (C) 2007  ENAC
+ * Copyright (C) 2011  ENAC
  *
  * This file is part of paparazzi.
  *
@@ -22,25 +22,25 @@
  *
  */
 
-#ifndef BOOZ2_PWM_HW_H
-#define BOOZ2_PWM_HW_H
+#ifndef BOOZ_PWM_ARCH_H
+#define BOOZ_PWM_ARCH_H
 
 #include "std.h"
 #include "sys_time.h"
 
-extern void booz2_pwm_init_hw(void);
+extern void booz_pwm_init_arch(void);
 
 // Default PWM is PWM0
-#define Booz2SetPwmValue(_v) Booz2SetPwm0Value(_v)
+#define BoozSetPwmValue(_v) BoozSetPwm0Value(_v)
 
-#define Booz2SetPwm0Value(_v) { \
+#define BoozSetPwm0Value(_v) { \
   PWMMR5 = SYS_TICS_OF_USEC(_v); \
   PWMLER = PWMLER_LATCH5; \
 }
 
-#define Booz2SetPwm1Value(_v) { \
+#define BoozSetPwm1Value(_v) { \
   PWMMR2 = SYS_TICS_OF_USEC(_v); \
   PWMLER = PWMLER_LATCH2; \
 }
 
-#endif /* BOOZ2_PWM_HW_H */
+#endif /* BOOZ_PWM_ARCH_H */

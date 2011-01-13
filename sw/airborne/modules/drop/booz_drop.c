@@ -21,8 +21,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz_drop.h"
-#include "booz2_pwm_hw.h"
+#include "modules/drop/booz_drop.h"
+#include "modules/core/booz_pwm_arch.h"
 #include "generated/airframe.h"
 
 bool_t booz_drop_ball;
@@ -37,7 +37,7 @@ int16_t booz_drop_servo;
 
 // PWM definition
 #ifndef BoozDropPwm
-#define BoozDropPwm(_v) Booz2SetPwmValue(_v)
+#define BoozDropPwm(_v) BoozSetPwmValue(_v)
 #endif
 
 void booz_drop_init(void) {

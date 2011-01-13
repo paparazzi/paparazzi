@@ -1,7 +1,7 @@
 /*
  * $Id: $
  *
- * Copyright (C) 2007  ENAC
+ * Copyright (C) 2011  ENAC
  *
  * This file is part of paparazzi.
  *
@@ -22,12 +22,12 @@
  *
  */
 
-#include "booz2_pwm_hw.h"
+#include "modules/core/booz_pwm_arch.h"
 
 #define PWM_PERIOD SYS_TICS_OF_USEC(20000)
 #define PWM_DUTY SYS_TICS_OF_USEC(1500)
 
-void booz2_pwm_init_hw( void ) {
+void booz_pwm_init_arch( void ) {
 
   /* start PWM5 */
   /* select P0.21 as PWM5 */
