@@ -667,9 +667,6 @@ void event_task_ap( void ) {
 
 #ifdef USE_AHRS
 static inline void on_gyro_accel_event( void ) {
-  static uint8_t _reduced_propagation_rate = 0;
-  static uint8_t _reduced_correction_rate = 0;
-  static struct Int32Vect3 acc_avg, gyr_avg;
 
 #ifdef AHRS_CPU_LED
     LED_ON(AHRS_CPU_LED);
@@ -685,6 +682,18 @@ static inline void on_gyro_accel_event( void ) {
     return;
   }
 
+#ifndef PERIODIC_FREQUENCY
+  ImuScaleGyro(imu);
+  ImuScaleAccel(imu);
+
+  ahrs_propagate();
+  ahrs_update_accel();
+  ahrs_update_fw_estimator();
+
+#else //PERIODIC_FREQUENCY
+  static uint8_t _reduced_propagation_rate = 0;
+  static uint8_t _reduced_correction_rate = 0;
+  static struct Int32Vect3 acc_avg, gyr_avg;
 
   gyr_avg.x += imu.gyro_unscaled.p;
   gyr_avg.y += imu.gyro_unscaled.q;
@@ -721,6 +730,7 @@ static inline void on_gyro_accel_event( void ) {
       ahrs_update_fw_estimator();
     }
   }
+#endif //PERIODIC_FREQUENCY
 
 #ifdef AHRS_CPU_LED
     LED_OFF(AHRS_CPU_LED);
