@@ -24,12 +24,14 @@
 #include "mcu_periph/uart.h"
 
 volatile bool_t analog_imu_available;
+int imu_overrun;
 
 static struct adc_buf analog_imu_adc_buf[NB_ANALOG_IMU_ADC];
 
 void imu_impl_init(void) {
 
   analog_imu_available = FALSE;
+  imu_overrun = 0;
 
   adc_buf_channel(ADC_CHANNEL_GYRO_P, &analog_imu_adc_buf[0], ADC_CHANNEL_GYRO_NB_SAMPLES);
   adc_buf_channel(ADC_CHANNEL_GYRO_Q, &analog_imu_adc_buf[1], ADC_CHANNEL_GYRO_NB_SAMPLES);
@@ -41,6 +43,15 @@ void imu_impl_init(void) {
 }
 
 void imu_periodic(void) {
+  // Actual Nr of ADC measurements per channel per periodic loop
+  static int last_head = 0;
+  
+  imu_overrun = analog_imu_adc_buf[0].head - last_head;
+  if (imu_overrun < 0)
+    imu_overrun += ADC_CHANNEL_GYRO_NB_SAMPLES;
+  last_head = analog_imu_adc_buf[0].head;
+
+  // Read All Measurements
   imu.gyro_unscaled.p = analog_imu_adc_buf[0].sum / ADC_CHANNEL_GYRO_NB_SAMPLES;
   imu.gyro_unscaled.q = analog_imu_adc_buf[1].sum / ADC_CHANNEL_GYRO_NB_SAMPLES;
   imu.gyro_unscaled.r = analog_imu_adc_buf[2].sum / ADC_CHANNEL_GYRO_NB_SAMPLES;
