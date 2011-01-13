@@ -188,14 +188,14 @@ void ahrs_propagate(void)
   RATES_DIFF(ahrs_float.imu_rate, gyro_float, ahrs_impl.gyro_bias);
 
   /* Uncouple Motions */
-#ifdef GYRO_P_Q
+#ifdef IMU_GYRO_P_Q
   float dp=0,dq=0,dr=0;
-  dp += ahrs_float.imu_rate.q * GYRO_P_Q;
-  dp += ahrs_float.imu_rate.r * GYRO_P_R;
-  dq += ahrs_float.imu_rate.p * GYRO_Q_P;
-  dq += ahrs_float.imu_rate.r * GYRO_Q_R;
-  dr += ahrs_float.imu_rate.p * GYRO_R_P;
-  dr += ahrs_float.imu_rate.q * GYRO_R_Q;
+  dp += ahrs_float.imu_rate.q * IMU_GYRO_P_Q;
+  dp += ahrs_float.imu_rate.r * IMU_GYRO_P_R;
+  dq += ahrs_float.imu_rate.p * IMU_GYRO_Q_P;
+  dq += ahrs_float.imu_rate.r * IMU_GYRO_Q_R;
+  dr += ahrs_float.imu_rate.p * IMU_GYRO_R_P;
+  dr += ahrs_float.imu_rate.q * IMU_GYRO_R_Q;
 
   ahrs_float.imu_rate.p += dp;
   ahrs_float.imu_rate.q += dq;
