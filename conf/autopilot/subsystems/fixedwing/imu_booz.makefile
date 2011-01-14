@@ -41,7 +41,7 @@
 
 # imu Booz2 v1.0, v1.1, v1.2, YAI v1.0
 
-imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\"
+imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\" -DUSE_IMU
 imu_srcs += $(SRC_SUBSYSTEMS)/imu.c
 imu_srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c
 imu_srcs += $(SRC_ARCH)/subsystems/imu/imu_b2_arch.c

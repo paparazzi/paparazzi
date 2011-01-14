@@ -34,8 +34,18 @@
 
 #include <string.h>
 
-//FIXME this is still needed for fixedwing integration
+// FIXME this is still needed for fixedwing integration
 #include "estimator.h"
+#include "led.h"
+
+// FIXME Debugging Only
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+#include "mcu_periph/uart.h"
+#include "messages.h"
+#include "downlink.h"
+
 
 struct AhrsFloatDCM ahrs_impl;
 
@@ -49,7 +59,7 @@ float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 // Positive yaw : clockwise
 
 // DCM Working variables
-float G_Dt=0.05;
+const float G_Dt = 1. / ((float) AHRS_PROPAGATE_FREQUENCY );
 
 struct FloatVect3 accel_float = {0,0,0};
 
@@ -69,14 +79,30 @@ float MAG_Heading;
 static inline void compute_body_orientation_and_rates(void);
 void Normalize(void);
 void Drift_correction(void);
-void Euler_angles(void);
 void Matrix_update(void);
+
+#if PERFORMANCE_REPORTING == 1
+int renorm_sqrt_count = 0;
+int renorm_blowup_count = 0;
+float imu_health = 0.;
+#endif
+
 
 /**************************************************/
 
 void ahrs_update_fw_estimator( void )
 {
-  Euler_angles();
+#if (OUTPUTMODE==2)         // Only accelerometer info (debugging purposes)
+  ahrs_float.ltp_to_imu_euler.phi = atan2(accel_float.y,accel_float.z);    // atan2(acc_y,acc_z)
+  ahrs_float.ltp_to_imu_euler.theta = -asin((accel_float.x)/GRAVITY); // asin(acc_x)
+  ahrs_float.ltp_to_imu_euler.psi = 0;
+#else
+  ahrs_float.ltp_to_imu_euler.phi = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
+  ahrs_float.ltp_to_imu_euler.theta = -asin(DCM_Matrix[2][0]);
+  ahrs_float.ltp_to_imu_euler.psi = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
+  ahrs_float.ltp_to_imu_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
+#endif
+
 
   //warning, only eulers written to ahrs struct so far
   //compute_body_orientation_and_rates();
@@ -85,6 +111,24 @@ void ahrs_update_fw_estimator( void )
   estimator_phi   = ahrs_float.ltp_to_imu_euler.phi - ins_roll_neutral;
   estimator_theta = ahrs_float.ltp_to_imu_euler.theta - ins_pitch_neutral;
   estimator_psi   = ahrs_float.ltp_to_imu_euler.psi;
+
+  estimator_p = Omega_Vector[0];
+
+  RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel, 
+    &(DCM_Matrix[0][0]),
+    &(DCM_Matrix[0][1]),
+    &(DCM_Matrix[0][2]),
+
+    &(DCM_Matrix[1][0]),
+    &(DCM_Matrix[1][1]),
+    &(DCM_Matrix[1][2]),
+
+    &(DCM_Matrix[2][0]),
+    &(DCM_Matrix[2][1]),
+    &(DCM_Matrix[2][2])
+
+  ));
+
 }
 
 
@@ -143,13 +187,30 @@ void ahrs_propagate(void)
   /* unbias rate measurement */
   RATES_DIFF(ahrs_float.imu_rate, gyro_float, ahrs_impl.gyro_bias);
 
+  /* Uncouple Motions */
+#ifdef IMU_GYRO_P_Q
+  float dp=0,dq=0,dr=0;
+  dp += ahrs_float.imu_rate.q * IMU_GYRO_P_Q;
+  dp += ahrs_float.imu_rate.r * IMU_GYRO_P_R;
+  dq += ahrs_float.imu_rate.p * IMU_GYRO_Q_P;
+  dq += ahrs_float.imu_rate.r * IMU_GYRO_Q_R;
+  dr += ahrs_float.imu_rate.p * IMU_GYRO_R_P;
+  dr += ahrs_float.imu_rate.q * IMU_GYRO_R_Q;
+
+  ahrs_float.imu_rate.p += dp;
+  ahrs_float.imu_rate.q += dq;
+  ahrs_float.imu_rate.r += dr;
+#endif
+
   Matrix_update();
+  // INFO, ahrs struct only updated in ahrs_update_fw_estimator
+
   Normalize();
-  //INFO, ahrs struct only updated in ahrs_update_fw_estimator
 }
 
 void ahrs_update_accel(void)
 {
+
   ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
 
 #ifdef USE_GPS
@@ -373,20 +434,6 @@ void Matrix_update(void)
       DCM_Matrix[x][y]+=Temporary_Matrix[x][y];
     }
   }
-}
-
-void Euler_angles(void)
-{
-#if (OUTPUTMODE==2)         // Only accelerometer info (debugging purposes)
-  ahrs_float.ltp_to_imu_euler.phi = atan2(accel_float.y,accel_float.z);    // atan2(acc_y,acc_z)
-  ahrs_float.ltp_to_imu_euler.theta = -asin((accel_float.x)/GRAVITY); // asin(acc_x)
-  ahrs_float.ltp_to_imu_euler.psi = 0;
-#else
-  ahrs_float.ltp_to_imu_euler.phi = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
-  ahrs_float.ltp_to_imu_euler.theta = -asin(DCM_Matrix[2][0]);
-  ahrs_float.ltp_to_imu_euler.psi = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
-  ahrs_float.ltp_to_imu_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
-#endif
 }
 
 /*

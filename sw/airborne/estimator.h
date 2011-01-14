@@ -37,7 +37,7 @@
 #endif
 
 #ifdef USE_BARO_ETS
-#include "baro_ets.h"
+#include "modules/sensors/baro_ets.h"
 #endif
 
 /* position in meters */

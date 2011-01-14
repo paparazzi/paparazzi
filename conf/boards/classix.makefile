@@ -22,7 +22,7 @@ LPC21ISP_XTAL = 12000
 
 
 ### default settings for classix
-GPS_BAUD	= B38400
+GPS_BAUD = B38400
 GPS_LED = none
 
 # All targets on the TINY board run on the same processor achitecture

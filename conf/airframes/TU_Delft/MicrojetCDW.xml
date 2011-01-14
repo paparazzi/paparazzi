@@ -4,9 +4,9 @@
 
 <!-- commands section -->
   <servos>
-    <servo name="THROTTLE"      no="0" min="1110" neutral="1110" max="1900"/>
-    <servo name="AILEVON_LEFT"  no="1" min="1000" neutral="1450" max="2000"/>
-    <servo name="AILEVON_RIGHT" no="2" min="2000" neutral="1450" max="1000"/>
+    <servo name="THROTTLE"      no="0" min="1050" neutral="1050" max="1900"/>
+    <servo name="AILEVON_RIGHT" no="1" min="1850" neutral="1480" max="1100"/> <!-- 400 - 380 --> 
+    <servo name="AILEVON_LEFT"  no="2" min="1250" neutral="1580" max="1980"/> <!-- 300 - 400 -->
   </servos>
 
   <commands>
@@ -22,8 +22,8 @@
   </rc_commands>
 
   <section name="MIXER">
-    <define name="AILEVON_AILERON_RATE" value="0.4"/>
-    <define name="AILEVON_ELEVATOR_RATE" value="0.7"/>
+    <define name="AILEVON_AILERON_RATE" value="0.75"/>
+    <define name="AILEVON_ELEVATOR_RATE" value="0.9"/>
   </section>
 
   <command_laws>
@@ -52,37 +52,46 @@
     <define name="ACCEL_Z_CHAN" value="5"/>
 
     <!-- Calibration Neutral -->
-    <define name="GYRO_P_NEUTRAL" value="33924"/>
-    <define name="GYRO_Q_NEUTRAL" value="33417"/>
-    <define name="GYRO_R_NEUTRAL" value="32809"/>
+    <define name="GYRO_P_NEUTRAL" value="21480"/>
+    <define name="GYRO_Q_NEUTRAL" value="21410"/>
+    <define name="GYRO_R_NEUTRAL" value="21940"/>
 
-    <define name="GYRO_P_SENS" value=" 1.00" integer="16"/>
-    <define name="GYRO_Q_SENS" value=" 1.00" integer="16"/>
-    <define name="GYRO_R_SENS" value=" 1.00" integer="16"/>
+    <!-- SENS = 2mV/deg/sec * 57.6 deg/rad = 114.59 mV/rad/sec * 16 LSB/mV = 1833.465 LSB/rad/sec / 12bit FRAC -->
+    <define name="GYRO_P_SENS" value="2.234" integer="16"/>
+    <define name="GYRO_Q_SENS" value="2.234" integer="16"/>
+    <define name="GYRO_R_SENS" value="2.234" integer="16"/>
+
+    <define name="GYRO_P_Q" value="0." />
+    <define name="GYRO_P_R" value="(1.0f/75.0f)" />
+    <define name="GYRO_Q_P" value="0." />
+    <define name="GYRO_Q_R" value="0." />
+    <define name="GYRO_R_P" value="0." />
+    <define name="GYRO_R_Q" value="0." />
 
     <define name="GYRO_P_SIGN" value="1"/>
-    <define name="GYRO_Q_SIGN" value="1"/>
-    <define name="GYRO_R_SIGN" value="1"/>
+    <define name="GYRO_Q_SIGN" value="-1"/>
+    <define name="GYRO_R_SIGN" value="-1"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="26000"/>
-    <define name="ACCEL_Y_NEUTRAL" value="26000"/>
-    <define name="ACCEL_Z_NEUTRAL" value="26000"/>
+    <define name="ACCEL_X_NEUTRAL" value="26424"/>
+    <define name="ACCEL_Y_NEUTRAL" value="26640"/>
+    <define name="ACCEL_Z_NEUTRAL" value="26732"/>
 
-    <define name="ACCEL_X_SENS" value="-2.50411474" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="-2.48126183" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="-2.51396167" integer="16"/>
+    <!-- SENS = 660mV/g / 9.81 ms2/g = 67.27 mV/ms2 * 16 LSB/mV = 1076 LSB/ms2 / 10bit FRAC -->
+    <define name="ACCEL_X_SENS" value="0.9372" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="0.9346" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="0.9178" integer="16"/>
 
-    <define name="ACCEL_X_SIGN" value="1"/>
+    <define name="ACCEL_X_SIGN" value="-1"/>
     <define name="ACCEL_Y_SIGN" value="1"/>
-    <define name="ACCEL_Z_SIGN" value="-1"/>
+    <define name="ACCEL_Z_SIGN" value="1"/>
 
-    <define name="MAG_X_NEUTRAL" value="2358"/>
-    <define name="MAG_Y_NEUTRAL" value="2362"/>
-    <define name="MAG_Z_NEUTRAL" value="2119"/>
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
 
-    <define name="MAG_X_SENS" value="-3.4936416" integer="16"/>
-    <define name="MAG_Y_SENS" value=" 3.607713" integer="16"/>
-    <define name="MAG_Z_SENS" value="-4.90788848" integer="16"/>
+    <define name="MAG_X_SENS" value="1" integer="16"/>
+    <define name="MAG_Y_SENS" value="1" integer="16"/>
+    <define name="MAG_Z_SENS" value="1" integer="16"/>
     
 <!--    <define name="MAG_45_HACK" value="1"/> -->
 
@@ -143,18 +152,18 @@
     <define name="COURSE_PGAIN" value="-1.4"/>
 
     <define name="ROLL_MAX_SETPOINT" value="0.6" unit="radians"/>
-    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.4" unit="radians"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.4" unit="radians"/>
 
-    <define name="PITCH_PGAIN" value="0."/>
-    <define name="PITCH_DGAIN" value="0."/>
+    <define name="PITCH_PGAIN" value="-6000."/>
+    <define name="PITCH_DGAIN" value="5."/>
 
-    <define name="ELEVATOR_OF_ROLL" value="0."/>
+    <define name="ELEVATOR_OF_ROLL" value="1200."/>
 
     <define name="ROLL_SLEW" value="0."/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="0."/>
-    <define name="ROLL_RATE_GAIN" value="0."/>
+    <define name="ROLL_ATTITUDE_GAIN" value="-5000."/>
+    <define name="ROLL_RATE_GAIN" value="500."/>
   </section>
 
   <section name="AGGRESSIVE" prefix="AGR_">
@@ -181,7 +190,13 @@
   </section>
 
   <firmware name="fixedwing">
-    <target name="ap" 			board="tiny_1.1"/>
+    <target name="ap" 			board="tiny_1.1">
+      <configure name="PERIODIC_FREQUENCY" value="960" /> <!-- IMU FREQ -->
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="240" />
+      <configure name="AHRS_CORRECT_FREQUENCY" value="60" />
+      <configure name="AHRS_ALIGNER_LED" value="1" />
+      <configure name="CPU_LED" value="2" />
+    </target>
     <target name="sim" 			board="pc" />
 
     <define name="AGR_CLIMB" />

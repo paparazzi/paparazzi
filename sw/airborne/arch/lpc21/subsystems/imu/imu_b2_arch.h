@@ -45,6 +45,8 @@
 #define IMU_SSP_STA_BUSY_MAX1168   1
 #define IMU_SSP_STA_BUSY_MS2100    2
 extern volatile uint8_t imu_ssp_status;
+extern int imu_overrun;
+
 
 
 

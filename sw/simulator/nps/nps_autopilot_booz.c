@@ -5,7 +5,8 @@
 #include "nps_radio_control.h"
 #include "subsystems/radio_control.h"
 #include "subsystems/imu.h"
-#include "firmwares/rotorcraft/baro.h"
+#include "subsystems/sensors/baro.h"
+#include "baro_board.h"
 #include "firmwares/rotorcraft/battery.h"
 
 #include "actuators/supervision.h"

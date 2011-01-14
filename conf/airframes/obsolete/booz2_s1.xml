@@ -39,10 +39,10 @@
     <define name="GYRO_P_SENS" value=" 1.01" integer="16"/>
     <define name="GYRO_Q_SENS" value="-1.01" integer="16"/>
     <define name="GYRO_R_SENS" value="-1.01" integer="16"/>
-  
+
     <define name="ACCEL_X_CHAN" value="5"/>
     <define name="ACCEL_Y_CHAN" value="3"/>
-    <define name="ACCEL_Z_CHAN" value="4"/>    
+    <define name="ACCEL_Z_CHAN" value="4"/>
 
     <define name="ACCEL_X_SENS" value="-3.60757190" integer="16"/>
     <define name="ACCEL_Y_SENS" value="-3.54533328" integer="16"/>
@@ -55,7 +55,7 @@
     <define name="MAG_X_CHAN" value="0"/>
     <define name="MAG_Y_CHAN" value="1"/>
     <define name="MAG_Z_CHAN" value="2"/>
-    
+
 
     <define name="MAG_X_NEUTRAL" value="-54"/>
     <define name="MAG_Y_NEUTRAL" value="28"/>
@@ -160,7 +160,7 @@
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
    <define name="BATTERY_SENS"   value="0.245" integer="16"/>
-   
+
  </section>
 
  <section name="AUTOPILOT">

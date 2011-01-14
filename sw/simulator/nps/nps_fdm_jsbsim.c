@@ -4,7 +4,6 @@
 #include <models/FGGroundReactions.h>
 #include <stdlib.h>
 #include "nps_fdm.h"
-#include "6dof.h"
 #include "generated/airframe.h"
 #include "math/pprz_geodetic.h"
 #include "math/pprz_geodetic_double.h"
@@ -64,7 +63,7 @@ static void feed_jsbsim(double* commands) {
   string property;
 
   int i;
-  for (i=0; i<SERVOS_NB; i++) {
+  for (i=0; i<COMMANDS_NB; i++) {
     sprintf(buf,"fcs/%s",names[i]);
     property = string(buf);
     FDMExec->GetPropertyManager()->SetDouble(property,commands[i]);

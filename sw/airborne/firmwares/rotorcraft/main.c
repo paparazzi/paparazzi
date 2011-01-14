@@ -42,6 +42,7 @@
 
 #include "booz/booz2_analog.h"
 #include "subsystems/sensors/baro.h"
+#include "baro_board.h"
 
 #include "firmwares/rotorcraft/battery.h"
 
@@ -53,10 +54,6 @@
 
 #include "subsystems/ahrs.h"
 #include "subsystems/ins.h"
-
-#if defined USE_CAM || USE_DROP
-#include "booz2_pwm_hw.h"
-#endif
 
 #include "firmwares/rotorcraft/main.h"
 
@@ -87,11 +84,13 @@ int main( void ) {
 
 STATIC_INLINE void main_init( void ) {
 
+#ifndef NO_FUCKING_STARTUP_DELAY
 #ifndef RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
   /* IF THIS IS NEEDED SOME PERHIPHERAL THEN PLEASE MOVE IT THERE */
   for (uint32_t startup_counter=0; startup_counter<2000000; startup_counter++){
     __asm("nop");
   }
+#endif
 #endif
 
   mcu_init();
@@ -103,10 +102,6 @@ STATIC_INLINE void main_init( void ) {
 
   booz2_analog_init();
   baro_init();
-
-#if defined USE_CAM || USE_DROP
-  booz2_pwm_init_hw();
-#endif
 
   battery_init();
   imu_init();
