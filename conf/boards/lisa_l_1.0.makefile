@@ -84,6 +84,6 @@ endif
 ifndef ADC_IR_NB_SAMPLES
 ADC_IR_NB_SAMPLES = 16
 endif
-ifndef GPS_UART_NR
-GPS_UART_NR	= 1
+ifndef GPS_PORT
+GPS_PORT	= UART1
 endif
