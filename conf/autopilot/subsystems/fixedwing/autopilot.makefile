@@ -172,6 +172,12 @@ ap_srcs 		+= $(SRC_FIXEDWING)/estimator.c
 ## SIMULATOR THREAD SPECIFIC
 ##
 
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+  sim.CFLAGS += -I/opt/local/include/
+endif
+
+sim.CFLAGS              += $(CPPFLAGS)
 sim.CFLAGS 		+= $(fbw_CFLAGS) $(ap_CFLAGS)
 sim.srcs 		+= $(fbw_srcs) $(ap_srcs)
 
