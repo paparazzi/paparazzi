@@ -22,7 +22,7 @@ OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ unix.cma str.cma ivy-ocaml.cma xml-light.cma lib-pprz.cma $<
 	@cat ../../../pprz_src_test.sh > $@
-	@echo '$(OCAML) -I +xml-light $(OCAMLNETINCLUDES) -I $$PAPARAZZI_SRC/sw/lib/ocaml unix.cma str.cma ivy-ocaml.cma xml-light.cma $(OCAMLNETCMA) lib-pprz.cma $$PAPARAZZI_BIN/$< $$*' >> $@
+	@echo '$(OCAML) $(shell ocamlfind query -r -i-format xml-light) $(OCAMLNETINCLUDES) -I $$PAPARAZZI_SRC/sw/lib/ocaml unix.cma str.cma ivy-ocaml.cma xml-light.cma $(OCAMLNETCMA) lib-pprz.cma $$PAPARAZZI_BIN/$< $$*' >> $@
 	@chmod a+x $@
 
 %.cmo : %.ml ../lib/ocaml/lib-pprz.cma
