@@ -18,15 +18,15 @@
 
     <!-- Communication -->
     <subsystem name="telemetry" 	type="xbee_api">
-      <param name="MODEM_BAUD" 		value="B57600"/>
+      <configure name="MODEM_BAUD" 		value="B57600"/>
     </subsystem>
 
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="attitude" 		type="infrared">
-      <param name="ADC_IR1" value="ADC_0"/>
-      <param name="ADC_IR2" value="ADC_1"/>
-      <param name="ADC_IR_TOP" value="ADC_2"/>
+      <configure name="ADC_IR1" value="ADC_0"/>
+      <configure name="ADC_IR2" value="ADC_1"/>
+      <configure name="ADC_IR_TOP" value="ADC_2"/>
     </subsystem>
     <subsystem name="gps" 		    type="ublox_lea4p"/>
     <subsystem name="navigation"/>
