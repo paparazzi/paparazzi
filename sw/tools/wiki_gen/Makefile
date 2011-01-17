@@ -13,7 +13,7 @@ Q=@
 
 OCAML=ocaml
 OCAMLC=ocamlc
-INCLUDES=-I ../../lib/ocaml -I +xml-light
+INCLUDES=-I ../../lib/ocaml $(shell ocamlfind query -r -i-format xml-light)
 OCAMLNETINCLUDES=$(shell ocamlfind query -r -i-format netstring)
 OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
 
