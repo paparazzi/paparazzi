@@ -40,7 +40,7 @@ let aircraft_sample = fun name ac_id ->
   Xml.Element ("aircraft",
 	       ["name", name;
 		"ac_id", ac_id;
-		"airframe", "airframes/microjet5.xml";
+		"airframe", "airframes/microjet_example.xml";
 		"radio", "radios/cockpitSX.xml";
 		"telemetry", "telemetry/default.xml";
 		"flight_plan", "flight_plans/basic.xml";
