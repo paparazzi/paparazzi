@@ -32,6 +32,7 @@
 #include "downlink.h"
 #include "firmwares/rotorcraft/telemetry.h"
 #include "datalink.h"
+#include "xbee.h"
 
 #include "booz2_commands.h"
 #include "firmwares/rotorcraft/actuators.h"
@@ -99,6 +100,10 @@ STATIC_INLINE void main_init( void ) {
 
   actuators_init();
   radio_control_init();
+
+#if DATALINK == XBEE
+  xbee_init();
+#endif
 
   booz2_analog_init();
   baro_init();

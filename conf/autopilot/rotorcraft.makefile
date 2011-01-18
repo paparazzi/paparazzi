@@ -23,13 +23,6 @@
 #
 #
 
-#
-# Expected from board file or overriden as xml param :
-#
-# MODEM_PORT
-# MODEM_BAUD
-#
-
 CFG_SHARED=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/shared
 CFG_ROTORCRAFT=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/rotorcraft
 
@@ -92,20 +85,11 @@ endif
 #
 # Telemetry/Datalink
 #
+# include subsystems/rotorcraft/telemetry_transparent.makefile
+# or
+# include subsystems/rotorcraft/telemetry_xbee_api.makefile
+#
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport
-ap.CFLAGS += -DDOWNLINK_DEVICE=$(MODEM_PORT)
-ap.srcs   += $(SRC_FIRMWARE)/telemetry.c
-ap.srcs   += downlink.c
-ap.srcs   += pprz_transport.c
-ap.CFLAGS += -DDATALINK=PPRZ
-ap.CFLAGS += -DPPRZ_UART=$(MODEM_PORT)
-ap.srcs   += $(SRC_FIRMWARE)/datalink.c
-ap.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
-
-ifeq ($(ARCH), lpc21)
-ap.CFLAGS += -D$(MODEM_PORT)_VIC_SLOT=6
-endif
 
 
 ap.srcs += $(SRC_BOOZ)/booz2_commands.c

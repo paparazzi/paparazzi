@@ -16,6 +16,7 @@
     <define name="GUIDANCE_H_USE_REF"/>
 
     <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="actuators"     type="mkk">
       <configure name="MKK_I2C_SCL_TIME" value="150"/><!-- this is optional, 150 is default, e.g. use 50 for 8 motors-->
     </subsystem>
