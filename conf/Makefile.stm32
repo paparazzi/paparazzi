@@ -53,6 +53,18 @@ SIZE = $(GCC_BIN_PREFIX)-size
 RM   = rm
 OOCD = $(TOOLCHAIN_DIR)/bin/openocd
 
+# If we can't find the toolchain then try picking up the compilers from the path
+ifeq ($(TOOLCHAIN_DIR),)
+CC   = $(shell which arm-none-eabi-gcc)
+LD   = $(shell which arm-none-eabi-gcc)
+CP   = $(shell which arm-none-eabi-objcopy)
+DMP  = $(shell which arm-none-eabi-objdump)
+NM   = $(shell which arm-none-eabi-nm)
+SIZE = $(shell which arm-none-eabi-size)
+OOCD = $(shell which openocd)
+GCC_LIB_DIR=$(shell dirname `which arm-none-eabi-gcc`)/../arm-none-eabi/lib
+endif
+
 LOADER=/home/poine/work/stm32/stm32loader-a3c51c26ad6c/stm32loader.py
 
 ifndef $(TARGET).OOCD_INTERFACE
@@ -123,7 +135,17 @@ ODFLAGS = -S
 
 
 # Default target.
-all: sizebefore build sizeafter
+all: printcommands sizebefore build sizeafter
+
+printcommands:
+	$(Q)echo "Using CC   = $(CC)"
+	$(Q)echo "Using LD   = $(LD)"
+	$(Q)echo "Using CP   = $(CP)"
+	$(Q)echo "Using DMP   = $(DMP)"
+	$(Q)echo "Using NM   = $(NM)"
+	$(Q)echo "Using SIZE = $(SIZE)"
+	$(Q)echo "Using RM   = $(RM)"
+	$(Q)echo "Using OOCD = $(OOCD)"
 
 build: elf bin hex
 # lss sym
