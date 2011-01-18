@@ -181,7 +181,7 @@
       <subsystem name="radio_control" type="ppm"/>
       <subsystem name="actuators"     type="mkk"/>
     </target>
-
+    <subsystem name="telemetry"     type="transparent"/>
 <!--    <subsystem name="imu"           type="b2_v1.1"/> -->
     <subsystem name="imu"           type="aspirin"/>
     <subsystem name="gps"           type="ublox"/>

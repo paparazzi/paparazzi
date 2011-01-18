@@ -11,6 +11,7 @@
       <subsystem name="fdm"         type="nps"/>
     </target>
     <subsystem name="radio_control" type="spektrum"/>
+    <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="actuators"     type="mkk"/>
     <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox"/>
