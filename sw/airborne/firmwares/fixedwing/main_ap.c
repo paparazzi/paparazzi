@@ -693,12 +693,11 @@ static inline void on_gyro_accel_event( void ) {
 #else //PERIODIC_FREQUENCY
   static uint8_t _reduced_propagation_rate = 0;
   static uint8_t _reduced_correction_rate = 0;
-  static struct Int32Vect3 acc_avg, gyr_avg;
+  static struct Int32Vect3 acc_avg;
+  static struct Int32Rates gyr_avg;
 
-  gyr_avg.x += imu.gyro_unscaled.p;
-  gyr_avg.y += imu.gyro_unscaled.q;
-  gyr_avg.z += imu.gyro_unscaled.r;
-  INT32_VECT3_ADD(acc_avg, imu.accel_unscaled);
+  RATES_ADD(gyr_avg, imu.gyro_unscaled);
+  VECT3_ADD(acc_avg, imu.accel_unscaled);
 
   _reduced_propagation_rate++;
   if (_reduced_propagation_rate < (PERIODIC_FREQUENCY / AHRS_PROPAGATE_FREQUENCY))
@@ -708,11 +707,8 @@ static inline void on_gyro_accel_event( void ) {
   {
     _reduced_propagation_rate = 0;
 
-    INT32_VECT3_SDIV(gyr_avg, gyr_avg, (PERIODIC_FREQUENCY / AHRS_PROPAGATE_FREQUENCY) );
-    imu.gyro_unscaled.p = gyr_avg.x;
-    imu.gyro_unscaled.q = gyr_avg.y;
-    imu.gyro_unscaled.r = gyr_avg.z;
-    INT_VECT3_ZERO(gyr_avg);
+    RATES_SDIV(imu.gyro_unscaled, gyr_avg, (PERIODIC_FREQUENCY / AHRS_PROPAGATE_FREQUENCY) );
+    INT_RATES_ZERO(gyr_avg);
 
     ImuScaleGyro(imu);
 
@@ -722,8 +718,7 @@ static inline void on_gyro_accel_event( void ) {
     if (_reduced_correction_rate >= (AHRS_PROPAGATE_FREQUENCY / AHRS_CORRECT_FREQUENCY))
     {
       _reduced_correction_rate = 0;
-      INT32_VECT3_SDIV(acc_avg, acc_avg, (PERIODIC_FREQUENCY / AHRS_CORRECT_FREQUENCY) );
-      INT32_VECT3_COPY(imu.accel_unscaled, acc_avg);
+      VECT3_SDIV(imu.accel_unscaled, acc_avg, (PERIODIC_FREQUENCY / AHRS_CORRECT_FREQUENCY) );
       INT_VECT3_ZERO(acc_avg);
       ImuScaleAccel(imu);
       ahrs_update_accel();
