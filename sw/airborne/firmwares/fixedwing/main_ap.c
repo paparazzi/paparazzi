@@ -624,33 +624,8 @@ void event_task_ap( void ) {
 #endif /** USE_GPS */
 
 
-#if defined DATALINK
+  DatalinkEvent();
 
-#if DATALINK == PPRZ
-  if (PprzBuffer()) {
-    ReadPprzBuffer();
-    if (pprz_msg_received) {
-      pprz_parse_payload();
-      pprz_msg_received = FALSE;
-    }
-  }
-#elif DATALINK == XBEE
-  if (XBeeBuffer()) {
-    ReadXBeeBuffer();
-    if (xbee_msg_received) {
-      xbee_parse_payload();
-      xbee_msg_received = FALSE;
-    }
-  }
-#else
-#error "Unknown DATALINK"
-#endif
-
-  if (dl_msg_available) {
-    dl_parse_msg();
-    dl_msg_available = FALSE;
-  }
-#endif /** DATALINK */
 
 #ifdef MCU_SPI_LINK
     link_mcu_event_task();
