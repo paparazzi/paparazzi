@@ -29,7 +29,12 @@
 
 struct AhrsAligner ahrs_aligner;
 
+#ifdef PERIODIC_FREQUENCY
+#define SAMPLES_NB PERIODIC_FREQUENCY
+#else
 #define SAMPLES_NB 512
+#endif
+
 static struct Int32Rates gyro_sum;
 static struct Int32Vect3 accel_sum;
 static struct Int32Vect3 mag_sum;
