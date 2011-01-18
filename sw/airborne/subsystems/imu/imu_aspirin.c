@@ -1,4 +1,5 @@
 #include "subsystems/imu.h"
+#include "peripherals/hmc5843.h"
 
 #include "mcu_periph/i2c.h"
 
@@ -20,14 +21,15 @@ void imu_impl_init(void) {
   imu_aspirin.accel_available = FALSE;
 
   imu_aspirin_arch_init();
+  hmc5843_init();
 
 }
 
 
 void imu_periodic(void) {
+  hmc5843_periodic();
   if (imu_aspirin.status == AspirinStatusUninit) {
     configure_gyro();
-    configure_mag();
     configure_accel();
     imu_aspirin.status = AspirinStatusIdle;
   }
@@ -66,41 +68,16 @@ static void configure_gyro(void) {
 
 }
 
-/* sends a serie of I2C commands to configure the ITG3200 gyro */
-static void configure_mag(void) {
-
-  struct i2c_transaction t;
-  t.type = I2CTransTx;
-  t.slave_addr = HMC5843_ADDR;
-  /* set to rate to 50Hz */
-  t.buf[0] = HMC5843_REG_CFGA;
-  t.buf[1] = 0x00 | (0x06 << 2);
-  i2c_submit(&i2c2,&t);
-  while (t.status != I2CTransSuccess);
-  /* set to gain to 1 Gauss */
-  t.buf[0] = HMC5843_REG_CFGB;
-  t.buf[1] = 0x01<<5;
-  i2c_submit(&i2c2,&t);
-  while (t.status != I2CTransSuccess);
-  /* set to continuous mode */
-  t.buf[0] = HMC5843_REG_MODE;
-  t.buf[1] = 0x00;
-  i2c_submit(&i2c2,&t);
-  while (t.status != I2CTransSuccess);
-
-}
-
-
 static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
   uint8_t max_retry = 8;
   uint8_t nb_retry = 0;
   do {
-    i2c_submit(&i2c2,&t);
-    while (t.status == I2CTransPending || t.status == I2CTransRunning);
-    if (t.status == I2CTransFailed)
+    i2c_submit(&i2c2, t);
+    while (t->status == I2CTransPending || t->status == I2CTransRunning);
+    if (t->status == I2CTransFailed)
       nb_retry++;
   }
-  while (t.status != I2CTransSuccess || nb_retry < max_retry);
+  while (t->status != I2CTransSuccess || nb_retry < max_retry);
 }
 
 

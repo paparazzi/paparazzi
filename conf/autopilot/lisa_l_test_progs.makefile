@@ -298,8 +298,7 @@ test_adc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVI
 test_adc.srcs   += downlink.c pprz_transport.c
 
 test_adc.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
-test_adc.CFLAGS += -DUSE_AD1 -DUSE_AD1_1
-# -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
+test_adc.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
 test_adc.CFLAGS += -DUSE_ADC1_2_IRQ_HANDLER
 
 #
@@ -423,6 +422,7 @@ test_imu_aspirin.CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin.h\" -DIMU_OVERRIDE_CHA
 test_imu_aspirin.srcs += $(SRC_SUBSYSTEMS)/imu.c             \
                         $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
                         $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c
+test_imu_aspirin.srcs += peripherals/hmc5843.c $(SRC_ARCH)/peripherals/hmc5843_arch.c
 
 test_imu_aspirin.CFLAGS += -DUSE_I2C2
 test_imu_aspirin.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c

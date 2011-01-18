@@ -25,7 +25,7 @@ Q=@
 
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
-INCLUDES= -I +xml-light -I +lablgtk2 -I ../../lib/ocaml 
+INCLUDES= $(shell ocamlfind query -r -i-format xml-light)  $(shell ocamlfind query -r -i-format lablgtk2) -I ../../lib/ocaml 
 
 all: panic
 

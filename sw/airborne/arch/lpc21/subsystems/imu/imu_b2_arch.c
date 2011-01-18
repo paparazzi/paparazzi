@@ -23,6 +23,7 @@
 
 #include "subsystems/imu.h"
 
+int imu_overrun = 0;
 volatile uint8_t imu_ssp_status;
 static void SSP_ISR(void) __attribute__((naked));
 #if 0
@@ -84,7 +85,11 @@ void imu_b2_arch_init(void) {
 
 void imu_periodic(void) {
   // check ssp idle
-  // ASSERT((imu_status == IMU_STA_IDLE), DEBUG_IMU, IMU_ERR_OVERUN);
+  if (imu_ssp_status != IMU_SSP_STA_IDLE)
+  {
+    imu_overrun++;
+    return; //, DEBUG_IMU, IMU_ERR_OVERUN);
+  }
 
   // setup 16 bits
   ImuSetSSP16bits();

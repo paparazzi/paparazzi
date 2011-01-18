@@ -38,20 +38,17 @@ OPT   = s
 #OPT   = 0
 
 # Programs location
-TOOLCHAIN_DIR=$(shell find -L /opt/paparazzi/stm32 ~/sat -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1 | xargs dirname )
-GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
-GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
+GCC_LIB_DIR=$(shell find -L /opt/paparazzi/stm32 ~/sat /opt/local -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1 | xargs dirname )/arm-none-eabi/lib
 
 # Define programs and commands.
-GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi
-CC   = $(GCC_BIN_PREFIX)-gcc
-LD   = $(GCC_BIN_PREFIX)-gcc
-CP   = $(GCC_BIN_PREFIX)-objcopy
-DMP  = $(GCC_BIN_PREFIX)-objdump
-NM   = $(GCC_BIN_PREFIX)-nm
-SIZE = $(GCC_BIN_PREFIX)-size
+CC   = $(shell which arm-none-eabi-gcc)
+LD   = $(shell which arm-none-eabi-gcc)
+CP   = $(shell which arm-none-eabi-objcopy)
+DMP  = $(shell which arm-none-eabi-objdump)
+NM   = $(shell which arm-none-eabi-nm)
+SIZE = $(shell which arm-none-eabi-size)
 RM   = rm
-OOCD = $(TOOLCHAIN_DIR)/bin/openocd
+OOCD = $(shell which openocd)
 
 LOADER=/home/poine/work/stm32/stm32loader-a3c51c26ad6c/stm32loader.py
 
