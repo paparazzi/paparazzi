@@ -35,6 +35,9 @@
   </firmware>
 
   <modules main_freq="512">
+    <!--load name="booz_pwm.xml">
+      <define name="USE_PWM1"/>
+    </load-->
     <load name="booz_drop.xml"/>
     <load name="sys_mon.xml"/>
     <!--load name="booz_cam.xml"/-->
@@ -232,10 +235,5 @@
     <define name="AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD" />
     <define name="AUTO2" value="AP_MODE_HOVER_Z_HOLD" />
   </section>
-
-  <makefile location="after">
-    ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c
-    sim.srcs += $(SRC_BOOZ_SIM)/booz2_pwm_hw.c
-  </makefile>
 
 </airframe>
