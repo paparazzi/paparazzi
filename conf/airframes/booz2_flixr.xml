@@ -35,9 +35,9 @@
   </firmware>
 
   <modules main_freq="512">
-    <!--load name="booz_pwm.xml">
+    <load name="booz_pwm.xml">
       <define name="USE_PWM1"/>
-    </load-->
+    </load>
     <load name="booz_drop.xml"/>
     <load name="sys_mon.xml"/>
     <!--load name="booz_cam.xml"/-->
