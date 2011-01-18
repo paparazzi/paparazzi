@@ -64,9 +64,19 @@
 #define Uart0PrintHex32(c) _PrintHex32(uart0_transmit, c)
 #define Uart0PrintString(s) _PrintString(uart0_transmit, s)
 
+#define UART0PrintHex     Uart0PrintHex
+#define UART0PrintHex16   Uart0PrintHex16
+#define UART0PrintHex32   Uart0PrintHex32
+#define UART0PrintString  Uart0PrintString
+
 #define Uart1PrintHex(c) _PrintHex(uart1_transmit, c)
 #define Uart1PrintHex16(c) _PrintHex16(uart1_transmit, c)
 #define Uart1PrintString(s) _PrintString(uart1_transmit, s)
+
+#define UART1PrintHex     Uart1PrintHex
+#define UART1PrintHex16   Uart1PrintHex16
+#define UART1PrintHex32   Uart1PrintHex32
+#define UART1PrintString  Uart1PrintString
 
 #define UsbSPrintHex(c) _PrintHex(VCOM_putchar, c)
 #define UsbSPrintHex16(c) _PrintHex16(VCOM_putchar, c)
