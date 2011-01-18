@@ -235,19 +235,19 @@ void baro_MS5534A_event_task( void ) {
       baro_MS5534A_available = TRUE;
 
       break;
-     case STATUS_RESET:
-       break;
+    case STATUS_RESET:
+      break;
     default: /* Init status */
       words[status] = Uint16(buf_input);
       if (status == STATUS_INIT4) {
-	calibration();
+        calibration();
       }
     }
   } /* else nothing to read */
 
   NextStatus();
   if (!status_read_data) {
-   /* Ask next conversion now */
+    /* Ask next conversion now */
     baro_MS5534A_send();
   }
 }
@@ -261,9 +261,8 @@ void baro_MS5534A_event( void ) {
       baro_MS5534A_available = FALSE;
       baro_MS5534A_z = ground_alt +((float)baro_MS5534A_ground_pressure - baro_MS5534A_pressure)*0.084;
       if (alt_baro_enabled) {
-	EstimatorSetAlt(baro_MS5534A_z);
+        EstimatorSetAlt(baro_MS5534A_z);
       }
     }
   }
 }
-
