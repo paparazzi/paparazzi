@@ -320,7 +320,9 @@ let keys_help = fun () ->
 
 
 (***************** MAIN ******************************************************)
-let ivy_bus = ref "127.255.255.255:2010"
+let ivy_bus = 
+  try ref (Sys.getenv "IVY_BUS" )
+  with  Not_found -> ref "127.255.255.255:2010" 
 and geo_ref = ref ""
 and map_files = ref []
 and center = ref ""

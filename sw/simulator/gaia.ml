@@ -32,7 +32,9 @@ let sending_period = 5000 (* ms *)
 
 module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 
-let ivy_bus = ref "127.255.255.255:2010"
+let ivy_bus = 
+  try ref (Sys.getenv "IVY_BUS" )
+  with  Not_found -> ref "127.255.255.255:2010"
 
 let parse_args = fun () ->
   let options =

@@ -271,7 +271,11 @@ let listen = fun () ->
 
 
 (*** Options ***)
-let ivy_bus = ref "127.255.255.255:2010"
+
+let ivy_bus = 
+  try ref (Sys.getenv "IVY_BUS" )
+  with  Not_found -> ref "127.255.255.255:2010"
+
 let options =
   [ "-b", Arg.String (fun x -> ivy_bus := x), (Printf.sprintf "Bus\tDefault is %s" !ivy_bus)]
 

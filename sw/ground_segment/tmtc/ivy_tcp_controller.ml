@@ -6,7 +6,9 @@ module PprzTransport = Serial.Transport(Pprz.Transport)
 
 let () =
   let host = ref "10.31.1.98"
-  and ivy_bus = ref "127.255.255.255:2010" in
+  and ivy_bus = 
+    try ref (Sys.getenv "IVY_BUS" )
+    with  Not_found -> ref "127.255.255.255:2010" in
   let port = ref 4243 in
 
   let options = [

@@ -112,7 +112,9 @@ let send_modem_msg = fun status ->
 
 (* main loop *)
 let _ =
-  let ivy_bus = ref "127.255.255.255:2010" in
+  let ivy_bus = 
+    try ref (Sys.getenv "IVY_BUS" )
+    with  Not_found -> ref "127.255.255.255:2010" in
   let port = ref "/dev/dsp" in
   let options =
     [ "-b", Arg.Set_string ivy_bus, (sprintf "Ivy bus (%s)" !ivy_bus);

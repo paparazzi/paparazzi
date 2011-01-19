@@ -185,7 +185,9 @@ let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
 
 (*********************** Main ************************************************)
 let _ =
-  let ivy_bus = ref "127.255.255.255:2010" in
+  let ivy_bus = 
+    try ref (Sys.getenv "IVY_BUS" )
+    with  Not_found -> ref "127.255.255.255:2010" in
   let classes = ref ["telemetry:*"] in
   Arg.parse
     [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.255:2010";

@@ -77,7 +77,10 @@ external fg_msg : string -> float -> float -> float -> float -> float -> float -
 
 let ac_name = ref "A/C not set"
 
-let ivy_bus = ref "127.255.255.255:2010"
+let ivy_bus = 
+  try ref (Sys.getenv "IVY_BUS" )
+  with  Not_found -> ref "127.255.255.255:2010"
+
 
 let fg_client = ref ""
 

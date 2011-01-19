@@ -652,7 +652,9 @@ let ground_to_uplink = fun logging ->
 
 (* main loop *)
 let () =
-  let ivy_bus = ref "127.255.255.255:2010"
+  let ivy_bus = 
+  try ref (Sys.getenv "IVY_BUS" )
+  with  Not_found -> ref "127.255.255.255:2010"  
   and logging = ref true
   and http = ref false in
 
