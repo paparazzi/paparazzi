@@ -72,12 +72,16 @@ ifeq ($(ARCH), stm32)
 ap.srcs += $(SRC_ARCH)/led_hw.c
 endif
 
+# frequency of main periodic
+ifndef PERIODIC_FREQUENCY
+PERIODIC_FREQUENCY = 512
+endif
+$(TARGET).CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./$(PERIODIC_FREQUENCY).))' -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 #
 # Systime
 #
 ap.CFLAGS += -DUSE_SYS_TIME
 ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 ifeq ($(ARCH), stm32)
 ap.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
@@ -196,7 +200,7 @@ ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodeti
 
 #  vertical filter float version
 ap.srcs += $(SRC_SUBSYSTEMS)/ins/vf_float.c
-ap.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./512.)'
+ap.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./$(PERIODIC_FREQUENCY).)'
 
 ap.srcs += $(SRC_FIRMWARE)/navigation.c
 

@@ -376,10 +376,11 @@ static void navigation_task( void ) {
 
 void periodic_task_ap( void ) {
 
-  static uint8_t _20Hz   = 0;
-  static uint8_t _10Hz   = 0;
-  static uint8_t _4Hz   = 0;
-  static uint8_t _1Hz   = 0;
+  static uint8_t _60Hz = 0;
+  static uint8_t _20Hz = 0;
+  static uint8_t _10Hz = 0;
+  static uint8_t _4Hz  = 0;
+  static uint8_t _1Hz  = 0;
 
 #ifdef USE_IMU
   // Run at PERIODIC_FREQUENCY (60Hz if not defined)
@@ -387,10 +388,10 @@ void periodic_task_ap( void ) {
 
 #endif // USE_IMU
 
-
-#ifdef PERIODIC_FREQUENCY
-#warning Using HighSpeed Periodic: Manually check to make sure PERIODIC_FREQUENCY is a multiple of 60.
-  static uint8_t _60Hz = 0;
+#define _check_periodic_freq_ PERIODIC_FREQUENCY % 60
+#if _check_periodic_freq_
+#error Using HighSpeed Periodic: PERIODIC_FREQUENCY has to be a multiple of 60!
+#endif
   _60Hz++;
   if (_60Hz >= (PERIODIC_FREQUENCY / 60))
   {
@@ -400,8 +401,6 @@ void periodic_task_ap( void ) {
   {
     return;
   }
-#endif
-
 
 
   // Rest of the periodic function still runs at 60Hz like always
@@ -657,7 +656,7 @@ static inline void on_gyro_accel_event( void ) {
     return;
   }
 
-#ifndef PERIODIC_FREQUENCY
+#if PERIODIC_FREQUENCY == 60
   ImuScaleGyro(imu);
   ImuScaleAccel(imu);
 
