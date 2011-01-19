@@ -227,12 +227,10 @@ ab_clean:
 	find sw/airborne -name '*~' -exec rm -f {} \;
 
 test_all_example_airframes:
-	$(MAKE) AIRCRAFT=BOOZ2_A2 clean_ac ap
-	$(MAKE) AIRCRAFT=MJ5 clean_ac ap sim
-	$(MAKE) AIRCRAFT=TJ1 clean_ac ap sim
-	$(MAKE) AIRCRAFT=HITL clean_ac ap
-	$(MAKE) AIRCRAFT=DM clean_ac ap sim
-	$(MAKE) AIRCRAFT=CSC clean_ac ap
+	$(MAKE) AIRCRAFT=BOOZ2_A1 clean_ac ap sim
+	$(MAKE) AIRCRAFT=Microjet clean_ac ap sim
+	$(MAKE) AIRCRAFT=Tiny_IMU clean_ac ap
+	$(MAKE) AIRCRAFT=EasyStar_ETS clean_ac ap sim
 
 commands: paparazzi sw/simulator/launchsitl
 
