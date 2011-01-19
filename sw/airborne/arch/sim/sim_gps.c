@@ -11,6 +11,8 @@
 #include "gps.h"
 #include "estimator.h"
 #include "latlong.h"
+
+// currently needed for nav_utm_zone0
 #include "subsystems/navigation/common_nav.h"
 
 #include <caml/mlvalues.h>

@@ -11,6 +11,8 @@
 #include "gps.h"
 #include "estimator.h"
 #include "latlong.h"
+
+// currently needed to get nav_utm_zone0
 #include "subsystems/navigation/common_nav.h"
 
 uint8_t gps_mode;
