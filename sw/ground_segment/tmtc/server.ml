@@ -64,12 +64,26 @@ let send_aircrafts_msg = fun _asker _values ->
   let names = String.concat "," (Hashtbl.fold (fun k _v r -> k::r) aircrafts []) ^ "," in
   ["ac_list", Pprz.String names]
 
+
+let expand_aicraft x =
+  let ac_name = ExtXml.attrib x "name" in
+  try
+    Env.expand_ac_xml x
+  with Failure msg ->
+    begin
+      prerr_endline ("A failure occurred while processing aircraft '"^ac_name^"'");
+      prerr_endline "Please remove it from 'conf.xml' or fix its parameter(s)";
+      flush stderr;
+      failwith msg
+    end
+
 let make_element = fun t a c -> Xml.Element (t,a,c)
 
 let log_xml = fun timeofday data_file ->
+  prerr_endline "Entering 'log_xml'"; flush stderr;
   let conf_children = 
     List.map
-      (fun x ->	  if Xml.tag x = "aircraft" then Env.expand_ac_xml x else x)
+      (fun x ->	  if Xml.tag x = "aircraft" then expand_aicraft x else x)
       (Xml.children conf_xml) in
   let expanded_conf = make_element (Xml.tag conf_xml) (Xml.attribs conf_xml) conf_children in
   make_element 
