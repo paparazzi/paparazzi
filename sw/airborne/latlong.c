@@ -69,15 +69,13 @@ static inline float inverse_isometric_latitude(float lat, float e, float epsilon
   return phi0;
 }
 
-/** us on arm7@60MHz, i.e. % of cputime at 4Hz
+/** use on ARM7 at 60MHz, i.e. percentage of cputime at 4Hz
     specialize CSin: 951us i.e.
     One CSin: 120us
     init:
-     iso_lat: 155, 172
+    iso_lat: 155, 172
     for loop: 258
-
-
- %*/
+*/
 
 #define LambdaOfUtmZone(utm_zone) RadOfDeg((utm_zone-1)*6-180+3)
 
