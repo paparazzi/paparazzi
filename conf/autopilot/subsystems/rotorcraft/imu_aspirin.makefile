@@ -53,7 +53,7 @@ imu_srcs += $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c
 imu_srcs += peripherals/hmc5843.c
 imu_srcs += $(SRC_ARCH)/peripherals/hmc5843_arch.c
 
-imu_CFLAGS += -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_EXT15_10_IRQ
+imu_CFLAGS += -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_EXTI15_10_IRQ
 imu_CFLAGS += -DUSE_I2C2 -DUSE_EXTI9_5_IRQ
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
