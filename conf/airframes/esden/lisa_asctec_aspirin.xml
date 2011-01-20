@@ -38,22 +38,22 @@
   </section>
 
   <section name="IMU" prefix="IMU_">
-    <define name="GYRO_P_NEUTRAL" value="32276"/>
-    <define name="GYRO_Q_NEUTRAL" value="33987"/>
-    <define name="GYRO_R_NEUTRAL" value="32801"/>
-    <define name="GYRO_P_SENS" value="0.92466" integer="16"/>
-    <define name="GYRO_Q_SENS" value="0.93226" integer="16"/>
-    <define name="GYRO_R_SENS" value="0.92943" integer="16"/>
+    <define name="GYRO_P_NEUTRAL" value="-227"/>
+    <define name="GYRO_Q_NEUTRAL" value="48"/>
+    <define name="GYRO_R_NEUTRAL" value="21"/>
+    <define name="GYRO_P_SENS" value="5.0" integer="16"/>
+    <define name="GYRO_Q_SENS" value="5.0" integer="16"/>
+    <define name="GYRO_R_SENS" value="5.0" integer="16"/>
     <define name="GYRO_PQ_SENS" value="0.0" integer="16"/>
     <define name="GYRO_PR_SENS" value="0.0" integer="16"/>
     <define name="GYRO_QR_SENS" value="0.0" integer="16"/>
     
-    <define name="ACCEL_X_NEUTRAL" value="25875"/>
-    <define name="ACCEL_Y_NEUTRAL" value="26273"/>
-    <define name="ACCEL_Z_NEUTRAL" value="26152"/>
-    <define name="ACCEL_X_SENS" value="1.8788156268" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="1.88941543145" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="1.90349115464" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="4"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-14"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-5"/>
+    <define name="ACCEL_X_SENS" value="39" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="39" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="39" integer="16"/>
     <define name="ACCEL_XY_SENS" value="0.0" integer="16"/>
     <define name="ACCEL_XZ_SENS" value="0.0" integer="16"/>
     <define name="ACCEL_YZ_SENS" value="0.0" integer="16"/>
