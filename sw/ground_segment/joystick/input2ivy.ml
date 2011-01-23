@@ -314,10 +314,7 @@ let execute_actions = fun actions ac_id ->
 
 (************************************* MAIN **********************************)
 let () =
-let ivy_bus = 
-  try ref (Sys.getenv "IVY_BUS" )
-  with  Not_found -> ref "127.255.255.255:2010" in
-
+let ivy_bus = Defivybus.default_ivy_bus  in
   let device_name = ref ""
   and ac_name = ref "MYAC"
   and xml_descr = ref "" in

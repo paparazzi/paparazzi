@@ -511,9 +511,7 @@ let build_interface = fun map_file mission_file ->
 (* = Programme principal                                                   = *)
 (* ========================================================================= *)
 let _ =
-  let ivy_bus = 
-    try ref (Sys.getenv "IVY_BUS" )
-    with  Not_found -> ref "127.255.255.255:2010" and
+  let ivy_bus = Defivybus.default_ivy_bus  and
       map_file = ref "" and
       mission_file = ref "" in
   let options =
