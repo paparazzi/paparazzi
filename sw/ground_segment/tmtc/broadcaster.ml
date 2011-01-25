@@ -1,7 +1,7 @@
 open Printf
 
 let () =
-  let ivy_bus = Defivybus.default_ivy_bus in
+  let ivy_bus = ref Defivybus.default_ivy_bus in
     
   let port = ref 4242
   and ivy_from = ref "DL"

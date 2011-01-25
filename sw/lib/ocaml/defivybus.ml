@@ -18,8 +18,8 @@ let contains s substring =
   with Not_found -> false
 
 let default_ivy_bus = 
- try ref (Sys.getenv "IVY_BUS" )
-   with  Not_found -> ref  
+  try (Sys.getenv "IVY_BUS" )
+   with  Not_found ->  
    (if contains (read_process_output "uname") "Darwin" then       
       "224.255.255.255:2010" 
     else  

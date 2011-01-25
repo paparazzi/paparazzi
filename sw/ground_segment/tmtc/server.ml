@@ -666,7 +666,7 @@ let ground_to_uplink = fun logging ->
 
 (* main loop *)
 let () =
-  let ivy_bus = Defivybus.default_ivy_bus  
+  let ivy_bus = ref Defivybus.default_ivy_bus  
   and logging = ref true
   and http = ref false in
 

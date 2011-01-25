@@ -515,7 +515,7 @@ let _ =
       map_file = ref "" and
       mission_file = ref "" in
   let options =
-    [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
+    [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-m", Arg.String (fun x -> map_file := x), "Map description file";
       "-f", Arg.String (fun x -> mission_file := x), "Mission description file"] in
   Arg.parse (options)
