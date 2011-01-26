@@ -41,11 +41,11 @@ let contains s substring =
   try ignore (Str.search_forward (Str.regexp_string substring) s 0); true
   with Not_found -> false
 
-let default_ivy_bus = 
+let default_ivy_bus = String.copy (
   try (Sys.getenv "IVY_BUS" )
     with  Not_found ->    
      (if contains (read_process_output "uname") "Darwin" then       
         "224.255.255.255:2010" 
       else  
-        "127.255.255.255:2010")     
+        "127.255.255.255:2010"))     
 
