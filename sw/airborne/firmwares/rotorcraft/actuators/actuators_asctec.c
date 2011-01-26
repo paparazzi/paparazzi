@@ -106,7 +106,7 @@ void actuators_set(bool_t motors_on) {
   }
   actuators_asctec.cmd = NONE;
 
-  i2c_submit(&ACTUATORS_ASCTEC_DEVICE, &actuators_asctec.i2c_trans);
+  //i2c_submit(&ACTUATORS_ASCTEC_DEVICE, &actuators_asctec.i2c_trans);
 
 }
 #else /* ! ACTUATORS_ASCTEC_V2_PROTOCOL */
@@ -128,7 +128,7 @@ void actuators_set(bool_t motors_on) {
                                              actuators_asctec.i2c_trans.buf[2] + actuators_asctec.i2c_trans.buf[3];
 #endif
 
-  i2c_submit(&ACTUATORS_ASCTEC_DEVICE, &actuators_asctec.i2c_trans);
+  //i2c_submit(&ACTUATORS_ASCTEC_DEVICE, &actuators_asctec.i2c_trans);
 
 }
 #endif /* ACTUATORS_ASCTEC_V2_PROTOCOL */
