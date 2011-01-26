@@ -110,7 +110,6 @@ extern struct ImuAspirin imu_aspirin;
     if (imu_aspirin.gyro_available_blaaa) {				\
       imu_aspirin.gyro_available_blaaa = FALSE;				\
       _gyro_handler();						\
-      _accel_handler();						\
     }									\
     if (imu_aspirin.accel_available) {					\
       imu_aspirin.accel_available = FALSE;				\
@@ -118,7 +117,6 @@ extern struct ImuAspirin imu_aspirin;
       const int16_t ay = imu_aspirin.accel_rx_buf[3] | (imu_aspirin.accel_rx_buf[4]<<8); \
       const int16_t az = imu_aspirin.accel_rx_buf[5] | (imu_aspirin.accel_rx_buf[6]<<8); \
       VECT3_ASSIGN(imu.accel_unscaled, ax, ay, az);		\
-      _gyro_handler();						\
       _accel_handler();						\
     }									\
   }
