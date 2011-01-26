@@ -64,7 +64,7 @@
 
 #include "generated/modules.h"
 
-static inline void on_gyro_accel_event( void );
+static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_baro_abs_event( void );
 static inline void on_baro_dif_event( void );
@@ -198,7 +198,7 @@ STATIC_INLINE void main_event( void ) {
     RadioControlEvent(autopilot_on_rc_frame);
   }
 
-  ImuEvent(on_gyro_accel_event, on_accel_event, on_mag_event);
+  ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 
   BaroEvent(on_baro_abs_event, on_baro_dif_event);
 
@@ -215,13 +215,16 @@ STATIC_INLINE void main_event( void ) {
 }
 
 static inline void on_accel_event( void ) {
+  ImuScaleAccel(imu);
 
+  if (ahrs.status != AHRS_UNINIT) {
+    ahrs_update_accel();
+  }
 }
 
-static inline void on_gyro_accel_event( void ) {
+static inline void on_gyro_event( void ) {
 
   ImuScaleGyro(imu);
-  ImuScaleAccel(imu);
 
   if (ahrs.status == AHRS_UNINIT) {
     ahrs_aligner_run();
@@ -230,7 +233,6 @@ static inline void on_gyro_accel_event( void ) {
   }
   else {
     ahrs_propagate();
-    ahrs_update_accel();
 #ifdef SITL
     if (nps_bypass_ahrs) sim_overwrite_ahrs();
 #endif
