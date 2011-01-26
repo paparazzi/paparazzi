@@ -348,14 +348,34 @@ static inline void on_status_restart_requested(struct i2c_transaction* trans, ui
 
 #define I2C2_ABORT_AND_RESET() {					\
     struct i2c_transaction* trans = i2c2.trans[i2c2.trans_extract_idx];	\
-    trans->status = I2CTransFailed;					\
+    trans->status = I2CTransFailed;    \
     I2C_ITConfig(I2C2, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);	\
+    I2C_ClearITPendingBit(I2C2, 0xFF); \
     I2C_Cmd(I2C2, DISABLE);						\
     I2C_DeInit(I2C2);							\
-    I2C_Cmd(I2C2, ENABLE);						\
     I2C2_APPLY_CONFIG();						\
+    I2C_Cmd(I2C2, ENABLE);						\
+    /* do something to unstuck the bus */ \
+    GPIO_InitTypeDef GPIO_InitStructure; \
+    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_10; \
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz; \
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; \
+    GPIO_Init(GPIOB, &GPIO_InitStructure); \
+    for (__IO int i = 0; i < 10; i++) {\
+      for (__IO int j = 0; j < 50; j++); \
+    GPIOB->BSRR = GPIO_Pin_10; \
+      for (__IO int j = 0; j < 50; j++); \
+    GPIOB->BRR = GPIO_Pin_10; \
+    } \
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD; \
+    GPIO_Init(GPIOB, &GPIO_InitStructure); \
+    I2C_Cmd(I2C2, DISABLE);						\
+    I2C_DeInit(I2C2);							\
+    I2C2_APPLY_CONFIG();						\
+    I2C_Cmd(I2C2, ENABLE);						\
+    I2C_ClearITPendingBit(I2C2, 0xFF); \
     I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);				\
-    I2C2_END_OF_TRANSACTION();						\
+    I2C2_END_OF_TRANSACTION(); \
   }
 
 
