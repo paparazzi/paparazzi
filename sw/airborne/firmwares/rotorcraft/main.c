@@ -65,6 +65,7 @@
 #include "generated/modules.h"
 
 static inline void on_gyro_accel_event( void );
+static inline void on_accel_event( void );
 static inline void on_baro_abs_event( void );
 static inline void on_baro_dif_event( void );
 static inline void on_gps_event( void );
@@ -197,7 +198,7 @@ STATIC_INLINE void main_event( void ) {
     RadioControlEvent(autopilot_on_rc_frame);
   }
 
-  ImuEvent(on_gyro_accel_event, on_mag_event);
+  ImuEvent(on_gyro_accel_event, on_accel_event, on_mag_event);
 
   BaroEvent(on_baro_abs_event, on_baro_dif_event);
 
@@ -210,6 +211,10 @@ STATIC_INLINE void main_event( void ) {
 #endif
 
   modules_event_task();
+
+}
+
+static inline void on_accel_event( void ) {
 
 }
 
