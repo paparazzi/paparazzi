@@ -42,7 +42,6 @@ struct i2c_errors i2c1_errors;
 #define I2C1_ABORT_AND_RESET() {					\
     struct i2c_transaction* trans2 = i2c1.trans[i2c1.trans_extract_idx]; \
     trans2->status = I2CTransFailed;					\
-    i2c1.status = I2CFailed;						\
     I2C_ITConfig(I2C1, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);	\
     I2C_Cmd(I2C1, DISABLE);						\
     I2C_DeInit(I2C1);							\
