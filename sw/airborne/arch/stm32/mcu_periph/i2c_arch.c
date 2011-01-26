@@ -711,6 +711,11 @@ void i2c2_er_irq_handler(void) {
 
 
 
+bool_t i2c_idle(struct i2c_periph* p)
+{
+  return !I2C_GetFlagStatus(p->reg_addr, I2C_FLAG_BUSY);
+}
+
 bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
 
   uint8_t temp;
