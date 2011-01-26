@@ -9,7 +9,7 @@
 
 
 #include "std.h"
-#inlcude "../flight_gear.h"
+#include "../flight_gear.h"
 #include "nps_fdm.h"
 
 static struct  {
