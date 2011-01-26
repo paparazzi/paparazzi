@@ -80,7 +80,6 @@ let expand_aicraft x =
 let make_element = fun t a c -> Xml.Element (t,a,c)
 
 let log_xml = fun timeofday data_file ->
-  prerr_endline "Entering 'log_xml'"; flush stderr;
   let conf_children = 
     List.map
       (fun x ->	  if Xml.tag x = "aircraft" then expand_aicraft x else x)

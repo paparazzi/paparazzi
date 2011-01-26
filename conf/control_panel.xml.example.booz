@@ -55,7 +55,7 @@
 
     <program name="Http Server" command="sw/ground_segment/tmtc/boa"/>
  </section>
-  
+
 
 
 
@@ -64,7 +64,6 @@
    <session name="Flight with USB-serial modem">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
-        <arg flag="-uplink" constant=""/>
       </program>
       <program name="Server"/>
       <program name="GCS"/>
@@ -75,7 +74,6 @@
         <arg flag="-d" constant="/dev/paparazzi/xbee"/>
         <arg flag="-transport" constant="xbee"/>
         <arg flag="-s" constant="57600"/>
-        <arg flag="-uplink" constant=""/>
       </program>
       <program name="Server"/>
       <program name="GCS"/>
@@ -170,7 +168,7 @@
 
 
 
-	
+
 
 
 
