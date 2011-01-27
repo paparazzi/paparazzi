@@ -8,11 +8,15 @@
     <define name="ALT_KALMAN" />
 
     <target name="sim" board="pc" />
-    <target name="ap" board="tiny_2.11" />
+    <target name="ap" board="tiny_2.11">
+      <define name="SPI_MASTER"/>
+      <define name="USE_SPI_SLAVE0"/>
+    </target>
 
-    <subsystem name="i2c">
+    <subsystem name="spi"/>
+    <!--subsystem name="i2c">
       <define name="USE_I2C0"/>
-    </subsystem>
+    </subsystem-->
 
     <subsystem  name="telemetry" type="transparent">
       <configure name="MODEM_BAUD" value="B9600" />
@@ -31,7 +35,7 @@
   </firmware>
 
   <modules>
-    <load name="ins_arduimu.xml" />
+    <load name="ins_vn100.xml" />
   </modules>
 
 <!-- commands section -->
