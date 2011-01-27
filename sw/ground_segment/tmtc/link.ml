@@ -425,7 +425,7 @@ let send_ping_msg = fun device ->
 let () =
   let ivy_bus = 
     try ref (Sys.getenv "IVY_BUS" )
-    with  Not_found -> ref "127.0.0.1" in
+    with  Not_found -> ref "127.255.255.255:2010" in
   let port = ref "/dev/ttyUSB0"
   and baudrate = ref "9600"
   and transport = ref "pprz"
