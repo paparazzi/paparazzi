@@ -70,6 +70,11 @@ type nav_ref =
   | Utm of Latlong.utm
   | Ltp of Latlong.ecef
 
+type vehicle_type =
+    FixedWing
+  | Rotorcraft
+  | UnknownVehicleType
+
 let add_pos_to_nav_ref = fun nav_ref  ?(z = 0.) (x, y) ->
   let rec lat_of_xy = fun lat last geo (_x, _y) n e ->
     if n > 0 && abs_float (lat -. last) > e then
@@ -92,6 +97,7 @@ let add_pos_to_nav_ref = fun nav_ref  ?(z = 0.) (x, y) ->
 type waypoint = { altitude : float; wp_geo : Latlong.geographic }
 
 type aircraft = { 
+    mutable vehicle_type : vehicle_type;
     id : string;
     name : string;
     flight_plan : Xml.xml;
@@ -150,7 +156,7 @@ let max_nb_dl_setting_values = 256 (** indexed iwth an uint8 (messages.xml)  *)
 
 let new_aircraft = fun id name fp airframe ->
   let svsinfo_init = Array.init gps_nb_channels (fun _ -> svinfo_init ()) in
-  { id = id ; name = name; flight_plan = fp; airframe = airframe;
+  { vehicle_type = UnknownVehicleType; id = id; name = name; flight_plan = fp; airframe = airframe;
     pos = { Latlong.posn_lat = 0.; posn_long = 0. };
     unix_time = 0.; itow = Int32.of_int 0;
     roll = 0.; pitch = 0.;

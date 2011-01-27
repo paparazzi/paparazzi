@@ -259,10 +259,15 @@ let update_ac = fun ac ->
       else
         sprintf "http://%s:%d/var/%s/flight_plan.kml" !hostname !port ac.name
     in
+    let ap_mode = match ac.vehicle_type with
+        Rotorcraft -> rotorcraft_ap_modes.(ac.ap_mode)
+      | FixedWing -> fixedwing_ap_modes.(ac.ap_mode)
+      | UnknownVehicleType -> "UNK"
+    in
     let blocks = ExtXml.child ac.flight_plan "blocks" in
     let block = ExtXml.child blocks (string_of_int ac.cur_block) in
     let block_name = ExtXml.attrib block "name" in
-    let description = sprintf "<b><font color=\"green\">%s</font></b>: %s\nBat: <b><font color=\"red\">%.1fV</font></b>\nAGL: %.0fm\nSpeed: %.1fm/s" ap_modes.(ac.ap_mode) block_name ac.bat ac.agl ac.gspeed in
+    let description = sprintf "<b><font color=\"green\">%s</font></b>: %s\nBat: <b><font color=\"red\">%.1fV</font></b>\nAGL: %.0fm\nSpeed: %.1fm/s" ap_mode block_name ac.bat ac.agl ac.gspeed in
     let change = change_placemark ~description ac.name ac.pos ac.alt in
     let kml_changes = link_update url_flight_plan [change] in
     print_xml ac.name "ac_changes.kml" kml_changes

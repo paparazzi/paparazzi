@@ -52,6 +52,12 @@ let srtm_path = Env.paparazzi_home // "data" // "srtm"
 let get_indexed_value = fun t i ->
   if i >= 0 then t.(i) else "UNK"  
 
+let modes_of_type = fun vt ->
+  match vt with
+    FixedWing -> fixedwing_ap_modes
+  | Rotorcraft -> rotorcraft_ap_modes
+  | UnknownVehicleType -> [| |]
+
 (** The aircrafts store *)
 let aircrafts = Hashtbl.create 3
 
@@ -135,7 +141,7 @@ let ac_msg = fun messages_xml logging ac_name ac ->
       let msg = Tele_Pprz.message_of_id msg_id in
       log ?timestamp logging ac_name msg.Pprz.name values;
       Fw_server.log_and_parse ac_name ac msg values;
-      Booz_server.log_and_parse ac_name ac msg values
+      Rotorcraft_server.log_and_parse ac_name ac msg values
     with
       Telemetry_error (ac_name, msg) ->
 	Ground_Pprz.message_send my_id "TELEMETRY_ERROR" ["ac_id", Pprz.String ac_name;"message", Pprz.String msg];
@@ -355,7 +361,7 @@ let send_aircraft_msg = fun ac ->
 		  "energy", Pprz.Int a.energy] in
     Ground_Pprz.message_send my_id "ENGINE_STATUS" values;
     
-    let ap_mode = get_indexed_value ap_modes a.ap_mode in
+    let ap_mode = get_indexed_value (modes_of_type a.vehicle_type) a.ap_mode in
     let gaz_mode = get_indexed_value gaz_modes a.gaz_mode in
     let lat_mode = get_indexed_value lat_modes a.lateral_mode in
     let horiz_mode = get_indexed_value horiz_modes a.horizontal_mode in
