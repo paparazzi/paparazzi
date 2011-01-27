@@ -33,7 +33,7 @@ module PprzTransport = Serial.Transport(Pprz.Transport)
 open Printf
 
 let () =
-  let ivy_bus = ref "127.255.255.255:2010" in
+  let ivy_bus = ref Defivybus.default_ivy_bus  in
   let host = ref "85.214.48.162"
   and port = ref 4242
   and datalink_port = ref 4243

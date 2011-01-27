@@ -19,13 +19,11 @@ install_data:
 	$(INSTALL) -d $(DESTDIR)/data/maps
 	$(INSTALLDATA) data/maps/muret_UTM.xml data/maps/muret_UTM.gif $(DESTDIR)/data/maps
 	$(INSTALL) -d $(DESTDIR)/data/pictures/gcs_icons
-	$(INSTALLDATA) var/maps/trtqtttqtsrrtstq*.jpg var/maps/trtqtttqtsrrttsr*.jpg $(DESTDIR)/data/maps
 	$(INSTALLDATA) data/pictures/*.gif data/pictures/*.svg data/pictures/*.jpg data/pictures/*.png $(DESTDIR)/data/pictures
 	$(INSTALLDATA) data/pictures/gcs_icons/*.png $(DESTDIR)/data/pictures/gcs_icons
 	$(INSTALL) -d $(PREFIX)/usr/share/pixmaps
 	$(INSTALLDATA) data/pictures/penguin_icon.png $(PREFIX)/usr/share/pixmaps/paparazzi.png
 	$(INSTALL) -d $(DESTDIR)/data/srtm
-	$(INSTALLDATA) data/srtm/N43E001.hgt.bz2 $(DESTDIR)/data/srtm
 
 
 install_conf:
@@ -40,7 +38,6 @@ install_conf:
 	$(INSTALLDATA) conf/airframes/microjet_example.xml $(DESTDIR)/conf/airframes
 	$(INSTALLDATA) conf/airframes/twinstar_example.xml $(DESTDIR)/conf/airframes
 	$(INSTALLDATA) conf/airframes/twinjet_example.xml $(DESTDIR)/conf/airframes
-	$(INSTALLDATA) conf/airframes/tiny_hitl.xml $(DESTDIR)/conf/airframes
 	$(INSTALLDATA) conf/airframes/example_twog_analogimu.xml $(DESTDIR)/conf/airframes
 	$(INSTALL) -d $(DESTDIR)/conf/autopilot
 	$(INSTALLDATA) conf/autopilot/*.makefile $(DESTDIR)/conf/autopilot

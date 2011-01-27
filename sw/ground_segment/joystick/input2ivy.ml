@@ -314,14 +314,14 @@ let execute_actions = fun actions ac_id ->
 
 (************************************* MAIN **********************************)
 let () =
-  let ivy_bus = ref "127.255.255.255:2010" in
+let ivy_bus = Defivybus.default_ivy_bus  in
   let device_name = ref ""
   and ac_name = ref "MYAC"
   and xml_descr = ref "" in
 
   let anon_fun = (fun x -> xml_descr := x) in
   let speclist =  
-    [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.255:2010";
+    [ "-b", Arg.String (fun x -> ivy_bus := x),(sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-ac",  Arg.Set_string ac_name, "<A/C name>";
       "-d",  Arg.Set_string device_name, "<device name>";
       "-v",  Arg.Set verbose, "Verbose mode (useful to identify the channels of an input device)";

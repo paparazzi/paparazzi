@@ -128,6 +128,7 @@ extern void i2c2_init(void);
 #endif /* USE_I2C2 */
 
 extern void   i2c_init(struct i2c_periph* p);
+extern bool_t i2c_idle(struct i2c_periph* p);
 extern bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t);
 
 #define I2CReceive(_p, _t, _s_addr, _len) { \

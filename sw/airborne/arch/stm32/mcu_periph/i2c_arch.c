@@ -42,7 +42,6 @@ struct i2c_errors i2c1_errors;
 #define I2C1_ABORT_AND_RESET() {					\
     struct i2c_transaction* trans2 = i2c1.trans[i2c1.trans_extract_idx]; \
     trans2->status = I2CTransFailed;					\
-    i2c1.status = I2CFailed;						\
     I2C_ITConfig(I2C1, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);	\
     I2C_Cmd(I2C1, DISABLE);						\
     I2C_DeInit(I2C1);							\
@@ -275,7 +274,7 @@ void i2c2_hw_init(void) {
   /* Configure and enable I2C2 event interrupt --------------------------------*/
   NVIC_InitStructure.NVIC_IRQChannel = I2C2_EV_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
 
@@ -349,14 +348,34 @@ static inline void on_status_restart_requested(struct i2c_transaction* trans, ui
 
 #define I2C2_ABORT_AND_RESET() {					\
     struct i2c_transaction* trans = i2c2.trans[i2c2.trans_extract_idx];	\
-    trans->status = I2CTransFailed;					\
+    trans->status = I2CTransFailed;    \
     I2C_ITConfig(I2C2, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);	\
+    I2C_ClearITPendingBit(I2C2, 0xFF); \
     I2C_Cmd(I2C2, DISABLE);						\
     I2C_DeInit(I2C2);							\
-    I2C_Cmd(I2C2, ENABLE);						\
     I2C2_APPLY_CONFIG();						\
+    I2C_Cmd(I2C2, ENABLE);						\
+    /* do something to unstuck the bus */ \
+    GPIO_InitTypeDef GPIO_InitStructure; \
+    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_10; \
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz; \
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; \
+    GPIO_Init(GPIOB, &GPIO_InitStructure); \
+    for (__IO int i = 0; i < 10; i++) {\
+      for (__IO int j = 0; j < 50; j++); \
+    GPIOB->BSRR = GPIO_Pin_10; \
+      for (__IO int j = 0; j < 50; j++); \
+    GPIOB->BRR = GPIO_Pin_10; \
+    } \
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD; \
+    GPIO_Init(GPIOB, &GPIO_InitStructure); \
+    I2C_Cmd(I2C2, DISABLE);						\
+    I2C_DeInit(I2C2);							\
+    I2C2_APPLY_CONFIG();						\
+    I2C_Cmd(I2C2, ENABLE);						\
+    I2C_ClearITPendingBit(I2C2, 0xFF); \
     I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);				\
-    I2C2_END_OF_TRANSACTION();						\
+    I2C2_END_OF_TRANSACTION(); \
   }
 
 
@@ -423,6 +442,8 @@ static inline void on_status_sending_byte(struct i2c_transaction* trans, uint32_
       I2C_ITConfig(I2C2, I2C_IT_BUF, DISABLE);
       if (trans->type == I2CTransTx) {
     I2C_GenerateSTOP(I2C2, ENABLE);
+    /* Make sure that the STOP bit is cleared by Hardware */
+    while ((I2C2->CR1&0x200) == 0x200);
     i2c2.status = I2CStopRequested;
       }
       else {
@@ -486,6 +507,8 @@ static inline void on_status_addr_rd_sent(struct i2c_transaction* trans, uint32_
     if(trans->len_r == 1) {                                         // If we're going to read only one byte
       I2C_AcknowledgeConfig(I2C2, DISABLE);                       // make sure it's gonna be nacked
       I2C_GenerateSTOP(I2C2, ENABLE);                             // and followed by a stop
+      /* Make sure that the STOP bit is cleared by Hardware */
+      while ((I2C2->CR1&0x200) == 0x200);
       i2c2.status = I2CReadingLastByte;                           // and remember we did
     }
     else {
@@ -512,6 +535,8 @@ static inline void on_status_reading_byte(struct i2c_transaction* trans, uint32_
       if (i2c2.idx_buf >= trans->len_r-1) {                    // We're reading our last byte
     I2C_AcknowledgeConfig(I2C2, DISABLE);                  // give them a nack once it's done
     I2C_GenerateSTOP(I2C2, ENABLE);                        // and follow with a stop
+    /* Make sure that the STOP bit is cleared by Hardware */
+    while ((I2C2->CR1&0x200) == 0x200);
     i2c2.status = I2CStopRequested;                        // remember we already trigered the stop
       }
     } // else { something very wrong has happened }
@@ -645,6 +670,8 @@ void i2c2_er_irq_handler(void) {
     i2c2_errors.ack_fail_cnt++;
     I2C_ClearITPendingBit(I2C2, I2C_IT_AF);
     I2C_GenerateSTOP(I2C2, ENABLE);
+    /* Make sure that the STOP bit is cleared by Hardware */
+    while ((I2C2->CR1&0x200) == 0x200);
   }
   if (I2C_GetITStatus(I2C2, I2C_IT_BERR)) {     /* Misplaced Start or Stop condition */
     i2c2_errors.miss_start_stop_cnt++;
@@ -683,6 +710,11 @@ void i2c2_er_irq_handler(void) {
 #endif /* USE_I2C2 */
 
 
+
+bool_t i2c_idle(struct i2c_periph* p)
+{
+  return !I2C_GetFlagStatus(p->reg_addr, I2C_FLAG_BUSY);
+}
 
 bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
 

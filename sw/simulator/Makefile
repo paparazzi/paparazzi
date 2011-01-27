@@ -1,6 +1,5 @@
-
 # Paparazzi simulator $Id$
-#  
+#
 # Copyright (C) 2003-2006  Pascal Brisset, Antoine Drouin
 #
 # This file is part of paparazzi.
@@ -18,14 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA. 
+# Boston, MA 02111-1307, USA.
 
 # Quiet compilation
 Q=@
 
 LBITS := $(shell getconf LONG_BIT)
 ifeq ($(LBITS),64)
-  FPIC = -ccopt -fPIC   
+  FPIC = -ccopt -fPIC
 else
   FPIC =
 endif
@@ -42,6 +41,8 @@ SIMSCMX=$(SIMSML:%.ml=%.cmx)
 
 OCAMLC = ocamlc -g
 OCAMLOPT=ocamlopt
+OCAML=$(shell which ocaml)
+OCAMLRUN=$(shell which ocamlrun)
 INCLUDES= $(shell ocamlfind query -r -i-format lablgtk2) -I ../lib/ocaml $(shell ocamlfind query -r -i-format xml-light)
 
 AIRBORNE = ../airborne
@@ -58,10 +59,10 @@ simhitl : fg.o $(SIMHCMO) simhitl.cmo
 
 sitl.cma : fg.o $(SIMSCMO)
 	@echo OL $@
-	$(Q)ocamlmklib -o sitl $^ 
+	$(Q)ocamlmklib -o sitl $^
 
 sitl.cmxa : $(SIMSCMX)
-	ocamlopt -o $@ -a $^ 
+	ocamlopt -o $@ -a $^
 
 gaia : gaia.cmo
 	@echo OL $@
@@ -90,6 +91,9 @@ diffusion : stdlib.cmo diffusion.cmo
 clean :
 	rm -f *.cm* *~ *.out .depend *.o *.a *.so gaia simhitl booz_sim test2
 
+launchsitl :
+	cat ../../src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
+	chmod a+x $@
 
 
 #
@@ -99,6 +103,6 @@ clean :
 .depend:
 	ocamldep *.ml* > .depend
 
-ifneq ($(MAKECMDGOALS),clean) 
+ifneq ($(MAKECMDGOALS),clean)
 -include .depend
 endif
