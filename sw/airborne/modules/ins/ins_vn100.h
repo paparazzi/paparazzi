@@ -35,6 +35,11 @@
 #include "VN100.h"
 #include "math/pprz_algebra_float.h"
 
+/* neutrals */
+extern float ins_roll_neutral;
+extern float ins_pitch_neutral;
+extern float ins_yaw_neutral;
+
 /* state */
 extern struct FloatEulers ins_eulers;
 extern struct FloatQuat ins_quat;
