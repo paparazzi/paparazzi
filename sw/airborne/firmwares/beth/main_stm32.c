@@ -40,6 +40,7 @@ static inline void main_periodic( void );
 static inline void main_event( void );
 
 static inline void on_gyro_accel_event(void);
+static inline void on_accel_event(void);
 static inline void on_mag_event(void);
 
 static inline void main_on_overo_msg_received(void);
@@ -114,7 +115,7 @@ static inline void main_periodic( void ) {
 }
 
 static inline void main_event( void ) {
-  ImuEvent(on_gyro_accel_event, on_mag_event);
+  ImuEvent(on_gyro_accel_event, on_accel_event, on_mag_event);
   OveroLinkEvent(main_on_overo_msg_received,main_on_overo_link_error);
 }
 
@@ -149,6 +150,10 @@ static inline void main_on_overo_link_lost(void) {
   spi_msg_cnt = 0;
 }
 
+
+static inline void on_accel_event(void) {
+
+}
 
 static inline void on_gyro_accel_event(void) {
   ImuScaleGyro(imu);

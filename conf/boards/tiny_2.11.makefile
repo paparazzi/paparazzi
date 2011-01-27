@@ -49,3 +49,4 @@ ADC_GENERIC_NB_SAMPLES = 16
 # All targets on the TINY board run on the same processor achitecture
 $(TARGET).ARCHDIR = $(ARCH)
 
+ACTUATORS = actuators_4017

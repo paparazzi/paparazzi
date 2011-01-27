@@ -198,6 +198,7 @@
       <define name = "OVERRIDE_UART5_IRQ_HANDLER"/> -->
     </target>
     <subsystem name="radio_control" type="spektrum"/>
+    <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="actuators"     type="heli"/>
     <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox"/>

@@ -22,8 +22,15 @@
  *
  */
 
-#include "booz2_pwm_hw.h"
+#ifndef BOOZ_PWM_ARCH_H
+#define BOOZ_PWM_ARCH_H
 
-void booz2_pwm_init_hw( void ) {}
+extern void booz_pwm_init_arch(void);
 
+// Default PWM is PWM0
+#define BoozSetPwmValue(_v) BoozSetPwm0Value(_v)
 
+#define BoozSetPwm0Value(_v) {}
+#define BoozSetPwm1Value(_v) {}
+
+#endif /* BOOZ_PWM_ARCH_H */

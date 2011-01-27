@@ -204,6 +204,7 @@
     <configure  name="FLASH_MODE" value="IAP"/>   <!-- default for the board but putting it here as example--> 
   </target>
     <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="actuators"     type="asctec"/>
     <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox"/>

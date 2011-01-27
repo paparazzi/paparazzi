@@ -29,10 +29,11 @@
 extern volatile bool_t analog_imu_available;
 extern int imu_overrun;
 
-#define ImuEvent(_gyro_accel_handler, _mag_handler) {   \
+#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) {   \
     if (analog_imu_available) {                         \
       analog_imu_available = FALSE;                     \
-      _gyro_accel_handler();                            \
+      _gyro_handler();                            \
+      _accel_handler();                            \
     }                                                   \
     ImuMagEvent(_mag_handler);                          \
   }

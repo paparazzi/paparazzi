@@ -88,17 +88,17 @@ extern struct ImuAspirin imu_aspirin;
     }									\
 }
 
-#define ImuEvent(_gyro_accel_handler, _mag_handler) {		\
+#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) {		\
     ImuMagEvent(_mag_handler);					\
     if (imu_aspirin.status == AspirinStatusReadingGyro &&		\
-    imu_aspirin.i2c_trans_gyro.status == I2CTransSuccess) {		\
+    imu_aspirin.i2c_trans_gyro.status == I2CTransSuccess && i2c_idle(&i2c2)) {		\
       int16_t gp = imu_aspirin.i2c_trans_gyro.buf[0]<<8 | imu_aspirin.i2c_trans_gyro.buf[1]; \
       int16_t gq = imu_aspirin.i2c_trans_gyro.buf[2]<<8 | imu_aspirin.i2c_trans_gyro.buf[3]; \
       int16_t gr = imu_aspirin.i2c_trans_gyro.buf[4]<<8 | imu_aspirin.i2c_trans_gyro.buf[5]; \
       RATES_ASSIGN(imu.gyro_unscaled, gp, gq, gr);			\
       imu_aspirin.status = AspirinStatusIdle;				\
     }									\
-    if (imu_aspirin.gyro_eoc && i2c2.status == I2CIdle) { \
+    if (imu_aspirin.gyro_eoc && i2c2.status == I2CIdle && i2c_idle(&i2c2)) { \
       imu_aspirin.i2c_trans_gyro.type = I2CTransTxRx; \
       imu_aspirin.i2c_trans_gyro.buf[0] = ITG3200_REG_GYRO_XOUT_H; \
       imu_aspirin.i2c_trans_gyro.slave_addr = ITG3200_ADDR; \
@@ -109,7 +109,7 @@ extern struct ImuAspirin imu_aspirin;
     } \
     if (imu_aspirin.gyro_available_blaaa) {				\
       imu_aspirin.gyro_available_blaaa = FALSE;				\
-      _gyro_accel_handler();						\
+      _gyro_handler();						\
     }									\
     if (imu_aspirin.accel_available) {					\
       imu_aspirin.accel_available = FALSE;				\
@@ -117,7 +117,7 @@ extern struct ImuAspirin imu_aspirin;
       const int16_t ay = imu_aspirin.accel_rx_buf[3] | (imu_aspirin.accel_rx_buf[4]<<8); \
       const int16_t az = imu_aspirin.accel_rx_buf[5] | (imu_aspirin.accel_rx_buf[6]<<8); \
       VECT3_ASSIGN(imu.accel_unscaled, ax, ay, az);		\
-      _gyro_accel_handler();						\
+      _accel_handler();						\
     }									\
   }
 

@@ -23,6 +23,7 @@
  * Boston, MA 02111-1307, USA. 
  *
  *)
+open Printf
 
 module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
 module Tele_Pprz = Pprz.Messages(struct let name = "telemetry" end)
@@ -78,10 +79,11 @@ let one_ac = fun (notebook:GPack.notebook) ac_name ->
 
 
 let _ =
-  let ivy_bus = ref "127.255.255.255:2010" in
+  
+  let ivy_bus = ref Defivybus.default_ivy_bus in
   let acs = ref [] in
   Arg.parse
-    [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.255:2010";
+    [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-ac",  Arg.String (fun x -> acs := x :: !acs), "A/C name"]
     (fun x -> prerr_endline ("WARNING: don't do anything with "^x))
     "Usage: ";

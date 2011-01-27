@@ -184,7 +184,7 @@
 #endif
 
 
-#define ImuEvent(_gyro_accel_handler, _mag_handler) {		\
+#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) {		\
     if (max1168_status == STA_MAX1168_DATA_AVAILABLE) {		\
       imu.gyro_unscaled.p  = max1168_values[IMU_GYRO_P_CHAN]; \
       imu.gyro_unscaled.q  = max1168_values[IMU_GYRO_Q_CHAN]; \
@@ -193,7 +193,8 @@
       imu.accel_unscaled.y = max1168_values[IMU_ACCEL_Y_CHAN]; \
       imu.accel_unscaled.z = max1168_values[IMU_ACCEL_Z_CHAN]; \
       max1168_status = STA_MAX1168_IDLE;				\
-      _gyro_accel_handler();						\
+      _gyro_handler();						\
+      _accel_handler();						\
     }									\
     ImuMagEvent(_mag_handler);					\
   }

@@ -10,6 +10,18 @@ static void configure_gyro(void);
 static void configure_mag(void);
 static void configure_accel(void);
 
+static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
+  uint8_t max_retry = 8;
+  uint8_t nb_retry = 0;
+  do {
+    i2c_submit(&i2c2, t);
+    while(I2C_GetFlagStatus(I2C2, I2C_FLAG_BUSY));
+    while (t->status == I2CTransPending || t->status == I2CTransRunning);
+    if (t->status == I2CTransFailed)
+      nb_retry++;
+  }
+  while (t->status != I2CTransSuccess && nb_retry < max_retry);
+}
 
 void imu_impl_init(void) {
 
@@ -35,12 +47,12 @@ void imu_periodic(void) {
   }
   else
     imu_aspirin.gyro_available_blaaa = TRUE;
+
 }
 
 
 /* sends a serie of I2C commands to configure the ITG3200 gyro */
 static void configure_gyro(void) {
-
   struct i2c_transaction t;
   t.type = I2CTransTx;
   t.slave_addr = ITG3200_ADDR;
@@ -48,37 +60,22 @@ static void configure_gyro(void) {
   t.buf[0] = ITG3200_REG_DLPF_FS;
   t.buf[1] = (0x03<<3);
   t.len_w = 2;
-  i2c_submit(&i2c2,&t);
-  while (t.status != I2CTransSuccess);
+  send_i2c_msg_with_retry(&t);
   /* set sample rate to 533Hz */
   t.buf[0] = ITG3200_REG_SMPLRT_DIV;
   t.buf[1] = 0x0E;
-  i2c_submit(&i2c2,&t);
-  while (t.status != I2CTransSuccess);
+  send_i2c_msg_with_retry(&t);
   /* switch to gyroX clock */
   t.buf[0] = ITG3200_REG_PWR_MGM;
   t.buf[1] = 0x01;
-  i2c_submit(&i2c2,&t);
-  while (t.status != I2CTransSuccess);
+  send_i2c_msg_with_retry(&t);
   /* enable interrupt on data ready, idle hight */
   t.buf[0] = ITG3200_REG_INT_CFG;
   t.buf[1] = (0x01 | 0x01<<7);
-  i2c_submit(&i2c2,&t);
-  while (t.status != I2CTransSuccess);
+  send_i2c_msg_with_retry(&t);
 
 }
 
-static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
-  uint8_t max_retry = 8;
-  uint8_t nb_retry = 0;
-  do {
-    i2c_submit(&i2c2, t);
-    while (t->status == I2CTransPending || t->status == I2CTransRunning);
-    if (t->status == I2CTransFailed)
-      nb_retry++;
-  }
-  while (t->status != I2CTransSuccess || nb_retry < max_retry);
-}
 
 
 static void configure_accel(void) {

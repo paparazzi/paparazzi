@@ -248,6 +248,7 @@
 	<target name="sim" board="pc"/>
 	<subsystem name="fdm"           type="nps"/>
 	<subsystem name="radio_control" type="ppm"/>
+    <subsystem name="telemetry"     type="transparent"/>
 	<subsystem name="actuators"     type="mkk"/>
 	<subsystem name="imu"           type="b2_v1.1"/>
 	<subsystem name="gps"           type="ublox"/>

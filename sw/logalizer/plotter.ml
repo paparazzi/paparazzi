@@ -522,7 +522,7 @@ let rec plot_window = fun window ->
 
 
 let _ =
-  let ivy_bus = ref "127.255.255.255:2010"
+  let ivy_bus = ref Defivybus.default_ivy_bus 
   and init = ref [default_window] in
 
   let add_init = fun s ->
@@ -541,7 +541,7 @@ let _ =
     | x::xs -> init := {x with geometry = s} :: xs in
 
   Arg.parse
-    [ "-b", Arg.String (fun x -> ivy_bus := x), "<bus>  Bus\tDefault is 127.255.255.255:2010";
+    [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-c", Arg.String (fun x -> add_init x), "<curve>  Add a curve (e.g. '*:telemetry:BAT:voltage'). The curve is inserted into the last open window (cf -n option)";
 
       (* no code yet *)

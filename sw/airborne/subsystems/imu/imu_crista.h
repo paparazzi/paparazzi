@@ -31,7 +31,7 @@
 extern uint16_t ADS8344_values[ADS8344_NB_CHANNELS];
 extern volatile bool_t ADS8344_available;
 
-#define ImuEvent(_gyro_accel_handler, _mag_handler) {		\
+#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) {		\
     if (ADS8344_available) {						\
       ADS8344_available = FALSE;					\
       imu.gyro_unscaled.p = ADS8344_values[IMU_GYRO_P_CHAN];	\
@@ -41,7 +41,8 @@ extern volatile bool_t ADS8344_available;
       imu.accel_unscaled.y = ADS8344_values[IMU_ACCEL_Y_CHAN];	\
       imu.accel_unscaled.z = ADS8344_values[IMU_ACCEL_Z_CHAN];	\
       /* spare 3, temp 7 */						\
-      _gyro_accel_handler();						\
+      _gyro_handler();						\
+      _accel_handler();						\
     }									\
     ImuMagEvent(_mag_handler);					\
   }

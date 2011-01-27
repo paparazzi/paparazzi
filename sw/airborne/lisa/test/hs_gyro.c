@@ -45,6 +45,7 @@ static inline void main_periodic_task( void );
 static inline void main_event_task( void );
 
 static inline void on_gyro_accel_event(void);
+static inline void on_accel_event(void);
 static inline void on_mag_event(void);
 
 int main( void ) {
@@ -77,8 +78,12 @@ static inline void main_periodic_task( void ) {
 
 static inline void main_event_task( void ) {
 
-  ImuEvent(on_gyro_accel_event, on_mag_event);
+  ImuEvent(on_gyro_accel_event, on_accel_event, on_mag_event);
 
+}
+
+
+static inline void on_accel_event(void) {
 }
 
 #define NB_SAMPLES 20

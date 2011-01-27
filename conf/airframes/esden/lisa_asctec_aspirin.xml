@@ -1,6 +1,6 @@
 <!-- this is an asctec frame equiped with  Lisa/L#3 and asctec V2 controllers -->
 
-<airframe name="booz2_a7">
+<airframe name="lisa_asctec">
 
   <servos min="0" neutral="0" max="0xff">
     <servo name="FRONT"   no="0" min="0" neutral="0" max="255"/>
@@ -33,52 +33,51 @@
     <define name="SCALE" value="256"/>
     <define name="ROLL_COEF"   value="{  0  ,    0,  256, -256 }"/>
     <define name="PITCH_COEF"  value="{  256, -256,    0,    0 }"/>
-    <define name="YAW_COEF"    value="{  256,  256, -256, -256 }"/>
+    <define name="YAW_COEF"    value="{ -256, -256,  256,  256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
-
-    <define name="GYRO_P_NEUTRAL" value="32858"/>
-    <define name="GYRO_Q_NEUTRAL" value="33152"/>
-    <define name="GYRO_R_NEUTRAL" value="31779"/>
-    <define name="GYRO_P_SENS" value=" 1.101357422" integer="16"/>
-    <define name="GYRO_Q_SENS" value=" 1.122670898" integer="16"/>
-    <define name="GYRO_R_SENS" value=" 1.104890137" integer="16"/>
-
-
-    <define name="ACCEL_X_NEUTRAL" value="32899"/>
-    <define name="ACCEL_Y_NEUTRAL" value="33281"/>
-    <define name="ACCEL_Z_NEUTRAL" value="32569"/>
-    <define name="ACCEL_X_SENS" value="2.57702956051" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="2.57835230627" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="2.54311399868" integer="16"/>
-
-    <define name="MAG_X_NEUTRAL" value="58"/>
-    <define name="MAG_Y_NEUTRAL" value="92"/>
-    <define name="MAG_Z_NEUTRAL" value="-3"/>
-    <define name="MAG_X_SENS" value="4.70018395734" integer="16"/>
-    <define name="MAG_Y_SENS" value="4.884119848" integer="16"/>
-    <define name="MAG_Z_SENS" value="2.59926404993" integer="16"/>
-
-<!-- old calibration
-    <define name="MAG_X_NEUTRAL" value="30"/>
-    <define name="MAG_Y_NEUTRAL" value="80"/>
-    <define name="MAG_Z_NEUTRAL" value="19"/>
-    <define name="MAG_X_SENS" value="4.73590916868" integer="16"/>
-    <define name="MAG_Y_SENS" value="4.86013203775" integer="16"/>
-    <define name="MAG_Z_SENS" value="2.5947951512" integer="16"/>
--->
+    <define name="GYRO_P_NEUTRAL" value="-227"/>
+    <define name="GYRO_Q_NEUTRAL" value="48"/>
+    <define name="GYRO_R_NEUTRAL" value="21"/>
+    <define name="GYRO_P_SENS" value="5.0" integer="16"/>
+    <define name="GYRO_Q_SENS" value="5.0" integer="16"/>
+    <define name="GYRO_R_SENS" value="5.0" integer="16"/>
+    <define name="GYRO_PQ_SENS" value="0.0" integer="16"/>
+    <define name="GYRO_PR_SENS" value="0.0" integer="16"/>
+    <define name="GYRO_QR_SENS" value="0.0" integer="16"/>
+    
+    <define name="ACCEL_X_NEUTRAL" value="4"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-14"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-5"/>
+    <define name="ACCEL_X_SENS" value="39" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="39" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="39" integer="16"/>
+    <define name="ACCEL_XY_SENS" value="0.0" integer="16"/>
+    <define name="ACCEL_XZ_SENS" value="0.0" integer="16"/>
+    <define name="ACCEL_YZ_SENS" value="0.0" integer="16"/>
+    
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
+    <define name="MAG_X_SENS" value="1." integer="16"/>
+    <define name="MAG_Y_SENS" value="1." integer="16"/>
+    <define name="MAG_Z_SENS" value="1." integer="16"/>
+    <define name="MAG_XY_SENS" value="0.0" integer="16"/>
+    <define name="MAG_XZ_SENS" value="0.0" integer="16"/>
+    <define name="MAG_YZ_SENS" value="0.0" integer="16"/>
+    
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg( 135.)"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45. )"/>
 
   </section>
 
  <section name="AUTOPILOT">
    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_RC_CLIMB"/>
-   <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
+   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
+   <define name="MODE_AUTO2"  value="AP_MODE_HOVER_Z_HOLD"/>
  </section>
 
  <section name="BAT">
@@ -145,7 +144,6 @@
   </section>
 
   <section name="INS" prefix="INS_">
-<!--    <define name="BARO_SENS" value="15." integer="16"/> -->
     <define name="BARO_SENS" value="10." integer="16"/>
   </section>
 
@@ -189,51 +187,55 @@
 <!-- -->
 
   <firmware name="rotorcraft">
-    <target name="ap" board="lisa_l_1.0">
+    <target name="ap" board="lisa_l_1.1">
 <!--      <define name="BOOZ_START_DELAY" value="1"/> -->
       <subsystem name="radio_control" type="spektrum"/>
-      <subsystem name="actuators"     type="asctec"/>
+      <subsystem name="actuators"     type="asctec_v2"/>
+      <subsystem name="telemetry"     type="transparent"/>
+      <define name="RADIO_MODE" value="RADIO_AUX2"/>
+      <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
+      <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/>
     </target>
     <target name="sim" board="pc">
       <subsystem name="fdm"           type="nps"/>
       <subsystem name="radio_control" type="ppm"/>
       <subsystem name="actuators"     type="mkk"/>
     </target>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="b2_v1.1"/>
+
+    <subsystem name="imu"           type="aspirin"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="cmpl"/>
   </firmware>
 
   <firmware name="lisa_l_test_progs">
-    <target name="test_led"   board="lisa_l_1.0"/>
-    <target name="test_uart"   board="lisa_l_1.0"/>
-    <target name="test_servos"   board="lisa_l_1.0"/>
-    <target name="test_telemetry"   board="lisa_l_1.0"/>
-    <target name="test_baro"        board="lisa_l_1.0"/>
-    <target name="test_imu_b2"      board="lisa_l_1.0"/>
-    <target name="test_imu_b2_2"    board="lisa_l_1.0"/>
-    <target name="test_imu_aspirin" board="lisa_l_1.0"/>
-    <target name="test_rc_spektrum" board="lisa_l_1.0"/>
-    <target name="test_rc_ppm"      board="lisa_l_1.0"/>
-    <target name="test_adc"         board="lisa_l_1.0"/>
-    <target name="test_hmc5843"     board="lisa_l_1.0"/>
-    <target name="test_itg3200"     board="lisa_l_1.0"/>
-    <target name="test_adxl345"             board="lisa_l_1.0"/>
-    <target name="test_esc_mkk_simple"      board="lisa_l_1.0"/>
-    <target name="test_esc_asctecv1_simple" board="lisa_l_1.0"/>
-    <target name="test_actuators_mkk"       board="lisa_l_1.0"/>
-    <target name="test_actuators_asctecv1"  board="lisa_l_1.0"/>
+    <target name="test_led"   board="lisa_l_1.1"/>
+    <target name="test_uart"   board="lisa_l_1.1"/>
+    <target name="test_servos"   board="lisa_l_1.1"/>
+    <target name="test_telemetry"   board="lisa_l_1.1"/>
+    <target name="test_baro"        board="lisa_l_1.1"/>
+    <target name="test_imu_b2"      board="lisa_l_1.1"/>
+    <target name="test_imu_b2_2"    board="lisa_l_1.1"/>
+    <target name="test_imu_aspirin" board="lisa_l_1.1"/>
+    <target name="test_rc_spektrum" board="lisa_l_1.1"/>
+    <target name="test_rc_ppm"      board="lisa_l_1.1"/>
+    <target name="test_adc"         board="lisa_l_1.1"/>
+    <target name="test_hmc5843"     board="lisa_l_1.1"/>
+    <target name="test_itg3200"     board="lisa_l_1.1"/>
+    <target name="test_adxl345"             board="lisa_l_1.1"/>
+    <target name="test_esc_mkk_simple"      board="lisa_l_1.1"/>
+    <target name="test_esc_asctecv1_simple" board="lisa_l_1.1"/>
+    <target name="test_actuators_mkk"       board="lisa_l_1.1"/>
+    <target name="test_actuators_asctecv1"  board="lisa_l_1.1"/>
   </firmware>
 
   <firmware name="lisa_passthrough">
-    <target name="overo_test_passthrough" board="lisa_l_1.0"  >
+    <target name="overo_test_passthrough" board="lisa_l_1.1"  >
       <param name="HOST"          value="A7"/>
       <param name="USER"          value=""/>
       <param name="TARGET_DIR"    value="~"/>
       <param name="PERIODIC_FREQ" value="512"/>
     </target>
-    <target name="stm_passthrough" board="lisa_l_1.0">
+    <target name="stm_passthrough" board="lisa_l_1.1">
       <subsystem name="radio_control" type="spektrum"/>
       <subsystem name="imu" type="b2_v1.1"/>
     </target>

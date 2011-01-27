@@ -64,7 +64,7 @@
 
     <program name="Http Server" command="sw/ground_segment/tmtc/boa"/>
  </section>
-  
+
 
 
 
@@ -78,7 +78,16 @@
       <program name="GCS"/>
     </session>
 
-   <session name="Flight USB-Maxstream@57600">
+   <session name="Flight USB-serial@57600">
+     <program name="Data Link">
+       <arg flag="-d" constant="/dev/ttyUSB0"/>
+       <arg flag="-s" constant="57600"/>
+     </program>
+     <program name="Server"/>
+     <program name="GCS"/>
+   </session>
+
+   <session name="Flight USB-XBee-API@57600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/paparazzi/xbee"/>
         <arg flag="-transport" constant="xbee"/>

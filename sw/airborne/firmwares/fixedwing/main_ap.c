@@ -75,6 +75,7 @@
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/ahrs/ahrs_float_dcm.h"
 static inline void on_gyro_accel_event( void );
+static inline void on_accel_event( void );
 static inline void on_mag_event( void );
 #endif
 
@@ -376,10 +377,11 @@ static void navigation_task( void ) {
 
 void periodic_task_ap( void ) {
 
-  static uint8_t _20Hz   = 0;
-  static uint8_t _10Hz   = 0;
-  static uint8_t _4Hz   = 0;
-  static uint8_t _1Hz   = 0;
+  static uint8_t _60Hz = 0;
+  static uint8_t _20Hz = 0;
+  static uint8_t _10Hz = 0;
+  static uint8_t _4Hz  = 0;
+  static uint8_t _1Hz  = 0;
 
 #ifdef USE_IMU
   // Run at PERIODIC_FREQUENCY (60Hz if not defined)
@@ -387,10 +389,10 @@ void periodic_task_ap( void ) {
 
 #endif // USE_IMU
 
-
-#ifdef PERIODIC_FREQUENCY
-#warning Using HighSpeed Periodic: Manually check to make sure PERIODIC_FREQUENCY is a multiple of 60.
-  static uint8_t _60Hz = 0;
+#define _check_periodic_freq_ PERIODIC_FREQUENCY % 60
+#if _check_periodic_freq_
+#error Using HighSpeed Periodic: PERIODIC_FREQUENCY has to be a multiple of 60!
+#endif
   _60Hz++;
   if (_60Hz >= (PERIODIC_FREQUENCY / 60))
   {
@@ -400,8 +402,6 @@ void periodic_task_ap( void ) {
   {
     return;
   }
-#endif
-
 
 
   // Rest of the periodic function still runs at 60Hz like always
@@ -591,7 +591,7 @@ void event_task_ap( void ) {
 #endif
 
 #ifdef USE_AHRS
-  ImuEvent(on_gyro_accel_event, on_mag_event);
+  ImuEvent(on_gyro_accel_event, on_accel_event, on_mag_event);
 #endif // USE_AHRS
 
 #ifdef USE_GPS
@@ -624,33 +624,8 @@ void event_task_ap( void ) {
 #endif /** USE_GPS */
 
 
-#if defined DATALINK
+  DatalinkEvent();
 
-#if DATALINK == PPRZ
-  if (PprzBuffer()) {
-    ReadPprzBuffer();
-    if (pprz_msg_received) {
-      pprz_parse_payload();
-      pprz_msg_received = FALSE;
-    }
-  }
-#elif DATALINK == XBEE
-  if (XBeeBuffer()) {
-    ReadXBeeBuffer();
-    if (xbee_msg_received) {
-      xbee_parse_payload();
-      xbee_msg_received = FALSE;
-    }
-  }
-#else
-#error "Unknown DATALINK"
-#endif
-
-  if (dl_msg_available) {
-    dl_parse_msg();
-    dl_msg_available = FALSE;
-  }
-#endif /** DATALINK */
 
 #ifdef MCU_SPI_LINK
     link_mcu_event_task();
@@ -666,6 +641,9 @@ void event_task_ap( void ) {
 } /* event_task_ap() */
 
 #ifdef USE_AHRS
+static inline void on_accel_event( void ) {
+}
+
 static inline void on_gyro_accel_event( void ) {
 
 #ifdef AHRS_CPU_LED
@@ -682,7 +660,7 @@ static inline void on_gyro_accel_event( void ) {
     return;
   }
 
-#ifndef PERIODIC_FREQUENCY
+#if PERIODIC_FREQUENCY == 60
   ImuScaleGyro(imu);
   ImuScaleAccel(imu);
 
@@ -693,12 +671,11 @@ static inline void on_gyro_accel_event( void ) {
 #else //PERIODIC_FREQUENCY
   static uint8_t _reduced_propagation_rate = 0;
   static uint8_t _reduced_correction_rate = 0;
-  static struct Int32Vect3 acc_avg, gyr_avg;
+  static struct Int32Vect3 acc_avg;
+  static struct Int32Rates gyr_avg;
 
-  gyr_avg.x += imu.gyro_unscaled.p;
-  gyr_avg.y += imu.gyro_unscaled.q;
-  gyr_avg.z += imu.gyro_unscaled.r;
-  INT32_VECT3_ADD(acc_avg, imu.accel_unscaled);
+  RATES_ADD(gyr_avg, imu.gyro_unscaled);
+  VECT3_ADD(acc_avg, imu.accel_unscaled);
 
   _reduced_propagation_rate++;
   if (_reduced_propagation_rate < (PERIODIC_FREQUENCY / AHRS_PROPAGATE_FREQUENCY))
@@ -708,11 +685,8 @@ static inline void on_gyro_accel_event( void ) {
   {
     _reduced_propagation_rate = 0;
 
-    INT32_VECT3_SDIV(gyr_avg, gyr_avg, (PERIODIC_FREQUENCY / AHRS_PROPAGATE_FREQUENCY) );
-    imu.gyro_unscaled.p = gyr_avg.x;
-    imu.gyro_unscaled.q = gyr_avg.y;
-    imu.gyro_unscaled.r = gyr_avg.z;
-    INT_VECT3_ZERO(gyr_avg);
+    RATES_SDIV(imu.gyro_unscaled, gyr_avg, (PERIODIC_FREQUENCY / AHRS_PROPAGATE_FREQUENCY) );
+    INT_RATES_ZERO(gyr_avg);
 
     ImuScaleGyro(imu);
 
@@ -722,8 +696,7 @@ static inline void on_gyro_accel_event( void ) {
     if (_reduced_correction_rate >= (AHRS_PROPAGATE_FREQUENCY / AHRS_CORRECT_FREQUENCY))
     {
       _reduced_correction_rate = 0;
-      INT32_VECT3_SDIV(acc_avg, acc_avg, (PERIODIC_FREQUENCY / AHRS_CORRECT_FREQUENCY) );
-      INT32_VECT3_COPY(imu.accel_unscaled, acc_avg);
+      VECT3_SDIV(imu.accel_unscaled, acc_avg, (PERIODIC_FREQUENCY / AHRS_CORRECT_FREQUENCY) );
       INT_VECT3_ZERO(acc_avg);
       ImuScaleAccel(imu);
       ahrs_update_accel();

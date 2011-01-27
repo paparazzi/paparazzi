@@ -33,27 +33,13 @@ endif
 ifeq ($(TARGET),$(ACTUATOR_TARGET))
 
   ifeq ($(ACTUATORS),)
-    ifeq ($(BOARD),tiny)
-      ifeq ($(BOARD_VERSION),1.1)
-        include $(CFG_SHARED)/actuators_4015.makefile
-      else
-        ifeq ($(BOARD_VERSION),0.99)
-          include $(CFG_SHARED)/actuators_4015.makefile
-        else
-          include $(CFG_SHARED)/actuators_4017.makefile
-        endif
-      endif
-    endif
-    ifeq ($(BOARD),twog)
-	  include $(CFG_SHARED)/actuators_4017.makefile
-    endif
 
     ifeq ($(BOARD),lisa_l)
       include $(CFG_SHARED)/actuators_direct.makefile
     endif
 
   else
-    include $(CFG_FIXEDWING)/$(ACTUATORS).makefile
+    include $(CFG_SHARED)/$(ACTUATORS).makefile
   endif
 
 endif

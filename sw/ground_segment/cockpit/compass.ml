@@ -113,10 +113,9 @@ let draw = fun (da_object:Gtk_tools.pixmap_in_drawin_area) desired_course course
 
 (*********************** Main ************************************************)
 let _ =
-  let ivy_bus = ref "127.255.255.255:2010" in
-
+  let ivy_bus = ref Defivybus.default_ivy_bus in 
   Arg.parse
-    [ "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.255:2010"]
+    [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "<ivy bus> Default is %s" !ivy_bus)]
     (fun x -> prerr_endline ("WARNING: don't do anything with "^x))
     "Usage: ";
 

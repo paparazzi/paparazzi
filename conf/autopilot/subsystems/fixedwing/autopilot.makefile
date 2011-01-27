@@ -68,8 +68,11 @@ endif
 #
 # Sys-time
 #
-
-$(TARGET).srcs 		+= sys_time.c
+ifndef PERIODIC_FREQUENCY
+PERIODIC_FREQUENCY = 60
+endif
+$(TARGET).CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./$(PERIODIC_FREQUENCY).))' -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
+$(TARGET).srcs += sys_time.c
 
 #
 # InterMCU & Commands
@@ -122,11 +125,6 @@ endif
 #
 
 ns_CFLAGS 		+= -DUSE_SYS_TIME
-ifdef PERIODIC_FREQUENCY
-ns_CFLAGS 		+= -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./$(PERIODIC_FREQUENCY).))' -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
-else
-ns_CFLAGS 		+= -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./60.))'
-endif
 ns_srcs 		+= $(SRC_ARCH)/sys_time_hw.c
 
 
@@ -173,6 +171,12 @@ ap_srcs 		+= $(SRC_FIXEDWING)/estimator.c
 ## SIMULATOR THREAD SPECIFIC
 ##
 
+UNAME = $(shell uname -s)
+ifeq ("$(UNAME)","Darwin")
+  sim.CFLAGS += -I/opt/local/include/
+endif
+
+sim.CFLAGS              += $(CPPFLAGS)
 sim.CFLAGS 		+= $(fbw_CFLAGS) $(ap_CFLAGS)
 sim.srcs 		+= $(fbw_srcs) $(ap_srcs)
 

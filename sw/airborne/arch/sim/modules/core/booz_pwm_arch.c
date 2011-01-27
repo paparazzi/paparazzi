@@ -22,11 +22,8 @@
  *
  */
 
-#ifndef BOOZ2_PWM_HW_H
-#define BOOZ2_PWM_HW_H
+#include "modules/core/booz_pwm_arch.h"
 
-extern void booz2_pwm_init_hw(void);
+void booz_pwm_init_arch( void ) {}
 
-#define Booz2SetPwmValue(_v) {}
 
-#endif /* BOOZ2_PWM_HW_H */

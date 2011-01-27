@@ -1,4 +1,4 @@
-#!/opt/local/bin/ocamlrun /opt/local/bin/ocaml
+#!OCAMLRUN OCAML
 #load "unix.cma";;
 let (//) = Filename.concat
 let dirname = Filename.dirname Sys.argv.(0)

@@ -77,7 +77,7 @@ external fg_msg : string -> float -> float -> float -> float -> float -> float -
 
 let ac_name = ref "A/C not set"
 
-let ivy_bus = ref "127.255.255.255:2010"
+let ivy_bus = ref Defivybus.default_ivy_bus 
 
 let fg_client = ref ""
 
@@ -86,7 +86,7 @@ let autolaunch = ref false
 let noground = ref false
 
 let common_options = [
-  "-b", Arg.Set_string ivy_bus, "Bus\tDefault is 127.255.255.25:2010";
+  "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
   "-boot", Arg.Set autoboot, "Boot the A/C on start";
   "-launch", Arg.Set autolaunch, "Launch the A/C on start";
   "-noground", Arg.Set noground, "Disable ground detection";

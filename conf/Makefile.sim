@@ -35,7 +35,7 @@ CC = g++
 endif
 OCAMLC = ocamlc
 SIMDIR = $(PAPARAZZI_SRC)/sw/simulator
-CAMLINCLUDES = -I +lablgtk2 -I $(PAPARAZZI_SRC)/sw/lib/ocaml -I $(SIMDIR) -I +xml-light
+CAMLINCLUDES = $(shell ocamlfind query -r -i-format lablgtk2) -I $(PAPARAZZI_SRC)/sw/lib/ocaml -I $(SIMDIR) $(shell ocamlfind query -r -i-format xml-light)
 SIMSITLML = $(OBJDIR)/simsitl.ml
 MYGTKINITCMO = myGtkInit.cmo
 SITLCMA = $(SIMDIR)/sitl.cma
