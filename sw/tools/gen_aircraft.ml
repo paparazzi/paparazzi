@@ -92,12 +92,13 @@ let dump_module_section = fun xml f ->
   fprintf f "$(TARGET).CFLAGS += -I modules -I arch/$(ARCH)/modules\n";
   List.iter (fun dir -> let dir_name = (String.uppercase dir)^"_DIR" in fprintf f "%s = modules/%s\n" dir_name dir) dir_list;
   (* parse each module *)
-  List.iter (fun (m, flags) ->
+  List.iter (fun (m, flags, extra_targets) ->
     let name = ExtXml.attrib m "name" in
     let dir = try Xml.attrib m "dir" with _ -> name in
     let dir_name = (String.uppercase dir)^"_DIR" in
-    (* get the list of all the targets for this module *)
-    let module_target_list = Gen_common.get_targets_of_module m in
+    (* get the list of all the targets for this module and concat the extra targets *)
+    let module_target_list = Gen_common.singletonize (
+      Gen_common.get_targets_of_module m @ extra_targets) in
     (* print global flags as compilation defines and flags *)
     fprintf f "\n# makefile for module %s in modules/%s\n" name dir;
     List.iter (fun flag ->
@@ -117,7 +118,10 @@ let dump_module_section = fun xml f ->
     (* Look for makefile section *)
     List.iter (fun l ->
       if ExtXml.tag_is l "makefile" then begin
-        let targets = Gen_common.targets_of_field l in
+        (* add extra targets only if default is used *)
+        let et = try ignore(Xml.attrib l "target"); [] with _ -> extra_targets in
+        let targets = Gen_common.singletonize (
+          Gen_common.targets_of_field l Gen_common.default_module_targets @ et) in
         (* Look for defines, flags, files, ... *)
         List.iter (fun field ->
           match String.lowercase (Xml.tag field) with

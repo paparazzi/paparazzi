@@ -25,17 +25,23 @@
  *)
 
 val modules_dir : string
+val default_module_targets : string
 
 (** remove all duplicated elements of a list *)
 val singletonize : 'a list -> 'a list
 
-(** [get_modules_of_airframe xml]
- * Returns a list of modules ("load" node) from airframe file *)
-val get_modules_of_airframe : Xml.xml -> Xml.xml list
+(** [targets_of_field]
+ * Returns the targets of a makefile node in modules
+ * Default "ap|sim" *)
+val targets_of_field : Xml.xml -> string -> string list
 
-(** [get_full_module_conf module] Parse module configuration file
- * Returns module file name and a pair (xml, xml list): parsed file, children *)
-val get_full_module_conf : Xml.xml -> (string * (Xml.xml * Xml.xml list))
+(** [get_modules_of_airframe xml]
+ * Returns a list of pair (modules ("load" node), targets) from airframe file *)
+val get_modules_of_airframe : Xml.xml -> (Xml.xml * string list) list
+
+(** [get_full_module_conf module] Parse module configuration file (with extra targets)
+ * Returns module file name and a pair (xml, xml list, targets): parsed file, children, extra targets *)
+val get_full_module_conf : (Xml.xml * string list) -> (string * (Xml.xml * Xml.xml list * string list))
 
 (** [get_module_conf module] Parse module configuration file
  * Returns parsed xml file *)
@@ -53,12 +59,7 @@ val unload_unused_modules : Xml.xml list -> bool -> Xml.xml list
  * Returns a list of loaded modules' name *)
 val get_modules_name : Xml.xml -> string list
 
-(** [targets_of_field]
- * Returns the targets of a makefile node in modules
- * Default "ap|sim" *)
-val targets_of_field : Xml.xml -> string list
-
 (** [get_modules_dir xml]
  * Returns the list of modules directories *)
-val get_modules_dir : (Xml.xml * 'a) list -> string list
+val get_modules_dir : (Xml.xml * 'a * 'b) list -> string list
 

@@ -31,6 +31,8 @@ let (//) = Filename.concat
 let paparazzi_conf = Env.paparazzi_home // "conf"
 let modules_dir = paparazzi_conf // "modules"
 
+let default_module_targets = "ap|sim"
+
 (** remove all duplicated elements of a list *)
 let singletonize = fun l ->
   let rec loop = fun l ->
@@ -51,46 +53,55 @@ let union_of_lists = fun l ->
   let sl = List.sort compare (List.flatten l) in
   singletonize sl
 
+(** [targets_of_field]
+ * Returns the targets of a makefile node in modules
+ * Default "ap|sim" *)
+let pipe_regexp = Str.regexp "|"
+let targets_of_field = fun field default ->
+  try
+    Str.split pipe_regexp (ExtXml.attrib_or_default field "target" default)
+  with
+    _ -> []
+
 (** [get_modules_of_airframe xml]
- * Returns a list of modules ("load" node) from airframe file *)
+ * Returns a list of pair (modules ("load" node), targets) from airframe file *)
 let get_modules_of_airframe = fun xml ->
   (* extract all "modules" sections *)
   let modules = List.map (fun x ->
     match String.lowercase (Xml.tag x) with
-      "modules" -> Xml.children x
+      "modules" ->
+        let targets = targets_of_field x "" in
+        List.map (fun m -> (m,targets)) (Xml.children x)
     | _ -> []
     ) (Xml.children xml) in
   (* flatten the list (result is a list of "load" xml nodes) *)
   List.flatten modules
 
-(** [get_full_module_conf module] Parse module configuration file
- * Returns module file name and a pair (xml, xml list): parsed file, children *)
-let get_full_module_conf = fun m ->
+(** [get_full_module_conf module] Parse module configuration file (with extra targets)
+ * Returns module file name and a triple (xml, xml list, targets): parsed file, children, extra targets *)
+let get_full_module_conf = fun (m, t) ->
   match Xml.tag m with
     "load" -> let file = modules_dir // ExtXml.attrib m "name" in
-      (file, (ExtXml.parse_file file, Xml.children m))
+      let targets = targets_of_field m "" in
+      (file, (ExtXml.parse_file file, Xml.children m, t @ targets))
   | _ -> Xml2h.xml_error "load"
 
 (** [get_module_conf module] Parse module configuration file
  * Returns parsed xml file *)
 let get_module_conf = fun m ->
-  let (_ , (conf, _)) = get_full_module_conf m in
+  let (_ , (conf, _, _)) = get_full_module_conf (m, []) in
   conf
 
 (** [get_targets_of_module xml] Returns the list of targets of a module *)
 let get_targets_of_module = fun m ->
-  let pipe_regexp = Str.regexp "|" in
-  let targets_of_field = fun field -> try 
-    Str.split pipe_regexp (ExtXml.attrib_or_default field "target" "ap|sim") with _ -> [] in
   let targets = List.map (fun x ->
     match String.lowercase (Xml.tag x) with
-      "makefile" -> targets_of_field x
+      "makefile" -> targets_of_field x default_module_targets
     | _ -> []
   ) (Xml.children m) in
   (* return a singletonized list *)
   singletonize (List.sort compare (List.flatten targets))
 
-(* gm *)
 (** [unload_unused_modules modules ?print_error]
  * Returns a list of [modules] where unused modules are removed
  * If [print_error] is true, a warning is printed *)
@@ -107,36 +118,24 @@ let unload_unused_modules = fun modules print_error ->
   else
     List.find_all is_target_in_module modules
 
-
-(* gp *)
 (** [get_modules_name xml]
  * Returns a list of loaded modules' name *)
 let get_modules_name = fun xml ->
   (* extract all "modules" sections *)
   let modules = get_modules_of_airframe xml in
   (* parse modules *)
-  let modules = List.map (fun m -> ExtXml.parse_file (modules_dir // ExtXml.attrib m "name")) modules in
+  let modules = List.map (fun (m,_) -> ExtXml.parse_file (modules_dir // ExtXml.attrib m "name")) modules in
   (* filter the list if target is not supported *)
   let modules = unload_unused_modules modules false in
   (* return a list of modules name *)
   List.map (fun m -> ExtXml.attrib m "name") modules
-
-(** [targets_of_field]
- * Returns the targets of a makefile node in modules
- * Default "ap|sim" *)
-let pipe_regexp = Str.regexp "|"
-let targets_of_field = fun field ->
-  try
-    Str.split pipe_regexp (ExtXml.attrib_or_default field "target" "ap|sim")
-  with
-    _ -> []
 
 (** [get_targets_of_module xml]
  * Returns the list of targets of a module *)
 let get_targets_of_module = fun m ->
   let targets = List.map (fun x ->
     match String.lowercase (Xml.tag x) with
-      "makefile" -> targets_of_field x
+      "makefile" -> targets_of_field x default_module_targets
     | _ -> []
   ) (Xml.children m) in
   (* return a singletonized list *)
@@ -145,6 +144,6 @@ let get_targets_of_module = fun m ->
 (** [get_modules_dir xml]
  * Returns the list of modules directories *)
 let get_modules_dir = fun modules ->
-  let dir = List.map (fun (m, _) -> try Xml.attrib m "dir" with _ -> ExtXml.attrib m "name") modules in
+  let dir = List.map (fun (m, _, _) -> try Xml.attrib m "dir" with _ -> ExtXml.attrib m "name") modules in
   singletonize (List.sort compare dir)
 
