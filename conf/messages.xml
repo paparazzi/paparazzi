@@ -138,8 +138,8 @@
    </message>
 
    <message name="CAM" id="20">
-     <field name="phi" type="int8" unit="deg"/>
-     <field name="theta" type="int8" unit="deg"/>
+     <field name="phi" type="int16" unit="deg"/>
+     <field name="theta" type="int16" unit="deg"/>
      <field name="target_x" type="int16" unit="m"/>
      <field name="target_y" type="int16" unit="m"/>
    </message>
@@ -489,7 +489,13 @@
  <!-- 63 is free -->
  <!-- 64 is free -->
  <!-- 65 is free -->
- <!-- 66 is free -->
+
+  <message name="CAM_POINT" id="66">
+      <field name="cam_point_distance_from_home" type="uint16" unit="m"/>
+      <field name="cam_point_lat" type="float" unit="deg"/>
+      <field name="cam_point_lon" type="float" unit="deg"/>
+  </message>
+
  <!-- 67 is free -->
  <!-- 68 is free -->
  <!-- 69 is free -->

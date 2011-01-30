@@ -38,8 +38,12 @@
 #define CAM_MODE_XY_TARGET 3   /* Input: target_x, target_y */
 #define CAM_MODE_WP_TARGET 4   /* Input: waypoint no */
 #define CAM_MODE_AC_TARGET 5   /* Input: ac id */
+#define CAM_MODE_STABILIZED    6   // Stabilized mode, input: camera angles from the pan and tilt radio channels, output pointing coordinates.
+#define CAM_MODE_RC            7   // Manual mode, input: camera angles from the pan and tilt radio channels, output servo positions.
+
 
 extern uint8_t cam_mode;
+extern uint8_t cam_lock;
 
 extern float cam_phi_c, cam_theta_c;
 
@@ -72,4 +76,13 @@ extern float test_cam_estimator_phi;
 extern float test_cam_estimator_theta;
 extern float test_cam_estimator_hspeed_dir;
 #endif // TEST_CAM
+
+#if defined(COMMAND_CAM_PWR_SW) || defined(VIDEO_TX_SWITCH)
+
+extern bool_t video_tx_state;
+#define VIDEO_TX_ON()   { video_tx_state = 1; 0; }
+#define VIDEO_TX_OFF()  { video_tx_state = 0; 0; }
+
+#endif
+
 #endif // CAM_H
