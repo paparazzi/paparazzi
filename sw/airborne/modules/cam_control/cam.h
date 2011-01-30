@@ -41,6 +41,18 @@
 #define CAM_MODE_STABILIZED    6   // Stabilized mode, input: camera angles from the pan and tilt radio channels, output pointing coordinates.
 #define CAM_MODE_RC            7   // Manual mode, input: camera angles from the pan and tilt radio channels, output servo positions.
 
+#ifndef CAM_PAN_MAX
+#define CAM_PAN_MAX 90
+#endif
+#ifndef CAM_PAN_MIN
+#define CAM_PAN_MIN -90
+#endif
+#ifndef CAM_TILT_MAX
+#define CAM_TILT_MAX 90
+#endif
+#ifndef CAM_TILT_MIN
+#define CAM_TILT_MIN -90
+#endif
 
 extern uint8_t cam_mode;
 extern uint8_t cam_lock;
