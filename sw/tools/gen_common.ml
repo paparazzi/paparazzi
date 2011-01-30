@@ -84,22 +84,6 @@ let get_modules_of_airframe = fun xml ->
   | [] -> []
   | _ -> failwith "Error: you have more than one 'modules' section in your airframe file"
 
-(** [get_full_module_conf module] Parse module configuration file (with extra targets)
- * Returns module file name and a triple (xml, xml list, targets): parsed file, children, extra targets *)
-(*let get_full_module_conf = fun (m, t) ->
-  match Xml.tag m with
-    "load" -> let file = modules_dir // ExtXml.attrib m "name" in
-      let targets = targets_of_field m "" in
-      (file, (ExtXml.parse_file file, Xml.children m, t @ targets))
-  | _ -> Xml2h.xml_error "load"
-*)
-(** [get_module_conf module] Parse module configuration file
- * Returns parsed xml file *)
-(*let get_module_conf = fun m ->
-  let (_ , (conf, _, _)) = get_full_module_conf (m, []) in
-  conf
-*)
-
 (** [get_targets_of_module xml]
  * Returns the list of targets of a module *)
 let get_targets_of_module = fun conf ->

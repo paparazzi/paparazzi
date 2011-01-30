@@ -49,14 +49,6 @@ val targets_of_field : Xml.xml -> string -> string list
  * Returns a list of pair (modules ("load" node), targets) from airframe file *)
 val get_modules_of_airframe : Xml.xml -> module_conf list
 
-(** [get_full_module_conf module] Parse module configuration file (with extra targets)
- * Returns module file name and a pair (xml, xml list, targets): parsed file, children, extra targets *)
-(*val get_full_module_conf : (Xml.xml * string list) -> module_conf*)
-
-(** [get_module_conf module] Parse module configuration file
- * Returns parsed xml file *)
-(*val get_module_conf : Xml.xml -> Xml.xml*)
-
 (** [get_targets_of_module xml] Returns the list of targets of a module *)
 val get_targets_of_module : module_conf -> string list
 
