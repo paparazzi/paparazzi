@@ -1,7 +1,5 @@
 (*
- * $Id: fw_server.ml,v 1.1 2009/03/22 17:53:48 hecto Exp $
- *
- * Server part specific to booz vehicles
+ * Server part specific to rotorcraft vehicles
  *
  * Copyright (C) ENAC
  *
@@ -97,12 +95,13 @@ let update_waypoint = fun ac wp_id p alt ->
     Not_found ->
       Hashtbl.add ac.waypoints wp_id new_wp
 
-let get_pprz_mode = fun ap_mode ->
+(*let get_pprz_mode = fun ap_mode ->
   let mode = ref 0 in
   if ap_mode = 0 || ap_mode = 1 || ap_mode = 2 || ap_mode = 4 || ap_mode = 7 then mode := 0 (* MANUAL *)
   else if ap_mode = 3 || ap_mode = 5 || ap_mode = 6 || ap_mode = 8 then mode := 1 (* AUTO1 *)
   else if ap_mode = 9 || ap_mode = 10 || ap_mode = 11 || ap_mode = 12 then mode := 2; (* AUTO2 *)
   !mode
+*)
 
 let get_rc_status = fun rc_status ->
   let status = ref "" in
@@ -178,13 +177,14 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       (*a.unix_time <- LL.unix_time_of_tow (truncate (fvalue "itow" /. 1000.));
       a.itow <- Int32.of_float (fvalue "itow");*)
       a.flight_time   <- ivalue "flight_time";
-      if a.gspeed > 3. && a.ap_mode = _AUTO2 then
-          Wind.update ac_name a.gspeed a.course
+      (*if a.gspeed > 3. && a.ap_mode = _AUTO2 then
+          Wind.update ac_name a.gspeed a.course*)
   | "ROTORCRAFT_STATUS" ->
+      a.vehicle_type  <- Rotorcraft;
       a.fbw.rc_status <- get_rc_status (ivalue "rc_status");
       a.fbw.rc_rate   <- ivalue "frame_rate";
       a.gps_mode      <- check_index (ivalue "gps_status") gps_modes "GPS_MODE";
-      a.ap_mode       <- check_index (get_pprz_mode (ivalue "ap_mode")) ap_modes "BOOZ_AP_MODE";
+      a.ap_mode       <- check_index (ivalue "ap_mode") rotorcraft_ap_modes "ROTORCRAFT_AP_MODE";
       a.kill_mode     <- ivalue "ap_motors_on" == 0;
       a.bat           <- fvalue "vsupply" /. 10.;
   | "INS_REF" ->

@@ -1,7 +1,5 @@
 (*
- * $Id: fw_server.mli,v 1.1 2009/03/22 17:53:48 hecto Exp $
- *
- * Server part specific to booz vehicles
+ * Server part specific to rotorcraft vehicles
  *  
  * Copyright (C) ENAC
  *

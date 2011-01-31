@@ -54,11 +54,17 @@ type nav_ref =
   | Utm of Latlong.utm
   | Ltp of Latlong.ecef
 
+type vehicle_type =
+    FixedWing
+  | Rotorcraft
+  | UnknownVehicleType
+
 val add_pos_to_nav_ref : nav_ref -> ?z:float -> (float * float) -> Latlong.geographic
 
 type waypoint = { altitude : float; wp_geo : Latlong.geographic }
 
 type aircraft = {
+    mutable vehicle_type : vehicle_type;
     id : string;
     name : string;
     flight_plan : Xml.xml;
