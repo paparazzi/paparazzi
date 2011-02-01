@@ -99,30 +99,45 @@ LDSCRIPT = $($(TARGET).LDSCRIPT)
 endif
 endif
 
-CFLAGS = -I. -I./$(ARCH) $(INCLUDES) -D__thumb2__ -Wall -c -msoft-float -O$(OPT)
-CFLAGS += -Wl,gc-sections
-CFLAGS += -mcpu=$(MCU) -mthumb -ansi
+CFLAGS = -I. -I./$(ARCH) $(INCLUDES)
+#CFLAGS += -msoft-float
+#CFLAGS += -O$(OPT)
+##CFLAGS += -Wl,--gc-sections
+CFLAGS += -mcpu=$(MCU)
+CFLAGS += -mthumb
+#CFLAGS += -ansi
 CFLAGS += -std=gnu99
 #CFLAGS += -malignment-traps
-CFLAGS += -fno-common  -g$(DEBUG)
-CFLAGS += -ffunction-sections -fdata-sections
-CFLAGS += -Wall -Wimplicit
-CFLAGS += -Wcast-align
-CFLAGS += -Wpointer-arith -Wswitch
-CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
-CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
-CFLAGS += -Wnested-externs
-CFLAGS += -Wmissing-prototypes
-CFLAGS += -Wstrict-prototypes
-CFLAGS += -Wmissing-declarations
-CFLAGS += -Wswitch-default
+CFLAGS += -fno-common
+CFLAGS += -g$(DEBUG)
+CFLAGS += -ffunction-sections
+CFLAGS += -fdata-sections
+#CFLAGS += -Wimplicit
+#CFLAGS += -Wcast-align
+#CFLAGS += -Wpointer-arith
+#CFLAGS += -Wswitch
+#CFLAGS += -Wredundant-decls
+#CFLAGS += -Wreturn-type
+#CFLAGS += -Wshadow
+#CFLAGS += -Wunused
+#CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
+#CFLAGS += -Wnested-externs
+#CFLAGS += -Wmissing-prototypes
+#CFLAGS += -Wstrict-prototypes
+#CFLAGS += -Wmissing-declarations
+#CFLAGS += -Wswitch-default
 
 CFLAGS += $($(TARGET).CFLAGS)
 
 AFLAGS  = -ahls -mapcs-32
 AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
-LDFLAGS = -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT) --gc-sections
+LDFLAGS = -T$(LDSCRIPT)
+#LDFLAGS += -nostartfiles
+LDFLAGS += -L$(GCC_LIB_DIR)
+#LDFLAGS += -O$(OPT)
+#LDFLAGS += --gc-sections
+LDFLAGS += $(CFLAGS)
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
 LDLIBS  += -lc -lm -lgcc -lcmsis -lstm32
 
@@ -210,15 +225,17 @@ ifeq ($(FLASH_MODE),SERIAL)
 upload: $(OBJDIR)/$(TARGET).bin
 	$(LOADER) -p /dev/ttyUSB0  -b 115200 -e -w -v $^
 else ifeq ($(FLASH_MODE),JTAG)
-upload:  $(OBJDIR)/$(TARGET).bin
-	@echo -e "  OOCD\t$<"
+upload:  $(OBJDIR)/$(TARGET).elf
+	@echo "  OOCD\t$<"
 	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
-				-f board/$(OOCD_BOARD).cfg \
-				-c init \
-				-c "reset halt" \
-				-c "flash write_image erase $(OBJDIR)/$(TARGET).bin 0x08000000" \
-				-c reset \
-				-c shutdown
+		-f board/$(OOCD_BOARD).cfg \
+		-c init \
+		-c "reset halt" \
+		-c "reset init" \
+		-c "stm32x mass_erase 0" \
+		-c "flash write_image $<" \
+		-c reset \
+		-c shutdown
 else
 upload:
 	@echo unknown flash_mode $(FLASH_MODE)
