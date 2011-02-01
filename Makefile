@@ -241,3 +241,9 @@ paparazzi:
 sw/simulator/launchsitl:
 	cat src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
 	chmod a+x $@
+
+#.SUFFIXES: .hgt.zip
+
+%.hgt.zip:
+	cd data/srtm; $(MAKE) $(@)
+

@@ -26,6 +26,7 @@
 /conf/conf.xml.20*
 /conf/control_panel.xml
 /conf/%gconf.xml
+/conf/srtm_data/*
 
 # /doc/pprz_algebra/
 /doc/pprz_algebra/headfile.log
