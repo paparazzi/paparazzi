@@ -100,9 +100,9 @@ endif
 endif
 
 CFLAGS = -I. -I./$(ARCH) $(INCLUDES)
-#CFLAGS += -msoft-float
+CFLAGS += -msoft-float
 #CFLAGS += -O$(OPT)
-##CFLAGS += -Wl,--gc-sections
+#CFLAGS += -Wl,--gc-sections
 CFLAGS += -mcpu=$(MCU)
 CFLAGS += -mthumb
 #CFLAGS += -ansi
@@ -133,7 +133,7 @@ AFLAGS  = -ahls -mapcs-32
 AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
 LDFLAGS = -T$(LDSCRIPT)
-#LDFLAGS += -nostartfiles
+LDFLAGS += -nostartfiles
 LDFLAGS += -L$(GCC_LIB_DIR)
 #LDFLAGS += -O$(OPT)
 #LDFLAGS += --gc-sections
