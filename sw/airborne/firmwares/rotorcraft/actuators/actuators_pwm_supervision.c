@@ -26,23 +26,10 @@
 #include "booz/booz2_commands.h"
 #include "subsystems/radio_control.h"
 
-#include "downlink.h"
-#include "messages.h"
-#include "mcu_periph/uart.h"
-
 /* let's start butchery now and use the actuators_pwm arch functions */
 #include "firmwares/rotorcraft/actuators/actuators_pwm.h"
 
-/* get SetActuatorsFromCommands() macro */
 #include "generated/airframe.h"
-
-/* define the glue between control and SetActuatorsFromCommands */
-#define actuators actuators_pwm_values
-#define SERVOS_TICS_OF_USEC(_v) (_v)
-
-#define Actuator(_x)  actuators_pwm_values[_x]
-#define ChopServo(x,a,b) Chop(x, a, b)
-#define ActuatorsCommit  actuators_pwm_commit
 
 int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
@@ -52,13 +39,14 @@ void actuators_init(void)
   actuators_pwm_arch_init();
 }
 
-#define PWM_GAIN_SCALE 5
+#define PWM_GAIN_SCALE 2
 #define PWM_OFF 1000
 
 void actuators_set(bool_t motors_on) {
   booz2_commands[COMMAND_PITCH] = booz2_commands[COMMAND_PITCH] * PWM_GAIN_SCALE;
   booz2_commands[COMMAND_ROLL] = booz2_commands[COMMAND_ROLL] * PWM_GAIN_SCALE;
   booz2_commands[COMMAND_YAW] = booz2_commands[COMMAND_YAW] * PWM_GAIN_SCALE;
+
   supervision_run(motors_on, FALSE, booz2_commands);
 
   if (motors_on) {
