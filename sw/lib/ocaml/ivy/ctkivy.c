@@ -11,7 +11,7 @@
 #include "ivytcl.h"
 
 extern void cb_delete_channel(void *delete_read);
-extern void cb_read_channel(Channel ch, HANDLE fd, void *closure);
+extern void cb_read_channel(Channel ch, IVY_HANDLE fd, void *closure);
 
 value ivy_TclmainLoop(value unit)
 {
@@ -25,7 +25,7 @@ value ivy_TclchannelSetUp(value fd, value closure_name)
   Channel c;
   value * closure = caml_named_value(String_val(closure_name));
 
-  c = IvyTclChannelSetUp((HANDLE)Int_val(fd), (void*)closure, cb_delete_channel, cb_read_channel);
+  c = IvyTclChannelSetUp((IVY_HANDLE)Int_val(fd), (void*)closure, cb_delete_channel, cb_read_channel);
   return Val_int(c);
 }
 
