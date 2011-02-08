@@ -38,7 +38,7 @@
 
 
   <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="MIN_MOTOR" value="1060"/>
+    <define name="MIN_MOTOR" value="1090"/>
     <define name="MAX_MOTOR" value="1900"/>
     <define name="TRIM_A" value="0"/>
     <define name="TRIM_E" value="0"/>
@@ -52,9 +52,9 @@
   </section>
 
   <section name="IMU" prefix="IMU_">
-    <define name="GYRO_P_NEUTRAL" value="-227"/>
-    <define name="GYRO_Q_NEUTRAL" value="48"/>
-    <define name="GYRO_R_NEUTRAL" value="21"/>
+    <define name="GYRO_P_NEUTRAL" value="27"/>
+    <define name="GYRO_Q_NEUTRAL" value="-10"/>
+    <define name="GYRO_R_NEUTRAL" value="20"/>
     <define name="GYRO_P_SENS" value="5.0" integer="16"/>
     <define name="GYRO_Q_SENS" value="5.0" integer="16"/>
     <define name="GYRO_R_SENS" value="5.0" integer="16"/>
@@ -122,15 +122,15 @@
     <define name="DEADBAND_R"     value="250"/>
 
     <!-- reference -->
-    <define name="REF_OMEGA_P"  value="RadOfDeg(800)"/>
+    <define name="REF_OMEGA_P"  value="RadOfDeg(600)"/>
     <define name="REF_ZETA_P"   value="0.85"/>
-    <define name="REF_MAX_P"    value="RadOfDeg(300.)"/>
-    <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
+    <define name="REF_MAX_P"    value="RadOfDeg(400.)"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
 
-    <define name="REF_OMEGA_Q"  value="RadOfDeg(800)"/>
+    <define name="REF_OMEGA_Q"  value="RadOfDeg(600)"/>
     <define name="REF_ZETA_Q"   value="0.85"/>
-    <define name="REF_MAX_Q"    value="RadOfDeg(300.)"/>
-    <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
+    <define name="REF_MAX_Q"    value="RadOfDeg(400.)"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
 
     <define name="REF_OMEGA_R"  value="RadOfDeg(500)"/>
     <define name="REF_ZETA_R"   value="0.85"/>
@@ -138,15 +138,15 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="-900"/>
-    <define name="PHI_DGAIN"  value="-200"/>
+    <define name="PHI_PGAIN"  value="-550"/>
+    <define name="PHI_DGAIN"  value="-210"/>
     <define name="PHI_IGAIN"  value="-200"/>
 
-    <define name="THETA_PGAIN"  value="-900"/>
-    <define name="THETA_DGAIN"  value="-200"/>
+    <define name="THETA_PGAIN"  value="-550"/>
+    <define name="THETA_DGAIN"  value="-210"/>
     <define name="THETA_IGAIN"  value="-200"/>
 
-    <define name="PSI_PGAIN"  value="-900"/>
+    <define name="PSI_PGAIN"  value="-600"/>
     <define name="PSI_DGAIN"  value="-200"/>
     <define name="PSI_IGAIN"  value="-10"/>
 
