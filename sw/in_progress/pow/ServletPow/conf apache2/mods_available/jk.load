@@ -1,6 +1,0 @@
-LoadModule jk_module /usr/lib/apache2/modules/mod_jk.so
-
-JkWorkersFile /etc/apache2/workers.properties
-JkLogFile /var/log/apache2/mod_jk.log
-JkLogLevel debug
-JkLogStampFormat "[%a %b %d %H:%M:%S %Y] "
