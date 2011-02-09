@@ -16,7 +16,7 @@
     <!--define name="GUIDANCE_H_USE_REF"/-->
 
     <target name="ap" board="booz_1.0">
-      <define name="BOOZ_FAILSAFE_GROUND_DETECT"/>
+      <define name="FAILSAFE_GROUND_DETECT"/>
       <define name="USE_GPS_ACC4R"/>
       <define name="BOOZ_START_DELAY" value="3"/>
     </target>
@@ -29,7 +29,9 @@
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="actuators"     type="asctec"/>
     <subsystem name="imu"           type="b2_v1.1"/>
-    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="gps"           type="ublox">
+      <configure name="GPS_BAUD"    value="B57600"/>
+    </subsystem>
     <subsystem name="ahrs"          type="cmpl"/>
     <subsystem name="ins"           type="hff"/>
   </firmware>
