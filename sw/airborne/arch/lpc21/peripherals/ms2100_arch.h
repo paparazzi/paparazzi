@@ -1,5 +1,5 @@
-#ifndef MS2001_ARCH_H
-#define MS2001_ARCH_H
+#ifndef MS2100_ARCH_H
+#define MS2100_ARCH_H
 
 #include <stdlib.h>  // for abs
 
@@ -14,45 +14,45 @@
 
 
 
-extern volatile uint8_t ms2001_cur_axe;
+extern volatile uint8_t ms2100_cur_axe;
 
-#define Ms2001Select()   SetBit(MS2001_SS_IOCLR,MS2001_SS_PIN)
-#define Ms2001Unselect() SetBit(MS2001_SS_IOSET,MS2001_SS_PIN)
+#define Ms2001Select()   SetBit(MS2100_SS_IOCLR,MS2100_SS_PIN)
+#define Ms2001Unselect() SetBit(MS2100_SS_IOSET,MS2100_SS_PIN)
 
-#define Ms2001Reset() SetBit(MS2001_RESET_IOCLR,MS2001_RESET_PIN)
-#define Ms2001Set()   SetBit(MS2001_RESET_IOSET,MS2001_RESET_PIN)
+#define Ms2001Reset() SetBit(MS2100_RESET_IOCLR,MS2100_RESET_PIN)
+#define Ms2001Set()   SetBit(MS2100_RESET_IOSET,MS2100_RESET_PIN)
 
 #define Ms2001OnSpiInt() {                                   \
-    switch (ms2001_status) {                                \
-    case MS2001_SENDING_REQ:                                \
+    switch (ms2100_status) {                                \
+    case MS2100_SENDING_REQ:                                \
       {                                                     \
         /* read dummy control byte reply */                 \
         uint8_t foo __attribute__ ((unused)) = SSPDR;       \
-        ms2001_status = MS2001_WAITING_EOC;                 \
+        ms2100_status = MS2100_WAITING_EOC;                 \
         Ms2001Unselect();                                   \
         SSP_ClearRti();                                     \
         SSP_DisableRti();                                   \
         SSP_Disable();                                      \
       }                                                     \
       break;                                                \
-    case MS2001_READING_RES:                                \
+    case MS2100_READING_RES:                                \
       {                                                     \
         int16_t new_val;                                    \
         new_val = SSPDR << 8;                               \
         new_val += SSPDR;                                   \
         if (abs(new_val) < 2000)                            \
-          ms2001_values[ms2001_cur_axe] = new_val;			\
+          ms2100_values[ms2100_cur_axe] = new_val;			\
         Ms2001Unselect();                                   \
         SSP_ClearRti();                                     \
         SSP_DisableRti();                                   \
         SSP_Disable();                                      \
-        ms2001_cur_axe++;                                   \
-        if (ms2001_cur_axe > 2) {                           \
-          ms2001_cur_axe = 0;                               \
-          ms2001_status = MS2001_DATA_AVAILABLE;			\
+        ms2100_cur_axe++;                                   \
+        if (ms2100_cur_axe > 2) {                           \
+          ms2100_cur_axe = 0;                               \
+          ms2100_status = MS2100_DATA_AVAILABLE;			\
         }                                                   \
         else                                                \
-          ms2001_status = MS2001_IDLE;                      \
+          ms2100_status = MS2100_IDLE;                      \
       }                                                     \
       break;                                                \
     }                                                       \
@@ -61,19 +61,19 @@ extern volatile uint8_t ms2001_cur_axe;
 
 #define Ms2001SendReq() {                               \
     Ms2001Select();                                     \
-    ms2001_status = MS2001_SENDING_REQ;					\
+    ms2100_status = MS2100_SENDING_REQ;					\
     Ms2001Set();                                        \
     SSP_ClearRti();                                     \
     SSP_EnableRti();                                    \
     Ms2001Reset();                                      \
-    uint8_t control_byte = (ms2001_cur_axe+1) << 0 |    \
-      MS2001_DIVISOR << 4;                              \
+    uint8_t control_byte = (ms2100_cur_axe+1) << 0 |    \
+      MS2100_DIVISOR << 4;                              \
     SSP_Send(control_byte);                             \
     SSP_Enable();                                       \
   }
 
 #define Ms2001ReadRes() {						\
-    ms2001_status = MS2001_READING_RES;         \
+    ms2100_status = MS2100_READING_RES;         \
     Ms2001Select();                             \
     /* trigger 2 bytes read */                  \
     SSP_Send(0);                                \
@@ -85,4 +85,4 @@ extern volatile uint8_t ms2001_cur_axe;
 
 
 
-#endif /* MS2001_ARCH_H */
+#endif /* MS2100_ARCH_H */

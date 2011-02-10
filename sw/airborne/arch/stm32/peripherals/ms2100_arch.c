@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "peripherals/ms2001.h"
+#include "peripherals/ms2100.h"
 
 #include <stm32/rcc.h>
 #include <stm32/spi.h>
@@ -29,16 +29,16 @@
 #include <stm32/misc.h>
 #include <stm32/dma.h>
 
-uint8_t ms2001_cur_axe;
-int16_t ms2001_last_reading; // can't write in place because that stupid beast
+uint8_t ms2100_cur_axe;
+int16_t ms2100_last_reading; // can't write in place because that stupid beast
                              // stips stupid values once in a while that I need
                              // to filter - high time we get rid of this crap hardware
                              // and no, I checked with the logic analyzer, timing are
                              // within specs
 
-void ms2001_arch_init( void ) {
+void ms2100_arch_init( void ) {
 
-  ms2001_cur_axe = 0;
+  ms2100_cur_axe = 0;
 
   /* set mag SS and reset as output and assert them (SS on PC12  reset on PC13) ----*/
   Ms2001Unselect();
@@ -58,7 +58,7 @@ void ms2001_arch_init( void ) {
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-#ifdef MS2001_HANDLES_DMA_IRQ
+#ifdef MS2100_HANDLES_DMA_IRQ
  /* Enable DMA1 channel4 IRQ Channel */
   NVIC_InitTypeDef NVIC_init_structure_dma = {
     .NVIC_IRQChannel = DMA1_Channel4_IRQn,
@@ -67,9 +67,9 @@ void ms2001_arch_init( void ) {
     .NVIC_IRQChannelCmd = ENABLE
   };
   NVIC_Init(&NVIC_init_structure_dma);
-#endif /* MS2001_HANDLES_DMA_IRQ */
+#endif /* MS2100_HANDLES_DMA_IRQ */
 
-#ifdef MS2001_HANDLES_SPI_IRQ
+#ifdef MS2100_HANDLES_SPI_IRQ
   NVIC_InitTypeDef NVIC_init_structure_spi = {
     .NVIC_IRQChannel = SPI2_IRQn,
     .NVIC_IRQChannelPreemptionPriority = 0,
@@ -77,19 +77,19 @@ void ms2001_arch_init( void ) {
     .NVIC_IRQChannelCmd = ENABLE
   };
   NVIC_Init(&NVIC_init_structure_spi);
-#endif /* MS2001_HANDLES_SPI_IRQ */
+#endif /* MS2100_HANDLES_SPI_IRQ */
 
 }
 
-#ifdef MS2001_HANDLES_SPI_IRQ
+#ifdef MS2100_HANDLES_SPI_IRQ
 void spi2_irq_handler(void) {
   Ms2001OnSpiIrq();
 }
 #endif
 
 
-#ifdef MS2001_HANDLES_DMA_IRQ
+#ifdef MS2100_HANDLES_DMA_IRQ
 void dma1_c4_irq_handler(void) {
   Ms2001OnDmaIrq();
 }
-#endif /* MS2001_HANDLES_DMA_IRQ */
+#endif /* MS2100_HANDLES_DMA_IRQ */

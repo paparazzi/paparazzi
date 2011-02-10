@@ -1,5 +1,5 @@
-#ifndef MS2001_ARCH_H
-#define MS2001_ARCH_H
+#ifndef MS2100_ARCH_H
+#define MS2100_ARCH_H
 
 /*
  * $Id$
@@ -27,8 +27,8 @@
 #include <stm32/gpio.h>
 #include <stm32/spi.h>
 
-extern uint8_t ms2001_cur_axe;
-extern int16_t ms2001_last_reading;
+extern uint8_t ms2100_cur_axe;
+extern int16_t ms2100_last_reading;
 
 #define Ms2001Select()   GPIOC->BRR = GPIO_Pin_12
 #define Ms2001Unselect() GPIOC->BSRR = GPIO_Pin_12
@@ -42,10 +42,10 @@ extern int16_t ms2001_last_reading;
     Ms2001Select();							\
     __IO uint32_t nCount = 4;for(; nCount != 0; nCount--);		\
     Ms2001Reset();							\
-    ms2001_status = MS2001_SENDING_REQ;					\
+    ms2100_status = MS2100_SENDING_REQ;					\
     nCount = 4;for(; nCount != 0; nCount--);				\
     Ms2001Set();							\
-    uint16_t ctl_byte = ((ms2001_cur_axe+1) | (MS2001_DIVISOR << 4));	\
+    uint16_t ctl_byte = ((ms2100_cur_axe+1) | (MS2100_DIVISOR << 4));	\
     nCount = 20;for(; nCount != 0; nCount--);				\
     SPI_Cmd(SPI2, DISABLE);						\
     SPI_InitTypeDef SPI_InitStructure = {				\
@@ -66,7 +66,7 @@ extern int16_t ms2001_last_reading;
   }
 
 #define Ms2001ReadRes() {						\
-    ms2001_status = MS2001_READING_RES;					\
+    ms2100_status = MS2100_READING_RES;					\
     Ms2001Select();							\
     SPI_Cmd(SPI2, DISABLE);						\
     SPI_InitTypeDef SPI_InitStructure = {				\
@@ -88,7 +88,7 @@ extern int16_t ms2001_last_reading;
     DMA_InitTypeDef  DMA_InitStructure;					\
     DMA_DeInit(DMA1_Channel4);						\
     DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C); \
-    DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)(&ms2001_last_reading); \
+    DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)(&ms2100_last_reading); \
     DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;			\
     DMA_InitStructure.DMA_BufferSize = 1;				\
     DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;	\
@@ -102,7 +102,7 @@ extern int16_t ms2001_last_reading;
     /* SPI2_Tx_DMA_Channel configuration ------------------------------------*/ \
     DMA_DeInit(DMA1_Channel5);						\
     DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C); \
-    DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)&ms2001_values;	\
+    DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)&ms2100_values;	\
     DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;			\
     DMA_InitStructure.DMA_Priority = DMA_Priority_Medium;		\
     DMA_Init(DMA1_Channel5, &DMA_InitStructure);			\
@@ -123,33 +123,33 @@ extern int16_t ms2001_last_reading;
   }
 
 #define Ms2001OnDmaIrq() {					\
-    /*  ASSERT((ms2001_status == MS2001_READING_RES),		\
-     *   DEBUG_MS2001, MS2001_ERR_SPURIOUS_DMA_IRQ);		\
+    /*  ASSERT((ms2100_status == MS2100_READING_RES),		\
+     *   DEBUG_MS2100, MS2100_ERR_SPURIOUS_DMA_IRQ);		\
      */								\
-    if (abs(ms2001_last_reading) < 1000)			\
-      ms2001_values[ms2001_cur_axe] = ms2001_last_reading;	\
+    if (abs(ms2100_last_reading) < 1000)			\
+      ms2100_values[ms2100_cur_axe] = ms2100_last_reading;	\
     Ms2001Unselect();						\
-    ms2001_cur_axe++;						\
-    if (ms2001_cur_axe > 2) {					\
-      ms2001_cur_axe = 0;					\
-      ms2001_status = MS2001_DATA_AVAILABLE;			\
+    ms2100_cur_axe++;						\
+    if (ms2100_cur_axe > 2) {					\
+      ms2100_cur_axe = 0;					\
+      ms2100_status = MS2100_DATA_AVAILABLE;			\
     }								\
     else							\
-      ms2001_status = MS2001_IDLE;				\
+      ms2100_status = MS2100_IDLE;				\
     SPI_Cmd(SPI2, DISABLE);					\
     DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);		\
   }
 
 #define Ms2001OnSpiIrq() {						\
-    /*  ASSERT((ms2001_status == MS2001_SENDING_REQ),			\
-     *   DEBUG_MS2001, MS2001_ERR_SPURIOUS_SPI_IRQ);			\
+    /*  ASSERT((ms2100_status == MS2100_SENDING_REQ),			\
+     *   DEBUG_MS2100, MS2100_ERR_SPURIOUS_SPI_IRQ);			\
      */									\
     /* read unused control byte reply */				\
     uint8_t foo __attribute__ ((unused)) = SPI_I2S_ReceiveData(SPI2);	\
     Ms2001Unselect();							\
-    ms2001_status = MS2001_WAITING_EOC;					\
+    ms2100_status = MS2100_WAITING_EOC;					\
     SPI_Cmd(SPI2, DISABLE);						\
     SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_RXNE, DISABLE);			\
   }
 
-#endif /* MS2001_ARCH_H */
+#endif /* MS2100_ARCH_H */

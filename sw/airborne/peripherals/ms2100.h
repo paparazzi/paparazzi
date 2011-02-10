@@ -21,39 +21,39 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef MS2001_H
-#define MS2001_H
+#ifndef MS2100_H
+#define MS2100_H
 
 
 #include "std.h"
-#define MS2001_NB_AXIS 3
+#define MS2100_NB_AXIS 3
 
-extern void ms2001_init( void );
-extern void ms2001_read( void );
-extern void ms2001_reset( void);
+extern void ms2100_init( void );
+extern void ms2100_read( void );
+extern void ms2100_reset( void);
 
-#define MS2001_IDLE            0
-#define MS2001_BUSY            1
-#define MS2001_SENDING_REQ     2
-#define MS2001_WAITING_EOC     3
-#define MS2001_GOT_EOC         4
-#define MS2001_READING_RES     5
-#define MS2001_DATA_AVAILABLE  6
+#define MS2100_IDLE            0
+#define MS2100_BUSY            1
+#define MS2100_SENDING_REQ     2
+#define MS2100_WAITING_EOC     3
+#define MS2100_GOT_EOC         4
+#define MS2100_READING_RES     5
+#define MS2100_DATA_AVAILABLE  6
 
-extern volatile uint8_t ms2001_status;
-extern volatile int16_t ms2001_values[MS2001_NB_AXIS];
+extern volatile uint8_t ms2100_status;
+extern volatile int16_t ms2100_values[MS2100_NB_AXIS];
 
 /* underlying architecture */
-#include "peripherals/ms2001_arch.h"
+#include "peripherals/ms2100_arch.h"
 /* must be implemented by underlying architecture */
-extern void ms2001_arch_init( void );
+extern void ms2100_arch_init( void );
 
-#define MS2001_DIVISOR_128  2
-#define MS2001_DIVISOR_256  3
-#define MS2001_DIVISOR_512  4
-#define MS2001_DIVISOR_1024 5
+#define MS2100_DIVISOR_128  2
+#define MS2100_DIVISOR_256  3
+#define MS2100_DIVISOR_512  4
+#define MS2100_DIVISOR_1024 5
 
-#define MS2001_DIVISOR MS2001_DIVISOR_1024
+#define MS2100_DIVISOR MS2100_DIVISOR_1024
 
 
-#endif /* MS2001_H */
+#endif /* MS2100_H */

@@ -101,7 +101,7 @@ void imu_periodic(void) {
 
 
 
-#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
+#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
 
 static void SSP_ISR(void) {
   ISR_ENTRY();
@@ -109,12 +109,12 @@ static void SSP_ISR(void) {
   switch (imu_ssp_status) {
   case IMU_SSP_STA_BUSY_MAX1168:
     Max1168OnSpiInt();
-    if (ms2001_status == MS2001_IDLE || ms2001_status == MS2001_GOT_EOC) {
+    if (ms2100_status == MS2100_IDLE || ms2100_status == MS2100_GOT_EOC) {
       ImuSetSSP8bits();
-      if (ms2001_status == MS2001_IDLE) {
+      if (ms2100_status == MS2100_IDLE) {
         Ms2001SendReq();
       }
-      else { /* MS2001_GOT_EOC */
+      else { /* MS2100_GOT_EOC */
         Ms2001ReadRes();
       }
       imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
@@ -125,7 +125,7 @@ static void SSP_ISR(void) {
     break;
   case IMU_SSP_STA_BUSY_MS2100:
     Ms2001OnSpiInt();
-    if (ms2001_status == MS2001_IDLE) {
+    if (ms2100_status == MS2100_IDLE) {
       Ms2001SendReq();
       imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
     }
@@ -142,7 +142,7 @@ static void SSP_ISR(void) {
   ISR_EXIT();
 }
 
-#else //no IMU_B2_MAG_MS2001
+#else //no IMU_B2_MAG_MS2100
 
 static void SSP_ISR(void) {
   ISR_ENTRY();
@@ -162,4 +162,4 @@ static void SSP_ISR(void) {
   ISR_EXIT();
 }
 
-#endif //no IMU_B2_MAG_MS2001
+#endif //no IMU_B2_MAG_MS2100

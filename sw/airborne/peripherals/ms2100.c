@@ -21,21 +21,21 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "ms2001.h"
+#include "ms2100.h"
 
-volatile uint8_t ms2001_status;
-volatile int16_t ms2001_values[MS2001_NB_AXIS];
+volatile uint8_t ms2100_status;
+volatile int16_t ms2100_values[MS2100_NB_AXIS];
 
-void ms2001_init( void ) {
+void ms2100_init( void ) {
 
-  ms2001_arch_init();
+  ms2100_arch_init();
 
   uint8_t i;
-  for (i=0; i<MS2001_NB_AXIS; i++)
-    ms2001_values[i] = 0;
-  ms2001_status = MS2001_IDLE;
+  for (i=0; i<MS2100_NB_AXIS; i++)
+    ms2100_values[i] = 0;
+  ms2100_status = MS2100_IDLE;
 }
 
-void ms2001_reset() {
-  ms2001_status = MS2001_IDLE;
+void ms2100_reset() {
+  ms2100_status = MS2100_IDLE;
 }
