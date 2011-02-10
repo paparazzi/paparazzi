@@ -142,8 +142,8 @@
 #include "subsystems/imu.h"
 #define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) { DOWNLINK_SEND_IMU_ACCEL_RAW(_chan, &imu.accel_unscaled.x, &imu.accel_unscaled.y, &imu.accel_unscaled.z)}
 #define PERIODIC_SEND_IMU_GYRO_RAW(_chan) { DOWNLINK_SEND_IMU_GYRO_RAW(_chan, &imu.gyro_unscaled.p, &imu.gyro_unscaled.q, &imu.gyro_unscaled.r)}
-#define PERIODIC_SEND_IMU_ACCEL(_chan) { DOWNLINK_SEND_IMU_ACCEL_RAW(_chan, &imu.accel.x, &imu.accel.y, &imu.accel.z)}
-#define PERIODIC_SEND_IMU_GYRO(_chan) { DOWNLINK_SEND_IMU_GYRO_RAW(_chan, &imu.gyro.p, &imu.gyro.q, &imu.gyro.r)}
+#define PERIODIC_SEND_IMU_ACCEL(_chan) { DOWNLINK_SEND_IMU_ACCEL(_chan, &imu.accel.x, &imu.accel.y, &imu.accel.z)}
+#define PERIODIC_SEND_IMU_GYRO(_chan) { DOWNLINK_SEND_IMU_GYRO(_chan, &imu.gyro.p, &imu.gyro.q, &imu.gyro.r)}
 #else
 #define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) {}
 #define PERIODIC_SEND_IMU_GYRO_RAW(_chan) {}
