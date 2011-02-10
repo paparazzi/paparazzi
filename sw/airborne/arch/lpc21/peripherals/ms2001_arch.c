@@ -14,7 +14,7 @@ static void EXTINT_ISR(void) __attribute__((naked));
 
 void ms2001_arch_init( void ) {
 
-   ms2001_cur_axe = 0;
+  ms2001_cur_axe = 0;
 
   /* configure SS pin */
   Ms2001Unselect();                       /* pin idles high */
