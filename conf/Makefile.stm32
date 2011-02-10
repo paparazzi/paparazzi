@@ -99,14 +99,20 @@ LDSCRIPT = $($(TARGET).LDSCRIPT)
 endif
 endif
 
-CFLAGS = -I. -I./$(ARCH) $(INCLUDES) -D__thumb2__ -Wall -c -msoft-float -O$(OPT)
+UNAME = $(shell uname -s)
+
+CFLAGS = -I. -I./$(ARCH) $(INCLUDES) -D__thumb2__ -Wall -msoft-float -O$(OPT)
 CFLAGS += -Wl,gc-sections
-CFLAGS += -mcpu=$(MCU) -mthumb -ansi -mfix-cortex-m3-ldrd
+CFLAGS += -mcpu=$(MCU) -mthumb -ansi
+ifeq ("$(UNAME)","Darwin")
+CFLAGS += -mfix-cortex-m3-ldrd
+endif
 CFLAGS += -std=gnu99
 #CFLAGS += -malignment-traps
-CFLAGS += -fno-common 
+CFLAGS += -fno-common
+CFLAGS += -g$(DEBUG)
 CFLAGS += -ffunction-sections -fdata-sections
-CFLAGS += -Wall -Wimplicit
+CFLAGS += -Wimplicit
 CFLAGS += -Wcast-align
 CFLAGS += -Wpointer-arith -Wswitch
 CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
@@ -119,10 +125,17 @@ CFLAGS += -Wswitch-default
 
 CFLAGS += $($(TARGET).CFLAGS)
 
-AFLAGS  = -ahls -mapcs-32 -mcpu=$(MCU) -mthumb 
+AFLAGS  = -ahls -mapcs-32
+ifeq ("$(UNAME)","Darwin")
+AFLAGS += -mcpu=$(MCU) -mthumb
+endif
 AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
-LDFLAGS =  -T$(LDSCRIPT) -nostartfiles   -O$(OPT) --gc-sections -mthumb -march=armv7 -mfix-cortex-m3-ldrd -msoft-float
+ifeq ("$(UNAME)","Darwin")
+LDFLAGS = -T$(LDSCRIPT) -nostartfiles -O$(OPT) --gc-sections -mthumb -march=armv7 -mfix-cortex-m3-ldrd -msoft-float
+else
+LDFLAGS = -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT) --gc-sections
+endif
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
 LDLIBS  += -lc -lm -lgcc -lcmsis -lstm32
 
@@ -138,14 +151,14 @@ ODFLAGS = -S
 all: printcommands sizebefore build sizeafter
 
 printcommands:
-	$(Q)echo "Using CC   = $(CC)"
-	$(Q)echo "Using LD   = $(LD)"
-	$(Q)echo "Using CP   = $(CP)"
-	$(Q)echo "Using DMP   = $(DMP)"
-	$(Q)echo "Using NM   = $(NM)"
-	$(Q)echo "Using SIZE = $(SIZE)"
-	$(Q)echo "Using RM   = $(RM)"
-	$(Q)echo "Using OOCD = $(OOCD)"
+	@echo "Using CC   = $(CC)"
+	@echo "Using LD   = $(LD)"
+	@echo "Using CP   = $(CP)"
+	@echo "Using DMP   = $(DMP)"
+	@echo "Using NM   = $(NM)"
+	@echo "Using SIZE = $(SIZE)"
+	@echo "Using RM   = $(RM)"
+	@echo "Using OOCD = $(OOCD)"
 
 build: elf bin hex
 # lss sym
