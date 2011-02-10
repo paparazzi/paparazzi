@@ -135,7 +135,7 @@ static void SSP_ISR(void) {
      imu_ssp_status = IMU_SSP_STA_IDLE;
    break;
  case IMU_SSP_STA_BUSY_MS2100:
-   Ms2001OnSpiIt();
+   Ms2001OnSpiInt();
    imu_ssp_status = IMU_SSP_STA_IDLE;
    break;
  default:
@@ -175,7 +175,7 @@ static void SSP_ISR(void) {
   break;
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
  case IMU_SSP_STA_BUSY_MS2100:
-   Ms2001OnSpiIt();
+   Ms2001OnSpiInt();
    if (ms2001_status == MS2001_IDLE) {
     Ms2001SendReq();
     imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
