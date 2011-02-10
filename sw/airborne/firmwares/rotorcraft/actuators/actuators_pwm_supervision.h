@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * $Id: actuators_pwm_supervision$
  *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,21 +19,12 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
-#include "subsystems/imu.h"
+#ifndef ACTUATORS_PWM_SUPERVISION_H
+#define ACTUATORS_PWM_SUPERVISION_H
 
-void imu_impl_init(void) {
+#include "firmwares/rotorcraft/actuators/supervision.h"
 
-  imu_b2_arch_init();
-
-  max1168_init();
-#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
-  ms2100_init();
-#elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
-  ami601_init();
-#elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC5843
-  hmc5843_init();
-#endif
-
-}
+#endif /* ACTUATORS_PWM_SUPERVISION_H */

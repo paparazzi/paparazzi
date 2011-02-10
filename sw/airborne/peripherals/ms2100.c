@@ -21,19 +21,21 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "subsystems/imu.h"
+#include "ms2100.h"
 
-void imu_impl_init(void) {
+volatile uint8_t ms2100_status;
+volatile int16_t ms2100_values[MS2100_NB_AXIS];
 
-  imu_b2_arch_init();
+void ms2100_init( void ) {
 
-  max1168_init();
-#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
-  ms2100_init();
-#elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
-  ami601_init();
-#elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC5843
-  hmc5843_init();
-#endif
+  ms2100_arch_init();
 
+  uint8_t i;
+  for (i=0; i<MS2100_NB_AXIS; i++)
+    ms2100_values[i] = 0;
+  ms2100_status = MS2100_IDLE;
+}
+
+void ms2100_reset() {
+  ms2100_status = MS2100_IDLE;
 }
