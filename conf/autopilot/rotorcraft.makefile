@@ -95,6 +95,9 @@ endif
 #
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
+# I2C is needed for speed controllers and barometers on lisa
+ap.srcs += mcu_periph/i2c.c
+ap.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 ap.srcs += $(SRC_BOOZ)/booz2_commands.c
 
@@ -134,8 +137,6 @@ ifeq ($(BOARD), booz)
 ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED) -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
 else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
-ap.srcs += mcu_periph/i2c.c
-ap.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 endif
 
 #
