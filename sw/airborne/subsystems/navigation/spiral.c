@@ -1,5 +1,3 @@
-#include "spiral.h"
-
 /************** Spiral Navigation **********************************************/
 
 /** creating a  helix:
@@ -7,6 +5,14 @@
 	Alphamax is calculated from given segments
 	IMPORTANT: numer of segments has to be larger than 2!
 */
+
+#include "spiral.h"
+
+#include "subsystems/nav.h"
+#include "estimator.h"
+#include "autopilot.h"
+#include "generated/flight_plan.h"
+//#include "modules/digital_cam/dc.h"
 
 enum SpiralStatus { Outside, StartCircle, Circle, IncSpiral };
 static enum SpiralStatus CSpiralStatus;
