@@ -35,6 +35,10 @@ static float CamAngle;
 static float ZPoint;
 static float nav_radius_min;
 
+#ifndef MIN_CIRCLE_RADIUS
+#define MIN_CIRCLE_RADIUS 120
+#endif
+
 
 bool_t InitializeSpiral(uint8_t CenterWP, uint8_t EdgeWP, float StartRad, float IncRad, float Segments, float ZKoord)
 {
