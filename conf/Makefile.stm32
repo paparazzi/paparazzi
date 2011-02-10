@@ -99,45 +99,30 @@ LDSCRIPT = $($(TARGET).LDSCRIPT)
 endif
 endif
 
-CFLAGS = -I. -I./$(ARCH) $(INCLUDES)
-CFLAGS += -msoft-float
-#CFLAGS += -O$(OPT)
-#CFLAGS += -Wl,--gc-sections
-CFLAGS += -mcpu=$(MCU)
-CFLAGS += -mthumb
-#CFLAGS += -ansi
+CFLAGS = -I. -I./$(ARCH) $(INCLUDES) -D__thumb2__ -Wall -c -msoft-float -O$(OPT)
+CFLAGS += -Wl,gc-sections
+CFLAGS += -mcpu=$(MCU) -mthumb -ansi -mfix-cortex-m3-ldrd
 CFLAGS += -std=gnu99
 #CFLAGS += -malignment-traps
-CFLAGS += -fno-common
-CFLAGS += -g$(DEBUG)
-CFLAGS += -ffunction-sections
-CFLAGS += -fdata-sections
-#CFLAGS += -Wimplicit
-#CFLAGS += -Wcast-align
-#CFLAGS += -Wpointer-arith
-#CFLAGS += -Wswitch
-#CFLAGS += -Wredundant-decls
-#CFLAGS += -Wreturn-type
-#CFLAGS += -Wshadow
-#CFLAGS += -Wunused
-#CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
-#CFLAGS += -Wnested-externs
-#CFLAGS += -Wmissing-prototypes
-#CFLAGS += -Wstrict-prototypes
-#CFLAGS += -Wmissing-declarations
-#CFLAGS += -Wswitch-default
+CFLAGS += -fno-common 
+CFLAGS += -ffunction-sections -fdata-sections
+CFLAGS += -Wall -Wimplicit
+CFLAGS += -Wcast-align
+CFLAGS += -Wpointer-arith -Wswitch
+CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
+CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
+CFLAGS += -Wnested-externs
+CFLAGS += -Wmissing-prototypes
+CFLAGS += -Wstrict-prototypes
+CFLAGS += -Wmissing-declarations
+CFLAGS += -Wswitch-default
 
 CFLAGS += $($(TARGET).CFLAGS)
 
-AFLAGS  = -ahls -mapcs-32
+AFLAGS  = -ahls -mapcs-32 -mcpu=$(MCU) -mthumb 
 AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
-LDFLAGS = -T$(LDSCRIPT)
-LDFLAGS += -nostartfiles
-LDFLAGS += -L$(GCC_LIB_DIR)
-#LDFLAGS += -O$(OPT)
-#LDFLAGS += --gc-sections
-LDFLAGS += $(CFLAGS)
+LDFLAGS =  -T$(LDSCRIPT) -nostartfiles   -O$(OPT) --gc-sections -mthumb -march=armv7 -mfix-cortex-m3-ldrd -msoft-float
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
 LDLIBS  += -lc -lm -lgcc -lcmsis -lstm32
 
