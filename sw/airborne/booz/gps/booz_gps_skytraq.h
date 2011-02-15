@@ -63,7 +63,7 @@ extern struct BoozGpsSkytraq booz_gps_skytraq;
 extern void booz_gps_skytraq_read_message(void);
 extern void booz_gps_skytraq_parse(uint8_t c);
 
-#include "my_debug_servo.h"
+//#include "my_debug_servo.h"
 
 #define BoozGpsEvent(_sol_available_callback) {				\
     if (GpsBuffer()) {							\
