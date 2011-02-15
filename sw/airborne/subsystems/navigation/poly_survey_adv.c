@@ -4,6 +4,7 @@
 #include "estimator.h"
 #include "autopilot.h"
 #include "generated/flight_plan.h"
+//uncomment following line for use with digital_cam module
 //#include "modules/digital_cam/dc.h"
 
 
@@ -277,7 +278,8 @@ bool_t poly_survey_adv(void)
 	  psa_stage = SEG;
 	  NavVerticalAutoThrottleMode(0.0);
 	  nav_init_stage();
-	  //dc_distance(psa_shot_dist, seg_start.x - dir_vec.x*psa_shot_dist*0.5, seg_start.y - dir_vec.y*psa_shot_dist*0.5);
+//uncomment following line for use with digital_cam module
+	  //dc_survey(psa_shot_dist, seg_start.x - dir_vec.x*psa_shot_dist*0.5, seg_start.y - dir_vec.y*psa_shot_dist*0.5);
 	}
   }
   //fly the segment until seg_end is reached
@@ -285,6 +287,7 @@ bool_t poly_survey_adv(void)
 	nav_points(seg_start, seg_end);
 	//calculate all needed points for the next flyover
 	if (nav_approaching_xy(seg_end.x, seg_end.y, seg_start.x, seg_start.y, 0)) {
+//uncomment following line for use with digital_cam module
 	  //dc_stop();
 	  VEC_CALC(seg_center1, seg_end, rad_vec, -);
 	  ret_start.x = seg_end.x - 2*rad_vec.x;
@@ -324,7 +327,8 @@ bool_t poly_survey_adv(void)
 	if (NavCourseCloseTo(segment_angle)) {
 	  psa_stage = SEG;
 	  nav_init_stage();
-	  //dc_distance(psa_shot_dist, seg_start.x - dir_vec.x*psa_shot_dist*0.5, seg_start.y - dir_vec.y*psa_shot_dist*0.5);
+//uncomment following line for use with digital_cam module
+	  //dc_survey(psa_shot_dist, seg_start.x - dir_vec.x*psa_shot_dist*0.5, seg_start.y - dir_vec.y*psa_shot_dist*0.5);
 	}
   }
 

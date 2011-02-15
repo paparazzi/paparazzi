@@ -718,24 +718,34 @@
     <field name="azimuth_sp" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
   </message>
 
-  <message name="BETH_CONTROLLER_TWIST" id="109">
-    <field name="S" type="float"/>
-    <field name="S_dot" type="float"/>
-    <field name="U_twt" type="float"/>
-    <field name="error" type="float"/>
+  <message name="DC_INFO" id="109">
+    <field name="mode" type="int16" unit=""/>
+    <field name="utm_east" type="float" unit="m"/>
+    <field name="utm_north" type="float" unit="m"/>
+    <field name="course" type="float" unit="deg"/>
+    <field name="buffer" type="int8"/>
+    <field name="dist" type="float" unit="m"/>
+    <field name="next_dist" type="float" unit="m"/>
+    <field name="start_x" type="float" unit="m"/>
+    <field name="start_y" type="float" unit="m"/>
+    <field name="start_angle" type="float" unit="deg"/>
+    <field name="angle" type="float" unit="deg"/>
+    <field name="last_block" type="float"/>
+    <field name="count" type="int16" unit=""/>
+    <field name="shutter" type="uint8" unit="s"/>
   </message>
 
   <message name="DC_SHOT" id="110">
-    <field name="photo_nr" type="int16"></field>
-    <field name="utm_east"  type="int32" unit="cm"></field>
-    <field name="utm_north" type="int32" unit="cm"></field>
+    <field name="photo_nr" type="int16"/>
+    <field name="utm_east"  type="int32" unit="cm"/>
+    <field name="utm_north" type="int32" unit="cm"/>
     <field name="z" type="float" unit="m"/>
-    <field name="utm_zone"  type="uint8"></field>
-    <field name="phi" type="int16" unit="decideg"></field>
-    <field name="theta" type="int16" unit="decideg"></field>
-    <field name="course" type="int16" unit="decideg"></field>
-    <field name="speed"  type="uint16" unit="cm/s"></field>
-    <field name="itow"  type="uint32" unit="ms"></field>
+    <field name="utm_zone"  type="uint8"/>
+    <field name="phi" type="int16" unit="decideg"/>
+    <field name="theta" type="int16" unit="decideg"/>
+    <field name="course" type="int16" unit="decideg"/>
+    <field name="speed"  type="uint16" unit="cm/s"/>
+    <field name="itow"  type="uint32" unit="ms"/>
   </message>
 
   <message name="TEST_BOARD_RESULTS" ID="111">
@@ -748,7 +758,12 @@
     <field name="one" type="float"/>
   </message>
 
- <!--113 is free -->
+  <message name="BETH_CONTROLLER_TWIST" id="113">
+    <field name="S" type="float"/>
+    <field name="S_dot" type="float"/>
+    <field name="U_twt" type="float"/>
+    <field name="error" type="float"/>
+  </message>
 
   <message name="PAYLOAD" id="114">
     <field name="values" type="uint8[]" unit="none"/>
