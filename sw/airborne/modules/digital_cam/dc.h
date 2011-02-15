@@ -24,8 +24,8 @@
 /** \file dc.h
  *  \brief Standard Digital Camera Control Interface
  *
- * 	-Standard IO
- * 	-I2C Control
+ *  -Standard IO
+ *  -I2C Control
  *
  *  Usage: (from the flight plan, the settings or any airborne code):
  *  - dc_send_command(  )
@@ -76,26 +76,26 @@ extern uint8_t dc_cam_tracing;
 
 /* Generic Set of Digital Camera Commands */
 typedef enum {
-	DC_GET_STATUS = 0,
+    DC_GET_STATUS = 0,
 
-	DC_HOLD = 13,
-	DC_SHOOT = 32,
+    DC_HOLD = 13,
+    DC_SHOOT = 32,
 
-	DC_WIDER = 'w',
-	DC_TALLER = 't',
+    DC_WIDER = 'w',
+    DC_TALLER = 't',
 
-	DC_UP = 'u',
-	DC_DOWN = 'd',
-	DC_CENTER = 'c',
-	DC_LEFT = 'l',
-	DC_RIGHT = 'r',
+    DC_UP = 'u',
+    DC_DOWN = 'd',
+    DC_CENTER = 'c',
+    DC_LEFT = 'l',
+    DC_RIGHT = 'r',
 
-	DC_MENU = 'm',
-	DC_HOME = 'h',
-	DC_PLAY = 'p',
+    DC_MENU = 'm',
+    DC_HOME = 'h',
+    DC_PLAY = 'p',
 
-	DC_ON = 'O',
-	DC_OFF = 'o',
+    DC_ON = 'O',
+    DC_OFF = 'o',
 
 } dc_command_type;
 
@@ -104,12 +104,12 @@ static inline void dc_send_command(uint8_t cmd);
 
 /* Auotmatic Digital Camera Photo Triggering */
 typedef enum {
-	DC_AUTOSHOOT_STOP = 0,
-	DC_AUTOSHOOT_PERIODIC = 1,
-	DC_AUTOSHOOT_DISTANCE = 2,
-	DC_AUTOSHOOT_EXT_TRIG = 3,
-	DC_AUTOSHOOT_SURVEY = 4,
-	DC_AUTOSHOOT_CIRCLE = 5
+    DC_AUTOSHOOT_STOP = 0,
+    DC_AUTOSHOOT_PERIODIC = 1,
+    DC_AUTOSHOOT_DISTANCE = 2,
+    DC_AUTOSHOOT_EXT_TRIG = 3,
+    DC_AUTOSHOOT_SURVEY = 4,
+    DC_AUTOSHOOT_CIRCLE = 5
 } dc_autoshoot_type;
 extern dc_autoshoot_type dc_autoshoot;
 
@@ -198,7 +198,7 @@ static inline void dc_init(void)
 #endif
 }
 
-/* shoot on grid 
+/* shoot on grid
 static inline void dc_shot_on_utm_north_close_to_100m_grid( void )
 {
   uint32_t dist_to_100m_grid = (gps_utm_north / 100) % 100;
@@ -221,10 +221,10 @@ static float dim_mod(float a, float b, float m) {
 static inline void dc_periodic_4Hz( void )
 {
 static uint8_t dc_shutter_timer = 0;
- 
+
  switch (dc_autoshoot) {
 
-  case DC_AUTOSHOOT_PERIODIC:  
+  case DC_AUTOSHOOT_PERIODIC:
     if (dc_shutter_timer) {
       dc_shutter_timer--;
     } else {
@@ -244,43 +244,43 @@ static uint8_t dc_shutter_timer = 0;
   break;
 
   case DC_AUTOSHOOT_CIRCLE: {
-	float course = DegOfRad(estimator_psi) - dc_circle_start_angle;
-	if (course < 0.)
-	 course += 360.;
-	float current_block = floorf(course/dc_circle_interval);
+    float course = DegOfRad(estimator_psi) - dc_circle_start_angle;
+    if (course < 0.)
+     course += 360.;
+    float current_block = floorf(course/dc_circle_interval);
 
-	if (dc_probing) {
-	  if (current_block == dc_circle_last_block) {
-	    dc_probing = FALSE;
-	  }
-	}
+    if (dc_probing) {
+      if (current_block == dc_circle_last_block) {
+        dc_probing = FALSE;
+      }
+    }
 
-	if (dim_mod(current_block, dc_circle_last_block, dc_circle_max_blocks) == 1) {
-	  dc_gps_count++;
-	  dc_circle_last_block = current_block;
-	  dc_send_command(DC_SHOOT);
-	}
+    if (dim_mod(current_block, dc_circle_last_block, dc_circle_max_blocks) == 1) {
+      dc_gps_count++;
+      dc_circle_last_block = current_block;
+      dc_send_command(DC_SHOOT);
+    }
       }
       break;
 
   case DC_AUTOSHOOT_SURVEY : {
-	float dist_x = dc_gps_x - estimator_x;
-	float dist_y = dc_gps_y - estimator_y;
+    float dist_x = dc_gps_x - estimator_x;
+    float dist_y = dc_gps_y - estimator_y;
 
-	if (dc_probing) {
-	  if (dist_x*dist_x + dist_y*dist_y < dc_gps_dist*dc_gps_dist) {
-	    dc_probing = FALSE;
-	  }
-	}
+    if (dc_probing) {
+      if (dist_x*dist_x + dist_y*dist_y < dc_gps_dist*dc_gps_dist) {
+        dc_probing = FALSE;
+      }
+    }
 
-	if (dist_x*dist_x + dist_y*dist_y >= dc_gps_next_dist*dc_gps_next_dist) {
-	  dc_gps_next_dist += dc_gps_dist;
-	  dc_gps_count++;
-	  dc_send_command(DC_SHOOT);
-	}
+    if (dist_x*dist_x + dist_y*dist_y >= dc_gps_next_dist*dc_gps_next_dist) {
+      dc_gps_next_dist += dc_gps_dist;
+      dc_gps_count++;
+      dc_send_command(DC_SHOOT);
+    }
       }
       break;
-    
+
   default :
       dc_autoshoot = DC_AUTOSHOOT_STOP;
  }

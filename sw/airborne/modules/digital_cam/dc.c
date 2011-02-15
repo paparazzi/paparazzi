@@ -58,17 +58,17 @@ uint16_t dc_buffer = 0;
 #include "estimator.h"
 #include "latlong.h"
 
-  void dc_send_shot_position(void)
-  {
-    int16_t phi = DegOfRad(estimator_phi*10.0f);
-    int16_t theta = DegOfRad(estimator_theta*10.0f);
-    float gps_z = ((float)gps_alt) / 100.0f;
-    int16_t photo_nr = -1;
+void dc_send_shot_position(void)
+{
+  int16_t phi = DegOfRad(estimator_phi*10.0f);
+  int16_t theta = DegOfRad(estimator_theta*10.0f);
+  float gps_z = ((float)gps_alt) / 100.0f;
+  int16_t photo_nr = -1;
 
-    latlong_of_utm(gps_utm_east/100, gps_utm_north/100, gps_utm_zone);
+  latlong_of_utm(gps_utm_east/100, gps_utm_north/100, gps_utm_zone);
 
-//    float gps_lat_send = DegOfRad(latlong_lat);
-//    float gps_lon_send = DegOfRad(latlong_lon);
+  //    float gps_lat_send = DegOfRad(latlong_lat);
+  //    float gps_lon_send = DegOfRad(latlong_lon);
 
   if (dc_buffer < DC_IMAGE_BUFFER) {
     dc_buffer++;
@@ -77,38 +77,38 @@ uint16_t dc_buffer = 0;
   }
 
 
-  DOWNLINK_SEND_DC_SHOT(DefaultChannel, 
-			&photo_nr, 
-			&gps_utm_east, 
-			&gps_utm_north, 
-			&gps_z, 
-			&gps_utm_zone,
-			&phi,
-			&theta,
-			&gps_course,
-			&gps_gspeed,
-			&gps_itow);
-  }
-#endif
-uint8_t dc_info(void) {
+  DOWNLINK_SEND_DC_SHOT(DefaultChannel,
+                        &photo_nr,
+                        &gps_utm_east,
+                        &gps_utm_north,
+                        &gps_z,
+                        &gps_utm_zone,
+                        &phi,
+                        &theta,
+                        &gps_course,
+                        &gps_gspeed,
+                        &gps_itow);
+}
+#endif /* SENSOR_SYNC_SEND */
 
+uint8_t dc_info(void) {
 #ifdef DOWNLINK_SEND_DC_INFO
   float course = DegOfRad(estimator_psi);
   DOWNLINK_SEND_DC_INFO(DefaultChannel,
-			&dc_autoshoot,
-			&estimator_x,
-			&estimator_y,
-			&course,
-			&dc_buffer,
-			&dc_gps_dist,
-			&dc_gps_next_dist,
-			&dc_gps_x,
-			&dc_gps_y,
-			&dc_circle_start_angle,
-			&dc_circle_interval,
-			&dc_circle_last_block,
-			&dc_gps_count,
-			&dc_autoshoot_quartersec_period);
+                        &dc_autoshoot,
+                        &estimator_x,
+                        &estimator_y,
+                        &course,
+                        &dc_buffer,
+                        &dc_gps_dist,
+                        &dc_gps_next_dist,
+                        &dc_gps_x,
+                        &dc_gps_y,
+                        &dc_circle_start_angle,
+                        &dc_circle_interval,
+                        &dc_circle_last_block,
+                        &dc_gps_count,
+                        &dc_autoshoot_quartersec_period);
 #endif
   return 0;
 }
@@ -133,6 +133,7 @@ uint8_t dc_circle(float interval, float start) {
   dc_info();
   return 0;
 }
+
 /* shoot on survey */
 uint8_t dc_survey(float interval, float x, float y) {
   dc_autoshoot = DC_AUTOSHOOT_SURVEY;
@@ -153,6 +154,7 @@ uint8_t dc_survey(float interval, float x, float y) {
   dc_info();
   return 0;
 }
+
 uint8_t dc_stop(void) {
   dc_autoshoot = DC_AUTOSHOOT_STOP;
   dc_info();
@@ -192,4 +194,3 @@ static inline void dc_shoot_on_gps( void ) {
   }
 }
 */
-
