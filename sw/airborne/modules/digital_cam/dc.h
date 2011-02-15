@@ -186,6 +186,13 @@ extern uint8_t dc_stop(void);
 
 #define dc_Stop(_) dc_stop()
 
+/**
+   Send an info message containing information
+   about position, course, buffer and all other
+   internal variables used by the dc control.
+*/
+extern uint8_t dc_info(void);
+
 
 /* get settings */
 static inline void dc_init(void)
