@@ -36,6 +36,7 @@ ifndef GPS_BAUD
 GPS_BAUD = B38400
 endif
 
+GPS_LED     = 2
 
 ifndef ADC_IR1
 ADC_IR1      = 1
@@ -53,3 +54,4 @@ ifndef ADC_IR_NB_SAMPLES
 ADC_IR_NB_SAMPLES = 16
 endif
 
+$(TARGET).ARCHDIR = $(ARCH)
