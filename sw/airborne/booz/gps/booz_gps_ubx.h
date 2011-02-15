@@ -1,6 +1,8 @@
 #ifndef BOOZ_GPS_UBX_H
 #define BOOZ_GPS_UBX_H
 
+#include "ubx_protocol.h"
+
 #define GPS_UBX_MAX_PAYLOAD 255
 struct BoosGpsUbx {
   bool_t  msg_available;
