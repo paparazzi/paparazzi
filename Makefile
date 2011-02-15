@@ -220,7 +220,9 @@ cleanspaces:
 	find ./sw -name '*.mli' -exec sed -i {} -e 's/[ \t]*$$//' ';'
 	find ./conf -name '*.xml' -exec sed -i {} -e 's/[ \t]*$$//' ';'
 
+distclean : dist_clean
 dist_clean : clean
+	rm -r conf/srtm_data
 
 
 ab_clean:
@@ -241,3 +243,9 @@ paparazzi:
 sw/simulator/launchsitl:
 	cat src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
 	chmod a+x $@
+
+#.SUFFIXES: .hgt.zip
+
+%.hgt.zip:
+	cd data/srtm; $(MAKE) $(@)
+

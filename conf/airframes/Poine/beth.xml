@@ -126,12 +126,12 @@ main_stm32.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
 
 #booz IMU
 #main_stm32.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
-#main_stm32.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
+#main_stm32.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2100
 #main_stm32.srcs += $(SRC_FIRMWARE)/imu.c
 #main_stm32.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
 #main_stm32.srcs += $(SRC_FIRMWARE)/imu/imu_b2.c $(SRC_FIRMWARE)/imu/arch/$(ARCH)/imu_b2_arch.c
 #main_stm32.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
-#main_stm32.srcs += peripherals/ms2001.c  $(SRC_ARCH)/peripherals/ms2001_arch.c
+#main_stm32.srcs += peripherals/ms2100.c  $(SRC_ARCH)/peripherals/ms2100_arch.c
 #main_stm32.srcs += math/pprz_trig_int.c
 
 #crista IMU

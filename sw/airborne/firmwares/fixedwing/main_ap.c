@@ -75,6 +75,7 @@
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/ahrs/ahrs_float_dcm.h"
 static inline void on_gyro_accel_event( void );
+static inline void on_accel_event( void );
 static inline void on_mag_event( void );
 #endif
 
@@ -590,7 +591,7 @@ void event_task_ap( void ) {
 #endif
 
 #ifdef USE_AHRS
-  ImuEvent(on_gyro_accel_event, on_mag_event);
+  ImuEvent(on_gyro_accel_event, on_accel_event, on_mag_event);
 #endif // USE_AHRS
 
 #ifdef USE_GPS
@@ -640,6 +641,9 @@ void event_task_ap( void ) {
 } /* event_task_ap() */
 
 #ifdef USE_AHRS
+static inline void on_accel_event( void ) {
+}
+
 static inline void on_gyro_accel_event( void ) {
 
 #ifdef AHRS_CPU_LED

@@ -26,9 +26,6 @@
 int imu_overrun = 0;
 volatile uint8_t imu_ssp_status;
 static void SSP_ISR(void) __attribute__((naked));
-#if 0
-static inline bool_t isr_try_mag(void);
-#endif
 
 /* SSPCR0 settings */
 #define SSP_DDS8  0x07 << 0  /* data size         : 8 bits                    */
@@ -104,91 +101,65 @@ void imu_periodic(void) {
 
 
 
-#include "led.h"
-
-#if 0
-
-
-static inline bool_t isr_try_mag(void) {
-  switch (micromag_status) {
-  case MS2001_IDLE :
-    ImuSetSSP8bits();
-    Ms2001SendReq();
-    return TRUE;
-  case MS2001_GOT_EOC:
-    ImuSetSSP8bits();
-    Ms2001ReadRes();
-    return TRUE;
-  }
-  return FALSE;
-}
+#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
 
 static void SSP_ISR(void) {
- ISR_ENTRY();
+  ISR_ENTRY();
 
- switch (imu_ssp_status) {
- case IMU_SSP_STA_BUSY_MAX1168:
-   Max1168OnSpiInt();
-   if (isr_try_mag())
-     imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
-   else
-     imu_ssp_status = IMU_SSP_STA_IDLE;
-   break;
- case IMU_SSP_STA_BUSY_MS2100:
-   Ms2001OnSpiIt();
-   imu_ssp_status = IMU_SSP_STA_IDLE;
-   break;
- default:
-   // spurious interrupt
-   LED_ON(1);
- }
+  switch (imu_ssp_status) {
+  case IMU_SSP_STA_BUSY_MAX1168:
+    Max1168OnSpiInt();
+    if (ms2100_status == MS2100_IDLE || ms2100_status == MS2100_GOT_EOC) {
+      ImuSetSSP8bits();
+      if (ms2100_status == MS2100_IDLE) {
+        Ms2001SendReq();
+      }
+      else { /* MS2100_GOT_EOC */
+        Ms2001ReadRes();
+      }
+      imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
+    }
+    else {
+      imu_ssp_status = IMU_SSP_STA_IDLE;
+    }
+    break;
+  case IMU_SSP_STA_BUSY_MS2100:
+    Ms2001OnSpiInt();
+    if (ms2100_status == MS2100_IDLE) {
+      Ms2001SendReq();
+      imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
+    }
+    else
+      imu_ssp_status = IMU_SSP_STA_IDLE;
+    break;
 
- VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
- ISR_EXIT();
-}
-#endif
-
-
-static void SSP_ISR(void) {
- ISR_ENTRY();
-
- switch (imu_ssp_status) {
- case IMU_SSP_STA_BUSY_MAX1168:
-   Max1168OnSpiInt();
-#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
-  if (ms2001_status == MS2001_IDLE || ms2001_status == MS2001_GOT_EOC) {
-     ImuSetSSP8bits();
-     if (ms2001_status == MS2001_IDLE) {
-       Ms2001SendReq();
-     }
-     else { /* MS2001_GOT_EOC */
-       Ms2001ReadRes();
-     }
-     imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
-   }
-   else {
-#endif
-     imu_ssp_status = IMU_SSP_STA_IDLE;
-#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
-   }
-#endif
-  break;
-#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
- case IMU_SSP_STA_BUSY_MS2100:
-   Ms2001OnSpiIt();
-   if (ms2001_status == MS2001_IDLE) {
-    Ms2001SendReq();
-    imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
-   }
-   else
-     imu_ssp_status = IMU_SSP_STA_IDLE;
-   break;
-#endif
    // default:
    // spurious interrupt
    // FIXME LED_ON(1);
- }
+  }
 
- VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
- ISR_EXIT();
+  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
+  ISR_EXIT();
 }
+
+#else //no IMU_B2_MAG_MS2100
+
+static void SSP_ISR(void) {
+  ISR_ENTRY();
+
+  switch (imu_ssp_status) {
+  case IMU_SSP_STA_BUSY_MAX1168:
+    Max1168OnSpiInt();
+    imu_ssp_status = IMU_SSP_STA_IDLE;
+    break;
+
+    // default:
+    // spurious interrupt
+    // FIXME LED_ON(1);
+  }
+
+  VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
+  ISR_EXIT();
+}
+
+#endif //no IMU_B2_MAG_MS2100

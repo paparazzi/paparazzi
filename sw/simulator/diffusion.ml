@@ -28,9 +28,7 @@ let wind_x = ref 0.
 let wind_y = ref 0.
 
 
-let ivy_bus = 
-  try ref (Sys.getenv "IVY_BUS" )
-  with  Not_found -> ref "127.255.255.255:2010"
+let ivy_bus = Defivybus.default_ivy_bus 
 
 let plumes = Hashtbl.create 97
 let t = ref 0

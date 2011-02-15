@@ -91,12 +91,12 @@ void dma1_c4_irq_handler(void) {
   case IMU_SSP_STA_BUSY_MAX1168:
     Max1168OnDmaIrq();
     SPI_Cmd(SPI2, DISABLE);
-#if IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
-    if (ms2001_status == MS2001_IDLE) {
+#if IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
+    if (ms2100_status == MS2100_IDLE) {
       Ms2001SendReq();
       imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
     }
-    else if (ms2001_status == MS2001_WAITING_EOC && Ms2001HasEOC()) {
+    else if (ms2100_status == MS2100_WAITING_EOC && Ms2001HasEOC()) {
       Ms2001ReadRes();
       imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
     }
@@ -105,7 +105,7 @@ void dma1_c4_irq_handler(void) {
       imu_ssp_status = IMU_SSP_STA_IDLE;
     break;
   case IMU_SSP_STA_BUSY_MS2100:
-#if IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
+#if IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
     Ms2001OnDmaIrq();
 #endif
     break;
@@ -117,7 +117,7 @@ void dma1_c4_irq_handler(void) {
 
 
 void spi2_irq_handler(void) {
-#if IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
+#if IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
   Ms2001OnSpiIrq();
 #endif
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -56,46 +56,51 @@ int main(void) {
 static inline void main_init( void ) {
   mcu_init();
   sys_time_init();
-  max1168_init();
+  ms2100_init();
   main_spi2_init();
 }
 
 static inline void main_periodic_task( void ) {
-  //  LED_TOGGLE(6);
-  max1168_read();
   RunOnceEvery(10,
 	       {
 		 DOWNLINK_SEND_BOOT(DefaultChannel, &cpu_time_sec);
 		 LED_PERIODIC();
 	       });
 
-}
-
-static inline void main_event_task( void ) {
-  if (max1168_status == STA_MAX1168_DATA_AVAILABLE) {
-    RunOnceEvery(10, {
-	DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, &max1168_values[0], &max1168_values[1], &max1168_values[2]);
-	DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, &max1168_values[3], &max1168_values[4], &max1168_values[6]);
-	//	DOWNLINK_SEND_BOOT(DefaultChannel, &max1168_values[7]); });
-      });
-    max1168_status = STA_MAX1168_IDLE;
+  switch(ms2100_status) {
+  case MS2100_IDLE:
+    Ms2001SendReq();
+    break;
+  case MS2100_WAITING_EOC:
+    if (Ms2001HasEOC()) {
+      Ms2001ReadRes();
+    }
+    break;
   }
 }
 
+static inline void main_event_task( void ) {
+  if (ms2100_status == MS2100_DATA_AVAILABLE) {
+    RunOnceEvery(10, {
+	DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
+				  &ms2100_values[0],
+				  &ms2100_values[1],
+				  &ms2100_values[2]);
+      });
+    ms2100_status = MS2100_IDLE;
+  }
+}
 
 static inline void main_spi2_init( void ) {
 
-  /* set mag ss as output and assert it (on PC12) ------------------------------*/
-  /* set mag reset as output and assert it (on PC13) ------------------------------*/
-  GPIOC->BSRR = GPIO_Pin_12;
-  GPIOC->BSRR = GPIO_Pin_13;
-
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+  /* set max1168 slave select as output and assert it ( on PB12) */
+  GPIOB->BSRR = GPIO_Pin_12;
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
   GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
 
   /* Enable SPI2 Periph clock -------------------------------------------------*/
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
@@ -108,24 +113,11 @@ static inline void main_spi2_init( void ) {
 
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO , ENABLE);
 
- /* SPI Master configuration --------------------------------------------------*/
-  SPI_InitTypeDef SPI_InitStructure;
-  SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-  SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
-  SPI_InitStructure.SPI_DataSize = SPI_DataSize_16b;
-  SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
-  SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
-  SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8;
-  SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
-  SPI_InitStructure.SPI_CRCPolynomial = 7;
-  SPI_Init(SPI2, &SPI_InitStructure);
-
-  /* Enable SPI */
-  SPI_Cmd(SPI2, ENABLE);
 
   /* Enable SPI_2 DMA clock ---------------------------------------------------*/
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+
+
 
 }
 

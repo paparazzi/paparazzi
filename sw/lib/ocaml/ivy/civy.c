@@ -83,11 +83,11 @@ void cb_delete_channel(void *delete_read)
 {
 }
 
-void cb_write_channel(Channel ch, HANDLE fd, void *closure)
+void cb_write_channel(Channel ch, IVY_HANDLE fd, void *closure)
 {
 }
 
-void cb_read_channel(Channel ch, HANDLE fd, void *closure)
+void cb_read_channel(Channel ch, IVY_HANDLE fd, void *closure)
 {
   callback(*(value*)closure, Val_int(ch));
 }

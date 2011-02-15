@@ -47,11 +47,11 @@ void imu_feed_gyro_accel(void) {
 
 
 void imu_feed_mag(void) {
-#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
-  ms2001_values[IMU_MAG_X_CHAN] = sensors.mag.value.x;
-  ms2001_values[IMU_MAG_Y_CHAN] = sensors.mag.value.y;
-  ms2001_values[IMU_MAG_Z_CHAN] = sensors.mag.value.z;
-  ms2001_status = MS2001_DATA_AVAILABLE;
+#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
+  ms2100_values[IMU_MAG_X_CHAN] = sensors.mag.value.x;
+  ms2100_values[IMU_MAG_Y_CHAN] = sensors.mag.value.y;
+  ms2100_values[IMU_MAG_Z_CHAN] = sensors.mag.value.z;
+  ms2100_status = MS2100_DATA_AVAILABLE;
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
   ami601_values[IMU_MAG_X_CHAN] = sensors.mag.value.x;
   ami601_values[IMU_MAG_Y_CHAN] = sensors.mag.value.y;

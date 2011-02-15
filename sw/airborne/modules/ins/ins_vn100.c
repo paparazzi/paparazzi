@@ -34,6 +34,11 @@
 #include "downlink.h"
 #include "messages.h"
 
+/* neutrals */
+float ins_roll_neutral;
+float ins_pitch_neutral;
+float ins_yaw_neutral;
+
 struct FloatEulers ins_eulers;
 struct FloatQuat ins_quat;
 struct FloatRates ins_rates;
@@ -176,6 +181,9 @@ void parse_ins_msg( void ) {
 
 }
 
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"

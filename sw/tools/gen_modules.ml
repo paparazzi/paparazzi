@@ -328,14 +328,19 @@ let () =
     fprintf out_h "#define EXTERN_MODULES extern\n";
     fprintf out_h "#endif";
     nl ();
+    (* Extract main_freq parameter *)
     let modules = try (ExtXml.child xml "modules") with _ -> Xml.Element("modules",[],[]) in
     let main_freq = try (int_of_string (Xml.attrib modules "main_freq")) with _ -> !freq in
     freq := main_freq;
-    let modules_list = List.map GC.get_module_conf (Xml.children modules) in
-    let modules_list = GC.unload_unused_modules modules_list false in
+    (* Extract modules list *)
+    let modules = GC.get_modules_of_airframe xml in
+    let modules = GC.unload_unused_modules modules true in
+    (* Extract modules names (file name and module name) *)
     let modules_name =
-      (List.map (fun l -> try Xml.attrib l "name" with _ -> "") (Xml.children modules)) @
-      (List.map (fun m -> try Xml.attrib m "name" with _ -> "") modules_list) in
+      (List.map (fun m -> try Xml.attrib m.GC.xml "name" with _ -> "") modules) @
+      (List.map (fun m -> m.GC.file) modules) in
+    (* Extract xml modules nodes *)
+    let modules_list = List.map (fun m -> m.GC.xml) modules in
     check_dependencies modules_list modules_name;
     parse_modules modules_list;
     finish h_name;

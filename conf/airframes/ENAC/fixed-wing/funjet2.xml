@@ -106,8 +106,8 @@
 
   <section name="INFRARED" prefix="IR_">
     <define name="IR1_NEUTRAL" value="-15"/>
-    <define name="IR2_NEUTRAL" value="0"/>
-    <define name="TOP_NEUTRAL" value="-20"/>
+    <define name="IR2_NEUTRAL" value="10"/>
+    <define name="TOP_NEUTRAL" value="-15"/>
     <define name="I2C_DEFAULT_CONF" value="1"/>
 
     <define name="LATERAL_CORRECTION" value="1"/>

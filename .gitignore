@@ -3,6 +3,7 @@
 *.out
 
 *~
+*.swp
 
 *.pyc
 
@@ -16,6 +17,24 @@
 
 *.aux
 
+# Debian related files
+*.deb
+*.dsc
+*.changes
+*.substvars
+*.debhelper.log
+*-stamp
+/debian/control
+/debian/changelog
+/debian/files
+/debian/paparazzi-arm7
+/debian/paparazzi-avr
+/debian/paparazzi-dev
+/debian/paparazzi-bin
+/sw/lib/ocaml/ivy/debian/changelog
+/sw/lib/ocaml/ivy/debian/files
+/sw/lib/ocaml/ivy/debian/ivy-ocaml
+
 /var
 /dox
 
@@ -26,6 +45,7 @@
 /conf/conf.xml.20*
 /conf/control_panel.xml
 /conf/%gconf.xml
+/conf/srtm_data/*
 
 # /doc/pprz_algebra/
 /doc/pprz_algebra/headfile.log
@@ -88,3 +108,17 @@
 # /sw/tools/
 /sw/tools/fp_parser.ml
 /sw/tools/wiki_gen/wiki_gen
+
+# /sw/ground_segment/joystick
+/sw/ground_segment/joystick/test_stick
+
+# /sw/airborne/arch/lpc21/test/bootloader
+/sw/airborne/arch/lpc21/test/bootloader/bl.dmp
+/sw/airborne/arch/lpc21/test/bootloader/bl.hex
+/sw/airborne/arch/lpc21/test/bootloader/bl.map
+/sw/airborne/arch/lpc21/test/bootloader/bl.elf
+/sw/airborne/arch/lpc21/test/bootloader/bl_ram.dmp
+/sw/airborne/arch/lpc21/test/bootloader/bl_ram.hex
+/sw/airborne/arch/lpc21/test/bootloader/bl_ram.map
+/sw/airborne/arch/lpc21/test/bootloader/bl_ram.elf
+/sw/airborne/arch/lpc21/test/bootloader/crt.lst
