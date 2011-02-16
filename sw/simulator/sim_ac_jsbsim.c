@@ -250,10 +250,25 @@ void jsbsim_init(void) {
 }
 
 bool check_crash_jsbsim(JSBSim::FGFDMExec* FDMExec) {
-  double agl = FDMExec->GetPropertyManager()->GetNode("position/h-agl-ft")->getDoubleValue();
-  if (agl>=0) return true;
-  else {
-    cerr << "Crash detected" << endl;
-    return false;
-  }
+    double
+      agl = FDMExec->GetPropagate()->GetDistanceAGL(), // in ft
+      lat = FDMExec->GetPropagate()->GetLatitude(), // in rad
+      lon = FDMExec->GetPropagate()->GetLongitude(); // in rad
+    
+    if (agl< 0) {
+          cerr << "Crash detected: agl < 0" << endl << endl;
+          return false;
+    }
+    if (agl > 1e5 || abs(lat) > M_PI_2 || abs(lon) > M_PI) {
+          cerr << "Simulation divergence: Lat=" << lat
+               << " rad, lon=" << lon << " rad, agl=" << agl << " ft" << endl
+        << endl;
+          return false;
+    }
+    
+    if (isnan(agl) || isnan(lat) || isnan(lon)) {
+          cerr << "JSBSim is producing NaNs. Exiting." << endl << endl;
+          return false;
+    }
+    return true;
 }
