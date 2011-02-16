@@ -43,6 +43,7 @@ void imu_periodic(void) {
   if (imu_aspirin.status == AspirinStatusUninit) {
     configure_gyro();
     configure_accel();
+    imu_aspirin_arch_int_enable();
     imu_aspirin.status = AspirinStatusIdle;
   }
   else
