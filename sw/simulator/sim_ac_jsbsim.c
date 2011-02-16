@@ -80,7 +80,7 @@ static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
     result = FDMExec->Run();
   }
   /* check if still flying */
-  //result = check_crash_jsbsim(FDMExec);
+  result = check_crash_jsbsim(FDMExec);
 
   /* read outputs from model state (and display ?) */
   copy_outputs_from_jsbsim(FDMExec);
@@ -250,25 +250,25 @@ void jsbsim_init(void) {
 }
 
 bool check_crash_jsbsim(JSBSim::FGFDMExec* FDMExec) {
-    double
-      agl = FDMExec->GetPropagate()->GetDistanceAGL(), // in ft
-      lat = FDMExec->GetPropagate()->GetLatitude(), // in rad
-      lon = FDMExec->GetPropagate()->GetLongitude(); // in rad
     
-    if (agl< 0) {
-          cerr << "Crash detected: agl < 0" << endl << endl;
-          return false;
-    }
-    if (agl > 1e5 || abs(lat) > M_PI_2 || abs(lon) > M_PI) {
-          cerr << "Simulation divergence: Lat=" << lat
-               << " rad, lon=" << lon << " rad, agl=" << agl << " ft" << endl
-        << endl;
-          return false;
-    }
+  double agl = FDMExec->GetPropagate()->GetDistanceAGL(), // in ft
+  lat = FDMExec->GetPropagate()->GetLatitude(), // in rad
+  lon = FDMExec->GetPropagate()->GetLongitude(); // in rad
     
-    if (isnan(agl) || isnan(lat) || isnan(lon)) {
-          cerr << "JSBSim is producing NaNs. Exiting." << endl << endl;
-          return false;
-    }
-    return true;
+  if (agl< 0) {
+    cerr << "Crash detected: agl < 0" << endl << endl;
+    return false;
+  }
+  if (agl > 1e5 || abs(lat) > M_PI_2 || abs(lon) > M_PI) {
+    cerr << "Simulation divergence: Lat=" << lat
+         << " rad, lon=" << lon << " rad, agl=" << agl << " ft" << endl
+         << endl;
+    return false;
+  }
+    
+  if (isnan(agl) || isnan(lat) || isnan(lon)) {
+    cerr << "JSBSim is producing NaNs. Exiting." << endl << endl;
+    return false;
+  }
+  return true;
 }
