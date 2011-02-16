@@ -158,9 +158,18 @@
     <define name="DEVICE_TYPE" value="XBEE"/>
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
+  
+  
+  <section name="SIMU">
+    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
+    <define name="JSBSIM_IR_ROLL_NEUTRAL" value="RadOfDeg(0.)"/>
+    <define name="JSBSIM_IR_PITCH_NEUTRAL" value="RadOfDeg(0.)"/>
+  </section>
+
 
   <firmware name="fixedwing">
     <target name="sim" 			board="pc" />
+    <target name="jsbsim"       board="pc"/>
     <target name="ap" 			board="tiny_1.1"/>
 
     <define name="AGR_CLIMB" />

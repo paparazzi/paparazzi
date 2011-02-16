@@ -69,6 +69,7 @@ static void sim_init(void) {
 }
 
 static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
+  static uint8_t ncalls = 0;
 
   /* read actuators positions and feed JSBSim inputs */
   copy_inputs_to_jsbsim(FDMExec);
@@ -84,11 +85,15 @@ static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
   /* read outputs from model state (and display ?) */
   copy_outputs_from_jsbsim(FDMExec);
 
-  /* run the airborne code */
-
+  /* run the airborne code
+     with 60 Hz, even if JSBSim runs with a multiple of this */
+  if (ncalls == 0) {
 //  airborne_run_one_step();
   autopilot_event_task();
   autopilot_periodic_task();
+  }
+  ++ncalls;
+  if (ncalls == JSBSIM_SPEEDUP) ncalls = 0;
 
   return result;
 }
