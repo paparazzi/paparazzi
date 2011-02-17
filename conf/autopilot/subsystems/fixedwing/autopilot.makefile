@@ -198,7 +198,7 @@ jsbsim.CFLAGS 		+= $(fbw_CFLAGS) $(ap_CFLAGS)
 jsbsim.srcs 		+= $(fbw_srcs) $(ap_srcs)
 
 jsbsim.CFLAGS 		+= -DSITL
-jsbsim.srcs 		+= $(SIMDIR)/sim_ac_jsbsim.c $(SIMDIR)/sim_ac_fw.c
+jsbsim.srcs 		+= $(SIMDIR)/sim_ac_jsbsim.c $(SIMDIR)/sim_ac_fw.c $(SIMDIR)/sim_ac_flightgear.c
 
 # external libraries
 jsbsim.CFLAGS 		+= -I$(SIMDIR) -I/usr/include -I$(JSBSIM_INC) -I$(OCAMLLIBDIR) `pkg-config glib-2.0 --cflags`

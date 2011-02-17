@@ -95,6 +95,7 @@ struct FGNetCtrls {
 #define FG_NET_FDM_MAX_WHEELS  3
 #define FG_NET_FDM_MAX_TANKS   4
 
+#ifndef _NET_FDM_HXX
 
 struct FGNetFDM {
 
@@ -179,6 +180,8 @@ struct FGNetFDM {
   float speedbrake;
   float spoilers;
 };
+
+#endif
 
 struct FGNetMiniFDM {
    uint32_t version;           // increment when data values change

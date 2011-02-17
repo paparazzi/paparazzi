@@ -22,7 +22,7 @@
  *
  */
 
-#include "sim_ac_jsbsim.h"
+
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -30,10 +30,15 @@
 #include <getopt.h>
 
 #include <iostream>
+
+#include <FGFDMExec.h>
+#include "sim_ac_flightgear.h"
+
 using namespace std;
 
 //#include <Ivy/ivy.h>
 #include <Ivy/ivyglibloop.h>
+#include "sim_ac_jsbsim.h"
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 GLOBAL DATA
@@ -50,6 +55,8 @@ static void     sim_init(void);
 static gboolean sim_periodic(gpointer data);
 
 string ivyBus = "127.255.255.255";
+string fgAddress = "127.0.0.1";
+
 static void ivy_transport_init(void);
 
 
@@ -82,8 +89,11 @@ static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
   /* check if still flying */
   result = check_crash_jsbsim(FDMExec);
 
-  /* read outputs from model state (and display ?) */
+  /* read outputs from model state */
   copy_outputs_from_jsbsim(FDMExec);
+  
+  /* send outputs to flightgear for visualisation */  
+  sim_ac_flightgear_send(FDMExec);  
 
   /* run the airborne code
      with 60 Hz, even if JSBSim runs with a multiple of this */
@@ -104,6 +114,8 @@ int main ( int argc, char** argv) {
   sim_parse_options(argc, argv);
 
   sim_init();
+  
+  sim_ac_flightgear_init(fgAddress.c_str(), 5501);    
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
 
@@ -159,8 +171,7 @@ static void sim_parse_options(int argc, char** argv) {
       ivyBus = string(argv[++i]);
     }
     else if (argument == "-fg") {
-      // TODO
-      i++;
+      fgAddress = string(argv[++i]);  
     }
     else {
       cerr << "Unknown argument" << endl;
@@ -170,6 +181,13 @@ static void sim_parse_options(int argc, char** argv) {
   }
 
 }
+
+
+
+
+
+
+
 
 void jsbsim_init(void) {
 
