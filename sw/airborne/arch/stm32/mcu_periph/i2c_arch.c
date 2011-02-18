@@ -443,7 +443,11 @@ static inline void on_status_sending_byte(struct i2c_transaction* trans, uint32_
       if (trans->type == I2CTransTx) {
     I2C_GenerateSTOP(I2C2, ENABLE);
     /* Make sure that the STOP bit is cleared by Hardware */
-    while ((I2C2->CR1&0x200) == 0x200);
+    static __IO uint8_t counter = 0;
+    while ((I2C2->CR1&0x200) == 0x200) {
+      counter++;
+      if (counter > 100) break;
+    }
     i2c2.status = I2CStopRequested;
       }
       else {
@@ -508,7 +512,11 @@ static inline void on_status_addr_rd_sent(struct i2c_transaction* trans, uint32_
       I2C_AcknowledgeConfig(I2C2, DISABLE);                       // make sure it's gonna be nacked
       I2C_GenerateSTOP(I2C2, ENABLE);                             // and followed by a stop
       /* Make sure that the STOP bit is cleared by Hardware */
-      while ((I2C2->CR1&0x200) == 0x200);
+      static __IO uint8_t counter = 0;
+      while ((I2C2->CR1&0x200) == 0x200) {
+        counter++;
+        if (counter > 100) break;
+      }
       i2c2.status = I2CReadingLastByte;                           // and remember we did
     }
     else {
@@ -536,7 +544,11 @@ static inline void on_status_reading_byte(struct i2c_transaction* trans, uint32_
     I2C_AcknowledgeConfig(I2C2, DISABLE);                  // give them a nack once it's done
     I2C_GenerateSTOP(I2C2, ENABLE);                        // and follow with a stop
     /* Make sure that the STOP bit is cleared by Hardware */
-    while ((I2C2->CR1&0x200) == 0x200);
+    static __IO uint8_t counter = 0;
+    while ((I2C2->CR1&0x200) == 0x200) {
+      counter++;
+      if (counter > 100) break;
+    }
     i2c2.status = I2CStopRequested;                        // remember we already trigered the stop
       }
     } // else { something very wrong has happened }
@@ -671,7 +683,11 @@ void i2c2_er_irq_handler(void) {
     I2C_ClearITPendingBit(I2C2, I2C_IT_AF);
     I2C_GenerateSTOP(I2C2, ENABLE);
     /* Make sure that the STOP bit is cleared by Hardware */
-    while ((I2C2->CR1&0x200) == 0x200);
+    static __IO uint8_t counter = 0;
+    while ((I2C2->CR1&0x200) == 0x200) {
+      counter++;
+      if (counter > 100) break;
+    }
   }
   if (I2C_GetITStatus(I2C2, I2C_IT_BERR)) {     /* Misplaced Start or Stop condition */
     i2c2_errors.miss_start_stop_cnt++;
