@@ -287,7 +287,7 @@ bool check_crash_jsbsim(JSBSim::FGFDMExec* FDMExec) {
   lat = FDMExec->GetPropagate()->GetLatitude(), // in rad
   lon = FDMExec->GetPropagate()->GetLongitude(); // in rad
     
-  if (agl< 0) {
+  if (agl< -1e-5) {
     cerr << "Crash detected: agl < 0" << endl << endl;
     return false;
   }
