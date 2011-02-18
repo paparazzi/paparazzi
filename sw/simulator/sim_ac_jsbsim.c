@@ -32,6 +32,8 @@
 #include <iostream>
 
 #include <FGFDMExec.h>
+//#include <SGGeod.hxx>
+#include <math/FGLocation.h>
 #include "sim_ac_flightgear.h"
 
 using namespace std;
@@ -45,6 +47,7 @@ GLOBAL DATA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*/
 
 bool run_model;
+bool run_fg = false;
 
 string ICName;
 string AircraftName;
@@ -80,7 +83,7 @@ static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
 
   /* read actuators positions and feed JSBSim inputs */
   copy_inputs_to_jsbsim(FDMExec);
-
+   
   /* run JSBSim flight model */
   bool result = true;
   if (run_model) {
@@ -92,8 +95,9 @@ static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
   /* read outputs from model state */
   copy_outputs_from_jsbsim(FDMExec);
   
-  /* send outputs to flightgear for visualisation */  
-  sim_ac_flightgear_send(FDMExec);  
+  /* send outputs to flightgear for visualisation */
+  if (run_fg == true)  
+    sim_ac_flightgear_send(FDMExec);  
 
   /* run the airborne code
      with 60 Hz, even if JSBSim runs with a multiple of this */
@@ -115,7 +119,8 @@ int main ( int argc, char** argv) {
 
   sim_init();
   
-  sim_ac_flightgear_init(fgAddress.c_str(), 5501);    
+  if (run_fg == true)  
+    sim_ac_flightgear_init(fgAddress.c_str(), 5501);    
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
 
@@ -171,6 +176,7 @@ static void sim_parse_options(int argc, char** argv) {
       ivyBus = string(argv[++i]);
     }
     else if (argument == "-fg") {
+      run_fg = true;  
       fgAddress = string(argv[++i]);  
     }
     else {
@@ -237,13 +243,21 @@ void jsbsim_init(void) {
       }
     }
     else {
+      
+      // FGInitialCondition::SetAltitudeASLFtIC 
+      // requires this function to be called
+      // before itself         
+      IC->SetVgroundFpsIC(0.);
+        
       // Use flight plan initial conditions
       IC->SetLatitudeDegIC(NAV_LAT0 / 1e7);
       IC->SetLongitudeDegIC(NAV_LON0 / 1e7);
-      IC->SetAltitudeAGLFtIC(0.0 / FT2M);
+          
+      IC->SetAltitudeASLFtIC(GROUND_ALT / FT2M);
       IC->SetTerrainElevationFtIC(GROUND_ALT / FT2M);
       IC->SetPsiDegIC(QFU);
       IC->SetVgroundFpsIC(0.);
+      
       //initRunning for all engines
       FDMExec->GetPropulsion()->InitRunning(-1);
       if (!FDMExec->RunIC()) {
