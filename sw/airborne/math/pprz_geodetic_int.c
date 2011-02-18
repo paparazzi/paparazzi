@@ -73,14 +73,14 @@ void enu_of_ecef_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct Ece
   VECT3_DIFF(delta, *ecef, def->ecef);
   const int64_t tmpx = (int64_t)def->ltp_of_ecef.m[0]*delta.x +
                        (int64_t)def->ltp_of_ecef.m[1]*delta.y +
-                       0;
+                       0; /* this element is always zero http://en.wikipedia.org/wiki/Geodetic_system#From_ECEF_to_ENU */
   enu->x = (int32_t)(tmpx>>HIGH_RES_TRIG_FRAC);
   const int64_t tmpy = (int64_t)def->ltp_of_ecef.m[3]*delta.x +
                        (int64_t)def->ltp_of_ecef.m[4]*delta.y +
                        (int64_t)def->ltp_of_ecef.m[5]*delta.z;
   enu->y = (int32_t)(tmpy>>HIGH_RES_TRIG_FRAC);
   const int64_t tmpz = (int64_t)def->ltp_of_ecef.m[6]*delta.x +
-		       (int64_t)def->ltp_of_ecef.m[7]*delta.y +
+                       (int64_t)def->ltp_of_ecef.m[7]*delta.y +
                        (int64_t)def->ltp_of_ecef.m[8]*delta.z;
   enu->z = (int32_t)(tmpz>>HIGH_RES_TRIG_FRAC);
 
@@ -99,14 +99,14 @@ void enu_of_ecef_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct Ecef
 
   const int64_t tmpx = (int64_t)def->ltp_of_ecef.m[0]*ecef->x +
                        (int64_t)def->ltp_of_ecef.m[1]*ecef->y +
-                       0;
+                       0; /* this element is always zero http://en.wikipedia.org/wiki/Geodetic_system#From_ECEF_to_ENU */
   enu->x = (int32_t)(tmpx>>HIGH_RES_TRIG_FRAC);
   const int64_t tmpy = (int64_t)def->ltp_of_ecef.m[3]*ecef->x +
                        (int64_t)def->ltp_of_ecef.m[4]*ecef->y +
                        (int64_t)def->ltp_of_ecef.m[5]*ecef->z;
   enu->y = (int32_t)(tmpy>>HIGH_RES_TRIG_FRAC);
   const int64_t tmpz = (int64_t)def->ltp_of_ecef.m[6]*ecef->x +
-		       (int64_t)def->ltp_of_ecef.m[7]*ecef->y +
+                       (int64_t)def->ltp_of_ecef.m[7]*ecef->y +
                        (int64_t)def->ltp_of_ecef.m[8]*ecef->z;
   enu->z = (int32_t)(tmpz>>HIGH_RES_TRIG_FRAC);
 
@@ -121,7 +121,28 @@ void ned_of_ecef_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct Ecef
 
 }
 
+/* implement properly in fixed point
+void ecef_of_enu_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu) {
+  MAT33_VECT3_TRANSP_MUL(*ecef, def->ltp_of_ecef, *enu);
+  VECT3_ADD(*ecef, def->ecef);
+}
 
+void ecef_of_ned_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned) {
+  struct EnuCoor_d enu;
+  ENU_OF_TO_NED(enu, *ned);
+  ecef_of_enu_point_d(ecef, def, &enu);
+}
+
+void ecef_of_enu_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu) {
+  MAT33_VECT3_TRANSP_MUL(*ecef, def->ltp_of_ecef, *enu);
+}
+
+void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned) {
+  struct EnuCoor_d enu;
+  ENU_OF_TO_NED(enu, *ned);
+  ecef_of_enu_vect_d(ecef, def, &enu);
+}
+*/
 
 
 /*
