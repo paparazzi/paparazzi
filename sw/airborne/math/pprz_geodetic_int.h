@@ -57,16 +57,16 @@ extern void enu_of_lla_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, stru
 extern void ned_of_lla_point_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct LlaCoor_i* lla);
 
 #define INT32_VECT3_ENU_OF_NED(_o, _i) {		\
-    _o.x = _i.y;				\
-    _o.y = _i.x;				\
-    _o.z = -_i.z;				\
+    (_o).x = (_i).y;                            \
+    (_o).y = (_i).x;                            \
+    (_o).z = -(_i).z;                           \
   }
 
 #define INT32_VECT3_NED_OF_ENU(_o, _i) INT32_VECT3_ENU_OF_NED(_o,_i)
 
 #define INT32_VECT2_ENU_OF_NED(_o, _i) {		\
-    _o.x = _i.y;				\
-    _o.y = _i.x;				\
+    (_o).x = (_i).y;				\
+    (_o).y = (_i).x;				\
   }
 
 #define INT32_VECT2_NED_OF_ENU(_o, _i) INT32_VECT2_ENU_OF_NED(_o,_i)
