@@ -53,7 +53,7 @@ void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef) {
 
   def->ltp_of_ecef.m[0] = -sin_lon;
   def->ltp_of_ecef.m[1] =  cos_lon;
-  def->ltp_of_ecef.m[2] =  0;
+  def->ltp_of_ecef.m[2] =  0; /* this element is always zero http://en.wikipedia.org/wiki/Geodetic_system#From_ECEF_to_ENU */
   def->ltp_of_ecef.m[3] = (int32_t)((-(int64_t)sin_lat*(int64_t)cos_lon)>>HIGH_RES_TRIG_FRAC);
   def->ltp_of_ecef.m[4] = (int32_t)((-(int64_t)sin_lat*(int64_t)sin_lon)>>HIGH_RES_TRIG_FRAC);
   def->ltp_of_ecef.m[5] =  cos_lat;
@@ -63,9 +63,6 @@ void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef) {
 
 }
 
-
-//void init_ltp_from_lla_i(struct LtpRef_i* ref_param, struct LlaCoor_i* ref_pos) {
-//}
 
 void enu_of_ecef_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
 
