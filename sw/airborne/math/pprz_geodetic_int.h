@@ -46,7 +46,7 @@ struct LtpDef_i {
 };
 
 extern void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef);
-//extern void ltp_def_from_lla_i(struct LtpRef_i* def, struct LlaCoor_i* lla);
+extern void ltp_def_from_lla_i(struct LtpDef_i* def, struct LlaCoor_i* lla);
 extern void lla_of_ecef_i(struct LlaCoor_i* out, struct EcefCoor_i* in);
 extern void ecef_of_lla_i(struct EcefCoor_i* out, struct LlaCoor_i* in);
 extern void enu_of_ecef_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct EcefCoor_i* ecef);
@@ -55,6 +55,14 @@ extern void enu_of_ecef_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, stru
 extern void ned_of_ecef_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef);
 extern void enu_of_lla_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct LlaCoor_i* lla);
 extern void ned_of_lla_point_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct LlaCoor_i* lla);
+#if 0
+extern void enu_of_lla_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct LlaCoor_i* lla);
+extern void ned_of_lla_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct LlaCoor_i* lla);
+extern void ecef_of_enu_point_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct EnuCoor_f* enu);
+extern void ecef_of_ned_point_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct NedCoor_f* ned);
+extern void ecef_of_enu_vect_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct EnuCoor_f* enu);
+extern void ecef_of_ned_vect_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct NedCoor_f* ned);
+#endif
 
 #define INT32_VECT3_ENU_OF_NED(_o, _i) {		\
     (_o).x = (_i).y;                            \
