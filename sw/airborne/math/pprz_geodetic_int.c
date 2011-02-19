@@ -24,10 +24,6 @@
 #include "pprz_geodetic_int.h"
 #include "pprz_algebra_int.h"
 
-#define CM_OF_M(_m)  ((_m)*1e2)
-#define M_OF_CM(_cm) ((_cm)/1e2)
-#define EM7RAD_OF_RAD(_r) (_r*1e7)
-#define RAD_OF_EM7RAD(_r) (_r/1e7)
 #define HIGH_RES_TRIG_FRAC  20
 
 void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef) {

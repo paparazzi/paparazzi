@@ -62,6 +62,11 @@ extern void ecef_of_ned_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, s
 extern void ecef_of_enu_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu);
 extern void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned);
 
+#define CM_OF_M(_m)  ((_m)*1e2)
+#define M_OF_CM(_cm) ((_cm)/1e2)
+#define EM7RAD_OF_RAD(_r) (_r*1e7)
+#define RAD_OF_EM7RAD(_r) (_r/1e7)
+
 #define INT32_VECT3_ENU_OF_NED(_o, _i) {		\
     (_o).x = (_i).y;                            \
     (_o).y = (_i).x;                            \
@@ -69,6 +74,46 @@ extern void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, st
   }
 
 #define INT32_VECT3_NED_OF_ENU(_o, _i) INT32_VECT3_ENU_OF_NED(_o,_i)
+
+#define ECEF_BFP_OF_REAL(_o, _i) {          \
+    (_o).x = (int32_t)CM_OF_M((_i).x);      \
+    (_o).y = (int32_t)CM_OF_M((_i).y);      \
+    (_o).z = (int32_t)CM_OF_M((_i).z);      \
+  }
+
+#define ECEF_FLOAT_OF_BFP(_o, _i) {           \
+    (_o).x = (float)M_OF_CM((_i).x);          \
+    (_o).y = (float)M_OF_CM((_i).y);          \
+    (_o).z = (float)M_OF_CM((_i).z);          \
+  }
+
+#define LLA_BFP_OF_REAL(_o, _i) {                \
+    (_o).lat = (int32_t)EM7RAD_OF_RAD((_i).lat); \
+    (_o).lon = (int32_t)EM7RAD_OF_RAD((_i).lon); \
+    (_o).alt = (int32_t)CM_OF_M((_i).alt);       \
+  }
+
+#define LLA_FLOAT_OF_BFP(_o, _i) {                   \
+    (_o).lat = (float)RAD_OF_EM7RAD((_i).lat);    \
+    (_o).lon = (float)RAD_OF_EM7RAD((_i).lon);    \
+    (_o).alt = (float)M_OF_CM((_i).alt);          \
+  }
+
+#define NED_BFP_OF_REAL(_o, _i) {       \
+    (_o).x = POS_BFP_OF_REAL((_i).x);   \
+    (_o).y = POS_BFP_OF_REAL((_i).y);   \
+    (_o).z = POS_BFP_OF_REAL((_i).z);   \
+  }
+
+#define ENU_BFP_OF_REAL(_o, _i) NED_BFP_OF_REAL(_o, _i)
+
+#define NED_FLOAT_OF_BFP(_o, _i) {      \
+    (_o).x = POS_FLOAT_OF_BFP((_i).x);  \
+    (_o).y = POS_FLOAT_OF_BFP((_i).y);  \
+    (_o).z = POS_FLOAT_OF_BFP((_i).z);  \
+  }
+
+#define ENU_FLOAT_OF_BFP(_o, _i) NED_FLOAT_OF_BFP(_o, _i)
 
 #define INT32_VECT2_ENU_OF_NED(_o, _i) {		\
     (_o).x = (_i).y;				\
