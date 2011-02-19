@@ -143,36 +143,57 @@ void enu_of_ecef_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct Ecef
 
 
 void ned_of_ecef_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct EcefCoor_i* ecef) {
-
   struct EnuCoor_i enu;
   enu_of_ecef_vect_i(&enu, def, ecef);
   ENU_OF_TO_NED(*ned, enu);
-
 }
 
-/* implement properly in fixed point
+/* check if resolution of INT32_TRIG_FRAC (14) is enough here */
 void ecef_of_enu_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu) {
-  MAT33_VECT3_TRANSP_MUL(*ecef, def->ltp_of_ecef, *enu);
-  VECT3_ADD(*ecef, def->ecef);
+  INT32_RMAT_TRANSP_VMULT(*ecef, def->ltp_of_ecef, *enu);
+  INT32_VECT3_ADD(*ecef, def->ecef);
 }
 
 void ecef_of_ned_point_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned) {
-  struct EnuCoor_d enu;
+  struct EnuCoor_i enu;
   ENU_OF_TO_NED(enu, *ned);
-  ecef_of_enu_point_d(ecef, def, &enu);
+  ecef_of_enu_point_i(ecef, def, &enu);
 }
 
 void ecef_of_enu_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct EnuCoor_i* enu) {
-  MAT33_VECT3_TRANSP_MUL(*ecef, def->ltp_of_ecef, *enu);
+  INT32_RMAT_TRANSP_VMULT(*ecef, def->ltp_of_ecef, *enu);
 }
 
 void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, struct NedCoor_i* ned) {
-  struct EnuCoor_d enu;
+  struct EnuCoor_i enu;
   ENU_OF_TO_NED(enu, *ned);
-  ecef_of_enu_vect_d(ecef, def, &enu);
+  ecef_of_enu_vect_i(ecef, def, &enu);
 }
-*/
 
+
+void enu_of_lla_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct LlaCoor_i* lla) {
+  struct EcefCoor_i ecef;
+  ecef_of_lla_i(&ecef,lla);
+  enu_of_ecef_point_i(enu,def,&ecef);
+}
+
+void ned_of_lla_point_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct LlaCoor_i* lla) {
+  struct EcefCoor_i ecef;
+  ecef_of_lla_i(&ecef,lla);
+  ned_of_ecef_point_i(ned,def,&ecef);
+}
+
+void enu_of_lla_vect_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct LlaCoor_i* lla) {
+  struct EcefCoor_i ecef;
+  ecef_of_lla_i(&ecef,lla);
+  enu_of_ecef_vect_i(enu,def,&ecef);
+}
+
+void ned_of_lla_vect_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct LlaCoor_i* lla) {
+  struct EcefCoor_i ecef;
+  ecef_of_lla_i(&ecef,lla);
+  ned_of_ecef_vect_i(ned,def,&ecef);
+}
 
 /*
    For now we cheat and call the floating point version
@@ -214,19 +235,3 @@ void ecef_of_lla_i(struct EcefCoor_i* out, struct LlaCoor_i* in) {
   out->z = (int32_t)CM_OF_M(out_d.z);
 
 }
-
-//#include "stdio.h"
-void enu_of_lla_point_i(struct EnuCoor_i* enu, struct LtpDef_i* def, struct LlaCoor_i* lla) {
-  struct EcefCoor_i ecef;
-  ecef_of_lla_i(&ecef,lla);
-  //printf("sim %d %d %d, def %d %d %d\n",ecef.x,ecef.y,ecef.z,def->ecef.x,def->ecef.y,def->ecef.z);
-  //printf("sim lla def %d %d %d\n",def->lla.lat,def->lla.lon,def->lla.alt);
-  enu_of_ecef_point_i(enu,def,&ecef);
-}
-
-void ned_of_lla_point_i(struct NedCoor_i* ned, struct LtpDef_i* def, struct LlaCoor_i* lla) {
-  struct EcefCoor_i ecef;
-  ecef_of_lla_i(&ecef,lla);
-  ned_of_ecef_point_i(ned,def,&ecef);
-}
-
