@@ -75,6 +75,18 @@ void ned_of_ecef_vect_f(struct NedCoor_f* ned, struct LtpDef_f* def, struct Ecef
   ENU_OF_TO_NED(*ned, enu);
 }
 
+void enu_of_lla_point_f(struct EnuCoor_f* enu, struct LtpDef_f* def, struct LlaCoor_f* lla) {
+  struct EcefCoor_f ecef;
+  ecef_of_lla_f(&ecef,lla);
+  enu_of_ecef_point_f(enu,def,&ecef);
+}
+
+void ned_of_lla_point_f(struct NedCoor_f* ned, struct LtpDef_f* def, struct LlaCoor_f* lla) {
+  struct EcefCoor_f ecef;
+  ecef_of_lla_f(&ecef,lla);
+  ned_of_ecef_point_f(ned,def,&ecef);
+}
+
 /*
  * not enought precision with float - use double
  */

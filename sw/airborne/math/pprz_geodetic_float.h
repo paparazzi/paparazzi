@@ -48,6 +48,8 @@ extern void enu_of_ecef_point_f(struct EnuCoor_f* enu, struct LtpDef_f* def, str
 extern void ned_of_ecef_point_f(struct NedCoor_f* ned, struct LtpDef_f* def, struct EcefCoor_f* ecef);
 extern void enu_of_ecef_vect_f(struct EnuCoor_f* enu, struct LtpDef_f* def, struct EcefCoor_f* ecef);
 extern void ned_of_ecef_vect_f(struct NedCoor_f* ned, struct LtpDef_f* def, struct EcefCoor_f* ecef);
+extern void enu_of_lla_point_f(struct EnuCoor_f* enu, struct LtpDef_f* def, struct LlaCoor_f* lla);
+extern void ned_of_lla_point_f(struct NedCoor_f* ned, struct LtpDef_f* def, struct LlaCoor_f* lla);
 
 /*  not enought precision with floats - used the double version */
 extern void ecef_of_enu_point_f(struct EcefCoor_f* ecef, struct LtpDef_f* def, struct EnuCoor_f* enu);
