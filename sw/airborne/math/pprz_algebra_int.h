@@ -116,9 +116,9 @@ struct Int16Eulers {
  * @brief euler angles
  * @details Units: rad with INT32_ANGLE_FRAC */
 struct Int32Eulers {
-  int32_t phi;
-  int32_t theta;
-  int32_t psi;
+  int32_t phi; ///< in rad with INT32_ANGLE_FRAC
+  int32_t theta; ///< in rad with INT32_ANGLE_FRAC
+  int32_t psi; ///< in rad with INT32_ANGLE_FRAC
 };
 
 
@@ -149,9 +149,9 @@ struct Int16Rates {
  * @brief angular rates
  * @details Units: rad/s^2 with INT32_RATE_FRAC */
 struct Int32Rates {
-  int32_t p;
-  int32_t q;
-  int32_t r;
+  int32_t p; ///< in rad/s^2 with INT32_RATE_FRAC
+  int32_t q; ///< in rad/s^2 with INT32_RATE_FRAC
+  int32_t r; ///< in rad/s^2 with INT32_RATE_FRAC
 };
 
 struct Int64Vect2 {

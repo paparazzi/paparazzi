@@ -69,18 +69,18 @@ struct DoubleRMat {
  * @brief euler angles
  * @details Units: radians */
 struct DoubleEulers {
-  double phi;
-  double theta;
-  double psi;
+  double phi; ///< in radians
+  double theta; ///< in radians
+  double psi; ///< in radians
 };
 
 /**
  * @brief angular rates
  * @details Units: rad/s^2 */
 struct DoubleRates {
-  double p;
-  double q;
-  double r;
+  double p; ///< in rad/s^2
+  double q; ///< in rad/s^2
+  double r; ///< in rad/s^2
 };
 
 #define DOUBLE_VECT3_ROUND(_v) DOUBLE_VECT3_RINT(_v, _v)

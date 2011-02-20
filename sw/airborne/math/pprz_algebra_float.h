@@ -76,18 +76,18 @@ struct FloatRMat {
  * @brief euler angles
  * @details Units: radians */
 struct FloatEulers {
-  float phi;
-  float theta;
-  float psi;
+  float phi; ///< in radians
+  float theta; ///< in radians
+  float psi; ///< in radians
 };
 
 /**
  * @brief angular rates
  * @details Units: rad/s^2 */
 struct FloatRates {
-  float p;
-  float q;
-  float r;
+  float p; ///< in rad/s^2
+  float q; ///< in rad/s^2
+  float r; ///< in rad/s^2
 };
 
 #define FLOAT_ANGLE_NORMALIZE(_a) {				\

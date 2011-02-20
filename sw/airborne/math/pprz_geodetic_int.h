@@ -38,11 +38,14 @@
 
 /**
  * @brief vector in EarthCenteredEarthFixed coordinates
- * @details Units: centimeters */
+ * @details Origin at center of mass of the Earth. Z-axis is pointing north,
+ * the x-axis intersects the sphere of the earth at 0° latitude (Equator)
+ * and 0° longitude (Greenwich). Y-axis completes it to right-hand system.
+ * Units: centimeters */
 struct EcefCoor_i {
-  int32_t x;
-  int32_t y;
-  int32_t z;
+  int32_t x; ///< in centimeters
+  int32_t y; ///< in centimeters
+  int32_t z; ///< in centimeters
 };
 
 /**
@@ -51,9 +54,9 @@ struct EcefCoor_i {
  * Unit alt: centimeters above MSL
  */
 struct LlaCoor_i {
-  int32_t lon;
-  int32_t lat;
-  int32_t alt;
+  int32_t lon; ///< in radians*1e7
+  int32_t lat; ///< in radians*1e7
+  int32_t alt; ///< in centimeters above MSL
 };
 
 /**
@@ -80,10 +83,10 @@ struct EnuCoor_i {
  * in ECEF and LLA coordinates and the roation matrix from
  * ECEF to local frame */
 struct LtpDef_i {
-  struct EcefCoor_i ecef;        /* Reference point in ecef */
-  struct LlaCoor_i  lla;         /* Reference point in lla  */
-  struct Int32Mat33 ltp_of_ecef; /* Rotation matrix         */
-  int32_t hmsl;                  /* Height above mean sea level */
+  struct EcefCoor_i ecef;        ///< Reference point in ecef
+  struct LlaCoor_i  lla;         ///< Reference point in lla
+  struct Int32Mat33 ltp_of_ecef; ///< Rotation matrix
+  int32_t hmsl;                  ///< Height above mean sea level
 };
 
 extern void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef);

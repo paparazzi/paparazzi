@@ -35,11 +35,14 @@
 
 /**
  * @brief vector in EarthCenteredEarthFixed coordinates
- * @details Units: meters */
+ * @details Origin at center of mass of the Earth. Z-axis is pointing north,
+ * the x-axis intersects the sphere of the earth at 0° latitude (Equator)
+ * and 0° longitude (Greenwich). Y-axis completes it to right-hand system.
+ * Units: meters */
 struct EcefCoor_d {
-  double x;
-  double y;
-  double z;
+  double x; ///< in meters
+  double y; ///< in meters
+  double z; ///< in meters
 };
 
 /**
@@ -48,27 +51,27 @@ struct EcefCoor_d {
  * Unit alt: meters above MSL
  */
 struct LlaCoor_d {
-  double lon;
-  double lat;
-  double alt;
+  double lon; ///< in radians
+  double lat; ///< in radians
+  double alt; ///< in meters above MSL
 };
 
 /**
  * @brief vector in North East Down coordinates
  * Units: meters */
 struct NedCoor_d {
-  double x;
-  double y;
-  double z;
+  double x; ///< in meters
+  double y; ///< in meters
+  double z; ///< in meters
 };
 
 /**
  * @brief vector in East North Up coordinates
  * Units: meters */
 struct EnuCoor_d {
-  double x;
-  double y;
-  double z;
+  double x; ///< in meters
+  double y; ///< in meters
+  double z; ///< in meters
 };
 
 /**
@@ -77,9 +80,9 @@ struct EnuCoor_d {
  * in ECEF and LLA coordinates and the roation matrix from
  * ECEF to local frame */
 struct LtpDef_d {
-  struct EcefCoor_d  ecef;
-  struct LlaCoor_d   lla;
-  struct DoubleMat33 ltp_of_ecef;
+  struct EcefCoor_d  ecef; ///< origin of local frame in ECEF
+  struct LlaCoor_d   lla; ///< origin of local frame in LLA
+  struct DoubleMat33 ltp_of_ecef; ///< rotation from ECEF to local frame
 };
 
 extern void ltp_def_from_ecef_d(struct LtpDef_d* def, struct EcefCoor_d* ecef);
