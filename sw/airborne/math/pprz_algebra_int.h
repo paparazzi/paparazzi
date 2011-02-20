@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2008-2010  The Paparazzi Team
+ * Copyright (C) 2008-2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -16,9 +14,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * @file pprz_algebra_int.h
+ *   @brief Paparazzi fixed point algebra.
+ *
+ *   This is the more detailed description of this file.
  *
  */
 
@@ -69,6 +74,9 @@ struct Int32Vect3 {
 
 /* Rotation quaternions                         */
 #define INT32_QUAT_FRAC 15
+/**
+ * @brief Roation quaternion
+ * @details Units: INT32_QUAT_FRAC */
 struct Int32Quat {
   int32_t qi;
   int32_t qx;
@@ -104,6 +112,9 @@ struct Int16Eulers {
   int16_t psi;
 };
 
+/**
+ * @brief euler angles
+ * @details Units: rad with INT32_ANGLE_FRAC */
 struct Int32Eulers {
   int32_t phi;
   int32_t theta;
@@ -113,6 +124,10 @@ struct Int32Eulers {
 
 /* Rotation matrix. */
 #define INT32_TRIG_FRAC 14
+
+/**
+ * @brief rotation matrix
+ * @details Units: rad with INT32_TRIG_FRAC */
 struct Int32RMat {
   int32_t m[3*3];
 };
@@ -130,6 +145,9 @@ struct Int16Rates {
 };
 
 /* Rotational speed                              */
+/**
+ * @brief angular rates
+ * @details Units: rad/s^2 with INT32_RATE_FRAC */
 struct Int32Rates {
   int32_t p;
   int32_t q;

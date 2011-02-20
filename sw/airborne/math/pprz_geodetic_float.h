@@ -1,39 +1,81 @@
+/*
+ * Copyright (C) 2008-2011 The Paparazzi Team
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * @file pprz_geodetic_float.h
+ *   @brief Paparazzi floating point math for geodetic calculations.
+ *
+ *   This is the more detailed description of this file.
+ *
+ */
+
 #ifndef PPRZ_GEODETIC_FLOAT_H
 #define PPRZ_GEODETIC_FLOAT_H
 
 #include "pprz_geodetic.h"
 #include "pprz_algebra_float.h"
 
-/* Earth Centered Earth Fixed in meters */
+/**
+ * @brief vector in EarthCenteredEarthFixed coordinates
+ * @details Units: meters */
 struct EcefCoor_f {
   float x;
   float y;
   float z;
 };
 
-/* lon, lat in radians */
-/* alt in meters       */
+/**
+ * @brief vector in Latitude, Longitude and Altitude
+ * @details Units lat,lon: radians
+ * Unit alt: meters above MSL
+ */
 struct LlaCoor_f {
   float lon;
   float lat;
   float alt;
 };
 
-/* North East Down local tangeant plane */
+/**
+ * @brief vector in North East Down coordinates
+ * Units: meters */
 struct NedCoor_f {
   float x;
   float y;
   float z;
 };
 
-/* East North Up local tangeant plane */
+/**
+ * @brief vector in East North Up coordinates
+ * Units: meters */
 struct EnuCoor_f {
   float x;
   float y;
   float z;
 };
 
-/* Local tangeant plane reference */
+/**
+ * @brief definition of the local (flat earth) coordinate system
+ * @details Defines the origin of the local coordinate system
+ * in ECEF and LLA coordinates and the roation matrix from
+ * ECEF to local frame */
 struct LtpDef_f {
   struct EcefCoor_f ecef;
   struct LlaCoor_f  lla;
