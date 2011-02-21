@@ -2,7 +2,7 @@
  * $Id$
  *
  * Forwarding events from an USB input device to the ivy bus
- *  
+ *
  * Copyright (C) 2009 ENAC, Pascal Brisset
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -117,7 +117,7 @@ let hash_index_of_blocks = fun ac_name ->
   List.iter (fun block ->
     Hashtbl.add
       index_of_blocks
-      (Xml.attrib block "name") 
+      (Xml.attrib block "name")
       (ExtXml.int_attrib block "no"))
     (Xml.children blocks)
 
@@ -135,15 +135,15 @@ let eval_settings_and_blocks = fun field_descr expr ->
   let rec loop = function
     Syntax.Call ("IndexOfEnum", [Syntax.Ident enum]) -> begin
       try Syntax.Int (rank enum field_descr.Pprz.enum) with
-	Not_found -> failwith (sprintf "IndexOfEnum: unknown value '%s'" enum)
+    Not_found -> failwith (sprintf "IndexOfEnum: unknown value '%s'" enum)
     end
   | Syntax.Call ("IndexOfSetting", [Syntax.Ident var]) -> begin
       try Syntax.Int (Hashtbl.find index_of_settings var) with
-	Not_found -> failwith (sprintf "IndexOfSetting: unknown var '%s'" var)
+    Not_found -> failwith (sprintf "IndexOfSetting: unknown var '%s'" var)
     end
   | Syntax.Call ("IndexOfBlock", [Syntax.Ident name]) -> begin
       try Syntax.Int (Hashtbl.find index_of_blocks name) with
-	Not_found -> failwith (sprintf "IndexOfBlock: unknown block '%s'" name)
+    Not_found -> failwith (sprintf "IndexOfBlock: unknown block '%s'" name)
     end
   | Syntax.Call (ident, exprs) | Syntax.CallOperator (ident, exprs) ->
       Syntax.Call (ident, List.map loop exprs)
@@ -157,12 +157,12 @@ let parse_input = fun input ->
       let name = Xml.attrib x "name"
       and index = ExtXml.int_attrib x "index" in
       let value =
-	match Xml.tag x with
-	  "axis" -> 
+    match Xml.tag x with
+      "axis" ->
              let deadband = try ExtXml.int_attrib x "deadband" with _ -> 0 in
              Axis (index, deadband)
-	| "button" -> Button index
-	| _ -> failwith "parse_input: unexepcted tag" in
+    | "button" -> Button index
+    | _ -> failwith "parse_input: unexepcted tag" in
       (name, value))
     (Xml.children input)
 
@@ -240,17 +240,17 @@ let eval_call = fun f args ->
 let eval_expr = fun buttons axis inputs expr ->
   let rec eval = function
       Syntax.Ident ident ->
-	let input = my_assoc ident inputs in
-	eval_input buttons axis input
+    let input = my_assoc ident inputs in
+    eval_input buttons axis input
     | Syntax.Int int -> int
     | Syntax.Float float -> failwith "eval_expr: float"
     | Syntax.Call (ident, exprs) | Syntax.CallOperator (ident, exprs) ->
-	eval_call ident (List.map eval exprs)
+    eval_call ident (List.map eval exprs)
     | Syntax.Index _ -> failwith "eval_expr: index"
     | Syntax.Field _ -> failwith "eval_expr: Field" in
 
   eval expr
-  
+
 (** Store for the last sent values: msg_name->values *)
 let last_values = Hashtbl.create 5
 
@@ -269,7 +269,7 @@ let execute_action = fun ac_id inputs buttons axis message ->
       (fun (name, expr) -> (name, Pprz.Int (eval_expr buttons axis inputs expr)))
       message.fields
 
-  and on_event = 
+  and on_event =
     match message.on_event with
       None -> true
     | Some expr -> eval_expr buttons axis inputs expr <> 0 in
@@ -296,7 +296,7 @@ let print_inputs = fun nb_buttons buttons axis ->
     fprintf stderr "%d:%d " i (eval_input buttons axis (Axis (i, 0)))
   done;
   fprintf stderr "\n%!"
-  
+
 
 (** Get the values from the input values and send messages *)
 let execute_actions = fun actions ac_id ->
@@ -305,7 +305,7 @@ let execute_actions = fun actions ac_id ->
 
     if !verbose then
       print_inputs nb_buttons buttons axis;
-    
+
     List.iter (execute_action ac_id actions.inputs buttons axis) actions.messages
   with
     exc -> prerr_endline (Printexc.to_string exc)
@@ -314,13 +314,13 @@ let execute_actions = fun actions ac_id ->
 
 (************************************* MAIN **********************************)
 let () =
-let ivy_bus = Defivybus.default_ivy_bus  in
+let ivy_bus = ref Defivybus.default_ivy_bus  in
   let device_name = ref ""
   and ac_name = ref "MYAC"
   and xml_descr = ref "" in
 
   let anon_fun = (fun x -> xml_descr := x) in
-  let speclist =  
+  let speclist =
     [ "-b", Arg.String (fun x -> ivy_bus := x),(sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-ac",  Arg.Set_string ac_name, "<A/C name>";
       "-d",  Arg.Set_string device_name, "<device name>";
@@ -351,8 +351,7 @@ let ivy_bus = Defivybus.default_ivy_bus  in
   Ivy.start !ivy_bus;
 
   ignore (Glib.Timeout.add actions.period_ms (fun () -> execute_actions actions ac_id; true));
-  
+
   (** Start the main loop *)
   let loop = Glib.Main.create true in
   while Glib.Main.is_running loop do ignore (Glib.Main.iteration true) done
-
