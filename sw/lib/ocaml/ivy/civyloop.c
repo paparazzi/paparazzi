@@ -39,8 +39,8 @@ value ivy_timerRepeatafter(value nb_ticks,value delay, value closure_name)
 read closures */
 
 extern void cb_delete_channel(void *delete_read);
-extern void cb_read_channel(Channel ch, HANDLE fd, void *closure);
-extern void cb_write_channel(Channel ch, HANDLE fd, void *closure);
+extern void cb_read_channel(Channel ch, IVY_HANDLE fd, void *closure);
+extern void cb_write_channel(Channel ch, IVY_HANDLE fd, void *closure);
 
 
 value ivy_channelSetUp(value fd, value closure_name)
@@ -49,9 +49,9 @@ value ivy_channelSetUp(value fd, value closure_name)
   value * closure = caml_named_value(String_val(closure_name));
 
 #if IVYMINOR_VERSION == 8
-  c = IvyChannelAdd((HANDLE)Int_val(fd), (void*)closure, cb_delete_channel, cb_read_channel);
+  c = IvyChannelAdd((IVY_HANDLE)Int_val(fd), (void*)closure, cb_delete_channel, cb_read_channel);
 #else
-  c = IvyChannelAdd((HANDLE)Int_val(fd), (void*)closure, cb_delete_channel, cb_read_channel, cb_write_channel);
+  c = IvyChannelAdd((IVY_HANDLE)Int_val(fd), (void*)closure, cb_delete_channel, cb_read_channel, cb_write_channel);
 #endif
   return Val_int(c);
 }

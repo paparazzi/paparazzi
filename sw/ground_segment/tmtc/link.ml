@@ -423,7 +423,7 @@ let send_ping_msg = fun device ->
 
 (** Main *********************************************************************)
 let () =
-  let ivy_bus = ref "127.255.255.255:2010"
+  let ivy_bus = ref Defivybus.default_ivy_bus
   and port = ref "/dev/ttyUSB0"
   and baudrate = ref "9600"
   and transport = ref "pprz"

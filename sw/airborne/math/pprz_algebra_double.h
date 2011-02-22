@@ -1,3 +1,32 @@
+/*
+ * Copyright (C) 2008-2011 The Paparazzi Team
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * @file pprz_algebra_double.h
+ *   @brief Paparazzi double precision floating point algebra.
+ *
+ *   This is the more detailed description of this file.
+ *
+ */
+
 #ifndef PPRZ_ALGEBRA_DOUBLE_H
 #define PPRZ_ALGEBRA_DOUBLE_H
 
@@ -15,6 +44,9 @@ struct DoubleVect3 {
   double z;
 };
 
+/**
+ * @brief Roation quaternion
+ */
 struct DoubleQuat {
   double qi;
   double qx;
@@ -26,20 +58,29 @@ struct DoubleMat33 {
   double m[3*3];
 };
 
+/**
+ * @brief rotation matrix
+ */
 struct DoubleRMat {
   double m[3*3];
 };
 
+/**
+ * @brief euler angles
+ * @details Units: radians */
 struct DoubleEulers {
-  double phi;
-  double theta;
-  double psi;
+  double phi; ///< in radians
+  double theta; ///< in radians
+  double psi; ///< in radians
 };
 
+/**
+ * @brief angular rates
+ * @details Units: rad/s^2 */
 struct DoubleRates {
-  double p;
-  double q;
-  double r;
+  double p; ///< in rad/s^2
+  double q; ///< in rad/s^2
+  double r; ///< in rad/s^2
 };
 
 #define DOUBLE_VECT3_ROUND(_v) DOUBLE_VECT3_RINT(_v, _v)

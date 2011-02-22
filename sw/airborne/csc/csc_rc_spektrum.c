@@ -34,7 +34,7 @@
 #include "paparazzi.h"
 #include "downlink.h"
 #include "messages.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "string.h"
 #include "csc_ap_link.h"
 #include "csc_msg_def.h"

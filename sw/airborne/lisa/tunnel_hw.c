@@ -27,7 +27,7 @@
 #include <stm32/rcc.h>
 
 #include BOARD_CONFIG
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "led.h"
 
@@ -52,7 +52,7 @@ void Delay(__IO uint32_t nCount) {
 
 int main(void) {
 
-  hw_init();
+  mcu_init();
   sys_time_init();
 
 

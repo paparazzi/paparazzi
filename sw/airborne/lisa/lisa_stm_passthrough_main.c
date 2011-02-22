@@ -23,20 +23,21 @@
  */
 
 #include "mcu.h"
+#include "mcu_periph/uart.h"
 #include "sys_time.h"
 #include "downlink.h"
 #include "booz/booz2_commands.h"
 #include "actuators.h"
 #include "actuators/actuators_pwm.h"
 #include "subsystems/imu.h"
-#include "booz/booz_radio_control.h"
+#include "subsystems/radio_control.h"
 #include "autopilot.h"
-#include "ins.h"
+#include "subsystems/ins.h"
 #include "guidance.h"
 #include "navigation.h"
 #include "lisa/lisa_overo_link.h"
 #include "generated/airframe.h"
-#include "ahrs.h"
+#include "subsystems/ahrs.h"
 #ifdef PASSTHROUGH_CYGNUS
 #include "stabilization.h"
 #endif
@@ -54,6 +55,7 @@ static inline void main_periodic(void);
 static inline void main_event(void);
 
 static inline void on_gyro_accel_event(void);
+static inline void on_accel_event(void);
 static inline void on_mag_event(void);
 
 static inline void on_overo_link_msg_received(void);
@@ -283,6 +285,9 @@ static inline void on_overo_link_lost(void) {
 static inline void on_overo_link_crc_failed(void) {
 }
 
+static inline void on_accel_event(void) {
+}
+
 static inline void on_gyro_accel_event(void) {
 	ImuScaleGyro(imu);
 	ImuScaleAccel(imu);
@@ -336,7 +341,7 @@ static inline void main_on_baro_abs(void) {
 
 static inline void main_event(void) {
 
-	ImuEvent(on_gyro_accel_event, on_mag_event);
+	ImuEvent(on_gyro_accel_event, on_accel_event, on_mag_event);
 	BaroEvent(main_on_baro_abs, main_on_baro_diff);
 	OveroLinkEvent(on_overo_link_msg_received, on_overo_link_crc_failed);
 	RadioControlEvent(on_rc_message);

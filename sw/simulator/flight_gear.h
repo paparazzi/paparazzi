@@ -95,6 +95,7 @@ struct FGNetCtrls {
 #define FG_NET_FDM_MAX_WHEELS  3
 #define FG_NET_FDM_MAX_TANKS   4
 
+#ifndef _NET_FDM_HXX
 
 struct FGNetFDM {
 
@@ -180,6 +181,8 @@ struct FGNetFDM {
   float spoilers;
 };
 
+#endif
+
 struct FGNetMiniFDM {
    uint32_t version;           // increment when data values change
 
@@ -207,6 +210,11 @@ struct FGNetMiniFDM {
 
 #define FG_NET_GUI_VERSION 7
 #define FG_NET_GUI_MAX_TANKS 4
+
+#ifdef __x86_64__
+#pragma pack(push)
+#pragma pack(4)
+#endif
 struct FGNetGUI {
   uint32_t version;           // increment when data values change
 
@@ -241,6 +249,11 @@ struct FGNetGUI {
   float course_deviation_deg; // degrees off target course
   float gs_deviation_deg;     // degrees off target glide slope
 };
+#ifdef __x86_64__
+#pragma pack(push)
+#pragma pack(pop)
+#endif
+
 
 extern void net_fdm_dump (struct FGNetFDM* fdm);
 extern void net_fdm_ntoh (struct FGNetFDM* fdm);

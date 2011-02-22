@@ -2,11 +2,11 @@
 
 <!--
      Airspeed ETS module (I2C)
-     @param AIRSPEED_ETS_SCALE scale factor (default 1.8)
-     @param AIRSPEED_ETS_OFFSET offset (default 0)
-     @param AIRSPEED_ETS_I2C_DEV i2c device (default i2c0)
-     @flag USE_AIRSPEED to use the data for airspeed control loop
-     @flag SENSOR_SYNC_SEND to transmit the data as it is acquired
+     @define AIRSPEED_ETS_SCALE scale factor (default 1.8)
+     @define AIRSPEED_ETS_OFFSET offset (default 0)
+     @define AIRSPEED_ETS_I2C_DEV i2c device (default i2c0)
+     @define USE_AIRSPEED to use the data for airspeed control loop
+     @define SENSOR_SYNC_SEND to transmit the data as it is acquired
      -->
 
 <module name="airspeed_ets" dir="sensors">

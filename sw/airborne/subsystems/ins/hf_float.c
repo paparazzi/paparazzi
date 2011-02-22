@@ -259,7 +259,7 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot) {
   printf("GPS_LAG_N: %d\n", GPS_LAG_N);
   printf("GPS_DT_N: %d\n", GPS_DT_N);
   printf("DT_HFILTER: %f\n", DT_HFILTER);
-  printf("GPS_LAG_TOL_N: %f\n", GPS_LAG_TOL_N);
+  printf("GPS_LAG_TOL_N: %i\n", GPS_LAG_TOL_N);
 #endif
 #else
   b2_hff_rb_last = &b2_hff_state;

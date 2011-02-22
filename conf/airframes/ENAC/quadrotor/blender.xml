@@ -1,20 +1,34 @@
 <airframe name="Blender">
 
   <modules main_freq="512">
+    <load name="booz_pwm.xml">
+      <define name="USE_PWM1"/>
+    </load>
     <load name="booz_drop.xml"/>
     <load name="booz_cam.xml"/>
     <!--load name="sonar_maxbotix_booz.xml"/-->
   </modules>
 
   <firmware name="rotorcraft">
+    <define name="USE_INS_NAV_INIT"/>
+    <define name="USE_ADAPT_HOVER"/>
+    <define name="NO_FUCKING_STARTUP_DELAY"/>
+    <!--define name="GUIDANCE_H_USE_REF"/-->
+
     <target name="ap" board="booz_1.0">
       <define name="FAILSAFE_GROUND_DETECT"/>
       <define name="USE_GPS_ACC4R"/>
+      <define name="BOOZ_START_DELAY" value="3"/>
+      <!--define name="BOOZ_ACTUATORS_MAX_THRUST" value="160"/-->
+      <!--define name="BOOZ_THRUST_LOWPASS" value="17"/-->
     </target>
     <target name="sim" board="pc">
       <subsystem name="fdm"         type="nps"/>
+      <!--define name="NPS_NO_SUPERVISION"/-->
     </target>
+
     <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="actuators"     type="asctec"/>
     <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox"/>
@@ -218,7 +232,7 @@
    <define name="BOOZ_ANALOG_BARO_THRESHOLD" value="800"/>
    <define name="FACE_REINJ_1"  value="1024"/>
    <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
-   <define name="BoozDropPwm(_v)" value="Booz2SetPwm1Value(_v)"/>
+   <define name="BoozDropPwm(_v)" value="BoozSetPwm1Value(_v)"/>
    <define name="IMU_MAG_OFFSET" value="-9."/>
  </section>
 
@@ -227,23 +241,5 @@
     <define name="ALT_SHIFT_PLUS" value="1"/>
     <define name="ALT_SHIFT_MINUS" value="-1"/>
   </section>
-
-  <makefile location="after">
-
-ap.CFLAGS += -DGUIDANCE_H_USE_REF
-
-ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3 -DUSE_PWM1
-ap.CFLAGS += -DBOOZ_ACTUATORS_MAX_THRUST=160 -DBOOZ_THRUST_LOWPASS=17
-
-ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c
-
-sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a2.h\"
-sim.CFLAGS += -DNPS_NO_SUPERVISION
-
-sim.CFLAGS += -DGUIDANCE_H_USE_REF
-sim.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3
-sim.srcs += $(SRC_BOOZ_SIM)/booz2_pwm_hw.c
-
-  </makefile>
 
 </airframe>

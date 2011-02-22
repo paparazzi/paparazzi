@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2008-2010  The Paparazzi Team
+ * Copyright (C) 2008-2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -16,9 +14,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * @file pprz_algebra_float.h
+ *   @brief Paparazzi floating point algebra.
+ *
+ *   This is the more detailed description of this file.
  *
  */
 
@@ -46,6 +51,9 @@ struct FloatVect3 {
   float z;
 };
 
+/**
+ * @brief Roation quaternion
+ */
 struct FloatQuat {
   float qi;
   float qx;
@@ -57,20 +65,29 @@ struct FloatMat33 {
   float m[3*3];
 };
 
+/**
+ * @brief rotation matrix
+ */
 struct FloatRMat {
   float m[3*3];
 };
 
+/**
+ * @brief euler angles
+ * @details Units: radians */
 struct FloatEulers {
-  float phi;
-  float theta;
-  float psi;
+  float phi; ///< in radians
+  float theta; ///< in radians
+  float psi; ///< in radians
 };
 
+/**
+ * @brief angular rates
+ * @details Units: rad/s^2 */
 struct FloatRates {
-  float p;
-  float q;
-  float r;
+  float p; ///< in rad/s^2
+  float q; ///< in rad/s^2
+  float r; ///< in rad/s^2
 };
 
 #define FLOAT_ANGLE_NORMALIZE(_a) {				\

@@ -19,13 +19,11 @@ install_data:
 	$(INSTALL) -d $(DESTDIR)/data/maps
 	$(INSTALLDATA) data/maps/muret_UTM.xml data/maps/muret_UTM.gif $(DESTDIR)/data/maps
 	$(INSTALL) -d $(DESTDIR)/data/pictures/gcs_icons
-	$(INSTALLDATA) var/maps/trtqtttqtsrrtstq*.jpg var/maps/trtqtttqtsrrttsr*.jpg $(DESTDIR)/data/maps
 	$(INSTALLDATA) data/pictures/*.gif data/pictures/*.svg data/pictures/*.jpg data/pictures/*.png $(DESTDIR)/data/pictures
 	$(INSTALLDATA) data/pictures/gcs_icons/*.png $(DESTDIR)/data/pictures/gcs_icons
 	$(INSTALL) -d $(PREFIX)/usr/share/pixmaps
 	$(INSTALLDATA) data/pictures/penguin_icon.png $(PREFIX)/usr/share/pixmaps/paparazzi.png
 	$(INSTALL) -d $(DESTDIR)/data/srtm
-	$(INSTALLDATA) data/srtm/N43E001.hgt.bz2 $(DESTDIR)/data/srtm
 
 
 install_conf:
@@ -37,17 +35,27 @@ install_conf:
 	$(INSTALLDATA) conf/gui.xml $(DESTDIR)/conf/
 	$(INSTALL) -d $(DESTDIR)/conf/airframes
 	$(INSTALLDATA) conf/airframes/airframe.dtd $(DESTDIR)/conf/airframes
-	$(INSTALLDATA) conf/airframes/microjet5.xml $(DESTDIR)/conf/airframes
-	$(INSTALLDATA) conf/airframes/twinstar1.xml $(DESTDIR)/conf/airframes
-	$(INSTALLDATA) conf/airframes/twinjet1.xml $(DESTDIR)/conf/airframes
-	$(INSTALLDATA) conf/airframes/tiny_hitl.xml $(DESTDIR)/conf/airframes
-	$(INSTALLDATA) conf/airframes/booz2_a2.xml $(DESTDIR)/conf/airframes
+	$(INSTALLDATA) conf/airframes/microjet_example.xml $(DESTDIR)/conf/airframes
+	$(INSTALLDATA) conf/airframes/twinstar_example.xml $(DESTDIR)/conf/airframes
+	$(INSTALLDATA) conf/airframes/twinjet_example.xml $(DESTDIR)/conf/airframes
+	$(INSTALLDATA) conf/airframes/example_twog_analogimu.xml $(DESTDIR)/conf/airframes
 	$(INSTALL) -d $(DESTDIR)/conf/autopilot
 	$(INSTALLDATA) conf/autopilot/*.makefile $(DESTDIR)/conf/autopilot
 	$(INSTALLDATA) conf/autopilot/*.h $(DESTDIR)/conf/autopilot
+	$(INSTALL) -d $(DESTDIR)/conf/autopilot/subsystems
+	$(INSTALLDATA) conf/autopilot/subsystems/*.makefile $(DESTDIR)/conf/autopilot/subsystems
+	$(INSTALL) -d $(DESTDIR)/conf/autopilot/subsystems/fixedwing
+	$(INSTALLDATA) conf/autopilot/subsystems/fixedwing/*.makefile $(DESTDIR)/conf/autopilot/subsystems/fixedwing
+	$(INSTALL) -d $(DESTDIR)/conf/autopilot/subsystems/rotorcraft
+	$(INSTALLDATA) conf/autopilot/subsystems/rotorcraft/*.makefile $(DESTDIR)/conf/autopilot/subsystems/rotorcraft
+	$(INSTALL) -d $(DESTDIR)/conf/autopilot/subsystems/shared
+	$(INSTALLDATA) conf/autopilot/subsystems/shared/*.makefile $(DESTDIR)/conf/autopilot/subsystems/shared
 	$(INSTALL) -d $(DESTDIR)/conf/flight_plans
 	$(INSTALLDATA) conf/flight_plans/*.dtd $(DESTDIR)/conf/flight_plans
 	$(INSTALLDATA) conf/flight_plans/*.xml $(DESTDIR)/conf/flight_plans
+	$(INSTALL) -d $(DESTDIR)/conf/modules
+	$(INSTALLDATA) conf/modules/*.dtd $(DESTDIR)/conf/modules
+	$(INSTALLDATA) conf/modules/*.xml $(DESTDIR)/conf/modules
 	$(INSTALL) -d $(DESTDIR)/conf/gps
 	$(INSTALLDATA) conf/gps/Makefile $(DESTDIR)/conf/gps
 	$(INSTALLDATA) conf/gps/ublox_conf.c $(DESTDIR)/conf/gps
@@ -111,16 +119,12 @@ install_libs:
 
 install_tools:
 	$(INSTALLDATA) Makefile.ac $(DESTDIR)
-	$(INSTALL) -d $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) conf/Makefile* $(DESTDIR)/conf
+	$(INSTALL) -d $(DESTDIR)/sw/tools/
 	$(INSTALL) sw/tools/*.out $(DESTDIR)/sw/tools/
 	rm -f $(DESTDIR)/sw/tools/gen_flight_plan.out
-	$(INSTALLDATA) sw/tools/fp_syntax.cmo $(DESTDIR)/sw/tools
-	$(INSTALLDATA) sw/tools/fp_parser.cmo $(DESTDIR)/sw/tools
-	$(INSTALLDATA) sw/tools/fp_lexer.cmo $(DESTDIR)/sw/tools
 	$(INSTALLDATA) sw/tools/fp_proc.cmo $(DESTDIR)/sw/tools
 	$(INSTALLDATA) sw/tools/gen_flight_plan.cmo $(DESTDIR)/sw/tools
-	$(INSTALLDATA) sw/tools/extract_makefile.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_aircraft.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_airframe.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_messages.ml $(DESTDIR)/sw/tools/
@@ -130,6 +134,14 @@ install_tools:
 	$(INSTALLDATA) sw/tools/gen_settings.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_tuning.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_ubx.ml $(DESTDIR)/sw/tools/
+	$(INSTALLDATA) sw/tools/gen_xsens.ml $(DESTDIR)/sw/tools/
+	$(INSTALLDATA) sw/tools/gen_modules.ml $(DESTDIR)/sw/tools/
+	$(INSTALLDATA) sw/tools/gen_common.cmo $(DESTDIR)/sw/tools/
+	$(INSTALL) -d $(DESTDIR)/sw/tools/calibration
+	$(INSTALLDATA) sw/tools/calibration/calibrate.py $(DESTDIR)/sw/tools/calibration
+	$(INSTALLDATA) sw/tools/calibration/calibrate_gyro.py $(DESTDIR)/sw/tools/calibration
+	$(INSTALLDATA) sw/tools/calibration/calibration_utils.py $(DESTDIR)/sw/tools/calibration
+	$(INSTALLDATA) sw/tools/calibration/README $(DESTDIR)/sw/tools/calibration
 	$(INSTALL) -d $(DESTDIR)/sw/ground_segment/lpc21iap
 	$(INSTALL) sw/ground_segment/lpc21iap/lpc21iap $(DESTDIR)/sw/ground_segment/lpc21iap/
 	$(INSTALL) -d $(DESTDIR)/sw/simulator
@@ -142,7 +154,7 @@ install_tools:
 
 install_airborne_sources:
 	$(INSTALL) -d $(DESTDIR)/sw/
-	tar --exclude=CVS -cf - sw/airborne/ | tar -C $(DESTDIR) -xf -
+	tar -cf - sw/airborne/ | tar -C $(DESTDIR) -xf -
 	$(INSTALL) -d $(DESTDIR)/sw/include
 	$(INSTALLDATA) sw/include/std.h $(DESTDIR)/sw/include
 	$(INSTALLDATA) var/include/*.h $(DESTDIR)/sw/include

@@ -32,6 +32,7 @@
 #include "downlink.h"
 #include "firmwares/rotorcraft/telemetry.h"
 #include "datalink.h"
+#include "xbee.h"
 
 #include "booz2_commands.h"
 #include "firmwares/rotorcraft/actuators.h"
@@ -42,6 +43,7 @@
 
 #include "booz/booz2_analog.h"
 #include "subsystems/sensors/baro.h"
+#include "baro_board.h"
 
 #include "firmwares/rotorcraft/battery.h"
 
@@ -54,10 +56,6 @@
 #include "subsystems/ahrs.h"
 #include "subsystems/ins.h"
 
-#if defined USE_CAM || USE_DROP
-#include "booz2_pwm_hw.h"
-#endif
-
 #include "firmwares/rotorcraft/main.h"
 
 #ifdef SITL
@@ -66,7 +64,8 @@
 
 #include "generated/modules.h"
 
-static inline void on_gyro_accel_event( void );
+static inline void on_gyro_event( void );
+static inline void on_accel_event( void );
 static inline void on_baro_abs_event( void );
 static inline void on_baro_dif_event( void );
 static inline void on_gps_event( void );
@@ -87,11 +86,13 @@ int main( void ) {
 
 STATIC_INLINE void main_init( void ) {
 
+#ifndef NO_FUCKING_STARTUP_DELAY
 #ifndef RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
   /* IF THIS IS NEEDED SOME PERHIPHERAL THEN PLEASE MOVE IT THERE */
   for (uint32_t startup_counter=0; startup_counter<2000000; startup_counter++){
     __asm("nop");
   }
+#endif
 #endif
 
   mcu_init();
@@ -101,12 +102,12 @@ STATIC_INLINE void main_init( void ) {
   actuators_init();
   radio_control_init();
 
+#if DATALINK == XBEE
+  xbee_init();
+#endif
+
   booz2_analog_init();
   baro_init();
-
-#if defined USE_CAM || USE_DROP
-  booz2_pwm_init_hw();
-#endif
 
   battery_init();
   imu_init();
@@ -143,33 +144,32 @@ STATIC_INLINE void main_periodic( void ) {
   /* set actuators     */
   actuators_set(autopilot_motors_on);
 
-  PeriodicPrescaleBy10(							\
-    {                                               \
-      radio_control_periodic_task();				\
-      if (radio_control.status != RC_OK &&			\
-          autopilot_mode != AP_MODE_KILL &&			\
-          autopilot_mode != AP_MODE_NAV)			\
-        autopilot_set_mode(AP_MODE_FAILSAFE);		\
-    },									\
-    {									\
-      /* booz_fms_periodic(); FIXME */					\
-    },									\
-    {									\
-      /*BoozControlSurfacesSetFromCommands();*/				\
-    },									\
-    {									\
-      LED_PERIODIC();                               \
-    },									\
-    { baro_periodic();
-    },									\
-    {},									\
-    {},									\
-    {},									\
-    {},									\
-    {									\
-      Booz2TelemetryPeriodic();						\
-    }									\
-    );									\
+  PeriodicPrescaleBy10(                                     \
+    {                                                       \
+      radio_control_periodic_task();                        \
+      if (radio_control.status != RC_OK &&                  \
+          autopilot_mode != AP_MODE_KILL &&                 \
+          autopilot_mode != AP_MODE_NAV)                    \
+        autopilot_set_mode(AP_MODE_FAILSAFE);               \
+    },                                                      \
+    {                                                       \
+      /* booz_fms_periodic(); FIXME */                      \
+    },                                                      \
+    {                                                       \
+      /*BoozControlSurfacesSetFromCommands();*/             \
+    },                                                      \
+    {                                                       \
+      LED_PERIODIC();                                       \
+    },                                                      \
+    { baro_periodic();                                      \
+    },                                                      \
+    {},                                                     \
+    {},                                                     \
+    {},                                                     \
+    {},                                                     \
+    {                                                       \
+      Booz2TelemetryPeriodic();                             \
+    } );
 
 #ifdef USE_GPS
   if (radio_control.status != RC_OK &&			\
@@ -198,7 +198,7 @@ STATIC_INLINE void main_event( void ) {
     RadioControlEvent(autopilot_on_rc_frame);
   }
 
-  ImuEvent(on_gyro_accel_event, on_mag_event);
+  ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 
   BaroEvent(on_baro_abs_event, on_baro_dif_event);
 
@@ -214,10 +214,17 @@ STATIC_INLINE void main_event( void ) {
 
 }
 
-static inline void on_gyro_accel_event( void ) {
+static inline void on_accel_event( void ) {
+  ImuScaleAccel(imu);
+
+  if (ahrs.status != AHRS_UNINIT) {
+    ahrs_update_accel();
+  }
+}
+
+static inline void on_gyro_event( void ) {
 
   ImuScaleGyro(imu);
-  ImuScaleAccel(imu);
 
   if (ahrs.status == AHRS_UNINIT) {
     ahrs_aligner_run();
@@ -226,7 +233,6 @@ static inline void on_gyro_accel_event( void ) {
   }
   else {
     ahrs_propagate();
-    ahrs_update_accel();
 #ifdef SITL
     if (nps_bypass_ahrs) sim_overwrite_ahrs();
 #endif

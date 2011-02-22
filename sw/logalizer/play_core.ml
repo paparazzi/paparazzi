@@ -118,7 +118,8 @@ let load_log = fun xml_file ->
 
 let timer = ref None
 let was_running = ref false
-let bus = ref "127.255.255.255:2010"
+
+let bus = ref Defivybus.default_ivy_bus 
 let port = ref "/dev/ttyUSB0"
 let baudrate = ref "9600"
 let file_to_load = ref ""
@@ -173,7 +174,7 @@ let play = fun ?(no_gui=false) serial_port adj speed ->
 
 let init = fun () ->
   Arg.parse 
-    [ "-b", Arg.String (fun x -> bus := x), "Bus\tDefault is 127.255.255.25:2010";
+    [ "-b", Arg.String (fun x -> bus := x), (sprintf "<ivy bus> Default is %s" !bus);
       "-d", Arg.Set_string port, (sprintf "<port> Default is %s" !port);
       "-o", Arg.Set output_on_serial, "Output binary messages on serial port";
       "-s", Arg.Set_string baudrate, (sprintf "<baudrate>  Default is %s" !baudrate)]

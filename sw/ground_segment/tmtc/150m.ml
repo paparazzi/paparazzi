@@ -61,7 +61,7 @@ let get_gps_message = fun label _sender vs ->
 
 (********************************* Main *********************************************)
 let () =
-  let ivy_bus = ref "127.255.255.255:2010" in
+ let ivy_bus = Defivybus.default_ivy_bus in
 
   (** Connect to the Ivy bus *)
   Ivy.init "Paparazzi 150m" "READY" (fun _ _ -> ());

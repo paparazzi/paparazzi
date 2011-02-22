@@ -16,6 +16,12 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
+  <!-- for the sim -->
+  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
+    <define name="NB" value="4"/>
+    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
+  </section>
+
 
   <section name="SUPERVISION" prefix="SUPERVISION_">
     <define name="MIN_MOTOR" value="3"/>
@@ -32,42 +38,46 @@
   </section>
 
   <section name="IMU" prefix="IMU_">
-
-    <define name="GYRO_P_NEUTRAL" value="32685"/>
-    <define name="GYRO_Q_NEUTRAL" value="33261"/>
-    <define name="GYRO_R_NEUTRAL" value="32707"/>
-
-    <define name="GYRO_P_SENS" value="1.096691894" integer="16"/>
-    <define name="GYRO_Q_SENS" value="1.066804199" integer="16"/>
-    <define name="GYRO_R_SENS" value="1.117463379" integer="16"/>
-
-
-    <define name="ACCEL_X_SENS" value="2.58358915626" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="2.58164052066" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="2.59655739465" integer="16"/>
-
-    <define name="ACCEL_X_NEUTRAL" value="32731"/>
-    <define name="ACCEL_Y_NEUTRAL" value="32101"/>
-    <define name="ACCEL_Z_NEUTRAL" value="32660"/>
-
-    <define name="MAG_X_SENS" value="5.32718104135" integer="16"/>
-    <define name="MAG_Y_SENS" value="4.87857821202" integer="16"/>
-    <define name="MAG_Z_SENS" value="3.11986612709" integer="16"/>
-
-    <define name="MAG_X_NEUTRAL" value="-43"/>
-    <define name="MAG_Y_NEUTRAL" value=" 49"/>
-    <define name="MAG_Z_NEUTRAL" value="-66"/>
-
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(  0.)"/>
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(  0.)"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45.)"/>
+    <define name="GYRO_P_NEUTRAL" value="32276"/>
+    <define name="GYRO_Q_NEUTRAL" value="33987"/>
+    <define name="GYRO_R_NEUTRAL" value="32801"/>
+    <define name="GYRO_P_SENS" value="0.92466" integer="16"/>
+    <define name="GYRO_Q_SENS" value="0.93226" integer="16"/>
+    <define name="GYRO_R_SENS" value="0.92943" integer="16"/>
+    <define name="GYRO_PQ_SENS" value="0.0" integer="16"/>
+    <define name="GYRO_PR_SENS" value="0.0" integer="16"/>
+    <define name="GYRO_QR_SENS" value="0.0" integer="16"/>
+    
+    <define name="ACCEL_X_NEUTRAL" value="25875"/>
+    <define name="ACCEL_Y_NEUTRAL" value="26273"/>
+    <define name="ACCEL_Z_NEUTRAL" value="26152"/>
+    <define name="ACCEL_X_SENS" value="1.8788156268" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="1.88941543145" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="1.90349115464" integer="16"/>
+    <define name="ACCEL_XY_SENS" value="0.0" integer="16"/>
+    <define name="ACCEL_XZ_SENS" value="0.0" integer="16"/>
+    <define name="ACCEL_YZ_SENS" value="0.0" integer="16"/>
+    
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
+    <define name="MAG_X_SENS" value="1." integer="16"/>
+    <define name="MAG_Y_SENS" value="1." integer="16"/>
+    <define name="MAG_Z_SENS" value="1." integer="16"/>
+    <define name="MAG_XY_SENS" value="0.0" integer="16"/>
+    <define name="MAG_XZ_SENS" value="0.0" integer="16"/>
+    <define name="MAG_YZ_SENS" value="0.0" integer="16"/>
+    
+    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(   0. )"/>
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45. )"/>
 
   </section>
 
  <section name="AUTOPILOT">
    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
+   <define name="MODE_AUTO2"  value="AP_MODE_HOVER_Z_HOLD"/>
  </section>
 
  <section name="BAT">
@@ -114,27 +124,27 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="-2000"/>
-    <define name="PHI_DGAIN"  value="-400"/>
+    <define name="PHI_PGAIN"  value="-900"/>
+    <define name="PHI_DGAIN"  value="-200"/>
     <define name="PHI_IGAIN"  value="-200"/>
 
-    <define name="THETA_PGAIN"  value="-2000"/>
-    <define name="THETA_DGAIN"  value="-400"/>
-    <define name="THETA_IGAIN"  value="-400"/>
+    <define name="THETA_PGAIN"  value="-900"/>
+    <define name="THETA_DGAIN"  value="-200"/>
+    <define name="THETA_IGAIN"  value="-200"/>
 
-    <define name="PSI_PGAIN"  value="-1000"/>
-    <define name="PSI_DGAIN"  value="-350"/>
+    <define name="PSI_PGAIN"  value="-900"/>
+    <define name="PSI_DGAIN"  value="-200"/>
     <define name="PSI_IGAIN"  value="-10"/>
 
     <!-- feedforward -->
-    <define name="PHI_DDGAIN"   value=" 300"/>
-    <define name="THETA_DDGAIN" value=" 300"/>
-    <define name="PSI_DDGAIN"   value=" 300"/>
+    <define name="PHI_DDGAIN"   value=" 200"/>
+    <define name="THETA_DDGAIN" value=" 200"/>
+    <define name="PSI_DDGAIN"   value=" 200"/>
 
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="15." integer="16"/>
+    <define name="BARO_SENS" value="10." integer="16"/>
   </section>
 
  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -164,49 +174,72 @@
    <define name="FACE_REINJ_1"  value="1024"/>
  </section>
 
+ <section name="SIMULATOR" prefix="NPS_">
+   <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
+   <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
+   <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
+ </section>
 
- <makefile>
+<!-- -->
+ <modules main_freq="512">
+   <load name="vehicle_interface_overo_link.xml"/>
+ </modules>
+<!-- -->
 
+  <firmware name="rotorcraft">
+    <target name="ap" board="lisa_l_1.1">
+<!--      <define name="BOOZ_START_DELAY" value="1"/> -->
+      <subsystem name="radio_control" type="spektrum"/>
+      <subsystem name="actuators"     type="asctec_v2"/>
+      <subsystem name="telemetry"     type="transparent"/>
+      <define name="RADIO_MODE" value="RADIO_AUX2"/>
+      <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
+      <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/>
+    </target>
+    <target name="sim" board="pc">
+      <subsystem name="fdm"           type="nps"/>
+      <subsystem name="radio_control" type="ppm"/>
+      <subsystem name="actuators"     type="mkk"/>
+    </target>
 
+    <subsystem name="imu"           type="b2_v1.1"/>
+    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="ahrs"          type="cmpl"/>
+  </firmware>
 
-USER = root
-HOST = 192.168.1.3
-#HOST = overo
-#HOST = beth
-#HOST = asctec_lisa
-TARGET_DIR = ~
+  <firmware name="lisa_l_test_progs">
+    <target name="test_led"   board="lisa_l_1.1"/>
+    <target name="test_uart"   board="lisa_l_1.1"/>
+    <target name="test_servos"   board="lisa_l_1.1"/>
+    <target name="test_telemetry"   board="lisa_l_1.1"/>
+    <target name="test_baro"        board="lisa_l_1.1"/>
+    <target name="test_imu_b2"      board="lisa_l_1.1"/>
+    <target name="test_imu_b2_2"    board="lisa_l_1.1"/>
+    <target name="test_imu_aspirin" board="lisa_l_1.1"/>
+    <target name="test_rc_spektrum" board="lisa_l_1.1"/>
+    <target name="test_rc_ppm"      board="lisa_l_1.1"/>
+    <target name="test_adc"         board="lisa_l_1.1"/>
+    <target name="test_hmc5843"     board="lisa_l_1.1"/>
+    <target name="test_itg3200"     board="lisa_l_1.1"/>
+    <target name="test_adxl345"             board="lisa_l_1.1"/>
+    <target name="test_esc_mkk_simple"      board="lisa_l_1.1"/>
+    <target name="test_esc_asctecv1_simple" board="lisa_l_1.1"/>
+    <target name="test_actuators_mkk"       board="lisa_l_1.1"/>
+    <target name="test_actuators_asctecv1"  board="lisa_l_1.1"/>
+  </firmware>
 
-SRC_FMS=fms
+  <firmware name="lisa_passthrough">
+    <target name="overo_test_passthrough" board="lisa_l_1.1"  >
+      <param name="HOST"          value="A7"/>
+      <param name="USER"          value=""/>
+      <param name="TARGET_DIR"    value="~"/>
+      <param name="PERIODIC_FREQ" value="512"/>
+    </target>
+    <target name="stm_passthrough" board="lisa_l_1.1">
+      <subsystem name="radio_control" type="spektrum"/>
+      <subsystem name="imu" type="b2_v1.1"/>
+    </target>
+ </firmware>
 
-
-ARCH=stm32
-BOARD_CFG=\"boards/lisa_0.99.h\"
-FLASH_MODE = JTAG
-
-ap.CFLAGS += -DMODEM_BAUD=B57600
-
-ap.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_MODEL_H=\"subsystems/radio_control/spektrum_dx7se_joby.h\"
-
-include $(PAPARAZZI_SRC)/conf/autopilot/booz2_common.makefile
-include $(CFG_BOOZ)/booz2_autopilot.makefile
-
-include $(CFG_BOOZ)/subsystems/booz2_radio_control_spektrum.makefile
-include $(CFG_BOOZ)/subsystems/booz2_actuators_asctec_v2.makefile
-include $(CFG_BOOZ)/subsystems/booz2_imu_b2v1_1.makefile
-#include $(CFG_BOOZ)/subsystems/booz2_gps.makefile
-include $(CFG_BOOZ)/subsystems/booz2_ahrs_cmpl.makefile
-
-
-include $(PAPARAZZI_SRC)/conf/autopilot/lisa_test_progs.makefile
-
-CONFIG_PASSTHROUGH = $(PAPARAZZI_SRC)/conf/autopilot/subsystems/lisa_passthrough
-SERVOS_REFRESH_FREQ=200
-
-include $(PAPARAZZI_SRC)/conf/autopilot/lisa_passthrough.makefile
-
-RADIO_CONTROL_SPEKTRUM_MODEL=\"booz/radio_control/booz_radio_control_joby.h\"
-include $(CONFIG_PASSTHROUGH)/radio_control_joby.makefile
-
- </makefile>
 
 </airframe>

@@ -78,8 +78,8 @@ EXTERN void dl_parse_msg(void);
 #elif DATALINK == XBEE
 
 #define DatalinkEvent() {			\
-  if (XbeeBuffer()) {				\
-    ReadXbeeBuffer();				\
+  if (XBeeBuffer()) {				\
+    ReadXBeeBuffer();				\
     if (xbee_msg_received) {			\
       xbee_parse_payload();			\
       xbee_msg_received = FALSE;		\

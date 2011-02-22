@@ -60,14 +60,14 @@ XSENS_XML = $(CONF)/xsens_MTi-G.xml
 TOOLS=$(PAPARAZZI_SRC)/sw/tools
 HAVE_ARM_NONE_EABI_GCC := $(shell which arm-none-eabi-gcc)
 ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
-#ARMGCC=/opt/paparazzi/bin/arm-elf-gcc
-ARMGCC=/usr/bin/arm-elf-gcc
+ARMGCC=$(shell which arm-elf-gcc)
 else
 ARMGCC=$(HAVE_ARM_NONE_EABI_GCC)
 endif
+OCAML=$(shell which ocaml)
+OCAMLRUN=$(shell which ocamlrun)
 
-
-all: static conf
+all: commands static conf
 
 static : lib center tools cockpit multimon tmtc logalizer lpc21iap sim_static static_h usb_lib
 
@@ -211,6 +211,7 @@ clean:
 	rm -f  $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(DL_PROTOCOL_H)
 	find . -mindepth 2 -name Makefile -exec sh -c '$(MAKE) -C `dirname {}` $@' \;
 	find . -name '*~' -exec rm -f {} \;
+	rm -f paparazzi sw/simulator/launchsitl
 
 cleanspaces:
 	find ./sw/airborne -name '*.[ch]' -exec sed -i {} -e 's/[ \t]*$$//' \;
@@ -219,16 +220,32 @@ cleanspaces:
 	find ./sw -name '*.mli' -exec sed -i {} -e 's/[ \t]*$$//' ';'
 	find ./conf -name '*.xml' -exec sed -i {} -e 's/[ \t]*$$//' ';'
 
+distclean : dist_clean
 dist_clean : clean
+	rm -r conf/srtm_data
 
 
 ab_clean:
 	find sw/airborne -name '*~' -exec rm -f {} \;
 
 test_all_example_airframes:
-	$(MAKE) AIRCRAFT=BOOZ2_A2 clean_ac ap
-	$(MAKE) AIRCRAFT=MJ5 clean_ac ap sim
-	$(MAKE) AIRCRAFT=TJ1 clean_ac ap sim
-	$(MAKE) AIRCRAFT=HITL clean_ac ap
-	$(MAKE) AIRCRAFT=DM clean_ac ap sim
-	$(MAKE) AIRCRAFT=CSC clean_ac ap
+	$(MAKE) AIRCRAFT=BOOZ2_A1 clean_ac ap sim
+	$(MAKE) AIRCRAFT=Microjet clean_ac ap sim
+	$(MAKE) AIRCRAFT=Tiny_IMU clean_ac ap
+	$(MAKE) AIRCRAFT=EasyStar_ETS clean_ac ap sim
+
+commands: paparazzi sw/simulator/launchsitl
+
+paparazzi:
+	cat src/paparazzi | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
+	chmod a+x $@
+
+sw/simulator/launchsitl:
+	cat src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
+	chmod a+x $@
+
+#.SUFFIXES: .hgt.zip
+
+%.hgt.zip:
+	cd data/srtm; $(MAKE) $(@)
+

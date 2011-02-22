@@ -41,13 +41,21 @@ RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   = UART3
 RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT = UART5
 RADIO_CONTROL_LED  = 5
 
+ifndef MODEM_PORT
 MODEM_PORT=UART2
+endif
+ifndef MODEM_BAUD
 MODEM_BAUD=B57600
+endif
 
 AHRS_ALIGNER_LED = 7
 
+ifndef GPS_PORT
 GPS_PORT=UART1
+endif
+ifndef GPS_BAUD
 GPS_BAUD=B38400
+endif
 GPS_LED = 3
 
 #
@@ -60,14 +68,6 @@ MAX_1168_DRDY_PORT_SOURCE = PortSourceGPIOD
 # v1.1
 #MAX_1168_DRDY_PORT = GPIOB
 
-
-#
-# definitions below were added to get fixedwing firmware to build
-#
-# modem is usualy connected there
-ifndef MODEM_UART_NR
-MODEM_UART_NR = 2
-endif
 
 ifndef ADC_IR1
 ADC_IR1      = 1
@@ -83,7 +83,4 @@ ADC_IR_TOP_CHAN = 3
 endif
 ifndef ADC_IR_NB_SAMPLES
 ADC_IR_NB_SAMPLES = 16
-endif
-ifndef GPS_UART_NR
-GPS_UART_NR	= 1
 endif

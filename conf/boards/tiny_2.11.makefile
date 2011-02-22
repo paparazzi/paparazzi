@@ -21,11 +21,20 @@ LPC21ISP_XTAL = 12000
 
 
 ### default settings for tiny_2 and twog
-GPS_UART_NR	= 0
+ifndef GPS_PORT
+GPS_PORT	= UART0
+endif
+ifndef GPS_BAUD
 GPS_BAUD	= B38400
+endif
 GPS_LED     = 2
-MODEM_UART_NR	= 1
+
+ifndef MODEM_PORT
+MODEM_PORT	= UART1
+endif
+ifndef MODEM_BAUD
 MODEM_BAUD 	= B57600
+endif
 
 ADC_IR_TOP = ADC_0
 ADC_IR1 = ADC_1
@@ -40,3 +49,4 @@ ADC_GENERIC_NB_SAMPLES = 16
 # All targets on the TINY board run on the same processor achitecture
 $(TARGET).ARCHDIR = $(ARCH)
 
+ACTUATORS = actuators_4017

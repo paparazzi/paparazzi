@@ -59,6 +59,7 @@ void max1168_read( void ) {
   SSP_DisableRti();
   SSP_Enable();
   /* write control byte - wait EOC on extint */
+  /* use internal reference and clock, sequentially scan channels 0-7 */
   SSPDR = (1 << 0 | 1 << 3 | 7 << 5) << 8;
   max1168_status = STA_MAX1168_SENDING_REQ;
 

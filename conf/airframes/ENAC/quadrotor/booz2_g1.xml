@@ -1,6 +1,7 @@
 <airframe name="BOOZ2_G1">
 
   <modules main_freq="512">
+    <!--load name="booz_pwm.xml"/-->
     <!--load name="booz_drop.xml"/-->
     <!--load name="booz_cam.xml"/-->
     <!--load name="sonar_maxbotix_booz.xml"/-->
@@ -9,17 +10,28 @@
   </modules>
 
   <firmware name="rotorcraft">
+    <define name="USE_INS_NAV_INIT"/>
+    <define name="USE_ADAPT_HOVER"/>
+    <define name="NO_FUCKING_STARTUP_DELAY"/>
+    <!--define name="GUIDANCE_H_USE_REF"/-->
+
     <target name="ap" board="booz_1.0">
-      <define name="BOOZ_FAILSAFE_GROUND_DETECT"/>
+      <define name="FAILSAFE_GROUND_DETECT"/>
       <define name="USE_GPS_ACC4R"/>
+      <define name="BOOZ_START_DELAY" value="3"/>
     </target>
     <target name="sim" board="pc">
       <subsystem name="fdm"         type="nps"/>
+      <!--define name="NPS_NO_SUPERVISION"/-->
     </target>
+
     <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="actuators"     type="asctec"/>
     <subsystem name="imu"           type="b2_v1.1"/>
-    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="gps"           type="ublox">
+      <configure name="GPS_BAUD"    value="B57600"/>
+    </subsystem>
     <subsystem name="ahrs"          type="cmpl"/>
     <subsystem name="ins"           type="hff"/>
   </firmware>
@@ -219,22 +231,5 @@
    <!--define name="INITIAL_CONDITITONS" value="&quot;reset_enac&quot;"/-->
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
  </section>
-
-
-  <makefile location="after">
-
-ap.CFLAGS += -DGUIDANCE_H_USE_REF
-ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3
-
-ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c
-
-sim.CFLAGS += -DBSM_PARAMS=\"booz_sensors_model_params_booz2_a2.h\"
-sim.CFLAGS += -DNPS_NO_SUPERVISION
-sim.CFLAGS += -DGUIDANCE_H_USE_REF
-sim.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3
-
-sim.srcs += $(SRC_BOOZ_SIM)/booz2_pwm_hw.c
-
-  </makefile>
 
 </airframe>

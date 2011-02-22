@@ -48,7 +48,9 @@ struct i2c_transaction {
   volatile enum I2CTransactionStatus status;
 };
 
+#ifndef I2C_TRANSACTION_QUEUE_LEN
 #define I2C_TRANSACTION_QUEUE_LEN 8
+#endif
 
 struct i2c_periph {
   /* circular buffer holding transactions */
@@ -126,6 +128,7 @@ extern void i2c2_init(void);
 #endif /* USE_I2C2 */
 
 extern void   i2c_init(struct i2c_periph* p);
+extern bool_t i2c_idle(struct i2c_periph* p);
 extern bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t);
 
 #define I2CReceive(_p, _t, _s_addr, _len) { \

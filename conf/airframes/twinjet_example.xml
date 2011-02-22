@@ -34,6 +34,12 @@
     <target name="setup_actuators"  board="twog_1.0" />
   </firmware>
 
+  <modules>
+    <load name="adc_generic.xml">
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1" />
+    </load>
+  </modules>
+
   <servos>
     <servo name="THROTTLE"      no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="AILEVON_RIGHT" no="1" min="1230" neutral="1710" max="2100"/>

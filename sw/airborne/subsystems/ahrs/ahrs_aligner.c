@@ -29,7 +29,8 @@
 
 struct AhrsAligner ahrs_aligner;
 
-#define SAMPLES_NB 512
+#define SAMPLES_NB PERIODIC_FREQUENCY
+
 static struct Int32Rates gyro_sum;
 static struct Int32Vect3 accel_sum;
 static struct Int32Vect3 mag_sum;
@@ -47,7 +48,9 @@ void ahrs_aligner_init(void) {
   ahrs_aligner.low_noise_cnt = 0;
 }
 
+#ifndef LOW_NOISE_THRESHOLD
 #define LOW_NOISE_THRESHOLD 90000
+#endif
 #define LOW_NOISE_TIME          5
 
 void ahrs_aligner_run(void) {

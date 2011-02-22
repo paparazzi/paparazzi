@@ -318,6 +318,10 @@ void i2c1_hw_init ( void ) {
 #endif /* USE_I2C1 */
 
 
+bool_t i2c_idle(struct i2c_periph* p) {
+  return p->status == I2CIdle;
+}
+
 bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
 
   uint8_t idx;

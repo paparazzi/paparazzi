@@ -57,20 +57,15 @@ extern uint8_t xbee_ovrn, xbee_error;
 #define XBEE_MY_ADDR AC_ID
 void xbee_init( void );
 
-#define __XBeeLink(dev, _x) dev##_x
-#define _XBeeLink(dev, _x)  __XBeeLink(dev, _x)
-#define XBeeLink(_x) _XBeeLink(XBEE_UART, _x)
+#define __Link(dev, _x) dev##_x
+#define _Link(dev, _x)  __Link(dev, _x)
+#define Link(_x) _Link(DOWNLINK_DEVICE, _x)
 
-#define XBeeBuffer() XBeeLink(ChAvailable())
-#define ReadXBeeBuffer() { while (XBeeLink(ChAvailable())&&!xbee_msg_received) parse_xbee(XBeeLink(Getch())); }
-
-#define XBeePrintString(s) XBeeLink(PrintString(s))
-#define XBeePrintHex16(x) XBeeLink(PrintHex16(x))
-#define XBeeTransportPut1Byte(x) XBeeLink(Transmit(x))
-#define XBeeTransportCheckFreeSpace(x) XBeeLink(CheckFreeSpace(x))
+#define XBeeTransportPut1Byte(x) Link(Transmit(x))
+#define XBeeTransportCheckFreeSpace(x) Link(CheckFreeSpace(x))
 /* 5 = Start + len_msb + len_lsb + API_id + checksum */
 #define XBeeAPISizeOf(_x) (_x+5)
-#define XBeeTransportSendMessage() XBeeLink(SendMessage())
+#define XBeeTransportSendMessage() Link(SendMessage())
 
 #define XBeeTransportPutUint8(_x) { \
   xbee_cs += _x; \
@@ -224,5 +219,15 @@ static inline void xbee_parse_payload(void) {
     return;
   }
 }
+
+#define __XBeeLink(dev, _x) dev##_x
+#define _XBeeLink(dev, _x)  __XBeeLink(dev, _x)
+#define XBeeLink(_x) _XBeeLink(XBEE_UART, _x)
+
+#define XBeeBuffer() XBeeLink(ChAvailable())
+#define ReadXBeeBuffer() { while (XBeeLink(ChAvailable())&&!xbee_msg_received) parse_xbee(XBeeLink(Getch())); }
+
+#define XBeePrintString(s) XBeeLink(PrintString(s))
+#define XBeePrintHex16(x) XBeeLink(PrintHex16(x))
 
 #endif /* XBEE_H */

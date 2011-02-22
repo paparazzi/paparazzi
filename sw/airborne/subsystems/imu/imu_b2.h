@@ -31,7 +31,7 @@
 
 /* type of magnetometer */
 #define IMU_B2_MAG_NONE   0
-#define IMU_B2_MAG_MS2001 1
+#define IMU_B2_MAG_MS2100 1
 #define IMU_B2_MAG_AMI601 2
 
 
@@ -135,21 +135,21 @@
 #define IMU_ACCEL_Z_SIGN  1
 #endif
 #if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
-#define IMU_MAG_X_SIGN   -1
-#define IMU_MAG_Y_SIGN    1
+#define IMU_MAG_X_SIGN    1
+#define IMU_MAG_Y_SIGN   -1
 #define IMU_MAG_Z_SIGN   -1
 #endif
 #endif /* IMU_B2_VERSION_1_2 */
 
 
-#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2001
-#include "peripherals/ms2001.h"
+#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
+#include "peripherals/ms2100.h"
 #define ImuMagEvent(_mag_handler) {					\
-    if (ms2001_status == MS2001_DATA_AVAILABLE) {			\
-      imu.mag_unscaled.x = ms2001_values[IMU_MAG_X_CHAN];		\
-      imu.mag_unscaled.y = ms2001_values[IMU_MAG_Y_CHAN];		\
-      imu.mag_unscaled.z = ms2001_values[IMU_MAG_Z_CHAN];		\
-      ms2001_status = MS2001_IDLE;					\
+    if (ms2100_status == MS2100_DATA_AVAILABLE) {			\
+      imu.mag_unscaled.x = ms2100_values[IMU_MAG_X_CHAN];		\
+      imu.mag_unscaled.y = ms2100_values[IMU_MAG_Y_CHAN];		\
+      imu.mag_unscaled.z = ms2100_values[IMU_MAG_Z_CHAN];		\
+      ms2100_status = MS2100_IDLE;					\
       _mag_handler();							\
     }									\
   }
@@ -184,7 +184,7 @@
 #endif
 
 
-#define ImuEvent(_gyro_accel_handler, _mag_handler) {		\
+#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) {		\
     if (max1168_status == STA_MAX1168_DATA_AVAILABLE) {		\
       imu.gyro_unscaled.p  = max1168_values[IMU_GYRO_P_CHAN]; \
       imu.gyro_unscaled.q  = max1168_values[IMU_GYRO_Q_CHAN]; \
@@ -193,7 +193,8 @@
       imu.accel_unscaled.y = max1168_values[IMU_ACCEL_Y_CHAN]; \
       imu.accel_unscaled.z = max1168_values[IMU_ACCEL_Z_CHAN]; \
       max1168_status = STA_MAX1168_IDLE;				\
-      _gyro_accel_handler();						\
+      _gyro_handler();						\
+      _accel_handler();						\
     }									\
     ImuMagEvent(_mag_handler);					\
   }

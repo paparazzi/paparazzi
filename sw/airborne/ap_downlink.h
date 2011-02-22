@@ -115,8 +115,8 @@
 #define PERIODIC_SEND_SETTINGS(_chan) {}
 #endif
 
-#if defined USE_INFRARED || USE_INFRARED_I2C
-#define PERIODIC_SEND_IR_SENSORS(_chan) DOWNLINK_SEND_IR_SENSORS(_chan, &infrared.ir1, &infrared.ir2, &infrared.pitch, &infrared.roll, &infrared.top);
+#if defined USE_INFRARED || USE_INFRARED_TELEMETRY
+#define PERIODIC_SEND_IR_SENSORS(_chan) DOWNLINK_SEND_IR_SENSORS(_chan, &infrared.value.ir1, &infrared.value.ir2, &infrared.pitch, &infrared.roll, &infrared.top);
 #else
 #define PERIODIC_SEND_IR_SENSORS(_chan) ;
 #endif
@@ -142,8 +142,8 @@
 #include "subsystems/imu.h"
 #define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) { DOWNLINK_SEND_IMU_ACCEL_RAW(_chan, &imu.accel_unscaled.x, &imu.accel_unscaled.y, &imu.accel_unscaled.z)}
 #define PERIODIC_SEND_IMU_GYRO_RAW(_chan) { DOWNLINK_SEND_IMU_GYRO_RAW(_chan, &imu.gyro_unscaled.p, &imu.gyro_unscaled.q, &imu.gyro_unscaled.r)}
-#define PERIODIC_SEND_IMU_ACCEL(_chan) { DOWNLINK_SEND_IMU_ACCEL_RAW(_chan, &imu.accel.x, &imu.accel.y, &imu.accel.z)}
-#define PERIODIC_SEND_IMU_GYRO(_chan) { DOWNLINK_SEND_IMU_GYRO_RAW(_chan, &imu.gyro.p, &imu.gyro.q, &imu.gyro.r)}
+#define PERIODIC_SEND_IMU_ACCEL(_chan) { DOWNLINK_SEND_IMU_ACCEL(_chan, &imu.accel.x, &imu.accel.y, &imu.accel.z)}
+#define PERIODIC_SEND_IMU_GYRO(_chan) { DOWNLINK_SEND_IMU_GYRO(_chan, &imu.gyro.p, &imu.gyro.q, &imu.gyro.r)}
 #else
 #define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) {}
 #define PERIODIC_SEND_IMU_GYRO_RAW(_chan) {}

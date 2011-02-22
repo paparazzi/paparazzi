@@ -368,9 +368,6 @@ bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Or
 	if (Size == 0)
 	  return TRUE;
 
-	if (Size == 0)
-	  return TRUE;
-
 	//Don't initialize if Polygon is too big or if the orientation is not between 0 and 90
 	if(Size <= PolygonSize && Orientation >= -90 && Orientation <= 90)
 	{

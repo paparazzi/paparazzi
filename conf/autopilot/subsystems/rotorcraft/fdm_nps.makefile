@@ -67,10 +67,12 @@ sim.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 
 sim.srcs   += $(SRC_BOOZ_SIM)/booz2_unsimulated_peripherals.c
 sim.srcs   += firmwares/rotorcraft/main.c
+sim.srcs   += mcu.c
+sim.srcs   += $(SRC_ARCH)/mcu_arch.c
 
 sim.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 # -DTIME_LED=1
-#sim.CFLAGS += -DLED
+#sim.CFLAGS += -DUSE_LED
 sim.srcs += sys_time.c
 
 
@@ -81,7 +83,7 @@ sim.srcs += $(SRC_FIRMWARE)/telemetry.c \
 
 sim.srcs   += $(SRC_BOOZ)/booz2_commands.c
 
-sim.srcs += $(SRC_BOOZ)/booz2_datalink.c
+sim.srcs += $(SRC_FIRMWARE)/datalink.c
 
 #
 #

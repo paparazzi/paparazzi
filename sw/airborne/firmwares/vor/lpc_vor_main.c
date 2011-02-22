@@ -1,9 +1,9 @@
 #include "std.h"
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "led.h"
 #include "interrupt_hw.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 #include "print.h"
 //#include "messages.h"
 //#include "downlink.h"
@@ -86,14 +86,14 @@ static inline void main_report( void ) {
 
 
 static inline void main_init( void ) {
-  hw_init();
+  mcu_init();
   sys_time_init();
   led_init();
   uart0_init();
   vor_int_demod_init();
   VorDacInit();
   vor_adc_init();
-  int_enable();
+  mcu_int_enable();
 }
 
 

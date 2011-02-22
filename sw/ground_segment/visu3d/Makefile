@@ -1,7 +1,7 @@
 OCAMLOPT0 = ocamlopt
-OCAMLC    = ocamlc -I +xml-light
+OCAMLC    = ocamlc $(shell ocamlfind query -r -i-format xml-light)
 
-MLFLAGS   = -I +lablgtk2 -I +lablGL -I +camlimages -I ../../lib/ocaml
+MLFLAGS   =  $(shell ocamlfind query -r -i-format lablGL)  $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format camlimages) -I ../../lib/ocaml
 
 OCAMLOPT = $(OCAMLOPT0) $(OCAMLOPT_OPTIONS)
 

@@ -39,7 +39,9 @@
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "gps.h"
+#ifdef USE_INFRARED
 #include "subsystems/sensors/infrared.h"
+#endif
 #include "gyro.h"
 #include "ap_downlink.h"
 #include "subsystems/nav.h"
@@ -65,12 +67,15 @@
 #endif
 
 
-#ifdef USE_ANALOG_IMU
+#ifdef USE_IMU
 #include "subsystems/imu.h"
+#endif
+#ifdef USE_AHRS
 #include "subsystems/ahrs.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/ahrs/ahrs_float_dcm.h"
 static inline void on_gyro_accel_event( void );
+static inline void on_accel_event( void );
 static inline void on_mag_event( void );
 #endif
 
@@ -369,12 +374,37 @@ static void navigation_task( void ) {
  *
  */
 
-void periodic_task_ap( void ) {
-  static uint8_t _20Hz   = 0;
-  static uint8_t _10Hz   = 0;
-  static uint8_t _4Hz   = 0;
-  static uint8_t _1Hz   = 0;
 
+void periodic_task_ap( void ) {
+
+  static uint8_t _60Hz = 0;
+  static uint8_t _20Hz = 0;
+  static uint8_t _10Hz = 0;
+  static uint8_t _4Hz  = 0;
+  static uint8_t _1Hz  = 0;
+
+#ifdef USE_IMU
+  // Run at PERIODIC_FREQUENCY (60Hz if not defined)
+  imu_periodic();
+
+#endif // USE_IMU
+
+#define _check_periodic_freq_ PERIODIC_FREQUENCY % 60
+#if _check_periodic_freq_
+#error Using HighSpeed Periodic: PERIODIC_FREQUENCY has to be a multiple of 60!
+#endif
+  _60Hz++;
+  if (_60Hz >= (PERIODIC_FREQUENCY / 60))
+  {
+    _60Hz = 0;
+  }
+  else
+  {
+    return;
+  }
+
+
+  // Rest of the periodic function still runs at 60Hz like always
   _20Hz++;
   if (_20Hz>=3) _20Hz=0;
   _10Hz++;
@@ -440,11 +470,6 @@ void periodic_task_ap( void ) {
 #error "Only 20 and 60 allowed for CONTROL_RATE"
 #endif
 
-#ifdef USE_ANALOG_IMU
-  if (!_20Hz) {
-    imu_periodic();
-  }
-#endif // USE_ANALOG_IMU
 
 #if CONTROL_RATE == 20
   if (!_20Hz)
@@ -499,8 +524,10 @@ void init_ap( void ) {
   GpioInit();
 #endif
 
-#ifdef USE_ANALOG_IMU
+#ifdef USE_IMU
   imu_init();
+#endif
+#ifdef USE_AHRS
   ahrs_aligner_init();
   ahrs_init();
 #endif
@@ -559,9 +586,13 @@ void init_ap( void ) {
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
 
-#ifdef USE_ANALOG_IMU
-  ImuEvent(on_gyro_accel_event, on_mag_event);
-#endif // USE_ANALOG_IMU
+#ifdef USE_INFRARED
+  infrared_event();
+#endif
+
+#ifdef USE_AHRS
+  ImuEvent(on_gyro_accel_event, on_accel_event, on_mag_event);
+#endif // USE_AHRS
 
 #ifdef USE_GPS
 #if !(defined HITL) && !(defined UBX_EXTERNAL) /** else comes through the datalink */
@@ -593,33 +624,8 @@ void event_task_ap( void ) {
 #endif /** USE_GPS */
 
 
-#if defined DATALINK
+  DatalinkEvent();
 
-#if DATALINK == PPRZ
-  if (PprzBuffer()) {
-    ReadPprzBuffer();
-    if (pprz_msg_received) {
-      pprz_parse_payload();
-      pprz_msg_received = FALSE;
-    }
-  }
-#elif DATALINK == XBEE
-  if (XBeeBuffer()) {
-    ReadXBeeBuffer();
-    if (xbee_msg_received) {
-      xbee_parse_payload();
-      xbee_msg_received = FALSE;
-    }
-  }
-#else
-#error "Unknown DATALINK"
-#endif
-
-  if (dl_msg_available) {
-    dl_parse_msg();
-    dl_msg_available = FALSE;
-  }
-#endif /** DATALINK */
 
 #ifdef MCU_SPI_LINK
     link_mcu_event_task();
@@ -634,20 +640,75 @@ void event_task_ap( void ) {
   modules_event_task();
 } /* event_task_ap() */
 
-#ifdef USE_ANALOG_IMU
+#ifdef USE_AHRS
+static inline void on_accel_event( void ) {
+}
+
 static inline void on_gyro_accel_event( void ) {
-  ImuScaleGyro(imu);
-  ImuScaleAccel(imu);
+
+#ifdef AHRS_CPU_LED
+    LED_ON(AHRS_CPU_LED);
+#endif
+
+  // Run aligner on raw data as it also makes averages.
   if (ahrs.status == AHRS_UNINIT) {
+    ImuScaleGyro(imu);
+    ImuScaleAccel(imu);
     ahrs_aligner_run();
     if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED)
       ahrs_align();
+    return;
   }
-  else {
+
+#if PERIODIC_FREQUENCY == 60
+  ImuScaleGyro(imu);
+  ImuScaleAccel(imu);
+
+  ahrs_propagate();
+  ahrs_update_accel();
+  ahrs_update_fw_estimator();
+
+#else //PERIODIC_FREQUENCY
+  static uint8_t _reduced_propagation_rate = 0;
+  static uint8_t _reduced_correction_rate = 0;
+  static struct Int32Vect3 acc_avg;
+  static struct Int32Rates gyr_avg;
+
+  RATES_ADD(gyr_avg, imu.gyro_unscaled);
+  VECT3_ADD(acc_avg, imu.accel_unscaled);
+
+  _reduced_propagation_rate++;
+  if (_reduced_propagation_rate < (PERIODIC_FREQUENCY / AHRS_PROPAGATE_FREQUENCY))
+  {
+  }
+  else
+  {
+    _reduced_propagation_rate = 0;
+
+    RATES_SDIV(imu.gyro_unscaled, gyr_avg, (PERIODIC_FREQUENCY / AHRS_PROPAGATE_FREQUENCY) );
+    INT_RATES_ZERO(gyr_avg);
+
+    ImuScaleGyro(imu);
+
     ahrs_propagate();
-    ahrs_update_accel();
-    ahrs_update_fw_estimator();
+
+    _reduced_correction_rate++;
+    if (_reduced_correction_rate >= (AHRS_PROPAGATE_FREQUENCY / AHRS_CORRECT_FREQUENCY))
+    {
+      _reduced_correction_rate = 0;
+      VECT3_SDIV(imu.accel_unscaled, acc_avg, (PERIODIC_FREQUENCY / AHRS_CORRECT_FREQUENCY) );
+      INT_VECT3_ZERO(acc_avg);
+      ImuScaleAccel(imu);
+      ahrs_update_accel();
+      ahrs_update_fw_estimator();
+    }
   }
+#endif //PERIODIC_FREQUENCY
+
+#ifdef AHRS_CPU_LED
+    LED_OFF(AHRS_CPU_LED);
+#endif
+
 }
 
 static inline void on_mag_event(void) {
@@ -659,4 +720,4 @@ static inline void on_mag_event(void) {
   }
   */
 }
-#endif // USE_ANALOG_IMU
+#endif // USE_AHRS

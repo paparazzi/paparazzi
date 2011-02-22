@@ -53,6 +53,18 @@ SIZE = $(GCC_BIN_PREFIX)-size
 RM   = rm
 OOCD = $(TOOLCHAIN_DIR)/bin/openocd
 
+# If we can't find the toolchain then try picking up the compilers from the path
+ifeq ($(TOOLCHAIN_DIR),)
+CC   = $(shell which arm-none-eabi-gcc)
+LD   = $(shell which arm-none-eabi-gcc)
+CP   = $(shell which arm-none-eabi-objcopy)
+DMP  = $(shell which arm-none-eabi-objdump)
+NM   = $(shell which arm-none-eabi-nm)
+SIZE = $(shell which arm-none-eabi-size)
+OOCD = $(shell which openocd)
+GCC_LIB_DIR=$(shell dirname `which arm-none-eabi-gcc`)/../arm-none-eabi/lib
+endif
+
 LOADER=/home/poine/work/stm32/stm32loader-a3c51c26ad6c/stm32loader.py
 
 ifndef $(TARGET).OOCD_INTERFACE
@@ -87,14 +99,20 @@ LDSCRIPT = $($(TARGET).LDSCRIPT)
 endif
 endif
 
-CFLAGS = -I. -I./$(ARCH) $(INCLUDES) -D__thumb2__ -Wall -c -msoft-float -O$(OPT)
+UNAME = $(shell uname -s)
+
+CFLAGS = -I. -I./$(ARCH) $(INCLUDES) -D__thumb2__ -Wall -msoft-float -O$(OPT)
 CFLAGS += -Wl,gc-sections
 CFLAGS += -mcpu=$(MCU) -mthumb -ansi
+ifeq ("$(UNAME)","Darwin")
+CFLAGS += -mfix-cortex-m3-ldrd
+endif
 CFLAGS += -std=gnu99
 #CFLAGS += -malignment-traps
-CFLAGS += -fno-common  -g$(DEBUG)
+CFLAGS += -fno-common
+CFLAGS += -g$(DEBUG)
 CFLAGS += -ffunction-sections -fdata-sections
-CFLAGS += -Wall -Wimplicit
+CFLAGS += -Wimplicit
 CFLAGS += -Wcast-align
 CFLAGS += -Wpointer-arith -Wswitch
 CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
@@ -108,9 +126,16 @@ CFLAGS += -Wswitch-default
 CFLAGS += $($(TARGET).CFLAGS)
 
 AFLAGS  = -ahls -mapcs-32
+ifeq ("$(UNAME)","Darwin")
+AFLAGS += -mcpu=$(MCU) -mthumb
+endif
 AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
+ifeq ("$(UNAME)","Darwin")
+LDFLAGS = -T$(LDSCRIPT) -nostartfiles -O$(OPT) --gc-sections -mthumb -march=armv7 -mfix-cortex-m3-ldrd -msoft-float
+else
 LDFLAGS = -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT) --gc-sections
+endif
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
 LDLIBS  += -lc -lm -lgcc -lcmsis -lstm32
 
@@ -123,7 +148,17 @@ ODFLAGS = -S
 
 
 # Default target.
-all: sizebefore build sizeafter
+all: printcommands sizebefore build sizeafter
+
+printcommands:
+	@echo "Using CC   = $(CC)"
+	@echo "Using LD   = $(LD)"
+	@echo "Using CP   = $(CP)"
+	@echo "Using DMP   = $(DMP)"
+	@echo "Using NM   = $(NM)"
+	@echo "Using SIZE = $(SIZE)"
+	@echo "Using RM   = $(RM)"
+	@echo "Using OOCD = $(OOCD)"
 
 build: elf bin hex
 # lss sym
@@ -188,15 +223,17 @@ ifeq ($(FLASH_MODE),SERIAL)
 upload: $(OBJDIR)/$(TARGET).bin
 	$(LOADER) -p /dev/ttyUSB0  -b 115200 -e -w -v $^
 else ifeq ($(FLASH_MODE),JTAG)
-upload:  $(OBJDIR)/$(TARGET).bin
-	@echo -e "  OOCD\t$<"
+upload:  $(OBJDIR)/$(TARGET).elf
+	@echo "  OOCD\t$<"
 	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
-				-f board/$(OOCD_BOARD).cfg \
-				-c init \
-				-c "reset halt" \
-				-c "flash write_image erase $(OBJDIR)/$(TARGET).bin 0x08000000" \
-				-c reset \
-				-c shutdown
+		-f board/$(OOCD_BOARD).cfg \
+		-c init \
+		-c "reset halt" \
+		-c "reset init" \
+		-c "stm32x mass_erase 0" \
+		-c "flash write_image $<" \
+		-c reset \
+		-c shutdown
 else
 upload:
 	@echo unknown flash_mode $(FLASH_MODE)

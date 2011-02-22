@@ -27,7 +27,7 @@
 #include <string.h>
 
 #include BOARD_CONFIG
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "lisa/lisa_overo_link.h"
 
@@ -42,7 +42,7 @@ static inline void on_overo_link_lost(void);
 
 int main(void) {
 
-  hw_init();
+  mcu_init();
   sys_time_init();
   overo_link_init();
   DEBUG_SERVO1_INIT();

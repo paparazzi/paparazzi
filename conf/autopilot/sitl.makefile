@@ -1,5 +1,5 @@
 sim.ARCHDIR = $(ARCH)
-sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DUSE_INFRARED -DNAV -DLED -DWIND_INFO
+sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DUSE_INFRARED -DNAV -DUSE_LED -DWIND_INFO
 sim.srcs += latlong.c\
             radio_control.c\
             downlink.c\
@@ -14,7 +14,7 @@ sim.srcs += latlong.c\
             sys_time.c\
             $(SRC_FIRMWARE)/main_fbw.c \
             $(SRC_FIRMWARE)/main_ap.c \
-            datalink.c \
+            $(SRC_FIRMWARE)/datalink.c \
             $(SRC_ARCH)/ppm_hw.c \
             $(SRC_ARCH)/sim_gps.c\
             $(SRC_ARCH)/sim_ir.c \

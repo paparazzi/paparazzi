@@ -97,6 +97,7 @@ void max1168_read( void ) {
   Max1168Select();
 
   /* write control byte - wait EOC on extint */
+  /* use internal reference and clock, sequentially scan channels 0-7 */
   const uint16_t ctl_byte = (1 << 0 | 1 << 3 | 7 << 5) << 8;
   SPI_I2S_SendData(SPI2, ctl_byte);
   max1168_status = STA_MAX1168_SENDING_REQ;

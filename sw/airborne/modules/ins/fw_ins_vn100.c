@@ -28,8 +28,18 @@
 
 #include "modules/ins/ins_vn100.h"
 #include "mcu_periph/spi.h"
+#include "estimator.h"
+#include "generated/airframe.h"
+
+#ifndef INS_YAW_NEUTRAL_DEFAULT
+#define INS_YAW_NEUTRAL_DEFAULT 0.
+#endif
 
 void ins_init( void ) {
+
+  ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
+  ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
+  ins_yaw_neutral = INS_YAW_NEUTRAL_DEFAULT;
 
   /* SPI polarity = 1 - data sampled on rising edge */
   SpiSetCPOL();
@@ -100,6 +110,11 @@ void ins_event_task( void ) {
   if (spi_message_received) {
     spi_message_received = FALSE;
     parse_ins_msg();
+#ifndef INS_VN100_READ_ONLY
+    // Update estimator
+    // FIXME Use a proper rotation matrix here
+    EstimatorSetAtt((ins_eulers.phi - ins_roll_neutral), ins_eulers.psi, (ins_eulers.theta - ins_pitch_neutral));
+#endif
     //uint8_t s = 4+VN100_REG_QMR_SIZE;
     //DOWNLINK_SEND_DEBUG(DefaultChannel,s,spi_buffer_input);
   }

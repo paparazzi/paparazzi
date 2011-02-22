@@ -26,6 +26,7 @@
 
 open Printf
 open Xml2h
+module GC = Gen_common
 
 (** Default main frequency = 60Hz *)
 let freq = ref 60
@@ -97,14 +98,6 @@ let print_init_functions = fun modules ->
   left ();
   lprintf out_h "}\n"
 
-let remove_dup = fun l ->
-  let rec loop = fun l ->
-    match l with
-      [] | [_] -> l
-    | x::((x'::_) as xs) ->
-    if x = x' then loop xs else x::loop xs in
-  loop (List.sort compare l)
-
 let print_periodic_functions = fun modules ->
   let min_period = 1. /. float !freq
   and max_period = 65536. /. float !freq
@@ -131,7 +124,7 @@ let print_periodic_functions = fun modules ->
         ((x, module_name), min 65535 (max 1 (int_of_float (float_of_int !freq /. f))))
       )
     periodic) modules) in
-  let modulos = remove_dup (List.map snd functions_modulo) in
+  let modulos = GC.singletonize (List.map snd functions_modulo) in
   (** Print modulos *)
   List.iter (fun modulo ->
     let v = sprintf "i%d" modulo in
@@ -261,15 +254,6 @@ let parse_modules modules =
   nl ();
   fprintf out_h "#endif // MODULES_DATALINK_C\n"
 
-let get_modules = fun dir m ->
-  match Xml.tag m with
-    "load" -> begin
-      let name = ExtXml.attrib m "name" in
-      let xml = Xml.parse_file (dir^name) in
-      xml
-        end
-  | _ -> xml_error "load"
-
 let test_section_modules = fun xml ->
   List.fold_right (fun x r -> ExtXml.tag_is x "modules" || r) (Xml.children xml) false
 
@@ -324,44 +308,13 @@ let write_settings = fun xml_file out_set modules ->
   fprintf out_set " </dl_settings>\n";
   fprintf out_set "</settings>\n"
 
-let get_targets_of_module = fun m ->
-  let pipe_regexp = Str.regexp "|" in
-  let targets_of_field = fun field -> try
-    Str.split pipe_regexp (ExtXml.attrib_or_default field "target" "ap|sim") with _ -> [] in
-  let rec singletonize = fun l ->
-    match l with
-      [] | [_] -> l
-    | x :: ((y :: t) as yt) -> if x = y then singletonize yt else x :: singletonize yt
-  in
-  let targets = List.map (fun x ->
-    match String.lowercase (Xml.tag x) with
-      "makefile" -> targets_of_field x
-    | _ -> []
-  ) (Xml.children m) in
-  (* return a singletonized list *)
-  singletonize (List.sort compare (List.flatten targets))
-
-let unload_unused_modules = fun modules ->
-  let target = try Sys.getenv "TARGET" with _ -> "" in
-  let is_target_in_module = fun m ->
-    let target_is_in_module = List.exists (fun x -> String.compare target x = 0) (get_targets_of_module m) in
-    if not target_is_in_module then
-      Printf.fprintf stderr "Module %s unloaded, target %s not supported\n" (Xml.attrib m "name") target;
-    target_is_in_module
-  in
-  if String.length target = 0 then
-    modules
-  else
-    List.find_all is_target_in_module modules
-
 let h_name = "MODULES_H"
 
 let () =
-  if Array.length Sys.argv <> 4 then
-    failwith (Printf.sprintf "Usage: %s conf_modules_dir out_settings_file xml_file" Sys.argv.(0));
-  let xml_file = Sys.argv.(3)
-  and out_set = open_out Sys.argv.(2)
-  and modules_dir = Sys.argv.(1) in
+  if Array.length Sys.argv <> 3 then
+    failwith (Printf.sprintf "Usage: %s out_settings_file xml_file" Sys.argv.(0));
+  let xml_file = Sys.argv.(2)
+  and out_set = open_out Sys.argv.(1) in
   try
     let xml = start_and_begin xml_file h_name in
     fprintf out_h "#define MODULES_IDLE  0\n";
@@ -375,14 +328,19 @@ let () =
     fprintf out_h "#define EXTERN_MODULES extern\n";
     fprintf out_h "#endif";
     nl ();
+    (* Extract main_freq parameter *)
     let modules = try (ExtXml.child xml "modules") with _ -> Xml.Element("modules",[],[]) in
     let main_freq = try (int_of_string (Xml.attrib modules "main_freq")) with _ -> !freq in
     freq := main_freq;
-    let modules_list = List.map (get_modules modules_dir) (Xml.children modules) in
-    let modules_list = unload_unused_modules modules_list in
+    (* Extract modules list *)
+    let modules = GC.get_modules_of_airframe xml in
+    let modules = GC.unload_unused_modules modules true in
+    (* Extract modules names (file name and module name) *)
     let modules_name =
-      (List.map (fun l -> try Xml.attrib l "name" with _ -> "") (Xml.children modules)) @
-      (List.map (fun m -> try Xml.attrib m "name" with _ -> "") modules_list) in
+      (List.map (fun m -> try Xml.attrib m.GC.xml "name" with _ -> "") modules) @
+      (List.map (fun m -> m.GC.file) modules) in
+    (* Extract xml modules nodes *)
+    let modules_list = List.map (fun m -> m.GC.xml) modules in
     check_dependencies modules_list modules_name;
     parse_modules modules_list;
     finish h_name;

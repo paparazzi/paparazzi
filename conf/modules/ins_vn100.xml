@@ -6,7 +6,7 @@
     <file name="ins_vn100.h"/>
   </header>
   <init fun="ins_init()"/>
-  <periodic fun="ins_periodic_task()" freq="4"/>
+  <periodic fun="ins_periodic_task()" freq="60"/>
   <periodic fun="ins_report_task()" freq="4"/>
   <event fun="ins_event_task()"/>
   <makefile>

@@ -23,7 +23,7 @@
  */
 
 #include "cam_control/booz_cam.h"
-#include "booz2_pwm_hw.h"
+#include "modules/core/booz_pwm_arch.h"
 #include "subsystems/ahrs.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "subsystems/ins.h"
@@ -64,7 +64,7 @@ int16_t booz_cam_pan;
 
 // PWM definition
 #ifndef BOOZ_CAM_SetPwm
-#define BOOZ_CAM_SetPwm(_v) Booz2SetPwmValue(_v)
+#define BOOZ_CAM_SetPwm(_v) BoozSetPwmValue(_v)
 #endif
 
 #ifndef BOOZ_CAM_DEFAULT_MODE

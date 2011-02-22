@@ -189,7 +189,6 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_l_1.0">
-      <define name="GPS_UART_NR"     value="3"/>
 <!--      <define name="BOOZ_START_DELAY" value="1"/> -->
       <subsystem name="radio_control" type="ppm"/>
       <subsystem name="actuators"     type="mkk"/>
@@ -199,9 +198,11 @@
       <subsystem name="radio_control" type="ppm"/>
       <subsystem name="actuators"     type="mkk"/>
     </target>
-
+    <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="imu"           type="b2_v1.1"/>
-    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="gps"           type="ublox">
+      <configure name="GPS_PORT"     value="UART3"/>
+    </subsystem>
     <subsystem name="ahrs"          type="cmpl"/>
   </firmware>
 

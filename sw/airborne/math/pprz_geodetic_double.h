@@ -1,71 +1,90 @@
+/*
+ * Copyright (C) 2008-2011 The Paparazzi Team
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * @file pprz_geodetic_double.h
+ *   @brief Paparazzi double-precision floating point math for geodetic calculations.
+ *
+ *   This is the more detailed description of this file.
+ *
+ */
+
 #ifndef PPRZ_GEODETIC_DOUBLE_H
 #define PPRZ_GEODETIC_DOUBLE_H
-
-#include <inttypes.h>
 
 #include "pprz_geodetic.h"
 #include "pprz_algebra_double.h"
 
-/*
- * Definitions for coordinate systems
- * 
- */
-
-/* Earth Centered Earth Fixed
- *   x, y, z in meters
- */
+/**
+ * @brief vector in EarthCenteredEarthFixed coordinates
+ * @details Origin at center of mass of the Earth. Z-axis is pointing north,
+ * the x-axis intersects the sphere of the earth at 0° latitude (Equator)
+ * and 0° longitude (Greenwich). Y-axis completes it to right-hand system.
+ * Units: meters */
 struct EcefCoor_d {
-  double x;
-  double y;
-  double z;
+  double x; ///< in meters
+  double y; ///< in meters
+  double z; ///< in meters
 };
 
-/* Lon Lat Alt
- * lon, lat in radians, alt in meters
+/**
+ * @brief vector in Latitude, Longitude and Altitude
+ * @details Units lat,lon: radians
+ * Unit alt: meters above MSL
  */
 struct LlaCoor_d {
-  double lon;
-  double lat;
-  double alt;
+  double lon; ///< in radians
+  double lat; ///< in radians
+  double alt; ///< in meters above MSL
 };
 
-/* North East Down local tangeant plane 
- *   x, y, z in meters
- */
+/**
+ * @brief vector in North East Down coordinates
+ * Units: meters */
 struct NedCoor_d {
-  double x;
-  double y;
-  double z;
+  double x; ///< in meters
+  double y; ///< in meters
+  double z; ///< in meters
 };
 
-/* East North Up local tangeant plane
- *   x, y, z in meters
- */
+/**
+ * @brief vector in East North Up coordinates
+ * Units: meters */
 struct EnuCoor_d {
-  double x;
-  double y;
-  double z;
+  double x; ///< in meters
+  double y; ///< in meters
+  double z; ///< in meters
 };
 
-/* Local tangeant plane reference */
+/**
+ * @brief definition of the local (flat earth) coordinate system
+ * @details Defines the origin of the local coordinate system
+ * in ECEF and LLA coordinates and the roation matrix from
+ * ECEF to local frame */
 struct LtpDef_d {
-  struct EcefCoor_d  ecef;
-  struct LlaCoor_d   lla;
-  struct DoubleMat33 ltp_of_ecef;
+  struct EcefCoor_d  ecef; ///< origin of local frame in ECEF
+  struct LlaCoor_d   lla; ///< origin of local frame in LLA
+  struct DoubleMat33 ltp_of_ecef; ///< rotation from ECEF to local frame
 };
 
-/* UTM projection 
-*/
-struct UTMCoor_d {
-  double east;
-  double north;
-  uint8_t zone;
-};
-
-
-/* 
- *  Convertions between coordinate systems 
- */
 extern void ltp_def_from_ecef_d(struct LtpDef_d* def, struct EcefCoor_d* ecef);
 extern void lla_of_ecef_d(struct LlaCoor_d* out, struct EcefCoor_d* in);
 extern void ecef_of_lla_d(struct EcefCoor_d* out, struct LlaCoor_d* in);
@@ -83,8 +102,6 @@ extern void ecef_of_enu_vect_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, st
 extern void ecef_of_ned_vect_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct NedCoor_d* ned);
 
 extern double gc_of_gd_lat_d(double gd_lat, double hmsl);
-
-extern void lla_of_utm(struct LlaCoor_d* out, struct UTMCoor_d* in);
 
 
 #endif /* PPRZ_GEODETIC_DOUBLE_H */

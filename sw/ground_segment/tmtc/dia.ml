@@ -89,7 +89,7 @@ let fp_msg = fun _sender vs ->
 
 
 let _ =
-  let ivy_bus = ref "127.255.255.255:2010"
+  let ivy_bus = ref Defivybus.default_ivy_bus 
   and port = ref "/dev/dsp" in
   let options = [
     "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);

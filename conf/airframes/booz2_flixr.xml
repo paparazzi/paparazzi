@@ -16,7 +16,10 @@
     <define name="GUIDANCE_H_USE_REF"/>
 
     <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="actuators"     type="mkk"/>
+    <subsystem name="telemetry"     type="transparent"/>
+    <subsystem name="actuators"     type="mkk">
+      <configure name="MKK_I2C_SCL_TIME" value="150"/><!-- this is optional, 150 is default, e.g. use 50 for 8 motors-->
+    </subsystem>
     <subsystem name="imu"           type="b2_v1.0"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="cmpl"/>
@@ -25,25 +28,22 @@
     </subsystem>
   </firmware>
 
-  <firmware name="booz_test_progs">
+  <firmware name="booz2_test_progs">
     <target name="test_telemetry" board="booz_1.0"/>
     <target name="test_baro"      board="booz_1.0"/>
     <target name="test_spektrum"  board="booz_1.0"/>
+    <target name="tunnel"         board="booz_1.0"/>
   </firmware>
 
   <modules main_freq="512">
+    <load name="booz_pwm.xml">
+      <define name="USE_PWM1"/>
+    </load>
     <load name="booz_drop.xml"/>
     <load name="sys_mon.xml"/>
     <!--load name="booz_cam.xml"/-->
     <!--load name="sonar_maxbotix_booz.xml"/-->
   </modules>
-
-  <servos min="0" neutral="0" max="0xff">
-    <servo name="FRONT" no="0" min="0" neutral="0" max="255" />
-    <servo name="BACK" no="1" min="0" neutral="0" max="255" />
-    <servo name="RIGHT" no="2" min="0" neutral="0" max="255" />
-    <servo name="LEFT" no="3" min="0" neutral="0" max="255" />
-  </servos>
 
   <commands>
     <axis name="PITCH" failsafe_value="0" />
@@ -72,10 +72,6 @@
   </section>
 
   <section name="IMU" prefix="IMU_">
-    <define name="GYRO_P_CHAN" value="1" />
-    <define name="GYRO_Q_CHAN" value="0" />
-    <define name="GYRO_R_CHAN" value="2" />
-
     <define name="GYRO_P_NEUTRAL" value="32362" />
     <define name="GYRO_Q_NEUTRAL" value="32080" />
     <define name="GYRO_R_NEUTRAL" value="32096" />
@@ -83,10 +79,6 @@
     <define name="GYRO_P_SENS" value="1.1032765" integer="16" />
     <define name="GYRO_Q_SENS" value="1.1360802599" integer="16" />
     <define name="GYRO_R_SENS" value="1.1249874614" integer="16" />
-
-    <define name="ACCEL_X_CHAN" value="3" />
-    <define name="ACCEL_Y_CHAN" value="5" />
-    <define name="ACCEL_Z_CHAN" value="6" />
 
     <define name="ACCEL_X_SENS" value="2.45932966" integer="16"/>
     <define name="ACCEL_Y_SENS" value="2.45106376" integer="16"/>
@@ -244,10 +236,5 @@
     <define name="AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD" />
     <define name="AUTO2" value="AP_MODE_HOVER_Z_HOLD" />
   </section>
-
-  <makefile location="after">
-    ap.srcs += $(SRC_BOOZ_ARCH)/booz2_pwm_hw.c
-    sim.srcs += $(SRC_BOOZ_SIM)/booz2_pwm_hw.c
-  </makefile>
 
 </airframe>

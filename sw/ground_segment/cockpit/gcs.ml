@@ -320,7 +320,7 @@ let keys_help = fun () ->
 
 
 (***************** MAIN ******************************************************)
-let ivy_bus = ref "127.255.255.255:2010"
+let ivy_bus = ref Defivybus.default_ivy_bus 
 and geo_ref = ref ""
 and map_files = ref []
 and center = ref ""
@@ -340,7 +340,7 @@ and srtm = ref false
 let options =
   [
    "-auto_ortho", Arg.Set auto_ortho, "IGN tiles path";
-   "-b", Arg.String (fun x -> ivy_bus := x), "Bus\tDefault is 127.255.255.25:2010";
+   "-b", Arg.String (fun x -> ivy_bus := x),(sprintf "<ivy bus> Default is %s" !ivy_bus);
    "-center", Arg.Set_string center, "Initial map center (e.g. 'WGS84 43.605 1.443')";
    "-center_ac", Arg.Set auto_center_new_ac, "Centers the map on any new A/C";
    "-edit", Arg.Unit (fun () -> edit := true; layout_file := "editor.xml"), "Flight plan editor";

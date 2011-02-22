@@ -2,7 +2,7 @@
 
 <!--
      Baro ETS module (I2C)
-     @param BARO_ETS_I2C_DEV i2c device (default i2c0)
+     @define BARO_ETS_I2C_DEV i2c device (default i2c0)
      -->
 
 <module name="baro_ets" dir="sensors">

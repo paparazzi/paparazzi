@@ -1,0 +1,37 @@
+#!OCAMLRUN OCAML
+#load "unix.cma";;
+let (//) = Filename.concat
+let paparazzi_home =
+  try
+    Sys.getenv "PAPARAZZI_HOME"
+  with
+    _ -> Filename.concat (Sys.getenv "HOME") "paparazzi"
+
+let () =
+  let n = Array.length Sys.argv in
+  try
+    let rec loop = fun i ->
+      if Sys.argv.(i) = "-a" && (i+1) < n then
+	let ac = Sys.argv.(i+1) in
+	(* Shift other args *)
+	for j = i+2 to n-1 do Sys.argv.(j-2) <- Sys.argv.(j) done;
+	ac
+      else if i = n then raise Not_found
+      else loop (i+1) in
+    let ac = loop 0 in
+    let rec sim_type = fun i ->
+      if Sys.argv.(i) = "-jsbsim" then "jsbsim"
+      else if i = (n-2) then "sim"
+      else sim_type (i+1) in
+    let sim = sim_type 0 in
+    let com = paparazzi_home // "var" // ac // sim // "simsitl" in
+    if not (Sys.file_exists com) then begin
+      Printf.fprintf stderr "Error: '%s' is missing. Build target sim for A/C %s ?\n" com ac;
+      exit 1
+    end;
+    let args = Array.sub Sys.argv 0 (n-2) in
+    args.(0) <- com;
+    prerr_endline com;
+    Unix.execv com args
+  with _ ->
+    failwith "Usage: launchsitl -a <ac_name> <options>"

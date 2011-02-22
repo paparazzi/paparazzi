@@ -26,7 +26,7 @@
 #include <stm32/misc.h>
 
 #include BOARD_CONFIG
-#include "init_hw.h"
+#include "mcu.h"
 #include "sys_time.h"
 #include "downlink.h"
 #include "peripherals/sc18is600.h"
@@ -51,7 +51,7 @@ int main(void) {
 
 
 static inline void main_init( void ) {
-  hw_init();
+  mcu_init();
   sys_time_init();
   sc18is600_init();
   main_spi2_init();

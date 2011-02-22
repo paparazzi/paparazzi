@@ -1039,7 +1039,8 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
       end else if agl > 25. then
 	ac.ground_prox <- false;
       try
-	draw_altgraph alt_graph geomap aircrafts
+        if not (alt_graph#drawing_area#misc#parent = None) then
+          draw_altgraph alt_graph geomap aircrafts
       with _ -> ()
 
   in
@@ -1157,11 +1158,11 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
       let label = Pprz.string_assoc "ap_mode" vs in
       ac.strip#set_label "AP" (if label="MANUAL" then "MANU" else label);
       let color = 
-	match ap_mode with
-	  "AUTO2" -> ok_color
-	| "AUTO1" -> "#10F0E0"
-	| "MANUAL" -> warning_color
-	| _ -> alert_color in
+        match ap_mode with
+          "AUTO2" | "NAV" -> ok_color
+        | "AUTO1" | "R_RCC" | "A_RCC" | "ATT_C" | "R_ZH" | "A_ZH" | "HOVER" | "HOV_C" | "H_ZH" -> "#10F0E0"
+        | "MANUAL" | "RATE" | "ATT" -> warning_color
+        | _ -> alert_color in
       ac.strip#set_color "AP" color;
     end;
     let gps_mode = Pprz.string_assoc "gps_mode" vs in

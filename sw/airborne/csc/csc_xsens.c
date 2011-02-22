@@ -34,7 +34,7 @@
 
 #include "downlink.h"
 #include "messages.h"
-#include "uart.h"
+#include "mcu_periph/uart.h"
 //#include "com_stats.h"
 #include "math/pprz_algebra_float.h"
 #include "string.h"
