@@ -32,6 +32,7 @@
 
 #include "pprz_geodetic.h"
 #include "pprz_algebra_double.h"
+#include "std.h"
 
 /**
  * @brief vector in EarthCenteredEarthFixed coordinates
@@ -75,6 +76,15 @@ struct EnuCoor_d {
 };
 
 /**
+ * @brief position in UTM coordinates
+ * Units: meters */
+struct UTMCoor_d {
+  double north; ///< in meters
+  double east; ///< in meters
+  uint8_t zone; ///< UTM zone number
+};
+
+/**
  * @brief definition of the local (flat earth) coordinate system
  * @details Defines the origin of the local coordinate system
  * in ECEF and LLA coordinates and the roation matrix from
@@ -85,6 +95,7 @@ struct LtpDef_d {
   struct DoubleMat33 ltp_of_ecef; ///< rotation from ECEF to local frame
 };
 
+extern void lla_of_utm(struct LlaCoor_d* out, struct UTMCoor_d* in);
 extern void ltp_def_from_ecef_d(struct LtpDef_d* def, struct EcefCoor_d* ecef);
 extern void lla_of_ecef_d(struct LlaCoor_d* out, struct EcefCoor_d* in);
 extern void ecef_of_lla_d(struct EcefCoor_d* out, struct LlaCoor_d* in);
