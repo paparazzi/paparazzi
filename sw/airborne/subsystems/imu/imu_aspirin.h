@@ -127,6 +127,10 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
       imu_aspirin.i2c_trans_gyro.status == I2CTransSuccess && i2c_idle(&i2c2)) {
     gyro_copy_i2c();
     imu_aspirin.status = AspirinStatusIdle;
+    if (imu_aspirin.gyro_available_blaaa) {
+      imu_aspirin.gyro_available_blaaa = FALSE;
+      _gyro_handler();
+    }
   }
   if (imu_aspirin.gyro_eoc && i2c2.status == I2CIdle && i2c_idle(&i2c2)) {
     if (imu_aspirin.i2c_trans_gyro.status == I2CTransSuccess) {
@@ -140,10 +144,6 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
     i2c2_er_irq_handler();
     gyro_read_i2c();
     imu_aspirin.time_since_last_reading = 0;
-  }
-  if (imu_aspirin.gyro_available_blaaa && imu_aspirin.i2c_trans_gyro.status == I2CTransSuccess) {
-    imu_aspirin.gyro_available_blaaa = FALSE;
-    _gyro_handler();
   }
   if (imu_aspirin.accel_available) {
     imu_aspirin.accel_available = FALSE;
