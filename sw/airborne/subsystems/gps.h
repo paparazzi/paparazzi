@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 The Paparazzi Team
+ * Copyright (C) 2003-2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,17 +19,33 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file gps.h
+ *  @brief Device independent GPS code
+ *
+ */
+
 #ifndef GPS_H
 #define GPS_H
+
 
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
 #include "mcu_periph/uart.h"
 
 
-/* GPS model specific implementation */
+/* GPS model specific implementation or sim */
 #ifdef GPS_TYPE_H
 #include GPS_TYPE_H
+#endif
+
+#define GPS_FIX_NONE 0x00
+#define GPS_FIX_3D   0x03
+
+#define GpsFixValid() (gps.fix == GPS_FIX_3D)
+
+
+#ifndef GPS_NB_CHANNELS
+#define GPS_NB_CHANNELS 16
 #endif
 
 /** Number of scanned satellites */
@@ -69,52 +85,11 @@ extern struct GpsState gps;
 extern void gps_impl_init(void);
 
 
-#define  GPS_FIX_NONE 0x00
-#define  GPS_FIX_3D   0x03
-
-#define GpsFixValid() (gps.fix == GPS_FIX_3D)
-
-/*
- * This part is used by the simulator to feed simulated data
- *
- */
-#ifdef SITL
-
-extern bool_t gps_available;
-#define GPS_LINKChAvailable() (FALSE)
-#define GPS_LINKGetch() (TRUE)
-#include "nps_sensors.h"
-#include "generated/flight_plan.h"
-
-static inline void  gps_feed_value() {
-  gps.ecef_pos.x = sensors.gps.ecef_pos.x * 100.;
-  gps.ecef_pos.y = sensors.gps.ecef_pos.y * 100.;
-  gps.ecef_pos.z = sensors.gps.ecef_pos.z * 100.;
-  gps.ecef_vel.x = sensors.gps.ecef_vel.x * 100.;
-  gps.ecef_vel.y = sensors.gps.ecef_vel.y * 100.;
-  gps.ecef_vel.z = sensors.gps.ecef_vel.z * 100.;
-  gps.lla_pos.lat = DegOfRad(sensors.gps.lla_pos.lat) * 1e7;
-  gps.lla_pos.lon = DegOfRad(sensors.gps.lla_pos.lon) * 1e7;
-  gps.lla_pos.alt = sensors.gps.lla_pos.alt * 100.;
-  gps.hmsl        = sensors.gps.hmsl * 100.;
-  gps.fix = GPS_FIX_3D;
-  gps_available = TRUE;
-}
-
-#define GpsEvent(_sol_available_callback) {			\
-    if (gps_available) {					\
-      if (gps.fix == GPS_FIX_3D)               \
-        gps.lost_counter = 0;			\
-      _sol_available_callback();				\
-      gps_available = FALSE;				\
-    }								\
-  }
-#else /* ! SITL */
+#ifndef SITL
 /*
  * This part is used by the autopilot to read data from a uart
  *
  */
-
 
 #define __GpsLink(dev, _x) dev##_x
 #define _GpsLink(dev, _x)  __GpsLink(dev, _x)
@@ -122,14 +97,19 @@ static inline void  gps_feed_value() {
 
 #define GpsBuffer() GpsLink(ChAvailable())
 
-
-
-
 #endif /* !SITL */
 
 
+/* GPS model specific init implementation */
+extern void gps_impl_init(void);
+
 extern void gps_init(void);
 
+
+
+//TODO
+// this is only true for a 512Hz main loop
+// needs to work with different main loop frequencies
 static inline void gps_periodic( void ) {
   RunOnceEvery(128, gps.lost_counter++; );
 }

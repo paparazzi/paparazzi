@@ -16,3 +16,5 @@ endif
 
 sim.CFLAGS += -DUSE_GPS
 sim.srcs += $(SRC_SUBSYSTEMS)/gps.c
+sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim_nps.h\"
+sim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim_nps.c

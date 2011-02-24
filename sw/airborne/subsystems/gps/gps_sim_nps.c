@@ -19,19 +19,26 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#include "subsystems/gps/gps_sim_nps.h"
 #include "subsystems/gps.h"
 
-#include "led.h"
+bool_t gps_available;
 
-struct GpsState gps;
+void  gps_feed_value() {
+  gps.ecef_pos.x = sensors.gps.ecef_pos.x * 100.;
+  gps.ecef_pos.y = sensors.gps.ecef_pos.y * 100.;
+  gps.ecef_pos.z = sensors.gps.ecef_pos.z * 100.;
+  gps.ecef_vel.x = sensors.gps.ecef_vel.x * 100.;
+  gps.ecef_vel.y = sensors.gps.ecef_vel.y * 100.;
+  gps.ecef_vel.z = sensors.gps.ecef_vel.z * 100.;
+  gps.lla_pos.lat = DegOfRad(sensors.gps.lla_pos.lat) * 1e7;
+  gps.lla_pos.lon = DegOfRad(sensors.gps.lla_pos.lon) * 1e7;
+  gps.lla_pos.alt = sensors.gps.lla_pos.alt * 100.;
+  gps.hmsl        = sensors.gps.hmsl * 100.;
+  gps.fix = GPS_FIX_3D;
+  gps_available = TRUE;
+}
 
-
-void gps_init(void) {
-  gps.fix = GPS_FIX_NONE;
-#ifdef GPS_LED
-  LED_OFF(GPS_LED);
-#endif
-#ifdef GPS_TYPE_H
-  gps_impl_init();
-#endif
+void gps_impl_init() {
+  gps_available = FALSE;
 }

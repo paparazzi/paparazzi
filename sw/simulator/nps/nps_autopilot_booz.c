@@ -33,7 +33,7 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
 }
 
 #include <stdio.h>
-#include "booz_gps.h"
+#include "subsystems/gps.h"
 
 void nps_autopilot_run_step(double time __attribute__ ((unused))) {
 
@@ -58,7 +58,7 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
   }
 
   if (nps_sensors_gps_available()) {
-    booz_gps_feed_value();
+    gps_feed_value();
     main_event();
   }
 
