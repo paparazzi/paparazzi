@@ -30,7 +30,7 @@
 
 #include "downlink.h"
 
-#include "booz/booz_radio_control.h"
+#include "subsystems/radio_control.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -65,7 +65,7 @@ static inline void main_periodic_task( void ) {
     DOWNLINK_SEND_TIME(DefaultChannel, &blaaa);
   });
 
-  RunOnceEvery(10, {radio_control_periodic();});
+  RunOnceEvery(10, {radio_control_periodic_task();});
 
   int16_t foo = 0;//RC_PPM_SIGNED_TICS_OF_USEC(2050-1500);
   RunOnceEvery(10,
