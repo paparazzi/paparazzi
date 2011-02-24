@@ -153,8 +153,8 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
   imu_aspirin_arch_int_enable();
 }
 
-#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) {		\
+#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) do {		\
   imu_aspirin_event(_gyro_handler, _accel_handler, _mag_handler); \
-  }
+  } while(0);
 
 #endif /* IMU_ASPIRIN_H */
