@@ -1100,7 +1100,7 @@
     <field name="baro_qfe"    type="int32"/>
   </message>
 
-  <message name="BOOZ2_GPS" id="155">
+  <message name="GPS_INT" id="155">
     <field name="ecef_x"  type="int32" alt_unit="m"   alt_unit_coef="0.01"/>
     <field name="ecef_y"  type="int32" alt_unit="m"   alt_unit_coef="0.01"/>
     <field name="ecef_z"  type="int32" alt_unit="m"   alt_unit_coef="0.01"/>

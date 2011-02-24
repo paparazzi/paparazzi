@@ -26,7 +26,7 @@
 #include "firmwares/rotorcraft/navigation.h"
 
 #include "pprz_debug.h"
-#include "booz_gps.h"
+#include "subsystems/gps.h"
 #include "subsystems/ins.h"
 
 #include "firmwares/rotorcraft/autopilot.h"
@@ -260,8 +260,8 @@ unit_t nav_reset_alt( void ) {
   ins_vf_realign = TRUE;
 
 #ifdef USE_GPS
-  ins_ltp_def.lla.alt = booz_gps_state.lla_pos.alt;
-  ins_ltp_def.hmsl = booz_gps_state.hmsl;
+  ins_ltp_def.lla.alt = gps.lla_pos.alt;
+  ins_ltp_def.hmsl = gps.hmsl;
 #endif
 
   return 0;

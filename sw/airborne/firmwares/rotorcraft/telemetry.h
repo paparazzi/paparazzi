@@ -47,7 +47,7 @@
 
 #include "firmwares/rotorcraft/battery.h"
 #include "subsystems/imu.h"
-#include "booz_gps.h"
+#include "subsystems/gps.h"
 #include "subsystems/ins.h"
 #include "subsystems/ahrs.h"
 //FIXME: wtf ??!!
@@ -64,7 +64,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			      &_twi_blmc_nb_err,			\
 			      &radio_control.status,			\
 			      &radio_control.frame_rate,			\
-			      &booz_gps_state.fix,			\
+			      &gps.fix,			\
 			      &autopilot_mode,			\
 			      &autopilot_in_flight,		\
 			      &autopilot_motors_on,		\
@@ -78,7 +78,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_ROTORCRAFT_STATUS(_chan) {				\
     uint32_t imu_nb_err = 0;					\
     uint8_t twi_blmc_nb_err = 0;					\
-    uint8_t  fix = BOOZ2_GPS_FIX_NONE;					\
+    uint8_t  fix = GPS_FIX_NONE;					\
     DOWNLINK_SEND_ROTORCRAFT_STATUS(_chan,					\
 			      &imu_nb_err,				\
 			      &twi_blmc_nb_err,				\
@@ -624,7 +624,6 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
       &guidance_h_accel_ref.y); \
 }
 
-#include "booz_gps.h"
 #include "firmwares/rotorcraft/navigation.h"
 #define PERIODIC_SEND_BOOZ2_FP(_chan) {					\
     int32_t carrot_up = -guidance_v_z_sp;				\
@@ -647,26 +646,26 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 #ifdef USE_GPS
-#define PERIODIC_SEND_BOOZ2_GPS(_chan) {				\
-    DOWNLINK_SEND_BOOZ2_GPS( _chan,					\
-			     &booz_gps_state.ecef_pos.x,		\
-			     &booz_gps_state.ecef_pos.y,		\
-			     &booz_gps_state.ecef_pos.z,		\
-			     &booz_gps_state.lla_pos.lat,		\
-			     &booz_gps_state.lla_pos.lon,		\
-			     &booz_gps_state.lla_pos.alt,		\
-			     &booz_gps_state.ecef_vel.x,		\
-			     &booz_gps_state.ecef_vel.y,		\
-			     &booz_gps_state.ecef_vel.z,		\
-			     &booz_gps_state.pacc,			\
-			     &booz_gps_state.sacc,			\
-			     &booz_gps_state.tow,			\
-			     &booz_gps_state.pdop,			\
-			     &booz_gps_state.num_sv,			\
-			     &booz_gps_state.fix);			\
+#define PERIODIC_SEND_GPS_INT(_chan) {				\
+    DOWNLINK_SEND_GPS_INT( _chan,					\
+			     &gps.ecef_pos.x,		\
+			     &gps.ecef_pos.y,		\
+			     &gps.ecef_pos.z,		\
+			     &gps.lla_pos.lat,		\
+			     &gps.lla_pos.lon,		\
+			     &gps.lla_pos.alt,		\
+			     &gps.ecef_vel.x,		\
+			     &gps.ecef_vel.y,		\
+			     &gps.ecef_vel.z,		\
+			     &gps.pacc,			\
+			     &gps.sacc,			\
+			     &gps.tow,			\
+			     &gps.pdop,			\
+			     &gps.num_sv,			\
+			     &gps.fix);			\
   }
 #else
-#define PERIODIC_SEND_BOOZ2_GPS(_chan) {}
+#define PERIODIC_SEND_GPS(_chan) {}
 #endif
 
 #include "firmwares/rotorcraft/navigation.h"
