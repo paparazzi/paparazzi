@@ -61,13 +61,12 @@ struct ImuFloat {
 };
 
 extern void imu_float_init(struct ImuFloat* imuf);
+extern struct Imu imu;
 
 /* underlying hardware */
 #ifdef IMU_TYPE_H
 #include IMU_TYPE_H
 #endif
-
-extern struct Imu imu;
 
 extern void imu_init(void);
 
