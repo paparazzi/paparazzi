@@ -122,3 +122,9 @@
 /sw/airborne/arch/lpc21/test/bootloader/bl_ram.map
 /sw/airborne/arch/lpc21/test/bootloader/bl_ram.elf
 /sw/airborne/arch/lpc21/test/bootloader/crt.lst
+
+# /sw/airborne/test
+/sw/airborne/test/test_geodetic
+/sw/airborne/test/test_algebra
+/sw/airborne/test/test_matrix
+/sw/airborne/test/test_att

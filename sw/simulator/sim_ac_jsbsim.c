@@ -253,7 +253,7 @@ void jsbsim_init(void) {
       IC->SetLatitudeDegIC(NAV_LAT0 / 1e7);
       IC->SetLongitudeDegIC(NAV_LON0 / 1e7);
           
-      IC->SetAltitudeASLFtIC(GROUND_ALT / FT2M);
+      IC->SetAltitudeASLFtIC((GROUND_ALT + 2.0) / FT2M);
       IC->SetTerrainElevationFtIC(GROUND_ALT / FT2M);
       IC->SetPsiDegIC(QFU);
       IC->SetVgroundFpsIC(0.);

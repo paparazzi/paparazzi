@@ -257,7 +257,7 @@ void parse_gps_msg( void ) {
       gps_status_flags = UBX_NAV_STATUS_Flags(ubx_msg_buf);
       gps_sol_flags = UBX_NAV_SOL_Flags(ubx_msg_buf);
 #ifdef GPS_USE_LATLONG
-  /* Computes from (lat, long) in the referenced UTM zone */
+      /* Computes from (lat, long) in the referenced UTM zone */
     } else if (ubx_id == UBX_NAV_POSLLH_ID) {
       gps_lat = UBX_NAV_POSLLH_LAT(ubx_msg_buf);
       gps_lon = UBX_NAV_POSLLH_LON(ubx_msg_buf);
@@ -275,7 +275,7 @@ void parse_gps_msg( void ) {
       gps_utm_north = UBX_NAV_POSUTM_NORTH(ubx_msg_buf);
       uint8_t hem = UBX_NAV_POSUTM_HEM(ubx_msg_buf);
       if (hem == UTM_HEM_SOUTH)
-    gps_utm_north -= 1000000000; /* Subtract false northing: -10000km */
+        gps_utm_north -= 1000000000; /* Subtract false northing: -10000km */
       gps_alt = UBX_NAV_POSUTM_ALT(ubx_msg_buf);
       gps_utm_zone = UBX_NAV_POSUTM_ZONE(ubx_msg_buf);
 #endif
@@ -306,12 +306,12 @@ void parse_gps_msg( void ) {
       gps_nb_channels = Min(UBX_NAV_SVINFO_NCH(ubx_msg_buf), GPS_NB_CHANNELS);
       uint8_t i;
       for(i = 0; i < gps_nb_channels; i++) {
-    gps_svinfos[i].svid = UBX_NAV_SVINFO_SVID(ubx_msg_buf, i);
-    gps_svinfos[i].flags = UBX_NAV_SVINFO_Flags(ubx_msg_buf, i);
-    gps_svinfos[i].qi = UBX_NAV_SVINFO_QI(ubx_msg_buf, i);
-    gps_svinfos[i].cno = UBX_NAV_SVINFO_CNO(ubx_msg_buf, i);
-    gps_svinfos[i].elev = UBX_NAV_SVINFO_Elev(ubx_msg_buf, i);
-    gps_svinfos[i].azim = UBX_NAV_SVINFO_Azim(ubx_msg_buf, i);
+        gps_svinfos[i].svid = UBX_NAV_SVINFO_SVID(ubx_msg_buf, i);
+        gps_svinfos[i].flags = UBX_NAV_SVINFO_Flags(ubx_msg_buf, i);
+        gps_svinfos[i].qi = UBX_NAV_SVINFO_QI(ubx_msg_buf, i);
+        gps_svinfos[i].cno = UBX_NAV_SVINFO_CNO(ubx_msg_buf, i);
+        gps_svinfos[i].elev = UBX_NAV_SVINFO_Elev(ubx_msg_buf, i);
+        gps_svinfos[i].azim = UBX_NAV_SVINFO_Azim(ubx_msg_buf, i);
       }
     }
   }

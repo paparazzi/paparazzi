@@ -127,6 +127,9 @@ static inline double normalize_from_pprz(int command) {
 void copy_inputs_to_jsbsim(FGFDMExec* FDMExec) {
   static double throttle_slewed = 0.;
   static double th = 0.;
+#ifndef JSBSIM_LAUNCHSPEED
+#define JSBSIM_LAUNCHSPEED 20.0 //launch speed in m/s aligned with airframe body forward
+#endif
   if (run_model) th += 0.01;
   if (th >= 1) th = 1;
   // detect launch
@@ -134,8 +137,9 @@ void copy_inputs_to_jsbsim(FGFDMExec* FDMExec) {
     run_model = true;
     //set_value(FDMExec, "propulsion/set-running", 1);
     // set initial speed
-    FDMExec->GetIC()->SetAltitudeAGLFtIC(5.0 / FT2M);
-    FDMExec->GetIC()->SetVgroundFpsIC(20./FT2M);
+    //FDMExec->GetIC()->SetAltitudeAGLFtIC(5.0 / FT2M);
+    //FDMExec->GetIC()->SetVgroundFpsIC(20./FT2M);
+    FDMExec->GetIC()->SetUBodyFpsIC( JSBSIM_LAUNCHSPEED / FT2M);
     FDMExec->RunIC();
     th = 0.;
   }

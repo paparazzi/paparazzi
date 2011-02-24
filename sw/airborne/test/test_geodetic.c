@@ -21,9 +21,10 @@
 #define EM7RAD_OF_RAD(_r) (_r*1e7)
 #define RAD_OF_EM7RAD(_r) (_r/1e7)
 
+static void test_lla_of_utm(void);
 static void test_floats(void);
 static void test_doubles(void);
-static void  test_enu_of_ecef_int(void);
+static void test_enu_of_ecef_int(void);
 static void test_ned_to_ecef_to_ned(void);
 static void test_enu_to_ecef_to_enu( void );
 
@@ -35,6 +36,9 @@ int main(int argc, char** argv) {
 
   test_floats();
   test_doubles();
+
+  test_lla_of_utm();
+
   //  test_enu_of_ecef_int();
   //  test_ned_to_ecef_to_ned();
 
@@ -43,6 +47,17 @@ int main(int argc, char** argv) {
 
 }
 
+static void test_lla_of_utm(void) {
+  printf("\n--- lla of UTM double ---\n");
+
+  struct UTMCoor_d u = { .east=348805.71, .north=4759354.89, .zone=31 };
+  struct LlaCoor_d l;
+  struct LlaCoor_d l_ref = {.lat=0.749999999392454875,
+                            .lon=0.019999999054505127};
+  lla_of_utm(&l, &u);
+  printf("    lat=%.16f     lon=%.16f\nref_lat=%.16f ref_lon=%.16f\n",
+         l.lat, l.lon, l_ref.lat, l_ref.lon);
+}
 
 static void test_floats(void) {
 
