@@ -67,7 +67,7 @@ void gps_skytraq_read_message(void) {
     //     gps.pdop       = SKYTRAQ_NAVIGATION_DATA_PDOP(gps_skytraq.msg_buf);
     gps.num_sv      = SKYTRAQ_NAVIGATION_DATA_NumSV(gps_skytraq.msg_buf);
     gps.fix         = SKYTRAQ_NAVIGATION_DATA_FixMode(gps_skytraq.msg_buf);
-    gps.tow         = SKYTRAQ_NAVIGATION_DATA_TOW(gps_skytraq.msg_buf);
+    gps.tow         = SKYTRAQ_NAVIGATION_DATA_TOW(gps_skytraq.msg_buf)/10;
     //DEBUG_S2_TOGGLE();
 
 #ifdef GPS_LED

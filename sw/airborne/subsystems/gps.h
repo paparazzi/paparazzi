@@ -45,14 +45,14 @@
 
 
 #ifndef GPS_NB_CHANNELS
-#define GPS_NB_CHANNELS 16
+#define GPS_NB_CHANNELS 1
 #endif
 
 /** Number of scanned satellites */
 extern uint8_t gps_nb_channels;
 
 /** Space Vehicle Information */
-struct svinfo {
+struct SVinfo {
   uint8_t svid;
   uint8_t flags;
   uint8_t qi;
@@ -61,19 +61,20 @@ struct svinfo {
   int16_t azim; /** deg */
 };
 
-extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
-
 struct GpsState {
-  struct EcefCoor_i ecef_pos;    /* pos ECEF in cm        */
-  struct EcefCoor_i ecef_vel;    /* speed ECEF in cm/s    */
-  struct LlaCoor_i lla_pos;      /* pos LLA               */
-  int32_t hmsl;                  /* above mean sea level  */
-  uint32_t pacc;                 /* position accuracy     */
-  uint32_t sacc;                 /* speed accuracy        */
-  uint16_t pdop;                 /* dilution of precision */
-  uint8_t  num_sv;               /* number of sat in fix  */
-  uint8_t  fix;                  /* status of fix         */
-  uint32_t tow;                  /* time of week in 1e-2s */
+  struct EcefCoor_i ecef_pos;    ///< pos ECEF in cm
+  struct LlaCoor_i lla_pos;      ///< pos LLA
+  struct EcefCoor_i ecef_vel;    ///< speed ECEF in cm/s
+  struct NedCoor_i ned_vel;      ///< speed ECEF in cm/s
+  int32_t hmsl;                  ///< height above mean sea level
+  uint32_t pacc;                 ///< position accuracy
+  uint32_t sacc;                 ///< speed accuracy
+  uint16_t pdop;                 ///< dilution of precision
+  uint8_t num_sv;                ///< number of sat in fix
+  uint8_t fix;                   ///< status of fix
+  uint32_t tow;                  ///< time of week in ms
+
+  struct SVinfo svinfos[GPS_NB_CHANNELS];
 
   uint8_t  lost_counter;         /* updated at 4Hz        */
 };
@@ -88,9 +89,7 @@ extern void gps_impl_init(void);
 #ifndef SITL
 /*
  * This part is used by the autopilot to read data from a uart
- *
  */
-
 #define __GpsLink(dev, _x) dev##_x
 #define _GpsLink(dev, _x)  __GpsLink(dev, _x)
 #define GpsLink(_x) _GpsLink(GPS_LINK, _x)
@@ -100,10 +99,13 @@ extern void gps_impl_init(void);
 #endif /* !SITL */
 
 
+
+extern void gps_init(void);
+
 /* GPS model specific init implementation */
 extern void gps_impl_init(void);
 
-extern void gps_init(void);
+extern void gps_configure(void);
 
 
 

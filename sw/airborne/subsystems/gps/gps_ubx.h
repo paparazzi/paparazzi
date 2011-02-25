@@ -19,20 +19,27 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file gps_ubx.h
+ * @brief UBX protocol specific code
+ *
+ */
+
 #ifndef GPS_UBX_H
 #define GPS_UBX_H
 
+/** Includes macros generated from ubx.xml */
 #include "ubx_protocol.h"
 
 #define GPS_NB_CHANNELS 16
 
 #define GPS_UBX_MAX_PAYLOAD 255
-struct BoosGpsUbx {
+struct GpsUbx {
   bool_t  msg_available;
   uint8_t msg_buf[GPS_UBX_MAX_PAYLOAD] __attribute__ ((aligned));
   uint8_t msg_id;
   uint8_t msg_class;
 
+  uint8_t nb_channels;
   uint8_t  status;
   uint16_t len;
   uint8_t  msg_idx;
@@ -41,7 +48,7 @@ struct BoosGpsUbx {
   uint8_t  error_last;
 };
 
-extern struct BoosGpsUbx gps_ubx;
+extern struct GpsUbx gps_ubx;
 
 extern void gps_ubx_read_message(void);
 extern void gps_ubx_parse(uint8_t c);
