@@ -53,7 +53,7 @@ struct EcefCoor_f {
 struct LlaCoor_f {
   float lon;///< in radians
   float lat;///< in radians
-  float alt;///< in meters above MSL
+  float alt;///< in meters above WGS84 reference ellipsoid
 };
 
 /**

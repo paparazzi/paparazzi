@@ -9,6 +9,7 @@
 static void start_transaction(struct i2c_periph* p);
 
 
+static inline void i2c2_hard_reset(void);
 
 #ifdef USE_I2C1
 
@@ -298,11 +299,14 @@ void i2c2_hw_init(void) {
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
 
+  i2c2_hard_reset();
+
   /* I2C Peripheral Enable ----------------------------------------------------*/
   I2C_Cmd(I2C2, ENABLE);
 
   /* Apply I2C configuration after enabling it */
   I2C2_APPLY_CONFIG();
+
 
   /* Enable I2C2 error interrupts ---------------------------------------------*/
   I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);
@@ -346,34 +350,69 @@ static inline void on_status_restart_requested(struct i2c_transaction* trans, ui
       start_transaction(&i2c2);						\
   }
 
+#define I2C_BUSY 0x20
+static inline void i2c2_hard_reset(void)
+{
+	I2C_DeInit(I2C2);
+
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
+	GPIO_SetBits(GPIOB, GPIO_Pin_10 | GPIO_Pin_11);
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	while(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_11) == Bit_RESET) {
+		// Raise SCL, wait until SCL is high (in case of clock stretching)
+		GPIO_SetBits(GPIOB, GPIO_Pin_10);
+		while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_10) == Bit_RESET);
+    for (__IO int j = 0; j < 50; j++);
+		
+		// Lower SCL, wait
+		GPIO_ResetBits(GPIOB, GPIO_Pin_10);
+    for (__IO int j = 0; j < 50; j++);
+		
+		// Raise SCL, wait
+		GPIO_SetBits(GPIOB, GPIO_Pin_10);
+    for (__IO int j = 0; j < 50; j++);
+	}
+		
+	// Generate a start condition followed by a stop condition
+	GPIO_SetBits(GPIOB, GPIO_Pin_10);
+  for (__IO int j = 0; j < 50; j++);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_11);
+  for (__IO int j = 0; j < 50; j++);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_11);
+  for (__IO int j = 0; j < 50; j++);
+
+	// Raise both SCL and SDA and wait for SCL high (in case of clock stretching)
+	GPIO_SetBits(GPIOB, GPIO_Pin_10 | GPIO_Pin_11);
+	while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_10) == Bit_RESET);
+
+	// Wait for SDA to be high
+	while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_11) != Bit_SET);
+
+	// SCL and SDA should be high at this point, bus should be free
+	// Return the GPIO pins to the alternate function
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	I2C_DeInit(I2C2);
+
+  I2C2_APPLY_CONFIG();
+
+	if (I2C2->SR2 & I2C_BUSY) {
+		// Reset the I2C block
+		I2C_SoftwareResetCmd(I2C2, ENABLE);
+		I2C_SoftwareResetCmd(I2C2, DISABLE);
+	}
+}
+
 #define I2C2_ABORT_AND_RESET() {					\
     struct i2c_transaction* trans = i2c2.trans[i2c2.trans_extract_idx];	\
     trans->status = I2CTransFailed;    \
     I2C_ITConfig(I2C2, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);	\
-    I2C_ClearITPendingBit(I2C2, 0xFF); \
-    I2C_Cmd(I2C2, DISABLE);						\
-    I2C_DeInit(I2C2);							\
-    I2C2_APPLY_CONFIG();						\
-    I2C_Cmd(I2C2, ENABLE);						\
-    /* do something to unstuck the bus */ \
-    GPIO_InitTypeDef GPIO_InitStructure; \
-    GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_10; \
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz; \
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; \
-    GPIO_Init(GPIOB, &GPIO_InitStructure); \
-    for (__IO int i = 0; i < 10; i++) {\
-      for (__IO int j = 0; j < 50; j++); \
-    GPIOB->BSRR = GPIO_Pin_10; \
-      for (__IO int j = 0; j < 50; j++); \
-    GPIOB->BRR = GPIO_Pin_10; \
-    } \
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD; \
-    GPIO_Init(GPIOB, &GPIO_InitStructure); \
-    I2C_Cmd(I2C2, DISABLE);						\
-    I2C_DeInit(I2C2);							\
-    I2C2_APPLY_CONFIG();						\
-    I2C_Cmd(I2C2, ENABLE);						\
-    I2C_ClearITPendingBit(I2C2, 0xFF); \
+    i2c2_hard_reset(); \
     I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);				\
     I2C2_END_OF_TRANSACTION(); \
   }
@@ -681,13 +720,6 @@ void i2c2_er_irq_handler(void) {
   if (I2C_GetITStatus(I2C2, I2C_IT_AF)) {       /* Acknowledge failure */
     i2c2_errors.ack_fail_cnt++;
     I2C_ClearITPendingBit(I2C2, I2C_IT_AF);
-    I2C_GenerateSTOP(I2C2, ENABLE);
-    /* Make sure that the STOP bit is cleared by Hardware */
-    static __IO uint8_t counter = 0;
-    while ((I2C2->CR1&0x200) == 0x200) {
-      counter++;
-      if (counter > 100) break;
-    }
   }
   if (I2C_GetITStatus(I2C2, I2C_IT_BERR)) {     /* Misplaced Start or Stop condition */
     i2c2_errors.miss_start_stop_cnt++;

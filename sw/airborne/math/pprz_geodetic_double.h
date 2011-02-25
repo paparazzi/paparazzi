@@ -54,7 +54,7 @@ struct EcefCoor_d {
 struct LlaCoor_d {
   double lon; ///< in radians
   double lat; ///< in radians
-  double alt; ///< in meters above MSL
+  double alt; ///< in meters above WGS84 reference ellipsoid
 };
 
 /**
@@ -82,7 +82,7 @@ struct UTMCoor_d {
   double north; ///< in meters
   double east; ///< in meters
   uint8_t zone; ///< UTM zone number
-};
+};//TODO add altitude above MSL or above reference ellipsoid??
 
 /**
  * @brief definition of the local (flat earth) coordinate system
