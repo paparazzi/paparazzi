@@ -43,6 +43,9 @@
 #define GPS_UBX_ERR_UNEXPECTED   4
 #define GPS_UBX_ERR_OUT_OF_SYNC  5
 
+#define UTM_HEM_NORTH 0
+#define UTM_HEM_SOUTH 1
+
 struct GpsUbx gps_ubx;
 
 void gps_impl_init(void) {
@@ -57,8 +60,8 @@ void gps_ubx_read_message(void) {
 
   if (gps_ubx.msg_class == UBX_NAV_ID) {
     if (gps_ubx.msg_id == UBX_NAV_SOL_ID) {
-      gps.tow        = UBX_NAV_SOL_ITOW(ubx_msg_buf);
-      gps.week       = UBX_NAV_SOL_week(ubx_msg_buf);
+      gps.tow        = UBX_NAV_SOL_ITOW(gps_ubx.msg_buf);
+      gps.week       = UBX_NAV_SOL_week(gps_ubx.msg_buf);
       gps.fix        = UBX_NAV_SOL_GPSfix(gps_ubx.msg_buf);
       gps.ecef_pos.x = UBX_NAV_SOL_ECEF_X(gps_ubx.msg_buf);
       gps.ecef_pos.y = UBX_NAV_SOL_ECEF_Y(gps_ubx.msg_buf);
@@ -84,32 +87,32 @@ void gps_ubx_read_message(void) {
       gps.lla_pos.alt = UBX_NAV_POSLLH_HEIGHT(gps_ubx.msg_buf) / 10;
       gps.hmsl        = UBX_NAV_POSLLH_HMSL(gps_ubx.msg_buf) / 10;
     }
-    else if (ubx_id == UBX_NAV_POSUTM_ID) {
-      gps.utm_pos.east = UBX_NAV_POSUTM_EAST(ubx_msg_buf);
-      gps.utm_pos.north = UBX_NAV_POSUTM_NORTH(ubx_msg_buf);
-      uint8_t hem = UBX_NAV_POSUTM_HEM(ubx_msg_buf);
+    else if (gps_ubx.msg_id == UBX_NAV_POSUTM_ID) {
+      gps.utm_pos.east = UBX_NAV_POSUTM_EAST(gps_ubx.msg_buf);
+      gps.utm_pos.north = UBX_NAV_POSUTM_NORTH(gps_ubx.msg_buf);
+      uint8_t hem = UBX_NAV_POSUTM_HEM(gps_ubx.msg_buf);
       if (hem == UTM_HEM_SOUTH)
         gps.utm_pos.north -= 1000000000; /* Subtract false northing: -10000km */
-      gps.utm_pos.alt = UBX_NAV_POSUTM_ALT(ubx_msg_buf);
-      gps.utm_pos.zone = UBX_NAV_POSUTM_ZONE(ubx_msg_buf);
+      gps.utm_pos.alt = UBX_NAV_POSUTM_ALT(gps_ubx.msg_buf);
+      gps.utm_pos.zone = UBX_NAV_POSUTM_ZONE(gps_ubx.msg_buf);
     }
-    else if (ubx_id == UBX_NAV_VELNED_ID) {
-      //gps_speed_3d = UBX_NAV_VELNED_Speed(ubx_msg_buf);
-      //gps_gspeed = UBX_NAV_VELNED_GSpeed(ubx_msg_buf);
-      //gps_climb = - UBX_NAV_VELNED_VEL_D(ubx_msg_buf);
-      //gps_course = UBX_NAV_VELNED_Heading(ubx_msg_buf) / 10000;
-      gps.tow = UBX_NAV_VELNED_ITOW(ubx_msg_buf);
+    else if (gps_ubx.msg_id == UBX_NAV_VELNED_ID) {
+      //gps_speed_3d = UBX_NAV_VELNED_Speed(gps_ubx.msg_buf);
+      //gps_gspeed = UBX_NAV_VELNED_GSpeed(gps_ubx.msg_buf);
+      //gps_climb = - UBX_NAV_VELNED_VEL_D(gps_ubx.msg_buf);
+      //gps_course = UBX_NAV_VELNED_Heading(gps_ubx.msg_buf) / 10000;
+      gps.tow = UBX_NAV_VELNED_ITOW(gps_ubx.msg_buf);
     }
-    else if (ubx_id == UBX_NAV_SVINFO_ID) {
-      gps_ubx.nb_channels = Min(UBX_NAV_SVINFO_NCH(ubx_msg_buf), GPS_NB_CHANNELS);
+    else if (gps_ubx.msg_id == UBX_NAV_SVINFO_ID) {
+      gps_ubx.nb_channels = Min(UBX_NAV_SVINFO_NCH(gps_ubx.msg_buf), GPS_NB_CHANNELS);
       uint8_t i;
-      for(i = 0; i < gps_nb_channels; i++) {
-        gps.svinfos[i].svid = UBX_NAV_SVINFO_SVID(ubx_msg_buf, i);
-        gps.svinfos[i].flags = UBX_NAV_SVINFO_Flags(ubx_msg_buf, i);
-        gps.svinfos[i].qi = UBX_NAV_SVINFO_QI(ubx_msg_buf, i);
-        gps.svinfos[i].cno = UBX_NAV_SVINFO_CNO(ubx_msg_buf, i);
-        gps.svinfos[i].elev = UBX_NAV_SVINFO_Elev(ubx_msg_buf, i);
-        gps.svinfos[i].azim = UBX_NAV_SVINFO_Azim(ubx_msg_buf, i);
+      for(i = 0; i < gps_ubx.nb_channels; i++) {
+        gps.svinfos[i].svid = UBX_NAV_SVINFO_SVID(gps_ubx.msg_buf, i);
+        gps.svinfos[i].flags = UBX_NAV_SVINFO_Flags(gps_ubx.msg_buf, i);
+        gps.svinfos[i].qi = UBX_NAV_SVINFO_QI(gps_ubx.msg_buf, i);
+        gps.svinfos[i].cno = UBX_NAV_SVINFO_CNO(gps_ubx.msg_buf, i);
+        gps.svinfos[i].elev = UBX_NAV_SVINFO_Elev(gps_ubx.msg_buf, i);
+        gps.svinfos[i].azim = UBX_NAV_SVINFO_Azim(gps_ubx.msg_buf, i);
       }
     }
   }

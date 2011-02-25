@@ -34,18 +34,18 @@
 
 #define GPS_UBX_MAX_PAYLOAD 255
 struct GpsUbx {
-  bool_t  msg_available;
+  bool_t msg_available;
   uint8_t msg_buf[GPS_UBX_MAX_PAYLOAD] __attribute__ ((aligned));
   uint8_t msg_id;
   uint8_t msg_class;
 
   uint8_t nb_channels;
-  uint8_t  status;
+  uint8_t status;
   uint16_t len;
-  uint8_t  msg_idx;
-  uint8_t  ck_a, ck_b;
-  uint8_t  error_cnt;
-  uint8_t  error_last;
+  uint8_t msg_idx;
+  uint8_t ck_a, ck_b;
+  uint8_t error_cnt;
+  uint8_t error_last;
 };
 
 extern struct GpsUbx gps_ubx;

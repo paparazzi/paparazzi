@@ -62,16 +62,18 @@ struct SVinfo {
 };
 
 struct GpsState {
-  struct EcefCoor_i ecef_pos;    ///< pos ECEF in cm
-  struct LlaCoor_i lla_pos;      ///< pos LLA
+  struct EcefCoor_i ecef_pos;    ///< position in ECEF in cm
+  struct LlaCoor_i lla_pos;      ///< position in LLA
   struct EcefCoor_i ecef_vel;    ///< speed ECEF in cm/s
   struct NedCoor_i ned_vel;      ///< speed ECEF in cm/s
+  struct UTMCoor_i utm_pos;      ///< position in UTM
   int32_t hmsl;                  ///< height above mean sea level
   uint32_t pacc;                 ///< position accuracy
   uint32_t sacc;                 ///< speed accuracy
   uint16_t pdop;                 ///< dilution of precision
   uint8_t num_sv;                ///< number of sat in fix
   uint8_t fix;                   ///< status of fix
+  int16_t week;                  ///< GPS week
   uint32_t tow;                  ///< time of week in ms
 
   struct SVinfo svinfos[GPS_NB_CHANNELS];
@@ -80,10 +82,6 @@ struct GpsState {
 };
 
 extern struct GpsState gps;
-
-
-/* GPS model specific init implementation */
-extern void gps_impl_init(void);
 
 
 #ifndef SITL

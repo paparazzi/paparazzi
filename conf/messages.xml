@@ -19,15 +19,7 @@
      <field name="cpu_time" type="uint16" unit="s"></field>
    </message>
 
-<!-- add the following msg for debugging Haiyang 20080521-->
-   <message name="DebugChao" id="5">
-     <field name="int16_1" type="int16" unit="deg"></field>
-     <field name="int16_2" type="int16" unit="deg"></field>
-     <field name="int16_3" type="int16" unit="deg"></field>
-     <field name="int32_1" type="int32" unit="deg"></field>
-     <field name="int32_2" type="int32" unit="deg"></field>
-     <field name="int32_3" type="int32" unit="deg"></field>
-   </message>
+   <!-- 5 is free -->
 
    <message name="ATTITUDE" id="6">
      <field name="phi"   type="float" unit="rad" alt_unit="deg"/>
@@ -51,7 +43,7 @@
      <field name="alt"        type="int32"  unit="cm" alt_unit="m"/>
      <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
      <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s"/>
-     <field name="week"       type="uint16" unit="weeks"></field>
+     <field name="week"       type="uint16" unit="weeks"/>
      <field name="itow"       type="uint32" unit="ms"/>
      <field name="utm_zone"   type="uint8"/>
      <field name="gps_nb_err" type="uint8"/>

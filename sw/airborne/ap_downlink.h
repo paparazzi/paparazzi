@@ -184,14 +184,9 @@
 #define PERIODIC_SEND_GPS_SOL(_chan) DOWNLINK_SEND_GPS_SOL(_chan, &gps_Pacc, &gps_Sacc, &gps_PDOP, &gps_numSV)
 #endif
 
-/* add by Haiyang Chao for debugging msg used by osam_imu*/
-#if defined UGEAR
-#define PERIODIC_SEND_GPS(_chan) DOWNLINK_SEND_GPS(_chan, &gps_mode, &gps_utm_east, &gps_utm_north, &gps_course, &gps_alt, &gps_gspeed,&gps_climb, &gps_week, &gps_itow, &gps_utm_zone, &gps_nb_ovrn)
-#define PERIODIC_SEND_GPS_SOL(_chan) DOWNLINK_SEND_GPS_SOL(_chan, &gps_Pacc, &gps_Sacc, &gps_PDOP, &gps_numSV)
-#define PERIODIC_SEND_DebugChao(_chan) DOWNLINK_SEND_DebugChao(_chan, &ugear_debug1, &ugear_debug2, &ugear_debug3, &ugear_debug4, &ugear_debug5, &ugear_debug6)
-#else
-#define PERIODIC_SEND_GPS(_chan) gps_send()
-#endif
+//#define PERIODIC_SEND_GPS(_chan) gps_send() /* also sends svinfo */
+int16_t foobar = 0;
+#define PERIODIC_SEND_GPS(_chan) DOWNLINK_SEND_GPS(DefaultChannel, &gps.fix, &gps.utm_pos.east, &gps.utm_pos.north, &foobar, &gps.lla_pos.alt, &foobar, &foobar, &gps.week, &gps.tow, &gps.utm_pos.zone, &foobar);
 
 #ifdef USE_BARO_MS5534A
 //#include "baro_MS5534A.h"
