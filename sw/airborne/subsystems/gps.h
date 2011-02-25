@@ -64,9 +64,11 @@ struct SVinfo {
 struct GpsState {
   struct EcefCoor_i ecef_pos;    ///< position in ECEF in cm
   struct LlaCoor_i lla_pos;      ///< position in LLA
+  struct UTMCoor_i utm_pos;      ///< position in UTM
   struct EcefCoor_i ecef_vel;    ///< speed ECEF in cm/s
   struct NedCoor_i ned_vel;      ///< speed ECEF in cm/s
-  struct UTMCoor_i utm_pos;      ///< position in UTM
+  int32_t gspeed;                ///< norm of 2d ground speed in cm/s
+  int32_t speed_3d;              ///< norm of 3d speed in cm/s
   int32_t hmsl;                  ///< height above mean sea level
   uint32_t pacc;                 ///< position accuracy
   uint32_t sacc;                 ///< speed accuracy

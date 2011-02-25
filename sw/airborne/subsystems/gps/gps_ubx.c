@@ -97,9 +97,11 @@ void gps_ubx_read_message(void) {
       gps.utm_pos.zone = UBX_NAV_POSUTM_ZONE(gps_ubx.msg_buf);
     }
     else if (gps_ubx.msg_id == UBX_NAV_VELNED_ID) {
-      //gps_speed_3d = UBX_NAV_VELNED_Speed(gps_ubx.msg_buf);
-      //gps_gspeed = UBX_NAV_VELNED_GSpeed(gps_ubx.msg_buf);
-      //gps_climb = - UBX_NAV_VELNED_VEL_D(gps_ubx.msg_buf);
+      gps.speed_3d = UBX_NAV_VELNED_Speed(gps_ubx.msg_buf);
+      gps.gspeed = UBX_NAV_VELNED_GSpeed(gps_ubx.msg_buf);
+      gps.ned_vel.x = UBX_NAV_VELNED_VEL_N(gps_ubx.msg_buf);
+      gps.ned_vel.y = UBX_NAV_VELNED_VEL_E(gps_ubx.msg_buf);
+      gps.ned_vel.z = UBX_NAV_VELNED_VEL_D(gps_ubx.msg_buf);
       //gps_course = UBX_NAV_VELNED_Heading(gps_ubx.msg_buf) / 10000;
       gps.tow = UBX_NAV_VELNED_ITOW(gps_ubx.msg_buf);
     }
