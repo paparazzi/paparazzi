@@ -81,10 +81,11 @@ struct EnuCoor_i {
  * @brief position in UTM coordinates
  */
 struct UTMCoor_i {
-  int32_t north;
-  int32_t east;
+  int32_t north; ///< in centimeters
+  int32_t east; ///< in centimeters
+  int32_t alt; ///< in centimeters above WGS84 reference ellipsoid
   uint8_t zone; ///< UTM zone number
-};//TODO add altitude above MSL or above reference ellipsoid??
+};
 
 /**
  * @brief definition of the local (flat earth) coordinate system
