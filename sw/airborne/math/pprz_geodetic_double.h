@@ -81,8 +81,9 @@ struct EnuCoor_d {
 struct UTMCoor_d {
   double north; ///< in meters
   double east; ///< in meters
+  double alt; ///< in meters above WGS84 reference ellipsoid
   uint8_t zone; ///< UTM zone number
-};//TODO add altitude above MSL or above reference ellipsoid??
+};
 
 /**
  * @brief definition of the local (flat earth) coordinate system
