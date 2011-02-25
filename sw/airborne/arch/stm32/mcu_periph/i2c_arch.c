@@ -681,13 +681,6 @@ void i2c2_er_irq_handler(void) {
   if (I2C_GetITStatus(I2C2, I2C_IT_AF)) {       /* Acknowledge failure */
     i2c2_errors.ack_fail_cnt++;
     I2C_ClearITPendingBit(I2C2, I2C_IT_AF);
-    I2C_GenerateSTOP(I2C2, ENABLE);
-    /* Make sure that the STOP bit is cleared by Hardware */
-    static __IO uint8_t counter = 0;
-    while ((I2C2->CR1&0x200) == 0x200) {
-      counter++;
-      if (counter > 100) break;
-    }
   }
   if (I2C_GetITStatus(I2C2, I2C_IT_BERR)) {     /* Misplaced Start or Stop condition */
     i2c2_errors.miss_start_stop_cnt++;
