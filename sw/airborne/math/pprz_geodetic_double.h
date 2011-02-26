@@ -94,6 +94,7 @@ struct LtpDef_d {
   struct EcefCoor_d  ecef; ///< origin of local frame in ECEF
   struct LlaCoor_d   lla; ///< origin of local frame in LLA
   struct DoubleMat33 ltp_of_ecef; ///< rotation from ECEF to local frame
+  double hmsl; ///< height in meters above mean sea level
 };
 
 extern void lla_of_utm(struct LlaCoor_d* out, struct UTMCoor_d* in);

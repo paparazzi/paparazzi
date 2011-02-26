@@ -204,7 +204,6 @@ static inline double inverse_isometric_latitude(double lat, double e, double eps
     CI(v);					\
   }
 
-//TODO add altitude above MSL or above reference ellipsoid??
 void lla_of_utm(struct LlaCoor_d* out, struct UTMCoor_d* in) {
 
   //  struct DoubleVect2 v = {in->east - YS, in->north - XS};
@@ -224,5 +223,8 @@ void lla_of_utm(struct LlaCoor_d* out, struct UTMCoor_d* in) {
   double phi = asin (sin(v.x) / cosh(v.y));
   double il = isometric_latitude_fast(phi);
   out->lat = inverse_isometric_latitude(il, E, 1e-8);
+
+  // copy alt above reference ellipsoid
+  out->alt = in->alt;
 
 }
