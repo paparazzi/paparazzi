@@ -29,7 +29,7 @@
 #include "subsystems/ahrs/ahrs_float_dcm_algebra.h"
 
 #ifdef USE_GPS
-#include "gps.h"
+#include "subsystems/gps.h"
 #endif
 
 #include <string.h>
@@ -114,7 +114,7 @@ void ahrs_update_fw_estimator( void )
 
   estimator_p = Omega_Vector[0];
 
-  RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel, 
+  RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel,
     &(DCM_Matrix[0][0]),
     &(DCM_Matrix[0][1]),
     &(DCM_Matrix[0][2]),
@@ -214,9 +214,9 @@ void ahrs_update_accel(void)
   ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
 
 #ifdef USE_GPS
-  if (gps_mode==3) {    //Remove centrifugal acceleration.
-    accel_float.y += gps_speed_3d/100. * Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
-    accel_float.z -= gps_speed_3d/100. * Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY
+  if (gps.fix == GPS_FIX_3D) {    //Remove centrifugal acceleration.
+    accel_float.y += gps.speed_3d/100. * Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
+    accel_float.z -= gps.speed_3d/100. * Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY
   }
 #endif
 
@@ -372,10 +372,10 @@ void Drift_correction(void)
 
 #elif defined USE_GPS // Use GPS Ground course to correct yaw gyro drift
 
-  if(gps_mode==3 && gps_gspeed>= 500) { //got a 3d fix and ground speed is more than 0.5 m/s
-    float ground_course = gps_course/10. - 180.; //This is the runaway direction of you "plane" in degrees
-    float COGX = cos(RadOfDeg(ground_course)); //Course overground X axis
-    float COGY = sin(RadOfDeg(ground_course)); //Course overground Y axis
+  if(gps.fix == GPS_FIX_3D && gps.gspeed>= 500) { //got a 3d fix and ground speed is more than 0.5 m/s
+    float ground_course = ((float)gps.course)/1.e7 - M_PI; //This is the runaway direction of you "plane" in rad
+    float COGX = cosf(ground_course); //Course overground X axis
+    float COGY = sinf(ground_course); //Course overground Y axis
 
     errorCourse=(DCM_Matrix[0][0]*COGY) - (DCM_Matrix[1][0]*COGX);  //Calculating YAW error
     Vector_Scale(errorYaw,&DCM_Matrix[2][0],errorCourse); //Applys the yaw correction to the XYZ rotation of the aircraft, depeding the position.

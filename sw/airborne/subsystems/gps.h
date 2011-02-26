@@ -85,6 +85,12 @@ struct GpsState {
   uint16_t last_msg_time;
 };
 
+struct GpsTimeSync {
+  uint32_t t0_tow;      ///< for time sync: time of week in ms for time sync
+  int32_t t0_tow_frac;  ///< for time sync: fractional ns remainder of tow [ms], range -500000 .. 500000
+  uint32_t t0;          ///< for time sync: hw clock ticks when GPS message is received
+};
+
 extern struct GpsState gps;
 
 
@@ -121,6 +127,34 @@ static inline void gps_periodic( void ) {
 #define GpsIsLost() (gps.lost_counter > 20) /* 4Hz -> 5s */
 
 
+
+#ifdef GPS_TIMESTAMP
+#ifndef PCLK
+#error unknown PCLK frequency
+#endif
+
+extern struct GpsTimeSync gps_time;
+
+uint32_t gps_tow_from_ticks(uint32_t clock_ticks)
+{
+  uint32_t clock_delta;
+  uint32_t time_delta;
+  uint32_t itow_now;
+
+  if (clock_ticks < gps_t0) {
+    clock_delta = (0xFFFFFFFF - clock_ticks) + gps_time.t0 + 1;
+  } else {
+    clock_delta = clock_ticks - gps_time.t0;
+  }
+
+  time_delta = MSEC_OF_SYS_TICS(clock_delta);
+
+  itow_now = gps_time.t0_tow + time_delta;
+  if (itow_now > MSEC_PER_WEEK) itow_now %= MSEC_PER_WEEK;
+
+  return itow_now;
+}
+#endif
 
 
 #endif /* GPS_H */

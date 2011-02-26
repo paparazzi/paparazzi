@@ -25,6 +25,9 @@
 
 struct GpsState gps;
 
+#ifdef GPS_TIMESTAMP
+struct GpsTimeSync gps_time;
+#endif
 
 void gps_init(void) {
   gps.fix = GPS_FIX_NONE;
