@@ -29,12 +29,12 @@ static void test_enu_to_ecef_to_enu( void );
 
 int main(int argc, char** argv) {
 
-  test_floats();
-  test_doubles();
+  //test_floats();
+  //test_doubles();
 
   test_lla_of_utm();
 
-  test_enu_of_ecef_int();
+  //test_enu_of_ecef_int();
   //  test_ned_to_ecef_to_ned();
 
   // test_enu_to_ecef_to_enu();
@@ -45,13 +45,23 @@ int main(int argc, char** argv) {
 static void test_lla_of_utm(void) {
   printf("\n--- lla of UTM double ---\n");
 
-  struct UTMCoor_d u = { .east=348805.71, .north=4759354.89, .zone=31 };
-  struct LlaCoor_d l;
-  struct LlaCoor_d l_ref = {.lat=0.749999999392454875,
+  struct UtmCoor_d utm_d = { .east=348805.71, .north=4759354.89, .zone=31 };
+  struct LlaCoor_d lla_d;
+  struct LlaCoor_d l_ref_d = {.lat=0.749999999392454875,
                             .lon=0.019999999054505127};
-  lla_of_utm(&l, &u);
+  lla_of_utm_d(&lla_d, &utm_d);
   printf("    lat=%.16f     lon=%.16f\nref_lat=%.16f ref_lon=%.16f\n",
-         l.lat, l.lon, l_ref.lat, l_ref.lon);
+         lla_d.lat, lla_d.lon, l_ref_d.lat, l_ref_d.lon);
+
+  printf("\n--- lla of UTM float ---\n");
+
+  struct UtmCoor_f utm_f = { .east=348805.71, .north=4759354.89, .zone=31 };
+  struct LlaCoor_f lla_f;
+  struct LlaCoor_f l_ref_f = {.lat=0.749999999392454875,
+                            .lon=0.019999999054505127};
+  lla_of_utm_f(&lla_f, &utm_f);
+  printf("    lat=%.16f     lon=%.16f\nref_lat=%.16f ref_lon=%.16f\n",
+         lla_f.lat, lla_f.lon, l_ref_f.lat, l_ref_f.lon);
 }
 
 static void test_floats(void) {

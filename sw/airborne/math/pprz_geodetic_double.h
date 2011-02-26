@@ -78,7 +78,7 @@ struct EnuCoor_d {
 /**
  * @brief position in UTM coordinates
  * Units: meters */
-struct UTMCoor_d {
+struct UtmCoor_d {
   double north; ///< in meters
   double east; ///< in meters
   double alt; ///< in meters above WGS84 reference ellipsoid
@@ -97,7 +97,7 @@ struct LtpDef_d {
   double hmsl; ///< height in meters above mean sea level
 };
 
-extern void lla_of_utm(struct LlaCoor_d* out, struct UTMCoor_d* in);
+extern void lla_of_utm_d(struct LlaCoor_d* out, struct UtmCoor_d* in);
 extern void ltp_def_from_ecef_d(struct LtpDef_d* def, struct EcefCoor_d* ecef);
 extern void lla_of_ecef_d(struct LlaCoor_d* out, struct EcefCoor_d* in);
 extern void ecef_of_lla_d(struct EcefCoor_d* out, struct LlaCoor_d* in);

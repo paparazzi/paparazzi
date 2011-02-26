@@ -138,34 +138,17 @@ double gc_of_gd_lat_d(double gd_lat, double hmsl) {
 }
 
 
+#include "math/pprz_geodetic_utm.h"
 
-/* Computation for the WGS84 geoid only */
-#define E 0.08181919106
-#define K0 0.9996
-#define DELTA_EAST  500000.
-#define DELTA_NORTH 0.
-#define A 6378137.0
-#define N (K0*A)
-
-#define LambdaOfUtmZone(utm_zone) RadOfDeg((utm_zone-1)*6-180+3)
-
-static const float serie_coeff_proj_mercator[5] = {
-  0.99832429842242842444,
-  0.00083632803657738403,
-  0.00000075957783563707,
-  0.00000000119563131778,
-  0.00000000000241079916
-};
-
-static inline double isometric_latitude(double phi, double e) {
+static inline double isometric_latitude_d(double phi, double e) {
   return log (tan (M_PI_4 + phi / 2.0)) - e / 2.0 * log((1.0 + e * sin(phi)) / (1.0 - e * sin(phi)));
 }
 
-static inline double isometric_latitude_fast(double phi) {
+static inline double isometric_latitude_fast_d(double phi) {
   return log (tan (M_PI_4 + phi / 2.0));
 }
 
-static inline double inverse_isometric_latitude(double lat, double e, double epsilon) {
+static inline double inverse_isometric_latitude_d(double lat, double e, double epsilon) {
   double exp_l = exp(lat);
   double phi0 = 2 * atan(exp_l) - M_PI_2;
   double phi_;
@@ -204,27 +187,26 @@ static inline double inverse_isometric_latitude(double lat, double e, double eps
     CI(v);					\
   }
 
-void lla_of_utm(struct LlaCoor_d* out, struct UTMCoor_d* in) {
+void lla_of_utm_d(struct LlaCoor_d* lla, struct UtmCoor_d* utm) {
 
-  //  struct DoubleVect2 v = {in->east - YS, in->north - XS};
-  struct DoubleVect2 v = {in->north - DELTA_NORTH, in->east - DELTA_EAST};
+  struct DoubleVect2 v = {utm->north - DELTA_NORTH, utm->east - DELTA_EAST};
   double scale = 1 / N / serie_coeff_proj_mercator[0];
   VECT2_SMUL(v, v, scale);
 
   // first order taylor serie of something ?
   struct DoubleVect2 v1;
   VECT2_SMUL(v1, v, 2.);
-  CSin(v1)
+  CSin(v1);
   VECT2_SMUL(v1, v1, serie_coeff_proj_mercator[1]);
   VECT2_SUB(v, v1);
 
-  double lambda_c = LambdaOfUtmZone(in->zone);
-  out->lon = lambda_c + atan(sinh(v.y) / cos(v.x));
+  double lambda_c = LambdaOfUtmZone(utm->zone);
+  lla->lon = lambda_c + atan(sinh(v.y) / cos(v.x));
   double phi = asin (sin(v.x) / cosh(v.y));
-  double il = isometric_latitude_fast(phi);
-  out->lat = inverse_isometric_latitude(il, E, 1e-8);
+  double il = isometric_latitude_fast_d(phi);
+  lla->lat = inverse_isometric_latitude_d(il, E, 1e-8);
 
   // copy alt above reference ellipsoid
-  out->alt = in->alt;
+  lla->alt = utm->alt;
 
 }
