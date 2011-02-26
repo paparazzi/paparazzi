@@ -57,20 +57,20 @@ struct SVinfo {
   uint8_t flags;
   uint8_t qi;
   uint8_t cno;
-  int8_t elev; /** deg */
-  int16_t azim; /** deg */
+  int8_t elev;  ///< deg
+  int16_t azim; ///< deg
 };
 
 struct GpsState {
   struct EcefCoor_i ecef_pos;    ///< position in ECEF in cm
-  struct LlaCoor_i lla_pos;      ///< position in LLA
-  struct UTMCoor_i utm_pos;      ///< position in UTM
-  int32_t hmsl;                  ///< height above mean sea level
+  struct LlaCoor_i lla_pos;      ///< position in LLA (lat,lon: rad*1e7; alt: mm over ellipsoid)
+  struct UTMCoor_i utm_pos;      ///< position in UTM (north,east: cm; alt: mm over ellipsoid)
+  int32_t hmsl;                  ///< height above mean sea level in mm
   struct EcefCoor_i ecef_vel;    ///< speed ECEF in cm/s
   struct NedCoor_i ned_vel;      ///< speed ECEF in cm/s
   int32_t gspeed;                ///< norm of 2d ground speed in cm/s
   int32_t speed_3d;              ///< norm of 3d speed in cm/s
-  int32_t course;                ///< GPS heading in rad * 1e7
+  int32_t course;                ///< GPS heading in rad*1e7
   uint32_t pacc;                 ///< position accuracy
   uint32_t sacc;                 ///< speed accuracy
   uint16_t pdop;                 ///< dilution of precision
