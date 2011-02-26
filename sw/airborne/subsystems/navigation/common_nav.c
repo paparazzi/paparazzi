@@ -25,7 +25,8 @@
 #include "subsystems/navigation/common_nav.h"
 #include "estimator.h"
 #include "generated/flight_plan.h"
-#include "gps.h"
+#include "subsystems/gps.h"
+#include "math/pprz_geodetic_float.h"
 
 float dist2_to_home;
 float dist2_to_wp;
@@ -68,20 +69,25 @@ static float previous_ground_alt;
 unit_t nav_reset_reference( void ) {
 #ifdef GPS_USE_LATLONG
   /* Set the real UTM zone */
-  nav_utm_zone0 = (gps_lon/10000000+180) / 6 + 1;
+  nav_utm_zone0 = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
 
   /* Recompute UTM coordinates in this zone */
-  latlong_utm_of(RadOfDeg(gps_lat/1e7), RadOfDeg(gps_lon/1e7), nav_utm_zone0);
-  nav_utm_east0 = latlong_utm_x;
-  nav_utm_north0 = latlong_utm_y;
+  struct LlaCoor_f lla;
+  lla.lat = gps.lla_pos.lat/1e7;
+  lla.lon = gps.lla_pos.lon/1e7;
+  struct UtmCoor_f utm;
+  utm.zone = nav_utm_zone0;
+  utm_of_lla_f(&utm, &lla);
+  nav_utm_east0 = utm.east;
+  nav_utm_north0 = utm.north;
 #else
-  nav_utm_zone0 = gps_utm_zone;
-  nav_utm_east0 = gps_utm_east/100;
-  nav_utm_north0 = gps_utm_north/100;
+  nav_utm_zone0 = gps.utm_pos.zone;
+  nav_utm_east0 = gps.utm_pos.east/100;
+  nav_utm_north0 = gps.utm_pos.north/100;
 #endif
 
   previous_ground_alt = ground_alt;
-  ground_alt = gps_alt/100;
+  ground_alt = gps.hmsl/1000.;
   return 0;
 }
 

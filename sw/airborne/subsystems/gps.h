@@ -64,10 +64,10 @@ struct SVinfo {
 struct GpsState {
   struct EcefCoor_i ecef_pos;    ///< position in ECEF in cm
   struct LlaCoor_i lla_pos;      ///< position in LLA (lat,lon: rad*1e7; alt: mm over ellipsoid)
-  struct UTMCoor_i utm_pos;      ///< position in UTM (north,east: cm; alt: mm over ellipsoid)
+  struct UtmCoor_i utm_pos;      ///< position in UTM (north,east: cm; alt: mm over ellipsoid)
   int32_t hmsl;                  ///< height above mean sea level in mm
   struct EcefCoor_i ecef_vel;    ///< speed ECEF in cm/s
-  struct NedCoor_i ned_vel;      ///< speed ECEF in cm/s
+  struct NedCoor_i ned_vel;      ///< speed NED in cm/s
   int32_t gspeed;                ///< norm of 2d ground speed in cm/s
   int32_t speed_3d;              ///< norm of 3d speed in cm/s
   int32_t course;                ///< GPS heading in rad*1e7
@@ -82,6 +82,7 @@ struct GpsState {
   struct SVinfo svinfos[GPS_NB_CHANNELS];
 
   uint8_t  lost_counter;         /* updated at 4Hz        */
+  uint16_t last_msg_time;
 };
 
 extern struct GpsState gps;

@@ -181,12 +181,14 @@
 #define PERIODIC_SEND_TUNE_ROLL(_chan) DOWNLINK_SEND_TUNE_ROLL(_chan, &estimator_p,&estimator_phi, &h_ctl_roll_setpoint);
 
 #if defined USE_GPS || defined SITL || defined USE_GPS_XSENS
-#define PERIODIC_SEND_GPS_SOL(_chan) DOWNLINK_SEND_GPS_SOL(_chan, &gps_Pacc, &gps_Sacc, &gps_PDOP, &gps_numSV)
+#define PERIODIC_SEND_GPS_SOL(_chan) DOWNLINK_SEND_GPS_SOL(_chan, &gps.pacc, &gps.sacc, &gps.pdop, &gps.num_sv)
 #endif
 
 //#define PERIODIC_SEND_GPS(_chan) gps_send() /* also sends svinfo */
-int16_t foobar = 0;
-#define PERIODIC_SEND_GPS(_chan) DOWNLINK_SEND_GPS(DefaultChannel, &gps.fix, &gps.utm_pos.east, &gps.utm_pos.north, &foobar, &gps.lla_pos.alt, &foobar, &foobar, &gps.week, &gps.tow, &gps.utm_pos.zone, &foobar);
+#define PERIODIC_SEND_GPS(_chan) {                                      \
+    int16_t foobar = 0;                                                 \
+    DOWNLINK_SEND_GPS(DefaultChannel, &gps.fix, &gps.utm_pos.east, &gps.utm_pos.north, &foobar, &gps.lla_pos.alt, &foobar, &foobar, &gps.week, &gps.tow, &gps.utm_pos.zone, &foobar); \
+}
 
 #ifdef USE_BARO_MS5534A
 //#include "baro_MS5534A.h"

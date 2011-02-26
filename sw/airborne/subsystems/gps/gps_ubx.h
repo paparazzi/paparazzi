@@ -53,20 +53,22 @@ extern struct GpsUbx gps_ubx;
 extern void gps_ubx_read_message(void);
 extern void gps_ubx_parse(uint8_t c);
 
-#define GpsEvent(_sol_available_callback) {				\
+#define GpsEvent(_sol_available_callback) {     \
     if (GpsBuffer()) {							\
       ReadGpsBuffer();							\
-    }									\
-    if (gps_ubx.msg_available) {					\
+    }                                           \
+    if (gps_ubx.msg_available) {                \
       gps_ubx_read_message();					\
-      if (gps_ubx.msg_class == UBX_NAV_ID &&			\
-      gps_ubx.msg_id == UBX_NAV_SOL_ID) {			\
-        if (gps.fix == GPS_FIX_3D)                     \
-          gps.lost_counter = 0;				\
-    _sol_available_callback();					\
-      }									\
-      gps_ubx.msg_available = FALSE;				\
-    }									\
+      if (gps_ubx.msg_class == UBX_NAV_ID &&    \
+          gps_ubx.msg_id == UBX_NAV_SOL_ID) {   \
+        if (gps.fix == GPS_FIX_3D) {            \
+          gps.lost_counter = 0;                 \
+          gps.last_msg_time = cpu_time_sec;     \
+        }                                       \
+        _sol_available_callback();              \
+      }                                         \
+      gps_ubx.msg_available = FALSE;            \
+    }                                           \
   }
 
 #define ReadGpsBuffer() {					\

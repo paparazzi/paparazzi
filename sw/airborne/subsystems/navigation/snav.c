@@ -6,7 +6,7 @@
 #include "subsystems/navigation/snav.h"
 #include "estimator.h"
 #include "subsystems/nav.h"
-#include "gps.h"
+#include "subsystems/gps.h"
 
 #define Sign(_x) ((_x) > 0 ? 1 : (-1))
 #define Norm2Pi(x) ({ uint8_t _i=1; float _x = x; while (_i && _x < 0.) { _i++;_x += 2*M_PI; } while (_i && _x > 2*M_PI) { _i++; _x -= 2*M_PI; } _x; })
@@ -150,7 +150,7 @@ bool_t snav_on_time(float nominal_radius) {
 
   float current_qdr = M_PI_2 - atan2(estimator_y-wp_ca.y, estimator_x-wp_ca.x);
   float remaining_angle = Norm2Pi(Sign(a_radius)*(qdr_a - current_qdr));
-  float remaining_time = snav_desired_tow - gps_itow / 1000.;
+  float remaining_time = snav_desired_tow - gps.tow / 1000.;
 
   /* Use the nominal airspeed if the estimated one is not realistic */
   float airspeed = estimator_airspeed;

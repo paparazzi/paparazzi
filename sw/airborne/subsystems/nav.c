@@ -31,7 +31,7 @@
 #include <math.h>
 
 #include "subsystems/nav.h"
-#include "gps.h"
+#include "subsystems/gps.h"
 #include "estimator.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"

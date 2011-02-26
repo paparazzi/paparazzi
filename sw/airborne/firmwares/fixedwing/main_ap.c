@@ -38,7 +38,7 @@
 
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
-#include "gps.h"
+#include "subsystems/gps.h"
 #ifdef USE_INFRARED
 #include "subsystems/sensors/infrared.h"
 #endif
@@ -263,6 +263,11 @@ static inline void telecommand_task( void ) {
 #endif
 }
 
+
+#ifdef FAILSAFE_DELAY_WITHOUT_GPS
+#define GpsTimeoutError (cpu_time_sec - gps.last_msg_time > FAILSAFE_DELAY_WITHOUT_GPS)
+#endif
+
 /** \fn void navigation_task( void )
  *  \brief Compute desired_course
  */
@@ -276,12 +281,12 @@ static void navigation_task( void ) {
   if (launch) {
     if (GpsTimeoutError) {
       if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
-    last_pprz_mode = pprz_mode;
-    pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
-    PERIODIC_SEND_PPRZ_MODE(DefaultChannel);
-    gps_lost = TRUE;
+        last_pprz_mode = pprz_mode;
+        pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
+        PERIODIC_SEND_PPRZ_MODE(DefaultChannel);
+        gps_lost = TRUE;
       }
-    } else /* GPS is ok */ if (gps_lost) {
+    } else if (gps_lost) { /* GPS is ok */
       /** If aircraft was in failsafe mode, come back in previous mode */
       pprz_mode = last_pprz_mode;
       gps_lost = FALSE;
@@ -443,7 +448,7 @@ void periodic_task_ap( void ) {
     break;
   case 1:
     if (!estimator_flight_time &&
-    estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
+        estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
       estimator_flight_time = 1;
       launch = TRUE; /* Not set in non auto launch */
       DOWNLINK_SEND_TAKEOFF(DefaultChannel, &cpu_time_sec);
@@ -595,32 +600,8 @@ void event_task_ap( void ) {
 #endif // USE_AHRS
 
 #ifdef USE_GPS
-#if !(defined HITL) && !(defined UBX_EXTERNAL) /** else comes through the datalink */
-  if (GpsBuffer()) {
-    ReadGpsBuffer();
-  }
-#endif
-  if (gps_msg_received) {
-    /* parse and use GPS messages */
-#ifdef GPS_CONFIGURE
-    if (gps_configuring)
-      gps_configure();
-    else
-#endif
-      parse_gps_msg();
-    gps_msg_received = FALSE;
-    if (gps_pos_available) {
-      gps_verbose_downlink = !launch;
-      UseGpsPosNoSend(estimator_update_state_gps);
-      gps_downlink();
-#ifdef GPS_TRIGGERED_FUNCTION
-#ifndef SITL
-    GPS_TRIGGERED_FUNCTION();
-#endif
-#endif
-      gps_pos_available = FALSE;
-    }
-  }
+  GpsEvent(estimator_update_state_gps);
+  //TODO add extra callback for solution available, aka GPS_TRIGGERED_FUNCTION
 #endif /** USE_GPS */
 
 

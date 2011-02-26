@@ -98,6 +98,7 @@ struct LtpDef_f {
 };
 
 extern void lla_of_utm_f(struct LlaCoor_f* lla, struct UtmCoor_f* utm);
+extern void utm_of_lla_f(struct UtmCoor_f* utm, struct LlaCoor_f* lla);
 extern void ltp_def_from_ecef_f(struct LtpDef_f* def, struct EcefCoor_f* ecef);
 extern void ltp_def_from_lla_f(struct LtpDef_f* def, struct LlaCoor_f* lla);
 extern void lla_of_ecef_f(struct LlaCoor_f* out, struct EcefCoor_f* in);

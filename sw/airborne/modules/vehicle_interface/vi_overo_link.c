@@ -25,7 +25,7 @@
 
 #include "lisa/lisa_overo_link.h"
 #include "subsystems/imu.h"
-#include <booz/gps.h>
+#include "subsystems/gps.h"
 #include "subsystems/sensors/baro.h"
 
 
