@@ -70,10 +70,10 @@ void ecef_of_lla_d(struct EcefCoor_d* ecef, struct LlaCoor_d* lla) {
   static const double f = 1./298.257223563;    /* reciprocal flattening          */
   const double e2 = 2.*f-(f*f);                /* first eccentricity squared     */
 
-  const double sin_lat = sinf(lla->lat);
-  const double cos_lat = cosf(lla->lat);
-  const double sin_lon = sinf(lla->lon);
-  const double cos_lon = cosf(lla->lon);
+  const double sin_lat = sin(lla->lat);
+  const double cos_lat = cos(lla->lat);
+  const double sin_lon = sin(lla->lon);
+  const double cos_lon = cos(lla->lon);
   const double chi = sqrtf(1. - e2*sin_lat*sin_lat);
   const double a_chi = a / chi;
 
