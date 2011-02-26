@@ -211,7 +211,7 @@ void lla_of_ecef_i(struct LlaCoor_i* out, struct EcefCoor_i* in) {
   /* convert the output to fixed point       */
   out->lon = (int32_t)rint(EM7RAD_OF_RAD(out_d.lon));
   out->lat = (int32_t)rint(EM7RAD_OF_RAD(out_d.lat));
-  out->alt = (int32_t)CM_OF_M(out_d.alt);
+  out->alt = (int32_t)MM_OF_M(out_d.alt);
 
 }
 
@@ -221,7 +221,7 @@ void ecef_of_lla_i(struct EcefCoor_i* out, struct LlaCoor_i* in) {
   struct LlaCoor_d in_d;
   in_d.lon = RAD_OF_EM7RAD((double)in->lon);
   in_d.lat = RAD_OF_EM7RAD((double)in->lat);
-  in_d.alt = M_OF_CM((double)in->alt);
+  in_d.alt = M_OF_MM((double)in->alt);
   /* calls the floating point transformation */
   struct EcefCoor_d out_d;
   ecef_of_lla_d(&out_d, &in_d);

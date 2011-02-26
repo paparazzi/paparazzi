@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
 
   test_lla_of_utm();
 
-  //  test_enu_of_ecef_int();
+  test_enu_of_ecef_int();
   //  test_ned_to_ecef_to_ned();
 
   // test_enu_to_ecef_to_enu();
@@ -121,10 +121,10 @@ static void test_enu_of_ecef_int(void) {
   printf("ecef0 : (%d,%d,%d)\n", ref_coor_i.x, ref_coor_i.y, ref_coor_i.z);
   struct LtpDef_i ltp_def_i;
   ltp_def_from_ecef_i(&ltp_def_i, &ref_coor_i);
-  printf("lla0 : (%d %d %d) (%f,%f,%f)\n", ltp_def_i.lla.lat, ltp_def_i.lla.lon, ltp_def_i.lla.alt,
+  printf("lla0 : (%f deg, %f deg, %f m)  (%f,%f,%f)\n", DegOfRad(ltp_def_f.lla.lat), DegOfRad(ltp_def_f.lla.lon), ltp_def_f.lla.alt,
 	 DegOfRad(RAD_OF_EM7RAD((double)ltp_def_i.lla.lat)),
 	 DegOfRad(RAD_OF_EM7RAD((double)ltp_def_i.lla.lon)),
-	 M_OF_CM((double)ltp_def_i.lla.alt));
+	 M_OF_MM((double)ltp_def_i.lla.alt));
 
 #define STEP    1000.
 #define RANGE 100000.

@@ -260,8 +260,8 @@ unit_t nav_reset_alt( void ) {
   ins_vf_realign = TRUE;
 
 #ifdef USE_GPS
-  ins_ltp_def.lla.alt = booz_gps_state.lla_pos.alt;
-  ins_ltp_def.hmsl = booz_gps_state.hmsl;
+  ins_ltp_def.lla.alt = booz_gps_state.lla_pos.alt*10;
+  ins_ltp_def.hmsl = booz_gps_state.hmsl*10;
 #endif
 
   return 0;
