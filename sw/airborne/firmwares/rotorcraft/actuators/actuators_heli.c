@@ -23,7 +23,7 @@
 
 #include "firmwares/rotorcraft/actuators.h"
 #include "actuators_heli.h"
-#include "booz/booz2_commands.h"
+#include "firmwares/rotorcraft/commands.h"
 
 /* let's start butchery now and use the actuators_pwm arch functions */
 #include "firmwares/rotorcraft/actuators/actuators_pwm.h"
@@ -53,7 +53,7 @@ void actuators_init(void) { actuators_pwm_arch_init(); }
 
 void actuators_set(bool_t motors_on) {
 
-  SetActuatorsFromCommands(booz2_commands);
+  SetActuatorsFromCommands(commands);
 
 }
 

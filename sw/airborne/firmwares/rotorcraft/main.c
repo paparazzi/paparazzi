@@ -34,7 +34,7 @@
 #include "datalink.h"
 #include "xbee.h"
 
-#include "booz2_commands.h"
+#include "firmwares/rotorcraft/commands.h"
 #include "firmwares/rotorcraft/actuators.h"
 #include "subsystems/radio_control.h"
 

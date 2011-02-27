@@ -24,7 +24,7 @@
 
 #include "mcu.h"
 #include "sys_time.h"
-#include "booz2_commands.h"
+#include "firmwares/rotorcraft/commands.h"
 #include "actuators.h"
 #include "downlink.h"
 
@@ -89,10 +89,10 @@ static inline void main_periodic_task( void ) {
 
   if (i>1000) {
     /* set actuators     */
-    booz2_commands[COMMAND_PITCH] = 0;
-    booz2_commands[COMMAND_ROLL] = 0;
-    booz2_commands[COMMAND_YAW] = 20;
-    booz2_commands[COMMAND_THRUST] = 0;
+    commands[COMMAND_PITCH] = 0;
+    commands[COMMAND_ROLL] = 0;
+    commands[COMMAND_YAW] = 20;
+    commands[COMMAND_THRUST] = 0;
     // actuators_set(TRUE);
     actuators_set(FALSE);
   }

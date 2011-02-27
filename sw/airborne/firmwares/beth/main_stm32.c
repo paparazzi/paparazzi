@@ -28,7 +28,7 @@
 #include "mcu_periph/can.h"
 #include "sys_time.h"
 #include "downlink.h"
-#include "booz/booz2_commands.h"
+#include "firmwares/rotorcraft/commands.h"
 #include "firmwares/rotorcraft/actuators.h"
 //#include "booz/booz_radio_control.h"
 #include "subsystems/imu.h"
@@ -69,8 +69,8 @@ static inline void main_init( void ) {
   imu_init();
   overo_link_init();
   bench_sensors_init();
-  booz2_commands[COMMAND_ROLL] = 0;
-  booz2_commands[COMMAND_YAW] = 0;
+  commands[COMMAND_ROLL] = 0;
+  commands[COMMAND_YAW] = 0;
 }
 
 #define PITCH_MAGIC_NUMBER (121)
@@ -102,14 +102,14 @@ static inline void main_periodic( void ) {
   //stop the motors if we've lost SPI or CAN link
   //If SPI has had CRC error we don't stop motors
   if ((spi_msg_cnt == 0) || (can_err_flags != 0)) {
-    booz2_commands[COMMAND_PITCH] = 0;
-    booz2_commands[COMMAND_THRUST] = 0;
+    commands[COMMAND_PITCH] = 0;
+    commands[COMMAND_THRUST] = 0;
     actuators_set(FALSE);
     overo_link.up.msg.can_errs = can_err_flags;
     overo_link.up.msg.pitch_out = PITCH_MAGIC_NUMBER;
   } else {
-    booz2_commands[COMMAND_PITCH] = pitch_out;
-    booz2_commands[COMMAND_THRUST] = thrust_out;
+    commands[COMMAND_PITCH] = pitch_out;
+    commands[COMMAND_THRUST] = thrust_out;
     actuators_set(TRUE);
   }
 }

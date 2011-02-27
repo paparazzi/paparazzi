@@ -99,7 +99,7 @@ ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 ap.srcs += mcu_periph/i2c.c
 ap.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
-ap.srcs += $(SRC_BOOZ)/booz2_commands.c
+ap.srcs += $(SRC_FIRMWARE)/commands.c
 
 #
 # Radio control choice
