@@ -120,8 +120,8 @@ extern void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, st
 #define M_OF_CM(_cm) ((_cm)/1e2)
 #define MM_OF_M(_m)  ((_m)*1e3)
 #define M_OF_MM(_mm) ((_mm)/1e3)
-#define EM7RAD_OF_RAD(_r) (_r*1e7)
-#define RAD_OF_EM7RAD(_r) (_r/1e7)
+#define EM7RAD_OF_RAD(_r) ((_r)*1e7)
+#define RAD_OF_EM7RAD(_r) ((_r)/1e7)
 
 #define INT32_VECT3_ENU_OF_NED(_o, _i) {		\
     (_o).x = (_i).y;                            \

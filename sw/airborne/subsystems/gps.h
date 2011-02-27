@@ -48,9 +48,6 @@
 #define GPS_NB_CHANNELS 1
 #endif
 
-/** Number of scanned satellites */
-extern uint8_t gps_nb_channels;
-
 /** Space Vehicle Information */
 struct SVinfo {
   uint8_t svid;
@@ -79,6 +76,7 @@ struct GpsState {
   int16_t week;                  ///< GPS week
   uint32_t tow;                  ///< time of week in ms
 
+  uint8_t nb_channels;           ///< Number of scanned satellites
   struct SVinfo svinfos[GPS_NB_CHANNELS];
 
   uint8_t  lost_counter;         /* updated at 4Hz        */

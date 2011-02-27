@@ -39,7 +39,6 @@ struct GpsUbx {
   uint8_t msg_id;
   uint8_t msg_class;
 
-  uint8_t nb_channels;
   uint8_t status;
   uint16_t len;
   uint8_t msg_idx;
