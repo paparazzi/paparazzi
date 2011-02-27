@@ -205,8 +205,8 @@ void alt_kalman(float gps_z) {
 #endif // ALT_KALMAN
 
 void estimator_update_state_gps( void ) {
-  float gps_east = gps.utm_pos.east / 1000.;
-  float gps_north = gps.utm_pos.north / 1000.;
+  float gps_east = gps.utm_pos.east / 100.;
+  float gps_north = gps.utm_pos.north / 100.;
 
   /* Relative position to reference */
   gps_east -= nav_utm_east0;
