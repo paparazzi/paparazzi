@@ -45,7 +45,6 @@
 #include "firmwares/fixedwing/main_ap.h"
 #include "ap_downlink.h"
 #include "sim_uart.h"
-#include "latlong.h"
 #include "datalink.h"
 
 

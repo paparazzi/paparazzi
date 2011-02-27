@@ -38,7 +38,6 @@
 #include "firmwares/fixedwing/autopilot.h"
 #include "inter_mcu.h"
 #include "subsystems/navigation/traffic_info.h"
-#include "latlong.h"
 
 #define RCLost() bit_is_set(fbw_state->status, RADIO_REALLY_LOST)
 
