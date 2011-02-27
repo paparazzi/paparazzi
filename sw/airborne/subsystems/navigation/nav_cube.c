@@ -84,12 +84,12 @@ bool_t nav_cube_init(uint8_t center, uint8_t tb, uint8_t te) {
   sin_alpha = sin(alpha);
 
   /* calculate lower left start begin/end x coord */
-  start_bx = waypoints[center].x - (((cube_nline_x_t-1) * cube_grid_x)/2)
+  start_bx = WaypointX(center) - (((cube_nline_x_t-1) * cube_grid_x)/2)
              + cube_offs_x;
   start_ex = start_bx;
 
   /* calculate lower left start end point y coord */
-  start_ey = waypoints[center].y - cube_offs_y;
+  start_ey = WaypointY(center) - cube_offs_y;
 
   /* calculate lower left start begin point y coord */
   start_by = start_ey - cube_size_y;
@@ -101,26 +101,26 @@ bool_t nav_cube_init(uint8_t center, uint8_t tb, uint8_t te) {
 
   /* reset all waypoints to the standby position */
   for (j=0; j < MAX_LINES_X; j++) {
-    waypoints[tb+j].x = waypoints[center].x + STBY_OFFSET;
-    waypoints[tb+j].y = waypoints[center].y;
-    waypoints[te+j].x = waypoints[center].x + STBY_OFFSET;
-    waypoints[te+j].y = waypoints[center].y;
+    waypoints[tb+j].x = WaypointX(center) + STBY_OFFSET;
+    waypoints[tb+j].y = WaypointY(center);
+    waypoints[te+j].x = WaypointX(center) + STBY_OFFSET;
+    waypoints[te+j].y = WaypointY(center);
   }
 
   /* set used waypoints */
   for (j=0; j < cube_nline_x; j++) {
     int i = cube_line_x_start+j;
     /* set waypoints and vectorize in regard to center */
-    bx = (start_bx + i*cube_grid_x) - waypoints[center].x;
-    by = start_by - waypoints[center].y;
-    ex = (start_ex + i*cube_grid_x) - waypoints[center].x;
-    ey = start_ey - waypoints[center].y;
+    bx = (start_bx + i*cube_grid_x) - WaypointX(center);
+    by = start_by - WaypointY(center);
+    ex = (start_ex + i*cube_grid_x) - WaypointX(center);
+    ey = start_ey - WaypointY(center);
     /* rotate clockwise with alpha and un-vectorize*/
-    waypoints[tb+j].x = bx * cos_alpha - by * sin_alpha + waypoints[center].x;
-    waypoints[tb+j].y = bx * sin_alpha + by * cos_alpha + waypoints[center].y;
+    waypoints[tb+j].x = bx * cos_alpha - by * sin_alpha + WaypointX(center);
+    waypoints[tb+j].y = bx * sin_alpha + by * cos_alpha + WaypointY(center);
     waypoints[tb+j].a = start_bz;
-    waypoints[te+j].x = ex * cos_alpha - ey * sin_alpha + waypoints[center].x;
-    waypoints[te+j].y = ex * sin_alpha + ey * cos_alpha + waypoints[center].y;
+    waypoints[te+j].x = ex * cos_alpha - ey * sin_alpha + WaypointX(center);
+    waypoints[te+j].y = ex * sin_alpha + ey * cos_alpha + WaypointY(center);
     waypoints[te+j].a = start_ez;
   }
 

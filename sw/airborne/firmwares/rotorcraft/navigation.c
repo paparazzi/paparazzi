@@ -44,10 +44,6 @@ struct EnuCoor_i navigation_carrot;
 
 struct EnuCoor_i nav_last_point;
 
-uint16_t stage_time, block_time;
-
-uint8_t nav_stage, nav_block;
-uint8_t last_block, last_stage;
 uint8_t last_wp __attribute__ ((unused));
 
 int32_t ground_alt;
@@ -274,22 +270,6 @@ void nav_init_stage( void ) {
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
 }
 
-void nav_init_block(void) {
-  if (nav_block >= NB_BLOCK)
-    nav_block=NB_BLOCK-1;
-  nav_stage = 0;
-  block_time = 0;
-  InitStage();
-}
-
-void nav_goto_block(uint8_t b) {
-  if (b != nav_block) { /* To avoid a loop in a the current block */
-    last_block = nav_block;
-    last_stage = nav_stage;
-  }
-  GotoBlock(b);
-}
-
 #include <stdio.h>
 void nav_periodic_task() {
   RunOnceEvery(16, { stage_time++;  block_time++; });
@@ -301,7 +281,6 @@ void nav_periodic_task() {
   nav_run();
 
   ground_alt = POS_BFP_OF_REAL((float)ins_ltp_def.hmsl / 100.);
-
 }
 
 #include "downlink.h"

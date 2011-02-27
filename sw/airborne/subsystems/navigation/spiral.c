@@ -57,19 +57,19 @@ bool_t InitializeSpiral(uint8_t CenterWP, uint8_t EdgeWP, float StartRad, float 
   if (SRad < nav_radius_min) SRad = nav_radius_min;
   IRad = IncRad;		// multiplier for increasing the spiral
 
-  EdgeCurrentX = waypoints[Edge].x - waypoints[Center].x;
-  EdgeCurrentY = waypoints[Edge].y - waypoints[Center].y;
+  EdgeCurrentX = WaypointX(Edge) - WaypointX(Center);
+  EdgeCurrentY = WaypointY(Edge) - WaypointY(Center);
 
   Spiralradius = sqrt(EdgeCurrentX*EdgeCurrentX+EdgeCurrentY*EdgeCurrentY);
 
-  TransCurrentX = estimator_x - waypoints[Center].x;
-  TransCurrentY = estimator_y - waypoints[Center].y;
+  TransCurrentX = estimator_x - WaypointX(Center);
+  TransCurrentY = estimator_y - WaypointY(Center);
   TransCurrentZ = estimator_z - ZPoint;
   DistanceFromCenter = sqrt(TransCurrentX*TransCurrentX+TransCurrentY*TransCurrentY);
 
   // 	SpiralTheta = atan2(TransCurrentY,TransCurrentX);
-  // 	Fly2X = Spiralradius*cos(SpiralTheta+3.14)+waypoints[Center].x;
-  // 	Fly2Y = Spiralradius*sin(SpiralTheta+3.14)+waypoints[Center].y;
+  // 	Fly2X = Spiralradius*cos(SpiralTheta+3.14)+WaypointX(Center);
+  // 	Fly2Y = Spiralradius*sin(SpiralTheta+3.14)+WaypointY(Center);
 
   // Alphalimit denotes angle, where the radius will be increased
   Alphalimit = 2*3.14 / Segments;
@@ -84,8 +84,8 @@ bool_t InitializeSpiral(uint8_t CenterWP, uint8_t EdgeWP, float StartRad, float 
 
 bool_t SpiralNav(void)
 {
-  TransCurrentX = estimator_x - waypoints[Center].x;
-  TransCurrentY = estimator_y - waypoints[Center].y;
+  TransCurrentX = estimator_x - WaypointX(Center);
+  TransCurrentY = estimator_y - WaypointY(Center);
   DistanceFromCenter = sqrt(TransCurrentX*TransCurrentX+TransCurrentY*TransCurrentY);
 
   bool_t InCircle = TRUE;
@@ -99,9 +99,9 @@ bool_t SpiralNav(void)
 	{
 	case Outside:
 	  //flys until center of the helix is reached an start helix
-	  nav_route_xy(FlyFromX,FlyFromY,waypoints[Center].x, waypoints[Center].y);
+	  nav_route_xy(FlyFromX,FlyFromY,WaypointX(Center), WaypointY(Center));
 	  // center reached?
-	  if (nav_approaching_xy(waypoints[Center].x, waypoints[Center].y, FlyFromX, FlyFromY, 0)) {
+	  if (nav_approaching_xy(WaypointX(Center), WaypointY(Center), FlyFromX, FlyFromY, 0)) {
 		// nadir image
 		//dc_shutter();
 		CSpiralStatus = StartCircle;
@@ -111,7 +111,7 @@ bool_t SpiralNav(void)
 	  // Starts helix
 	  // storage of current coordinates
 	  // calculation needed, State switch to Circle
-	  nav_circle_XY(waypoints[Center].x, waypoints[Center].y, SRad);
+	  nav_circle_XY(WaypointX(Center), WaypointY(Center), SRad);
 	  if(DistanceFromCenter >= SRad){
 		LastCircleX = estimator_x;
 		LastCircleY = estimator_y;
@@ -121,7 +121,7 @@ bool_t SpiralNav(void)
 	  }
 	  break;
 	case Circle:
-	  nav_circle_XY(waypoints[Center].x, waypoints[Center].y, SRad);
+	  nav_circle_XY(WaypointX(Center), WaypointY(Center), SRad);
 	  // Trigonometrische Berechnung des bereits geflogenen Winkels alpha
 	  // equation:
 	  // alpha = 2 * asin ( |Starting position angular - current positon| / (2* SRad)

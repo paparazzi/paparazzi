@@ -36,12 +36,6 @@ bool_t too_far_from_home;
 const uint8_t nb_waypoint = NB_WAYPOINT;
 struct point waypoints[NB_WAYPOINT] = WAYPOINTS;
 
-uint8_t nav_stage, nav_block;
-uint16_t stage_time, block_time;
-
-/** To save the current block/stage to enable return */
-uint8_t last_block, last_stage;
-
 float ground_alt;
 
 int32_t nav_utm_east0 = NAV_UTM_EAST0;
@@ -98,22 +92,6 @@ unit_t nav_update_waypoints_alt( void ) {
     waypoints[i].a += ground_alt - previous_ground_alt;
   }
   return 0;
-}
-
-void nav_init_block(void) {
-  if (nav_block >= NB_BLOCK)
-    nav_block=NB_BLOCK-1;
-  nav_stage = 0;
-  block_time = 0;
-  InitStage();
-}
-
-void nav_goto_block(uint8_t b) {
-  if (b != nav_block) { /* To avoid a loop in a the current block */
-    last_block = nav_block;
-    last_stage = nav_stage;
-  }
-  GotoBlock(b);
 }
 
 void common_nav_periodic_task_4Hz() {

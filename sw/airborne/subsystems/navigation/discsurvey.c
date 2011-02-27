@@ -39,7 +39,7 @@ bool_t disc_survey( uint8_t center, float radius) {
       c1.x = estimator_x;
       c1.y = estimator_y;
 
-      float d = ScalarProduct(upwind_x, upwind_y, estimator_x-waypoints[center].x, estimator_y-waypoints[center].y);
+      float d = ScalarProduct(upwind_x, upwind_y, estimator_x-WaypointX(center), estimator_y-WaypointY(center));
       if (d > radius) {
 	status = DOWNWIND;
       } else {
@@ -48,8 +48,8 @@ bool_t disc_survey( uint8_t center, float radius) {
 	float crosswind_x = - upwind_y;
 	float crosswind_y = upwind_x;
 
-	c2.x = waypoints[center].x+d*upwind_x-w*sign*crosswind_x;
-	c2.y = waypoints[center].y+d*upwind_y-w*sign*crosswind_y;
+	c2.x = WaypointX(center)+d*upwind_x-w*sign*crosswind_x;
+	c2.y = WaypointY(center)+d*upwind_y-w*sign*crosswind_y;
 
 	status = SEGMENT;
       }
@@ -58,8 +58,8 @@ bool_t disc_survey( uint8_t center, float radius) {
     break;
 
   case DOWNWIND:
-    c2.x = waypoints[center].x - upwind_x * radius;
-    c2.y = waypoints[center].y - upwind_y * radius;
+    c2.x = WaypointX(center) - upwind_x * radius;
+    c2.y = WaypointY(center) - upwind_y * radius;
     status = SEGMENT;
     /* No break; */
 
