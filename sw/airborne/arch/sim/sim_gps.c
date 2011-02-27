@@ -11,6 +11,7 @@
 #include "subsystems/gps.h"
 #include "estimator.h"
 #include "math/pprz_geodetic_float.h"
+#include "math/pprz_geodetic_int.h"
 #include "subsystems/navigation/common_nav.h"
 
 #include <caml/mlvalues.h>
@@ -25,11 +26,19 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
   gps.week = 0; // FIXME
   gps.tow = Double_val(t) * 1000.;
 
+  //TODO set alt above ellipsoid and hmsl
+
 #ifdef GPS_USE_LATLONG
-  gps.lla_pos.lat = Double_val(lat)*1e7;
-  gps.lla_pos.lon = Double_val(lon)*1e7;
+  struct LlaCoor_f lla_f;
+  struct UtmCoor_f utm_f;
+  lla_f.lat = Double_val(lat);
+  lla_f.lon = Double_val(lon);
+  utm_f.zone = nav_utm_zone0;
+  utm_of_lla_f(&utm_f, &lla_f);
+  LLA_BFP_OF_REAL(gps.lla_pos, lla_f);
+  gps.utm_pos.east = utm_f.east*100;
+  gps.utm_pos.north = utm_f.north*100;
   gps.utm_pos.zone = nav_utm_zone0;
-  utm_of_lla_f(&gps.utm_pos, &gps.lla_pos);
   x = y = z; /* Just to get rid of the "unused arg" warning */
 #else // GPS_USE_LATLONG
   gps.utm_pos.east = Int_val(x);
