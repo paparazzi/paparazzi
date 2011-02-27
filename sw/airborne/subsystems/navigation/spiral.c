@@ -6,7 +6,7 @@
 	IMPORTANT: numer of segments has to be larger than 2!
 */
 
-#include "spiral.h"
+#include "subsystems/navigation/spiral.h"
 
 #include "subsystems/nav.h"
 #include "estimator.h"
@@ -89,6 +89,8 @@ bool_t SpiralNav(void)
   DistanceFromCenter = sqrt(TransCurrentX*TransCurrentX+TransCurrentY*TransCurrentY);
 
   bool_t InCircle = TRUE;
+  float DistanceStartEstim;
+  float CircleAlpha;
 
   if(DistanceFromCenter > Spiralradius)
 	InCircle = FALSE;
@@ -126,9 +128,9 @@ bool_t SpiralNav(void)
 	  // if alphamax already reached, increase radius.
 
 	  //DistanceStartEstim = |Starting position angular - current positon|
-	  float DistanceStartEstim = sqrt (((LastCircleX-estimator_x)*(LastCircleX-estimator_x))
+	  DistanceStartEstim = sqrt (((LastCircleX-estimator_x)*(LastCircleX-estimator_x))
 									   + ((LastCircleY-estimator_y)*(LastCircleY-estimator_y)));
-	  float CircleAlpha = (2.0 * asin (DistanceStartEstim / (2 * SRad)));
+	  CircleAlpha = (2.0 * asin (DistanceStartEstim / (2 * SRad)));
 	  if (CircleAlpha >= Alphalimit) {
 		LastCircleX = estimator_x;
 		LastCircleY = estimator_y;
