@@ -3,9 +3,6 @@
 
 #include "nps_sensors.h"
 
-#define GPS_LINKChAvailable() (FALSE)
-#define GPS_LINKGetch() (TRUE)
-
 #define GPS_NB_CHANNELS 16
 
 extern bool_t gps_available;

@@ -3,9 +3,6 @@
 
 #include "std.h"
 
-#define GPS_LINKChAvailable() (FALSE)
-#define GPS_LINKGetch() (TRUE)
-
 #define GPS_NB_CHANNELS 16
 
 extern bool_t gps_available;
@@ -20,7 +17,7 @@ extern void gps_impl_init(void);
         gps.lost_counter = 0;                   \
         gps.last_msg_time = cpu_time_sec;       \
       }                                         \
-      _sol_available_callback();				\
+      _sol_available_callback();                \
       gps_available = FALSE;                    \
     }                                           \
   }
