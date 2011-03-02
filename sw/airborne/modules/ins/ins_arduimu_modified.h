@@ -2,17 +2,14 @@
 #define ArduIMU_H
 
 #include <inttypes.h>
+#include "math/pprz_algebra_float.h"
 
-#define NB_DATA 9
-
-extern float ArduIMU_data[NB_DATA];
+extern struct FloatEulers arduimu_eulers;
+extern struct FloatRates arduimu_rates;
+extern struct FloatVect3 arduimu_accel;
 
 extern float ins_roll_neutral;
 extern float ins_pitch_neutral;
-
-//mixer
-extern float pitch_of_throttle_gain;
-extern float throttle_slew;
 
 void ArduIMU_init( void );
 void ArduIMU_periodic( void );

@@ -14,17 +14,18 @@ void requestEvent(){
   I2C_Message_ar[3] = int(Gyro_Vector[0]*(1<<12));
   I2C_Message_ar[4] = int(Gyro_Vector[1]*(1<<12));
   I2C_Message_ar[5] = int(Gyro_Vector[2]*(1<<12));
-  I2C_Message_ar[6] = int(Accel_Vector[0]*(1<<10));
-  I2C_Message_ar[7] = int(Accel_Vector[1]*(1<<10));
-  I2C_Message_ar[8] = int(Accel_Vector[2]*(1<<10));
+  I2C_Message_ar[6] = int((9.81*Accel_Vector[0]/GRAVITY)*(1<<10));
+  I2C_Message_ar[7] = int((9.81*Accel_Vector[1]/GRAVITY)*(1<<10));
+  I2C_Message_ar[8] = int((9.81*Accel_Vector[2]/GRAVITY)*(1<<10));
 
   byte* pointer;
   pointer = (byte*) &I2C_Message_ar;
-  Wire.send(pointer, 12);
+  Wire.send(pointer, 18);
 
   /* Uncomment for debug on serial link */
-  /*
+  
   //Serial.println();
+  /*
   Serial.print("Time ;");
   Serial.print(millis());
   Serial.print(";    Roll ;");
@@ -46,6 +47,7 @@ void requestEvent(){
   Serial.print(";  ACCZ ;");
   Serial.println(I2C_Message_ar[8]);
   */
+  
 }
  
 //********GPS Data from PAPArazzi UBLOX**********************************************************************
@@ -80,9 +82,9 @@ void printdata(void){
   I2C_Message_ar[3] = int(Gyro_Vector[0]*(1<<12));
   I2C_Message_ar[4] = int(Gyro_Vector[1]*(1<<12));
   I2C_Message_ar[5] = int(Gyro_Vector[2]*(1<<12));
-  I2C_Message_ar[6] = int(Accel_Vector[0]*(1<<10));
-  I2C_Message_ar[7] = int(Accel_Vector[1]*(1<<10));
-  I2C_Message_ar[8] = int(Accel_Vector[2]*(1<<10));
+  I2C_Message_ar[6] = int((9.81*Accel_Vector[0]/GRAVITY)*(1<<10));
+  I2C_Message_ar[7] = int((9.81*Accel_Vector[1]/GRAVITY)*(1<<10));
+  I2C_Message_ar[8] = int((9.81*Accel_Vector[2]/GRAVITY)*(1<<10));
 
   Serial.println();
   Serial.print("Time ;");
@@ -207,10 +209,6 @@ void printdata(void){
 			Serial.print(ground_speed);
 			Serial.print(",FIX:");
 			Serial.print((int)gpsFix);
-			Serial.print(",EVZ:"); //Vertical Speed
-			Serial.print(ecefVZ);
-			Serial.print(",SAT:"); 
-			Serial.print((int)numSV);
 			Serial.print (",");
 			#if PERFORMANCE_REPORTING == 1
 				gps_messages_sent++;

@@ -15,7 +15,9 @@ Autoren@ZHAW:   schmiemi
 
 // für das Senden von GPS-Daten an den ArduIMU
 #include "gps.h"
-int32_t GPS_Data[14];
+int32_t GPS_Data[10];
+
+#define NB_DATA 9
 
 #ifndef ARDUIMU_I2C_DEV
 #define ARDUIMU_I2C_DEV i2c0
@@ -38,12 +40,19 @@ struct i2c_transaction ardu_gps_trans;
 struct i2c_transaction ardu_ins_trans;
 
 static int16_t recievedData[NB_DATA];
-float ArduIMU_data[NB_DATA];
+
+struct FloatEulers arduimu_eulers;
+struct FloatRates arduimu_rates;
+struct FloatVect3 arduimu_accel;
 
 float ins_roll_neutral;
 float ins_pitch_neutral;
 
 void ArduIMU_init( void ) {
+  FLOAT_EULERS_ZERO(arduimu_eulers);
+  FLOAT_RATES_ZERO(arduimu_rates);
+  FLOAT_VECT3_ZERO(arduimu_accel);
+
   ardu_ins_trans.status = I2CTransDone;
   ardu_gps_trans.status = I2CTransDone;
 
@@ -55,6 +64,14 @@ void ArduIMU_init( void ) {
 #define GPS_DATA_MSG1   0
 #define GPS_DATA_MSG2   1
 
+#define FillBufWith32bit(_buf, _index, _value) {  \
+  _buf[_index] = (uint8_t) (_value);              \
+  _buf[_index+1] = (uint8_t) ((_value) >> 8);     \
+  _buf[_index+2] = (uint8_t) ((_value) >> 16);    \
+  _buf[_index+3] = (uint8_t) ((_value) >> 24);    \
+}
+
+
 void ArduIMU_periodicGPS( void ) {
   static uint8_t gps_data_status = GPS_DATA_MSG1;
 
@@ -65,74 +82,35 @@ void ArduIMU_periodicGPS( void ) {
     GPS_Data [0] = gps_itow;
     GPS_Data [1] = gps_lon;
     GPS_Data [2] = gps_lat;
-    GPS_Data [3] = gps_alt;			//höhe über elipsoid
-    GPS_Data [4] = gps_hmsl;		//höhe über sea level
+    GPS_Data [3] = gps_alt;   // height above elipsoid
+    GPS_Data [4] = gps_hmsl;  // height above sea level
     //velned
-    GPS_Data [5] = gps_speed_3d;		//speed 3D
-    GPS_Data [6] = gps_gspeed;		//ground speed
+    GPS_Data [5] = gps_speed_3d;  //speed 3D
+    GPS_Data [6] = gps_gspeed;    //ground speed
     GPS_Data [7] = gps_course * 100000;	//Kurs
     //status
-    GPS_Data [8] = gps_mode;		//fix
-    GPS_Data [9] = gps_status_flags;	//flags
-    //sol
-    GPS_Data [10] = gps_mode;		//fix
-    GPS_Data [11] = gps_sol_flags;		//flags
-    GPS_Data [12] = gps_ecefVZ;		//ecefVZ
-    GPS_Data [13] = gps_numSV;
+    GPS_Data [8] = gps_mode;          //fix
+    GPS_Data [9] = gps_status_flags;  //flags
 
-    //test für 32bit in byte packete abzupacken:
-    //GPS_Data [0] = -1550138773;
-
-    ardu_gps_trans.buf[0] = 0;				//message Nr = 0 --> itow bis ground speed
-    ardu_gps_trans.buf[1] = (uint8_t) GPS_Data[0];		//itow
-    ardu_gps_trans.buf[2] = (uint8_t) (GPS_Data[0] >>8);
-    ardu_gps_trans.buf[3] = (uint8_t) (GPS_Data[0] >>16);
-    ardu_gps_trans.buf[4] = (uint8_t) (GPS_Data[0] >>24);
-    ardu_gps_trans.buf[5] = (uint8_t) GPS_Data[1];		//lon
-    ardu_gps_trans.buf[6] = (uint8_t) (GPS_Data[1] >>8);
-    ardu_gps_trans.buf[7] = (uint8_t) (GPS_Data[1] >>16);
-    ardu_gps_trans.buf[8] = (uint8_t) (GPS_Data[1] >>24);
-    ardu_gps_trans.buf[9] = (uint8_t) GPS_Data[2];		//lat
-    ardu_gps_trans.buf[10] = (uint8_t) (GPS_Data[2] >>8);
-    ardu_gps_trans.buf[11] = (uint8_t) (GPS_Data[2] >>16);
-    ardu_gps_trans.buf[12] = (uint8_t) (GPS_Data[2] >>24);
-    ardu_gps_trans.buf[13] = (uint8_t) GPS_Data[3];		//height
-    ardu_gps_trans.buf[14] = (uint8_t) (GPS_Data[3] >>8);
-    ardu_gps_trans.buf[15] = (uint8_t) (GPS_Data[3] >>16);
-    ardu_gps_trans.buf[16] = (uint8_t) (GPS_Data[3] >>24);
-    ardu_gps_trans.buf[17] = (uint8_t) GPS_Data[4];		//hmsl
-    ardu_gps_trans.buf[18] = (uint8_t) (GPS_Data[4] >>8);
-    ardu_gps_trans.buf[19] = (uint8_t) (GPS_Data[4] >>16);
-    ardu_gps_trans.buf[20] = (uint8_t) (GPS_Data[4] >>24);
-    ardu_gps_trans.buf[21] = (uint8_t) GPS_Data[5];		//speed
-    ardu_gps_trans.buf[22] = (uint8_t) (GPS_Data[5] >>8);
-    ardu_gps_trans.buf[23] = (uint8_t) (GPS_Data[5] >>16);
-    ardu_gps_trans.buf[24] = (uint8_t) (GPS_Data[5] >>24);
-    ardu_gps_trans.buf[25] = (uint8_t) GPS_Data[6];		//gspeed
-    ardu_gps_trans.buf[26] = (uint8_t) (GPS_Data[6] >>8);
-    ardu_gps_trans.buf[27] = (uint8_t) (GPS_Data[6] >>16);
-    ardu_gps_trans.buf[28] = (uint8_t) (GPS_Data[6] >>24);
-    I2CTransmit(ARDUIMU_I2C_DEV, ardu_gps_trans, ArduIMU_SLAVE_ADDR, 28);
+    ardu_gps_trans.buf[0] = 0;				//message Nr = 0
+    FillBufWith32bit(ardu_gps_trans.buf, 1, GPS_Data[0]); // itow
+    FillBufWith32bit(ardu_gps_trans.buf, 5, GPS_Data[1]); // lon
+    FillBufWith32bit(ardu_gps_trans.buf, 9, GPS_Data[2]); // lat
+    FillBufWith32bit(ardu_gps_trans.buf, 13, GPS_Data[3]); // alt
+    FillBufWith32bit(ardu_gps_trans.buf, 17, GPS_Data[4]); // hmsl
+    I2CTransmit(ARDUIMU_I2C_DEV, ardu_gps_trans, ArduIMU_SLAVE_ADDR, 21);
 
     gps_data_status = GPS_DATA_MSG2;
   }
   else {
 
-    ardu_gps_trans.buf[0] = 1;			//message Nr = 1 --> ground course, ecefVZ, numSV, Fix, flags, fix, flags
-    ardu_gps_trans.buf[1] = GPS_Data[7];		//ground course
-    ardu_gps_trans.buf[2] = (GPS_Data[7] >>8);
-    ardu_gps_trans.buf[3] = (GPS_Data[7] >>16);
-    ardu_gps_trans.buf[4] = (GPS_Data[7] >>24);
-    ardu_gps_trans.buf[5] = GPS_Data[12];		//ecefVZ
-    ardu_gps_trans.buf[6] = (GPS_Data[12] >>8);
-    ardu_gps_trans.buf[7] = (GPS_Data[12] >>16);
-    ardu_gps_trans.buf[8] = (GPS_Data[12] >>24);
-    ardu_gps_trans.buf[9] = GPS_Data[13];		//numSV
-    ardu_gps_trans.buf[10] = GPS_Data[8];		//status gps fix
-    ardu_gps_trans.buf[11] = GPS_Data[9];		//status flags
-    ardu_gps_trans.buf[12] = GPS_Data[10];		//sol gps fix
-    ardu_gps_trans.buf[13] = GPS_Data[11];		//sol flags
-    I2CTransmit(ARDUIMU_I2C_DEV, ardu_gps_trans, ArduIMU_SLAVE_ADDR, 13);
+    ardu_gps_trans.buf[0] = 1;			//message Nr = 1
+    FillBufWith32bit(ardu_gps_trans.buf, 1, GPS_Data[5]); // speed_3d
+    FillBufWith32bit(ardu_gps_trans.buf, 5, GPS_Data[6]); // gspeed
+    FillBufWith32bit(ardu_gps_trans.buf, 9, GPS_Data[7]); // course
+    ardu_gps_trans.buf[13] = GPS_Data[8]; // status gps fix
+    ardu_gps_trans.buf[14] = GPS_Data[9]; // status flags
+    I2CTransmit(ARDUIMU_I2C_DEV, ardu_gps_trans, ArduIMU_SLAVE_ADDR, 15);
 
     gps_data_status = GPS_DATA_MSG1;
   }
@@ -177,29 +155,25 @@ void ArduIMU_event( void ) {
     recievedData[8] = (ardu_ins_trans.buf[17]<<8) | ardu_ins_trans.buf[16];
 
     // Update ArduIMU data
-    ArduIMU_data[0] = ANGLE_FLOAT_OF_BFP(recievedData[0]);
-    ArduIMU_data[1] = ANGLE_FLOAT_OF_BFP(recievedData[1]);
-    ArduIMU_data[2] = ANGLE_FLOAT_OF_BFP(recievedData[2]);
-    ArduIMU_data[3] = RATE_FLOAT_OF_BFP(recievedData[3]);
-    ArduIMU_data[4] = RATE_FLOAT_OF_BFP(recievedData[4]);
-    ArduIMU_data[5] = RATE_FLOAT_OF_BFP(recievedData[5]);
-    ArduIMU_data[6] = ACCEL_FLOAT_OF_BFP(recievedData[6]);
-    ArduIMU_data[7] = ACCEL_FLOAT_OF_BFP(recievedData[7]);
-    ArduIMU_data[8] = ACCEL_FLOAT_OF_BFP(recievedData[8]);
+    arduimu_eulers.phi = ANGLE_FLOAT_OF_BFP(recievedData[0]);
+    arduimu_eulers.theta = ANGLE_FLOAT_OF_BFP(recievedData[1]);
+    arduimu_eulers.psi = ANGLE_FLOAT_OF_BFP(recievedData[2]);
+    arduimu_rates.p = RATE_FLOAT_OF_BFP(recievedData[3]);
+    arduimu_rates.q = RATE_FLOAT_OF_BFP(recievedData[4]);
+    arduimu_rates.r = RATE_FLOAT_OF_BFP(recievedData[5]);
+    arduimu_accel.x = ACCEL_FLOAT_OF_BFP(recievedData[6]);
+    arduimu_accel.y = ACCEL_FLOAT_OF_BFP(recievedData[7]);
+    arduimu_accel.z = ACCEL_FLOAT_OF_BFP(recievedData[8]);
 
     // Update estimator
-    estimator_phi = ArduIMU_data[0] - ins_roll_neutral;
-    estimator_theta = ArduIMU_data[1] - ins_pitch_neutral;
-    estimator_p = ArduIMU_data[3];
-    //imu_daten_angefordert = FALSE;
+    estimator_phi = arduimu_eulers.phi - ins_roll_neutral;
+    estimator_theta = arduimu_eulers.theta - ins_pitch_neutral;
+    estimator_p = arduimu_rates.p;
     ardu_ins_trans.status = I2CTransDone;
 
-    {
-      float psi=0;
-      float ax=ArduIMU_data[6];
-      RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, &estimator_phi, &estimator_theta, &psi));
-      RunOnceEvery(15, DOWNLINK_SEND_IMU_ACCEL(DefaultChannel, &ax, &(ArduIMU_data[7]), &(ArduIMU_data[8])));
-    }
+    RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, &arduimu_eulers.phi, &arduimu_eulers.theta, &arduimu_eulers.psi));
+    RunOnceEvery(15, DOWNLINK_SEND_IMU_GYRO(DefaultChannel, &arduimu_rates.p, &arduimu_rates.q, &arduimu_rates.r));
+    RunOnceEvery(15, DOWNLINK_SEND_IMU_ACCEL(DefaultChannel, &arduimu_accel.x, &arduimu_accel.y, &arduimu_accel.z));
   }
   else if (ardu_ins_trans.status == I2CTransFailed) {
     ardu_ins_trans.status = I2CTransDone;
