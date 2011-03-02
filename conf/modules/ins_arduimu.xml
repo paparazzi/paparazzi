@@ -2,13 +2,14 @@
 
 <module name="ins_ArduIMU" dir="ins">
   <header>
-    <file name="ins_arduimu.h"/>
+    <file name="ins_arduimu_modified.h"/>
   </header>
   <init fun="ArduIMU_init()"/>
-  <periodic fun="ArduIMU_periodic()" freq="15" autorun="TRUE"/>		<!-- 15 ist soll -->
-  <periodic fun="ArduIMU_periodicGPS()" freq="8" autorun="TRUE"/>       <!--  8 ist soll -->
+  <periodic fun="ArduIMU_periodic()" freq="60"/>		<!-- 15 ist soll -->
+  <periodic fun="ArduIMU_periodicGPS()" freq="8"/>       <!--  8 ist soll -->
+  <event fun="ArduIMU_event()"/>
   <makefile target="ap">
-    <file name="ins_arduimu.c"/>
+    <file name="ins_arduimu_modified.c"/>
   </makefile>
   <!--makefile target="sim">
     <file name="sim_MPPT.c"/>
