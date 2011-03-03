@@ -56,6 +56,63 @@ static inline void abort_and_reset(struct i2c_periph *p) {
     end_of_transaction(p);
 }
 
+static inline void i2c_hard_reset(struct i2c_periph *p)
+{
+	I2C_DeInit(p->reg_addr);
+
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
+	GPIO_SetBits(GPIOB, GPIO_Pin_10 | GPIO_Pin_11);
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	while(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_11) == Bit_RESET) {
+		// Raise SCL, wait until SCL is high (in case of clock stretching)
+		GPIO_SetBits(GPIOB, GPIO_Pin_10);
+		while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_10) == Bit_RESET);
+    for (__IO int j = 0; j < 50; j++);
+		
+		// Lower SCL, wait
+		GPIO_ResetBits(GPIOB, GPIO_Pin_10);
+    for (__IO int j = 0; j < 50; j++);
+		
+		// Raise SCL, wait
+		GPIO_SetBits(GPIOB, GPIO_Pin_10);
+    for (__IO int j = 0; j < 50; j++);
+	}
+		
+	// Generate a start condition followed by a stop condition
+	GPIO_SetBits(GPIOB, GPIO_Pin_10);
+  for (__IO int j = 0; j < 50; j++);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_11);
+  for (__IO int j = 0; j < 50; j++);
+	GPIO_ResetBits(GPIOB, GPIO_Pin_11);
+  for (__IO int j = 0; j < 50; j++);
+
+	// Raise both SCL and SDA and wait for SCL high (in case of clock stretching)
+	GPIO_SetBits(GPIOB, GPIO_Pin_10 | GPIO_Pin_11);
+	while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_10) == Bit_RESET);
+
+	// Wait for SDA to be high
+	while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_11) != Bit_SET);
+
+	// SCL and SDA should be high at this point, bus should be free
+	// Return the GPIO pins to the alternate function
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	I2C_DeInit(p->reg_addr);
+
+  i2c_apply_config(&i2c2);
+
+	if (I2C2->SR2 & I2C_BUSY) {
+		// Reset the I2C block
+		I2C_SoftwareResetCmd(p->reg_addr, ENABLE);
+		I2C_SoftwareResetCmd(p->reg_addr, DISABLE);
+	}
+}
+
 #ifdef USE_I2C1
 
 struct i2c_errors i2c1_errors;
@@ -359,63 +416,6 @@ static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_
 static inline void on_status_reading_last_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 static inline void on_status_restart_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 
-
-static inline void i2c_hard_reset(struct i2c_periph *p)
-{
-	I2C_DeInit(p->reg_addr);
-
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
-	GPIO_SetBits(GPIOB, GPIO_Pin_10 | GPIO_Pin_11);
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-	while(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_11) == Bit_RESET) {
-		// Raise SCL, wait until SCL is high (in case of clock stretching)
-		GPIO_SetBits(GPIOB, GPIO_Pin_10);
-		while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_10) == Bit_RESET);
-    for (__IO int j = 0; j < 50; j++);
-		
-		// Lower SCL, wait
-		GPIO_ResetBits(GPIOB, GPIO_Pin_10);
-    for (__IO int j = 0; j < 50; j++);
-		
-		// Raise SCL, wait
-		GPIO_SetBits(GPIOB, GPIO_Pin_10);
-    for (__IO int j = 0; j < 50; j++);
-	}
-		
-	// Generate a start condition followed by a stop condition
-	GPIO_SetBits(GPIOB, GPIO_Pin_10);
-  for (__IO int j = 0; j < 50; j++);
-	GPIO_ResetBits(GPIOB, GPIO_Pin_11);
-  for (__IO int j = 0; j < 50; j++);
-	GPIO_ResetBits(GPIOB, GPIO_Pin_11);
-  for (__IO int j = 0; j < 50; j++);
-
-	// Raise both SCL and SDA and wait for SCL high (in case of clock stretching)
-	GPIO_SetBits(GPIOB, GPIO_Pin_10 | GPIO_Pin_11);
-	while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_10) == Bit_RESET);
-
-	// Wait for SDA to be high
-	while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_11) != Bit_SET);
-
-	// SCL and SDA should be high at this point, bus should be free
-	// Return the GPIO pins to the alternate function
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-	I2C_DeInit(p->reg_addr);
-
-  i2c_apply_config(&i2c2);
-
-	if (I2C2->SR2 & I2C_BUSY) {
-		// Reset the I2C block
-		I2C_SoftwareResetCmd(p->reg_addr, ENABLE);
-		I2C_SoftwareResetCmd(p->reg_addr, DISABLE);
-	}
-}
 
 
 
