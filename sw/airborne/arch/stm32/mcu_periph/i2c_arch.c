@@ -9,6 +9,7 @@
 static void start_transaction(struct i2c_periph* p);
 static inline void end_of_transaction(struct i2c_periph *p);
 static inline void i2c_hard_reset(struct i2c_periph *p);
+static inline void i2c_reset_init(struct i2c_periph *p);
 
 #define I2C_BUSY 0x20
 
@@ -131,6 +132,18 @@ static inline void i2c_hard_reset(struct i2c_periph *p)
 		I2C_SoftwareResetCmd(p->reg_addr, ENABLE);
 		I2C_SoftwareResetCmd(p->reg_addr, DISABLE);
 	}
+}
+
+static inline void i2c_reset_init(struct i2c_periph *p)
+{
+  // Reset bus and configure GPIO pins
+  i2c_hard_reset(&i2c2);
+
+  // enable peripheral
+  I2C_Cmd(I2C2, ENABLE);
+
+  // enable error interrupts
+  I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);
 }
 
 #ifdef USE_I2C1
@@ -382,21 +395,8 @@ void i2c2_hw_init(void) {
   /* Enable GPIOB clock */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
 
-  // Reset bus and configure GPIO pins
-  i2c_hard_reset(&i2c2);
-
-  /* I2C Peripheral Enable ----------------------------------------------------*/
-  I2C_Cmd(I2C2, ENABLE);
-
-  /* Apply I2C configuration after enabling it */
-  i2c_apply_config(&i2c2);
-
-
-  /* Enable I2C2 error interrupts ---------------------------------------------*/
-  I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);
-
-  //  DEBUG_SERVO1_INIT();
-  //  DEBUG_SERVO2_INIT();
+  // Reset and initialize I2C HW
+  i2c_reset_init(&i2c2);
 
 }
 
