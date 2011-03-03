@@ -29,6 +29,11 @@ static I2C_InitTypeDef  I2C2_InitStruct = {
       .I2C_ClockSpeed = 300000
 };
 
+static inline void i2c_delay(void)
+{
+    for (__IO int j = 0; j < 50; j++);
+}
+
 static inline void i2c_apply_config(struct i2c_periph *p)
 {
     I2C_Init(p->reg_addr, p->init_struct);
@@ -71,24 +76,24 @@ static inline void i2c_hard_reset(struct i2c_periph *p)
 		// Raise SCL, wait until SCL is high (in case of clock stretching)
 		GPIO_SetBits(GPIOB, p->scl_pin);
 		while (GPIO_ReadInputDataBit(GPIOB, p->scl_pin) == Bit_RESET);
-    for (__IO int j = 0; j < 50; j++);
+    i2c_delay();
 		
 		// Lower SCL, wait
 		GPIO_ResetBits(GPIOB, p->scl_pin);
-    for (__IO int j = 0; j < 50; j++);
+    i2c_delay();
 		
 		// Raise SCL, wait
 		GPIO_SetBits(GPIOB, p->scl_pin);
-    for (__IO int j = 0; j < 50; j++);
+    i2c_delay();
 	}
 		
 	// Generate a start condition followed by a stop condition
 	GPIO_SetBits(GPIOB, p->scl_pin);
-  for (__IO int j = 0; j < 50; j++);
+  i2c_delay();
 	GPIO_ResetBits(GPIOB, p->sda_pin);
-  for (__IO int j = 0; j < 50; j++);
+  i2c_delay();
 	GPIO_ResetBits(GPIOB, p->sda_pin);
-  for (__IO int j = 0; j < 50; j++);
+  i2c_delay();
 
 	// Raise both SCL and SDA and wait for SCL high (in case of clock stretching)
 	GPIO_SetBits(GPIOB, p->scl_pin | p->sda_pin);
