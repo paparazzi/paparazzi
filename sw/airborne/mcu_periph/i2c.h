@@ -64,6 +64,7 @@ struct i2c_periph {
   void *init_struct;
   uint16_t scl_pin;
   uint16_t sda_pin;
+  struct i2c_errors *errors;
 };
 
 

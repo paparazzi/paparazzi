@@ -180,6 +180,7 @@ void i2c1_hw_init(void) {
   i2c1.init_struct = &I2C1_InitStruct;
   i2c1.scl_pin = GPIO_Pin_6;
   i2c1.sda_pin = GPIO_Pin_7;
+  i2c1.errors = &i2c1_errors;
 
   /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c1_errors);
@@ -362,6 +363,7 @@ void i2c2_hw_init(void) {
   i2c2.init_struct = &I2C2_InitStruct;
   i2c2.scl_pin = GPIO_Pin_10;
   i2c2.sda_pin = GPIO_Pin_11;
+  i2c2.errors = &i2c2_errors;
 
   /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c2_errors);
