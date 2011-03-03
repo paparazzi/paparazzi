@@ -20,6 +20,7 @@ static inline void i2c_hard_reset(struct i2c_periph *p);
 #define OUT_OF_SYNC_STATE_MACHINE(_status, _event) {}
 #endif
 
+#ifdef USE_I2C1
 static I2C_InitTypeDef  I2C1_InitStruct = {
       .I2C_Mode = I2C_Mode_I2C,
       .I2C_DutyCycle = I2C_DutyCycle_2,
@@ -28,7 +29,9 @@ static I2C_InitTypeDef  I2C1_InitStruct = {
       .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
       .I2C_ClockSpeed = 200000
 };
+#endif
 
+#ifdef USE_I2C2
 static I2C_InitTypeDef  I2C2_InitStruct = {
       .I2C_Mode = I2C_Mode_I2C,
       .I2C_DutyCycle = I2C_DutyCycle_2,
@@ -37,6 +40,7 @@ static I2C_InitTypeDef  I2C2_InitStruct = {
       .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
       .I2C_ClockSpeed = 300000
 };
+#endif
 
 static inline void i2c_delay(void)
 {
