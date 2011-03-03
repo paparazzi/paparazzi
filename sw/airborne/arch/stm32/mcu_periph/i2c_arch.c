@@ -21,6 +21,17 @@ static inline void i2c2_hard_reset(void);
 #define OUT_OF_SYNC_STATE_MACHINE(_status, _event) {}
 #endif
 
+#define END_OF_TRANSACTION(periph) {					\
+    periph->trans_extract_idx++;						\
+    if (periph->trans_extract_idx>=I2C_TRANSACTION_QUEUE_LEN)		\
+      periph->trans_extract_idx = 0;					\
+    /* if we have no more transaction to process, stop here */		\
+    if (periph->trans_extract_idx == i2c2.trans_insert_idx)		\
+      periph->status = I2CIdle;						\
+    /* if not, start next transaction */				\
+    else								\
+      start_transaction(periph);						\
+  }
 
 #ifdef USE_I2C1
 
@@ -428,12 +439,12 @@ static inline void i2c2_hard_reset(void)
 static inline void on_status_start_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
   if (event & I2C_FLAG_SB) {
     if(trans->type == I2CTransRx) {
-      I2C_Send7bitAddress(I2C2, trans->slave_addr, I2C_Direction_Receiver);
-      i2c2.status = I2CAddrRdSent;
+      I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Receiver);
+      periph->status = I2CAddrRdSent;
     }
     else {
-      I2C_Send7bitAddress(I2C2, trans->slave_addr, I2C_Direction_Transmitter);
-      i2c2.status = I2CAddrWrSent;
+      I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Transmitter);
+      periph->status = I2CAddrWrSent;
     }
   }
   else
@@ -446,22 +457,22 @@ static inline void on_status_start_requested(struct i2c_periph *periph, struct i
  */
 static inline void on_status_addr_wr_sent(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
   if ((event & I2C_FLAG_ADDR) && (event & I2C_FLAG_TRA)) {
-    I2C_SendData(I2C2, trans->buf[0]);
+    I2C_SendData(periph->reg_addr, trans->buf[0]);
     if (trans->len_w > 1) {
-      I2C_SendData(I2C2, trans->buf[1]);
-      i2c2.idx_buf = 2;
-      I2C_ITConfig(I2C2, I2C_IT_BUF, ENABLE);
-      i2c2.status = I2CSendingByte;
+      I2C_SendData(periph->reg_addr, trans->buf[1]);
+      periph->idx_buf = 2;
+      I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, ENABLE);
+      periph->status = I2CSendingByte;
     }
     else {
-      i2c2.idx_buf = 1;
+      periph->idx_buf = 1;
       if (trans->type == I2CTransTx) {
-    I2C_GenerateSTOP(I2C2, ENABLE);
-    i2c2.status = I2CStopRequested;
+        I2C_GenerateSTOP(periph->reg_addr, ENABLE);
+        periph->status = I2CStopRequested;
       }
       else {
-    I2C_GenerateSTART(I2C2, ENABLE);
-    i2c2.status = I2CRestartRequested;
+        I2C_GenerateSTART(periph->reg_addr, ENABLE);
+        periph->status = I2CRestartRequested;
       }
     }
   }
@@ -475,25 +486,25 @@ static inline void on_status_addr_wr_sent(struct i2c_periph *periph, struct i2c_
  */
 static inline void on_status_sending_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
   if (event & I2C_FLAG_TXE) {
-    if (i2c2.idx_buf < trans->len_w) {
-      I2C_SendData(I2C2, trans->buf[i2c2.idx_buf]);
-      i2c2.idx_buf++;
+    if (periph->idx_buf < trans->len_w) {
+      I2C_SendData(periph->reg_addr, trans->buf[periph->idx_buf]);
+      periph->idx_buf++;
     }
     else {
-      I2C_ITConfig(I2C2, I2C_IT_BUF, DISABLE);
+      I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
       if (trans->type == I2CTransTx) {
-    I2C_GenerateSTOP(I2C2, ENABLE);
-    /* Make sure that the STOP bit is cleared by Hardware */
-    static __IO uint8_t counter = 0;
-    while ((I2C2->CR1&0x200) == 0x200) {
-      counter++;
-      if (counter > 100) break;
-    }
-    i2c2.status = I2CStopRequested;
+        I2C_GenerateSTOP(periph->reg_addr, ENABLE);
+        /* Make sure that the STOP bit is cleared by Hardware */
+        static __IO uint8_t counter = 0;
+        while ((I2C2->CR1 & 0x200) == 0x200) {
+          counter++;
+          if (counter > 100) break;
+        }
+        periph->status = I2CStopRequested;
       }
       else {
-    I2C_GenerateSTART(I2C2, ENABLE);
-    i2c2.status = I2CRestartRequested;
+        I2C_GenerateSTART(periph->reg_addr, ENABLE);
+        periph->status = I2CRestartRequested;
       }
     }
   }
@@ -532,14 +543,14 @@ static inline void on_status_sending_last_byte(struct i2c_transaction* trans, ui
 static inline void on_status_stop_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
   /* bummer.... */
   if (event & I2C_FLAG_RXNE) {
-    uint8_t read_byte =  I2C_ReceiveData(I2C2);
-    if (i2c2.idx_buf < trans->len_r) {
-      trans->buf[i2c2.idx_buf] = read_byte;
+    uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
+    if (periph->idx_buf < trans->len_r) {
+      trans->buf[periph->idx_buf] = read_byte;
     }
   }
-  I2C_ITConfig(I2C2, I2C_IT_EVT|I2C_IT_BUF, DISABLE);  // should only need to disable evt, buf already disabled
+  I2C_ITConfig(periph->reg_addr, I2C_IT_EVT|I2C_IT_BUF, DISABLE);  // should only need to disable evt, buf already disabled
   trans->status = I2CTransSuccess;
-  I2C2_END_OF_TRANSACTION();
+  END_OF_TRANSACTION(periph);
 }
 
 /*
@@ -548,22 +559,22 @@ static inline void on_status_stop_requested(struct i2c_periph *periph, struct i2
  */
 static inline void on_status_addr_rd_sent(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
   if ((event & I2C_FLAG_ADDR) && !(event & I2C_FLAG_TRA)) {
-    i2c2.idx_buf = 0;
+    periph->idx_buf = 0;
     if(trans->len_r == 1) {                                         // If we're going to read only one byte
-      I2C_AcknowledgeConfig(I2C2, DISABLE);                       // make sure it's gonna be nacked
-      I2C_GenerateSTOP(I2C2, ENABLE);                             // and followed by a stop
+      I2C_AcknowledgeConfig(periph->reg_addr, DISABLE);             // make sure it's gonna be nacked
+      I2C_GenerateSTOP(periph->reg_addr, ENABLE);               // and followed by a stop
       /* Make sure that the STOP bit is cleared by Hardware */
       static __IO uint8_t counter = 0;
-      while ((I2C2->CR1&0x200) == 0x200) {
+      while ((I2C2->CR1 & 0x200) == 0x200) {
         counter++;
         if (counter > 100) break;
       }
-      i2c2.status = I2CReadingLastByte;                           // and remember we did
+      periph->status = I2CReadingLastByte;                           // and remember we did
     }
     else {
-      I2C_AcknowledgeConfig(I2C2, ENABLE);                        // if it's more than one byte, ack it
-      I2C_ITConfig(I2C2, I2C_IT_BUF, ENABLE);
-      i2c2.status = I2CReadingByte;                               // and remember we did
+      I2C_AcknowledgeConfig(periph->reg_addr, ENABLE);               // if it's more than one byte, ack it
+      I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, ENABLE);
+      periph->status = I2CReadingByte;                               // and remember we did
     }
   }
   else
@@ -577,20 +588,20 @@ static inline void on_status_addr_rd_sent(struct i2c_periph *periph, struct i2c_
  */
 static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
   if (event & I2C_FLAG_RXNE) {
-    uint8_t read_byte =  I2C_ReceiveData(I2C2);
-    if (i2c2.idx_buf < trans->len_r) {
-      trans->buf[i2c2.idx_buf] = read_byte;
-      i2c2.idx_buf++;
-      if (i2c2.idx_buf >= trans->len_r-1) {                    // We're reading our last byte
-    I2C_AcknowledgeConfig(I2C2, DISABLE);                  // give them a nack once it's done
-    I2C_GenerateSTOP(I2C2, ENABLE);                        // and follow with a stop
-    /* Make sure that the STOP bit is cleared by Hardware */
-    static __IO uint8_t counter = 0;
-    while ((I2C2->CR1&0x200) == 0x200) {
-      counter++;
-      if (counter > 100) break;
-    }
-    i2c2.status = I2CStopRequested;                        // remember we already trigered the stop
+    uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
+    if (periph->idx_buf < trans->len_r) {
+      trans->buf[periph->idx_buf] = read_byte;
+      periph->idx_buf++;
+      if (periph->idx_buf >= trans->len_r-1) {                    // We're reading our last byte
+        I2C_AcknowledgeConfig(periph->reg_addr, DISABLE);                  // give them a nack once it's done
+        I2C_GenerateSTOP(periph->reg_addr, ENABLE);                        // and follow with a stop
+        /* Make sure that the STOP bit is cleared by Hardware */
+        static __IO uint8_t counter = 0;
+        while ((I2C2->CR1 & 0x200) == 0x200) {
+          counter++;
+          if (counter > 100) break;
+        }
+        periph->status = I2CStopRequested;                        // remember we already trigered the stop
       }
     } // else { something very wrong has happened }
   }
@@ -604,15 +615,15 @@ static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_
  */
 static inline void on_status_reading_last_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
   if (event & I2C_FLAG_BTF) {
-    uint8_t read_byte =  I2C_ReceiveData(I2C2);
-    trans->buf[i2c2.idx_buf] = read_byte;
-    I2C_GenerateSTOP(I2C2, ENABLE);
-    i2c2.status = I2CStopRequested;
+    uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
+    trans->buf[periph->idx_buf] = read_byte;
+    I2C_GenerateSTOP(periph->reg_addr, ENABLE);
+    periph->status = I2CStopRequested;
   }
   else if (event & I2C_FLAG_RXNE) {       // should really be BTF ?
-    uint8_t read_byte =  I2C_ReceiveData(I2C2);
-    trans->buf[i2c2.idx_buf] = read_byte;
-    i2c2.status = I2CStopRequested;
+    uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
+    trans->buf[periph->idx_buf] = read_byte;
+    periph->status = I2CStopRequested;
   }
   else
     SPURIOUS_INTERRUPT(I2CReadingLastByte, event);
@@ -626,8 +637,8 @@ static inline void on_status_restart_requested(struct i2c_periph *periph, struct
   //  DEBUG_S6_ON();
   if (event & I2C_FLAG_SB) {
     //    DEBUG_S2_ON();
-    I2C_Send7bitAddress(I2C2, trans->slave_addr, I2C_Direction_Receiver);
-    i2c2.status = I2CAddrRdSent;
+    I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Receiver);
+    periph->status = I2CAddrRdSent;
     //    DEBUG_S2_OFF();
   }
 
