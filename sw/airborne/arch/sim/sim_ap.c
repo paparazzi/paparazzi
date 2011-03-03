@@ -117,3 +117,9 @@ value set_datalink_message(value s) {
   dl_parse_msg();
   return Val_unit;
 }
+
+/** Required by electrical */
+void adc_buf_channel(void* a __attribute__ ((unused)),
+		     void* b __attribute__ ((unused)),
+		     void* c __attribute__ ((unused))) {
+}

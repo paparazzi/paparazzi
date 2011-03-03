@@ -87,7 +87,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 				      "GSpeed", scale gps.gspeed 1e2;
 				      "Heading", scale (deg_of_rad gps.course) 1e5]
 
-  let infrared = fun ir_left ir_front ir_top _air_speed ->
+  let infrared_and_airspeed = fun ir_left ir_front ir_top _air_speed ->
     try
       DatalinkPprz.message_send "hitl" "HITL_INFRARED"
 	["ac_id",Pprz.Int !my_id;
