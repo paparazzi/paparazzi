@@ -11,6 +11,17 @@ static void start_transaction(struct i2c_periph* p);
 
 static inline void i2c2_hard_reset(void);
 
+#define I2C_BUSY 0x20
+
+#ifdef DEBUG_I2C
+#define SPURIOUS_INTERRUPT(_status, _event) { while(1); }
+#define OUT_OF_SYNC_STATE_MACHINE(_status, _event) { while(1); }
+#else
+#define SPURIOUS_INTERRUPT(_status, _event) {}
+#define OUT_OF_SYNC_STATE_MACHINE(_status, _event) {}
+#endif
+
+
 #ifdef USE_I2C1
 
 struct i2c_errors i2c1_errors;
@@ -329,14 +340,6 @@ static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_
 static inline void on_status_reading_last_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 static inline void on_status_restart_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 
-#ifdef DEBUG_I2C
-#define SPURIOUS_INTERRUPT(_status, _event) { while(1); }
-#define OUT_OF_SYNC_STATE_MACHINE(_status, _event) { while(1); }
-#else
-#define SPURIOUS_INTERRUPT(_status, _event) {}
-#define OUT_OF_SYNC_STATE_MACHINE(_status, _event) {}
-#endif
-
 
 #define I2C2_END_OF_TRANSACTION() {					\
     i2c2.trans_extract_idx++;						\
@@ -350,7 +353,6 @@ static inline void on_status_restart_requested(struct i2c_periph *periph, struct
       start_transaction(&i2c2);						\
   }
 
-#define I2C_BUSY 0x20
 static inline void i2c2_hard_reset(void)
 {
 	I2C_DeInit(I2C2);
