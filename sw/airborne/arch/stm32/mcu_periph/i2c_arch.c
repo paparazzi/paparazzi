@@ -34,6 +34,15 @@ static inline void end_of_transaction(struct i2c_periph *p)
       start_transaction(p);
 }
 
+static inline void abort_and_reset(struct i2c_periph *p) {
+    struct i2c_transaction* trans = p->trans[p->trans_extract_idx];
+    trans->status = I2CTransFailed;
+    I2C_ITConfig(p->reg_addr, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);
+    i2c2_hard_reset();
+    I2C_ITConfig(p->reg_addr, I2C_IT_ERR, ENABLE);
+    end_of_transaction(p);
+}
+
 #ifdef USE_I2C1
 
 struct i2c_errors i2c1_errors;
@@ -410,15 +419,6 @@ static inline void i2c2_hard_reset(void)
 	}
 }
 
-#define I2C2_ABORT_AND_RESET() {					\
-    struct i2c_transaction* trans = i2c2.trans[i2c2.trans_extract_idx];	\
-    trans->status = I2CTransFailed;    \
-    I2C_ITConfig(I2C2, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);	\
-    i2c2_hard_reset(); \
-    I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);				\
-    end_of_transaction(&i2c2); \
-  }
-
 
 
 /*
@@ -751,7 +751,7 @@ void i2c2_er_irq_handler(void) {
     I2C_ClearITPendingBit(I2C2, I2C_IT_SMBALERT);
   }
 
-  I2C2_ABORT_AND_RESET();
+  abort_and_reset(&i2c2);
 
   //  DEBUG_S5_OFF();
 
