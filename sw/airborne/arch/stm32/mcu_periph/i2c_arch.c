@@ -137,13 +137,13 @@ static inline void i2c_hard_reset(struct i2c_periph *p)
 static inline void i2c_reset_init(struct i2c_periph *p)
 {
   // Reset bus and configure GPIO pins
-  i2c_hard_reset(&i2c2);
+  i2c_hard_reset(p);
 
   // enable peripheral
-  I2C_Cmd(I2C2, ENABLE);
+  I2C_Cmd(p->reg_addr, ENABLE);
 
   // enable error interrupts
-  I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);
+  I2C_ITConfig(p->reg_addr, I2C_IT_ERR, ENABLE);
 }
 
 #ifdef USE_I2C1
