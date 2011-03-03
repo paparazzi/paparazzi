@@ -72,6 +72,8 @@ static inline void abort_and_reset(struct i2c_periph *p) {
 
 static inline void i2c_hard_reset(struct i2c_periph *p)
 {
+  I2C_TypeDef *regs = (I2C_TypeDef *) p->reg_addr;
+
 	I2C_DeInit(p->reg_addr);
 
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -120,7 +122,7 @@ static inline void i2c_hard_reset(struct i2c_periph *p)
 
   i2c_apply_config(p);
 
-	if (I2C2->SR2 & I2C_BUSY) {
+	if (regs->SR2 & I2C_BUSY) {
 		// Reset the I2C block
 		I2C_SoftwareResetCmd(p->reg_addr, ENABLE);
 		I2C_SoftwareResetCmd(p->reg_addr, DISABLE);
@@ -469,6 +471,7 @@ static inline void on_status_addr_wr_sent(struct i2c_periph *periph, struct i2c_
  *
  */
 static inline void on_status_sending_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
+  I2C_TypeDef *regs = (I2C_TypeDef *) periph->reg_addr;
   if (event & I2C_FLAG_TXE) {
     if (periph->idx_buf < trans->len_w) {
       I2C_SendData(periph->reg_addr, trans->buf[periph->idx_buf]);
@@ -480,7 +483,7 @@ static inline void on_status_sending_byte(struct i2c_periph *periph, struct i2c_
         I2C_GenerateSTOP(periph->reg_addr, ENABLE);
         /* Make sure that the STOP bit is cleared by Hardware */
         static __IO uint8_t counter = 0;
-        while ((I2C2->CR1 & 0x200) == 0x200) {
+        while ((regs->CR1 & 0x200) == 0x200) {
           counter++;
           if (counter > 100) break;
         }
@@ -542,6 +545,8 @@ static inline void on_status_stop_requested(struct i2c_periph *periph, struct i2
  *
  */
 static inline void on_status_addr_rd_sent(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
+  I2C_TypeDef *regs = (I2C_TypeDef *) periph->reg_addr;
+
   if ((event & I2C_FLAG_ADDR) && !(event & I2C_FLAG_TRA)) {
     periph->idx_buf = 0;
     if(trans->len_r == 1) {                                         // If we're going to read only one byte
@@ -549,7 +554,7 @@ static inline void on_status_addr_rd_sent(struct i2c_periph *periph, struct i2c_
       I2C_GenerateSTOP(periph->reg_addr, ENABLE);               // and followed by a stop
       /* Make sure that the STOP bit is cleared by Hardware */
       static __IO uint8_t counter = 0;
-      while ((I2C2->CR1 & 0x200) == 0x200) {
+      while ((regs->CR1 & 0x200) == 0x200) {
         counter++;
         if (counter > 100) break;
       }
@@ -571,6 +576,7 @@ static inline void on_status_addr_rd_sent(struct i2c_periph *periph, struct i2c_
  *
  */
 static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
+  I2C_TypeDef *regs = (I2C_TypeDef *) periph->reg_addr;
   if (event & I2C_FLAG_RXNE) {
     uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
     if (periph->idx_buf < trans->len_r) {
@@ -581,7 +587,7 @@ static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_
         I2C_GenerateSTOP(periph->reg_addr, ENABLE);                        // and follow with a stop
         /* Make sure that the STOP bit is cleared by Hardware */
         static __IO uint8_t counter = 0;
-        while ((I2C2->CR1 & 0x200) == 0x200) {
+        while ((regs->CR1 & 0x200) == 0x200) {
           counter++;
           if (counter > 100) break;
         }
