@@ -382,13 +382,7 @@ void i2c2_hw_init(void) {
   /* Enable GPIOB clock */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
 
-  /* Configure I2C2 pins: SCL and SDA -----------------------------------------*/
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = i2c2.scl_pin | i2c2.sda_pin;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-
+  // Reset bus and configure GPIO pins
   i2c_hard_reset(&i2c2);
 
   /* I2C Peripheral Enable ----------------------------------------------------*/
