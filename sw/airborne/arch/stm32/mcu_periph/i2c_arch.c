@@ -319,15 +319,15 @@ void i2c2_hw_init(void) {
 
 
 
-static inline void on_status_start_requested(struct i2c_transaction* trans, uint32_t event);
-static inline void on_status_addr_wr_sent(struct i2c_transaction* trans, uint32_t event);
-static inline void on_status_sending_byte(struct i2c_transaction* trans, uint32_t event);
-//static inline void on_status_sending_last_byte(struct i2c_transaction* trans, uint32_t event);
-static inline void on_status_stop_requested(struct i2c_transaction* trans, uint32_t event);
-static inline void on_status_addr_rd_sent(struct i2c_transaction* trans, uint32_t event);
-static inline void on_status_reading_byte(struct i2c_transaction* trans, uint32_t event);
-static inline void on_status_reading_last_byte(struct i2c_transaction* trans, uint32_t event);
-static inline void on_status_restart_requested(struct i2c_transaction* trans, uint32_t event);
+static inline void on_status_start_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
+static inline void on_status_addr_wr_sent(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
+static inline void on_status_sending_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
+//static inline void on_status_sending_last_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
+static inline void on_status_stop_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
+static inline void on_status_addr_rd_sent(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
+static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
+static inline void on_status_reading_last_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
+static inline void on_status_restart_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 
 #ifdef DEBUG_I2C
 #define SPURIOUS_INTERRUPT(_status, _event) { while(1); }
@@ -423,7 +423,7 @@ static inline void i2c2_hard_reset(void)
  * Start Requested
  *
  */
-static inline void on_status_start_requested(struct i2c_transaction* trans, uint32_t event) {
+static inline void on_status_start_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
   if (event & I2C_FLAG_SB) {
     if(trans->type == I2CTransRx) {
       I2C_Send7bitAddress(I2C2, trans->slave_addr, I2C_Direction_Receiver);
@@ -442,7 +442,7 @@ static inline void on_status_start_requested(struct i2c_transaction* trans, uint
  * Addr WR sent
  *
  */
-static inline void on_status_addr_wr_sent(struct i2c_transaction* trans, uint32_t event) {
+static inline void on_status_addr_wr_sent(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
   if ((event & I2C_FLAG_ADDR) && (event & I2C_FLAG_TRA)) {
     I2C_SendData(I2C2, trans->buf[0]);
     if (trans->len_w > 1) {
@@ -471,7 +471,7 @@ static inline void on_status_addr_wr_sent(struct i2c_transaction* trans, uint32_
  * Sending Byte
  *
  */
-static inline void on_status_sending_byte(struct i2c_transaction* trans, uint32_t event) {
+static inline void on_status_sending_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
   if (event & I2C_FLAG_TXE) {
     if (i2c2.idx_buf < trans->len_w) {
       I2C_SendData(I2C2, trans->buf[i2c2.idx_buf]);
@@ -527,7 +527,7 @@ static inline void on_status_sending_last_byte(struct i2c_transaction* trans, ui
  * Stop Requested
  *
  */
-static inline void on_status_stop_requested(struct i2c_transaction* trans, uint32_t event) {
+static inline void on_status_stop_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
   /* bummer.... */
   if (event & I2C_FLAG_RXNE) {
     uint8_t read_byte =  I2C_ReceiveData(I2C2);
@@ -544,7 +544,7 @@ static inline void on_status_stop_requested(struct i2c_transaction* trans, uint3
  * Addr RD sent
  *
  */
-static inline void on_status_addr_rd_sent(struct i2c_transaction* trans, uint32_t event) {
+static inline void on_status_addr_rd_sent(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
   if ((event & I2C_FLAG_ADDR) && !(event & I2C_FLAG_TRA)) {
     i2c2.idx_buf = 0;
     if(trans->len_r == 1) {                                         // If we're going to read only one byte
@@ -573,7 +573,7 @@ static inline void on_status_addr_rd_sent(struct i2c_transaction* trans, uint32_
  * Reading byte
  *
  */
-static inline void on_status_reading_byte(struct i2c_transaction* trans, uint32_t event) {
+static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
   if (event & I2C_FLAG_RXNE) {
     uint8_t read_byte =  I2C_ReceiveData(I2C2);
     if (i2c2.idx_buf < trans->len_r) {
@@ -600,7 +600,7 @@ static inline void on_status_reading_byte(struct i2c_transaction* trans, uint32_
  * Reading last byte
  *
  */
-static inline void on_status_reading_last_byte(struct i2c_transaction* trans, uint32_t event) {
+static inline void on_status_reading_last_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
   if (event & I2C_FLAG_BTF) {
     uint8_t read_byte =  I2C_ReceiveData(I2C2);
     trans->buf[i2c2.idx_buf] = read_byte;
@@ -620,7 +620,7 @@ static inline void on_status_reading_last_byte(struct i2c_transaction* trans, ui
  * Restart requested
  *
  */
-static inline void on_status_restart_requested(struct i2c_transaction* trans, uint32_t event) {
+static inline void on_status_restart_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
   //  DEBUG_S6_ON();
   if (event & I2C_FLAG_SB) {
     //    DEBUG_S2_ON();
@@ -666,14 +666,14 @@ void i2c2_ev_irq_handler(void) {
   //#endif
   switch (i2c2.status) {
   case I2CStartRequested:
-    on_status_start_requested(trans, event);
+    on_status_start_requested(&i2c2, trans, event);
     break;
   case I2CAddrWrSent:
-    on_status_addr_wr_sent(trans, event);
+    on_status_addr_wr_sent(&i2c2, trans, event);
     break;
   case I2CSendingByte:
     //    DEBUG_S4_ON();
-    on_status_sending_byte(trans, event);
+    on_status_sending_byte(&i2c2, trans, event);
     //    DEBUG_S4_OFF();
     break;
 #if 0
@@ -685,25 +685,25 @@ void i2c2_ev_irq_handler(void) {
 #endif
   case I2CStopRequested:
     //    DEBUG_S1_ON();
-    on_status_stop_requested(trans, event);
+    on_status_stop_requested(&i2c2, trans, event);
     //    DEBUG_S1_OFF();
     break;
   case I2CAddrRdSent:
-    on_status_addr_rd_sent(trans, event);
+    on_status_addr_rd_sent(&i2c2, trans, event);
     break;
   case I2CReadingByte:
     //    DEBUG_S2_ON();
-    on_status_reading_byte(trans, event);
+    on_status_reading_byte(&i2c2, trans, event);
     //    DEBUG_S2_OFF();
     break;
   case I2CReadingLastByte:
     //    DEBUG_S5_ON();
-    on_status_reading_last_byte(trans, event);
+    on_status_reading_last_byte(&i2c2, trans, event);
     //    DEBUG_S5_OFF();
     break;
   case I2CRestartRequested:
     //    DEBUG_S5_ON();
-    on_status_restart_requested(trans, event);
+    on_status_restart_requested(&i2c2, trans, event);
     //    DEBUG_S5_OFF();
     break;
   default:
