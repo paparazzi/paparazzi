@@ -666,42 +666,46 @@ void i2c2_ev_irq_handler(void) {
   i2c_event(&i2c2, event);
 }
 
-
-void i2c2_er_irq_handler(void) {
-  i2c2_errors.er_irq_cnt;
-  if (I2C_GetITStatus(I2C2, I2C_IT_AF)) {       /* Acknowledge failure */
-    i2c2_errors.ack_fail_cnt++;
-    I2C_ClearITPendingBit(I2C2, I2C_IT_AF);
+static inline void i2c_error(struct i2c_periph *p)
+{
+  p->errors->er_irq_cnt;
+  if (I2C_GetITStatus(p->reg_addr, I2C_IT_AF)) {       /* Acknowledge failure */
+    p->errors->ack_fail_cnt++;
+    I2C_ClearITPendingBit(p->reg_addr, I2C_IT_AF);
   }
-  if (I2C_GetITStatus(I2C2, I2C_IT_BERR)) {     /* Misplaced Start or Stop condition */
-    i2c2_errors.miss_start_stop_cnt++;
-    I2C_ClearITPendingBit(I2C2, I2C_IT_BERR);
+  if (I2C_GetITStatus(p->reg_addr, I2C_IT_BERR)) {     /* Misplaced Start or Stop condition */
+    p->errors->miss_start_stop_cnt++;
+    I2C_ClearITPendingBit(p->reg_addr, I2C_IT_BERR);
   }
-  if (I2C_GetITStatus(I2C2, I2C_IT_ARLO)) {     /* Arbitration lost */
-    i2c2_errors.arb_lost_cnt++;
-    I2C_ClearITPendingBit(I2C2, I2C_IT_ARLO);
+  if (I2C_GetITStatus(p->reg_addr, I2C_IT_ARLO)) {     /* Arbitration lost */
+    p->errors->arb_lost_cnt++;
+    I2C_ClearITPendingBit(p->reg_addr, I2C_IT_ARLO);
     //    I2C_AcknowledgeConfig(I2C2, DISABLE);
     //    uint8_t dummy __attribute__ ((unused)) = I2C_ReceiveData(I2C2);
     //    I2C_GenerateSTOP(I2C2, ENABLE);
   }
-  if (I2C_GetITStatus(I2C2, I2C_IT_OVR)) {      /* Overrun/Underrun */
-    i2c2_errors.over_under_cnt++;
-    I2C_ClearITPendingBit(I2C2, I2C_IT_OVR);
+  if (I2C_GetITStatus(p->reg_addr, I2C_IT_OVR)) {      /* Overrun/Underrun */
+    p->errors->over_under_cnt++;
+    I2C_ClearITPendingBit(p->reg_addr, I2C_IT_OVR);
   }
-  if (I2C_GetITStatus(I2C2, I2C_IT_PECERR)) {   /* PEC Error in reception */
-    i2c2_errors.pec_recep_cnt++;
-    I2C_ClearITPendingBit(I2C2, I2C_IT_PECERR);
+  if (I2C_GetITStatus(p->reg_addr, I2C_IT_PECERR)) {   /* PEC Error in reception */
+    p->errors->pec_recep_cnt++;
+    I2C_ClearITPendingBit(p->reg_addr, I2C_IT_PECERR);
   }
-  if (I2C_GetITStatus(I2C2, I2C_IT_TIMEOUT)) {  /* Timeout or Tlow error */
-    i2c2_errors.timeout_tlow_cnt++;
-    I2C_ClearITPendingBit(I2C2, I2C_IT_TIMEOUT);
+  if (I2C_GetITStatus(p->reg_addr, I2C_IT_TIMEOUT)) {  /* Timeout or Tlow error */
+    p->errors->timeout_tlow_cnt++;
+    I2C_ClearITPendingBit(p->reg_addr, I2C_IT_TIMEOUT);
   }
-  if (I2C_GetITStatus(I2C2, I2C_IT_SMBALERT)) { /* SMBus alert */
-    i2c2_errors.smbus_alert_cnt++;
-    I2C_ClearITPendingBit(I2C2, I2C_IT_SMBALERT);
+  if (I2C_GetITStatus(p->reg_addr, I2C_IT_SMBALERT)) { /* SMBus alert */
+    p->errors->smbus_alert_cnt++;
+    I2C_ClearITPendingBit(p->reg_addr, I2C_IT_SMBALERT);
   }
 
-  abort_and_reset(&i2c2);
+  abort_and_reset(p);
+}
+
+void i2c2_er_irq_handler(void) {
+  i2c_error(&i2c2);
 
 }
 
