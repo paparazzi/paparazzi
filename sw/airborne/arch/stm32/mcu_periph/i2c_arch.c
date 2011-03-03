@@ -133,18 +133,6 @@ struct i2c_errors i2c1_errors;
 
 #include "my_debug_servo.h"
 
-#define I2C1_END_OF_TRANSACTION() {					\
-    i2c1.trans_extract_idx++;						\
-    if (i2c1.trans_extract_idx>=I2C_TRANSACTION_QUEUE_LEN)		\
-      i2c1.trans_extract_idx = 0;					\
-    /* if we have no more transaction to process, stop here */		\
-    if (i2c1.trans_extract_idx == i2c1.trans_insert_idx)		\
-      i2c1.status = I2CIdle;						\
-    /* if not, start next transaction */				\
-    else								\
-      start_transaction(&i2c1);						\
-  }
-
 #define I2C1_ABORT_AND_RESET() {					\
     struct i2c_transaction* trans2 = i2c1.trans[i2c1.trans_extract_idx]; \
     trans2->status = I2CTransFailed;					\
@@ -154,7 +142,7 @@ struct i2c_errors i2c1_errors;
     I2C_Cmd(I2C1, ENABLE);						\
     i2c_apply_config(&i2c1); \
     I2C_ITConfig(I2C1, I2C_IT_ERR, ENABLE);				\
-    I2C1_END_OF_TRANSACTION();						\
+    end_of_transaction(&i2c1); \
   }
 
 //
@@ -274,7 +262,7 @@ void i2c1_ev_irq_handler(void) {
     else {
       trans->status = I2CTransSuccess;
       I2C_ITConfig(I2C1, I2C_IT_EVT, DISABLE);
-      I2C1_END_OF_TRANSACTION();
+      end_of_transaction(&i2c1);
     }
     //      while (I2C_GetFlagStatus(I2C1, I2C_FLAG_MSL));
     break;
