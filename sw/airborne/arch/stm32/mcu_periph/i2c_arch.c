@@ -21,6 +21,20 @@ static inline void i2c2_hard_reset(void);
 #define OUT_OF_SYNC_STATE_MACHINE(_status, _event) {}
 #endif
 
+static inline void i2c_apply_config(struct i2c_periph *p)
+{
+    I2C_InitTypeDef  I2C_InitStructure= {
+      .I2C_Mode = I2C_Mode_I2C,
+      .I2C_DutyCycle = I2C_DutyCycle_2,
+      .I2C_OwnAddress1 = 0x00,
+      .I2C_Ack = I2C_Ack_Enable,
+      .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
+      .I2C_ClockSpeed = 300000
+    };
+    I2C_Init(p->reg_addr, &I2C_InitStructure);
+
+}
+
 static inline void end_of_transaction(struct i2c_periph *p)
 {
     p->trans_extract_idx++;
@@ -276,21 +290,6 @@ struct i2c_errors i2c2_errors;
 
 #include "my_debug_servo.h"
 
-#define I2C2_APPLY_CONFIG() {						\
-                                        \
-    I2C_InitTypeDef  I2C_InitStructure= {				\
-      .I2C_Mode = I2C_Mode_I2C,						\
-      .I2C_DutyCycle = I2C_DutyCycle_2,					\
-      .I2C_OwnAddress1 = 0x00,						\
-      .I2C_Ack = I2C_Ack_Enable,					\
-      .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,		\
-      .I2C_ClockSpeed = 300000						\
-    };									\
-    I2C_Init(I2C2, &I2C_InitStructure);					\
-                                    \
-  }
-
-
 void i2c2_hw_init(void) {
 
   i2c2.reg_addr = I2C2;
@@ -337,7 +336,7 @@ void i2c2_hw_init(void) {
   I2C_Cmd(I2C2, ENABLE);
 
   /* Apply I2C configuration after enabling it */
-  I2C2_APPLY_CONFIG();
+  i2c_apply_config(&i2c2);
 
 
   /* Enable I2C2 error interrupts ---------------------------------------------*/
@@ -410,7 +409,7 @@ static inline void i2c2_hard_reset(void)
 
 	I2C_DeInit(I2C2);
 
-  I2C2_APPLY_CONFIG();
+  i2c_apply_config(&i2c2);
 
 	if (I2C2->SR2 & I2C_BUSY) {
 		// Reset the I2C block
