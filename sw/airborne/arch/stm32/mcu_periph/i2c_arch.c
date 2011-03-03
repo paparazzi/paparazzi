@@ -20,18 +20,18 @@ static inline void i2c_hard_reset(struct i2c_periph *p);
 #define OUT_OF_SYNC_STATE_MACHINE(_status, _event) {}
 #endif
 
-static inline void i2c_apply_config(struct i2c_periph *p)
-{
-    I2C_InitTypeDef  I2C_InitStructure= {
+static I2C_InitTypeDef  I2C2_InitStruct = {
       .I2C_Mode = I2C_Mode_I2C,
       .I2C_DutyCycle = I2C_DutyCycle_2,
       .I2C_OwnAddress1 = 0x00,
       .I2C_Ack = I2C_Ack_Enable,
       .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
       .I2C_ClockSpeed = 300000
-    };
-    I2C_Init(p->reg_addr, &I2C_InitStructure);
+};
 
+static inline void i2c_apply_config(struct i2c_periph *p)
+{
+    I2C_Init(p->reg_addr, p->init_struct);
 }
 
 static inline void end_of_transaction(struct i2c_periph *p)
@@ -61,41 +61,41 @@ static inline void i2c_hard_reset(struct i2c_periph *p)
 	I2C_DeInit(p->reg_addr);
 
   GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11;
+  GPIO_InitStructure.GPIO_Pin = p->scl_pin | p->sda_pin;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
-	GPIO_SetBits(GPIOB, GPIO_Pin_10 | GPIO_Pin_11);
+	GPIO_SetBits(GPIOB, p->scl_pin | p->sda_pin);
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-	while(GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_11) == Bit_RESET) {
+	while(GPIO_ReadInputDataBit(GPIOB, p->sda_pin) == Bit_RESET) {
 		// Raise SCL, wait until SCL is high (in case of clock stretching)
-		GPIO_SetBits(GPIOB, GPIO_Pin_10);
-		while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_10) == Bit_RESET);
+		GPIO_SetBits(GPIOB, p->scl_pin);
+		while (GPIO_ReadInputDataBit(GPIOB, p->scl_pin) == Bit_RESET);
     for (__IO int j = 0; j < 50; j++);
 		
 		// Lower SCL, wait
-		GPIO_ResetBits(GPIOB, GPIO_Pin_10);
+		GPIO_ResetBits(GPIOB, p->scl_pin);
     for (__IO int j = 0; j < 50; j++);
 		
 		// Raise SCL, wait
-		GPIO_SetBits(GPIOB, GPIO_Pin_10);
+		GPIO_SetBits(GPIOB, p->scl_pin);
     for (__IO int j = 0; j < 50; j++);
 	}
 		
 	// Generate a start condition followed by a stop condition
-	GPIO_SetBits(GPIOB, GPIO_Pin_10);
+	GPIO_SetBits(GPIOB, p->scl_pin);
   for (__IO int j = 0; j < 50; j++);
-	GPIO_ResetBits(GPIOB, GPIO_Pin_11);
+	GPIO_ResetBits(GPIOB, p->sda_pin);
   for (__IO int j = 0; j < 50; j++);
-	GPIO_ResetBits(GPIOB, GPIO_Pin_11);
+	GPIO_ResetBits(GPIOB, p->sda_pin);
   for (__IO int j = 0; j < 50; j++);
 
 	// Raise both SCL and SDA and wait for SCL high (in case of clock stretching)
-	GPIO_SetBits(GPIOB, GPIO_Pin_10 | GPIO_Pin_11);
-	while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_10) == Bit_RESET);
+	GPIO_SetBits(GPIOB, p->scl_pin | p->sda_pin);
+	while (GPIO_ReadInputDataBit(GPIOB, p->scl_pin) == Bit_RESET);
 
 	// Wait for SDA to be high
-	while (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_11) != Bit_SET);
+	while (GPIO_ReadInputDataBit(GPIOB, p->sda_pin) != Bit_SET);
 
 	// SCL and SDA should be high at this point, bus should be free
 	// Return the GPIO pins to the alternate function
@@ -349,6 +349,9 @@ struct i2c_errors i2c2_errors;
 void i2c2_hw_init(void) {
 
   i2c2.reg_addr = I2C2;
+  i2c2.init_struct = &I2C2_InitStruct;
+  i2c2.scl_pin = GPIO_Pin_10;
+  i2c2.sda_pin = GPIO_Pin_11;
 
   /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c2_errors);
@@ -381,7 +384,7 @@ void i2c2_hw_init(void) {
 
   /* Configure I2C2 pins: SCL and SDA -----------------------------------------*/
   GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_10 | GPIO_Pin_11;
+  GPIO_InitStructure.GPIO_Pin = i2c2.scl_pin | i2c2.sda_pin;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
