@@ -260,7 +260,6 @@ void i2c1_ev_irq_handler(void) {
 
     /* Test on I2C1 EV8 and clear it */
   case I2C_EVENT_MASTER_BYTE_TRANSMITTING:  /* Without BTF, EV8 */
-    //    DEBUG_S5_TOGGLE();
     if(i2c1.idx_buf < trans->len_w) {
       I2C_SendData(I2C1, trans->buf[i2c1.idx_buf]);
       i2c1.idx_buf++;
@@ -273,7 +272,6 @@ void i2c1_ev_irq_handler(void) {
     break;
 
   case I2C_EVENT_MASTER_BYTE_TRANSMITTED: /* With BTF EV8-2 */
-    //    DEBUG_S6_TOGGLE();
     if(i2c1.idx_buf < trans->len_w) {
       I2C_SendData(I2C1, trans->buf[i2c1.idx_buf]);
       i2c1.idx_buf++;
@@ -290,7 +288,6 @@ void i2c1_ev_irq_handler(void) {
     i2c1_errors.unexpected_event_cnt++;
     i2c1_errors.last_unexpected_event = event;
     // spurious Interrupt
-    //    DEBUG_S2_TOGGLE();
     // I have already had I2C_EVENT_SLAVE_STOP_DETECTED ( 0x10 )
     // let's clear that by restarting I2C
     //    if (event ==  I2C_EVENT_SLAVE_STOP_DETECTED) {
@@ -622,49 +619,15 @@ static inline void on_status_reading_last_byte(struct i2c_periph *periph, struct
  *
  */
 static inline void on_status_restart_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
-  //  DEBUG_S6_ON();
   if (event & I2C_FLAG_SB) {
-    //    DEBUG_S2_ON();
     I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Receiver);
     periph->status = I2CAddrRdSent;
-    //    DEBUG_S2_OFF();
   }
-
-  if (event & I2C_FLAG_BTF) {
-    //    DEBUG_S5_ON();
-    //    DEBUG_S5_OFF();
-  }
-
-  if (event & I2C_FLAG_TXE) {
-    //    DEBUG_S3_ON();
-    //    DEBUG_S3_OFF();
-  }
-
-  //  if (event & I2C_FLAG_TXE) {
-  //    DEBUG_S2_ON();
-  //    DEBUG_S2_OFF();
-  //  }
-
-
-  //  else if (event & I2C_FLAG_TXE) {
-    //    i2c2.status = I2CReadingByte;
-  //  }
-  //  else
-  //    SPURIOUS_INTERRUPT(I2CRestartRequested, event);
-  //  DEBUG_S6_OFF();
 }
 
 void i2c2_ev_irq_handler(void) {
-  //  DEBUG_S4_ON();
   uint32_t event = I2C_GetLastEvent(I2C2);
   struct i2c_transaction* trans = i2c2.trans[i2c2.trans_extract_idx];
-  //#if 0
-  //  if (i2c2_errors.irq_cnt < 16) {
-  //  i2c2_errors.event_chain[i2c2_errors.irq_cnt] = event;
-  //  i2c2_errors.status_chain[i2c2_errors.irq_cnt] = i2c2.status;
-  //  i2c2_errors.irq_cnt++;
-  //  } else { while (1);}
-  //#endif
   switch (i2c2.status) {
   case I2CStartRequested:
     on_status_start_requested(&i2c2, trans, event);
@@ -673,50 +636,36 @@ void i2c2_ev_irq_handler(void) {
     on_status_addr_wr_sent(&i2c2, trans, event);
     break;
   case I2CSendingByte:
-    //    DEBUG_S4_ON();
     on_status_sending_byte(&i2c2, trans, event);
-    //    DEBUG_S4_OFF();
     break;
 #if 0
   case I2CSendingLastByte:
-    //    DEBUG_S5_ON();
     on_status_sending_last_byte(trans, event);
-    //    DEBUG_S5_OFF();
     break;
 #endif
   case I2CStopRequested:
-    //    DEBUG_S1_ON();
     on_status_stop_requested(&i2c2, trans, event);
-    //    DEBUG_S1_OFF();
     break;
   case I2CAddrRdSent:
     on_status_addr_rd_sent(&i2c2, trans, event);
     break;
   case I2CReadingByte:
-    //    DEBUG_S2_ON();
     on_status_reading_byte(&i2c2, trans, event);
-    //    DEBUG_S2_OFF();
     break;
   case I2CReadingLastByte:
-    //    DEBUG_S5_ON();
     on_status_reading_last_byte(&i2c2, trans, event);
-    //    DEBUG_S5_OFF();
     break;
   case I2CRestartRequested:
-    //    DEBUG_S5_ON();
     on_status_restart_requested(&i2c2, trans, event);
-    //    DEBUG_S5_OFF();
     break;
   default:
     OUT_OF_SYNC_STATE_MACHINE(i2c2.status, event);
     break;
   }
-  //  DEBUG_S4_OFF();
 }
 
 
 void i2c2_er_irq_handler(void) {
-  //  DEBUG_S5_ON();
   i2c2_errors.er_irq_cnt;
   if (I2C_GetITStatus(I2C2, I2C_IT_AF)) {       /* Acknowledge failure */
     i2c2_errors.ack_fail_cnt++;
@@ -751,8 +700,6 @@ void i2c2_er_irq_handler(void) {
   }
 
   abort_and_reset(&i2c2);
-
-  //  DEBUG_S5_OFF();
 
 }
 
