@@ -65,7 +65,7 @@ static inline void abort_and_reset(struct i2c_periph *p) {
     struct i2c_transaction* trans = p->trans[p->trans_extract_idx];
     trans->status = I2CTransFailed;
     I2C_ITConfig(p->reg_addr, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);
-    i2c_hard_reset(&i2c2);
+    i2c_hard_reset(p);
     I2C_ITConfig(p->reg_addr, I2C_IT_ERR, ENABLE);
     end_of_transaction(p);
 }
@@ -118,7 +118,7 @@ static inline void i2c_hard_reset(struct i2c_periph *p)
 
 	I2C_DeInit(p->reg_addr);
 
-  i2c_apply_config(&i2c2);
+  i2c_apply_config(p);
 
 	if (I2C2->SR2 & I2C_BUSY) {
 		// Reset the I2C block
