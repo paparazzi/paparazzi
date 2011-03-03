@@ -7,7 +7,7 @@
 
 
 static void start_transaction(struct i2c_periph* p);
-
+static inline void end_of_transaction(struct i2c_periph *p);
 
 static inline void i2c2_hard_reset(void);
 
@@ -21,17 +21,18 @@ static inline void i2c2_hard_reset(void);
 #define OUT_OF_SYNC_STATE_MACHINE(_status, _event) {}
 #endif
 
-#define END_OF_TRANSACTION(periph) {					\
-    periph->trans_extract_idx++;						\
-    if (periph->trans_extract_idx>=I2C_TRANSACTION_QUEUE_LEN)		\
-      periph->trans_extract_idx = 0;					\
-    /* if we have no more transaction to process, stop here */		\
-    if (periph->trans_extract_idx == i2c2.trans_insert_idx)		\
-      periph->status = I2CIdle;						\
-    /* if not, start next transaction */				\
-    else								\
-      start_transaction(periph);						\
-  }
+static inline void end_of_transaction(struct i2c_periph *p)
+{
+    p->trans_extract_idx++;
+    if (p->trans_extract_idx >= I2C_TRANSACTION_QUEUE_LEN)
+      p->trans_extract_idx = 0;
+    /* if we have no more transaction to process, stop here */
+    if (p->trans_extract_idx == p->trans_insert_idx)
+      p->status = I2CIdle;
+    /* if not, start next transaction */
+    else
+      start_transaction(p);
+}
 
 #ifdef USE_I2C1
 
@@ -352,18 +353,6 @@ static inline void on_status_reading_last_byte(struct i2c_periph *periph, struct
 static inline void on_status_restart_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 
 
-#define I2C2_END_OF_TRANSACTION() {					\
-    i2c2.trans_extract_idx++;						\
-    if (i2c2.trans_extract_idx>=I2C_TRANSACTION_QUEUE_LEN)		\
-      i2c2.trans_extract_idx = 0;					\
-    /* if we have no more transaction to process, stop here */		\
-    if (i2c2.trans_extract_idx == i2c2.trans_insert_idx)		\
-      i2c2.status = I2CIdle;						\
-    /* if not, start next transaction */				\
-    else								\
-      start_transaction(&i2c2);						\
-  }
-
 static inline void i2c2_hard_reset(void)
 {
 	I2C_DeInit(I2C2);
@@ -427,7 +416,7 @@ static inline void i2c2_hard_reset(void)
     I2C_ITConfig(I2C2, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);	\
     i2c2_hard_reset(); \
     I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);				\
-    I2C2_END_OF_TRANSACTION(); \
+    end_of_transaction(&i2c2); \
   }
 
 
@@ -550,7 +539,7 @@ static inline void on_status_stop_requested(struct i2c_periph *periph, struct i2
   }
   I2C_ITConfig(periph->reg_addr, I2C_IT_EVT|I2C_IT_BUF, DISABLE);  // should only need to disable evt, buf already disabled
   trans->status = I2CTransSuccess;
-  END_OF_TRANSACTION(periph);
+  end_of_transaction(periph);
 }
 
 /*
