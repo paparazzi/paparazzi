@@ -8,8 +8,7 @@
 
 static void start_transaction(struct i2c_periph* p);
 static inline void end_of_transaction(struct i2c_periph *p);
-
-static inline void i2c2_hard_reset(void);
+static inline void i2c_hard_reset(struct i2c_periph *p);
 
 #define I2C_BUSY 0x20
 
@@ -52,7 +51,7 @@ static inline void abort_and_reset(struct i2c_periph *p) {
     struct i2c_transaction* trans = p->trans[p->trans_extract_idx];
     trans->status = I2CTransFailed;
     I2C_ITConfig(p->reg_addr, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);
-    i2c2_hard_reset();
+    i2c_hard_reset(&i2c2);
     I2C_ITConfig(p->reg_addr, I2C_IT_ERR, ENABLE);
     end_of_transaction(p);
 }
@@ -330,7 +329,7 @@ void i2c2_hw_init(void) {
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-  i2c2_hard_reset();
+  i2c_hard_reset(&i2c2);
 
   /* I2C Peripheral Enable ----------------------------------------------------*/
   I2C_Cmd(I2C2, ENABLE);
@@ -361,9 +360,9 @@ static inline void on_status_reading_last_byte(struct i2c_periph *periph, struct
 static inline void on_status_restart_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 
 
-static inline void i2c2_hard_reset(void)
+static inline void i2c_hard_reset(struct i2c_periph *p)
 {
-	I2C_DeInit(I2C2);
+	I2C_DeInit(p->reg_addr);
 
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11;
@@ -407,14 +406,14 @@ static inline void i2c2_hard_reset(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-	I2C_DeInit(I2C2);
+	I2C_DeInit(p->reg_addr);
 
   i2c_apply_config(&i2c2);
 
 	if (I2C2->SR2 & I2C_BUSY) {
 		// Reset the I2C block
-		I2C_SoftwareResetCmd(I2C2, ENABLE);
-		I2C_SoftwareResetCmd(I2C2, DISABLE);
+		I2C_SoftwareResetCmd(p->reg_addr, ENABLE);
+		I2C_SoftwareResetCmd(p->reg_addr, DISABLE);
 	}
 }
 
