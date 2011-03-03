@@ -627,43 +627,43 @@ static inline void on_status_restart_requested(struct i2c_periph *periph, struct
   }
 }
 
-void i2c2_ev_irq_handler(void) {
-  uint32_t event = I2C_GetLastEvent(I2C2);
-  struct i2c_transaction* trans = i2c2.trans[i2c2.trans_extract_idx];
-  switch (i2c2.status) {
+static inline void i2c_event(struct i2c_periph *p, uint32_t event)
+{
+  struct i2c_transaction* trans = p->trans[p->trans_extract_idx];
+  switch (p->status) {
   case I2CStartRequested:
-    on_status_start_requested(&i2c2, trans, event);
+    on_status_start_requested(p, trans, event);
     break;
   case I2CAddrWrSent:
-    on_status_addr_wr_sent(&i2c2, trans, event);
+    on_status_addr_wr_sent(p, trans, event);
     break;
   case I2CSendingByte:
-    on_status_sending_byte(&i2c2, trans, event);
+    on_status_sending_byte(p, trans, event);
     break;
-#if 0
-  case I2CSendingLastByte:
-    on_status_sending_last_byte(trans, event);
-    break;
-#endif
   case I2CStopRequested:
-    on_status_stop_requested(&i2c2, trans, event);
+    on_status_stop_requested(p, trans, event);
     break;
   case I2CAddrRdSent:
-    on_status_addr_rd_sent(&i2c2, trans, event);
+    on_status_addr_rd_sent(p, trans, event);
     break;
   case I2CReadingByte:
-    on_status_reading_byte(&i2c2, trans, event);
+    on_status_reading_byte(p, trans, event);
     break;
   case I2CReadingLastByte:
-    on_status_reading_last_byte(&i2c2, trans, event);
+    on_status_reading_last_byte(p, trans, event);
     break;
   case I2CRestartRequested:
-    on_status_restart_requested(&i2c2, trans, event);
+    on_status_restart_requested(p, trans, event);
     break;
   default:
-    OUT_OF_SYNC_STATE_MACHINE(i2c2.status, event);
+    OUT_OF_SYNC_STATE_MACHINE(p->status, event);
     break;
   }
+}
+
+void i2c2_ev_irq_handler(void) {
+  uint32_t event = I2C_GetLastEvent(I2C2);
+  i2c_event(&i2c2, event);
 }
 
 
