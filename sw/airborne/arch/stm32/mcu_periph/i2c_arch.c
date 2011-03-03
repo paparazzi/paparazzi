@@ -75,18 +75,15 @@ static inline void abort_and_reset(struct i2c_periph *p) {
     end_of_transaction(p);
 }
 
+#ifdef USE_I2C2
 static inline void on_status_start_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 static inline void on_status_addr_wr_sent(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 static inline void on_status_sending_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
-//static inline void on_status_sending_last_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 static inline void on_status_stop_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 static inline void on_status_addr_rd_sent(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 static inline void on_status_reading_last_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 static inline void on_status_restart_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
-
-
-
 
 /*
  * Start Requested
@@ -168,30 +165,6 @@ static inline void on_status_sending_byte(struct i2c_periph *periph, struct i2c_
   else
     SPURIOUS_INTERRUPT(I2CSendingByte, event);
 }
-
-#if 0
-/*
- * Sending last byte
- *
- */
-static inline void on_status_sending_last_byte(struct i2c_transaction* trans, uint32_t event) {
-  if (event & I2C_FLAG_TXE) {     // should really be BTF as we're supposed to have disabled buf it already
-    struct i2c_transaction* trans = i2c2.trans[i2c2.trans_extract_idx];
-    if (trans->type == I2CTransTx) {
-      I2C_GenerateSTOP(I2C2, ENABLE);
-      i2c2.status = I2CStopRequested;
-    }
-    else {
-      I2C_GenerateSTART(I2C2, ENABLE);
-      i2c2.status = I2CRestartRequested;
-    }
-    //    I2C_ITConfig(I2C2, I2C_IT_BUF, DISABLE);
-  }
-  else
-    SPURIOUS_INTERRUPT(I2CSendingLastByte, event);
-}
-#endif
-
 
 /*
  * Stop Requested
@@ -445,6 +418,7 @@ static inline void i2c_reset_init(struct i2c_periph *p)
   // enable error interrupts
   I2C_ITConfig(p->reg_addr, I2C_IT_ERR, ENABLE);
 }
+#endif
 
 #ifdef USE_I2C1
 
