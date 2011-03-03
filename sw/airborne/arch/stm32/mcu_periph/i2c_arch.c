@@ -20,6 +20,15 @@ static inline void i2c_hard_reset(struct i2c_periph *p);
 #define OUT_OF_SYNC_STATE_MACHINE(_status, _event) {}
 #endif
 
+static I2C_InitTypeDef  I2C1_InitStruct = {
+      .I2C_Mode = I2C_Mode_I2C,
+      .I2C_DutyCycle = I2C_DutyCycle_2,
+      .I2C_OwnAddress1 = 0x00,
+      .I2C_Ack = I2C_Ack_Enable,
+      .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
+      .I2C_ClockSpeed = 200000
+};
+
 static I2C_InitTypeDef  I2C2_InitStruct = {
       .I2C_Mode = I2C_Mode_I2C,
       .I2C_DutyCycle = I2C_DutyCycle_2,
@@ -124,17 +133,6 @@ struct i2c_errors i2c1_errors;
 
 #include "my_debug_servo.h"
 
-#define I2C1_APPLY_CONFIG() {						\
-    I2C_InitTypeDef  I2C_InitStructure;					\
-    I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;				\
-    I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;			\
-    I2C_InitStructure.I2C_OwnAddress1 = 0x00;				\
-    I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;				\
-    I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit; \
-    I2C_InitStructure.I2C_ClockSpeed = 200000;				\
-    I2C_Init(I2C1, &I2C_InitStructure);					\
-  }
-
 #define I2C1_END_OF_TRANSACTION() {					\
     i2c1.trans_extract_idx++;						\
     if (i2c1.trans_extract_idx>=I2C_TRANSACTION_QUEUE_LEN)		\
@@ -154,7 +152,7 @@ struct i2c_errors i2c1_errors;
     I2C_Cmd(I2C1, DISABLE);						\
     I2C_DeInit(I2C1);							\
     I2C_Cmd(I2C1, ENABLE);						\
-    I2C1_APPLY_CONFIG();						\
+    i2c_apply_config(&i2c1); \
     I2C_ITConfig(I2C1, I2C_IT_ERR, ENABLE);				\
     I2C1_END_OF_TRANSACTION();						\
   }
@@ -172,6 +170,9 @@ struct i2c_errors i2c1_errors;
 void i2c1_hw_init(void) {
 
   i2c1.reg_addr = I2C1;
+  i2c1.init_struct = &I2C1_InitStruct;
+  i2c1.scl_pin = GPIO_Pin_6;
+  i2c1.sda_pin = GPIO_Pin_7;
 
   /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c1_errors);
@@ -214,7 +215,7 @@ void i2c1_hw_init(void) {
   /* I2C Peripheral Enable */
   I2C_Cmd(I2C1, ENABLE);
   /* Apply I2C configuration after enabling it */
-  I2C1_APPLY_CONFIG();
+  i2c_apply_config(&i2c1);
 
   /* Enable I2C1 error interrupts */
   I2C_ITConfig(I2C1, I2C_IT_ERR, ENABLE);
