@@ -60,10 +60,6 @@ void ArduIMU_init( void ) {
   ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 }
 
-
-#define GPS_DATA_MSG1   0
-#define GPS_DATA_MSG2   1
-
 #define FillBufWith32bit(_buf, _index, _value) {  \
   _buf[_index] = (uint8_t) (_value);              \
   _buf[_index+1] = (uint8_t) ((_value) >> 8);     \
@@ -71,49 +67,29 @@ void ArduIMU_init( void ) {
   _buf[_index+3] = (uint8_t) ((_value) >> 24);    \
 }
 
-
 void ArduIMU_periodicGPS( void ) {
-  static uint8_t gps_data_status = GPS_DATA_MSG1;
 
   if (ardu_gps_trans.status != I2CTransDone) { return; }
 
-  if ( gps_data_status == GPS_DATA_MSG1 ) {
-    //posllh
-    GPS_Data [0] = gps_itow;
-    GPS_Data [1] = gps_lon;
-    GPS_Data [2] = gps_lat;
-    GPS_Data [3] = gps_alt;   // height above elipsoid
-    GPS_Data [4] = gps_hmsl;  // height above sea level
-    //velned
-    GPS_Data [5] = gps_speed_3d;  //speed 3D
-    GPS_Data [6] = gps_gspeed;    //ground speed
-    GPS_Data [7] = gps_course * 100000;	//Kurs
-    //status
-    GPS_Data [8] = gps_mode;          //fix
-    GPS_Data [9] = gps_status_flags;  //flags
+  //velned
+  GPS_Data [0] = gps_speed_3d;  //speed 3D
+  GPS_Data [1] = gps_gspeed;    //ground speed
+  GPS_Data [2] = gps_course * 100000;	//Kurs
+  //alt
+  GPS_Data [3] = gps_alt;   // height above elipsoid
+  GPS_Data [4] = gps_hmsl;  // height above sea level
+  //status
+  GPS_Data [5] = gps_mode;          //fix
+  GPS_Data [6] = gps_status_flags;  //flags
 
-    ardu_gps_trans.buf[0] = 0;				//message Nr = 0
-    FillBufWith32bit(ardu_gps_trans.buf, 1, GPS_Data[0]); // itow
-    FillBufWith32bit(ardu_gps_trans.buf, 5, GPS_Data[1]); // lon
-    FillBufWith32bit(ardu_gps_trans.buf, 9, GPS_Data[2]); // lat
-    FillBufWith32bit(ardu_gps_trans.buf, 13, GPS_Data[3]); // alt
-    FillBufWith32bit(ardu_gps_trans.buf, 17, GPS_Data[4]); // hmsl
-    I2CTransmit(ARDUIMU_I2C_DEV, ardu_gps_trans, ArduIMU_SLAVE_ADDR, 21);
-
-    gps_data_status = GPS_DATA_MSG2;
-  }
-  else {
-
-    ardu_gps_trans.buf[0] = 1;			//message Nr = 1
-    FillBufWith32bit(ardu_gps_trans.buf, 1, GPS_Data[5]); // speed_3d
-    FillBufWith32bit(ardu_gps_trans.buf, 5, GPS_Data[6]); // gspeed
-    FillBufWith32bit(ardu_gps_trans.buf, 9, GPS_Data[7]); // course
-    ardu_gps_trans.buf[13] = GPS_Data[8]; // status gps fix
-    ardu_gps_trans.buf[14] = GPS_Data[9]; // status flags
-    I2CTransmit(ARDUIMU_I2C_DEV, ardu_gps_trans, ArduIMU_SLAVE_ADDR, 15);
-
-    gps_data_status = GPS_DATA_MSG1;
-  }
+  FillBufWith32bit(ardu_gps_trans.buf, 0, GPS_Data[0]);
+  FillBufWith32bit(ardu_gps_trans.buf, 4, GPS_Data[1]);
+  FillBufWith32bit(ardu_gps_trans.buf, 8, GPS_Data[2]);
+  FillBufWith32bit(ardu_gps_trans.buf, 12, GPS_Data[3]);
+  FillBufWith32bit(ardu_gps_trans.buf, 16, GPS_Data[4]);
+  ardu_gps_trans.buf[20] = GPS_Data[5]; // status gps fix
+  ardu_gps_trans.buf[21] = GPS_Data[6]; // status flags
+  I2CTransmit(ARDUIMU_I2C_DEV, ardu_gps_trans, ArduIMU_SLAVE_ADDR, 22);
 
 }
 

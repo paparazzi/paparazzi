@@ -197,10 +197,6 @@ void printdata(void){
 	#if PRINT_GPS == 1
 		if(gpsFixnew==1) {
 			gpsFixnew=0;
-			Serial.print("LAT:");
-			Serial.print(lat);
-			Serial.print(",LON:");
-			Serial.print(lon);
 			Serial.print(",ALT:");
 			Serial.print(alt_MSL/1000);    // meters
 			Serial.print(",COG:");
@@ -216,10 +212,6 @@ void printdata(void){
 		}
 	#endif
       
-	//Serial.print("TOW:");
-	//Serial.print(iTOW);
-	//Serial.println("***");    
-
 #else
 	//  This section outputs binary data messages
 	//  Conforms to new binary message standard (12/31/09)
@@ -270,10 +262,10 @@ void printdata(void){
 		IMU_buffer[14]=tempint&0xff;
 		IMU_buffer[15]=(tempint>>8)&0xff;
         
-		IMU_buffer[16]=iTOW&0xff;
-		IMU_buffer[17]=(iTOW>>8)&0xff;
-		IMU_buffer[18]=(iTOW>>16)&0xff;
-		IMU_buffer[19]=(iTOW>>24)&0xff;
+		IMU_buffer[16]=0;
+		IMU_buffer[17]=0;
+		IMU_buffer[18]=0;
+		IMU_buffer[19]=0;
 
         	IMU_buffer[20]=(imu_health>>8)&0xff;
 

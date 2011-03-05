@@ -181,27 +181,13 @@ union int_union {
 int gpsFix=1; //This variable store the status of the GPS
 int gpsFixnew=0; //used to flag when new gps data received - used for binary output message flags
 int gps_fix_count = 5;		//used to count 5 good fixes at ground startup
-long lat=0; // store the Latitude from the gps to pass to output
-long lon=0; // Store the Longitude from the gps to pass to output
 long alt_MSL=0; //This is the altitude in millimeters
-long iTOW=0; //GPS Millisecond Time of Week
 long alt=0;  //Height above Ellipsoid in millimeters
 float speed_3d=0; //Speed (3-D)
 float ground_speed=0;// This is the velocity your "plane" is traveling in meters for second, 1Meters/Second= 3.6Km/H = 1.944 knots
 float ground_course=90;//This is the runaway direction of you "plane" in degrees
 float gc_offset = 0; // Force yaw output to ground course when fresh data available (only implemented for ublox&binary message)
 unsigned long GPS_timer=0;
-
-// übergnagsvariablen für die GPS Werte zwischen zu speichern
-long iTOW2=0; //GPS Millisecond Time of Week
-long lon2=0; // Store the Longitude from the gps to pass to output
-long lat2=0; // store the Latitude from the gps to pass to output
-long alt2=0;  //Height above Ellipsoid in millimeters
-long alt_MSL2=0; //This is the altitude in millimeters
-float speed_3d2=0; //Speed (3-D)
-float ground_speed2=0;// This is the velocity your "plane" is traveling in meters for second, 1Meters/Second= 3.6Km/H = 1.944 knots
-byte recPakOne = 0x00; // Paket eins Noch nicht empfangen
-
 
 #if GPS_PROTOCOL == 3
 // GPS UBLOX

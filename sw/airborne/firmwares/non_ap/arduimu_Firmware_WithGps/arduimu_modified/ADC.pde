@@ -35,8 +35,6 @@ float read_adc(int select)
 #if PRINT_DEBUG != 0
     Serial.print("!!!ADC:1,VAL:");
     Serial.print (temp);
-    Serial.print (",TOW:");
-    Serial.print (iTOW);  
     Serial.println("***");
 #endif
 #if PERFORMANCE_REPORTING == 1
@@ -50,8 +48,6 @@ float read_adc(int select)
 #if PRINT_DEBUG != 0
     Serial.print("!!!ADC:2,VAL:");
     Serial.print (temp);
-    Serial.print (",TOW:");
-    Serial.print (iTOW);  
     Serial.println("***");
 #endif    
 #if PERFORMANCE_REPORTING == 1

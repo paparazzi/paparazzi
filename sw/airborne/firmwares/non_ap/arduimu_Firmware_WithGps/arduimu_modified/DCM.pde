@@ -29,8 +29,6 @@ void Normalize(void)
     Serial.print (renorm);
     Serial.print (",ERR:");
     Serial.print (error);
-    Serial.print (",TOW:");
-    Serial.print (iTOW);  
     Serial.println("***");    
 #endif
   } else {
@@ -43,8 +41,6 @@ void Normalize(void)
     Serial.print (renorm);
     Serial.print (",ERR:");
     Serial.print (error);
-    Serial.print (",TOW:");
-    Serial.print (iTOW);  
     Serial.println("***");    
 #endif
   }
@@ -63,8 +59,6 @@ void Normalize(void)
     Serial.print (renorm);
     Serial.print (",ERR:");
     Serial.print (error);
-    Serial.print (",TOW:");
-    Serial.print (iTOW);  
     Serial.println("***");    
 #endif
   } else {
@@ -77,8 +71,6 @@ void Normalize(void)
     Serial.print (renorm);
     Serial.print (",ERR:");
     Serial.print (error);
-    Serial.print (",TOW:");
-    Serial.print (iTOW);  
     Serial.println("***");    
 #endif
   }
@@ -97,8 +89,6 @@ void Normalize(void)
     Serial.print (renorm);
     Serial.print (",ERR:");
     Serial.print (error);
-    Serial.print (",TOW:");
-    Serial.print (iTOW);  
     Serial.println("***");    
 #endif
   } else {
@@ -109,8 +99,6 @@ void Normalize(void)
 #if PRINT_DEBUG != 0
     Serial.print("???PRB:3,RNM:");
     Serial.print (renorm);
-    Serial.print (",TOW:");
-    Serial.print (iTOW);  
     Serial.println("***");    
 #endif
   }
@@ -201,8 +189,6 @@ void Drift_correction(void)
     Serial.print("!!!INT:1,MAG:");
     Serial.print (ToDeg(Integrator_magnitude));
 
-    Serial.print (",TOW:");
-    Serial.print (iTOW);  
     Serial.println("***");    
 #endif
   }
