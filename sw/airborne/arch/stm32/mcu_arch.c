@@ -36,6 +36,7 @@
 void mcu_arch_init(void) {
 
 #ifdef HSE_TYPE_EXT_CLK
+#warning Using external clock
   /* Setup the microcontroller system.
    *  Initialize the Embedded Flash Interface,
    *  initialize the PLL and update the SystemFrequency variable.
@@ -73,6 +74,7 @@ void mcu_arch_init(void) {
     while(RCC_GetSYSCLKSource() != 0x08) {}
   }
 #else  /* HSE_TYPE_EXT_CLK */
+#warning Using normal system clock setup
   SystemInit();
 #endif /* HSE_TYPE_EXT_CLK */
    /* Set the Vector Table base location at 0x08000000 */

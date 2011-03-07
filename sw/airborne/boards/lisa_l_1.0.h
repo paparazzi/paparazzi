@@ -1,6 +1,7 @@
 #ifndef CONFIG_LISA_V1_0_H
 #define CONFIG_LISA_V1_0_H
 
+#define BOARD_LISA_L
 
 #define AHB_CLK 72000000
 
