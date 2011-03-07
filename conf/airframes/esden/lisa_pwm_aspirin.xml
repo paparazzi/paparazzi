@@ -210,6 +210,8 @@
       <define name="RADIO_MODE" value="RADIO_AUX2"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
       <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/>
+      <define name = "RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value = "UART5"/>
+      <define name = "OVERRIDE_UART5_IRQ_HANDLER"/>
     </target>
     <target name="sim" board="pc">
       <subsystem name="fdm"           type="nps"/>
