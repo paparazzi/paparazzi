@@ -158,6 +158,10 @@ printcommands:
 	@echo "Using NM   = $(NM)"
 	@echo "Using SIZE = $(SIZE)"
 	@echo "Using OOCD = $(OOCD)"
+	@echo "GCC version:"
+	@$(CC) --version
+	@echo "OOCD version:"
+	@$(OOCD) --version
 
 build: elf bin hex
 # lss sym
