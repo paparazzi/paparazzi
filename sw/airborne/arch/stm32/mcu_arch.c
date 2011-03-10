@@ -44,7 +44,7 @@ void mcu_arch_init(void) {
   /* RCC system reset(for debug purpose) */
   RCC_DeInit();
   /* Enable HSE with external clock ( HSE_Bypass ) */
-  RCC_HSEConfig( RCC_HSE_Bypass );
+  RCC_HSEConfig( STM32_RCC_MODE );
   /* Wait till HSE is ready */
   ErrorStatus HSEStartUpStatus = RCC_WaitForHSEStartUp();
   if (HSEStartUpStatus != SUCCESS) {
@@ -63,7 +63,7 @@ void mcu_arch_init(void) {
     /* PCLK1 = HCLK/2 */
     RCC_PCLK1Config(RCC_HCLK_Div2);
     /* PLLCLK = 8MHz * 9 = 72 MHz */
-    RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);
+    RCC_PLLConfig(RCC_PLLSource_HSE_Div1, STM32_PLL_MULT);
     /* Enable PLL */
     RCC_PLLCmd(ENABLE);
     /* Wait till PLL is ready */
