@@ -1,4 +1,4 @@
-<firmware name="lisa_m_test_progs" boards="lisa_l_1.0,lisa_l_1.1"
+<firmware name="lisa_m_test_progs" boards="lisa_m_1.0"
   description="test programs for lisa_m boards">
 
    <!--target name="test telemetry" description="Sends ALIVE telemetry messages">
