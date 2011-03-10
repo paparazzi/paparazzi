@@ -225,7 +225,7 @@
 
   <firmware name="lisa_m_test_progs">
     <target name="test_led"			board="lisa_m_1.0"/>
-    <target name="test_uart"			board="lisa_m_1.0"/>
+    <target name="test_uart_lisam"			board="lisa_m_1.0"/>
     <!--target name="test_servos"			board="lisa_m_1.0"/>
     <target name="test_telemetry"		board="lisa_m_1.0"/>
     <target name="test_baro"			board="lisa_m_1.0"/>

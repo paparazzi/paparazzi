@@ -76,24 +76,23 @@ test_led.srcs += $(SRC_ARCH)/led_hw.c
 #
 # test uart
 #
-test_uart.ARCHDIR = $(ARCH)
-test_uart.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
-test_uart.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_uart.srcs = $(SRC_AIRBORNE)/mcu.c \
+test_uart_lisam.ARCHDIR = $(ARCH)
+test_uart_lisam.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
+test_uart_lisam.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_uart_lisam.srcs = $(SRC_AIRBORNE)/mcu.c \
                  $(SRC_ARCH)/mcu_arch.c \
-                 $(SRC_LISA)/test_uart.c         \
+                 $(SRC_LISA)/test_uart_lisam.c         \
                  $(SRC_ARCH)/stm32_exceptions.c  \
                  $(SRC_ARCH)/stm32_vector_table.c
-test_uart.CFLAGS += -DUSE_LED -DUSE_UART
-test_uart.srcs += $(SRC_ARCH)/led_hw.c
-test_uart.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
-test_uart.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-test_uart.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-test_uart.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
-test_uart.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
-test_uart.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B57600
-test_uart.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-
+test_uart_lisam.CFLAGS += -DUSE_LED -DUSE_UART
+test_uart_lisam.srcs += $(SRC_ARCH)/led_hw.c
+test_uart_lisam.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
+test_uart_lisam.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_uart_lisam.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_uart_lisam.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_uart_lisam.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_uart_lisam.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B57600
+test_uart_lisam.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 
 ##
