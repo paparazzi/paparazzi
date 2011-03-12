@@ -19,9 +19,8 @@ ifeq ($(NORADIO), False)
   $(TARGET).CFLAGS 	+= -DRADIO_CONTROL_TYPE_PPM
   $(TARGET).srcs	+= $(SRC_SUBSYSTEMS)/radio_control.c
   $(TARGET).srcs	+= $(SRC_SUBSYSTEMS)/radio_control/ppm.c
-  ifneq ($(ARCH),jsbsim)
-    $(TARGET).srcs 	+= $(SRC_ARCH)/subsystems/radio_control/ppm_arch.c
-  endif
+  $(TARGET).srcs 	+= $(SRC_ARCH)/subsystems/radio_control/ppm_arch.c
+
   ifeq ($(ARCH),stm32)
     ap.CFLAGS += -DUSE_TIM2_IRQ
   endif

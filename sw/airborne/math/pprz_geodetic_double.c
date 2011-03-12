@@ -1,6 +1,8 @@
 #include "pprz_geodetic_double.h"
 
 #include <math.h>
+#include "std.h" /* for RadOfDeg */
+
 
 void ltp_def_from_ecef_d(struct LtpDef_d* def, struct EcefCoor_d* ecef) {
 
@@ -68,10 +70,10 @@ void ecef_of_lla_d(struct EcefCoor_d* ecef, struct LlaCoor_d* lla) {
   static const double f = 1./298.257223563;    /* reciprocal flattening          */
   const double e2 = 2.*f-(f*f);                /* first eccentricity squared     */
 
-  const double sin_lat = sinf(lla->lat);
-  const double cos_lat = cosf(lla->lat);
-  const double sin_lon = sinf(lla->lon);
-  const double cos_lon = cosf(lla->lon);
+  const double sin_lat = sin(lla->lat);
+  const double cos_lat = cos(lla->lat);
+  const double sin_lon = sin(lla->lon);
+  const double cos_lon = cos(lla->lon);
   const double chi = sqrtf(1. - e2*sin_lat*sin_lat);
   const double a_chi = a / chi;
 
@@ -125,7 +127,7 @@ void ecef_of_ned_vect_d(struct EcefCoor_d* ecef, struct LtpDef_d* def, struct Ne
   ecef_of_enu_vect_d(ecef, def, &enu);
 }
 
-
+/* geocentric latitude of geodetic latitude */
 double gc_of_gd_lat_d(double gd_lat, double hmsl) {
   const double a = 6378137.0;           /* earth semimajor axis in meters */
   const double f = 1./298.257223563;    /* reciprocal flattening          */
@@ -137,3 +139,92 @@ double gc_of_gd_lat_d(double gd_lat, double hmsl) {
 
 
 
+/* Computation for the WGS84 geoid only */
+#define E 0.08181919106
+#define K0 0.9996
+#define DELTA_EAST  500000.
+#define DELTA_NORTH 0.
+#define A 6378137.0
+#define N (K0*A)
+
+#define LambdaOfUtmZone(utm_zone) RadOfDeg((utm_zone-1)*6-180+3)
+
+static const float serie_coeff_proj_mercator[5] = {
+  0.99832429842242842444,
+  0.00083632803657738403,
+  0.00000075957783563707,
+  0.00000000119563131778,
+  0.00000000000241079916
+};
+
+static inline double isometric_latitude(double phi, double e) {
+  return log (tan (M_PI_4 + phi / 2.0)) - e / 2.0 * log((1.0 + e * sin(phi)) / (1.0 - e * sin(phi)));
+}
+
+static inline double isometric_latitude_fast(double phi) {
+  return log (tan (M_PI_4 + phi / 2.0));
+}
+
+static inline double inverse_isometric_latitude(double lat, double e, double epsilon) {
+  double exp_l = exp(lat);
+  double phi0 = 2 * atan(exp_l) - M_PI_2;
+  double phi_;
+  uint8_t max_iter = 3; /* To be sure to return */
+
+  do {
+    phi_ = phi0;
+    double sin_phi = e * sin(phi_);
+    phi0 = 2 * atan (pow((1 + sin_phi) / (1. - sin_phi), e/2.) * exp_l) - M_PI_2;
+    max_iter--;
+  }
+  while (max_iter && fabs(phi_ - phi0) > epsilon);
+
+  return phi0;
+}
+
+#define CI(v) {					\
+    double tmp = v.x;				\
+    v.x = -v.y;					\
+    v.y = tmp;					\
+  }
+
+#define CExp(v) {				\
+    double e = exp(v.x);			\
+    v.x = e*cosf(v.y);				\
+    v.y = e*sinf(v.y);				\
+  }
+
+#define CSin(v) {				\
+    CI(v);					\
+    struct DoubleVect2 vstar = {-v.x, -v.y};	\
+    CExp(v);					\
+    CExp(vstar);				\
+    VECT2_SUB(v, vstar);			\
+    VECT2_SMUL(v, v, -0.5);			\
+    CI(v);					\
+  }
+
+void lla_of_utm(struct LlaCoor_d* out, struct UTMCoor_d* in) {
+
+  //  struct DoubleVect2 v = {in->east - YS, in->north - XS};
+  struct DoubleVect2 v = {in->north - DELTA_NORTH, in->east - DELTA_EAST};
+  double scale = 1 / N / serie_coeff_proj_mercator[0];
+  VECT2_SMUL(v, v, scale);
+
+  // first order taylor serie of something ?
+  struct DoubleVect2 v1;
+  VECT2_SMUL(v1, v, 2.);
+  CSin(v1)
+  VECT2_SMUL(v1, v1, serie_coeff_proj_mercator[1]);
+  VECT2_SUB(v, v1);
+
+  double lambda_c = LambdaOfUtmZone(in->zone);
+  out->lon = lambda_c + atan(sinh(v.y) / cos(v.x));
+  double phi = asin (sin(v.x) / cosh(v.y));
+  double il = isometric_latitude_fast(phi);
+  out->lat = inverse_isometric_latitude(il, E, 1e-8);
+
+  // copy alt above reference ellipsoid
+  out->alt = in->alt;
+
+}

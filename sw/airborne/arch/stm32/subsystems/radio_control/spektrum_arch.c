@@ -85,7 +85,10 @@ typedef struct SpektrumStateStruct SpektrumStateType;
 
 SpektrumStateType PrimarySpektrumState = {1,0,0,0,0,0,0,0,0};
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
+#warning "Using secondary spektrum receiver."
 SpektrumStateType SecondarySpektrumState = {1,0,0,0,0,0,0,0,0};
+#else
+#warning "NOT using secondary spektrum receiver."
 #endif
 
 int16_t SpektrumBuf[SPEKTRUM_CHANNELS_PER_FRAME*MAX_SPEKTRUM_FRAMES];

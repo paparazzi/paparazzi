@@ -36,7 +36,7 @@ struct BoozGpsSkytraq booz_gps_skytraq;
 #define GOT_CHECKSUM  7
 #define GOT_SYNC3     8
 
-#include "my_debug_servo.h"
+//#include "my_debug_servo.h"
 #include "led.h"
 
 void booz_gps_impl_init(void) {
@@ -44,14 +44,14 @@ void booz_gps_impl_init(void) {
   booz_gps_skytraq.status = UNINIT;
 
 
-  DEBUG_SERVO1_INIT();
+  //DEBUG_SERVO1_INIT();
 
 }
 
 
 void booz_gps_skytraq_read_message(void) {
 
-  DEBUG_S1_ON();
+  //DEBUG_S1_ON();
 
   if (booz_gps_skytraq.msg_id == SKYTRAQ_ID_NAVIGATION_DATA) {
     booz_gps_state.ecef_pos.x  = SKYTRAQ_NAVIGATION_DATA_ECEFX(booz_gps_skytraq.msg_buf);
@@ -70,7 +70,7 @@ void booz_gps_skytraq_read_message(void) {
     booz_gps_state.num_sv      = SKYTRAQ_NAVIGATION_DATA_NumSV(booz_gps_skytraq.msg_buf);
     booz_gps_state.fix         = SKYTRAQ_NAVIGATION_DATA_FixMode(booz_gps_skytraq.msg_buf);
     booz_gps_state.tow         = SKYTRAQ_NAVIGATION_DATA_TOW(booz_gps_skytraq.msg_buf);
-    DEBUG_S2_TOGGLE();
+    //DEBUG_S2_TOGGLE();
 
 #ifdef GPS_LED
     if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D) {
@@ -82,7 +82,7 @@ void booz_gps_skytraq_read_message(void) {
 #endif
   }
 
-  DEBUG_S1_OFF();
+  //DEBUG_S1_OFF();
 }
 
 void booz_gps_skytraq_parse(uint8_t c) {

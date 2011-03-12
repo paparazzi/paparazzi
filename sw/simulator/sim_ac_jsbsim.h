@@ -35,11 +35,13 @@
 
 #include <Ivy/ivy.h>
 
-/* 60Hz <-> 17ms */
 #ifndef JSBSIM_PERIOD
-#define JSBSIM_PERIOD 17
+#define JSBSIM_SPEEDUP 4 ///< how many JSBSim calls per A/P control loop call?
+#define JSBSIM_PERIOD (1000.0/CONTROL_RATE/JSBSIM_SPEEDUP) ///< JSBSim timestep in milliseconds
+#else
+#define JSBSIM_SPEEDUP ((uint8_t) (1000./CONTROL_RATE/JSBSIM_PERIOD))
 #endif
-#define DT (JSBSIM_PERIOD*1e-3)
+#define DT (JSBSIM_PERIOD*1e-3) ///< JSBSim timestep in seconds
 
 #define RAD2DEG 57.29578
 #define FT2M 0.3048

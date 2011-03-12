@@ -1,11 +1,14 @@
 #ifndef CONFIG_LISA_V1_0_H
 #define CONFIG_LISA_V1_0_H
 
+#define BOARD_LISA_L
 
 #define AHB_CLK 72000000
 
 /* Lisa uses an external clock instead of a crystal */
 #define HSE_TYPE_EXT_CLK
+#define STM32_RCC_MODE RCC_HSE_Bypass
+#define STM32_PLL_MULT RCC_PLLMul_9
 
 /* Onboard LEDs */
 #define LED_1_BANK

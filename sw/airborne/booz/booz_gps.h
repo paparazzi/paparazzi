@@ -54,13 +54,8 @@ extern struct Booz_gps_state booz_gps_state;
 extern void booz_gps_impl_init(void);
 
 
-
-/* UBX NAV SOL */
 #define  BOOZ2_GPS_FIX_NONE 0x00
 #define  BOOZ2_GPS_FIX_3D   0x03
-
-
-#include "ubx_protocol.h"
 
 #define GpsFixValid() (booz_gps_state.fix == BOOZ2_GPS_FIX_3D)
 

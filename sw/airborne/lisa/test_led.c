@@ -29,12 +29,62 @@
 #include "led.h"
 
 void Delay(__IO uint32_t nCount);
+void led_on(int i);
+void led_off(int i);
 
+#ifdef BOARD_LISA_L
 #define LED_PROGRAM_SIZE 26
 
 const int LED_PROG_ON[LED_PROGRAM_SIZE] = {  3,  5,  7,  1,   -1, -1, -1, -1,    2,  4,  6,  0,     3,  5,  7,  1,    -1, -1, -1, -1,     -1, -1, -1, -1,     -1, -1   };
 const int LED_PROG_OFF[LED_PROGRAM_SIZE] = {-1, -1, -1, -1,    3,  5,  7,  1,   -1, -1, -1, -1,    -1, -1, -1, -1,     3,  5,  7,  1,      2,  4,  6,  0,     -1, -1   };
+#endif
 
+#ifdef BOARD_LISA_M
+#define LED_PROGRAM_SIZE 10
+
+const int LED_PROG_ON[LED_PROGRAM_SIZE] =  {  1,  2,   -1, -1,   -1,    2,  1,   -1, -1,   -1 };
+const int LED_PROG_OFF[LED_PROGRAM_SIZE] = { -1, -1,    1,  2,   -1,   -1, -1,    2,  1,   -1 };
+#endif
+
+void led_on(int i) {
+#ifdef BOARD_LISA_L
+  LED_ON(i);
+#endif
+
+#ifdef BOARD_LISA_M
+  switch (i) {
+    case 1:
+      LED_ON(1);
+      break;
+    case 2:
+      LED_ON(2);
+      break;
+    default:
+      /* ignore as we only have 2 led's for now on lisa/m */
+      break;
+  }
+#endif
+}
+
+void led_off(int i) {
+#ifdef BOARD_LISA_L
+  LED_OFF(i);
+#endif
+
+#ifdef BOARD_LISA_M
+  switch (i) {
+    case 1:
+      LED_OFF(1);
+      break;
+    case 2:
+      LED_OFF(2);
+      break;
+    default:
+      /* ignore as we only have 2 led's for now on lisa/m */
+      break;
+  }
+#endif
+}
 
 int main(void) {
   int i = 0;
@@ -43,11 +93,11 @@ int main(void) {
     for (i=0; i< LED_PROGRAM_SIZE; i++)
     {
       if (LED_PROG_ON[i] >= 0)
-        LED_ON(LED_PROG_ON[i]);
+        led_on(LED_PROG_ON[i]);
       LED_PERIODIC();
       Delay(2000000);
       if (LED_PROG_OFF[i] >= 0)
-        LED_OFF(LED_PROG_OFF[i]);
+        led_off(LED_PROG_OFF[i]);
     }
   };
   return 0;

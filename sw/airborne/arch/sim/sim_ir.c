@@ -16,23 +16,19 @@ float sim_air_speed;
 void ir_gain_calib(void) {
 }
 
-value set_ir(value roll __attribute__ ((unused)),
-	     value front __attribute__ ((unused)),
-             value top __attribute__ ((unused)),
-	     value air_speed
-	     ) {
+value set_ir_and_airspeed(
+    value roll __attribute__ ((unused)),
+    value front __attribute__ ((unused)),
+    value top __attribute__ ((unused)),
+    value air_speed
+    ) {
   // INFRARED_TELEMETRY : Stupid hack to use with modules
-#if defined  USE_INFRARED || USE_INFRARED_TELEMETRY
+//#if defined  USE_INFRARED || USE_INFRARED_TELEMETRY
   infrared.roll = Int_val(roll);
   infrared.pitch = Int_val(front);
   infrared.top = Int_val(top);
-#endif
+//#endif
   sim_air_speed = Double_val(air_speed);
   return Val_unit;
 }
 
-/** Required by infrared.c:ir_init() */
-void adc_buf_channel(void* a __attribute__ ((unused)),
-		     void* b __attribute__ ((unused)),
-		     void* c __attribute__ ((unused))) {
-}

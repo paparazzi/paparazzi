@@ -8,10 +8,10 @@
     (_po).z = -(_pi).z;				\
   }
 
-#define LLA_ASSIGN(_pos,_lat,_lon,_alt){		\
-    (_pos).lat = (_lat);				\
-    (_pos).lon = (_lon);				\
-    (_pos).alt = (_alt);				\
+#define LLA_ASSIGN(_pos,_lat,_lon,_alt){	\
+    (_pos).lat = (_lat);			\
+    (_pos).lon = (_lon);			\
+    (_pos).alt = (_alt);			\
   }
 
 #define LLA_COPY(_pos1,_pos2){			\

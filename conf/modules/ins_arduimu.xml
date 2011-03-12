@@ -10,8 +10,8 @@
   <makefile target="ap">
     <file name="ins_arduimu.c"/>
   </makefile>
-  <!--makefile target="sim">
-    <file name="sim_MPPT.c"/>
-  </makefile-->
+  <makefile target="sim">
+    <file_arch name="ins_arduimu.c"/>
+  </makefile>
 </module>
 

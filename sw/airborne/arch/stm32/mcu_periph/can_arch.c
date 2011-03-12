@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "mcu_periph/can_arch.h"
 #include "mcu_periph/can.h"
 
 #include <stm32/rcc.h>
