@@ -61,6 +61,10 @@ struct i2c_periph {
   volatile enum I2CStatus status;
   volatile uint8_t idx_buf;
   void* reg_addr;
+  void *init_struct;
+  uint16_t scl_pin;
+  uint16_t sda_pin;
+  struct i2c_errors *errors;
 };
 
 
