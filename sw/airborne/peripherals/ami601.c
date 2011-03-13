@@ -26,7 +26,7 @@ void ami601_init( void ) {
 void ami601_read( void ) {
   if (ami601_status != AMI601_IDLE) {
     ami601_nb_err++;
-    ami601_status == AMI601_IDLE;
+    ami601_status = AMI601_IDLE;
   }
   else {
     ami601_status = AMI601_SENDING_REQ;
