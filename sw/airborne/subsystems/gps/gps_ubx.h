@@ -49,8 +49,15 @@ struct GpsUbx {
 
 extern struct GpsUbx gps_ubx;
 
-extern void gps_ubx_read_message(void);
-extern void gps_ubx_parse(uint8_t c);
+
+/*
+ * This part is used by the autopilot to read data from a uart
+ */
+#define __GpsLink(dev, _x) dev##_x
+#define _GpsLink(dev, _x)  __GpsLink(dev, _x)
+#define GpsLink(_x) _GpsLink(GPS_LINK, _x)
+
+#define GpsBuffer() GpsLink(ChAvailable())
 
 #define GpsEvent(_sol_available_callback) {     \
     if (GpsBuffer()) {							\
@@ -74,5 +81,9 @@ extern void gps_ubx_parse(uint8_t c);
     while (GpsLink(ChAvailable())&&!gps_ubx.msg_available)	\
       gps_ubx_parse(GpsLink(Getch()));			\
   }
+
+
+extern void gps_ubx_read_message(void);
+extern void gps_ubx_parse(uint8_t c);
 
 #endif /* GPS_UBX_H */

@@ -92,19 +92,6 @@ struct GpsTimeSync {
 extern struct GpsState gps;
 
 
-#ifndef SITL
-/*
- * This part is used by the autopilot to read data from a uart
- */
-#define __GpsLink(dev, _x) dev##_x
-#define _GpsLink(dev, _x)  __GpsLink(dev, _x)
-#define GpsLink(_x) _GpsLink(GPS_LINK, _x)
-
-#define GpsBuffer() GpsLink(ChAvailable())
-
-#endif /* !SITL */
-
-
 
 extern void gps_init(void);
 
