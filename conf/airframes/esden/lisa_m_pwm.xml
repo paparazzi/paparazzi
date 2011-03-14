@@ -1,4 +1,4 @@
-<!-- this is a microkopter frame equiped with Lisa/L and generic china pwm motor controllers -->
+<!-- this is an asctec frame equiped with Lisa/M and generic china pwm motor controllers -->
 
 <airframe name="lisa_asctec">
 
@@ -194,14 +194,14 @@
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
  </section>
 
-<!-- -->
+<!--
  <modules main_freq="512">
    <load name="vehicle_interface_overo_link.xml"/>
  </modules>
-<!-- -->
+-->
 
   <firmware name="rotorcraft">
-    <target name="ap" board="lisa_l_1.1">
+    <target name="ap" board="lisa_m_1.0">
 <!--      <define name="BOOZ_START_DELAY" value="1"/> -->
       <subsystem name="radio_control" type="spektrum"/>
       <subsystem name="actuators"     type="pwm_supervision"/>
@@ -210,8 +210,6 @@
       <define name="RADIO_MODE" value="RADIO_AUX2"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
       <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/>
-      <define name = "RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value = "UART5"/>
-      <define name = "OVERRIDE_UART5_IRQ_HANDLER"/>
     </target>
     <target name="sim" board="pc">
       <subsystem name="fdm"           type="nps"/>
@@ -224,39 +222,23 @@
     <subsystem name="ahrs"          type="cmpl"/>
   </firmware>
 
-  <firmware name="lisa_l_test_progs">
-    <target name="test_led"   board="lisa_l_1.1"/>
-    <target name="test_uart"   board="lisa_l_1.1"/>
-    <target name="test_servos"   board="lisa_l_1.1"/>
-    <target name="test_telemetry"   board="lisa_l_1.1"/>
-    <target name="test_baro"        board="lisa_l_1.1"/>
-    <target name="test_imu_b2"      board="lisa_l_1.1"/>
-    <target name="test_imu_b2_2"    board="lisa_l_1.1"/>
-    <target name="test_imu_aspirin" board="lisa_l_1.1"/>
-    <target name="test_rc_spektrum" board="lisa_l_1.1"/>
-    <target name="test_rc_ppm"      board="lisa_l_1.1"/>
-    <target name="test_adc"         board="lisa_l_1.1"/>
-    <target name="test_hmc5843"     board="lisa_l_1.1"/>
-    <target name="test_itg3200"     board="lisa_l_1.1"/>
-    <target name="test_adxl345"             board="lisa_l_1.1"/>
-    <target name="test_esc_mkk_simple"      board="lisa_l_1.1"/>
-    <target name="test_esc_asctecv1_simple" board="lisa_l_1.1"/>
-    <target name="test_actuators_mkk"       board="lisa_l_1.1"/>
-    <target name="test_actuators_asctecv1"  board="lisa_l_1.1"/>
+
+  <firmware name="lisa_m_test_progs">
+    <target name="test_led"			board="lisa_m_1.0"/>
+    <target name="test_uart_lisam"			board="lisa_m_1.0"/>
+    <!--target name="test_servos"			board="lisa_m_1.0"/>
+    <target name="test_telemetry"		board="lisa_m_1.0"/>
+    <target name="test_baro"			board="lisa_m_1.0"/>
+    <target name="test_imu"			board="lisa_m_1.0"/>
+    <target name="test_rc_spektrum"		board="lisa_m_1.0"/>
+    <target name="test_rc_ppm"			board="lisa_m_1.0"/>
+    <target name="test_adc"			board="lisa_m_1.0"/>
+    <target name="test_hmc5843"			board="lisa_m_1.0"/>
+    <target name="test_itg3200"			board="lisa_m_1.0"/>
+    <target name="test_adxl345"			board="lisa_m_1.0"/>
+    <target name="test_esc_mkk_simple"		board="lisa_m_1.0"/>
+    <target name="test_esc_asctecv1_simple"	board="lisa_m_1.0"/>
+    <target name="test_actuators_mkk"		board="lisa_m_1.0"/>
+    <target name="test_actuators_asctecv1"	board="lisa_m_1.0"/-->
   </firmware>
-
-  <firmware name="lisa_passthrough">
-    <target name="overo_test_passthrough" board="lisa_l_1.1"  >
-      <param name="HOST"          value="A7"/>
-      <param name="USER"          value=""/>
-      <param name="TARGET_DIR"    value="~"/>
-      <param name="PERIODIC_FREQ" value="512"/>
-    </target>
-    <target name="stm_passthrough" board="lisa_l_1.1">
-      <subsystem name="radio_control" type="spektrum"/>
-      <subsystem name="imu" type="b2_v1.1"/>
-    </target>
- </firmware>
-
-
 </airframe>
