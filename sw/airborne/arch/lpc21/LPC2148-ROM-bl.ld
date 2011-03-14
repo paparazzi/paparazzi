@@ -41,6 +41,18 @@ SECTIONS
   } > ROM
   *****/
 
+. = ALIGN (4);
+
+.ARM.exidx : 
+  {
+    __exidx_start = .;
+    *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+    __exidx_end = .;
+
+  } >ROM
+
+       
+
   . = ALIGN(4);
 
 	/* .ctors .dtors are used for c++ constructors/destructors */
