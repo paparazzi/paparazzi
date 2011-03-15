@@ -24,6 +24,7 @@
 
 #include "mcu.h"
 
+#include BOARD_CONFIG
 
 #include <inttypes.h>
 #include <stm32/gpio.h>
@@ -34,7 +35,6 @@
 #include <libopencm3/stm32/rcc.h>
 #endif
 
-#include BOARD_CONFIG
 
 void mcu_arch_init(void) {
 #ifdef USE_OPENCM3
