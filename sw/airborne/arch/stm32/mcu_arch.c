@@ -34,7 +34,11 @@
 #include BOARD_CONFIG
 
 void mcu_arch_init(void) {
-
+#ifdef USE_OPENCM3
+  rcc_clock_setup_in_hse_12mhz_out_72mhz();
+  NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
+  return;
+#endif
 #ifdef HSE_TYPE_EXT_CLK
 #warning Using external clock
   /* Setup the microcontroller system.
