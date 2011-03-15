@@ -6,8 +6,8 @@ Autoren@ZHAW:   schmiemi
 
 
 #include <stdbool.h>
-#include "modules/ins/ins_arduimu_modified.h"
-#include "firmwares/fixedwing/main_fbw.h"
+#include "modules/ins/ins_arduimu_basic.h"
+//#include "firmwares/fixedwing/main_fbw.h"
 #include "mcu_periph/i2c.h"
 
 // test
@@ -15,7 +15,6 @@ Autoren@ZHAW:   schmiemi
 
 // für das Senden von GPS-Daten an den ArduIMU
 #include "gps.h"
-int32_t GPS_Data[10];
 
 #define NB_DATA 9
 
@@ -71,25 +70,12 @@ void ArduIMU_periodicGPS( void ) {
 
   if (ardu_gps_trans.status != I2CTransDone) { return; }
 
-  //velned
-  GPS_Data [0] = gps_speed_3d;  //speed 3D
-  GPS_Data [1] = gps_gspeed;    //ground speed
-  GPS_Data [2] = gps_course * 100000;	//Kurs
-  //alt
-  GPS_Data [3] = gps_alt;   // height above elipsoid
-  GPS_Data [4] = gps_hmsl;  // height above sea level
-  //status
-  GPS_Data [5] = gps_mode;          //fix
-  GPS_Data [6] = gps_status_flags;  //flags
-
-  FillBufWith32bit(ardu_gps_trans.buf, 0, GPS_Data[0]);
-  FillBufWith32bit(ardu_gps_trans.buf, 4, GPS_Data[1]);
-  FillBufWith32bit(ardu_gps_trans.buf, 8, GPS_Data[2]);
-  FillBufWith32bit(ardu_gps_trans.buf, 12, GPS_Data[3]);
-  FillBufWith32bit(ardu_gps_trans.buf, 16, GPS_Data[4]);
-  ardu_gps_trans.buf[20] = GPS_Data[5]; // status gps fix
-  ardu_gps_trans.buf[21] = GPS_Data[6]; // status flags
-  I2CTransmit(ARDUIMU_I2C_DEV, ardu_gps_trans, ArduIMU_SLAVE_ADDR, 22);
+  FillBufWith32bit(ardu_gps_trans.buf, 0, (int32_t)gps_speed_3d); // speed 3D
+  FillBufWith32bit(ardu_gps_trans.buf, 4, (int32_t)gps_gspeed);   // ground speed
+  FillBufWith32bit(ardu_gps_trans.buf, 8, (int32_t)gps_course);   // course
+  ardu_gps_trans.buf[12] = gps_mode;                              // status gps fix
+  ardu_gps_trans.buf[13] = gps_status_flags;                      // status flags
+  I2CTransmit(ARDUIMU_I2C_DEV, ardu_gps_trans, ArduIMU_SLAVE_ADDR, 14);
 
 }
 
@@ -100,21 +86,20 @@ void ArduIMU_periodic( void ) {
     I2CReceive(ARDUIMU_I2C_DEV, ardu_ins_trans, ArduIMU_SLAVE_ADDR, NB_DATA*2);
   }
 
-  /*
-     Buffer O:	Roll
-     Buffer 1:	Pitch
-     Buffer 2:	Yaw
-     Buffer 3:	Gyro X
-     Buffer 4:	Gyro Y
-     Buffer 5:	Gyro Z
-     Buffer 6:	Accel X
-     Buffer 7:	Accel Y
-     Buffer 8:	Accel Z
-     */
-
 }
 
 #include "math/pprz_algebra_int.h"
+/*
+   Buffer O:	Roll
+   Buffer 1:	Pitch
+   Buffer 2:	Yaw
+   Buffer 3:	Gyro X
+   Buffer 4:	Gyro Y
+   Buffer 5:	Gyro Z
+   Buffer 6:	Accel X
+   Buffer 7:	Accel Y
+   Buffer 8:	Accel Z
+   */
 
 void ArduIMU_event( void ) {
   // Handle INS I2C event
