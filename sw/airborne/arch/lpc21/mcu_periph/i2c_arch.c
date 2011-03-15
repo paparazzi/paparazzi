@@ -28,7 +28,6 @@
 #include "interrupt_hw.h"
 #include BOARD_CONFIG
 
-
 ///////////////////
 // I2C Automaton //
 ///////////////////
@@ -56,22 +55,18 @@ __attribute__ ((always_inline)) static inline void I2cEndOfTransaction(struct i2
   }
 }
 
-__attribute__ ((always_inline)) static inline void I2cFinished(struct i2c_periph* p, struct i2c_transaction* t) {
+__attribute__ ((always_inline)) static inline void I2cSendStop(struct i2c_periph* p, struct i2c_transaction* t) {
+  ((i2cRegs_t *)(p->reg_addr))->conset = _BV(STO);
   // transaction finished with success
   t->status = I2CTransSuccess;
   I2cEndOfTransaction(p);
 }
 
-__attribute__ ((always_inline)) static inline void I2cSendStop(struct i2c_periph* p, struct i2c_transaction* t) {
-  ((i2cRegs_t *)(p->reg_addr))->conset = _BV(STO);
-  I2cFinished(p,t);
-}
-
 __attribute__ ((always_inline)) static inline void I2cFail(struct i2c_periph* p, struct i2c_transaction* t) {
   ((i2cRegs_t *)(p->reg_addr))->conset = _BV(STO);
+  // transaction failed
   t->status = I2CTransFailed;
-  p->status = I2CFailed;
-  // FIXME I2C should be reseted here
+  // FIXME I2C should be reseted here ?
   I2cEndOfTransaction(p);
 }
 
@@ -119,35 +114,7 @@ __attribute__ ((always_inline)) static inline void I2cAutomaton(int32_t state, s
       }
       else {
         /* error , we should have got NACK */
-        I2cSendStop(p,trans);
-      }
-      break;
-    case I2C_MR_SLA_ACK: /* At least one char */
-      /* Wait and reply with ACK or NACK */
-      I2cReceive(p->reg_addr,p->idx_buf < trans->len_r - 1);
-      break;
-    case I2C_MR_SLA_NACK:
-    case I2C_MT_SLA_NACK:
-      I2cSendStart(p);
-      break;
-    case I2C_MT_SLA_ACK:
-    case I2C_MT_DATA_ACK:
-      if (p->idx_buf < trans->len_w) {
-        I2cSendByte(p->reg_addr,trans->buf[p->idx_buf]);
-        p->idx_buf++;
-      } else {
-        if (trans->type == I2CTransTxRx) {
-          trans->type = I2CTransRx;	/* FIXME should not change type */
-          p->idx_buf = 0;
-          trans->slave_addr |= 1;
-          I2cSendStart(p);
-        } else {
-          if (trans->stop_after_transmit) {
-            I2cSendStop(p,trans);
-          } else {
-            I2cFinished(p,trans);
-          }
-        }
+        I2cFail(p,trans);
       }
       break;
     case I2C_MR_DATA_NACK:
@@ -156,9 +123,33 @@ __attribute__ ((always_inline)) static inline void I2cAutomaton(int32_t state, s
       }
       I2cSendStop(p,trans);
       break;
+    case I2C_MR_SLA_ACK: /* At least one char */
+      /* Wait and reply with ACK or NACK */
+      I2cReceive(p->reg_addr,p->idx_buf < trans->len_r - 1);
+      break;
+    case I2C_MR_SLA_NACK:
+    case I2C_MT_SLA_NACK:
+      /* Slave is not responding, transaction is failed */
+      I2cFail(p,trans);
+      break;
+    case I2C_MT_SLA_ACK:
+    case I2C_MT_DATA_ACK:
+      if (p->idx_buf < trans->len_w) {
+        I2cSendByte(p->reg_addr,trans->buf[p->idx_buf]);
+        p->idx_buf++;
+      } else {
+        if (trans->type == I2CTransTxRx) {
+          //trans->type = I2CTransRx;	/* FIXME should not change type */
+          p->idx_buf = 0;
+          trans->slave_addr |= 1;
+          I2cSendStart(p);
+        } else {
+          I2cSendStop(p,trans);
+        }
+      }
+      break;
     default:
-      I2cSendStop(p,trans);
-      //I2cFail(p,trans);
+      I2cFail(p,trans);
       /* FIXME log error */
       break;
   }
