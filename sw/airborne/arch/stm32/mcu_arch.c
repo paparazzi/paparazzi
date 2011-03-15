@@ -30,6 +30,9 @@
 #include <stm32/rcc.h>
 #include <stm32/flash.h>
 #include <stm32/misc.h>
+#ifdef USE_OPENCM3
+#include <libopencm3/stm32/rcc.h>
+#endif
 
 #include BOARD_CONFIG
 
