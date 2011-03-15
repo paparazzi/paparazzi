@@ -114,7 +114,7 @@ __attribute__ ((always_inline)) static inline void I2cAutomaton(int32_t state, s
       }
       else {
         /* error , we should have got NACK */
-        I2cSendStop(p,trans);
+        I2cFail(p,trans);
       }
       break;
     case I2C_MR_DATA_NACK:
