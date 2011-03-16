@@ -28,6 +28,8 @@
 
 #define BOARD_HAS_BARO
 
+#define USE_OPENCM3
+
 #define HSE_TYPE_EXT_CLK
 #define STM32_RCC_MODE RCC_HSE_ON
 #define STM32_PLL_MULT RCC_PLLMul_6

@@ -29,6 +29,14 @@
 #include <stm32/gpio.h>
 #include "std.h"
 
+#include BOARD_CONFIG
+
+#ifdef USE_OPENCM3
+#define pprz_usart_set_baudrate(x, y) usart_set_baudrate(x, y)
+#else
+#define pprz_usart_set_baudrate(x, y) do { } while(0);
+#endif
+
 #ifdef USE_UART1
 
 volatile uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
@@ -74,6 +82,9 @@ void uart1_init( void ) {
   USART_Init(USART1, &usart);
   /* Enable USART1 Receive interrupts */
   USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+
+  pprz_usart_set_baudrate(USART1, UART1_BAUD);
+
   /* Enable the USART1 */
   USART_Cmd(USART1, ENABLE);
 
@@ -197,6 +208,9 @@ void uart2_init( void ) {
   USART_Init(USART2, &usart);
   /* Enable USART2 Receive interrupts */
   USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+
+  pprz_usart_set_baudrate(USART2, UART2_BAUD);
+
   /* Enable the USART2 */
   USART_Cmd(USART2, ENABLE);
 
@@ -320,6 +334,9 @@ void uart3_init( void ) {
   USART_Init(USART3, &usart);
   /* Enable USART3 Receive interrupts */
   USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
+
+  pprz_usart_set_baudrate(USART3, UART3_BAUD);
+
   /* Enable the USART3 */
   USART_Cmd(USART3, ENABLE);
 
