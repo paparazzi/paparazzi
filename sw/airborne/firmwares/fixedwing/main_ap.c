@@ -54,6 +54,8 @@
 #include "datalink.h"
 #include "xbee.h"
 
+#include "subsystems/imu/imu_analog.h"
+
 #include "gpio.h"
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
@@ -77,6 +79,10 @@
 static inline void on_gyro_accel_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
+#endif
+
+#ifdef ANALOG_IMU
+#include "subsystems/analogimu/analogimu.h"
 #endif
 
 #if ! defined CATASTROPHIC_BAT_LEVEL && defined LOW_BATTERY
@@ -532,6 +538,10 @@ void init_ap( void ) {
   ahrs_init();
 #endif
 
+#ifdef ANALOG_IMU
+  analog_imu_init();
+#endif
+
   /************* Links initialization ***************/
 #if defined MCU_SPI_LINK
   link_mcu_init();
@@ -580,6 +590,15 @@ void init_ap( void ) {
 #ifdef TRAFFIC_INFO
   traffic_info_init();
 #endif
+
+#ifdef SET_IMU_ZERO_ON_STARTUP
+  #ifndef SITL
+    //wait 10secs for init
+    sys_time_usleep(10000000);
+    imu_store_bias();
+  #endif
+#endif
+
 }
 
 

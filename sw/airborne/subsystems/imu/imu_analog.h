@@ -24,10 +24,16 @@
 
 #include "subsystems/imu.h"
 
+#ifndef SITL
+
 #define NB_ANALOG_IMU_ADC 6
 
 extern volatile bool_t analog_imu_available;
 extern int imu_overrun;
+
+#ifdef SET_IMU_ZERO_ON_STARTUP
+void imu_store_bias(void);
+#endif
 
 #define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) {   \
     if (analog_imu_available) {                         \
@@ -46,5 +52,5 @@ extern int imu_overrun;
 
 
 
-
+#endif /*SITL*/
 #endif /* IMU_ANALOG_H */
