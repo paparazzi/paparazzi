@@ -54,7 +54,7 @@
 #include "datalink.h"
 #include "xbee.h"
 
-#include "subsystems/imu/imu_analog.h"
+#include "subsystems/imu.h"
 
 #include "gpio.h"
 
@@ -79,10 +79,6 @@
 static inline void on_gyro_accel_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
-#endif
-
-#ifdef ANALOG_IMU
-#include "subsystems/analogimu/analogimu.h"
 #endif
 
 #if ! defined CATASTROPHIC_BAT_LEVEL && defined LOW_BATTERY
@@ -536,10 +532,6 @@ void init_ap( void ) {
 #ifdef USE_AHRS
   ahrs_aligner_init();
   ahrs_init();
-#endif
-
-#ifdef ANALOG_IMU
-  analog_imu_init();
 #endif
 
   /************* Links initialization ***************/
