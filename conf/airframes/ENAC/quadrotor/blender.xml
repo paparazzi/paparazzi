@@ -18,9 +18,6 @@
     <target name="ap" board="booz_1.0">
       <define name="FAILSAFE_GROUND_DETECT"/>
       <define name="USE_GPS_ACC4R"/>
-      <define name="BOOZ_START_DELAY" value="3"/>
-      <!--define name="BOOZ_ACTUATORS_MAX_THRUST" value="160"/-->
-      <!--define name="BOOZ_THRUST_LOWPASS" value="17"/-->
     </target>
     <target name="sim" board="pc">
       <subsystem name="fdm"         type="nps"/>
