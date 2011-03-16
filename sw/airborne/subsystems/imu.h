@@ -87,7 +87,7 @@ extern void imu_init(void);
     _imu.accel.z = ((_imu.accel_unscaled.z)*IMU_ACCEL_Z_SIGN*IMU_ACCEL_Z_SENS_NUM)/IMU_ACCEL_Z_SENS_DEN; \
   }
 
-#elif /* SET_IMU_ZERO_ON_STARTUP*/
+#else /* SET_IMU_ZERO_ON_STARTUP*/
 
 #define ImuScaleGyro(_imu) {					\
     RATES_COPY(_imu.gyro_prev, _imu.gyro);				\

@@ -104,7 +104,7 @@
    <define name="VoltageOfAdc(adc)" value ="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.0" unit="V"/>
    <define name="CRITIC_BAT_LEVEL" value="9.3" unit="V"/>
-   <define name="LOW_BAT_LEVEL" value="9.5" unit="V"/>
+   <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
 
@@ -153,7 +153,7 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.2"/>
+    <define name="COURSE_PGAIN" value="-1.0"/>
     <define name="COURSE_DGAIN" value="0.5"/>
     <define name="ROLL_MAX_SETPOINT" value="0.7" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
@@ -171,6 +171,7 @@
   <section name="NAV">
     <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
+    <define name="NAV_SURVEY_SHIFT" value="50" unit="m"/>
   </section>
 
   <section name="AGGRESSIVE" prefix="AGR_">
@@ -225,5 +226,10 @@
     <subsystem name="gps"       type="ublox_lea5h"/>
     <subsystem name="navigation"/>
   </firmware>
+  <makefile location="after">            
+      ap.CFLAGS += -DWIND_INFO -DSTRONG_WIND
+
+      sim.CFLAGS += -DWIND_INFO -DSTRONG_WIND
+  </makefile>
 
 </airframe>

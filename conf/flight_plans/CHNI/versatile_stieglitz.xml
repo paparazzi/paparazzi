@@ -1,13 +1,18 @@
-<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan alt="50" ground_alt="9" lat0="52.959360" lon0="8.778601" max_dist_from_home="275" name="Stieglitz Versatile" qfu="270" security_height="40">
+<flight_plan alt="50" ground_alt="9" lat0="52.959360" lon0="8.778601" max_dist_from_home="500" name="Stieglitz Versatile" qfu="270" security_height="40">
+  <header>
+	#include "datalink.h"
+</header>
   <waypoints>
     <waypoint name="HOME" x="-129.1" y="-2.2"/>
-    <waypoint alt="70.0" name="STDBY" x="-65.1" y="-47.6"/>
-    <waypoint alt="70.0" name="1" x="-101.8" y="-22.3"/>
-    <waypoint alt="70.0" name="2" x="-32.0" y="47.2"/>
-    <waypoint alt="70.0" name="S1" x="-162.7" y="-120.6"/>
-    <waypoint alt="70.0" name="S2" x="-5.9" y="62.9"/>
+    <waypoint alt="70.0" name="STDBY" x="-69.5" y="-35.1"/>
+    <waypoint alt="70.0" name="1" x="-152.8" y="-16.8"/>
+    <waypoint alt="70.0" name="2" x="-20.3" y="65.0"/>
+    <waypoint alt="40.0" name="L1" x="-84.0" y="-55.4"/>
+    <waypoint alt="40.0" name="L2" x="-35.7" y="16.8"/>
+    <waypoint alt="70.0" name="S1" x="-235.3" y="-134.7"/>
+    <waypoint alt="70.0" name="S2" x="-48.0" y="43.4"/>
     <waypoint alt="30.0" name="AF" x="1.9" y="44.7"/>
     <waypoint alt="0.0" name="TD" x="-44.3" y="-40.3"/>
     <waypoint name="BASELEG" x="26.9" y="-23.0"/>
@@ -102,6 +107,18 @@
       <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
       <go from="AF" hmode="route" vmode="glide" wp="TD"/>
     </block>
+    <block name="approach low">
+      <call fun="nav_compute_baseleg(WP_L1, WP_L2, WP_BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="BASELEG"/>
+      <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
+      <circle radius="nav_radius" wp="BASELEG"/>
+      <deroute block="low pass"/>
+    </block>
+    <block name="low pass">
+      <call fun="nav_line_init()"/>
+      <call fun="nav_line(WP_L1, WP_L2, nav_radius)"/>
+      <deroute block="Standby"/>
+    </block>
     <block name="flare">
       <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
       <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
@@ -130,6 +147,13 @@
     <block name="For loop (circles wp 1)">
       <for from="0" to="3" var="i">
         <circle radius="DEFAULT_CIRCLE_RADIUS+ $i*10" until="NavCircleCount() > 1" wp="1"/>
+      </for>
+      <deroute block="Standby"/>
+    </block>
+    <block name="hoch fliegen">
+      <exception cond="datalink_time > 22" deroute="Standby"/>
+      <for from="0" to="10" var="i">
+        <circle alt="ground_alt+50+$i*30" radius="DEFAULT_CIRCLE_RADIUS" until="NavCircleCount() > 1" wp="1"/>
       </for>
       <deroute block="Standby"/>
     </block>
