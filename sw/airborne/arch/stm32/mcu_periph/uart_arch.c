@@ -50,6 +50,7 @@ uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
 void uart1_init( void ) {
   /* init RCC */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+  RCC_APB2PeriphClockCmd(UART1_Periph, ENABLE);
 
   /* Enable USART1 interrupts */
   NVIC_InitTypeDef nvic;
@@ -176,6 +177,7 @@ uint8_t  uart2_tx_buffer[UART2_TX_BUFFER_SIZE];
 void uart2_init( void ) {
   /* init RCC */
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+  RCC_APB2PeriphClockCmd(UART2_Periph, ENABLE);
 
   /* Enable USART2 interrupts */
   NVIC_InitTypeDef nvic;
@@ -301,6 +303,7 @@ void uart3_init( void ) {
   /* init RCC */
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+  RCC_APB2PeriphClockCmd(UART3_Periph, ENABLE);
 
   /* Enable USART3 interrupts */
   NVIC_InitTypeDef nvic;
