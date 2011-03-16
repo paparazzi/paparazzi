@@ -69,4 +69,6 @@ extern float h_ctl_ref_pitch_angle;
 extern float h_ctl_ref_pitch_rate;
 extern float h_ctl_ref_pitch_accel;
 
+extern bool_t use_airspeed_ratio;
+
 #endif /* FW_H_CTL_A_H */

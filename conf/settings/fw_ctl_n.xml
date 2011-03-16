@@ -4,7 +4,47 @@
 
 <settings>
   <dl_settings>
+    <dl_settings NAME="flight params">
+      <dl_setting MAX="1000" MIN="0" STEP="10" VAR="flight_altitude" shortname="altitude"/>
+      <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="wind_east"/>
+      <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="wind_north"/>
+    </dl_settings>
+
+    <dl_settings NAME="mode">
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode" module="autopilot"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="alt_kalman_enabled" shortname="alt_kalman" module="estimator"/>
+      <dl_setting MAX="0" MIN="0" STEP="1" VAR="estimator_flight_time" shortname="flight time"/>
+      <dl_setting MAX="1000" MIN="0" STEP="1" VAR="stage_time"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle"/>
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="telemetry_mode_Ap_DefaultChannel" shortname="tele_AP" module="downlink"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="telemetry_mode_Fbw_DefaultChannel" shortname="tele_FBW" module="downlink"/>
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="gps_reset" module="gps_ubx" handler="Reset" shortname="GPS reset"/>
+
+      <dl_setting MAX="200" MIN="-200" STEP="10" VAR="nav_radius" module="nav" handler="SetNavRadius">
+        <strip_button icon="circle-right.png" name="Circle right" value="1" group="circle"/>
+        <strip_button icon="circle-left.png" name="Circle left" value="-1" group="circle"/>
+        <key_press key="greater" value="1"/>
+        <key_press key="less" value="-1"/>
+      </dl_setting>
+    </dl_settings>
+
     <dl_settings NAME="control">
+      <dl_settings NAME="ir">
+        <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ir_roll_neutral" shortname="roll_neutral" param="IR_ROLL_NEUTRAL_DEFAULT" unit="rad"/>
+        <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="ir_pitch_neutral" shortname="pitch_neutral" param="IR_PITCH_NEUTRAL_DEFAULT" unit="rad"/>
+
+        <dl_setting MAX="1.5" MIN="0." STEP="0.1" VAR="ir_lateral_correction" shortname="360_lat_corr" module="infrared" param="IR_LATERAL_CORRECTION"/>
+        <dl_setting MAX="1.5" MIN="0." STEP="0.1" VAR="ir_longitudinal_correction" shortname="360_log_corr" param="IR_LONGITUDINAL_CORRECTION"/>
+        <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_vertical_correction" shortname="360_vert_corr" param="IR_VERTICAL_CORRECTION"/>
+
+        <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_left" shortname="corr_left" param="IR_CORRECTION_LEFT"/>
+        <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_right" shortname="corr_right" param="IR_CORRECTION_RIGHT"/>
+        <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_up" shortname="corr_up" param="IR_CORRECTION_UP"/>
+        <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="ir_correction_down" shortname="corr_down" param="IR_CORRECTION_DOWN"/>
+
+      </dl_settings>
+
 
       <dl_settings NAME="attitude">
         <dl_setting MAX="0" MIN="-15000" STEP="250" VAR="h_ctl_roll_attitude_gain" shortname="roll_pgain" param="H_CTL_ROLL_ATTITUDE_GAIN" module="stabilization/stabilization_attitude"/>
