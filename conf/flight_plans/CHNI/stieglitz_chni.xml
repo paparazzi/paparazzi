@@ -1,0 +1,50 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="80" ground_alt="9" lat0="52.959360" lon0="8.778601" max_dist_from_home="275" name="Stieglitz" qfu="270" security_height="50">
+  <header>
+    #include "nav_line.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="-88.5" y="-70.1"/>
+    <waypoint name="CLIMB" x="-79.6" y="-97.9"/>
+    <waypoint alt="90.0" name="STANDBY" x="-62.6" y="-106.0"/>
+    <waypoint name="WP1" x="-87.1" y="-120.4"/>
+    <waypoint name="WP2" x="-56.1" y="27.6"/>
+  </waypoints>
+  <blocks>
+    <block name="Wait GPS">
+      <set value="1" var="kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Holding point">
+      <set value="1" var="kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <block key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <exception cond="estimator_z > ground_alt+40" deroute="Standby"/>
+      <set value="0" var="kill_throttle"/>
+      <go wp="CLIMB"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STANDBY"/>
+    </block>
+    <block name="WP1_to_WP2">
+      <while cond="TRUE">
+        <go approaching_time="0." wp="WP1"/>
+        <go approaching_time="0." wp="WP2"/>
+        <while cond="10 > block_time"/>
+      </while>
+    </block>
+    <block name="Line" strip_button="Line (wp 1-2)" strip_icon="line.png">
+      <call fun="nav_line_init()"/>
+      <while cond="TRUE">
+        <call fun="nav_line(WP_WP1, WP_WP2, nav_radius)"/>
+        <call fun="nav_line(WP_WP2, WP_WP1, nav_radius)"/>
+      </while>
+    </block>
+    <block name="circle_home">
+      <circle radius="55" wp="HOME"/>
+    </block>
+    <block name="Takeoff and climb"/>
+  </blocks>
+</flight_plan>
