@@ -31,7 +31,7 @@
 #include "subsystems/radio_control/spektrum_arch.h"
 #include "mcu_periph/uart.h"
 
-//#include BOARD_CONFIG
+#include BOARD_CONFIG
 
 #ifdef USE_OPENCM3
 void usart_set_baudrate(uint32_t usart, uint32_t baud);
