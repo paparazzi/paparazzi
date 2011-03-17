@@ -39,7 +39,18 @@
 #ifndef PWM_5AND6_TIMER
 #define PWM_5AND6_TIMER TIM4
 #define PWM_5AND6_RCC RCC_APB1Periph_TIM4
+#define PWM5_OC 3
+#define PWM6_OC 4
 #endif
+
+#define _TIM_OC_INIT(n) TIM_OC##n##Init
+#define TIM_OC_INIT(n) _TIM_OC_INIT(n)
+
+#define _TIM_OC_PRELOADCONFIG(n) TIM_OC##n##PreloadConfig
+#define TIM_OC_PRELOADCONFIG(n) _TIM_OC_PRELOADCONFIG(n)
+
+#define _TIM_SETCOMPARE(n) TIM_SetCompare##n
+#define TIM_SETCOMPARE(n) _TIM_SETCOMPARE(n)
 
 void actuators_pwm_arch_init(void) {
 
@@ -76,7 +87,7 @@ void actuators_pwm_arch_init(void) {
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
   TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
-  TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
+  TIM_TimeBaseInit(PWM_5AND6_TIMER, &TIM_TimeBaseStructure);
 
   /* PWM1 Mode configuration: All Channels */
   TIM_OCInitTypeDef  TIM_OCInitStructure;
@@ -102,12 +113,12 @@ void actuators_pwm_arch_init(void) {
   TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
 
   /* PWM5 Mode configuration: TIM4 Channel3 */
-  TIM_OC3Init(PWM_5AND6_TIMER, &TIM_OCInitStructure);
-  TIM_OC3PreloadConfig(PWM_5AND6_TIMER, TIM_OCPreload_Enable);
+  TIM_OC_INIT(PWM5_OC) (PWM_5AND6_TIMER, &TIM_OCInitStructure);
+  TIM_OC_PRELOADCONFIG(PWM5_OC)(PWM_5AND6_TIMER, TIM_OCPreload_Enable);
 
   /* PWM6 Mode configuration: TIM4 Channel4 */
-  TIM_OC4Init(PWM_5AND6_TIMER, &TIM_OCInitStructure);
-  TIM_OC4PreloadConfig(PWM_5AND6_TIMER, TIM_OCPreload_Enable);
+  TIM_OC_INIT(PWM6_OC)(PWM_5AND6_TIMER, &TIM_OCInitStructure);
+  TIM_OC_PRELOADCONFIG(PWM6_OC)(PWM_5AND6_TIMER, TIM_OCPreload_Enable);
 
 #ifdef USE_SERVOS_7AND8
   /* PWM7 Mode configuration: TIM4 Channel3 */
@@ -143,8 +154,8 @@ void actuators_pwm_commit(void) {
   TIM_SetCompare3(TIM3, actuators_pwm_values[2]);
   TIM_SetCompare4(TIM3, actuators_pwm_values[3]);
 
-  TIM_SetCompare3(PWM_5AND6_TIMER, actuators_pwm_values[4]);
-  TIM_SetCompare4(PWM_5AND6_TIMER, actuators_pwm_values[5]);
+  TIM_SETCOMPARE(PWM5_OC)(PWM_5AND6_TIMER, actuators_pwm_values[4]);
+  TIM_SETCOMPARE(PWM6_OC)(PWM_5AND6_TIMER, actuators_pwm_values[5]);
 
 #ifdef USE_SERVOS_7AND8
   TIM_SetCompare1(PWM_5AND6_TIMER, actuators_pwm_values[6]);
