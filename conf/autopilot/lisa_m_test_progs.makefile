@@ -127,25 +127,25 @@ test_servos.srcs += $(SRC_FIRMWARE)/actuators/actuators_pwm.c $(SRC_FIRMWARE)/ac
 ##   MODEM_PORT :
 ##   MODEM_BAUD :
 ##
-#test_telemetry.ARCHDIR = $(ARCH)
-#test_telemetry.CFLAGS += -I$(SRC_LISA) -I$(SRC_ARCH) -DPERIPHERALS_AUTO_INIT
-#test_telemetry.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-#test_telemetry.srcs = $(SRC_AIRBORNE)/mcu.c \
-#                 $(SRC_ARCH)/mcu_arch.c \
-#                 test/test_telemetry.c            \
-#                 $(SRC_ARCH)/stm32_exceptions.c   \
-#                 $(SRC_ARCH)/stm32_vector_table.c
-#test_telemetry.CFLAGS += -DUSE_LED
-#test_telemetry.srcs += $(SRC_ARCH)/led_hw.c
-#test_telemetry.CFLAGS += -DUSE_SYS_TIME
-#test_telemetry.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-#test_telemetry.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
-#test_telemetry.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-#test_telemetry.CFLAGS += -DUSE_$(MODEM_PORT)
-#test_telemetry.CFLAGS += -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
-#test_telemetry.srcs += downlink.c pprz_transport.c
-#test_telemetry.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
-#test_telemetry.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
+test_telemetry.ARCHDIR = $(ARCH)
+test_telemetry.CFLAGS += -I$(SRC_LISA) -I$(SRC_ARCH) -DPERIPHERALS_AUTO_INIT
+test_telemetry.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_telemetry.srcs = $(SRC_AIRBORNE)/mcu.c \
+                 $(SRC_ARCH)/mcu_arch.c \
+                 test/test_telemetry.c            \
+                 $(SRC_ARCH)/stm32_exceptions.c   \
+                 $(SRC_ARCH)/stm32_vector_table.c
+test_telemetry.CFLAGS += -DUSE_LED
+test_telemetry.srcs += $(SRC_ARCH)/led_hw.c
+test_telemetry.CFLAGS += -DUSE_SYS_TIME
+test_telemetry.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_telemetry.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
+test_telemetry.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_telemetry.CFLAGS += -DUSE_$(MODEM_PORT)
+test_telemetry.CFLAGS += -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_telemetry.srcs += downlink.c pprz_transport.c
+test_telemetry.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
+test_telemetry.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 #
 #
 ##
