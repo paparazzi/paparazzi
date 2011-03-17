@@ -56,7 +56,7 @@ struct EcefCoor_i {
 struct LlaCoor_i {
   int32_t lon; ///< in radians*1e7
   int32_t lat; ///< in radians*1e7
-  int32_t alt; ///< in centimeters above MSL
+  int32_t alt; ///< in centimeters above WGS84 reference ellipsoid
 };
 
 /**
@@ -75,6 +75,16 @@ struct EnuCoor_i {
   int32_t x;
   int32_t y;
   int32_t z;
+};
+
+/**
+ * @brief position in UTM coordinates
+ */
+struct UTMCoor_i {
+  int32_t north; ///< in centimeters
+  int32_t east; ///< in centimeters
+  int32_t alt; ///< in centimeters above WGS84 reference ellipsoid
+  uint8_t zone; ///< UTM zone number
 };
 
 /**

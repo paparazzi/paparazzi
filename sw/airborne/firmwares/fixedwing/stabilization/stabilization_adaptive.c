@@ -60,11 +60,11 @@ float h_ctl_ref_roll_accel;
 float h_ctl_ref_pitch_angle;
 float h_ctl_ref_pitch_rate;
 float h_ctl_ref_pitch_accel;
-#define H_CTL_REF_W 2.5
+#define H_CTL_REF_W 5.
 #define H_CTL_REF_XI 0.85
-#define H_CTL_REF_MAX_P RadOfDeg(100.)
+#define H_CTL_REF_MAX_P RadOfDeg(150.)
 #define H_CTL_REF_MAX_P_DOT RadOfDeg(500.)
-#define H_CTL_REF_MAX_Q RadOfDeg(100.)
+#define H_CTL_REF_MAX_Q RadOfDeg(150.)
 #define H_CTL_REF_MAX_Q_DOT RadOfDeg(500.)
 
 /* inner roll loop parameters */
@@ -96,6 +96,13 @@ float h_ctl_aileron_of_throttle;
 float h_ctl_elevator_of_roll;
 float h_ctl_pitch_of_roll; // Should be used instead of elevator_of_roll
 
+bool_t use_airspeed_ratio;
+float airspeed_ratio2;
+#define AIRSPEED_RATIO_MIN 0.5
+#define AIRSPEED_RATIO_MAX 2.
+
+float v_ctl_pitch_loiter_trim;
+float v_ctl_pitch_dash_trim;
 
 inline static void h_ctl_roll_loop( void );
 inline static void h_ctl_pitch_loop( void );
@@ -148,6 +155,17 @@ void h_ctl_init( void ) {
   h_ctl_pitch_of_roll = H_CTL_PITCH_OF_ROLL;
 #endif
 
+  use_airspeed_ratio = FALSE;
+  airspeed_ratio2 = 1.;
+
+#ifdef PITCH_TRIM
+  v_ctl_pitch_loiter_trim = V_CTL_PITCH_LOITER_TRIM;
+  v_ctl_pitch_dash_trim = V_CTL_PITCH_DASH_TRIM;
+#else
+  v_ctl_pitch_loiter_trim = 0.;
+  v_ctl_pitch_dash_trim = 0.;
+#endif
+
 }
 
 /**
@@ -175,24 +193,27 @@ void h_ctl_course_loop ( void ) {
   BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
 }
 
-static float airspeed_ratio2;
-
+#ifdef USE_AIRSPEED
 static inline void compute_airspeed_ratio( void ) {
-    float throttle_diff =  v_ctl_throttle_setpoint / (float)MAX_PPRZ - v_ctl_auto_throttle_nominal_cruise_throttle;
-    float airspeed = NOMINAL_AIRSPEED; /* Estimated from the throttle */
-    if (throttle_diff > 0)
-      airspeed += throttle_diff / (V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE - v_ctl_auto_throttle_nominal_cruise_throttle) * (MAXIMUM_AIRSPEED - NOMINAL_AIRSPEED);
-    else
-      airspeed += throttle_diff / (v_ctl_auto_throttle_nominal_cruise_throttle - V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE) * (NOMINAL_AIRSPEED - MINIMUM_AIRSPEED);
-
+  if (use_airspeed_ratio) {
+    // low pass airspeed
+    static float airspeed = 0.;
+    airspeed = ( 15*airspeed + estimator_airspeed ) / 16;
+    // compute ratio
     float airspeed_ratio = airspeed / NOMINAL_AIRSPEED;
-    Bound(airspeed_ratio, 0.5, 2.);
+    Bound(airspeed_ratio, AIRSPEED_RATIO_MIN, AIRSPEED_RATIO_MAX);
     airspeed_ratio2 = airspeed_ratio*airspeed_ratio;
+  } else {
+    airspeed_ratio2 = 1.;
+  }
 }
+#endif
 
 void h_ctl_attitude_loop ( void ) {
   if (!h_ctl_disabled) {
-    // compute_airspeed_ratio();
+#ifdef USE_AIRSPEED
+    compute_airspeed_ratio();
+#endif
     h_ctl_roll_loop();
     h_ctl_pitch_loop();
   }
@@ -209,6 +230,7 @@ inline static void h_ctl_roll_loop( void ) {
   if (pprz_mode == PPRZ_MODE_MANUAL)
     h_ctl_roll_sum_err = 0;
 
+#ifdef USE_ANGLE_REF
   // Update reference setpoints for roll
   h_ctl_ref_roll_angle += h_ctl_ref_roll_rate * H_CTL_REF_DT;
   h_ctl_ref_roll_rate += h_ctl_ref_roll_accel * H_CTL_REF_DT;
@@ -223,6 +245,11 @@ inline static void h_ctl_roll_loop( void ) {
     h_ctl_ref_roll_rate = - H_CTL_REF_MAX_P;
     if (h_ctl_ref_roll_accel < 0.) h_ctl_ref_roll_accel = 0.;
   }
+#else
+  h_ctl_ref_roll_angle = h_ctl_roll_setpoint;
+  h_ctl_ref_roll_rate = 0.;
+  h_ctl_ref_roll_accel = 0.;
+#endif
 
 #ifdef USE_KFF_UPDATE
   // update Kff gains
@@ -242,26 +269,28 @@ inline static void h_ctl_roll_loop( void ) {
   estimator_p = (err - last_err)/(1/60.);
   last_err = err;
 #endif
-  float d_err = (estimator_p - h_ctl_ref_roll_rate) / H_CTL_REF_DT;
+  float d_err = estimator_p - h_ctl_ref_roll_rate;
 
-  h_ctl_roll_sum_err += err * H_CTL_REF_DT;
-  BoundAbs(h_ctl_roll_sum_err, H_CTL_ROLL_SUM_ERR_MAX);
+  if (h_ctl_roll_igain < 0.) {
+    h_ctl_roll_sum_err += err * H_CTL_REF_DT;
+    BoundAbs(h_ctl_roll_sum_err, H_CTL_ROLL_SUM_ERR_MAX / h_ctl_roll_igain);
+  }
 
-  cmd_fb = h_ctl_roll_attitude_gain * err;// + h_ctl_roll_rate_gain * derr;
+  cmd_fb = h_ctl_roll_attitude_gain * err;// + h_ctl_roll_rate_gain * d_err;
   float cmd = h_ctl_roll_Kffa * h_ctl_ref_roll_accel
     + h_ctl_roll_Kffd * h_ctl_ref_roll_rate
     - cmd_fb
     - h_ctl_roll_rate_gain * d_err
     - h_ctl_roll_igain * h_ctl_roll_sum_err
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
-  //float cmd = h_ctl_roll_Kffp * h_ctl_ref_roll_accel
-  //  + h_ctl_roll_Kffd * h_ctl_ref_roll_rate
-  //  - h_ctl_roll_attitude_gain * err
-  //  - h_ctl_roll_rate_gain * derr
-  //  - h_ctl_roll_igain * h_ctl_roll_sum_err
-  //  + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
-
-  //x  cmd /= airspeed_ratio2;
+//  float cmd = h_ctl_roll_Kffa * h_ctl_ref_roll_accel
+//    + h_ctl_roll_Kffd * h_ctl_ref_roll_rate
+//    - h_ctl_roll_attitude_gain * err
+//    - h_ctl_roll_rate_gain * d_err
+//    - h_ctl_roll_igain * h_ctl_roll_sum_err
+//    + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
+//
+  cmd /= airspeed_ratio2;
 
   // Set aileron commands
   h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
@@ -275,12 +304,16 @@ float v_ctl_auto_throttle_dash_trim = V_CTL_AUTO_THROTTLE_DASH_TRIM;
 #endif
 
 #ifdef PITCH_TRIM
-float v_ctl_pitch_loiter_trim = V_CTL_PITCH_LOITER_TRIM;
-float v_ctl_pitch_dash_trim = V_CTL_PITCH_DASH_TRIM;
-
 inline static void loiter(void) {
   float pitch_trim;
 
+#ifdef USE_AIRSPEED
+  if (estimator_airspeed > NOMINAL_AIRSPEED) {
+    pitch_trim = v_ctl_pitch_dash_trim * (airspeed_ratio2-1) / ((AIRSPEED_RATIO_MAX * AIRSPEED_RATIO_MAX) - 1);
+  } else {
+    pitch_trim = v_ctl_pitch_loiter_trim * (airspeed_ratio2-1) / ((AIRSPEED_RATIO_MIN * AIRSPEED_RATIO_MIN) - 1);
+  }
+#else
   float throttle_diff = v_ctl_throttle_setpoint / (float)MAX_PPRZ - v_ctl_auto_throttle_nominal_cruise_throttle;
   if (throttle_diff > 0) {
     float max_diff = Max(V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE - v_ctl_auto_throttle_nominal_cruise_throttle, 0.1);
@@ -289,6 +322,7 @@ inline static void loiter(void) {
     float max_diff = Max(v_ctl_auto_throttle_nominal_cruise_throttle - V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, 0.1);
     pitch_trim = -throttle_diff / max_diff * v_ctl_pitch_loiter_trim;
   }
+#endif
 
   h_ctl_pitch_loop_setpoint += pitch_trim;
 }
@@ -309,10 +343,11 @@ inline static void h_ctl_pitch_loop( void ) {
   loiter();
 #endif
 
+#ifdef USE_ANGLE_REF
   // Update reference setpoints for pitch
-  h_ctl_ref_pitch_accel = H_CTL_REF_W*H_CTL_REF_W * (h_ctl_pitch_loop_setpoint - h_ctl_ref_pitch_angle) - 2*H_CTL_REF_XI*H_CTL_REF_W * h_ctl_ref_pitch_rate;
-  h_ctl_ref_pitch_rate += h_ctl_ref_pitch_accel * H_CTL_REF_DT;
   h_ctl_ref_pitch_angle += h_ctl_ref_pitch_rate * H_CTL_REF_DT;
+  h_ctl_ref_pitch_rate += h_ctl_ref_pitch_accel * H_CTL_REF_DT;
+  h_ctl_ref_pitch_accel = H_CTL_REF_W*H_CTL_REF_W * (h_ctl_pitch_loop_setpoint - h_ctl_ref_pitch_angle) - 2*H_CTL_REF_XI*H_CTL_REF_W * h_ctl_ref_pitch_rate;
   // Saturation on references
   BoundAbs(h_ctl_ref_pitch_accel, H_CTL_REF_MAX_Q_DOT);
   if (h_ctl_ref_pitch_rate > H_CTL_REF_MAX_Q) {
@@ -323,14 +358,21 @@ inline static void h_ctl_pitch_loop( void ) {
     h_ctl_ref_pitch_rate = - H_CTL_REF_MAX_Q;
     if (h_ctl_ref_pitch_accel < 0.) h_ctl_ref_pitch_accel = 0.;
   }
+#else
+  h_ctl_ref_pitch_angle = h_ctl_pitch_loop_setpoint;
+  h_ctl_ref_pitch_rate = 0.;
+  h_ctl_ref_pitch_accel = 0.;
+#endif
 
   // Compute errors
   float err = estimator_theta - h_ctl_ref_pitch_angle;
   float d_err = (err - last_err)/H_CTL_REF_DT - h_ctl_ref_pitch_rate;
   last_err = err;
 
-  h_ctl_pitch_sum_err += err * H_CTL_REF_DT;
-  BoundAbs(h_ctl_pitch_sum_err, H_CTL_ROLL_SUM_ERR_MAX);
+  if (h_ctl_roll_igain < 0.) {
+    h_ctl_pitch_sum_err += err * H_CTL_REF_DT;
+    BoundAbs(h_ctl_pitch_sum_err, H_CTL_PITCH_SUM_ERR_MAX / h_ctl_pitch_igain);
+  }
 
   float cmd = h_ctl_pitch_Kffa * h_ctl_ref_pitch_accel
     + h_ctl_pitch_Kffd * h_ctl_ref_pitch_rate
@@ -338,7 +380,8 @@ inline static void h_ctl_pitch_loop( void ) {
     + h_ctl_pitch_dgain * d_err
     + h_ctl_pitch_igain * h_ctl_pitch_sum_err;
 
-  //  cmd /= airspeed_ratio2;
+  cmd /= airspeed_ratio2;
 
   h_ctl_elevator_setpoint = TRIM_PPRZ(cmd);
 }
+

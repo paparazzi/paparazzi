@@ -40,9 +40,9 @@
  * and 0° longitude (Greenwich). Y-axis completes it to right-hand system.
  * Units: meters */
 struct EcefCoor_f {
-  float x;///< in meters
-  float y;///< in meters
-  float z;///< in meters
+  float x; ///< in meters
+  float y; ///< in meters
+  float z; ///< in meters
 };
 
 /**
@@ -51,27 +51,27 @@ struct EcefCoor_f {
  * Unit alt: meters above MSL
  */
 struct LlaCoor_f {
-  float lon;///< in radians
-  float lat;///< in radians
-  float alt;///< in meters above MSL
+  float lon; ///< in radians
+  float lat; ///< in radians
+  float alt; ///< in meters above WGS84 reference ellipsoid
 };
 
 /**
  * @brief vector in North East Down coordinates
  * Units: meters */
 struct NedCoor_f {
-  float x;///< in meters
-  float y;///< in meters
-  float z;///< in meters
+  float x; ///< in meters
+  float y; ///< in meters
+  float z; ///< in meters
 };
 
 /**
  * @brief vector in East North Up coordinates
  * Units: meters */
 struct EnuCoor_f {
-  float x;///< in meters
-  float y;///< in meters
-  float z;///< in meters
+  float x; ///< in meters
+  float y; ///< in meters
+  float z; ///< in meters
 };
 
 /**
@@ -80,9 +80,10 @@ struct EnuCoor_f {
  * in ECEF and LLA coordinates and the roation matrix from
  * ECEF to local frame */
 struct LtpDef_f {
-  struct EcefCoor_f ecef;///< origin of local frame in ECEF
-  struct LlaCoor_f  lla;///< origin of local frame in LLA
-  struct FloatMat33 ltp_of_ecef;///< rotation from ECEF to local frame
+  struct EcefCoor_f ecef; ///< origin of local frame in ECEF
+  struct LlaCoor_f  lla; ///< origin of local frame in LLA
+  struct FloatMat33 ltp_of_ecef; ///< rotation from ECEF to local frame
+  float hmsl; ///< Height above mean sea level in meters
 };
 
 extern void ltp_def_from_ecef_f(struct LtpDef_f* def, struct EcefCoor_f* ecef);

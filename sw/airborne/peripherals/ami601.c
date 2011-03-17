@@ -17,7 +17,6 @@ void ami601_init( void ) {
   }
   ami601_i2c_trans.status = I2CTransSuccess;
   ami601_i2c_trans.slave_addr = AMI601_SLAVE_ADDR;
-  ami601_i2c_trans.stop_after_transmit = TRUE;
   ami601_nb_err = 0;
   ami601_status = AMI601_IDLE;
 
@@ -26,7 +25,7 @@ void ami601_init( void ) {
 void ami601_read( void ) {
   if (ami601_status != AMI601_IDLE) {
     ami601_nb_err++;
-    ami601_status == AMI601_IDLE;
+    ami601_status = AMI601_IDLE;
   }
   else {
     ami601_status = AMI601_SENDING_REQ;

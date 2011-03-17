@@ -21,28 +21,28 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#include <stm32/rcc.h>
+#include <stm32/gpio.h>
 
+#include <stm32/flash.h>
+#include <stm32/misc.h>
+
+#include BOARD_CONFIG
 #include "mcu.h"
+#include "mcu_periph/uart.h"
 #include "sys_time.h"
-#include "led.h"
-
-#include "mcu_periph/i2c.h"
 
 static inline void main_init( void );
-static inline void main_periodic_task( void );
-static inline void main_event_task( void );
-
-static struct i2c_transaction trans;
+static inline void main_periodic( void );
 
 int main(void) {
+
   main_init();
 
-  while(1) {
+  while (1) {
     if (sys_time_periodic())
-      main_periodic_task();
-    main_event_task();
+      main_periodic();
   }
-
   return 0;
 }
 
@@ -51,22 +51,50 @@ static inline void main_init( void ) {
   sys_time_init();
 }
 
+static inline void main_periodic( void ) {
+  char ch;
 
+  Uart1Transmit('a');
+  Uart2Transmit('b');
+  Uart3Transmit('c');
+  Uart5Transmit('d');
 
-static inline void main_periodic_task( void ) {
+  LED_OFF(1);
+  LED_OFF(2);
 
-  trans.type = I2CTransTx;
-  trans.buf[0] = 0x04;
-  trans.len_w = 1;
-  trans.slave_addr = 0x58;
-  i2c_submit(&ACTUATORS_MKK_DEV,&trans);
+  if (Uart1ChAvailable()) {
+    ch = Uart1Getch();
+    if (ch == 'a') {
+      LED_ON(1);
+    } else {
+      LED_ON(2);
+    }
+  }
 
-  LED_PERIODIC();
+  if (Uart2ChAvailable()) {
+    ch = Uart2Getch();
+    if (ch == 'b') {
+      LED_ON(1);
+    } else {
+      LED_ON(2);
+    }
+  }
 
-}
+  if (Uart3ChAvailable()) {
+    ch = Uart3Getch();
+    if (ch == 'c') {
+      LED_ON(1);
+    } else {
+      LED_ON(2);
+    }
+  }
 
-
-
-static inline void main_event_task( void ) {
-
+  if (Uart5ChAvailable()) {
+    ch = Uart5Getch();
+    if (ch == 'd') {
+      LED_ON(1);
+    } else {
+      LED_ON(2);
+    }
+  }
 }

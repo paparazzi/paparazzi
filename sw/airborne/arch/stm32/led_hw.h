@@ -42,10 +42,12 @@
 #define _LED_GPIO_CLK(i)  i
 #define _LED_GPIO(i)  i
 #define _LED_GPIO_PIN(i) i
+#define _LED_AFIO_REMAP(i) i
 
 #define LED_GPIO_CLK(i) _LED_GPIO_CLK(LED_ ## i ## _GPIO_CLK)
 #define LED_GPIO(i) _LED_GPIO(LED_ ## i ## _GPIO)
 #define LED_GPIO_PIN(i) _LED_GPIO_PIN(LED_ ## i ## _GPIO_PIN)
+#define LED_AFIO_REMAP(i) _LED_AFIO_REMAP(LED_ ## i ## _AFIO_REMAP)
 
 /* set pin as output */
 #define LED_INIT(i) {					\
@@ -55,10 +57,11 @@
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;	\
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	\
     GPIO_Init(LED_GPIO(i), &GPIO_InitStructure);	\
+    LED_AFIO_REMAP(i);					\
   }
 
-#define LED_ON(i) { LED_GPIO(i)->BRR  = LED_GPIO_PIN(i);}
-#define LED_OFF(i) {LED_GPIO(i)->BSRR = LED_GPIO_PIN(i);}
+#define LED_ON(i) {LED_GPIO(i)->BSRR = LED_GPIO_PIN(i);}
+#define LED_OFF(i) { LED_GPIO(i)->BRR  = LED_GPIO_PIN(i);}
 #define LED_TOGGLE(i) {	LED_GPIO(i)->ODR ^= LED_GPIO_PIN(i);}
 
 #define LED_PERIODIC() {}

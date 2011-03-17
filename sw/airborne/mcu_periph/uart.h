@@ -121,4 +121,24 @@ extern bool_t uart3_check_free_space( uint8_t len);
 
 #endif /* USE_UART3 */
 
+#ifdef USE_UART5
+
+extern void   uart5_init( void );
+extern void   uart5_transmit( uint8_t data );
+extern bool_t uart5_check_free_space( uint8_t len);
+
+#define Uart5Init uart5_init
+#define Uart5CheckFreeSpace(_x) uart5_check_free_space(_x)
+#define Uart5Transmit(_x)       uart5_transmit(_x)
+#define Uart5SendMessage() {}
+
+#define UART5Init           Uart5Init
+#define UART5CheckFreeSpace Uart5CheckFreeSpace
+#define UART5Transmit       Uart5Transmit
+#define UART5SendMessage    Uart5SendMessage
+#define UART5ChAvailable    Uart5ChAvailable
+#define UART5Getch          Uart5Getch
+
+#endif /* USE_UART5 */
+
 #endif /* MCU_PERIPH_UART_H */

@@ -43,7 +43,6 @@ void actuators_init(void) {
     actuators_mkk.trans[i].type = I2CTransTx;
     actuators_mkk.trans[i].len_w = 1;
     actuators_mkk.trans[i].slave_addr = actuators_addr[i];
-    actuators_mkk.trans[i].stop_after_transmit = TRUE;
     actuators_mkk.trans[i].status = I2CTransSuccess;
   }
 

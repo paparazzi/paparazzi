@@ -29,6 +29,12 @@
 #ifndef ACTUATORS_PWM_ARCH_H
 #define ACTUATORS_PWM_ARCH_H
 
+#ifdef USE_SERVOS_7AND8
+#define ACTUATORS_PWM_NB 8
+#else
+#define ACTUATORS_PWM_NB 6
+#endif
+
 extern void actuators_pwm_arch_init(void);
 extern void actuators_pwm_commit(void);
 

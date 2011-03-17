@@ -16,11 +16,6 @@
 //#define DEBUG 1
 
 
-#define CM_OF_M(_m) ((_m)*1e2)
-#define M_OF_CM(_cm) ((_cm)/1e2)
-#define EM7RAD_OF_RAD(_r) (_r*1e7)
-#define RAD_OF_EM7RAD(_r) (_r/1e7)
-
 static void test_lla_of_utm(void);
 static void test_floats(void);
 static void test_doubles(void);
