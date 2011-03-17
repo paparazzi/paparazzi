@@ -82,6 +82,11 @@ void actuators_pwm_arch_init(void) {
   GPIO_InitStructure.GPIO_Pin   = PWM5_Pin | PWM6_Pin;
   GPIO_Init(PWM_5AND6_GPIO, &GPIO_InitStructure);
 
+#ifdef USE_SERVOS_7AND8
+  GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_6 | GPIO_Pin_7;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+#endif
+
   /* Time base configuration */
   TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
   TIM_TimeBaseStructure.TIM_Prescaler = (PCLK / ONE_MHZ_CLK) - 1; // 1uS
@@ -91,6 +96,9 @@ void actuators_pwm_arch_init(void) {
 
   TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
   TIM_TimeBaseInit(PWM_5AND6_TIMER, &TIM_TimeBaseStructure);
+#ifdef USE_SERVOS_7AND8
+  TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
+#endif
 
   /* PWM1 Mode configuration: All Channels */
   TIM_OCInitTypeDef  TIM_OCInitStructure;
@@ -161,7 +169,7 @@ void actuators_pwm_commit(void) {
   TIM_SETCOMPARE(PWM6_OC)(PWM_5AND6_TIMER, actuators_pwm_values[5]);
 
 #ifdef USE_SERVOS_7AND8
-  TIM_SetCompare1(PWM_5AND6_TIMER, actuators_pwm_values[6]);
-  TIM_SetCompare2(PWM_5AND6_TIMER, actuators_pwm_values[7]);
+  TIM_SetCompare1(TIM4, actuators_pwm_values[6]);
+  TIM_SetCompare2(TIM4, actuators_pwm_values[7]);
 #endif
 }

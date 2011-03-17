@@ -113,7 +113,7 @@ test_servos.srcs += $(SRC_AIRBORNE)/mcu.c \
                     $(SRC_ARCH)/stm32_vector_table.c
 test_servos.CFLAGS += -DUSE_LED
 test_servos.srcs += $(SRC_ARCH)/led_hw.c
-test_servos.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
+test_servos.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED) -DUSE_SERVOS_7AND8
 test_servos.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 test_servos.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
