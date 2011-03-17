@@ -32,7 +32,7 @@
 #include BOARD_CONFIG
 
 #ifdef USE_OPENCM3
-void usart_set_baudrate(u32 usart, u32 baud);
+void usart_set_baudrate(uint32_t usart, uint32_t baud);
 #define pprz_usart_set_baudrate(x, y) usart_set_baudrate(x, y)
 #else
 #define pprz_usart_set_baudrate(x, y) do { } while(0);
