@@ -38,5 +38,8 @@
 #define PWM_5AND6_RCC RCC_APB1Periph_TIM5
 #define PWM5_OC 1
 #define PWM6_OC 2
+#define PWM_5AND6_GPIO GPIOA
+#define PWM5_Pin GPIO_Pin_0
+#define PWM6_Pin GPIO_Pin_1
 
 #endif /* CONFIG_LISA_M_1_0_H */

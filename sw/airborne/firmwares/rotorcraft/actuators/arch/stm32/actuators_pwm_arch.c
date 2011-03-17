@@ -39,8 +39,11 @@
 #ifndef PWM_5AND6_TIMER
 #define PWM_5AND6_TIMER TIM4
 #define PWM_5AND6_RCC RCC_APB1Periph_TIM4
+#define PWM_5AND6_GPIO GPIOB
 #define PWM5_OC 3
 #define PWM6_OC 4
+#define PWM5_Pin GPIO_Pin_8
+#define PWM6_Pin GPIO_Pin_9
 #endif
 
 #define _TIM_OC_INIT(n) TIM_OC##n##Init
@@ -74,10 +77,10 @@ void actuators_pwm_arch_init(void) {
   /* need to remate alternate function, pins 37, 38, 39, 40 on LQFP64 */
   GPIO_PinRemapConfig(GPIO_FullRemap_TIM3, ENABLE);
 
-  /* GPIO B */
+  /* PWM 5/6 GPIO */
   /* PB8=servo5 PB9=servo6 */
-  GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_8 | GPIO_Pin_9;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Pin   = PWM5_Pin | PWM6_Pin;
+  GPIO_Init(PWM_5AND6_GPIO, &GPIO_InitStructure);
 
   /* Time base configuration */
   TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
