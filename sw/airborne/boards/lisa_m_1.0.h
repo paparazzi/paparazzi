@@ -34,4 +34,7 @@
 #define STM32_RCC_MODE RCC_HSE_ON
 #define STM32_PLL_MULT RCC_PLLMul_6
 
+#define PWM_5AND6_TIMER TIM5
+#define PWM_5AND6_RCC RCC_APB1Periph_TIM5
+
 #endif /* CONFIG_LISA_M_1_0_H */
