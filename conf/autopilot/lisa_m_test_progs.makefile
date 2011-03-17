@@ -92,6 +92,7 @@ test_uart_lisam.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_uart_lisam.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_uart_lisam.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_uart_lisam.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B57600
+test_uart_lisam.CFLAGS += -DUSE_UART5 -DUART5_BAUD=B57600
 test_uart_lisam.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 

@@ -57,6 +57,7 @@ static inline void main_periodic( void ) {
   Uart1Transmit('a');
   Uart2Transmit('b');
   Uart3Transmit('c');
+  Uart5Transmit('d');
 
   LED_OFF(1);
   LED_OFF(2);
@@ -82,6 +83,15 @@ static inline void main_periodic( void ) {
   if (Uart3ChAvailable()) {
     ch = Uart3Getch();
     if (ch == 'c') {
+      LED_ON(1);
+    } else {
+      LED_ON(2);
+    }
+  }
+
+  if (Uart5ChAvailable()) {
+    ch = Uart5Getch();
+    if (ch == 'd') {
       LED_ON(1);
     } else {
       LED_ON(2);
