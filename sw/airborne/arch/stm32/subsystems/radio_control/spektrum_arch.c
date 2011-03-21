@@ -30,15 +30,8 @@
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/spektrum_arch.h"
 #include "mcu_periph/uart.h"
+#include "pprz_baudrate.h"
 
-#include BOARD_CONFIG
-
-#ifdef USE_OPENCM3
-void usart_set_baudrate(uint32_t usart, uint32_t baud);
-#define pprz_usart_set_baudrate(x, y) usart_set_baudrate(x, y)
-#else
-#define pprz_usart_set_baudrate(x, y) do { } while(0);
-#endif
 
 
 #define SPEKTRUM_CHANNELS_PER_FRAME 7

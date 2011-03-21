@@ -28,15 +28,7 @@
 #include <stm32/usart.h>
 #include <stm32/gpio.h>
 #include "std.h"
-
-#include BOARD_CONFIG
-
-#ifdef USE_OPENCM3
-void usart_set_baudrate(uint32_t usart, uint32_t baud);
-#define pprz_usart_set_baudrate(x, y) usart_set_baudrate(x, y)
-#else
-#define pprz_usart_set_baudrate(x, y) do { } while(0);
-#endif
+#include "pprz_baudrate.h"
 
 #ifdef USE_UART1
 
