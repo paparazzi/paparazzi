@@ -189,39 +189,39 @@ test_telemetry.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 ##   RADIO_CONTROL_LED
 ##   RADIO_CONROL_SPEKTRUM_PRIMARY_PORT
 ##
-#test_rc_spektrum.ARCHDIR   = $(ARCH)
-#
-#test_rc_spektrum.CFLAGS += -I$(SRC_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
-#test_rc_spektrum.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-#test_rc_spektrum.srcs   += $(SRC_AIRBORNE)/mcu.c \
-#                 $(SRC_ARCH)/mcu_arch.c \
-#                 $(SRC_BOOZ_TEST)/booz2_test_radio_control.c \
-#               $(SRC_ARCH)/stm32_exceptions.c              \
-#               $(SRC_ARCH)/stm32_vector_table.c
-#
-#test_rc_spektrum.CFLAGS += -DUSE_LED
-#test_rc_spektrum.srcs   += $(SRC_ARCH)/led_hw.c
-#test_rc_spektrum.CFLAGS += -DUSE_SYS_TIME
-#test_rc_spektrum.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
-#test_rc_spektrum.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
-#test_rc_spektrum.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-#test_rc_spektrum.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
-#test_rc_spektrum.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
-#test_rc_spektrum.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
-#test_rc_spektrum.srcs   += downlink.c pprz_transport.c
-#test_rc_spektrum.CFLAGS += -DRADIO_CONTROL
-#ifdef RADIO_CONTROL_LED
-#test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
-#endif
-#test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_BIND_IMPL_FUNC=radio_control_spektrum_try_bind
-#test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/spektrum.h\"
-#test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_PRIMARY_PORT=$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)
-#test_rc_spektrum.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HANDLER -DUSE_TIM6_IRQ
-#test_rc_spektrum.srcs   += $(SRC_SUBSYSTEMS)/radio_control.c                                 \
-#               subsystems/radio_control/spektrum.c          \
-#               $(SRC_ARCH)/subsystems/radio_control/spektrum_arch.c
-#
-#
+test_rc_spektrum.ARCHDIR   = $(ARCH)
+
+test_rc_spektrum.CFLAGS += -I$(SRC_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_rc_spektrum.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_rc_spektrum.srcs   += $(SRC_AIRBORNE)/mcu.c \
+                 $(SRC_ARCH)/mcu_arch.c \
+                 booz/test/booz2_test_radio_control.c \
+               $(SRC_ARCH)/stm32_exceptions.c              \
+               $(SRC_ARCH)/stm32_vector_table.c
+
+test_rc_spektrum.CFLAGS += -DUSE_LED
+test_rc_spektrum.srcs   += $(SRC_ARCH)/led_hw.c
+test_rc_spektrum.CFLAGS += -DUSE_SYS_TIME
+test_rc_spektrum.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
+test_rc_spektrum.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
+test_rc_spektrum.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_rc_spektrum.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_rc_spektrum.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
+test_rc_spektrum.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
+test_rc_spektrum.srcs   += downlink.c pprz_transport.c
+test_rc_spektrum.CFLAGS += -DRADIO_CONTROL
+ifdef RADIO_CONTROL_LED
+test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
+endif
+test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_BIND_IMPL_FUNC=radio_control_spektrum_try_bind
+test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/spektrum.h\"
+test_rc_spektrum.CFLAGS += -DRADIO_CONTROL_SPEKTRUM_PRIMARY_PORT=$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)
+test_rc_spektrum.CFLAGS += -DOVERRIDE_$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)_IRQ_HANDLER -DUSE_TIM6_IRQ
+test_rc_spektrum.srcs   += $(SRC_SUBSYSTEMS)/radio_control.c                                 \
+               subsystems/radio_control/spektrum.c          \
+               $(SRC_ARCH)/subsystems/radio_control/spektrum_arch.c
+
+
 ##
 ## test_rc_ppm
 ##
