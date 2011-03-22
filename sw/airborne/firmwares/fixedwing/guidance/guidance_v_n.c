@@ -57,7 +57,7 @@ float v_ctl_auto_throttle_pgain;
 float v_ctl_auto_throttle_igain;
 float v_ctl_auto_throttle_dgain;
 float v_ctl_auto_throttle_sum_err;
-#define V_CTL_AUTO_THROTTLE_MAX_SUM_ERR 150
+#define V_CTL_AUTO_THROTTLE_MAX_SUM_ERR 0.3
 float v_ctl_auto_throttle_pitch_of_vz_pgain;
 float v_ctl_auto_throttle_pitch_of_vz_dgain;
 
@@ -70,14 +70,21 @@ float v_ctl_auto_pitch_pgain;
 float v_ctl_auto_pitch_dgain;
 float v_ctl_auto_pitch_igain;
 float v_ctl_auto_pitch_sum_err;
-#define V_CTL_AUTO_PITCH_MAX_SUM_ERR 100
+#define V_CTL_AUTO_PITCH_MAX_SUM_ERR (RadOfDeg(10.))
+
+#ifndef V_CTL_AUTO_PITCH_DGAIN
+#define V_CTL_AUTO_PITCH_DGAIN 0.
+#endif
+#ifndef V_CTL_AUTO_PITCH_IGAIN
+#define V_CTL_AUTO_PITCH_IGAIN 0.
+#endif
 
 float controlled_throttle;
 pprz_t v_ctl_throttle_setpoint;
 pprz_t v_ctl_throttle_slewed;
 
 // Set higher than 2*V_CTL_ALTITUDE_MAX_CLIMB to disable
-#define V_CTL_AUTO_CLIMB_LIMIT 0.5/4.0 // m/s/s
+#define V_CTL_AUTO_CLIMB_LIMIT (0.5/4.0) // m/s/s
 
 uint8_t v_ctl_speed_mode;
 
@@ -181,16 +188,21 @@ void v_ctl_altitude_loop( void ) {
 static inline void v_ctl_set_pitch ( void ) {
   static float last_err = 0.;
 
+  if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0)
+    v_ctl_auto_pitch_sum_err = 0;
+
   // Compute errors
   float err = estimator_z_dot - v_ctl_climb_setpoint;
   float d_err = err - last_err;
   last_err = err;
 
-  v_ctl_auto_pitch_sum_err += err*(1./60.);
-  BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR);
+  if (v_ctl_auto_pitch_igain < 0.) {
+    v_ctl_auto_pitch_sum_err += err*(1./60.);
+    BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR / v_ctl_auto_pitch_igain);
+  }
 
   // PI loop + feedforward ctl
-  nav_pitch = nav_pitch
+  nav_pitch = 0. //nav_pitch FIXME it really sucks !
     + v_ctl_auto_throttle_pitch_of_vz_pgain * v_ctl_climb_setpoint
     + v_ctl_auto_pitch_pgain * err
     + v_ctl_auto_pitch_dgain * d_err
@@ -201,13 +213,18 @@ static inline void v_ctl_set_pitch ( void ) {
 static inline void v_ctl_set_throttle( void ) {
   static float last_err = 0.;
 
+  if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0)
+    v_ctl_auto_throttle_sum_err = 0;
+
   // Compute errors
   float err = estimator_z_dot - v_ctl_climb_setpoint;
   float d_err = err - last_err;
   last_err = err;
 
-  v_ctl_auto_throttle_sum_err += err*(1./60.);
-  BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR);
+  if (v_ctl_auto_throttle_igain < 0.) {
+    v_ctl_auto_throttle_sum_err += err*(1./60.);
+    BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR / v_ctl_auto_throttle_igain);
+  }
 
   // PID loop + feedforward ctl
   controlled_throttle = v_ctl_auto_throttle_cruise_throttle
@@ -269,8 +286,7 @@ void v_ctl_climb_loop ( void ) {
   }
 
   // Set Throttle output
-  float f_throttle = controlled_throttle;
-  v_ctl_throttle_setpoint = TRIM_UPPRZ(f_throttle * MAX_PPRZ);
+  v_ctl_throttle_setpoint = TRIM_UPPRZ(controlled_throttle * MAX_PPRZ);
 
 }
 
@@ -279,7 +295,7 @@ void v_ctl_climb_loop ( void ) {
 #endif
 
 #ifndef V_CTL_THROTTLE_SLEW
-#define V_CTL_THROTTLE_SLEW 1.
+#define V_CTL_THROTTLE_SLEW (1.)
 #endif
 /** \brief Computes slewed throttle from throttle setpoint
     called at 20Hz

@@ -27,12 +27,13 @@
 #include "std.h"
 #include "firmwares/rotorcraft/actuators.h"
 
-#define ACTUATORS_PWM_NB 6
+#include BOARD_CONFIG
+#include "actuators_pwm_arch.h"
+
 extern int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
 //already declared in actuators.h
 //extern void actuators_init(void);
 
-#include "actuators_pwm_arch.h"
 
 #endif /* ACTUATORS_PWM_H */

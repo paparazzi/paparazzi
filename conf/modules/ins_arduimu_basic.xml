@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ins_ArduIMU" dir="ins">
+  <header>
+    <file name="ins_arduimu_basic.h"/>
+  </header>
+  <init fun="ArduIMU_init()"/>
+  <periodic fun="ArduIMU_periodic()" freq="60"/>
+  <periodic fun="ArduIMU_periodicGPS()" freq="8"/>
+  <event fun="ArduIMU_event()"/>
+  <makefile target="ap">
+    <file name="ins_arduimu_basic.c"/>
+  </makefile>
+  <makefile target="sim">
+    <file_arch name="ins_arduimu.c"/>
+  </makefile>
+</module>
+

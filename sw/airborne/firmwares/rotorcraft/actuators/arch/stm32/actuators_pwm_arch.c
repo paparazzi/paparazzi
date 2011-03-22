@@ -36,13 +36,35 @@
 #define SERVO_HZ 40
 #endif
 
+#ifndef PWM_5AND6_TIMER
+#define PWM_5AND6_TIMER TIM4
+#define PWM_5AND6_RCC RCC_APB1Periph_TIM4
+#define PWM_5AND6_GPIO GPIOB
+#define PWM5_OC 3
+#define PWM6_OC 4
+#define PWM5_Pin GPIO_Pin_8
+#define PWM6_Pin GPIO_Pin_9
+#endif
+
+#define _TIM_OC_INIT(n) TIM_OC##n##Init
+#define TIM_OC_INIT(n) _TIM_OC_INIT(n)
+
+#define _TIM_OC_PRELOADCONFIG(n) TIM_OC##n##PreloadConfig
+#define TIM_OC_PRELOADCONFIG(n) _TIM_OC_PRELOADCONFIG(n)
+
+#define _TIM_SETCOMPARE(n) TIM_SetCompare##n
+#define TIM_SETCOMPARE(n) _TIM_SETCOMPARE(n)
+
 void actuators_pwm_arch_init(void) {
 
   /* TIM3 and TIM4 clock enable */
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+  RCC_APB1PeriphClockCmd(PWM_5AND6_RCC, ENABLE);
+#ifdef USE_SERVOS_7AND8
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+#endif
 
-  /* GPIOB and GPIOC clock enable */
+  /* GPIO A,B and C clock enable */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC |
              RCC_APB2Periph_AFIO, ENABLE);
   /* GPIO C */
@@ -55,10 +77,15 @@ void actuators_pwm_arch_init(void) {
   /* need to remate alternate function, pins 37, 38, 39, 40 on LQFP64 */
   GPIO_PinRemapConfig(GPIO_FullRemap_TIM3, ENABLE);
 
-  /* GPIO B */
+  /* PWM 5/6 GPIO */
   /* PB8=servo5 PB9=servo6 */
-  GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_8 | GPIO_Pin_9;
+  GPIO_InitStructure.GPIO_Pin   = PWM5_Pin | PWM6_Pin;
+  GPIO_Init(PWM_5AND6_GPIO, &GPIO_InitStructure);
+
+#ifdef USE_SERVOS_7AND8
+  GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_6 | GPIO_Pin_7;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
+#endif
 
   /* Time base configuration */
   TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
@@ -68,7 +95,10 @@ void actuators_pwm_arch_init(void) {
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
   TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+  TIM_TimeBaseInit(PWM_5AND6_TIMER, &TIM_TimeBaseStructure);
+#ifdef USE_SERVOS_7AND8
   TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
+#endif
 
   /* PWM1 Mode configuration: All Channels */
   TIM_OCInitTypeDef  TIM_OCInitStructure;
@@ -81,35 +111,50 @@ void actuators_pwm_arch_init(void) {
   TIM_OC1Init(TIM3, &TIM_OCInitStructure);
   TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Enable);
 
-  /* PWM1 Mode configuration: TIM3 Channel2 */
+  /* PWM2 Mode configuration: TIM3 Channel2 */
   TIM_OC2Init(TIM3, &TIM_OCInitStructure);
   TIM_OC2PreloadConfig(TIM3, TIM_OCPreload_Enable);
 
-  /* PWM1 Mode configuration: TIM3 Channel3 */
+  /* PWM3 Mode configuration: TIM3 Channel3 */
   TIM_OC3Init(TIM3, &TIM_OCInitStructure);
   TIM_OC3PreloadConfig(TIM3, TIM_OCPreload_Enable);
 
-  /* PWM1 Mode configuration: TIM3 Channel4 */
+  /* PWM4 Mode configuration: TIM3 Channel4 */
   TIM_OC4Init(TIM3, &TIM_OCInitStructure);
   TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
 
-  /* PWM1 Mode configuration: TIM4 Channel3 */
-  TIM_OC3Init(TIM4, &TIM_OCInitStructure);
-  TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);
+  /* PWM5 Mode configuration: TIM4 Channel3 */
+  TIM_OC_INIT(PWM5_OC) (PWM_5AND6_TIMER, &TIM_OCInitStructure);
+  TIM_OC_PRELOADCONFIG(PWM5_OC)(PWM_5AND6_TIMER, TIM_OCPreload_Enable);
 
-  /* PWM1 Mode configuration: TIM4 Channel4 */
-  TIM_OC4Init(TIM4, &TIM_OCInitStructure);
-  TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Enable);
+  /* PWM6 Mode configuration: TIM4 Channel4 */
+  TIM_OC_INIT(PWM6_OC)(PWM_5AND6_TIMER, &TIM_OCInitStructure);
+  TIM_OC_PRELOADCONFIG(PWM6_OC)(PWM_5AND6_TIMER, TIM_OCPreload_Enable);
 
-  /* TIM3 enable */
-  TIM_ARRPreloadConfig(TIM3, ENABLE);
-  TIM_CtrlPWMOutputs(TIM3, ENABLE);
-  TIM_Cmd(TIM3, ENABLE);
+#ifdef USE_SERVOS_7AND8
+  /* PWM7 Mode configuration: TIM4 Channel3 */
+  TIM_OC1Init(TIM4, &TIM_OCInitStructure);
+  TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
+
+  /* PWM8 Mode configuration: TIM4 Channel4 */
+  TIM_OC2Init(TIM4, &TIM_OCInitStructure);
+  TIM_OC2PreloadConfig(TIM4, TIM_OCPreload_Enable);
 
   /* TIM4 enable */
   TIM_ARRPreloadConfig(TIM4, ENABLE);
   TIM_CtrlPWMOutputs(TIM4, ENABLE);
   TIM_Cmd(TIM4, ENABLE);
+#endif
+
+  /* PWM1-4 enable */
+  TIM_ARRPreloadConfig(TIM3, ENABLE);
+  TIM_CtrlPWMOutputs(TIM3, ENABLE);
+  TIM_Cmd(TIM3, ENABLE);
+
+  /* PWM5/6 enable */
+  TIM_ARRPreloadConfig(PWM_5AND6_TIMER, ENABLE);
+  TIM_CtrlPWMOutputs(PWM_5AND6_TIMER, ENABLE);
+  TIM_Cmd(PWM_5AND6_TIMER, ENABLE);
 
 }
 
@@ -119,6 +164,12 @@ void actuators_pwm_commit(void) {
   TIM_SetCompare2(TIM3, actuators_pwm_values[1]);
   TIM_SetCompare3(TIM3, actuators_pwm_values[2]);
   TIM_SetCompare4(TIM3, actuators_pwm_values[3]);
-  TIM_SetCompare3(TIM4, actuators_pwm_values[4]);
-  TIM_SetCompare4(TIM4, actuators_pwm_values[5]);
+
+  TIM_SETCOMPARE(PWM5_OC)(PWM_5AND6_TIMER, actuators_pwm_values[4]);
+  TIM_SETCOMPARE(PWM6_OC)(PWM_5AND6_TIMER, actuators_pwm_values[5]);
+
+#ifdef USE_SERVOS_7AND8
+  TIM_SetCompare1(TIM4, actuators_pwm_values[6]);
+  TIM_SetCompare2(TIM4, actuators_pwm_values[7]);
+#endif
 }

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -21,27 +21,23 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BOOZ2_ANALOG_H
-#define BOOZ2_ANALOG_H
+#ifndef AHRS_INT_CMPL_H
+#define AHRS_INT_CMPL_H
 
-extern void booz2_analog_init( void );
-
-#ifdef USE_EXTRA_ADC
+#include "subsystems/ahrs.h"
 #include "std.h"
+#include "math/pprz_algebra_int.h"
 
-extern uint16_t booz2_adc_1;
-extern uint16_t booz2_adc_2;
-extern uint16_t booz2_adc_3;
-extern uint16_t booz2_adc_4;
-
-extern void booz2_analog_periodic( void );
-
-extern void booz2_analog_baro_read(void);
-extern void booz2_analog_bat_read(void);
-extern void booz2_analog_extra_adc_read(void);
+struct AhrsIntCmpl {
+  struct Int32Rates  gyro_bias;
+  struct Int32Rates  rate_correction;
+  struct Int64Quat   high_rez_quat;
+  struct Int64Rates  high_rez_bias;
+#ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
+  int32_t ltp_vel_norm;
 #endif
+};
 
+extern struct AhrsIntCmpl ahrs_impl;
 
-#include "booz2_analog_hw.h"
-
-#endif /* BOOZ2_ANALOG_H */
+#endif /* AHRS_INT_CMPL_H */

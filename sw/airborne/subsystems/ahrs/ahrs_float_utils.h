@@ -8,6 +8,7 @@ static inline void ahrs_float_get_euler_from_accel_mag(struct FloatEulers* e, st
   const float phi   = atan2f(-accelf.y, -accelf.z);
   const float cphi = cosf(phi);
   const float theta = atan2f(cphi*accelf.x, -accelf.z);
+
   /* get psi from magnetometer */
   /* project mag on local tangeant plane */
   struct FloatVect3 magf;
@@ -17,8 +18,10 @@ static inline void ahrs_float_get_euler_from_accel_mag(struct FloatEulers* e, st
   const float stheta = sinf(theta);
   const float mn = ctheta * magf.x + sphi*stheta*magf.y + cphi*stheta*magf.z;
   const float me =     0. * magf.x + cphi       *magf.y - sphi       *magf.z;
-  const float psi = -atan2f(me, mn);
+  float psi = -atan2f(me, mn) + atan2(AHRS_H_Y, AHRS_H_X);
+  if (psi > M_PI) psi -= 2.*M_PI; if (psi < -M_PI) psi+= 2.*M_PI;
   EULERS_ASSIGN(*e, phi, theta, psi);
+
 }
 
 #endif /* AHRS_FLOAT_UTILS_H */

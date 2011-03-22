@@ -26,6 +26,7 @@
 #define PPRZ_ALGEBRA_H
 
 #include <float.h>  /* for FLT_EPSILON */
+#include <string.h> /* for memcpy      */
 
 #define SQUARE(_a) ((_a)*(_a))
 
@@ -126,6 +127,13 @@
     (_c).x = (_a).x + (_b).x;			\
     (_c).y = (_a).y + (_b).y;			\
     (_c).z = (_a).z + (_b).z;			\
+  }
+
+/* a += b*s */
+#define VECT3_ADD_SCALED(_a, _b, _s) {			\
+    (_a).x += ((_b).x * (_s));				\
+    (_a).y += ((_b).y * (_s));				\
+    (_a).z += ((_b).z * (_s));				\
   }
 
 /* c = a + _s * b */
@@ -499,6 +507,19 @@
                 RMAT_ELMT((_rmat), 2, 1) * (_vin).y +	 \
                 RMAT_ELMT((_rmat), 2, 2) * (_vin).z;	 \
   }
+
+#define RMAT_VECT3_TRANSP_MUL(_vout, _rmat, _vin) {     \
+    (_vout).x = RMAT_ELMT((_rmat), 0, 0) * (_vin).x +	 \
+                RMAT_ELMT((_rmat), 1, 0) * (_vin).y +	 \
+                RMAT_ELMT((_rmat), 2, 0) * (_vin).z;	 \
+    (_vout).y = RMAT_ELMT((_rmat), 0, 1) * (_vin).x +    \
+                RMAT_ELMT((_rmat), 1, 1) * (_vin).y +    \
+                RMAT_ELMT((_rmat), 2, 1) * (_vin).z;	 \
+    (_vout).z = RMAT_ELMT((_rmat), 0, 2) * (_vin).x +	 \
+                RMAT_ELMT((_rmat), 1, 2) * (_vin).y +	 \
+                RMAT_ELMT((_rmat), 2, 2) * (_vin).z;	 \
+  }
+
 
 #define RMAT_COPY(_o, _i) { memcpy(&(_o), &(_i), sizeof(_o));}
 

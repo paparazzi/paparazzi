@@ -43,6 +43,7 @@ extern uint16_t airspeed_adc;
 extern uint16_t altitude_offset;
 extern uint16_t airspeed_offset;
 extern float pbn_altitude, pbn_airspeed;
+extern float airspeed_filter;
 
 extern bool_t data_valid;
 extern struct i2c_transaction pbn_trans;
