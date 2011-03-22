@@ -37,7 +37,10 @@
 struct Baro baro;
 struct BaroBoard baro_board;
 
+
 void baro_init( void ) {
+  
+  adc_buf_channel(ADC_CHANNEL_BARO, &baro_board.buf, DEFAULT_AV_NB_SAMPLE);
 
   baro.status = BS_UNINITIALIZED;
   baro.absolute     = 0;
@@ -53,7 +56,16 @@ void baro_init( void ) {
 #endif
 }
 
-void baro_periodic(void) {}
+void baro_periodic(void) {
+
+  baro.absolute = baro_board.buf.sum/baro_board.buf.av_nb_sample;
+  baro_board.value_filtered = (3*baro_board.value_filtered + baro.absolute)/4;
+  if (baro.status == BS_UNINITIALIZED) {
+    RunOnceEvery(10, { baro_board_calibrate();});
+  }
+  /*  else */
+  baro_board.data_available = TRUE;
+}
 
 /* decrement offset until adc reading is over a threshold */
 void baro_board_calibrate(void) {

@@ -61,6 +61,24 @@
 #define ANALOG_BARO_ADC 1
 
 
+/* battery */
+#define ADC_CHANNEL_VSUPPLY AdcBank0(2)
+#ifndef USE_AD0
+#define USE_AD0
+#endif
+#define USE_AD0_2
+
+#define DefaultVoltageOfAdc(adc) (0.0183*adc)
+
+
+/* baro */
+#define ADC_CHANNEL_BARO AdcBank1(2)
+#ifndef USE_AD1
+#define USE_AD1
+#endif
+#define USE_AD1_2
+
+
 
 /* MS2100 on SSP, IMU connector */
 #define MS2100_SS_PIN   28
