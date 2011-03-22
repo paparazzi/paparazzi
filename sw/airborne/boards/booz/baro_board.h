@@ -5,7 +5,7 @@
 
 #include "subsystems/sensors/baro.h"
 #include "mcu_periph/adc.h"
-#include "booz/booz2_analog.h"  // le DAC
+#include "mcu_periph/dac.h"
 
 
 struct BaroBoard {
@@ -28,7 +28,7 @@ extern void baro_board_calibrate(void);
 
 static inline void baro_board_SetOffset(uint16_t _o) {
   baro_board.offset = _o;
-  Booz2AnalogSetDAC(_o);
+  DACSet(_o);
 }
 
 
