@@ -8,5 +8,10 @@ extern void double_vect3_add_gaussian_noise(struct DoubleVect3* vect, struct Dou
 extern void double_vect3_get_gaussian_noise(struct DoubleVect3* vect, struct DoubleVect3* std_dev);
 extern void double_vect3_update_random_walk(struct DoubleVect3* rw, struct DoubleVect3* std_dev, double dt, double thau);
 
+extern void float_vect3_add_gaussian_noise(struct FloatVect3* vect, struct FloatVect3* std_dev);
+extern void float_rates_add_gaussian_noise(struct FloatRates* vect, struct FloatRates* std_dev);
+
+
+
 #endif /* NPS_RANDOM_H */
 

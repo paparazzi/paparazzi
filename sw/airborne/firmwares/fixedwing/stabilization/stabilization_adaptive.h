@@ -46,16 +46,16 @@ extern float h_ctl_pitch_Kffa;
 extern float h_ctl_pitch_Kffd;
 extern float h_ctl_pitch_of_roll;
 
-#define H_CTL_ROLL_SUM_ERR_MAX 100.
-#define H_CTL_PITCH_SUM_ERR_MAX 100.
+#define H_CTL_ROLL_SUM_ERR_MAX (MAX_PPRZ/2.)
+#define H_CTL_PITCH_SUM_ERR_MAX (MAX_PPRZ/2.)
 
 #define fw_h_ctl_a_SetRollIGain(_gain) { \
-  h_ctl_roll_sum_err = 0; \
+  h_ctl_roll_sum_err = 0.; \
   h_ctl_roll_igain = _gain; \
   }
 
 #define fw_h_ctl_a_SetPitchIGain(_gain) { \
-  h_ctl_pitch_sum_err = 0; \
+  h_ctl_pitch_sum_err = 0.; \
   h_ctl_pitch_igain = _gain; \
   }
 
@@ -68,5 +68,7 @@ extern float h_ctl_ref_roll_accel;
 extern float h_ctl_ref_pitch_angle;
 extern float h_ctl_ref_pitch_rate;
 extern float h_ctl_ref_pitch_accel;
+
+extern bool_t use_airspeed_ratio;
 
 #endif /* FW_H_CTL_A_H */

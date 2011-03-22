@@ -12,6 +12,10 @@
     printf("%s %f %f %f\n",text,  (_v).p, (_v).q, (_v).r);	\
   }
 
+#define DISPLAY_FLOAT_RATES_DEG(text, _v) {				\
+    printf("%s %f %f %f\n",text,  DegOfRad((_v).p), DegOfRad((_v).q), DegOfRad((_v).r)); \
+  }
+
 #define DISPLAY_FLOAT_RMAT(text, mat) {					\
     printf("%s\n %f %f %f\n %f %f %f\n %f %f %f\n",text, \
 	   mat.m[0], mat.m[1], mat.m[2], mat.m[3], mat.m[4], mat.m[5],	\
@@ -69,6 +73,19 @@
 #define DISPLAY_INT32_RATES(text, _v) {					\
     printf("%s %d %d %d\n",text,  (_v).p, (_v).q, (_v).r);		\
   }
+
+#define DISPLAY_INT32_RATES_AS_FLOAT(text, _r) {			\
+    struct FloatRates _fr;						\
+    RATES_FLOAT_OF_BFP(_fr, (_r));					\
+    DISPLAY_FLOAT_RATES(text, _fr);					\
+  }
+
+#define DISPLAY_INT32_RATES_AS_FLOAT_DEG(text, _r) {			\
+    struct FloatRates _fr;						\
+    RATES_FLOAT_OF_BFP(_fr, (_r));					\
+    DISPLAY_FLOAT_RATES_DEG(text, _fr);					\
+  }
+
 
 
 #define DISPLAY_INT32_EULERS(text, _e) {				\

@@ -1,0 +1,20 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="ir">
+      <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="infrared.roll_neutral" shortname="roll_neutral" param="IR_ROLL_NEUTRAL_DEFAULT" unit="rad"/>
+      <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="infrared.pitch_neutral" shortname="pitch_neutral" param="IR_PITCH_NEUTRAL_DEFAULT" unit="rad"/>
+
+      <dl_setting MAX="1.5" MIN="0." STEP="0.1" VAR="infrared.lateral_correction" shortname="360_lat_corr" module="subsystems/sensors/infrared" param="IR_LATERAL_CORRECTION"/>
+      <dl_setting MAX="1.5" MIN="0." STEP="0.1" VAR="infrared.longitudinal_correction" shortname="360_log_corr" param="IR_LONGITUDINAL_CORRECTION"/>
+      <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="infrared.vertical_correction" shortname="360_vert_corr" param="IR_VERTICAL_CORRECTION"/>
+
+      <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="infrared.correction_left" shortname="corr_left" param="IR_CORRECTION_LEFT"/>
+      <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="infrared.correction_right" shortname="corr_right" param="IR_CORRECTION_RIGHT"/>
+      <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="infrared.correction_up" shortname="corr_up" param="IR_CORRECTION_UP"/>
+      <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="infrared.correction_down" shortname="corr_down" param="IR_CORRECTION_DOWN"/>
+
+    </dl_settings>
+  </dl_settings>
+</settings>

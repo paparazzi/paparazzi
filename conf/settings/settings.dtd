@@ -36,6 +36,7 @@ unit CDATA #IMPLIED
 alt_unit CDATA #IMPLIED
 alt_unit_coef CDATA #IMPLIED
 values CDATA #IMPLIED
+persistent CDATA #IMPLIED
 >
 
 <!ATTLIST strip_button
