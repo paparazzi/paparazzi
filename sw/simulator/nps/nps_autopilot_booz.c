@@ -7,7 +7,7 @@
 #include "subsystems/imu.h"
 #include "subsystems/sensors/baro.h"
 #include "baro_board.h"
-#include "firmwares/rotorcraft/battery.h"
+#include "subsystems/electrical.h"
 
 #include "actuators/supervision.h"
 
@@ -25,9 +25,9 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
   main_init();
 
 #ifdef MAX_BAT_LEVEL
-  battery_voltage = MAX_BAT_LEVEL * 10;
+  electrical.vsupply = MAX_BAT_LEVEL * 10;
 #else
-  battery_voltage = 111;
+  electrical.vsupply = 111;
 #endif
 
 }
