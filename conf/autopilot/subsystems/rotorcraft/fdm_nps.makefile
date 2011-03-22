@@ -167,3 +167,4 @@ sim.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./512.)'
 
 
 sim.srcs += $(SRC_FIRMWARE)/navigation.c
+sim.srcs += $(SRC_SUBSYSTEMS)/navigation/common_flight_plan.c
