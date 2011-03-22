@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -21,25 +21,23 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef AHRS_FLOAT_CMPL_RMAT
-#define AHRS_FLOAT_CMPL_RMAT
+#ifndef AHRS_INT_CMPL_H
+#define AHRS_INT_CMPL_H
 
-struct AhrsFloatCmplRmat {
-  struct FloatRates gyro_bias;
-  struct FloatRates rate_correction;
-  /* for gravity correction during coordinated turns */
-  struct FloatVect3 est_ltp_speed;
+#include "subsystems/ahrs.h"
+#include "std.h"
+#include "math/pprz_algebra_int.h"
 
-  /*
-     Holds float version of IMU alignement
-     in order to be able to run against the fixed point
-     version of the IMU
-  */
-  struct FloatQuat body_to_imu_quat;
-  struct FloatRMat body_to_imu_rmat;
+struct AhrsIntCmpl {
+  struct Int32Rates  gyro_bias;
+  struct Int32Rates  rate_correction;
+  struct Int64Quat   high_rez_quat;
+  struct Int64Rates  high_rez_bias;
+#ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
+  int32_t ltp_vel_norm;
+#endif
 };
 
-extern struct AhrsFloatCmplRmat ahrs_impl;
+extern struct AhrsIntCmpl ahrs_impl;
 
-
-#endif /* AHRS_FLOAT_CMPL_RMAT */
+#endif /* AHRS_INT_CMPL_H */
