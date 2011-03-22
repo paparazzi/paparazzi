@@ -1,0 +1,34 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<!-- General flight parameters for Fixedwing A/C -->
+
+<settings>
+  <dl_settings>
+
+    <dl_settings NAME="flight params">
+      <dl_setting MAX="1000" MIN="0" STEP="10" VAR="flight_altitude" shortname="altitude"/>
+      <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="wind_east"/>
+      <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="wind_north"/>
+    </dl_settings>
+
+    <dl_settings NAME="mode">
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode" module="autopilot"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="alt_kalman_enabled" shortname="alt_kalman" module="estimator"/>
+      <dl_setting MAX="0" MIN="0" STEP="1" VAR="estimator_flight_time" shortname="flight time"/>
+      <dl_setting MAX="1000" MIN="0" STEP="1" VAR="stage_time"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle"/>
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="telemetry_mode_Ap_DefaultChannel" shortname="tele_AP" module="downlink"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="telemetry_mode_Fbw_DefaultChannel" shortname="tele_FBW" module="downlink"/>
+
+      <dl_setting MAX="200" MIN="-200" STEP="10" VAR="nav_radius" module="subsystems/nav" handler="SetNavRadius">
+        <strip_button icon="circle-right.png" name="Circle right" value="1" group="circle"/>
+        <strip_button icon="circle-left.png" name="Circle left" value="-1" group="circle"/>
+        <key_press key="greater" value="1"/>
+        <key_press key="less" value="-1"/>
+      </dl_setting>
+    </dl_settings>
+
+  </dl_settings>
+</settings>
+

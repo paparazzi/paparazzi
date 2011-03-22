@@ -107,16 +107,43 @@ float v_ctl_pitch_dash_trim;
 inline static void h_ctl_roll_loop( void );
 inline static void h_ctl_pitch_loop( void );
 
+// Some default course gains
+// H_CTL_COURSE_PGAIN needs to be define in airframe
 #ifndef H_CTL_COURSE_PRE_BANK_CORRECTION
 #define H_CTL_COURSE_PRE_BANK_CORRECTION 1.
 #endif
-
 #ifndef H_CTL_COURSE_DGAIN
 #define H_CTL_COURSE_DGAIN 0.
 #endif
 
+// Some default roll gains
+// H_CTL_ROLL_ATTITUDE_GAIN needs to be define in airframe
 #ifndef H_CTL_ROLL_RATE_GAIN
 #define H_CTL_ROLL_RATE_GAIN 0.
+#endif
+#ifndef H_CTL_ROLL_IGAIN
+#define H_CTL_ROLL_IGAIN 0.
+#endif
+#ifndef H_CTL_ROLL_KFFA
+#define H_CTL_ROLL_KFFA 0.
+#endif
+#ifndef H_CTL_ROLL_KFFD
+#define H_CTL_ROLL_KFFD 0.
+#endif
+
+// Some default pitch gains
+// H_CTL_PITCH_PGAIN needs to be define in airframe
+#ifndef H_CTL_PITCH_DGAIN
+#define H_CTL_PITCH_DGAIN 0.
+#endif
+#ifndef H_CTL_PITCH_IGAIN
+#define H_CTL_PITCH_IGAIN 0.
+#endif
+#ifndef H_CTL_PITCH_KFFA
+#define H_CTL_PITCH_KFFA 0.
+#endif
+#ifndef H_CTL_PITCH_KFFD
+#define H_CTL_PITCH_KFFD 0.
 #endif
 
 void h_ctl_init( void ) {
@@ -158,7 +185,7 @@ void h_ctl_init( void ) {
   use_airspeed_ratio = FALSE;
   airspeed_ratio2 = 1.;
 
-#ifdef PITCH_TRIM
+#ifdef USE_PITCH_TRIM
   v_ctl_pitch_loiter_trim = V_CTL_PITCH_LOITER_TRIM;
   v_ctl_pitch_dash_trim = V_CTL_PITCH_DASH_TRIM;
 #else
@@ -227,9 +254,6 @@ inline static void h_ctl_roll_loop( void ) {
 
   static float cmd_fb = 0.;
 
-  if (pprz_mode == PPRZ_MODE_MANUAL)
-    h_ctl_roll_sum_err = 0;
-
 #ifdef USE_ANGLE_REF
   // Update reference setpoints for roll
   h_ctl_ref_roll_angle += h_ctl_ref_roll_rate * H_CTL_REF_DT;
@@ -271,9 +295,16 @@ inline static void h_ctl_roll_loop( void ) {
 #endif
   float d_err = estimator_p - h_ctl_ref_roll_rate;
 
-  if (h_ctl_roll_igain < 0.) {
-    h_ctl_roll_sum_err += err * H_CTL_REF_DT;
-    BoundAbs(h_ctl_roll_sum_err, H_CTL_ROLL_SUM_ERR_MAX / h_ctl_roll_igain);
+  if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0) {
+    h_ctl_roll_sum_err = 0.;
+  }
+  else {
+    if (h_ctl_roll_igain < 0.) {
+      h_ctl_roll_sum_err += err * H_CTL_REF_DT;
+      BoundAbs(h_ctl_roll_sum_err, (- H_CTL_ROLL_SUM_ERR_MAX / h_ctl_roll_igain));
+    } else {
+      h_ctl_roll_sum_err = 0.;
+    }
   }
 
   cmd_fb = h_ctl_roll_attitude_gain * err;// + h_ctl_roll_rate_gain * d_err;
@@ -303,7 +334,7 @@ float v_ctl_auto_throttle_loiter_trim = V_CTL_AUTO_THROTTLE_LOITER_TRIM;
 float v_ctl_auto_throttle_dash_trim = V_CTL_AUTO_THROTTLE_DASH_TRIM;
 #endif
 
-#ifdef PITCH_TRIM
+#ifdef USE_PITCH_TRIM
 inline static void loiter(void) {
   float pitch_trim;
 
@@ -335,11 +366,8 @@ inline static void h_ctl_pitch_loop( void ) {
   if (h_ctl_pitch_of_roll <0.)
     h_ctl_pitch_of_roll = 0.;
 
-  if (pprz_mode == PPRZ_MODE_MANUAL)
-    h_ctl_pitch_sum_err = 0;
-
   h_ctl_pitch_loop_setpoint = h_ctl_pitch_setpoint + h_ctl_pitch_of_roll * fabs(estimator_phi);
-#ifdef PITCH_TRIM
+#ifdef USE_PITCH_TRIM
   loiter();
 #endif
 
@@ -369,9 +397,16 @@ inline static void h_ctl_pitch_loop( void ) {
   float d_err = (err - last_err)/H_CTL_REF_DT - h_ctl_ref_pitch_rate;
   last_err = err;
 
-  if (h_ctl_roll_igain < 0.) {
-    h_ctl_pitch_sum_err += err * H_CTL_REF_DT;
-    BoundAbs(h_ctl_pitch_sum_err, H_CTL_PITCH_SUM_ERR_MAX / h_ctl_pitch_igain);
+  if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0) {
+    h_ctl_pitch_sum_err = 0.;
+  }
+  else {
+    if (h_ctl_pitch_igain < 0.) {
+      h_ctl_pitch_sum_err += err * H_CTL_REF_DT;
+      BoundAbs(h_ctl_pitch_sum_err, (- H_CTL_PITCH_SUM_ERR_MAX / h_ctl_pitch_igain));
+    } else {
+      h_ctl_pitch_sum_err = 0.;
+    }
   }
 
   float cmd = h_ctl_pitch_Kffa * h_ctl_ref_pitch_accel

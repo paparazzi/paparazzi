@@ -2,7 +2,7 @@
 
 <settings>
   <dl_settings>
-    <dl_settings NAME="IR I2C">
+    <dl_settings NAME="ir">
       <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="infrared.roll_neutral" shortname="roll_neutral" param="IR_ROLL_NEUTRAL_DEFAULT" unit="rad"/>
       <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="infrared.pitch_neutral" shortname="pitch_neutral" param="IR_PITCH_NEUTRAL_DEFAULT" unit="rad"/>
 
@@ -14,7 +14,7 @@
       <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="infrared.correction_right" shortname="corr_right" param="IR_CORRECTION_RIGHT"/>
       <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="infrared.correction_up" shortname="corr_up" param="IR_CORRECTION_UP"/>
       <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="infrared.correction_down" shortname="corr_down" param="IR_CORRECTION_DOWN"/>
-      <dl_setting MAX="3" MIN="0" STEP="1" VAR="ir_i2c_conf_word" module="sensors/infrared_i2c" values="1|2|4|8" handler="SetConfWord"/>
+
     </dl_settings>
   </dl_settings>
 </settings>
