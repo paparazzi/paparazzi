@@ -65,7 +65,6 @@ sim.srcs += math/pprz_trig_int.c             \
 
 sim.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 
-sim.srcs   += $(SRC_BOOZ_SIM)/booz2_unsimulated_peripherals.c
 sim.srcs   += firmwares/rotorcraft/main.c
 sim.srcs   += mcu.c
 sim.srcs   += $(SRC_ARCH)/mcu_arch.c
@@ -90,13 +89,16 @@ sim.srcs += $(SRC_FIRMWARE)/datalink.c
 #
 
 
-sim.CFLAGS += -DBOOZ2_ANALOG_BARO_LED=2 -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
+sim.CFLAGS += -DROTORCRAFT_BARO_LED=2
 sim.srcs += $(SRC_BOARD)/baro_board.c
 
-sim.CFLAGS += -DBOOZ2_ANALOG_BATTERY_PERIOD='SYS_TICS_OF_SEC((1./10.))'
-sim.srcs += $(SRC_FIRMWARE)/battery.c
+sim.CFLAGS += -DUSE_ADC
+sim.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
+sim.srcs   += subsystems/electrical.c
+# baro has variable offset amplifier on booz board
+#sim.CFLAGS += -DUSE_DAC
+#sim.srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
 
-sim.srcs += $(SRC_BOOZ)/booz2_analog.c $(SRC_BOOZ_SIM)/booz2_analog_hw.c
 
 #sim.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
 #sim.CFLAGS += -DIMU_B2_VERSION_1_1
