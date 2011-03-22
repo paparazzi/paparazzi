@@ -14,6 +14,10 @@ $(TARGET).ARCHDIR = $(ARCH)
 $(TARGET).OOCD_INTERFACE=flossjtag
 #$(TARGET).OOCD_INTERFACE=jtagkey-tiny
 
+# ----------------------------------------------------------------------
+# add the opencm3_stm32 lib
+LDLIBS += -lopencm3_stm32
+
 # -----------------------------------------------------------------------
 
 ifndef FLASH_MODE
@@ -27,7 +31,7 @@ endif
 #
 #
 
-SYS_TIME_LED       = 2
+SYS_TIME_LED       = 1
 
 RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   = UART3
 RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT = UART5

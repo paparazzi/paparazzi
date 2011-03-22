@@ -28,6 +28,7 @@
 #include <stm32/usart.h>
 #include <stm32/gpio.h>
 #include "std.h"
+#include "pprz_baudrate.h"
 
 #ifdef USE_UART1
 
@@ -42,6 +43,7 @@ uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
 void uart1_init( void ) {
   /* init RCC */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+  RCC_APB2PeriphClockCmd(UART1_Periph, ENABLE);
 
   /* Enable USART1 interrupts */
   NVIC_InitTypeDef nvic;
@@ -74,6 +76,9 @@ void uart1_init( void ) {
   USART_Init(USART1, &usart);
   /* Enable USART1 Receive interrupts */
   USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+
+  pprz_usart_set_baudrate(USART1, UART1_BAUD);
+
   /* Enable the USART1 */
   USART_Cmd(USART1, ENABLE);
 
@@ -165,6 +170,7 @@ uint8_t  uart2_tx_buffer[UART2_TX_BUFFER_SIZE];
 void uart2_init( void ) {
   /* init RCC */
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+  RCC_APB2PeriphClockCmd(UART2_Periph, ENABLE);
 
   /* Enable USART2 interrupts */
   NVIC_InitTypeDef nvic;
@@ -197,6 +203,9 @@ void uart2_init( void ) {
   USART_Init(USART2, &usart);
   /* Enable USART2 Receive interrupts */
   USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+
+  pprz_usart_set_baudrate(USART2, UART2_BAUD);
+
   /* Enable the USART2 */
   USART_Cmd(USART2, ENABLE);
 
@@ -287,6 +296,7 @@ void uart3_init( void ) {
   /* init RCC */
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+  RCC_APB2PeriphClockCmd(UART3_Periph, ENABLE);
 
   /* Enable USART3 interrupts */
   NVIC_InitTypeDef nvic;
@@ -320,6 +330,9 @@ void uart3_init( void ) {
   USART_Init(USART3, &usart);
   /* Enable USART3 Receive interrupts */
   USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
+
+  pprz_usart_set_baudrate(USART3, UART3_BAUD);
+
   /* Enable the USART3 */
   USART_Cmd(USART3, ENABLE);
 
@@ -392,6 +405,128 @@ void usart3_irq_handler(void) {
 
 #endif /* USE_UART3 */
 
+#ifdef USE_UART5
+
+volatile uint16_t uart5_rx_insert_idx, uart5_rx_extract_idx;
+uint8_t  uart5_rx_buffer[UART5_RX_BUFFER_SIZE];
+
+volatile uint16_t uart5_tx_insert_idx, uart5_tx_extract_idx;
+volatile bool_t uart5_tx_running;
+uint8_t  uart5_tx_buffer[UART5_TX_BUFFER_SIZE];
+
+void uart5_init( void ) {
+
+  /* init RCC */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, ENABLE);
+  RCC_APB2PeriphClockCmd(UART5_PeriphTx, ENABLE);
+  RCC_APB2PeriphClockCmd(UART5_PeriphRx, ENABLE);
+
+  /* Enable UART5 interrupts */
+  NVIC_InitTypeDef nvic;
+  nvic.NVIC_IRQChannel = UART5_IRQn;
+  nvic.NVIC_IRQChannelPreemptionPriority = 2;
+  nvic.NVIC_IRQChannelSubPriority = 1;
+  nvic.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&nvic);
+
+  /* Init GPIOS */
+  GPIO_InitTypeDef gpio;
+  /* GPIOC: GPIO_Pin_10 UART5 Tx push-pull */
+  gpio.GPIO_Pin   = UART5_TxPin;
+  gpio.GPIO_Mode  = GPIO_Mode_AF_PP;
+  gpio.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(UART5_TxPort, &gpio);
+  /* GPIOC: GPIO_Pin_11 UART5 Rx pin as floating input */
+  gpio.GPIO_Pin   = UART5_RxPin;
+  gpio.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
+  GPIO_Init(UART5_RxPort, &gpio);
+
+  /* Configure UART5 */
+  USART_InitTypeDef usart;
+  usart.USART_BaudRate            = UART5_BAUD;
+  usart.USART_WordLength          = USART_WordLength_8b;
+  usart.USART_StopBits            = USART_StopBits_1;
+  usart.USART_Parity              = USART_Parity_No;
+  usart.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  usart.USART_Mode                = USART_Mode_Rx | USART_Mode_Tx;
+  USART_Init(USART5, &usart);
+  /* Enable UART5 Receive interrupts */
+  USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);
+
+  pprz_usart_set_baudrate(UART5, UART5_BAUD);
+
+  /* Enable the UART5 */
+  USART_Cmd(UART5, ENABLE);
+
+  // initialize the transmit data queue
+  uart5_tx_extract_idx = 0;
+  uart5_tx_insert_idx = 0;
+  uart5_tx_running = FALSE;
+
+  // initialize the receive data queuenn
+  uart5_rx_extract_idx = 0;
+  uart5_rx_insert_idx = 0;
+
+}
+
+void uart5_transmit( uint8_t data ) {
+
+  uint16_t temp = (uart5_tx_insert_idx + 1) % UART5_TX_BUFFER_SIZE;
+
+  if (temp == uart5_tx_extract_idx)
+    return;                          // no room
+
+  USART_ITConfig(USART5, USART_IT_TXE, DISABLE);
+
+  // check if in process of sending data
+  if (uart5_tx_running) { // yes, add to queue
+    uart5_tx_buffer[uart5_tx_insert_idx] = data;
+    uart5_tx_insert_idx = temp;
+  }
+  else { // no, set running flag and write to output register
+    uart5_tx_running = TRUE;
+    USART_SendData(USART5, data);
+  }
+  USART_ITConfig(USART5, USART_IT_TXE, ENABLE);
+
+}
+
+bool_t uart5_check_free_space( uint8_t len) {
+  int16_t space = uart5_tx_extract_idx - uart5_tx_insert_idx;
+  if (space <= 0)
+    space += UART5_TX_BUFFER_SIZE;
+  return (uint16_t)(space - 1) >= len;
+}
+
+
+void usart5_irq_handler(void) {
+
+  if(USART_GetITStatus(USART5, USART_IT_TXE) != RESET){
+    // check if more data to send
+    if (uart5_tx_insert_idx != uart5_tx_extract_idx) {
+      USART_SendData(USART5,uart5_tx_buffer[uart5_tx_extract_idx]);
+      uart5_tx_extract_idx++;
+      uart5_tx_extract_idx %= UART5_TX_BUFFER_SIZE;
+    }
+    else {
+      uart5_tx_running = FALSE; // clear running flag
+      USART_ITConfig(USART5, USART_IT_TXE, DISABLE);
+    }
+  }
+
+  if(USART_GetITStatus(USART5, USART_IT_RXNE) != RESET){
+    uint16_t temp = (uart5_rx_insert_idx + 1) % UART5_RX_BUFFER_SIZE;;
+    uart5_rx_buffer[uart5_rx_insert_idx] = USART_ReceiveData(USART5);
+    // check for more room in queue
+    if (temp != uart5_rx_extract_idx)
+      uart5_rx_insert_idx = temp; // update insert index
+  }
+
+}
+
+
+#endif /* USE_UART5 */
+
 void uart_init( void )
 {
 #ifdef USE_UART1
@@ -402,6 +537,9 @@ void uart_init( void )
 #endif
 #ifdef USE_UART3
   uart3_init();
+#endif
+#ifdef USE_UART5
+  uart5_init();
 #endif
 }
 

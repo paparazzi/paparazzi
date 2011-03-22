@@ -43,7 +43,6 @@ struct i2c_transaction {
   uint8_t  slave_addr;
   uint16_t len_r;
   uint8_t  len_w;
-  bool_t   stop_after_transmit;
   volatile uint8_t  buf[I2C_BUF_LEN];
   volatile enum I2CTransactionStatus status;
 };
@@ -61,6 +60,10 @@ struct i2c_periph {
   volatile enum I2CStatus status;
   volatile uint8_t idx_buf;
   void* reg_addr;
+  void *init_struct;
+  uint16_t scl_pin;
+  uint16_t sda_pin;
+  struct i2c_errors *errors;
 };
 
 
@@ -132,40 +135,28 @@ extern bool_t i2c_idle(struct i2c_periph* p);
 extern bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t);
 
 #define I2CReceive(_p, _t, _s_addr, _len) { \
-    _t.type = I2CTransRx;           \
-    _t.slave_addr = _s_addr;            \
-    _t.len_r = _len;                \
-    _t.len_w = 0;               \
-    _t.stop_after_transmit = TRUE;      \
-    i2c_submit(&(_p),&(_t));            \
-  }
+  _t.type = I2CTransRx;                     \
+  _t.slave_addr = _s_addr;                  \
+  _t.len_r = _len;                          \
+  _t.len_w = 0;                             \
+  i2c_submit(&(_p),&(_t));                  \
+}
 
 #define I2CTransmit(_p, _t, _s_addr, _len) {	\
-    _t.type = I2CTransTx;			\
-    _t.slave_addr = _s_addr;			\
-    _t.len_r = 0;				\
-    _t.len_w = _len;				\
-    _t.stop_after_transmit = TRUE;		\
-    i2c_submit(&(_p),&(_t));			\
-  }
+  _t.type = I2CTransTx;			                  \
+  _t.slave_addr = _s_addr;			              \
+  _t.len_r = 0;				                        \
+  _t.len_w = _len;				                    \
+  i2c_submit(&(_p),&(_t));			              \
+}
 
-#define I2CTransmitNoStop(_p, _t, _s_addr, _len) {	\
-    _t.type = I2CTransTx;				\
-    _t.slave_addr = _s_addr;				\
-    _t.len_r = 0;					\
-    _t.len_w = _len;					\
-    _t.stop_after_transmit = FALSE;			\
-    i2c_submit(&(_p),&(_t));				\
-  }
-
-#define I2CTransceive(_p, _t, _s_addr, _len_w, _len_r) { \
-    _t.type = I2CTransTxRx;              \
-    _t.slave_addr = _s_addr;                 \
-    _t.len_r = _len_r;                   \
-    _t.len_w = _len_w;                   \
-    _t.stop_after_transmit = TRUE;           \
-    i2c_submit(&(_p),&(_t));                 \
-  }
+#define I2CTransceive(_p, _t, _s_addr, _len_w, _len_r) {  \
+  _t.type = I2CTransTxRx;                                 \
+  _t.slave_addr = _s_addr;                                \
+  _t.len_r = _len_r;                                      \
+  _t.len_w = _len_w;                                      \
+  i2c_submit(&(_p),&(_t));                                \
+}
 
 
 #endif /* I2C_H */

@@ -70,10 +70,10 @@ void ecef_of_lla_d(struct EcefCoor_d* ecef, struct LlaCoor_d* lla) {
   static const double f = 1./298.257223563;    /* reciprocal flattening          */
   const double e2 = 2.*f-(f*f);                /* first eccentricity squared     */
 
-  const double sin_lat = sinf(lla->lat);
-  const double cos_lat = cosf(lla->lat);
-  const double sin_lon = sinf(lla->lon);
-  const double cos_lon = cosf(lla->lon);
+  const double sin_lat = sin(lla->lat);
+  const double cos_lat = cos(lla->lat);
+  const double sin_lon = sin(lla->lon);
+  const double cos_lon = cos(lla->lon);
   const double chi = sqrtf(1. - e2*sin_lat*sin_lat);
   const double a_chi = a / chi;
 
@@ -176,7 +176,7 @@ static inline double inverse_isometric_latitude(double lat, double e, double eps
     double sin_phi = e * sin(phi_);
     phi0 = 2 * atan (pow((1 + sin_phi) / (1. - sin_phi), e/2.) * exp_l) - M_PI_2;
     max_iter--;
-  } 
+  }
   while (max_iter && fabs(phi_ - phi0) > epsilon);
 
   return phi0;
@@ -210,18 +210,21 @@ void lla_of_utm(struct LlaCoor_d* out, struct UTMCoor_d* in) {
   struct DoubleVect2 v = {in->north - DELTA_NORTH, in->east - DELTA_EAST};
   double scale = 1 / N / serie_coeff_proj_mercator[0];
   VECT2_SMUL(v, v, scale);
-  
+
   // first order taylor serie of something ?
   struct DoubleVect2 v1;
   VECT2_SMUL(v1, v, 2.);
   CSin(v1)
   VECT2_SMUL(v1, v1, serie_coeff_proj_mercator[1]);
   VECT2_SUB(v, v1);
-  
+
   double lambda_c = LambdaOfUtmZone(in->zone);
   out->lon = lambda_c + atan(sinh(v.y) / cos(v.x));
   double phi = asin (sin(v.x) / cosh(v.y));
   double il = isometric_latitude_fast(phi);
   out->lat = inverse_isometric_latitude(il, E, 1e-8);
+
+  // copy alt above reference ellipsoid
+  out->alt = in->alt;
 
 }

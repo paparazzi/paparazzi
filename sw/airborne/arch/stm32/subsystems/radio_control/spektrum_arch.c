@@ -30,6 +30,8 @@
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/spektrum_arch.h"
 #include "mcu_periph/uart.h"
+#include "pprz_baudrate.h"
+
 
 
 #define SPEKTRUM_CHANNELS_PER_FRAME 7
@@ -85,7 +87,10 @@ typedef struct SpektrumStateStruct SpektrumStateType;
 
 SpektrumStateType PrimarySpektrumState = {1,0,0,0,0,0,0,0,0};
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
+#warning "Using secondary spektrum receiver."
 SpektrumStateType SecondarySpektrumState = {1,0,0,0,0,0,0,0,0};
+#else
+#warning "NOT using secondary spektrum receiver."
 #endif
 
 int16_t SpektrumBuf[SPEKTRUM_CHANNELS_PER_FRAME*MAX_SPEKTRUM_FRAMES];
@@ -546,6 +551,9 @@ void SpektrumUartInit(void) {
   USART_Init(PrimaryUart(_reg), &usart);
   /* Enable Primary UART Receive interrupts */
   USART_ITConfig(PrimaryUart(_reg), USART_IT_RXNE, ENABLE);
+ 
+  /* required to get the correct baudrate on lisa m */   
+  pprz_usart_set_baudrate(PrimaryUart(_reg), B115200);
   /* Enable the Primary UART */
   USART_Cmd(PrimaryUart(_reg), ENABLE);
 
@@ -577,6 +585,9 @@ void SpektrumUartInit(void) {
   USART_Init(SecondaryUart(_reg), &usart);
   /* Enable Secondary UART Receive interrupts */
   USART_ITConfig(SecondaryUart(_reg), USART_IT_RXNE, ENABLE);
+  
+  /* required to get the correct baudrate on lisa m */  
+  pprz_usart_set_baudrate(SecondaryUart(_reg), B115200);  
   /* Enable the Primary UART */
   USART_Cmd(SecondaryUart(_reg), ENABLE);
 #endif
@@ -692,7 +703,7 @@ void radio_control_spektrum_try_bind(void) {
 #endif
 
   /* We have no idea how long the window for allowing binding after
-     power up is .This works for the moment but will need revisiting */
+     power up is. This works for the moment but will need revisiting */
   DelayMs(61);
 
   for (int i = 0; i < MASTER_RECEIVER_PULSES ; i++)

@@ -32,6 +32,12 @@ void imu_impl_init(void) {
   imu_aspirin.mag_available = FALSE;
   imu_aspirin.accel_available = FALSE;
 
+  imu_aspirin.i2c_trans_gyro.type = I2CTransTxRx;
+  imu_aspirin.i2c_trans_gyro.buf[0] = ITG3200_REG_GYRO_XOUT_H;
+  imu_aspirin.i2c_trans_gyro.slave_addr = ITG3200_ADDR;
+  imu_aspirin.i2c_trans_gyro.len_w = 1;
+  imu_aspirin.i2c_trans_gyro.len_r = 6;
+
   imu_aspirin_arch_init();
   hmc5843_init();
 
