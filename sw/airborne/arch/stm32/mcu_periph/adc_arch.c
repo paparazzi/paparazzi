@@ -129,12 +129,12 @@ static inline void adc_init_irq( void );
 */
 #ifdef USE_AD1
 #ifndef ADC1_GPIO_INIT
-#define ADC1_GPIO_INIT(gpio) { \
+#define ADC1_GPIO_INIT(gpio) {			\
     (gpio).GPIO_Pin  = GPIO_Pin_1 | GPIO_Pin_0; \
-    (gpio).GPIO_Mode = GPIO_Mode_AIN; \
-    GPIO_Init(GPIOB, (&gpio)); \
+    (gpio).GPIO_Mode = GPIO_Mode_AIN;		\
+    GPIO_Init(GPIOB, (&gpio));			\
     (gpio).GPIO_Pin  = GPIO_Pin_5 | GPIO_Pin_3; \
-    GPIO_Init(GPIOC, (&gpio)); \
+    GPIO_Init(GPIOC, (&gpio));			\
 }
 #endif // ADC1_GPIO_INIT
 #endif // USE_AD1
@@ -145,13 +145,13 @@ static inline void adc_init_irq( void );
     Uses the same GPIOs as ADC1 (lisa specific).
 */
 #ifdef USE_AD2
-#define ADC2_GPIO_INIT(gpio) { \
+#define ADC2_GPIO_INIT(gpio) {			\
     (gpio).GPIO_Pin  = GPIO_Pin_0 | GPIO_Pin_1; \
-    (gpio).GPIO_Mode = GPIO_Mode_AIN; \
-    GPIO_Init(GPIOB, (&gpio)); \
+    (gpio).GPIO_Mode = GPIO_Mode_AIN;		\
+    GPIO_Init(GPIOB, (&gpio));			\
     (gpio).GPIO_Pin  = GPIO_Pin_3 | GPIO_Pin_5; \
-    GPIO_Init(GPIOC, (&gpio)); \
-}
+    GPIO_Init(GPIOC, (&gpio));			\
+  }
 #ifndef ADC2_GPIO_INIT
 #define ADC2_GPIO_INIT(gpio) { }
 #endif // ADC2_GPIO_INIT
@@ -362,10 +362,10 @@ static inline void adc_init_single(ADC_TypeDef * adc_t,
 void adc_init( void ) {
 
     /* initialize buffer pointers with 0 (not set).
-         buffer null pointers will be ignored in interrupt
-         handler, which is important as there are no
-         buffers registered at the time the ADC trigger
-         interrupt is enabled.
+       buffer null pointers will be ignored in interrupt
+       handler, which is important as there are no
+       buffers registered at the time the ADC trigger
+       interrupt is enabled.
     */
     uint8_t channel;
 #ifdef USE_AD1
@@ -382,14 +382,12 @@ void adc_init( void ) {
     adc_injected_channels[1] = ADC_InjectedChannel_2;
     adc_injected_channels[2] = ADC_InjectedChannel_3;
     adc_injected_channels[3] = ADC_InjectedChannel_4;
-    // TODO: Channel selection could be configured
-    // using defines.
-    adc_channel_map[0] = ADC_Channel_8;
-    adc_channel_map[1] = ADC_Channel_9;
-    //    adc_channel_map[2] = ADC_Channel_13;
+    adc_channel_map[0] = BOARD_ADC_CHANNEL_1;
+    adc_channel_map[1] = BOARD_ADC_CHANNEL_2;
     // FIXME for now we get battery voltage this way
-    adc_channel_map[2] = ADC_Channel_0;
-    adc_channel_map[3] = ADC_Channel_15;
+    //    adc_channel_map[2] = BOARD_ADC_CHANNEL_3;
+    adc_channel_map[2] = BOARD_ADC_CHANNEL_3;
+    adc_channel_map[3] = BOARD_ADC_CHANNEL_4;
 
     adc_init_rcc();
     adc_init_irq();

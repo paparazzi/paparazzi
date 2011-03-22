@@ -134,7 +134,7 @@ ap.srcs += $(SRC_BOOZ)/booz2_commands.c
 #
 ap.srcs += $(SRC_BOARD)/baro_board.c
 ifeq ($(BOARD), booz)
-ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED) -DBOOZ2_ANALOG_BARO_PERIOD='SYS_TICS_OF_SEC((1./100.))'
+ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
 else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
 endif
@@ -142,16 +142,25 @@ endif
 #
 # Analog Backend
 #
+
 ifeq ($(ARCH), lpc21)
-ap.CFLAGS += -DBOOZ2_ANALOG_BATTERY_PERIOD='SYS_TICS_OF_SEC((1./10.))'
-ap.srcs += $(SRC_FIRMWARE)/battery.c
 ap.CFLAGS += -DADC0_VIC_SLOT=2
 ap.CFLAGS += -DADC1_VIC_SLOT=3
-ap.srcs += $(SRC_BOOZ)/booz2_analog.c \
-		   $(SRC_BOOZ_ARCH)/booz2_analog_hw.c
+ap.CFLAGS += -DUSE_ADC
+ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
+ap.srcs   += subsystems/electrical.c
+# baro has variable offset amplifier on booz board
+ap.CFLAGS += -DUSE_DAC
+ap.srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
 else ifeq ($(ARCH), stm32)
-ap.srcs += lisa/lisa_analog_plug.c
+#ap.srcs += lisa/lisa_analog_plug.c
+ap.CFLAGS += -DUSE_ADC
+ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
+ap.CFLAGS += -DUSE_ADC1_2_IRQ_HANDLER
+ap.srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
+ap.srcs   += subsystems/electrical.c
 endif
+
 
 
 #

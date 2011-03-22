@@ -48,6 +48,9 @@
 #ifdef USE_SPI
 #include "mcu_periph/spi.h"
 #endif
+#ifdef USE_DAC
+#include "mcu_periph/dac.h"
+#endif
 #endif /* PERIPHERALS_AUTO_INIT */
 
 void mcu_init(void) {
@@ -97,6 +100,9 @@ void mcu_init(void) {
 #endif
 #ifdef USE_SPI
   spi_init();
+#endif
+#ifdef USE_DAC
+  dac_init();
 #endif
 #endif /* PERIPHERALS_AUTO_INIT */
 

@@ -31,12 +31,15 @@
 #include "math/pprz_simple_matrix.h"
 #include "generated/airframe.h"
 
-#include <string.h>
 
 #include "../../test/pprz_algebra_print.h"
 
+void ahrs_update_mag_full(void);
+void ahrs_update_mag_2d(void);
+void ahrs_update_mag_2d_dumb(void);
 
 static inline void compute_imu_quat_and_euler_from_rmat(void);
+static inline void compute_imu_rmat_and_euler_from_quat(void);
 static inline void compute_body_orientation_and_rates(void);
 
 
@@ -45,25 +48,23 @@ struct AhrsFloatCmplRmat ahrs_impl;
 void ahrs_init(void) {
   ahrs_float.status = AHRS_UNINIT;
 
-  /*
-   * Initialises our IMU alignement variables
-   * This should probably done in the IMU code instead
-   */
+  /* Initialises IMU alignement */
   struct FloatEulers body_to_imu_euler =
     {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
   FLOAT_QUAT_OF_EULERS(ahrs_impl.body_to_imu_quat, body_to_imu_euler);
   FLOAT_RMAT_OF_EULERS(ahrs_impl.body_to_imu_rmat, body_to_imu_euler);
-
-  /* set ltp_to_body to zero */
+  
+  /* Set ltp_to_body to zero */
   FLOAT_QUAT_ZERO(ahrs_float.ltp_to_body_quat);
   FLOAT_EULERS_ZERO(ahrs_float.ltp_to_body_euler);
   FLOAT_RMAT_ZERO(ahrs_float.ltp_to_body_rmat);
   FLOAT_RATES_ZERO(ahrs_float.body_rate);
 
-  /* set ltp_to_imu so that body is zero */
+  /* Set ltp_to_imu so that body is zero */
   QUAT_COPY(ahrs_float.ltp_to_imu_quat, ahrs_impl.body_to_imu_quat);
   RMAT_COPY(ahrs_float.ltp_to_imu_rmat, ahrs_impl.body_to_imu_rmat);
   EULERS_COPY(ahrs_float.ltp_to_imu_euler, body_to_imu_euler);
+
   FLOAT_RATES_ZERO(ahrs_float.imu_rate);
 
 }
@@ -95,30 +96,32 @@ void ahrs_propagate(void) {
   struct FloatRates gyro_float;
   RATES_FLOAT_OF_BFP(gyro_float, imu.gyro_prev);
   /* unbias measurement */
-  RATES_DIFF(ahrs_float.imu_rate, gyro_float, ahrs_impl.gyro_bias);
-  const float dt = 1./512.;
+  RATES_SUB(gyro_float, ahrs_impl.gyro_bias);
+  
+#ifdef AHRS_PROPAGATE_LOW_PASS_RATES
+  const float alpha = 0.1;
+  FLOAT_RATES_LIN_CMB(ahrs_float.imu_rate, ahrs_float.imu_rate, (1.-alpha), gyro_float, alpha); 
+#else
+  RATES_COPY(ahrs_float.imu_rate,gyro_float); 
+#endif
+
   /* add correction     */
   struct FloatRates omega;
-  RATES_SUM(omega, ahrs_float.imu_rate, ahrs_impl.rate_correction);
-  //  DISPLAY_FLOAT_RATES("omega ", omega);
+  RATES_SUM(omega, gyro_float, ahrs_impl.rate_correction);
   /* and zeros it */
   FLOAT_RATES_ZERO(ahrs_impl.rate_correction);
 
-  /* first order integration of rotation matrix */
-  struct FloatRMat exp_omega_dt = {
-    { 1.        ,  dt*omega.r, -dt*omega.q,
-     -dt*omega.r,  1.        ,  dt*omega.p,
-      dt*omega.q, -dt*omega.p,  1.                       }};
-  struct FloatRMat R_tdt;
-  FLOAT_RMAT_COMP(R_tdt, ahrs_float.ltp_to_imu_rmat, exp_omega_dt);
-  memcpy(&ahrs_float.ltp_to_imu_rmat, &R_tdt, sizeof(R_tdt));
-
+  const float dt = 1./AHRS_PROPAGATE_FREQUENCY;
+#ifdef AHRS_PROPAGATE_RMAT
+  FLOAT_RMAT_INTEGRATE_FI(ahrs_float.ltp_to_imu_rmat, omega, dt );
   float_rmat_reorthogonalize(&ahrs_float.ltp_to_imu_rmat);
-  //  struct FloatRMat test;
-  //  FLOAT_RMAT_COMP_INV(test, ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_rmat);
-  //  DISPLAY_FLOAT_RMAT("foo", test);
-
   compute_imu_quat_and_euler_from_rmat();
+#endif
+#ifdef AHRS_PROPAGATE_QUAT
+  FLOAT_QUAT_INTEGRATE(ahrs_float.ltp_to_imu_quat, omega, dt);
+  FLOAT_QUAT_NORMALISE(ahrs_float.ltp_to_imu_quat);
+  compute_imu_rmat_and_euler_from_quat();
+#endif
   compute_body_orientation_and_rates();
 
 }
@@ -127,23 +130,102 @@ void ahrs_update_accel(void) {
 
   struct FloatVect3 accel_float;
   ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
-  struct FloatVect3* r2 = (struct FloatVect3*)(&RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 2,0));
+
+#ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
+  float v = FLOAT_VECT3_NORM(ahrs_impl.est_ltp_speed);
+  accel_float.y -=  v * ahrs_float.imu_rate.r;
+  accel_float.z -= -v * ahrs_float.imu_rate.q;
+#endif
+
+  struct FloatVect3  c2 = { RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 0,2),
+			    RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 1,2),
+			    RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 2,2)};
   struct FloatVect3 residual;
-  FLOAT_VECT3_CROSS_PRODUCT(residual, accel_float, (*r2));
+  FLOAT_VECT3_CROSS_PRODUCT(residual, accel_float, c2);
+#ifdef AHRS_GRAVITY_UPDATE_NORM_HEURISTIC
   /* heuristic on acceleration norm */
   const float acc_norm = FLOAT_VECT3_NORM(accel_float);
-  const float weight = Chop(1.-2*fabs(1-acc_norm/9.81), 0., 1.);
-  //const float weight = 1.;
+  const float weight = Chop(1.-6*fabs((9.81-acc_norm)/9.81), 0., 1.);
+#else
+  const float weight = 1.;
+#endif
   /* compute correction */
-  const float gravity_rate_update_gain = 5e-2;
+  const float gravity_rate_update_gain = -5e-2; // -5e-2
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual, weight*gravity_rate_update_gain);
-  const float gravity_bias_update_gain = -5e-6;
+#if 1
+  const float gravity_bias_update_gain = 1e-5; // -5e-6
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual, weight*gravity_bias_update_gain);
+#else
+  const float alpha = 5e-4;
+  FLOAT_RATES_SCALE(ahrs_impl.gyro_bias, 1.-alpha);
+  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual, alpha);
+#endif
   /* FIXME: saturate bias */
 
 }
 
+
 void ahrs_update_mag(void) {
+#ifdef AHRS_MAG_UPDATE_YAW_ONLY
+  ahrs_update_mag_2d();
+  //  ahrs_update_mag_2d_dumb();
+#else
+  ahrs_update_mag_full();
+#endif
+}
+
+void ahrs_update_mag_full(void) {
+
+  const struct FloatVect3 expected_ltp = {AHRS_H_X, AHRS_H_Y, AHRS_H_Z};
+  struct FloatVect3 expected_imu;
+  FLOAT_RMAT_VECT3_MUL(expected_imu, ahrs_float.ltp_to_imu_rmat, expected_ltp);
+
+  struct FloatVect3 measured_imu;
+  MAGS_FLOAT_OF_BFP(measured_imu, imu.mag);
+
+  struct FloatVect3 residual_imu;
+  FLOAT_VECT3_CROSS_PRODUCT(residual_imu, measured_imu, expected_imu);
+  //  DISPLAY_FLOAT_VECT3("# expected", expected_imu);
+  //  DISPLAY_FLOAT_VECT3("# measured", measured_imu);
+  //  DISPLAY_FLOAT_VECT3("# residual", residual);
+
+  const float mag_rate_update_gain = 2.5;
+  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, mag_rate_update_gain);
+
+  const float mag_bias_update_gain = -2.5e-3;
+  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, mag_bias_update_gain);
+
+}
+
+void ahrs_update_mag_2d(void) {
+
+  const struct FloatVect2 expected_ltp = {AHRS_H_X, AHRS_H_Y};
+
+  struct FloatVect3 measured_imu;
+  MAGS_FLOAT_OF_BFP(measured_imu, imu.mag);
+  struct FloatVect3 measured_ltp;
+  FLOAT_RMAT_VECT3_TRANSP_MUL(measured_ltp, ahrs_float.ltp_to_imu_rmat, measured_imu);
+   
+  const struct FloatVect3 residual_ltp = 
+    { 0,
+      0,
+      measured_ltp.x * expected_ltp.y - measured_ltp.y * expected_ltp.x };
+
+  //  printf("res : %f\n", residual_ltp.z);
+
+  struct FloatVect3 residual_imu;
+  FLOAT_RMAT_VECT3_MUL(residual_imu, ahrs_float.ltp_to_imu_rmat, residual_ltp);
+ 
+  const float mag_rate_update_gain = 2.5;
+  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, mag_rate_update_gain);
+
+  const float mag_bias_update_gain = -2.5e-3;
+  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, mag_bias_update_gain);
+
+}
+
+
+void ahrs_update_mag_full_2d_dumb(void) {
 
   /* project mag on local tangeant plane */
   struct FloatVect3 magf;
@@ -156,39 +238,19 @@ void ahrs_update_mag(void) {
   const float me =     0. * magf.x + cphi       *magf.y - sphi       *magf.z;
 
   const float res_norm = -RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 0,0)*me + RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 1,0)*mn;
-  printf("res norm %f\n", res_norm);
   struct FloatVect3* r2 = (struct FloatVect3*)(&RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 2,0));
-  DISPLAY_FLOAT_VECT3("r2", (*r2));
   const float mag_rate_update_gain = 2.5;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, (*r2), (mag_rate_update_gain*res_norm));
-  DISPLAY_FLOAT_RATES("corr", ahrs_impl.rate_correction);
   const float mag_bias_update_gain = -2.5e-4;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, (*r2), (mag_bias_update_gain*res_norm));
-  /* FIXME: saturate bias */
 
 }
 
-void ahrs_update_mag2(void) {
 
-  const struct FloatVect3 expected_ltp = {AHRS_H_X, AHRS_H_Y, AHRS_H_Z};
-  struct FloatVect3 expected_imu;
-  FLOAT_RMAT_VECT3_MUL(expected_imu, ahrs_float.ltp_to_imu_rmat, expected_ltp);
 
-  struct FloatVect3 measured_imu;
-  MAGS_FLOAT_OF_BFP(measured_imu, imu.mag);
 
-  struct FloatVect3 residual;
-  FLOAT_VECT3_CROSS_PRODUCT(residual, measured_imu, expected_imu);
-  // FLOAT_VECT3_DIFF(residual, expected_imu, measured_imu);
 
-  DISPLAY_FLOAT_VECT3(" expected", expected_imu);
-  DISPLAY_FLOAT_VECT3(" measured", measured_imu);
-  DISPLAY_FLOAT_VECT3("residual", residual);
 
-  const float mag_rate_update_gain = 2.5;
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual, mag_rate_update_gain);
-
-}
 
 /*
  * Compute ltp to imu rotation in euler angles and quaternion representations
@@ -198,6 +260,14 @@ static inline void compute_imu_quat_and_euler_from_rmat(void) {
   FLOAT_QUAT_OF_RMAT(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_rmat);
   FLOAT_EULERS_OF_RMAT(ahrs_float.ltp_to_imu_euler, ahrs_float.ltp_to_imu_rmat);
 }
+
+
+static inline void compute_imu_rmat_and_euler_from_quat(void) {
+  FLOAT_RMAT_OF_QUAT(ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_quat);
+  FLOAT_EULERS_OF_RMAT(ahrs_float.ltp_to_imu_euler, ahrs_float.ltp_to_imu_rmat); 
+}
+
+
 
 /*
  * Compute body orientation and rates from imu orientation and rates

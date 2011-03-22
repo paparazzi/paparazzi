@@ -44,6 +44,7 @@
 #define UART1_TxPin GPIO_Pin_9
 #define UART2_TxPin GPIO_Pin_2
 #define UART3_TxPin GPIO_Pin_10
+#define UART5_TxPin GPIO_Pin_12
 
 #define UART1_RxPin GPIO_Pin_10
 #define UART2_RxPin GPIO_Pin_3
@@ -53,6 +54,7 @@
 #define UART1_TxPort GPIOA
 #define UART2_TxPort GPIOA
 #define UART3_TxPort GPIOC
+#define UART5_TxPort GPIOC
 
 #define UART1_RxPort GPIOA
 #define UART2_RxPort GPIOA
@@ -62,6 +64,13 @@
 #define UART1_Periph RCC_APB2Periph_GPIOA
 #define UART2_Periph RCC_APB2Periph_GPIOA
 #define UART3_Periph RCC_APB2Periph_GPIOC
+#define UART5_PeriphTx RCC_APB2Periph_GPIOC
+#define UART5_PeriphRx RCC_APB2Periph_GPIOD
+
+/* this is unexpected the macros in spektrum_arch.c 
+   didn't expect that rx and tx would be spilt over 
+   two ports. As the spektrum code is only interested
+   in the rx pin we define this to be the Peripheral */
 #define UART5_Periph RCC_APB2Periph_GPIOD
 
 #define UART1_UartPeriph RCC_APB2Periph_USART1
@@ -179,6 +188,27 @@ extern uint8_t  uart3_tx_buffer[UART3_TX_BUFFER_SIZE];
     })
 
 #endif /* USE_UART3 */
+
+#ifdef USE_UART5
+
+#define UART5_RX_BUFFER_SIZE 128
+#define UART5_TX_BUFFER_SIZE 128
+
+extern volatile uint16_t uart5_rx_insert_idx, uart5_rx_extract_idx;
+extern uint8_t  uart5_rx_buffer[UART5_RX_BUFFER_SIZE];
+
+extern volatile uint16_t uart5_tx_insert_idx, uart5_tx_extract_idx;
+extern volatile bool_t   uart5_tx_running;
+extern uint8_t  uart5_tx_buffer[UART5_TX_BUFFER_SIZE];
+
+#define Uart5ChAvailable() (uart5_rx_insert_idx != uart5_rx_extract_idx)
+#define Uart5Getch() ({							\
+      uint8_t ret = uart5_rx_buffer[uart5_rx_extract_idx];		\
+      uart5_rx_extract_idx = (uart5_rx_extract_idx + 1)%UART5_RX_BUFFER_SIZE; \
+      ret;								\
+    })
+
+#endif /* USE_UART5 */
 
 
 void uart_init( void );

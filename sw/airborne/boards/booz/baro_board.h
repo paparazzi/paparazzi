@@ -4,14 +4,15 @@
 #include "std.h"
 
 #include "subsystems/sensors/baro.h"
-#include "booz/booz2_analog.h"
+#include "mcu_periph/adc.h"
+#include "mcu_periph/dac.h"
 
-/* we don't need that on this board */
 
 struct BaroBoard {
   uint16_t offset;
   uint16_t value_filtered;
   bool_t   data_available;
+  struct adc_buf buf;
 };
 
 extern struct BaroBoard baro_board;
@@ -27,20 +28,8 @@ extern void baro_board_calibrate(void);
 
 static inline void baro_board_SetOffset(uint16_t _o) {
   baro_board.offset = _o;
-  Booz2AnalogSetDAC(_o);
+  DACSet(_o);
 }
-
-static inline void BoozBaroISRHandler(uint16_t _val) {
-  baro.absolute = _val;
-  baro_board.value_filtered = (3*baro_board.value_filtered + baro.absolute)/4;
-  if (baro.status == BS_UNINITIALIZED) {
-    RunOnceEvery(10, { baro_board_calibrate();});
-  }
-  /*  else */
-  baro_board.data_available = TRUE;
-}
-
-
 
 
 #endif /* BOARDS_BOOZ_BARO_H */
