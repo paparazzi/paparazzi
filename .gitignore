@@ -78,6 +78,10 @@
 /sw/ground_segment/tmtc/server
 /sw/ground_segment/tmtc/diadec
 
+# /sw/ground_segment/joystick
+/sw/ground_segment/joystick/input2ivy
+/sw/ground_segment/joystick/test_stick
+
 # /sw/lib/ocaml/
 /sw/lib/ocaml/gtk_papget_editor.ml
 /sw/lib/ocaml/gtk_papget_text_editor.ml
@@ -108,9 +112,6 @@
 # /sw/tools/
 /sw/tools/fp_parser.ml
 /sw/tools/wiki_gen/wiki_gen
-
-# /sw/ground_segment/joystick
-/sw/ground_segment/joystick/test_stick
 
 # /sw/airborne/arch/lpc21/test/bootloader
 /sw/airborne/arch/lpc21/test/bootloader/bl.dmp

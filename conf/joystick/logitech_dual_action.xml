@@ -38,7 +38,7 @@ The "mode" button swaps the axes on the left stick and the d pad.
 <messages period="0.017">
 
 
-  <message class="datalink" name="RC_4CH" send_always="1">
+  <message class="datalink" name="RC_4CH" send_always="true">
    <field name="throttle" value="Scale(0-ly,0,255)"/>
    <field name="roll" value="rx"/>
    <field name="yaw" value="lx"/>
@@ -60,23 +60,23 @@ The "mode" button swaps the axes on the left stick and the d pad.
  -->
 
   <!-- Button 5 top left bumper) -->  <!-- AUTO1 mode -->
-  <message class="ground" name="DL_SETTING" send_always="0" on_event="b4">
+  <message class="ground" name="DL_SETTING" on_event="b4">
     <field name="index" value="5"/>
     <field name="value" value="1"/> 
   </message>
  
   <!-- Button 7 bottom left bumper -->   <!-- AUTO2 mode -->
-  <message class="ground" name="DL_SETTING" send_always="0" on_event="b6">
+  <message class="ground" name="DL_SETTING" on_event="b6">
     <field name="index" value="5"/>
     <field name="value" value="2"/>
   </message>
 
   <!-- Buttons 6+8 (right pad) -->  <!-- KILL mode -->
-  <message class="ground" name="DL_SETTING" send_always="0" on_event="b5">
+  <message class="ground" name="DL_SETTING" on_event="b5">
     <field name="index" value="5"/>
     <field name="value" value="5"/> 
   </message>
-  <message class="ground" name="DL_SETTING" send_always="0" on_event="b7">
+  <message class="ground" name="DL_SETTING" on_event="b7">
     <field name="index" value="5"/>
     <field name="value" value="5"/> 
   </message>

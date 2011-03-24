@@ -88,7 +88,7 @@ type msg = {
     msg_class : string;
     fields : (string * Syntax.expression) list;
     on_event : Syntax.expression option;
-    send_always : int
+    send_always : bool
   }
 
 (** Represenation of an input device and of the messages to send *)
@@ -189,22 +189,21 @@ let eval_settings_and_blocks = fun field_descr expr ->
 
 (** Parse an XML list of input channels *)
 let parse_input = fun input ->
-  List.map
-    (fun x ->
-      let name = Xml.attrib x "name"
-      and index = ExtXml.int_attrib x "index" in
-      let value =
-    match Xml.tag x with
-      "axis" ->
-	     let trim = try ExtXml.float_attrib x "trim" with _ -> 0.0 in
-	     let exponent = try ExtXml.float_attrib x "exponent" with _ -> 0. in
-	     let limit = try ExtXml.float_attrib x "limit" with _ -> 1.0 in
-             let deadband = try ExtXml.int_attrib x "deadband" with _ -> 0 in
-             Axis (index, deadband, limit, exponent, ref trim)
-    | "button" -> Button index
-    | _ -> failwith "parse_input: unexepcted tag" in
-      (name, value))
-    (Xml.children input)
+  List.map (fun x ->
+    let name = Xml.attrib x "name"
+    and index = ExtXml.int_attrib x "index" in
+    let value =
+      match Xml.tag x with
+        "axis" ->
+          let trim = try ExtXml.float_attrib x "trim" with _ -> 0.0 in
+          let exponent = try ExtXml.float_attrib x "exponent" with _ -> 0.0 in
+          let limit = try ExtXml.float_attrib x "limit" with _ -> 1.0 in
+          let deadband = try ExtXml.int_attrib x "deadband" with _ -> 0 in
+          Axis (index, deadband, limit, exponent, ref trim)
+      | "button" -> Button index
+      | _ -> failwith "parse_input: unexepcted tag" in
+    (name, value))
+  (Xml.children input)
 
 (** Parse a 'à la C' expression *)
 let parse_value = fun s ->
@@ -222,7 +221,7 @@ let parse_msg_field = fun msg_descr field ->
 let parse_msg = fun msg ->
   let msg_name = Xml.attrib msg "name"
   and msg_class = Xml.attrib msg "class"
-  and send_always = (try ExtXml.int_attrib msg "send_always" with _ -> 0) in
+  and send_always = (try (Xml.attrib msg "send_always") = "true" with _ -> false) in
 
   let fields =
     match get_message_type msg_class with
@@ -327,11 +326,11 @@ let eval_call = fun f args ->
     "-", [a1; a2] -> a1 - a2
   | "+", [a1; a2] -> a1 + a2
   | "*", [a1; a2] -> a1 * a2
-  | "%", [a1; a2]  -> a1 / a2
+  | "%", [a1; a2] -> a1 / a2
   | "&&", [a1; a2] -> a1 land a2
   | "||", [a1; a2] -> a1 lor a2
-  | "<",  [a1;a2]  ->  if a1 < a2 then 1 else 0
-  | ">",  [a1;a2]  ->  if a1 > a2 then 1 else 0
+  | "<",  [a1; a2] -> if a1 < a2 then 1 else 0
+  | ">",  [a1; a2] -> if a1 > a2 then 1 else 0
   | "Scale", [x; min; max] -> scale (x) (min) (max)
   | "Bound", [x; min; max] -> bound (x) (min) (max)
   | "JoystickID", [] -> !joystick_id
@@ -341,12 +340,12 @@ let eval_call = fun f args ->
 let eval_expr = fun buttons axis inputs expr ->
   let rec eval = function
       Syntax.Ident ident ->
-    let input = my_assoc ident inputs in
-    eval_input buttons axis input
+        let input = my_assoc ident inputs in
+        eval_input buttons axis input
     | Syntax.Int int -> int
     | Syntax.Float float -> failwith "eval_expr: float"
     | Syntax.Call (ident, exprs) | Syntax.CallOperator (ident, exprs) ->
-    eval_call ident (List.map eval exprs)
+        eval_call ident (List.map eval exprs)
     | Syntax.Index _ -> failwith "eval_expr: index"
     | Syntax.Field _ -> failwith "eval_expr: Field" in
 
@@ -405,7 +404,7 @@ let execute_action = fun ac_id inputs buttons axis message ->
     | Some expr -> eval_expr buttons axis inputs expr <> 0 in
 
   let previous_values = get_previous_values message.msg_name in
-  if ( ( (on_event, values) <> previous_values ) || message.send_always = 1 ) && on_event then begin
+  if ( ( (on_event, values) <> previous_values ) || message.send_always ) && on_event then begin
     let vs = ("ac_id", Pprz.Int ac_id) :: values in
     match message.msg_class with
       "datalink" -> DL.message_send "input2ivy" message.msg_name vs
