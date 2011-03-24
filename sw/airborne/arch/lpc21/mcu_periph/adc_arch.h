@@ -25,6 +25,8 @@
 #ifndef ADC_HW_H
 #define ADC_HW_H
 
+#include BOARD_CONFIG
+
 #define AdcBank0(x) (x)
 #define AdcBank1(x) (x+NB_ADC)
 

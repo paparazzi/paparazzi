@@ -1,5 +1,4 @@
 /*
- * $Id: demo_module.c 3079 2009-03-11 16:55:42Z gautier $
  *
  * Copyright (C) 2010  Gautier Hattenberger
  *
@@ -22,22 +21,25 @@
  *
  */
 
-#include "sonar_maxbotix_booz.h"
-#include "booz2_analog.h"
+#include "modules/sonar/sonar_maxbotix.h"
+#include "mcu_periph/adc.h"
 
 uint16_t sonar_meas;
 bool_t sonar_data_available;
 
+static struct adc_buf sonar_adc;
+
 void maxbotix_init(void) {
   sonar_meas = 0;
   sonar_data_available = FALSE;
+
+  adc_buf_channel(ADC_CHANNEL_SONAR, &sonar_adc, DEFAULT_AV_NB_SAMPLE);
 }
 
 /** Read ADC value to update sonar measurement
  */
 void maxbotix_read(void) {
-  booz2_analog_extra_adc_read();
-  sonar_meas = booz2_adc_1;
+  sonar_meas = sonar_adc.sum / sonar_adc.av_nb_sample;
   sonar_data_available = TRUE;
 }
 
