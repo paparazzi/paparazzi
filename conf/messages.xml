@@ -1327,7 +1327,13 @@
     <field name="data_b"  type="uint32"/>
   </message>
 
- <!--178 is free -->
+  <message name="BOOZ_AHRS_BIAS" id="178">
+    <field name="bp"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+    <field name="bq"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+    <field name="br"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+  </message>
+    
+
  <!--179 is free -->
 
   <message name="FMS_TIME" id="180">
