@@ -194,6 +194,15 @@ LED_TOGGLE(3);
           DL_RC_3CH_roll(dl_buffer),
           DL_RC_3CH_pitch(dl_buffer));
     } else
+    if (msg_id == DL_RC_4CH /*&& DL_RC_3CH_ac_id(dl_buffer) == TX_ID*/) {
+LED_TOGGLE(3);
+      parse_rc_4ch_datalink(
+          DL_RC_4CH_joystick_id(dl_buffer),
+          DL_RC_4CH_throttle(dl_buffer),
+          DL_RC_4CH_roll(dl_buffer),
+          DL_RC_4CH_pitch(dl_buffer),
+          DL_RC_4CH_yaw(dl_buffer));
+    } else
 #endif // RC_DATALINK
   { /* Last else */
     /* Parse modules datalink */
