@@ -770,3 +770,4 @@ test_settings.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_settings.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=$(MODEM_PORT)
 test_settings.srcs   += subsystems/settings.c
 test_settings.srcs   += $(SRC_ARCH)/subsystems/settings_arch.c
+test_settings.CFLAGS += -DUSE_PERSISTENT_SETTINGS

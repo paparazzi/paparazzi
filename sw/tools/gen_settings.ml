@@ -168,7 +168,7 @@ let print_persistent_settings = fun settings ->
       lprintf "pers_settings.s_%d = %s;\n" !idx v; incr idx)
     pers_settings;
   left();
-  lprintf "};\n\n";
+  lprintf "}\n\n";
   (*  Inline function to load persistent settings *)
   idx := 0;
   lprintf "static inline void persitent_settings_load( void ) {\n";
@@ -176,7 +176,16 @@ let print_persistent_settings = fun settings ->
   List.iter
     (fun s ->
       let v = ExtXml.attrib s "var" in
-      lprintf "%s = pers_settings.s_%d;\n" v !idx; incr idx)
+      begin
+	 try
+	   let h = ExtXml.attrib s "handler" and
+               m =  ExtXml.attrib s "module" in
+	   lprintf "%s_%s( pers_settings.s_%d );\n"  (Filename.basename m) h !idx ;
+(*	   lprintf "%s = pers_settings.s_%d;\n" v !idx *) (* do we want to set the value too or just call the handler ? *)
+	 with
+	   ExtXml.Error e ->  lprintf "%s = pers_settings.s_%d;\n" v !idx
+      end;
+      incr idx)
     pers_settings;
   left();
   lprintf "};\n"
