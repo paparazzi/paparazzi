@@ -14,10 +14,6 @@ $(TARGET).ARCHDIR = $(ARCH)
 $(TARGET).OOCD_INTERFACE=flossjtag
 #$(TARGET).OOCD_INTERFACE=jtagkey-tiny
 
-# ----------------------------------------------------------------------
-# add the opencm3_stm32 lib
-LDLIBS += -lopencm3_stm32
-
 # -----------------------------------------------------------------------
 
 ifndef FLASH_MODE
