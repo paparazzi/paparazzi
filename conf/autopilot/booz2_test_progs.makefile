@@ -189,6 +189,7 @@ test_usb.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 # -DTIME_LED=1
 test_usb.CFLAGS += -DUSE_LED
 test_usb.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+test_usb.srcs += mcu.c $(SRC_ARCH)/mcu_arch.c
 
 #test_usb.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 #test_usb.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
