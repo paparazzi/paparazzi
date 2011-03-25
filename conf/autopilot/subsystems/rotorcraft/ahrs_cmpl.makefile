@@ -3,15 +3,14 @@
 #
 
 ifdef AHRS_ALIGNER_LED
-ap.CFLAGS += -DUSE_AHRS_CMPL -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED) -DAHRS_FIXED_POINT
-else
-ap.CFLAGS += -DUSE_AHRS_CMPL -DAHRS_FIXED_POINT
+ap.CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 endif
+ap.CFLAGS += -DUSE_AHRS_CMPL
 ap.srcs += $(SRC_SUBSYSTEMS)/ahrs.c
 ap.srcs += $(SRC_SUBSYSTEMS)/ahrs/ahrs_aligner.c
 ap.srcs += $(SRC_SUBSYSTEMS)/ahrs/ahrs_int_cmpl_euler.c
 
-sim.CFLAGS += -DUSE_AHRS_CMPL -DAHRS_ALIGNER_LED=3 -DAHRS_FIXED_POINT
+sim.CFLAGS += -DUSE_AHRS_CMPL -DAHRS_ALIGNER_LED=3
 sim.srcs += $(SRC_SUBSYSTEMS)/ahrs.c
 sim.srcs += $(SRC_SUBSYSTEMS)/ahrs/ahrs_aligner.c
 sim.srcs += $(SRC_SUBSYSTEMS)/ahrs/ahrs_int_cmpl_euler.c
