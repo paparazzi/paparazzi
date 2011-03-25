@@ -138,14 +138,14 @@ let print_dl_settings = fun settings ->
   left()
 
 (*
-   Blaaaaaa
+   Generate code for persitent settings
 *)
 let print_persistent_settings = fun settings ->
   let settings = flatten settings [] in
   let pers_settings = 
     List.filter (fun x -> try let _ = Xml.attrib x "persistent" in true with _ -> false) settings in
   (* structure declaration *)
-  if List.length pers_settings > 0 then begin
+(*  if List.length pers_settings > 0 then begin *)
   lprintf "\n/* Persistent Settings */\n";
   lprintf "struct PersistentSettings {\n";
   right();
@@ -180,7 +180,7 @@ let print_persistent_settings = fun settings ->
     pers_settings;
   left();
   lprintf "};\n"
-  end
+(*  end *)
 
 
 (*
