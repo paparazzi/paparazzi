@@ -735,7 +735,7 @@ tunnel_hw.srcs   += $(SRC_ARCH)/led_hw.c
 tunnel_hw.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
 tunnel_hw.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 tunnel_hw.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-tunnel_hw.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
+tunnel_hw.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 tunnel_hw.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 tunnel_hw.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
@@ -769,4 +769,4 @@ test_settings.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK
 test_settings.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_settings.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=$(MODEM_PORT)
 test_settings.srcs   += subsystems/settings.c
-
+test_settings.srcs   += $(SRC_ARCH)/subsystems/settings_arch.c

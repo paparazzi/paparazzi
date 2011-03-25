@@ -17,5 +17,9 @@ extern bool_t settings_store_now;
 
 #include "generated/settings.h"
 
+/* implemented in arch dependant code */
+int32_t persistent_write(uint32_t ptr, uint32_t size);
+int32_t persistent_read(uint32_t ptr, uint32_t size);
+
 
 #endif /* SUBSYSTEMS_SETTINGS_H */

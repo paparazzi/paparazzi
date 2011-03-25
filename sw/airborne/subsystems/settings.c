@@ -4,14 +4,16 @@
 struct PersistentSettings pers_settings;
 bool_t settings_store_now;
 
+
 void settings_init(void) {
-  // READ SETTINGS FROM FLASH
+  if (persistent_read((uint32_t)&pers_settings, sizeof(struct PersistentSettings))) 
+    return; // return -1 ?
   persitent_settings_load();
 }
 
 
 void settings_store(void) {
   persitent_settings_store();
-  // WRITE SETTINGS TO FLASH
+  persistent_write((uint32_t)&pers_settings, sizeof(struct PersistentSettings));
 }
 
