@@ -3,7 +3,7 @@
 
 ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -DDOWNLINK -DDOWNLINK_DEVICE=UsbS -DPPRZ_UART=UsbS
-ap.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDATALINK=PPRZ -DUSE_USB_SERIAL -DUSE_USB_HIGH_PCLK
+ap.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDATALINK=PPRZ -DUSE_USB_SERIAL
 ap.srcs += downlink.c pprz_transport.c
 ap.srcs += $(SRC_FIRMWARE)/datalink.c $(SRC_FIRMWARE)/telemetry.c
 ap.srcs += $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
