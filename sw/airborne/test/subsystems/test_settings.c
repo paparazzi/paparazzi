@@ -34,6 +34,7 @@
 #include "mcu_periph/uart.h"
 #include "messages.h"
 
+#include "my_debug_servo.h"
 
 static inline void main_init( void );
 static inline void main_periodic( void );
@@ -61,13 +62,22 @@ static inline void main_init( void ) {
   mcu_init();
   sys_time_init();
   settings_init();
+  //  DEBUG_SERVO2_INIT();
+  //  LED_ON(1);
+  //  LED_ON(2);
+  //  DEBUG_S4_ON();
+  //  DEBUG_S5_ON();
+  //  DEBUG_S6_ON();
   mcu_int_enable();
 
 }
 
 static inline void main_periodic( void ) {
 
-  RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel,  16, MD5SUM);});
+  RunOnceEvery(100, {
+      DOWNLINK_SEND_ALIVE(DefaultChannel,  16, MD5SUM);
+      PeriodicSendDlValue(DefaultChannel);
+    });
 
 }
 

@@ -494,7 +494,7 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
 #define FLOAT_QUAT_NORM(_q) (sqrtf(SQUARE(_q.qi) + SQUARE(_q.qx)+	\
 				   SQUARE(_q.qy) + SQUARE(_q.qz)))	\
 
-#define FLOAT_QUAT_NORMALISE(q) {		                        \
+#define FLOAT_QUAT_NORMALIZE(q) {		                        \
     float norm = FLOAT_QUAT_NORM(q);					\
     if (norm > FLT_MIN) {						\
 	    q.qi = q.qi / norm;						\
@@ -515,7 +515,7 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
 #define FLOAT_QUAT_COMP_NORM_SHORTEST(_a2c, _a2b, _b2c) {		\
     FLOAT_QUAT_COMP(_a2c, _a2b, _b2c);					\
     FLOAT_QUAT_WRAP_SHORTEST(_a2c);					\
-    FLOAT_QUAT_NORMALISE(_a2c);						\
+    FLOAT_QUAT_NORMALIZE(_a2c);						\
   }
 
 /* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
@@ -532,7 +532,7 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
 #define FLOAT_QUAT_COMP_INV_NORM_SHORTEST(_a2b, _a2c, _b2c) {		\
     FLOAT_QUAT_COMP_INV(_a2b, _a2c, _b2c);				\
     FLOAT_QUAT_WRAP_SHORTEST(_a2b);					\
-    FLOAT_QUAT_NORMALISE(_a2b);						\
+    FLOAT_QUAT_NORMALIZE(_a2b);						\
   }
 
 /* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
@@ -547,7 +547,7 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
 #define FLOAT_QUAT_INV_COMP_NORM_SHORTEST(_b2c, _a2b, _a2c) {		\
     FLOAT_QUAT_INV_COMP(_b2c, _a2b, _a2c);				\
     FLOAT_QUAT_WRAP_SHORTEST(_b2c);					\
-    FLOAT_QUAT_NORMALISE(_b2c);						\
+    FLOAT_QUAT_NORMALIZE(_b2c);						\
   }
 
 /* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */

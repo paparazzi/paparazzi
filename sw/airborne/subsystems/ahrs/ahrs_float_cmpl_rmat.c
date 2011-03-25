@@ -119,7 +119,7 @@ void ahrs_propagate(void) {
 #endif
 #ifdef AHRS_PROPAGATE_QUAT
   FLOAT_QUAT_INTEGRATE(ahrs_float.ltp_to_imu_quat, omega, dt);
-  FLOAT_QUAT_NORMALISE(ahrs_float.ltp_to_imu_quat);
+  FLOAT_QUAT_NORMALIZE(ahrs_float.ltp_to_imu_quat);
   compute_imu_rmat_and_euler_from_quat();
 #endif
   compute_body_orientation_and_rates();

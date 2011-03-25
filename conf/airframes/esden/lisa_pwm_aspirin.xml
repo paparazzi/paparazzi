@@ -1,6 +1,6 @@
 <!-- this is a microkopter frame equiped with Lisa/L and generic china pwm motor controllers -->
 
-<airframe name="lisa_asctec">
+<airframe name="lisa_pwm_aspirin">
 
   <servos min="0" neutral="0" max="0xff">
     <servo name="FRONT"   no="0" min="1000" neutral="1000" max="2000"/>
@@ -90,7 +90,7 @@
 
  <section name="AUTOPILOT">
    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
+   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_RC_CLIMB"/>
    <define name="MODE_AUTO2"  value="AP_MODE_HOVER_Z_HOLD"/>
  </section>
 
@@ -138,15 +138,15 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="-550"/>
-    <define name="PHI_DGAIN"  value="-210"/>
-    <define name="PHI_IGAIN"  value="-200"/>
+    <define name="PHI_PGAIN"  value="-250"/>
+    <define name="PHI_DGAIN"  value="-200"/>
+    <define name="PHI_IGAIN"  value="-150"/>
 
-    <define name="THETA_PGAIN"  value="-550"/>
-    <define name="THETA_DGAIN"  value="-210"/>
-    <define name="THETA_IGAIN"  value="-200"/>
+    <define name="THETA_PGAIN"  value="-250"/>
+    <define name="THETA_DGAIN"  value="-200"/>
+    <define name="THETA_IGAIN"  value="-150"/>
 
-    <define name="PSI_PGAIN"  value="-600"/>
+    <define name="PSI_PGAIN"  value="-900"/>
     <define name="PSI_DGAIN"  value="-200"/>
     <define name="PSI_IGAIN"  value="-10"/>
 
@@ -167,14 +167,15 @@
    <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="MAX_SUM_ERR" value="2000000"/>
-   <define name="HOVER_KP"    value="-500"/>
-   <define name="HOVER_KD"    value="-200"/>
-   <define name="HOVER_KI"    value="-100"/>
+   <define name="HOVER_KP"    value="-150"/>
+   <define name="HOVER_KD"    value="-80"/>
+   <!--define name="HOVER_KI"    value="-100"/-->
+   <define name="HOVER_KI"    value="0"/>
    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
    <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
-   <define name="INV_M" value ="0.2"/>
+   <define name="INV_M" value ="0.15"/>
   </section>
 
 
@@ -220,7 +221,9 @@
     </target>
 
     <subsystem name="imu"           type="aspirin"/>
-    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="gps"           type="ublox">
+	    <configure name="GPS_BAUD"    value="B57600"/>
+    </subsystem>
     <subsystem name="ahrs"          type="cmpl"/>
   </firmware>
 

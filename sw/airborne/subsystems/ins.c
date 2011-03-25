@@ -70,7 +70,7 @@ bool_t ins_hf_realign;
 int32_t ins_qfe;
 bool_t  ins_baro_initialised;
 int32_t ins_baro_alt;
-#ifdef BOOZ2_SONAR
+#ifdef USE_SONAR
 bool_t  ins_update_on_agl;
 int32_t ins_sonar_offset;
 #endif
@@ -190,7 +190,7 @@ void ins_update_baro() {
     if (ins_vf_realign) {
       ins_vf_realign = FALSE;
       ins_qfe = baro.absolute;
-#ifdef BOOZ2_SONAR
+#ifdef USE_SONAR
       ins_sonar_offset = sonar_meas;
 #endif
       vff_realign(0.);
@@ -267,13 +267,13 @@ void ins_update_gps(void) {
 }
 
 void ins_update_sonar() {
-#if defined BOOZ2_SONAR && defined USE_VFF
+#if defined USE_SONAR && defined USE_VFF
   static int32_t sonar_filtered = 0;
   sonar_filtered = (sonar_meas + 2*sonar_filtered) / 3;
   /* update baro_qfe assuming a flat ground */
-  if (ins_update_on_agl && booz2_analog_baro_status == BOOZ2_ANALOG_BARO_RUNNING) {
+  if (ins_update_on_agl && baro.status == BS_RUNNING) {
     int32_t d_sonar = (((int32_t)sonar_filtered - ins_sonar_offset) * INS_SONAR_SENS_NUM) / INS_SONAR_SENS_DEN;
-    ins_qfe = (int32_t)booz2_analog_baro_value + (d_sonar * (INS_BARO_SENS_DEN))/INS_BARO_SENS_NUM;
+    ins_qfe = baro.absolute + (d_sonar * (INS_BARO_SENS_DEN))/INS_BARO_SENS_NUM;
   }
 #endif
 }

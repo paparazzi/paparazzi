@@ -1,5 +1,4 @@
 /*
- * $Id: demo_module.h 3079 2009-03-11 16:55:42Z gautier $
  *
  * Copyright (C) 2010  Gautier Hattenberger
  *
@@ -22,9 +21,9 @@
  *
  */
 
-/** \file sonar_maxbotix_booz.h
+/** \file sonar_maxbotix.h
  *
- * simple driver to deal with one maxbotix sensor on booz AP
+ * simple driver to deal with one maxbotix sensor
  */
 
 #ifndef SONAR_MAXBOTIX_BOOZ_H
@@ -39,7 +38,7 @@ extern bool_t sonar_data_available;
 extern void maxbotix_init(void);
 extern void maxbotix_read(void);
 
-#include "subsystems/ins.h" // needed because ins is not a module
+//#include "subsystems/ins.h" // needed because ins is not a module
 
 #define SonarEvent(_handler) { \
   if (sonar_data_available) { \

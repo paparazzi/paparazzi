@@ -431,8 +431,19 @@
    <field name="altitude_offset" type="uint16"></field>
  </message>
 
- <!-- 59 is free --> 
-
+  <message name="GPS_LLA" id="59">
+    <field name="lat"        type="int32"  unit="cm" alt_unit="m"/>
+    <field name="lon"        type="int32"  unit="cm" alt_unit="m"/>
+    <field name="alt"        type="int32"  unit="cm" alt_unit="m"/>
+    <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
+    <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
+    <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s"/>
+    <field name="week"       type="uint16" unit="weeks"/>
+    <field name="itow"       type="uint32" unit="ms"/>
+    <field name="mode"       type="uint8"  unit="byte_mask"/>
+    <field name="gps_nb_err" type="uint8"/>
+  </message>
+ 
   <message name="H_CTL_A" id="60">
     <field name="roll_sum_err" type="float"/>
     <field name="ref_roll_angle" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
@@ -1308,7 +1319,13 @@
     <field name="data_b"  type="uint32"/>
   </message>
 
- <!--178 is free -->
+  <message name="BOOZ_AHRS_BIAS" id="178">
+    <field name="bp"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+    <field name="bq"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+    <field name="br"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
+  </message>
+    
+
  <!--179 is free -->
 
   <message name="FMS_TIME" id="180">

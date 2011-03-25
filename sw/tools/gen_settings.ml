@@ -134,11 +134,58 @@ let print_dl_settings = fun settings ->
   lprintf "default: return 0.;\n";
   lprintf "}\n";
   left ();
-  lprintf "}\n"
+  lprintf "}\n";
+  left()
+
+(*
+   Generate code for persitent settings
+*)
+let print_persistent_settings = fun settings ->
+  let settings = flatten settings [] in
+  let pers_settings = 
+    List.filter (fun x -> try let _ = Xml.attrib x "persistent" in true with _ -> false) settings in
+  (* structure declaration *)
+(*  if List.length pers_settings > 0 then begin *)
+  lprintf "\n/* Persistent Settings */\n";
+  lprintf "struct PersistentSettings {\n";
+  right();
+  let idx = ref 0 in
+  List.iter
+    (fun s ->
+      let v = ExtXml.attrib s "var" in
+      lprintf "float s_%d; /* %s */\n" !idx v; incr idx)
+    pers_settings;
+  left();
+  lprintf "};\n\n";
+  lprintf "extern struct PersistentSettings pers_settings;\n\n";
+  (*  Inline function to store persistent settings *)
+  idx := 0;
+  lprintf "static inline void persitent_settings_store( void ) {\n";
+  right();
+  List.iter
+    (fun s ->
+      let v = ExtXml.attrib s "var" in
+      lprintf "pers_settings.s_%d = %s;\n" !idx v; incr idx)
+    pers_settings;
+  left();
+  lprintf "};\n\n";
+  (*  Inline function to load persistent settings *)
+  idx := 0;
+  lprintf "static inline void persitent_settings_load( void ) {\n";
+  right();
+  List.iter
+    (fun s ->
+      let v = ExtXml.attrib s "var" in
+      lprintf "%s = pers_settings.s_%d;\n" v !idx; incr idx)
+    pers_settings;
+  left();
+  lprintf "};\n"
+(*  end *)
 
 
-
-
+(*
+   Blaaaaaa2
+*)
 let calib_mode_of_rc = function
     "gain_1_up" -> 1, "up"
   | "gain_1_down" -> 1, "down"
@@ -233,6 +280,9 @@ let _ =
     left (); lprintf "}\n";
 
     print_dl_settings dl_settings;
+
+    print_persistent_settings dl_settings;
+
     finish h_name
   with
     Xml.Error e -> prerr_endline (Xml.error e); exit 1

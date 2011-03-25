@@ -51,6 +51,9 @@
 #include "pprz_transport.h"
 #include "modem.h"
 #include "xbee.h"
+#ifdef USE_USB_SERIAL
+#include "mcu_periph/usb_serial.h"
+#endif
 #endif /** !SITL */
 
 #ifndef DefaultChannel
