@@ -30,7 +30,7 @@
     <subsystem name="attitude" 		type="infrared"/>
     <subsystem name="gps" 		    type="ublox_lea5h"/>
 
-    <subsystem name="navigation"/>
+    <subsystem name="navigation"    type="extra"/>
   </firmware>
 
 
