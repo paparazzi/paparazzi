@@ -16,7 +16,7 @@
     <subsystem name="telemetry"     type="transparent_usb"/>
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="gps"           type="ublox"/>
-    <subsystem name="actuators"     type="dummy"/>
+    <subsystem name="actuators"     type="mkk"/>
     <subsystem name="imu"           type="b2_v1.0"/>
     <subsystem name="ahrs"          type="cmpl"/>
   </firmware>
@@ -206,7 +206,7 @@
     <define name="MILLIAMP_PER_PERCENT" value="0.86" />
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V" />
     <define name="MAX_BAT_LEVEL" value="12.0" unit="V" />
-    <define name="VoltageOfAdc(adc)" value ="(0.0246*adc)"/>
+    <define name="VoltageOfAdc(adc)" value="(0.0246*adc)"/>
   </section>
 
   <section name="MISC">
