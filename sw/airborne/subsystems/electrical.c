@@ -22,7 +22,7 @@ static struct {
 #define VoltageOfAdc(adc) DefaultVoltageOfAdc(adc)
 #endif
 #ifndef VSupplyOfAdc
-#define VSupplyOfAdc(adc) VoltageOfAdc(adc)
+#define VSupplyOfAdc(adc) DefaultVoltageOfAdc(adc)
 #endif
 #ifndef MilliAmpereOfAdc
 #define MilliAmpereOfAdc(adc) DefaultMilliAmpereOfAdc(adc)
