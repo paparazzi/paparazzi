@@ -205,9 +205,9 @@
   <section name="BAT">
     <define name="MILLIAMP_PER_PERCENT" value="0.86" />
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V" />
-    <define name="MAX_BAT_LEVEL" value="12.0" unit="V" />
-    <define name="BATTERY_SENS" value="0.246" integer="16" />
-    <define name="BATTERY_OFFSET" value="0" />
+    <define name="LOW_BAT_LEVEL" value="9.7" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="12.2" unit="V" />
+    <define name="VSupplyOfAdc(adc)" value ="(0.0246*adc)"/>
   </section>
 
   <section name="MISC">
