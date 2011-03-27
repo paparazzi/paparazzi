@@ -31,10 +31,11 @@ void  gps_feed_value() {
   gps.ecef_vel.x = sensors.gps.ecef_vel.x * 100.;
   gps.ecef_vel.y = sensors.gps.ecef_vel.y * 100.;
   gps.ecef_vel.z = sensors.gps.ecef_vel.z * 100.;
-  gps.lla_pos.lat = DegOfRad(sensors.gps.lla_pos.lat) * 1e7;
-  gps.lla_pos.lon = DegOfRad(sensors.gps.lla_pos.lon) * 1e7;
-  gps.lla_pos.alt = sensors.gps.lla_pos.alt * 100.;
-  gps.hmsl        = sensors.gps.hmsl * 100.;
+  //ecef pos seems to be based on geocentric model, hence we get a very high alt when converted to lla
+  gps.lla_pos.lat = sensors.gps.lla_pos.lat * 1e7;
+  gps.lla_pos.lon = sensors.gps.lla_pos.lon * 1e7;
+  gps.lla_pos.alt = sensors.gps.lla_pos.alt * 1000.;
+  gps.hmsl        = sensors.gps.hmsl * 1000.;
   gps.fix = GPS_FIX_3D;
   gps_available = TRUE;
 }
