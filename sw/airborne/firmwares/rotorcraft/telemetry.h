@@ -665,12 +665,14 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			     &gps.pdop,			\
 			     &gps.num_sv,			\
 			     &gps.fix);			\
+    static uint8_t i;                                                   \
+    static uint8_t last_cnos[GPS_NB_CHANNELS];                          \
     if (i == gps.nb_channels) i = 0;                                    \
     if (i < gps.nb_channels && gps.svinfos[i].cno > 0 && gps.svinfos[i].cno != last_cnos[i]) { \
       DOWNLINK_SEND_SVINFO(DefaultChannel, &i, &gps.svinfos[i].svid, &gps.svinfos[i].flags, &gps.svinfos[i].qi, &gps.svinfos[i].cno, &gps.svinfos[i].elev, &gps.svinfos[i].azim); \
       last_cnos[i] = gps.svinfos[i].cno;                                \
     }                                                                   \
-    i++;
+    i++;                                                                \
   }
 #else
 #define PERIODIC_SEND_GPS(_chan) {}
