@@ -24,6 +24,11 @@
 
 #include "led.h"
 
+#ifdef GPS_USE_LATLONG
+#include "subsystems/nav.h"
+#include "math/pprz_geodetic_float.h"
+#endif
+
 /* parser status */
 #define UNINIT        0
 #define GOT_SYNC1     1
@@ -92,6 +97,21 @@ void gps_ubx_read_message(void) {
       gps.lla_pos.lon = RadOfDeg(UBX_NAV_POSLLH_LON(gps_ubx.msg_buf));
       gps.lla_pos.alt = UBX_NAV_POSLLH_HEIGHT(gps_ubx.msg_buf);
       gps.hmsl        = UBX_NAV_POSLLH_HMSL(gps_ubx.msg_buf);
+#ifdef GPS_USE_LATLONG
+      /* Computes from (lat, long) in the referenced UTM zone */
+      struct LlaCoor_f lla_f;
+      lla_f.lat = (float) gps.lla_pos.lat * 1e7;
+      lla_f.lon = (float) gps.lla_pos.lat * 1e7;
+      struct UtmCoor_f utm_f;
+      utm_f.zone = nav_utm_zone0;
+      /* convert to utm */
+      utm_of_lla_f(&utm_f, &lla_f);
+      /* copy results of utm conversion */
+      gps.utm_pos.east = utm_f.east*100;
+      gps.utm_pos.north = utm_f.north*100;
+      gps.utm_pos.alt = utm_f.alt*1000;
+      gps.utm_pos.zone = nav_utm_zone0;
+#else
     }
     else if (gps_ubx.msg_id == UBX_NAV_POSUTM_ID) {
       gps.utm_pos.east = UBX_NAV_POSUTM_EAST(gps_ubx.msg_buf);
@@ -101,6 +121,7 @@ void gps_ubx_read_message(void) {
         gps.utm_pos.north -= 1000000000; /* Subtract false northing: -10000km */
       gps.utm_pos.alt = UBX_NAV_POSUTM_ALT(gps_ubx.msg_buf)*10;
       gps.utm_pos.zone = UBX_NAV_POSUTM_ZONE(gps_ubx.msg_buf);
+#endif
     }
     else if (gps_ubx.msg_id == UBX_NAV_VELNED_ID) {
       gps.speed_3d = UBX_NAV_VELNED_Speed(gps_ubx.msg_buf);
