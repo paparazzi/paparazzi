@@ -37,12 +37,12 @@
 
    <message name="GPS" id="8">
      <field name="mode"       type="uint8"  unit="byte_mask"/>
-     <field name="utm_east"   type="int32"  unit="cm" alt_unit="m"/>
-     <field name="utm_north"  type="int32"  unit="cm" alt_unit="m"/>
-     <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
-     <field name="alt"        type="int32"  unit="cm" alt_unit="m"/>
-     <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
-     <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s"/>
+     <field name="utm_east"   type="int32"  unit="cm" alt_unit="m" alt_unit_coef="0.01"/>
+     <field name="utm_north"  type="int32"  unit="cm" alt_unit="m" alt_unit_coef="0.01"/>
+     <field name="course"     type="int16"  unit="decideg" alt_unit="deg" alt_unit_coef="0.1"/>
+     <field name="alt"        type="int32"  unit="mm" alt_unit="m" alt_unit_coef="0.001"/>
+     <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s" alt_unit_coef="0.01"/>
+     <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s" alt_unit_coef="0.01"/>
      <field name="week"       type="uint16" unit="weeks"/>
      <field name="itow"       type="uint32" unit="ms"/>
      <field name="utm_zone"   type="uint8"/>
@@ -434,7 +434,7 @@
   <message name="GPS_LLA" id="59">
     <field name="lat"        type="int32"  unit="cm" alt_unit="m"/>
     <field name="lon"        type="int32"  unit="cm" alt_unit="m"/>
-    <field name="alt"        type="int32"  unit="cm" alt_unit="m"/>
+    <field name="alt"        type="int32"  unit="mm" alt_unit="m"/>
     <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
     <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
     <field name="climb"      type="int16"  unit="cm/s" alt_unit="m/s"/>
@@ -1109,7 +1109,7 @@
     <field name="ecef_z"  type="int32" alt_unit="m"   alt_unit_coef="0.01"/>
     <field name="lat"     type="int32" alt_unit="deg" alt_unit_coef="0.0000001"/>
     <field name="lon"     type="int32" alt_unit="deg" alt_unit_coef="0.0000001"/>
-    <field name="alt"     type="int32" alt_unit="m"   alt_unit_coef="0.01"/>
+    <field name="alt"     type="int32" alt_unit="m"   alt_unit_coef="0.001"/>
     <field name="ecef_xd" type="int32" alt_unit="m/s" alt_unit_coef="0.01"/>
     <field name="ecef_yd" type="int32" alt_unit="m/s" alt_unit_coef="0.01"/>
     <field name="ecef_zd" type="int32" alt_unit="m/s" alt_unit_coef="0.01"/>
