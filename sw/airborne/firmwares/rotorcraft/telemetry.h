@@ -649,26 +649,26 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef USE_GPS
 #define PERIODIC_SEND_GPS_INT(_chan) {				\
-    DOWNLINK_SEND_GPS_INT( _chan,					\
-			     &gps.ecef_pos.x,		\
-			     &gps.ecef_pos.y,		\
-			     &gps.ecef_pos.z,		\
-			     &gps.lla_pos.lat,		\
-			     &gps.lla_pos.lon,		\
-			     &gps.lla_pos.alt,		\
-			     &gps.ecef_vel.x,		\
-			     &gps.ecef_vel.y,		\
-			     &gps.ecef_vel.z,		\
-                 &gps.hmsl,             \
-			     &gps.pacc,			\
-			     &gps.sacc,			\
-			     &gps.tow,			\
-			     &gps.pdop,			\
-			     &gps.num_sv,			\
-			     &gps.fix);			\
-    static uint8_t i;                                                   \
-    static uint8_t last_cnos[GPS_NB_CHANNELS];                          \
-    if (i == gps.nb_channels) i = 0;                                    \
+    DOWNLINK_SEND_GPS_INT( _chan,                   \
+                           &gps.ecef_pos.x,         \
+                           &gps.ecef_pos.y,         \
+                           &gps.ecef_pos.z,         \
+                           &gps.lla_pos.lat,        \
+                           &gps.lla_pos.lon,        \
+                           &gps.lla_pos.alt,        \
+                           &gps.hmsl,               \
+                           &gps.ecef_vel.x,         \
+                           &gps.ecef_vel.y,         \
+                           &gps.ecef_vel.z,         \
+                           &gps.pacc,               \
+                           &gps.sacc,               \
+                           &gps.tow,                \
+                           &gps.pdop,               \
+                           &gps.num_sv,             \
+                           &gps.fix);               \
+    static uint8_t i;                               \
+    static uint8_t last_cnos[GPS_NB_CHANNELS];      \
+    if (i == gps.nb_channels) i = 0;                \
     if (i < gps.nb_channels && gps.svinfos[i].cno > 0 && gps.svinfos[i].cno != last_cnos[i]) { \
       DOWNLINK_SEND_SVINFO(DefaultChannel, &i, &gps.svinfos[i].svid, &gps.svinfos[i].flags, &gps.svinfos[i].qi, &gps.svinfos[i].cno, &gps.svinfos[i].elev, &gps.svinfos[i].azim); \
       last_cnos[i] = gps.svinfos[i].cno;                                \
