@@ -627,9 +627,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 }
 
 #include "firmwares/rotorcraft/navigation.h"
-#define PERIODIC_SEND_BOOZ2_FP(_chan) {					\
+#define PERIODIC_SEND_ROTORCRAFT_FP(_chan) {					\
     int32_t carrot_up = -guidance_v_z_sp;				\
-    DOWNLINK_SEND_BOOZ2_FP( _chan,					\
+    DOWNLINK_SEND_ROTORCRAFT_FP( _chan,					\
 			    &ins_enu_pos.x,			\
 			    &ins_enu_pos.y,			\
 			    &ins_enu_pos.z,			\

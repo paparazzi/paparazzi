@@ -1033,7 +1033,7 @@
   </message>
 
 
-  <message name="BOOZ2_FP" id="147">
+  <message name="ROTORCRAFT_FP" id="147">
     <field name="east"     type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
     <field name="north"    type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>
     <field name="up"       type="int32" alt_unit="m" alt_unit_coef="0.0039063"/>

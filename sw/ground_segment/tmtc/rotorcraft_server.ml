@@ -146,7 +146,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   if not (msg.Pprz.name = "DOWNLINK_STATUS") then
     a.last_msg_date <- U.gettimeofday ();
   match msg.Pprz.name with
-    "BOOZ2_FP" ->
+    "ROTORCRAFT_FP" ->
       begin match a.nav_ref with
         None -> (); (* No nav_ref yet *)
         | Some nav_ref ->
