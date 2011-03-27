@@ -10,10 +10,6 @@ ifneq ($(GPS_LED),none)
   ap.CFLAGS += -DGPS_LED=$(GPS_LED)
 endif
 
-#ifeq ($(ARCH), lpc21)
-#  ap.CFLAGS += -D$(GPS_PORT)_VIC_SLOT=5
-#endif
-
 sim.CFLAGS += -DUSE_GPS
 sim.srcs += $(SRC_SUBSYSTEMS)/gps.c
 sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim_nps.h\"

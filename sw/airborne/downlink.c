@@ -29,6 +29,7 @@
 
 
 #include "std.h"
+#include "generated/airframe.h"
 
 #ifdef FBW
 #ifndef TELEMETRY_MODE_FBW
