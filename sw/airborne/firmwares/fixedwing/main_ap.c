@@ -78,6 +78,9 @@ static inline void on_gyro_accel_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
 #endif
+#ifdef USE_GPS
+static inline void on_gps_solution( void );
+#endif
 
 #if ! defined CATASTROPHIC_BAT_LEVEL && defined LOW_BATTERY
 #warning "LOW_BATTERY deprecated. Renamed into CATASTROPHIC_BAT_LEVEL (in airframe file)"
@@ -435,11 +438,6 @@ void periodic_task_ap( void ) {
 
   switch(_4Hz) {
   case 0:
-#ifdef SITL
-#ifdef GPS_TRIGGERED_FUNCTION
-    GPS_TRIGGERED_FUNCTION();
-#endif
-#endif
     estimator_propagate_state();
 #ifdef EXTRA_DOWNLINK_DEVICE
     DOWNLINK_SEND_ATTITUDE(ExtraPprzTransport,&estimator_phi,&estimator_psi,&estimator_theta);
@@ -600,8 +598,7 @@ void event_task_ap( void ) {
 #endif // USE_AHRS
 
 #ifdef USE_GPS
-  GpsEvent(estimator_update_state_gps);
-  //TODO add extra callback for solution available, aka GPS_TRIGGERED_FUNCTION
+  GpsEvent(on_gps_solution);
 #endif /** USE_GPS */
 
 
@@ -620,6 +617,16 @@ void event_task_ap( void ) {
 
   modules_event_task();
 } /* event_task_ap() */
+
+
+#ifdef USE_GPS
+static inline void on_gps_solution( void ) {
+  estimator_update_state_gps();
+#ifdef GPS_TRIGGERED_FUNCTION
+  GPS_TRIGGERED_FUNCTION();
+#endif
+}
+#endif
 
 #ifdef USE_AHRS
 static inline void on_accel_event( void ) {
