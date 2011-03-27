@@ -659,6 +659,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			     &gps.ecef_vel.x,		\
 			     &gps.ecef_vel.y,		\
 			     &gps.ecef_vel.z,		\
+                 &gps.hmsl,             \
 			     &gps.pacc,			\
 			     &gps.sacc,			\
 			     &gps.tow,			\
@@ -675,7 +676,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
     i++;                                                                \
   }
 #else
-#define PERIODIC_SEND_GPS(_chan) {}
+#define PERIODIC_SEND_GPS_INT(_chan) {}
 #endif
 
 #include "firmwares/rotorcraft/navigation.h"
