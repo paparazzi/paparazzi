@@ -64,7 +64,7 @@ extern struct GpsUbx gps_ubx;
 #define GpsBuffer() GpsLink(ChAvailable())
 
 #ifdef GPS_CONFIGURE
-extern uint8_t gps_configuring;
+extern bool_t gps_configuring;
 #define GpsParseOrConfigure() {     \
     if (gps_configuring)            \
       gps_configure();              \
@@ -75,22 +75,22 @@ extern uint8_t gps_configuring;
 #define GpsParseOrConfigure() gps_ubx_read_message()
 #endif
 
-#define GpsEvent(_sol_available_callback) {     \
-    if (GpsBuffer()) {							\
-      ReadGpsBuffer();							\
-    }                                           \
-    if (gps_ubx.msg_available) {                \
-      GpsParseOrConfigure();    \
-      if (gps_ubx.msg_class == UBX_NAV_ID &&    \
-          gps_ubx.msg_id == UBX_NAV_SOL_ID) {   \
-        if (gps.fix == GPS_FIX_3D) {            \
-          gps.lost_counter = 0;                 \
-          gps.last_msg_time = cpu_time_sec;     \
-        }                                       \
-        _sol_available_callback();              \
-      }                                         \
-      gps_ubx.msg_available = FALSE;            \
-    }                                           \
+#define GpsEvent(_sol_available_callback) {        \
+    if (GpsBuffer()) {                             \
+      ReadGpsBuffer();                             \
+    }                                              \
+    if (gps_ubx.msg_available) {                   \
+      GpsParseOrConfigure();                       \
+      if (gps_ubx.msg_class == UBX_NAV_ID &&       \
+          gps_ubx.msg_id == UBX_NAV_VELNED_ID) {   \
+        if (gps.fix == GPS_FIX_3D) {               \
+          gps.lost_counter = 0;                    \
+          gps.last_msg_time = cpu_time_sec;        \
+        }                                          \
+        _sol_available_callback();                 \
+      }                                            \
+      gps_ubx.msg_available = FALSE;               \
+    }                                              \
   }
 
 #define ReadGpsBuffer() {					\
