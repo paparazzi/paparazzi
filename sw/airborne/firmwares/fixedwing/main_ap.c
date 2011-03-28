@@ -560,8 +560,10 @@ void init_ap( void ) {
   /** wait 0.5s (historical :-) */
   sys_time_usleep(500000);
 
-#if defined GPS_CONFIGURE
+#ifdef GPS_CONFIGURE
+#ifndef SITL
   gps_configure_uart();
+#endif
 #endif
 
 #if defined DATALINK

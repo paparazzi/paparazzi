@@ -63,12 +63,24 @@ extern struct GpsUbx gps_ubx;
 
 #define GpsBuffer() GpsLink(ChAvailable())
 
+#ifdef GPS_CONFIGURE
+extern uint8_t gps_configuring;
+#define GpsParseOrConfigure() {     \
+    if (gps_configuring)            \
+      gps_configure();              \
+    else                            \
+      gps_ubx_read_message();       \
+  }
+#else
+#define GpsParseOrConfigure() gps_ubx_read_message()
+#endif
+
 #define GpsEvent(_sol_available_callback) {     \
     if (GpsBuffer()) {							\
       ReadGpsBuffer();							\
     }                                           \
     if (gps_ubx.msg_available) {                \
-      gps_ubx_read_message();					\
+      GpsParseOrConfigure();    \
       if (gps_ubx.msg_class == UBX_NAV_ID &&    \
           gps_ubx.msg_id == UBX_NAV_SOL_ID) {   \
         if (gps.fix == GPS_FIX_3D) {            \
