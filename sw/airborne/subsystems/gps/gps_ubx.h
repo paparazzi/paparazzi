@@ -27,6 +27,8 @@
 #ifndef GPS_UBX_H
 #define GPS_UBX_H
 
+#include "mcu_periph/uart.h"
+
 /** Includes macros generated from ubx.xml */
 #include "ubx_protocol.h"
 
@@ -40,9 +42,11 @@ struct GpsUbx {
   uint8_t msg_class;
 
   uint8_t status;
+  uint16_t reset;
   uint16_t len;
   uint8_t msg_idx;
   uint8_t ck_a, ck_b;
+  uint8_t send_ck_a, send_ck_b;
   uint8_t error_cnt;
   uint8_t error_last;
 };
@@ -85,5 +89,60 @@ extern struct GpsUbx gps_ubx;
 
 extern void gps_ubx_read_message(void);
 extern void gps_ubx_parse(uint8_t c);
+
+
+
+/*
+ * GPS Reset
+ */
+#define CFG_RST_BBR_Hotstart  0x0000
+#define CFG_RST_BBR_Warmstart 0x0001
+#define CFG_RST_BBR_Coldstart 0xffff
+
+#define CFG_RST_Reset_Hardware 0x00
+#define CFG_RST_Reset_Controlled 0x01
+#define CFG_RST_Reset_Controlled_GPS_only 0x02
+#define CFG_RST_Reset_Controlled_GPS_stop 0x08
+#define CFG_RST_Reset_Controlled_GPS_start 0x09
+
+extern void ubxsend_cfg_rst(uint16_t, uint8_t);
+
+#define gps_ubx_Reset(_val) {                               \
+    gps_ubx.reset = _val;                                       \
+    if (gps_ubx.reset > CFG_RST_BBR_Warmstart)                  \
+      gps_ubx.reset = CFG_RST_BBR_Coldstart;                    \
+    ubxsend_cfg_rst(gps_ubx.reset, CFG_RST_Reset_Controlled);   \
+  }
+
+
+/*
+ * dynamic GPS configuration
+ */
+#ifdef GPS_CONFIGURE
+#define NAV_DYN_STATIONARY  1
+#define NAV_DYN_PEDESTRIAN  2
+#define NAV_DYN_AUTOMOTIVE  3
+#define NAV_DYN_SEA         4
+#define NAV_DYN_AIRBORNE_1G 5
+#define NAV_DYN_AIRBORNE_2G 6
+#define NAV_DYN_AIRBORNE_4G 7
+
+#define NAV5_DYN_PORTABLE    0
+#define NAV5_DYN_FIXED       1
+#define NAV5_DYN_STATIONARY  2
+#define NAV5_DYN_PEDESTRIAN  3
+#define NAV5_DYN_AUTOMOTIVE  4
+#define NAV5_DYN_SEA         5
+#define NAV5_DYN_AIRBORNE_1G 6
+#define NAV5_DYN_AIRBORNE_2G 7
+#define NAV5_DYN_AIRBORNE_4G 8
+
+#define NAV5_2D_ONLY 1
+#define NAV5_3D_ONLY 2
+#define NAV5_AUTO    3
+
+extern void gps_configure(void);
+extern void gps_configure_uart(void);
+#endif
 
 #endif /* GPS_UBX_H */

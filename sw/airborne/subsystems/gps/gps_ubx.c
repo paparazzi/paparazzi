@@ -51,13 +51,48 @@
 #define UTM_HEM_NORTH 0
 #define UTM_HEM_SOUTH 1
 
+
+#define GpsUartSend1(c) GpsLink(Transmit(c))
+#define GpsUartInitParam(_a,_b,_c) GpsLink(InitParam(_a,_b,_c))
+#define GpsUartRunning GpsLink(TxRunning)
+#define GpsUartSendMessage GpsLink(SendMessage)
+
+#define UbxInitCheksum() { gps_ubx.send_ck_a = gps_ubx.send_ck_b = 0; }
+#define UpdateChecksum(c) { gps_ubx.send_ck_a += c; gps_ubx.send_ck_b += gps_ubx.send_ck_a; }
+#define UbxTrailer() { GpsUartSend1(gps_ubx.send_ck_a);  GpsUartSend1(gps_ubx.send_ck_b); GpsUartSendMessage(); }
+
+#define UbxSend1(c) { uint8_t i8=c; GpsUartSend1(i8); UpdateChecksum(i8); }
+#define UbxSend2(c) { uint16_t i16=c; UbxSend1(i16&0xff); UbxSend1(i16 >> 8); }
+#define UbxSend1ByAddr(x) { UbxSend1(*x); }
+#define UbxSend2ByAddr(x) { UbxSend1(*x); UbxSend1(*(x+1)); }
+#define UbxSend4ByAddr(x) { UbxSend1(*x); UbxSend1(*(x+1)); UbxSend1(*(x+2)); UbxSend1(*(x+3)); }
+
+#define UbxHeader(nav_id, msg_id, len) {        \
+    GpsUartSend1(UBX_SYNC1);                    \
+    GpsUartSend1(UBX_SYNC2);                    \
+    UbxInitCheksum();                           \
+    UbxSend1(nav_id);                           \
+    UbxSend1(msg_id);                           \
+    UbxSend2(len);                              \
+  }
+
+
 struct GpsUbx gps_ubx;
+
+#ifdef GPS_CONFIGURE
+bool_t gps_configuring;
+static uint8_t gps_status_config;
+#endif
 
 void gps_impl_init(void) {
    gps_ubx.status = UNINIT;
    gps_ubx.msg_available = FALSE;
    gps_ubx.error_cnt = 0;
    gps_ubx.error_last = GPS_UBX_ERR_NONE;
+#ifdef GPS_CONFIGURE
+   gps_status_config = 0;
+   gps_configuring = TRUE;
+#endif
 }
 
 
@@ -227,4 +262,124 @@ void gps_ubx_parse( uint8_t c ) {
   gps_ubx.status = UNINIT;
   return;
 }
+
+
+
+/*
+ *
+ *
+ * GPS dynamic configuration
+ *
+ *
+ */
+#ifdef GPS_CONFIGURE
+
+#define UBX_PROTO_MASK  0x0001
+#define NMEA_PROTO_MASK 0x0002
+#define RTCM_PROTO_MASK 0x0004
+
+#define GPS_PORT_DDC   0x00
+#define GPS_PORT_UART1 0x01
+#define GPS_PORT_UART2 0x02
+#define GPS_PORT_USB   0x03
+#define GPS_PORT_SPI   0x04
+
+#ifndef GPS_PORT_ID
+#define GPS_PORT_ID GPS_PORT_UART1
+#endif
+
+#if GPS_LINK == UART0
+#define UBX_GPS_BAUD UART0_BAUD
+#elif GPS_LINK == UART1
+#define UBX_GPS_BAUD UART1_BAUD
+#endif
+
+/* Configure the GPS baud rate using the current uart baud rate. Busy
+   wait for the end of the transmit. Then, BEFORE waiting for the ACK,
+   change the uart rate. */
+#if GPS_PORT_ID == GPS_PORT_UART1 || GPS_PORT_ID == GPS_PORT_UART2
+void gps_configure_uart(void) {
+#ifdef FMS_PERIODIC_FREQ
+  UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x000008D0, 38400, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+  uint8_t loop=0;
+  while (GpsUartRunning) {
+    //doesn't work unless some printfs are used, so :
+    if (loop<9) {
+      printf("."); loop++;
+    } else {
+      printf("\b"); loop--;
+    }
+  }
+#else
+  UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x000008D0, UBX_GPS_BAUD, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+  while (GpsUartRunning); /* FIXME */
+#endif
+
+  GpsUartInitParam(UBX_GPS_BAUD,  UART_8N1, UART_FIFO_8);
+}
+#endif
+
+#if GPS_PORT_ID == GPS_PORT_DDC
+void gps_configure_uart(void) {
+  UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, GPS_I2C_SLAVE_ADDR, 0x0, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+}
+#endif
+
+#define IGNORED 0
+#define RESERVED 0
+
+#ifdef USER_GPS_CONFIGURE
+#include USER_GPS_CONFIGURE
+#else
+static bool_t user_gps_configure(bool_t cpt) {
+  switch (cpt) {
+  case 0:
+    //New ublox firmware v5 or higher uses CFG_NAV5 message, CFG_NAV is no longer available
+    //UbxSend_CFG_NAV(NAV_DYN_AIRBORNE_2G, 3, 16, 24, 20, 5, 0, 0x3C, 0x3C, 0x14, 0x03E8 ,0x0000, 0x0, 0x17, 0x00FA, 0x00FA, 0x0064, 0x012C, 0x000F, 0x00, 0x00);
+    UbxSend_CFG_NAV5(0x05, NAV5_DYN_AIRBORNE_2G, NAV5_3D_ONLY, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, RESERVED, RESERVED, RESERVED, RESERVED);
+    break;
+  case 1:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_POSUTM_ID, 0, 1, 0, 0);
+    break;
+  case 2:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);
+    break;
+  case 3:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_STATUS_ID, 0, 1, 0, 0);
+    break;
+  case 4:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 0, 4, 0, 0);
+    break;
+  case 5:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SOL_ID, 0, 8, 0, 0);
+    break;
+  case 6:
+    UbxSend_CFG_SBAS(0x00, 0x00, 0x00, 0x00, 0x00);
+    break;
+  case 7:
+    UbxSend_CFG_RATE(0x00FA, 0x0001, 0x0000);
+    return FALSE;
+  }
+  return TRUE; /* Continue, except for the last case */
+}
+#endif // ! USER_GPS_CONFIGURE
+
+/* GPS configuration. Must be called on ack message reception while
+   gps_status_config < GPS_CONFIG_DONE */
+void gps_configure( void ) {
+  if (gps_ubx.msg_class == UBX_ACK_ID) {
+    if (gps_ubx.msg_id == UBX_ACK_ACK_ID) {
+      gps_status_config++;
+    }
+  }
+  gps_configuring = user_gps_configure(gps_status_config);
+}
+#endif /* GPS_CONFIGURE */
+
+void ubxsend_cfg_rst(uint16_t bbr , uint8_t reset_mode) {
+#ifdef GPS_LINK
+  UbxSend_CFG_RST(bbr, reset_mode, 0x00);
+#endif /* else less harmful for HITL */
+}
+
 

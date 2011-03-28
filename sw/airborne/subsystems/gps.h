@@ -30,7 +30,6 @@
 
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
-#include "mcu_periph/uart.h"
 
 
 /* GPS model specific implementation or sim */
@@ -97,8 +96,6 @@ extern void gps_init(void);
 
 /* GPS model specific init implementation */
 extern void gps_impl_init(void);
-
-extern void gps_configure(void);
 
 
 

@@ -22,6 +22,7 @@
 #ifndef GPS_SKYTRAQ_H
 #define GPS_SKYTRAQ_H
 
+#include "mcu_periph/uart.h"
 
 #define SKYTRAQ_SYNC1 0xA0
 #define SKYTRAQ_SYNC2 0xA1
