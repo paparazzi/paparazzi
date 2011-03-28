@@ -131,6 +131,29 @@ tunnel_bb.CFLAGS += -DUSE_LED
 tunnel_bb.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 
 
+#
+# usb tunnels
+#
+usb_tunnel_0.ARCHDIR = $(ARCH)
+usb_tunnel_0.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+usb_tunnel_0.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400 -DPERIPHERALS_AUTO_INIT
+usb_tunnel_0.CFLAGS += -DUSE_USB_LINE_CODING -DUSE_USB_SERIAL -DUSE_LED
+usb_tunnel_0.srcs += $(SRC_ARCH)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/mcu_periph/uart_arch.c
+usb_tunnel_0.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
+usb_tunnel_0.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
+usb_tunnel_0.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+usb_tunnel_0.srcs += mcu.c $(SRC_ARCH)/mcu_arch.c
+
+usb_tunnel_1.ARCHDIR = $(ARCH)
+usb_tunnel_1.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+usb_tunnel_1.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400 -DPERIPHERALS_AUTO_INIT
+usb_tunnel_1.CFLAGS += -DUSE_USB_LINE_CODING -DUSE_USB_SERIAL -DUSE_LED
+usb_tunnel_1.srcs += $(SRC_ARCH)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/mcu_periph/uart_arch.c
+usb_tunnel_1.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
+usb_tunnel_1.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
+usb_tunnel_1.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+usb_tunnel_1.srcs += mcu.c $(SRC_ARCH)/mcu_arch.c
+
 
 #
 # test GPS
