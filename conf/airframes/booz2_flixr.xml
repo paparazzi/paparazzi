@@ -26,6 +26,8 @@
     <target name="test_baro"      board="booz_1.0"/>
     <target name="test_spektrum"  board="booz_1.0"/>
     <target name="tunnel"         board="booz_1.0"/>
+    <target name="usb_tunnel_0"   board="booz_1.0"/>
+    <target name="usb_tunnel_1"   board="booz_1.0"/>
   </firmware>
 
   <modules main_freq="512">
