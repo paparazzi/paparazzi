@@ -108,11 +108,11 @@ static inline void on_imu_event(void) {
                 &imu_accel_unscaled.z);
   }
   else if (cnt == 7) {
-    DOWNLINK_SEND_BOOZ2_GYRO(&imu_gyro.x,
+    DOWNLINK_SEND_IMU_GYRO_SCALED(&imu_gyro.x,
                  &imu_gyro.y,
                  &imu_gyro.z);
 
-    DOWNLINK_SEND_BOOZ2_ACCEL(&imu_accel.x,
+    DOWNLINK_SEND_IMU_ACCEL_SCALED(&imu_accel.x,
                   &imu_accel.y,
                   &imu_accel.z);
   }

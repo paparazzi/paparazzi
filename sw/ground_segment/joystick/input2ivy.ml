@@ -247,7 +247,8 @@ let eval_expr = fun buttons axis inputs expr ->
     | Syntax.Call (ident, exprs) | Syntax.CallOperator (ident, exprs) ->
     eval_call ident (List.map eval exprs)
     | Syntax.Index _ -> failwith "eval_expr: index"
-    | Syntax.Field _ -> failwith "eval_expr: Field" in
+    | Syntax.Field _ -> failwith "eval_expr: Field"
+    | Syntax.Deref _ -> failwith "eval_expr: deref" in
 
   eval expr
 

@@ -136,20 +136,20 @@ static inline void main_report(void) {
 						   &imu.mag_unscaled.z); 
 		       },
 		       {
-			 DOWNLINK_SEND_BOOZ2_ACCEL(DefaultChannel,
+			 DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel,
 						   &imu.accel.x,
 						   &imu.accel.y,
 						   &imu.accel.z);	 
 		       },
 		       {
-			 DOWNLINK_SEND_BOOZ2_GYRO(DefaultChannel,
+			 DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel,
 						  &imu.gyro.p,
 						  &imu.gyro.q,
 						  &imu.gyro.r);
 		       },
 
 		       {
-			 DOWNLINK_SEND_BOOZ2_MAG(DefaultChannel,
+			 DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel,
 						 &imu.mag.x,
 						 &imu.mag.y,
 						 &imu.mag.z);

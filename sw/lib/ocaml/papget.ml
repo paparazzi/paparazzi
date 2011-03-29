@@ -92,6 +92,7 @@ let hash_vars = fun expr ->
     | E.Int _ | E.Float _ -> ()
     | E.Call (_id, list) | E.CallOperator (_id, list) -> List.iter loop list
     | E.Index (_id, e) -> loop e
+    | E.Deref (_e, _f) as deref -> fprintf stderr "Warning: Deref operator is not allowed in Papgets expressions (%s)" (E.sprint deref)
     | E.Field (i, f) ->
 	if not (Hashtbl.mem htable (i,f)) then
 	  let msg_obj = new message_field i f in
@@ -121,6 +122,7 @@ let eval_expr = fun (extra_functions:(string * (string list -> string)) list) h 
     | E.Call (ident, _l) | E.CallOperator (ident, _l) ->
 	failwith (sprintf "Papget.eval_expr '%s(...)'" ident)
     | E.Index (ident, _e) -> failwith (sprintf "Papget.eval_expr '%s[...]'" ident)
+    | E.Deref (_e, _f) as deref -> failwith (sprintf "Papget.eval_expr Deref operator is not allowed in Papgets expressions (%s)" (E.sprint deref))
     | E.Field (i, f) ->
 	try
 	  (Hashtbl.find h (i,f))#last_value

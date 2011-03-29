@@ -34,6 +34,7 @@ type expression =
   | CallOperator of ident * expression list
   | Index of ident * expression
   | Field of ident * ident
+  | Deref of expression * ident
 
 val c_var_of_ident : ident -> string
 (** Encapsulate a user ident into a C variable *)
