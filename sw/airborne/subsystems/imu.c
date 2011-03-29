@@ -64,7 +64,7 @@ void imu_float_init(struct ImuFloat* imuf) {
   EULERS_ASSIGN(imuf->body_to_imu_eulers,
 		IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI);
   FLOAT_QUAT_OF_EULERS(imuf->body_to_imu_quat, imuf->body_to_imu_eulers);
-  FLOAT_QUAT_NORMALISE(imuf->body_to_imu_quat);
+  FLOAT_QUAT_NORMALIZE(imuf->body_to_imu_quat);
   FLOAT_RMAT_OF_EULERS(imuf->body_to_imu_rmat, imuf->body_to_imu_eulers);
 #else
   EULERS_ASSIGN(imuf->body_to_imu_eulers, 0., 0., 0.);

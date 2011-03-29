@@ -106,7 +106,7 @@ int spi_ap_link_init()
   FLOAT_QUAT_OF_AXIS_ANGLE(imuFloat.body_to_imu_quat, x_axis, QUAT_SETPOINT_HOVER_PITCH);
 #endif
 
-  FLOAT_QUAT_NORMALISE(imuFloat.body_to_imu_quat);
+  FLOAT_QUAT_NORMALIZE(imuFloat.body_to_imu_quat);
 	FLOAT_EULERS_OF_QUAT(imuFloat.body_to_imu_eulers, imuFloat.body_to_imu_quat);
   FLOAT_RMAT_OF_QUAT(imuFloat.body_to_imu_rmat, imuFloat.body_to_imu_quat);
 

@@ -834,19 +834,19 @@
     <field name="est_r_d"       type="float" alt_unit="degres/s^2" alt_unit_coef="57.29578"/>
   </message>
 
-  <message name="BOOZ2_GYRO" id="131">
+  <message name="IMU_GYRO_SCALED" id="131">
     <field name="gp"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
     <field name="gq"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
     <field name="gr"    type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
   </message>
 
-  <message name="BOOZ2_ACCEL" id="132">
+  <message name="IMU_ACCEL_SCALED" id="132">
     <field name="ax"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
     <field name="ay"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
     <field name="az"    type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
   </message>
 
-  <message name="BOOZ2_MAG" id="133">
+  <message name="IMU_MAG_SCALED" id="133">
     <field name="mx"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
     <field name="my"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
     <field name="mz"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>

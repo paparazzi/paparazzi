@@ -74,6 +74,8 @@ sim.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 #sim.CFLAGS += -DUSE_LED
 sim.srcs += sys_time.c
 
+sim.srcs += subsystems/settings.c
+sim.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 
 sim.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
 sim.srcs += $(SRC_FIRMWARE)/telemetry.c \

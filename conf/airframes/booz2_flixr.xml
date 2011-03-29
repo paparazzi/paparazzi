@@ -4,28 +4,21 @@
     <target name="ap" board="booz_1.0">
       <!--<define name="KILL_MOTORS"/>-->       <!-- prevent motors from ever starting -->
       <!--<define name="RADIO_KILL_SWITCH" value="RADIO_CONTROL_SWITCH1"/>-->
-      <define name="USE_GPS_ACC4R"/>
-      <define name="USE_INS_NAV_INIT"/>
+
     </target>
 
     <target name="sim" board="pc">
       <subsystem name="fdm"   type="nps"/>
     </target>
 
-    <define name="USE_ADAPT_HOVER"/>
-    <define name="GUIDANCE_H_USE_REF"/>
+    <define name="NO_FUCKING_STARTUP_DELAY"/>
 
+    <subsystem name="telemetry"     type="transparent_usb"/>
     <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="actuators"     type="mkk">
-      <configure name="MKK_I2C_SCL_TIME" value="150"/><!-- this is optional, 150 is default, e.g. use 50 for 8 motors-->
-    </subsystem>
-    <subsystem name="imu"           type="b2_v1.0"/>
     <subsystem name="gps"           type="ublox"/>
+    <subsystem name="actuators"     type="mkk"/>
+    <subsystem name="imu"           type="b2_v1.0"/>
     <subsystem name="ahrs"          type="cmpl"/>
-    <subsystem name="ins"           type="hff">
-      <define name="GPS_LAG=0.2"/>
-    </subsystem>
   </firmware>
 
   <firmware name="booz2_test_progs">
@@ -33,6 +26,8 @@
     <target name="test_baro"      board="booz_1.0"/>
     <target name="test_spektrum"  board="booz_1.0"/>
     <target name="tunnel"         board="booz_1.0"/>
+    <target name="usb_tunnel_0"   board="booz_1.0"/>
+    <target name="usb_tunnel_1"   board="booz_1.0"/>
   </firmware>
 
   <modules main_freq="512">
@@ -213,8 +208,7 @@
     <define name="MILLIAMP_PER_PERCENT" value="0.86" />
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V" />
     <define name="MAX_BAT_LEVEL" value="12.0" unit="V" />
-    <define name="BATTERY_SENS" value="0.246" integer="16" />
-    <define name="BATTERY_OFFSET" value="0" />
+    <define name="VoltageOfAdc(adc)" value="(0.0246*adc)"/>
   </section>
 
   <section name="MISC">

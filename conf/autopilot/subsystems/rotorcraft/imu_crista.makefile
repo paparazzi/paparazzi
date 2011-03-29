@@ -70,7 +70,7 @@ imu_srcs   += peripherals/ami601.c
 imu_CFLAGS += -DUSE_I2C1
 
 ifeq ($(ARCH), lpc21)
-imu_CFLAGS += -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11 -DI2C1_BUF_LEN=16
+imu_CFLAGS += -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=12 -DI2C1_BUF_LEN=16
 else ifeq ($(ARCH), stm32)
 #FIXME
 endif
