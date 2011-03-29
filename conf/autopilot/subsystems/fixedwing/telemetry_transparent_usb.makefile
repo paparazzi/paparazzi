@@ -8,6 +8,8 @@ ap.srcs += $(SRC_FIXEDWING)/downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_FIXEDWIN
 ap.srcs += $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
 ap.srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 else
+ifneq ($(ARCH), sim)
 $(error telemetry_transparent_usb currently only implemented for the lpc21)
+endif
 endif
 

@@ -13,7 +13,7 @@
 
     <define name="NO_FUCKING_STARTUP_DELAY"/>
 
-    <subsystem name="telemetry"     type="transparent"/>
+    <subsystem name="telemetry"     type="transparent_usb"/>
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="actuators"     type="mkk"/>
