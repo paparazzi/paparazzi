@@ -59,7 +59,8 @@ let subst_expression = fun env e ->
     | Int _ | Float _ | Field _ -> e
     | Call (i, es) -> Call (i, List.map sub es)
     | CallOperator (i, es) -> CallOperator (i, List.map sub es)
-    | Index (i,e) -> Index (i,sub e) in
+    | Index (i,e) -> Index (i,sub e)
+    | Deref (e,f) -> Deref (sub e, f) in
   sub e
 
 
