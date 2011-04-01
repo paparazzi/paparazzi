@@ -6,7 +6,7 @@ bool_t settings_store_now;
 
 
 void settings_init(void) {
-#ifdef USE_PERMANENT_SETTINGS
+#ifdef USE_PERSISTENT_SETTINGS
   if (persistent_read((uint32_t)&pers_settings, sizeof(struct PersistentSettings))) 
     return; // return -1 ?
   persitent_settings_load();

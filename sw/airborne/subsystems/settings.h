@@ -8,12 +8,7 @@ extern void settings_store(void);
 
 extern bool_t settings_store_now;
 
-#define settings_StoreSettings(_v) { \
-    if (_v) {			     \
-      settings_store();		     \
-      settings_store_now = FALSE;    \
-    }				     \
-  }
+#define settings_StoreSettings(_v) { settings_store_now = _v; settings_store(); }
 
 #include "generated/settings.h"
 
