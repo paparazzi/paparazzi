@@ -38,6 +38,7 @@
 #ifdef USE_GPS_XSENS
 #include "subsystems/gps.h"
 #include "math/pprz_geodetic_float.h"
+#include "subsystems/navigation/common_nav.h" /* needed for nav_utm_zone0 */
 #endif
 
 INS_FORMAT ins_x;
