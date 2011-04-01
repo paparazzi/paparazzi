@@ -118,7 +118,7 @@ bool_t SpiralNav(void)
 		//dc_Circle(360/Segmente);
 	  }
 	  break;
-	case Circle:
+	case Circle: {
 	  nav_circle_XY(waypoints[Center].x, waypoints[Center].y, SRad);
 	  // Trigonometrische Berechnung des bereits geflogenen Winkels alpha
 	  // equation:
@@ -135,6 +135,7 @@ bool_t SpiralNav(void)
 		CSpiralStatus = IncSpiral;
 	  }
 	  break;
+    }
 	case IncSpiral:
 	  // increasing circle radius as long as it is smaller than max helix radius
 	  if(SRad + IRad < Spiralradius)
