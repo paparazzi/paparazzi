@@ -1,0 +1,48 @@
+# attitude via IR sensors
+
+#
+# CHIMU using UART
+#
+
+ap.CFLAGS += -DUSE_$(CHIMU_PORT)
+ap.CFLAGS += -D$(CHIMU_PORT)_BAUD=B115200
+
+#
+# CHIMU Status LED
+#
+
+ifneq ($(GPS_LED),none)
+  ap.CFLAGS += -DGPS_LED=$(GPS_LED)
+endif
+
+ap.srcs   += $(SRC_SUBSYSTEMS)/imu/imu_chimu.c
+
+
+
+#
+# LPC only has one ADC
+#
+ifeq ($(ARCH), lpc21)
+ap.CFLAGS += -DADC_CHANNEL_IR1=$(ADC_IR1) -DUSE_$(ADC_IR1)
+ap.CFLAGS += -DADC_CHANNEL_IR2=$(ADC_IR2) -DUSE_$(ADC_IR2)
+ap.CFLAGS += -DADC_CHANNEL_IR_TOP=$(ADC_IR_TOP) -DUSE_$(ADC_IR_TOP)
+endif
+
+#
+# On STM32 let's hardwire infrared sensors to AD1 for now
+#
+ifeq ($(ARCH), stm32)
+ap.CFLAGS += -DUSE_AD1
+ap.CFLAGS += -DADC_CHANNEL_IR1=$(ADC_IR1_CHAN) -DUSE_AD1_$(ADC_IR1)
+ap.CFLAGS += -DADC_CHANNEL_IR2=$(ADC_IR2_CHAN) -DUSE_AD1_$(ADC_IR2)
+ap.CFLAGS += -DADC_CHANNEL_IR_TOP=$(ADC_IR_TOP_CHAN) -DUSE_AD1_$(ADC_IR_TOP)
+endif
+
+ap.CFLAGS += -DADC_CHANNEL_IR_NB_SAMPLES=$(ADC_IR_NB_SAMPLES)
+
+$(TARGET).CFLAGS += -DUSE_INFRARED
+$(TARGET).srcs += subsystems/sensors/infrared.c
+$(TARGET).srcs += subsystems/sensors/infrared_adc.c
+
+sim.srcs += $(SRC_ARCH)/sim_ir.c
+jsbsim.srcs += $(SRC_ARCH)/jsbsim_ir.c
