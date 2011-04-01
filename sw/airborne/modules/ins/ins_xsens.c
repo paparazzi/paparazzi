@@ -210,7 +210,7 @@ void handle_ins_msg( void) {
   gps.ned_vel.z = (int16_t)(ins_vz * 100);
   gps.gspeed = (uint16_t)(sqrt(ins_vx*ins_vx + ins_vy*ins_vy) * 100);
 
-  EstimatorSetAtt(ins_phi, ((float)gps.course) / 1e7, ins_theta);
+  EstimatorSetAtt(ins_phi, ((float)gps.course / 1e7), ins_theta);
   // EstimatorSetAlt(ins_z);
   estimator_update_state_gps();
   reset_gps_watchdog();
