@@ -27,6 +27,9 @@
 struct AhrsFloatCmplRmat {
   struct FloatRates gyro_bias;
   struct FloatRates rate_correction;
+  /* for gravity correction during coordinated turns */
+  struct FloatVect3 est_ltp_speed;
+
   /*
      Holds float version of IMU alignement
      in order to be able to run against the fixed point

@@ -37,6 +37,7 @@ type expression =
   | CallOperator of ident * (expression list)
   | Index of ident * expression
   | Field of ident * ident
+  | Deref of expression * ident
 
 let c_var_of_ident = fun x -> "_var_" ^ x
 
@@ -55,6 +56,7 @@ let rec sprint = function
       sprintf "%s(%s)" i (String.concat "," ses)
   | Index (i,e) -> sprintf "%s[%s]" i (sprint e)
   | Field (i,f) -> sprintf "%s.%s" i f
+  | Deref (e,f) -> sprintf "(%s)->%s" (sprint e) f
 
 (* Valid functions : FIXME *)
 let functions = [
@@ -113,3 +115,5 @@ let rec check_expression = fun e ->
   | Field (i, _field) ->
       if not (List.mem i variables) then
 	unexpected "ident" i
+  | Deref (e, _field) ->
+      check_expression e

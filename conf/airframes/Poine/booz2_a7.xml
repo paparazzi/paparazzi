@@ -61,14 +61,6 @@
     <define name="MAG_Y_SENS" value="4.884119848" integer="16"/>
     <define name="MAG_Z_SENS" value="2.59926404993" integer="16"/>
 
-<!-- old calibration
-    <define name="MAG_X_NEUTRAL" value="30"/>
-    <define name="MAG_Y_NEUTRAL" value="80"/>
-    <define name="MAG_Z_NEUTRAL" value="19"/>
-    <define name="MAG_X_SENS" value="4.73590916868" integer="16"/>
-    <define name="MAG_Y_SENS" value="4.86013203775" integer="16"/>
-    <define name="MAG_Z_SENS" value="2.5947951512" integer="16"/>
--->
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_PSI"   value="RadOfDeg( 135.)"/>
@@ -77,7 +69,7 @@
 
  <section name="AUTOPILOT">
    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_RC_CLIMB"/>
+   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
    <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
  </section>
 
@@ -124,7 +116,7 @@
     <define name="REF_MAX_R"    value="RadOfDeg(180.)"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
-    <!-- feedback -->
+   <!--  gaui props
     <define name="PHI_PGAIN"  value="-900"/>
     <define name="PHI_DGAIN"  value="-200"/>
     <define name="PHI_IGAIN"  value="-200"/>
@@ -137,16 +129,42 @@
     <define name="PSI_DGAIN"  value="-200"/>
     <define name="PSI_IGAIN"  value="-10"/>
 
-    <!-- feedforward -->
     <define name="PHI_DDGAIN"   value=" 200"/>
     <define name="THETA_DDGAIN" value=" 200"/>
     <define name="PSI_DDGAIN"   value=" 200"/>
+  -->
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN"  value="-2000"/>
+    <define name="PHI_DGAIN"  value="-400"/>
+    <define name="PHI_IGAIN"  value="-200"/>
+
+    <define name="THETA_PGAIN"  value="-2000"/>
+    <define name="THETA_DGAIN"  value="-400"/>
+    <define name="THETA_IGAIN"  value="-200"/>
+
+    <define name="PSI_PGAIN"  value="-2000"/>
+    <define name="PSI_DGAIN"  value="-400"/>
+    <define name="PSI_IGAIN"  value="-10"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN"   value=" 300"/>
+    <define name="THETA_DDGAIN" value=" 300"/>
+    <define name="PSI_DDGAIN"   value=" 300"/>
 
   </section>
 
+  <section name="AHRS" prefix="AHRS_">
+    <define name="PROPAGATE_FREQUENCY" value="512"/>
+    <define name="H_X" value=" 0.51562740288882"/>
+    <define name="H_Y" value="-0.05707735220832"/>
+    <define name="H_Z" value=" 0.85490967783446"/>
+  </section>
+
+
   <section name="INS" prefix="INS_">
-<!--    <define name="BARO_SENS" value="15." integer="16"/> -->
     <define name="BARO_SENS" value="10." integer="16"/>
+    <define name="UNTILT_ACCEL" value="1"/>
   </section>
 
  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -155,21 +173,29 @@
    <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="MAX_SUM_ERR" value="2000000"/>
+
+<!--
    <define name="HOVER_KP"    value="-500"/>
    <define name="HOVER_KD"    value="-200"/>
-   <define name="HOVER_KI"    value="-100"/>
+   <define name="HOVER_KI"    value="0"/>
+-->
+   <define name="HOVER_KP"     value="-150"/>
+   <define name="HOVER_KD"     value="-80"/>
+   <define name="HOVER_KI"     value="0"/>
+
    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
    <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
-   <define name="INV_M" value ="0.2"/>
+    <!-- <define name="INV_M" value ="0.2"/> -->
   </section>
 
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="PGAIN" value="-100"/>
+   <define name="PGAIN" value="-50"/>
    <define name="DGAIN" value="-100"/>
-   <define name="IGAIN" value="-0"/>
+   <define name="IGAIN" value="-15"/>
+   <define name="NGAIN" value="-0"/>
  </section>
 
  <section name="MISC">
@@ -182,15 +208,19 @@
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
  </section>
 
-<!-- -->
+<!-- 
  <modules main_freq="512">
    <load name="vehicle_interface_overo_link.xml"/>
  </modules>
-<!-- -->
+-->
 
   <firmware name="rotorcraft">
-    <target name="ap" board="lisa_l_1.0">
-<!--      <define name="BOOZ_START_DELAY" value="1"/> -->
+<!--     <define name="USE_PERSISTENT_SETTINGS"/> -->
+<!--     <define name="USE_INS_NAV_INIT"/> -->
+     <define name="USE_ADAPT_HOVER"/>
+     <define name="FAILSAFE_GROUND_DETECT"/>
+     <define name="USE_GPS_ACC4R"/>
+     <target name="ap" board="lisa_l_1.0">
       <subsystem name="radio_control" type="spektrum"/>
       <subsystem name="actuators"     type="asctec"/>
     </target>
@@ -201,29 +231,35 @@
     </target>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="imu"           type="b2_v1.1"/>
-    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="gps"           type="ublox">
+      <configure name="GPS_BAUD"    value="B57600"/>
+    </subsystem>
     <subsystem name="ahrs"          type="cmpl"/>
+ <!--     <subsystem name="ahrs"          type="ic"/>  -->
+    <subsystem name="ins"           type="hff"/>
   </firmware>
 
   <firmware name="lisa_l_test_progs">
-    <target name="test_led"   board="lisa_l_1.0"/>
-    <target name="test_uart"   board="lisa_l_1.0"/>
-    <target name="test_servos"   board="lisa_l_1.0"/>
-    <target name="test_telemetry"   board="lisa_l_1.0"/>
-    <target name="test_baro"        board="lisa_l_1.0"/>
-    <target name="test_imu_b2"      board="lisa_l_1.0"/>
-    <target name="test_imu_b2_2"    board="lisa_l_1.0"/>
-    <target name="test_imu_aspirin" board="lisa_l_1.0"/>
-    <target name="test_rc_spektrum" board="lisa_l_1.0"/>
-    <target name="test_rc_ppm"      board="lisa_l_1.0"/>
-    <target name="test_adc"         board="lisa_l_1.0"/>
-    <target name="test_hmc5843"     board="lisa_l_1.0"/>
-    <target name="test_itg3200"     board="lisa_l_1.0"/>
+    <target name="test_led"                 board="lisa_l_1.0"/>
+    <target name="test_uart"                board="lisa_l_1.0"/>
+    <target name="test_servos"              board="lisa_l_1.0"/>
+    <target name="test_telemetry"           board="lisa_l_1.0"/>
+    <target name="test_baro"                board="lisa_l_1.0"/>
+    <target name="test_imu_b2"              board="lisa_l_1.0"/>
+    <target name="test_imu_b2_2"            board="lisa_l_1.0"/>
+    <target name="test_imu_aspirin"         board="lisa_l_1.0"/>
+    <target name="test_rc_spektrum"         board="lisa_l_1.0"/>
+    <target name="test_rc_ppm"              board="lisa_l_1.0"/>
+    <target name="test_adc"                 board="lisa_l_1.0"/>
+    <target name="test_hmc5843"             board="lisa_l_1.0"/>
+    <target name="test_itg3200"             board="lisa_l_1.0"/>
     <target name="test_adxl345"             board="lisa_l_1.0"/>
     <target name="test_esc_mkk_simple"      board="lisa_l_1.0"/>
     <target name="test_esc_asctecv1_simple" board="lisa_l_1.0"/>
     <target name="test_actuators_mkk"       board="lisa_l_1.0"/>
     <target name="test_actuators_asctecv1"  board="lisa_l_1.0"/>
+    <target name="tunnel_sw"                board="lisa_l_1.0"/>
+    <target name="tunnel_hw"                board="lisa_l_1.0"/>
   </firmware>
 
   <firmware name="lisa_passthrough">

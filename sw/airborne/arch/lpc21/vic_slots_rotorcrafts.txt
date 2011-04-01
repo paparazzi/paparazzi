@@ -1,0 +1,18 @@
+VIC slots used for rotorcrafts with the LPC2148
+
+define name           slot (default)    used for
+------------------------------------------------------------------
+TIMER0_VIC_SLOT            1 (1)      system timer
+AD0_VIC_SLOT               2 (2)      was for adc battery (not needed anymore?)
+
+AD1_VIC_SLOT               4 (4)      was for adc baro (not needed anymore?)
+UART0_VIC_SLOT             5 (5)      uart_arch, e.g. gps
+UART1_VIC_SLOT             6 (6)      uart_arch, e.g. modem
+hardcoded, no define       7          SPI1 in mcu_periph/spi_arch.c, imu_crista_arch
+MAX1168_EOC_VIC_SLOT       8          imu_b2_v1.0, imu_b2_v1.1, imu_b2_v1.2
+SSP_VIC_SLOT               9          imu_b2_v1.0, imu_b2_v1.1, imu_b2_v1.2
+hardcoded, no define      10          usb, e.g. telemetry_transparent_usb
+I2C0_VIC_SLOT             11 (9)      actuators_acstec, actuators_acstec_v2, actuators_mkk, (9 is default in mcu_periph/i2c_arch.c)
+I2C1_VIC_SLOT             12          ami601 in imu_b2_v1.0, imu_crista
+MS2100_DRDY_VIC_SLOT      12          ms2100 mag in imu_b2_v1.1
+

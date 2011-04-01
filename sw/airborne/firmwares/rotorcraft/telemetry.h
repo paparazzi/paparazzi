@@ -45,7 +45,7 @@
 
 #define PERIODIC_SEND_ALIVE(_chan) DOWNLINK_SEND_ALIVE(_chan, 16, MD5SUM)
 
-#include "firmwares/rotorcraft/battery.h"
+#include "subsystems/electrical.h"
 #include "subsystems/imu.h"
 #include "booz_gps.h"
 #include "subsystems/ins.h"
@@ -56,43 +56,43 @@
 extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef USE_GPS
-#define PERIODIC_SEND_ROTORCRAFT_STATUS(_chan) {				\
-    uint32_t imu_nb_err = 0;					\
+#define PERIODIC_SEND_ROTORCRAFT_STATUS(_chan) {			\
+    uint32_t imu_nb_err = 0;						\
     uint8_t _twi_blmc_nb_err = 0;					\
-    DOWNLINK_SEND_ROTORCRAFT_STATUS(_chan,					\
-			      &imu_nb_err,				\
-			      &_twi_blmc_nb_err,			\
-			      &radio_control.status,			\
-			      &radio_control.frame_rate,			\
-			      &booz_gps_state.fix,			\
-			      &autopilot_mode,			\
-			      &autopilot_in_flight,		\
-			      &autopilot_motors_on,		\
-			      &guidance_h_mode,			\
-			      &guidance_v_mode,			\
-			      &battery_voltage,			\
-			      &cpu_time_sec				\
-			      );					\
+    DOWNLINK_SEND_ROTORCRAFT_STATUS(_chan,				\
+				    &imu_nb_err,			\
+				    &_twi_blmc_nb_err,			\
+				    &radio_control.status,		\
+				    &radio_control.frame_rate,		\
+				    &booz_gps_state.fix,		\
+				    &autopilot_mode,			\
+				    &autopilot_in_flight,		\
+				    &autopilot_motors_on,		\
+				    &guidance_h_mode,			\
+				    &guidance_v_mode,			\
+				    &electrical.vsupply,		\
+				    &cpu_time_sec			\
+				    );					\
   }
 #else /* !USE_GPS */
-#define PERIODIC_SEND_ROTORCRAFT_STATUS(_chan) {				\
-    uint32_t imu_nb_err = 0;					\
+#define PERIODIC_SEND_ROTORCRAFT_STATUS(_chan) {			\
+    uint32_t imu_nb_err = 0;						\
     uint8_t twi_blmc_nb_err = 0;					\
     uint8_t  fix = BOOZ2_GPS_FIX_NONE;					\
-    DOWNLINK_SEND_ROTORCRAFT_STATUS(_chan,					\
-			      &imu_nb_err,				\
-			      &twi_blmc_nb_err,				\
-			      &radio_control.status,			\
-			      &radio_control.frame_rate,			\
-			      &fix,					\
-			      &autopilot_mode,			\
-			      &autopilot_in_flight,		\
-			      &autopilot_motors_on,		\
-			      &guidance_h_mode,			\
-			      &guidance_v_mode,			\
-			      &battery_voltage,			\
-			      &cpu_time_sec				\
-			      );					\
+    DOWNLINK_SEND_ROTORCRAFT_STATUS(_chan,				\
+				    &imu_nb_err,			\
+				    &twi_blmc_nb_err,			\
+				    &radio_control.status,		\
+				    &radio_control.frame_rate,		\
+				    &fix,				\
+				    &autopilot_mode,			\
+				    &autopilot_in_flight,		\
+				    &autopilot_motors_on,		\
+				    &guidance_h_mode,			\
+				    &guidance_v_mode,			\
+				    &electrical.vsupply,		\
+				    &cpu_time_sec			\
+				    );					\
   }
 #endif /* USE_GPS */
 
@@ -130,22 +130,22 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_PPM(_chan) {}
 #endif
 
-#define PERIODIC_SEND_BOOZ2_GYRO(_chan) {		\
-    DOWNLINK_SEND_BOOZ2_GYRO(_chan,			\
+#define PERIODIC_SEND_IMU_GYRO_SCALED(_chan) {		\
+    DOWNLINK_SEND_IMU_GYRO_SCALED(_chan,			\
 			     &imu.gyro.p,		\
 			     &imu.gyro.q,		\
 			     &imu.gyro.r);		\
   }
 
-#define PERIODIC_SEND_BOOZ2_ACCEL(_chan) {			\
-    DOWNLINK_SEND_BOOZ2_ACCEL(_chan,				\
+#define PERIODIC_SEND_IMU_ACCEL_SCALED(_chan) {			\
+    DOWNLINK_SEND_IMU_ACCEL_SCALED(_chan,				\
 			      &imu.accel.x,		\
 			      &imu.accel.y,		\
 			      &imu.accel.z);		\
   }
 
-#define PERIODIC_SEND_BOOZ2_MAG(_chan) {			\
-    DOWNLINK_SEND_BOOZ2_MAG(_chan,				\
+#define PERIODIC_SEND_IMU_MAG_SCALED(_chan) {			\
+    DOWNLINK_SEND_IMU_MAG_SCALED(_chan,				\
 			    &imu.mag.x,			\
 			    &imu.mag.y,			\
 			    &imu.mag.z);			\

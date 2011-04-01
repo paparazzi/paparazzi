@@ -43,7 +43,7 @@ void imu_init(void) {
       ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_THETA),
       ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_PSI) };
   INT32_QUAT_OF_EULERS(imu.body_to_imu_quat, body_to_imu_eulers);
-  INT32_QUAT_NORMALISE(imu.body_to_imu_quat);
+  INT32_QUAT_NORMALIZE(imu.body_to_imu_quat);
   INT32_RMAT_OF_EULERS(imu.body_to_imu_rmat, body_to_imu_eulers);
 #else
   INT32_QUAT_ZERO(imu.body_to_imu_quat);
@@ -64,7 +64,7 @@ void imu_float_init(struct ImuFloat* imuf) {
   EULERS_ASSIGN(imuf->body_to_imu_eulers,
 		IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI);
   FLOAT_QUAT_OF_EULERS(imuf->body_to_imu_quat, imuf->body_to_imu_eulers);
-  FLOAT_QUAT_NORMALISE(imuf->body_to_imu_quat);
+  FLOAT_QUAT_NORMALIZE(imuf->body_to_imu_quat);
   FLOAT_RMAT_OF_EULERS(imuf->body_to_imu_rmat, imuf->body_to_imu_eulers);
 #else
   EULERS_ASSIGN(imuf->body_to_imu_eulers, 0., 0., 0.);

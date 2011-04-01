@@ -29,7 +29,7 @@ open Expr_syntax
 %token <float> FLOAT
 %token <string> IDENT
 %token EOF
-%token DOT COMMA SEMICOLON LP RP LC RC LB RB AND COLON OR
+%token DOT COMMA SEMICOLON LP RP LC RC LB RB DEREF AND COLON OR
 %token EQ GT ASSIGN GEQ NOT
 %token PLUS MINUS
 %token MULT DIV MOD
@@ -39,7 +39,8 @@ open Expr_syntax
 %left PLUS MINUS
 %left MULT DIV MOD
 %nonassoc NOT
-%nonassoc UMINUS	/* highest precedence */
+%nonassoc UMINUS
+%left DEREF /* highest precedence */
 
 %start expression	/* the entry point */
 %type <Expr_syntax.expression> expression
@@ -63,6 +64,7 @@ expression:
   | FLOAT { Float $1 }
   | IDENT { Ident $1 }
   | IDENT DOT IDENT { Field ($1,$3) }
+  | expression DEREF IDENT { Deref($1, $3) } 
   | IDENT LP Args RP { Call ($1, $3) }
   | LP expression RP { $2 }
   | IDENT LB expression RB { Index ($1, $3) }

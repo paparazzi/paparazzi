@@ -50,14 +50,9 @@ static inline void main_periodic( void ) {
   static float foo = 0.;
   foo += 0.0025;
   int32_t bar = 1500 + 500. * sin(foo);
-  //  int32_t bar = 1450;
-  //  int32_t bar = 1950;
-  actuators_pwm_values[0] = bar;
-  actuators_pwm_values[1] = bar;
-  actuators_pwm_values[2] = bar;
-  actuators_pwm_values[3] = bar;
-  actuators_pwm_values[4] = bar;
-  actuators_pwm_values[5] = bar;
+  for (int i = 0; i < ACTUATORS_PWM_NB; i++) {
+    actuators_pwm_values[i] = bar;
+  }
   actuators_pwm_commit();
 
   LED_PERIODIC();

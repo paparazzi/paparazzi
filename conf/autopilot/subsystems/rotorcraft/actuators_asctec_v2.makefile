@@ -22,7 +22,7 @@ ap.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
 
 ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c0
-ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=10
+ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150 -DI2C0_VIC_SLOT=11
 endif
 
 ifeq ($(ARCH), stm32)

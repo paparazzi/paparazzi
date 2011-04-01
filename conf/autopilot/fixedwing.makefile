@@ -37,6 +37,9 @@ ifeq ($(TARGET),$(ACTUATOR_TARGET))
     ifeq ($(BOARD),lisa_l)
       include $(CFG_SHARED)/actuators_direct.makefile
     endif
+    ifeq ($(BOARD),lisa_m)
+      include $(CFG_SHARED)/actuators_direct.makefile
+    endif
 
   else
     include $(CFG_SHARED)/$(ACTUATORS).makefile

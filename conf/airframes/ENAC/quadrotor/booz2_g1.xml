@@ -4,7 +4,9 @@
     <!--load name="booz_pwm.xml"/-->
     <!--load name="booz_drop.xml"/-->
     <!--load name="booz_cam.xml"/-->
-    <!--load name="sonar_maxbotix_booz.xml"/-->
+    <!--load name="sonar_maxbotix_booz.xml">
+      <configure name="ADC_SONAR" value="ADC_0"/>
+    </load-->
     <!--load name="adc_generic_booz.xml"/-->
     <!--load name="sys_mon.xml"/-->
   </modules>

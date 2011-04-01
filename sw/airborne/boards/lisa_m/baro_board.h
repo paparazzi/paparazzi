@@ -4,24 +4,25 @@
  *
  */
 
-#ifndef BOARDS_LISA_L_BARO_H
-#define BOARDS_LISA_L_BARO_H
+#ifndef BOARDS_LISA_M_BARO_H
+#define BOARDS_LISA_M_BARO_H
 
 #include "std.h"
 #include "mcu_periph/i2c.h"
 
+// absolute
+#define BMP085_ADDR  0xEE
+#define BMP085_OSS 3
+
 enum LisaBaroStatus {
   LBS_UNINITIALIZED,
   LBS_RESETED,
-  LBS_INITIALIZING_ABS,
-  LBS_INITIALIZING_ABS_1,
-  LBS_INITIALIZING_DIFF,
-  LBS_INITIALIZING_DIFF_1,
+  LBS_INITIALIZING,
+  LBS_INITIALIZING_1,
   LBS_IDLE,
-  LBS_READING_ABS,
-  LBS_READ_ABS,
-  LBS_READING_DIFF,
-  LBS_READ_DIFF
+  LBS_REQUEST,
+  LBS_READING,
+  LBS_READ,
 };
 
 struct BaroBoard {
@@ -32,26 +33,16 @@ extern struct BaroBoard baro_board;
 extern struct i2c_transaction baro_trans;
 
 extern void baro_board_send_reset(void);
-extern void baro_board_send_config_abs(void);
-extern void baro_board_send_config_diff(void);
+extern void baro_board_send_config(void);
 
 #define BaroEvent(_b_abs_handler, _b_diff_handler) {			\
-    if (baro_board.status == LBS_READING_ABS &&				\
+    if (baro_board.status == LBS_READING &&				\
 	baro_trans.status != I2CTransPending) {				\
-      baro_board.status = LBS_READ_ABS;					\
+      baro_board.status = LBS_REQUEST;					\
 			if (baro_trans.status == I2CTransSuccess) { \
-				int16_t tmp = baro_trans.buf[0]<<8 | baro_trans.buf[1];		\
-				baro.absolute = tmp;						\
+				int32_t tmp = (baro_trans.buf[0]<<16) | (baro_trans.buf[1] << 8) | baro_trans.buf[0];		\
+				baro.absolute = tmp >> ( 8 - BMP085_OSS);						\
 				_b_abs_handler();							\
-			} \
-    }									\
-    else  if (baro_board.status == LBS_READING_DIFF &&			\
-	      baro_trans.status != I2CTransPending) {			\
-      baro_board.status = LBS_READ_DIFF;				\
-			if (baro_trans.status == I2CTransSuccess) { \
-      	int16_t tmp = baro_trans.buf[0]<<8 | baro_trans.buf[1];		\
-      	baro.differential = tmp;						\
-      	_b_diff_handler();						\
 			} \
     }									\
   }
@@ -59,4 +50,4 @@ extern void baro_board_send_config_diff(void);
 
 
 
-#endif /* BOARDS_LISA_L_BARO_H */
+#endif /* BOARDS_LISA_M_BARO_H */

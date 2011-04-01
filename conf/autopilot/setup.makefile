@@ -23,6 +23,7 @@ tunnel.srcs += mcu.c $(SRC_ARCH)/mcu_arch.c
 # for the usb_tunnel we need to set PCLK higher with the flag USE_USB_HIGH_PCLK
 
 # a configuration program to access both uart through usb
+ifeq ($(ARCH), lpc21)
 usb_tunnel_0.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B115200 -DPERIPHERALS_AUTO_INIT
 usb_tunnel_0.CFLAGS += -DUSE_USB_LINE_CODING -DUSE_USB_SERIAL -DUSE_LED -DUSE_USB_HIGH_PCLK
 usb_tunnel_0.srcs += $(SRC_ARCH)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/mcu_periph/uart_arch.c
@@ -38,6 +39,9 @@ usb_tunnel_1.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
 usb_tunnel_1.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
 usb_tunnel_1.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 usb_tunnel_1.srcs += mcu.c $(SRC_ARCH)/mcu_arch.c
+else
+$(error usb_tunnel currently only implemented for the lpc21)
+endif
 
 
 

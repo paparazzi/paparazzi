@@ -64,20 +64,20 @@ extern int xsens_setzero;
 
 #include "subsystems/ahrs.h"
 
-#define PERIODIC_SEND_BOOZ2_GYRO() {			\
-    DOWNLINK_SEND_BOOZ2_GYRO(&imu.gyro.p,		\
+#define PERIODIC_SEND_IMU_GYRO_SCALED() {			\
+    DOWNLINK_SEND_IMU_GYRO_SCALED(&imu.gyro.p,		\
 			     &imu.gyro.q,		\
 			     &imu.gyro.r);		\
   }
 
-#define PERIODIC_SEND_BOOZ2_ACCEL() {				\
-    DOWNLINK_SEND_BOOZ2_ACCEL(&imu.accel.x,		\
+#define PERIODIC_SEND_IMU_ACCEL_SCALED() {				\
+    DOWNLINK_SEND_IMU_ACCEL_SCALED(&imu.accel.x,		\
 			      &imu.accel.y,		\
 			      &imu.accel.z);		\
   }
 
-#define PERIODIC_SEND_BOOZ2_MAG() {				\
-    DOWNLINK_SEND_BOOZ2_MAG(&imu.mag.x,			\
+#define PERIODIC_SEND_IMU_MAG_SCALED() {				\
+    DOWNLINK_SEND_IMU_MAG_SCALED(&imu.mag.x,			\
 			    &imu.mag.y,			\
 			    &imu.mag.z);			\
   }
