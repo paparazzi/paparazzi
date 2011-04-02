@@ -7,7 +7,7 @@
       <dl_setting var="setting_a" min="0" step="1" max="42" shortname ="a" module="test/subsystems/test_settings"/>
       <dl_setting var="setting_b" min="0" step="1" max="42" shortname ="b" persistent="true"/>
       <dl_setting var="setting_c" min="0" step="1" max="42" shortname ="c" persistent="true"/>
-      <dl_setting var="setting_d" min="0" step="1" max="42" shortname ="d" persistent="true" module="test/subsystems/test_settings" handler="SetD"/>
+      <dl_setting var="setting_d" min="0" step="1" max="42" shortname ="d" persistent="true" />
       <dl_setting var="settings_store_now" min="0" step="1" max="1" shortname ="store" handler="StoreSettings" module="subsystems/settings"/>
 
     </dl_settings>

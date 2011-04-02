@@ -25,7 +25,8 @@
 MEMORY
 {                        
   RAM     (xrw): ORIGIN = 0x20000000, LENGTH = 20K
-  FLASH   (rx) : ORIGIN = 0x8000000,  LENGTH = 128K
+  /* last page (1k) flash for persistent settings */
+  FLASH   (rx) : ORIGIN = 0x8000000,  LENGTH = 127K
   FLASHB1 (rx) : ORIGIN = 0x00000000, LENGTH = 0
 }
 

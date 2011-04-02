@@ -1,5 +1,5 @@
 /*
- * Paparazzi stm32 persistent flash low level routines
+ * Paparazzi persistent settings low level flash routines stm32
  *
  * Copyright (C) 2011 Martin Mueller <martinmm@pfump.org>
  *
@@ -22,18 +22,6 @@
  *
  */
 
-
-/*
- 
-  TODO:
-  - remove last sector from usable flash memory in STM32 linker script
-  
-  flash data is located in the last page/sector of flash
-  
-  data_begin    flash_info.addr
-  data_size     flash_info.addr + flash_info.size - 8
-  checksum      flash_info.addr + flash_info.size - 4
-*/
 
 #ifndef STM32_SUBSYSTEMS_SETTINGS_H
 #define STM32_SUBSYSTEMS_SETTINGS_H
