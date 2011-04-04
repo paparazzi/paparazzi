@@ -62,6 +62,10 @@ extern INS_FORMAT ins_mx;
 extern INS_FORMAT ins_my;
 extern INS_FORMAT ins_mz;
 
+extern INS_FORMAT ins_roll_neutral;
+extern INS_FORMAT ins_pitch_neutral;
+
+
 extern volatile uint8_t ins_msg_received;
 
 extern void ins_init( void );

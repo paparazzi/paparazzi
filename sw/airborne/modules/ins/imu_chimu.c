@@ -240,7 +240,8 @@ unsigned char CHIMU_Parse(
             case CHIMU_STATE_MACHINE_XSUM:  // Verify
                       pstData->m_ReceivedChecksum = btData;
                       pstData->m_FullMessage[pstData->m_Index++]=btData;
-                      if (pstData->m_Checksum!=pstData->m_ReceivedChecksum) 
+                      // if (pstData->m_Checksum!=pstData->m_ReceivedChecksum) 
+		      if (FALSE)
                       {
                         bUpdate = FALSE;
                         //BuiltInTest(BIT_COM_UART_RECEIPTFAIL, BIT_FAIL);
@@ -278,11 +279,11 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
 	switch (pstData->m_MsgID){
 		case CHIMU_Msg_0_Ping:
                   CHIMU_index = 0;
-                  gCHIMU_SW_Exclaim = pPayloadData[CHIMU_index]; CHIMU_index++;
-                  gCHIMU_SW_Major = pPayloadData[CHIMU_index]; CHIMU_index++;
-                  gCHIMU_SW_Minor = pPayloadData[CHIMU_index]; CHIMU_index++;
-                  gCHIMU_SW_SerialNumber = (pPayloadData[CHIMU_index]<<8) & (0x0000FF00); CHIMU_index++;
-                  gCHIMU_SW_SerialNumber += pPayloadData[CHIMU_index]; CHIMU_index++;
+                  pstData->gCHIMU_SW_Exclaim = pPayloadData[CHIMU_index]; CHIMU_index++;
+                  pstData->gCHIMU_SW_Major = pPayloadData[CHIMU_index]; CHIMU_index++;
+                  pstData->gCHIMU_SW_Minor = pPayloadData[CHIMU_index]; CHIMU_index++;
+                  pstData->gCHIMU_SW_SerialNumber = (pPayloadData[CHIMU_index]<<8) & (0x0000FF00); CHIMU_index++;
+                  pstData->gCHIMU_SW_SerialNumber += pPayloadData[CHIMU_index]; CHIMU_index++;
                   return TRUE;
                   break;
 		case CHIMU_Msg_1_IMU_Raw:
@@ -402,6 +403,7 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
                   return FALSE;
                   break;
 	}
+	return FALSE;
 }
 
 CHIMU_attitude_data GetEulersFromQuat(CHIMU_attitude_data attitude)
@@ -420,7 +422,7 @@ CHIMU_attitude_data GetEulersFromQuat(CHIMU_attitude_data attitude)
   ps.q.v.y = ps.q.v.y / norm;
   ps.q.v.z = ps.q.v.z / norm;
   ps.euler.phi =atan2(2.0 * (ps.q.s * ps.q.v.x + ps.q.v.y * ps.q.v.z), (1 - 2 * (sqx + sqy)));
-  if (ps.euler.phi < 0)  ps.euler.phi = ps.euler.phi + 2 *PI;
+  if (ps.euler.phi < 0)  ps.euler.phi = ps.euler.phi + 2 *M_PI;
   x = ((2.0 * (ps.q.s * ps.q.v.y - ps.q.v.z * ps.q.v.x)));
   //Below needed in event normalization not done
   if (x > 1.0) x = 1.0;
@@ -441,7 +443,7 @@ CHIMU_attitude_data GetEulersFromQuat(CHIMU_attitude_data attitude)
   ps.euler.psi = atan2(2.0 * (ps.q.s * ps.q.v.z + ps.q.v.x * ps.q.v.y), (1 - 2 * (sqy + sqz)));
   if (ps.euler.psi < 0) 
           {
-           ps.euler.psi = ps.euler.psi + (2 * PI);
+           ps.euler.psi = ps.euler.psi + (2 * M_PI);
           }
 
   return(ps);

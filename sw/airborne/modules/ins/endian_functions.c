@@ -11,7 +11,7 @@
 // Includes
 //-----------------------------------------------------------------------------------
 #include "endian_functions.h"
-#include <globals.h>
+//#include <globals.h>
 
 
 short int ShortSwap( short int s )

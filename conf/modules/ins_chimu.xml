@@ -1,48 +1,21 @@
-# attitude via IR sensors
+<!DOCTYPE module SYSTEM "module.dtd">
 
-#
-# CHIMU using UART
-#
-
-ap.CFLAGS += -DUSE_$(CHIMU_PORT)
-ap.CFLAGS += -D$(CHIMU_PORT)_BAUD=B115200
-
-#
-# CHIMU Status LED
-#
-
-ifneq ($(GPS_LED),none)
-  ap.CFLAGS += -DGPS_LED=$(GPS_LED)
-endif
-
-ap.srcs   += $(SRC_SUBSYSTEMS)/imu/imu_chimu.c
-
-
-
-#
-# LPC only has one ADC
-#
-ifeq ($(ARCH), lpc21)
-ap.CFLAGS += -DADC_CHANNEL_IR1=$(ADC_IR1) -DUSE_$(ADC_IR1)
-ap.CFLAGS += -DADC_CHANNEL_IR2=$(ADC_IR2) -DUSE_$(ADC_IR2)
-ap.CFLAGS += -DADC_CHANNEL_IR_TOP=$(ADC_IR_TOP) -DUSE_$(ADC_IR_TOP)
-endif
-
-#
-# On STM32 let's hardwire infrared sensors to AD1 for now
-#
-ifeq ($(ARCH), stm32)
-ap.CFLAGS += -DUSE_AD1
-ap.CFLAGS += -DADC_CHANNEL_IR1=$(ADC_IR1_CHAN) -DUSE_AD1_$(ADC_IR1)
-ap.CFLAGS += -DADC_CHANNEL_IR2=$(ADC_IR2_CHAN) -DUSE_AD1_$(ADC_IR2)
-ap.CFLAGS += -DADC_CHANNEL_IR_TOP=$(ADC_IR_TOP_CHAN) -DUSE_AD1_$(ADC_IR_TOP)
-endif
-
-ap.CFLAGS += -DADC_CHANNEL_IR_NB_SAMPLES=$(ADC_IR_NB_SAMPLES)
-
-$(TARGET).CFLAGS += -DUSE_INFRARED
-$(TARGET).srcs += subsystems/sensors/infrared.c
-$(TARGET).srcs += subsystems/sensors/infrared_adc.c
-
-sim.srcs += $(SRC_ARCH)/sim_ir.c
-jsbsim.srcs += $(SRC_ARCH)/jsbsim_ir.c
+<module name="ins">
+  <!-- <depend conflict="ins" -->
+  <header>
+    <file name="ins_module.h"/>
+  </header>
+  <init fun="ins_init()"/>
+  <!--<periodic fun="ins_periodic_task()" freq="60"/>-->
+  <event fun="parse_ins_msg()"/>
+  <makefile>
+    <define name="AHRS_TYPE_H" value="\\\"modules/ins/ins_module.h\\\""/>
+    
+    <define name="USE_UART$(CHIMU_UART_NR)"/>
+    <define name="INS_LINK" value="Uart$(CHIMU_UART_NR)"/>
+    <define name="UART$(CHIMU_UART_NR)_BAUD" value="B115200"/>
+    <file name="ins_chimu_uart.c"/>
+    <file name="imu_chimu.c"/>
+    <file name="endian_functions.c"/>
+  </makefile>
+</module>
