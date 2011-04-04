@@ -80,6 +80,7 @@ struct GpsState {
 
   uint8_t  lost_counter;         /* updated at 4Hz        */
   uint16_t last_msg_time;
+  uint16_t reset;                ///< hotstart, warmstart, coldstart
 };
 
 struct GpsTimeSync {
@@ -107,6 +108,21 @@ static inline void gps_periodic( void ) {
 }
 
 #define GpsIsLost() (gps.lost_counter > 20) /* 4Hz -> 5s */
+
+
+//TODO
+// this still needs to call gps specific stuff
+
+/*
+ * GPS Reset
+ */
+
+#define CFG_RST_BBR_Hotstart  0x0000
+#define CFG_RST_BBR_Warmstart 0x0001
+#define CFG_RST_BBR_Coldstart 0xffff
+
+#define gps_Reset(_val) {                               \
+}
 
 
 

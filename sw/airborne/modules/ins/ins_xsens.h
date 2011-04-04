@@ -31,6 +31,9 @@
 
 #include "std.h"
 
+extern float ins_pitch_neutral;
+extern float ins_roll_neutral;
+
 extern int8_t xsens_hour;
 extern int8_t xsens_min;
 extern int8_t xsens_sec;

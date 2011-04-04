@@ -42,7 +42,6 @@ struct GpsUbx {
   uint8_t msg_class;
 
   uint8_t status;
-  uint16_t reset;
   uint16_t len;
   uint8_t msg_idx;
   uint8_t ck_a, ck_b;
@@ -107,9 +106,6 @@ extern void gps_ubx_parse(uint8_t c);
 /*
  * GPS Reset
  */
-#define CFG_RST_BBR_Hotstart  0x0000
-#define CFG_RST_BBR_Warmstart 0x0001
-#define CFG_RST_BBR_Coldstart 0xffff
 
 #define CFG_RST_Reset_Hardware 0x00
 #define CFG_RST_Reset_Controlled 0x01

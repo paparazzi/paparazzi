@@ -65,6 +65,14 @@ INS_FORMAT ins_mx;
 INS_FORMAT ins_my;
 INS_FORMAT ins_mz;
 
+float ins_pitch_neutral;
+float ins_roll_neutral;
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+//	XSens Specific
+//
+
 volatile uint8_t ins_msg_received;
 
 #define XsensInitCheksum() { send_ck = 0; }
@@ -185,6 +193,9 @@ struct UtmCoor_f utm_f;
 void ins_init( void ) {
 
   xsens_status = UNINIT;
+
+  ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
+  ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
 
   xsens_msg_status = 0;
   xsens_time_stamp = 0;
