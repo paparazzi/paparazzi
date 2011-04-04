@@ -1,5 +1,5 @@
 /*
- * Paparazzi persistent settings low level flash routines stm32
+ * Paparazzi persistent settings low level flash routines lpc21
  *
  * Copyright (C) 2011 Martin Mueller <martinmm@pfump.org>
  *
@@ -23,9 +23,9 @@
  */
 
 
-#ifndef STM32_SUBSYSTEMS_SETTINGS_H
-#define STM32_SUBSYSTEMS_SETTINGS_H
+#ifndef LPC21_SUBSYSTEMS_SETTINGS_H
+#define LPC21_SUBSYSTEMS_SETTINGS_H
 
 
 
-#endif /* STM32_SUBSYSTEMS_SETTINGS_H */
+#endif /* LPC21_SUBSYSTEMS_SETTINGS_H */

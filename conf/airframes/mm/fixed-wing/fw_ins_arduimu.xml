@@ -29,17 +29,13 @@
     <subsystem name="radio_control"    type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry"        type="xbee_api">
-      <param name="MODEM_BAUD"         value="B57600"/>
-    </subsystem>
+    <subsystem name="telemetry"        type="xbee_api"/>
 
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control"/>
     <!-- Sensors -->
     <!--subsystem name="attitude"         type="infrared"/-->
-    <subsystem name="gps"              type="ublox_lea5h">
-      <param name="GPS_BAUD"           value="B38400"/>
-    </subsystem>
+    <subsystem name="gps"              type="ublox_lea5h"/>
     <!-- Nav -->
     <subsystem name="navigation"/>
     <!-- Interfaces -->

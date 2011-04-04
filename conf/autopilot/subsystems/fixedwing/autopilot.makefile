@@ -133,6 +133,8 @@ ns_srcs 		+= $(SRC_ARCH)/sys_time_hw.c
 #
 
 ns_srcs 		+= $(SRC_ARCH)/mcu_periph/uart_arch.c
+ns_srcs 		+= subsystems/settings.c
+ns_srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
 
 #
 # ANALOG
@@ -185,6 +187,9 @@ sim.srcs 		+= $(SRC_ARCH)/sim_ap.c
 
 sim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
 sim.srcs 		+= downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c
+
+sim.srcs 		+= subsystems/settings.c
+sim.srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
 
 ######################################################################
 ##
