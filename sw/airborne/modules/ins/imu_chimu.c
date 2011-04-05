@@ -350,6 +350,12 @@ static CHIMU_attitude_data GetEulersFromQuat(CHIMU_attitude_data attitude)
   
 }
 
+static unsigned char BitTest (unsigned char input, unsigned char n)
+{
+//Test a bit in n and return TRUE or FALSE
+	if ( input & (1 << n)) return TRUE; else return FALSE;
+}
+
 unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloadData, CHIMU_PARSER_DATA *pstData)
 {
     //Msgs from CHIMU are off limits (i.e.any CHIMU messages sent up the uplink should go to 
@@ -428,14 +434,14 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
                   pstData->m_attrates.euler.theta = pstData->m_sensor.rate[1];
                   pstData->m_attrates.euler.psi = pstData->m_sensor.rate[2];
 
-/*
+
 	// TODO: Read configuration bits
 
-                  gCalStatus = pPayloadData[CHIMU_index]; CHIMU_index ++;
-                  gCHIMU_BIT = pPayloadData[CHIMU_index]; CHIMU_index ++;
+                  pstData->gCalStatus = pPayloadData[CHIMU_index]; CHIMU_index ++;
+                  pstData->gCHIMU_BIT = pPayloadData[CHIMU_index]; CHIMU_index ++;
 
-                  gConfigInfo = pPayloadData[CHIMU_index]; CHIMU_index ++;
-                  bC0_SPI_En = BitTest (gConfigInfo, 0); 
+                  pstData->gConfigInfo = pPayloadData[CHIMU_index]; CHIMU_index ++;
+/*                  bC0_SPI_En = BitTest (gConfigInfo, 0); 
                   bC1_HWCentrip_En = BitTest (gConfigInfo, 1); 
                   bC2_TempCal_En = BitTest (gConfigInfo, 2); 
                   bC3_RateOut_En = BitTest (gConfigInfo, 3); 
@@ -443,13 +449,13 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
                   bC5_Quat_Est = BitTest (gConfigInfo, 5); 
                   bC6_SWCentrip_En = BitTest (gConfigInfo, 6); 
                   bC7_AllowHW_Override = BitTest (gConfigInfo, 7); 
-
+*/
                   //CHIMU currently (v 1.3) does not compute Eulers if quaternion estimator is selected
-                  if(bC5_Quat_Est == TRUE)
+                  if(BitTest (pstData->gConfigInfo, 5) == TRUE)
                   {
                     pstData->m_attitude = GetEulersFromQuat((pstData->m_attitude));
                   }
-*/
+
 
                   //NEW:  Checks for bad attitude data (bad SPI maybe?)
                   //      Only allow globals to contain updated data if it makes sense

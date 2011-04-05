@@ -100,10 +100,16 @@ typedef struct {
         CHIMU_attitude_data m_attrates;
         CHIMU_sensor_data   m_sensor;
 
+	// Ping data
         uint8_t gCHIMU_SW_Exclaim;
         uint8_t gCHIMU_SW_Major;
         uint8_t gCHIMU_SW_Minor;
         uint16_t gCHIMU_SW_SerialNumber;
+
+	// Config
+        uint8_t gCalStatus;
+        uint8_t gCHIMU_BIT;
+        uint8_t gConfigInfo;
 	
 } CHIMU_PARSER_DATA;
 

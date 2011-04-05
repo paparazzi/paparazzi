@@ -390,7 +390,7 @@ static inline void attitude_loop( void ) {
       v_ctl_throttle_slew();
       ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
       ap_state->commands[COMMAND_ROLL] = h_ctl_aileron_setpoint;
-      LED_TOGGLE(3);
+      
       ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
 
 #if defined MCU_SPI_LINK
