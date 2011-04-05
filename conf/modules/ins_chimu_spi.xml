@@ -10,12 +10,10 @@
   <event fun="parse_ins_msg()"/>
   <makefile>
     <define name="AHRS_TYPE_H" value="\\\"modules/ins/ins_module.h\\\""/>
-    <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
     
-    <define name="USE_UART$(CHIMU_UART_NR)"/>
-    <define name="INS_LINK" value="Uart$(CHIMU_UART_NR)"/>
-    <define name="UART$(CHIMU_UART_NR)_BAUD" value="B115200"/>
-    <file name="ins_chimu_uart.c"/>
+    <define name="USE_SPI" />
+    <define name="SPI_SLAVE" />
+    <file name="ins_chimu_spi.c"/>
     <file name="imu_chimu.c"/>
   </makefile>
 </module>

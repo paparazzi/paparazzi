@@ -120,8 +120,6 @@ unsigned char CHIMU_Parse(unsigned char btData, unsigned char bInputType, CHIMU_
 
 unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloadData, CHIMU_PARSER_DATA  *pstData);
 
-CHIMU_attitude_data GetEulersFromQuat(CHIMU_attitude_data attitude);
-
 
 #endif // CHIMU_DEFINED
 

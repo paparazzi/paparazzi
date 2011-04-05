@@ -305,6 +305,51 @@ unsigned char CHIMU_Parse(
 // appropriate sentence data processor.
 ///////////////////////////////////////////////////////////////////////////////
 
+
+static CHIMU_attitude_data GetEulersFromQuat(CHIMU_attitude_data attitude)
+{
+  CHIMU_attitude_data ps;
+  ps = attitude;
+  float x, sqw,sqx,sqy,sqz,norm;
+  sqw = ps.q.s * ps.q.s;
+  sqx = ps.q.v.x * ps.q.v.x;
+  sqy = ps.q.v.y * ps.q.v.y;
+  sqz = ps.q.v.z * ps.q.v.z;
+  norm = sqrt(sqw + sqx + sqy + sqz);
+  //Normalize the quat
+  ps.q.s = ps.q.s / norm;
+  ps.q.v.x = ps.q.v.x / norm;
+  ps.q.v.y = ps.q.v.y / norm;
+  ps.q.v.z = ps.q.v.z / norm;
+  ps.euler.phi =atan2(2.0 * (ps.q.s * ps.q.v.x + ps.q.v.y * ps.q.v.z), (1 - 2 * (sqx + sqy)));
+  if (ps.euler.phi < 0)  ps.euler.phi = ps.euler.phi + 2 *M_PI;
+  x = ((2.0 * (ps.q.s * ps.q.v.y - ps.q.v.z * ps.q.v.x)));
+  //Below needed in event normalization not done
+  if (x > 1.0) x = 1.0;
+  if (x < -1.0) x = -1.0;
+  //
+  if ((ps.q.v.x * ps.q.v.y + ps.q.v.z * ps.q.s) == 0.5) 
+          {
+          ps.euler.theta = 2 *atan2(ps.q.v.x, ps.q.s);
+          }
+          else
+          if ((ps.q.v.x * ps.q.v.y + ps.q.v.z * ps.q.s) == -0.5) 
+                  {
+                  ps.euler.theta = -2 *atan2(ps.q.v.x, ps.q.s);
+                  }
+          else{
+                  ps.euler.theta = asin(x);
+                  }
+  ps.euler.psi = atan2(2.0 * (ps.q.s * ps.q.v.z + ps.q.v.x * ps.q.v.y), (1 - 2 * (sqy + sqz)));
+  if (ps.euler.psi < 0) 
+          {
+           ps.euler.psi = ps.euler.psi + (2 * M_PI);
+          }
+
+  return(ps);
+  
+}
+
 unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloadData, CHIMU_PARSER_DATA *pstData)
 {
     //Msgs from CHIMU are off limits (i.e.any CHIMU messages sent up the uplink should go to 
@@ -422,8 +467,6 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
 		  {
                     //TODO:  Log BIT that indicates IMU message incoming failed (maybe SPI error?)
                   }
-
-                  //Led_Off(LED_RED);
  
                   return TRUE;
                   break;
@@ -445,49 +488,5 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
                   break;
 	}
 	return FALSE;
-}
-
-CHIMU_attitude_data GetEulersFromQuat(CHIMU_attitude_data attitude)
-{
-  CHIMU_attitude_data ps;
-  ps = attitude;
-  float x, sqw,sqx,sqy,sqz,norm;
-  sqw = ps.q.s * ps.q.s;
-  sqx = ps.q.v.x * ps.q.v.x;
-  sqy = ps.q.v.y * ps.q.v.y;
-  sqz = ps.q.v.z * ps.q.v.z;
-  norm = sqrt(sqw + sqx + sqy + sqz);
-  //Normalize the quat
-  ps.q.s = ps.q.s / norm;
-  ps.q.v.x = ps.q.v.x / norm;
-  ps.q.v.y = ps.q.v.y / norm;
-  ps.q.v.z = ps.q.v.z / norm;
-  ps.euler.phi =atan2(2.0 * (ps.q.s * ps.q.v.x + ps.q.v.y * ps.q.v.z), (1 - 2 * (sqx + sqy)));
-  if (ps.euler.phi < 0)  ps.euler.phi = ps.euler.phi + 2 *M_PI;
-  x = ((2.0 * (ps.q.s * ps.q.v.y - ps.q.v.z * ps.q.v.x)));
-  //Below needed in event normalization not done
-  if (x > 1.0) x = 1.0;
-  if (x < -1.0) x = -1.0;
-  //
-  if ((ps.q.v.x * ps.q.v.y + ps.q.v.z * ps.q.s) == 0.5) 
-          {
-          ps.euler.theta = 2 *atan2(ps.q.v.x, ps.q.s);
-          }
-          else
-          if ((ps.q.v.x * ps.q.v.y + ps.q.v.z * ps.q.s) == -0.5) 
-                  {
-                  ps.euler.theta = -2 *atan2(ps.q.v.x, ps.q.s);
-                  }
-          else{
-                  ps.euler.theta = asin(x);
-                  }
-  ps.euler.psi = atan2(2.0 * (ps.q.s * ps.q.v.z + ps.q.v.x * ps.q.v.y), (1 - 2 * (sqy + sqz)));
-  if (ps.euler.psi < 0) 
-          {
-           ps.euler.psi = ps.euler.psi + (2 * M_PI);
-          }
-
-  return(ps);
-  
 }
 

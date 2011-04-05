@@ -4,7 +4,9 @@ C code to connect a CHIMU using uart
 
 
 #include <stdbool.h>
-//#include "modules/ins/ins_chimu_uart.h"
+
+// SPI
+#include "mcu_periph/spi.h"
 
 // Output
 #include "estimator.h"
@@ -29,12 +31,8 @@ CHIMU_PARSER_DATA CHIMU_DATA;
 INS_FORMAT ins_roll_neutral;
 INS_FORMAT ins_pitch_neutral;
 
-volatile uint8_t new_ins_attitude;
-
 void ins_init( void ) 
 {
-  new_ins_attitude = 0;
-  
   ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
   ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
   
@@ -43,6 +41,13 @@ void ins_init( void )
 
 void parse_ins_msg( void )
 {
+  if (spi_message_received) 
+  {
+    /* Got a message on SPI. */
+    spi_message_received = FALSE;
+    chimu_spi_parse(spi_buffer_input);
+  }
+  
   if (InsBuffer()) 
   {
     while (InsLink(ChAvailable()))
@@ -53,9 +58,7 @@ void parse_ins_msg( void )
       {
         if(CHIMU_DATA.m_MsgID==0x03)
         {
-	  new_ins_attitude = 1;
-	  // RunOnceEvery(25, LED_TOGGLE(3) );
-	  // LED_TOGGLE(3);
+	  //RunOnceEvery(25, LED_TOGGLE(3) );
 	  if (CHIMU_DATA.m_attitude.euler.phi > M_PI)
 	  {
 	    CHIMU_DATA.m_attitude.euler.phi -= 2 * M_PI;

@@ -67,6 +67,7 @@ extern INS_FORMAT ins_pitch_neutral;
 
 
 extern volatile uint8_t ins_msg_received;
+extern volatile uint8_t new_ins_attitude;
 
 extern void ins_init( void );
 extern void ins_periodic_task( void );

@@ -121,11 +121,9 @@
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
     <define name="PITCH_PGAIN" value="-12000."/>
-    <define name="PITCH_DGAIN" value="1.5"/>
+    <define name="PITCH_DGAIN" value="0"/>
 
     <define name="ELEVATOR_OF_ROLL" value="1000."/>
-
-    <define name="ROLL_SLEW" value="1."/>
 
     <define name="ROLL_ATTITUDE_GAIN" value="-15000"/>
     <define name="ROLL_RATE_GAIN" value="0."/>
