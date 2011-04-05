@@ -49,8 +49,8 @@ bool_t gps_i2c_done, gps_i2c_data_ready_to_transmit;
 }
 
 static uint8_t gps_i2c_status;
-static uint16_t gps_i2c_nb_avail_bytes; /* size buffer =~ 12k */
-static uint8_t data_buf_len;
+//static uint16_t gps_i2c_nb_avail_bytes; /* size buffer =~ 12k */
+//static uint8_t data_buf_len;
 
 void gps_i2c_init(void) {
   gps_i2c_status = GPS_I2C_STATUS_IDLE;

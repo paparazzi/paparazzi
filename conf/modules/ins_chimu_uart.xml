@@ -16,6 +16,5 @@
     <define name="UART$(CHIMU_UART_NR)_BAUD" value="B115200"/>
     <file name="ins_chimu_uart.c"/>
     <file name="imu_chimu.c"/>
-    <file name="endian_functions.c"/>
   </makefile>
 </module>

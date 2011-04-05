@@ -46,8 +46,6 @@
   </section>
 
   <command_laws>
-    <!-- Brake Rate Limiter -->
-    <let var="brake_value" value="LIMIT(-@BRAKE, 0, MAX_PPRZ)"/>
     <!-- Differential Aileron Depending on Brake Value -->
     <set servo="AILERON_LEFT" value="@ROLL"/>
     <set servo="AILERON_RIGHT" value="@ROLL"/>
@@ -161,7 +159,7 @@
 
 
   <modules>
-    <load name="ins_chimu.xml">
+    <load name="ins_chimu_uart.xml">
       <configure name="CHIMU_UART_NR" value="0"/>
     </load>
 

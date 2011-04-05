@@ -49,7 +49,7 @@ void parse_ins_msg( void )
       {
         if(CHIMU_DATA.m_MsgID==0x03)
         {
-	  RunOnceEvery(25, LED_TOGGLE(3) );
+	  //RunOnceEvery(25, LED_TOGGLE(3) );
 	  if (CHIMU_DATA.m_attitude.euler.phi > M_PI)
 	  {
 	    CHIMU_DATA.m_attitude.euler.phi -= 2 * M_PI;
