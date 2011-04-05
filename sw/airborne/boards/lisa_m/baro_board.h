@@ -10,8 +10,9 @@
 #include "std.h"
 #include "mcu_periph/i2c.h"
 
-// absolute
+// absolute addr
 #define BMP085_ADDR  0xEE
+// Over sample setting (0-3)
 #define BMP085_OSS 3
 
 enum LisaBaroStatus {
