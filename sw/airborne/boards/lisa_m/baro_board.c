@@ -39,10 +39,12 @@ static inline void bmp085_request_pressure(void)
 
 
 void baro_periodic(void) {
-  static uint8_t counter=0;
-  if (++counter % 4) return;
   // check i2c_done
   if (!i2c_idle(&i2c2)) return;
+
+  static uint8_t counter=0;
+  if (++counter % 3) return;
+
   switch (baro_board.status) {
   case LBS_UNINITIALIZED:
     baro_board_send_reset();
