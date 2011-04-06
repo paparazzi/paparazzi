@@ -84,7 +84,8 @@ void parse_ins_buffer( uint8_t );
 
 #define InsBuffer() InsLink(ChAvailable())
 #define ReadInsBuffer() { while (InsLink(ChAvailable())&&!ins_msg_received) parse_ins_buffer(InsLink(Getch())); }
-#define InsUartSend1(c) InsLink(Transmit(c))
+#define InsSend1(c) InsLink(Transmit(c))
+#define InsUartSend1(c) InsSend1(c)
 #define InsUartInitParam(_a,_b,_c) InsLink(InitParam(_a,_b,_c))
 #define InsUartRunning InsLink(TxRunning)
 

@@ -38,6 +38,8 @@
 /* High Speed SPI Slave Circular Buffer */
 uint16_t spi_slave_hs_rx_insert_idx, spi_slave_hs_rx_extract_idx;
 uint8_t spi_slave_hs_rx_buffer[SPI_SLAVE_HS_RX_BUFFER_SIZE];
+uint16_t spi_slave_hs_tx_insert_idx, spi_slave_hs_tx_extract_idx;
+uint8_t spi_slave_hs_tx_buffer[SPI_SLAVE_HS_TX_BUFFER_SIZE];
 
 /* Prototypes */
 // void spi_init( void ); // -> declared in spi.h
@@ -133,8 +135,21 @@ void spi_init(void) {
 static void SSP_ISR(void) {
   ISR_ENTRY();
 
-  LED_TOGGLE(3);
+  //LED_TOGGLE(3);
 
+  // If any TX bytes are pending
+  if (spi_slave_hs_tx_insert_idx != spi_slave_hs_tx_extract_idx)
+  {
+    uint8_t ret = spi_slave_hs_tx_buffer[spi_slave_hs_tx_extract_idx];
+    spi_slave_hs_tx_extract_idx = (spi_slave_hs_tx_extract_idx + 1)%SPI_SLAVE_HS_RX_BUFFER_SIZE;
+    SSP_Write(ret);
+  }
+  else
+  {
+    SSP_Write(0x00);
+  }
+
+  
   //do
   {
     uint16_t temp;

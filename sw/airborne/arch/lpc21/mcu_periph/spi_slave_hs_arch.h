@@ -57,6 +57,19 @@ extern uint8_t spi_slave_hs_rx_buffer[SPI_SLAVE_HS_RX_BUFFER_SIZE];
    ret;                                                 \
 })
 
+#define SPI_SLAVE_HS_TX_BUFFER_SIZE 128
+
+extern uint16_t spi_slave_hs_tx_insert_idx, spi_slave_hs_tx_extract_idx;
+extern uint8_t spi_slave_hs_tx_buffer[SPI_SLAVE_HS_TX_BUFFER_SIZE];
+
+#define SpiSlaveTransmit(data) {\
+  uint16_t temp = (spi_slave_hs_tx_insert_idx + 1) % SPI_SLAVE_HS_TX_BUFFER_SIZE; \
+  if (temp != spi_slave_hs_tx_extract_idx)	/* there is room left */	\
+  { \
+    spi_slave_hs_tx_buffer[spi_slave_hs_tx_insert_idx] = (uint8_t)data; \
+    spi_slave_hs_tx_insert_idx = temp; \
+  } \
+}
 
 
 
