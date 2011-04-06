@@ -74,12 +74,11 @@ typedef struct {
 #endif
 
 typedef struct {
-	int cputemp;
-	int acc[3];
-	int rate[3];
-	int mag[3];
-	int spare1;
-	int euler[3];
+	float cputemp;
+	float acc[3];
+	float rate[3];
+	float mag[3];
+	float spare1;
 } CHIMU_sensor_data;
 
 #define CHIMU_RX_BUFFERSIZE 128

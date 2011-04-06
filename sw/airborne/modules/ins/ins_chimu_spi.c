@@ -93,6 +93,10 @@ void parse_ins_msg( void )
 	{
 	  CHIMU_DATA.m_attitude.euler.phi -= 2 * M_PI;
 	}
+	if (CHIMU_DATA.m_attrates.euler.phi > M_PI)
+	{
+	  CHIMU_DATA.m_attrates.euler.phi -= 2 * M_PI;
+	}
 	
 	LED_TOGGLE(3);
 /*	if (CHIMU_DATA.m_attitude.euler.phi == tempang)
@@ -106,9 +110,12 @@ void parse_ins_msg( void )
 	tempang = CHIMU_DATA.m_attitude.euler.phi;
 */	
 	EstimatorSetAtt(CHIMU_DATA.m_attitude.euler.phi, CHIMU_DATA.m_attitude.euler.psi, CHIMU_DATA.m_attitude.euler.theta);
-	//EstimatorSetRate(ins_p,ins_q);
+	EstimatorSetRate(CHIMU_DATA.m_sensor.rate[0],CHIMU_DATA.m_attrates.euler.theta);
+      }
+      else if(CHIMU_DATA.m_MsgID==0x02)
+      {
 	
-	//DOWNLINK_SEND_AHRS_EULER(DefaultChannel, &CHIMU_DATA.m_attitude.euler.phi, &CHIMU_DATA.m_attitude.euler.theta, &CHIMU_DATA.m_attitude.euler.psi);
+	RunOnceEvery(25,DOWNLINK_SEND_AHRS_EULER(DefaultChannel, &CHIMU_DATA.m_sensor.rate[0], &CHIMU_DATA.m_sensor.rate[1], &CHIMU_DATA.m_sensor.rate[2]));
 	
       }
     }

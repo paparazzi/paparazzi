@@ -10,6 +10,7 @@
   <event fun="parse_ins_msg()"/>
   <makefile>
     <define name="AHRS_TYPE_H" value="\\\"modules/ins/ins_module.h\\\""/>
+    <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
     
     <define name="USE_SPI" />
     <define name="INS_LINK" value="SpiSlave"/>

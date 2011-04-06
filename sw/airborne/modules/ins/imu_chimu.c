@@ -418,7 +418,7 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
                   pstData->m_attitude.euler.phi = FloatSwap(pstData->m_attitude.euler.phi);
                   pstData->m_attitude.euler.theta = FloatSwap(pstData->m_attitude.euler.theta);
                   pstData->m_attitude.euler.psi = FloatSwap(pstData->m_attitude.euler.psi);
-                  memmove (&pstData->m_sensor.rate[0], &pPayloadData[CHIMU_index], sizeof(pstData->m_sensor.rate));CHIMU_index += (sizeof(pstData->m_sensor.rate));
+                  memmove (&pstData->m_sensor.rate[0], &pPayloadData[CHIMU_index], sizeof(pstData->m_sensor.rate));  CHIMU_index += (sizeof(pstData->m_sensor.rate));
                   pstData->m_sensor.rate[0] = FloatSwap(pstData->m_sensor.rate[0]);
                   pstData->m_sensor.rate[1] = FloatSwap(pstData->m_sensor.rate[1]);
                   pstData->m_sensor.rate[2] = FloatSwap(pstData->m_sensor.rate[2]);
@@ -441,12 +441,12 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
                   pstData->m_attrates.euler.psi = pstData->m_sensor.rate[2];
 
 
-	// TODO: Read configuration bits
-
                   pstData->gCalStatus = pPayloadData[CHIMU_index]; CHIMU_index ++;
                   pstData->gCHIMU_BIT = pPayloadData[CHIMU_index]; CHIMU_index ++;
-
                   pstData->gConfigInfo = pPayloadData[CHIMU_index]; CHIMU_index ++;
+
+// TODO: Read configuration bits
+
 /*                  bC0_SPI_En = BitTest (gConfigInfo, 0); 
                   bC1_HWCentrip_En = BitTest (gConfigInfo, 1); 
                   bC2_TempCal_En = BitTest (gConfigInfo, 2); 
