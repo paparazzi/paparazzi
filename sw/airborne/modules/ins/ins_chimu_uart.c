@@ -62,40 +62,37 @@ float tempang = 0;
 
 void parse_ins_msg( void )
 {
-  if (InsBuffer()) 
+  while (InsLink(ChAvailable()))
   {
-    while (InsLink(ChAvailable()))
+    uint8_t ch = InsLink(Getch());
+    
+    if (CHIMU_Parse(ch, 0, &CHIMU_DATA))
     {
-      uint8_t ch = InsLink(Getch());
-      
-      if (CHIMU_Parse(ch, 0, &CHIMU_DATA))
+      if(CHIMU_DATA.m_MsgID==0x03)
       {
-        if(CHIMU_DATA.m_MsgID==0x03)
-        {
-	  new_ins_attitude = 1;
-	  // RunOnceEvery(25, LED_TOGGLE(3) );
-	  // LED_TOGGLE(3);
-	  if (CHIMU_DATA.m_attitude.euler.phi > M_PI)
-	  {
-	    CHIMU_DATA.m_attitude.euler.phi -= 2 * M_PI;
-	  }
-	  
-	  if (CHIMU_DATA.m_attitude.euler.phi == tempang)
-	  {
-	    LED_ON(3);
-	  }
-	  else
-	  {
-	    LED_OFF(3);
-	  }
-	  tempang = CHIMU_DATA.m_attitude.euler.phi;
-	  
-          EstimatorSetAtt(CHIMU_DATA.m_attitude.euler.phi, CHIMU_DATA.m_attitude.euler.psi, CHIMU_DATA.m_attitude.euler.theta);
-          //EstimatorSetRate(ins_p,ins_q);
-	  
-          DOWNLINK_SEND_AHRS_EULER(DefaultChannel, &CHIMU_DATA.m_attitude.euler.phi, &CHIMU_DATA.m_attitude.euler.theta, &CHIMU_DATA.m_attitude.euler.psi);
+	new_ins_attitude = 1;
+	// RunOnceEvery(25, LED_TOGGLE(3) );
+	// LED_TOGGLE(3);
+	if (CHIMU_DATA.m_attitude.euler.phi > M_PI)
+	{
+	  CHIMU_DATA.m_attitude.euler.phi -= 2 * M_PI;
+	}
+	
+	if (CHIMU_DATA.m_attitude.euler.phi == tempang)
+	{
+	  LED_ON(3);
+	}
+	else
+	{
+	  LED_OFF(3);
+	}
+	tempang = CHIMU_DATA.m_attitude.euler.phi;
+	
+	EstimatorSetAtt(CHIMU_DATA.m_attitude.euler.phi, CHIMU_DATA.m_attitude.euler.psi, CHIMU_DATA.m_attitude.euler.theta);
+	//EstimatorSetRate(ins_p,ins_q);
+	
+	DOWNLINK_SEND_AHRS_EULER(DefaultChannel, &CHIMU_DATA.m_attitude.euler.phi, &CHIMU_DATA.m_attitude.euler.theta, &CHIMU_DATA.m_attitude.euler.psi);
 
-        }
       }
     }
   }

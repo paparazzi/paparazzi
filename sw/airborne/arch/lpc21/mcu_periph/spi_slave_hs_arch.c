@@ -33,9 +33,14 @@
 #include "ssp_hw.h"
 #include "pprz_debug.h"
 #include "armVIC.h"
-#include "pprz_debug.h"
 
 
+/* High Speed SPI Slave Circular Buffer */
+uint16_t spi_slave_hs_rx_insert_idx, spi_slave_hs_rx_extract_idx;
+uint8_t spi_slave_hs_rx_buffer[SPI_SLAVE_HS_RX_BUFFER_SIZE];
+
+/* Prototypes */
+// void spi_init( void ); // -> declared in spi.h
 static void SSP_ISR(void) __attribute__((naked));
 
 /* SSPCR0 settings */
@@ -128,42 +133,28 @@ void spi_init(void) {
 static void SSP_ISR(void) {
   ISR_ENTRY();
 
-  uint8_t foo;
-  
-  foo = SSP_Read();
-  
   LED_TOGGLE(3);
+
+  //do
+  {
+    uint16_t temp;
+
+    // calc next insert index & store character
+    temp = ( spi_slave_hs_rx_insert_idx + 1) % SPI_SLAVE_HS_RX_BUFFER_SIZE;
+    spi_slave_hs_rx_buffer[ spi_slave_hs_rx_insert_idx] = SSP_Read();
+
+    // check for more room in queue
+    if (temp !=  spi_slave_hs_rx_extract_idx)
+       spi_slave_hs_rx_insert_idx = temp; // update insert index
+    
+    // else overrun
+  }  
+  // while FIFO not empty
+  //while (SSPSR & RNE);
   
 /*  
   // loop until not more interrupt sources
   while (((iid = U0IIR) & UIIR_NO_INT) == 0)
-    {
-    // identify & process the highest priority interrupt
-    switch (iid & UIIR_ID_MASK)
-      {
-      case UIIR_RLS_INT:                // Receive Line Status
-        U0LSR;                          // read LSR to clear
-        break;
-
-      case UIIR_CTI_INT:                // Character Timeout Indicator
-      case UIIR_RDA_INT:                // Receive Data Available
-        do
-          {
-          uint16_t temp;
-
-          // calc next insert index & store character
-          temp = (uart0_rx_insert_idx + 1) % UART0_RX_BUFFER_SIZE;
-          uart0_rx_buffer[uart0_rx_insert_idx] = U0RBR;
-
-          // check for more room in queue
-          if (temp != uart0_rx_extract_idx)
-            uart0_rx_insert_idx = temp; // update insert index
-          }
-        while (U0LSR & ULSR_RDR);
-
-        break;
-
-      case UIIR_THRE_INT:               // Transmit Holding Register Empty
         while (U0LSR & ULSR_THRE)
           {
           // check if more data to send
@@ -181,14 +172,6 @@ static void SSP_ISR(void) {
             }
           }
 
-        break;
-
-      default:                          // Unknown
-        U0LSR;
-        U0RBR;
-        break;
-      }
-    }
 */
   VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
   ISR_EXIT();
