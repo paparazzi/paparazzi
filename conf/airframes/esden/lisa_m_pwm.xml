@@ -158,7 +158,7 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="10." integer="16"/>
+    <define name="BARO_SENS" value="3.3" integer="16"/>
   </section>
 
  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -167,14 +167,14 @@
    <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="MAX_SUM_ERR" value="2000000"/>
-   <define name="HOVER_KP"    value="-500"/>
-   <define name="HOVER_KD"    value="-200"/>
-   <define name="HOVER_KI"    value="-100"/>
+   <define name="HOVER_KP"    value="-150"/>
+   <define name="HOVER_KD"    value="-80"/>
+   <define name="HOVER_KI"    value="-20"/>
    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
    <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
-   <define name="INV_M" value ="0.2"/>
+   <define name="INV_M" value ="0.21"/>
   </section>
 
 
