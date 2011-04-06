@@ -12,7 +12,7 @@
     <define name="AHRS_TYPE_H" value="\\\"modules/ins/ins_module.h\\\""/>
     
     <define name="USE_SPI" />
-    <define name="SPI_SLAVE" />
+    <define name="INS_LINK" value="SpiSlave"/>
     <file name="ins_chimu_spi.c"/>
     <file name="imu_chimu.c"/>
   </makefile>

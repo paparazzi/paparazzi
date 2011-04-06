@@ -35,8 +35,6 @@ INS_FORMAT ins_pitch_neutral;
 
 volatile uint8_t new_ins_attitude;
 
-#define INS_LINK	SpiSlave
-
 void ins_init( void ) 
 {
   uint8_t rate[12] = {0xae, 0xae, 0x06, 0xaa, 0x10, 0x05, 0xff, 0x79, 0x00, 0x00, 0xab, 0x76 };	// 50Hz attitude only + SPI
@@ -56,7 +54,7 @@ void ins_init( void )
   {
     InsSend1(quaternions[i]);
   }
-  // Wait a second
+  // Wait a bit (SPI send zero)
   InsSend1(0);
   InsSend1(0);
   InsSend1(0);
