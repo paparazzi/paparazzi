@@ -43,7 +43,7 @@ static inline int16_t bmp085_read_reg16_blocking(uint8_t addr)
 
   while (baro_trans.status == I2CTransPending || baro_trans.status == I2CTransRunning);
 
-  return ((baro_trans.buf[0] << 16) | baro_trans.buf[1]);
+  return ((baro_trans.buf[0] << 8) | baro_trans.buf[1]);
 }
 
 static inline void bmp085_read_reg24(uint8_t addr)
