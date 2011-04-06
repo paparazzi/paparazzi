@@ -146,9 +146,5 @@ void baro_periodic(void) {
 }
 
 void baro_board_send_reset(void) {
-  //baro_trans.type = I2CTransTx;
-  //baro_trans.slave_addr = 0x00;
-  //baro_trans.len_w = 1;
-  //baro_trans.buf[0] = 0x06;
-  //i2c_submit(&i2c2,&baro_trans);
+  // This is a NOP at the moment
 }
