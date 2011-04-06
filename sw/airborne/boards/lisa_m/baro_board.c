@@ -113,9 +113,6 @@ void baro_periodic(void) {
   if (baro_trans.status == I2CTransRunning) return;
   if (!i2c_idle(&i2c2)) return;
 
-  static uint8_t counter=0;
-  if (++counter % 20) return;
-
   switch (baro_board.status) {
   case LBS_UNINITIALIZED:
     baro_board_send_reset();
