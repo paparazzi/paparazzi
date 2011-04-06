@@ -4,12 +4,7 @@
 struct Baro baro;
 struct BaroBoard baro_board;
 struct i2c_transaction baro_trans;
-static struct bmp085_baro_calibration calibration;
-
-static inline void baro_board_write_to_register(uint8_t baro_addr, uint8_t reg_addr, uint8_t val_msb, uint8_t val_lsb);
-static inline void baro_board_read_from_register(uint8_t baro_addr, uint8_t reg_addr);
-static inline void baro_board_set_current_register(uint8_t baro_addr, uint8_t reg_addr);
-static inline void baro_board_read(void);
+struct bmp085_baro_calibration calibration;
 
 #define BMP085_SAMPLE_PERIOD_MS (3 + (2 << BMP085_OSS) * 3)
 #define BMP085_SAMPLE_PERIOD (BMP075_SAMPLE_PERIOD_MS >> 1)
@@ -99,13 +94,12 @@ static inline void bmp085_read_temp(void)
   bmp085_read_reg16(0xF6);
 }
 
-
 void baro_periodic(void) {
   // check i2c_done
   if (!i2c_idle(&i2c2)) return;
 
   static uint8_t counter=0;
-  if (++counter % 10) return;
+  if (++counter % 20) return;
 
   switch (baro_board.status) {
   case LBS_UNINITIALIZED:
