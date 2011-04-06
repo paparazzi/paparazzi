@@ -1,5 +1,6 @@
 
 #include "subsystems/sensors/baro.h"
+#include <stm32/gpio.h>
 
 struct Baro baro;
 struct BaroBoard baro_board;
@@ -72,6 +73,18 @@ void baro_init(void) {
   baro.differential = 0;
   baro_board.status = LBS_UNINITIALIZED;
   bmp085_baro_read_calibration();
+
+  /* STM32 specific (maybe this is a LISA/M specific driver anyway?) */
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+}
+
+static inline int baro_eoc(void)
+{
+  return GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_0);
 }
 
 static inline void bmp085_request_pressure(void)
@@ -95,7 +108,9 @@ static inline void bmp085_read_temp(void)
 }
 
 void baro_periodic(void) {
-  // check i2c_done
+  // check that nothing is in progress
+  if (baro_trans.status == I2CTransPending) return;
+  if (baro_trans.status == I2CTransRunning) return;
   if (!i2c_idle(&i2c2)) return;
 
   static uint8_t counter=0;
@@ -112,16 +127,20 @@ void baro_periodic(void) {
     baro_board.status = LBS_READ;
     break;
   case LBS_READ:
-    bmp085_read_pressure();
-    baro_board.status = LBS_READING;
+    if (baro_eoc()) {
+      bmp085_read_pressure();
+      baro_board.status = LBS_READING;
+    }
     break;
   case LBS_REQUEST_TEMP:
     bmp085_request_temp();
     baro_board.status = LBS_READ_TEMP;
     break;
   case LBS_READ_TEMP:
-    bmp085_read_temp();
-    baro_board.status = LBS_READING_TEMP;
+    if (baro_eoc()) {
+      bmp085_read_temp();
+      baro_board.status = LBS_READING_TEMP;
+    }
     break;
   default:
     break;
