@@ -20,6 +20,9 @@ enum LisaBaroStatus {
   LBS_REQUEST,
   LBS_READING,
   LBS_READ,
+  LBS_REQUEST_TEMP,
+  LBS_READING_TEMP,
+  LBS_READ_TEMP,
 };
 
 struct BaroBoard {
@@ -49,12 +52,21 @@ extern void baro_board_send_config(void);
 static inline void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler)(void))
 {
   if (baro_board.status == LBS_READING &&
-      baro_trans.status != I2CTransPending) {
-    baro_board.status = LBS_REQUEST;
+      baro_trans.status != I2CTransPending && baro_trans.status != I2CTransRunning) {
+    baro_board.status = LBS_REQUEST_TEMP;
     if (baro_trans.status == I2CTransSuccess) {
-      int32_t tmp = (baro_trans.buf[0]<<16) | (baro_trans.buf[1] << 8) | baro_trans.buf[0];
+      int32_t tmp = (baro_trans.buf[0]<<16) | (baro_trans.buf[1] << 8) | baro_trans.buf[2];
       baro.absolute = tmp >> ( 8 - BMP085_OSS);
       b_abs_handler();
+    }
+  }
+  if (baro_board.status == LBS_READING_TEMP &&
+      baro_trans.status != I2CTransPending && baro_trans.status != I2CTransRunning) {
+    baro_board.status = LBS_REQUEST;
+    if (baro_trans.status == I2CTransSuccess) {
+      int32_t tmp = (baro_trans.buf[0] << 8) | baro_trans.buf[1];
+      baro.differential = tmp;
+      b_diff_handler();
     }
   }
 }
