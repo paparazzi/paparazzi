@@ -54,13 +54,14 @@ extern struct bmp085_baro_calibration calibration;
 extern void baro_board_send_reset(void);
 extern void baro_board_send_config(void);
 
+// Apply temp calibration and sensor calibration to raw measurement to get Pa (from BMP085 datasheet)
 static inline int32_t baro_apply_calibration(int32_t raw)
 {
   int32_t b6 = calibration.b5 - 4000;
   int x1 = (calibration.b2 * (b6 * b6 >> 12)) >> 11;
   int x2 = calibration.ac2 * b6 >> 11;
   int32_t x3 = x1 + x2;
-  int32_t b3 = ((((int32_t) calibration.ac1 * 4 + x3) << BMP085_OSS) + 2)/4;
+  int32_t b3 = (((calibration.ac1 * 4 + x3) << BMP085_OSS) + 2)/4;
   x1 = calibration.ac3 * b6 >> 13;
   x2 = (calibration.b1 * (b6 * b6 >> 12)) >> 16;
   x3 = ((x1 + x2) + 2) >> 2;
@@ -80,9 +81,8 @@ static inline void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler
     baro_board.status = LBS_REQUEST_TEMP;
     if (baro_trans.status == I2CTransSuccess) {
       int32_t tmp = (baro_trans.buf[0]<<16) | (baro_trans.buf[1] << 8) | baro_trans.buf[2];
-      tmp = tmp >> ( 8 - BMP085_OSS);
-      //baro.absolute = baro_apply_calibration(tmp);
-      baro.absolute = tmp;
+      tmp = tmp >> (8 - BMP085_OSS);
+      baro.absolute = baro_apply_calibration(tmp);
       b_abs_handler();
     }
   }
