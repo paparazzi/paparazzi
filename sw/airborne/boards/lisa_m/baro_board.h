@@ -26,6 +26,20 @@ struct BaroBoard {
   enum LisaBaroStatus status;
 };
 
+struct bmp085_baro_calibration {
+  int16_t ac1;
+  int16_t ac2;
+  int16_t ac3;
+  uint16_t ac4;
+  uint16_t ac5;
+  uint16_t ac6;
+  int16_t b1;
+  int16_t b2;
+  int16_t mb;
+  int16_t mc;
+  int16_t md;
+};
+
 extern struct BaroBoard baro_board;
 extern struct i2c_transaction baro_trans;
 

@@ -4,7 +4,7 @@
 struct Baro baro;
 struct BaroBoard baro_board;
 struct i2c_transaction baro_trans;
-
+static struct bmp085_baro_calibration calibration;
 
 static inline void baro_board_write_to_register(uint8_t baro_addr, uint8_t reg_addr, uint8_t val_msb, uint8_t val_lsb);
 static inline void baro_board_read_from_register(uint8_t baro_addr, uint8_t reg_addr);
@@ -13,13 +13,6 @@ static inline void baro_board_read(void);
 
 #define BMP085_SAMPLE_PERIOD_MS (3 + (2 << BMP085_OSS) * 3)
 #define BMP085_SAMPLE_PERIOD (BMP075_SAMPLE_PERIOD_MS >> 1)
-
-void baro_init(void) {
-  baro.status = BS_UNINITIALIZED;
-  baro.absolute     = 0;
-  baro.differential = 0;
-  baro_board.status = LBS_UNINITIALIZED;
-}
 
 static inline void bmp085_write_reg(uint8_t addr, uint8_t value)
 {
@@ -30,6 +23,42 @@ static inline void bmp085_write_reg(uint8_t addr, uint8_t value)
   baro_trans.buf[1] = value;
   i2c_submit(&i2c2, &baro_trans);
   while (baro_trans.status == I2CTransPending || baro_trans.status == I2CTransRunning);
+}
+
+static inline int16_t bmp085_read_reg16(uint8_t addr)
+{
+  baro_trans.type = I2CTransTxRx;
+  baro_trans.slave_addr = BMP085_ADDR;
+  baro_trans.len_w = 1;
+  baro_trans.len_r = 2;
+  baro_trans.buf[0] = addr;
+  i2c_submit(&i2c2, &baro_trans);
+  while (baro_trans.status == I2CTransPending || baro_trans.status == I2CTransRunning);
+
+  return ((baro_trans.buf[0] << 16) | baro_trans.buf[1]);
+}
+
+static void bmp085_baro_read_calibration(void)
+{
+  calibration.ac1 = bmp085_read_reg16(0xAA); // AC1
+  calibration.ac2 = bmp085_read_reg16(0xAC); // AC2
+  calibration.ac3 = bmp085_read_reg16(0xAE); // AC3
+  calibration.ac4 = bmp085_read_reg16(0xB0); // AC4
+  calibration.ac5 = bmp085_read_reg16(0xB2); // AC5
+  calibration.ac6 = bmp085_read_reg16(0xB4); // AC6
+  calibration.b1 = bmp085_read_reg16(0xB6); // B1
+  calibration.b2 = bmp085_read_reg16(0xB8); // B2
+  calibration.mb = bmp085_read_reg16(0xBA); // MB
+  calibration.mc = bmp085_read_reg16(0xBC); // MC
+  calibration.md = bmp085_read_reg16(0xBE); // MD
+}
+
+void baro_init(void) {
+  baro.status = BS_UNINITIALIZED;
+  baro.absolute     = 0;
+  baro.differential = 0;
+  baro_board.status = LBS_UNINITIALIZED;
+  bmp085_baro_read_calibration();
 }
 
 static inline void bmp085_request_pressure(void)
