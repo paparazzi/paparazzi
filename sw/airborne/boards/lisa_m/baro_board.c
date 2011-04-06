@@ -48,7 +48,8 @@ void baro_periodic(void) {
   switch (baro_board.status) {
   case LBS_UNINITIALIZED:
     baro_board_send_reset();
-    baro_board.status = LBS_RUNNING;
+    baro_board.status = LBS_REQUEST;
+    baro.status = BS_RUNNING;
     break;
   case LBS_REQUEST:
     bmp085_request_pressure();
