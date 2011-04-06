@@ -104,6 +104,12 @@ static unsigned long UpdateCRC(unsigned long CRC_acc, void *data, unsigned long 
   return CRC_acc;
 }
 
+void CHIMU_Checksum(unsigned char *data, unsigned char buflen)
+{
+  data[buflen-1] = (unsigned char) (UpdateCRC(0xFFFFFFFF , data , (unsigned long) (buflen - 1) ) & 0xff) ;
+}
+
+
 /***************************************************************************
  *	CHIMU Protocol Definition
  */

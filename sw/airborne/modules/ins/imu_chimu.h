@@ -126,6 +126,7 @@ unsigned char CHIMU_Parse(unsigned char btData, unsigned char bInputType, CHIMU_
 
 unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloadData, CHIMU_PARSER_DATA  *pstData);
 
+void CHIMU_Checksum(unsigned char *data, unsigned char buflen);
 
 #endif // CHIMU_DEFINED
 
