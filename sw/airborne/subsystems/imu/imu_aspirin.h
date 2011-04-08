@@ -133,13 +133,19 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
   }
 
   // Try again later if transaction is in progress
-  if (imu_aspirin.i2c_trans_gyro.status == I2CTransPending || imu_aspirin.i2c_trans_gyro.status == I2CTransRunning) return;
+  if (imu_aspirin.i2c_trans_gyro.status == I2CTransPending || imu_aspirin.i2c_trans_gyro.status == I2CTransRunning) 
+  {
+    imu_aspirin_arch_int_enable();
+    return;
+  }
 
   ImuMagEvent(_mag_handler);
 
   // Try back later if things are not idle
-  if (i2c2.status != I2CIdle) return;
-  if (!i2c_idle(&i2c2)) return;
+  if ((i2c2.status != I2CIdle) || !i2c_idle(&i2c2)) {
+    imu_aspirin_arch_int_enable();
+    return;
+  }
 
   if (imu_aspirin.reading_gyro) {
     if (imu_aspirin.i2c_trans_gyro.status == I2CTransSuccess) {
