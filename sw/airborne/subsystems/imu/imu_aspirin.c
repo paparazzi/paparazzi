@@ -26,9 +26,7 @@ static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
 void imu_impl_init(void) {
 
   imu_aspirin.status = AspirinStatusUninit;
-  imu_aspirin.gyro_available = FALSE;
   imu_aspirin.gyro_available_blaaa = FALSE;
-  imu_aspirin.mag_ready_for_read = FALSE;
   imu_aspirin.mag_available = FALSE;
   imu_aspirin.accel_available = FALSE;
 
