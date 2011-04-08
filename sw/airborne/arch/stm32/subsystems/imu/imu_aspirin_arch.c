@@ -43,11 +43,13 @@ void imu_aspirin_arch_int_enable(void) {
 void imu_aspirin_arch_int_disable(void) {
   NVIC_InitTypeDef NVIC_InitStructure;
 
+#ifdef ASPIRIN_USE_GYRO_INT
   NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
   NVIC_Init(&NVIC_InitStructure);
+#endif
 
   NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
