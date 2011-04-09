@@ -50,10 +50,14 @@ void imu_periodic(void) {
     configure_accel();
     imu_aspirin_arch_int_enable();
     imu_aspirin.status = AspirinStatusIdle;
-  }
-  else {
+  } else {
     imu_aspirin.gyro_available_blaaa = TRUE;
     imu_aspirin.time_since_last_reading++;
+    imu_aspirin.time_since_last_accel_reading++;
+    if (imu_aspirin.time_since_last_accel_reading > ASPIRIN_ACCEL_TIMEOUT) {
+      configure_accel();
+      imu_aspirin.time_since_last_accel_reading=0;
+    }
   }
 
 }

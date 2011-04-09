@@ -67,6 +67,7 @@ struct ImuAspirin {
   volatile uint8_t accel_tx_buf[7];
   volatile uint8_t accel_rx_buf[7];
   uint32_t time_since_last_reading;
+  uint32_t time_since_last_accel_reading;
   uint8_t mag_available;
   uint8_t reading_gyro;
   uint8_t gyro_available_blaaa;
@@ -74,6 +75,7 @@ struct ImuAspirin {
 
 extern struct ImuAspirin imu_aspirin;
 #define ASPIRIN_GYRO_TIMEOUT 3
+#define ASPIRIN_ACCEL_TIMEOUT 3
 
 #include "peripherals/hmc5843.h"
 #define foo_handler() {}
@@ -125,26 +127,26 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
 {
   if (imu_aspirin.status == AspirinStatusUninit) return;
 
-  imu_aspirin_arch_int_disable();
+  //imu_aspirin_arch_int_disable();
   if (imu_aspirin.accel_available) {
+    imu_aspirin.time_since_last_accel_reading = 0;
     imu_aspirin.accel_available = FALSE;
     accel_copy_spi();
     _accel_handler();
   }
+  //imu_aspirin_arch_int_enable();
   
   // Reset everything if we've been waiting too long
   if (imu_aspirin.time_since_last_reading > ASPIRIN_GYRO_TIMEOUT) {
     i2c2_er_irq_handler();
     gyro_read_i2c();
     imu_aspirin.time_since_last_reading = 0;
-    imu_aspirin_arch_int_enable();
     return;
   }
 
   // Try again later if transaction is in progress
   if (imu_aspirin.i2c_trans_gyro.status == I2CTransPending || imu_aspirin.i2c_trans_gyro.status == I2CTransRunning) 
   {
-    imu_aspirin_arch_int_enable();
     return;
   }
 
@@ -152,7 +154,6 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
 
   // Try back later if things are not idle
   if ((i2c2.status != I2CIdle) || !i2c_idle(&i2c2)) {
-    imu_aspirin_arch_int_enable();
     return;
   }
 
@@ -165,7 +166,6 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
       }
     }
     imu_aspirin.reading_gyro = 0;
-    imu_aspirin_arch_int_enable();
     return;
   }
 
@@ -175,11 +175,9 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
       imu_aspirin.time_since_last_reading = 0;
     }
     gyro_read_i2c();
-    imu_aspirin_arch_int_enable();
     return;
   }
 
-  imu_aspirin_arch_int_enable();
 }
 
 #define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) do {		\
