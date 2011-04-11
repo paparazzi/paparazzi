@@ -18,7 +18,7 @@ static inline void i2c_reset_init(struct i2c_periph *p);
 #define OUT_OF_SYNC_STATE_MACHINE(_periph, _status, _event) { while(1); }
 #else
 //#define SPURIOUS_INTERRUPT(_periph, _status, _event) { periph->errors->unexpected_event_cnt++; abort_and_reset(_periph);}
-#define SPURIOUS_INTERRUPT(_periph, _status, _event) { abort_and_reset(_periph);}
+#define SPURIOUS_INTERRUPT(_periph, _status, _event) { if (_status == I2CAddrWrSent) abort_and_reset(_periph);}
 #define OUT_OF_SYNC_STATE_MACHINE(_periph, _status, _event) { abort_and_reset(_periph);}
 #endif
 
@@ -134,7 +134,7 @@ static inline void on_status_addr_wr_sent(struct i2c_periph *periph, struct i2c_
   else {
     SPURIOUS_INTERRUPT(periph, I2CAddrWrSent, event);
     // FIXME: this was where the code would break with mkk controllers on april 10 2011
-    // have now SPURIOUS_INTERRUPT call abort_and_reset
+    // now have SPURIOUS_INTERRUPT call abort_and_reset
   }
 }
 
@@ -231,8 +231,8 @@ static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_
       trans->buf[periph->idx_buf] = read_byte;
       periph->idx_buf++;
       if (periph->idx_buf >= trans->len_r-1) {                    // We're reading our last byte
-        I2C_AcknowledgeConfig(periph->reg_addr, DISABLE);                  // give them a nack once it's done
-        I2C_GenerateSTOP(periph->reg_addr, ENABLE);                        // and follow with a stop
+        I2C_AcknowledgeConfig(periph->reg_addr, DISABLE);         // give them a nack once it's done
+        I2C_GenerateSTOP(periph->reg_addr, ENABLE);               // and follow with a stop
         /* Make sure that the STOP bit is cleared by Hardware */
         static __IO uint8_t counter = 0;
         while ((regs->CR1 & 0x200) == 0x200) {
