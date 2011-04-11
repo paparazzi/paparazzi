@@ -66,41 +66,54 @@ typedef struct {
 	CHIMU_Quaternion q;
 } CHIMU_attitude_data;
 
+#ifndef FALSE
 #define FALSE (1==0)
+#endif
+#ifndef TRUE
 #define TRUE (1==1)
+#endif
 
 typedef struct {
-	int cputemp;
-	int acc[3];
-	int rate[3];
-	int mag[3];
-	int spare1;
-	int euler[3];
+	float cputemp;
+	float acc[3];
+	float rate[3];
+	float mag[3];
+	float spare1;
 } CHIMU_sensor_data;
-
-extern uint8_t gCHIMU_SW_Exclaim;
-extern char gCHIMU_SW_Major;
-extern char gCHIMU_SW_Minor;
-extern uint16_t gCHIMU_SW_SerialNumber;
 
 #define CHIMU_RX_BUFFERSIZE 128
 
 typedef struct {
-    unsigned char	m_State;			// Current state protocol parser is in
-	unsigned char 	m_Checksum;			// Calculated CHIMU sentence checksum
-	unsigned char 	m_ReceivedChecksum;		// Received CHIMU sentence checksum (if exists)
-	unsigned char   m_Index;			// Index used for command and data
+        unsigned char	m_State;			// Current state protocol parser is in
+        unsigned char 	m_Checksum;			// Calculated CHIMU sentence checksum
+        unsigned char 	m_ReceivedChecksum;		// Received CHIMU sentence checksum (if exists)
+        unsigned char   m_Index;			// Index used for command and data
         unsigned char   m_PayloadIndex;
         unsigned char   m_MsgID;
         unsigned char   m_MsgLen;
         unsigned char   m_TempDeviceID;
         unsigned char   m_DeviceID;
+<<<<<<< HEAD
 	unsigned char   m_Payload[CHIMU_RX_BUFFERSIZE];        // CHIMU data
+=======
+        unsigned char   m_Payload[CHIMU_RX_BUFFERSIZE];        // CHIMU data
+>>>>>>> paparazzi/CHIMU
         unsigned char   m_FullMessage[CHIMU_RX_BUFFERSIZE];	// CHIMU data
         CHIMU_attitude_data m_attitude;
         CHIMU_attitude_data m_attrates;
         CHIMU_sensor_data   m_sensor;
 
+	// Ping data
+        uint8_t gCHIMU_SW_Exclaim;
+        uint8_t gCHIMU_SW_Major;
+        uint8_t gCHIMU_SW_Minor;
+        uint16_t gCHIMU_SW_SerialNumber;
+
+	// Config
+        uint8_t gCalStatus;
+        uint8_t gCHIMU_BIT;
+        uint8_t gConfigInfo;
+	
 } CHIMU_PARSER_DATA;
 
 /*---------------------------------------------------------------------------
@@ -116,8 +129,7 @@ unsigned char CHIMU_Parse(unsigned char btData, unsigned char bInputType, CHIMU_
 
 unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloadData, CHIMU_PARSER_DATA  *pstData);
 
-CHIMU_attitude_data GetEulersFromQuat(CHIMU_attitude_data attitude);
-
+void CHIMU_Checksum(unsigned char *data, unsigned char buflen);
 
 #endif // CHIMU_DEFINED
 

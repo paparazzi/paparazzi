@@ -29,7 +29,6 @@
 
     Public Functions:
       CHIMU_Init        Create component instance
-      CHIMU_Done        Free component instance
       CHIMU_Parse       Parse the RX byte stream message
 
     Applicable Documents:
@@ -41,14 +40,81 @@
 
 #include "imu_chimu.h"
 #include "string.h"
-//#include "crc.h"
-#include "endian_functions.h"
-//#include "util.h"
 #include "math.h"
 
 
+/***************************************************************************
+ * Endianness Swapping Functions
+ */
 
-//---[Defines]------------------------------------------------------
+static float FloatSwap( float f )
+{
+  union
+  {
+    float f;
+    unsigned char b[4];
+  } dat1, dat2;
+
+  dat1.f = f;
+  dat2.b[0] = dat1.b[3];
+  dat2.b[1] = dat1.b[2];
+  dat2.b[2] = dat1.b[1];
+  dat2.b[3] = dat1.b[0];
+  return dat2.f;
+}
+
+/***************************************************************************
+ * Cyclic Redundancy Checksum
+ */
+
+static unsigned long UpdateCRC(unsigned long CRC_acc, void *data, unsigned long data_len)
+{
+  unsigned long i; // loop counter
+#define POLY 0xEDB88320 // bit-reversed version of the poly 0x04C11DB7
+  // Create the CRC "dividend" for polynomial arithmetic (binary arithmetic
+  // with no carries)
+
+  unsigned char *CRC_input = (unsigned char*)data;
+  for (unsigned long j = data_len; j; --j)
+  {
+  
+    CRC_acc = CRC_acc ^ *CRC_input++;
+    // "Divide" the poly into the dividend using CRC XOR subtraction
+    // CRC_acc holds the "remainder" of each divide
+    //
+    // Only complete this division for 8 bits since input is 1 byte
+    for (i = 0; i < 8; i++)
+    {
+    // Check if the MSB is set (if MSB is 1, then the POLY can "divide"
+    // into the "dividend")
+    if ((CRC_acc & 0x00000001) == 0x00000001)
+    {
+    // if so, shift the CRC value, and XOR "subtract" the poly
+    CRC_acc = CRC_acc >> 1;
+    CRC_acc ^= POLY;
+    }
+    else
+    {
+    // if not, just shift the CRC value
+    CRC_acc = CRC_acc >> 1;
+    }
+    }
+  }
+  // Return the final remainder (CRC value)
+  return CRC_acc;
+}
+
+void CHIMU_Checksum(unsigned char *data, unsigned char buflen)
+{
+  data[buflen-1] = (unsigned char) (UpdateCRC(0xFFFFFFFF , data , (unsigned long) (buflen - 1) ) & 0xff) ;
+}
+
+
+/***************************************************************************
+ *	CHIMU Protocol Definition
+ */
+
+// Lowlevel Protocol Decoding
 #define CHIMU_STATE_MACHINE_START   	0
 #define CHIMU_STATE_MACHINE_HEADER2   	1
 #define CHIMU_STATE_MACHINE_LEN		2
@@ -57,9 +123,7 @@
 #define CHIMU_STATE_MACHINE_PAYLOAD	5
 #define CHIMU_STATE_MACHINE_XSUM	6
 
-
-//---[DEFINES for Message List]---------------------------------------
-//Message ID's that go TO the CHIMU
+// Message ID's that go TO the CHIMU
 #define MSG00_PING		0x00
 #define MSG01_BIAS		0x01
 #define MSG02_DACMODE		0x02
@@ -79,8 +143,7 @@
 #define MSG10_UARTSETTINGS	0x10
 #define MSG11_SERIALNUMBER	0x11
 
-//Output message identifiers from the CHIMU unit
-//---[Defines]------------------------------------------------------
+// Output message identifiers from the CHIMU unit
 #define CHIMU_Msg_0_Ping			0
 #define CHIMU_Msg_1_IMU_Raw                     1
 #define CHIMU_Msg_2_IMU_FP			2
@@ -98,20 +161,8 @@
 #define CHIMU_Msg_14_RefVector                  14
 #define CHIMU_Msg_15_SFCheck                    15
 
-
-//---[COM] defines
-#define CHIMU_COM_ID_LOW	0x00
+// Communication Definitions
 #define CHIMU_COM_ID_HIGH	0x1F  //Must set this to the max ID expected above
-
-#define NP_MAX_CMD_LEN			8		// maximum command length (CHIMU address)
-#define NP_MAX_DATA_LEN			256		// maximum data length
-#define NP_MAX_CHAN			36		// maximum number of channels
-#define NP_WAYPOINT_ID_LEN		32		// waypoint max string len
-#define NP_XSUM_LEN                     3               // chars in checksum string
-
-#define CHIMU_STANDARD   0x00
-
-
 
 /*---------------------------------------------------------------------------
         Name: CHIMU_Init
@@ -155,11 +206,9 @@ void CHIMU_Init(CHIMU_PARSER_DATA   *pstData)
   pstData->m_DeviceID = 0x01; //look at this later
 }
 
-
 /*---------------------------------------------------------------------------
         Name: CHIMU_Parse
     Abstract: Parse message, returns TRUE if new data.
-        Note: A typical sentence is constructed as:
 ---------------------------------------------------------------------------*/
 
 unsigned char CHIMU_Parse(
@@ -168,7 +217,6 @@ unsigned char CHIMU_Parse(
 		    CHIMU_PARSER_DATA   *pstData)   /* resulting data           */
 {
 
-    //long int       i;
     char           bUpdate = FALSE;
 
     switch (pstData->m_State) {
@@ -215,7 +263,7 @@ unsigned char CHIMU_Parse(
               break;
             case CHIMU_STATE_MACHINE_ID:  // Get ID
                       pstData->m_MsgID = btData; // might be invalid, chgeck it out here:
-                      if ( (pstData->m_MsgID<CHIMU_COM_ID_LOW) || (pstData->m_MsgID>CHIMU_COM_ID_HIGH)) 
+                      if ( pstData->m_MsgID>CHIMU_COM_ID_HIGH) 
                       { 
                         pstData->m_State = CHIMU_STATE_MACHINE_START;
                         //BuiltInTest(BIT_COM_UART_RECEIPTFAIL, BIT_FAIL);
@@ -230,8 +278,7 @@ unsigned char CHIMU_Parse(
                       pstData->m_FullMessage[pstData->m_Index++]=btData;
                       if ((pstData->m_Index) >= (pstData->m_MsgLen + 5)) //Now we have the payload.  Verify XSUM and then parse it next
                       {
-// TODO Redo Checksum
-//                        pstData->m_Checksum = (unsigned char) ((UpdateCRC(0xFFFFFFFF , pstData->m_FullMessage , (unsigned long) (pstData->m_MsgLen)+5)) & 0xFF);                                               
+                        pstData->m_Checksum = (unsigned char) ((UpdateCRC(0xFFFFFFFF , pstData->m_FullMessage , (unsigned long) (pstData->m_MsgLen)+5)) & 0xFF);                                               
                         pstData->m_State = CHIMU_STATE_MACHINE_XSUM;
                       } else {
                         return FALSE;
@@ -263,6 +310,55 @@ unsigned char CHIMU_Parse(
 // appropriate sentence data processor.
 ///////////////////////////////////////////////////////////////////////////////
 
+static CHIMU_attitude_data GetEulersFromQuat(CHIMU_attitude_data attitude)
+{
+  CHIMU_attitude_data ps;
+  ps = attitude;
+  float x, sqw,sqx,sqy,sqz,norm;
+  sqw = ps.q.s * ps.q.s;
+  sqx = ps.q.v.x * ps.q.v.x;
+  sqy = ps.q.v.y * ps.q.v.y;
+  sqz = ps.q.v.z * ps.q.v.z;
+  norm = sqrt(sqw + sqx + sqy + sqz);
+  //Normalize the quat
+  ps.q.s = ps.q.s / norm;
+  ps.q.v.x = ps.q.v.x / norm;
+  ps.q.v.y = ps.q.v.y / norm;
+  ps.q.v.z = ps.q.v.z / norm;
+  ps.euler.phi =atan2(2.0 * (ps.q.s * ps.q.v.x + ps.q.v.y * ps.q.v.z), (1 - 2 * (sqx + sqy)));
+  if (ps.euler.phi < 0)  ps.euler.phi = ps.euler.phi + 2 *M_PI;
+  x = ((2.0 * (ps.q.s * ps.q.v.y - ps.q.v.z * ps.q.v.x)));
+  //Below needed in event normalization not done
+  if (x > 1.0) x = 1.0;
+  if (x < -1.0) x = -1.0;
+  //
+  if ((ps.q.v.x * ps.q.v.y + ps.q.v.z * ps.q.s) == 0.5) 
+          {
+          ps.euler.theta = 2 *atan2(ps.q.v.x, ps.q.s);
+          }
+          else
+          if ((ps.q.v.x * ps.q.v.y + ps.q.v.z * ps.q.s) == -0.5) 
+                  {
+                  ps.euler.theta = -2 *atan2(ps.q.v.x, ps.q.s);
+                  }
+          else{
+                  ps.euler.theta = asin(x);
+                  }
+  ps.euler.psi = atan2(2.0 * (ps.q.s * ps.q.v.z + ps.q.v.x * ps.q.v.y), (1 - 2 * (sqy + sqz)));
+  if (ps.euler.psi < 0) 
+          {
+           ps.euler.psi = ps.euler.psi + (2 * M_PI);
+          }
+
+  return(ps);
+  
+}
+
+static unsigned char BitTest (unsigned char input, unsigned char n)
+{
+//Test a bit in n and return TRUE or FALSE
+	if ( input & (1 << n)) return TRUE; else return FALSE;
+}
 unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloadData, CHIMU_PARSER_DATA *pstData)
 {
     //Msgs from CHIMU are off limits (i.e.any CHIMU messages sent up the uplink should go to 
@@ -278,11 +374,11 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
 	switch (pstData->m_MsgID){
 		case CHIMU_Msg_0_Ping:
                   CHIMU_index = 0;
-                  gCHIMU_SW_Exclaim = pPayloadData[CHIMU_index]; CHIMU_index++;
-                  gCHIMU_SW_Major = pPayloadData[CHIMU_index]; CHIMU_index++;
-                  gCHIMU_SW_Minor = pPayloadData[CHIMU_index]; CHIMU_index++;
-                  gCHIMU_SW_SerialNumber = (pPayloadData[CHIMU_index]<<8) & (0x0000FF00); CHIMU_index++;
-                  gCHIMU_SW_SerialNumber += pPayloadData[CHIMU_index]; CHIMU_index++;
+                  pstData->gCHIMU_SW_Exclaim = pPayloadData[CHIMU_index]; CHIMU_index++;
+                  pstData->gCHIMU_SW_Major = pPayloadData[CHIMU_index]; CHIMU_index++;
+                  pstData->gCHIMU_SW_Minor = pPayloadData[CHIMU_index]; CHIMU_index++;
+                  pstData->gCHIMU_SW_SerialNumber = (pPayloadData[CHIMU_index]<<8) & (0x0000FF00); CHIMU_index++;
+                  pstData->gCHIMU_SW_SerialNumber += pPayloadData[CHIMU_index]; CHIMU_index++;
                   return TRUE;
                   break;
 		case CHIMU_Msg_1_IMU_Raw:
@@ -319,7 +415,7 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
                   pstData->m_attitude.euler.phi = FloatSwap(pstData->m_attitude.euler.phi);
                   pstData->m_attitude.euler.theta = FloatSwap(pstData->m_attitude.euler.theta);
                   pstData->m_attitude.euler.psi = FloatSwap(pstData->m_attitude.euler.psi);
-                  memmove (&pstData->m_sensor.rate[0], &pPayloadData[CHIMU_index], sizeof(pstData->m_sensor.rate));CHIMU_index += (sizeof(pstData->m_sensor.rate));
+                  memmove (&pstData->m_sensor.rate[0], &pPayloadData[CHIMU_index], sizeof(pstData->m_sensor.rate));  CHIMU_index += (sizeof(pstData->m_sensor.rate));
                   pstData->m_sensor.rate[0] = FloatSwap(pstData->m_sensor.rate[0]);
                   pstData->m_sensor.rate[1] = FloatSwap(pstData->m_sensor.rate[1]);
                   pstData->m_sensor.rate[2] = FloatSwap(pstData->m_sensor.rate[2]);
@@ -341,14 +437,13 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
                   pstData->m_attrates.euler.theta = pstData->m_sensor.rate[1];
                   pstData->m_attrates.euler.psi = pstData->m_sensor.rate[2];
 
-/*
-	// TODO: Read configuration bits
+                  pstData->gCalStatus = pPayloadData[CHIMU_index]; CHIMU_index ++;
+                  pstData->gCHIMU_BIT = pPayloadData[CHIMU_index]; CHIMU_index ++;
+                  pstData->gConfigInfo = pPayloadData[CHIMU_index]; CHIMU_index ++;
 
-                  gCalStatus = pPayloadData[CHIMU_index]; CHIMU_index ++;
-                  gCHIMU_BIT = pPayloadData[CHIMU_index]; CHIMU_index ++;
+// TODO: Read configuration bits
 
-                  gConfigInfo = pPayloadData[CHIMU_index]; CHIMU_index ++;
-                  bC0_SPI_En = BitTest (gConfigInfo, 0); 
+/*                  bC0_SPI_En = BitTest (gConfigInfo, 0); 
                   bC1_HWCentrip_En = BitTest (gConfigInfo, 1); 
                   bC2_TempCal_En = BitTest (gConfigInfo, 2); 
                   bC3_RateOut_En = BitTest (gConfigInfo, 3); 
@@ -356,13 +451,12 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
                   bC5_Quat_Est = BitTest (gConfigInfo, 5); 
                   bC6_SWCentrip_En = BitTest (gConfigInfo, 6); 
                   bC7_AllowHW_Override = BitTest (gConfigInfo, 7); 
-
+*/
                   //CHIMU currently (v 1.3) does not compute Eulers if quaternion estimator is selected
-                  if(bC5_Quat_Est == TRUE)
+                  if(BitTest (pstData->gConfigInfo, 5) == TRUE)
                   {
                     pstData->m_attitude = GetEulersFromQuat((pstData->m_attitude));
                   }
-*/
 
                   //NEW:  Checks for bad attitude data (bad SPI maybe?)
                   //      Only allow globals to contain updated data if it makes sense
@@ -380,8 +474,6 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
 		  {
                     //TODO:  Log BIT that indicates IMU message incoming failed (maybe SPI error?)
                   }
-
-                  //Led_Off(LED_RED);
  
                   return TRUE;
                   break;
@@ -402,49 +494,6 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
                   return FALSE;
                   break;
 	}
-}
-
-CHIMU_attitude_data GetEulersFromQuat(CHIMU_attitude_data attitude)
-{
-  CHIMU_attitude_data ps;
-  ps = attitude;
-  float x, sqw,sqx,sqy,sqz,norm;
-  sqw = ps.q.s * ps.q.s;
-  sqx = ps.q.v.x * ps.q.v.x;
-  sqy = ps.q.v.y * ps.q.v.y;
-  sqz = ps.q.v.z * ps.q.v.z;
-  norm = sqrt(sqw + sqx + sqy + sqz);
-  //Normalize the quat
-  ps.q.s = ps.q.s / norm;
-  ps.q.v.x = ps.q.v.x / norm;
-  ps.q.v.y = ps.q.v.y / norm;
-  ps.q.v.z = ps.q.v.z / norm;
-  ps.euler.phi =atan2(2.0 * (ps.q.s * ps.q.v.x + ps.q.v.y * ps.q.v.z), (1 - 2 * (sqx + sqy)));
-  if (ps.euler.phi < 0)  ps.euler.phi = ps.euler.phi + 2 *PI;
-  x = ((2.0 * (ps.q.s * ps.q.v.y - ps.q.v.z * ps.q.v.x)));
-  //Below needed in event normalization not done
-  if (x > 1.0) x = 1.0;
-  if (x < -1.0) x = -1.0;
-  //
-  if ((ps.q.v.x * ps.q.v.y + ps.q.v.z * ps.q.s) == 0.5) 
-          {
-          ps.euler.theta = 2 *atan2(ps.q.v.x, ps.q.s);
-          }
-          else
-          if ((ps.q.v.x * ps.q.v.y + ps.q.v.z * ps.q.s) == -0.5) 
-                  {
-                  ps.euler.theta = -2 *atan2(ps.q.v.x, ps.q.s);
-                  }
-          else{
-                  ps.euler.theta = asin(x);
-                  }
-  ps.euler.psi = atan2(2.0 * (ps.q.s * ps.q.v.z + ps.q.v.x * ps.q.v.y), (1 - 2 * (sqy + sqz)));
-  if (ps.euler.psi < 0) 
-          {
-           ps.euler.psi = ps.euler.psi + (2 * PI);
-          }
-
-  return(ps);
-  
+	return FALSE;
 }
 

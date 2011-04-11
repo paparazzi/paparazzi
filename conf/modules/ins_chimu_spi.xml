@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ins">
+  <!-- <depend conflict="ins" -->
+  <header>
+    <file name="ins_module.h"/>
+  </header>
+  <init fun="ins_init()"/>
+  <periodic fun="ins_periodic_task()" freq="60"/>
+  <event fun="parse_ins_msg()"/>
+  <makefile>
+    <define name="AHRS_TYPE_H" value="\\\"modules/ins/ins_module.h\\\""/>
+    <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
+    
+    <define name="USE_SPI" />
+    <define name="INS_LINK" value="SpiSlave"/>
+    <file name="ins_chimu_spi.c"/>
+    <file name="imu_chimu.c"/>
+  </makefile>
+</module>
