@@ -112,6 +112,10 @@
 # /sw/ground_segment/joystick
 /sw/ground_segment/joystick/test_stick
 
+# /sw/ground_segment/misc
+/sw/ground_segment/misc/davis2ivy
+
+
 # /sw/airborne/arch/lpc21/test/bootloader
 /sw/airborne/arch/lpc21/test/bootloader/bl.dmp
 /sw/airborne/arch/lpc21/test/bootloader/bl.hex

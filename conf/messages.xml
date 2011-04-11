@@ -451,7 +451,7 @@
     <field name="mode"       type="uint8"  unit="byte_mask"/>
     <field name="gps_nb_err" type="uint8"/>
   </message>
- 
+
   <message name="H_CTL_A" id="60">
     <field name="roll_sum_err" type="float"/>
     <field name="ref_roll_angle" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
@@ -1332,7 +1332,7 @@
     <field name="bq"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
     <field name="br"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
   </message>
-    
+
 
  <!--179 is free -->
 
@@ -1603,7 +1603,12 @@
  <!--216 is free -->
  <!--217 is free -->
  <!--218 is free -->
- <!--219 is free -->
+  <message name="WEATHER" id="219">
+    <field name="p_amb" type="float" unit="Pa" alt_unit="mBar" alt_unit_coef="0.01"/>
+    <field name="t_amb" type="float" unit="deg C"/>
+    <field name="windspeed" type="float" unit="m/s"/>
+    <field name="wind_from" type="float" unit="deg"/>
+  </message>
 
   <message name="IMU_TURNTABLE" id="220">
     <field name="omega" type="float" unit="rad/s" alt_unit="deg/s" alt_unit_coef="57.29578"/>
