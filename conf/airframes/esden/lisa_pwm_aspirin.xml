@@ -57,7 +57,7 @@
     
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45. )"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg( 225. )"/>
 
   </section>
 
