@@ -130,6 +130,13 @@
 
   </section>
 
+  <section name="AHRS" prefix="AHRS_">
+    <define name="PROPAGATE_FREQUENCY" value="512"/>
+    <define name="H_X" value=" 0.51562740288882"/>
+    <define name="H_Y" value="-0.05707735220832"/>
+    <define name="H_Z" value=" 0.85490967783446"/>
+  </section>
+
   <section name="INS" prefix="INS_">
     <define name="BARO_SENS" value="10." integer="16"/>
   </section>
@@ -150,7 +157,6 @@
    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
    <define name="INV_M" value ="0.15"/>
   </section>
-
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
    <define name="PGAIN" value="-100"/>
@@ -197,7 +203,8 @@
     <subsystem name="gps"           type="ublox">
 	    <configure name="GPS_BAUD"    value="B57600"/>
     </subsystem>
-    <subsystem name="ahrs"          type="cmpl"/>
+    <!--subsystem name="ahrs"          type="cmpl"/-->
+    <subsystem name="ahrs"          type="ic"/>
   </firmware>
 
   <firmware name="lisa_l_test_progs">
