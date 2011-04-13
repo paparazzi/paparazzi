@@ -34,7 +34,7 @@
    <configure name="ADC_IR_TOP"     value="ADC_0"/><!-- this is already the default if not set, change if needed -->
    <configure name="ADC_IR_NB_SAMPLES" value="16"/><!-- this is already the default if not set, change if needed -->
  </subsystem>
- <subsystem name="gps" 		    types="ublox_lea4p|lea5h">
+ <subsystem name="gps" 		    types="ublox_lea4p|lea5h|nmea">
    <configure name="GPS_BAUD"       values="B9600|B38400|B57600|B115200"/>
    <configure name="GPS_LED"        values="1,2,3,4,none"/>
  </subsystem>
