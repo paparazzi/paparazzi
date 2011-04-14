@@ -31,29 +31,9 @@ float read_adc(int select)
   float temp;
   if (SENSOR_SIGN[select]<0){
     temp = (AN_OFFSET[select]-AN[select]);
-    if (abs(temp)>900) {
-#if PRINT_DEBUG != 0
-    Serial.print("!!!ADC:1,VAL:");
-    Serial.print (temp);
-    Serial.println("***");
-#endif
-#if PERFORMANCE_REPORTING == 1
-    adc_constraints++;   
-#endif 
-    }
     return constrain(temp,-900,900);             //Throw out nonsensical values
   } else {
     temp = (AN[select]-AN_OFFSET[select]); 
-    if (abs(temp)>900) {
-#if PRINT_DEBUG != 0
-    Serial.print("!!!ADC:2,VAL:");
-    Serial.print (temp);
-    Serial.println("***");
-#endif    
-#if PERFORMANCE_REPORTING == 1
-    adc_constraints++; 
-#endif
-    } 
     return constrain(temp,-900,900);
   }
 }
@@ -61,8 +41,8 @@ float read_adc(int select)
 //Activating the ADC interrupts. 
 void Analog_Init(void)
 {
- ADCSRA|=(1<<ADIE)|(1<<ADEN);
- ADCSRA|= (1<<ADSC);
+  ADCSRA|=(1<<ADIE)|(1<<ADEN);
+  ADCSRA|= (1<<ADSC);
 }
 
 //
@@ -80,8 +60,8 @@ ISR(ADC_vect)
   high = ADCH;
 
   if(analog_count[MuxSel]<63) {
-        analog_buffer[MuxSel] += (high << 8) | low;   // cumulate analog values
-        analog_count[MuxSel]++;
+    analog_buffer[MuxSel] += (high << 8) | low;   // cumulate analog values
+    analog_count[MuxSel]++;
   }
   MuxSel++;
   MuxSel &= 0x07;   //if(MuxSel >=8) MuxSel=0;

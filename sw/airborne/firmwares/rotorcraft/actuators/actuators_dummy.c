@@ -21,10 +21,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "firmwares/rotorcraft/battery.h"
+#include "firmwares/rotorcraft/actuators.h"
 
-uint8_t battery_voltage;
 
-void battery_init(void) {
-  battery_voltage = 0;
+
+
+void actuators_init(void) {
+
+}
+
+
+void actuators_set(bool_t motors_on) {
 }

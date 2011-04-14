@@ -46,6 +46,7 @@ void actuators_set(bool_t motors_on) {
   booz2_commands[COMMAND_PITCH] = booz2_commands[COMMAND_PITCH] * PWM_GAIN_SCALE;
   booz2_commands[COMMAND_ROLL] = booz2_commands[COMMAND_ROLL] * PWM_GAIN_SCALE;
   booz2_commands[COMMAND_YAW] = booz2_commands[COMMAND_YAW] * PWM_GAIN_SCALE;
+  booz2_commands[COMMAND_THRUST] = (booz2_commands[COMMAND_THRUST] * ((SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR) / 200)) + SUPERVISION_MIN_MOTOR;
 
   supervision_run(motors_on, FALSE, booz2_commands);
 

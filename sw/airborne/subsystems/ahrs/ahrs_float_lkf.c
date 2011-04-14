@@ -315,7 +315,7 @@ void ahrs_propagate(void) {
 
 	bafl_qnorm = FLOAT_QUAT_NORM(bafl_quat);
 	//TODO check if broot force normalization is good, use lagrange normalization?
-	FLOAT_QUAT_NORMALISE(bafl_quat);
+	FLOAT_QUAT_NORMALIZE(bafl_quat);
 
 
 	/*

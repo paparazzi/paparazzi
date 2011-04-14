@@ -138,7 +138,7 @@ else
 LDFLAGS = -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT) --gc-sections
 endif
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
-LDLIBS  += -lc -lm -lgcc -lcmsis -lstm32
+LDLIBS  += -lc -lm -lgcc -lcmsis -lstm32 -lopencm3_stm32
 
 CPFLAGS = -j .isr_vector -j .text -j .data
 CPFLAGS_BIN = -Obinary

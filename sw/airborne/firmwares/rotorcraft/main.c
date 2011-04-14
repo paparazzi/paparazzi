@@ -32,6 +32,7 @@
 #include "downlink.h"
 #include "firmwares/rotorcraft/telemetry.h"
 #include "datalink.h"
+#include "subsystems/settings.h"
 #include "xbee.h"
 
 #include "booz2_commands.h"
@@ -46,7 +47,6 @@
 
 #include "subsystems/electrical.h"
 
-// #include "booz_fms.h"  // FIXME
 #include "firmwares/rotorcraft/autopilot.h"
 
 #include "firmwares/rotorcraft/stabilization.h"
@@ -108,7 +108,6 @@ STATIC_INLINE void main_init( void ) {
 
   baro_init();
   imu_init();
-  //  booz_fms_init(); // FIXME
   autopilot_init();
   nav_init();
   guidance_h_init();
@@ -125,6 +124,8 @@ STATIC_INLINE void main_init( void ) {
 #endif
 
   modules_init();
+
+  settings_init();
 
   mcu_int_enable();
 

@@ -22,7 +22,7 @@ sim.ARCHDIR = $(ARCH)
 
 sim.CFLAGS  += -DSITL -DNPS
 sim.CFLAGS  += `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
-sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lmeschach -lpcre -lglibivy
+sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lpcre -lglibivy -lgsl -lgslcblas
 sim.CFLAGS  += -I$(NPSDIR) -I$(SRC_FIRMWARE) -I$(SRC_BOOZ) -I$(SRC_BOOZ_SIM) -I$(SRC_BOARD) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
 
 # use the paparazzi-jsbsim package if it is installed, otherwise look for JSBsim under /opt/jsbsim
@@ -74,6 +74,8 @@ sim.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 #sim.CFLAGS += -DUSE_LED
 sim.srcs += sys_time.c
 
+sim.srcs += subsystems/settings.c
+sim.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 
 sim.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
 sim.srcs += $(SRC_FIRMWARE)/telemetry.c \

@@ -50,7 +50,7 @@ imu_CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
 
 imu_CFLAGS += -DUSE_AMI601
 imu_srcs += peripherals/ami601.c
-imu_CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=11
+imu_CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=12
 
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets

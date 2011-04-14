@@ -130,22 +130,22 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_PPM(_chan) {}
 #endif
 
-#define PERIODIC_SEND_BOOZ2_GYRO(_chan) {		\
-    DOWNLINK_SEND_BOOZ2_GYRO(_chan,			\
+#define PERIODIC_SEND_IMU_GYRO_SCALED(_chan) {		\
+    DOWNLINK_SEND_IMU_GYRO_SCALED(_chan,			\
 			     &imu.gyro.p,		\
 			     &imu.gyro.q,		\
 			     &imu.gyro.r);		\
   }
 
-#define PERIODIC_SEND_BOOZ2_ACCEL(_chan) {			\
-    DOWNLINK_SEND_BOOZ2_ACCEL(_chan,				\
+#define PERIODIC_SEND_IMU_ACCEL_SCALED(_chan) {			\
+    DOWNLINK_SEND_IMU_ACCEL_SCALED(_chan,				\
 			      &imu.accel.x,		\
 			      &imu.accel.y,		\
 			      &imu.accel.z);		\
   }
 
-#define PERIODIC_SEND_BOOZ2_MAG(_chan) {			\
-    DOWNLINK_SEND_BOOZ2_MAG(_chan,				\
+#define PERIODIC_SEND_IMU_MAG_SCALED(_chan) {			\
+    DOWNLINK_SEND_IMU_MAG_SCALED(_chan,				\
 			    &imu.mag.x,			\
 			    &imu.mag.y,			\
 			    &imu.mag.z);			\

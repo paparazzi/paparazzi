@@ -10,9 +10,5 @@ ifneq ($(GPS_LED),none)
   ap.CFLAGS += -DGPS_LED=$(GPS_LED)
 endif
 
-ifeq ($(ARCH), lpc21)
-ap.CFLAGS += -D$(GPS_PORT)_VIC_SLOT=5
-endif
-
 sim.CFLAGS += -DUSE_GPS
 sim.srcs += $(SRC_BOOZ)/booz_gps.c

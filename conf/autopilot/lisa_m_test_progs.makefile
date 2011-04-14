@@ -156,27 +156,27 @@ test_telemetry.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 ##   MODEM_PORT
 ##   MODEM_BAUD
 ##
-#test_baro.ARCHDIR = $(ARCH)
-#test_baro.CFLAGS  = -I$(SRC_LISA) -I$(SRC_ARCH) -I$(SRC_BOARD) -DPERIPHERALS_AUTO_INIT
-#test_baro.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-#test_baro.srcs = $(SRC_AIRBORNE)/mcu.c \
-#                 $(SRC_ARCH)/mcu_arch.c \
-#                 $(SRC_BOARD)/test_baro.c         \
-#                 $(SRC_ARCH)/stm32_exceptions.c   \
-#                 $(SRC_ARCH)/stm32_vector_table.c
-#test_baro.CFLAGS += -DUSE_LED
-#test_baro.srcs   += $(SRC_ARCH)/led_hw.c
-#test_baro.CFLAGS += -DUSE_SYS_TIME
-#test_baro.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-#test_baro.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
-#test_baro.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-#test_baro.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
-#test_baro.srcs   += downlink.c pprz_transport.c
-#test_baro.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
-#test_baro.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
-#test_baro.srcs   += $(SRC_BOARD)/baro_board.c
-#test_baro.CFLAGS += -DUSE_I2C2
-#test_baro.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_baro.ARCHDIR = $(ARCH)
+test_baro.CFLAGS  = -I$(SRC_LISA) -I$(SRC_ARCH) -I$(SRC_BOARD) -DPERIPHERALS_AUTO_INIT
+test_baro.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_baro.srcs = $(SRC_AIRBORNE)/mcu.c \
+                 $(SRC_ARCH)/mcu_arch.c \
+                 $(SRC_BOARD)/test_baro.c         \
+                 $(SRC_ARCH)/stm32_exceptions.c   \
+                 $(SRC_ARCH)/stm32_vector_table.c
+test_baro.CFLAGS += -DUSE_LED
+test_baro.srcs   += $(SRC_ARCH)/led_hw.c
+test_baro.CFLAGS += -DUSE_SYS_TIME
+test_baro.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_baro.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
+test_baro.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_baro.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
+test_baro.srcs   += downlink.c pprz_transport.c
+test_baro.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_baro.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
+test_baro.srcs   += $(SRC_BOARD)/baro_board.c
+test_baro.CFLAGS += -DUSE_I2C2
+test_baro.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 #
 #
 ##

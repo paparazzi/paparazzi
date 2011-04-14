@@ -159,13 +159,13 @@ static void main_periodic(int my_sig_num) {
   RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(gcs_com.udp_transport,
 			     //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z
 				&imu.accel_unscaled.x,&imu.accel_unscaled.y,&imu.accel_unscaled.z);})
-  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_GYRO(gcs_com.udp_transport,
+  RunOnceEvery(50, {DOWNLINK_SEND_IMU_GYRO_SCALED(gcs_com.udp_transport,
 			     //&msg_in.payload.msg_up.gyro.p,&msg_in.payload.msg_up.gyro.q,&msg_in.payload.msg_up.gyro.r)
 				&imu.gyro.p,&imu.gyro.q,&imu.gyro.r);});
 
   RunOnceEvery(50, {DOWNLINK_SEND_AHRS_EULER(gcs_com.udp_transport,
 			&estimator.tilt, &estimator.elevation, &estimator.azimuth );});
-  RunOnceEvery(50, {DOWNLINK_SEND_BOOZ2_ACCEL(DefaultChannel,
+  RunOnceEvery(50, {DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel,
 			     //&msg_in.payload.msg_up.accel.x,&msg_in.payload.msg_up.accel.y,&msg_in.payload.msg_up.accel.z
 				&imu.accel.x,&imu.accel.y,&imu.accel.z);});*/
 

@@ -200,7 +200,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
     scaled_att_err.qy = att_err.qy / IERROR_SCALE;
     scaled_att_err.qz = att_err.qz / IERROR_SCALE;
     FLOAT_QUAT_COMP_INV(new_sum_err, stabilization_att_sum_err_quat, scaled_att_err);
-    FLOAT_QUAT_NORMALISE(new_sum_err);
+    FLOAT_QUAT_NORMALIZE(new_sum_err);
     FLOAT_QUAT_COPY(stabilization_att_sum_err_quat, new_sum_err);
     FLOAT_EULERS_OF_QUAT(stabilization_att_sum_err_eulers, stabilization_att_sum_err_quat);
   } else {

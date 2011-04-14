@@ -93,6 +93,8 @@ endif
 # or
 # include subsystems/rotorcraft/telemetry_xbee_api.makefile
 #
+ap.srcs += subsystems/settings.c
+ap.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 # I2C is needed for speed controllers and barometers on lisa
@@ -153,7 +155,6 @@ ap.srcs   += subsystems/electrical.c
 ap.CFLAGS += -DUSE_DAC
 ap.srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
 else ifeq ($(ARCH), stm32)
-#ap.srcs += lisa/lisa_analog_plug.c
 ap.CFLAGS += -DUSE_ADC
 ap.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4
 ap.CFLAGS += -DUSE_ADC1_2_IRQ_HANDLER

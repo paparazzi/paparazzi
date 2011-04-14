@@ -117,7 +117,7 @@ void stabilization_attitude_ref_update() {
   FLOAT_QUAT_DERIVATIVE(qdot, stab_att_ref_rate, stab_att_ref_quat);
   QUAT_SMUL(qdot, qdot, DT_UPDATE);
   QUAT_ADD(stab_att_ref_quat, qdot);
-  FLOAT_QUAT_NORMALISE(stab_att_ref_quat);
+  FLOAT_QUAT_NORMALIZE(stab_att_ref_quat);
 
   /* integrate reference rotational speeds   */
   struct FloatRates delta_rate;

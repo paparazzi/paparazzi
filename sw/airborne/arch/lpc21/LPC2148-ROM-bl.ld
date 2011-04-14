@@ -7,8 +7,13 @@ STACK_SIZE = 0x1000;
 /* Memory Definitions */
 MEMORY
 {
-  ROM (rx) : ORIGIN = 0x00004000, LENGTH = 484k
-  RAM (rw) : ORIGIN = 0x40000000, LENGTH = 32k
+  /* 0x00000000: Paparazzi bootloader   (16k) */
+  /* 0x00004000: Paparazzi code        (480k) */
+  /* 0x0007C000: persistent settings     (4k) */
+  /* 0x0007D000: Philips/NXP bootloader (12k) */
+  ROM (rx) : ORIGIN = 0x00004000, LENGTH = 480k
+  /* topmost 32 bytes are reserved for IAP operations */
+  RAM (rw) : ORIGIN = 0x40000000, LENGTH = 32736
 }
 
 /* Section Definitions */

@@ -113,6 +113,10 @@
 /sw/tools/fp_parser.ml
 /sw/tools/wiki_gen/wiki_gen
 
+# /sw/ground_segment/misc
+/sw/ground_segment/misc/davis2ivy
+
+
 # /sw/airborne/arch/lpc21/test/bootloader
 /sw/airborne/arch/lpc21/test/bootloader/bl.dmp
 /sw/airborne/arch/lpc21/test/bootloader/bl.hex

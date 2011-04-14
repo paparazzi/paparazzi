@@ -36,7 +36,7 @@
 
   <modules>
     <load name="adc_generic.xml">
-      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1" />
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_7" />
     </load>
   </modules>
 
