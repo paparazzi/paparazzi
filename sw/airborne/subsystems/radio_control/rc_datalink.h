@@ -43,12 +43,23 @@ extern int8_t rc_dl_values[ RC_DL_NB_CHANNEL ];
 extern volatile bool_t rc_dl_frame_available;
 
 /**
- * Decode datalink message to get rc values
+ * Decode datalink message to get rc values with RC_3CH message
+ * Mode and throttle are merge in the same byte
  */
-extern void parse_rc_datalink(
+extern void parse_rc_3ch_datalink(
     uint8_t throttle_mode,
     int8_t roll,
     int8_t pitch);
+
+/**
+ * Decode datalink message to get rc values with RC_4CH message
+ */
+extern void parse_rc_4ch_datalink(
+    uint8_t mode,
+    uint8_t throttle,
+    int8_t roll,
+    int8_t pitch,
+    int8_t yaw);
 
 /**
  * Macro that normalize rc_dl_values to radio values
@@ -60,7 +71,7 @@ extern void parse_rc_datalink(
   Bound(_out[RADIO_PITCH], MIN_PPRZ, MAX_PPRZ);                   \
   _out[RADIO_YAW] = 0;                                            \
   Bound(_out[RADIO_YAW], MIN_PPRZ, MAX_PPRZ);                     \
-  _out[RADIO_THROTTLE] = ((MAX_PPRZ/64) * _in[RADIO_THROTTLE]);   \
+  _out[RADIO_THROTTLE] = ((MAX_PPRZ/128) * _in[RADIO_THROTTLE]);   \
   Bound(_out[RADIO_THROTTLE], 0, MAX_PPRZ);                       \
   _out[RADIO_MODE] = MAX_PPRZ * (_in[RADIO_MODE] - 1);            \
   Bound(_out[RADIO_MODE], MIN_PPRZ, MAX_PPRZ);                    \

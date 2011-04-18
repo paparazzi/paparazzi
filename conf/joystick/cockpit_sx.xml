@@ -12,10 +12,10 @@
 
     <message class="datalink" name="RC_4CH" send_always="true">
       <field name="mode" value="mode + 1"/> <!-- only AUTO1 and AUTO2 available -->
-      <field name="throttle" value="Bound(Fit(throttle,0-100,100)+127,0,256)"/>
+      <field name="throttle" value="Fit(throttle,0-100,100,0,127)"/>
       <field name="roll" value="roll"/>
-      <field name="yaw" value="yaw"/>
       <field name="pitch" value="pitch"/>
+      <field name="yaw" value="yaw"/>
     </message>
 
   </messages>

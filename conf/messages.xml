@@ -1959,8 +1959,8 @@
     <field name="mode"        type="uint8"/>
     <field name="throttle"    type="uint8"/>
     <field name="roll"        type="int8"/>
-    <field name="yaw"         type="int8"/>
     <field name="pitch"       type="int8"/>
+    <field name="yaw"         type="int8"/>
   </message>
 
   <message name="KITE_COMMAND" id="96">

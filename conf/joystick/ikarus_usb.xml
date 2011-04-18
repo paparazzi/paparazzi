@@ -12,8 +12,8 @@
       <field name="mode" value="PprzMode(0-mode)"/>
       <field name="throttle" value="127-throttle"/>
       <field name="roll" value="roll"/>
-      <field name="yaw" value="0"/>
       <field name="pitch" value="pitch"/>
+      <field name="yaw" value="0"/>
     </message>
 
   </messages>

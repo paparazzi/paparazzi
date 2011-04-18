@@ -350,7 +350,7 @@ let scale = fun x min max ->
   min + ((x - min_input) * (max - min)) / (max_input - min_input)
 
 (** Fit a given interval of value into [min_input; max_input] *)
-let fit = fun x min max ->
+let fit = fun x min max min_input max_input ->
   min_input + ((x - min) * (max_input - min_input)) / (max - min)
 
 (** Scale a value in the given bounds *)
@@ -380,7 +380,7 @@ let eval_call = fun f args ->
   | "<",  [a1; a2] -> if a1 < a2 then 1 else 0
   | ">",  [a1; a2] -> if a1 > a2 then 1 else 0
   | "Scale", [x; min; max] -> scale (x) (min) (max)
-  | "Fit", [x; min; max] -> fit (x) (min) (max)
+  | "Fit", [x; min; max; min_input; max_input] -> fit (x) (min) (max) (min_input) (max_input)
   | "Bound", [x; min; max] -> bound (x) (min) (max)
   | "PprzMode", [x] -> pprz_mode (x)
   | "JoystickID", [] -> !joystick_id
