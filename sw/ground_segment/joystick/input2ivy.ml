@@ -91,11 +91,18 @@ type msg = {
     send_always : bool
   }
 
-(** Represenation of an input device and of the messages to send *)
+(** Representation of a variable *)
+type var = {
+  mutable value : int;
+  var_event : (int * Syntax.expression) list;
+}
+
+(** Represenation of an input device, the messages to send and the variables *)
 type actions = {
     period_ms : int;
     inputs : (string*input) list;
-    messages : msg list
+    messages : msg list;
+    variables : (string*var) list;
   }
 
 (** adjust the trim on an axis given its name *)
@@ -226,8 +233,8 @@ let parse_msg = fun msg ->
   let fields =
     match get_message_type msg_class with
       "Message" -> 
-  let msg_descr = get_message msg_class msg_name in
-         List.map (parse_msg_field msg_descr) (Xml.children msg)
+        let msg_descr = get_message msg_class msg_name in
+        List.map (parse_msg_field msg_descr) (Xml.children msg)
     | "Trim" -> []
     | _ -> failwith ("Unknown message class type") in
 
@@ -241,8 +248,33 @@ let parse_msg = fun msg ->
     send_always = send_always
   }
 
+(** Parse an XML list of variables and set function *)
+let parse_variables = fun variables ->
+  let l = ref [] in
+  List.iter (fun x ->
+    match Xml.tag x with
+      "var" ->
+        let name = Xml.attrib x "name"
+        and default = ExtXml.int_attrib x "default" in
+        if List.mem_assoc name !l then failwith (sprintf "Variable %s already declared" name);
+        (* filter all "set" node for this variable *)
+        let set = List.filter (fun vs ->
+            (ExtXml.tag_is vs "set") &&
+            (compare (ExtXml.attrib_or_default vs "var" "") name) = 0)
+          (Xml.children variables) in
+        let var_event = List.map (fun s ->
+          let value = ExtXml.int_attrib s "value"
+          and on_event = parse_value (Xml.attrib s "on_event") in
+          (value, on_event)
+          ) set in
+        l := (name, { value = default; var_event = var_event; }) :: !l;
+        ()
+    | _ -> ()
+  ) (Xml.children variables);
+  !l
 
-(** Verbose List.assco *)
+
+(** Verbose List.assoc *)
 let my_assoc = fun x l ->
   try List.assoc x l with Not_found ->
     failwith (sprintf "my_assoc: %s not found" x)
@@ -278,7 +310,8 @@ let parse_descr = fun xml_file trim_file ->
   let xml = Xml.parse_file xml_file in
 
   let inputs = parse_input (ExtXml.child xml "input")
-  and messages_xml = ExtXml.child xml "messages" in
+  and messages_xml = ExtXml.child xml "messages"
+  and variables = try parse_variables (ExtXml.child xml "variables") with _ -> [] in
 
   let period_ms = int_of_float (1000.*.ExtXml.float_attrib messages_xml "period")
   and messages = List.map parse_msg (Xml.children messages_xml) in
@@ -286,7 +319,7 @@ let parse_descr = fun xml_file trim_file ->
   (** check for trim file *)
   parse_trim_file trim_file inputs;
 
-  { period_ms = period_ms; inputs = inputs; messages = messages }
+  { period_ms = period_ms; inputs = inputs; messages = messages; variables = variables }
 
 (** apply deadband  - applied first *)
 let apply_deadband = fun x min ->
@@ -316,9 +349,24 @@ let eval_input = fun buttons axis input ->
 let scale = fun x min max ->
   min + ((x - min_input) * (max - min)) / (max_input - min_input)
 
+(** Fit a given interval of value into [min_input; max_input] *)
+let fit = fun x min max ->
+  min_input + ((x - min) * (max_input - min_input)) / (max - min)
+
 (** Scale a value in the given bounds *)
 let bound = fun x min max ->
   if x < min then min else (if x > max then max else x)
+
+(** Return a pprz RC mode
+  * mode > max -> 2
+  * mode < min -> 0
+  * else 1
+  *)
+let pprz_threshold = max_input / 2
+let pprz_mode = fun mode ->
+  if mode > pprz_threshold then 2
+  else if mode < -pprz_threshold then 0
+  else 1
 
 (** Eval a function call (TO BE COMPLETED) *)
 let eval_call = fun f args ->
@@ -332,16 +380,25 @@ let eval_call = fun f args ->
   | "<",  [a1; a2] -> if a1 < a2 then 1 else 0
   | ">",  [a1; a2] -> if a1 > a2 then 1 else 0
   | "Scale", [x; min; max] -> scale (x) (min) (max)
+  | "Fit", [x; min; max] -> fit (x) (min) (max)
   | "Bound", [x; min; max] -> bound (x) (min) (max)
+  | "PprzMode", [x] -> pprz_mode (x)
   | "JoystickID", [] -> !joystick_id
   | f, args -> failwith (sprintf "eval_call: unknown function '%s'" f)
 
 (** Eval an expression *)
-let eval_expr = fun buttons axis inputs expr ->
+let eval_expr = fun buttons axis inputs variables expr ->
   let rec eval = function
       Syntax.Ident ident ->
-        let input = my_assoc ident inputs in
-        eval_input buttons axis input
+        (* try input first, then variables *)
+        let i = match (List.mem_assoc ident inputs, List.mem_assoc ident variables) with
+          (true, _) -> eval_input buttons axis (List.assoc ident inputs)
+        | (false, true) ->
+            let v = List.assoc ident variables in
+            v.value
+        | (false, false) -> failwith (sprintf "eval_expr: %s not found" ident)
+        in
+        i
     | Syntax.Int int -> int
     | Syntax.Float float -> failwith "eval_expr: float"
     | Syntax.Call (ident, exprs) | Syntax.CallOperator (ident, exprs) ->
@@ -392,19 +449,32 @@ let trim_adjust = fun axis_name adjustment inputs ->
     Axis (i, deadband, limit, exponent, trim) -> trim := trim.contents +. adjustment
   | Button i -> failwith "No trim for buttons"
 
-(**Send an ivy message if needed: new values and/or 'on_event' condition true*)
-let execute_action = fun ac_id inputs buttons axis message ->
+(** Update variables state *)
+let update_variables = fun inputs buttons axis variables ->
+  List.iter (fun (_,var) ->
+    List.iter (fun (value, expr) ->
+      let event = eval_expr buttons axis inputs variables expr in
+      if event <> 0 then begin
+        (* remove and add again ? *)
+        var.value <- value
+      end
+    ) var.var_event
+  ) variables
+
+(** Send an ivy message if needed: new values and/or 'on_event' condition true*)
+let execute_action = fun ac_id inputs buttons axis variables message ->
   let values =
     List.map
-      (fun (name, expr) -> (name, Pprz.Int (eval_expr buttons axis inputs expr)))
+      (fun (name, expr) -> (name, Pprz.Int (eval_expr buttons axis inputs variables expr)))
       message.fields
 
   and on_event =
     match message.on_event with
       None -> true
-    | Some expr -> eval_expr buttons axis inputs expr <> 0 in
+    | Some expr -> eval_expr buttons axis inputs variables expr <> 0 in
 
   let previous_values = get_previous_values message.msg_name in
+  (* FIXME ((value <> previous) && on_event) || send_always ??? *)
   if ( ( (on_event, values) <> previous_values ) || message.send_always ) && on_event then begin
     let vs = ("ac_id", Pprz.Int ac_id) :: values in
     match message.msg_class with
@@ -440,7 +510,9 @@ let execute_actions = fun actions ac_id ->
     if !verbose then
       print_inputs nb_buttons buttons axis;
 
-    List.iter (execute_action ac_id actions.inputs buttons axis) actions.messages
+    (* TODO update variables before msg *)
+    update_variables actions.inputs buttons axis actions.variables;
+    List.iter (execute_action ac_id actions.inputs buttons axis actions.variables) actions.messages
   with
     exc -> prerr_endline (Printexc.to_string exc)
 
