@@ -62,7 +62,7 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
 
   // check if in process of sending data
   if (p->tx_running) { // yes, add to queue
-    p->tx_buffer[p->tx_insert_idx] = data;
+    p->tx_buf[p->tx_insert_idx] = data;
     p->tx_insert_idx = temp;
   }
   else { // no, set running flag and write to output register
@@ -79,7 +79,7 @@ static inline void usart_irq_handler(struct uart_periph* p) {
   if(USART_GetITStatus(p->reg_addr, USART_IT_TXE) != RESET){
     // check if more data to send
     if (p->tx_insert_idx != p->tx_extract_idx) {
-      USART_SendData(p->reg_addr,p->tx_buffer[p->tx_extract_idx]);
+      USART_SendData(p->reg_addr,p->tx_buf[p->tx_extract_idx]);
       p->tx_extract_idx++;
       p->tx_extract_idx %= UART_TX_BUFFER_SIZE;
     }
@@ -91,7 +91,7 @@ static inline void usart_irq_handler(struct uart_periph* p) {
 
   if(USART_GetITStatus(p->reg_addr, USART_IT_RXNE) != RESET){
     uint16_t temp = (p->rx_insert_idx + 1) % UART_RX_BUFFER_SIZE;;
-    p->rx_buffer[p->rx_insert_idx] = USART_ReceiveData(p->reg_addr);
+    p->rx_buf[p->rx_insert_idx] = USART_ReceiveData(p->reg_addr);
     // check for more room in queue
     if (temp != p->rx_extract_idx)
       p->rx_insert_idx = temp; // update insert index
