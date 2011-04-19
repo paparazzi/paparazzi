@@ -1,0 +1,13 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="airborne_ant_track" dir="airborne_ant_track">
+  <header>
+    <file name="airborne_ant_track.h"/>
+  </header>
+  <init fun="airborne_ant_point_init()"/>
+  <periodic fun="airborne_ant_point_periodic()" freq="20."/>
+  <makefile>
+    <define name="USE_AIRBORNE_ANT_TRACKING" value="1"/>
+    <file name="airborne_ant_track.c"/>
+  </makefile>
+</module>

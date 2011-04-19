@@ -11,7 +11,6 @@ void hmc5843_init(void)
 {
     hmc5843.i2c_trans.status = I2CTransSuccess;
     hmc5843.i2c_trans.slave_addr = HMC5843_ADDR;
-    hmc5843.i2c_trans.stop_after_transmit = TRUE;
 
     hmc5843_arch_init();
 }
@@ -46,11 +45,11 @@ void hmc5843_idle_task(void)
 {
     if (hmc5843.initialized && hmc5843.ready_for_read && (hmc5843.i2c_trans.status == I2CTransSuccess || hmc5843.i2c_trans.status == I2CTransFailed)) {
       if (i2c2.status == I2CIdle && i2c_idle(&i2c2)) {
+        hmc5843.ready_for_read = FALSE;
         hmc5843.i2c_trans.type = I2CTransRx;
         hmc5843.i2c_trans.len_r = 7;
         i2c_submit(&i2c2, &hmc5843.i2c_trans);
         hmc5843.reading = TRUE;
-        hmc5843.ready_for_read = FALSE;
       }
     }
 
@@ -70,8 +69,10 @@ void hmc5843_periodic(void)
     if (!hmc5843.initialized) {
         send_config();
         hmc5843.initialized = TRUE;
-    } else if (hmc5843.timeout++ > HMC5843_TIMEOUT) {
+    } else if (hmc5843.timeout++ > HMC5843_TIMEOUT && i2c2.status == I2CIdle && i2c_idle(&i2c2)){
+#ifdef USE_HMC59843_ARCH_RESET
         hmc5843_arch_reset();
+#endif
         hmc5843.i2c_trans.type = I2CTransRx;
         hmc5843.i2c_trans.len_r = 7;
         i2c_submit(&i2c2, &hmc5843.i2c_trans);

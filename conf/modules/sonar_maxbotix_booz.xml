@@ -1,16 +1,27 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
+<!--
+     Maxbotix Sonar driver
+     @configure ADC_SONAR on which ADC the sensor is connected
+
+     On Booz board, ADC_0 should be use by default (payload connector)
+     -->
+
 <module name="sonar">
   <header>
-    <file name="sonar_maxbotix_booz.h"/>
+    <file name="sonar_maxbotix.h"/>
+    <file name="../../subsystems/ins.h"/>
   </header>
   <init fun="maxbotix_init()"/>
   <periodic fun="maxbotix_read()" freq="10"/>
   <event fun="SonarEvent(ins_update_sonar)"/>
-  <makefile target="ap">
-    <define name="USE_EXTRA_ADC"/>
-    <define name="USE_ADC_1"/>
-    <define name="BOOZ2_SONAR"/>
-    <file name="sonar_maxbotix_booz.c"/>
+  <makefile>
+    <file name="sonar_maxbotix.c"/>
   </makefile>
+  <makefile target="ap">
+    <define name="ADC_CHANNEL_SONAR" value="$(ADC_SONAR)"/>
+    <define name="USE_$(ADC_SONAR)"/>
+    <define name="USE_SONAR"/>
+  </makefile>
+
 </module>

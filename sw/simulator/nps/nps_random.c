@@ -4,6 +4,8 @@
 #include <math.h>
 #include <limits.h>
 
+
+#if 0
 /*
  * R250
  * Kirkpatrick, S., and E. Stoll, 1981; "A Very Fast
@@ -26,7 +28,7 @@ static double       dr250( void );
 static long              set_seed(long);
 //static long              get_seed(void);
 static unsigned long int randlcg(void);
-
+#endif
 
 
 
@@ -36,6 +38,20 @@ void double_vect3_add_gaussian_noise(struct DoubleVect3* vect, struct DoubleVect
   vect->y += get_gaussian_noise() * std_dev->y;
   vect->z += get_gaussian_noise() * std_dev->z;
 }
+
+void float_vect3_add_gaussian_noise(struct FloatVect3* vect, struct FloatVect3* std_dev) {
+  vect->x += get_gaussian_noise() * std_dev->x;
+  vect->y += get_gaussian_noise() * std_dev->y;
+  vect->z += get_gaussian_noise() * std_dev->z;
+}
+
+void float_rates_add_gaussian_noise(struct FloatRates* vect, struct FloatRates* std_dev) {
+  vect->p += get_gaussian_noise() * std_dev->p;
+  vect->q += get_gaussian_noise() * std_dev->q;
+  vect->r += get_gaussian_noise() * std_dev->r;
+}
+
+
 
 void double_vect3_get_gaussian_noise(struct DoubleVect3* vect, struct DoubleVect3* std_dev) {
   vect->x = get_gaussian_noise() * std_dev->x;
@@ -54,11 +70,14 @@ void double_vect3_update_random_walk(struct DoubleVect3* rw, struct DoubleVect3*
   VECT3_ADD(*rw, drw);
 }
 
+
+
+
+
+#if 0
 /*
    http://www.taygeta.com/random/gaussian.html
 */
-
-
 double get_gaussian_noise(void) {
 
   double x1;
@@ -79,10 +98,20 @@ double get_gaussian_noise(void) {
   else
     return x2 * w;
 }
+#else
+#include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
+#include <stdlib.h>
+double get_gaussian_noise(void) {
+  static gsl_rng * r = NULL;
+  // select random number generator 
+  if (!r)  r = gsl_rng_alloc (gsl_rng_mt19937);
+  return gsl_ran_gaussian(r, 1.);
+}
+#endif
 
 
-
-
+#if 0
 /*
  * R250
  * Kirkpatrick, S., and E. Stoll, 1981; "A Very Fast
@@ -242,3 +271,4 @@ unsigned long int randlcg() {
   return seed_val;
 }
 
+#endif /* 0*/

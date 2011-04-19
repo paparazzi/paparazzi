@@ -48,7 +48,7 @@ OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
 INCLUDES= -I $(OCAMLLIB) -I ../multimon $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) $(OCAMLNETINCLUDES)
 LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
 
-SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo fw_server.ml booz_server.ml server.cmo
+SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo fw_server.ml rotorcraft_server.ml server.cmo
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
 $(VAR)/boa.conf :$(CONF)/boa.conf
@@ -111,10 +111,6 @@ diadec : diadec.cmo ../multimon/multimon.cma
 	@echo OL $@
 	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma multimon.cma $^
 
-
-booz_translator : booz_translator.cmo ../../lib/ocaml/lib-pprz.cma
-	@echo OL $@
-	$(Q)$(OCAMLC) -custom $(INCLUDES) -o $@ unix.cma str.cma xml-light.cma lablgtk.cma glibivy-ocaml.cma lib-pprz.cma booz_translator.cmo
 
 150m : 150m.cmo
 	@echo OL $@

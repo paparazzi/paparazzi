@@ -38,12 +38,10 @@ endif
 
 ap.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
 ap.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
-ap.srcs += mcu_periph/i2c.c
-ap.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c0
-ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=$(MKK_I2C_SCL_TIME) -DI2C0_SCLH=$(MKK_I2C_SCL_TIME) -DI2C0_VIC_SLOT=10
+ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=$(MKK_I2C_SCL_TIME) -DI2C0_SCLH=$(MKK_I2C_SCL_TIME) -DI2C0_VIC_SLOT=11
 else ifeq ($(ARCH), stm32)
 ap.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1
 ap.CFLAGS += -DUSE_I2C1

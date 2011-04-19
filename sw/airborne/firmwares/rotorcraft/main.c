@@ -32,6 +32,7 @@
 #include "downlink.h"
 #include "firmwares/rotorcraft/telemetry.h"
 #include "datalink.h"
+#include "subsystems/settings.h"
 #include "xbee.h"
 
 #include "booz2_commands.h"
@@ -41,13 +42,11 @@
 #include "subsystems/imu.h"
 #include "booz_gps.h"
 
-#include "booz/booz2_analog.h"
 #include "subsystems/sensors/baro.h"
 #include "baro_board.h"
 
-#include "firmwares/rotorcraft/battery.h"
+#include "subsystems/electrical.h"
 
-// #include "booz_fms.h"  // FIXME
 #include "firmwares/rotorcraft/autopilot.h"
 
 #include "firmwares/rotorcraft/stabilization.h"
@@ -98,6 +97,7 @@ STATIC_INLINE void main_init( void ) {
   mcu_init();
 
   sys_time_init();
+  electrical_init();
 
   actuators_init();
   radio_control_init();
@@ -106,13 +106,8 @@ STATIC_INLINE void main_init( void ) {
   xbee_init();
 #endif
 
-  booz2_analog_init();
   baro_init();
-
-  battery_init();
   imu_init();
-
-  //  booz_fms_init(); // FIXME
   autopilot_init();
   nav_init();
   guidance_h_init();
@@ -129,6 +124,8 @@ STATIC_INLINE void main_init( void ) {
 #endif
 
   modules_init();
+
+  settings_init();
 
   mcu_int_enable();
 
@@ -156,7 +153,7 @@ STATIC_INLINE void main_periodic( void ) {
       /* booz_fms_periodic(); FIXME */                      \
     },                                                      \
     {                                                       \
-      /*BoozControlSurfacesSetFromCommands();*/             \
+      electrical_periodic();				    \
     },                                                      \
     {                                                       \
       LED_PERIODIC();                                       \
@@ -172,14 +169,10 @@ STATIC_INLINE void main_periodic( void ) {
     } );
 
 #ifdef USE_GPS
-  if (radio_control.status != RC_OK &&			\
+  if (radio_control.status != RC_OK &&				\
       autopilot_mode == AP_MODE_NAV && GpsIsLost())		\
     autopilot_set_mode(AP_MODE_FAILSAFE);			\
   booz_gps_periodic();
-#endif
-
-#ifdef USE_EXTRA_ADC
-  booz2_analog_periodic();
 #endif
 
   modules_periodic_task();

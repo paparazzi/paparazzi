@@ -37,6 +37,14 @@
 
 #include "generated/airframe.h"
 
+/* In case Asctec controllers are used without supervision */
+#ifndef SUPERVISION_MIN_MOTOR
+#define SUPERVISION_MIN_MOTOR 1
+#endif
+#ifndef SUPERVISION_MAX_MOTOR
+#define SUPERVISION_MAX_MOTOR 200
+#endif
+
 uint8_t guidance_v_mode;
 int32_t guidance_v_ff_cmd;
 int32_t guidance_v_fb_cmd;
@@ -153,8 +161,9 @@ void guidance_v_run(bool_t in_flight) {
   // AKA SUPERVISION and co
   if (in_flight) {
     // we should use something after the supervision!!! fuck!!!
-    int32_t cmd_hack = Chop(stabilization_cmd[COMMAND_THRUST], 1, 200);
+    int32_t cmd_hack = Chop(stabilization_cmd[COMMAND_THRUST], SUPERVISION_MIN_MOTOR, SUPERVISION_MAX_MOTOR);
     gv_adapt_run(ins_ltp_accel.z, cmd_hack);
+    //gv_adapt_run(ins_ltp_accel.z, cmd_hack, guidance_v_zd_ref);
   }
   else {
     // reset vertical filter until takeoff

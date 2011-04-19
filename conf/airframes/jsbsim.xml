@@ -191,25 +191,43 @@
 
   <section name="SIMU">
     <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
+    <define name="JSBSIM_INIT"	value="&quot;Malolo1-IC&quot;"/>
+    <define name="JSBSIM_LAUNCHSPEED"	value="15.0"/>
     <define name="JSBSIM_IR_ROLL_NEUTRAL" value="RadOfDeg(0.)"/>
     <define name="JSBSIM_IR_PITCH_NEUTRAL" value="RadOfDeg(0.)"/>
   </section>
 
- <makefile>
-#### Config for SITL simulation
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
+  <firmware name="fixedwing">
+    <target name="sim" 			board="pc" />
+    <target name="jsbsim" 	    board="pc"/>
+    <target name="ap" 			board="tiny_2.1"/>
 
-sim.CFLAGS += -DBOARD_CONFIG=\"boards/tiny_sim.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
-sim.srcs += subsystems/navigation/nav_line.c subsystems/navigation/nav_survey_rectangle.c
+    <define name="AGR_CLIMB" />
+    <define name="LOITER_TRIM" />
+    <define name="ALT_KALMAN" />
+
+    <subsystem name="radio_control" type="ppm"/>
+
+    <!-- Communication -->
+    <subsystem name="telemetry" 	type="transparent">
+      <configure name="MODEM_BAUD" 		value="B9600"/>
+    </subsystem>
+
+    <subsystem name="control"/>
+    <!-- Sensors -->
+    <subsystem name="gyro"          type="roll"/>
+    <subsystem name="attitude" 		type="infrared"/>
+    <subsystem name="gps" 		    type="ublox_lea4p"/>
+    <subsystem name="navigation"/>
+
+  </firmware>
 
 
-#### Config for SITL simulation with JSBSim
-SRC_FIRMWARE = firmwares/fixedwing
-include $(PAPARAZZI_SRC)/conf/autopilot/sitl_jsbsim.makefile
+  <firmware name="setup">
+    <target name="tunnel"           board="tiny_2.1" />
+    <target name="usb_tunnel_0"     board="tiny_2.1" />
+    <target name="usb_tunnel_1"     board="tiny_2.1" />
+    <target name="setup_actuators"  board="tiny_2.1" />
+  </firmware>
 
-jsbsim.CFLAGS += -DBOARD_CONFIG=\"boards/tiny_sim.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
-jsbsim.srcs += subsystems/navigation/nav_line.c subsystems/navigation/nav_survey_rectangle.c
-jsbsim.srcs += $(SIMDIR)/sim_ac_fw.c
-
-  </makefile>
 </airframe>

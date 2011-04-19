@@ -51,7 +51,9 @@ void ahrs_aligner_init(void) {
 #ifndef LOW_NOISE_THRESHOLD
 #define LOW_NOISE_THRESHOLD 90000
 #endif
+#ifndef LOW_NOISE_TIME
 #define LOW_NOISE_TIME          5
+#endif
 
 void ahrs_aligner_run(void) {
 

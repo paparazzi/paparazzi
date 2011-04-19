@@ -96,7 +96,7 @@ CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -finline-limit=1200 --param inline-unit-growth=100
 
 # flags only for C
-CFLAGS + = -Wstrict-prototypes -Wmissing-declarations
+CFLAGS += -Wstrict-prototypes -Wmissing-declarations
 CFLAGS += -Wmissing-prototypes -Wnested-externs
 CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS) $(LOCAL_CFLAGS)

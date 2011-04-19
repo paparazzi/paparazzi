@@ -187,7 +187,8 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.bat <- fvalue "vsupply" /. 10.;
       a.fbw.rc_rate <- ivalue "frame_rate"
   | "PPRZ_MODE" ->
-      a.ap_mode <- check_index (ivalue "ap_mode") ap_modes "AP_MODE";
+      a.vehicle_type <- FixedWing;
+      a.ap_mode <- check_index (ivalue "ap_mode") fixedwing_ap_modes "AP_MODE";
       a.gaz_mode <- check_index (ivalue "ap_gaz") gaz_modes "AP_GAZ";
       a.lateral_mode <- check_index (ivalue "ap_lateral") lat_modes "AP_LAT";
       a.horizontal_mode <- check_index (ivalue "ap_horizontal") horiz_modes "AP_HORIZ";

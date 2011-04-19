@@ -47,10 +47,6 @@
 #include "joystick.h"
 #endif
 
-#ifdef USE_USB_SERIAL
-#include "mcu_periph/usb_serial.h"
-#endif
-
 #ifdef HITL
 #include "gps.h"
 #endif
@@ -189,10 +185,19 @@ void dl_parse_msg(void) {
 #if defined RADIO_CONTROL && defined RADIO_CONTROL_TYPE_DATALINK
     if (msg_id == DL_RC_3CH /*&& DL_RC_3CH_ac_id(dl_buffer) == TX_ID*/) {
 LED_TOGGLE(3);
-      parse_rc_datalink(
+      parse_rc_3ch_datalink(
           DL_RC_3CH_throttle_mode(dl_buffer),
           DL_RC_3CH_roll(dl_buffer),
           DL_RC_3CH_pitch(dl_buffer));
+    } else
+    if (msg_id == DL_RC_4CH && DL_RC_4CH_ac_id(dl_buffer) == AC_ID) {
+LED_TOGGLE(3);
+      parse_rc_4ch_datalink(
+          DL_RC_4CH_mode(dl_buffer),
+          DL_RC_4CH_throttle(dl_buffer),
+          DL_RC_4CH_roll(dl_buffer),
+          DL_RC_4CH_pitch(dl_buffer),
+          DL_RC_4CH_yaw(dl_buffer));
     } else
 #endif // RC_DATALINK
   { /* Last else */

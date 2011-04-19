@@ -108,7 +108,7 @@ static void test_2(void) {
   struct Int32Quat quat_i;
   INT32_QUAT_OF_EULERS(quat_i, euler_i);
   DISPLAY_INT32_QUAT("quat_i", quat_i);
-  INT32_QUAT_NORMALISE(quat_i);
+  INT32_QUAT_NORMALIZE(quat_i);
   DISPLAY_INT32_QUAT("quat_i_n", quat_i);
 
   struct Int32Vect3 v2;
@@ -155,7 +155,7 @@ static void test_3(void) {
   struct Int32Quat b2i_q;
   INT32_QUAT_OF_EULERS(b2i_q, b2i_e);
   DISPLAY_INT32_QUAT_AS_EULERS_DEG("b2i_q", b2i_q);
-  //  INT32_QUAT_NORMALISE(b2i_q);
+  //  INT32_QUAT_NORMALIZE(b2i_q);
   //  DISPLAY_INT32_QUAT_AS_EULERS_DEG("b2i_q_n", b2i_q);
 
   /* Compute BODY to IMU rotation matrix */
@@ -232,7 +232,7 @@ static void test_4_int(void) {
   struct Int32Quat _q;
   INT32_QUAT_OF_EULERS(_q, _e);
   DISPLAY_INT32_QUAT_AS_EULERS_DEG("quat1 ", _q);
-  //  INT32_QUAT_NORMALISE(_q);
+  //  INT32_QUAT_NORMALIZE(_q);
   //  DISPLAY_INT32_QUAT_2("_q_n", _q);
 
   /* back to eulers */
@@ -257,7 +257,7 @@ static void test_4_float(void) {
   struct FloatQuat q;
   FLOAT_QUAT_OF_EULERS(q, e);
   //  DISPLAY_FLOAT_QUAT("q", q);
-  FLOAT_QUAT_NORMALISE(q);
+  FLOAT_QUAT_NORMALIZE(q);
   DISPLAY_FLOAT_QUAT("q_n", q);
   DISPLAY_FLOAT_QUAT_AS_INT("q_n as int", q);
   /* back to eulers */

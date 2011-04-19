@@ -54,31 +54,77 @@
 
 /* ADC */
 
-/* pressure : P0.10 AD1.2 */
-#define ANALOG_BARO_PINSEL PINSEL0
-#define ANALOG_BARO_PINSEL_VAL 0x03
-#define ANALOG_BARO_PINSEL_BIT 20
-#define ANALOG_BARO_ADC 1
+/* select P0.13 (ADC_SPARE) as AD1.4 for ADC_0 */
+#define ADC_0 AdcBank1(4)
+#ifdef USE_ADC_0
+#ifndef USE_AD1
+#define USE_AD1
+#endif
+#define USE_AD1_4
+#endif
+
+/* select P0.4 (SCK_0) as AD0.6 for ADC_1 */
+#define ADC_1 AdcBank0(6)
+#ifdef USE_ADC_1
+#ifndef USE_AD0
+#define USE_AD0
+#endif
+#define USE_AD0_6
+#endif
+
+/* select P0.5 (MISO_0) as AD0.7 for ADC_2 */
+#define ADC_2 AdcBank0(7)
+#ifdef USE_ADC_2
+#ifndef USE_AD0
+#define USE_AD0
+#endif
+#define USE_AD0_7
+#endif
+
+/* select P0.6 (MOSI_0) as AD1.0 for ADC_3 */
+#define ADC_3 AdcBank1(0)
+#ifdef USE_ADC_3
+#ifndef USE_AD1
+#define USE_AD1
+#endif
+#define USE_AD1_0
+#endif
+
+/* battery */
+#define ADC_CHANNEL_VSUPPLY AdcBank0(2)
+#ifndef USE_AD0
+#define USE_AD0
+#endif
+#define USE_AD0_2
+
+#define DefaultVoltageOfAdc(adc) (0.0183*adc)
+
+/* baro */
+#define ADC_CHANNEL_BARO AdcBank1(2)
+#ifndef USE_AD1
+#define USE_AD1
+#endif
+#define USE_AD1_2
 
 
 
-/* MS2001 on SSP, IMU connector */
-#define MS2001_SS_PIN   28
-#define MS2001_SS_IODIR IO1DIR
-#define MS2001_SS_IOSET IO1SET
-#define MS2001_SS_IOCLR IO1CLR
+/* MS2100 on SSP, IMU connector */
+#define MS2100_SS_PIN   28
+#define MS2100_SS_IODIR IO1DIR
+#define MS2100_SS_IOSET IO1SET
+#define MS2100_SS_IOCLR IO1CLR
 
-#define MS2001_RESET_PIN   19
-#define MS2001_RESET_IODIR IO1DIR
-#define MS2001_RESET_IOSET IO1SET
-#define MS2001_RESET_IOCLR IO1CLR
+#define MS2100_RESET_PIN   19
+#define MS2100_RESET_IODIR IO1DIR
+#define MS2100_RESET_IOSET IO1SET
+#define MS2100_RESET_IOCLR IO1CLR
 
-#define MS2001_DRDY_PIN  30
-#define MS2001_DRDY_PINSEL PINSEL1
-#define MS2001_DRDY_PINSEL_BIT 28
-#define MS2001_DRDY_PINSEL_VAL 2
-#define MS2001_DRDY_EINT 3
-#define MS2001_DRDY_VIC_IT VIC_EINT3
+#define MS2100_DRDY_PIN  30
+#define MS2100_DRDY_PINSEL PINSEL1
+#define MS2100_DRDY_PINSEL_BIT 28
+#define MS2100_DRDY_PINSEL_VAL 2
+#define MS2100_DRDY_EINT 3
+#define MS2100_DRDY_VIC_IT VIC_EINT3
 
 /* PWM5 on CAM connector */
 /* P0.21 */

@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2008-2010  The Paparazzi Team
+ * Copyright (C) 2008-2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -16,9 +14,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * @file pprz_algebra_float.h
+ *   @brief Paparazzi floating point algebra.
+ *
+ *   This is the more detailed description of this file.
  *
  */
 
@@ -46,6 +51,9 @@ struct FloatVect3 {
   float z;
 };
 
+/**
+ * @brief Roation quaternion
+ */
 struct FloatQuat {
   float qi;
   float qx;
@@ -57,20 +65,29 @@ struct FloatMat33 {
   float m[3*3];
 };
 
+/**
+ * @brief rotation matrix
+ */
 struct FloatRMat {
   float m[3*3];
 };
 
+/**
+ * @brief euler angles
+ * @details Units: radians */
 struct FloatEulers {
-  float phi;
-  float theta;
-  float psi;
+  float phi; ///< in radians
+  float theta; ///< in radians
+  float psi; ///< in radians
 };
 
+/**
+ * @brief angular rates
+ * @details Units: rad/s^2 */
 struct FloatRates {
-  float p;
-  float q;
-  float r;
+  float p; ///< in rad/s^2
+  float q; ///< in rad/s^2
+  float r; ///< in rad/s^2
 };
 
 #define FLOAT_ANGLE_NORMALIZE(_a) {				\
@@ -136,6 +153,14 @@ struct FloatRates {
     (_vo).z = (_v1).x*(_v2).y - (_v1).y*(_v2).x;			\
   }
 
+#define FLOAT_VECT3_INTEGRATE_FI(_vo, _dv, _dt) {			\
+  (_vo).x += (_dv).x * (_dt);						\
+  (_vo).y += (_dv).y * (_dt);						\
+  (_vo).z += (_dv).z * (_dt);						\
+  }
+
+
+
 #define FLOAT_VECT3_NORMALIZE(_v) {		\
     const float n = FLOAT_VECT3_NORM(_v);	\
     FLOAT_VECT3_SMUL(_v, _v, 1./n);		\
@@ -152,6 +177,34 @@ struct FloatRates {
     _ro.q += _v.y * _s;					\
     _ro.r += _v.z * _s;					\
   }
+
+
+#define FLOAT_RATES_LIN_CMB(_ro, _r1, _s1, _r2, _s2) {			\
+    _ro.p = _s1 * _r1.p + _s2 * _r2.p;					\
+    _ro.q = _s1 * _r1.q + _s2 * _r2.q;					\
+    _ro.r = _s1 * _r1.r + _s2 * _r2.r;					\
+  }
+
+
+#define FLOAT_RATES_SCALE(_ro,_s) {			\
+    _ro.p *= _s;					\
+    _ro.q *= _s;					\
+    _ro.r *= _s;					\
+  }
+
+#define FLOAT_RATES_INTEGRATE_FI(_ra, _racc, _dt) {			\
+  (_ra).p += (_racc).p * (_dt);						\
+  (_ra).q += (_racc).q * (_dt);						\
+  (_ra).r += (_racc).r * (_dt);						\
+  }
+
+#define FLOAT_RATES_OF_EULER_DOT(_ra, _e, _ed) {			\
+    _ra.p =  _ed.phi                         - sinf(_e.theta)             *_ed.psi; \
+    _ra.q =           cosf(_e.phi)*_ed.theta + sinf(_e.phi)*cosf(_e.theta)*_ed.psi; \
+    _ra.r =          -sinf(_e.phi)*_ed.theta + cosf(_e.phi)*cosf(_e.theta)*_ed.psi; \
+  }
+
+
 
 /*
  * 3x3 matrices
@@ -215,6 +268,7 @@ struct FloatRates {
 
 /* multiply _vin by _rmat, store in _vout */
 #define FLOAT_RMAT_VECT3_MUL(_vout, _rmat, _vin) RMAT_VECT3_MUL(_vout, _rmat, _vin)
+#define FLOAT_RMAT_VECT3_TRANSP_MUL(_vout, _rmat, _vin) RMAT_VECT3_TRANSP_MUL(_vout, _rmat, _vin)
 
 #define FLOAT_RMAT_TRANSP_RATEMULT(_vb, _m_b2a, _va) {			\
     (_vb).p = ( (_m_b2a).m[0]*(_va).p + (_m_b2a).m[3]*(_va).q + (_m_b2a).m[6]*(_va).r); \
@@ -378,6 +432,18 @@ struct FloatRates {
   }
 #endif
 
+/* in place first order integration of a rotation matrix */
+#define FLOAT_RMAT_INTEGRATE_FI(_rm, _omega, _dt ) {			\
+    struct FloatRMat exp_omega_dt = {					\
+      { 1.        ,  dt*omega.r, -dt*omega.q,				\
+	-dt*omega.r,  1.        ,  dt*omega.p,				\
+	dt*omega.q, -dt*omega.p,  1.                       }};		\
+    struct FloatRMat R_tdt;						\
+    FLOAT_RMAT_COMP(R_tdt, _rm, exp_omega_dt);				\
+    memcpy(&(_rm), &R_tdt, sizeof(R_tdt));				\
+  }
+
+
 static inline float renorm_factor(float n) {
   if (n < 1.5625f && n > 0.64f)
     return .5 * (3-n);
@@ -428,7 +494,7 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
 #define FLOAT_QUAT_NORM(_q) (sqrtf(SQUARE(_q.qi) + SQUARE(_q.qx)+	\
 				   SQUARE(_q.qy) + SQUARE(_q.qz)))	\
 
-#define FLOAT_QUAT_NORMALISE(q) {		                        \
+#define FLOAT_QUAT_NORMALIZE(q) {		                        \
     float norm = FLOAT_QUAT_NORM(q);					\
     if (norm > FLT_MIN) {						\
 	    q.qi = q.qi / norm;						\
@@ -449,7 +515,7 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
 #define FLOAT_QUAT_COMP_NORM_SHORTEST(_a2c, _a2b, _b2c) {		\
     FLOAT_QUAT_COMP(_a2c, _a2b, _b2c);					\
     FLOAT_QUAT_WRAP_SHORTEST(_a2c);					\
-    FLOAT_QUAT_NORMALISE(_a2c);						\
+    FLOAT_QUAT_NORMALIZE(_a2c);						\
   }
 
 /* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
@@ -466,7 +532,7 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
 #define FLOAT_QUAT_COMP_INV_NORM_SHORTEST(_a2b, _a2c, _b2c) {		\
     FLOAT_QUAT_COMP_INV(_a2b, _a2c, _b2c);				\
     FLOAT_QUAT_WRAP_SHORTEST(_a2b);					\
-    FLOAT_QUAT_NORMALISE(_a2b);						\
+    FLOAT_QUAT_NORMALIZE(_a2b);						\
   }
 
 /* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
@@ -481,7 +547,7 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
 #define FLOAT_QUAT_INV_COMP_NORM_SHORTEST(_b2c, _a2b, _a2c) {		\
     FLOAT_QUAT_INV_COMP(_b2c, _a2b, _a2c);				\
     FLOAT_QUAT_WRAP_SHORTEST(_b2c);					\
-    FLOAT_QUAT_NORMALISE(_b2c);						\
+    FLOAT_QUAT_NORMALIZE(_b2c);						\
   }
 
 /* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
@@ -492,7 +558,7 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
     (_b2c).qz = (_a2b).qi*(_a2c).qz - (_a2b).qx*(_a2c).qy + (_a2b).qy*(_a2c).qx - (_a2b).qz*(_a2c).qi; \
   }
 
-#define FLOAT_QUAT_DIFFERENTIAL(q_out, w, dt) {			      \
+#define FLOAT_QUAT_DIFFERENTIAL(q_out, w, dt) {			        \
     const float v_norm = sqrt((w).p*(w).p + (w).q*(w).q + (w).r*(w).r); \
     const float c2 = cos(dt*v_norm/2.0);				\
     const float s2 = sin(dt*v_norm/2.0);				\
@@ -506,6 +572,27 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
       (q_out).qx = (w).p/v_norm * s2;					\
       (q_out).qy = (w).q/v_norm * s2;					\
       (q_out).qz = (w).r/v_norm * s2;					\
+    }									\
+  }
+
+/* in place quaternion integration with constante rotational velocity */
+#define FLOAT_QUAT_INTEGRATE(_q, _omega, _dt) {				\
+    const float no = FLOAT_RATES_NORM(_omega);				\
+    if (no > FLT_MIN) {							\
+      const float a  = 0.5*no*_dt;					\
+      const float ca = cosf(a);						\
+      const float sa_ov_no = sinf(a)/no;				\
+      const float dp = sa_ov_no*_omega.p;				\
+      const float dq = sa_ov_no*_omega.q;				\
+      const float dr = sa_ov_no*_omega.r;				\
+      const float qi = _q.qi;						\
+      const float qx = _q.qx;						\
+      const float qy = _q.qy;						\
+      const float qz = _q.qz;						\
+      _q.qi = ca*qi - dp*qx - dq*qy - dr*qz;				\
+      _q.qx = dp*qi + ca*qx + dr*qy - dq*qz;				\
+      _q.qy = dq*qi - dr*qx + ca*qy + dp*qz;				\
+      _q.qz = dr*qi + dq*qx - dp*qy + ca*qz;				\
     }									\
   }
 

@@ -46,6 +46,15 @@
 /* Weight for offset IIR filter */
 #define PBN_OFFSET_FILTER 7
 
+/* Quadratic scale factor for airspeed */
+#ifndef PBN_AIRSPEED_SCALE
+#define PBN_AIRSPEED_SCALE (1./0.54)
+#endif
+
+/* Linear scale factor for altitude */
+#ifndef PBN_ALTITUDE_SCALE
+#define PBN_ALTITUDE_SCALE 0.32
+#endif
 
 // Global variables
 uint16_t altitude_adc;
@@ -61,6 +70,7 @@ uint16_t altitude_offset;
 uint16_t airspeed_offset;
 float pbn_altitude;
 float pbn_airspeed;
+float airspeed_filter;
 uint16_t startup_delay;
 
 void pbn_init( void ) {
@@ -73,6 +83,7 @@ void pbn_init( void ) {
   offset_cnt = OFFSET_NBSAMPLES_AVRG;
   pbn_airspeed = 0.;
   pbn_altitude = 0.;
+  airspeed_filter = PBN_OFFSET_FILTER;
 }
 
 
@@ -106,20 +117,31 @@ void pbn_read_event( void ) {
 
     if (offset_cnt > 0) {
       // IIR filter to compute an initial offset
+#ifndef PBN_AIRSPEED_OFFSET
       airspeed_offset = (PBN_OFFSET_FILTER * airspeed_offset + airspeed_adc) / (PBN_OFFSET_FILTER + 1);
+#else
+      airspeed_offset = PBN_AIRSPEED_OFFSET;
+#endif
+#ifndef PBN_ALTITUDE_OFFSET
       altitude_offset = (PBN_OFFSET_FILTER * altitude_offset + altitude_adc) / (PBN_OFFSET_FILTER + 1);
+#else
+      altitude_offset = PBN_ALTITUDE_OFFSET;
+#endif
 
       // decrease init counter
       --offset_cnt;
     }
     else {
       // Compute airspeed and altitude
-      pbn_airspeed = (-4.45 + sqrtf(19.84-0.57*(float)(airspeed_offset-airspeed_adc)))/0.28;
-      pbn_altitude = 0.32*(float)(altitude_adc-altitude_offset);
+      //pbn_airspeed = (-4.45 + sqrtf(19.84-0.57*(float)(airspeed_offset-airspeed_adc)))/0.28;
+      uint16_t diff = Max(airspeed_adc-airspeed_offset, 0);
+      float tmp_airspeed = sqrtf((float)diff * PBN_AIRSPEED_SCALE);
+      pbn_altitude = PBN_ALTITUDE_SCALE*(float)(altitude_adc-altitude_offset);
 
-      //estimator_airspeed = (7*estimator_airspeed + pbn_airspeed ) / 8;
-      //estimator_airspeed = Max(estimator_airspeed, 0.);
-      //EstimatorSetAirspeed(pbn_airspeed);
+      pbn_airspeed = (airspeed_filter*pbn_airspeed + tmp_airspeed) / (airspeed_filter + 1.);
+#ifdef USE_AIRSPEED
+      EstimatorSetAirspeed(pbn_airspeed);
+#endif
       //alt_kalman(pbn_altitude);
 
     }

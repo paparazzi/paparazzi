@@ -59,7 +59,6 @@ static inline void main_periodic_task( void ) {
   trans.buf[0] = 0x04;
   trans.len_w = 1;
   trans.slave_addr = 0x58;
-  trans.stop_after_transmit = TRUE;
   i2c_submit(&ACTUATORS_MKK_DEV,&trans);
 
   LED_PERIODIC();

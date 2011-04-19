@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+
+  <!--
+	This file sets up the aircraft initial conditions.
+
+	Allowable units are:
+		Length:			M IN FT
+		Angles:			DEG RAD
+		Velocity:		M/S FT/SEC KTS
+		Area:			M2 FT2
+		Volume:			CC LTR M3 IN3 FT3
+		Mass/Weight:		KG LBS
+		Moments of Inertia: KG*M2 SLUG*FT2
+		Torque:			N*M FT*LBS
+		Force:			N LBS
+		Spring Force:	N/M LBS/FT
+		Damping Force:	N/M/SEC LBS/FT/SEC
+		Power:			WATTS HP
+		Pressure:		PA ATM PSI PSF INHG
+
+	Some example initial conditions are given below. Not all are needed.
+
+	Note that the launch condition body aligned forward velocity is given in sim_ac_fw.c
+	and can be defined in the SIMU section of the airframe file. See jsbsim.xml for example.
+
+	Other ICs are allowable, see JSBSim source for more info:
+		FGInitialCondition::Load	()
+		FGInitialCondition::Load_v1()
+		FGInitialCondition::Load_v2()
+
+  -->
+
+<initialize name="beforelaunch">
+<!-- Location -->
+  <latitude 		unit="DEG">		43.46223	</latitude> <!-- Muret, FR -->
+  <longitude 	unit="DEG"> 		1.27289 	</longitude> <!-- Muret, FR -->
+  <elevation		unit="M"	>		186.0		</elevation> <!-- terrain elevation -->
+  <altitudeAGL	unit="M"> 		2.0 		</altitudeAGL> <!-- altitude above ground level -->
+<!-- Orientation -->
+  <psi 			unit="DEG">		0.0 		</psi> <!-- heading (yaw) -->
+  <theta 		unit="DEG">		0.0 		</theta> <!-- pitch -->
+  <phi 			unit="DEG">		0.0 		</phi> <!-- roll -->
+<!-- Wind -->
+  <winddir 		unit="DEG">		0.0 		</winddir> <!-- positive velocity direction (0.0 is wind from south) -->
+  <vwind 		unit="KTS">		20.0 		</vwind>
+<!--Do not modify-->
+  <vground		unit="KTS">		0.0		</vground> <!-- ground speed -->
+  <running>						-1		</running> <!-- set all engines running -->
+</initialize>

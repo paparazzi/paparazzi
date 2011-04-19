@@ -1,0 +1,59 @@
+<joystick>
+  <input>
+    <axis index="0" name="roll"/>
+    <axis index="1" name="pitch"/>
+    <axis index="2" name="throttle"/>
+    <button index="0" name="shoot"/>
+    <button index="1" name="down"/>
+    <button index="2" name="up"/>
+    <button index="3" name="left"/>
+    <button index="4" name="right"/>
+    <button index="5" name="button6"/>
+    <button index="6" name="button7"/>
+    <button index="7" name="button8"/>
+    <button index="8" name="button9"/>
+    <button index="9" name="button10"/>
+    <button index="10" name="button11"/>
+  </input>
+
+  <variables>
+    <var name="mode" default="0"/>
+    <set var="mode" value="0" on_event="button10"/>
+    <set var="mode" value="1" on_event="button11"/>
+  </variables>
+
+  <messages period="0.1">
+    <!--message class="datalink" name="BOOZ2_FMS_COMMAND">
+      <field name="h_mode" value="IndexOfEnum(NAV)"/>
+      <field name="v_mode" value="IndexOfEnum(NAV)"/>
+      <field name="v_sp"   value="(up-down)*127"/>
+      <field name="h_sp_1" value="0-pitch"/>
+      <field name="h_sp_2" value="roll"/>
+      <field name="h_sp_3" value="(right-left)*127"/>
+    </message-->
+
+    <message class="datalink" name="BOOZ_NAV_STICK">
+      <field name="vx_sp" value="0-pitch"/>
+      <field name="vy_sp" value="roll"/>
+      <field name="vz_sp"   value="(up-down)*127"/>
+      <field name="r_sp" value="(right-left)*127"/>
+    </message>
+
+    <!--message class="ground" name="DL_SETTING">
+      <field name="index" value="IndexOfSetting(booz2_cam_tilt_pwm)"/>
+      <field name="value" value="Scale(throttle, 1000, 2000)"/>
+    </message-->
+    <message class="ground" name="DL_SETTING" on_event="button11 || button10">
+      <field name="index" value="IndexOfSetting(kill_throttle)"/>
+      <field name="value" value="mode"/>
+    </message>
+
+
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="shoot && button7">
+      <field name="block_id" value="IndexOfBlock('land here')"/>
+    </message>
+    <!--message class="ground" name="JUMP_TO_BLOCK" on_event="shoot && button8">
+      <field name="block_id" value="IndexOfBlock('Joystick')"/>
+    </message-->
+  </messages>
+</joystick>

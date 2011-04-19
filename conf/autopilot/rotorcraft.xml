@@ -18,8 +18,8 @@
    </type>
  </subsystem>
 
- <subsystem name="acuators"  types="asctec|asctec_v2|mkk"/>
- <subsystem name="imu"       types="b2_v1.0|b2_v1.1|crista"/>
+ <subsystem name="acuators"  types="asctec|asctec_v2|mkk|pwm_supervision"/>
+ <subsystem name="imu"       types="b2_v1.0|b2_v1.1|b2_v1.2|crista|aspirin"/>
  <subsystem name="gps"       types="skytraq|ublox"/>
  <subsystem name="ahrs"      types="cmpl"/>
  <subsystem name="ins"       types="hff"/>

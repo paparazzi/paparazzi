@@ -10,12 +10,14 @@
 <airframe name="Funjet mm 1">
 
   <firmware name="fixedwing">
+    <define name="AGR_CLIMB"/>
+    <define name="LOITER_TRIM"/>
+    <define name="ALT_KALMAN"/>
+    <define name="WIND_INFO"/>
+    <define name="WIND_INFO_RET"/>
+    <define name="USE_PERSISTENT_SETTINGS"/>
+
     <target name="ap"                  board="tiny_2.11">
-      <define name="AGR_CLIMB"/>
-      <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
-      <define name="WIND_INFO"/>
-      <define name="WIND_INFO_RET"/>
       <define name="USE_I2C0"/>
       <define name="SENSOR_SYNC_SEND"/>
       <define name="ADC_CHANNEL_GENERIC1" value="ADC_3"/>
@@ -25,30 +27,22 @@
     </target>
 
     <target name="sim"                 board="pc">
-      <define name="AGR_CLIMB"/>
-      <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
-      <define name="WIND_INFO"/>
-      <define name="WIND_INFO_RET"/>
     </target>
 
     <!-- RC -->
     <subsystem name="radio_control"    type="ppm"/>
     <!-- Communication -->
-    <subsystem name="telemetry"        type="xbee_api">
-      <param name="MODEM_BAUD"         value="B57600"/>
-    </subsystem>
+    <subsystem name="telemetry"        type="xbee_api"/>
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="attitude"         type="infrared"/>
-    <subsystem name="gps"              type="ublox_lea5h">
-      <param name="GPS_BAUD"           value="B38400"/>
-    </subsystem>
+    <subsystem name="gps"              type="ublox_lea5h"/>
     <!-- Nav -->
     <subsystem name="navigation"/>
     <!-- Interfaces -->
     <subsystem name="i2c"/>
+    <!--subsystem name="spi"/-->
   </firmware>
 
   <firmware name="setup">
@@ -60,16 +54,14 @@
 
   <!-- modules -->
   <modules>
-    <load name="humid_sht_i2c.xml"/>
-    <!--load name="windturbine.xml"/>
+    <!--load name="adc_generic.xml"/>
+    <load name="windturbine.xml"/>
     <load name="dust_gp2y.xml"/>
     <load name="light_temt.xml"/>
     <load name="temp_temod.xml"/>
-    <load name="adc_generic.xml"/>
     <load name="trig_test.xml"/>
     <load name="airspeed_ets.xml"/>
     <load name="alt_srf08.xml"/>
-    <load name="mag_micromag_fw.xml"/>
     <load name="baro_bmp.xml"/>
     <load name="baro_scp.xml"/>
     <load name="humid_hih.xml"/>
@@ -79,6 +71,8 @@
     <load name="humid_dpicco.xml"/>
     <load name="humid_sht.xml"/>
     <load name="baro_MS5534A.xml"/>
+    <load name="humid_sht_i2c.xml"/>
+    <load name="mag_micromag_fw.xml"/>
     <load name="baro_scp_i2c.xml"/-->
   </modules>
 

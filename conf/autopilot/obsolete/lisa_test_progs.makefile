@@ -424,12 +424,12 @@ test_imu_b2.srcs += downlink.c pprz_transport.c
 test_imu_b2.srcs += math/pprz_trig_int.c
 
 test_imu_b2.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
-test_imu_b2.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
+test_imu_b2.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2100
 test_imu_b2.srcs += $(SRC_SUBSYSTEMS)/imu.c
 test_imu_b2.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
 test_imu_b2.srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
 test_imu_b2.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
-test_imu_b2.srcs += peripherals/ms2001.c  $(SRC_ARCH)/peripherals/ms2001_arch.c
+test_imu_b2.srcs += peripherals/ms2100.c  $(SRC_ARCH)/peripherals/ms2100_arch.c
 
 
 #
@@ -884,33 +884,33 @@ test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_
 test_max1168.srcs += downlink.c pprz_transport.c
 
 #
-# test ms2001
+# test ms2100
 #
-test_ms2001.ARCHDIR = $(ARCH)
-test_ms2001.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
-test_ms2001.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-test_ms2001.srcs = $(SRC_LISA)/test/lisa_test_ms2001.c \
+test_ms2100.ARCHDIR = $(ARCH)
+test_ms2100.CFLAGS = -I$(SRC_LISA) -I$(ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -DPERIPHERALS_AUTO_INIT
+test_ms2100.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_ms2100.srcs = $(SRC_LISA)/test/lisa_test_ms2100.c \
                    $(SRC_ARCH)/stm32_exceptions.c   \
                    $(SRC_ARCH)/stm32_vector_table.c
 
-test_ms2001.CFLAGS += -DUSE_LED
-test_ms2001.srcs += $(SRC_ARCH)/led_hw.c
+test_ms2100.CFLAGS += -DUSE_LED
+test_ms2100.srcs += $(SRC_ARCH)/led_hw.c
 
-test_ms2001.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
-test_ms2001.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-test_ms2001.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+test_ms2100.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
+test_ms2100.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+test_ms2100.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
-test_ms2001.CFLAGS += -DUSE_SPI2
-test_ms2001.CFLAGS += -DUSE_DMA1_C4_IRQ -DMS2001_HANDLES_DMA_IRQ
-test_ms2001.CFLAGS += -DUSE_SPI2_IRQ -DMS2001_HANDLES_SPI_IRQ
-test_ms2001.srcs   += peripherals/ms2001.c \
-                      $(SRC_ARCH)/peripherals/ms2001_arch.c
+test_ms2100.CFLAGS += -DUSE_SPI2
+test_ms2100.CFLAGS += -DUSE_DMA1_C4_IRQ -DMS2100_HANDLES_DMA_IRQ
+test_ms2100.CFLAGS += -DUSE_SPI2_IRQ -DMS2100_HANDLES_SPI_IRQ
+test_ms2100.srcs   += peripherals/ms2100.c \
+                      $(SRC_ARCH)/peripherals/ms2100_arch.c
 
-test_ms2001.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
-test_ms2001.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
+test_ms2100.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
+test_ms2100.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-test_ms2001.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
-test_ms2001.srcs += downlink.c pprz_transport.c
+test_ms2100.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
+test_ms2100.srcs += downlink.c pprz_transport.c
 
 #
 # test adxl345
@@ -1092,12 +1092,12 @@ ptw.srcs += downlink.c pprz_transport.c
 
 # IMU
 ptw.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
-ptw.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
+ptw.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2100
 ptw.srcs += $(SRC_SUBSYSTEMS)/imu.c
 ptw.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
 ptw.srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
 ptw.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
-ptw.srcs += peripherals/ms2001.c  $(SRC_ARCH)/peripherals/ms2001_arch.c
+ptw.srcs += peripherals/ms2100.c  $(SRC_ARCH)/peripherals/ms2100_arch.c
 ptw.srcs += math/pprz_trig_int.c
 
 ptw.srcs += $(SRC_BOOZ)/booz2_commands.c
@@ -1351,12 +1351,12 @@ hs_gyro_b2.srcs += downlink.c pprz_transport.c
 hs_gyro_b2.srcs += math/pprz_trig_int.c
 
 hs_gyro_b2.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
-hs_gyro_b2.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2001
+hs_gyro_b2.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2100
 hs_gyro_b2.srcs += $(SRC_SUBSYSTEMS)/imu.c
 hs_gyro_b2.CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
 hs_gyro_b2.srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c $(SRC_SUBSYSTEMS)/imu/arch/$(ARCH)/imu_b2_arch.c
 hs_gyro_b2.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
-hs_gyro_b2.srcs += peripherals/ms2001.c  $(SRC_ARCH)/peripherals/ms2001_arch.c
+hs_gyro_b2.srcs += peripherals/ms2100.c  $(SRC_ARCH)/peripherals/ms2100_arch.c
 
 #
 # Spits every samples of one axis of gyro on IMU crista

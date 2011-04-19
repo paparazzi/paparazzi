@@ -26,6 +26,7 @@
 #define PPRZ_ALGEBRA_H
 
 #include <float.h>  /* for FLT_EPSILON */
+#include <string.h> /* for memcpy      */
 
 #define SQUARE(_a) ((_a)*(_a))
 
@@ -101,7 +102,7 @@
   }
 
 /* a = b */
-#define VECT3_COPY(_a, _b) {			\
+#define VECT3_COPY(_a, _b) {        \
     (_a).x = (_b).x;				\
     (_a).y = (_b).y;				\
     (_a).z = (_b).z;				\
@@ -126,6 +127,13 @@
     (_c).x = (_a).x + (_b).x;			\
     (_c).y = (_a).y + (_b).y;			\
     (_c).z = (_a).z + (_b).z;			\
+  }
+
+/* a += b*s */
+#define VECT3_ADD_SCALED(_a, _b, _s) {			\
+    (_a).x += ((_b).x * (_s));				\
+    (_a).y += ((_b).y * (_s));				\
+    (_a).z += ((_b).z * (_s));				\
   }
 
 /* c = a + _s * b */
@@ -186,9 +194,9 @@
 
 /*  */
 #define VECT3_BOUND_BOX(_v, _v_min, _v_max) {				\
-    if ((_v).x > (_v_max.x)) (_v).x = (_v_max.x); else if ((_v).x < (_v_min.x)) (_v).x = (_v_min.x); \
-    if ((_v).y > (_v_max.y)) (_v).y = (_v_max.y); else if ((_v).y < (_v_min.y)) (_v).y = (_v_min.z); \
-    if ((_v).z > (_v_max.y)) (_v).z = (_v_max.z); else if ((_v).z < (_v_min.z)) (_v).z = (_v_min.z); \
+    if ((_v).x > (_v_max).x) (_v).x = (_v_max).x; else if ((_v).x < (_v_min).x) (_v).x = (_v_min).x; \
+    if ((_v).y > (_v_max).y) (_v).y = (_v_max).y; else if ((_v).y < (_v_min).y) (_v).y = (_v_min).z; \
+    if ((_v).z > (_v_max).y) (_v).z = (_v_max).z; else if ((_v).z < (_v_min).z) (_v).z = (_v_min).z; \
   }
 
 
@@ -204,9 +212,9 @@
   }
 
 #define EULERS_ASSIGN(_e, _phi, _theta, _psi) {		\
-    (_e).phi   = _phi;					\
-    (_e).theta = _theta;				\
-    (_e).psi   = _psi;					\
+    (_e).phi   = (_phi);                            \
+    (_e).theta = (_theta);                          \
+    (_e).psi   = (_psi);                            \
   }
 
 /* a += b */
@@ -247,9 +255,9 @@
 
 /* _v = Bound(_v, _min, _max) */
 #define EULERS_BOUND_CUBE(_v, _min, _max) {				           \
-    (_v).phi   = (_v).phi   < _min ? _min : (_v).phi   > _max ? _max : (_v).phi;   \
-    (_v).theta = (_v).theta < _min ? _min : (_v).theta > _max ? _max : (_v).theta; \
-    (_v).psi   = (_v).psi   < _min ? _min : (_v).psi   > _max ? _max : (_v).psi;   \
+    (_v).phi   = (_v).phi   < (_min) ? (_min) : (_v).phi   > (_max) ? (_max) : (_v).phi; \
+    (_v).theta = (_v).theta < (_min) ? (_min) : (_v).theta > (_max) ? (_max) : (_v).theta; \
+    (_v).psi   = (_v).psi   < (_min) ? (_min) : (_v).psi   > (_max) ? (_max) : (_v).psi;   \
   }
 
 /*
@@ -313,24 +321,24 @@
   }
 
 /* Element wise vector multiplication */
-#define RATES_EWMULT_RSHIFT(c, a, b, _s) {				\
-    c.p = (a.p * b.p) >> (_s);						\
-    c.q = (a.q * b.q) >> (_s);						\
-    c.r = (a.r * b.r) >> (_s);						\
+#define RATES_EWMULT_RSHIFT(c, a, b, _s) {  \
+    (c).p = ((a).p * (b).p) >> (_s);		\
+    (c).q = ((a).q * (b).q) >> (_s);		\
+    (c).r = ((a).r * (b).r) >> (_s);		\
   }
 
 
 /* _v = Bound(_v, _min, _max) */
 #define RATES_BOUND_CUBE(_v, _min, _max) {				\
-    (_v).p = (_v).p < _min ? _min : (_v).p > _max ? _max : (_v).p;	\
-    (_v).q = (_v).q < _min ? _min : (_v).q > _max ? _max : (_v).q;	\
-    (_v).r = (_v).r < _min ? _min : (_v).r > _max ? _max : (_v).r;	\
+    (_v).p = (_v).p < (_min) ? (_min) : (_v).p > (_max) ? (_max) : (_v).p;	\
+    (_v).q = (_v).q < (_min) ? (_min) : (_v).q > (_max) ? (_max) : (_v).q;	\
+    (_v).r = (_v).r < (_min) ? (_min) : (_v).r > (_max) ? (_max) : (_v).r;	\
   }
 
 #define RATES_BOUND_BOX(_v, _v_min, _v_max) {				\
-    if ((_v).p > (_v_max.p)) (_v).p = (_v_max.p); else if ((_v).p < (_v_min.p)) (_v).p = (_v_min.p); \
-    if ((_v).q > (_v_max.q)) (_v).q = (_v_max.q); else if ((_v).q < (_v_min.q)) (_v).q = (_v_min.q); \
-    if ((_v).r > (_v_max.r)) (_v).r = (_v_max.r); else if ((_v).r < (_v_min.r)) (_v).r = (_v_min.r); \
+    if ((_v).p > (_v_max).p) (_v).p = (_v_max).p; else if ((_v).p < (_v_min).p) (_v).p = (_v_min).p; \
+    if ((_v).q > (_v_max).q) (_v).q = (_v_max).q; else if ((_v).q < (_v_min).q) (_v).q = (_v_min).q; \
+    if ((_v).r > (_v_max).r) (_v).r = (_v_max).r; else if ((_v).r < (_v_min).r) (_v).r = (_v_min).r; \
   }
 
 
@@ -339,7 +347,7 @@
  * 3x3 matrices
  */
 /* accessor : row and col range from 0 to 2 */
-#define MAT33_ELMT(_m, _row, _col) ((_m).m[_row*3+_col])
+#define MAT33_ELMT(_m, _row, _col) ((_m).m[(_row)*3+(_col)])
 
 #define MAT33_COPY(_mat1,_mat2) {			\
     MAT33_ELMT((_mat1),0,0) = MAT33_ELMT((_mat2),0,0);	\
@@ -427,26 +435,26 @@
     (_qc).qz = (_qa).qz - (_qb).qz;	    \
   }
 
-#define QUAT_COPY(_qo, _qi) {		    \
+#define QUAT_COPY(_qo, _qi) {	    \
     (_qo).qi = (_qi).qi;		    \
     (_qo).qx = (_qi).qx;		    \
     (_qo).qy = (_qi).qy;		    \
     (_qo).qz = (_qi).qz;		    \
   }
 
-#define QUAT_EXPLEMENTARY(b,a) {	    \
-    b.qi = -a.qi;                           \
-    b.qx = -a.qx;                           \
-    b.qy = -a.qy;                           \
-    b.qz = -a.qz;                           \
+#define QUAT_EXPLEMENTARY(b,a) {    \
+    (b).qi = -(a).qi;               \
+    (b).qx = -(a).qx;               \
+    (b).qy = -(a).qy;               \
+    (b).qz = -(a).qz;               \
   }
 
 
 #define QUAT_SMUL(_qo, _qi, _s) {	    \
-    (_qo).qi = (_qi).qi * _s;		    \
-    (_qo).qx = (_qi).qx * _s;		    \
-    (_qo).qy = (_qi).qy * _s;		    \
-    (_qo).qz = (_qi).qz * _s;		    \
+    (_qo).qi = (_qi).qi * (_s);		    \
+    (_qo).qx = (_qi).qx * (_s);		    \
+    (_qo).qy = (_qi).qy * (_s);		    \
+    (_qo).qz = (_qi).qz * (_s);		    \
   }
 
 #define QUAT_ADD(_qo, _qi) {		    \
@@ -499,6 +507,19 @@
                 RMAT_ELMT((_rmat), 2, 1) * (_vin).y +	 \
                 RMAT_ELMT((_rmat), 2, 2) * (_vin).z;	 \
   }
+
+#define RMAT_VECT3_TRANSP_MUL(_vout, _rmat, _vin) {     \
+    (_vout).x = RMAT_ELMT((_rmat), 0, 0) * (_vin).x +	 \
+                RMAT_ELMT((_rmat), 1, 0) * (_vin).y +	 \
+                RMAT_ELMT((_rmat), 2, 0) * (_vin).z;	 \
+    (_vout).y = RMAT_ELMT((_rmat), 0, 1) * (_vin).x +    \
+                RMAT_ELMT((_rmat), 1, 1) * (_vin).y +    \
+                RMAT_ELMT((_rmat), 2, 1) * (_vin).z;	 \
+    (_vout).z = RMAT_ELMT((_rmat), 0, 2) * (_vin).x +	 \
+                RMAT_ELMT((_rmat), 1, 2) * (_vin).y +	 \
+                RMAT_ELMT((_rmat), 2, 2) * (_vin).z;	 \
+  }
+
 
 #define RMAT_COPY(_o, _i) { memcpy(&(_o), &(_i), sizeof(_o));}
 
@@ -568,27 +589,27 @@
   }
 
 #define ACCELS_FLOAT_OF_BFP(_ef, _ei) {			\
-    (_ef).x   = ACCEL_FLOAT_OF_BFP((_ei).x);		\
-    (_ef).y   = ACCEL_FLOAT_OF_BFP((_ei).y);		\
-    (_ef).z   = ACCEL_FLOAT_OF_BFP((_ei).z);		\
+    (_ef).x = ACCEL_FLOAT_OF_BFP((_ei).x);		\
+    (_ef).y = ACCEL_FLOAT_OF_BFP((_ei).y);		\
+    (_ef).z = ACCEL_FLOAT_OF_BFP((_ei).z);		\
   }
 
 #define ACCELS_BFP_OF_REAL(_ef, _ei) {			\
-    (_ef).x   = ACCEL_BFP_OF_REAL((_ei).x);		\
-    (_ef).y   = ACCEL_BFP_OF_REAL((_ei).y);		\
-    (_ef).z   = ACCEL_BFP_OF_REAL((_ei).z);		\
+    (_ef).x = ACCEL_BFP_OF_REAL((_ei).x);		\
+    (_ef).y = ACCEL_BFP_OF_REAL((_ei).y);		\
+    (_ef).z = ACCEL_BFP_OF_REAL((_ei).z);		\
   }
 
 #define MAGS_FLOAT_OF_BFP(_ef, _ei) {			\
-    (_ef).x   = MAG_FLOAT_OF_BFP((_ei).x);		\
-    (_ef).y   = MAG_FLOAT_OF_BFP((_ei).y);		\
-    (_ef).z   = MAG_FLOAT_OF_BFP((_ei).z);		\
+    (_ef).x = MAG_FLOAT_OF_BFP((_ei).x);		\
+    (_ef).y = MAG_FLOAT_OF_BFP((_ei).y);		\
+    (_ef).z = MAG_FLOAT_OF_BFP((_ei).z);		\
   }
 
 #define MAGS_BFP_OF_REAL(_ef, _ei) {			\
-    (_ef).x   = MAG_BFP_OF_REAL((_ei).x);		\
-    (_ef).y   = MAG_BFP_OF_REAL((_ei).y);		\
-    (_ef).z   = MAG_BFP_OF_REAL((_ei).z);		\
+    (_ef).x = MAG_BFP_OF_REAL((_ei).x);		\
+    (_ef).y = MAG_BFP_OF_REAL((_ei).y);		\
+    (_ef).z = MAG_BFP_OF_REAL((_ei).z);		\
   }
 
 #endif /* PPRZ_ALGEBRA_H */

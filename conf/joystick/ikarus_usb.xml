@@ -1,0 +1,20 @@
+<joystick>
+  <input>
+    <axis index="0" name="roll"/>
+    <axis index="1" name="pitch"/>
+    <axis index="2" name="throttle"/>
+    <axis index="4" name="mode"/>
+  </input>
+
+  <messages period="0.1">
+
+    <message class="datalink" name="RC_4CH" send_always="true">
+      <field name="mode" value="PprzMode(0-mode)"/>
+      <field name="throttle" value="127-throttle"/>
+      <field name="roll" value="roll"/>
+      <field name="pitch" value="pitch"/>
+      <field name="yaw" value="0"/>
+    </message>
+
+  </messages>
+</joystick>

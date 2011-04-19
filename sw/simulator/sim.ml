@@ -61,7 +61,7 @@ module type AIRCRAFT =
     val commands : pprz_t array -> unit
 	(** Called once at init *)
 
-    val infrared : float -> float -> float -> float -> unit
+    val infrared_and_airspeed : float -> float -> float -> float -> unit
 	(** [infrared ir_left ir_front ir_top air_speed] Called on timer *)
 
     val gps : Gps.state -> unit
@@ -207,7 +207,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       let ir_left = sin phi_sensor *. !infrared_contrast
       and ir_front = sin theta_sensor *. !infrared_contrast
       and ir_top = cos phi_sensor *. cos theta_sensor *. !infrared_contrast in
-      Aircraft.infrared ir_left ir_front ir_top (FlightModel.get_air_speed !state)
+      Aircraft.infrared_and_airspeed ir_left ir_front ir_top (FlightModel.get_air_speed !state)
 
     and gps_task = fun () ->
       let (x,y,z) = FlightModel.get_xyz !state in

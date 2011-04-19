@@ -14,14 +14,10 @@
       <define name="USE_MAX11040"/>
       <define name="MAX11040_DEBUG"/>
     </target>
-    <subsystem name="telemetry"        type="xbee_api">
-      <param name="MODEM_BAUD"         value="B57600"/>
-    </subsystem>
+    <subsystem name="telemetry"        type="xbee_api"/>
     <subsystem name="control"/>
     <subsystem name="attitude"         type="infrared"/>
-    <subsystem name="gps"              type="ublox_lea5h">
-      <param name="GPS_BAUD"           value="B38400"/>
-    </subsystem>
+    <subsystem name="gps"              type="ublox_lea5h"/>
     <subsystem name="navigation"/>
   </firmware>
 

@@ -52,6 +52,7 @@
 #include "sys_time.h"
 #include "generated/flight_plan.h"
 #include "datalink.h"
+#include "subsystems/settings.h"
 #include "xbee.h"
 
 #include "gpio.h"
@@ -550,6 +551,8 @@ void init_ap( void ) {
   nav_init();
 
   modules_init();
+
+  settings_init();
 
   /** - start interrupt task */
   mcu_int_enable();

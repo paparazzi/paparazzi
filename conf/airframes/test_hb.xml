@@ -16,7 +16,7 @@
     <subsystem name="attitude" 		type="dcm"/>
 
     <!-- Sensors -->
-    <!-- <subsystem name="imu" type="hb"/> does not exist yet-->
+    <subsystem name="imu" type="hb"/>
     <subsystem name="gps" 		    type="ublox_lea5h"/>
 
     <subsystem name="navigation"/>

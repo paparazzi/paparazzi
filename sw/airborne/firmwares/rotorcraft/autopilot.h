@@ -95,11 +95,17 @@ extern uint16_t autopilot_flight_time;
     else autopilot_motors_on = TRUE;                            \
   }
 
+#ifdef POWER_SWITCH_LED
 #define autopilot_SetPowerSwitch(_v) {          \
     autopilot_power_switch = _v;                \
     if (_v) { LED_OFF(POWER_SWITCH_LED); }      \
     else { LED_ON(POWER_SWITCH_LED); }          \
   }
+#else
+#define autopilot_SetPowerSwitch(_v) {		\
+    autopilot_power_switch = _v;		\
+  }
+#endif
 
 #ifndef TRESHOLD_GROUND_DETECT
 #define TRESHOLD_GROUND_DETECT ACCEL_BFP_OF_REAL(15.)

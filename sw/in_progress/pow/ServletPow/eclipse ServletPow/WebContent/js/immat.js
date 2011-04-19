@@ -1,1 +1,0 @@
-var drone_immat = ["MJ5","TJ1","HITL","MYAC"];

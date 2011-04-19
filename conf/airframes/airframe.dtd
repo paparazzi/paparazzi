@@ -115,7 +115,9 @@ target CDATA #IMPLIED
 location CDATA #IMPLIED>
 
 <!ATTLIST modules
-main_freq CDATA #IMPLIED>
+main_freq CDATA #IMPLIED
+target CDATA #IMPLIED>
 
 <!ATTLIST load
-name CDATA #REQUIRED>
+name CDATA #REQUIRED
+target CDATA #IMPLIED>

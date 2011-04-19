@@ -24,41 +24,44 @@
  *
  *)
 
+(* Module configuration:
+  * Xml node
+  * file name
+  * parameters
+  * extrat targets
+  *)
+type module_conf = { xml : Xml.xml; file : string; param : Xml.xml list; extra_targets : string list; }
+
+(* Modules directory *)
 val modules_dir : string
+(* Default targets for modules *)
+val default_module_targets : string
 
 (** remove all duplicated elements of a list *)
 val singletonize : 'a list -> 'a list
 
+(** [targets_of_field] Xml node, default
+ * Returns the targets of a makefile node in modules
+ * Default "ap|sim" *)
+val targets_of_field : Xml.xml -> string -> string list
+
 (** [get_modules_of_airframe xml]
- * Returns a list of modules ("load" node) from airframe file *)
-val get_modules_of_airframe : Xml.xml -> Xml.xml list
-
-(** [get_full_module_conf module] Parse module configuration file
- * Returns module file name and a pair (xml, xml list): parsed file, children *)
-val get_full_module_conf : Xml.xml -> (string * (Xml.xml * Xml.xml list))
-
-(** [get_module_conf module] Parse module configuration file
- * Returns parsed xml file *)
-val get_module_conf : Xml.xml -> Xml.xml
+ * Returns a list of pair (modules ("load" node), targets) from airframe file *)
+val get_modules_of_airframe : Xml.xml -> module_conf list
 
 (** [get_targets_of_module xml] Returns the list of targets of a module *)
-val get_targets_of_module : Xml.xml -> string list
+val get_targets_of_module : module_conf -> string list
 
 (** [unload_unused_modules modules ?print_error]
  * Returns a list of [modules] where unused modules are removed
  * If [print_error] is true, a warning is printed *)
-val unload_unused_modules : Xml.xml list -> bool -> Xml.xml list
+val unload_unused_modules : module_conf list -> bool -> module_conf list
 
 (** [get_modules_name xml]
  * Returns a list of loaded modules' name *)
 val get_modules_name : Xml.xml -> string list
 
-(** [targets_of_field]
- * Returns the targets of a makefile node in modules
- * Default "ap|sim" *)
-val targets_of_field : Xml.xml -> string list
-
 (** [get_modules_dir xml]
  * Returns the list of modules directories *)
-val get_modules_dir : (Xml.xml * 'a) list -> string list
+val get_modules_dir : module_conf list -> string list
 
