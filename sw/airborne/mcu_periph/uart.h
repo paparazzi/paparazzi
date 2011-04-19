@@ -54,7 +54,7 @@ struct uart_periph {
 };
 
 extern void uart_periph_init(struct uart_periph* p);
-extern void uart_periph_init_param(struct uart_periph* p, uint16_t baud, uint8_t mode, uint8_t fmode, char * dev);
+extern void uart_periph_init_param(struct uart_periph* p, uint32_t baud, uint8_t mode, uint8_t fmode, char * dev);
 extern void uart_transmit(struct uart_periph* p, uint8_t data);
 extern bool_t uart_check_free_space(struct uart_periph* p, uint8_t len);
 
@@ -156,16 +156,17 @@ extern void uart3_init(void);
 #endif // USE_UART3
 
 #ifdef USE_UART5
+extern struct uart_periph uart5;
+extern void uart5_init(void);
 
-//TODO adapt to new driver
-extern void   uart5_init( void );
-extern void   uart5_transmit( uint8_t data );
-extern bool_t uart5_check_free_space( uint8_t len);
-
-#define Uart5Init uart5_init
-#define Uart5CheckFreeSpace(_x) uart5_check_free_space(_x)
-#define Uart5Transmit(_x)       uart5_transmit(_x)
+#define Uart5Init() uart_periph_init(&uart5)
+#define Uart5CheckFreeSpace(_x) uart_check_free_space(&uart5, _x)
+#define Uart5Transmit(_x) uart_transmit(&uart5, _x)
 #define Uart5SendMessage() {}
+#define Uart5ChAvailable() UartChAvailable(uart5)
+#define Uart5Getch() UartGetch(uart5)
+#define Uart5TxRunning uart5.tx_running
+#define Uart5InitParam(_b, _m, _fm) uart_periph_init_param(&uart5, _b, _m, _fm, "")
 
 #define UART5Init           Uart5Init
 #define UART5CheckFreeSpace Uart5CheckFreeSpace
@@ -174,6 +175,6 @@ extern bool_t uart5_check_free_space( uint8_t len);
 #define UART5ChAvailable    Uart5ChAvailable
 #define UART5Getch          Uart5Getch
 
-#endif /* USE_UART5 */
+#endif // USE_UART5
 
 #endif /* MCU_PERIPH_UART_H */

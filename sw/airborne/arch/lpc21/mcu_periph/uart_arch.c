@@ -30,7 +30,7 @@
 #include "armVIC.h"
 
 
-void uart_periph_init_param(struct uart_periph* p, uint16_t baud, uint8_t mode, uint8_t fmode, char * dev) {
+void uart_periph_init_param(struct uart_periph* p, uint32_t baud, uint8_t mode, uint8_t fmode, char * dev) {
 
   ((uartRegs_t *)(p->reg_addr))->ier = 0x00;  // disable all interrupts
   ((uartRegs_t *)(p->reg_addr))->iir;         // clear interrupt ID

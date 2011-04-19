@@ -40,6 +40,10 @@ struct uart_periph uart2;
 struct uart_periph uart3;
 #endif
 
+#ifdef USE_UART5
+struct uart_periph uart5;
+#endif
+
 void uart_periph_init(struct uart_periph* p) {
   p->rx_insert_idx = 0;
   p->rx_extract_idx = 0;
