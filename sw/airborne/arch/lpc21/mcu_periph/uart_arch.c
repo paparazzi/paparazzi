@@ -36,12 +36,12 @@ void uart_periph_init_param(struct uart_periph* p, uint16_t baud, uint8_t mode, 
   ((uartRegs_t *)(p->reg_addr))->iir;         // clear interrupt ID
   ((uartRegs_t *)(p->reg_addr))->rbr;         // clear receive register
   ((uartRegs_t *)(p->reg_addr))->lsr;         // clear line status register
-  
+
   // set the baudrate
   ((uartRegs_t *)(p->reg_addr))->lcr = ULCR_DLAB_ENABLE;     // select divisor latches 
   ((uartRegs_t *)(p->reg_addr))->dll = (uint8_t)baud;        // set for baud low byte
   ((uartRegs_t *)(p->reg_addr))->dlm = (uint8_t)(baud >> 8); // set for baud high byte
-  
+
   // set the number of characters and other
   // user specified operating parameters
   ((uartRegs_t *)(p->reg_addr))->lcr = (mode & ~ULCR_DLAB_ENABLE);

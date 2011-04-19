@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -46,7 +46,7 @@
 #define UART1_irq_handler usart1_irq_handler
 #define UART2_irq_handler usart2_irq_handler
 #define UART3_irq_handler usart3_irq_handler
-#define UART5_irq_handler usart5_irq_handler 
+#define UART5_irq_handler usart5_irq_handler
 
 #if defined USE_UART0 || OVERRIDE_UART0_IRQ_HANDLER
 extern void uart0_handler(void);

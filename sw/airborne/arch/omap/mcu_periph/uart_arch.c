@@ -91,7 +91,7 @@ static inline void uart_handler(struct uart_periph* p) {
   if(read(fd,&c,1) > 0){
     //printf("r %x %c\n",c,c);
     uint16_t temp = (p->rx_insert_idx + 1) % UART_RX_BUFFER_SIZE;
-    p->rx_buf[p->rx_insert_idx] = c;    
+    p->rx_buf[p->rx_insert_idx] = c;
     // check for more room in queue
     if (temp != p->rx_extract_idx)
       p->rx_insert_idx = temp; // update insert index
@@ -99,7 +99,7 @@ static inline void uart_handler(struct uart_periph* p) {
 
 }
 
-#ifdef USE_UART0 
+#ifdef USE_UART0
 
 void uart0_init( void ) {
   uart_periph_init(&uart0);
@@ -113,7 +113,7 @@ void uart0_handler(void) {
 
 #endif /* USE_UART0 */
 
-#ifdef USE_UART1 
+#ifdef USE_UART1
 
 void uart1_init( void ) {
   uart_periph_init(&uart1);
