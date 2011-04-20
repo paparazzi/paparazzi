@@ -215,10 +215,8 @@
     <!-- Actuators -->
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="navigation" type="extra"/>
+    <subsystem name="navigation"/>
     <subsystem name="gps" type="xsens"/>
-
-    <!--<subsystem name="i2c"/>-->
 
   </firmware>
 

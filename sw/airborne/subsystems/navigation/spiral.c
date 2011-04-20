@@ -37,7 +37,7 @@ static float SRad;
 static float IRad;
 static float Alphalimit;
 static float Segmente;
-static float CamAngle;
+// static float CamAngle;
 static float ZPoint;
 static float nav_radius_min;
 

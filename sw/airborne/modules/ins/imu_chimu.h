@@ -93,11 +93,7 @@ typedef struct {
         unsigned char   m_MsgLen;
         unsigned char   m_TempDeviceID;
         unsigned char   m_DeviceID;
-<<<<<<< HEAD
 	unsigned char   m_Payload[CHIMU_RX_BUFFERSIZE];        // CHIMU data
-=======
-        unsigned char   m_Payload[CHIMU_RX_BUFFERSIZE];        // CHIMU data
->>>>>>> paparazzi/CHIMU
         unsigned char   m_FullMessage[CHIMU_RX_BUFFERSIZE];	// CHIMU data
         CHIMU_attitude_data m_attitude;
         CHIMU_attitude_data m_attrates;
