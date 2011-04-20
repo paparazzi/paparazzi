@@ -38,7 +38,7 @@
 
 
   <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="MIN_MOTOR" value="1090"/>
+    <define name="MIN_MOTOR" value="1150"/>
     <define name="MAX_MOTOR" value="2000"/>
     <define name="TRIM_A" value="0"/>
     <define name="TRIM_E" value="0"/>
@@ -51,40 +51,13 @@
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
+  <include href="conf/airframes/esden/calib/aspirin_012.xml"/>
+
   <section name="IMU" prefix="IMU_">
-    <define name="GYRO_P_NEUTRAL" value="27"/>
-    <define name="GYRO_Q_NEUTRAL" value="-10"/>
-    <define name="GYRO_R_NEUTRAL" value="20"/>
-    <define name="GYRO_P_SENS" value="5.0" integer="16"/>
-    <define name="GYRO_Q_SENS" value="5.0" integer="16"/>
-    <define name="GYRO_R_SENS" value="5.0" integer="16"/>
-    <define name="GYRO_PQ_SENS" value="0.0" integer="16"/>
-    <define name="GYRO_PR_SENS" value="0.0" integer="16"/>
-    <define name="GYRO_QR_SENS" value="0.0" integer="16"/>
-    
-    <define name="ACCEL_X_NEUTRAL" value="4"/>
-    <define name="ACCEL_Y_NEUTRAL" value="-14"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-5"/>
-    <define name="ACCEL_X_SENS" value="39" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="39" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="39" integer="16"/>
-    <define name="ACCEL_XY_SENS" value="0.0" integer="16"/>
-    <define name="ACCEL_XZ_SENS" value="0.0" integer="16"/>
-    <define name="ACCEL_YZ_SENS" value="0.0" integer="16"/>
-    
-    <define name="MAG_X_NEUTRAL" value="0"/>
-    <define name="MAG_Y_NEUTRAL" value="0"/>
-    <define name="MAG_Z_NEUTRAL" value="0"/>
-    <define name="MAG_X_SENS" value="1." integer="16"/>
-    <define name="MAG_Y_SENS" value="1." integer="16"/>
-    <define name="MAG_Z_SENS" value="1." integer="16"/>
-    <define name="MAG_XY_SENS" value="0.0" integer="16"/>
-    <define name="MAG_XZ_SENS" value="0.0" integer="16"/>
-    <define name="MAG_YZ_SENS" value="0.0" integer="16"/>
     
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45. )"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg( 225. )"/>
 
   </section>
 
@@ -137,6 +110,7 @@
     <define name="REF_MAX_R"    value="RadOfDeg(180.)"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
+    <!-- Old settings with exponential throttle motor controllers
     <!-- feedback -->
     <define name="PHI_PGAIN"  value="-250"/>
     <define name="PHI_DGAIN"  value="-200"/>
@@ -154,7 +128,33 @@
     <define name="PHI_DDGAIN"   value=" 200"/>
     <define name="THETA_DDGAIN" value=" 200"/>
     <define name="PSI_DDGAIN"   value=" 200"/>
+    -->
 
+    <!-- feedback -->
+    <define name="PHI_PGAIN"  value="-1900"/>
+    <define name="PHI_DGAIN"  value="-380"/>
+    <define name="PHI_IGAIN"  value="-200"/>
+
+    <define name="THETA_PGAIN"  value="-1900"/>
+    <define name="THETA_DGAIN"  value="-380"/>
+    <define name="THETA_IGAIN"  value="-200"/>
+
+    <define name="PSI_PGAIN"  value="-2000"/>
+    <define name="PSI_DGAIN"  value="-400"/>
+    <define name="PSI_IGAIN"  value="-10"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN"   value=" 300"/>
+    <define name="THETA_DDGAIN" value=" 300"/>
+    <define name="PSI_DDGAIN"   value=" 300"/>
+
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <define name="PROPAGATE_FREQUENCY" value="512"/>
+    <define name="H_X" value=" 0.51562740288882"/>
+    <define name="H_Y" value="-0.05707735220832"/>
+    <define name="H_Z" value=" 0.85490967783446"/>
   </section>
 
   <section name="INS" prefix="INS_">
@@ -177,7 +177,6 @@
    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
    <define name="INV_M" value ="0.15"/>
   </section>
-
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
    <define name="PGAIN" value="-100"/>
@@ -224,7 +223,8 @@
     <subsystem name="gps"           type="ublox">
 	    <configure name="GPS_BAUD"    value="B57600"/>
     </subsystem>
-    <subsystem name="ahrs"          type="cmpl"/>
+    <!--subsystem name="ahrs"          type="cmpl"/-->
+    <subsystem name="ahrs"          type="ic"/>
   </firmware>
 
   <firmware name="lisa_l_test_progs">

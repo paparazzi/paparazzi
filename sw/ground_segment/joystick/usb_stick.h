@@ -27,17 +27,26 @@
 #include <linux/input.h>
 
 /* Max number of axis and buttons */
-#define STICK_BUTTON_COUNT    16
-#define STICK_AXIS_COUNT      10
+/*  Increased, many new controllers have pressure sensitive buttons that show up as axes */
+#define STICK_BUTTON_COUNT    32
+#define STICK_AXIS_COUNT      32
 
 /* Default values for the options */
 #define STICK_INPUT_DEV_MAX   15
 #define STICK_DEVICE_NAME     "/dev/input/event"
 
+/* Event mode switched */
+#define STICK_MODE_UNKNOWN    0
+#define STICK_MODE_EVENT      1
+#define STICK_MODE_JOYSTICK   2
+
+/* Max name length */
+#define MAX_NAME_LENGTH       255
+
 /* Global variables about the initialized device */
 extern int stick_device_handle;
 extern int8_t stick_axis_values[STICK_AXIS_COUNT];
-extern int16_t stick_button_values;
+extern int32_t stick_button_values;
 extern int stick_axis_count, stick_button_count;
 
 /* Structure for custom configuration
