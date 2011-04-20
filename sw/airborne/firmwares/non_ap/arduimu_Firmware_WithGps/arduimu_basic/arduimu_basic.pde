@@ -30,9 +30,6 @@
 /*For debugging propurses*/
 #define PRINT_DEBUG 0   //Will print Debug messages
 
-//OUTPUTMODE=1 will print the corrected data, 0 will print uncorrected data of the gyros (with drift), 2 will print accelerometer only data
-#define OUTPUTMODE 1
-
 #define PRINT_I2C_MSG 0 //Will print the I2C output buffer
 #define PRINT_DCM 0     //Will print the whole direction cosine matrix
 #define PRINT_ANALOGS 0 //Will print the analog raw data
@@ -49,7 +46,7 @@ int I2C_Message_ar[9];
 
 
 // *** NOTE!   To use ArduIMU with ArduPilot you must select binary output messages (change to 1 here)
-#define PRINT_BINARY 0   //Will print binary message and suppress ASCII messages (above)
+#define PRINT_BINARY 1   //Will print binary message and suppress ASCII messages (above)
 
 // *** NOTE!   Performance reporting is only supported for Ublox.  Set to 0 for others
 #define PERFORMANCE_REPORTING 1  //Will include performance reports in the binary output ~ 1/2 min
@@ -70,10 +67,9 @@ int I2C_Message_ar[9];
 #define ToDeg(x) (x*57.2957795131)  // *180/pi
 
 // LPR530 & LY530 Sensitivity (from datasheet) => 3.33mV/º/s, 3.22mV/ADC step => 1.03
-// Tested values : 0.96,0.96,0.94
-#define Gyro_Gain_X 0.92 //X axis Gyro gain
-#define Gyro_Gain_Y 0.92 //Y axis Gyro gain
-#define Gyro_Gain_Z 0.94 //Z axis Gyro gain
+#define Gyro_Gain_X 1.0 //X axis Gyro gain
+#define Gyro_Gain_Y 1.0 //Y axis Gyro gain
+#define Gyro_Gain_Z 1.0 //Z axis Gyro gain
 #define Gyro_Scaled_X(x) x*ToRad(Gyro_Gain_X) //Return the scaled ADC raw data of the gyro in radians for second
 #define Gyro_Scaled_Y(x) x*ToRad(Gyro_Gain_Y) //Return the scaled ADC raw data of the gyro in radians for second
 #define Gyro_Scaled_Z(x) x*ToRad(Gyro_Gain_Z) //Return the scaled ADC raw data of the gyro in radians for second
@@ -84,7 +80,7 @@ int I2C_Message_ar[9];
 //#define Kp_YAW 2.5      //High yaw drift correction gain - use with caution!
 #define Ki_YAW 0.00005
 
-#define ADC_WARM_CYCLES 75
+#define ADC_WARM_CYCLES 100
 
 #define FALSE 0
 #define TRUE 1
@@ -268,7 +264,10 @@ void loop() //Main Loop
 {
   timeNow = millis();
 
-  if((timeNow-timer)>=20)  // Main loop runs at 50Hz
+  // 20 -> Main loop runs at 50Hz
+  // 5 -> Main loop runs at 200Hz
+  // Max measured duty time around 3ms
+  if((timeNow-timer)>=5)
   {
     timer_old = timer;
     timer = timeNow;

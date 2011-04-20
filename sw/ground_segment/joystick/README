@@ -21,7 +21,9 @@
 # 
 
 
-Tools for controling an aircraft with a ground joystick
+Tools for controlling an aircraft with a ground joystick
+
+Also used as general purpose joystick to ivybus connector.  Can generate arbitrary ivybus messages based on control input from buttons or axes.  Supports limiting, exponential and scaling on axes.
 
 
 

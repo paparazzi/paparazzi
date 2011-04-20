@@ -6,7 +6,7 @@
   </header>
   <init fun="ArduIMU_init()"/>
   <periodic fun="ArduIMU_periodic()" freq="60"/>
-  <periodic fun="ArduIMU_periodicGPS()" freq="8"/>
+  <periodic fun="ArduIMU_periodicGPS()" freq="4"/>
   <event fun="ArduIMU_event()"/>
   <makefile target="ap">
     <file name="ins_arduimu_basic.c"/>
