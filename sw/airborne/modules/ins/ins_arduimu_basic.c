@@ -13,8 +13,12 @@ Autoren@ZHAW:   schmiemi
 // test
 #include "estimator.h"
 
-// für das Senden von GPS-Daten an den ArduIMU
+// GPS data for ArduIMU
 #include "gps.h"
+
+// Command vector for thrust
+#include "generated/airframe.h"
+#include "inter_mcu.h"
 
 #define NB_DATA 9
 
@@ -24,7 +28,7 @@ Autoren@ZHAW:   schmiemi
 
 // Adresse des I2C Slaves:  0001 0110	letztes Bit ist für Read/Write
 // einzugebende Adresse im ArduIMU ist 0000 1011
-//da ArduIMU das Read/Write Bit selber anfügt.
+// da ArduIMU das Read/Write Bit selber anfügt.
 #define ArduIMU_SLAVE_ADDR 0x22
 
 #ifndef DOWNLINK_DEVICE
@@ -47,6 +51,11 @@ struct FloatVect3 arduimu_accel;
 float ins_roll_neutral;
 float ins_pitch_neutral;
 
+// High Accel Flag
+#define HIGH_ACCEL_LOW_SPEED 2.0
+#define HIGH_ACCEL_HIGH_THRUST (0.8*MAX_PPRZ)
+bool_t high_accel_flag;
+
 void ArduIMU_init( void ) {
   FLOAT_EULERS_ZERO(arduimu_eulers);
   FLOAT_RATES_ZERO(arduimu_rates);
@@ -57,6 +66,8 @@ void ArduIMU_init( void ) {
 
   ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
   ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
+
+  high_accel_flag = FALSE;
 }
 
 #define FillBufWith32bit(_buf, _index, _value) {  \
@@ -70,12 +81,22 @@ void ArduIMU_periodicGPS( void ) {
 
   if (ardu_gps_trans.status != I2CTransDone) { return; }
 
+  // Test for high acceleration:
+  //  - low speed
+  //  - high thrust
+  if (gps_speed_3d < HIGH_ACCEL_LOW_SPEED && ap_state->commands[COMMAND_THROTTLE]) {
+    high_accel_flag = TRUE;
+  } else {
+    high_accel_flag = FALSE;
+  }
+
   FillBufWith32bit(ardu_gps_trans.buf, 0, (int32_t)gps_speed_3d); // speed 3D
   FillBufWith32bit(ardu_gps_trans.buf, 4, (int32_t)gps_gspeed);   // ground speed
   FillBufWith32bit(ardu_gps_trans.buf, 8, (int32_t)gps_course);   // course
   ardu_gps_trans.buf[12] = gps_mode;                              // status gps fix
   ardu_gps_trans.buf[13] = gps_status_flags;                      // status flags
-  I2CTransmit(ARDUIMU_I2C_DEV, ardu_gps_trans, ArduIMU_SLAVE_ADDR, 14);
+  ardu_gps_trans.buf[14] = (uint8_t)high_accel_flag;              // high acceleration flag (disable accelerometers in the arduimu filter)
+  I2CTransmit(ARDUIMU_I2C_DEV, ardu_gps_trans, ArduIMU_SLAVE_ADDR, 15);
 
 }
 
