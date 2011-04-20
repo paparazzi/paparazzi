@@ -21,27 +21,13 @@ void Normalize(void)
     renorm= .5 * (3-renorm);                                                 //eq.21
   } else if (renorm < 100.0f && renorm > 0.01f) {
     renorm= 1. / sqrt(renorm);
-#if PERFORMANCE_REPORTING == 1  
+#if PERFORMANCE_REPORTING == 1
     renorm_sqrt_count++;
-#endif
-#if PRINT_DEBUG != 0
-    Serial.print("???SQT:1,RNM:");
-    Serial.print (renorm);
-    Serial.print (",ERR:");
-    Serial.print (error);
-    Serial.println("***");    
 #endif
   } else {
     problem = TRUE;
 #if PERFORMANCE_REPORTING == 1
     renorm_blowup_count++;
-#endif
-#if PRINT_DEBUG != 0
-    Serial.print("???PRB:1,RNM:");
-    Serial.print (renorm);
-    Serial.print (",ERR:");
-    Serial.print (error);
-    Serial.println("***");    
 #endif
   }
   Vector_Scale(&DCM_Matrix[0][0], &temporary[0][0], renorm);
@@ -54,24 +40,10 @@ void Normalize(void)
 #if PERFORMANCE_REPORTING == 1    
     renorm_sqrt_count++;
 #endif
-#if PRINT_DEBUG != 0
-    Serial.print("???SQT:2,RNM:");
-    Serial.print (renorm);
-    Serial.print (",ERR:");
-    Serial.print (error);
-    Serial.println("***");    
-#endif
   } else {
     problem = TRUE;
 #if PERFORMANCE_REPORTING == 1
     renorm_blowup_count++;
-#endif
-#if PRINT_DEBUG != 0
-    Serial.print("???PRB:2,RNM:");
-    Serial.print (renorm);
-    Serial.print (",ERR:");
-    Serial.print (error);
-    Serial.println("***");    
 #endif
   }
   Vector_Scale(&DCM_Matrix[1][0], &temporary[1][0], renorm);
@@ -84,22 +56,10 @@ void Normalize(void)
 #if PERFORMANCE_REPORTING == 1 
     renorm_sqrt_count++;
 #endif
-#if PRINT_DEBUG != 0
-    Serial.print("???SQT:3,RNM:");
-    Serial.print (renorm);
-    Serial.print (",ERR:");
-    Serial.print (error);
-    Serial.println("***");    
-#endif
   } else {
     problem = TRUE;  
 #if PERFORMANCE_REPORTING == 1
     renorm_blowup_count++;
-#endif
-#if PRINT_DEBUG != 0
-    Serial.print("???PRB:3,RNM:");
-    Serial.print (renorm);
-    Serial.println("***");    
 #endif
   }
   Vector_Scale(&DCM_Matrix[2][0], &temporary[2][0], renorm);
@@ -170,23 +130,18 @@ void Drift_correction(void)
   Integrator_magnitude = sqrt(Vector_Dot_Product(Omega_I,Omega_I));
   if (Integrator_magnitude > ToRad(300)) {
     Vector_Scale(Omega_I,Omega_I,0.5f*ToRad(300)/Integrator_magnitude);
-#if PRINT_DEBUG != 0
-    Serial.print("!!!INT:1,MAG:");
-    Serial.print (ToDeg(Integrator_magnitude));
-
-    Serial.println("***");    
-#endif
   }
 
 }
+
 /**************************************************/
 void Accel_adjust(void)
 {
   Accel_Vector[1] += Accel_Scale(speed_3d*Omega[2]);  // Centrifugal force on Acc_y = GPS_speed*GyroZ
   Accel_Vector[2] -= Accel_Scale(speed_3d*Omega[1]);  // Centrifugal force on Acc_z = GPS_speed*GyroY 
 }
-/**************************************************/
 
+/**************************************************/
 void Matrix_update(void)
 {
   Gyro_Vector[0]=Gyro_Scaled_X(read_adc(0)); //gyro x roll
@@ -202,7 +157,6 @@ void Matrix_update(void)
 
   Accel_adjust();    //Remove centrifugal acceleration.
 
-#if OUTPUTMODE==1         
   Update_Matrix[0][0]=0;
   Update_Matrix[0][1]=-G_Dt*Omega_Vector[2];//-z
   Update_Matrix[0][2]=G_Dt*Omega_Vector[1];//y
@@ -212,17 +166,6 @@ void Matrix_update(void)
   Update_Matrix[2][0]=-G_Dt*Omega_Vector[1];//-y
   Update_Matrix[2][1]=G_Dt*Omega_Vector[0];//x
   Update_Matrix[2][2]=0;
-#else                    // Uncorrected data (no drift correction)
-  Update_Matrix[0][0]=0;
-  Update_Matrix[0][1]=-G_Dt*Gyro_Vector[2];//-z
-  Update_Matrix[0][2]=G_Dt*Gyro_Vector[1];//y
-  Update_Matrix[1][0]=G_Dt*Gyro_Vector[2];//z
-  Update_Matrix[1][1]=0;
-  Update_Matrix[1][2]=-G_Dt*Gyro_Vector[0];
-  Update_Matrix[2][0]=-G_Dt*Gyro_Vector[1];
-  Update_Matrix[2][1]=G_Dt*Gyro_Vector[0];
-  Update_Matrix[2][2]=0;
-#endif
 
   Matrix_Multiply(DCM_Matrix,Update_Matrix,Temporary_Matrix); //a*b=c
 
@@ -235,16 +178,11 @@ void Matrix_update(void)
   }
 }
 
+/**************************************************/
 void Euler_angles(void)
 {
-#if (OUTPUTMODE==2)         // Only accelerometer info (debugging purposes)
-  roll = atan2(Accel_Vector[1],Accel_Vector[2]);    // atan2(acc_y,acc_z)
-  pitch = -asin((Accel_Vector[0])/(double)GRAVITY); // asin(acc_x)
-  yaw = 0;
-#else
   pitch = -asin(DCM_Matrix[2][0]);
   roll = atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
   yaw = atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
-#endif
 }
 

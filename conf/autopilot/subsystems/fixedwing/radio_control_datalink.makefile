@@ -15,5 +15,5 @@ ifeq ($(NORADIO), False)
   $(TARGET).srcs		+= $(SRC_SUBSYSTEMS)/radio_control.c
   $(TARGET).srcs		+= $(SRC_SUBSYSTEMS)/radio_control/rc_datalink.c
 # arch only with sim target for compatibility (empty functions)
-	sim.srcs					+= $(SRC_ARCH)/radio_control/rc_datalink.c
+	sim.srcs					+= $(SRC_ARCH)/subsystems/radio_control/rc_datalink.c
 endif
