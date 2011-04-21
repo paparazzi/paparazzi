@@ -198,7 +198,7 @@ static inline void v_ctl_set_pitch ( void ) {
 
   if (v_ctl_auto_pitch_igain < 0.) {
     v_ctl_auto_pitch_sum_err += err*(1./60.);
-    BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR / v_ctl_auto_pitch_igain);
+    BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR / (-v_ctl_auto_pitch_igain));
   }
 
   // PI loop + feedforward ctl
@@ -223,7 +223,7 @@ static inline void v_ctl_set_throttle( void ) {
 
   if (v_ctl_auto_throttle_igain < 0.) {
     v_ctl_auto_throttle_sum_err += err*(1./60.);
-    BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR / v_ctl_auto_throttle_igain);
+    BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR / (-v_ctl_auto_throttle_igain));
   }
 
   // PID loop + feedforward ctl

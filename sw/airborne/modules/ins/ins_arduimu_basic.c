@@ -132,7 +132,7 @@ void ArduIMU_event( void ) {
     estimator_p = arduimu_rates.p;
     ardu_ins_trans.status = I2CTransDone;
 
-    RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, &arduimu_eulers.phi, &arduimu_eulers.theta, &arduimu_eulers.psi));
+    //RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, &arduimu_eulers.phi, &arduimu_eulers.theta, &arduimu_eulers.psi));
     RunOnceEvery(15, DOWNLINK_SEND_IMU_GYRO(DefaultChannel, &arduimu_rates.p, &arduimu_rates.q, &arduimu_rates.r));
     RunOnceEvery(15, DOWNLINK_SEND_IMU_ACCEL(DefaultChannel, &arduimu_accel.x, &arduimu_accel.y, &arduimu_accel.z));
   }

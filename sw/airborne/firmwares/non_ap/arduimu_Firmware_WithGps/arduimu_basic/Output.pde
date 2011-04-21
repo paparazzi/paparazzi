@@ -1,23 +1,27 @@
 
 //*****I2C Output************************************************************
-
-void requestEvent(){
-#if PRINT_DEBUG != 0
-  Serial.println("Sending IMU Data");
-#endif
-
+void fill_I2C_message() {
   // Message Array : Roll; Pitch; YaW; GyroX; GyroY; GyroZ; ACCX; ACCY; ACCZ
   // Float Number is multipited with 10000 and converted to an Integer, for sending via I2C.
   // Resolution for angles: 12, rates: 12, accel:10 (from pprza BFP math lib)
   I2C_Message_ar[0] = int(roll*(1<<12));
   I2C_Message_ar[1] = int(pitch*(1<<12));
   I2C_Message_ar[2] = int(yaw*(1<<12));
-  I2C_Message_ar[3] = int(Gyro_Vector[0]*(1<<12));
-  I2C_Message_ar[4] = int(Gyro_Vector[1]*(1<<12));
-  I2C_Message_ar[5] = int(Gyro_Vector[2]*(1<<12));
+  I2C_Message_ar[3] = int(Omega_Vector[0]*(1<<12));
+  I2C_Message_ar[4] = int(Omega_Vector[1]*(1<<12));
+  I2C_Message_ar[5] = int(Omega_Vector[2]*(1<<12));
   I2C_Message_ar[6] = int((9.81*Accel_Vector[0]/GRAVITY)*(1<<10));
   I2C_Message_ar[7] = int((9.81*Accel_Vector[1]/GRAVITY)*(1<<10));
   I2C_Message_ar[8] = int((9.81*Accel_Vector[2]/GRAVITY)*(1<<10));
+
+}
+
+void requestEvent(){
+#if PRINT_DEBUG != 0
+  Serial.println("Sending IMU Data");
+#endif
+
+  fill_I2C_message();
 
   byte* pointer;
   pointer = (byte*) &I2C_Message_ar;
@@ -51,6 +55,7 @@ void receiveEvent(int howMany){
 void printdata(void){    
 
 #if PRINT_I2C_MSG == 1
+  fill_I2C_message();
   Serial.print("Time ");
   Serial.print(millis());
   Serial.print(";  Roll ");
@@ -89,8 +94,7 @@ void printdata(void){
   Serial.print (",AN4:");
   Serial.print(read_adc(4));
   Serial.print (",AN5:");
-  Serial.print(read_adc(5));
-  Serial.print (",");
+  Serial.println(read_adc(5));
 #endif
 
 #if PRINT_DCM == 1
@@ -111,8 +115,7 @@ void printdata(void){
   Serial.print (",EX7:");
   Serial.print(convert_to_dec(DCM_Matrix[2][1]));
   Serial.print (",EX8:");
-  Serial.print(convert_to_dec(DCM_Matrix[2][2]));
-  Serial.print (",");
+  Serial.println(convert_to_dec(DCM_Matrix[2][2]));
 #endif
 
 #if PRINT_EULER == 1
@@ -123,8 +126,7 @@ void printdata(void){
   Serial.print(",YAW:");
   Serial.print(ToDeg(yaw));
   Serial.print(",IMUH:");
-  Serial.print((imu_health>>8)&0xff);
-  Serial.print (",");
+  Serial.println((imu_health>>8)&0xff);
 #endif
 
 #if PRINT_GPS == 1
@@ -141,6 +143,7 @@ void printdata(void){
     gps_messages_sent++;
 #endif
   }
+  Serial.println("");
 #endif
 
 }
@@ -174,7 +177,7 @@ void printPerfData(long time)
   Serial.print(gps_messages_sent,DEC);
   Serial.print(",imu:");
   Serial.print((imu_health>>8),DEC);
-  Serial.print(",***");
+  Serial.println(",***");
 
   // Reset counters
   mainLoop_count = 0;

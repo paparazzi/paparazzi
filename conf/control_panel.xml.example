@@ -63,6 +63,11 @@
     </program>
 
     <program name="Http Server" command="sw/ground_segment/tmtc/boa"/>
+
+    <program name="Weather Station" command="sw/ground_segment/misc/davis2ivy">
+      <arg flag="-b" variable="ivy_bus"/>
+      <arg flag="-d" constant="/dev/ttyUSB1"/>
+    </program>
  </section>
 
 
