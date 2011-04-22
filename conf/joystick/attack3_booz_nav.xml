@@ -11,7 +11,16 @@
     <button index="5" name="button6"/>
     <button index="6" name="button7"/>
     <button index="7" name="button8"/>
+    <button index="8" name="button9"/>
+    <button index="9" name="button10"/>
+    <button index="10" name="button11"/>
   </input>
+
+  <variables>
+    <var name="mode" default="0"/>
+    <set var="mode" value="0" on_event="button10"/>
+    <set var="mode" value="1" on_event="button11"/>
+  </variables>
 
   <messages period="0.1">
     <!--message class="datalink" name="BOOZ2_FMS_COMMAND">
@@ -34,12 +43,17 @@
       <field name="index" value="IndexOfSetting(booz2_cam_tilt_pwm)"/>
       <field name="value" value="Scale(throttle, 1000, 2000)"/>
     </message-->
+    <message class="ground" name="DL_SETTING" on_event="button11 || button10">
+      <field name="index" value="IndexOfSetting(kill_throttle)"/>
+      <field name="value" value="mode"/>
+    </message>
+
 
     <message class="ground" name="JUMP_TO_BLOCK" on_event="shoot && button7">
       <field name="block_id" value="IndexOfBlock('land here')"/>
     </message>
-    <message class="ground" name="JUMP_TO_BLOCK" on_event="shoot && button8">
+    <!--message class="ground" name="JUMP_TO_BLOCK" on_event="shoot && button8">
       <field name="block_id" value="IndexOfBlock('Joystick')"/>
-    </message>
+    </message-->
   </messages>
 </joystick>

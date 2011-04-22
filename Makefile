@@ -43,6 +43,7 @@ AIRBORNE=sw/airborne
 COCKPIT=sw/ground_segment/cockpit
 TMTC=sw/ground_segment/tmtc
 MULTIMON=sw/ground_segment/multimon
+MISC=sw/ground_segment/misc
 LOGALIZER=sw/logalizer
 SIMULATOR=sw/simulator
 MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
@@ -69,7 +70,7 @@ OCAMLRUN=$(shell which ocamlrun)
 
 all: commands static conf
 
-static : lib center tools cockpit multimon tmtc logalizer lpc21iap sim_static static_h usb_lib
+static : lib center tools cockpit multimon tmtc misc logalizer lpc21iap sim_static static_h usb_lib
 
 conf: conf/conf.xml conf/control_panel.xml
 
@@ -97,6 +98,9 @@ cockpit: lib
 
 tmtc: lib cockpit
 	cd $(TMTC); $(MAKE) all
+
+misc:
+	cd $(MISC); $(MAKE) all
 
 multimon:
 	cd $(MULTIMON); $(MAKE)

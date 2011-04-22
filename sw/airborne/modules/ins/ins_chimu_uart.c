@@ -4,7 +4,10 @@ C code to connect a CHIMU using uart
 
 
 #include <stdbool.h>
+
 //#include "modules/ins/ins_chimu_uart.h"
+
+
 
 // Output
 #include "estimator.h"
@@ -33,11 +36,13 @@ volatile uint8_t new_ins_attitude;
 
 void ins_init( void ) 
 {
-//  uint8_t rate[12] = {0xae, 0xae, 0x06, 0xaa, 0x10, 0x05, 0xff, 0x79, 0x00, 0x00, 0xab, 0x76 };	// 50Hz attitude only + SPI
-  uint8_t rate[12] = {0xae, 0xae, 0x06, 0xaa, 0x10, 0x04, 0xff, 0x79, 0x00, 0x00, 0xab, 0xd3 }; // 25Hz attitude only + SPI
+  uint8_t rate[12] = {0xae, 0xae, 0x06, 0xaa, 0x10, 0x05, 0xff, 0x79, 0x00, 0x00, 0x01, 0x76 };	// 50Hz attitude only + SPI
+//  uint8_t rate[12] = {0xae, 0xae, 0x06, 0xaa, 0x10, 0x04, 0xff, 0x79, 0x00, 0x00, 0x01, 0xd3 }; // 25Hz attitude only + SPI
 //  uint8_t euler[7] = {0xae, 0xae, 0x01, 0xaa, 0x09, 0x00, 0xaf }; // 25Hz attitude only + SPI
   uint8_t quaternions[7] = {0xae, 0xae, 0x01, 0xaa, 0x09, 0x01, 0x39 }; // 25Hz attitude only + SPI
   
+  CHIMU_Checksum(rate,12);
+
   new_ins_attitude = 0;
   
   ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
@@ -50,6 +55,14 @@ void ins_init( void )
   {
     InsUartSend1(quaternions[i]);
   }
+
+
+
+
+
+
+
+
   // 50Hz
   for (int i=0;i<12;i++)
   {
@@ -57,8 +70,6 @@ void ins_init( void )
   }
   
 }
-
-float tempang = 0;
 
 void parse_ins_msg( void )
 {
@@ -71,23 +82,12 @@ void parse_ins_msg( void )
       if(CHIMU_DATA.m_MsgID==0x03)
       {
 	new_ins_attitude = 1;
-	// RunOnceEvery(25, LED_TOGGLE(3) );
-	// LED_TOGGLE(3);
+	RunOnceEvery(25, LED_TOGGLE(3) );
 	if (CHIMU_DATA.m_attitude.euler.phi > M_PI)
 	{
 	  CHIMU_DATA.m_attitude.euler.phi -= 2 * M_PI;
 	}
-	
-	if (CHIMU_DATA.m_attitude.euler.phi == tempang)
-	{
-	  LED_ON(3);
-	}
-	else
-	{
-	  LED_OFF(3);
-	}
-	tempang = CHIMU_DATA.m_attitude.euler.phi;
-	
+		
 	EstimatorSetAtt(CHIMU_DATA.m_attitude.euler.phi, CHIMU_DATA.m_attitude.euler.psi, CHIMU_DATA.m_attitude.euler.theta);
 	//EstimatorSetRate(ins_p,ins_q);
 	
