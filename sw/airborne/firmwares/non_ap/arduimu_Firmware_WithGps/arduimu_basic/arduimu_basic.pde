@@ -104,11 +104,7 @@ float Omega_P[3]= {0,0,0};//Omega Proportional correction
 float Omega_I[3]= {0,0,0};//Omega Integrator
 float Omega[3]= {0,0,0};
 
-//Magnetometer variables
-//int magnetom_x;
-//int magnetom_y;
-//int magnetom_z;
-//float MAG_Heading;
+boolean high_accel_flag = false; // disable update on accelerometers if true
 
 // Euler angles
 float roll;
