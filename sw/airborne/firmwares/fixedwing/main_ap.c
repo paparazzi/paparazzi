@@ -376,6 +376,32 @@ static void navigation_task( void ) {
  */
 
 
+static inline void attitude_loop( void ) {
+
+#ifdef USE_GYRO
+      gyro_update();
+#endif
+
+#ifdef USE_INFRARED
+      infrared_update();
+      estimator_update_state_infrared();
+#endif /* USE_INFRARED */
+      h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
+      v_ctl_throttle_slew();
+      ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
+      ap_state->commands[COMMAND_ROLL] = h_ctl_aileron_setpoint;
+      
+      ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
+
+#if defined MCU_SPI_LINK
+      link_mcu_send();
+#elif defined INTER_MCU && defined SINGLE_MCU
+      /**Directly set the flag indicating to FBW that shared buffer is available*/
+      inter_mcu_received_ap = TRUE;
+#endif
+
+}
+
 void periodic_task_ap( void ) {
 
   static uint8_t _60Hz = 0;
@@ -471,34 +497,17 @@ void periodic_task_ap( void ) {
 #error "Only 20 and 60 allowed for CONTROL_RATE"
 #endif
 
-
 #if CONTROL_RATE == 20
   if (!_20Hz)
 #endif
     {
 
-#ifdef USE_GYRO
-      gyro_update();
-#endif
-
-#ifdef USE_INFRARED
-      infrared_update();
-      estimator_update_state_infrared();
-#endif /* USE_INFRARED */
-      h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
-      v_ctl_throttle_slew();
-      ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
-      ap_state->commands[COMMAND_ROLL] = h_ctl_aileron_setpoint;
-      ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
-
-#if defined MCU_SPI_LINK
-      link_mcu_send();
-#elif defined INTER_MCU && defined SINGLE_MCU
-      /**Directly set the flag indicating to FBW that shared buffer is available*/
-      inter_mcu_received_ap = TRUE;
+#ifndef AHRS_TRIGGERED_ATTITUDE_LOOP
+      attitude_loop();
 #endif
 
     }
+
 
   modules_periodic_task();
 }
@@ -641,6 +650,16 @@ void event_task_ap( void ) {
   }
 
   modules_event_task();
+  
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+  if (new_ins_attitude > 0)
+  {
+    attitude_loop();
+    //LED_TOGGLE(3);
+    new_ins_attitude = 0;
+  }
+#endif
+  
 } /* event_task_ap() */
 
 #ifdef USE_AHRS

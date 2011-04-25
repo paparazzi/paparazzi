@@ -213,6 +213,9 @@ jsbsim.LDFLAGS		+= `pkg-config glib-2.0 --libs` -lm -lpcre -lglibivy -L/usr/lib 
 jsbsim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
 jsbsim.srcs 		+= downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/jsbsim_transport.c
 
+jsbsim.srcs 		+= subsystems/settings.c
+jsbsim.srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
+
 ######################################################################
 ##
 ## Final Target Allocations

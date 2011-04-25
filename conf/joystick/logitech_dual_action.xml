@@ -1,0 +1,87 @@
+<!-- Logitech dual action controller profile
+
+  Joystick has six axes:
+  axis 1: X on left stick
+  axis 2: Y on left stick
+  axis 3: X on right stick
+  axis 4: Y on right stick
+  axis 5: X on D pad
+  axis 6: Y on D pad
+It has 12 buttons, 10 of which are labeled on the joystick
+Buttons 11 and 12 are not to be found.
+
+The "mode" button swaps the axes on the left stick and the d pad.
+-->
+
+<joystick>
+ <input>
+  <axis index="0" name="lx" limit="1.00" exponent="0.7" trim="0"/>
+  <axis index="1" name="ly" limit="1.00" exponent="0.7" trim="0"/>
+  <axis index="2" name="rx" limit="1.00" exponent="0.7" trim="0"/>
+  <axis index="3" name="ry" limit="1.00" exponent="0.7" trim="0"/>
+  <axis index="4" name="dpadx"/>
+  <axis index="5" name="dpady"/>
+  <button index="0" name="b0"/>
+  <button index="1" name="b1"/>
+  <button index="2" name="b2"/>
+  <button index="3" name="b3"/>  
+  <button index="4" name="b4"/>
+  <button index="5" name="b5"/>
+  <button index="6" name="b6"/>
+  <button index="7" name="b7"/>
+  <button index="8" name="b8"/>
+  <button index="9" name="b9"/>
+  <button index="10" name="b10"/>
+  <button index="11" name="b11"/>
+</input>
+
+<messages period="0.017">
+
+
+  <message class="datalink" name="RC_4CH" send_always="true">
+   <field name="throttle" value="Scale(0-ly,0,255)"/>
+   <field name="roll" value="rx"/>
+   <field name="yaw" value="lx"/>
+   <field name="pitch" value="ry"/>
+  </message>
+
+
+  <!-- trim commands -->
+<!--  not needed
+  <message class="trim_plus" name="lx" on_event="b9"/>
+  <message class="trim_minus" name="lx" on_event="b8"/>
+  <message class="trim_plus" name="ly" on_event="b10"/>
+  <message class="trim_minus" name="ly" on_event="b11"/>
+  <message class="trim_plus" name="rx" on_event="b2"/>
+  <message class="trim_minus" name="rx" on_event="b0"/>
+  <message class="trim_minus" name="ry" on_event="b3"/> 
+  <message class="trim_plus" name="ry" on_event="b1"/>
+  <message class="trim_save" name="" on_event="b5"/>
+ -->
+
+  <!-- Button 5 top left bumper) -->  <!-- AUTO1 mode -->
+  <message class="ground" name="DL_SETTING" on_event="b4">
+    <field name="index" value="5"/>
+    <field name="value" value="1"/> 
+  </message>
+ 
+  <!-- Button 7 bottom left bumper -->   <!-- AUTO2 mode -->
+  <message class="ground" name="DL_SETTING" on_event="b6">
+    <field name="index" value="5"/>
+    <field name="value" value="2"/>
+  </message>
+
+  <!-- Buttons 6+8 (right pad) -->  <!-- KILL mode -->
+  <message class="ground" name="DL_SETTING" on_event="b5">
+    <field name="index" value="5"/>
+    <field name="value" value="5"/> 
+  </message>
+  <message class="ground" name="DL_SETTING" on_event="b7">
+    <field name="index" value="5"/>
+    <field name="value" value="5"/> 
+  </message>
+
+
+</messages>
+
+</joystick>

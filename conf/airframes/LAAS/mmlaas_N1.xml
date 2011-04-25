@@ -24,8 +24,8 @@
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="attitude" 		type="infrared">
-      <configure name="ADC_IR1" value="ADC_0"/>
-      <configure name="ADC_IR2" value="ADC_1"/>
+      <configure name="ADC_IR1" value="ADC_1"/>
+      <configure name="ADC_IR2" value="ADC_0"/>
       <configure name="ADC_IR_TOP" value="ADC_2"/>
     </subsystem>
     <subsystem name="gps" 		    type="ublox_lea4p"/>
@@ -40,9 +40,14 @@
 
   <modules>
     <load name="formation_flight.xml"/>
-    <load name="tcas.xml"/>
+   <!-- <load name="tcas.xml"/> -->
     <!--load name="potential.xml"/-->
-  </modules>
+  <load name="cartography.xml"/>
+</modules>
+
+
+
+
 
 <!-- commands section -->
   <servos>
@@ -95,7 +100,7 @@
     <define name="PITCH_NEUTRAL_DEFAULT" value="8.6" unit="deg"/>
 
     <define name="HORIZ_SENSOR_TILTED" value="1"/>
-    <define name="IR2_SIGN" value="-1"/>
+    <define name="IR2_SIGN" value="1"/>
     <define name="TOP_SIGN" value="1"/>
 
     <!--linear name="RollOfIrs" arity="2" coeff1="0.7" coeff2="0.7"/>
@@ -107,7 +112,7 @@
     <define name="ADC_TOP_NEUTRAL" value="515"/>
 
     <define name="LATERAL_CORRECTION" value="1."/>
-    <define name="LONGITUDINAL_CORRECTION" value="1."/>
+    <define name="LONGITUDINAL_CORRECTION" value="-1."/>
     <define name="VERTICAL_CORRECTION" value="1.5"/>
   </section>
 

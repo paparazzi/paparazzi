@@ -87,5 +87,12 @@ void mcu_arch_init(void) {
    /* Set the Vector Table base location at 0x08000000 */
   NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
 
+#ifdef STM32_FORCE_ALL_CLOCK_ON
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB |
+                         RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
+                         RCC_APB2Periph_GPIOE | RCC_APB2Periph_AFIO, ENABLE);
+#endif  
+
+
 }
 

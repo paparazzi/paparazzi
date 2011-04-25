@@ -92,13 +92,20 @@ static inline void set_failsafe_mode( void ) {
   SetCommands(commands_failsafe);
 }
 
+
+volatile uint8_t fbw_new_actuators = 0;
+
 #ifdef RADIO_CONTROL
 static inline void handle_rc_frame( void ) {
   fbw_mode = FBW_MODE_OF_PPRZ(radio_control.values[RADIO_MODE]);
   if (fbw_mode == FBW_MODE_MANUAL)
+  {
     SetCommandsFromRC(commands, radio_control.values);
+    fbw_new_actuators = 1;
+  }
 }
 #endif
+
 
 /********** EVENT ************************************************************/
 
@@ -129,10 +136,23 @@ void event_task_fbw( void) {
       SetApOnlyCommands(ap_state->commands);
     }
 #endif
+    fbw_new_actuators = 1;
+
 #ifdef SINGLE_MCU
     inter_mcu_fill_fbw_state();
 #endif /**Else the buffer is filled even if the last receive was not correct */
   }
+
+#ifdef ACTUATORS
+  if (fbw_new_actuators > 0)
+  {
+    SetActuatorsFromCommands(commands);
+    fbw_new_actuators = 0;
+  }
+#endif
+
+
+
 
 #ifdef MCU_SPI_LINK
   if (link_mcu_received) {
@@ -162,7 +182,9 @@ void periodic_task_fbw( void ) {
 #ifdef INTER_MCU
   inter_mcu_periodic_task();
   if (fbw_mode == FBW_MODE_AUTO && !ap_ok)
+  {
     set_failsafe_mode();
+  }
 #endif
 
 #ifdef DOWNLINK
@@ -172,10 +194,5 @@ void periodic_task_fbw( void ) {
   if (!_10Hz) {
     electrical_periodic();
   }
-
-#ifdef ACTUATORS
-  SetActuatorsFromCommands(commands);
-#endif
-
 
 }

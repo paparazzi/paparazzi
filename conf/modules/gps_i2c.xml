@@ -14,6 +14,8 @@ ap.CFLAGS += -DGPS_CONFIGURE -DGPS_PORT_ID=GPS_PORT_DDC
   <event fun="gps_i2cEvent()"/>
   <makefile target="ap">
     <file name="gps_i2c.c"/>
+    <define name="GPS_CONFIGURE" />
+    <define name="GPS_PORT_ID" value="GPS_PORT_DDC" />
   </makefile>
 </module>
 

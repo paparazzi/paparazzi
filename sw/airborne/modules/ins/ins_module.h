@@ -62,7 +62,12 @@ extern INS_FORMAT ins_mx;
 extern INS_FORMAT ins_my;
 extern INS_FORMAT ins_mz;
 
+extern INS_FORMAT ins_roll_neutral;
+extern INS_FORMAT ins_pitch_neutral;
+
+
 extern volatile uint8_t ins_msg_received;
+extern volatile uint8_t new_ins_attitude;
 
 extern void ins_init( void );
 extern void ins_periodic_task( void );
@@ -79,7 +84,8 @@ void parse_ins_buffer( uint8_t );
 
 #define InsBuffer() InsLink(ChAvailable())
 #define ReadInsBuffer() { while (InsLink(ChAvailable())&&!ins_msg_received) parse_ins_buffer(InsLink(Getch())); }
-#define InsUartSend1(c) InsLink(Transmit(c))
+#define InsSend1(c) InsLink(Transmit(c))
+#define InsUartSend1(c) InsSend1(c)
 #define InsUartInitParam(_a,_b,_c) InsLink(InitParam(_a,_b,_c))
 #define InsUartRunning InsLink(TxRunning)
 
