@@ -78,8 +78,7 @@ struct GpsState {
   uint8_t nb_channels;           ///< Number of scanned satellites
   struct SVinfo svinfos[GPS_NB_CHANNELS];
 
-  uint8_t  lost_counter;         /* updated at 4Hz        */
-  uint16_t last_msg_time;
+  uint16_t last_fix_time;        ///< cpu time in sec at last valid fix
   uint16_t reset;                ///< hotstart, warmstart, coldstart
 };
 
@@ -99,15 +98,11 @@ extern void gps_init(void);
 extern void gps_impl_init(void);
 
 
-
-//TODO
-// this is only true for a 512Hz main loop
-// needs to work with different main loop frequencies
-static inline void gps_periodic( void ) {
-  RunOnceEvery(128, gps.lost_counter++; );
-}
-
-#define GpsIsLost() (gps.lost_counter > 20) /* 4Hz -> 5s */
+/* mark GPS as lost when no valid 3D fix was received for GPS_TIMEOUT secs */
+#ifndef GPS_TIMEOUT
+#define GPS_TIMEOUT 5
+#endif
+#define GpsIsLost() (cpu_time_sec - gps.last_fix_time > GPS_TIMEOUT)
 
 
 //TODO

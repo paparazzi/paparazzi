@@ -169,10 +169,9 @@ STATIC_INLINE void main_periodic( void ) {
     } );
 
 #ifdef USE_GPS
-  if (radio_control.status != RC_OK &&				\
+  if (radio_control.status != RC_OK &&                  \
       autopilot_mode == AP_MODE_NAV && GpsIsLost())		\
-    autopilot_set_mode(AP_MODE_FAILSAFE);			\
-  gps_periodic();
+    autopilot_set_mode(AP_MODE_FAILSAFE);
 #endif
 
   modules_periodic_task();

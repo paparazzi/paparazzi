@@ -83,8 +83,7 @@ extern bool_t gps_configuring;
       if (gps_ubx.msg_class == UBX_NAV_ID &&       \
           gps_ubx.msg_id == UBX_NAV_VELNED_ID) {   \
         if (gps.fix == GPS_FIX_3D) {               \
-          gps.lost_counter = 0;                    \
-          gps.last_msg_time = cpu_time_sec;        \
+          gps.last_fix_time = cpu_time_sec;        \
         }                                          \
         _sol_available_callback();                 \
       }                                            \
