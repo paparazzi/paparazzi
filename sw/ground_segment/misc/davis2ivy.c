@@ -55,6 +55,7 @@
 #include <Ivy/ivy.h>
 #include <Ivy/ivyloop.h>
 #include <Ivy/timer.h>
+#include <Ivy/version.h>
 
 
 typedef enum { FALSE = 0, TRUE } BOOL;
@@ -263,7 +264,11 @@ int main(int argc, char **argv) {
   // create timer
   tid = TimerRepeatAfter (0, delay, handle_timer, 0);
 
-  IvyMainLoop();
+#if IVYMINOR_VERSION == 8
+  IvyMainLoop (NULL,NULL);
+#else
+  IvyMainLoop ();
+#endif
 
   return 0;
 }
