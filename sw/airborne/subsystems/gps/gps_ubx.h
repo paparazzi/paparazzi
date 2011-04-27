@@ -48,6 +48,9 @@ struct GpsUbx {
   uint8_t send_ck_a, send_ck_b;
   uint8_t error_cnt;
   uint8_t error_last;
+
+  uint8_t status_flags;
+  uint8_t sol_flags;
 };
 
 extern struct GpsUbx gps_ubx;

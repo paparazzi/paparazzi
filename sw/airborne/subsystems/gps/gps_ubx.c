@@ -179,6 +179,11 @@ void gps_ubx_read_message(void) {
         gps.svinfos[i].azim = UBX_NAV_SVINFO_Azim(gps_ubx.msg_buf, i);
       }
     }
+    else if (gps_ubx.msg_id == UBX_NAV_STATUS_ID) {
+      gps.fix = UBX_NAV_STATUS_GPSfix(gps_ubx.msg_buf);
+      gps_ubx.status_flags = UBX_NAV_STATUS_Flags(gps_ubx.msg_buf);
+      gps_ubx.sol_flags = UBX_NAV_SOL_Flags(gps_ubx.msg_buf);
+    }
   }
 }
 
