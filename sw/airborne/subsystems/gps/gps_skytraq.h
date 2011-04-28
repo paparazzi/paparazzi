@@ -88,19 +88,19 @@ extern struct GpsSkytraq gps_skytraq;
 
 #define GpsBuffer() GpsLink(ChAvailable())
 
-#define GpsEvent(_sol_available_callback) {				\
-    if (GpsBuffer()) {							\
-      ReadGpsBuffer();							\
-    }									\
-    if (gps_skytraq.msg_available) {				\
-      gps_skytraq_read_message();					\
+#define GpsEvent(_sol_available_callback) {                     \
+    if (GpsBuffer()) {                                          \
+      ReadGpsBuffer();                                          \
+    }                                                           \
+    if (gps_skytraq.msg_available) {                            \
+      gps_skytraq_read_message();                               \
       if (gps_skytraq.msg_id == SKYTRAQ_ID_NAVIGATION_DATA) {	\
-        if (gps.fix == GPS_FIX_3D)                     \
-          gps.lost_counter = 0;				\
-    _sol_available_callback();					\
-      }									\
-      gps_skytraq.msg_available = FALSE;				\
-    }									\
+        if (gps.fix == GPS_FIX_3D)                              \
+          gps.last_fix_time = cpu_time_sec;                     \
+        _sol_available_callback();                              \
+      }                                                         \
+      gps_skytraq.msg_available = FALSE;                        \
+    }                                                           \
   }
 
 #define ReadGpsBuffer() {						\

@@ -269,7 +269,7 @@ static inline void telecommand_task( void ) {
 
 
 #ifdef FAILSAFE_DELAY_WITHOUT_GPS
-#define GpsTimeoutError (cpu_time_sec - gps.last_msg_time > FAILSAFE_DELAY_WITHOUT_GPS)
+#define GpsTimeoutError (cpu_time_sec - gps.last_fix_time > FAILSAFE_DELAY_WITHOUT_GPS)
 #endif
 
 /** \fn void navigation_task( void )

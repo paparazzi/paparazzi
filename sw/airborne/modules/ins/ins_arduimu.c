@@ -14,6 +14,9 @@ Autoren@ZHAW:   schmiemi
 #include "estimator.h"
 
 // für das Senden von GPS-Daten an den ArduIMU
+#ifndef UBX
+#error "currently only compatible with uBlox GPS modules"
+#endif
 #include "subsystems/gps.h"
 int32_t GPS_Data[14];
 
@@ -87,11 +90,11 @@ void ArduIMU_periodicGPS( void ) {
         GPS_Data [6] = gps.gspeed;		//ground speed
         GPS_Data [7] = DegOfRad(gps.course / 1e6);	//Kurs
         //status
-        GPS_Data [8] = gps_mode;		//fix
-        GPS_Data [9] = gps_status_flags;	//flags
+        GPS_Data [8] = gps.fix;		//fix
+        GPS_Data [9] = gps_ubx.status_flags;	//flags
         //sol
         GPS_Data [10] = gps.fix;		//fix
-        //GPS_Data [11] = gps_sol_flags;		//flags
+        //GPS_Data [11] = gps_ubx.sol_flags;		//flags
         GPS_Data [12] = -gps.ned_vel.z;
         GPS_Data [13] = gps.num_sv;
 

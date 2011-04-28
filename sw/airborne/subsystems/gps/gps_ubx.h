@@ -48,6 +48,9 @@ struct GpsUbx {
   uint8_t send_ck_a, send_ck_b;
   uint8_t error_cnt;
   uint8_t error_last;
+
+  uint8_t status_flags;
+  uint8_t sol_flags;
 };
 
 extern struct GpsUbx gps_ubx;
@@ -83,8 +86,7 @@ extern bool_t gps_configuring;
       if (gps_ubx.msg_class == UBX_NAV_ID &&       \
           gps_ubx.msg_id == UBX_NAV_VELNED_ID) {   \
         if (gps.fix == GPS_FIX_3D) {               \
-          gps.lost_counter = 0;                    \
-          gps.last_msg_time = cpu_time_sec;        \
+          gps.last_fix_time = cpu_time_sec;        \
         }                                          \
         _sol_available_callback();                 \
       }                                            \
