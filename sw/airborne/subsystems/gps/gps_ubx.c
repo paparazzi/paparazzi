@@ -102,7 +102,7 @@ void gps_ubx_read_message(void) {
     if (gps_ubx.msg_id == UBX_NAV_SOL_ID) {
 #ifdef GPS_TIMESTAMP
       /* get hardware clock ticks */
-      gps.t0 = T0TC;
+      SysTimeTimerStart(gps.t0);
       gps.t0_tow        = UBX_NAV_SOL_ITOW(gps_ubx.msg_buf);
       gps.t0_tow_frac   = UBX_NAV_SOL_Frac(gps_ubx.msg_buf);
 #endif
