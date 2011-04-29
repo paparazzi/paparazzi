@@ -127,14 +127,14 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
 {
   if (imu_aspirin.status == AspirinStatusUninit) return;
 
-  //imu_aspirin_arch_int_disable();
+  imu_aspirin_arch_int_disable();
   if (imu_aspirin.accel_available) {
     imu_aspirin.time_since_last_accel_reading = 0;
     imu_aspirin.accel_available = FALSE;
     accel_copy_spi();
     _accel_handler();
   }
-  //imu_aspirin_arch_int_enable();
+  imu_aspirin_arch_int_enable();
   
   // Reset everything if we've been waiting too long
   if (imu_aspirin.time_since_last_reading > ASPIRIN_GYRO_TIMEOUT) {
