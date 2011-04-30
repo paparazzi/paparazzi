@@ -101,7 +101,7 @@ bool_t SpiralNav(void)
 	  // center reached?
 	  if (nav_approaching_xy(waypoints[Center].x, waypoints[Center].y, FlyFromX, FlyFromY, 0)) {
 		// nadir image
-		//dc_shutter();
+		//dc_send_command(DC_SHOOT);
 		CSpiralStatus = StartCircle;
 	  }
 	  break;
