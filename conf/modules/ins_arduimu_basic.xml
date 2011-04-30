@@ -12,7 +12,7 @@
     <file name="ins_arduimu_basic.c"/>
   </makefile>
   <makefile target="sim">
-    <file_arch name="ins_arduimu.c"/>
+    <file_arch name="ins_arduimu_basic.c"/>
   </makefile>
 </module>
 

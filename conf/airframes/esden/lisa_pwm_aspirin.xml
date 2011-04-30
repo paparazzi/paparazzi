@@ -110,26 +110,6 @@
     <define name="REF_MAX_R"    value="RadOfDeg(180.)"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
-    <!-- Old settings with exponential throttle motor controllers
-    <!-- feedback -->
-    <define name="PHI_PGAIN"  value="-250"/>
-    <define name="PHI_DGAIN"  value="-200"/>
-    <define name="PHI_IGAIN"  value="-150"/>
-
-    <define name="THETA_PGAIN"  value="-250"/>
-    <define name="THETA_DGAIN"  value="-200"/>
-    <define name="THETA_IGAIN"  value="-150"/>
-
-    <define name="PSI_PGAIN"  value="-900"/>
-    <define name="PSI_DGAIN"  value="-200"/>
-    <define name="PSI_IGAIN"  value="-10"/>
-
-    <!-- feedforward -->
-    <define name="PHI_DDGAIN"   value=" 200"/>
-    <define name="THETA_DDGAIN" value=" 200"/>
-    <define name="PSI_DDGAIN"   value=" 200"/>
-    -->
-
     <!-- feedback -->
     <define name="PHI_PGAIN"  value="-1900"/>
     <define name="PHI_DGAIN"  value="-380"/>
@@ -223,8 +203,8 @@
     <subsystem name="gps"           type="ublox">
 	    <configure name="GPS_BAUD"    value="B57600"/>
     </subsystem>
-    <!--subsystem name="ahrs"          type="cmpl"/-->
-    <subsystem name="ahrs"          type="ic"/>
+    <subsystem name="ahrs"          type="cmpl"/>
+    <!--<subsystem name="ahrs"          type="ic"/>-->
   </firmware>
 
   <firmware name="lisa_l_test_progs">

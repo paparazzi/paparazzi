@@ -63,19 +63,19 @@ struct ImuAspirin {
   volatile enum AspirinStatus status;
   struct i2c_transaction i2c_trans_gyro;
   struct i2c_transaction i2c_trans_mag;
-  uint8_t gyro_eoc;
-  uint8_t gyro_available;
-  uint8_t gyro_available_blaaa;
-  uint8_t mag_available;
-  volatile uint8_t mag_ready_for_read;
   volatile uint8_t accel_available;
   volatile uint8_t accel_tx_buf[7];
   volatile uint8_t accel_rx_buf[7];
   uint32_t time_since_last_reading;
+  uint32_t time_since_last_accel_reading;
+  uint8_t mag_available;
+  uint8_t reading_gyro;
+  uint8_t gyro_available_blaaa;
 };
 
 extern struct ImuAspirin imu_aspirin;
 #define ASPIRIN_GYRO_TIMEOUT 3
+#define ASPIRIN_ACCEL_TIMEOUT 3
 
 #include "peripherals/hmc5843.h"
 #define foo_handler() {}
@@ -99,6 +99,7 @@ static inline void gyro_read_i2c(void)
 {
   imu_aspirin.i2c_trans_gyro.buf[0] = ITG3200_REG_GYRO_XOUT_H;
   i2c_submit(&i2c2,&imu_aspirin.i2c_trans_gyro);
+  imu_aspirin.reading_gyro = 1;
 }
 
 static inline void gyro_copy_i2c(void)
@@ -117,45 +118,70 @@ static inline void accel_copy_spi(void)
   VECT3_ASSIGN(imu.accel_unscaled, ax, ay, az);
 }
 
+static inline void imu_gyro_event(void (* _gyro_handler)(void))
+{
+
+}
+
 static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
 {
   if (imu_aspirin.status == AspirinStatusUninit) return;
 
   imu_aspirin_arch_int_disable();
-  ImuMagEvent(_mag_handler);
-  if (imu_aspirin.time_since_last_reading > ASPIRIN_GYRO_TIMEOUT) {
-    imu_aspirin.gyro_eoc = FALSE;
-    imu_aspirin.status = AspirinStatusIdle;
-    i2c2_er_irq_handler();
-    gyro_read_i2c();
-    imu_aspirin.time_since_last_reading = 0;
-  }
-  if (imu_aspirin.status == AspirinStatusReadingGyro && imu_aspirin.gyro_eoc &&
-      imu_aspirin.i2c_trans_gyro.status == I2CTransSuccess && i2c_idle(&i2c2)) {
-    gyro_copy_i2c();
-    imu_aspirin.status = AspirinStatusIdle;
-    if (imu_aspirin.gyro_available_blaaa) {
-      imu_aspirin.gyro_available_blaaa = FALSE;
-      _gyro_handler();
-    }
-  }
-  if (imu_aspirin.gyro_eoc && i2c2.status == I2CIdle && i2c_idle(&i2c2)) {
-    if (imu_aspirin.i2c_trans_gyro.status == I2CTransSuccess) {
-      imu_aspirin.time_since_last_reading = 0;
-    }
-    imu_aspirin.gyro_eoc = FALSE;
-    gyro_read_i2c();
-  }
   if (imu_aspirin.accel_available) {
+    imu_aspirin.time_since_last_accel_reading = 0;
     imu_aspirin.accel_available = FALSE;
     accel_copy_spi();
     _accel_handler();
   }
   imu_aspirin_arch_int_enable();
+  
+  // Reset everything if we've been waiting too long
+  if (imu_aspirin.time_since_last_reading > ASPIRIN_GYRO_TIMEOUT) {
+    i2c2_er_irq_handler();
+    gyro_read_i2c();
+    imu_aspirin.time_since_last_reading = 0;
+    return;
+  }
+
+  // Try again later if transaction is in progress
+  if (imu_aspirin.i2c_trans_gyro.status == I2CTransPending || imu_aspirin.i2c_trans_gyro.status == I2CTransRunning) 
+  {
+    return;
+  }
+
+  ImuMagEvent(_mag_handler);
+
+  // Try back later if things are not idle
+  if ((i2c2.status != I2CIdle) || !i2c_idle(&i2c2)) {
+    return;
+  }
+
+  if (imu_aspirin.reading_gyro) {
+    if (imu_aspirin.i2c_trans_gyro.status == I2CTransSuccess) {
+      gyro_copy_i2c();
+      if (imu_aspirin.gyro_available_blaaa) {
+        imu_aspirin.gyro_available_blaaa = FALSE;
+        _gyro_handler();
+      }
+    }
+    imu_aspirin.reading_gyro = 0;
+    return;
+  }
+
+  // If we're not already waiting for read, and conversion is complete, schedule a read
+  if (!imu_aspirin.reading_gyro && imu_aspirin_eoc() && i2c2.status == I2CIdle && i2c_idle(&i2c2)) {
+    if (imu_aspirin.i2c_trans_gyro.status == I2CTransSuccess) {
+      imu_aspirin.time_since_last_reading = 0;
+    }
+    gyro_read_i2c();
+    return;
+  }
+
 }
 
 #define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) do {		\
   imu_aspirin_event(_gyro_handler, _accel_handler, _mag_handler); \
-  } while(0);
+} while(0);
 
 #endif /* IMU_ASPIRIN_H */

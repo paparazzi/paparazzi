@@ -1,3 +1,4 @@
+<airframe>
 <section name="IMU" prefix="IMU_">
   <define name="GYRO_P_NEUTRAL" value="93"/>
   <define name="GYRO_Q_NEUTRAL" value="131"/>
@@ -30,3 +31,4 @@
   <define name="MAG_YZ_SENS" value="0.0" integer="16"/>
 
 </section>
+</airframe>

@@ -25,6 +25,7 @@ void parse_pprz_gps() {
   ground_course = (float)join_4_bytes(&Paparazzi_GPS_buffer[8])/100000.0; // Heading 2D  8,9,10,11
   stGpsFix = Paparazzi_GPS_buffer[12];
   stFlags = Paparazzi_GPS_buffer[13];
+  high_accel_flag = Paparazzi_GPS_buffer[14];
 
   if((stGpsFix >= 0x03) && (stFlags&0x01)) {
     gpsFix = 0; //valid position

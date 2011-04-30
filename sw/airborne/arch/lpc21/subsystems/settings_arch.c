@@ -40,6 +40,10 @@
 
 #include "subsystems/settings.h"
 
+#include "LPC21xx.h"
+#include BOARD_CONFIG
+#include "armVIC.h"
+
 #define IAP_LOCATION 0x7FFFFFF1
 
 #define IAP_PREPARE_SECTORS     50

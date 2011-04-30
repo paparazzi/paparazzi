@@ -588,13 +588,13 @@ let () =
   Ivy.init "Paparazzi joystick" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
-  (** setup stdin *)
-  let tstatus = (Unix.tcgetattr Unix.stdin) in
+  (** setup stdin *) (* TODO find a better way to change trim, use a GUI ? *)
+  (*let tstatus = (Unix.tcgetattr Unix.stdin) in
   tstatus.c_icanon <- false;
-  Unix.tcsetattr Unix.stdin Unix.TCSANOW tstatus;
+  Unix.tcsetattr Unix.stdin Unix.TCSANOW tstatus;*)
 
   ignore (Glib.Timeout.add actions.period_ms (fun () -> execute_actions actions ac_id; true));
-  ignore (Glib.Io.add_watch ~cond:[`IN] ~callback:(fun x -> execute_kb_action actions x) (Glib.Io.channel_of_descr Unix.stdin));
+  (*ignore (Glib.Io.add_watch ~cond:[`IN] ~callback:(fun x -> execute_kb_action actions x) (Glib.Io.channel_of_descr Unix.stdin));*)
 
   (** Start the main loop *)
   let loop = Glib.Main.create true in
