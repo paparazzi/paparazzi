@@ -17,6 +17,7 @@ SSP_VIC_SLOT               9          imu_b2_v1.0, imu_b2_v1.1, imu_b2_v1.2
 MICROMAG_DRDY_VIC_SLOT     9          micromag
 hardcoded, no define      10          usb, e.g. telemetry_transparent_usb
 hardcoded, no define      11          EXTINT in baro_scp module
+I2C1_VIC_SLOT              ? (11)     (11 is default in mcu_periph/i2c_arch.c)
 I2C1_VIC_SLOT             12          ami601 in imu_b2_v1.0, imu_crista
 MS2100_DRDY_VIC_SLOT      12          ms2100 mag in imu_b2_v1.1
 MAX11040_DRDY_VIC_SLOT     ?          max11040 adc module

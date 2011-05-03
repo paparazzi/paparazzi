@@ -139,7 +139,7 @@ __attribute__ ((always_inline)) static inline void I2cAutomaton(int32_t state, s
         p->idx_buf++;
       } else {
         if (trans->type == I2CTransTxRx) {
-          //trans->type = I2CTransRx;	/* FIXME should not change type */
+          trans->type = I2CTransRx;	/* FIXME should not change type */
           p->idx_buf = 0;
           trans->slave_addr |= 1;
           I2cSendStart(p);
@@ -269,6 +269,11 @@ void i2c0_hw_init ( void ) {
 #endif
 #endif
 #endif
+
+#ifndef I2C1_VIC_SLOT
+#define I2C1_VIC_SLOT 11
+#endif
+
 
 void i2c1_ISR(void) __attribute__((naked));
 

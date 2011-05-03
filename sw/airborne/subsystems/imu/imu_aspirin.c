@@ -26,9 +26,7 @@ static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
 void imu_impl_init(void) {
 
   imu_aspirin.status = AspirinStatusUninit;
-  imu_aspirin.gyro_available = FALSE;
   imu_aspirin.gyro_available_blaaa = FALSE;
-  imu_aspirin.mag_ready_for_read = FALSE;
   imu_aspirin.mag_available = FALSE;
   imu_aspirin.accel_available = FALSE;
 
@@ -37,6 +35,7 @@ void imu_impl_init(void) {
   imu_aspirin.i2c_trans_gyro.slave_addr = ITG3200_ADDR;
   imu_aspirin.i2c_trans_gyro.len_w = 1;
   imu_aspirin.i2c_trans_gyro.len_r = 6;
+  imu_aspirin.i2c_trans_gyro.status = I2CTransFailed;
 
   imu_aspirin_arch_init();
   hmc5843_init();
@@ -51,10 +50,14 @@ void imu_periodic(void) {
     configure_accel();
     imu_aspirin_arch_int_enable();
     imu_aspirin.status = AspirinStatusIdle;
-  }
-  else {
+  } else {
     imu_aspirin.gyro_available_blaaa = TRUE;
     imu_aspirin.time_since_last_reading++;
+    imu_aspirin.time_since_last_accel_reading++;
+    if (imu_aspirin.time_since_last_accel_reading > ASPIRIN_ACCEL_TIMEOUT) {
+      configure_accel();
+      imu_aspirin.time_since_last_accel_reading=0;
+    }
   }
 
 }
@@ -78,9 +81,9 @@ static void configure_gyro(void) {
   t.buf[0] = ITG3200_REG_PWR_MGM;
   t.buf[1] = 0x01;
   send_i2c_msg_with_retry(&t);
-  /* enable interrupt on data ready, idle hight */
+  /* enable interrupt on data ready, idle high, latch until read any register */
   t.buf[0] = ITG3200_REG_INT_CFG;
-  t.buf[1] = (0x01 | 0x01<<7);
+  t.buf[1] = (0x01 | (0x1<<4) | (0x1<<5) | 0x01<<7);
   send_i2c_msg_with_retry(&t);
 
 }

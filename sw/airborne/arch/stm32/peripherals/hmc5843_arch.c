@@ -40,6 +40,7 @@ void hmc5843_arch_init( void ) {
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
 
+#ifdef HMC5843_USE_INT
   GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource5);
   EXTI_InitTypeDef EXTI_InitStructure;
   EXTI_InitStructure.EXTI_Line = EXTI_Line5;
@@ -54,6 +55,7 @@ void hmc5843_arch_init( void ) {
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
+#endif
 }
 
 void hmc5843_arch_reset(void)
@@ -67,5 +69,7 @@ void exti9_5_irq_handler(void) {
   if(EXTI_GetITStatus(EXTI_Line5) != RESET)
     EXTI_ClearITPendingBit(EXTI_Line5);
 
+#ifdef HMC5843_USE_INT
     hmc5843.ready_for_read = TRUE;
+#endif
 }

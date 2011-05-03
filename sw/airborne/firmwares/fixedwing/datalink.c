@@ -41,6 +41,7 @@
 
 #if defined NAV || defined WIND_INFO
 #include "estimator.h"
+#include "subsystems/nav.h"
 #endif
 
 #ifdef USE_JOYSTICK

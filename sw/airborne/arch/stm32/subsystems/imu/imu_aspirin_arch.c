@@ -24,34 +24,56 @@ void dma1_c4_irq_handler(void);
 void imu_aspirin_arch_int_enable(void) {
   NVIC_InitTypeDef NVIC_InitStructure;
 
+#ifdef ASPIRIN_USE_GYRO_INT
   NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
+#endif
 
   NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
+
+  /* Enable DMA1 channel4 IRQ Channel ( SPI RX) */
+  NVIC_InitTypeDef NVIC_init_struct = {
+    .NVIC_IRQChannel = DMA1_Channel4_IRQn,
+    .NVIC_IRQChannelPreemptionPriority = 0,
+    .NVIC_IRQChannelSubPriority = 0,
+    .NVIC_IRQChannelCmd = ENABLE
+  };
+  NVIC_Init(&NVIC_init_struct);
 
 }
 
 void imu_aspirin_arch_int_disable(void) {
   NVIC_InitTypeDef NVIC_InitStructure;
 
+#ifdef ASPIRIN_USE_GYRO_INT
   NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
   NVIC_Init(&NVIC_InitStructure);
+#endif
 
   NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
   NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
   NVIC_Init(&NVIC_InitStructure);
+
+  /* Enable DMA1 channel4 IRQ Channel ( SPI RX) */
+  NVIC_InitTypeDef NVIC_init_struct = {
+    .NVIC_IRQChannel = DMA1_Channel4_IRQn,
+    .NVIC_IRQChannelPreemptionPriority = 0,
+    .NVIC_IRQChannelSubPriority = 0,
+    .NVIC_IRQChannelCmd = DISABLE
+  };
+  NVIC_Init(&NVIC_init_struct);
 
 }
 
@@ -83,12 +105,14 @@ void imu_aspirin_arch_init(void) {
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
 
+#ifdef ASPIRIN_USE_GYRO_INT
   GPIO_EXTILineConfig(GPIO_PortSourceGPIOC, GPIO_PinSource14);
   EXTI_InitStructure.EXTI_Line = EXTI_Line14;
   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
   EXTI_Init(&EXTI_InitStructure);
+#endif
 
   /* Accel */
   /* set accel slave select as output and assert it ( on PB12) */
@@ -137,14 +161,6 @@ void imu_aspirin_arch_init(void) {
   SPI_InitStructure.SPI_CRCPolynomial = 7;
   SPI_Init(SPI2, &SPI_InitStructure);
 
-  /* Enable DMA1 channel4 IRQ Channel ( SPI RX) */
-  NVIC_InitTypeDef NVIC_init_struct = {
-    .NVIC_IRQChannel = DMA1_Channel4_IRQn,
-    .NVIC_IRQChannelPreemptionPriority = 0,
-    .NVIC_IRQChannelSubPriority = 0,
-    .NVIC_IRQChannelCmd = ENABLE
-  };
-  NVIC_Init(&NVIC_init_struct);
 
   /* Enable SPI_2 DMA clock ---------------------------------------------------*/
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
@@ -233,8 +249,10 @@ void exti15_10_irq_handler(void) {
   if(EXTI_GetITStatus(EXTI_Line14) != RESET)
     EXTI_ClearITPendingBit(EXTI_Line14);
 
+#ifdef ASPIRIN_USE_GYRO_INT
   imu_aspirin.gyro_eoc = TRUE;
   imu_aspirin.status = AspirinStatusReadingGyro;
+#endif
 
 }
 
@@ -260,6 +278,15 @@ void exti2_irq_handler(void) {
  */
 void dma1_c4_irq_handler(void) {
   Adxl345Unselect();
+  if (DMA_GetITStatus(DMA1_IT_TC4)) {
+		// clear int pending bit
+		DMA_ClearITPendingBit(DMA1_IT_GL4);
+
+    // mark as available
+    imu_aspirin.accel_available = TRUE;
+	}
+
+  // disable DMA Channel
   DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);
   /* Disable SPI_2 Rx and TX request */
   SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, DISABLE);
@@ -268,5 +295,4 @@ void dma1_c4_irq_handler(void) {
   DMA_Cmd(DMA1_Channel4, DISABLE);
   DMA_Cmd(DMA1_Channel5, DISABLE);
 
-  imu_aspirin.accel_available = TRUE;
 }
