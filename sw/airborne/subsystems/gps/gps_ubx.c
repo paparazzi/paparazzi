@@ -293,11 +293,9 @@ void gps_ubx_parse( uint8_t c ) {
 #define GPS_PORT_ID GPS_PORT_UART1
 #endif
 
-#if GPS_LINK == UART0
-#define UBX_GPS_BAUD UART0_BAUD
-#elif GPS_LINK == UART1
-#define UBX_GPS_BAUD UART1_BAUD
-#endif
+#define __UBX_GPS_BAUD(_u) _u##_BAUD
+#define _UBX_GPS_BAUD(_u) __UBX_GPS_BAUD(_u)
+#define UBX_GPS_BAUD _UBX_GPS_BAUD(GPS_LINK)
 
 /* Configure the GPS baud rate using the current uart baud rate. Busy
    wait for the end of the transmit. Then, BEFORE waiting for the ACK,
