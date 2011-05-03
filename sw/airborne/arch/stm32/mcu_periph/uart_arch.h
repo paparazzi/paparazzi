@@ -36,6 +36,9 @@
 #define B57600   57600
 #define B115200 115200
 
+/* junk for gps_configure_uart in gps_ubx.c to compile */
+#define UART_8N1 1
+#define UART_FIFO_8 1
 
 /* sort out the problem of UART5 already defined in stm32.h */
 #define USART5               ((USART_TypeDef *) UART5_BASE)
