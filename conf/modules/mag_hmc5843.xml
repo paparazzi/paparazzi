@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="sensors">
+  <!-- <depend conflict="ins" -->
+  <header>
+    <file name="mag_hmc5843.h"/>
+  </header>
+  <init fun="hmc5843_module_init()"/>
+  <periodic fun="hmc5843_module_periodic()" freq="60"/>
+  <event fun="hmc5843_module_event()"/>
+  <makefile>
+    <define name="USE_I2C" />
+    <file name="mag_hmc5843.c"/>
+    <file name="../../peripherals/hmc5843.c"/>
+    <define name="HMC5843_I2C_DEVICE" value="i2c0" />
+    <define name="USE_I2C0" />
+    <define name="HMC5843_NO_IRQ" />
+  </makefile>
+</module>

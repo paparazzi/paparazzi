@@ -1,8 +1,4 @@
 /*
- * Paparazzi autopilot $Id: gps_ubx.h 4659 2010-03-10 16:55:04Z mmm $
- *
- * Copyright (C) 2004-2006  Pascal Brisset, Antoine Drouin
- *
  * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
@@ -21,28 +17,39 @@
  * Boston, MA 02111-1307, USA.
  *
  */
+#include "estimator.h"
+#include "mcu_periph/i2c.h"
+#include "mcu_periph/uart.h"
+#include "messages.h"
+#include "downlink.h"
+#include <math.h>
 
-/** \file gps_xsens.h
- * \brief XSens GPS
- *
-*/
-
-
-#ifndef XSENS_GPS_H
-#define XSENS_GPS_H
-
-extern uint16_t gps_reset;
-
-#define GPS_NB_CHANNELS 16
-
-extern void reset_gps_watchdog(void);
+#include "../../peripherals/hmc5843.h"
 
 
-#define GpsFixValid() (gps_mode > 0)
+int32_t mag_x, mag_y, mag_z;
+bool_t mag_valid;
 
-#define gps_xsens_Reset(_val) { \
-  gps_reset = _val; \
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+
+
+void hmc5843_module_init( void ) {
+  hmc5843_init();
 }
 
+void hmc5843_module_periodic ( void )
+{
+  hmc5843_periodic();
+  mag_x = hmc5843.data.value[0];
+  mag_y = hmc5843.data.value[1];
+  mag_z = hmc5843.data.value[2];
+  RunOnceEvery(30,DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,&mag_x,&mag_y,&mag_z));
+}
 
-#endif
+void hmc5843_module_event( void )
+{
+  hmc5843_idle_task();
+}
