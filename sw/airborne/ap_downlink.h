@@ -191,7 +191,7 @@
     int16_t climb = -gps.ned_vel.z;                                     \
     int16_t course = DegOfRad(gps.course / 10);                        \
     DOWNLINK_SEND_GPS(DefaultChannel, &gps.fix, &gps.utm_pos.east, &gps.utm_pos.north, &course, &gps.lla_pos.alt, &gps.gspeed, &climb, &gps.week, &gps.tow, &gps.utm_pos.zone, &i); \
-    if (i == gps.nb_channels) i = 0;                                    \
+    if (i >= gps.nb_channels) i = 0;                                    \
     if (i < gps.nb_channels && gps.svinfos[i].cno > 0 && gps.svinfos[i].cno != last_cnos[i]) { \
       DOWNLINK_SEND_SVINFO(DefaultChannel, &i, &gps.svinfos[i].svid, &gps.svinfos[i].flags, &gps.svinfos[i].qi, &gps.svinfos[i].cno, &gps.svinfos[i].elev, &gps.svinfos[i].azim); \
       last_cnos[i] = gps.svinfos[i].cno;                                \

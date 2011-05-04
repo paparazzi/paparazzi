@@ -68,6 +68,8 @@ INS_FORMAT ins_mz;
 float ins_pitch_neutral;
 float ins_roll_neutral;
 
+volatile uint8_t new_ins_attitude;
+
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 //	XSens Specific
@@ -177,9 +179,6 @@ int8_t xsens_day;
 float xsens_lat;
 float xsens_lon;
 
-int8_t xsens_gps_nr_channels = 16;
-
-
 static uint8_t xsens_id;
 static uint8_t xsens_status;
 static uint8_t xsens_len;
@@ -205,7 +204,16 @@ void ins_init( void ) {
   XSENS_GoToConfig();
   XSENS_SetOutputMode(xsens_output_mode);
   XSENS_SetOutputSettings(xsens_output_settings);
+
+  uint8_t baud = 1;
+  XSENS_SetBaudrate(baud);
+  // Give pulses on SyncOut
+  XSENS_SetSyncOutSettings(0,0x0002);
+  // 1 pulse every 100 samples
+  // XSENS_SetSyncOutSettings(1,100);
   //XSENS_GoToMeasurment();
+
+  gps.nb_channels = 0;
 }
 
 void ins_periodic_task( void ) {
@@ -243,16 +251,22 @@ void parse_ins_msg( void ) {
   }
 #ifdef USE_GPS_XSENS
   else if (xsens_id == XSENS_GPSStatus_ID) {
-    xsens_gps_nr_channels = XSENS_GPSStatus_nch(xsens_msg_buf);
-    gps.num_sv = xsens_gps_nr_channels;
+    gps.nb_channels = XSENS_GPSStatus_nch(xsens_msg_buf);
+    gps.num_sv = 0;
+
     uint8_t i;
-    for(i = 0; i < Min(xsens_gps_nr_channels, xsens_gps_nr_channels); i++) {
+    // Do not write outside buffer
+    for(i = 0; i < Min(gps.nb_channels, GPS_NB_CHANNELS); i++) {
       uint8_t ch = XSENS_GPSStatus_chn(xsens_msg_buf,i);
-      if (ch > xsens_gps_nr_channels) continue;
+      if (ch > gps.nb_channels) continue;
       gps.svinfos[ch].svid = XSENS_GPSStatus_svid(xsens_msg_buf, i);
       gps.svinfos[ch].flags = XSENS_GPSStatus_bitmask(xsens_msg_buf, i);
       gps.svinfos[ch].qi = XSENS_GPSStatus_qi(xsens_msg_buf, i);
       gps.svinfos[ch].cno = XSENS_GPSStatus_cnr(xsens_msg_buf, i);
+      if (gps.svinfos[ch].flags > 0)
+      {
+        gps.num_sv++;
+      }
     }
   }
 #endif
@@ -267,15 +281,18 @@ void parse_ins_msg( void ) {
       }
       if (XSENS_MASK_RAWGPS(xsens_output_mode)) {
 #if defined(USE_GPS_XSENS_RAW_DATA) && defined(USE_GPS_XSENS)
+    LED_TOGGLE(3);
         gps.week = 0; // FIXME
         gps.tow = XSENS_DATA_RAWGPS_itow(xsens_msg_buf,offset) * 10;
         gps.lla_pos.lat = RadOfDeg(XSENS_DATA_RAWGPS_lat(xsens_msg_buf,offset));
         gps.lla_pos.lon = RadOfDeg(XSENS_DATA_RAWGPS_lon(xsens_msg_buf,offset));
+
+
         /* Set the real UTM zone */
         gps.utm_pos.zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
 
-        lla_f.lat = (float) gps.lla_pos.lat * 1e7;
-        lla_f.lon = (float) gps.lla_pos.lat * 1e7;
+        lla_f.lat = (float) gps.lla_pos.lat / 1e7;
+        lla_f.lon = (float) gps.lla_pos.lat / 1e7;
         utm_f.zone = nav_utm_zone0;
         /* convert to utm */
         utm_of_lla_f(&utm_f, &lla_f);
@@ -348,6 +365,7 @@ void parse_ins_msg( void ) {
         if (XSENS_MASK_OrientationMode(xsens_output_settings) == 0x10) {
           offset += XSENS_DATA_Matrix_LENGTH;
         }
+        new_ins_attitude = 1;
       }
       if (XSENS_MASK_Auxiliary(xsens_output_mode)) {
         uint8_t l = 0;

@@ -40,6 +40,11 @@
   </message>
   <message name="SetBaudrateAck" ID="0x19" to="host"/>
 
+  <message name="SetSyncOutSettings" ID="0xD8" to="MT" length="3">
+    <field name="param" format="U1"/>
+    <field name="value" format="U2"/>
+  </message>
+
   <message name="RestoreFactoryDef" ID="0x0E" to="MT"/>
   <message name="RestoreFactoryDefAck" ID="0x0F" to="host"/>
 

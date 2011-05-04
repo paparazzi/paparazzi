@@ -46,7 +46,7 @@ void hmc5843_module_periodic ( void )
   mag_x = hmc5843.data.value[0];
   mag_y = hmc5843.data.value[1];
   mag_z = hmc5843.data.value[2];
-  RunOnceEvery(1,DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,&mag_x,&mag_y,&mag_z));
+  RunOnceEvery(30,DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,&mag_x,&mag_y,&mag_z));
 }
 
 void hmc5843_module_event( void )
