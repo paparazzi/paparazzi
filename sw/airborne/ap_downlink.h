@@ -187,14 +187,13 @@
 //#define PERIODIC_SEND_GPS(_chan) gps_send() /* also sends svinfo */
 #define PERIODIC_SEND_GPS(_chan) {                                      \
     static uint8_t i;                                                   \
-    static uint8_t last_cnos[GPS_NB_CHANNELS];                          \
     int16_t climb = -gps.ned_vel.z;                                     \
     int16_t course = DegOfRad(gps.course / 10);                        \
     DOWNLINK_SEND_GPS(DefaultChannel, &gps.fix, &gps.utm_pos.east, &gps.utm_pos.north, &course, &gps.lla_pos.alt, &gps.gspeed, &climb, &gps.week, &gps.tow, &gps.utm_pos.zone, &i); \
-    if (i >= gps.nb_channels) i = 0;                                    \
-    if (i < gps.nb_channels && gps.svinfos[i].cno > 0 && gps.svinfos[i].cno != last_cnos[i]) { \
+    if ((gps.fix != GPS_FIX_3D) && (i >= gps.nb_channels)) i = 0;                                    \
+    if (i >= gps.nb_channels * 2) i = 0;                                    \
+    if (i < gps.nb_channels && gps.svinfos[i].cno > 0) { \
       DOWNLINK_SEND_SVINFO(DefaultChannel, &i, &gps.svinfos[i].svid, &gps.svinfos[i].flags, &gps.svinfos[i].qi, &gps.svinfos[i].cno, &gps.svinfos[i].elev, &gps.svinfos[i].azim); \
-      last_cnos[i] = gps.svinfos[i].cno;                                \
     }                                                                   \
     i++;                                                                \
 }
