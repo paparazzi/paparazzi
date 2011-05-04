@@ -291,8 +291,8 @@ void parse_ins_msg( void ) {
         /* Set the real UTM zone */
         gps.utm_pos.zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
 
-        lla_f.lat = (float) gps.lla_pos.lat / 1e7;
-        lla_f.lon = (float) gps.lla_pos.lat / 1e7;
+        lla_f.lat = ((float) gps.lla_pos.lat) / 1e7;
+        lla_f.lon = ((float) gps.lla_pos.lon) / 1e7;
         utm_f.zone = nav_utm_zone0;
         /* convert to utm */
         utm_of_lla_f(&utm_f, &lla_f);

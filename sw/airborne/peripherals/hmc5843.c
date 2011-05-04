@@ -31,21 +31,21 @@ static void send_config(void)
   hmc5843.i2c_trans.buf[1] = 0x00 | (0x06 << 2);
   hmc5843.i2c_trans.len_w = 2;
   i2c_submit(&HMC5843_I2C_DEVICE,&hmc5843.i2c_trans);
-  while(hmc5843.i2c_trans.status == I2CTransPending);
+    while(hmc5843.i2c_trans.status == I2CTransPending);
 
   hmc5843.i2c_trans.type = I2CTransTx;
   hmc5843.i2c_trans.buf[0] = HMC5843_REG_CFGB;  // set to gain to 1 Gauss
   hmc5843.i2c_trans.buf[1] = 0x01<<5;
   hmc5843.i2c_trans.len_w = 2;
   i2c_submit(&HMC5843_I2C_DEVICE,&hmc5843.i2c_trans);
-  while(hmc5843.i2c_trans.status == I2CTransPending);
+    while(hmc5843.i2c_trans.status == I2CTransPending);
 
   hmc5843.i2c_trans.type = I2CTransTx;
   hmc5843.i2c_trans.buf[0] = HMC5843_REG_MODE;  // set to continuous mode
   hmc5843.i2c_trans.buf[1] = 0x00;
   hmc5843.i2c_trans.len_w = 2;
   i2c_submit(&HMC5843_I2C_DEVICE,&hmc5843.i2c_trans);
-  while(hmc5843.i2c_trans.status == I2CTransPending);
+    while(hmc5843.i2c_trans.status == I2CTransPending);
 
 }
 
