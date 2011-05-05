@@ -49,6 +49,7 @@
     <define name="PITCH_COEF"  value="{  256, -256,    0,    0 }"/>
     <define name="YAW_COEF"    value="{ -256, -256,  256,  256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
+    <!--define name="MAX_POSITIVE_MOTOR_STEP" value="5"/-->
   </section>
 
   <include href="conf/airframes/esden/calib/aspirin_012.xml"/>
