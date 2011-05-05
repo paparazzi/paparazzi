@@ -38,21 +38,15 @@
 #include "../../peripherals/adxl345.h"
 #include "../../peripherals/hmc5843.h"
 
-// INS
-#include "ins_module.h"
-
-INS_FORMAT ins_roll_neutral;
-INS_FORMAT ins_pitch_neutral;
-
 // Results
 int32_t mag_x, mag_y, mag_z;
-bool_t mag_valid;
+volatile bool_t mag_valid;
 
 int32_t gyr_x, gyr_y, gyr_z;
-bool_t gyr_valid;
+volatile bool_t gyr_valid;
 
 int32_t acc_x, acc_y, acc_z;
-bool_t acc_valid;
+volatile bool_t acc_valid;
 
 
 // Communication

@@ -75,6 +75,78 @@
     <set servo="ELEVATOR" value="-@PITCH * PITCH_GAIN + BRAKE_PITCH * $brake_value"/>
   </command_laws>
 
+ <!-- Local magnetic field -->
+ <section name="AHRS" prefix="AHRS_" >
+   <define name="H_X" value="0.51562740288882" />
+   <define name="H_Y" value="-0.05707735220832" />
+   <define name="H_Z" value="0.85490967783446" />
+ </section>
+
+
+  <section name="IMU" prefix="IMU_">
+    <!-- MAX1168 ADC CHANNELS
+    <define name="GYRO_P_CHAN" value="0"/>
+    <define name="GYRO_Q_CHAN" value="1"/>
+    <define name="GYRO_R_CHAN" value="2"/>
+
+    <define name="ACCEL_X_CHAN" value="4"/>
+    <define name="ACCEL_Y_CHAN" value="3"/>
+    <define name="ACCEL_Z_CHAN" value="5"/>
+    -->
+    <!-- Calibration Neutral -->
+    <define name="GYRO_P_NEUTRAL" value="0"/>
+    <define name="GYRO_Q_NEUTRAL" value="0"/>
+    <define name="GYRO_R_NEUTRAL" value="0"/>
+
+    <!-- SENS = 2mV/deg/sec * 57.6 deg/rad = 114.59 mV/rad/sec * 16 LSB/mV = 1833.465 LSB/rad/sec / 12bit FRAC -->
+    <define name="GYRO_P_SENS" value="2.234" integer="16"/>
+    <define name="GYRO_Q_SENS" value="2.234" integer="16"/>
+    <define name="GYRO_R_SENS" value="2.234" integer="16"/>
+
+    <define name="GYRO_P_Q" value="0."/>
+    <define name="GYRO_P_R" value="0"/>
+    <define name="GYRO_Q_P" value="0."/>
+    <define name="GYRO_Q_R" value="0."/>
+    <define name="GYRO_R_P" value="0."/>
+    <define name="GYRO_R_Q" value="0."/>
+
+    <define name="GYRO_P_SIGN" value="1"/>
+    <define name="GYRO_Q_SIGN" value="-1"/>
+    <define name="GYRO_R_SIGN" value="-1"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="0"/>
+    <define name="ACCEL_Y_NEUTRAL" value="0"/>
+    <define name="ACCEL_Z_NEUTRAL" value="0"/>
+
+    <!-- SENS = 660mV/g / 9.81 ms2/g = 67.27 mV/ms2 * 16 LSB/mV = 1076 LSB/ms2 / 10bit FRAC -->
+    <define name="ACCEL_X_SENS" value="0.9372" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="0.9346" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="0.9178" integer="16"/>
+
+    <define name="ACCEL_X_SIGN" value="1"/>
+    <define name="ACCEL_Y_SIGN" value="1"/>
+    <define name="ACCEL_Z_SIGN" value="1"/>
+
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
+
+    <define name="MAG_X_SENS" value="1" integer="16"/>
+    <define name="MAG_Y_SENS" value="1" integer="16"/>
+    <define name="MAG_Z_SENS" value="1" integer="16"/>
+
+<!--    <define name="MAG_45_HACK" value="1"/> -->
+
+    <define name="BODY_TO_IMU_PHI" value="0"/>
+    <define name="BODY_TO_IMU_THETA" value="0"/>
+    <define name="BODY_TO_IMU_PSI" value="0"/>
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+  </section>
+
   <section name="AUTO1" prefix="AUTO1_">
     <define name="MAX_ROLL" value="0.7"/>
     <define name="MAX_PITCH" value="0.7"/>
@@ -86,11 +158,6 @@
     <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="10" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.1" unit="V"/>
-  </section>
-
-  <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
   </section>
 
   <section name="MISC">
@@ -202,10 +269,28 @@
       <define name="STRONG_WIND"/>
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
-      <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
+
+      <!--
+      <configure name="PERIODIC_FREQUENCY" value="960"/>
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="240"/>
+      <configure name="AHRS_CORRECT_FREQUENCY" value="60"/>
+      <configure name="AHRS_ALIGNER_LED" value="1"/>
+      -->
+
+      <configure name="CPU_LED" value="2"/>
     </target>
     <target name="sim" board="pc"/>
+
+    <define name="AGR_CLIMB"/>
+    <define name="LOITER_TRIM"/>
+    <define name="ALT_KALMAN"/>
+
+    <!-- Sensors -->
+    <!--
+    <subsystem name="imu" type="booz"/>
+    -->
+    <subsystem name="attitude" type="dcm"/>
+
 
     <subsystem name="radio_control" type="ppm"/>
 
@@ -223,5 +308,11 @@
     <subsystem name="i2c"/>
 
 </firmware>
+
+ <makefile>
+   ap.srcs +=  $(SRC_SUBSYSTEMS)/imu.c
+
+ap.CFLAGS +=    -DAHRS_H_X=0.51562740288882 -DAHRS_H_Y=-0.05707735220832 -DAHRS_H_Z=0.85490967783446
+ </makefile>
 
 </airframe>

@@ -22,15 +22,40 @@
 #define PPZUAVIMU_H
 
 #include "std.h"
-// pitch/roll neutrals
-#include "ins_module.h"
+#include "subsystems/imu.h"
 
 extern int32_t mag_x, mag_y, mag_z;
 extern int32_t gyr_x, gyr_y, gyr_z;
 extern int32_t acc_x, acc_y, acc_z;
 
+extern volatile bool_t gyr_valid;
+extern volatile bool_t acc_valid;
+extern volatile bool_t mag_valid;
+
+
 extern void ppzuavimu_module_init( void );
 extern void ppzuavimu_module_periodic( void );
 extern void ppzuavimu_module_event( void );
+
+
+extern volatile bool_t analog_imu_available;
+extern int imu_overrun;
+
+#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) {   \
+    if (gyr_valid) {                         \
+      gyr_valid = FALSE;                     \
+      _gyro_handler();                                  \
+    }                                                   \
+    if (acc_valid) {                         \
+      acc_valid = FALSE;                     \
+      _accel_handler();                                 \
+    }                                                   \
+    if (mag_valid) {                         \
+      mag_valid = FALSE;                     \
+      _mag_handler();                                 \
+    }                                                   \
+  }
+
+
 
 #endif // PPZUAVIMU_H
