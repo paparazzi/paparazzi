@@ -106,10 +106,10 @@ void ppzuavimu_module_init( void )
   i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_adxl345);
     while(ppzuavimu_adxl345.status == I2CTransPending);
 
-  /* Set range to 4g */
+  /* Set range to 16g but keeping full resolution of 3.9 mV/g */
   ppzuavimu_adxl345.type = I2CTransTx;
   ppzuavimu_adxl345.buf[0] = ADXL345_REG_DATA_FORMAT;
-  ppzuavimu_adxl345.buf[1] = 1<<3 | 0<<2 | 0x01;  // bit 3 is full resolution bit, bit 2 is left justify bit 0,1 are range: 00=2g 01=4g 10=8g 11=16g
+  ppzuavimu_adxl345.buf[1] = 1<<3 | 0<<2 | 0x03;  // bit 3 is full resolution bit, bit 2 is left justify bit 0,1 are range: 00=2g 01=4g 10=8g 11=16g
   ppzuavimu_adxl345.len_w = 2;
   i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_adxl345);
     while(ppzuavimu_adxl345.status == I2CTransPending);
@@ -162,10 +162,13 @@ void ppzuavimu_module_periodic( void )
   ppzuavimu_hmc5843.len_w = 1;
   ppzuavimu_hmc5843.buf[0] = HMC5843_REG_DATXM;
   i2c_submit(&PPZUAVIMU_I2C_DEVICE, &ppzuavimu_hmc5843);
+}
 
-  RunOnceEvery(6,DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,&gyr_x,&gyr_y,&gyr_z));
-  RunOnceEvery(6,DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,&acc_x,&acc_y,&acc_z));
-  RunOnceEvery(6,DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,&mag_x,&mag_y,&mag_z));
+void ppzuavimu_module_downlink_raw( void )
+{
+  DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,&gyr_x,&gyr_y,&gyr_z);
+  DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,&acc_x,&acc_y,&acc_z);
+  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,&mag_x,&mag_y,&mag_z);
 }
 
 void ppzuavimu_module_event( void )
@@ -176,7 +179,15 @@ void ppzuavimu_module_event( void )
     gyr_x = (int16_t) ((ppzuavimu_itg3200.buf[0] << 8) | ppzuavimu_itg3200.buf[1]);
     gyr_y = (int16_t) ((ppzuavimu_itg3200.buf[2] << 8) | ppzuavimu_itg3200.buf[3]);
     gyr_z = (int16_t) ((ppzuavimu_itg3200.buf[4] << 8) | ppzuavimu_itg3200.buf[5]);
+
+#ifdef ASPIRIN_IMU
+    RATES_ASSIGN(imu.gyro_unscaled, gyr_x, gyr_y, gyr_z);
+#else
+    RATES_ASSIGN(imu.gyro_unscaled, gyr_x, gyr_y, gyr_z);
+#endif
+
     gyr_valid = TRUE;
+    ppzuavimu_itg3200.status = I2CTransDone;
   }
 
   // If the adxl345 I2C transaction has succeeded: convert the data
@@ -185,7 +196,11 @@ void ppzuavimu_module_event( void )
     acc_x = (int16_t) ((ppzuavimu_adxl345.buf[1] << 8) | ppzuavimu_adxl345.buf[0]);
     acc_y = (int16_t) ((ppzuavimu_adxl345.buf[3] << 8) | ppzuavimu_adxl345.buf[2]);
     acc_z = (int16_t) ((ppzuavimu_adxl345.buf[5] << 8) | ppzuavimu_adxl345.buf[4]);
+
+    VECT3_ASSIGN(imu.accel_unscaled, acc_x, acc_y, acc_z);
+
     acc_valid = TRUE;
+    ppzuavimu_adxl345.status = I2CTransDone;
   }
 
   // If the hmc5843 I2C transaction has succeeded: convert the data
@@ -195,5 +210,6 @@ void ppzuavimu_module_event( void )
     mag_y = (int16_t) ((ppzuavimu_hmc5843.buf[2] << 8) | ppzuavimu_hmc5843.buf[3]);
     mag_z = (int16_t) ((ppzuavimu_hmc5843.buf[4] << 8) | ppzuavimu_hmc5843.buf[5]);
     mag_valid = TRUE;
+    ppzuavimu_hmc5843.status = I2CTransDone;
   }
 }

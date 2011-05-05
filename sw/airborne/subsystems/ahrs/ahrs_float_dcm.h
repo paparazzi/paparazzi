@@ -53,7 +53,9 @@ void ahrs_update_fw_estimator(void);
 #define GRAVITY 9.81
 
 
+#ifndef OUTPUTMODE
 #define OUTPUTMODE 1
+#endif
 // Mode 0 = DCM integration without Ki gyro bias
 // Mode 1 = DCM integration with Kp and Ki
 // Mode 2 = direct accelerometer -> euler

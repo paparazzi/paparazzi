@@ -5,13 +5,16 @@
   <header>
     <file name="ins_ppzuavimu.h"/>
   </header>
+
   <init fun="ppzuavimu_module_init()"/>
   <periodic fun="ppzuavimu_module_periodic()" freq="60"/>
+  <periodic fun="ppzuavimu_module_downlink_raw()" freq="5"/>
   <event fun="ppzuavimu_module_event()"/>
+
   <makefile>
-    <define name="USE_I2C" />
     <file name="ins_ppzuavimu.c"/>
     <define name="PPZUAVIMU_I2C_DEVICE" value="i2c0" />
+    <define name="USE_I2C" />
     <define name="USE_I2C0" />
   </makefile>
 </module>

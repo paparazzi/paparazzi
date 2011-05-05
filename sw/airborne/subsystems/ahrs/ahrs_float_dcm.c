@@ -113,7 +113,7 @@ void ahrs_update_fw_estimator( void )
   estimator_psi   = ahrs_float.ltp_to_imu_euler.psi;
 
   estimator_p = Omega_Vector[0];
-
+/*
   RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel,
     &(DCM_Matrix[0][0]),
     &(DCM_Matrix[0][1]),
@@ -128,7 +128,7 @@ void ahrs_update_fw_estimator( void )
     &(DCM_Matrix[2][2])
 
   ));
-
+*/
 }
 
 

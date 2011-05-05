@@ -7,11 +7,11 @@
 <airframe name="Yapa v1">
 
   <servos>
-    <servo name="THROTTLE" no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILERON_LEFT" no="2" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILERON_RIGHT" no="6" min="2000" neutral="1500" max="1000"/>
-    <servo name="ELEVATOR" no="3" min="2000" neutral="1500" max="1000"/>
-    <servo name="RUDDER" no="4" min="1100" neutral="1500" max="1900"/>
+    <servo name="THROTTLE" no="4" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILERON_LEFT" no="5" min="1000" neutral="1500" max="2000"/>
+    <servo name="AILERON_RIGHT" no="8" min="2000" neutral="1500" max="1000"/>
+    <servo name="ELEVATOR" no="1" min="2000" neutral="1500" max="1000"/>
+    <servo name="RUDDER" no="9" min="1100" neutral="1500" max="1900"/>
   </servos>
 
   <commands>
@@ -28,80 +28,30 @@
     <set command="BRAKE" value="@YAW"/>
   </rc_commands>
 
-  <section name="SERVO_MIXER_GAINS">
-    <define name="AILERON_RATE_UP" value="0.50f"/>
-    <define name="AILERON_RATE_DOWN" value="0.25f"/>
-
-    <define name="AILERON_RATE_UP_BRAKE" value="0.5f"/>
-    <define name="AILERON_RATE_DOWN_BRAKE" value="0.9f"/>
-
-    <define name="PITCH_GAIN" value="0.9f"/>
-
-    <define name="YAW_THRUST" value="0.0f"/>
-    <define name="BRAKE_AILEVON" value="-0.68f"/>
-    <define name="BRAKE_PITCH" value="0.0f"/>
-    <define name="MAX_BRAKE_RATE" value="150"/>
-
-    <define name="RATELIMIT(X,RATE)" value="( _rate_limited_value + Chop( (X) - _rate_limited_value, -(RATE), (RATE)  )); \
-       int16_t _rate_limited_value = 0;"/>
-
-</section>
-
   <command_laws>
-    <!-- Brake Rate Limiter -->
-    <let var="brake_value" value="Chop(-@BRAKE, 0, MAX_PPRZ)"/>
-    <!--<let var="brake_value" value="RATELIMIT(  $brake_value , MAX_BRAKE_RATE )"/>
-
-    <let var="test; \
-  	      static int16_t _var_brake_value = 0; \
-              _var_brake_value += LIMIT(_var_brake_value_nofilt - _var_brake_value,-MAX_BRAKE_RATE,MAX_BRAKE_RATE); \
-              int verwaarloos_deze_warning_CDW" value="0"/>
-		-->
-
-    <!-- Differential Aileron Depending on Brake Value -->
-    <let var="aileron_up_rate" value="(AILERON_RATE_UP   * (MAX_PPRZ - $brake_value)) + (AILERON_RATE_UP_BRAKE   * $brake_value)"/>
-    <let var="aileron_down_rate" value="(AILERON_RATE_DOWN * (MAX_PPRZ - $brake_value)) + (AILERON_RATE_DOWN_BRAKE * $brake_value)"/>
-    <let var="aileron_up" value="(@ROLL  *  (((float)$aileron_up_rate) / ((float)MAX_PPRZ)))"/>
-    <let var="aileron_down" value="(@ROLL  * (((float)$aileron_down_rate) / ((float)MAX_PPRZ)))"/>
-    <let var="leftturn" value="(@ROLL >= 0? 1 : 0)"/>
-    <let var="rightturn" value="(1 - $leftturn)"/>
-    <set servo="AILERON_LEFT" value="($aileron_up * $leftturn) + ($aileron_down * $rightturn) - $brake_value*(BRAKE_AILEVON)"/>
-    <set servo="AILERON_RIGHT" value="($aileron_up * $rightturn) + ($aileron_down * $leftturn) + $brake_value*(BRAKE_AILEVON)"/>
-
-    <!-- Differential Thurst -->
+    <set servo="AILERON_LEFT" value="@ROLL"/>
+    <set servo="AILERON_RIGHT" value="@ROLL"/>
     <set servo="THROTTLE" value="@THROTTLE"/>
-
-    <!-- Pitch with Brake-Trim Function -->
-    <set servo="ELEVATOR" value="-@PITCH * PITCH_GAIN + BRAKE_PITCH * $brake_value"/>
+    <set servo="ELEVATOR" value="@PITCH"/>
   </command_laws>
 
- <!-- Local magnetic field -->
- <section name="AHRS" prefix="AHRS_" >
-   <define name="H_X" value="0.51562740288882" />
-   <define name="H_Y" value="-0.05707735220832" />
-   <define name="H_Z" value="0.85490967783446" />
- </section>
-
+  <!-- Local magnetic field -->
+  <section name="AHRS" prefix="AHRS_" >
+    <define name="H_X" value="0.51562740288882" />
+    <define name="H_Y" value="-0.05707735220832" />
+    <define name="H_Z" value="0.85490967783446" />
+  </section>
 
   <section name="IMU" prefix="IMU_">
-    <!-- MAX1168 ADC CHANNELS
-    <define name="GYRO_P_CHAN" value="0"/>
-    <define name="GYRO_Q_CHAN" value="1"/>
-    <define name="GYRO_R_CHAN" value="2"/>
-
-    <define name="ACCEL_X_CHAN" value="4"/>
-    <define name="ACCEL_Y_CHAN" value="3"/>
-    <define name="ACCEL_Z_CHAN" value="5"/>
-    -->
     <!-- Calibration Neutral -->
-    <define name="GYRO_P_NEUTRAL" value="0"/>
-    <define name="GYRO_Q_NEUTRAL" value="0"/>
-    <define name="GYRO_R_NEUTRAL" value="0"/>
+    <define name="GYRO_P_NEUTRAL" value="-7"/>
+    <define name="GYRO_Q_NEUTRAL" value="-77"/>
+    <define name="GYRO_R_NEUTRAL" value="-23"/>
 
-    <!-- SENS = 2mV/deg/sec * 57.6 deg/rad = 114.59 mV/rad/sec * 16 LSB/mV = 1833.465 LSB/rad/sec / 12bit FRAC -->
-    <define name="GYRO_P_SENS" value="2.234" integer="16"/>
-    <define name="GYRO_Q_SENS" value="2.234" integer="16"/>
-    <define name="GYRO_R_SENS" value="2.234" integer="16"/>
+    <!-- SENS = 14.375 LSB/(deg/sec) * 57.6 deg/rad = 828 LSB/rad/sec / 12bit FRAC: 4096 / 828 -->
+    <define name="GYRO_P_SENS" value="4.947" integer="16"/>
+    <define name="GYRO_Q_SENS" value="4.947" integer="16"/>
+    <define name="GYRO_R_SENS" value="4.947" integer="16"/>
 
     <define name="GYRO_P_Q" value="0."/>
     <define name="GYRO_P_R" value="0"/>
@@ -110,21 +60,21 @@
     <define name="GYRO_R_P" value="0."/>
     <define name="GYRO_R_Q" value="0."/>
 
-    <define name="GYRO_P_SIGN" value="1"/>
-    <define name="GYRO_Q_SIGN" value="-1"/>
-    <define name="GYRO_R_SIGN" value="-1"/>
+    <define name="GYRO_P_SIGN" value="-1"/>
+    <define name="GYRO_Q_SIGN" value="1"/>
+    <define name="GYRO_R_SIGN" value="1"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="0"/>
-    <define name="ACCEL_Y_NEUTRAL" value="0"/>
+    <define name="ACCEL_X_NEUTRAL" value="12"/>
+    <define name="ACCEL_Y_NEUTRAL" value="2"/>
     <define name="ACCEL_Z_NEUTRAL" value="0"/>
 
-    <!-- SENS = 660mV/g / 9.81 ms2/g = 67.27 mV/ms2 * 16 LSB/mV = 1076 LSB/ms2 / 10bit FRAC -->
-    <define name="ACCEL_X_SENS" value="0.9372" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="0.9346" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="0.9178" integer="16"/>
+    <!-- SENS = 256 LSB/g @ 2.5V [X&Y: 265 LSB/g @ 3.3V] / 9.81 ms2/g = 26.095 LSB/ms2 / 10bit FRAC: 1024 / 26.095 for z and 1024 / 27.01 for X&Y -->
+    <define name="ACCEL_X_SENS" value="37.9" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="37.9" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="39.24" integer="16"/>
 
     <define name="ACCEL_X_SIGN" value="1"/>
-    <define name="ACCEL_Y_SIGN" value="1"/>
+    <define name="ACCEL_Y_SIGN" value="-1"/>
     <define name="ACCEL_Z_SIGN" value="1"/>
 
     <define name="MAG_X_NEUTRAL" value="0"/>
@@ -134,8 +84,6 @@
     <define name="MAG_X_SENS" value="1" integer="16"/>
     <define name="MAG_Y_SENS" value="1" integer="16"/>
     <define name="MAG_Z_SENS" value="1" integer="16"/>
-
-<!--    <define name="MAG_45_HACK" value="1"/> -->
 
     <define name="BODY_TO_IMU_PHI" value="0"/>
     <define name="BODY_TO_IMU_THETA" value="0"/>
@@ -270,14 +218,12 @@
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
 
-      <!--
-      <configure name="PERIODIC_FREQUENCY" value="960"/>
-      <configure name="AHRS_PROPAGATE_FREQUENCY" value="240"/>
+      <configure name="PERIODIC_FREQUENCY" value="60"/>
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="60"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="60"/>
-      <configure name="AHRS_ALIGNER_LED" value="1"/>
-      -->
 
-      <configure name="CPU_LED" value="2"/>
+      <configure name="AHRS_ALIGNER_LED" value="3"/>
+      <configure name="CPU_LED" value="3"/>
     </target>
     <target name="sim" board="pc"/>
 
@@ -313,6 +259,8 @@
    ap.srcs +=  $(SRC_SUBSYSTEMS)/imu.c
 
 ap.CFLAGS +=    -DAHRS_H_X=0.51562740288882 -DAHRS_H_Y=-0.05707735220832 -DAHRS_H_Z=0.85490967783446
+ap.CFLAGS +=    -DIMU_TYPE_H=\"modules/ins/ins_ppzuavimu.h\"
+# -DOUTPUTMODE=2
  </makefile>
 
 </airframe>
