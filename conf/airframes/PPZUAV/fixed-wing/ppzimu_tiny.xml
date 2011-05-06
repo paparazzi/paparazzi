@@ -234,8 +234,9 @@
     <!-- Sensors -->
     <!--
     <subsystem name="imu" type="booz"/>
-    -->
     <subsystem name="attitude" type="dcm"/>
+    -->
+    <subsystem name="ahrs" type="ic"/>
 
 
     <subsystem name="radio_control" type="ppm"/>

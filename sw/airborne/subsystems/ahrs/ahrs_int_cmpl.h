@@ -40,4 +40,9 @@ struct AhrsIntCmpl {
 
 extern struct AhrsIntCmpl ahrs_impl;
 
+
+// TODO copy ahrs to state instead of estimator
+void ahrs_update_fw_estimator(void);
+
+
 #endif /* AHRS_INT_CMPL_H */
