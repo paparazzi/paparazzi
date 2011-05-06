@@ -202,7 +202,7 @@
     -->
     <!--    <load name="digital_cam_i2c.xml"/>  -->
 
-    <load name="ins_ppzuavimu.xml" />
+ <!--    <load name="ins_ppzuavimu.xml" /> -->
 
 <!--
     <load name="digital_cam.xml" >
@@ -233,9 +233,9 @@
 
     <!-- Sensors -->
     <!--
-    <subsystem name="imu" type="booz"/>
     <subsystem name="attitude" type="dcm"/>
     -->
+    <subsystem name="imu" type="ppzuav"/>
     <subsystem name="ahrs" type="ic"/>
 
 
@@ -256,15 +256,5 @@
 
 </firmware>
 
- <makefile>
-   ap.srcs +=  $(SRC_SUBSYSTEMS)/imu.c
-
-ap.CFLAGS +=    -DAHRS_H_X=0.51562740288882 -DAHRS_H_Y=-0.05707735220832 -DAHRS_H_Z=0.85490967783446
-ap.CFLAGS +=    -DIMU_TYPE_H=\"modules/ins/ins_ppzuavimu.h\"
-
-# Test attitude using accelerometers only:
-# ap.CFLAGS +=   -DOUTPUTMODE=2
-# ap.CFLAGS +=   -DASPIRIN_IMU
- </makefile>
 
 </airframe>

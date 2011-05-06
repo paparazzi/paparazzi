@@ -28,14 +28,13 @@ extern volatile bool_t gyr_valid;
 extern volatile bool_t acc_valid;
 extern volatile bool_t mag_valid;
 
-
-extern void ppzuavimu_module_init( void );
-extern void ppzuavimu_module_periodic( void );
-extern void ppzuavimu_module_event( void );
-extern void ppzuavimu_module_downlink_raw( void );
-
+/* must be defined in order to be IMU code: declared in imu.h
+extern void imu_impl_init(void);
+extern void imu_periodic(void);
+*/
 
 #define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) {   \
+    ppzuavimu_module_event();                \
     if (gyr_valid) {                         \
       gyr_valid = FALSE;                     \
       _gyro_handler();                                  \
@@ -49,6 +48,10 @@ extern void ppzuavimu_module_downlink_raw( void );
       _mag_handler();                                 \
     }                                                   \
 }
+
+/* Own Extra Functions */
+extern void ppzuavimu_module_event( void );
+extern void ppzuavimu_module_downlink_raw( void );
 
 
 #endif // PPZUAVIMU_H

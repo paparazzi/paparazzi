@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ins_ppzuavimu" dir="ins">
+<module name="ins_aspirin_via_i2c" dir="ins">
   <!-- <depend conflict="ins" -->
   <header>
     <file name="ins_ppzuavimu.h"/>
@@ -20,5 +20,6 @@
     <define name="PPZUAVIMU_I2C_DEVICE" value="i2c0" />
     <define name="USE_I2C" />
     <define name="USE_I2C0" />
+    <define name="ASPIRIN_IMU" />
   </makefile>
 </module>

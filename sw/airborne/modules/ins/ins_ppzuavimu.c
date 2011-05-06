@@ -19,7 +19,7 @@
  */
 
 #include <math.h>
-#include "estimator.h"
+#include "ins_ppzuavimu.h"
 #include "mcu_periph/i2c.h"
 
 // Downlink
@@ -53,7 +53,7 @@ struct i2c_transaction ppzuavimu_adxl345;
 struct Imu imu;
 #endif
 
-void ppzuavimu_module_init( void )
+void imu_impl_init(void)
 {
   /////////////////////////////////////////////////////////////////////
   // ITG3200
@@ -138,7 +138,7 @@ void ppzuavimu_module_init( void )
 
 }
 
-void ppzuavimu_module_periodic( void )
+void imu_periodic( void )
 {
   // Start reading the latest gyroscope data
   ppzuavimu_itg3200.type = I2CTransTxRx;
