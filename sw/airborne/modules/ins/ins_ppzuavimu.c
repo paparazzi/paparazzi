@@ -48,6 +48,10 @@ struct i2c_transaction ppzuavimu_hmc5843;
 struct i2c_transaction ppzuavimu_itg3200;
 struct i2c_transaction ppzuavimu_adxl345;
 
+// Standalone option: run module only
+#ifndef IMU_TYPE_H
+struct Imu imu;
+#endif
 
 void ppzuavimu_module_init( void )
 {
