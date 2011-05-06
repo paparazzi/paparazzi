@@ -5,7 +5,7 @@
 <!-- commands section -->
   <servos>
     <servo name="THROTTLE" no="0" min="1050" neutral="1050" max="1900"/>
-    <servo name="AILEVON_RIGHT" no="1" min="1850" neutral="1480" max="1100"/> <!-- 400 - 380 --> 
+    <servo name="AILEVON_RIGHT" no="1" min="1850" neutral="1480" max="1100"/> <!-- 400 - 380 -->
     <servo name="AILEVON_LEFT" no="2" min="1250" neutral="1580" max="1980"/> <!-- 300 - 400 -->
   </servos>
 
@@ -28,7 +28,7 @@
 
   <command_laws>
     <let var="aileron" value="@ROLL  * AILEVON_AILERON_RATE"/>
-    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
+    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
 
     <set servo="THROTTLE" value="@THROTTLE"/>
     <set servo="AILEVON_LEFT" value="$elevator + $aileron"/>
@@ -42,7 +42,7 @@
 
 
   <section name="IMU" prefix="IMU_">
-    <!-- MAX1168 ADC CHANNELS --> 
+    <!-- MAX1168 ADC CHANNELS -->
     <define name="GYRO_P_CHAN" value="0"/>
     <define name="GYRO_Q_CHAN" value="1"/>
     <define name="GYRO_R_CHAN" value="2"/>
@@ -81,9 +81,9 @@
     <define name="ACCEL_Y_SENS" value="0.9346" integer="16"/>
     <define name="ACCEL_Z_SENS" value="0.9178" integer="16"/>
 
-    <define name="ACCEL_X_SIGN" value="-1"/>
-    <define name="ACCEL_Y_SIGN" value="1"/>
-    <define name="ACCEL_Z_SIGN" value="1"/>
+    <define name="ACCEL_X_SIGN" value="1"/>
+    <define name="ACCEL_Y_SIGN" value="-1"/>
+    <define name="ACCEL_Z_SIGN" value="-1"/>
 
     <define name="MAG_X_NEUTRAL" value="0"/>
     <define name="MAG_Y_NEUTRAL" value="0"/>
@@ -92,7 +92,7 @@
     <define name="MAG_X_SENS" value="1" integer="16"/>
     <define name="MAG_Y_SENS" value="1" integer="16"/>
     <define name="MAG_Z_SENS" value="1" integer="16"/>
-    
+
 <!--    <define name="MAG_45_HACK" value="1"/> -->
 
     <define name="BODY_TO_IMU_PHI" value="0"/>
@@ -161,7 +161,7 @@
     <define name="ROLL_ATTITUDE_GAIN" value="-6000."/>
     <define name="ROLL_RATE_GAIN" value="-600."/>
 
-    <define name="ROLL_SLEW" value="0.02"/> <!-- Maximal roll angle change per 1/60 of second: 0.02 rad/loop * 180/pi * 60 loop/sec = 60 deg/sec --> 
+    <define name="ROLL_SLEW" value="0.02"/> <!-- Maximal roll angle change per 1/60 of second: 0.02 rad/loop * 180/pi * 60 loop/sec = 60 deg/sec -->
   </section>
 
   <section name="AGGRESSIVE" prefix="AGR_">

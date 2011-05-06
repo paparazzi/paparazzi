@@ -195,9 +195,9 @@ void ppzuavimu_module_event( void )
     z = (int16_t) ((ppzuavimu_adxl345.buf[5] << 8) | ppzuavimu_adxl345.buf[4]);
 
 #ifdef ASPIRIN_IMU
-    VECT3_ASSIGN(imu.accel_unscaled, -x, y, z);
+    VECT3_ASSIGN(imu.accel_unscaled, x, -y, -z);
 #else // PPZIMU
-    VECT3_ASSIGN(imu.accel_unscaled, x, -y, z);
+    VECT3_ASSIGN(imu.accel_unscaled, -x, y, -z);
 #endif
 
     acc_valid = TRUE;
