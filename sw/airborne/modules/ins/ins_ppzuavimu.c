@@ -21,6 +21,7 @@
 #include <math.h>
 #include "ins_ppzuavimu.h"
 #include "mcu_periph/i2c.h"
+#include "led.h"
 
 // Downlink
 #include "mcu_periph/uart.h"
@@ -53,22 +54,40 @@ struct i2c_transaction ppzuavimu_adxl345;
 struct Imu imu;
 #endif
 
+#ifndef PERIODIC_FREQUENCY
+#define PERIODIC_FREQUENCY 60
+#endif
+
 void imu_impl_init(void)
 {
   /////////////////////////////////////////////////////////////////////
   // ITG3200
   ppzuavimu_itg3200.type = I2CTransTx;
   ppzuavimu_itg3200.slave_addr = ITG3200_ADDR;
-  /* set gyro range to 2000deg/s and low pass at 20Hz (< 60Hz/2) internal sampling at 1kHz */
   ppzuavimu_itg3200.buf[0] = ITG3200_REG_DLPF_FS;
+#if PERIODIC_FREQUENCY == 60
+  /* set gyro range to 2000deg/s and low pass at 20Hz (< 60Hz/2) internal sampling at 1kHz */
   ppzuavimu_itg3200.buf[1] = (0x03<<3) | (0x04<<0);
+#else
+#  if PERIODIC_FREQUENCY == 120
+#  warning ITG3200 read at 120Hz
+  /* set gyro range to 2000deg/s and low pass at 42Hz (< 120Hz/2) internal sampling at 1kHz */
+  ppzuavimu_itg3200.buf[1] = (0x03<<3) | (0x03<<0);
+#  else
+#  error PERIODIC_FREQUENCY should be either 60Hz or 120Hz. Otherwise manually fix the sensor rates
+#  endif
+#endif
   ppzuavimu_itg3200.len_w = 2;
   i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_itg3200);
     while(ppzuavimu_itg3200.status == I2CTransPending);
 
   /* set sample rate to 66Hz: so at 60Hz there is always a new sample ready and you loose little */
   ppzuavimu_itg3200.buf[0] = ITG3200_REG_SMPLRT_DIV;
-  ppzuavimu_itg3200.buf[1] = 0x0E;
+#if PERIODIC_FREQUENCY == 60
+  ppzuavimu_itg3200.buf[1] = 19;  // 50Hz
+#else
+  ppzuavimu_itg3200.buf[1] = 9;  // 100Hz
+#endif
   i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_itg3200);
     while(ppzuavimu_itg3200.status == I2CTransPending);
 
@@ -78,9 +97,9 @@ void imu_impl_init(void)
   i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_itg3200);
     while(ppzuavimu_itg3200.status == I2CTransPending);
 
-  /* no interrupts for now */
+  /* no interrupts for now, but set data ready interrupt to enable reading status bits */
   ppzuavimu_itg3200.buf[0] = ITG3200_REG_INT_CFG;
-  ppzuavimu_itg3200.buf[1] = 0x00;
+  ppzuavimu_itg3200.buf[1] = 0x01;
   i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_itg3200);
     while(ppzuavimu_itg3200.status == I2CTransPending);
 
@@ -91,7 +110,11 @@ void imu_impl_init(void)
   ppzuavimu_adxl345.slave_addr = ADXL345_ADDR;
   ppzuavimu_adxl345.type = I2CTransTx;
   ppzuavimu_adxl345.buf[0] = ADXL345_REG_BW_RATE;
+#if PERIODIC_FREQUENCY == 60
+  ppzuavimu_adxl345.buf[1] = 0x09;  // normal power and 50Hz sampling, 50Hz BW
+#else
   ppzuavimu_adxl345.buf[1] = 0x0a;  // normal power and 100Hz sampling, 50Hz BW
+#endif
   ppzuavimu_adxl345.len_w = 2;
   i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_adxl345);
     while(ppzuavimu_adxl345.status == I2CTransPending);
@@ -142,9 +165,9 @@ void imu_periodic( void )
 {
   // Start reading the latest gyroscope data
   ppzuavimu_itg3200.type = I2CTransTxRx;
-  ppzuavimu_itg3200.len_r = 6;
+  ppzuavimu_itg3200.len_r = 9;
   ppzuavimu_itg3200.len_w = 1;
-  ppzuavimu_itg3200.buf[0] = ITG3200_REG_GYRO_XOUT_H;
+  ppzuavimu_itg3200.buf[0] = ITG3200_REG_INT_STATUS;
   i2c_submit(&PPZUAVIMU_I2C_DEVICE, &ppzuavimu_itg3200);
 
   // Start reading the latest accelerometer data
@@ -155,12 +178,17 @@ void imu_periodic( void )
   i2c_submit(&PPZUAVIMU_I2C_DEVICE, &ppzuavimu_adxl345);
 
   // Start reading the latest magnetometer data
+#if PERIODIC_FREQUENCY > 60
+  RunOnceEvery(2,{
+#endif
   ppzuavimu_hmc5843.type = I2CTransTxRx;
   ppzuavimu_hmc5843.len_r = 6;
   ppzuavimu_hmc5843.len_w = 1;
   ppzuavimu_hmc5843.buf[0] = HMC5843_REG_DATXM;
   i2c_submit(&PPZUAVIMU_I2C_DEVICE, &ppzuavimu_hmc5843);
-
+#if PERIODIC_FREQUENCY > 60
+  });
+#endif
   RunOnceEvery(10,ppzuavimu_module_downlink_raw());
 }
 
@@ -178,9 +206,21 @@ void ppzuavimu_module_event( void )
   // If the itg3200 I2C transaction has succeeded: convert the data
   if (ppzuavimu_itg3200.status == I2CTransSuccess)
   {
-    x = (int16_t) ((ppzuavimu_itg3200.buf[0] << 8) | ppzuavimu_itg3200.buf[1]);
-    y = (int16_t) ((ppzuavimu_itg3200.buf[2] << 8) | ppzuavimu_itg3200.buf[3]);
-    z = (int16_t) ((ppzuavimu_itg3200.buf[4] << 8) | ppzuavimu_itg3200.buf[5]);
+#define ITG_STA_DAT_OFFSET 3
+    x = (int16_t) ((ppzuavimu_itg3200.buf[0+ITG_STA_DAT_OFFSET] << 8) | ppzuavimu_itg3200.buf[1+ITG_STA_DAT_OFFSET]);
+    y = (int16_t) ((ppzuavimu_itg3200.buf[2+ITG_STA_DAT_OFFSET] << 8) | ppzuavimu_itg3200.buf[3+ITG_STA_DAT_OFFSET]);
+    z = (int16_t) ((ppzuavimu_itg3200.buf[4+ITG_STA_DAT_OFFSET] << 8) | ppzuavimu_itg3200.buf[5+ITG_STA_DAT_OFFSET]);
+
+    // Is this is new data
+    if (ppzuavimu_itg3200.buf[0] & 0x01)
+    {
+      //LED_ON(3);
+      gyr_valid = TRUE;
+      //LED_OFF(3);
+    }
+    else
+    {
+    }
 
     // Signs depend on the way sensors are soldered on the board: so they are hardcoded
 #ifdef ASPIRIN_IMU
@@ -189,7 +229,6 @@ void ppzuavimu_module_event( void )
     RATES_ASSIGN(imu.gyro_unscaled, -x, y, -z);
 #endif
 
-    gyr_valid = TRUE;
     ppzuavimu_itg3200.status = I2CTransDone;  // remove the I2CTransSuccess status, otherwise data ready will be triggered again without new data
   }
 

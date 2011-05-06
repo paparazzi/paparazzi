@@ -222,9 +222,9 @@
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
 
-      <configure name="PERIODIC_FREQUENCY" value="60"/>
-      <configure name="AHRS_PROPAGATE_FREQUENCY" value="60"/>
-      <configure name="AHRS_CORRECT_FREQUENCY" value="60"/>
+      <configure name="PERIODIC_FREQUENCY" value="120"/>
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
+      <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
 
       <configure name="AHRS_ALIGNER_LED" value="3"/>
       <configure name="CPU_LED" value="3"/>
