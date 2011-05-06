@@ -230,9 +230,17 @@ void ahrs_update_accel(void)
   Drift_correction();
 }
 
+#ifdef USE_MAGNETOMETER
+#warning NO_PITCH_AND_ROLL_COMPENSATION_YET
+#endif
 void ahrs_update_mag(void)
 {
-  //TODO
+  //FIXME: pitch and roll compensation please!!!
+  /*
+  struct Int32Vect3 ltp_mag;
+  INT32_RMAT_VMULT(expected_imu, ahrs.imu_to_ltp_rmat, imu.mag);
+   */
+  MAG_Heading = atan2(imu.mag.y, -imu.mag.x);
 }
 
 void Normalize(void)

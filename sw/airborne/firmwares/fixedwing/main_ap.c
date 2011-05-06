@@ -723,13 +723,14 @@ static inline void on_gyro_event( void ) {
 
 }
 
-static inline void on_mag_event(void) {
-  /*
+static inline void on_mag_event(void)
+{
+#ifdef IMU_MAG_X_SIGN
   ImuScaleMag(imu);
   if (ahrs.status == AHRS_RUNNING) {
     ahrs_update_mag();
-    ahrs_update_fw_estimator();
+//    ahrs_update_fw_estimator();
   }
-  */
+#endif
 }
 #endif // USE_AHRS

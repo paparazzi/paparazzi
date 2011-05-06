@@ -85,6 +85,10 @@
     <define name="MAG_Y_SENS" value="1" integer="16"/>
     <define name="MAG_Z_SENS" value="1" integer="16"/>
 
+    <define name="MAG_X_SIGN" value="1"/>
+    <define name="MAG_Y_SIGN" value="1"/>
+    <define name="MAG_Z_SIGN" value="1"/>
+
     <define name="BODY_TO_IMU_PHI" value="0"/>
     <define name="BODY_TO_IMU_THETA" value="0"/>
     <define name="BODY_TO_IMU_PSI" value="0"/>
@@ -233,10 +237,13 @@
 
     <!-- Sensors -->
     <!--
-    <subsystem name="attitude" type="dcm"/>
+    <subsystem name="ahrs" type="ic"/>
+    <subsystem name="imu" type="aspirin_i2c"/>
     -->
     <subsystem name="imu" type="ppzuav"/>
-    <subsystem name="ahrs" type="ic"/>
+    <subsystem name="attitude" type="dcm">
+      <define name="USE_MAGNETOMETER" />
+    </subsystem>
 
 
     <subsystem name="radio_control" type="ppm"/>

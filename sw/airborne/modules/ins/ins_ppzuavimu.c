@@ -116,7 +116,7 @@ void imu_impl_init(void)
   // HMC5843
   ppzuavimu_hmc5843.slave_addr = HMC5843_ADDR;
   ppzuavimu_hmc5843.type = I2CTransTx;
-  ppzuavimu_hmc5843.buf[0] = HMC5843_REG_CFGA;  // set to rate to 50Hz
+  ppzuavimu_hmc5843.buf[0] = HMC5843_REG_CFGA;  // set to rate to max speed: 50Hz no bias
   ppzuavimu_hmc5843.buf[1] = 0x00 | (0x06 << 2);
   ppzuavimu_hmc5843.len_w = 2;
   i2c_submit(&PPZUAVIMU_I2C_DEVICE,&ppzuavimu_hmc5843);
@@ -160,6 +160,8 @@ void imu_periodic( void )
   ppzuavimu_hmc5843.len_w = 1;
   ppzuavimu_hmc5843.buf[0] = HMC5843_REG_DATXM;
   i2c_submit(&PPZUAVIMU_I2C_DEVICE, &ppzuavimu_hmc5843);
+
+  RunOnceEvery(10,ppzuavimu_module_downlink_raw());
 }
 
 void ppzuavimu_module_downlink_raw( void )
@@ -216,9 +218,9 @@ void ppzuavimu_module_event( void )
     z = (int16_t) ((ppzuavimu_hmc5843.buf[4] << 8) | ppzuavimu_hmc5843.buf[5]);
 
 #ifdef ASPIRIN_IMU
-    VECT3_ASSIGN(imu.mag_unscaled, x, y, z);
+    VECT3_ASSIGN(imu.mag_unscaled, x, -y, -z);
 #else // PPZIMU
-    VECT3_ASSIGN(imu.mag_unscaled, x, y, z);
+    VECT3_ASSIGN(imu.mag_unscaled, -y, -x, -z);
 #endif
 
     mag_valid = TRUE;
