@@ -39,15 +39,9 @@
 #include "../../peripherals/hmc5843.h"
 
 // Results
-int32_t mag_x, mag_y, mag_z;
 volatile bool_t mag_valid;
-
-int32_t gyr_x, gyr_y, gyr_z;
 volatile bool_t gyr_valid;
-
-int32_t acc_x, acc_y, acc_z;
 volatile bool_t acc_valid;
-
 
 // Communication
 struct i2c_transaction ppzuavimu_hmc5843;
@@ -166,38 +160,45 @@ void ppzuavimu_module_periodic( void )
 
 void ppzuavimu_module_downlink_raw( void )
 {
-  DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,&gyr_x,&gyr_y,&gyr_z);
-  DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,&acc_x,&acc_y,&acc_z);
-  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,&mag_x,&mag_y,&mag_z);
+  DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,&imu.gyro_unscaled.p,&imu.gyro_unscaled.q,&imu.gyro_unscaled.r);
+  DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,&imu.accel_unscaled.x,&imu.accel_unscaled.y,&imu.accel_unscaled.z);
+  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,&imu.mag_unscaled.x,&imu.mag_unscaled.y,&imu.mag_unscaled.z);
 }
 
 void ppzuavimu_module_event( void )
 {
+  int32_t x, y, z;
+
   // If the itg3200 I2C transaction has succeeded: convert the data
   if (ppzuavimu_itg3200.status == I2CTransSuccess)
   {
-    gyr_x = (int16_t) ((ppzuavimu_itg3200.buf[0] << 8) | ppzuavimu_itg3200.buf[1]);
-    gyr_y = (int16_t) ((ppzuavimu_itg3200.buf[2] << 8) | ppzuavimu_itg3200.buf[3]);
-    gyr_z = (int16_t) ((ppzuavimu_itg3200.buf[4] << 8) | ppzuavimu_itg3200.buf[5]);
+    x = (int16_t) ((ppzuavimu_itg3200.buf[0] << 8) | ppzuavimu_itg3200.buf[1]);
+    y = (int16_t) ((ppzuavimu_itg3200.buf[2] << 8) | ppzuavimu_itg3200.buf[3]);
+    z = (int16_t) ((ppzuavimu_itg3200.buf[4] << 8) | ppzuavimu_itg3200.buf[5]);
 
+    // Signs depend on the way sensors are soldered on the board: so they are hardcoded
 #ifdef ASPIRIN_IMU
-    RATES_ASSIGN(imu.gyro_unscaled, gyr_x, gyr_y, gyr_z);
-#else
-    RATES_ASSIGN(imu.gyro_unscaled, gyr_x, gyr_y, gyr_z);
+    RATES_ASSIGN(imu.gyro_unscaled, x, -y, -z);
+#else // PPZIMU
+    RATES_ASSIGN(imu.gyro_unscaled, -x, y, -z);
 #endif
 
     gyr_valid = TRUE;
-    ppzuavimu_itg3200.status = I2CTransDone;
+    ppzuavimu_itg3200.status = I2CTransDone;  // remove the I2CTransSuccess status, otherwise data ready will be triggered again without new data
   }
 
   // If the adxl345 I2C transaction has succeeded: convert the data
   if (ppzuavimu_adxl345.status == I2CTransSuccess)
   {
-    acc_x = (int16_t) ((ppzuavimu_adxl345.buf[1] << 8) | ppzuavimu_adxl345.buf[0]);
-    acc_y = (int16_t) ((ppzuavimu_adxl345.buf[3] << 8) | ppzuavimu_adxl345.buf[2]);
-    acc_z = (int16_t) ((ppzuavimu_adxl345.buf[5] << 8) | ppzuavimu_adxl345.buf[4]);
+    x = (int16_t) ((ppzuavimu_adxl345.buf[1] << 8) | ppzuavimu_adxl345.buf[0]);
+    y = (int16_t) ((ppzuavimu_adxl345.buf[3] << 8) | ppzuavimu_adxl345.buf[2]);
+    z = (int16_t) ((ppzuavimu_adxl345.buf[5] << 8) | ppzuavimu_adxl345.buf[4]);
 
-    VECT3_ASSIGN(imu.accel_unscaled, acc_x, acc_y, acc_z);
+#ifdef ASPIRIN_IMU
+    VECT3_ASSIGN(imu.accel_unscaled, -x, y, z);
+#else // PPZIMU
+    VECT3_ASSIGN(imu.accel_unscaled, x, -y, z);
+#endif
 
     acc_valid = TRUE;
     ppzuavimu_adxl345.status = I2CTransDone;
@@ -206,9 +207,16 @@ void ppzuavimu_module_event( void )
   // If the hmc5843 I2C transaction has succeeded: convert the data
   if (ppzuavimu_hmc5843.status == I2CTransSuccess)
   {
-    mag_x = (int16_t) ((ppzuavimu_hmc5843.buf[0] << 8) | ppzuavimu_hmc5843.buf[1]);
-    mag_y = (int16_t) ((ppzuavimu_hmc5843.buf[2] << 8) | ppzuavimu_hmc5843.buf[3]);
-    mag_z = (int16_t) ((ppzuavimu_hmc5843.buf[4] << 8) | ppzuavimu_hmc5843.buf[5]);
+    x = (int16_t) ((ppzuavimu_hmc5843.buf[0] << 8) | ppzuavimu_hmc5843.buf[1]);
+    y = (int16_t) ((ppzuavimu_hmc5843.buf[2] << 8) | ppzuavimu_hmc5843.buf[3]);
+    z = (int16_t) ((ppzuavimu_hmc5843.buf[4] << 8) | ppzuavimu_hmc5843.buf[5]);
+
+#ifdef ASPIRIN_IMU
+    VECT3_ASSIGN(imu.mag_unscaled, x, y, z);
+#else // PPZIMU
+    VECT3_ASSIGN(imu.mag_unscaled, x, y, z);
+#endif
+
     mag_valid = TRUE;
     ppzuavimu_hmc5843.status = I2CTransDone;
   }
