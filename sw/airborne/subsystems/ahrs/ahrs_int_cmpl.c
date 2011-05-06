@@ -323,6 +323,15 @@ __attribute__ ((always_inline)) static inline void compute_body_orientation(void
 
 // TODO use ahrs result directly
 #include "estimator.h"
+// remotely settable
+#ifndef INS_ROLL_NEUTRAL_DEFAULT
+#define INS_ROLL_NEUTRAL_DEFAULT 0
+#endif
+#ifndef INS_PITCH_NEUTRAL_DEFAULT
+#define INS_PITCH_NEUTRAL_DEFAULT 0
+#endif
+float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
+float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 void ahrs_update_fw_estimator(void)
 {
   struct FloatEulers att;
