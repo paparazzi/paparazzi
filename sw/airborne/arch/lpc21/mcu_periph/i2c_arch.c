@@ -270,6 +270,11 @@ void i2c0_hw_init ( void ) {
 #endif
 #endif
 
+#ifndef I2C1_VIC_SLOT
+#define I2C1_VIC_SLOT 11
+#endif
+
+
 void i2c1_ISR(void) __attribute__((naked));
 
 void i2c1_ISR(void) {

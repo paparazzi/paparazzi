@@ -59,6 +59,8 @@
     _PrintHex16(out_fun, low32);				\
 }
 
+#ifdef USE_UART0
+
 #define Uart0PrintHex(c) _PrintHex(uart0_transmit, c)
 #define Uart0PrintHex16(c) _PrintHex16(uart0_transmit, c)
 #define Uart0PrintHex32(c) _PrintHex32(uart0_transmit, c)
@@ -69,14 +71,63 @@
 #define UART0PrintHex32   Uart0PrintHex32
 #define UART0PrintString  Uart0PrintString
 
+#endif /* USE_UART0 */
+
+#ifdef USE_UART1
+
 #define Uart1PrintHex(c) _PrintHex(uart1_transmit, c)
 #define Uart1PrintHex16(c) _PrintHex16(uart1_transmit, c)
+#define Uart1PrintHex32(c) _PrintHex32(uart1_transmit, c)
 #define Uart1PrintString(s) _PrintString(uart1_transmit, s)
 
 #define UART1PrintHex     Uart1PrintHex
 #define UART1PrintHex16   Uart1PrintHex16
 #define UART1PrintHex32   Uart1PrintHex32
 #define UART1PrintString  Uart1PrintString
+
+#endif /* USE_UART1 */
+
+#ifdef USE_UART2
+
+#define Uart2PrintHex(c) _PrintHex(uart2_transmit, c)
+#define Uart2PrintHex16(c) _PrintHex16(uart2_transmit, c)
+#define Uart2PrintHex32(c) _PrintHex32(uart2_transmit, c)
+#define Uart2PrintString(s) _PrintString(uart2_transmit, s)
+
+#define UART2PrintHex     Uart2PrintHex
+#define UART2PrintHex16   Uart2PrintHex16
+#define UART2PrintHex32   Uart2PrintHex32
+#define UART2PrintString  Uart2PrintString
+
+#endif /* USE_UART2 */
+
+#ifdef USE_UART3
+
+#define Uart3PrintHex(c) _PrintHex(uart3_transmit, c)
+#define Uart3PrintHex16(c) _PrintHex16(uart3_transmit, c)
+#define Uart3PrintHex32(c) _PrintHex32(uart3_transmit, c)
+#define Uart3PrintString(s) _PrintString(uart3_transmit, s)
+
+#define UART3PrintHex     Uart3PrintHex
+#define UART3PrintHex16   Uart3PrintHex16
+#define UART3PrintHex32   Uart3PrintHex32
+#define UART3PrintString  Uart3PrintString
+
+#endif /* USE_UART3 */
+
+#ifdef USE_UART5
+
+#define Uart5PrintHex(c) _PrintHex(uart5_transmit, c)
+#define Uart5PrintHex16(c) _PrintHex16(uart5_transmit, c)
+#define Uart5PrintHex32(c) _PrintHex32(uart5_transmit, c)
+#define Uart5PrintString(s) _PrintString(uart5_transmit, s)
+
+#define UART5PrintHex     Uart5PrintHex
+#define UART5PrintHex16   Uart5PrintHex16
+#define UART5PrintHex32   Uart5PrintHex32
+#define UART5PrintString  Uart5PrintString
+
+#endif /* USE_UART5 */
 
 #define UsbSPrintHex(c) _PrintHex(VCOM_putchar, c)
 #define UsbSPrintHex16(c) _PrintHex16(VCOM_putchar, c)

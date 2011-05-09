@@ -802,10 +802,14 @@
     <field name="speed_sp" type="float"/>
   </message>
 
- <!--126 is free -->
- <!--127 is free -->
- <!--128 is free -->
- <!--129 is free -->
+  <!--126 is free -->
+  <!--127 is free -->
+
+  <message name="CAMERA_SNAPSHOT" id="128">
+    <field name="snapshot_image_number" type="uint16"/>
+  </message>
+
+  <!--129 is free -->
 
   <message name="STAB_ATTITUDE_FLOAT" id="130">
     <field name="est_p"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>
