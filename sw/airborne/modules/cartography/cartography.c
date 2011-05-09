@@ -90,8 +90,7 @@ uint16_t railnumberSinceBoot=1; //used to count the number of rails the plane ha
 #define USE_ONBOARD_CAMERA
 
 #ifdef USE_ONBOARD_CAMERA
-bool_t CAMERA_SNAPSHOT_REQUIERED=FALSE;  //declared in main_ap.c
-uint16_t camera_snapshot_image_number=0; //declared in main_ap.c
+uint16_t camera_snapshot_image_number=0;
 #endif
 
 
@@ -137,7 +136,7 @@ bool_t ProjectionInsideLimitOfRail;
 
 
 #include "modules/cartography/cartography.h"
-#include "led.h"
+#include "generated/modules.h"
 
 #include "downlink.h"
 #include "mcu_periph/uart.h"
@@ -147,33 +146,16 @@ bool_t ProjectionInsideLimitOfRail;
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 void init_carto(void) {
-  // this part is already done by led_init in fact
-  LED_INIT(DEMO_MODULE_LED);
-  LED_OFF(DEMO_MODULE_LED);
 }
 
-void periodic_1Hz_carto(void) {
-	/*uint8_t  toto=3;
-	float lat=3.14159;
-	float lon=1.234;
-    LED_TOGGLE(DEMO_MODULE_LED);
-	DOWNLINK_SEND_MARK(DefaultChannel,&toto,&lat,&lon);
-	 */
-}
-
-void periodic_10Hz_carto(void) {
-  /* LED_TOGGLE(DEMO_MODULE_LED);
-   */
+void periodic_downlink_carto(void) {
+	DOWNLINK_SEND_CAMERA_SNAPSHOT(DefaultChannel,&camera_snapshot_image_number);
 }
 
 void start_carto(void) {
- /* LED_ON(DEMO_MODULE_LED);
-  */
 }
 
 void stop_carto(void) {
- /* LED_OFF(DEMO_MODULE_LED);
-  */
 }
 
 
@@ -189,7 +171,7 @@ bool_t nav_survey_Snapshoot(void)
 {
 	camera_snapshot_image_number=railnumberSinceBoot;
 	PRTDEBSTR(SNAPSHOT)
-	CAMERA_SNAPSHOT_REQUIERED=TRUE;
+  cartography_periodic_downlink_carto_status = MODULES_START;
 	return FALSE; 
 	
 }
@@ -198,7 +180,7 @@ bool_t nav_survey_Snapshoot_Continu(void)
 {
 	camera_snapshot_image_number=railnumberSinceBoot;
 	PRTDEBSTR(SNAPSHOT)
-	CAMERA_SNAPSHOT_REQUIERED=TRUE;
+  cartography_periodic_downlink_carto_status = MODULES_START;
 	return TRUE; 
 	
 }
@@ -207,7 +189,7 @@ bool_t nav_survey_StopSnapshoot(void)
 {
 	camera_snapshot_image_number=0;
 	PRTDEBSTR(STOP SNAPSHOT)
-	CAMERA_SNAPSHOT_REQUIERED=TRUE;
+  cartography_periodic_downlink_carto_status = MODULES_START;
 	return FALSE; 
 	
 }
@@ -735,8 +717,7 @@ bool_t nav_survey_losange_carto(void)
 	
 	
 	
-	CAMERA_SNAPSHOT_REQUIERED=TRUE;
-	
+  cartography_periodic_downlink_carto_status = MODULES_START;
 	
 	return TRUE; //apparament pour les fonctions de tache=> true
 }

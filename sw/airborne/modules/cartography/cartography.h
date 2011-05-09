@@ -7,8 +7,7 @@
 
  
 void init_carto(void);
-void periodic_1Hz_carto(void);
-void periodic_10Hz_carto(void);
+void periodic_downlink_carto(void);
 void start_carto(void);
 void stop_carto(void);
 
