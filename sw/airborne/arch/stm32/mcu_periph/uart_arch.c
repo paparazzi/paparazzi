@@ -30,12 +30,12 @@
 #include "std.h"
 #include "pprz_baudrate.h"
 
-void uart_periph_init_param(struct uart_periph* p, uint32_t baud, uint8_t mode, uint8_t fmode, char * dev) {
+void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
 
   /* Configure USART */
   USART_InitTypeDef usart;
   usart.USART_BaudRate            = baud;
-  usart.USART_WordLength          = USART_WordLength_8b; // TODO mode, fmode
+  usart.USART_WordLength          = USART_WordLength_8b;
   usart.USART_StopBits            = USART_StopBits_1;
   usart.USART_Parity              = USART_Parity_No;
   usart.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
@@ -44,12 +44,13 @@ void uart_periph_init_param(struct uart_periph* p, uint32_t baud, uint8_t mode, 
   /* Enable USART1 Receive interrupts */
   USART_ITConfig(p->reg_addr, USART_IT_RXNE, ENABLE);
 
-  pprz_usart_set_baudrate(p->reg_addr, UART1_BAUD);
+  pprz_usart_set_baudrate(p->reg_addr, baud);
 
   /* Enable the USART */
   USART_Cmd(p->reg_addr, ENABLE);
 
 }
+// TODO set_mode function
 
 void uart_transmit(struct uart_periph* p, uint8_t data ) {
 
@@ -136,7 +137,7 @@ void uart1_init( void ) {
   GPIO_Init(UART1_RxPort, &gpio);
 
   /* Configure USART1 */
-  uart_periph_init_param(&uart1, UART1_BAUD, 0, 0, "");
+  uart_periph_set_baudrate(&uart1, UART1_BAUD);
 }
 
 void usart1_irq_handler(void) { usart_irq_handler(&uart1); }
@@ -170,7 +171,7 @@ void uart2_init( void ) {
   GPIO_Init(UART2_RxPort, &gpio);
 
   /* Configure USART2 */
-  uart_periph_init_param(&uart2, UART2_BAUD, 0, 0, "");
+  uart_periph_set_baudrate(&uart2, UART2_BAUD);
 }
 
 void usart2_irq_handler(void) { usart_irq_handler(&uart2); }
@@ -206,7 +207,7 @@ void uart3_init( void ) {
   GPIO_Init(UART3_RxPort, &gpio);
 
   /* Configure USART3 */
-  uart_periph_init_param(&uart3, UART3_BAUD, 0, 0, "");
+  uart_periph_set_baudrate(&uart3, UART3_BAUD);
 }
 
 void usart3_irq_handler(void) { usart_irq_handler(&uart3); }
@@ -241,7 +242,7 @@ void uart5_init( void ) {
   GPIO_Init(UART5_RxPort, &gpio);
 
   /* Configure UART5 */
-  uart_periph_init_param(&uart5, UART5_BAUD, 0, 0, "");
+  uart_periph_set_baudrate(&uart5, UART5_BAUD);
 }
 
 void usart5_irq_handler(void) { usart_irq_handler(&uart5); }
