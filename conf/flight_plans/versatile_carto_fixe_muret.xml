@@ -57,7 +57,7 @@ float varsweepsize=110;
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call fun="NavSetGroundReferenceHere()"/>
-      <deroute block="Holding Point"/>
+      <deroute block="Holding point"/>
     </block>
    
     <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
