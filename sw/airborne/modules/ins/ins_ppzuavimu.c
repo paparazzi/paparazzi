@@ -68,9 +68,10 @@ void imu_impl_init(void)
 #if PERIODIC_FREQUENCY == 60
   /* set gyro range to 2000deg/s and low pass at 20Hz (< 60Hz/2) internal sampling at 1kHz */
   ppzuavimu_itg3200.buf[1] = (0x03<<3) | (0x04<<0);
+#  warning ITG3200 read at 50Hz
 #else
 #  if PERIODIC_FREQUENCY == 120
-#  warning ITG3200 read at 120Hz
+#  warning ITG3200 read at 100Hz
   /* set gyro range to 2000deg/s and low pass at 42Hz (< 120Hz/2) internal sampling at 1kHz */
   ppzuavimu_itg3200.buf[1] = (0x03<<3) | (0x03<<0);
 #  else
@@ -189,7 +190,7 @@ void imu_periodic( void )
 #if PERIODIC_FREQUENCY > 60
   });
 #endif
-  RunOnceEvery(10,ppzuavimu_module_downlink_raw());
+  //RunOnceEvery(10,ppzuavimu_module_downlink_raw());
 }
 
 void ppzuavimu_module_downlink_raw( void )

@@ -176,8 +176,6 @@ int32_t xsens_nanosec;
 int16_t xsens_year;
 int8_t xsens_month;
 int8_t xsens_day;
-float xsens_lat;
-float xsens_lon;
 
 static uint8_t xsens_id;
 static uint8_t xsens_status;
@@ -223,18 +221,35 @@ void ins_periodic_task( void ) {
 #include "estimator.h"
 
 void handle_ins_msg( void) {
+
+
+  // Send to Estimator (Control)
   EstimatorSetAtt(ins_phi, ins_psi, ins_theta);
   EstimatorSetRate(ins_p,ins_q);
+
+  // Position
+  float gps_east = gps.utm_pos.east / 100.;
+  float gps_north = gps.utm_pos.north / 100.;
+  gps_east -= nav_utm_east0;
+  gps_north -= nav_utm_north0;
+  EstimatorSetPosXY(gps_east, gps_north);
+
+  // Altitude and vertical speed
+  EstimatorSetAlt(-ins_z);
+
+  // Horizontal speed
+  float fspeed = sqrt(ins_vx*ins_vx + ins_vy*ins_vy);
   if (gps.fix != GPS_FIX_3D)
-    gps.gspeed = 0;
+    fspeed = 0;
+  float fclimb = -ins_vz;
+  float fcourse = atan2f((float)ins_vy, (float)ins_vx);
+  EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
 
-  gps.course = (atan2f((float)ins_vx, (float)ins_vy))*1e7;
-  gps.ned_vel.z = (int16_t)(ins_vz * 100);
-  gps.gspeed = (uint16_t)(sqrt(ins_vx*ins_vx + ins_vy*ins_vy) * 100);
 
-  EstimatorSetAtt(ins_phi, ((float)gps.course / 1e7), ins_theta);
-  // EstimatorSetAlt(ins_z);
-  estimator_update_state_gps();
+  // Now also finish filling the gps struct for telemetry purposes
+  gps.gspeed = fspeed * 100.;
+  gps.speed_3d = (uint16_t)(sqrt(ins_vx*ins_vx + ins_vy*ins_vy + ins_vz*ins_vz) * 100);
+  gps.course = fcourse * 1e7;
   // reset_gps_watchdog();
 }
 
@@ -302,15 +317,20 @@ void parse_ins_msg( void ) {
         ins_x = utm_f.east;
         ins_y = utm_f.north;
 
-        gps.hmsl = XSENS_DATA_RAWGPS_alt(xsens_msg_buf,offset) / 100;
-        ins_z = -(INS_FORMAT)gps.hmsl / 1000.;
-        ins_vx = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_e(xsens_msg_buf,offset) / 100.;
-        ins_vy = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_n(xsens_msg_buf,offset) / 100.;
+        // Altitude: FIXME Xsens gives ellipsoid height and not geoid height
+        ins_z = -(INS_FORMAT)XSENS_DATA_RAWGPS_alt(xsens_msg_buf,offset) / 1000.;
+        gps.hmsl =  XSENS_DATA_RAWGPS_alt(xsens_msg_buf,offset);
+        gps.lla_pos.alt = gps.hmsl;
+        gps.utm_pos.alt = gps.hmsl;
+        ins_vx = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_n(xsens_msg_buf,offset) / 100.;
+        ins_vy = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_e(xsens_msg_buf,offset) / 100.;
         ins_vz = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_d(xsens_msg_buf,offset) / 100.;
-        gps.ned_vel.z = XSENS_DATA_RAWGPS_vel_d(xsens_msg_buf,offset) / 10;
+        gps.ned_vel.x = XSENS_DATA_RAWGPS_vel_n(xsens_msg_buf,offset);
+        gps.ned_vel.y = XSENS_DATA_RAWGPS_vel_e(xsens_msg_buf,offset);
+        gps.ned_vel.z = XSENS_DATA_RAWGPS_vel_d(xsens_msg_buf,offset);
         gps.pacc = XSENS_DATA_RAWGPS_hacc(xsens_msg_buf,offset) / 100;
         gps.sacc = XSENS_DATA_RAWGPS_sacc(xsens_msg_buf,offset) / 100;
-        gps.pdop = 5;
+        gps.pdop = 5;  // FIXME Not output by XSens
 #endif
         offset += XSENS_DATA_RAWGPS_LENGTH;
       }

@@ -9,8 +9,8 @@
   <servos>
     <servo name="THROTTLE" no="4" min="1000" neutral="1000" max="2000"/>
     <servo name="AILERON_LEFT" no="5" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILERON_RIGHT" no="8" min="2000" neutral="1500" max="1000"/>
-    <servo name="ELEVATOR" no="1" min="2000" neutral="1500" max="1000"/>
+    <servo name="AILERON_RIGHT" no="1" min="2000" neutral="1500" max="1000"/>
+    <servo name="ELEVATOR" no="8" min="2000" neutral="1500" max="1000"/>
     <servo name="RUDDER" no="9" min="1100" neutral="1500" max="1900"/>
   </servos>
 
@@ -64,7 +64,7 @@
     <define name="GYRO_Q_SIGN" value="1"/>
     <define name="GYRO_R_SIGN" value="1"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="0"/>
+    <define name="ACCEL_X_NEUTRAL" value="-14"/>
     <define name="ACCEL_Y_NEUTRAL" value="0"/>
     <define name="ACCEL_Z_NEUTRAL" value="0"/>
 
@@ -225,6 +225,7 @@
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
+      <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
 
       <configure name="AHRS_ALIGNER_LED" value="3"/>
       <configure name="CPU_LED" value="3"/>
@@ -237,7 +238,9 @@
 
     <!-- Sensors -->
     <!--
-    <subsystem name="ahrs" type="ic"/>
+    <subsystem name="ahrs" type="ic">
+      <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" />
+    </subsystem>
     <subsystem name="imu" type="aspirin_i2c"/>
     -->
     <subsystem name="imu" type="ppzuav"/>

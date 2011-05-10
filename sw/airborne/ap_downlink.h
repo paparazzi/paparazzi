@@ -188,7 +188,7 @@
 #define PERIODIC_SEND_GPS(_chan) {                                      \
     static uint8_t i;                                                   \
     int16_t climb = -gps.ned_vel.z;                                     \
-    int16_t course = DegOfRad(gps.course / 10);                        \
+    int16_t course = DegOfRad(estimator_hspeed_dir * 10);                        \
     DOWNLINK_SEND_GPS(DefaultChannel, &gps.fix, &gps.utm_pos.east, &gps.utm_pos.north, &course, &gps.lla_pos.alt, &gps.gspeed, &climb, &gps.week, &gps.tow, &gps.utm_pos.zone, &i); \
     if ((gps.fix != GPS_FIX_3D) && (i >= gps.nb_channels)) i = 0;                                    \
     if (i >= gps.nb_channels * 2) i = 0;                                    \

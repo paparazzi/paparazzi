@@ -410,6 +410,12 @@ static inline void attitude_loop( void ) {
 
 }
 
+#ifdef USE_IMU
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+volatile uint8_t new_ins_attitude = 0;
+#endif
+#endif
+
 void periodic_task_ap( void ) {
 
   static uint8_t _60Hz = 0;
@@ -719,6 +725,10 @@ static inline void on_gyro_event( void ) {
 
 #ifdef AHRS_CPU_LED
     LED_OFF(AHRS_CPU_LED);
+#endif
+
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+  new_ins_attitude = 1;
 #endif
 
 }
