@@ -73,7 +73,8 @@ float Update_Matrix[3][3]    = {{0,1,2},{3,4,5},{6,7,8}}; //Gyros here
 float Temporary_Matrix[3][3] = {{0,0,0},{0,0,0},{0,0,0}};
 
 #ifdef USE_MAGNETOMETER
-float MAG_Heading;
+float MAG_Heading_X = 1;
+float MAG_Heading_Y = 0;
 #endif
 
 static inline void compute_body_orientation_and_rates(void);
@@ -230,17 +231,59 @@ void ahrs_update_accel(void)
   Drift_correction();
 }
 
-#ifdef USE_MAGNETOMETER
-#warning NO_PITCH_AND_ROLL_COMPENSATION_YET
-#endif
+
 void ahrs_update_mag(void)
 {
-  //FIXME: pitch and roll compensation please!!!
-  /*
-  struct Int32Vect3 ltp_mag;
-  INT32_RMAT_VMULT(expected_imu, ahrs.imu_to_ltp_rmat, imu.mag);
-   */
-  MAG_Heading = atan2(imu.mag.y, -imu.mag.x);
+#ifdef USE_MAGNETOMETER
+#warning MAGNETOMETER FEEDBACK NOT TESTED YET
+#endif
+
+
+  float cos_roll;
+  float sin_roll;
+  float cos_pitch;
+  float sin_pitch;
+
+  cos_roll = cos(ahrs_float.ltp_to_imu_euler.phi);
+  sin_roll = sin(ahrs_float.ltp_to_imu_euler.phi);
+  cos_pitch = cos(ahrs_float.ltp_to_imu_euler.theta);
+  sin_pitch = sin(ahrs_float.ltp_to_imu_euler.theta);
+
+
+  // Pitch&Roll Compensation:
+  MAG_Heading_X = imu.mag.x*cos_pitch+imu.mag.y*sin_roll*sin_pitch+imu.mag.z*cos_roll*sin_pitch;
+  MAG_Heading_Y = imu.mag.y*cos_roll-imu.mag.z*sin_roll;
+
+/*
+ *
+  // Magnetic Heading
+  Heading = atan2(-Head_Y,Head_X);
+
+  // Declination correction (if supplied)
+  if( declination != 0.0 )
+  {
+      Heading = Heading + declination;
+      if (Heading > M_PI)    // Angle normalization (-180 deg, 180 deg)
+          Heading -= (2.0 * M_PI);
+      else if (Heading < -M_PI)
+          Heading += (2.0 * M_PI);
+  }
+
+  // Optimization for external DCM use. Calculate normalized components
+  Heading_X = cos(Heading);
+  Heading_Y = sin(Heading);
+*/
+
+  struct FloatVect3 ltp_mag;
+
+  ltp_mag.x = MAG_Heading_X;
+  ltp_mag.y = MAG_Heading_Y;
+
+  // Downlink
+  RunOnceEvery(10,DOWNLINK_SEND_IMU_MAG(DefaultChannel, &ltp_mag.x, &ltp_mag.y, &ltp_mag.z));
+
+  // Magnetic Heading
+  // MAG_Heading = atan2(imu.mag.y, -imu.mag.x);
 }
 
 void Normalize(void)
@@ -374,9 +417,10 @@ void Drift_correction(void)
 
 #ifdef USE_MAGNETOMETER
   // We make the gyro YAW drift correction based on compass magnetic heading
-  float mag_heading_x = cos(MAG_Heading);
-  float mag_heading_y = sin(MAG_Heading);
-  errorCourse=(DCM_Matrix[0][0]*mag_heading_y) - (DCM_Matrix[1][0]*mag_heading_x);  //Calculating YAW error
+//  float mag_heading_x = cos(MAG_Heading);
+//  float mag_heading_y = sin(MAG_Heading);
+  // 2D dot product
+  errorCourse=(DCM_Matrix[0][0]*MAG_Heading_Y) + (DCM_Matrix[1][0]*MAG_Heading_X);  //Calculating YAW error
   Vector_Scale(errorYaw,&DCM_Matrix[2][0],errorCourse); //Applys the yaw correction to the XYZ rotation of the aircraft, depeding the position.
 
   Vector_Scale(&Scaled_Omega_P[0],&errorYaw[0],Kp_YAW);
