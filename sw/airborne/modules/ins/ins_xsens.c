@@ -247,7 +247,7 @@ void handle_ins_msg( void) {
   {
     fspeed = 0;
   }
-  float fclimb = -ins_vz * ;
+  float fclimb = -ins_vz;
   float fcourse = atan2f((float)ins_vy, (float)ins_vx);
   EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
 
