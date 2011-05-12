@@ -37,6 +37,7 @@
 
 #ifdef USE_GPS_XSENS
 #include "subsystems/gps.h"
+#include "math/pprz_geodetic_wgs84.h"
 #include "math/pprz_geodetic_float.h"
 #include "subsystems/navigation/common_nav.h" /* needed for nav_utm_zone0 */
 #endif
@@ -301,6 +302,7 @@ void parse_ins_msg( void ) {
         gps.tow = XSENS_DATA_RAWGPS_itow(xsens_msg_buf,offset) * 10;
         gps.lla_pos.lat = RadOfDeg(XSENS_DATA_RAWGPS_lat(xsens_msg_buf,offset));
         gps.lla_pos.lon = RadOfDeg(XSENS_DATA_RAWGPS_lon(xsens_msg_buf,offset));
+        gps.lla_pos.alt = XSENS_DATA_RAWGPS_alt(xsens_msg_buf,offset);
 
 
         /* Set the real UTM zone */
@@ -314,14 +316,18 @@ void parse_ins_msg( void ) {
         /* copy results of utm conversion */
         gps.utm_pos.east = utm_f.east*100;
         gps.utm_pos.north = utm_f.north*100;
+        gps.utm_pos.alt = gps.lla_pos.alt;
+
         ins_x = utm_f.east;
         ins_y = utm_f.north;
-
-        // Altitude: FIXME Xsens gives ellipsoid height and not geoid height
+        // Altitude: Xsens LLH gives ellipsoid height
         ins_z = -(INS_FORMAT)XSENS_DATA_RAWGPS_alt(xsens_msg_buf,offset) / 1000.;
-        gps.hmsl =  XSENS_DATA_RAWGPS_alt(xsens_msg_buf,offset);
-        gps.lla_pos.alt = gps.hmsl;
-        gps.utm_pos.alt = gps.hmsl;
+
+	// Compute geoid (MSL) height
+        float hmsl;
+	WGS84_ELLIPSOID_TO_GEOID(lla_f.lat,lla_f.lon,hmsl);
+        gps.hmsl =  (hmsl * 1000.0f);
+
         ins_vx = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_n(xsens_msg_buf,offset) / 100.;
         ins_vy = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_e(xsens_msg_buf,offset) / 100.;
         ins_vz = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_d(xsens_msg_buf,offset) / 100.;
