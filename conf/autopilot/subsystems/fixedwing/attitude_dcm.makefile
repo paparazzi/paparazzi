@@ -10,6 +10,7 @@ ap.CFLAGS += -DUSE_AHRS
 ap.srcs   += $(SRC_SUBSYSTEMS)/ahrs.c
 ap.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_aligner.c
 ap.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_float_dcm.c
+ap.srcs   += math/pprz_trig_int.c
 
 ifdef AHRS_ALIGNER_LED
   ap.CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)

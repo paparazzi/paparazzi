@@ -74,7 +74,7 @@
 #ifdef USE_AHRS
 #include "subsystems/ahrs.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
-#include "subsystems/ahrs/ahrs_float_dcm.h"
+#include AHRS_TYPE_H
 static inline void on_gyro_accel_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
@@ -401,6 +401,12 @@ static inline void attitude_loop( void ) {
 #endif
 
 }
+
+#ifdef USE_IMU
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+volatile uint8_t new_ins_attitude = 0;
+#endif
+#endif
 
 void periodic_task_ap( void ) {
 
@@ -731,15 +737,21 @@ static inline void on_gyro_accel_event( void ) {
     LED_OFF(AHRS_CPU_LED);
 #endif
 
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+  new_ins_attitude = 1;
+#endif
+
 }
 
-static inline void on_mag_event(void) {
-  /*
+static inline void on_mag_event(void)
+{
+#ifdef IMU_MAG_X_SIGN
   ImuScaleMag(imu);
   if (ahrs.status == AHRS_RUNNING) {
     ahrs_update_mag();
-    ahrs_update_fw_estimator();
+//    ahrs_update_fw_estimator();
   }
-  */
+#endif
 }
 #endif // USE_AHRS
+

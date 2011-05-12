@@ -213,6 +213,12 @@ void ahrs_update_accel(void)
 
   ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
 
+  // DCM filter uses g-force as positive
+  // accelerometer measures [0 0 -g] in a static case
+  accel_float.x = -accel_float.x;
+  accel_float.y = -accel_float.y;
+  accel_float.z = -accel_float.z;
+
 #ifdef USE_GPS
   if (gps_mode==3) {    //Remove centrifugal acceleration.
     accel_float.y += gps_speed_3d/100. * Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ

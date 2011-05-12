@@ -1,6 +1,8 @@
 #ifndef AHRS_FLOAT_UTILS_H
 #define AHRS_FLOAT_UTILS_H
 
+#include "subsystems/ahrs/ahrs_magnetic_field_model.h"
+
 static inline void ahrs_float_get_euler_from_accel_mag(struct FloatEulers* e, struct Int32Vect3* accel, struct Int32Vect3* mag) {
   /* get phi and theta from accelerometer */
   struct FloatVect3 accelf;
