@@ -32,6 +32,7 @@
 
 #include "generated/airframe.h"
 
+#include "sys_time.h"
 #include "downlink.h"
 #include "messages.h"
 
@@ -225,7 +226,7 @@ void handle_ins_msg( void) {
 
 
   // Send to Estimator (Control)
-  EstimatorSetAtt(ins_phi, ins_psi, ins_theta);
+  EstimatorSetAtt(ins_phi+ins_roll_neutral, ins_psi, ins_theta+ins_pitch_neutral);
   EstimatorSetRate(ins_p,ins_q);
 
   // Position
@@ -236,13 +237,17 @@ void handle_ins_msg( void) {
   EstimatorSetPosXY(gps_east, gps_north);
 
   // Altitude and vertical speed
-  EstimatorSetAlt(-ins_z);
+  float hmsl = gps.hmsl;
+  hmsl /= 1000.0f;
+  EstimatorSetAlt(hmsl);
 
   // Horizontal speed
   float fspeed = sqrt(ins_vx*ins_vx + ins_vy*ins_vy);
   if (gps.fix != GPS_FIX_3D)
+  {
     fspeed = 0;
-  float fclimb = -ins_vz;
+  }
+  float fclimb = -ins_vz * ;
   float fcourse = atan2f((float)ins_vy, (float)ins_vx);
   EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
 
@@ -251,7 +256,6 @@ void handle_ins_msg( void) {
   gps.gspeed = fspeed * 100.;
   gps.speed_3d = (uint16_t)(sqrt(ins_vx*ins_vx + ins_vy*ins_vy + ins_vz*ins_vz) * 100);
   gps.course = fcourse * 1e7;
-  // reset_gps_watchdog();
 }
 
 void parse_ins_msg( void ) {
@@ -269,6 +273,8 @@ void parse_ins_msg( void ) {
   else if (xsens_id == XSENS_GPSStatus_ID) {
     gps.nb_channels = XSENS_GPSStatus_nch(xsens_msg_buf);
     gps.num_sv = 0;
+
+    gps.last_fix_time = cpu_time_sec;
 
     uint8_t i;
     // Do not write outside buffer
@@ -297,7 +303,10 @@ void parse_ins_msg( void ) {
       }
       if (XSENS_MASK_RAWGPS(xsens_output_mode)) {
 #if defined(USE_GPS_XSENS_RAW_DATA) && defined(USE_GPS_XSENS)
-    LED_TOGGLE(3);
+#ifdef GPS_LED
+    LED_TOGGLE(GPS_LED);
+#endif
+        gps.last_fix_time = cpu_time_sec;
         gps.week = 0; // FIXME
         gps.tow = XSENS_DATA_RAWGPS_itow(xsens_msg_buf,offset) * 10;
         gps.lla_pos.lat = RadOfDeg(XSENS_DATA_RAWGPS_lat(xsens_msg_buf,offset));
@@ -326,11 +335,11 @@ void parse_ins_msg( void ) {
 	// Compute geoid (MSL) height
         float hmsl;
 	WGS84_ELLIPSOID_TO_GEOID(lla_f.lat,lla_f.lon,hmsl);
-        gps.hmsl =  (hmsl * 1000.0f);
+        gps.hmsl =  XSENS_DATA_RAWGPS_alt(xsens_msg_buf,offset) - (hmsl * 1000.0f);
 
-        ins_vx = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_n(xsens_msg_buf,offset) / 100.;
-        ins_vy = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_e(xsens_msg_buf,offset) / 100.;
-        ins_vz = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_d(xsens_msg_buf,offset) / 100.;
+        ins_vx = ((INS_FORMAT)XSENS_DATA_RAWGPS_vel_n(xsens_msg_buf,offset)) / 100.;
+        ins_vy = ((INS_FORMAT)XSENS_DATA_RAWGPS_vel_e(xsens_msg_buf,offset)) / 100.;
+        ins_vz = ((INS_FORMAT)XSENS_DATA_RAWGPS_vel_d(xsens_msg_buf,offset)) / 100.;
         gps.ned_vel.x = XSENS_DATA_RAWGPS_vel_n(xsens_msg_buf,offset);
         gps.ned_vel.y = XSENS_DATA_RAWGPS_vel_e(xsens_msg_buf,offset);
         gps.ned_vel.z = XSENS_DATA_RAWGPS_vel_d(xsens_msg_buf,offset);
@@ -405,6 +414,8 @@ void parse_ins_msg( void ) {
       }
       if (XSENS_MASK_Position(xsens_output_mode)) {
 #if (!defined(USE_GPS_XSENS_RAW_DATA)) && defined(USE_GPS_XSENS)
+        gps.last_fix_time = cpu_time_sec;
+
         lla_f.lat = RadOfDeg(XSENS_DATA_Position_lat(xsens_msg_buf,offset));
         lla_f.lon = RadOfDeg(XSENS_DATA_Position_lon(xsens_msg_buf,offset));
         gps.lla_pos.lat = (int32_t)(lla_f.lat * 1e7);

@@ -8,8 +8,8 @@
 
   <servos>
     <servo name="THROTTLE" no="0" min="1100" neutral="1100" max="1900"/>
-    <servo name="AILERON_LEFT" no="2" min="1100" neutral="1500" max="1900"/>
-    <servo name="AILERON_RIGHT" no="6" min="1100" neutral="1500" max="1900"/>
+    <servo name="AILERON_LEFT" no="2" min="900" neutral="1500" max="2100"/>
+    <servo name="AILERON_RIGHT" no="6" min="900" neutral="1500" max="2100"/>
     <servo name="ELEVATOR" no="7" min="1900" neutral="1500" max="1100"/>
     <servo name="RUDDER" no="3" min="1100" neutral="1500" max="1900"/>
   </servos>
@@ -31,7 +31,7 @@
   </rc_commands>
 
   <section name="SERVO_MIXER_GAINS">
-    <define name="AILERON_NEUTRAL" value="0.45f"/>
+    <define name="AILERON_NEUTRAL" value="0.3f"/>
 
     <define name="AILERON_RATE_UP" value="1.0f"/>
     <define name="AILERON_RATE_DOWN" value="0.5f"/>
@@ -67,7 +67,7 @@
     <set servo="AILERON_LEFT" value="($aileron_up * $leftturn) + ($aileron_down * $rightturn) - $brake_value*(BRAKE_AILEVON) - (MAX_PPRZ * AILERON_NEUTRAL)"/>
     <set servo="AILERON_RIGHT" value="($aileron_up * $rightturn) + ($aileron_down * $leftturn) + $brake_value*(BRAKE_AILEVON) + (MAX_PPRZ *AILERON_NEUTRAL)"/>
 
-    <set servo="RUDDER" value="@YAW"/>
+    <set servo="RUDDER" value="@YAW + @ROLL * 0.3"/>
     <set servo="THROTTLE" value="@THROTTLE"/>
 
     <!-- Pitch with Brake-Trim Function -->
@@ -75,12 +75,12 @@
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="0.7"/>
-    <define name="MAX_PITCH" value="0.7"/>
+    <define name="MAX_ROLL" value="RadOfDeg(75)"/>
+    <define name="MAX_PITCH" value="RadOfDeg(45)"/>
   </section>
 
   <section name="BAT">
-    <define name="MilliAmpereOfAdc(adc)" value="((adc) - 505) * 124.0f"/>
+<!--    <define name="MilliAmpereOfAdc(adc)" value="((adc) - 505) * 124.0f"/> -->
 
     <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="10" unit="V"/>
@@ -110,54 +110,56 @@
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="-0.03"/>
+    <define name="ALTITUDE_PGAIN" value="-0.108000002801"/>
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.32"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.57800000906"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.65"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-4000"/>
-    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.01"/>
-    <define name="AUTO_THROTTLE_IGAIN" value="0.1"/>
-    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.05"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.108999997377" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0."/>
+    <define name="AUTO_THROTTLE_IGAIN" value="0."/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.324999988079"/>
 
     <define name="THROTTLE_SLEW_LIMITER" value="2" unit="s"/>
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-1.20000004768"/>
-    <define name="COURSE_DGAIN" value="0.3"/>
-    <define name="COURSE_PRE_BANK_CORRECTION" value="0.2"/>
+    <define name="COURSE_DGAIN" value="0.300000011921"/>
+    <define name="COURSE_PRE_BANK_CORRECTION" value="1.01600003242"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="0.75" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.851999998093" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
-    <define name="PITCH_PGAIN" value="-12000."/>
-    <define name="PITCH_DGAIN" value="1.5"/>
+    <define name="PITCH_PGAIN" value="-13476.5615234"/>
+    <define name="PITCH_DGAIN" value="7.73400020599"/>
 
-    <define name="ELEVATOR_OF_ROLL" value="1000."/>
+    <define name="ELEVATOR_OF_ROLL" value="3007.81298828"/>
 
     <define name="ROLL_SLEW" value="1."/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-7500"/>
-    <define name="ROLL_RATE_GAIN" value="0."/>
+    <define name="ROLL_ATTITUDE_GAIN" value="-11718.75"/>
+    <define name="ROLL_RATE_GAIN" value="-820.312011719"/>
   </section>
 
+<!--
   <section name="AGGRESSIVE" prefix="AGR_">
-    <define name="BLEND_START" value="20"/><!-- Altitude Error to Initiate Aggressive Climb CANNOT BE ZERO!!-->
-    <define name="BLEND_END" value="10"/><!-- Altitude Error to Blend Aggressive to Regular Climb Modes  CANNOT BE ZERO!!-->
-    <define name="CLIMB_THROTTLE" value="1.00"/><!-- Gaz for Aggressive Climb -->
-    <define name="CLIMB_PITCH" value="0.3"/><!-- Pitch for Aggressive Climb -->
-    <define name="DESCENT_THROTTLE" value="0.1"/><!-- Gaz for Aggressive Decent -->
-    <define name="DESCENT_PITCH" value="-0.25"/><!-- Pitch for Aggressive Decent -->
-    <define name="CLIMB_NAV_RATIO" value="0.8"/><!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
+    <define name="BLEND_START" value="20"/>
+    <define name="BLEND_END" value="10"/>
+    <define name="CLIMB_THROTTLE" value="1.00"/>
+    <define name="CLIMB_PITCH" value="0.3"/>
+    <define name="DESCENT_THROTTLE" value="0.1"/>
+    <define name="DESCENT_PITCH" value="-0.25"/>
+    <define name="CLIMB_NAV_RATIO" value="0.8"/>
     <define name="DESCENT_NAV_RATIO" value="1.0"/>
   </section>
+-->
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
     <define name="DEFAULT_THROTTLE" value="0.35" unit="%"/>
@@ -180,19 +182,19 @@
       <configure name="XSENS_UART_NR" value="0"/>
     </load>
 
-<!--    <load name="light.xml">
+    <load name="light.xml">
       <define name="LIGHT_LED_STROBE" value="3"/>
       <define name="LIGHT_LED_NAV" value="2"/>
       <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
       <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
     </load>
 
-    <load name="digital_cam_i2c.xml"/>  -->
-  <!--    <load name="ins_ppzuavimu.xml"/>  
-    <load name="digital_cam.xml" >
+<!--    <load name="digital_cam_i2c.xml"/>  -->
+  <!--    <load name="ins_ppzuavimu.xml"/>  -->
+    <load name="digital_cam.xml">
       <define name="DC_SHUTTER_LED" value="2"/>
     </load>
--->
+
   </modules>
 
   <firmware name="fixedwing">
@@ -202,7 +204,10 @@
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
       <define name="LOITER_TRIM"/>
+<!--
       <define name="ALT_KALMAN"/>
+      <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
+-->
     </target>
     <target name="sim" board="pc"/>
 
@@ -219,9 +224,7 @@
     <subsystem name="navigation"/>
     <subsystem name="gps" type="xsens"/>
 
-<!--
     <subsystem name="i2c"/>
--->
 
 </firmware>
 
