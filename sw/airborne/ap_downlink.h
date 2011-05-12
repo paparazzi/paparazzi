@@ -142,8 +142,10 @@
 #include "subsystems/imu.h"
 #define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) { DOWNLINK_SEND_IMU_ACCEL_RAW(_chan, &imu.accel_unscaled.x, &imu.accel_unscaled.y, &imu.accel_unscaled.z)}
 #define PERIODIC_SEND_IMU_GYRO_RAW(_chan) { DOWNLINK_SEND_IMU_GYRO_RAW(_chan, &imu.gyro_unscaled.p, &imu.gyro_unscaled.q, &imu.gyro_unscaled.r)}
+#define PERIODIC_SEND_IMU_MAG_RAW(_chan) { DOWNLINK_SEND_IMU_MAG_RAW(_chan, &imu.mag_unscaled.x, &imu.mag_unscaled.y, &imu.mag_unscaled.z)}
 #define PERIODIC_SEND_IMU_ACCEL(_chan) { struct FloatVect3 accel_float; ACCELS_FLOAT_OF_BFP(accel_float, imu.accel); DOWNLINK_SEND_IMU_ACCEL(_chan, &accel_float.x, &accel_float.y, &accel_float.z)}
 #define PERIODIC_SEND_IMU_GYRO(_chan) { struct FloatRates gyro_float; RATES_FLOAT_OF_BFP(gyro_float, imu.gyro); DOWNLINK_SEND_IMU_GYRO(_chan, &gyro_float.p, &gyro_float.q, &gyro_float.r)}
+#define PERIODIC_SEND_IMU_MAG(_chan) { struct FloatVect3 mag_float; MAGS_FLOAT_OF_BFP(mag_float, imu.mag); DOWNLINK_SEND_IMU_MAG(_chan, &mag_float.x, &mag_float.y, &mag_float.z)}
 #else
 #define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) {}
 #define PERIODIC_SEND_IMU_GYRO_RAW(_chan) {}
@@ -184,11 +186,10 @@
 #define PERIODIC_SEND_GPS_SOL(_chan) DOWNLINK_SEND_GPS_SOL(_chan, &gps.pacc, &gps.sacc, &gps.pdop, &gps.num_sv)
 #endif
 
-//#define PERIODIC_SEND_GPS(_chan) gps_send() /* also sends svinfo */
 #define PERIODIC_SEND_GPS(_chan) {                                      \
     static uint8_t i;                                                   \
     int16_t climb = -gps.ned_vel.z;                                     \
-    int16_t course = DegOfRad(estimator_hspeed_dir * 10);                        \
+    int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));             \
     DOWNLINK_SEND_GPS(DefaultChannel, &gps.fix, &gps.utm_pos.east, &gps.utm_pos.north, &course, &gps.lla_pos.alt, &gps.gspeed, &climb, &gps.week, &gps.tow, &gps.utm_pos.zone, &i); \
     if ((gps.fix != GPS_FIX_3D) && (i >= gps.nb_channels)) i = 0;                                    \
     if (i >= gps.nb_channels * 2) i = 0;                                    \
