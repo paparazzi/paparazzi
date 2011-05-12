@@ -349,13 +349,14 @@ let eval_input = fun buttons axis input ->
 let scale = fun x min max ->
   min + ((x - min_input) * (max - min)) / (max_input - min_input)
 
-(** Fit a given interval of value into [min_input; max_input] *)
-let fit = fun x min max min_input max_input ->
-  min_input + ((x - min) * (max_input - min_input)) / (max - min)
-
 (** Scale a value in the given bounds *)
 let bound = fun x min max ->
   if x < min then min else (if x > max then max else x)
+
+(** Fit a given interval of value into [min_input; max_input] *)
+let fit = fun x min max min_input max_input ->
+  let v = min_input + ((x - min) * (max_input - min_input)) / (max - min) in
+  bound v min_input max_input
 
 (** Return a pprz RC mode
   * mode > max -> 2
@@ -371,7 +372,8 @@ let pprz_mode = fun mode ->
 (** Eval a function call (TO BE COMPLETED) *)
 let eval_call = fun f args ->
   match f, args with
-    "-", [a1; a2] -> a1 - a2
+    "-", [a] -> - a
+  | "-", [a1; a2] -> a1 - a2
   | "+", [a1; a2] -> a1 + a2
   | "*", [a1; a2] -> a1 * a2
   | "%", [a1; a2] -> a1 / a2

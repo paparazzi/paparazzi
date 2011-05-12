@@ -5,18 +5,9 @@
     <file name="cartography.h"/>
   </header>
   <init fun="init_carto()"/>
-  <periodic fun="periodic_1Hz_carto()" freq="1." start="start_carto()" stop="stop_carto()" autorun="TRUE"/>
-  <periodic fun="periodic_10Hz_carto()" period="0.1" start="start_carto()" stop="stop_carto()" autorun="FALSE"/>
+  <periodic fun="periodic_downlink_carto()" freq="2." autorun="FALSE"/>
   <makefile>
-    <raw>
-#Exemple of RAW makefile part
-    </raw>
-    <define name="DEMO_MODULE_LED" value="2"/>
     <file name="cartography.c"/>
-  </makefile>
-  <makefile target="sim">
-    <define name="SOME_FLAG"/>
-    <configure name="SOME_DEFINE" value="bla"/>
   </makefile>
 </module>
 

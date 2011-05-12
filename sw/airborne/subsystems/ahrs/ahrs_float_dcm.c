@@ -216,10 +216,10 @@ void ahrs_update_accel(void)
 
   // DCM filter uses g-force as positive
   // accelerometer measures [0 0 -g] in a static case
-
   accel_float.x = -accel_float.x;
   accel_float.y = -accel_float.y;
   accel_float.z = -accel_float.z;
+
 
 #ifdef USE_GPS
   if (gps.fix == GPS_FIX_3D) {    //Remove centrifugal acceleration.

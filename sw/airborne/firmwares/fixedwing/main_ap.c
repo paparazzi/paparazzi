@@ -744,3 +744,4 @@ static inline void on_mag_event(void)
 #endif
 }
 #endif // USE_AHRS
+
