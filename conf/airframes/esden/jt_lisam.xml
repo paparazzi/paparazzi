@@ -17,6 +17,11 @@
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
+
+  <command_laws>
+    <set servo="AILEVON_LEFT"         value="@YAW"/>
+    <set servo="AILEVON_RIGHT"        value="@YAW"/>
+  </command_laws>
   
   <!-- for the sim -->
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
