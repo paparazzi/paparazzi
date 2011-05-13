@@ -27,6 +27,7 @@
  */
 
 #include "ins_module.h"
+#include "ins_xsens.h"
 
 #include <inttypes.h>
 
@@ -165,11 +166,25 @@ uint8_t xsens_msg_buf[XSENS_MAX_PAYLOAD];
 #define GOT_DATA      5
 #define GOT_CHECKSUM  6
 
+// FIXME Debugging Only
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+#include "mcu_periph/uart.h"
+#include "messages.h"
+#include "downlink.h"
+
+
 uint8_t xsens_errorcode;
 uint8_t xsens_msg_status;
 uint16_t xsens_time_stamp;
 uint16_t xsens_output_mode;
 uint32_t xsens_output_settings;
+float xsens_declination = 0;
+float xsens_gps_arm_x = 0;
+float xsens_gps_arm_y = 0;
+float xsens_gps_arm_z = 0;
+
 
 int8_t xsens_hour;
 int8_t xsens_min;
@@ -189,9 +204,12 @@ uint8_t send_ck;
 struct LlaCoor_f lla_f;
 struct UtmCoor_f utm_f;
 
+volatile int xsens_configured = 0;
+
 void ins_init( void ) {
 
   xsens_status = UNINIT;
+  xsens_configured = 20;
 
   ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
   ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
@@ -200,23 +218,65 @@ void ins_init( void ) {
   xsens_time_stamp = 0;
   xsens_output_mode = XSENS_OUTPUT_MODE;
   xsens_output_settings = XSENS_OUTPUT_SETTINGS;
-  /* send mode and settings to MT */
-  XSENS_GoToConfig();
-  XSENS_SetOutputMode(xsens_output_mode);
-  XSENS_SetOutputSettings(xsens_output_settings);
-
-  uint8_t baud = 1;
-  XSENS_SetBaudrate(baud);
-  // Give pulses on SyncOut
-  XSENS_SetSyncOutSettings(0,0x0002);
-  // 1 pulse every 100 samples
-  // XSENS_SetSyncOutSettings(1,100);
-  //XSENS_GoToMeasurment();
 
   gps.nb_channels = 0;
 }
 
 void ins_periodic_task( void ) {
+  if (xsens_configured > 0)
+  {
+     switch (xsens_configured)
+     {
+	case 20:
+		/* send mode and settings to MT */
+		XSENS_GoToConfig();
+		XSENS_SetOutputMode(xsens_output_mode);
+		XSENS_SetOutputSettings(xsens_output_settings);
+		break;
+	case 18:
+		// Give pulses on SyncOut
+		XSENS_SetSyncOutSettings(0,0x0002);
+		break;
+	case 17:
+		// 1 pulse every 100 samples
+		XSENS_SetSyncOutSettings(1,100);
+		break;
+	case 2:
+		XSENS_ReqLeverArmGps();
+		break;
+
+	case 6:
+		XSENS_ReqMagneticDeclination();
+		break;
+
+	case 13:
+		#ifdef AHRS_H_X
+		#warning Sending XSens Magnetic Declination
+		xsens_declination = atan2(AHRS_H_Y, AHRS_H_X);
+		XSENS_SetMagneticDeclination(xsens_declination);
+		#endif
+		break;
+	case 12:
+		#ifdef GPS_IMU_LEVER_ARM_X
+		#warning Sending XSens GPS Arm
+		XSENS_SetLeverArmGps(GPS_IMU_LEVER_ARM_X,GPS_IMU_LEVER_ARM_Y,GPS_IMU_LEVER_ARM_Z);
+		#endif
+		break;
+	case 10:
+		{
+		uint8_t baud = 1;
+		XSENS_SetBaudrate(baud);
+		}
+		break;
+
+	case 1:
+		XSENS_GoToMeasurment();
+		break;
+     }
+     xsens_configured--;
+     return;
+  }
+
   RunOnceEvery(100,XSENS_ReqGPSStatus());
 }
 
@@ -256,6 +316,7 @@ void handle_ins_msg( void) {
   gps.gspeed = fspeed * 100.;
   gps.speed_3d = (uint16_t)(sqrt(ins_vx*ins_vx + ins_vy*ins_vy + ins_vz*ins_vz) * 100);
   gps.course = fcourse * 1e7;
+
 }
 
 void parse_ins_msg( void ) {
@@ -265,6 +326,18 @@ void parse_ins_msg( void ) {
   }
   else if (xsens_id == XSENS_ReqOutputSettings_ID) {
     xsens_output_settings = XSENS_ReqOutputSettingsAck_settings(xsens_msg_buf);
+  }
+  else if (xsens_id == XSENS_ReqMagneticDeclinationAck_ID) {
+    xsens_declination = DegOfRad (XSENS_ReqMagneticDeclinationAck_declination(xsens_msg_buf) );
+
+    DOWNLINK_SEND_IMU_MAG_SETTINGS(DefaultChannel,&xsens_declination,&xsens_declination,&xsens_gps_arm_x,&xsens_gps_arm_y,&xsens_gps_arm_z);
+  }
+  else if (xsens_id == XSENS_ReqLeverArmGpsAck_ID) {
+    xsens_gps_arm_x = XSENS_ReqLeverArmGpsAck_x(xsens_msg_buf);
+    xsens_gps_arm_y = XSENS_ReqLeverArmGpsAck_y(xsens_msg_buf);
+    xsens_gps_arm_z = XSENS_ReqLeverArmGpsAck_z(xsens_msg_buf);
+
+    DOWNLINK_SEND_IMU_MAG_SETTINGS(DefaultChannel,&xsens_declination,&xsens_declination,&xsens_gps_arm_x,&xsens_gps_arm_y,&xsens_gps_arm_z);
   }
   else if (xsens_id == XSENS_Error_ID) {
     xsens_errorcode = XSENS_Error_errorcode(xsens_msg_buf);

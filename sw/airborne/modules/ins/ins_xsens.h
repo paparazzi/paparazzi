@@ -42,5 +42,4 @@ extern uint8_t xsens_msg_status;
 extern uint16_t xsens_time_stamp;
 
 
-
 #endif

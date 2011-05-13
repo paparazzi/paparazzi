@@ -11,6 +11,7 @@
   <event fun="InsEventCheckAndHandle(handle_ins_msg())"/>
   <makefile>
     <define name="AHRS_TYPE_H" value="\\\"modules/ins/ins_xsens.h\\\"" />
+    <define name="INS_MODULE_H" value="\\\"modules/ins/ins_xsens.h\\\"" />
     <define name="USE_UART$(XSENS_UART_NR)"/>
     <define name="INS_LINK" value="Uart$(XSENS_UART_NR)"/>
     <define name="UART$(XSENS_UART_NR)_BAUD" value="B230400"/>

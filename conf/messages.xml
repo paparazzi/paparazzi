@@ -1567,7 +1567,14 @@
     <field name="mz" type="int32" unit="adc"/>
   </message>
 
-  <!--206 is free -->
+  <message name="IMU_MAG_SETTINGS" id="206">
+    <field name="inclination" type="float" />
+    <field name="declination" type="float" />
+    <field name="hardiron_x" type="float" />
+    <field name="hardiron_y" type="float" />
+    <field name="hardiron_z" type="float" />
+  </message>
+
   <!--207 is free -->
   <!--208 is free -->
 
