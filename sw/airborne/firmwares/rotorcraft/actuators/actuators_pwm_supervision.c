@@ -31,6 +31,10 @@
 
 #include "generated/airframe.h"
 
+#define actuators actuators_pwm_values
+#define Actuator(_x) actuators_pwm_values[_x]
+#define ActuatorsCommit() do { } while(0);
+
 int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
 void actuators_init(void)
