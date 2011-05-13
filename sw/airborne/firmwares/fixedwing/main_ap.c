@@ -410,7 +410,7 @@ static inline void attitude_loop( void ) {
 
 }
 
-#ifdef USE_IMU
+#ifdef USE_AHRS
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
 volatile uint8_t new_ins_attitude = 0;
 #endif
