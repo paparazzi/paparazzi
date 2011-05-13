@@ -135,8 +135,8 @@ void gps_ubx_read_message(void) {
 #ifdef GPS_USE_LATLONG
       /* Computes from (lat, long) in the referenced UTM zone */
       struct LlaCoor_f lla_f;
-      lla_f.lat = (float) gps.lla_pos.lat * 1e7;
-      lla_f.lon = (float) gps.lla_pos.lat * 1e7;
+      lla_f.lat = ((float) gps.lla_pos.lat) / 1e7;
+      lla_f.lon = ((float) gps.lla_pos.lon) / 1e7;
       struct UtmCoor_f utm_f;
       utm_f.zone = nav_utm_zone0;
       /* convert to utm */
