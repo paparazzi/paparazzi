@@ -236,8 +236,6 @@ void ahrs_update_mag(void)
 {
 #ifdef USE_MAGNETOMETER
 #warning MAGNETOMETER FEEDBACK NOT TESTED YET
-#endif
-
 
   float cos_roll;
   float sin_roll;
@@ -284,6 +282,7 @@ void ahrs_update_mag(void)
 
   // Magnetic Heading
   // MAG_Heading = atan2(imu.mag.y, -imu.mag.x);
+#endif
 }
 
 void Normalize(void)
