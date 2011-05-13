@@ -54,7 +54,7 @@ void actuators_set(bool_t motors_on) {
     for (int i = 0; i < SUPERVISION_NB_MOTOR; i++)
       actuators_pwm_values[i] = supervision.commands[i];
   } else {
-    for (int i = 0; i < ACTUATORS_PWM_NB; i++)
+    for (int i = 0; i < SUPERVISION_NB_MOTOR; i++)
       actuators_pwm_values[i] = PWM_OFF;
   }
   actuators_pwm_commit();
