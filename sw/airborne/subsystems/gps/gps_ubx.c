@@ -155,6 +155,8 @@ void gps_ubx_read_message(void) {
       if (hem == UTM_HEM_SOUTH)
         gps.utm_pos.north -= 1000000000; /* Subtract false northing: -10000km */
       gps.utm_pos.alt = UBX_NAV_POSUTM_ALT(gps_ubx.msg_buf)*10;
+      gps.hmsl = gps.utm_pos.alt;
+      gps.lla_pos.alt = gps.utm_pos.alt; // FIXME: with UTM only you do not receive ellipsoid altitude
       gps.utm_pos.zone = UBX_NAV_POSUTM_ZONE(gps_ubx.msg_buf);
 #endif
     }
