@@ -38,6 +38,19 @@
 #define SUPERVISION_MIN_MOTOR_STARTUP SUPERVISION_MIN_MOTOR
 #endif
 
+#if defined (SUPERVISION_MAX_NEGATIVE_MOTOR_STEP) || defined (SUPERVISION_MAX_POSITIVE_MOTOR_STEP)
+#define SUPERVISION_USE_MAX_MOTOR_STEP_BINDING
+
+#ifndef SUPERVISION_MAX_NEGATIVE_MOTOR_STEP
+#define SUPERVISION_MAX_NEGATIVE_MOTOR_STEP INT32_MIN
+#endif
+/*
+#ifndef SUPERVISION_MAX_POSITIVE_MOTOR_STEP
+#define SUPERVISION_MAX_POSITIVE_MOTOR_STEP INT32_MAX
+#endif
+*/
+#endif
+
 static const int32_t roll_coef[SUPERVISION_NB_MOTOR]   = SUPERVISION_ROLL_COEF;
 static const int32_t pitch_coef[SUPERVISION_NB_MOTOR]  = SUPERVISION_PITCH_COEF;
 static const int32_t yaw_coef[SUPERVISION_NB_MOTOR]    = SUPERVISION_YAW_COEF;
@@ -71,6 +84,31 @@ __attribute__ ((always_inline)) static inline void bound_commands(void) {
     Bound(supervision.commands[j],
           SUPERVISION_MIN_MOTOR, SUPERVISION_MAX_MOTOR);
 }
+
+#ifdef SUPERVISION_USE_MAX_MOTOR_STEP_BINDING
+__attribute__ ((always_inline)) static inline void bound_commands_step(void) {
+  uint8_t j;
+  static int32_t prev_commands[SUPERVISION_NB_MOTOR];
+  static uint8_t initialized = 0;
+
+  if (initialized == 1) {
+    for (j=0; j<SUPERVISION_NB_MOTOR; j++) {
+      int32_t new_command_diff = supervision.commands[j] - prev_commands[j];
+      Bound(new_command_diff,
+            SUPERVISION_MAX_NEGATIVE_MOTOR_STEP, SUPERVISION_MAX_POSITIVE_MOTOR_STEP);
+      supervision.commands[j] = prev_commands[j] + new_command_diff;
+    }
+  }else{
+    initialized = 1;
+  }
+
+  for (j=0; j<SUPERVISION_NB_MOTOR; j++)
+    prev_commands[j] = supervision.commands[j];
+}
+#else
+__attribute__ ((always_inline)) static inline void bound_commands_step(void) {
+}
+#endif
 
 void supervision_run_spinup(uint32_t counter, uint32_t max_counter)
 {
@@ -126,6 +164,7 @@ void supervision_run(bool_t motors_on, bool_t override_on, int32_t in_cmd[] ) {
       }
     }
     bound_commands();
+    bound_commands_step();
   }
   else
     for (i=0; i<SUPERVISION_NB_MOTOR; i++)

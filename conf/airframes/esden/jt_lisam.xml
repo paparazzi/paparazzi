@@ -1,12 +1,14 @@
-<!-- this is a microkopter frame equiped with Lisa/L and generic china pwm motor controllers -->
+<!-- this is a synerani vehicle equiped with Lisa/M and generic china pwm motor controllers -->
 
-<airframe name="lisa_pwm_aspirin">
+<airframe name="jt_lisam">
 
   <servos min="0" neutral="0" max="0xff">
-    <servo name="FRONT"   no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="BACK"    no="1" min="1000" neutral="1000" max="2000"/>
-    <servo name="LEFT"    no="2" min="1000" neutral="1000" max="2000"/>
-    <servo name="RIGHT"   no="3" min="1000" neutral="1000" max="2000"/>
+    <servo name="A1"            no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="A2"            no="1" min="1000" neutral="1000" max="2000"/>
+    <servo name="B1"            no="2" min="1000" neutral="1000" max="2000"/>
+    <servo name="B2"            no="3" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILEVON_LEFT"  no="4" min="1000" neutral="1500" max="2000"/>
+    <servo name="AILEVON_RIGHT" no="5" min="1000" neutral="1500" max="2000"/>
   </servos>
 
   <commands>
@@ -15,20 +17,21 @@
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
-
+  
+  <!--
   <command_laws>
-    <!--<let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
+    <let var="aildderon"  value="@ROLL  * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
     <set servo="MOTOR"         value="@THROTTLE"/>
     <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
-    -->
     <set servo="FRONT" value="0"/>
     <set servo="BACK" value="1"/>
     <set servo="LEFT" value="2"/>
     <set servo="RIGHT" value="3"/>
 
   </command_laws>
+  -->
 
   <!-- for the sim -->
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
@@ -45,20 +48,19 @@
     <define name="TRIM_R" value="0"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
-    <define name="ROLL_COEF"   value="{  0  ,    0,  256, -256 }"/>
-    <define name="PITCH_COEF"  value="{  256, -256,    0,    0 }"/>
-    <define name="YAW_COEF"    value="{ -256, -256,  256,  256 }"/>
+    <define name="ROLL_COEF"   value="{  256, -256,  256, -256 }"/>
+    <define name="PITCH_COEF"  value="{ -256, -256,  256,  256 }"/>
+    <define name="YAW_COEF"    value="{    0,    0,    0,    0 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
-    <!--define name="MAX_POSITIVE_MOTOR_STEP" value="5"/-->
   </section>
 
   <include href="conf/airframes/esden/calib/aspirin_012.xml"/>
 
   <section name="IMU" prefix="IMU_">
     
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(   0. )"/>
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg( 225. )"/>
+    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg( 180. )"/>
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(  90. )"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(   0. )"/>
 
   </section>
 
@@ -131,15 +133,8 @@
 
   </section>
 
-  <section name="AHRS" prefix="AHRS_">
-    <define name="PROPAGATE_FREQUENCY" value="512"/>
-    <define name="H_X" value=" 0.51562740288882"/>
-    <define name="H_Y" value="-0.05707735220832"/>
-    <define name="H_Z" value=" 0.85490967783446"/>
-  </section>
-
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="10." integer="16"/>
+    <define name="BARO_SENS" value="3.3" integer="16"/>
   </section>
 
  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -150,13 +145,20 @@
    <define name="MAX_SUM_ERR" value="2000000"/>
    <define name="HOVER_KP"    value="-150"/>
    <define name="HOVER_KD"    value="-80"/>
-   <!--define name="HOVER_KI"    value="-100"/-->
-   <define name="HOVER_KI"    value="0"/>
+   <define name="HOVER_KI"    value="-20"/>
    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
    <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
-   <define name="INV_M" value ="0.15"/>
+   <define name="INV_M" value ="0.21"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <define name="PROPAGATE_FREQUENCY" value="512"/>
+    <!-- magnetic field for Santa cruz from http://www.ngdc.noaa.gov/geomagmodels/IGRFWMM.jsp -->
+    <define name="H_X" value=" 0.47577"/>
+    <define name="H_Y" value=" 0.11811"/>
+    <define name="H_Z" value=" 0.87161"/>
   </section>
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
@@ -175,14 +177,14 @@
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
  </section>
 
-<!-- -->
+<!--
  <modules main_freq="512">
    <load name="vehicle_interface_overo_link.xml"/>
  </modules>
-<!-- -->
+-->
 
   <firmware name="rotorcraft">
-    <target name="ap" board="lisa_l_1.1">
+    <target name="ap" board="lisa_m_1.0">
 <!--      <define name="BOOZ_START_DELAY" value="1"/> -->
       <subsystem name="radio_control" type="spektrum"/>
       <subsystem name="actuators"     type="pwm_supervision"/>
@@ -201,46 +203,28 @@
     </target>
 
     <subsystem name="imu"           type="aspirin"/>
-    <subsystem name="gps"           type="ublox">
-	    <configure name="GPS_BAUD"    value="B57600"/>
-    </subsystem>
-    <subsystem name="ahrs"          type="cmpl"/>
-    <!--<subsystem name="ahrs"          type="ic"/>-->
+    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="ahrs"          type="ic"/>
   </firmware>
 
-  <firmware name="lisa_l_test_progs">
-    <target name="test_led"   board="lisa_l_1.1"/>
-    <target name="test_uart"   board="lisa_l_1.1"/>
-    <target name="test_servos"   board="lisa_l_1.1"/>
-    <target name="test_telemetry"   board="lisa_l_1.1"/>
-    <target name="test_baro"        board="lisa_l_1.1"/>
-    <target name="test_imu_b2"      board="lisa_l_1.1"/>
-    <target name="test_imu_b2_2"    board="lisa_l_1.1"/>
-    <target name="test_imu_aspirin" board="lisa_l_1.1"/>
-    <target name="test_rc_spektrum" board="lisa_l_1.1"/>
-    <target name="test_rc_ppm"      board="lisa_l_1.1"/>
-    <target name="test_adc"         board="lisa_l_1.1"/>
-    <target name="test_hmc5843"     board="lisa_l_1.1"/>
-    <target name="test_itg3200"     board="lisa_l_1.1"/>
-    <target name="test_adxl345"             board="lisa_l_1.1"/>
-    <target name="test_esc_mkk_simple"      board="lisa_l_1.1"/>
-    <target name="test_esc_asctecv1_simple" board="lisa_l_1.1"/>
-    <target name="test_actuators_mkk"       board="lisa_l_1.1"/>
-    <target name="test_actuators_asctecv1"  board="lisa_l_1.1"/>
+
+  <firmware name="lisa_m_test_progs">
+    <target name="test_led"			board="lisa_m_1.0"/>
+    <target name="test_uart_lisam"			board="lisa_m_1.0"/>
+    <target name="test_servos"			board="lisa_m_1.0"/>
+    <target name="test_telemetry"		board="lisa_m_1.0"/>
+    <target name="test_imu_aspirin"			board="lisa_m_1.0"/>
+    <target name="test_rc_spektrum"		board="lisa_m_1.0"/>
+    <target name="test_baro"			board="lisa_m_1.0"/>
+    <!--<target name="test_imu"			board="lisa_m_1.0"/>
+    <target name="test_rc_ppm"			board="lisa_m_1.0"/>
+    <target name="test_adc"			board="lisa_m_1.0"/>
+    <target name="test_hmc5843"			board="lisa_m_1.0"/>
+    <target name="test_itg3200"			board="lisa_m_1.0"/>
+    <target name="test_adxl345"			board="lisa_m_1.0"/>
+    <target name="test_esc_mkk_simple"		board="lisa_m_1.0"/>
+    <target name="test_esc_asctecv1_simple"	board="lisa_m_1.0"/>
+    <target name="test_actuators_mkk"		board="lisa_m_1.0"/>
+    <target name="test_actuators_asctecv1"	board="lisa_m_1.0"/-->
   </firmware>
-
-  <firmware name="lisa_passthrough">
-    <target name="overo_test_passthrough" board="lisa_l_1.1"  >
-      <param name="HOST"          value="A7"/>
-      <param name="USER"          value=""/>
-      <param name="TARGET_DIR"    value="~"/>
-      <param name="PERIODIC_FREQ" value="512"/>
-    </target>
-    <target name="stm_passthrough" board="lisa_l_1.1">
-      <subsystem name="radio_control" type="spektrum"/>
-      <subsystem name="imu" type="b2_v1.1"/>
-    </target>
- </firmware>
-
-
 </airframe>
