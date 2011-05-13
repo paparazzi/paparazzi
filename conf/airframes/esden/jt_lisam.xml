@@ -171,6 +171,7 @@
       <subsystem name="actuators"     type="pwm_supervision"/>
       <subsystem name="telemetry"     type="transparent"/>
       <define name="SERVO_HZ" value="400"/>
+      <define name="SERVO_HZ_SECONDARY" value="40"/>
       <define name="RADIO_MODE" value="RADIO_AUX2"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
       <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/>
