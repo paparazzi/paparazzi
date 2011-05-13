@@ -95,6 +95,10 @@ void actuators_pwm_arch_init(void) {
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
   TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+
+#ifdef SERVO_HZ_SECONDARY
+  TIM_TimeBaseStructure.TIM_Period = (ONE_MHZ_CLK / SERVO_HZ_SECONDARY) - 1;
+#endif
   TIM_TimeBaseInit(PWM_5AND6_TIMER, &TIM_TimeBaseStructure);
 #ifdef USE_SERVOS_7AND8
   TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
