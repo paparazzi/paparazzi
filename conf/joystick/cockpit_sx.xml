@@ -8,12 +8,12 @@
     <button index="3" name="mode"/>
   </input>
 
-  <messages period="0.1">
+  <messages period="0.05">
 
     <message class="datalink" name="RC_4CH" send_always="true">
       <field name="mode" value="mode + 1"/> <!-- only AUTO1 and AUTO2 available -->
       <field name="throttle" value="Fit(throttle,-100,100,0,127)"/>
-      <field name="roll" value="Fit(roll,-100,100,-127,127)"/>
+      <field name="roll" value="Fit(-roll,-100,100,-127,127)"/>
       <field name="pitch" value="Fit(pitch,-100,100,-127,127)"/>
       <field name="yaw" value="Fit(yaw,-100,100,-127,127)"/>
     </message>
