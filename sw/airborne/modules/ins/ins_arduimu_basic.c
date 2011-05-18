@@ -34,13 +34,14 @@ Autoren@ZHAW:   schmiemi
 // da ArduIMU das Read/Write Bit selber anfügt.
 #define ArduIMU_SLAVE_ADDR 0x22
 
+#ifdef ARDUIMU_SYNC_SEND
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
+#endif
 
 struct i2c_transaction ardu_gps_trans;
 struct i2c_transaction ardu_ins_trans;
@@ -55,8 +56,11 @@ float ins_roll_neutral;
 float ins_pitch_neutral;
 
 // High Accel Flag
-#define HIGH_ACCEL_LOW_SPEED 2.0
+#define HIGH_ACCEL_LOW_SPEED 15.0
+#define HIGH_ACCEL_LOW_SPEED_RESUME 4.0 // Hysteresis
 #define HIGH_ACCEL_HIGH_THRUST (0.8*MAX_PPRZ)
+#define HIGH_ACCEL_HIGH_THRUST_RESUME (0.1*MAX_PPRZ) // Hysteresis
+bool_t high_accel_done;
 bool_t high_accel_flag;
 
 void ArduIMU_init( void ) {
@@ -70,6 +74,7 @@ void ArduIMU_init( void ) {
   ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
   ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 
+  high_accel_done = FLASE;
   high_accel_flag = FALSE;
 }
 
@@ -87,10 +92,16 @@ void ArduIMU_periodicGPS( void ) {
   // Test for high acceleration:
   //  - low speed
   //  - high thrust
-  if (gps_speed_3d < HIGH_ACCEL_LOW_SPEED && ap_state->commands[COMMAND_THROTTLE]) {
+  if (estimator_hspeed_dir < HIGH_ACCEL_LOW_SPEED && ap_state->commands[COMMAND_THROTTLE] > HIGH_ACCEL_HIGH_THRUST && !high_accel_done) {
     high_accel_flag = TRUE;
   } else {
     high_accel_flag = FALSE;
+    if (estimator_hspeed_dir > HIGH_ACCEL_LOW_SPEED && !high_accel_flag) {
+      high_accel_done = TRUE; // After takeoff, don't use high accel before landing (GS small, Throttle small)
+    }
+    if (estimator_hspeed_dir < HIGH_ACCEL_HIGH_THRUST_RESUME && ap_state->commands[COMMAND_THROTTLE] < HIGH_ACCEL_HIGH_THRUST_RESUME) {
+      high_accel_done = FALSE; // Activate high accel after landing
+    }
   }
 
   FillBufWith32bit(ardu_gps_trans.buf, 0, (int32_t)gps.speed_3d); // speed 3D
@@ -156,9 +167,11 @@ void ArduIMU_event( void ) {
     estimator_p = arduimu_rates.p;
     ardu_ins_trans.status = I2CTransDone;
 
+#ifdef ARDUIMU_SYNC_SEND
     //RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, &arduimu_eulers.phi, &arduimu_eulers.theta, &arduimu_eulers.psi));
     RunOnceEvery(15, DOWNLINK_SEND_IMU_GYRO(DefaultChannel, &arduimu_rates.p, &arduimu_rates.q, &arduimu_rates.r));
     RunOnceEvery(15, DOWNLINK_SEND_IMU_ACCEL(DefaultChannel, &arduimu_accel.x, &arduimu_accel.y, &arduimu_accel.z));
+#endif
   }
   else if (ardu_ins_trans.status == I2CTransFailed) {
     ardu_ins_trans.status = I2CTransDone;
