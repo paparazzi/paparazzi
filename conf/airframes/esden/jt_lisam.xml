@@ -32,7 +32,7 @@
 
   <section name="SUPERVISION" prefix="SUPERVISION_">
     <define name="MIN_MOTOR" value="1100"/>
-    <define name="MAX_MOTOR" value="1900"/>
+    <define name="MAX_MOTOR" value="1850"/>
     <define name="TRIM_A" value="0"/>
     <define name="TRIM_E" value="0"/>
     <define name="TRIM_R" value="0"/>
@@ -89,18 +89,18 @@
 
     <!-- reference -->
     <define name="REF_OMEGA_P"  value="RadOfDeg(600)"/>
-    <define name="REF_ZETA_P"   value="0.85"/>
+    <define name="REF_ZETA_P"   value="0.90"/>
     <define name="REF_MAX_P"    value="RadOfDeg(400.)"/>
     <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
 
-    <define name="REF_OMEGA_Q"  value="RadOfDeg(600)"/>
-    <define name="REF_ZETA_Q"   value="0.85"/>
-    <define name="REF_MAX_Q"    value="RadOfDeg(400.)"/>
+    <define name="REF_OMEGA_Q"  value="RadOfDeg(800)"/>
+    <define name="REF_ZETA_Q"   value="0.90"/>
+    <define name="REF_MAX_Q"    value="RadOfDeg(500.)"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
 
-    <define name="REF_OMEGA_R"  value="RadOfDeg(500)"/>
+    <define name="REF_OMEGA_R"  value="RadOfDeg(600)"/>
     <define name="REF_ZETA_R"   value="0.85"/>
-    <define name="REF_MAX_R"    value="RadOfDeg(180.)"/>
+    <define name="REF_MAX_R"    value="RadOfDeg(220.)"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
@@ -108,12 +108,12 @@
     <define name="PHI_DGAIN"  value="-370"/>
     <define name="PHI_IGAIN"  value="-100"/>
 
-    <define name="THETA_PGAIN"  value="-840"/>
-    <define name="THETA_DGAIN"  value="-270"/>
+    <define name="THETA_PGAIN"  value="-800"/>
+    <define name="THETA_DGAIN"  value="-240"/>
     <define name="THETA_IGAIN"  value="-100"/>
 
-    <define name="PSI_PGAIN"  value="-4000"/>
-    <define name="PSI_DGAIN"  value="-500"/>
+    <define name="PSI_PGAIN"  value="-6000"/>
+    <define name="PSI_DGAIN"  value="-400"/>
     <define name="PSI_IGAIN"  value="-10"/>
 
     <!-- feedforward -->
