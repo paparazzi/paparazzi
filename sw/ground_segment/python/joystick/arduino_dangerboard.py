@@ -21,8 +21,8 @@ import serial  # sudo apt-get install python-serial
 
 
 class arduino_dangerboard():
-  def __init__(self):
-    self.port = serial.Serial('/dev/ttyUSB0', 115200)  
+  def __init__(self, port='/dev/ttyUSB0'):
+    self.port = serial.Serial(port, 115200)  
     self.SLIDER_COUNT = 3
     self.sliders = [0] * self.SLIDER_COUNT
     self.POT_MIN = 0.0

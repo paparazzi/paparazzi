@@ -33,19 +33,35 @@ class PaparazziACSettings:
     tree = etree.parse(settings_xml_path)
   
     index = 0 # keep track of index/id of setting starting at 0
-    for the_tab in tree.xpath("//dl_settings[@NAME]"):
-      setting_group = PaparazziSettingsGroup(the_tab.attrib['NAME'])
-  
-      for the_setting in the_tab.xpath('dl_setting[@VAR]'):
+    for the_tab in tree.xpath("//dl_settings"):
+      if the_tab.attrib.has_key('NAME'):
+        setting_group = PaparazziSettingsGroup(the_tab.attrib['NAME'])
+      elif the_tab.attrib.has_key('NAME'):
+        setting_group = PaparazziSettingsGroup(the_tab.attrib['name'])
+      else:
+        continue
+ 
+      for the_setting in the_tab.xpath('dl_setting'):
         if the_setting.attrib.has_key('shortname'):
           name = the_setting.attrib['shortname']
-        else:
+        elif the_setting.attrib.has_key('VAR'):
           name = the_setting.attrib['VAR']
+        else:
+          name = the_setting.attrib['var']
         settings = PaparazziSetting(name)
         settings.index = index
-        settings.min_value = float(the_setting.attrib['MIN'])
-        settings.max_value = float(the_setting.attrib['MAX'])
-        settings.step = float(the_setting.attrib['STEP'])
+        if the_setting.attrib.has_key('MIN'):
+          settings.min_value = float(the_setting.attrib['MIN'])
+        else:
+          settings.min_value = float(the_setting.attrib['min'])
+        if the_setting.attrib.has_key('MAX'):
+          settings.max_value = float(the_setting.attrib['MAX'])
+        else:
+          settings.max_value = float(the_setting.attrib['max'])
+        if the_setting.attrib.has_key('STEP'):
+          settings.step = float(the_setting.attrib['STEP'])
+        else:
+          settings.step = float(the_setting.attrib['step'])
 	if (the_setting.attrib.has_key('values')):
 	  settings.values = the_setting.attrib['values'].split('|')
 	  count = int((settings.max_value - settings.min_value + settings.step) / settings.step)
@@ -86,7 +102,7 @@ class PaparazziSetting:
 
 
 def test():
-  ac_id = 11
+  ac_id = 164
   ac_settings = PaparazziACSettings(ac_id)
   for setting_group in ac_settings.groups:
     print setting_group.name
