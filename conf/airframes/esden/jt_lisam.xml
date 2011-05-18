@@ -7,8 +7,8 @@
     <servo name="A2"            no="1" min="1000" neutral="1000" max="2000"/>
     <servo name="B1"            no="2" min="1000" neutral="1000" max="2000"/>
     <servo name="B2"            no="3" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="4" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILEVON_RIGHT" no="5" min="1000" neutral="1500" max="2000"/>
+    <servo name="AILEVON_LEFT"  no="4" min="2000" neutral="1500" max="1000"/>
+    <servo name="AILEVON_RIGHT" no="5" min="2000" neutral="1500" max="1000"/>
   </servos>
 
   <commands>
