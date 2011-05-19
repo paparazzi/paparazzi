@@ -745,7 +745,10 @@
     <field name="one" type="float"/>
   </message>
 
- <!--113 is free -->
+  <message name="MLX_SERIAL" id="113">
+    <field name="serial0" type="uint32"/>
+    <field name="serial1" type="uint32"/>
+  </message>
 
   <message name="PAYLOAD" id="114">
     <field name="values" type="uint8[]" unit="none"/>
