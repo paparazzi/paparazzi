@@ -754,8 +754,13 @@
     <field name="values" type="uint8[]" unit="none"/>
   </message>
 
+  <message name="HTM_STATUS" id="115">
+    <field name="ihumid" type="uint16"/>
+    <field name="itemp"  type="uint16"/>
+    <field name="humid"  type="float" unit="rel_hum" format="%.2f"/>
+    <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
 
- <!--115 is free -->
  <!--116 is free -->
  <!--117 is free -->
  <!--118 is free -->
