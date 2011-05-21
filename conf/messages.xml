@@ -761,8 +761,24 @@
     <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
   </message>
 
- <!--116 is free -->
- <!--117 is free -->
+  <message name="BARO_MS5611" id="116">
+    <field name="d1"       type="uint32"/>
+    <field name="d2"       type="uint32"/>
+    <field name="pressure" type="float" unit="hPa" format="%.2f"/>
+    <field name="temp"     type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
+
+  <message name="MS5611_COEFF" id="117">
+    <field name="c0" type="uint16"/>
+    <field name="c1" type="uint16"/>
+    <field name="c2" type="uint16"/>
+    <field name="c3" type="uint16"/>
+    <field name="c4" type="uint16"/>
+    <field name="c5" type="uint16"/>
+    <field name="c6" type="uint16"/>
+    <field name="c7" type="uint16"/>
+  </message>
+
  <!--118 is free -->
  <!--119 is free -->
 
