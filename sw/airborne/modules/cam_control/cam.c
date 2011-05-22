@@ -28,7 +28,7 @@
 
 #include <math.h>
 #include "cam.h"
-#include "subsystems/navigation/common_nav.h"
+#include "subsystems/navigation/common_nav.h" //needed for WaypointX, WaypointY and ground_alt
 #include "autopilot.h"
 #include "generated/flight_plan.h"
 #include "estimator.h"
@@ -190,8 +190,8 @@ void cam_nadir( void ) {
 
 void cam_waypoint_target( void ) {
   if (cam_target_wp < nb_waypoint) {
-    cam_target_x = waypoints[cam_target_wp].x;
-    cam_target_y = waypoints[cam_target_wp].y;
+    cam_target_x = WaypointX(cam_target_wp);
+    cam_target_y = WaypointY(cam_target_wp);
   }
   cam_target_alt = ground_alt;
   cam_target();

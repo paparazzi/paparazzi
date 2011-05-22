@@ -16,7 +16,7 @@
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "autopilot.h"
-#include "gps.h"
+#include "subsystems/gps.h"
 #include "generated/airframe.h"
 
 //#include <stdio.h>
@@ -70,7 +70,7 @@ int potential_task(void) {
   for (i = 0; i < NB_ACS; ++i) {
     if (the_acs[i].ac_id == AC_ID) continue;
     struct ac_info_ * ac = get_ac_info(the_acs[i].ac_id);
-    float delta_t = Max((int)(gps_itow - ac->itow) / 1000., 0.);
+    float delta_t = Max((int)(gps.tow - ac->itow) / 1000., 0.);
     // if AC not responding for too long, continue, else compute force
     if (delta_t > CARROT) continue;
     else {

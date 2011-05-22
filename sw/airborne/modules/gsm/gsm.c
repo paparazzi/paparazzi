@@ -41,7 +41,7 @@ Reporting:
   In: OK
   Out: AT+CMGS=\"GCS_NUMBER\"
   In: >
-  Out: gps_utm_east, gps_utm_north, gps_course, gps_alt, gps_gspeed, gps_climb, vsupply, estimator_flight_time, rssi  CTRLZ
+  Out: gps.utm_pos.east, gps.utm_pos.north, gps.course, gps.hmsl, gps.gspeed, -gps.ned_vel.z, vsupply, estimator_flight_time, rssi  CTRLZ
 
 Receiving:
   In: +CMTI: ...,<number>
@@ -69,10 +69,10 @@ Receiving:
 #include "mcu_periph/uart.h"
 #include "downlink.h"
 #include "ap_downlink.h"
-#include "gps.h"
+#include "subsystems/gps.h"
 #include "autopilot.h"
 #include "estimator.h"
-#include "subsystems/navigation/common_nav.h"
+//#include "subsystems/navigation/common_nav.h"  //why is should this be needed?
 #include "generated/settings.h"
 
 #ifndef GSM_LINK
@@ -408,10 +408,10 @@ void gsm_send_report_continue(void)
   // and we expect "OK" on the second line
   uint8_t rssi = atoi(gsm_buf + strlen("+CSQ: "));
 
-  // Donnee GPS :ne sont pas envoyes gps_mode, gps_itow, gps_utm_zone, gps_nb_ovrn
+  // Donnee GPS :ne sont pas envoyes gps_mode, gps.tow, gps.utm_pos.zone, gps_nb_ovrn
   // Donnees batterie (seuls vsupply et estimator_flight_time sont envoyes)
   // concatenation de toutes les infos en un seul message à transmettre
-  sprintf(data_to_send, "%ld %ld %d %ld %d %d %d %d %d", gps_utm_east, gps_utm_north, gps_course, gps_alt, gps_gspeed, gps_climb, vsupply, estimator_flight_time, rssi);
+  sprintf(data_to_send, "%ld %ld %d %ld %d %d %d %d %d", gps.utm_pos.east, gps.utm_pos.north, gps_course, gps.hmsl, gps.gspeed, -gps.ned_vel.z, vsupply, estimator_flight_time, rssi);
 
   // send the number and wait for the prompt
   char buf[32];

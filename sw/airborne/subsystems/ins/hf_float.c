@@ -26,7 +26,7 @@
 #include "subsystems/ins.h"
 #include "subsystems/imu.h"
 #include "subsystems/ahrs.h"
-#include "booz_gps.h"
+#include "subsystems/gps.h"
 #include <stdlib.h>
 
 #include "generated/airframe.h"
@@ -488,11 +488,11 @@ void b2_hff_update_gps(void) {
   b2_hff_lost_counter = 0;
 
 #ifdef USE_GPS_ACC4R
-  Rgps_pos = (float) booz_gps_state.pacc / 100.;
+  Rgps_pos = (float) gps.pacc / 100.;
   if (Rgps_pos < HFF_R_POS_MIN)
     Rgps_pos = HFF_R_POS_MIN;
 
-  Rgps_vel = (float) booz_gps_state.sacc / 100.;
+  Rgps_vel = (float) gps.sacc / 100.;
   if (Rgps_vel < HFF_R_SPEED_MIN)
     Rgps_vel = HFF_R_SPEED_MIN;
 #endif

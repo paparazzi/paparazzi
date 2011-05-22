@@ -25,7 +25,7 @@
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle">
       </dl_setting>
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="telemetry_mode_Ap_DefaultChannel" shortname="tele_AP" module="downlink"/>
-      <dl_setting MAX="2" MIN="0" STEP="1" VAR="gps_reset" module="gps_ubx" handler="Reset" shortname="GPS reset"/>
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="gps.reset" module="subsystems/gps" handler="Reset" shortname="GPS reset"/>
     </dl_settings>
 
     <dl_settings NAME="Infrared">

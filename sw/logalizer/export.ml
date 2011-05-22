@@ -93,14 +93,14 @@ let get_last_geo_pos = fun lookup ->
     and utm_north = float_of_string (lookup "GPS" "utm_north") /. 100.
     and utm_zone = int_of_string (lookup "GPS" "utm_zone") in
     Latlong.of_utm WGS84 {utm_x=utm_east; utm_y=utm_north; utm_zone=utm_zone}
-  else if lookup "NAV_REF" "x" <>"" && lookup "BOOZ2_FP" "east" <>"" then
+  else if lookup "NAV_REF" "x" <>"" && lookup "ROTORCRAFT_FP" "east" <>"" then
     let getf = fun m f -> float_of_string (lookup m f) in
     let x0 = getf "NAV_REF" "x" /. 100.
     and y0 = getf "NAV_REF" "y" /. 100.
     and z0 = getf "NAV_REF" "z" /. 100.
-    and e = getf "BOOZ2_FP" "east" /. 256.
-    and n = getf "BOOZ2_FP" "north" /. 256.
-    and u = getf "BOOZ2_FP" "up" /. 256. in
+    and e = getf "ROTORCRAFT_FP" "east" /. 256.
+    and n = getf "ROTORCRAFT_FP" "north" /. 256.
+    and u = getf "ROTORCRAFT_FP" "up" /. 256. in
     let ecef0 = make_ecef [|x0; y0; z0 |]
     and ned = make_ned [|n; e; -.u|] in
     fst (geo_of_ecef WGS84 (ecef_of_ned ecef0 ned))

@@ -38,7 +38,6 @@
 #include <stdio.h>
 #include "subsystems/navigation/common_nav.h"
 #include "generated/settings.h"
-#include "latlong.h"
 
 
 #ifndef DOWNLINK_DEVICE

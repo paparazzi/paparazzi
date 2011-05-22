@@ -82,7 +82,7 @@ sim.srcs += $(SRC_FIRMWARE)/telemetry.c \
             downlink.c \
             $(SRC_ARCH)/ivy_transport.c
 
-sim.srcs   += $(SRC_BOOZ)/booz2_commands.c
+sim.srcs   += $(SRC_FIRMWARE)/commands.c
 
 sim.srcs += $(SRC_FIRMWARE)/datalink.c
 
@@ -169,3 +169,4 @@ sim.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./512.)'
 
 
 sim.srcs += $(SRC_FIRMWARE)/navigation.c
+sim.srcs += $(SRC_SUBSYSTEMS)/navigation/common_flight_plan.c

@@ -26,6 +26,7 @@
 #define COMMON_NAV_H
 
 #include "std.h"
+#include "subsystems/navigation/common_flight_plan.h"
 
 extern float max_dist_from_home;
 extern float dist2_to_home;
@@ -49,13 +50,6 @@ extern const uint8_t nb_waypoint;
 extern struct point waypoints[];
 /** size == nb_waypoint, waypoint 0 is a dummy waypoint */
 
-/** In s */
-extern uint16_t stage_time, block_time;
-
-extern uint8_t nav_stage, nav_block;
-extern uint8_t last_block, last_stage;
-
-
 extern float ground_alt; /* m */
 
 extern int32_t nav_utm_east0;  /* m */
@@ -63,37 +57,11 @@ extern int32_t nav_utm_north0; /* m */
 extern uint8_t nav_utm_zone0;
 
 
-void nav_init_stage( void );
-void nav_init_block(void);
-void nav_goto_block(uint8_t block_id);
 void compute_dist2_to_home(void);
 unit_t nav_reset_reference( void ) __attribute__ ((unused));
 unit_t nav_update_waypoints_alt( void ) __attribute__ ((unused));
 void common_nav_periodic_task_4Hz(void);
 
-
-#define InitStage() nav_init_stage();
-
-#define Block(x) case x: nav_block=x;
-#define NextBlock() { nav_block++; nav_init_block(); }
-#define GotoBlock(b) { nav_block=b; nav_init_block(); }
-
-#define Stage(s) case s: nav_stage=s;
-#define NextStageAndBreak() { nav_stage++; InitStage(); break; }
-#define NextStageAndBreakFrom(wp) { last_wp = wp; NextStageAndBreak(); }
-
-#define Label(x) label_ ## x:
-#define Goto(x) { goto label_ ## x; }
-#define Return() ({ nav_block=last_block; nav_stage=last_stage; block_time=0; FALSE;})
-
-#define And(x, y) ((x) && (y))
-#define Or(x, y) ((x) || (y))
-#define Min(x,y) (x < y ? x : y)
-#define Max(x,y) (x > y ? x : y)
-#define LessThan(_x, _y) ((_x) < (_y))
-
-/** Time in s since the entrance in the current block */
-#define NavBlockTime() (block_time)
 
 #define NavSetGroundReferenceHere() ({ nav_reset_reference(); nav_update_waypoints_alt(); FALSE; })
 

@@ -89,8 +89,8 @@ float airborne_ant_pan_servo = 0;
   svPlanePosition.fy = estimator_x;
   svPlanePosition.fz = estimator_z;
 
-  Home_Position.fx = waypoints[WP_HOME].y;
-  Home_Position.fy = waypoints[WP_HOME].x;
+  Home_Position.fx = WaypointY(WP_HOME);
+  Home_Position.fy = WaypointX(WP_HOME);
   Home_Position.fz = waypoints[WP_HOME].a;
 
   /* distance between plane and object */

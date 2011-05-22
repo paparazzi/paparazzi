@@ -40,6 +40,11 @@
   </message>
   <message name="SetBaudrateAck" ID="0x19" to="host"/>
 
+  <message name="SetSyncOutSettings" ID="0xD8" to="MT" length="3">
+    <field name="param" format="U1"/>
+    <field name="value" format="U2"/>
+  </message>
+
   <message name="RestoreFactoryDef" ID="0x0E" to="MT"/>
   <message name="RestoreFactoryDefAck" ID="0x0F" to="host"/>
 
@@ -117,6 +122,18 @@
     <field name="declination" format="R4" unit="rad"/>
   </message>
   <message name="SetMagneticDeclinationAck" ID="0x6B" to="host"/>
+
+  <message name="ReqLeverArmGps" ID="0x68" to="MT"/>
+  <message name="SetLeverArmGps" ID="0x68" to="MT" length="12">
+    <field name="x" format="R4" unit="m"/>
+    <field name="y" format="R4" unit="m"/>
+    <field name="z" format="R4" unit="m"/>
+  </message>
+  <message name="ReqLeverArmGpsAck" ID="0x69" to="host" length="12">
+    <field name="x" format="R4" unit="m"/>
+    <field name="y" format="R4" unit="m"/>
+    <field name="z" format="R4" unit="m"/>
+  </message>
 
   <message name="ReqGPSStatus" ID="0xA6" to="MT"/>
   <message name="GPSStatus" ID="0xA7" to="host">

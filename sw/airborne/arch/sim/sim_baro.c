@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "estimator.h"
 #include "subsystems/nav.h"
-#include "gps.h"
+#include "subsystems/gps.h"
 #include "baro_MS5534A.h"
 
 bool_t alt_baro_enabled;
@@ -31,7 +31,7 @@ void baro_MS5534A_send(void) {
 }
 
 void baro_MS5534A_event_task( void ) {
-  baro_MS5534A_pressure = baro_MS5534A_ground_pressure - (gps_alt/100.-ground_alt) / 0.08 + ((10.*random()) / RAND_MAX);
+  baro_MS5534A_pressure = baro_MS5534A_ground_pressure - (gps.hmsl/1000.-ground_alt) / 0.08 + ((10.*random()) / RAND_MAX);
   baro_MS5534A_temp = 10 + estimator_z;
   baro_MS5534A_available = TRUE;
 }

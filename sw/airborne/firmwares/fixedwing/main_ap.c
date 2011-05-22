@@ -38,7 +38,7 @@
 
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
-#include "gps.h"
+#include "subsystems/gps.h"
 #ifdef USE_INFRARED
 #include "subsystems/sensors/infrared.h"
 #endif
@@ -75,9 +75,12 @@
 #include "subsystems/ahrs.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include AHRS_TYPE_H
-static inline void on_gyro_accel_event( void );
+static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
+#endif
+#ifdef USE_GPS
+static inline void on_gps_solution( void );
 #endif
 
 #if ! defined CATASTROPHIC_BAT_LEVEL && defined LOW_BATTERY
@@ -264,6 +267,11 @@ static inline void telecommand_task( void ) {
 #endif
 }
 
+
+#ifdef FAILSAFE_DELAY_WITHOUT_GPS
+#define GpsTimeoutError (cpu_time_sec - gps.last_fix_time > FAILSAFE_DELAY_WITHOUT_GPS)
+#endif
+
 /** \fn void navigation_task( void )
  *  \brief Compute desired_course
  */
@@ -277,12 +285,12 @@ static void navigation_task( void ) {
   if (launch) {
     if (GpsTimeoutError) {
       if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
-    last_pprz_mode = pprz_mode;
-    pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
-    PERIODIC_SEND_PPRZ_MODE(DefaultChannel);
-    gps_lost = TRUE;
+        last_pprz_mode = pprz_mode;
+        pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
+        PERIODIC_SEND_PPRZ_MODE(DefaultChannel);
+        gps_lost = TRUE;
       }
-    } else /* GPS is ok */ if (gps_lost) {
+    } else if (gps_lost) { /* GPS is ok */
       /** If aircraft was in failsafe mode, come back in previous mode */
       pprz_mode = last_pprz_mode;
       gps_lost = FALSE;
@@ -390,7 +398,7 @@ static inline void attitude_loop( void ) {
       v_ctl_throttle_slew();
       ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
       ap_state->commands[COMMAND_ROLL] = h_ctl_aileron_setpoint;
-      
+
       ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
 
 #if defined MCU_SPI_LINK
@@ -463,11 +471,6 @@ void periodic_task_ap( void ) {
 
   switch(_4Hz) {
   case 0:
-#ifdef SITL
-#ifdef GPS_TRIGGERED_FUNCTION
-    GPS_TRIGGERED_FUNCTION();
-#endif
-#endif
     estimator_propagate_state();
 #ifdef EXTRA_DOWNLINK_DEVICE
     DOWNLINK_SEND_ATTITUDE(ExtraPprzTransport,&estimator_phi,&estimator_psi,&estimator_theta);
@@ -476,7 +479,7 @@ void periodic_task_ap( void ) {
     break;
   case 1:
     if (!estimator_flight_time &&
-    estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
+        estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
       estimator_flight_time = 1;
       launch = TRUE; /* Not set in non auto launch */
       DOWNLINK_SEND_TAKEOFF(DefaultChannel, &cpu_time_sec);
@@ -575,8 +578,10 @@ void init_ap( void ) {
   /** wait 0.5s (historical :-) */
   sys_time_usleep(500000);
 
-#if defined GPS_CONFIGURE
+#ifdef GPS_CONFIGURE
+#ifndef SITL
   gps_configure_uart();
+#endif
 #endif
 
 #if defined DATALINK
@@ -609,36 +614,11 @@ void event_task_ap( void ) {
 #endif
 
 #ifdef USE_AHRS
-  ImuEvent(on_gyro_accel_event, on_accel_event, on_mag_event);
+  ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 #endif // USE_AHRS
 
 #ifdef USE_GPS
-#if !(defined HITL) && !(defined UBX_EXTERNAL) /** else comes through the datalink */
-  if (GpsBuffer()) {
-    ReadGpsBuffer();
-  }
-#endif
-  if (gps_msg_received) {
-    /* parse and use GPS messages */
-#ifdef GPS_CONFIGURE
-    if (gps_configuring)
-      gps_configure();
-    else
-#endif
-      parse_gps_msg();
-    gps_msg_received = FALSE;
-    if (gps_pos_available) {
-      gps_verbose_downlink = !launch;
-      UseGpsPosNoSend(estimator_update_state_gps);
-      gps_downlink();
-#ifdef GPS_TRIGGERED_FUNCTION
-#ifndef SITL
-    GPS_TRIGGERED_FUNCTION();
-#endif
-#endif
-      gps_pos_available = FALSE;
-    }
-  }
+  GpsEvent(on_gps_solution);
 #endif /** USE_GPS */
 
 
@@ -656,7 +636,7 @@ void event_task_ap( void ) {
   }
 
   modules_event_task();
-  
+
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
   if (new_ins_attitude > 0)
   {
@@ -665,14 +645,24 @@ void event_task_ap( void ) {
     new_ins_attitude = 0;
   }
 #endif
-  
+
 } /* event_task_ap() */
+
+
+#ifdef USE_GPS
+static inline void on_gps_solution( void ) {
+  estimator_update_state_gps();
+#ifdef GPS_TRIGGERED_FUNCTION
+  GPS_TRIGGERED_FUNCTION();
+#endif
+}
+#endif
 
 #ifdef USE_AHRS
 static inline void on_accel_event( void ) {
 }
 
-static inline void on_gyro_accel_event( void ) {
+static inline void on_gyro_event( void ) {
 
 #ifdef AHRS_CPU_LED
     LED_ON(AHRS_CPU_LED);

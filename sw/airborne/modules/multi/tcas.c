@@ -31,7 +31,7 @@
 #include "generated/airframe.h"
 #include "estimator.h"
 #include "subsystems/nav.h"
-#include "gps.h"
+#include "subsystems/gps.h"
 #include "generated/flight_plan.h"
 
 #include "messages.h"
@@ -115,7 +115,7 @@ void tcas_periodic_task_1Hz( void ) {
   float vy = estimator_hspeed_mod * cosf(estimator_hspeed_dir);
   for (i = 2; i < NB_ACS; i++) {
     if (the_acs[i].ac_id == 0) continue; // no AC data
-    uint32_t dt = gps_itow - the_acs[i].itow;
+    uint32_t dt = gps.tow - the_acs[i].itow;
     if (dt > 3*TCAS_DT_MAX) {
       tcas_acs_status[i].status = TCAS_NO_ALARM; // timeout, reset status
       continue;

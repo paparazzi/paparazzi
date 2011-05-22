@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ins_aspirin_via_i2c" dir="ins">
+  <!-- <depend conflict="ins" -->
+  <header>
+    <file name="ins_ppzuavimu.h"/>
+  </header>
+
+  <!-- default imu stuff -->
+  <init fun="imu_impl_init()"/>
+  <periodic fun="imu_periodic()" freq="60"/>
+  <!-- ImuEvent called directly from main_ap -->
+
+  <!-- extras to become a usefull module -->
+  <periodic fun="ppzuavimu_module_downlink_raw()" freq="5"/>
+  <event fun="ppzuavimu_module_event()"/>
+
+  <makefile>
+    <file name="ins_ppzuavimu.c"/>
+    <define name="PPZUAVIMU_I2C_DEVICE" value="i2c0" />
+    <define name="USE_I2C" />
+    <define name="USE_I2C0" />
+    <define name="ASPIRIN_IMU" />
+  </makefile>
+</module>

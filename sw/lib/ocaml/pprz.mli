@@ -93,8 +93,12 @@ val alt_unit_coef_of_xml : Xml.xml -> string
     rad -> deg
     m -> cm
     cm -> m
+    m -> mm
+    mm -> m
     m/s -> cm/s
     cm/s -> m/s
+    m/s -> mm/s
+    mm/s -> m/s
     decideg -> deg
     *)
 

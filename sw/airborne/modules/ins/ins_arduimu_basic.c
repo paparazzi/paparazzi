@@ -14,7 +14,10 @@ Autoren@ZHAW:   schmiemi
 #include "estimator.h"
 
 // GPS data for ArduIMU
-#include "gps.h"
+#ifndef UBX
+#error "currently only compatible with uBlox GPS modules"
+#endif
+#include "subsystems/gps.h"
 
 // Command vector for thrust
 #include "generated/airframe.h"
@@ -101,11 +104,11 @@ void ArduIMU_periodicGPS( void ) {
     }
   }
 
-  FillBufWith32bit(ardu_gps_trans.buf, 0, (int32_t)gps_speed_3d); // speed 3D
-  FillBufWith32bit(ardu_gps_trans.buf, 4, (int32_t)gps_gspeed);   // ground speed
-  FillBufWith32bit(ardu_gps_trans.buf, 8, (int32_t)gps_course);   // course
-  ardu_gps_trans.buf[12] = gps_mode;                              // status gps fix
-  ardu_gps_trans.buf[13] = gps_status_flags;                      // status flags
+  FillBufWith32bit(ardu_gps_trans.buf, 0, (int32_t)gps.speed_3d); // speed 3D
+  FillBufWith32bit(ardu_gps_trans.buf, 4, (int32_t)gps.gspeed);   // ground speed
+  FillBufWith32bit(ardu_gps_trans.buf, 8, (int32_t)DegOfRad(gps.course / 1e6));   // course
+  ardu_gps_trans.buf[12] = gps.fix;                              // status gps fix
+  ardu_gps_trans.buf[13] = gps_ubx.status_flags;                      // status flags
   ardu_gps_trans.buf[14] = (uint8_t)high_accel_flag;              // high acceleration flag (disable accelerometers in the arduimu filter)
   I2CTransmit(ARDUIMU_I2C_DEV, ardu_gps_trans, ArduIMU_SLAVE_ADDR, 15);
 

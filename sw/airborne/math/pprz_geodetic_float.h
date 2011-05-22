@@ -32,6 +32,7 @@
 
 #include "pprz_geodetic.h"
 #include "pprz_algebra_float.h"
+#include "std.h"
 
 /**
  * @brief vector in EarthCenteredEarthFixed coordinates
@@ -75,6 +76,16 @@ struct EnuCoor_f {
 };
 
 /**
+ * @brief position in UTM coordinates
+ * Units: meters */
+struct UtmCoor_f {
+  float north; ///< in meters
+  float east; ///< in meters
+  float alt; ///< in meters above WGS84 reference ellipsoid
+  uint8_t zone; ///< UTM zone number
+};
+
+/**
  * @brief definition of the local (flat earth) coordinate system
  * @details Defines the origin of the local coordinate system
  * in ECEF and LLA coordinates and the roation matrix from
@@ -86,6 +97,8 @@ struct LtpDef_f {
   float hmsl; ///< Height above mean sea level in meters
 };
 
+extern void lla_of_utm_f(struct LlaCoor_f* lla, struct UtmCoor_f* utm);
+extern void utm_of_lla_f(struct UtmCoor_f* utm, struct LlaCoor_f* lla);
 extern void ltp_def_from_ecef_f(struct LtpDef_f* def, struct EcefCoor_f* ecef);
 extern void ltp_def_from_lla_f(struct LtpDef_f* def, struct LlaCoor_f* lla);
 extern void lla_of_ecef_f(struct LlaCoor_f* out, struct EcefCoor_f* in);

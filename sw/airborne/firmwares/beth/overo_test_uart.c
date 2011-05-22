@@ -31,7 +31,7 @@
 
 #include <event.h>
 
-#include "gps.h"
+#include "subsystems/gps.h"
 
 #include "messages2.h"
 //#include "dl_protocol2.h"
