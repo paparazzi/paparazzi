@@ -15,7 +15,7 @@
 
   <servos>
     <servo name="THROTTLE"   no="7" min="1200" neutral="1200" max="2000"/>
-    <servo name="AILERON" no="4" min="2000" neutral="1500" max="1000"/>
+    <servo name="AILERON" no="4" max="2000" neutral="1500" min="1000"/>
     <servo name="ELEVATOR" no="3" max="2000" neutral="1500" min="1000"/>
     <servo name="CAM" no="2" max="2000" neutral="1500" min="1000"/>
     <servo name="TILT" no="6" max="2000" neutral="1501" min="1000"/>
@@ -40,27 +40,30 @@
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
-    <define name="GYRO_P_NEUTRAL" value="512"/>
-    <define name="GYRO_Q_NEUTRAL" value="512"/>
-    <define name="GYRO_R_NEUTRAL" value="512"/>
+    <!--Neutrals have no effect if SET_IMU_ZERO ON STARTUP IS SET-->
+    <define name="GYRO_P_NEUTRAL" value="0"/>
+    <define name="GYRO_Q_NEUTRAL" value="0"/>
+    <define name="GYRO_R_NEUTRAL" value="0"/>
 
-    <define name="GYRO_P_SENS" value="0.017" integer="16"/>
-    <define name="GYRO_Q_SENS" value="0.017" integer="16"/>
-    <define name="GYRO_R_SENS" value="0.017" integer="16"/>
+    <!-- Values for the scaling of the ADC. Adjust according to your IMU-->
+    <define name="GYRO_P_SENS" value="61.3588" integer="16"/><!-- Roll -->
+    <define name="GYRO_Q_SENS" value="57.96" integer="16"/><!-- Pitch -->
+    <define name="GYRO_R_SENS" value="60.1" integer="16"/><!-- Yaw -->
 
     <define name="GYRO_P_SIGN" value="1" />
-    <define name="GYRO_Q_SIGN" value="1" />
+    <define name="GYRO_Q_SIGN" value="-1" />
     <define name="GYRO_R_SIGN" value="-1" />
 
-    <define name="ACCEL_X_SENS" value="0.1" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="0.1" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="0.1" integer="16"/>
+    <define name="ACCEL_X_SENS" value="111.0" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="119.0" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="104.0" integer="16"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="512"/>
-    <define name="ACCEL_Y_NEUTRAL" value="512"/>
-    <define name="ACCEL_Z_NEUTRAL" value="512"/>
+    <!--Neutrals have no effect if SET_IMU_ZERO ON STARTUP IS SET-->
+    <define name="ACCEL_X_NEUTRAL" value="0"/>
+    <define name="ACCEL_Y_NEUTRAL" value="0"/>
+    <define name="ACCEL_Z_NEUTRAL" value="0"/>
 
-    <define name="ACCEL_X_SIGN" value="1"/>
+    <define name="ACCEL_X_SIGN" value="-1"/>
     <define name="ACCEL_Y_SIGN" value="-1"/>
     <define name="ACCEL_Z_SIGN" value="1"/>
 
@@ -101,7 +104,7 @@
    <define name="VoltageOfAdc(adc)" value ="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.0" unit="V"/>
    <define name="CRITIC_BAT_LEVEL" value="9.3" unit="V"/>
-   <define name="LOW_BAT_LEVEL" value="9.5" unit="V"/>
+   <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
 
@@ -150,8 +153,9 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-0.85"/>
-    <define name="ROLL_MAX_SETPOINT" value="0.6" unit="radians"/>
+    <define name="COURSE_PGAIN" value="-1.0"/>
+    <define name="COURSE_DGAIN" value="0.5"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.7" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
@@ -160,13 +164,14 @@
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
     <define name="PITCH_PGAIN" value="-9000."/>
     <define name="PITCH_DGAIN" value="1.5"/>
-    <define name="ELEVATOR_OF_ROLL" value="1250"/>
+    <define name="ELEVATOR_OF_ROLL" value="6500"/>
 
   </section>
 
   <section name="NAV">
     <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
+    <define name="NAV_SURVEY_SHIFT" value="50" unit="m"/>
   </section>
 
   <section name="AGGRESSIVE" prefix="AGR_">
@@ -194,27 +199,37 @@
       <define name="AGR_CLIMB" />
       <define name="LOITER_TRIM" />
       <define name="ALT_KALMAN" />
+      <define name="SENSOR_SYNC_SEND"/>
+      <define name="SET_IMU_ZERO_ON_STARTUP"/>
+      <!--has to be set if SET_IMU_ZERO ON STARTUP IS SET-->
+      <!--this is the ADC-Value, measured for the Z-Accelelerometer if the Plane is standing -->
+      <define name="ACCEL_Z_GRAVITY" value="96"/>
     </target>
     <subsystem name="radio_control"     type="ppm"/>
     <!-- Communication -->
     <subsystem name="telemetry"     type="transparent">
-      <configure name="MODEM_BAUD"      value="B9600"/>
+      <configure name="MODEM_BAUD"      value="B57600"/>
     </subsystem>
     <!-- Actuators are automatically chosen according to the board-->
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="imu"       type="analog">
-      <configure name="GYRO_P" value="ADC_0"/>
-      <configure name="GYRO_Q" value="ADC_1"/>
+      <configure name="GYRO_P" value="ADC_1"/>
+      <configure name="GYRO_Q" value="ADC_0"/>
       <configure name="GYRO_R" value="ADC_2"/>
-      <configure name="ACCEL_X" value="ADC_5"/>
-      <configure name="ACCEL_Y" value="ADC_6"/>
-      <configure name="ACCEL_Z" value="ADC_7"/>
+      <configure name="ACCEL_X" value="ADC_6"/>
+      <configure name="ACCEL_Y" value="ADC_5"/>
+      <configure name="ACCEL_Z" value="ADC_3"/>
     </subsystem>
 
     <subsystem name="attitude"  type="dcm"/>
     <subsystem name="gps"       type="ublox_lea5h"/>
     <subsystem name="navigation"/>
   </firmware>
+  <makefile location="after">            
+      ap.CFLAGS += -DWIND_INFO -DSTRONG_WIND
+
+      sim.CFLAGS += -DWIND_INFO -DSTRONG_WIND
+  </makefile>
 
 </airframe>

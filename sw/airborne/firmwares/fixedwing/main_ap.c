@@ -55,6 +55,8 @@
 #include "subsystems/settings.h"
 #include "xbee.h"
 
+#include "subsystems/imu.h"
+
 #include "gpio.h"
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
@@ -603,6 +605,15 @@ void init_ap( void ) {
 #ifdef TRAFFIC_INFO
   traffic_info_init();
 #endif
+
+#ifdef SET_IMU_ZERO_ON_STARTUP
+  #ifndef SITL
+    //wait 10secs for init
+    sys_time_usleep(10000000);
+    imu_store_bias();
+  #endif
+#endif
+
 }
 
 

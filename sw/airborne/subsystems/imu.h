@@ -70,6 +70,25 @@ extern struct Imu imu;
 
 extern void imu_init(void);
 
+#ifdef SET_IMU_ZERO_ON_STARTUP
+
+#define ImuScaleGyro(_imu) {					\
+    RATES_COPY(_imu.gyro_prev, _imu.gyro);				\
+    _imu.gyro.p = ((_imu.gyro_unscaled.p)*IMU_GYRO_P_SIGN*IMU_GYRO_P_SENS_NUM)/IMU_GYRO_P_SENS_DEN; \
+    _imu.gyro.q = ((_imu.gyro_unscaled.q)*IMU_GYRO_Q_SIGN*IMU_GYRO_Q_SENS_NUM)/IMU_GYRO_Q_SENS_DEN; \
+    _imu.gyro.r = ((_imu.gyro_unscaled.r)*IMU_GYRO_R_SIGN*IMU_GYRO_R_SENS_NUM)/IMU_GYRO_R_SENS_DEN; \
+  }
+
+
+#define ImuScaleAccel(_imu) {					\
+    VECT3_COPY(_imu.accel_prev, _imu.accel);				\
+    _imu.accel.x = ((_imu.accel_unscaled.x)*IMU_ACCEL_X_SIGN*IMU_ACCEL_X_SENS_NUM)/IMU_ACCEL_X_SENS_DEN; \
+    _imu.accel.y = ((_imu.accel_unscaled.y)*IMU_ACCEL_Y_SIGN*IMU_ACCEL_Y_SENS_NUM)/IMU_ACCEL_Y_SENS_DEN; \
+    _imu.accel.z = ((_imu.accel_unscaled.z)*IMU_ACCEL_Z_SIGN*IMU_ACCEL_Z_SENS_NUM)/IMU_ACCEL_Z_SENS_DEN; \
+  }
+
+#else /* SET_IMU_ZERO_ON_STARTUP*/
+
 #define ImuScaleGyro(_imu) {					\
     RATES_COPY(_imu.gyro_prev, _imu.gyro);				\
     _imu.gyro.p = ((_imu.gyro_unscaled.p - _imu.gyro_neutral.p)*IMU_GYRO_P_SIGN*IMU_GYRO_P_SENS_NUM)/IMU_GYRO_P_SENS_DEN; \
@@ -84,6 +103,8 @@ extern void imu_init(void);
     _imu.accel.y = ((_imu.accel_unscaled.y - _imu.accel_neutral.y)*IMU_ACCEL_Y_SIGN*IMU_ACCEL_Y_SENS_NUM)/IMU_ACCEL_Y_SENS_DEN; \
     _imu.accel.z = ((_imu.accel_unscaled.z - _imu.accel_neutral.z)*IMU_ACCEL_Z_SIGN*IMU_ACCEL_Z_SENS_NUM)/IMU_ACCEL_Z_SENS_DEN; \
   }
+
+#endif /* SET_IMU_ZERO_ON_STARTUP*/
 
 #if defined IMU_MAG_45_HACK
 #define ImuScaleMag(_imu) {						\

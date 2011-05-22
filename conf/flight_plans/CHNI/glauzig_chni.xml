@@ -1,0 +1,71 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="80" ground_alt="89" lat0="51.652294" lon0="11.988888" max_dist_from_home="200" name="Glauzig" qfu="270" security_height="60">
+  <header>
+    #include "nav_line.h"
+</header>
+  <waypoints>
+    <waypoint alt="150.0" name="HOME" x="-183.7" y="3.3"/>
+    <waypoint alt="150.0" name="CLIMB" x="-201.2" y="16.8"/>
+    <waypoint alt="150.0" name="STANDBY" x="-178.3" y="22.8"/>
+    <waypoint alt="150.0" name="WP1" x="-252.6" y="7.6"/>
+    <waypoint alt="150.0" name="WP2" x="-130.1" y="35.5"/>
+    <waypoint alt="150.0" name="_A" x="-435.9" y="194.5"/>
+    <waypoint alt="150.0" name="_B" x="-411.8" y="-180.7"/>
+    <waypoint alt="150.0" name="_C" x="1.0" y="-58.0"/>
+    <waypoint alt="150.0" name="_D" x="-26.3" y="-111.5"/>
+    <waypoint alt="150.0" name="_A1" x="-133.2" y="172.0"/>
+    <waypoint alt="150.0" name="_A2" x="-21.3" y="16.0"/>
+    <waypoint alt="150.0" name="_C1" x="6.9" y="-0.0"/>
+  </waypoints>
+  <sectors>
+    <sector name="Glauzig">
+      <corner name="_A"/>
+      <corner name="_A1"/>
+      <corner name="_A2"/>
+      <corner name="_C1"/>
+      <corner name="_C"/>
+      <corner name="_D"/>
+      <corner name="_B"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="!InsideGlauzig(estimator_x, estimator_y)" deroute="recover"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <set value="1" var="kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="recover">
+      <go wp="HOME"/>
+      <circle radius="55" until="block_time > 20" wp="HOME"/>
+    </block>
+    <block name="Holding point">
+      <set value="1" var="kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <block key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <exception cond="estimator_z > ground_alt+40" deroute="Standby"/>
+      <set value="0" var="kill_throttle"/>
+      <go wp="CLIMB"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STANDBY"/>
+    </block>
+    <block name="WP1_to_WP2">
+      <while cond="TRUE">
+        <go approaching_time="0." wp="WP1"/>
+        <go approaching_time="0." wp="WP2"/>
+        <while cond="10 > block_time"/>
+      </while>
+    </block>
+    <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png">
+      <oval p1="WP1" p2="WP2" radius="nav_radius"/>
+    </block>
+    <block name="circle_home">
+      <circle radius="55" wp="HOME"/>
+    </block>
+    <block name="Takeoff and climb"/>
+  </blocks>
+</flight_plan>

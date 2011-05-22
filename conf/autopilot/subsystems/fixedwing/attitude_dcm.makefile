@@ -39,14 +39,19 @@ endif
 
 ifeq ($(TARGET), sim)
 
-sim.CFLAGS += -DIR_ROLL_NEUTRAL_DEFAULT=0
-sim.CFLAGS += -DIR_PITCH_NEUTRAL_DEFAULT=0
+sim.CFLAGS += -DADC_CHANNEL_IR_NB_SAMPLES=$(ADC_IR_NB_SAMPLES)
 
 sim.CFLAGS += -DUSE_INFRARED
+sim.CFLAGS += -DIR_ROLL_NEUTRAL_DEFAULT=0
+sim.CFLAGS += -DIR_PITCH_NEUTRAL_DEFAULT=0
+	
+
+
 sim.srcs += subsystems/sensors/infrared.c
+sim.srcs += subsystems/sensors/infrared_adc.c
 
 sim.srcs += $(SRC_ARCH)/sim_ir.c
-sim.srcs += $(SRC_ARCH)/sim_imu.c
+jsbsim.srcs += $(SRC_ARCH)/jsbsim_ir.c
 
 endif
 
