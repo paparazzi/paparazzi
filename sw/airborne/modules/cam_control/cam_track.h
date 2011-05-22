@@ -54,7 +54,7 @@ extern void parse_cam_buffer( uint8_t );
 #define CamBuffer() CamLink(ChAvailable())
 #define ReadCamBuffer() { while (CamLink(ChAvailable())&&!cam_msg_received) parse_cam_buffer(CamLink(Getch())); }
 #define CamUartSend1(c) CamLink(Transmit(c))
-#define CamUartInitParam(_a,_b,_c) CamLink(InitParam(_a,_b,_c))
+#define CamUartSetBaudrate(_b) CamLink(SetBaudrate(_b))
 #define CamUartRunning CamLink(TxRunning)
 
 #define CamEventCheckAndHandle() { \

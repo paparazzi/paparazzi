@@ -137,6 +137,7 @@ ns_srcs 		+= $(SRC_ARCH)/sys_time_hw.c
 # UARTS
 #
 
+ns_srcs 		+= mcu_periph/uart.c
 ns_srcs 		+= $(SRC_ARCH)/mcu_periph/uart_arch.c
 ns_srcs 		+= subsystems/settings.c
 ns_srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c

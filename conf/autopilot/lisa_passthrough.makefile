@@ -42,6 +42,7 @@ stm_passthrough.CFLAGS += -DDOWNLINK
 stm_passthrough.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 stm_passthrough.srcs += downlink.c pprz_transport.c
 stm_passthrough.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+stm_passthrough.srcs += mcu_periph/uart.c
 stm_passthrough.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 # Link Overo

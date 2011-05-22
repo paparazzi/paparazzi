@@ -100,7 +100,7 @@ void ubxsend_cfg_rst(uint16_t bbr , uint8_t reset_mode) {
 void gps_configure_uart ( void ) {
   //UbxSend_CFG_PRT(0x01, 0x0, 0x0, 0x000008D0, GPS_BAUD, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
   //while (GpsUartRunning) ; /* FIXME */
-  GpsUartInitParam( UART_BAUD(GPS_BAUD),  UART_8N1, UART_FIFO_8);
+  GpsUartSetBaudrate(UART_BAUD(GPS_BAUD));
 }
 
 void gps_configure ( void ) {
