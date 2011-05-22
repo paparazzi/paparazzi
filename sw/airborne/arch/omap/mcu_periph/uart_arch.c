@@ -32,7 +32,7 @@
 #include "fms/fms_serial_port.h"
 
 
-void uart_periph_init_param(struct uart_periph* p, uint16_t baud, uint8_t mode, uint8_t fmode, char * dev) {
+void uart_periph_set_baudrate(struct uart_periph* p, uint16_t baud) {
   struct FmsSerialPort* fmssp;
   // close serial port if already open
   if (p->reg_addr != NULL) {
@@ -46,8 +46,8 @@ void uart_periph_init_param(struct uart_periph* p, uint16_t baud, uint8_t mode, 
   p->reg_addr = (void*)fmssp;
 
   //TODO: set device name in application and pass as argument
-  printf("opening %s on uart0 at %d\n",dev,baud);
-  serial_port_open_raw(fmssp,dev,baud);
+  printf("opening %s on uart0 at %d\n",p->dev,baud);
+  serial_port_open_raw(fmssp,p->dev,baud);
 }
 
 void uart_transmit(struct uart_periph* p, uint8_t data ) {
@@ -103,7 +103,8 @@ static inline void uart_handler(struct uart_periph* p) {
 
 void uart0_init( void ) {
   uart_periph_init(&uart0);
-  uart_periph_init_param(&uart0,UART0_BAUD,NULL,NULL,UART0_DEV);
+  uart.dev = UART0_DEV;
+  uart_periph_set_baudrate(&uart0,UART0_BAUD);
 }
 
 
@@ -117,7 +118,8 @@ void uart0_handler(void) {
 
 void uart1_init( void ) {
   uart_periph_init(&uart1);
-  uart_periph_init_param(&uart1,UART1_BAUD,NULL,NULL,UART1_DEV);
+  uart.dev = UART1_DEV;
+  uart_periph_init_param(&uart1,UART1_BAUD);
 }
 
 void uart1_handler(void) {

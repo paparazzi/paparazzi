@@ -33,8 +33,6 @@
 */
 
 //junk for gps_configure_uart in gps_ubx.c to compile
-#define UART_8N1 1
-#define UART_FIFO_8 1
 #define UART_BAUD(baud) (baud)
 
 
