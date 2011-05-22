@@ -31,6 +31,10 @@
 
 #include "generated/airframe.h"
 
+#define actuators actuators_pwm_values
+#define Actuator(_x) actuators_pwm_values[_x]
+#define ActuatorsCommit() do { } while(0);
+
 int32_t actuators_pwm_values[ACTUATORS_PWM_NB];
 
 void actuators_init(void)
@@ -43,18 +47,27 @@ void actuators_init(void)
 #define PWM_OFF 1000
 
 void actuators_set(bool_t motors_on) {
-  booz2_commands[COMMAND_PITCH] = booz2_commands[COMMAND_PITCH] * PWM_GAIN_SCALE;
-  booz2_commands[COMMAND_ROLL] = booz2_commands[COMMAND_ROLL] * PWM_GAIN_SCALE;
-  booz2_commands[COMMAND_YAW] = booz2_commands[COMMAND_YAW] * PWM_GAIN_SCALE;
-  booz2_commands[COMMAND_THRUST] = (booz2_commands[COMMAND_THRUST] * ((SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR) / 200)) + SUPERVISION_MIN_MOTOR;
+  int32_t pwm_commands[COMMANDS_NB];
+  int32_t pwm_commands_pprz[COMMANDS_NB];
 
-  supervision_run(motors_on, FALSE, booz2_commands);
+  pwm_commands[COMMAND_PITCH] = booz2_commands[COMMAND_PITCH] * PWM_GAIN_SCALE;
+  pwm_commands[COMMAND_ROLL] = booz2_commands[COMMAND_ROLL] * PWM_GAIN_SCALE;
+  pwm_commands[COMMAND_YAW] = booz2_commands[COMMAND_YAW] * PWM_GAIN_SCALE;
+  pwm_commands[COMMAND_THRUST] = (booz2_commands[COMMAND_THRUST] * ((SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR) / 200)) + SUPERVISION_MIN_MOTOR;
+
+  pwm_commands_pprz[COMMAND_PITCH] = booz2_commands[COMMAND_PITCH] * (MAX_PPRZ / 100);
+  pwm_commands_pprz[COMMAND_ROLL] = booz2_commands[COMMAND_ROLL] * (MAX_PPRZ / 100);
+  pwm_commands_pprz[COMMAND_YAW] = booz2_commands[COMMAND_YAW] * (MAX_PPRZ / 100);
+
+  supervision_run(motors_on, FALSE, pwm_commands);
+
+  SetActuatorsFromCommands(pwm_commands_pprz);
 
   if (motors_on) {
     for (int i = 0; i < SUPERVISION_NB_MOTOR; i++)
       actuators_pwm_values[i] = supervision.commands[i];
   } else {
-    for (int i = 0; i < ACTUATORS_PWM_NB; i++)
+    for (int i = 0; i < SUPERVISION_NB_MOTOR; i++)
       actuators_pwm_values[i] = PWM_OFF;
   }
   actuators_pwm_commit();

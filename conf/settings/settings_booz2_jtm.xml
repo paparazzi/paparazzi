@@ -1,0 +1,74 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+  <dl_settings>
+
+    <dl_settings NAME="Misc">
+       <dl_setting var="telemetry_mode_Main_DefaultChannel" min="0" step="1" max="11" module="telemetry" shortname="telemetry" values="Default|PPM|Raw|Scaled|AHRS|Rate|Attitude|Vertical|Horizontal|Aligner|HS_att_roll|Tune_hover">
+         <key_press key="d" value="0"/>
+         <key_press key="v" value="7"/>
+         <key_press key="h" value="8"/>
+       </dl_setting>
+       <dl_setting var="autopilot_mode_auto2" min="0" step="1" max="12" module="autopilot" shortname="auto2" values="Fail|Kill|Rate|Att|Rate_rcC|Att_rcC|Att_C|Rate_Z|Att_Z|Hover|Hover_C|Hover_Z|Nav"/>
+      <dl_setting var="kill_throttle" min="0" step="1" max="1" module="autopilot" values="Resurrect|Kill" handler="KillThrottle"/>
+      <dl_setting var="autopilot_power_switch" min="0" step="1" max="1" module="autopilot" values="OFF|ON" handler="SetPowerSwitch">
+        <strip_button name="POWER ON" icon="on.png" value="1"/>
+        <strip_button name="POWER OFF" icon="off.png" value="0"/>
+      </dl_setting>
+      <dl_setting var="autopilot_rc" min="0" step="1" max="1" module="autopilot" values="RC OFF|RC ON">
+        <strip_button name="RC ON" value="1"/>
+        <strip_button name="RC OFF" value="0"/>
+      </dl_setting>
+    </dl_settings>
+
+    <dl_settings NAME="Rate Loop">
+      <dl_setting var="stabilization_rate_gain.p" min="-1000" step="1" max="-1" module="stabilization/stabilization_rate" shortname="gain p"/>
+      <dl_setting var="stabilization_rate_gain.q" min="-1000" step="1" max="-1" module="stabilization/stabilization_rate" shortname="gain q"/>
+      <dl_setting var="stabilization_rate_gain.r" min="-1000" step="1" max="-1" module="stabilization/stabilization_rate" shortname="gain r"/>
+    </dl_settings>
+
+
+    <dl_settings NAME="Att Loop">
+      <dl_setting var="stabilization_gains.p.x" min="-2000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="pgain phi" />
+      <dl_setting var="stabilization_gains.d.x" min="-2000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="dgain p"/>
+      <dl_setting var="stabilization_gains.i.x" min="-300"  step="1" max="0"    module="stabilization/stabilization_attitude" shortname="igain phi" handler="SetKiPhi"/>
+      <dl_setting var="stabilization_gains.dd.x" min="0"    step="1" max="1000" module="stabilization/stabilization_attitude" shortname="ddgain p"/>
+      <dl_setting var="stabilization_gains.p.y" min="-2000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="pgain theta"/>
+      <dl_setting var="stabilization_gains.d.y" min="-2000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="dgain q"/>
+      <dl_setting var="stabilization_gains.i.y" min="-300"  step="1" max="0"    module="stabilization/stabilization_attitude" shortname="igain theta"/>
+      <dl_setting var="stabilization_gains.dd.y" min="0"    step="1" max="500"  module="stabilization/stabilization_attitude" shortname="ddgain q"/>
+      <dl_setting var="stabilization_gains.p.z" min="-4000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="pgain psi"/>
+      <dl_setting var="stabilization_gains.d.z" min="-8000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="dgain r"/>
+      <dl_setting var="stabilization_gains.i.z" min="-800"  step="1" max="0"    module="stabilization/stabilization_attitude" shortname="igain psi"/>
+      <dl_setting var="stabilization_gains.dd.z" min="0"    step="1" max="2000"  module="stabilization/stabilization_attitude" shortname="ddgain r"/>
+    </dl_settings>
+
+    <dl_settings NAME="Vert Loop">
+      <dl_setting var="guidance_v_kp" min="-600" step="1" max="0"   module="guidance/guidance_v" shortname="kp"/>
+      <dl_setting var="guidance_v_kd" min="-600" step="1" max="0"   module="guidance/guidance_v" shortname="kd"/>
+      <dl_setting var="guidance_v_ki" min="-300" step="1" max="0"   module="guidance/guidance_v" shortname="ki" handler="SetKi" />
+      <dl_setting var="guidance_v_z_sp" min="-5" step="0.5" max="3" module="guidance/guidance_v" shortname="sp" unit="2e-8m" alt_unit="m" alt_unit_coef="0.00390625"/>
+      <dl_setting var="ins_vf_realign" min="0" step="1" max="1" module="subsystems/ins" shortname="vf_realign" values="OFF|ON"/>
+   </dl_settings>
+
+   <dl_settings NAME="Horiz Loop">
+      <dl_setting var="guidance_h_pos_sp.x" MIN="-10" MAX="10" STEP="1"  module="guidance/guidance_h" shortname="sp_x_ned" unit="1/2^8m" alt_unit="m" alt_unit_coef="0.00390625"/>
+      <dl_setting var="guidance_h_pos_sp.y" MIN="-10" MAX="10" STEP="1"  module="guidance/guidance_h" shortname="sp_y_ned" unit="1/2^8m" alt_unit="m" alt_unit_coef="0.00390625"/>
+      <dl_setting var="guidance_h_psi_sp" MIN="-180" MAX="180" STEP="5"  module="guidance/guidance_h" shortname="sp_psi" unit="1/2^20r" alt_unit="deg" alt_unit_coef="0.000054641513360"/>
+      <dl_setting var="guidance_h_pgain" min="-400" step="1" max="0" module="guidance/guidance_h" shortname="kp"/>
+      <dl_setting var="guidance_h_dgain" min="-400" step="1" max="0" module="guidance/guidance_h" shortname="kd"/>
+      <dl_setting var="guidance_h_igain" min="-400" step="1" max="0" module="guidance/guidance_h" shortname="ki" handler="SetKi"/>
+      <dl_setting var="guidance_h_ngain" min="-400" step="1" max="0" module="guidance/guidance_h" shortname="kn"/>
+      <dl_setting var="guidance_h_again" min="-400" step="1" max="0" module="guidance/guidance_h" shortname="ka"/>
+      <dl_setting var="ins_hf_realign" min="0" step="1" max="1" module="subsystems/ins" shortname="hf_realign" values="OFF|ON"/>
+   </dl_settings>
+
+   <dl_settings NAME="NAV">
+     <dl_setting var="flight_altitude" MIN="0" STEP="0.1" MAX="400" module="navigation" unit="m" handler="SetFlightAltitude"/>
+     <dl_setting var="nav_heading" MIN="0" STEP="1" MAX="360" module="navigation" unit="1/2^12r" alt_unit="deg" alt_unit_coef="0.0139882"/>
+     <dl_setting var="nav_radius" MIN="-150" STEP="0.1" MAX="150" module="navigation" unit="m"/>
+   </dl_settings>
+
+
+  </dl_settings>
+</settings>

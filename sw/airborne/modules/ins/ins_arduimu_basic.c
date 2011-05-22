@@ -74,7 +74,7 @@ void ArduIMU_init( void ) {
   ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
   ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 
-  high_accel_done = FLASE;
+  high_accel_done = FALSE;
   high_accel_flag = FALSE;
 }
 

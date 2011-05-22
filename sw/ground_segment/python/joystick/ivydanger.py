@@ -20,9 +20,11 @@ DEFAULT_AC_IDS = [ ]
 # of sliders!)
 DEFAULT_SLIDERS = [ ]
 
+DEFAULT_PORT = '/dev/ttyUSB0'
+
 class IvyStick(arduino_dangerboard):
-  def __init__(self, ac_ids, settings_names):
-    arduino_dangerboard.__init__(self)
+  def __init__(self, ac_ids, settings_names, port):
+    arduino_dangerboard.__init__(self, port)
     if (len(settings_names) > self.SLIDER_COUNT):
       raise Exception("Number of settings greater than number of sliders")
     if (len(ac_ids) < 1):
@@ -59,6 +61,7 @@ where
 \t-h | --help print this message
 \t-a AC_ID | --ac_id=AC_ID where AC_ID is an aircraft ID to use for settings (multiple IDs may be passed)
 \t-s S1:S2:S3 | --sliders=S1:S2:S3 where S1, S2, S3 are the names of the slider settings to send
+\t-p PORT | --port=PORT where PORT is the name of the serial port for the slider box
 '''
   print fmt   %  lpathitem[-1]
 
@@ -66,9 +69,9 @@ def GetOptions():
   # Map dangerboard sliders to these settings from aircraft settings
   # file, in that order (dimension of this list needs to match number
   # of sliders!)
-  options = {'ac_id':DEFAULT_AC_IDS, 'sliders':DEFAULT_SLIDERS}
+  options = {'ac_id':DEFAULT_AC_IDS, 'sliders':DEFAULT_SLIDERS, 'port':DEFAULT_PORT}
   try:
-    optlist, left_args = getopt.getopt(sys.argv[1:],'h:a:s:', ['help', 'ac_id=', 'sliders='])
+    optlist, left_args = getopt.getopt(sys.argv[1:],'h:a:s:p:', ['help', 'ac_id=', 'sliders=', 'port='])
   except getopt.GetoptError:
     # print help information and exit:
     Usage(sys.argv[0])
@@ -81,6 +84,8 @@ def GetOptions():
       options['ac_id'] = [ int(a) ]
     elif o in ("-s", "--sliders"):
       options['sliders'] = a.split(':')
+    elif o in ("-p", "--port"):
+      options['port'] = a
 
   return options
 
@@ -91,7 +96,7 @@ def main():
   signal.signal(signal.SIGINT, signal_handler)
 
   options = GetOptions()
-  ivyStick = IvyStick(options['ac_id'], options['sliders'])
+  ivyStick = IvyStick(options['ac_id'], options['sliders'], options['port'])
   ivyStick.poll()
 
 if __name__ == '__main__':
