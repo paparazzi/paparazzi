@@ -691,11 +691,11 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
 	(** Connect the GPS reset button *)
 	begin
 	  try
-	    let gps_reset_id = settings_tab#assoc "gps_reset" in
+	    let gps_reset_id = settings_tab#assoc "gps.reset" in
 	    gps_page#connect_reset
 	      (fun x -> dl_setting_callback gps_reset_id (float x))
 	  with Not_found ->
-	    prerr_endline "Warning: GPS reset not setable from GCS (i.e. 'gps_reset' not listed in the xml settings file)"
+	    prerr_endline "Warning: GPS reset not setable from GCS (i.e. 'gps.reset' not listed in the xml settings file)"
 	end
     | None -> ()
   end;
