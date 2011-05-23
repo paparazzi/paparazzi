@@ -779,7 +779,19 @@
     <field name="c7" type="uint16"/>
   </message>
 
- <!--118 is free -->
+  <message name="ATMOSPHERE_CHARGE" id="118">
+    <field name="t0" type="uint16"/>
+    <field name="t1" type="uint16"/>
+    <field name="t2" type="uint16"/>
+    <field name="t3" type="uint16"/>
+    <field name="t4" type="uint16"/>
+    <field name="t5" type="uint16"/>
+    <field name="t6" type="uint16"/>
+    <field name="t7" type="uint16"/>
+    <field name="t8" type="uint16"/>
+    <field name="t9" type="uint16"/>
+  </message>
+
  <!--119 is free -->
 
   <message name="TCAS_TA" ID="120">
