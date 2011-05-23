@@ -1,0 +1,13 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="alt_filter" dir="ins">
+  <header>
+    <file name="alt_filter.h"/>
+  </header>
+  <init fun="alt_filter_init()"/>
+  <periodic fun="alt_filter_periodic()" freq="60."/>
+  <makefile>
+    <file name="alt_filter.c"/>
+  </makefile>
+</module>
+

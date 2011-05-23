@@ -104,6 +104,18 @@ void baro_ets_read_periodic( void ) {
 #endif
 }
 
+#ifdef BARO_ETS_TELEMETRY
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+
+#include "mcu_periph/uart.h"
+#include "messages.h"
+#include "downlink.h"
+
+#endif
+
 void baro_ets_read_event( void ) {
   // Get raw altimeter from buffer
   baro_ets_adc = ((uint16_t)(baro_ets_i2c_trans.buf[1]) << 8) | (uint16_t)(baro_ets_i2c_trans.buf[0]);
@@ -138,6 +150,9 @@ void baro_ets_read_event( void ) {
       baro_ets_altitude = ground_alt + BARO_ETS_SCALE * (float)(baro_ets_offset-baro_ets_adc);
       // New value available
       EstimatorSetAlt(baro_ets_altitude);
+#ifdef BARO_ETS_TELEMETRY
+      DOWNLINK_SEND_BARO_ETS(DefaultChannel, &baro_ets_adc, &baro_ets_offset, &baro_ets_altitude);
+#endif
     } else {
       baro_ets_altitude = 0.0;
     }
