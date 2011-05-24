@@ -12,8 +12,8 @@
   </servos>
 
   <commands>
-    <axis name="PITCH"  failsafe_value="0"/>
     <axis name="ROLL"   failsafe_value="0"/>
+    <axis name="PITCH"  failsafe_value="0"/>
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
