@@ -140,9 +140,9 @@ static void attitude_run_ff(int32_t ff_commands[], struct Int32AttitudeGains *ga
 {
   /* Compute feedforward based on reference acceleration */
 
-  ff_commands[COMMAND_ROLL]          = GAIN_PRESCALER_FF * gains->dd.x * ref_accel->p;
-  ff_commands[COMMAND_PITCH]         = GAIN_PRESCALER_FF * gains->dd.y * ref_accel->q;
-  ff_commands[COMMAND_YAW]           = GAIN_PRESCALER_FF * gains->dd.z * ref_accel->r;
+  ff_commands[COMMAND_ROLL]          = GAIN_PRESCALER_FF * gains->dd.x * RATE_FLOAT_OF_BFP(ref_accel->p);
+  ff_commands[COMMAND_PITCH]         = GAIN_PRESCALER_FF * gains->dd.y * RATE_FLOAT_OF_BFP(ref_accel->q);
+  ff_commands[COMMAND_YAW]           = GAIN_PRESCALER_FF * gains->dd.z * RATE_FLOAT_OF_BFP(ref_accel->r);
   /*
   ff_commands[COMMAND_ROLL_SURFACE]  = GAIN_PRESCALER_FF * gains->surface_dd.x * ref_accel->p;
   ff_commands[COMMAND_PITCH_SURFACE] = GAIN_PRESCALER_FF * gains->surface_dd.y * ref_accel->q;
@@ -155,22 +155,22 @@ static void attitude_run_fb(int32_t fb_commands[], struct Int32AttitudeGains *ga
 {
   /*  PID feedback */
   fb_commands[COMMAND_ROLL] =
-    GAIN_PRESCALER_P * -gains->p.x  * att_err->qx +
-    GAIN_PRESCALER_D * gains->d.x  * rate_err->p +
+    GAIN_PRESCALER_P * -gains->p.x  * QUAT1_FLOAT_OF_BFP(att_err->qx)  / 2+
+    GAIN_PRESCALER_D * gains->d.x  * RATE_FLOAT_OF_BFP(rate_err->p) +
     //GAIN_PRESCALER_D * gains->rates_d.x  * rate_err_d->p +
-    GAIN_PRESCALER_I * gains->i.x  * sum_err->qx;
+    GAIN_PRESCALER_I * gains->i.x  * QUAT1_FLOAT_OF_BFP(sum_err->qx) / 2;
 
   fb_commands[COMMAND_PITCH] =
-    GAIN_PRESCALER_P * -gains->p.y  * att_err->qy +
-    GAIN_PRESCALER_D * gains->d.y  * rate_err->q +
+    GAIN_PRESCALER_P * -gains->p.y  * QUAT1_FLOAT_OF_BFP(att_err->qy)  / 2+
+    GAIN_PRESCALER_D * gains->d.y  * RATE_FLOAT_OF_BFP(rate_err->q) +
     //GAIN_PRESCALER_D * gains->rates_d.y  * rate_err_d->q +
-    GAIN_PRESCALER_I * gains->i.y  * sum_err->qy;
+    GAIN_PRESCALER_I * gains->i.y  * QUAT1_FLOAT_OF_BFP(sum_err->qy) / 2;
 
   fb_commands[COMMAND_YAW] =
-    GAIN_PRESCALER_P * -gains->p.z  * att_err->qz +
-    GAIN_PRESCALER_D * gains->d.z  * rate_err->r +
+    GAIN_PRESCALER_P * -gains->p.z  * QUAT1_FLOAT_OF_BFP(att_err->qz)  / 2+
+    GAIN_PRESCALER_D * gains->d.z  * RATE_FLOAT_OF_BFP(rate_err->r) +
     //GAIN_PRESCALER_D * gains->rates_d.z  * rate_err_d->r +
-    GAIN_PRESCALER_I * gains->i.z  * sum_err->qz;
+    GAIN_PRESCALER_I * gains->i.z  * QUAT1_FLOAT_OF_BFP(sum_err->qz) / 2;
 
   /*
   fb_commands[COMMAND_ROLL_SURFACE] =
