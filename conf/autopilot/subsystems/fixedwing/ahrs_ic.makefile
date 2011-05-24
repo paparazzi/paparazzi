@@ -13,7 +13,6 @@ AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl.h\"
 AHRS_SRCS   += subsystems/ahrs.c
 AHRS_SRCS   += subsystems/ahrs/ahrs_int_cmpl.c
 AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
-AHRS_SRCS   += math/pprz_trig_int.c
 
 ap.CFLAGS += $(AHRS_CFLAGS)
 ap.srcs += $(AHRS_SRCS)
