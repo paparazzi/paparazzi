@@ -51,6 +51,11 @@ ap.srcs    = $(SRC_FIRMWARE)/main.c
 ap.srcs   += mcu.c
 ap.srcs   += $(SRC_ARCH)/mcu_arch.c
 
+#
+# Math functions
+#
+$(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c
+
 ifeq ($(ARCH), stm32)
 ap.srcs += lisa/plug_sys.c
 endif
@@ -185,7 +190,6 @@ endif
 
 ap.srcs += $(SRC_FIRMWARE)/autopilot.c
 
-ap.srcs += math/pprz_trig_int.c
 ap.srcs += $(SRC_FIRMWARE)/stabilization.c
 ap.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
 
@@ -194,7 +198,6 @@ ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
 ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
 
 ap.srcs += $(SRC_SUBSYSTEMS)/ins.c
-ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c
 
 #
 # INS choice

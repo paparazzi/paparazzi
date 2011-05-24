@@ -55,7 +55,6 @@ imu_CFLAGS += -DADC_CHANNEL_ACCEL_X=$(ACCEL_X) -DADC_CHANNEL_ACCEL_Y=$(ACCEL_Y) 
 
 imu_srcs += $(SRC_SUBSYSTEMS)/imu.c
 imu_srcs += $(SRC_SUBSYSTEMS)/imu/imu_analog.c
-imu_srcs += math/pprz_trig_int.c
 
 endif
 

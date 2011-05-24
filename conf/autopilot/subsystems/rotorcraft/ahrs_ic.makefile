@@ -13,7 +13,6 @@ AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl.h\"
 AHRS_SRCS   += subsystems/ahrs.c
 AHRS_SRCS   += subsystems/ahrs/ahrs_int_cmpl.c
 AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
-AHRS_SRCS   += math/pprz_trig_int.c
 
 ap.CFLAGS += $(AHRS_CFLAGS)
 ap.srcs += $(AHRS_SRCS)
@@ -21,23 +20,4 @@ ap.srcs += $(AHRS_SRCS)
 sim.CFLAGS += $(AHRS_CFLAGS)
 sim.srcs += $(AHRS_SRCS)
 
-
-# Extra stuff for fixedwings
-
-ifdef CPU_LED
-  ap.CFLAGS += -DAHRS_CPU_LED=$(CPU_LED)
-endif
-
-ifdef AHRS_PROPAGATE_FREQUENCY
-else
-  AHRS_PROPAGATE_FREQUENCY = 60
-endif
-
-ifdef AHRS_CORRECT_FREQUENCY
-else
-  AHRS_CORRECT_FREQUENCY = 60
-endif
-
-ap.CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(AHRS_PROPAGATE_FREQUENCY)
-ap.CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
 
