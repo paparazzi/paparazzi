@@ -80,12 +80,14 @@
   </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
-
     <!-- setpoints -->
     <define name="SP_MAX_PHI"     value="RadOfDeg(45.)"/>
     <define name="SP_MAX_THETA"   value="RadOfDeg(45.)"/>
+    <define name="SP_MAX_PSI"     value="RadOfDeg(45.)"/>
     <define name="SP_MAX_R"       value="RadOfDeg(90.)"/>
+    <define name="SP_MAX_P"       value="RadOfDeg(90.)"/>
     <define name="DEADBAND_R"     value="250"/>
+    <define name="DEADBAND_A"     value="250"/>
 
     <!-- reference -->
     <define name="REF_OMEGA_P"  value="RadOfDeg(600)"/>
@@ -192,6 +194,7 @@
     <subsystem name="imu"           type="aspirin"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="ic"/>
+    <subsystem name="stabilization" type="quaternion"/>
   </firmware>
 
 

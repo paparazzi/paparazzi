@@ -23,5 +23,6 @@
  <subsystem name="gps"       types="skytraq|ublox"/>
  <subsystem name="ahrs"      types="cmpl"/>
  <subsystem name="ins"       types="hff"/>
+ <subsystem name="stabilization"       types="euler|quaternion"/>
 
 </firmware>

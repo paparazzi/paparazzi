@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="charge_sens" dir="meteo">
+  <header>
+    <file name="charge_sens.h"/>
+  </header>
+  <init fun="charge_sens_init()"/>
+  <periodic fun="charge_sens_periodic()" freq="10"/>
+  <event fun="charge_sens_event()"/>
+  <makefile target="ap">
+    <file name="charge_sens.c"/>
+  </makefile>
+</module>
+

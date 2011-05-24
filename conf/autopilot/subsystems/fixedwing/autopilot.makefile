@@ -84,7 +84,7 @@ $(TARGET).srcs 		+= $(SRC_FIXEDWING)/inter_mcu.c
 #
 # Math functions
 #
-$(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c
+$(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c
 
 ######################################################################
 ##
