@@ -1,6 +1,7 @@
-/*  $Id$
+/*
+ * $Id$
  *
- * (c) 2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2007-2009  ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -21,20 +22,33 @@
  *
  */
 
-#ifndef BOOZ2_COMMANDS_H
-#define BOOZ2_COMMANDS_H
+#include "subsystems/navigation/common_flight_plan.h"
 
-#include "paparazzi.h"
-#include "generated/airframe.h"
+#include "generated/flight_plan.h"
 
-extern int32_t booz2_commands[COMMANDS_NB];
-extern const int32_t booz2_commands_failsafe[COMMANDS_NB];
 
-#define SetCommands(_in_cmd, _in_flight, _motors_on) {			\
-    booz2_commands[COMMAND_PITCH]  = _in_cmd[COMMAND_PITCH];		\
-    booz2_commands[COMMAND_ROLL]   = _in_cmd[COMMAND_ROLL];		\
-    booz2_commands[COMMAND_YAW]    = (_in_flight) ? _in_cmd[COMMAND_YAW] : 0; \
-    booz2_commands[COMMAND_THRUST] = (_motors_on) ? _in_cmd[COMMAND_THRUST] : 0; \
+/** In s */
+uint16_t stage_time, block_time;
+
+uint8_t nav_stage, nav_block;
+
+/** To save the current block/stage to enable return */
+uint8_t last_block, last_stage;
+
+
+
+void nav_init_block(void) {
+  if (nav_block >= NB_BLOCK)
+    nav_block=NB_BLOCK-1;
+  nav_stage = 0;
+  block_time = 0;
+  InitStage();
+}
+
+void nav_goto_block(uint8_t b) {
+  if (b != nav_block) { /* To avoid a loop in a the current block */
+    last_block = nav_block;
+    last_stage = nav_stage;
   }
-
-#endif /* BOOZ2_COMMANDS_H */
+  GotoBlock(b);
+}

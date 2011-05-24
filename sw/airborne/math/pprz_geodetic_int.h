@@ -56,7 +56,7 @@ struct EcefCoor_i {
 struct LlaCoor_i {
   int32_t lon; ///< in radians*1e7
   int32_t lat; ///< in radians*1e7
-  int32_t alt; ///< in centimeters above WGS84 reference ellipsoid
+  int32_t alt; ///< in millimeters above WGS84 reference ellipsoid
 };
 
 /**
@@ -80,10 +80,10 @@ struct EnuCoor_i {
 /**
  * @brief position in UTM coordinates
  */
-struct UTMCoor_i {
+struct UtmCoor_i {
   int32_t north; ///< in centimeters
   int32_t east; ///< in centimeters
-  int32_t alt; ///< in centimeters above WGS84 reference ellipsoid
+  int32_t alt; ///< in millimeters above WGS84 reference ellipsoid
   uint8_t zone; ///< UTM zone number
 };
 
@@ -96,7 +96,7 @@ struct LtpDef_i {
   struct EcefCoor_i ecef;        ///< Reference point in ecef
   struct LlaCoor_i  lla;         ///< Reference point in lla
   struct Int32Mat33 ltp_of_ecef; ///< Rotation matrix
-  int32_t hmsl;                  ///< Height above mean sea level
+  int32_t hmsl;                  ///< Height above mean sea level in mm
 };
 
 extern void ltp_def_from_ecef_i(struct LtpDef_i* def, struct EcefCoor_i* ecef);
@@ -118,8 +118,10 @@ extern void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, st
 
 #define CM_OF_M(_m)  ((_m)*1e2)
 #define M_OF_CM(_cm) ((_cm)/1e2)
-#define EM7RAD_OF_RAD(_r) (_r*1e7)
-#define RAD_OF_EM7RAD(_r) (_r/1e7)
+#define MM_OF_M(_m)  ((_m)*1e3)
+#define M_OF_MM(_mm) ((_mm)/1e3)
+#define EM7RAD_OF_RAD(_r) ((_r)*1e7)
+#define RAD_OF_EM7RAD(_r) ((_r)/1e7)
 
 #define INT32_VECT3_ENU_OF_NED(_o, _i) {		\
     (_o).x = (_i).y;                            \
@@ -144,13 +146,13 @@ extern void ecef_of_ned_vect_i(struct EcefCoor_i* ecef, struct LtpDef_i* def, st
 #define LLA_BFP_OF_REAL(_o, _i) {                \
     (_o).lat = (int32_t)EM7RAD_OF_RAD((_i).lat); \
     (_o).lon = (int32_t)EM7RAD_OF_RAD((_i).lon); \
-    (_o).alt = (int32_t)CM_OF_M((_i).alt);       \
+    (_o).alt = (int32_t)MM_OF_M((_i).alt);       \
   }
 
 #define LLA_FLOAT_OF_BFP(_o, _i) {                   \
     (_o).lat = (float)RAD_OF_EM7RAD((_i).lat);    \
     (_o).lon = (float)RAD_OF_EM7RAD((_i).lon);    \
-    (_o).alt = (float)M_OF_CM((_i).alt);          \
+    (_o).alt = (float)M_OF_MM((_i).alt);          \
   }
 
 #define NED_BFP_OF_REAL(_o, _i) {       \

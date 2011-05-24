@@ -35,12 +35,12 @@
 #include "subsystems/settings.h"
 #include "xbee.h"
 
-#include "booz2_commands.h"
+#include "firmwares/rotorcraft/commands.h"
 #include "firmwares/rotorcraft/actuators.h"
 #include "subsystems/radio_control.h"
 
 #include "subsystems/imu.h"
-#include "booz_gps.h"
+#include "subsystems/gps.h"
 
 #include "subsystems/sensors/baro.h"
 #include "baro_board.h"
@@ -120,7 +120,7 @@ STATIC_INLINE void main_init( void ) {
   ins_init();
 
 #ifdef USE_GPS
-  booz_gps_init();
+  gps_init();
 #endif
 
   modules_init();
@@ -169,10 +169,9 @@ STATIC_INLINE void main_periodic( void ) {
     } );
 
 #ifdef USE_GPS
-  if (radio_control.status != RC_OK &&				\
+  if (radio_control.status != RC_OK &&                  \
       autopilot_mode == AP_MODE_NAV && GpsIsLost())		\
-    autopilot_set_mode(AP_MODE_FAILSAFE);			\
-  booz_gps_periodic();
+    autopilot_set_mode(AP_MODE_FAILSAFE);
 #endif
 
   modules_periodic_task();
@@ -196,7 +195,7 @@ STATIC_INLINE void main_event( void ) {
   BaroEvent(on_baro_abs_event, on_baro_dif_event);
 
 #ifdef USE_GPS
-  BoozGpsEvent(on_gps_event);
+  GpsEvent(on_gps_event);
 #endif
 
 #ifdef FAILSAFE_GROUND_DETECT
@@ -250,7 +249,7 @@ static inline void on_baro_dif_event( void ) {
 static inline void on_gps_event(void) {
   ins_update_gps();
 #ifdef USE_VEHICLE_INTERFACE
-  if (booz_gps_state.fix == BOOZ2_GPS_FIX_3D)
+  if (gps.fix == GPS_FIX_3D)
     vi_notify_gps_available();
 #endif
 }

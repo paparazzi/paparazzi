@@ -100,7 +100,7 @@ void ahrs_init(void) {
 
 void ahrs_align(void) {
 
-  
+
   /* Compute an initial orientation using euler angles */
   ahrs_int_get_euler_from_accel_mag(&ahrs.ltp_to_imu_euler, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
   /* Convert initial orientation in quaternion and rotation matrice representations. */
@@ -215,12 +215,12 @@ void ahrs_update_mag(void) {
 
 
 static inline void ahrs_update_mag_full(void) {
-  const struct Int32Vect3 expected_ltp = {MAG_BFP_OF_REAL(AHRS_H_X), 
-					  MAG_BFP_OF_REAL(AHRS_H_Y), 
+  const struct Int32Vect3 expected_ltp = {MAG_BFP_OF_REAL(AHRS_H_X),
+					  MAG_BFP_OF_REAL(AHRS_H_Y),
 					  MAG_BFP_OF_REAL(AHRS_H_Z)};
   struct Int32Vect3 expected_imu;
   INT32_RMAT_VMULT(expected_imu, ahrs.ltp_to_imu_rmat, expected_ltp);
-  
+
   struct Int32Vect3 residual;
   INT32_VECT3_CROSS_PRODUCT(residual, imu.mag, expected_imu);
 
@@ -228,12 +228,12 @@ static inline void ahrs_update_mag_full(void) {
   ahrs_impl.rate_correction.q += residual.y/32/16;
   ahrs_impl.rate_correction.r += residual.z/32/16;
 
-  
+
   ahrs_impl.high_rez_bias.p += -residual.x/32*1024;
   ahrs_impl.high_rez_bias.q += -residual.y/32*1024;
   ahrs_impl.high_rez_bias.r += -residual.z/32*1024;
 
-  
+
   INT_RATES_RSHIFT(ahrs_impl.gyro_bias, ahrs_impl.high_rez_bias, 28);
 
 }
@@ -241,17 +241,17 @@ static inline void ahrs_update_mag_full(void) {
 
 static inline void ahrs_update_mag_2d(void) {
 
-  const struct Int32Vect2 expected_ltp = {MAG_BFP_OF_REAL(AHRS_H_X), 
+  const struct Int32Vect2 expected_ltp = {MAG_BFP_OF_REAL(AHRS_H_X),
 					  MAG_BFP_OF_REAL(AHRS_H_Y)};
 
   struct Int32Vect3 measured_ltp;
   INT32_RMAT_TRANSP_VMULT(measured_ltp, ahrs.ltp_to_imu_rmat, imu.mag);
-  
-  struct Int32Vect3 residual_ltp = 
+
+  struct Int32Vect3 residual_ltp =
     { 0,
       0,
       (measured_ltp.x * expected_ltp.y - measured_ltp.y * expected_ltp.x)/(1<<5)};
-  
+
   struct Int32Vect3 residual_imu;
   INT32_RMAT_VMULT(residual_imu, ahrs.ltp_to_imu_rmat, residual_ltp);
 
@@ -266,7 +266,7 @@ static inline void ahrs_update_mag_2d(void) {
   ahrs_impl.rate_correction.p += residual_imu.x/16;
   ahrs_impl.rate_correction.q += residual_imu.y/16;
   ahrs_impl.rate_correction.r += residual_imu.z/16;
-  
+
 
   // residual_ltp FRAC = 2 * MAG_FRAC = 22
   // high_rez_bias = RATE_FRAC+28 = 40
@@ -300,12 +300,12 @@ __attribute__ ((always_inline)) static inline void compute_imu_quat_and_rmat_fro
 /* Compute ltp to imu rotation in euler angles and rotation matrice representation
    from the quaternion representation */
 __attribute__ ((always_inline)) static inline void compute_imu_euler_and_rmat_from_quat(void) {
-  
+
   /* Compute LTP to IMU euler */
   INT32_EULERS_OF_QUAT(ahrs.ltp_to_imu_euler, ahrs.ltp_to_imu_quat);
   /* Compute LTP to IMU rotation matrix */
   INT32_RMAT_OF_QUAT(ahrs.ltp_to_imu_rmat, ahrs.ltp_to_imu_quat);
-  
+
 }
 
 __attribute__ ((always_inline)) static inline void compute_body_orientation(void) {
@@ -319,4 +319,28 @@ __attribute__ ((always_inline)) static inline void compute_body_orientation(void
   /* compute body rates */
   INT32_RMAT_TRANSP_RATEMULT(ahrs.body_rate, imu.body_to_imu_rmat, ahrs.imu_rate);
 
+}
+
+// TODO use ahrs result directly
+#include "estimator.h"
+// remotely settable
+#ifndef INS_ROLL_NEUTRAL_DEFAULT
+#define INS_ROLL_NEUTRAL_DEFAULT 0
+#endif
+#ifndef INS_PITCH_NEUTRAL_DEFAULT
+#define INS_PITCH_NEUTRAL_DEFAULT 0
+#endif
+float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
+float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
+void ahrs_update_fw_estimator(void)
+{
+  struct FloatEulers att;
+  // export results to estimator
+  EULERS_FLOAT_OF_BFP(att,ahrs.ltp_to_imu_euler);
+
+  estimator_phi   = att.phi;
+  estimator_theta = att.theta;
+  estimator_psi   = att.psi;
+
+  //estimator_p = Omega_Vector[0];
 }

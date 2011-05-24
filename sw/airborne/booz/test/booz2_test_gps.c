@@ -27,7 +27,7 @@
 #include "mcu.h"
 #include "sys_time.h"
 #include "downlink.h"
-#include "booz_gps.h"
+#include "subsystems/gps.h"
 #include "interrupt_hw.h"
 
 static inline void main_init( void );
@@ -50,7 +50,7 @@ static inline void main_init( void ) {
   mcu_init();
   sys_time_init();
   led_init();
-  booz_gps_init();
+  gps_init();
   mcu_int_enable();
 }
 
@@ -61,27 +61,27 @@ static inline void main_periodic_task( void ) {
 }
 
 static inline void main_event_task( void ) {
-  BoozGpsEvent(on_gps_sol);
+  GpsEvent(on_gps_sol);
 
 }
 
 static void on_gps_sol(void) {
 
-  DOWNLINK_SEND_BOOZ2_GPS( DefaultChannel,
-			   &booz_gps_state.ecef_pos.x,
-			   &booz_gps_state.ecef_pos.y,
-			   &booz_gps_state.ecef_pos.z,
-			   &booz_gps_state.lla_pos.lat,
-			   &booz_gps_state.lla_pos.lon,
-			   &booz_gps_state.lla_pos.alt,
-			   &booz_gps_state.ecef_vel.x,
-			   &booz_gps_state.ecef_vel.y,
-			   &booz_gps_state.ecef_vel.z,
-			   &booz_gps_state.pacc,
-			   &booz_gps_state.sacc,
-			   &booz_gps_state.tow,
-			   &booz_gps_state.pdop,
-			   &booz_gps_state.num_sv,
-			   &booz_gps_state.fix);
+  DOWNLINK_SEND_GPS_INT( DefaultChannel,
+			   &gps.ecef_pos.x,
+			   &gps.ecef_pos.y,
+			   &gps.ecef_pos.z,
+			   &gps.lla_pos.lat,
+			   &gps.lla_pos.lon,
+			   &gps.lla_pos.alt,
+			   &gps.ecef_vel.x,
+			   &gps.ecef_vel.y,
+			   &gps.ecef_vel.z,
+			   &gps.pacc,
+			   &gps.sacc,
+			   &gps.tow,
+			   &gps.pdop,
+			   &gps.num_sv,
+			   &gps.fix);
 
 }

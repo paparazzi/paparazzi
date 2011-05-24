@@ -27,7 +27,7 @@
 #include "led.h"
 
 #include "mcu_periph/i2c.h"
-#include "booz/booz2_commands.h"
+#include "firmwares/rotorcraft/commands.h"
 #include "firmwares/rotorcraft/actuators.h"
 
 static inline void main_init( void );
@@ -56,10 +56,10 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
 
-  booz2_commands[COMMAND_ROLL]=0;
-  booz2_commands[COMMAND_PITCH]=0;
-  booz2_commands[COMMAND_YAW]=0;
-  booz2_commands[COMMAND_THRUST]=1;
+  commands[COMMAND_ROLL]=0;
+  commands[COMMAND_PITCH]=0;
+  commands[COMMAND_YAW]=0;
+  commands[COMMAND_THRUST]=1;
 
   actuators_set(TRUE);
 

@@ -5,7 +5,7 @@
 #include "firmwares/rotorcraft/actuators/supervision.h"
 #endif
 
-#include "booz/booz2_commands.h"
+#include "firmwares/rotorcraft/commands.h"
 #include "mcu_periph/i2c.h"
 #include "sys_time.h"
 
@@ -61,10 +61,10 @@ void actuators_set(bool_t motors_on) {
   actuators_asctec.cmds[YAW]    = 0;
   actuators_asctec.cmds[THRUST] = 0;
 #else /* ! KILL_MOTORS */
-  actuators_asctec.cmds[PITCH]  = booz2_commands[COMMAND_PITCH]  + SUPERVISION_TRIM_E;
-  actuators_asctec.cmds[ROLL]   = booz2_commands[COMMAND_ROLL]   + SUPERVISION_TRIM_A;
-  actuators_asctec.cmds[YAW]    = booz2_commands[COMMAND_YAW]    + SUPERVISION_TRIM_R;
-  actuators_asctec.cmds[THRUST] = booz2_commands[COMMAND_THRUST];
+  actuators_asctec.cmds[PITCH]  = commands[COMMAND_PITCH]  + SUPERVISION_TRIM_E;
+  actuators_asctec.cmds[ROLL]   = commands[COMMAND_ROLL]   + SUPERVISION_TRIM_A;
+  actuators_asctec.cmds[YAW]    = commands[COMMAND_YAW]    + SUPERVISION_TRIM_R;
+  actuators_asctec.cmds[THRUST] = commands[COMMAND_THRUST];
   Bound(actuators_asctec.cmds[PITCH],-100, 100);
   Bound(actuators_asctec.cmds[ROLL], -100, 100);
   Bound(actuators_asctec.cmds[YAW],  -100, 100);
@@ -112,7 +112,7 @@ void actuators_set(bool_t motors_on) {
 #else /* ! ACTUATORS_ASCTEC_V2_PROTOCOL */
 void actuators_set(bool_t motors_on) {
   if (!cpu_time_sec) return; // FIXME
-  supervision_run(motors_on, FALSE, booz2_commands);
+  supervision_run(motors_on, FALSE, commands);
 #ifdef KILL_MOTORS
   actuators_asctec.i2c_trans.buf[0] = 0;
   actuators_asctec.i2c_trans.buf[1] = 0;

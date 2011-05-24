@@ -101,7 +101,7 @@ ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 ap.srcs += mcu_periph/i2c.c
 ap.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
-ap.srcs += $(SRC_BOOZ)/booz2_commands.c
+ap.srcs += $(SRC_FIRMWARE)/commands.c
 
 #
 # Radio control choice
@@ -216,7 +216,7 @@ ap.srcs += $(SRC_SUBSYSTEMS)/ins/vf_float.c
 ap.CFLAGS += -DUSE_VFF -DDT_VFILTER='(1./$(PERIODIC_FREQUENCY).)'
 
 ap.srcs += $(SRC_FIRMWARE)/navigation.c
-
+ap.srcs += subsystems/navigation/common_flight_plan.c
 
 #
 # FMS  choice

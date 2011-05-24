@@ -26,7 +26,7 @@
 #include "firmwares/rotorcraft/navigation.h"
 
 #include "pprz_debug.h"
-#include "booz_gps.h"
+#include "subsystems/gps.h"
 #include "subsystems/ins.h"
 
 #include "firmwares/rotorcraft/autopilot.h"
@@ -44,10 +44,6 @@ struct EnuCoor_i navigation_carrot;
 
 struct EnuCoor_i nav_last_point;
 
-uint16_t stage_time, block_time;
-
-uint8_t nav_stage, nav_block;
-uint8_t last_block, last_stage;
 uint8_t last_wp __attribute__ ((unused));
 
 int32_t ground_alt;
@@ -260,8 +256,8 @@ unit_t nav_reset_alt( void ) {
   ins_vf_realign = TRUE;
 
 #ifdef USE_GPS
-  ins_ltp_def.lla.alt = booz_gps_state.lla_pos.alt;
-  ins_ltp_def.hmsl = booz_gps_state.hmsl;
+  ins_ltp_def.lla.alt = gps.lla_pos.alt;
+  ins_ltp_def.hmsl = gps.hmsl;
 #endif
 
   return 0;
@@ -272,22 +268,6 @@ void nav_init_stage( void ) {
   stage_time = 0;
   nav_circle_radians = 0;
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
-}
-
-void nav_init_block(void) {
-  if (nav_block >= NB_BLOCK)
-    nav_block=NB_BLOCK-1;
-  nav_stage = 0;
-  block_time = 0;
-  InitStage();
-}
-
-void nav_goto_block(uint8_t b) {
-  if (b != nav_block) { /* To avoid a loop in a the current block */
-    last_block = nav_block;
-    last_stage = nav_stage;
-  }
-  GotoBlock(b);
 }
 
 #include <stdio.h>
@@ -301,7 +281,6 @@ void nav_periodic_task() {
   nav_run();
 
   ground_alt = POS_BFP_OF_REAL((float)ins_ltp_def.hmsl / 100.);
-
 }
 
 #include "downlink.h"

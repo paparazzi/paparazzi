@@ -22,10 +22,10 @@ static survey_orientation_t survey_orientation = NS;
 
 
 void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orientation_t so) {
-  nav_survey_west = Min(waypoints[wp1].x, waypoints[wp2].x);
-  nav_survey_east = Max(waypoints[wp1].x, waypoints[wp2].x);
-  nav_survey_south = Min(waypoints[wp1].y, waypoints[wp2].y);
-  nav_survey_north = Max(waypoints[wp1].y, waypoints[wp2].y);
+  nav_survey_west = Min(WaypointX(wp1), WaypointX(wp2));
+  nav_survey_east = Max(WaypointX(wp1), WaypointX(wp2));
+  nav_survey_south = Min(WaypointY(wp1), WaypointY(wp2));
+  nav_survey_north = Max(WaypointY(wp1), WaypointY(wp2));
   survey_orientation = so;
 
   if (survey_orientation == NS) {
@@ -58,10 +58,10 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2) {
 
   nav_survey_active = TRUE;
 
-  nav_survey_west = Min(waypoints[wp1].x, waypoints[wp2].x);
-  nav_survey_east = Max(waypoints[wp1].x, waypoints[wp2].x);
-  nav_survey_south = Min(waypoints[wp1].y, waypoints[wp2].y);
-  nav_survey_north = Max(waypoints[wp1].y, waypoints[wp2].y);
+  nav_survey_west = Min(WaypointX(wp1), WaypointX(wp2));
+  nav_survey_east = Max(WaypointX(wp1), WaypointX(wp2));
+  nav_survey_south = Min(WaypointY(wp1), WaypointY(wp2));
+  nav_survey_north = Max(WaypointY(wp1), WaypointY(wp2));
 
   /* Update the current segment from corners' coordinates*/
   if (SurveyGoingNorth()) {

@@ -154,19 +154,19 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 #endif
 
 
-#define GpsEventCheckAndHandle(_callback, _verbose) { \
-    if (GpsBuffer()) {                    \
-      ReadGpsBuffer();                    \
-    }                             \
-    if (gps_msg_received) {               \
-      GpsParseOrConfigure();                  \
-      gps_msg_received = FALSE;               \
-      if (gps_pos_available) {                \
-    gps_verbose_downlink = _verbose;          \
-    UseGpsPos(_callback);                 \
-    gps_pos_available = FALSE;            \
-      }                           \
-    }                             \
+#define GpsEventCheckAndHandle(_callback, _verbose) {   \
+    if (GpsBuffer()) {                                  \
+      ReadGpsBuffer();                                  \
+    }                                                   \
+    if (gps_msg_received) {                             \
+      GpsParseOrConfigure();                            \
+      gps_msg_received = FALSE;                         \
+      if (gps_pos_available) {                          \
+        gps_verbose_downlink = _verbose;                \
+        UseGpsPos(_callback);                           \
+        gps_pos_available = FALSE;                      \
+      }                                                 \
+    }                                                   \
   }
 
 

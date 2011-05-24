@@ -32,7 +32,7 @@
 #include "inter_mcu.h"
 #include "firmwares/fixedwing/autopilot.h"
 #include "estimator.h"
-#include "gps.h"
+#include "subsystems/gps.h"
 #include "subsystems/navigation/traffic_info.h"
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
@@ -45,7 +45,6 @@
 #include "firmwares/fixedwing/main_ap.h"
 #include "ap_downlink.h"
 #include "sim_uart.h"
-#include "latlong.h"
 #include "datalink.h"
 
 

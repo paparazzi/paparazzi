@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2008-2011  The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -28,6 +26,8 @@
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_geodetic_float.h"
 
+#include "subsystems/navigation/common_flight_plan.h"
+
 #define NAV_FREQ 16
 // FIXME use periodic FREQ
 #define NAV_PRESCALER (512/NAV_FREQ)
@@ -42,10 +42,6 @@ extern const uint8_t nb_waypoint;
 extern void nav_init(void);
 extern void nav_run(void);
 
-extern uint16_t stage_time, block_time;
-
-extern uint8_t nav_stage, nav_block;
-extern uint8_t last_block, last_stage;
 extern uint8_t last_wp __attribute__ ((unused));
 
 extern int32_t ground_alt;
@@ -70,9 +66,7 @@ extern float flight_altitude;
 #define VERTICAL_MODE_CLIMB       1
 #define VERTICAL_MODE_ALT         2
 
-void nav_init_stage(void);
-void nav_init_block(void);
-void nav_goto_block(uint8_t block_id);
+
 void compute_dist2_to_home(void);
 unit_t nav_reset_reference( void ) __attribute__ ((unused));
 unit_t nav_reset_alt( void ) __attribute__ ((unused));
@@ -85,29 +79,6 @@ void nav_home(void);
 #define NavKillThrottle() ({ if (autopilot_mode == AP_MODE_NAV) { kill_throttle = 1; autopilot_motors_on = 0; } FALSE; })
 #define NavResurrect() ({ if (autopilot_mode == AP_MODE_NAV) { kill_throttle = 0; autopilot_motors_on = 1; } FALSE; })
 
-#define InitStage() nav_init_stage();
-
-#define Block(x) case x: nav_block=x;
-#define NextBlock() { nav_block++; nav_init_block(); }
-#define GotoBlock(b) { nav_block=b; nav_init_block(); }
-
-#define Stage(s) case s: nav_stage=s;
-#define NextStageAndBreak() { nav_stage++; InitStage(); break; }
-#define NextStageAndBreakFrom(wp) { last_wp = wp; NextStageAndBreak(); }
-
-#define Label(x) label_ ## x:
-#define Goto(x) { goto label_ ## x; }
-#define Return() ({ nav_block=last_block; nav_stage=last_stage; block_time=0; FALSE;})
-
-#define And(x, y) ((x) && (y))
-#define Or(x, y) ((x) || (y))
-#define Min(x,y) (x < y ? x : y)
-#define Max(x,y) (x > y ? x : y)
-#define LessThan(_x, _y) ((_x) < (_y))
-#define MoreThan(_x, _y) ((_x) > (_y))
-
-/** Time in s since the entrance in the current block */
-#define NavBlockTime() (block_time)
 
 #define NavSetGroundReferenceHere() ({ nav_reset_reference(); FALSE; })
 #define NavSetAltitudeReferenceHere() ({ nav_reset_alt(); FALSE; })

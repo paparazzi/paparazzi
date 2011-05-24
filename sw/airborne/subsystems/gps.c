@@ -1,6 +1,5 @@
-/*  $Id$
- *
- * (c) 2009 Antoine Drouin <poinix@gmail.com>
+/*
+ * Copyright (C) 2008-2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -20,7 +19,22 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "booz2_commands.h"
+#include "subsystems/gps.h"
 
-int32_t booz2_commands[COMMANDS_NB];
-const int32_t booz2_commands_failsafe[COMMANDS_NB] = COMMANDS_FAILSAFE;
+#include "led.h"
+
+struct GpsState gps;
+
+#ifdef GPS_TIMESTAMP
+struct GpsTimeSync gps_time;
+#endif
+
+void gps_init(void) {
+  gps.fix = GPS_FIX_NONE;
+#ifdef GPS_LED
+  LED_OFF(GPS_LED);
+#endif
+#ifdef GPS_TYPE_H
+  gps_impl_init();
+#endif
+}

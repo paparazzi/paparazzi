@@ -206,13 +206,12 @@
     -->
     <!--    <load name="digital_cam_i2c.xml"/>  -->
 
- <!--     -->
+ <!--    <load name="ins_ppzuavimu.xml" /> -->
 
 <!--
     <load name="digital_cam.xml" >
       <define name="DC_SHUTTER_LED" value="3"/>
     </load>
-    <load name="ins_ppzuavimu.xml" />
     -->
   </modules>
 
@@ -243,12 +242,12 @@
       <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" />
     </subsystem>
     <subsystem name="imu" type="aspirin_i2c"/>
--->
-    
+    -->
     <subsystem name="imu" type="ppzuav"/>
     <subsystem name="attitude" type="dcm">
-      <define name="USE_MAGNETOMETER" />
+<!--      <define name="USE_MAGNETOMETER" /> -->
     </subsystem>
+
 
     <subsystem name="radio_control" type="ppm"/>
 

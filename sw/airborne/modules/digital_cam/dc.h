@@ -40,7 +40,7 @@
 #include "std.h"
 #include "led.h"
 #include "generated/airframe.h"
-#include "gps.h"
+#include "subsystems/gps.h"
 
 
 /* Generic Set of Digital Camera Commands */
@@ -111,7 +111,7 @@ static inline void dc_init(void)
 /* shoot on grid */
 static inline void dc_shot_on_utm_north_close_to_100m_grid( void )
 {
-  uint32_t dist_to_100m_grid = (gps_utm_north / 100) % 100;
+  uint32_t dist_to_100m_grid = (gps.utm_pos.north / 100) % 100;
   if (dist_to_100m_grid < dc_autoshoot_meter_grid || 100 - dist_to_100m_grid < dc_autoshoot_meter_grid)
   {
       dc_send_command(DC_SHOOT);

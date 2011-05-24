@@ -36,7 +36,9 @@ extern void overo_link_periodic(void);
 extern void overo_link_arch_init(void);
 extern void overo_link_arch_prepare_next_transfert(void);
 
+#ifndef SITL
 #include "lisa_overo_link_arch.h"
+#endif
 
 #if 0  /* that doesn't work yet */
 #define OveroLinkPeriodic(_timeout_handler) {				\

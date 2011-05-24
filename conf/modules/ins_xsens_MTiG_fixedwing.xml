@@ -10,12 +10,17 @@
   <periodic fun="ins_periodic_task()" freq="60"/>
   <event fun="InsEventCheckAndHandle(handle_ins_msg())"/>
   <makefile>
+    <define name="AHRS_TYPE_H" value="\\\"modules/ins/ins_xsens.h\\\"" />
+    <define name="INS_MODULE_H" value="\\\"modules/ins/ins_xsens.h\\\"" />
     <define name="USE_UART$(XSENS_UART_NR)"/>
     <define name="INS_LINK" value="Uart$(XSENS_UART_NR)"/>
-    <define name="UART$(XSENS_UART_NR)_BAUD" value="B115200"/>
+    <define name="UART$(XSENS_UART_NR)_BAUD" value="B230400"/>
     <define name="USE_GPS_XSENS"/>
     <define name="USE_GPS_XSENS_RAW_DATA" />
+    <define name="GPS_NB_CHANNELS" value="16" />
+    <define name="XSENS_OUTPUT_MODE" value="0x1836" />
     <file name="ins_xsens.c"/>
+    <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
   </makefile>
 </module>
 

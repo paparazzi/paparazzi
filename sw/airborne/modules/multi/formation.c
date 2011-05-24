@@ -16,7 +16,7 @@
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "autopilot.h"
-#include "gps.h"
+#include "subsystems/gps.h"
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
 #include "dl_protocol.h"
@@ -142,7 +142,7 @@ int formation_flight(void) {
     estimator_y += formation[the_acs_id[AC_ID]].north;
   }
   // set info for this AC
-  SetAcInfo(AC_ID, estimator_x, estimator_y, estimator_hspeed_dir, estimator_z, estimator_hspeed_mod, estimator_z_dot, gps_itow);
+  SetAcInfo(AC_ID, estimator_x, estimator_y, estimator_hspeed_dir, estimator_z, estimator_hspeed_mod, estimator_z_dot, gps.tow);
 
   // broadcast info
   uint8_t ac_id = AC_ID;
@@ -180,7 +180,7 @@ int formation_flight(void) {
   for (i = 0; i < NB_ACS; ++i) {
     if (the_acs[i].ac_id == AC_ID) continue;
     struct ac_info_ * ac = get_ac_info(the_acs[i].ac_id);
-    float delta_t = Max((int)(gps_itow - ac->itow) / 1000., 0.);
+    float delta_t = Max((int)(gps.tow - ac->itow) / 1000., 0.);
     if (delta_t > FORM_CARROT) {
       // if AC not responding for too long
       formation[i].status = LOST;

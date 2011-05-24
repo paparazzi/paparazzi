@@ -27,17 +27,21 @@
  */
 
 #include "ins_module.h"
+#include "ins_xsens.h"
 
 #include <inttypes.h>
 
 #include "generated/airframe.h"
 
+#include "sys_time.h"
 #include "downlink.h"
 #include "messages.h"
 
 #ifdef USE_GPS_XSENS
-#include "gps.h"
-#include "latlong.h"
+#include "subsystems/gps.h"
+#include "math/pprz_geodetic_wgs84.h"
+#include "math/pprz_geodetic_float.h"
+#include "subsystems/navigation/common_nav.h" /* needed for nav_utm_zone0 */
 #endif
 
 INS_FORMAT ins_x;
@@ -63,6 +67,16 @@ INS_FORMAT ins_az;
 INS_FORMAT ins_mx;
 INS_FORMAT ins_my;
 INS_FORMAT ins_mz;
+
+float ins_pitch_neutral;
+float ins_roll_neutral;
+
+volatile uint8_t new_ins_attitude;
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+//	XSens Specific
+//
 
 volatile uint8_t ins_msg_received;
 
@@ -152,11 +166,25 @@ uint8_t xsens_msg_buf[XSENS_MAX_PAYLOAD];
 #define GOT_DATA      5
 #define GOT_CHECKSUM  6
 
+// FIXME Debugging Only
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+#include "mcu_periph/uart.h"
+#include "messages.h"
+#include "downlink.h"
+
+
 uint8_t xsens_errorcode;
 uint8_t xsens_msg_status;
 uint16_t xsens_time_stamp;
 uint16_t xsens_output_mode;
 uint32_t xsens_output_settings;
+float xsens_declination = 0;
+float xsens_gps_arm_x = 0;
+float xsens_gps_arm_y = 0;
+float xsens_gps_arm_z = 0;
+
 
 int8_t xsens_hour;
 int8_t xsens_min;
@@ -165,9 +193,6 @@ int32_t xsens_nanosec;
 int16_t xsens_year;
 int8_t xsens_month;
 int8_t xsens_day;
-float xsens_lat;
-float xsens_lon;
-
 
 static uint8_t xsens_id;
 static uint8_t xsens_status;
@@ -176,43 +201,122 @@ static uint8_t xsens_msg_idx;
 static uint8_t ck;
 uint8_t send_ck;
 
+struct LlaCoor_f lla_f;
+struct UtmCoor_f utm_f;
+
+volatile int xsens_configured = 0;
+
 void ins_init( void ) {
 
   xsens_status = UNINIT;
+  xsens_configured = 20;
+
+  ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
+  ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
 
   xsens_msg_status = 0;
   xsens_time_stamp = 0;
   xsens_output_mode = XSENS_OUTPUT_MODE;
   xsens_output_settings = XSENS_OUTPUT_SETTINGS;
-  /* send mode and settings to MT */
-  XSENS_GoToConfig();
-  XSENS_SetOutputMode(xsens_output_mode);
-  XSENS_SetOutputSettings(xsens_output_settings);
-  //XSENS_GoToMeasurment();
+
+  gps.nb_channels = 0;
 }
 
 void ins_periodic_task( void ) {
+  if (xsens_configured > 0)
+  {
+     switch (xsens_configured)
+     {
+	case 20:
+		/* send mode and settings to MT */
+		XSENS_GoToConfig();
+		XSENS_SetOutputMode(xsens_output_mode);
+		XSENS_SetOutputSettings(xsens_output_settings);
+		break;
+	case 18:
+		// Give pulses on SyncOut
+		XSENS_SetSyncOutSettings(0,0x0002);
+		break;
+	case 17:
+		// 1 pulse every 100 samples
+		XSENS_SetSyncOutSettings(1,100);
+		break;
+	case 2:
+		XSENS_ReqLeverArmGps();
+		break;
+
+	case 6:
+		XSENS_ReqMagneticDeclination();
+		break;
+
+	case 13:
+		#ifdef AHRS_H_X
+		#warning Sending XSens Magnetic Declination
+		xsens_declination = atan2(AHRS_H_Y, AHRS_H_X);
+		XSENS_SetMagneticDeclination(xsens_declination);
+		#endif
+		break;
+	case 12:
+		#ifdef GPS_IMU_LEVER_ARM_X
+		#warning Sending XSens GPS Arm
+		XSENS_SetLeverArmGps(GPS_IMU_LEVER_ARM_X,GPS_IMU_LEVER_ARM_Y,GPS_IMU_LEVER_ARM_Z);
+		#endif
+		break;
+	case 10:
+		{
+		uint8_t baud = 1;
+		XSENS_SetBaudrate(baud);
+		}
+		break;
+
+	case 1:
+		XSENS_GoToMeasurment();
+		break;
+     }
+     xsens_configured--;
+     return;
+  }
+
   RunOnceEvery(100,XSENS_ReqGPSStatus());
 }
 
 #include "estimator.h"
 
 void handle_ins_msg( void) {
-  EstimatorSetAtt(ins_phi, ins_psi, ins_theta);
+
+
+  // Send to Estimator (Control)
+  EstimatorSetAtt(ins_phi+ins_roll_neutral, ins_psi, ins_theta+ins_pitch_neutral);
   EstimatorSetRate(ins_p,ins_q);
-  if (gps_mode != 0x03)
-    gps_gspeed = 0;
 
-  //gps_course = ins_psi * 1800 / M_PI;
-  gps_course = (DegOfRad(atan2f((float)ins_vx, (float)ins_vy))*10.0f);
-  gps_climb = (int16_t)(-ins_vz * 100);
-  gps_gspeed = (uint16_t)(sqrt(ins_vx*ins_vx + ins_vy*ins_vy) * 100);
+  // Position
+  float gps_east = gps.utm_pos.east / 100.;
+  float gps_north = gps.utm_pos.north / 100.;
+  gps_east -= nav_utm_east0;
+  gps_north -= nav_utm_north0;
+  EstimatorSetPosXY(gps_east, gps_north);
 
-  EstimatorSetAtt(ins_phi, RadOfDeg(((float)gps_course) / 10.0), ins_theta);
-  // EstimatorSetSpeedPol(gps_gspeed, gps_course, ins_vz);
-  // EstimatorSetAlt(ins_z);
-  estimator_update_state_gps();
-  reset_gps_watchdog();
+  // Altitude and vertical speed
+  float hmsl = gps.hmsl;
+  hmsl /= 1000.0f;
+  EstimatorSetAlt(hmsl);
+
+  // Horizontal speed
+  float fspeed = sqrt(ins_vx*ins_vx + ins_vy*ins_vy);
+  if (gps.fix != GPS_FIX_3D)
+  {
+    fspeed = 0;
+  }
+  float fclimb = -ins_vz;
+  float fcourse = atan2f((float)ins_vy, (float)ins_vx);
+  EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
+
+
+  // Now also finish filling the gps struct for telemetry purposes
+  gps.gspeed = fspeed * 100.;
+  gps.speed_3d = (uint16_t)(sqrt(ins_vx*ins_vx + ins_vy*ins_vy + ins_vz*ins_vz) * 100);
+  gps.course = fcourse * 1e7;
+
 }
 
 void parse_ins_msg( void ) {
@@ -223,21 +327,41 @@ void parse_ins_msg( void ) {
   else if (xsens_id == XSENS_ReqOutputSettings_ID) {
     xsens_output_settings = XSENS_ReqOutputSettingsAck_settings(xsens_msg_buf);
   }
+  else if (xsens_id == XSENS_ReqMagneticDeclinationAck_ID) {
+    xsens_declination = DegOfRad (XSENS_ReqMagneticDeclinationAck_declination(xsens_msg_buf) );
+
+    DOWNLINK_SEND_IMU_MAG_SETTINGS(DefaultChannel,&xsens_declination,&xsens_declination,&xsens_gps_arm_x,&xsens_gps_arm_y,&xsens_gps_arm_z);
+  }
+  else if (xsens_id == XSENS_ReqLeverArmGpsAck_ID) {
+    xsens_gps_arm_x = XSENS_ReqLeverArmGpsAck_x(xsens_msg_buf);
+    xsens_gps_arm_y = XSENS_ReqLeverArmGpsAck_y(xsens_msg_buf);
+    xsens_gps_arm_z = XSENS_ReqLeverArmGpsAck_z(xsens_msg_buf);
+
+    DOWNLINK_SEND_IMU_MAG_SETTINGS(DefaultChannel,&xsens_declination,&xsens_declination,&xsens_gps_arm_x,&xsens_gps_arm_y,&xsens_gps_arm_z);
+  }
   else if (xsens_id == XSENS_Error_ID) {
     xsens_errorcode = XSENS_Error_errorcode(xsens_msg_buf);
   }
 #ifdef USE_GPS_XSENS
   else if (xsens_id == XSENS_GPSStatus_ID) {
-    gps_nb_channels = XSENS_GPSStatus_nch(xsens_msg_buf);
-    gps_numSV = gps_nb_channels;
+    gps.nb_channels = XSENS_GPSStatus_nch(xsens_msg_buf);
+    gps.num_sv = 0;
+
+    gps.last_fix_time = cpu_time_sec;
+
     uint8_t i;
-    for(i = 0; i < Min(gps_nb_channels, GPS_NB_CHANNELS); i++) {
+    // Do not write outside buffer
+    for(i = 0; i < Min(gps.nb_channels, GPS_NB_CHANNELS); i++) {
       uint8_t ch = XSENS_GPSStatus_chn(xsens_msg_buf,i);
-      if (ch > GPS_NB_CHANNELS) continue;
-      gps_svinfos[ch].svid = XSENS_GPSStatus_svid(xsens_msg_buf, i);
-      gps_svinfos[ch].flags = XSENS_GPSStatus_bitmask(xsens_msg_buf, i);
-      gps_svinfos[ch].qi = XSENS_GPSStatus_qi(xsens_msg_buf, i);
-      gps_svinfos[ch].cno = XSENS_GPSStatus_cnr(xsens_msg_buf, i);
+      if (ch > gps.nb_channels) continue;
+      gps.svinfos[ch].svid = XSENS_GPSStatus_svid(xsens_msg_buf, i);
+      gps.svinfos[ch].flags = XSENS_GPSStatus_bitmask(xsens_msg_buf, i);
+      gps.svinfos[ch].qi = XSENS_GPSStatus_qi(xsens_msg_buf, i);
+      gps.svinfos[ch].cno = XSENS_GPSStatus_cnr(xsens_msg_buf, i);
+      if (gps.svinfos[ch].flags > 0)
+      {
+        gps.num_sv++;
+      }
     }
   }
 #endif
@@ -252,27 +376,49 @@ void parse_ins_msg( void ) {
       }
       if (XSENS_MASK_RAWGPS(xsens_output_mode)) {
 #if defined(USE_GPS_XSENS_RAW_DATA) && defined(USE_GPS_XSENS)
-        gps_week = 0; // FIXME
-        gps_itow = XSENS_DATA_RAWGPS_itow(xsens_msg_buf,offset) * 10;
-        gps_lat = XSENS_DATA_RAWGPS_lat(xsens_msg_buf,offset);
-        gps_lon = XSENS_DATA_RAWGPS_lon(xsens_msg_buf,offset);
+#ifdef GPS_LED
+    LED_TOGGLE(GPS_LED);
+#endif
+        gps.last_fix_time = cpu_time_sec;
+        gps.week = 0; // FIXME
+        gps.tow = XSENS_DATA_RAWGPS_itow(xsens_msg_buf,offset) * 10;
+        gps.lla_pos.lat = RadOfDeg(XSENS_DATA_RAWGPS_lat(xsens_msg_buf,offset));
+        gps.lla_pos.lon = RadOfDeg(XSENS_DATA_RAWGPS_lon(xsens_msg_buf,offset));
+        gps.lla_pos.alt = XSENS_DATA_RAWGPS_alt(xsens_msg_buf,offset);
+
+
         /* Set the real UTM zone */
-        gps_utm_zone = (gps_lon/1e7+180) / 6 + 1;
-        latlong_utm_of(RadOfDeg(gps_lat/1e7), RadOfDeg(gps_lon/1e7), gps_utm_zone);
-        /* utm */
-        gps_utm_east = latlong_utm_x * 100;
-        gps_utm_north = latlong_utm_y * 100;
-        ins_x = latlong_utm_x;
-        ins_y = latlong_utm_y;
-        gps_alt = XSENS_DATA_RAWGPS_alt(xsens_msg_buf,offset) / 10;
-        ins_z = -(INS_FORMAT)gps_alt / 100.;
-        ins_vx = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_e(xsens_msg_buf,offset) / 100.;
-        ins_vy = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_n(xsens_msg_buf,offset) / 100.;
-        ins_vz = (INS_FORMAT)XSENS_DATA_RAWGPS_vel_d(xsens_msg_buf,offset) / 100.;
-        gps_climb = -XSENS_DATA_RAWGPS_vel_d(xsens_msg_buf,offset) / 10;
-        gps_Pacc = XSENS_DATA_RAWGPS_hacc(xsens_msg_buf,offset) / 100;
-        gps_Sacc = XSENS_DATA_RAWGPS_sacc(xsens_msg_buf,offset) / 100;
-        gps_PDOP = 5;
+        gps.utm_pos.zone = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
+
+        lla_f.lat = ((float) gps.lla_pos.lat) / 1e7;
+        lla_f.lon = ((float) gps.lla_pos.lon) / 1e7;
+        utm_f.zone = nav_utm_zone0;
+        /* convert to utm */
+        utm_of_lla_f(&utm_f, &lla_f);
+        /* copy results of utm conversion */
+        gps.utm_pos.east = utm_f.east*100;
+        gps.utm_pos.north = utm_f.north*100;
+        gps.utm_pos.alt = gps.lla_pos.alt;
+
+        ins_x = utm_f.east;
+        ins_y = utm_f.north;
+        // Altitude: Xsens LLH gives ellipsoid height
+        ins_z = -(INS_FORMAT)XSENS_DATA_RAWGPS_alt(xsens_msg_buf,offset) / 1000.;
+
+	// Compute geoid (MSL) height
+        float hmsl;
+	WGS84_ELLIPSOID_TO_GEOID(lla_f.lat,lla_f.lon,hmsl);
+        gps.hmsl =  XSENS_DATA_RAWGPS_alt(xsens_msg_buf,offset) - (hmsl * 1000.0f);
+
+        ins_vx = ((INS_FORMAT)XSENS_DATA_RAWGPS_vel_n(xsens_msg_buf,offset)) / 100.;
+        ins_vy = ((INS_FORMAT)XSENS_DATA_RAWGPS_vel_e(xsens_msg_buf,offset)) / 100.;
+        ins_vz = ((INS_FORMAT)XSENS_DATA_RAWGPS_vel_d(xsens_msg_buf,offset)) / 100.;
+        gps.ned_vel.x = XSENS_DATA_RAWGPS_vel_n(xsens_msg_buf,offset);
+        gps.ned_vel.y = XSENS_DATA_RAWGPS_vel_e(xsens_msg_buf,offset);
+        gps.ned_vel.z = XSENS_DATA_RAWGPS_vel_d(xsens_msg_buf,offset);
+        gps.pacc = XSENS_DATA_RAWGPS_hacc(xsens_msg_buf,offset) / 100;
+        gps.sacc = XSENS_DATA_RAWGPS_sacc(xsens_msg_buf,offset) / 100;
+        gps.pdop = 5;  // FIXME Not output by XSens
 #endif
         offset += XSENS_DATA_RAWGPS_LENGTH;
       }
@@ -327,6 +473,7 @@ void parse_ins_msg( void ) {
         if (XSENS_MASK_OrientationMode(xsens_output_settings) == 0x10) {
           offset += XSENS_DATA_Matrix_LENGTH;
         }
+        new_ins_attitude = 1;
       }
       if (XSENS_MASK_Auxiliary(xsens_output_mode)) {
         uint8_t l = 0;
@@ -340,18 +487,22 @@ void parse_ins_msg( void ) {
       }
       if (XSENS_MASK_Position(xsens_output_mode)) {
 #if (!defined(USE_GPS_XSENS_RAW_DATA)) && defined(USE_GPS_XSENS)
-        xsens_lat = XSENS_DATA_Position_lat(xsens_msg_buf,offset);
-        xsens_lon = XSENS_DATA_Position_lon(xsens_msg_buf,offset);
-        gps_lat = (int32_t)(xsens_lat * 1e7);
-        gps_lon = (int32_t)(xsens_lon * 1e7);
-        gps_utm_zone = (xsens_lon+180) / 6 + 1;
-        latlong_utm_of(RadOfDeg(xsens_lat), RadOfDeg(xsens_lon), gps_utm_zone);
-        ins_x = latlong_utm_x;
-        ins_y = latlong_utm_y;
-        gps_utm_east  = ins_x * 100;
-        gps_utm_north = ins_y * 100;
-        ins_z = XSENS_DATA_Position_alt(xsens_msg_buf,offset);
-        gps_alt = ins_z * 100;
+        gps.last_fix_time = cpu_time_sec;
+
+        lla_f.lat = RadOfDeg(XSENS_DATA_Position_lat(xsens_msg_buf,offset));
+        lla_f.lon = RadOfDeg(XSENS_DATA_Position_lon(xsens_msg_buf,offset));
+        gps.lla_pos.lat = (int32_t)(lla_f.lat * 1e7);
+        gps.lla_pos.lon = (int32_t)(lla_f.lon * 1e7);
+        gps.utm_pos.zone = (DegOfRad(lla_f.lon)+180) / 6 + 1;
+        /* convert to utm */
+        utm_of_lla_f(&utm_f, &lla_f);
+        /* copy results of utm conversion */
+        gps.utm_pos.east = utm_f.east*100;
+        gps.utm_pos.north = utm_f.north*100;
+        ins_x = utm_f.east;
+        ins_y = utm_f.north;
+        ins_z = XSENS_DATA_Position_alt(xsens_msg_buf,offset);//TODO is this hms or above ellipsoid?
+        gps.hmsl = ins_z * 1000;
 #endif
         offset += XSENS_DATA_Position_LENGTH;
       }
@@ -366,16 +517,16 @@ void parse_ins_msg( void ) {
       if (XSENS_MASK_Status(xsens_output_mode)) {
         xsens_msg_status = XSENS_DATA_Status_status(xsens_msg_buf,offset);
 #ifdef USE_GPS_XSENS
-        if (bit_is_set(xsens_msg_status,2)) gps_mode = 0x03; // gps fix
-        else if (bit_is_set(xsens_msg_status,1)) gps_mode = 0x01; // efk valid
-        else gps_mode = 0;
+        if (bit_is_set(xsens_msg_status,2)) gps.fix = GPS_FIX_3D; // gps fix
+        else if (bit_is_set(xsens_msg_status,1)) gps.fix = 0x01; // efk valid
+        else gps.fix = GPS_FIX_NONE;
 #endif
         offset += XSENS_DATA_Status_LENGTH;
       }
       if (XSENS_MASK_TimeStamp(xsens_output_settings)) {
         xsens_time_stamp = XSENS_DATA_TimeStamp_ts(xsens_msg_buf,offset);
 #ifdef USE_GPS_XSENS
-        gps_itow = xsens_time_stamp;
+        gps.tow = xsens_time_stamp;
 #endif
         offset += XSENS_DATA_TimeStamp_LENGTH;
       }

@@ -146,7 +146,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   if not (msg.Pprz.name = "DOWNLINK_STATUS") then
     a.last_msg_date <- U.gettimeofday ();
   match msg.Pprz.name with
-    "BOOZ2_FP" ->
+    "ROTORCRAFT_FP" ->
       begin match a.nav_ref with
         None -> (); (* No nav_ref yet *)
         | Some nav_ref ->
@@ -191,8 +191,8 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       let x = foi32value "ecef_x0" /. 100.
       and y = foi32value "ecef_y0" /. 100.
       and z = foi32value "ecef_z0" /. 100.
-      and alt = foi32value "alt0" /. 100.
-      and hmsl = foi32value "hmsl0" /. 100. in
+      and alt = foi32value "alt0" /. 1000.
+      and hmsl = foi32value "hmsl0" /. 1000. in
       let nav_ref_ecef = LL.make_ecef [| x; y; z |] in
       a.nav_ref <- Some (Ltp nav_ref_ecef);
       a.d_hmsl <- hmsl -. alt;

@@ -29,7 +29,7 @@
 #include "subsystems/ahrs/ahrs_float_dcm_algebra.h"
 
 #ifdef USE_GPS
-#include "gps.h"
+#include "subsystems/gps.h"
 #endif
 
 #include <string.h>
@@ -73,7 +73,8 @@ float Update_Matrix[3][3]    = {{0,1,2},{3,4,5},{6,7,8}}; //Gyros here
 float Temporary_Matrix[3][3] = {{0,0,0},{0,0,0},{0,0,0}};
 
 #ifdef USE_MAGNETOMETER
-float MAG_Heading;
+float MAG_Heading_X = 1;
+float MAG_Heading_Y = 0;
 #endif
 
 static inline void compute_body_orientation_and_rates(void);
@@ -113,8 +114,8 @@ void ahrs_update_fw_estimator( void )
   estimator_psi   = ahrs_float.ltp_to_imu_euler.psi;
 
   estimator_p = Omega_Vector[0];
-
-  RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel, 
+/*
+  RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel,
     &(DCM_Matrix[0][0]),
     &(DCM_Matrix[0][1]),
     &(DCM_Matrix[0][2]),
@@ -128,7 +129,7 @@ void ahrs_update_fw_estimator( void )
     &(DCM_Matrix[2][2])
 
   ));
-
+*/
 }
 
 
@@ -219,19 +220,69 @@ void ahrs_update_accel(void)
   accel_float.y = -accel_float.y;
   accel_float.z = -accel_float.z;
 
+
 #ifdef USE_GPS
-  if (gps_mode==3) {    //Remove centrifugal acceleration.
-    accel_float.y += gps_speed_3d/100. * Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
-    accel_float.z -= gps_speed_3d/100. * Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY
+  if (gps.fix == GPS_FIX_3D) {    //Remove centrifugal acceleration.
+    accel_float.y += gps.speed_3d/100. * Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
+    accel_float.z -= gps.speed_3d/100. * Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY
   }
 #endif
 
   Drift_correction();
 }
 
+
 void ahrs_update_mag(void)
 {
-  //TODO
+#ifdef USE_MAGNETOMETER
+#warning MAGNETOMETER FEEDBACK NOT TESTED YET
+
+  float cos_roll;
+  float sin_roll;
+  float cos_pitch;
+  float sin_pitch;
+
+  cos_roll = cos(ahrs_float.ltp_to_imu_euler.phi);
+  sin_roll = sin(ahrs_float.ltp_to_imu_euler.phi);
+  cos_pitch = cos(ahrs_float.ltp_to_imu_euler.theta);
+  sin_pitch = sin(ahrs_float.ltp_to_imu_euler.theta);
+
+
+  // Pitch&Roll Compensation:
+  MAG_Heading_X = imu.mag.x*cos_pitch+imu.mag.y*sin_roll*sin_pitch+imu.mag.z*cos_roll*sin_pitch;
+  MAG_Heading_Y = imu.mag.y*cos_roll-imu.mag.z*sin_roll;
+
+/*
+ *
+  // Magnetic Heading
+  Heading = atan2(-Head_Y,Head_X);
+
+  // Declination correction (if supplied)
+  if( declination != 0.0 )
+  {
+      Heading = Heading + declination;
+      if (Heading > M_PI)    // Angle normalization (-180 deg, 180 deg)
+          Heading -= (2.0 * M_PI);
+      else if (Heading < -M_PI)
+          Heading += (2.0 * M_PI);
+  }
+
+  // Optimization for external DCM use. Calculate normalized components
+  Heading_X = cos(Heading);
+  Heading_Y = sin(Heading);
+*/
+
+  struct FloatVect3 ltp_mag;
+
+  ltp_mag.x = MAG_Heading_X;
+  ltp_mag.y = MAG_Heading_Y;
+
+  // Downlink
+  RunOnceEvery(10,DOWNLINK_SEND_IMU_MAG(DefaultChannel, &ltp_mag.x, &ltp_mag.y, &ltp_mag.z));
+
+  // Magnetic Heading
+  // MAG_Heading = atan2(imu.mag.y, -imu.mag.x);
+#endif
 }
 
 void Normalize(void)
@@ -365,9 +416,10 @@ void Drift_correction(void)
 
 #ifdef USE_MAGNETOMETER
   // We make the gyro YAW drift correction based on compass magnetic heading
-  float mag_heading_x = cos(MAG_Heading);
-  float mag_heading_y = sin(MAG_Heading);
-  errorCourse=(DCM_Matrix[0][0]*mag_heading_y) - (DCM_Matrix[1][0]*mag_heading_x);  //Calculating YAW error
+//  float mag_heading_x = cos(MAG_Heading);
+//  float mag_heading_y = sin(MAG_Heading);
+  // 2D dot product
+  errorCourse=(DCM_Matrix[0][0]*MAG_Heading_Y) + (DCM_Matrix[1][0]*MAG_Heading_X);  //Calculating YAW error
   Vector_Scale(errorYaw,&DCM_Matrix[2][0],errorCourse); //Applys the yaw correction to the XYZ rotation of the aircraft, depeding the position.
 
   Vector_Scale(&Scaled_Omega_P[0],&errorYaw[0],Kp_YAW);
@@ -378,10 +430,10 @@ void Drift_correction(void)
 
 #elif defined USE_GPS // Use GPS Ground course to correct yaw gyro drift
 
-  if(gps_mode==3 && gps_gspeed>= 500) { //got a 3d fix and ground speed is more than 0.5 m/s
-    float ground_course = gps_course/10. - 180.; //This is the runaway direction of you "plane" in degrees
-    float COGX = cos(RadOfDeg(ground_course)); //Course overground X axis
-    float COGY = sin(RadOfDeg(ground_course)); //Course overground Y axis
+  if(gps.fix == GPS_FIX_3D && gps.gspeed>= 500) { //got a 3d fix and ground speed is more than 0.5 m/s
+    float ground_course = ((float)gps.course)/1.e7 - M_PI; //This is the runaway direction of you "plane" in rad
+    float COGX = cosf(ground_course); //Course overground X axis
+    float COGY = sinf(ground_course); //Course overground Y axis
 
     errorCourse=(DCM_Matrix[0][0]*COGY) - (DCM_Matrix[1][0]*COGX);  //Calculating YAW error
     Vector_Scale(errorYaw,&DCM_Matrix[2][0],errorCourse); //Applys the yaw correction to the XYZ rotation of the aircraft, depeding the position.

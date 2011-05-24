@@ -164,7 +164,6 @@ void CHIMU_Checksum(unsigned char *data, unsigned char buflen)
 // Communication Definitions
 #define CHIMU_COM_ID_HIGH	0x1F  //Must set this to the max ID expected above
 
-
 /*---------------------------------------------------------------------------
         Name: CHIMU_Init
  
@@ -311,7 +310,6 @@ unsigned char CHIMU_Parse(
 // appropriate sentence data processor.
 ///////////////////////////////////////////////////////////////////////////////
 
-
 static CHIMU_attitude_data GetEulersFromQuat(CHIMU_attitude_data attitude)
 {
   CHIMU_attitude_data ps;
@@ -361,7 +359,6 @@ static unsigned char BitTest (unsigned char input, unsigned char n)
 //Test a bit in n and return TRUE or FALSE
 	if ( input & (1 << n)) return TRUE; else return FALSE;
 }
-
 unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloadData, CHIMU_PARSER_DATA *pstData)
 {
     //Msgs from CHIMU are off limits (i.e.any CHIMU messages sent up the uplink should go to 
@@ -440,7 +437,6 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
                   pstData->m_attrates.euler.theta = pstData->m_sensor.rate[1];
                   pstData->m_attrates.euler.psi = pstData->m_sensor.rate[2];
 
-
                   pstData->gCalStatus = pPayloadData[CHIMU_index]; CHIMU_index ++;
                   pstData->gCHIMU_BIT = pPayloadData[CHIMU_index]; CHIMU_index ++;
                   pstData->gConfigInfo = pPayloadData[CHIMU_index]; CHIMU_index ++;
@@ -461,7 +457,6 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
                   {
                     pstData->m_attitude = GetEulersFromQuat((pstData->m_attitude));
                   }
-
 
                   //NEW:  Checks for bad attitude data (bad SPI maybe?)
                   //      Only allow globals to contain updated data if it makes sense
