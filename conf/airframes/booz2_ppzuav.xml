@@ -208,6 +208,7 @@
     <subsystem name="actuators"     type="asctec"/>
     <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox"/>
+    <subsystem name="stabilization"   type="euler"/>
     <subsystem name="ahrs"          type="cmpl"/>
 </firmware>
 <firmware name="booz_test_progs">
