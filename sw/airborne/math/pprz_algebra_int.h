@@ -680,7 +680,7 @@ struct Int64Vect3 {
     int32_t san2;                            				\
     PPRZ_ITRIG_SIN(san2, (_an/2));					\
     int32_t can2;                            				\
-    PPRZ_ITRIG_SIN(can2, (_an/2));					\
+    PPRZ_ITRIG_COS(can2, (_an/2));					\
     _q.qi = can2;					\
     _q.qx = san2 * _uv.x;					\
     _q.qy = san2 * _uv.y;					\
