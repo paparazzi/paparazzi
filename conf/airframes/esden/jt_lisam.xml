@@ -19,8 +19,8 @@
   </commands>
 
   <command_laws>
-    <set servo="AILEVON_LEFT"         value="@YAW"/>
-    <set servo="AILEVON_RIGHT"        value="@YAW"/>
+    <set servo="AILEVON_LEFT"         value="-@ROLL"/>
+    <set servo="AILEVON_RIGHT"        value="-@ROLL"/>
   </command_laws>
   
   <!-- for the sim -->
@@ -30,6 +30,9 @@
   </section>
 
 
+  <section name="ROTORCRAFT" prefix="ROTORCRAFT_">
+    <define name="COMMANDS_YAW_ALWAYS_ENABLED" value="TRUE"/>
+ </section>
   <section name="SUPERVISION" prefix="SUPERVISION_">
     <define name="MIN_MOTOR" value="1100"/>
     <define name="MAX_MOTOR" value="1850"/>
@@ -38,9 +41,9 @@
     <define name="TRIM_R" value="0"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
-    <define name="ROLL_COEF"   value="{  256, -256,  256, -256 }"/>
     <define name="PITCH_COEF"  value="{ -256, -256,  256,  256 }"/>
-    <define name="YAW_COEF"    value="{    0,    0,    0,    0 }"/>
+    <define name="ROLL_COEF"    value="{    0,    0,    0,    0 }"/>
+    <define name="YAW_COEF"   value="{  256, -256,  256, -256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
