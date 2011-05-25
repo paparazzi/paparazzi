@@ -1281,15 +1281,15 @@
     <field name="pan" type="int16" unit="2^12rad" alt_unit="degres" alt_unit_coef="0.0139882"/>
   </message>
 
-  <message name="BOOZ2_AHRS_REF_QUAT" id="169">
-    <field name="ref_qi"  type="float"/>
-    <field name="ref_qx"  type="float"/>
-    <field name="ref_qy"  type="float"/>
-    <field name="ref_qz"  type="float"/>
-    <field name="body_qi" type="float"/>
-    <field name="body_qx" type="float"/>
-    <field name="body_qy" type="float"/>
-    <field name="body_qz" type="float"/>
+  <message name="AHRS_REF_QUAT" id="169">
+    <field name="ref_qi"  type="int32"/>
+    <field name="ref_qx"  type="int32"/>
+    <field name="ref_qy"  type="int32"/>
+    <field name="ref_qz"  type="int32"/>
+    <field name="body_qi" type="int32"/>
+    <field name="body_qx" type="int32"/>
+    <field name="body_qy" type="int32"/>
+    <field name="body_qz" type="int32"/>
   </message>
 
   <message name="EKF7_XHAT" id="170">
