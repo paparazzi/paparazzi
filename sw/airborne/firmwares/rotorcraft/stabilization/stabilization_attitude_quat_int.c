@@ -142,9 +142,9 @@ static void attitude_run_ff(int32_t ff_commands[], struct Int32AttitudeGains *ga
 {
   /* Compute feedforward based on reference acceleration */
 
-  ff_commands[COMMAND_ROLL]          = 0; GAIN_PRESCALER_FF * gains->dd.x * OFFSET_AND_ROUND(stabilization_gains.dd.x * ref_accel->p, 5);
-  ff_commands[COMMAND_PITCH]         = 0; GAIN_PRESCALER_FF * gains->dd.x * OFFSET_AND_ROUND(stabilization_gains.dd.y * ref_accel->q, 5);
-  ff_commands[COMMAND_YAW]           = 0; GAIN_PRESCALER_FF * gains->dd.x * OFFSET_AND_ROUND(stabilization_gains.dd.z * ref_accel->r, 5);
+  ff_commands[COMMAND_ROLL]          = GAIN_PRESCALER_FF * gains->dd.x * OFFSET_AND_ROUND(stabilization_gains.dd.x * ref_accel->p, 5);
+  ff_commands[COMMAND_PITCH]         = GAIN_PRESCALER_FF * gains->dd.x * OFFSET_AND_ROUND(stabilization_gains.dd.y * ref_accel->q, 5);
+  ff_commands[COMMAND_YAW]           = GAIN_PRESCALER_FF * gains->dd.x * OFFSET_AND_ROUND(stabilization_gains.dd.z * ref_accel->r, 5);
 }
 
 static void attitude_run_fb(int32_t fb_commands[], struct Int32AttitudeGains *gains, struct Int32Quat *att_err,
