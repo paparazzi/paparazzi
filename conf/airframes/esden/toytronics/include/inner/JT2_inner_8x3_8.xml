@@ -1,0 +1,46 @@
+<airframe>
+  <section name="INNER" prefix="INNER_">
+    <!-- absolute gains -->
+    <define name="ABSOLUTE_DX_P_GAIN"      value="9600"/>
+    <define name="ABSOLUTE_DX_I_GAIN"      value="0.0"/> 
+    <define name="ABSOLUTE_DX_D_GAIN"      value="0.252"/>
+    <define name="ABSOLUTE_DX_FF_D_FACTOR" value="0.0"/>
+
+    <define name="ABSOLUTE_DY_P_GAIN"      value="713"/>
+    <define name="ABSOLUTE_DY_I_GAIN"      value="0.0"/>
+    <define name="ABSOLUTE_DY_D_GAIN"      value="0.259"/>
+    <define name="ABSOLUTE_DY_FF_D_FACTOR" value="0.0"/>
+
+    <define name="ABSOLUTE_DZ_P_GAIN"      value="790"/>
+    <define name="ABSOLUTE_DZ_I_GAIN"      value="0.0"/>
+    <define name="ABSOLUTE_DZ_D_GAIN"      value="0.379"/>
+    <define name="ABSOLUTE_DZ_FF_D_FACTOR" value="0.0"/>
+
+    <!-- incremental gains -->
+    <define name="INCREMENTAL_DX_P_GAIN"      value="5100"/>
+    <define name="INCREMENTAL_DX_I_GAIN"      value="0.0"/> 
+    <define name="INCREMENTAL_DX_D_GAIN"      value="0.252"/>
+    <define name="INCREMENTAL_DX_FF_D_FACTOR" value="0.0"/>
+
+    <define name="INCREMENTAL_DY_P_GAIN"      value="1331"/>
+    <define name="INCREMENTAL_DY_I_GAIN"      value="0.0"/>
+    <define name="INCREMENTAL_DY_D_GAIN"      value="0.259"/>
+    <define name="INCREMENTAL_DY_FF_D_FACTOR" value="0.0"/>
+
+    <define name="INCREMENTAL_DZ_P_GAIN"      value="2026"/>
+    <define name="INCREMENTAL_DZ_I_GAIN"      value="0.0"/>
+    <define name="INCREMENTAL_DZ_D_GAIN"      value="0.379"/>
+    <define name="INCREMENTAL_DZ_FF_D_FACTOR" value="0.0"/>
+
+    <!-- integral bounds -->
+    <define name="DX_INTEGRAL_BOUND" value="0.8"/>
+    <define name="DY_INTEGRAL_BOUND" value="0.8"/>
+    <define name="DZ_INTEGRAL_BOUND" value="0.8"/>
+
+    <!-- beta gains -->
+    <define name="BETA_P_GAIN"  value="800"/>
+    <define name="BETA_I_GAIN" value="0.0"/>
+    <define name="BETA_D_GAIN"  value="0.3"/>
+    <define name="BETA_INTEGRAL_BOUND" value="0.2"/>
+  </section>
+</airframe>

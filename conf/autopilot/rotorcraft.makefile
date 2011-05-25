@@ -199,6 +199,14 @@ ap.srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
 
 ap.srcs += $(SRC_SUBSYSTEMS)/ins.c
 
+# toytronics
+ap.srcs += $(SRC_FIRMWARE)/toytronics/toytronics_setpoint.c
+ap.srcs += $(SRC_FIRMWARE)/toytronics/mathlib/filters.c
+ap.srcs += $(SRC_FIRMWARE)/toytronics/mathlib/misc_math.c
+ap.srcs += $(SRC_FIRMWARE)/toytronics/mathlib/quat.c
+ap.srcs += $(SRC_FIRMWARE)/toytronics/mathlib/spatial_rotations.c
+ap.srcs += $(SRC_FIRMWARE)/toytronics/mathlib/xyz.c
+
 #
 # INS choice
 #

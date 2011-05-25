@@ -33,6 +33,9 @@
 
 #include "generated/airframe.h"
 
+#include "firmwares/rotorcraft/toytronics/toytronics_setpoint.h"
+
+
 uint8_t guidance_h_mode;
 
 struct Int32Vect2 guidance_h_pos_sp;
@@ -124,6 +127,13 @@ void guidance_h_mode_changed(uint8_t new_mode) {
   case GUIDANCE_H_MODE_NAV:
     guidance_h_nav_enter();
     break;
+
+  case GUIDANCE_H_MODE_TOYTRONICS_HOVER:
+  case GUIDANCE_H_MODE_TOYTRONICS_FORWARD:
+  case GUIDANCE_H_MODE_TOYTRONICS_ACRO:
+    toytronics_mode_changed(new_mode);
+    break;
+
   default:
     break;
   }
@@ -149,6 +159,18 @@ void guidance_h_read_rc(bool_t  in_flight) {
     STABILIZATION_ATTITUDE_READ_RC(guidance_h_rc_sp, in_flight);
     break;
 
+  case GUIDANCE_H_MODE_TOYTRONICS_HOVER:
+    toytronics_set_sp_absolute_hover_from_rc();
+    break;
+
+  case GUIDANCE_H_MODE_TOYTRONICS_FORWARD:
+    toytronics_set_sp_absolute_forward_from_rc();
+    break;
+
+  case GUIDANCE_H_MODE_TOYTRONICS_ACRO:
+    toytronics_set_sp_incremental_from_rc();
+    break;
+
   case GUIDANCE_H_MODE_NAV:
     if (radio_control.status == RC_OK) {
       STABILIZATION_ATTITUDE_READ_RC(guidance_h_rc_sp, in_flight);
@@ -158,6 +180,7 @@ void guidance_h_read_rc(bool_t  in_flight) {
       INT_EULERS_ZERO(guidance_h_rc_sp);
     }
     break;
+
   default:
     break;
   }
@@ -178,6 +201,24 @@ void guidance_h_run(bool_t  in_flight) {
 
   case GUIDANCE_H_MODE_HOVER:
     guidance_h_hover_run();
+    stabilization_attitude_run(in_flight);
+    break;
+
+  case GUIDANCE_H_MODE_TOYTRONICS_HOVER:
+    #ifdef TOYTRONICS_HOVER_BYPASS_ROLL
+    sp2i.dx = -rc->yaw * 1.7;
+    #endif
+    stabilization_attitude_run(in_flight);
+    break;
+
+  case GUIDANCE_H_MODE_TOYTRONICS_FORWARD:
+    stabilization_attitude_run(in_flight);
+    break;
+
+  case GUIDANCE_H_MODE_TOYTRONICS_ACRO:
+    #ifdef TOYTRONICS_ACRO_BYPASS_ROLL
+    sp2i.dx = rc->roll * 1.7;
+    #endif
     stabilization_attitude_run(in_flight);
     break;
 
@@ -205,6 +246,7 @@ void guidance_h_run(bool_t  in_flight) {
       stabilization_attitude_run(in_flight);
       break;
     }
+
   default:
     break;
   }
