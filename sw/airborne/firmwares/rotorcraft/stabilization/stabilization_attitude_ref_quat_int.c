@@ -139,13 +139,6 @@ void stabilization_attitude_ref_enter()
 
 void stabilization_attitude_ref_update() {
 
-  static uint8_t x = 0;
-
-  if (++x > 10) {
-    x = 0;
-    DOWNLINK_SEND_BOOZ2_AHRS_QUAT(DefaultChannel, &stab_att_ref_quat.qi, &stab_att_ref_quat.qx, &stab_att_ref_quat.qy, &stab_att_ref_quat.qz, &ahrs.ltp_to_body_quat.qi, &ahrs.ltp_to_body_quat.qx, &ahrs.ltp_to_body_quat.qy, &ahrs.ltp_to_body_quat.qz);
-  } 
-
   /* integrate reference attitude            */
   struct Int32Quat qdot;
   INT32_QUAT_DERIVATIVE(qdot, stab_att_ref_rate, stab_att_ref_quat);
