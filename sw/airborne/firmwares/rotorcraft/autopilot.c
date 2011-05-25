@@ -260,6 +260,11 @@ void autopilot_on_rc_frame(void) {
     autopilot_set_mode(AP_MODE_KILL);
 #endif
 
+#ifdef AUTOPILOT_KILL_WITHOUT_AHRS
+  if (!ahrs_is_aligned())
+    autopilot_set_mode(AP_MODE_KILL);
+#endif
+
   autopilot_check_motors_on();
   autopilot_check_in_flight();
   kill_throttle = !autopilot_motors_on;
