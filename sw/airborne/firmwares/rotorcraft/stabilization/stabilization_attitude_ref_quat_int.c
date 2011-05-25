@@ -124,8 +124,10 @@ void stabilization_attitude_ref_enter()
 {
   reset_psi_ref_from_body();
   stabilization_attitude_sp_enter();
-  stabilization_attitude_ref_update();
-  update_ref_quat_from_eulers();
+  memcpy(&stab_att_ref_quat, &stab_att_sp_quat, sizeof(struct Int32Quat));
+  memset(&stab_att_ref_accel, 0, sizeof(struct Int32Rates));
+  memset(&stab_att_ref_rate, 0, sizeof(struct Int32Rates));
+  //update_ref_quat_from_eulers();
 }
 
 /*
