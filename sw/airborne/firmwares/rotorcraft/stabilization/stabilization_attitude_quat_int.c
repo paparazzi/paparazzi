@@ -142,9 +142,9 @@ static void attitude_run_ff(int32_t ff_commands[], struct Int32AttitudeGains *ga
 {
   /* Compute feedforward based on reference acceleration */
 
-  ff_commands[COMMAND_ROLL]          = GAIN_PRESCALER_FF * gains->dd.x * OFFSET_AND_ROUND(stabilization_gains.dd.x * ref_accel->p, 5);
-  ff_commands[COMMAND_PITCH]         = GAIN_PRESCALER_FF * gains->dd.x * OFFSET_AND_ROUND(stabilization_gains.dd.y * ref_accel->q, 5);
-  ff_commands[COMMAND_YAW]           = GAIN_PRESCALER_FF * gains->dd.x * OFFSET_AND_ROUND(stabilization_gains.dd.z * ref_accel->r, 5);
+  ff_commands[COMMAND_ROLL]          = GAIN_PRESCALER_FF * gains->dd.x * RATE_FLOAT_OF_BFP(ref_accel->p) / 4;
+  ff_commands[COMMAND_PITCH]         = GAIN_PRESCALER_FF * gains->dd.y * RATE_FLOAT_OF_BFP(ref_accel->q) / 4;
+  ff_commands[COMMAND_YAW]           = GAIN_PRESCALER_FF * gains->dd.z * RATE_FLOAT_OF_BFP(ref_accel->r) / 4;
 }
 
 static void attitude_run_fb(int32_t fb_commands[], struct Int32AttitudeGains *gains, struct Int32Quat *att_err,
@@ -154,19 +154,16 @@ static void attitude_run_fb(int32_t fb_commands[], struct Int32AttitudeGains *ga
   fb_commands[COMMAND_ROLL] =
     GAIN_PRESCALER_P * -gains->p.x  * QUAT1_FLOAT_OF_BFP(att_err->qx)  / 2+
     GAIN_PRESCALER_D * gains->d.x  * RATE_FLOAT_OF_BFP(rate_err->p) / 16 +
-    //GAIN_PRESCALER_D * gains->rates_d.x  * rate_err_d->p +
     GAIN_PRESCALER_I * gains->i.x  * QUAT1_FLOAT_OF_BFP(sum_err->qx) / 2;
 
   fb_commands[COMMAND_PITCH] =
     GAIN_PRESCALER_P * -gains->p.y  * QUAT1_FLOAT_OF_BFP(att_err->qy)  / 2+
     GAIN_PRESCALER_D * gains->d.y  * RATE_FLOAT_OF_BFP(rate_err->q)  / 16+
-    //GAIN_PRESCALER_D * gains->rates_d.y  * rate_err_d->q +
     GAIN_PRESCALER_I * gains->i.y  * QUAT1_FLOAT_OF_BFP(sum_err->qy) / 2;
 
   fb_commands[COMMAND_YAW] =
     GAIN_PRESCALER_P * -gains->p.z  * QUAT1_FLOAT_OF_BFP(att_err->qz)  / 2+
     GAIN_PRESCALER_D * gains->d.z  * RATE_FLOAT_OF_BFP(rate_err->r)  / 16+
-    //GAIN_PRESCALER_D * gains->rates_d.z  * rate_err_d->r +
     GAIN_PRESCALER_I * gains->i.z  * QUAT1_FLOAT_OF_BFP(sum_err->qz) / 2;
 
 }
