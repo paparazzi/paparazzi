@@ -110,9 +110,15 @@ void stabilization_attitude_read_rc_incremental(bool_t enable_alpha_vane, bool_t
 
 void stabilization_attitude_read_rc_absolute(struct Int32Eulers sp, bool_t in_flight) {
 
+#ifdef AIRPLANE_STICKS
   pprz_t roll = radio_control.values[RADIO_ROLL];
   pprz_t pitch = radio_control.values[RADIO_PITCH];
   pprz_t yaw = radio_control.values[RADIO_YAW];
+#else // QUAD STICKS
+  pprz_t roll = radio_control.values[RADIO_YAW];
+  pprz_t pitch = radio_control.values[RADIO_PITCH];
+  pprz_t yaw = -radio_control.values[RADIO_ROLL];
+#endif
   struct Int32Eulers sticks_eulers;
   struct Int32Quat sticks_quat, prev_sp_quat;
 
