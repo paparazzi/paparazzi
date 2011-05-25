@@ -131,6 +131,15 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
     case AP_MODE_NAV:
       guidance_h_mode_changed(GUIDANCE_H_MODE_NAV);
       break;
+    case AP_MODE_TOYTRONICS_HOVER:
+      guidance_h_mode_changed(GUIDANCE_H_MODE_TOYTRONICS_HOVER);
+      break;
+    case AP_MODE_TOYTRONICS_FORWARD:
+      guidance_h_mode_changed(GUIDANCE_H_MODE_TOYTRONICS_FORWARD);
+      break;
+    case AP_MODE_TOYTRONICS_ACRO:
+      guidance_h_mode_changed(GUIDANCE_H_MODE_TOYTRONICS_ACRO);
+      break;
     default:
       break;
     }
@@ -148,6 +157,9 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
     case AP_MODE_RATE_DIRECT:
     case AP_MODE_ATTITUDE_DIRECT:
     case AP_MODE_HOVER_DIRECT:
+    case AP_MODE_TOYTRONICS_HOVER:
+    case AP_MODE_TOYTRONICS_FORWARD:
+    case AP_MODE_TOYTRONICS_ACRO:
       guidance_v_mode_changed(GUIDANCE_V_MODE_RC_DIRECT);
       break;
     case AP_MODE_RATE_RC_CLIMB:
