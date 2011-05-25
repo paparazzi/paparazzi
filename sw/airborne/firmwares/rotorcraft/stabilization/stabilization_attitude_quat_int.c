@@ -210,7 +210,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 
   /*  rate error                */
   struct Int32Rates rate_err;
-  RATES_DIFF(rate_err, ahrs_float.body_rate, stab_att_ref_rate);
+  RATES_DIFF(rate_err, ahrs.body_rate, stab_att_ref_rate);
 
   /* integrated error */
   if (enable_integrator) {
