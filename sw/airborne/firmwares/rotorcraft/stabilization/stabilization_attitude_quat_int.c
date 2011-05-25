@@ -142,9 +142,9 @@ static void attitude_run_ff(int32_t ff_commands[], struct Int32AttitudeGains *ga
 {
   /* Compute feedforward based on reference acceleration */
 
-  ff_commands[COMMAND_ROLL]          = GAIN_PRESCALER_FF * gains->dd.x * RATE_FLOAT_OF_BFP(ref_accel->p) / 4;
-  ff_commands[COMMAND_PITCH]         = GAIN_PRESCALER_FF * gains->dd.y * RATE_FLOAT_OF_BFP(ref_accel->q) / 4;
-  ff_commands[COMMAND_YAW]           = GAIN_PRESCALER_FF * gains->dd.z * RATE_FLOAT_OF_BFP(ref_accel->r) / 4;
+  ff_commands[COMMAND_ROLL]          = GAIN_PRESCALER_FF * gains->dd.x * RATE_FLOAT_OF_BFP(ref_accel->p) / (1 << 7);
+  ff_commands[COMMAND_PITCH]         = GAIN_PRESCALER_FF * gains->dd.y * RATE_FLOAT_OF_BFP(ref_accel->q) / (1 << 7);
+  ff_commands[COMMAND_YAW]           = GAIN_PRESCALER_FF * gains->dd.z * RATE_FLOAT_OF_BFP(ref_accel->r) / (1 << 7);
 }
 
 static void attitude_run_fb(int32_t fb_commands[], struct Int32AttitudeGains *gains, struct Int32Quat *att_err,
@@ -214,6 +214,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 
   for (int i = COMMAND_ROLL; i <= COMMAND_YAW; i++) {
     stabilization_cmd[i] = stabilization_att_fb_cmd[i]+stabilization_att_ff_cmd[i];
+     Bound(stabilization_cmd[i], -200, 200);
   }
 }
 
