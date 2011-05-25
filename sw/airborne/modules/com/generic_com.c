@@ -35,7 +35,7 @@
 #include "firmwares/fixedwing/autopilot.h"
 #include "subsystems/navigation/common_nav.h"
 
-#define NB_DATA 21
+#define NB_DATA 22
 
 #ifndef GENERIC_COM_I2C_DEV
 #define GENERIC_COM_I2C_DEV i2c0
@@ -94,6 +94,7 @@ void generic_com_event( void ) {
 
 void start_com( void ) {
   active_com = TRUE;
+  com_trans.status = I2CTransDone;
 }
 
 void stop_com( void ) {
