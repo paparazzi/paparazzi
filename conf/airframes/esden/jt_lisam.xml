@@ -118,8 +118,8 @@
     <define name="THETA_DGAIN"  value="-240"/>
     <define name="THETA_IGAIN"  value="-100"/>
 
-    <define name="PHI_PGAIN"  value="-6000"/>
-    <define name="PHI_DGAIN"  value="-400"/>
+    <define name="PHI_PGAIN"  value="-4000"/>
+    <define name="PHI_DGAIN"  value="-600"/>
     <define name="PHI_IGAIN"  value="-10"/>
 
     <!-- feedforward -->
