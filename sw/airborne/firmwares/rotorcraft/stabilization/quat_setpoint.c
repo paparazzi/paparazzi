@@ -143,8 +143,6 @@ void stabilization_attitude_read_rc_absolute(struct Int32Eulers sp, bool_t in_fl
 void stabilization_attitude_sp_enter()
 {
   quat_setpoint_enter_absolute();
-  stab_att_sp_euler.phi = ahrs.ltp_to_body_euler.phi;
-  update_sp_quat_from_eulers();
 }
 
 
@@ -153,11 +151,3 @@ void quat_setpoint_enter_absolute()
   // reset setpoint to "hover"
   reset_sp_quat(0., 0., &ahrs.ltp_to_body_quat);
 }
-
-/*
-void booz_stab_att_vane_on()
-{
-  // new setpoint
-  INT_QUAT_COPY(stab_att_sp_quat, ahrs.ltp_to_body_quat);
-}
-*/
