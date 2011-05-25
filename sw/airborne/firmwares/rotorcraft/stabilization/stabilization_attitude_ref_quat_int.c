@@ -124,6 +124,7 @@ void stabilization_attitude_ref_enter()
 {
   reset_psi_ref_from_body();
   stabilization_attitude_sp_enter();
+  stabilization_attitude_ref_update();
   update_ref_quat_from_eulers();
 }
 
