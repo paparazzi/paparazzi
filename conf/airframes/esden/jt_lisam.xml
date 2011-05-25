@@ -61,6 +61,7 @@
    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
    <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_RC_CLIMB"/>
    <define name="MODE_AUTO2"  value="AP_MODE_HOVER_Z_HOLD"/>
+   <define name="AUTOPILOT_KILL_WITHOUT_AHRS"  value="TRUE"/>
  </section>
 
  <section name="BAT">
