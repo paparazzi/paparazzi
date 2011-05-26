@@ -203,6 +203,7 @@
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="ic"/>
     <subsystem name="stabilization" type="quaternion"/>
+    <subsystem name="toytronics"    type="default"/>
   </firmware>
 
 

@@ -23,10 +23,7 @@ void toytronics_mode_changed(int new_mode __attribute__((unused))) {};
 #else
 
 // the real toytronics stuff
-extern double accel_lp_tau;
-extern double accel_fb_k;
-extern double easy_controller_yaw_stick_ff_deg;
-extern double pitch_trim_deg;
+extern double hover_pitch_trim_deg;
 extern double roll_to_yaw_rate_ff_factor;
 extern double setpoint_absolute_heading_bound_deg;
 

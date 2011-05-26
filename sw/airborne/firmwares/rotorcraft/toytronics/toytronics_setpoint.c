@@ -39,9 +39,6 @@ double hover_y_integrated_error = 0;
 // because of the singularity. Therefore we're just using the generic
 // "heading" variable.
 
-double accel_lp_tau = 0.2;
-double accel_fb_k = 0.1;
-double easy_controller_yaw_stick_ff_deg = SETPOINT_MAX_STICK_ANGLE_DEG;
 double roll_to_yaw_rate_ff_factor = SETPOINT_ROLL_TO_YAW_RATE_FF_FACTOR;
 double smooth_transition_angle = 0.0;
 
