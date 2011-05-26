@@ -1,23 +1,15 @@
 // toytronics_setpoint.c
 // Greg Horn, Joby Robotics 2011
 
-#include "toytronics_setpoint.h"
-
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
 
+#include "toytronics_setpoint.h"
+#include "toytronics_interface.h"
 #include "toytronics_types.h"
 
 #include "generated/airframe.h" // for aircraft constants
-
-#include "math/pprz_algebra_int.h" // Int32Quat etc types
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_int.h" // for Int32Quat stab_att_sp_quat
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.h" // for RC_UPDATE_FREQ
-#include "firmwares/rotorcraft/guidance/guidance_h.h" // for mode #defines
-#include "subsystems/ahrs.h" // for ahrs_float
-
-#include "subsystems/radio_control.h" // for rc
 
 setpoint_t setpoint, setpoint_old, stashed_setpoint;
 
@@ -53,75 +45,6 @@ static void toytronics_sp_enter_absolute_forward(void);
 
 static void toytronics_sp_set_absolute_heading_bound_deg(double new_bound);
 static void toytronics_sp_set_incremental_bounds_deg(double bound_x, double bound_y, double bound_z);
-
-// pprz interface
-static const quat_t * get_q_n2b(void);
-static const euler_t * get_e_n2b(void);
-static const rc_t * get_rc(void);
-static void set_paparazzi_setpoint(void);
-
-static void inner_set_forward_gains(void);
-static void inner_set_hover_gains(void);
-static void inner_set_aerobatic_gains(void);
-static void inner_setpoint_reset(void);
-
-/**************  paparazzi interface ************/
-static void inner_set_forward_gains() {};   //dummy
-static void inner_set_hover_gains() {};     //dummy
-static void inner_set_aerobatic_gains() {}; //dummy
-static void inner_setpoint_reset() {}; //dummy
-
-static const quat_t * get_q_n2b(void){
-  static quat_t q_n2b = {1,0,0,0};
-  /* q_n2b.q0 = ahrs_float.ltp_to_body_quat.qi; */
-  /* q_n2b.q1 = ahrs_float.ltp_to_body_quat.qx; */
-  /* q_n2b.q2 = ahrs_float.ltp_to_body_quat.qy; */
-  /* q_n2b.q3 = ahrs_float.ltp_to_body_quat.qz; */
-  q_n2b.q0 = QUAT1_FLOAT_OF_BFP(ahrs.ltp_to_body_quat.qi);
-  q_n2b.q1 = QUAT1_FLOAT_OF_BFP(ahrs.ltp_to_body_quat.qx);
-  q_n2b.q2 = QUAT1_FLOAT_OF_BFP(ahrs.ltp_to_body_quat.qy);
-  q_n2b.q3 = QUAT1_FLOAT_OF_BFP(ahrs.ltp_to_body_quat.qz);
-
-  quat_normalize(&q_n2b);
-  
-  return &q_n2b;
-}
-
-static const euler_t * get_e_n2b(void){
-  static euler_t e_n2b = {0,0,0};
-  static quat_t q_n2b_old = {1,0,0,0};
-  
-  const quat_t * const q_n2b = get_q_n2b();
-
-  if (memcmp( q_n2b, &q_n2b_old, 4*sizeof(double) )){
-    euler321_of_quat( &e_n2b, q_n2b );
-    quat_memcpy( &q_n2b_old, q_n2b );
-  }
-  
-  return &e_n2b;
-}
-
-static const rc_t * get_rc(void){
-  static rc_t rc = {0,0,0,0};
-
-  rc.roll  = ((double)radio_control.values[RADIO_ROLL])/MAX_PPRZ;
-  rc.pitch = ((double)radio_control.values[RADIO_PITCH])/MAX_PPRZ;
-  rc.yaw   = ((double)radio_control.values[RADIO_YAW])/MAX_PPRZ;
-
-  return &rc;
-}
-
-
-static void
-set_paparazzi_setpoint(void)
-{
-  stab_att_sp_quat.qi = QUAT1_BFP_OF_REAL(setpoint.q_n2sp.q0);
-  stab_att_sp_quat.qx = QUAT1_BFP_OF_REAL(setpoint.q_n2sp.q1);
-  stab_att_sp_quat.qy = QUAT1_BFP_OF_REAL(setpoint.q_n2sp.q2);
-  stab_att_sp_quat.qz = QUAT1_BFP_OF_REAL(setpoint.q_n2sp.q3);
-}
-
-
 
 /****************** math/helper functions ******************/
 
@@ -345,7 +268,7 @@ toytronics_set_sp_absolute_hover_from_rc()
                 &(setpoint.q_b2sp));
 
   // set paparazzi setpoint
-  set_paparazzi_setpoint();
+  set_paparazzi_setpoint(&setpoint);
 }
 
 
@@ -401,7 +324,7 @@ toytronics_set_sp_absolute_forward_from_rc()
   quat_inv_mult( &(setpoint.q_b2sp), q_n2b, &(setpoint.q_n2sp));
 
   // set paparazzi setpoint
-  set_paparazzi_setpoint();
+  set_paparazzi_setpoint(&setpoint);
 }
 
 
@@ -467,7 +390,7 @@ toytronics_set_sp_incremental_from_rc()
   if(setpoint_incremental_bounds_deg.z == 0.0) setpoint.q_b2sp.q3 = + rcy * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0/2.0;
 
   // set paparazzi setpoint
-  set_paparazzi_setpoint();
+  set_paparazzi_setpoint(&setpoint);
 }
 
 

@@ -1,3 +1,6 @@
+// toytronics_types.h
+// Greg Horn, Joby Robotics 2011
+
 #ifndef __TOYTRONICS_TYPES_H__
 #define __TOYTRONICS_TYPES_H__
 
@@ -7,8 +10,6 @@
 #include "firmwares/rotorcraft/toytronics/mathlib/xyz.h"
 #include "firmwares/rotorcraft/toytronics/mathlib/spatial_rotations.h"
 
-#include <inttypes.h>
-
 typedef struct setpoint_t {
   quat_t q_n2sp;
   quat_t q_b2sp;
@@ -17,7 +18,6 @@ typedef struct setpoint_t {
   double setpoint_heading;
   double estimated_heading;
 } setpoint_t;
-
 
 typedef struct rc_t {
   double throttle;
@@ -29,6 +29,5 @@ typedef struct rc_t {
   /* uint8_t aux2; */
   /* uint8_t mode; */
 } rc_t;
-
 
 #endif // __TOYTRONICS_TYPES_H__
