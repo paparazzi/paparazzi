@@ -60,7 +60,7 @@
  <section name="AUTOPILOT">
    <define name="MODE_MANUAL" value="AP_MODE_TOYTRONICS_HOVER"/>
    <define name="MODE_AUTO1"  value="AP_MODE_TOYTRONICS_FORWARD"/>
-   <define name="MODE_AUTO2"  value="AP_MODE_TOYTRONICS_ACRO"/>
+   <define name="MODE_AUTO2"  value="AP_MODE_TOYTRONICS_AEROBATIC"/>
    <define name="AUTOPILOT_KILL_WITHOUT_AHRS"  value="TRUE"/>
  </section>
 

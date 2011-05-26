@@ -429,8 +429,8 @@ toytronics_mode_changed(int new_mode)
     break;
 
 
-  case GUIDANCE_H_MODE_TOYTRONICS_ACRO:
-    #ifdef TOYTRONICS_ACRO_BYPASS_ROLL
+  case GUIDANCE_H_MODE_TOYTRONICS_AEROBATIC:
+    #ifdef TOYTRONICS_AEROBATIC_BYPASS_ROLL
     toytronics_sp_set_incremental_bounds_deg( 0.0, 
                                               SETPOINT_MODE_2_BOUND_QUAT_DEG_Y, 
                                               SETPOINT_MODE_2_BOUND_QUAT_DEG_Z);
