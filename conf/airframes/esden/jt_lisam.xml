@@ -35,7 +35,7 @@
  </section>
   <section name="SUPERVISION" prefix="SUPERVISION_">
     <define name="MIN_MOTOR" value="1100"/>
-    <define name="MAX_MOTOR" value="1850"/>
+    <define name="MAX_MOTOR" value="1800"/>
     <define name="TRIM_A" value="0"/>
     <define name="TRIM_E" value="0"/>
     <define name="TRIM_R" value="0"/>
@@ -58,9 +58,10 @@
   </section>
 
  <section name="AUTOPILOT">
-   <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_RC_CLIMB"/>
-   <define name="MODE_AUTO2"  value="AP_MODE_HOVER_Z_HOLD"/>
+   <define name="MODE_MANUAL" value="AP_MODE_TOYTRONICS_HOVER"/>
+   <define name="MODE_AUTO1"  value="AP_MODE_TOYTRONICS_FORWARD"/>
+   <define name="MODE_AUTO2"  value="AP_MODE_TOYTRONICS_ACRO"/>
+   <define name="AUTOPILOT_KILL_WITHOUT_AHRS"  value="TRUE"/>
  </section>
 
  <section name="BAT">
@@ -93,33 +94,33 @@
     <define name="DEADBAND_A"     value="250"/>
 
     <!-- reference -->
-    <define name="REF_OMEGA_P"  value="RadOfDeg(600)"/>
-    <define name="REF_ZETA_P"   value="0.90"/>
-    <define name="REF_MAX_P"    value="RadOfDeg(400.)"/>
-    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+    <define name="REF_OMEGA_R"  value="RadOfDeg(600)"/>
+    <define name="REF_ZETA_R"   value="0.90"/>
+    <define name="REF_MAX_R"    value="RadOfDeg(400.)"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)"/>
 
     <define name="REF_OMEGA_Q"  value="RadOfDeg(800)"/>
     <define name="REF_ZETA_Q"   value="0.90"/>
     <define name="REF_MAX_Q"    value="RadOfDeg(500.)"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
 
-    <define name="REF_OMEGA_R"  value="RadOfDeg(600)"/>
-    <define name="REF_ZETA_R"   value="0.85"/>
-    <define name="REF_MAX_R"    value="RadOfDeg(220.)"/>
-    <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
+    <define name="REF_OMEGA_P"  value="RadOfDeg(600)"/>
+    <define name="REF_ZETA_P"   value="0.85"/>
+    <define name="REF_MAX_P"    value="RadOfDeg(220.)"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="-750"/>
-    <define name="PHI_DGAIN"  value="-370"/>
-    <define name="PHI_IGAIN"  value="-100"/>
+    <define name="PSI_PGAIN"  value="-750"/>
+    <define name="PSI_DGAIN"  value="-370"/>
+    <define name="PSI_IGAIN"  value="-100"/>
 
     <define name="THETA_PGAIN"  value="-800"/>
     <define name="THETA_DGAIN"  value="-240"/>
     <define name="THETA_IGAIN"  value="-100"/>
 
-    <define name="PSI_PGAIN"  value="-6000"/>
-    <define name="PSI_DGAIN"  value="-400"/>
-    <define name="PSI_IGAIN"  value="-10"/>
+    <define name="PHI_PGAIN"  value="-4000"/>
+    <define name="PHI_DGAIN"  value="-600"/>
+    <define name="PHI_IGAIN"  value="-10"/>
 
     <!-- feedforward -->
     <define name="PHI_DDGAIN"   value=" 300"/>
@@ -168,6 +169,9 @@
    <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
  </section>
+
+ <include href="conf/airframes/esden/toytronics/include/inner/JT4_inner_8x4_5.xml"/>
+ <include href="conf/airframes/esden/toytronics/include/setpoint/JT4_setpoint.xml"/>
 
 <!--
  <modules main_freq="512">
