@@ -8,6 +8,21 @@
 //    #define TOYTRONICS_ACRO_BYPASS_ROLL
 
 
+#ifndef USE_TOYTRONICS
+// dummy functions if you aren't using toytronics
+void toytronics_set_sp_absolute_hover_from_rc(void);
+void toytronics_set_sp_absolute_forward_from_rc(void);
+void toytronics_set_sp_incremental_from_rc(void);
+void toytronics_mode_changed(int new_mode);
+
+void toytronics_set_sp_absolute_hover_from_rc() {};
+void toytronics_set_sp_absolute_forward_from_rc() {};
+void toytronics_set_sp_incremental_from_rc() {};
+void toytronics_mode_changed(int new_mode __attribute__((unused))) {};
+
+#else
+
+// the real toytronics stuff
 extern double accel_lp_tau;
 extern double accel_fb_k;
 extern double easy_controller_yaw_stick_ff_deg;
@@ -18,7 +33,10 @@ extern double setpoint_absolute_heading_bound_deg;
 void toytronics_set_sp_absolute_hover_from_rc(void);
 void toytronics_set_sp_absolute_forward_from_rc(void);
 void toytronics_set_sp_incremental_from_rc(void);
-
 void toytronics_mode_changed(int new_mode);
+
+#endif // #ifndef USE_TOYTRONICS
+
+
 
 #endif //__TOYTRONICS_SETPOINT_H__
