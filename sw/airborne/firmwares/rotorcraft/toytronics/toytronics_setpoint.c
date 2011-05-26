@@ -81,17 +81,23 @@ static const quat_t * get_q_n2b(void){
   q_n2b.q1 = QUAT1_FLOAT_OF_BFP(ahrs.ltp_to_body_quat.qx);
   q_n2b.q2 = QUAT1_FLOAT_OF_BFP(ahrs.ltp_to_body_quat.qy);
   q_n2b.q3 = QUAT1_FLOAT_OF_BFP(ahrs.ltp_to_body_quat.qz);
+
+  quat_normalize(&q_n2b);
+  
   return &q_n2b;
 }
 
 static const euler_t * get_e_n2b(void){
   static euler_t e_n2b = {0,0,0};
-  /* e_n2b.roll  = ahrs_float.ltp_to_body_euler.phi; */
-  /* e_n2b.pitch = ahrs_float.ltp_to_body_euler.theta; */
-  /* e_n2b.yaw   = ahrs_float.ltp_to_body_euler.psi; */
-  e_n2b.roll  = ANGLE_FLOAT_OF_BFP(ahrs.ltp_to_body_euler.phi);
-  e_n2b.pitch = ANGLE_FLOAT_OF_BFP(ahrs.ltp_to_body_euler.theta);
-  e_n2b.yaw   = ANGLE_FLOAT_OF_BFP(ahrs.ltp_to_body_euler.psi);
+  static quat_t q_n2b_old = {1,0,0,0};
+  
+  const quat_t * const q_n2b = get_q_n2b();
+
+  if (memcmp( q_n2b, &q_n2b_old, 4*sizeof(double) )){
+    euler321_of_quat( &e_n2b, q_n2b );
+    quat_memcpy( &q_n2b_old, q_n2b );
+  }
+  
   return &e_n2b;
 }
 

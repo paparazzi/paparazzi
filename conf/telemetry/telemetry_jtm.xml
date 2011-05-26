@@ -70,6 +70,7 @@
       <message name="STAB_ATTITUDE"     period=".09"/>
       <message name="STAB_ATTITUDE_REF" period=".09"/>
       <message name="AHRS_REF_QUAT" period=".06"/>
+      <message name="TOYTRONICS_SETPOINT" period=".09"/>
     </mode>
 
     <mode name="vert_loop">

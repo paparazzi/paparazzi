@@ -489,7 +489,27 @@
     <field name="gnd2"   type="float"/>
   </message>
 
- <!-- 63 is free -->
+  <message name="TOYTRONICS_SETPOINT" id="63">
+    <field name="q_n2sp_q0"          type="float" />
+    <field name="q_n2sp_q1"          type="float" />
+    <field name="q_n2sp_q2"          type="float" />
+    <field name="q_n2sp_q3"          type="float" />
+    <field name="q_b2sp_q0"          type="float" />
+    <field name="q_b2sp_q1"          type="float" />
+    <field name="q_b2sp_q2"          type="float" />
+    <field name="q_b2sp_q3"          type="float" />
+    <field name="q_pitch_yaw_sp_q0"  type="float" />
+    <field name="q_pitch_yaw_sp_q1"  type="float" />
+    <field name="q_pitch_yaw_sp_q2"  type="float" />
+    <field name="q_pitch_yaw_sp_q3"  type="float" />
+    <field name="q_pitch_yaw_est_q0" type="float" />
+    <field name="q_pitch_yaw_est_q1" type="float" />
+    <field name="q_pitch_yaw_est_q2" type="float" />
+    <field name="q_pitch_yaw_est_q3" type="float" />
+    <field name="setpoint_heading"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578" />
+    <field name="estimated_heading"  type="float" alt_unit="deg/s" alt_unit_coef="57.29578" />
+  </message>
+
  <!-- 64 is free -->
  <!-- 65 is free -->
  <!-- 66 is free -->

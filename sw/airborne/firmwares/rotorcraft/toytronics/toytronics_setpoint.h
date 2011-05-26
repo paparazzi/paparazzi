@@ -20,12 +20,17 @@ void toytronics_set_sp_absolute_forward_from_rc() {};
 void toytronics_set_sp_incremental_from_rc() {};
 void toytronics_mode_changed(int new_mode __attribute__((unused))) {};
 
-#else
+#else // the real toytronics stuff
 
-// the real toytronics stuff
+#include "toytronics_types.h"
+
+// settings
 extern double hover_pitch_trim_deg;
 extern double roll_to_yaw_rate_ff_factor;
 extern double setpoint_absolute_heading_bound_deg;
+
+// telemetry
+extern setpoint_t setpoint; // setpoint_old, stashed_setpoint;
 
 void toytronics_set_sp_absolute_hover_from_rc(void);
 void toytronics_set_sp_absolute_forward_from_rc(void);
