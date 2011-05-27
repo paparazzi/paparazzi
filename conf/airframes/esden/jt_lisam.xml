@@ -42,8 +42,8 @@
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
     <define name="PITCH_COEF"  value="{ -256, -256,  256,  256 }"/>
-    <define name="ROLL_COEF"    value="{    0,    0,    0,    0 }"/>
-    <define name="YAW_COEF"   value="{  256, -256,  256, -256 }"/>
+    <define name="ROLL_COEF"   value="{    0,    0,    0,    0 }"/>
+    <define name="YAW_COEF"    value="{  256, -256,  256, -256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
@@ -187,7 +187,7 @@
       <subsystem name="telemetry"     type="transparent"/>
       <define name="SERVO_HZ" value="400"/>
       <define name="SERVO_HZ_SECONDARY" value="40"/>
-      <define name="RADIO_MODE" value="RADIO_AUX2"/>
+      <define name="RADIO_MODE" value="RADIO_FLAP"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
       <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/>
       <define name = "RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value = "UART5"/>
