@@ -29,18 +29,18 @@
 
 
     <dl_settings NAME="Att Loop">
-      <dl_setting var="stabilization_gains.p.x" min="-2000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="pgain phi" />
-      <dl_setting var="stabilization_gains.d.x" min="-2000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="dgain p"/>
-      <dl_setting var="stabilization_gains.i.x" min="-300"  step="1" max="0"    module="stabilization/stabilization_attitude" shortname="igain phi" handler="SetKiPhi"/>
-      <dl_setting var="stabilization_gains.dd.x" min="0"    step="1" max="1000" module="stabilization/stabilization_attitude" shortname="ddgain p"/>
-      <dl_setting var="stabilization_gains.p.y" min="-2000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="pgain theta"/>
-      <dl_setting var="stabilization_gains.d.y" min="-2000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="dgain q"/>
-      <dl_setting var="stabilization_gains.i.y" min="-300"  step="1" max="0"    module="stabilization/stabilization_attitude" shortname="igain theta"/>
-      <dl_setting var="stabilization_gains.dd.y" min="0"    step="1" max="500"  module="stabilization/stabilization_attitude" shortname="ddgain q"/>
-      <dl_setting var="stabilization_gains.p.z" min="-4000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="pgain psi"/>
-      <dl_setting var="stabilization_gains.d.z" min="-8000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="dgain r"/>
-      <dl_setting var="stabilization_gains.i.z" min="-800"  step="1" max="0"    module="stabilization/stabilization_attitude" shortname="igain psi"/>
-      <dl_setting var="stabilization_gains.dd.z" min="0"    step="1" max="2000"  module="stabilization/stabilization_attitude" shortname="ddgain r"/>
+      <dl_setting var="stabilization_gains.p.x" min="-4000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="qx pgain" />
+      <dl_setting var="stabilization_gains.d.x" min="-2000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="qx dgain"/>
+      <dl_setting var="stabilization_gains.i.x" min="-300"  step="1" max="0"    module="stabilization/stabilization_attitude" shortname="qx igain" handler="SetKiPhi"/>
+      <dl_setting var="stabilization_gains.dd.x" min="0"    step="1" max="1000" module="stabilization/stabilization_attitude" shortname="qx ddgain"/>
+      <dl_setting var="stabilization_gains.p.y" min="-2000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="qy pgain"/>
+      <dl_setting var="stabilization_gains.d.y" min="-2000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="qy dgain"/>
+      <dl_setting var="stabilization_gains.i.y" min="-300"  step="1" max="0"    module="stabilization/stabilization_attitude" shortname="qy igain"/>
+      <dl_setting var="stabilization_gains.dd.y" min="0"    step="1" max="500"  module="stabilization/stabilization_attitude" shortname="qy ddgain"/>
+      <dl_setting var="stabilization_gains.p.z" min="-4000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="qz pgain"/>
+      <dl_setting var="stabilization_gains.d.z" min="-8000" step="1" max="-1"   module="stabilization/stabilization_attitude" shortname="qz dgain"/>
+      <dl_setting var="stabilization_gains.i.z" min="-800"  step="1" max="0"    module="stabilization/stabilization_attitude" shortname="qz igain"/>
+      <dl_setting var="stabilization_gains.dd.z" min="0"    step="1" max="2000"  module="stabilization/stabilization_attitude" shortname="qz ddgain"/>
     </dl_settings>
 
     <dl_settings NAME="Vert Loop">
@@ -80,6 +80,51 @@
 		  module="toytronics/toytronics_setpoint"
 		  shortname="roll_2_yaw_ff"/>
    </dl_settings>
+
+    <dl_settings NAME="JT Hover Gains">
+      <dl_setting var="toytronics_hover_gains.p.x" min="-4000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="x p hover" />
+      <dl_setting var="toytronics_hover_gains.d.x" min="-2000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="x d hover"/>
+      <dl_setting var="toytronics_hover_gains.i.x" min="-300"  step="1" max="0"    module="toytronics/toytronics_setpoint" shortname="x i hover" />
+      <dl_setting var="toytronics_hover_gains.dd.x" min="0"    step="1" max="1000" module="toytronics/toytronics_setpoint" shortname="x dd hover"/>
+      <dl_setting var="toytronics_hover_gains.p.y" min="-2000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="y p hover"/>
+      <dl_setting var="toytronics_hover_gains.d.y" min="-2000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="y d hover"/>
+      <dl_setting var="toytronics_hover_gains.i.y" min="-300"  step="1" max="0"    module="toytronics/toytronics_setpoint" shortname="y i hover"/>
+      <dl_setting var="toytronics_hover_gains.dd.y" min="0"    step="1" max="500"  module="toytronics/toytronics_setpoint" shortname="y dd hover"/>
+      <dl_setting var="toytronics_hover_gains.p.z" min="-4000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="z p hover"/>
+      <dl_setting var="toytronics_hover_gains.d.z" min="-8000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="z d hover"/>
+      <dl_setting var="toytronics_hover_gains.i.z" min="-800"  step="1" max="0"    module="toytronics/toytronics_setpoint" shortname="z i hover"/>
+      <dl_setting var="toytronics_hover_gains.dd.z" min="0"    step="1" max="2000"  module="toytronics/toytronics_setpoint" shortname="z dd hover"/>
+    </dl_settings>
+
+    <dl_settings NAME="JT Forward Gains">
+      <dl_setting var="toytronics_forward_gains.p.x" min="-4000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="x p forward" />
+      <dl_setting var="toytronics_forward_gains.d.x" min="-2000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="x d forward"/>
+      <dl_setting var="toytronics_forward_gains.i.x" min="-300"  step="1" max="0"    module="toytronics/toytronics_setpoint" shortname="x i forward"/>
+      <dl_setting var="toytronics_forward_gains.dd.x" min="0"    step="1" max="1000" module="toytronics/toytronics_setpoint" shortname="x dd forward"/>
+      <dl_setting var="toytronics_forward_gains.p.y" min="-2000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="y p forward"/>
+      <dl_setting var="toytronics_forward_gains.d.y" min="-2000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="y d forward"/>
+      <dl_setting var="toytronics_forward_gains.i.y" min="-300"  step="1" max="0"    module="toytronics/toytronics_setpoint" shortname="y i forward"/>
+      <dl_setting var="toytronics_forward_gains.dd.y" min="0"    step="1" max="500"  module="toytronics/toytronics_setpoint" shortname="y dd forward"/>
+      <dl_setting var="toytronics_forward_gains.p.z" min="-4000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="z p forward"/>
+      <dl_setting var="toytronics_forward_gains.d.z" min="-8000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="z d forward"/>
+      <dl_setting var="toytronics_forward_gains.i.z" min="-800"  step="1" max="0"    module="toytronics/toytronics_setpoint" shortname="z i forward"/>
+      <dl_setting var="toytronics_forward_gains.dd.z" min="0"    step="1" max="2000"  module="toytronics/toytronics_setpoint" shortname="z dd forward"/>
+    </dl_settings>
+
+    <dl_settings NAME="JT Aerobatic Gains">
+      <dl_setting var="toytronics_aerobatic_gains.p.x" min="-4000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="x p aerobatic" />
+      <dl_setting var="toytronics_aerobatic_gains.d.x" min="-2000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="x d aerobatic"/>
+      <dl_setting var="toytronics_aerobatic_gains.i.x" min="-300"  step="1" max="0"    module="toytronics/toytronics_setpoint" shortname="x i aerobatic"/>
+      <dl_setting var="toytronics_aerobatic_gains.dd.x" min="0"    step="1" max="1000" module="toytronics/toytronics_setpoint" shortname="x dd aerobatic"/>
+      <dl_setting var="toytronics_aerobatic_gains.p.y" min="-2000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="y p aerobatic"/>
+      <dl_setting var="toytronics_aerobatic_gains.d.y" min="-2000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="y d aerobatic"/>
+      <dl_setting var="toytronics_aerobatic_gains.i.y" min="-300"  step="1" max="0"    module="toytronics/toytronics_setpoint" shortname="y i aerobatic"/>
+      <dl_setting var="toytronics_aerobatic_gains.dd.y" min="0"    step="1" max="500"  module="toytronics/toytronics_setpoint" shortname="y dd aerobatic"/>
+      <dl_setting var="toytronics_aerobatic_gains.p.z" min="-4000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="z p aerobatic"/>
+      <dl_setting var="toytronics_aerobatic_gains.d.z" min="-8000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="z d aerobatic"/>
+      <dl_setting var="toytronics_aerobatic_gains.i.z" min="-800"  step="1" max="0"    module="toytronics/toytronics_setpoint" shortname="z i aerobatic"/>
+      <dl_setting var="toytronics_aerobatic_gains.dd.z" min="0"    step="1" max="2000"  module="toytronics/toytronics_setpoint" shortname="z dd aerobatic"/>
+    </dl_settings>
 
 
   </dl_settings>

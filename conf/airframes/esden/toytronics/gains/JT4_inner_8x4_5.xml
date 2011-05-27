@@ -1,0 +1,51 @@
+<airframe>
+  <section name="TOYTRONICS_STAB_GAINS" prefix="TOYTRONICS_STAB_GAINS_">
+    <!-- hover gains -->
+    <define name="HOVER_X_P"      value="-4000"/>
+    <define name="HOVER_X_I"      value="-10"/> 
+    <define name="HOVER_X_D"      value="-600"/>
+    <define name="HOVER_X_DD"     value="300"/>
+
+    <define name="HOVER_Y_P"      value="-800"/>
+    <define name="HOVER_Y_I"      value="-100"/>
+    <define name="HOVER_Y_D"      value="-240"/>
+    <define name="HOVER_Y_DD"     value="300"/>
+
+    <define name="HOVER_Z_P"      value="-750"/>
+    <define name="HOVER_Z_I"      value="-100"/>
+    <define name="HOVER_Z_D"      value="-370"/>
+    <define name="HOVER_Z_DD"     value="300"/>
+
+    <!-- forward gains -->
+    <define name="FORWARD_X_P"      value="-2000"/>
+    <define name="FORWARD_X_I"      value="-10"/>
+    <define name="FORWARD_X_D"      value="-300"/>
+    <define name="FORWARD_X_DD"     value="300"/>
+
+    <define name="FORWARD_Y_P"      value="-500"/>
+    <define name="FORWARD_Y_I"      value="-100"/>
+    <define name="FORWARD_Y_D"      value="-400"/>
+    <define name="FORWARD_Y_DD"     value="300"/>
+
+    <define name="FORWARD_Z_P"      value="-600"/>
+    <define name="FORWARD_Z_I"      value="-100"/>
+    <define name="FORWARD_Z_D"      value="-700"/>
+    <define name="FORWARD_Z_DD"     value="300"/>
+   
+    <!-- aerobatic gains -->
+    <define name="AEROBATIC_X_P"      value="-3000"/>
+    <define name="AEROBATIC_X_I"      value="-10"/> 
+    <define name="AEROBATIC_X_D"      value="-400"/>
+    <define name="AEROBATIC_X_DD"     value="300"/>
+
+    <define name="AEROBATIC_Y_P"      value="-500"/>
+    <define name="AEROBATIC_Y_I"      value="-100"/>
+    <define name="AEROBATIC_Y_D"      value="-400"/>
+    <define name="AEROBATIC_Y_DD"     value="300"/>
+
+    <define name="AEROBATIC_Z_P"      value="-600"/>
+    <define name="AEROBATIC_Z_I"      value="-100"/>
+    <define name="AEROBATIC_Z_D"      value="-700"/>
+    <define name="AEROBATIC_Z_DD"     value="300"/>
+  </section>
+</airframe>

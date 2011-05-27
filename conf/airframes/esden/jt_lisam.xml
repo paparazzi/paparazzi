@@ -170,8 +170,8 @@
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
  </section>
 
- <include href="conf/airframes/esden/toytronics/include/inner/JT4_inner_8x4_5.xml"/>
- <include href="conf/airframes/esden/toytronics/include/setpoint/JT4_setpoint.xml"/>
+ <include href="conf/airframes/esden/toytronics/gains/JT4_inner_8x4_5.xml"/>
+ <include href="conf/airframes/esden/toytronics/setpoint/JT_setpoint.xml"/>
 
 <!--
  <modules main_freq="512">

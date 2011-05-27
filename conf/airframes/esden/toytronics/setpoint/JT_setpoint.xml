@@ -9,16 +9,9 @@
     <define name="ROLL_TO_YAW_RATE_FF_FACTOR"    value="3.2"/>
 
     <define name="DEADBAND"                   value="0.03"/>
-    <define name="REF_OMEGA_TAU"                value="0.2"/>
     <define name="MODE_2_BOUND_QUAT_DEG_X"    value="50"/>
     <define name="MODE_2_BOUND_QUAT_DEG_Y"    value="50"/>
     <define name="MODE_2_BOUND_QUAT_DEG_Z"    value="50"/>
-
-    <!-- stuff specific to auto-hover -->
-    <define name="AUTO_HOVER_P_GAIN" value=".1"/>
-    <define name="AUTO_HOVER_I_GAIN" value="0.03"/>
-    <define name="AUTO_HOVER_D_GAIN" value=".15"/>
-    <define name="AUTO_HOVER_MAX_STICK_M_PER_SEC" value="6.0"/>
 
   </section>
 </airframe>

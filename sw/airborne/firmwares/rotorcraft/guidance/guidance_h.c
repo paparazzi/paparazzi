@@ -106,6 +106,12 @@ void guidance_h_mode_changed(uint8_t new_mode) {
 	//      case GUIDANCE_H_MODE_RATE:
 	//	stabilization_rate_exit();
 	//	break;
+  case GUIDANCE_H_MODE_TOYTRONICS_HOVER:
+  case GUIDANCE_H_MODE_TOYTRONICS_FORWARD:
+  case GUIDANCE_H_MODE_TOYTRONICS_AEROBATIC:
+    toytronics_mode_exit(guidance_h_mode);
+    break;
+
   default:
     break;
   }
@@ -130,8 +136,8 @@ void guidance_h_mode_changed(uint8_t new_mode) {
 
   case GUIDANCE_H_MODE_TOYTRONICS_HOVER:
   case GUIDANCE_H_MODE_TOYTRONICS_FORWARD:
-    toytronics_mode_changed(new_mode);
   case GUIDANCE_H_MODE_TOYTRONICS_AEROBATIC:
+    toytronics_mode_enter(new_mode);
     break;
 
   default:

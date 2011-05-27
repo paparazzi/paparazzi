@@ -20,6 +20,29 @@ xyz_t setpoint_incremental_bounds_deg = { SETPOINT_MODE_2_BOUND_QUAT_DEG_X,
 double setpoint_absolute_heading_bound_deg = SETPOINT_BOUND_ERROR_HEADING_DEG;
 double hover_pitch_trim_deg = SETPOINT_HOVER_PITCH_TRIM_DEG;
 
+/**************** gains for the 3 modes ******************/
+struct Int32AttitudeGains toytronics_hover_gains = {
+  {TOYTRONICS_STAB_GAINS_HOVER_X_P,  TOYTRONICS_STAB_GAINS_HOVER_Y_P,  TOYTRONICS_STAB_GAINS_HOVER_Z_P  },
+  {TOYTRONICS_STAB_GAINS_HOVER_X_D,  TOYTRONICS_STAB_GAINS_HOVER_Y_D,  TOYTRONICS_STAB_GAINS_HOVER_Z_D  },
+  {TOYTRONICS_STAB_GAINS_HOVER_X_DD, TOYTRONICS_STAB_GAINS_HOVER_Y_DD, TOYTRONICS_STAB_GAINS_HOVER_Z_DD },
+  {TOYTRONICS_STAB_GAINS_HOVER_X_I,  TOYTRONICS_STAB_GAINS_HOVER_Y_I,  TOYTRONICS_STAB_GAINS_HOVER_Z_I  }
+};
+
+struct Int32AttitudeGains toytronics_forward_gains = {
+  {TOYTRONICS_STAB_GAINS_FORWARD_X_P,  TOYTRONICS_STAB_GAINS_FORWARD_Y_P,  TOYTRONICS_STAB_GAINS_FORWARD_Z_P  },
+  {TOYTRONICS_STAB_GAINS_FORWARD_X_D,  TOYTRONICS_STAB_GAINS_FORWARD_Y_D,  TOYTRONICS_STAB_GAINS_FORWARD_Z_D  },
+  {TOYTRONICS_STAB_GAINS_FORWARD_X_DD, TOYTRONICS_STAB_GAINS_FORWARD_Y_DD, TOYTRONICS_STAB_GAINS_FORWARD_Z_DD },
+  {TOYTRONICS_STAB_GAINS_FORWARD_X_I,  TOYTRONICS_STAB_GAINS_FORWARD_Y_I,  TOYTRONICS_STAB_GAINS_FORWARD_Z_I  }
+};
+
+struct Int32AttitudeGains toytronics_aerobatic_gains = {
+  {TOYTRONICS_STAB_GAINS_AEROBATIC_X_P,  TOYTRONICS_STAB_GAINS_AEROBATIC_Y_P,  TOYTRONICS_STAB_GAINS_AEROBATIC_Z_P  },
+  {TOYTRONICS_STAB_GAINS_AEROBATIC_X_D,  TOYTRONICS_STAB_GAINS_AEROBATIC_Y_D,  TOYTRONICS_STAB_GAINS_AEROBATIC_Z_D  },
+  {TOYTRONICS_STAB_GAINS_AEROBATIC_X_DD, TOYTRONICS_STAB_GAINS_AEROBATIC_Y_DD, TOYTRONICS_STAB_GAINS_AEROBATIC_Z_DD },
+  {TOYTRONICS_STAB_GAINS_AEROBATIC_X_I,  TOYTRONICS_STAB_GAINS_AEROBATIC_Y_I,  TOYTRONICS_STAB_GAINS_AEROBATIC_Z_I  }
+};
+
+
 xyz_t r_n2h_n = {0,0,0}; // local NED to hover position setpoint vector
 xyz_t r_b2h_n = {0,0,0}; // body to hover setpoint vector
 double hover_throttle0;
@@ -267,8 +290,8 @@ toytronics_set_sp_absolute_hover_from_rc()
   quat_mult_inv(&(setpoint.q_pitch_yaw_estimated), &(setpoint.q_pitch_yaw_setpoint), 
                 &(setpoint.q_b2sp));
 
-  // set paparazzi setpoint
-  set_paparazzi_setpoint(&setpoint);
+  // set stabilization setpoint
+  set_stabilization_setpoint(&setpoint);
 }
 
 
@@ -323,8 +346,8 @@ toytronics_set_sp_absolute_forward_from_rc()
   // calculate body to setpoint quat
   quat_inv_mult( &(setpoint.q_b2sp), q_n2b, &(setpoint.q_n2sp));
 
-  // set paparazzi setpoint
-  set_paparazzi_setpoint(&setpoint);
+  // set stabilization setpoint
+  set_stabilization_setpoint(&setpoint);
 }
 
 
@@ -389,13 +412,18 @@ toytronics_set_sp_incremental_from_rc()
   if(setpoint_incremental_bounds_deg.y == 0.0) setpoint.q_b2sp.q2 = + rcp * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0/2.0;
   if(setpoint_incremental_bounds_deg.z == 0.0) setpoint.q_b2sp.q3 = + rcy * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0/2.0;
 
-  // set paparazzi setpoint
-  set_paparazzi_setpoint(&setpoint);
+  // set stabilization setpoint
+  set_stabilization_setpoint(&setpoint);
 }
 
+void
+toytronics_mode_exit(int old_mode __attribute__((unused)))
+{
+  set_stabilization_gains( NULL );
+}
 
 void
-toytronics_mode_changed(int new_mode)
+toytronics_mode_enter(int new_mode)
 {
   switch ( new_mode ) {
 
@@ -407,25 +435,22 @@ toytronics_mode_changed(int new_mode)
     #endif
     // initialize setpoint heading to current heading
     toytronics_sp_enter_absolute_hover();
-    // reset inner's integral state
-    inner_setpoint_reset();
-    inner_set_hover_gains();
+    // set hover gains
+    set_stabilization_gains(&toytronics_hover_gains);
     break;
 
 
   case GUIDANCE_H_MODE_TOYTRONICS_FORWARD:
-    inner_set_forward_gains();
     toytronics_sp_set_incremental_bounds_deg( 0.0, 
                                               SETPOINT_MODE_2_BOUND_QUAT_DEG_Y, 
                                               SETPOINT_MODE_2_BOUND_QUAT_DEG_Z);
-    toytronics_sp_enter_incremental();
+    toytronics_sp_set_absolute_heading_bound_deg( SETPOINT_BOUND_ERROR_HEADING_DEG ); 
     // initialize setpoint heading to current heading
     toytronics_sp_enter_absolute_forward();
     // init smooth transition
     setpoint_smooth_transition_reset();
-    // reset inner's integral state
-    inner_setpoint_reset();
-    toytronics_sp_set_absolute_heading_bound_deg( SETPOINT_BOUND_ERROR_HEADING_DEG ); 
+    // set forward gains
+    set_stabilization_gains(&toytronics_forward_gains);
     break;
 
 
@@ -440,8 +465,8 @@ toytronics_mode_changed(int new_mode)
                                               SETPOINT_MODE_2_BOUND_QUAT_DEG_Z);
     #endif
     toytronics_sp_enter_incremental();
-    inner_setpoint_reset();
-    inner_set_aerobatic_gains();
+    // set aerobatic gains
+    set_stabilization_gains(&toytronics_aerobatic_gains);
     break;
 
   default:

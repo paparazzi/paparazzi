@@ -208,8 +208,8 @@
 
   </firmware>
 
-  <include href="conf/airframes/esden/toytronics/include/inner/JT4_inner_8x4_5.xml"/>
-  <include href="conf/airframes/esden/toytronics/include/setpoint/JT4_setpoint.xml"/>
+  <include href="conf/airframes/esden/toytronics/gains/JT4_inner_8x4_5.xml"/>
+  <include href="conf/airframes/esden/toytronics/setpoint/JT_setpoint.xml"/>
 
   <firmware name="lisa_m_test_progs">
     <target name="test_led"			board="lisa_m_1.0"/>
