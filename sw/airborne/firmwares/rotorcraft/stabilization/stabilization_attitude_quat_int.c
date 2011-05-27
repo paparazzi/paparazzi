@@ -40,6 +40,8 @@ struct Int32AttitudeGains stabilization_gains = {
   {STABILIZATION_ATTITUDE_PHI_IGAIN, STABILIZATION_ATTITUDE_THETA_IGAIN, STABILIZATION_ATTITUDE_PSI_IGAIN }
 };
 
+struct Int32AttitudeGains * current_stabilization_gains = &stabilization_gains;
+
 struct Int32Quat stabilization_att_sum_err_quat;
 struct Int32Eulers stabilization_att_sum_err;
 
@@ -208,9 +210,9 @@ void stabilization_attitude_run(bool_t enable_integrator) {
     INT_EULERS_ZERO( stabilization_att_sum_err );
   }
 
-  attitude_run_ff(stabilization_att_ff_cmd, &stabilization_gains, &stab_att_ref_accel);
+  attitude_run_ff(stabilization_att_ff_cmd, current_stabilization_gains, &stab_att_ref_accel);
 
-  attitude_run_fb(stabilization_att_fb_cmd, &stabilization_gains, &att_err, &rate_err, &stabilization_att_sum_err_quat);
+  attitude_run_fb(stabilization_att_fb_cmd, current_stabilization_gains, &att_err, &rate_err, &stabilization_att_sum_err_quat);
 
   for (int i = COMMAND_ROLL; i <= COMMAND_YAW; i++) {
     stabilization_cmd[i] = stabilization_att_fb_cmd[i]+stabilization_att_ff_cmd[i];
