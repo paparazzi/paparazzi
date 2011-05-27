@@ -1,0 +1,21 @@
+<joystick>
+  <input>
+    <axis index="0" name="roll"/>
+    <axis index="1" name="throttle"/>
+    <axis index="2" name="pitch"/>
+    <axis index="4" name="yaw"/>
+    <button index="1" name="mode"/>
+  </input>
+
+  <messages period="0.05">
+
+    <message class="datalink" name="RC_4CH" send_always="true">
+      <field name="mode" value="mode + 1"/> <!-- only AUTO1 and AUTO2 available -->
+      <field name="throttle" value="Fit(-throttle,-75,75,0,127)"/>
+      <field name="roll" value="Fit(-roll,-90,90,-127,127)"/>
+      <field name="pitch" value="Fit(pitch,-90,90,-127,127)"/>
+      <field name="yaw" value="Fit(yaw,-90,90,-127,127)"/>
+    </message>
+
+  </messages>
+</joystick>
