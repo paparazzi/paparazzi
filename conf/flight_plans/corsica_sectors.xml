@@ -3,8 +3,8 @@
 <procedure>
 
   <waypoints>
-    <waypoint name="_MENTON-PLAGE-NE"  lat="43 47 00" lon="7 30 40"/>
-    <waypoint name="_MENTON-PLAGE-SO"  lat="43 46 25" lon="7 30 10"/>
+    <waypoint name="_MENTON-PLAGE-NE"  lat="43 46 30" lon="7 30 14"/>
+    <waypoint name="_MENTON-PLAGE-SO"  lat="43 46 14" lon="7 29 34"/>
     <waypoint name="_MENTON-NE"        lat="43 46 10" lon="7 33 01"/>
     <waypoint name="_MENTON-SO"        lat="43 45 03" lon="7 30 39"/>
     <waypoint name="_TMA-NICE-NE"      lat="43 33 32" lon="7 50 06"/>
