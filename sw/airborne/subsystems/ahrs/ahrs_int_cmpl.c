@@ -321,6 +321,8 @@ __attribute__ ((always_inline)) static inline void compute_body_orientation(void
 
 }
 
+
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
 // TODO use ahrs result directly
 #include "estimator.h"
 // remotely settable
@@ -344,3 +346,4 @@ void ahrs_update_fw_estimator(void)
 
   //estimator_p = Omega_Vector[0];
 }
+#endif //AHRS_UPDATE_FW_ESTIMATOR
