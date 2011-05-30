@@ -26,8 +26,6 @@
 CFG_SHARED=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/shared
 CFG_ROTORCRAFT=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/rotorcraft
 
-SRC_BOOZ=booz
-SRC_BOOZ_ARCH=$(SRC_BOOZ)/arch/$(ARCH)
 SRC_BOOZ_TEST=$(SRC_BOOZ)/test
 SRC_BOOZ_PRIV=booz_priv
 
@@ -39,7 +37,7 @@ SRC_ARCH=arch/$(ARCH)
 
 CFG_BOOZ=$(PAPARAZZI_SRC)/conf/autopilot/
 
-ROTORCRAFT_INC = -I$(SRC_FIRMWARE) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD)
+ROTORCRAFT_INC = -I$(SRC_FIRMWARE) -I$(SRC_BOARD)
 
 
 ap.ARCHDIR = $(ARCH)
