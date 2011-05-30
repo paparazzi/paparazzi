@@ -35,7 +35,7 @@
 #include "firmwares/fixedwing/autopilot.h"
 #include "subsystems/navigation/common_nav.h"
 
-#define NB_DATA 22
+#define NB_DATA 23
 
 #ifndef GENERIC_COM_I2C_DEV
 #define GENERIC_COM_I2C_DEV i2c0
@@ -77,10 +77,11 @@ void generic_com_periodic( void ) {
   FillBufWith16bit(com_trans.buf, 13, gps_course); // course
   FillBufWith16bit(com_trans.buf, 15, (uint16_t)(estimator_airspeed*100)); // TAS (cm/s)
   com_trans.buf[16] = electrical.vsupply;
-  com_trans.buf[17] = (uint8_t)(ap_state->commands[COMMAND_THROTTLE]*100/MAX_PPRZ);
-  com_trans.buf[18] = pprz_mode;
-  com_trans.buf[19] = nav_block;
-  FillBufWith16bit(com_trans.buf, 20, estimator_flight_time);
+  com_trans.buf[17] = (uint8_t)(energy*10);
+  com_trans.buf[18] = (uint8_t)(ap_state->commands[COMMAND_THROTTLE]*100/MAX_PPRZ);
+  com_trans.buf[19] = pprz_mode;
+  com_trans.buf[20] = nav_block;
+  FillBufWith16bit(com_trans.buf, 21, estimator_flight_time);
   I2CTransmit(GENERIC_COM_I2C_DEV, com_trans, GENERIC_COM_SLAVE_ADDR, NB_DATA);
 
 }

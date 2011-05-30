@@ -72,6 +72,7 @@ extern uint8_t fatal_error_nb;
 
 extern uint8_t lateral_mode;
 extern uint8_t vsupply;
+extern float energy;
 
 extern float slider_1_val, slider_2_val;
 
