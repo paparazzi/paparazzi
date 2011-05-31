@@ -111,7 +111,7 @@
       <dl_setting var="toytronics_forward_gains.dd.z" min="0"    step="1" max="2000"  module="toytronics/toytronics_setpoint" shortname="z dd forward"/>
     </dl_settings>
 
-    <dl_settings NAME="JT Aerobatic Gains">
+    <dl_settings NAME="JT Aero Gains">
       <dl_setting var="toytronics_aerobatic_gains.p.x" min="-4000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="x p aerobatic" />
       <dl_setting var="toytronics_aerobatic_gains.d.x" min="-2000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="x d aerobatic"/>
       <dl_setting var="toytronics_aerobatic_gains.i.x" min="-300"  step="1" max="0"    module="toytronics/toytronics_setpoint" shortname="x i aerobatic"/>
@@ -124,6 +124,12 @@
       <dl_setting var="toytronics_aerobatic_gains.d.z" min="-8000" step="1" max="-1"   module="toytronics/toytronics_setpoint" shortname="z d aerobatic"/>
       <dl_setting var="toytronics_aerobatic_gains.i.z" min="-800"  step="1" max="0"    module="toytronics/toytronics_setpoint" shortname="z i aerobatic"/>
       <dl_setting var="toytronics_aerobatic_gains.dd.z" min="0"    step="1" max="2000"  module="toytronics/toytronics_setpoint" shortname="z dd aerobatic"/>
+    </dl_settings>
+
+    <dl_settings NAME="JT Aero Decay">
+      <dl_setting var="setpoint_aerobatic_decay_time.x" min="0.0" step="0.01" max="1.0"   module="toytronics/toytronics_setpoint" shortname="x decau tau" />
+      <dl_setting var="setpoint_aerobatic_decay_time.y" min="0.0" step="0.01" max="1.0"   module="toytronics/toytronics_setpoint" shortname="y decau tau" />
+      <dl_setting var="setpoint_aerobatic_decay_time.z" min="0.0" step="0.01" max="1.0"   module="toytronics/toytronics_setpoint" shortname="z decau tau" />
     </dl_settings>
 
 

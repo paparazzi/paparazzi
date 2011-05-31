@@ -32,6 +32,7 @@ extern double setpoint_absolute_heading_bound_deg;
 extern struct Int32AttitudeGains toytronics_hover_gains;
 extern struct Int32AttitudeGains toytronics_forward_gains;
 extern struct Int32AttitudeGains toytronics_aerobatic_gains;
+extern xyz_t setpoint_aerobatic_decay_time;
 
 // telemetry
 extern setpoint_t setpoint;

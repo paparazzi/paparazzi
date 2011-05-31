@@ -211,9 +211,6 @@ void guidance_h_run(bool_t  in_flight) {
     break;
 
   case GUIDANCE_H_MODE_TOYTRONICS_HOVER:
-    #ifdef TOYTRONICS_HOVER_BYPASS_ROLL
-    sp2i.dx = -rc->yaw * 1.7;
-    #endif
     stabilization_attitude_run(in_flight);
     break;
 
@@ -222,9 +219,6 @@ void guidance_h_run(bool_t  in_flight) {
     break;
 
   case GUIDANCE_H_MODE_TOYTRONICS_AEROBATIC:
-    #ifdef TOYTRONICS_AEROBATIC_BYPASS_ROLL
-    sp2i.dx = rc->roll * 1.7;
-    #endif
     stabilization_attitude_run(in_flight);
     break;
 

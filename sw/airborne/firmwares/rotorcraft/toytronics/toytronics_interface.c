@@ -50,12 +50,12 @@ const rc_t * get_rc(void){
 }
 
 void
-set_stabilization_setpoint(const setpoint_t * const setpoint)
+set_stabilization_setpoint(const quat_t * const q_n2sp)
 {
-  stab_att_sp_quat.qi = QUAT1_BFP_OF_REAL(setpoint->q_n2sp.q0);
-  stab_att_sp_quat.qx = QUAT1_BFP_OF_REAL(setpoint->q_n2sp.q1);
-  stab_att_sp_quat.qy = QUAT1_BFP_OF_REAL(setpoint->q_n2sp.q2);
-  stab_att_sp_quat.qz = QUAT1_BFP_OF_REAL(setpoint->q_n2sp.q3);
+  stab_att_sp_quat.qi = QUAT1_BFP_OF_REAL(q_n2sp->q0);
+  stab_att_sp_quat.qx = QUAT1_BFP_OF_REAL(q_n2sp->q1);
+  stab_att_sp_quat.qy = QUAT1_BFP_OF_REAL(q_n2sp->q2);
+  stab_att_sp_quat.qz = QUAT1_BFP_OF_REAL(q_n2sp->q3);
 }
 
 void

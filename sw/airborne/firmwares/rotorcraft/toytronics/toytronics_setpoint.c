@@ -11,11 +11,13 @@
 
 #include "generated/airframe.h" // for aircraft constants
 
-setpoint_t setpoint, setpoint_old, stashed_setpoint;
+setpoint_t setpoint;
 
 xyz_t setpoint_incremental_bounds_deg = { SETPOINT_MODE_2_BOUND_QUAT_DEG_X,
                                           SETPOINT_MODE_2_BOUND_QUAT_DEG_Y,
                                           SETPOINT_MODE_2_BOUND_QUAT_DEG_Z};
+
+xyz_t setpoint_aerobatic_decay_time = {0.0, 0.5, 1.0};
 
 double setpoint_absolute_heading_bound_deg = SETPOINT_BOUND_ERROR_HEADING_DEG;
 double hover_pitch_trim_deg = SETPOINT_HOVER_PITCH_TRIM_DEG;
@@ -80,10 +82,17 @@ wrap_to_pi(double * angle){
     *angle += 2*M_PI;
 }
 
+// discrete time exponential decay
+static void
+discrete_exponential_decay( double * state, const double tau, const double ts )
+{
+  *state *= exp(-ts/tau);
+//  if tau <= 0.01*ts
+}
+
 // get "heading" from attitude quat q_n2b:
 // first find the shortest path to vertical (q_n2h),
 // then find how much rotation q_n2h has relative to north
-
 static double
 get_heading_from_q_n2b(const quat_t * const q_n2b)
 {
@@ -179,8 +188,6 @@ toytronics_sp_enter_incremental()
 
   // copy current attitude to setpoint attitude
   memcpy( &(setpoint.q_n2sp), q_n2b, sizeof(quat_t));
-  setpoint_old = setpoint;
-  stashed_setpoint = setpoint;
 }
 
 static void
@@ -191,7 +198,6 @@ toytronics_sp_enter_absolute_hover()
   // copy current heading to setpoint heading
   setpoint.setpoint_heading = get_heading_from_q_n2b(q_n2b);
   memcpy( &(setpoint.q_n2sp), q_n2b, sizeof(quat_t));
-  setpoint_old = setpoint;
 }
 
 static void
@@ -204,7 +210,6 @@ toytronics_sp_enter_absolute_forward()
   // fudge to deal with singularity for now
   setpoint.setpoint_heading = get_fudged_yaw(q_n2b, e_n2b);
   memcpy( &(setpoint.q_n2sp), q_n2b, sizeof(quat_t));
-  setpoint_old = setpoint;
 }
 
 static void
@@ -228,8 +233,6 @@ toytronics_set_sp_absolute_hover_from_rc()
   double dt = 1.0/RC_UPDATE_FREQ;
   const rc_t * const rc = get_rc();
   const quat_t * const q_n2b = get_q_n2b();
-
-  setpoint_old = setpoint;
   
 #ifdef SWAP_STICKS_FOR_SCOTT
   // local copies to allow implementing a deadband
@@ -291,7 +294,7 @@ toytronics_set_sp_absolute_hover_from_rc()
                 &(setpoint.q_b2sp));
 
   // set stabilization setpoint
-  set_stabilization_setpoint(&setpoint);
+  set_stabilization_setpoint(&setpoint.q_n2sp);
 }
 
 
@@ -304,8 +307,6 @@ toytronics_set_sp_absolute_forward_from_rc()
   const quat_t * const q_n2b = get_q_n2b();
   const euler_t * const e_n2b = get_e_n2b();
 
-  setpoint_old = setpoint;
-  
   // local copies to allow implementing a deadband
   double rcp = rc->pitch;
   double rcr = apply_deadband(rc->roll, SETPOINT_DEADBAND);
@@ -347,11 +348,8 @@ toytronics_set_sp_absolute_forward_from_rc()
   quat_inv_mult( &(setpoint.q_b2sp), q_n2b, &(setpoint.q_n2sp));
 
   // set stabilization setpoint
-  set_stabilization_setpoint(&setpoint);
+  set_stabilization_setpoint(&setpoint.q_n2sp);
 }
-
-
-
 
 void
 toytronics_set_sp_incremental_from_rc()
@@ -359,8 +357,6 @@ toytronics_set_sp_incremental_from_rc()
   double dt = 1.0/RC_UPDATE_FREQ;
   const rc_t * const rc = get_rc();
   const quat_t * const q_n2b = get_q_n2b();
-
-  setpoint_old = setpoint;
 
   // local copies to allow implementing a deadband
   double rcp = apply_deadband(rc->pitch, SETPOINT_DEADBAND);
@@ -399,21 +395,43 @@ toytronics_set_sp_incremental_from_rc()
   BOUND(setpoint.q_b2sp.q1, -setpoint_incremental_bounds_deg.x*M_PI/180.0/2.0, setpoint_incremental_bounds_deg.x*M_PI/180.0/2.0);
   BOUND(setpoint.q_b2sp.q2, -setpoint_incremental_bounds_deg.y*M_PI/180.0/2.0, setpoint_incremental_bounds_deg.y*M_PI/180.0/2.0);
   BOUND(setpoint.q_b2sp.q3, -setpoint_incremental_bounds_deg.z*M_PI/180.0/2.0, setpoint_incremental_bounds_deg.z*M_PI/180.0/2.0);
-  setpoint.q_b2sp.q0 = sqrt(1 - setpoint.q_b2sp.q1*setpoint.q_b2sp.q1 
- 			    - setpoint.q_b2sp.q2*setpoint.q_b2sp.q2 
-			    - setpoint.q_b2sp.q3*setpoint.q_b2sp.q3);
+
+  // let setpoint decay back to body
+  discrete_exponential_decay( &setpoint.q_b2sp.q1, setpoint_aerobatic_decay_time.x, dt );
+  discrete_exponential_decay( &setpoint.q_b2sp.q2, setpoint_aerobatic_decay_time.y, dt );
+  discrete_exponential_decay( &setpoint.q_b2sp.q3, setpoint_aerobatic_decay_time.z, dt );
+
+  // normalize
+  setpoint.q_b2sp.q0 = sqrt(1 - SQR(setpoint.q_b2sp.q1) - SQR(setpoint.q_b2sp.q2) - SQR(setpoint.q_b2sp.q3));
           
   // update n2sp quat
   quat_mult( &(setpoint.q_n2sp), q_n2b, &(setpoint.q_b2sp));
 
   //if bound is zero, then turn joystick into equiv. error
-  // MUST BE DONE AFTER q_n2sp is updated
-  if(setpoint_incremental_bounds_deg.x == 0.0) setpoint.q_b2sp.q1 = + rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0/2.0;
-  if(setpoint_incremental_bounds_deg.y == 0.0) setpoint.q_b2sp.q2 = + rcp * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0/2.0;
-  if(setpoint_incremental_bounds_deg.z == 0.0) setpoint.q_b2sp.q3 = + rcy * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0/2.0;
+  quat_t q_n2sp_pprz;
+  quat_memcpy( &q_n2sp_pprz, &(setpoint.q_n2sp));
+
+  // add user input to paparazzi quat
+  double rc_roll = 0;
+  double rc_pitch = 0;
+  double rc_yaw = 0;
+  if(setpoint_incremental_bounds_deg.x == 0.0) rc_roll  = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;
+  if(setpoint_incremental_bounds_deg.y == 0.0) rc_pitch = rcp * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;
+  if(setpoint_incremental_bounds_deg.z == 0.0) rc_yaw   = rcy * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;
+  if (rc_roll != 0 || rc_pitch != 0 || rc_yaw != 0){
+    double total_angle_rc = sqrt( SQR(rc_roll) + SQR(rc_pitch) + SQR(rc_yaw) );
+    quat_t q_rc;
+    q_rc.q0 = cos(0.5*total_angle_rc);
+    q_rc.q1 = sin(0.5*total_angle_rc)*rc_roll /total_angle_rc;
+    q_rc.q2 = sin(0.5*total_angle_rc)*rc_pitch/total_angle_rc;
+    q_rc.q3 = sin(0.5*total_angle_rc)*rc_yaw  /total_angle_rc;
+    quat_t q_temp;
+    quat_memcpy( &q_temp, &q_n2sp_pprz );
+    quat_mult( &q_n2sp_pprz, &q_temp, &q_rc);
+  }
 
   // set stabilization setpoint
-  set_stabilization_setpoint(&setpoint);
+  set_stabilization_setpoint(&q_n2sp_pprz);
 }
 
 void
