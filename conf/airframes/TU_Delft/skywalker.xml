@@ -77,16 +77,16 @@
   </command_laws>
 
   <!-- Local magnetic field -->
-  <section name="AHRS" prefix="AHRS_" >
-    <define name="H_X" value="0.51562740288882" />
-    <define name="H_Y" value="-0.05707735220832" />
-    <define name="H_Z" value="0.85490967783446" />
+  <section name="AHRS" prefix="AHRS_">
+    <define name="H_X" value="0.51562740288882"/>
+    <define name="H_Y" value="-0.05707735220832"/>
+    <define name="H_Z" value="0.85490967783446"/>
   </section>
 
   <section name="XSENS">
-    <define name="GPS_IMU_LEVER_ARM_X" value="-0.285f" />
-    <define name="GPS_IMU_LEVER_ARM_Y" value="0.0f" />
-    <define name="GPS_IMU_LEVER_ARM_Z" value="0.0f" />
+    <define name="GPS_IMU_LEVER_ARM_X" value="-0.285f"/>
+    <define name="GPS_IMU_LEVER_ARM_Y" value="0.0f"/>
+    <define name="GPS_IMU_LEVER_ARM_Z" value="0.0f"/>
   </section>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -103,8 +103,8 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0." unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="-0.027" unit="deg"/>
   </section>
 
   <section name="MISC">
@@ -130,29 +130,29 @@
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.57800000906"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.25"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.65"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-4000"/>
-    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.108999997377" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="0."/>
-    <define name="AUTO_THROTTLE_IGAIN" value="0."/>
-    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.324999988079"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.250999987125" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="-0.00700000021607"/>
+    <define name="AUTO_THROTTLE_IGAIN" value="0.0309999994934"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.171000003815"/>
 
     <define name="THROTTLE_SLEW_LIMITER" value="2" unit="s"/>
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.20000004768"/>
-    <define name="COURSE_DGAIN" value="0.300000011921"/>
-    <define name="COURSE_PRE_BANK_CORRECTION" value="1.01600003242"/>
+    <define name="COURSE_PGAIN" value="-1.16799998283"/>
+    <define name="COURSE_DGAIN" value="0.280999988317"/>
+    <define name="COURSE_PRE_BANK_CORRECTION" value="1.0039999485"/>
 
     <define name="ROLL_MAX_SETPOINT" value="0.851999998093" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
-    <define name="PITCH_PGAIN" value="-13476.5615234"/>
+    <define name="PITCH_PGAIN" value="-15429.6865234"/>
     <define name="PITCH_DGAIN" value="7.73400020599"/>
 
     <define name="ELEVATOR_OF_ROLL" value="3007.81298828"/>
@@ -166,12 +166,12 @@
   <section name="AGGRESSIVE" prefix="AGR_">
     <define name="BLEND_START" value="30"/>
     <define name="BLEND_END" value="15"/>
-    <define name="CLIMB_THROTTLE" value="1.00"/>
-    <define name="CLIMB_PITCH" value="RadOfDeg(30)"/>
-    <define name="DESCENT_THROTTLE" value="0.0"/>
-    <define name="DESCENT_PITCH" value="RadOfDeg(-15)"/>
-    <define name="CLIMB_NAV_RATIO" value="0.8"/>
-    <define name="DESCENT_NAV_RATIO" value="1.0"/>
+    <define name="CLIMB_THROTTLE" value="1."/>
+    <define name="CLIMB_PITCH" value="0.4"/>
+    <define name="DESCENT_THROTTLE" value="0."/>
+    <define name="DESCENT_PITCH" value="-0.1"/>
+    <define name="CLIMB_NAV_RATIO" value="0.800000011921"/>
+    <define name="DESCENT_NAV_RATIO" value="0.834999978542"/>
   </section>
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
@@ -217,6 +217,8 @@
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
       <define name="LOITER_TRIM"/>
+      <define name="TUNE_AGRESSIVE_CLIMB"/>
+      <define name="AGR_CLIMB"/>
     </target>
     <target name="sim" board="pc"/>
 
@@ -224,7 +226,7 @@
 
     <!-- Communication -->
     <subsystem name="telemetry" type="xbee_api">
-      <configure name="MODEM_BAUD" value="B57600"/>
+      <configure name="MODEM_BAUD" value="B9600"/>
     </subsystem>
 
     <!-- Actuators -->

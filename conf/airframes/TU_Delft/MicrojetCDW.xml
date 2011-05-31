@@ -72,14 +72,16 @@
     <define name="GYRO_Q_SIGN" value="-1"/>
     <define name="GYRO_R_SIGN" value="-1"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="26424"/>
-    <define name="ACCEL_Y_NEUTRAL" value="26640"/>
+    <define name="ACCEL_X_NEUTRAL" value="26584"/>
+    <define name="ACCEL_Y_NEUTRAL" value="26660"/>
     <define name="ACCEL_Z_NEUTRAL" value="26732"/>
 
-    <!-- SENS = 660mV/g / 9.81 ms2/g = 67.27 mV/ms2 * 16 LSB/mV = 1076 LSB/ms2 / 10bit FRAC -->
-    <define name="ACCEL_X_SENS" value="0.9372" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="0.9346" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="0.9178" integer="16"/>
+    <!-- 3.5G: SENS = 330mV/g / 9.81 ms2/g = 33.63 mV/ms2 * 16 LSB/mV = 538.22 LSB/ms2 / 10bit FRAC -->
+    <!-- 2G: SENS = 660mV/g / 9.81 ms2/g = 67.27 mV/ms2 * 16 LSB/mV = 1076 LSB/ms2 / 10bit FRAC -> 0.9372-->
+    <!-- 6G: SENS = 220mV/g / 9.81 ms2/g = 67.27 mV/ms2 * 16 LSB/mV = 358.8 LSB/ms2 / 10bit FRAC -> 2.853818182-->
+    <define name="ACCEL_X_SENS" value="2.85382" integer="10"/>
+    <define name="ACCEL_Y_SENS" value="2.85382" integer="10"/>
+    <define name="ACCEL_Z_SENS" value="2.85382" integer="10"/>
 
     <define name="ACCEL_X_SIGN" value="1"/>
     <define name="ACCEL_Y_SIGN" value="-1"/>
@@ -190,7 +192,7 @@
   <firmware name="fixedwing">
     <target name="ap" board="tiny_1.1">
       <configure name="PERIODIC_FREQUENCY" value="960"/> <!-- IMU FREQ -->
-      <configure name="AHRS_PROPAGATE_FREQUENCY" value="240"/>
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="120"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="60"/>
       <configure name="AHRS_ALIGNER_LED" value="1"/>
       <configure name="CPU_LED" value="2"/>

@@ -5,9 +5,9 @@
 <!-- commands section -->
   <servos>
     <servo name="THROTTLE" no="0" min="1100" neutral="1100" max="1700"/>
-    <servo name="AILEVON_LEFT" no="1" min="1000" neutral="1615" max="2000"/>
-    <servo name="AILEVON_RIGHT" no="3" min="2000" neutral="1465" max="1000"/>
-    <servo name="CAM_PAN" no="5" min="2000" neutral="1550" max="1000"/>
+    <servo name="AILEVON_LEFT" no="1" min="2000" neutral="1500" max="1000"/>
+    <servo name="AILEVON_RIGHT" no="3" min="950" neutral="1450" max="1950"/>
+    <servo name="CAM_PAN" no="5" min="1950" neutral="1450" max="950"/>
     <servo name="CAM_TILT" no="2" min="1000" neutral="1550" max="2000"/>
   </servos>
 
@@ -253,7 +253,7 @@
 
     <!-- Communication -->
     <subsystem name="telemetry" 	type="transparent">
-      <configure name="MODEM_BAUD" 		value="57600"/>
+      <configure name="MODEM_BAUD" 		value="B57600"/>
     </subsystem>
 
     <!-- Sensors -->
