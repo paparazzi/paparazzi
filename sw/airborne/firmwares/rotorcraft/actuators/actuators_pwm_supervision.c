@@ -62,6 +62,9 @@ void actuators_set(bool_t motors_on) {
 
   supervision_run(motors_on, FALSE, pwm_commands);
 
+#ifdef USE_TOYTRONICS
+  SetCommandsFromRC(pwm_commands_pprz, radio_control.values);
+#endif
   SetActuatorsFromCommands(pwm_commands_pprz);
 
   if (motors_on) {
