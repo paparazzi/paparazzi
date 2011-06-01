@@ -25,7 +25,7 @@
    airframe="airframes/ENAC/fixed-wing/spocIII-1.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default.xml"
-   flight_plan="flight_plans/basic.xml"
+   flight_plan="flight_plans/corsica.xml"
    settings=" settings/tuning_basic_ins.xml"
    gui_color="red"
   />
@@ -33,9 +33,9 @@
    name="SPOC2"
    ac_id="32"
    airframe="airframes/ENAC/fixed-wing/spocIII-2.xml"
-   radio="radios/mc24.xml"
+   radio="radios/cockpitSX.xml"
    telemetry="telemetry/default.xml"
-   flight_plan="flight_plans/basic.xml"
+   flight_plan="flight_plans/corsica.xml"
    settings=" settings/flight_params.xml settings/ins_basic.xml settings/tuning_ctl_new.xml"
    gui_color="red"
   />
@@ -43,9 +43,9 @@
    name="SPOC3"
    ac_id="33"
    airframe="airframes/ENAC/fixed-wing/spocIII-3.xml"
-   radio="radios/mc24.xml"
+   radio="radios/cockpitSX.xml"
    telemetry="telemetry/default.xml"
-   flight_plan="flight_plans/basic.xml"
+   flight_plan="flight_plans/corsica.xml"
    settings=" settings/flight_params.xml settings/ins_basic.xml settings/tuning_ctl_new.xml"
    gui_color="red"
   />
