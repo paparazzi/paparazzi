@@ -19,7 +19,7 @@
     <subsystem name="actuators"     type="mkk"/>
     <subsystem name="imu"           type="b2_v1.0"/>
     <subsystem name="stabilization"   type="euler"/>
-    <subsystem name="ahrs"          type="cmpl"/>
+    <subsystem name="ahrs"          type="ic"/>
   </firmware>
 
   <firmware name="booz2_test_progs">
@@ -108,6 +108,12 @@
     <define name="BODY_TO_IMU_PSI" value="RadOfDeg(0.)" />
   </section>
 
+  <section name="AHRS" prefix="AHRS_">
+    <define name="PROPAGATE_FREQUENCY" value="512"/>
+    <define name="H_X" value=" 0.51562740288882"/>
+    <define name="H_Y" value="-0.05707735220832"/>
+    <define name="H_Z" value=" 0.85490967783446"/>
+  </section>
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
     <!-- setpoints -->

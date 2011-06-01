@@ -60,3 +60,7 @@ imu_CFLAGS += -DUSE_I2C2 -DUSE_EXTI9_5_IRQ
 # see: conf/autopilot/subsystems/lisa_passthrough/imu_b2_v1.1.makefile for example
 ap.CFLAGS += $(imu_CFLAGS)
 ap.srcs += $(imu_srcs)
+
+
+sim.CFLAGS += $(imu_CFLAGS)
+sim.srcs += $(imu_srcs)

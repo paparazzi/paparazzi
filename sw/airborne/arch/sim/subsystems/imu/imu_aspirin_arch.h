@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2011 The Paparazzi Team
+ * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -21,32 +21,17 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef AHRS_INT_CMPL_H
-#define AHRS_INT_CMPL_H
-
-#include "subsystems/ahrs.h"
-#include "std.h"
-#include "math/pprz_algebra_int.h"
-
-struct AhrsIntCmpl {
-  struct Int32Rates  gyro_bias;
-  struct Int32Rates  rate_correction;
-  struct Int64Quat   high_rez_quat;
-  struct Int64Rates  high_rez_bias;
-#ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
-  int32_t ltp_vel_norm;
-#endif
-};
-
-extern struct AhrsIntCmpl ahrs_impl;
+/*
+ *
+ * simulator plug for the booz2 v1 imu arch dependant functions
+ *
+ */
+#ifndef IMU_ASPIRIN_ARCH_H
+#define IMU_ASPIRIN_ARCH_H
 
 
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-// TODO copy ahrs to state instead of estimator
-void ahrs_update_fw_estimator(void);
-extern float ins_roll_neutral;
-extern float ins_pitch_neutral;
-#endif
+extern void imu_feed_gyro_accel(void);
+extern void imu_feed_mag(void);
 
 
-#endif /* AHRS_INT_CMPL_H */
+#endif /* IMU_ASPIRIN_ARCH_H */

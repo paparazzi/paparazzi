@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -21,32 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef AHRS_INT_CMPL_H
-#define AHRS_INT_CMPL_H
+/*
+ *
+ * simulator plug for hmc5843
+ *
+ */
 
-#include "subsystems/ahrs.h"
-#include "std.h"
-#include "math/pprz_algebra_int.h"
-
-struct AhrsIntCmpl {
-  struct Int32Rates  gyro_bias;
-  struct Int32Rates  rate_correction;
-  struct Int64Quat   high_rez_quat;
-  struct Int64Rates  high_rez_bias;
-#ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
-  int32_t ltp_vel_norm;
-#endif
-};
-
-extern struct AhrsIntCmpl ahrs_impl;
+#ifndef HMC5843_HW_H
+#define HMC5843_HW_H
 
 
-#ifdef AHRS_UPDATE_FW_ESTIMATOR
-// TODO copy ahrs to state instead of estimator
-void ahrs_update_fw_estimator(void);
-extern float ins_roll_neutral;
-extern float ins_pitch_neutral;
-#endif
-
-
-#endif /* AHRS_INT_CMPL_H */
+#endif /* HMC5843_HW_H */
