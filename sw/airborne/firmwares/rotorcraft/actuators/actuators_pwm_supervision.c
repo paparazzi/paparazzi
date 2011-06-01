@@ -29,6 +29,10 @@
 /* let's start butchery now and use the actuators_pwm arch functions */
 #include "firmwares/rotorcraft/actuators/actuators_pwm.h"
 
+#ifdef USE_TOYTRONICS
+#include "firmwares/rotorcraft/autopilot.h" // for the mode-dependent command laws
+#endif
+
 #include "generated/airframe.h"
 
 #define actuators actuators_pwm_values

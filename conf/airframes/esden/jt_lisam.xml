@@ -21,50 +21,63 @@
     <axis name="RC_PITCH" failsafe_value="0"/>
   </commands>
 
+  <section name="AUTOPILOT">
+    <!-- <define name="MODE_MANUAL" value="AP_MODE_TOYTRONICS_HOVER"/> -->
+    <define name="MODE_MANUAL" value="AP_MODE_TOYTRONICS_HOVER_FORWARD"/>
+    <define name="MODE_AUTO1"  value="AP_MODE_TOYTRONICS_FORWARD"/>
+    <!-- <define name="MODE_AUTO1" value="AP_MODE_TOYTRONICS_AEROBATIC"/> -->
+    <define name="MODE_AUTO2"  value="AP_MODE_TOYTRONICS_AEROBATIC"/>
+    <define name="AUTOPILOT_KILL_WITHOUT_AHRS"  value="TRUE"/>
+  </section>
+
   <rc_commands>
     <!-- needed to set up mode laws -->
-    <set command="RC_MODE"  value="@MODE < -1500 ? 0 : (@MODE > 1500 ? 2 : 1) "/>
+    <set command="RC_MODE"  value="@MODE < -1500 ? MODE_MANUAL : (@MODE > 1500 ? MODE_AUTO2 : MODE_AUTO1) "/>
     <set command="RC_ROLL"  value="@ROLL"/>
     <set command="RC_PITCH" value="@PITCH"/>
   </rc_commands>
 
 
   <command_laws>
-    <!--************* different mixing strategies ****************-->
-    <!-- ailerons -->
-    <let var="aileron_left"  value="-@RC_ROLL"/>
-    <let var="aileron_right" value="-@RC_ROLL"/>
+    <!--************* different mixing strategies - probably don't edit this ****************-->
+    <!-- direct ailerons -->
+    <let var="aileron_direct_left"  value="-@RC_ROLL"/>
+    <let var="aileron_direct_right" value="-@RC_ROLL"/>
 
-    <!-- elevons -->
-    <let var="elevon_left"  value="-@RC_ROLL + @RC_PITCH"/>
-    <let var="elevon_right" value="-@RC_ROLL - @RC_PITCH"/>
+    <!-- direct elevators -->
+    <let var="elevator_direct_left"  value="+@RC_PITCH"/>
+    <let var="elevator_direct_right" value="-@RC_PITCH"/>
 
-    <!-- roll feedback -->
-    <let var="aileron_roll_fb_left"  value="-@ROLL"/>
-    <let var="aileron_roll_fb_right" value="-@ROLL"/>
+    <!-- aileron feedback -->
+    <let var="aileron_feedback_left"  value="-@ROLL"/>
+    <let var="aileron_feedback_right" value="-@ROLL"/>
 
-    <!--************* which mode does what ****************-->
-    <!-- mode 0 -->
-    <!-- <let var="m0_ail_left"  value="$aileron_left"/> -->
-    <!-- <let var="m0_ail_right" value="$aileron_right"/> -->
-    <let var="m0_ail_left"  value="$aileron_roll_fb_left"/>
-    <let var="m0_ail_right" value="$aileron_roll_fb_right"/>
+    <!-- elevator feedback -->
+    <let var="elevator_feedback_left"  value="+@PITCH"/>
+    <let var="elevator_feedback_right" value="-@PITCH"/>
 
-    <!-- mode 1 -->
-    <!-- <let var="m1_ail_left"  value="$elevon_left"/> -->
-    <!-- <let var="m1_ail_right" value="$elevon_right"/> -->
-    <let var="m1_ail_left"  value="$aileron_roll_fb_left"/>
-    <let var="m1_ail_right" value="$aileron_roll_fb_right"/>
+    <!--************* which mode uses which mixing strategy - edit this for configuration ****************-->
+    <!-- mode hover -->
+    <let var="hover_left"  value="$aileron_feedback_left"/>
+    <let var="hover_right" value="$aileron_feedback_right"/>
 
-    <!-- mode 2 -->
-    <let var="m2_ail_left"  value="$elevon_left"/>
-    <let var="m2_ail_right" value="$elevon_right"/>
-    <!-- <let var="m2_ail_left"  value="$aileron_roll_fb_left"/> -->
-    <!-- <let var="m2_ail_right" value="$aileron_roll_fb_right"/> -->
+    <!-- mode hover_forward -->
+    <let var="hover_forward_left"  value="$aileron_feedback_left  + $elevator_feedback_left"/>
+    <let var="hover_forward_right" value="$aileron_feedback_right + $elevator_feedback_right"/>
 
-    <!--************ do not edit - map laws to correct mode ****************-->
-    <set servo="AILEVON_LEFT"   value="@RC_MODE == 0 ? $m0_ail_left  : (@RC_MODE == 1 ? $m1_ail_left  : $m2_ail_left)" />
-    <set servo="AILEVON_RIGHT"  value="@RC_MODE == 0 ? $m0_ail_right : (@RC_MODE == 1 ? $m1_ail_right : $m2_ail_right)" />
+    <!-- mode forward -->
+    <let var="forward_left"  value="$aileron_feedback_left  + $elevator_feedback_left"/>
+    <let var="forward_right" value="$aileron_feedback_right + $elevator_feedback_right"/>
+
+    <!-- mode aerobatic -->
+    <!-- <let var="aerobatic_left"  value="$aileron_direct_left  + $elevator_feedback_left"/> -->
+    <!-- <let var="aerobatic_right" value="$aileron_direct_right + $elevator_feedback_right"/> -->
+    <let var="aerobatic_left"  value="$aileron_feedback_left  + $elevator_feedback_left"/>
+    <let var="aerobatic_right" value="$aileron_feedback_right + $elevator_feedback_right"/>
+
+    <!--************ Map laws to correct modes - probably don't edit this ****************-->
+    <set servo="AILEVON_LEFT"   value="@RC_MODE == AP_MODE_TOYTRONICS_HOVER ? $hover_left  : (@RC_MODE == AP_MODE_TOYTRONICS_HOVER_FORWARD ? $hover_forward_left  : (@RC_MODE == AP_MODE_TOYTRONICS_FORWARD ? $forward_left : $aerobatic_left))" />
+    <set servo="AILEVON_RIGHT"   value="@RC_MODE == AP_MODE_TOYTRONICS_HOVER ? $hover_right  : (@RC_MODE == AP_MODE_TOYTRONICS_HOVER_FORWARD ? $hover_forward_right  : (@RC_MODE == AP_MODE_TOYTRONICS_FORWARD ? $forward_right : $aerobatic_right))" />
   </command_laws>
   
   <!-- for the sim -->
@@ -100,14 +113,6 @@
     <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(   0. )"/>
 
   </section>
-
- <section name="AUTOPILOT">
-   <!-- <define name="MODE_MANUAL" value="AP_MODE_TOYTRONICS_HOVER"/> -->
-   <define name="MODE_MANUAL" value="AP_MODE_TOYTRONICS_HOVER_FORWARD"/>
-   <define name="MODE_AUTO1"  value="AP_MODE_TOYTRONICS_FORWARD"/>
-   <define name="MODE_AUTO2"  value="AP_MODE_TOYTRONICS_AEROBATIC"/>
-   <define name="AUTOPILOT_KILL_WITHOUT_AHRS"  value="TRUE"/>
- </section>
 
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
