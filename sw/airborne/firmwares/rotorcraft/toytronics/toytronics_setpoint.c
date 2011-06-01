@@ -172,6 +172,25 @@ get_fudged_yaw(const quat_t * const q_n2b, const euler_t * const e_n2b)
     return e_n2b->yaw;
 }
 
+static double
+hover_forward_yaw_of_quat(const quat_t * const q)
+{
+
+  double mr21 = -2*(q->q1*q->q2 - q->q0*q->q3);
+  double r22 = q->q0*q->q0 - q->q1*q->q1 + q->q2*q->q2 - q->q3*q->q3;
+
+  return atan2( mr21, r22 );
+}
+
+static double
+hover_forward_roll_of_quat(const quat_t * const q)
+{
+  double r23 = 2*(q->q2*q->q3 + q->q0*q->q1);
+  BOUND(r23, -1, 1);
+  return asin(r23);
+}
+
+
 /****************** enter mode functions ******************/
 static void
 setpoint_smooth_transition_reset()
@@ -198,6 +217,15 @@ toytronics_sp_enter_absolute_hover()
   // copy current heading to setpoint heading
   setpoint.setpoint_heading = get_heading_from_q_n2b(q_n2b);
   memcpy( &(setpoint.q_n2sp), q_n2b, sizeof(quat_t));
+}
+
+static void
+toytronics_sp_enter_hover_forward()
+{
+  const quat_t * q_n2b = get_q_n2b();
+
+  // copy current heading to setpoint heading
+  setpoint.setpoint_heading = hover_forward_yaw_of_quat( q_n2b );
 }
 
 static void
@@ -296,6 +324,89 @@ toytronics_set_sp_absolute_hover_from_rc()
   // set stabilization setpoint
   set_stabilization_setpoint(&setpoint.q_n2sp);
 }
+
+void
+toytronics_set_sp_hover_forward_from_rc()
+{
+  double dt = 1.0/RC_UPDATE_FREQ;
+  const rc_t * const rc = get_rc();
+  const quat_t * const q_n2b = get_q_n2b();
+  
+  // estimated heading for telemetry
+  setpoint.estimated_heading = hover_forward_yaw_of_quat( q_n2b );
+
+  // local copies to allow implementing a deadband
+  double rcp = rc->pitch;
+  double rcr = rc->roll;
+  double rcy = apply_deadband(rc->yaw, SETPOINT_DEADBAND);
+
+  // integrate stick to get setpoint heading
+  setpoint.setpoint_heading += dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*rcy;
+  setpoint.setpoint_heading += dt*hover_forward_roll_of_quat(q_n2b)*roll_to_yaw_rate_ff_factor;
+
+  // bound heading error
+  double heading_error = setpoint.setpoint_heading - setpoint.estimated_heading;
+  wrap_to_pi(&heading_error);
+  BOUND(heading_error, -setpoint_absolute_heading_bound_deg*M_PI/180.0, setpoint_absolute_heading_bound_deg*M_PI/180.0);
+  setpoint.setpoint_heading = setpoint.estimated_heading + heading_error;
+  wrap_to_pi(&setpoint.setpoint_heading);
+
+  // set pitch/yaw from stick
+  double pitch_body = (rcp * SETPOINT_MAX_STICK_ANGLE_DEG + hover_pitch_trim_deg)*M_PI/180.0;
+  double roll_body   = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;
+
+  // start straight up
+  quat_t q_y90 = {sqrt(2)/2.0, 0, sqrt(2)/2.0, 0};
+  quat_memcpy( &setpoint.q_n2sp, &q_y90 );
+
+  // yaw
+  quat_t q_yaw = {1,0,0,0};
+  q_yaw.q0 =  cos(0.5*setpoint.setpoint_heading);
+  q_yaw.q1 = -sin(0.5*setpoint.setpoint_heading);
+  quat_t q_temp;
+  quat_memcpy( &q_temp, &setpoint.q_n2sp );
+  quat_mult( &setpoint.q_n2sp, &q_temp, &q_yaw );
+
+  // roll
+  quat_t q_roll = {1,0,0,0};
+  q_roll.q0 = cos(0.5*roll_body);
+  q_roll.q3 = sin(0.5*roll_body);
+  quat_memcpy( &q_temp, &setpoint.q_n2sp );
+  quat_mult( &setpoint.q_n2sp, &q_temp, &q_roll );
+
+  // pitch
+  quat_t q_pitch = {1,0,0,0};
+  q_pitch.q0 = cos(0.5*pitch_body);
+  q_pitch.q2 = sin(0.5*pitch_body);
+  quat_memcpy( &q_temp, &setpoint.q_n2sp );
+  quat_mult( &setpoint.q_n2sp, &q_temp, &q_pitch );
+
+  /* // calculate body to setpoint quat */
+  /* quat_inv_mult( &(setpoint.q_b2sp), q_n2b, &(setpoint.q_n2sp)); */
+  
+  /* // now bound setpoint quat to not get too far away from estimated quat */
+  /* BOUND(setpoint.q_b2sp.q1, -setpoint_incremental_bounds_deg.x*M_PI/180.0/2.0, setpoint_incremental_bounds_deg.x*M_PI/180.0/2.0); */
+  /* BOUND(setpoint.q_b2sp.q2, -setpoint_incremental_bounds_deg.y*M_PI/180.0/2.0, setpoint_incremental_bounds_deg.y*M_PI/180.0/2.0); */
+  /* BOUND(setpoint.q_b2sp.q3, -setpoint_incremental_bounds_deg.z*M_PI/180.0/2.0, setpoint_incremental_bounds_deg.z*M_PI/180.0/2.0); */
+
+  /* // let setpoint decay back to body */
+  /* discrete_exponential_decay( &setpoint.q_b2sp.q1, setpoint_aerobatic_decay_time.x, dt ); */
+  /* discrete_exponential_decay( &setpoint.q_b2sp.q2, setpoint_aerobatic_decay_time.y, dt ); */
+  /* discrete_exponential_decay( &setpoint.q_b2sp.q3, setpoint_aerobatic_decay_time.z, dt ); */
+
+  /* // normalize */
+  /* setpoint.q_b2sp.q0 = sqrt(1 - SQR(setpoint.q_b2sp.q1) - SQR(setpoint.q_b2sp.q2) - SQR(setpoint.q_b2sp.q3)); */
+  
+  /* // update n2sp quat */
+  /* quat_mult( &(setpoint.q_n2sp), q_n2b, &(setpoint.q_b2sp)); */
+
+  // update setpoint.heading
+  setpoint.setpoint_heading = hover_forward_yaw_of_quat( &setpoint.q_n2sp );
+
+  // set stabilization setpoint
+  set_stabilization_setpoint(&setpoint.q_n2sp);
+}
+
 
 
 
@@ -451,12 +562,22 @@ toytronics_mode_enter(int new_mode)
     #else
     toytronics_sp_set_absolute_heading_bound_deg( SETPOINT_BOUND_ERROR_HEADING_DEG );
     #endif
+
     // initialize setpoint heading to current heading
     toytronics_sp_enter_absolute_hover();
     // set hover gains
     set_stabilization_gains(&toytronics_hover_gains);
     break;
 
+  case GUIDANCE_H_MODE_TOYTRONICS_HOVER_FORWARD:
+    toytronics_sp_set_absolute_heading_bound_deg( SETPOINT_BOUND_ERROR_HEADING_DEG );
+
+    // initialize setpoint heading to current heading
+    toytronics_sp_enter_hover_forward();
+
+    // set hover gains
+    set_stabilization_gains(&toytronics_hover_gains);
+    break;
 
   case GUIDANCE_H_MODE_TOYTRONICS_FORWARD:
     toytronics_sp_set_incremental_bounds_deg( 0.0, 
@@ -470,7 +591,6 @@ toytronics_mode_enter(int new_mode)
     // set forward gains
     set_stabilization_gains(&toytronics_forward_gains);
     break;
-
 
   case GUIDANCE_H_MODE_TOYTRONICS_AEROBATIC:
     #ifdef TOYTRONICS_AEROBATIC_BYPASS_ROLL

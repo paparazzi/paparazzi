@@ -8,6 +8,7 @@
 //    #define TOYTRONICS_AEROBATIC_BYPASS_ROLL
 
 void toytronics_set_sp_absolute_hover_from_rc(void);
+void toytronics_set_sp_hover_forward_from_rc(void);
 void toytronics_set_sp_absolute_forward_from_rc(void);
 void toytronics_set_sp_incremental_from_rc(void);
 void toytronics_mode_enter(int new_mode);
@@ -16,6 +17,7 @@ void toytronics_mode_exit(int old_mode);
 #ifndef USE_TOYTRONICS
 // dummy functions if you aren't using toytronics
 void toytronics_set_sp_absolute_hover_from_rc() {};
+void toytronics_set_sp_hover_forward_from_rc() {};
 void toytronics_set_sp_absolute_forward_from_rc() {};
 void toytronics_set_sp_incremental_from_rc() {};
 void toytronics_mode_enter(int new_mode __attribute__((unused))) {};

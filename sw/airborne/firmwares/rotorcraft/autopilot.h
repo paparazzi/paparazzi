@@ -45,9 +45,10 @@
 #define AP_MODE_HOVER_CLIMB       10
 #define AP_MODE_HOVER_Z_HOLD      11
 #define AP_MODE_NAV               12
-#define AP_MODE_TOYTRONICS_HOVER     13
-#define AP_MODE_TOYTRONICS_FORWARD   14
-#define AP_MODE_TOYTRONICS_AEROBATIC 15
+#define AP_MODE_TOYTRONICS_HOVER         13
+#define AP_MODE_TOYTRONICS_HOVER_FORWARD 14
+#define AP_MODE_TOYTRONICS_FORWARD       15
+#define AP_MODE_TOYTRONICS_AEROBATIC     16
 
 
 extern uint8_t autopilot_mode;

@@ -107,6 +107,7 @@ void guidance_h_mode_changed(uint8_t new_mode) {
 	//	stabilization_rate_exit();
 	//	break;
   case GUIDANCE_H_MODE_TOYTRONICS_HOVER:
+  case GUIDANCE_H_MODE_TOYTRONICS_HOVER_FORWARD:
   case GUIDANCE_H_MODE_TOYTRONICS_FORWARD:
   case GUIDANCE_H_MODE_TOYTRONICS_AEROBATIC:
     toytronics_mode_exit(guidance_h_mode);
@@ -135,6 +136,7 @@ void guidance_h_mode_changed(uint8_t new_mode) {
     break;
 
   case GUIDANCE_H_MODE_TOYTRONICS_HOVER:
+  case GUIDANCE_H_MODE_TOYTRONICS_HOVER_FORWARD:
   case GUIDANCE_H_MODE_TOYTRONICS_FORWARD:
   case GUIDANCE_H_MODE_TOYTRONICS_AEROBATIC:
     toytronics_mode_enter(new_mode);
@@ -167,6 +169,10 @@ void guidance_h_read_rc(bool_t  in_flight) {
 
   case GUIDANCE_H_MODE_TOYTRONICS_HOVER:
     toytronics_set_sp_absolute_hover_from_rc();
+    break;
+
+  case GUIDANCE_H_MODE_TOYTRONICS_HOVER_FORWARD:
+    toytronics_set_sp_hover_forward_from_rc();
     break;
 
   case GUIDANCE_H_MODE_TOYTRONICS_FORWARD:
@@ -211,13 +217,8 @@ void guidance_h_run(bool_t  in_flight) {
     break;
 
   case GUIDANCE_H_MODE_TOYTRONICS_HOVER:
-    stabilization_attitude_run(in_flight);
-    break;
-
+  case GUIDANCE_H_MODE_TOYTRONICS_HOVER_FORWARD:
   case GUIDANCE_H_MODE_TOYTRONICS_FORWARD:
-    stabilization_attitude_run(in_flight);
-    break;
-
   case GUIDANCE_H_MODE_TOYTRONICS_AEROBATIC:
     stabilization_attitude_run(in_flight);
     break;
