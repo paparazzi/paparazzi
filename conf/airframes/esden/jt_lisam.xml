@@ -62,18 +62,18 @@
     <let var="hover_right" value="$aileron_feedback_right"/>
 
     <!-- mode hover_forward -->
-    <let var="hover_forward_left"  value="$aileron_feedback_left  + $elevator_feedback_left"/>
-    <let var="hover_forward_right" value="$aileron_feedback_right + $elevator_feedback_right"/>
+    <let var="hover_forward_left"  value="$aileron_feedback_left  + 2*$elevator_feedback_left"/>
+    <let var="hover_forward_right" value="$aileron_feedback_right + 2*$elevator_feedback_right"/>
 
     <!-- mode forward -->
-    <let var="forward_left"  value="$aileron_feedback_left  + $elevator_feedback_left"/>
-    <let var="forward_right" value="$aileron_feedback_right + $elevator_feedback_right"/>
+    <let var="forward_left"  value="$aileron_feedback_left  + 2*$elevator_feedback_left"/>
+    <let var="forward_right" value="$aileron_feedback_right + 2*$elevator_feedback_right"/>
 
     <!-- mode aerobatic -->
     <!-- <let var="aerobatic_left"  value="$aileron_direct_left  + $elevator_feedback_left"/> -->
     <!-- <let var="aerobatic_right" value="$aileron_direct_right + $elevator_feedback_right"/> -->
-    <let var="aerobatic_left"  value="$aileron_feedback_left  + $elevator_feedback_left"/>
-    <let var="aerobatic_right" value="$aileron_feedback_right + $elevator_feedback_right"/>
+    <let var="aerobatic_left"  value="$aileron_feedback_left  + 2*$elevator_feedback_left"/>
+    <let var="aerobatic_right" value="$aileron_feedback_right + 2*$elevator_feedback_right"/>
 
     <!--************ Map laws to correct modes - probably don't edit this ****************-->
     <set servo="AILEVON_LEFT"   value="@RC_MODE == AP_MODE_TOYTRONICS_HOVER ? $hover_left  : (@RC_MODE == AP_MODE_TOYTRONICS_HOVER_FORWARD ? $hover_forward_left  : (@RC_MODE == AP_MODE_TOYTRONICS_FORWARD ? $forward_left : $aerobatic_left))" />
