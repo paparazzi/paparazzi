@@ -510,7 +510,15 @@
     <field name="estimated_heading"  type="float" alt_unit="deg/s" alt_unit_coef="57.29578" />
   </message>
 
- <!-- 64 is free -->
+  <message name="TOYTRONICS_COMMANDS" id="64">
+    <field name="cmd_roll"         type="int32"/>
+    <field name="cmd_pitch"        type="int32"/>
+    <field name="cmd_yaw"          type="int32"/>
+    <field name="cmd_thrust"       type="int32"/>
+    <field name="cmd_elevon_roll"  type="int32"/>
+    <field name="cmd_elevon_pitch" type="int32"/>
+  </message>
+
  <!-- 65 is free -->
  <!-- 66 is free -->
  <!-- 67 is free -->

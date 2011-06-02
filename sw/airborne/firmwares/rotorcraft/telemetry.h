@@ -794,6 +794,20 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef USE_TOYTRONICS
 #include "firmwares/rotorcraft/toytronics/toytronics_setpoint.h"
+#include "firmwares/rotorcraft/actuators/actuators_pwm.h"
+#define PERIODIC_SEND_TOYTRONICS_COMMANDS(_chan) {                      \
+    int32_t lailevon = 1500 - actuators_pwm_values[SERVO_AILEVON_LEFT]; \
+    int32_t railevon = actuators_pwm_values[SERVO_AILEVON_RIGHT] - 1500; \
+    int32_t ailevon_roll  = (lailevon - railevon)/5;                    \
+    int32_t ailevon_pitch = (lailevon + railevon)/5;                    \
+    DOWNLINK_SEND_TOYTRONICS_COMMANDS(_chan,                            \
+                                      &stabilization_cmd[COMMAND_ROLL], \
+                                      &stabilization_cmd[COMMAND_PITCH], \
+                                      &stabilization_cmd[COMMAND_YAW],  \
+                                      &stabilization_cmd[COMMAND_THRUST], \
+                                      &ailevon_roll,                    \
+                                      &ailevon_pitch);                  \
+  }
 #define PERIODIC_SEND_TOYTRONICS_SETPOINT(_chan) {      \
     float  nq0, nq1, nq2, nq3;                          \
     float  bq0, bq1, bq2, bq3;                          \

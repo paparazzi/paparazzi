@@ -67,10 +67,12 @@
       <message name="ROTORCRAFT_STATUS"             period="1.2"/>
       <message name="DL_VALUE"                period="0.5"/>
       <message name="ALIVE"                   period="0.9"/>
-      <message name="STAB_ATTITUDE"     period=".09"/>
-      <message name="STAB_ATTITUDE_REF" period=".09"/>
-      <message name="AHRS_REF_QUAT" period=".06"/>
-      <message name="TOYTRONICS_SETPOINT" period=".09"/>
+      <!-- <message name="STAB_ATTITUDE"     period=".09"/> -->
+      <!-- <message name="STAB_ATTITUDE_REF" period=".09"/> -->
+      <message name="AHRS_REF_QUAT" period="0.05"/>
+      <!-- <message name="TOYTRONICS_SETPOINT" period="0.09"/> -->
+      <message name="TOYTRONICS_COMMANDS" period="0.05"/>
+      <message name="BOOZ2_RADIO_CONTROL" period="0.05"/>
     </mode>
 
     <mode name="vert_loop">
