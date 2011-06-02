@@ -518,7 +518,7 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
     FLOAT_QUAT_NORMALIZE(_a2c);						\
   }
 
-/* _a2c = _a2b comp _b2c , aka  _a2c = _b2c * _a2b */
+/* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
 #define FLOAT_QUAT_COMP(_a2c, _a2b, _b2c) {				\
     (_a2c).qi = (_a2b).qi*(_b2c).qi - (_a2b).qx*(_b2c).qx - (_a2b).qy*(_b2c).qy - (_a2b).qz*(_b2c).qz; \
     (_a2c).qx = (_a2b).qi*(_b2c).qx + (_a2b).qx*(_b2c).qi + (_a2b).qy*(_b2c).qz - (_a2b).qz*(_b2c).qy; \
@@ -526,8 +526,7 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
     (_a2c).qz = (_a2b).qi*(_b2c).qz + (_a2b).qx*(_b2c).qy - (_a2b).qy*(_b2c).qx + (_a2b).qz*(_b2c).qi; \
   }
 
-/* Quaternion multiplication q_a2c = q_b2c * q_a2b */
-#define FLOAT_QUAT_MULT(_a2c, _b2c, _a2b) FLOAT_QUAT_COMP(_a2c, _a2b, _b2c)
+#define FLOAT_QUAT_MULT(_a2c, _a2b, _b2c) FLOAT_QUAT_COMP(_a2c, _a2b, _b2c)
 
 /* _a2b = _a2c comp_inv _b2c , aka  _a2b = _a2c * inv(_b2c) */
 #define FLOAT_QUAT_COMP_INV_NORM_SHORTEST(_a2b, _a2c, _b2c) {		\
