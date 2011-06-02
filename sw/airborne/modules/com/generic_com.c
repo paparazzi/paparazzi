@@ -51,6 +51,7 @@ bool_t active_com;
 
 void generic_com_init( void ) {
   active_com = FALSE;
+  com_trans.status = I2CTransDone;
 }
 
 #define FillBufWith32bit(_buf, _index, _value) {  \

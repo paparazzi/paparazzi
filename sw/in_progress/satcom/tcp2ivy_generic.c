@@ -181,6 +181,16 @@ static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
           estimator_flight_time);
 
     }
+    else {
+      int i = 0;
+      // Raw print
+      printf("**** Raw message ****\n");
+      printf("Char: ");
+      for (i = 0; i < count; i++) printf("%c",buf[i]);
+      printf("\nHex: ");
+      for (i = 0; i < count; i++) printf("%x ",buf[i]);
+      printf("\n");
+    }
   }
   else {
     printf("disconnect\n");
