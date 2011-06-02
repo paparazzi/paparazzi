@@ -4,8 +4,8 @@
 #ifndef __TOYTRONICS_SETPOINT_H__
 #define __TOYTRONICS_SETPOINT_H__
 
-//    #define TOYTRONICS_HOVER_BYPASS_ROLL
-//    #define TOYTRONICS_AEROBATIC_BYPASS_ROLL
+// #define TOYTRONICS_HOVER_BYPASS_ROLL
+// #define TOYTRONICS_AEROBATIC_BYPASS_ROLL
 
 void toytronics_set_sp_absolute_hover_from_rc(void);
 void toytronics_set_sp_hover_forward_from_rc(void);

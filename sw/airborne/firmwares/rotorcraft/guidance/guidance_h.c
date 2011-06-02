@@ -140,6 +140,7 @@ void guidance_h_mode_changed(uint8_t new_mode) {
   case GUIDANCE_H_MODE_TOYTRONICS_FORWARD:
   case GUIDANCE_H_MODE_TOYTRONICS_AEROBATIC:
     toytronics_mode_enter(new_mode);
+    stabilization_attitude_enter();
     break;
 
   default:

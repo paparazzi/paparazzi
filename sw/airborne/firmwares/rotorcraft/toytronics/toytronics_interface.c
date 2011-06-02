@@ -68,4 +68,3 @@ set_stabilization_gains(struct Int32AttitudeGains * new_stabilization_gains){
   // TODO - scale integral state to give the same integral feedback command with new I gain?
   current_stabilization_gains = new_stabilization_gains;
 }
-

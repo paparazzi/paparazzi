@@ -17,7 +17,7 @@ xyz_t setpoint_incremental_bounds_deg = { SETPOINT_MODE_2_BOUND_QUAT_DEG_X,
                                           SETPOINT_MODE_2_BOUND_QUAT_DEG_Y,
                                           SETPOINT_MODE_2_BOUND_QUAT_DEG_Z};
 
-xyz_t setpoint_aerobatic_decay_time = {0.0, 0.5, 1.0};
+xyz_t setpoint_aerobatic_decay_time = {0.5, 0.5, 0.5};
 
 double setpoint_absolute_heading_bound_deg = SETPOINT_BOUND_ERROR_HEADING_DEG;
 double hover_pitch_trim_deg = SETPOINT_HOVER_PITCH_TRIM_DEG;
@@ -67,6 +67,7 @@ static void setpoint_smooth_transition_reset(void);
 static void toytronics_sp_enter_incremental(void);
 static void toytronics_sp_enter_absolute_hover(void);
 static void toytronics_sp_enter_absolute_forward(void);
+static void toytronics_sp_enter_hover_forward(void);
 
 static void toytronics_sp_set_absolute_heading_bound_deg(double new_bound);
 static void toytronics_sp_set_incremental_bounds_deg(double bound_x, double bound_y, double bound_z);
@@ -332,7 +333,7 @@ toytronics_set_sp_hover_forward_from_rc()
   const rc_t * const rc = get_rc();
   const quat_t * const q_n2b = get_q_n2b();
   
-  // estimated heading for telemetry
+  // estimated heading for telemetry and bounding
   setpoint.estimated_heading = hover_forward_yaw_of_quat( q_n2b );
 
   // local copies to allow implementing a deadband
@@ -340,9 +341,25 @@ toytronics_set_sp_hover_forward_from_rc()
   double rcr = rc->roll;
   double rcy = apply_deadband(rc->yaw, SETPOINT_DEADBAND);
 
+  // set pitch/yaw from stick
+  double pitch_body = (rcp * SETPOINT_MAX_STICK_ANGLE_DEG + hover_pitch_trim_deg)*M_PI/180.0;
+  double roll_body   = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;
+
   // integrate stick to get setpoint heading
   setpoint.setpoint_heading += dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*rcy;
-  setpoint.setpoint_heading += dt*hover_forward_roll_of_quat(q_n2b)*roll_to_yaw_rate_ff_factor;
+
+  // auto-turn coordination
+  #define START_FADING_DEG -50
+  #define FINISH_FADING_DEG -70
+  double ff_fading_slider;
+  if (pitch_body > START_FADING_DEG*M_PI/180.0)
+    ff_fading_slider = 0;
+  else if (pitch_body < FINISH_FADING_DEG*M_PI/180.0)
+    ff_fading_slider = 1;
+  else
+    ff_fading_slider = (pitch_body*180.0/M_PI - START_FADING_DEG)/(FINISH_FADING_DEG - START_FADING_DEG);
+
+  setpoint.setpoint_heading += dt*roll_body*roll_to_yaw_rate_ff_factor*ff_fading_slider;
 
   // bound heading error
   double heading_error = setpoint.setpoint_heading - setpoint.estimated_heading;
@@ -350,10 +367,6 @@ toytronics_set_sp_hover_forward_from_rc()
   BOUND(heading_error, -setpoint_absolute_heading_bound_deg*M_PI/180.0, setpoint_absolute_heading_bound_deg*M_PI/180.0);
   setpoint.setpoint_heading = setpoint.estimated_heading + heading_error;
   wrap_to_pi(&setpoint.setpoint_heading);
-
-  // set pitch/yaw from stick
-  double pitch_body = (rcp * SETPOINT_MAX_STICK_ANGLE_DEG + hover_pitch_trim_deg)*M_PI/180.0;
-  double roll_body   = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;
 
   // start straight up
   quat_t q_y90 = {sqrt(2)/2.0, 0, sqrt(2)/2.0, 0};
@@ -406,7 +419,6 @@ toytronics_set_sp_hover_forward_from_rc()
   // set stabilization setpoint
   set_stabilization_setpoint(&setpoint.q_n2sp);
 }
-
 
 
 
@@ -514,35 +526,12 @@ toytronics_set_sp_incremental_from_rc()
 
   // normalize
   setpoint.q_b2sp.q0 = sqrt(1 - SQR(setpoint.q_b2sp.q1) - SQR(setpoint.q_b2sp.q2) - SQR(setpoint.q_b2sp.q3));
-          
+  
   // update n2sp quat
   quat_mult( &(setpoint.q_n2sp), q_n2b, &(setpoint.q_b2sp));
 
-  //if bound is zero, then turn joystick into equiv. error
-  quat_t q_n2sp_pprz;
-  quat_memcpy( &q_n2sp_pprz, &(setpoint.q_n2sp));
-
-  // add user input to paparazzi quat
-  double rc_roll = 0;
-  double rc_pitch = 0;
-  double rc_yaw = 0;
-  if(setpoint_incremental_bounds_deg.x == 0.0) rc_roll  = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;
-  if(setpoint_incremental_bounds_deg.y == 0.0) rc_pitch = rcp * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;
-  if(setpoint_incremental_bounds_deg.z == 0.0) rc_yaw   = rcy * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;
-  if (rc_roll != 0 || rc_pitch != 0 || rc_yaw != 0){
-    double total_angle_rc = sqrt( SQR(rc_roll) + SQR(rc_pitch) + SQR(rc_yaw) );
-    quat_t q_rc;
-    q_rc.q0 = cos(0.5*total_angle_rc);
-    q_rc.q1 = sin(0.5*total_angle_rc)*rc_roll /total_angle_rc;
-    q_rc.q2 = sin(0.5*total_angle_rc)*rc_pitch/total_angle_rc;
-    q_rc.q3 = sin(0.5*total_angle_rc)*rc_yaw  /total_angle_rc;
-    quat_t q_temp;
-    quat_memcpy( &q_temp, &q_n2sp_pprz );
-    quat_mult( &q_n2sp_pprz, &q_temp, &q_rc);
-  }
-
   // set stabilization setpoint
-  set_stabilization_setpoint(&q_n2sp_pprz);
+  set_stabilization_setpoint(&setpoint.q_n2sp);
 }
 
 void
@@ -580,8 +569,8 @@ toytronics_mode_enter(int new_mode)
     break;
 
   case GUIDANCE_H_MODE_TOYTRONICS_FORWARD:
-    toytronics_sp_set_incremental_bounds_deg( 0.0, 
-                                              SETPOINT_MODE_2_BOUND_QUAT_DEG_Y, 
+    toytronics_sp_set_incremental_bounds_deg( 0.0,
+                                              SETPOINT_MODE_2_BOUND_QUAT_DEG_Y,
                                               SETPOINT_MODE_2_BOUND_QUAT_DEG_Z);
     toytronics_sp_set_absolute_heading_bound_deg( SETPOINT_BOUND_ERROR_HEADING_DEG ); 
     // initialize setpoint heading to current heading
@@ -594,8 +583,8 @@ toytronics_mode_enter(int new_mode)
 
   case GUIDANCE_H_MODE_TOYTRONICS_AEROBATIC:
     #ifdef TOYTRONICS_AEROBATIC_BYPASS_ROLL
-    toytronics_sp_set_incremental_bounds_deg( 0.0, 
-                                              SETPOINT_MODE_2_BOUND_QUAT_DEG_Y, 
+    toytronics_sp_set_incremental_bounds_deg( 0.0,
+                                              SETPOINT_MODE_2_BOUND_QUAT_DEG_Y,
                                               SETPOINT_MODE_2_BOUND_QUAT_DEG_Z);
     #else
     toytronics_sp_set_incremental_bounds_deg( SETPOINT_MODE_2_BOUND_QUAT_DEG_X,

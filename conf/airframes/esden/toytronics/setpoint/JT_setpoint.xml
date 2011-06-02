@@ -6,7 +6,7 @@
 
     <define name="HOVER_PITCH_TRIM_DEG"                   value="0.0"/>
 
-    <define name="ROLL_TO_YAW_RATE_FF_FACTOR"    value="3.2"/>
+    <define name="ROLL_TO_YAW_RATE_FF_FACTOR"    value="1.6"/>
 
     <define name="DEADBAND"                   value="0.03"/>
     <define name="MODE_2_BOUND_QUAT_DEG_X"    value="50"/>
