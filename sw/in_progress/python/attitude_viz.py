@@ -329,17 +329,22 @@ def run():
   #resize(*SCREEN_SIZE)
   init()
   visualizer = Visualizer()
-  while True:
-    for event in pygame.event.get():
-      if event.type == pygame.QUIT:
-        visualizer.OnClose()
-        return
-      if event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
-        visualizer.OnClose()
-        return
-    visualizer.Draw()
-    pygame.display.flip()
-    time.sleep(.02)
+
+  try:
+    while True:
+      for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+          visualizer.OnClose()
+          return
+        if event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
+          visualizer.OnClose()
+          return
+      visualizer.Draw()
+      pygame.display.flip()
+      time.sleep(.02)
+  except KeyboardInterrupt:
+    visualizer.OnClose()
+    return
 
 if __name__ == "__main__":
   run()
