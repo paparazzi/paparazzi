@@ -276,6 +276,26 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       and alt = ivalue "alt" in
       let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
 	    update_waypoint a (ivalue "wp_id") geo (float alt /. 100.)
+  | "GENERIC_COM" ->
+      let flight_time = ivalue "flight_time" in
+      if flight_time >= a.flight_time then begin
+        a.flight_time <- flight_time;
+        let lat = fvalue "lat"
+        and lon = fvalue "lon" in
+        let geo = make_geo_deg (lat /. 1e7) (lon /. 1e7) in
+        a.pos <- geo;
+        a.alt <- fvalue "alt";
+        a.gspeed  <- fvalue "gspeed" /. 100.;
+        a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
+        if !heading_from_course then
+          a.heading <- a.course;
+        a.agl <- a.alt -. float (try Srtm.of_wgs84 a.pos with _ -> 0);
+        a.bat <- fvalue "vsupply" /. 10.;
+        a.energy <- ivalue "energy" * 100;
+        a.throttle <- fvalue "throttle";
+        a.ap_mode <- check_index (ivalue "ap_mode") fixedwing_ap_modes "AP_MODE";
+        a.cur_block <- ivalue "nav_block";
+      end
   | "FORMATION_SLOT_TM" ->
       Dl_Pprz.message_send "ground_dl" "FORMATION_SLOT" values
   | "FORMATION_STATUS_TM" ->

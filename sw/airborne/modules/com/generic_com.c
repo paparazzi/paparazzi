@@ -76,8 +76,8 @@ void generic_com_periodic( void ) {
   FillBufWith16bit(com_trans.buf, 11, gps_gspeed); // ground speed
   FillBufWith16bit(com_trans.buf, 13, gps_course); // course
   FillBufWith16bit(com_trans.buf, 15, (uint16_t)(estimator_airspeed*100)); // TAS (cm/s)
-  com_trans.buf[17] = electrical.vsupply;
-  com_trans.buf[18] = (uint8_t)(energy*10);
+  com_trans.buf[17] = electrical.vsupply; // decivolts
+  com_trans.buf[18] = (uint8_t)(energy/100); // deciAh
   com_trans.buf[19] = (uint8_t)(ap_state->commands[COMMAND_THROTTLE]*100/MAX_PPRZ);
   com_trans.buf[20] = pprz_mode;
   com_trans.buf[21] = nav_block;

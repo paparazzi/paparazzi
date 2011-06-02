@@ -1,6 +1,6 @@
 /*
  * Paparazzi tcp to ivy handling for sat based telemetry
- * 
+ *
  * Copyright (C) 2011 Martin Mueller <martinmm@pfump.org>
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.  
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -198,7 +198,7 @@ static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
       nav_block = buf[20];
 //    FillBufWith16bit(com_trans.buf, 21, estimator_flight_time); 
       estimator_flight_time = buf2ushort(&buf[21]);
- 
+
 //gps_lat = 52.2648312 * 1e7;
 //gps_lon =  9.9939456 * 1e7;
 //gps_alt = 169 * 1000;
@@ -250,7 +250,7 @@ printf("gps_utm_zone %d\n", gps_utm_zone);
      <field name="utm_zone"   type="uint8"/>
      <field name="gps_nb_err" type="uint8"/>
    </message>
-*/    
+*/
       IvySendMsg("%d GPS %d %d %d %d %d %d %d %d %d %d %d",
                 AC_ID,
                 3, // mode = 3D
@@ -283,7 +283,7 @@ printf("gps_utm_zone %d\n", gps_utm_zone);
                 0, // ap_horizontal
                 0, // if_calib_mode
                 0); // mcu1_status
-                
+
 /*
   <message name="AIRSPEED" id="54">
     <field name="airspeed" type="float" unit="m/s"/>
@@ -299,7 +299,7 @@ printf("gps_utm_zone %d\n", gps_utm_zone);
                 0, // airspeed_cnt
                 0); // groundspeed_sp
 
-/*                
+/*
    <message name="BAT" id="12">
      <field name="throttle" type="int16" unit="pprz"/>
      <field name="voltage" type="uint8" unit="1e-1V" alt_unit="V" alt_unit_coef="0.1"/>
@@ -370,11 +370,11 @@ printf("gps_utm_zone %d\n", gps_utm_zone);
                 0.); // theta
 
     }
-  }	  
+  }
   else {
     printf("disconnect\n");
     close(sock);
-    g_main_loop_quit(ml);    
+    g_main_loop_quit(ml);
     return 0;
   }
 
@@ -382,11 +382,11 @@ printf("gps_utm_zone %d\n", gps_utm_zone);
 }
 
 static gboolean alive(gpointer data __attribute__ ((unused))) {
-/*  
+/*
    <message name="ALIVE" id="2">
      <field name="md5sum" type="uint8[]"/>
    </message>
-*/  
+*/
   IvySendMsg("%d ALIVE %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,",
              AC_ID,
              md5[0], md5[1], md5[2], md5[3],
@@ -417,7 +417,7 @@ int main ( int argc, char** argv) {
       break;
     }
   }
-  
+
   sock = socket(PF_INET, SOCK_STREAM, 0);
   if (sock < 0) {
     perror("socket");
@@ -443,12 +443,12 @@ int main ( int argc, char** argv) {
   }
 
   sk = g_io_channel_unix_new(sock);
-  g_io_add_watch(sk, G_IO_IN | G_IO_NVAL | G_IO_HUP, 
-                 read_data, NULL);  
-  g_timeout_add(TIMEOUT_PERIOD, alive, NULL);  
-  
+  g_io_add_watch(sk, G_IO_IN | G_IO_NVAL | G_IO_HUP,
+                 read_data, NULL);
+  g_timeout_add(TIMEOUT_PERIOD, alive, NULL);
+
   ml =  g_main_loop_new(NULL, FALSE);
-  
+
   g_main_loop_run(ml);
 
   return 0;

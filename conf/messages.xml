@@ -528,11 +528,19 @@
     <field name="cte_int" type="float"/>
   </message>
 
-  <message name="ESTIMATOR_COMP_FILTER" id="81">
-    <field name="gyro_hp_last_out" type="float"/>
-    <field name="gyro_int" type="float"/>
-    <field name="gps_lp_last_out" type="float"/>
-    <field name="ir_lp_last_out" type="float"/>
+  <message name="GENERIC_COM" id="81">
+    <field name="lat" type="int32" unit="1e7deg"/>
+    <field name="lon" type="int32" unit="1e7deg"/>
+    <field name="alt" type="int16" unit="m"/>
+    <field name="gspeed" type="uint16" unit="cm/s" alt_unit="m/s"/>
+    <field name="course" type="int16" unit="decideg" alt_unit="deg"/>
+    <field name="airspeed" type="uint16" unit="cm/s" alt_unit="m/s"/>
+    <field name="vsupply" type="uint8" unit="decivolt"/>
+    <field name="energy" type="uint8" unit="deciAh"/>
+    <field name="throttle" type="uint8" unit="%"/>
+    <field name="ap_mode" type="uint8"/>
+    <field name="nav_block" type="uint8"/>
+    <field name="flight_time" type="uint16" unit="s"/>
   </message>
 
   <message name="FORMATION_SLOT_TM" id="82">
