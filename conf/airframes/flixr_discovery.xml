@@ -16,6 +16,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
       <configure name="AHRS_CORRECT_FREQUENCY" value="60"/>
       <configure name="AHRS_ALIGNER_LED" value="1"/>
       <configure name="CPU_LED" value="2"/>
+      <define name="IMU_B2_VERSION_1_0"/>
     </target>
     <target name="sim" 			board="pc"/>
 
@@ -31,6 +32,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry" type="transparent"/>
+    <!--<define name="TELEMETRY_MODE_FBW" value="1"/>-->
     <subsystem name="control">
 
     </subsystem>
@@ -49,15 +51,6 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
   </firmware>
 
 
-<!-- current sensor -->
-<!--
-  <modules>
-    <load name="adc_generic.xml">
-      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_7"/> 
-    </load>
-  </modules>
--->
-
 <!-- ******************* MODULES ********************************** --> 
   <modules main_freq="60">
     <load name="servo_switch.xml">
@@ -66,15 +59,18 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
       <define name="SERVO_SWITCH_SERVO"     value="SERVO_HATCH"/>
     </load>
     <load name="sys_mon.xml"/>
+    <load name="adc_generic.xml">
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_4"/> <!-- voltage sensor -->
+    </load>
   </modules>
 
 <!-- Define here to which CONNECTOR NUMBER the servo is connected to, on the autopilot cicuit board -->
   <servos>
     <servo name="MOTOR"         no="0" min="1100" neutral="1100" max="1900"/>
-    <servo name="AILERON_RIGHT" no="2" min="1900" neutral="1500" max="1100"/>
-    <servo name="ELEVATOR"      no="3" min="1100" neutral="1500" max="1900"/>
-    <servo name="RUDDER"        no="4" min="1100" neutral="1500" max="1900"/>
-    <servo name="AILERON_LEFT"  no="6" min="1900" neutral="1500" max="1100"/>
+    <servo name="ELEVATOR"      no="2" min="1100" neutral="1500" max="1900"/>
+    <servo name="AILERON_RIGHT" no="3" min="1900" neutral="1500" max="1100"/>
+    <servo name="AILERON_LEFT"  no="4" min="1900" neutral="1500" max="1100"/>
+    <servo name="RUDDER"        no="6" min="1100" neutral="1500" max="1900"/>
     <servo name="HATCH"   	no="7" min="1100" neutral="1100" max="1900"/>
   </servos>
 
@@ -119,50 +115,28 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 
 
   <section name="IMU" prefix="IMU_">
-    <!-- MAX1168 ADC CHANNELS -->
-    <define name="GYRO_P_CHAN" value="0"/>
-    <define name="GYRO_Q_CHAN" value="1"/>
-    <define name="GYRO_R_CHAN" value="2"/>
+    <define name="GYRO_P_NEUTRAL" value="32362" />
+    <define name="GYRO_Q_NEUTRAL" value="32080" />
+    <define name="GYRO_R_NEUTRAL" value="32096" />
 
-    <define name="ACCEL_X_CHAN" value="4"/>
-    <define name="ACCEL_Y_CHAN" value="3"/>
-    <define name="ACCEL_Z_CHAN" value="5"/>
+    <define name="GYRO_P_SENS" value="1.1032765" integer="16" />
+    <define name="GYRO_Q_SENS" value="1.1360802599" integer="16" />
+    <define name="GYRO_R_SENS" value="1.1249874614" integer="16" />
 
-    <!-- Calibration Neutral -->
-    <define name="GYRO_P_NEUTRAL" value="21480"/>
-    <define name="GYRO_Q_NEUTRAL" value="21410"/>
-    <define name="GYRO_R_NEUTRAL" value="21940"/>
+    <define name="ACCEL_X_SENS" value="2.45932966" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.45106376" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.47825717" integer="16"/>
 
-    <!-- SENS = 2mV/deg/sec * 57.6 deg/rad = 114.59 mV/rad/sec * 16 LSB/mV = 1833.465 LSB/rad/sec / 12bit FRAC -->
-    <define name="GYRO_P_SENS" value="2.234" integer="16"/>
-    <define name="GYRO_Q_SENS" value="2.234" integer="16"/>
-    <define name="GYRO_R_SENS" value="2.234" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="31886"/>
+    <define name="ACCEL_Y_NEUTRAL" value="32162"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32941"/>
 
     <define name="GYRO_P_Q" value="0."/>
-    <define name="GYRO_P_R" value="(1.0f/75.0f)"/>
+    <define name="GYRO_P_R" value="0."/>
     <define name="GYRO_Q_P" value="0."/>
     <define name="GYRO_Q_R" value="0."/>
     <define name="GYRO_R_P" value="0."/>
     <define name="GYRO_R_Q" value="0."/>
-
-    <define name="GYRO_P_SIGN" value="1"/>
-    <define name="GYRO_Q_SIGN" value="-1"/>
-    <define name="GYRO_R_SIGN" value="-1"/>
-
-    <define name="ACCEL_X_NEUTRAL" value="26584"/>
-    <define name="ACCEL_Y_NEUTRAL" value="26660"/>
-    <define name="ACCEL_Z_NEUTRAL" value="26732"/>
-
-    <!-- 3.5G: SENS = 330mV/g / 9.81 ms2/g = 33.63 mV/ms2 * 16 LSB/mV = 538.22 LSB/ms2 / 10bit FRAC -->
-    <!-- 2G: SENS = 660mV/g / 9.81 ms2/g = 67.27 mV/ms2 * 16 LSB/mV = 1076 LSB/ms2 / 10bit FRAC -> 0.9372-->
-    <!-- 6G: SENS = 220mV/g / 9.81 ms2/g = 67.27 mV/ms2 * 16 LSB/mV = 358.8 LSB/ms2 / 10bit FRAC -> 2.853818182-->
-    <define name="ACCEL_X_SENS" value="2.85382" integer="10"/>
-    <define name="ACCEL_Y_SENS" value="2.85382" integer="10"/>
-    <define name="ACCEL_Z_SENS" value="2.85382" integer="10"/>
-
-    <define name="ACCEL_X_SIGN" value="1"/>
-    <define name="ACCEL_Y_SIGN" value="-1"/>
-    <define name="ACCEL_Z_SIGN" value="-1"/>
 
     <define name="MAG_X_NEUTRAL" value="0"/>
     <define name="MAG_Y_NEUTRAL" value="0"/>
@@ -174,14 +148,14 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 
 <!--    <define name="MAG_45_HACK" value="1"/> -->
 
-    <define name="BODY_TO_IMU_PHI" value="0"/>
+    <define name="BODY_TO_IMU_PHI" value="RadOfDeg(90)"/>
     <define name="BODY_TO_IMU_THETA" value="0"/>
     <define name="BODY_TO_IMU_PSI" value="0"/>
   </section>
 
   <section name="INS" prefix="INS_">
     <define name="ROLL_NEUTRAL_DEFAULT" value="0."/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="-0.0570000000298"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0."/>
   </section>
 
 <!-- Do not set MAX_ROLL, MAX_PITCH to small of a value, otherwise one can NOT control the plane very well manually -->
@@ -193,16 +167,15 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 
 
   <section name="BAT">
-<!-- If current-volts sensor is installed use line below-->
-<!-- <define name="ADC_CHANNEL_CURRENT" value="ADC_3" /> -->
-<!-- <define name="MilliAmpereOfAdc(adc)" value="(adc*88)"/> -->
+    <define name="ADC_CHANNEL_CURRENT" value="ADC_3" />
+    <define name="MilliAmpereOfAdc(adc)" value="(adc*88)"/>
 
 <!-- <define name="ADC_CHANNEL_VOLTAGE" value="ADC_4" /> -->
 <!-- The real multiplier is unknown we take 2 as test example -->
 <!--  <define name="VoltageOfAdc(adc)" value ="(adc*2)"/>  -->
 
 <!-- If NO current-volts sensor installed uncomment below -->
-  <define name="MILLIAMP_AT_FULL_THROTTLE" value="17000" unit="mA"/>
+  <!--define name="MILLIAMP_AT_FULL_THROTTLE" value="17000" unit="mA"/-->
 
 <!--
     <define name="VOLTAGE_ADC_A" value="0.0177531"/>
@@ -235,7 +208,7 @@ If not set before when you would enter home mode you had to flip a bit via the G
 
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="TRIGGER_DELAY" value="1.0"/>
-    <define name="DEFAULT_CIRCLE_RADIUS" value="40.0"/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="50.0"/>
     <define name="MIN_CIRCLE_RADIUS" value="35.0"/>
 
 <!-- The Glide definitions are used for calculating the touch down point during auto landing -->
