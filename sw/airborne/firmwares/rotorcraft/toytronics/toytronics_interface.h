@@ -14,6 +14,7 @@
 const quat_t * get_q_n2b(void);
 const euler_t * get_e_n2b(void);
 const rc_t * get_rc(void);
+const double get_y_accel(void);
 void set_stabilization_setpoint(const quat_t * const q_n2sp);
 void set_stabilization_gains(struct Int32AttitudeGains * new_stabilization_gains);
 

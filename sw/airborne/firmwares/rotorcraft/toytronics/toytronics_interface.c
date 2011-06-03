@@ -8,6 +8,7 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_int.h" // for current_stabilization_gains/stabilization_gains
 #include "subsystems/ahrs.h" // for attitude struct ahrs
 #include "subsystems/radio_control.h" // for rc
+#include "subsystems/imu.h" // for imu, duh
 
 const quat_t * get_q_n2b(void){
   static quat_t q_n2b = {1,0,0,0};
@@ -23,6 +24,10 @@ const quat_t * get_q_n2b(void){
   quat_normalize(&q_n2b);
   
   return &q_n2b;
+}
+
+const double get_y_accel(void){
+  return imu.accel.y/1024.0;
 }
 
 const euler_t * get_e_n2b(void){

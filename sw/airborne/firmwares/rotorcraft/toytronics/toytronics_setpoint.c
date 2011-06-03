@@ -57,6 +57,7 @@ double hover_y_integrated_error = 0;
 // "heading" variable.
 
 double roll_to_yaw_rate_ff_factor = SETPOINT_ROLL_TO_YAW_RATE_FF_FACTOR;
+double accel_turn_coordination_gain = SETPOINT_ACCEL_TURN_COORDINATION_GAIN;
 double smooth_transition_angle = 0.0;
 
 #define RC_INCREMENTAL_DEADBAND 0.02
@@ -490,6 +491,9 @@ toytronics_set_sp_incremental_from_rc()
   xyz_t w_dt_body = {rcr * SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*dt,
                      rcp * SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*dt,
                      rcy * SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*dt};
+
+  // try accelerometer turn coordination
+  w_dt_body.z += dt*accel_turn_coordination_gain*get_y_accel();
  
   // old body to setpoint quat q_b2sp
   quat_inv_mult( &(setpoint.q_b2sp), q_n2b, &(setpoint.q_n2sp));

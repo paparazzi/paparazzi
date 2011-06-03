@@ -79,6 +79,9 @@
       <dl_setting VAR="roll_to_yaw_rate_ff_factor" MIN="0.0" STEP="0.1" MAX="6.0" 
 		  module="toytronics/toytronics_setpoint"
 		  shortname="roll_2_yaw_ff"/>
+      <dl_setting VAR="accel_turn_coordination_gain" MIN="0.0" STEP="0.05" MAX="10.0" 
+		  module="toytronics/toytronics_setpoint"
+		  shortname="accel_tc_gain"/>
    </dl_settings>
 
     <dl_settings NAME="JT Hover Gains">
