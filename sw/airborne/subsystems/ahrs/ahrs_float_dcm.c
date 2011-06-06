@@ -128,7 +128,8 @@ void ahrs_update_fw_estimator( void )
   estimator_theta = ahrs_float.ltp_to_body_euler.theta - ins_pitch_neutral;
   estimator_psi   = ahrs_float.ltp_to_body_euler.psi;
 
-  estimator_p = Omega_Vector[0];
+  estimator_p = ahrs_float.body_rate.p;
+  estimator_q = ahrs_float.body_rate.q;
 /*
   RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel,
     &(DCM_Matrix[0][0]),
@@ -381,16 +382,8 @@ void Normalize(void)
 
   // Reset on trouble
   if (problem) {                // Our solution is blowing up and we will force back to initial condition.  Hope we are not upside down!
-      DCM_Matrix[0][0]= 1.0f;
-      DCM_Matrix[0][1]= 0.0f;
-      DCM_Matrix[0][2]= 0.0f;
-      DCM_Matrix[1][0]= 0.0f;
-      DCM_Matrix[1][1]= 1.0f;
-      DCM_Matrix[1][2]= 0.0f;
-      DCM_Matrix[2][0]= 0.0f;
-      DCM_Matrix[2][1]= 0.0f;
-      DCM_Matrix[2][2]= 1.0f;
-      problem = FALSE;
+    set_dcm_matrix_from_rmat(&ahrs_impl.body_to_imu_rmat);
+    problem = FALSE;
   }
 }
 
