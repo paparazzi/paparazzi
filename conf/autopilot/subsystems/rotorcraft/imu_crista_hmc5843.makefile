@@ -67,6 +67,7 @@ imu_srcs += $(SRC_ARCH)/subsystems/imu/imu_crista_arch.c
 
 imu_srcs += peripherals/hmc5843.c
 imu_srcs += $(SRC_ARCH)/peripherals/hmc5843_arch.c
+imu_srcs += -DUSE_HMC5843
 
 ifeq ($(ARCH), lpc21)
 imu_CFLAGS += -DUSE_I2C1
