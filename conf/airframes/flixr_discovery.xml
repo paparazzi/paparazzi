@@ -16,7 +16,8 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
       <configure name="AHRS_CORRECT_FREQUENCY" value="60"/>
       <configure name="AHRS_ALIGNER_LED" value="1"/>
       <configure name="CPU_LED" value="2"/>
-      <define name="IMU_B2_VERSION_1_0"/>
+      <!--define name="IMU_B2_VERSION_1_0"/-->
+      <define name="USE_ADC_3"/>
     </target>
     <target name="sim" 			board="pc"/>
 
@@ -68,9 +69,9 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
   <servos>
     <servo name="MOTOR"         no="0" min="1100" neutral="1100" max="1900"/>
     <servo name="ELEVATOR"      no="2" min="1100" neutral="1500" max="1900"/>
-    <servo name="AILERON_RIGHT" no="3" min="1900" neutral="1500" max="1100"/>
-    <servo name="AILERON_LEFT"  no="4" min="1900" neutral="1500" max="1100"/>
-    <servo name="RUDDER"        no="6" min="1100" neutral="1500" max="1900"/>
+    <servo name="AILERON_RIGHT" no="3" min="2000" neutral="1500" max="1000"/>
+    <servo name="AILERON_LEFT"  no="4" min="2000" neutral="1500" max="1000"/>
+    <servo name="RUDDER"        no="6" min="1000" neutral="1500" max="2000"/>
     <servo name="HATCH"   	no="7" min="1100" neutral="1100" max="1900"/>
   </servos>
 
@@ -98,7 +99,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 
 <!--For mixed controlflaps -->
   <section name="MIXER">
-    <define name="AILERON_DIFF" value="0.66"/>
+    <define name="AILERON_DIFF" value="0.7"/>
     <define name="COMBI_SWITCH" value="0.3"/>
   </section>
 
@@ -108,28 +109,44 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
 
     <let var="roll" value="@ROLL"/>
-    <set servo="AILERON_LEFT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
-    <set servo="AILERON_RIGHT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
+    <set servo="AILERON_LEFT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
+    <set servo="AILERON_RIGHT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
     <!--set servo="HATCH"         value="@HATCH"/-->
   </command_laws>
 
 
   <section name="IMU" prefix="IMU_">
-    <define name="GYRO_P_NEUTRAL" value="32362" />
-    <define name="GYRO_Q_NEUTRAL" value="32080" />
-    <define name="GYRO_R_NEUTRAL" value="32096" />
+    <define name="GYRO_P_CHAN"  value="1"/>
+    <define name="GYRO_Q_CHAN"  value="2"/>
+    <define name="GYRO_R_CHAN"  value="0"/>
 
-    <define name="GYRO_P_SENS" value="1.1032765" integer="16" />
-    <define name="GYRO_Q_SENS" value="1.1360802599" integer="16" />
-    <define name="GYRO_R_SENS" value="1.1249874614" integer="16" />
+    <define name="GYRO_P_SIGN"  value="1"/>
+    <define name="GYRO_Q_SIGN"  value="1"/>
+    <define name="GYRO_R_SIGN"  value="-1"/>
+
+    <define name="GYRO_P_NEUTRAL" value="32362"/>
+    <define name="GYRO_R_NEUTRAL" value="32080"/>
+    <define name="GYRO_Q_NEUTRAL" value="32096"/>
+
+    <define name="GYRO_P_SENS" value="1.1032765" integer="16"/>
+    <define name="GYRO_R_SENS" value="1.1360802599" integer="16"/>
+    <define name="GYRO_Q_SENS" value="1.1249874614" integer="16"/>
+
+    <define name="ACCEL_X_CHAN"  value="3"/>
+    <define name="ACCEL_Y_CHAN"  value="6"/>
+    <define name="ACCEL_Z_CHAN"  value="5"/>
+
+    <define name="ACCEL_X_SIGN"  value="-1"/>
+    <define name="ACCEL_Y_SIGN"  value="1"/>
+    <define name="ACCEL_Z_SIGN"  value="-1"/>
 
     <define name="ACCEL_X_SENS" value="2.45932966" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="2.45106376" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="2.47825717" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.45106376" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.47825717" integer="16"/>
 
     <define name="ACCEL_X_NEUTRAL" value="31886"/>
-    <define name="ACCEL_Y_NEUTRAL" value="32162"/>
-    <define name="ACCEL_Z_NEUTRAL" value="32941"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32162"/>
+    <define name="ACCEL_Y_NEUTRAL" value="32941"/>
 
     <define name="GYRO_P_Q" value="0."/>
     <define name="GYRO_P_R" value="0."/>
@@ -148,7 +165,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 
 <!--    <define name="MAG_45_HACK" value="1"/> -->
 
-    <define name="BODY_TO_IMU_PHI" value="RadOfDeg(90)"/>
+    <define name="BODY_TO_IMU_PHI" value="0"/>
     <define name="BODY_TO_IMU_THETA" value="0"/>
     <define name="BODY_TO_IMU_PSI" value="0"/>
   </section>
@@ -167,7 +184,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 
 
   <section name="BAT">
-    <define name="ADC_CHANNEL_CURRENT" value="ADC_3" />
+    <define name="ADC_CHANNEL_CURRENT" value="ADC_3"/>
     <define name="MilliAmpereOfAdc(adc)" value="(adc*88)"/>
 
 <!-- <define name="ADC_CHANNEL_VOLTAGE" value="ADC_4" /> -->
