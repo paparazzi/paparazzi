@@ -6,7 +6,7 @@
 struct Electrical {
 
   uint8_t vsupply; /* supply in decivolts */
-  int32_t current; /* current in miliamps */
+  int32_t current; /* current in milliamps */
 
 };
 
