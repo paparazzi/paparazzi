@@ -77,7 +77,6 @@ extern struct ImuAspirin imu_aspirin;
 #define ASPIRIN_GYRO_TIMEOUT 3
 #define ASPIRIN_ACCEL_TIMEOUT 3
 
-#include "peripherals/hmc5843.h"
 #define foo_handler() {}
 #define ImuMagEvent(_mag_handler) {					\
 	  MagEvent(foo_handler); \
