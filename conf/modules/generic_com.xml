@@ -10,7 +10,7 @@
     <file name="generic_com.h"/>
   </header>
   <init fun="generic_com_init()"/>
-  <periodic fun="generic_com_periodic()" period="60" start="start_com()" stop="stop_com()" autorun="TRUE"/>
+  <periodic fun="generic_com_periodic()" period="180" start="start_com()" stop="stop_com()" autorun="TRUE"/>
   <event fun="generic_com_event()"/>
   <makefile>
     <file name="generic_com.c"/>

@@ -124,7 +124,9 @@ void loop()
 { // If a message is waiting
   if (flagWaitingMessage){
     // Send the message
+    digitalWrite(Led,HIGH);
     sendMessageViaSatcom(0);
+    digitalWrite(Led,LOW);
   }
   else {
     // Wait 1 sec
@@ -138,6 +140,7 @@ void loop()
 void receiveEvent(int howMany){
   if (howMany>=1){
     if (Wire.receive()!=0){
+      digitalWrite(Led,HIGH);
       bufferSize=howMany-1;
 
       // Collect all the byte in the buffer
@@ -147,7 +150,9 @@ void receiveEvent(int howMany){
 
       // We notify the program that a message is waiting to be sent
       flagWaitingMessage=true;
-  
+  delay(100);
+      digitalWrite(Led,LOW);
+ 
     }
   }
 }
@@ -182,12 +187,14 @@ void sendMessageViaSatcom(int n){
     // stops the modem with all the precautions available
     smoothShutdown();
   }
+  //digitalWrite(Led,LOW);
 }
 
 // ******************************************************************************
 // Power on the Satcom module and wait for it to be ready to receive AT commands
 // If the program waits more than 10 seconds without sucess, reboot the module
 void initialisation(){
+  //digitalWrite(Led,HIGH);
   // Flush the serial port buffer
   Serial.flush();
   // initialisation of the flags
@@ -239,6 +246,7 @@ void initialisation(){
       initialisation();
     }
   }
+  //digitalWrite(Led,LOW);
 }
 
 // ******************************************************************************
@@ -321,7 +329,7 @@ void SBDsession(long n){
     }
   }
   else if (collation<=4){
-    digitalWrite(Led,HIGH); // Put the LED ON to tell that the module is working and tested
+    //digitalWrite(Led,HIGH); // Put the LED ON to tell that the module is working and tested
   }
   else if (collation>4 && collation <16){ // Erreurs envoyees par la Gateway
     // On refait 5 essais et on zappe le message en éteignant le modem

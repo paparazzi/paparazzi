@@ -13,15 +13,13 @@
 
   <modules target="jsbsim">
     <load name="ins_arduimu_basic.xml"/>
-    <load name="airspeed_ets.xml">
-      <!--define name="SENSOR_SYNC_SEND"/-->
+    <!--load name="airspeed_ets.xml">
       <define name="USE_AIRSPEED"/>
     </load>
     <load name="baro_ets.xml">
       <define name="USE_BARO_ETS"/>
-      <!--define name="BARO_ETS_TELEMETRY"/-->
-    </load>
-    <load name="alt_filter.xml"/>
+    </load-->
+    <!--load name="alt_filter.xml"/-->
     <load name="generic_com.xml"/>
   </modules>
 
@@ -29,6 +27,7 @@
     <define name="USE_I2C0"/>
     <!--define name="AGR_CLIMB"/-->
     <define name="ALT_KALMAN"/>
+    <define name="USE_AIRSPEED"/>
     <!--define name="LOITER_TRIM"/-->
     <!--define name="PITCH_TRIM"/-->
 
