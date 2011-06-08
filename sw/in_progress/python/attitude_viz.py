@@ -17,7 +17,7 @@ import time
 _NAME = 'attitude_viz'
 
 class TelemetryQuat:
-  def __init__(self, message_name, index, name):
+  def __init__(self, message_name, index, name, integer):
     self.message_name = message_name
     self.index = index
     self.name = name
@@ -25,6 +25,11 @@ class TelemetryQuat:
     self.qx = 0
     self.qy = 0
     self.qz = 0
+    # optional scaling for fixed point telemetry
+    if integer:
+      self.scale = 0.00003051757812
+    else:
+      self.scale = 1.0
 
 class TelemetryValue:
   def __init__(self, message_name, index, name, offset, scale, max):
@@ -45,8 +50,8 @@ class Visualization:
     self.airspeed = 0.0
     self.display_list = None
     self.display_dirty = True
-    for message_name, index, name in VEHICLE_QUATS:
-      self.quats.append(TelemetryQuat(message_name, index, name))
+    for message_name, index, name, bfp in VEHICLE_QUATS:
+      self.quats.append(TelemetryQuat(message_name, index, name, bfp))
     for message_name, index, name, offset, scale, max in BAR_VALUES:
       self.graph_values.append(TelemetryValue(message_name, index, name, offset, scale, max))
 
@@ -211,10 +216,10 @@ class Visualization:
     for telemetry_quat in self.quats:
       glPushMatrix()
       try: 
-        telemetry_quat.qi = telemetry_quat.qi * .00003051757812
-        telemetry_quat.qx = telemetry_quat.qx * .00003051757812
-        telemetry_quat.qy = telemetry_quat.qy * .00003051757812
-        telemetry_quat.qz = telemetry_quat.qz * .00003051757812
+        telemetry_quat.qi = telemetry_quat.qi * telemetry_quat.scale
+        telemetry_quat.qx = telemetry_quat.qx * telemetry_quat.scale
+        telemetry_quat.qy = telemetry_quat.qy * telemetry_quat.scale
+        telemetry_quat.qz = telemetry_quat.qz * telemetry_quat.scale
         glRotate(360 * math.acos(telemetry_quat.qi ) / math.pi, telemetry_quat.qy, -telemetry_quat.qz, -telemetry_quat.qx)
         glRotate(-90, 1, 0, 0)
         self.DrawVehicle(telemetry_quat.name)
@@ -306,7 +311,7 @@ def init():
 
 def run():
   global VEHICLE_QUATS, BAR_VALUES
-  VEHICLE_QUATS = [ ["BOOZ2_AHRS_QUAT", 6, "Estimated"], ["BOOZ2_AHRS_QUAT", 2, "Reference"]]
+  VEHICLE_QUATS = [ ["AHRS_REF_QUAT", 6, "Estimate", True], ["AHRS_REF_QUAT", 2, "Reference", True]]
   BAR_VALUES = [ ["BOOZ2_RADIO_CONTROL", 5, "Throttle (%%) %i", 9600, 96 * 2, 100] ]
   window_title = "Attitude_Viz"
   try:

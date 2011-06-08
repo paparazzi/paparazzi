@@ -33,9 +33,35 @@
 #include "stabilization_attitude_ref_int.h"
 //#include "quat_setpoint.h"
 
-#define REF_ACCEL_MAX_P STABILIZATION_ATTITUDE_REF_MAX_PDOT
-#define REF_ACCEL_MAX_Q STABILIZATION_ATTITUDE_REF_MAX_QDOT
-#define REF_ACCEL_MAX_R STABILIZATION_ATTITUDE_REF_MAX_RDOT
+#define REF_ACCEL_MAX_P BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_PDOT, REF_ACCEL_FRAC)
+#define REF_ACCEL_MAX_Q BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_QDOT, REF_ACCEL_FRAC)
+#define REF_ACCEL_MAX_R BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_RDOT, REF_ACCEL_FRAC)
+
+#define REF_RATE_MAX_P BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_P, REF_RATE_FRAC)
+#define REF_RATE_MAX_Q BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_Q, REF_RATE_FRAC)
+#define REF_RATE_MAX_R BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_R, REF_RATE_FRAC)
+
+#define OMEGA_P   STABILIZATION_ATTITUDE_REF_OMEGA_P 
+#define ZETA_P    STABILIZATION_ATTITUDE_REF_ZETA_P
+#define ZETA_OMEGA_P_RES 10
+#define ZETA_OMEGA_P BFP_OF_REAL((ZETA_P*OMEGA_P), ZETA_OMEGA_P_RES)
+#define OMEGA_2_P_RES 7
+#define OMEGA_2_P    BFP_OF_REAL((OMEGA_P*OMEGA_P), OMEGA_2_P_RES)
+
+#define OMEGA_Q   STABILIZATION_ATTITUDE_REF_OMEGA_Q
+#define ZETA_Q    STABILIZATION_ATTITUDE_REF_ZETA_Q
+#define ZETA_OMEGA_Q_RES 10
+#define ZETA_OMEGA_Q BFP_OF_REAL((ZETA_Q*OMEGA_Q), ZETA_OMEGA_Q_RES)
+#define OMEGA_2_Q_RES 7
+#define OMEGA_2_Q    BFP_OF_REAL((OMEGA_Q*OMEGA_Q), OMEGA_2_Q_RES)
+
+#define OMEGA_R   STABILIZATION_ATTITUDE_REF_OMEGA_R
+#define ZETA_R    STABILIZATION_ATTITUDE_REF_ZETA_R
+#define ZETA_OMEGA_R_RES 10
+#define ZETA_OMEGA_R BFP_OF_REAL((ZETA_R*OMEGA_R), ZETA_OMEGA_R_RES)
+#define OMEGA_2_R_RES 7
+#define OMEGA_2_R    BFP_OF_REAL((OMEGA_R*OMEGA_R), OMEGA_2_R_RES)
+
 
 struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
@@ -44,13 +70,10 @@ struct Int32Quat   stab_att_ref_quat;
 struct Int32Rates  stab_att_ref_rate;
 struct Int32Rates  stab_att_ref_accel;
 
-//struct Int32RefModel stab_att_ref_model[STABILIZATION_ATTITUDE_GAIN_NB];
 struct Int32RefModel stab_att_ref_model = {
   {STABILIZATION_ATTITUDE_REF_OMEGA_P, STABILIZATION_ATTITUDE_REF_OMEGA_Q, STABILIZATION_ATTITUDE_REF_OMEGA_R},
   {STABILIZATION_ATTITUDE_REF_ZETA_P, STABILIZATION_ATTITUDE_REF_ZETA_Q, STABILIZATION_ATTITUDE_REF_ZETA_R}
 };
-
-//static int ref_idx = STABILIZATION_ATTITUDE_GAIN_IDX_DEFAULT;
 
 /*
 static const float omega_p[] = STABILIZATION_ATTITUDE_REF_OMEGA_P;
@@ -97,26 +120,21 @@ void stabilization_attitude_ref_init(void) {
 
 }
 
-void stabilization_attitude_ref_schedule(uint8_t idx)
-{
-  //ref_idx = idx;
-}
-
 void stabilization_attitude_ref_enter()
 {
   reset_psi_ref_from_body();
-  //stabilization_attitude_sp_enter();
-  update_ref_quat_from_eulers();
+  stabilization_attitude_sp_enter();
+  memcpy(&stab_att_ref_quat, &stab_att_sp_quat, sizeof(struct Int32Quat));
+  memset(&stab_att_ref_accel, 0, sizeof(struct Int32Rates));
+  memset(&stab_att_ref_rate, 0, sizeof(struct Int32Rates));
+  //update_ref_quat_from_eulers();
 }
 
 /*
  * Reference
  */
-#ifdef BOOZ_AP_PERIODIC_PRESCALE
-#define DT_UPDATE ((float) BOOZ_AP_PERIODIC_PRESCALE / (float) PERIODIC_FREQ)
-#else
 #define DT_UPDATE (1./512.)
-#endif
+#define F_UPDATE_RES 9
 
 #include "messages.h"
 #include "mcu_periph/uart.h"
@@ -124,24 +142,23 @@ void stabilization_attitude_ref_enter()
 
 void stabilization_attitude_ref_update() {
 
-  static uint8_t x = 0;
-  int32_t y = 0;
-
-  if (++x > 10) {
-    x = 0;
-  DOWNLINK_SEND_BOOZ2_AHRS_QUAT(DefaultChannel, &stab_att_sp_quat.qi, &stab_att_sp_quat.qx, &stab_att_sp_quat.qy, &stab_att_sp_quat.qz, &ahrs.ltp_to_body_quat.qi, &ahrs.ltp_to_body_quat.qx, &ahrs.ltp_to_body_quat.qy, &ahrs.ltp_to_body_quat.qz);
-  } 
-
   /* integrate reference attitude            */
   struct Int32Quat qdot;
   INT32_QUAT_DERIVATIVE(qdot, stab_att_ref_rate, stab_att_ref_quat);
-  QUAT_SMUL(qdot, qdot, RATE_BFP_OF_REAL(DT_UPDATE));
+  //QUAT_SMUL(qdot, qdot, RATE_BFP_OF_REAL(DT_UPDATE));
+  QUAT_SMUL(qdot, qdot, 4);
+  QUAT_SMUL(qdot, qdot, DT_UPDATE);
   QUAT_ADD(stab_att_ref_quat, qdot);
   INT32_QUAT_NORMALIZE(stab_att_ref_quat);
 
   /* integrate reference rotational speeds   */
-  struct Int32Rates delta_rate;
-  RATES_SMUL(delta_rate, stab_att_ref_accel, RATE_BFP_OF_REAL(DT_UPDATE));
+  const struct Int32Rates delta_rate = {
+         stab_att_ref_accel.p >> ( F_UPDATE_RES + REF_ACCEL_FRAC - REF_RATE_FRAC),
+         stab_att_ref_accel.q >> ( F_UPDATE_RES + REF_ACCEL_FRAC - REF_RATE_FRAC),
+         stab_att_ref_accel.r >> ( F_UPDATE_RES + REF_ACCEL_FRAC - REF_RATE_FRAC)};
+
+  //RATES_SMUL(delta_rate, stab_att_ref_accel, RATE_BFP_OF_REAL(DT_UPDATE));
+  //RATES_SMUL(delta_rate, stab_att_ref_accel, DT_UPDATE);
   RATES_ADD(stab_att_ref_rate, delta_rate);
 
   /* compute reference angular accelerations */
@@ -151,17 +168,33 @@ void stabilization_attitude_ref_update() {
   /* wrap it in the shortest direction       */
   INT32_QUAT_WRAP_SHORTEST(err);
   /* propagate the 2nd order linear model    */
+
+  const struct Int32Rates accel_rate = {
+    ((int32_t)(-2.*ZETA_OMEGA_P) * (stab_att_ref_rate.p >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (ZETA_OMEGA_P_RES),
+    ((int32_t)(-2.*ZETA_OMEGA_Q) * (stab_att_ref_rate.q >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (ZETA_OMEGA_Q_RES),
+    ((int32_t)(-2.*ZETA_OMEGA_R) * (stab_att_ref_rate.r >> (REF_RATE_FRAC - REF_ACCEL_FRAC))) >> (ZETA_OMEGA_R_RES) };
+
+  const struct Int32Rates accel_angle = {
+    ((int32_t)(-OMEGA_2_P)* (err.qx   >> (REF_ANGLE_FRAC - REF_ACCEL_FRAC))) >> (OMEGA_2_P_RES),
+    ((int32_t)(-OMEGA_2_Q)* (err.qy   >> (REF_ANGLE_FRAC - REF_ACCEL_FRAC))) >> (OMEGA_2_Q_RES),
+    ((int32_t)(-OMEGA_2_R)* (err.qz   >> (REF_ANGLE_FRAC - REF_ACCEL_FRAC))) >> (OMEGA_2_R_RES) };
+
+  RATES_SUM(stab_att_ref_accel, accel_rate, accel_angle);
+
+
+        /*
   stab_att_ref_accel.p = -2.*stab_att_ref_model.zeta.p*stab_att_ref_model.omega.p*stab_att_ref_rate.p
     - stab_att_ref_model.omega.p*stab_att_ref_model.omega.p*err.qx;
   stab_att_ref_accel.q = -2.*stab_att_ref_model.zeta.q*stab_att_ref_model.omega.q*stab_att_ref_rate.q
     - stab_att_ref_model.omega.q*stab_att_ref_model.omega.q*err.qy;
   stab_att_ref_accel.r = -2.*stab_att_ref_model.zeta.r*stab_att_ref_model.omega.r*stab_att_ref_rate.r
     - stab_att_ref_model.omega.r*stab_att_ref_model.omega.r*err.qz;
+    */
 
   /*	saturate acceleration */
-  const struct Int32Rates MIN_ACCEL = { -REF_ACCEL_MAX_P, -REF_ACCEL_MAX_Q, -REF_ACCEL_MAX_R };
-  const struct Int32Rates MAX_ACCEL = {  REF_ACCEL_MAX_P,  REF_ACCEL_MAX_Q,  REF_ACCEL_MAX_R };
-  RATES_BOUND_BOX(stab_att_ref_accel, MIN_ACCEL, MAX_ACCEL);
+  //const struct Int32Rates MIN_ACCEL = { -REF_ACCEL_MAX_P, -REF_ACCEL_MAX_Q, -REF_ACCEL_MAX_R };
+  //const struct Int32Rates MAX_ACCEL = {  REF_ACCEL_MAX_P,  REF_ACCEL_MAX_Q,  REF_ACCEL_MAX_R };
+  //RATES_BOUND_BOX(stab_att_ref_accel, MIN_ACCEL, MAX_ACCEL);
 
   /* compute ref_euler */
   INT32_EULERS_OF_QUAT(stab_att_ref_euler, stab_att_ref_quat);

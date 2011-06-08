@@ -30,11 +30,20 @@
 extern int32_t commands[COMMANDS_NB];
 extern const int32_t commands_failsafe[COMMANDS_NB];
 
+#ifndef ROTORCRAFT_COMMANDS_YAW_ALWAYS_ENABLED
 #define SetCommands(_in_cmd, _in_flight, _motors_on) {			\
     commands[COMMAND_PITCH]  = _in_cmd[COMMAND_PITCH];		\
     commands[COMMAND_ROLL]   = _in_cmd[COMMAND_ROLL];		\
     commands[COMMAND_YAW]    = (_in_flight) ? _in_cmd[COMMAND_YAW] : 0; \
     commands[COMMAND_THRUST] = (_motors_on) ? _in_cmd[COMMAND_THRUST] : 0; \
   }
+#else
+#define SetCommands(_in_cmd, _in_flight, _motors_on) {			\
+    commands[COMMAND_PITCH]  = _in_cmd[COMMAND_PITCH];		\
+    commands[COMMAND_ROLL]   = _in_cmd[COMMAND_ROLL];		\
+    commands[COMMAND_YAW]    = _in_cmd[COMMAND_YAW]; \
+    commands[COMMAND_THRUST] = (_motors_on) ? _in_cmd[COMMAND_THRUST] : 0; \
+  }
+#endif
 
 #endif /* COMMANDS_H */

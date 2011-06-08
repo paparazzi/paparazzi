@@ -21,16 +21,17 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef IMU_CRISTA_ARCH_H
-#define IMU_CRISTA_ARCH_H
+/*
+ *
+ * simulator plug for the booz2 v1 imu arch dependant functions
+ *
+ */
+#ifndef IMU_ASPIRIN_ARCH_H
+#define IMU_ASPIRIN_ARCH_H
 
-#include "std.h"
+
+extern void imu_feed_gyro_accel(void);
+extern void imu_feed_mag(void);
 
 
-#define ImuCristaArchPeriodic() {		\
-    ADS8344_start();				\
-  }
-
-extern void ADS8344_start( void );
-
-#endif /* IMU_CRISTA_ARCH_H */
+#endif /* IMU_ASPIRIN_ARCH_H */

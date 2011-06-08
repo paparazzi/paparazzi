@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -21,16 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef IMU_CRISTA_ARCH_H
-#define IMU_CRISTA_ARCH_H
+#include "peripherals/hmc5843.h"
 
-#include "std.h"
+void hmc5843_arch_init( void ) {}
 
-
-#define ImuCristaArchPeriodic() {		\
-    ADS8344_start();				\
-  }
-
-extern void ADS8344_start( void );
-
-#endif /* IMU_CRISTA_ARCH_H */
+void hmc5843_read( void ) {}

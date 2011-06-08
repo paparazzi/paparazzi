@@ -321,6 +321,8 @@ __attribute__ ((always_inline)) static inline void compute_body_orientation(void
 
 }
 
+
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
 // TODO use ahrs result directly
 #include "estimator.h"
 // remotely settable
@@ -336,11 +338,16 @@ void ahrs_update_fw_estimator(void)
 {
   struct FloatEulers att;
   // export results to estimator
-  EULERS_FLOAT_OF_BFP(att,ahrs.ltp_to_imu_euler);
+  EULERS_FLOAT_OF_BFP(att, ahrs.ltp_to_body_euler);
 
-  estimator_phi   = att.phi;
-  estimator_theta = att.theta;
+  estimator_phi   = att.phi - ins_roll_neutral;
+  estimator_theta = att.theta - ins_pitch_neutral;
   estimator_psi   = att.psi;
 
-  //estimator_p = Omega_Vector[0];
+  struct FloatRates rates;
+  RATES_FLOAT_OF_BFP(rates, ahrs_float.body_rate);
+  estimator_p = rates.p;
+  estimator_q = rates.q;
+
 }
+#endif //AHRS_UPDATE_FW_ESTIMATOR

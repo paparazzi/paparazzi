@@ -110,12 +110,15 @@ void stabilization_attitude_read_rc_incremental(bool_t enable_alpha_vane, bool_t
 
 void stabilization_attitude_read_rc_absolute(struct Int32Eulers sp, bool_t in_flight) {
 
+#ifdef AIRPLANE_STICKS
   pprz_t roll = radio_control.values[RADIO_ROLL];
   pprz_t pitch = radio_control.values[RADIO_PITCH];
   pprz_t yaw = radio_control.values[RADIO_YAW];
-  int32_t roll32 = roll;
-  int32_t pitch32 = pitch;
-  //DOWNLINK_SEND_CSC_CAN_DEBUG(DefaultChannel, &roll32, &pitch32);
+#else // QUAD STICKS
+  pprz_t roll = radio_control.values[RADIO_YAW];
+  pprz_t pitch = radio_control.values[RADIO_PITCH];
+  pprz_t yaw = -radio_control.values[RADIO_ROLL];
+#endif
   struct Int32Eulers sticks_eulers;
   struct Int32Quat sticks_quat, prev_sp_quat;
 
@@ -145,21 +148,12 @@ void stabilization_attitude_read_rc_absolute(struct Int32Eulers sp, bool_t in_fl
 
 void stabilization_attitude_sp_enter()
 {
-  stab_att_sp_euler.phi = ahrs.ltp_to_body_euler.phi;
-  update_sp_quat_from_eulers();
+  quat_setpoint_enter_absolute();
 }
 
-/*
 
 void quat_setpoint_enter_absolute()
 {
   // reset setpoint to "hover"
   reset_sp_quat(0., 0., &ahrs.ltp_to_body_quat);
 }
-
-void booz_stab_att_vane_on()
-{
-  // new setpoint
-  INT_QUAT_COPY(stab_att_sp_quat, ahrs.ltp_to_body_quat);
-}
-*/

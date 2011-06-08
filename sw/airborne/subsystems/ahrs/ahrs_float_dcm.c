@@ -27,6 +27,7 @@
 #include "subsystems/imu.h"
 
 #include "subsystems/ahrs/ahrs_float_dcm_algebra.h"
+#include "math/pprz_algebra_float.h"
 
 #ifdef USE_GPS
 #include "subsystems/gps.h"
@@ -78,6 +79,8 @@ float MAG_Heading_Y = 0;
 #endif
 
 static inline void compute_body_orientation_and_rates(void);
+static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat);
+
 void Normalize(void);
 void Drift_correction(void);
 void Matrix_update(void);
@@ -87,6 +90,16 @@ int renorm_sqrt_count = 0;
 int renorm_blowup_count = 0;
 float imu_health = 0.;
 #endif
+
+
+static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat)
+{
+  for (int i=0; i<3; i++) {
+    for (int j=0; j<3; j++) { 
+      DCM_Matrix[i][j] = RMAT_ELMT(*rmat, j, i);
+    }
+  }
+}
 
 
 /**************************************************/
@@ -104,16 +117,19 @@ void ahrs_update_fw_estimator( void )
   ahrs_float.ltp_to_imu_euler.psi += M_PI; // Rotating the angle 180deg to fit for PPRZ
 #endif
 
+  /* set quaternion and rotation matrix representations as well */
+  FLOAT_QUAT_OF_EULERS(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_euler);
+  FLOAT_RMAT_OF_EULERS(ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_euler);
 
-  //warning, only eulers written to ahrs struct so far
-  //compute_body_orientation_and_rates();
+  compute_body_orientation_and_rates();
 
   // export results to estimator
-  estimator_phi   = ahrs_float.ltp_to_imu_euler.phi - ins_roll_neutral;
-  estimator_theta = ahrs_float.ltp_to_imu_euler.theta - ins_pitch_neutral;
-  estimator_psi   = ahrs_float.ltp_to_imu_euler.psi;
+  estimator_phi   = ahrs_float.ltp_to_body_euler.phi - ins_roll_neutral;
+  estimator_theta = ahrs_float.ltp_to_body_euler.theta - ins_pitch_neutral;
+  estimator_psi   = ahrs_float.ltp_to_body_euler.psi;
 
-  estimator_p = Omega_Vector[0];
+  estimator_p = ahrs_float.body_rate.p;
+  estimator_q = ahrs_float.body_rate.q;
 /*
   RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel,
     &(DCM_Matrix[0][0]),
@@ -156,6 +172,9 @@ void ahrs_init(void) {
   RMAT_COPY(ahrs_float.ltp_to_imu_rmat, ahrs_impl.body_to_imu_rmat);
   EULERS_COPY(ahrs_float.ltp_to_imu_euler, body_to_imu_euler);
   FLOAT_RATES_ZERO(ahrs_float.imu_rate);
+
+  /* set inital filter dcm */
+  set_dcm_matrix_from_rmat(&ahrs_float.ltp_to_imu_rmat);
 }
 
 void ahrs_align(void)
@@ -166,6 +185,9 @@ void ahrs_align(void)
   /* Convert initial orientation in quaternion and rotation matrice representations. */
   FLOAT_QUAT_OF_EULERS(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_euler);
   FLOAT_RMAT_OF_QUAT(ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_quat);
+
+  /* set filter dcm */
+  set_dcm_matrix_from_rmat(&ahrs_float.ltp_to_imu_rmat);
 
   /* Compute initial body orientation */
   compute_body_orientation_and_rates();
@@ -360,16 +382,8 @@ void Normalize(void)
 
   // Reset on trouble
   if (problem) {                // Our solution is blowing up and we will force back to initial condition.  Hope we are not upside down!
-      DCM_Matrix[0][0]= 1.0f;
-      DCM_Matrix[0][1]= 0.0f;
-      DCM_Matrix[0][2]= 0.0f;
-      DCM_Matrix[1][0]= 0.0f;
-      DCM_Matrix[1][1]= 1.0f;
-      DCM_Matrix[1][2]= 0.0f;
-      DCM_Matrix[2][0]= 0.0f;
-      DCM_Matrix[2][1]= 0.0f;
-      DCM_Matrix[2][2]= 1.0f;
-      problem = FALSE;
+    set_dcm_matrix_from_rmat(&ahrs_impl.body_to_imu_rmat);
+    problem = FALSE;
   }
 }
 

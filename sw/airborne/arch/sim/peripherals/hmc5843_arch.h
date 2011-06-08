@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -21,16 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef IMU_CRISTA_ARCH_H
-#define IMU_CRISTA_ARCH_H
+/*
+ *
+ * simulator plug for hmc5843
+ *
+ */
 
-#include "std.h"
+#ifndef HMC5843_HW_H
+#define HMC5843_HW_H
 
 
-#define ImuCristaArchPeriodic() {		\
-    ADS8344_start();				\
-  }
-
-extern void ADS8344_start( void );
-
-#endif /* IMU_CRISTA_ARCH_H */
+#endif /* HMC5843_HW_H */

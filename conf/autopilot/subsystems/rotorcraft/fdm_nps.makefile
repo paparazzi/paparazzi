@@ -8,9 +8,6 @@ JSBSIM_ROOT = /opt/jsbsim
 JSBSIM_INC = $(JSBSIM_ROOT)/include/JSBSim
 JSBSIM_LIB = $(JSBSIM_ROOT)/lib
 
-SRC_BOOZ=booz
-SRC_BOOZ_SIM = $(SRC_BOOZ)/arch/sim
-
 SRC_FIRMWARE=firmwares/rotorcraft
 
 SRC_BOARD=boards/$(BOARD)
@@ -23,7 +20,7 @@ sim.ARCHDIR = $(ARCH)
 sim.CFLAGS  += -DSITL -DNPS
 sim.CFLAGS  += `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
 sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lpcre -lglibivy -lgsl -lgslcblas
-sim.CFLAGS  += -I$(NPSDIR) -I$(SRC_FIRMWARE) -I$(SRC_BOOZ) -I$(SRC_BOOZ_SIM) -I$(SRC_BOARD) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
+sim.CFLAGS  += -I$(NPSDIR) -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
 
 # use the paparazzi-jsbsim package if it is installed, otherwise look for JSBsim under /opt/jsbsim
 ifndef JSBSIM_PKG

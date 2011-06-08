@@ -35,6 +35,9 @@ void imu_impl_init(void) {
 #ifdef USE_AMI601
   ami601_init();
 #endif
+#ifdef USE_HMC5843
+  hmc5843_init();
+#endif
 
 }
 
@@ -44,5 +47,7 @@ void imu_periodic(void) {
 #ifdef USE_AMI601
   RunOnceEvery(10, { ami601_read(); });
 #endif
-
+#ifdef USE_HMC5843
+  hmc5843_periodic();
+#endif
 }
