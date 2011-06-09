@@ -29,30 +29,37 @@
 #include "mcu_periph/uart.h"
 #include "armVIC.h"
 
-
-void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
-
-  // FIXME really in set_baudrate ?
+static inline void uart_disable_interrupts(struct uart_periph* p) {
+  // disable interrups
   ((uartRegs_t *)(p->reg_addr))->ier = 0x00;  // disable all interrupts
   ((uartRegs_t *)(p->reg_addr))->iir;         // clear interrupt ID
   ((uartRegs_t *)(p->reg_addr))->rbr;         // clear receive register
   ((uartRegs_t *)(p->reg_addr))->lsr;         // clear line status register
+}
 
+static inline void uart_enable_interrupts(struct uart_periph* p) {
+  // enable receiver interrupts
+  ((uartRegs_t *)(p->reg_addr))->ier = UIER_ERBFI;
+}
+
+static inline void uart_set_baudrate(struct uart_periph* p, uint32_t baud) {
   // set the baudrate
   ((uartRegs_t *)(p->reg_addr))->lcr = ULCR_DLAB_ENABLE;     // select divisor latches 
   ((uartRegs_t *)(p->reg_addr))->dll = (uint8_t)baud;        // set for baud low byte
   ((uartRegs_t *)(p->reg_addr))->dlm = (uint8_t)(baud >> 8); // set for baud high byte
 
-}
-
-// Set mode and fifo (LPC specific code for now)
-void uart_periph_set_mode(struct uart_periph* p, uint8_t mode, uint8_t fmode) {
-
   // set the number of characters and other
   // user specified operating parameters
-  ((uartRegs_t *)(p->reg_addr))->lcr = (mode & ~ULCR_DLAB_ENABLE);
-  ((uartRegs_t *)(p->reg_addr))->fcr = fmode;
+  // For now: hard wired configuration 8 bits 1 stop no parity
+  //          fifo triger -> 8 bytes
+  ((uartRegs_t *)(p->reg_addr))->lcr = (UART_8N1 & ~ULCR_DLAB_ENABLE);
+  ((uartRegs_t *)(p->reg_addr))->fcr = UART_FIFO_8;
+}
 
+void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
+  uart_disable_interrupts(p);
+  uart_set_baudrate(p, baud);
+  uart_enable_interrupts(p);
 }
 
 void uart_transmit(struct uart_periph* p, uint8_t data ) {
@@ -176,8 +183,8 @@ void uart0_init( void ) {
 #endif
 
   // initialize uart parameters
-  uart_periph_set_baudrate(&uart0, UART0_BAUD);
-  uart_periph_set_mode(&uart0, UART_8N1, UART_FIFO_8);
+  uart_disable_interrupts(&uart0);
+  uart_set_baudrate(&uart0, UART0_BAUD);
 
   // initialize the interrupt vector
   VICIntSelect &= ~VIC_BIT(VIC_UART0);                // UART0 selected as IRQ
@@ -185,8 +192,7 @@ void uart0_init( void ) {
   _VIC_CNTL(UART0_VIC_SLOT) = VIC_ENABLE | VIC_UART0;
   _VIC_ADDR(UART0_VIC_SLOT) = (uint32_t)uart0_ISR;    // address of the ISR
 
-  // enable receiver interrupts
-  U0IER = UIER_ERBFI;
+  uart_enable_interrupts(&uart0);
 }
 
 #endif /* USE_UART0 */
@@ -222,8 +228,8 @@ void uart1_init( void ) {
   PINSEL0 = (PINSEL0 & ~U1_PINMASK) | U1_PINSEL;
 #endif
 
-  uart_periph_set_baudrate(&uart1, UART1_BAUD);
-  uart_periph_set_mode(&uart1, UART_8N1, UART_FIFO_8);
+  uart_disable_interrupts(&uart1);
+  uart_set_baudrate(&uart1, UART1_BAUD);
 
   // initialize the interrupt vector
   VICIntSelect &= ~VIC_BIT(VIC_UART1);                // UART1 selected as IRQ
@@ -232,7 +238,7 @@ void uart1_init( void ) {
   _VIC_ADDR(UART1_VIC_SLOT) = (uint32_t)uart1_ISR;    // address of the ISR
 
   // enable receiver interrupts
-  U1IER = UIER_ERBFI;
+  uart_enable_interrupts(&uart1);
 }
 
 #endif
