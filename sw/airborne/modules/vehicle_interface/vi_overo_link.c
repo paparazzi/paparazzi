@@ -25,7 +25,7 @@
 
 #include "lisa/lisa_overo_link.h"
 #include "subsystems/imu.h"
-#include <booz/booz_gps.h>
+#include "subsystems/gps.h"
 #include "subsystems/sensors/baro.h"
 
 
@@ -64,8 +64,8 @@ void vi_overo_link_on_msg_received(void) {
     vi.available_sensors &= ~(1<<VI_MAG_DATA_VALID);
   }
   if (vi.available_sensors & (1<<VI_GPS_DATA_VALID)) {
-    VECT3_COPY(overo_link.up.msg.ecef_pos, booz_gps_state.ecef_pos);
-    VECT3_COPY(overo_link.up.msg.ecef_vel, booz_gps_state.ecef_vel);
+    VECT3_COPY(overo_link.up.msg.ecef_pos, gps.ecef_pos);
+    VECT3_COPY(overo_link.up.msg.ecef_vel, gps.ecef_vel);
     vi.available_sensors &= ~(1<<VI_GPS_DATA_VALID);
   }
   if (vi.available_sensors & (1<<VI_BARO_ABS_DATA_VALID)) {

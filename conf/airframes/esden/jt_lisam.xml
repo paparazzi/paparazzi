@@ -12,15 +12,15 @@
   </servos>
 
   <commands>
-    <axis name="PITCH"  failsafe_value="0"/>
     <axis name="ROLL"   failsafe_value="0"/>
+    <axis name="PITCH"  failsafe_value="0"/>
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
   <command_laws>
-    <set servo="AILEVON_LEFT"         value="@YAW"/>
-    <set servo="AILEVON_RIGHT"        value="@YAW"/>
+    <set servo="AILEVON_LEFT"         value="-@ROLL"/>
+    <set servo="AILEVON_RIGHT"        value="-@ROLL"/>
   </command_laws>
   
   <!-- for the sim -->
@@ -30,17 +30,20 @@
   </section>
 
 
+  <section name="ROTORCRAFT" prefix="ROTORCRAFT_">
+    <define name="COMMANDS_YAW_ALWAYS_ENABLED" value="TRUE"/>
+ </section>
   <section name="SUPERVISION" prefix="SUPERVISION_">
     <define name="MIN_MOTOR" value="1100"/>
-    <define name="MAX_MOTOR" value="1850"/>
+    <define name="MAX_MOTOR" value="1800"/>
     <define name="TRIM_A" value="0"/>
     <define name="TRIM_E" value="0"/>
     <define name="TRIM_R" value="0"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
-    <define name="ROLL_COEF"   value="{  256, -256,  256, -256 }"/>
     <define name="PITCH_COEF"  value="{ -256, -256,  256,  256 }"/>
-    <define name="YAW_COEF"    value="{    0,    0,    0,    0 }"/>
+    <define name="ROLL_COEF"    value="{    0,    0,    0,    0 }"/>
+    <define name="YAW_COEF"   value="{  256, -256,  256, -256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
@@ -49,7 +52,7 @@
   <section name="IMU" prefix="IMU_">
     
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg( 180. )"/>
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(  90. )"/>
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(   0. )"/>
 
   </section>
@@ -58,6 +61,7 @@
    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
    <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_RC_CLIMB"/>
    <define name="MODE_AUTO2"  value="AP_MODE_HOVER_Z_HOLD"/>
+   <define name="AUTOPILOT_KILL_WITHOUT_AHRS"  value="TRUE"/>
  </section>
 
  <section name="BAT">
@@ -80,41 +84,43 @@
   </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
-
     <!-- setpoints -->
     <define name="SP_MAX_PHI"     value="RadOfDeg(45.)"/>
     <define name="SP_MAX_THETA"   value="RadOfDeg(45.)"/>
+    <define name="SP_MAX_PSI"     value="RadOfDeg(45.)"/>
     <define name="SP_MAX_R"       value="RadOfDeg(90.)"/>
+    <define name="SP_MAX_P"       value="RadOfDeg(90.)"/>
     <define name="DEADBAND_R"     value="250"/>
+    <define name="DEADBAND_A"     value="250"/>
 
     <!-- reference -->
-    <define name="REF_OMEGA_P"  value="RadOfDeg(600)"/>
-    <define name="REF_ZETA_P"   value="0.90"/>
-    <define name="REF_MAX_P"    value="RadOfDeg(400.)"/>
-    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+    <define name="REF_OMEGA_R"  value="RadOfDeg(600)"/>
+    <define name="REF_ZETA_R"   value="0.90"/>
+    <define name="REF_MAX_R"    value="RadOfDeg(400.)"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)"/>
 
     <define name="REF_OMEGA_Q"  value="RadOfDeg(800)"/>
     <define name="REF_ZETA_Q"   value="0.90"/>
     <define name="REF_MAX_Q"    value="RadOfDeg(500.)"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
 
-    <define name="REF_OMEGA_R"  value="RadOfDeg(600)"/>
-    <define name="REF_ZETA_R"   value="0.85"/>
-    <define name="REF_MAX_R"    value="RadOfDeg(220.)"/>
-    <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
+    <define name="REF_OMEGA_P"  value="RadOfDeg(600)"/>
+    <define name="REF_ZETA_P"   value="0.85"/>
+    <define name="REF_MAX_P"    value="RadOfDeg(220.)"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="-750"/>
-    <define name="PHI_DGAIN"  value="-370"/>
-    <define name="PHI_IGAIN"  value="-100"/>
+    <define name="PSI_PGAIN"  value="-750"/>
+    <define name="PSI_DGAIN"  value="-370"/>
+    <define name="PSI_IGAIN"  value="-100"/>
 
     <define name="THETA_PGAIN"  value="-800"/>
     <define name="THETA_DGAIN"  value="-240"/>
     <define name="THETA_IGAIN"  value="-100"/>
 
-    <define name="PSI_PGAIN"  value="-6000"/>
-    <define name="PSI_DGAIN"  value="-400"/>
-    <define name="PSI_IGAIN"  value="-10"/>
+    <define name="PHI_PGAIN"  value="-4000"/>
+    <define name="PHI_DGAIN"  value="-600"/>
+    <define name="PHI_IGAIN"  value="-10"/>
 
     <!-- feedforward -->
     <define name="PHI_DDGAIN"   value=" 300"/>
@@ -145,6 +151,7 @@
 
   <section name="AHRS" prefix="AHRS_">
     <define name="PROPAGATE_FREQUENCY" value="512"/>
+    <define name="MAG_UPDATE_YAW_ONLY" value="1"/>
     <!-- magnetic field for Santa cruz from http://www.ngdc.noaa.gov/geomagmodels/IGRFWMM.jsp -->
     <define name="H_X" value=" 0.47577"/>
     <define name="H_Y" value=" 0.11811"/>
@@ -192,6 +199,7 @@
     <subsystem name="imu"           type="aspirin"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="ic"/>
+    <subsystem name="stabilization" type="quaternion"/>
   </firmware>
 
 

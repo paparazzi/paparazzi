@@ -45,8 +45,8 @@ bool_t nav_line(uint8_t l1, uint8_t l2, float radius) {
   float alt = waypoints[l1].a;
   waypoints[l2].a = alt;
 
-  float l2_l1_x = waypoints[l1].x - waypoints[l2].x;
-  float l2_l1_y = waypoints[l1].y - waypoints[l2].y;
+  float l2_l1_x = WaypointX(l1) - WaypointX(l2);
+  float l2_l1_y = WaypointY(l1) - WaypointY(l2);
   float d = sqrt(l2_l1_x*l2_l1_x+l2_l1_y*l2_l1_y);
 
   /* Unit vector from l1 to l2 */
@@ -54,24 +54,24 @@ bool_t nav_line(uint8_t l1, uint8_t l2, float radius) {
   float u_y = l2_l1_y / d;
 
   /* The half circle centers and the other leg */
-  struct point l2_c1 = { waypoints[l1].x + radius * u_y,
-             waypoints[l1].y + radius * -u_x,
+  struct point l2_c1 = { WaypointX(l1) + radius * u_y,
+             WaypointY(l1) + radius * -u_x,
              alt  };
-  struct point l2_c2 = { waypoints[l1].x + 1.732*radius * u_x,
-             waypoints[l1].y + 1.732*radius * u_y,
+  struct point l2_c2 = { WaypointX(l1) + 1.732*radius * u_x,
+             WaypointY(l1) + 1.732*radius * u_y,
              alt  };
-  struct point l2_c3 = { waypoints[l1].x + radius * -u_y,
-             waypoints[l1].y + radius * u_x,
+  struct point l2_c3 = { WaypointX(l1) + radius * -u_y,
+             WaypointY(l1) + radius * u_x,
              alt  };
 
-  struct point l1_c1 = { waypoints[l2].x + radius * -u_y,
-             waypoints[l2].y + radius * u_x,
+  struct point l1_c1 = { WaypointX(l2) + radius * -u_y,
+             WaypointY(l2) + radius * u_x,
              alt  };
-  struct point l1_c2 = { waypoints[l2].x +1.732*radius * -u_x,
-             waypoints[l2].y + 1.732*radius * -u_y,
+  struct point l1_c2 = { WaypointX(l2) +1.732*radius * -u_x,
+             WaypointY(l2) + 1.732*radius * -u_y,
              alt  };
-  struct point l1_c3 = { waypoints[l2].x + radius * u_y,
-             waypoints[l2].y + radius * -u_x,
+  struct point l1_c3 = { WaypointX(l2) + radius * u_y,
+             WaypointY(l2) + radius * -u_x,
              alt  };
   float qdr_out_2_1 = M_PI/3. - atan2(u_y, u_x);
 

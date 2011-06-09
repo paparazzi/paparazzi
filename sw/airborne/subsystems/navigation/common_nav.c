@@ -25,7 +25,8 @@
 #include "subsystems/navigation/common_nav.h"
 #include "estimator.h"
 #include "generated/flight_plan.h"
-#include "gps.h"
+#include "subsystems/gps.h"
+#include "math/pprz_geodetic_float.h"
 
 float dist2_to_home;
 float dist2_to_wp;
@@ -34,12 +35,6 @@ bool_t too_far_from_home;
 
 const uint8_t nb_waypoint = NB_WAYPOINT;
 struct point waypoints[NB_WAYPOINT] = WAYPOINTS;
-
-uint8_t nav_stage, nav_block;
-uint16_t stage_time, block_time;
-
-/** To save the current block/stage to enable return */
-uint8_t last_block, last_stage;
 
 float ground_alt;
 
@@ -68,20 +63,25 @@ static float previous_ground_alt;
 unit_t nav_reset_reference( void ) {
 #ifdef GPS_USE_LATLONG
   /* Set the real UTM zone */
-  nav_utm_zone0 = (gps_lon/10000000+180) / 6 + 1;
+  nav_utm_zone0 = (DegOfRad(gps.lla_pos.lon/1e7)+180) / 6 + 1;
 
   /* Recompute UTM coordinates in this zone */
-  latlong_utm_of(RadOfDeg(gps_lat/1e7), RadOfDeg(gps_lon/1e7), nav_utm_zone0);
-  nav_utm_east0 = latlong_utm_x;
-  nav_utm_north0 = latlong_utm_y;
+  struct LlaCoor_f lla;
+  lla.lat = gps.lla_pos.lat/1e7;
+  lla.lon = gps.lla_pos.lon/1e7;
+  struct UtmCoor_f utm;
+  utm.zone = nav_utm_zone0;
+  utm_of_lla_f(&utm, &lla);
+  nav_utm_east0 = utm.east;
+  nav_utm_north0 = utm.north;
 #else
-  nav_utm_zone0 = gps_utm_zone;
-  nav_utm_east0 = gps_utm_east/100;
-  nav_utm_north0 = gps_utm_north/100;
+  nav_utm_zone0 = gps.utm_pos.zone;
+  nav_utm_east0 = gps.utm_pos.east/100;
+  nav_utm_north0 = gps.utm_pos.north/100;
 #endif
 
   previous_ground_alt = ground_alt;
-  ground_alt = gps_alt/100;
+  ground_alt = gps.hmsl/1000.;
   return 0;
 }
 
@@ -92,22 +92,6 @@ unit_t nav_update_waypoints_alt( void ) {
     waypoints[i].a += ground_alt - previous_ground_alt;
   }
   return 0;
-}
-
-void nav_init_block(void) {
-  if (nav_block >= NB_BLOCK)
-    nav_block=NB_BLOCK-1;
-  nav_stage = 0;
-  block_time = 0;
-  InitStage();
-}
-
-void nav_goto_block(uint8_t b) {
-  if (b != nav_block) { /* To avoid a loop in a the current block */
-    last_block = nav_block;
-    last_stage = nav_stage;
-  }
-  GotoBlock(b);
 }
 
 void common_nav_periodic_task_4Hz() {

@@ -579,7 +579,21 @@ struct Int64Vect3 {
     (_b2c).qz = ((_a2b).qi*(_a2c).qz - (_a2b).qx*(_a2c).qy + (_a2b).qy*(_a2c).qx - (_a2b).qz*(_a2c).qi)>>INT32_QUAT_FRAC; \
   }
 
+/* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
+#define INT32_QUAT_COMP_NORM_SHORTEST(_a2c, _a2b, _b2c) {		\
+    INT32_QUAT_COMP(_a2c, _a2b, _b2c);					\
+    INT32_QUAT_WRAP_SHORTEST(_a2c);					\
+    INT32_QUAT_NORMALIZE(_a2c);						\
+  }
 
+
+/* _qd = -0.5*omega(_r) * _q  */
+#define INT32_QUAT_DERIVATIVE(_qd, _r, _q) {				\
+    (_qd).qi = (-1*( (_r).p*(_q).qx/2 + (_r).q*(_q).qy + (_r).r*(_q).qz))>>INT32_RATE_FRAC; \
+    (_qd).qx = (-1*(-(_r).p*(_q).qi/2 - (_r).r*(_q).qy + (_r).q*(_q).qz))>>INT32_RATE_FRAC; \
+    (_qd).qy = (-1*(-(_r).q*(_q).qi/2 + (_r).r*(_q).qx - (_r).p*(_q).qz))>>INT32_RATE_FRAC; \
+    (_qd).qz = (-1*(-(_r).r*(_q).qi/2 - (_r).q*(_q).qx + (_r).p*(_q).qy))>>INT32_RATE_FRAC; \
+  }
 
 #ifdef ALGEBRA_INT_USE_SLOW_FUNCTIONS
 #define INT32_QUAT_VMULT(v_out, q, v_in) {				\
@@ -661,6 +675,18 @@ struct Int64Vect3 {
     (_q).qz = INT_MULT_RSHIFT( c_phi2, c_th_s_ps, INT32_TRIG_FRAC + INT32_TRIG_FRAC - INT32_QUAT_FRAC) + \
               INT_MULT_RSHIFT(-s_phi2, s_th_c_ps, INT32_TRIG_FRAC + INT32_TRIG_FRAC - INT32_QUAT_FRAC);	 \
   }
+
+#define INT32_QUAT_OF_AXIS_ANGLE(_q, _uv, _an) {		\
+    int32_t san2;                            				\
+    PPRZ_ITRIG_SIN(san2, (_an/2));					\
+    int32_t can2;                            				\
+    PPRZ_ITRIG_COS(can2, (_an/2));					\
+    _q.qi = can2;					\
+    _q.qx = san2 * _uv.x;					\
+    _q.qy = san2 * _uv.y;					\
+    _q.qz = san2 * _uv.z;					\
+  }
+
 
 
 #define INT32_QUAT_OF_RMAT(_q, _r) {					\

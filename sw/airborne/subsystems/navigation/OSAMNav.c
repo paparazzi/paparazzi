@@ -1,5 +1,10 @@
 #include "subsystems/navigation/OSAMNav.h"
 
+#include "subsystems/nav.h"
+#include "estimator.h"
+#include "autopilot.h"
+#include "generated/flight_plan.h"
+
 /************** Flower Navigation **********************************************/
 
 /** Makes a flower pattern.
@@ -37,18 +42,18 @@ bool_t InitializeFlower(uint8_t CenterWP, uint8_t EdgeWP)
 	Center = CenterWP;
 	Edge = EdgeWP;
 
-	EdgeCurrentX = waypoints[Edge].x - waypoints[Center].x;
-	EdgeCurrentY = waypoints[Edge].y - waypoints[Center].y;
+	EdgeCurrentX = WaypointX(Edge) - WaypointX(Center);
+	EdgeCurrentY = WaypointY(Edge) - WaypointY(Center);
 
 	Flowerradius = sqrt(EdgeCurrentX*EdgeCurrentX+EdgeCurrentY*EdgeCurrentY);
 
-	TransCurrentX = estimator_x - waypoints[Center].x;
-	TransCurrentY = estimator_y - waypoints[Center].y;
+	TransCurrentX = estimator_x - WaypointX(Center);
+	TransCurrentY = estimator_y - WaypointY(Center);
 	DistanceFromCenter = sqrt(TransCurrentX*TransCurrentX+TransCurrentY*TransCurrentY);
 
 	FlowerTheta = atan2(TransCurrentY,TransCurrentX);
-	Fly2X = Flowerradius*cos(FlowerTheta+3.14)+waypoints[Center].x;
-	Fly2Y = Flowerradius*sin(FlowerTheta+3.14)+waypoints[Center].y;
+	Fly2X = Flowerradius*cos(FlowerTheta+3.14)+WaypointX(Center);
+	Fly2Y = Flowerradius*sin(FlowerTheta+3.14)+WaypointY(Center);
 	FlyFromX = estimator_x;
 	FlyFromY = estimator_y;
 
@@ -64,8 +69,8 @@ bool_t InitializeFlower(uint8_t CenterWP, uint8_t EdgeWP)
 
 bool_t FlowerNav(void)
 {
-	TransCurrentX = estimator_x - waypoints[Center].x;
-	TransCurrentY = estimator_y - waypoints[Center].y;
+	TransCurrentX = estimator_x - WaypointX(Center);
+	TransCurrentY = estimator_y - WaypointY(Center);
 	DistanceFromCenter = sqrt(TransCurrentX*TransCurrentX+TransCurrentY*TransCurrentY);
 
 	bool_t InCircle = TRUE;
@@ -85,8 +90,8 @@ bool_t FlowerNav(void)
 		{
 			CFlowerStatus = FlowerLine;
 			FlowerTheta = atan2(TransCurrentY,TransCurrentX);
-			Fly2X = Flowerradius*cos(FlowerTheta+3.14)+waypoints[Center].x;
-			Fly2Y = Flowerradius*sin(FlowerTheta+3.14)+waypoints[Center].y;
+			Fly2X = Flowerradius*cos(FlowerTheta+3.14)+WaypointX(Center);
+			Fly2Y = Flowerradius*sin(FlowerTheta+3.14)+WaypointY(Center);
 			FlyFromX = estimator_x;
 			FlyFromY = estimator_y;
 			nav_init_stage();
@@ -98,8 +103,8 @@ bool_t FlowerNav(void)
 		{
 			CFlowerStatus = Circle;
 			CircleTheta = nav_radius/Flowerradius;
-			CircleX = Flowerradius*cos(FlowerTheta+3.14-CircleTheta)+waypoints[Center].x;
-			CircleY = Flowerradius*sin(FlowerTheta+3.14-CircleTheta)+waypoints[Center].y;
+			CircleX = Flowerradius*cos(FlowerTheta+3.14-CircleTheta)+WaypointX(Center);
+			CircleY = Flowerradius*sin(FlowerTheta+3.14-CircleTheta)+WaypointY(Center);
 			nav_init_stage();
 		}
 		break;
@@ -107,16 +112,16 @@ bool_t FlowerNav(void)
 		nav_circle_XY(CircleX, CircleY, nav_radius);
 		if(InCircle)
 		{
-			EdgeCurrentX = waypoints[Edge].x - waypoints[Center].x;
-			EdgeCurrentY = waypoints[Edge].y - waypoints[Center].y;
+			EdgeCurrentX = WaypointX(Edge) - WaypointX(Center);
+			EdgeCurrentY = WaypointY(Edge) - WaypointY(Center);
 			Flowerradius = sqrt(EdgeCurrentX*EdgeCurrentX+EdgeCurrentY*EdgeCurrentY);
 			if(DistanceFromCenter > Flowerradius)
 				CFlowerStatus = Outside;
 			else
 				CFlowerStatus = FlowerLine;
 			FlowerTheta = atan2(TransCurrentY,TransCurrentX);
-			Fly2X = Flowerradius*cos(FlowerTheta+3.14)+waypoints[Center].x;
-			Fly2Y = Flowerradius*sin(FlowerTheta+3.14)+waypoints[Center].y;
+			Fly2X = Flowerradius*cos(FlowerTheta+3.14)+WaypointX(Center);
+			Fly2Y = Flowerradius*sin(FlowerTheta+3.14)+WaypointY(Center);
 			FlyFromX = estimator_x;
 			FlyFromY = estimator_y;
 			nav_init_stage();
@@ -182,8 +187,8 @@ bool_t InitializeBungeeTakeoff(uint8_t BungeeWP)
 	TDistance = fabs(Takeoff_Distance);
 
 	//Translate initial position so that the position of the bungee is (0,0)
-	float Currentx = initialx-(waypoints[BungeeWaypoint].x);
-	float Currenty = initialy-(waypoints[BungeeWaypoint].y);
+	float Currentx = initialx-(WaypointX(BungeeWaypoint));
+	float Currenty = initialy-(WaypointY(BungeeWaypoint));
 
 	//Record bungee alt (which should be the ground alt at that point)
 	BungeeAlt = waypoints[BungeeWaypoint].a;
@@ -217,8 +222,8 @@ bool_t InitializeBungeeTakeoff(uint8_t BungeeWP)
 	kill_throttle = 1;
 
 	//Translate the throttle point back
-	throttlePx = throttlePx+(waypoints[BungeeWP].x);
-	throttlePy = throttlePy+(waypoints[BungeeWP].y);
+	throttlePx = throttlePx+(WaypointX(BungeeWP));
+	throttlePy = throttlePy+(WaypointY(BungeeWP));
 
 	return FALSE;
 }
@@ -248,8 +253,8 @@ bool_t BungeeTakeoff(void)
 			initialy = estimator_y;
 
 			//Translate initial position so that the position of the bungee is (0,0)
-			Currentx = initialx-(waypoints[BungeeWaypoint].x);
-			Currenty = initialy-(waypoints[BungeeWaypoint].y);
+			Currentx = initialx-(WaypointX(BungeeWaypoint));
+			Currenty = initialy-(WaypointY(BungeeWaypoint));
 
 			//Find Launch line slope
 			float MLaunch = Currenty/Currentx;
@@ -276,8 +281,8 @@ bool_t BungeeTakeoff(void)
 				AboveLine = FALSE;
 
 			//Translate the throttle point back
-			throttlePx = throttlePx+(waypoints[BungeeWaypoint].x);
-			throttlePy = throttlePy+(waypoints[BungeeWaypoint].y);
+			throttlePx = throttlePx+(WaypointX(BungeeWaypoint));
+			throttlePy = throttlePy+(WaypointY(BungeeWaypoint));
 		}
 
 		//Find out if the UAV is currently above the line
@@ -744,8 +749,8 @@ bool_t VerticalRaster(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
   float alt = waypoints[l1].a;
   waypoints[l2].a = alt;
 
-  float l2_l1_x = waypoints[l1].x - waypoints[l2].x;
-  float l2_l1_y = waypoints[l1].y - waypoints[l2].y;
+  float l2_l1_x = WaypointX(l1) - WaypointX(l2);
+  float l2_l1_y = WaypointY(l1) - WaypointY(l2);
   float d = sqrt(l2_l1_x*l2_l1_x+l2_l1_y*l2_l1_y);
 
   /* Unit vector from l1 to l2 */
@@ -753,24 +758,24 @@ bool_t VerticalRaster(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
   float u_y = l2_l1_y / d;
 
   /* The half circle centers and the other leg */
-  struct point l2_c1 = { waypoints[l1].x + radius * u_y,
-			 waypoints[l1].y + radius * -u_x,
+  struct point l2_c1 = { WaypointX(l1) + radius * u_y,
+			 WaypointY(l1) + radius * -u_x,
 			 alt  };
-  struct point l2_c2 = { waypoints[l1].x + 1.732*radius * u_x,
-			 waypoints[l1].y + 1.732*radius * u_y,
+  struct point l2_c2 = { WaypointX(l1) + 1.732*radius * u_x,
+			 WaypointY(l1) + 1.732*radius * u_y,
 			 alt  };
-  struct point l2_c3 = { waypoints[l1].x + radius * -u_y,
-			 waypoints[l1].y + radius * u_x,
+  struct point l2_c3 = { WaypointX(l1) + radius * -u_y,
+			 WaypointY(l1) + radius * u_x,
 			 alt  };
 
-  struct point l1_c1 = { waypoints[l2].x + radius * -u_y,
-			 waypoints[l2].y + radius * u_x,
+  struct point l1_c1 = { WaypointX(l2) + radius * -u_y,
+			 WaypointY(l2) + radius * u_x,
 			 alt  };
-  struct point l1_c2 = { waypoints[l2].x +1.732*radius * -u_x,
-			 waypoints[l2].y + 1.732*radius * -u_y,
+  struct point l1_c2 = { WaypointX(l2) +1.732*radius * -u_x,
+			 WaypointY(l2) + 1.732*radius * -u_y,
 			 alt  };
-  struct point l1_c3 = { waypoints[l2].x + radius * u_y,
-			 waypoints[l2].y + radius * -u_x,
+  struct point l1_c3 = { WaypointX(l2) + radius * u_y,
+			 WaypointY(l2) + radius * -u_x,
 			 alt  };
   float qdr_out_2_1 = M_PI/3. - atan2(u_y, u_x);
 
@@ -889,18 +894,18 @@ bool_t InitializeSkidLanding(uint8_t AFWP, uint8_t TDWP, float radius)
 	FinalLandCount = 1;
 	waypoints[AFWaypoint].a = waypoints[TDWaypoint].a + Landing_AFHeight;
 
-	float x_0 = waypoints[TDWaypoint].x - waypoints[AFWaypoint].x;
-	float y_0 = waypoints[TDWaypoint].y - waypoints[AFWaypoint].y;
+	float x_0 = WaypointX(TDWaypoint) - WaypointX(AFWaypoint);
+	float y_0 = WaypointY(TDWaypoint) - WaypointY(AFWaypoint);
 
 	/* Unit vector from AF to TD */
 	float d = sqrt(x_0*x_0+y_0*y_0);
 	float x_1 = x_0 / d;
 	float y_1 = y_0 / d;
 
-	LandCircle.x = waypoints[AFWaypoint].x + y_1 * LandRadius;
-	LandCircle.y = waypoints[AFWaypoint].y - x_1 * LandRadius;
+	LandCircle.x = WaypointX(AFWaypoint) + y_1 * LandRadius;
+	LandCircle.y = WaypointY(AFWaypoint) - x_1 * LandRadius;
 
-	LandCircleQDR = atan2(waypoints[AFWaypoint].x-LandCircle.x, waypoints[AFWaypoint].y-LandCircle.y);
+	LandCircleQDR = atan2(WaypointX(AFWaypoint)-LandCircle.x, WaypointY(AFWaypoint)-LandCircle.y);
 
 	if(LandRadius > 0)
 	{
@@ -970,7 +975,7 @@ bool_t SkidLanding(void)
 		kill_throttle = 1;
 		NavVerticalAutoThrottleMode(0);
   		NavVerticalAltitudeMode(waypoints[TDWaypoint].a+FinalLandAltitude, 0);
-		nav_route_xy(waypoints[AFWaypoint].x,waypoints[AFWaypoint].y,waypoints[TDWaypoint].x,waypoints[TDWaypoint].y);
+		nav_route_xy(WaypointX(AFWaypoint),WaypointY(AFWaypoint),WaypointX(TDWaypoint),WaypointY(TDWaypoint));
 		if(stage_time >= Landing_FinalStageTime*FinalLandCount)
 		{
 			FinalLandAltitude = FinalLandAltitude/2;
@@ -1004,15 +1009,15 @@ bool_t FlightLine(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Befo
 	case FLInitialize:
 
 		//Translate WPs so From_WP is origin
-		V.x = waypoints[To_WP].x - waypoints[From_WP].x;
-		V.y = waypoints[To_WP].y - waypoints[From_WP].y;
+		V.x = WaypointX(To_WP) - WaypointX(From_WP);
+		V.y = WaypointY(To_WP) - WaypointY(From_WP);
 
 		//Record Aircraft Position
 		P.x = estimator_x;
 		P.y = estimator_y;
 
 		//Rotate Aircraft Position so V is aligned with x axis
-		TranslateAndRotateFromWorld(&P, atan2(V.y,V.x), waypoints[From_WP].x, waypoints[From_WP].y);
+		TranslateAndRotateFromWorld(&P, atan2(V.y,V.x), WaypointX(From_WP), WaypointY(From_WP));
 
 		//Find which side of the flight line the aircraft is on
 		if(P.y > 0)
@@ -1040,14 +1045,14 @@ bool_t FlightLine(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Befo
 		FLQDR = atan2(FLFROMWP.x-FLCircle.x, FLFROMWP.y-FLCircle.y);
 
 		//Translate back
-		FLFROMWP.x = FLFROMWP.x + waypoints[From_WP].x;
-		FLFROMWP.y = FLFROMWP.y + waypoints[From_WP].y;
+		FLFROMWP.x = FLFROMWP.x + WaypointX(From_WP);
+		FLFROMWP.y = FLFROMWP.y + WaypointY(From_WP);
 
-		FLTOWP.x = FLTOWP.x + waypoints[From_WP].x;
-		FLTOWP.y = FLTOWP.y + waypoints[From_WP].y;
+		FLTOWP.x = FLTOWP.x + WaypointX(From_WP);
+		FLTOWP.y = FLTOWP.y + WaypointY(From_WP);
 
-		FLCircle.x = FLCircle.x + waypoints[From_WP].x;
-		FLCircle.y = FLCircle.y + waypoints[From_WP].y;
+		FLCircle.x = FLCircle.x + WaypointX(From_WP);
+		FLCircle.y = FLCircle.y + WaypointY(From_WP);
 
 		CFLStatus = FLCircleS;
 		nav_init_stage();

@@ -14,7 +14,10 @@ Autoren@ZHAW:   schmiemi
 #include "estimator.h"
 
 // für das Senden von GPS-Daten an den ArduIMU
-#include "gps.h"
+#ifndef UBX
+#error "currently only compatible with uBlox GPS modules"
+#endif
+#include "subsystems/gps.h"
 int32_t GPS_Data[14];
 
 #ifndef ARDUIMU_I2C_DEV
@@ -77,23 +80,23 @@ void ArduIMU_periodicGPS( void ) {
 
     if ( gps_daten_abgespeichert == FALSE ) {
         //posllh
-        GPS_Data [0] = gps_itow;
-        GPS_Data [1] = gps_lon;
-        GPS_Data [2] = gps_lat;
-        GPS_Data [3] = gps_alt;			//höhe über elipsoid
-        GPS_Data [4] = gps_hmsl;		//höhe über sea level
+        GPS_Data [0] = gps.tow;
+        GPS_Data [1] = gps.lla_pos.lon;
+        GPS_Data [2] = gps.lla_pos.lat;
+        GPS_Data [3] = gps.lla_pos.alt;			//höhe über elipsoid
+        GPS_Data [4] = gps.hmsl;		//höhe über sea level
         //velend
-        GPS_Data [5] = gps_speed_3d;		//speed 3D
-        GPS_Data [6] = gps_gspeed;		//ground speed
-        GPS_Data [7] = gps_course * 100000;	//Kurs
+        GPS_Data [5] = gps.speed_3d;		//speed 3D
+        GPS_Data [6] = gps.gspeed;		//ground speed
+        GPS_Data [7] = DegOfRad(gps.course / 1e6);	//Kurs
         //status
-        GPS_Data [8] = gps_mode;		//fix
-        GPS_Data [9] = gps_status_flags;	//flags
+        GPS_Data [8] = gps.fix;		//fix
+        GPS_Data [9] = gps_ubx.status_flags;	//flags
         //sol
-        GPS_Data [10] = gps_mode;		//fix
-        GPS_Data [11] = gps_sol_flags;		//flags
-        GPS_Data [12] = gps_ecefVZ;		//ecefVZ
-        GPS_Data [13] = gps_numSV;
+        GPS_Data [10] = gps.fix;		//fix
+        //GPS_Data [11] = gps_ubx.sol_flags;		//flags
+        GPS_Data [12] = -gps.ned_vel.z;
+        GPS_Data [13] = gps.num_sv;
 
         gps_daten_abgespeichert = TRUE;
     }
@@ -159,7 +162,7 @@ void ArduIMU_periodicGPS( void ) {
       messageNr = 0;
     }
 
-        //DOWNLINK_SEND_DEBUG_ZHAW(DefaultChannel, &gps_mode , &gps_numSV ,&gps_alt , &gps_hmsl , &gps_itow, &gps_speed_3d);
+        //DOWNLINK_SEND_DEBUG_ZHAW(DefaultChannel, &gps_mode , &gps_numSV ,&gps_alt , &gps_hmsl , &gps.tow, &gps_speed_3d);
 }
 
 void ArduIMU_periodic( void ) {

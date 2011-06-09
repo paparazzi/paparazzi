@@ -11,7 +11,7 @@
 #include "inter_mcu.h"
 #include "autopilot.h"
 #include "estimator.h"
-#include "gps.h"
+#include "subsystems/gps.h"
 #include "subsystems/navigation/traffic_info.h"
 #include "generated/settings.h"
 #include "subsystems/nav.h"
@@ -22,7 +22,6 @@
 #include "firmwares/fixedwing/main_ap.h"
 #include "ap_downlink.h"
 #include "sim_uart.h"
-#include "latlong.h"
 #include "datalink.h"
 #include "generated/flight_plan.h"
 

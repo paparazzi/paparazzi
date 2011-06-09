@@ -32,7 +32,7 @@
 #include "estimator.h"
 #include "mcu_periph/uart.h"
 #include "ap_downlink.h"
-#include "gps.h"
+#include "subsystems/gps.h"
 #include "subsystems/nav.h"
 #ifdef EXTRA_DOWNLINK_DEVICE
 #include "core/extra_pprz_dl.h"
@@ -205,8 +205,8 @@ void alt_kalman(float gps_z) {
 #endif // ALT_KALMAN
 
 void estimator_update_state_gps( void ) {
-  float gps_east = gps_utm_east / 100.;
-  float gps_north = gps_utm_north / 100.;
+  float gps_east = gps.utm_pos.east / 100.;
+  float gps_north = gps.utm_pos.north / 100.;
 
   /* Relative position to reference */
   gps_east -= nav_utm_east0;
@@ -214,12 +214,12 @@ void estimator_update_state_gps( void ) {
 
   EstimatorSetPosXY(gps_east, gps_north);
 #ifndef USE_BARO_ETS
-  float falt = gps_alt / 100.;
+  float falt = gps.hmsl / 1000.;
   EstimatorSetAlt(falt);
 #endif
-  float fspeed = gps_gspeed / 100.;
-  float fclimb = gps_climb / 100.;
-  float fcourse = RadOfDeg(gps_course / 10.);
+  float fspeed = gps.gspeed / 100.;
+  float fclimb = -gps.ned_vel.z / 100.;
+  float fcourse = gps.course / 1e7;
   EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
 
   // Heading estimator from wind-information, usually computed with -DWIND_INFO

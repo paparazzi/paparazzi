@@ -81,6 +81,11 @@ $(TARGET).srcs += sys_time.c
 $(TARGET).CFLAGS 	+= -DINTER_MCU
 $(TARGET).srcs 		+= $(SRC_FIXEDWING)/inter_mcu.c
 
+#
+# Math functions
+#
+$(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c
+
 ######################################################################
 ##
 ## COMMON FOR ALL NON-SIMULATION TARGETS

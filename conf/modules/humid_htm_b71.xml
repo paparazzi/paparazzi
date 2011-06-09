@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<!--
+     TronSens HTM-B71 humidity sensor (I2C)
+     @param HTM_I2C_DEV i2c device (default i2c0)
+     -->
+
+<module name="humid_htm_b71" dir="meteo">
+  <header>
+    <file name="humid_htm_b71.h"/>
+  </header>
+  <init fun="humid_htm_init()"/>
+  <periodic fun="humid_htm_start()" freq="4" delay="10"/>
+  <periodic fun="humid_htm_read()"  freq="4" delay="14"/>
+  <event fun="humid_htm_event()"/>
+  <makefile target="ap">
+    <file name="humid_htm_b71.c"/>
+  </makefile>
+</module>

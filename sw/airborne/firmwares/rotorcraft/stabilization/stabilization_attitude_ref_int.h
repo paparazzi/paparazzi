@@ -32,4 +32,11 @@ extern struct Int32Quat   stab_att_ref_quat;
 extern struct Int32Rates  stab_att_ref_rate;
 extern struct Int32Rates  stab_att_ref_accel;
 
+struct Int32RefModel {
+  struct Int32Rates omega;
+  struct Int32Rates zeta;
+};
+
+extern struct Int32RefModel stab_att_ref_model;
+
 #endif /* BOOZ_STABILISATION_ATTITUDE_REF_INT_H */

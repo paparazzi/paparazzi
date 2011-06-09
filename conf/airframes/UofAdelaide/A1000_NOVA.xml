@@ -252,6 +252,7 @@
 	<subsystem name="actuators"     type="mkk"/>
 	<subsystem name="imu"           type="b2_v1.1"/>
 	<subsystem name="gps"           type="ublox"/>
+    <subsystem name="stabilization"   type="euler"/>
 	<subsystem name="ahrs"          type="cmpl"/>
 	<subsystem name="ins"           type="hff"/>
   </firmware>

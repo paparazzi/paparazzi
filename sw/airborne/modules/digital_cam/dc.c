@@ -42,13 +42,14 @@ uint16_t dc_photo_nr = 0;
 #include "messages.h"
 #include "downlink.h"
 #include "estimator.h"
+#include "subsystems/gps.h"
 
   void dc_send_shot_position(void)
   {
     int16_t phi = DegOfRad(estimator_phi*10.0f);
     int16_t theta = DegOfRad(estimator_theta*10.0f);
-    float gps_z = ((float)gps_alt) / 100.0f;
-    DOWNLINK_SEND_DC_SHOT(DefaultChannel, &dc_photo_nr, &gps_utm_east, &gps_utm_north, &gps_z, &gps_utm_zone, &phi, &theta,  &gps_course, &gps_gspeed, &gps_itow);
+    float gps_z = ((float)gps.hmsl) / 1000.0f;
+    DOWNLINK_SEND_DC_SHOT(DefaultChannel, &dc_photo_nr, &gps.utm_pos.east, &gps.utm_pos.north, &gps_z, &gps.utm_pos.zone, &phi, &theta,  &gps.course, &gps.gspeed, &gps.tow);
     dc_photo_nr++;
   }
 

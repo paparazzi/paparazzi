@@ -1,0 +1,366 @@
+<!DOCTYPE airframe SYSTEM "airframe.dtd">
+<!-- ST Model Discovery (http://www.sheng-teng.com/)
+     TWOG1  (http://paparazzi.enac.fr/wiki/index.php/)
+     * uBlox LEA5H and Sarantel helix GPS antenna
+
+READ this first
+http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
+-->
+
+<airframe name="Discovery">
+
+  <firmware name="fixedwing">
+    <target name="ap" 			board="twog_1.0">
+      <configure name="PERIODIC_FREQUENCY" value="960"/> <!-- IMU FREQ -->
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="120"/>
+      <configure name="AHRS_CORRECT_FREQUENCY" value="60"/>
+      <configure name="AHRS_ALIGNER_LED" value="1"/>
+      <configure name="CPU_LED" value="2"/>
+      <!--define name="IMU_B2_VERSION_1_0"/-->
+      <define name="USE_ADC_3"/>
+    </target>
+    <target name="sim" 			board="pc"/>
+
+    <define name="AGR_CLIMB"/>
+    <define name="LOITER_TRIM"/>
+    <!--define name="STRONG_WIND"/-->
+
+    <define name="WIND_INFO"/>
+    <define name="ALT_KALMAN"/>
+    <!-- <define name="USE_I2C0"/> -->
+    <!-- <define name="USE_AIRSPEED"/> -->
+    <!-- <define name="USE_BARO_ETS"/> -->
+
+    <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="telemetry" type="transparent"/>
+    <!--<define name="TELEMETRY_MODE_FBW" value="1"/>-->
+    <subsystem name="control">
+
+    </subsystem>
+
+    <subsystem name="attitude" type="dcm"/>
+    <subsystem name="imu" type="booz"/>
+    <subsystem name="gps" type="ublox_lea5h"/>
+    <subsystem name="navigation" type="extra"/>
+    <!-- <subsystem name="i2c"/> -->
+  </firmware>
+
+  <firmware name="setup">
+    <target name="tunnel"          board="twog_1.0" />
+    <target name="usb_tunnel_0"    board="twog_1.0" />
+    <target name="setup_actuators" board="twog_1.0" />
+  </firmware>
+
+
+<!-- ******************* MODULES ********************************** --> 
+  <modules main_freq="60">
+    <load name="servo_switch.xml">
+      <define name="SERVO_SWITCH_ON_VALUE"  value="1100"/>
+      <define name="SERVO_SWITCH_OFF_VALUE" value="1900"/>
+      <define name="SERVO_SWITCH_SERVO"     value="SERVO_HATCH"/>
+    </load>
+    <load name="sys_mon.xml"/>
+    <load name="adc_generic.xml">
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_4"/> <!-- voltage sensor -->
+    </load>
+  </modules>
+
+<!-- Define here to which CONNECTOR NUMBER the servo is connected to, on the autopilot cicuit board -->
+  <servos>
+    <servo name="MOTOR"         no="0" min="1100" neutral="1100" max="1900"/>
+    <servo name="ELEVATOR"      no="2" min="1100" neutral="1500" max="1900"/>
+    <servo name="AILERON_RIGHT" no="3" min="2000" neutral="1500" max="1000"/>
+    <servo name="AILERON_LEFT"  no="4" min="2000" neutral="1500" max="1000"/>
+    <servo name="RUDDER"        no="6" min="1000" neutral="1500" max="2000"/>
+    <servo name="HATCH"   	no="7" min="1100" neutral="1100" max="1900"/>
+  </servos>
+
+<!-- commands section -->
+  <commands>
+    <axis name="THROTTLE" 	failsafe_value="0"/>
+    <axis name="ROLL"     	failsafe_value="0"/>
+    <axis name="PITCH"    	failsafe_value="0"/>
+    <axis name="YAW"      	failsafe_value="2000"/>
+    <axis name="HATCH"    	failsafe_value="-9599"/>
+<!-- maybe set to open position so we can insert the payload -->
+  </commands>
+
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="ROLL"     value="@ROLL"/>
+    <set command="PITCH"    value="@PITCH"/>
+    <set command="YAW"      value="@YAW"/>
+  </rc_commands>
+
+  <auto_rc_commands>
+  <!-- To still be able to use rudder, which is needed with sidewind landing in auto1 stabilization mode only YAW -->
+    <set command="YAW"      value="@YAW"/>
+  </auto_rc_commands>
+
+<!--For mixed controlflaps -->
+  <section name="MIXER">
+    <define name="AILERON_DIFF" value="0.7"/>
+    <define name="COMBI_SWITCH" value="0.3"/>
+  </section>
+
+  <command_laws>
+    <set servo="MOTOR"         value="@THROTTLE"/>
+    <set servo="ELEVATOR"      value="@PITCH"/>
+    <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
+
+    <let var="roll" value="@ROLL"/>
+    <set servo="AILERON_LEFT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
+    <set servo="AILERON_RIGHT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
+    <!--set servo="HATCH"         value="@HATCH"/-->
+  </command_laws>
+
+
+  <section name="IMU" prefix="IMU_">
+    <define name="GYRO_P_CHAN"  value="1"/>
+    <define name="GYRO_Q_CHAN"  value="2"/>
+    <define name="GYRO_R_CHAN"  value="0"/>
+
+    <define name="GYRO_P_SIGN"  value="1"/>
+    <define name="GYRO_Q_SIGN"  value="1"/>
+    <define name="GYRO_R_SIGN"  value="-1"/>
+
+    <define name="GYRO_P_NEUTRAL" value="32362"/>
+    <define name="GYRO_R_NEUTRAL" value="32080"/>
+    <define name="GYRO_Q_NEUTRAL" value="32096"/>
+
+    <define name="GYRO_P_SENS" value="1.1032765" integer="16"/>
+    <define name="GYRO_R_SENS" value="1.1360802599" integer="16"/>
+    <define name="GYRO_Q_SENS" value="1.1249874614" integer="16"/>
+
+    <define name="ACCEL_X_CHAN"  value="3"/>
+    <define name="ACCEL_Y_CHAN"  value="6"/>
+    <define name="ACCEL_Z_CHAN"  value="5"/>
+
+    <define name="ACCEL_X_SIGN"  value="-1"/>
+    <define name="ACCEL_Y_SIGN"  value="1"/>
+    <define name="ACCEL_Z_SIGN"  value="-1"/>
+
+    <define name="ACCEL_X_SENS" value="2.45932966" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.45106376" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.47825717" integer="16"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="31886"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32162"/>
+    <define name="ACCEL_Y_NEUTRAL" value="32941"/>
+
+    <define name="GYRO_P_Q" value="0."/>
+    <define name="GYRO_P_R" value="0."/>
+    <define name="GYRO_Q_P" value="0."/>
+    <define name="GYRO_Q_R" value="0."/>
+    <define name="GYRO_R_P" value="0."/>
+    <define name="GYRO_R_Q" value="0."/>
+
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
+
+    <define name="MAG_X_SENS" value="1" integer="16"/>
+    <define name="MAG_Y_SENS" value="1" integer="16"/>
+    <define name="MAG_Z_SENS" value="1" integer="16"/>
+
+    <!-- <define name="MAG_45_HACK" value="1"/> -->
+
+    <define name="BODY_TO_IMU_PHI" value="0"/>
+    <define name="BODY_TO_IMU_THETA" value="0"/>
+    <define name="BODY_TO_IMU_PSI" value="0"/>
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0."/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0."/>
+  </section>
+
+<!-- Do not set MAX_ROLL, MAX_PITCH to small of a value, otherwise one can NOT control the plane very well manually -->
+<!-- If you have dual rate swith it of with same swtch as mode switch thus auto1 means dualrate is switched off also -->
+  <section name="AUTO1" prefix="AUTO1_">
+    <define name="MAX_ROLL" value="RadOfDeg(55)"/>
+    <define name="MAX_PITCH" value="RadOfDeg(35)"/>
+  </section>
+
+
+  <section name="BAT">
+    <define name="ADC_CHANNEL_CURRENT" value="ADC_3"/>
+    <define name="MilliAmpereOfAdc(adc)" value="(adc*88)"/>
+
+<!-- <define name="ADC_CHANNEL_VOLTAGE" value="ADC_4" /> -->
+<!-- The real multiplier is unknown we take 2 as test example -->
+<!--  <define name="VoltageOfAdc(adc)" value ="(adc*2)"/>  -->
+
+<!-- If NO current-volts sensor installed uncomment below -->
+  <!--define name="MILLIAMP_AT_FULL_THROTTLE" value="17000" unit="mA"/-->
+
+<!--
+    <define name="VOLTAGE_ADC_A" value="0.0177531"/>
+    <define name="VOLTAGE_ADC_B" value="0.173626"/>
+    <define name="VoltageOfAdc(adc)" value ="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/> 
+-->
+
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/> <!-- 3S lipo 3.1*3=9.3 -->
+    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="9.7" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/> <!-- 3S lipo 4.2*3=12.6 -->
+  </section>
+
+  <section name="MISC">
+    <define name="MINIMUM_AIRSPEED" value="9.0" unit="m/s"/>
+    <define name="NOMINAL_AIRSPEED" value="14.0" unit="m/s"/>
+    <define name="MAXIMUM_AIRSPEED" value="22.0" unit="m/s"/>
+    <define name="CARROT" value="5.0" unit="s"/>
+    <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
+    <define name="CONTROL_RATE" value="60" unit="Hz"/>
+
+<!--UNLOCKED_HOME_MODE if set to TRUE means that HOME mode does not get stuck.
+If not set before when you would enter home mode you had to flip a bit via the GCS to get out. -->
+    <!--define name="UNLOCKED_HOME_MODE" value="TRUE"/-->
+<!-- RC_LOST_MODE means that if your RC Transmitter signal is not received anymore in the autopilot, e.g. you switch it off
+     or  fly a long range mission you define the wanted mode behaviour here. 
+     If you do not define it, it defaults to flying to the flightplan HOME -->
+    <!--define name="RC_LOST_MODE" value="PPRZ_MODE_AUTO2"/-->
+
+
+    <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="50.0"/>
+
+    <!-- only for spiral -->
+    <define name="MIN_CIRCLE_RADIUS" value="35.0"/>
+
+<!-- The Glide definitions are used for calculating the touch down point during auto landing -->
+<!--
+    <define name="GLIDE_AIRSPEED" value="10."/>
+    <define name="GLIDE_VSPEED" value="3."/>
+    <define name="GLIDE_PITCH" value="10." unit="deg"/>
+-->
+  </section>
+
+<!-- ******************* VERTICAL CONTROL ********************************** --> 
+
+  <section name="VERTICAL CONTROL" prefix="V_CTL_">
+    <define name="POWER_CTL_BAT_NOMINAL" value="11.2" unit="volt"/>
+
+    <!-- outer loop proportional gain -->
+    <define name="ALTITUDE_PGAIN" value="-0.04" unit="(m/s)/m"/>
+
+    <!-- outer loop saturation -->
+    <define name="ALTITUDE_MAX_CLIMB" value="2.5" unit="m/s"/>
+
+    <!-- auto throttle inner loop -->
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.65" unit="%"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.50" unit="%"/>
+    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.90" unit="%"/>
+    <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000" unit="pprz_t"/>
+    <define name="AUTO_THROTTLE_DASH_TRIM" value="-2000" unit="pprz_t"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.05" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="-0.007" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_IGAIN" value="0.01"/>
+    <define name="AUTO_THROTTLE_DGAIN" value="0.0"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.20" unit="rad/(m/s)"/>
+    <define name="THROTTLE_SLEW_LIMITER" value="0.7" unit="s"/>
+
+    <!-- NOT YET USED auto airspeed and altitude inner loop -->
+    <!-- <define name="AIRSPEED_ETS_OFFSET" value="1542"/> -->
+
+    <!-- NEVER set AUTO_AIRSPEED_SETPOINT lower than airframe stall speed -->
+
+    <!--
+    <define name="AUTO_AIRSPEED_SETPOINT" value="11.5" unit="m/s"/>  
+    <define name="AUTO_AIRSPEED_PGAIN" value="0.1"/>
+    <define name="AUTO_AIRSPEED_IGAIN" value="0.05"/>  
+
+    <define name="AUTO_AIRSPEED_PITCH_PGAIN" value="0" unit="degree/(m/s)"/>
+    <define name="AUTO_AIRSPEED_THROTTLE_PGAIN" value="0" unit="%/(m/s)"/>
+    <define name="AUTO_AIRSPEED_THROTTLE_IGAIN" value="0"/>
+    -->
+
+    <!--
+    <define name="AUTO_GROUNDSPEED_SETPOINT" value="9.0" unit="m/s"/>  
+    <define name="AUTO_GROUNDSPEED_PGAIN" value="0.75"/>
+    <define name="AUTO_GROUNDSPEED_IGAIN" value="0.25"/> 
+    -->
+
+    <!-- auto pitch inner loop -->
+    <define name="AUTO_PITCH_PGAIN" value="-0.052"/>
+    <define name="AUTO_PITCH_IGAIN" value="0.065"/>
+    <define name="AUTO_PITCH_MAX_PITCH" value="0.45"/> <!-- INVESTIGATE make it variable? so it can be set higher for a stalled landing -->
+    <define name="AUTO_PITCH_MIN_PITCH" value="-0.40"/>
+    <!-- <define name="THROTTLE_SLEW" value="0.2"/> -->
+  </section>
+
+<!-- ******************* HORIZONTAL CONTROL ******************************** --> 
+  <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
+
+    <define name="COURSE_PGAIN" value="-1.1"/>
+    <!-- <define name="COURSE_IGAIN" value="0.01"/> -->
+    <!-- <define name="COURSE_DGAIN" value="0.02"/> -->
+    <!-- <define name="COURSE_PRE_BANK_CORRECTION" value="0.5"/> -->
+
+    <!-- maybe handy to avoid over corner with lots of wind and small airframe -->
+    <!-- <define name="COURSE_SLEW_INCREMENT" value="RadOfDeg(4)"/> -->
+
+    <define name="ROLL_MAX_SETPOINT" value="RadOfDeg(50)" unit="radians"/>
+    <define name="PITCH_MAX_SETPOINT" value="RadOfDeg(35)" unit="radians"/>
+    <define name="PITCH_MIN_SETPOINT" value="RadOfDeg(-30)" unit="radians"/>
+
+    <define name="ROLL_ATTITUDE_GAIN" value="-7500."/><!-- Roll Angle PD control -->
+    <define name="ROLL_RATE_GAIN" value="-1500"/>
+    <!-- ROLL_PGAIN is only used when ROLL_ATTITUDE_GAIN is not defined, P control + rate loop if defined -->
+    <!-- <define name="ROLL_PGAIN" value="7000."/> -->
+
+    <!-- ** Maximal roll angle change per 1/60 of second ** --> 
+    <!--define name="ROLL_SLEW" value="0.6"/--> <!-- was 0.05 -->
+
+    <define name="PITCH_PGAIN" value="-7000."/>
+
+    <!-- only for stabilization adaptive -->
+    <define name="PITCH_DGAIN" value="1.3"/>
+    <define name="PITCH_IGAIN" value="-500"/>
+    <define name="PITCH_KFFA" value="0."/>
+    <define name="PITCH_KFFD" value="0."/>
+
+    <define name="AILERON_OF_THROTTLE" value="0.0"/>
+
+    <define name="ELEVATOR_OF_ROLL" value="1500"/>  
+    <!-- Alternative way of adding some elevator when roll initiated -->
+    <!-- <define name="PITCH_OF_ROLL" value="RadOfDeg(0.1)"/> -->
+  
+  </section>
+
+<!-- ******************************** NAV ********************************** -->
+  <section name="NAV">
+    <define name="NAV_PITCH" value="0."/>
+    <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
+  </section>
+
+<!-- ***************************** AGGRESIVE ******************************* -->
+  <section name="AGGRESSIVE" prefix="AGR_">
+    <define name="BLEND_START" value="18"/> <!-- Altitude Error to Initiate Aggressive Climb CANNOT BE ZERO!!-->
+    <define name="BLEND_END" value="8"/> <!-- Altitude Error to Blend Aggressive to Regular Climb Modes  CANNOT BE ZERO!!-->
+    <define name="CLIMB_THROTTLE" value="0.99"/> <!-- Gaz for Aggressive Climb -->
+    <define name="CLIMB_PITCH" value="RadOfDeg(45)"/> <!-- Pitch for Aggressive Climb -->
+    <define name="DESCENT_THROTTLE" value="0.5"/> <!-- Gaz for Aggressive Decent -->
+    <define name="DESCENT_PITCH" value="RadOfDeg(-30)"/> <!-- Pitch for Aggressive Decent -->
+    <define name="CLIMB_NAV_RATIO" value="0.8"/> <!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
+    <define name="DESCENT_NAV_RATIO" value="0.99"/>
+  </section>
+
+<!-- ****************************** FAILSAFE ******************************* -->
+  <section name="FAILSAFE" prefix="FAILSAFE_">
+    <define name="DELAY_WITHOUT_GPS" value="3" unit="s"/>
+    <define name="DEFAULT_THROTTLE" value="0" unit="%"/>
+    <define name="DEFAULT_ROLL" value="0.15" unit="rad"/>
+    <define name="DEFAULT_PITCH" value="-0.1" unit="rad"/>
+    <define name="HOME_RADIUS" value="60" unit="m"/>
+  </section>
+
+
+<!-- ******************************** SIMU ********************************* -->
+  <section name="SIMU">
+    <define name="YAW_RESPONSE_FACTOR" value="0.5"/> <!-- a to low of a value gives bad simulation results -->
+  </section>
+
+</airframe>
+

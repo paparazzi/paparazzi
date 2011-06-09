@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gps_ubx" dir="gps">
+  <header>
+    <file name="gps_ubx_uart.h"/>
+  </header>
+  <init fun="gps_init()"/>
+  <event fun="GpsEvent(on_gps_solution)"/>
+  <makefile>
+    <file name="gps.c" dir="subsystems"/>
+  </makefile>
+  <makefile target="ap">
+    <file name="gps_ubx.c" dir="subsystems/gps"/>
+    <define name="GPS_TYPE_H" value="\"subsystems/gps/gps_ubx.h\""/>
+  </makefile>
+  <makefile target="sim|jsbsim">
+    <file name="gps_sim.c" dir="subsystems/gps"/>
+    <define name="GPS_TYPE_H" value="\"subsystems/gps/gps_sim.h\""/>
+  </makefile>
+</module>
+
+

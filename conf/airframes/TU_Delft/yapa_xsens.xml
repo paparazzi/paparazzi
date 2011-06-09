@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- 
+<!--
 	YAPA + XSens + XBee
 -->
 
@@ -42,16 +42,21 @@
     <define name="BRAKE_PITCH" value="0.0f"/>
     <define name="MAX_BRAKE_RATE" value="150"/>
 
-    <define name="LIMIT(X,XL,XH)" value="(    ((X)>(XH))   ?    (XH)    :    ( ((X)>(XL)) ? (X) : (XL) )    )"/>
-  </section>
+    <define name="RATELIMIT(X,RATE)" value="( _rate_limited_value + Chop( (X) - _rate_limited_value, -(RATE), (RATE)  )); \
+       int16_t _rate_limited_value = 0;"/>
+
+</section>
 
   <command_laws>
     <!-- Brake Rate Limiter -->
-    <let var="brake_value_nofilt" value="LIMIT(-@BRAKE, 0, MAX_PPRZ)"/>
+    <let var="brake_value" value="Chop(-@BRAKE, 0, MAX_PPRZ)"/>
+    <!--<let var="brake_value" value="RATELIMIT(  $brake_value , MAX_BRAKE_RATE )"/>
+
     <let var="test; \
   	      static int16_t _var_brake_value = 0; \
               _var_brake_value += LIMIT(_var_brake_value_nofilt - _var_brake_value,-MAX_BRAKE_RATE,MAX_BRAKE_RATE); \
               int verwaarloos_deze_warning_CDW" value="0"/>
+		-->
 
     <!-- Differential Aileron Depending on Brake Value -->
     <let var="aileron_up_rate" value="(AILERON_RATE_UP   * (MAX_PPRZ - $brake_value)) + (AILERON_RATE_UP_BRAKE   * $brake_value)"/>
@@ -81,6 +86,11 @@
     <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="10" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.1" unit="V"/>
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
   </section>
 
   <section name="MISC">
@@ -177,14 +187,17 @@
       <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
       <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
     </load>
+
 <!--    <load name="digital_cam_i2c.xml"/>  -->
+  <!--    <load name="ins_ppzuavimu.xml"/>  -->
     <load name="digital_cam.xml" >
-      <define name="DC_SHUTTER_LED" value="3"/>
+      <define name="DC_SHUTTER_LED" value="2"/>
     </load>
 
   </modules>
 
   <firmware name="fixedwing">
+
     <target name="ap" board="tiny_2.11">
       <define name="STRONG_WIND"/>
       <define name="WIND_INFO"/>
@@ -204,11 +217,11 @@
     <!-- Actuators -->
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="navigation" type="extra"/>
+    <subsystem name="navigation"/>
     <subsystem name="gps" type="xsens"/>
 
-    <!--<subsystem name="i2c"/>-->
+    <subsystem name="i2c"/>
 
-  </firmware>
+</firmware>
 
 </airframe>

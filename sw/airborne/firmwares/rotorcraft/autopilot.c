@@ -25,7 +25,7 @@
 #include "firmwares/rotorcraft/autopilot.h"
 
 #include "subsystems/radio_control.h"
-#include "booz2_commands.h"
+#include "firmwares/rotorcraft/commands.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/stabilization.h"
@@ -85,7 +85,7 @@ void autopilot_periodic(void) {
        autopilot_mode == AP_MODE_FAILSAFE ||
 #endif
        autopilot_mode == AP_MODE_KILL ) {
-    SetCommands(booz2_commands_failsafe,
+    SetCommands(commands_failsafe,
 		autopilot_in_flight, autopilot_motors_on);
   }
   else {
@@ -209,6 +209,17 @@ static inline void autopilot_check_in_flight( void) {
   }
 }
 
+#ifdef AUTOPILOT_KILL_WITHOUT_AHRS
+#include "subsystems/ahrs.h"
+static inline int ahrs_is_aligned(void) {
+  return (ahrs.status == AHRS_RUNNING);
+}
+#else
+static inline int ahrs_is_aligned(void) {
+  return TRUE;
+}
+#endif
+
 static inline void autopilot_check_motors_on( void ) {
   if (autopilot_motors_on) {
     if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) {
@@ -223,7 +234,7 @@ static inline void autopilot_check_motors_on( void ) {
     }
   }
   else { /* motors off */
-    if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) {
+    if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED() && ahrs_is_aligned()) {
       if ( autopilot_motors_on_counter <  AUTOPILOT_MOTOR_ON_TIME) {
         autopilot_motors_on_counter++;
         if (autopilot_motors_on_counter == AUTOPILOT_MOTOR_ON_TIME)
@@ -246,6 +257,11 @@ void autopilot_on_rc_frame(void) {
 
 #ifdef RADIO_KILL_SWITCH
   if (radio_control.values[RADIO_KILL_SWITCH] < 0)
+    autopilot_set_mode(AP_MODE_KILL);
+#endif
+
+#ifdef AUTOPILOT_KILL_WITHOUT_AHRS
+  if (!ahrs_is_aligned())
     autopilot_set_mode(AP_MODE_KILL);
 #endif
 

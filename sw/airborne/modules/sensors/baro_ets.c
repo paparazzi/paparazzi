@@ -43,7 +43,7 @@
 #include "subsystems/nav.h"
 
 #ifdef SITL
-#include "gps.h"
+#include "subsystems/gps.h"
 #endif
 
 #define BARO_ETS_ADDR 0xE8
@@ -98,7 +98,7 @@ void baro_ets_read_periodic( void ) {
     I2CReceive(BARO_ETS_I2C_DEV, baro_ets_i2c_trans, BARO_ETS_ADDR, 2);
 #else // SITL
   baro_ets_adc = 0;
-  baro_ets_altitude = gps_alt / 100.0;
+  baro_ets_altitude = gps.hmsl / 1000.0;
   baro_ets_valid = TRUE;
   EstimatorSetAlt(baro_ets_altitude);
 #endif

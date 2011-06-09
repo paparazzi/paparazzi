@@ -34,6 +34,7 @@
     <subsystem name="gps"           type="ublox">
       <configure name="GPS_BAUD"    value="B57600"/>
     </subsystem>
+    <subsystem name="stabilization"   type="euler"/>
     <subsystem name="ahrs"          type="cmpl"/>
     <subsystem name="ins"           type="hff"/>
   </firmware>

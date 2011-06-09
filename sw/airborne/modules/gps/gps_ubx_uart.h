@@ -1,7 +1,5 @@
 /*
- * Paparazzi autopilot $Id: gps_ubx.h 4659 2010-03-10 16:55:04Z mmm $
- *
- * Copyright (C) 2004-2006  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2011 Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -22,27 +20,15 @@
  *
  */
 
-/** \file gps_xsens.h
- * \brief XSens GPS
- *
-*/
+/*
+ * Wrapper for UBX gps on uart
+ */
 
+#ifndef MODULE_GPS_UBX_UART_H
+#define MODULE_GPS_UBX_UART_H
 
-#ifndef XSENS_GPS_H
-#define XSENS_GPS_H
+#include "subsystems/gps.h"
+#include "subsystems/gps/gps_ubx.h"
 
-extern uint16_t gps_reset;
+#endif // MODULE_GPS_UBX_UART_H
 
-#define GPS_NB_CHANNELS 16
-
-extern void reset_gps_watchdog(void);
-
-
-#define GpsFixValid() (gps_mode > 0)
-
-#define gps_xsens_Reset(_val) { \
-  gps_reset = _val; \
-}
-
-
-#endif

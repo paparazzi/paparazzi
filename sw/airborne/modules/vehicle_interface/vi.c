@@ -25,7 +25,7 @@
 
 #include "subsystems/imu.h"
 #include "subsystems/ahrs.h"
-#include "booz/booz_gps.h"
+#include "subsystems/gps.h"
 
 #include "generated/airframe.h"
 

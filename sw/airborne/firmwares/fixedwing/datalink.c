@@ -49,14 +49,13 @@
 #endif
 
 #ifdef HITL
-#include "gps.h"
+#include "subsystems/gps.h"
 #endif
 
 
 #include "subsystems/navigation/common_nav.h"
 #include "generated/settings.h"
-#include "latlong.h"
-
+#include "math/pprz_geodetic_float.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -115,16 +114,19 @@ void dl_parse_msg(void) {
     float a = MOfCm(DL_MOVE_WP_alt(dl_buffer));
 
     /* Computes from (lat, long) in the referenced UTM zone */
-    float lat = RadOfDeg((float)(DL_MOVE_WP_lat(dl_buffer) / 1e7));
-    float lon = RadOfDeg((float)(DL_MOVE_WP_lon(dl_buffer) / 1e7));
-    latlong_utm_of(lat, lon, nav_utm_zone0);
-    nav_move_waypoint(wp_id, latlong_utm_x, latlong_utm_y, a);
+    struct LlaCoor_f lla;
+    lla.lat = RadOfDeg((float)(DL_MOVE_WP_lat(dl_buffer) / 1e7));
+    lla.lon = RadOfDeg((float)(DL_MOVE_WP_lon(dl_buffer) / 1e7));
+    struct UtmCoor_f utm;
+    utm.zone = nav_utm_zone0;
+    utm_of_lla_f(&utm, &lla);
+    nav_move_waypoint(wp_id, utm.east, utm.north, a);
 
     /* Waypoint range is limited. Computes the UTM pos back from the relative
        coordinates */
-    latlong_utm_x = waypoints[wp_id].x + nav_utm_east0;
-    latlong_utm_y = waypoints[wp_id].y + nav_utm_north0;
-    DOWNLINK_SEND_WP_MOVED(DefaultChannel, &wp_id, &latlong_utm_x, &latlong_utm_y, &a, &nav_utm_zone0);
+    utm.east = waypoints[wp_id].x + nav_utm_east0;
+    utm.north = waypoints[wp_id].y + nav_utm_north0;
+    DOWNLINK_SEND_WP_MOVED(DefaultChannel, &wp_id, &utm.east, &utm.north, &a, &nav_utm_zone0);
   } else if (msg_id == DL_BLOCK && DL_BLOCK_ac_id(dl_buffer) == AC_ID) {
     nav_goto_block(DL_BLOCK_block_id(dl_buffer));
     SEND_NAVIGATION(DefaultChannel);

@@ -607,7 +607,7 @@ test_actuators_mkk.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_actuators_mkk.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_actuators_mkk.srcs += downlink.c pprz_transport.c
 
-test_actuators_mkk.srcs += $(SRC_BOOZ)/booz2_commands.c
+test_actuators_mkk.srcs += $(SRC_FIRMWARE)/commands.c
 test_actuators_mkk.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
 test_actuators_mkk.CFLAGS += -DACTUATORS_MKK_DEVICE=i2c1  -DUSE_TIM2_IRQ
 #test_actuators_mkk.CFLAGS += -DACTUATORS_ASCTEC_V2_PROTOCOL -DACTUATORS_ASCTEC_DEVICE=i2c1
@@ -640,7 +640,7 @@ test_actuators_asctec.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_actuators_asctec.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 test_actuators_asctec.srcs += downlink.c pprz_transport.c
 
-test_actuators_asctec.srcs += $(SRC_BOOZ)/booz2_commands.c
+test_actuators_asctec.srcs += $(SRC_FIRMWARE)/commands.c
 test_actuators_asctec.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
 test_actuators_asctec.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
 # -DBOOZ_START_DELAY=3
@@ -1100,7 +1100,7 @@ ptw.srcs += peripherals/max1168.c $(SRC_ARCH)/peripherals/max1168_arch.c
 ptw.srcs += peripherals/ms2100.c  $(SRC_ARCH)/peripherals/ms2100_arch.c
 ptw.srcs += math/pprz_trig_int.c
 
-ptw.srcs += $(SRC_BOOZ)/booz2_commands.c
+ptw.srcs += $(SRC_FIRMWARE)/commands.c
 
 # Radio control
 ptw.CFLAGS += -DRADIO_CONTROL

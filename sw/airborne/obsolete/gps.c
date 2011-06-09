@@ -95,8 +95,8 @@ void gps_send( void ) {
     for(j = 0; j < gps_nb_channels; j++) {
       uint8_t cno = gps_svinfos[j].cno;
       if (cno > 0 && j != i && abs(cno-last_cnos[j]) >= 2) {
-    DOWNLINK_SEND_SVINFO(DefaultChannel, &j, &gps_svinfos[j].svid, &gps_svinfos[j].flags, &gps_svinfos[j].qi, &cno, &gps_svinfos[j].elev, &gps_svinfos[j].azim);
-    last_cnos[j] = gps_svinfos[j].cno;
+        DOWNLINK_SEND_SVINFO(DefaultChannel, &j, &gps_svinfos[j].svid, &gps_svinfos[j].flags, &gps_svinfos[j].qi, &cno, &gps_svinfos[j].elev, &gps_svinfos[j].azim);
+        last_cnos[j] = gps_svinfos[j].cno;
       }
     }
   }

@@ -10,6 +10,14 @@ ifneq ($(GPS_LED),none)
   ap.CFLAGS += -DGPS_LED=$(GPS_LED)
 endif
 
-ap.srcs   += $(SRC_FIXEDWING)/gps_ubx.c
+ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
+ap.srcs   += $(SRC_SUBSYSTEMS)/gps/gps_ubx.c
 
-$(TARGET).srcs += $(SRC_FIXEDWING)/gps.c $(SRC_FIXEDWING)/latlong.c
+$(TARGET).srcs += $(SRC_SUBSYSTEMS)/gps.c
+
+sim.CFLAGS += -DUSE_GPS -DGPS_USE_LATLONG
+sim.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
+sim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim.c
+
+jsbsim.CFLAGS += -DUSE_GPS -DGPS_TYPE_H=\"subsystems/gps/gps_sim.h\"
+jsbsim.srcs += $(SRC_SUBSYSTEMS)/gps/gps_sim.c

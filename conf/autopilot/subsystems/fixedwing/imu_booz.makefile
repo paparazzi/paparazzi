@@ -52,7 +52,6 @@ imu_srcs += $(SRC_ARCH)/peripherals/max1168_arch.c
 #ifeq ($(ARCH), lpc21)
 imu_CFLAGS += -DSSP_VIC_SLOT=9
 imu_CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
-#FIXME ms2100 not used on this imu
 #else ifeq ($(ARCH), stm32)
 #imu_CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
 #imu_CFLAGS += -DMAX_1168_DRDY_PORT=$(MAX_1168_DRDY_PORT)
@@ -62,8 +61,6 @@ imu_CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
 
 ap.srcs += $(imu_srcs)
 ap.CFLAGS += $(imu_CFLAGS)
-
-imu_srcs += math/pprz_trig_int.c
 
 #
 # Simulator

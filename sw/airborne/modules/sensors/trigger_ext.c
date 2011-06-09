@@ -32,7 +32,7 @@
 
 #include "trigger_ext.h"
 #include "modules/sensors/trig_ext_hw.h"
-#include "gps.h"
+#include "subsystems/gps.h"
 #include "sys_time.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
@@ -49,7 +49,7 @@ void trigger_ext_periodic( void ) {
     uint8_t turb_id = TURBINE_ID;
     uint32_t sync_itow, cycle_time;
 
-    sync_itow = itow_from_ticks(trigger_t0);
+    sync_itow = gps_tow_from_ticks(trigger_t0);
     cycle_time =  MSEC_OF_SYS_TICS(delta_t0);
 
     DOWNLINK_SEND_WINDTURBINE_STATUS_(DefaultChannel,

@@ -22,8 +22,8 @@
  */
 
 #include "firmwares/rotorcraft/actuators.h"
+#include "firmwares/rotorcraft/commands.h"
 #include "actuators_pwm_supervision.h"
-#include "booz/booz2_commands.h"
 #include "subsystems/radio_control.h"
 
 /* let's start butchery now and use the actuators_pwm arch functions */
@@ -49,15 +49,16 @@ void actuators_init(void)
 void actuators_set(bool_t motors_on) {
   int32_t pwm_commands[COMMANDS_NB];
   int32_t pwm_commands_pprz[COMMANDS_NB];
+  int32_t booz2_commands[COMMANDS_NB];
 
-  pwm_commands[COMMAND_PITCH] = booz2_commands[COMMAND_PITCH] * PWM_GAIN_SCALE;
-  pwm_commands[COMMAND_ROLL] = booz2_commands[COMMAND_ROLL] * PWM_GAIN_SCALE;
-  pwm_commands[COMMAND_YAW] = booz2_commands[COMMAND_YAW] * PWM_GAIN_SCALE;
-  pwm_commands[COMMAND_THRUST] = (booz2_commands[COMMAND_THRUST] * ((SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR) / 200)) + SUPERVISION_MIN_MOTOR;
+  pwm_commands[COMMAND_ROLL] = commands[COMMAND_ROLL] * PWM_GAIN_SCALE;
+  pwm_commands[COMMAND_PITCH] = commands[COMMAND_PITCH] * PWM_GAIN_SCALE;
+  pwm_commands[COMMAND_YAW] = commands[COMMAND_YAW] * PWM_GAIN_SCALE;
+  pwm_commands[COMMAND_THRUST] = (commands[COMMAND_THRUST] * ((SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR) / 200)) + SUPERVISION_MIN_MOTOR;
 
-  pwm_commands_pprz[COMMAND_PITCH] = booz2_commands[COMMAND_PITCH] * (MAX_PPRZ / 100);
-  pwm_commands_pprz[COMMAND_ROLL] = booz2_commands[COMMAND_ROLL] * (MAX_PPRZ / 100);
-  pwm_commands_pprz[COMMAND_YAW] = booz2_commands[COMMAND_YAW] * (MAX_PPRZ / 100);
+  pwm_commands_pprz[COMMAND_ROLL] = commands[COMMAND_ROLL] * (MAX_PPRZ / 100);
+  pwm_commands_pprz[COMMAND_PITCH] = commands[COMMAND_PITCH] * (MAX_PPRZ / 100);
+  pwm_commands_pprz[COMMAND_YAW] = commands[COMMAND_YAW] * (MAX_PPRZ / 100);
 
   supervision_run(motors_on, FALSE, pwm_commands);
 

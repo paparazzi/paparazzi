@@ -168,6 +168,8 @@ let alt_unit_coef_of_xml = function xml ->
     | ("rad", "deg") | ("rad/s", "deg/s") -> string_of_float (180. /. pi)
     | ("m", "cm") | ("m/s", "cm/s") -> "100."
     | ("cm", "m") | ("cm/s", "m/s") -> "0.01"
+    | ("m", "mm") | ("m/s", "mm/s") -> "1000."
+    | ("mm", "m") | ("mm/s", "m/s") -> "0.001"
     | ("decideg", "deg") -> "0.1"
     | (_, _) -> "1."
 

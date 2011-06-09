@@ -3,6 +3,5 @@
 
 # ap.CFLAGS += -DGPS
 
-ap.srcs   += $(SRC_FIXEDWING)/gps_xsens.c $(SRC_FIXEDWING)/gps.c $(SRC_FIXEDWING)/latlong.c
+$(TARGET).srcs += $(SRC_SUBSYSTEMS)/gps.c
 
-sim.srcs += $(SRC_FIXEDWING)/gps.c $(SRC_FIXEDWING)/latlong.c
