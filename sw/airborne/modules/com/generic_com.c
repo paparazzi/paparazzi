@@ -28,7 +28,7 @@
 #include "mcu_periph/i2c.h"
 
 #include "estimator.h"
-#include "gps.h"
+#include "subsystems/gps.h"
 #include "subsystems/electrical.h"
 #include "generated/airframe.h"
 #include "inter_mcu.h"
@@ -71,11 +71,11 @@ void generic_com_periodic( void ) {
   if (com_trans.status != I2CTransDone) { return; }
 
   com_trans.buf[0] = active_com;
-  FillBufWith32bit(com_trans.buf, 1, gps_lat);
-  FillBufWith32bit(com_trans.buf, 5, gps_lon);
-  FillBufWith16bit(com_trans.buf, 9, (int16_t)(gps_alt/100)); // meters
-  FillBufWith16bit(com_trans.buf, 11, gps_gspeed); // ground speed
-  FillBufWith16bit(com_trans.buf, 13, gps_course); // course
+  FillBufWith32bit(com_trans.buf, 1, gps.lla_pos.lat);
+  FillBufWith32bit(com_trans.buf, 5, gps.lla_pos.lon);
+  FillBufWith16bit(com_trans.buf, 9, (int16_t)(gps.lla_pos.alt/1000)); // altitude (meters)
+  FillBufWith16bit(com_trans.buf, 11, gps.gspeed); // ground speed (cm/s)
+  FillBufWith16bit(com_trans.buf, 13, (int16_t)(gps.course/1e4)); // course (1e3rad)
   FillBufWith16bit(com_trans.buf, 15, (uint16_t)(estimator_airspeed*100)); // TAS (cm/s)
   com_trans.buf[17] = electrical.vsupply; // decivolts
   com_trans.buf[18] = (uint8_t)(energy/100); // deciAh

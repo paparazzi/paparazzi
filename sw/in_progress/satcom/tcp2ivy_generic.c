@@ -55,6 +55,7 @@ unsigned char* md5 = (unsigned char*)MD5SUM;
 #define MAX_PPRZ 9600
 
 #define RadOfDeg(x) ((x) * (M_PI/180.))
+#define DegOfRad(x) ((x) * (180./M_PI))
 
 static const char usage_str[] = 
 "tcp2ivy [options]\n"
@@ -151,8 +152,8 @@ static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
 #endif
 
       printf("**** message received from iridium module ****\n");
-      printf("gps_lat %f\n", gps_lat/1e7);
-      printf("gps_lon %f\n", gps_lon/1e7);
+      printf("gps_lat %f\n", DegOfRad(gps_lat/1e7));
+      printf("gps_lon %f\n", DegOfRad(gps_lon/1e7));
       printf("gps_alt %d\n", gps_alt);
       printf("gps_gspeed %d\n", gps_gspeed);
       printf("gps_course %d\n", gps_course);

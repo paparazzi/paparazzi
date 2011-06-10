@@ -282,11 +282,11 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         a.flight_time <- flight_time;
         let lat = fvalue "lat"
         and lon = fvalue "lon" in
-        let geo = make_geo_deg (lat /. 1e7) (lon /. 1e7) in
+        let geo = make_geo (lat /. 1e7) (lon /. 1e7) in
         a.pos <- geo;
         a.alt <- fvalue "alt";
         a.gspeed  <- fvalue "gspeed" /. 100.;
-        a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
+        a.course  <- norm_course (fvalue "course" /. 1e3);
         if !heading_from_course then
           a.heading <- a.course;
         a.agl <- a.alt -. float (try Srtm.of_wgs84 a.pos with _ -> 0);
