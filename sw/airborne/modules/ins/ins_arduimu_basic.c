@@ -89,6 +89,7 @@ void ArduIMU_periodicGPS( void ) {
 
   if (ardu_gps_trans.status != I2CTransDone) { return; }
 
+#ifdef USE_HIGH_ACCEL_FLAG
   // Test for high acceleration:
   //  - low speed
   //  - high thrust
@@ -103,6 +104,7 @@ void ArduIMU_periodicGPS( void ) {
       high_accel_done = FALSE; // Activate high accel after landing
     }
   }
+#endif
 
   FillBufWith32bit(ardu_gps_trans.buf, 0, (int32_t)gps.speed_3d); // speed 3D
   FillBufWith32bit(ardu_gps_trans.buf, 4, (int32_t)gps.gspeed);   // ground speed
