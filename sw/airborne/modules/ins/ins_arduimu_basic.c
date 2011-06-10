@@ -93,14 +93,14 @@ void ArduIMU_periodicGPS( void ) {
   // Test for high acceleration:
   //  - low speed
   //  - high thrust
-  if (estimator_hspeed_dir < HIGH_ACCEL_LOW_SPEED && ap_state->commands[COMMAND_THROTTLE] > HIGH_ACCEL_HIGH_THRUST && !high_accel_done) {
+  if (estimator_hspeed_mod < HIGH_ACCEL_LOW_SPEED && ap_state->commands[COMMAND_THROTTLE] > HIGH_ACCEL_HIGH_THRUST && !high_accel_done) {
     high_accel_flag = TRUE;
   } else {
     high_accel_flag = FALSE;
-    if (estimator_hspeed_dir > HIGH_ACCEL_LOW_SPEED && !high_accel_flag) {
+    if (estimator_hspeed_mod > HIGH_ACCEL_LOW_SPEED && !high_accel_done) {
       high_accel_done = TRUE; // After takeoff, don't use high accel before landing (GS small, Throttle small)
     }
-    if (estimator_hspeed_dir < HIGH_ACCEL_HIGH_THRUST_RESUME && ap_state->commands[COMMAND_THROTTLE] < HIGH_ACCEL_HIGH_THRUST_RESUME) {
+    if (estimator_hspeed_mod < HIGH_ACCEL_HIGH_THRUST_RESUME && ap_state->commands[COMMAND_THROTTLE] < HIGH_ACCEL_HIGH_THRUST_RESUME) {
       high_accel_done = FALSE; // Activate high accel after landing
     }
   }
