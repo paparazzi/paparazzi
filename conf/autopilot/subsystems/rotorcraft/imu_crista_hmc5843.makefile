@@ -60,14 +60,14 @@
 
 # imu Crista
 
-imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_crista.h\"
+imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_crista.h\" -DIMU_OVERRIDE_CHANNELS
 imu_srcs += $(SRC_SUBSYSTEMS)/imu.c
 imu_srcs += $(SRC_SUBSYSTEMS)/imu/imu_crista.c
 imu_srcs += $(SRC_ARCH)/subsystems/imu/imu_crista_arch.c
 
 imu_srcs += peripherals/hmc5843.c
 imu_srcs += $(SRC_ARCH)/peripherals/hmc5843_arch.c
-imu_srcs += -DUSE_HMC5843
+imu_CFLAGS += -DUSE_HMC5843 -DUSE_DMA1_C4_IRQ
 
 ifeq ($(ARCH), lpc21)
 imu_CFLAGS += -DUSE_I2C1
