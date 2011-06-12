@@ -60,20 +60,20 @@
 
 # imu Crista
 
-imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_crista.h\"
+imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_crista.h\" 
 imu_srcs += $(SRC_SUBSYSTEMS)/imu.c
 imu_srcs += $(SRC_SUBSYSTEMS)/imu/imu_crista.c
 imu_srcs += $(SRC_ARCH)/subsystems/imu/imu_crista_arch.c
 
 imu_srcs += peripherals/hmc5843.c
 imu_srcs += $(SRC_ARCH)/peripherals/hmc5843_arch.c
-imu_srcs += -DUSE_HMC5843
+imu_CFLAGS += -DUSE_HMC5843 
 
 ifeq ($(ARCH), lpc21)
 imu_CFLAGS += -DUSE_I2C1
 imu_CFLAGS += -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=12 -DI2C1_BUF_LEN=16
 else ifeq ($(ARCH), stm32)
-imu_CFLAGS += -DUSE_I2C2 -DUSE_EXTI9_5_IRQ
+imu_CFLAGS += -DUSE_I2C2 -DUSE_EXTI9_5_IRQ -DUSE_DMA1_C4_IRQ
 endif
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
