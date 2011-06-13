@@ -29,6 +29,7 @@
 #ifndef IMU_B2_ARCH_H
 #define IMU_B2_ARCH_H
 
+extern int imu_overrun;
 
 extern void imu_feed_gyro_accel(void);
 extern void imu_feed_mag(void);
