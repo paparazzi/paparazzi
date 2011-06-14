@@ -216,15 +216,12 @@ class Visualization:
     for telemetry_quat in self.quats:
       glPushMatrix()
       try: 
-        telemetry_quat.qi = telemetry_quat.qi * telemetry_quat.scale
-        telemetry_quat.qx = telemetry_quat.qx * telemetry_quat.scale
-        telemetry_quat.qy = telemetry_quat.qy * telemetry_quat.scale
-        telemetry_quat.qz = telemetry_quat.qz * telemetry_quat.scale
-        glRotate(360 * math.acos(telemetry_quat.qi ) / math.pi, telemetry_quat.qy, -telemetry_quat.qz, -telemetry_quat.qx)
+        scaled_quat = [telemetry_quat.qi * telemetry_quat.scale, telemetry_quat.qx * telemetry_quat.scale, telemetry_quat.qy * telemetry_quat.scale, telemetry_quat.qz * telemetry_quat.scale]
+        glRotate(360 * math.acos(scaled_quat[0] ) / math.pi, scaled_quat[2], -scaled_quat[3], -scaled_quat[1])
         glRotate(-90, 1, 0, 0)
         self.DrawVehicle(telemetry_quat.name)
       except Exception:
-        pass
+        raise Exception
       finally:
         glPopMatrix()
         glTranslate(0,  2 * height / (len(self.quats)), 0)
