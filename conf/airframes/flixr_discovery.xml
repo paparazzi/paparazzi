@@ -251,6 +251,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.65" unit="%"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.40" unit="%"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.90" unit="%"/>
+    <define name="THROTTLE_SLEW_LIMITER" value="0.5" unit="s"/>
     <define name="AUTO_PITCH_MAX_PITCH" value="RadOfDeg(25)"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="RadOfDeg(-20)"/>
 
@@ -292,7 +293,6 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <define name="PITCH_LOITER_TRIM" value="1000" unit="pprz_t"/>
     <define name="PITCH_DASH_TRIM" value="-2000" unit="pprz_t"/>
 
-    <define name="THROTTLE_SLEW" value="0.2"/>
   </section>
 
 <!-- ******************* HORIZONTAL CONTROL ******************************** -->
