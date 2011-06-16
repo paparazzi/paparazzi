@@ -769,13 +769,18 @@ let get_wind_msg = fun (geomap:G.widget) _sender vs ->
   end
 
 
-let get_fbw_msg = fun _sender vs ->
+let get_fbw_msg = fun alarm _sender vs ->
   let ac = get_ac vs in
   let status = Pprz.string_assoc "rc_status" vs
   and rate = (Pprz.int_assoc "rc_rate" vs) / 5 in
   (* divide by 5 to have normal values between 0 and 10 *)
   (* RC rate max approx. 50 Hz *)
-  ac.strip#set_rc rate status
+  ac.strip#set_rc rate status;
+  let mode = Pprz.string_assoc "rc_mode" vs in
+  if mode = "FAILSAFE" then begin
+    log_and_say alarm ac.ac_name (sprintf "%s, mayday, AP Failure" ac.ac_name)
+  end
+ 
 
 
 let get_engine_status_msg = fun _sender vs ->
@@ -794,8 +799,8 @@ let get_if_calib_msg = fun _sender vs ->
 let listen_wind_msg = fun (geomap:G.widget) ->
   safe_bind "WIND" (get_wind_msg geomap)
 
-let listen_fbw_msg = fun () ->
-  safe_bind "FLY_BY_WIRE" get_fbw_msg
+let listen_fbw_msg = fun a ->
+  safe_bind "FLY_BY_WIRE" (get_fbw_msg a)
 
 let listen_engine_status_msg = fun () ->
   safe_bind "ENGINE_STATUS" get_engine_status_msg
@@ -1303,7 +1308,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt
   (** Listen for all messages on ivy *)
   listen_flight_params geomap auto_center_new_ac my_alert alt_graph;
   listen_wind_msg geomap;
-  listen_fbw_msg ();
+  listen_fbw_msg my_alert;
   listen_engine_status_msg ();
   listen_if_calib_msg ();
   listen_waypoint_moved ();
