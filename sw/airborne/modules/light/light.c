@@ -29,7 +29,7 @@ uint8_t strobe_light_mode;
 uint8_t nav_light_mode;
 
 #ifndef STROBE_LIGHT_MODE_DEFAULT
-#define STROBE_LIGHT_MODE_DEFAULT 5
+#define STROBE_LIGHT_MODE_DEFAULT 6
 #endif
 
 #ifndef NAV_LIGHT_MODE_DEFAULT
@@ -41,10 +41,10 @@ void init_light(void) {
   // this part is already done by led_init in fact
   LED_INIT(LIGHT_LED_STROBE);
   LED_OFF(LIGHT_LED_STROBE);
+  strobe_light_mode = STROBE_LIGHT_MODE_DEFAULT;
 #ifdef LIGHT_LED_NAV
   LED_INIT(LIGHT_LED_NAV);
   LED_OFF(LIGHT_LED_NAV);
-  strobe_light_mode = STROBE_LIGHT_MODE_DEFAULT;
   nav_light_mode = NAV_LIGHT_MODE_DEFAULT;
 #endif
 }
