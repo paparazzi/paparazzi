@@ -365,7 +365,8 @@ let send_aircraft_msg = fun ac ->
     let gaz_mode = get_indexed_value gaz_modes a.gaz_mode in
     let lat_mode = get_indexed_value lat_modes a.lateral_mode in
     let horiz_mode = get_indexed_value horiz_modes a.horizontal_mode in
-    let gps_mode = get_indexed_value gps_modes a.gps_mode
+    let gps_mode = get_indexed_value gps_modes a.gps_mode in
+    let state_filter_mode = get_indexed_value state_filter_modes a.state_filter_mode
     and kill_mode = if a.kill_mode then "ON" else "OFF" in
     let values = ["ac_id", Pprz.String ac; 
 		  "flight_time", Pprz.Int a.flight_time;
@@ -374,6 +375,7 @@ let send_aircraft_msg = fun ac ->
 		  "lat_mode", Pprz.String lat_mode;
 		  "horiz_mode", Pprz.String horiz_mode;
 		  "gps_mode", Pprz.String gps_mode;
+                  "state_filter_mode", Pprz.String state_filter_mode;
 		  "kill_mode", Pprz.String kill_mode
 		] in
     Ground_Pprz.message_send my_id "AP_STATUS" values;

@@ -778,7 +778,7 @@ let get_fbw_msg = fun alarm _sender vs ->
   ac.strip#set_rc rate status;
   let mode = Pprz.string_assoc "rc_mode" vs in
   if mode = "FAILSAFE" then begin
-    log_and_say alarm ac.ac_name (sprintf "%s, mayday, AP Failure" ac.ac_name)
+    log_and_say alarm ac.ac_name (sprintf "%s, mayday, AP Failure. Switch to manual." ac.ac_name)
   end
  
 
