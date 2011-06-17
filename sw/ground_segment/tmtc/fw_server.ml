@@ -185,7 +185,14 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.energy <- ivalue "energy"
   | "FBW_STATUS" ->
       a.bat <- fvalue "vsupply" /. 10.;
-      a.fbw.rc_rate <- ivalue "frame_rate"
+      a.fbw.rc_rate <- ivalue "frame_rate";
+      let fbw_mode = ivalue "mode" in
+      a.fbw.rc_mode <-
+        if fbw_mode = 2
+        then "FAILSAFE"
+        else if fbw_mode = 1
+        then "AUTO"
+        else "MANUAL";
   | "PPRZ_MODE" ->
       a.vehicle_type <- FixedWing;
       a.ap_mode <- check_index (ivalue "ap_mode") fixedwing_ap_modes "AP_MODE";
