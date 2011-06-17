@@ -1170,7 +1170,11 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
         | _ -> alert_color in
       ac.strip#set_color "AP" color;
     end;
-    let gps_mode = Pprz.string_assoc "gps_mode" vs in
+    let status_filter_mode = Pprz.string_assoc "state_filter_mode" vs in
+    let gps_mode =  
+      if (status_filter_mode <> "UNKNOWN") && (status_filter_mode <> "OK") && (status_filter_mode <> "GPS_LOST")
+        then status_filter_mode
+        else Pprz.string_assoc "gps_mode" vs in
     ac.strip#set_label "GPS" gps_mode;
     ac.strip#set_color "GPS" (if gps_mode<>"3D" then alert_color else ok_color);
     let ft = 
