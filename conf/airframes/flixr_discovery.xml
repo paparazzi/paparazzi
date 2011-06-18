@@ -17,7 +17,8 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
       <configure name="AHRS_ALIGNER_LED" value="1"/>
       <configure name="CPU_LED" value="2"/>
       <!--define name="IMU_B2_VERSION_1_0"/-->
-      <!-- <define name="USE_I2C0"/> -->
+      <define name="USE_I2C0"/>
+      <define name="I2C0_VIC_SLOT" value="12"/>
     </target>
     <target name="sim" 			board="pc"/>
 
@@ -37,7 +38,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <subsystem name="navigation" type="extra"/>
     <subsystem name="attitude" type="dcm"/>
     
-    <!-- <subsystem name="i2c"/> -->
+    <subsystem name="i2c"/>
 
     <!-- Sensors -->
     <subsystem name="imu" type="booz"/>
@@ -66,10 +67,10 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <load name="adc_generic.xml">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_4"/> <!-- voltage sensor -->
     </load>
-    <!--load name="airspeed_ets.xml">
+    <load name="airspeed_ets.xml">
       <define name="SENSOR_SYNC_SEND"/>
-      <define name="USE_AIRSPEED"/>
-    </load-->
+      <!--define name="USE_AIRSPEED"/-->
+    </load>
   </modules>
 
 <!-- Define here to which CONNECTOR NUMBER the servo is connected to, on the autopilot cicuit board -->
