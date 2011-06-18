@@ -1696,7 +1696,11 @@
     <field name="cpu_time"     type="uint16" unit="s"></field>
   </message>
 
- <!--232 is free -->
+   <message name="STATE_FILTER_STATUS" id="232">
+     <field name="state_filter_mode" type="uint8" values="UNKNOWN|INIT|ALIGN|OK|GPS_LOST|IMU_LOST|COV_ERR|IR_CONTRAST|ERROR"/>
+     <field name="value" type="uint16" />
+   </message>
+
  <!--233 is free -->
 
   <message name="OPTICFLOW" id="234">
@@ -2140,6 +2144,7 @@
     <field name="gps_mode" type="string" values="NOFIX|DRO|2D|3D|GPSDRO"/>
     <field name="kill_mode" type="string" values="OFF|ON"/>
     <field name="flight_time" type="uint32" />
+    <field name="state_filter_mode" type="string" values="UNKNOWN|INIT|ALIGN|OK|GPS_LOST|IMU_LOST|COV_ERR|IR_CONTRAST|ERROR"/>
   </message>
 
   <message name="NAV_STATUS" id="13">
