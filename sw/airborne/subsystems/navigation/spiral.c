@@ -12,7 +12,10 @@
 #include "estimator.h"
 #include "autopilot.h"
 #include "generated/flight_plan.h"
-//#include "modules/digital_cam/dc.h"
+
+#ifdef DIGITAL_CAM
+#include "modules/digital_cam/dc.h"
+#endif
 
 enum SpiralStatus { Outside, StartCircle, Circle, IncSpiral };
 static enum SpiralStatus CSpiralStatus;
@@ -103,7 +106,9 @@ bool_t SpiralNav(void)
 	  // center reached?
 	  if (nav_approaching_xy(WaypointX(Center), WaypointY(Center), FlyFromX, FlyFromY, 0)) {
 		// nadir image
-		//dc_shutter();
+#ifdef DIGITAL_CAM
+		dc_send_command(DC_SHOOT);
+#endif
 		CSpiralStatus = StartCircle;
 	  }
 	  break;
@@ -117,7 +122,9 @@ bool_t SpiralNav(void)
 		LastCircleY = estimator_y;
 		CSpiralStatus = Circle;
 		// Start helix
-		//dc_Circle(360/Segmente);
+#ifdef DIGITAL_CAM
+		dc_Circle(360/Segmente);
+#endif
 	  }
 	  break;
 	case Circle: {
@@ -143,17 +150,21 @@ bool_t SpiralNav(void)
 	  if(SRad + IRad < Spiralradius)
 		{
 		  SRad = SRad + IRad;
-		  /*if (dc_cam_tracing) {
+#ifdef DIGITAL_CAM
+		  if (dc_cam_tracing) {
 			// calculating Camwinkel for camera alignment
 			TransCurrentZ = estimator_z - ZPoint;
 			CamAngle = atan(SRad/TransCurrentZ) * 180  / 3.14;
 			//dc_cam_angle = CamAngle;
-			}*/
+          }
+#endif
 		}
 	  else {
 		SRad = Spiralradius;
+#ifdef DIGITAL_CAM
 		// Stopps DC
-		//dc_stop();
+		dc_stop();
+#endif
 	  }
 	  CSpiralStatus = Circle;
 	  break;
