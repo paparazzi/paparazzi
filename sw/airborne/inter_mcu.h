@@ -120,22 +120,27 @@ static inline void inter_mcu_fill_fbw_state (void) {
 
   fbw_state->vsupply = electrical.vsupply;
   fbw_state->current = electrical.current;
-}
-
-/** Prepares date for next comm with AP. Set ::ap_ok to TRUE */
-static inline void inter_mcu_event_task( void) {
-  time_since_last_ap = 0;
-  ap_ok = TRUE;
 #if defined SINGLE_MCU
   /**Directly set the flag indicating to AP that shared buffer is available*/
   inter_mcu_received_fbw = TRUE;
 #endif
 }
 
+/** Prepares date for next comm with AP. Set ::ap_ok to TRUE */
+static inline void inter_mcu_event_task( void) {
+  time_since_last_ap = 0;
+  ap_ok = TRUE;
+}
+
 /** Monitors AP. Set ::ap_ok to false if AP is down for a long time. */
 static inline void inter_mcu_periodic_task(void) {
   if (time_since_last_ap >= AP_STALLED_TIME) {
     ap_ok = FALSE;
+#ifdef SINGLE_MCU
+    // Keep filling the buffer even if no AP commands are received
+    inter_mcu_fill_fbw_state();
+#endif 
+
   } else
     time_since_last_ap++;
 }

@@ -9,11 +9,11 @@
   <makefile>
 
 <!-- these configureeters should be set in the airframe file unless you want the defaults
-    <configure name="LIGHT_LED_STROBE" value="3"/>
-    <configure name="LIGHT_LED_NAV" value="4"/>
+    <define name="LIGHT_LED_STROBE" value="3"/>
+    <define name="LIGHT_LED_NAV" value="4"/>
 
-    <configure name="STROBE_LIGHT_MODE_DEFAULT" value="5"/>
-    <configure name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
+    <define name="STROBE_LIGHT_MODE_DEFAULT" value="5"/>
+    <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
 -->
 
     <file name="light.c"/>

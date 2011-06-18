@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<!-- Generic Com Module -->
+<!-- Can be redefined :
+     GENERIC_COM_I2C_DEV (default: i2c0)
+     GENERIC_COM_SLAVE_ADDR (default: ??)
+     -->
+
+<module name="generic_com" dir="com">
+  <header>
+    <file name="generic_com.h"/>
+  </header>
+  <init fun="generic_com_init()"/>
+  <periodic fun="generic_com_periodic()" period="180" start="start_com()" stop="stop_com()" autorun="TRUE"/>
+  <event fun="generic_com_event()"/>
+  <makefile>
+    <file name="generic_com.c"/>
+  </makefile>
+</module>
+

@@ -57,6 +57,10 @@ uint8_t fbw_mode;
 
 #include "inter_mcu.h"
 
+
+volatile uint8_t fbw_new_actuators = 0;
+
+
 /********** INIT *************************************************************/
 void init_fbw( void ) {
 
@@ -68,6 +72,7 @@ void init_fbw( void ) {
   actuators_init();
   /* Load the failsafe defaults */
   SetCommands(commands_failsafe);
+  fbw_new_actuators = 1;
 #endif
 #ifdef RADIO_CONTROL
   radio_control_init();
@@ -90,10 +95,9 @@ void init_fbw( void ) {
 static inline void set_failsafe_mode( void ) {
   fbw_mode = FBW_MODE_FAILSAFE;
   SetCommands(commands_failsafe);
+  fbw_new_actuators = 1;
 }
 
-
-volatile uint8_t fbw_new_actuators = 0;
 
 #ifdef RADIO_CONTROL
 static inline void handle_rc_frame( void ) {

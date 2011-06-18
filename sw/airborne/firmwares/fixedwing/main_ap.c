@@ -78,6 +78,7 @@
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
+volatile uint8_t ahrs_timeout_counter = 0;
 #endif
 #ifdef USE_GPS
 static inline void on_gps_solution( void );
@@ -427,6 +428,8 @@ void periodic_task_ap( void ) {
 #ifdef USE_IMU
   // Run at PERIODIC_FREQUENCY (60Hz if not defined)
   imu_periodic();
+  if (ahrs_timeout_counter < 255)
+    ahrs_timeout_counter ++; 
 
 #endif // USE_IMU
 
@@ -663,6 +666,8 @@ static inline void on_accel_event( void ) {
 }
 
 static inline void on_gyro_event( void ) {
+
+  ahrs_timeout_counter = 0;
 
 #ifdef AHRS_CPU_LED
     LED_ON(AHRS_CPU_LED);

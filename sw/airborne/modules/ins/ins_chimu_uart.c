@@ -13,7 +13,7 @@ C code to connect a CHIMU using uart
 #include "estimator.h"
 
 // For centripedal corrections
-#include "gps.h"
+#include "subsystems/gps.h"
 
 // Telemetry
 #ifndef DOWNLINK_DEVICE

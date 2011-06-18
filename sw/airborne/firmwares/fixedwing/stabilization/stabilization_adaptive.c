@@ -394,7 +394,11 @@ inline static void h_ctl_pitch_loop( void ) {
 
   // Compute errors
   float err = estimator_theta - h_ctl_ref_pitch_angle;
+#ifdef USE_GYRO_PITCH_RATE
+  float d_err = estimator_q - h_ctl_ref_pitch_rate;
+#else // soft derivation
   float d_err = (err - last_err)/H_CTL_REF_DT - h_ctl_ref_pitch_rate;
+#endif
   last_err = err;
 
   if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0) {

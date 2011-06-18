@@ -177,7 +177,9 @@ end
 module GM = struct
   (** Fill the visible background with Google, OSM tiles *)
   let fill_tiles = fun geomap ->
-    TodoList.add (fun () -> MapGoogle.fill_window geomap)
+    match geomap#georef with
+      None -> ()
+    | Some _ -> TodoList.add (fun () -> MapGoogle.fill_window geomap)
 
   let auto = ref false
   let update = fun geomap ->

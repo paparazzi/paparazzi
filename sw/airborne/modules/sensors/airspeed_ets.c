@@ -146,8 +146,13 @@ void airspeed_ets_read_event( void ) {
         airspeed_ets_offset_tmp += airspeed_ets_raw;
     }
     // Convert raw to m/s
+#ifdef AIRSPEED_ETS_REVERSE
+    if (airspeed_ets_offset_init && airspeed_ets_raw < airspeed_ets_offset)
+      airspeed_tmp = AIRSPEED_ETS_SCALE * sqrtf( (float)(airspeed_ets_offset-airspeed_ets_raw) ) - AIRSPEED_ETS_OFFSET;
+#else
     if (airspeed_ets_offset_init && airspeed_ets_raw > airspeed_ets_offset)
       airspeed_tmp = AIRSPEED_ETS_SCALE * sqrtf( (float)(airspeed_ets_raw-airspeed_ets_offset) ) - AIRSPEED_ETS_OFFSET;
+#endif
     else
       airspeed_tmp = 0.0;
     // Airspeed should always be positive

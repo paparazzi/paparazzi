@@ -541,11 +541,19 @@
     <field name="cte_int" type="float"/>
   </message>
 
-  <message name="ESTIMATOR_COMP_FILTER" id="81">
-    <field name="gyro_hp_last_out" type="float"/>
-    <field name="gyro_int" type="float"/>
-    <field name="gps_lp_last_out" type="float"/>
-    <field name="ir_lp_last_out" type="float"/>
+  <message name="GENERIC_COM" id="81">
+    <field name="lat" type="int32" unit="1e7deg"/>
+    <field name="lon" type="int32" unit="1e7deg"/>
+    <field name="alt" type="int16" unit="m"/>
+    <field name="gspeed" type="uint16" unit="cm/s" alt_unit="m/s"/>
+    <field name="course" type="int16" unit="decideg" alt_unit="deg"/>
+    <field name="airspeed" type="uint16" unit="cm/s" alt_unit="m/s"/>
+    <field name="vsupply" type="uint8" unit="decivolt"/>
+    <field name="energy" type="uint8" unit="deciAh"/>
+    <field name="throttle" type="uint8" unit="%"/>
+    <field name="ap_mode" type="uint8"/>
+    <field name="nav_block" type="uint8"/>
+    <field name="flight_time" type="uint16" unit="s"/>
   </message>
 
   <message name="FORMATION_SLOT_TM" id="82">
@@ -1709,7 +1717,11 @@
     <field name="cpu_time"     type="uint16" unit="s"></field>
   </message>
 
- <!--232 is free -->
+   <message name="STATE_FILTER_STATUS" id="232">
+     <field name="state_filter_mode" type="uint8" values="UNKNOWN|INIT|ALIGN|OK|GPS_LOST|IMU_LOST|COV_ERR|IR_CONTRAST|ERROR"/>
+     <field name="value" type="uint16" />
+   </message>
+
  <!--233 is free -->
 
   <message name="OPTICFLOW" id="234">
@@ -2153,6 +2165,7 @@
     <field name="gps_mode" type="string" values="NOFIX|DRO|2D|3D|GPSDRO"/>
     <field name="kill_mode" type="string" values="OFF|ON"/>
     <field name="flight_time" type="uint32" />
+    <field name="state_filter_mode" type="string" values="UNKNOWN|INIT|ALIGN|OK|GPS_LOST|IMU_LOST|COV_ERR|IR_CONTRAST|ERROR"/>
   </message>
 
   <message name="NAV_STATUS" id="13">
