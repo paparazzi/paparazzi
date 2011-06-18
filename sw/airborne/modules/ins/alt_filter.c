@@ -21,7 +21,7 @@
  */
 
 #include "modules/ins/alt_filter.h"
-#include "gps.h"
+#include "subsystems/gps.h"
 #include "modules/sensors/baro_ets.h"
 
 #ifndef DOWNLINK_DEVICE
@@ -65,7 +65,7 @@ void alt_filter_periodic(void) {
   kalmanEstimation(&alt_filter,0.);
 
   // update on new data
-  float ga = (float)gps_alt / 100.;
+  float ga = (float)gps.hmsl / 1000.;
   if (baro_ets_altitude != last_baro_alt) {
     kalmanCorrectionAltimetre(&alt_filter, baro_ets_altitude);
     last_baro_alt = baro_ets_altitude;
@@ -204,7 +204,7 @@ void kalmanCorrectionGPS(TypeKalman *k, float altitude_gps){ // altitude_gps est
     I[0][0] = Kf[0]; I[0][1] = 0; I[0][2] = 0;
     I[1][0] = Kf[1]; I[1][1] = 0; I[1][2] = 0;
     I[2][0] = Kf[2]; I[2][1] = 0; I[2][2] = 0;
-	
+
     for(i=0;i<3;i++){
       for (j=0;j<3;j++){
         k->P[i][j] = k->P[i][j] - I[i][0]*k->P[0][j] - I[i][1]*k->P[1][j] - I[i][2]*k->P[2][j];
@@ -231,7 +231,7 @@ void kalmanCorrectionAltimetre(TypeKalman *k, float altitude_altimetre){
   // C = [1 0 1]
   // div = C*P*C' + R
   div = k->P[0][0] + k->P[2][0] + k->P[0][2] + k->P[2][2] + SigAltiAltimetre*SigAltiAltimetre;
-  
+
   if (fabs(div) > 1e-5) {
     // Kf = P*C'*inv(div)
     Kf[0] = (k->P[0][0] + k->P[0][2]) / div;
@@ -259,4 +259,3 @@ void kalmanCorrectionAltimetre(TypeKalman *k, float altitude_altimetre){
   }
 
 }
-
