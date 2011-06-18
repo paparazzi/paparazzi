@@ -40,7 +40,7 @@ static float SRad;
 static float IRad;
 static float Alphalimit;
 static float Segmente;
-// static float CamAngle;
+static float CamAngle;
 static float ZPoint;
 static float nav_radius_min;
 
@@ -155,7 +155,7 @@ bool_t SpiralNav(void)
 			// calculating Camwinkel for camera alignment
 			TransCurrentZ = estimator_z - ZPoint;
 			CamAngle = atan(SRad/TransCurrentZ) * 180  / 3.14;
-			//dc_cam_angle = CamAngle;
+			dc_cam_angle = CamAngle;
           }
 #endif
 		}
