@@ -79,8 +79,8 @@
 #include "autopilot.h"
 #include "generated/flight_plan.h"
 #include "subsystems/navigation/common_nav.h"
-#include "latlong.h"
-#include "gps.h"
+#include "subsystems/gps.h"
+#include "math/pprz_geodetic_float.h"
 
 typedef struct {
          float fx;
@@ -356,9 +356,14 @@ if (cam_mode == CAM_MODE_STABILIZED || cam_mode == CAM_MODE_RC ){
 
       cam_point_distance_from_home = distance_correction * (uint16_t) (sqrt((cam_point_x*cam_point_x) + (cam_point_y*cam_point_y) ));
 
-      latlong_of_utm(((gps_utm_east/100.) + sv_cam_projection.fx), ((gps_utm_north/100.) + sv_cam_projection.fy), gps_utm_zone);
-      cam_point_lon = latlong_lon*(180/M_PI);
-      cam_point_lat = latlong_lat*(180/M_PI);
+      struct UtmCoor_f utm;
+      utm.east = gps.utm_pos.east/100. + sv_cam_projection.fx;
+      utm.north = gps.utm_pos.north/100. + sv_cam_projection.fy;
+      utm.zone = gps.utm_pos.zone;
+      struct LlaCoor_f lla;
+      lla_of_utm_f(&lla, &utm);
+      cam_point_lon = lla.lon*(180/M_PI);
+      cam_point_lat = lla.lat*(180/M_PI);
 #endif
 
    }else{
@@ -391,9 +396,15 @@ if (cam_mode == CAM_MODE_RC && cam_lock == 0 ){
         cam_point_distance_from_home = distance_correction * (uint16_t) fabs( ((uint16_t) (sqrt((fObjectNorth*fObjectNorth) + (fObjectEast*fObjectEast) ))) -
                                           ((uint16_t) (sqrt((fPlaneNorth*fPlaneNorth) + (fPlaneEast*fPlaneEast) ))) );
 
-        latlong_of_utm((nav_utm_east0 + fObjectEast), (nav_utm_north0 + fObjectNorth), gps_utm_zone);
-        cam_point_lon = latlong_lon*(180/M_PI);
-        cam_point_lat = latlong_lat*(180/M_PI);
+        struct UtmCoor_f utm;
+        utm.east = nav_utm_east0 + fObjectEast;
+        utm.north = nav_utm_north0 + fObjectNorth;
+        utm.zone = gps.utm_pos.zone;
+        struct LlaCoor_f lla;
+        lla_of_utm_f(&lla, &utm);
+        cam_point_lon = lla.lon*(180/M_PI);
+        cam_point_lat = lla.lat*(180/M_PI);
+
 
 #if defined(WP_CAM_POINT)
         waypoints[WP_CAM_POINT].x = fObjectEast;

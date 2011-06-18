@@ -242,7 +242,7 @@ static uint8_t dc_shutter_timer = 0;
 
   case DC_AUTOSHOOT_DISTANCE:
   {
-  uint32_t dist_to_100m_grid = (gps_utm_north / 100) % 100;
+  uint32_t dist_to_100m_grid = (gps.utm_pos.north / 100) % 100;
   if (dist_to_100m_grid < dc_autoshoot_meter_grid || 100 - dist_to_100m_grid < dc_autoshoot_meter_grid)
   {
       dc_send_command(DC_SHOOT);

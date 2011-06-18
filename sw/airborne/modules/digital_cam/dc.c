@@ -58,11 +58,12 @@ uint16_t dc_buffer = 0;
 #include "estimator.h"
 #include "subsystems/gps.h"
 
-  void dc_send_shot_position(void)
-  {
-    int16_t phi = DegOfRad(estimator_phi*10.0f);
-    int16_t theta = DegOfRad(estimator_theta*10.0f);
+void dc_send_shot_position(void)
+{
+  int16_t phi = DegOfRad(estimator_phi*10.0f);
+  int16_t theta = DegOfRad(estimator_theta*10.0f);
   float gps_z = ((float)gps.hmsl) / 1000.0f;
+  int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));
   int16_t photo_nr = -1;
 
   if (dc_buffer < DC_IMAGE_BUFFER) {
@@ -73,15 +74,15 @@ uint16_t dc_buffer = 0;
 
   DOWNLINK_SEND_DC_SHOT(DefaultChannel,
                         &photo_nr,
-                        &gps_utm_east,
-                        &gps_utm_north,
+                        &gps.utm_pos.east,
+                        &gps.utm_pos.north,
                         &gps_z,
-                        &gps_utm_zone,
+                        &gps.utm_pos.zone,
                         &phi,
                         &theta,
-                        &gps_course,
-                        &gps_gspeed,
-                        &gps_itow);
+                        &course,
+                        &gps.gspeed,
+                        &gps.tow);
 }
 #endif /* SENSOR_SYNC_SEND */
 
