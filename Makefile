@@ -72,10 +72,13 @@ all: commands static conf
 
 static : lib center tools cockpit multimon tmtc misc logalizer lpc21iap sim_static static_h usb_lib
 
-conf: conf/conf.xml conf/control_panel.xml
+conf: conf/conf.xml conf/control_panel.xml conf/maps_data/version
 
 conf/%.xml :conf/%.xml.example
 	[ -L $@ ] || [ -f $@ ] || cp $< $@
+
+conf/maps_data/version:
+	cd data/maps; $(MAKE)
 
 
 lib:
@@ -248,10 +251,8 @@ sw/simulator/launchsitl:
 	cat src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
 	chmod a+x $@
 
-#.SUFFIXES: .hgt.zip .jpg
+#.SUFFIXES: .hgt.zip
 
 %.hgt.zip:
 	cd data/srtm; $(MAKE) $(@)
 
-%.jpg:
-	cd data/maps; $(MAKE) $(@)
