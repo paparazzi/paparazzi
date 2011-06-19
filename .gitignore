@@ -46,6 +46,7 @@
 /conf/control_panel.xml
 /conf/%gconf.xml
 /conf/srtm_data/*
+/conf/maps_data/*
 
 # /doc/pprz_algebra/
 /doc/pprz_algebra/headfile.log

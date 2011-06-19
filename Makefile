@@ -227,7 +227,7 @@ cleanspaces:
 distclean : dist_clean
 dist_clean : clean
 	rm -r conf/srtm_data
-
+	rm -r conf/maps_data
 
 ab_clean:
 	find sw/airborne -name '*~' -exec rm -f {} \;
@@ -248,8 +248,10 @@ sw/simulator/launchsitl:
 	cat src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
 	chmod a+x $@
 
-#.SUFFIXES: .hgt.zip
+#.SUFFIXES: .hgt.zip .jpg
 
 %.hgt.zip:
 	cd data/srtm; $(MAKE) $(@)
 
+%.jpg:
+	cd data/maps; $(MAKE) $(@)
