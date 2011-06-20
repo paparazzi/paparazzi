@@ -286,8 +286,13 @@ void handle_ins_msg( void) {
 
 
   // Send to Estimator (Control)
+#ifdef XSENS_BACKWARDS
+  EstimatorSetAtt((-ins_phi+ins_roll_neutral), (ins_psi + RadOfDeg(180)), (-ins_theta+ins_pitch_neutral));
+  EstimatorSetRate(-ins_p,-ins_q);
+#else
   EstimatorSetAtt(ins_phi+ins_roll_neutral, ins_psi, ins_theta+ins_pitch_neutral);
   EstimatorSetRate(ins_p,ins_q);
+#endif
 
   // Position
   float gps_east = gps.utm_pos.east / 100.;
@@ -310,7 +315,6 @@ void handle_ins_msg( void) {
   float fclimb = -ins_vz;
   float fcourse = atan2f((float)ins_vy, (float)ins_vx);
   EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
-
 
   // Now also finish filling the gps struct for telemetry purposes
   gps.gspeed = fspeed * 100.;
