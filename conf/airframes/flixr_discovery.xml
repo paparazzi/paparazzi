@@ -10,7 +10,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 <airframe name="Discovery">
 
   <firmware name="fixedwing">
-    <target name="ap" 			board="twog_1.0">
+    <target name="ap"           board="twog_1.0">
       <configure name="PERIODIC_FREQUENCY" value="960"/> <!-- IMU FREQ -->
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="120"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="60"/>
@@ -20,7 +20,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
       <define name="USE_I2C0"/>
       <define name="I2C0_VIC_SLOT" value="12"/>
     </target>
-    <target name="sim" 			board="pc"/>
+    <target name="sim"          board="pc"/>
 
     <define name="LOITER_TRIM"/>
     <define name="USE_PITCH_TRIM"/> <!-- basically same as loiter trim, but for adaptive-->
@@ -36,8 +36,8 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <!-- Control -->
     <subsystem name="control" type="new"/>
     <subsystem name="navigation" type="extra"/>
-    <subsystem name="attitude" type="dcm"/>
-    
+    <subsystem name="ahrs" type="dcm"/>
+
     <subsystem name="i2c"/>
 
     <!-- Sensors -->
@@ -80,16 +80,16 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <servo name="AILERON_RIGHT" no="3" min="2000" neutral="1500" max="1000"/>
     <servo name="AILERON_LEFT"  no="4" min="2000" neutral="1500" max="1000"/>
     <servo name="RUDDER"        no="6" min="1000" neutral="1500" max="2000"/>
-    <servo name="HATCH"	  	no="7" min="1100" neutral="1100" max="1900"/>
+    <servo name="HATCH"     no="7" min="1100" neutral="1100" max="1900"/>
   </servos>
 
 <!-- commands section -->
   <commands>
-    <axis name="THROTTLE" 	failsafe_value="0"/>
-    <axis name="ROLL"	  	failsafe_value="0"/>
-    <axis name="PITCH"	  	failsafe_value="0"/>
-    <axis name="YAW"	  	failsafe_value="2000"/>
-    <axis name="HATCH"	  	failsafe_value="-9599"/>
+    <axis name="THROTTLE"   failsafe_value="0"/>
+    <axis name="ROLL"       failsafe_value="0"/>
+    <axis name="PITCH"      failsafe_value="0"/>
+    <axis name="YAW"        failsafe_value="2000"/>
+    <axis name="HATCH"      failsafe_value="-9599"/>
 <!-- maybe set to open position so we can insert the payload -->
   </commands>
 
@@ -215,7 +215,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
 
     <!--UNLOCKED_HOME_MODE if set to TRUE means that HOME mode does not get stuck.
-	If not set before when you would enter home mode you had to flip a bit via the GCS to get out. -->
+    If not set before when you would enter home mode you had to flip a bit via the GCS to get out. -->
     <!--define name="UNLOCKED_HOME_MODE" value="TRUE"/-->
     <!-- RC_LOST_MODE means that if your RC Transmitter signal is not received anymore in the autopilot, e.g. you switch it off
      or  fly a long range mission you define the wanted mode behaviour here.

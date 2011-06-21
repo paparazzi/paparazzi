@@ -214,7 +214,7 @@
 
     <!-- Sensors -->
     <subsystem name="imu" type="booz"/>
-    <subsystem name="attitude" type="dcm"/>
+    <subsystem name="ahrs" type="dcm"/>
     <subsystem name="gps" type="ublox_lea4p"/>
     <subsystem name="navigation"/>
 

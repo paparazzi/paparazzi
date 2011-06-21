@@ -244,7 +244,7 @@
     <subsystem name="imu" type="aspirin_i2c"/>
     -->
     <subsystem name="imu" type="ppzuav"/>
-    <subsystem name="attitude" type="dcm">
+    <subsystem name="ahrs" type="dcm">
 <!--      <define name="USE_MAGNETOMETER" /> -->
     </subsystem>
 
