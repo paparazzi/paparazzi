@@ -24,7 +24,7 @@
 
 
 #define LPC21IAP_VER_MAJ    1
-#define LPC21IAP_VER_MIN    2
+#define LPC21IAP_VER_MIN    3
 
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -472,7 +472,7 @@ int main(int argc, char *argv[])
                         /* number of bytes in the last sector */
                         splitCnt = end % MAX_SECT;
                     }
-                    if (splitCnt != MAX_SECT)
+                    if ((splitCnt != MAX_SECT) && (splitCnt > 0))
                     {
                         /* keep partly filled pages for later programming */
                         actBuf = startBuf;
