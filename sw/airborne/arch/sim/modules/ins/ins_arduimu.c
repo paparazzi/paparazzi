@@ -17,10 +17,12 @@ struct Infrared infrared;
 // Arduimu empty implementation
 #include "modules/ins/ins_arduimu.h"
 
-float ArduIMU_data[NB_DATA];
-
 float ins_roll_neutral;
 float ins_pitch_neutral;
+
+int renorm_sqrt_count;
+int imu_overrun;
+float imu_health;
 
 //mixer
 float pitch_of_throttle_gain;
@@ -30,6 +32,10 @@ void ArduIMU_init( void ) {}
 void ArduIMU_periodic( void ) {}
 void ArduIMU_periodicGPS( void ) {}
 void IMU_Daten_verarbeiten( void ) {}
+
+void ins_ardu_init( void ) {}
+void ins_ardu_event( void ) {}
+void ins_ardu_periodic( void ) {}
 
 // Updates from Ocaml sim
 float sim_air_speed;

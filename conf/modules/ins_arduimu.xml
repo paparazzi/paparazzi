@@ -4,9 +4,9 @@
   <header>
     <file name="ins_arduimu.h"/>
   </header>
-  <init fun="ArduIMU_init()"/>
-  <periodic fun="ArduIMU_periodic()" freq="15" autorun="TRUE"/>		<!-- 15 ist soll -->
-  <periodic fun="ArduIMU_periodicGPS()" freq="8" autorun="TRUE"/>       <!--  8 ist soll -->
+  <init fun="ins_ardu_init()"/>
+  <periodic fun="ins_ardu_periodic()" freq="60"/>
+  <event fun="ins_ardu_event()"/>
   <makefile target="ap">
     <file name="ins_arduimu.c"/>
   </makefile>

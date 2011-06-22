@@ -1,22 +1,21 @@
-#ifndef ArduIMU_H
-#define ArduIMU_H
+#ifndef ins_ardimu_h
+#define ins_ardimu_h
 
-#include <inttypes.h>
-
-#define NB_DATA 6
-
-extern float ArduIMU_data[NB_DATA];
 
 extern float ins_roll_neutral;
 extern float ins_pitch_neutral;
 
-//mixer
-extern float pitch_of_throttle_gain;
-extern float throttle_slew;
+extern int renorm_sqrt_count;
+extern int imu_overrun;
+extern float imu_health;
 
-void ArduIMU_init( void );
-void ArduIMU_periodic( void );
-void ArduIMU_periodicGPS( void );
-void IMU_Daten_verarbeiten( void );
+void ins_ardu_init( void );
+void ins_ardu_periodic( void );
+void ins_ardu_event( void );
 
-#endif // ArduIMU_H
+void ins_ardu_send_gps( void );
+void ins_data_process( void );
+
+#define RadOfADC(_adc, scale) RadOfDeg((_adc * scale))
+
+#endif // ins_ardimu

@@ -20,7 +20,7 @@
 #define BOARD_VERSION 2 // 1 For V1 and 2 for V2
 
 // Ublox gps is recommended!
-#define GPS_PROTOCOL 3    // 1 - NMEA,  2 - EM406,  3 - Ublox    We have only tested with Ublox
+#define GPS_PROTOCOL 5    // 1 - NMEA,  2 - EM406,  3 - Ublox, 4 -- MediaTek, 5 - Ublox_Paparazzi_I2C
 
 // Enable Air Start uses Remove Before Fly flag - connection to pin 6 on ArduPilot 
 #define ENABLE_AIR_START 0  //  1 if using airstart/groundstart signaling, 0 if not
@@ -44,11 +44,7 @@
 
 
 //**********I2C Parameter ********************************************
-#define PRINT_I2C_Data 1     //Will print GPS data
-int I2C_Message_ar[6];
-
-
-#define GET_GPS_PAP 1        // Use GPS-DATA from Paparazzi Ublox
+#define PRINT_I2C_Data 1     //Output through I2C
 
 
 //********************************************************************
@@ -109,8 +105,9 @@ int I2C_Message_ar[6];
 float G_Dt=0.02;    // Integration time (DCM algorithm)
 
 long timeNow=0; // Hold the milliseond value for now
+long timeLast=0; // Hold the milliseond value for last
+long timeDeltaNext=16800;   /* 60Hz = 16.666ms */
 long timer=0;   //general purpuse timer
-long timer_old;
 long timer24=0; //Second timer used to print values 
 boolean groundstartDone = false;    // Used to not repeat ground start
 
@@ -194,17 +191,6 @@ byte numSV=0; //Number of Sats used.
 float ecefVZ=0; //Vertical Speed in m/s
 unsigned long GPS_timer=0;
 
-// übergnagsvariablen für die GPS Werte zwischen zu speichern
-long iTOW2=0; //GPS Millisecond Time of Week
-long lon2=0; // Store the Longitude from the gps to pass to output
-long lat2=0; // store the Latitude from the gps to pass to output
-long alt2=0;  //Height above Ellipsoid in millimeters
-long alt_MSL2=0; //This is the altitude in millimeters
-float speed_3d2=0; //Speed (3-D)
-float ground_speed2=0;// This is the velocity your "plane" is traveling in meters for second, 1Meters/Second= 3.6Km/H = 1.944 knots
-byte recPakOne = 0x00; // Paket eins Noch nicht empfangen
-
-
 #if GPS_PROTOCOL == 3
 // GPS UBLOX
 byte ck_a=0;    // Packet checksum
@@ -222,15 +208,14 @@ byte UBX_ck_b=0;
 
 
 //***********************GPS PAPARAZZI************************************************************************
-#if GET_GPS_PAP
+#if GPS_PROTOCOL == 5
 byte Paparazzi_GPS_buffer[UBX_MAXPAYLOAD];
-int gpsDataReady = 0;  // sind neuen GPS daten vorhanden ??
-byte stGpsFix;
-byte stFlags;
-byte solGpsFix;
-byte solFlags;
-byte messageNr;
+byte ubGpsFix;
+byte ubGpsFlags;
+#endif
 
+#if PRINT_I2C_Data == 1
+int I2C_Message_ar[9];
 #endif
 //************************************************************************************************************
 
@@ -308,7 +293,7 @@ long press_alt = 0;					// Pressure altitude in millimeters
 
 #endif
 
-//******************************************************************
+//*****************************************************************************************
 void setup()
 { 
   Serial.begin(38400);
@@ -322,14 +307,16 @@ void setup()
 
   //************Define I2C Output Handler***************************************************3
    #if PRINT_I2C_Data == 1
-      Wire.begin(17);                // join i2c bus with address #2
+      Wire.begin(17);                /* join i2c bus with address #2 */
       Wire.onRequest(requestEvent);
+   #else
+     #if GPS_PROTOCOL == 5
+      Wire.begin(17);                /* join i2c bus with address #2 */
+     #endif
    #endif 
    
-    #if GET_GPS_PAP == 1
-   // Muss noch sauber abgefangen werden wennn I2CDATA nicht definiert ist
-      //Wire.begin(17);                // join i2c bus with address #2
-      Wire.onReceive(receiveEvent); // register event --> Output
+   #if GPS_PROTOCOL == 5
+      Wire.onReceive(receiveEvent);  // register event --> Output
    #endif
      
   //*************************************************************
@@ -384,30 +371,32 @@ void setup()
   delay(250);
     
   Read_adc_raw();     // ADC initialization
-  timer=DIYmillis();
-  delay(20);
-  
+  timeLast=micros();
+  delay(10);  
 }
 
 //***************************************************************************************
 void loop() //Main Loop
 {
-  timeNow = millis();
+  timeNow = micros();
  
-  if((timeNow-timer)>=20)  // Main loop runs at 50Hz
+  if((timeNow-timeLast) >= timeDeltaNext)
   {
-    timer_old = timer;
-    timer = timeNow;
 	
 #if PERFORMANCE_REPORTING == 1
     mainLoop_count++;
-    if (timer-timer_old > G_Dt_max) G_Dt_max = timer-timer_old;
+    if (timeNow-timeLast > G_Dt_max) G_Dt_max = timeNow-timeLast;
 #endif
 
-    G_Dt = (timer-timer_old)/1000.0;    // Real time of loop run. We use this on the DCM algorithm (gyro integration time)
-    if(G_Dt > 1)
-        G_Dt = 0;  //Something is wrong - keeps dt from blowing up, goes to zero to keep gyros from departing
+    /* Real time of loop run. We use this on the DCM algorithm (gyro integration time) */
+    G_Dt = (timeNow-timeLast) / 1000000.;
     
+    if(G_Dt > 1)
+        G_Dt = 0;  /* Something is wrong - keeps dt from blowing up, goes to zero to keep gyros from departing */
+
+    timeDeltaNext = 16800 - (cycleCount % 3 == 0 ? 400:0);   /* run at 60Hz = 16 + (2/3) ms */
+    timeLast = timeNow;
+        
     // *** DCM algorithm
    
     Read_adc_raw();
@@ -437,10 +426,10 @@ void loop() //Main Loop
 	cycleCount++;
 
         // Do these things every 6th time through the main cycle 
-        // This section gets called every 1000/(20*6) = 8 1/3 Hz
+        // This section gets called every 60Hz / 6 = 10 Hz
         // doing it this way removes the need for another 'millis()' call
 		// and balances the processing load across main loop cycles.
-		switch (cycleCount) {
+		switch (cycleCount % 6) {
 			case(0):
 				decode_gps();
 				break;
@@ -495,8 +484,7 @@ void loop() //Main Loop
 				break;
 				
 			case(5):
-				cycleCount = -1;		// Reset case counter, will be incremented to zero before switch statement
-				#if !PRINT_BINARY
+				#if !PRINT_BINARY && !PRINT_I2C_Data
 					printdata(); //Send info via serial
 				#endif
 				break;

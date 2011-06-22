@@ -1,99 +1,51 @@
 
 
 //*****I2C Output************************************************************
-  // PRINT_I2C_Data
-  // #if PRINT_BINARY != 1  //Print either Ascii or binary messages
-  
+
 void requestEvent(){
-   //MEssage Array : Roll; Pitch ; YaW ; ACCX;ACCY;ACCZ
-   // Float Number is multipited with 100 and converted to an Integer, for sending via I2C.
+   // Message Array : Roll,Pitch,Yaw; gyroRoll;
+   // Float Number is multiplied with 100 and converted to an Integer, for sending via I2C.
       I2C_Message_ar[0] = int(ToDeg(roll)*100);
       I2C_Message_ar[1] = int(ToDeg(pitch)*100);
       I2C_Message_ar[2] = int(ToDeg(yaw)*100);
-      I2C_Message_ar[3] = int(read_adc(3)*100);
-      I2C_Message_ar[4] = int(read_adc(4)*100);
-      I2C_Message_ar[5] = int(read_adc(5)*100);
+      I2C_Message_ar[3] = int(read_adc(0));
       
       byte* pointer;
       pointer = (byte*) &I2C_Message_ar;
-      Wire.send(pointer, 12);
+      Wire.send(pointer, 8);
       
-      /*
-      //Serial.println();
-       Serial.print("Time ;");
+#if PRINT_DEBUG != 0
+      /* for ground debug only, do not call Serial.print() from irq */
+      #warning PRINT_DEBUG is for ground debug only, no correct timer values!
+      
+      Serial.print("Time ;");
       Serial.print(millis());
-      
-      Serial.print(";    Roll ;");
+      Serial.print("; Roll ;");
       Serial.print(I2C_Message_ar[0]);
-      Serial.print(";  Pitch ;");
+      Serial.print("; Pitch ;");
       Serial.print(I2C_Message_ar[1]);
-      Serial.print(";  YaW ;");
+      Serial.print("; Yaw ;");
       Serial.print(I2C_Message_ar[2]);
-      Serial.print("; ACCX ;");
+      Serial.print("; gyRoll ;");
       Serial.print(I2C_Message_ar[3]);
-      Serial.print(";  ACCY: ;");
+      Serial.print("; gyPitch ;");
       Serial.print(I2C_Message_ar[4]);
-      Serial.print(";  ACCZ ;");
-      Serial.println(I2C_Message_ar[5]);
-      */
+      Serial.print("; gyYaw ;");
+      Serial.print(I2C_Message_ar[5]);
+      Serial.print("; ACCX ;");
+      Serial.print(I2C_Message_ar[6]);
+      Serial.print("; ACCY ;");
+      Serial.print(I2C_Message_ar[7]);
+      Serial.print("; ACCZ ;");
+      Serial.println(I2C_Message_ar[8]);
+#endif
   }
  
- // ********GPS Data from PAPArazzi UBLOX**********************************************************************
-
-void receiveEvent(int howMany){
-  Serial.print(" How Many Bytes GPS : "); 
-  Serial.println(howMany);
-   
-   for(int i=0; i < howMany; i++){
-     Paparazzi_GPS_buffer[i]=Wire.receive();
-   }
-   
-    parse_ubx_gps();               // Parse new GPS packet...
-    GPS_timer=DIYmillis();         //Restarting timer...
-  
-    gpsDataReady=1;
- 
-}
-
-
 //*************************************************************************************************************
 
 
 void printdata(void){    
-  
-  
- #if PRINT_I2C_Data == 1
-     /* I2C_Message_ar[0] = int(ToDeg(roll)*100);
-      I2C_Message_ar[1] = int(ToDeg(pitch)*100);
-      I2C_Message_ar[2] = int(ToDeg(yaw)*100);
-      I2C_Message_ar[3] = int(read_adc(3)*100);
-      I2C_Message_ar[4] = int(read_adc(4)*100);
-      I2C_Message_ar[5] = int(read_adc(5)*100);
-      
-      Serial.println();
-       Serial.print("Time ");
-      Serial.print(timer);
-      
-      Serial.print("  Roll: ");
-      Serial.print(I2C_Message_ar[0]);
-      Serial.print("  Pitch: ");
-      Serial.print(I2C_Message_ar[1]);
-      Serial.print("  YaW:  ");
-      Serial.print(I2C_Message_ar[2]);
-      Serial.print(" ACCX:  ");
-      Serial.print(I2C_Message_ar[3]);
-      Serial.print("  ACCY: ");
-      Serial.print(I2C_Message_ar[4]);
-      Serial.print("  ACCZ: ");
-      Serial.println(I2C_Message_ar[5]);
-  
-  */
-  #endif
-  
-  
- 
-  
-  
+    
 #if PRINT_BINARY != 1  //Print either Ascii or binary messages
 
 	//Serial.print("!!!VER:");

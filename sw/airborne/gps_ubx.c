@@ -255,7 +255,6 @@ void parse_gps_msg( void ) {
     if (ubx_id == UBX_NAV_STATUS_ID) {
       gps_mode = UBX_NAV_STATUS_GPSfix(ubx_msg_buf);
       gps_status_flags = UBX_NAV_STATUS_Flags(ubx_msg_buf);
-      gps_sol_flags = UBX_NAV_SOL_Flags(ubx_msg_buf);
 #ifdef GPS_USE_LATLONG
       /* Computes from (lat, long) in the referenced UTM zone */
     } else if (ubx_id == UBX_NAV_POSLLH_ID) {
@@ -295,6 +294,7 @@ void parse_gps_msg( void ) {
       gps_t0_itow = UBX_NAV_SOL_ITOW(ubx_msg_buf);
       gps_t0_frac = UBX_NAV_SOL_Frac(ubx_msg_buf);
 #endif
+      gps_sol_flags = UBX_NAV_SOL_Flags(ubx_msg_buf);
       gps_mode = UBX_NAV_SOL_GPSfix(ubx_msg_buf);
       gps_PDOP = UBX_NAV_SOL_PDOP(ubx_msg_buf);
       gps_Pacc = UBX_NAV_SOL_Pacc(ubx_msg_buf);
