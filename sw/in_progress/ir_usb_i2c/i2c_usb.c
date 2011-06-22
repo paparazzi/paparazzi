@@ -4,7 +4,7 @@
  *
  *             adapted to Melexis MLX 90614 adapter
  *
- *
+ *             sudo rmmod i2c-tiny-usb 
  * $Id$
  */
 
@@ -15,7 +15,7 @@
 
 /* mlx90614 chip address (default address) */
 #define MLX90614_ADDR    0x00
-#define MLX90614_ADDR_1  0x02
+#define MLX90614_ADDR_1  0x03
 #define MLX90614_ADDR_2  0x05
 
 #define LOOPS 100
@@ -389,11 +389,11 @@ int main(int argc, char *argv[]) {
   /* try to set i2c clock to 100kHz (10us), will actually result in ~50kHz */
   /* since the software generated i2c clock isn't too exact. in fact setting */
   /* it to 10us doesn't do anything at all since this already is the default */
-  i2c_tiny_usb_set(CMD_SET_DELAY, 10);
+  i2c_tiny_usb_set(CMD_SET_DELAY, 15);
 
   i=i;
 
-#if 0
+#if 1
   /* -------- begin of mlx90614 client processing --------- */
   printf("Probing for MLX90614 ... ");
 
@@ -425,8 +425,12 @@ int main(int argc, char *argv[]) {
     printf("i2c addr = 0x%04X\n", tp);
 
     /* write new i2c address, always set bit0 ! */
-//    i2c_mlx_write_cmd_and_word(MLX90614_ADDR, 0x2E, 1);
-//    usleep(1000000);
+    i2c_mlx_write_cmd_and_word(MLX90614_ADDR, 0x2E, 0);
+    usleep(1000000);
+    
+    /* write new i2c address, always set bit0 ! */
+    i2c_mlx_write_cmd_and_word(MLX90614_ADDR, 0x2E, MLX90614_ADDR_1);
+    usleep(1000000);
     
     tp = i2c_mlx_read_word_with_cmd(MLX90614_ADDR, 0x2E);
     printf("i2c addr = 0x%04X\n", tp);
@@ -472,6 +476,19 @@ int main(int argc, char *argv[]) {
     goto quit;
   }  
   
+  {  
+    int tp1, tp2;
+    
+    usleep(100000);
+
+    while(1) {
+      tp1 = i2c_mlx_read_word_with_cmd(MLX90614_ADDR_1, 0x07);
+      if (tp1 == -1) goto quit;
+      printf("%2.2f°C\n", (tp1*0.02)-273.15);
+//      usleep(20000);
+    }
+  }
+
   {  
     int tp1, tp2;
     
