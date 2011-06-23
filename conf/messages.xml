@@ -495,7 +495,10 @@
  <!-- 66 is free -->
  <!-- 67 is free -->
  <!-- 68 is free -->
- <!-- 69 is free -->
+	<message name="AOA_adc" id="69">
+		<field name="adcVal" type="uint16"></field>
+		<field name="AOA" type="float" unit="rad"></field>
+	</message>
  <!-- 70 is free -->
  <!-- 71 is free -->
  <!-- 72 is free -->
