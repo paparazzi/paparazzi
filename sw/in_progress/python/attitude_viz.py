@@ -115,14 +115,14 @@ class Visualization:
     separation = 0.7
     chord = 0.35
     thickness = 0.08
-    strutcount = 5
+    strutcount = 3
     discradius = 0.45
     discseparation = 0.01
    
     #wings
     glColor3f(0.1, 0.1, 0.9)
     glPushMatrix()
-    glTranslate(0, 0, separation)
+    glTranslate(0, 0, 0.05)
     self.DrawBox(wingspan, chord, thickness)
     glColor3f(0.0, 0.0, 0.0)
     glTranslate(-wingspan, -0.2, thickness + 0.01)
@@ -131,7 +131,7 @@ class Visualization:
     glPopMatrix()
 
     glPushMatrix()
-    glTranslate(0, 0, -separation)
+    glTranslate(0, 0, -0.05)
     glColor3f(0.6, 0.6, 0.2)
     self.DrawBox(wingspan, chord, thickness)
     glColor3f(0.0, 0.0, 0.0)
@@ -147,22 +147,26 @@ class Visualization:
       # struts
       glColor3f(0.4, 0.4, 0.4)
       glPushMatrix()
-      glTranslate(-wingspan, 0, 0)
+      glTranslate(-wingspan/2, 0, separation/2)
       glRotate(90, 0, 1, 0)
-      for x in range (0, strutcount):
-        self.DrawBox(separation, chord - .01, thickness)
-        glTranslate(0, 0, 2 * wingspan/(strutcount - 1))
+      for x in range (0, strutcount-1):
+        self.DrawBox(separation/2, chord - .01, thickness)
+        glTranslate(0, 0, wingspan)
+      glTranslate(separation, 0, -5*wingspan/2)
+      for x in range (0, strutcount-1):
+        self.DrawBox(separation/2, chord - .01, thickness)
+        glTranslate(0, 0, 2*wingspan)
       glPopMatrix()
 
       #rotors
       glColor3f(0.9, 0.1, 0.1)
       glPushMatrix()
       glRotate(90, 1, 0, 0)
-      glTranslate(-wingspan, separation, -(chord + .01))
+      glTranslate(-wingspan/2, separation, -(chord + .01))
       for x in range (0, strutcount):
         if (x != strutcount/2):
           self.DrawCircle(discradius)
-        glTranslate(2 * wingspan/(strutcount - 1), 0, 0)
+        glTranslate(2 * wingspan/(strutcount + 1), 0, 0)
       glPopMatrix()
 
       glPushMatrix()
@@ -309,7 +313,7 @@ def init():
 def run():
   global VEHICLE_QUATS, BAR_VALUES
   VEHICLE_QUATS = [ ["AHRS_REF_QUAT", 6, "Estimate", True], ["AHRS_REF_QUAT", 2, "Reference", True]]
-  BAR_VALUES = [ ["BOOZ2_RADIO_CONTROL", 5, "Throttle (%%) %i", 9600, 96 * 2, 100] ]
+  BAR_VALUES = [ ["BOOZ2_RADIO_CONTROL", 5, "Throttle (%%) %i", 0, 100, 100] ]
   window_title = "Attitude_Viz"
   try:
     opts, args = getopt.getopt(sys.argv[1:], "t:", ["title"])
