@@ -458,7 +458,7 @@ toytronics_set_sp_absolute_forward_from_rc()
   quat_of_euler321( &setpoint.q_n2sp, &e_n2sp );
 
   // smooth transition
-  smooth_transition_angle -= dt*M_PI/180.0*90;
+  smooth_transition_angle -= dt*M_PI/180.0*SETPOINT_MODE_1_2_TRANSITION_DEGREES_PER_SEC;
   if (smooth_transition_angle < 0) smooth_transition_angle = 0.0;
 
   quat_t q_st;
