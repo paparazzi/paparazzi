@@ -235,7 +235,11 @@ static inline int ahrs_is_aligned(void) {
   return TRUE;
 }
 #endif
-
+#ifdef AUTOPILOT_INSTANT_START
+static inline void autopilot_check_motors_on( void ) {
+	autopilot_motors_on=radio_control.values[RADIO_KILL_SWITCH]>0 && ahrs_is_aligned();
+}
+#else
 static inline void autopilot_check_motors_on( void ) {
   if (autopilot_motors_on) {
     if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) {
@@ -262,7 +266,7 @@ static inline void autopilot_check_motors_on( void ) {
     }
   }
 }
-
+#endif
 
 
 void autopilot_on_rc_frame(void) {
