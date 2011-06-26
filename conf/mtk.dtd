@@ -1,0 +1,26 @@
+<!-- Mediatek/DIYDrones protocol DTD -->
+
+<!ELEMENT mtk (class+)>
+<!ELEMENT class (message+)>
+<!ELEMENT message (field|block)*>
+<!ELEMENT block (field*)>
+<!ELEMENT field EMPTY>
+
+<!ATTLIST class
+  name CDATA #REQUIRED
+  ID CDATA #REQUIRED>
+
+<!ATTLIST message
+  name CDATA #REQUIRED
+  ID CDATA #REQUIRED
+  length CDATA #IMPLIED>
+
+<!ATTLIST block
+  times CDATA #IMPLIED
+  length CDATA #REQUIRED>
+
+<!ATTLIST field
+  name CDATA #REQUIRED
+  format CDATA #REQUIRED
+  scaling CDATA #IMPLIED
+  unit CDATA #IMPLIED>
