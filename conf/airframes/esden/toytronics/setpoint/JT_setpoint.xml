@@ -8,6 +8,8 @@
 
     <define name="MODE_1_2_TRANSITION_DEGREES_PER_SEC" value="70.0"/>
 
+    <define name="ABSOLUTE_FORWARD_PITCH_TRIM_DEG" value="5.0"/>
+
     <define name="ROLL_TO_YAW_RATE_FF_FACTOR"    value="1.6"/>
     <define name="ACCEL_TURN_COORDINATION_GAIN"  value="0.25"/>
 

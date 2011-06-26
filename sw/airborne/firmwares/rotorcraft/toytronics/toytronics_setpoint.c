@@ -59,6 +59,7 @@ double hover_y_integrated_error = 0;
 double roll_to_yaw_rate_ff_factor = SETPOINT_ROLL_TO_YAW_RATE_FF_FACTOR;
 double accel_turn_coordination_gain = SETPOINT_ACCEL_TURN_COORDINATION_GAIN;
 double smooth_transition_angle = 0.0;
+double absolute_forward_pitch_trim_deg = SETPOINT_ABSOLUTE_FORWARD_PITCH_TRIM_DEG;
 
 #define RC_INCREMENTAL_DEADBAND 0.02
 
@@ -200,6 +201,7 @@ setpoint_smooth_transition_reset()
   const quat_t * q_n2b = get_q_n2b();
   const euler_t * e_n2b = get_e_n2b();
   smooth_transition_angle = get_full_range_pitch(q_n2b, e_n2b);
+  smooth_transition_angle -= absolute_forward_pitch_trim_deg*M_PI/180.0;
 }
 
 static void
@@ -437,7 +439,7 @@ toytronics_set_sp_absolute_forward_from_rc()
   double rcy = apply_deadband(rc->yaw, SETPOINT_DEADBAND);
 
   euler_t e_n2sp;
-  e_n2sp.pitch = rcp * SETPOINT_MAX_STICK_ANGLE_DEG * M_PI/180.0;
+  e_n2sp.pitch = (rcp * SETPOINT_MAX_STICK_ANGLE_DEG + absolute_forward_pitch_trim_deg)*M_PI/180.0;
   e_n2sp.roll  = rcr * SETPOINT_MAX_STICK_ANGLE_DEG * M_PI/180.0;
 
   // integrate stick to get setpoint heading

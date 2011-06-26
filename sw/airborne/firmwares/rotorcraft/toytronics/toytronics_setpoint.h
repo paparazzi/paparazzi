@@ -32,6 +32,7 @@ extern double hover_pitch_trim_deg;
 extern double roll_to_yaw_rate_ff_factor;
 extern double accel_turn_coordination_gain;
 extern double setpoint_absolute_heading_bound_deg;
+extern double absolute_forward_pitch_trim_deg;
 extern struct Int32AttitudeGains toytronics_hover_gains;
 extern struct Int32AttitudeGains toytronics_forward_gains;
 extern struct Int32AttitudeGains toytronics_aerobatic_gains;
