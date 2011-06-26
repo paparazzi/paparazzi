@@ -52,11 +52,13 @@ STATICINCLUDE =$(PAPARAZZI_HOME)/var/include
 MESSAGES_H=$(STATICINCLUDE)/messages.h
 MESSAGES2_H=$(STATICINCLUDE)/messages2.h
 UBX_PROTOCOL_H=$(STATICINCLUDE)/ubx_protocol.h
+MTK_PROTOCOL_H=$(STATICINCLUDE)/mtk_protocol.h
 XSENS_PROTOCOL_H=$(STATICINCLUDE)/xsens_protocol.h
 DL_PROTOCOL_H=$(STATICINCLUDE)/dl_protocol.h
 DL_PROTOCOL2_H=$(STATICINCLUDE)/dl_protocol2.h
 MESSAGES_XML = $(CONF)/messages.xml
 UBX_XML = $(CONF)/ubx.xml
+MTK_XML = $(CONF)/mtk.xml
 XSENS_XML = $(CONF)/xsens_MTi-G.xml
 TOOLS=$(PAPARAZZI_SRC)/sw/tools
 HAVE_ARM_NONE_EABI_GCC := $(shell which arm-none-eabi-gcc)
@@ -108,7 +110,7 @@ misc:
 multimon:
 	cd $(MULTIMON); $(MAKE)
 
-static_h: $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(DL_PROTOCOL2_H)
+static_h: $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(DL_PROTOCOL2_H)
 
 usb_lib:
 	@[ -d sw/airborne/arch/lpc21/lpcusb ] && ((test -x "$(ARMGCC)" && (cd sw/airborne/arch/lpc21/lpcusb; $(MAKE))) || echo "Not building usb_lib: ARMGCC=$(ARMGCC) not found") || echo "Not building usb_lib: sw/airborne/arch/lpc21/lpcusb directory missing"
@@ -131,6 +133,11 @@ $(UBX_PROTOCOL_H) : $(UBX_XML) tools
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_ubx.out $< > /tmp/ubx.h
 	$(Q)mv /tmp/ubx.h $@
+
+$(MTK_PROTOCOL_H) : $(MTK_XML) tools
+	@echo BUILD $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_mtk.out $< > /tmp/mtk.h
+	$(Q)mv /tmp/mtk.h $@
 
 $(XSENS_PROTOCOL_H) : $(XSENS_XML) tools
 	@echo BUILD $@
@@ -215,7 +222,7 @@ fast_deb:
 
 clean:
 	rm -fr dox build-stamp configure-stamp conf/%gconf.xml debian/files debian/paparazzi-arm7 debian/paparazzi-avr debian/paparazzi-base debian/paparazzi-bin debian/paparazzi-dev
-	rm -f  $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(DL_PROTOCOL_H)
+	rm -f  $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(DL_PROTOCOL_H)
 	find . -mindepth 2 -name Makefile -exec sh -c '$(MAKE) -C `dirname {}` $@' \;
 	find . -name '*~' -exec rm -f {} \;
 	rm -f paparazzi sw/simulator/launchsitl
