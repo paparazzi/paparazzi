@@ -28,6 +28,7 @@
     <!-- <define name="MODE_AUTO1" value="AP_MODE_TOYTRONICS_AEROBATIC"/> -->
     <define name="MODE_AUTO2"  value="AP_MODE_TOYTRONICS_AEROBATIC"/>
     <define name="AUTOPILOT_KILL_WITHOUT_AHRS"  value="TRUE"/>
+    <define name="AUTOPILOT_INSTANT_START"  value="TRUE"/>
   </section>
 
   <rc_commands>
@@ -104,7 +105,7 @@
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
-  <include href="conf/airframes/esden/calib/imu_lisam_011.xml"/>
+  <include href="conf/airframes/esden/calib/aspirin_jtm.xml"/>
 
   <section name="IMU" prefix="IMU_">
     
