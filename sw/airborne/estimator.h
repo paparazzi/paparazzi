@@ -69,6 +69,8 @@ extern float estimator_hspeed_dir;
 extern float wind_east, wind_north; /* m/s */
 extern float estimator_airspeed; /* m/s */
 
+/* Angle of Attack estimation */
+extern float estimator_AOA; /* radians */
 
 void estimator_init( void );
 void estimator_propagate_state( void );
@@ -121,6 +123,7 @@ extern void alt_kalman( float );
 #endif
 
 #define EstimatorSetAirspeed(airspeed) { estimator_airspeed = airspeed; }
+#define EstimatorSetAOA(AOA) { estimator_AOA = AOA; }
 
 #define EstimatorSetAtt(phi, psi, theta) { estimator_phi = phi; estimator_psi = psi; estimator_theta = theta; }
 #define EstimatorSetPhiPsi(phi, psi) { estimator_phi = phi; estimator_psi = psi; }
