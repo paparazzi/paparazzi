@@ -79,7 +79,7 @@ extern struct ImuAspirin imu_aspirin;
 
 #define foo_handler() {}
 #define ImuMagEvent(_mag_handler) {					\
-	  MagEvent(foo_handler); \
+      MagEvent(foo_handler); \
     if (hmc5843.data_available) {			\
       imu.mag_unscaled.x = hmc5843.data.value[IMU_MAG_X_CHAN];		\
       imu.mag_unscaled.y = hmc5843.data.value[IMU_MAG_Y_CHAN];		\
@@ -92,7 +92,7 @@ extern struct ImuAspirin imu_aspirin;
 /* underlying architecture */
 #include "subsystems/imu/imu_aspirin_arch.h"
 /* must be implemented by underlying architecture */
-extern void imu_b2_arch_init(void);
+extern void imu_aspirin_arch_init(void);
 
 static inline void gyro_read_i2c(void)
 {
@@ -134,7 +134,7 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
     _accel_handler();
   }
   imu_aspirin_arch_int_enable();
-  
+
   // Reset everything if we've been waiting too long
   if (imu_aspirin.time_since_last_reading > ASPIRIN_GYRO_TIMEOUT) {
     i2c2_er_irq_handler();
@@ -144,7 +144,7 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
   }
 
   // Try again later if transaction is in progress
-  if (imu_aspirin.i2c_trans_gyro.status == I2CTransPending || imu_aspirin.i2c_trans_gyro.status == I2CTransRunning) 
+  if (imu_aspirin.i2c_trans_gyro.status == I2CTransPending || imu_aspirin.i2c_trans_gyro.status == I2CTransRunning)
   {
     return;
   }
