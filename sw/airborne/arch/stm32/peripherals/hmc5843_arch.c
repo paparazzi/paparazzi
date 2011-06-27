@@ -69,7 +69,4 @@ void exti9_5_irq_handler(void) {
   if(EXTI_GetITStatus(EXTI_Line5) != RESET)
     EXTI_ClearITPendingBit(EXTI_Line5);
 
-#ifdef HMC5843_USE_INT
-    hmc5843.ready_for_read = TRUE;
-#endif
 }
