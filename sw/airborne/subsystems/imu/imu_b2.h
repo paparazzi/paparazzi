@@ -170,7 +170,7 @@
 #include "peripherals/hmc5843.h"
 #define foo_handler() {}
 #define ImuMagEvent(_mag_handler) {					\
-	  MagEvent(foo_handler); \
+    MagEvent(foo_handler);                          \
     if (hmc5843.data_available) {			\
       imu.mag_unscaled.x = hmc5843.data.value[IMU_MAG_X_CHAN];		\
       imu.mag_unscaled.y = hmc5843.data.value[IMU_MAG_Y_CHAN];		\
