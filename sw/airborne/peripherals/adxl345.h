@@ -1,9 +1,11 @@
 #ifndef ADXL345_H
 #define ADXL345_H
 
+/* default I2C address */
 #define ADXL345_ADDR            0xA6
 #define ADXL345_ADDR_ALT        0x3A
 
+/* Registers */
 #define ADXL345_REG_BW_RATE     0x2C
 #define ADXL345_REG_POWER_CTL   0x2D
 #define ADXL345_REG_INT_ENABLE  0x2E
