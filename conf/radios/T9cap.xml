@@ -11,4 +11,3 @@
   <channel ctl="VRC" function="GAIN2" min="970" neutral="1518" max="2077" average="10"/>
   <channel ctl="switch_C" function="MODE" min="2079" neutral="1526" max="966" average="10"/>
 </radio>
-

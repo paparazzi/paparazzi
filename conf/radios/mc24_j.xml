@@ -56,4 +56,3 @@
   <channel ctl="H" function="MODE"  min="966" neutral="1500" max="2025" average="1"/>
   <channel ctl="I" function="SWITCH2"  min="1096" neutral="1500" max="1900" average="1"/>
 </radio>
-

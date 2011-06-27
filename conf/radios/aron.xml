@@ -10,4 +10,3 @@
   <channel ctl="left_stick_vert" function="THROTTLE" min="1115" neutral="1115" max="1940" average="0"/>
 
 </radio>
-
