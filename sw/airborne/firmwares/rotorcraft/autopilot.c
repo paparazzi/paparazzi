@@ -29,6 +29,7 @@
 #include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/stabilization.h"
+#include "firmwares/rotorcraft/camera_mount.h"
 #include "led.h"
 
 uint8_t  autopilot_mode;
@@ -68,6 +69,9 @@ void autopilot_init(void) {
 #ifdef POWER_SWITCH_LED
   LED_ON(POWER_SWITCH_LED); // POWER OFF
 #endif
+#ifdef USE_CAMERA_MOUNT
+  camera_mount_init();
+#endif
 }
 
 
@@ -94,6 +98,9 @@ void autopilot_periodic(void) {
     SetCommands(stabilization_cmd,
         autopilot_in_flight, autopilot_motors_on);
   }
+#ifdef USE_CAMERA_MOUNT
+  camera_mount_run();
+#endif
 
 }
 

@@ -258,6 +258,7 @@
     <subsystem name="ahrs"          type="ic"/>
     <subsystem name="stabilization" type="quaternion"/>
     <subsystem name="toytronics"    type="default"/>
+    <subsystem name="camera_mount"  type="default"/>
   </firmware>
 
 

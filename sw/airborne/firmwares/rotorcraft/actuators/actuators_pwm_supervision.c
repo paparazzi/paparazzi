@@ -64,6 +64,10 @@ void actuators_set(bool_t motors_on) {
   pwm_commands_pprz[COMMAND_PITCH] = commands[COMMAND_PITCH] * (MAX_PPRZ / 100);
   pwm_commands_pprz[COMMAND_YAW] = commands[COMMAND_YAW] * (MAX_PPRZ / 100);
 
+#ifdef USE_CAMERA_MOUNT
+  pwm_commands_pprz[COMMAND_CAMERA] = commands[COMMAND_CAMERA];
+#endif
+
   supervision_run(motors_on, FALSE, pwm_commands);
 
 #ifdef USE_TOYTRONICS
