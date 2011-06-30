@@ -9,6 +9,7 @@
     <servo name="B2"            no="3" min="1000" neutral="1000" max="2000"/>
     <servo name="AILEVON_LEFT"  no="4" min="2000" neutral="1500" max="1000"/>
     <servo name="AILEVON_RIGHT" no="5" min="2000" neutral="1500" max="1000"/>
+    <servo name="CAMERA_MOUNT"  no="6" min="2000" neutral="1500" max="1000"/>
   </servos>
 
   <commands>
@@ -19,6 +20,7 @@
     <axis name="RC_MODE"  failsafe_value="0"/>
     <axis name="RC_ROLL"  failsafe_value="0"/>
     <axis name="RC_PITCH" failsafe_value="0"/>
+    <axis name="CAMERA"   failsafe_value="0"/>
   </commands>
 
   <section name="AUTOPILOT">
@@ -79,6 +81,7 @@
     <!--************ Map laws to correct modes - probably don't edit this ****************-->
     <set servo="AILEVON_LEFT"   value="@RC_MODE == AP_MODE_TOYTRONICS_HOVER ? $hover_left  : (@RC_MODE == AP_MODE_TOYTRONICS_HOVER_FORWARD ? $hover_forward_left  : (@RC_MODE == AP_MODE_TOYTRONICS_FORWARD ? $forward_left : $aerobatic_left))" />
     <set servo="AILEVON_RIGHT"   value="@RC_MODE == AP_MODE_TOYTRONICS_HOVER ? $hover_right  : (@RC_MODE == AP_MODE_TOYTRONICS_HOVER_FORWARD ? $hover_forward_right  : (@RC_MODE == AP_MODE_TOYTRONICS_FORWARD ? $forward_right : $aerobatic_right))" />
+    <set servo="CAMERA_MOUNT"   value="@CAMERA"/>
   </command_laws>
   
   <!-- for the sim -->
