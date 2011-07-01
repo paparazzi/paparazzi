@@ -12,24 +12,23 @@ SUBSYSTEM=="tty", ATTRS{product}=="MaxStream PKG-U", SYMLINK+="paparazzi/xbee", 
 LABEL="tty_FTDI232_end"
 
 SUBSYSTEM!="usb", GOTO="paparazzi_rules_end"
-
 ENV{DEVTYPE}!="usb_device", GOTO="paparazzi_rules_end"
 
 #SUBSYSTEMS=="usb", ATTRS{serial}=="*_fbw", NAME="test_fbw", SYMLINK+="paparazzi/%s{serial}", MODE="0666"
 
 # FTDI 2232 parallel converter / Amontec JTAG-Tiny (access through libftdi)
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="cff8", GROUP="plugdev"
+ATTRS{idVendor}=="0403", ATTRS{idProduct}=="cff8", GROUP="plugdev"
 
 # FTDI 2232 based jtag for Lisa/L and usb upload
-SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6010", MODE="0666", GROUP="plugdev"
+ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6010", MODE="0666", GROUP="plugdev"
 
 # all (fake VID 0x7070) LPCUSB devices (access through libusb)
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="7070", GROUP="plugdev"
+ATTRS{idVendor}=="7070", GROUP="plugdev"
 
 # make joysticks/gamepads readable on event interface (writeable for force feedback), see input_event.sh
 KERNEL=="event*", IMPORT{program}="input_event.sh %p", NAME="input/%k", GROUP="plugdev", MODE="0640" ENV{FF_DEVICE}=="1", MODE="0660"
 
 # FTDI with uBlox direct on USB
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="1546", ATTRS{idProduct}=="01a5", KERNEL=="ttyACM*", SYMLINK+="paparazzi/acm", GROUP="plugdev"
+ATTRS{idVendor}=="1546", ATTRS{idProduct}=="01a5", KERNEL=="ttyACM*", SYMLINK+="paparazzi/acm", GROUP="plugdev"
 
 LABEL="paparazzi_rules_end"
