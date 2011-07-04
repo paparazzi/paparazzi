@@ -7,11 +7,11 @@
 <airframe name="Yapa v1">
 
   <servos>
-    <servo name="THROTTLE" no="4" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILERON_LEFT" no="5" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILERON_RIGHT" no="1" min="2000" neutral="1500" max="1000"/>
-    <servo name="ELEVATOR" no="8" min="2000" neutral="1500" max="1000"/>
-    <servo name="RUDDER" no="9" min="1100" neutral="1500" max="1900"/>
+    <servo name="THROTTLE" no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILERON_LEFT" no="1" min="1000" neutral="1500" max="2000"/>
+    <servo name="AILERON_RIGHT" no="2" min="2000" neutral="1500" max="1000"/>
+    <servo name="ELEVATOR" no="3" min="2000" neutral="1500" max="1000"/>
+    <servo name="RUDDER" no="4" min="1100" neutral="1500" max="1900"/>
   </servos>
 
   <commands>
@@ -217,7 +217,7 @@
 
   <firmware name="fixedwing">
 
-    <target name="ap" board="tiny_2.11">
+    <target name="ap" board="lisa_l_1.1"> <!-- board="tiny_2.11"> -->
       <define name="STRONG_WIND"/>
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
