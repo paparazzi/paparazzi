@@ -104,7 +104,6 @@ static uint32_t pflash_checksum(uint32_t ptr, uint32_t size) {
 }
 
 static int32_t flash_detect(struct FlashInfo* flash) {
-  uint32_t device_id;
 
   flash->total_size = FLASH_SIZE_ * 0x400;
 
@@ -137,6 +136,7 @@ static int32_t flash_detect(struct FlashInfo* flash) {
   }
 
 #else /* this is the correct way of detecting page sizes */
+  uint32_t device_id;
 
   /* read device id */
   device_id = DBGMCU_IDCODE & DBGMCU_IDCODE_DEV_ID_MASK;
