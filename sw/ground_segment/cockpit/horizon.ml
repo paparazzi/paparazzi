@@ -160,8 +160,7 @@ class h = fun ?packing size  ->
 
     (* Top and bottom graduations *)
   let g = fun a ->
-      let ll = GnoCanvas.line~props:[`WIDTH_PIXELS 2]  ~fill_color:"white" ~points:[|0.;-.size2;0.;-.1.18*.size2|] mask
-      and l = GnoCanvas.line~props:[`WIDTH_PIXELS 1]  ~fill_color:"white" ~points:[|0.;-.size2;0.;-.1.07*.size2|] mask in
+      let l = GnoCanvas.line~props:[`WIDTH_PIXELS 1]  ~fill_color:"white" ~points:[|0.;-.size2;0.;-.1.07*.size2|] mask in
       l#affine_relative (affine_pos_and_angle 0. 0. ((Deg>>Rad)a)) in
     for i = 1 to 5 do
       let a = float (i*10) in
