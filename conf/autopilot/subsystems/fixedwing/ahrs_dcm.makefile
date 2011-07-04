@@ -3,7 +3,7 @@
 
 $(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm.h\"
 
-ifeq ($(ARCH), lpc21)
+ifeq ($(TARGET), ap)
 
 ap.CFLAGS += -DUSE_AHRS
 
