@@ -182,7 +182,7 @@
 
     <!-- Communication -->
     <subsystem name="telemetry" type="xbee_api">
-      <configure name="MODEM_BAUD" value="B57600"/>
+      <configure name="MODEM_BAUD" value="B9600"/>
     </subsystem>
 
     <!-- Actuators -->
