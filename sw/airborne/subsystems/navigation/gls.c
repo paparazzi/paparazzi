@@ -21,22 +21,23 @@
  *
  */
 
-/*
-gps landing system
--automatic calculation of top of decent for const app angle
--smooth intercept posible
--landing direction is set by app fix
-
-in airframe.xml
-it is possible to define
-
-1. target_speed
-2. app_angle
-3. app_intercept_af_tod
-
-1 - only efective with useairspeed flag
-2 - defauld is a approach angle of 5 degree which should be fine for most planes
-3 - distance between approach fix and top of decent
+/**
+ * \brief gps landing system
+ * gps landing system
+ * -automatic calculation of top of decent for const app angle
+ * -smooth intercept posible
+ * -landing direction is set by app fix / also possible in flight!!!
+ *
+ * in airframe.xml
+ * it is possible to define
+ *
+ * 1. target_speed
+ * 2. app_angle
+ * 3. app_intercept_af_tod
+ *
+ * 1 - only efective with useairspeed flag
+ * 2 - defauld is a approach angle of 5 degree which should be fine for most planes
+ * 3 - distance between approach fix and top of decent
 */
 
 

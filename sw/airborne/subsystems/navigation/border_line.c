@@ -22,10 +22,15 @@
  *
  */
 
-/*
-modified nav_linie by Anton Kochevar, ENAC
-navigate along a border line (line 1-2) with turns in the same direction
 
+//modified nav_linie by Anton Kochevar, ENAC
+
+/**
+ * \brief navigate along a border line (line 1-2) with turns in the same direction
+ * 
+ * you can use this function to navigate along a border if it is essetial not to cross it
+ * navigation is along line p1, p2 with turns in the same direction to make sure you dont cross the line
+ * take care youre navigation radius is not to smal in strong wind conditions! 
 */
 
 #include "subsystems/navigation/border_line.h"
