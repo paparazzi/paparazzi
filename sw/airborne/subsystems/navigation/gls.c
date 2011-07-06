@@ -68,7 +68,7 @@ bool_t init = TRUE;
 #endif
 
 
-static inline bool_t gls_compute_TOD(uint8_t _af, uint8_t _tod, uint8_t _td, float app_angle) {
+static inline bool_t gls_compute_TOD(uint8_t _af, uint8_t _tod, uint8_t _td) {
 
   if ((WaypointX(_af)==WaypointX(_td))&&(WaypointY(_af)==WaypointY(_td))){
   WaypointX(_af)=WaypointX(_td)-1;
@@ -109,7 +109,7 @@ bool_t gls_init(uint8_t _af, uint8_t _tod, uint8_t _td) {
   Bound(app_intercept_af_tod,0,200);
 
 
-  gls_compute_TOD(_af, _tod, _td, app_angle);	// calculate Top Of Decent
+  gls_compute_TOD(_af, _tod, _td);	// calculate Top Of Decent
 
   return FALSE;
 }  // end of gls_init()
