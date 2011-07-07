@@ -171,11 +171,12 @@ class h = fun ?packing size  ->
       let l = GnoCanvas.line~props:[`WIDTH_PIXELS 2]  ~fill_color:"white" ~points:[|0.;-.size2;0.;-.1.15*.size2|] mask in
       l#affine_relative (affine_pos_and_angle 0. 0. ((Deg>>Rad)a)) in
       gg 30.; gg (-30.);
+      gg 0.; gg 0.;
 
     let _30 = fun a  ->
       let t = GnoCanvas.text ~text:"30" ~props:text_props ~x:0. ~y:(-1.28*.size2) mask in
       t#affine_relative (affine_pos_and_angle 0. 0. ((Deg>>Rad)a)) in
-    _30  30.; _30 (-30.)
+      _30  30.; _30 (-30.)
   in
 
 
