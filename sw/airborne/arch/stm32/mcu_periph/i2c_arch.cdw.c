@@ -329,37 +329,52 @@ static inline void i2c_event(struct i2c_periph *p, uint32_t event)
 
 	If IT_EV_FEN
 
-	1 SB
-	2 ADDR
-	(3 ADDR10)
-	(4 STOPF)
-	5 BTF
+	1) SB		// Start Condition Success in Master mode
+	2) ADDR		// Address sent received Acknoledge
+	[3 ADDR10]	// -- 10bit address stuff
+	[4 STOPF]	// -- only for slaves: master has no stop interrupt
+	5) BTF		// I2C has stopped working (it is waiting for new data, all buffers are tx_empty/rx_full)
+
+	// Beware: using the buffered I2C has some interesting properties:
+	  -when receiving BTF only occurs after the 2nd received byte: after the first byte is received it is 
+           in RD but the I2C can still receive a second byte. Only when the 2nd byte is received while the RxNE is 1
+	   then a BTF occurs (I2C can not continue receiving bytes or they will get lost)
+	  -when transmitting, and writing a byte to WD, you instantly get a new TxE interrupt while the first is not
+	   transmitted yet. The byte was pushed to the I2C serializer and the buffer is ready for more. You can already
+	   fill new data in the buffer while the first is still being transmitted for max performance transmission.
+	    
+	// Beware: the order in which Status is read determines how flags are cleared.
 
 	If IT_EV_FEN AND IT_EV_BUF
 
-	6 RxNE
-	7 TxE
+	6) RxNE
+	7) TxE
 
 	-------------------------
 	We are always interested in all IT_EV_FEV: all are required.
-	We are only interested in IT_EV_BUF from 
+	We are only interested in buffer interrupts IT_EV_BUF when more data is comming: until (last-1)
    */
+
+
+  // This driver uses the hardware flags to keep track of its state
+  // 
+
 
   ////////////////////////////////////////
   // Start Condition Met in Master Mode
   if (event & I2C_FLAG_SB)
   {
-    // Waiting for Start
+    // Periph was waiting for Start
     if (p->status == I2CStartRequested)
     {
-      // Start Direct Read
+      // Send Read Slave Address
       if(trans->type == I2CTransRx)
         PPRZ_I2C_SEND_ADDR_READ(p, trans);
-      // Start Writing
+      // Send Write Slave Address
       else
         PPRZ_I2C_SEND_ADDR_WRITE(p, trans);
     }
-    // Waiting for Restart: Always Read
+    // Waiting for Restart: Always Rx
     else if (p->status == I2CStartRequested)
     {
       PPRZ_I2C_SEND_ADDR_READ(p, trans);
@@ -367,7 +382,7 @@ static inline void i2c_event(struct i2c_periph *p, uint32_t event)
     // Problem
     else
     {
-      PPRZ_I2C_STOP_AND_NEXT(p);
+      PPRZ_I2C_STOP_AND_NEXT(p, trans, I2CFailed);
     }
   }
   ////////////////////////////////////////
@@ -388,12 +403,15 @@ static inline void i2c_event(struct i2c_periph *p, uint32_t event)
       // More
     }
   }
+  ////////////////////////////////////////
   // Buffer Can accept the next byte for transmission
+  // --> this means we HAVE TO fill the buffer and/or disable buf interrupts
   else if (event & I2C_FLAG_TxE)
   {
     // Not Last
     // Last
   }
+  ////////////////////////////////////////
   // Receiver has new data (means: the reception of the next byte will be delayed until the data of the current transmission can be copied to the buffer)
   else if (event & I2C_FLAG_BTF)
   {
@@ -402,18 +420,11 @@ static inline void i2c_event(struct i2c_periph *p, uint32_t event)
   }
   
 
-  //if (event & I2C_FLAG_SB)
-  {
-    LED1_ON();
-  }
+  LED1_ON();
+
   if (event & I2C_FLAG_BTF)
   {
-  //  LED1_ON();
     LED2_ON();
-  }
-  //else
-  {
-    //LED2_ON();
   }
 
 
