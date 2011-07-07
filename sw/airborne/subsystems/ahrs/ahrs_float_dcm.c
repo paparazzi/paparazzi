@@ -312,7 +312,7 @@ void Normalize(void)
   float error=0;
   float temporary[3][3];
   float renorm=0;
-  boolean problem=FALSE;
+  uint8_t problem=FALSE;
 
   // Find the non-orthogonality of X wrt Y
   error= -Vector_Dot_Product(&DCM_Matrix[0][0],&DCM_Matrix[1][0])*.5; //eq.19

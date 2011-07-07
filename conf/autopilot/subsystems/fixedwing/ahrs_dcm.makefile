@@ -3,7 +3,7 @@
 
 $(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm.h\"
 
-ifeq ($(ARCH), lpc21)
+ifeq ($(TARGET), ap)
 
 ap.CFLAGS += -DUSE_AHRS
 
@@ -43,6 +43,7 @@ sim.CFLAGS += -DIR_PITCH_NEUTRAL_DEFAULT=0
 
 sim.CFLAGS += -DUSE_INFRARED
 sim.srcs += subsystems/sensors/infrared.c
+sim.srcs += subsystems/sensors/infrared_adc.c
 
 sim.srcs += $(SRC_ARCH)/sim_ir.c
 sim.srcs += $(SRC_ARCH)/sim_imu.c

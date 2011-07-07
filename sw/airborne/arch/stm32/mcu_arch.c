@@ -43,7 +43,7 @@ void mcu_arch_init(void) {
   return;
 #endif
 #ifdef HSE_TYPE_EXT_CLK
-#warning Using external clock
+#warning Info: Using external clock
   /* Setup the microcontroller system.
    *  Initialize the Embedded Flash Interface,
    *  initialize the PLL and update the SystemFrequency variable.

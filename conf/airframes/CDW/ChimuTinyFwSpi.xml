@@ -157,7 +157,9 @@
 
 
   <modules>
-    <load name="ins_chimu_spi.xml" />
+    <load name="ins_chimu_spi.xml" >
+			<define name="CHIMU_BIG_ENDIAN" />
+		</load>
 
   </modules>
 
@@ -168,7 +170,7 @@
       <define name="WIND_INFO_RET"/>
       <define name="LOITER_TRIM"/>
       <define name="ALT_KALMAN"/>
-      <define name="NB_CHANNELS" value="5" /> 
+			<!--      <define name="NB_CHANNELS" value="5" />  -->
     </target>
     <target name="sim" board="pc"/>
 
@@ -177,7 +179,7 @@
 
     <!-- Communication -->
     <subsystem name="telemetry" type="xbee_api">
-      <configure name="MODEM_BAUD" value="B57600"/>
+      <configure name="MODEM_BAUD" value="B9600"/>
     </subsystem>
 
     <!-- Actuators -->
