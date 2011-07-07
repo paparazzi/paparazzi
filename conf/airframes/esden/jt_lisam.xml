@@ -112,7 +112,7 @@
 
   <section name="IMU" prefix="IMU_">
     
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg( 180. )"/>
+    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg( 000. )"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(   0. )"/>
 
