@@ -291,10 +291,133 @@ static inline void on_status_restart_requested(struct i2c_periph *periph, struct
 }
 
 
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+static inline void PPRZ_I2C_SEND_ADDR_READ(struct i2c_periph *periph, struct i2c_transaction* trans)
+{
+  I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Receiver);
+  periph->status = I2CAddrRdSent;
+}
+
+static inline void PPRZ_I2C_SEND_ADDR_WRITE(struct i2c_periph *periph, struct i2c_transaction* trans)
+{
+  I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Transmitter);
+  periph->status = I2CAddrWrSent;
+}
+
+static inline void PPRZ_I2C_RESTART(void)
+{
+  
+}
+
+static inline uint8_t PPRZ_I2C_READLAST(void)
+{
+  
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
 static inline void i2c_event(struct i2c_periph *p, uint32_t event)
 {
   struct i2c_transaction* trans = p->trans[p->trans_extract_idx];
+
+  /*	
+	There are 7 possible reasons to get here:
+
+	If IT_EV_FEN
+
+	1 SB
+	2 ADDR
+	(3 ADDR10)
+	(4 STOPF)
+	5 BTF
+
+	If IT_EV_FEN AND IT_EV_BUF
+
+	6 RxNE
+	7 TxE
+
+	-------------------------
+	We are always interested in all IT_EV_FEV: all are required.
+	We are only interested in IT_EV_BUF from 
+   */
+
+  ////////////////////////////////////////
+  // Start Condition Met in Master Mode
+  if (event & I2C_FLAG_SB)
+  {
+    // Waiting for Start
+    if (p->status == I2CStartRequested)
+    {
+      // Start Direct Read
+      if(trans->type == I2CTransRx)
+        PPRZ_I2C_SEND_ADDR_READ(p, trans);
+      // Start Writing
+      else
+        PPRZ_I2C_SEND_ADDR_WRITE(p, trans);
+    }
+    // Waiting for Restart: Always Read
+    else if (p->status == I2CStartRequested)
+    {
+      PPRZ_I2C_SEND_ADDR_READ(p, trans);
+    }
+    // Problem
+    else
+    {
+      PPRZ_I2C_STOP_AND_NEXT(p);
+    }
+  }
+  ////////////////////////////////////////
+  // Master Sent a Slave Address
+  else if (event & I2C_FLAG_ADDR)
+  {
+    // Read
+    if (p->status == I2CAddrRdSent)
+    {
+      // One
+      // More
+    }
+    // Write
+    else if (p->status == I2CAddrWrSent)
+    {
+      // Zero bytes
+      // One
+      // More
+    }
+  }
+  // Buffer Can accept the next byte for transmission
+  else if (event & I2C_FLAG_TxE)
+  {
+    // Not Last
+    // Last
+  }
+  // Receiver has new data (means: the reception of the next byte will be delayed until the data of the current transmission can be copied to the buffer)
+  else if (event & I2C_FLAG_BTF)
+  {
+    // Not Last
+    // Last
+  }
+  
+
+  //if (event & I2C_FLAG_SB)
+  {
+    LED1_ON();
+  }
+  if (event & I2C_FLAG_BTF)
+  {
+  //  LED1_ON();
+    LED2_ON();
+  }
+  //else
+  {
+    //LED2_ON();
+  }
+
+
+
   switch (p->status) {
   case I2CStartRequested:
     //LEDSTART_ON();
@@ -544,77 +667,8 @@ void i2c2_hw_init(void) {
 }
 
 
-
-
 void i2c2_ev_irq_handler(void) {
-  /*	
-	There are 7 possible reasons to get here:
-
-	If IT_EV_FEN
-
-	1 SB
-	2 ADDR
-	(3 ADDR10)
-	(4 STOPF)
-	5 BTF
-
-	If IT_EV_FEN AND IT_EV_BUF
-
-	6 RxNE
-	7 TxE   
-   */
-
   uint32_t event = I2C_GetLastEvent(I2C2);
-
-  ////////////////////////////////////////
-  // Start Condition Met in Master Mode
-  if (event & I2C_FLAG_SB)
-  {
-    // Waiting for Start
-    // Waiting for Restart
-  }
-  // Master Sent a Slave Address
-  else if (event & I2C_FLAG_ADDR)
-  {
-    // Read
-    {
-      // One
-      // More
-    }
-    // Write
-    {
-      // Zero bytes
-      // One
-      // More
-    }
-  }
-  // Buffer Can accept the next byte for transmission
-  else if (event & I2C_FLAG_TxE)
-  {
-    // Not Last
-    // Last
-  }
-  // Receiver has new data (means: the reception of the next byte will be delayed until the data of the current transmission can be copied to the buffer)
-  else if (event & I2C_FLAG_BTF)
-  {
-    // Not Last
-    // Last
-  }
-  
-
-  //if (event & I2C_FLAG_SB)
-  {
-    LED1_ON();
-  }
-  if (event & I2C_FLAG_BTF)
-  {
-  //  LED1_ON();
-    LED2_ON();
-  }
-  //else
-  {
-    //LED2_ON();
-  }
 
 
   i2c_event(&i2c2, event);
