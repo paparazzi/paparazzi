@@ -148,7 +148,7 @@ static inline void on_status_addr_wr_sent(struct i2c_periph *periph, struct i2c_
 //    uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
   if ((event & I2C_FLAG_ADDR) && (event & I2C_FLAG_TRA)) {
     I2C_SendData(periph->reg_addr, trans->buf[0]);
-//    I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
+    I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
     if (trans->len_w > 1) {
       I2C_SendData(periph->reg_addr, trans->buf[1]);
       periph->idx_buf = 2;
@@ -231,7 +231,7 @@ static inline void on_status_addr_rd_sent(struct i2c_periph *periph, struct i2c_
     }
     else {
       I2C_AcknowledgeConfig(periph->reg_addr, ENABLE);               // if it's more than one byte, ack it
-//      I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, ENABLE);
+      I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, ENABLE);
       periph->status = I2CReadingByte;                               // and remember we did
     }
   }
@@ -265,6 +265,7 @@ static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_
 
 static inline void on_status_reading_last_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) 
 {
+      I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
   if (event & I2C_FLAG_BTF) {
     uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
     trans->buf[periph->idx_buf] = read_byte;
@@ -546,13 +547,66 @@ void i2c2_hw_init(void) {
 
 
 void i2c2_ev_irq_handler(void) {
+  /*	
+	There are 7 possible reasons to get here:
+
+	If IT_EV_FEN
+
+	1 SB
+	2 ADDR
+	(3 ADDR10)
+	(4 STOPF)
+	5 BTF
+
+	If IT_EV_FEN AND IT_EV_BUF
+
+	6 RxNE
+	7 TxE   
+   */
+
   uint32_t event = I2C_GetLastEvent(I2C2);
+
+  ////////////////////////////////////////
+  // Start Condition Met in Master Mode
+  if (event & I2C_FLAG_SB)
+  {
+    // Waiting for Start
+    // Waiting for Restart
+  }
+  // Master Sent a Slave Address
+  else if (event & I2C_FLAG_ADDR)
+  {
+    // Read
+    {
+      // One
+      // More
+    }
+    // Write
+    {
+      // Zero bytes
+      // One
+      // More
+    }
+  }
+  // Buffer Can accept the next byte for transmission
+  else if (event & I2C_FLAG_TxE)
+  {
+    // Not Last
+    // Last
+  }
+  // Receiver has new data (means: the reception of the next byte will be delayed until the data of the current transmission can be copied to the buffer)
+  else if (event & I2C_FLAG_BTF)
+  {
+    // Not Last
+    // Last
+  }
+  
 
   //if (event & I2C_FLAG_SB)
   {
     LED1_ON();
   }
-  if (event & I2C_FLAG_TXE)
+  if (event & I2C_FLAG_BTF)
   {
   //  LED1_ON();
     LED2_ON();
@@ -565,8 +619,8 @@ void i2c2_ev_irq_handler(void) {
 
   i2c_event(&i2c2, event);
 
-  LED1_OFF();
   LED2_OFF();
+  LED1_OFF();
 }
 
 void i2c2_er_irq_handler(void) {
