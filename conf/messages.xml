@@ -2308,24 +2308,29 @@
 </class>
 
 
+  <class name="airborne">
+    <message name="TEST_ABI" id="0">
+      <field name="value" type="int"/>
+    </message>
+  </class>
 
 
-<class name="alert">
-   <message name="BAT_LOW" id="1">
+  <class name="alert">
+    <message name="BAT_LOW" id="1">
       <field name="ac_id" type="string"/>
       <field name="level" type="string" values="CATASTROPHIC|CRITIC|WARNING"/>
       <field name="value" type="float"/>
-  </message>
-   <message name="AIR_PROX" id="2">
+    </message>
+    <message name="AIR_PROX" id="2">
       <field name="ac_id" type="string"/>
       <field name="level" type="string" values="CATASTROPHIC|CRITIC|WARNING"/>
-  </message>
-</class>
+    </message>
+  </class>
 
 
 
-<class name="DIA"> <!-- data in audio -->
-   <message name="NAV_INFO" id="1">
+  <class name="DIA"> <!-- data in audio -->
+    <message name="NAV_INFO" id="1">
       <field name="unix_time" type="float"/>
 
       <field name="lat"   type="float" unit="deg"/>
@@ -2337,8 +2342,8 @@
 
       <field name="cam_roll"  type="int16" unit="deg"/>
       <field name="cam_pitch" type="int16" unit="deg"/>
-  </message>
-</class>
+    </message>
+  </class>
 
 
 

@@ -79,3 +79,8 @@ setup_actuators.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDATALI
 setup_actuators.CFLAGS += -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1
 setup_actuators.CFLAGS += $(SETUP_INC) -Ifirmwares/fixedwing
 setup_actuators.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c pprz_transport.c downlink.c $(SRC_FIRMWARE)/setup_actuators.c $(SRC_ARCH)/mcu_periph/uart_arch.c firmwares/fixedwing/main.c mcu.c $(SRC_ARCH)/mcu_arch.c
+
+# a test program for ABI
+test_abi.CFLAGS += -DUSE_LED -DPERIPHERALS_AUTO_INIT
+test_abi.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c mcu.c $(SRC_ARCH)/mcu_arch.c
+test_abi.srcs += test/test_abi.c

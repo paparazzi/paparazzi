@@ -55,6 +55,7 @@ UBX_PROTOCOL_H=$(STATICINCLUDE)/ubx_protocol.h
 XSENS_PROTOCOL_H=$(STATICINCLUDE)/xsens_protocol.h
 DL_PROTOCOL_H=$(STATICINCLUDE)/dl_protocol.h
 DL_PROTOCOL2_H=$(STATICINCLUDE)/dl_protocol2.h
+ABI_MESSAGES_H=$(STATICINCLUDE)/abi_messages.h
 MESSAGES_XML = $(CONF)/messages.xml
 UBX_XML = $(CONF)/ubx.xml
 XSENS_XML = $(CONF)/xsens_MTi-G.xml
@@ -108,7 +109,7 @@ misc:
 multimon:
 	cd $(MULTIMON); $(MAKE)
 
-static_h: $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(DL_PROTOCOL2_H)
+static_h: $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(DL_PROTOCOL2_H) $(ABI_MESSAGES_H)
 
 usb_lib:
 	@[ -d sw/airborne/arch/lpc21/lpcusb ] && ((test -x "$(ARMGCC)" && (cd sw/airborne/arch/lpc21/lpcusb; $(MAKE))) || echo "Not building usb_lib: ARMGCC=$(ARMGCC) not found") || echo "Not building usb_lib: sw/airborne/arch/lpc21/lpcusb directory missing"
@@ -146,6 +147,11 @@ $(DL_PROTOCOL2_H) : $(MESSAGES_XML) tools
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_messages2.out $< datalink > /tmp/dl2.h
 	$(Q)mv /tmp/dl2.h $@
+
+$(ABI_MESSAGES_H) : $(MESSAGES_XML) tools
+	@echo BUILD $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) $(TOOLS)/gen_abi.out $< airborne > /tmp/abi.h
+	$(Q)mv /tmp/abi.h $@
 
 include Makefile.ac
 

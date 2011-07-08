@@ -12,7 +12,9 @@
 <airframe name="Funjet Tiny 2.11">
 
   <modules target="jsbsim">
-    <load name="ins_arduimu_basic.xml"/>
+    <load name="ins_arduimu_basic.xml">
+      <define name="USE_HIGH_ACCEL_FLAG"/>
+    </load>
     <!--load name="airspeed_ets.xml">
       <define name="USE_AIRSPEED"/>
     </load>
@@ -20,7 +22,7 @@
       <define name="USE_BARO_ETS"/>
     </load-->
     <!--load name="alt_filter.xml"/-->
-    <load name="generic_com.xml"/>
+    <!--load name="generic_com.xml"/-->
   </modules>
 
   <firmware name="fixedwing">
@@ -37,10 +39,8 @@
       <configure name="FLASH_MODE" value="IAP"/>
     </target>
 
-    <subsystem name="radio_control" type="datalink"/>
-    <subsystem name="i2c">
-      <define name="I2C_TRANSACTION_QUEUE_LEN" value="16"/>
-    </subsystem>
+    <subsystem name="radio_control" type="ppm"/>
+    <subsystem name="i2c"/>
 
     <!-- Communication -->
     <subsystem name="telemetry" type="xbee_api"/>
@@ -56,6 +56,7 @@
   <firmware name="setup">
     <target name="tunnel" board="tiny_2.11"/>
     <target name="setup_actuators" board="tiny_2.11"/>
+    <target name="test_abi" board="tiny_2.11"/>
   </firmware>
 
 <!-- commands section -->
