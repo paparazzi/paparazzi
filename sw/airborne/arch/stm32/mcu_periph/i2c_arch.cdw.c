@@ -86,7 +86,7 @@ static I2C_InitTypeDef  I2C2_InitStruct = {
       .I2C_OwnAddress1 = 0x00,
       .I2C_Ack = I2C_Ack_Enable,
       .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
-      .I2C_ClockSpeed = 400000
+      .I2C_ClockSpeed = 30000
 };
 #endif
 
@@ -136,7 +136,7 @@ static void PPRZ_I2C_START_NEXT_TRANSACTION(struct i2c_periph* periph)
 
 static inline void PPRZ_I2C_RESTART(struct i2c_periph *periph)
 {
-LED2_ON();
+//LED2_ON();
 //        I2C_GenerateSTOP(periph->reg_addr, ENABLE);
 //      I2C_SendData(periph->reg_addr, 0);
 //  I2C_ClearITPendingBit(periph->reg_addr, I2C_IT_BTF);
@@ -276,6 +276,11 @@ static inline void i2c_event(struct i2c_periph *periph)
 
   //uint32_t event = (((uint32_t)(regs->SR2)) << 16) + regs->SR1;
 
+  if (event & I2C_FLAG_TXE)
+  {
+    LED2_ON();
+  }
+
 
   ///////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////
@@ -310,6 +315,7 @@ static inline void i2c_event(struct i2c_periph *periph)
     {
       PPRZ_I2C_HAS_FINISHED(periph, trans, I2CTransFailed);
     }
+    periph->status = I2CAddrWrSent;
   }
 
   ///////////////////////////////////////////////////////////////////////////////////
@@ -320,9 +326,15 @@ static inline void i2c_event(struct i2c_periph *periph)
   // STM Manual Ev8
   else if (event & I2C_FLAG_TXE) // only possible when TRA(nsmitter) and no flag tra/start/stop/addr
   {
+    if (periph->status == I2CRestartRequested)
+    {
+      // Neglect this interrupt: We just issued the restart last session already
+          PPRZ_I2C_RESTART(periph);
+    }
+
     // Do we have more data? and there is buffer room? 
     // (neglect BTF: if it was set it just means we were too slow)
-    if (periph->idx_buf < trans->len_w)
+    else if (periph->idx_buf < trans->len_w)
     {
       I2C_SendData(periph->reg_addr, trans->buf[periph->idx_buf]);
       periph->idx_buf++;
@@ -335,7 +347,7 @@ static inline void i2c_event(struct i2c_periph *periph)
         // If this is followed by a restart: then we need to set the startbit to avoid extra interrupts.
         if (trans->type != I2CTransTx) 
         {
-          PPRZ_I2C_RESTART(periph);
+        I2C_GenerateSTOP(periph->reg_addr, ENABLE);
         }
       } 
     }
@@ -451,7 +463,6 @@ static inline void i2c_error(struct i2c_periph *periph)
   }
 
   struct i2c_transaction* trans = periph->trans[periph->trans_extract_idx];
-  PPRZ_I2C_HAS_FINISHED(periph, trans, I2CTransFailed);
  //abort_and_reset(p);
 
 
@@ -491,6 +502,9 @@ static inline void i2c_error(struct i2c_periph *periph)
     LED1_OFF();
     LED2_ON();
     LED2_OFF();
+
+  PPRZ_I2C_HAS_FINISHED(periph, trans, I2CTransFailed);
+
 
 }
 
