@@ -76,7 +76,7 @@ static I2C_InitTypeDef  I2C2_InitStruct = {
       .I2C_OwnAddress1 = 0x00,
       .I2C_Ack = I2C_Ack_Enable,
       .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
-      .I2C_ClockSpeed = 390000
+      .I2C_ClockSpeed = 10000
 };
 #endif
 
@@ -148,7 +148,7 @@ static inline void on_status_addr_wr_sent(struct i2c_periph *periph, struct i2c_
 //    uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
   if ((event & I2C_FLAG_ADDR) && (event & I2C_FLAG_TRA)) {
     I2C_SendData(periph->reg_addr, trans->buf[0]);
-    I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
+//    I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
     if (trans->len_w > 1) {
       I2C_SendData(periph->reg_addr, trans->buf[1]);
       periph->idx_buf = 2;
@@ -231,7 +231,7 @@ static inline void on_status_addr_rd_sent(struct i2c_periph *periph, struct i2c_
     }
     else {
       I2C_AcknowledgeConfig(periph->reg_addr, ENABLE);               // if it's more than one byte, ack it
-      I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, ENABLE);
+//      I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, ENABLE);
       periph->status = I2CReadingByte;                               // and remember we did
     }
   }
@@ -265,7 +265,7 @@ static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_
 
 static inline void on_status_reading_last_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) 
 {
-      I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
+//      I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
   if (event & I2C_FLAG_BTF) {
     uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
     trans->buf[periph->idx_buf] = read_byte;
@@ -295,21 +295,36 @@ static inline void on_status_restart_requested(struct i2c_periph *periph, struct
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
+static bool_t PPRZ_I2C_IS_IDLE(struct i2c_periph* p)
+{
+  return I2C_GetFlagStatus(p->reg_addr, I2C_FLAG_BUSY) == RESET;
+}
+
+static void PPRZ_I2C_START_NEXT_TRANSACTION(struct i2c_periph* p) 
+{
+
+  I2C_ITConfig(p->reg_addr, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, ENABLE);
+
+  p->idx_buf = 0;
+  p->status = I2CStartRequested;
+  I2C_GenerateSTART(p->reg_addr, ENABLE);
+}
+
+static inline void PPRZ_I2C_RESTART(struct i2c_periph *periph)
+{
+  p->idx_buf = 0;
+  p->status = I2CStartRequested;
+  I2C_GenerateSTART(p->reg_addr, ENABLE);
+}
+
 static inline void PPRZ_I2C_SEND_ADDR_READ(struct i2c_periph *periph, struct i2c_transaction* trans)
 {
   I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Receiver);
-  periph->status = I2CAddrRdSent;
 }
 
 static inline void PPRZ_I2C_SEND_ADDR_WRITE(struct i2c_periph *periph, struct i2c_transaction* trans)
 {
   I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Transmitter);
-  periph->status = I2CAddrWrSent;
-}
-
-static inline void PPRZ_I2C_RESTART(void)
-{
-  
 }
 
 static inline uint8_t PPRZ_I2C_READLAST(void)
@@ -322,12 +337,16 @@ static inline uint8_t PPRZ_I2C_READLAST(void)
 
 static inline void i2c_event(struct i2c_periph *p, uint32_t event)
 {
+  // Check to make sure that user space has a message pending
   struct i2c_transaction* trans = p->trans[p->trans_extract_idx];
 
   /*	
 	There are 7 possible reasons to get here:
 
 	If IT_EV_FEN
+	-------------------------
+
+	We are always interested in all IT_EV_FEV: all are required.
 
 	1) SB		// Start Condition Success in Master mode
 	2) ADDR		// Address sent received Acknoledge
@@ -346,22 +365,52 @@ static inline void i2c_event(struct i2c_periph *p, uint32_t event)
 	// Beware: the order in which Status is read determines how flags are cleared.
 
 	If IT_EV_FEN AND IT_EV_BUF
+	--------------------------
+
+	We are always interested in buffer interrupts IT_EV_BUF except in transmission when all data was sent
 
 	6) RxNE
 	7) TxE
 
-	-------------------------
-	We are always interested in all IT_EV_FEV: all are required.
-	We are only interested in buffer interrupts IT_EV_BUF when more data is comming: until (last-1)
+	--------------------------------------------------------------------------------------------------
+	// This driver uses only a subset of the pprz_i2c_states for several reasons:
+	// -we have less interrupts than the I2CStatus states (for efficiency)
+	// -status register flags better correspond to reality, especially in case of I2C errors
+
+	enum I2CStatus {
+	  I2CIdle,			// Dummy: Actual I2C Peripheral idle detection is safer with the 
+					// hardware status register flag I2C_FLAG_BUSY.
+
+	  I2CStartRequested,		// EV5: used to differentiate S en Sr
+	  I2CRestartRequested,		// EV5: used to differentiate S en Sr
+
+	  I2CSendingByte,		// Not used: using the hardware status reg I2C_FLAG_TRA
+	  I2CReadingByte,
+	  I2CAddrWrSent,		// Since we can do many things at once and we
+	  I2CAddrRdSent,		// have buffered sending, these states
+	  I2CSendingLastByte,		// do not correspond to the real state of the
+	  I2CReadingLastByte,		// STM I2C driver so they are not used
+	  I2CStopRequested,		
+
+	  I2CComplete,			// Used to provide the result
+	  I2CFailed
+	};
+
+	---------
+
+	The STM waits (holding SCL low) for user interaction:
+	a) after a master-start (waiting for address)
+	b) after an address (waiting for data)
+	   not during data sending when using buffered
+	c) after the last byte is transmitted (waiting for either stop or restart)
+	   not during data receiving when using buffered
+	   not after the last byte is received
+
    */
 
 
-  // This driver uses the hardware flags to keep track of its state
-  // 
-
-
-  ////////////////////////////////////////
-  // Start Condition Met in Master Mode
+  ////////////////////////////////////////////////////////
+  // Start Condition Met in Master Mode: STM Manual Ev5
   if (event & I2C_FLAG_SB)
   {
     // Periph was waiting for Start
@@ -386,7 +435,7 @@ static inline void i2c_event(struct i2c_periph *p, uint32_t event)
     }
   }
   ////////////////////////////////////////
-  // Master Sent a Slave Address
+  // Master Sent a Slave Address: STM Manual Ev6
   else if (event & I2C_FLAG_ADDR)
   {
     // Read
@@ -406,7 +455,7 @@ static inline void i2c_event(struct i2c_periph *p, uint32_t event)
   ////////////////////////////////////////
   // Buffer Can accept the next byte for transmission
   // --> this means we HAVE TO fill the buffer and/or disable buf interrupts
-  else if (event & I2C_FLAG_TxE)
+  else if (event & I2C_FLAG_TXE)
   {
     // Not Last
     // Last
@@ -418,48 +467,23 @@ static inline void i2c_event(struct i2c_periph *p, uint32_t event)
     // Not Last
     // Last
   }
+  ///////////////////////////////////////
+  else if (event & I2C_FLAG_BTF)
+  {
+    // Not Last
+    // Last
+  }
   
 
   LED1_ON();
 
-  if (event & I2C_FLAG_BTF)
+  if (event & I2C_FLAG_TRA)
   {
     LED2_ON();
   }
 
 
 
-  switch (p->status) {
-  case I2CStartRequested:
-    //LEDSTART_ON();
-    on_status_start_requested(p, trans, event);
-    break;
-  case I2CAddrWrSent:
-    on_status_addr_wr_sent(p, trans, event);
-    break;
-  case I2CSendingByte:
-    on_status_sending_byte(p, trans, event);
-    break;
-  case I2CStopRequested:
-    //LEDSTART_OFF();
-    on_status_stop_requested(p, trans, event);
-    break;
-  case I2CAddrRdSent:
-    on_status_addr_rd_sent(p, trans, event);
-    break;
-  case I2CReadingByte:
-    on_status_reading_byte(p, trans, event);
-    break;
-  case I2CReadingLastByte:
-    on_status_reading_last_byte(p, trans, event);
-    break;
-  case I2CRestartRequested:
-    on_status_restart_requested(p, trans, event);
-    break;
-  default:
-    OUT_OF_SYNC_STATE_MACHINE(p, p->status, event);
-    break;
-  }
 }
 
 static inline void i2c_error(struct i2c_periph *p)
@@ -745,12 +769,8 @@ void i2c2_er_irq_handler(void) {
 
 #endif /* USE_I2C2 */
 
-
-
-bool_t i2c_idle(struct i2c_periph* p)
-{
-  return !I2C_GetFlagStatus(p->reg_addr, I2C_FLAG_BUSY);
-}
+/////////////////////////////
+// User-space Interaction
 
 bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
 
@@ -769,8 +789,8 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
   p->trans_insert_idx = temp;
 
   /* if peripheral is idle, start the transaction */
-  if (p->status == I2CIdle)
-    start_transaction(p);
+  if (PPRZ_I2C_IS_IDLE())
+    PPRZ_I2C_START_NEXT_TRANSACTION(p);
   /* else it will be started by the interrupt handler when the previous transactions completes */
   __enable_irq();
 
@@ -778,10 +798,4 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
 }
 
 
-static void start_transaction(struct i2c_periph* p) {
-  p->idx_buf = 0;
-  p->status = I2CStartRequested;
-  I2C_ITConfig(p->reg_addr, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, ENABLE);
-  I2C_GenerateSTART(p->reg_addr, ENABLE);
-  LEDSTART_ON();
-}
+
