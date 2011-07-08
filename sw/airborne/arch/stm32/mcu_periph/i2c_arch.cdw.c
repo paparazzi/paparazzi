@@ -265,7 +265,6 @@ static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_
 
 static inline void on_status_reading_last_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) 
 {
-//      I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
   if (event & I2C_FLAG_BTF) {
     uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
     trans->buf[periph->idx_buf] = read_byte;
@@ -302,18 +301,17 @@ static bool_t PPRZ_I2C_IS_IDLE(struct i2c_periph* p)
 
 static void PPRZ_I2C_START_NEXT_TRANSACTION(struct i2c_periph* p) 
 {
-
-  I2C_ITConfig(p->reg_addr, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, ENABLE);
+  p->status = I2CStartRequested;
 
   p->idx_buf = 0;
-  p->status = I2CStartRequested;
+  I2C_ITConfig(p->reg_addr, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, ENABLE);
   I2C_GenerateSTART(p->reg_addr, ENABLE);
 }
 
 static inline void PPRZ_I2C_RESTART(struct i2c_periph *periph)
 {
   p->idx_buf = 0;
-  p->status = I2CStartRequested;
+  p->status = I2CRestartRequested;
   I2C_GenerateSTART(p->reg_addr, ENABLE);
 }
 
@@ -410,7 +408,8 @@ static inline void i2c_event(struct i2c_periph *p, uint32_t event)
 
 
   ////////////////////////////////////////////////////////
-  // Start Condition Met in Master Mode: STM Manual Ev5
+  // START: Start Condition Met in Master Mode: 
+  // STM Manual Ev5
   if (event & I2C_FLAG_SB)
   {
     // Periph was waiting for Start
@@ -428,14 +427,48 @@ static inline void i2c_event(struct i2c_periph *p, uint32_t event)
     {
       PPRZ_I2C_SEND_ADDR_READ(p, trans);
     }
-    // Problem
+    // Problem: this problem need to be triggerd as if the 
+    // status was not OK then the buf size is also bad
     else
     {
       PPRZ_I2C_STOP_AND_NEXT(p, trans, I2CFailed);
     }
   }
+  ////////////////////////////////////////////////////////////////
+  // TRANSMIT: Buffer Can accept the next byte for transmission
+  // --> this means we HAVE TO fill the buffer and/or disable buf interrupts (otherwise this interrupt 
+  //     will be triggered until a start/stop occurs which can be quite long = many spurrious interrupts)
+  // STM Manual Ev8
+  else if (event & I2C_FLAG_TXE) // only possible when TRA, not sending start/stop/addr
+  {
+    // Do we have more data? (yes! -> then neglect BTF: if it was set it just means we were too slow)
+    if (periph->idx_buf < trans->len_w) 
+    {
+      I2C_SendData(periph->reg_addr, trans->buf[periph->idx_buf]);
+      periph->idx_buf++;
+      // Was this one the Last? -> Disable the buf interrupt (until next start) and wait for BTF
+      if (periph->idx_buf < trans->len_w)
+      {
+        I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
+      } 
+    }
+    // STM Manual Ev8_2
+    else
+    {
+      // Ready -> Stop
+      if (trans->type == I2CTransTx) 
+      {
+        PPRZ_I2C_STOP_AND_NEXT(p, trans, I2CSuccess);
+      }
+      // Rx/Trans -> Restart
+      else 
+      {
+        PPRZ_I2C_RESTART(p);
+      }
+    }
+  }
   ////////////////////////////////////////
-  // Master Sent a Slave Address: STM Manual Ev6
+  // RECEIVE: either RXNE or ADDR
   else if (event & I2C_FLAG_ADDR)
   {
     // Read
@@ -452,23 +485,8 @@ static inline void i2c_event(struct i2c_periph *p, uint32_t event)
       // More
     }
   }
-  ////////////////////////////////////////
-  // Buffer Can accept the next byte for transmission
-  // --> this means we HAVE TO fill the buffer and/or disable buf interrupts
-  else if (event & I2C_FLAG_TXE)
-  {
-    // Not Last
-    // Last
-  }
-  ////////////////////////////////////////
-  // Receiver has new data (means: the reception of the next byte will be delayed until the data of the current transmission can be copied to the buffer)
-  else if (event & I2C_FLAG_BTF)
-  {
-    // Not Last
-    // Last
-  }
-  ///////////////////////////////////////
-  else if (event & I2C_FLAG_BTF)
+  // 
+  else if (event & I2C_FLAG_RXNE)
   {
     // Not Last
     // Last
