@@ -5,11 +5,9 @@
 #include <stm32/flash.h>
 #include <stm32/misc.h>
 
+//#include "led.h" 
 
 /////////// DEBUGGING //////////////
-
-#define LEDSTART_ON() {}
-#define LEDSTART_OFF() {}
 
 static inline void LED1_ON(void)
 {
@@ -88,7 +86,7 @@ static I2C_InitTypeDef  I2C2_InitStruct = {
       .I2C_OwnAddress1 = 0x00,
       .I2C_Ack = I2C_Ack_Enable,
       .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
-      .I2C_ClockSpeed = 30000
+      .I2C_ClockSpeed = 400000
 };
 #endif
 
@@ -112,7 +110,6 @@ static bool_t PPRZ_I2C_IS_IDLE(struct i2c_periph* periph)
 
 static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
 {
-LED2_ON();
   periph->idx_buf = 0;
   I2C_GenerateSTART(periph->reg_addr, ENABLE);
   I2C_ITConfig(periph->reg_addr, I2C_IT_EVT | I2C_IT_ERR, ENABLE);
@@ -139,8 +136,10 @@ static void PPRZ_I2C_START_NEXT_TRANSACTION(struct i2c_periph* periph)
 
 static inline void PPRZ_I2C_RESTART(struct i2c_periph *periph)
 {
-  // BTF is cleared by the stop condition only
-  I2C_ClearFlag(periph->reg_addr, I2C_FLAG_BTF);
+LED2_ON();
+//        I2C_GenerateSTOP(periph->reg_addr, ENABLE);
+//      I2C_SendData(periph->reg_addr, 0);
+//  I2C_ClearITPendingBit(periph->reg_addr, I2C_IT_BTF);
   periph->status = I2CRestartRequested;
   PPRZ_I2C_SEND_START(periph);
 }
@@ -149,11 +148,6 @@ static inline void PPRZ_I2C_RESTART(struct i2c_periph *periph)
 
 static inline void PPRZ_I2C_HAS_FINISHED(struct i2c_periph *periph, struct i2c_transaction *trans, enum I2CTransactionStatus _status)
 {
-//////////////////////////////////////////////
-        LED1_OFF();  //strobe
-        LED1_ON();
-//////////////////////////////////////////////
-
   // Finish Current
   trans->status = _status;
  
@@ -275,18 +269,13 @@ static inline void i2c_event(struct i2c_periph *periph)
 
   LED1_ON();
 
+  //I2C_TypeDef *regs = (I2C_TypeDef *) periph->reg_addr;
 
   //__disable_irq();
   uint32_t event = I2C_GetLastEvent(periph->reg_addr);
 
-  if (event & I2C_FLAG_SB)
-  {
-    //LED2_ON();
-  }
+  //uint32_t event = (((uint32_t)(regs->SR2)) << 16) + regs->SR1;
 
-  if (event & I2C_FLAG_BTF)
-  {
-  }
 
   ///////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////
@@ -310,7 +299,7 @@ static inline void i2c_event(struct i2c_periph *periph)
       I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, ENABLE);
     }
     // Waiting for Restart: Always Rx
-    else if (periph->status == I2CStartRequested)
+    else if (periph->status == I2CRestartRequested)
     {
       I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Receiver);
       I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, ENABLE);
@@ -343,6 +332,11 @@ static inline void i2c_event(struct i2c_periph *periph)
       if (periph->idx_buf >= trans->len_w)
       {
         I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
+        // If this is followed by a restart: then we need to set the startbit to avoid extra interrupts.
+        if (trans->type != I2CTransTx) 
+        {
+          PPRZ_I2C_RESTART(periph);
+        }
       } 
     }
 
@@ -355,13 +349,8 @@ static inline void i2c_event(struct i2c_periph *periph)
         I2C_GenerateSTOP(periph->reg_addr, ENABLE);
         PPRZ_I2C_HAS_FINISHED(periph, trans, I2CTransSuccess);
       }
-      // Rx/Trans -> Restart
-      else 
-      {
-
-
-        PPRZ_I2C_RESTART(periph);
-      }
+      // Rx/Trans -> Restart: 
+      // Do not wait for BTF
     }
     // If we had no more data but got no BTF then there is a problem
     else
@@ -505,86 +494,16 @@ static inline void i2c_error(struct i2c_periph *periph)
 
 }
 
+  
 /*
-static inline void i2c_delay(void)
-{
-    for (__IO int j = 0; j < 50; j++);
-}
-
-
-static inline void abort_and_reset(struct i2c_periph *periph) {
-    struct i2c_transaction* trans = periph->trans[periph->trans_extract_idx];
-    trans->status = I2CTransFailed;
-    i2c_hard_reset(periph);
-    // TODO: Do something here
-}
-
-static inline void i2c_hard_reset(struct i2c_periph *periph)
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-  I2C_TypeDef *regs = (I2C_TypeDef *) periph->reg_addr;
-
-  I2C_DeInit(periph->reg_addr);
-
-  GPIO_InitStructure.GPIO_Pin = periph->scl_pin | periph->sda_pin;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
-  GPIO_SetBits(GPIOB, periph->scl_pin | periph->sda_pin);
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-  while(GPIO_ReadInputDataBit(GPIOB, periph->sda_pin) == Bit_RESET) {
-    // Raise SCL, wait until SCL is high (in case of clock stretching)
-    GPIO_SetBits(GPIOB, periph->scl_pin);
-    while (GPIO_ReadInputDataBit(GPIOB, periph->scl_pin) == Bit_RESET);
-    i2c_delay();
-    
-    // Lower SCL, wait
-    GPIO_ResetBits(GPIOB, periph->scl_pin);
-    i2c_delay();
-    
-    // Raise SCL, wait
-    GPIO_SetBits(GPIOB, periph->scl_pin);
-    i2c_delay();
-  }
-  
-
-  // Generate a start condition followed by a stop condition
-  GPIO_SetBits(GPIOB, periph->scl_pin);
-  i2c_delay();
-  GPIO_ResetBits(GPIOB, periph->sda_pin);
-  i2c_delay();
-  GPIO_ResetBits(GPIOB, periph->sda_pin);
-  i2c_delay();
-
-  
-
-  // Raise both SCL and SDA and wait for SCL high (in case of clock stretching)
-  GPIO_SetBits(GPIOB, periph->scl_pin | periph->sda_pin);
-  while (GPIO_ReadInputDataBit(GPIOB, periph->scl_pin) == Bit_RESET);
-  
-  // Wait for SDA to be high
-  while (GPIO_ReadInputDataBit(GPIOB, periph->sda_pin) != Bit_SET);
-  
-  // SCL and SDA should be high at this point, bus should be free
-  // Return the GPIO pins to the alternate function
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-  
-
-  I2C_DeInit(periph->reg_addr);
-  
-  i2c_apply_config(periph);
-  
-
   // Make sure the bus is free before resetting (p722)
   if (regs->SR2 & (I2C_FLAG_BUSY >> 16)) {
     // Reset the I2C block
     I2C_SoftwareResetCmd(periph->reg_addr, ENABLE);
     I2C_SoftwareResetCmd(periph->reg_addr, DISABLE);
   }
-
-}
 */
+
 #endif /* USE_I2C2 */
 
 
@@ -662,7 +581,7 @@ void i2c2_hw_init(void) {
 
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin = i2c2.scl_pin | i2c2.sda_pin;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
 
@@ -672,7 +591,6 @@ void i2c2_hw_init(void) {
   I2C_Cmd(I2C2, ENABLE);
 
   I2C_Init(I2C2, i2c2.init_struct);
-
 
 //  I2C_SoftwareResetCmd(I2C2, ENABLE);
 //  I2C_SoftwareResetCmd(I2C2, DISABLE);
@@ -728,8 +646,8 @@ bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
 
 bool_t i2c_idle(struct i2c_periph* periph)
 {
-  //return PPRZ_I2C_IS_IDLE(periph);
-  return periph->status == I2CIdle;
+  return PPRZ_I2C_IS_IDLE(periph);
+  //return periph->status == I2CIdle;
 }
 
 
