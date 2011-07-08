@@ -113,229 +113,89 @@ static inline void abort_and_reset(struct i2c_periph *p) {
 }
 
 #ifdef USE_I2C2
-static inline void on_status_start_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
-static inline void on_status_addr_wr_sent(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
-static inline void on_status_sending_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
-static inline void on_status_stop_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
-static inline void on_status_addr_rd_sent(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
-static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
-static inline void on_status_reading_last_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
-static inline void on_status_restart_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 
-/*
- * Start Requested
- *
- */
-static inline void on_status_start_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
-  if (event & I2C_FLAG_SB) {
-    if(trans->type == I2CTransRx) {
-      I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Receiver);
-      periph->status = I2CAddrRdSent;
-    }
-    else {
-      I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Transmitter);
-      periph->status = I2CAddrWrSent;
-    }
-  }
-}
-
-/*
- * Addr WR sent
- *
- */
-
-static inline void on_status_addr_wr_sent(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
-//    uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
-  if ((event & I2C_FLAG_ADDR) && (event & I2C_FLAG_TRA)) {
-    I2C_SendData(periph->reg_addr, trans->buf[0]);
-//    I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
-    if (trans->len_w > 1) {
-      I2C_SendData(periph->reg_addr, trans->buf[1]);
-      periph->idx_buf = 2;
-      periph->status = I2CSendingByte;
-    }
-    else {
-      periph->idx_buf = 1;
-      if (trans->type == I2CTransTx) {
-        I2C_GenerateSTOP(periph->reg_addr, ENABLE);
-	LEDSTART_OFF();
-        periph->status = I2CStopRequested;
-      }
-      else {
-        I2C_GenerateSTART(periph->reg_addr, ENABLE);
-        periph->status = I2CRestartRequested;
-      }
-    }
-  }
-}
-
-/*
- * Sending Byte
- *
- */
-static inline void on_status_sending_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
-  I2C_TypeDef *regs = (I2C_TypeDef *) periph->reg_addr;
-  if (event & I2C_FLAG_BTF) {
-    if (periph->idx_buf < trans->len_w) {
-      I2C_SendData(periph->reg_addr, trans->buf[periph->idx_buf]);
-      periph->idx_buf++;
-    }
-    else {
-//      I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
-      if (trans->type == I2CTransTx) {
-        I2C_GenerateSTOP(periph->reg_addr, ENABLE);
-	LEDSTART_OFF();
-        periph->status = I2CStopRequested;
-      }
-      else {
-        I2C_GenerateSTART(periph->reg_addr, ENABLE);
-        periph->status = I2CRestartRequested;
-      }
-    }
-  }
-  else
-    SPURIOUS_INTERRUPT(periph, I2CSendingByte, event);
-}
-
-/*
- * Stop Requested
- *
- */
-static inline void on_status_stop_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
-  /* bummer.... */
-
-  if (event & I2C_FLAG_RXNE) {
-    uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
-    if (periph->idx_buf < trans->len_r) {
-      trans->buf[periph->idx_buf] = read_byte;
-    }
-  }
-  I2C_ITConfig(periph->reg_addr, I2C_IT_EVT|I2C_IT_BUF, DISABLE);  // should only need to disable evt, buf already disabled
-  trans->status = I2CTransSuccess;
-  end_of_transaction(periph);
-}
-
-/*
- * Addr RD sent
- *
- */
-
-static inline void on_status_addr_rd_sent(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
-  if ((event & I2C_FLAG_ADDR) && !(event & I2C_FLAG_TRA)) {
-    periph->idx_buf = 0;
-    if(trans->len_r == 1) {                                         // If we're going to read only one byte
-      I2C_AcknowledgeConfig(periph->reg_addr, DISABLE);             // make sure it's gonna be nacked
-      I2C_GenerateSTOP(periph->reg_addr, ENABLE);               // and followed by a stop
-	LEDSTART_OFF();
-      periph->status = I2CReadingLastByte;                           // and remember we did
-    }
-    else {
-      I2C_AcknowledgeConfig(periph->reg_addr, ENABLE);               // if it's more than one byte, ack it
-//      I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, ENABLE);
-      periph->status = I2CReadingByte;                               // and remember we did
-    }
-  }
-}
-
-/*
- * Reading byte
- *
- */
-
-static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
-  if (event & I2C_FLAG_RXNE) {
-    uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
-    if (periph->idx_buf < trans->len_r) {
-      trans->buf[periph->idx_buf] = read_byte;
-      periph->idx_buf++;
-      if (periph->idx_buf >= trans->len_r-1) {                    // We're reading our last byte
-        I2C_AcknowledgeConfig(periph->reg_addr, DISABLE);         // give them a nack once it's done
-        I2C_GenerateSTOP(periph->reg_addr, ENABLE);               // and follow with a stop
-	LEDSTART_OFF();
-        periph->status = I2CReadingLastByte;                        // remember we already trigered the stop
-      }
-    }
-  }
-}
-
-/*
- * Reading last byte
- *
- */
-
-static inline void on_status_reading_last_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) 
-{
-  if (event & I2C_FLAG_BTF) {
-    uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
-    trans->buf[periph->idx_buf] = read_byte;
-  }
-  else if (event & I2C_FLAG_RXNE) {       // should really be BTF ?
-    uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
-    trans->buf[periph->idx_buf] = read_byte;
-  }
-
-  on_status_stop_requested(periph, trans, event);
-}
-
-/*
- * Restart requested
- *
- */
-
-static inline void on_status_restart_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event) {
-  if (event & I2C_FLAG_SB) {
-    I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Receiver);
-    periph->status = I2CAddrRdSent;
-  }
-}
 
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
+
+// IDLE CHECK
 
 static bool_t PPRZ_I2C_IS_IDLE(struct i2c_periph* p)
 {
   return I2C_GetFlagStatus(p->reg_addr, I2C_FLAG_BUSY) == RESET;
 }
 
-static void PPRZ_I2C_START_NEXT_TRANSACTION(struct i2c_periph* p) 
-{
-  p->status = I2CStartRequested;
+// (RE)START
 
+static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
+{
   p->idx_buf = 0;
   I2C_ITConfig(p->reg_addr, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, ENABLE);
   I2C_GenerateSTART(p->reg_addr, ENABLE);
 }
 
+static void PPRZ_I2C_START_NEXT_TRANSACTION(struct i2c_periph* p) 
+{
+  /* if we have no more transaction to process, stop here */
+  if (p->trans_extract_idx == p->trans_insert_idx)
+  {
+    p->status = I2CIdle;
+  }
+  /* if not, start next transaction */
+  else
+  {
+    p->status = I2CStartRequested;
+    PPRZ_I2C_SEND_START(p);
+  }
+}
+
 static inline void PPRZ_I2C_RESTART(struct i2c_periph *periph)
 {
-  p->idx_buf = 0;
   p->status = I2CRestartRequested;
-  I2C_GenerateSTART(p->reg_addr, ENABLE);
+  PPRZ_I2C_SEND_START(p);
 }
 
-static inline void PPRZ_I2C_SEND_ADDR_READ(struct i2c_periph *periph, struct i2c_transaction* trans)
+static inline void PPRZ_I2C_HAS_FINISHED(struct i2c_periph *periph, struct i2c_trans *trans, I2CStatus _status)
 {
-  I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Receiver);
-}
+  // Finish Current
+  trans->status = _status;
+ 
+  // When finished successfully the I2C_FLAG_MLS will be cleared after the stop condition was issued.
+  // However: we do not need to wait for it to go the the next step, but if no stop condition was 
+  // sent than we are still talking to the same slave...
 
-static inline void PPRZ_I2C_SEND_ADDR_WRITE(struct i2c_periph *periph, struct i2c_transaction* trans)
-{
-  I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Transmitter);
-}
-
-static inline uint8_t PPRZ_I2C_READLAST(void)
-{
+  // todo: evaluate all possible routes to this function...
   
+  // a) stop condition was already sheduled?
+  // b) stop condition not yet sheduled?
+
+  // Jump to the next
+  periph->trans_extract_idx++;
+  if (periph->trans_extract_idx >= I2C_TRANSACTION_QUEUE_LEN)
+    periph->trans_extract_idx = 0;
+
+  PPRZ_I2C_START_NEXT_TRANSACTION(periph);
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-static inline void i2c_event(struct i2c_periph *p, uint32_t event)
+static inline void i2c_event(struct i2c_periph *p)
 {
-  // Check to make sure that user space has a message pending
+  // Referring to manual: 
+  // -Doc ID 13902 Rev 11
+
+
+  // Check to make sure that user space has an active transaction pending
+  if (p->trans_extract_idx == p->trans_insert_idx)
+  {
+    // no transaction?
+    p->errors->unexpected_event_cnt++;
+    return;
+  }
+
   struct i2c_transaction* trans = p->trans[p->trans_extract_idx];
 
   /*	
@@ -407,8 +267,21 @@ static inline void i2c_event(struct i2c_periph *p, uint32_t event)
    */
 
 
-  ////////////////////////////////////////////////////////
-  // START: Start Condition Met in Master Mode: 
+  ///////////////////////////////////////////////////////////////////////////////////
+  // Reading the status:
+  // - Caution: this clears several flags and can start transmissions etc... 
+  // - Certain flags like STOP / (N)ACK need to be guaranteed to be set before
+  //   the transmission of the byte is finished. At higher clock rates that can be
+  //   quite fast: so we allow no other interrupt to be triggered in between
+  //   reading the status and setting all needed flags
+
+  __disable_irq();
+  uint32_t event = I2C_GetLastEvent(periph->reg_addr);
+
+
+  ///////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////
+  // START: Start Condition in Master Mode: 
   // STM Manual Ev5
   if (event & I2C_FLAG_SB)
   {
@@ -417,48 +290,54 @@ static inline void i2c_event(struct i2c_periph *p, uint32_t event)
     {
       // Send Read Slave Address
       if(trans->type == I2CTransRx)
-        PPRZ_I2C_SEND_ADDR_READ(p, trans);
+        I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Receiver);
       // Send Write Slave Address
       else
-        PPRZ_I2C_SEND_ADDR_WRITE(p, trans);
+        I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Transmitter);
     }
     // Waiting for Restart: Always Rx
     else if (p->status == I2CStartRequested)
     {
-      PPRZ_I2C_SEND_ADDR_READ(p, trans);
+      I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Receiver);
     }
     // Problem: this problem need to be triggerd as if the 
     // status was not OK then the buf size is also bad
     else
     {
-      PPRZ_I2C_STOP_AND_NEXT(p, trans, I2CFailed);
+      PPRZ_I2C_HAS_FINISHED(p, trans, I2CFailed);
     }
   }
-  ////////////////////////////////////////////////////////////////
+
+  ///////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////
   // TRANSMIT: Buffer Can accept the next byte for transmission
   // --> this means we HAVE TO fill the buffer and/or disable buf interrupts (otherwise this interrupt 
   //     will be triggered until a start/stop occurs which can be quite long = many spurrious interrupts)
   // STM Manual Ev8
-  else if (event & I2C_FLAG_TXE) // only possible when TRA, not sending start/stop/addr
+  else if (event & I2C_FLAG_TXE) // only possible when TRA(nsmitter) and not sending start/stop/addr
   {
-    // Do we have more data? (yes! -> then neglect BTF: if it was set it just means we were too slow)
-    if (periph->idx_buf < trans->len_w) 
+    // Do we have more data? and there is buffer room? 
+    // (neglect BTF: if it was set it just means we were too slow)
+    while ((periph->idx_buf < trans->len_w) && (I2C_GetFlagStatus(p->reg_addr, I2C_FLAG_TXE) == SET))
     {
       I2C_SendData(periph->reg_addr, trans->buf[periph->idx_buf]);
       periph->idx_buf++;
       // Was this one the Last? -> Disable the buf interrupt (until next start) and wait for BTF
-      if (periph->idx_buf < trans->len_w)
+      // -we could gain a bit of efficiency by already starting the next action but for 
+      //  code-readability we will wait until the last tx-byte is sent
+      if (periph->idx_buf >= trans->len_w)
       {
         I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
       } 
     }
-    // STM Manual Ev8_2
-    else
+
+    // STM Manual Ev8_2 
+    if ((event & I2C_FLAG_BTF) && (periph->idx_buf >= trans->len_w))
     {
       // Ready -> Stop
       if (trans->type == I2CTransTx) 
       {
-        PPRZ_I2C_STOP_AND_NEXT(p, trans, I2CSuccess);
+        PPRZ_I2C_HAS_FINISHED(p, trans, I2CSuccess);
       }
       // Rx/Trans -> Restart
       else 
@@ -466,32 +345,53 @@ static inline void i2c_event(struct i2c_periph *p, uint32_t event)
         PPRZ_I2C_RESTART(p);
       }
     }
-  }
-  ////////////////////////////////////////
-  // RECEIVE: either RXNE or ADDR
-  else if (event & I2C_FLAG_ADDR)
-  {
-    // Read
-    if (p->status == I2CAddrRdSent)
+    // If we had no more data but got no BTF then there is a problem
+    else
     {
-      // One
-      // More
-    }
-    // Write
-    else if (p->status == I2CAddrWrSent)
-    {
-      // Zero bytes
-      // One
-      // More
+      PPRZ_I2C_HAS_FINISHED(p, trans, I2CFailed);
     }
   }
-  // 
-  else if (event & I2C_FLAG_RXNE)
+
+  ///////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////
+  // RECEIVE:
+  // while receiving: the master needs to signal to the slave if more data is needed
+  else if ((event & I2C_FLAG_ADDR) || (event & I2C_FLAG_RXNE))
   {
-    // Not Last
-    // Last
+    // data is available every time RXNE is set. If BTF is set it means that 2 bytes are 
+    // ready to read (one in shift register) and I2C has stopped until the buffer can accept new data.
+    if (event & I2C_FLAG_RXNE) 
+    {
+      uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
+      if (periph->idx_buf < trans->len_r) 
+      {
+        trans->buf[periph->idx_buf] = read_byte;
+        periph->idx_buf++;
+      }
+    }
+
+    // This last byte has arrived
+    if (periph->idx_buf >= trans->len_r) 
+    {
+      PPRZ_I2C_HAS_FINISHED(p, trans, I2CSuccess);
+    }
+    // Tell the Slave it will be the last one
+    else if (periph->idx_buf >= trans->len_r-1) 
+    {
+      I2C_AcknowledgeConfig(periph->reg_addr, DISABLE);         // give them a nack once it's done
+      I2C_GenerateSTOP(periph->reg_addr, ENABLE);               // and follow with a stop
+    }
+    // Ask the Slave to send more
+    else
+    {
+      I2C_AcknowledgeConfig(periph->reg_addr, ENABLE);
+    }
+
   }
-  
+
+  // Now re-enable IRQ... it's been too long  
+  __enable_irq();
+
 
   LED1_ON();
 
@@ -500,6 +400,8 @@ static inline void i2c_event(struct i2c_periph *p, uint32_t event)
     LED2_ON();
   }
 
+  LED2_OFF();
+  LED1_OFF();
 
 
 }
@@ -540,6 +442,58 @@ static inline void i2c_error(struct i2c_periph *p)
   }
 
   abort_and_reset(p);
+
+
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+    LED1_ON();
+    LED1_OFF();
+
 }
 
 
@@ -615,11 +569,12 @@ static inline void i2c_reset_init(struct i2c_periph *p)
 }
 #endif /* USE_I2C2 */
 
+
+
+
 #ifdef USE_I2C1
 
 struct i2c_errors i2c1_errors;
-
-#include "my_debug_servo.h"
 
 void i2c1_hw_init(void) {
 
@@ -634,14 +589,9 @@ void i2c1_hw_init(void) {
 
 }
 
-
 void i2c1_ev_irq_handler(void) {
-
-  uint32_t event = I2C_GetLastEvent(I2C1);
-  i2c_event(&i2c1, event);
-
+  i2c_event(&i2c1);
 }
-
 
 void i2c1_er_irq_handler(void) {
   i2c_error(&i2c1);
@@ -649,24 +599,9 @@ void i2c1_er_irq_handler(void) {
 
 #endif /* USE_I2C1 */
 
-
-
-
-
 #ifdef USE_I2C2
 
-//  dec      hex
-//  196609   30001        BUSY  MSL |                 SB
-//  458882   70082    TRA BUSY  MSL | TXE       ADDR
-//  458884   70084    TRA BUSY  MSL | TXE  BTF
-//  196609   30001        BUSY  MSL |                 SB
-//  196610   30002        BUSY  MSL |           ADDR
-//
-
-
 struct i2c_errors i2c2_errors;
-
-#include "my_debug_servo.h"
 
 void i2c2_hw_init(void) {
 
@@ -721,71 +656,16 @@ void i2c2_hw_init(void) {
 
 
 void i2c2_ev_irq_handler(void) {
-  uint32_t event = I2C_GetLastEvent(I2C2);
-
-
-  i2c_event(&i2c2, event);
-
-  LED2_OFF();
-  LED1_OFF();
+  i2c_event(&i2c2);
 }
 
 void i2c2_er_irq_handler(void) {
   i2c_error(&i2c2);
-
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-    LED1_ON();
-    LED1_OFF();
-
 }
 
 #endif /* USE_I2C2 */
+
+
 
 /////////////////////////////
 // User-space Interaction
