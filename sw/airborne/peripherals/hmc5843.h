@@ -30,8 +30,6 @@
 struct Hmc5843 {
     struct i2c_transaction i2c_trans;
     uint32_t timeout;
-    uint8_t sent_tx;
-    uint8_t sent_rx;
     uint8_t initialized;
     uint8_t data_available;
   union {
