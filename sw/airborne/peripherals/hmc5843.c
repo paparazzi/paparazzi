@@ -21,21 +21,21 @@ static void hmc_send_config(uint8_t _init)
 {
   switch (_init)
   {
-  case 0:
+  case 1:
     hmc5843.i2c_trans.type = I2CTransTx;
     hmc5843.i2c_trans.buf[0] = HMC5843_REG_CFGA;  // set to rate to 50Hz
     hmc5843.i2c_trans.buf[1] = 0x00 | (0x06 << 2);
     hmc5843.i2c_trans.len_w = 2;
     i2c_submit(&i2c2,&hmc5843.i2c_trans);
     break;
-  case 1:
+  case 2:
     hmc5843.i2c_trans.type = I2CTransTx;
     hmc5843.i2c_trans.buf[0] = HMC5843_REG_CFGB;  // set to gain to 1 Gauss
     hmc5843.i2c_trans.buf[1] = 0x01<<5;
     hmc5843.i2c_trans.len_w = 2;
     i2c_submit(&i2c2,&hmc5843.i2c_trans);
   break;
-  case 2:
+  case 3:
     hmc5843.i2c_trans.type = I2CTransTx;
     hmc5843.i2c_trans.buf[0] = HMC5843_REG_MODE;  // set to continuous mode
     hmc5843.i2c_trans.buf[1] = 0x00;
