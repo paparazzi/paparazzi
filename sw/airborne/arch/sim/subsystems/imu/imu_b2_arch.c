@@ -25,6 +25,8 @@
 
 #include "generated/airframe.h"
 
+int imu_overrun = 0;
+
 void imu_b2_arch_init(void) {
 
 }

@@ -185,27 +185,50 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.energy <- ivalue "energy"
   | "FBW_STATUS" ->
       a.bat <- fvalue "vsupply" /. 10.;
-      a.fbw.rc_rate <- ivalue "frame_rate"
+      a.fbw.pprz_mode_msgs_since_last_fbw_status_msg <- 0;
+      a.fbw.rc_rate <- ivalue "frame_rate";
+      let fbw_rc_mode = ivalue "rc_status" in
+      a.fbw.rc_status <- (
+        match fbw_rc_mode with
+          2 -> "NONE"
+        | 1 -> "LOST"
+        | _ -> "OK" );
+      let fbw_mode = ivalue "mode" in
+      a.fbw.rc_mode <- (
+        match fbw_mode with
+          2 -> "FAILSAFE"
+        | 1 -> "AUTO"
+        | _ -> "MANUAL" )
+  | "STATE_FILTER_STATUS" ->
+      a.state_filter_mode <- check_index (ivalue "state_filter_mode") state_filter_modes "STATE_FILTER_MODES"
   | "PPRZ_MODE" ->
       a.vehicle_type <- FixedWing;
-      a.ap_mode <- check_index (ivalue "ap_mode") fixedwing_ap_modes "AP_MODE";
       a.gaz_mode <- check_index (ivalue "ap_gaz") gaz_modes "AP_GAZ";
       a.lateral_mode <- check_index (ivalue "ap_lateral") lat_modes "AP_LAT";
       a.horizontal_mode <- check_index (ivalue "ap_horizontal") horiz_modes "AP_HORIZ";
       let mcu1_status = ivalue "mcu1_status" in
       (** c.f. link_autopilot.h *)
-      a.fbw.rc_status <- 
-        if mcu1_status land 0b1 > 0
-        then "OK"
-        else if mcu1_status land 0b10 > 0
-        then "NONE"
-        else "LOST";
-            a.fbw.rc_mode <-
-        if mcu1_status land 0b1000 > 0
-        then "FAILSAFE"
-        else if mcu1_status land 0b100 > 0
-        then "AUTO"
-        else "MANUAL";
+      if a.fbw.pprz_mode_msgs_since_last_fbw_status_msg < 10 then
+        a.fbw.pprz_mode_msgs_since_last_fbw_status_msg <- a.fbw.pprz_mode_msgs_since_last_fbw_status_msg + 1;
+      (* If we have recent direct information from the FBW, and it says FAILSAFE: then do not thrust the AP message PPRZ_MODE *)
+      if ((a.fbw.pprz_mode_msgs_since_last_fbw_status_msg >= 10) && (a.fbw.rc_status <> "FAILSAFE")) then begin
+        a.fbw.rc_status <- 
+          if mcu1_status land 0b1 > 0
+          then "OK"
+          else if mcu1_status land 0b10 > 0
+          then "NONE"
+          else "LOST";
+        a.fbw.rc_mode <-
+          if mcu1_status land 0b1000 > 0
+          then "FAILSAFE"
+          else if mcu1_status land 0b100 > 0
+          then "AUTO"
+          else "MANUAL";
+      end ;
+      if a.fbw.rc_mode = "FAILSAFE" then
+        a.ap_mode <- 5 (* Override and set FAIL(Safe) Mode *)
+      else
+        a.ap_mode <- check_index (ivalue "ap_mode") fixedwing_ap_modes "AP_MODE"
   | "CAM" ->
       a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
       a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
@@ -276,6 +299,26 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       and alt = ivalue "alt" in
       let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
 	    update_waypoint a (ivalue "wp_id") geo (float alt /. 100.)
+  | "GENERIC_COM" ->
+      let flight_time = ivalue "flight_time" in
+      if flight_time >= a.flight_time then begin
+        a.flight_time <- flight_time;
+        let lat = fvalue "lat"
+        and lon = fvalue "lon" in
+        let geo = make_geo (lat /. 1e7) (lon /. 1e7) in
+        a.pos <- geo;
+        a.alt <- fvalue "alt";
+        a.gspeed  <- fvalue "gspeed" /. 100.;
+        a.course  <- norm_course (fvalue "course" /. 1e3);
+        if !heading_from_course then
+          a.heading <- a.course;
+        a.agl <- a.alt -. float (try Srtm.of_wgs84 a.pos with _ -> 0);
+        a.bat <- fvalue "vsupply" /. 10.;
+        a.energy <- ivalue "energy" * 100;
+        a.throttle <- fvalue "throttle";
+        a.ap_mode <- check_index (ivalue "ap_mode") fixedwing_ap_modes "AP_MODE";
+        a.cur_block <- ivalue "nav_block";
+      end
   | "FORMATION_SLOT_TM" ->
       Dl_Pprz.message_send "ground_dl" "FORMATION_SLOT" values
   | "FORMATION_STATUS_TM" ->

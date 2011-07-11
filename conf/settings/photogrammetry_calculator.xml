@@ -1,0 +1,24 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+  <dl_settings name="control">
+    <dl_settings name="photocalc">
+
+      <dl_setting max="90" min="-90" step="1" module="cartography/photogrammetry_calculator" var="photogrammetry_sweep_angle" shortname="Angle"  param="PHOTOGRAMMETRY_SWEEP_ANGLE" />
+
+      <dl_setting max="95" min="0" step="1" VAR="photogrammetry_sidelap" module="cartography/photogrammetry_calculator" shortname="SideLap %" param="PHOTOGRAMMETRY_SIDELAP" handler="UpdateSideLap" />
+      <dl_setting max="95" min="0" step="1" var="photogrammetry_overlap" module="cartography/photogrammetry_calculator" shortname="OverLap %" param="PHOTOGRAMMETRY_OVERLAP" handler="UpdateOverLap" />
+      <dl_setting max="200" min="1" step="1" var="photogrammetry_resolution" module="cartography/photogrammetry_calculator" shortname="Pixel mm" param="PHOTOGRAMMETRY_RESOLUTION" handler="UpdateResolution"  />
+
+      <dl_setting max="500" min="1" step="1" var="photogrammetry_height_min" shortname="h_min" />
+      <dl_setting max="500" min="1" step="1" var="photogrammetry_height_max" shortname="h_max" />
+      <dl_setting max="500" min="1" step="1" var="photogrammetry_radius_min" shortname="r_min" />
+
+
+      <dl_setting max="500" min="1" step="1" var="photogrammetry_height" shortname="computed height" />
+      <dl_setting max="1000" min="1" step="1" var="photogrammetry_sidestep" shortname="computed sidestep" />
+      <dl_setting max="1000" min="1" step="1" var="photogrammetry_triggerstep" shortname="computed trigger" />
+
+    </dl_settings>
+  </dl_settings>
+</settings>

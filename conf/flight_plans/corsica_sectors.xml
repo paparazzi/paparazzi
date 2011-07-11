@@ -1,0 +1,37 @@
+<!DOCTYPE procedure SYSTEM "flight_plan.dtd">
+
+<procedure>
+
+  <waypoints>
+    <waypoint name="_MENTON-PLAGE-NE"  lat="43 46 30" lon="7 30 14"/>
+    <waypoint name="_MENTON-PLAGE-SO"  lat="43 46 14" lon="7 29 34"/>
+    <waypoint name="_MENTON-NE"        lat="43 46 10" lon="7 33 01"/>
+    <waypoint name="_MENTON-SO"        lat="43 45 03" lon="7 30 39"/>
+    <waypoint name="_TMA-NICE-NE"      lat="43 33 32" lon="7 50 06"/>
+    <waypoint name="_TMA-NICE-SO"      lat="43 31 17" lon="7 49 27"/>
+    <waypoint name="_TMA-CALVI-NE"     lat="42 49 32" lon="8 48 23"/>
+    <waypoint name="_TMA-CALVI-SO"     lat="42 48 44" lon="8 46 04"/>
+    <waypoint name="_LOZARI-NE"        lat="42 39 10" lon="9 01 49"/>
+    <waypoint name="_LOZARI-SO"        lat="42 38 25" lon="8 59 30"/>
+    <waypoint name="_LOZARI-PLAGE-NE"  lat="42 38 42" lon="9 01 37"/>
+    <waypoint name="_LOZARI-PLAGE-SO"  lat="42 38 13" lon="9 00 46"/>
+  </waypoints>
+
+  <sectors>
+    <sector name="ZRT" color="red">
+      <corner name="_MENTON-PLAGE-NE"/>
+      <corner name="_MENTON-NE"/>
+      <corner name="_TMA-NICE-NE"/>
+      <corner name="_TMA-CALVI-NE"/>
+      <corner name="_LOZARI-NE"/>
+      <corner name="_LOZARI-PLAGE-NE"/>
+      <corner name="_LOZARI-PLAGE-SO"/>
+      <corner name="_LOZARI-SO"/>
+      <corner name="_TMA-CALVI-SO"/>
+      <corner name="_TMA-NICE-SO"/>
+      <corner name="_MENTON-SO"/>
+      <corner name="_MENTON-PLAGE-SO"/>
+    </sector>
+  </sectors>
+
+</procedure>

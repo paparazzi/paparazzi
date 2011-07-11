@@ -44,26 +44,6 @@
 
 
 /***************************************************************************
- * Endianness Swapping Functions
- */
-
-static float FloatSwap( float f )
-{
-  union
-  {
-    float f;
-    unsigned char b[4];
-  } dat1, dat2;
-
-  dat1.f = f;
-  dat2.b[0] = dat1.b[3];
-  dat2.b[1] = dat1.b[2];
-  dat2.b[2] = dat1.b[1];
-  dat2.b[3] = dat1.b[0];
-  return dat2.f;
-}
-
-/***************************************************************************
  * Cyclic Redundancy Checksum
  */
 
@@ -123,46 +103,36 @@ void CHIMU_Checksum(unsigned char *data, unsigned char buflen)
 #define CHIMU_STATE_MACHINE_PAYLOAD	5
 #define CHIMU_STATE_MACHINE_XSUM	6
 
-// Message ID's that go TO the CHIMU
-#define MSG00_PING		0x00
-#define MSG01_BIAS		0x01
-#define MSG02_DACMODE		0x02
-#define MSG03_CALACC		0x03
-#define MSG04_CALMAG		0x04
-#define MSG05_CALRATE		0x05
-#define MSG06_CONFIGCLR		0x06
-#define MSG07_CONFIGSET		0x07
-#define MSG08_SAVEGYROBIAS	0x08
-#define MSG09_ESTIMATOR		0x09
-#define MSG0A_SFCHECK		0x0A
-#define MSG0B_CENTRIP		0x0B
-#define MSG0C_INITGYROS		0x0C
-#define MSG0D_DEVICEID		0x0D
-#define MSG0E_REFVECTOR		0x0E
-#define MSG0F_RESET		0x0F
-#define MSG10_UARTSETTINGS	0x10
-#define MSG11_SERIALNUMBER	0x11
-
-// Output message identifiers from the CHIMU unit
-#define CHIMU_Msg_0_Ping			0
-#define CHIMU_Msg_1_IMU_Raw                     1
-#define CHIMU_Msg_2_IMU_FP			2
-#define CHIMU_Msg_3_IMU_Attitude                3
-#define CHIMU_Msg_4_BiasSF			4
-#define CHIMU_Msg_5_BIT                         5
-#define CHIMU_Msg_6_MagCal			6
-#define CHIMU_Msg_7_GyroBias                    7
-#define CHIMU_Msg_8_TempCal                     8
-#define CHIMU_Msg_9_DAC_Offsets                 9
-#define CHIMU_Msg_10_Res			10
-#define CHIMU_Msg_11_Res			11
-#define CHIMU_Msg_12_Res			12
-#define CHIMU_Msg_13_Res			13
-#define CHIMU_Msg_14_RefVector                  14
-#define CHIMU_Msg_15_SFCheck                    15
-
 // Communication Definitions
 #define CHIMU_COM_ID_HIGH	0x1F  //Must set this to the max ID expected above
+
+/***************************************************************************
+ * Endianness Swapping Functions
+ */
+
+#ifdef CHIMU_BIG_ENDIAN
+
+static float FloatSwap( float f )
+{
+  union
+  {
+    float f;
+    unsigned char b[4];
+  } dat1, dat2;
+
+  dat1.f = f;
+  dat2.b[0] = dat1.b[3];
+  dat2.b[1] = dat1.b[2];
+  dat2.b[2] = dat1.b[1];
+  dat2.b[3] = dat1.b[0];
+  return dat2.f;
+}
+
+#else
+
+#define FloatSwap(X) (X)
+
+#endif
 
 /*---------------------------------------------------------------------------
         Name: CHIMU_Init
@@ -379,6 +349,7 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
                   pstData->gCHIMU_SW_Minor = pPayloadData[CHIMU_index]; CHIMU_index++;
                   pstData->gCHIMU_SW_SerialNumber = (pPayloadData[CHIMU_index]<<8) & (0x0000FF00); CHIMU_index++;
                   pstData->gCHIMU_SW_SerialNumber += pPayloadData[CHIMU_index]; CHIMU_index++;
+
                   return TRUE;
                   break;
 		case CHIMU_Msg_1_IMU_Raw:

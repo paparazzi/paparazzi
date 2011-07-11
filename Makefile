@@ -72,10 +72,13 @@ all: commands static conf
 
 static : lib center tools cockpit multimon tmtc misc logalizer lpc21iap sim_static static_h usb_lib
 
-conf: conf/conf.xml conf/control_panel.xml
+conf: conf/conf.xml conf/control_panel.xml conf/maps_data/maps.conf
 
 conf/%.xml :conf/%.xml.example
 	[ -L $@ ] || [ -f $@ ] || cp $< $@
+
+conf/maps_data/maps.conf:
+	cd data/maps; $(MAKE)
 
 
 lib:
@@ -227,7 +230,7 @@ cleanspaces:
 distclean : dist_clean
 dist_clean : clean
 	rm -r conf/srtm_data
-
+	rm -r conf/maps_data
 
 ab_clean:
 	find sw/airborne -name '*~' -exec rm -f {} \;

@@ -57,18 +57,18 @@
 #define PERIODIC_SEND_ALIVE(_chan)  DOWNLINK_SEND_ALIVE(_chan, 16, MD5SUM);
 
 #define PERIODIC_SEND_BAT(_chan) { \
-	uint16_t zero = 0; \
-	Downlink({ int16_t e = energy; \
-			   DOWNLINK_SEND_BAT(_chan, \
-								 &v_ctl_throttle_slewed, \
-								 &vsupply, \
-				   				 &zero, \
-								 &estimator_flight_time, \
-								 &kill_throttle, \
-								 &block_time, \
-								 &stage_time, \
-								 &e); \
-	}); \
+    uint16_t amps = (int16_t) (current/1000);				\
+    Downlink({ int16_t e = energy;					\
+	DOWNLINK_SEND_BAT(_chan,					\
+			  &v_ctl_throttle_slewed,			\
+			  &vsupply,					\
+			  &amps,					\
+			  &estimator_flight_time,			\
+			  &kill_throttle,				\
+			  &block_time,					\
+			  &stage_time,					\
+			  &e);						\
+      });								\
 }
 
 #ifdef MCU_SPI_LINK
@@ -92,6 +92,14 @@
 
 #define PERIODIC_SEND_PPRZ_MODE(_chan) DOWNLINK_SEND_PPRZ_MODE(_chan, &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
 #define PERIODIC_SEND_DESIRED(_chan) DOWNLINK_SEND_DESIRED(_chan, &h_ctl_roll_setpoint, &h_ctl_pitch_loop_setpoint, &h_ctl_course_setpoint, &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint);
+
+#ifdef USE_AHRS
+#define PERIODIC_SEND_STATE_FILTER_STATUS(_chan) { uint8_t mde = 3; if (ahrs.status == AHRS_UNINIT) mde = 2; if (ahrs_timeout_counter > 10) mde = 5; uint16_t val = 0; DOWNLINK_SEND_STATE_FILTER_STATUS(_chan, &mde, &val); }
+#elif defined(USE_INFRARED)
+#define PERIODIC_SEND_STATE_FILTER_STATUS(_chan) { uint16_t contrast = abs(infrared.roll) + abs(infrared.pitch) + abs(infrared.top); uint8_t mde = 3; if (contrast < 50) mde = 7; DOWNLINK_SEND_STATE_FILTER_STATUS(_chan, &mde, &contrast); }
+#else
+#define PERIODIC_SEND_STATE_FILTER_STATUS(_chan) {}
+#endif
 
 #define PERIODIC_SEND_NAVIGATION_REF(_chan)  DOWNLINK_SEND_NAVIGATION_REF(_chan, &nav_utm_east0, &nav_utm_north0, &nav_utm_zone0);
 

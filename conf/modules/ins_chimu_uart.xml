@@ -1,5 +1,11 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
+<!--
+
+For older CHIMU v1.0 you should define CHIMU_BIG_ENDIAN
+
+ -->
+
 <module name="ins">
   <!-- <depend conflict="ins" -->
   <header>

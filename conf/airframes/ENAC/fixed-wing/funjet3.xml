@@ -13,21 +13,21 @@
 
   <modules target="jsbsim">
     <load name="ins_arduimu_basic.xml"/>
-    <load name="airspeed_ets.xml">
-      <!--define name="SENSOR_SYNC_SEND"/-->
+    <!--load name="airspeed_ets.xml">
       <define name="USE_AIRSPEED"/>
     </load>
     <load name="baro_ets.xml">
       <define name="USE_BARO_ETS"/>
-      <!--define name="BARO_ETS_TELEMETRY"/-->
-    </load>
-    <load name="alt_filter.xml"/>
+    </load-->
+    <!--load name="alt_filter.xml"/-->
+    <load name="generic_com.xml"/>
   </modules>
 
   <firmware name="fixedwing">
     <define name="USE_I2C0"/>
     <!--define name="AGR_CLIMB"/-->
     <define name="ALT_KALMAN"/>
+    <define name="USE_AIRSPEED"/>
     <!--define name="LOITER_TRIM"/-->
     <!--define name="PITCH_TRIM"/-->
 
@@ -43,7 +43,7 @@
     </subsystem>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="transparent"/>
+    <subsystem name="telemetry" type="xbee_api"/>
 
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control" type="new"/>
@@ -208,7 +208,7 @@
     <!--define name="ROLL_RESPONSE_FACTOR" value="10"/>
     <define name="MAX_ROLL_DOT" value="20" unit="rad/s"/-->
     <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
-    <define name="JSBSIM_INIT"	value="&quot;Malolo1-IC&quot;"/>
+    <!--define name="JSBSIM_INIT"	value="&quot;Malolo1-IC&quot;"/-->
     <define name="JSBSIM_LAUNCHSPEED"	value="15.0"/>
     <define name="JSBSIM_IR_ROLL_NEUTRAL" value="RadOfDeg(0.)"/>
     <define name="JSBSIM_IR_PITCH_NEUTRAL" value="RadOfDeg(0.)"/>

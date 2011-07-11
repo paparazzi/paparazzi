@@ -44,6 +44,48 @@
 #ifndef CHIMU_DEFINED_H
 #define CHIMU_DEFINED_H
 
+#define CHIMU_STX				0xae
+#define CHIMU_BROADCAST		0xaa
+
+// Message ID's that go TO the CHIMU
+#define MSG00_PING		0x00
+#define MSG01_BIAS		0x01
+#define MSG02_DACMODE		0x02
+#define MSG03_CALACC		0x03
+#define MSG04_CALMAG		0x04
+#define MSG05_CALRATE		0x05
+#define MSG06_CONFIGCLR		0x06
+#define MSG07_CONFIGSET		0x07
+#define MSG08_SAVEGYROBIAS	0x08
+#define MSG09_ESTIMATOR		0x09
+#define MSG0A_SFCHECK		0x0A
+#define MSG0B_CENTRIP		0x0B
+#define MSG0C_INITGYROS		0x0C
+#define MSG0D_DEVICEID		0x0D
+#define MSG0E_REFVECTOR		0x0E
+#define MSG0F_RESET		0x0F
+#define MSG10_UARTSETTINGS	0x10
+#define MSG11_SERIALNUMBER	0x11
+
+// Output message identifiers from the CHIMU unit
+#define CHIMU_Msg_0_Ping			0
+#define CHIMU_Msg_1_IMU_Raw                     1
+#define CHIMU_Msg_2_IMU_FP			2
+#define CHIMU_Msg_3_IMU_Attitude                3
+#define CHIMU_Msg_4_BiasSF			4
+#define CHIMU_Msg_5_BIT                         5
+#define CHIMU_Msg_6_MagCal			6
+#define CHIMU_Msg_7_GyroBias                    7
+#define CHIMU_Msg_8_TempCal                     8
+#define CHIMU_Msg_9_DAC_Offsets                 9
+#define CHIMU_Msg_10_Res			10
+#define CHIMU_Msg_11_Res			11
+#define CHIMU_Msg_12_Res			12
+#define CHIMU_Msg_13_Res			13
+#define CHIMU_Msg_14_RefVector                  14
+#define CHIMU_Msg_15_SFCheck                    15
+
+
 typedef struct {
 	float phi;
 	float theta;

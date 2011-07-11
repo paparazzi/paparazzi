@@ -21,11 +21,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef IMU_INT_HW_H
-#define IMU_INT_HW_H
+#ifndef IMU_CRISTA_ARCH_H
+#define IMU_CRISTA_ARCH_H
 
 #include "std.h"
-
 
 
 #define ImuCristaArchPeriodic() {		\
@@ -34,4 +33,4 @@
 
 extern void ADS8344_start( void );
 
-#endif /* IMU_INT_HW_H */
+#endif /* IMU_CRISTA_ARCH_H */

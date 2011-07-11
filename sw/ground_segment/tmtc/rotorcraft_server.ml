@@ -186,7 +186,9 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.gps_mode      <- check_index (ivalue "gps_status") gps_modes "GPS_MODE";
       a.ap_mode       <- check_index (ivalue "ap_mode") rotorcraft_ap_modes "ROTORCRAFT_AP_MODE";
       a.kill_mode     <- ivalue "ap_motors_on" == 0;
-      a.bat           <- fvalue "vsupply" /. 10.;
+      a.bat           <- fvalue "vsupply" /. 10.
+  | "STATE_FILTER_STATUS" ->
+      a.state_filter_mode <- check_index (ivalue "state_filter_mode") state_filter_modes "STATE_FILTER_MODES"
   | "INS_REF" ->
       let x = foi32value "ecef_x0" /. 100.
       and y = foi32value "ecef_y0" /. 100.

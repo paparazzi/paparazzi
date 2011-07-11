@@ -36,6 +36,7 @@ type fbw = {
     mutable rc_status : rc_status;
     mutable rc_mode : rc_mode;
     mutable rc_rate : int;
+    mutable pprz_mode_msgs_since_last_fbw_status_msg : int;
   }
 
 let gps_nb_channels = 16
@@ -137,6 +138,7 @@ type aircraft = {
     cam : ac_cam;
     mutable gps_mode : int;
     mutable gps_Pacc : int;
+    mutable state_filter_mode : int;
     fbw : fbw;
     svinfo : svinfo array;
     waypoints : (int, waypoint) Hashtbl.t;
@@ -169,9 +171,10 @@ let new_aircraft = fun id name fp airframe ->
     throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 42.; amp = 0.; energy = 0; ap_mode= -1;
     kill_mode = false;
     gaz_mode= -1; lateral_mode= -1;
-    gps_mode =0; gps_Pacc = 0; periodic_callbacks = [];
+    gps_mode = 0; gps_Pacc = 0; periodic_callbacks = [];
+    state_filter_mode = 0;
     cam = { phi = 0.; theta = 0. ; target=(0.,0.)};
-    fbw = { rc_status = "???"; rc_mode = "???"; rc_rate=0 };
+    fbw = { rc_status = "???"; rc_mode = "???"; rc_rate=0; pprz_mode_msgs_since_last_fbw_status_msg=0 };
     svinfo = svsinfo_init;
     dl_setting_values = Array.create max_nb_dl_setting_values 42.;
     nb_dl_setting_values = 0;

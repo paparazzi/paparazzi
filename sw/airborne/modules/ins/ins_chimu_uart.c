@@ -13,7 +13,7 @@ C code to connect a CHIMU using uart
 #include "estimator.h"
 
 // For centripedal corrections
-#include "gps.h"
+#include "subsystems/gps.h"
 
 // Telemetry
 #ifndef DOWNLINK_DEVICE
@@ -36,12 +36,12 @@ volatile uint8_t new_ins_attitude;
 
 void ins_init( void )
 {
-  uint8_t rate[12] = {0xae, 0xae, 0x06, 0xaa, 0x10, 0x05, 0xff, 0x79, 0x00, 0x00, 0x01, 0x76 };	// 50Hz attitude only + SPI
-//  uint8_t rate[12] = {0xae, 0xae, 0x06, 0xaa, 0x10, 0x04, 0xff, 0x79, 0x00, 0x00, 0x01, 0xd3 }; // 25Hz attitude only + SPI
-//  uint8_t euler[7] = {0xae, 0xae, 0x01, 0xaa, 0x09, 0x00, 0xaf }; // 25Hz attitude only + SPI
-  uint8_t quaternions[7] = {0xae, 0xae, 0x01, 0xaa, 0x09, 0x01, 0x39 }; // 25Hz attitude only + SPI
+  uint8_t ping[7] = {CHIMU_STX, CHIMU_STX, 0x01, CHIMU_BROADCAST, MSG00_PING, 0x00, 0xE6 };
+  uint8_t rate[12] = {CHIMU_STX, CHIMU_STX, 0x06, CHIMU_BROADCAST, MSG10_UARTSETTINGS, 0x05, 0xff, 0x79, 0x00, 0x00, 0x01, 0x76 };	// 50Hz attitude only + SPI
+  uint8_t quaternions[7] = {CHIMU_STX, CHIMU_STX, 0x01, CHIMU_BROADCAST, MSG09_ESTIMATOR, 0x01, 0x39 }; // 25Hz attitude only + SPI
+//  uint8_t rate[12] = {CHIMU_STX, CHIMU_STX, 0x06, CHIMU_BROADCAST, MSG10_UARTSETTINGS, 0x04, 0xff, 0x79, 0x00, 0x00, 0x01, 0xd3 }; // 25Hz attitude only + SPI
+//  uint8_t euler[7] = {CHIMU_STX, CHIMU_STX, 0x01, CHIMU_BROADCAST, MSG09_ESTIMATOR, 0x00, 0xaf }; // 25Hz attitude only + SPI
 
-  CHIMU_Checksum(rate,12);
 
   new_ins_attitude = 0;
 
@@ -50,6 +50,13 @@ void ins_init( void )
 
   CHIMU_Init(&CHIMU_DATA);
 
+  // Request Software version
+  for (int i=0;i<7;i++)
+  {
+    InsUartSend1(ping[i]);
+  }
+
+
   // Quat Filter
   for (int i=0;i<7;i++)
   {
@@ -57,17 +64,9 @@ void ins_init( void )
   }
 
 
-
-
-
-
-
-
   // 50Hz
-  for (int i=0;i<12;i++)
-  {
-    InsUartSend1(rate[i]);
-  }
+  CHIMU_Checksum(rate,12);
+  InsSend(rate,12);
 
 }
 
