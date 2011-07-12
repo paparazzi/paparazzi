@@ -6,7 +6,7 @@
     <define name="HOVER_X_D"      value="-397"/>
     <define name="HOVER_X_DD"     value="300"/>
 
-    <define name="HOVER_Y_P"      value="-602"/>
+    <define name="HOVER_Y_P"      value="-502"/>
     <define name="HOVER_Y_I"      value="-10"/>
     <define name="HOVER_Y_D"      value="-215"/>
     <define name="HOVER_Y_DD"     value="300"/>
