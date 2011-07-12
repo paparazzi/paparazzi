@@ -213,12 +213,12 @@ tc_fading(const quat_t * const q_n2b)
   double r13 = 2.0*(q_n2b->q1*q_n2b->q3 - q_n2b->q0*q_n2b->q2);
   double abs_pitch_deg = abs(asin(-r13))*180.0/M_PI;
   double tc_slider;
-  if (abs_pitch_deg > tc_upper_fading_deg)
+  if (abs_pitch_deg > tc_fading_upper_deg)
     tc_slider = 0;
-  else if (abs_pitch_deg < tc_lower_fading_deg)
+  else if (abs_pitch_deg < tc_fading_lower_deg)
     tc_slider = 1;
   else
-    tc_slider = 1 - (abs_pitch_deg - tc_lower_fading_deg)/(tc_upper_fading_deg - tc_lower_fading_deg);
+    tc_slider = 1 - (abs_pitch_deg - tc_fading_lower_deg)/(tc_fading_upper_deg - tc_fading_lower_deg);
   
   return tc_slider;
 }
