@@ -2311,6 +2311,7 @@
   <class name="airborne">
     <message name="TEST_ABI" id="0">
       <field name="value" type="int"/>
+      <field name="boo" type="struct abi_boo"/>
     </message>
   </class>
 

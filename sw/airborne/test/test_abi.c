@@ -26,12 +26,16 @@
 #include "mcu.h"
 #include "sys_time.h"
 
-#include "subsystems/abi.h"
+struct abi_boo {
+  int a;
+  int b;
+};
 
+#include "subsystems/abi.h"
 
 // ABI event and callback for TEST_ABI message
 abi_event ev;
-void test_cb (const int * value);
+void test_cb (const int * value, const struct abi_boo * boo);
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -51,7 +55,7 @@ int main(void) {
 }
 
 
-void test_cb (const int * value) {
+void test_cb (const int * value, const struct abi_boo * boo) {
   switch (*value) {
     case 0 :
       LED_TOGGLE(1); break;
@@ -77,7 +81,8 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
   static int val = 0;
-  RunOnceEvery(60,{ AbiSendMsgTEST_ABI(&val); val=(val+1)%3; });
+  struct abi_boo b = { 1, 2 };
+  RunOnceEvery(60,{ AbiSendMsgTEST_ABI(&val,&b); val=(val+1)%3; });
 }
 
 
