@@ -62,5 +62,6 @@ extern void imu_periodic(void);
 
 /* Own Extra Functions */
 extern void imu_umarim_event( void );
+extern void imu_umarim_downlink_raw( void );
 
 #endif // PPZUAVIMU_H

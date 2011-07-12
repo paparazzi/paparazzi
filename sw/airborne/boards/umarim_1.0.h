@@ -51,7 +51,7 @@
 #endif
 #define USE_AD0_2
 
-#define DefaultVoltageOfAdc(adc) (0.01787109375*adc)
+#define DefaultVoltageOfAdc(adc) (0.0247*adc)
 
 /* SPI (SSP) */
 #define SPI_SELECT_SLAVE0_PORT 0

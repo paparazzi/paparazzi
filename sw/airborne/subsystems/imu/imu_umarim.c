@@ -37,8 +37,8 @@
 
 
 // Peripherials
-#include "peripherals/itg3199.h"
-#include "peripherals/hmc5843.h"
+#include "peripherals/itg3200.h"
+#include "peripherals/adxl345.h"
 
 // Results
 volatile bool_t gyr_valid;
@@ -62,7 +62,6 @@ void imu_impl_init(void)
 #if PERIODIC_FREQUENCY == 60
   /* set gyro range to 2000deg/s and low pass at 20Hz (< 60Hz/2) internal sampling at 1kHz */
   imu_umarim_itg3200.buf[1] = (0x03<<3) | (0x04<<0);
-#  warning ITG3200 read at 50Hz
 #else
 #  if PERIODIC_FREQUENCY == 120
 #  warning ITG3200 read at 100Hz
@@ -135,7 +134,7 @@ void imu_impl_init(void)
 void imu_periodic( void )
 {
   // Start reading the latest gyroscope data
-  if (imu_umarim_itg3200.status = I2CTransDone) {
+  if (imu_umarim_itg3200.status == I2CTransDone) {
     imu_umarim_itg3200.type = I2CTransTxRx;
     imu_umarim_itg3200.len_r = 9;
     imu_umarim_itg3200.len_w = 1;
@@ -144,7 +143,7 @@ void imu_periodic( void )
   }
 
   // Start reading the latest accelerometer data
-  if (imu_umarim_adxl345.status = I2CTransDone) {
+  if (imu_umarim_adxl345.status == I2CTransDone) {
     imu_umarim_adxl345.type = I2CTransTxRx;
     imu_umarim_adxl345.len_r = 6;
     imu_umarim_adxl345.len_w = 1;
@@ -152,16 +151,18 @@ void imu_periodic( void )
     i2c_submit(&IMU_UMARIM_I2C_DEVICE, &imu_umarim_adxl345);
   }
 
-  //RunOnceEvery(10,imu_umarim_module_downlink_raw());
+  RunOnceEvery(10,imu_umarim_downlink_raw());
 }
 
-void imu_umarim_module_downlink_raw( void )
+
+void imu_umarim_downlink_raw( void )
 {
   DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,&imu.gyro_unscaled.p,&imu.gyro_unscaled.q,&imu.gyro_unscaled.r);
   DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,&imu.accel_unscaled.x,&imu.accel_unscaled.y,&imu.accel_unscaled.z);
 }
 
-void imu_umarim_module_event( void )
+
+void imu_umarim_event( void )
 {
   int32_t x, y, z;
 
@@ -178,14 +179,14 @@ void imu_umarim_module_event( void )
     }
 
     RATES_ASSIGN(imu.gyro_unscaled,
-        (IMU_GYRO_P_SIGN * x),
-        (IMU_GYRO_Q_SIGN * y),
-        (IMU_GYRO_R_SIGN * z));
+        (/*IMU_GYRO_P_SIGN * */x),
+        (/*IMU_GYRO_Q_SIGN * */y),
+        (/*IMU_GYRO_R_SIGN * */z));
 
     imu_umarim_itg3200.status = I2CTransDone;
   }
   // Reset status if transaction fails
-  if (imu_umarim_itg3200.status = I2CTransFail) {
+  if (imu_umarim_itg3200.status == I2CTransFailed) {
     imu_umarim_itg3200.status = I2CTransDone;
   }
 
@@ -198,15 +199,15 @@ void imu_umarim_module_event( void )
     z = (int16_t) ((imu_umarim_adxl345.buf[5] << 8) | imu_umarim_adxl345.buf[4]);
 
     VECT3_ASSIGN(imu.accel_unscaled,
-        (IMU_ACCEL_X_SIGN * x),
-        (IMU_ACCEL_Y_SIGN * y),
-        (IMU_ACCEL_Z_SIGN * z));
+        (/*IMU_ACCEL_X_SIGN * */y),
+        (/*IMU_ACCEL_Y_SIGN * */-x),
+        (/*IMU_ACCEL_Z_SIGN * */z));
 
     acc_valid = TRUE;
     imu_umarim_adxl345.status = I2CTransDone;
   }
   // Reset status if transaction fails
-  if (imu_umarim_adxl345.status = I2CTransFail) {
+  if (imu_umarim_adxl345.status == I2CTransFailed) {
     imu_umarim_adxl345.status = I2CTransDone;
   }
 
