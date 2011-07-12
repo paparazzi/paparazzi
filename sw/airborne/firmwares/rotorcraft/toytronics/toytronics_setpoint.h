@@ -30,13 +30,17 @@ void toytronics_mode_exit(int old_mode __attribute__((unused))) {};
 // settings
 extern double hover_pitch_trim_deg;
 extern double roll_to_yaw_rate_ff_factor;
-extern double accel_turn_coordination_gain;
+extern double aerobatic_accel_tc_gain;
+extern double hover_forward_accel_tc_gain;
+extern double forward_accel_tc_gain;
 extern double setpoint_absolute_heading_bound_deg;
 extern double absolute_forward_pitch_trim_deg;
 extern struct Int32AttitudeGains toytronics_hover_gains;
 extern struct Int32AttitudeGains toytronics_forward_gains;
 extern struct Int32AttitudeGains toytronics_aerobatic_gains;
 extern xyz_t setpoint_aerobatic_decay_time;
+extern double tc_fading_upper_deg;
+extern double tc_fading_lower_deg;
 
 // telemetry
 extern setpoint_t setpoint;

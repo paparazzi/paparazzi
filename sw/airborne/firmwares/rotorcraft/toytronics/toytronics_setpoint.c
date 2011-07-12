@@ -22,6 +22,9 @@ xyz_t setpoint_aerobatic_decay_time = {0.5, 0.5, 0.5};
 double setpoint_absolute_heading_bound_deg = SETPOINT_BOUND_ERROR_HEADING_DEG;
 double hover_pitch_trim_deg = SETPOINT_HOVER_PITCH_TRIM_DEG;
 
+double tc_fading_upper_deg = SETPOINT_TC_FADING_UPPER_DEG;
+double tc_fading_lower_deg = SETPOINT_TC_FADING_LOWER_DEG;
+
 /**************** gains for the 3 modes ******************/
 struct Int32AttitudeGains toytronics_hover_gains = {
   {TOYTRONICS_STAB_GAINS_HOVER_X_P,  TOYTRONICS_STAB_GAINS_HOVER_Y_P,  TOYTRONICS_STAB_GAINS_HOVER_Z_P  },
@@ -57,7 +60,9 @@ double hover_y_integrated_error = 0;
 // "heading" variable.
 
 double roll_to_yaw_rate_ff_factor = SETPOINT_ROLL_TO_YAW_RATE_FF_FACTOR;
-double accel_turn_coordination_gain = SETPOINT_ACCEL_TURN_COORDINATION_GAIN;
+double aerobatic_accel_tc_gain = SETPOINT_AEROBATIC_ACCEL_TURN_COORDINATION_GAIN;
+double hover_forward_accel_tc_gain = SETPOINT_HOVER_FORWARD_ACCEL_TURN_COORDINATION_GAIN;
+double forward_accel_tc_gain = SETPOINT_FORWARD_ACCEL_TURN_COORDINATION_GAIN;
 double smooth_transition_angle = 0.0;
 double absolute_forward_pitch_trim_deg = SETPOINT_ABSOLUTE_FORWARD_PITCH_TRIM_DEG;
 
@@ -73,6 +78,8 @@ static void toytronics_sp_enter_hover_forward(void);
 
 static void toytronics_sp_set_absolute_heading_bound_deg(double new_bound);
 static void toytronics_sp_set_incremental_bounds_deg(double bound_x, double bound_y, double bound_z);
+
+static double tc_fading(const quat_t * const q_n2b);
 
 /****************** math/helper functions ******************/
 
@@ -191,6 +198,29 @@ hover_forward_roll_of_quat(const quat_t * const q)
   double r23 = 2*(q->q2*q->q3 + q->q0*q->q1);
   BOUND(r23, -1, 1);
   return asin(r23);
+}
+
+static double
+tc_fading(const quat_t * const q_n2b)
+{
+  // linear interpolation - no dead band
+  /*
+  double r13 = 2.0*(q_n2b->q1*q_n2b->q3 - q_n2b->q0*q_n2b->q2);
+  double tc_slider = 1 - abs(r13);
+  */
+
+  // deadband
+  double r13 = 2.0*(q_n2b->q1*q_n2b->q3 - q_n2b->q0*q_n2b->q2);
+  double abs_pitch_deg = abs(asin(-r13))*180.0/M_PI;
+  double tc_slider;
+  if (abs_pitch_deg > tc_upper_fading_deg)
+    tc_slider = 0;
+  else if (abs_pitch_deg < tc_lower_fading_deg)
+    tc_slider = 1;
+  else
+    tc_slider = 1 - (abs_pitch_deg - tc_lower_fading_deg)/(tc_upper_fading_deg - tc_lower_fading_deg);
+  
+  return tc_slider;
 }
 
 
@@ -351,7 +381,7 @@ toytronics_set_sp_hover_forward_from_rc()
   // integrate stick to get setpoint heading
   setpoint.setpoint_heading += dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*rcy;
 
-  // auto-turn coordination
+  // body roll feedforward turn coordination
   #define START_FADING_DEG -50
   #define FINISH_FADING_DEG -70
   double ff_fading_slider;
@@ -363,6 +393,9 @@ toytronics_set_sp_hover_forward_from_rc()
     ff_fading_slider = (pitch_body*180.0/M_PI - START_FADING_DEG)/(FINISH_FADING_DEG - START_FADING_DEG);
 
   setpoint.setpoint_heading += dt*roll_body*roll_to_yaw_rate_ff_factor*ff_fading_slider;
+
+  // accel y turn coordination
+  setpoint.setpoint_heading -= dt*tc_fading(q_n2b)*hover_forward_accel_tc_gain*get_y_accel();
 
   // bound heading error
   double heading_error = setpoint.setpoint_heading - setpoint.estimated_heading;
@@ -445,6 +478,9 @@ toytronics_set_sp_absolute_forward_from_rc()
   // integrate stick to get setpoint heading
   setpoint.setpoint_heading += dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*rcy;
   setpoint.setpoint_heading += dt*e_n2sp.roll*roll_to_yaw_rate_ff_factor;
+  
+  // accel turn coordination
+  setpoint.setpoint_heading -= dt*tc_fading(q_n2b)*forward_accel_tc_gain*get_y_accel();
 
   wrap_to_pi( &setpoint.setpoint_heading );
 
@@ -495,7 +531,7 @@ toytronics_set_sp_incremental_from_rc()
                      rcy * SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*dt};
 
   // try accelerometer turn coordination
-  w_dt_body.z += dt*accel_turn_coordination_gain*get_y_accel();
+  w_dt_body.z -= dt*tc_fading(q_n2b)*aerobatic_accel_tc_gain*get_y_accel();
  
   // old body to setpoint quat q_b2sp
   quat_inv_mult( &(setpoint.q_b2sp), q_n2b, &(setpoint.q_n2sp));
