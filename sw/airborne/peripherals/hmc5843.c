@@ -55,13 +55,26 @@ void hmc5843_idle_task(void)
 {
   if (hmc5843.timeout > HMC5843_TIMEOUT)
   {
-    hmc5843.timeout = 0;
-    LED_TOGGLE(4);
+//    hmc5843.timeout = 0;
+//    LED_TOGGLE(4);
+  }
+
+  if (i2c_idle(&i2c2))
+  {
+    LED_ON(7);	// green = idle
+    LED_OFF(6);
+  }
+  else
+  {
+    LED_ON(6); // red = busy
+    LED_OFF(7);
   }
 
   // Wait for I2C transaction object to be released by the I2C driver before changing anything
   if ((hmc5843.i2c_trans.status == I2CTransFailed) || (hmc5843.i2c_trans.status == I2CTransSuccess))
   {
+    LED_ON(5);
+    LED_OFF(4);
     if (hmc5843.initialized < 4)
     {
        if (hmc5843.i2c_trans.status == I2CTransSuccess)
@@ -97,6 +110,11 @@ void hmc5843_idle_task(void)
       hmc5843.i2c_trans.buf[0] = HMC5843_REG_DATXM;
       i2c_submit(&i2c2, &hmc5843.i2c_trans);
     }
+  }
+  else
+  {
+    LED_ON(4);
+    LED_OFF(5);
   }
 
 }

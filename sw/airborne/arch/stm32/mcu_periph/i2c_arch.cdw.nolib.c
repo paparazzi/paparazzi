@@ -101,7 +101,7 @@ static I2C_InitTypeDef  I2C2_InitStruct = {
       .I2C_OwnAddress1 = 0x00,
       .I2C_Ack = I2C_Ack_Enable,
       .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
-      .I2C_ClockSpeed = 300000
+      .I2C_ClockSpeed = 30000
 };
 #endif
 
@@ -188,22 +188,47 @@ static inline void PPRZ_I2C_HAS_FINISHED(struct i2c_periph *periph, struct i2c_t
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
+// Status Register 1
+
+#define I2C_SR1_BIT_SB			(1<<0)		// Start Condition Met
+#define I2C_SR1_BIT_ADDR		(1<<1)		// Address Sent
+#define I2C_SR1_BIT_BTF			(1<<2)		// SCL held low
+#define I2C_SR1_BIT_RXNE		(1<<6)		// Data Read Available
+#define I2C_SR1_BIT_TXE			(1<<7)		// TX buffer space available
+
+#define I2C_SR1_BIT_ERR_BUS		(1<<8)		// Misplaced Start/Stop
+#define I2C_SR1_BIT_ERR_AF		(1<<10)		// Ack Failure
+
+#define I2C_SR1_BITS_ERR		(I2C_SR_BIT_ERR_BUS|I2C_SR_BIT_ERR_AF)
+
+// Status Register 2
+
+#define I2C_SR2_BIT_TRA			(1<<2)		// Transmitting
+#define I2C_SR2_BIT_BUSY		(1<<1)		// Busy
+#define I2C_SR2_BIT_MSL			(1<<0)		// Master Selected
+
+// Control Register 1
+
+#define I2C_CR1_BIT_PE			(1<<0)		// Peripheral Enable
+#define I2C_CR1_BIT_START		(1<<8)		// Generate a Start
+#define I2C_CR1_BIT_STOP		(1<<9)		// Generate a Stop
+#define I2C_CR1_BIT_ACK			(1<<10)		// ACK / NACK
+#define I2C_CR1_BIT_POS			(1<<11)		// Ack will control not the next but secondnext received byte
+#define I2C_CR1_BIT_SWRST		(1<<15)		// Clear Busy Condition when no stop was detected
+
+// Control Register 2
+
+#define I2C_CR2_BIT_ITERREN		(1<<8)		// Error Interrupt
+#define I2C_CR2_BIT_ITEVTEN		(1<<9)		// Event Interrupt
+#define I2C_CR2_BIT_ITBUFEN		(1<<10)		// Buffer Interrupt
+
+
+// Bit Control
+
+#define BIT_X_IS_SET_IN_REG(X,REG)	(((REG) & (X)) == (X))
+
 static inline void i2c_event(struct i2c_periph *periph)
 {
-  // Referring to manual: 
-  // -Doc ID 13902 Rev 11
-
-
-  // Check to make sure that user space has an active transaction pending
-  if (periph->trans_extract_idx == periph->trans_insert_idx)
-  {
-    // no transaction?
-    periph->errors->unexpected_event_cnt++;
-    return;
-  }
-
-  struct i2c_transaction* trans = periph->trans[periph->trans_extract_idx];
-
   /*	
 	There are 7 possible reasons to get here:
 
@@ -280,6 +305,58 @@ static inline void i2c_event(struct i2c_periph *periph)
   //   the transmission of the byte is finished. At higher clock rates that can be
   //   quite fast: so we allow no other interrupt to be triggered in between
   //   reading the status and setting all needed flags
+
+  // Direct Access to the I2C Registers
+  I2C_TypeDef *regs = (I2C_TypeDef *) periph->reg_addr;
+
+  volatile uint16_t SR1 = regs->SR1;
+  volatile uint16_t SR2 = regs->SR2;
+  
+  LED1_ON();
+  LED1_OFF();
+
+  // Start Condition Was Just Generated
+  if (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_SB, SR1 ) )
+  {
+    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+    regs->DR = 0x3C;
+  }
+  // Address Was Sent
+  else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_ADDR, SR1) )
+  {
+    regs->DR = 0x00;
+    regs->DR = 0x18;
+    regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
+  }
+  else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_BTF, SR1) )
+  {
+  }
+  else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_TXE, SR1) )
+  {
+    regs->CR1 |= I2C_CR1_BIT_STOP;
+    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+    // Also provide some dummy data in DR to silent the BTF interrupt
+    regs->DR = 0x00;
+
+    // After the stop: start again
+    regs->CR1 |= I2C_CR1_BIT_START;
+  }
+
+  return;
+
+  // Referring to manual: 
+  // -Doc ID 13902 Rev 11
+
+
+  // Check to make sure that user space has an active transaction pending
+  if (periph->trans_extract_idx == periph->trans_insert_idx)
+  {
+    // no transaction?
+    periph->errors->unexpected_event_cnt++;
+    return;
+  }
+
+  struct i2c_transaction* trans = periph->trans[periph->trans_extract_idx];
 
 
   LED1_ON();
