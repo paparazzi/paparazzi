@@ -226,6 +226,7 @@
 
  <include href="conf/airframes/esden/toytronics/gains/JT4_inner_8x4_5.xml"/>
  <include href="conf/airframes/esden/toytronics/setpoint/JT_setpoint.xml"/>
+ <include href="conf/airframes/esden/camera_mount.xml"/>
 
 <!--
  <modules main_freq="512">
