@@ -36,10 +36,10 @@ void camera_mount_init(void) {
 
 void camera_mount_run(void) {
   // floating point version of DCM00
-  const float dcm00 = TRIG_FLOAT_OF_BFP(ahrs.ltp_to_body_rmat.m[0]);
+  const float dcm22 = TRIG_FLOAT_OF_BFP(ahrs.ltp_to_body_rmat.m[8]);
 
   // hover "pitch", derived from ltp to body rmat, rotated by +90 about Y axis
-  int32_t hover_pitch = ANGLE_BFP_OF_REAL(-asinf(dcm00));
+  int32_t hover_pitch = ANGLE_BFP_OF_REAL(-asinf(dcm22));
 
   commands[COMMAND_CAMERA] = CAMERA_MOUNT_HOVER + (hover_pitch * CAMERA_MOUNT_GAIN_NUM / CAMERA_MOUNT_GAIN_DEN);
 
