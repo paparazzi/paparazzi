@@ -307,10 +307,12 @@ static inline void i2c_event(struct i2c_periph *periph)
   //   reading the status and setting all needed flags
 
   // Direct Access to the I2C Registers
+  static volatile uint8_t stage = 0;
+
   I2C_TypeDef *regs = (I2C_TypeDef *) periph->reg_addr;
 
   volatile uint16_t SR1 = regs->SR1;
-  volatile uint16_t SR2 = regs->SR2;
+  // Do not read SR2 yet as it might start the reading while an (n)ack bit might be needed first
   
   LED1_ON();
   LED1_OFF();
@@ -319,17 +321,39 @@ static inline void i2c_event(struct i2c_periph *periph)
   if (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_SB, SR1 ) )
   {
     regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
-    regs->DR = 0x3C;
+    regs->DR = 0x3C + stage;
+    stage = 1 - stage;
   }
   // Address Was Sent
   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_ADDR, SR1) )
   {
-    regs->DR = 0x00;
-    regs->DR = 0x18;
-    regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
-  }
-  else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_BTF, SR1) )
-  {
+    if (stage == 1) // Transmit
+    {
+      // Now read SR2 to clear the ADDR
+      volatile uint16_t SR2 = regs->SR2;
+
+      // Send First 2 bytes
+      regs->DR = 0x00;
+      regs->DR = 0x18;
+      regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
+    }
+    else // Read Just 1
+    {
+      // First Clear the ACK bit
+      regs->CR1 &= ~ I2C_CR1_BIT_ACK;
+
+      // Now read SR2 to clear the ADDR
+      volatile uint16_t SR2 = regs->SR2;
+      
+      // Enable the RXNE to get the result
+      regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+
+      // Program A Stop After
+      regs->CR1 |= I2C_CR1_BIT_STOP;
+
+      // And start again
+      regs->CR1 |= I2C_CR1_BIT_START;
+    }
   }
   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_TXE, SR1) )
   {
