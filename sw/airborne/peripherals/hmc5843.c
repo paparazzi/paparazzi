@@ -25,11 +25,13 @@ static void hmc_send_config(uint8_t _init)
     hmc5843.i2c_trans.type = I2CTransTx;
     hmc5843.i2c_trans.buf[0] = HMC5843_REG_CFGA;  // set to rate to 50Hz
     hmc5843.i2c_trans.buf[1] = 0x00 | (0x06 << 2);
-    hmc5843.i2c_trans.len_w = 2;
+    hmc5843.i2c_trans.buf[2] = 0x01<<5;
+    hmc5843.i2c_trans.buf[3] = 0x00;
+    hmc5843.i2c_trans.len_w = 4;
     i2c_submit(&i2c2,&hmc5843.i2c_trans);
     break;
   case 2:
-    hmc5843.i2c_trans.type = I2CTransTx;
+    hmc5843.i2c_trans.type = I2CTransRx;
     hmc5843.i2c_trans.buf[0] = HMC5843_REG_CFGB;  // set to gain to 1 Gauss
     hmc5843.i2c_trans.buf[1] = 0x01<<5;
     hmc5843.i2c_trans.len_w = 2;
@@ -39,12 +41,12 @@ static void hmc_send_config(uint8_t _init)
     hmc5843.i2c_trans.type = I2CTransTx;
     hmc5843.i2c_trans.buf[0] = HMC5843_REG_MODE;  // set to continuous mode
     hmc5843.i2c_trans.buf[1] = 0x00;
-    hmc5843.i2c_trans.len_w = 2;
+    hmc5843.i2c_trans.len_w = 1;
     i2c_submit(&i2c2,&hmc5843.i2c_trans);
   break;
   default: 
     hmc5843.i2c_trans.type = I2CTransTxRx;
-    hmc5843.i2c_trans.len_r = 6;
+    hmc5843.i2c_trans.len_r = 2;
     hmc5843.i2c_trans.len_w = 1;
     hmc5843.i2c_trans.buf[0] = HMC5843_REG_DATXM;
     i2c_submit(&i2c2, &hmc5843.i2c_trans);
