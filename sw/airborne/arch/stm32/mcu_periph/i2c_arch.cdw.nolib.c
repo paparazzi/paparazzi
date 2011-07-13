@@ -101,7 +101,7 @@ static I2C_InitTypeDef  I2C2_InitStruct = {
       .I2C_OwnAddress1 = 0x00,
       .I2C_Ack = I2C_Ack_Enable,
       .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
-      .I2C_ClockSpeed = 30000
+      .I2C_ClockSpeed = 400000
 };
 #endif
 
@@ -227,6 +227,131 @@ static inline void PPRZ_I2C_HAS_FINISHED(struct i2c_periph *periph, struct i2c_t
 
 #define BIT_X_IS_SET_IN_REG(X,REG)	(((REG) & (X)) == (X))
 
+// STM32 I2C Transaction Types
+
+enum STMI2CTransactionType {
+  I2CSend1,
+  I2CSend2,
+  I2CSendMany,
+  I2CGet1,
+  I2CGet2,
+  I2CGetMany
+};
+
+enum STMI2CTransactionEndType {
+  STMI2C_StopAndClose,
+  STMI2C_StopAndNewStart,
+  STMI2C_ReStart,
+};
+
+static inline void stmi2c_send1(I2C_TypeDef *regs, uint8_t last_transaction)
+{
+  volatile uint16_t SR1 = regs->SR1;
+
+  // Start Condition Was Just Generated
+  if (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_SB, SR1 ) )
+  {
+    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+    regs->DR = 0x3C;
+  }
+  // Address Was Sent
+  else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_ADDR, SR1) )
+  {
+    // Now read SR2 to clear the ADDR
+    volatile uint16_t SR2 = regs->SR2;
+    if (! BIT_X_IS_SET_IN_REG(I2C_SR2_BIT_TRA, SR2)) {}
+
+    // Send Bytes
+    regs->DR = 0x03;
+    regs->CR1 |= I2C_CR1_BIT_STOP;
+
+    // BTF is set as soon as the shift register is empty. 
+    // BTF is cleared A) when writing data to DR or B) when a start/stop condition OCCURRED (not was requested)
+    // Dummy Data to avoid BTF
+    regs->DR = 0x00;
+
+    // After the stop: start again
+    if (! last_transaction )
+    {
+      regs->CR1 |= I2C_CR1_BIT_START;
+    }
+  }
+}
+
+static inline void stmi2c_send2(I2C_TypeDef *regs, uint8_t last_transaction)
+{
+  volatile uint16_t SR1 = regs->SR1;
+
+  // Start Condition Was Just Generated
+  if (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_SB, SR1 ) )
+  {
+    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+    regs->DR = 0x3C;
+  }
+  // Address Was Sent
+  else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_ADDR, SR1) )
+  {
+    // Now read SR2 to clear the ADDR
+    volatile uint16_t SR2 = regs->SR2;
+
+    if (! BIT_X_IS_SET_IN_REG(I2C_SR2_BIT_TRA, SR2))
+    {
+    }
+
+
+    // Send First 2 bytes
+    regs->DR = 0x00;
+    regs->DR = 0x18;
+    regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
+  }
+  else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_TXE, SR1) )
+  {
+    regs->CR1 |= I2C_CR1_BIT_STOP;
+    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+    // Also provide some dummy data in DR to silent the BTF interrupt
+    regs->DR = 0x00;
+
+    // After the stop: start again
+    if (! last_transaction )
+    {
+      regs->CR1 |= I2C_CR1_BIT_START;
+    }
+  }
+}
+
+static inline void stmi2c_read1(I2C_TypeDef *regs, uint8_t last_transaction)
+{
+  volatile uint16_t SR1 = regs->SR1;
+
+  // Start Condition Was Just Generated
+  if (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_SB, SR1 ) )
+  {
+    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+    regs->DR = 0x3C + 1;
+  }
+  // Address Was Sent
+  else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_ADDR, SR1) )
+  {
+    // First Clear the ACK bit
+    regs->CR1 &= ~ I2C_CR1_BIT_ACK;
+
+    // Only after setting ACK, read SR2 to clear the ADDR (next byte will start arriving)
+    volatile uint16_t SR2 = regs->SR2;
+      
+    // Enable the RXNE to get the result
+    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+
+    // Program A Stop After
+    regs->CR1 |= I2C_CR1_BIT_STOP;
+
+    // And start again
+    if (! last_transaction )
+    {
+      regs->CR1 |= I2C_CR1_BIT_START;
+    }
+  }
+}
+
 static inline void i2c_event(struct i2c_periph *periph)
 {
   /*	
@@ -244,19 +369,27 @@ static inline void i2c_event(struct i2c_periph *periph)
 	5) BTF		// I2C has stopped working (it is waiting for new data, all buffers are tx_empty/rx_full)
 
 	// Beware: using the buffered I2C has some interesting properties:
-	  -when receiving BTF only occurs after the 2nd received byte: after the first byte is received it is 
+	  -in receive mode: BTF only occurs after the 2nd received byte: after the first byte is received it is 
            in RD but the I2C can still receive a second byte. Only when the 2nd byte is received while the RxNE is 1
 	   then a BTF occurs (I2C can not continue receiving bytes or they will get lost)
-	  -when transmitting, and writing a byte to WD, you instantly get a new TxE interrupt while the first is not
-	   transmitted yet. The byte was pushed to the I2C serializer and the buffer is ready for more. You can already
+	  -in transmitmode: when writing a byte to WD, you instantly get a new TxE interrupt while the first is not
+	   transmitted yet. The byte was pushed to the I2C shift register and the buffer is ready for more. You can already
 	   fill new data in the buffer while the first is still being transmitted for max performance transmission.
+        
+        // Beware: besides buffering there is also event sheduling. You can send 2 bytes to the buffer, ask for a stop and 
+           a new start in one go. 
+
+          -thanks to / because of this buffering and event sheduling there is not 1 interrupt per start / byte / stop
+           This also means you must think more in advance and a transaction could be popped from the stack even before it is
+           actually completely transmitted. But then you would not know the result yet so you have to keep it until the result
+           is known.
 	    
-	// Beware: the order in which Status is read determines how flags are cleared.
+	// Beware: the order in which Status is read determines how flags are cleared. You should not just read SR1 & SR2 every time
 
 	If IT_EV_FEN AND IT_EV_BUF
 	--------------------------
 
-	We are always interested in buffer interrupts IT_EV_BUF except in transmission when all data was sent
+	Buffer event are not always wanted and are tipically switched on during longer data transfers. It highly depends on the data size.
 
 	6) RxNE
 	7) TxE
@@ -264,7 +397,8 @@ static inline void i2c_event(struct i2c_periph *periph)
 	--------------------------------------------------------------------------------------------------
 	// This driver uses only a subset of the pprz_i2c_states for several reasons:
 	// -we have less interrupts than the I2CStatus states (for efficiency)
-	// -status register flags better correspond to reality, especially in case of I2C errors
+	// -STM32 has such a powerfull I2C engine with plenty of status register flags that
+            only little extra status information needs to be stored. 
 
 	enum I2CStatus {
 	  I2CIdle,			// Dummy: Actual I2C Peripheral idle detection is safer with the 
@@ -287,13 +421,16 @@ static inline void i2c_event(struct i2c_periph *periph)
 
 	---------
 
-	The STM waits (holding SCL low) for user interaction:
+	The STM waits indefinately (holding SCL low) for user interaction:
 	a) after a master-start (waiting for address)
 	b) after an address (waiting for data)
 	   not during data sending when using buffered
 	c) after the last byte is transmitted (waiting for either stop or restart)
 	   not during data receiving when using buffered
 	   not after the last byte is received
+
+	The STM I2C stalls indefinately when a stop condition was attempted that
+	did not succeed. The BUSY flag remains on
 
    */
 
@@ -311,60 +448,13 @@ static inline void i2c_event(struct i2c_periph *periph)
 
   I2C_TypeDef *regs = (I2C_TypeDef *) periph->reg_addr;
 
-  volatile uint16_t SR1 = regs->SR1;
   // Do not read SR2 yet as it might start the reading while an (n)ack bit might be needed first
   
   LED1_ON();
   LED1_OFF();
 
-  // Start Condition Was Just Generated
-  if (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_SB, SR1 ) )
-  {
-    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
-    regs->DR = 0x3C + stage;
-    stage = 1 - stage;
-  }
-  // Address Was Sent
-  else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_ADDR, SR1) )
-  {
-    if (stage == 1) // Transmit
-    {
-      // Now read SR2 to clear the ADDR
-      volatile uint16_t SR2 = regs->SR2;
+  stmi2c_read1(regs, FALSE);
 
-      // Send First 2 bytes
-      regs->DR = 0x00;
-      regs->DR = 0x18;
-      regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
-    }
-    else // Read Just 1
-    {
-      // First Clear the ACK bit
-      regs->CR1 &= ~ I2C_CR1_BIT_ACK;
-
-      // Now read SR2 to clear the ADDR
-      volatile uint16_t SR2 = regs->SR2;
-      
-      // Enable the RXNE to get the result
-      regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
-
-      // Program A Stop After
-      regs->CR1 |= I2C_CR1_BIT_STOP;
-
-      // And start again
-      regs->CR1 |= I2C_CR1_BIT_START;
-    }
-  }
-  else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_TXE, SR1) )
-  {
-    regs->CR1 |= I2C_CR1_BIT_STOP;
-    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
-    // Also provide some dummy data in DR to silent the BTF interrupt
-    regs->DR = 0x00;
-
-    // After the stop: start again
-    regs->CR1 |= I2C_CR1_BIT_START;
-  }
 
   return;
 
