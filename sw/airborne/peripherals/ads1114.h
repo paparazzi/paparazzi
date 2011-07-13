@@ -77,20 +77,21 @@
 
 extern struct i2c_transaction ads1114_trans;
 extern bool_t ads1114_config_done;
+extern bool_t ads1114_data_available;
 
 extern void ads1114_init(void);
 extern void ads1114_read(void);
 
-#define Ads1114Event(_handler) { \
+#define Ads1114Event() { \
   if (!ads1114_config_done) { \
     if (ads1114_trans.status == I2CTransSuccess) { ads1114_config_done = TRUE; ads1114_trans.status = I2CTransDone; } \
     if (ads1114_trans.status == I2CTransFailed) { ads1114_trans.status = I2CTransDone; } \
   } else { \
-    if (ads1114_trans.status == I2CTransSuccess) { _handler(); ads1114_trans.status = I2CTransDone; } \
+    if (ads1114_trans.status == I2CTransSuccess) { ads1114_data_available = TRUE; ads1114_trans.status = I2CTransDone; } \
     if (ads1114_trans.status == I2CTransFailed) { ads1114_trans.status = I2CTransDone; } \
   }\
 }
 
-#define Ads1114GetValue() ((int16_t)(ads1114_trans.buf[0]|(ads1114_trans.buf[1]<<8)))
+#define Ads1114GetValue() ((int16_t)(((int16_t)ads1114_trans.buf[0]<<8)|ads1114_trans.buf[1]))
 
 #endif // ADS_1114_H

@@ -28,6 +28,7 @@
 struct i2c_transaction ads1114_trans;
 
 bool_t ads1114_config_done;
+bool_t ads1114_data_available;
 
 void ads1114_init( void ) {
   /* configure the ads1114 */
@@ -36,6 +37,7 @@ void ads1114_init( void ) {
   ads1114_trans.buf[2] = ADS1114_CONFIG_LSB;
   I2CTransmit(ADS1114_I2C_DEVICE , ads1114_trans, ADS1114_I2C_ADDR, 3);
   ads1114_config_done = FALSE;
+  ads1114_data_available = FALSE;
 }
 
 
