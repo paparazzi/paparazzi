@@ -129,9 +129,10 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
 #define I2C_SR1_BIT_RXNE		(1<<6)		// Data Read Available
 #define I2C_SR1_BIT_TXE			(1<<7)		// TX buffer space available
 
-#define I2C_SR1_BIT_ERR_BUS		(1<<8)		// Misplaced Start/Stop
-#define I2C_SR1_BIT_ERR_ARLO		(1<<9)		// Misplaced Start/Stop
-#define I2C_SR1_BIT_ERR_AF		(1<<10)		// Ack Failure
+#define I2C_SR1_BIT_ERR_BUS		(1<<8)		// Misplaced Start/Stop (usually interference)
+#define I2C_SR1_BIT_ERR_ARLO		(1<<9)		// Arbitration Lost (in multimaster) or SDA short-to-ground (in single master)
+#define I2C_SR1_BIT_ERR_AF		(1<<10)		// Ack Failure (too fast/too soon/no sensor/wiring break/...)
+#define I2C_SR1_BIT_ERR_OVR		(1<<11)		// Overrun [data loss] (in slave) or SCL short-to-ground (in single master)
 
 #define I2C_SR1_BITS_ERR		((1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<12)|(1<<14)|(1<<15))
 
@@ -524,7 +525,6 @@ static inline void i2c_event(struct i2c_periph *periph)
     {
       case 1:
         ret = stmi2c_read1(regs,trans);
-        restart = 1;
         break;
       case 2:
         ret = stmi2c_read2(regs,trans);

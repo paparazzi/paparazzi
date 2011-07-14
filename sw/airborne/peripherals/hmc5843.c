@@ -39,9 +39,18 @@ static void hmc_send_config(uint8_t _init)
   break;
   case 3:
     hmc5843.i2c_trans.type = I2CTransTx;
-    hmc5843.i2c_trans.buf[0] = HMC5843_REG_MODE;  // set to continuous mode
-    hmc5843.i2c_trans.buf[1] = 0x00;
+    hmc5843.i2c_trans.buf[0] = HMC5843_REG_CFGA;  // set to continuous mode
     hmc5843.i2c_trans.len_w = 1;
+    i2c_submit(&i2c2,&hmc5843.i2c_trans);
+  break;
+  case 4:
+    hmc5843.i2c_trans.type = I2CTransRx;
+    hmc5843.i2c_trans.len_r = 1;
+    i2c_submit(&i2c2,&hmc5843.i2c_trans);
+  break;
+  case 5:
+    hmc5843.i2c_trans.type = I2CTransRx;
+    hmc5843.i2c_trans.len_r = 2;
     i2c_submit(&i2c2,&hmc5843.i2c_trans);
   break;
   default: 
@@ -77,7 +86,7 @@ void hmc5843_idle_task(void)
   {
     LED_ON(5);
     LED_OFF(4);
-    if (hmc5843.initialized < 4)
+    if (hmc5843.initialized < 6)
     {
        if (hmc5843.i2c_trans.status == I2CTransSuccess)
        {
