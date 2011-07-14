@@ -49,11 +49,25 @@ static void hmc_send_config(uint8_t _init)
     i2c_submit(&i2c2,&hmc5843.i2c_trans);
   break;
   case 5:
+    hmc5843.i2c_trans.slave_addr = HMC5843_ADDR + 2;
+    hmc5843.i2c_trans.type = I2CTransTx;
+    hmc5843.i2c_trans.len_r = 2;
+    i2c_submit(&i2c2,&hmc5843.i2c_trans);
+  break;
+  case 6:
+    hmc5843.i2c_trans.slave_addr = HMC5843_ADDR + 2;
+    hmc5843.i2c_trans.type = I2CTransRx;
+    hmc5843.i2c_trans.len_r = 2;
+    i2c_submit(&i2c2,&hmc5843.i2c_trans);
+  break;
+  case 7:
+    hmc5843.i2c_trans.slave_addr = HMC5843_ADDR;
     hmc5843.i2c_trans.type = I2CTransRx;
     hmc5843.i2c_trans.len_r = 2;
     i2c_submit(&i2c2,&hmc5843.i2c_trans);
   break;
   default: 
+    hmc5843.i2c_trans.slave_addr = HMC5843_ADDR;
     hmc5843.i2c_trans.type = I2CTransTxRx;
     hmc5843.i2c_trans.len_r = 2;
     hmc5843.i2c_trans.len_w = 1;
@@ -86,9 +100,9 @@ void hmc5843_idle_task(void)
   {
     LED_ON(5);
     LED_OFF(4);
-    if (hmc5843.initialized < 6)
+    if (hmc5843.initialized < 8)
     {
-       if (hmc5843.i2c_trans.status == I2CTransSuccess)
+       if ( (hmc5843.i2c_trans.status == I2CTransSuccess) || ( hmc5843.i2c_trans.slave_addr !=  HMC5843_ADDR))
        {
          hmc5843.initialized++;
        }
@@ -96,7 +110,7 @@ void hmc5843_idle_task(void)
      }
      else
      {
-
+       hmc5843.initialized = 0;
  	 
 /*
   // If transaction succeeded

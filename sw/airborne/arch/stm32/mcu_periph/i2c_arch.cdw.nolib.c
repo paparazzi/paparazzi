@@ -46,16 +46,16 @@ static inline void LED_INIT(void)
 
 static inline void LED_ERROR(uint8_t nr)
 {
+  LED2_ON();
   for (int i=0;i<20;i++)
   {
-    LED1_ON();
-    LED1_OFF();
     if (nr == i)
-      LED2_OFF();
+      LED1_OFF();
     else
-      LED2_ON();
-    LED2_OFF();    
+      LED1_ON();
+    LED1_OFF();    
   }
+  LED2_OFF();
 }
 
 
@@ -105,8 +105,9 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
 {
   periph->idx_buf = 0;
   periph->status = I2CStartRequested;
-  // After the stop: start again
-  // regs->CR1 |= I2C_CR1_BIT_START;
+  // Clear any pending stop
+  I2C_GenerateSTOP(periph->reg_addr, DISABLE);
+  // Issue a new start
   I2C_GenerateSTART(periph->reg_addr, ENABLE);
   I2C_ITConfig(periph->reg_addr, I2C_IT_EVT | I2C_IT_ERR, ENABLE);
   I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
@@ -197,6 +198,12 @@ static inline enum STMI2CSubTransactionStatus stmi2c_send1(I2C_TypeDef *regs, st
     // Dummy Data to avoid BTF
     regs->DR = 0x00;
 
+    if (trans->type == I2CTransTx)
+    {
+      // We sent it all to the I2C ... might still be a chance that an error occurs
+      trans->status = I2CTransSuccess;
+    }
+
     return STMI2C_SubTra_Ready;
   }
 
@@ -235,6 +242,12 @@ static inline enum STMI2CSubTransactionStatus stmi2c_sendmany(I2C_TypeDef *regs,
       regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
       // Also provide some dummy data in DR to silent the BTF interrupt
       regs->DR = 0x00;
+
+      if (trans->type == I2CTransTx)
+      {
+        // We sent it all to the I2C ... might still be a chance that an error occurs
+        trans->status = I2CTransSuccess;
+      }
 
       return STMI2C_SubTra_Ready;
     }
@@ -279,6 +292,10 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read1(I2C_TypeDef *regs, st
   {
     regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
     trans->buf[0] = regs->DR;
+
+    // We got all the results
+    trans->status = I2CTransSuccess;
+
     return STMI2C_SubTra_Ready_StopRequested;
   }
 
@@ -320,27 +337,88 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read2(I2C_TypeDef *regs, st
     trans->buf[0] = regs->DR;
     trans->buf[1] = regs->DR;
 
+    // We got all the results
+    trans->status = I2CTransSuccess;
+
     return STMI2C_SubTra_Ready_StopRequested;
   }
 
   return STMI2C_SubTra_Busy;
 }
 
-static inline enum STMI2CSubTransactionStatus stmi2c_handle_errors(I2C_TypeDef *regs, struct i2c_periph *periph)
+/*
+static inline enum STMI2CSubTransactionStatus stmi2c_handle_errors(I2C_TypeDef *regs, struct i2c_transaction *trans, struct i2c_periph *periph)
 {
+  // Sensor did not Acknowlegde
+  if (BIT_X_IS_SET_IN_REG( regs->SR1 , I2C_SR1_BIT_ERR_AF ))
+  {
+    // Disable Buffer interrupts
+    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+    // Silent any BTF
+    regs->DR = 0x00; 
+
+    return STM_I2C_SubTra_Ready;
+
+    // Unless one is already scheduled: give a stop
+    if (periph->status != I2CStopRequested)
+    {
+      regs->CR1 |= I2C_CR1_BIT_STOP;
+    }
+    
+    // Followed by a fresh Start
+    regs->CR1 |= I2C_CR1_BIT_START;
+  }
+  else if (regs->SR1 & I2C_SR1_BITS_ERR)
+  {
+    // Disable Buffer interrupts
+    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+
+    // If we became slave (e.g. ARLO, etc ...)
+    if (! BIT_X_IS_SET_IN_REG( regs->SR2 , I2C_SR2_BIT_MSL ))
+    {
+      // Become master again
+      regs->CR1 |= I2C_CR1_BIT_START;
+      return;
+    }
+
+    // If arbitration was lost (can only happen with many master / interference / SDA short)
+    // then STM I2C is back to slave mode. Issue a New Start right away as we are the only
+    // master to try again
+    if (BIT_X_IS_SET_IN_REG( regs->SR1 , I2C_SR1_BIT_ERR_ARLO ))
+    {
+      regs->CR1 |= I2C_CR1_BIT_START;
+      return;
+    }
+
+
+    // Shedule a Stop Condition, unless one was already sheduled: 
+    // then we would get a double stop and no interrupts
+    if (! BIT_X_IS_SET_IN_REG( regs->CR1 , I2C_CR1_BIT_STOP ))
+    {
+        LED2_ON();
+	LED2_OFF();
+      regs->CR1 |= I2C_CR1_BIT_STOP;
+    }
+    // Silent BTF Interrupts and shedule a byte of no bytes were left
+    regs->DR = 0x00;
+
+    // If not last: New Start
+    // If start already asked, then do nothing but wait for its interrupt
+    if (! BIT_X_IS_SET_IN_REG( regs->CR1 , I2C_CR1_BIT_START ))
+    {
+      regs->CR1 |= I2C_CR1_BIT_START;
+    }
+
+    // Reset WatchDog
+
+//    stage = 1 - stage;
+    return;
+  }
   return STMI2C_SubTra_Busy;
 }
+*/
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//	TRANSACTION HANDLER
-
-static inline uint8_t STMI2CTansactionHandler(struct i2c_periph *periph)
-{
-  return 0;
-}
-
+static inline void i2c_error(struct i2c_periph *periph);
 
 static inline void i2c_event(struct i2c_periph *periph)
 {
@@ -443,110 +521,97 @@ static inline void i2c_event(struct i2c_periph *periph)
   LED1_ON();
   LED1_OFF();
 
-  if (BIT_X_IS_SET_IN_REG( regs->SR1 , I2C_SR1_BIT_ERR_AF ))
+/*
+  if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_SB, regs->SR1) )
   {
-    // Disable Buffer interrupts
-    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
-    // Silent any BTF
-    regs->DR = 0x00; 
-
-    // Unless one is already scheduled: give a stop
-    if (periph->status != I2CStopRequested)
-    {
-      regs->CR1 |= I2C_CR1_BIT_STOP;
-    }
-    
-    // Followed by a fresh Start
-    regs->CR1 |= I2C_CR1_BIT_START;
+    LED2_ON();
+    LED2_OFF();
   }
-  else if (regs->SR1 & I2C_SR1_BITS_ERR)
-  {
-    // Disable Buffer interrupts
-    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+*/
 
-    // If we became slave (e.g. ARLO, etc ...)
-    if (! BIT_X_IS_SET_IN_REG( regs->SR2 , I2C_SR2_BIT_MSL ))
-    {
-      // Become master again
-      regs->CR1 |= I2C_CR1_BIT_START;
-      return;
-    }
-
-    // If arbitration was lost (can only happen with many master / interference / SDA short)
-    // then STM I2C is back to slave mode. Issue a New Start right away as we are the only
-    // master to try again
-    if (BIT_X_IS_SET_IN_REG( regs->SR1 , I2C_SR1_BIT_ERR_ARLO ))
-    {
-      regs->CR1 |= I2C_CR1_BIT_START;
-      return;
-    }
-
-
-    // Shedule a Stop Condition, unless one was already sheduled: 
-    // then we would get a double stop and no interrupts
-    if (! BIT_X_IS_SET_IN_REG( regs->CR1 , I2C_CR1_BIT_STOP ))
-    {
-        LED2_ON();
-	LED2_OFF();
-      regs->CR1 |= I2C_CR1_BIT_STOP;
-    }
-    // Silent BTF Interrupts and shedule a byte of no bytes were left
-    regs->DR = 0x00;
-
-    // If not last: New Start
-    // If start already asked, then do nothing but wait for its interrupt
-    if (! BIT_X_IS_SET_IN_REG( regs->CR1 , I2C_CR1_BIT_START ))
-    {
-      regs->CR1 |= I2C_CR1_BIT_START;
-    }
-
-    // Reset WatchDog
-
-//    stage = 1 - stage;
-    return;
-  }
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  //	TRANSACTION HANDLER
 
   enum STMI2CSubTransactionStatus ret = 0;
   uint8_t restart = 0;
 
+  // Nothing Left To Do
   if (periph->trans_extract_idx == periph->trans_insert_idx)
   {
-    // no transaction?
     periph->status = I2CIdle;
     periph->errors->unexpected_event_cnt++;
+
+    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;			// Disable TXE RXNE
+        LED2_ON();
+        LED1_ON();
+	LED1_OFF();
+	LED2_OFF();
+    regs->CR1 |= I2C_CR1_BIT_STOP;			// Issue a stop
+    uint16_t SR2 __attribute__ ((unused)) = regs->SR2;	// Clear ADDR
+    regs->DR = 0x00;					// Silent BTF, Clear Start, or keep provinding SCL in case of unfinished Read
+
     return;
   }
 
   struct i2c_transaction* trans = periph->trans[periph->trans_extract_idx];
 
-  if (trans->type == I2CTransRx) // TxRx are converted to Rx after the Tx Part
+  if (( regs->SR1 & I2C_SR1_BITS_ERR ) != 0x0000)
   {
-    switch (trans->len_r)
-    {
-      case 1:
-        ret = stmi2c_read1(regs,trans);
-        break;
-      case 2:
-        ret = stmi2c_read2(regs,trans);
-        break;
-      default:
-        ret = stmi2c_read2(regs,trans);
-        break;    
-    }
+    // Set result in transaction
+    trans->status = I2CTransFailed;
+
+    // Close the Bus
+    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;			// Disable TXE RXNE
+    regs->CR1 |= I2C_CR1_BIT_STOP;			// Issue a stop
+        LED1_ON();
+        LED2_ON();
+	LED2_OFF();
+	LED1_OFF();
+    periph->status = I2CStopRequested;
+    uint16_t SR2 __attribute__ ((unused)) = regs->SR2;	// Clear ADDR
+    regs->DR = 0x00;					// Silent BTF, Clear Start, or keep provinding SCL in case of unfinished Read
+
+    // Prepare for next
+    ret = STMI2C_SubTra_Ready_StopRequested;
+    restart = 0;
+
+    // Count it
+    i2c_error(periph);
   }
-  else // TxRx or Tx
+  else
   {
-    if (trans->len_w > 1)
+
+    if (trans->type == I2CTransRx) // TxRx are converted to Rx after the Tx Part
     {
-      ret = stmi2c_sendmany(regs,periph,trans);
-    }    
-    else
-    {
-      ret = stmi2c_send1(regs,trans);
+      switch (trans->len_r)
+      {
+        case 1:
+          ret = stmi2c_read1(regs,trans);
+          break;
+        case 2:
+          ret = stmi2c_read2(regs,trans);
+          break;
+        default:
+          ret = stmi2c_read2(regs,trans);
+          break;    
+      }
     }
-    if (trans->type == I2CTransTxRx)
+    else // TxRx or Tx
     {
-      restart = 1;
+      if (trans->len_w > 1)
+      {
+        ret = stmi2c_sendmany(regs,periph,trans);
+      }    
+      else
+      {
+        ret = stmi2c_send1(regs,trans);
+      }
+      if (trans->type == I2CTransTxRx)
+      {
+        restart = 1;
+      }
     }
   }
 
@@ -560,13 +625,12 @@ static inline void i2c_event(struct i2c_periph *periph)
   {
     if (restart == 0)
     {
-      // Finish Current
-      trans->status = I2CTransSuccess;
-
       if (ret == STMI2C_SubTra_Ready)
       {
         LED2_ON();
+        LED1_ON();
 	LED2_OFF();
+	LED1_OFF();
         // Man: p722:  Stop generation after the current byte transfer or after the current Start condition is sent.
         regs->CR1 |= I2C_CR1_BIT_STOP;
 
@@ -677,9 +741,6 @@ static inline void i2c_error(struct i2c_periph *periph)
   if (I2C_GetITStatus(periph->reg_addr, I2C_IT_ARLO)) {     /* Arbitration lost */
     periph->errors->arb_lost_cnt++;
     I2C_ClearITPendingBit(periph->reg_addr, I2C_IT_ARLO);
-    //    I2C_AcknowledgeConfig(I2C2, DISABLE);
-    //    uint8_t dummy __attribute__ ((unused)) = I2C_ReceiveData(I2C2);
-    //    I2C_GenerateSTOP(I2C2, ENABLE);
     err_nr = 3;
   }
   if (I2C_GetITStatus(periph->reg_addr, I2C_IT_OVR)) {      /* Overrun/Underrun */
@@ -705,7 +766,6 @@ static inline void i2c_error(struct i2c_periph *periph)
 
   LED_ERROR(err_nr);
 
-  i2c_event(periph);
   return;
   
 /*
@@ -769,7 +829,7 @@ void i2c1_ev_irq_handler(void) {
 }
 
 void i2c1_er_irq_handler(void) {
-  i2c_error(&i2c1);
+  i2c_event(&i2c1);
 }
 
 #endif /* USE_I2C1 */
@@ -845,7 +905,7 @@ void i2c2_ev_irq_handler(void) {
 }
 
 void i2c2_er_irq_handler(void) {
-  i2c_error(&i2c2);
+  i2c_event(&i2c2);
 }
 
 #endif /* USE_I2C2 */
