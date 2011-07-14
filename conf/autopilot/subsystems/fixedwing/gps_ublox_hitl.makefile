@@ -1,4 +1,4 @@
-# UBlox LEA 5H
+# UBlox Hardware In The Loop
 
 
 ap.CFLAGS += -DUSE_GPS -DUBX -DGPS_USE_LATLONG

@@ -261,7 +261,7 @@
       <configure name="ADC_GYRO_ROLL" 	value="ADC_3" />
     </subsystem>
 -->    <subsystem name="attitude" 		type="infrared"/>
-    <subsystem name="gps" 		type="ublox_lea4p"/>
+    <subsystem name="gps" 		type="ublox_utm"/>
     <subsystem name="control"	/>
     <subsystem name="navigation"	type="extra"/>
 
