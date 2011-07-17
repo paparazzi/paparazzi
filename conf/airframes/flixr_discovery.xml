@@ -42,7 +42,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 
     <!-- Sensors -->
     <subsystem name="imu" type="booz"/>
-    <subsystem name="gps" type="ublox_lea5h"/>
+    <subsystem name="gps" type="ublox"/>
     <subsystem name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
     </subsystem>

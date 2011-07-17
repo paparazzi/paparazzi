@@ -215,7 +215,7 @@
     <!-- Sensors -->
     <subsystem name="imu" type="booz"/>
     <subsystem name="ahrs" type="dcm"/>
-    <subsystem name="gps" type="ublox_lea4p"/>
+    <subsystem name="gps" type="ublox_utm"/>
     <subsystem name="navigation"/>
 
   </firmware>

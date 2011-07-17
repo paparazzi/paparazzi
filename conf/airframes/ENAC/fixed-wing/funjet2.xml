@@ -49,7 +49,7 @@
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox_lea5h"/>
+    <subsystem name="gps" type="ublox"/>
     <subsystem name="gyro" type="roll">
       <configure name="ADC_GYRO_ROLL" value="ADC_5"/>
     </subsystem>
