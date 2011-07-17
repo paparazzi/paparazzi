@@ -90,32 +90,19 @@ module Gen_onboard = struct
     ) messages;
     !highest_id
 
-  (* Print general structure and utilities *)
+  (* Print structure array *)
   let print_struct = fun h size ->
     Printf.fprintf h "\n/* Array and linked list structure */\n";
     Printf.fprintf h "#define ABI_MESSAGE_NB %d\n\n" (size+1);
-    Printf.fprintf h "typedef void (*abi_callback)(void);\n";
-    Printf.fprintf h "struct abi_struct {\n";
-    Printf.fprintf h "  abi_callback cb;\n";
-    Printf.fprintf h "  struct abi_struct * next;\n";
-    Printf.fprintf h "};\n";
-    Printf.fprintf h "typedef struct abi_struct abi_event;\n\n";
-    Printf.fprintf h "#ifdef ABI_C\n";
-    Printf.fprintf h "#define EXTERN\n";
-    Printf.fprintf h "#else\n";
-    Printf.fprintf h "#define EXTERN extern\n";
-    Printf.fprintf h "#endif\n";
-    Printf.fprintf h "EXTERN abi_event * abi_queues[ABI_MESSAGE_NB];\n\n";
-    Printf.fprintf h "#define ABI_FOREACH(head,el) for(el=head; el; el=el->next)\n";
-    Printf.fprintf h "#define ABI_PREPEND(head,add) { (add)->next = head; head = add; }\n"
+    Printf.fprintf h "EXTERN abi_event* abi_queues[ABI_MESSAGE_NB];\n"
 
   (* Print arguments' function from fields *)
   let print_args = fun h fields ->
     let rec args = fun h l ->
       match l with
         [] -> Printf.fprintf h ")"
-      | [(n,t)] -> Printf.fprintf h "const %s * %s)" t n
-      | (n,t)::l' -> Printf.fprintf h "const %s * %s, " t n; args h l'
+      | [(n,t)] -> Printf.fprintf h "const %s %s)" t n
+      | (n,t)::l' -> Printf.fprintf h "const %s %s, " t n; args h l'
     in
     Printf.fprintf h "(";
     args h fields
@@ -150,7 +137,7 @@ module Gen_onboard = struct
     Printf.fprintf h "\nstatic inline void AbiSendMsg%s" name;
     print_args h msg.fields;
     Printf.fprintf h " {\n";
-    Printf.fprintf h "  abi_event * e;\n";
+    Printf.fprintf h "  abi_event* e;\n";
     Printf.fprintf h "  ABI_FOREACH(abi_queues[ABI_%s_ID],e) {\n" name;
     Printf.fprintf h "    abi_callback%s cb = (abi_callback%s)(e->cb);\n" name name;
     Printf.fprintf h "    cb(";
@@ -191,7 +178,8 @@ let () =
     Printf.fprintf h " * send and receive messages of class %s\n" class_name;
     Printf.fprintf h " */\n\n";
     Printf.fprintf h "#ifndef ABI_MESSAGES_H\n";
-    Printf.fprintf h "#define ABI_MESSAGES_H\n";
+    Printf.fprintf h "#define ABI_MESSAGES_H\n\n";
+    Printf.fprintf h "#include \"subsystems/abi_common.h\"\n";
 
     (** Print Messages IDs *)
     let highest_id = Gen_onboard.print_message_id h messages in
