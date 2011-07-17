@@ -29,9 +29,9 @@
 
 <!-- LISA -->
   <aircraft
-   name="BOOZ2_A6"
+   name="Hexa_LisaL"
    ac_id="153"
-   airframe="airframes/Poine/booz2_a6.xml"
+   airframe="airframes/Poine/h_hex.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/telemetry_booz2.xml"
    flight_plan="flight_plans/dummy.xml"
