@@ -22,7 +22,7 @@
  */
 
 #include <math.h>
-#include "subsystems/imu/imu_umarim.h"
+#include "imu_umarim.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
 

@@ -1,9 +1,9 @@
 
 IMU_UMARIM_CFLAGS  = -DUSE_IMU
-IMU_UMARIM_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_umarim.h\"
+IMU_UMARIM_CFLAGS += -DIMU_TYPE_H=\"boards/umarim/imu_umarim.h\"
 
 IMU_UMARIM_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
-                     $(SRC_SUBSYSTEMS)/imu/imu_umarim.c
+                     $(SRC_BOARD)/imu_umarim.c
 
 
 IMU_UMARIM_CFLAGS += -DUSE_I2C
