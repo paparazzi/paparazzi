@@ -25,6 +25,8 @@
  *  Navarro & Gorraz & Hattenberger
  */
 
+#include "peripherals/ads1114.h"
+
 struct i2c_transaction ads1114_trans;
 
 bool_t ads1114_config_done;
@@ -35,7 +37,7 @@ void ads1114_init( void ) {
   ads1114_trans.buf[0] = ADS1114_POINTER_CONFIG_REG;         
   ads1114_trans.buf[1] = ADS1114_CONFIG_MSB;                               
   ads1114_trans.buf[2] = ADS1114_CONFIG_LSB;
-  I2CTransmit(ADS1114_I2C_DEVICE , ads1114_trans, ADS1114_I2C_ADDR, 3);
+  I2CTransmit(ADS1114_I2C_DEVICE, ads1114_trans, ADS1114_I2C_ADDR, 3);
   ads1114_config_done = FALSE;
   ads1114_data_available = FALSE;
 }
@@ -46,7 +48,7 @@ void ads1114_read( void ) {
   // start new reading when previous is done (and read if success)
   if (ads1114_config_done && ads1114_trans.status == I2CTransDone) {
     ads1114_trans.buf[0] = ADS1114_POINTER_CONV_REG;          
-    I2CTransceive(ADS1114_I2C_DEVICE,ads1114_trans, ADS1114_I2C_ADDR, 1, 2);
+    I2CTransceive(ADS1114_I2C_DEVICE, ads1114_trans, ADS1114_I2C_ADDR, 1, 2);
   }
 }
 
