@@ -2310,8 +2310,9 @@
 
   <class name="airborne">
     <message name="TEST_ABI" id="0">
-      <field name="value" type="int"/>
+      <field name="value" type="int8_t"/>
       <field name="boo" type="struct abi_boo"/>
+      <field name="vect" type="struct Int32Vect3 *"/>
     </message>
   </class>
 

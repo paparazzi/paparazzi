@@ -35,7 +35,18 @@ struct abi_boo {
 
 // ABI event and callback for TEST_ABI message
 abi_event ev;
-void test_cb (const int value, const struct abi_boo boo);
+
+static void test_cb (const int8_t value, const struct abi_boo boo, const struct Int32Vect3 * vect) {
+  switch (value) {
+    case 0 :
+      LED_TOGGLE(1); break;
+    case 1 :
+      LED_TOGGLE(2); break;
+    case 2 :
+      LED_TOGGLE(3); break;
+  };
+}
+
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -55,18 +66,6 @@ int main(void) {
 }
 
 
-void test_cb (const int value, const struct abi_boo boo) {
-  switch (value) {
-    case 0 :
-      LED_TOGGLE(1); break;
-    case 1 :
-      LED_TOGGLE(2); break;
-    case 2 :
-      LED_TOGGLE(3); break;
-  };
-}
-
-
 static inline void main_init( void ) {
   mcu_init();
   sys_time_init();
@@ -80,9 +79,10 @@ static inline void main_init( void ) {
 
 
 static inline void main_periodic_task( void ) {
-  static int val = 0;
+  static int8_t val = 0;
   struct abi_boo b = { 1, 2 };
-  RunOnceEvery(60,{ AbiSendMsgTEST_ABI(val,b); val=(val+1)%3; });
+  struct Int32Vect3 v = { 3, 4, 5 };
+  RunOnceEvery(60,{ AbiSendMsgTEST_ABI(val,b,&v); val=(val+1)%3; });
 }
 
 
