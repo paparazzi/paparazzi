@@ -74,6 +74,7 @@ static void hmc58xx_send_config(void)
       break;
     case HMC_CONF_DONE:
       hmc58xx_initialized = TRUE;
+      hmc58xx_i2c_trans.status = I2CTransDone;
       break;
     default:
       break;
@@ -106,9 +107,10 @@ void hmc58xx_periodic(void)
 void hmc58xx_event(void)
 {
   if (hmc58xx_initialized) {
-    if (hmc58xx_i2c_trans.status == I2CTransFailed) return;
-
-    if (hmc58xx_i2c_trans.status == I2CTransSuccess) {
+    if (hmc58xx_i2c_trans.status == I2CTransFailed) {
+      hmc58xx_i2c_trans.status = I2CTransDone;
+    }
+    else if (hmc58xx_i2c_trans.status == I2CTransSuccess) {
       hmc58xx_data.x = Int16FromBuf(hmc58xx_i2c_trans.buf,0);
       hmc58xx_data.y = Int16FromBuf(hmc58xx_i2c_trans.buf,2);
       hmc58xx_data.z = Int16FromBuf(hmc58xx_i2c_trans.buf,4);
