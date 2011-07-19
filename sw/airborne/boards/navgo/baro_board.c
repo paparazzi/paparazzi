@@ -66,5 +66,6 @@ void baro_periodic( void ) {
   }
 #endif
   // Read the ADC
-  //ads1114_read();
+  ads1114_read();
 }
+
