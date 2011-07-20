@@ -19,7 +19,7 @@
  */
 
 #include <math.h>
-#include "ins_ppzuavimu.h"
+#include "imu_ppzuav.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
 

@@ -1,9 +1,9 @@
 
-IMU_PPZUAVIMU_CFLAGS  = -DUSE_IMU
-IMU_PPZUAVIMU_CFLAGS += -DIMU_TYPE_H=\"modules/ins/ins_ppzuavimu.h\"
+IMU_PPZUAV_CFLAGS  = -DUSE_IMU
+IMU_PPZUAV_CFLAGS += -DIMU_TYPE_H=\"modules/sensors/imu_ppzuav.h\"
 
-IMU_PPZUAVIMU_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
-                      $(SRC_MODULES)/ins/ins_ppzuavimu.c
+IMU_PPZUAV_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
+                      $(SRC_MODULES)/sensors/imu_ppzuav.c
 
 
 IMU_PPZUAVIMU_CFLAGS += -DUSE_I2C
@@ -15,8 +15,8 @@ else ifeq ($(ARCH), lpc21)
 	IMU_PPZUAVIMU_CFLAGS += -DPPZUAVIMU_I2C_DEVICE=i2c0
 endif
 
-ap.CFLAGS += $(IMU_PPZUAVIMU_CFLAGS)
-ap.srcs   += $(IMU_PPZUAVIMU_SRCS)
+ap.CFLAGS += $(IMU_PPZUAV_CFLAGS)
+ap.srcs   += $(IMU_PPZUAV_SRCS)
 
 ap.CFLAGS += -DAHRS_MAG_UPDATE_YAW_ONLY
 
