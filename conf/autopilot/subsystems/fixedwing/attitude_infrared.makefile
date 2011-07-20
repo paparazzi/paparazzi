@@ -36,4 +36,6 @@ $(TARGET).srcs += subsystems/sensors/infrared.c
 $(TARGET).srcs += subsystems/sensors/infrared_adc.c
 
 sim.srcs += $(SRC_ARCH)/sim_ir.c
-jsbsim.srcs += $(SRC_ARCH)/jsbsim_ir.c
+
+# is already added to sources in autopilot.makefile
+#jsbsim.srcs += $(SRC_ARCH)/jsbsim_ir.c
