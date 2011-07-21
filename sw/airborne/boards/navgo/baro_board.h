@@ -43,10 +43,8 @@ extern float baro_alt_offset;
   Ads1114Event();                                     \
   if (ads1114_data_available) {                       \
     baro.absolute = Ads1114GetValue();                \
-    if (baro.status == BS_RUNNING) {                  \
-      _b_abs_handler();                               \
-      ads1114_data_available = FALSE;                 \
-    }                                                 \
+    _b_abs_handler();                                 \
+    ads1114_data_available = FALSE;                   \
   }                                                   \
 }
 

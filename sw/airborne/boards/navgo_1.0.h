@@ -49,7 +49,7 @@
 #endif
 #define USE_AD1_3
 
-#define DefaultVoltageOfAdc(adc) (0.0247*adc)
+#define DefaultVoltageOfAdc(adc) (0.01837*adc)
 
 /* PWM0 (internal PWM5) */
 /* P0.21 */

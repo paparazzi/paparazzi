@@ -26,20 +26,21 @@
  */
 
 #include "subsystems/sensors/baro.h"
+#include "led.h"
 
 /* Common Baro struct */
 struct Baro baro;
 
-#ifdef USE_BARO_AS_ALTIMETER
 /* Number of values to compute an offset at startup */
-#define OFFSET_NBSAMPLES_AVRG 100
+#define OFFSET_NBSAMPLES_AVRG 300
+uint16_t offset_cnt;
 
+#ifdef USE_BARO_AS_ALTIMETER
 /* Weight for offset IIR filter */
 #define OFFSET_FILTER 7
 
 float baro_alt;
 float baro_alt_offset;
-uint16_t offset_cnt;
 #endif
 
 void baro_init( void ) {
@@ -47,24 +48,35 @@ void baro_init( void ) {
   baro.status = BS_UNINITIALIZED;
   baro.absolute     = 0;
   baro.differential = 0; /* not handled on this board */
+#ifdef ROTORCRAFT_BARO_LED
+  LED_OFF(ROTORCRAFT_BARO_LED);
+#endif
+  offset_cnt = OFFSET_NBSAMPLES_AVRG;
 #ifdef USE_BARO_AS_ALTIMETER
   baro_alt = 0.;
   baro_alt_offset = 0.;
-  offset_cnt = OFFSET_NBSAMPLES_AVRG;
 #endif
 }
 
 void baro_periodic( void ) {
 
+  if (baro.status == BS_UNINITIALIZED) {
 #ifdef USE_BARO_AS_ALTIMETER
-  if (baro.status == BS_UNINITIALIZED && ads1114_data_available) {
     // IIR filter to compute an initial offset
     baro_alt_offset = (OFFSET_FILTER * baro_alt_offset + (float)baro.absolute) / (OFFSET_FILTER + 1);
+#endif
     // decrease init counter
     --offset_cnt;
-    if (offset_cnt == 0) baro.status = BS_RUNNING;
-  }
+#ifdef ROTORCRAFT_BARO_LED
+    LED_TOGGLE(ROTORCRAFT_BARO_LED);
 #endif
+    if (offset_cnt == 0) {
+      baro.status = BS_RUNNING;
+#ifdef ROTORCRAFT_BARO_LED
+      LED_ON(ROTORCRAFT_BARO_LED);
+#endif
+    }
+  }
   // Read the ADC
   ads1114_read();
 }

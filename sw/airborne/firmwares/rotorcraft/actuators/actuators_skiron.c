@@ -37,7 +37,7 @@ void actuators_init(void) {
 
   supervision_init();
   actuators_skiron.trans.type = I2CTransTx;
-  actuators_skiron.trans.len_w = 1;
+  actuators_skiron.trans.len_w = ACTUATORS_SKIRON_NB;
   actuators_skiron.trans.slave_addr = ACTUATORS_SKIRON_I2C_ADDR;
   actuators_skiron.trans.status = I2CTransDone;
   const uint8_t actuators_idx[ACTUATORS_SKIRON_NB] = ACTUATORS_SKIRON_IDX;
@@ -72,5 +72,5 @@ void actuators_set(bool_t motors_on) {
     actuators_skiron.trans.buf[idx] = supervision.commands[i];
 #endif
   }
-  i2c_submit(&ACTUATORS_SKIRON_DEVICE, &actuators_mkk.trans);
+  i2c_submit(&ACTUATORS_SKIRON_DEVICE, &actuators_skiron.trans);
 }

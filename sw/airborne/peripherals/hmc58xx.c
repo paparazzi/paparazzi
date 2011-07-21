@@ -112,8 +112,8 @@ void hmc58xx_event(void)
     }
     else if (hmc58xx_i2c_trans.status == I2CTransSuccess) {
       hmc58xx_data.x = Int16FromBuf(hmc58xx_i2c_trans.buf,0);
-      hmc58xx_data.y = Int16FromBuf(hmc58xx_i2c_trans.buf,2);
-      hmc58xx_data.z = Int16FromBuf(hmc58xx_i2c_trans.buf,4);
+      hmc58xx_data.y = Int16FromBuf(hmc58xx_i2c_trans.buf,4);
+      hmc58xx_data.z = Int16FromBuf(hmc58xx_i2c_trans.buf,2);
       hmc58xx_data_available = TRUE;
       hmc58xx_i2c_trans.status = I2CTransDone;
     }

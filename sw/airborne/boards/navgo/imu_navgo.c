@@ -82,7 +82,7 @@ void imu_periodic( void )
   // Read HMC58XX at 50Hz (main loop for rotorcraft: 512Hz)
   RunOnceEvery(10,hmc58xx_periodic());
 
-  RunOnceEvery(20,imu_navgo_downlink_raw());
+  //RunOnceEvery(20,imu_navgo_downlink_raw());
 }
 
 
@@ -116,7 +116,7 @@ void imu_navgo_event( void )
   // HMC58XX event task
   hmc58xx_event();
   if (hmc58xx_data_available) {
-    VECT3_COPY(imu.mag_unscaled, hmc58xx_data);
+    VECT3_ASSIGN(imu.mag_unscaled, -hmc58xx_data.x, -hmc58xx_data.y, hmc58xx_data.z);
     hmc58xx_data_available = FALSE;
     mag_valid = TRUE;
   }
