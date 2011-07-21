@@ -2,9 +2,9 @@
  * Copyright (C) 2010 The Paparazzi Team
  *
  * Autor: Bruzzlee
- * Angle of Attack ADC Sensor 
+ * Angle of Attack ADC Sensor
  * US DIGITAL MA3-A10-236-N
- * 
+ *
  * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
@@ -70,13 +70,13 @@ void AOA_adc_init( void ) {
 void AOA_adc_update( void ) {
 #ifndef SITL
 	adc_AOA_val = buf_AOA.sum / buf_AOA.av_nb_sample;
-	
+
 // 	PT1 filter and convert to rad
 	AOA = AOA_filter * AOA_old + (1 - AOA_filter) * (adc_AOA_val*(2*M_PI)/1024-M_PI+AOA_offset);
 	AOA_old = AOA;
 #endif
 	RunOnceEvery(30, DOWNLINK_SEND_AOA_adc(DefaultChannel, &adc_AOA_val, &AOA));
-	
+
 #ifdef USE_AOA
 	EstimatorSetAOA(AOA);
 #endif

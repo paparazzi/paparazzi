@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2010 The Paparazzi Team
- * 
+ *
  * Autor: Bruzzlee
- * Angle of Attack ADC Sensor 
+ * Angle of Attack ADC Sensor
  * US DIGITAL MA3-A10-236-N
  *
  * This file is part of paparazzi.
