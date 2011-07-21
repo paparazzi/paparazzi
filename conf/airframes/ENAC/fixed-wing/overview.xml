@@ -32,7 +32,7 @@
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="xbee_api"/>
     <subsystem name="control"/>
-    <subsystem name="gps"           type="ublox_lea5h"/>
+    <subsystem name="gps"           type="ublox"/>
     <subsystem name="navigation"/>
   </firmware>
 
