@@ -63,7 +63,7 @@ extern float cam_pan_c, cam_tilt_c;
 /* pan (move left and right), tilt (move up and down) */
 /** Radians, for CAM_MODE_ANGLES mode */
 
-extern float cam_target_x, cam_target_y;
+extern float cam_target_x, cam_target_y, cam_target_alt;
 /** For CAM_MODE_XY_TARGET mode */
 
 extern uint8_t cam_target_wp;
