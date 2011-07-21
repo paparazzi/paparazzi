@@ -92,16 +92,15 @@ typedef struct {
          float fy1; float fy2; float fy3;
          float fz1; float fz2; float fz3;} MATRIX;
 
-//bool_t cam_lock = 0;
 float cam_theta;
 float cam_phi;
 bool_t heading_positive = 0;
+float  memory_x, memory_y, memory_z;
 #if defined(SHOW_CAM_COORDINATES)
 float   cam_point_x;
 float   cam_point_y;
 unsigned int cam_point_distance_from_home;
 float cam_point_lon,  cam_point_lat;
-float  memory_x, memory_y, memory_z;
 float distance_correction = 1;
 #endif
 
@@ -283,9 +282,11 @@ if (cam_mode == CAM_MODE_STABILIZED || cam_mode == CAM_MODE_RC ){
    if ( cam_theta > RadOfDeg(80) && cam_mode == CAM_MODE_RC){ // Not much to see after 80 degrees of tilt so stop tracking.
       *fPan = cam_phi;
       *fTilt = cam_theta;
+#ifdef SHOW_CAM_COORDINATES
       cam_point_distance_from_home = 0;
       cam_point_lon = 0;
       cam_point_lat = 0;
+#endif
       return;
 
    }else{
@@ -393,6 +394,7 @@ if (cam_mode == CAM_MODE_RC && cam_lock == 0 ){
 /***    END OF THE CODE THAT CALCULATES THE COORDINATES OF WHERE THE CAMERA IS LOOKING AT     ***/
 }else{
 /***    THE BELOW CODE IS ONLY EXECUTED IN CAM_MODE_WP_TARGET OR CAM_MODE_XY_TARGET           ***/
+#ifdef SHOW_CAM_COORDINATES
         cam_point_distance_from_home = distance_correction * (uint16_t) fabs( ((uint16_t) (sqrt((fObjectNorth*fObjectNorth) + (fObjectEast*fObjectEast) ))) -
                                           ((uint16_t) (sqrt((fPlaneNorth*fPlaneNorth) + (fPlaneEast*fPlaneEast) ))) );
 
@@ -404,6 +406,7 @@ if (cam_mode == CAM_MODE_RC && cam_lock == 0 ){
         lla_of_utm_f(&lla, &utm);
         cam_point_lon = lla.lon*(180/M_PI);
         cam_point_lat = lla.lat*(180/M_PI);
+#endif
 
 
 #if defined(WP_CAM_POINT)

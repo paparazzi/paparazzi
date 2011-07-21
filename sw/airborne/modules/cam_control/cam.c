@@ -168,9 +168,11 @@ void cam_periodic( void ) {
     cam_pan_c = RadOfDeg(0);
 #endif
     cam_angles();
+#ifdef SHOW_CAM_COORDINATES
     cam_point_lon = 0;
     cam_point_lat = 0;
     cam_point_distance_from_home = 0;
+#endif
   }
 #endif
 
