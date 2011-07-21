@@ -40,7 +40,6 @@ static float SRad;
 static float IRad;
 static float Alphalimit;
 static float Segmente;
-static float CamAngle;
 static float ZPoint;
 static float nav_radius_min;
 
@@ -71,11 +70,11 @@ bool_t InitializeSpiral(uint8_t CenterWP, uint8_t EdgeWP, float StartRad, float 
   DistanceFromCenter = sqrt(TransCurrentX*TransCurrentX+TransCurrentY*TransCurrentY);
 
   // 	SpiralTheta = atan2(TransCurrentY,TransCurrentX);
-  // 	Fly2X = Spiralradius*cos(SpiralTheta+3.14)+WaypointX(Center);
-  // 	Fly2Y = Spiralradius*sin(SpiralTheta+3.14)+WaypointY(Center);
+  // 	Fly2X = Spiralradius*cos(SpiralTheta+M_PI)+WaypointX(Center);
+  // 	Fly2Y = Spiralradius*sin(SpiralTheta+M_PI)+WaypointY(Center);
 
   // Alphalimit denotes angle, where the radius will be increased
-  Alphalimit = 2*3.14 / Segments;
+  Alphalimit = 2*M_PI / Segments;
   //current position
   FlyFromX = estimator_x;
   FlyFromY = estimator_y;
@@ -152,10 +151,9 @@ bool_t SpiralNav(void)
 		  SRad = SRad + IRad;
 #ifdef DIGITAL_CAM
 		  if (dc_cam_tracing) {
-			// calculating Camwinkel for camera alignment
+			// calculating Cam angle for camera alignment
 			TransCurrentZ = estimator_z - ZPoint;
-			CamAngle = atan(SRad/TransCurrentZ) * 180  / 3.14;
-			dc_cam_angle = CamAngle;
+			dc_cam_angle = atan(SRad/TransCurrentZ) * 180  / M_PI;
           }
 #endif
 		}
