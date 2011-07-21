@@ -146,7 +146,7 @@ static int32_t pflash_erase_page(FlashInfo* flash) {
   iap_entry(command, result);
   enableIRQ();
   if (result[0] != 0) return result[0];
-  
+
   /* erase page/sector */
   command[0] = IAP_ERASE_SECTORS;
   command[1] = flash->page_nr;
@@ -162,7 +162,7 @@ static int32_t pflash_erase_page(FlashInfo* flash) {
   command[2] = flash->page_nr;
   iap_entry(command, result);
   if (result[0] != 0) return result[0];
-  
+
   return 0;
 }
 
@@ -173,7 +173,7 @@ static int32_t pflash_program_array(FlashInfo* flash,
   IAP iap_entry;
 
   iap_entry = (IAP) IAP_LOCATION;
-  
+
   /* prepare page/sector */
   command[0] = IAP_PREPARE_SECTORS;
   command[1] = flash->page_nr;
@@ -182,7 +182,7 @@ static int32_t pflash_program_array(FlashInfo* flash,
   iap_entry(command, result);
   enableIRQ();
   if (result[0] != 0) return result[0];
-  
+
   /* flash from ram */
   command[0] = IAP_COPY_RAM_TO_FLASH;
   command[1] = dest;
@@ -193,7 +193,7 @@ static int32_t pflash_program_array(FlashInfo* flash,
   iap_entry(command, result);
   enableIRQ();
   if (result[0] != 0) return result[0];
-  
+
   return 0;
 }
 
@@ -273,4 +273,3 @@ int32_t persistent_read(uint32_t ptr, uint32_t size) {
 
   return 0;
 }
-
