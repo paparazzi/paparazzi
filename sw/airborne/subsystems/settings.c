@@ -9,14 +9,14 @@ void settings_init(void) {
 #ifdef USE_PERSISTENT_SETTINGS
   if (persistent_read((uint32_t)&pers_settings, sizeof(struct PersistentSettings)))
     return; // return -1 ?
-  persitent_settings_load();
+  persistent_settings_load();
 #endif
 }
 
 
 void settings_store(void) {
 #ifdef USE_PERSISTENT_SETTINGS
-  persitent_settings_store();
+  persistent_settings_store();
   persistent_write((uint32_t)&pers_settings, sizeof(struct PersistentSettings));
 #endif
 }
