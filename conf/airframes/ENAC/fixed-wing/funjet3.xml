@@ -49,7 +49,7 @@
     <subsystem name="control" type="new"/>
     <subsystem name="navigation"/>
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox_lea5h"/>
+    <subsystem name="gps" type="ublox"/>
   </firmware>
 
 

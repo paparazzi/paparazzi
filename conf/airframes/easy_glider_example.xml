@@ -169,7 +169,7 @@
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="attitude" 		type="infrared"/>
-    <subsystem name="gps" 		    type="ublox_lea4p"/>
+    <subsystem name="gps" 		    type="ublox_utm"/>
     <subsystem name="navigation"/>
   </firmware>
 
