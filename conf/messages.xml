@@ -859,7 +859,24 @@
     <field name="speed_sp" type="float"/>
   </message>
 
-  <!--126 is free -->
+  <message name="TEMP_TCOUPLE" id="126">
+    <field name="fval0" type="float"/>
+    <field name="fval1" type="float"/>
+    <field name="fval2" type="float"/>
+    <field name="fval3" type="float"/>
+    <field name="fref0" type="float"/>
+    <field name="fref1" type="float"/>
+    <field name="fref2" type="float"/>
+    <field name="fref3" type="float"/>
+    <field name="val0"  type="uint16"/>
+    <field name="val1"  type="uint16"/>
+    <field name="val2"  type="uint16"/>
+    <field name="val3"  type="uint16"/>
+    <field name="ref0"  type="uint16"/>
+    <field name="ref1"  type="uint16"/>
+    <field name="ref2"  type="uint16"/>
+    <field name="ref3"  type="uint16"/>
+  </message>
 
   <message name="SHT_I2C_STATUS" id="127">
     <field name="ihumid" type="uint16"/>
