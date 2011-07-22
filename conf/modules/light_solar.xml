@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="light_solar" dir="meteo">
+  <header>
+    <file name="light_solar.h"/>
+  </header>
+  <init fun="light_solar_init()"/>
+  <periodic fun="light_solar_periodic()" freq="60"/>
+  <makefile target="ap">
+    <file name="light_solar.c"/>
+    <define name="ADC_CHANNEL_LIGHT_SOLAR_UP" value="ADC_1"/>
+    <define name="USE_ADC_1"/>
+    <define name="ADC_CHANNEL_LIGHT_SOLAR_DN" value="ADC_2"/>
+    <define name="USE_ADC_2"/>
+  </makefile>
+</module>
+
