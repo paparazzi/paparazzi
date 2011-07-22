@@ -1165,7 +1165,12 @@
   </message>
 
  <!--152 is free -->
- <!--153 is free -->
+
+  <message name="GEIGER_COUNTER" id="153">
+    <field name="tube1"   type="uint32" unit="events"/>
+    <field name="tube2"   type="uint32" unit="events"/>
+    <field name="vsupply" type="uint16" unit="volts"/>
+  </message>
 
   <message name="INS_REF" id="154">
     <field name="ecef_x0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>

@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="geiger_counter" dir="meteo">
+  <header>
+    <file name="geiger_counter.h"/>
+  </header>
+  <init fun="geiger_counter_init()"/>
+  <periodic fun="geiger_counter_periodic()" freq="1"/>
+  <event fun="geiger_counter_event()"/>
+  <makefile target="ap">
+    <file name="geiger_counter.c"/>
+  </makefile>
+</module>
+
