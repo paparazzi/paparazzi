@@ -652,7 +652,7 @@
     <field name="density"   type="float" unit="mg/m3" format="%.2f"/>
   </message>
 
-  <message name="SHT_SERIAL" id="99">
+  <message name="SHT_I2C_SERIAL" id="99">
     <field name="serial0" type="uint32"/>
     <field name="serial1" type="uint32"/>
   </message>
@@ -839,7 +839,13 @@
   </message>
 
   <!--126 is free -->
-  <!--127 is free -->
+
+  <message name="SHT_I2C_STATUS" id="127">
+    <field name="ihumid" type="uint16"/>
+    <field name="itemp"  type="uint16"/>
+    <field name="humid"  type="float" unit="rel_hum" format="%.2f"/>
+    <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
 
   <message name="CAMERA_SNAPSHOT" id="128">
     <field name="snapshot_image_number" type="uint16"/>
