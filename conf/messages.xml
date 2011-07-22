@@ -1181,7 +1181,12 @@
     <field name="ins_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
   </message>
 
- <!--152 is free -->
+  <message name="PCAP01_STATUS" id="152">
+    <field name="ihumid" type="uint32"/>
+    <field name="itemp"  type="uint32"/>
+    <field name="humid"  type="float" unit="rel_hum" format="%.2f"/>
+    <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
 
   <message name="GEIGER_COUNTER" id="153">
     <field name="tube1"   type="uint32" unit="events"/>
