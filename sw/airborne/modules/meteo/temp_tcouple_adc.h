@@ -5,7 +5,6 @@
 
 #define TCOUPLE_NB 4
 
-extern uint16_t up[TCOUPLE_NB], dn[TCOUPLE_NB];
 extern int32_t  tcouple_cnt;
 
 void temp_tcouple_adc_init(void);
