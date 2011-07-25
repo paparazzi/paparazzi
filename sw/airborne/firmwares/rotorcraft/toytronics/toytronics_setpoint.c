@@ -375,7 +375,7 @@ toytronics_set_sp_hover_forward_from_rc()
   double rcy = apply_deadband(rc->yaw, SETPOINT_DEADBAND);
 
   // set pitch/yaw from stick
-  double pitch_body = (rcp * SETPOINT_MAX_STICK_ANGLE_DEG + hover_pitch_trim_deg)*M_PI/180.0;
+  double pitch_body = (rcp * SETPOINT_MAX_STICK_ANGLE_DEG + hover_pitch_trim_deg + fabs(rcr * SETPOINT_MAX_STICK_ANGLE_DEG)*(5/90))*M_PI/180.0;
   double roll_body   = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;
 
   // integrate stick to get setpoint heading
@@ -472,7 +472,7 @@ toytronics_set_sp_absolute_forward_from_rc()
   double rcy = apply_deadband(rc->yaw, SETPOINT_DEADBAND);
 
   euler_t e_n2sp;
-  e_n2sp.pitch = (rcp * SETPOINT_MAX_STICK_ANGLE_DEG + absolute_forward_pitch_trim_deg)*M_PI/180.0;
+  e_n2sp.pitch = (rcp * SETPOINT_MAX_STICK_ANGLE_DEG + absolute_forward_pitch_trim_deg+ fabs(rcr * SETPOINT_MAX_STICK_ANGLE_DEG)*(5/90))*M_PI/180.0;
   e_n2sp.roll  = rcr * SETPOINT_MAX_STICK_ANGLE_DEG * M_PI/180.0;
 
   // integrate stick to get setpoint heading
