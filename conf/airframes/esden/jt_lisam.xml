@@ -121,6 +121,7 @@
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+   <define name="MIN_BAT_LEVEL" value="10" units="V"/>
    <define name="BATTERY_SENS"   value="0.48" integer="16"/>
  </section>
 
@@ -228,11 +229,9 @@
  <include href="conf/airframes/esden/toytronics/setpoint/JT_setpoint.xml"/>
  <include href="conf/airframes/esden/camera_mount.xml"/>
 
-<!--
  <modules main_freq="512">
-   <load name="vehicle_interface_overo_link.xml"/>
+   <load name="battery_buzzer.xml"/>
  </modules>
--->
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_1.0">
