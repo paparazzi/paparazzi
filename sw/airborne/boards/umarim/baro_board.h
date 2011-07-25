@@ -33,16 +33,20 @@
 #include "std.h"
 #include "peripherals/ads1114.h"
 
+#define BARO_FILTER_GAIN 5
+
 #ifdef USE_BARO_AS_ALTIMETER
 extern float baro_alt;
 extern float baro_alt_offset;
 #define BaroAltHandler() { baro_alt = BARO_SENS*(baro_alt_offset - (float)baro.absolute); }
 #endif
 
+extern void baro_downlink_raw( void );
+
 #define BaroEvent(_b_abs_handler, _b_diff_handler) {  \
   Ads1114Event();                                     \
   if (ads1114_data_available) {                       \
-    baro.absolute = Ads1114GetValue();                \
+    baro.absolute = (baro.absolute + BARO_FILTER_GAIN*Ads1114GetValue()) / (BARO_FILTER_GAIN+1); \
     if (baro.status == BS_RUNNING) {                  \
       _b_abs_handler();                               \
       ads1114_data_available = FALSE;                 \

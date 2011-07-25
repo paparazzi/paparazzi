@@ -31,4 +31,5 @@
 
 static inline void baro_abs(void) {}
 static inline void baro_diff(void) {}
+
 #endif

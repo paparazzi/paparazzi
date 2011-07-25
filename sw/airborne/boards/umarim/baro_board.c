@@ -27,6 +27,15 @@
 
 #include "subsystems/sensors/baro.h"
 
+// Downlink
+#include "mcu_periph/uart.h"
+#include "messages.h"
+#include "downlink.h"
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+
 /* Common Baro struct */
 struct Baro baro;
 
@@ -67,5 +76,10 @@ void baro_periodic( void ) {
 #endif
   // Read the ADC
   ads1114_read();
+}
+
+void baro_downlink_raw( void )
+{
+  DOWNLINK_SEND_BARO_RAW(DefaultChannel,&baro.absolute,&baro.differential);
 }
 

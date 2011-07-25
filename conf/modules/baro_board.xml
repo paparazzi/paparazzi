@@ -6,6 +6,7 @@
   </header>
   <init fun="baro_init()"/>
   <periodic fun="baro_periodic()" freq="60."/>
+  <periodic fun="baro_downlink_raw()" freq="10." autorun="FALSE"/>
   <event fun="BaroEvent(baro_abs,baro_diff)"/>
   <makefile target="ap">
     <define name="USE_BARO_AS_ALTIMETER"/>
