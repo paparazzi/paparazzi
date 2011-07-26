@@ -35,6 +35,7 @@ void imu_periodic(void) {
 
 }
 
+#ifdef USE_NPS
 #include "nps_sensors.h"
 
 void imu_feed_gyro_accel(void) {
@@ -61,3 +62,4 @@ void imu_feed_mag(void) {
   ami601_status = AMI601_DATA_AVAILABLE;
 #endif
 }
+#endif //USE_NPS
