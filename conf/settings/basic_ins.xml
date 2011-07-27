@@ -1,6 +1,6 @@
 <!DOCTYPE settings SYSTEM "settings.dtd">
 
-<!-- A conf to use for standard operation (no tuning) -->
+<!-- A conf to use for standard operation with IMU (no tuning) -->
 
 <settings>
   <dl_settings>
@@ -21,13 +21,13 @@
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode" module="autopilot" values="MANUAL|AUTO1|AUTO2|HOME|NOGPS|FAILSAFE"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle"/>
-      <dl_setting MAX="2" MIN="0" STEP="1" VAR="telemetry_mode_Ap_DefaultChannel" shortname="tele_AP" module="downlink" values="Default|Minimal|Extremal"/>
+      <dl_setting MAX="5" MIN="0" STEP="1" VAR="telemetry_mode_Ap_DefaultChannel" shortname="tele_AP" module="downlink" values="Default|Minimal|Extremal|Raw|Scaled|DebugIMU"/>
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="gps.reset" module="subsystems/gps" handler="Reset" shortname="GPS reset"/>
     </dl_settings>
 
-    <dl_settings NAME="Infrared">
-        <dl_setting MAX="15" MIN="-15" STEP="1" VAR="infrared.roll_neutral" shortname="roll neutral" module="subsystems/sensors/infrared" param="IR_ROLL_NEUTRAL_DEFAULT" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
-        <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="infrared.pitch_neutral" shortname="pitch neutral" module="subsystems/sensors/infrared" param="IR_PITCH_NEUTRAL_DEFAULT" unit="rad"/>
+    <dl_settings NAME="ins">
+      <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ins_roll_neutral" shortname="roll_neutral" module="subsystems/ahrs" param="INS_ROLL_NEUTRAL_DEFAULT" unit="rad"/>
+      <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="ins_pitch_neutral" shortname="pitch_neutral" param="INS_PITCH_NEUTRAL_DEFAULT" unit="rad"/>
     </dl_settings>
   </dl_settings>
 </settings>

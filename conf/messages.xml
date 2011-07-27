@@ -676,7 +676,7 @@
     <field name="density"   type="float" unit="mg/m3" format="%.2f"/>
   </message>
 
-  <message name="SHT_SERIAL" id="99">
+  <message name="SHT_I2C_SERIAL" id="99">
     <field name="serial0" type="uint32"/>
     <field name="serial1" type="uint32"/>
   </message>
@@ -824,7 +824,28 @@
     <field name="t9" type="uint16"/>
   </message>
 
- <!--119 is free -->
+  <message name="SOLAR_RADIATION" id="119">
+    <field name="up_t0" type="uint16"/>
+    <field name="dn_t0" type="uint16"/>
+    <field name="up_t1" type="uint16"/>
+    <field name="dn_t1" type="uint16"/>
+    <field name="up_t2" type="uint16"/>
+    <field name="dn_t2" type="uint16"/>
+    <field name="up_t3" type="uint16"/>
+    <field name="dn_t3" type="uint16"/>
+    <field name="up_t4" type="uint16"/>
+    <field name="dn_t4" type="uint16"/>
+    <field name="up_t5" type="uint16"/>
+    <field name="dn_t5" type="uint16"/>
+    <field name="up_t6" type="uint16"/>
+    <field name="dn_t6" type="uint16"/>
+    <field name="up_t7" type="uint16"/>
+    <field name="dn_t7" type="uint16"/>
+    <field name="up_t8" type="uint16"/>
+    <field name="dn_t8" type="uint16"/>
+    <field name="up_t9" type="uint16"/>
+    <field name="dn_t9" type="uint16"/>
+  </message>
 
   <message name="TCAS_TA" ID="120">
     <field name="ac_id" type="uint8"/>
@@ -862,8 +883,31 @@
     <field name="speed_sp" type="float"/>
   </message>
 
-  <!--126 is free -->
-  <!--127 is free -->
+  <message name="TEMP_TCOUPLE" id="126">
+    <field name="fval0" type="float"/>
+    <field name="fval1" type="float"/>
+    <field name="fval2" type="float"/>
+    <field name="fval3" type="float"/>
+    <field name="fref0" type="float"/>
+    <field name="fref1" type="float"/>
+    <field name="fref2" type="float"/>
+    <field name="fref3" type="float"/>
+    <field name="val0"  type="uint16"/>
+    <field name="val1"  type="uint16"/>
+    <field name="val2"  type="uint16"/>
+    <field name="val3"  type="uint16"/>
+    <field name="ref0"  type="uint16"/>
+    <field name="ref1"  type="uint16"/>
+    <field name="ref2"  type="uint16"/>
+    <field name="ref3"  type="uint16"/>
+  </message>
+
+  <message name="SHT_I2C_STATUS" id="127">
+    <field name="ihumid" type="uint16"/>
+    <field name="itemp"  type="uint16"/>
+    <field name="humid"  type="float" unit="rel_hum" format="%.2f"/>
+    <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
 
   <message name="CAMERA_SNAPSHOT" id="128">
     <field name="snapshot_image_number" type="uint16"/>
@@ -1161,8 +1205,18 @@
     <field name="ins_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
   </message>
 
- <!--152 is free -->
- <!--153 is free -->
+  <message name="PCAP01_STATUS" id="152">
+    <field name="ihumid" type="uint32"/>
+    <field name="itemp"  type="uint32"/>
+    <field name="humid"  type="float" unit="rel_hum" format="%.2f"/>
+    <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
+
+  <message name="GEIGER_COUNTER" id="153">
+    <field name="tube1"   type="uint32" unit="events"/>
+    <field name="tube2"   type="uint32" unit="events"/>
+    <field name="vsupply" type="uint16" unit="volts"/>
+  </message>
 
   <message name="INS_REF" id="154">
     <field name="ecef_x0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>

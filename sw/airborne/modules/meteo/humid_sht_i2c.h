@@ -3,37 +3,37 @@
 
 #include "std.h"
 
-#define SHT_WRITE_USER          0xE6
-#define SHT_READ_USER           0xE7
-#define SHT_TRIGGER_TEMP        0xF3
-#define SHT_TRIGGER_HUMID       0xF5
-#define SHT_SOFT_RESET          0xFE
+#define SHT2_WRITE_USER          0xE6
+#define SHT2_READ_USER           0xE7
+#define SHT2_TRIGGER_TEMP        0xF3
+#define SHT2_TRIGGER_HUMID       0xF5
+#define SHT2_SOFT_RESET          0xFE
 
-enum sht_stat{
-  SHT_UNINIT,
-  SHT_IDLE,
-  SHT_RESET,
-  SHT_SERIAL,
-  SHT_SERIAL1,
-  SHT_SERIAL2,
-  SHT_SET_CONFIG,
-  SHT_READ_SERIAL,
-  SHT_TRIG_TEMP,
-  SHT_GET_TEMP,
-  SHT_READ_TEMP,
-  SHT_TRIG_HUMID,
-  SHT_GET_HUMID,
-  SHT_READ_HUMID
+enum sht_stat_i2c{
+  SHT2_UNINIT,
+  SHT2_IDLE,
+  SHT2_RESET,
+  SHT2_SERIAL,
+  SHT2_SERIAL1,
+  SHT2_SERIAL2,
+  SHT2_SET_CONFIG,
+  SHT2_READ_SERIAL,
+  SHT2_TRIG_TEMP,
+  SHT2_GET_TEMP,
+  SHT2_READ_TEMP,
+  SHT2_TRIG_HUMID,
+  SHT2_GET_HUMID,
+  SHT2_READ_HUMID
 };
 
 int8_t humid_sht_crc(volatile uint8_t* data);
-void humid_sht_init(void);
-void humid_sht_periodic(void);
+void humid_sht_init_i2c(void);
+void humid_sht_periodic_i2c(void);
 void humid_sht_p_temp(void);
 void humid_sht_p_humid(void);
-void humid_sht_event(void);
+void humid_sht_event_i2c(void);
 
-extern uint16_t humidsht, tempsht;
-extern float fhumidsht, ftempsht;
+extern uint16_t humidsht_i2c, tempsht_i2c;
+extern float fhumidsht_i2c, ftempsht_i2c;
 
 #endif
