@@ -1,0 +1,13 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="humdid_pcap01" dir="meteo">
+  <header>
+    <file name="humid_pcap01.h"/>
+  </header>
+  <init fun="pcap01_init()"/>
+  <periodic fun="pcap01_periodic()" freq="3"/>
+  <event fun="pcap01_event()"/>
+  <makefile target="ap">
+    <file name="humid_pcap01.c"/>
+  </makefile>
+</module>

@@ -30,7 +30,7 @@ OCAMLNETCMA=$(shell ocamlfind query -r -a-format -predicates byte netstring)
 OCAMLLEX=ocamllex
 OCAMLYACC=ocamlyacc
 
-all: gen_common.cmo gen_aircraft.out gen_airframe.out gen_messages2.out gen_messages.out gen_ubx.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_tuning.out gen_xsens.out gen_modules.out find_free_msg_id.out
+all: gen_common.cmo gen_aircraft.out gen_airframe.out gen_messages2.out gen_messages.out gen_ubx.out gen_mtk.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_tuning.out gen_xsens.out gen_modules.out find_free_msg_id.out
 
 FP_CMO = fp_proc.cmo gen_flight_plan.cmo
 ABS_FP = $(FP_CMO:%=$$PAPARAZZI_SRC/sw/tools/%)

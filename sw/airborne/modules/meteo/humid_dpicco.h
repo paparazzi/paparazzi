@@ -10,6 +10,8 @@
 #define DPICCO_TEMP_RANGE   165.0
 #define DPICCO_TEMP_OFFS    -40.0
 
+extern float dpicco_temp;
+
 extern void dpicco_init( void );
 extern void dpicco_periodic( void );
 extern void dpicco_event( void );

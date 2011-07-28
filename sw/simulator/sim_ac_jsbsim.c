@@ -57,7 +57,11 @@ static void     sim_parse_options(int argc, char** argv);
 static void     sim_init(void);
 static gboolean sim_periodic(gpointer data);
 
+#ifdef __APPLE__
+string ivyBus = "224.255.255.255";
+#else
 string ivyBus = "127.255.255.255";
+#endif
 string fgAddress = "127.0.0.1";
 
 static void ivy_transport_init(void);

@@ -9,11 +9,17 @@
 
 /* GPIO P0.x defaults */
 #ifndef DAT_PIN
+/* ADC1 Port, ADC_4, P0.30 */
 #define DAT_PIN         30
+/* IRH Port, IRH_2, P0.25 */
+// #define DAT_PIN         25
 #endif
 
 #ifndef SCK_PIN
+/* ADC1 Port, ADC_3, P0.4 */
 #define SCK_PIN         4
+/* IRH Port, IRH_1, P0.22 */
+// #define SCK_PIN         22
 #endif
 
 #define noACK           0
