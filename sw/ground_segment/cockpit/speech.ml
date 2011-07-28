@@ -27,15 +27,13 @@
 let active = ref false
 
 let say = fun s ->
-  (
   if !active then (
-    (* If the os is Linux, use "spd-say" (add additional cases here if necessary) *)
-    if Os_calls.contains (Os_calls.os_name) "Linux" then
-      ignore (Sys.command (Printf.sprintf "spd-say '%s'&" s))    
-    (* If the os is Darwin, then use "say" *)
-    else if Os_calls.contains (Os_calls.os_name) "Darwin" then
-      ignore (Sys.command (Printf.sprintf "say '%s'&" s))
-    (* If the os is anything else, not supported (add additional cases here if necessary) *)
-    else
-      ignore (Sys.command (Printf.sprintf "echo Current OS not supported by -speech option"))
-  ));;
+    let os = (Os_calls.os_name) in
+    match os with
+        (* If the os is Darwin, then use "say" *)
+        "Linux" -> ignore (Sys.command (Printf.sprintf "spd-say '%s'&" s))
+        (* If the os is Linux, use "spd-say" *)
+      | "Darwin" -> ignore (Sys.command (Printf.sprintf "say '%s'&" s))
+        (* Add more cases here to enhance support *)
+      | _ -> ignore (Sys.command (Printf.sprintf "echo Current OS not supported by -speech option"))
+  )
