@@ -920,7 +920,7 @@
     <field name="mz"    type="int32" alt_unit="1" alt_unit_coef="0.0004883"/>
   </message>
 
-  <message name="FILTER" id="134">
+  <!--message name="FILTER" id="134">
     <field name="phi"              type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
     <field name="theta"            type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
     <field name="psi"              type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
@@ -936,6 +936,23 @@
     <field name="bp"               type="int32"/>
     <field name="bq"               type="int32"/>
     <field name="br"               type="int32"/>
+  </message-->
+  <message name="FILTER" id="134">
+    <field name="phi"              type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+    <field name="theta"            type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
+    <field name="hrqi"              type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="hrqx"      type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="hrqy"    type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="hrqz"      type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
+    <field name="hrbp"    type="int32" alt_unit="degres" alt_unit_coef="0.0000273"/>
+    <field name="hrbq"  type="int32" alt_unit="degres" alt_unit_coef="0.0000273"/>
+    <field name="hrbr"    type="int32" alt_unit="degres" alt_unit_coef="0.0000273"/>
+    <field name="rate_correction_p"   type="int32"/>
+    <field name="rate_correction_q" type="int32"/>
+    <field name="rate_correction_r"   type="int32"/>
+    <field name="bp"               type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="bq"               type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
+    <field name="br"               type="int32" alt_unit="deg/s" alt_unit_coef="0.0139882"/>
   </message>
 
   <message name="FILTER2" id="135">
