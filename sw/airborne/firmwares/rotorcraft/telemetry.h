@@ -349,7 +349,26 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			 &ahrs_impl.gyro_bias.r);			\
   }
 #else
-#define PERIODIC_SEND_FILTER(_chan) {}
+#include "subsystems/ahrs/ahrs_int_cmpl.h"
+#define PERIODIC_SEND_FILTER(_chan) {					\
+    DOWNLINK_SEND_FILTER(_chan,						\
+			 &ahrs.ltp_to_imu_euler.phi,			\
+			 &ahrs.ltp_to_imu_euler.theta,			\
+			 &ahrs_impl.high_rez_quat.qi,			\
+			 &ahrs_impl.high_rez_quat.qx,			\
+			 &ahrs_impl.high_rez_quat.qy,			\
+			 &ahrs_impl.high_rez_quat.qz,			\
+			 &ahrs_impl.high_rez_bias.p,			\
+			 &ahrs_impl.high_rez_bias.q,			\
+			 &ahrs_impl.high_rez_bias.r,			\
+			 &ahrs_impl.rate_correction.p,			\
+			 &ahrs_impl.rate_correction.q,			\
+			 &ahrs_impl.rate_correction.r,			\
+			 &ahrs_impl.gyro_bias.p,			\
+			 &ahrs_impl.gyro_bias.q,			\
+			 &ahrs_impl.gyro_bias.r);			\
+  }
+//#define PERIODIC_SEND_FILTER(_chan) {}
 #endif
 
 #ifdef USE_AHRS_LKF
