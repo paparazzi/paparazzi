@@ -29,14 +29,7 @@ let home = Env.paparazzi_home
 let (//) = Filename.concat
 let maps_xml_path = home // "conf" // "maps.xml"
 
-
-let maps_xml = ( 
-  (*try*) ExtXml.parse_file maps_xml_path
-  (*with
-    Xml.File_not_found f -> (Printf.sprintf "File does not exist: %s" f)
-  | ExtXml.Error s -> (Printf.sprintf "Error in XML file: %s" s)*)
-  )
-
+let maps_xml = ExtXml.parse_file maps_xml_path
 
 let google_version = (
   if !google_ver == 0 then (
