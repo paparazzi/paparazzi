@@ -1,0 +1,6 @@
+<!-- Paparazzi Maps Support Configuration DTD -->
+
+<!ELEMENT maps EMPTY>
+
+<!ATTLIST maps
+google_version CDATA #REQUIRED>
