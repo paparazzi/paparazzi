@@ -1,9 +1,9 @@
 (*
  * $Id$
  *
- * Speech support for GCS alerts
+ * Support for obtaining google maps api information at runtime
  *  
- * Copyright (C) 2011
+ * Copyright (C) 2011 Stephen Dwyer
  *
  * This file is part of paparazzi.
  *
@@ -23,17 +23,16 @@
  * Boston, MA 02111-1307, USA. 
  *
  *)
+let google_ver = ref 0
 
-let active = ref false
+let home = Env.paparazzi_home
+let (//) = Filename.concat
+let maps_xml_path = home // "conf" // "maps.xml"
 
-let say = fun s ->
-  if !active then (
-    let os = (Os_calls.os_name) in
-    match os with
-        (* If the os is Darwin, then use "say" *)
-        "Linux" -> ignore (Sys.command (Printf.sprintf "spd-say '%s'&" s))
-        (* If the os is Linux, use "spd-say" *)
-      | "Darwin" -> ignore (Sys.command (Printf.sprintf "say '%s'&" s))
-        (* Add more cases here to enhance support *)
-      | _ -> ignore (Sys.command (Printf.sprintf "echo Current OS not supported by -speech option"))
+let maps_xml = ExtXml.parse_file maps_xml_path
+
+let google_version = (
+  if !google_ver == 0 then (
+    google_ver := ExtXml.int_attrib maps_xml "google_version" );
+  !google_ver
   )
