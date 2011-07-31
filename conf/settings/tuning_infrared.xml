@@ -1,6 +1,6 @@
 <!DOCTYPE settings SYSTEM "settings.dtd">
 
-<!-- A conf to use to tune a new A/C -->
+<!-- A conf to use to tune a new A/C with IR sensors-->
 
 <settings>
   <dl_settings>
@@ -30,6 +30,21 @@
     </dl_settings>
 
     <dl_settings NAME="control">
+      <dl_settings NAME="ir">
+        <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="infrared.roll_neutral" shortname="roll_neutral" param="IR_ROLL_NEUTRAL_DEFAULT" unit="rad"/>
+        <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="infrared.pitch_neutral" shortname="pitch_neutral" param="IR_PITCH_NEUTRAL_DEFAULT" unit="rad"/>
+
+        <dl_setting MAX="1.5" MIN="0." STEP="0.1" VAR="infrared.lateral_correction" shortname="360_lat_corr" module="subsystems/sensors/infrared" param="IR_LATERAL_CORRECTION"/>
+        <dl_setting MAX="1.5" MIN="0." STEP="0.1" VAR="infrared.longitudinal_correction" shortname="360_log_corr" param="IR_LONGITUDINAL_CORRECTION"/>
+        <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="infrared.vertical_correction" shortname="360_vert_corr" param="IR_VERTICAL_CORRECTION"/>
+
+        <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="infrared.correction_left" shortname="corr_left" param="IR_CORRECTION_LEFT"/>
+        <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="infrared.correction_right" shortname="corr_right" param="IR_CORRECTION_RIGHT"/>
+        <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="infrared.correction_up" shortname="corr_up" param="IR_CORRECTION_UP"/>
+        <dl_setting MAX="1.5" MIN="0.5" STEP="0.1" VAR="infrared.correction_down" shortname="corr_down" param="IR_CORRECTION_DOWN"/>
+
+      </dl_settings>
+
 
       <dl_settings NAME="attitude">
         <dl_setting MAX="25000" MIN="000" STEP="250" VAR="h_ctl_roll_pgain" shortname="roll_pgain" module="stabilization/stabilization_attitude"/>
@@ -39,8 +54,10 @@
         <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_elevator_of_roll" shortname="elevator_of_roll" param="H_CTL_ELEVATOR_OF_ROLL"/>
         <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_aileron_of_throttle" shortname="aileron_of_throttle"/>
 
+
         <dl_setting MAX="0" MIN="-15000" STEP="250" VAR="h_ctl_roll_attitude_gain" shortname="roll attitude pgain" param="H_CTL_ROLL_ATTITUDE_GAIN"/>
         <dl_setting MAX="0" MIN="-15000" STEP="250" VAR="h_ctl_roll_rate_gain" shortname="roll rate gain" param="H_CTL_ROLL_RATE_GAIN"/>
+
       </dl_settings>
 
       <dl_settings name="alt">
