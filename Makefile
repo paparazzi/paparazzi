@@ -74,14 +74,16 @@ all: conf commands static
 
 static : lib center tools cockpit multimon tmtc misc logalizer lpc21iap sim_static static_h usb_lib
 
-conf: conf/conf.xml conf/control_panel.xml conf/maps.xml
+conf: conf/conf.xml conf/control_panel.xml conf/maps.xml FORCE
 
 conf/%.xml :conf/%.xml.example
 	[ -L $@ ] || [ -f $@ ] || cp $< $@
 
-conf/maps.xml:
-	cd data/maps; $(MAKE)
+conf/maps.xml: conf/maps.xml.example FORCE
+	-cd data/maps; $(MAKE)
+	if test ! -e $@; then cp $< $@; fi
 
+FORCE:
 
 lib:
 	cd $(LIB)/ocaml; $(MAKE)
