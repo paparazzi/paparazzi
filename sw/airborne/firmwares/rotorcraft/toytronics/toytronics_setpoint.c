@@ -375,7 +375,7 @@ toytronics_set_sp_hover_forward_from_rc()
   double rcy = apply_deadband(rc->yaw, SETPOINT_DEADBAND);
 
   // set pitch/yaw from stick
-  double pitch_body = (rcp * SETPOINT_MAX_STICK_ANGLE_DEG + hover_pitch_trim_deg + fabs(rcr * SETPOINT_MAX_STICK_ANGLE_DEG)*(5/90))*M_PI/180.0;
+  double pitch_body = (rcp * SETPOINT_MAX_STICK_ANGLE_DEG + hover_pitch_trim_deg + (fabs(rcr * SETPOINT_MAX_STICK_ANGLE_DEG)*(5/90) * fabs(rcp * SETPOINT_MAX_STICK_ANGLE_DEG)*(1/90)))*M_PI/180.0;
   double roll_body   = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;
 
   // integrate stick to get setpoint heading
