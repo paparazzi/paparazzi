@@ -108,7 +108,7 @@
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
-  <include href="conf/airframes/esden/calib/imu_lisam_011.xml"/>
+  <include href="conf/airframes/esden/calib/imu_lisam_033.xml"/>
 
   <section name="IMU" prefix="IMU_">
     
