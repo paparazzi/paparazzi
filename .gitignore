@@ -47,6 +47,7 @@
 /conf/%gconf.xml
 /conf/srtm_data/*
 /conf/maps_data/*
+/conf/maps.xml
 /conf/gps/ublox_conf
 
 # /doc/pprz_algebra/
