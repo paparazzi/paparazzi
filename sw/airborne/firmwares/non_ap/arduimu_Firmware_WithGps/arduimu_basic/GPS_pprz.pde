@@ -24,10 +24,10 @@ void parse_pprz_gps() {
   ground_speed = (float)join_4_bytes(&Paparazzi_GPS_buffer[4])/100.0; // Ground speed 2D  4,5,6,7
   ground_course = (float)join_4_bytes(&Paparazzi_GPS_buffer[8])/100000.0; // Heading 2D  8,9,10,11
   stGpsFix = Paparazzi_GPS_buffer[12];
-  stFlags = Paparazzi_GPS_buffer[13];
+  calibrate_neutrals = Paparazzi_GPS_buffer[13];
   high_accel_flag = Paparazzi_GPS_buffer[14];
 
-  if((stGpsFix >= 0x03) && (stFlags&0x01)) {
+  if(stGpsFix >= 0x03) {
     gpsFix = 0; //valid position
     digitalWrite(6,HIGH);  //Turn LED when gps is fixed. 
     GPS_timer = DIYmillis(); //Restarting timer...
@@ -36,8 +36,6 @@ void parse_pprz_gps() {
     gpsFix = 1; //invalid position
     digitalWrite(6,LOW);
   }
-
-  if (ground_speed > SPEEDFILT && gpsFix==0) gc_offset = ground_course - ToDeg(yaw);
 
 }
 
