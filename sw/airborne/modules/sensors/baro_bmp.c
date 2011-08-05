@@ -157,7 +157,7 @@ void baro_bmp_event( void ) {
       if (bmp_b7 < 0x80000000)
         bmp_p = (bmp_b7 * 2) / bmp_b4;
       else
-        bmp_p = (bmp_b7 * bmp_b4) * 2;
+        bmp_p = (bmp_b7 / bmp_b4) * 2;
       bmp_x1 = (bmp_p / (1<<8)) * (bmp_p / (1<<8));
       bmp_x1 = (bmp_x1 * 3038) / (1<<16);
       bmp_x2 = (-7357 * bmp_p) / (1<<16);
