@@ -130,7 +130,7 @@ void baro_bmp_event( void ) {
       /* get uncompensated pressure, oss=3 */
       bmp_up = (bmp_trans.buf[0] << 11) |
                (bmp_trans.buf[1] << 3)  |
-                bmp_trans.buf[2];
+               (bmp_trans.buf[2] >> 5);
       /* start temp measurement */
       bmp_trans.buf[0] = BMP085_CTRL_REG;
       bmp_trans.buf[1] = BMP085_START_TEMP;
@@ -166,7 +166,7 @@ void baro_bmp_event( void ) {
       baro_bmp_temperature = bmp_t;
       baro_bmp_pressure = bmp_p;
 #ifdef SENSOR_SYNC_SEND
-      DOWNLINK_SEND_BMP_STATUS(DefaultChannel, &bmp_p, &bmp_t);
+      DOWNLINK_SEND_BMP_STATUS(DefaultChannel, &bmp_up, &bmp_ut, &bmp_p, &bmp_t);
 #endif
     }
   }
