@@ -20,9 +20,9 @@ void parse_pprz_gps() {
   gps_pos_fix_count++;
 #endif
 
-  speed_3d = (float)join_4_bytes(&Paparazzi_GPS_buffer[0])/100.0;    // m/s  0,1,2,3
-  ground_speed = (float)join_4_bytes(&Paparazzi_GPS_buffer[4])/100.0; // Ground speed 2D  4,5,6,7
-  ground_course = (float)join_4_bytes(&Paparazzi_GPS_buffer[8])/100000.0; // Heading 2D  8,9,10,11
+  speed_3d = (float)join_4_bytes(&Paparazzi_GPS_buffer[0])/100.0;     // Speed 3D (m/s)  0,1,2,3
+  ground_speed = (float)join_4_bytes(&Paparazzi_GPS_buffer[4])/100.0; // Ground speed 2D (m/s)  4,5,6,7
+  ground_course = (float)join_4_bytes(&Paparazzi_GPS_buffer[8])/1e7;  // Heading 2D (rad) 8,9,10,11
   stGpsFix = Paparazzi_GPS_buffer[12];
   calibrate_neutrals = Paparazzi_GPS_buffer[13];
   high_accel_flag = Paparazzi_GPS_buffer[14];
@@ -52,12 +52,3 @@ int32_t join_4_bytes(byte Buffer[])
   return(longUnion.dword);
 }
 
-/****************************************************************
- * 
-void checksum(byte ubx_data)
-{
-  ck_a+=ubx_data;
-  ck_b+=ck_a; 
-}
-
- ****************************************************************/

@@ -152,7 +152,7 @@ union int_union {
 int gpsFix=1; //This variable store the status of the GPS
 float speed_3d=0; //Speed (3-D)
 float ground_speed=0;// This is the velocity your "plane" is traveling in meters for second, 1Meters/Second= 3.6Km/H = 1.944 knots
-float ground_course=90;//This is the runaway direction of you "plane" in degrees
+float ground_course=0;//This is the runaway direction of you "plane" in radians
 unsigned long GPS_timer=0;
 
 //***********************GPS PAPARAZZI************************************************************************

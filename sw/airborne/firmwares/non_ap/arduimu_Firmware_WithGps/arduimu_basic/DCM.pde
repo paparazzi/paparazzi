@@ -117,8 +117,8 @@ void Drift_correction(void)
   // Use GPS Ground course to correct yaw gyro drift
   if(ground_speed>=SPEEDFILT)
   {
-    COGX = cos(ToRad(ground_course));
-    COGY = sin(ToRad(ground_course));
+    COGX = cos(ground_course);
+    COGY = sin(ground_course);
     errorCourse=(DCM_Matrix[0][0]*COGY) - (DCM_Matrix[1][0]*COGX);  //Calculating YAW error
     Vector_Scale(errorYaw,&DCM_Matrix[2][0],errorCourse); //Applys the yaw correction to the XYZ rotation of the aircraft, depeding the position.
 

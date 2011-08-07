@@ -127,7 +127,7 @@ void ArduIMU_periodicGPS( void ) {
 
   FillBufWith32bit(ardu_gps_trans.buf, 0, (int32_t)gps.speed_3d); // speed 3D
   FillBufWith32bit(ardu_gps_trans.buf, 4, (int32_t)gps.gspeed);   // ground speed
-  FillBufWith32bit(ardu_gps_trans.buf, 8, (int32_t)DegOfRad(gps.course / 1e6));   // course
+  FillBufWith32bit(ardu_gps_trans.buf, 8, (int32_t)gps.course);   // course
   ardu_gps_trans.buf[12] = gps.fix;                               // status gps fix
   ardu_gps_trans.buf[13] = (uint8_t)arduimu_calibrate_neutrals;   // calibration flag
   ardu_gps_trans.buf[14] = (uint8_t)high_accel_flag;              // high acceleration flag (disable accelerometers in the arduimu filter)
