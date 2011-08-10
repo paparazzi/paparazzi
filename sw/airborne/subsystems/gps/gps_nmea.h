@@ -69,6 +69,7 @@ extern struct GpsNmea gps_nmea;
       nmea_parse_msg();				   \
       if (gps_nmea.pos_available) {		   \
         if (gps.fix == GPS_FIX_3D) {               \
+          gps.last_fix_ticks = cpu_time_ticks;     \
           gps.last_fix_time = cpu_time_sec;        \
         }                                          \
         _sol_available_callback();                 \
