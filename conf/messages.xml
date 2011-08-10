@@ -574,6 +574,8 @@
   </message>
 
   <message name="BMP_STATUS" id="84">
+    <field name="UP"    type="int32"/>
+    <field name="UT"    type="int32"/>
     <field name="press" type="int32" unit="Pa"/>
     <field name="temp"  type="int32" unit="10x_deg_celsius"/>
   </message>

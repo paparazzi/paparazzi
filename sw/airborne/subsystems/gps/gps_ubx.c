@@ -93,6 +93,7 @@ void gps_impl_init(void) {
    gps_status_config = 0;
    gps_configuring = TRUE;
 #endif
+   gps_ubx.have_velned = 0;
 }
 
 
@@ -172,6 +173,7 @@ void gps_ubx_read_message(void) {
       // First x 10 for loosing less resolution, then to radians, then multiply x 10 again
       gps.course = (RadOfDeg(UBX_NAV_VELNED_Heading(gps_ubx.msg_buf)*10)) * 10; 
       gps.tow = UBX_NAV_VELNED_ITOW(gps_ubx.msg_buf);
+      gps_ubx.have_velned = 1;
     }
     else if (gps_ubx.msg_id == UBX_NAV_SVINFO_ID) {
       gps.nb_channels = Min(UBX_NAV_SVINFO_NCH(gps_ubx.msg_buf), GPS_NB_CHANNELS);
