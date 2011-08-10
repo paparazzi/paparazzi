@@ -44,20 +44,20 @@
   <command_laws>
     <!--************* different mixing strategies - probably don't edit this ****************-->
     <!-- direct ailerons -->
-    <let var="aileron_direct_left"  value="-@RC_ROLL"/>
-    <let var="aileron_direct_right" value="-@RC_ROLL"/>
+    <let var="aileron_direct_left"  value="+@RC_ROLL"/>
+    <let var="aileron_direct_right" value="+@RC_ROLL"/>
 
     <!-- direct elevators -->
-    <let var="elevator_direct_left"  value="+@RC_PITCH"/>
-    <let var="elevator_direct_right" value="-@RC_PITCH"/>
+    <let var="elevator_direct_left"  value="-@RC_PITCH"/>
+    <let var="elevator_direct_right" value="+@RC_PITCH"/>
 
     <!-- aileron feedback -->
-    <let var="aileron_feedback_left"  value="-@ROLL"/>
-    <let var="aileron_feedback_right" value="-@ROLL"/>
+    <let var="aileron_feedback_left"  value="+@ROLL"/>
+    <let var="aileron_feedback_right" value="+@ROLL"/>
 
     <!-- elevator feedback -->
-    <let var="elevator_feedback_left"  value="+@PITCH"/>
-    <let var="elevator_feedback_right" value="-@PITCH"/>
+    <let var="elevator_feedback_left"  value="-@PITCH"/>
+    <let var="elevator_feedback_right" value="+@PITCH"/>
 
     <!--************* which mode uses which mixing strategy - edit this for configuration ****************-->
     <!-- mode hover -->
@@ -225,7 +225,7 @@
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
  </section>
 
- <include href="conf/airframes/esden/toytronics/gains/QS1_inner_8x4_5.xml"/>
+ <include href="conf/airframes/esden/toytronics/gains/QS2_inner_8x4_5.xml"/>
  <include href="conf/airframes/esden/toytronics/setpoint/QS_setpoint.xml"/>
  <include href="conf/airframes/esden/camera_mount.xml"/>
 
