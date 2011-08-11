@@ -401,6 +401,9 @@ toytronics_set_sp_hover_forward_from_rc()
   double heading_error = setpoint.setpoint_heading - setpoint.estimated_heading;
   wrap_to_pi(&heading_error);
   BOUND(heading_error, -setpoint_absolute_heading_bound_deg*M_PI/180.0, setpoint_absolute_heading_bound_deg*M_PI/180.0);
+  //********heading error decay*****************
+  heading_error = 0.975*heading_error;
+  //********************************************
   setpoint.setpoint_heading = setpoint.estimated_heading + heading_error;
   wrap_to_pi(&setpoint.setpoint_heading);
 
