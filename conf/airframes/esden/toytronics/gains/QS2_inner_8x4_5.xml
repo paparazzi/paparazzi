@@ -1,9 +1,9 @@
 <airframe>
   <section name="TOYTRONICS_STAB_GAINS" prefix="TOYTRONICS_STAB_GAINS_">
     <!-- hover gains -->
-    <define name="HOVER_X_P"      value="-1630"/>
+    <define name="HOVER_X_P"      value="-300"/>
     <define name="HOVER_X_I"      value="-10"/> 
-    <define name="HOVER_X_D"      value="-300"/>
+    <define name="HOVER_X_D"      value="-100"/>
     <define name="HOVER_X_DD"     value="300"/>
 
     <define name="HOVER_Y_P"      value="-318"/>
