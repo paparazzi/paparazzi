@@ -30,7 +30,7 @@
     <!-- <define name="MODE_AUTO1" value="AP_MODE_TOYTRONICS_AEROBATIC"/> -->
     <define name="MODE_AUTO2"  value="AP_MODE_TOYTRONICS_AEROBATIC"/>
     <define name="AUTOPILOT_KILL_WITHOUT_AHRS"  value="TRUE"/>
-    <define name="AUTOPILOT_INSTANT_START"  value="TRUE"/>
+    <define name="AUTOPILOT_INSTANT_START_WITH_SAFETIES"  value="TRUE"/>
   </section>
 
   <rc_commands>
@@ -95,8 +95,8 @@
     <define name="COMMANDS_YAW_ALWAYS_ENABLED" value="TRUE"/>
  </section>
   <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="MIN_MOTOR" value="1100"/>
-    <define name="MAX_MOTOR" value="1800"/>
+    <define name="MIN_MOTOR" value="1000"/>
+    <define name="MAX_MOTOR" value="2000"/>
     <define name="TRIM_A" value="0"/>
     <define name="TRIM_E" value="0"/>
     <define name="TRIM_R" value="0"/>
