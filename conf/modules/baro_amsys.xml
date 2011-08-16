@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<!--
+     Baro ETS module (I2C)
+     @param BARO_ETS_I2C_DEV i2c device (default i2c0)
+     -->
+
+<module name="baro_amsys" dir="sensors">
+
+  <header>
+    <file name="baro_amsys.h"/>
+  </header>
+  <init fun="baro_amsys_init()"/>
+  <periodic fun="baro_amsys_read_periodic()" freq="10."/>
+  <event fun="BaroAmsysEvent()"/>
+
+  <makefile>
+    <file name="baro_amsys.c"/>
+  </makefile>
+
+</module>
