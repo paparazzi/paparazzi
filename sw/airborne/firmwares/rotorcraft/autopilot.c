@@ -275,7 +275,8 @@ static inline void autopilot_check_motors_on( void ) {
 		}
 	else{ 
 		autopilot_motors_on=radio_control.values[RADIO_KILL_SWITCH]>0 && ahrs_is_aligned();
-		autopilot_mode1_kill = radio_control.values[RADIO_MODE]<0;
+		if(autopilot_motors_on == TRUE)
+		  autopilot_mode1_kill = radio_control.values[RADIO_MODE]<0;
 		}
 	}
 #elif defined AUTOPILOT_INSTANT_START
