@@ -56,6 +56,7 @@ extern uint8_t autopilot_mode_auto2;
 extern bool_t  autopilot_motors_on;
 extern bool_t  autopilot_rc_unkilled_startup;
 extern bool_t  autopilot_first_boot;
+extern bool_t  autopilot_mode1_kill;
 extern bool_t  autopilot_in_flight;
 extern bool_t kill_throttle;
 extern bool_t autopilot_rc;
