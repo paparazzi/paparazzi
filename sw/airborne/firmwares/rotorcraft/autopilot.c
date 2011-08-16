@@ -35,7 +35,7 @@
 uint8_t  autopilot_mode;
 uint8_t  autopilot_mode_auto2;
 bool_t   autopilot_motors_on;
-bool_t   radio_motors_on_startup;
+bool_t   autopilot_rc_unkilled_startup;
 bool_t   autopilot_in_flight;
 uint32_t autopilot_motors_on_counter;
 uint32_t autopilot_in_flight_counter;
@@ -53,11 +53,12 @@ uint16_t autopilot_flight_time;
 #define AUTOPILOT_IN_FLIGHT_TIME    40
 #define AUTOPILOT_THROTTLE_TRESHOLD (MAX_PPRZ / 20)
 #define AUTOPILOT_YAW_TRESHOLD      (MAX_PPRZ * 19 / 20)
+#define AUTOPILOT_STICK_CENTER_TRESHOLD      (MAX_PPRZ * 1 / 20)
 
 void autopilot_init(void) {
   autopilot_mode = AP_MODE_KILL;
   autopilot_motors_on = FALSE;
-  radio_motors_on_startup = FALSE;
+  autopilot_rc_unkilled_startup = FALSE;
   autopilot_in_flight = FALSE;
   kill_throttle = ! autopilot_motors_on;
   autopilot_motors_on_counter = 0;
@@ -204,6 +205,15 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
 #define YAW_STICK_PUSHED()						\
   (radio_control.values[RADIO_YAW] > AUTOPILOT_YAW_TRESHOLD || \
    radio_control.values[RADIO_YAW] < -AUTOPILOT_YAW_TRESHOLD)
+#define YAW_STICK_CENTERED()						\
+  (radio_control.values[RADIO_YAW] < AUTOPILOT_STICK_CENTER_TRESHOLD && \
+   radio_control.values[RADIO_YAW] > -AUTOPILOT_STICK_CENTER_TRESHOLD)
+#define PITCH_STICK_CENTERED()						\
+  (radio_control.values[RADIO_PITCH] < AUTOPILOT_STICK_CENTER_TRESHOLD && \
+   radio_control.values[RADIO_PITCH] > -AUTOPILOT_STICK_CENTER_TRESHOLD)
+#define ROLL_STICK_CENTERED()						\
+  (radio_control.values[RADIO_ROLL] < AUTOPILOT_STICK_CENTER_TRESHOLD && \
+   radio_control.values[RADIO_ROLL] > -AUTOPILOT_STICK_CENTER_TRESHOLD)
 
 static inline void autopilot_check_in_flight( void) {
   if (autopilot_in_flight) {
@@ -244,20 +254,25 @@ static inline int ahrs_is_aligned(void) {
   return TRUE;
 }
 #endif
-#ifdef AUTOPILOT_INSTANT_START
+
+#ifdef AUTOPILOT_INSTANT_START_WITH_SAFETIES
 static inline void autopilot_check_motors_on( void ) {
 	if (radio_control.values[RADIO_KILL_SWITCH]>0 && ! ahrs_is_aligned())	
-		radio_motors_on_startup = TRUE;
-	if (radio_motors_on_startup == TRUE)
+		autopilot_rc_unkilled_startup = TRUE;
+	if (autopilot_rc_unkilled_startup == TRUE)
 		if (radio_control.values[RADIO_KILL_SWITCH]<=0 && ahrs_is_aligned())
-			radio_motors_on_startup = FALSE;
-	if (autopilot_motors_on == FALSE && radio_motors_on_startup == FALSE && radio_control.values[RADIO_MODE] < 0){
-		autopilot_motors_on=radio_control.values[RADIO_KILL_SWITCH]>0 && THROTTLE_STICK_DOWN() && ahrs_is_aligned();
+			autopilot_rc_unkilled_startup = FALSE;
+	if (autopilot_motors_on == FALSE && autopilot_rc_unkilled_startup == FALSE && radio_control.values[RADIO_MODE] < 0){
+		autopilot_motors_on=radio_control.values[RADIO_KILL_SWITCH]>0 && THROTTLE_STICK_DOWN() && YAW_STICK_CENTERED() && PITCH_STICK_CENTERED() && ROLL_STICK_CENTERED() && ahrs_is_aligned();
 		}
 	else{ 
-		autopilot_motors_on == TRUE;
+		autopilot_motors_on = TRUE;
 		}
-}
+	}
+#elif defined AUTOPILOT_INSTANT_START
+static inline void autopilot_check_motors_on( void ) {
+	autopilot_motors_on=radio_control.values[RADIO_KILL_SWITCH]>0 && ahrs_is_aligned();
+	}
 #else
 static inline void autopilot_check_motors_on( void ) {
   if (autopilot_motors_on) {
