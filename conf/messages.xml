@@ -489,9 +489,33 @@
     <field name="gnd2"   type="float"/>
   </message>
 
- <!-- 63 is free -->
- <!-- 64 is free -->
- <!-- 65 is free -->
+  <message name="FLIGHT_BENCHMARK" id="63">
+    <field name="SE_As" type="float"></field>
+    <field name="SE_Alt" type="float"></field>
+    <field name="SE_Pos" type="float"></field>
+    <field name="Err_As" type="float"></field>
+    <field name="Err_Alt" type="float"></field>
+    <field name="Err_Pos" type="float"></field>
+  </message>
+  
+  <message name="AMSYS_AIRSPEED" id="64">
+    <field name="asRaw" type="uint16"></field>
+    <field name="asPresure" type="float" unit="Pa"></field>
+    <field name="asAirspeed" type="float" unit="m/s"></field>
+    <field name="asAirsFilt" type="float" unit="m/s"></field>
+    <field name="asTemp" type="float" unit="°C"></field>
+  </message>
+ 
+  <message name="AMSYS_BARO" id="65">
+    <field name="pBaroRaw" type="uint16"></field>
+    <field name="pBaro" type="float" unit="Pa"> </field>
+    <field name="pHomePressure" type="float" unit="Pa"></field>
+    <field name="AltOffset" type="float" unit="m"></field>
+    <field name="aktuell" type="float" unit="m"></field>
+    <field name="Over_Ground" type="float" unit="m"></field>
+    <field name="tempBaro" type="float" unit="°C"></field>
+  </message>
+  
  <!-- 66 is free -->
  <!-- 67 is free -->
  <!-- 68 is free -->
