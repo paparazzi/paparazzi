@@ -489,21 +489,27 @@
     <field name="gnd2"   type="float"/>
   </message>
 
-  <message name="FLIGHT_BENCHMARK" id="63">
-    <field name="SE_As" type="float"></field>
-    <field name="SE_Alt" type="float"></field>
-    <field name="SE_Pos" type="float"></field>
-    <field name="Err_As" type="float"></field>
-    <field name="Err_Alt" type="float"></field>
-    <field name="Err_Pos" type="float"></field>
+  <message name="CAM_POINT" id="63">
+      <field name="cam_point_distance_from_home" type="uint16" unit="m"/>
+      <field name="cam_point_lat" type="float" unit="deg"/>
+      <field name="cam_point_lon" type="float" unit="deg"/>
   </message>
-  
-  <message name="AMSYS_AIRSPEED" id="64">
-    <field name="asRaw" type="uint16"></field>
-    <field name="asPresure" type="float" unit="Pa"></field>
-    <field name="asAirspeed" type="float" unit="m/s"></field>
-    <field name="asAirsFilt" type="float" unit="m/s"></field>
-    <field name="asTemp" type="float" unit="°C"></field>
+
+  <message name="DC_INFO" id="64">
+    <field name="mode" type="int16" unit=""/>
+    <field name="utm_east" type="float" unit="m"/>
+    <field name="utm_north" type="float" unit="m"/>
+    <field name="course" type="float" unit="deg"/>
+    <field name="buffer" type="int8"/>
+    <field name="dist" type="float" unit="m"/>
+    <field name="next_dist" type="float" unit="m"/>
+    <field name="start_x" type="float" unit="m"/>
+    <field name="start_y" type="float" unit="m"/>
+    <field name="start_angle" type="float" unit="deg"/>
+    <field name="angle" type="float" unit="deg"/>
+    <field name="last_block" type="float"/>
+    <field name="count" type="int16" unit=""/>
+    <field name="shutter" type="uint8" unit="s"/>
   </message>
  
   <message name="AMSYS_BARO" id="65">
@@ -515,11 +521,31 @@
     <field name="Over_Ground" type="float" unit="m"></field>
     <field name="tempBaro" type="float" unit="°C"></field>
   </message>
-  
- <!-- 66 is free -->
- <!-- 67 is free -->
+
+  <message name="AMSYS_AIRSPEED" id="66">
+    <field name="asRaw" type="uint16"></field>
+    <field name="asPresure" type="float" unit="Pa"></field>
+    <field name="asAirspeed" type="float" unit="m/s"></field>
+    <field name="asAirsFilt" type="float" unit="m/s"></field>
+    <field name="asTemp" type="float" unit="°C"></field>
+  </message>
+
+  <message name="FLIGHT_BENCHMARK" id="67">
+    <field name="SE_As" type="float"></field>
+    <field name="SE_Alt" type="float"></field>
+    <field name="SE_Pos" type="float"></field>
+    <field name="Err_As" type="float"></field>
+    <field name="Err_Alt" type="float"></field>
+    <field name="Err_Pos" type="float"></field>
+  </message>
+
  <!-- 68 is free -->
- <!-- 69 is free -->
+
+	<message name="AOA_adc" id="69">
+		<field name="adcVal" type="uint16"></field>
+		<field name="AOA" type="float" unit="rad"></field>
+	</message>
+
  <!-- 70 is free -->
  <!-- 71 is free -->
  <!-- 72 is free -->
@@ -757,16 +783,16 @@
   </message>
 
   <message name="DC_SHOT" id="110">
-    <field name="photo_nr" type="int16"></field>
-    <field name="utm_east"  type="int32" unit="cm"></field>
-    <field name="utm_north" type="int32" unit="cm"></field>
+    <field name="photo_nr" type="int16"/>
+    <field name="utm_east"  type="int32" unit="cm"/>
+    <field name="utm_north" type="int32" unit="cm"/>
     <field name="z" type="float" unit="m"/>
-    <field name="utm_zone"  type="uint8"></field>
-    <field name="phi" type="int16" unit="decideg"></field>
-    <field name="theta" type="int16" unit="decideg"></field>
-    <field name="course" type="int16" unit="decideg"></field>
-    <field name="speed"  type="uint16" unit="cm/s"></field>
-    <field name="itow"  type="uint32" unit="ms"></field>
+    <field name="utm_zone"  type="uint8"/>
+    <field name="phi" type="int16" unit="decideg"/>
+    <field name="theta" type="int16" unit="decideg"/>
+    <field name="course" type="int16" unit="decideg"/>
+    <field name="speed"  type="uint16" unit="cm/s"/>
+    <field name="itow"  type="uint32" unit="ms"/>
   </message>
 
   <message name="TEST_BOARD_RESULTS" ID="111">
