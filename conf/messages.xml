@@ -130,8 +130,8 @@
    </message>
 
    <message name="CAM" id="20">
-     <field name="phi" type="int8" unit="deg"/>
-     <field name="theta" type="int8" unit="deg"/>
+     <field name="phi" type="int16" unit="deg"/>
+     <field name="theta" type="int16" unit="deg"/>
      <field name="target_x" type="int16" unit="m"/>
      <field name="target_y" type="int16" unit="m"/>
    </message>

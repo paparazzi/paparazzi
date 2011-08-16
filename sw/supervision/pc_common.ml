@@ -2,7 +2,7 @@
  * $Id$
  *
  * Paparazzi center utilities
- *  
+ *
  * Copyright (C) 2007 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -37,7 +37,7 @@ let my_open_process_in = fun cmd ->
   Unix.close in_write;
   pid, inchan
 
-let buf_size = 128
+let buf_size = 1024
 
 let run_and_log = fun log com ->
   let com = com ^ " 2>&1" in
@@ -46,14 +46,18 @@ let run_and_log = fun log com ->
   let cb = fun ev ->
     if List.mem `IN ev then begin
       let buf = String.create buf_size in
-      let n = input com_stdout buf 0 buf_size in
-      if n < buf_size then
-	log (String.sub buf 0 n)
-      else begin
-	log buf;
-      end;
+      (* loop until input returns zero *)
+      let rec log_input = fun out ->
+        let n = input out buf 0 buf_size in
+        if n < buf_size then log (String.sub buf 0 n)
+        else begin
+          log buf;
+          log_input out
+        end;
+      in
+      log_input com_stdout;
       true
-    end else begin 
+    end else begin
       log (sprintf "\nDONE (%s)\n\n" com);
       false
     end in
@@ -68,7 +72,7 @@ let strip_prefix = fun dir file ->
     raise Exit
   end else
     String.sub file (n+1) (String.length file - n - 1)
-    
+
 
 let choose_xml_file = fun ?(multiple = false) title subdir cb ->
   let dir = conf_dir // subdir in
@@ -91,7 +95,6 @@ let choose_xml_file = fun ?(multiple = false) title subdir cb ->
 
 
 
-
 let run_and_monitor = fun ?(once = false) ?file gui log com_name com args ->
   let c = sprintf "%s %s" com args in
   let p = new Gtk_process.hbox_program ?file () in
@@ -105,9 +108,12 @@ let run_and_monitor = fun ?(once = false) ?file gui log com_name com args ->
     let c = p#entry_program#text in
     log (sprintf "Run '%s'\n" c);
     let (pi, out, unixfd, io_watch) = run_and_log log ("exec "^c) in
+    let stop_cb_delay = 500 in (* ms *)
     pid := pi;
     outchan := unixfd;
-    let io_watch' = Glib.Io.add_watch [`HUP;`OUT] (fun _ -> callback true;false) out in
+    let io_watch' = Glib.Io.add_watch [`HUP;`OUT] (fun _ ->
+      ignore (Glib.Timeout.add stop_cb_delay (fun () -> callback true; false));
+      false) out in
     watches := [ io_watch; io_watch'] in
 
   let remove_callback = fun () ->
@@ -116,26 +122,26 @@ let run_and_monitor = fun ?(once = false) ?file gui log com_name com args ->
   let rec callback = fun stop ->
     match p#button_stop#label, stop with
       "gtk-stop", _ ->
-	List.iter Glib.Io.remove !watches;
-	close_in !outchan;
-	ignore (Unix.kill !pid Sys.sigkill);
-	ignore (Unix.waitpid [] !pid);
-	p#button_stop#set_label "gtk-redo";
-	p#button_remove#misc#set_sensitive true;
-	if once then
-	  remove_callback ()
-	else if stop && p#checkbutton_autolaunch#active then
-	  callback false
+    List.iter Glib.Io.remove !watches;
+    close_in !outchan;
+    ignore (Unix.kill !pid Sys.sigkill);
+    ignore (Unix.waitpid [] !pid);
+    p#button_stop#set_label "gtk-redo";
+    p#button_remove#misc#set_sensitive true;
+    if once then
+      remove_callback ()
+    else if stop && p#checkbutton_autolaunch#active then
+      callback false
     | "gtk-redo", false ->
-	p#button_stop#set_label "gtk-stop";
-	run callback;
-	p#button_remove#misc#set_sensitive false
+    p#button_stop#set_label "gtk-stop";
+    run callback;
+    p#button_remove#misc#set_sensitive false
     | _ -> ()
   in
   ignore (p#button_stop#connect#clicked ~callback:(fun () -> callback false));
   ignore (p#entry_program#connect#activate ~callback:(fun () -> callback false));
   run callback;
-  
+
   (* Stop the program if the box is closed *)
   let callback = fun () ->
     callback true in
@@ -173,11 +179,11 @@ let druid = fun home ->
     fp#set_text (sprintf "Configuration files need to be installed in your Paparazzi home (%s). To use another directory, please exit this utility, set the PAPARAZZI_HOME variable to the desired folder and restart." home);
     d#append_page fp;
     ignore (fp#connect#next
-	      (fun _ ->	
-		basic_command prerr_endline "" "init";
-		false
-	      ))
-    
+          (fun _ ->
+        basic_command prerr_endline "" "init";
+        false
+          ))
+
   end;
 
   begin
@@ -186,15 +192,15 @@ let druid = fun home ->
     d#append_page ep ;
 
     ignore (ep#connect#finish
-	      (fun _ ->	
-		w#destroy ();
-		GMain.quit ()
-	      ))
+          (fun _ ->
+        w#destroy ();
+        GMain.quit ()
+          ))
   end;
   w#show ();
   GMain.main ()
 
-let _ = 
+let _ =
   let home = Env.paparazzi_home in
   if not (conf_is_set home) then
     druid home
@@ -207,6 +213,3 @@ let build_aircrafts = fun () ->
   List.iter (fun aircraft ->
     Hashtbl.add aircrafts (ExtXml.attrib aircraft "name") aircraft)
     (Xml.children conf_xml)
-
-
-

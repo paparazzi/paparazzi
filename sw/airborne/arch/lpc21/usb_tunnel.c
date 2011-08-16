@@ -71,7 +71,7 @@ int main( void ) {
       LED_ON(2);
       tx_time = T0TC;
       inc = VCOM_getchar();
-      uart0_transmit(inc);
+      Uart0Transmit(inc);
     }
   }
 #else
@@ -88,7 +88,7 @@ int main( void ) {
       LED_ON(2);
       tx_time = T0TC;
       inc = VCOM_getchar();
-      uart1_transmit(inc);
+      Uart1Transmit(inc);
     }
   }
 #endif

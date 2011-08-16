@@ -36,7 +36,8 @@ let read_process_output command =
     Buffer.add_substring buffer string 0 !chars_read
   done;
   ignore (Unix.close_process_in in_channel);
-  Buffer.contents buffer
+  try Buffer.sub buffer 0 ((Buffer.length buffer) - 1)
+  with _ -> Buffer.contents buffer
 
 let contains s substring =
   try ignore (Str.search_forward (Str.regexp_string substring) s 0); true

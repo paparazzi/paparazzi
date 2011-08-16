@@ -34,7 +34,6 @@ SRC_ARCH = arch/lpc21
 # Define programs and commands.
 HAVE_ARM_NONE_EABI_GCC := $(shell which arm-none-eabi-gcc)
 ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
-$(info Using gcc-arm 3.4.4 packaged by paparazzi.)
 CC		= arm-elf-gcc
 LD		= $(CC)
 SHELL = sh
@@ -43,7 +42,6 @@ OBJDUMP = arm-elf-objdump
 SIZE = arm-elf-size
 NM = arm-elf-nm
 else
-$(info Using arm-none-eabi-gcc.)
 CC		= arm-none-eabi-gcc
 LD		= $(CC)
 SHELL = sh
@@ -54,6 +52,8 @@ NM = arm-none-eabi-nm
 endif
 REMOVE = rm -f
 COPY = cp
+
+MULTILIB = $(shell if $(CC) --print-multi-lib | grep thumb2 > /dev/null ; then echo "yes"; else echo "no"; fi)
 
 
 # Launch with "make Q=''" to get full command display
@@ -179,7 +179,28 @@ ALL_ASFLAGS = -mcpu=$(MCU) $(THUMB_IW) -I. -x assembler-with-cpp $(ASFLAGS)
 
 
 # Default target.
-all: sizebefore build sizeafter
+all: printcommands printmultilib sizebefore build sizeafter
+
+printcommands:
+	@echo "Using CC   = $(CC)"
+	@echo "Using LD   = $(LD)"
+	@echo "Using CP   = $(OBJCOPY)"
+	@echo "Using DMP  = $(OBJDUMP)"
+	@echo "Using NM   = $(NM)"
+	@echo "Using SIZE = $(SIZE)"
+	@echo "Using OOCD = $(OOCD)"
+	@echo "GCC version:"
+	@$(CC) --version | head -1
+
+ifeq ("$(MULTILIB)","yes")
+printmultilib:
+	@echo "*** Using multilib ***"
+	@echo "--------------------------"
+else
+printmultilib:
+	@echo "*** NOT using multilib ***"
+	@echo "--------------------------"
+endif
 
 build: elf hex lss sym
 

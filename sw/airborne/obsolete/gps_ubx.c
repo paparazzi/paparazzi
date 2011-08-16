@@ -179,7 +179,7 @@ void gps_configure_uart ( void ) {
   while (GpsUartRunning); /* FIXME */
 #endif
 
-  GpsUartInitParam( GPS_BAUD,  UART_8N1, UART_FIFO_8);
+  GpsUartSetBaudrate(GPS_BAUD);
 }
 #endif
 

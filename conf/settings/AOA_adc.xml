@@ -1,0 +1,11 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+	<dl_settings>
+		<dl_settings NAME="AOA">
+			<dl_setting MAX="4" MIN="-4" STEP="0.0001" VAR="AOA_offset" shortname="AOA_offset" module="modules/sensors/AOA_adc" param="AOA_OFFSET"/>
+			<dl_setting MAX="0.95" MIN="0" STEP="0.001" VAR="AOA_filter" shortname="AOA_filter" module="modules/sensors/AOA_adc" param="AOA_FILTER"/>
+			<dl_setting MAX="1" MIN="0" STEP="1" VAR="h_ctl_pitch_mode" shortname="PITCH_Mode"  module="stabilization/stabilization_attitude" />
+		</dl_settings>
+	</dl_settings>
+</settings>

@@ -56,6 +56,11 @@ extern float  h_ctl_roll_pgain;
 extern pprz_t h_ctl_aileron_setpoint;
 extern float  h_ctl_roll_slew;
 
+/* Pitch mode */
+#define H_CTL_PITCH_MODE_THETA	0
+#define H_CTL_PITCH_MODE_AOA	1
+extern uint8_t h_ctl_pitch_mode;
+
 /* inner pitch loop parameters */
 extern float  h_ctl_pitch_setpoint;
 extern float  h_ctl_pitch_loop_setpoint;
