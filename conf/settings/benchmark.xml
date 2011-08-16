@@ -1,0 +1,13 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+	<dl_settings>
+		<dl_settings NAME="Benchmark">
+			<dl_setting MAX="1" MIN="0" STEP="1" VAR="benchm_reset" shortname="bench_reset" module="modules/benchmark/flight_benchmark"/>
+			<dl_setting MAX="1" MIN="0" STEP="1" VAR="benchm_go" shortname="bench_go" />
+			<dl_setting MAX="20" MIN="0" STEP="0.1" VAR="ToleranceAispeed" shortname="AS_Tolerance" param="BENCHMARK_TOLERANCE_AIRSPEED"/>
+			<dl_setting MAX="20" MIN="0" STEP="0.1" VAR="ToleranceAltitude" shortname="Alt_Tolerance" param="BENCHMARK_TOLERANCE_ALTITUDE"/>
+			<dl_setting MAX="20" MIN="0" STEP="0.1" VAR="TolerancePosition" shortname="Pos_Tolerance" param="BENCHMARK_TOLERANCE_POSITION"/>
+		</dl_settings>
+	</dl_settings>
+</settings>

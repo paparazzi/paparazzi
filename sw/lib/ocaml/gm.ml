@@ -196,7 +196,7 @@ let ms_key = fun key ->
   done;
   (ms_key, ms_key.[n-2])
 
-let google_version = 87
+let google_version = Maps_support.google_version
 
 let url_of_tile_key = fun maps_source s ->
   let (x, y, z) = xyz_of_qsrt s in

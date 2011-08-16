@@ -691,6 +691,10 @@ static inline void on_gyro_event( void ) {
   ahrs_update_accel();
   ahrs_update_fw_estimator();
 
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+  new_ins_attitude = 1;
+#endif
+
 #else //PERIODIC_FREQUENCY
   static uint8_t _reduced_propagation_rate = 0;
   static uint8_t _reduced_correction_rate = 0;
@@ -723,17 +727,18 @@ static inline void on_gyro_event( void ) {
       INT_VECT3_ZERO(acc_avg);
       ImuScaleAccel(imu);
       ahrs_update_accel();
-      ahrs_update_fw_estimator();
     }
+
+    ahrs_update_fw_estimator();
+
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+    new_ins_attitude = 1;
+#endif
   }
 #endif //PERIODIC_FREQUENCY
 
 #ifdef AHRS_CPU_LED
     LED_OFF(AHRS_CPU_LED);
-#endif
-
-#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-  new_ins_attitude = 1;
 #endif
 
 }

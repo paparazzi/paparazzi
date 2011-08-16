@@ -19,6 +19,9 @@
       <dl_setting max="255" min="1" step="1" var="dc_autoshoot_quartersec_period" handler="Periodic" shortname="Periodic" param="DC_AUTOSHOOT_QUARTERSEC_PERIOD" unit="quarter-sec"/>
       <dl_setting max="5" min="0" step="1" var="dc_autoshoot_meter_grid" shortname="UTM%" param="DC_AUTOSHOOT_METER_GRID" unit="meter"/>
 
+      <dl_setting max="250" min="0" step="5" module="digital_cam/dc" var="dc_gps_dist" handler="Survey" shortname="Linear-Interval"/>
+      <dl_setting max="90" min="5" step="5" module="digital_cam/dc" var="dc_circle_interval" handler="Circle" shortname="Circle-Interval"/>
+      <dl_setting max="1" min="0" step="1" var="dc_cam_tracing" shortname="Cam-Tracing"/>
     </dl_settings>
   </dl_settings>
 </settings>

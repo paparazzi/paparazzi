@@ -33,48 +33,82 @@
 #include "mcu_periph/uart_arch.h"
 #include "std.h"
 
+#define UART_RX_BUFFER_SIZE 128
+#define UART_TX_BUFFER_SIZE 128
+#define UART_DEV_NAME_SIZE 16
+
+/**
+ * UART peripheral
+ */
+struct uart_periph {
+  /* Receive buffer */
+  uint8_t rx_buf[UART_RX_BUFFER_SIZE];
+  uint16_t rx_insert_idx;
+  uint16_t rx_extract_idx;
+  /* Transmit buffer */
+  uint8_t tx_buf[UART_RX_BUFFER_SIZE];
+  uint16_t tx_insert_idx;
+  uint16_t tx_extract_idx;
+  uint8_t tx_running;
+  /* UART Register */
+  void* reg_addr;
+  /* UART Dev (linux) */
+  char dev[UART_DEV_NAME_SIZE];
+};
+
+extern void uart_periph_init(struct uart_periph* p);
+extern void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud);
+//extern void uart_periph_init_param(struct uart_periph* p, uint32_t baud, uint8_t mode, uint8_t fmode, char * dev);
+extern void uart_transmit(struct uart_periph* p, uint8_t data);
+extern bool_t uart_check_free_space(struct uart_periph* p, uint8_t len);
+
+#define UartChAvailable(_p) (_p.rx_insert_idx != _p.rx_extract_idx)
+
+#define UartGetch(_p) ({                                            \
+   uint8_t ret = _p.rx_buf[_p.rx_extract_idx];                   \
+   _p.rx_extract_idx = (_p.rx_extract_idx + 1)%UART_RX_BUFFER_SIZE; \
+   ret;                                                             \
+})
+
 
 #ifdef USE_UART0
+extern struct uart_periph uart0;
+extern void uart0_init(void);
 
-extern void uart0_init( void );
-extern void uart0_transmit( uint8_t data );
-extern bool_t uart0_check_free_space( uint8_t len);
-
-#define Uart0Init uart0_init
-#define Uart0CheckFreeSpace(_x) uart0_check_free_space(_x)
-#define Uart0Transmit(_x) uart0_transmit(_x)
+#define Uart0Init() uart_periph_init(&uart0)
+#define Uart0CheckFreeSpace(_x) uart_check_free_space(&uart0, _x)
+#define Uart0Transmit(_x) uart_transmit(&uart0, _x)
 #define Uart0SendMessage() {}
+#define Uart0ChAvailable() UartChAvailable(uart0)
+#define Uart0Getch() UartGetch(uart0)
+#define Uart0TxRunning uart0.tx_running
+#define Uart0SetBaudrate(_b) uart_periph_set_baudrate(&uart0, _b)
+//#define Uart0InitParam(_b, _m, _fm) uart_periph_init_param(&uart0, _b, _m, _fm, "")
 
-#define Uart0TxRunning uart0_tx_running
-#define Uart0InitParam uart0_init_param
-#define UART0TxRunning uart0_tx_running
-#define UART0InitParam uart0_init_param
-
-/* I want to trigger USE_UART and generate macros with the makefile same variable */
 #define UART0Init           Uart0Init
 #define UART0CheckFreeSpace Uart0CheckFreeSpace
 #define UART0Transmit       Uart0Transmit
 #define UART0SendMessage    Uart0SendMessage
 #define UART0ChAvailable    Uart0ChAvailable
 #define UART0Getch          Uart0Getch
+#define UART0TxRunning      Uart0TxRunning
+#define UART0InitParam      Uart0InitParam
 
-#endif /* USE_UART0 */
+#endif // USE_UART0
 
 #ifdef USE_UART1
+extern struct uart_periph uart1;
+extern void uart1_init(void);
 
-extern void uart1_init( void );
-extern void uart1_transmit( uint8_t data );
-extern bool_t uart1_check_free_space( uint8_t len);
-
-#define Uart1Init uart1_init
-#define Uart1CheckFreeSpace(_x) uart1_check_free_space(_x)
-#define Uart1Transmit(_x) uart1_transmit(_x)
+#define Uart1Init() uart_periph_init(&uart1)
+#define Uart1CheckFreeSpace(_x) uart_check_free_space(&uart1, _x)
+#define Uart1Transmit(_x) uart_transmit(&uart1, _x)
 #define Uart1SendMessage() {}
-
-#define Uart1TxRunning uart1_tx_running
-#define Uart1InitParam uart1_init_param
-#define UART1TxRunning uart1_tx_running
-#define UART1InitParam uart1_init_param
+#define Uart1ChAvailable() UartChAvailable(uart1)
+#define Uart1Getch() UartGetch(uart1)
+#define Uart1TxRunning uart1.tx_running
+#define Uart1SetBaudrate(_b) uart_periph_set_baudrate(&uart1, _b)
+//#define Uart1InitParam(_b, _m, _fm) uart_periph_init_param(&uart1, _b, _m, _fm, "")
 
 #define UART1Init           Uart1Init
 #define UART1CheckFreeSpace Uart1CheckFreeSpace
@@ -82,19 +116,24 @@ extern bool_t uart1_check_free_space( uint8_t len);
 #define UART1SendMessage    Uart1SendMessage
 #define UART1ChAvailable    Uart1ChAvailable
 #define UART1Getch          Uart1Getch
+#define UART1TxRunning      Uart1TxRunning
+#define UART1InitParam      Uart1InitParam
 
-#endif /* USE_UART1 */
+#endif // USE_UART1
 
 #ifdef USE_UART2
+extern struct uart_periph uart2;
+extern void uart2_init(void);
 
-extern void uart2_init( void );
-extern void uart2_transmit( uint8_t data );
-extern bool_t uart2_check_free_space( uint8_t len);
-
-#define Uart2Init uart2_init
-#define Uart2CheckFreeSpace(_x) uart2_check_free_space(_x)
-#define Uart2Transmit(_x) uart2_transmit(_x)
+#define Uart2Init() uart_periph_init(&uart2)
+#define Uart2CheckFreeSpace(_x) uart_check_free_space(&uart2, _x)
+#define Uart2Transmit(_x) uart_transmit(&uart2, _x)
 #define Uart2SendMessage() {}
+#define Uart2ChAvailable() UartChAvailable(uart2)
+#define Uart2Getch() UartGetch(uart2)
+#define Uart2TxRunning uart2.tx_running
+#define Uart2SetBaudrate(_b) uart_periph_set_baudrate(&uart2, _b)
+//#define Uart2InitParam(_b, _m, _fm) uart_periph_init_param(&uart2, _b, _m, _fm, "")
 
 #define UART2Init           Uart2Init
 #define UART2CheckFreeSpace Uart2CheckFreeSpace
@@ -102,19 +141,24 @@ extern bool_t uart2_check_free_space( uint8_t len);
 #define UART2SendMessage    Uart2SendMessage
 #define UART2ChAvailable    Uart2ChAvailable
 #define UART2Getch          Uart2Getch
+#define UART2TxRunning      Uart2TxRunning
+#define UART2InitParam      Uart2InitParam
 
-#endif /* USE_UART2 */
+#endif // USE_UART2
 
 #ifdef USE_UART3
+extern struct uart_periph uart3;
+extern void uart3_init(void);
 
-extern void   uart3_init( void );
-extern void   uart3_transmit( uint8_t data );
-extern bool_t uart3_check_free_space( uint8_t len);
-
-#define Uart3Init uart3_init
-#define Uart3CheckFreeSpace(_x) uart3_check_free_space(_x)
-#define Uart3Transmit(_x)       uart3_transmit(_x)
+#define Uart3Init() uart_periph_init(&uart3)
+#define Uart3CheckFreeSpace(_x) uart_check_free_space(&uart3, _x)
+#define Uart3Transmit(_x) uart_transmit(&uart3, _x)
 #define Uart3SendMessage() {}
+#define Uart3ChAvailable() UartChAvailable(uart3)
+#define Uart3Getch() UartGetch(uart3)
+#define Uart3TxRunning uart3.tx_running
+#define Uart3SetBaudrate(_b) uart_periph_set_baudrate(&uart3, _b)
+//#define Uart3InitParam(_b, _m, _fm) uart_periph_init_param(&uart3, _b, _m, _fm, "")
 
 #define UART3Init           Uart3Init
 #define UART3CheckFreeSpace Uart3CheckFreeSpace
@@ -122,19 +166,24 @@ extern bool_t uart3_check_free_space( uint8_t len);
 #define UART3SendMessage    Uart3SendMessage
 #define UART3ChAvailable    Uart3ChAvailable
 #define UART3Getch          Uart3Getch
+#define UART3TxRunning      Uart3TxRunning
+#define UART3InitParam      Uart3InitParam
 
-#endif /* USE_UART3 */
+#endif // USE_UART3
 
 #ifdef USE_UART5
+extern struct uart_periph uart5;
+extern void uart5_init(void);
 
-extern void   uart5_init( void );
-extern void   uart5_transmit( uint8_t data );
-extern bool_t uart5_check_free_space( uint8_t len);
-
-#define Uart5Init uart5_init
-#define Uart5CheckFreeSpace(_x) uart5_check_free_space(_x)
-#define Uart5Transmit(_x)       uart5_transmit(_x)
+#define Uart5Init() uart_periph_init(&uart5)
+#define Uart5CheckFreeSpace(_x) uart_check_free_space(&uart5, _x)
+#define Uart5Transmit(_x) uart_transmit(&uart5, _x)
 #define Uart5SendMessage() {}
+#define Uart5ChAvailable() UartChAvailable(uart5)
+#define Uart5Getch() UartGetch(uart5)
+#define Uart5TxRunning uart5.tx_running
+#define Uart5SetBaudrate(_b) uart_periph_set_baudrate(&uart5, _b)
+//#define Uart5InitParam(_b, _m, _fm) uart_periph_init_param(&uart5, _b, _m, _fm, "")
 
 #define UART5Init           Uart5Init
 #define UART5CheckFreeSpace Uart5CheckFreeSpace
@@ -142,7 +191,9 @@ extern bool_t uart5_check_free_space( uint8_t len);
 #define UART5SendMessage    Uart5SendMessage
 #define UART5ChAvailable    Uart5ChAvailable
 #define UART5Getch          Uart5Getch
+#define UART5TxRunning      Uart5TxRunning
+#define UART5InitParam      Uart5InitParam
 
-#endif /* USE_UART5 */
+#endif // USE_UART5
 
 #endif /* MCU_PERIPH_UART_H */
