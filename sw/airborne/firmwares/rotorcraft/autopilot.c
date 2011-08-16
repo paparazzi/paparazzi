@@ -36,6 +36,7 @@ uint8_t  autopilot_mode;
 uint8_t  autopilot_mode_auto2;
 bool_t   autopilot_motors_on;
 bool_t   autopilot_rc_unkilled_startup;
+bool_t   autopilot_first_boot;
 bool_t   autopilot_in_flight;
 uint32_t autopilot_motors_on_counter;
 uint32_t autopilot_in_flight_counter;
@@ -59,6 +60,7 @@ void autopilot_init(void) {
   autopilot_mode = AP_MODE_KILL;
   autopilot_motors_on = FALSE;
   autopilot_rc_unkilled_startup = FALSE;
+  autopilot_first_boot = TRUE;
   autopilot_in_flight = FALSE;
   kill_throttle = ! autopilot_motors_on;
   autopilot_motors_on_counter = 0;
@@ -263,7 +265,11 @@ static inline void autopilot_check_motors_on( void ) {
 		if (radio_control.values[RADIO_KILL_SWITCH]<=0 && ahrs_is_aligned())
 			autopilot_rc_unkilled_startup = FALSE;
 	if (autopilot_motors_on == FALSE && autopilot_rc_unkilled_startup == FALSE && radio_control.values[RADIO_MODE] < 0){
-		autopilot_motors_on=radio_control.values[RADIO_KILL_SWITCH]>0 && THROTTLE_STICK_DOWN() && YAW_STICK_CENTERED() && PITCH_STICK_CENTERED() && ROLL_STICK_CENTERED() && ahrs_is_aligned();
+		if (autopilot_first_boot == TRUE){
+		  RunOnceEvery(512,{autopilot_first_boot = FALSE;})
+		  }
+		else
+		  autopilot_motors_on=radio_control.values[RADIO_KILL_SWITCH]>0 && THROTTLE_STICK_DOWN() && YAW_STICK_CENTERED() && PITCH_STICK_CENTERED() && ROLL_STICK_CENTERED() && ahrs_is_aligned();
 		}
 	else{ 
 		autopilot_motors_on = TRUE;
