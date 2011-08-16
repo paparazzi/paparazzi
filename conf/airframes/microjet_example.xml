@@ -8,15 +8,6 @@
 
 <airframe name="Microjet Tiny 1.1">
 
-	
-	<modules>
-		<load name="AOA_adc.xml">  
-			<configure name="ADC_AOA" value="ADC_6"/>
-			<define name="AOA_OFFSET" value="-0.135000005364"/>   
-			<define name="AOA_FILTER" value="0.875999987125"/>   
-			<define name="USE_AOA"/>  
-		</load> 
-	</modules>
 
   <servos>
     <servo name="MOTOR"         no="0" min="1290" neutral="1290" max="1810"/>
