@@ -49,10 +49,11 @@ let run_and_log = fun log com ->
       (* loop until input returns zero *)
       let rec log_input = fun out ->
         let n = input out buf 0 buf_size in
-        match n with
-          0 -> ()
-        (*| buf_size -> log buf; log_input out;*)
-        | _ -> log (String.sub buf 0 n); log_input out
+        if n < buf_size then log (String.sub buf 0 n)
+        else begin
+          log buf;
+          log_input out
+        end;
       in
       log_input com_stdout;
       true
