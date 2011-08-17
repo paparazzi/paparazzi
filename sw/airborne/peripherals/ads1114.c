@@ -19,9 +19,9 @@
  * Boston, MA 02111-1307, USA.
  *
  */
- 
- 
-/* driver for the ADC ads1114 (16 bits I2C 860SpS max) from Texas instruments 
+
+
+/* driver for the ADC ads1114 (16 bits I2C 860SpS max) from Texas instruments
  *  Navarro & Gorraz & Hattenberger
  */
 
@@ -34,8 +34,8 @@ bool_t ads1114_data_available;
 
 void ads1114_init( void ) {
   /* configure the ads1114 */
-  ads1114_trans.buf[0] = ADS1114_POINTER_CONFIG_REG;         
-  ads1114_trans.buf[1] = ADS1114_CONFIG_MSB;                               
+  ads1114_trans.buf[0] = ADS1114_POINTER_CONFIG_REG;
+  ads1114_trans.buf[1] = ADS1114_CONFIG_MSB;
   ads1114_trans.buf[2] = ADS1114_CONFIG_LSB;
   I2CTransmit(ADS1114_I2C_DEVICE, ads1114_trans, ADS1114_I2C_ADDR, 3);
   ads1114_config_done = FALSE;
@@ -47,7 +47,7 @@ void ads1114_read( void ) {
   // Config done with success
   // start new reading when previous is done (and read if success)
   if (ads1114_config_done && ads1114_trans.status == I2CTransDone) {
-    ads1114_trans.buf[0] = ADS1114_POINTER_CONV_REG;          
+    ads1114_trans.buf[0] = ADS1114_POINTER_CONV_REG;
     I2CTransceive(ADS1114_I2C_DEVICE, ads1114_trans, ADS1114_I2C_ADDR, 1, 2);
   }
 }

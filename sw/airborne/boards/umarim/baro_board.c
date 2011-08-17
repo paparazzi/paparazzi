@@ -21,7 +21,7 @@
  */
 
 
-/* driver for the analog Barometer Mpxa6115 using ADC ads1114 (16 bits I2C 860SpS max) from Texas instruments 
+/* driver for the analog Barometer Mpxa6115 using ADC ads1114 (16 bits I2C 860SpS max) from Texas instruments
  * Navarro & Gorraz & Hattenberger
  */
 

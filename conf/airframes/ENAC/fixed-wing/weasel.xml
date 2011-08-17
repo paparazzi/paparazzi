@@ -133,7 +133,7 @@
 
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
-    
+
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
   </section>
 
