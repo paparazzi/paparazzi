@@ -23,7 +23,7 @@
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="control"/>
     <subsystem name="attitude"      type="infrared"/>
-    <subsystem name="gps"           type="ublox_lea4p"/>
+    <subsystem name="gps"           type="ublox_utm"/>
     <subsystem name="navigation"/>
   </firmware>
 

@@ -1,22 +1,36 @@
 /*
-C Datei für die Einbindung eines ArduIMU's
-Autoren@ZHAW:   schmiemi
-        chaneren
-*/
-
+ * Copyright (C) 2011 Gautier Hattenberger
+ * based on ArduIMU driver:
+ *   Autoren@ZHAW:  schmiemi
+ *                  chaneren
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ */
 
 #include <stdbool.h>
 #include "modules/ins/ins_arduimu_basic.h"
-//#include "firmwares/fixedwing/main_fbw.h"
 #include "mcu_periph/i2c.h"
 
-// test
+// Estimator interface
 #include "estimator.h"
 
 // GPS data for ArduIMU
-#ifndef UBX
-#error "currently only compatible with uBlox GPS modules"
-#endif
 #include "subsystems/gps.h"
 
 // Command vector for thrust
@@ -55,6 +69,10 @@ struct FloatVect3 arduimu_accel;
 float ins_roll_neutral;
 float ins_pitch_neutral;
 
+// Ask the arduimu to recalibrate the gyros and accels neutrals
+// After calibration, values are store in the arduimu eeprom
+bool_t arduimu_calibrate_neutrals;
+
 // High Accel Flag
 #define HIGH_ACCEL_LOW_SPEED 15.0
 #define HIGH_ACCEL_LOW_SPEED_RESUME 4.0 // Hysteresis
@@ -73,6 +91,7 @@ void ArduIMU_init( void ) {
 
   ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
   ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
+  arduimu_calibrate_neutrals = FALSE;
 
   high_accel_done = FALSE;
   high_accel_flag = FALSE;
@@ -108,12 +127,14 @@ void ArduIMU_periodicGPS( void ) {
 
   FillBufWith32bit(ardu_gps_trans.buf, 0, (int32_t)gps.speed_3d); // speed 3D
   FillBufWith32bit(ardu_gps_trans.buf, 4, (int32_t)gps.gspeed);   // ground speed
-  FillBufWith32bit(ardu_gps_trans.buf, 8, (int32_t)DegOfRad(gps.course / 1e6));   // course
-  ardu_gps_trans.buf[12] = gps.fix;                              // status gps fix
-  ardu_gps_trans.buf[13] = gps_ubx.status_flags;                      // status flags
+  FillBufWith32bit(ardu_gps_trans.buf, 8, (int32_t)gps.course);   // course
+  ardu_gps_trans.buf[12] = gps.fix;                               // status gps fix
+  ardu_gps_trans.buf[13] = (uint8_t)arduimu_calibrate_neutrals;   // calibration flag
   ardu_gps_trans.buf[14] = (uint8_t)high_accel_flag;              // high acceleration flag (disable accelerometers in the arduimu filter)
   I2CTransmit(ARDUIMU_I2C_DEV, ardu_gps_trans, ArduIMU_SLAVE_ADDR, 15);
 
+  // Reset calibration flag
+  if (arduimu_calibrate_neutrals) arduimu_calibrate_neutrals = FALSE;
 }
 
 void ArduIMU_periodic( void ) {

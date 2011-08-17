@@ -56,7 +56,7 @@ float test_cam_estimator_hspeed_dir;
 #endif
 
 #ifdef CAM_TILT_NEUTRAL
-#if (CAM_TILT_MAX == CAM_TILT_NEUTRAL)
+#if ((CAM_TILT_MAX) == (CAM_TILT_NEUTRAL))
 #error CAM_TILT_MAX has to be different from CAM_TILT_NEUTRAL
 #endif
 #if (CAM_TILT_NEUTRAL == CAM_TILT_MIN)
@@ -87,6 +87,7 @@ uint8_t cam_target_wp;
 uint8_t cam_target_ac;
 
 uint8_t cam_mode;
+bool_t cam_lock;
 
 int16_t cam_pan_command;
 int16_t cam_tilt_command;
@@ -98,35 +99,108 @@ void cam_waypoint_target(void);
 void cam_ac_target(void);
 
 void cam_init( void ) {
+#ifdef CAM_MODE0
+  cam_mode = CAM_MODE0;
+#else
   cam_mode = CAM_MODE_OFF;
+#endif
 }
 
 void cam_periodic( void ) {
-  switch (cam_mode) {
-  case CAM_MODE_OFF:
-    break;
-  case CAM_MODE_ANGLES:
+#if defined(CAM_FIXED_FOR_FPV_IN_AUTO1) && CAM_FIXED_FOR_FPV_IN_AUTO1 == 1
+  //Position the camera for straight view.
+  if (pprz_mode == PPRZ_MODE_AUTO2){
+#endif
+    switch (cam_mode) {
+    case CAM_MODE_OFF:
+#if defined(CAM_PAN0)
+      cam_pan_c = RadOfDeg(CAM_PAN0);
+#else
+      cam_pan_c = RadOfDeg(0);
+#endif
+#if defined(CAM_TILT0)
+      cam_tilt_c = RadOfDeg(CAM_TILT0);
+#else
+      cam_tilt_c = RadOfDeg(90);
+#endif
+      cam_angles();
+      break;
+    case CAM_MODE_ANGLES:
+      cam_angles();
+      break;
+    case CAM_MODE_NADIR:
+      cam_nadir();
+      break;
+    case CAM_MODE_XY_TARGET:
+      cam_target();
+      break;
+    case CAM_MODE_WP_TARGET:
+      cam_waypoint_target();
+      break;
+    case CAM_MODE_AC_TARGET:
+      cam_ac_target();
+      break;
+      // In this mode the target coordinates are calculated continuously from the pan and tilt radio channels.
+      // The "TARGET" waypoint coordinates are not used.
+      // If the "-DSHOW_CAM_COORDINATES" is defined then the coordinates of where the camera is looking are calculated.
+    case CAM_MODE_STABILIZED:
+      cam_waypoint_target();
+      break;
+      // In this mode the angles come from the pan and tilt radio channels.
+      // The "TARGET" waypoint coordinates are not used but i need to call the "cam_waypoint_target()" function
+      // in order to calculate the coordinates of where the camera is looking.
+    case CAM_MODE_RC:
+      cam_waypoint_target();
+      break;
+    }
+#if defined(CAM_FIXED_FOR_FPV_IN_AUTO1) && CAM_FIXED_FOR_FPV_IN_AUTO1 == 1
+  }else if (pprz_mode == PPRZ_MODE_AUTO1){
+    //Position the camera for straight view.
+
+#if defined(CAM_TILT_POSITION_FOR_FPV)
+    cam_tilt_c = RadOfDeg(CAM_TILT_POSITION_FOR_FPV);
+#else
+    cam_tilt_c = RadOfDeg(90);
+#endif
+#if defined(CAM_PAN_POSITION_FOR_FPV)
+    cam_pan_c = RadOfDeg(CAM_PAN_POSITION_FOR_FPV);
+#else
+    cam_pan_c = RadOfDeg(0);
+#endif
     cam_angles();
-    break;
-  case CAM_MODE_NADIR:
-    cam_nadir();
-    break;
-  case CAM_MODE_XY_TARGET:
-    cam_target();
-    break;
-  case CAM_MODE_WP_TARGET:
-    cam_waypoint_target();
-    break;
-  case CAM_MODE_AC_TARGET:
-    cam_ac_target();
-    break;
+#ifdef SHOW_CAM_COORDINATES
+    cam_point_lon = 0;
+    cam_point_lat = 0;
+    cam_point_distance_from_home = 0;
+#endif
   }
+#endif
+
+
+#if defined(COMMAND_CAM_PWR_SW)
+  if(video_tx_state){ ap_state->commands[COMMAND_CAM_PWR_SW] = MAX_PPRZ; }else{ ap_state->commands[COMMAND_CAM_PWR_SW] = MIN_PPRZ; }
+#elif defined(VIDEO_TX_SWITCH)
+  if(video_tx_state){ LED_OFF(VIDEO_TX_SWITCH); }else{ LED_ON(VIDEO_TX_SWITCH); }
+#endif
 }
 
 /** Computes the servo values from cam_pan_c and cam_tilt_c */
 void cam_angles( void ) {
   float cam_pan = 0;
   float cam_tilt = 0;
+  if (cam_pan_c > RadOfDeg(CAM_PAN_MAX)){
+     cam_pan_c = RadOfDeg(CAM_PAN_MAX);
+
+  }else{
+          if(cam_pan_c < RadOfDeg(CAM_PAN_MIN)){ cam_pan_c = RadOfDeg(CAM_PAN_MIN); }
+       }
+
+  if (cam_tilt_c > RadOfDeg(CAM_TILT_MAX)){
+     cam_tilt_c = RadOfDeg(CAM_TILT_MAX);
+
+  }else{
+          if(cam_tilt_c < RadOfDeg(CAM_TILT_MIN)){ cam_tilt_c = RadOfDeg(CAM_TILT_MIN); }
+       }
 
 #ifdef CAM_PAN_NEUTRAL
   float pan_diff = cam_pan_c - RadOfDeg(CAM_PAN_NEUTRAL);
@@ -134,6 +208,8 @@ void cam_angles( void ) {
     cam_pan = MAX_PPRZ * (pan_diff / (RadOfDeg(CAM_PAN_MAX - CAM_PAN_NEUTRAL)));
   else
     cam_pan = MIN_PPRZ * (pan_diff / (RadOfDeg(CAM_PAN_MIN - CAM_PAN_NEUTRAL)));
+#else
+  cam_pan = ((float)RadOfDeg(cam_pan_c - CAM_PAN_MIN)) * ((float)MAX_PPRZ / (float)RadOfDeg(CAM_PAN_MAX-CAM_PAN_MIN) );
 #endif
 
 #ifdef CAM_TILT_NEUTRAL
@@ -142,6 +218,8 @@ void cam_angles( void ) {
     cam_tilt = MAX_PPRZ * (tilt_diff / (RadOfDeg(CAM_TILT_MAX - CAM_TILT_NEUTRAL)));
   else
     cam_tilt = MIN_PPRZ * (tilt_diff / (RadOfDeg(CAM_TILT_MIN - CAM_TILT_NEUTRAL)));
+#else
+  cam_tilt = ((float)RadOfDeg(cam_tilt_c - CAM_TILT_MIN))  * ((float)MAX_PPRZ / (float)RadOfDeg(CAM_TILT_MAX-CAM_TILT_MIN) );
 #endif
 
   cam_pan = TRIM_PPRZ(cam_pan);
@@ -183,7 +261,7 @@ void cam_nadir( void ) {
   cam_target_x = estimator_x;
   cam_target_y = estimator_y;
 #endif
-  cam_target_alt = 0;
+  cam_target_alt = -10;
   cam_target();
 }
 

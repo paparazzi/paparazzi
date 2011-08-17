@@ -37,7 +37,7 @@
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="attitude"         type="infrared"/>
-    <subsystem name="gps"              type="ublox_lea5h"/>
+    <subsystem name="gps"              type="mediatek_diy"/>
     <!-- Nav -->
     <subsystem name="navigation"/>
     <!-- Interfaces -->

@@ -38,6 +38,7 @@
 #endif
 
 #define GPS_FIX_NONE 0x00
+#define GPS_FIX_2D   0x02
 #define GPS_FIX_3D   0x03
 
 #define GpsFixValid() (gps.fix == GPS_FIX_3D)
@@ -78,6 +79,7 @@ struct GpsState {
   uint8_t nb_channels;           ///< Number of scanned satellites
   struct SVinfo svinfos[GPS_NB_CHANNELS];
 
+  uint32_t last_fix_ticks;       ///< cpu time in ticks at last valid fix
   uint16_t last_fix_time;        ///< cpu time in sec at last valid fix
   uint16_t reset;                ///< hotstart, warmstart, coldstart
 };

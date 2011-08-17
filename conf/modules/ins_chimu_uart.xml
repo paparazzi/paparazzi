@@ -1,5 +1,11 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
+<!--
+
+For older CHIMU v1.0 you should define CHIMU_BIG_ENDIAN
+
+ -->
+
 <module name="ins">
   <!-- <depend conflict="ins" -->
   <header>
@@ -11,7 +17,7 @@
   <makefile>
     <define name="AHRS_TYPE_H" value="\\\"modules/ins/ins_module.h\\\""/>
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
-    
+
     <define name="USE_UART$(CHIMU_UART_NR)"/>
     <define name="INS_LINK" value="Uart$(CHIMU_UART_NR)"/>
     <define name="UART$(CHIMU_UART_NR)_BAUD" value="B115200"/>

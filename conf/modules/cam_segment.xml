@@ -1,0 +1,13 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="cam_segment" dir="cam_control">
+  <!--depend require="cam_point.xml"/-->
+  <header>
+    <file name="cam_segment.h"/>
+  </header>
+  <init fun="cam_segment_init()"/>
+  <periodic fun="cam_segment_periodic()" stop="cam_segment_stop()" freq="10." autorun="FALSE"/>
+  <makefile>
+    <file name="cam_segment.c"/>
+  </makefile>
+</module>

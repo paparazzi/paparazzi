@@ -84,7 +84,12 @@ let parse_conf_xml = fun vbox ->
   Gtk_tools.combo ("" :: !strings) vbox
 
 let editor =
-  try Sys.getenv "EDITOR" with _ -> "gedit"
+  try Sys.getenv "EDITOR" with _ -> (
+    if Os_calls.contains (Os_calls.os_name) "Darwin" then
+      "open"
+    else
+      "gedit"
+    )
 
 let edit = fun file ->
   ignore (Sys.command (sprintf "%s %s&" editor file))

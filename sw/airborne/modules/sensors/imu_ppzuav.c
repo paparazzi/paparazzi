@@ -19,9 +19,12 @@
  */
 
 #include <math.h>
-#include "ins_ppzuavimu.h"
+#include "imu_ppzuav.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
+
+// Set SPI_CS High
+#include "mcu_periph/gpio_arch.h"
 
 // Downlink
 #include "mcu_periph/uart.h"
@@ -60,6 +63,8 @@ struct Imu imu;
 
 void imu_impl_init(void)
 {
+  GPIO_ARCH_SET_SPI_CS_HIGH();
+
   /////////////////////////////////////////////////////////////////////
   // ITG3200
   ppzuavimu_itg3200.type = I2CTransTx;
@@ -68,10 +73,10 @@ void imu_impl_init(void)
 #if PERIODIC_FREQUENCY == 60
   /* set gyro range to 2000deg/s and low pass at 20Hz (< 60Hz/2) internal sampling at 1kHz */
   ppzuavimu_itg3200.buf[1] = (0x03<<3) | (0x04<<0);
-#  warning ITG3200 read at 50Hz
+#  warning Info: ITG3200 read at 50Hz
 #else
 #  if PERIODIC_FREQUENCY == 120
-#  warning ITG3200 read at 100Hz
+#  warning Info: ITG3200 read at 100Hz
   /* set gyro range to 2000deg/s and low pass at 42Hz (< 120Hz/2) internal sampling at 1kHz */
   ppzuavimu_itg3200.buf[1] = (0x03<<3) | (0x03<<0);
 #  else

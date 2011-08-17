@@ -91,7 +91,11 @@ let print_init_functions = fun modules ->
       match Xml.tag i with
         "init" -> lprintf out_h "%s;\n" (Xml.attrib i "fun")
       | "periodic" -> if not (is_status_lock i) then
-          lprintf out_h "%s = %s;\n" (get_status_name i module_name) (try Xml.attrib i "autorun" with _ -> "TRUE")
+          lprintf out_h "%s = %s;\n" (get_status_name i module_name) (try match Xml.attrib i "autorun" with
+              "TRUE" | "true" -> "MODULES_START"
+            | "FALSE" | "false" | "LOCK" | "lock" -> "MODULES_IDLE"
+            | _ -> failwith "Error: Unknown autorun value (possible values are: TRUE, FALSE, LOCK(default))"
+          with _ -> "MODULES_IDLE" (* this should not be possible anyway *))
       | _ -> ())
     (Xml.children m))
   modules;

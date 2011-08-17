@@ -28,7 +28,7 @@
       <configure name="ADC_IR2" value="ADC_0"/>
       <configure name="ADC_IR_TOP" value="ADC_2"/>
     </subsystem>
-    <subsystem name="gps" 		    type="ublox_lea4p"/>
+    <subsystem name="gps" 		    type="ublox_utm"/>
     <subsystem name="navigation"/>
 
   </firmware>

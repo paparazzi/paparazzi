@@ -81,7 +81,7 @@ void imu_periodic(void) {
   SPI_Cmd(SPI2, ENABLE);
   max1168_read();
 #if IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC5843
-	hmc5843_periodic();
+  hmc5843_periodic();
 #endif
 }
 

@@ -1,0 +1,33 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<!-- A conf to use for standard operation with IMU (no tuning) -->
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="flight params">
+      <dl_setting MAX="1000" MIN="0" STEP="10" VAR="flight_altitude" shortname="altitude"/>
+      <dl_setting MAX="360" MIN="0" STEP="1" VAR="nav_course"/>
+      <dl_setting MAX="10" MIN="-10" STEP="5" VAR="nav_shift" module="subsystems/nav" handler="IncreaseShift" shortname="inc. shift"/>
+      <dl_setting MAX="0" MIN="0" STEP="1" VAR="estimator_flight_time" shortname="flight time" module="autopilot" handler="ResetFlightTimeAndLaunch"/>
+      <dl_setting MAX="200" MIN="-200" STEP="10" VAR="nav_radius" module="subsystems/nav" handler="SetNavRadius">
+        <strip_button icon="circle-right.png" name="Circle right" value="1"/>
+        <strip_button icon="circle-left.png" name="Circle left" value="-1"/>
+        <key_press key="greater" value="1"/>
+        <key_press key="less" value="-1"/>
+      </dl_setting>
+    </dl_settings>
+
+    <dl_settings NAME="mode">
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="pprz_mode" module="autopilot" values="MANUAL|AUTO1|AUTO2|HOME|NOGPS|FAILSAFE"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle"/>
+      <dl_setting MAX="5" MIN="0" STEP="1" VAR="telemetry_mode_Ap_DefaultChannel" shortname="tele_AP" module="downlink" values="Default|Minimal|Extremal|Raw|Scaled|DebugIMU"/>
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="gps.reset" module="subsystems/gps" handler="Reset" shortname="GPS reset"/>
+    </dl_settings>
+
+    <dl_settings NAME="ins">
+      <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ins_roll_neutral" shortname="roll_neutral" module="subsystems/ahrs" param="INS_ROLL_NEUTRAL_DEFAULT" unit="rad"/>
+      <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="ins_pitch_neutral" shortname="pitch_neutral" param="INS_PITCH_NEUTRAL_DEFAULT" unit="rad"/>
+    </dl_settings>
+  </dl_settings>
+</settings>

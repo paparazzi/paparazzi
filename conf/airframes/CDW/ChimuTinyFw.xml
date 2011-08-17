@@ -176,20 +176,20 @@
     <target name="sim" board="pc"/>
 
     <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="gps" type="ublox_lea5h" >
+    <subsystem name="gps" type="ublox" >
       <configure name="GPS_PORT" value="gps_i2c" />
     </subsystem>
 
     <!-- Communication -->
     <subsystem name="telemetry" type="xbee_api">
-      <configure name="MODEM_BAUD" value="B57600"/>
+      <configure name="MODEM_BAUD" value="B9600"/>
     </subsystem>
 
     <!-- Actuators -->
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="navigation"/>
-<!--    <subsystem name="gps"    type="ublox_lea5h"/> -->
+<!--    <subsystem name="gps"    type="ublox"/> -->
 
     <!--<subsystem name="i2c"/>-->
 

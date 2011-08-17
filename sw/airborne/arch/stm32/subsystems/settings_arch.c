@@ -24,7 +24,7 @@
 
 /*
   flash data is located in the last page/sector of flash
-  
+
   data          flash_addr
   data_size     flash_end - FSIZ
   checksum      flash_end - FCHK
@@ -50,9 +50,9 @@ struct FlashInfo {
 static uint32_t pflash_checksum(uint32_t ptr, uint32_t size);
 static int32_t flash_detect(struct FlashInfo* flash);
 static int32_t pflash_program_bytes(struct FlashInfo* flash,
-				     uint32_t src,
-				     uint32_t size,
-				     uint32_t chksum);
+                     uint32_t src,
+                     uint32_t size,
+                     uint32_t chksum);
 
 #define FLASH_SIZE_ MMIO16(0x1FFFF7E0)
 
@@ -104,7 +104,6 @@ static uint32_t pflash_checksum(uint32_t ptr, uint32_t size) {
 }
 
 static int32_t flash_detect(struct FlashInfo* flash) {
-  uint32_t device_id;
 
   flash->total_size = FLASH_SIZE_ * 0x400;
 
@@ -137,6 +136,7 @@ static int32_t flash_detect(struct FlashInfo* flash) {
   }
 
 #else /* this is the correct way of detecting page sizes */
+  uint32_t device_id;
 
   /* read device id */
   device_id = DBGMCU_IDCODE & DBGMCU_IDCODE_DEV_ID_MASK;
@@ -188,9 +188,9 @@ static int32_t flash_detect(struct FlashInfo* flash) {
 //              0x807F800             0x80000
 
 static int32_t pflash_program_bytes(struct FlashInfo* flash,
-				    uint32_t   src,
-				    uint32_t   size,
-				    uint32_t   chksum) {
+                    uint32_t   src,
+                    uint32_t   size,
+                    uint32_t   chksum) {
   uint32_t i;
 
   /* erase */
@@ -250,13 +250,13 @@ int32_t persistent_read(uint32_t ptr, uint32_t size) {
   struct FlashInfo flash;
   uint32_t i;
 
-  /* check parameters */  
+  /* check parameters */
   if (flash_detect(&flash)) return -1;
   if ((size > flash.page_size-FSIZ) || (size == 0)) return -2;
 
   /* check consistency */
   if (size != *(uint32_t*)(flash.addr+flash.page_size-FSIZ)) return -3;
-  if (pflash_checksum(flash.addr, size) != 
+  if (pflash_checksum(flash.addr, size) !=
       *(uint32_t*)(flash.addr+flash.page_size-FCHK))
     return -4;
 
@@ -267,4 +267,3 @@ int32_t persistent_read(uint32_t ptr, uint32_t size) {
 
   return 0;
 }
-

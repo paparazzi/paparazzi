@@ -26,7 +26,7 @@
     <subsystem name="control"/>
     <subsystem name="attitude"      type="infrared"/>
     <subsystem name="gyro"          type="roll"/>
-    <subsystem name="gps"           type="ublox_lea5h_hitl"/>
+    <subsystem name="gps"           type="ublox_hitl"/>
     <subsystem name="navigation"/>
     <subsystem name="joystick"/>
   </firmware>

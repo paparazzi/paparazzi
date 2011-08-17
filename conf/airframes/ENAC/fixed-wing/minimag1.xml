@@ -26,7 +26,7 @@
     <subsystem name="navigation" />
 <!--    <subsystem name="attitude" type="infrared"/>-->
     <subsystem name="control"/>
-    <subsystem name="gps" type="ublox_lea5h"/>
+    <subsystem name="gps" type="ublox"/>
   </firmware>
 
   <firmware name="setup">

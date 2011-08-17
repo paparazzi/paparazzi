@@ -51,6 +51,7 @@ struct GpsUbx {
 
   uint8_t status_flags;
   uint8_t sol_flags;
+  uint8_t have_velned;
 };
 
 extern struct GpsUbx gps_ubx;
@@ -77,6 +78,10 @@ extern bool_t gps_configuring;
 #define GpsParseOrConfigure() gps_ubx_read_message()
 #endif
 
+/* Gps callback is called when receiving a VELNED or a SOL message
+ * All position/speed messages are sent in one shot and VELNED is the last one on fixedwing
+ * For rotorcraft, only SOL message is needed for pos/speed data
+ */
 #define GpsEvent(_sol_available_callback) {        \
     if (GpsBuffer()) {                             \
       ReadGpsBuffer();                             \
@@ -84,8 +89,11 @@ extern bool_t gps_configuring;
     if (gps_ubx.msg_available) {                   \
       GpsParseOrConfigure();                       \
       if (gps_ubx.msg_class == UBX_NAV_ID &&       \
-          gps_ubx.msg_id == UBX_NAV_VELNED_ID) {   \
+          (gps_ubx.msg_id == UBX_NAV_VELNED_ID ||  \
+           (gps_ubx.msg_id == UBX_NAV_SOL_ID &&    \
+            gps_ubx.have_velned == 0))) {          \
         if (gps.fix == GPS_FIX_3D) {               \
+          gps.last_fix_ticks = cpu_time_ticks;     \
           gps.last_fix_time = cpu_time_sec;        \
         }                                          \
         _sol_available_callback();                 \

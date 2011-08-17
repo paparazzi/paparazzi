@@ -44,8 +44,6 @@ void receiveEvent(int howMany){
   parse_pprz_gps();               // Parse new GPS packet...
   GPS_timer=DIYmillis();         //Restarting timer...
 
-  gpsDataReady=1;
-
 }
 
 
@@ -130,19 +128,16 @@ void printdata(void){
 #endif
 
 #if PRINT_GPS == 1
-  if(gpsFixnew==1) {
-    gpsFixnew=0;
-    Serial.print("COG:");
-    Serial.print((ground_course));
-    Serial.print(",SOG:");
-    Serial.print(ground_speed);
-    Serial.print(",FIX:");
-    Serial.print((int)gpsFix);
-    Serial.print (",");
+  Serial.print("COG:");
+  Serial.print((ground_course));
+  Serial.print(",SOG:");
+  Serial.print(ground_speed);
+  Serial.print(",FIX:");
+  Serial.print((int)gpsFix);
+  Serial.print (",");
 #if PERFORMANCE_REPORTING == 1
-    gps_messages_sent++;
+  gps_messages_sent++;
 #endif
-  }
   Serial.println("");
 #endif
 

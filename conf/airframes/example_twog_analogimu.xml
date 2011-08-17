@@ -213,7 +213,7 @@
     </subsystem>
 
     <subsystem name="ahrs"  type="dcm"/>
-    <subsystem name="gps"       type="ublox_lea5h"/>
+    <subsystem name="gps"       type="ublox"/>
     <subsystem name="navigation"/>
   </firmware>
 

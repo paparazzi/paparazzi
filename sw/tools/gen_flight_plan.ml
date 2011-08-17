@@ -437,6 +437,13 @@ let rec print_stage = fun index_of_waypoints x ->
     let r = parsed_attrib  x "radius" in
     let _vmode = output_vmode x center "" in
     lprintf "Eight(%s, %s, %s);\n" center turn_about r;
+    begin
+      try
+        let c = parsed_attrib x "until" in
+        lprintf "if (%s) NextStageAndBreak();\n" c
+      with
+        ExtXml.Error _ -> ()
+    end;
     lprintf "break;\n"
     | "oval" ->
     stage ();

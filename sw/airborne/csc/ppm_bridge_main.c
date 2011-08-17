@@ -81,8 +81,8 @@ static void csc_main_periodic( void )
 
 static void send_short( int16_t s )
 {
-  uart1_transmit(s >> 8);
-  uart1_transmit(s & 0xFF);
+  Uart1Transmit(s >> 8);
+  Uart1Transmit(s & 0xFF);
 }
 
 static void send_channel ( int16_t c )

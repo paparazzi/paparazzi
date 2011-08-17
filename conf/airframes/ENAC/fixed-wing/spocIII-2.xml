@@ -42,7 +42,7 @@
     <subsystem name="radio_control" type="datalink"/>
 
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox_lea5h"/>
+    <subsystem name="gps" type="ublox"/>
 
     <!--subsystem name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
