@@ -26,12 +26,11 @@
       <dl_setting MAX="1000" MIN="0" STEP="1" VAR="stage_time"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle"/>
-      <dl_setting MAX="2" MIN="0" STEP="1" VAR="telemetry_mode_Ap_DefaultChannel" shortname="tele_AP" module="downlink"/>
-      <dl_setting MAX="1" MIN="0" STEP="1" VAR="telemetry_mode_Fbw_DefaultChannel" shortname="tele_FBW" module="downlink"/>
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="telemetry_mode_Ap_DefaultChannel" shortname="tele_AP" module="downlink" values="Default|Minimal|Extremal"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="telemetry_mode_Fbw_DefaultChannel" shortname="tele_FBW" module="downlink" values="Default|Debug"/>
 
-      
+
     </dl_settings>
 
   </dl_settings>
 </settings>
-

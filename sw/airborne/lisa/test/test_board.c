@@ -246,8 +246,8 @@ static void test_uart_periodic(void) {
 
   if (idx_tx<sizeof(buf_src)) {
     switch (direction) {
-    case OneToThree : uart1_transmit(buf_src[idx_tx]); break;
-    case ThreeToOne : uart3_transmit(buf_src[idx_tx]); break;
+    case OneToThree : Uart1Transmit(buf_src[idx_tx]); break;
+    case ThreeToOne : Uart3Transmit(buf_src[idx_tx]); break;
     default: break;
     }
     idx_tx++;
