@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="flight_benchmark" dir="benchmark">
+  <header>
+    <file name="flight_benchmark.h"/>
+  </header>
+  <init fun="flight_benchmark_init()"/>
+  <periodic fun="flight_benchmark_periodic()" freq="1" autorun="TRUE"/>
+
+  <makefile target="ap">
+    <file name="flight_benchmark.c"/>
+  </makefile>
+</module>
+

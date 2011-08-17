@@ -66,6 +66,10 @@ float  h_ctl_pitch_pgain;
 float  h_ctl_pitch_dgain;
 pprz_t h_ctl_elevator_setpoint;
 
+#ifdef USE_AOA
+  uint8_t h_ctl_pitch_mode;
+#endif
+
 /* inner loop pre-command */
 float h_ctl_aileron_of_throttle;
 float h_ctl_elevator_of_roll;
@@ -118,6 +122,10 @@ void h_ctl_init( void ) {
   h_ctl_course_pgain = H_CTL_COURSE_PGAIN;
   h_ctl_course_dgain = H_CTL_COURSE_DGAIN;
   h_ctl_roll_max_setpoint = H_CTL_ROLL_MAX_SETPOINT;
+
+#ifdef USE_AOA
+  h_ctl_pitch_mode = 0;
+#endif
 
   h_ctl_disabled = FALSE;
 
@@ -417,7 +425,25 @@ inline static void h_ctl_pitch_loop( void ) {
     h_ctl_pitch_setpoint
     - h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(estimator_phi);
 
-  float err = estimator_theta - h_ctl_pitch_loop_setpoint;
+	float err = 0;
+
+#ifdef USE_AOA
+	switch (h_ctl_pitch_mode){
+		case H_CTL_PITCH_MODE_THETA:
+			err = estimator_theta - h_ctl_pitch_loop_setpoint;
+		break;
+		case H_CTL_PITCH_MODE_AOA:
+			err = estimator_AOA - h_ctl_pitch_loop_setpoint;
+		break;
+		default:
+			err = estimator_theta - h_ctl_pitch_loop_setpoint;
+		break;
+	}
+#else //NO_AOA
+	err = estimator_theta - h_ctl_pitch_loop_setpoint;
+#endif
+
+
   float d_err = err - last_err;
   last_err = err;
   float cmd = h_ctl_pitch_pgain * (err + h_ctl_pitch_dgain * d_err);

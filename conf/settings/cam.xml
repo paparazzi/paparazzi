@@ -3,7 +3,7 @@
 <settings>
   <dl_settings NAME="control">
     <dl_settings name="cam">
-      <dl_setting MAX="5" MIN="0" STEP="1" module="cam_control/cam" VAR="cam_mode">
+      <dl_setting MAX="7" MIN="0" STEP="1" module="cam_control/cam" VAR="cam_mode" values="0FF|ANGLES|NADIR|XY_TARGET|WP_TARGET|AC_TARGET|STABILIZED|RC">
         <strip_button name="AC_TARGET" value="5"/>
         <strip_button name="WP_TARGET" value="4"/>
         <strip_button name="XY_TARGET" value="3"/>
