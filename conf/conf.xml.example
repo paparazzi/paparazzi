@@ -29,9 +29,9 @@
 
 <!-- LISA -->
   <aircraft
-   name="BOOZ2_A6"
+   name="Hexa_LisaL"
    ac_id="153"
-   airframe="airframes/Poine/booz2_a6.xml"
+   airframe="airframes/Poine/h_hex.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/telemetry_booz2.xml"
    flight_plan="flight_plans/dummy.xml"
@@ -77,7 +77,7 @@
     radio="radios/cockpitMM.xml"
     telemetry="telemetry/default.xml"
     flight_plan="flight_plans/basic.xml"
-    settings="settings/basic.xml"
+    settings="settings/basic_infrared.xml"
     gui_color="#6293ba"
   />
   <aircraft
@@ -97,7 +97,7 @@
     radio="radios/cockpitMM.xml"
     telemetry="telemetry/default.xml"
     flight_plan="flight_plans/versatile.xml"
-    settings="settings/tuning.xml"
+    settings="settings/tuning.xml settings/infrared.xml"
     gui_color="#ba6293"
   />
   <aircraft
@@ -107,7 +107,7 @@
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default.xml"
     flight_plan="flight_plans/versatile.xml"
-    settings="settings/tuning.xml"
+    settings="settings/tuning.xml settings/infrared.xml"
     gui_color="red"
   />
 

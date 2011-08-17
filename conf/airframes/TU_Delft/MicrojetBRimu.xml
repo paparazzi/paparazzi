@@ -298,7 +298,7 @@
     <subsystem name="ahrs" type="dcm"/>
     <subsystem name="i2c"/>
 
-    <subsystem name="gps" 		type="ublox_lea4p"/>
+    <subsystem name="gps" 		type="ublox_utm"/>
     <subsystem name="control"	/>
     <subsystem name="navigation" />
 

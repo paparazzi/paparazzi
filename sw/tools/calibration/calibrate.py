@@ -22,7 +22,7 @@
 #
 
 
-
+import sys
 import os
 from optparse import OptionParser
 import scipy
@@ -50,6 +50,9 @@ def main():
         else:
             print args[0] + " not found"
             sys.exit(1)
+    if options.sensor == "GYRO":
+        print "You can't calibate gyros with this!"
+        sys.exit(1)
     ac_ids = calibration_utils.get_ids_in_log(filename)
 #    import code; code.interact(local=locals())
     if options.ac_id == None and len(ac_ids) == 1:

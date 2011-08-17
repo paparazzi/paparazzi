@@ -189,10 +189,13 @@
 
 #define PERIODIC_SEND_NAVIGATION(_chan) SEND_NAVIGATION(_chan)
 
+
 #if defined CAM || defined MOBILE_CAM
-#define SEND_CAM(_chan) Downlink({ int16_t x = cam_target_x; int16_t y = cam_target_y; int8_t phi = DegOfRad(cam_phi_c); int8_t theta = DegOfRad(cam_theta_c); DOWNLINK_SEND_CAM(_chan, &phi, &theta, &x, &y);})
+#define SEND_CAM(_chan) Downlink({ int16_t x = cam_target_x; int16_t y = cam_target_y; int16_t phi = DegOfRad(cam_phi_c); int16_t theta = DegOfRad(cam_theta_c); DOWNLINK_SEND_CAM(_chan, &phi, &theta, &x, &y);})
+#define PERIODIC_SEND_CAM_POINT(_chan) DOWNLINK_SEND_CAM_POINT(_chan, &cam_point_distance_from_home, &cam_point_lat, &cam_point_lon)
 #else
 #define SEND_CAM(_chan) {}
+#define PERIODIC_SEND_CAM_POINT(_chan) {}
 #endif
 
 #define PERIODIC_SEND_DL_VALUE(_chan) PeriodicSendDlValue(_chan) /** generated from the xml settings config in conf/settings */

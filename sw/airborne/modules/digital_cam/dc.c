@@ -27,13 +27,27 @@
 uint8_t dc_autoshoot_meter_grid = 100;
 uint8_t dc_autoshoot_quartersec_period = 2;
 dc_autoshoot_type dc_autoshoot = DC_AUTOSHOOT_STOP;
+uint16_t dc_gps_count = 0;
+uint8_t dc_cam_tracing = 1;
+float dc_cam_angle = 0;
 
+float dc_circle_interval = 0;
+float dc_circle_start_angle = 0;
+float dc_circle_last_block = 0;
+float dc_circle_max_blocks = 0;
 
+float dc_gps_dist = 0;
+float dc_gps_next_dist = 0;
+float dc_gps_x = 0;
+float dc_gps_y = 0;
+
+bool_t dc_probing = FALSE;
 
 
 #ifdef SENSOR_SYNC_SEND
 
 uint16_t dc_photo_nr = 0;
+uint16_t dc_buffer = 0;
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -44,17 +58,103 @@ uint16_t dc_photo_nr = 0;
 #include "estimator.h"
 #include "subsystems/gps.h"
 
-  void dc_send_shot_position(void)
-  {
-    int16_t phi = DegOfRad(estimator_phi*10.0f);
-    int16_t theta = DegOfRad(estimator_theta*10.0f);
-    float gps_z = ((float)gps.hmsl) / 1000.0f;
-    DOWNLINK_SEND_DC_SHOT(DefaultChannel, &dc_photo_nr, &gps.utm_pos.east, &gps.utm_pos.north, &gps_z, &gps.utm_pos.zone, &phi, &theta,  &gps.course, &gps.gspeed, &gps.tow);
+void dc_send_shot_position(void)
+{
+  int16_t phi = DegOfRad(estimator_phi*10.0f);
+  int16_t theta = DegOfRad(estimator_theta*10.0f);
+  float gps_z = ((float)gps.hmsl) / 1000.0f;
+  int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));
+  int16_t photo_nr = -1;
+
+  if (dc_buffer < DC_IMAGE_BUFFER) {
+    dc_buffer++;
     dc_photo_nr++;
+    photo_nr = dc_photo_nr;
   }
 
-#endif
+  DOWNLINK_SEND_DC_SHOT(DefaultChannel,
+                        &photo_nr,
+                        &gps.utm_pos.east,
+                        &gps.utm_pos.north,
+                        &gps_z,
+                        &gps.utm_pos.zone,
+                        &phi,
+                        &theta,
+                        &course,
+                        &gps.gspeed,
+                        &gps.tow);
+}
+#endif /* SENSOR_SYNC_SEND */
 
+uint8_t dc_info(void) {
+#ifdef DOWNLINK_SEND_DC_INFO
+  float course = DegOfRad(estimator_psi);
+  DOWNLINK_SEND_DC_INFO(DefaultChannel,
+                        &dc_autoshoot,
+                        &estimator_x,
+                        &estimator_y,
+                        &course,
+                        &dc_buffer,
+                        &dc_gps_dist,
+                        &dc_gps_next_dist,
+                        &dc_gps_x,
+                        &dc_gps_y,
+                        &dc_circle_start_angle,
+                        &dc_circle_interval,
+                        &dc_circle_last_block,
+                        &dc_gps_count,
+                        &dc_autoshoot_quartersec_period);
+#endif
+  return 0;
+}
+
+/* shoot on circle */
+uint8_t dc_circle(float interval, float start) {
+  dc_autoshoot = DC_AUTOSHOOT_CIRCLE;
+  dc_gps_count = 0;
+  dc_circle_interval = fmodf(fmaxf(interval, 1.), 360.);
+
+  if(start == DC_IGNORE) {
+    start = DegOfRad(estimator_psi);
+  }
+
+  dc_circle_start_angle = fmodf(start, 360.);
+  if (start < 0.)
+    start += 360.;
+  //dc_circle_last_block = floorf(dc_circle_start_angle/dc_circle_interval);
+  dc_circle_last_block = 0;
+  dc_circle_max_blocks = floorf(360./dc_circle_interval);
+  dc_probing = TRUE;
+  dc_info();
+  return 0;
+}
+
+/* shoot on survey */
+uint8_t dc_survey(float interval, float x, float y) {
+  dc_autoshoot = DC_AUTOSHOOT_SURVEY;
+  dc_gps_count = 0;
+  dc_gps_dist = interval;
+
+  if (x == DC_IGNORE && y == DC_IGNORE) {
+    dc_gps_x = estimator_x;
+    dc_gps_y = estimator_y;
+  } else if (y == DC_IGNORE) {
+    dc_gps_x = waypoints[(uint8_t)x].x;
+    dc_gps_y = waypoints[(uint8_t)x].y;
+  } else {
+    dc_gps_x = x;
+    dc_gps_y = y;
+  }
+  dc_gps_next_dist = interval;
+  dc_info();
+  return 0;
+}
+
+uint8_t dc_stop(void) {
+  dc_autoshoot = DC_AUTOSHOOT_STOP;
+  dc_info();
+  return 0;
+}
 
 
 /*
@@ -89,4 +189,3 @@ static inline void dc_shoot_on_gps( void ) {
   }
 }
 */
-

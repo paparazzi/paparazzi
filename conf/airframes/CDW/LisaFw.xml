@@ -200,7 +200,7 @@
       <configure name="ADC_IR_NB_SAMPLES" value="16"/>
     </subsystem>-->
 
-    <subsystem name="gps" 		type="ublox_lea4p">
+    <subsystem name="gps" 		type="ublox_utm">
       <configure name="GPS_PORT"		value="UART1"/>
     </subsystem>
 

@@ -115,7 +115,7 @@ extern struct svinfo gps_svinfos[GPS_NB_CHANNELS];
 #define GpsBuffer() GpsLink(ChAvailable())
 #define ReadGpsBuffer() { while (GpsLink(ChAvailable())&&!gps_msg_received) parse_ubx(GpsLink(Getch())); }
 #define GpsUartSend1(c) GpsLink(Transmit(c))
-#define GpsUartInitParam(_a,_b,_c) GpsLink(InitParam(_a,_b,_c))
+#define GpsUartSetBaudrate(_b) GpsLink(SetBaudrate(_b))
 #define GpsUartRunning GpsLink(TxRunning)
 #define GpsUartSendMessage GpsLink(SendMessage)
 

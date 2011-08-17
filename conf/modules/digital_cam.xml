@@ -1,8 +1,8 @@
 <!DOCTYPE module SYSTEM "./module.dtd">
 
-<!-- 
+<!--
 
-// Use (parts of) the following section in airframe file to change 
+// Use (parts of) the following section in airframe file to change
 
   <section name="DIGITAL_CAMERA" prefix="DC_">
 
@@ -13,9 +13,9 @@
     <configure name="AUTOSHOOT_METER_GRID" value="50" unit="meter"/>
   </section>
 
-# ap.CFLAGS += -DGPS_TRIGGERED_FUNCTION="dc_shoot_on_gps" 
-# ap.CFLAGS += -DDC_GPS_TRIGGER_START=1 
-# ap.CFLAGS += -DDC_GPS_TRIGGER_STOP=3 
+# ap.CFLAGS += -DGPS_TRIGGERED_FUNCTION="dc_shoot_on_gps"
+# ap.CFLAGS += -DDC_GPS_TRIGGER_START=1
+# ap.CFLAGS += -DDC_GPS_TRIGGER_STOP=3
 
 -->
 
@@ -33,10 +33,9 @@
     <define name="DIGITAL_CAM" />
     <file name="led_cam_ctrl.c"/>
     <file name="dc.c"/>
-      <define name="SENSOR_SYNC_SEND" value="1" />
+    <define name="SENSOR_SYNC_SEND" value="1" />
 
   </makefile>
 
 
 </module>
-

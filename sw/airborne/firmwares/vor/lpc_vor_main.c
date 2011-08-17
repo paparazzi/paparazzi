@@ -50,31 +50,31 @@ static inline void main_report( void ) {
     my_qdr = vid_qdr * 360 / 4980;
     if (my_qdr < 0) my_qdr+=3600;
     if (my_qdr > 3600) my_qdr-=3600;
-    uart0_transmit('\r');
+    Uart0Transmit('\r');
     break;
   case 1:
     tmp = my_qdr / 1000;
     my_qdr = my_qdr - 1000*tmp;
-    uart0_transmit('0'+tmp);
+    Uart0Transmit('0'+tmp);
     break;
   case 2:
     tmp = my_qdr / 100;
     my_qdr = my_qdr - 100*tmp;
-    uart0_transmit('0'+tmp);
+    Uart0Transmit('0'+tmp);
     break;
   case 3:
     tmp = my_qdr / 10;
     my_qdr = my_qdr - 10*tmp;
-    uart0_transmit('0'+tmp);
+    Uart0Transmit('0'+tmp);
     break;
   case 4:
-    uart0_transmit('.');
+    Uart0Transmit('.');
     break;
   case 5:
-    uart0_transmit('0'+my_qdr);
+    Uart0Transmit('0'+my_qdr);
     break;
   case 6:
-    uart0_transmit('\r');
+    Uart0Transmit('\r');
     break;
   }
 

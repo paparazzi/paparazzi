@@ -28,7 +28,7 @@
 #include <inttypes.h>
 #include <caml/mlvalues.h>
 
-#ifdef NPS
+#ifdef USE_NPS
 #include "nps_radio_control.h"
 #endif
 
@@ -55,7 +55,7 @@ value send_ppm(value unit) {
   return unit;
 }
 
-#ifdef NPS
+#ifdef USE_NPS
 #define PPM_OF_NPS(_nps, _neutral, _min, _max)                          \
   ((_nps) >= 0 ? (_neutral) + (_nps) * ((_max)-(_neutral)) : (_neutral) + (_nps) * ((_neutral)- (_min)))
 
@@ -94,7 +94,7 @@ value send_ppm(value unit) {
   return unit;
 }
 
-#ifdef NPS
+#ifdef USE_NPS
 void radio_control_feed(void) {}
 #endif
 

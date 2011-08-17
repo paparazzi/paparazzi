@@ -19,9 +19,12 @@
  */
 
 #include <math.h>
-#include "ins_ppzuavimu.h"
+#include "imu_ppzuav.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
+
+// Set SPI_CS High
+#include "mcu_periph/gpio_arch.h"
 
 // Downlink
 #include "mcu_periph/uart.h"
@@ -60,6 +63,8 @@ struct Imu imu;
 
 void imu_impl_init(void)
 {
+  GPIO_ARCH_SET_SPI_CS_HIGH();
+
   /////////////////////////////////////////////////////////////////////
   // ITG3200
   ppzuavimu_itg3200.type = I2CTransTx;

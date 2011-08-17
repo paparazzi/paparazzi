@@ -11,10 +11,10 @@
   <makefile>
     <define name="AHRS_TYPE_H" value="\\\"modules/ins/ins_module.h\\\""/>
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
-    
+
     <define name="USE_SPI" />
     <define name="INS_LINK" value="SpiSlave"/>
-    <define name="USE_USB_HIGH_PCLK" />		
+    <define name="USE_USB_HIGH_PCLK" />
     <file name="ins_chimu_spi.c"/>
     <file name="imu_chimu.c"/>
   </makefile>
