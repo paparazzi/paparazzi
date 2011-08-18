@@ -20,12 +20,9 @@
 // *** NOTE!   Hardware version - Can be used for v1 (daughterboards) or v2 (flat)
 #define BOARD_VERSION 2 // 1 For V1 and 2 for V2
 
-// Enable Air Start uses Remove Before Fly flag - connection to pin 6 on ArduPilot 
-#define ENABLE_AIR_START 1  //  1 if using airstart/groundstart signaling, 0 if not
-#define GROUNDSTART_PIN 8    //  Pin number used for ground start signal (recommend 10 on v1 and 8 on v2 hardware)
-
 /*Min Speed Filter for Yaw drift Correction*/
 #define SPEEDFILT 2 // >1 use min speed filter for yaw drift cancellation, 0=do not use speed filter
+// SPEEDFILT is also used to prevent ground_start calibration when moving
 
 /*For debugging propurses*/
 #define PRINT_DEBUG 0   //Will print Debug messages
@@ -92,7 +89,6 @@ long timeNow=0; // Hold the milliseond value for now
 long timer=0;   //general purpuse timer
 long timer_old;
 long timer24=0; //Second timer used to print values 
-boolean groundstartDone = false;    // Used to not repeat ground start
 
 float AN[8]; //array that store the 6 ADC filtered data
 float AN_OFFSET[8]; //Array that stores the Offset of the gyros
@@ -105,6 +101,7 @@ float Omega_I[3]= {0,0,0};//Omega Integrator
 float Omega[3]= {0,0,0};
 
 boolean high_accel_flag = false; // disable update on accelerometers if true
+boolean calibrate_neutrals = false; // perform a calibration of gyro and accel neutrals
 
 // Euler angles
 float roll;
@@ -153,21 +150,15 @@ union int_union {
 
 /*Flight GPS variables*/
 int gpsFix=1; //This variable store the status of the GPS
-int gpsFixnew=0; //used to flag when new gps data received - used for binary output message flags
-int gps_fix_count = 5;		//used to count 5 good fixes at ground startup
 float speed_3d=0; //Speed (3-D)
 float ground_speed=0;// This is the velocity your "plane" is traveling in meters for second, 1Meters/Second= 3.6Km/H = 1.944 knots
-float ground_course=90;//This is the runaway direction of you "plane" in degrees
-float gc_offset = 0; // Force yaw output to ground course when fresh data available (only implemented for ublox&binary message)
+float ground_course=0;//This is the runaway direction of you "plane" in radians
 unsigned long GPS_timer=0;
 
 //***********************GPS PAPARAZZI************************************************************************
 #define PPRZ_MAXPAYLOAD 32
 byte Paparazzi_GPS_buffer[PPRZ_MAXPAYLOAD];
-int gpsDataReady = 0;  // sind neuen GPS daten vorhanden ??
 byte stGpsFix;
-byte stFlags;
-byte messageNr;
 //************************************************************************************************************
 
 //ADC variables
@@ -214,8 +205,6 @@ void setup()
   pinMode(5,OUTPUT); //Red LED
   pinMode(6,OUTPUT); // Blue LED
   pinMode(7,OUTPUT); // Yellow LED
-  pinMode(GROUNDSTART_PIN,INPUT);  // Remove Before Fly flag (pin 6 on ArduPilot)
-  digitalWrite(GROUNDSTART_PIN,HIGH);
 
   //************Define I2C Output Handler************************
   Wire.begin(17);                // join i2c bus with address #2
@@ -240,13 +229,8 @@ void setup()
   //Serial.println(SOFTWARE_VER);
   debug_handler(0);//Printing version
 
-  if(ENABLE_AIR_START) {
-    debug_handler(1);
-    startup_air();
-  } else {
-    debug_handler(2);
-    startup_ground();
-  }
+  startup_air();
+  debug_handler(1);
 
   delay(250);
   Read_adc_raw();     // ADC initialization
@@ -318,8 +302,11 @@ void loop() //Main Loop
         break;
 
       case(1):
-        //Here we will check if we are getting a signal to ground start
-        if (digitalRead(GROUNDSTART_PIN) == LOW && groundstartDone == false) startup_ground();
+        //Here we will check if we are getting a signal to ground start and speed is high enough
+        if (calibrate_neutrals && ground_speed < SPEEDFILT) {
+          startup_ground();
+          calibrate_neutrals = false;
+        }
         break;
 
       case(2):
@@ -430,7 +417,6 @@ void startup_ground(void)
     eeprom_write_word((uint16_t *)	(y*2+2), store);	
   }
 
-  groundstartDone = true;
   debug_handler(6);
 }
 

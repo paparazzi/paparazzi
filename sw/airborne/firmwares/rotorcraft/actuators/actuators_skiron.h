@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2011 Gautier Hattenberger
- * based on ArduIMU driver:
- *   Autoren@ZHAW:  schmiemi
- *                  chaneren
  *
  * This file is part of paparazzi.
  *
@@ -20,26 +17,28 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-#ifndef ArduIMU_H
-#define ArduIMU_H
+/* Skiron motor speed controller by Michel */
+
+#ifndef ACTUATORS_SKIRON_H
+#define ACTUATORS_SKIRON_H
 
 #include "std.h"
-#include "math/pprz_algebra_float.h"
+#include "mcu_periph/i2c.h"
 
-extern struct FloatEulers arduimu_eulers;
-extern struct FloatRates arduimu_rates;
-extern struct FloatVect3 arduimu_accel;
+#include "generated/airframe.h"
 
-extern float ins_roll_neutral;
-extern float ins_pitch_neutral;
-extern bool_t arduimu_calibrate_neutrals;
+// Use I2C broadcast adderss
+#define ACTUATORS_SKIRON_I2C_ADDR 0x00
 
-void ArduIMU_init( void );
-void ArduIMU_periodic( void );
-void ArduIMU_periodicGPS( void );
-void ArduIMU_event( void );
+struct ActuatorsSkiron {
+  struct i2c_transaction trans;
+  uint8_t actuators_idx[ACTUATORS_SKIRON_NB];
+};
 
-#endif // ArduIMU_H
+extern struct ActuatorsSkiron actuators_skiron;
+
+#include "firmwares/rotorcraft/actuators/supervision.h"
+
+#endif /* ACTUATORS_SKIRON_H */

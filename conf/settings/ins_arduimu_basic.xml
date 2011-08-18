@@ -1,0 +1,11 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="ins">
+      <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ins_roll_neutral" shortname="roll_neutral" param="INS_ROLL_NEUTRAL_DEFAULT" unit="rad"/>
+      <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="ins_pitch_neutral" shortname="pitch_neutral" param="INS_PITCH_NEUTRAL_DEFAULT" unit="rad"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="arduimu_calibrate_neutrals" shortname="calibrate" values="FALSE|TRUE"/>
+    </dl_settings>
+  </dl_settings>
+</settings>

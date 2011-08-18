@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 2011 Gautier Hattenberger
- * based on ArduIMU driver:
- *   Autoren@ZHAW:  schmiemi
- *                  chaneren
  *
  * This file is part of paparazzi.
  *
@@ -23,23 +20,16 @@
  *
  */
 
-#ifndef ArduIMU_H
-#define ArduIMU_H
+/*
+ * Wrapper for the board specific barometer
+ */
 
-#include "std.h"
-#include "math/pprz_algebra_float.h"
+#ifndef BARO_BOARD_MODULE_H
+#define BARO_BOARD_MODULE_H
 
-extern struct FloatEulers arduimu_eulers;
-extern struct FloatRates arduimu_rates;
-extern struct FloatVect3 arduimu_accel;
+#include "subsystems/sensors/baro.h"
 
-extern float ins_roll_neutral;
-extern float ins_pitch_neutral;
-extern bool_t arduimu_calibrate_neutrals;
+static inline void baro_abs(void) {}
+static inline void baro_diff(void) {}
 
-void ArduIMU_init( void );
-void ArduIMU_periodic( void );
-void ArduIMU_periodicGPS( void );
-void ArduIMU_event( void );
-
-#endif // ArduIMU_H
+#endif

@@ -1,9 +1,4 @@
 /*
- * Copyright (C) 2011 Gautier Hattenberger
- * based on ArduIMU driver:
- *   Autoren@ZHAW:  schmiemi
- *                  chaneren
- *
  * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
@@ -23,23 +18,11 @@
  *
  */
 
-#ifndef ArduIMU_H
-#define ArduIMU_H
+#ifndef MAG_HMC58XX_H
+#define MAG_HMC58XX_H
 
-#include "std.h"
-#include "math/pprz_algebra_float.h"
+#include "peripherals/hmc58xx.h"
 
-extern struct FloatEulers arduimu_eulers;
-extern struct FloatRates arduimu_rates;
-extern struct FloatVect3 arduimu_accel;
+extern void mag_hmc58xx_report( void );
 
-extern float ins_roll_neutral;
-extern float ins_pitch_neutral;
-extern bool_t arduimu_calibrate_neutrals;
-
-void ArduIMU_init( void );
-void ArduIMU_periodic( void );
-void ArduIMU_periodicGPS( void );
-void ArduIMU_event( void );
-
-#endif // ArduIMU_H
+#endif // MAG_HMC58XX_H

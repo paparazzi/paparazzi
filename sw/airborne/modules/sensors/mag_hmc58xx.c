@@ -1,9 +1,4 @@
 /*
- * Copyright (C) 2011 Gautier Hattenberger
- * based on ArduIMU driver:
- *   Autoren@ZHAW:  schmiemi
- *                  chaneren
- *
  * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
@@ -23,23 +18,18 @@
  *
  */
 
-#ifndef ArduIMU_H
-#define ArduIMU_H
+#include "modules/sensors/mag_hmc58xx.h"
+#include "mcu_periph/uart.h"
+#include "messages.h"
+#include "downlink.h"
 
-#include "std.h"
-#include "math/pprz_algebra_float.h"
 
-extern struct FloatEulers arduimu_eulers;
-extern struct FloatRates arduimu_rates;
-extern struct FloatVect3 arduimu_accel;
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 
-extern float ins_roll_neutral;
-extern float ins_pitch_neutral;
-extern bool_t arduimu_calibrate_neutrals;
+void mag_hmc58xx_report( void )
+{
+  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,&hmc58xx_data.x,&hmc58xx_data.y,&hmc58xx_data.z);
+}
 
-void ArduIMU_init( void );
-void ArduIMU_periodic( void );
-void ArduIMU_periodicGPS( void );
-void ArduIMU_event( void );
-
-#endif // ArduIMU_H

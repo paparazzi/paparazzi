@@ -123,13 +123,9 @@ void h_ctl_init( void ) {
   h_ctl_course_dgain = H_CTL_COURSE_DGAIN;
   h_ctl_roll_max_setpoint = H_CTL_ROLL_MAX_SETPOINT;
 
-<<<<<<< HEAD
-  h_ctl_pitch_mode = 0;
-=======
 #ifdef USE_AOA
   h_ctl_pitch_mode = 0;
 #endif
->>>>>>> bruzzlee/dev
 
   h_ctl_disabled = FALSE;
 

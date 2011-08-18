@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="baro_board" dir="sensors">
+  <header>
+    <file name="baro_board_module.h"/>
+  </header>
+  <init fun="baro_init()"/>
+  <periodic fun="baro_periodic()" freq="60."/>
+  <periodic fun="baro_downlink_raw()" freq="10." autorun="FALSE"/>
+  <event fun="BaroEvent(baro_abs,baro_diff)"/>
+  <makefile target="ap">
+    <define name="USE_BARO_AS_ALTIMETER"/>
+    <file name="baro_board.c" dir="boards/$(BOARD)"/>
+    <define name="ADS1114_I2C_DEVICE" value="i2c1"/>
+    <file name="ads1114.c" dir="peripherals"/>
+  </makefile>
+</module>
+
