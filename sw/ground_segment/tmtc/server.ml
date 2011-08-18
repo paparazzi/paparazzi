@@ -78,9 +78,12 @@ let expand_aicraft x =
   with Failure msg ->
     begin
       prerr_endline ("A failure occurred while processing aircraft '"^ac_name^"'");
-      prerr_endline "Please remove it from 'conf.xml' or fix its parameter(s)";
+      prerr_endline (" - Fail with : "^msg);
+      prerr_endline (" - '"^ac_name^"' will be ignored by the server");
+      prerr_endline " - Please remove it from 'conf.xml' or fix its parameter(s)";
       flush stderr;
-      failwith msg
+      (*failwith msg*)
+      Xml.Element ("ignoring_aircraft",["name", ac_name],[])
     end
 
 let make_element = fun t a c -> Xml.Element (t,a,c)
