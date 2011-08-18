@@ -23,6 +23,7 @@ struct FloatVect3 arduimu_accel;
 
 float ins_roll_neutral;
 float ins_pitch_neutral;
+bool_t arduimu_calibrate_neutrals;
 
 void ArduIMU_init( void ) {}
 void ArduIMU_periodic( void ) {}
