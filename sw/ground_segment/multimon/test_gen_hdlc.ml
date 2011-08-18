@@ -1,13 +1,13 @@
 let my_write = fun fd buf ->
   let rec loop = fun i ->
     Printf.printf "i=%d\n%!" i;
-    let r = String.length buf - i in 
+    let r = String.length buf - i in
     if r > 0   then
       loop (i + Unix.write fd buf i (min 8192 r)) in
   loop 0
 
 
-let _ = 
+let _ =
   let _fd = Hdlc.init_gen "/dev/dsp" in
 
   let i = ref 0 in

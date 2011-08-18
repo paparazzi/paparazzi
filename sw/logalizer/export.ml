@@ -2,7 +2,7 @@
  * $Id$
  *
  * GUI to export some values of a log
- *  
+ *
  * Copyright (C) 2008, ENAC
  *
  * This file is part of paparazzi.
@@ -20,13 +20,13 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
 open Printf
 open Latlong
- 
+
 let (//) = Filename.concat
 let class_name="telemetry"
 
@@ -58,7 +58,7 @@ let display_columns = fun treeview model ->
   vc#set_clickable true;
   ignore (renderer#connect#toggled ~callback:(item_toggled ~model ~column:col_to_export));
   ignore (treeview#append_column vc)
-    
+
 
 (****************************************************************************)
 (** Fill the tree model from the message_xml data structure *)
@@ -120,7 +120,7 @@ let date_of_log_filename = fun filename ->
     exc ->
       fprintf stderr "Error parsing filename to get date (%s) : %s\nUsing current time\n%!" filename (Printexc.to_string exc);
       Unix.gettimeofday ()
-    
+
 let format_time = fun t ->
   let tm = Unix.gmtime t in
   let sec = float  tm.Unix.tm_sec +. fst (modf t) in
@@ -146,8 +146,8 @@ let export_values = fun ?(sep="tab") ?(export_geo_pos=true) (model:GTree.tree_st
   let xml = ExtXml.Gconf.add_entry xml "log plotter" "to_export" value in
   let f = open_out Env.gconf_file in
   Printf.fprintf f "%s\n" (ExtXml.to_string_fmt xml);
-  close_out f;  
-  
+  close_out f;
+
   let f = open_out filename in
   (* Print the header *)
   fprintf f "Time%sUTC" sep;
@@ -165,7 +165,7 @@ let export_values = fun ?(sep="tab") ?(export_geo_pos=true) (model:GTree.tree_st
   let print_last_values = fun t ->
     let all_values = ref true in
 
-    let lookup = fun m field  -> 
+    let lookup = fun m field  ->
       try
 	Pprz.string_of_value (Hashtbl.find last_values (m,String.lowercase field))
       with
@@ -193,7 +193,7 @@ let export_values = fun ?(sep="tab") ?(export_geo_pos=true) (model:GTree.tree_st
       if s = "" then all_values := false;
       s in
 
-    List.iter 
+    List.iter
       (fun (m,field) ->
 	let v = lookup m field  in
 	bprintf buf "%s%s" sep v)
@@ -226,7 +226,7 @@ let export_values = fun ?(sep="tab") ?(export_geo_pos=true) (model:GTree.tree_st
 	print_last_values t
     | _ -> ())
     data;
-  
+
   close_out f;;
 
 
@@ -237,7 +237,7 @@ let read_preferences = fun () ->
       let xml = Xml.parse_file Env.gconf_file in
       let to_export = ExtXml.Gconf.get_value xml "to_export" in
       let pairs = Str.split (Str.regexp ";") to_export in
-      List.map 
+      List.map
 	(fun s ->
 	  match Str.split (Str.regexp ":") s with
 	    [m; f] -> (m, f)
@@ -253,7 +253,7 @@ let read_preferences = fun () ->
 let save_values = fun w filename save ->
   match GToolbox.select_file ~title:"Save Values" ~filename () with
     None -> ()
-  | Some file -> 
+  | Some file ->
       save file;
       w#export#destroy ()
 
@@ -298,7 +298,7 @@ let popup = fun ?(no_gui = false) xml log_filename data ->
 	      let data = get_timestamp () in
 	      w#entry_period#misc#set_sensitive (data = "Periodic")));
 
-	    
+
 
   (* The combo box for the separator *)
   let strings = ["tab"; ";"; ","] in
@@ -323,7 +323,7 @@ let popup = fun ?(no_gui = false) xml log_filename data ->
     let sep = get_separator () in
 
     let do_export = fun x -> export_values ~sep ~export_geo_pos:w#checkbutton_LL#active model data timestamp x in
-   
+
     let default_filename = Env.paparazzi_home // "var" // "logs" // log_filename ^ ".csv" in
 
     if no_gui then

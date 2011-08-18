@@ -2,8 +2,8 @@
  * $Id$
  *
  * Downlink protocol (handling messages.xml)
- * 
- * Copyright (c) 2003 Dustin Sallings <dustin@spy.net> 
+ *
+ * Copyright (c) 2003 Dustin Sallings <dustin@spy.net>
  * Copyright (C) 2007 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -21,7 +21,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 

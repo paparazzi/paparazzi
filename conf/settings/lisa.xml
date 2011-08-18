@@ -10,7 +10,7 @@
       <dl_setting MAX="10" MIN="-10" STEP="5" VAR="nav_shift" module="subsystems/nav" handler="IncreaseShift" shortname="inc. shift"/>
       <dl_setting MAX="0" MIN="0" STEP="1" VAR="estimator_flight_time" shortname="flight time" module="autopilot" handler="ResetFlightTimeAndLaunch"/>
       <dl_setting MAX="200" MIN="-200" STEP="10" VAR="nav_radius" module="subsystems/nav" handler="SetNavRadius">
-        <strip_button icon="circle-right.png" name="Circle right" value="1"/>        
+        <strip_button icon="circle-right.png" name="Circle right" value="1"/>
         <strip_button icon="circle-left.png" name="Circle left" value="-1"/>
 	<key_press key="greater" value="1"/>
 	<key_press key="less" value="-1"/>

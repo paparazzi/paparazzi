@@ -2,7 +2,7 @@
  * $Id$
  *
  * XML preprocessing for radio-control parameters
- *  
+ *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -32,11 +32,11 @@ let h_name = "RADIO_H"
 let fos = float_of_string
 type us = int
 
-type channel = { 
+type channel = {
     name : string;
-    min : us; 
-    max : us; 
-    neutral : us; 
+    min : us;
+    max : us;
+    neutral : us;
     averaged : bool }
 
 
@@ -73,7 +73,7 @@ let norm1_ppm = fun c ->
     sprintf "tmp_radio * (MAX_PPRZ / (float)(RC_PPM_SIGNED_TICS_OF_USEC(%d-%d)))" c.max c.min, "0"
   else
     sprintf "tmp_radio * (tmp_radio >=0 ? (MAX_PPRZ/(float)(RC_PPM_SIGNED_TICS_OF_USEC(%d-%d))) : (MIN_PPRZ/(float)(RC_PPM_SIGNED_TICS_OF_USEC(%d-%d))))" c.max c.neutral c.min c.neutral, "MIN_PPRZ"
-      
+
 let gen_normalize_ppm_fir = fun channels ->
   printf "#define NormalizePpmFIR(_ppm, _rc) {\\\n";
   printf "  static uint8_t avg_cpt = 0; /* Counter for averaging */\\\n";
@@ -155,10 +155,10 @@ let _ =
   nl ();
   define "RADIO_FILTER" "7";
   nl ();
-  
-  let channels_params = List.map parse_channel channels in 
+
+  let channels_params = List.map parse_channel channels in
   nl ();
-  
+
   List.iter
     (fun c ->
       begin
@@ -187,6 +187,6 @@ let _ =
   nl ();
   gen_normalize_ppm_iir channels_params;
   nl ();
-  
+
   printf "\n#endif // %s\n" h_name
-	
+

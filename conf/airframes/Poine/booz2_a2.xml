@@ -31,15 +31,15 @@
     <define name="GYRO_P_SENS" value="-0.85" integer="16"/>
     <define name="GYRO_Q_SENS" value=" 0.85" integer="16"/>
     <define name="GYRO_R_SENS" value=" 0.85" integer="16"/>
-  
+
 
     <define name="ACCEL_X_SIGN" value="1"/>
     <define name="ACCEL_Y_SIGN" value="1"/>
-    <define name="ACCEL_Z_SIGN" value="1"/>    
+    <define name="ACCEL_Z_SIGN" value="1"/>
 
     <define name="ACCEL_X_CHAN" value="2"/>
     <define name="ACCEL_Y_CHAN" value="5"/>
-    <define name="ACCEL_Z_CHAN" value="6"/>    
+    <define name="ACCEL_Z_CHAN" value="6"/>
 
     <define name="ACCEL_X_SENS" value="-6.29676358" integer="16"/>
     <define name="ACCEL_Y_SENS" value="-6.07991732" integer="16"/>
@@ -56,9 +56,9 @@
     <define name="MAG_X_CHAN" value="0"/>
     <define name="MAG_Y_CHAN" value="4"/>
     <define name="MAG_Z_CHAN" value="2"/>
-    
+
     <define name="MAG_X_NEUTRAL" value="2339"/>
-    <define name="MAG_Y_NEUTRAL" value="2106"/> 
+    <define name="MAG_Y_NEUTRAL" value="2106"/>
     <define name="MAG_Z_NEUTRAL" value="1902"/>
 
     <define name="MAG_X_SENS" value="-4.4039655" integer="16"/>

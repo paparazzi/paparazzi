@@ -37,7 +37,7 @@
 
   <command_laws>
     <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
-    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
+    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
     <set servo="MOTOR"           value="@THROTTLE"/>
     <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
@@ -85,9 +85,9 @@
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
                                         <!-- 0.0247311828 -->
                                         <!-- 0.02432905 -->
-    <define name="VoltageOfAdc(adc)" value="(0.02454*adc)"/>    
+    <define name="VoltageOfAdc(adc)" value="(0.02454*adc)"/>
   </section>
- 
+
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="18." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
@@ -101,7 +101,7 @@
     <define name="DEFAULT_CIRCLE_RADIUS" value="120."/>
     <define name="MIN_CIRCLE_RADIUS" value="50."/>
   </section>
- 
+
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
     <define name="POWER_CTL_BAT_NOMINAL" value="10" unit="volt"/>
@@ -177,7 +177,7 @@
     <define name="DEVICE_TYPE" value="XBEE"/>
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
- 
+
   <section name="MICROMAG">
 
     <define name="MM_SS_PIN" value="20"/>
@@ -214,7 +214,7 @@ ap.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\" -DSERVOS_4017
 ap.srcs += $(SRC_ARCH)/servos_4017_hw.c actuators.c
 
 ap.CFLAGS += -DRADIO_CONTROL
-ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
+ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=XBeeTransport -DXBEE_UART=Uart1 -DDATALINK=XBEE -DUART1_BAUD=B57600
 ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c xbee.c
@@ -224,7 +224,7 @@ ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c xbee.c
 #ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c pprz_transport.c
 
 ap.CFLAGS += -DINTER_MCU
-ap.srcs += inter_mcu.c 
+ap.srcs += inter_mcu.c
 
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_6
 ap.srcs += $(SRC_ARCH)/adc_hw.c

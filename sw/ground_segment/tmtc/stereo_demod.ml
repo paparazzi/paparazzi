@@ -2,7 +2,7 @@
  * $Id$
  *
  * Hardware modem receiver
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -91,8 +91,8 @@ let listen_pprz_modem = fun pprz_message_cb devdsp ->
 
 (** Modem monitoring messages *)
 let send_modem_msg = fun status ->
-  let rx_msg = ref 0 
-  and rx_byte = ref 0 
+  let rx_msg = ref 0
+  and rx_byte = ref 0
   and start = Unix.gettimeofday () in
   fun () ->
     let dt = float modem_msg_period /. 1000. in
@@ -102,7 +102,7 @@ let send_modem_msg = fun status ->
     rx_msg := status.rx_msg;
     rx_byte := status.rx_byte;
     let vs = ["run_time", Pprz.Int t;
-	      "rx_bytes_rate", Pprz.Float byte_rate; 
+	      "rx_bytes_rate", Pprz.Float byte_rate;
 	      "rx_msgs_rate", Pprz.Float msg_rate;
 	      "rx_err", Pprz.Int status.rx_err;
 	      "rx_bytes", Pprz.Int status.rx_byte;
@@ -121,7 +121,7 @@ let _ =
     options
     (fun x -> fprintf stderr "Warning:ignoring %s\n" x)
     "Usage: ";
-  
+
   Ivy.init "Paparazzi stereo demod" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
@@ -130,9 +130,9 @@ let _ =
 
   (** Sending periodically modem and downlink status messages *)
   let send_left = send_modem_msg status_left
-  and send_right = send_modem_msg status_right in    
+  and send_right = send_modem_msg status_right in
   ignore (Glib.Timeout.add modem_msg_period (fun () -> send_left (); send_right (); true));
-  
+
   let loop = Glib.Main.create true in
   while Glib.Main.is_running loop do
     ignore (Glib.Main.iteration true)

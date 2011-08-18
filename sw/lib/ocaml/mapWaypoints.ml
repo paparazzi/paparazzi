@@ -2,7 +2,7 @@
  * $Id$
  *
  * Waypoints objects
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -55,14 +55,14 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
 
   let wpt_group = GnoCanvas.group wpts_group#group in
 
-  let item = 
+  let item =
     GnoCanvas.rect wpt_group ~x1:(-.s) ~y1:(-.s) ~x2:s ~y2:s ~props:[`FILL_COLOR color; `OUTLINE_COLOR "black"] in
 
   let anim = function
       None ->
 	Some (Glib.Timeout.add 500 (fun () -> Gdk.X.beep (); item#affine_relative rotation_45; true))
     | Some x -> Some x in
-	
+
 
   object (self)
     val mutable x0 = 0.
@@ -91,7 +91,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
     method alt = alt
     method label = label
     method xy = let a = wpt_group#i2w_affine in (a.(4), a.(5))
-    method move dx dy = 
+    method move dx dy =
       wpt_group#move dx dy;
       wpt_group#raise_to_top ()
     method edit =
@@ -136,7 +136,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
       let minus10= GButton.button ~label:"-10" ~packing:ha#add () in
 (*      let ea  = GEdit.entry ~text:(string_of_float alt) ~packing:ha#add () in *)
       let ea = GEdit.spin_button  ~rate:0. ~digits:2 ~width:50 ~packing:ha#add ()
-      and adj = GData.adjustment 
+      and adj = GData.adjustment
 	  ~value:alt ~lower:(-100.) ~upper:10000.
 	  ~step_incr:1. ~page_incr:10.0 ~page_size:0. () in
       ea#set_adjustment adj;
@@ -176,7 +176,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
 
       (** Delete button for editable waypoints *)
       if editable then begin
-	let delete = GButton.button ~stock:`DELETE ~packing: dhbx#add () in 
+	let delete = GButton.button ~stock:`DELETE ~packing: dhbx#add () in
 	let delete_callback = fun () ->
 	  dialog#destroy ();
 	self#delete ();
@@ -219,7 +219,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
 		  and y = GdkEvent.Button.y ev in
 		  x0 <- x; y0 <- y;
 		  let curs = Gdk.Cursor.create `FLEUR in
-		  item#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs 
+		  item#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs
 		    (GdkEvent.Button.time ev)
 	      | _ -> ()
 	    end
@@ -229,7 +229,7 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
 	      motion <- true;
 	      let x = GdkEvent.Motion.x ev
 	      and y = GdkEvent.Motion.y ev in
-	      let dx = geomap#current_zoom *. (x-. x0) 
+	      let dx = geomap#current_zoom *. (x-. x0)
 	      and dy = geomap#current_zoom *. (y -. y0) in
 	      self#move dx dy ;
 	      updated ();
@@ -247,18 +247,18 @@ class waypoint = fun ?(show = true) (wpts_group:group) (name :string) ?(alt=0.) 
       true
     initializer ignore(item#connect#event self#event)
     method moved = moved <> None
-    method reset_moved () = 
+    method reset_moved () =
       match moved with
 	None -> ()
       | Some x ->
 	  Glib.Timeout.remove x;
 	  item#affine_absolute rotation_45;
 	  moved <- None
-	  
+
     method deleted = deleted
     method item = item
     method pos = geomap#of_world self#xy
-    method set ?altitude ?(update=false) wgs84 = 
+    method set ?altitude ?(update=false) wgs84 =
       let (xw, yw) = geomap#world_of wgs84
       and (xw0, yw0) = self#xy
       and z = geomap#zoom_adj#value in

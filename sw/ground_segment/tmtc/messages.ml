@@ -2,7 +2,7 @@
  * $Id$
  *
  * Multi aircrafts receiver, logger and broadcaster
- *  
+ *
  * Copyright (C) 2005 CENA/ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -35,7 +35,7 @@ let dnd_targets = [ { Gtk.target = "STRING"; flags = []; info = 0} ]
 
 let pipe_regexp = Str.regexp "|"
 let values_of_field = fun field ->
-  try 
+  try
     Array.of_list (Str.split pipe_regexp (Xml.attrib field "values"))
   with
     _ -> [||]
@@ -51,7 +51,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
   let eb = GBin.event_box ~packing:h#pack () in
   let time = GMisc.label ~width:40 ~packing:eb#add () in
   eb#coerce#misc#modify_bg [`SELECTED, `NAME "green"];
-  let fields = 
+  let fields =
     List.fold_left
       (fun rest f ->
 	try
@@ -72,17 +72,17 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
 	      fun value -> sprintf "%s (%f%s)" value (coeff*.float_of_string value) unit
 	    with
 	      _ -> fun value -> value in
-	  let update = fun (_a, x) -> 
-	    value := 
-	      try 
+	  let update = fun (_a, x) ->
+	    value :=
+	      try
 		let i = Pprz.int_of_value x in
 		sprintf "%s (%d)" literal_values.(i) i
-	      with _ -> 
+	      with _ ->
 		alt_value (Pprz.string_of_value x)
 	  and display_value = fun () ->
 	    if notebook#page_num v#coerce = notebook#current_page then
 	      if l#label <> !value then l#set_text !value in
-	  
+
 	  (* box dragger *)
 	  field_label#drag#source_set dnd_targets ~modi:[`BUTTON1] ~actions:[`COPY];
 	  let data_get = fun _ (sel:GObj.selection_context) ~info ~time ->
@@ -99,7 +99,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
 
 	  (update, display_value)::rest
 	with
-	  _ -> 
+	  _ ->
 	    fprintf stderr "Warning: Ignoring '%s'\n%!" (Xml.to_string f);
 	    rest
       )
@@ -143,7 +143,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
     time_since_last := 0;
     try
       List.iter2 (fun f x -> f x) update_values (List.rev values);
-      
+
       eb#coerce#misc#set_state `SELECTED;
       ignore (GMain.Timeout.add led_delay (fun () -> eb#coerce#misc#set_state `NORMAL; false))
     with
@@ -166,10 +166,10 @@ let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
 	  Hashtbl.add senders sender ();
 	  one_class notebook (ident,  xml_class, Some sender)
 	end in
-      List.iter 
+      List.iter
 	(fun m -> ignore (P.message_bind (Xml.attrib m "name") get_one))
 	messages
-  | _ -> 
+  | _ ->
       let class_notebook = GPack.notebook ~tab_border:0 ~tab_pos:`LEFT () in
       let l = match sender with None -> "" | Some s -> ":"^s in
       let label = GMisc.label ~text:(ident^l) () in
@@ -214,8 +214,8 @@ let _ =
       try
 	List.find (fun x -> ExtXml.attrib x "name" = n) (Xml.children xml)
       with Not_found -> failwith (sprintf "Unknown messages class: %s" n) in
-    
-    List.map (fun x -> 
+
+    List.map (fun x ->
       match Str.split (Str.regexp ":") x with
 	[cl; s] -> (cl, class_of cl, Some s)
       | [cl] -> (x, class_of cl, None)

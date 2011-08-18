@@ -24,7 +24,7 @@
 
 /** \file geiger_counter.c
  *  \brief I2C interface for University of Reading Geiger counter
- *   
+ *
  */
 
 #include "modules/meteo/geiger_counter.h"
@@ -56,21 +56,21 @@ void geiger_counter_periodic( void ) {
 
 void geiger_counter_event( void ) {
   if (geiger_trans.status == I2CTransSuccess) {
-    count_geiger_1  = (geiger_trans.buf[3] << 24) | 
+    count_geiger_1  = (geiger_trans.buf[3] << 24) |
                       (geiger_trans.buf[2] << 16) |
                       (geiger_trans.buf[1] << 8) |
                       (geiger_trans.buf[0]);
-    count_geiger_2  = (geiger_trans.buf[7] << 24) | 
+    count_geiger_2  = (geiger_trans.buf[7] << 24) |
                       (geiger_trans.buf[6] << 16) |
                       (geiger_trans.buf[5] << 8) |
                       (geiger_trans.buf[4]);
-    volt_geiger     = (geiger_trans.buf[9] << 8) | 
-                      (geiger_trans.buf[8]);                                            
+    volt_geiger     = (geiger_trans.buf[9] << 8) |
+                      (geiger_trans.buf[8]);
     geiger_trans.status = I2CTransDone;
 
     if (volt_geiger & 0x8000) {
       volt_geiger &= 0x7FFF;
-      DOWNLINK_SEND_GEIGER_COUNTER(DefaultChannel, 
+      DOWNLINK_SEND_GEIGER_COUNTER(DefaultChannel,
           &count_geiger_1, &count_geiger_2, &volt_geiger);
     }
   }

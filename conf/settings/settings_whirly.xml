@@ -4,7 +4,7 @@
   <dl_settings>
 
     <dl_settings NAME="Misc" >
-      <dl_setting VAR="telemetry_mode_Main" MIN="0" STEP="1" MAX="4" module="rdyb_telemetry" shortname="telemetry" 
+      <dl_setting VAR="telemetry_mode_Main" MIN="0" STEP="1" MAX="4" module="rdyb_telemetry" shortname="telemetry"
 	values="Default|Raw sensors|Scaled sensors|AHRS|setup_commands"/>
     </dl_settings>
 

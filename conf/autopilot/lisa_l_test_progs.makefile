@@ -310,7 +310,7 @@ test_adc.CFLAGS += -DUSE_ADC1_2_IRQ_HANDLER
 
 
 #
-# common test 
+# common test
 #
 # configuration
 #   SYS_TIME_LED
@@ -328,7 +328,7 @@ COMMON_TEST_SRCS    = $(SRC_AIRBORNE)/mcu.c            \
 COMMON_TEST_CFLAGS += -DUSE_LED
 COMMON_TEST_SRCS   += $(SRC_ARCH)/led_hw.c
 COMMON_TEST_CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
-COMMON_TEST_CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./$(PERIODIC_FREQUENCY).))' 
+COMMON_TEST_CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./$(PERIODIC_FREQUENCY).))'
 COMMON_TEST_CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 COMMON_TEST_SRCS   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 COMMON_TEST_CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
@@ -443,7 +443,7 @@ ifeq ($(AHRS), icq)
 #test_ahrs.CFLAGS += -DAHRS_TYPE=\"ICQ\"
 test_ahrs.CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=512
 test_ahrs.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl.h\"
-test_ahrs.srcs +=subsystems/ahrs/ahrs_int_cmpl.c 
+test_ahrs.srcs +=subsystems/ahrs/ahrs_int_cmpl.c
 endif
 
 ifeq ($(AHRS), flq)

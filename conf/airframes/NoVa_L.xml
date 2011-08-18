@@ -236,7 +236,7 @@
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
  </section>
 
-<!-- 
+<!--
  <modules main_freq="512">
    <load name="vehicle_interface_overo_link.xml"/>
  </modules>
@@ -267,7 +267,7 @@
       <configure name="GPS_BAUD"    value="B57600"/>
     </subsystem>
    <!--    <subsystem name="ahrs"          type="cmpl"/> -->
-   <subsystem name="ahrs"          type="ic"/> 
+   <subsystem name="ahrs"          type="ic"/>
     <subsystem name="ins"           type="hff"/>
   </firmware>
 

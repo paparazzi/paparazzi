@@ -1,7 +1,7 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
 <!--
-  
+
   Pressure Board Navarro (2010)
 
   by Matthieu Navarro
@@ -13,7 +13,7 @@
 -->
 
 <module name="pbn" dir="sensors">
-  
+
   <header>
     <file name="pressure_board_navarro.h"/>
   </header>
@@ -21,8 +21,8 @@
   <periodic fun="pbn_periodic()" freq="10"/>
   <event fun="PbnEvent()"/>
 
-  <makefile> 
-    <file name="pressure_board_navarro.c"/> 
+  <makefile>
+    <file name="pressure_board_navarro.c"/>
   </makefile>
 
 </module>

@@ -2,7 +2,7 @@
  * $Id$
  *
  * Strip handling
- *  
+ *
  * Copyright (C) 2006 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -48,8 +48,8 @@ type t =
       set_color : string -> string -> unit;
       set_label : string -> string -> unit;
       set_rc : int -> string -> unit;
-      connect : (unit -> unit) -> unit; 
-      hide_buttons : unit -> unit; 
+      connect : (unit -> unit) -> unit;
+      hide_buttons : unit -> unit;
       show_buttons : unit -> unit >
 
 type strip_param = {
@@ -60,7 +60,7 @@ type strip_param = {
   alt_shift_plus : float;
   alt_shift_minus : float; }
 
-  
+
 let agl_max = 150.
 
 (** window for the strip panel *)
@@ -71,7 +71,7 @@ let strips_table = GPack.vbox ~spacing:5 ~packing:scrolled#add_with_viewport ()
 
 
 (** set a label *)
-let set_label labels name value = 
+let set_label labels name value =
   try
     let _eb, l = List.assoc (name^"_value") labels in
     let value = sprintf "<b>%s</b>" value in
@@ -82,7 +82,7 @@ let set_label labels name value =
       fprintf stderr "Strip.set_label: '%s' unknown\n%!" name
 
 (** set a color *)
-let set_color labels name color = 
+let set_color labels name color =
   let eb, _l = List.assoc (name^"_value") labels in
   eb#coerce#misc#modify_bg [`NORMAL, `NAME color]
 
@@ -115,11 +115,11 @@ class vgauge = fun ?(color="green") ?(history_len=50) gauge_da v_min v_max ->
 	let dr = self#get_pixmap () in
 	dr#set_foreground (`NAME background);
 	dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
-	
+
 	let f = (value -. v_min) /. (v_max -. v_min) in
 	let f = max 0. (min 1. f) in
 	let h = truncate (float height *. f) in
-	
+
 	(* First call: fill the array with the given value *)
 	if history_index < 0 then begin
 	  for i = 0 to history_len - 1 do
@@ -127,13 +127,13 @@ class vgauge = fun ?(color="green") ?(history_len=50) gauge_da v_min v_max ->
 	  done;
 	  history_index <- 0;
 	end;
-	
+
 	(* Store the value in the history array and update index *)
 	history.(history_index) <- h;
 	history_index <- (history_index+1) mod history_len;
-	
+
 	dr#set_foreground (`NAME color);
-	
+
 	(* From left to right, older to new values *)
 	let polygon = ref [0,height; width,height] in
 	for i = 0 to history_len - 1 do
@@ -161,16 +161,16 @@ class vgauge = fun ?(color="green") ?(history_len=50) gauge_da v_min v_max ->
 	      and ay' = truncate (sin a' *. al) in
 	      let l = [w/10, h/2; w/10+x,h/2+y; w/10+x+ax,h/2+y+ay; w/10+x,h/2+y; w/10+x+ax',h/2+y+ay'] in
 	      dr#set_foreground `BLACK;
-	      dr#lines l	      
+	      dr#lines l
 	end;
-	
+
 	List.iter (fun (vpos, string) ->
-	  let layout = self#layout string in 
+	  let layout = self#layout string in
 	  let (w,h) = Pango.Layout.get_pixel_size layout in
 	  let y = truncate (vpos *. float height) - h / 2 in
 	  dr#put_layout ~x:((width-w)/2) ~y ~fore:`BLACK layout)
 	  strings;
-	
+
 	(new GDraw.drawable gauge_da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
   end
 
@@ -183,18 +183,18 @@ class hgauge = fun ?(color="green") gauge_da v_min v_max ->
 	let dr = self#get_pixmap () in
 	dr#set_foreground (`NAME background);
 	dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
-	
+
 	let f = (value -. v_min) /. (v_max -. v_min) in
 	let f = max 0. (min 1. f) in
 	let w = truncate (float width *. f) in
 
 	dr#set_foreground (`NAME color);
 	dr#rectangle ~x:0 ~y:0 ~width:w ~height ~filled:true ();
-	
+
 	let layout = self#layout string in
 	let (w,h) = Pango.Layout.get_pixel_size layout in
 	dr#put_layout ~x:((width-w)/2) ~y:((height-h)/2) ~fore:`BLACK layout;
-	
+
 	(new GDraw.drawable gauge_da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
   end
 
@@ -209,7 +209,7 @@ let add = fun config strip_param ->
   and alt_shift_minus = strip_param.alt_shift_minus in
 
   let strip_labels = ref  [] in
-  let add_label = fun name value -> 
+  let add_label = fun name value ->
     strip_labels := (name, value) :: !strip_labels in
 
   let ac_name = Pprz.string_assoc "ac_name" config in
@@ -308,11 +308,11 @@ let add = fun config strip_param ->
     val mutable climb = 0.
     val mutable button_tbl = Hashtbl.create 10
     method set_climb = fun v -> climb <- v
-    method set_agl value = 
+    method set_agl value =
       let arrow = max (min 0.5 (climb /. 5.)) (-0.5) in
       agl#set ~arrow value [0.2, (sprintf "%3.0f" value); 0.8, sprintf "%+.1f" climb]
     method set_bat value = bat#set value [0.5, (string_of_float value)]
-    method set_throttle ?(kill=false) value = 
+    method set_throttle ?(kill=false) value =
       let background = if kill then "red" else "orange" in
       throttle#set ~background value (sprintf "%.0f%%" value)
     method set_speed value = speed#set value (sprintf "%.1fm/s" value)
@@ -343,8 +343,8 @@ let add = fun config strip_param ->
       (*let vbox = GPack.vbox ~show:true () in*)
       vbox#pack ~fill:false w;
       if pack then strip#hbox_user#pack ~fill:false vbox#coerce else ()
-    
-    method connect_shift_alt callback = 
+
+    method connect_shift_alt callback =
       let tooltips = GData.tooltips () in
       let text = Printf.sprintf "Altitude %+.1fm" alt_shift_minus in
       ignore (tooltips#set_tip strip#button_down#coerce ~text);
@@ -356,13 +356,13 @@ let add = fun config strip_param ->
         [ strip#button_down, alt_shift_minus;
           strip#button_up, alt_shift_plus;
           strip#button_up_up, alt_shift_plus_plus]
-	
+
     method connect_shift_lateral = fun callback ->
       connect_buttons callback
 	[ strip#button_left, -5.;
 	  strip#button_right, 5.;
 	  strip#button_center, 0.]
-	
+
     method connect_kill = fun callback ->
       let callback = fun x ->
 	if x = 1. then
@@ -375,7 +375,7 @@ let add = fun config strip_param ->
       connect_buttons callback
 	[ strip#button_kill, 1.;
 	  strip#button_resurrect, 0.]
-	
+
     method connect_launch = fun callback ->
       connect_buttons callback
 	[ strip#button_launch, 1. ]
@@ -386,7 +386,7 @@ let add = fun config strip_param ->
 	  1 -> callback 2.; true
 	| _ -> true in
       ignore(strip#eventbox_mode#event#connect#button_press ~callback)
-	
+
     (* Reset the flight time *)
     method connect_flight_time = fun callback ->
       let callback = fun _ -> (* Reset flight time *)
@@ -416,8 +416,8 @@ let add = fun config strip_param ->
 	 true
        in
        ignore(strip#eventbox_RDV#event#connect#button_press ~callback)
-       
-	 
+
+
     method hide_buttons () = strip#hbox_user#misc#hide (); strip#frame_nav#misc#set_sensitive false
     method show_buttons () = strip#hbox_user#misc#show (); strip#frame_nav#misc#set_sensitive true
     method connect = fun (select: unit -> unit) ->

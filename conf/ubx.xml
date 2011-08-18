@@ -96,7 +96,7 @@
  </class>
 
  <class name="CFG" ID="0x06">
-  
+
     <message name="PRT" ID="0x00">
       <block length="20">
         <field name="PortId" format="U1"/>

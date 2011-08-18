@@ -2,7 +2,7 @@
  * $Id$
  *
  * Downlink protocol (handling messages.xml)
- *  
+ *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -30,10 +30,10 @@ type class_name = string
 type message_id = int
 type ac_id = int
 type format = string
-type _type = 
+type _type =
     Scalar of string
   | ArrayType of string
-type value = 
+type value =
     Int of int | Float of float | String of string | Int32 of int32
   | Array of value array
 type field = {
@@ -43,8 +43,8 @@ type field = {
     enum : string list (* 'values' attribute *)
   }
 type link_mode = Forwarded | Broadcasted
-type message = { 
-    name : string; 
+type message = {
+    name : string;
     fields : (string * field) list;
     link : link_mode option
   }

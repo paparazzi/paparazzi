@@ -2,7 +2,7 @@
  * $Id$
  *
  * Displaying Google Maps on a MapCanvas object
- *  
+ *
  * Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -32,7 +32,7 @@ open Printf
 module LL = Latlong
 
 (** Quadtreee of displayed tiles *)
-type tiles_tree = 
+type tiles_tree =
     Empty
   | Tile
   | Node of tiles_tree array
@@ -62,12 +62,12 @@ let add_tile = fun tile_key ->
   let rec loop = fun i tree j ->
     if i < String.length tile_key then
       match tree.(j) with
-	Empty -> 
+	Empty ->
 	  let sons = Array.create 4 Empty in
 	  tree.(j) <- Node sons;
 	  loop (i+1) sons (index_of tile_key.[i])
       | Tile -> () (* Already there *)
-      | Node sons -> 
+      | Node sons ->
 	  loop (i+1) sons (index_of tile_key.[i])
     else
       tree.(j) <- Tile in
@@ -80,11 +80,11 @@ let display_the_tile = fun (geomap:MapCanvas.widget) tile jpg_file ->
   let north_lat = south_lat +. tile.Gm.height
   and east_long = west_long +. tile.Gm.width in
   let ne = LL.make_geo north_lat east_long in
-  
+
   let (tx, ty) = Gm.tile_size in
   try
     let pixbuf = GdkPixbuf.from_file jpg_file in
-    ignore (GMain.Idle.add (fun () -> 
+    ignore (GMain.Idle.add (fun () ->
       let map = geomap#display_pixbuf ((0,tx), tile.Gm.sw_corner) ((ty,0),ne) pixbuf in
       map#raise 1;
       false));
@@ -96,7 +96,7 @@ let display_the_tile = fun (geomap:MapCanvas.widget) tile jpg_file ->
 	  Sys.remove jpg_file
       | _ -> ()
 
-    
+
 
 (** Displaying the tile around the given point *)
 let display_tile = fun (geomap:MapCanvas.widget) wgs84 ->
@@ -106,7 +106,7 @@ let display_tile = fun (geomap:MapCanvas.widget) wgs84 ->
   if not (mem_tile key) then
     let (tile, jpg_file) = Gm.get_tile wgs84 1 in
     display_the_tile geomap tile jpg_file
-  
+
 
 exception New_displayed of int
 (** [New_displayed zoom] Raised when a new is loadded *)
@@ -146,7 +146,7 @@ let fill_window = fun (geomap:MapCanvas.widget) ->
 	| Node sons ->
 	    let continue = fun j tw ts ->
 	      loop tw ts tsize2 sons j (zoom-1) (key^String.make 1 (char_of j)) in
-	    
+
 	    continue 0 twest (tsouth+.tsize2);
 	    continue 1 (twest+.tsize2) (tsouth+.tsize2);
 	    continue 2 (twest+.tsize2) tsouth;
@@ -196,7 +196,7 @@ let pixbuf = fun sw ne ->
 	  raise (To_copy (19-String.length tile.Gm.key, image))
 	else begin
 	  let continue = fun j tw ts ->
-	    loop tw ts tsize2 (zoom-1) (key^String.make 1 (char_of j)) in 
+	    loop tw ts tsize2 (zoom-1) (key^String.make 1 (char_of j)) in
 	  continue 0 twest (tsouth+.tsize2);
 	  continue 1 (twest+.tsize2) (tsouth+.tsize2);
 	  continue 2 (twest+.tsize2) tsouth;

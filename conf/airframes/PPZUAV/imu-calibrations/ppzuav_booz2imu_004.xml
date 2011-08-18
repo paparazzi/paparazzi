@@ -21,7 +21,7 @@
     <define name="ACCEL_X_CHAN" value="5"/>
     <define name="ACCEL_Y_CHAN" value="3"/>
     <define name="ACCEL_Z_CHAN" value="4"/>
-    
+
 <define name="ACCEL_X_NEUTRAL" value="32610"/>
 <define name="ACCEL_Y_NEUTRAL" value="32891"/>
 <define name="ACCEL_Z_NEUTRAL" value="32373"/>
@@ -33,7 +33,7 @@
     <define name="MAG_X_CHAN" value="0"/>
     <define name="MAG_Y_CHAN" value="1"/>
     <define name="MAG_Z_CHAN" value="2"/>
-    
+
 <define name="MAG_X_NEUTRAL" value="-20"/>
 <define name="MAG_Y_NEUTRAL" value="11"/>
 <define name="MAG_Z_NEUTRAL" value="-15"/>

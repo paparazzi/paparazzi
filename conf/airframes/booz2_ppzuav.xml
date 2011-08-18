@@ -201,7 +201,7 @@
 <!-- FIRMWARE -->
 <firmware name="rotorcraft">
   <target name="ap" board="booz_1.0">
-    <configure  name="FLASH_MODE" value="IAP"/>   <!-- default for the board but putting it here as example--> 
+    <configure  name="FLASH_MODE" value="IAP"/>   <!-- default for the board but putting it here as example-->
   </target>
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>

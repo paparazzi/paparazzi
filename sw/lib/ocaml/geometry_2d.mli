@@ -2,7 +2,7 @@
  * $Id$
  *
  * 2D Geometry
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -34,7 +34,7 @@
 (** {6 Types} *)
 
 (** Type point/vecteur 2D en coordonnees cartesiennes *)
-type pt_2D = { x2D : float; y2D : float; } 
+type pt_2D = { x2D : float; y2D : float; }
 
 (** Type point/vecteur 2D en coordonnees polaires *)
 type pt_2D_polar = { r2D : float; theta2D : float; }

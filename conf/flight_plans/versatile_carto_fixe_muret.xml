@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<flight_plan alt="240" ground_alt="190" lat0="43.4622" lon0="1.2729" max_dist_from_home="1200" name="Versatile" qfu="270" security_height="60"> 
+<flight_plan alt="240" ground_alt="190" lat0="43.4622" lon0="1.2729" max_dist_from_home="1200" name="Versatile" qfu="270" security_height="60">
 
 <!--<flight_plan alt="240" ground_alt="190" lat0="43.224622" lon0="1.2729" max_dist_from_home="900" name="Versatile" qfu="270" security_height="25"> -->
   <header>
@@ -59,7 +59,7 @@ float varsweepsize=110;
       <call fun="NavSetGroundReferenceHere()"/>
       <deroute block="Holding point"/>
     </block>
-   
+
     <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
       <exception cond="estimator_z > ground_alt+25" deroute="Standby"/>
       <set value="0" var="kill_throttle"/>
@@ -69,25 +69,25 @@ float varsweepsize=110;
       <circle radius="nav_radius" wp="STDBY"/>
     </block>
 
- 
+
 
     <block name="IncRailNumber" strip_button="Standby" strip_icon="home.png">
-		    <call fun="nav_survey_Inc_railnumberSinceBoot()"/>		    
+		    <call fun="nav_survey_Inc_railnumberSinceBoot()"/>
 	    <circle radius="nav_radius" wp="STDBY"/>
     </block>
 
     <block name="Snapshoot" strip_button="Standby" strip_icon="home.png">
-		    <call fun="nav_survey_Snapshoot()"/>		    
+		    <call fun="nav_survey_Snapshoot()"/>
 	    <circle radius="nav_radius" wp="STDBY"/>
     </block>
 
     <block name="SnapshootContinu" strip_button="Standby" strip_icon="home.png">
-		    <call fun="nav_survey_Snapshoot_Continu()"/>		    
+		    <call fun="nav_survey_Snapshoot_Continu()"/>
 	    <circle radius="nav_radius" wp="STDBY"/>
     </block>
 
     <block name="StopSnapshoot" strip_button="Standby" strip_icon="home.png">
-		    <call fun="nav_survey_StopSnapshoot()"/>		    
+		    <call fun="nav_survey_StopSnapshoot()"/>
 	    <circle radius="nav_radius" wp="STDBY"/>
     </block>
 
@@ -101,7 +101,7 @@ float varsweepsize=110;
       <call fun="NavSetWaypointHere(WP_MOB)"/>
       <circle radius="100" wp="MOB"/>
     </block>
- 
+
 
 
   <block name="init_display_carto">
@@ -115,7 +115,7 @@ float varsweepsize=110;
       <exception cond="estimator_z > ground_alt+100" deroute="Carto survey S1-S2-S3"/>
     </block>
 
-  
+
     <block name="Carto survey S1-S2-S3" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">
       <call fun="nav_survey_computefourth_corner(WP_S1,WP_S2,WP_S3,WP_S4)"/>
       <call fun="nav_survey_losange_carto_init(WP_S1,WP_S2,WP_S3, 50,150)"/>

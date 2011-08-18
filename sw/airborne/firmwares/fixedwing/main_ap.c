@@ -429,7 +429,7 @@ void periodic_task_ap( void ) {
   // Run at PERIODIC_FREQUENCY (60Hz if not defined)
   imu_periodic();
   if (ahrs_timeout_counter < 255)
-    ahrs_timeout_counter ++; 
+    ahrs_timeout_counter ++;
 
 #endif // USE_IMU
 

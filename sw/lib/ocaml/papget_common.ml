@@ -2,7 +2,7 @@
  * $Id$
  *
  * Commons for papgets
- *  
+ *
  * Copyright (C) 2008 ENAC
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -37,7 +37,7 @@ let property = fun name value ->
   Xml.Element("property", [ "name", name; "value", value ], [])
 
 let xml = fun type_ display_ properties ->
-  Xml.Element ("papget", ["type", type_; "display", display_], 
+  Xml.Element ("papget", ["type", type_; "display", display_],
 	       List.map (fun (x, y) -> property x y) properties)
 
 let float_property = fun name value ->

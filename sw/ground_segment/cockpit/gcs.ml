@@ -322,7 +322,7 @@ let keys_help = fun () ->
 
 
 (***************** MAIN ******************************************************)
-let ivy_bus = ref Defivybus.default_ivy_bus 
+let ivy_bus = ref Defivybus.default_ivy_bus
 and geo_ref = ref ""
 and map_files = ref []
 and center = ref ""

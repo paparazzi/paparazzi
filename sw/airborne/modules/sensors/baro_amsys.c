@@ -133,7 +133,7 @@ void baro_amsys_read_periodic( void ) {
 
 void baro_amsys_read_event( void ) {
 	pBaroRaw = 0;
-	// Get raw altimeter from buffer	
+	// Get raw altimeter from buffer
 	pBaroRaw = (baro_amsys_i2c_trans.buf[0] << 8) | baro_amsys_i2c_trans.buf[1];
 #ifdef MEASURE_AMSYS_TEMPERATURE
 	tBaroRaw = (baro_amsys_i2c_trans.buf[2] << 8) | baro_amsys_i2c_trans.buf[3];
@@ -154,7 +154,7 @@ void baro_amsys_read_event( void ) {
 			pBaroRaw = BARO_AMSYS_OFFSET_MIN;
 		if (pBaroRaw > BARO_AMSYS_OFFSET_MAX)
 			pBaroRaw = BARO_AMSYS_OFFSET_MAX;
-		
+
 		//Convert to pressure
 		baro_amsys_p = (float)(pBaroRaw-BARO_AMSYS_OFFSET_MIN)*BARO_AMSYS_MAX_PRESSURE/(float)(BARO_AMSYS_OFFSET_MAX-BARO_AMSYS_OFFSET_MIN);
 		if (!baro_amsys_offset_init) {
@@ -165,14 +165,14 @@ void baro_amsys_read_event( void ) {
 				baro_amsys_offset = (float)(baro_amsys_offset_tmp / BARO_AMSYS_OFFSET_NBSAMPLES_AVRG);
 				ref_alt_init = GROUND_ALT;
 				baro_amsys_offset_init = TRUE;
-			
+
 				// hight over Sea level at init point
-				//baro_amsys_offset_altitude = 288.15 / 0.0065 * (1 - pow((baro_amsys_p)/1013.25 , 1/5.255));  
+				//baro_amsys_offset_altitude = 288.15 / 0.0065 * (1 - pow((baro_amsys_p)/1013.25 , 1/5.255));
 			}
 			// Check if averaging needs to continue
 			else if (baro_amsys_cnt <= BARO_AMSYS_OFFSET_NBSAMPLES_AVRG)
 				baro_amsys_offset_tmp += baro_amsys_p;
-			
+
 			baro_amsys_altitude = 0.0;
 
 		}
@@ -180,8 +180,8 @@ void baro_amsys_read_event( void ) {
 			// Lowpassfiltering and convert pressure to altitude
 			baro_amsys_altitude = baro_filter * baro_old + (1 - baro_filter) * (baro_amsys_offset-baro_amsys_p)/(1.2041*9.81);
 			baro_old = baro_amsys_altitude;
-			
-			
+
+
 			//New value available
 			//EstimatorSetAlt(baro_amsys_abs_altitude);
 		}
@@ -189,8 +189,8 @@ void baro_amsys_read_event( void ) {
 	} /*else {
 		baro_amsys_abs_altitude = 0.0;
 	}*/
-	
-	
+
+
 	// Transaction has been read
 	baro_amsys_i2c_trans.status = I2CTransDone;
 #ifdef SENSOR_SYNC_SEND
@@ -198,5 +198,5 @@ void baro_amsys_read_event( void ) {
 #else
 	RunOnceEvery(10, DOWNLINK_SEND_AMSYS_BARO(DefaultChannel, &pBaroRaw, &baro_amsys_p, &baro_amsys_offset, &ref_alt_init, &baro_amsys_abs_altitude, &baro_amsys_altitude, &baro_amsys_temp));
 #endif
-	
+
 }

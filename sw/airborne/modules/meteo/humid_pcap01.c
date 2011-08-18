@@ -246,7 +246,7 @@ void pcap01_event(void)
 	 	pcap01Value.R_ratio |= pcap01_trans.buf[2];
 		humidity = pcap01Value.C_ratio * (-0.0023959245437) + 516.4124438673063;
 		temperature = pcap01Value.R_ratio * 61.927 - 259.74;
-		DOWNLINK_SEND_PCAP01_STATUS(DefaultChannel, 
+		DOWNLINK_SEND_PCAP01_STATUS(DefaultChannel,
 				&pcap01Value.C_ratio,
 				&pcap01Value.R_ratio,
 				&humidity,
@@ -255,7 +255,7 @@ void pcap01_event(void)
 		pcap01Value.status = PCAP01_IDLE;
 		break;
 
-	default:	
+	default:
 		pcap01_trans.status = I2CTransDone;
 		break;
 	}

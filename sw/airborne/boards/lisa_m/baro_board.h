@@ -42,7 +42,7 @@ struct bmp085_baro_calibration {
   int16_t mb;
   int16_t mc;
   int16_t md;
-  
+
   // These values are calculated
   int32_t b5;
 };

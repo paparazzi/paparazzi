@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -102,7 +102,7 @@ let initial_status = {
 let update_status = fun ?udp_peername ac_id buf_size is_pong ->
   if !gen_stat_trafic then
     Printf.printf "%.3f %d\n%!" (Unix.gettimeofday ()) buf_size;
-  let status = 
+  let status =
     try Hashtbl.find statuss ac_id with Not_found ->
       let s = { initial_status with udp_peername = udp_peername } in
       Hashtbl.add statuss ac_id s;
@@ -113,7 +113,7 @@ let update_status = fun ?udp_peername ac_id buf_size is_pong ->
   status.ms_since_last_msg <- 0;
   if is_pong then
     status.last_pong <- Unix.gettimeofday ();;
-  
+
 let status_msg_period = 1000 (** ms *)
 let ping_msg_period = 5000 (** ms  *)
 let status_ping_diff = 500 (* ms *)
@@ -149,7 +149,7 @@ let send_status_msg =
       status.last_rx_byte <- status.rx_byte;
       status.ms_since_last_msg <- status.ms_since_last_msg + status_msg_period;
       let vs = ["run_time", Pprz.Int t;
-		"rx_bytes_rate", Pprz.Float byte_rate; 
+		"rx_bytes_rate", Pprz.Float byte_rate;
 		"rx_msgs_rate", Pprz.Float msg_rate;
 		"rx_err", Pprz.Int status.rx_err;
 		"rx_bytes", Pprz.Int status.rx_byte;
@@ -157,7 +157,7 @@ let send_status_msg =
 		"ping_time", Pprz.Float (1000. *. (status.last_pong -. status.last_ping))
 	      ] in
       send_message_over_ivy (string_of_int ac_id) "DOWNLINK_STATUS" vs)
-      statuss 
+      statuss
 
 
 let use_tele_message = fun ?udp_peername ?raw_data_size payload ->
@@ -199,7 +199,7 @@ end
 
 module XB = struct (** XBee module *)
   let nb_retries = ref 10
-  let retry_delay = 200 (* ms *) 
+  let retry_delay = 200 (* ms *)
 
   let at_init_period = 2000 (* ms *)
 
@@ -216,7 +216,7 @@ module XB = struct (** XBee module *)
   let init = fun device ->
     Debug.trace 'x' "init xbee";
     let o = Unix.out_channel_of_descr device.fd in
-    ignore (Glib.Timeout.add at_init_period (fun () -> 
+    ignore (Glib.Timeout.add at_init_period (fun () ->
       fprintf o "%s%!" Xbee.at_command_sequence;
       ignore (Glib.Timeout.add at_init_period (fun () -> switch_to_api device; false));
       false))
@@ -225,9 +225,9 @@ module XB = struct (** XBee module *)
   let packets = Array.create 256 ("", -1)
 
   (* Frame id generation > 0 and < 256 *)
-  let gen_frame_id = 
+  let gen_frame_id =
     let x = ref 0 in
-    fun () -> 
+    fun () ->
       incr x;
       if !x >= 256 then
 	x := 1;
@@ -251,12 +251,12 @@ module XB = struct (** XBee module *)
 	    packets.(frame_id) <- (packet, nb_prev_retries+1);
 	    let o = Unix.out_channel_of_descr device.fd in
 	    ignore (GMain.Timeout.add (10 + Random.int retry_delay)
-	      (fun _ -> 
+	      (fun _ ->
 		fprintf o "%s%!" packet;
 		Debug.call 'y' (fun f -> fprintf f "Resending (%d) %s\n" (nb_prev_retries+1) (Debug.xprint packet));
 		false));
 	  end
-	  
+
     | Xbee.RX_Packet_64 (addr64, rssi, options, data) ->
 	Debug.trace 'x' (sprintf "getting XBee RX64: %Lx %d %d %s" addr64 rssi options (Debug.xprint data));
 	use_tele_message ~raw_data_size:(String.length frame_data + oversize_packet) (Serial.payload_of_string data)
@@ -272,7 +272,7 @@ module XB = struct (** XBee module *)
     let ac_id = match ac_id with None -> 0xffff | Some a -> a in
     let rf_data = Serial.string_of_payload rf_data in
     let frame_id = gen_frame_id () in
-    let frame_data = 
+    let frame_data =
       if !Xbee.mode868 then
 	Xbee.api_tx64 ~frame_id (Int64.of_int ac_id) rf_data
       else
@@ -342,7 +342,7 @@ let broadcast = fun device payload _priority ->
 module Audio = struct
   let use_data =
     let buffer = ref "" in
-    fun data -> 
+    fun data ->
       let b = !buffer ^ data in
       let n = PprzTransport.parse use_tele_message b in
       buffer := String.sub b n (String.length b - n)
@@ -419,7 +419,7 @@ let send_ping_msg = fun device ->
       status.last_ping <- Unix.gettimeofday ()
     )
     statuss
-  
+
 
 (** Main *********************************************************************)
 let () =
@@ -431,7 +431,7 @@ let () =
   and audio = ref false
   and aerocomm = ref false
   and udp_port = ref 4242 in
-  
+
   (* Parse command line options *)
   let options =
     [ "-aerocomm", Arg.Set aerocomm, "Set serial Aerocomm data mode";
@@ -460,23 +460,23 @@ let () =
   Ivy.init "Link" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
-  try    
+  try
     let transport = transport_of_string !transport in
-  
+
     (** Listen on audio input or on a serial device or on multimon pipe *)
-    let on_serial_device = 
+    let on_serial_device =
       String.length !port >= 4 && String.sub !port 0 4 = "/dev" in (* FIXME *)
     let fd =
       if !udp then begin
 	let sockaddr = Unix.ADDR_INET (Unix.inet_addr_any, !udp_port)
 	and socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
-	Unix.bind socket sockaddr;	
+	Unix.bind socket sockaddr;
 	socket
       end else if !audio then
 	Demod.init !port
       else if on_serial_device then
 	Serial.opendev !port (Serial.speed_of_baudrate !baudrate)
-      else 
+      else
 	Unix.openfile !port [Unix.O_RDWR] 0o640
     in
 
@@ -485,7 +485,7 @@ let () =
     let device = { fd=fd; transport=transport; baud_rate=baudrate } in
 
     (* The function to be called when data is available *)
-    let read_fd = 
+    let read_fd =
       if !audio then
 	fun _io_event ->  (* Demodulation *)
 	  let (data_left, _data_right) = Demod.get_data () in

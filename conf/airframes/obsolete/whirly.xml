@@ -72,7 +72,7 @@
   <makefile>
 
 
-USER = 
+USER =
 HOST = whirly-dev
 TARGET_DIR  = ~
 

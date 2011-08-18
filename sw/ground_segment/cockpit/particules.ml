@@ -26,7 +26,7 @@ let move_particule = fun (geomap:MapCanvas.widget) id geo value ->
 (* geomap#circle ~group ~fill_color:"red" geo 10. in *)
 	p#raise_to_top ();
 	Hashtbl.add particules id (p:>GnomeCanvas.re_p GnoCanvas.item)
-	  
+
 let list_separator = Str.regexp ","
 
 
@@ -38,7 +38,7 @@ let listen = fun (geomap:MapCanvas.widget) ->
     and xs = split_val "lats"
     and ys = split_val "longs"
     and vs = split_val "values" in
-	
+
     let rec loop = fun ids xs ys vs ->
       match ids, xs, ys, vs with
 	[], [], [], [] -> ()
@@ -51,5 +51,5 @@ let listen = fun (geomap:MapCanvas.widget) ->
     in
     loop ids xs ys vs
   in
-  
+
   Live.safe_bind "PLUMES" plumes_msg

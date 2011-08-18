@@ -59,7 +59,7 @@
       <eight center="1" radius="nav_radius" turn_around="2"/>
     </block>
     <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png">
-      
+
       <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
     <block name="MOB" strip_button="Turn around here" strip_icon="mob.png">

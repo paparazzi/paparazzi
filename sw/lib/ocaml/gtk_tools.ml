@@ -2,7 +2,7 @@
  * $Id$
  *
  * Lablgtk2 utils
- *  
+ *
  * Copyright (C) 2009 ENAC, Pascal Brisset
  *
  * This file is part of paparazzi.
@@ -20,14 +20,14 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
 (** GTK utilities
  *)
 
-class pixmap_in_drawin_area = fun ?drawing_area ?width ?height ?packing () -> 
+class pixmap_in_drawin_area = fun ?drawing_area ?width ?height ?packing () ->
   let da =
     match drawing_area with
       None ->
@@ -43,7 +43,7 @@ class pixmap_in_drawin_area = fun ?drawing_area ?width ?height ?packing () ->
 	  None -> ()
 	| Some pm ->
 	    (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 pm#pixmap
-	      
+
     method get_pixmap = fun () ->
       let {Gtk.width=width; height=height} = da#misc#allocation in
       let create = fun () -> GDraw.pixmap ~width ~height ~window:da () in
@@ -53,7 +53,7 @@ class pixmap_in_drawin_area = fun ?drawing_area ?width ?height ?packing () ->
 	| Some pm ->
 	    if pm#size = (width, height)
 	    then pm
-	    else begin 
+	    else begin
 	      Gdk.Pixmap.destroy pm#pixmap;
 	      create ()
 	    end in
@@ -71,7 +71,7 @@ let combo_value = fun ((combo: #GEdit.combo_box), (_,column)) ->
   | Some row -> combo#model#get ~row ~column
 
 let combo_separator = "--"
-      
+
 let combo = fun strings vbox ->
   let (combo, (tree, column)) =
     GEdit.combo_box_text ~packing:vbox#add ~strings () in
@@ -89,7 +89,7 @@ let add_to_combo = fun (combo : combo) string ->
 
 let select_in_combo = fun  (combo : combo) string ->
   let (store, column) = combo_model combo in
-  store#foreach 
+  store#foreach
     (fun _path row ->
       if store#get ~row ~column = string then begin
 	(combo_widget combo)#set_active_iter (Some row);
@@ -105,7 +105,7 @@ let combo_connect = fun ((combo: #GEdit.combo_box), (_,column)) cb ->
 	      | Some row ->
 		  let data = combo#model#get ~row ~column in
 		  cb data))
-	    
+
 
 type tree = GTree.view * (GTree.list_store * string GTree.column)
 let tree_widget = fst

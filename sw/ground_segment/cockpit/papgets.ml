@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -56,7 +56,7 @@ let block_name_of_index = function
     [ i ] ->
       let i = sprintf "%.0f" (float_of_string i) in
       if Hashtbl.length Live.aircrafts = 1 then
-	Hashtbl.fold 
+	Hashtbl.fold
 	  (fun ac_id ac _r ->
 	    let blocks = ExtXml.child ac.Live.fp "blocks" in
 	    let block = ExtXml.child blocks i  in
@@ -67,7 +67,7 @@ let block_name_of_index = function
 	"N/A"
   | _ -> failwith "Papgets.block_name_of_index"
 
-let extra_functions = 
+let extra_functions =
   ["BlockName", block_name_of_index ]
 
 
@@ -77,7 +77,7 @@ let expression_listener = fun papget ->
   new Papget.expression ~extra_functions expr
 
 
-    
+
 let display_float_papget = fun canvas_group config display x y listener ->
   let renderer =
     match display with
@@ -90,7 +90,7 @@ let display_float_papget = fun canvas_group config display x y listener ->
     | "led" ->
 	(new Papget_renderer.canvas_led ~config canvas_group x y :> Papget_renderer.t)
     | _ -> failwith (sprintf "Unexpected papget display: %s" display) in
-  
+
   let p = new Papget.canvas_display_float_item ~config listener renderer in
   let p = (p :> Papget.item) in
   register_papget p
@@ -101,7 +101,7 @@ let locked = fun config ->
   try
     [PC.property "locked" (PC.get_property "locked" config)]
   with _ -> []
-	  
+
 let create = fun canvas_group papget ->
   try
     let type_ = ExtXml.attrib papget "type"
@@ -113,13 +113,13 @@ let create = fun canvas_group papget ->
       "expression" ->
 	let expr_listener = expression_listener papget in
 	display_float_papget canvas_group config display x y expr_listener
-	  
+
     | "message_field" ->
 	let msg_listener = papget_listener papget in
 	display_float_papget canvas_group config display x y msg_listener
-	  
+
     | "goto_block" ->
-	let renderer = 
+	let renderer =
 	  match display with
 	    "button" ->
 	      (new Papget_renderer.canvas_button canvas_group ~config x y :> Papget_renderer.t)
@@ -138,12 +138,12 @@ let create = fun canvas_group papget ->
 	in
 	let properties =
 	  [ Papget_common.property "block_name" block_name ] @ locked papget in
-	
+
 	let p = new Papget.canvas_goto_block_item properties clicked renderer in
 	let p = (p :> Papget.item) in
 	register_papget p
     | "variable_setting" ->
-	let renderer = 
+	let renderer =
 	  match display with
 	    "button" ->
 	      (new Papget_renderer.canvas_button canvas_group ~config x y :> Papget_renderer.t)
@@ -151,7 +151,7 @@ let create = fun canvas_group papget ->
 
 	let varname = Papget_common.get_property "variable" papget
 	and value = float_of_string (Papget_common.get_property "value" papget) in
-	
+
 	let clicked = fun () ->
 	prerr_endline "Warning: variable_setting papget sending to all active A/C";
 	  Hashtbl.iter
@@ -170,25 +170,25 @@ let create = fun canvas_group papget ->
 	let p = new Papget.canvas_variable_setting_item properties clicked renderer in
 	let p = (p :> Papget.item) in
       register_papget p
-	  
+
     | "video_plugin" ->
-	let renderer = 
+	let renderer =
 	  match display with
 	    "mplayer" ->
 	      (new Papget_renderer.canvas_mplayer canvas_group ~config x y :> Papget_renderer.t)
 	  | "plugin" ->
 	      (new Papget_renderer.canvas_plugin canvas_group ~config x y :> Papget_renderer.t)
 	  | _ -> failwith (sprintf "Unexpected papget display: %s" display) in
-	
+
 	let properties = locked papget in
 	let p = new Papget.canvas_video_plugin_item properties renderer in
 	let p = (p :> Papget.item) in
 	register_papget p
-	  
+
     | _ -> failwith (sprintf "Unexpected papget type: %s" type_)
   with
     exc -> fprintf stderr "Papgets.create: %s\n%!" (Printexc.to_string exc)
-	
+
 
 exception Parse_message_dnd of string
 (* Drag and drop handler for papgets *)
@@ -201,7 +201,7 @@ let parse_message_dnd =
 let dnd_data_received = fun canvas_group _context ~x ~y data ~info ~time ->
   try (* With the format sent by Messages *)
     let (_sender, _class_name, msg_name, field_name,scale) = parse_message_dnd data#data in
-    let attrs = 
+    let attrs =
       [ "type", "message_field";
 	"display", "text";
 	"x", sprintf "%d" x; "y", sprintf "%d" y ]

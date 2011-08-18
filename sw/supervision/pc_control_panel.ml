@@ -2,7 +2,7 @@
  * $Id$
  *
  * Paparazzi center processes handling
- *  
+ *
  * Copyright (C) 2007 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -34,7 +34,7 @@ let control_panel_xml = ExtXml.parse_file control_panel_xml_file
 let programs =
   let h = Hashtbl.create 7 in
   let s = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = "programs") control_panel_xml "section" in
-  List.iter 
+  List.iter
     (fun p -> Hashtbl.add h (ExtXml.attrib p "name") p)
     (Xml.children s);
   h
@@ -48,7 +48,7 @@ let program_command = fun x ->
 let sessions =
   let h = Hashtbl.create 7 in
   let s = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = "sessions") control_panel_xml "section" in
-  List.iter 
+  List.iter
     (fun p -> Hashtbl.add h (ExtXml.attrib p "name") p)
     (Xml.children s);
   h
@@ -72,9 +72,9 @@ let run_and_monitor = fun ?file gui log com_name args ->
   Utils.run_and_monitor ?file gui log com_name (program_command com_name) args
 
 let close_programs = fun gui ->
-  List.iter (fun w -> 
+  List.iter (fun w ->
     gui#vbox_programs#remove w;
-    w#destroy ()) 
+    w#destroy ())
     gui#vbox_programs#children
 
 let parse_process_args = fun (name, args) ->
@@ -128,7 +128,7 @@ let save_session = fun gui session_combo ->
 	      let label = new GMisc.label (Gobject.unsafe_cast label#as_widget)
 	      and entry = new GEdit.entry (Gobject.unsafe_cast entry#as_widget) in
 	      (label#text, entry#text)
-	  | _ -> failwith "Internal error: save session") 
+	  | _ -> failwith "Internal error: save session")
 	  gui#vbox_programs#children in
       let current_programs = List.map parse_process_args current_processes in
       let session = Xml.Element("session", ["name", name], current_programs) in
@@ -182,7 +182,7 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) ->
 	let p = ref "" in
 	List.iter
 	  (fun arg ->
-	    let constant = 
+	    let constant =
 	      try double_quote (Xml.attrib arg "constant") with _ -> "" in
 	    p := sprintf "%s %s %s" !p (ExtXml.attrib arg "flag") constant)
 	  (Xml.children program);
@@ -195,7 +195,7 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) ->
     run_and_monitor ?file gui log "Log File Player" "";
     run_server "-n";
     run_gcs () in
-   
+
   (* Simulations *)
   let simulation = fun () ->
     run_gcs ();
@@ -207,9 +207,9 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) ->
     match Gtk_tools.combo_value session_combo with
       "Simulation" -> simulation ()
     | "Replay" -> replay ()
-    | custom -> execute_custom custom in	
+    | custom -> execute_custom custom in
   ignore (gui#button_execute#connect#clicked ~callback);
-  
+
   (* Close session *)
   let callback = fun () ->
     close_programs gui in

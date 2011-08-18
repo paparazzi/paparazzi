@@ -2,7 +2,7 @@
  * $Id$
  *
  * Paparazzi widget renderers
- *  
+ *
  * Copyright (C) 2008-2009 ENAC, Pascal Brisset
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -52,7 +52,7 @@ class canvas_text = fun ?(config=[]) canvas_group x y ->
     val mutable format = PC.get_prop "format" config "%.2f"
     val mutable size = float_of_string (PC.get_prop "size" config "15.")
     val mutable color = PC.get_prop "color" config "green"
- 
+
     method tag = "Text"
     method item = (group :> movable_item)
     method config = fun () ->
@@ -73,7 +73,7 @@ class canvas_text = fun ?(config=[]) canvas_group x y ->
       (* Initialize the entries *)
       text_editor#entry_format#set_text format;
       text_editor#spinbutton_size#set_value size;
-      
+
       (* Connect the entries *)
       let callback = fun () ->
 	format <- text_editor#entry_format#text in
@@ -103,9 +103,9 @@ class canvas_ruler = fun ?(config=[]) canvas_group x y ->
 
   let root = GnoCanvas.group ~x ~y canvas_group in
   let r = GnoCanvas.group root in
-  
+
   let props = (text_props@[`ANCHOR `EAST]) in
-  
+
   (* One step drawer *)
   let draw = fun i value ->
     let i = i * step in
@@ -119,7 +119,7 @@ class canvas_ruler = fun ?(config=[]) canvas_group x y ->
     if y >= -. h && y <= h then
       ignore(GnoCanvas.line ~points:[|w*.0.8;y;w-.1.;y|] ~fill_color:"white" r)
   in
-  
+
   let drawer = fun value ->
     (* Remove previous items *)
     List.iter (fun i -> i#destroy ()) r#get_items;
@@ -129,15 +129,15 @@ class canvas_ruler = fun ?(config=[]) canvas_group x y ->
       draw i value
     done
   in
-  
+
   (** Yellow index *)
   let _ = GnoCanvas.line ~points:[|0.;0.;w-.1.;0.|] ~fill_color:"yellow" root in
   let s = index_width in
   let idx = GnoCanvas.polygon ~points:[|0.;0.;-.s;s/.2.;-.s;-.s/.2.|] ~fill_color:"yellow" root in
-  let () = 
+  let () =
     if index_on_right then
       idx#affine_absolute (affine_pos_and_angle w 0. Latlong.pi) in
-  
+
   object
     method tag = "Ruler"
     method edit = fun (pack:GObj.widget -> unit) -> ()
@@ -166,7 +166,7 @@ class canvas_gauge = fun ?(config=[]) canvas_group x y ->
 
   let root = GnoCanvas.group ~x ~y canvas_group in
   (*let gauge = GnoCanvas.group root in*)
-  
+
   (*let props = (text_props@[`ANCHOR `EAST]) in*)
 
   let _ = GnoCanvas.ellipse ~x1:r2 ~y1:r2 ~x2:(-.r2) ~y2:(-.r2)
@@ -183,7 +183,7 @@ class canvas_gauge = fun ?(config=[]) canvas_group x y ->
   let irr = GnoCanvas.line ~points ~props root in
   let () = irr#affine_absolute (affine_pos_and_angle 0. 0. (2. *. Latlong.pi /. 3.)) in
 
-  let idx = GnoCanvas.polygon ~points:[|r3-.0.2;0.;0.;-.r1;-.(r3-.0.2);0.|] 
+  let idx = GnoCanvas.polygon ~points:[|r3-.0.2;0.;0.;-.r1;-.(r3-.0.2);0.|]
     ~props:[`FILL_COLOR "red"; `OUTLINE_COLOR "white"] root in
   let _ = GnoCanvas.ellipse ~x1:r3 ~y1:r3 ~x2:(-.r3) ~y2:(-.r3) ~props:[`OUTLINE_COLOR "grey"] ~fill_color:"red" root in
   let text_min = GnoCanvas.text ~x:(-.r1) ~y:(r1/.2.) ~props:[`ANCHOR `NE; `FILL_COLOR "green"] root in
@@ -246,7 +246,7 @@ class canvas_led = fun ?(config=[]) canvas_group x y ->
   let text = PC.get_prop "text" config "" in
 
   let root = GnoCanvas.group ~x ~y canvas_group in
-  
+
   let r = (Pervasives.max 2. (size /. 2.)) +. 1. in
   let led = GnoCanvas.ellipse ~x1:r ~y1:r ~x2:(-.r) ~y2:(-.r)
     ~props:[`NO_FILL_COLOR; `OUTLINE_COLOR "grey"; `WIDTH_UNITS 2.]  root in
@@ -375,7 +375,7 @@ let renderers =
   [ (new canvas_text :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t);
     (new canvas_ruler :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t);
     (new canvas_gauge :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t);
-    (new canvas_led :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t) ] 
+    (new canvas_led :> ?config:Xml.xml list -> #GnoCanvas.group -> float -> float -> t) ]
 
 let lazy_tagged_renderers = lazy
     (let x = 0. and y = 0.

@@ -2,7 +2,7 @@
  * $Id$
  *
  * XML preprocessing for periodic messages
- *  
+ *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -47,14 +47,14 @@ let output_modes = fun avr_h process_name channel_name modes freq modules ->
     (fun mode ->
       let mode_name = ExtXml.attrib mode "name" in
       lprintf avr_h "if (telemetry_mode_%s_%s == TELEMETRY_MODE_%s_%s_%s) {\\\n" process_name channel_name process_name channel_name mode_name;
-      right ();  
+      right ();
 
       (** Filter message list to remove messages linked to unloaded modules *)
       let filtered_msg = List.filter (fun msg ->
         try let att = Xml.attrib msg "module" in List.exists (fun name -> String.compare name att = 0) modules with _ -> true
         ) (Xml.children mode) in
       (** Computes the required modulos *)
-      let messages = List.map (fun x -> 
+      let messages = List.map (fun x ->
         let p = float_of_string (ExtXml.attrib x "period") in
         if p < min_period || p > max_period then
           fprintf stderr "Warning: period is bound between %.3fs and %.3fs for message %s\n%!" min_period max_period (ExtXml.attrib x "name");
@@ -66,7 +66,7 @@ let output_modes = fun avr_h process_name channel_name modes freq modules ->
         let _type = if m >= 256 then "uint16_t" else "uint8_t" in
         lprintf avr_h "static %s %s = 0; %s++; if (%s>=%d) %s=0;\\\n" _type v v v m v;
         ) modulos;
-      
+
       (** For each message in this mode *)
       let messages = List.sort (fun (_,p) (_,p') -> compare p p') messages in
       let i = ref 0 in (** Basic balancing:1 message every 10Hz *)
@@ -96,15 +96,15 @@ let output_modes = fun avr_h process_name channel_name modes freq modules ->
 
 let _ =
   if Array.length Sys.argv <> 5 then begin
-    failwith (sprintf "Usage: %s <airframe.xml> <messages.xml> <telemetry.xml> frequency_in_hz" Sys.argv.(0)) 
+    failwith (sprintf "Usage: %s <airframe.xml> <messages.xml> <telemetry.xml> frequency_in_hz" Sys.argv.(0))
   end;
 
   let freq = int_of_string(Sys.argv.(4)) in
-  let telemetry_xml = 
+  let telemetry_xml =
     try
       Xml.parse_file Sys.argv.(3)
     with Dtd.Check_error e -> failwith (Dtd.check_error e)
-      
+
   in
   let modules_name = GC.get_modules_name (ExtXml.parse_file Sys.argv.(1)) in
 
@@ -114,7 +114,7 @@ let _ =
   fprintf avr_h "/* Please DO NOT EDIT */\n\n";
   fprintf avr_h "#ifndef _VAR_PERIODIC_H_\n";
   fprintf avr_h "#define _VAR_PERIODIC_H_\n";
-  
+
   (** For each process *)
   List.iter
     (fun process ->
@@ -124,7 +124,7 @@ let _ =
       fprintf avr_h "\n/* Macros for %s process channel %s */\n" process_name channel_name;
 
       let modes = Xml.children process in
-      
+
       let i = ref 0 in
       (** For each mode of this process *)
       List.iter (fun mode ->
@@ -132,7 +132,7 @@ let _ =
         Xml2h.define (sprintf "TELEMETRY_MODE_%s_%s_%s" process_name channel_name name) (string_of_int !i);
         (* Output the periods of the messages *)
         List.iter
-          (fun x -> 
+          (fun x ->
             let p = ExtXml.attrib x "period"
             and n = ExtXml.attrib x "name" in
             Xml2h.define (sprintf "PERIOD_%s_%s_%s_%d" n process_name channel_name !i) (sprintf "(%s)" p))

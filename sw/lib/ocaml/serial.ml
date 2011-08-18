@@ -2,7 +2,7 @@
  * $Id$
  *
  * Serial Port handling
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset
  *
  * This file is part of paparazzi.
@@ -20,13 +20,13 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
 open Printf
 
-type speed = 
+type speed =
     B0
   | B50
   | B75
@@ -108,7 +108,7 @@ let input = fun ?(read = Unix.read) f ->
       raise End_of_file;
     let n = !index + nread in
     Debug.call 'T' (fun f -> fprintf f "input: %d %d\n" !index n);
-    let rec parse = fun start n -> 
+    let rec parse = fun start n ->
       Debug.call 'T' (fun f -> fprintf f "input parse: %d %d\n" start n);
       let nb_used = f (String.sub buffer start n) in
 (* 	Printf.fprintf stderr "n'=%d\n" nb_used; flush stderr; *)
@@ -158,7 +158,7 @@ module Transport(Protocol:PROTOCOL) = struct
 
       (* Extracts the complete frame *)
       let msg = String.sub buf !start length in
-      
+
       (* Checks sum *)
       if Protocol.checksum msg then begin
 	(* Calls the handler with the message *)

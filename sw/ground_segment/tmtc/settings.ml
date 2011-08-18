@@ -2,7 +2,7 @@
  * $Id$
  *
  * Multi aircraft settings handler
- *  
+ *
  * Copyright (C) 2007 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 open Printf
@@ -46,7 +46,7 @@ let one_ac = fun (notebook:GPack.notebook) ac_name ->
 
     (* Call to ivy to set a value *)
     let callback = fun idx value ->
-      
+
       let vs = ["ac_id", Pprz.String ac_id; "index", Pprz.Int idx] in
       if classify_float value = FP_normal || classify_float value =FP_zero then
 	let vs' = ("value", Pprz.Float value) :: vs in
@@ -79,7 +79,7 @@ let one_ac = fun (notebook:GPack.notebook) ac_name ->
 
 
 let _ =
-  
+
   let ivy_bus = ref Defivybus.default_ivy_bus in
   let acs = ref [] in
   Arg.parse
@@ -99,7 +99,7 @@ let _ =
   let notebook = GPack.notebook ~packing:window#add ~tab_pos:`TOP () in
 
   List.iter (one_ac notebook) !acs;
-  
+
   (** Start the main loop *)
   window#show ();
   let loop = Glib.Main.create true in

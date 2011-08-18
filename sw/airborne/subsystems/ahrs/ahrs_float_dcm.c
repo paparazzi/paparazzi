@@ -95,7 +95,7 @@ float imu_health = 0.;
 static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat)
 {
   for (int i=0; i<3; i++) {
-    for (int j=0; j<3; j++) { 
+    for (int j=0; j<3; j++) {
       DCM_Matrix[i][j] = RMAT_ELMT(*rmat, j, i);
     }
   }

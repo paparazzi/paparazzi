@@ -25,7 +25,7 @@
     File: *.c
 
     Description: CHIMU Protocol Parser
-                 
+
 
     Public Functions:
       CHIMU_Init           Create component instance
@@ -151,7 +151,7 @@ typedef struct {
         uint8_t gCalStatus;
         uint8_t gCHIMU_BIT;
         uint8_t gConfigInfo;
-	
+
 } CHIMU_PARSER_DATA;
 
 /*---------------------------------------------------------------------------

@@ -23,7 +23,7 @@ let print_subsystems = fun outfile xml ->
     end)
     (Xml.children xml)
 
-  
+
 let print_targets = fun outfile xml ->
   List.iter (fun tag ->
     if ExtXml.tag_is tag "target" then begin

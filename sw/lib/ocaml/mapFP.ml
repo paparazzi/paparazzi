@@ -2,7 +2,7 @@
  * $Id$
  *
  * Displaying and editing a flight plan on a MapCanvas
- *  
+ *
  * Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -113,7 +113,7 @@ let is_relative_waypoint = fun node ->
 
 let absolute_coords = fun wp ->
   let wgs84 = wp#pos in
-  [ "lat", sof6 ((Rad>>Deg) wgs84.posn_lat); 
+  [ "lat", sof6 ((Rad>>Deg) wgs84.posn_lat);
     "lon", sof6 ((Rad>>Deg) wgs84.posn_long) ]
 
 
@@ -144,7 +144,7 @@ let update_xml = fun xml_tree utm0 wp id ->
 
 
 
-      
+
 let new_wp = fun ?(editable = false) (geomap:MapCanvas.widget) xml_tree waypoints utm_ref ?(alt = 0.) node ->
   let float_attrib = fun a -> float_of_string (XmlEdit.attrib node a) in
 
@@ -156,7 +156,7 @@ let new_wp = fun ?(editable = false) (geomap:MapCanvas.widget) xml_tree waypoint
   let wp = MapWaypoints.waypoint ~show waypoints ~name ~alt wgs84 in
   geomap#register_to_fit (wp:>MapCanvas.geographic);
   XmlEdit.connect node (update_wp utm_ref wp);
-  XmlEdit.connect node (update_wp_refs (ref name) xml_tree); 
+  XmlEdit.connect node (update_wp_refs (ref name) xml_tree);
   let id = XmlEdit.id node in
   if editable then
     wp#connect (fun () -> update_xml xml_tree utm_ref wp id);
@@ -191,7 +191,7 @@ let wgs84_of_kml_point = fun s ->
       and long = float_of_string long in
       {posn_lat = (Deg>>Rad) lat; posn_long = (Deg>>Rad) long}
   | _ -> failwith (Printf.sprintf "wgs84_of_kml_point: %s" s)
-  
+
 
 (** It should be somewhere else ! *)
 let display_kml = fun ?group color geomap xml ->
@@ -210,16 +210,16 @@ let display_kml = fun ?group color geomap xml ->
 		display_lines ?group color geomap (Array.of_list points)
 	    | _ -> failwith "coordinates expected"
 	  end
-	    
-      | "folder" ->	  
+
+      | "folder" ->
 	  List.iter loop (Xml.children child)
       | _ -> () in
     List.iter loop (Xml.children document)
   with Xml.Not_element xml -> failwith (Xml.to_string xml)
-  
-  
 
- 
+
+
+
 class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dtd xml ->
   (** Xml Editor *)
   let xml_tree_view, xml_window = XmlEdit.create ?format_attribs ?editable (Dtd.parse_file fp_dtd) xml in
@@ -307,7 +307,7 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
   object
     method georef = ref_wgs84
     method window = xml_window
-    method destroy () = 
+    method destroy () =
       wpts_group#group#destroy ();
       xml_window#destroy ()
     method show () = wpts_group#group#show ()
@@ -341,7 +341,7 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
 	  end else
 	    XmlEdit.set_background ~all:true b "white")
 	(XmlEdit.children blocks)
-	  
+
     method add_waypoint (geo:geographic) =
       let wpt_names = List.map (fun n -> XmlEdit.attrib n "name") (XmlEdit.children xml_wpts) in
       let name = new_gensym "wp" wpt_names in
@@ -364,7 +364,7 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
 	)
 	path
 
-    method connect_activated = fun cb -> XmlEdit.connect_activated xml_tree_view cb 
+    method connect_activated = fun cb -> XmlEdit.connect_activated xml_tree_view cb
 
     initializer (
   (** Create a graphic waypoint when it is created from the xml editor *)

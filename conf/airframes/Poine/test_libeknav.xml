@@ -11,7 +11,7 @@
 
 
     LIB_EIGEN_DIR = /opt/paparazzi/omap/overo-oe/tmp/sysroots/armv7a-angstrom-linux-gnueabi/usr/include/eigen2
-    LIB_EIGEN_CFLAGS =  -I$(LIB_EIGEN_DIR) -DEIGEN_DONT_VECTORIZE  -DEIGEN_DONT_ALIGN -DNDEBUG 
+    LIB_EIGEN_CFLAGS =  -I$(LIB_EIGEN_DIR) -DEIGEN_DONT_VECTORIZE  -DEIGEN_DONT_ALIGN -DNDEBUG
 
     LIBEKNAV_SRCS = fms/libeknav/basic_ins_qkf.cpp           \
                     fms/libeknav/ins_qkf_predict.cpp         \
@@ -45,7 +45,7 @@
     test3.srcs     += fms/fms_periodic.c
     test3.CXXFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageVIUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageVIDown
     test3.srcs     += fms/fms_spi_link.c
-    
+
     # test 4: Flags like test3
     test4.ARCHDIR = omap
     test4.CXXFLAGS += $(LIB_EIGEN_CFLAGS)

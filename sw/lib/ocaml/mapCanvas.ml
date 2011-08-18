@@ -2,7 +2,7 @@
  * $Id$
  *
  * Geographic display
- *  
+ *
  * Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -45,7 +45,7 @@ let align = fun x a ->
 type meter = float
 
 let distance = fun (x1,y1) (x2,y2) -> sqrt ((x1-.x2)**2.+.(y1-.y2)**2.)
-      
+
 let _ = Srtm.add_path "SRTM"
 
 let affine_pos_and_angle ?(z = 1.) xw yw angle =
@@ -53,12 +53,12 @@ let affine_pos_and_angle ?(z = 1.) xw yw angle =
   let sin_a = sin angle in
   [| cos_a /. z; sin_a /. z; ~-. sin_a /. z; cos_a /. z; xw ; yw |]
 
-type projection = 
+type projection =
     Mercator (* 1e-6 = 1 world unit, y axis reversed *)
   | UTM (* 1m = 1 world unit, y axis reversed *)
   | LambertIIe (* 1m = 1 world unit, y axis reversed *)
 
-let string_of_projection = function 
+let string_of_projection = function
     UTM -> "UTM"
   | Mercator -> "Mercator"
   | LambertIIe -> "LBT2e"
@@ -85,7 +85,7 @@ let set_opacity = fun pixbuf opacity ->
   assert(n_channels = 4);
   for i = 0 to h - 1 do
     for j = 0 to w - 1 do
-      let pos = n_channels* (i*w + j) + 3 in 
+      let pos = n_channels* (i*w + j) + 3 in
       Gpointer.set_byte region ~pos opacity
     done
   done;
@@ -93,7 +93,7 @@ let set_opacity = fun pixbuf opacity ->
 
 
 type drawing =
-    NotDrawing 
+    NotDrawing
   | Rectangle of float*float
   | Panning of float*float
 
@@ -129,12 +129,12 @@ let convex = fun l ->
 class type geographic = object
     method pos : Latlong.geographic
 end
-	    
+
 
 (** basic canvas with menubar ************************************************)
-    
+
 (* world_unit: m:pixel at scale 1. *)
-class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef () -> 
+class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef () ->
   let frame = GPack.vbox ~height ?width () in
 
   let top_bar = GPack.hbox ~packing:frame#pack () in
@@ -162,7 +162,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
   let s2 = s/.2. and s4=s/.4. in
   let points = [|0.;0.; s2;s2; s4;s2; s4;s; -.s4;s; -.s4;s2; -.s2;s2|] in
   let props = [`FILL_COLOR "#a0a0ff"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] in
-  let arrow = fun x y angle -> 
+  let arrow = fun x y angle ->
     let a = GnoCanvas.polygon still ~points ~props in
     a#affine_relative (affine_pos_and_angle x y angle);
     a in
@@ -178,7 +178,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
   let utc_time = GnoCanvas.text ~x:0. ~y:0. ~props:[`TEXT "00:00:00"; `FILL_COLOR "green"; `ANCHOR `NW] still in
 
   object (self)
-   
+
 (** GUI attributes *)
 
     val background = background
@@ -197,16 +197,16 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       let angle_rad = (Deg>>Rad) (90. +. angle_deg) in
       wind_sock#item#affine_absolute (affine_pos_and_angle 60. 60. angle_rad);
       wind_sock#label#set [`TEXT string]
-	
-    val adj = GData.adjustment 
-	~value:1. ~lower:0.005 ~upper:10. 
+
+    val adj = GData.adjustment
+	~value:1. ~lower:0.005 ~upper:10.
 	~step_incr:0.25 ~page_incr:1.0 ~page_size:0. ()
-  
+
     method info = info
 
 (** other attributes *)
 
-    val mutable projection = projection	
+    val mutable projection = projection
     val mutable georef = georef
     val mutable dragging = None
     val mutable drawing  = NotDrawing
@@ -228,13 +228,13 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	    and long = pos.LL.posn_long in
 	    (* Processing over positive longitudes *)
 	    let long = if long < 0. then long +. 2. *. pi else long in
-	    (min min_lat lat, max max_lat lat, 
+	    (min min_lat lat, max max_lat lat,
 	     min min_long long, max max_long long))
 	  fitted_objects
 	  (max_float, -.max_float, max_float, -. max_float) in
 
       (* Over 0° ? *)
-      let min_long, max_long = 
+      let min_long, max_long =
 	if max_long -. min_long > pi
 	then (max_long -. 2. *. pi, min_long)
 	else (min_long, max_long) in
@@ -249,7 +249,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       let zoom = min (float width/.(se_xw-.nw_xw)) (float height/.(se_yw-.nw_yw)) in
       self#zoom zoom;
       self#center c
-      
+
 (** initialization of instance attributes *)
 
     initializer (
@@ -276,12 +276,12 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 (*       ignore (GnoCanvas.rect ~props:[`X1 (-25000000.); `Y1 (-25000000.); `X2 25000000.; `Y2 25000000.; `FILL_COLOR "black"] background); *)
 
      )
- 
+
 
 
 (** methods *)
 
-(** accessors to instance variables *)	
+(** accessors to instance variables *)
     method current_zoom = adj#value
     method canvas = canvas
     method frame = frame
@@ -291,7 +291,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     method window_to_world = canvas#window_to_world
     method root = canvas#root
     method zoom_adj = adj
-	
+
 (** following display functions can be redefined by subclasses.
    they do nothing in the basic_widget *)
     method display_geo = fun _s -> ()
@@ -302,8 +302,8 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     method set_georef = fun wgs84 -> georef <- Some wgs84
 
     method projection = string_of_projection projection
-      
-	
+
+
     method world_of = fun wgs84 ->
       assert (LL.valid_geo wgs84);
       match georef with
@@ -350,12 +350,12 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	      and long = wx /. mercator_coeff +. georef.LL.posn_long in
 	      LL.make_geo lat long
 	end
-      | None -> failwith "#of_world : no georef"	
+      | None -> failwith "#of_world : no georef"
 
     method move_item = fun (item:GnomeCanvas.re_p GnoCanvas.item) wgs84 ->
       let (xw,yw) = self#world_of wgs84 in
       item#affine_absolute (affine_pos_and_angle xw yw 0.);
-    	    
+
     method moveto = fun wgs84 ->
       let (xw, yw) = self#world_of wgs84 in
       let (xc, yc) = canvas#world_to_window xw yw in
@@ -373,12 +373,12 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       let xc = x + sx_w/2 and yc = y + sy_w/2 in
       let (xw, yw) = canvas#window_to_world  (float xc) (float yc) in
       self#of_world (xw, yw)
-      
-			
+
+
     method display_pixbuf = fun ?opacity ((x1,y1), geo1) ((x2,y2), geo2) image ->
       let x1 = float x1 and x2 = float x2
       and y1 = float y1 and y2 = float y2 in
-      let image = 
+      let image =
 	match opacity with
 	  None -> image
 	| Some o -> set_opacity image o in
@@ -396,7 +396,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     method fix_bg_coords (xw, yw) = (** FIXME: how to do it properly ? *)
       let z = self#current_zoom in
       ((xw +. 25000000.) *. z, (yw +. 25000000.) *. z)
-	
+
     method zoom = fun value ->
       adj#set_value value
 
@@ -417,14 +417,14 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	    end else begin (* panning *)
 	      drawing <- Panning (xc, yc);
 	      let curs = Gdk.Cursor.create `FLEUR in
-	      background#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs 
+	      background#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs
 		(GdkEvent.Button.time ev)
 	    end;
 	    true
 	  end
       | `MOTION_NOTIFY ev ->
 	  begin
-	    let xc = GdkEvent.Motion.x ev 
+	    let xc = GdkEvent.Motion.x ev
 	    and yc = GdkEvent.Motion.y ev in
 	    let (xw, yw) = self#window_to_world xc yc in
 	    let (xw, yw) = self#fix_bg_coords (xw, yw) in
@@ -439,7 +439,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	    | Panning (x0, y0) ->
 		let xc = GdkEvent.Motion.x ev
 		and yc = GdkEvent.Motion.y ev in
-		let dx = self#current_zoom *. (xc -. x0) 
+		let dx = self#current_zoom *. (xc -. x0)
 		and dy = self#current_zoom *. (yc -. y0) in
 		let (x, y) = canvas#get_scroll_offsets in
 		canvas#scroll_to (x-truncate dx) (y-truncate dy)
@@ -465,11 +465,11 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	    | _ -> false
 	  end
       | _ -> false
-		
-		
+
+
     method mouse_motion = fun ev ->
       if georef <> None then begin
-	let xc = GdkEvent.Motion.x ev 
+	let xc = GdkEvent.Motion.x ev
 	and yc = GdkEvent.Motion.y ev in
 	let (xw, yw) = self#window_to_world xc yc in
 	self#display_geo (self#of_world (xw,yw));
@@ -481,8 +481,8 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       false
 
     method switch_background = fun x -> if x then background#show () else background#hide ()
-     
-	  
+
+
    method key_press = fun ev ->
       let (x, y) = canvas#get_scroll_offsets in
       match GdkEvent.Key.keyval ev with
@@ -491,10 +491,10 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       | k when k = GdkKeysyms._Left -> canvas#scroll_to (x-pan_step) y ; true
       | k when k = GdkKeysyms._Right -> canvas#scroll_to (x+pan_step) y ; true
       | k when k = GdkKeysyms._f -> self#fit_to_window () ; true
-      | k when k = GdkKeysyms._Page_Up -> 
+      | k when k = GdkKeysyms._Page_Up ->
 	  self#zoom_up ();
 	  true
-      | k when k = GdkKeysyms._Page_Down -> 
+      | k when k = GdkKeysyms._Page_Down ->
 	  self#zoom_down ();
 	  true
       | _ -> false
@@ -505,7 +505,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     method zoom_in_place = fun z ->
       let (x, y) = canvas#get_scroll_offsets in
       canvas#scroll_to (x+last_mouse_x) (y+last_mouse_y);
-      
+
       adj#set_value z;
 
       let (x, y) = canvas#get_scroll_offsets in
@@ -515,7 +515,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       self#zoom_in_place (adj#value*.zoom_factor);
     method zoom_down () =
       self#zoom_in_place (adj#value/.zoom_factor);
-   
+
     method any_event =
       let rec last_view = ref (0,0,0,0) in
       fun ev ->
@@ -541,8 +541,8 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
 	  Invalid_argument "ml_lookup_from_c" -> (* Raised GdkEvent.get_type *)
 	    false
 
-	    
-	    
+
+
     method segment = fun ?(group = canvas#root) ?(width=1) ?fill_color geo1 geo2 ->
       let (x1, y1) = self#world_of geo1
       and (x2, y2) = self#world_of geo2 in
@@ -553,7 +553,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
     method arc = fun ?(nb_points=5) ?(width=1) ?fill_color (xw,yw) r a1 a2 ->
       let c = {G2D.x2D = xw; y2D = yw } in
       let pts = G2D.arc ~nb_points c r a1 a2 in
-      let points = Array.init (2*nb_points) 
+      let points = Array.init (2*nb_points)
 	  (fun j ->
 	    let i = j / 2 in
 	    if j = i * 2 then pts.(i).G2D.x2D else pts.(i).G2D.y2D) in
@@ -562,7 +562,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       l#show ();
       l
 
-	
+
     method circle = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") geo radius ->
       let (x, y) = self#world_of geo in
 
@@ -570,7 +570,7 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       let utm = LL.utm_of LL.WGS84 geo in
       let geo_east = LL.of_utm LL.WGS84 (LL.utm_add utm (radius, 0.)) in
       let (xe, _) = self#world_of geo_east in
-      let rad = xe -. x in      
+      let rad = xe -. x in
       let l = GnoCanvas.ellipse ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color] ~x1:(x-.rad) ~y1:(y -.rad) ~x2:(x +.rad) ~y2:(y+.rad) group in
       l#show ();
       l
@@ -610,14 +610,14 @@ class basic_widget = fun ?(height=800) ?width ?(projection = Mercator) ?georef (
       ignore (west_arrow#connect#event left);
       ignore (east_arrow#connect#event right)
   end
-    
+
 
 (** canvas which inherits from basic_widget  ********************
  * - labels for displaying mouse coordinates on the map         *
  * - background switching                                       *
  ****************************************************************)
 
-    
+
 class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
   let srtm = GMenu.check_menu_item ~label:"SRTM" ~active:srtm () in
   let lbl_xy = GMisc.label ()
@@ -650,7 +650,7 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
       let bg_menu = my_check_menu_item "Background" ~active:true ~callback:self#switch_background ~packing:self#file_menu#append () in
 
       let tooltips = GData.tooltips () in
-      
+
       let b = GButton.button ~packing:toolbar#add () in
       ignore (b#connect#clicked (fun _ -> bg_menu#activate ()));
       let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // "switch_background.png") in
@@ -685,7 +685,7 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
 	      if flag then (** Create and show *)
 		let g = GnoCanvas.group self#canvas#root in
 		let u0 = LL.utm_of LL.WGS84 (self#get_center ()) in
-		let u0 = { LL.utm_x = align u0.LL.utm_x 1000; 
+		let u0 = { LL.utm_x = align u0.LL.utm_x 1000;
 			   LL.utm_zone = u0.LL.utm_zone;
 			   LL.utm_y = align u0.LL.utm_y 1000 } in
 		for i = -size_utm_grid to size_utm_grid do
@@ -708,7 +708,7 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
 		done;
 		utm_grid_group <- Some g
 	  | Some g -> if flag then g#show () else g#hide ()
-	      
+
     (** ground altitude extraction from srtm data *)
     method altitude = fun wgs84 ->
       try
@@ -730,14 +730,14 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
     method display_xy = fun s ->  lbl_xy#set_text s
     method display_geo = fun geo ->
       lbl_geo#set_text (LL.string_of_coordinates selected_georef geo)
-	  
+
 
     method display_alt = fun wgs84 ->
       if srtm#active then
 	lbl_alt#set_text (sprintf " SRTM:%dm"(self#altitude wgs84))
-	
+
     method display_group = fun s ->  lbl_group#set_text s
-	
+
     method goto = fun () ->
       match GToolbox.input_string ~title:"Geo ref" ~text:"WGS84 " "Geo ref" with
 	Some s ->
@@ -746,5 +746,5 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
 	    self#set_georef wgs84;
 	  self#moveto wgs84
       | None -> ()
-	
+
 end

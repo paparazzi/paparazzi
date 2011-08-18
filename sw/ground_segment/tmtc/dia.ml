@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -47,7 +47,7 @@ type state = {
     mutable cam_pitch : int;
   }
 
-let state = { 
+let state = {
   lat = 0.; long = 0.; alt = 0;
   course = 0; speed = 0;
   cam_roll = 0; cam_pitch = 0;
@@ -58,14 +58,14 @@ let send_msg = fun () ->
   let t = (Unix.gettimeofday ()) -. 1e9 in
   let vs = [
     "unix_time", Pprz.Float t;
-    
+
     "lat", Pprz.Float state.lat;
     "long", Pprz.Float state.long;
     "alt", Pprz.Int state.alt;
-    
+
     "course", Pprz.Int state.course;
     "speed", Pprz.Int state.speed;
-    
+
     "cam_roll", Pprz.Int state.cam_roll;
     "cam_pitch", Pprz.Int state.cam_pitch
   ] in
@@ -85,11 +85,11 @@ let fp_msg = fun _sender vs ->
   end
 
 
-  
+
 
 
 let _ =
-  let ivy_bus = ref Defivybus.default_ivy_bus 
+  let ivy_bus = ref Defivybus.default_ivy_bus
   and port = ref "/dev/dsp" in
   let options = [
     "-b", Arg.Set_string ivy_bus, (sprintf "<ivy bus> Default is %s" !ivy_bus);
@@ -112,7 +112,7 @@ let _ =
   (* Open the audio output and launch the periodic writings *)
   let _fd = Hdlc.init_gen "/dev/dsp" in
   ignore (Glib.Timeout.add Hdlc.write_period (fun _ -> Hdlc.write_to_dsp (); true));
-  
+
   (* Periodically send messages *)
   ignore (Glib.Timeout.add msg_period (fun () -> send_msg (); true));
 
