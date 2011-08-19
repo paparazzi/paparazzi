@@ -20,6 +20,7 @@
     <axis name="RC_MODE"  failsafe_value="0"/>
     <axis name="RC_ROLL"  failsafe_value="0"/>
     <axis name="RC_PITCH" failsafe_value="0"/>
+    <axis name="RC_THRUST" failsafe_value="0"/>
     <axis name="CAMERA"   failsafe_value="0"/>
   </commands>
 
@@ -38,26 +39,27 @@
     <set command="RC_MODE"  value="@MODE < -1500 ? MODE_MANUAL : (@MODE > 1500 ? MODE_AUTO2 : MODE_AUTO1) "/>
     <set command="RC_ROLL"  value="@ROLL"/>
     <set command="RC_PITCH" value="@PITCH"/>
+    <set command="RC_THRUST" value="@THROTTLE"/>
   </rc_commands>
 
 
   <command_laws>
     <!--************* different mixing strategies - probably don't edit this ****************-->
     <!-- direct ailerons -->
-    <let var="aileron_direct_left"  value="+@RC_ROLL"/>
-    <let var="aileron_direct_right" value="+@RC_ROLL"/>
+    <let var="aileron_direct_left"  value="+@RC_ROLL * (9600 + @RC_THRUST)/9600"/>
+    <let var="aileron_direct_right" value="+@RC_ROLL * (9600 + @RC_THRUST)/9600"/>
 
     <!-- direct elevators -->
-    <let var="elevator_direct_left"  value="-@RC_PITCH"/>
-    <let var="elevator_direct_right" value="+@RC_PITCH"/>
+    <let var="elevator_direct_left"  value="-@RC_PITCH * (9600 + @RC_THRUST)/9600"/>
+    <let var="elevator_direct_right" value="+@RC_PITCH * (9600 + @RC_THRUST)/9600"/>
 
     <!-- aileron feedback -->
-    <let var="aileron_feedback_left"  value="+@ROLL"/>
-    <let var="aileron_feedback_right" value="+@ROLL"/>
+    <let var="aileron_feedback_left"  value="+@ROLL * (9600 + @RC_THRUST)/9600"/>
+    <let var="aileron_feedback_right" value="+@ROLL * (9600 + @RC_THRUST)/9600"/>
 
     <!-- elevator feedback -->
-    <let var="elevator_feedback_left"  value="-@PITCH"/>
-    <let var="elevator_feedback_right" value="+@PITCH"/>
+    <let var="elevator_feedback_left"  value="-@PITCH * (9600 + @RC_THRUST)/9600"/>
+    <let var="elevator_feedback_right" value="+@PITCH * (9600 + @RC_THRUST)/9600"/>
 
     <!--************* which mode uses which mixing strategy - edit this for configuration ****************-->
     <!-- mode hover -->
