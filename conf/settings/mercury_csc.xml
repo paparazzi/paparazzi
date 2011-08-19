@@ -5,7 +5,7 @@
 <settings>
   <dl_settings>
        <dl_settings NAME="Misc" >
-      <dl_setting VAR="telemetry_mode_Ap_DefaultChannel" MIN="0" STEP="1" MAX="1" module="csc/csc_telemetry" shortname="telemetry" 
+      <dl_setting VAR="telemetry_mode_Ap_DefaultChannel" MIN="0" STEP="1" MAX="1" module="csc/csc_telemetry" shortname="telemetry"
         values="Default|Debug"/>
     </dl_settings>
 <!--    <dl_settings NAME="imu params">

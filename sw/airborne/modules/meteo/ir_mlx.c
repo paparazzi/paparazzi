@@ -89,7 +89,7 @@ void ir_mlx_periodic( void ) {
 void ir_mlx_event( void ) {
   if ((mlx_trans.status == I2CTransSuccess)) {
     switch (ir_mlx_status) {
-    
+
     case IR_MLX_RD_ID_0:
       /* read two byte ID 0 */
       ir_mlx_id_01  = mlx_trans.buf[0];
@@ -99,7 +99,7 @@ void ir_mlx_event( void ) {
       I2CTransceive(MLX_I2C_DEV, mlx_trans, MLX90614_ADDR, 1, 2);
       ir_mlx_status = IR_MLX_RD_ID_1;
       break;
-    
+
     case IR_MLX_RD_ID_1:
       /* read two byte ID 1 */
       ir_mlx_id_01 |= mlx_trans.buf[0] << 16;
@@ -109,7 +109,7 @@ void ir_mlx_event( void ) {
       I2CTransceive(MLX_I2C_DEV, mlx_trans, MLX90614_ADDR, 1, 2);
       ir_mlx_status = IR_MLX_RD_ID_2;
       break;
-    
+
     case IR_MLX_RD_ID_2:
       /* read two byte ID 2 */
       ir_mlx_id_23  = mlx_trans.buf[0];
@@ -119,16 +119,16 @@ void ir_mlx_event( void ) {
       I2CTransceive(MLX_I2C_DEV, mlx_trans, MLX90614_ADDR, 1, 2);
       ir_mlx_status = IR_MLX_RD_ID_3;
       break;
-    
+
     case IR_MLX_RD_ID_3:
       /* read two byte ID 3 */
       ir_mlx_id_23 |= mlx_trans.buf[0] << 16;
       ir_mlx_id_23 |= mlx_trans.buf[1] << 24;
       ir_mlx_status = IR_MLX_IDLE;
       mlx_trans.status = I2CTransDone;
-      DOWNLINK_SEND_MLX_SERIAL(DefaultChannel, &ir_mlx_id_01, &ir_mlx_id_23);      
+      DOWNLINK_SEND_MLX_SERIAL(DefaultChannel, &ir_mlx_id_01, &ir_mlx_id_23);
       break;
-    
+
     case IR_MLX_RD_CASE_TEMP:
       /* read two byte case temperature */
       ir_mlx_itemp_case  = mlx_trans.buf[1] << 8;

@@ -7,10 +7,10 @@ Ten by Ten Degree WGS-84 Geoid Heights from -180 to +170 Degrees of Longitude
 
 Geoid height approximations in meters
 
-Source: 
+Source:
 Defense Mapping Agency. 12 Jan 1987. GPS UE Relevant WGS-84 Data Base Package. Washington, DC: Defense Mapping Agency
 
-Link: 
+Link:
 http://www.colorado.edu/geography/gcraft/notes/datum/geoid84.html
 
 rows are from -180 to +170 starting north +90 to south-90
@@ -43,7 +43,7 @@ rows are from -180 to +170 starting north +90 to south-90
 
 
 
-const int8_t pprz_geodetic_wgs84_int[19][36] = 
+const int8_t pprz_geodetic_wgs84_int[19][36] =
 {
 	{13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13},
 	{3,1,-2,-3,-3,-3,-1,3,1,5,9,11,19,27,31,34,33,34,33,34,28,23,17,13,9,4,4,1,-2,-2,0,2,3,2,1,1},

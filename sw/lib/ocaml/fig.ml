@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -48,7 +48,7 @@ let int_of_cap_style = Obj.magic
 let cap_style_of_int = Obj.magic
 
 
-type polyline = 
+type polyline =
     Polyline | Box | Polygon | ArcBox | PictureBB of int*string
 let int_of_polyline = function
     Polyline -> 1 | Box -> 2 | Polygon -> 3 | ArcBox -> 4 | PictureBB _ -> 5
@@ -69,7 +69,7 @@ type spline = Approximated | Interpolated | XSpline
 let int_of_spline = function
     (Open, Approximated) -> 0
   | (Closed, Approximated) -> 1
-  | (Open, Interpolated) -> 2 
+  | (Open, Interpolated) -> 2
   | (Closed, Interpolated) -> 3
   | (Open, XSpline) -> 4
   | (Closed, XSpline) -> 5
@@ -77,9 +77,9 @@ let spline_of_int = function
     0 -> (Open, Approximated)
   | 1 -> (Closed, Approximated)
   | 2 -> (Open, Interpolated)
-  | 3-> (Closed, Interpolated) 
+  | 3-> (Closed, Interpolated)
   | 4 -> (Open, XSpline)
-  | 5-> (Closed, XSpline) 
+  | 5-> (Closed, XSpline)
   | _ -> invalid_arg "spline_of_int"
 
 type ellipse = EllipseRadius | EllipseDiameter | CircleRadius | CircleDiameter
@@ -125,7 +125,7 @@ type graphic_object =
 type justification = LeftJustified | CenterJustified | RightJustified
 let justification_of_int = Obj.magic
 let int_of_justification = Obj.magic
-type postscript_font = 
+type postscript_font =
   |  TimesRoman
   |  TimesItalic
   |  TimesBold
@@ -183,7 +183,7 @@ type font_size = int
 type font_flags = int
 
 type comments = string list
-  
+
 type fig_object = (comments * raw_object)
 and raw_object =
     UserColor of color * (int * int * int)
@@ -224,7 +224,7 @@ type t = {
     papersize : papersize;
     magnification : float;
     multiple_page : multiple_page;
-    transparent_color : int; 
+    transparent_color : int;
     comments : string list;
     resolution : units * int;
     body : fig_object list
@@ -241,13 +241,13 @@ let white = 7
 
 let user_color = ref 31
 let color = fun ?number r g b ->
-  let short = fun x -> 
-    if x < 0 || x > 255 then 
+  let short = fun x ->
+    if x < 0 || x > 255 then
       invalid_arg "Fig.color: color composite out of bound" in
   short r;
   short g;
   short b;
-  let n = 
+  let n =
     match number with
       None -> incr user_color; !user_color
       | Some x -> x in
@@ -268,7 +268,7 @@ let close = fun (f, _) -> close_out f;;
 
 let one = fun x -> if x = None then 0 else 1
 
-let arrow = fun f x -> 
+let arrow = fun f x ->
   match x with
     None -> ()
   | Some t -> fprintf f "\t%d %d %.2f %.2f %.2f\n" t.arrow_type t.arrow_style t.arrow_thickness t.arrow_width t.arrow_height
@@ -296,7 +296,7 @@ let create = fun
     papersize = papersize;
     magnification = magnification;
     multiple_page = multiple_page;
-    transparent_color = transparent_color; 
+    transparent_color = transparent_color;
     comments = comments;
     resolution = resolution;
     body = objects }
@@ -306,22 +306,22 @@ let create = fun
 let polyline = fun
     ?(sub_type = Polyline)
     ?(line_style = Solid)
-    ?(thickness = 1) 
-    ?(pen_color = black) 
-    ?(fill_color = white) 
-    ?(depth = 50) 
-    ?(area_fill = -1) 
+    ?(thickness = 1)
+    ?(pen_color = black)
+    ?(fill_color = white)
+    ?(depth = 50)
+    ?(area_fill = -1)
     ?(style_val = 4.0)
     ?(join_style = Miter)
     ?(cap_style = Butt)
     ?(radius = 7)
-    ?forward_arrow 
+    ?forward_arrow
     ?backward_arrow
     list ->
       let list = (* Checking and fixing nb of points *)
 	match sub_type, list with
 	  Polyline, _::_ -> list
-	| Polygon, first::rest -> 
+	| Polygon, first::rest ->
 	    if List.hd (List.rev list) <> first then begin
 	      prerr_endline "Fig.polyline: closing Polygon";
 	      list @ [first]
@@ -329,7 +329,7 @@ let polyline = fun
 	      list
 	| _box, [(x0,y0);(x1, y1)] -> (* Opposed corners *)
 	    [(x0,y0);(x1, y0);(x1,y1);(x0,y1);(x0,y0)]
-	| _ -> invalid_arg "Fig.polyline"	    
+	| _ -> invalid_arg "Fig.polyline"
       in
       let attributes = {
     	line_style = line_style;
@@ -351,14 +351,14 @@ let polyline = fun
 let arc = fun
     ?(sub_type = Open)
     ?(line_style = Solid)
-    ?(thickness = 1) 
-    ?(pen_color = black) 
-    ?(fill_color = white) 
-    ?(depth = 50) 
-    ?(area_fill = -1) 
+    ?(thickness = 1)
+    ?(pen_color = black)
+    ?(fill_color = white)
+    ?(depth = 50)
+    ?(area_fill = -1)
     ?(style_val = 0.0)
     ?(cap_style = Butt)
-    ?forward_arrow 
+    ?forward_arrow
     ?backward_arrow
     (center_x, center_y) radius alpha1 alpha2 ->
       let attributes = {
@@ -385,11 +385,11 @@ let arc = fun
 (* Ellipse *)
 let ellipse = fun
     ?(line_style = Solid)
-    ?(thickness = 1) 
-    ?(pen_color = black) 
-    ?(fill_color = white) 
-    ?(depth = 50) 
-    ?(area_fill = -1) 
+    ?(thickness = 1)
+    ?(pen_color = black)
+    ?(fill_color = white)
+    ?(depth = 50)
+    ?(area_fill = -1)
     ?(style_val = 0.0)
     ?(direction = Clockwise)
     ?(angle = 0.0)
@@ -423,20 +423,20 @@ let factors = fun points spline ->
 let spline = fun
     ?(sub_type = Open, Approximated)
     ?(line_style = Solid)
-    ?(thickness = 1) 
-    ?(pen_color = black) 
-    ?(fill_color = white) 
-    ?(depth = 50) 
-    ?(area_fill = -1) 
+    ?(thickness = 1)
+    ?(pen_color = black)
+    ?(fill_color = white)
+    ?(depth = 50)
+    ?(area_fill = -1)
     ?(style_val = 0.0)
     ?(cap_style = Butt)
-    ?forward_arrow 
+    ?forward_arrow
     ?backward_arrow
     list ->
       let list = (* Checking and fixing nb of points *)
 	match fst sub_type, list with
 	  Open, _::_ -> list
-	| Closed, first::rest -> 
+	| Closed, first::rest ->
 	    if List.hd (List.rev list) <> first then begin
 	      prerr_endline "Fig.spline: closing spline";
 	      list @ [first]
@@ -477,9 +477,9 @@ let code_string = fun f s ->
 
 let text = fun
     ?(sub_type = LeftJustified)
-    ?(color = black) 
-    ?(depth = 50) 
-    ?(font = Postscript TimesRoman) 
+    ?(color = black)
+    ?(depth = 50)
+    ?(font = Postscript TimesRoman)
     ?(font_size = 12)
     ?(angle = 0.0)
     ?(rigid = true)
@@ -537,7 +537,7 @@ let read_arrow = fun s flag ->
   if flag = 0 then None else
   bscanf s " %d %d %f %f %f" (fun at s thick w h ->
     Some { arrow_type = at;
-      arrow_style= s; 
+      arrow_style= s;
       arrow_thickness= thick;
       arrow_width = w;
       arrow_height= h
@@ -550,11 +550,11 @@ let rec read_points s n =
   if n = 0 then [] else
   let p = read_point s in
   p :: read_points s (n-1)
-    
+
 let rec read_floats s n =
   if n = 0 then [] else
   bscanf s " %f" (fun f -> f :: read_floats s (n-1))
-    
+
 
 let read_polyline = fun s ->
   bscanf s " %d %d %d %d %d %d %d %d %f %d %d %d %d %d %d" (fun st ls thick pc fc depth _ps af sv js cs rad faf baf n ->
@@ -573,7 +573,7 @@ let read_polyline = fun s ->
       forward_arrow = fa;
       backward_arrow = ba} in
     GrObj (com, Polylines (st, join_style_of_int js, rad, points)))
-    
+
 
 let read_spline = fun s ->
   bscanf s " %d %d %d %d %d %d %d %d %f %d %d %d %d" (fun st ls thick pc fc depth _ps af sv cs faf baf n ->
@@ -600,7 +600,7 @@ let read_arc = fun s ->
     let p3 = read_point s in
     let fa = read_arrow s faf in
     let ba = read_arrow s baf in
-    
+
     let com = { line_style = line_style_of_int ls;
 		line_thickness = thick;
 		pen_color = pc;
@@ -614,8 +614,8 @@ let read_arc = fun s ->
 
     GrObj(com, Arc (arc_of_int st, direction_of_int dirct, (cx, cy), p1, p2, p3)))
 
-    
-    
+
+
 
 let bit2 ff = (ff lor 2) land 1 = 1
 
@@ -644,7 +644,7 @@ let rec read_objects = fun s ->
 and read_compound = fun s ->
   bscanf s " %d %d %d %d" (fun x1 y1 x2 y2 -> Compound ((x1,y1), (x2,y2), read_objects s))
 
-  
+
 
 let read = fun file ->
   let s = Scanning.from_file file in
@@ -654,10 +654,10 @@ let read = fun file ->
       failwith ("Unknown FIG format version: "^v);
 
     let comments = read_comments s in
-    
+
     bscanf s "%d %d" (fun resolution coord_system ->
       let os = read_objects s in
-      
+
       {
        version = v;
        orientation = orientation_of_string o;
@@ -666,12 +666,12 @@ let read = fun file ->
        papersize = p;
        magnification = m;
        multiple_page = multiple_page_of_string multi;
-       transparent_color = t; 
+       transparent_color = t;
        comments = comments;
        resolution = (resolution, coord_system);
        body = os
      }))
-      
+
 let fprint_point f (x, y) = fprintf f " %d %d" x y
 
 let arrow_flag = function
@@ -753,7 +753,7 @@ let write_out f { version = v;
 	    papersize = p;
 	    magnification = m;
 	    multiple_page = multi;
-	    transparent_color = t; 
+	    transparent_color = t;
 	    comments = comments;
 	    resolution = (resolution, coord_system);
 	    body = os
@@ -765,7 +765,7 @@ let write_out f { version = v;
   let (colors, others) = List.partition (function (_, UserColor _) -> true | _ -> false) os in
   List.iter (write_object f) colors;
   List.iter (write_object f) others
-  
+
 
 
 let write f fig =

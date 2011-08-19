@@ -366,16 +366,16 @@ static inline void i2c_hard_reset(struct i2c_periph *p)
 		GPIO_SetBits(GPIOB, p->scl_pin);
 		while (GPIO_ReadInputDataBit(GPIOB, p->scl_pin) == Bit_RESET);
     i2c_delay();
-		
+
 		// Lower SCL, wait
 		GPIO_ResetBits(GPIOB, p->scl_pin);
     i2c_delay();
-		
+
 		// Raise SCL, wait
 		GPIO_SetBits(GPIOB, p->scl_pin);
     i2c_delay();
 	}
-		
+
 	// Generate a start condition followed by a stop condition
 	GPIO_SetBits(GPIOB, p->scl_pin);
   i2c_delay();

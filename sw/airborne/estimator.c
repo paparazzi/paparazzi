@@ -101,11 +101,11 @@ void estimator_init( void ) {
 #ifdef USE_AIRSPEED
   EstimatorSetAirspeed( 0. );
 #endif
-  
+
 #ifdef USE_AOA
   EstimatorSetAOA( 0. );
 #endif
-  
+
   estimator_flight_time = 0;
 
   estimator_airspeed = NOMINAL_AIRSPEED;

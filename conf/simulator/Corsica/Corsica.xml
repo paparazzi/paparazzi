@@ -15,7 +15,7 @@
         <wingarea unit="M2"> 0.21 </wingarea>
         <wingspan unit="M"> 1.5 </wingspan>
         <chord unit="M"> 0.14 </chord>
-        <htailarea unit="M2"> 0.026 </htailarea> 
+        <htailarea unit="M2"> 0.026 </htailarea>
         <htailarm unit="M"> 0.6 </htailarm>
         <vtailarea unit="M2"> 0.011 </vtailarea>
         <vtailarm unit="M"> 0.6 </vtailarm>
@@ -142,7 +142,7 @@
                 <p_factor>1.0</p_factor>
             </thruster>
         </engine>
-        <tank type="OXIDIZER">    <!-- Tank number 0 --> 
+        <tank type="OXIDIZER">    <!-- Tank number 0 -->
             <location unit="M">
                 <x> 0.7 </x>
                 <y> 0.0 </y>
@@ -255,8 +255,8 @@
                           <independentVar>aero/alpha-deg</independentVar>
                           <tableData>
                               -10.0   0.02748
-                              -8.0  	0.02243	
-                              -6.0  	0.02335	
+                              -8.0  	0.02243
+                              -6.0  	0.02335
                               -4.0	  0.02770
                               -2.0    0.03369
                               0.0     0.04284
@@ -316,7 +316,7 @@
                     <property>aero/alpha-deg</property>
                        <tableData>
                         -23  -0.7
-                        -21  -0.9 
+                        -21  -0.9
                         -20  -1.0
                         -10  -0.1647
                           0   0.7394

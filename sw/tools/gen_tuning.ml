@@ -2,7 +2,7 @@
  * $Id$
  *
  * XML preprocessing for dynamic tuning
- *  
+ *
  * Copyright (C) 2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -43,8 +43,8 @@ let join_xml_files = fun xml_files ->
   let dl_settings = ref [] in
   List.iter (fun xml_file ->
     let xml = Xml.parse_file xml_file in
-    let these_dl_settings = 
-      try Xml.children (ExtXml.child xml "dl_settings") with 
+    let these_dl_settings =
+      try Xml.children (ExtXml.child xml "dl_settings") with
 	Not_found -> [] in
     dl_settings := these_dl_settings @ !dl_settings)
     xml_files;
@@ -60,11 +60,11 @@ let _ =
     xml_files := Sys.argv.(i) :: !xml_files;
   done;
   (*let xml_file = Sys.argv.(1) in*)
-  
+
   try
     printf "/* This file has been generated from %s */\n" (String.concat " " !xml_files);
     printf "/* Please DO NOT EDIT */\n\n";
-    
+
     printf "#ifndef %s\n" h_name;
     printf "#define %s\n\n" h_name;
 
@@ -72,14 +72,14 @@ let _ =
     let xml = Xml.Element ("settings", [], [dl_settings]) in
     (*let xml = Xml.parse_file xml_file in*)
     let settings = flatten xml [] in
-  
+
     (** Macro to define variables id *)
     let idx = ref 0 in
     List.iter (fun s ->
       let v = ExtXml.attrib s "var" in
       let up = String.uppercase v in
       begin printf "#define PPRZ_%s %d \n" up !idx end;
-      incr idx) 
+      incr idx)
       settings;
 
     finish h_name

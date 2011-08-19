@@ -9,7 +9,7 @@
   </waypoints>
 
   <blocks>
-    <block NAME="go"> 
+    <block NAME="go">
       <exception COND="(RcEvent1())" DEROUTE="event1"/>
       <circle WP="center" RADIUS="2*rad" alt="alt" until="And(Qdr(0), circle_count > 1)"/>
       <circle wp="center" wp_qdr="0" wp_dist="rad" RADIUS="rad" alt="alt" until="circle_count > 0.5"/>

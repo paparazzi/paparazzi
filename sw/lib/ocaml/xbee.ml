@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -80,12 +80,12 @@ type frame =
   | RX_Packet_64 of addr64 * int * int * string
   | RX868_Packet of addr64 * byte * string
   | RX_Packet_16 of addr16 * int * int * string
- 
+
 
 let mode868 = ref false
 
 let check_not_in_868 = fun s ->
-  if !mode868 then 
+  if !mode868 then
     failwith (Printf.sprintf "Xbee.%s not available in mode868" s)
 
 
@@ -139,7 +139,7 @@ let api_tx64 = fun ?(frame_id = 0) dest data ->
   s.[10+optional868] <- Char.chr 0;
   String.blit data 0 s (11+ optional868) n;
   s
-  
+
 let api_tx16 = fun ?(frame_id = 0) dest data ->
   check_not_in_868 "api_tx16";
   assert (frame_id >=0 && frame_id < 0x100);
@@ -154,13 +154,13 @@ let api_tx16 = fun ?(frame_id = 0) dest data ->
   s.[4] <- Char.chr 0;
   String.blit data 0 s 5 n;
   s
-  
+
 
 let at_command_sequence = "+++"
 let at_set_my = fun addr ->
   assert (addr >= 0 && addr < 0x10000);
   Printf.sprintf "ATMY%04x\r" addr
-let baud_rates = [1200, 0; 2400, 1; 4800, 2; 9600, 3; 19200, 4; 
+let baud_rates = [1200, 0; 2400, 1; 4800, 2; 9600, 3; 19200, 4;
 		  38400, 5; 57600, 6; 115200,  7]
 let at_set_baud_rate = fun baud ->
   try
@@ -172,12 +172,12 @@ let at_exit = "ATCN\r"
 let at_api_enable = "ATAP1\r"
 
 let api_parse_frame = fun s ->
-  let n = String.length s in    
+  let n = String.length s in
   assert(n>0);
   match s.[0] with
     x when x = api_at_command_response_id ->
       assert(n >= 5);
-      AT_Command_Response (Char.code s.[1], String.sub s 2 2, 
+      AT_Command_Response (Char.code s.[1], String.sub s 2 2,
 			   Char.code s.[4], String.sub s 5 (n-5))
   | x when not !mode868 && x = api_tx_status_id ->
       assert(n = 3);
@@ -185,7 +185,7 @@ let api_parse_frame = fun s ->
   | x when !mode868 && x = api868_tx_status_id ->
       assert(n = 7);
       TX868_Status (Char.code s.[1], Char.code s.[5], Char.code s.[4])
-  | x when x = api_modem_status_id -> 
+  | x when x = api_modem_status_id ->
       Modem_Status (Char.code s.[1])
   | x when not !mode868 && x = api_rx64_id ->
       assert(n >= 11);

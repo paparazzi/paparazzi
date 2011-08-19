@@ -77,7 +77,7 @@ external fg_msg : string -> float -> float -> float -> float -> float -> float -
 
 let ac_name = ref "A/C not set"
 
-let ivy_bus = ref Defivybus.default_ivy_bus 
+let ivy_bus = ref Defivybus.default_ivy_bus
 
 let fg_client = ref ""
 

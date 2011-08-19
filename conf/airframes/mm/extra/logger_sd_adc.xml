@@ -6,7 +6,7 @@
     short, microSD card can be directly soldered to Molex cable. For now only
     non SDHC SD cards (<= 2GB) are supported. martinmm@pfump.org
 
-    microSD         TinyV2 SPI J3 
+    microSD         TinyV2 SPI J3
     8 nc
     7 DO            5 MISO
     6 GND           1 GND
@@ -19,7 +19,7 @@
     Looking onto the gold plated connector side of the microSD card:
 
     ###############
-    I 8 
+    I 8
     I 7
     I 6
     I 5
@@ -81,15 +81,15 @@ ap.CFLAGS += -DLOG_STOP_KEY=13
 #efsl
 ap.CFLAGS += -I $(SRC_ARCH)/efsl/inc -I $(SRC_ARCH)/efsl/conf
 
-ap.srcs += $(SRC_ARCH)/efsl/src/efs.c $(SRC_ARCH)/efsl/src/plibc.c 
-ap.srcs += $(SRC_ARCH)/efsl/src/disc.c $(SRC_ARCH)/efsl/src/partition.c 
-ap.srcs += $(SRC_ARCH)/efsl/src/time.c $(SRC_ARCH)/efsl/src/fs.c 
+ap.srcs += $(SRC_ARCH)/efsl/src/efs.c $(SRC_ARCH)/efsl/src/plibc.c
+ap.srcs += $(SRC_ARCH)/efsl/src/disc.c $(SRC_ARCH)/efsl/src/partition.c
+ap.srcs += $(SRC_ARCH)/efsl/src/time.c $(SRC_ARCH)/efsl/src/fs.c
 ap.srcs += $(SRC_ARCH)/efsl/src/fat.c $(SRC_ARCH)/efsl/src/file.c
-ap.srcs += $(SRC_ARCH)/efsl/src/dir.c $(SRC_ARCH)/efsl/src/ls.c 
+ap.srcs += $(SRC_ARCH)/efsl/src/dir.c $(SRC_ARCH)/efsl/src/ls.c
 ap.srcs += $(SRC_ARCH)/efsl/src/mkfs.c $(SRC_ARCH)/efsl/src/debug.c
 ap.srcs += $(SRC_ARCH)/efsl/src/ioman.c $(SRC_ARCH)/efsl/src/ui.c
-ap.srcs += $(SRC_ARCH)/efsl/src/extract.c 
-ap.srcs += $(SRC_ARCH)/efsl/src/interfaces/lpc2000_spi.c 
+ap.srcs += $(SRC_ARCH)/efsl/src/extract.c
+ap.srcs += $(SRC_ARCH)/efsl/src/interfaces/lpc2000_spi.c
 ap.srcs += $(SRC_ARCH)/efsl/src/interfaces/sd.c
 #ap.srcs += $(SRC_ARCH)/efsl/src/interfaces/lpc2000_dbg_printf.c
 

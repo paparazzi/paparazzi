@@ -24,7 +24,7 @@ The "mode" button swaps the axes on the left stick and the d pad.
   <button index="0" name="b0"/>
   <button index="1" name="b1"/>
   <button index="2" name="b2"/>
-  <button index="3" name="b3"/>  
+  <button index="3" name="b3"/>
   <button index="4" name="b4"/>
   <button index="5" name="b5"/>
   <button index="6" name="b6"/>
@@ -54,7 +54,7 @@ The "mode" button swaps the axes on the left stick and the d pad.
   <message class="trim_minus" name="ly" on_event="b11"/>
   <message class="trim_plus" name="rx" on_event="b2"/>
   <message class="trim_minus" name="rx" on_event="b0"/>
-  <message class="trim_minus" name="ry" on_event="b3"/> 
+  <message class="trim_minus" name="ry" on_event="b3"/>
   <message class="trim_plus" name="ry" on_event="b1"/>
   <message class="trim_save" name="" on_event="b5"/>
  -->
@@ -62,9 +62,9 @@ The "mode" button swaps the axes on the left stick and the d pad.
   <!-- Button 5 top left bumper) -->  <!-- AUTO1 mode -->
   <message class="ground" name="DL_SETTING" on_event="b4">
     <field name="index" value="5"/>
-    <field name="value" value="1"/> 
+    <field name="value" value="1"/>
   </message>
- 
+
   <!-- Button 7 bottom left bumper -->   <!-- AUTO2 mode -->
   <message class="ground" name="DL_SETTING" on_event="b6">
     <field name="index" value="5"/>
@@ -74,11 +74,11 @@ The "mode" button swaps the axes on the left stick and the d pad.
   <!-- Buttons 6+8 (right pad) -->  <!-- KILL mode -->
   <message class="ground" name="DL_SETTING" on_event="b5">
     <field name="index" value="5"/>
-    <field name="value" value="5"/> 
+    <field name="value" value="5"/>
   </message>
   <message class="ground" name="DL_SETTING" on_event="b7">
     <field name="index" value="5"/>
-    <field name="value" value="5"/> 
+    <field name="value" value="5"/>
   </message>
 
 

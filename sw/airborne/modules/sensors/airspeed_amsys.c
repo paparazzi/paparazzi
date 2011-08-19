@@ -103,7 +103,7 @@ void airspeed_amsys_read_periodic( void ) {
 #else
 		I2CReceive(AIRSPEED_AMSYS_I2C_DEV, airspeed_amsys_i2c_trans, AIRSPEED_AMSYS_ADDR, 4);
 #endif
-		
+
 #else // SITL
 		extern float sim_air_speed;
 		EstimatorSetAirspeed(sim_air_speed);
@@ -111,7 +111,7 @@ void airspeed_amsys_read_periodic( void ) {
 }
 
 void airspeed_amsys_read_event( void ) {
-	
+
 	// Get raw airspeed from buffer
 	airspeed_amsys_raw = 0;
 	airspeed_amsys_raw = (airspeed_amsys_i2c_trans.buf[0]<<8) | airspeed_amsys_i2c_trans.buf[1];
@@ -119,7 +119,7 @@ void airspeed_amsys_read_event( void ) {
 	tempAS_amsys_raw = (airspeed_amsys_i2c_trans.buf[2]<<8) | airspeed_amsys_i2c_trans.buf[3];
 	airspeed_temperature = (float)((float)(tempAS_amsys_raw-TEMPERATURE_AMSYS_OFFSET_MIN)/((float)(TEMPERATURE_AMSYS_OFFSET_MAX-TEMPERATURE_AMSYS_OFFSET_MIN)/TEMPERATURE_AMSYS_MAX)+TEMPERATURE_AMSYS_MIN);// Tmin=-25, Tmax=85
 #endif
-	
+
 	// Check if this is valid airspeed
 	if (airspeed_amsys_raw == 0)
 		airspeed_amsys_valid = FALSE;
@@ -128,7 +128,7 @@ void airspeed_amsys_read_event( void ) {
 
 	// Continue only if a new airspeed value was received
 	if (airspeed_amsys_valid) {
-	 
+
 		// raw not under offest min
 		if (airspeed_amsys_raw<AIRSPEED_AMSYS_OFFSET_MIN)
 			airspeed_amsys_raw = AIRSPEED_AMSYS_OFFSET_MIN;
@@ -143,8 +143,8 @@ void airspeed_amsys_read_event( void ) {
 
 	// 	Lowpass filter
 		airspeed_amsys = airspeed_filter * airspeed_old + (1 - airspeed_filter) * airspeed_tmp;
-		airspeed_old = airspeed_amsys;		
-		
+		airspeed_old = airspeed_amsys;
+
 #ifdef USE_AIRSPEED
 		EstimatorSetAirspeed(airspeed_amsys);
 #endif
@@ -153,7 +153,7 @@ void airspeed_amsys_read_event( void ) {
 #else
 		RunOnceEvery(10, DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, &airspeed_amsys_raw, &pressure_amsys, &airspeed_tmp, &airspeed_amsys, &airspeed_temperature));
 #endif
-	} 
+	}
 
 	// Transaction has been read
 	airspeed_amsys_i2c_trans.status = I2CTransDone;

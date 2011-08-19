@@ -2,7 +2,7 @@
  * $Id$
  *
  * Xml-Light extension
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -76,7 +76,7 @@ let attrib = fun x a ->
 
 let tag_is = fun x v ->
   String.lowercase (Xml.tag x) = String.lowercase v
-  
+
 
 
 let attrib_or_default = fun x a default ->
@@ -169,7 +169,7 @@ let subst_attrib = fun attrib value xml ->
 	  [] -> [(attrib, value)]
 	| (a,_v) as c::ats ->
 	    if u a = uattrib then loop ats else c::loop ats in
-      Xml.Element (tag, 
+      Xml.Element (tag,
 		   loop attrs,
 		   children)
   | Xml.PCData _ -> xml
@@ -179,7 +179,7 @@ let subst_child = fun ?(select= fun _ -> true) t x xml ->
   match xml with
     Xml.Element (tag, attrs, children) ->
       let found = ref false in
-      let new_children = 
+      let new_children =
 	List.map
 	  (fun xml -> if tag_is xml t && select xml then (found := true; x) else xml)
 	  children in
@@ -244,7 +244,7 @@ let parse_file = fun ?(noprovedtd = false) file ->
 
 
 
-let digest = fun xml -> 
+let digest = fun xml ->
   Digest.string (Xml.to_string xml)
 
 let predefined_general_entities =
@@ -256,18 +256,18 @@ let display_entities = fun s ->
     (fun (regexp, displayed_as) r -> Str.global_replace regexp displayed_as r)
     predefined_general_entities
     s
-  
+
 module Gconf = struct
   let get_value = fun xml name ->
     let e = child ~select:(fun x -> Xml.attrib x "name" = name) xml "entry" in
     Xml.attrib e "value"
-      
+
   let entry = fun application name value ->
     Xml.Element ("entry", ["name", name;
 			   "value", value;
 			   "application", application],
 		 [])
-      
+
   let add_entry = fun xml appli name value ->
     let entry = entry appli name value in
     let select = fun x -> Xml.attrib x "name" = name in

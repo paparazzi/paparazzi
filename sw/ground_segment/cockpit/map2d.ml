@@ -18,13 +18,13 @@
 * You should have received a copy of the GNU General Public License
 * along with paparazzi; see the file COPYING.  If not, write to
 * the Free Software Foundation, 59 Temple Place - Suite 330,
-* Boston, MA 02111-1307, USA. 
+* Boston, MA 02111-1307, USA.
 *
 *)
 
 let set_georef_if_none = fun geomap wgs84 ->
   match geomap#georef with
-    None -> 
+    None ->
       geomap#set_georef wgs84;
       geomap#center wgs84
   | Some _ -> ()

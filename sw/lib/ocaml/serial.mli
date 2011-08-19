@@ -2,7 +2,7 @@
  * $Id$
  *
  * Serial Port handling
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -54,7 +54,7 @@ val close : Unix.file_descr -> unit
 val set_dtr : Unix.file_descr -> bool -> unit
 val set_speed : Unix.file_descr -> speed -> unit
 
-val input : 
+val input :
   ?read:(Unix.file_descr -> string -> int -> int -> int) ->
   (string -> int) -> (Unix.file_descr -> unit) closure
 (** Buffered input. [input ?read f] Returns a closure which must be called when
@@ -88,7 +88,7 @@ module type PROTOCOL =
 (** Builds a parser module from a [PROTOCOL] description *)
 module Transport :
   functor (Protocol : PROTOCOL) ->
-    sig 
+    sig
       val nb_err : int ref (* Errors on checksum *)
       val discarded_bytes : int ref
       val parse : (payload -> unit) -> string -> int

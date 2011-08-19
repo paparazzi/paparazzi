@@ -44,7 +44,7 @@ static inline void uart_enable_interrupts(struct uart_periph* p) {
 
 static inline void uart_set_baudrate(struct uart_periph* p, uint32_t baud) {
   // set the baudrate
-  ((uartRegs_t *)(p->reg_addr))->lcr = ULCR_DLAB_ENABLE;     // select divisor latches 
+  ((uartRegs_t *)(p->reg_addr))->lcr = ULCR_DLAB_ENABLE;     // select divisor latches
   ((uartRegs_t *)(p->reg_addr))->dll = (uint8_t)baud;        // set for baud low byte
   ((uartRegs_t *)(p->reg_addr))->dlm = (uint8_t)(baud >> 8); // set for baud high byte
 

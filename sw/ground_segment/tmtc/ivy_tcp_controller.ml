@@ -21,7 +21,7 @@ let () =
 
   Ivy.init "tcp_ivy" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
-    
+
   let addr = Unix.inet_addr_of_string !host in
   let sockaddr = Unix.ADDR_INET (addr, !port) in
 
@@ -35,23 +35,23 @@ let () =
 	let n = input i buffer 0 buffer_size in
 	let b = String.sub buffer 0 n in
 	Debug.trace 'x' (Debug.xprint b);
-	
+
 	let use_tele_message = fun payload ->
 	  Debug.trace 'x' (Debug.xprint (Serial.string_of_payload payload));
 	  let (msg_id, ac_id, values) = Tm_Pprz.values_of_payload payload in
 	  let msg = Tm_Pprz.message_of_id msg_id in
 	  Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values in
-	
+
 	ignore (PprzTransport.parse use_tele_message b)
       with
 	exc ->
 	    prerr_endline (Printexc.to_string exc)
       end;
     true in
-  
+
   let ginput = GMain.Io.channel_of_descr (Unix.descr_of_in_channel i) in
   ignore (Glib.Io.add_watch [`IN] get_message ginput);
-    
+
   (* Forward datalink messages *)
   let get_ivy_message = fun _ args ->
     try
@@ -65,6 +65,6 @@ let () =
 
   let hangup = fun _ -> prerr_endline "hangup"; exit 1 in
   ignore (Glib.Io.add_watch [`HUP] hangup ginput);
-  
+
   (* Main Loop *)
   GMain.main ()

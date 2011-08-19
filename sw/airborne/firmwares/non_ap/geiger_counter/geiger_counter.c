@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -58,7 +58,7 @@ void read_i2c() {
   Wire.send(dat, 2);
 }
 
-void setup() { 
+void setup() {
   /* serial port */
   Serial.begin(2400);
   pinMode(2,OUTPUT);
@@ -81,7 +81,7 @@ void setup() {
 void loop() {
   unsigned char ser;
   int i;
-  
+
   /* wait for data */
   if (Serial.available() > 0) {
     ser = Serial.read();
@@ -103,7 +103,7 @@ void loop() {
       } else if (b == ',')) {
 		i = 0;
         stat = FOUND_1;
-      } else stat = INIT;      
+      } else stat = INIT;
       break;
     case FOUND_1:
       /* read counter 1 */
@@ -113,10 +113,10 @@ void loop() {
       } else if (b == ',')) {
 #ifdef DEBUG
         Serial.println(count_geiger_1, DEC);
-#endif        
+#endif
 		i = 0;
         stat = FOUND_2;
-      } else stat = INIT;      
+      } else stat = INIT;
       break;
     case FOUND_2:
       /* read counter 2 */
@@ -124,12 +124,12 @@ void loop() {
         count_geiger_2 = count_geiger_2 * 10 + (b-'0');
 		if (++i > 7) state = IDLE;
       } else if (b == ',')) {
-#ifdef DEBUG		  
+#ifdef DEBUG
         Serial.println(count_geiger_2, DEC);
 #endif
 		i = 0;
         stat = FOUND_3;
-      } else stat = INIT;      
+      } else stat = INIT;
       break;
     case FOUND_3:
       /* ignore 3 */
@@ -138,7 +138,7 @@ void loop() {
       } else if (b == ',')) {
 		i = 0;
         stat = FOUND_4;
-      } else stat = INIT;      
+      } else stat = INIT;
       break;
     case FOUND_4:
       /* ignore 4 */
@@ -147,7 +147,7 @@ void loop() {
       } else if (b == ',')) {
 		i = 0;
         stat = FOUND_5;
-      } else stat = INIT;      
+      } else stat = INIT;
       break;
     case FOUND_5:
       /* read voltage */
@@ -161,11 +161,11 @@ void loop() {
 #endif
         received_data = 0;
         stat = INIT;
-      } else stat = INIT;      
+      } else stat = INIT;
       break;
     default:
       stat = INIT;
-    }    
+    }
   }
 }
 

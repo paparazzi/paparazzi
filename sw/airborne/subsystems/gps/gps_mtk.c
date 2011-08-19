@@ -26,11 +26,11 @@
  *   DIYDrones V1.4 protocol (AXN1.30_2278)
  *   DIYDrones V1.6 protocol (AXN1.30_2389)
  *
- * documentation is partly incorrect, see mtk.xml for what seems 
+ * documentation is partly incorrect, see mtk.xml for what seems
  * to be "real"
- * 
+ *
  */
-   
+
 #include "subsystems/gps.h"
 
 #include "led.h"
@@ -104,15 +104,15 @@ static void gps_mtk_time2itow(uint32_t  gps_date, uint32_t  gps_time,
 
   *gps_week = 0;
   *gps_itow = 0;
-    
+
   /* sanity checks */
   if (gps_month > 12) return;
-  if (gps_day > (DAYS_MONTH[gps_month] + 
+  if (gps_day > (DAYS_MONTH[gps_month] +
     ((gps_month == 1) ? isleap(gps_year):0))) return;
   if (gps_hour > 23) return;
   if (gps_minute > 59) return;
   if (gps_second > 59) return;
-  
+
   /* days since 6-JAN-1980 */
   days = -6;
   for (i = 1980; i < gps_year; i++) days += (365 + isleap(i));
@@ -122,7 +122,7 @@ static void gps_mtk_time2itow(uint32_t  gps_date, uint32_t  gps_time,
       days += DAYS_MONTH[i] + ((i == 1) ? isleap(gps_year):0);
   }
   days += gps_day;
-    
+
   /* convert */
   *gps_week = (uint16_t) (days / 7);
   *gps_itow = ((days % 7) * SECS_DAY +
@@ -152,9 +152,9 @@ void gps_mtk_read_message(void) {
       // FIXME: with MTK you do not receive ellipsoid altitude
       gps.lla_pos.alt = gps.hmsl;
       gps.gspeed      = MTK_DIY14_NAV_GSpeed(gps_mtk.msg_buf);
-      // FIXME: with MTK you do not receive speed 3D      
+      // FIXME: with MTK you do not receive speed 3D
       gps.speed_3d    = gps.gspeed;
-      gps.course      = (RadOfDeg(MTK_DIY14_NAV_Heading(gps_mtk.msg_buf)))*10; 
+      gps.course      = (RadOfDeg(MTK_DIY14_NAV_Heading(gps_mtk.msg_buf)))*10;
       gps.num_sv      = MTK_DIY14_NAV_numSV(gps_mtk.msg_buf);
       switch (MTK_DIY14_NAV_GPSfix(gps_mtk.msg_buf)) {
       case MTK_DIY_FIX_3D:
@@ -218,7 +218,7 @@ void gps_mtk_read_message(void) {
       gps.gspeed      = MTK_DIY16_NAV_GSpeed(gps_mtk.msg_buf);
       // FIXME: with MTK you do not receive speed 3D
       gps.speed_3d    = gps.gspeed;
-      gps.course      = (RadOfDeg(MTK_DIY16_NAV_Heading(gps_mtk.msg_buf)*10000)) * 10; 
+      gps.course      = (RadOfDeg(MTK_DIY16_NAV_Heading(gps_mtk.msg_buf)*10000)) * 10;
       gps.num_sv      = MTK_DIY16_NAV_numSV(gps_mtk.msg_buf);
       switch (MTK_DIY16_NAV_GPSfix(gps_mtk.msg_buf)) {
       case MTK_DIY_FIX_3D:

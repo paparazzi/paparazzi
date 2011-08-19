@@ -57,7 +57,7 @@ let get_gps_message = fun label _sender vs ->
   (* Check if too high *)
   if height > 150 then
     set_to_HOME ()
-  
+
 
 (********************************* Main *********************************************)
 let () =
@@ -86,7 +86,7 @@ let () =
 
   (* Connect the button to its action *)
   ignore (button#connect#clicked ~callback:set_to_HOME);
-  
+
   (** Display the window and start the main loop *)
   window#show ();
   GMain.main ()

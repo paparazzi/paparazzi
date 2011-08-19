@@ -142,7 +142,7 @@ let print_dl_settings = fun settings ->
 *)
 let print_persistent_settings = fun settings ->
   let settings = flatten settings [] in
-  let pers_settings = 
+  let pers_settings =
     List.filter (fun x -> try let _ = Xml.attrib x "persistent" in true with _ -> false) settings in
   (* structure declaration *)
 (*  if List.length pers_settings > 0 then begin *)

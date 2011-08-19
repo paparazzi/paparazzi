@@ -117,7 +117,7 @@ let get_message_type = fun class_name ->
   | "trim_plus" -> "Trim"
   | "trim_minus" -> "Trim"
   | "trim_save" -> "Trim"
-  | _ -> failwith class_name    
+  | _ -> failwith class_name
 
 (** Get a message description from its name (and class name) *)
 (**   class_names with entries above as "Message" should be listed here  *)
@@ -232,7 +232,7 @@ let parse_msg = fun msg ->
 
   let fields =
     match get_message_type msg_class with
-      "Message" -> 
+      "Message" ->
         let msg_descr = get_message msg_class msg_name in
         List.map (parse_msg_field msg_descr) (Xml.children msg)
     | "Trim" -> []
@@ -304,7 +304,7 @@ let parse_trim_file = fun trim_file_name inputs ->
     List.iter (trim_set inputs) trim_values;
   end
 
-(** Parse the complete (input and messages) XML desxription 
+(** Parse the complete (input and messages) XML desxription
     Also parses the trim xml file if it exists *)
 let parse_descr = fun xml_file trim_file ->
   let xml = Xml.parse_file xml_file in
@@ -429,7 +429,7 @@ let first_list (x,_) = x
 let trim_save_add_leaf = fun x channel_pair ->
   let chan_name = first_list channel_pair in
   let channel = second_list channel_pair in
-  match channel with 
+  match channel with
     Axis (i, deadband, limit, exponent, trim) -> x := x.contents ^ (Printf.sprintf "<trim axis='%s' value = '%f'/>" chan_name trim.contents)
   | Button i -> Printf.printf "%d" i
 
@@ -483,7 +483,7 @@ let execute_action = fun ac_id inputs buttons axis variables message ->
       "datalink" -> DL.message_send "input2ivy" message.msg_name vs
     | "ground" -> G.message_send "input2ivy" message.msg_name vs
     | "trim_plus" -> trim_adjust message.msg_name trim_step inputs
-    | "trim_minus" -> trim_adjust message.msg_name (-.trim_step) inputs 
+    | "trim_minus" -> trim_adjust message.msg_name (-.trim_step) inputs
     | "trim_save" -> trim_save inputs
     | c -> failwith (sprintf "execute_action: unknown class '%s'" c)
   end;
@@ -523,7 +523,7 @@ let execute_actions = fun actions ac_id ->
 (**   used for adjusting trims interactively from the keyboard *)
 (**   this capability is mostly for bench-time trimming when a joystick does not have adequate buttons *)
 (**   it is not a very complete capability  *)
-let execute_kb_action = fun actions conditions -> 
+let execute_kb_action = fun actions conditions ->
   let ch = input_byte Pervasives.stdin in
   (** esdx for left stick
       ijkm for right  *)
@@ -543,7 +543,7 @@ let execute_kb_action = fun actions conditions ->
 
   true
 
- 
+
 
 (************************************* MAIN **********************************)
 let () =

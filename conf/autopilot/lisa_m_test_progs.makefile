@@ -412,7 +412,7 @@ test_imu_aspirin.srcs = $(SRC_AIRBORNE)/mcu.c \
                  $(SRC_ARCH)/mcu_arch.c \
                  $(SRC_ARCH)/stm32_exceptions.c   \
                  $(SRC_ARCH)/stm32_vector_table.c\
-								 booz/test/booz_test_imu.c 
+								 booz/test/booz_test_imu.c
 
 test_imu_aspirin.CFLAGS += -DUSE_LED
 test_imu_aspirin.srcs   += $(SRC_ARCH)/led_hw.c

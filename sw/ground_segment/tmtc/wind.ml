@@ -2,7 +2,7 @@
  * $Id$
  *
  * Wind estimation by analysing aircrafts trajectories
- *  
+ *
  * Copyright (C) 2004 ENAC, Nicolas Barnier, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -135,7 +135,7 @@ let isotropic_wind wind_init speeds precision =
 	  !sum /. (float (n-1)))
 	air_speeds in
     let sum_weights = Array.fold_left (+.) 0. weights in
-  
+
     let mean = ref 0. in
     for i = 0 to n-1 do
       mean := !mean +. vect_norm (vect_sub speeds.(i) wind) *. weights.(i) done;
@@ -166,7 +166,7 @@ let wind wind_init speeds precision =
     let sum =
       Array.fold_left (fun acc speed -> acc +. vect_norm (vect_sub speed wind)) 0. speeds in
     sum /. float (Array.length speeds) in
-  
+
   let nb_calls = ref 0 in
   let cost wind =
     incr nb_calls;
@@ -233,7 +233,7 @@ let compute = fun compute_wind id ->
       failwith (Printf.sprintf "Wind.on_wind_compute: ac %s not enough data\n%!" id)
   with Not_found ->
     failwith (Printf.sprintf "Wind.on_wind_compute: ac %s unknown\n%!" id)
-  
+
 
 let get = fun id -> compute wind id
 let get_iso = fun id -> compute isotropic_wind id

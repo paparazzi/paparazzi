@@ -2,7 +2,7 @@
  * $Id$
  *
  * XML preprocessing of messages.xml for downlink protocol
- *  
+ *
  * Copyright (C) 2003-2008 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,29 +20,29 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
 open Printf
 
 type format = string
-      
-type _type = 
+
+type _type =
     Basic of string
   | Array of string * string
-	
+
 type field = _type  * string * format option
-      
+
 type fields = field list
-      
-type message = { 
-    name : string; 
-    id : int; 
+
+type message = {
+    name : string;
+    id : int;
     period : float option;
     fields : fields
   }
-      
+
 module Syntax = struct
   (** Parse a type name and returns a _type value *)
   let parse_type = fun t varname ->
@@ -58,7 +58,7 @@ module Syntax = struct
     try
       List.assoc t Pprz.types
     with
-      Not_found -> 
+      Not_found ->
 	failwith (sprintf "Error: '%s' unknown type" t)
 
   let rec sizeof = function
@@ -82,7 +82,7 @@ module Syntax = struct
 	  and fmt = try Some (Xml.attrib field "format") with _ -> None in
 	  let _type = parse_type type_name id in
   	  (_type, id, fmt))
-	(Xml.children xml) in 
+	(Xml.children xml) in
     { id=id; name = name; period = period; fields = fields }
 
   let check_single_ids = fun msgs ->
@@ -96,7 +96,7 @@ module Syntax = struct
       last_id := msg.id;
       tab.(msg.id) <- true)
       msgs
-	  
+
   (** Translates one class of a XML message file into a list of messages *)
   let read = fun filename class_ ->
     let xml = Xml.parse_file filename in
@@ -113,7 +113,7 @@ end (* module Suntax *)
 (** Pretty printer of C macros for sending and parsing messages *)
 module Gen_onboard = struct
   let print_field = fun h (t, name, (_f: format option)) ->
-    match t with 
+    match t with
       Basic _ ->
 	fprintf h "\t  DownlinkPut%sByAddr(_chan, (%s)); \\\n" (Syntax.nameof t) name
     | Array (t, varname) ->
@@ -123,7 +123,7 @@ module Gen_onboard = struct
   let print_parameter h = function
       (Array _, s, _) -> fprintf h "%s, %s" (Syntax.length_name s) s
     | (_, s, _) -> fprintf h "%s" s
-  
+
   let print_macro_parameters h = function
       [] -> ()
     | f::fields ->
@@ -136,7 +136,7 @@ module Gen_onboard = struct
     | (t, _, _)::fields -> size_fields fields (size ^"+"^Syntax.sizeof t)
 
   let size_of_message = fun m -> size_fields m.fields "0"
-      
+
   let estimated_size_of_message = fun m ->
     try
       List.fold_right
@@ -145,7 +145,7 @@ module Gen_onboard = struct
 	0
     with
       Failure "int_of_string" -> 0
-      
+
   let print_downlink_macro = fun h {name=s; fields = fields} ->
     if List.length fields > 0 then begin
       fprintf h "#define DOWNLINK_SEND_%s(_chan, " s;
@@ -174,7 +174,7 @@ module Gen_onboard = struct
   (** Prints the messages ids *)
   let print_enum = fun h class_ messages ->
     List.iter (fun m ->
-      if m.id < 0 || m.id > 255 then begin 
+      if m.id < 0 || m.id > 255 then begin
         fprintf stderr "Error: message %s has id %d but should be between 0 and 255\n" m.name m.id; exit 1;
       end
       else fprintf h "#define DL_%s %d\n" m.name m.id
@@ -211,7 +211,7 @@ module Gen_onboard = struct
     print_enum h class_ messages;
     print_lengths_array h class_ messages;
     List.iter (print_downlink_macro h) messages
-      
+
   let print_null_downlink_macros = fun h messages ->
     List.iter (print_null_downlink_macro h) messages
 
@@ -219,7 +219,7 @@ module Gen_onboard = struct
   let print_get_macros = fun h check_alignment message ->
     let msg_name = message.name in
     let offset = ref Pprz.offset_fields in
-   
+
     (** Prints the macro for one field, using the global [offset] ref *)
     let parse_field = fun (_type, field_name, _format) ->
       if !offset < 0 then
@@ -229,11 +229,11 @@ module Gen_onboard = struct
 	let size = pprz_type.Pprz.size in
 	if check_alignment && o mod (min size 4) <> 0 then
 	  failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
-	
+
 	match size with
 	  1 -> sprintf "(%s)(*((uint8_t*)_payload+%d))" pprz_type.Pprz.inttype o
 	| 2 -> sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8)" pprz_type.Pprz.inttype o o
-	| 4 when pprz_type.Pprz.inttype = "float" -> 
+	| 4 when pprz_type.Pprz.inttype = "float" ->
 	    sprintf "({ union { uint32_t u; float f; } _f; _f.u = (uint32_t)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|((uint32_t)*((uint8_t*)_payload+%d+2))<<16|((uint32_t)*((uint8_t*)_payload+%d+3))<<24); _f.f; })" o o o o
 	| 8 when pprz_type.Pprz.inttype = "double" ->
 	    let s = ref (sprintf "*((uint8_t*)_payload+%d)" o) in
@@ -242,12 +242,12 @@ module Gen_onboard = struct
 	    done;
 
 	    sprintf "({ union { uint64_t u; double f; } _f; _f.u = (uint64_t)(%s); Swap32IfBigEndian(_f.u); _f.f; })" !s
-	| 4 -> 
+	| 4 ->
 	    sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|((uint32_t)*((uint8_t*)_payload+%d+2))<<16|((uint32_t)*((uint8_t*)_payload+%d+3))<<24)" pprz_type.Pprz.inttype o o o o
 	| _ -> failwith "unexpected size in Gen_messages.print_get_macros" in
 
       (** To be an array or not to be an array: *)
-      match _type with 
+      match _type with
 	Basic t ->
 	  let pprz_type = Syntax.assoc_types t in
 	  fprintf h "#define DL_%s_%s(_payload) (%s)\n" msg_name field_name (typed !offset pprz_type);
@@ -262,11 +262,11 @@ module Gen_onboard = struct
 	  let pprz_type = Syntax.assoc_types t in
 	  if check_alignment && !offset mod (min pprz_type.Pprz.size 4) <> 0 then
 	    failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
-	  
+
 	  fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name pprz_type.Pprz.inttype !offset;
 	  offset := -1 (** Mark for no more fields *)
     in
-    
+
     fprintf h "\n";
     (** Do it for all the fields of the message *)
     List.iter parse_field message.fields
@@ -277,7 +277,7 @@ end (* module Gen_onboard *)
 (********************* Main **************************************************)
 let () =
   if Array.length Sys.argv <> 3 then begin
-    failwith (sprintf "Usage: %s <.xml file> <class_name>" Sys.argv.(0)) 
+    failwith (sprintf "Usage: %s <.xml file> <class_name>" Sys.argv.(0))
   end;
 
   let filename = Sys.argv.(1)
@@ -285,14 +285,14 @@ let () =
 
   try
     let messages = Syntax.read filename class_name in
-    
+
     let h = stdout in
-    
+
     Printf.fprintf h "/* Automatically generated from %s */\n" filename;
     Printf.fprintf h "/* Please DO NOT EDIT */\n";
-    
+
     Printf.fprintf h "/* Macros to send and receive messages of class %s */\n" class_name;
-    
+
     (** Macros for airborne downlink (sending) *)
     if class_name = "telemetry" then begin (** FIXME *)
       Printf.fprintf h "#ifdef DOWNLINK\n"
@@ -303,7 +303,7 @@ let () =
       Gen_onboard.print_null_downlink_macros h messages;
       Printf.fprintf h "#endif // DOWNLINK\n"
     end;
-    
+
     (** Macros for airborne datalink (receiving) *)
     let check_alignment = class_name <> "telemetry" in
     List.iter (Gen_onboard.print_get_macros h check_alignment) messages

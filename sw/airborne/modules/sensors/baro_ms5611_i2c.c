@@ -150,7 +150,7 @@ void baro_ms5611_event( void ) {
       else {
         /* done reading prom */
         ms5611_trans.status = I2CTransDone;
-        /* check prom crc */  
+        /* check prom crc */
         if (baro_ms5611_crc(ms5611_c) == 0) {
           DOWNLINK_SEND_MS5611_COEFF(DefaultChannel,
               &ms5611_c[0], &ms5611_c[1], &ms5611_c[2], &ms5611_c[3],
@@ -179,7 +179,7 @@ void baro_ms5611_event( void ) {
       ms5611_trans.buf[0] = MS5611_START_CONV_D2;
       I2CTransmit(MS5611_I2C_DEV, ms5611_trans, MS5611_SLAVE_ADDR, 1);
       break;
-      
+
     case MS5611_CONV_D2:
       ms5611_status = MS5611_CONV_D2_OK;
       ms5611_trans.status = I2CTransDone;
@@ -225,7 +225,7 @@ void baro_ms5611_event( void ) {
 #endif
       break;
     }
-    
+
     default:
       ms5611_trans.status = I2CTransDone;
       break;

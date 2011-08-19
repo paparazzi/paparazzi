@@ -63,7 +63,7 @@ static void SSP_ISR(void) __attribute__((naked));
 
 #define SSPCR1_VAL  (SSP_LBM   |  SSP_SSE | SSP_MS   | SSP_SOD )
 
-/* SSPCPSR settings 
+/* SSPCPSR settings
  * min value as master: 2
  * min value as slave: 12
  */
@@ -115,7 +115,7 @@ void spi_init(void) {
 
   // Enable SPI Slave
   SetBit(SSPCR1, SSE);
-  
+
   // Enable Receive interrupt
   SetBit(SSPIMSC, RXIM);
 
@@ -123,12 +123,12 @@ void spi_init(void) {
 
 /*
  * 	SSP Status:
- * 
+ *
  * 	ROVR	Read Overrun
  * 	WCOL	Write Collision		(send new byte during a transfer in progress
  * 	ABRT	SSEL inactive before end of transfer
- * 	
- * 
+ *
+ *
  */
 
 
@@ -149,7 +149,7 @@ static void SSP_ISR(void) {
     SSP_Write(0x00);
   }
 
-  
+
   //do
   {
     uint16_t temp;
@@ -161,13 +161,13 @@ static void SSP_ISR(void) {
     // check for more room in queue
     if (temp !=  spi_slave_hs_rx_extract_idx)
        spi_slave_hs_rx_insert_idx = temp; // update insert index
-    
+
     // else overrun
-  }  
+  }
   // while FIFO not empty
   //while (SSPSR & RNE);
-  
-/*  
+
+/*
   // loop until not more interrupt sources
   while (((iid = U0IIR) & UIIR_NO_INT) == 0)
         while (U0LSR & ULSR_THRE)

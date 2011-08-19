@@ -2,7 +2,7 @@
  * $Id$
  *
  * Geographic conversion utilities
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -107,7 +107,7 @@ val utm_of : geodesic -> geographic -> utm
 val of_utm : geodesic -> utm -> geographic
 (** Conversions between geographic and UTM. May raise Invalid_argument. *)
 
-val utm_distance : utm -> utm -> fmeter 
+val utm_distance : utm -> utm -> fmeter
 
 val utm_add : utm -> (fmeter * fmeter) -> utm
 (** [add_utm utm (east,north)] *)
@@ -126,7 +126,7 @@ val lbt_sub : lambert -> lambert -> (fmeter * fmeter)
 
 
 val of_string : string -> geographic
-(** [of_string pos] Parses [pos] as "WGS84 45.678 1.2345", "UTM 500123 4500300 31" or "LBT2e 544945 1755355" *) 
+(** [of_string pos] Parses [pos] as "WGS84 45.678 1.2345", "UTM 500123 4500300 31" or "LBT2e 544945 1755355" *)
 val string_of : geographic -> string
 (** Returns a "WGS84" annotated string *)
 val deg_of_string : string -> float
@@ -152,7 +152,7 @@ val get_gps_tow : unit -> int
 val unix_time_of_tow : ?week:int -> int -> float
 (** If week if not supplied, current one is assumed *)
 
-type coordinates_kind = 
+type coordinates_kind =
     WGS84_dec
   | WGS84_dms
   | LBT2e

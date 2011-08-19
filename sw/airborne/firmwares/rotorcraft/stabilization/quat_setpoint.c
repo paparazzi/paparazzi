@@ -1,5 +1,5 @@
 /*
- *  
+ *
  * Copyright (C) 2008-2011 Joby Energy Inc
  *
  */
@@ -45,7 +45,7 @@ static void reset_sp_quat(int32_t _psi, int32_t _theta, struct Int32Quat *initia
   rotated_eulers.phi = _psi;
 
   INT32_QUAT_OF_EULERS(pitch_rotated_quat, rotated_eulers);
-  
+
   // compose rotation about Y axis (pitch axis) to hover
   pitch_rotation_angle = ANGLE_BFP_OF_REAL(QUAT_SETPOINT_HOVER_PITCH);
   INT32_QUAT_OF_AXIS_ANGLE(pitch_axis_quat, y_axis, pitch_rotation_angle);
@@ -74,7 +74,7 @@ void stabilization_attitude_read_rc_incremental(bool_t enable_alpha_vane, bool_t
   pprz_t pitch = radio_control.values[RADIO_PITCH];
   pprz_t yaw = radio_control.values[RADIO_YAW];
   struct Int32Quat prev_sp_quat, q_e2s, temp_quat;
-  
+
   struct Int32RMat R_e2s;
   struct Int32Rates sticks_w_bn_e, sticks_w_bn_s;
 
@@ -135,7 +135,7 @@ void stabilization_attitude_read_rc_absolute(struct Int32Eulers sp, bool_t in_fl
     // convert yaw rate * dt into quaternion
     INT32_QUAT_OF_EULERS(sticks_quat, sticks_eulers);
     QUAT_COPY(prev_sp_quat, stab_att_sp_quat)
-  
+
     // update setpoint by rotating by incremental yaw command
     INT32_QUAT_COMP_NORM_SHORTEST(stab_att_sp_quat, prev_sp_quat, sticks_quat);
   } else { /* if not flying, use current body position + pitch/yaw from sticks to compose setpoint */

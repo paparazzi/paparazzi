@@ -2,7 +2,7 @@
  * $Id$
  *
  * Downlink protocol (handling messages.xml)
- *  
+ *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -31,7 +31,7 @@ type message_id = int
 type ac_id = int
 type class_name = string
 type format = string
-type _type = 
+type _type =
     Scalar of string
   | ArrayType of string
 type value =
@@ -97,7 +97,7 @@ let types = [
   ("string",  { format = "%s" ;  glib_type = "gchar*"; inttype = "char*";  size = max_int; value=String "42" })
 ]
 
-let is_array_type = fun s -> 
+let is_array_type = fun s ->
   let n = String.length s in
   n >= 2 && String.sub s (n-2) 2 = "[]"
 
@@ -110,7 +110,7 @@ let int_of_string = fun x ->
     _ -> failwith (sprintf "Pprz.int_of_string: %s" x)
 
 let rec value = fun t v ->
-  match t with 
+  match t with
     Scalar ("uint8" | "uint16" | "int8" | "int16") -> Int (int_of_string v)
   | Scalar ("uint32" | "int32") -> Int32 (Int32.of_string v)
   | Scalar ("float" | "double") -> Float (float_of_string v)
@@ -157,7 +157,7 @@ let payload_size_of_message = fun message ->
     message.fields
     2 (** + message id + aircraft id *)
 
-  
+
 let alt_unit_coef_of_xml = function xml ->
   try Xml.attrib xml "alt_unit_coef"
   with _ ->
@@ -181,17 +181,17 @@ let field_of_xml = fun xml ->
   let auc = alt_unit_coef_of_xml xml in
   let values = try Str.split pipe_regexp (Xml.attrib xml "values") with _ -> [] in
 
-  ( String.lowercase (ExtXml.attrib xml "name"), 
+  ( String.lowercase (ExtXml.attrib xml "name"),
     { _type = t; fformat = f; alt_unit_coef = auc; enum=values })
 
 let string_of_values = fun vs ->
   String.concat " " (List.map (fun (a,v) -> sprintf "%s=%s" a (string_of_value v)) vs)
 
-let assoc = fun a vs -> 
-  try List.assoc (String.lowercase a) vs with Not_found -> 
+let assoc = fun a vs ->
+  try List.assoc (String.lowercase a) vs with Not_found ->
     failwith (sprintf "Attribute '%s' not found in '%s'" a (string_of_values vs))
 
-let float_assoc = fun (a:string) vs -> 
+let float_assoc = fun (a:string) vs ->
   match assoc a vs with
     Float x -> x
   | _ -> invalid_arg "Pprz.float_assoc"
@@ -209,7 +209,7 @@ let int_of_value = fun value ->
 let int_assoc = fun (a:string) vs ->
   int_of_value (assoc a vs)
 
-let int32_assoc = fun (a:string) vs -> 
+let int32_assoc = fun (a:string) vs ->
   match assoc a vs with
     Int32 x -> x
   | _ -> invalid_arg "Pprz.int_assoc"
@@ -227,8 +227,8 @@ let parse_class = fun xml_class ->
   List.iter
     (fun xml_msg ->
       let name = ExtXml.attrib xml_msg "name"
-      and link = 
-	try 
+      and link =
+	try
 	  Some (link_mode_of_string (Xml.attrib xml_msg "link"))
 	with
 	  Xml.No_attribute("link") -> None
@@ -246,7 +246,7 @@ let parse_class = fun xml_class ->
     (Xml.children xml_class);
   (by_id, by_name)
 
-    
+
 (** Returns a value and its length *)
 let rec value_of_bin = fun buffer index _type ->
   match _type with
@@ -263,7 +263,7 @@ let rec value_of_bin = fun buffer index _type ->
       let type_of_elt = Scalar t in
       let s = sizeof type_of_elt in
       let size = 1 + n * s in
-      (Array (Array.init n 
+      (Array (Array.init n
 	       (fun i -> fst (value_of_bin buffer (index+1+i*s) type_of_elt))), size)
   | Scalar "string" ->
       let n = Char.code buffer.[index] in
@@ -337,7 +337,7 @@ let hex_of_int_array = function
 	  let hex = sprintf "%02x" x in
 	  String.blit hex 0 s (2*i) 2)
 	array;
-      s	
+      s
   | value ->
       failwith (sprintf "Error: expecting array in Pprz.hex_of_int_array, found %s" (string_of_value value))
 
@@ -470,7 +470,7 @@ end
 
 module MessagesOfXml(Class:CLASS_Xml) = struct
   let max_length = 256
-  let messages_by_id, messages_by_name = 
+  let messages_by_id, messages_by_name =
     try
       let select = fun x -> Xml.attrib x "name" = Class.name in
       parse_class (ExtXml.child Class.xml ~select "class")
@@ -499,7 +499,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 	      []
 	    else
 	      failwith (sprintf "Pprz.values_of_payload, too many bytes: %s" (Debug.xprint buffer))
-	| (field_name, field_descr)::fs -> 
+	| (field_name, field_descr)::fs ->
 	    let (value, n) = value_field buffer index field_descr in
 	    (field_name, value) :: loop (index+n) fs in
       (id, ac_id, loop offset_fields message.fields)
@@ -526,11 +526,11 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 	i := !i + size
 	)
       message.fields;
-    
+
     (** Cut to the actual length *)
     let p = String.sub p 0 !i in
     Serial.payload_of_string p
-   
+
 
   let space = Str.regexp "[ \t]+"
   let values_of_string = fun s ->
@@ -548,15 +548,15 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 
   let string_of_message = fun ?(sep=" ") msg values ->
     (** Check that the values are compatible with this message *)
-    List.iter 
+    List.iter
       (fun (k, _) ->
-	if not (List.mem_assoc k msg.fields) 
+	if not (List.mem_assoc k msg.fields)
 	then invalid_arg (sprintf "Pprz.string_of_message: unknown field '%s' in message '%s'" k msg.name))
       values;
 
     String.concat sep
       (msg.name::
-       List.map 
+       List.map
 	 (fun (field_name, field) ->
 	   let v =
 	     try List.assoc field_name values with
@@ -582,14 +582,14 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
   let message_bind = fun ?sender msg_name cb ->
     match sender with
       None ->
-	Ivy.bind 
-	  (fun _ args -> 
+	Ivy.bind
+	  (fun _ args ->
 	    let values = try snd (values_of_string args.(2)) with exc -> prerr_endline (Printexc.to_string exc); [] in
-	    cb args.(1) values) 
+	    cb args.(1) values)
 	  (sprintf "^([0-9]+\\.[0-9]+ )?([^ ]*) +(%s( .*|$))" msg_name)
     | Some s ->
 	Ivy.bind
-	  (fun _ args -> 
+	  (fun _ args ->
 	    let values = try snd (values_of_string args.(1)) with  exc -> prerr_endline (Printexc.to_string exc); [] in
 	    cb s values)
 	  (sprintf "^([0-9]+\\.[0-9]+ )?%s +(%s( .*|$))" s msg_name)

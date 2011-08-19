@@ -29,7 +29,7 @@
   Highspeed SPI Slave Interface
   SS on P0.20
   Circular Buffer
-  
+
 */
 
 #include "std.h"

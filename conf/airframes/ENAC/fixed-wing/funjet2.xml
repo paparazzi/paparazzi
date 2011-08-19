@@ -128,7 +128,7 @@
     <define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+1.8))"/>
     <define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/>
     <define name="ROLL_SCALE" value="3.3*1000./1024./(GYRO_ADXRS300_SENSITIVITY*GYRO_ADXRS300_RESISTOR_BRIDGE)" unit="deg/s/adc_unit"/>
-    <define name="ROLL_DIRECTION" value="1."/> 
+    <define name="ROLL_DIRECTION" value="1."/>
   </section>
 
   <section name="BAT">
@@ -146,7 +146,7 @@
 
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
-    
+
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">

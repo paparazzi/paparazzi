@@ -52,7 +52,7 @@
         <strip_button name="Loiter" value="0.1"/>
         <strip_button name="Cruise" value="0"/>
       </dl_setting>
-       
+
 
         <dl_setting MAX="0.00" MIN="-0.05" STEP="0.005" VAR="v_ctl_auto_throttle_pgain" shortname="throttle_pgain"/>
         <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_igain" shortname="throttle_igain"  module="guidance/guidance_v" handler="SetAutoThrottleIgain"/>

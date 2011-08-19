@@ -9,7 +9,7 @@
       <message name="PPM"            period="5"/>
       <message name="RC"             period="5"/>
       <message name="COMMANDS"       period="5"/>
-      <message name="ACTUATORS"      period="1"/> 
+      <message name="ACTUATORS"      period="1"/>
       <message name="BAT"            period="3"/>
       <message name="ESTIMATOR"      period="1"/>
       <message name="TL_ESTIMATOR"   period="0.5"/>

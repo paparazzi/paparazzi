@@ -233,7 +233,7 @@
       <z>0</z>
      </direction>
     </force>
-  
+
     <force name="front_couple2" frame="BODY" unit="LBS">
      <function>
       <product>
@@ -273,7 +273,7 @@
       <z>0</z>
      </direction>
     </force>
-  
+
     <force name="back_couple2" frame="BODY" unit="LBS">
      <function>
       <product>
@@ -313,7 +313,7 @@
       <z>0</z>
      </direction>
     </force>
-  
+
     <force name="right_couple2" frame="BODY" unit="LBS">
      <function>
       <product>
@@ -353,7 +353,7 @@
       <z>0</z>
      </direction>
     </force>
-  
+
     <force name="left_couple2" frame="BODY" unit="LBS">
      <function>
       <product>
@@ -373,7 +373,7 @@
      </direction>
     </force>
 
-    </external_reactions> 
+    </external_reactions>
 
     <propulsion/>
 

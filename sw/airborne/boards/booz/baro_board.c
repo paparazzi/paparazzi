@@ -36,7 +36,7 @@ struct BaroBoard baro_board;
 
 
 void baro_init( void ) {
-  
+
   adc_buf_channel(ADC_CHANNEL_BARO, &baro_board.buf, DEFAULT_AV_NB_SAMPLE);
 
   baro.status = BS_UNINITIALIZED;

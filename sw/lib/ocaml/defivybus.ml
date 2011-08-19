@@ -2,7 +2,7 @@
  * $Id$
  *
  * Default ivy bus address selection
- *  
+ *
  * Copyright (C) 2011 Eric Parsonage
  *
  * This file is part of paparazzi.
@@ -20,13 +20,13 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 let default_ivy_bus = String.copy (
   try (Sys.getenv "IVY_BUS" )
-    with  Not_found ->    
-     (if Os_calls.contains (Os_calls.os_name) "Darwin" then       
-        "224.255.255.255:2010" 
-      else  
+    with  Not_found ->
+     (if Os_calls.contains (Os_calls.os_name) "Darwin" then
+        "224.255.255.255:2010"
+      else
         "127.255.255.255:2010"))

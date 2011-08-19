@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -50,7 +50,7 @@ let () =
     options
     (fun x -> fprintf stderr "Warning: Discarding '%s'" x)
     "Usage: ";
-  
+
   let addr = Unix.inet_addr_of_string !host in
   let sockaddr = Unix.ADDR_INET (addr, !port) in
   let socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
@@ -73,7 +73,7 @@ let () =
   (* Receiving a datalink message over UDP, on the same port *)
   let sockaddr = Unix.ADDR_INET (Unix.inet_addr_any, !datalink_port)
   and socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
-  Unix.bind socket sockaddr;	
+  Unix.bind socket sockaddr;
 
   let buffer_size = 256 in
   let buffer = String.create buffer_size in
@@ -89,16 +89,16 @@ let () =
 	  let (msg_id, ac_id, values) = Dl_Pprz.values_of_payload payload in
 	  let msg = Dl_Pprz.message_of_id msg_id in
 	  Dl_Pprz.message_send "ground_dl" msg.Pprz.name values in
-	
+
 	assert (PprzTransport.parse use_dl_message b = n)
       with
 	exc ->
 	  prerr_endline (Printexc.to_string exc)
     end;
     true in
- 
+
   let ginput = GMain.Io.channel_of_descr socket in
   ignore (Glib.Io.add_watch [`IN] get_datalink_message ginput);
-  
+
   (* Main Loop *)
-  GMain.main () 
+  GMain.main ()

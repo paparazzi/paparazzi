@@ -139,7 +139,7 @@ static inline void inter_mcu_periodic_task(void) {
 #ifdef SINGLE_MCU
     // Keep filling the buffer even if no AP commands are received
     inter_mcu_fill_fbw_state();
-#endif 
+#endif
 
   } else
     time_since_last_ap++;

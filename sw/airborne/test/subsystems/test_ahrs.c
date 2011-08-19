@@ -71,7 +71,7 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic_task( void ) {
-  
+
   if (cpu_time_sec > 1) imu_periodic();
   RunOnceEvery(10, { LED_PERIODIC();});
   main_report();
@@ -121,9 +121,9 @@ static inline void main_report(void) {
 			 DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,
 						     &imu.accel_unscaled.x,
 						     &imu.accel_unscaled.y,
-						     &imu.accel_unscaled.z); 
+						     &imu.accel_unscaled.z);
 		       },
-		       {  
+		       {
 			 DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,
 						    &imu.gyro_unscaled.p,
 						    &imu.gyro_unscaled.q,
@@ -133,13 +133,13 @@ static inline void main_report(void) {
 			 DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
 						   &imu.mag_unscaled.x,
 						   &imu.mag_unscaled.y,
-						   &imu.mag_unscaled.z); 
+						   &imu.mag_unscaled.z);
 		       },
 		       {
 			 DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel,
 						   &imu.accel.x,
 						   &imu.accel.y,
-						   &imu.accel.z);	 
+						   &imu.accel.z);
 		       },
 		       {
 			 DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel,
@@ -154,7 +154,7 @@ static inline void main_report(void) {
 						 &imu.mag.y,
 						 &imu.mag.z);
 		       },
-		       
+
 		       {
 			 DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
 		       },
@@ -182,10 +182,10 @@ static inline void main_report(void) {
 							&ahrs.ltp_to_body_euler.psi);
 		       },
 		       {
-			 DOWNLINK_SEND_BOOZ_AHRS_BIAS(DefaultChannel, 
+			 DOWNLINK_SEND_BOOZ_AHRS_BIAS(DefaultChannel,
 						      &ahrs_impl.gyro_bias.p,
 						      &ahrs_impl.gyro_bias.q,
 						      &ahrs_impl.gyro_bias.r);
-						      
+
 		       });
 }

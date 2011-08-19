@@ -2,7 +2,7 @@
  * $Id$
  *
  * Paparazzi widgets
- *  
+ *
  * Copyright (C) 2008 ENAC
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -71,7 +71,7 @@ class message_field = fun ?sender ?(class_name="telemetry") msg_name field_descr
 
     initializer
       let module P = Pprz.Messages (struct let name = class_name end) in
-      let process_message = fun _sender values -> 
+      let process_message = fun _sender values ->
 	let (field_name, index) = base_and_index field_descr in
 	let value =
 	  match Pprz.assoc field_name values with
@@ -161,7 +161,7 @@ class expression = fun ?(extra_functions=[]) expr ->
 
 
 
-class type canvas_item_type = 
+class type canvas_item_type =
   object
     method connect : unit -> unit
     method deleted : bool
@@ -171,7 +171,7 @@ class type canvas_item_type =
     method update : string -> unit
     method xy : float * float
   end
-    
+
 
 class canvas_item = fun ~config canvas_renderer ->
   let canvas_renderer = (canvas_renderer :> PR.t) in
@@ -182,10 +182,10 @@ class canvas_item = fun ~config canvas_renderer ->
     val mutable y_press = 0.
     val mutable deleted = false
     val mutable dialog_widget = None
-	
+
     method renderer = renderer
 
-    method xy = 
+    method xy =
       let (x0, y0) = renderer#item#i2w 0. 0. in
       renderer#item#parent#w2i x0 y0
 
@@ -211,7 +211,7 @@ class canvas_item = fun ~config canvas_renderer ->
 		let (xi, yi) = renderer#item#parent#w2i x0 y0 in
 		x_press <- xm -. xi; y_press <- ym -. yi;
 		let curs = Gdk.Cursor.create `FLEUR in
-		item#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs 
+		item#grab [`POINTER_MOTION; `BUTTON_RELEASE] curs
 		  (GdkEvent.Button.time ev)
 	    | _ -> ()
 	  end;
@@ -246,14 +246,14 @@ class canvas_item = fun ~config canvas_renderer ->
       let strings = List.map fst tagged_renderers in
 
       let (combo, (tree, column)) = GEdit.combo_box_text ~packing:dialog#box_item_chooser#add ~strings () in
-      tree#foreach 
+      tree#foreach
 	(fun _path row ->
 	  if tree#get ~row ~column = renderer#tag then begin
 	    combo#set_active_iter (Some row);
 	    true
 	  end else
 	    false);
-      
+
       let connect_item_editor = fun () ->
 	begin (* Remove the current child ? *)
 	  try
@@ -285,7 +285,7 @@ class canvas_item = fun ~config canvas_renderer ->
 
       (* Connect the buttons *)
       ignore (dialog#button_delete#connect#clicked
-		(fun () -> 
+		(fun () ->
 		  dialog#papget_editor#destroy ();
 		  renderer#item#destroy ();
 		  deleted <- true));
@@ -309,7 +309,7 @@ class canvas_float_item = fun ~config canvas_renderer ->
     inherit canvas_item ~config canvas_renderer as super
 
     val mutable affine = "1"
-	
+
     method update = fun value ->
       let scaled_value =
 	try
@@ -367,7 +367,7 @@ class canvas_display_float_item = fun ~config (msg_obj:value) (canvas_renderer:P
 class canvas_clickable_item = fun type_ properties callback canvas_renderer ->
   object
     inherit canvas_item ~config:properties canvas_renderer as item
-    method edit = fun () -> callback () 
+    method edit = fun () -> callback ()
 
     method config = fun () ->
       let props = renderer#config () in

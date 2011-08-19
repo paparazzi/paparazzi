@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -30,7 +30,7 @@ val open_compress : string -> in_channel
 
 val find_file : string list -> string -> string
 (** [find_file path file] Search for [file] or a compressed extension of it in
-    [path]. Returns the first occurence found. Checked extensions are 
+    [path]. Returns the first occurence found. Checked extensions are
     gz, Z, bz2, zip and ZIP.
     Raises [Not_found] if none is found *)
 

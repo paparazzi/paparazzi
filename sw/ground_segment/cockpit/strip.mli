@@ -2,7 +2,7 @@
  * $Id$
  *
  * Strip handling
- *  
+ *
  * Copyright (C) 2006-2009 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -48,7 +48,7 @@ type t = <
     set_color : string -> string -> unit;
     set_label : string -> string -> unit;
     set_rc : int -> string -> unit;
-    hide_buttons : unit -> unit; 
+    hide_buttons : unit -> unit;
     show_buttons : unit -> unit;
     connect : (unit -> unit) -> unit
 >

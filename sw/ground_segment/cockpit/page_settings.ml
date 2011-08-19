@@ -2,7 +2,7 @@
 * $Id$
 *
 * Widget to pack settings buttons
-*  
+*
 * Copyright (C) 2004-2009 ENAC, Pascal Brisset, Antoine Drouin
 *
 * This file is part of paparazzi.
@@ -20,7 +20,7 @@
 * You should have received a copy of the GNU General Public License
 * along with paparazzi; see the file COPYING.  If not, write to
 * the Free Software Foundation, 59 Temple Place - Suite 330,
-* Boston, MA 02111-1307, USA. 
+* Boston, MA 02111-1307, USA.
 *
 *)
 
@@ -34,7 +34,7 @@ class setting = fun (i:int) (xml:Xml.xml) (current_value:GMisc.label) set_defaul
     method index = i
     method xml = xml
     method current_value =
-      let auc = Pprz.alt_unit_coef_of_xml xml in 
+      let auc = Pprz.alt_unit_coef_of_xml xml in
       let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
       (float_of_string current_value#text -. alt_b) /. alt_a
     method update = fun s ->
@@ -46,7 +46,7 @@ class setting = fun (i:int) (xml:Xml.xml) (current_value:GMisc.label) set_defaul
 
 let pipe_regexp = Str.regexp "|"
 let values_of_dl_setting = fun dl_setting ->
-  try 
+  try
     Array.of_list (Str.split pipe_regexp (Xml.attrib dl_setting "values"))
   with
     _ -> [||]
@@ -63,14 +63,14 @@ let add_key = fun xml do_change keys ->
   let key, modifiers = GtkData.AccelGroup.parse (Xml.attrib xml "key")
   and value = ExtXml.float_attrib xml "value" in
   keys := (key, (modifiers, fun () -> do_change value)) :: !keys
-  
+
 
 
 let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_setting (tooltips:GData.tooltips) strip keys ->
   let f = fun a -> float_of_string (ExtXml.attrib dl_setting a) in
   let lower = f "min"
   and upper = f "max"
-  and step_incr = 
+  and step_incr =
     try f "step" with _ ->
       fprintf stderr "Warning: 'step' attribute missing in '%s' setting. Default to 1\n%!" (Xml.to_string dl_setting);
       1.
@@ -80,7 +80,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
   and show_auto = try ExtXml.attrib dl_setting "auto" = "true" with _ -> false in
   let auc = Pprz.alt_unit_coef_of_xml dl_setting in
   let (alt_a, alt_b) = Ocaml_tools.affine_transform auc in
-  
+
   let hbox = GPack.hbox ~packing () in
   let varname = ExtXml.attrib dl_setting "var" in
   let text = try ExtXml.attrib dl_setting "shortname" with _ -> varname in
@@ -111,7 +111,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
 	let update_string = fun string ->
 	  try
 	    update_value ((search_index string values) + truncate lower)
-	  with 
+	  with
 	    Not_found -> failwith (sprintf "Internal error: Settings, %s not found" string) in
 	Gtk_tools.combo_connect combo update_string;
 
@@ -124,12 +124,12 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
 	let buttons = Array.init (iupper-ilower+1)
 	    (fun j ->
 	      (* Build the button *)
-	      let label = 
-		if Array.length values = 0 
+	      let label =
+		if Array.length values = 0
 		then Printf.sprintf "%d" (ilower + j)
 		else values.(j) in
 	      let b = GButton.radio_button ~group ~label ~packing:hbox#add () in
-	      
+
 	      (* Connect the event *)
 	      ignore (b#connect#pressed (fun () -> update_value (ilower + j)));
 	      b) in
@@ -151,7 +151,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
   let callback = fun _ ->
     do_change i infinity; true in
   ignore (eb#event#connect#button_press ~callback);
-  
+
   (* Auto check button *)
   if show_auto then begin
     hbox#pack auto_but#coerce
@@ -196,20 +196,20 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) packing dl_settin
 	    let b = GButton.button () in
 	    let pixbuf = GdkPixbuf.from_file (Env.gcs_icons_path // icon) in
 	    ignore (GMisc.image ~pixbuf ~packing:b#add ());
-	    
+
 	    (* Drag for Drop *)
 	    let papget = Papget_common.xml "variable_setting" "button"
-		["variable", varname; 
+		["variable", varname;
 		 "value", ExtXml.attrib x "value";
 		 "icon", icon] in
 	    Papget_common.dnd_source b#coerce papget;
-	    
+
             (* Associates the label as a tooltip *)
 	    tooltips#set_tip b#coerce ~text:label;
 	    b
 	  with
 	    Xml.No_attribute "icon" -> GButton.button ~label ()
-	  | exc -> 
+	  | exc ->
 	      prerr_endline (Printexc.to_string exc);
 	      GButton.button ~label () in
 	(strip group b#coerce: unit);
@@ -228,7 +228,7 @@ let same_tag_for_all = function
       let tag_first = Xml.tag x in
       List.iter (fun y -> assert(ExtXml.tag_is y tag_first)) xs;
       String.lowercase tag_first
-  
+
 
 (** Build the tree of settings *)
 let rec build_settings = fun do_change i flat_list keys xml_settings packing tooltips strip ->
@@ -242,15 +242,15 @@ let rec build_settings = fun do_change i flat_list keys xml_settings packing too
 	xml_settings
   | "dl_settings" ->
       let n = GPack.notebook ~packing () in
-	
+
       List.iter (fun dl_settings ->
 	let text = ExtXml.attrib dl_settings "name" in
 	let _sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
 	let vbox = GPack.vbox  () in
-	
+
 	let tab_label = (GMisc.label ~text ())#coerce in
 	ignore (n#append_page ~tab_label vbox#coerce);
-	
+
 	let children = Xml.children dl_settings in
 	build_settings do_change i flat_list keys children vbox#pack tooltips strip)
 	xml_settings
@@ -267,7 +267,7 @@ class settings = fun ?(visible = fun _ -> true) xml_settings do_change strip ->
     List.rev !l in
   let variables = Array.of_list ordered_list in
   let length = Array.length variables in
-  let assocs = 
+  let assocs =
     List.map (fun setting -> (ExtXml.attrib setting#xml "var", setting#index)) ordered_list in
   object (self)
     method widget = sw#coerce
@@ -282,7 +282,7 @@ class settings = fun ?(visible = fun _ -> true) xml_settings do_change strip ->
 	let s = string_of_float v in
 	if i < 0 || i >= Array.length variables then
 	  failwith (sprintf "Pages.settings#set: %d out of bounnds (length=%d)" i (Array.length variables));
-	let s = 
+	let s =
 	  let values = values_of_dl_setting setting#xml in
 	  try
       let lower = int_of_string (ExtXml.attrib setting#xml "min") in

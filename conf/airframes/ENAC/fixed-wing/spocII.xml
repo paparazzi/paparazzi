@@ -54,7 +54,7 @@
     <define name="IR_NB_SAMPLES" value="16"/>
 
     <define name="GYRO_ROLL" value="ADC_5"/>
-    <define name="GYRO_NB_SAMPLES" value="16"/> 
+    <define name="GYRO_NB_SAMPLES" value="16"/>
 
   </section>
 
@@ -82,13 +82,13 @@
 
  <section name="GYRO" prefix="GYRO_">
     <define name="ADC_ROLL_NEUTRAL" value="490"/>
-    <define name="ADC_TEMP_NEUTRAL" value="512"/>   
-    <define name="ADC_TEMP_SLOPE" value="0"/>  
+    <define name="ADC_TEMP_NEUTRAL" value="512"/>
+    <define name="ADC_TEMP_SLOPE" value="0"/>
     <define name="DYNAMIC_RANGE" value="300" unit="deg/s"/>
     <define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+1.8))"/>
     <define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/>
     <define name="ROLL_SCALE" value="3.3*1000./1024./(GYRO_ADXRS300_SENSITIVITY*GYRO_ADXRS300_RESISTOR_BRIDGE)" unit="deg/s/adc_unit"/>
-    <define name="ROLL_DIRECTION" value="(-1)"/> 
+    <define name="ROLL_DIRECTION" value="(-1)"/>
   </section>
 
   <section name="BAT">
@@ -98,7 +98,7 @@
 
     <define name="MilliAmpereOfAdc(_adc)" value="(_adc-156)*17.4"/>
   </section>
- 
+
   <section name="MISC">
     <define name="MINIMUM_AIRSPEED" value="12." unit="m/s"/>
     <define name="NOMINAL_AIRSPEED" value="15." unit="m/s"/>
@@ -115,7 +115,7 @@
 
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
   </section>
- 
+
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
     <!-- define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/ -->
@@ -221,14 +221,14 @@ ap.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\" -DSERVOS_4017
 ap.srcs += $(SRC_ARCH)/servos_4017_hw.c actuators.c
 
 ap.CFLAGS += -DRADIO_CONTROL
-ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
+ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 #TRANSPARENT
 ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ -DUART1_BAUD=B57600
 ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c pprz_transport.c
 
 ap.CFLAGS += -DINTER_MCU
-ap.srcs += inter_mcu.c 
+ap.srcs += inter_mcu.c
 
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_5
 ap.srcs += $(SRC_ARCH)/adc_hw.c
@@ -271,7 +271,7 @@ jsbsim.srcs += subsystems/navigation/nav_line.c subsystems/navigation/nav_survey
 jsbsim.srcs += $(SIMDIR)/sim_ac_fw.c
 
 
-# a test program to setup actuators 
+# a test program to setup actuators
 setup_actuators.ARCHDIR = $(ARCHI)
 
 setup_actuators.CFLAGS += -DFBW -DBOARD_CONFIG=\"tiny.h\" -DUSE_LED -DTIME_LED=1 -DACTUATORS=\"servos_4015_hw.h\" -DSERVOS_4015 -DUSE_UART1 -DUART1_BAUD=B9600 -DDATALINK=PPRZ -DPPRZ_UART=Uart1

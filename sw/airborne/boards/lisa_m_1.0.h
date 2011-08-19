@@ -35,7 +35,7 @@
 #define DefaultVoltageOfAdc(adc) (0.00485*adc)
 
 /* Onboard ADCs */
-/* 
+/*
    ADC1 PC3/ADC13
    ADC2 PA0/ADC0
    ADC3 PC0/ADC10

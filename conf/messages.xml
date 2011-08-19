@@ -511,7 +511,7 @@
     <field name="count" type="int16" unit=""/>
     <field name="shutter" type="uint8" unit="s"/>
   </message>
- 
+
   <message name="AMSYS_BARO" id="65">
     <field name="pBaroRaw" type="uint16"></field>
     <field name="pBaro" type="float" unit="Pa"> </field>

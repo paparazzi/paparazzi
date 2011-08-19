@@ -1,5 +1,5 @@
 /*
- *  
+ *
  * Copyright (C) 2008-2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -17,11 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
-/** 
+/**
  * file gps_nmea.c
  * brief Parser for the NMEA protocol
  *
@@ -43,7 +43,7 @@
 #endif
 
 #include <inttypes.h>
-#include <string.h> 
+#include <string.h>
 #include <math.h>
 #include <stdlib.h>
 #ifdef DEBUG_NMEA
@@ -231,7 +231,7 @@ void parse_nmea_GPGGA(void) {
       return;
     }
   }
-     
+
   // correct latitute for N/S
   if(gps_nmea.msg_buf[i] == 'S')
     lat = -lat;
@@ -245,7 +245,7 @@ void parse_nmea_GPGGA(void) {
 
   gps.lla_pos.lat =lla_f.lat * 1e7; // convert to fixed-point
   NMEA_PRINT("p_GPGGA() - lat=%d gps_lat=%i\n\r", (lat*1000), lla_f.lat);
-     
+
   // get longitude [ddmm.mmmmm]
   double lon = strtod(&gps_nmea.msg_buf[i], &endptr);
   // convert to pure degrees [dd.dddd] format
@@ -257,7 +257,7 @@ void parse_nmea_GPGGA(void) {
     if (i >= gps_nmea.msg_len)
       return;
   }
- 
+
   // correct latitute for E/W
   if(gps_nmea.msg_buf[i] == 'W')
     lon = -lon;
@@ -265,7 +265,7 @@ void parse_nmea_GPGGA(void) {
     if (i >= gps_nmea.msg_len)
       return;
   }
- 
+
   gps.lla_pos.lon = lla_f.lon * 1e7; // convert to fixed-point
   NMEA_PRINT("p_GPGGA() - lon=%d gps_lon=%i time=%u\n\r", (lon*1000), lla_f.lon, gps.tow);
 
@@ -298,7 +298,7 @@ void parse_nmea_GPGGA(void) {
       return;
     }
   }
-     
+
   // get number of satellites used in GPS solution
   gps.num_sv = atoi(&gps_nmea.msg_buf[i]);
   NMEA_PRINT("p_GPGGA() - gps_numSatlitesUsed=%i\n\r", gps.num_sv);
@@ -314,7 +314,7 @@ void parse_nmea_GPGGA(void) {
       return;
     }
   }
-     
+
   // get altitude (in meters)
   // FIXME alt above ellipsoid or geoid (MSL) ???
   double alt = strtod(&gps_nmea.msg_buf[i], &endptr);
@@ -395,7 +395,7 @@ void nmea_parse_char( uint8_t c ) {
   if (gps_nmea.msg_len < NMEA_MAXLEN - 1) {
 
     // messages end with a linefeed
-    //AD: TRUNK:       if (c == '\r' || c == '\n') 
+    //AD: TRUNK:       if (c == '\r' || c == '\n')
     if (c == '\r' || c == '\n') {
       gps_nmea.msg_available = TRUE;
     } else {

@@ -55,7 +55,7 @@
     <define name="GYRO_Q_CHAN" value="0"/>
     <define name="GYRO_R_CHAN" value="1"/>
 
-<!--    <define name="GYRO_P_NEUTRAL" value="32734"/> 
+<!--    <define name="GYRO_P_NEUTRAL" value="32734"/>
 
     <define name="GYRO_Q_NEUTRAL" value="32272"/>
     <define name="GYRO_R_NEUTRAL" value="32420"/>  -->
@@ -68,10 +68,10 @@
     <define name="GYRO_P_SENS" value=" 0.85" integer="16"/>
     <define name="GYRO_Q_SENS" value=" 0.85" integer="16"/>
     <define name="GYRO_R_SENS" value=" 0.85" integer="16"/>
-  
+
     <define name="ACCEL_X_CHAN" value="2"/>
     <define name="ACCEL_Y_CHAN" value="5"/>
-    <define name="ACCEL_Z_CHAN" value="6"/>    
+    <define name="ACCEL_Z_CHAN" value="6"/>
 
     <define name="ACCEL_X_SENS" value=" 6.29676358" integer="16"/>
     <define name="ACCEL_Y_SENS" value=" 6.07991732" integer="16"/>
@@ -89,9 +89,9 @@
 
 
 
-<!--    
+<!--
    <define name="MAG_X_NEUTRAL" value="2339"/>
-    <define name="MAG_Y_NEUTRAL" value="2106"/> 
+    <define name="MAG_Y_NEUTRAL" value="2106"/>
     <define name="MAG_Z_NEUTRAL" value="1902"/>
 
     <define name="MAG_X_SENS" value=" 4.4039655" integer="16"/>
@@ -113,7 +113,7 @@ second attempt
 -->
 
    <define name="MAG_X_NEUTRAL" value="2110"/>
-    <define name="MAG_Y_NEUTRAL" value="2168"/> 
+    <define name="MAG_Y_NEUTRAL" value="2168"/>
     <define name="MAG_Z_NEUTRAL" value="1612"/>
 
     <define name="MAG_45_HACK" value="1"/>
@@ -122,7 +122,7 @@ second attempt
     <define name="MAG_Y_SENS" value="2.973101172" integer="16"/>
     <define name="MAG_Z_SENS" value="3.88650043" integer="16"/>
 
-    
+
 
 <!--
     <define name="MAG_X_SENS" value="2.665947727" integer="16"/>
@@ -261,7 +261,7 @@ second attempt
 
  <section name="MISC">
    <define name="FACE_REINJ_1" value="1024"/>
-   <define name="NOMINAL_AIRSPEED" value="1"/> 
+   <define name="NOMINAL_AIRSPEED" value="1"/>
 </section>
 
 
