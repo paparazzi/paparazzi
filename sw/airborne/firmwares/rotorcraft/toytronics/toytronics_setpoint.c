@@ -17,7 +17,7 @@ xyz_t setpoint_incremental_bounds_deg = { SETPOINT_MODE_2_BOUND_QUAT_DEG_X,
                                           SETPOINT_MODE_2_BOUND_QUAT_DEG_Y,
                                           SETPOINT_MODE_2_BOUND_QUAT_DEG_Z};
 
-xyz_t setpoint_aerobatic_decay_time = {0.5, 0.5, 0.5};
+xyz_t setpoint_aerobatic_decay_time = {0.3, 0.3, 0.3};
 
 double setpoint_absolute_heading_bound_deg = SETPOINT_BOUND_ERROR_HEADING_DEG;
 double hover_pitch_trim_deg = SETPOINT_HOVER_PITCH_TRIM_DEG;
