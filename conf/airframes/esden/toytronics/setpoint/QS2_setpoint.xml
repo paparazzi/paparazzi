@@ -17,9 +17,9 @@
     <define name="FORWARD_ACCEL_TURN_COORDINATION_GAIN"        value="0.066"/>
 
     <define name="DEADBAND"                   value="0.03"/>
-    <define name="MODE_2_BOUND_QUAT_DEG_X"    value="50"/>
-    <define name="MODE_2_BOUND_QUAT_DEG_Y"    value="50"/>
-    <define name="MODE_2_BOUND_QUAT_DEG_Z"    value="50"/>
+    <define name="MODE_2_BOUND_QUAT_DEG_X"    value="180"/>
+    <define name="MODE_2_BOUND_QUAT_DEG_Y"    value="180"/>
+    <define name="MODE_2_BOUND_QUAT_DEG_Z"    value="180"/>
 
   </section>
 </airframe>
