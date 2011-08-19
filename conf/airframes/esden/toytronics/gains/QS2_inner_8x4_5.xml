@@ -33,9 +33,9 @@
     <define name="FORWARD_Z_DD"     value="0"/>
    
     <!-- aerobatic gains -->
-    <define name="AEROBATIC_X_P"      value="-750"/>
+    <define name="AEROBATIC_X_P"      value="-456"/>
     <define name="AEROBATIC_X_I"      value="-10"/> 
-    <define name="AEROBATIC_X_D"      value="-250"/>
+    <define name="AEROBATIC_X_D"      value="-153"/>
     <define name="AEROBATIC_X_DD"     value="0"/>
 
     <define name="AEROBATIC_Y_P"      value="-300"/>
