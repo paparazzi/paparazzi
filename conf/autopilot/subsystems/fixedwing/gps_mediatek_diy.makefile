@@ -1,3 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
+
 # Mediatek MT3329, DIYDrones V1.4/1.6 protocol
 
 

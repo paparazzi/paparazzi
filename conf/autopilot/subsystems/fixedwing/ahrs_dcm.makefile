@@ -1,3 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
+
 # attitude estimation for fixedwings via dcm algorithm
 
 

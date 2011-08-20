@@ -1,3 +1,4 @@
+# Hey Emacs, this is a -*- makefile -*-
 #
 # AHRS_PROPAGATE_FREQUENCY
 # AHRS_H_X

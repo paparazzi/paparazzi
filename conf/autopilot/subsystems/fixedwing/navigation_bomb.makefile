@@ -1,3 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
+
 # standard and extra fixed wing navigation
 
 

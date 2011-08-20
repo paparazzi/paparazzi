@@ -1,5 +1,4 @@
-#
-# $Id: autopilot.makefile 4827 2010-04-21 08:02:18Z poine $
+# Hey Emacs, this is a -*- makefile -*-
 #
 # Copyright (C) 2008 Antoine Drouin
 #

@@ -1,3 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
+
 # XBee modems in API mode
 
 ap.CFLAGS += -DUSE_$(MODEM_PORT)

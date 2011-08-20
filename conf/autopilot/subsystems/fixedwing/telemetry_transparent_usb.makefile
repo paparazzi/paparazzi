@@ -1,3 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
+
 
 #serial USB (e.g. /dev/ttyACM0)
 
