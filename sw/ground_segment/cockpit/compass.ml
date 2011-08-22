@@ -2,7 +2,7 @@
 * $Id$
 *
 * Compass display for a manned vehicle
-*  
+*
 * Copyright (C) 2004-2009 ENAC, Pascal Brisset, Antoine Drouin
 *
 * This file is part of paparazzi.
@@ -20,7 +20,7 @@
 * You should have received a copy of the GNU General Public License
 * along with paparazzi; see the file COPYING.  If not, write to
 * the Free Software Foundation, 59 Temple Place - Suite 330,
-* Boston, MA 02111-1307, USA. 
+* Boston, MA 02111-1307, USA.
 *
 *)
 
@@ -39,7 +39,7 @@ let arrow = [1,1; 2,1; 0,3; -2,1; -1,1; -1,-3; 1,-3; 1,1]
 let rot = fun angle ->
   let angle = (Deg>>Rad)(-. angle) in
   let ca = cos angle and sa = sin angle in
-  fun (x,y) -> 
+  fun (x,y) ->
     let x = float x and y = float y in
     (truncate (ca*.x-.sa*.y), truncate (sa*.x+.ca*.y))
 
@@ -51,7 +51,7 @@ let circle = fun (dr:GDraw.pixmap) (x,y) r ->
 	let a = float i /. float n *. 2.*.pi in
 	(x + truncate (r*.cos a), y + truncate (r*.sin a))) in
   dr#polygon (Array.to_list points)
-      
+
 let draw = fun (da_object:Gtk_tools.pixmap_in_drawin_area) desired_course course_opt distance ->
   let da = da_object#drawing_area in
   let {Gtk.width=width; height=height} = da#misc#allocation in
@@ -91,7 +91,7 @@ let draw = fun (da_object:Gtk_tools.pixmap_in_drawin_area) desired_course course
 	circle dr (4*s,4*s) (3*s)
   else
     print_string (4*s) (4*s) "STOP";
-  
+
   (* Distance and bearing to target, current track *)
   print_string (7*s) s (sprintf "%.0f m" distance);
   print_string (7*s) (s/2) "Dist.";
@@ -107,13 +107,13 @@ let draw = fun (da_object:Gtk_tools.pixmap_in_drawin_area) desired_course course
   List.iter (fun (x,y,string)->
     let (x,y) = translate (rotation ((x*5*s)/20, (y*5*s)/20)) in
     print_string x y string)
-    cards;  
-  
+    cards;
+
   (new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
 
 (*********************** Main ************************************************)
 let _ =
-  let ivy_bus = ref Defivybus.default_ivy_bus in 
+  let ivy_bus = ref Defivybus.default_ivy_bus in
   Arg.parse
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "<ivy bus> Default is %s" !ivy_bus)]
     (fun x -> prerr_endline ("WARNING: don't do anything with "^x))
@@ -153,5 +153,5 @@ let _ =
 
   (** Start the main loop *)
   window#show ();
-  GMain.main () 
-  
+  GMain.main ()
+

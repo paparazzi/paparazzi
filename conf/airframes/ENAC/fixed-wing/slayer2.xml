@@ -35,7 +35,7 @@
 
   <command_laws>
     <let var="aileron" value="@ROLL  * AILEVON_AILERON_RATE"/>
-    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
+    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
     <set servo="THROTTLE" value="@THROTTLE"/>
     <set servo="AILEVON_LEFT" value="$elevator + $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
@@ -81,11 +81,11 @@
 
  <section name="GYRO" prefix="GYRO_">
     <define name="ADC_ROLL_NEUTRAL" value="484"/>
-<!--    <define name="ADC_TEMP_NEUTRAL" value="476"/>   
-    <define name="ADC_TEMP_SLOPE" value="0"/>  
+<!--    <define name="ADC_TEMP_NEUTRAL" value="476"/>
+    <define name="ADC_TEMP_SLOPE" value="0"/>
 -->
     <define name="ROLL_SCALE" value="1.3846"/>
-    <define name="ROLL_DIRECTION" value="-1."/> 
+    <define name="ROLL_DIRECTION" value="-1."/>
   </section>
 
  <section name="BAT">
@@ -93,7 +93,7 @@
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
     <define name="VoltageOfAdc(adc)" value="(0.0183*adc)"/>
   </section>
- 
+
  <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="20." unit="m/s"/>
     <define name="MAXIMUM_AIRSPEED" value="25." unit="m/s"/>
@@ -154,7 +154,7 @@
     <define name="PITCH_DGAIN" value="0."/>
 
     <define name="ELEVATOR_OF_ROLL" value="1000"/>
-    
+
     <!--  roll rate loop -->
     <define name="ROLL_ATTITUDE_GAIN" value="-7500"/>
     <define name="ROLL_RATE_GAIN" value="-1500"/>
@@ -210,7 +210,7 @@ ap.CFLAGS += -DACTUATORS=\"servos_4015_MAT_hw.h\" -DSERVOS_4015_MAT
 ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 
 ap.CFLAGS += -DRADIO_CONTROL
-ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
+ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 #ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600
 #ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c xbee.c
@@ -225,7 +225,7 @@ ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c pprz_transpo
 
 
 ap.CFLAGS += -DINTER_MCU
-ap.srcs += inter_mcu.c 
+ap.srcs += inter_mcu.c
 
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_4 -DUSE_ADC_5 -DUSE_ADC_6
 ap.srcs += $(SRC_ARCH)/adc_hw.c
@@ -274,9 +274,9 @@ sim.ARCHDIR = $(ARCHI)
 sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DUSE_INFRARED -DNAV -DUSE_LED -DWIND_INFO
 sim.srcs = latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c infrared.c fw_v_ctl.c subsystems/nav.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_ir.c $(SRC_ARCH)/sim_ap.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c $(SRC_ARCH)/led_hw.c
 
-sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN  -DUSE_BARO_MS5534A 
+sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN  -DUSE_BARO_MS5534A
 
-sim.srcs += subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/nav_line.c $(SRC_ARCH)/sim_baro.c 
+sim.srcs += subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/nav_line.c $(SRC_ARCH)/sim_baro.c
 
 sim.srcs += fw_h_ctl.c
 # sim.srcs += fw_h_ctl_a.c

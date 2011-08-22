@@ -2,7 +2,7 @@
  * $Id: gen_aircraft.ml 4198 2009-09-23 19:15:40Z hecto $
  *
  * Call to Makefile.ac with the appropriate attributes from conf.xml
- *  
+ *
  * Copyright (C) 2003-2010 ENAC
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -42,15 +42,15 @@ let nb_msg = 255
 let used_messages_id = fun xml ->
   let class_xmls = Xml.children xml in
   let id_of_message = fun xml ->
-    int_of_string (Xml.attrib xml "id") 
+    int_of_string (Xml.attrib xml "id")
   in
   let rec find_message_ids = fun xml ids ->
     if Xml.tag xml = "message"
-    then (id_of_message xml) ::ids 
-    else List.fold_right 
+    then (id_of_message xml) ::ids
+    else List.fold_right
            (fun c l -> find_message_ids c l) (Xml.children xml) ids
   in
-    List.map 
+    List.map
       (fun c -> ((Xml.attrib c "name"), find_message_ids c [])) class_xmls
 
 (* useful to display grouped ids *)
@@ -64,15 +64,15 @@ let group = fun l ->
                      li1= List.nth l (i-1) in
             if (li - li1 > 1)
             then begin
-              gl := 
+              gl :=
               (
-                if !s = li1 
+                if !s = li1
                 then Printf.sprintf "%d" !s
                 else Printf.sprintf "%d-%d" !s li1) :: !gl;
               s := li;
             end
             else if i = n -1
-            then 
+            then
               gl := (Printf.sprintf "%d-%d" !s li) :: !gl;
         done;
         List.rev !gl
@@ -82,18 +82,18 @@ let group = fun l ->
 let () =
   (* reading files *)
   let xml = Xml.parse_file messages_xml in
-  let messages = 
+  let messages =
     List.map (fun c -> ((Xml.attrib c "name"), Xml.children c)) (Xml.children xml)
   in
-  
+
   let id_list = Array.to_list (Array.init nb_msg (fun i -> i+1)) in
-  
+
   (* finding free IDs *)
-  let free_msg_id = 
+  let free_msg_id =
     let umi = used_messages_id xml in
-    List.map (fun (c,_) -> 
+    List.map (fun (c,_) ->
       if List.mem_assoc c umi
-      then let used = List.assoc c umi in 
+      then let used = List.assoc c umi in
 	   (c,List.filter (fun i -> not (List.mem i used)) id_list)
       else (c,id_list)
     ) messages in
@@ -106,6 +106,6 @@ let () =
       Printf.printf "\n\n"
   ) free_msg_id
 
-  
- 
+
+
 

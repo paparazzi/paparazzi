@@ -193,7 +193,7 @@
     <target name="stm_passthrough"        board="lisa_l_1.0"		processor="stm32" >
     </target>
     <subsystem name="radio_control" type="spektrum">
-      <param name="RADIO_CONTROL_SPEKTRUM_MODEL" 
+      <param name="RADIO_CONTROL_SPEKTRUM_MODEL"
              value="\\\"subsystems/radio_control/spektrum_dx7se.h\\\""/>
     </subsystem>
     <subsystem name="imu" type="b2_v1.1"/>

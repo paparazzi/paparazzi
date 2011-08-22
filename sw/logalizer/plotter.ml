@@ -2,7 +2,7 @@
  * $Id$
  *
  * Real time plotter
- *  
+ *
  * Copyright (C) 2007- ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -37,7 +37,7 @@ let set_float_value = fun (a:GData.adjustment) v ->
 
 let pprz_float = function
     Pprz.Int i -> float i
-  | Pprz.Float f -> f 
+  | Pprz.Float f -> f
   | Pprz.Int32 i -> Int32.to_float i
   | Pprz.String s -> float_of_string s
   | Pprz.Array _ -> 0.
@@ -59,9 +59,9 @@ let labelled_entry = fun ?width_chars text value (h:GPack.box) ->
   let label = GMisc.label ~text ~packing:h#pack () in
   label, GEdit.entry ?width_chars ~text:value ~packing:h#pack ()
 
-type values = { 
+type values = {
     mutable array: float option array;
-    mutable index: int; 
+    mutable index: int;
     mutable discrete : bool;
     color : string;
     average : GData.adjustment;
@@ -73,8 +73,8 @@ let create_values = fun size color ->
     average = GData.adjustment ~value:0. (); discrete = false;
     stdev = GData.adjustment ~value:0. ()}
 
-type status = 
-    Run 
+type status =
+    Run
   | Suspend (* Display is freezed, data are updated *)
   | Stop    (* Display is active, data are not updated *)
 
@@ -148,7 +148,7 @@ class plot = fun ~size ~width ~height ~packing () ->
       color_index <- (color_index+1) mod Array.length colors;
       Hashtbl.add curves name values;
       values
-	
+
     method delete_curve = fun name ->
       Hashtbl.remove curves name
 
@@ -174,7 +174,7 @@ class plot = fun ~size ~width ~height ~packing () ->
 		  max <- Pervasives.max max v)
 	    a.array)
 	curves
-	
+
     method shift = fun () ->
       Hashtbl.iter
 	(fun _ a ->
@@ -182,7 +182,7 @@ class plot = fun ~size ~width ~height ~packing () ->
 	  a.index <- (a.index + 1) mod (Array.length a.array);
 	  a.array.(a.index) <- None)
 	curves
-	
+
     method update_curves = fun () ->
       if Hashtbl.length curves > 0 then
 	try
@@ -208,26 +208,26 @@ class plot = fun ~size ~width ~height ~packing () ->
 	      Pango.Layout.set_text layout s;
 	      let (w, h) = Pango.Layout.get_pixel_size layout in
 	      dr#put_layout ~x ~y:(y-h/2) ~fore:`BLACK layout in
-	    
+
 	    let t = dt *. float size in
 	    f (width-width/size) (height-h/2) "0";
 	    f (width/2) (height-h/2) (Printf.sprintf "-%.1fs" (t/.2.));
 	    f 0 (height-h/2) (Printf.sprintf "-%.1fs" t);
 
 	    (* Y graduations *)
-	    let (min, max) = 
+	    let (min, max) =
 	      if max > min then (min, max)
 	      else  let d = abs_float max /. 10. in (max -. d, max +. d) in
 	    let delta = max -. min in
-	    
+
 	    let dy = float (height-2*margin) /. delta in
 	    let y = fun v ->
 	      height - margin - truncate ((v-.min)*.dy) in
 
 	    let scale = log delta /. log 10. in
 	    let d = 10. ** floor scale in
-	    let u = 
-	      if delta < 2.*.d then d/.5. 
+	    let u =
+	      if delta < 2.*.d then d/.5.
 	      else if delta < 5.*.d then d/.2.
 	      else d in
 	    let tick_min = min -. mod_float min u in
@@ -284,7 +284,7 @@ class plot = fun ~size ~width ~height ~packing () ->
 		Pango.Layout.set_text layout title;
 		let (w, h) = Pango.Layout.get_pixel_size layout in
 		dr#rectangle ~x:(width-h-margin) ~y:!title_y ~width:h ~height:h ~filled:true ();
-		
+
 		dr#set_foreground `BLACK;
 		dr#put_layout ~x:(width-2*margin-w-h) ~y:(!title_y) layout;
 		title_y := !title_y + h + margin)
@@ -298,7 +298,7 @@ class plot = fun ~size ~width ~height ~packing () ->
       match timer with
 	None -> ()
       | Some t -> GMain.Timeout.remove t
-	    
+
     method set_update_time = fun delay ->
       self#stop_timer ();
       dt <- delay;
@@ -346,7 +346,7 @@ let rec plot_window = fun window ->
   let vbox = GPack.vbox ~packing:plotter#add () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
 
-  let close = fun () -> 
+  let close = fun () ->
     plotter#destroy ();
     Hashtbl.remove windows oid;
     if Hashtbl.length windows = 0 then
@@ -359,7 +359,7 @@ let rec plot_window = fun window ->
   let accel_group = factory#accel_group in
   let file_menu = factory#add_submenu "Plot" in
   let file_menu_fact = new GMenu.factory file_menu ~accel_group in
-  
+
   ignore (file_menu_fact#add_item "New" ~key:GdkKeysyms._N ~callback:(fun () -> plot_window {window with curves=[]}));
 
   let reset_item = file_menu_fact#add_item "Reset" ~key:GdkKeysyms._L in
@@ -416,7 +416,7 @@ let rec plot_window = fun window ->
     let eb = GBin.event_box ~width:10 ~height:10 () in
     eb#coerce#misc#modify_bg [`NORMAL, `NAME "black"];
     let item = curves_menu_fact#add_image_item ~image:eb#coerce ~label:s () in
-    
+
     let delete = fun () ->
       plot#delete_cst v;
       curves_menu#remove (item :> GMenu.menu_item) in
@@ -489,14 +489,14 @@ let rec plot_window = fun window ->
       let float = pprz_float value in
       let v = float *. a +. b in
       plot#add_value name v in
-    
+
     let module P = Pprz.Messages (struct let name = class_name end) in
-    let binding = 
+    let binding =
       if sender = "*" then
 	P.message_bind msg_name cb
       else
 	P.message_bind ~sender msg_name cb in
-    
+
     let curve = plot#create_curve name in
     insert_in_menu curve name binding in
 
@@ -511,10 +511,10 @@ let rec plot_window = fun window ->
     in
     plotter#drag#dest_set dnd_targets ~actions:[`COPY];
     ignore (plotter#drag#connect#data_received ~callback:(data_received));
-    
+
     (* Init curves *)
     List.iter add_curve window.curves;
-    
+
     plotter#add_accel_group accel_group;
     plotter#show ()
 
@@ -522,7 +522,7 @@ let rec plot_window = fun window ->
 
 
 let _ =
-  let ivy_bus = ref Defivybus.default_ivy_bus 
+  let ivy_bus = ref Defivybus.default_ivy_bus
   and init = ref [default_window] in
 
   let add_init = fun s ->

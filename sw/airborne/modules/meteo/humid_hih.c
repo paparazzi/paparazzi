@@ -65,7 +65,7 @@ void humid_hih_periodic( void ) {
   /* get temperature from external source */
   fhih_temp = ftempsht;
   /****************************************/
-  
+
   adc_humid_hih = buf_humid_hih.sum / buf_humid_hih.av_nb_sample;
 
   /* 36k/68k voltage divider, 3.3V full sweep, 10 bits adc */

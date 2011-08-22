@@ -2,7 +2,7 @@
  * $Id$
  *
  * XML preprocessing for UBX protocol
- *  
+ *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -73,9 +73,9 @@ let define = fun x y ->
 
 exception Length_error of Xml.xml*int*int
 
-  
-  
-let parse_message = fun m -> 
+
+
+let parse_message = fun m ->
   let msg_name = Xml.attrib m "name" in
 
   fprintf out "\n";
@@ -130,7 +130,7 @@ let parse_message = fun m ->
     fprintf out "  XsensHeader(%s, %s);\\\n" msg_id (get_msg_length m);
     let rec send_one_field = fun f ->
       match Xml.tag f with
-        "field" -> 
+        "field" ->
   	let s = sizeof (format f) in
   	let p = param_name f in
   	let t = param_type f in
@@ -161,7 +161,7 @@ let parse_message = fun m ->
   end
 
 
-    
+
 let parse_data = fun d ->
   let data_name = Xml.attrib d "name" in
 
@@ -222,18 +222,18 @@ let parse_all = fun m ->
 
 let _ =
   if Array.length Sys.argv <> 2 then begin
-    failwith (sprintf "Usage: %s <.xml xsens protocol file>" Sys.argv.(0)) 
+    failwith (sprintf "Usage: %s <.xml xsens protocol file>" Sys.argv.(0))
   end;
   let xml_file = Sys.argv.(1) in
   try
     let xml = Xml.parse_file xml_file in
     fprintf out "/* Generated from %s */\n" xml_file;
     fprintf out "/* Please DO NOT EDIT */\n\n";
-    
+
     define "XSENS_START" "0xFA";
     define "XSENS_BID" "0xFF";
     fprintf out "\n";
-    
+
     List.iter parse_all (Xml.children xml)
   with
     Xml.Error (em, ep) ->

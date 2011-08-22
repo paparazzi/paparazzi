@@ -20,13 +20,13 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
 let pi = 3.14159265358979323846;;
 
-let open_compress file = 
+let open_compress file =
   if Filename.check_suffix file "gz" or Filename.check_suffix file "Z" or
 	Filename.check_suffix file "zip" or Filename.check_suffix file "ZIP" then
     Unix.open_process_in ("gunzip -c "^file)
@@ -48,7 +48,7 @@ let find_file = fun path file ->
 	loop_ext extensions in
   loop_path path
 
-let regexp_plus_less = Str.regexp "[+-]" 
+let regexp_plus_less = Str.regexp "[+-]"
 let affine_transform = fun format ->
   (* Split after removing blank spaces *)
   let split = Str.full_split regexp_plus_less (Str.global_replace (Str.regexp "[ \t]+") "" format) in

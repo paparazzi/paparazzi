@@ -59,7 +59,7 @@ int photogrammetry_height_max;
 int photogrammetry_radius_min;
 
 
-void init_photogrammetry_calculator(void) 
+void init_photogrammetry_calculator(void)
 {
   photogrammetry_sweep_angle 	= PHOTOGRAMMETRY_SWEEP_ANGLE;
 
@@ -74,7 +74,7 @@ void init_photogrammetry_calculator(void)
   photogrammetry_calculator_update();
 }
 
-void photogrammetry_calculator_update(void) 
+void photogrammetry_calculator_update(void)
 {
 
   // Photogrammetry Goals

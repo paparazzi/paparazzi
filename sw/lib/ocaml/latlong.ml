@@ -2,7 +2,7 @@
  * $Id$
  *
  * Geographic conversion utilities
- *  
+ *
  * Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -49,7 +49,7 @@ type semicircle = { lat : semi; long : semi }
 type geographic = { posn_lat : radian ; posn_long : radian }
 
 let norm_angle = fun long ->
-  if long >= pi then long -. 2.*.pi 
+  if long >= pi then long -. 2.*.pi
   else if long < -. pi then long +. 2.*.pi
   else long
 
@@ -125,7 +125,7 @@ let inverse_latitude_isometrique lat e epsilon =
   let exp_l = exp lat in
   let pi_2 = pi /. 2. in
   let phi0 = 2. *. atan exp_l -. pi_2 in
-  let rec loop phi = 
+  let rec loop phi =
     let sin_phi = e *. sin phi in
     let phi' = 2. *. atan (((1. +. sin_phi) /. (1. -. sin_phi))**(e/.2.) *. exp_l) -. pi_2 in
     if abs_float (phi' -. phi) < epsilon then phi' else loop phi' in
@@ -164,10 +164,10 @@ let lambertI =
     y0 = 200000;
     ys = 5657617;
     c = 11603796.98;
-    n = sin phi0 (* tangent projection *) 
+    n = sin phi0 (* tangent projection *)
   };;
 
-let lambertII = 
+let lambertII =
   let phi0 = (Deg>>Rad) (decimal 46 48 0.) in
   { ellipsoid = ntf;
     lambda0 = (Deg>>Rad) (decimal 2 20 14.025);
@@ -176,7 +176,7 @@ let lambertII =
     y0 = 2200000;
     ys = 6199696;
     c = 11745793.39;
-    n = sin phi0 (* tangent projection *) 
+    n = sin phi0 (* tangent projection *)
   };;
 
 let lambertIIe = { lambertII with ys = 8199696 };;
@@ -190,7 +190,7 @@ let lambertIII =
     y0 = 3200000;
     ys = 6791905;
     c = 11947992.52;
-    n = sin phi0 (* tangent projection *) 
+    n = sin phi0 (* tangent projection *)
   };;
 
 let lambertIV =
@@ -203,7 +203,7 @@ let lambertIV =
    y0 = 4185861;
    ys = 7239162;
    c = 12136281.99;
-   n = sin phi0;    (* tangent projection *) 
+   n = sin phi0;    (* tangent projection *)
  };;
 
 let lambert93 = {
@@ -242,12 +242,12 @@ let lambert_of l ({posn_long = lambda; posn_lat = phi} as pos) =
   let r = lambert_c l *. exp (-. ll *. n) in
   let gamma = (lambda -. l.lambda0) *. n in
 
-  let x = l.x0 + truncate (r *. sin gamma) 
+  let x = l.x0 + truncate (r *. sin gamma)
   and y = l.ys - truncate (r *. cos gamma) in
   { lbt_x = x; lbt_y = y };;
 
 
-let serie5 cc e = 
+let serie5 cc e =
   let ee = Array.init (Array.length cc.(0)) (fun i -> e ** (float (2*i))) in
   Array.init (Array.length cc)
     (fun i ->
@@ -279,7 +279,7 @@ let utm_of' = fun geo ->
   let e = ellipsoid.e
   and n = k0 *. ellipsoid.a in
   let c = serie5 coeff_proj_mercator e in
-  
+
   fun ({posn_long = lambda; posn_lat = phi} as pos) ->
     if not (valid_geo pos) then
       invalid_arg "Latlong.utm_of";
@@ -327,14 +327,14 @@ let of_utm' geo  =
   let k0 = 0.9996
   and xs = 500000.
   and ys = 0. in
-  let e = ellipsoid.e 
+  let e = ellipsoid.e
   and n = k0 *. ellipsoid.a in
   let c = serie5 coeff_proj_mercator_inverse e in
 
   fun { utm_zone = f; utm_x = x; utm_y = y } ->
     if x < 0. || x > 1e7 || y < -1e7 || y > 1e7 || f < 0 || f > 60 then
       invalid_arg "Latlong.of_utm";
-    
+
     let lambda_c = (Deg>>Rad) (float (6 * f - 183)) in
     let z' = C.scal (1./.n/.c.(0)) (C.make (y-.ys) (x-.xs)) in
     let z = ref z' in
@@ -368,7 +368,7 @@ let (<<) geo1 geo2 ({posn_long = lambda; posn_lat = phi} as pos) =
   let elps1 = ellipsoid_of geo1
   and elps2 = ellipsoid_of geo2 in
   let d12 = sin phi
-  and d13 = cos phi 
+  and d13 = cos phi
   and d14 = sin lambda
   and d15 = cos lambda in
 
@@ -395,13 +395,13 @@ let utm_distance = fun utm1 utm2 ->
 
 let utm_add = fun u (x, y) ->
   {utm_x = u.utm_x +. x; utm_y = u.utm_y +. y; utm_zone = u.utm_zone }
-  
+
 let utm_sub = fun u1 u2 ->
   if u1.utm_zone <> u2.utm_zone then
     invalid_arg (Printf.sprintf "utm_sub: %d %d" u1.utm_zone u2.utm_zone);
   (u1.utm_x -. u2.utm_x, u1.utm_y -. u2.utm_y)
 
-  
+
 let of_lambertIIe = fun lbt ->
   (WGS84<<NTF)(of_lambert lambertIIe lbt)
 let lambertIIe_of = fun wgs84 ->
@@ -474,7 +474,7 @@ let bearing = fun geo1 geo2 ->
 let leap_seconds = 15 (* http://www.leapsecond.com/java/gpsclock.htm *)
 
 let gps_epoch = 315964800. (* In seconds, in the unix reference *)
-  
+
 let gps_tow_of_utc = fun ?wday hour min sec ->
   let wday =
     match wday with
@@ -493,14 +493,14 @@ let unix_time_of_tow = fun ?week tow ->
       let host_tow = get_gps_tow ()
       and unix_now = Unix.gettimeofday () in
       unix_now +. float (tow - host_tow)
-  | Some w -> 
+  | Some w ->
       gps_epoch
 	+. float w *. 60. *. 60. *. 24. *. 7.
 	+. float (tow - leap_seconds)
 
 
 
-type coordinates_kind = 
+type coordinates_kind =
     WGS84_dec
   | WGS84_dms
   | LBT2e
@@ -524,9 +524,9 @@ let string_of_coordinates = fun kind geo ->
 
 let geographic_of_coordinates = fun kind s ->
   match kind with
-    WGS84_dec -> 
+    WGS84_dec ->
       of_string ("WGS84 " ^ s)
-  | WGS84_dms -> 
+  | WGS84_dms ->
       of_string ("WGS84_dms " ^ s)
   | LBT2e ->
       of_string ("LBT2e " ^ s)
@@ -589,11 +589,11 @@ let geo_of_ecef = fun geo ->
     let _U = sqrt (tmp +. z2)
     and _V = sqrt (tmp +. (1.-.e2)*.z2) in
     let z0 = (b**2.*.z)/.(elps.a *. _V) in
- 
+
     let h = _U*.(1. -. b**2./.(elps.a *. _V))
     and phi = atan ((z +. ep2*.z0)/.r )
     and lambda = atan2 y x in
-    
+
     ({posn_lat = phi; posn_long = lambda}, h)
 
 (* http://en.wikipedia.org/wiki/Geodetic_system
@@ -607,14 +607,14 @@ let ned_of_ecef = fun r ->
 
   fun p ->
     let x_xr = p.(0) -. r.(0)
-    and y_yr = p.(1) -. r.(1) 
-    and z_zr = p.(2) -. r.(2) in 
-    
+    and y_yr = p.(1) -. r.(1)
+    and z_zr = p.(2) -. r.(2) in
+
     let e = -.sin_lambda*.x_xr +. cos_lambda*.y_yr
     and n = -.sin_phiP*.cos_lambda*.x_xr -. sin_phiP*.sin_lambda*.y_yr +. cos_phiP*.z_zr
     and u = cos_phiP*.cos_lambda*.x_xr +. cos_phiP*.sin_lambda*.y_yr +. sin_phiP*.z_zr in
     [|n; e; -.u|]
-      
+
 let ecef_of_ned = fun r ->
   let wgs84, _h = geo_of_ecef WGS84 r in
   let sin_lambda = sin wgs84.posn_long
@@ -644,7 +644,7 @@ let bilinear = fun x1 y1 x2 y2 x y z11 z12 z21 z22 ->
 
 (** From gpsd geoid.c
     return geoid separtion (MSL-WGS84) in meters,given geographic coordinates*)
-let geoid_data = 
+let geoid_data =
   [|	(* 90S *) [|-30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30; -30;-30;-30;-30;-30;-30;-30;-30;-30;-30;-30|];
 	(* 80S *) [|-53;-54;-55;-52;-48;-42;-38;-38;-29;-26;-26;-24;-23;-21;-19;-16;-12; -8; -4; -1;  1;  4;  4;  6;  5;  4;   2; -6;-15;-24;-33;-40;-48;-50;-53;-52;-53|];
 	(* 70S *) [|-61;-60;-61;-55;-49;-44;-38;-31;-25;-16; -6;  1;  4;  5;  4;  2;  6; 12; 16; 16; 17; 21; 20; 26; 26; 22;  16; 10; -1;-16;-29;-36;-46;-55;-54;-59;-61|];
@@ -668,7 +668,7 @@ let geoid_data =
 
 (* Online geoid calculator :
    http://earth-info.nga.mil/GandG/wgs84/gravitymod/egm96/intpt.html
-   
+
 lat lon  EGM96   this function
 41. 1.   49.83   51.15
 35 -140  -32.53  -29.5
@@ -698,11 +698,11 @@ let wgs84_hmsl = fun geo ->
     (float lon)                    (float lat)
     (float geoid_data.(ilat1).(ilon1))
     (float geoid_data.(ilat1).(ilon2))
-    (float geoid_data.(ilat2).(ilon1)) 
+    (float geoid_data.(ilat2).(ilon1))
     (float geoid_data.(ilat2).(ilon2))
 
 let wgs84_distance = fun geo1 geo2 ->
   let e1 = ecef_of_geo WGS84 geo1 0.
   and e2 = ecef_of_geo WGS84 geo1 0. in
   ecef_distance e1 e2
-  
+

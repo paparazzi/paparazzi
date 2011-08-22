@@ -25,7 +25,7 @@
 /** \file temp_tcouple_adc.c
  *  \brief Universitaet Tuebingen thermocouple interface
  *
- *   This reads the values for reference and measurement temperature 
+ *   This reads the values for reference and measurement temperature
  *   from the Universitaet Tuebingen thermocouple sensor.
  */
 
@@ -71,7 +71,7 @@ void temp_tcouple_adc_init( void ) {
 void temp_tcouple_adc_periodic( void ) {
   val[temp_cnt] = buf_temp_tcouple_val.sum / buf_temp_tcouple_val.av_nb_sample;
   ref[temp_cnt] = buf_temp_tcouple_ref.sum / buf_temp_tcouple_ref.av_nb_sample;
-  
+
   /* no voltage divider, 10 bits adc, 3.3V max */
   /* T = U * 52.288899706 - 7.977784737996595 */
   fval[temp_cnt] = ((float)(val[temp_cnt] * 3.3) / 1023.)
@@ -80,7 +80,7 @@ void temp_tcouple_adc_periodic( void ) {
                      * 100. - 13.;
 
   if (++temp_cnt >= TCOUPLE_NB) {
-    DOWNLINK_SEND_TEMP_TCOUPLE(DefaultChannel, 
+    DOWNLINK_SEND_TEMP_TCOUPLE(DefaultChannel,
           &fval[0], &fval[1], &fval[2], &fval[3],
           &fref[0], &fref[1], &fref[2], &fref[3],
           &val[0], &val[1], &val[2], &val[3],

@@ -2,7 +2,7 @@
  * $Id$
  *
  * Extraction of .log and .data file from a .TLM airborne SD file
- *  
+ *
  * Copyright (C) 2009 ENAC, Pascal Brisset
  *
  * This file is part of paparazzi.
@@ -20,14 +20,14 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
 open Printf
 module U = Unix
 let (//) = Filename.concat
-let var_path = Env.paparazzi_home // "var" 
+let var_path = Env.paparazzi_home // "var"
 let logs_path = var_path // "logs"
 let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 
@@ -58,7 +58,7 @@ let log_xml = fun ac_id ->
   let expanded_conf_ac = Env.expand_ac_xml ~raise_exception:false conf_ac in
   let expanded_conf =
     make_element (Xml.tag conf_xml) (Xml.attribs conf_xml) [expanded_conf_ac] in
-  make_element 
+  make_element
     "configuration"
     []
     [expanded_conf; Pprz.messages_xml ()]
@@ -93,7 +93,7 @@ let hex_of_array = function
 	  let hex = sprintf "%02x" (Pprz.int_of_value array.(i)) in
 	  String.blit hex 0 s (2*i) 2)
 	array;
-      s	
+      s
   | value ->
       failwith (sprintf "Error: expecting array, found %s" (Pprz.string_of_value value))
 
@@ -120,7 +120,7 @@ let search_conf = fun md5 ->
       raise Not_found in
   loop 0
 
-  
+
 let convert_file = fun file ->
   let tmp_file = Filename.temp_file "tlm_from_sd" "data" in
 
@@ -144,12 +144,12 @@ let convert_file = fun file ->
       let msg_descr = message_of_id log_msg msg_id in
       let timestamp = Int32.to_float log_msg.Logpprz.timestamp /. 1e4 in
       fprintf f_out "%.4f %d %s\n" timestamp ac_id (string_of_message log_msg msg_descr vs);
-      
+
       (** Looking for a date from a GPS message and a md5 from an ALIVE *)
       if log_msg.Logpprz.source = 0 then
 	match msg_descr.Pprz.name with
 	  "GPS" when !start_unix_time = None
-	      && ( Pprz.int_assoc "mode" vs = 3 
+	      && ( Pprz.int_assoc "mode" vs = 3
 		 || Pprz.int_assoc "week" vs > 0) ->
 		     let itow = Pprz.int_assoc "itow" vs / 1000
 		     and week = Pprz.int_assoc "week" vs in
@@ -159,7 +159,7 @@ let convert_file = fun file ->
 	    md5 := hex_of_array (Pprz.assoc "md5sum" vs)
 	| _ -> ()
   in
-  
+
   let parser = Parser.parse use_payload in
   let Serial.Closure reader = Serial.input parser in
 
@@ -177,7 +177,7 @@ let convert_file = fun file ->
       (* Rename the file according to the GPS time *)
       let start_time, mark =
 	match !start_unix_time with
-	  None -> 
+	  None ->
 	    fprintf stderr "Warning: not time found in GPS messages; using current date\n";
 	    U.gettimeofday (), "_no_GPS" (* Not found, use now *)
 	| Some u -> u, "" in
@@ -195,7 +195,7 @@ let convert_file = fun file ->
 
       (** Save the corresponding .log file *)
       fprintf stderr "Looking for %s conf...\n%!" !md5;
-      let configuration = 
+      let configuration =
 	try xml_parse_compressed_file (search_conf !md5) with
 	  Not_found ->
 	    fprintf stderr "Not found...\n%!";
@@ -207,9 +207,9 @@ let convert_file = fun file ->
 		  Xml.PCData ""
 	    end else
 	      Xml.PCData "" in
-      
+
       if configuration <> Xml.PCData "" then
-	let log = 
+	let log =
 	  ExtXml.subst_attrib "time_of_day" (string_of_float start_time)
 	    (ExtXml.subst_attrib "data_file" data_name configuration) in
 

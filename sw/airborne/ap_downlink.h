@@ -165,7 +165,7 @@
 #    define PERIODIC_SEND_IMU_GYRO_RAW(_chan) {}
 #    define PERIODIC_SEND_IMU_MAG_RAW(_chan) {}
 #    define PERIODIC_SEND_IMU_GYRO(_chan) { DOWNLINK_SEND_IMU_GYRO(_chan, &ins_p, &ins_q, &ins_r)}
-#    define PERIODIC_SEND_IMU_ACCEL(_chan) { DOWNLINK_SEND_IMU_ACCEL(_chan, &ins_ax, &ins_ay, &ins_az)} 
+#    define PERIODIC_SEND_IMU_ACCEL(_chan) { DOWNLINK_SEND_IMU_ACCEL(_chan, &ins_ax, &ins_ay, &ins_az)}
 #    define PERIODIC_SEND_IMU_MAG(_chan) { DOWNLINK_SEND_IMU_MAG(_chan, &ins_mx, &ins_my, &ins_mz)}
 #  else
 #    define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) {}

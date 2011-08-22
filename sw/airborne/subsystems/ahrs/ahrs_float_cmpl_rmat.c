@@ -53,7 +53,7 @@ void ahrs_init(void) {
     {IMU_BODY_TO_IMU_PHI, IMU_BODY_TO_IMU_THETA, IMU_BODY_TO_IMU_PSI};
   FLOAT_QUAT_OF_EULERS(ahrs_impl.body_to_imu_quat, body_to_imu_euler);
   FLOAT_RMAT_OF_EULERS(ahrs_impl.body_to_imu_rmat, body_to_imu_euler);
-  
+
   /* Set ltp_to_body to zero */
   FLOAT_QUAT_ZERO(ahrs_float.ltp_to_body_quat);
   FLOAT_EULERS_ZERO(ahrs_float.ltp_to_body_euler);
@@ -97,12 +97,12 @@ void ahrs_propagate(void) {
   RATES_FLOAT_OF_BFP(gyro_float, imu.gyro_prev);
   /* unbias measurement */
   RATES_SUB(gyro_float, ahrs_impl.gyro_bias);
-  
+
 #ifdef AHRS_PROPAGATE_LOW_PASS_RATES
   const float alpha = 0.1;
-  FLOAT_RATES_LIN_CMB(ahrs_float.imu_rate, ahrs_float.imu_rate, (1.-alpha), gyro_float, alpha); 
+  FLOAT_RATES_LIN_CMB(ahrs_float.imu_rate, ahrs_float.imu_rate, (1.-alpha), gyro_float, alpha);
 #else
-  RATES_COPY(ahrs_float.imu_rate,gyro_float); 
+  RATES_COPY(ahrs_float.imu_rate,gyro_float);
 #endif
 
   /* add correction     */
@@ -205,8 +205,8 @@ void ahrs_update_mag_2d(void) {
   MAGS_FLOAT_OF_BFP(measured_imu, imu.mag);
   struct FloatVect3 measured_ltp;
   FLOAT_RMAT_VECT3_TRANSP_MUL(measured_ltp, ahrs_float.ltp_to_imu_rmat, measured_imu);
-   
-  const struct FloatVect3 residual_ltp = 
+
+  const struct FloatVect3 residual_ltp =
     { 0,
       0,
       measured_ltp.x * expected_ltp.y - measured_ltp.y * expected_ltp.x };
@@ -215,7 +215,7 @@ void ahrs_update_mag_2d(void) {
 
   struct FloatVect3 residual_imu;
   FLOAT_RMAT_VECT3_MUL(residual_imu, ahrs_float.ltp_to_imu_rmat, residual_ltp);
- 
+
   const float mag_rate_update_gain = 2.5;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, mag_rate_update_gain);
 
@@ -264,7 +264,7 @@ static inline void compute_imu_quat_and_euler_from_rmat(void) {
 
 static inline void compute_imu_rmat_and_euler_from_quat(void) {
   FLOAT_RMAT_OF_QUAT(ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_quat);
-  FLOAT_EULERS_OF_RMAT(ahrs_float.ltp_to_imu_euler, ahrs_float.ltp_to_imu_rmat); 
+  FLOAT_EULERS_OF_RMAT(ahrs_float.ltp_to_imu_euler, ahrs_float.ltp_to_imu_rmat);
 }
 
 

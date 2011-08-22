@@ -2,7 +2,7 @@
  * $Id$
  *
  * Displaying IGN Maps on a MapCanvas object
- *  
+ *
  * Copyright (C) 2004-2006 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -39,7 +39,7 @@ let display_tile = fun (geomap:MapCanvas.widget) wgs84 ->
 
   if not (mem_tile tile) then
     let jpg_file = IGN.get_tile tile in
-    
+
     let (sx,sy) = IGN.tile_size in
     let pixbuf = GdkPixbuf.from_file jpg_file in
 

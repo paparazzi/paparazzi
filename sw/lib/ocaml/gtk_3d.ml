@@ -2,7 +2,7 @@
  * $Id$
  *
  * 3D display widget
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -209,7 +209,7 @@ let make_image filename =
   let img = GdkPixbuf.from_file filename in
   let w = GdkPixbuf.get_width img
   and h = GdkPixbuf.get_height img
-  and region = GdkPixbuf.get_pixels img in 
+  and region = GdkPixbuf.get_pixels img in
   let n_channels = GdkPixbuf.get_n_channels img in
   let row = GdkPixbuf.get_rowstride img in
 
@@ -219,7 +219,7 @@ let make_image filename =
   let image = GlPix.create `ubyte ~format:`rgb ~width:w ~height:h in
   for i = 0 to h - 1 do
     for j = 0 to w - 1 do
-      let pos = i*row + j*n_channels in 
+      let pos = i*row + j*n_channels in
       let red = Gpointer.get_byte region ~pos in
       let green = Gpointer.get_byte region ~pos:(pos+1) in
       let blue = Gpointer.get_byte region ~pos:(pos+2) in
@@ -747,29 +747,29 @@ class widget_3d pack with_status_bar n =
 	    normal_up () ;   self#draw_triangulation v.vol3d_up ;
 	    normal_down () ; self#draw_triangulation v.vol3d_down
 	  end
-      |	ENVELOPPE_3D e  -> 
+      |	ENVELOPPE_3D e  ->
 	  (* Faces tjs visibles: Gl.disable `cull_face ; *)
 	  if e.env3d_filled then set_gl_fillpoly () else begin
 	    GlDraw.line_width 2. ;	unset_gl_fillpoly ()
 	  end ;
-	  
+
 	  (* Faces verticales  *)
 	  GlLight.color_material ~face:`front `ambient_and_diffuse ;
 	  set_color e.env3d_color ;
 	  set_3d_points_quad_strip_with_normal (self#scale_points e.env3d_contour);
           (*si faces env tjs visibles:  Gl.enable `cull_face *)
-      |	ENVELOPPE_3D_DOUBLE e  -> 
+      |	ENVELOPPE_3D_DOUBLE e  ->
 	  (* Faces tjs visibles: Gl.disable `cull_face ; *)
 	  if e.env3d_double_filled then set_gl_fillpoly () else begin
 	    GlDraw.line_width 2. ;	unset_gl_fillpoly ()
 	  end ;
-	  
+
 	  (* Faces verticales externes *)
 	  GlLight.color_material ~face:`front `ambient_and_diffuse ;
 	  set_color e.env3d_double_color_out ;
 	  set_3d_points_quad_strip_with_normal
 	    (self#scale_points e.env3d_double_contour_out);
-	  
+
 	  (* Faces verticales internes *)
 	  GlLight.color_material ~face:`front `ambient_and_diffuse ;
 	  set_color e.env3d_double_color_in ;
@@ -984,7 +984,7 @@ class widget_3d pack with_status_bar n =
       in
       let cw_poly c =
 	let contour_2d = List.map (pt_3d_to_pt_2d T_Z3D) c in
-	if (poly_test_ccw contour_2d = CW) then c else List.rev c 
+	if (poly_test_ccw contour_2d = CW) then c else List.rev c
       in
       let l_bas =  geom_close_poly (cw_poly contour_bas) in
       let l_haut = geom_close_poly (cw_poly  contour_haut) in
@@ -992,11 +992,11 @@ class widget_3d pack with_status_bar n =
 	try List.fold_right2 add_p l_bas l_haut []
 	with x-> Printf.printf "\nadd_object_enveloppe.fold... : "; raise x
       in
-      try 
+      try
 	self#add_object (ENVELOPPE_3D {env3d_contour = l0;
 				       env3d_color   = color;
 				       env3d_filled  = filled})
-      with x -> 
+      with x ->
 	Printf.printf "\nadd_object_enveloppe. self#add_object "; raise x
 
 	  (* Enveloppe 3D : faces laterales liant un contour_haut et un contour_bas *)
@@ -1006,9 +1006,9 @@ class widget_3d pack with_status_bar n =
       let add_p p_bas p_haut res =
 	(glpoint3d_of_pt_3d p_bas)::(glpoint3d_of_pt_3d p_haut)::res
       in
-      let cw_poly c = 
+      let cw_poly c =
 	let contour_2d = List.map (pt_3d_to_pt_2d T_Z3D) c in
-	if (poly_test_ccw contour_2d = CW) then c else List.rev c 
+	if (poly_test_ccw contour_2d = CW) then c else List.rev c
       in
       let l_bas =  geom_close_poly (cw_poly contour_bas) in
       let l_haut = geom_close_poly (cw_poly  contour_haut) in
@@ -1280,14 +1280,14 @@ class widget_3d pack with_status_bar n =
       | `DOWN  -> self#incr_dist dist_incr ; true
       | `LEFT  -> false
       | `RIGHT -> false
-	    
+
     method private start_stop_animation =
       match animation_timer with
 	None ->
 	  let timeout _ = self#incr_rotz rot_anim; true in
 	  animation_timer <- Some (Timeout.add ~ms:tps_anim ~callback:timeout)
       | Some t -> Timeout.remove t ; animation_timer <- None
-	    
+
 	    (* [key_pressed key] teste la touche pressee dans la zone de dessin
 	       et effectue l'action associee le cas echeant *)
     method private key_pressed key =
@@ -1321,7 +1321,7 @@ class widget_3d pack with_status_bar n =
 	| [] -> false
       in
       check_keys keys_list
-	
+
 	(* Modification de la position de l'utilisateur et des angles de vue *)
     method incr_dist d = self#move_view   (add_coord depl Z_AXIS d)
     method incr_rotx d = self#rotate_view (add_coord_360 rot X_AXIS d)
@@ -1419,7 +1419,7 @@ class widget_3d pack with_status_bar n =
 
       (* Reactions aux mouvements de la molette souris *)
       ignore(area#event#connect#any ~callback:scroll_cb) ;
-      
+
       (* Attachement des callbacks pour les evenements clavier *)
       Gtk_tools_GL.glarea_key_connect area self#key_pressed (fun _k -> (); false)
   end

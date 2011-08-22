@@ -45,7 +45,7 @@ void imu_impl_init(void) {
 void imu_periodic(void) {
   // Actual Nr of ADC measurements per channel per periodic loop
   static int last_head = 0;
-  
+
   imu_overrun = analog_imu_adc_buf[0].head - last_head;
   if (imu_overrun < 0)
     imu_overrun += ADC_CHANNEL_GYRO_NB_SAMPLES;

@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -40,7 +40,7 @@ type fbw = {
   }
 
 let gps_nb_channels = 16
-type svinfo = {  
+type svinfo = {
     svid : int;
     flags : int;
     qi : int;
@@ -51,7 +51,7 @@ type svinfo = {
   }
 
 let svinfo_init = fun () ->
-  {  
+  {
      svid = 0 ;
      flags = 0;
      qi = 0;
@@ -61,7 +61,7 @@ let svinfo_init = fun () ->
      age = 0
    }
 
-type horiz_mode = 
+type horiz_mode =
     Circle of Latlong.geographic * int
   | Segment of Latlong.geographic * Latlong.geographic
   | UnknownHorizMode
@@ -86,7 +86,7 @@ let add_pos_to_nav_ref = fun nav_ref  ?(z = 0.) (x, y) ->
   match nav_ref with
     Geo geo ->
       let m_to_rad = 0.0005399568034557235 *. 0.00029088820866572159 in
-      let lat = lat_of_xy (geo.posn_lat +. asin (y*.m_to_rad)) 0. geo (x*.m_to_rad, y *.m_to_rad) 10 1.e-7 in 
+      let lat = lat_of_xy (geo.posn_lat +. asin (y*.m_to_rad)) 0. geo (x*.m_to_rad, y *.m_to_rad) 10 1.e-7 in
       Latlong.make_geo lat (geo.posn_long +. asin (x*.m_to_rad /. cos lat))
   | Utm utm ->
       Latlong.of_utm Latlong.WGS84 (Latlong.utm_add utm (x, y))
@@ -97,7 +97,7 @@ let add_pos_to_nav_ref = fun nav_ref  ?(z = 0.) (x, y) ->
 
 type waypoint = { altitude : float; wp_geo : Latlong.geographic }
 
-type aircraft = { 
+type aircraft = {
     mutable vehicle_type : vehicle_type;
     id : string;
     name : string;

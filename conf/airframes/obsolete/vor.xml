@@ -23,7 +23,7 @@ main.srcs += firmwares/vor/lpc_vor_convertions.c
 main.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B9600
 main.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
+main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0
 main.srcs += downlink.c pprz_transport.c
 
 main.srcs += firmwares/vor/vor_int_demod_decim.c

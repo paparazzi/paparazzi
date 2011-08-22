@@ -2,7 +2,7 @@
  * $Id$
  *
  * Paparazzi center main module
- *  
+ *
  * Copyright (C) 2007 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -44,7 +44,7 @@ let read_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Gtk_tools.combo) (
   let xml = Xml.parse_file file in
 
   let read_one = fun name use ->
-    try 
+    try
       let ac_name = get_entry_value xml name in
       use ac_name
     with Not_found -> () in
@@ -66,7 +66,7 @@ let read_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Gtk_tools.combo) (
   (*********** Left pane size *)
   read_one "left_pane_width"
     (fun width -> gui#vbox_left_pane#misc#set_size_request ~width:(ios width) ())
-  
+
 
 
 let gconf_entry = fun name value ->
@@ -84,19 +84,19 @@ let add_entry = fun xml name value ->
 
 let write_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Gtk_tools.combo) (session_combo:Gtk_tools.combo) (target_combo:Gtk_tools.combo) ->
   let xml = if Sys.file_exists file then Xml.parse_file file else Xml.Element ("gconf", [], []) in
-  
+
   (* Save A/C name *)
-  let xml = 
+  let xml =
     try
       let ac_name = Gtk_tools.combo_value ac_combo in
-      add_entry xml "last A/C" ac_name 
+      add_entry xml "last A/C" ac_name
     with Not_found -> xml in
-  
+
   (* Save session *)
-  let xml = 
+  let xml =
     let session_name = Gtk_tools.combo_value session_combo in
     add_entry xml "last session" session_name in
-  
+
   (* Save target *)
   let xml = (
     try
@@ -110,16 +110,16 @@ let write_preferences = fun (gui:Gtk_pc.window) file (ac_combo:Gtk_tools.combo) 
       let width, height = Gdk.Drawable.get_size gui#window#misc#window in
       let xml = add_entry xml "width" (soi width) in
       let xml = add_entry xml "height" (soi height) in
-      
+
       (* Save left pane width *)
       let width = gui#hpaned#position in
       let xml = add_entry xml "left_pane_width" (soi width) in
       xml
     with
-      Gpointer.Null -> 
+      Gpointer.Null ->
 	prerr_endline "Please properly quit to save layout preferences";
 	xml in
-  
+
   let f = open_out file in
   Printf.fprintf f "%s\n" (ExtXml.to_string_fmt xml);
   close_out f
@@ -133,13 +133,13 @@ let quit_button_callback = fun gui ac_combo session_combo target_combo () ->
   if Sys.file_exists Utils.backup_xml_file then begin
     let rec question_box = fun () ->
       match GToolbox.question_box ~title:"Quit" ~buttons:["Save changes"; "Discard changes"; "View changes"; "Cancel"] ~default:1 "Configuration changes have not been saved" with
-      | 2 -> 
+      | 2 ->
 	  Sys.rename Utils.backup_xml_file Utils.conf_xml_file;
 	  quit_callback gui ac_combo session_combo target_combo ()
-      | 3 -> 
+      | 3 ->
 	  ignore (Sys.command (sprintf "tkdiff %s %s" Utils.backup_xml_file Utils.conf_xml_file));
 	  question_box ()
-      | 1 -> 
+      | 1 ->
 	  Sys.remove Utils.backup_xml_file;
 	  quit_callback gui ac_combo session_combo target_combo ()
       | _ -> () in
@@ -194,7 +194,7 @@ let () =
   AC.ac_combo_handler gui ac_combo target_combo;
 
   (* Change the buffer of the text view to attach a tag_table *)
-  let background_tags = 
+  let background_tags =
     List.map (fun color ->
       let tag = GText.tag ~name:color () in
       tag#set_property (`BACKGROUND color);
@@ -208,7 +208,7 @@ let () =
   let errors = "red", ["error"; "no such file"; "undefined reference"; "failure"]
   and warnings = "orange", ["warning"] in
 
-  let color_regexps = 
+  let color_regexps =
     List.map (fun (color, strings) ->
       let s = List.map (fun s -> "\\("^s^"\\)") strings in
       let s = String.concat "\\|" s in
@@ -216,7 +216,7 @@ let () =
       color, Str.regexp_case_fold s)
       [errors; warnings] in
   let compute_tags = fun s ->
-    let rec loop = function 
+    let rec loop = function
 	(color, regexp)::rs ->
 	  if Str.string_match regexp s 0 then
 	    [List.assoc color background_tags]
@@ -224,7 +224,7 @@ let () =
 	    loop rs
       | [] -> [] in
     loop color_regexps in
-  
+
   let log = fun s ->
     let iter = gui#console#buffer#end_iter in
     let tags = compute_tags s in

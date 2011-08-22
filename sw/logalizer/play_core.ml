@@ -2,7 +2,7 @@
  * $Id$
  *
  * Log player
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -44,7 +44,7 @@ let write_xml = fun f xml ->
 
 
 let store_conf = fun conf acs ->
-  let l = 
+  let l =
     List.fold_right (fun x r ->
       if ExtXml.tag_is x "aircraft" then
 	if List.mem (ExtXml.attrib x "ac_id") acs then
@@ -101,7 +101,7 @@ let load_log = fun xml_file ->
       let l = input_line f in
       try
 	Scanf.sscanf l "%f %s %[^\n]"
-	  (fun t ac m -> 
+	  (fun t ac m ->
 	    lines := (t,ac,m):: !lines;
 	    if not (List.mem ac !acs) then acs := ac :: !acs
 	  )
@@ -119,7 +119,7 @@ let load_log = fun xml_file ->
 let timer = ref None
 let was_running = ref false
 
-let bus = ref Defivybus.default_ivy_bus 
+let bus = ref Defivybus.default_ivy_bus
 let port = ref "/dev/ttyUSB0"
 let baudrate = ref "9600"
 let file_to_load = ref ""
@@ -165,7 +165,7 @@ let run = fun serial_port log adj i0 speed no_gui ->
   in
   loop i0
 
-      
+
 let play = fun ?(no_gui=false) serial_port adj speed ->
   stop ();
   if Array.length !log > 1 then
@@ -173,7 +173,7 @@ let play = fun ?(no_gui=false) serial_port adj speed ->
 
 
 let init = fun () ->
-  Arg.parse 
+  Arg.parse
     [ "-b", Arg.String (fun x -> bus := x), (sprintf "<ivy bus> Default is %s" !bus);
       "-d", Arg.Set_string port, (sprintf "<port> Default is %s" !port);
       "-o", Arg.Set output_on_serial, "Output binary messages on serial port";
@@ -185,14 +185,14 @@ let init = fun () ->
     load_log !file_to_load;
 
 
-  let serial_port = 
+  let serial_port =
     if !output_on_serial then
       Some (Unix.out_channel_of_descr (Serial.opendev !port (Serial.speed_of_baudrate !baudrate)))
-    else 
+    else
       None in
 
-  let adj = GData.adjustment 
-      ~value:0. ~lower:0. ~upper:1000. 
+  let adj = GData.adjustment
+      ~value:0. ~lower:0. ~upper:1000.
       ~step_incr:0.5 ~page_incr:1.0 ~page_size:1.0 () in
 
   let speed = object
@@ -204,7 +204,7 @@ let init = fun () ->
   in
 
   ignore (Ground_Pprz.message_bind "WORLD_ENV" world_update_time);
-  
+
   (serial_port, adj, speed)
 
 

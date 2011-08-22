@@ -61,16 +61,16 @@ let send_circle = fun ac_id p r ->
 	     "lat", Pprz.Float ((Rad>>Deg)wgs84.posn_lat);
 	     "long", Pprz.Float ((Rad>>Deg)wgs84.posn_long)] in
   GroundPprz.message_send "ihm" "MOVE_WAYPOINT" vs;
-  
+
   let vs = [ "ac_id", Pprz.String ac_id;
 	     "index", Pprz.Int nav_radius_id;
 	     "value", Pprz.Float (float r) ] in
   GroundPprz.message_send "ihm" "DL_SETTING" vs;
-  
+
   let vs = [ "ac_id", Pprz.String ac_id;
 	     "block_id", Pprz.Int circle_block ] in
 	  GroundPprz.message_send "ihm" "JUMP_TO_BLOCK" vs
-    
+
 
 let send_line = fun ac_id p1 p2 ->
   let wgs84_1 = geo_of p1
@@ -88,11 +88,11 @@ let send_line = fun ac_id p1 p2 ->
 	     "lat", Pprz.Float ((Rad>>Deg)wgs84_2.posn_lat);
 	     "long", Pprz.Float ((Rad>>Deg)wgs84_2.posn_long)] in
   GroundPprz.message_send "ihm" "MOVE_WAYPOINT" vs;
-  
+
   let vs = [ "ac_id", Pprz.String ac_id;
 	     "block_id", Pprz.Int glide_block ] in
   GroundPprz.message_send "ihm" "JUMP_TO_BLOCK" vs
-    
+
 
 let send_eight = fun ac_id p1 p2 r ->
   let wgs84_1 = geo_of p1
@@ -110,16 +110,16 @@ let send_eight = fun ac_id p1 p2 r ->
 	     "lat", Pprz.Float ((Rad>>Deg)wgs84_2.posn_lat);
 	     "long", Pprz.Float ((Rad>>Deg)wgs84_2.posn_long)] in
   GroundPprz.message_send "ihm" "MOVE_WAYPOINT" vs;
-  
+
   let vs = [ "ac_id", Pprz.String ac_id;
 	     "index", Pprz.Int nav_radius_id;
 	     "value", Pprz.Float (float r) ] in
   GroundPprz.message_send "ihm" "DL_SETTING" vs;
-  
+
   let vs = [ "ac_id", Pprz.String ac_id;
 	     "block_id", Pprz.Int eight_block ] in
   GroundPprz.message_send "ihm" "JUMP_TO_BLOCK" vs
-    
+
 
 let send_pattern_up = fun ac_id ->
   try
@@ -156,7 +156,7 @@ let insert_in_timeline values idx action =
   let newt = iter t idx in
 
   (***)print_patterns newt;
-  
+
   let ac_id = Pprz.string_assoc "ac_id" values in
   Hashtbl.replace timelines ac_id newt
 
@@ -272,14 +272,14 @@ let listen = fun () ->
 
 (*** Options ***)
 
-let ivy_bus = Defivybus.default_ivy_bus 
+let ivy_bus = Defivybus.default_ivy_bus
 
 let options =
   [ "-b", Arg.String (fun x -> ivy_bus := x), (Printf.sprintf "Bus\tDefault is %s" !ivy_bus)]
 
 
 (************** Main ****************)
-let () = 
+let () =
   Arg.parse options
     (fun x -> Printf.fprintf stderr "%s: Warning: Don't do anything with '%s' argument\n" Sys.argv.(0) x)
     "Usage: ";

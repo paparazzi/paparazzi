@@ -4,6 +4,7 @@
   <process name="Ap">
     <mode name="default">
       <message name="ALIVE"          period="5"/>
+      <message name="GPS"            period="0.25"/>
       <message name="ATTITUDE"       period="0.2"/>
       <message name="H_CTL_A"        period="0.2"/>
       <message name="ESTIMATOR"      period="0.5"/>

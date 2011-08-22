@@ -37,7 +37,7 @@ It has 8 buttons.
   <button index="0" name="b_green"/>
   <button index="1" name="b_red"/>
   <button index="2" name="b_blue"/>
-  <button index="3" name="b_yellow"/>  
+  <button index="3" name="b_yellow"/>
   <button index="4" name="b_ltb"/>
   <button index="5" name="b_rtb"/>
   <button index="6" name="b_start"/>
@@ -66,7 +66,7 @@ It has 8 buttons.
   </message>
   <message class="ground" name="DL_SETTING_MOD" on_event="0-dx > 100"	>
     <field name="index" value="IndexOfSetting('rc_roll_trim')"/>
-    <field name="mod" value="0-10"/>	
+    <field name="mod" value="0-10"/>
   </message>
 
   <message class="ground" name="DL_SETTING_MOD" on_event="dy > 100">
@@ -107,7 +107,7 @@ It has 8 buttons.
   <message class="trim_minus" name="ly" on_event="b11"/>
   <message class="trim_plus" name="rx" on_event="b2"/>
   <message class="trim_minus" name="rx" on_event="b0"/>
-  <message class="trim_minus" name="ry" on_event="b3"/> 
+  <message class="trim_minus" name="ry" on_event="b3"/>
   <message class="trim_plus" name="ry" on_event="b1"/>
   <message class="trim_save" name="" on_event="b5"/>
 -->
@@ -116,19 +116,19 @@ It has 8 buttons.
 
   <message class="ground" name="DL_SETTING" on_event="b_start">
     <field name="index" value="IndexOfSetting('cam_switch')"/>
-    <field name="value" value="1"/> 
+    <field name="value" value="1"/>
   </message>
 
   <message class="ground" name="DL_SETTING" on_event="b_back">
     <field name="index" value="IndexOfSetting('cam_switch')"/>
-    <field name="value" value="0"/> 
+    <field name="value" value="0"/>
   </message>
 
 
   <!-- Red Button -->  <!-- AUTO2 mode -->
   <message class="ground" name="DL_SETTING" on_event="b_red">
     <field name="index" value="IndexOfSetting('pprz_mode')"/>
-    <field name="value" value="2"/> 
+    <field name="value" value="2"/>
   </message>
 
   <!-- Yellow Button -->   <!-- AUTO1 mode -->
@@ -140,12 +140,12 @@ It has 8 buttons.
   <!-- Green Button -->  <!-- MANUAL mode -->
   <message class="ground" name="DL_SETTING" on_event="b_green">
     <field name="index" value="IndexOfSetting('pprz_mode')"/>
-    <field name="value" value="0"/> 
+    <field name="value" value="0"/>
   </message>
 
  <message class="ground" name="DL_SETTING" on_event="b_green || b_yellow || b_red">
     <field name="index" value="IndexOfSetting('rc_dl_active_joystick')"/>
-    <field name="value" value="JoystickID()"/> 
+    <field name="value" value="JoystickID()"/>
   </message>
 
 </messages>

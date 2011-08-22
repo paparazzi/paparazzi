@@ -2,7 +2,7 @@
  * $Id$
  *
  * KML export for Google Earth display
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -136,7 +136,7 @@ let flight_plan = fun ac_name fp ->
   let waypoints = List.map (waypoint utm0 alt0) xml_waypoints in
   let home = List.find (fun x -> Xml.attrib x "id" = "HOME") waypoints in
   let home_point = ExtXml.child home "Point" in
-  let ac =  
+  let ac =
     el "Placemark" ["id", ac_name]
       [data "name" ac_name;
        icon_style ~heading:45 "ac_style" "pal2/icon56.png";
@@ -176,14 +176,14 @@ let change_placemark = fun ?(description="") id wgs84 alt ->
 	el "Point" []
 	  [data "altitudeMode" "absolute";
 	   data "coordinates" (coordinates wgs84 alt)]]]
-    
+
 
 let link_update = fun target_href changes ->
   kml
     [el "NetworkLinkControl" []
        [el "Update" [] (data "targetHref" target_href :: changes)]]
 
-       
+
 
 let change_waypoint = fun ac_name wp_id wgs84 alt ->
   let wp_name = Hashtbl.find waypoints (ac_name, wp_id) in
@@ -198,8 +198,8 @@ let update_linear_ring = fun target_href id coordinates ->
 	     [el "Placemark" ["targetId", id]
 		[el "LineString" []
 		   [data "coordinates" coordinates]]]]]]
-  
-  
+
+
 let print_xml = fun ac_name file xml ->
   let f = open_out (sprintf "%s/var/%s/%s" Env.paparazzi_home ac_name file) in
   fprintf f "%s\n" (Xml.to_string_fmt xml);
@@ -212,7 +212,7 @@ let update_waypoints =
     Hashtbl.iter (fun wp_id wp -> if wp_id > 0 then l := (wp_id, wp) :: !l) ac.waypoints;
     if !l <> !last_state then begin
       last_state := !l;
-      let url_flight_plan = 
+      let url_flight_plan =
         if !no_http then
           sprintf "%s/var/%s/flight_plan.kml" Env.paparazzi_home ac.name
         else
@@ -222,7 +222,7 @@ let update_waypoints =
       let kml_update = link_update url_flight_plan changes in
       print_xml ac.name "wp_changes.kml" kml_update
     end
-  
+
 
 let update_horiz_mode =
   let last_horiz_mode = ref UnknownHorizMode in
@@ -230,7 +230,7 @@ let update_horiz_mode =
     if ac.horiz_mode <> !last_horiz_mode then begin
       last_horiz_mode := ac.horiz_mode;
       (*let url_flight_plan = sprintf "http://%s:%d/var/%s/flight_plan.kml" !hostname !port ac.name in*)
-      let url_flight_plan = 
+      let url_flight_plan =
         if !no_http then
           sprintf "%s/var/%s/flight_plan.kml" Env.paparazzi_home ac.name
         else
@@ -238,7 +238,7 @@ let update_horiz_mode =
       in
       let alt = ac.desired_altitude in
       match ac.horiz_mode with
-	Segment (p1, p2) -> 
+	Segment (p1, p2) ->
 	  let coordinates = String.concat " " (List.map (fun p -> coordinates p alt) [p1; p2]) in
 	  let kml_changes = update_linear_ring url_flight_plan "horiz_mode" coordinates in
 	  print_xml ac.name "route_changes.kml" kml_changes
@@ -253,7 +253,7 @@ let update_horiz_mode =
 let update_ac = fun ac ->
   try
     (*let url_flight_plan = sprintf "http://%s:%d/var/%s/flight_plan.kml" !hostname !port ac.name in*)
-    let url_flight_plan = 
+    let url_flight_plan =
       if !no_http then
         sprintf "%s/var/%s/flight_plan.kml" Env.paparazzi_home ac.name
       else
@@ -279,7 +279,7 @@ let build_files = fun a ->
   let xml_fp = a.flight_plan in
   let kml_fp = flight_plan a.name xml_fp in
   print_xml a.name "flight_plan.kml" kml_fp;
-  
+
   if !no_http then begin
     let url_flight_plan = sprintf "%s/var/%s/flight_plan.kml" Env.paparazzi_home a.name in
     let url_ac_changes = sprintf "%s/var/%s/ac_changes.kml" Env.paparazzi_home a.name in

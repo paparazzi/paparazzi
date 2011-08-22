@@ -20,7 +20,7 @@ let () =
     options
     (fun x -> fprintf stderr "Warning: Discarding '%s'" x)
     "Usage: ";
-  
+
   Ivy.init "ivy_tcp" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
@@ -53,14 +53,14 @@ let () =
 	  let (msg_id, ac_id, values) = Dl_Pprz.values_of_payload payload in
 	  let msg = Dl_Pprz.message_of_id msg_id in
 	  Dl_Pprz.message_send "ground_dl" msg.Pprz.name values in
-	
+
 	assert (PprzTransport.parse use_dl_message b = n)
       with
 	exc ->
 	  prerr_endline (Printexc.to_string exc)
     end;
     true in
-  
+
   let ginput = GMain.Io.channel_of_descr (Unix.descr_of_in_channel i) in
   ignore (Glib.Io.add_watch [`IN] get_datalink_message ginput);
 
@@ -68,4 +68,4 @@ let () =
   ignore (Glib.Io.add_watch [`HUP] hangup ginput);
 
   (* Main Loop *)
-  GMain.main () 
+  GMain.main ()

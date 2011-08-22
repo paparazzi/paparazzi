@@ -51,7 +51,7 @@ let hexa_code = fun c ->
   else if 'A' <= c && c <= 'F' then
     Char.code c - Char.code 'A' + 10
   else failwith (Printf.sprintf "hexa_code: %c" c)
-  
+
 
 let hexa_of_string = fun s ->
   let n = String.length s in

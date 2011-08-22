@@ -2,7 +2,7 @@
  * $Id$
  *
  * Log player
- *  
+ *
  * Copyright (C) 2004-2009 ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -45,7 +45,7 @@ let () =
   let window = GWindow.dialog ~icon ~title:"Replay" ~width:300 () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
-  
+
   let menubar = GMenu.menu_bar ~packing:window#vbox#pack () in
   let factory = new GMenu.factory menubar in
   let accel_group = factory#accel_group in
@@ -53,12 +53,12 @@ let () =
   let file_menu_fact = new GMenu.factory file_menu ~accel_group in
 
   let timescale = GRange.scale `HORIZONTAL ~adjustment:adj ~packing:window#vbox#pack () in
-  
-  ignore (file_menu_fact#add_item "Open Log" ~key:GdkKeysyms._O ~callback:(open_log window adj));  
-  ignore (file_menu_fact#add_item "Play" ~key:GdkKeysyms._X ~callback:(fun () -> timescale#misc#set_sensitive false; Play_core.play serial_port adj speed));  
-  ignore (file_menu_fact#add_item "Stop" ~key:GdkKeysyms._S ~callback:(fun () -> timescale#misc#set_sensitive true; Play_core.stop ()));  
-  ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);  
-  
+
+  ignore (file_menu_fact#add_item "Open Log" ~key:GdkKeysyms._O ~callback:(open_log window adj));
+  ignore (file_menu_fact#add_item "Play" ~key:GdkKeysyms._X ~callback:(fun () -> timescale#misc#set_sensitive false; Play_core.play serial_port adj speed));
+  ignore (file_menu_fact#add_item "Stop" ~key:GdkKeysyms._S ~callback:(fun () -> timescale#misc#set_sensitive true; Play_core.stop ()));
+  ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
+
   window#add_accel_group accel_group;
   window#show ();
 

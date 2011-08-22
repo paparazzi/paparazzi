@@ -282,7 +282,7 @@ static inline void v_ctl_set_airspeed( void ) {
     BoundAbs(v_ctl_auto_airspeed_pitch_sum_err, V_CTL_AUTO_AIRSPEED_PITCH_MAX_SUM_ERR / v_ctl_auto_airspeed_pitch_igain);
   }
 
-  
+
   // Reset integrators in manual or before flight
   if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0) {
     v_ctl_auto_throttle_sum_err = 0.;

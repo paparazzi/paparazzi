@@ -2,7 +2,7 @@
  * $Id$
  *
  * XML parsing keeping everything (comments and declarations)
- *  
+ *
  * Copyright (C) 2008, Cyril Allignol, Pascal Brisset
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -91,7 +91,7 @@ let parse_file = fun file ->
     let buff = Buffer.contents buff in
     let lexbuf = Lexing.from_string buff in
     Nethtml.Element ("root", [], Nethtml.parse_document ~return_comments:true ~return_declarations:true lexbuf)
-    
+
 
 (** Translate <tag ...></tag> to <tag .../> *)
 let ugly2nice = fun file ->

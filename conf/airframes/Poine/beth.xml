@@ -115,7 +115,7 @@ main_stm32.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 main_stm32.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 main_stm32.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-main_stm32.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2 
+main_stm32.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
 main_stm32.srcs += downlink.c pprz_transport.c
 
 
@@ -143,7 +143,7 @@ main_stm32.srcs += subsystems/imu.c             \
 main_stm32.CFLAGS += -DUSE_DMA1_C4_IRQ
 
 main_stm32.srcs += $(SRC_FIRMWARE)/commands.c
-main_stm32.srcs += firmwares/rotorcraft/actuators/actuators_asctec.c 
+main_stm32.srcs += firmwares/rotorcraft/actuators/actuators_asctec.c
 #\
 #                             $(SRC_BOOZ_ARCH)/actuators/actuators_asctec_arch.c
 main_stm32.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
@@ -187,7 +187,7 @@ main_coders.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 main_coders.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 main_coders.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-main_coders.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1 
+main_coders.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
 main_coders.srcs += downlink.c pprz_transport.c
 
 #main_coders.CFLAGS += -DUSE_I2C2
@@ -260,7 +260,7 @@ overo_test_uart.srcs    += $(SRC_BETH)/overo_gcs_com.c
 #overo_test_uart.CFLAGS  += -DUBX -DUSE_GPS -DUSE_UART0 -DUART0_BAUD=B9600 -DGPS_CONFIGURE -DGPS_BAUD=B38400 -DGPS_LINK=Uart0 -DGPS_USE_LATLONG
 overo_test_uart.CFLAGS  += -DUBX -DUSE_GPS -DUSE_UART0 -DUART0_BAUD=B38400 -DGPS_LINK=Uart0 -DGPS_USE_LATLONG
 overo_test_uart.srcs    += gps_ubx.c gps.c latlong.c $(SRC_BETH)/uart_hw.c
-overo_test_uart.CFLAGS  +=-DUSE_UART1 -DUART1_BAUD=B57600 -DDOWNLINK_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ 
+overo_test_uart.CFLAGS  +=-DUSE_UART1 -DUART1_BAUD=B57600 -DDOWNLINK_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ
 overo_test_uart.srcs    += pprz_transport.c $(SRC_BETH)/rcv_telemetry.c
 
 #
@@ -306,7 +306,7 @@ overo_sfb.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_
 overo_sfb.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
 overo_sfb.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
 overo_sfb.srcs    += $(SRC_FMS)/fms_network.c
-overo_sfb.LDFLAGS += -levent 
+overo_sfb.LDFLAGS += -levent
 overo_sfb.LDFLAGS += -lm
 
 overo_sfb.srcs    += $(SRC_BETH)/overo_gcs_com.c

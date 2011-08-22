@@ -2,7 +2,7 @@
  * $Id$
  *
  * Track objects
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -69,20 +69,20 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
   let carrot = GnoCanvas.group group in
   let _ac_carrot =
     ignore (GnoCanvas.polygon ~points:[|0.;0.;-5.;-10.;5.;-10.|] ~props:[`WIDTH_UNITS 1.;`FILL_COLOR "orange"; `OUTLINE_COLOR "orange"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] carrot) in
-  
+
   let cam = GnoCanvas.group group in
-  
+
 (** rectangle representing the field covered by the cam *)
   let _ac_cam_targeted =
     ignore ( GnoCanvas.ellipse ~x1: (-. 2.5) ~y1: (-. 2.5 ) ~x2: 2.5 ~y2: 2.5 ~fill_color:color ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam) in
-  
+
   let mission_target = GnoCanvas.group group in
-  
+
 (** red circle : target of the mission *)
   let ac_mission_target =
     GnoCanvas.ellipse ~x1: (-5.) ~y1: (-5.) ~x2: 5. ~y2: 5. ~fill_color:"red" ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "red"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] mission_target in
   let _ = ac_mission_target#hide () in
-  
+
  (** data at map scale *)
   let max_cam_half_height_scaled = 10000.0  in
   let max_oblic_distance_scaled = 10000.0  in
@@ -91,7 +91,7 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 
   let _desired_circle = GnoCanvas.ellipse group
   and _desired_segment = GnoCanvas.line group in
-    
+
   object (self)
     val mutable top = 0
     val mutable color = color
@@ -144,9 +144,9 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 	mission_target#hide ()
       end
 
-    method update_ap_status = fun time -> 
+    method update_ap_status = fun time ->
       last_flight_time <- time
-    method set_params_state = fun b -> 
+    method set_params_state = fun b ->
       params_on <- b;
       if not b then (* Reset to the default simple label *)
 	ac_label#set [`TEXT name; `Y 25.]
@@ -194,7 +194,7 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 	let last_height = self#height () in
 	ac_label#set [`TEXT (sprintf "%s\n%+.0f m\n%.1f m/s" name last_height last_speed); `Y 70. ]
       end;
-      
+
       ac_label#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value xw yw 0.);
       self#add_point wgs84 altitude;
 
@@ -250,7 +250,7 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
       let (x1, y1) = geomap#world_of geo1
       and (x2, y2) = geomap#world_of geo2 in
       zone#set [`X1 x1; `Y1 y1; `X2 x2; `Y2 y2; `OUTLINE_COLOR "#ffc0c0"; `WIDTH_PIXELS 2]
-	  
+
 (** moves the rectangle representing the field covered by the camera *)
     method move_cam = fun cam_wgs84 mission_target_wgs84 ->
       match last, cam_on with
@@ -258,22 +258,22 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 	  let (cam_xw, cam_yw) = geomap#world_of cam_wgs84
 	  and (last_xw, last_yw) = geomap#world_of last_ac
 	  and last_height_scaled = self#height () in
-	
+
 	  let pt1 = { G2d.x2D = last_xw; y2D = last_yw} in
 	  let pt2 = { G2d.x2D = cam_xw ; y2D = cam_yw } in
-	  
+
 (** y axis is downwards so North vector is as follows: *)
 	  let vect_north = { G2d.x2D = 0.0 ; y2D = -1.0 } in
 	  let d = G2d.distance pt1 pt2 in
-	  let cam_heading = 
+	  let cam_heading =
 	    if d > min_distance_scaled then
 	      let cam_vect_normalized = (G2d.vect_normalize (G2d.vect_make pt1 pt2)) in
 	      if (G2d.dot_product vect_north cam_vect_normalized) > 0.0 then
 		norm_angle_360 ( G2d.rad2deg (asin (G2d.cross_product vect_north cam_vect_normalized)))
 		else norm_angle_360 ( G2d.rad2deg (G2d.m_pi -. asin (G2d.cross_product vect_north cam_vect_normalized)))
 	    else last_heading in
-	  let (angle_of_view, oblic_distance) = 
-	    if last_height_scaled < min_height_scaled then 
+	  let (angle_of_view, oblic_distance) =
+	    if last_height_scaled < min_height_scaled then
 	      (half_pi, max_oblic_distance_scaled)
 	    else
 	      let oav = atan ( d /. last_height_scaled) in
@@ -290,12 +290,12 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 			    `Y1 (-. cam_field_half_height_1);
 			    `X2 (cam_field_half_width);
 			    `Y2(cam_field_half_height_2);
-			    `OUTLINE_COLOR color];	  
+			    `OUTLINE_COLOR color];
 	  cam#affine_absolute (affine_pos_and_angle 1.0 cam_xw cam_yw cam_heading);
 	  let (mission_target_xw, mission_target_yw) = geomap#world_of mission_target_wgs84 in
 	  mission_target#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value mission_target_xw mission_target_yw 0.0)
       | _ -> ()
-	
+
     method zoom = fun z ->
       let a = aircraft#i2w_affine in
       let z' = sqrt (a.(0)*.a.(0)+.a.(1)*.a.(1)) in
@@ -304,7 +304,7 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 
     method resize =  fun new_size ->
       let a = Array.create new_size empty in
-      let size =  Array.length segments in	
+      let size =  Array.length segments in
       let m = min new_size size in
       let j = ref ((top - m + size) mod size) in
       for i = 0 to m - 1 do
@@ -320,7 +320,7 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 
     method size = Array.length segments
 
-    initializer 
-      ignore(geomap#zoom_adj#connect#value_changed 
+    initializer
+      ignore(geomap#zoom_adj#connect#value_changed
 	       (fun () -> self#zoom geomap#zoom_adj#value))
 end

@@ -58,9 +58,9 @@
     <define name="IR_NB_SAMPLES" value="16"/>
     <define name="GYRO_ROLL" value="ADC_3"/>
     <define name="GYRO_TEMP" value="ADC_4"/>
-    <define name="GYRO_NB_SAMPLES" value="16"/> 
+    <define name="GYRO_NB_SAMPLES" value="16"/>
     <define name="OPTICFLOW" value="ADC_5"/>
-  
+
     <define name="CURRENT" value="ADC_6"/>		<!-- Current Measurement -->
   </section>
 
@@ -98,12 +98,12 @@
   <section name="GYRO" prefix="GYRO_">
     <define name="ADC_ROLL_NEUTRAL" value="325"/>
     <define name="ADC_TEMP_NEUTRAL" value="450"/>
-    <define name="ADC_TEMP_SLOPE" value="0"/>   
+    <define name="ADC_TEMP_SLOPE" value="0"/>
     <define name="DYNAMIC_RANGE" value="150" unit="deg/s"/>
     <define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+2.2))"/>
     <define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/>
     <define name="ROLL_SCALE" value="2.0*1000./1024./(GYRO_ADXRS300_SENSITIVITY*GYRO_ADXRS300_RESISTOR_BRIDGE)" unit="deg/s/adc_unit"/>
-    <define name="ROLL_DIRECTION" value="-1."/> 
+    <define name="ROLL_DIRECTION" value="-1."/>
   </section>
 
   <section name="BAT">
@@ -112,7 +112,7 @@
 
     <define name="MilliAmpereOfAdc(adc)" value="((adc-508)*50)"/>
   </section>
- 
+
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="13." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
@@ -142,15 +142,15 @@
     <!-- outer loop saturation: m/s-->
     <define name="ALTITUDE_MAX_CLIMB" value="5.0"/>
 
-    <!-- auto throttle inner loop 
-		float controlled_throttle = v_ctl_auto_throttle_cruise_throttle 
-		+ v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint 
-		+ v_ctl_auto_throttle_pgain * 
+    <!-- auto throttle inner loop
+		float controlled_throttle = v_ctl_auto_throttle_cruise_throttle
+		+ v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint
+		+ v_ctl_auto_throttle_pgain *
 		(err + v_ctl_auto_throttle_igain * v_ctl_auto_throttle_sum_err
 		+ v_ctl_auto_throttle_dgain * d_err);
 
 		/* pitch pre-command */
-		float v_ctl_pitch_of_vz = (v_ctl_climb_setpoint + d_err * v_ctl_auto_throttle_pitch_of_vz_dgain) 
+		float v_ctl_pitch_of_vz = (v_ctl_climb_setpoint + d_err * v_ctl_auto_throttle_pitch_of_vz_dgain)
 		* v_ctl_auto_throttle_pitch_of_vz_pgain;
 	-->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.319999992847"/>
@@ -187,8 +187,8 @@
     <define name="PITCH_DGAIN" value="2.0"/>
 
     <define name="ELEVATOR_OF_ROLL" value="2050"/> <!-- Feed forward ABS(roll) to elevator -->
-    
-    <define name="ROLL_SLEW" value="0.10"/> <!-- Maximal roll angle change per 1/60 of second --> 
+
+    <define name="ROLL_SLEW" value="0.10"/> <!-- Maximal roll angle change per 1/60 of second -->
 
     <define name="ROLL_ATTITUDE_GAIN" value="-6000"/> <!-- Roll Angle PD control -->
     <define name="ROLL_RATE_GAIN" value="-550"/>
@@ -201,7 +201,7 @@ inline static void h_ctl_roll_loop( void ) {
     - h_ctl_roll_rate_gain * estimator_p
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
 
-  h_ctl_aileron_setpoint = TRIM_PPRZ(cmd); 
+  h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
 }
 -->
 
@@ -231,7 +231,7 @@ inline static void h_ctl_roll_loop( void ) {
     <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
   </section>
 
-<!-- 
+<!--
   <section name="DATALINK" prefix="DATALINK_">
     <define name="DEVICE_TYPE" value="AEROCOMM"/>
     <define name="DEVICE_ADDRESS" value="0x005067361851"/>
@@ -260,7 +260,7 @@ ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 
 # 35MHz Radio
 ap.CFLAGS += -DRADIO_CONTROL
-ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
+ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 # Paparazzi protocol on UART0 at 57600
 ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B57600
@@ -268,7 +268,7 @@ ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c pprz_transpo
 
 # communication from FBW and AP
 ap.CFLAGS += -DINTER_MCU
-ap.srcs += inter_mcu.c 
+ap.srcs += inter_mcu.c
 
 
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3 -DUSE_ADC_4 -DUSE_ADC_5
@@ -306,10 +306,10 @@ ap.srcs += subsystems/navigation/bomb.c
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny_1_1.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DWIND_INFO -DSTRONG_WIND
-sim.srcs += subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/nav_line.c 
+sim.srcs += subsystems/navigation/nav_survey_rectangle.c subsystems/navigation/nav_line.c
 sim.CFLAGS += -DTUNE_AGRESSIVE_CLIMB
 # subsystems/navigation/traffic_info.c
-sim.CFLAGS += -DUSE_MODULES 
+sim.CFLAGS += -DUSE_MODULES
 
 sim.CFLAGS += -DCAM -DMOBILE_CAM -DPOINT_CAM -DPOINT_CAM_PITCH_ROLL
 # -DTEST_CAM

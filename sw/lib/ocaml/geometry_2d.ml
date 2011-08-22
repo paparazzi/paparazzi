@@ -2,7 +2,7 @@
  * $Id$
  *
  * 2D Geometry
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -284,7 +284,7 @@ let crossing_point a u c v =
 	and pt_intersection = vect_add_mul_scal r a u in
 
 	Some (type_intersection_seg1, type_intersection_seg2, pt_intersection)
-  end  
+  end
 
 (* ============================================================================= *)
 (* = Test du type d'intersection                                               = *)
@@ -337,7 +337,7 @@ let crossing_lines a u c v =
 (* =                                                                           = *)
 (* ============================================================================= *)
 
-  
+
 (* ============================================================================= *)
 (* = Teste si un polygone est ferme                                            = *)
 (* ============================================================================= *)
@@ -380,7 +380,7 @@ let point_in_poly pt poly =
 (* = Indique si un point est dans un cercle                                    = *)
 (* ============================================================================= *)
 let point_in_circle pt (center, r) = distance pt center <= r
-  
+
 (* ============================================================================= *)
 (* = Calcul de l'enveloppe convexe d'un polygone                               = *)
 (* ============================================================================= *)
@@ -404,12 +404,12 @@ let convex_hull poly =
 
   let extract_mini p l =
 	let rec aux reste vu mini =
-      match reste with 
+      match reste with
 		t::q ->
 		  if (try(p mini t) with _ -> false) then aux q (t::vu) mini
 		  else aux q (mini::vu) t
       | [] -> mini,vu
-	in match l with 
+	in match l with
       t::q -> aux q [] t
 	| [] -> raise Exit
   in
@@ -818,7 +818,7 @@ let m_pi_two = m_pi /. 2.
 
 let wind_dir_from_angle_rad rad =
   let w = ref (3. *. m_pi_two -. rad) in
-  while !w > two_m_pi do 
+  while !w > two_m_pi do
     w := !w -. two_m_pi done;
   !w
 
@@ -838,7 +838,7 @@ let norm_heading_rad a =
   while !a < 0. do a := !a +. two_m_pi done;
   while !a > two_m_pi do a := !a -. two_m_pi done;
   !a
-    
+
 let oposite_heading_rad rad =
   norm_heading_rad (rad +. m_pi)
 
@@ -853,18 +853,18 @@ let arc_segment = fun p0 p1 p2 radius ->
   let v = vect_rotate_90 u in
   let s = sign (cross_product p0p1 p0p2) in
   let c = vect_add p1 (vect_mul_scal v (s*.radius)) in
-  
+
   (* F first point of the segment *)
   let d_c2 = distance c p2 in
   if radius > d_c2 then
     (** Arc is empty *)
     (c, p1, s)
   else
-    let alpha_2cf = -. s *. acos (radius /. d_c2) 
+    let alpha_2cf = -. s *. acos (radius /. d_c2)
     and alpha_c2 = (cart2polar (vect_make c p2)).theta2D in
     let alpha_cf = alpha_c2 +. alpha_2cf in
     let f = vect_add c (polar2cart {theta2D=alpha_cf;r2D=radius}) in
-    
+
     (c, f, s)
 
 
@@ -887,7 +887,7 @@ let slice_polygon = fun poly ->
 
   let bottom = ref 0 in
   for i = 1 to n -1  do
-    if poly.(i).y2D < poly.(!bottom).y2D then 
+    if poly.(i).y2D < poly.(!bottom).y2D then
       bottom := i
   done;
   let l = ref [] in

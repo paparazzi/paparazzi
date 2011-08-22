@@ -551,8 +551,8 @@ void SpektrumUartInit(void) {
   USART_Init(PrimaryUart(_reg), &usart);
   /* Enable Primary UART Receive interrupts */
   USART_ITConfig(PrimaryUart(_reg), USART_IT_RXNE, ENABLE);
- 
-  /* required to get the correct baudrate on lisa m */   
+
+  /* required to get the correct baudrate on lisa m */
   pprz_usart_set_baudrate(PrimaryUart(_reg), B115200);
   /* Enable the Primary UART */
   USART_Cmd(PrimaryUart(_reg), ENABLE);
@@ -585,9 +585,9 @@ void SpektrumUartInit(void) {
   USART_Init(SecondaryUart(_reg), &usart);
   /* Enable Secondary UART Receive interrupts */
   USART_ITConfig(SecondaryUart(_reg), USART_IT_RXNE, ENABLE);
-  
-  /* required to get the correct baudrate on lisa m */  
-  pprz_usart_set_baudrate(SecondaryUart(_reg), B115200);  
+
+  /* required to get the correct baudrate on lisa m */
+  pprz_usart_set_baudrate(SecondaryUart(_reg), B115200);
   /* Enable the Primary UART */
   USART_Cmd(SecondaryUart(_reg), ENABLE);
 #endif

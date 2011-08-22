@@ -2,7 +2,7 @@
  * $Id$
  *
  * XML preprocessing for UBX protocol
- *  
+ *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -61,8 +61,8 @@ let define = fun x y ->
 
 exception Length_error of Xml.xml*int*int
 
-  
-  
+
+
 
 let parse_message = fun class_name m ->
   let msg_name = Xml.attrib m "name" in
@@ -100,10 +100,10 @@ let parse_message = fun class_name m ->
     with
       Xml.No_attribute("length") -> () (** Undefined length authorized *)
   end;
-   
+
   (** Generating send function *)
   let param_name = fun f -> String.lowercase (field_name f) in
-  let rec param_names = fun f r -> 
+  let rec param_names = fun f r ->
     if Xml.tag f = "field" then
       param_name f :: r
     else
@@ -115,7 +115,7 @@ let parse_message = fun class_name m ->
   fprintf out "  UbxHeader(UBX_%s_ID, %s, %d);\\\n" class_name msg_id !offset;
   let rec send_one_field = fun f ->
     match Xml.tag f with
-      "field" -> 
+      "field" ->
 	let s = sizeof (format f) in
 	let p = param_name f in
 	let t = param_type f in
@@ -126,8 +126,8 @@ let parse_message = fun class_name m ->
   List.iter send_one_field (Xml.children m);
   fprintf out "  UbxTrailer();\\\n";
   fprintf out "}\n"
-    
-    
+
+
 let parse_class = fun c ->
   let _class_id = int_of_string (Xml.attrib c "id")
   and class_name = Xml.attrib c "name" in
@@ -136,21 +136,21 @@ let parse_class = fun c ->
   define (sprintf "UBX_%s_ID" class_name) (Xml.attrib c "ID");
 
   List.iter (parse_message class_name) (Xml.children c)
-  
+
 
 let _ =
   if Array.length Sys.argv <> 2 then begin
-    failwith (sprintf "Usage: %s <.xml ubx protocol file>" Sys.argv.(0)) 
+    failwith (sprintf "Usage: %s <.xml ubx protocol file>" Sys.argv.(0))
   end;
   let xml_file = Sys.argv.(1) in
   try
     let xml = Xml.parse_file xml_file in
     fprintf out "/* Generated from %s */\n" xml_file;
     fprintf out "/* Please DO NOT EDIT */\n\n";
-    
+
     define "UBX_SYNC1" "0xB5";
     define "UBX_SYNC2" "0x62";
-    
+
     List.iter parse_class (Xml.children xml)
   with
     Xml.Error (em, ep) ->

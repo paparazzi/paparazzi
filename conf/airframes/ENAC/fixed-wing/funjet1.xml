@@ -42,7 +42,7 @@
 
   <command_laws>
     <let var="aileron" value="@ROLL  * AILEVON_AILERON_RATE"/>
-    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
+    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
     <set servo="MOTOR" value="@THROTTLE"/>
     <set servo="AILEVON_LEFT" value="$elevator + $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
@@ -60,7 +60,7 @@
     <define name="IR_NB_SAMPLES" value="16"/>
 
     <define name="GYRO_ROLL" value="ADC_3"/>
-    <define name="GYRO_NB_SAMPLES" value="16"/> 
+    <define name="GYRO_NB_SAMPLES" value="16"/>
 
   </section>
 
@@ -90,13 +90,13 @@
 
  <section name="GYRO" prefix="GYRO_">
     <define name="ADC_ROLL_NEUTRAL" value="520"/>
-    <define name="ADC_TEMP_NEUTRAL" value="476"/>   
-    <define name="ADC_TEMP_SLOPE" value="0"/>  
+    <define name="ADC_TEMP_NEUTRAL" value="476"/>
+    <define name="ADC_TEMP_SLOPE" value="0"/>
     <define name="DYNAMIC_RANGE" value="300" unit="deg/s"/>
     <define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+1.8))"/>
     <define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/>
     <define name="ROLL_SCALE" value="3.3*1000./1024./(GYRO_ADXRS300_SENSITIVITY*GYRO_ADXRS300_RESISTOR_BRIDGE)" unit="deg/s/adc_unit"/>
-    <define name="ROLL_DIRECTION" value="-1."/> 
+    <define name="ROLL_DIRECTION" value="-1."/>
   </section>
 
   <section name="BAT">
@@ -104,7 +104,7 @@
 
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
- 
+
   <section name="MISC">
     <define name="MINIMUM_AIRSPEED" value="12." unit="m/s"/>
     <define name="NOMINAL_AIRSPEED" value="15." unit="m/s"/>
@@ -121,7 +121,7 @@
 
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
   </section>
- 
+
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
     <!-- define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/ -->
@@ -241,7 +241,7 @@ ap.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\" -DSERVOS_4017
 ap.srcs += $(SRC_ARCH)/servos_4017_hw.c actuators.c
 
 ap.CFLAGS += -DRADIO_CONTROL
-ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
+ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 #ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=XBeeTransport -DXBEE_UART=Uart1 -DDATALINK=XBEE -DUART1_BAUD=B9600
 #ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c xbee.c
@@ -252,7 +252,7 @@ ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c pprz_transpo
 
 
 ap.CFLAGS += -DINTER_MCU
-ap.srcs += inter_mcu.c 
+ap.srcs += inter_mcu.c
 
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3
 ap.srcs += $(SRC_ARCH)/adc_hw.c
@@ -290,7 +290,7 @@ ap.srcs += subsystems/navigation/nav_survey_rectangle.c
 ap.CFLAGS += -DUSE_MODULES
 sim.CFLAGS += -DUSE_MODULES
 
-# for infrared 
+# for infrared
 ap.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 ap.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=150 -DI2C0_SCLH=150
 
@@ -314,7 +314,7 @@ sim.srcs += subsystems/navigation/nav_line.c subsystems/navigation/nav_survey_re
 
 
 
-# a test program to setup actuators 
+# a test program to setup actuators
 setup_actuators.ARCHDIR = $(ARCHI)
 
 setup_actuators.CFLAGS += -DFBW -DBOARD_CONFIG=\"tiny.h\" -DUSE_LED -DTIME_LED=1 -DACTUATORS=\"servos_4015_hw.h\" -DSERVOS_4015 -DUSE_UART1 -DUART1_BAUD=B9600 -DDATALINK=PPRZ -DPPRZ_UART=Uart1

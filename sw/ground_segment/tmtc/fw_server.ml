@@ -2,7 +2,7 @@
  * $Id$
  *
  * Server part specific to fixed wing vehicles
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -44,16 +44,16 @@ let rec norm_course =
 
 let fvalue = fun x ->
   match x with
-    Pprz.Float x -> x 
-    | Pprz.Int32 x -> Int32.to_float x 
-    | Pprz.Int x -> float_of_int x 
+    Pprz.Float x -> x
+    | Pprz.Int32 x -> Int32.to_float x
+    | Pprz.Int x -> float_of_int x
     | _ -> failwith (sprintf "Receive.log_and_parse: float expected, got '%s'" (Pprz.string_of_value x))
 
-	  
+
 let ivalue = fun x ->
   match x with
     Pprz.Int x -> x
-  | Pprz.Int32 x -> Int32.to_int x 
+  | Pprz.Int32 x -> Int32.to_int x
   | _ -> failwith "Receive.log_and_parse: int expected"
 
 let format_string_field = fun s ->
@@ -90,13 +90,13 @@ let heading_from_course = ref false
 let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   let value = fun x -> try Pprz.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
 
-  let fvalue = fun x -> 
+  let fvalue = fun x ->
     let f = fvalue (value x) in
       match classify_float f with
 	FP_infinite | FP_nan ->
 	  let msg = sprintf "Non normal number: %f in '%s %s %s'" f ac_name msg.Pprz.name (string_of_values values) in
 	  raise (Telemetry_error (ac_name, format_string_field msg))
-	  
+
       | _ -> f
   and ivalue = fun x -> ivalue (value x) in
   if not (msg.Pprz.name = "DOWNLINK_STATUS") then
@@ -170,7 +170,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         a.pitch <- pitch;
         a.heading  <- norm_course (fvalue "psi")
       end
-  | "NAVIGATION" -> 
+  | "NAVIGATION" ->
       a.cur_block <- ivalue "cur_block";
       a.cur_stage <- ivalue "cur_stage";
       a.dist_to_wp <- sqrt (fvalue "dist2_wp")
@@ -212,7 +212,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         a.fbw.pprz_mode_msgs_since_last_fbw_status_msg <- a.fbw.pprz_mode_msgs_since_last_fbw_status_msg + 1;
       (* If we have recent direct information from the FBW, and it says FAILSAFE: then do not thrust the AP message PPRZ_MODE *)
       if ((a.fbw.pprz_mode_msgs_since_last_fbw_status_msg >= 10) && (a.fbw.rc_status <> "FAILSAFE")) then begin
-        a.fbw.rc_status <- 
+        a.fbw.rc_status <-
           if mcu1_status land 0b1 > 0
           then "OK"
           else if mcu1_status land 0b10 > 0
@@ -236,7 +236,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   | "SVINFO" ->
       let i = ivalue "chn" in
       assert(i < Array.length a.svinfo);
-      a.svinfo.(i) <- {  
+      a.svinfo.(i) <- {
         svid = ivalue "SVID";
         flags = ivalue "Flags";
         qi = ivalue "QI";

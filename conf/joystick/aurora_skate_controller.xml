@@ -27,7 +27,7 @@ It has 9 buttons.
   <button index="0" name="b0"/>
   <button index="1" name="b1"/>
   <button index="2" name="b2"/>
-  <button index="3" name="b3"/>  
+  <button index="3" name="b3"/>
   <button index="4" name="b4"/>
   <button index="5" name="b5"/>
   <button index="6" name="b6"/>
@@ -98,7 +98,7 @@ It has 9 buttons.
   <message class="trim_minus" name="ly" on_event="b11"/>
   <message class="trim_plus" name="rx" on_event="b2"/>
   <message class="trim_minus" name="rx" on_event="b0"/>
-  <message class="trim_minus" name="ry" on_event="b3"/> 
+  <message class="trim_minus" name="ry" on_event="b3"/>
   <message class="trim_plus" name="ry" on_event="b1"/>
   <message class="trim_save" name="" on_event="b5"/>
 -->
@@ -107,19 +107,19 @@ It has 9 buttons.
 
   <message class="ground" name="DL_SETTING" on_event="b1">
     <field name="index" value="IndexOfSetting('cam_switch')"/>
-    <field name="value" value="1"/> 
+    <field name="value" value="1"/>
   </message>
 
   <message class="ground" name="DL_SETTING" on_event="b0">
     <field name="index" value="IndexOfSetting('cam_switch')"/>
-    <field name="value" value="0"/> 
+    <field name="value" value="0"/>
   </message>
 
 
   <!-- Red Button -->  <!-- AUTO2 mode -->
   <message class="ground" name="DL_SETTING" on_event="b8">
     <field name="index" value="IndexOfSetting('pprz_mode')"/>
-    <field name="value" value="2"/> 
+    <field name="value" value="2"/>
   </message>
 
   <!-- Yellow Button -->   <!-- AUTO1 mode -->
@@ -131,12 +131,12 @@ It has 9 buttons.
   <!-- Green Button -->  <!-- MANUAL mode -->
   <message class="ground" name="DL_SETTING" on_event="b9">
     <field name="index" value="IndexOfSetting('pprz_mode')"/>
-    <field name="value" value="0"/> 
+    <field name="value" value="0"/>
   </message>
 
  <message class="ground" name="DL_SETTING" on_event="b7 || b8 || b9">
     <field name="index" value="IndexOfSetting('rc_dl_active_joystick')"/>
-    <field name="value" value="JoystickID()"/> 
+    <field name="value" value="JoystickID()"/>
   </message>
 
 </messages>

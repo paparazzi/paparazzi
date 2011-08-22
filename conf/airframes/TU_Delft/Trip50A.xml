@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- 
+<!--
      Funjet Multiplex (http://www.multiplex-rc.de/), Jeti ECO 25
      Tiny 2.11 board (http://paparazzi.enac.fr/wiki/index.php/Tiny_v2)
      PerkinElmer TPS334 IR Sensors
@@ -60,9 +60,9 @@
     <define name="IR_NB_SAMPLES" value="16"/>
     <define name="GYRO_ROLL" value="ADC_4"/>
     <define name="GYRO_PITCH" value="ADC_5"/>
-    <define name="GYRO_NB_SAMPLES" value="16"/> 
+    <define name="GYRO_NB_SAMPLES" value="16"/>
     <define name="AIRSPEED" value="ADC_3"/>
-    <define name="AIRSPEED_NB_SAMPLES" value="32"/> 
+    <define name="AIRSPEED_NB_SAMPLES" value="32"/>
   </section>
 
   <section name="INFRARED" prefix="IR_">
@@ -97,7 +97,7 @@
 
     <define name="MilliAmpereOfAdc(adc)" value="((adc-508)*50)"/>
   </section>
- 
+
 
   <section name="GYRO" prefix="GYRO_">
     <define name="ADC_ROLL_NEUTRAL" value="382"/>
@@ -107,7 +107,7 @@
     <define name="DYNAMIC_RANGE" value="500" unit="deg/s"/>
     <define name="ROLL_SCALE" value="-2.0/1024.*GYRO_DYNAMIC_RANGE" unit="deg/s/adc_unit"/>
     <define name="PITCH_SCALE" value="2.0/1024.*GYRO_DYNAMIC_RANGE" unit="deg/s/adc_unit"/>
-    <define name="ROLL_DIRECTION" value="-1."/> 
+    <define name="ROLL_DIRECTION" value="-1."/>
     <define name="PITCH_DIRECTION" value="1."/>
   </section>
 
@@ -140,15 +140,15 @@
     <!-- outer loop saturation: m/s-->
     <define name="ALTITUDE_MAX_CLIMB" value="5.0"/>
 
-    <!-- auto throttle inner loop 
-		float controlled_throttle = v_ctl_auto_throttle_cruise_throttle 
-		+ v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint 
-		+ v_ctl_auto_throttle_pgain * 
+    <!-- auto throttle inner loop
+		float controlled_throttle = v_ctl_auto_throttle_cruise_throttle
+		+ v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint
+		+ v_ctl_auto_throttle_pgain *
 		(err + v_ctl_auto_throttle_igain * v_ctl_auto_throttle_sum_err
 		+ v_ctl_auto_throttle_dgain * d_err);
 
 		/* pitch pre-command */
-		float v_ctl_pitch_of_vz = (v_ctl_climb_setpoint + d_err * v_ctl_auto_throttle_pitch_of_vz_dgain) 
+		float v_ctl_pitch_of_vz = (v_ctl_climb_setpoint + d_err * v_ctl_auto_throttle_pitch_of_vz_dgain)
 		* v_ctl_auto_throttle_pitch_of_vz_pgain;
 	-->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.40000000596"/>
@@ -187,8 +187,8 @@
     <define name="PITCH_DGAIN" value="2."/>
 
     <define name="ELEVATOR_OF_ROLL" value="1500."/> <!-- Feed forward ABS(roll) to elevator -->
-    
-    <define name="ROLL_SLEW" value="0.30"/> <!-- Maximal roll angle change per 1/60 of second --> 
+
+    <define name="ROLL_SLEW" value="0.30"/> <!-- Maximal roll angle change per 1/60 of second -->
 
     <define name="ROLL_ATTITUDE_GAIN" value="-7000."/> <!-- Roll Angle PD control -->
     <define name="ROLL_RATE_GAIN" value="-2752.29394531"/>
@@ -201,7 +201,7 @@ inline static void h_ctl_roll_loop( void ) {
     - h_ctl_roll_rate_gain * estimator_p
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
 
-  h_ctl_aileron_setpoint = TRIM_PPRZ(cmd); 
+  h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
 }
 -->
 
@@ -231,7 +231,7 @@ inline static void h_ctl_roll_loop( void ) {
     <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
   </section>
 
-<!-- 
+<!--
   <section name="DATALINK" prefix="DATALINK_">
     <define name="DEVICE_TYPE" value="XBEE"/>
     <define name="DEVICE_ADDRESS" value="0x005067361851"/>
@@ -258,7 +258,7 @@ ap.CFLAGS += -DACTUATORS=\"servos_4017_hw.h\" -DSERVOS_4017
 ap.srcs += $(SRC_ARCH)/servos_4017_hw.c actuators.c
 
 ap.CFLAGS += -DRADIO_CONTROL
-ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
+ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 #ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=XBeeTransport -DXBEE_UART=Uart1 -DDATALINK=XBEE -DUART1_BAUD=B57600
 #ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c xbee.c
@@ -272,7 +272,7 @@ ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLIN
 ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c xbee.c
 
 ap.CFLAGS += -DINTER_MCU
-ap.srcs += inter_mcu.c 
+ap.srcs += inter_mcu.c
 
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3 -DUSE_ADC_4 -DUSE_ADC_5 -DUSE_GYRO -DIDG300
 ap.srcs += $(SRC_ARCH)/adc_hw.c
