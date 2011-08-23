@@ -345,7 +345,7 @@ void ahrs_update_fw_estimator(void)
   estimator_psi   = att.psi;
 
   struct FloatRates rates;
-  RATES_FLOAT_OF_BFP(rates, ahrs_float.body_rate);
+  RATES_FLOAT_OF_BFP(rates, ahrs.body_rate);
   estimator_p = rates.p;
   estimator_q = rates.q;
 
