@@ -73,13 +73,18 @@
 #endif
 #ifdef USE_AHRS
 #include "subsystems/ahrs.h"
+#endif
+#ifdef USE_AHRS_ALIGNER
 #include "subsystems/ahrs/ahrs_aligner.h"
-#include AHRS_TYPE_H
+#endif
+
+#if defined USE_IMU && defined USE_AHRS
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
 volatile uint8_t ahrs_timeout_counter = 0;
 #endif
+
 #ifdef USE_GPS
 static inline void on_gps_solution( void );
 #endif
@@ -428,8 +433,11 @@ void periodic_task_ap( void ) {
 #ifdef USE_IMU
   // Run at PERIODIC_FREQUENCY (60Hz if not defined)
   imu_periodic();
+
+#ifdef USE_AHRS
   if (ahrs_timeout_counter < 255)
     ahrs_timeout_counter ++;
+#endif
 
 #endif // USE_IMU
 
@@ -550,7 +558,9 @@ void init_ap( void ) {
   imu_init();
 #endif
 #ifdef USE_AHRS
+#ifdef USE_AHRS_ALIGNER
   ahrs_aligner_init();
+#endif
   ahrs_init();
 #endif
 
@@ -616,7 +626,7 @@ void event_task_ap( void ) {
   infrared_event();
 #endif
 
-#ifdef USE_AHRS
+#if defined USE_IMU && defined USE_AHRS
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 #endif // USE_AHRS
 
@@ -664,7 +674,8 @@ static inline void on_gps_solution( void ) {
 }
 #endif
 
-#ifdef USE_AHRS
+
+#if defined USE_IMU && defined USE_AHRS
 static inline void on_accel_event( void ) {
 }
 
