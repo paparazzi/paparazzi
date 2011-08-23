@@ -31,7 +31,6 @@
       <define name="USE_I2C0"/>
     </target>
 
-    <subsystem name="i2c"/>
 
     <!-- Control -->
     <subsystem name="control" type="new"/>

@@ -76,7 +76,6 @@ $(TARGET).srcs += sys_time.c
 #
 # InterMCU & Commands
 #
-
 $(TARGET).CFLAGS 	+= -DINTER_MCU
 $(TARGET).srcs 		+= $(SRC_FIXEDWING)/inter_mcu.c
 
@@ -84,6 +83,12 @@ $(TARGET).srcs 		+= $(SRC_FIXEDWING)/inter_mcu.c
 # Math functions
 #
 $(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c
+
+#
+# I2C
+#
+$(TARGET).srcs += mcu_periph/i2c.c
+$(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 ######################################################################
 ##
@@ -93,7 +98,6 @@ $(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_
 #
 # Interrupt Vectors
 #
-
 ifeq ($(ARCH), lpc21)
   ns_srcs 		+= $(SRC_ARCH)/armVIC.c
 else ifeq ($(ARCH), stm32)
@@ -110,13 +114,11 @@ endif
 #
 # Main
 #
-
 ns_srcs	   	+= $(SRC_FIRMWARE)/main.c
 
 #
 # LEDs
 #
-
 ns_CFLAGS 		+= -DUSE_LED
 ifeq ($(ARCH), stm32)
   ns_CFLAGS 	+= -DSYS_TIME_LED=1
@@ -127,7 +129,6 @@ endif
 #
 # Sys-time
 #
-
 ns_CFLAGS 		+= -DUSE_SYS_TIME
 ns_srcs 		+= $(SRC_ARCH)/sys_time_hw.c
 
@@ -135,7 +136,6 @@ ns_srcs 		+= $(SRC_ARCH)/sys_time_hw.c
 #
 # UARTS
 #
-
 ns_srcs 		+= mcu_periph/uart.c
 ns_srcs 		+= $(SRC_ARCH)/mcu_periph/uart_arch.c
 ns_srcs 		+= subsystems/settings.c
@@ -144,8 +144,7 @@ ns_srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
 #
 # ANALOG
 #
-
-  ns_CFLAGS 		+= -DUSE_ADC
+ns_CFLAGS 		+= -DUSE_ADC
 #ifeq ($(ARCH), lpc21)
   ns_srcs 		+= $(SRC_ARCH)/mcu_periph/adc_arch.c
 ifeq ($(ARCH), stm32)

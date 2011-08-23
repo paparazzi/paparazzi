@@ -25,6 +25,7 @@
 
   <firmware name="fixedwing">
     <define name="USE_I2C0"/>
+    <define name="I2C_TRANSACTION_QUEUE_LEN" value="16"/>
     <!--define name="AGR_CLIMB"/-->
     <define name="ALT_KALMAN"/>
     <define name="USE_AIRSPEED"/>
@@ -38,9 +39,6 @@
     </target>
 
     <subsystem name="radio_control" type="datalink"/>
-    <subsystem name="i2c">
-      <define name="I2C_TRANSACTION_QUEUE_LEN" value="16"/>
-    </subsystem>
 
     <!-- Communication -->
     <subsystem name="telemetry" type="xbee_api"/>

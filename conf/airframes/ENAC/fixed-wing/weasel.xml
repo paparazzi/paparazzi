@@ -13,6 +13,8 @@
   </modules>
 
   <firmware name="fixedwing">
+    <define name="USE_I2C0"/>
+    <define name="USE_I2C1"/>
     <!--define name="AGR_CLIMB"/-->
     <define name="ALT_KALMAN"/>
     <define name="USE_AIRSPEED"/>
@@ -25,10 +27,6 @@
     </target>
 
     <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="i2c">
-      <define name="USE_I2C0"/>
-      <define name="USE_I2C1"/>
-    </subsystem>
 
     <!-- Communication -->
     <subsystem name="telemetry" type="xbee_api"/>

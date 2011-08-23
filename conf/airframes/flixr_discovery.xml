@@ -38,8 +38,6 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <subsystem name="navigation" type="extra"/>
     <subsystem name="ahrs" type="float_dcm"/>
 
-    <subsystem name="i2c"/>
-
     <!-- Sensors -->
     <subsystem name="imu" type="booz"/>
     <subsystem name="gps" type="ublox"/>

@@ -24,7 +24,6 @@
     <subsystem name="gps" 		type="ublox"/>
     <subsystem name="navigation"/>
     <!-- Interfaces -->
-    <subsystem name="i2c"/>
   </firmware>
 
   <!-- modules -->
