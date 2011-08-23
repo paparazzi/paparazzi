@@ -295,7 +295,7 @@
 
     <!-- Sensors -->
     <subsystem name="imu" type="ppzuav"/>
-    <subsystem name="ahrs" type="dcm"/>
+    <subsystem name="ahrs" type="float_dcm"/>
     <subsystem name="i2c"/>
 
     <subsystem name="gps" 		type="ublox_utm"/>

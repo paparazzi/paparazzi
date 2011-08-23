@@ -204,7 +204,7 @@
       <configure name="GPS_PORT"     value="UART3"/>
     </subsystem>
     <subsystem name="stabilization"   type="euler"/>
-    <subsystem name="ahrs"          type="cmpl"/>
+    <subsystem name="ahrs"          type="int_cmpl_euler"/>
   </firmware>
 
   <firmware name="lisa_l_test_progs">

@@ -35,7 +35,7 @@
 
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="imu"     type="umarim"/>
-    <subsystem name="ahrs"    type="dcm"/>
+    <subsystem name="ahrs"    type="float_dcm"/>
     <subsystem name="control" type="new"/>
     <subsystem name="navigation"/>
     <!-- Sensors -->

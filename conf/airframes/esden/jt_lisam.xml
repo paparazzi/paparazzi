@@ -198,7 +198,7 @@
 
     <subsystem name="imu"           type="aspirin"/>
     <subsystem name="gps"           type="ublox"/>
-    <subsystem name="ahrs"          type="ic"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="stabilization" type="quaternion"/>
   </firmware>
 
