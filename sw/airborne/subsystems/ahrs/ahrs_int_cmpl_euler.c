@@ -222,3 +222,34 @@ __attribute__ ((always_inline)) static inline void compute_body_orientation(void
   INT32_RMAT_TRANSP_RATEMULT(ahrs.body_rate, imu.body_to_imu_rmat, ahrs.imu_rate);
 
 }
+
+
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
+// TODO use ahrs result directly
+#include "estimator.h"
+// remotely settable
+#ifndef INS_ROLL_NEUTRAL_DEFAULT
+#define INS_ROLL_NEUTRAL_DEFAULT 0
+#endif
+#ifndef INS_PITCH_NEUTRAL_DEFAULT
+#define INS_PITCH_NEUTRAL_DEFAULT 0
+#endif
+float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
+float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
+void ahrs_update_fw_estimator(void)
+{
+  struct FloatEulers att;
+  // export results to estimator
+  EULERS_FLOAT_OF_BFP(att, ahrs.ltp_to_body_euler);
+
+  estimator_phi   = att.phi - ins_roll_neutral;
+  estimator_theta = att.theta - ins_pitch_neutral;
+  estimator_psi   = att.psi;
+
+  struct FloatRates rates;
+  RATES_FLOAT_OF_BFP(rates, ahrs.body_rate);
+  estimator_p = rates.p;
+  estimator_q = rates.q;
+
+}
+#endif //AHRS_UPDATE_FW_ESTIMATOR
