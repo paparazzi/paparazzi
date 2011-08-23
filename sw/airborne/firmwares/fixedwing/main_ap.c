@@ -373,7 +373,7 @@ static void navigation_task( void ) {
  * - 20 Hz:
  *   - lets use \a reporting_task at 60 Hz
  *   - updates ir with \a ir_update
- *   - updates estimator of ir with \a estimator_update_state_infrared
+ *   - updates estimator of ir with \a ahrs_update_infrared
  *   - set \a desired_aileron and \a desired_elevator with \a pid_attitude_loop
  *   - sends to \a fbw \a desired_throttle, \a desired_aileron and
  *     \a desired_elevator \note \a desired_throttle is set upon GPS
@@ -393,7 +393,7 @@ static inline void attitude_loop( void ) {
 
 #ifdef USE_INFRARED
       infrared_update();
-      estimator_update_state_infrared();
+      ahrs_update_infrared();
 #endif /* USE_INFRARED */
       h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
       v_ctl_throttle_slew();
@@ -655,6 +655,9 @@ void event_task_ap( void ) {
 #ifdef USE_GPS
 static inline void on_gps_solution( void ) {
   estimator_update_state_gps();
+#ifdef USE_INFRARED
+  ahrs_update_gps();
+#endif
 #ifdef GPS_TRIGGERED_FUNCTION
   GPS_TRIGGERED_FUNCTION();
 #endif
