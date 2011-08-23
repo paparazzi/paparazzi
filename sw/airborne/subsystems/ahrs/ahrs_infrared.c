@@ -20,7 +20,13 @@
  */
 
 #include "subsystems/ahrs/ahrs_infrared.h"
+
 #include "subsystems/sensors/infrared.h"
+#include "subsystems/gps.h"
+
+#include "estimator.h"
+
+
 
 void ahrs_init(void) {
   ahrs_float.status = AHRS_UNINIT;
@@ -54,6 +60,22 @@ void ahrs_update_accel(void) {
 void ahrs_update_mag(void) {
 }
 
+void ahrs_update_gps(void) {
+
+  float hspeed_mod_f = gps.gspeed / 100.;
+  float course_f = gps.course / 1e7;
+
+  // Heading estimator from wind-information, usually computed with -DWIND_INFO
+  // wind_north and wind_east initialized to 0, so still correct if not updated
+  float w_vn = cosf(course_f) * hspeed_mod_f - wind_north;
+  float w_ve = sinf(course_f) * hspeed_mod_f - wind_east;
+  ahrs_float.ltp_to_body_euler.psi = atan2f(w_ve, w_vn);
+  if (ahrs_float.ltp_to_body_euler.psi < 0.)
+    ahrs_float.ltp_to_body_euler.psi += 2 * M_PI;
+
+  ahrs_update_fw_estimator();
+}
+
 void ahrs_update_infrared(void) {
   ahrs_float.ltp_to_body_euler.phi  = atan2(infrared.roll, infrared.top) - infrared.roll_neutral;
 
@@ -73,4 +95,21 @@ void ahrs_update_infrared(void) {
     ahrs_float.ltp_to_body_euler.theta *= infrared.correction_up;
   else
     ahrs_float.ltp_to_body_euler.theta *= infrared.correction_down;
+
+  ahrs_update_fw_estimator();
+}
+
+
+// TODO use ahrs result directly
+void ahrs_update_fw_estimator(void)
+{
+  // export results to estimator
+
+  estimator_phi   = ahrs_float.ltp_to_body_euler.phi;
+  estimator_theta = ahrs_float.ltp_to_body_euler.theta;
+  estimator_psi   = ahrs_float.ltp_to_body_euler.psi;
+
+  estimator_p = ahrs_float.body_rate.p;
+  estimator_q = ahrs_float.body_rate.q;
+
 }
