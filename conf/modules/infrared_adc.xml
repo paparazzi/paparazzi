@@ -1,5 +1,4 @@
 <!DOCTYPE module SYSTEM "module.dtd">
-<!-- @define IR_ADC_READ_ONLY for read only module -->
 
 <module name="ir_adc" dir="sensors">
   <header>
