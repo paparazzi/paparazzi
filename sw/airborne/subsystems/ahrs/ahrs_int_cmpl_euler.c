@@ -28,6 +28,11 @@
 
 #include "generated/airframe.h"
 
+#ifndef FACE_REINJ_1
+#define FACE_REINJ_1 1024
+#endif
+
+
 struct AhrsIntCmplEuler ahrs_impl;
 
 static inline void get_phi_theta_measurement_fom_accel(int32_t* phi_meas, int32_t* theta_meas, struct Int32Vect3 accel);
