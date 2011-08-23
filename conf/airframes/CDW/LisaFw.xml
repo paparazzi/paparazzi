@@ -193,7 +193,7 @@
 
     <!-- Sensors -->
     <subsystem name="radio_control" 	type="ppm"/>
-    <!--<subsystem name="attitude"  	type="infrared">
+    <!--<subsystem name="ahrs"  	type="infrared">
       <configure name="ADC_IR1"        value="ADC_1"/>
       <configure name="ADC_IR2"        value="ADC_2"/>
       <configure name="ADC_IR_TOP"     value="ADC_0"/>

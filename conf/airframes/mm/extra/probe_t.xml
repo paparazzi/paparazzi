@@ -16,7 +16,7 @@
     </target>
     <subsystem name="telemetry"        type="xbee_api"/>
     <subsystem name="control"/>
-    <subsystem name="attitude"         type="infrared"/>
+    <subsystem name="ahrs"         type="infrared"/>
     <subsystem name="gps"              type="ublox"/>
     <subsystem name="navigation"/>
   </firmware>
