@@ -117,7 +117,7 @@ static int32_t flash_detect(struct FlashInfo* flash) {
     case 0x00008000: /* 32 kBytes */
     /* medium density, e.g. STM32F103RBT6 (Olimex STM32-H103) */
     case 0x00010000: /* 64 kBytes */
-    case 0x00200000: /* 128 kBytes */
+    case 0x00020000: /* 128 kBytes */
     {
       flash->page_size = 0x400;
       break;
