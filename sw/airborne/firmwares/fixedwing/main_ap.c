@@ -615,10 +615,6 @@ void init_ap( void ) {
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
 
-#ifdef USE_INFRARED
-  infrared_event();
-#endif
-
 #if defined USE_IMU && defined USE_AHRS
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 #endif // USE_AHRS
