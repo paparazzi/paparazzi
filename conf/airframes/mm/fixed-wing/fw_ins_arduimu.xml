@@ -39,7 +39,6 @@
     <!-- Nav -->
     <subsystem name="navigation"/>
     <!-- Interfaces -->
-    <subsystem name="i2c"/>
   </firmware>
 
   <firmware name="setup">

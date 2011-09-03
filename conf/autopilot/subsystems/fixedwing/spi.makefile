@@ -1,3 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
+
 #generic spi driver
 $(TARGET).CFLAGS += -DUSE_SPI
 

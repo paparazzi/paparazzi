@@ -1,3 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
+
 # fixed wing control loops with adaptive horizontal control
 
 

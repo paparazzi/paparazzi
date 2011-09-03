@@ -3,6 +3,7 @@
 <airframe name="MiniMag Tiny 2.11">
 
   <firmware name="fixedwing">
+    <define name="USE_I2C0"/>
     <define name="AGR_CLIMB" />
     <define name="LOITER_TRIM" />
     <define name="ALT_KALMAN" />
@@ -14,9 +15,6 @@
     </target>
 
     <subsystem name="spi"/>
-    <!--subsystem name="i2c">
-      <define name="USE_I2C0"/>
-    </subsystem-->
 
     <subsystem  name="telemetry" type="transparent">
       <configure name="MODEM_BAUD" value="B9600" />

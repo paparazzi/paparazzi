@@ -36,9 +36,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <!-- Control -->
     <subsystem name="control" type="new"/>
     <subsystem name="navigation" type="extra"/>
-    <subsystem name="ahrs" type="dcm"/>
-
-    <subsystem name="i2c"/>
+    <subsystem name="ahrs" type="float_dcm"/>
 
     <!-- Sensors -->
     <subsystem name="imu" type="booz"/>

@@ -1,3 +1,4 @@
+# Hey Emacs, this is a -*- makefile -*-
 # attitude via IR sensors
 
 #

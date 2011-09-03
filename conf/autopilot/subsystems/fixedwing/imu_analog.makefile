@@ -1,3 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
+
 #
 # Analog IMU connected to MCU ADC ports
 #

@@ -1,3 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
+
 # attitude via IR I2C sensors
 
 $(TARGET).CFLAGS += -DUSE_INFRARED_I2C

@@ -38,7 +38,6 @@
 
     <subsystem name="radio_control" type="ppm"/>
     <!--subsystem name="joystick"/-->
-    <subsystem name="i2c"/>
     <subsystem name="spi"/>
 
     <!-- Communication -->

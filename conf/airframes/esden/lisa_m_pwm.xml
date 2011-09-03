@@ -226,7 +226,7 @@
     <subsystem name="imu"           type="aspirin"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization"   type="euler"/>
-    <subsystem name="ahrs"          type="ic"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat"/>
   </firmware>
 
 

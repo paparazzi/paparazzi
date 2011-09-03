@@ -1,3 +1,4 @@
+# Hey Emacs, this is a -*- makefile -*-
 
 IMU_PPZUAV_CFLAGS  = -DUSE_IMU
 IMU_PPZUAV_CFLAGS += -DIMU_TYPE_H=\"modules/sensors/imu_ppzuav.h\"
