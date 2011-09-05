@@ -69,7 +69,9 @@ void stabilization_attitude_ref_init(void) {
 #define OMEGA_2_R_RES 7
 #define OMEGA_2_R    BFP_OF_REAL((OMEGA_R*OMEGA_R), OMEGA_2_R_RES)
 
+#ifndef NO_ANGLE_REF
 #define USE_REF 1
+#endif
 
 void stabilization_attitude_ref_update() {
 
@@ -121,7 +123,7 @@ void stabilization_attitude_ref_update() {
     SATURATE_SPEED_TRIM_ACCEL();
 
 #else  /* !USE_REF  */
-    EULERS_COPY(stab_att_ref_euler, stabilization_att_sp);
+    EULERS_COPY(stab_att_ref_euler, stab_att_sp_euler);
     INT_RATES_ZERO(stab_att_ref_rate);
     INT_RATES_ZERO(stab_att_ref_accel);
 #endif /* USE_REF   */
