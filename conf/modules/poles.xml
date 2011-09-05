@@ -2,7 +2,7 @@
 
 <module name="poles">
   <header>
-    <file name="subsystems/navigation/nav_poles.h"/>
+    <file name="nav_poles.h"/>
   </header>
   <makefile>
     <file name="nav_poles.c"/>

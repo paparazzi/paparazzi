@@ -1,7 +1,8 @@
-#include "subsystems/navigation/nav_poles.h"
+#include "modules/poles/nav_poles.h"
 #include "subsystems/navigation/common_nav.h"
 
 uint8_t nav_poles_count = 0;
+float nav_poles_time = 0.;
 
 #define SAFETY_MARGIN 0.9
 

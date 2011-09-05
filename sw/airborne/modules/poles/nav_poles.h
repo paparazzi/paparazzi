@@ -5,6 +5,7 @@
 #include "std.h"
 
 extern uint8_t nav_poles_count;
+extern float nav_poles_time;
 
 bool nav_poles_init(uint8_t wp1, uint8_t wp2,
                     uint8_t wp1c, uint8_t wp2c,
