@@ -197,10 +197,6 @@ static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
 #define _UBX_GPS_BAUD(_u) __UBX_GPS_BAUD(_u)
 #define UBX_GPS_BAUD _UBX_GPS_BAUD(GPS_LINK)
 
-#if GPS_PORT_ID == GPS_PORT_UART1 || GPS_PORT_ID == GPS_PORT_UART2
-#else
-#endif
-
 #define IGNORED 0
 #define RESERVED 0
 
@@ -238,7 +234,15 @@ static bool_t user_gps_configure(uint8_t nr) {
 
     // Use old baudrate to issue a baudrate change command
     gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
-    UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x000008D0, 38400, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+
+    // I2C Interface
+    #if GPS_PORT_ID == GPS_PORT_DDC
+      UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, GPS_I2C_SLAVE_ADDR, 0x0, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+    #endif
+    // UART Interface
+    #if GPS_PORT_ID == GPS_PORT_UART1 || GPS_PORT_ID == GPS_PORT_UART2
+      UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x000008D0, 38400, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+    #endif
     break;
   case 6:
     // Now the GPS baudrate should have changed
