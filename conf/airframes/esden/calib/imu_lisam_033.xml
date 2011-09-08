@@ -2,7 +2,7 @@
   <section name="IMU" prefix="IMU_">
 
     <define name="GYRO_P_NEUTRAL" value="7"/>
-    <define name="GYRO_Q_NEUTRAL" value="46"/>
+    <define name="GYRO_Q_NEUTRAL" value="-38"/>
     <define name="GYRO_R_NEUTRAL" value="-30"/>
     <define name="GYRO_P_SENS" value="4.412" integer="16"/>
     <define name="GYRO_Q_SENS" value="4.412" integer="16"/>
