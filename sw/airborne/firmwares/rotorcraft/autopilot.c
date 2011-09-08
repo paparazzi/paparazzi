@@ -230,6 +230,15 @@ static inline int ahrs_is_aligned(void) {
 }
 #endif
 
+/** Set motors ON or OFF and change the status of the check_motors state machine
+ */
+void autopilot_set_motors_on(bool_t motors_on) {
+  autopilot_motors_on = motors_on;
+  kill_throttle = ! autopilot_motors_on;
+  if (autopilot_motors_on) autopilot_check_motor_status = STATUS_MOTORS_ON;
+  else autopilot_check_motor_status = STATUS_MOTORS_OFF;
+}
+
 /**
  * State machine to check if motors should be turned ON or OFF
  * The motors start/stop when pushing the yaw stick without throttle during a given time
