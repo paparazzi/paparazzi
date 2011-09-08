@@ -20,12 +20,35 @@
  */
 
 /** @file gps_ucenter_onboard.h
- * @brief UBX protocol
+ * @brief Configure Ublox GPS
  *
  */
 
 #ifndef GPS_UBX_UCENTER_H
 #define GPS_UBX_UCENTER_H
+
+/** U-Center Variables */
+#define GPS_UBX_UCENTER_CONFIG_STEPS	  17
+
+struct gps_ubx_ucenter_struct 
+{
+  uint8_t status;
+  uint8_t reply;
+  uint8_t cnt;
+
+  uint16_t baud_init;
+  uint16_t baud_run;
+
+  uint8_t sw_ver_h;
+  uint8_t sw_ver_l;
+
+  uint16_t hw_ver_h;
+  uint16_t hw_ver_l;
+
+  char replies[GPS_UBX_UCENTER_CONFIG_STEPS];
+};
+
+extern struct gps_ubx_ucenter_struct gps_ubx_ucenter;
 
 extern void gps_ubx_ucenter_init(void);
 extern void gps_ubx_ucenter_periodic(void);
