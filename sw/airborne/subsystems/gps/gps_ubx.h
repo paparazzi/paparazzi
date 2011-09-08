@@ -28,7 +28,7 @@
 #define GPS_UBX_H
 
 #ifdef GPS_CONFIGURE
-#warning "Please use gps_ubx_ucenter.xml module instead"
+#warning "Please use gps_ubx_ucenter.xml module instead of GPS_CONFIGURE"
 #endif
 
 #include "mcu_periph/uart.h"
