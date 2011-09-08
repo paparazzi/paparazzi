@@ -17,6 +17,8 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
+ * Initial author: C. De Wagter
  */
 
 #include "gps_ubx_ucenter.h"
@@ -30,7 +32,9 @@
 #define GPS_UBX_UCENTER_REPLY_NACK        2
 #define GPS_UBX_UCENTER_REPLY_VERSION     3
 
-/** Space Vehicle Information */
+#define GPS_UBX_UCENTER_CONFIG_STEPS	  17
+
+/** U-Center Variables */
 struct gps_ubx_ucenter_t {
   uint8_t status;
   uint8_t reply;
@@ -44,6 +48,9 @@ struct gps_ubx_ucenter_t {
 
   uint16_t hw_ver_h;
   uint16_t hw_ver_l;
+
+
+  char replies[GPS_UBX_UCENTER_CONFIG_STEPS];
 
   char msg[16];
 } gps_ubx_ucenter;
@@ -74,6 +81,11 @@ void gps_ubx_ucenter_init(void)
   gps_ubx_ucenter.sw_ver_l = 0;
   gps_ubx_ucenter.hw_ver_h = 0;
   gps_ubx_ucenter.hw_ver_l = 0;
+
+  for (int i=0; i<GPS_UBX_UCENTER_CONFIG_STEPS; i++)
+  {
+    gps_ubx_ucenter.replies[i] = 0;
+  }
 
   sprintf(gps_ubx_ucenter.msg,"UCenter Onboard");
   DOWNLINK_SEND_DEBUG(DefaultChannel,16,gps_ubx_ucenter.msg);
@@ -197,6 +209,9 @@ static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
 #include USER_GPS_CONFIGURE
 #else
 static bool_t user_gps_configure(uint8_t nr) {
+  if (nr < GPS_UBX_UCENTER_CONFIG_STEPS)
+    gps_ubx_ucenter.replies[nr] = gps_ubx_ucenter.reply;
+  
   switch (nr) {
     //////////////////////////////////
     // Startup and baudrate
@@ -209,13 +224,7 @@ static bool_t user_gps_configure(uint8_t nr) {
   case 2:
   case 3:
     // UBX_G5010 takes 0.7 seconds to answer a firmware request
-    break;
   case 4:
-    if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_VERSION)
-    {
-      //gps_ubx_ucenter.msg[2] = 'V';
-      //DOWNLINK_SEND_DEBUG(DefaultChannel,3,gps_ubx_ucenter.msg);
-    }
     break;
   case 5:
     gps_ubx_ucenter.msg[2] = gps_ubx_ucenter.sw_ver_h;
@@ -223,41 +232,76 @@ static bool_t user_gps_configure(uint8_t nr) {
     gps_ubx_ucenter.msg[4] = gps_ubx_ucenter.hw_ver_h;
     gps_ubx_ucenter.msg[5] = gps_ubx_ucenter.hw_ver_l;
     DOWNLINK_SEND_DEBUG(DefaultChannel,6,gps_ubx_ucenter.msg);
+
+    //////////////////////////////////
+    // Actual configuration start   
+
     // Use old baudrate to issue a baudrate change command
-    //GpsUartSetBaudrate(B9600);
+    gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
     UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x000008D0, 38400, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
     break;
   case 6:
     // Now the GPS baudrate should have changed
     GpsUartSetBaudrate(B38400);
 
-    //////////////////////////////////
-    // Actual configuration    
-
     //New ublox firmware v5 or higher uses CFG_NAV5 message, CFG_NAV is no longer available
-    //UbxSend_CFG_NAV(NAV_DYN_AIRBORNE_2G, 3, 16, 24, 20, 5, 0, 0x3C, 0x3C, 0x14, 0x03E8 ,0x0000, 0x0, 0x17, 0x00FA, 0x00FA, 0x0064, 0x012C, 0x000F, 0x00, 0x00);
-    UbxSend_CFG_NAV5(0x05, NAV5_DYN_AIRBORNE_2G, NAV5_3D_ONLY, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, RESERVED, RESERVED, RESERVED, RESERVED);
+    gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
+    if (gps_ubx_ucenter.sw_ver_h < 5)
+    {
+      UbxSend_CFG_NAV(NAV_DYN_AIRBORNE_2G, 3, 16, 24, 20, 5, 0, 0x3C, 0x3C, 0x14, 0x03E8 ,0x0000, 0x0, 0x17, 0x00FA, 0x00FA, 0x0064, 0x012C, 0x000F, 0x00, 0x00);
+    }
+    else
+    {
+      UbxSend_CFG_NAV5(0x05, NAV5_DYN_AIRBORNE_2G, NAV5_3D_ONLY, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, RESERVED, RESERVED, RESERVED, RESERVED);
+    }
     break;
   case 7:
+    gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
     UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_POSLLH_ID, 0, 1, 0, 0);
     break;
   case 8:
+    gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
     UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);
     break;
   case 9:
+    gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
     UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_STATUS_ID, 0, 1, 0, 0);
     break;
   case 10:
+    gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
     UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 0, 4, 0, 0);
     break;
   case 11:
+    gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
     UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SOL_ID, 0, 8, 0, 0);
     break;
   case 12:
-    UbxSend_CFG_SBAS(0x00, 0x00, 0x00, 0x00, 0x00);
+    // Disable UTM on old Lea4P
+    gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_POSUTM_ID, 0, 0, 0, 0);
     break;
   case 13:
+    // Since March 2nd 2011 EGNOS is released for aviation purposes
+    gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
+    {
+      const uint8_t enable = 0x01;
+      const uint8_t nrofsat = 1;
+      // 1 Ranging - 2 Correction - 4 Integrity
+      UbxSend_CFG_SBAS(enable, 0x07, nrofsat, 0x00, 0x00);
+    }
+    //UbxSend_CFG_SBAS(0x00, 0x00, 0x00, 0x00, 0x00);
+    break;
+  case 14:
+    gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
     UbxSend_CFG_RATE(0x00FA, 0x0001, 0x0000);
+    break;
+  case 15:
+    gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
+    // Try to save on non-ROM devices...
+    UbxSend_CFG_CFG(0x00000000,0xffffffff,0x00000000);
+    break;
+  case 16:
+    DOWNLINK_SEND_DEBUG(DefaultChannel,GPS_UBX_UCENTER_CONFIG_STEPS,gps_ubx_ucenter.replies);
     return FALSE;
   default:
     break;
