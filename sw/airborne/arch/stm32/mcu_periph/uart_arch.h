@@ -31,6 +31,7 @@
 
 #include "std.h"
 
+#define B4800     4800
 #define B9600     9600
 #define B38400   38400
 #define B57600   57600
