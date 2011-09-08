@@ -5,7 +5,7 @@
     <file name="gps_ubx_ucenter.h"/>
   </header>
   <init fun="gps_ubx_ucenter_init()"/>
-  <periodic fun="gps_ubx_ucenter_periodic()" freq="4." autorun="TRUE"/>
+  <periodic fun="gps_ubx_ucenter_periodic()" start="gps_ubx_ucenter_init()" freq="4." autorun="TRUE"/>
   <makefile target="ap">
     <define name="GPS_UBX_UCENTER" value="\\\"modules/gps/gps_ubx_ucenter.c\\\"" />
   </makefile>

@@ -21,19 +21,41 @@
 
 #include "gps_ubx_ucenter.h"
 
-#define GPS_UBX_UCENTER_STATUS_RUNNING    1
 #define GPS_UBX_UCENTER_STATUS_STOPPED    0
+#define GPS_UBX_UCENTER_STATUS_AUTOBAUD   1
+#define GPS_UBX_UCENTER_STATUS_CONFIG     2
 
 #define GPS_UBX_UCENTER_REPLY_NONE        0
 #define GPS_UBX_UCENTER_REPLY_ACK         1
 #define GPS_UBX_UCENTER_REPLY_NACK        2
+#define GPS_UBX_UCENTER_REPLY_VERSION     3
 
 /** Space Vehicle Information */
 struct gps_ubx_ucenter_t {
   uint8_t status;
   uint8_t reply;
+  uint8_t cnt;
+
+  uint16_t baud_init;
+  uint16_t baud_run;
+
+  uint8_t sw_ver_h;
+  uint8_t sw_ver_l;
+
+  uint16_t hw_ver_h;
+  uint16_t hw_ver_l;
+
+  char msg[16];
 } gps_ubx_ucenter;
 
+
+// Text Telemetry
+#include <stdio.h>
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+#undef GOT_PAYLOAD
+#include "downlink.h"
 
 /////////////////////////////
 // Periodic Function
@@ -41,54 +63,87 @@ struct gps_ubx_ucenter_t {
 void gps_ubx_ucenter_init(void)
 {
   // Start UCenter
-  gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_RUNNING;
+  gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_AUTOBAUD;
   gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
+  gps_ubx_ucenter.cnt = 0;
+
+  gps_ubx_ucenter.baud_init = 0;
+  gps_ubx_ucenter.baud_run = 0;
+
+  gps_ubx_ucenter.sw_ver_h = 0;
+  gps_ubx_ucenter.sw_ver_l = 0;
+  gps_ubx_ucenter.hw_ver_h = 0;
+  gps_ubx_ucenter.hw_ver_l = 0;
+
+  sprintf(gps_ubx_ucenter.msg,"UCenter Onboard");
+  DOWNLINK_SEND_DEBUG(DefaultChannel,16,gps_ubx_ucenter.msg);
 }
 
 
-
-/////////////////////////////
-// Periodic Function
-
-void gps_ubx_ucenter_periodic(void)
+static bool_t gps_ubx_ucenter_autobaud(uint8_t nr)
 {
-  // Save processing time inflight
-  if (gps_ubx_ucenter.status == GPS_UBX_UCENTER_STATUS_STOPPED)
-    return;
-
-  // Autobaud
-  
-  //   
-}
-
-/////////////////////////////
-// Event Function
-
-void gps_ubx_ucenter_event(void)
-{
-  // Save processing time inflight
-  if (gps_ubx_ucenter_status == GPS_UBX_UCENTER_STATUS_STOPPED)
-    return;
-
-  // Read Configuration Reply's
-  if (gps_ubx.msg_class == UBX_ACK_ID) {
-    if (gps_ubx.msg_id == UBX_ACK_ACK_ID) {
-      gps_ubx_ucenter.reply = GPX_UBX_UCENTER_REPLY_ACK;
-    }
-    else
+  switch (nr)
+  {
+  case 0:
+  case 1:
+    // Very important for some modules:
+    // Give the GPS some time to boot (up to 0.75 second)
+    break;
+  case 2:
+    gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
+    GpsUartSetBaudrate(B9600);
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);
+    break;
+  case 3:
+    if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK)
     {
-      gps_ubx_ucenter.reply = GPX_UBX_UCENTER_REPLY_NACK;
+      gps_ubx_ucenter.baud_init = 9600;
+      gps_ubx_ucenter.msg[0] = 9;
+      gps_ubx_ucenter.msg[1] = 6;
+      DOWNLINK_SEND_DEBUG(DefaultChannel,2,gps_ubx_ucenter.msg);
+      return FALSE;
     }
+    gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
+    GpsUartSetBaudrate(B38400);
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);
+    break;
+  case 4:
+    if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK)
+    {
+      gps_ubx_ucenter.baud_init = 38400;
+      gps_ubx_ucenter.msg[0] = 38;
+      gps_ubx_ucenter.msg[1] = 4;
+      DOWNLINK_SEND_DEBUG(DefaultChannel,2,gps_ubx_ucenter.msg);
+      return FALSE;
+    }
+    gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
+    GpsUartSetBaudrate(B57600);
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);
+    break;
+  case 5:
+    if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK)
+    {
+      gps_ubx_ucenter.baud_init = 57600;
+      gps_ubx_ucenter.msg[0] = 57;
+      gps_ubx_ucenter.msg[1] = 6;
+      DOWNLINK_SEND_DEBUG(DefaultChannel,2,gps_ubx_ucenter.msg);
+      return FALSE;
+     }
+
+    // Autoconfig Failed... let's put the failsafe baudrate
+    gps_ubx_ucenter.msg[0] = 0;
+    gps_ubx_ucenter.msg[1] = 0;
+    DOWNLINK_SEND_DEBUG(DefaultChannel,2,gps_ubx_ucenter.msg);
+    GpsUartSetBaudrate(B9600);
+    return FALSE;
+  default:
+    break;
   }
-  // Version info
-  else if (gps_ubx.msg_class == UBX_ACK_ID) {
-  }
+  return TRUE;
 }
 
 
-
-/*
- * dynamic GPS configuration
+// dynamic GPS configuration
 #define NAV_DYN_STATIONARY  1
 #define NAV_DYN_PEDESTRIAN  2
 #define NAV_DYN_AUTOMOTIVE  3
@@ -111,23 +166,7 @@ void gps_ubx_ucenter_event(void)
 #define NAV5_3D_ONLY 2
 #define NAV5_AUTO    3
 
-
-bool_t gps_configuring;
-static uint8_t gps_status_config;
-
-gps_status_config = 0;
-gps_configuring = TRUE;
-
- */
-
-/*
- *
- *
- * GPS dynamic configuration
- *
- *
-#ifdef GPS_CONFIGURE
-
+// port and protocol GPS configuration
 #define UBX_PROTO_MASK  0x0001
 #define NMEA_PROTO_MASK 0x0002
 #define RTCM_PROTO_MASK 0x0004
@@ -146,85 +185,171 @@ gps_configuring = TRUE;
 #define _UBX_GPS_BAUD(_u) __UBX_GPS_BAUD(_u)
 #define UBX_GPS_BAUD _UBX_GPS_BAUD(GPS_LINK)
 
-// Configure the GPS baud rate using the current uart baud rate. Busy
-// wait for the end of the transmit. Then, BEFORE waiting for the ACK,
-// change the uart rate. 
 #if GPS_PORT_ID == GPS_PORT_UART1 || GPS_PORT_ID == GPS_PORT_UART2
-void gps_configure_uart(void) {
-#ifdef FMS_PERIODIC_FREQ
-  UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x000008D0, 38400, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
-  uint8_t loop=0;
-  while (GpsUartRunning) {
-    //doesn't work unless some printfs are used, so :
-    if (loop<9) {
-      printf("."); loop++;
-    } else {
-      printf("\b"); loop--;
+#else
+#endif
+
+#define IGNORED 0
+#define RESERVED 0
+
+
+#ifdef USER_GPS_CONFIGURE
+#include USER_GPS_CONFIGURE
+#else
+static bool_t user_gps_configure(uint8_t nr) {
+  switch (nr) {
+    //////////////////////////////////
+    // Startup and baudrate
+
+  case 0:
+    gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
+    UbxSend_MON_GET_VER();
+    break;
+  case 1:
+  case 2:
+  case 3:
+    // UBX_G5010 takes 0.7 seconds to answer a firmware request
+    break;
+  case 4:
+    if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_VERSION)
+    {
+      //gps_ubx_ucenter.msg[2] = 'V';
+      //DOWNLINK_SEND_DEBUG(DefaultChannel,3,gps_ubx_ucenter.msg);
+    }
+    break;
+  case 5:
+    gps_ubx_ucenter.msg[2] = gps_ubx_ucenter.sw_ver_h;
+    gps_ubx_ucenter.msg[3] = gps_ubx_ucenter.sw_ver_l;
+    gps_ubx_ucenter.msg[4] = gps_ubx_ucenter.hw_ver_h;
+    gps_ubx_ucenter.msg[5] = gps_ubx_ucenter.hw_ver_l;
+    DOWNLINK_SEND_DEBUG(DefaultChannel,6,gps_ubx_ucenter.msg);
+    // Use old baudrate to issue a baudrate change command
+    //GpsUartSetBaudrate(B9600);
+    UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x000008D0, 38400, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+    break;
+  case 6:
+    // Now the GPS baudrate should have changed
+    GpsUartSetBaudrate(B38400);
+
+    //////////////////////////////////
+    // Actual configuration    
+
+    //New ublox firmware v5 or higher uses CFG_NAV5 message, CFG_NAV is no longer available
+    //UbxSend_CFG_NAV(NAV_DYN_AIRBORNE_2G, 3, 16, 24, 20, 5, 0, 0x3C, 0x3C, 0x14, 0x03E8 ,0x0000, 0x0, 0x17, 0x00FA, 0x00FA, 0x0064, 0x012C, 0x000F, 0x00, 0x00);
+    UbxSend_CFG_NAV5(0x05, NAV5_DYN_AIRBORNE_2G, NAV5_3D_ONLY, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, RESERVED, RESERVED, RESERVED, RESERVED);
+    break;
+  case 7:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_POSLLH_ID, 0, 1, 0, 0);
+    break;
+  case 8:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);
+    break;
+  case 9:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_STATUS_ID, 0, 1, 0, 0);
+    break;
+  case 10:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 0, 4, 0, 0);
+    break;
+  case 11:
+    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SOL_ID, 0, 8, 0, 0);
+    break;
+  case 12:
+    UbxSend_CFG_SBAS(0x00, 0x00, 0x00, 0x00, 0x00);
+    break;
+  case 13:
+    UbxSend_CFG_RATE(0x00FA, 0x0001, 0x0000);
+    return FALSE;
+  default:
+    break;
+  }
+  return TRUE; // Continue, except for the last case
+}
+#endif // ! USER_GPS_CONFIGURE
+
+/////////////////////////////
+// Periodic Function
+
+void gps_ubx_ucenter_periodic(void)
+{
+  switch (gps_ubx_ucenter.status)
+  {
+    // Save processing time inflight
+    case GPS_UBX_UCENTER_STATUS_STOPPED:
+      return;
+    // Automatically Determine Current Baudrate
+    case GPS_UBX_UCENTER_STATUS_AUTOBAUD:
+      if (gps_ubx_ucenter_autobaud(gps_ubx_ucenter.cnt) == FALSE)
+      {
+        gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_CONFIG;
+        gps_ubx_ucenter.cnt = 0;
+      }
+      else
+      {
+        gps_ubx_ucenter.cnt++;
+      }
+      break;
+    // Send Configuration
+    case GPS_UBX_UCENTER_STATUS_CONFIG:
+      if (user_gps_configure(gps_ubx_ucenter.cnt) == FALSE)
+      {
+        gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_STOPPED;
+        gps_ubx_ucenter.cnt = 0;
+      }
+      else
+      {
+        gps_ubx_ucenter.cnt++;
+      }
+      break;
+    default:
+      break;
+  }
+}
+
+/////////////////////////////
+// Event Function
+
+void gps_ubx_ucenter_event(void)
+{
+  // Save processing time inflight
+  if (gps_ubx_ucenter.status == GPS_UBX_UCENTER_STATUS_STOPPED)
+    return;
+
+  // Read Configuration Reply's
+  if (gps_ubx.msg_class == UBX_ACK_ID) {
+    if (gps_ubx.msg_id == UBX_ACK_ACK_ID) {
+      gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_ACK;
+    }
+    else
+    {
+      gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NACK;
     }
   }
-#else
-  UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, 0x000008D0, UBX_GPS_BAUD, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
-  while (GpsUartRunning); //
-#endif
-
-  GpsUartInitParam(UBX_GPS_BAUD,  UART_8N1, UART_FIFO_8);
+  // Version info
+  else if (gps_ubx.msg_class == UBX_MON_ID) {
+    if (gps_ubx.msg_id == UBX_MON_VER_ID ) {
+      gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_VERSION;
+      gps_ubx_ucenter.sw_ver_h = UBX_MON_VER_c(gps_ubx.msg_buf,0) - '0';
+      gps_ubx_ucenter.sw_ver_l = 10*(UBX_MON_VER_c(gps_ubx.msg_buf,2) - '0');
+      gps_ubx_ucenter.sw_ver_l += UBX_MON_VER_c(gps_ubx.msg_buf,3) - '0';
+      gps_ubx_ucenter.hw_ver_h = UBX_MON_VER_c(gps_ubx.msg_buf,33) - '0';
+      gps_ubx_ucenter.hw_ver_h += 10*(UBX_MON_VER_c(gps_ubx.msg_buf,32) - '0');
+      gps_ubx_ucenter.hw_ver_l = UBX_MON_VER_c(gps_ubx.msg_buf,37) - '0';
+      gps_ubx_ucenter.hw_ver_l += 10*(UBX_MON_VER_c(gps_ubx.msg_buf,36) - '0');
+    }
+  }
 }
-#endif
 
+
+
+
+/*
+ *
 #if GPS_PORT_ID == GPS_PORT_DDC
 void gps_configure_uart(void) {
   UbxSend_CFG_PRT(GPS_PORT_ID, 0x0, 0x0, GPS_I2C_SLAVE_ADDR, 0x0, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
 }
 #endif
 
-#define IGNORED 0
-#define RESERVED 0
-
-#ifdef USER_GPS_CONFIGURE
-#include USER_GPS_CONFIGURE
-#else
-static bool_t user_gps_configure(bool_t cpt) {
-  switch (cpt) {
-  case 0:
-    //New ublox firmware v5 or higher uses CFG_NAV5 message, CFG_NAV is no longer available
-    //UbxSend_CFG_NAV(NAV_DYN_AIRBORNE_2G, 3, 16, 24, 20, 5, 0, 0x3C, 0x3C, 0x14, 0x03E8 ,0x0000, 0x0, 0x17, 0x00FA, 0x00FA, 0x0064, 0x012C, 0x000F, 0x00, 0x00);
-    UbxSend_CFG_NAV5(0x05, NAV5_DYN_AIRBORNE_2G, NAV5_3D_ONLY, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, IGNORED, RESERVED, RESERVED, RESERVED, RESERVED);
-    break;
-  case 1:
-    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_POSUTM_ID, 0, 1, 0, 0);
-    break;
-  case 2:
-    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);
-    break;
-  case 3:
-    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_STATUS_ID, 0, 1, 0, 0);
-    break;
-  case 4:
-    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 0, 4, 0, 0);
-    break;
-  case 5:
-    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SOL_ID, 0, 8, 0, 0);
-    break;
-  case 6:
-    UbxSend_CFG_SBAS(0x00, 0x00, 0x00, 0x00, 0x00);
-    break;
-  case 7:
-    UbxSend_CFG_RATE(0x00FA, 0x0001, 0x0000);
-    return FALSE;
-  }
-  return TRUE; // Continue, except for the last case
-}
-#endif // ! USER_GPS_CONFIGURE
-
-void gps_configure( void ) {
-  if (gps_ubx.msg_class == UBX_ACK_ID) {
-    if (gps_ubx.msg_id == UBX_ACK_ACK_ID) {
-      gps_status_config++;
-    }
-  }
-  gps_configuring = user_gps_configure(gps_status_config);
-}
-#endif // GPS_CONFIGURE
 
  */
 
