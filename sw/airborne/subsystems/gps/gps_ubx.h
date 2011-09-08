@@ -78,6 +78,14 @@ extern bool_t gps_configuring;
 #define GpsParseOrConfigure() gps_ubx_read_message()
 #endif
 
+#ifdef GPS_UBX_UCENTER
+extern void gps_ubx_ucenter_periodic(void);
+extern void gps_ubx_ucenter_event(void);
+#else
+#define gps_ubx_ucenter_event() {}
+#endif
+
+
 /* Gps callback is called when receiving a VELNED or a SOL message
  * All position/speed messages are sent in one shot and VELNED is the last one on fixedwing
  * For rotorcraft, only SOL message is needed for pos/speed data
@@ -88,6 +96,7 @@ extern bool_t gps_configuring;
     }                                              \
     if (gps_ubx.msg_available) {                   \
       GpsParseOrConfigure();                       \
+      gps_ubx_ucenter_event();                 \
       if (gps_ubx.msg_class == UBX_NAV_ID &&       \
           (gps_ubx.msg_id == UBX_NAV_VELNED_ID ||  \
            (gps_ubx.msg_id == UBX_NAV_SOL_ID &&    \
@@ -162,5 +171,6 @@ extern void ubxsend_cfg_rst(uint16_t, uint8_t);
 extern void gps_configure(void);
 extern void gps_configure_uart(void);
 #endif
+
 
 #endif /* GPS_UBX_H */
