@@ -27,6 +27,7 @@
 #ifndef GPS_UBX_UCENTER_H
 #define GPS_UBX_UCENTER_H
 
+extern void gps_ubx_ucenter_init(void);
 extern void gps_ubx_ucenter_periodic(void);
 extern void gps_ubx_ucenter_event(void);
 

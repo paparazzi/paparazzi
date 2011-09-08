@@ -388,7 +388,7 @@ void gps_configure( void ) {
 #endif /* GPS_CONFIGURE */
 
 #ifdef GPS_UBX_UCENTER
-#include GPX_UBX_UCENTER
+#include GPS_UBX_UCENTER
 #endif
 
 

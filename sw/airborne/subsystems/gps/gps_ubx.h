@@ -78,10 +78,7 @@ extern bool_t gps_configuring;
 #define GpsParseOrConfigure() gps_ubx_read_message()
 #endif
 
-#ifdef GPS_UBX_UCENTER
-extern void gps_ubx_ucenter_periodic(void);
-extern void gps_ubx_ucenter_event(void);
-#else
+#ifndef GPS_UBX_UCENTER
 #define gps_ubx_ucenter_event() {}
 #endif
 

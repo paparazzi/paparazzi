@@ -19,10 +19,21 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#define GPS_UBX_UCENTER_RUNNING    1
-#define GPX_UBX_UCENTER_STOPPED    0
+#include "gps_ubx_ucenter.h"
 
-uint8_t gps_ubx_ucenter_status
+#define GPS_UBX_UCENTER_STATUS_RUNNING    1
+#define GPS_UBX_UCENTER_STATUS_STOPPED    0
+
+#define GPS_UBX_UCENTER_REPLY_NONE        0
+#define GPS_UBX_UCENTER_REPLY_ACK         1
+#define GPS_UBX_UCENTER_REPLY_NACK        2
+
+/** Space Vehicle Information */
+struct gps_ubx_ucenter_t {
+  uint8_t status;
+  uint8_t reply;
+} gps_ubx_ucenter;
+
 
 /////////////////////////////
 // Periodic Function
@@ -30,7 +41,8 @@ uint8_t gps_ubx_ucenter_status
 void gps_ubx_ucenter_init(void)
 {
   // Start UCenter
-  gps_ubx_ucenter_status = GPS_UBX_UCENTER_RUNNING;
+  gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_RUNNING;
+  gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
 }
 
 
@@ -41,7 +53,7 @@ void gps_ubx_ucenter_init(void)
 void gps_ubx_ucenter_periodic(void)
 {
   // Save processing time inflight
-  if (gps_ubx_ucenter_status == GPX_UBX_UCENTER_STOPPED)
+  if (gps_ubx_ucenter.status == GPS_UBX_UCENTER_STATUS_STOPPED)
     return;
 
   // Autobaud
@@ -55,18 +67,21 @@ void gps_ubx_ucenter_periodic(void)
 void gps_ubx_ucenter_event(void)
 {
   // Save processing time inflight
-  if (gps_ubx_ucenter_status == GPX_UBX_UCENTER_STOPPED)
+  if (gps_ubx_ucenter_status == GPS_UBX_UCENTER_STATUS_STOPPED)
     return;
 
-  // Which Message
-  if (gps_ubx.msg_class == UBX_NAV_ID) {
-    if (gps_ubx.msg_id == UBX_NAV_SOL_ID) {
-    }
-  }    
+  // Read Configuration Reply's
   if (gps_ubx.msg_class == UBX_ACK_ID) {
     if (gps_ubx.msg_id == UBX_ACK_ACK_ID) {
-      gps_status_config++;
+      gps_ubx_ucenter.reply = GPX_UBX_UCENTER_REPLY_ACK;
     }
+    else
+    {
+      gps_ubx_ucenter.reply = GPX_UBX_UCENTER_REPLY_NACK;
+    }
+  }
+  // Version info
+  else if (gps_ubx.msg_class == UBX_ACK_ID) {
   }
 }
 
@@ -209,7 +224,6 @@ void gps_configure( void ) {
   }
   gps_configuring = user_gps_configure(gps_status_config);
 }
-#endif /* GPS_CONFIGURE */
 #endif // GPS_CONFIGURE
 
  */
