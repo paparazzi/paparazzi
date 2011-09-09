@@ -304,6 +304,20 @@ static inline void gps_ubx_ucenter_config_sbas(void)
   //UbxSend_CFG_SBAS(0x00, 0x00, 0x00, 0x00, 0x00);
 }
 
+static inline void gps_ubx_ucenter_enable_msg(uint8_t class, uint8_t id, uint8_t rate)
+{
+  #if GPS_PORT_ID == GPS_PORT_UART1
+    UbxSend_CFG_MSG(class, id, 0, rate, 0, 0);
+  #endif
+  #if GPS_PORT_ID == GPS_PORT_UART2
+    UbxSend_CFG_MSG(class, id, 0, 0, rate, 0);
+  #endif
+  #if GPS_PORT_ID == GPS_PORT_DDC
+    UbxSend_CFG_MSG(class, id, rate, 0, 0, 0);
+  #endif
+}
+
+
 // Text Telemetry for Debugging
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -353,23 +367,23 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
     gps_ubx_ucenter_config_nav();
     break;
   case 7:
-    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_POSLLH_ID, 0, 1, 0, 0);
+    gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_POSLLH_ID,1);
     break;
   case 8:
-    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_VELNED_ID, 0, 1, 0, 0);
+    gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_VELNED_ID, 1);
     break;
   case 9:
-    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_STATUS_ID, 0, 1, 0, 0);
+    gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_STATUS_ID, 1);
     break;
   case 10:
-    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 0, 4, 0, 0);
+    gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 4);
     break;
   case 11:
-    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_SOL_ID, 0, 8, 0, 0);
+    gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SOL_ID, 8);
     break;
   case 12:
     // Disable UTM on old Lea4P
-    UbxSend_CFG_MSG(UBX_NAV_ID, UBX_NAV_POSUTM_ID, 0, 0, 0, 0);
+    gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_POSUTM_ID, 0);
     break;
   case 13:
     gps_ubx_ucenter_config_sbas();
