@@ -306,6 +306,10 @@ void handle_ins_msg( void) {
   hmsl /= 1000.0f;
   EstimatorSetAlt(hmsl);
 
+  #ifndef ALT_KALMAN
+  #warning NO_VZ
+  #endif
+
   // Horizontal speed
   float fspeed = sqrt(ins_vx*ins_vx + ins_vy*ins_vy);
   if (gps.fix != GPS_FIX_3D)

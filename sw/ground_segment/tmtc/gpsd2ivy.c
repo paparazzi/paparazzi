@@ -70,8 +70,7 @@ static struct gps_data_t *gpsdata;
 
 static void update_gps(struct gps_data_t *gpsdata,
                        char *message,
-                       size_t len,
-                       int level)
+                       size_t len)
 {
     static double fix_time = 0;
     double fix_track = 0;
@@ -117,17 +116,7 @@ static void update_gps(struct gps_data_t *gpsdata,
 
 static gboolean gps_periodic(gpointer data __attribute__ ((unused)))
 {
-    struct timeval timeout;
-    int ret;
-    fd_set rfds;
-
-    FD_ZERO(&rfds);
-    FD_SET(gpsdata->gps_fd, &rfds);
-
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 100000;
-
-    ret = select(gpsdata->gps_fd + 1, &rfds, NULL, NULL, &timeout);
+    int ret = gps_waiting(gpsdata);
 
     if (ret == -1)
     {
@@ -150,8 +139,7 @@ int main(int argc, char *argv[])
 
     gps_set_raw_hook(gpsdata, update_gps);
 
-    gps_query(gpsdata, "w+x\n");
-    gps_query(gpsdata, "j=1\n");
+    gps_stream(gpsdata, WATCH_ENABLE, NULL);
   
     IvyInit ("GPSd2Ivy", "GPSd2Ivy READY", NULL, NULL, NULL, NULL);
     IvyStart("127.255.255.255");

@@ -1,3 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
+
 # roll stabilization with gyro
 
 #

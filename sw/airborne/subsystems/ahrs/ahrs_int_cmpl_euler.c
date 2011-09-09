@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -30,6 +28,11 @@
 
 #include "generated/airframe.h"
 
+#ifndef FACE_REINJ_1
+#define FACE_REINJ_1 1024
+#endif
+
+
 struct AhrsIntCmplEuler ahrs_impl;
 
 static inline void get_phi_theta_measurement_fom_accel(int32_t* phi_meas, int32_t* theta_meas, struct Int32Vect3 accel);
@@ -48,12 +51,19 @@ static inline void compute_body_orientation(void);
 
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
+
+  /* set ltp_to_body to zero */
   INT_EULERS_ZERO(ahrs.ltp_to_body_euler);
-  INT_EULERS_ZERO(ahrs.ltp_to_imu_euler);
   INT32_QUAT_ZERO(ahrs.ltp_to_body_quat);
-  INT32_QUAT_ZERO(ahrs.ltp_to_imu_quat);
+  INT32_RMAT_ZERO(ahrs.ltp_to_body_rmat);
   INT_RATES_ZERO(ahrs.body_rate);
+
+  /* set ltp_to_imu so that body is zero */
+  QUAT_COPY(ahrs.ltp_to_imu_quat, imu.body_to_imu_quat);
+  RMAT_COPY(ahrs.ltp_to_imu_rmat, imu.body_to_imu_rmat);
+  INT32_EULERS_OF_RMAT(ahrs.ltp_to_imu_euler, ahrs.ltp_to_imu_rmat);
   INT_RATES_ZERO(ahrs.imu_rate);
+
   INT_RATES_ZERO(ahrs_impl.gyro_bias);
   ahrs_impl.reinj_1 = FACE_REINJ_1;
 
@@ -217,3 +227,34 @@ __attribute__ ((always_inline)) static inline void compute_body_orientation(void
   INT32_RMAT_TRANSP_RATEMULT(ahrs.body_rate, imu.body_to_imu_rmat, ahrs.imu_rate);
 
 }
+
+
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
+// TODO use ahrs result directly
+#include "estimator.h"
+// remotely settable
+#ifndef INS_ROLL_NEUTRAL_DEFAULT
+#define INS_ROLL_NEUTRAL_DEFAULT 0
+#endif
+#ifndef INS_PITCH_NEUTRAL_DEFAULT
+#define INS_PITCH_NEUTRAL_DEFAULT 0
+#endif
+float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
+float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
+void ahrs_update_fw_estimator(void)
+{
+  struct FloatEulers att;
+  // export results to estimator
+  EULERS_FLOAT_OF_BFP(att, ahrs.ltp_to_body_euler);
+
+  estimator_phi   = att.phi - ins_roll_neutral;
+  estimator_theta = att.theta - ins_pitch_neutral;
+  estimator_psi   = att.psi;
+
+  struct FloatRates rates;
+  RATES_FLOAT_OF_BFP(rates, ahrs.body_rate);
+  estimator_p = rates.p;
+  estimator_q = rates.q;
+
+}
+#endif //AHRS_UPDATE_FW_ESTIMATOR

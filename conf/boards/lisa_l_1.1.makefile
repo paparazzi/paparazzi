@@ -1,3 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
+
 include $(PAPARAZZI_SRC)/conf/boards/lisa_l_1.0.makefile
 
 #

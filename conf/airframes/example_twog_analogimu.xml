@@ -212,7 +212,7 @@
       <configure name="ACCEL_Z" value="ADC_7"/>
     </subsystem>
 
-    <subsystem name="ahrs"  type="dcm"/>
+    <subsystem name="ahrs"  type="float_dcm"/>
     <subsystem name="gps"       type="ublox"/>
     <subsystem name="navigation"/>
   </firmware>

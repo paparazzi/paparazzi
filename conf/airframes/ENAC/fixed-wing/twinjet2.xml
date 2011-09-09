@@ -36,7 +36,6 @@
     <subsystem name="attitude"      type="infrared"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="navigation"/>
-    <subsystem name="i2c"/>
   </firmware>
 
   <firmware name="setup">

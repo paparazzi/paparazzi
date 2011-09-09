@@ -1,3 +1,4 @@
+# Hey Emacs, this is a -*- makefile -*-
 
 
 ap.CFLAGS += -DUSE_$(MODEM_PORT)
