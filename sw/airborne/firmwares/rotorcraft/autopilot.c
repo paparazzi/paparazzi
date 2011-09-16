@@ -63,7 +63,7 @@ uint16_t autopilot_flight_time;
 #define STATUS_START_MOTORS         2
 #define STATUS_MOTORS_ON            3
 #define STATUS_M_ON_STICK_PUSHED    4
-#define STATUS_STOP_MOTORS    
+#define STATUS_STOP_MOTORS    	    5
 
 void autopilot_init(void) {
   autopilot_mode = AP_MODE_KILL;
