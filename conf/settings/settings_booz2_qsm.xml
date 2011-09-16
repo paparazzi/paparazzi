@@ -97,12 +97,7 @@
       <dl_setting VAR="tc_fading_lower_deg" MIN="0.0" STEP="5" MAX="90.0" 
 		  module="toytronics/toytronics_setpoint"
 		  shortname="tc_lower_deg"/>
-      <dl_setting VAR="hover_forward_y_accel_rejection_gain" MIN="-2.0" STEP="0.05" MAX="2.0" 
-		  module="toytronics/toytronics_setpoint"
-		  shortname="hover_forward_y_gr_gain"/>
-      <dl_setting VAR="hover_forward_z_accel_rejection_gain" MIN="-2.0" STEP="0.05" MAX="2.0" 
-		  module="toytronics/toytronics_setpoint"
-		  shortname="hover_forward_z_gr_gain"/>
+
    </dl_settings>
 
     <dl_settings NAME="JT Hover Gains">
