@@ -33,6 +33,7 @@
 
 #define B1200         UART_BAUD(1200)
 #define B2400         UART_BAUD(2400)
+#define B4800         UART_BAUD(4800)
 #define B9600         UART_BAUD(9600)
 #define B19200        UART_BAUD(19200)
 #define B38400        UART_BAUD(38400)

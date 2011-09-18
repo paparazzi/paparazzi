@@ -581,12 +581,6 @@ void init_ap( void ) {
   /** wait 0.5s (historical :-) */
   sys_time_usleep(500000);
 
-#ifdef GPS_CONFIGURE
-#ifndef SITL
-  gps_configure_uart();
-#endif
-#endif
-
 #if defined DATALINK
 
 #if DATALINK == XBEE
