@@ -74,7 +74,7 @@ void imu_periodic( void )
   // Start reading the latest accelerometer data
   adxl345_periodic();
 
-  RunOnceEvery(10,imu_umarim_downlink_raw());
+  //RunOnceEvery(10,imu_umarim_downlink_raw());
 }
 
 
