@@ -193,6 +193,10 @@
 
   </firmware>
 
+  <modules>
+    <load name="infrared_adc.xml"/>
+  </modules>
+
 
   <firmware name="setup">
     <target name="tunnel"           board="tiny_1.1" />

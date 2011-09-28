@@ -166,6 +166,7 @@
       <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
       <define name="NAV_LIGHT_MODE_DEFAULT" value="0"/>
     </load>
+    <load name="infrared_adc.xml"/>
   </modules>
 
   <firmware name="fixedwing">

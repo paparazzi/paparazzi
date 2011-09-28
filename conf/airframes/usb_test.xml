@@ -26,6 +26,10 @@
     <target name="setup_actuators"     board="tiny_2.11"/>
   </firmware>
 
+  <modules>
+    <load name="infrared_adc.xml"/>
+  </modules>
+
   <!-- commands section -->
   <servos>
     <servo name="MOTOR"         no="0" min="1550" neutral="1550" max="2000"/>

@@ -32,6 +32,10 @@
     </subsystem>
   </firmware>
 
+  <modules>
+    <load name="infrared_adc.xml"/>
+  </modules>
+
 <!-- commands section -->
   <servos>
     <servo name="MOTOR_LEFT" no="0" min="1000" neutral="1000" max="2000"/>

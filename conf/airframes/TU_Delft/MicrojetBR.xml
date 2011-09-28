@@ -232,6 +232,7 @@
       <define name="LIGHT_LED_STROBE" value="3"/>
       <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
     </load>
+    <load name="infrared_adc.xml"/>
   </modules>
 
   <firmware name="fixedwing">

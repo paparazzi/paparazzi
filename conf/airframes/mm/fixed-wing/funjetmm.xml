@@ -73,6 +73,7 @@
     <load name="humid_sht_i2c.xml"/>
     <load name="mag_micromag_fw.xml"/>
     <load name="baro_scp_i2c.xml"/-->
+    <load name="infrared_adc.xml"/>
   </modules>
 
   <!-- commands section -->

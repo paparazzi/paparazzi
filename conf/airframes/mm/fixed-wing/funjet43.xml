@@ -30,6 +30,7 @@
   <modules>
     <load name="ins_arduimu.xml">
     </load>
+    <!--load name="infrared_adc.xml"/-->
   </modules>
 
   <firmware name="lisa_l_test_progs">

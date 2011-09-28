@@ -40,6 +40,7 @@
   <modules>
     <load name="baro_scp.xml"/>
     <load name="humid_sht.xml"/>
+    <load name="infrared_adc.xml"/>
   </modules>
 
   <firmware name="setup">

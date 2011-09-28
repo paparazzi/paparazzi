@@ -41,6 +41,7 @@
       <define name="SERVO_SWITCH_SERVO"     value="SERVO_SWITCH"/>
     </load>
     <load name="sys_mon.xml"/>
+    <load name="infrared_adc.xml"/>
   </modules>
 
 <!-- commands section -->

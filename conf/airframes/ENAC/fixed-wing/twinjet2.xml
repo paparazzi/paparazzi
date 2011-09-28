@@ -20,6 +20,7 @@
     </load>
     <!--load name="enose.xml"/-->
     <load name="light.xml"/>
+    <load name="infrared_adc.xml"/>
   </modules>
 
   <firmware name="fixedwing">

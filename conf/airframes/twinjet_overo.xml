@@ -44,6 +44,7 @@
       <flag name="USE_ADC_3"/>
       <flag name="USE_ADC_5"/>
     </load>
+    <load name="infrared_adc.xml"/>
   </modules>
 
   <servos>
