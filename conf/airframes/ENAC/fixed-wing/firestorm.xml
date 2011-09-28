@@ -21,20 +21,20 @@
     <target name="sim" board="pc"/>
     <target name="ap" board="umarim_1.0">
       <configure name="FLASH_MODE" value="IAP"/>
+      <define name="USE_I2C0"/>
+      <define name="USE_I2C1"/>
     </target>
 
     <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="i2c">
-      <define name="USE_I2C0"/>
-      <define name="USE_I2C1"/>
-    </subsystem>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="transparent"/>
+    <subsystem name="telemetry" type="transparent">
+      <configure name="MODEM_BAUD" value="B57600"/>
+    </subsystem>
 
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="imu"     type="umarim"/>
-    <subsystem name="ahrs"    type="dcm">
+    <subsystem name="ahrs"    type="float_dcm">
       <define name="USE_HIGH_ACCEL_FLAG"/>
     </subsystem>
     <subsystem name="control" type="adaptive"/>
@@ -123,8 +123,8 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0.048" unit="rad"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0." unit="rad"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="-0.0640000030398" unit="rad"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0.0670000016689" unit="rad"/>
   </section>
 
   <section name="BAT">
@@ -142,6 +142,7 @@
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
+    <define name="TELEMETRY_MODE_AP" value="1"/>
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -158,10 +159,10 @@
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.80"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-2500"/>
-    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.02"/>
-    <define name="AUTO_THROTTLE_IGAIN" value="0.1"/>
-    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.15"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.05" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="-0.007"/>
+    <define name="AUTO_THROTTLE_IGAIN" value="0.067"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.11"/>
 
     <!-- auto pitch inner loop -->
     <define name="AUTO_PITCH_PGAIN" value="-0.05"/>
@@ -174,7 +175,7 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.23500001431"/>
+    <define name="COURSE_PGAIN" value="-0.9"/>
 
     <define name="ROLL_MAX_SETPOINT" value="0.805000007153" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
@@ -185,8 +186,8 @@
 
     <define name="ELEVATOR_OF_ROLL" value="2000."/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-12000"/>
-    <define name="ROLL_RATE_GAIN" value="-2500"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="-2600"/>
+    <define name="ROLL_RATE_GAIN" value="-850"/>
 
     <define name="ROLL_KFF" value="-500"/>
     <define name="ROLL_IGAIN" value="-00"/>
