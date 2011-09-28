@@ -3,8 +3,9 @@
 
 uint8_t nav_poles_count = 0;
 float nav_poles_time = 0.;
+int8_t nav_poles_land = 1;
 
-#define SAFETY_MARGIN 0.9
+#define SAFETY_MARGIN 0.7
 
 /** computes position of wp1c and wp2c, reference points for an oval around
     waypoints wp1 and wp2 */
