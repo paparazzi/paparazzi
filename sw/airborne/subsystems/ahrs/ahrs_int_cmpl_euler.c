@@ -97,7 +97,7 @@ void ahrs_align(void) {
 
 //#define USE_NOISE_CUT 1
 //#define USE_NOISE_FILTER 1
-//#define NOISE_FILTER_GAIN 50
+#define NOISE_FILTER_GAIN 50
 
 #ifdef USE_NOISE_CUT
 #include "led.h"
@@ -155,8 +155,13 @@ void ahrs_propagate(void) {
   if (!cut_rates(uf_rate, last_uf_rate, RATE_CUT_THRESHOLD)) {
 #endif
     /* low pass rate */
+#ifdef USE_NOISE_FILTER
+    RATES_SUM_SCALED(ahrs.imu_rate, ahrs.imu_rate, uf_rate, NOISE_FILTER_GAIN);
+    RATES_SDIV(ahrs.imu_rate, ahrs.imu_rate, NOISE_FILTER_GAIN+1);
+#else
     RATES_ADD(ahrs.imu_rate, uf_rate);
     RATES_SDIV(ahrs.imu_rate, ahrs.imu_rate, 2);
+#endif
 #ifdef USE_NOISE_CUT
   }
   RATES_COPY(last_uf_rate, uf_rate);
@@ -194,8 +199,10 @@ void ahrs_propagate(void) {
 
 void ahrs_update_accel(void) {
 
-#ifdef USE_NOISE_CUT
+#if defined(USE_NOISE_CUT) || defined(USE_NOISE_FILTER)
   static struct Int32Vect3 last_accel = { 0, 0, 0 };
+#endif
+#ifdef USE_NOISE_CUT
   if (!cut_accel(imu.accel, last_accel, ACCEL_CUT_THRESHOLD)) {
 #endif
 #ifdef USE_NOISE_FILTER
