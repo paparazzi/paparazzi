@@ -217,7 +217,7 @@
     static uint8_t i;                                                   \
     int16_t climb = -gps.ned_vel.z;                                     \
     int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));             \
-    DOWNLINK_SEND_GPS(DefaultChannel, &gps.fix, &gps.utm_pos.east, &gps.utm_pos.north, &course, &gps.lla_pos.alt, &gps.gspeed, &climb, &gps.week, &gps.tow, &gps.utm_pos.zone, &i); \
+    DOWNLINK_SEND_GPS(DefaultChannel, &gps.fix, &gps.utm_pos.east, &gps.utm_pos.north, &course, &gps.hmsl, &gps.gspeed, &climb, &gps.week, &gps.tow, &gps.utm_pos.zone, &i); \
     if ((gps.fix != GPS_FIX_3D) && (i >= gps.nb_channels)) i = 0;                                    \
     if (i >= gps.nb_channels * 2) i = 0;                                    \
     if (i < gps.nb_channels && gps.svinfos[i].cno > 0) { \
