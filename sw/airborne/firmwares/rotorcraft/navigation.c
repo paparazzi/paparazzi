@@ -280,7 +280,7 @@ void nav_periodic_task() {
   /* run carrot loop */
   nav_run();
 
-  ground_alt = POS_BFP_OF_REAL((float)ins_ltp_def.hmsl / 100.);
+  ground_alt = POS_BFP_OF_REAL((float)ins_ltp_def.hmsl / 1000.);
 }
 
 #include "downlink.h"
