@@ -33,5 +33,6 @@ extern void booz_drop_init(void);
 extern void booz_drop_periodic(void);
 
 #define NavDropNow() ({ booz_drop_ball = TRUE; FALSE; })
+#define NavDropClose() ({ booz_drop_ball = FALSE; FALSE; })
 
 #endif  /* BOOZ_DROP_H */
