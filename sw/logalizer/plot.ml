@@ -543,10 +543,10 @@ let rec select_gps_values = function
 	    l := (t, of_utm WGS84 utm, a) :: !l
       done;
       List.rev !l
-  | (m, values)::_ when m.Pprz.name = "BOOZ2_GPS" ->
+  | (m, values)::_ when m.Pprz.name = "GPS_INT" ->
       let lats = List.assoc "lat" values
       and lons = List.assoc "lon" values
-      and alts = List.assoc "alt" values in
+      and alts = List.assoc "hmsl" values in
       let l = ref [] in
       for i = 0 to Array.length lats - 1 do
 	let a = snd alts.(i) /. 1000. in
@@ -554,7 +554,7 @@ let rec select_gps_values = function
 	  let t = fst lats.(i)
 	  and lat = snd lats.(i) /. 1e7
 	  and lon = snd lons.(i) /. 1e7 in
-	  let wgs84 = make_geo_deg lat lon in
+	  let wgs84 = make_geo lat lon in
 	  l := (t, wgs84, a) :: !l
       done;
       List.rev !l
