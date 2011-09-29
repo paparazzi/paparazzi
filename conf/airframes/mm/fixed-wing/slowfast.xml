@@ -22,7 +22,7 @@
     <subsystem name="radio_control"     type="ppm"/>
     <subsystem name="telemetry" 	type="xbee_api"/>
     <subsystem name="control"/>
-    <subsystem name="attitude" 		type="infrared"/>
+    <subsystem name="ahrs" 		type="infrared"/>
     <subsystem name="gps" 		type="ublox"/>
     <subsystem name="navigation"/>
 
@@ -30,6 +30,10 @@
       <param name="ADC_GYRO_ROLL" value="ADC_3"/>
     </subsystem>
   </firmware>
+
+  <modules>
+    <load name="infrared_adc.xml"/>
+  </modules>
 
 <!-- commands section -->
   <servos>

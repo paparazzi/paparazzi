@@ -36,7 +36,7 @@
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="attitude"         type="infrared"/>
+    <subsystem name="ahrs"         type="infrared"/>
     <subsystem name="gps"              type="mediatek_diy"/>
     <!-- Nav -->
     <subsystem name="navigation"/>
@@ -73,6 +73,7 @@
     <load name="humid_sht_i2c.xml"/>
     <load name="mag_micromag_fw.xml"/>
     <load name="baro_scp_i2c.xml"/-->
+    <load name="infrared_adc.xml"/>
   </modules>
 
   <!-- commands section -->

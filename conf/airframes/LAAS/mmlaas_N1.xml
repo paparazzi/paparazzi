@@ -23,11 +23,7 @@
 
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="attitude" 		type="infrared">
-      <configure name="ADC_IR1" value="ADC_1"/>
-      <configure name="ADC_IR2" value="ADC_0"/>
-      <configure name="ADC_IR_TOP" value="ADC_2"/>
-    </subsystem>
+    <subsystem name="ahrs" 		type="infrared"/>
     <subsystem name="gps" 		    type="ublox_utm"/>
     <subsystem name="navigation"/>
 
@@ -43,6 +39,11 @@
    <!-- <load name="tcas.xml"/> -->
     <!--load name="potential.xml"/-->
   <load name="cartography.xml"/>
+  <load name="infrared_adc.xml">
+    <configure name="ADC_IR1" value="ADC_1"/>
+    <configure name="ADC_IR2" value="ADC_0"/>
+    <configure name="ADC_IR_TOP" value="ADC_2"/>
+  </load>
 </modules>
 
 

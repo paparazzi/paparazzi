@@ -39,9 +39,6 @@
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "subsystems/gps.h"
-#ifdef USE_INFRARED
-#include "subsystems/sensors/infrared.h"
-#endif
 #include "gyro.h"
 #include "ap_downlink.h"
 #include "subsystems/nav.h"
@@ -73,13 +70,18 @@
 #endif
 #ifdef USE_AHRS
 #include "subsystems/ahrs.h"
+#endif
+#ifdef USE_AHRS_ALIGNER
 #include "subsystems/ahrs/ahrs_aligner.h"
-#include AHRS_TYPE_H
+#endif
+
+#if defined USE_IMU && defined USE_AHRS
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
 volatile uint8_t ahrs_timeout_counter = 0;
 #endif
+
 #ifdef USE_GPS
 static inline void on_gps_solution( void );
 #endif
@@ -373,7 +375,7 @@ static void navigation_task( void ) {
  * - 20 Hz:
  *   - lets use \a reporting_task at 60 Hz
  *   - updates ir with \a ir_update
- *   - updates estimator of ir with \a estimator_update_state_infrared
+ *   - updates estimator of ir with \a ahrs_update_infrared
  *   - set \a desired_aileron and \a desired_elevator with \a pid_attitude_loop
  *   - sends to \a fbw \a desired_throttle, \a desired_aileron and
  *     \a desired_elevator \note \a desired_throttle is set upon GPS
@@ -392,8 +394,7 @@ static inline void attitude_loop( void ) {
 #endif
 
 #ifdef USE_INFRARED
-      infrared_update();
-      estimator_update_state_infrared();
+      ahrs_update_infrared();
 #endif /* USE_INFRARED */
       h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
       v_ctl_throttle_slew();
@@ -428,8 +429,11 @@ void periodic_task_ap( void ) {
 #ifdef USE_IMU
   // Run at PERIODIC_FREQUENCY (60Hz if not defined)
   imu_periodic();
+
+#ifdef USE_AHRS
   if (ahrs_timeout_counter < 255)
     ahrs_timeout_counter ++;
+#endif
 
 #endif // USE_IMU
 
@@ -532,9 +536,6 @@ void init_ap( void ) {
 #endif /* SINGLE_MCU */
 
   /************* Sensors initialization ***************/
-#ifdef USE_INFRARED
-  infrared_init();
-#endif
 #ifdef USE_GYRO
   gyro_init();
 #endif
@@ -550,7 +551,9 @@ void init_ap( void ) {
   imu_init();
 #endif
 #ifdef USE_AHRS
+#ifdef USE_AHRS_ALIGNER
   ahrs_aligner_init();
+#endif
   ahrs_init();
 #endif
 
@@ -606,11 +609,7 @@ void init_ap( void ) {
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
 
-#ifdef USE_INFRARED
-  infrared_event();
-#endif
-
-#ifdef USE_AHRS
+#if defined USE_IMU && defined USE_AHRS
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 #endif // USE_AHRS
 
@@ -649,13 +648,17 @@ void event_task_ap( void ) {
 #ifdef USE_GPS
 static inline void on_gps_solution( void ) {
   estimator_update_state_gps();
+#ifdef USE_INFRARED
+  ahrs_update_gps();
+#endif
 #ifdef GPS_TRIGGERED_FUNCTION
   GPS_TRIGGERED_FUNCTION();
 #endif
 }
 #endif
 
-#ifdef USE_AHRS
+
+#if defined USE_IMU && defined USE_AHRS
 static inline void on_accel_event( void ) {
 }
 

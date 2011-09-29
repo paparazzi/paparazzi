@@ -15,10 +15,14 @@
     <subsystem name="radio_control"     type="spektrum"/>
     <subsystem name="telemetry" 	type="transparent"/>
     <subsystem name="control"/>
-    <subsystem name="attitude" 		type="infrared"/>
+    <subsystem name="ahrs" 		type="infrared"/>
     <subsystem name="gps" 		type="ublox"/>
     <subsystem name="navigation"/>
   </firmware>
+
+  <modules>
+    <load name="infrared_adc.xml"/>
+  </modules>
 
   <firmware name="lisa_l_test_progs">
     <target name="tunnel"           board="lisa_l_1.0"/>

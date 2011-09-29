@@ -4,6 +4,7 @@
 
 
 $(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm.h\"
+$(TARGET).CFLAGS += -DUSE_AHRS_ALIGNER
 
 ifeq ($(TARGET), ap)
 

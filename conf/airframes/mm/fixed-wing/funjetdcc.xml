@@ -33,7 +33,7 @@
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="attitude"         type="infrared"/>
+    <subsystem name="ahrs"         type="infrared"/>
     <subsystem name="gps"              type="ublox_utm"/>
     <!-- Nav -->
     <subsystem name="navigation"/>
@@ -51,6 +51,7 @@
   <modules>
     <!--load name="formation_flight.xml"/-->
     <load name="tcas.xml"/>
+    <load name="infrared_adc.xml"/>
   </modules>
 
   <!-- commands section -->

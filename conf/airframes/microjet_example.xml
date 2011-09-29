@@ -187,11 +187,15 @@
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="gyro"          type="roll"/>
-    <subsystem name="attitude" 		type="infrared"/>
+    <subsystem name="ahrs" 		type="infrared"/>
     <subsystem name="gps" 		    type="ublox_utm"/>
     <subsystem name="navigation"/>
 
   </firmware>
+
+  <modules>
+    <load name="infrared_adc.xml"/>
+  </modules>
 
 
   <firmware name="setup">

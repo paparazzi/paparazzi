@@ -27,12 +27,15 @@
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="attitude" 		type="infrared"/>
+    <subsystem name="ahrs" 		type="infrared"/>
     <subsystem name="gps" 		    type="ublox"/>
 
     <subsystem name="navigation"/>
   </firmware>
 
+  <modules>
+    <load name="infrared_adc.xml"/>
+  </modules>
 
   <firmware name="setup">
     <target name="tunnel" 		    board="tiny_2.11"/>

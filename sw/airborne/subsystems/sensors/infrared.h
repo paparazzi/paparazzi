@@ -27,7 +27,6 @@
 
 #include "std.h"
 #include "generated/airframe.h"
-#include "estimator.h"
 
 /*
  * Sensor installation
@@ -140,7 +139,6 @@ extern struct Infrared infrared;
   infrared.roll = infrared.lateral_correction * IR_RollOfIrs(infrared.value.ir1, infrared.value.ir2); \
   infrared.pitch = infrared.longitudinal_correction * IR_PitchOfIrs(infrared.value.ir1, infrared.value.ir2); \
   infrared.top = infrared.vertical_correction * IR_TopOfIr(infrared.value.ir3); \
-  estimator_update_state_infrared(); \
 }
 
 // initialization of the infrared structure

@@ -227,37 +227,10 @@ void estimator_update_state_gps( void ) {
   float fcourse = gps.course / 1e7;
   EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
 
-  // Heading estimator from wind-information, usually computed with -DWIND_INFO
-  // wind_north and wind_east initialized to 0, so still correct if not updated
-  float w_vn = cosf(estimator_hspeed_dir) * estimator_hspeed_mod - wind_north;
-  float w_ve = sinf(estimator_hspeed_dir) * estimator_hspeed_mod - wind_east;
-  estimator_psi = atan2f(w_ve, w_vn);
-  if (estimator_psi < 0.)
-    estimator_psi += 2 * M_PI;
+  // Heading estimation now in ahrs_infrared
+
 #ifdef EXTRA_DOWNLINK_DEVICE
     DOWNLINK_SEND_ATTITUDE(ExtraPprzTransport,&estimator_phi,&estimator_psi,&estimator_theta);
 #endif
 }
 
-#include "subsystems/sensors/infrared.h"
-void estimator_update_state_infrared( void ) {
-  estimator_phi  = atan2(infrared.roll, infrared.top) - infrared.roll_neutral;
-
-  estimator_theta  = atan2(infrared.pitch, infrared.top) - infrared.pitch_neutral;
-
-  if (estimator_theta < -M_PI_2)
-    estimator_theta += M_PI;
-  else if (estimator_theta > M_PI_2)
-    estimator_theta -= M_PI;
-
-  if (estimator_phi >= 0)
-    estimator_phi *= infrared.correction_right;
-  else
-    estimator_phi *= infrared.correction_left;
-
-  if (estimator_theta >= 0)
-    estimator_theta *= infrared.correction_up;
-  else
-    estimator_theta *= infrared.correction_down;
-
-}
