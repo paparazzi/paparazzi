@@ -124,6 +124,7 @@
 #endif
 
 #if defined USE_INFRARED || USE_INFRARED_TELEMETRY
+#include "subsystems/sensors/infrared.h"
 #define PERIODIC_SEND_IR_SENSORS(_chan) DOWNLINK_SEND_IR_SENSORS(_chan, &infrared.value.ir1, &infrared.value.ir2, &infrared.pitch, &infrared.roll, &infrared.top);
 #else
 #define PERIODIC_SEND_IR_SENSORS(_chan) ;

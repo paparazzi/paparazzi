@@ -3,11 +3,10 @@
 # attitude estimation for fixedwings via dcm algorithm
 
 
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm.h\"
-$(TARGET).CFLAGS += -DUSE_AHRS_ALIGNER
-
 ifeq ($(TARGET), ap)
 
+ap.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm.h\"
+ap.CFLAGS += -DUSE_AHRS_ALIGNER
 ap.CFLAGS += -DUSE_AHRS
 
 ap.srcs   += $(SRC_SUBSYSTEMS)/ahrs.c
@@ -37,7 +36,10 @@ ap.CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
 
 endif
 
-# since there is currently no SITL sim for the Analog IMU, we use the infrared sim
+
+
+# since there is currently no SITL sim for the IMU, we use the infrared sim
+# and the ahrs_infrared subsystem
 
 ifeq ($(TARGET), sim)
 
@@ -50,6 +52,13 @@ sim.srcs += subsystems/sensors/infrared_adc.c
 
 sim.srcs += $(SRC_ARCH)/sim_ir.c
 sim.srcs += $(SRC_ARCH)/sim_imu.c
+
+
+sim.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_infrared.h\"
+sim.CFLAGS += -DUSE_AHRS
+
+sim.srcs   += $(SRC_SUBSYSTEMS)/ahrs.c
+sim.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_infrared.c
 
 endif
 
