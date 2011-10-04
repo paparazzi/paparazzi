@@ -29,7 +29,7 @@
 
 
 void ahrs_init(void) {
-  ahrs_float.status = AHRS_UNINIT;
+  ahrs.status = AHRS_UNINIT;
 
   /* set ltp_to_body to zero */
   FLOAT_QUAT_ZERO(ahrs_float.ltp_to_body_quat);

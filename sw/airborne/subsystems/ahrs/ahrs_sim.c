@@ -58,7 +58,9 @@ void update_attitude_from_sim(void) {
 
 
 void ahrs_init(void) {
-  ahrs_float.status = AHRS_UNINIT;
+  //ahrs_float.status = AHRS_UNINIT;
+  // set to running for now and only use ahrs.status, not ahrs_float.status
+  ahrs.status = AHRS_RUNNING;
 
   /* set ltp_to_body to zero */
   FLOAT_QUAT_ZERO(ahrs_float.ltp_to_body_quat);
