@@ -92,6 +92,18 @@
 #define IR_CORRECTION_DOWN 1.
 #endif
 
+
+/*
+ * Default neutral values
+ */
+#ifndef IR_ROLL_NEUTRAL_DEFAULT
+#define IR_ROLL_NEUTRAL_DEFAULT 0.0
+#endif
+
+#ifndef IR_PITCH_NEUTRAL_DEFAULT
+#define IR_PITCH_NEUTRAL_DEFAULT 0.0
+#endif
+
 struct Infrared_raw {
   /* the 3 channels of the sensor
    */
