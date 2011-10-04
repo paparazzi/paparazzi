@@ -20,7 +20,6 @@
  */
 
 #include "subsystems/ahrs.h"
-#include "subsystems/imu.h"
 
 struct Ahrs ahrs;
 struct AhrsFloat ahrs_float;
