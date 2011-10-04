@@ -20,8 +20,8 @@
  */
 
 
+#include "subsystems/ahrs.h"
 #include "subsystems/ahrs/ahrs_sim.h"
-//#include "math/pprz_algebra.h"
 #include "math/pprz_algebra_float.h"
 #include "generated/airframe.h"
 
@@ -31,12 +31,15 @@
 float sim_phi;
 float sim_theta;
 float sim_psi;
+bool_t ahrs_sim_available;
 
 // Updates from Ocaml sim
 value set_attitude(value phi, value theta, value psi) {
   sim_phi = Double_val(phi);
   sim_theta = Double_val(theta);
   sim_psi = Double_val(psi);
+
+  ahrs_sim_available = TRUE;
 
   return Val_unit;
 }
@@ -63,6 +66,8 @@ void ahrs_init(void) {
   //ahrs_float.status = AHRS_UNINIT;
   // set to running for now and only use ahrs.status, not ahrs_float.status
   ahrs.status = AHRS_RUNNING;
+
+  ahrs_sim_available = FALSE;
 
   /* set ltp_to_body to zero */
   FLOAT_QUAT_ZERO(ahrs_float.ltp_to_body_quat);
@@ -140,6 +145,5 @@ void ahrs_update_fw_estimator(void)
 
   estimator_p = ahrs_float.body_rate.p;
   estimator_q = ahrs_float.body_rate.q;
-
 }
 #endif //AHRS_UPDATE_FW_ESTIMATOR

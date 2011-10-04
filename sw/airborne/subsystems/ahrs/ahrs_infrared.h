@@ -37,4 +37,7 @@ extern void ahrs_update_infrared(void);
 // TODO copy ahrs to state instead of estimator
 extern void ahrs_update_fw_estimator(void);
 
+#define AhrsEvent(_available_callback) {        \
+  }
+
 #endif /* AHRS_INFRARED_H */
