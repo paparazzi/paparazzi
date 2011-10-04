@@ -22,5 +22,13 @@
     <file name="airspeed_ets.c"/>
   </makefile>
 
+  <!--
+    hack to make sim work,
+    in sim_ir the variable sim_airspeed is set, should be refactored
+  -->
+  <makefile target="sim">
+    <file_arch name="sim_ir.c" dir="."/>
+    <file name="infrared.c" dir="subsystems/sensors"/>
+  </makefile>
 </module>
 
