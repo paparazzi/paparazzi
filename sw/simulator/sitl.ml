@@ -194,6 +194,10 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     (** ADC neutral is not taken into account in the soft sim (c.f. sim_ir.c)*)
     set_ir_and_airspeed (truncate ir_left) (truncate ir_front) (truncate ir_top) air_speed
 
+  external set_attitude : float -> float -> float -> unit = "set_attitude"
+  let attitude = fun phi theta psi ->
+    set_attitude phi theta psi
+
   external use_gps_pos: int -> int -> int -> float -> float -> float -> float -> float -> bool -> float -> float -> unit = "sim_use_gps_pos_bytecode" "sim_use_gps_pos"
   let gps = fun gps ->
     let utm = utm_of WGS84 gps.Gps.wgs84 in
