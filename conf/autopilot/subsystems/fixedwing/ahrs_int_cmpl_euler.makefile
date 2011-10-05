@@ -18,28 +18,13 @@ ap.CFLAGS += $(AHRS_CFLAGS)
 ap.srcs += $(AHRS_SRCS)
 
 
-
-# since there is currently no ocaml SITL sim for the IMU, we use the infrared sim
-# and the ahrs_infrared subsystem
-
 ifeq ($(TARGET), sim)
 
-sim.CFLAGS += -DIR_ROLL_NEUTRAL_DEFAULT=0
-sim.CFLAGS += -DIR_PITCH_NEUTRAL_DEFAULT=0
-
-sim.CFLAGS += -DUSE_INFRARED
-sim.srcs += subsystems/sensors/infrared.c
-sim.srcs += subsystems/sensors/infrared_adc.c
-
-sim.srcs += $(SRC_ARCH)/sim_ir.c
-sim.srcs += $(SRC_ARCH)/sim_imu.c
-
-
-sim.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_infrared.h\"
-sim.CFLAGS += -DUSE_AHRS
+sim.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_sim.h\"
+sim.CFLAGS += -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR
 
 sim.srcs   += $(SRC_SUBSYSTEMS)/ahrs.c
-sim.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_infrared.c
+sim.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_sim.c
 
 endif
 

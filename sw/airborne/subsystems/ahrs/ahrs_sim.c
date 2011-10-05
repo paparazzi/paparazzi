@@ -28,21 +28,10 @@
 #include <inttypes.h>
 #include <caml/mlvalues.h>
 
-float sim_phi;
-float sim_theta;
-float sim_psi;
-bool_t ahrs_sim_available;
-
-// Updates from Ocaml sim
-value set_attitude(value phi, value theta, value psi) {
-  sim_phi = Double_val(phi);
-  sim_theta = Double_val(theta);
-  sim_psi = Double_val(psi);
-
-  ahrs_sim_available = TRUE;
-
-  return Val_unit;
-}
+extern float sim_phi;
+extern float sim_theta;
+extern float sim_psi;
+extern bool_t ahrs_sim_available;
 
 
 void compute_body_orientation_and_rates(void);
@@ -50,9 +39,7 @@ void compute_body_orientation_and_rates(void);
 void update_attitude_from_sim(void) {
   ahrs_float.ltp_to_imu_euler.phi = sim_phi;
   ahrs_float.ltp_to_imu_euler.theta = sim_theta;
-  ahrs_float.ltp_to_imu_euler.psi = -sim_psi;
-  FLOAT_ANGLE_NORMALIZE(ahrs_float.ltp_to_imu_euler.psi);
-  ahrs_float.ltp_to_imu_euler.psi += M_PI/2.;
+  ahrs_float.ltp_to_imu_euler.psi = sim_psi;
 
   /* set quaternion and rotation matrix representations as well */
   FLOAT_QUAT_OF_EULERS(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_euler);
@@ -98,15 +85,12 @@ void ahrs_align(void)
 
 
 void ahrs_propagate(void) {
-  update_attitude_from_sim();
 }
 
 void ahrs_update_accel(void) {
-  update_attitude_from_sim();
 }
 
 void ahrs_update_mag(void) {
-  update_attitude_from_sim();
 }
 
 

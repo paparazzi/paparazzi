@@ -768,7 +768,7 @@ static inline void on_mag_event(void)
 #endif
 }
 
-#else // USE_IMU
+#else // USE_IMU not defined
 static inline void on_ahrs_event(void)
 {
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
