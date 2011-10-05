@@ -31,15 +31,20 @@
 extern float sim_phi;
 extern float sim_theta;
 extern float sim_psi;
+extern float sim_p;
+extern float sim_q;
 extern bool_t ahrs_sim_available;
 
 
 void compute_body_orientation_and_rates(void);
 
-void update_attitude_from_sim(void) {
+void update_ahrs_from_sim(void) {
   ahrs_float.ltp_to_imu_euler.phi = sim_phi;
   ahrs_float.ltp_to_imu_euler.theta = sim_theta;
   ahrs_float.ltp_to_imu_euler.psi = sim_psi;
+
+  ahrs_float.imu_rate.p = sim_p;
+  ahrs_float.imu_rate.q = sim_q;
 
   /* set quaternion and rotation matrix representations as well */
   FLOAT_QUAT_OF_EULERS(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_euler);
@@ -75,7 +80,7 @@ void ahrs_align(void)
    * body and imu have the same frame and always set to true value from sim
    */
 
-  update_attitude_from_sim();
+  update_ahrs_from_sim();
 
   /* Compute initial body orientation */
   compute_body_orientation_and_rates();
