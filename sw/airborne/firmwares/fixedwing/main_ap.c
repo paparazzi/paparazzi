@@ -75,12 +75,16 @@
 #include "subsystems/ahrs/ahrs_aligner.h"
 #endif
 
-#if defined USE_IMU && defined USE_AHRS
+#ifdef USE_AHRS
+#ifdef USE_IMU
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
 volatile uint8_t ahrs_timeout_counter = 0;
-#endif
+#else
+static inline void on_ahrs_event(void);
+#endif // USE_IMU
+#endif // USE_AHRS
 
 #ifdef USE_GPS
 static inline void on_gps_solution( void );
@@ -374,7 +378,6 @@ static void navigation_task( void ) {
 /**There are four @@@@@ boucles @@@@@:
  * - 20 Hz:
  *   - lets use \a reporting_task at 60 Hz
- *   - updates ir with \a ir_update
  *   - updates estimator of ir with \a ahrs_update_infrared
  *   - set \a desired_aileron and \a desired_elevator with \a pid_attitude_loop
  *   - sends to \a fbw \a desired_throttle, \a desired_aileron and
@@ -390,24 +393,25 @@ static void navigation_task( void ) {
 static inline void attitude_loop( void ) {
 
 #ifdef USE_GYRO
-      gyro_update();
+  gyro_update();
 #endif
 
 #ifdef USE_INFRARED
-      ahrs_update_infrared();
+  ahrs_update_infrared();
 #endif /* USE_INFRARED */
-      h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
-      v_ctl_throttle_slew();
-      ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
-      ap_state->commands[COMMAND_ROLL] = h_ctl_aileron_setpoint;
 
-      ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
+  h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
+  v_ctl_throttle_slew();
+  ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
+  ap_state->commands[COMMAND_ROLL] = h_ctl_aileron_setpoint;
+
+  ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
 
 #if defined MCU_SPI_LINK
-      link_mcu_send();
+  link_mcu_send();
 #elif defined INTER_MCU && defined SINGLE_MCU
-      /**Directly set the flag indicating to FBW that shared buffer is available*/
-      inter_mcu_received_ap = TRUE;
+  /**Directly set the flag indicating to FBW that shared buffer is available*/
+  inter_mcu_received_ap = TRUE;
 #endif
 
 }
@@ -550,10 +554,12 @@ void init_ap( void ) {
 #ifdef USE_IMU
   imu_init();
 #endif
-#ifdef USE_AHRS
+
 #ifdef USE_AHRS_ALIGNER
   ahrs_aligner_init();
 #endif
+
+#ifdef USE_AHRS
   ahrs_init();
 #endif
 
@@ -609,8 +615,12 @@ void init_ap( void ) {
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
 
-#if defined USE_IMU && defined USE_AHRS
+#if defined USE_AHRS
+#ifdef USE_IMU
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
+#else
+  AhrsEvent(on_ahrs_event);
+#endif // USE_IMU
 #endif // USE_AHRS
 
 #ifdef USE_GPS
@@ -658,7 +668,8 @@ static inline void on_gps_solution( void ) {
 #endif
 
 
-#if defined USE_IMU && defined USE_AHRS
+#ifdef USE_AHRS
+#ifdef USE_IMU
 static inline void on_accel_event( void ) {
 }
 
@@ -750,5 +761,15 @@ static inline void on_mag_event(void)
   }
 #endif
 }
+
+#else // USE_IMU not defined
+static inline void on_ahrs_event(void)
+{
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
+  ahrs_update_fw_estimator();
+#endif
+}
+#endif // USE_IMU
+
 #endif // USE_AHRS
 

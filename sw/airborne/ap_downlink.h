@@ -95,7 +95,7 @@
 
 #ifdef USE_INFRARED
 #define PERIODIC_SEND_STATE_FILTER_STATUS(_chan) { uint16_t contrast = abs(infrared.roll) + abs(infrared.pitch) + abs(infrared.top); uint8_t mde = 3; if (contrast < 50) mde = 7; DOWNLINK_SEND_STATE_FILTER_STATUS(_chan, &mde, &contrast); }
-#elif defined USE_AHRS
+#elif defined USE_IMU && defined USE_AHRS
 #define PERIODIC_SEND_STATE_FILTER_STATUS(_chan) { uint8_t mde = 3; if (ahrs.status == AHRS_UNINIT) mde = 2; if (ahrs_timeout_counter > 10) mde = 5; uint16_t val = 0; DOWNLINK_SEND_STATE_FILTER_STATUS(_chan, &mde, &val); }
 #else
 #define PERIODIC_SEND_STATE_FILTER_STATUS(_chan) {}
@@ -124,6 +124,7 @@
 #endif
 
 #if defined USE_INFRARED || USE_INFRARED_TELEMETRY
+#include "subsystems/sensors/infrared.h"
 #define PERIODIC_SEND_IR_SENSORS(_chan) DOWNLINK_SEND_IR_SENSORS(_chan, &infrared.value.ir1, &infrared.value.ir2, &infrared.pitch, &infrared.roll, &infrared.top);
 #else
 #define PERIODIC_SEND_IR_SENSORS(_chan) ;

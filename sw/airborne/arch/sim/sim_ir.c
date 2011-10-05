@@ -23,11 +23,11 @@ value set_ir_and_airspeed(
     value air_speed
     ) {
   // INFRARED_TELEMETRY : Stupid hack to use with modules
-//#if defined  USE_INFRARED || USE_INFRARED_TELEMETRY
+#if defined  USE_INFRARED || USE_INFRARED_TELEMETRY
   infrared.roll = Int_val(roll);
   infrared.pitch = Int_val(front);
   infrared.top = Int_val(top);
-//#endif
+#endif
   sim_air_speed = Double_val(air_speed);
   return Val_unit;
 }

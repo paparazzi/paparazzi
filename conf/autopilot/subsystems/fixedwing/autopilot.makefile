@@ -195,6 +195,9 @@ sim.srcs 		+= downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/sim_gps.c $(SRC_
 sim.srcs 		+= subsystems/settings.c
 sim.srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
 
+# hack: always compile some of the sim functions, so ocaml sim does not complain about no-existing functions
+sim.srcs        += $(SRC_ARCH)/sim_ahrs.c $(SRC_ARCH)/sim_ir.c
+
 ######################################################################
 ##
 ## JSBSIM THREAD SPECIFIC

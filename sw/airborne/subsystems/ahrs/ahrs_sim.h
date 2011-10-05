@@ -19,25 +19,32 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef AHRS_INFRARED_H
-#define AHRS_INFRARED_H
+#ifndef AHRS_SIM_H
+#define AHRS_SIM_H
 
 #include "subsystems/ahrs.h"
 #include "std.h"
 
-// TODO: harmonize infrared neutrals with ins_neutrals
-// or get rid of ins neutrals
-// this ins only needed for sim right now
+extern bool_t ahrs_sim_available;
+
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
+#include "estimator.h"
+// TODO copy ahrs to state instead of estimator
+void ahrs_update_fw_estimator(void);
 extern float ins_roll_neutral;
 extern float ins_pitch_neutral;
+#endif
 
-extern void ahrs_update_gps(void);
-extern void ahrs_update_infrared(void);
-
-// TODO copy ahrs to state instead of estimator
-extern void ahrs_update_fw_estimator(void);
+extern void update_ahrs_from_sim(void);
 
 #define AhrsEvent(_available_callback) {        \
+    if (ahrs_sim_available) {                   \
+      update_ahrs_from_sim();               \
+      _available_callback();                    \
+      ahrs_sim_available = FALSE;               \
+    }                                           \
   }
 
-#endif /* AHRS_INFRARED_H */
+
+
+#endif /* AHRS_SIM_H */

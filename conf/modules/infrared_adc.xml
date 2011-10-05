@@ -35,9 +35,6 @@ endif
 ap.CFLAGS += -DADC_CHANNEL_IR_NB_SAMPLES=$(ADC_IR_NB_SAMPLES)
     </raw>
   </makefile>
-  <makefile target="sim">
-    <file_arch name="sim_ir.c" dir="."/>
-  </makefile>
 </module>
 
 

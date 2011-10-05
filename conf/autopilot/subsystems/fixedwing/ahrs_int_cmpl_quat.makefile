@@ -20,8 +20,17 @@ AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
 ap.CFLAGS += $(AHRS_CFLAGS)
 ap.srcs += $(AHRS_SRCS)
 
-sim.CFLAGS += $(AHRS_CFLAGS)
-sim.srcs += $(AHRS_SRCS)
+
+
+ifeq ($(TARGET), sim)
+
+sim.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_sim.h\"
+sim.CFLAGS += -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR
+
+sim.srcs   += $(SRC_SUBSYSTEMS)/ahrs.c
+sim.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_sim.c
+
+endif
 
 
 # Extra stuff for fixedwings
