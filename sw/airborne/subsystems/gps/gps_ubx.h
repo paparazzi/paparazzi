@@ -27,6 +27,10 @@
 #ifndef GPS_UBX_H
 #define GPS_UBX_H
 
+#ifdef GPS_CONFIGURE
+#warning "Please use gps_ubx_ucenter.xml module instead of GPS_CONFIGURE"
+#endif
+
 #include "mcu_periph/uart.h"
 
 /** Includes macros generated from ubx.xml */
@@ -66,17 +70,10 @@ extern struct GpsUbx gps_ubx;
 
 #define GpsBuffer() GpsLink(ChAvailable())
 
-#ifdef GPS_CONFIGURE
-extern bool_t gps_configuring;
-#define GpsParseOrConfigure() {     \
-    if (gps_configuring)            \
-      gps_configure();              \
-    else                            \
-      gps_ubx_read_message();       \
-  }
-#else
-#define GpsParseOrConfigure() gps_ubx_read_message()
+#ifndef GPS_UBX_UCENTER
+#define gps_ubx_ucenter_event() {}
 #endif
+
 
 /* Gps callback is called when receiving a VELNED or a SOL message
  * All position/speed messages are sent in one shot and VELNED is the last one on fixedwing
@@ -87,7 +84,8 @@ extern bool_t gps_configuring;
       ReadGpsBuffer();                             \
     }                                              \
     if (gps_ubx.msg_available) {                   \
-      GpsParseOrConfigure();                       \
+      gps_ubx_read_message();                      \
+      gps_ubx_ucenter_event();                     \
       if (gps_ubx.msg_class == UBX_NAV_ID &&       \
           (gps_ubx.msg_id == UBX_NAV_VELNED_ID ||  \
            (gps_ubx.msg_id == UBX_NAV_SOL_ID &&    \
@@ -132,35 +130,5 @@ extern void ubxsend_cfg_rst(uint16_t, uint8_t);
     ubxsend_cfg_rst(gps_ubx.reset, CFG_RST_Reset_Controlled);   \
   }
 
-
-/*
- * dynamic GPS configuration
- */
-#ifdef GPS_CONFIGURE
-#define NAV_DYN_STATIONARY  1
-#define NAV_DYN_PEDESTRIAN  2
-#define NAV_DYN_AUTOMOTIVE  3
-#define NAV_DYN_SEA         4
-#define NAV_DYN_AIRBORNE_1G 5
-#define NAV_DYN_AIRBORNE_2G 6
-#define NAV_DYN_AIRBORNE_4G 7
-
-#define NAV5_DYN_PORTABLE    0
-#define NAV5_DYN_FIXED       1
-#define NAV5_DYN_STATIONARY  2
-#define NAV5_DYN_PEDESTRIAN  3
-#define NAV5_DYN_AUTOMOTIVE  4
-#define NAV5_DYN_SEA         5
-#define NAV5_DYN_AIRBORNE_1G 6
-#define NAV5_DYN_AIRBORNE_2G 7
-#define NAV5_DYN_AIRBORNE_4G 8
-
-#define NAV5_2D_ONLY 1
-#define NAV5_3D_ONLY 2
-#define NAV5_AUTO    3
-
-extern void gps_configure(void);
-extern void gps_configure_uart(void);
-#endif
 
 #endif /* GPS_UBX_H */
