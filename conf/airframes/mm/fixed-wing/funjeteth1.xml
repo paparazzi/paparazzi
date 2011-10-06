@@ -40,7 +40,7 @@
     <!-- Sensors -->
     <subsystem name="gps"              type="ublox_lea5h"/>
     <!-- Nav -->
-    <subsystem name="navigation"/>
+    <subsystem name="navigation" type="extra"/>
     <!-- Interfaces -->
     <subsystem name="i2c"/>
     <subsystem name="spi"/>
