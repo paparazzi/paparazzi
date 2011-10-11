@@ -176,11 +176,13 @@ void spi_init( void ) {
   SSPCR1 = SSP_LBM | SSP_MS | SSP_SOD;
   SSPCPSR = SSPCPSR_VAL; /* Prescaler */
 
+#ifndef USE_MICROMAG_FW
   /* initialize interrupt vector */
   VICIntSelect &= ~VIC_BIT(VIC_SPI1);   /* SPI1 selected as IRQ */
   VICIntEnable = VIC_BIT(VIC_SPI1);     /* SPI1 interrupt enabled */
   VICVectCntl7 = VIC_ENABLE | VIC_SPI1;
   VICVectAddr7 = (uint32_t)SPI1_ISR;    /* address of the ISR */
+#endif
 }
 
 void SPI1_ISR(void) {
