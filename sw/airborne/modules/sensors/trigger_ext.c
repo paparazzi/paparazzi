@@ -34,6 +34,11 @@
 #include "modules/sensors/trig_ext_hw.h"
 #include "gps.h"
 #include "sys_time.h"
+
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "downlink.h"
