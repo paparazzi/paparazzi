@@ -7,7 +7,7 @@ let _ =
   and attribute = Sys.argv.(3) in
   let xml =
     try
-      Xml.parse_file xml_file 
+      Xml.parse_file xml_file
     with
       Xml.Error e ->
 	Printf.fprintf stderr "\nError in \"%s\": %s\n\n" xml_file (Xml.error e);

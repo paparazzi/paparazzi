@@ -23,12 +23,8 @@
 
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="attitude" 		type="infrared">
-      <configure name="ADC_IR1" value="ADC_0"/>
-      <configure name="ADC_IR2" value="ADC_1"/>
-      <configure name="ADC_IR_TOP" value="ADC_2"/>
-    </subsystem>
-    <subsystem name="gps" 		    type="ublox_lea4p"/>
+    <subsystem name="ahrs" 		type="infrared"/>
+    <subsystem name="gps" 		    type="ublox_utm"/>
     <subsystem name="navigation"/>
 
   </firmware>
@@ -42,6 +38,11 @@
     <load name="formation_flight.xml"/>
     <load name="tcas.xml"/>
     <!--load name="potential.xml"/-->
+    <load name="infrared_adc.xml">
+      <configure name="ADC_IR1" value="ADC_0"/>
+      <configure name="ADC_IR2" value="ADC_1"/>
+      <configure name="ADC_IR_TOP" value="ADC_2"/>
+    </load>
   </modules>
 
 <!-- commands section -->
@@ -116,7 +117,7 @@
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8600"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
- 
+
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="11." unit="m/s"/>
     <define name="MINIMUM_AIRSPEED" value="8." unit="m/s"/>
@@ -130,7 +131,7 @@
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="60."/>
   </section>
- 
+
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>

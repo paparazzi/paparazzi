@@ -1,3 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
+
 #
 # SITL Simulator
 #
@@ -17,8 +19,8 @@ NPSDIR = $(SIMDIR)/nps
 
 sim.ARCHDIR = $(ARCH)
 
-sim.CFLAGS  += -DSITL -DNPS
-sim.CFLAGS  += `pkg-config glib-2.0 --cflags` -I /usr/include/meschach
+sim.CFLAGS  += -DSITL -DUSE_NPS
+sim.CFLAGS  += `pkg-config glib-2.0 --cflags`
 sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lpcre -lglibivy -lgsl -lgslcblas
 sim.CFLAGS  += -I$(NPSDIR) -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
 

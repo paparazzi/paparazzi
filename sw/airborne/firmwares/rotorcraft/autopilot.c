@@ -37,6 +37,7 @@ bool_t   autopilot_motors_on;
 bool_t   autopilot_in_flight;
 uint32_t autopilot_motors_on_counter;
 uint32_t autopilot_in_flight_counter;
+uint8_t  autopilot_check_motor_status;
 bool_t   kill_throttle;
 bool_t   autopilot_rc;
 
@@ -51,6 +52,13 @@ uint16_t autopilot_flight_time;
 #define AUTOPILOT_IN_FLIGHT_TIME    40
 #define AUTOPILOT_THROTTLE_TRESHOLD (MAX_PPRZ / 20)
 #define AUTOPILOT_YAW_TRESHOLD      (MAX_PPRZ * 19 / 20)
+// Motors ON check state machine
+#define STATUS_MOTORS_OFF           0
+#define STATUS_M_OFF_STICK_PUSHED   1
+#define STATUS_START_MOTORS         2
+#define STATUS_MOTORS_ON            3
+#define STATUS_M_ON_STICK_PUSHED    4
+#define STATUS_STOP_MOTORS          5
 
 void autopilot_init(void) {
   autopilot_mode = AP_MODE_KILL;
@@ -59,6 +67,7 @@ void autopilot_init(void) {
   kill_throttle = ! autopilot_motors_on;
   autopilot_motors_on_counter = 0;
   autopilot_in_flight_counter = 0;
+  autopilot_check_motor_status = STATUS_MOTORS_OFF;
   autopilot_mode_auto2 = MODE_AUTO2;
   autopilot_detect_ground = FALSE;
   autopilot_detect_ground_once = FALSE;
@@ -180,6 +189,7 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
   (radio_control.values[RADIO_YAW] > AUTOPILOT_YAW_TRESHOLD || \
    radio_control.values[RADIO_YAW] < -AUTOPILOT_YAW_TRESHOLD)
 
+
 static inline void autopilot_check_in_flight( void) {
   if (autopilot_in_flight) {
     if (autopilot_in_flight_counter > 0) {
@@ -220,33 +230,65 @@ static inline int ahrs_is_aligned(void) {
 }
 #endif
 
-static inline void autopilot_check_motors_on( void ) {
-  if (autopilot_motors_on) {
-    if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) {
-      if ( autopilot_motors_on_counter > 0) {
-        autopilot_motors_on_counter--;
-        if (autopilot_motors_on_counter == 0)
-          autopilot_motors_on = FALSE;
-      }
-    }
-    else { /* sticks not in the corner */
-      autopilot_motors_on_counter = AUTOPILOT_MOTOR_ON_TIME;
-    }
-  }
-  else { /* motors off */
-    if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED() && ahrs_is_aligned()) {
-      if ( autopilot_motors_on_counter <  AUTOPILOT_MOTOR_ON_TIME) {
-        autopilot_motors_on_counter++;
-        if (autopilot_motors_on_counter == AUTOPILOT_MOTOR_ON_TIME)
-          autopilot_motors_on = TRUE;
-      }
-    }
-    else {
-      autopilot_motors_on_counter = 0;
-    }
-  }
+/** Set motors ON or OFF and change the status of the check_motors state machine
+ */
+void autopilot_set_motors_on(bool_t motors_on) {
+  autopilot_motors_on = motors_on;
+  kill_throttle = ! autopilot_motors_on;
+  if (autopilot_motors_on) autopilot_check_motor_status = STATUS_MOTORS_ON;
+  else autopilot_check_motor_status = STATUS_MOTORS_OFF;
 }
 
+/**
+ * State machine to check if motors should be turned ON or OFF
+ * The motors start/stop when pushing the yaw stick without throttle during a given time
+ * An intermediate state prevents oscillating between ON and OFF while keeping the stick pushed
+ * The stick must return to a neutral position before starting/stoping again
+ */
+static inline void autopilot_check_motors_on( void ) {
+  switch(autopilot_check_motor_status) {
+    case STATUS_MOTORS_OFF:
+      autopilot_motors_on = FALSE;
+      autopilot_motors_on_counter = 0;
+      if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) // stick pushed
+        autopilot_check_motor_status = STATUS_M_OFF_STICK_PUSHED;
+      break;
+    case STATUS_M_OFF_STICK_PUSHED:
+      autopilot_motors_on = FALSE;
+      autopilot_motors_on_counter++;
+      if (autopilot_motors_on_counter >= AUTOPILOT_MOTOR_ON_TIME)
+        autopilot_check_motor_status = STATUS_START_MOTORS;
+      else if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) // stick released too soon
+        autopilot_check_motor_status = STATUS_MOTORS_OFF;
+      break;
+    case STATUS_START_MOTORS:
+      autopilot_motors_on = TRUE;
+      autopilot_motors_on_counter = AUTOPILOT_MOTOR_ON_TIME;
+      if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) // wait until stick released
+        autopilot_check_motor_status = STATUS_MOTORS_ON;
+      break;
+    case STATUS_MOTORS_ON:
+      autopilot_motors_on = TRUE;
+      autopilot_motors_on_counter = AUTOPILOT_MOTOR_ON_TIME;
+      if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) // stick pushed
+        autopilot_check_motor_status = STATUS_M_ON_STICK_PUSHED;
+      break;
+    case STATUS_M_ON_STICK_PUSHED:
+      autopilot_motors_on = TRUE;
+      autopilot_motors_on_counter--;
+      if (autopilot_motors_on_counter == 0)
+        autopilot_check_motor_status = STATUS_STOP_MOTORS;
+      else if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) // stick released too soon
+        autopilot_check_motor_status = STATUS_MOTORS_ON;
+      break;
+    case STATUS_STOP_MOTORS:
+      autopilot_motors_on = FALSE;
+      autopilot_motors_on_counter = 0;
+      if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) // wait until stick released
+        autopilot_check_motor_status = STATUS_MOTORS_OFF;
+      break;
+  };
+}
 
 
 void autopilot_on_rc_frame(void) {

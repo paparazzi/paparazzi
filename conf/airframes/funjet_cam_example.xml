@@ -27,10 +27,10 @@
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="attitude" 		type="infrared"/>
-    <subsystem name="gps" 		    type="ublox_lea5h"/>
+    <subsystem name="ahrs" 		type="infrared"/>
+    <subsystem name="gps" 		    type="ublox"/>
 
-    <subsystem name="navigation"/>
+    <subsystem name="navigation"    type="extra"/>
   </firmware>
 
 
@@ -44,7 +44,11 @@
       <define name="POINT_CAM_YAW_PITCH"  value="1"/>
       <define name="SHOW_CAM_COORDINATES" value="1"/>
     </load>
+    <load name="digital_cam.xml">
+      <define name="DC_SHUTTER_LED" value="3"/>
+    </load>
     <load name="sys_mon.xml"/>
+    <load name="infrared_adc.xml"/>
   </modules>
 
 <!-- commands section -->

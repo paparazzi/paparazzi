@@ -2,7 +2,7 @@
  * $Id$
  *
  * 3D Geometry
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -408,7 +408,7 @@ let poly_normal poly =
 	and c = List.hd (List.tl (List.tl poly)) in
 	(* Normale unitaire au plan contenant le polygone *)
 	normal (vect_make a b) (vect_make b c)
-  end else null_vector  
+  end else null_vector
 
 (* ============================================================================= *)
 (* = Test d'un point dans un polygone 3D                                       = *)

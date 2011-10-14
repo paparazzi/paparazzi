@@ -31,6 +31,8 @@
 #include <std.h>
 #include "modules/meteo/humid_hih.h"
 #include "modules/meteo/temp_tmp102.h"
+#include "modules/meteo/humid_dpicco.h"
+#include "modules/meteo/humid_sht.h"
 #include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
@@ -58,7 +60,11 @@ void humid_hih_init( void ) {
 }
 
 void humid_hih_periodic( void ) {
-  float fvout;
+  float fvout, fhih_temp;
+
+  /* get temperature from external source */
+  fhih_temp = ftempsht;
+  /****************************************/
 
   adc_humid_hih = buf_humid_hih.sum / buf_humid_hih.av_nb_sample;
 
@@ -69,8 +75,8 @@ void humid_hih_periodic( void ) {
   fhih_humid = ((fvout / 5.0)-0.16)/0.0062;
 
   /* temperature compensation */
-  fhih_humid = fhih_humid/(1.0546 - (0.00216 * ftmp_temperature));
+  fhih_humid = fhih_humid/(1.0546 - (0.00216 * fhih_temp));
 
-  DOWNLINK_SEND_HIH_STATUS(DefaultChannel, &adc_humid_hih, &fhih_humid, &ftmp_temperature);
+  DOWNLINK_SEND_HIH_STATUS(DefaultChannel, &adc_humid_hih, &fhih_humid, &fhih_temp);
 }
 

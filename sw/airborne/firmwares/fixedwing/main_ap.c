@@ -39,9 +39,6 @@
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "subsystems/gps.h"
-#ifdef USE_INFRARED
-#include "subsystems/sensors/infrared.h"
-#endif
 #include "gyro.h"
 #include "ap_downlink.h"
 #include "subsystems/nav.h"
@@ -73,13 +70,22 @@
 #endif
 #ifdef USE_AHRS
 #include "subsystems/ahrs.h"
+#endif
+#ifdef USE_AHRS_ALIGNER
 #include "subsystems/ahrs/ahrs_aligner.h"
-#include AHRS_TYPE_H
+#endif
+
+#ifdef USE_AHRS
+#ifdef USE_IMU
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
 volatile uint8_t ahrs_timeout_counter = 0;
-#endif
+#else
+static inline void on_ahrs_event(void);
+#endif // USE_IMU
+#endif // USE_AHRS
+
 #ifdef USE_GPS
 static inline void on_gps_solution( void );
 #endif
@@ -372,8 +378,7 @@ static void navigation_task( void ) {
 /**There are four @@@@@ boucles @@@@@:
  * - 20 Hz:
  *   - lets use \a reporting_task at 60 Hz
- *   - updates ir with \a ir_update
- *   - updates estimator of ir with \a estimator_update_state_infrared
+ *   - updates estimator of ir with \a ahrs_update_infrared
  *   - set \a desired_aileron and \a desired_elevator with \a pid_attitude_loop
  *   - sends to \a fbw \a desired_throttle, \a desired_aileron and
  *     \a desired_elevator \note \a desired_throttle is set upon GPS
@@ -388,25 +393,25 @@ static void navigation_task( void ) {
 static inline void attitude_loop( void ) {
 
 #ifdef USE_GYRO
-      gyro_update();
+  gyro_update();
 #endif
 
 #ifdef USE_INFRARED
-      infrared_update();
-      estimator_update_state_infrared();
+  ahrs_update_infrared();
 #endif /* USE_INFRARED */
-      h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
-      v_ctl_throttle_slew();
-      ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
-      ap_state->commands[COMMAND_ROLL] = h_ctl_aileron_setpoint;
 
-      ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
+  h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
+  v_ctl_throttle_slew();
+  ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
+  ap_state->commands[COMMAND_ROLL] = h_ctl_aileron_setpoint;
+
+  ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
 
 #if defined MCU_SPI_LINK
-      link_mcu_send();
+  link_mcu_send();
 #elif defined INTER_MCU && defined SINGLE_MCU
-      /**Directly set the flag indicating to FBW that shared buffer is available*/
-      inter_mcu_received_ap = TRUE;
+  /**Directly set the flag indicating to FBW that shared buffer is available*/
+  inter_mcu_received_ap = TRUE;
 #endif
 
 }
@@ -428,8 +433,11 @@ void periodic_task_ap( void ) {
 #ifdef USE_IMU
   // Run at PERIODIC_FREQUENCY (60Hz if not defined)
   imu_periodic();
+
+#ifdef USE_AHRS
   if (ahrs_timeout_counter < 255)
-    ahrs_timeout_counter ++; 
+    ahrs_timeout_counter ++;
+#endif
 
 #endif // USE_IMU
 
@@ -532,9 +540,6 @@ void init_ap( void ) {
 #endif /* SINGLE_MCU */
 
   /************* Sensors initialization ***************/
-#ifdef USE_INFRARED
-  infrared_init();
-#endif
 #ifdef USE_GYRO
   gyro_init();
 #endif
@@ -549,8 +554,12 @@ void init_ap( void ) {
 #ifdef USE_IMU
   imu_init();
 #endif
-#ifdef USE_AHRS
+
+#ifdef USE_AHRS_ALIGNER
   ahrs_aligner_init();
+#endif
+
+#ifdef USE_AHRS
   ahrs_init();
 #endif
 
@@ -581,12 +590,6 @@ void init_ap( void ) {
   /** wait 0.5s (historical :-) */
   sys_time_usleep(500000);
 
-#ifdef GPS_CONFIGURE
-#ifndef SITL
-  gps_configure_uart();
-#endif
-#endif
-
 #if defined DATALINK
 
 #if DATALINK == XBEE
@@ -612,12 +615,12 @@ void init_ap( void ) {
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
 
-#ifdef USE_INFRARED
-  infrared_event();
-#endif
-
-#ifdef USE_AHRS
+#if defined USE_AHRS
+#ifdef USE_IMU
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
+#else
+  AhrsEvent(on_ahrs_event);
+#endif // USE_IMU
 #endif // USE_AHRS
 
 #ifdef USE_GPS
@@ -655,13 +658,18 @@ void event_task_ap( void ) {
 #ifdef USE_GPS
 static inline void on_gps_solution( void ) {
   estimator_update_state_gps();
+#ifdef USE_INFRARED
+  ahrs_update_gps();
+#endif
 #ifdef GPS_TRIGGERED_FUNCTION
   GPS_TRIGGERED_FUNCTION();
 #endif
 }
 #endif
 
+
 #ifdef USE_AHRS
+#ifdef USE_IMU
 static inline void on_accel_event( void ) {
 }
 
@@ -690,6 +698,10 @@ static inline void on_gyro_event( void ) {
   ahrs_propagate();
   ahrs_update_accel();
   ahrs_update_fw_estimator();
+
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+  new_ins_attitude = 1;
+#endif
 
 #else //PERIODIC_FREQUENCY
   static uint8_t _reduced_propagation_rate = 0;
@@ -723,17 +735,18 @@ static inline void on_gyro_event( void ) {
       INT_VECT3_ZERO(acc_avg);
       ImuScaleAccel(imu);
       ahrs_update_accel();
-      ahrs_update_fw_estimator();
     }
+
+    ahrs_update_fw_estimator();
+
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+    new_ins_attitude = 1;
+#endif
   }
 #endif //PERIODIC_FREQUENCY
 
 #ifdef AHRS_CPU_LED
     LED_OFF(AHRS_CPU_LED);
-#endif
-
-#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-  new_ins_attitude = 1;
 #endif
 
 }
@@ -748,5 +761,15 @@ static inline void on_mag_event(void)
   }
 #endif
 }
+
+#else // USE_IMU not defined
+static inline void on_ahrs_event(void)
+{
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
+  ahrs_update_fw_estimator();
+#endif
+}
+#endif // USE_IMU
+
 #endif // USE_AHRS
 

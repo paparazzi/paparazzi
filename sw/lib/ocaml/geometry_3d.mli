@@ -2,7 +2,7 @@
  * $Id$
  *
  * 3D Geometry
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Yann Le Fablec
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -43,7 +43,7 @@ type t_crossing3d = T_IN_SEG1 | T_IN_SEG2 | T_ON_PT1 | T_ON_PT2 | T_ON_PT3
 | T_ON_PT4 | T_OUT_SEG_PT1 | T_OUT_SEG_PT2 | T_OUT_SEG_PT3 | T_OUT_SEG_PT4
 
 (** Type point/vecteur 3D *)
-type pt_3D = { x3D : float; y3D : float; z3D : float; } 
+type pt_3D = { x3D : float; y3D : float; z3D : float; }
 
 (** Vecteur nul en 3D *)
 val null_vector : pt_3D

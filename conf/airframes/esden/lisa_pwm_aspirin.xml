@@ -55,7 +55,7 @@
   <include href="conf/airframes/esden/calib/aspirin_012.xml"/>
 
   <section name="IMU" prefix="IMU_">
-    
+
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_PSI"   value="RadOfDeg( 225. )"/>
@@ -205,8 +205,8 @@
 	    <configure name="GPS_BAUD"    value="B57600"/>
     </subsystem>
     <subsystem name="stabilization"   type="euler"/>
-    <subsystem name="ahrs"          type="cmpl"/>
-    <!--<subsystem name="ahrs"          type="ic"/>-->
+    <subsystem name="ahrs"          type="int_cmpl_euler"/>
+    <!--<subsystem name="ahrs"          type="int_cmpl_quat"/>-->
   </firmware>
 
   <firmware name="lisa_l_test_progs">

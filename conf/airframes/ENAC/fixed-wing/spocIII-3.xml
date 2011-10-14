@@ -32,7 +32,6 @@
       <define name="USE_I2C0"/>
     </target>
 
-    <subsystem name="i2c"/>
 
     <!-- Control -->
     <subsystem name="control" type="new"/>
@@ -43,7 +42,7 @@
     <subsystem name="radio_control" type="datalink"/>
 
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox_lea5h"/>
+    <subsystem name="gps" type="ublox"/>
 
     <subsystem name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
@@ -106,7 +105,7 @@
     <define name="CATASTROPHIC_BAT_LEVEL" value="4" unit="V"/>
     <define name="MilliAmpereOfAdc(_adc)" value="(_adc-156)*18.2"/>
   </section>
- 
+
   <section name="MISC">
     <define name="MINIMUM_AIRSPEED" value="14." unit="m/s"/>
     <define name="NOMINAL_AIRSPEED" value="17." unit="m/s"/>
@@ -124,7 +123,7 @@
     <define name="RC_LOST_MODE" value="PPRZ_MODE_AUTO2"/>
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
   </section>
- 
+
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
     <!-- outer loop proportional gain -->

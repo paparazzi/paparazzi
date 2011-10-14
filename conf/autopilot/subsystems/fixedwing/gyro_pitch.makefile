@@ -1,3 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
+
 # additional pitch stabilization with gyro
 #
 # this assumes you are already using a roll gyro

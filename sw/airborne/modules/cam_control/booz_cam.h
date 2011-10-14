@@ -26,6 +26,7 @@
 #define BOOZ_CAM_H
 
 #include "generated/airframe.h"
+#include "math/pprz_algebra_int.h"
 #include "std.h"
 #include "led.h"
 
@@ -33,6 +34,16 @@
 #define BOOZ_CAM_MODE_MANUAL   1
 #define BOOZ_CAM_MODE_HEADING  2
 #define BOOZ_CAM_MODE_WP       3
+
+// Warning:
+// LED_ON set GPIO low
+// LED_OFF set GPIO high
+#ifndef BOOZ_CAM_ON
+#define BOOZ_CAM_ON LED_OFF(CAM_SWITCH_LED)
+#endif
+#ifndef BOOZ_CAM_OFF
+#define BOOZ_CAM_OFF LED_ON(CAM_SWITCH_LED)
+#endif
 
 extern uint8_t booz_cam_mode;
 
@@ -49,8 +60,17 @@ extern void booz_cam_periodic(void);
 
 #define booz_cam_SetCamMode(_v) { \
   booz_cam_mode = _v; \
-  if (booz_cam_mode == BOOZ_CAM_MODE_NONE) { LED_ON(CAM_SWITCH_LED); } \
-  else { LED_OFF(CAM_SWITCH_LED); } \
+  if (booz_cam_mode == BOOZ_CAM_MODE_NONE) { BOOZ_CAM_OFF; } \
+  else { BOOZ_CAM_ON; } \
+}
+
+#define BOOZ_CAM_STICK_TILT_INC (ANGLE_BFP_OF_REAL(RadOfDeg(10.))/127.)
+#define BOOZ_CAM_STICK_PAN_INC (ANGLE_BFP_OF_REAL(RadOfDeg(20.))/127.)
+
+#define BOOZ_CAM_STICK_PARSE(_dl_buffer) { \
+  booz_cam_tilt += (int16_t)(BOOZ_CAM_STICK_TILT_INC*(float)DL_BOOZ_CAM_STICK_tilt(_dl_buffer)); \
+  booz_cam_pan += (int16_t)(BOOZ_CAM_STICK_PAN_INC*(float)DL_BOOZ_CAM_STICK_pan(dl_buffer)); \
+  INT32_COURSE_NORMALIZE(booz_cam_pan); \
 }
 
 #endif /* BOOZ2_CAM_H */

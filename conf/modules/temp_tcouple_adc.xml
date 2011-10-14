@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="temp_tcouple_adc" dir="meteo">
+  <header>
+    <file name="temp_tcouple_adc.h"/>
+  </header>
+  <init fun="temp_tcouple_adc_init()"/>
+  <periodic fun="temp_tcouple_adc_periodic()" freq="60"/>
+  <makefile target="ap">
+    <file name="temp_tcouple_adc.c"/>
+    <define name="ADC_CHANNEL_TEMP_REF" value="ADC_4"/>
+    <define name="USE_ADC_4"/>
+    <define name="ADC_CHANNEL_TEMP_VAL" value="ADC_3"/>
+    <define name="USE_ADC_3"/>
+  </makefile>
+</module>
+

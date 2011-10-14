@@ -42,7 +42,7 @@ dynamics model, and external 3D model.
   <model>
    <path archive="y">Aircraft/Malolo1/Models/Malolo1.xml</path>
   </model>
-  
+
   <view>
    <internal archive="y">true</internal>
    <config>
@@ -85,8 +85,8 @@ dynamics model, and external 3D model.
    <rpm type="double">700</rpm>
   </engine>
  </engines>
-  
- <!-- An autopilot on a Cub??? -->  
+
+ <!-- An autopilot on a Cub??? -->
  <autopilot>
    <config>
      <min-climb-speed-kt type="float">48.0</min-climb-speed-kt>
@@ -94,7 +94,7 @@ dynamics model, and external 3D model.
      <target-climb-rate-fpm type="float">400.0</target-climb-rate-fpm>
      <target-descent-rate-fpm type="float">1000.0</target-descent-rate-fpm>
      <elevator-adj-factor type="float">6000.0</elevator-adj-factor>
-     <integral-contribution type="float">0.008</integral-contribution> 
+     <integral-contribution type="float">0.008</integral-contribution>
      <zero-pitch-throttle type="float">0.35</zero-pitch-throttle>
      <zero-pitch-trim-full-throttle type="float">0.001</zero-pitch-trim-full-throttle>
    </config>

@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- 
+<!--
 	YAPA + XSens + XBee
 -->
 
@@ -175,7 +175,7 @@
     <target name="sim" board="pc"/>
 
     <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="gps" type="ublox_lea5h" />
+    <subsystem name="gps" type="ublox" />
 
     <!-- Communication -->
     <subsystem name="telemetry" type="xbee_api">
@@ -186,7 +186,7 @@
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="navigation"/>
-<!--    <subsystem name="gps"    type="ublox_lea5h"/> -->
+<!--    <subsystem name="gps"    type="ublox"/> -->
 
     <subsystem name="spi_slave_hs"/>
 

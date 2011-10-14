@@ -15,11 +15,11 @@
     <waypoint name="_BASELEG" x="168.8" y="-13.8"/>
     <waypoint name="CLIMB"        lat="43.769542" lon="7.501300"/>
   </waypoints>
-  
+
   <includes>
     <include name="ZRT" procedure="corsica_sectors.xml"/>
   </includes>
-  
+
   <exceptions>
     <exception cond="Or(! InsideZRT(GetPosX(), GetPosY()), GetPosAlt() > ground_alt + 300)" deroute="Kill"/>
   </exceptions>

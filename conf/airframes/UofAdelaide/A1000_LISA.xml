@@ -7,7 +7,7 @@
   </modules>
 
   <servos>
-    
+
     <servo name="BACK"   no="0" min="2000" neutral="1500" max="1000"/>
     <servo name="LEFT"   no="1" min="2000" neutral="1500" max="1000"/>
     <servo name="FRONT"  no="2" min="2000" neutral="1500" max="1000"/>
@@ -72,7 +72,7 @@
    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
    <define name="MODE_AUTO2" value="AP_MODE_HOVER_Z_HOLD"/>
  </section>
- 
+
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
@@ -116,7 +116,7 @@
     <define name="REF_MAX_R"    value="RadOfDeg(180.)"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
-    <!-- feedback 
+    <!-- feedback
     <define name="PHI_PGAIN"  value="-5000"/>
     <define name="PHI_DGAIN"  value="-400"/>
     <define name="PHI_IGAIN"  value="-200"/>
@@ -133,7 +133,7 @@
     <define name="PHI_DDGAIN"   value=" 300"/>
     <define name="THETA_DDGAIN" value=" 300"/>
     <define name="PSI_DDGAIN"   value=" -300"/> -->
-    
+
     <!-- feedback -->
     <define name="PHI_PGAIN"  value="-1500"/>
     <define name="PHI_DGAIN"  value="-30"/>
@@ -191,9 +191,9 @@
       <define name = "RADIO_CONTROL_MODE" value = "RADIO_AUX1"/>
       <define name = "RADIO_KILL_SWITCH" value = "RADIO_GEAR"/>
       <define name = "HELI"/>
- <!--     <define name = "KILL_MOTORS" />--> 
- <!-- if we want a secondary spektrum reciever we need to set the board to be 
-      lisa_l_1.1 and rewired accordingly then set the following.    
+ <!--     <define name = "KILL_MOTORS" />-->
+ <!-- if we want a secondary spektrum reciever we need to set the board to be
+      lisa_l_1.1 and rewired accordingly then set the following.
       <define name = "RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value = "UART5"/>
       <define name = "OVERRIDE_UART5_IRQ_HANDLER"/> -->
     </target>
@@ -203,7 +203,7 @@
     <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization"   type="euler"/>
-    <subsystem name="ahrs"          type="cmpl"/>
+    <subsystem name="ahrs"          type="int_cmpl_euler"/>
   </firmware>
 
   <firmware name="lisa_l_test_progs">

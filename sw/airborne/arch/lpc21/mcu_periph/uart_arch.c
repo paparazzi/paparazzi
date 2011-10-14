@@ -29,27 +29,151 @@
 #include "mcu_periph/uart.h"
 #include "armVIC.h"
 
+static inline void uart_disable_interrupts(struct uart_periph* p) {
+  // disable interrups
+  ((uartRegs_t *)(p->reg_addr))->ier = 0x00;  // disable all interrupts
+  ((uartRegs_t *)(p->reg_addr))->iir;         // clear interrupt ID
+  ((uartRegs_t *)(p->reg_addr))->rbr;         // clear receive register
+  ((uartRegs_t *)(p->reg_addr))->lsr;         // clear line status register
+}
+
+static inline void uart_enable_interrupts(struct uart_periph* p) {
+  // enable receiver interrupts
+  ((uartRegs_t *)(p->reg_addr))->ier = UIER_ERBFI;
+}
+
+static inline void uart_set_baudrate(struct uart_periph* p, uint32_t baud) {
+  // set the baudrate
+  ((uartRegs_t *)(p->reg_addr))->lcr = ULCR_DLAB_ENABLE;     // select divisor latches
+  ((uartRegs_t *)(p->reg_addr))->dll = (uint8_t)baud;        // set for baud low byte
+  ((uartRegs_t *)(p->reg_addr))->dlm = (uint8_t)(baud >> 8); // set for baud high byte
+
+  // set the number of characters and other
+  // user specified operating parameters
+  // For now: hard wired configuration 8 bits 1 stop no parity
+  //          fifo triger -> 8 bytes
+  ((uartRegs_t *)(p->reg_addr))->lcr = (UART_8N1 & ~ULCR_DLAB_ENABLE);
+  ((uartRegs_t *)(p->reg_addr))->fcr = UART_FIFO_8;
+}
+
+void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
+  uart_disable_interrupts(p);
+  uart_set_baudrate(p, baud);
+  uart_enable_interrupts(p);
+}
+
+void uart_transmit(struct uart_periph* p, uint8_t data ) {
+  uint16_t temp;
+  unsigned cpsr;
+
+  temp = (p->tx_insert_idx + 1) % UART_TX_BUFFER_SIZE;
+
+  if (temp == p->tx_extract_idx)
+    return;                          // no room
+
+  cpsr = disableIRQ();                                // disable global interrupts
+  ((uartRegs_t *)(p->reg_addr))->ier &= ~UIER_ETBEI;  // disable TX interrupts
+  restoreIRQ(cpsr);                                   // restore global interrupts
+
+  // check if in process of sending data
+  if (p->tx_running) {
+    // add to queue
+    p->tx_buf[p->tx_insert_idx] = data;
+    p->tx_insert_idx = temp;
+  } else {
+    // set running flag and write to output register
+    p->tx_running = 1;
+    ((uartRegs_t *)(p->reg_addr))->thr = data;
+  }
+
+  cpsr = disableIRQ();                              // disable global interrupts
+  ((uartRegs_t *)(p->reg_addr))->ier |= UIER_ETBEI; // enable TX interrupts
+  restoreIRQ(cpsr);                                 // restore global interrupts
+}
+
+static inline void uart_ISR(struct uart_periph* p)
+{
+  uint8_t iid;
+
+  // loop until not more interrupt sources
+  while (((iid = ((uartRegs_t *)(p->reg_addr))->iir) & UIIR_NO_INT) == 0)
+  {
+    // identify & process the highest priority interrupt
+    switch (iid & UIIR_ID_MASK)
+    {
+      case UIIR_RLS_INT:                // Receive Line Status
+        ((uartRegs_t *)(p->reg_addr))->lsr; // read LSR to clear
+        break;
+
+      case UIIR_CTI_INT:                // Character Timeout Indicator
+      case UIIR_RDA_INT:                // Receive Data Available
+        do
+        {
+          uint16_t temp;
+
+          // calc next insert index & store character
+          temp = (p->rx_insert_idx + 1) % UART_RX_BUFFER_SIZE;
+          p->rx_buf[p->rx_insert_idx] = ((uartRegs_t *)(p->reg_addr))->rbr;
+
+          // check for more room in queue
+          if (temp != p->rx_extract_idx)
+            p->rx_insert_idx = temp; // update insert index
+        }
+        while (((uartRegs_t *)(p->reg_addr))->lsr & ULSR_RDR);
+
+        break;
+
+      case UIIR_THRE_INT:               // Transmit Holding Register Empty
+        while (((uartRegs_t *)(p->reg_addr))->lsr & ULSR_THRE)
+        {
+          // check if more data to send
+          if (p->tx_insert_idx != p->tx_extract_idx)
+          {
+            ((uartRegs_t *)(p->reg_addr))->thr = p->tx_buf[p->tx_extract_idx];
+            p->tx_extract_idx++;
+            p->tx_extract_idx %= UART_TX_BUFFER_SIZE;
+          }
+          else
+          {
+            // no
+            p->tx_running = 0;       // clear running flag
+            break;
+          }
+        }
+
+        break;
+
+      default:                          // Unknown
+        ((uartRegs_t *)(p->reg_addr))->lsr;
+        ((uartRegs_t *)(p->reg_addr))->rbr;
+        break;
+    }
+  }
+}
+
 #ifdef USE_UART0
 
 #ifndef UART0_VIC_SLOT
 #define UART0_VIC_SLOT 5
 #endif
 
-
 void uart0_ISR(void) __attribute__((naked));
 
-uint8_t  uart0_rx_buffer[UART0_RX_BUFFER_SIZE];
-uint16_t uart0_rx_insert_idx, uart0_rx_extract_idx;
+void uart0_ISR(void) {
+  // perform proper ISR entry so thumb-interwork works properly
+  ISR_ENTRY();
 
-uint8_t  uart0_tx_buffer[UART0_TX_BUFFER_SIZE];
-uint16_t uart0_tx_insert_idx, uart0_tx_extract_idx;
-uint8_t  uart0_tx_running;
+  uart_ISR(&uart0);
 
-void uart0_init( void ) {
-  uart0_init_param(UART0_BAUD, UART_8N1, UART_FIFO_8);
+  VICVectAddr = 0x00000000;             // clear this interrupt from the VIC
+  ISR_EXIT();                           // recover registers and return
 }
 
-void uart0_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
+void uart0_init( void ) {
+
+  uart_periph_init(&uart0);
+  uart0.reg_addr = UART0_BASE;
+
 #ifdef USE_UART0_RX_ONLY
   // only use the RX0 P0.1 pin, no TX
   PINSEL0 = (PINSEL0 & ~U0_PINMASK_RX) | U0_PINSEL_RX;
@@ -58,20 +182,9 @@ void uart0_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
   PINSEL0 = (PINSEL0 & ~U0_PINMASK) | U0_PINSEL;
 #endif
 
-  U0IER = 0x00;                         // disable all interrupts
-  U0IIR;                                // clear interrupt ID
-  U0RBR;                                // clear receive register
-  U0LSR;                                // clear line status register
-
-  // set the baudrate
-  U0LCR = ULCR_DLAB_ENABLE;             // select divisor latches
-  U0DLL = (uint8_t)baud;                // set for baud low byte
-  U0DLM = (uint8_t)(baud >> 8);         // set for baud high byte
-
-  // set the number of characters and other
-  // user specified operating parameters
-  U0LCR = (mode & ~ULCR_DLAB_ENABLE);
-  U0FCR = fmode;
+  // initialize uart parameters
+  uart_disable_interrupts(&uart0);
+  uart_set_baudrate(&uart0, UART0_BAUD);
 
   // initialize the interrupt vector
   VICIntSelect &= ~VIC_BIT(VIC_UART0);                // UART0 selected as IRQ
@@ -79,137 +192,10 @@ void uart0_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
   _VIC_CNTL(UART0_VIC_SLOT) = VIC_ENABLE | VIC_UART0;
   _VIC_ADDR(UART0_VIC_SLOT) = (uint32_t)uart0_ISR;    // address of the ISR
 
-  // initialize the transmit data queue
-  uart0_tx_extract_idx = 0;
-  uart0_tx_insert_idx = 0;
-  uart0_tx_running = 0;
-
-  // initialize the receive data queue
-  uart0_rx_extract_idx = 0;
-  uart0_rx_insert_idx = 0;
-
-  // enable receiver interrupts
-  U0IER = UIER_ERBFI;
-}
-
-bool_t uart0_check_free_space( uint8_t len) {
-  int16_t space = uart0_tx_extract_idx - uart0_tx_insert_idx;
-  if (space <= 0)
-    space += UART0_TX_BUFFER_SIZE;
-
-  return (uint16_t)(space - 1) >= len;
-}
-
-void uart0_transmit( unsigned char data ) {
-  uint16_t temp;
-  unsigned cpsr;
-
-  temp = (uart0_tx_insert_idx + 1) % UART0_TX_BUFFER_SIZE;
-
-  if (temp == uart0_tx_extract_idx)
-    //    return -1;                          // no room
-    return;                          // no room
-
-  cpsr = disableIRQ();                  // disable global interrupts
-  U0IER &= ~UIER_ETBEI;                 // disable TX interrupts
-  restoreIRQ(cpsr);                     // restore global interrupts
-
-  // check if in process of sending data
-  if (uart0_tx_running)
-    {
-    // add to queue
-    uart0_tx_buffer[uart0_tx_insert_idx] = (uint8_t)data;
-    uart0_tx_insert_idx = temp;
-    }
-  else
-    {
-    // set running flag and write to output register
-    uart0_tx_running = 1;
-    U0THR = (uint8_t)data;
-    }
-
-  cpsr = disableIRQ();                  // disable global interrupts
-  U0IER |= UIER_ETBEI;                  // enable TX interrupts
-  restoreIRQ(cpsr);                     // restore global interrupts
-  //  return (uint8_t)ch;
-}
-
-
-void uart0_ISR(void)
-{
-  uint8_t iid;
-
-  // perform proper ISR entry so thumb-interwork works properly
-  ISR_ENTRY();
-
-  // loop until not more interrupt sources
-  while (((iid = U0IIR) & UIIR_NO_INT) == 0)
-    {
-    // identify & process the highest priority interrupt
-    switch (iid & UIIR_ID_MASK)
-      {
-      case UIIR_RLS_INT:                // Receive Line Status
-        U0LSR;                          // read LSR to clear
-        break;
-
-      case UIIR_CTI_INT:                // Character Timeout Indicator
-      case UIIR_RDA_INT:                // Receive Data Available
-        do
-          {
-          uint16_t temp;
-
-          // calc next insert index & store character
-          temp = (uart0_rx_insert_idx + 1) % UART0_RX_BUFFER_SIZE;
-          uart0_rx_buffer[uart0_rx_insert_idx] = U0RBR;
-
-          // check for more room in queue
-          if (temp != uart0_rx_extract_idx)
-            uart0_rx_insert_idx = temp; // update insert index
-          }
-        while (U0LSR & ULSR_RDR);
-
-        break;
-
-      case UIIR_THRE_INT:               // Transmit Holding Register Empty
-        while (U0LSR & ULSR_THRE)
-          {
-          // check if more data to send
-          if (uart0_tx_insert_idx != uart0_tx_extract_idx)
-            {
-            U0THR = uart0_tx_buffer[uart0_tx_extract_idx];
-	    uart0_tx_extract_idx++;
-            uart0_tx_extract_idx %= UART0_TX_BUFFER_SIZE;
-            }
-          else
-            {
-            // no
-            uart0_tx_running = 0;       // clear running flag
-            break;
-            }
-          }
-
-        break;
-
-      default:                          // Unknown
-        U0LSR;
-        U0RBR;
-        break;
-      }
-    }
-
-  VICVectAddr = 0x00000000;             // clear this interrupt from the VIC
-  ISR_EXIT();                           // recover registers and return
+  uart_enable_interrupts(&uart0);
 }
 
 #endif /* USE_UART0 */
-
-/*
- *
- * UART1 handling functions - those are pale copies of UART0 ones
- * We should probably find a better way to make the code configurable
- * for both uarts
- *
- */
 
 #ifdef USE_UART1
 
@@ -219,27 +205,21 @@ void uart0_ISR(void)
 
 void uart1_ISR(void) __attribute__((naked));
 
-uint8_t  uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
-uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
+void uart1_ISR(void) {
+  // perform proper ISR entry so thumb-interwork works properly
+  ISR_ENTRY();
 
-uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
-uint16_t uart1_tx_insert_idx, uart1_tx_extract_idx;
-uint8_t  uart1_tx_running;
+  uart_ISR(&uart1);
+
+  VICVectAddr = 0x00000000;             // clear this interrupt from the VIC
+  ISR_EXIT();                           // recover registers and return
+}
 
 void uart1_init( void ) {
-  uart1_init_param(UART1_BAUD, UART_8N1, UART_FIFO_8);
-}
 
-bool_t uart1_check_free_space( uint8_t len) {
-  int16_t space = uart1_tx_extract_idx - uart1_tx_insert_idx;
-  if (space <= 0)
-    space += UART1_TX_BUFFER_SIZE;
+  uart_periph_init(&uart1);
+  uart1.reg_addr = UART1_BASE;
 
-  return (uint16_t)(space - 1) >= len;
-}
-
-
-void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
 #ifdef USE_UART1_RX_ONLY
   // only use the RX1 P0.9 pin, no TX
   PINSEL0 = (PINSEL0 & ~U1_PINMASK_RX) | U1_PINSEL_RX;
@@ -248,20 +228,8 @@ void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
   PINSEL0 = (PINSEL0 & ~U1_PINMASK) | U1_PINSEL;
 #endif
 
-  U1IER = 0x00;                         // disable all interrupts
-  U1IIR;                                // clear interrupt ID
-  U1RBR;                                // clear receive register
-  U1LSR;                                // clear line status register
-
-  // set the baudrate
-  U1LCR = ULCR_DLAB_ENABLE;             // select divisor latches
-  U1DLL = (uint8_t)baud;                // set for baud low byte
-  U1DLM = (uint8_t)(baud >> 8);         // set for baud high byte
-
-  // set the number of characters and other
-  // user specified operating parameters
-  U1LCR = (mode & ~ULCR_DLAB_ENABLE);
-  U1FCR = fmode;
+  uart_disable_interrupts(&uart1);
+  uart_set_baudrate(&uart1, UART1_BAUD);
 
   // initialize the interrupt vector
   VICIntSelect &= ~VIC_BIT(VIC_UART1);                // UART1 selected as IRQ
@@ -269,122 +237,9 @@ void uart1_init_param( uint16_t baud, uint8_t mode, uint8_t fmode) {
   _VIC_CNTL(UART1_VIC_SLOT) = VIC_ENABLE | VIC_UART1;
   _VIC_ADDR(UART1_VIC_SLOT) = (uint32_t)uart1_ISR;    // address of the ISR
 
-  // initialize the transmit data queue
-  uart1_tx_extract_idx = 0;
-  uart1_tx_insert_idx = 0;
-  uart1_tx_running = 0;
-
-  // initialize the receive data queue
-  uart1_rx_extract_idx = 0;
-  uart1_rx_insert_idx = 0;
-
   // enable receiver interrupts
-  U1IER = UIER_ERBFI;
+  uart_enable_interrupts(&uart1);
 }
 
+#endif
 
-void uart1_transmit( unsigned char data ) {
-  uint16_t temp;
-  unsigned cpsr;
-
-  temp = (uart1_tx_insert_idx + 1) % UART1_TX_BUFFER_SIZE;
-
-  if (temp == uart1_tx_extract_idx)
-    //    return -1;                          // no room
-    return;                          // no room
-
-  cpsr = disableIRQ();                  // disable global interrupts
-  U1IER &= ~UIER_ETBEI;                 // disable TX interrupts
-  restoreIRQ(cpsr);                     // restore global interrupts
-
-  // check if in process of sending data
-  if (uart1_tx_running)
-    {
-    // add to queue
-    uart1_tx_buffer[uart1_tx_insert_idx] = (uint8_t)data;
-    uart1_tx_insert_idx = temp;
-    }
-  else
-    {
-    // set running flag and write to output register
-    uart1_tx_running = 1;
-    U1THR = (uint8_t)data;
-    }
-
-  cpsr = disableIRQ();                  // disable global interrupts
-  U1IER |= UIER_ETBEI;                  // enable TX interrupts
-  restoreIRQ(cpsr);                     // restore global interrupts
-}
-
-
-void uart1_ISR(void)
-{
-  uint8_t iid;
-
-  // perform proper ISR entry so thumb-interwork works properly
-  ISR_ENTRY();
-
-  // loop until not more interrupt sources
-  while (((iid = U1IIR) & UIIR_NO_INT) == 0)
-    {
-    // identify & process the highest priority interrupt
-    switch (iid & UIIR_ID_MASK)
-      {
-      case UIIR_RLS_INT:                // Receive Line Status
-        U1LSR;                          // read LSR to clear
-        break;
-
-      case UIIR_CTI_INT:                // Character Timeout Indicator
-      case UIIR_RDA_INT:                // Receive Data Available
-        do
-          {
-          uint16_t temp;
-          // calc next insert index & store character
-          temp = (uart1_rx_insert_idx + 1) % UART1_RX_BUFFER_SIZE;
-          uart1_rx_buffer[uart1_rx_insert_idx] = U1RBR;
-
-          // check for more room in queue
-          if (temp != uart1_rx_extract_idx)
-            uart1_rx_insert_idx = temp; // update insert index
-          }
-        while (U1LSR & ULSR_RDR);
-
-        break;
-
-      case UIIR_THRE_INT:               // Transmit Holding Register Empty
-        while (U1LSR & ULSR_THRE)
-          {
-          // check if more data to send
-          if (uart1_tx_insert_idx != uart1_tx_extract_idx)
-            {
-            U1THR = uart1_tx_buffer[uart1_tx_extract_idx];
-            uart1_tx_extract_idx++;
-	    uart1_tx_extract_idx %= UART1_TX_BUFFER_SIZE;
-            }
-          else
-            {
-            // no
-            uart1_tx_running = 0;       // clear running flag
-            break;
-            }
-          }
-
-        break;
-
-      case UIIR_MS_INT:                 // MODEM Status
-        U1MSR;                          // read MSR to clear
-        break;
-
-      default:                          // Unknown
-        U1LSR;
-        U1RBR;
-        U1MSR;
-        break;
-      }
-    }
-
-  VICVectAddr = 0x00000000;             // clear this interrupt from the VIC
-  ISR_EXIT();                           // recover registers and return
-}
-
-#endif /* USE_UART1 */

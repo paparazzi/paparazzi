@@ -36,13 +36,11 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <!-- Control -->
     <subsystem name="control" type="new"/>
     <subsystem name="navigation" type="extra"/>
-    <subsystem name="ahrs" type="dcm"/>
-
-    <subsystem name="i2c"/>
+    <subsystem name="ahrs" type="float_dcm"/>
 
     <!-- Sensors -->
     <subsystem name="imu" type="booz"/>
-    <subsystem name="gps" type="ublox_lea5h"/>
+    <subsystem name="gps" type="ublox"/>
     <subsystem name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
     </subsystem>
@@ -289,10 +287,10 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <define name="AUTO_GROUNDSPEED_IGAIN" value="0."/-->
 
     <!-- Loiter and Dash trimming -->
-    <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000" unit="pprz_t"/>
-    <define name="AUTO_THROTTLE_DASH_TRIM" value="-2000" unit="pprz_t"/>
-    <define name="PITCH_LOITER_TRIM" value="1000" unit="pprz_t"/>
-    <define name="PITCH_DASH_TRIM" value="-2000" unit="pprz_t"/>
+    <define name="AUTO_THROTTLE_LOITER_TRIM" value="0" unit="pprz_t"/>
+    <define name="AUTO_THROTTLE_DASH_TRIM" value="0" unit="pprz_t"/>
+    <define name="PITCH_LOITER_TRIM" value="0" unit="pprz_t"/>
+    <define name="PITCH_DASH_TRIM" value="0" unit="pprz_t"/>
 
   </section>
 

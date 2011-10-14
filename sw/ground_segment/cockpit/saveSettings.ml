@@ -2,7 +2,7 @@
  * $Id$
  *
  * GUI to save settings in the airframe file
- *  
+ *
  * Copyright (C) 2008, Cyril Allignol, Pascal Brisset
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -57,7 +57,7 @@ let scale_of_units = fun u1 u2  ->
 let save_airframe = fun w filename save ->
   match GToolbox.select_file ~title:"Save Airframe" ~filename () with
     None -> ()
-  | Some file -> 
+  | Some file ->
       save file;
       w#save_settings#destroy ()
 
@@ -97,7 +97,7 @@ let display_columns = fun w model ->
   ignore (save_all#connect#toggled ~callback)
 
 
-    
+
 let write_xml = fun (model:GTree.tree_store) old_file airframe_xml file ->
   let new_xml = ref airframe_xml in
   model#foreach (fun _path row ->
@@ -137,7 +137,7 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
       let scale =
 	try
 	  let unit_setting = attrib "unit"
-	  and unit_airframe = 
+	  and unit_airframe =
 	    match unit with Some u -> u | None -> raise Exit in
 	  scale_of_units unit_setting unit_airframe
 	with
@@ -158,7 +158,7 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
       model#set ~row ~column:col_to_save (floats_not_equal scaled_value value)
     with
       Xml.No_attribute _ -> ()
-    | EditAirframe.No_param param -> 
+    | EditAirframe.No_param param ->
 	not_in_airframe_file := param :: !not_in_airframe_file ) (* Not savable *)
     settings;
 
@@ -189,10 +189,10 @@ let popup = fun airframe_filename settings send_value ->
 
   (* Parse the airframe file *)
   let airframe_xml = XmlCom.parse_file airframe_filename in
-  
+
   (** Insert the row data in the tree *)
   fill_data model settings airframe_xml;
-    
+
   (** The Cancel button *)
   ignore (w#button_cancel#connect#clicked (fun () -> w#save_settings#destroy ()));
 

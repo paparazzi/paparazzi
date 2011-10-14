@@ -1,4 +1,8 @@
 <!DOCTYPE module SYSTEM "module.dtd">
+<!--
+     DROP_SERVO_CLOSED and DROP_SERVO_OPEN can be redefined in airframe file
+     units: PWM width in us
+     -->
 
 <module name="drop">
   <!-- depend require="booz_pwm" -->
@@ -9,8 +13,6 @@
   <periodic fun="booz_drop_periodic()" freq="10."/>
   <makefile>
     <define name="USE_DROP"/>
-    <define name="DROP_SERVO_OPEN" value="2120"/>
-    <define name="DROP_SERVO_CLOSED" value="1060"/>
     <file name="booz_drop.c"/>
   </makefile>
 </module>

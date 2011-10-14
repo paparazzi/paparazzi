@@ -93,10 +93,10 @@
 #define PERIODIC_SEND_PPRZ_MODE(_chan) DOWNLINK_SEND_PPRZ_MODE(_chan, &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
 #define PERIODIC_SEND_DESIRED(_chan) DOWNLINK_SEND_DESIRED(_chan, &h_ctl_roll_setpoint, &h_ctl_pitch_loop_setpoint, &h_ctl_course_setpoint, &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint);
 
-#ifdef USE_AHRS
-#define PERIODIC_SEND_STATE_FILTER_STATUS(_chan) { uint8_t mde = 3; if (ahrs.status == AHRS_UNINIT) mde = 2; if (ahrs_timeout_counter > 10) mde = 5; uint16_t val = 0; DOWNLINK_SEND_STATE_FILTER_STATUS(_chan, &mde, &val); }
-#elif defined(USE_INFRARED)
+#ifdef USE_INFRARED
 #define PERIODIC_SEND_STATE_FILTER_STATUS(_chan) { uint16_t contrast = abs(infrared.roll) + abs(infrared.pitch) + abs(infrared.top); uint8_t mde = 3; if (contrast < 50) mde = 7; DOWNLINK_SEND_STATE_FILTER_STATUS(_chan, &mde, &contrast); }
+#elif defined USE_IMU && defined USE_AHRS
+#define PERIODIC_SEND_STATE_FILTER_STATUS(_chan) { uint8_t mde = 3; if (ahrs.status == AHRS_UNINIT) mde = 2; if (ahrs_timeout_counter > 10) mde = 5; uint16_t val = 0; DOWNLINK_SEND_STATE_FILTER_STATUS(_chan, &mde, &val); }
 #else
 #define PERIODIC_SEND_STATE_FILTER_STATUS(_chan) {}
 #endif
@@ -124,6 +124,7 @@
 #endif
 
 #if defined USE_INFRARED || USE_INFRARED_TELEMETRY
+#include "subsystems/sensors/infrared.h"
 #define PERIODIC_SEND_IR_SENSORS(_chan) DOWNLINK_SEND_IR_SENSORS(_chan, &infrared.value.ir1, &infrared.value.ir2, &infrared.pitch, &infrared.roll, &infrared.top);
 #else
 #define PERIODIC_SEND_IR_SENSORS(_chan) ;
@@ -165,7 +166,7 @@
 #    define PERIODIC_SEND_IMU_GYRO_RAW(_chan) {}
 #    define PERIODIC_SEND_IMU_MAG_RAW(_chan) {}
 #    define PERIODIC_SEND_IMU_GYRO(_chan) { DOWNLINK_SEND_IMU_GYRO(_chan, &ins_p, &ins_q, &ins_r)}
-#    define PERIODIC_SEND_IMU_ACCEL(_chan) { DOWNLINK_SEND_IMU_ACCEL(_chan, &ins_ax, &ins_ay, &ins_az)} 
+#    define PERIODIC_SEND_IMU_ACCEL(_chan) { DOWNLINK_SEND_IMU_ACCEL(_chan, &ins_ax, &ins_ay, &ins_az)}
 #    define PERIODIC_SEND_IMU_MAG(_chan) { DOWNLINK_SEND_IMU_MAG(_chan, &ins_mx, &ins_my, &ins_mz)}
 #  else
 #    define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) {}
@@ -189,10 +190,13 @@
 
 #define PERIODIC_SEND_NAVIGATION(_chan) SEND_NAVIGATION(_chan)
 
+
 #if defined CAM || defined MOBILE_CAM
-#define SEND_CAM(_chan) Downlink({ int16_t x = cam_target_x; int16_t y = cam_target_y; int8_t phi = DegOfRad(cam_phi_c); int8_t theta = DegOfRad(cam_theta_c); DOWNLINK_SEND_CAM(_chan, &phi, &theta, &x, &y);})
+#define SEND_CAM(_chan) Downlink({ int16_t x = cam_target_x; int16_t y = cam_target_y; int16_t phi = DegOfRad(cam_phi_c); int16_t theta = DegOfRad(cam_theta_c); DOWNLINK_SEND_CAM(_chan, &phi, &theta, &x, &y);})
+#define PERIODIC_SEND_CAM_POINT(_chan) DOWNLINK_SEND_CAM_POINT(_chan, &cam_point_distance_from_home, &cam_point_lat, &cam_point_lon)
 #else
 #define SEND_CAM(_chan) {}
+#define PERIODIC_SEND_CAM_POINT(_chan) {}
 #endif
 
 #define PERIODIC_SEND_DL_VALUE(_chan) PeriodicSendDlValue(_chan) /** generated from the xml settings config in conf/settings */
@@ -214,7 +218,7 @@
     static uint8_t i;                                                   \
     int16_t climb = -gps.ned_vel.z;                                     \
     int16_t course = (DegOfRad(gps.course)/((int32_t)1e6));             \
-    DOWNLINK_SEND_GPS(DefaultChannel, &gps.fix, &gps.utm_pos.east, &gps.utm_pos.north, &course, &gps.lla_pos.alt, &gps.gspeed, &climb, &gps.week, &gps.tow, &gps.utm_pos.zone, &i); \
+    DOWNLINK_SEND_GPS(DefaultChannel, &gps.fix, &gps.utm_pos.east, &gps.utm_pos.north, &course, &gps.hmsl, &gps.gspeed, &climb, &gps.week, &gps.tow, &gps.utm_pos.zone, &i); \
     if ((gps.fix != GPS_FIX_3D) && (i >= gps.nb_channels)) i = 0;                                    \
     if (i >= gps.nb_channels * 2) i = 0;                                    \
     if (i < gps.nb_channels && gps.svinfos[i].cno > 0) { \

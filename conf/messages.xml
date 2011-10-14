@@ -130,8 +130,8 @@
    </message>
 
    <message name="CAM" id="20">
-     <field name="phi" type="int8" unit="deg"/>
-     <field name="theta" type="int8" unit="deg"/>
+     <field name="phi" type="int16" unit="deg"/>
+     <field name="theta" type="int16" unit="deg"/>
      <field name="target_x" type="int16" unit="m"/>
      <field name="target_y" type="int16" unit="m"/>
    </message>
@@ -489,13 +489,63 @@
     <field name="gnd2"   type="float"/>
   </message>
 
- <!-- 63 is free -->
- <!-- 64 is free -->
- <!-- 65 is free -->
- <!-- 66 is free -->
- <!-- 67 is free -->
+  <message name="CAM_POINT" id="63">
+      <field name="cam_point_distance_from_home" type="uint16" unit="m"/>
+      <field name="cam_point_lat" type="float" unit="deg"/>
+      <field name="cam_point_lon" type="float" unit="deg"/>
+  </message>
+
+  <message name="DC_INFO" id="64">
+    <field name="mode" type="int16" unit=""/>
+    <field name="utm_east" type="float" unit="m"/>
+    <field name="utm_north" type="float" unit="m"/>
+    <field name="course" type="float" unit="deg"/>
+    <field name="buffer" type="int8"/>
+    <field name="dist" type="float" unit="m"/>
+    <field name="next_dist" type="float" unit="m"/>
+    <field name="start_x" type="float" unit="m"/>
+    <field name="start_y" type="float" unit="m"/>
+    <field name="start_angle" type="float" unit="deg"/>
+    <field name="angle" type="float" unit="deg"/>
+    <field name="last_block" type="float"/>
+    <field name="count" type="int16" unit=""/>
+    <field name="shutter" type="uint8" unit="s"/>
+  </message>
+
+  <message name="AMSYS_BARO" id="65">
+    <field name="pBaroRaw" type="uint16"></field>
+    <field name="pBaro" type="float" unit="Pa"> </field>
+    <field name="pHomePressure" type="float" unit="Pa"></field>
+    <field name="AltOffset" type="float" unit="m"></field>
+    <field name="aktuell" type="float" unit="m"></field>
+    <field name="Over_Ground" type="float" unit="m"></field>
+    <field name="tempBaro" type="float" unit="°C"></field>
+  </message>
+
+  <message name="AMSYS_AIRSPEED" id="66">
+    <field name="asRaw" type="uint16"></field>
+    <field name="asPresure" type="float" unit="Pa"></field>
+    <field name="asAirspeed" type="float" unit="m/s"></field>
+    <field name="asAirsFilt" type="float" unit="m/s"></field>
+    <field name="asTemp" type="float" unit="°C"></field>
+  </message>
+
+  <message name="FLIGHT_BENCHMARK" id="67">
+    <field name="SE_As" type="float"></field>
+    <field name="SE_Alt" type="float"></field>
+    <field name="SE_Pos" type="float"></field>
+    <field name="Err_As" type="float"></field>
+    <field name="Err_Alt" type="float"></field>
+    <field name="Err_Pos" type="float"></field>
+  </message>
+
  <!-- 68 is free -->
- <!-- 69 is free -->
+
+	<message name="AOA_adc" id="69">
+		<field name="adcVal" type="uint16"></field>
+		<field name="AOA" type="float" unit="rad"></field>
+	</message>
+
  <!-- 70 is free -->
  <!-- 71 is free -->
  <!-- 72 is free -->
@@ -550,6 +600,8 @@
   </message>
 
   <message name="BMP_STATUS" id="84">
+    <field name="UP"    type="int32"/>
+    <field name="UT"    type="int32"/>
     <field name="press" type="int32" unit="Pa"/>
     <field name="temp"  type="int32" unit="10x_deg_celsius"/>
   </message>
@@ -652,7 +704,7 @@
     <field name="density"   type="float" unit="mg/m3" format="%.2f"/>
   </message>
 
-  <message name="SHT_SERIAL" id="99">
+  <message name="SHT_I2C_SERIAL" id="99">
     <field name="serial0" type="uint32"/>
     <field name="serial1" type="uint32"/>
   </message>
@@ -731,16 +783,16 @@
   </message>
 
   <message name="DC_SHOT" id="110">
-    <field name="photo_nr" type="int16"></field>
-    <field name="utm_east"  type="int32" unit="cm"></field>
-    <field name="utm_north" type="int32" unit="cm"></field>
+    <field name="photo_nr" type="int16"/>
+    <field name="utm_east"  type="int32" unit="cm"/>
+    <field name="utm_north" type="int32" unit="cm"/>
     <field name="z" type="float" unit="m"/>
-    <field name="utm_zone"  type="uint8"></field>
-    <field name="phi" type="int16" unit="decideg"></field>
-    <field name="theta" type="int16" unit="decideg"></field>
-    <field name="course" type="int16" unit="decideg"></field>
-    <field name="speed"  type="uint16" unit="cm/s"></field>
-    <field name="itow"  type="uint32" unit="ms"></field>
+    <field name="utm_zone"  type="uint8"/>
+    <field name="phi" type="int16" unit="decideg"/>
+    <field name="theta" type="int16" unit="decideg"/>
+    <field name="course" type="int16" unit="decideg"/>
+    <field name="speed"  type="uint16" unit="cm/s"/>
+    <field name="itow"  type="uint32" unit="ms"/>
   </message>
 
   <message name="TEST_BOARD_RESULTS" ID="111">
@@ -800,7 +852,28 @@
     <field name="t9" type="uint16"/>
   </message>
 
- <!--119 is free -->
+  <message name="SOLAR_RADIATION" id="119">
+    <field name="up_t0" type="uint16"/>
+    <field name="dn_t0" type="uint16"/>
+    <field name="up_t1" type="uint16"/>
+    <field name="dn_t1" type="uint16"/>
+    <field name="up_t2" type="uint16"/>
+    <field name="dn_t2" type="uint16"/>
+    <field name="up_t3" type="uint16"/>
+    <field name="dn_t3" type="uint16"/>
+    <field name="up_t4" type="uint16"/>
+    <field name="dn_t4" type="uint16"/>
+    <field name="up_t5" type="uint16"/>
+    <field name="dn_t5" type="uint16"/>
+    <field name="up_t6" type="uint16"/>
+    <field name="dn_t6" type="uint16"/>
+    <field name="up_t7" type="uint16"/>
+    <field name="dn_t7" type="uint16"/>
+    <field name="up_t8" type="uint16"/>
+    <field name="dn_t8" type="uint16"/>
+    <field name="up_t9" type="uint16"/>
+    <field name="dn_t9" type="uint16"/>
+  </message>
 
   <message name="TCAS_TA" ID="120">
     <field name="ac_id" type="uint8"/>
@@ -838,8 +911,31 @@
     <field name="speed_sp" type="float"/>
   </message>
 
-  <!--126 is free -->
-  <!--127 is free -->
+  <message name="TEMP_TCOUPLE" id="126">
+    <field name="fval0" type="float"/>
+    <field name="fval1" type="float"/>
+    <field name="fval2" type="float"/>
+    <field name="fval3" type="float"/>
+    <field name="fref0" type="float"/>
+    <field name="fref1" type="float"/>
+    <field name="fref2" type="float"/>
+    <field name="fref3" type="float"/>
+    <field name="val0"  type="uint16"/>
+    <field name="val1"  type="uint16"/>
+    <field name="val2"  type="uint16"/>
+    <field name="val3"  type="uint16"/>
+    <field name="ref0"  type="uint16"/>
+    <field name="ref1"  type="uint16"/>
+    <field name="ref2"  type="uint16"/>
+    <field name="ref3"  type="uint16"/>
+  </message>
+
+  <message name="SHT_I2C_STATUS" id="127">
+    <field name="ihumid" type="uint16"/>
+    <field name="itemp"  type="uint16"/>
+    <field name="humid"  type="float" unit="rel_hum" format="%.2f"/>
+    <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
 
   <message name="CAMERA_SNAPSHOT" id="128">
     <field name="snapshot_image_number" type="uint16"/>
@@ -1137,8 +1233,18 @@
     <field name="ins_zdd"   type="int32" alt_unit="m/s2" alt_unit_coef="0.0009766"/>
   </message>
 
- <!--152 is free -->
- <!--153 is free -->
+  <message name="PCAP01_STATUS" id="152">
+    <field name="ihumid" type="uint32"/>
+    <field name="itemp"  type="uint32"/>
+    <field name="humid"  type="float" unit="rel_hum" format="%.2f"/>
+    <field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+  </message>
+
+  <message name="GEIGER_COUNTER" id="153">
+    <field name="tube1"   type="uint32" unit="events"/>
+    <field name="tube2"   type="uint32" unit="events"/>
+    <field name="vsupply" type="uint16" unit="volts"/>
+  </message>
 
   <message name="INS_REF" id="154">
     <field name="ecef_x0" type="int32" alt_unit="m"    alt_unit_coef="0.01"/>
@@ -2063,6 +2169,12 @@
    <field name="xd"     type="float" unit="m"/>
    <field name="y"      type="float" unit="m"/>
    <field name="yd"     type="float" unit="m"/>
+ </message>
+
+ <message name="BOOZ_CAM_STICK" id="152" link="forwarded">
+   <field name="ac_id" type="uint8"/>
+   <field name="tilt" type="int8"/>
+   <field name="pan" type="int8"/>
  </message>
 
 </class>

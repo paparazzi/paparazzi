@@ -17,7 +17,7 @@
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
-  
+
   <!--
   <command_laws>
     <let var="aildderon"  value="@ROLL  * AILEVON_AILERON_RATE"/>
@@ -58,7 +58,7 @@
   <include href="conf/airframes/esden/calib/aspirin_012.xml"/>
 
   <section name="IMU" prefix="IMU_">
-    
+
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg( 180. )"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(  90. )"/>
     <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(   0. )"/>
@@ -207,9 +207,9 @@
     <subsystem name="gps"           type="ublox">
 	    <configure name="GPS_BAUD"    value="B57600"/>
     </subsystem>
-    <!--subsystem name="ahrs"          type="cmpl"/-->
+    <!--subsystem name="ahrs"          type="int_cmpl_euler"/-->
     <subsystem name="stabilization"   type="euler"/>
-    <subsystem name="ahrs"          type="ic"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat"/>
   </firmware>
 
   <firmware name="lisa_l_test_progs">

@@ -26,7 +26,7 @@ main.srcs += sys_time.c $(MB)/turntable_systime.c
 
 main.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B115200
 main.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
+main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0
 
 main.srcs += downlink.c pprz_transport.c
 

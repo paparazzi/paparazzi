@@ -76,8 +76,8 @@ bool_t nav_detect_ground(void);
 
 void nav_home(void);
 
-#define NavKillThrottle() ({ if (autopilot_mode == AP_MODE_NAV) { kill_throttle = 1; autopilot_motors_on = 0; } FALSE; })
-#define NavResurrect() ({ if (autopilot_mode == AP_MODE_NAV) { kill_throttle = 0; autopilot_motors_on = 1; } FALSE; })
+#define NavKillThrottle() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(FALSE); } FALSE; })
+#define NavResurrect() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(TRUE); } FALSE; })
 
 
 #define NavSetGroundReferenceHere() ({ nav_reset_reference(); FALSE; })

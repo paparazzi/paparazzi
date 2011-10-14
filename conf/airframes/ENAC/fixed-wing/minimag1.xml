@@ -3,6 +3,7 @@
 <airframe name="MiniMag Tiny 2.11">
 
   <firmware name="fixedwing">
+    <define name="USE_I2C0"/>
     <define name="AGR_CLIMB" />
     <define name="LOITER_TRIM" />
     <define name="ALT_KALMAN" />
@@ -14,9 +15,6 @@
     </target>
 
     <subsystem name="spi"/>
-    <!--subsystem name="i2c">
-      <define name="USE_I2C0"/>
-    </subsystem-->
 
     <subsystem  name="telemetry" type="transparent">
       <configure name="MODEM_BAUD" value="B9600" />
@@ -24,9 +22,9 @@
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="navigation" />
-<!--    <subsystem name="attitude" type="infrared"/>-->
+<!--    <subsystem name="ahrs" type="infrared"/>-->
     <subsystem name="control"/>
-    <subsystem name="gps" type="ublox_lea5h"/>
+    <subsystem name="gps" type="ublox"/>
   </firmware>
 
   <firmware name="setup">
@@ -116,7 +114,7 @@
 
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
- 
+
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="11." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
@@ -129,7 +127,7 @@
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="50."/>
   </section>
- 
+
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
@@ -193,6 +191,6 @@
     <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
     <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
   </section>
- 
+
 </airframe>
 

@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- 
+<!--
 	YAPA + XSens + XBee
 -->
 
@@ -176,7 +176,7 @@
     <target name="sim" board="pc"/>
 
     <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="gps" type="ublox_lea5h" >
+    <subsystem name="gps" type="ublox" >
       <configure name="GPS_PORT" value="gps_i2c" />
     </subsystem>
 
@@ -189,9 +189,8 @@
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="navigation"/>
-<!--    <subsystem name="gps"    type="ublox_lea5h"/> -->
+<!--    <subsystem name="gps"    type="ublox"/> -->
 
-    <!--<subsystem name="i2c"/>-->
 
   </firmware>
 

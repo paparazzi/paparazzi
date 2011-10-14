@@ -1,5 +1,5 @@
 (** Aircraft id type *)
-type id = string 
+type id = string
 
 val new_ac : id -> int -> unit
 (** [new_ac id max_nb_sample] *)

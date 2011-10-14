@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -46,7 +46,7 @@ let add_path = fun p -> path := p :: !path
 
 let open_compressed = fun f ->
   Ocaml_tools.open_compress (Ocaml_tools.find_file !path f)
- 
+
 let find = fun tile ->
   try Hashtbl.find htiles tile with
     Not_found ->
@@ -63,7 +63,7 @@ let find = fun tile ->
       with Not_found ->
 	raise (Tile_not_found tile_name)
 
-  
+
 let get = fun tile y x ->
   let tile = find tile in
   let pos = (2*((tile_size-y)*tile_size+x)) in
@@ -83,7 +83,7 @@ let of_utm = fun utm ->
 
 (* field size in bytes *)
 let field_size = 2
-(* srtm file line size in bytes *) 
+(* srtm file line size in bytes *)
 let line_size = 1201 * field_size
 let byte_shift_factor = 256
 let sec3_steps_number = 1200
@@ -92,8 +92,8 @@ let delta_srtm3_meters = 90.0
 
 let safety_height_meters = 20
 
-let altitude_min_meters = -30000 
- 
+let altitude_min_meters = -30000
+
 let step_d = 100.
 
 let step_alpha = Latlong.pi /. 10.
@@ -104,7 +104,7 @@ let horizon_slope = fun geo r psi alpha d ->
 
   let alpha2 = 2.0 *. alpha in
   let heading_psi_2alpha = pi /. 2.0 -. psi -. alpha in
-    
+
   let rec calc_horizon = fun sum_cos_alpha_i_slope_alpha_i  sum_cos_alpha_i alpha_i ->
   if alpha_i > alpha2 then atan ( sum_cos_alpha_i_slope_alpha_i /. sum_cos_alpha_i )
   else
@@ -116,7 +116,7 @@ let horizon_slope = fun geo r psi alpha d ->
 	let t_utm = utm_p +. !dj *. sin( heading_psi_2alpha +. alpha_i) in
 	let h = of_utm { utm_zone = z; utm_x = s_utm; utm_y = t_utm} in
 	begin
-	  begin 
+	  begin
 	    let slope =  float_of_int (h-r ) /. !dj in
 	    if slope > !max_slope then max_slope := slope;
 	   (* Printf.printf " h %d dj %.2f \n" h !dj; *)
@@ -127,7 +127,7 @@ let horizon_slope = fun geo r psi alpha d ->
      (* Printf.printf "alpha_i %.2f max_slope %.2f \n" alpha_i !max_slope; *)
       calc_horizon (sum_cos_alpha_i_slope_alpha_i +. !max_slope *. (cos (alpha_i -. alpha))) (sum_cos_alpha_i +. (cos (alpha_i -. alpha))) (alpha_i +. step_alpha)
     end
-  in 
+  in
   begin
   (*  Printf.printf "debut calcul \n"; *)
     calc_horizon 0.0 0.0 0.0;

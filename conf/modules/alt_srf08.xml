@@ -6,7 +6,7 @@
   </header>
   <init fun="srf08_init()"/>
   <periodic fun="srf08_initiate_ranging()" freq="1"/>
-  <!-- 65ms since initiate_ranging() (the spec ask for 65ms), 
+  <!-- 65ms since initiate_ranging() (the spec ask for 65ms),
        delay="4", 60Hz, 4x 16.7ms = 66.7ms -->
   <periodic fun="srf08_receive()" freq="1" delay="4"/>
   <event fun="srf08_event()"/>

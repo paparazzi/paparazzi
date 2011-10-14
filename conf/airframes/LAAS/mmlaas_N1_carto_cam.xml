@@ -83,7 +83,7 @@
     <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
- 
+
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="11." unit="m/s"/>
     <define name="CARROT" value="3." unit="s"/>
@@ -96,7 +96,7 @@
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="60."/>
   </section>
- 
+
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
@@ -106,7 +106,7 @@
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.55"/>  
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.55"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.30"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.90"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
@@ -138,7 +138,7 @@
     <define name="PITCH_PGAIN" value="-12000."/>
     <define name="PITCH_DGAIN" value="1.5"/>
     <define name="ELEVATOR_OF_ROLL" value="1250"/>
-    
+
   </section>
 
   <section name="NAV">
@@ -183,7 +183,7 @@
     	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
 	<define name="HOME_RADIUS" value="100" unit="m"/>
 </section>
- 
+
  <section name="DATALINK" prefix="DATALINK_">
     <define name="DEVICE_TYPE" value="XBEE"/>
     <define name="DEVICE_ADDRESS" value="...."/>
@@ -193,7 +193,7 @@
  <section name="SIMU">
     <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
  </section>
- 
+
  <makefile>
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 
@@ -208,13 +208,13 @@ ap.CFLAGS += -DACTUATORS=\"servos_4015_MAT_hw.h\" -DSERVOS_4015_MAT
 ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 
 ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
-ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
+ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B57600
 ap.srcs += downlink.c $(SRC_ARCH)/uart_hw.c datalink.c xbee.c
 
 ap.CFLAGS += -DINTER_MCU
-ap.srcs += inter_mcu.c 
+ap.srcs += inter_mcu.c
 
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2
 ap.srcs += $(SRC_ARCH)/adc_hw.c
@@ -227,7 +227,7 @@ ap.CFLAGS += -DINFRARED -DALT_KALMAN
 ap.srcs += infrared.c estimator.c
 
 ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c nav_line.c 
+ap.srcs += nav.c fw_h_ctl.c fw_v_ctl.c nav_survey_rectangle.c nav_line.c
 
 # Hack to use the same tuning file than slayer1
 #�ap.CFLAGS += -DUSE_GPIO
@@ -250,18 +250,18 @@ ap.srcs += tcas.c
 
 # Losange Cartography with Onboard Camera
 ap.CFLAGS += -DUSE_ONBOARD_CAMERA
-ap.srcs +=nav_survey_losange_carto.c 
+ap.srcs +=nav_survey_losange_carto.c
 
- 
+
 #################################################################################################
 # Config for SITL simulation
 include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.CFLAGS += -DCONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN -DFORMATION -DTRAFFIC_INFO -DTCAS
-sim.srcs += nav_survey_rectangle.c nav_line.c external.c traffic_info.c formation.c snav.c tcas.c 
+sim.srcs += nav_survey_rectangle.c nav_line.c external.c traffic_info.c formation.c snav.c tcas.c
 
 # Losange Cartography with Onboard Camera
 sim.CFLAGS += -DUSE_ONBOARD_CAMERA
-sim.srcs += nav_survey_losange_carto.c 
+sim.srcs += nav_survey_losange_carto.c
 
 #pour les printf de debug
 sim.CFLAGS += -DDEBUG_PRINTF

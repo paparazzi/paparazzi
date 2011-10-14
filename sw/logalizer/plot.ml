@@ -2,7 +2,7 @@
  * $Id$
  *
  * Basic log plotter
- *  
+ *
  * Copyright (C) 2007- ENAC, Pascal Brisset, Antoine Drouin
  *
   * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -35,7 +35,7 @@ let verbose = ref false
 class type text_value = object method text : string end
 
 
-let double__ = 
+let double__ =
   let underscore = Str.regexp "_" in
   fun s -> Str.global_replace underscore "__" s
 
@@ -60,16 +60,16 @@ let rec remove_newer t0 = function
 
 let compute_ticks = fun min_y max_y ->
   let delta = max_y -. min_y in
-  
+
   let scale = log delta /. log 10. in
   let d = 10. ** floor scale in
-  let u = 
-    if delta < 2.*.d then d/.5. 
+  let u =
+    if delta < 2.*.d then d/.5.
     else if delta < 5.*.d then d/.2.
     else d in
   let tick_min = min_y -. mod_float min_y u in
   (delta, scale, u, tick_min)
-	
+
 
 let colors = [|(255,0,0);(0,255,0); (0,0,255); (245,215,20); (245,20,245); (30,225,225); (110,30,230)|]
 
@@ -81,10 +81,10 @@ let labelled_entry = fun ?width_chars text value (h:GPack.box) ->
 
 let logs_menus = ref []
 
-let screenshot_hint_name = 
+let screenshot_hint_name =
   let n = ref 0 in
   fun extension ->
-    let basename = 
+    let basename =
       match !logs_menus with
 	(_, menu_name, _, _)::_ -> begin
 	  match Str.split (Str.regexp ":") menu_name with
@@ -123,18 +123,18 @@ let fig_renderer = fun (width, height) ->
     method unit = fun x -> scale * x
 
     method size = (width, height)
-	
+
     method init = fun () ->
       self#rectangle 0 0 width height ()
-	
+
     method set_color = fun (r, g, b) ->
       let (id, obj) = Fig.color r g b in
       pen_color <- id;
       objects <- obj :: objects
-	      
+
     method lines = fun points ->
       objects <- Fig.polyline ~pen_color points :: objects
-	
+
     method rectangle = fun x y width height ?(filled=false) () ->
       let area_fill = if filled then Fig.filled else -1
       and p1 = (x,y)
@@ -143,21 +143,21 @@ let fig_renderer = fun (width, height) ->
       objects <- Fig.polyline ~pen_color ~fill_color:pen_color ~sub_type:Fig.Box ~area_fill points :: objects
 
     val font_size = 10
-	
-    method create_text = fun s -> 
+
+    method create_text = fun s ->
       text <- s;
       ((3*font_size*scale)/4*String.length s, font_size*scale)
-	
+
     method put_text = fun x y ->
       let font = Fig.Postscript Fig.Helvetica in
       let obj = Fig.text ~font ~font_size ~color:pen_color (x,y+font_size*scale) text in
       objects <- obj :: objects
-	
+
     method draw = fun () ->
       let fig = Fig.create objects in
       save_dialog "fig" (fun name -> Fig.write name fig)
   end
-    
+
 
 
 class plot = fun ~width ~height ~packing () ->
@@ -258,7 +258,7 @@ class plot = fun ~width ~height ~packing () ->
       self#wake ();
       self#recompute ();
       curve
-	
+
     method delete_curve = fun (name:string) ->
       Hashtbl.remove curves name;
       self#reset_scale ();
@@ -282,9 +282,9 @@ class plot = fun ~width ~height ~packing () ->
 
 	method set_color = fun (r, g, b) ->
 	  dr#set_foreground (`RGB (256*r, 256*g, 256*b))
-	  
+
 	method lines = dr#lines
-	  
+
 	method rectangle = fun x y width height ?(filled=false) () ->
 	  dr#rectangle ~x ~y ~width ~height ~filled ()
 
@@ -318,7 +318,7 @@ class plot = fun ~width ~height ~packing () ->
       let black = (0,0,0) in
 
       let graph_height = height - bottom_margin - top_margin in
-      
+
       let scale_x = fun x -> left_margin + truncate ((x-.min_x)*. float (width-left_margin) /. (max_x -. min_x))
       and scale_y = fun y -> top_margin+graph_height - truncate ((y-.min_y)*. float graph_height /. (max_y -. min_y)) in
 
@@ -353,7 +353,7 @@ class plot = fun ~width ~height ~packing () ->
 	renderer#set_color black;
 
 	(* Y *)
-	let (min_y, max_y) = 
+	let (min_y, max_y) =
 	  if max_y > min_y then (min_y, max_y)
 	  else  let d = abs_float max_y /. 10. in (max_y -. d, max_y +. d) in
 
@@ -366,10 +366,10 @@ class plot = fun ~width ~height ~packing () ->
 	    let s = Printf.sprintf "%.*f" (Pervasives.max 0 (2-truncate scale)) tick in
 	    let (w, h) = renderer#create_text s in
 	    renderer#put_text (left_margin-margin-w) (y-h/2);
-	    
+
 	    renderer#lines [(left_margin,y);(left_margin+tick_len,y)]
 	done;
-	
+
 	(* Time *)
 	let delta, scale, u, tick_min = compute_ticks min_x max_x in
 	let y = height in
@@ -381,7 +381,7 @@ class plot = fun ~width ~height ~packing () ->
 	    let (w, h) = renderer#create_text s in
 	    let y = y-margin-h in
 	    renderer#put_text (x-w/2) y;
-	    
+
 	    renderer#lines [(x,y);(x,y-tick_len)]
 	done
       end;
@@ -399,7 +399,7 @@ class plot = fun ~width ~height ~packing () ->
 	     renderer#rectangle x y width height ();
 	| _ -> ()
       end;
-      
+
       (* Actually draw *)
       renderer#draw ()
 
@@ -468,7 +468,7 @@ class plot = fun ~width ~height ~packing () ->
     method zoom = fun ev ->
       let {Gtk.width=width;height=height}= self#drawing_area#misc#allocation
       and dx = (max_x -. min_x) and dy = (max_y -. min_y) in
-      let alpha_x = 
+      let alpha_x =
 	(GdkEvent.Scroll.x ev -. float left_margin)
 	  /. float (width-left_margin)
       and alpha_y =
@@ -503,7 +503,7 @@ class plot = fun ~width ~height ~packing () ->
 	  self#recompute ();
 	  true
       | _ -> false
-      
+
 
     initializer ignore (self#drawing_area#event#connect#expose ~callback:(fun _ -> self#recompute (); false))
 
@@ -518,7 +518,7 @@ class plot = fun ~width ~height ~packing () ->
 
 let pprz_float = function
     Pprz.Int i -> float i
-  | Pprz.Float f -> f 
+  | Pprz.Float f -> f
   | Pprz.Int32 i -> Int32.to_float i
   | Pprz.String s -> float_of_string s
   | Pprz.Array _ -> 0.
@@ -529,12 +529,12 @@ let rec select_gps_values = function
   | (m, values)::_ when m.Pprz.name = "GPS" ->
       let xs = List.assoc "utm_east" values
       and ys = List.assoc "utm_north" values
-      and zs = List.assoc "utm_zone" values 
+      and zs = List.assoc "utm_zone" values
       and alts = List.assoc "alt" values in
       let l = ref [] in
       for i = 0 to Array.length xs - 1 do
 	let z = truncate (snd zs.(i))
-	and a = snd alts.(i) /. 100. in
+	and a = snd alts.(i) /. 1000. in
 	if z <> 0 && a > 0. then
 	    let t = fst xs.(i)
 	    and x = snd xs.(i) /. 100.
@@ -543,26 +543,26 @@ let rec select_gps_values = function
 	    l := (t, of_utm WGS84 utm, a) :: !l
       done;
       List.rev !l
-  | (m, values)::_ when m.Pprz.name = "BOOZ2_GPS" ->
+  | (m, values)::_ when m.Pprz.name = "GPS_INT" ->
       let lats = List.assoc "lat" values
       and lons = List.assoc "lon" values
-      and alts = List.assoc "alt" values in
+      and alts = List.assoc "hmsl" values in
       let l = ref [] in
       for i = 0 to Array.length lats - 1 do
-	let a = snd alts.(i) /. 100. in
+	let a = snd alts.(i) /. 1000. in
 	if a > 0. then
 	  let t = fst lats.(i)
 	  and lat = snd lats.(i) /. 1e7
 	  and lon = snd lons.(i) /. 1e7 in
-	  let wgs84 = make_geo_deg lat lon in
+	  let wgs84 = make_geo lat lon in
 	  l := (t, wgs84, a) :: !l
       done;
       List.rev !l
-      
-      
+
+
   | _ :: rest ->
 	select_gps_values rest
-	
+
 
 let write_kml = fun plot log_name values ->
   let t_min = plot#min_x ()
@@ -614,9 +614,9 @@ let add_ac_submenu = fun ?(export=false) protocol ?(factor=object method text="1
   let menuitem = GMenu.menu_item ~label:menu_name () in
   menuitem#set_submenu menu;
   menubar#menu#append menuitem;
-  
+
   let menu_fact = new GMenu.factory menu in
-  
+
   (* Build the msg menus *)
   List.iter
     (fun (msg, l) ->
@@ -641,7 +641,7 @@ let add_ac_submenu = fun ?(export=false) protocol ?(factor=object method text="1
 	    let (r, g, b) = curve.color in
 	    eb#coerce#misc#modify_bg [`NORMAL, `RGB (256*r,256*g,256*b)];
 	    let item = curves_menu_fact#add_image_item ~image:eb#coerce ~label:name () in
-	    
+
 	    let delete = fun () ->
 	      plot#delete_curve name;
 	      curves_menu_fact#menu#remove (item :> GMenu.menu_item) in
@@ -659,8 +659,8 @@ let add_ac_submenu = fun ?(export=false) protocol ?(factor=object method text="1
     Export.popup ?no_gui protocol menu_name raw_msgs in
   ignore (menu_fact#add_item ~callback "Export CSV");
   if export then
-    callback ~no_gui:true ()    
-    
+    callback ~no_gui:true ()
+
 
 let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.factory) curves_fact xml_file ->
   Debug.call 'p' (fun f ->  fprintf f "load_log: %s\n" xml_file);
@@ -684,8 +684,8 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
   let module M = struct let name = class_name let xml = protocol end in
   let module P = Pprz.MessagesOfXml(M) in
 
-  let f = 
-    try 
+  let f =
+    try
       Ocaml_tools.find_file [Filename.dirname xml_file] data_file
     with
       Not_found ->
@@ -717,7 +717,7 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 
 	    (* Elements of [fields] are values indexed by field name *)
 	    List.iter
-	      (fun (f, value) -> 
+	      (fun (f, value) ->
 		match value with
 		  Pprz.Array array ->
 		    Array.iteri
@@ -747,19 +747,19 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 	  let menu_name = sprintf "%s:%s" (Filename.chop_extension (Filename.basename xml_file)) ac in
 
 	  (* First sort by message id *)
-	  let l = ref [] in 
+	  let l = ref [] in
 	  Hashtbl.iter (fun msg fields -> l := (P.message_of_id msg, fields):: !l) msgs;
 	  let msgs = List.sort (fun (a,_) (b,_) -> compare a b) !l in
 
 	  let msgs =
 	    List.map (fun (msg, fields) ->
-	      let l = ref [] in 
+	      let l = ref [] in
 	      Hashtbl.iter
 		(fun f v -> if not (List.mem f !l) then l := f :: !l)
 		fields;
 	      let sorted_fields = List.sort compare !l in
 
-	      let field_values_assoc = 
+	      let field_values_assoc =
 		List.map
 		  (fun f ->
 		    let values = Hashtbl.find_all fields f in
@@ -770,10 +770,10 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 		  sorted_fields in
 	      (msg, field_values_assoc))
 	      msgs in
-	  
+
 	  (* Store data for other windows *)
 	  logs_menus :=  !logs_menus @ [(ac, menu_name, (msgs, raw_msgs), protocol)];
-	  
+
 	  add_ac_submenu ?export protocol ?factor plot menubar curves_fact ac menu_name msgs raw_msgs;
 	)
 	acs
@@ -792,7 +792,7 @@ let screenshot = fun frame ->
     "png"
     (fun name -> GdkPixbuf.save name "png" dest)
 
-  
+
 
 (** Table of current windows, to be able to quit when the last one is closed
  FIXME: should be shared with plotter.ml *)
@@ -806,10 +806,10 @@ let rec plot_window = fun ?export init ->
   let oid = plotter#get_oid in
   Hashtbl.add windows oid ();
 
-  plotter#set_icon (Some (GdkPixbuf.from_file Env.icon_file));  
+  plotter#set_icon (Some (GdkPixbuf.from_file Env.icon_file));
   let vbox = GPack.vbox ~packing:plotter#add () in
   let quit = fun () -> GMain.Main.quit (); exit 0 in
-  let close = fun () -> 
+  let close = fun () ->
     plotter#destroy ();
     Hashtbl.remove windows oid;
     if Hashtbl.length windows = 0 then
@@ -828,7 +828,7 @@ let rec plot_window = fun ?export init ->
   let plot = new plot ~width ~height ~packing:(vbox#pack ~expand:true) () in
 
   let open_log_item = file_menu_fact#add_item "Open Log" ~key:GdkKeysyms._O in
-  
+
   ignore (file_menu_fact#add_item "New" ~key:GdkKeysyms._N ~callback:(fun () -> plot_window []));
 
   let delayed_screenshot = fun () ->
@@ -857,7 +857,7 @@ let rec plot_window = fun ?export init ->
     ("Ymin", plot#min_y, plot#set_min_y);
     ("Ymax", plot#max_y, plot#set_max_y)] in
 
-  let entries = 
+  let entries =
     List.map (fun (label, value, action) ->
       let _, entry= labelled_entry ~width_chars:8 label "" h in
       plot#scale_event (fun () -> entry#set_text (string_of_float (value ())));
@@ -880,7 +880,7 @@ let rec plot_window = fun ?export init ->
     let eb = GBin.event_box ~width:10 ~height:10 () in
     eb#coerce#misc#modify_bg [`NORMAL, `NAME "black"];
     let item = curves_menu_fact#add_image_item ~image:eb#coerce ~label:s () in
-    
+
     let delete = fun () ->
       plot#delete_cst v;
       curves_menu#remove (item :> GMenu.menu_item) in
@@ -895,7 +895,7 @@ let rec plot_window = fun ?export init ->
 
   List.iter
     (fun (ac, menu_name, (msgs, raw_msgs), protocol) ->
-      add_ac_submenu protocol ~factor:(factor:>text_value) plot factory curves_menu_fact ac menu_name msgs raw_msgs) 
+      add_ac_submenu protocol ~factor:(factor:>text_value) plot factory curves_menu_fact ac menu_name msgs raw_msgs)
     !logs_menus;
 
   ignore(open_log_item#connect#activate ~callback:(fun () -> let factor = (factor:>text_value) in open_log ~factor plot factory curves_menu_fact ()));
@@ -922,6 +922,6 @@ let () =
 
   if not !export then
     let loop = Glib.Main.create true in
-    while Glib.Main.is_running loop do 
-      ignore (Glib.Main.iteration true) 
+    while Glib.Main.is_running loop do
+      ignore (Glib.Main.iteration true)
     done

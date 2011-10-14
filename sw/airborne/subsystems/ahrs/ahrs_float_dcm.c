@@ -91,11 +91,23 @@ int renorm_blowup_count = 0;
 float imu_health = 0.;
 #endif
 
+#ifdef USE_HIGH_ACCEL_FLAG
+// High Accel Flag
+#define HIGH_ACCEL_LOW_SPEED 15.0
+#define HIGH_ACCEL_LOW_SPEED_RESUME 4.0 // Hysteresis
+#define HIGH_ACCEL_HIGH_THRUST (0.8*MAX_PPRZ)
+#define HIGH_ACCEL_HIGH_THRUST_RESUME (0.1*MAX_PPRZ) // Hysteresis
+bool_t high_accel_done;
+bool_t high_accel_flag;
+// Command vector for thrust (fixed_wing)
+#include "inter_mcu.h"
+#endif
+
 
 static inline void set_dcm_matrix_from_rmat(struct FloatRMat *rmat)
 {
   for (int i=0; i<3; i++) {
-    for (int j=0; j<3; j++) { 
+    for (int j=0; j<3; j++) {
       DCM_Matrix[i][j] = RMAT_ELMT(*rmat, j, i);
     }
   }
@@ -150,7 +162,7 @@ void ahrs_update_fw_estimator( void )
 
 
 void ahrs_init(void) {
-  ahrs_float.status = AHRS_UNINIT;
+  ahrs.status = AHRS_UNINIT;
 
   /*
    * Initialises our IMU alignement variables
@@ -175,6 +187,11 @@ void ahrs_init(void) {
 
   /* set inital filter dcm */
   set_dcm_matrix_from_rmat(&ahrs_float.ltp_to_imu_rmat);
+
+#ifdef USE_HIGH_ACCEL_FLAG
+  high_accel_done = FALSE;
+  high_accel_flag = FALSE;
+#endif
 }
 
 void ahrs_align(void)
@@ -411,6 +428,25 @@ void Drift_correction(void)
   // Weight for accelerometer info (<0.5G = 0.0, 1G = 1.0 , >1.5G = 0.0)
   Accel_weight = Chop(1 - 2*fabs(1 - Accel_magnitude),0,1);  //
 
+#ifdef USE_HIGH_ACCEL_FLAG
+  // Test for high acceleration:
+  //  - low speed
+  //  - high thrust
+  if (estimator_hspeed_mod < HIGH_ACCEL_LOW_SPEED && ap_state->commands[COMMAND_THROTTLE] > HIGH_ACCEL_HIGH_THRUST && !high_accel_done) {
+    high_accel_flag = TRUE;
+  } else {
+    high_accel_flag = FALSE;
+    if (estimator_hspeed_mod > HIGH_ACCEL_LOW_SPEED && !high_accel_done) {
+      high_accel_done = TRUE; // After takeoff, don't use high accel before landing (GS small, Throttle small)
+    }
+    if (estimator_hspeed_mod < HIGH_ACCEL_HIGH_THRUST_RESUME && ap_state->commands[COMMAND_THROTTLE] < HIGH_ACCEL_HIGH_THRUST_RESUME) {
+      high_accel_done = FALSE; // Activate high accel after landing
+    }
+  }
+  if (high_accel_flag) { Accel_weight = 0.; }
+#endif
+
+
   #if PERFORMANCE_REPORTING == 1
   {
 
@@ -462,8 +498,8 @@ void Drift_correction(void)
 
   //  Here we will place a limit on the integrator so that the integrator cannot ever exceed half the saturation limit of the gyros
   Integrator_magnitude = sqrt(Vector_Dot_Product(Omega_I,Omega_I));
-  if (Integrator_magnitude > DegOfRad(300)) {
-    Vector_Scale(Omega_I,Omega_I,0.5f*DegOfRad(300)/Integrator_magnitude);
+  if (Integrator_magnitude > RadOfDeg(300)) {
+    Vector_Scale(Omega_I,Omega_I,0.5f*RadOfDeg(300)/Integrator_magnitude);
   }
 
 

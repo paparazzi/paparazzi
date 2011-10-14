@@ -7,7 +7,7 @@ type channel
 
 val set_up_channel : Unix.file_descr -> (unit -> unit) -> (channel -> unit) -> channel
 (** [set_up_channel fd delete read] gives the opportunity to the main loop
-to call [read] when data is available on [fd] and [delete] when [fd] is 
+to call [read] when data is available on [fd] and [delete] when [fd] is
 closed *)
 
 val close_channel : channel -> unit

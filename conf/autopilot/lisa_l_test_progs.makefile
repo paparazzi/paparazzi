@@ -95,6 +95,7 @@ test_uart.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_uart.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_uart.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_uart.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B57600
+test_uart.srcs += mcu_periph/uart.c
 test_uart.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 
@@ -176,6 +177,7 @@ test_baro.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_baro.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
 test_baro.srcs   += downlink.c pprz_transport.c
 test_baro.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_baro.srcs   += mcu_periph/uart.c
 test_baro.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_baro.srcs   += $(SRC_BOARD)/baro_board.c
 test_baro.CFLAGS += -DUSE_I2C2
@@ -209,6 +211,7 @@ test_rc_spektrum.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 test_rc_spektrum.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_rc_spektrum.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_rc_spektrum.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_rc_spektrum.srcs   += mcu_periph/uart.c
 test_rc_spektrum.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_rc_spektrum.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
 test_rc_spektrum.srcs   += downlink.c pprz_transport.c
@@ -252,6 +255,7 @@ test_rc_ppm.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 test_rc_ppm.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_rc_ppm.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_rc_ppm.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_rc_ppm.srcs   += mcu_periph/uart.c
 test_rc_ppm.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_rc_ppm.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
 test_rc_ppm.srcs   += downlink.c pprz_transport.c
@@ -291,6 +295,7 @@ test_adc.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_adc.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 test_adc.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_adc.srcs   += mcu_periph/uart.c
 test_adc.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_adc.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=$(MODEM_PORT)
 
@@ -305,7 +310,7 @@ test_adc.CFLAGS += -DUSE_ADC1_2_IRQ_HANDLER
 
 
 #
-# common test 
+# common test
 #
 # configuration
 #   SYS_TIME_LED
@@ -323,10 +328,11 @@ COMMON_TEST_SRCS    = $(SRC_AIRBORNE)/mcu.c            \
 COMMON_TEST_CFLAGS += -DUSE_LED
 COMMON_TEST_SRCS   += $(SRC_ARCH)/led_hw.c
 COMMON_TEST_CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
-COMMON_TEST_CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./$(PERIODIC_FREQUENCY).))' 
+COMMON_TEST_CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./$(PERIODIC_FREQUENCY).))'
 COMMON_TEST_CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 COMMON_TEST_SRCS   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 COMMON_TEST_CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+COMMON_TEST_SRCS   += mcu_periph/uart.c
 COMMON_TEST_SRCS   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 COMMON_TEST_CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
 COMMON_TEST_SRCS   += downlink.c pprz_transport.c
@@ -437,7 +443,7 @@ ifeq ($(AHRS), icq)
 #test_ahrs.CFLAGS += -DAHRS_TYPE=\"ICQ\"
 test_ahrs.CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=512
 test_ahrs.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl.h\"
-test_ahrs.srcs +=subsystems/ahrs/ahrs_int_cmpl.c 
+test_ahrs.srcs +=subsystems/ahrs/ahrs_int_cmpl.c
 endif
 
 ifeq ($(AHRS), flq)
@@ -494,6 +500,7 @@ test_hmc5843.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_hmc5843.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 test_hmc5843.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_hmc5843.srcs += mcu_periph/uart.c
 test_hmc5843.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_hmc5843.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
@@ -525,6 +532,7 @@ test_itg3200.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 test_itg3200.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 test_itg3200.CFLAGS +=  -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_itg3200.srcs += mcu_periph/uart.c
 test_itg3200.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_itg3200.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
@@ -555,6 +563,7 @@ test_adxl345.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 test_adxl345.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 test_adxl345.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_adxl345.srcs += mcu_periph/uart.c
 test_adxl345.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_adxl345.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
@@ -626,6 +635,7 @@ test_actuators_mkk.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_actuators_mkk.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 test_actuators_mkk.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_actuators_mkk.srcs += mcu_periph/uart.c
 test_actuators_mkk.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_actuators_mkk.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
@@ -658,6 +668,7 @@ test_actuators_asctecv1.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512
 test_actuators_asctecv1.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 test_actuators_asctecv1.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+test_actuators_asctecv1.srcs += mcu_periph/uart.c
 test_actuators_asctecv1.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_actuators_asctecv1.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
@@ -688,6 +699,7 @@ test_bmp085.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 test_bmp085.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 test_bmp085.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
+test_bmp085.srcs += mcu_periph/uart.c
 test_bmp085.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_bmp085.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
@@ -783,6 +795,7 @@ tunnel_hw.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
 tunnel_hw.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 tunnel_hw.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 tunnel_hw.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
+tunnel_hw.srcs   += mcu_periph/uart.c
 tunnel_hw.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 
@@ -812,6 +825,7 @@ test_settings.CFLAGS += -DUSE_$(MODEM_PORT)
 test_settings.CFLAGS += -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 test_settings.srcs   += downlink.c pprz_transport.c
 test_settings.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
+test_settings.srcs   += mcu_periph/uart.c
 test_settings.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_settings.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=$(MODEM_PORT)
 test_settings.srcs   += subsystems/settings.c

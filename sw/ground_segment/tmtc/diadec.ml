@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -27,7 +27,7 @@
 open Printf
 
 module Sub_Pprz = Pprz.Messages(struct let name = "DIA" end)
-module PprzTransport = Serial.Transport(Pprz.Transport) 
+module PprzTransport = Serial.Transport(Pprz.Transport)
 
 
 let use_tele_message = fun buf ->
@@ -57,7 +57,7 @@ let _ =
   let fd = Hdlc.init_dec "/dev/dsp" in
 
   ignore (Glib.Io.add_watch [`IN] (fun _ -> use_tele_message (Hdlc.get_data ()); true) (GMain.Io.channel_of_descr fd));
-  
+
   (* Main Loop *)
   let loop = Glib.Main.create true in
   while Glib.Main.is_running loop do

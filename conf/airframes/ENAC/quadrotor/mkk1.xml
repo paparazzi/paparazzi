@@ -17,7 +17,7 @@
     <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization"   type="euler"/>
-    <subsystem name="ahrs"          type="cmpl"/>
+    <subsystem name="ahrs"          type="int_cmpl_euler"/>
     <subsystem name="ins"           type="hff"/>
   </firmware>
 
@@ -83,10 +83,10 @@
     <define name="GYRO_P_SENS" value="1.00" integer="16"/>
     <define name="GYRO_Q_SENS" value="1.00" integer="16"/>
     <define name="GYRO_R_SENS" value="1.00" integer="16"/>
-  
+
     <define name="ACCEL_X_CHAN" value="5"/>
     <define name="ACCEL_Y_CHAN" value="3"/>
-    <define name="ACCEL_Z_CHAN" value="4"/>    
+    <define name="ACCEL_Z_CHAN" value="4"/>
 
     <define name="ACCEL_X_NEUTRAL" value="32913"/>
     <define name="ACCEL_Y_NEUTRAL" value="33032"/>
@@ -110,7 +110,7 @@
 
 
     <!--define name="MAG_X_NEUTRAL" value="-12"/>
-    <define name="MAG_Y_NEUTRAL" value="-10"/> 
+    <define name="MAG_Y_NEUTRAL" value="-10"/>
     <define name="MAG_Z_NEUTRAL" value="-11"/>
 
     <define name="MAG_X_SENS" value="22.008352" integer="16"/>

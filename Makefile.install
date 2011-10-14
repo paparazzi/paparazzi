@@ -134,6 +134,7 @@ install_tools:
 	$(INSTALLDATA) sw/tools/gen_settings.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_tuning.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_ubx.ml $(DESTDIR)/sw/tools/
+	$(INSTALLDATA) sw/tools/gen_mtk.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_xsens.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_modules.ml $(DESTDIR)/sw/tools/
 	$(INSTALLDATA) sw/tools/gen_common.cmo $(DESTDIR)/sw/tools/

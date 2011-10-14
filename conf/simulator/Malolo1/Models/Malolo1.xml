@@ -13,7 +13,7 @@
   <object-name>rhelevon</object-name>
   <property>controls/flight/elevator</property>
   <factor>15</factor>
-  <offset-deg>0</offset-deg>   
+  <offset-deg>0</offset-deg>
   <center>
    <x-m>0.65</x-m>
    <y-m>1.4</y-m>
@@ -31,7 +31,7 @@
   <object-name>rhelevon</object-name>
   <property>controls/flight/aileron</property>
   <factor>-15</factor>
-  <offset-deg>0</offset-deg>   
+  <offset-deg>0</offset-deg>
   <center>
    <x-m>0.65</x-m>
    <y-m>1.4</y-m>
@@ -49,7 +49,7 @@
   <object-name>lhelevon</object-name>
   <property>controls/flight/elevator</property>
   <factor>15</factor>
-  <offset-deg>0</offset-deg>   
+  <offset-deg>0</offset-deg>
   <center>
    <x-m>0.65</x-m>
    <y-m>-1.4</y-m>
@@ -67,7 +67,7 @@
   <object-name>lhelevon</object-name>
   <property>controls/flight/aileron</property>
   <factor>15</factor>
-  <offset-deg>0</offset-deg>   
+  <offset-deg>0</offset-deg>
   <center>
    <x-m>0.65</x-m>
    <y-m>-1.4</y-m>
@@ -85,7 +85,7 @@
   <type>spin</type>
   <object-name>prop2</object-name>
   <property>engines/engine/rpm</property>
-  <factor>-0.2</factor>   
+  <factor>-0.2</factor>
   <center>
    <x-m>0</x-m>
    <y-m>0</y-m>
@@ -99,5 +99,5 @@
  </animation>
 
 
-  
+
 </PropertyList>

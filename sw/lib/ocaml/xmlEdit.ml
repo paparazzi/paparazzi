@@ -2,7 +2,7 @@
  * $Id$
  *
  * XML editor
- *  
+ *
  * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -54,8 +54,8 @@ let set_attr_value = fun (store:GTree.tree_store) row (a, v) ->
   store#set ~row ~column:value v
 
 let set_attributes = fun (store:GTree.tree_store) attribs ->
-  List.iter 
-    (fun (a, v) -> 
+  List.iter
+    (fun (a, v) ->
       let row = store#append () in
       set_attr_value store row (a,v))
     attribs
@@ -67,7 +67,7 @@ let attribs_of_model = fun (store:GTree.tree_store) ->
       l := (store#get ~row ~column:attribute, store#get ~row ~column:value):: !l;
       false);
   List.rev !l
-		  
+
 
 let editable_renderer = fun (model:GTree.tree_store) column ->
   let r = GTree.cell_renderer_text [`EDITABLE true] in
@@ -83,7 +83,7 @@ let attribs_view = fun model ->
   let r = editable_renderer model attribute in
   let col = GTree.view_column ~title:"Attribute" ()
       ~renderer:(r, ["text",attribute]) in
-  
+
   ignore (view#append_column col);
   col#set_max_width 100;
 
@@ -109,8 +109,8 @@ let string_of_attribs = fun attribs ->
       String.concat " " (List.map (fun (a,v) -> sprintf "%s=\"%s\"" a v) attribs)
 
 type id = int
-let gen_id = 
-  let x = ref 0 in 
+let gen_id =
+  let x = ref 0 in
   fun () -> incr x; !x
 
 let set_xml = fun (store:GTree.tree_store) row xml ->
@@ -126,7 +126,7 @@ let encode_crs =
     Str.global_replace r "\\n" s
 
 (** Doesn' work. OCaml bug ?
-let recode_crs = 
+let recode_crs =
   let r = Str.regexp "\\n" in
   fun s ->
     Str.global_replace r "\n" s
@@ -145,7 +145,7 @@ let recode_crs = fun s ->
     incr i; incr j
   done;
   String.sub s' 0 !j
-    
+
 
 
 
@@ -225,7 +225,7 @@ let dtd_children = fun tag dtd ->
 which argument is the selected label *)
 let submenu = fun ?(filter = fun _ -> true) menuitem ss connect ->
   let submenu = GMenu.menu () in
-  List.iter 
+  List.iter
     (fun tag ->
       if filter tag then
 	let menuitem = GMenu.menu_item ~label:tag ~packing:submenu#append () in
@@ -242,24 +242,24 @@ let required_attributes = fun tag dtd ->
     | _::dis -> filter dis
     | [] -> [] in
   filter dtd
-      
+
 let allowed_attributes = fun tag dtd ->
   let rec filter = function
     | Dtd.DTDAttribute (t, a, _, _)::dis when t = tag -> a::filter dis
     | _::dis -> filter dis
     | [] -> [] in
   filter dtd
-      
+
 let attr_submenu = fun ?filter menuitem tag dtd connect ->
    submenu ?filter menuitem (allowed_attributes tag dtd) connect
-	
+
 
 let selection = fun (tree_store, tree_view) ->
   match tree_view#selection#get_selected_rows with
     path::_ ->
       tree_store, path
-  | _ -> raise Not_found 
-	
+  | _ -> raise Not_found
+
 let attribs_menu_popup = fun dtd (tree_view:GTree.view) (model:GTree.tree_store) (attrib_row:Gtk.tree_iter) ->
   let menu = GMenu.menu () in
   begin
@@ -305,7 +305,7 @@ let add_one_menu = fun dtd (tree_view:GTree.view) (model:GTree.tree_store) ->
 	menu#popup ~button:1 ~time:(GtkMain.Main.get_current_event_time ())
    | _ -> ()
 
-  
+
 
 
 let add_context_menu = fun model view ?noselection_menu menu ->
@@ -329,7 +329,7 @@ let add_delete_key = fun (model:GTree.tree_store) (view:GTree.view) ->
       match view#selection#get_selected_rows with
 	path::_ ->
 	  let row = model#get_iter path in
-	  model#get ~row ~column:event Deleted; 
+	  model#get ~row ~column:event Deleted;
 	  ignore (model#remove row);
 	  true
       | _ -> false
@@ -341,7 +341,7 @@ let root = fun ((model:GTree.tree_store), _) ->
     None -> invalid_arg "XmlEdit.root"
   | Some i -> (model, model#get_path i)
 
-  
+
 let attribs = fun ((model, path):node) ->
   let row = model#get_iter path in
   model#get ~row ~column:attributes
@@ -353,7 +353,7 @@ let set_attribs = fun ((model, path):node) attribs ->
 let rec replace_assoc a v = function
     [] -> [(a, v)]
   | (a', v')::l ->
-      if a = String.uppercase a' 
+      if a = String.uppercase a'
       then (a, v)::l
       else (a', v')::replace_assoc a v l
 
@@ -379,14 +379,14 @@ let children = fun ((model, path):node) ->
   if model#iter_has_child row then
     let i = model#iter_children (Some row) in
     let l = ref [model, model#get_path i] in
-    while model#iter_next i do 
+    while model#iter_next i do
       l := (model, model#get_path i):: !l;
     done;
     List.rev !l
   else
     []
 
-let rec xml_of_node = fun (node:node) -> 
+let rec xml_of_node = fun (node:node) ->
   let attrs = attribs node
   and tag = tag node in
   if tag = "PCData" then
@@ -399,7 +399,7 @@ let rec xml_of_node = fun (node:node) ->
 
 let xml_of_view = fun (tree:t) ->
   xml_of_node (root tree)
-  
+
 let child = fun ((model, path):node) (t:string) ->
   let row = model#get_iter path in
   if model#iter_has_child row then
@@ -424,7 +424,7 @@ let rec parent = fun ((model, path):node) (t:string) ->
       None -> failwith (sprintf "XmlEdit.parent: %s" t)
     | Some p ->
 	parent (model, model#get_path p) t
-    
+
 
 let delete = fun (model, path) ->
   let row = model#get_iter path in
@@ -461,8 +461,8 @@ let rec set_background = fun ?(all=false) ((model, path):node) color ->
   model#set ~row ~column:background color;
   if all then
     List.iter (fun x -> set_background ~all x color) (children (model,path))
-      
-  
+
+
 
 let tree_menu_popup = fun dtd (model:GTree.tree_store) (row:Gtk.tree_iter) ->
   let menu = GMenu.menu () in
@@ -505,13 +505,13 @@ let tree_menu_popup = fun dtd (model:GTree.tree_store) (row:Gtk.tree_iter) ->
 	in
 	let tags = dtd_children parent_tag dtd in
 	submenu menuitem tags connect
-    | _ -> () 
+    | _ -> ()
   end;
   menu#popup ~button:1 ~time:(GtkMain.Main.get_current_event_time ())
 
 
 
- 
+
 let create = fun ?(format_attribs = string_of_attribs) ?(editable=true) ?(width = 400) dtd xml ->
   let tree_model = tree_model_of_xml xml in
   let attribs_model = model_of_attribs () in
@@ -563,7 +563,7 @@ let create = fun ?(format_attribs = string_of_attribs) ?(editable=true) ?(width 
   if editable then begin
     let _c = add_context_menu tree_model tree_view (tree_menu_popup dtd) in
     let _c = add_context_menu attribs_model attribs_view ~noselection_menu:(add_one_menu dtd tree_view) (attribs_menu_popup dtd tree_view) in
-    
+
     ignore (add_delete_key tree_model tree_view);
     ignore (add_delete_key attribs_model attribs_view)
   end;

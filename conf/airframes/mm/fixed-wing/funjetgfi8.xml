@@ -28,8 +28,8 @@
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="attitude"         type="infrared"/>
-    <subsystem name="gps"              type="ublox_lea5h"/>
+    <subsystem name="ahrs"         type="infrared"/>
+    <subsystem name="gps"              type="ublox"/>
     <!-- Nav -->
     <subsystem name="navigation"/>
     <!-- Interfaces -->
@@ -40,6 +40,7 @@
   <modules>
     <load name="baro_scp.xml"/>
     <load name="humid_sht.xml"/>
+    <load name="infrared_adc.xml"/>
   </modules>
 
   <firmware name="setup">

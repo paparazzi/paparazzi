@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -33,28 +33,28 @@ open Printf
 
 (** alert page *)
 class alert (widget: GBin.frame) =
-  let scrolled = GBin.scrolled_window 
-      ~hpolicy: `AUTOMATIC 
-      ~vpolicy: `AUTOMATIC  
+  let scrolled = GBin.scrolled_window
+      ~hpolicy: `AUTOMATIC
+      ~vpolicy: `AUTOMATIC
       ~packing: widget#add
-      () 
+      ()
   in
   let view = GText.view ~editable:false ~packing: scrolled#add () in
 (* the object itselft *)
   object
     val mutable last = ""
-    method add text = 
+    method add text =
       if text <> last then begin
 	let l = Unix.localtime (Unix.gettimeofday ()) in
 	view#buffer#insert (sprintf "%02d:%02d:%02d " l.Unix.tm_hour l.Unix.tm_min l.Unix.tm_sec);
 	view#buffer#insert text;
 	view#buffer#insert "\n";
-	
+
 	(* Scroll to the bottom line *)
 	let end_iter = view#buffer#end_iter in
 	let end_mark = view#buffer#create_mark end_iter in
 	view#scroll_mark_onscreen (`MARK end_mark);
-	
+
 	last <- text
       end
   end
@@ -71,16 +71,16 @@ class infrared (widget: GBin.frame) =
       ~packing: widget#add
       ()
   in
-  let contrast_status = 
+  let contrast_status =
     GMisc.label ~text: "" ~packing: (table#attach ~top:0 ~left: 1) ()
   in
-  let contrast_value = 
+  let contrast_value =
     GMisc.label ~text: "" ~packing: (table#attach ~top:1 ~left: 1) ()
   in
-  let gps_hybrid_mode = 
+  let gps_hybrid_mode =
     GMisc.label ~text: "" ~packing: (table#attach ~top:2 ~left: 1) ()
   in
-  let gps_hybrid_factor = 
+  let gps_hybrid_factor =
     GMisc.label ~text: "" ~packing: (table#attach ~top:3 ~left: 1) ()
   in
   let _init =
@@ -98,11 +98,11 @@ class infrared (widget: GBin.frame) =
     val gps_hybrid_mode = gps_hybrid_mode
     val gps_hybrid_factor = gps_hybrid_factor
 
-    method set_contrast_status (s:string) = 
+    method set_contrast_status (s:string) =
       contrast_status#set_label s
     method set_contrast_value (s:int) =
       contrast_value#set_label (Printf.sprintf "%d" s)
-    method set_gps_hybrid_mode (s:string) = 
+    method set_gps_hybrid_mode (s:string) =
       gps_hybrid_mode#set_label s
     method set_gps_hybrid_factor (s:float) =
       gps_hybrid_factor#set_label (Printf.sprintf "%.8f" s)
@@ -139,16 +139,16 @@ class gps ?(visible = fun _ -> true) (widget: GBin.frame) =
       if visible widget then
 	let da = da_object#drawing_area in
 	let {Gtk.width=width; height=height} = da#misc#allocation in
-	
+
 	(* Background *)
 	let dr = da_object#get_pixmap () in
 	dr#set_foreground (`NAME "white");
 	dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
-	
+
 	let context = da#misc#create_pango_context in
 	context#set_font_by_name ("sans " ^ string_of_int 10);
 	let layout = context#create_layout in
-	
+
 	let n = Array.length a in
 	let sep_size = 3 in
 	let indic_size = min 25 ((width-(n+1)*sep_size)/n) in
@@ -164,11 +164,11 @@ class gps ?(visible = fun _ -> true) (widget: GBin.frame) =
 	  let (id, cn0, flags, age) = a.(i) in
 	  if age < 60 then
 	    let x = sep_size + i * (sep_size+indic_size) in
-	    
+
 	    (* level *)
 	    Pango.Layout.set_text layout (sprintf "% 2d" cn0);
 	    dr#put_layout ~x ~y:0 ~fore:`BLACK layout;
-	    
+
 	    (* bar *)
 	    let color = if age > 5 then "grey" else if flags land 0x01 = 1 then "green" else "red" in
 	    dr#set_foreground (`NAME color);
@@ -187,7 +187,7 @@ class gps ?(visible = fun _ -> true) (widget: GBin.frame) =
 	Pango.Layout.set_text layout (if pacc = 0 then "Pos accuracy: N/A" else sprintf "Pos accuracy: %.1fm" (float pacc/.100.));
 	let (_, h) = Pango.Layout.get_pixel_size layout in
 	dr#put_layout ~x:((width-w)/2) ~y:(y+h) ~fore:`BLACK layout;
-	
+
 	(new GDraw.drawable da#misc#window)#put_pixmap ~x:0 ~y:0 dr#pixmap
   end
 
@@ -203,7 +203,7 @@ let index_of = fun label ->
       failwith (sprintf "Unknown label in Misc.index_of: %s" label)
   in
   search 0
-    
+
 class misc ~packing (widget: GBin.frame) =
   let rows = Array.length misc_fields in
   let table = GPack.table ~rows ~columns:2 ~row_spacings:5 ~col_spacings:40 ~packing () in
@@ -249,7 +249,7 @@ let one_rc_mode = fun (table:GPack.table) rc_mode ->
     ignore (GMisc.label ~text ~packing:(table#attach ~top:(1+2*j+k) ~left:(1+2*i)) ())
 	    )
     (Xml.children rc_mode)
-    
+
 
 class rc_settings = fun ?(visible = fun _ -> true) xmls ->
   let sw = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
@@ -272,12 +272,12 @@ class rc_settings = fun ?(visible = fun _ -> true) xmls ->
   object (self)
     val mutable rc_mode = "N/A"
     val mutable rc_setting_mode = "N/A"
-    method set_rc_mode m = 
+    method set_rc_mode m =
       rc_mode <- m;
       update_bg auto1 (m="AUTO1");
       update_bg auto2 (m="AUTO2")
 
-    method set_rc_setting_mode m = 
+    method set_rc_setting_mode m =
       rc_setting_mode <- m;
       update_bg up (m="UP");
       update_bg down (m="DOWN")
@@ -285,12 +285,12 @@ class rc_settings = fun ?(visible = fun _ -> true) xmls ->
     method widget = sw#coerce
     method set = fun v1 v2 ->
       if visible self#widget then
-	let i = rc_mode_index rc_mode 
+	let i = rc_mode_index rc_mode
 	and j = rc_setting_mode_index rc_setting_mode in
 	if i >= 0 && j >= 0 then
 	  let s1 = string_of_float v1 in
 	  let s2 = string_of_float v2 in
-	  
+
 	  values.(i).(j).(0)#set_text s1;
 	  values.(i).(j).(1)#set_text s2
   end

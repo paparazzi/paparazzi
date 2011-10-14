@@ -31,11 +31,15 @@
 
 #include "std.h"
 
+#define B4800     4800
 #define B9600     9600
 #define B38400   38400
 #define B57600   57600
 #define B115200 115200
 
+/* junk for gps_configure_uart in gps_ubx.c to compile */
+#define UART_8N1 1
+#define UART_FIFO_8 1
 
 /* sort out the problem of UART5 already defined in stm32.h */
 #define USART5               ((USART_TypeDef *) UART5_BASE)
@@ -67,8 +71,8 @@
 #define UART5_PeriphTx RCC_APB2Periph_GPIOC
 #define UART5_PeriphRx RCC_APB2Periph_GPIOD
 
-/* this is unexpected the macros in spektrum_arch.c 
-   didn't expect that rx and tx would be spilt over 
+/* this is unexpected the macros in spektrum_arch.c
+   didn't expect that rx and tx would be spilt over
    two ports. As the spektrum code is only interested
    in the rx pin we define this to be the Peripheral */
 #define UART5_Periph RCC_APB2Periph_GPIOD
@@ -125,92 +129,6 @@ extern void usart3_irq_handler(void);
 extern void usart5_irq_handler(void);
 #endif
 
-#ifdef USE_UART1
-#define UART1_RX_BUFFER_SIZE 128
-#define UART1_TX_BUFFER_SIZE 128
-
-extern volatile uint16_t uart1_rx_insert_idx, uart1_rx_extract_idx;
-extern uint8_t  uart1_rx_buffer[UART1_RX_BUFFER_SIZE];
-
-extern volatile uint16_t uart1_tx_insert_idx, uart1_tx_extract_idx;
-extern volatile bool_t   uart1_tx_running;
-extern uint8_t  uart1_tx_buffer[UART1_TX_BUFFER_SIZE];
-
-#define Uart1ChAvailable() (uart1_rx_insert_idx != uart1_rx_extract_idx)
-#define Uart1Getch() ({							\
-      uint8_t ret = uart1_rx_buffer[uart1_rx_extract_idx];		\
-      uart1_rx_extract_idx = (uart1_rx_extract_idx + 1)%UART1_RX_BUFFER_SIZE; \
-      ret;								\
-    })
-
-#endif /* USE_UART1 */
-
-
-#ifdef USE_UART2
-
-#define UART2_RX_BUFFER_SIZE 128
-#define UART2_TX_BUFFER_SIZE 128
-
-extern volatile uint16_t uart2_rx_insert_idx, uart2_rx_extract_idx;
-extern uint8_t  uart2_rx_buffer[UART2_RX_BUFFER_SIZE];
-
-extern volatile uint16_t uart2_tx_insert_idx, uart2_tx_extract_idx;
-extern volatile bool_t   uart2_tx_running;
-extern uint8_t  uart2_tx_buffer[UART2_TX_BUFFER_SIZE];
-
-#define Uart2ChAvailable() (uart2_rx_insert_idx != uart2_rx_extract_idx)
-#define Uart2Getch() ({							\
-      uint8_t ret = uart2_rx_buffer[uart2_rx_extract_idx];		\
-      uart2_rx_extract_idx = (uart2_rx_extract_idx + 1)%UART2_RX_BUFFER_SIZE; \
-      ret;								\
-    })
-
-#endif /* USE_UART2 */
-
-
-#ifdef USE_UART3
-
-#define UART3_RX_BUFFER_SIZE 128
-#define UART3_TX_BUFFER_SIZE 128
-
-extern volatile uint16_t uart3_rx_insert_idx, uart3_rx_extract_idx;
-extern uint8_t  uart3_rx_buffer[UART3_RX_BUFFER_SIZE];
-
-extern volatile uint16_t uart3_tx_insert_idx, uart3_tx_extract_idx;
-extern volatile bool_t   uart3_tx_running;
-extern uint8_t  uart3_tx_buffer[UART3_TX_BUFFER_SIZE];
-
-#define Uart3ChAvailable() (uart3_rx_insert_idx != uart3_rx_extract_idx)
-#define Uart3Getch() ({							\
-      uint8_t ret = uart3_rx_buffer[uart3_rx_extract_idx];		\
-      uart3_rx_extract_idx = (uart3_rx_extract_idx + 1)%UART3_RX_BUFFER_SIZE; \
-      ret;								\
-    })
-
-#endif /* USE_UART3 */
-
-#ifdef USE_UART5
-
-#define UART5_RX_BUFFER_SIZE 128
-#define UART5_TX_BUFFER_SIZE 128
-
-extern volatile uint16_t uart5_rx_insert_idx, uart5_rx_extract_idx;
-extern uint8_t  uart5_rx_buffer[UART5_RX_BUFFER_SIZE];
-
-extern volatile uint16_t uart5_tx_insert_idx, uart5_tx_extract_idx;
-extern volatile bool_t   uart5_tx_running;
-extern uint8_t  uart5_tx_buffer[UART5_TX_BUFFER_SIZE];
-
-#define Uart5ChAvailable() (uart5_rx_insert_idx != uart5_rx_extract_idx)
-#define Uart5Getch() ({							\
-      uint8_t ret = uart5_rx_buffer[uart5_rx_extract_idx];		\
-      uart5_rx_extract_idx = (uart5_rx_extract_idx + 1)%UART5_RX_BUFFER_SIZE; \
-      ret;								\
-    })
-
-#endif /* USE_UART5 */
-
-
-void uart_init( void );
+//void uart_init( void );
 
 #endif /* STM32_UART_ARCH_H */

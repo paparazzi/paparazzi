@@ -1,3 +1,4 @@
+# Hey Emacs, this is a -*- makefile -*-
 #
 # Booz2 IMU booz2v1.2
 #

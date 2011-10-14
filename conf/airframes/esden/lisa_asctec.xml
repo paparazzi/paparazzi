@@ -47,7 +47,7 @@
     <define name="GYRO_PQ_SENS" value="0.0" integer="16"/>
     <define name="GYRO_PR_SENS" value="0.0" integer="16"/>
     <define name="GYRO_QR_SENS" value="0.0" integer="16"/>
-    
+
     <define name="ACCEL_X_NEUTRAL" value="25875"/>
     <define name="ACCEL_Y_NEUTRAL" value="26273"/>
     <define name="ACCEL_Z_NEUTRAL" value="26152"/>
@@ -57,7 +57,7 @@
     <define name="ACCEL_XY_SENS" value="0.0" integer="16"/>
     <define name="ACCEL_XZ_SENS" value="0.0" integer="16"/>
     <define name="ACCEL_YZ_SENS" value="0.0" integer="16"/>
-    
+
     <define name="MAG_X_NEUTRAL" value="0"/>
     <define name="MAG_Y_NEUTRAL" value="0"/>
     <define name="MAG_Z_NEUTRAL" value="0"/>
@@ -67,7 +67,7 @@
     <define name="MAG_XY_SENS" value="0.0" integer="16"/>
     <define name="MAG_XZ_SENS" value="0.0" integer="16"/>
     <define name="MAG_YZ_SENS" value="0.0" integer="16"/>
-    
+
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45. )"/>
@@ -203,7 +203,7 @@
     <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization"   type="euler"/>
-    <subsystem name="ahrs"          type="cmpl"/>
+    <subsystem name="ahrs"          type="int_cmpl_euler"/>
   </firmware>
 
   <firmware name="lisa_l_test_progs">

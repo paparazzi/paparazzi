@@ -2,7 +2,7 @@
  *  $Id$
  *
  * Basic flight model for simulation
- *  
+ *
  * Copyright (C) 2004-2006 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -33,6 +33,7 @@ type state
 val get_xyz : state -> meter * meter * meter
 val get_time : state -> float
 val get_attitude : state -> radian * radian * radian
+val get_pq : state -> radian_s * radian_s
 
 val set_air_speed : state -> meter_s -> unit
 val get_air_speed : state -> meter_s

@@ -26,6 +26,12 @@
 #ifndef POINT_H
 #define POINT_H
 
+#if defined(SHOW_CAM_COORDINATES)
+extern unsigned int cam_point_distance_from_home;
+extern float cam_point_lon,  cam_point_lat;
+extern float distance_correction;
+#endif
+
 void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
             float fRollAngle, float fPitchAngle, float fYawAngle,
             float fObjectEast, float fObjectNorth, float fAltitude,

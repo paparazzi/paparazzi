@@ -158,8 +158,8 @@
     <define name="DEVICE_TYPE" value="XBEE"/>
     <define name="DEVICE_ADDRESS" value="...."/>
   </section>
-  
-  
+
+
   <section name="SIMU">
     <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
     <define name="JSBSIM_IR_ROLL_NEUTRAL" value="RadOfDeg(0.)"/>
@@ -194,9 +194,9 @@
     </subsystem>
 
     <subsystem name="control"/>
-    <!-- Sensors 
+    <!-- Sensors
     <subsystem name="gyro"          type="roll"/> -->
-    <subsystem name="gps" 		    type="ublox_lea4p"/>
+    <subsystem name="gps" 		    type="ublox_utm"/>
     <subsystem name="navigation"/>
 
   </firmware>

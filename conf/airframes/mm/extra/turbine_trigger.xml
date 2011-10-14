@@ -9,8 +9,8 @@
     </target>
     <subsystem name="telemetry"        type="xbee_api"/>
     <subsystem name="control"/>
-    <subsystem name="attitude"         type="infrared"/>
-    <subsystem name="gps"              type="ublox_lea5h"/>
+    <subsystem name="ahrs"         type="infrared"/>
+    <subsystem name="gps"              type="ublox"/>
     <subsystem name="navigation"/>
   </firmware>
 
@@ -23,6 +23,7 @@
   <!-- modules -->
   <modules>
     <load name="trigger_ext.xml"/>
+    <load name="infrared_adc.xml"/>
   </modules>
 
   <servos>
@@ -53,7 +54,7 @@
 
   <command_laws>
     <let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
-    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
+    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
     <set servo="MOTOR"         value="@THROTTLE"/>
     <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
@@ -98,9 +99,9 @@
     <define name="ADC_CHANNEL_CURRENT" value="ADC_4"/>
     <define name="MilliAmpereOfAdc(adc)" value="(88*adc)"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-    <define name="VoltageOfAdc(adc)" value="(0.02454*adc)"/>    
+    <define name="VoltageOfAdc(adc)" value="(0.02454*adc)"/>
   </section>
- 
+
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="15." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
@@ -110,7 +111,7 @@
     <define name="TRIGGER_DELAY" value="1."/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="120."/>
   </section>
- 
+
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <define name="ALTITUDE_PGAIN" value="-0.06"/>

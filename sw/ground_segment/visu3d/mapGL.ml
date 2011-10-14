@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -31,7 +31,7 @@ module G3d = Geometry_3d
 
 open Latlong
 
-let fos = fun x -> 
+let fos = fun x ->
   try
     float_of_string x
   with
@@ -79,7 +79,7 @@ let track_filter = fun points ->
       [] -> []
     | (t,x,y,a)::ps ->
 	if minx < x && x < maxx && miny < y && y < maxy
-	then 
+	then
 	  match last_alt with
 	    None -> (t,x,y,a)::loop (Some a) ps
 	  | (Some a') when abs_float (a-.a') < tolerance_alti ->
@@ -103,7 +103,7 @@ let gtk_to_gl_color color =
    (float_of_int (Gdk.Color.blue t))/.65535.0)
 
 let gl_color_of_string = fun s -> gtk_to_gl_color (`NAME s)
-  
+
 
 (* ========================================================================= *)
 (* = Passage de couleur GL vers GTK                                        = *)
@@ -120,11 +120,11 @@ let read_traj_file filename =
   let add_point = fun id p ->
     let track =
       try Hashtbl.find h id with
-	Not_found -> 
+	Not_found ->
 	  let empty_track = ref [] in
 	  Hashtbl.add h id empty_track;
 	  empty_track in
-    track := p :: !track in      
+    track := p :: !track in
 
   let match_func l error_func =
     match l with
@@ -172,7 +172,7 @@ let add_surface view3d texture_file (min_x, min_y) (max_x, max_y) utm_zone =
       done ;
       y:=!y-dy
     done ;
-    
+
     (* Ajout de cette matrice a la vue 3D *)
     view3d#add_object_surface_with_texture tab texture_id
   with
@@ -198,7 +198,7 @@ let create_ac = fun ac config ->
   let color = Pprz.string_assoc "default_gui_color" config in
   let gl_color = gl_color_of_string color in
   Hashtbl.add live_aircrafts ac { color = gl_color; last_point = None }
-  
+
 let one_new_ac = fun ac ->
   if not (Hashtbl.mem live_aircrafts ac) then begin
     let get_config = fun _sender values -> create_ac ac values in
@@ -226,15 +226,15 @@ let add_point (view3d:Gtk_3d.widget_3d) (point, id) =
     ac.last_point <- Some p
   with
     Not_found -> ()
-      
- 
+
+
 (* ========================================================================= *)
 (* = Load a map. Use SRTM elevation data to produce a 3d surface           = *)
-(* ========================================================================= *) 
+(* ========================================================================= *)
 let load_surface view3d id_sol xml_map_file =
   let min_x = ref max_int and min_y = ref max_int
-  and max_x = ref min_int and max_y = ref min_int  
-  and _texture_file = ref "" in 
+  and max_x = ref min_int and max_y = ref min_int
+  and _texture_file = ref "" in
   let xml = Xml.parse_file xml_map_file in
   let texture_file = Xml.attrib xml "file" in
   let texture_file = Filename.concat (Filename.dirname xml_map_file) texture_file in
@@ -283,7 +283,7 @@ let load_mission = fun (view3d:Gtk_3d.widget_3d) xml ->
 (* ========================================================================= *)
 let on_load_surface win view3d id_sol () =
   let priv_load_surf xml_map_file =
-    load_surface view3d id_sol xml_map_file 
+    load_surface view3d id_sol xml_map_file
   in
   try
     Gtk_tools.open_file_dlg "Map calibration file" priv_load_surf None default_path_maps false
@@ -388,7 +388,7 @@ let build_lst_traj tooltips view3d lst_ids_trajs () =
 	view3d#object_set_color !current_selection (gtk_to_gl_color color) ;
 	view3d#display_func ;
 	fill_list ()) ;
-    end	
+    end
   in
   let delete_traj () =
     if !current_selection<>(-1) then begin
@@ -477,7 +477,7 @@ let build_interface = fun map_file mission_file ->
   window#show () ;
 
   ignore (Ground_Pprz.message_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac (Pprz.string_assoc "ac_id" vs)));
-  
+
   ignore (Glib.Timeout.add 5000 (fun () -> Ground_Pprz.message_req "map3d" "AIRCRAFTS" [] (fun _sender vs -> live_aircrafts_msg vs); false));
 
   let use_fp = fun _sender vs ->
@@ -505,7 +505,7 @@ let build_interface = fun map_file mission_file ->
 
   window#add_accel_group accel_group;
  (* Lancement de la mainloop *)
-  Gtk_tools.main_loop () 
+  Gtk_tools.main_loop ()
 
 (* ========================================================================= *)
 (* = Programme principal                                                   = *)

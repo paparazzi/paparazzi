@@ -20,17 +20,17 @@
     <subsystem name="radio_control"     type="spektrum"/>
     <subsystem name="telemetry" 	type="transparent"/>
     <subsystem name="control"/>
-    <!--subsystem name="attitude" 		type="infrared"/-->
-    <subsystem name="gps" 		type="ublox_lea5h"/>
+    <!--subsystem name="ahrs" 		type="infrared"/-->
+    <subsystem name="gps" 		type="ublox"/>
     <subsystem name="navigation"/>
     <!-- Interfaces -->
-    <subsystem name="i2c"/>
   </firmware>
 
   <!-- modules -->
   <modules>
     <load name="ins_arduimu.xml">
     </load>
+    <!--load name="infrared_adc.xml"/-->
   </modules>
 
   <firmware name="lisa_l_test_progs">

@@ -1,0 +1,11 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+	<dl_settings>
+		<dl_settings NAME="AMSYS">
+			<dl_settings NAME="Baro">
+				<dl_setting MAX="1" MIN="0" STEP="0.001" VAR="baro_filter" shortname="baro_filter" module="modules/sensors/baro_amsys" param="BARO_FILTER"/>
+			</dl_settings>
+		</dl_settings>
+	</dl_settings>
+</settings>

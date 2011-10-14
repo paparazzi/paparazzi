@@ -62,10 +62,10 @@ static inline void main_periodic_task( void ) {
 static inline void main_event_task( void ) {
 
   while (Uart1ChAvailable())
-    uart0_transmit(Uart1Getch());
+    Uart0Transmit(Uart1Getch());
 
   while (Uart0ChAvailable())
-    uart1_transmit(Uart0Getch());
+    Uart1Transmit(Uart0Getch());
 
 
 }

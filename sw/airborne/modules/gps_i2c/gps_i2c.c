@@ -82,17 +82,17 @@ void gps_i2c_event(void) {
  *  switch (gps_i2c_status) {
   case GPS_I2C_STATUS_IDLE:
     if (gps_i2c_data_ready_to_transmit) {
-      // Copy data from our buffer to the i2c buffer 
+      // Copy data from our buffer to the i2c buffer
       uint8_t data_size = Min(gps_i2c_tx_insert_idx-gps_i2c_tx_extract_idx, I2C0_BUF_LEN);
       uint8_t i;
       for(i = 0; i < data_size; i++, gps_i2c_tx_extract_idx++)
         i2c0_buf[i] = gps_i2c_tx_buf[gps_i2c_tx_extract_idx];
 
-      // Start i2c transmit 
+      // Start i2c transmit
       i2c0_transmit(GPS_I2C_SLAVE_ADDR, data_size, &gps_i2c_done);
       gps_i2c_done = FALSE;
 
-      // Reset flag if finished 
+      // Reset flag if finished
       if (gps_i2c_tx_extract_idx >= gps_i2c_tx_insert_idx) {
         gps_i2c_data_ready_to_transmit = FALSE;
         gps_i2c_tx_insert_idx = 0;
@@ -143,5 +143,5 @@ void gps_i2c_event(void) {
     return;
   }
 */
-  
+
 }

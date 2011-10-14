@@ -1,7 +1,5 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# $Id$
-#
 # Copyright (C) 2010 The Paparazzi Team
 #
 # This file is part of Paparazzi.
@@ -98,6 +96,8 @@ endif
 #
 ap.srcs += subsystems/settings.c
 ap.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
+
+ap.srcs += mcu_periph/uart.c
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 # I2C is needed for speed controllers and barometers on lisa
@@ -142,6 +142,11 @@ ifeq ($(BOARD), booz)
 ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
 else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
+else ifeq ($(BOARD), navgo)
+ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
+ap.CFLAGS += -DUSE_I2C1
+ap.CFLAGS += -DADS1114_I2C_DEVICE=i2c1
+ap.srcs += peripherals/ads1114.c
 endif
 
 #

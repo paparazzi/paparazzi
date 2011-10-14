@@ -2,7 +2,7 @@
  * $Id$
  *
  * Support for obtaining os specific information at runtime
- *  
+ *
  * Copyright (C) 2011 Eric Parsonage and Stephen Dwyer
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 let current_os = ref "not_set"
@@ -36,7 +36,8 @@ let read_process_output command =
     Buffer.add_substring buffer string 0 !chars_read
   done;
   ignore (Unix.close_process_in in_channel);
-  Buffer.contents buffer
+  try Buffer.sub buffer 0 ((Buffer.length buffer) - 1)
+  with _ -> Buffer.contents buffer
 
 let contains s substring =
   try ignore (Str.search_forward (Str.regexp_string substring) s 0); true

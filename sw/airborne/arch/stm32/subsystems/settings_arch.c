@@ -24,7 +24,7 @@
 
 /*
   flash data is located in the last page/sector of flash
-  
+
   data          flash_addr
   data_size     flash_end - FSIZ
   checksum      flash_end - FCHK
@@ -50,9 +50,9 @@ struct FlashInfo {
 static uint32_t pflash_checksum(uint32_t ptr, uint32_t size);
 static int32_t flash_detect(struct FlashInfo* flash);
 static int32_t pflash_program_bytes(struct FlashInfo* flash,
-				     uint32_t src,
-				     uint32_t size,
-				     uint32_t chksum);
+                     uint32_t src,
+                     uint32_t size,
+                     uint32_t chksum);
 
 #define FLASH_SIZE_ MMIO16(0x1FFFF7E0)
 
@@ -117,7 +117,7 @@ static int32_t flash_detect(struct FlashInfo* flash) {
     case 0x00008000: /* 32 kBytes */
     /* medium density, e.g. STM32F103RBT6 (Olimex STM32-H103) */
     case 0x00010000: /* 64 kBytes */
-    case 0x00200000: /* 128 kBytes */
+    case 0x00020000: /* 128 kBytes */
     {
       flash->page_size = 0x400;
       break;
@@ -188,9 +188,9 @@ static int32_t flash_detect(struct FlashInfo* flash) {
 //              0x807F800             0x80000
 
 static int32_t pflash_program_bytes(struct FlashInfo* flash,
-				    uint32_t   src,
-				    uint32_t   size,
-				    uint32_t   chksum) {
+                    uint32_t   src,
+                    uint32_t   size,
+                    uint32_t   chksum) {
   uint32_t i;
 
   /* erase */
@@ -250,13 +250,13 @@ int32_t persistent_read(uint32_t ptr, uint32_t size) {
   struct FlashInfo flash;
   uint32_t i;
 
-  /* check parameters */  
+  /* check parameters */
   if (flash_detect(&flash)) return -1;
   if ((size > flash.page_size-FSIZ) || (size == 0)) return -2;
 
   /* check consistency */
   if (size != *(uint32_t*)(flash.addr+flash.page_size-FSIZ)) return -3;
-  if (pflash_checksum(flash.addr, size) != 
+  if (pflash_checksum(flash.addr, size) !=
       *(uint32_t*)(flash.addr+flash.page_size-FCHK))
     return -4;
 
@@ -267,4 +267,3 @@ int32_t persistent_read(uint32_t ptr, uint32_t size) {
 
   return 0;
 }
-

@@ -5,10 +5,10 @@ let print_hex = fun s ->
   print_newline ()
 
 
-let _ = 
+let _ =
   let dsp = Demod.init "/dev/dsp" in
 
-  let cb = fun _ ->  
+  let cb = fun _ ->
     let l, r = Demod.get_data () in
     print_hex l; print_hex r; true in
 

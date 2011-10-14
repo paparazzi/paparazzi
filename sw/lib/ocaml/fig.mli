@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -87,7 +87,7 @@ type line_style =
 type join_style = Miter| Round | Bevel
 type cap_style = Butt | Round | Projecting
 
-type polyline = 
+type polyline =
     Polyline | Box | Polygon | ArcBox | PictureBB of int * string
 
 type ellipse = EllipseRadius | EllipseDiameter | CircleRadius | CircleDiameter
@@ -122,7 +122,7 @@ type graphic_attributes = {
 
 type justification = LeftJustified | CenterJustified | RightJustified
 
-type postscript_font = 
+type postscript_font =
   |  TimesRoman
   |  TimesItalic
   |  TimesBold
@@ -194,7 +194,7 @@ type t = {
     papersize : papersize;
     magnification : float;
     multiple_page : multiple_page;
-    transparent_color : int; 
+    transparent_color : int;
     comments : string list;
     resolution : units * int;
     body : fig_object list
@@ -238,7 +238,7 @@ val arc :
     ?forward_arrow:arrow ->   (** None *)
     ?backward_arrow:arrow ->  (** None *)
     float * float -> float -> float -> float -> fig_object
-(** [arc ?... centre radius alpha1 alpha2] 
+(** [arc ?... centre radius alpha1 alpha2]
 alpha1 is the angle between the X axis and the line centre->First point
 alpha2 is the angle between the line centre->First point and centre->Last point
 alpha1 and alpha2 are in radian

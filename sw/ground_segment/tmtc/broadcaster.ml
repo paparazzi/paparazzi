@@ -2,7 +2,7 @@ open Printf
 
 let () =
   let ivy_bus = ref Defivybus.default_ivy_bus in
-    
+
   let port = ref 4242
   and ivy_from = ref "DL"
   and ivy_to = ref "TM" in
@@ -17,12 +17,12 @@ let () =
     options
     (fun x -> fprintf stderr "Warning: Discarding '%s'" x)
     "Usage: ";
-  
+
   let handler = fun i o ->
     Ivy.init "broadcaster" "READY" (fun _ _ -> ());
     Ivy.start !ivy_bus;
 
-    (* Forward telemetry on Ivy *)    
+    (* Forward telemetry on Ivy *)
     let buffer_size = 256 in
     let buffer = String.create buffer_size in
     let get_tcp = fun _ ->

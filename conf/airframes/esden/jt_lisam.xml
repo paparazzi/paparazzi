@@ -22,7 +22,7 @@
     <set servo="AILEVON_LEFT"         value="-@ROLL"/>
     <set servo="AILEVON_RIGHT"        value="-@ROLL"/>
   </command_laws>
-  
+
   <!-- for the sim -->
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
     <define name="NB" value="4"/>
@@ -50,7 +50,7 @@
   <include href="conf/airframes/esden/calib/aspirin_jtm.xml"/>
 
   <section name="IMU" prefix="IMU_">
-    
+
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg( 180. )"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(   0. )"/>
@@ -198,7 +198,7 @@
 
     <subsystem name="imu"           type="aspirin"/>
     <subsystem name="gps"           type="ublox"/>
-    <subsystem name="ahrs"          type="ic"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="stabilization" type="quaternion"/>
   </firmware>
 

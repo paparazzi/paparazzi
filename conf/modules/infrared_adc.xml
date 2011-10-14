@@ -1,5 +1,4 @@
 <!DOCTYPE module SYSTEM "module.dtd">
-<!-- @define IR_ADC_READ_ONLY for read only module -->
 
 <module name="ir_adc" dir="sensors">
   <header>
@@ -13,15 +12,28 @@
     <file name="infrared_adc.c" dir="subsystems/sensors"/>
   </makefile>
   <makefile target="ap">
-    <define name="ADC_CHANNEL_IR1" value="$(ADC_IR1)"/>
-    <define name="ADC_CHANNEL_IR2" value="$(ADC_IR2)"/>
-    <define name="ADC_CHANNEL_IR_TOP" value="$(ADC_IR_TOP)"/>
-    <define name="USE_$(ADC_IR1)"/>
-    <define name="USE_$(ADC_IR2)"/>
-    <define name="USE_$(ADC_IR_TOP)"/>
-  </makefile>
-  <makefile target="sim">
-    <file_arch name="sim_ir.c" dir="."/>
+    <raw>
+#
+# LPC only has one ADC
+#
+ifeq ($(ARCH), lpc21)
+ap.CFLAGS += -DADC_CHANNEL_IR1=$(ADC_IR1) -DUSE_$(ADC_IR1)
+ap.CFLAGS += -DADC_CHANNEL_IR2=$(ADC_IR2) -DUSE_$(ADC_IR2)
+ap.CFLAGS += -DADC_CHANNEL_IR_TOP=$(ADC_IR_TOP) -DUSE_$(ADC_IR_TOP)
+endif
+
+#
+# On STM32 let's hardwire infrared sensors to AD1 for now
+#
+ifeq ($(ARCH), stm32)
+ap.CFLAGS += -DUSE_AD1
+ap.CFLAGS += -DADC_CHANNEL_IR1=$(ADC_IR1_CHAN) -DUSE_AD1_$(ADC_IR1)
+ap.CFLAGS += -DADC_CHANNEL_IR2=$(ADC_IR2_CHAN) -DUSE_AD1_$(ADC_IR2)
+ap.CFLAGS += -DADC_CHANNEL_IR_TOP=$(ADC_IR_TOP_CHAN) -DUSE_AD1_$(ADC_IR_TOP)
+endif
+
+ap.CFLAGS += -DADC_CHANNEL_IR_NB_SAMPLES=$(ADC_IR_NB_SAMPLES)
+    </raw>
   </makefile>
 </module>
 

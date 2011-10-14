@@ -2,7 +2,7 @@
  * $Id$
  *
  * Lablgtk2 utils
- *  
+ *
  * Copyright (C) 2009 ENAC, Pascal Brisset
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 (** GTK utilities
@@ -28,7 +28,7 @@
 
 (** Allocate a drawing area and filling pixmap on request.
     if ~drawing_area is provided, width, heigh and packing are ignored *)
-class pixmap_in_drawin_area : 
+class pixmap_in_drawin_area :
     ?drawing_area:GMisc.drawing_area ->
     ?width:int ->
     ?height:int ->
@@ -46,7 +46,7 @@ class pixmap_in_drawin_area :
 
 
 (*** Utilities for a combo box widget ***)
-type combo 
+type combo
 val combo_widget : combo -> GEdit.combo_box
 val combo_model : combo -> (GTree.list_store * string GTree.column)
 

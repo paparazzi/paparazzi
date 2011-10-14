@@ -65,12 +65,12 @@ demo4.srcs += $(SRC_ARCH)/armVIC.c
 demo4.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
 demo4.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-demo4.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
+demo4.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0
 demo4.srcs += downlink.c pprz_transport.c
 
 #
 # DATALINK : receives datalink messages. demonstrates the "settings" service
-# which lets you adjust variables described in the settings.xml file 
+# which lets you adjust variables described in the settings.xml file
 # IvySendMsg("1ME RAW_DATALINK 144 SETTING;0;0;%d", foo_value);
 #
 demo5.ARCHDIR = $(ARCH)
@@ -88,7 +88,7 @@ demo5.srcs += $(SRC_ARCH)/armVIC.c
 demo5.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
 demo5.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
-demo5.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0 
+demo5.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0
 demo5.srcs += downlink.c pprz_transport.c
 
 demo5.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0
@@ -114,7 +114,7 @@ demo6.CFLAGS += -DUSE_USB_SERIAL
 demo6.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
 demo6.srcs += $(SRC_ARCH)/usb_ser_hw.c
 
-demo6.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UsbS 
+demo6.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=UsbS
 demo6.srcs += downlink.c pprz_transport.c
 
 //demo6.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0

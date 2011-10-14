@@ -42,7 +42,7 @@
 
   <command_laws>
     <let var="aileron" value="@ROLL  * AILEVON_AILERON_RATE"/>
-    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>  
+    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
     <set servo="MOTOR" value="@THROTTLE"/>
     <set servo="AILEVON_LEFT" value="$elevator + ($aileron > 0 ? 1 : AILERON_DIFF) * $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - ($aileron > 0 ? AILERON_DIFF : 1) * $aileron"/>
@@ -60,7 +60,7 @@
     <define name="IR_NB_SAMPLES" value="16"/>
 
     <define name="GYRO_ROLL" value="ADC_3"/>
-    <define name="GYRO_NB_SAMPLES" value="16"/> 
+    <define name="GYRO_NB_SAMPLES" value="16"/>
 
   </section>
 
@@ -93,13 +93,13 @@
     <define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+1.8))"/>
     <define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/>
     <define name="ROLL_SCALE" value="3.3*1000./1024./(GYRO_ADXRS300_SENSITIVITY*GYRO_ADXRS300_RESISTOR_BRIDGE)" unit="deg/s/adc_unit"/>
-    <define name="ROLL_DIRECTION" value="-1."/> 
+    <define name="ROLL_DIRECTION" value="-1."/>
   </section>
 
   <section name="BAT">
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
- 
+
   <section name="MISC">
     <define name="MINIMUM_AIRSPEED" value="13." unit="m/s"/>
     <define name="NOMINAL_AIRSPEED" value="16." unit="m/s"/>
@@ -113,7 +113,7 @@
 
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
   </section>
- 
+
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
 
     <!-- define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/ -->
@@ -197,7 +197,7 @@
     	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
 	<define name="HOME_RADIUS" value="100" unit="m"/>
 </section>
- 
+
 
  <makefile>
 CONFIG = \"tiny_1_1.h\"
@@ -215,13 +215,13 @@ ap.CFLAGS += -DACTUATORS=\"servos_4015_MAT_hw.h\" -DSERVOS_4015_MAT
 ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
 
 ap.CFLAGS += -DRADIO_CONTROL
-ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c  
+ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
 ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c pprz_transport.c
 
 ap.CFLAGS += -DINTER_MCU
-ap.srcs += inter_mcu.c 
+ap.srcs += inter_mcu.c
 
 ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3
 ap.srcs += $(SRC_ARCH)/adc_hw.c

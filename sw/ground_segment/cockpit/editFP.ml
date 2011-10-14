@@ -32,7 +32,7 @@ let if_none = fun f ->
 
 let set_window_title = fun geomap ->
   let title_suffix =
-    match !current_fp with 
+    match !current_fp with
       None -> ""
     | Some (_fp, xml_file) -> sprintf " (%s)" (Filename.basename xml_file) in
   match GWindow.toplevel geomap#canvas with
@@ -48,14 +48,14 @@ let save_fp = fun geomap ->
   | Some (fp, filename) ->
       match GToolbox.select_file ~title:"Save Flight Plan" ~filename () with
 	None -> ()
-      | Some file -> 
+      | Some file ->
 	  let f  = open_out file in
 	  fprintf f "<!DOCTYPE flight_plan SYSTEM \"flight_plan.dtd\">\n\n";
 	  fprintf f "%s\n" (ExtXml.to_string_fmt fp#xml);
 	  close_out f;
 	  current_fp := Some (fp, file);
 	  set_window_title geomap
-	  
+
 
 let close_fp = fun geomap ->
   match !current_fp with
@@ -66,9 +66,9 @@ let close_fp = fun geomap ->
 	current_fp := None in
       match GToolbox.question_box ~title:"Closing flight plan" ~buttons:["Close"; "Save&Close"; "Cancel"] "Do you want to save/close ?" with
 	2 -> save_fp geomap; close ()
-      | 1 -> close ()	  
+      | 1 -> close ()
       | _ -> ()
-	  
+
 let load_xml_fp = fun geomap editor_frame _accel_group ?(xml_file=Env.flight_plans_path) xml ->
   Map2d.set_georef_if_none geomap (MapFP.georef_of_xml xml);
   let fp = new MapFP.flight_plan ~editable:true ~show_moved:false geomap "red" Env.flight_plan_dtd xml in
@@ -76,12 +76,12 @@ let load_xml_fp = fun geomap editor_frame _accel_group ?(xml_file=Env.flight_pla
   current_fp := Some (fp,xml_file);
 
   (** Add waypoints as geo references *)
-   List.iter 
+   List.iter
     (fun w ->
       let (_i, w) = fp#index w in
       geomap#add_info_georef (sprintf "%s" w#name) (w :> < pos : Latlong.geographic >))
     fp#waypoints;
-  
+
   fp
 
 let labelled_entry = fun ?width_chars text value h ->
@@ -103,12 +103,12 @@ let new_fp = fun geomap editor_frame accel_group () ->
     let alt = labelled_entry ~width_chars:4 "Default Alt" "430" h in
     let qfu = labelled_entry ~width_chars:4 "QFU" "270" h in
     let mdfh = labelled_entry ~width_chars:4 "Max distance from HOME" "500" h in
-    
+
     let h = GPack.hbox ~packing:dvbx#pack () in
     let name  = labelled_entry "Name" "Test flight" h in
-    
+
     let h = GPack.hbox ~packing:dvbx#pack () in
-    let cancel = GButton.button ~stock:`CANCEL ~packing: h#add () in 
+    let cancel = GButton.button ~stock:`CANCEL ~packing: h#add () in
     ignore(cancel#connect#clicked ~callback:dialog#destroy);
 
     let createfp = GButton.button ~stock:`OK ~packing: h#add () in
@@ -147,9 +147,9 @@ let load_xml_file = fun geomap editor_frame accel_group xml_file ->
     Dtd.Prove_error(e) -> loading_error xml_file (Dtd.prove_error e)
   | Dtd.Check_error(e) -> loading_error xml_file (Dtd.check_error e)
   | Xml.Error e -> loading_error xml_file (Xml.error e)
-      
 
-      
+
+
 (** Loading a flight plan for edition *)
 let load_fp = fun geomap editor_frame accel_group () ->
   if_none (fun () ->
@@ -159,11 +159,11 @@ let load_fp = fun geomap editor_frame accel_group () ->
 
 let create_wp = fun geomap geo ->
   match !current_fp with
-    None -> 
+    None ->
       GToolbox.message_box "Error" "Load a flight plan first";
       failwith "create_wp"
   | Some (fp,_) ->
-      let w = fp#add_waypoint geo in 
+      let w = fp#add_waypoint geo in
       geomap#add_info_georef (sprintf "%s" w#name) (w :> < pos : Latlong.geographic >);
       w
 
@@ -182,7 +182,7 @@ let calibrate_map = fun (geomap:MapCanvas.widget) editor_frame accel_group () ->
   | None ->
       match GToolbox.select_file ~filename:(default_path_maps // "") ~title:"Open Image" () with
 	None -> ()
-      | Some image -> 
+      | Some image ->
 	  (** Displaying the image in the NW corner *)
 	  let pixbuf = GdkPixbuf.from_file image in
 	  let pix = GnoCanvas.pixbuf ~pixbuf ~props:[`ANCHOR `NW] geomap#canvas#root in
@@ -197,7 +197,7 @@ let calibrate_map = fun (geomap:MapCanvas.widget) editor_frame accel_group () ->
 	    | Some geo -> geo in
 	  let fp_xml = dummy_fp dummy_georef in
 	  let fp = load_xml_fp geomap editor_frame accel_group fp_xml in
-	  
+
 	  (** Dialog to finish calibration *)
 	  let dialog = GWindow.window ~border_width:10 ~title:"Map calibration" () in
 	  let v = GPack.vbox ~packing:dialog#add () in
@@ -213,7 +213,7 @@ let calibrate_map = fun (geomap:MapCanvas.widget) editor_frame accel_group () ->
 	  ignore(cal#connect#clicked ~callback:(fun _ ->
 	    let points = List.map XmlEdit.xml_of_node fp#waypoints in
 	    let points = List.map ref_point_of_waypoint points in
-	    let xml = Xml.Element ("map", 
+	    let xml = Xml.Element ("map",
 				   ["file", Filename.basename image;
 				    "projection", geomap#projection],
 				   points) in

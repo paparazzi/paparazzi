@@ -4,7 +4,6 @@
 #include "subsystems/imu.h"
 #include <stm32/gpio.h>
 
-extern void imu_aspirin_arch_init(void);
 extern void imu_aspirin_arch_int_enable(void);
 extern void imu_aspirin_arch_int_disable(void);
 extern void adxl345_write_to_reg(uint8_t addr, uint8_t val);

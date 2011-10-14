@@ -2,7 +2,7 @@
  * $Id$
  *
  * Flight plan preprocessing (procedure including)
- *  
+ *
  * Copyright (C) 2004-2009 CENA/ENAC, Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  *)
 
@@ -67,7 +67,7 @@ let subst_expression = fun env e ->
 let transform_expression = fun env e ->
   let e' = subst_expression env e in
   Expr_syntax.sprint e'
-  
+
 
 let transform_values = fun attribs_not_modified env attribs ->
   List.map
@@ -100,7 +100,7 @@ let transform_exception = fun prefix reroutes env xml  ->
       let attribs = transform_values [] env attribs in
       Xml.Element (tag, attribs, children)
   | _ -> failwith "transform_exception"
-  
+
 
 
 let transform_stage = fun prefix reroutes env xml ->
@@ -159,9 +159,9 @@ let transform_block = fun prefix reroutes env xml ->
 
 
 let build_assocs = fun tag key_attr val_attr xml ->
-  let xmls = 
-    List.filter 
-      (fun x -> ExtXml.tag_is x tag) 
+  let xmls =
+    List.filter
+      (fun x -> ExtXml.tag_is x tag)
       (Xml.children xml) in
 
   List.map
@@ -178,7 +178,7 @@ let get_pc_data = fun tag xml ->
     Xml.pcdata (ExtXml.child (ExtXml.child xml tag) "0")
   with
     Not_found -> ""
-  
+
 
 let append_children = fun (tag, new_children) xml ->
   let children = get_children tag xml @ new_children in
@@ -193,7 +193,7 @@ let append_pc_data = fun tag new_data xml ->
 
 
 let parse_include = fun dir flight_plan include_xml ->
-  let f = 
+  let f =
     let procedure = ExtXml.attrib include_xml "procedure" in
     try Ocaml_tools.find_file [dir; Env.flight_plans_path] procedure with
       Not_found ->
@@ -203,10 +203,10 @@ let parse_include = fun dir flight_plan include_xml ->
 
   let reroutes = build_assocs "with" "from" "to" include_xml
   and args_assocs = build_assocs "arg" "name" "value" include_xml in
- 
+
   try
     let proc = ExtXml.parse_file ~noprovedtd:true f in
-    let params = List.filter 
+    let params = List.filter
 	(fun x -> ExtXml.tag_is x "param")
 	(Xml.children proc) in
 
@@ -242,7 +242,7 @@ let parse_include = fun dir flight_plan include_xml ->
   with
     Failure msg -> fprintf stderr "Error: %s\n" msg; exit 1
 
-      
+
 
 let replace_children = fun xml new_children_assoc ->
   Xml.Element (Xml.tag xml, Xml.attribs xml,
@@ -255,7 +255,7 @@ let replace_children = fun xml new_children_assoc ->
 		     Not_found -> x
 		 )
 		 (Xml.children xml))
-    
+
 
 let process_includes = fun dir xml ->
   let includes =
@@ -293,9 +293,9 @@ let replace_wp = fun stage waypoints ->
     let qdr = ExtXml.float_attrib stage "wp_qdr"
     and dist = ExtXml.float_attrib stage "wp_dist" in
     let wp = ExtXml.attrib stage "wp" in
-    
+
     let name = new_waypoint wp qdr dist waypoints in
-    
+
     let other_attribs = remove_attribs stage ["wp";"wp_qdr";"wp_dist"] in
     Xml.Element (Xml.tag stage, ("wp", name)::other_attribs, [])
   with
@@ -307,9 +307,9 @@ let replace_from = fun stage waypoints ->
     let qdr = ExtXml.float_attrib stage "from_qdr"
     and dist = ExtXml.float_attrib stage "from_dist" in
     let wp = ExtXml.attrib stage "from" in
-    
+
     let name = new_waypoint wp qdr dist waypoints in
-    
+
     let other_attribs = remove_attribs stage ["from";"from_qdr";"from_dist"] in
     Xml.Element (Xml.tag stage, ("from", name)::other_attribs, [])
   with
@@ -321,13 +321,13 @@ let process_stage = fun stage waypoints ->
     match String.lowercase (Xml.tag stage) with
       "go" | "stay" | "circle" ->
 	replace_from (replace_wp stage waypoints) waypoints
-	  
+
     | "while" ->
 	Xml.Element("while", Xml.attribs stage, List.map do_it (Xml.children stage))
     | _ -> stage in
   do_it stage
-  
-  
+
+
 let process_relative_waypoints = fun xml ->
   let waypoints = ExtXml.child xml "waypoints"
   and blocks = ExtXml.child xml "blocks" in
@@ -354,7 +354,7 @@ let process_relative_waypoints = fun xml ->
 
 
 let regexp_path = Str.regexp "[ \t,]+"
-  
+
 
 let stage_process_path = fun stage rest ->
   if Xml.tag stage = "path" then
@@ -364,7 +364,7 @@ let stage_process_path = fun stage rest ->
       [] -> failwith "Waypoint expected in path stage"
     | [wp] -> (* Just go to this single point *)
 	Xml.Element("go", ("wp", wp)::attribs, [])::rest
-    | wp1::wp2::ps -> 
+    | wp1::wp2::ps ->
 	Xml.Element("go", ["from", wp1;
 			   "hmode","route";
 			   "wp", wp2]@attribs, [])::
@@ -377,7 +377,7 @@ let block_process_path = fun block ->
   let stages = Xml.children block in
   let new_stages = List.fold_right stage_process_path stages [] in
   Xml.Element (Xml.tag block, Xml.attribs block, new_stages)
-  
+
 
 let process_paths = fun xml ->
   let blocks = ExtXml.child xml "blocks" in

@@ -4,7 +4,10 @@
 #include "estimator.h"
 #include "autopilot.h"
 #include "generated/flight_plan.h"
-//#include "modules/digital_cam/dc.h"
+
+#ifdef DIGITAL_CAM
+#include "modules/digital_cam/dc.h"
+#endif
 
 
 /**
@@ -108,41 +111,41 @@ static bool_t get_two_intersects(point2d *x, point2d *y, point2d a, point2d b)
   point2d tmp;
 
   for (i=0;i<poly_count-1;i++)
-	if(intercept_two_lines(&tmp,a,b,waypoints[poly_first+i].x,waypoints[poly_first+i].y,waypoints[poly_first+i+1].x,waypoints[poly_first+i+1].y)) {
-	  if (count == 0) {
+    if(intercept_two_lines(&tmp,a,b,waypoints[poly_first+i].x,waypoints[poly_first+i].y,waypoints[poly_first+i+1].x,waypoints[poly_first+i+1].y)) {
+      if (count == 0) {
         *x = tmp;
         count++;
-	  }
-	  else {
+      }
+      else {
         *y = tmp;
         count++;
         break;
-	  }
-	}
+      }
+    }
 
   //wrapover first,last polygon waypoint
   if (count == 1 && intercept_two_lines(&tmp,a,b,waypoints[poly_first+poly_count-1].x,waypoints[poly_first+poly_count-1].y,waypoints[poly_first].x,waypoints[poly_first].y)) {
-	*y = tmp;
-	count++;
+    *y = tmp;
+    count++;
   }
 
   if (count != 2)
-	return FALSE;
+    return FALSE;
 
   //change points
   if (fabs(dir_vec.x) > fabs(dir_vec.y)) {
-	if ((y->x - x->x) / dir_vec.x < 0.0){
-	  tmp = *x;
-	  *x = *y;
-	  *y = tmp;
-	}
+    if ((y->x - x->x) / dir_vec.x < 0.0){
+      tmp = *x;
+      *x = *y;
+      *y = tmp;
+    }
   }
   else
-	if ((y->y - x->y) / dir_vec.y < 0.0) {
-	  tmp = *x;
-	  *x = *y;
-	  *y = tmp;
-	}
+    if ((y->y - x->y) / dir_vec.y < 0.0) {
+      tmp = *x;
+      *x = *y;
+      *y = tmp;
+    }
 
   return TRUE;
 }
@@ -179,32 +182,32 @@ bool_t init_poly_survey_adv(uint8_t first_wp, uint8_t size, float angle, float s
   if (return_angle > 359) return_angle -= 360;
 
   if (angle <= 45.0 || angle >= 315.0) {
-	//north
-	dir_vec.y = 1.0;
-	dir_vec.x = 1.0*tanf(angle_rad);
-	sweep.x = 1.0;
-	sweep.y = - dir_vec.x / dir_vec.y;
+    //north
+    dir_vec.y = 1.0;
+    dir_vec.x = 1.0*tanf(angle_rad);
+    sweep.x = 1.0;
+    sweep.y = - dir_vec.x / dir_vec.y;
   }
   else if (angle <= 135.0) {
-	//east
-	dir_vec.x = 1.0;
-	dir_vec.y = 1.0/tanf(angle_rad);
-	sweep.y = - 1.0;
-	sweep.x = dir_vec.y / dir_vec.x;
+    //east
+    dir_vec.x = 1.0;
+    dir_vec.y = 1.0/tanf(angle_rad);
+    sweep.y = - 1.0;
+    sweep.x = dir_vec.y / dir_vec.x;
   }
   else if (angle <= 225.0) {
-	//south
-	dir_vec.y = -1.0;
-	dir_vec.x = -1.0*tanf(angle_rad);
-	sweep.x = -1.0;
-	sweep.y = dir_vec.x / dir_vec.y;
+    //south
+    dir_vec.y = -1.0;
+    dir_vec.x = -1.0*tanf(angle_rad);
+    sweep.x = -1.0;
+    sweep.y = dir_vec.x / dir_vec.y;
   }
   else {
-	//west
-	dir_vec.x = -1.0;
-	dir_vec.y = -1.0/tanf(angle_rad);
-	sweep.y = 1.0;
-	sweep.x = - dir_vec.y / dir_vec.x;
+    //west
+    dir_vec.x = -1.0;
+    dir_vec.y = -1.0/tanf(angle_rad);
+    sweep.y = 1.0;
+    sweep.x = - dir_vec.y / dir_vec.x;
   }
 
   //normalize
@@ -225,18 +228,18 @@ bool_t init_poly_survey_adv(uint8_t first_wp, uint8_t size, float angle, float s
 
   //cacluate the leftmost point if one sees the dir vec as going "up" and the sweep vec as going right
   if (div < 0.0) {
-	for(i=1;i<poly_count;i++)
-	  if ((dir_vec.x*(waypoints[poly_first+i].y - small.y)) + (dir_vec.y*(small.x - waypoints[poly_first+i].x)) > 0.0) {
-		small.x = waypoints[poly_first+i].x;
-		small.y = waypoints[poly_first+i].y;
-	  }
+    for(i=1;i<poly_count;i++)
+      if ((dir_vec.x*(waypoints[poly_first+i].y - small.y)) + (dir_vec.y*(small.x - waypoints[poly_first+i].x)) > 0.0) {
+        small.x = waypoints[poly_first+i].x;
+        small.y = waypoints[poly_first+i].y;
+      }
   }
   else
-	for(i=1;i<poly_count;i++)
-	  if ((dir_vec.x*(waypoints[poly_first+i].y - small.y)) + (dir_vec.y*(small.x - waypoints[poly_first+i].x)) > 0.0) {
-		small.x = waypoints[poly_first+i].x;
-		small.y = waypoints[poly_first+i].y;
-	  }
+    for(i=1;i<poly_count;i++)
+      if ((dir_vec.x*(waypoints[poly_first+i].y - small.y)) + (dir_vec.y*(small.x - waypoints[poly_first+i].x)) > 0.0) {
+        small.x = waypoints[poly_first+i].x;
+        small.y = waypoints[poly_first+i].y;
+      }
 
   //calculate the line the defines the first flyover
   seg_start.x = small.x + 0.5*sweep_vec.x;
@@ -244,8 +247,8 @@ bool_t init_poly_survey_adv(uint8_t first_wp, uint8_t size, float angle, float s
   VEC_CALC(seg_end, seg_start, dir_vec, +);
 
   if (!get_two_intersects(&seg_start, &seg_end, seg_start, seg_end)) {
-	psa_stage = ERR;
-	return FALSE;
+    psa_stage = ERR;
+    return FALSE;
   }
 
   //center of the entry circle
@@ -270,62 +273,68 @@ bool_t poly_survey_adv(void)
 {
   //entry circle around entry-center until the desired altitude is reached
   if (psa_stage == ENTRY) {
-	nav_circle_XY(entry_center.x, entry_center.y, -psa_min_rad);
-	if (NavCourseCloseTo(segment_angle)
-		&& nav_approaching_xy(seg_start.x, seg_start.y, last_x, last_y, CARROT)
-		&& fabs(estimator_z - psa_altitude) <= 20) {
-	  psa_stage = SEG;
-	  NavVerticalAutoThrottleMode(0.0);
-	  nav_init_stage();
-	  //dc_distance(psa_shot_dist, seg_start.x - dir_vec.x*psa_shot_dist*0.5, seg_start.y - dir_vec.y*psa_shot_dist*0.5);
-	}
+    nav_circle_XY(entry_center.x, entry_center.y, -psa_min_rad);
+    if (NavCourseCloseTo(segment_angle)
+        && nav_approaching_xy(seg_start.x, seg_start.y, last_x, last_y, CARROT)
+        && fabs(estimator_z - psa_altitude) <= 20) {
+      psa_stage = SEG;
+      NavVerticalAutoThrottleMode(0.0);
+      nav_init_stage();
+#ifdef DIGITAL_CAM
+      dc_survey(psa_shot_dist, seg_start.x - dir_vec.x*psa_shot_dist*0.5, seg_start.y - dir_vec.y*psa_shot_dist*0.5);
+#endif
+    }
   }
   //fly the segment until seg_end is reached
   if (psa_stage == SEG) {
-	nav_points(seg_start, seg_end);
-	//calculate all needed points for the next flyover
-	if (nav_approaching_xy(seg_end.x, seg_end.y, seg_start.x, seg_start.y, 0)) {
-	  //dc_stop();
-	  VEC_CALC(seg_center1, seg_end, rad_vec, -);
-	  ret_start.x = seg_end.x - 2*rad_vec.x;
-	  ret_start.y = seg_end.y - 2*rad_vec.y;
+    nav_points(seg_start, seg_end);
+    //calculate all needed points for the next flyover
+    if (nav_approaching_xy(seg_end.x, seg_end.y, seg_start.x, seg_start.y, 0)) {
+#ifdef DIGITAL_CAM
+      dc_stop();
+#endif
+      VEC_CALC(seg_center1, seg_end, rad_vec, -);
+      ret_start.x = seg_end.x - 2*rad_vec.x;
+      ret_start.y = seg_end.y - 2*rad_vec.y;
 
-	  //if we get no intersection the survey is finished
-	  if (!get_two_intersects(&seg_start, &seg_end, vec_add(seg_start, sweep_vec), vec_add(seg_end, sweep_vec)))
-		return FALSE;
+      //if we get no intersection the survey is finished
+      if (!get_two_intersects(&seg_start, &seg_end, vec_add(seg_start, sweep_vec), vec_add(seg_end, sweep_vec)))
+        return FALSE;
 
-	  ret_end.x = seg_start.x - sweep_vec.x - 2*rad_vec.x;
-	  ret_end.y = seg_start.y - sweep_vec.y - 2*rad_vec.y;
+      ret_end.x = seg_start.x - sweep_vec.x - 2*rad_vec.x;
+      ret_end.y = seg_start.y - sweep_vec.y - 2*rad_vec.y;
 
-	  seg_center2.x = seg_start.x - 0.5*(2.0*rad_vec.x+sweep_vec.x);
-	  seg_center2.y = seg_start.y - 0.5*(2.0*rad_vec.y+sweep_vec.y);
+      seg_center2.x = seg_start.x - 0.5*(2.0*rad_vec.x+sweep_vec.x);
+      seg_center2.y = seg_start.y - 0.5*(2.0*rad_vec.y+sweep_vec.y);
 
-	  psa_stage = TURN1;
-	  nav_init_stage();
-	}
+      psa_stage = TURN1;
+      nav_init_stage();
+    }
   }
   //turn from stage to return
   else if (psa_stage == TURN1) {
-	nav_circle_XY(seg_center1.x, seg_center1.y, -psa_min_rad);
-	if (NavCourseCloseTo(return_angle)) {
-	  psa_stage = RET;
-	  nav_init_stage();
-	}
-	//return
+    nav_circle_XY(seg_center1.x, seg_center1.y, -psa_min_rad);
+    if (NavCourseCloseTo(return_angle)) {
+      psa_stage = RET;
+      nav_init_stage();
+    }
+    //return
   } else if (psa_stage == RET) {
-	nav_points(ret_start, ret_end);
-	if (nav_approaching_xy(ret_end.x, ret_end.y, ret_start.x, ret_start.y, 0)) {
-	  psa_stage = TURN2;
-	  nav_init_stage();
-	}
-	//turn from return to stage
+    nav_points(ret_start, ret_end);
+    if (nav_approaching_xy(ret_end.x, ret_end.y, ret_start.x, ret_start.y, 0)) {
+      psa_stage = TURN2;
+      nav_init_stage();
+    }
+    //turn from return to stage
   } else if (psa_stage == TURN2) {
-	nav_circle_XY(seg_center2.x, seg_center2.y, -(2*psa_min_rad+psa_sweep_width)*0.5);
-	if (NavCourseCloseTo(segment_angle)) {
-	  psa_stage = SEG;
-	  nav_init_stage();
-	  //dc_distance(psa_shot_dist, seg_start.x - dir_vec.x*psa_shot_dist*0.5, seg_start.y - dir_vec.y*psa_shot_dist*0.5);
-	}
+    nav_circle_XY(seg_center2.x, seg_center2.y, -(2*psa_min_rad+psa_sweep_width)*0.5);
+    if (NavCourseCloseTo(segment_angle)) {
+      psa_stage = SEG;
+      nav_init_stage();
+#ifdef DIGITAL_CAM
+      dc_survey(psa_shot_dist, seg_start.x - dir_vec.x*psa_shot_dist*0.5, seg_start.y - dir_vec.y*psa_shot_dist*0.5);
+#endif
+    }
   }
 
   return TRUE;

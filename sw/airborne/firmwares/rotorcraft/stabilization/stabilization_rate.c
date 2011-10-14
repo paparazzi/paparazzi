@@ -135,6 +135,9 @@ void stabilization_rate_read_rc( void ) {
     stabilization_rate_sp.r = (int32_t)-radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
   else
     stabilization_rate_sp.r = 0;
+
+  // Setpoint at ref resolution
+  INT_RATES_LSHIFT(stabilization_rate_sp, stabilization_rate_sp, REF_FRAC - INT32_RATE_FRAC);
 }
 
 void stabilization_rate_enter(void) {

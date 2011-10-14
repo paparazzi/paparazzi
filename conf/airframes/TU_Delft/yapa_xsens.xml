@@ -220,7 +220,6 @@
     <subsystem name="navigation"/>
     <subsystem name="gps" type="xsens"/>
 
-    <subsystem name="i2c"/>
 
 </firmware>
 

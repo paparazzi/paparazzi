@@ -1,0 +1,34 @@
+<!-- $Id$ -->
+<!-- Mediatek, DIYDrones 1.4/1.6 Binary Protocol description -->
+
+<!DOCTYPE mtk SYSTEM "mtk.dtd">
+
+<mtk>
+ <class name="DIY14" ID="0x01">
+    <message name="NAV" ID="0x05" length="26">
+      <field name="LAT" format="I4BE" scaling="1e-8" unit="deg"/>
+      <field name="LON" format="I4BE" scaling="1e-8" unit="deg"/>
+      <field name="HEIGHT" format="I4BE" unit="cm"/>
+      <field name="GSpeed" format="I4BE" unit="cm/s"/>
+      <field name="Heading" format="I4BE" scaling="1e-6" unit="deg"/>
+      <field name="numSV" format="U1"/>
+      <field name="GPSfix" format="U1"/>
+      <field name="ITOW" format="U4BE" unit="ms"/>
+    </message>
+ </class>
+
+ <class name="DIY16" ID="0xD0">
+    <message name="NAV" ID="0xDD" length="32">
+      <field name="LAT" format="I4" scaling="1e-8" unit="deg"/>
+      <field name="LON" format="I4" scaling="1e-8" unit="deg"/>
+      <field name="HEIGHT" format="I4" unit="cm"/>
+      <field name="GSpeed" format="I4" unit="cm/s"/>
+      <field name="Heading" format="I4" scaling="1e-2" unit="deg"/>
+      <field name="numSV" format="U1"/>
+      <field name="GPSfix" format="U1"/>
+      <field name="UTC_DATE" format="U4" scaling="ms" unit="HHMMSSMMM"/>
+      <field name="UTC_TIME" format="U4" scaling="d" unit="DDMMYY"/>
+      <field name="HDOP" format="U2"/>
+    </message>
+ </class>
+</mtk>

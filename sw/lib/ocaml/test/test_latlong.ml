@@ -18,7 +18,7 @@ let llh_eq = fun (ll, h) (ll', h') ->
   feq8 ll.posn_long ll'.posn_long &&
   feq2 h h'
 
-let () = 
+let () =
   let muret_geo = make_geo_deg 43.46223 1.27289
   and muret_h = 185. in
 
@@ -51,22 +51,22 @@ let () =
 	for d = 0 to 1 do
 	  let d = float (-100 * d) in
 	  let plane_ned = make_ned [| n; e; d|] in
-	  
+
 	  printf "    Plane NED: %a\n%!" fprint_ned plane_ned;
 	  let plane_ecef = ecef_of_ned_muret plane_ned in
 	  (* printf "Plane ECEF: %a\n%!" fprint_ecef plane_ecef; *)
-	  
+
 	  let plane_ned' = ned_of_ecef_muret plane_ecef in
 	  (* printf "Plane NED': %a\n%!" fprint_ned plane_ned'; *)
 	  assert (ned_eq plane_ned plane_ned');
-	  
+
   (* Angles in UTM and NED *)
 	  let plane_geo, plane_h = geo_of_ecef WGS84 plane_ecef in
 	  printf "    Plane LLH: %s %.2f\n%!" (string_degrees_of_geographic plane_geo) plane_h;
-	  
+
 	  let plane_utm = utm_of WGS84 plane_geo in
-	  
-	  
+
+
 	  printf "    Plane UTM: %a\n%!" fprint_utm plane_utm;
 	  printf "Delta UTM [%.2f %.2f]\n%!" (plane_utm.utm_x -. muret_utm.utm_x -. e) (plane_utm.utm_y -. muret_utm.utm_y -. n);
 	  printf "Delta alt: %.2fm\n" (plane_h -. muret_h +. d)

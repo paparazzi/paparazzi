@@ -27,7 +27,7 @@ OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 INCLUDES= $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format lablgtk2) -I ../lib/ocaml 
 
-all: play plotter plot sd2log
+all: play plotter plot sd2log plotprofile
 
 play : log_file.cmo play_core.cmo play.cmo
 	@echo OL $@
@@ -104,6 +104,9 @@ MORE_CFLAGS = -DHAVE_DLFCN_H=1 -DSTDC_HEADERS=1  -I. -I.  -I..    -g -O2 -I/usr/
 
 disp3d: disp3d.c
 	$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS)
+
+plotprofile: plotprofile.c
+	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
 
 test1: test1.c
 	$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS) -lglut

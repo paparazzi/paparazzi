@@ -96,7 +96,7 @@
  </class>
 
  <class name="CFG" ID="0x06">
-  
+
     <message name="PRT" ID="0x00">
       <block length="20">
         <field name="PortId" format="U1"/>
@@ -201,6 +201,19 @@
   <message name="NAK" ID="0x00" length="2">
     <field name="ClsID" format="U1"/>
     <field name="MsgID" format="U1"/>
+  </message>
+
+ </class>
+
+ <class name="MON" ID="0x0A">
+
+  <message name="GET_VER" ID="0x04" length="0">
+  </message>
+
+  <message name="VER" ID="0x04">
+    <block length="1">
+      <field name="c" format="U1"/>
+    </block>
   </message>
 
  </class>

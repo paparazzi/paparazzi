@@ -18,11 +18,11 @@ let watch_clients c e =
   flush stdout
 
 let init = fun () ->
-  let regexp = ref "" 
+  let regexp = ref ""
   and name = ref "MLIVYPROBE"
-  and port = ref 2010 
+  and port = ref 2010
   and domain = ref "127.255.255.255" in
-  Arg.parse 
+  Arg.parse
     [ "-b", Arg.Int (fun x -> port := x), "<Port number>\tDefault is 2010, unused if IVYBUS is set";
       "-domain", Arg.String (fun x -> domain := x), "<Network address>\tDefault is 127.255.255.255, unused if IVYBUS is set";
       "-n", Arg.String (fun s -> name := s), "<Name of the prober>\tDefault is MLIVYPROBE"]
