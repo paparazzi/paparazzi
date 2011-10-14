@@ -106,7 +106,7 @@ disp3d: disp3d.c
 	$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS)
 
 plotprofile: plotprofile.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
+	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy -lpcre
 
 test1: test1.c
 	$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS) -lglut
