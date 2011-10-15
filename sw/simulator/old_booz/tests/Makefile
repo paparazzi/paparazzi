@@ -9,7 +9,7 @@
 #CFLAGS  += -I /usr/include/meschach -I /usr/local/include/
 #LDFLAGS += -lmeschach -L /usr/lib
 #CFLAGS  += `pkg-config glib-2.0 --cflags`
-#LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lpcre -lglibivy
+#LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lglibivy -lpcre
 
 #test1: nps_test1.c nps_jsbsim.c
 #	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
@@ -28,13 +28,10 @@ CFLAGS = -Wall                          \
          -I ../../../var/BOOZ2_A1       \
          -I ../../airborne              \
          -I ../../include               \
-         -I /usr/include/meschach       \
 	 -I $(JSBSIM)/include/JSBSim    \
          `pkg-config glib-2.0 --cflags` \
 
 LDFLAGS = -lm                           \
-          -lmeschach                    \
-          -lpcre                        \
           -lglibivy                     \
 	  -L $(JSBSIM)/lib -lJSBSim	\
           `pkg-config glib-2.0 --libs`  \
