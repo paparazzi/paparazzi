@@ -96,7 +96,7 @@ clean:
 
 CC = gcc
 CFLAGS=-g -O2 -Wall `pkg-config gtk+-2.0 --cflags` $(FPIC)
-LDFLAGS=`pkg-config gtk+-2.0 --libs` -s `pcre-config --libs` -lglibivy
+LDFLAGS=`pkg-config gtk+-2.0 --libs` -s -lglibivy
 
 
 ant_track : ant_track.c
