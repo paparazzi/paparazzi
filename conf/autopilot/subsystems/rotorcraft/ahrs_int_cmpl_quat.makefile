@@ -21,5 +21,3 @@ ap.srcs += $(AHRS_SRCS)
 
 sim.CFLAGS += $(AHRS_CFLAGS)
 sim.srcs += $(AHRS_SRCS)
-
-
