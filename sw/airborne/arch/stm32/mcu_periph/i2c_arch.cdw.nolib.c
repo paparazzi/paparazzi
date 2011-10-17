@@ -163,31 +163,36 @@ enum STMI2CSubTransactionStatus {
 
 static inline enum STMI2CSubTransactionStatus stmi2c_send1(I2C_TypeDef *regs, struct i2c_transaction *trans)
 {
+  // Read SR1 but wait reading SR2
   uint16_t SR1 = regs->SR1;
 
   // Start Condition Was Just Generated
   if (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_SB, SR1 ) )
   {
+    // No "buffer space available interrupt" as there is already space now: fill only 1 while space for 2 
     regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+    // Send slave address and wait for address interrupt
     regs->DR = trans->slave_addr;
   }
-  // Address Was Sent
+  // Address Was Just Sent
   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_ADDR, SR1) )
   {
     // Now read SR2 to clear the ADDR
     volatile uint16_t SR2 __attribute__ ((unused)) = regs->SR2;
 
-    // Send Bytes
+    // Send the Byte
     regs->DR = trans->buf[0];
 
     // BTF is set as soon as the shift register is empty. 
+    // BTF (ByteTransferFinished) means: I2C is halted: please urgently provide data
     // BTF is cleared A) when writing data to DR or B) when a start/stop condition OCCURRED (not was requested)
-    // Dummy Data to avoid BTF
+    // In the case of a RESTART: this fires a lot of unwanted interrupts:
+    // Force silent: Dummy Data to avoid BTF
     regs->DR = 0x00;
 
     if (trans->type == I2CTransTx)
     {
-      // We sent it all to the I2C ... might still be a chance that an error occurs
+      // We finished sending all to the I2C eninge ... ( might still be a chance that an error occurs )
       trans->status = I2CTransSuccess;
     }
 
@@ -204,7 +209,9 @@ static inline enum STMI2CSubTransactionStatus stmi2c_sendmany(I2C_TypeDef *regs,
   // Start Condition Was Just Generated
   if (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_SB, SR1 ) )
   {
+    // Disable buffer interrupt
     regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+    // Send Slave address and wait for ADDR interrupt
     regs->DR = trans->slave_addr;
   }
   // Address Was Sent
@@ -213,26 +220,30 @@ static inline enum STMI2CSubTransactionStatus stmi2c_sendmany(I2C_TypeDef *regs,
     // Now read SR2 to clear the ADDR
     uint16_t SR2  __attribute__ ((unused)) = regs->SR2;
 
-    if (! BIT_X_IS_SET_IN_REG(I2C_SR2_BIT_TRA, SR2)) { }
+    // Maybe check we are transmitting (did not loose arbitration for instance)
+    // if (! BIT_X_IS_SET_IN_REG(I2C_SR2_BIT_TRA, SR2)) { }
 
     // Send First 2 bytes
     regs->DR = trans->buf[0];
     regs->DR = trans->buf[1];
     periph->idx_buf = 2;
+    // Enable buffer-space available interrupt
     regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
   }
+  // The buffer is not full anymore: (space for at least 1 and probably 1 is still transmitting)
   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_TXE, SR1) )
   {
     // All bytes Sent?
     if ( periph->idx_buf >= trans->len_w)
     {
+      // Not interested anymore to know the buffer has space left
       regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
       // Also provide some dummy data in DR to silent the BTF interrupt
       regs->DR = 0x00;
 
       if (trans->type == I2CTransTx)
       {
-        // We sent it all to the I2C ... might still be a chance that an error occurs
+        // We finished sending all to the I2C eninge ... ( might still be a chance that an error occurs )
         trans->status = I2CTransSuccess;
       }
 
@@ -240,6 +251,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_sendmany(I2C_TypeDef *regs,
     }
     else
     {
+      // Send the next byte
       regs->DR = trans->buf[periph->idx_buf];
       periph->idx_buf++;
     }
@@ -261,16 +273,18 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read1(I2C_TypeDef *regs, st
   // Address Was Sent
   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_ADDR, SR1) )
   {
-    // First Clear the ACK bit
+    // First Clear the ACK bit: after the next byte we do not want new bytes
     regs->CR1 &= ~ I2C_CR1_BIT_ACK;
+
+    // TODO: next to steps MUST be executed together to avoid missing the stop
 
     // Only after setting ACK, read SR2 to clear the ADDR (next byte will start arriving)
     uint16_t SR2 __attribute__ ((unused)) = regs->SR2;
       
     // Schedule a Stop
+    regs->CR1 |= I2C_CR1_BIT_STOP;
         LED2_ON();
 	LED2_OFF();
-    regs->CR1 |= I2C_CR1_BIT_STOP;
 
     // Enable the RXNE to get the result
     regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
@@ -280,7 +294,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read1(I2C_TypeDef *regs, st
     regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
     trans->buf[0] = regs->DR;
 
-    // We got all the results
+    // We got all the results (stop condition might still be in progress but this is the last interrupt)
     trans->status = I2CTransSuccess;
 
     return STMI2C_SubTra_Ready_StopRequested;
@@ -305,21 +319,25 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read2(I2C_TypeDef *regs, st
   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_ADDR, SR1) )
   {
     // BEFORE clearing ACK, read SR2 to clear the ADDR (next byte will start arriving)
+    // clearing ACK after the byte transfer has already started will NACK the next (2nd)
     uint16_t SR2 __attribute__ ((unused)) = regs->SR2;
       
+    // TODO: make absolutely sure this command is not delayed too much after the previous: 
+    //       if transfer of DR was finished already then we will get too many bytes
     // NOT First Clear the ACK bit but only AFTER clearing ADDR
     regs->CR1 &= ~ I2C_CR1_BIT_ACK;
 
     // Disable the RXNE and wait for BTF
     regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
   }
+  // Receive buffer if full, master is halted: BTF
   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_BTF, SR1) )
   {
     // Stop condition MUST be set BEFORE reading the DR
     // otherwise since there is new buffer space a new byte will be read
+    regs->CR1 |= I2C_CR1_BIT_STOP;
         LED2_ON();
 	LED2_OFF();
-    regs->CR1 |= I2C_CR1_BIT_STOP;
 
     trans->buf[0] = regs->DR;
     trans->buf[1] = regs->DR;
@@ -718,7 +736,7 @@ static inline void i2c_error(struct i2c_periph *periph)
   }
 */
 
-#endif /* USE_I2C2 */
+//#endif /* USE_I2C2 */
 
 
 

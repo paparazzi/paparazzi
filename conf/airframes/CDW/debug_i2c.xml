@@ -236,7 +236,7 @@
     </subsystem>
     <!--subsystem name="ahrs"          type="cmpl"/-->
     <subsystem name="stabilization"   type="euler"/>
-    <subsystem name="ahrs"          type="ic"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"           type="hff"/>
   </firmware>
 
