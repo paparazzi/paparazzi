@@ -276,13 +276,16 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read1(I2C_TypeDef *regs, st
     // First Clear the ACK bit: after the next byte we do not want new bytes
     regs->CR1 &= ~ I2C_CR1_BIT_ACK;
 
-    // TODO: next to steps MUST be executed together to avoid missing the stop
+    // TODO: --- next to steps MUST be executed together to avoid missing the stop
 
     // Only after setting ACK, read SR2 to clear the ADDR (next byte will start arriving)
     uint16_t SR2 __attribute__ ((unused)) = regs->SR2;
       
     // Schedule a Stop
     regs->CR1 |= I2C_CR1_BIT_STOP;
+
+    // TODO --- end of critical zone -----------
+
         LED2_ON();
 	LED2_OFF();
 
@@ -322,13 +325,15 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read2(I2C_TypeDef *regs, st
     // clearing ACK after the byte transfer has already started will NACK the next (2nd)
     uint16_t SR2 __attribute__ ((unused)) = regs->SR2;
       
-    // TODO: make absolutely sure this command is not delayed too much after the previous: 
+    // TODO: --- make absolutely sure this command is not delayed too much after the previous: 
     //       if transfer of DR was finished already then we will get too many bytes
     // NOT First Clear the ACK bit but only AFTER clearing ADDR
     regs->CR1 &= ~ I2C_CR1_BIT_ACK;
 
     // Disable the RXNE and wait for BTF
     regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+
+    // TODO --- end of critical zone -----------
   }
   // Receive buffer if full, master is halted: BTF
   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_BTF, SR1) )
@@ -359,7 +364,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
   if (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_SB, SR1 ) )
   {
     regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
-    // The first data byte will be acked in read many
+    // The first data byte will be acked in read many so the slave knows it should send more
     regs->CR1 |= I2C_CR1_BIT_ACK;
     // Clear the SB flag
     regs->DR = trans->slave_addr | 0x01;
@@ -367,23 +372,28 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
   // Address Was Sent
   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_ADDR, SR1) )
   {
-    // Enable RXNE 
+    // Enable RXNE: receive an interrupt any time a byte is available
     regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
     periph->idx_buf = 0;
 
-    // BEFORE clearing ACK, read SR2 to clear the ADDR (next byte will start arriving)
+    // ACK is still on to get more DATA
+    // Read SR2 to clear the ADDR (next byte will start arriving)
     uint16_t SR2 __attribute__ ((unused)) = regs->SR2;
   }
-  else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_RXNE, SR1) )
+  // one or more bytes are available AND we were interested in Buffer interrupts
+  // TODO: check if RXNE could be set when ITBUFEN is disabled
+  else if ( (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_RXNE, SR1) ) && (BIT_X_IS_SET_IN_REG(I2C_CR2_BIT_ITBUFEN, CR2))
   {
-    // read everything until 3 bytes remain to be read (e.g. len_r = 6, -> idx=3 means idx 3,4,5 = 3 remain to be read
+    // read 1 byte until 3 bytes remain to be read (e.g. len_r = 6, -> idx=3 means idx 3,4,5 = 3 remain to be read
     if (periph->idx_buf < (trans->len_r - 3))
     {
       trans->buf[periph->idx_buf] = regs->DR;
       periph->idx_buf ++;
     }
-    // this was the last byte
-    else if (periph->idx_buf == (trans->len_r - 1))
+    // see else for intermetiate steps: 3bytes -> last byte
+    //
+    // finally: this was the last byte
+    else if (periph->idx_buf >= (trans->len_r - 1))
     {
       regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
 
@@ -396,35 +406,52 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
 
       return STMI2C_SubTra_Ready_StopRequested;
     }
-    else
+    // 3 bytes left to read
+    else // if (periph->idx_buf >= (trans->len_r - 3))
     {
-      // Stop listening to RXNE: ignore 1 until BTF is set and waits
+      // We want to halt I2C to have sufficient time to clear ACK, so:
+
+      // Do not read the received bytes just yet
+      // Stop listening to RXNE as it will be triggered infinitely since we did not empty the buffer
+      // on the next (second in buffer) received byte BTF will be set (buffer full and I2C halted)
       regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
     }
   }
+  // Buffer is full while this was not a RXNE interrupt
   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_BTF, SR1) )
   {
     // Now the shift register and data register contain data(n-2) and data(n-1)
+    // And I2C is halted so we have time
 
     // First we clear the ACK while the SCL is held low by BTF
     regs->CR1 &= ~ I2C_CR1_BIT_ACK;
 
+    // TODO --- Make absolutely sure the next 2 I2C actions are performed with no delay
+
+    // Now that ACK is cleared we read one byte: instantly the last byte is being clocked in...
     trans->buf[periph->idx_buf] = regs->DR;
     periph->idx_buf ++;
 
-    // Now the last byte is being clocked in MUST be set BEFORE reading the DR
-    // otherwise since there is new buffer space a new byte will be read
+    // Now the last byte is being clocked. Stop in MUST be set BEFORE the transfer of the last byte is complete
+    regs->CR1 |= I2C_CR1_BIT_STOP;
         LED2_ON();
 	LED2_OFF();
-    regs->CR1 |= I2C_CR1_BIT_STOP;
 
+    // TODO --- end of critical zone -----------
 
+    // read the second byte we had in the buffer (BTF means 2 bytes available)
     trans->buf[periph->idx_buf] = regs->DR;
     periph->idx_buf ++;
     
+    // Ask for an interrupt to read the last byte (which is normally still busy now)
     // The last byte will be received with RXNE
     regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
   }
+  else
+  {
+    // TODO: catch
+  }
+
 
   return STMI2C_SubTra_Busy;
 }
@@ -450,14 +477,14 @@ static inline void i2c_event(struct i2c_periph *periph)
 	5) BTF		// I2C has stopped working (it is waiting for new data, all buffers are tx_empty/rx_full)
 
 	// Beware: using the buffered I2C has some interesting properties:
-	  -in receive mode: BTF only occurs after the 2nd received byte: after the first byte is received it is 
+	  -in master receive mode: BTF only occurs after the 2nd received byte: after the first byte is received it is 
            in RD but the I2C can still receive a second byte. Only when the 2nd byte is received while the RxNE is 1
-	   then a BTF occurs (I2C can not continue receiving bytes or they will get lost)
-	  -in transmitmode: when writing a byte to WD, you instantly get a new TxE interrupt while the first is not
+	   then a BTF occurs (I2C can not continue receiving bytes or they will get lost). During BTF I2C is halted (SCL held low)
+	  -in master transmitmode: when writing a byte to WD, you instantly get a new TxE interrupt while the first is not
 	   transmitted yet. The byte was pushed to the I2C shift register and the buffer is ready for more. You can already
 	   fill new data in the buffer while the first is still being transmitted for max performance transmission.
         
-        // Beware: besides buffering there is also event sheduling. You can send 2 bytes to the buffer, ask for a stop and 
+        // Beware: besides data buffering you can/must plan several consecutive actions. You can send 2 bytes to the buffer, ask for a stop and 
            a new start in one go. 
 
           -thanks to / because of this buffering and event sheduling there is not 1 interrupt per start / byte / stop
@@ -470,7 +497,7 @@ static inline void i2c_event(struct i2c_periph *periph)
 	If IT_EV_FEN AND IT_EV_BUF
 	--------------------------
 
-	Buffer event are not always wanted and are tipically switched on during longer data transfers. It highly depends on the data size.
+	Buffer event are not always wanted and are tipically switched on during longer data transfers. Make sure to turn off in time.
 
 	6) RxNE
 	7) TxE
@@ -483,6 +510,7 @@ static inline void i2c_event(struct i2c_periph *periph)
 
        // Status is re-used (abused) to remember the last COMMAND THAT WAS SENT to the STM I2C hardware.
 
+// TODO: check which are used
 	enum I2CStatus {
 	  I2CIdle,			// No more last command
 
@@ -512,8 +540,9 @@ static inline void i2c_event(struct i2c_periph *periph)
 	   not during data receiving when using buffered
 	   not after the last byte is received
 
-	The STM I2C stalls indefinately when a stop condition was attempted that
-	did not succeed. The BUSY flag remains on
+	-The STM I2C stalls indefinately when a stop condition was attempted that
+	did not succeed. The BUSY flag remains on.
+        -There is no STOP interrupt: use needs another way to finish.
 
    */
 
