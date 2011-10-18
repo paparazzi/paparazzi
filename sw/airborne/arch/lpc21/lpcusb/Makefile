@@ -6,7 +6,7 @@ DATE		= $$(date +%Y%m%d)
 
 # Tool definitions
 # try to find the paparazzi multilib toolchain
-TOOLCHAIN_DIR=$(shell find -L ~/sat /opt/paparazzi/arm-multilib -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1 | xargs dirname )
+TOOLCHAIN_DIR=$(shell find -L /opt/paparazzi/arm-multilib ~/sat -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1 | xargs dirname )
 
 #
 # found the new paparazzi toolchain, use it
@@ -23,7 +23,7 @@ CP      = $(GCC_BIN_PREFIX)-objcopy
 OD      = $(GCC_BIN_PREFIX)-objdump
 
 #
-# If we can't find the toolchain (in ~/sat or /opt/paparazzi/arm-multilib) then try picking up the compilers from the path
+# If we can't find the toolchain (in /opt/paparazzi/arm-multilib or ~/sat) then try picking up the compilers from the path
 #
 else
 
