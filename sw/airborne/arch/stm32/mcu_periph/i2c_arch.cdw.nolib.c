@@ -20,7 +20,7 @@ static inline void LED1_OFF(void)
   GPIO_WriteBit(GPIOB, GPIO_Pin_6 , !Bit_SET );
 }
 
-static inline void LED2_ON()
+static inline void LED2_ON(void)
 {
   GPIO_WriteBit(GPIOB, GPIO_Pin_7 , Bit_SET );
 }
@@ -47,16 +47,14 @@ static inline void LED_INIT(void)
 static inline void LED_ERROR(uint8_t nr)
 {
   LED2_ON();
-  for (int i=0;i<20;i++)
+  for (int i=0;i<(20+nr);i++)
   {
-    if (nr == i)
-      LED1_OFF();
-    else
-      LED1_ON();
+    LED1_ON();
     LED1_OFF();    
   }
   LED2_OFF();
 }
+
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -90,10 +88,19 @@ static I2C_InitTypeDef  I2C2_InitStruct = {
 
 static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
 {
+        LED2_ON();
+        LED1_ON();
+	LED1_OFF();
+        LED1_ON();
+	LED1_OFF();
+        LED1_ON();
+	LED1_OFF();
+	LED2_OFF();
+
   periph->idx_buf = 0;
   periph->status = I2CStartRequested;
   // Clear any pending stop
-  I2C_GenerateSTOP(periph->reg_addr, DISABLE);
+  // I2C_GenerateSTOP(periph->reg_addr, DISABLE);
   // Issue a new start
   I2C_GenerateSTART(periph->reg_addr, ENABLE);
   I2C_ITConfig(periph->reg_addr, I2C_IT_EVT | I2C_IT_ERR, ENABLE);
@@ -149,6 +156,44 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
 // Bit Control
 
 #define BIT_X_IS_SET_IN_REG(X,REG)	(((REG) & (X)) == (X))
+
+// TODO: remove debug
+
+static inline void LED_SHOW_ACTIVE_BITS(uint16_t SR1)
+{
+  LED1_ON();
+
+  // Start
+  if (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_SB, SR1 ) )
+    LED2_ON();
+  else
+    LED2_OFF();
+  LED2_OFF();    
+  
+  // Addr
+  if (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_ADDR, SR1 ) )
+    LED2_ON();
+  else
+    LED2_OFF();
+  LED2_OFF();    
+  
+  // BTF
+  if (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_BTF, SR1 ) )
+    LED2_ON();
+  else
+    LED2_OFF();
+  LED2_OFF();    
+  
+  // ERROR
+  if (( SR1 & I2C_SR1_BITS_ERR ) != 0x0000)
+    LED2_ON();
+  else
+    LED2_OFF();
+  LED2_OFF();    
+  
+
+  LED1_OFF();
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -238,13 +283,16 @@ static inline enum STMI2CSubTransactionStatus stmi2c_sendmany(I2C_TypeDef *regs,
     {
       // Not interested anymore to know the buffer has space left
       regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
-      // Also provide some dummy data in DR to silent the BTF interrupt
-      regs->DR = 0x00;
 
       if (trans->type == I2CTransTx)
       {
         // We finished sending all to the I2C eninge ... ( might still be a chance that an error occurs )
         trans->status = I2CTransSuccess;
+      }
+      //else
+      {
+        // Also provide some dummy data in DR to silent the BTF interrupt
+        regs->DR = 0x00;
       }
 
       return STMI2C_SubTra_Ready;
@@ -382,7 +430,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
   }
   // one or more bytes are available AND we were interested in Buffer interrupts
   // TODO: check if RXNE could be set when ITBUFEN is disabled
-  else if ( (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_RXNE, SR1) ) && (BIT_X_IS_SET_IN_REG(I2C_CR2_BIT_ITBUFEN, CR2))
+  else if ( (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_RXNE, SR1) ) && (BIT_X_IS_SET_IN_REG(I2C_CR2_BIT_ITBUFEN, regs->CR2))  )
   {
     // read 1 byte until 3 bytes remain to be read (e.g. len_r = 6, -> idx=3 means idx 3,4,5 = 3 remain to be read
     if (periph->idx_buf < (trans->len_r - 3))
@@ -584,14 +632,17 @@ static inline void i2c_event(struct i2c_periph *periph)
     periph->status = I2CIdle;
     periph->errors->unexpected_event_cnt++;
 
-    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;			// Disable TXE RXNE
+    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;			// Disable TXE, RXNE
         LED2_ON();
         LED1_ON();
-	LED1_OFF();
 	LED2_OFF();
-    regs->CR1 |= I2C_CR1_BIT_STOP;			// Issue a stop
-    uint16_t SR2 __attribute__ ((unused)) = regs->SR2;	// Clear ADDR
-    regs->DR = 0x00;					// Silent BTF, Clear Start, or keep provinding SCL in case of unfinished Read
+	LED1_OFF();
+    //regs->CR1 |= I2C_CR1_BIT_STOP;			// Issue a stop
+    //uint16_t SR2 __attribute__ ((unused)) = regs->SR2;	// Clear ADDR
+    //regs->DR = 0x00;					// Silent BTF, Clear Start, or keep provinding SCL in case of unfinished Read
+
+    // no transaction and also an error?
+    LED_SHOW_ACTIVE_BITS(regs->SR1);
 
     return;
   }
@@ -605,14 +656,14 @@ static inline void i2c_event(struct i2c_periph *periph)
 
     // Close the Bus
     regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;			// Disable TXE RXNE
-    regs->CR1 |= I2C_CR1_BIT_STOP;			// Issue a stop
+    //regs->CR1 |= I2C_CR1_BIT_STOP;			// Issue a stop
         LED1_ON();
         LED2_ON();
-	LED2_OFF();
 	LED1_OFF();
-    periph->status = I2CStopRequested;
-    uint16_t SR2 __attribute__ ((unused)) = regs->SR2;	// Clear ADDR
-    regs->DR = 0x00;					// Silent BTF, Clear Start, or keep provinding SCL in case of unfinished Read
+	LED2_OFF();
+    //periph->status = I2CStopRequested;
+    //uint16_t SR2 __attribute__ ((unused)) = regs->SR2;	// Clear ADDR
+    //regs->DR = 0x00;					// Silent BTF, Clear Start, or keep provinding SCL in case of unfinished Read
 
     // Prepare for next
     ret = STMI2C_SubTra_Ready_StopRequested;
@@ -668,10 +719,11 @@ static inline void i2c_event(struct i2c_periph *periph)
     {
       if (ret == STMI2C_SubTra_Ready)
       {
+        // Program a stop
         LED2_ON();
         LED1_ON();
-	LED2_OFF();
 	LED1_OFF();
+	LED2_OFF();
         // Man: p722:  Stop generation after the current byte transfer or after the current Start condition is sent.
         regs->CR1 |= I2C_CR1_BIT_STOP;
 
@@ -687,6 +739,12 @@ static inline void i2c_event(struct i2c_periph *periph)
       if (periph->trans_extract_idx == periph->trans_insert_idx)
       {
         periph->status = I2CIdle;
+        LED2_ON();
+        LED1_ON();
+	LED1_OFF();
+        LED1_ON();
+	LED1_OFF();
+	LED2_OFF();
       }
       // if not, start next transaction
       else

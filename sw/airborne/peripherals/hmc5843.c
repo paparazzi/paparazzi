@@ -19,6 +19,9 @@ void hmc5843_init(void)
 
 static void hmc_send_config(uint8_t _init)
 {
+  hmc5843.i2c_trans.slave_addr = HMC5843_ADDR;
+  hmc5843.i2c_trans.len_w = 0;
+  hmc5843.i2c_trans.len_r = 0;
   switch (_init)
   {
   case 1:
@@ -31,7 +34,7 @@ static void hmc_send_config(uint8_t _init)
     i2c_submit(&i2c2,&hmc5843.i2c_trans);
     break;
   case 2:
-    hmc5843.i2c_trans.type = I2CTransRx;
+    hmc5843.i2c_trans.type = I2CTransTx;
     hmc5843.i2c_trans.buf[0] = HMC5843_REG_CFGB;  // set to gain to 1 Gauss
     hmc5843.i2c_trans.buf[1] = 0x01<<5;
     hmc5843.i2c_trans.len_w = 2;
@@ -49,21 +52,19 @@ static void hmc_send_config(uint8_t _init)
     i2c_submit(&i2c2,&hmc5843.i2c_trans);
   break;
   case 5:
-    hmc5843.i2c_trans.slave_addr = HMC5843_ADDR + 2;
-    hmc5843.i2c_trans.type = I2CTransTx;
+    hmc5843.i2c_trans.type = I2CTransRx;
     hmc5843.i2c_trans.len_r = 2;
     i2c_submit(&i2c2,&hmc5843.i2c_trans);
   break;
   case 6:
-    hmc5843.i2c_trans.slave_addr = HMC5843_ADDR + 2;
     hmc5843.i2c_trans.type = I2CTransRx;
-    hmc5843.i2c_trans.len_r = 2;
+    hmc5843.i2c_trans.len_r = 3;
     i2c_submit(&i2c2,&hmc5843.i2c_trans);
   break;
   case 7:
-    hmc5843.i2c_trans.slave_addr = HMC5843_ADDR;
-    hmc5843.i2c_trans.type = I2CTransRx;
-    hmc5843.i2c_trans.len_r = 2;
+    hmc5843.i2c_trans.slave_addr = HMC5843_ADDR + 2;
+    hmc5843.i2c_trans.type = I2CTransTx;
+    hmc5843.i2c_trans.len_w = 1;
     i2c_submit(&i2c2,&hmc5843.i2c_trans);
   break;
   default: 
