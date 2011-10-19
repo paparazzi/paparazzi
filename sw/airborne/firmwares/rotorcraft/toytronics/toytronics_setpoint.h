@@ -1,5 +1,6 @@
 // toytronics_setpoint.h
-// Greg Horn, Joby Robotics 2011
+// Copyright (C) 2011, Greg Horn, Joby Robotics, LLC.
+// Copyright (C) 2011, Pranay Sinha, the Quadshot Project.
 
 #ifndef __TOYTRONICS_SETPOINT_H__
 #define __TOYTRONICS_SETPOINT_H__

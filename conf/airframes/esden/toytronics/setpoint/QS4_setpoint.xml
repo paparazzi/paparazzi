@@ -1,3 +1,4 @@
+<!-- Copyright (C) 2011, Pranay Sinha, the Quadshot Project -->
 <airframe>
   <section name="SETPOINT" prefix="SETPOINT_">
     <define name="MAX_STICK_ANGLE_DEG"                 value="90.0"/>

@@ -1,6 +1,6 @@
 // toytronics_setpoint.c
-// Greg Horn, Joby Robotics 2011
-
+// Copyright (C) 2011, Greg Horn, Joby Robotics, LLC.
+// Copyright (C) 2011, Pranay Sinha, the Quadshot Project.
 #include <math.h>
 #include <string.h>
 #include <stdio.h>

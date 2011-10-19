@@ -1769,7 +1769,7 @@
   </message>
 
   <message name="BARO_RAW" id="221">
-    <field name="abs"          type="int32"/>
+    <field name="abs"          type="int32" unit="Pa" alt_unit="ft" alt_unit_coef="-0.273289"/>
     <field name="diff"         type="int32"/>
   </message>
 

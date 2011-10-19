@@ -82,7 +82,7 @@ static inline void baro_event(void (*b_abs_handler)(void), void (*b_diff_handler
     if (baro_trans.status == I2CTransSuccess) {
       int32_t tmp = (baro_trans.buf[0]<<16) | (baro_trans.buf[1] << 8) | baro_trans.buf[2];
       tmp = tmp >> (8 - BMP085_OSS);
-      baro.absolute = baro_apply_calibration(tmp);
+      baro.absolute = baro_apply_calibration(tmp)-101325;
       b_abs_handler();
     }
   }
