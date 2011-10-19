@@ -7,9 +7,13 @@
 
 //#include "led.h" 
 
+//#define I2C_DEBUG_LED
+
 /////////// DEBUGGING //////////////
 // TODO: remove this 
 
+
+#ifdef I2C_DEBUG_LED
 static inline void LED1_ON(void)
 {
   GPIO_WriteBit(GPIOB, GPIO_Pin_6 , Bit_SET );
@@ -54,7 +58,7 @@ static inline void LED_ERROR(uint8_t base, uint8_t nr)
   }
   LED2_OFF();
 }
-
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -148,6 +152,7 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
   {
     regs->CR1 &= ~ I2C_CR1_BIT_STOP;
 
+#ifdef I2C_DEBUG_LED
         LED2_ON();
         LED1_ON();
 	LED1_OFF();
@@ -158,9 +163,11 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
         LED1_ON();
 	LED1_OFF();
 	LED2_OFF();
+#endif
   }
   else
   {
+#ifdef I2C_DEBUG_LED
         LED2_ON();
         LED1_ON();
 	LED1_OFF();
@@ -169,6 +176,7 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
         LED1_ON();
 	LED1_OFF();
 	LED2_OFF();
+#endif
   }
 
   // Issue a new start
@@ -181,6 +189,7 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
 }
 
 // TODO: remove debug
+#ifdef I2C_DEBUG_LED
 
 static inline void LED_SHOW_ACTIVE_BITS(uint16_t SR1)
 {
@@ -217,6 +226,7 @@ static inline void LED_SHOW_ACTIVE_BITS(uint16_t SR1)
 
   LED1_OFF();
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -326,11 +336,13 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read1(I2C_TypeDef *regs, st
     __enable_irq();
     // --- end of critical zone -----------
 
+#ifdef I2C_DEBUG_LED
         // Program a stop
         LED2_ON();
         LED1_ON();
 	LED1_OFF();
 	LED2_OFF();
+#endif
 
     // Enable the RXNE to get the result
     regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
@@ -387,10 +399,12 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read2(I2C_TypeDef *regs, st
     // otherwise since there is new buffer space a new byte will be read
     regs->CR1 |= I2C_CR1_BIT_STOP;
         // Program a stop
+#ifdef I2C_DEBUG_LED
         LED2_ON();
         LED1_ON();
 	LED1_OFF();
 	LED2_OFF();
+#endif
 
     trans->buf[0] = regs->DR;
     trans->buf[1] = regs->DR;
@@ -435,7 +449,6 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
     uint16_t SR2 __attribute__ ((unused)) = regs->SR2;
   }
   // one or more bytes are available AND we were interested in Buffer interrupts
-  // TODO: check if RXNE could be set when ITBUFEN is disabled
   else if ( (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_RXNE, SR1) ) && (BIT_X_IS_SET_IN_REG(I2C_CR2_BIT_ITBUFEN, regs->CR2))  )
   {
     // read byte until 3 bytes remain to be read (e.g. len_r = 6, -> idx=3 means idx 3,4,5 = 3 remain to be read
@@ -493,10 +506,12 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
     // Now the last byte is being clocked. Stop in MUST be set BEFORE the transfer of the last byte is complete
     regs->CR1 |= I2C_CR1_BIT_STOP;
         // Program a stop
+#ifdef I2C_DEBUG_LED
         LED2_ON();
         LED1_ON();
 	LED1_OFF();
 	LED2_OFF();
+#endif
 
     __enable_irq();
     // --- end of critical zone -----------
@@ -512,10 +527,12 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
   else
   {
     // Error
+#ifdef I2C_DEBUG_LED
         LED2_ON();
         LED1_ON();
 	LED2_OFF();
 	LED1_OFF();
+#endif
   }
 
   return STMI2C_SubTra_Busy;
@@ -652,16 +669,11 @@ static inline void i2c_event(struct i2c_periph *periph)
   // Do not read SR2 as it might start the reading while an (n)ack bit might be needed first
   I2C_TypeDef *regs = (I2C_TypeDef *) periph->reg_addr;
   
+#ifdef I2C_DEBUG_LED
   LED1_ON();
   LED1_OFF();
+#endif
 
-/*
-  if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_SB, regs->SR1) )
-  {
-    LED2_ON();
-    LED2_OFF();
-  }
-*/
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -678,6 +690,7 @@ static inline void i2c_event(struct i2c_periph *periph)
     periph->errors->unexpected_event_cnt++;
 
     regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;			// Disable TXE, RXNE
+#ifdef I2C_DEBUG_LED
         LED2_ON();
         LED1_ON();
 	LED2_OFF();
@@ -685,6 +698,7 @@ static inline void i2c_event(struct i2c_periph *periph)
 
     // no transaction and also an error?
     LED_SHOW_ACTIVE_BITS(regs->SR1);
+#endif
 
     stmi2c_clear_pending_interrupts(regs);
     i2c_error(periph);
@@ -703,14 +717,12 @@ static inline void i2c_event(struct i2c_periph *periph)
     // Close the Bus
     regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;			// Disable TXE RXNE
 
-
+#ifdef I2C_DEBUG_LED
         LED1_ON();
         LED2_ON();
 	LED1_OFF();
 	LED2_OFF();
-
-    //uint16_t SR2 __attribute__ ((unused)) = regs->SR2;	// Clear ADDR
-    //regs->DR = 0x00;					// Silent BTF, Clear Start, or keep provinding SCL in case of unfinished Read
+#endif
 
     // Prepare for next
     ret = STMI2C_SubTra_Ready;
@@ -762,10 +774,12 @@ static inline void i2c_event(struct i2c_periph *periph)
       if (ret == STMI2C_SubTra_Ready)
       {
         // Program a stop
+#ifdef I2C_DEBUG_LED
         LED2_ON();
         LED1_ON();
 	LED1_OFF();
 	LED2_OFF();
+#endif
         // Man: p722:  Stop generation after the current byte transfer or after the current Start condition is sent.
         regs->CR1 |= I2C_CR1_BIT_STOP;
 
@@ -784,12 +798,14 @@ static inline void i2c_event(struct i2c_periph *periph)
       if (periph->trans_extract_idx == periph->trans_insert_idx)
       {
         periph->status = I2CIdle;
+#ifdef I2C_DEBUG_LED
         LED2_ON();
         LED1_ON();
 	LED1_OFF();
         LED1_ON();
 	LED1_OFF();
 	LED2_OFF();
+#endif
       }
       // if not, start next transaction
       else
@@ -855,7 +871,9 @@ static inline void i2c_error(struct i2c_periph *periph)
     err_nr = 7;
   }
 
+#ifdef I2C_DEBUG_LED
   LED_ERROR(20, err_nr);
+#endif
 
   return;
   
@@ -892,7 +910,9 @@ void i2c1_hw_init(void) {
   ZEROS_ERR_COUNTER(i2c1_errors);
 
   // Extra
+#ifdef I2C_DEBUG_LED
   LED_INIT();
+#endif
 }
 
 void i2c1_ev_irq_handler(void) {
@@ -959,14 +979,13 @@ void i2c2_hw_init(void) {
 
   I2C_Init(I2C2, i2c2.init_struct);
 
-//  I2C_SoftwareResetCmd(I2C2, ENABLE);
-//  I2C_SoftwareResetCmd(I2C2, DISABLE);
-
   // enable error interrupts
   I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);
 
 }
 
+
+// TODO: this was a testing routine
 void i2c2_setbitrate(int bitrate)
 {
   I2C2_InitStruct.I2C_ClockSpeed = bitrate;
@@ -1009,6 +1028,7 @@ bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
   // if (PPRZ_I2C_IS_IDLE(p))
   if (periph->status == I2CIdle)
   {
+	// TODO: re-enable I2C1
 	if (periph == &i2c1)
 	{
 /*
