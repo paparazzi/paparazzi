@@ -45,18 +45,11 @@
 #define AP_MODE_HOVER_CLIMB       10
 #define AP_MODE_HOVER_Z_HOLD      11
 #define AP_MODE_NAV               12
-#define AP_MODE_TOYTRONICS_HOVER         13
-#define AP_MODE_TOYTRONICS_HOVER_FORWARD 14
-#define AP_MODE_TOYTRONICS_FORWARD       15
-#define AP_MODE_TOYTRONICS_AEROBATIC     16
 
 
 extern uint8_t autopilot_mode;
 extern uint8_t autopilot_mode_auto2;
 extern bool_t  autopilot_motors_on;
-extern bool_t  autopilot_rc_unkilled_startup;
-extern bool_t  autopilot_first_boot;
-extern bool_t  autopilot_mode1_kill;
 extern bool_t  autopilot_in_flight;
 extern bool_t kill_throttle;
 extern bool_t autopilot_rc;
