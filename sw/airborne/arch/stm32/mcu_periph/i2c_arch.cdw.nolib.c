@@ -206,48 +206,7 @@ enum STMI2CSubTransactionStatus {
   STMI2C_SubTra_Ready
 };
 
-static inline enum STMI2CSubTransactionStatus stmi2c_send1(I2C_TypeDef *regs, struct i2c_transaction *trans)
-{
-  // Read SR1 but wait reading SR2
-  uint16_t SR1 = regs->SR1;
-
-  // Start Condition Was Just Generated
-  if (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_SB, SR1 ) )
-  {
-    // No "buffer space available interrupt" as there is already space now: fill only 1 while space for 2 
-    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
-    // Send slave address and wait for address interrupt
-    regs->DR = trans->slave_addr;
-  }
-  // Address Was Just Sent
-  else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_ADDR, SR1) )
-  {
-    // Now read SR2 to clear the ADDR
-    volatile uint16_t SR2 __attribute__ ((unused)) = regs->SR2;
-
-    // Send the Byte
-    regs->DR = trans->buf[0];
-
-    // BTF is set as soon as the shift register is empty. 
-    // BTF (ByteTransferFinished) means: I2C is halted: please urgently provide data
-    // BTF is cleared A) when writing data to DR or B) when a start/stop condition OCCURRED (not was requested)
-    // In the case of a RESTART: this fires a lot of unwanted interrupts:
-    // Force silent: Dummy Data to avoid BTF
-    regs->DR = 0x00;
-
-    if (trans->type == I2CTransTx)
-    {
-      // We finished sending all to the I2C eninge ... ( might still be a chance that an error occurs )
-      trans->status = I2CTransSuccess;
-    }
-
-    return STMI2C_SubTra_Ready;
-  }
-
-  return STMI2C_SubTra_Busy;
-}
-
-static inline enum STMI2CSubTransactionStatus stmi2c_sendmany(I2C_TypeDef *regs, struct i2c_periph *periph, struct i2c_transaction *trans)
+static inline enum STMI2CSubTransactionStatus stmi2c_send(I2C_TypeDef *regs, struct i2c_periph *periph, struct i2c_transaction *trans)
 {
   uint16_t SR1 = regs->SR1;
 
@@ -699,14 +658,7 @@ static inline void i2c_event(struct i2c_periph *periph)
     }
     else // TxRx or Tx
     {
-      if (trans->len_w > 1)
-      {
-        ret = stmi2c_sendmany(regs,periph,trans);
-      }    
-      else
-      {
-        ret = stmi2c_send1(regs,trans);
-      }
+      ret = stmi2c_send(regs,periph,trans);
       if (trans->type == I2CTransTxRx)
       {
         restart = 1;
