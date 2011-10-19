@@ -44,10 +44,10 @@ static inline void LED_INIT(void)
 }
 
 
-static inline void LED_ERROR(uint8_t nr)
+static inline void LED_ERROR(uint8_t base, uint8_t nr)
 {
   LED2_ON();
-  for (int i=0;i<(20+nr);i++)
+  for (int i=0;i<(base+nr);i++)
   {
     LED1_ON();
     LED1_OFF();    
@@ -398,12 +398,14 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
   // Address Was Sent
   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_ADDR, SR1) )
   {
+    periph->idx_buf = 0;
+
     // Enable RXNE: receive an interrupt any time a byte is available
     // only enable if MORE than 3 bytes need to be read
     if (periph->idx_buf < (trans->len_r - 3))
+    {
       regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
-
-    periph->idx_buf = 0;
+    }
 
     // ACK is still on to get more DATA
     // Read SR2 to clear the ADDR (next byte will start arriving)
@@ -461,13 +463,6 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
     // First we clear the ACK while the SCL is held low by BTF
     regs->CR1 &= ~ I2C_CR1_BIT_ACK;
 
-        LED2_ON();
-        LED1_ON();
-        LED1_ON();
-	LED1_OFF();
-	LED1_OFF();
-	LED2_OFF();
-
     // Now that ACK is cleared we read one byte: instantly the last byte is being clocked in...
     trans->buf[periph->idx_buf] = regs->DR;
     periph->idx_buf ++;
@@ -490,6 +485,14 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
     // Ask for an interrupt to read the last byte (which is normally still busy now)
     // The last byte will be received with RXNE
     regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
+  }
+  else
+  {
+    // Error
+        LED2_ON();
+        LED1_ON();
+	LED2_OFF();
+	LED1_OFF();
   }
 
   return STMI2C_SubTra_Busy;
@@ -829,7 +832,7 @@ static inline void i2c_error(struct i2c_periph *periph)
     err_nr = 7;
   }
 
-  LED_ERROR(err_nr);
+  LED_ERROR(20, err_nr);
 
   return;
   
