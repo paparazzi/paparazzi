@@ -77,35 +77,10 @@ static I2C_InitTypeDef  I2C2_InitStruct = {
       .I2C_OwnAddress1 = 0x00,
       .I2C_Ack = I2C_Ack_Enable,
       .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
-      .I2C_ClockSpeed = 37000
-//      .I2C_ClockSpeed = 400000
+//      .I2C_ClockSpeed = 37000
+      .I2C_ClockSpeed = 400000
 };
 #endif
-
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
-// (RE)START
-
-static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
-{
-        LED2_ON();
-        LED1_ON();
-	LED1_OFF();
-        LED1_ON();
-	LED1_OFF();
-        LED1_ON();
-	LED1_OFF();
-	LED2_OFF();
-
-  periph->idx_buf = 0;
-  periph->status = I2CStartRequested;
-
-  // Issue a new start
-  I2C_GenerateSTART(periph->reg_addr, ENABLE);
-  I2C_ITConfig(periph->reg_addr, I2C_IT_EVT | I2C_IT_ERR, ENABLE);
-  I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
-}
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -156,6 +131,54 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
 // Bit Control
 
 #define BIT_X_IS_SET_IN_REG(X,REG)	(((REG) & (X)) == (X))
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+// (RE)START
+
+static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
+{
+  I2C_TypeDef *regs = (I2C_TypeDef *) periph->reg_addr;
+
+  periph->idx_buf = 0;
+  periph->status = I2CStartRequested;
+
+  if (BIT_X_IS_SET_IN_REG( I2C_CR1_BIT_STOP, regs->CR1 ) )
+  {
+    regs->CR1 &= ~ I2C_CR1_BIT_STOP;
+
+        LED2_ON();
+        LED1_ON();
+	LED1_OFF();
+        LED1_ON();
+	LED1_OFF();
+        LED1_ON();
+	LED1_OFF();
+        LED1_ON();
+	LED1_OFF();
+	LED2_OFF();
+  }
+  else
+  {
+        LED2_ON();
+        LED1_ON();
+	LED1_OFF();
+        LED1_ON();
+	LED1_OFF();
+        LED1_ON();
+	LED1_OFF();
+	LED2_OFF();
+  }
+
+  // Issue a new start
+  regs->CR1 |=  I2C_CR1_BIT_START;
+  
+  // Enable Error IRQ, Event IRQ but disable Buffer IRQ
+  regs->CR2 |= I2C_CR2_BIT_ITERREN;
+  regs->CR2 |= I2C_CR2_BIT_ITEVTEN;
+  regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+}
 
 // TODO: remove debug
 
@@ -943,6 +966,14 @@ void i2c2_hw_init(void) {
   I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);
 
 }
+
+void i2c2_setbitrate(int bitrate)
+{
+  I2C2_InitStruct.I2C_ClockSpeed = bitrate;
+  I2C_Init(I2C2, i2c2.init_struct);
+}
+
+
 
 void i2c2_ev_irq_handler(void) {
   i2c_event(&i2c2);
