@@ -100,8 +100,7 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
 
   periph->idx_buf = 0;
   periph->status = I2CStartRequested;
-  // Clear any pending stop
-  // I2C_GenerateSTOP(periph->reg_addr, DISABLE);
+
   // Issue a new start
   I2C_GenerateSTART(periph->reg_addr, ENABLE);
   I2C_ITConfig(periph->reg_addr, I2C_IT_EVT | I2C_IT_ERR, ENABLE);
@@ -291,7 +290,8 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read1(I2C_TypeDef *regs, st
     // First Clear the ACK bit: after the next byte we do not want new bytes
     regs->CR1 &= ~ I2C_CR1_BIT_ACK;
 
-    // TODO: --- next to steps MUST be executed together to avoid missing the stop
+    // --- next to steps MUST be executed together to avoid missing the stop
+    __disable_irq();
 
     // Only after setting ACK, read SR2 to clear the ADDR (next byte will start arriving)
     uint16_t SR2 __attribute__ ((unused)) = regs->SR2;
@@ -299,7 +299,8 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read1(I2C_TypeDef *regs, st
     // Schedule a Stop
     regs->CR1 |= I2C_CR1_BIT_STOP;
 
-    // TODO --- end of critical zone -----------
+    __enable_irq();
+    // --- end of critical zone -----------
 
         // Program a stop
         LED2_ON();
@@ -343,7 +344,8 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read2(I2C_TypeDef *regs, st
     // clearing ACK after the byte transfer has already started will NACK the next (2nd)
     uint16_t SR2 __attribute__ ((unused)) = regs->SR2;
       
-    // TODO: --- make absolutely sure this command is not delayed too much after the previous: 
+    // --- make absolutely sure this command is not delayed too much after the previous: 
+    __disable_irq();
     //       if transfer of DR was finished already then we will get too many bytes
     // NOT First Clear the ACK bit but only AFTER clearing ADDR
     regs->CR1 &= ~ I2C_CR1_BIT_ACK;
@@ -351,7 +353,8 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read2(I2C_TypeDef *regs, st
     // Disable the RXNE and wait for BTF
     regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
 
-    // TODO --- end of critical zone -----------
+    __enable_irq();
+    // --- end of critical zone -----------
   }
   // Receive buffer if full, master is halted: BTF
   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_BTF, SR1) )
@@ -394,7 +397,10 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_ADDR, SR1) )
   {
     // Enable RXNE: receive an interrupt any time a byte is available
-    regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
+    // only enable if MORE than 3 bytes need to be read
+    if (periph->idx_buf < (trans->len_r - 3))
+      regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
+
     periph->idx_buf = 0;
 
     // ACK is still on to get more DATA
@@ -405,13 +411,13 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
   // TODO: check if RXNE could be set when ITBUFEN is disabled
   else if ( (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_RXNE, SR1) ) && (BIT_X_IS_SET_IN_REG(I2C_CR2_BIT_ITBUFEN, regs->CR2))  )
   {
-    // read 1 byte until 3 bytes remain to be read (e.g. len_r = 6, -> idx=3 means idx 3,4,5 = 3 remain to be read
+    // read byte until 3 bytes remain to be read (e.g. len_r = 6, -> idx=3 means idx 3,4,5 = 3 remain to be read
     if (periph->idx_buf < (trans->len_r - 3))
     {
       trans->buf[periph->idx_buf] = regs->DR;
       periph->idx_buf ++;
     }
-    // see else for intermetiate steps: 3bytes -> last byte
+    // from : 3bytes -> last byte: do nothing
     //
     // finally: this was the last byte
     else if (periph->idx_buf >= (trans->len_r - 1))
@@ -427,12 +433,15 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
 
       return STMI2C_SubTra_Ready_StopRequested;
     }
-    // 3 bytes left to read
-    else // if (periph->idx_buf >= (trans->len_r - 3))
+
+    // Check for end of transaction: start waiting for BTF instead of RXNE
+    if (periph->idx_buf < (trans->len_r - 3))
+    {
+      regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
+    }
+    else // idx >= len-3: there are 3 bytes to be read
     {
       // We want to halt I2C to have sufficient time to clear ACK, so:
-
-      // Do not read the received bytes just yet
       // Stop listening to RXNE as it will be triggered infinitely since we did not empty the buffer
       // on the next (second in buffer) received byte BTF will be set (buffer full and I2C halted)
       regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
@@ -447,7 +456,8 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
     // First we clear the ACK while the SCL is held low by BTF
     regs->CR1 &= ~ I2C_CR1_BIT_ACK;
 
-    // TODO --- Make absolutely sure the next 2 I2C actions are performed with no delay
+    // --- Make absolutely sure the next 2 I2C actions are performed with no delay
+    __disable_irq();
 
     // Now that ACK is cleared we read one byte: instantly the last byte is being clocked in...
     trans->buf[periph->idx_buf] = regs->DR;
@@ -461,9 +471,10 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
 	LED1_OFF();
 	LED2_OFF();
 
-    // TODO --- end of critical zone -----------
+    __enable_irq();
+    // --- end of critical zone -----------
 
-    // read the second byte we had in the buffer (BTF means 2 bytes available)
+    // read the byte2 we had in the buffer (BTF means 2 bytes available)
     trans->buf[periph->idx_buf] = regs->DR;
     periph->idx_buf ++;
     
@@ -648,6 +659,7 @@ static inline void i2c_event(struct i2c_periph *periph)
     stmi2c_clear_pending_interrupts(regs);
     i2c_error(periph);
 
+    // There are no transactions anymore: so we are not allowed to continue
     return;
   }
 
@@ -693,7 +705,7 @@ static inline void i2c_event(struct i2c_periph *periph)
           ret = stmi2c_read2(regs,trans);
           break;
         default:
-          ret = stmi2c_read2(regs,trans);
+          ret = stmi2c_readmany(regs,periph, trans);
           break;    
       }
     }

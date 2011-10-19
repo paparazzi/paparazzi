@@ -68,10 +68,15 @@ static void hmc_send_config(uint8_t _init)
     hmc5843.i2c_trans.len_w = 1;
     i2c_submit(&i2c2,&hmc5843.i2c_trans);
   break;
+  case 8:
+    hmc5843.i2c_trans.type = I2CTransRx;
+    hmc5843.i2c_trans.len_r = 4;
+    i2c_submit(&i2c2,&hmc5843.i2c_trans);
+  break;
   default: 
     hmc5843.i2c_trans.slave_addr = HMC5843_ADDR;
     hmc5843.i2c_trans.type = I2CTransTxRx;
-    hmc5843.i2c_trans.len_r = 2;
+    hmc5843.i2c_trans.len_r = 4;
     hmc5843.i2c_trans.len_w = 1;
     hmc5843.i2c_trans.buf[0] = HMC5843_REG_DATXM;
     i2c_submit(&i2c2, &hmc5843.i2c_trans);
@@ -105,7 +110,7 @@ void hmc5843_idle_task(void)
       hmc5843.initialized = 1;
     }
 
-    if (hmc5843.initialized == 1)
+//    if (hmc5843.initialized == 1)
     {
       hmc_send_config( hmc5843.initialized ); 	 
     }
