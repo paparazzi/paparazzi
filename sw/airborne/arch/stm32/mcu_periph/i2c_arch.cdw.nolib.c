@@ -288,6 +288,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read1(I2C_TypeDef *regs, st
   else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_ADDR, SR1) )
   {
     // First Clear the ACK bit: after the next byte we do not want new bytes
+    regs->CR1 &= ~ I2C_CR1_BIT_POS;
     regs->CR1 &= ~ I2C_CR1_BIT_ACK;
 
     // --- next to steps MUST be executed together to avoid missing the stop
@@ -389,6 +390,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
   {
     regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
     // The first data byte will be acked in read many so the slave knows it should send more
+    regs->CR1 &= ~ I2C_CR1_BIT_POS;
     regs->CR1 |= I2C_CR1_BIT_ACK;
     // Clear the SB flag
     regs->DR = trans->slave_addr | 0x01;
@@ -453,11 +455,18 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
     // Now the shift register and data register contain data(n-2) and data(n-1)
     // And I2C is halted so we have time
 
+    // --- Make absolutely sure the next 2 I2C actions are performed with no delay
+    __disable_irq();
+
     // First we clear the ACK while the SCL is held low by BTF
     regs->CR1 &= ~ I2C_CR1_BIT_ACK;
 
-    // --- Make absolutely sure the next 2 I2C actions are performed with no delay
-    __disable_irq();
+        LED2_ON();
+        LED1_ON();
+        LED1_ON();
+	LED1_OFF();
+	LED1_OFF();
+	LED2_OFF();
 
     // Now that ACK is cleared we read one byte: instantly the last byte is being clocked in...
     trans->buf[periph->idx_buf] = regs->DR;
@@ -482,11 +491,6 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
     // The last byte will be received with RXNE
     regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
   }
-  else
-  {
-    // TODO: catch
-  }
-
 
   return STMI2C_SubTra_Busy;
 }
