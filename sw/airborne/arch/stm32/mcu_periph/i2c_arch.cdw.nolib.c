@@ -268,41 +268,48 @@ static inline enum STMI2CSubTransactionStatus stmi2c_sendmany(I2C_TypeDef *regs,
     // Maybe check we are transmitting (did not loose arbitration for instance)
     // if (! BIT_X_IS_SET_IN_REG(I2C_SR2_BIT_TRA, SR2)) { }
 
-    // Send First 2 bytes
+    // Send First max 2 bytes
     regs->DR = trans->buf[0];
-    regs->DR = trans->buf[1];
-    periph->idx_buf = 2;
+    if (trans->len_w > 1)
+    {
+      regs->DR = trans->buf[1];
+      periph->idx_buf = 2;
+    }
+    else
+    {
+      periph->idx_buf = 1;
+    }
+
     // Enable buffer-space available interrupt
-    regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
+    // only if there is more to send: wait for TXE, no more to send: wait for BTF
+    if ( periph->idx_buf < trans->len_w)
+      regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
   }
-  // The buffer is not full anymore: (space for at least 1 and probably 1 is still transmitting)
-  else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_TXE, SR1) )
+  // The buffer is not full anymore AND we were not waiting for BTF
+  else if ((BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_TXE, SR1) ) && (BIT_X_IS_SET_IN_REG(I2C_CR2_BIT_ITBUFEN, regs->CR2))  )
   {
-    // All bytes Sent?
+    // Send the next byte
+    regs->DR = trans->buf[periph->idx_buf];
+    periph->idx_buf++;
+
+    // All bytes Sent? Then wait for BTF instead
     if ( periph->idx_buf >= trans->len_w)
     {
       // Not interested anymore to know the buffer has space left
       regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
-
+      // Next interrupt will be BTF (or error)
+    }
+  }
+  // BTF: means last byte was sent
+  else if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_BTF, SR1) )
+  {
       if (trans->type == I2CTransTx)
       {
-        // We finished sending all to the I2C eninge ... ( might still be a chance that an error occurs )
+        // Tell the driver we are ready
         trans->status = I2CTransSuccess;
-      }
-      //else
-      {
-        // Also provide some dummy data in DR to silent the BTF interrupt
-        regs->DR = 0x00;
       }
 
       return STMI2C_SubTra_Ready;
-    }
-    else
-    {
-      // Send the next byte
-      regs->DR = trans->buf[periph->idx_buf];
-      periph->idx_buf++;
-    }
   }
 
   return STMI2C_SubTra_Busy;
