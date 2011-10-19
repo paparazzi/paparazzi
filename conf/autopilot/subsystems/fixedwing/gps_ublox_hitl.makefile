@@ -1,3 +1,5 @@
+# Hey Emacs, this is a -*- makefile -*-
+
 # UBlox Hardware In The Loop
 
 

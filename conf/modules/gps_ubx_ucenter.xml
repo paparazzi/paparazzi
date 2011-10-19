@@ -1,0 +1,29 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<!--
+
+	Automatically configure any Ublox GPS for paparazzi
+
+	-configures all the messages, and the rates
+	-automatic baudrate detection
+
+	Warning: you still need to tell the driver 
+	a) which paparazzi uart you use
+	b) inside the ublox gps there are also many ports. the tiny/ppzgps use ublox_internal_port1 but if for instance you use a LS-SAM or I2C device you need to configure:
+
+	<define name="GPS_PORT_ID" value="GPS_PORT_UART2" />
+
+-->
+
+<module name="gps_ubx" dir="gps">
+  <header>
+    <file name="gps_ubx_ucenter.h"/>
+  </header>
+  <init fun="gps_ubx_ucenter_init()"/>
+  <periodic fun="gps_ubx_ucenter_periodic()" start="gps_ubx_ucenter_init()" freq="4." autorun="TRUE"/>
+  <makefile target="ap">
+    <define name="GPS_UBX_UCENTER" value="\\\"modules/gps/gps_ubx_ucenter.c\\\"" />
+  </makefile>
+</module>
+
+

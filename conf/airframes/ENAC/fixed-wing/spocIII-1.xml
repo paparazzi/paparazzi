@@ -24,7 +24,6 @@
       <define name="USE_I2C0"/>
     </target>
 
-    <subsystem name="i2c"/>
 
     <subsystem name="radio_control" type="datalink"/>
 

@@ -1,9 +1,11 @@
 <airframe name="BOOZ2_G1">
 
   <modules main_freq="512">
-    <!--load name="booz_pwm.xml"/-->
-    <!--load name="booz_drop.xml"/-->
-    <!--load name="booz_cam.xml"/-->
+    <load name="booz_pwm.xml">
+      <define name="USE_PWM1"/>
+    </load>
+    <load name="booz_drop.xml"/>
+    <load name="booz_cam.xml"/>
     <!--load name="sonar_maxbotix_booz.xml">
       <configure name="ADC_SONAR" value="ADC_0"/>
     </load-->
@@ -35,7 +37,7 @@
       <configure name="GPS_BAUD"    value="B57600"/>
     </subsystem>
     <subsystem name="stabilization"   type="euler"/>
-    <subsystem name="ahrs"          type="cmpl"/>
+    <subsystem name="ahrs"          type="int_cmpl_euler"/>
     <subsystem name="ins"           type="hff"/>
   </firmware>
 
@@ -161,67 +163,77 @@
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
-   <define name="MIN_ERR_Z"    value="POS_BFP_OF_REAL(-10.)"/>
-   <define name="MAX_ERR_Z"    value="POS_BFP_OF_REAL( 10.)"/>
-   <define name="MIN_ERR_ZD"   value="SPEED_BFP_OF_REAL(-10.)"/>
-   <define name="MAX_ERR_ZD"   value="SPEED_BFP_OF_REAL( 10.)"/>
-   <define name="MAX_SUM_ERR"  value="2000000"/>
-   <define name="REF_MIN_ZDD"  value="-1.5*9.81"/>
-   <define name="REF_MAX_ZDD"  value=" 0.5*9.81"/>
-   <define name="REF_MIN_ZD"   value="-1.5"/>
-   <define name="REF_MAX_ZD"   value=" 1.5"/>
-   <define name="HOVER_KP"     value="-150"/>
-   <define name="HOVER_KD"     value="-80"/>
-   <define name="HOVER_KI"     value="0"/>
-   <!-- 1.5m/s for full stick : SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
-   <define name="RC_CLIMB_COEF" value ="163"/>
-   <!-- SPEED_BFP_OF_REAL(1.5) * 20% -->
-   <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
-   <!-- <define name="INV_M" value="0.118"/> -->
+    <define name="MIN_ERR_Z"    value="POS_BFP_OF_REAL(-10.)"/>
+    <define name="MAX_ERR_Z"    value="POS_BFP_OF_REAL( 10.)"/>
+    <define name="MIN_ERR_ZD"   value="SPEED_BFP_OF_REAL(-10.)"/>
+    <define name="MAX_ERR_ZD"   value="SPEED_BFP_OF_REAL( 10.)"/>
+    <define name="MAX_SUM_ERR"  value="2000000"/>
+    <define name="REF_MIN_ZDD"  value="-1.5*9.81"/>
+    <define name="REF_MAX_ZDD"  value=" 0.5*9.81"/>
+    <define name="REF_MIN_ZD"   value="-1.5"/>
+    <define name="REF_MAX_ZD"   value=" 1.5"/>
+    <define name="HOVER_KP"     value="-150"/>
+    <define name="HOVER_KD"     value="-80"/>
+    <define name="HOVER_KI"     value="0"/>
+    <!-- 1.5m/s for full stick : SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
+    <define name="RC_CLIMB_COEF" value ="163"/>
+    <!-- SPEED_BFP_OF_REAL(1.5) * 20% -->
+    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
+    <!-- <define name="INV_M" value="0.118"/> -->
   </section>
 
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="PGAIN" value="-50"/>
-   <define name="DGAIN" value="-100"/>
-   <define name="IGAIN" value="-15"/>
-   <define name="NGAIN" value="-0"/>
-   <!-- feedforward -->
-   <define name="AGAIN" value="100"/>
- </section>
+    <define name="PGAIN" value="-50"/>
+    <define name="DGAIN" value="-100"/>
+    <define name="IGAIN" value="-15"/>
+    <define name="NGAIN" value="-0"/>
+    <!-- feedforward -->
+    <define name="AGAIN" value="100"/>
+  </section>
 
- <section name="BAT">
-   <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
-   <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-   <define name="BATTERY_SENS"   value="0.183" integer="16"/>
- </section>
+  <section name="BAT">
+    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="BATTERY_SENS"   value="0.183" integer="16"/>
+  </section>
 
- <section name="AUTOPILOT">
-   <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
-   <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
- </section>
+  <section name="AUTOPILOT">
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
+  </section>
 
- <section name="FMS">
-   <define name="BOOZ_FMS_TIMEOUT" value="0"/>
- </section>
+  <section name="FMS">
+    <define name="BOOZ_FMS_TIMEOUT" value="0"/>
+  </section>
 
- <section name="CAM" prefix="BOOZ_CAM_">
+  <section name="CAM" prefix="BOOZ_CAM_">
+    <define name="ON" value="LED_ON(CAM_SWITCH_LED)"/>
+    <define name="OFF" value="LED_OFF(CAM_SWITCH_LED)"/>
     <define name="TILT_NEUTRAL" value="1500"/>
-    <define name="TILT_MIN" value="1000"/>
-    <define name="TILT_MAX" value="2000"/>
-    <define name="TILT_ANGLE_MIN" value="RadOfDeg(-85.)" unit="rad"/>
-    <define name="TILT_ANGLE_MAX" value="RadOfDeg( 30.)" unit="rad"/>
+    <define name="TILT_MAX" value="1000"/>
+    <define name="TILT_MIN" value="2300"/>
+    <define name="TILT_ANGLE_MIN" value="RadOfDeg(-90.)" unit="rad"/>
+    <define name="TILT_ANGLE_MAX" value="RadOfDeg( 10.)" unit="rad"/>
     <define name="PAN_NEUTRAL" value="0"/>
     <define name="PAN_MIN" value="0"/>
     <define name="PAN_MAX" value="25736"/> <!-- 360 deg (2^12) -->
- </section>
+    <define name="SetPwm(_v)" value="BoozSetPwm1Value(_v)"/>
+  </section>
 
- <section name="MISC">
-   <define name="BOOZ_ANALOG_BARO_THRESHOLD" value="800"/>
-   <define name="FACE_REINJ_1"  value="1024"/>
-   <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
- </section>
+  <section name="DROP">
+    <define name="DROP_SERVO_CLOSED" value="2120"/>
+    <define name="DROP_SERVO_OPEN" value="1060"/>
+    <!--define name="BoozDropPwm(_v)" value="BoozSetPwm0Value(_v)"/-->
+  </section>
+
+  <section name="MISC">
+    <define name="BOOZ_ANALOG_BARO_THRESHOLD" value="800"/>
+    <define name="FACE_REINJ_1"  value="1024"/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
+    <!--define name="IMU_MAG_OFFSET" value="-5.8"/-->
+  </section>
 
   <section name="GCS">
     <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>
@@ -229,10 +241,10 @@
     <define name="ALT_SHIFT_MINUS" value="-1"/>
   </section>
 
- <section name="SIMULATOR" prefix="NPS_">
-   <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-   <!--define name="INITIAL_CONDITITONS" value="&quot;reset_enac&quot;"/-->
-   <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
- </section>
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
+    <!--define name="INITIAL_CONDITITONS" value="&quot;reset_enac&quot;"/-->
+    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
+  </section>
 
 </airframe>

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -27,8 +25,6 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
-// FIXME : this should no be needed here
-//#include "subsystems/ahrs/ahrs_aligner.h"
 
 #define AHRS_UNINIT  0
 #define AHRS_RUNNING 1
@@ -68,7 +64,8 @@ struct AhrsFloat {
   struct FloatRates  body_rate;
   struct FloatRates  body_rate_d;
 
-  uint8_t status;
+  // always use status from fixed point ahrs struct for now
+  //uint8_t status;
 };
 
 extern struct Ahrs ahrs;

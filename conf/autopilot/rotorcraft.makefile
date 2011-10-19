@@ -1,7 +1,5 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# $Id$
-#
 # Copyright (C) 2010 The Paparazzi Team
 #
 # This file is part of Paparazzi.

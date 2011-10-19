@@ -20,6 +20,7 @@
     </load>
     <!--load name="enose.xml"/-->
     <load name="light.xml"/>
+    <load name="infrared_adc.xml"/>
   </modules>
 
   <firmware name="fixedwing">
@@ -33,10 +34,9 @@
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="xbee_api"/>
     <subsystem name="control"       type="new"/>
-    <subsystem name="attitude"      type="infrared"/>
+    <subsystem name="ahrs"      type="infrared"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="navigation"/>
-    <subsystem name="i2c"/>
   </firmware>
 
   <firmware name="setup">

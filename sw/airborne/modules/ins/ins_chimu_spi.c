@@ -27,6 +27,9 @@ C code to connect a CHIMU using uart
 #include "ins_module.h"
 #include "imu_chimu.h"
 
+#include "subsystems/gps.h"
+
+
 CHIMU_PARSER_DATA CHIMU_DATA;
 
 INS_FORMAT ins_roll_neutral;
@@ -101,7 +104,17 @@ void parse_ins_msg( void )
 void ins_periodic_task( void )
 {
   // Send SW Centripetal Corrections
-  uint8_t centripedal[19] = {0xae, 0xae, 0x0d, 0xaa, 0x0b, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc2 };
+  uint8_t centripedal[19] = {0xae, 0xae, 0x0d, 0xaa, 0x0b, 0x02,   0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00,   0xc2 };
+
+  float gps_speed = 0;
+
+  if (gps.fix == GPS_FIX_3D) 
+  {
+    gps_speed = gps.speed_3d/100.; 
+  }
+  gps_speed = FloatSwap(gps_speed);
+
+  memmove (&centripedal[6], &gps_speed, 4);
 
   // Fill X-speed
 

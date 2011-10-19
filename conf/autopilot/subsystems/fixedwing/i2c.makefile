@@ -1,3 +1,2 @@
 #generic i2c driver
-$(TARGET).srcs += mcu_periph/i2c.c
-$(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
+$(warning The i2c subsystem does not have to be specified explicitly anymore, it is always included now. Please remove the line <subsystem name="i2c"/> from the firmware section of your airframe file!)

@@ -18,6 +18,7 @@
     <target name="ap" board="booz_1.0">
       <define name="FAILSAFE_GROUND_DETECT"/>
       <define name="USE_GPS_ACC4R"/>
+      <define name="BOOZ_START_DELAY" value="3"/>
     </target>
     <target name="sim" board="pc">
       <subsystem name="fdm"         type="nps"/>
@@ -27,10 +28,15 @@
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="actuators"     type="asctec"/>
+    <!--subsystem name="actuators"     type="mkk"/-->
     <subsystem name="imu"           type="b2_v1.1"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization"   type="euler"/>
-    <subsystem name="ahrs"          type="cmpl"/>
+    <subsystem name="gps"           type="ublox">
+      <configure name="GPS_BAUD"    value="B57600"/>
+    </subsystem>
+    <subsystem name="stabilization" type="euler"/>
+    <subsystem name="ahrs"          type="int_cmpl_euler">
+      <define name="USE_NOISE_FILTER"/>
+    </subsystem>
     <subsystem name="ins"           type="hff"/>
   </firmware>
 
@@ -47,6 +53,12 @@
     <servo name="YAW"    no="2"    min="0" neutral="0" max="255"/>
     <servo name="THRUST" no="3"    min="0" neutral="0" max="255"/>
   </servos>
+  <!--servos min="0" neutral="0" max="0xff">
+    <servo name="FRONT" no="0" min="0" neutral="0" max="255"/>
+    <servo name="BACK"  no="1" min="0" neutral="0" max="255"/>
+    <servo name="RIGHT" no="2" min="0" neutral="0" max="255"/>
+    <servo name="LEFT"  no="3" min="0" neutral="0" max="255"/>
+  </servos-->
 
   <commands>
     <axis name="PITCH"  failsafe_value="0"/>
@@ -54,6 +66,31 @@
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
+
+  <!--section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
+    <define name="NB" value="4"/>
+    <define name="ADDR" value="{ 0x52, 0x56, 0x54, 0x58 }"/>
+  </section-->
+
+  <section name="SUPERVISION" prefix="SUPERVISION_">
+    <define name="TRIM_A"  value="0"/>
+    <define name="TRIM_E"  value="0"/>
+    <define name="TRIM_R"  value="0"/>
+  </section>
+  <!--section name="SUPERVISION" prefix="SUPERVISION_">
+    <define name="MIN_MOTOR" value="25"/>
+    <define name="MAX_MOTOR" value="243"/>
+    <define name="TRIM_A" value="0"/>
+    <define name="TRIM_E" value="0"/>
+    <define name="TRIM_R" value="0"/>
+    <define name="NB_MOTOR" value="4"/>
+    <define name="SCALE" value="256"/>
+    <define name="ROLL_COEF"  value="{    0,    0, -256,  256}"/>
+    <define name="PITCH_COEF" value="{  256, -256,    0,    0}"/>
+    <define name="YAW_COEF"   value="{ -256, -256,  256,  256}"/>
+    <define name="THRUST_COEF" value="{ 256,  256,  256,  256}"/>
+  </section-->
+
 
   <section name="IMU" prefix="IMU_">
 
@@ -93,9 +130,10 @@
     <define name="MAG_Y_SENS" value="5.43740121157" integer="16"/>
     <define name="MAG_Z_SENS" value="2.60492836649" integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(-1.5)"/>
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(-1.5)"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(-45)"/> <!-- -13 -->
+    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(0.)"/>
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(0.)"/>
+    <!--define name="BODY_TO_IMU_PSI"   value="RadOfDeg(45.)"/-->
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(0.)"/>
 
   </section>
 
@@ -136,30 +174,23 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="-1500"/>
-    <define name="PHI_DGAIN"  value="-350"/>
-    <define name="PHI_IGAIN"  value="-50"/>
+    <define name="PHI_PGAIN"  value="-400"/>
+    <define name="PHI_DGAIN"  value="-160"/>
+    <define name="PHI_IGAIN"  value="-40"/>
 
-    <define name="THETA_PGAIN"  value="-1500"/>
-    <define name="THETA_DGAIN"  value="-350"/>
-    <define name="THETA_IGAIN"  value="-50"/>
+    <define name="THETA_PGAIN"  value="-400"/>
+    <define name="THETA_DGAIN"  value="-160"/>
+    <define name="THETA_IGAIN"  value="-40"/>
 
     <define name="PSI_PGAIN"  value="-1000"/>
     <define name="PSI_DGAIN"  value="-350"/>
     <define name="PSI_IGAIN"  value="-10"/>
 
     <!-- feedforward -->
-    <define name="PHI_DDGAIN"   value=" 350"/>
-    <define name="THETA_DDGAIN" value=" 350"/>
+    <define name="PHI_DDGAIN"   value=" 300"/>
+    <define name="THETA_DDGAIN" value=" 300"/>
     <define name="PSI_DDGAIN"   value=" 300"/>
 
-  </section>
-
-  <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="TRIM_A"  value="0"/>
-    <define name="TRIM_E"  value="0"/>
-    <define name="TRIM_R"  value="0"/>
-    <define name="HACK_45" value="1"/>
   </section>
 
   <section name="INS" prefix="INS_">
@@ -178,8 +209,8 @@
    <define name="REF_MAX_ZDD"  value=" 0.8*9.81"/>
    <define name="REF_MIN_ZD"   value="-1.5"/>
    <define name="REF_MAX_ZD"   value=" 1.5"/>
-   <define name="HOVER_KP"     value="-500"/>
-   <define name="HOVER_KD"     value="-250"/>
+   <define name="HOVER_KP"     value="-400"/>
+   <define name="HOVER_KD"     value="-200"/>
    <define name="HOVER_KI"     value="0"/>
    <!-- SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
@@ -199,7 +230,7 @@
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-   <define name="BATTERY_SENS"   value="0.25" integer="16"/>
+   <define name="VoltageOfAdc(adc)" value="(0.025*adc)"/>
  </section>
 
  <section name="AUTOPILOT">
@@ -222,7 +253,7 @@
     <define name="PAN_MIN" value="0"/>
     <define name="PAN_MAX" value="25736"/> <!-- 360 deg (2^12) -->
     <define name="DEFAULT_MODE" value="BOOZ_CAM_MODE_MANUAL"/>
-    <!--define name="SetPwm(_v)" value="Booz2SetPwm1Value(_v)"/-->
+    <define name="SetPwm(_v)" value="Booz2SetPwm1Value(_v)"/>
  </section>
 
 
@@ -230,7 +261,7 @@
    <define name="BOOZ_ANALOG_BARO_THRESHOLD" value="800"/>
    <define name="FACE_REINJ_1"  value="1024"/>
    <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
-   <define name="BoozDropPwm(_v)" value="BoozSetPwm1Value(_v)"/>
+   <define name="BoozDropPwm(_v)" value="BoozSetPwm0Value(_v)"/>
    <define name="IMU_MAG_OFFSET" value="-9."/>
  </section>
 

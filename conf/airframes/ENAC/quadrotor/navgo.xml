@@ -12,6 +12,7 @@
     <define name="USE_INS_NAV_INIT"/>
     <define name="USE_ADAPT_HOVER"/>
     <define name="NO_FUCKING_STARTUP_DELAY"/>
+    <define name="USE_ATTITUDE_REF" value="0"/>
     <!--define name="GUIDANCE_H_USE_REF"/-->
 
     <target name="ap" board="navgo_1.0">
@@ -31,7 +32,9 @@
     <subsystem name="imu"           type="navgo"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="euler"/>
-    <subsystem name="ahrs"          type="cmpl"/>
+    <subsystem name="ahrs"          type="int_cmpl_euler">
+      <define name="LOW_NOISE_THRESHOLD" value="50000"/>
+    </subsystem>
     <subsystem name="ins"           type="hff"/>
   </firmware>
 
@@ -57,7 +60,7 @@
   <section name="SUPERVISION" prefix="SUPERVISION_">
     <define name="MIN_MOTOR" value="20"/>
     <define name="MAX_MOTOR" value="255"/>
-    <define name="TRIM_A" value="0"/>
+    <define name="TRIM_A" value="6"/>
     <define name="TRIM_E" value="0"/>
     <define name="TRIM_R" value="0"/>
     <define name="NB_MOTOR" value="4"/>
@@ -70,18 +73,52 @@
 
   <section name="IMU" prefix="IMU_">
 
-    <define name="GYRO_P_NEUTRAL" value="5"/>
-    <define name="GYRO_Q_NEUTRAL" value="-10"/>
-    <define name="GYRO_R_NEUTRAL" value="17"/>
+    <define name="GYRO_P_NEUTRAL" value="-126"/>
+    <define name="GYRO_Q_NEUTRAL" value="-29"/>
+    <define name="GYRO_R_NEUTRAL" value="-32"/>
 
     <!-- SENS ITG3200  1/14.375 (deg/s)/LSB, rate frac 12bit => 1/14.375 * pi / 180 * 2^12 -->
     <define name="GYRO_P_SENS" value="4.97312" integer="16"/>
     <define name="GYRO_Q_SENS" value="4.97312" integer="16"/>
     <define name="GYRO_R_SENS" value="4.97312" integer="16"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="-5"/>
+    <define name="ACCEL_X_NEUTRAL" value="4"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-17"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-22"/>
+
+    <!-- SENS ADXL345 16G 31.2 mg/LSB, accel frac 10bit => 31.2 * 2^10 / 1000 = 31.9488-->
+    <define name="ACCEL_X_SENS" value="38.2816633245" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="38.7857058923" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="39.7459254023" integer="16"/>
+
+    <define name="MAG_X_NEUTRAL" value="85"/>
+    <define name="MAG_Y_NEUTRAL" value="97"/>
+    <define name="MAG_Z_NEUTRAL" value="-43"/>
+
+    <define name="MAG_X_SENS" value="5.43371021972" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.8961742578" integer="16"/>
+    <define name="MAG_Z_SENS" value="5.31527656902" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(0.)"/> <!-- -10 -->
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(0.)"/> <!-- -10 -->
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(0.)"/>
+
+  </section>
+
+  <section name="IMU_PROTO" prefix="IMU_PROTO_">
+
+    <define name="GYRO_P_NEUTRAL" value="-24"/>
+    <define name="GYRO_Q_NEUTRAL" value="-8"/>
+    <define name="GYRO_R_NEUTRAL" value="21"/>
+
+    <!-- SENS ITG3200  1/14.375 (deg/s)/LSB, rate frac 12bit => 1/14.375 * pi / 180 * 2^12 -->
+    <define name="GYRO_P_SENS" value="4.97312" integer="16"/>
+    <define name="GYRO_Q_SENS" value="4.97312" integer="16"/>
+    <define name="GYRO_R_SENS" value="4.97312" integer="16"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="-9"/>
     <define name="ACCEL_Y_NEUTRAL" value="0"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-20"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-29"/>
 
     <!-- SENS ADXL345 16G 31.2 mg/LSB, accel frac 10bit => 31.2 * 2^10 / 1000 = 31.9488-->
     <define name="ACCEL_X_SENS" value="38.2683" integer="16"/>
@@ -153,22 +190,22 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="-700"/>
-    <define name="PHI_DGAIN"  value="-200"/>
-    <define name="PHI_IGAIN"  value="-50"/>
+    <define name="PHI_PGAIN"  value="-350"/>
+    <define name="PHI_DGAIN"  value="-190"/>
+    <define name="PHI_IGAIN"  value="-100"/>
 
-    <define name="THETA_PGAIN"  value="-700"/>
-    <define name="THETA_DGAIN"  value="-200"/>
-    <define name="THETA_IGAIN"  value="-50"/>
+    <define name="THETA_PGAIN"  value="-350"/>
+    <define name="THETA_DGAIN"  value="-190"/>
+    <define name="THETA_IGAIN"  value="-100"/>
 
     <define name="PSI_PGAIN"  value="-700"/>
     <define name="PSI_DGAIN"  value="-250"/>
     <define name="PSI_IGAIN"  value="-20"/>
 
     <!-- feedforward -->
-    <define name="PHI_DDGAIN"   value=" 300"/>
-    <define name="THETA_DDGAIN" value=" 300"/>
-    <define name="PSI_DDGAIN"   value=" 300"/>
+    <define name="PHI_DDGAIN"   value=" 70"/>
+    <define name="THETA_DDGAIN" value=" 70"/>
+    <define name="PSI_DDGAIN"   value=" 70"/>
 
   </section>
 

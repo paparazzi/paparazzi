@@ -95,10 +95,7 @@ void infrared_adc_update(void) {
 #ifdef ADC_CHANNEL_IR_TOP
   ir_adc.ir3 = (int32_t)(buf_ir3.sum/buf_ir3.av_nb_sample) - IR_ADC_TOP_NEUTRAL;
 #endif // IR_TOP
-#ifndef IR_ADC_READ_ONLY
   UpdateIRValue(ir_adc);
-#endif
 #endif /* !SITL && !HITL */
-/** #else ir_roll set by simulator in sim_ir.c */
 }
 

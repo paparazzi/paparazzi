@@ -69,11 +69,13 @@ void stabilization_attitude_ref_init(void) {
 #define OMEGA_2_R_RES 7
 #define OMEGA_2_R    BFP_OF_REAL((OMEGA_R*OMEGA_R), OMEGA_2_R_RES)
 
-#define USE_REF 1
+#ifndef USE_ATTITUDE_REF
+#define USE_ATTITUDE_REF 1
+#endif
 
 void stabilization_attitude_ref_update() {
 
-#ifdef USE_REF
+#if USE_ATTITUDE_REF
 
     /* dumb integrate reference attitude        */
     const struct Int32Eulers d_angle = {
@@ -120,10 +122,10 @@ void stabilization_attitude_ref_update() {
     /* saturate speed and trim accel accordingly */
     SATURATE_SPEED_TRIM_ACCEL();
 
-#else  /* !USE_REF  */
-    EULERS_COPY(stab_att_ref_euler, stabilization_att_sp);
+#else  /* !USE_ATTITUDE_REF  */
+    EULERS_COPY(stab_att_ref_euler, stab_att_sp_euler);
     INT_RATES_ZERO(stab_att_ref_rate);
     INT_RATES_ZERO(stab_att_ref_accel);
-#endif /* USE_REF   */
+#endif /* USE_ATTITUDE_REF   */
 
 }

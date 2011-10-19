@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
@@ -83,13 +81,16 @@ void ahrs_init(void) {
 
   ahrs.status = AHRS_UNINIT;
 
-  // FIXME: make ltp_to_imu and ltp_to_body coherent
+  /* set ltp_to_body to zero */
   INT_EULERS_ZERO(ahrs.ltp_to_body_euler);
-  INT_EULERS_ZERO(ahrs.ltp_to_imu_euler);
   INT32_QUAT_ZERO(ahrs.ltp_to_body_quat);
-  INT32_QUAT_ZERO(ahrs.ltp_to_imu_quat);
   INT32_RMAT_ZERO(ahrs.ltp_to_body_rmat);
   INT_RATES_ZERO(ahrs.body_rate);
+
+  /* set ltp_to_imu so that body is zero */
+  QUAT_COPY(ahrs.ltp_to_imu_quat, imu.body_to_imu_quat);
+  RMAT_COPY(ahrs.ltp_to_imu_rmat, imu.body_to_imu_rmat);
+  INT32_EULERS_OF_RMAT(ahrs.ltp_to_imu_euler, ahrs.ltp_to_imu_rmat);
   INT_RATES_ZERO(ahrs.imu_rate);
 
   INT_RATES_ZERO(ahrs_impl.gyro_bias);
@@ -99,7 +100,6 @@ void ahrs_init(void) {
 }
 
 void ahrs_align(void) {
-
 
   /* Compute an initial orientation using euler angles */
   ahrs_int_get_euler_from_accel_mag(&ahrs.ltp_to_imu_euler, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
@@ -345,7 +345,7 @@ void ahrs_update_fw_estimator(void)
   estimator_psi   = att.psi;
 
   struct FloatRates rates;
-  RATES_FLOAT_OF_BFP(rates, ahrs_float.body_rate);
+  RATES_FLOAT_OF_BFP(rates, ahrs.body_rate);
   estimator_p = rates.p;
   estimator_q = rates.q;
 

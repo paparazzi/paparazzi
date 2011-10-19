@@ -1,3 +1,4 @@
+# Hey Emacs, this is a -*- makefile -*-
 
 ap.srcs += $(SRC_SUBSYSTEMS)/gps.c
 ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"

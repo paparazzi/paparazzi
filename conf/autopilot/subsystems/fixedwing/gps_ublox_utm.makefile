@@ -1,3 +1,4 @@
+# Hey Emacs, this is a -*- makefile -*-
 # UBlox LEA 4P
 
 

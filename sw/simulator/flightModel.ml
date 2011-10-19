@@ -69,6 +69,7 @@ module type SIG =
 let get_xyz state = (state.x, state.y, state.z)
 let get_time state = state.t
 let get_attitude state = (state.phi, state.theta, state.psi)
+let get_pq state = (state.phi_dot, state.theta_dot)
 
 let get_air_speed state = state.air_speed
 let set_air_speed state = fun s -> state.air_speed <- s

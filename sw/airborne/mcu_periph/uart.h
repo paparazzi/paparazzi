@@ -92,7 +92,7 @@ extern void uart0_init(void);
 #define UART0ChAvailable    Uart0ChAvailable
 #define UART0Getch          Uart0Getch
 #define UART0TxRunning      Uart0TxRunning
-#define UART0InitParam      Uart0InitParam
+#define UART0SetBaudrate    Uart0SetBaudrate
 
 #endif // USE_UART0
 
@@ -117,7 +117,7 @@ extern void uart1_init(void);
 #define UART1ChAvailable    Uart1ChAvailable
 #define UART1Getch          Uart1Getch
 #define UART1TxRunning      Uart1TxRunning
-#define UART1InitParam      Uart1InitParam
+#define UART1SetBaudrate    Uart1SetBaudrate
 
 #endif // USE_UART1
 
@@ -142,7 +142,7 @@ extern void uart2_init(void);
 #define UART2ChAvailable    Uart2ChAvailable
 #define UART2Getch          Uart2Getch
 #define UART2TxRunning      Uart2TxRunning
-#define UART2InitParam      Uart2InitParam
+#define UART2SetBaudrate    Uart2SetBaudrate
 
 #endif // USE_UART2
 
@@ -167,7 +167,7 @@ extern void uart3_init(void);
 #define UART3ChAvailable    Uart3ChAvailable
 #define UART3Getch          Uart3Getch
 #define UART3TxRunning      Uart3TxRunning
-#define UART3InitParam      Uart3InitParam
+#define UART3SetBaudrate    Uart3SetBaudrate
 
 #endif // USE_UART3
 
@@ -192,7 +192,7 @@ extern void uart5_init(void);
 #define UART5ChAvailable    Uart5ChAvailable
 #define UART5Getch          Uart5Getch
 #define UART5TxRunning      Uart5TxRunning
-#define UART5InitParam      Uart5InitParam
+#define UART5SetBaudrate    Uart5SetBaudrate
 
 #endif // USE_UART5
 

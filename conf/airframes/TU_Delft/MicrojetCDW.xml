@@ -214,7 +214,7 @@
 
     <!-- Sensors -->
     <subsystem name="imu" type="booz"/>
-    <subsystem name="ahrs" type="dcm"/>
+    <subsystem name="ahrs" type="float_dcm"/>
     <subsystem name="gps" type="ublox_utm"/>
     <subsystem name="navigation"/>
 

@@ -13,7 +13,7 @@
     <subsystem name="control"/>
 
     <!-- Attitude Estimation -->
-    <subsystem name="ahrs" 		type="dcm"/>
+    <subsystem name="ahrs" 		type="float_dcm"/>
 
     <!-- Sensors -->
     <subsystem name="imu" type="hb"/>

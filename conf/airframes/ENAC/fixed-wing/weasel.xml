@@ -13,6 +13,8 @@
   </modules>
 
   <firmware name="fixedwing">
+    <define name="USE_I2C0"/>
+    <define name="USE_I2C1"/>
     <!--define name="AGR_CLIMB"/-->
     <define name="ALT_KALMAN"/>
     <define name="USE_AIRSPEED"/>
@@ -25,21 +27,19 @@
     </target>
 
     <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="i2c">
-      <define name="USE_I2C0"/>
-      <define name="USE_I2C1"/>
-    </subsystem>
 
     <!-- Communication -->
     <subsystem name="telemetry" type="xbee_api"/>
 
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="imu"     type="umarim"/>
-    <subsystem name="ahrs"    type="dcm"/>
+    <subsystem name="ahrs"    type="float_dcm">
+      <define name="USE_HIGH_ACCEL_FLAG"/>
+    </subsystem>
     <subsystem name="control" type="new"/>
     <subsystem name="navigation"/>
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox_lea5h"/>
+    <subsystem name="gps" type="ublox"/>
   </firmware>
 
 

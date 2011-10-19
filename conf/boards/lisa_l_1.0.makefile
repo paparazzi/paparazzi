@@ -1,3 +1,4 @@
+# Hey Emacs, this is a -*- makefile -*-
 #
 # lisa_l_1.0.makefile
 #

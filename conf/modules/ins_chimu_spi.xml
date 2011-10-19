@@ -6,7 +6,7 @@
     <file name="ins_module.h"/>
   </header>
   <init fun="ins_init()"/>
-  <periodic fun="ins_periodic_task()" freq="60"/>
+  <periodic fun="ins_periodic_task()" freq="8"/>
   <event fun="parse_ins_msg()"/>
   <makefile>
     <define name="AHRS_TYPE_H" value="\\\"modules/ins/ins_module.h\\\""/>

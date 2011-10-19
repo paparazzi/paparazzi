@@ -19,7 +19,7 @@
     <subsystem name="actuators"     type="mkk"/>
     <subsystem name="imu"           type="b2_v1.0"/>
     <subsystem name="stabilization"   type="euler"/>
-    <subsystem name="ahrs"          type="ic"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat"/>
   </firmware>
 
   <firmware name="booz2_test_progs">

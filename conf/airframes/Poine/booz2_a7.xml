@@ -234,9 +234,9 @@
     <subsystem name="gps"           type="ublox">
       <configure name="GPS_BAUD"    value="B57600"/>
     </subsystem>
-    <!--subsystem name="ahrs"          type="cmpl"/-->
+    <!--subsystem name="ahrs"          type="int_cmpl_euler"/-->
     <subsystem name="stabilization"   type="euler"/>
-    <subsystem name="ahrs"          type="ic"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"           type="hff"/>
   </firmware>
 

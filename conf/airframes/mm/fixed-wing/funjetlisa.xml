@@ -16,7 +16,7 @@
     <subsystem name="radio_control"     type="ppm"/>
     <subsystem name="telemetry" 	type="transparent"/>
     <subsystem name="control"/>
-    <subsystem name="attitude" 		type="infrared"/>
+    <subsystem name="ahrs" 		type="infrared"/>
     <subsystem name="gps" 		type="ublox">
       <configure name="GPS_PORT"         value="UART3"/>
     </subsystem>
@@ -45,7 +45,9 @@
     <target name="test_actuators_asctecv1"  board="lisa_l_1.0"/>
   </firmware>
 
-
+  <modules>
+    <load name="infrared_adc.xml"/>
+  </modules>
 
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
