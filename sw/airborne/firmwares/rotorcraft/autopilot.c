@@ -29,11 +29,15 @@
 #include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/stabilization.h"
+#include "firmwares/rotorcraft/camera_mount.h"
 #include "led.h"
 
 uint8_t  autopilot_mode;
 uint8_t  autopilot_mode_auto2;
 bool_t   autopilot_motors_on;
+bool_t   autopilot_rc_unkilled_startup; //toytronics: keep track of Tx on motor unkill @ vehicle power up
+bool_t   autopilot_first_boot; //toytronics: determine first power up for ahrs time delay
+bool_t   autopilot_mode1_kill; //toytronics: keep track of whether motor shutoff occurred in mode 1 
 bool_t   autopilot_in_flight;
 uint32_t autopilot_motors_on_counter;
 uint32_t autopilot_in_flight_counter;
@@ -52,6 +56,7 @@ uint16_t autopilot_flight_time;
 #define AUTOPILOT_IN_FLIGHT_TIME    40
 #define AUTOPILOT_THROTTLE_TRESHOLD (MAX_PPRZ / 20)
 #define AUTOPILOT_YAW_TRESHOLD      (MAX_PPRZ * 19 / 20)
+#define AUTOPILOT_STICK_CENTER_TRESHOLD      (MAX_PPRZ * 1 / 20)
 // Motors ON check state machine
 #define STATUS_MOTORS_OFF           0
 #define STATUS_M_OFF_STICK_PUSHED   1
@@ -63,6 +68,9 @@ uint16_t autopilot_flight_time;
 void autopilot_init(void) {
   autopilot_mode = AP_MODE_KILL;
   autopilot_motors_on = FALSE;
+  autopilot_rc_unkilled_startup = FALSE;
+  autopilot_first_boot = TRUE;
+  autopilot_mode1_kill = TRUE;
   autopilot_in_flight = FALSE;
   kill_throttle = ! autopilot_motors_on;
   autopilot_motors_on_counter = 0;
@@ -76,6 +84,9 @@ void autopilot_init(void) {
   autopilot_power_switch = FALSE;
 #ifdef POWER_SWITCH_LED
   LED_ON(POWER_SWITCH_LED); // POWER OFF
+#endif
+#ifdef USE_CAMERA_MOUNT
+  camera_mount_init();
 #endif
 }
 
@@ -140,6 +151,18 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
     case AP_MODE_NAV:
       guidance_h_mode_changed(GUIDANCE_H_MODE_NAV);
       break;
+    case AP_MODE_TOYTRONICS_HOVER:
+      guidance_h_mode_changed(GUIDANCE_H_MODE_TOYTRONICS_HOVER);
+      break;
+    case AP_MODE_TOYTRONICS_HOVER_FORWARD:
+      guidance_h_mode_changed(GUIDANCE_H_MODE_TOYTRONICS_HOVER_FORWARD);
+      break;
+    case AP_MODE_TOYTRONICS_FORWARD:
+      guidance_h_mode_changed(GUIDANCE_H_MODE_TOYTRONICS_FORWARD);
+      break;
+    case AP_MODE_TOYTRONICS_AEROBATIC:
+      guidance_h_mode_changed(GUIDANCE_H_MODE_TOYTRONICS_AEROBATIC);
+      break;
     default:
       break;
     }
@@ -157,6 +180,10 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
     case AP_MODE_RATE_DIRECT:
     case AP_MODE_ATTITUDE_DIRECT:
     case AP_MODE_HOVER_DIRECT:
+    case AP_MODE_TOYTRONICS_HOVER:
+    case AP_MODE_TOYTRONICS_HOVER_FORWARD:
+    case AP_MODE_TOYTRONICS_FORWARD:
+    case AP_MODE_TOYTRONICS_AEROBATIC:
       guidance_v_mode_changed(GUIDANCE_V_MODE_RC_DIRECT);
       break;
     case AP_MODE_RATE_RC_CLIMB:
@@ -188,6 +215,15 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
 #define YAW_STICK_PUSHED()						\
   (radio_control.values[RADIO_YAW] > AUTOPILOT_YAW_TRESHOLD || \
    radio_control.values[RADIO_YAW] < -AUTOPILOT_YAW_TRESHOLD)
+#define YAW_STICK_CENTERED()						\
+  (radio_control.values[RADIO_YAW] < AUTOPILOT_STICK_CENTER_TRESHOLD && \
+   radio_control.values[RADIO_YAW] > -AUTOPILOT_STICK_CENTER_TRESHOLD)
+#define PITCH_STICK_CENTERED()						\
+  (radio_control.values[RADIO_PITCH] < AUTOPILOT_STICK_CENTER_TRESHOLD && \
+   radio_control.values[RADIO_PITCH] > -AUTOPILOT_STICK_CENTER_TRESHOLD)
+#define ROLL_STICK_CENTERED()						\
+  (radio_control.values[RADIO_ROLL] < AUTOPILOT_STICK_CENTER_TRESHOLD && \
+   radio_control.values[RADIO_ROLL] > -AUTOPILOT_STICK_CENTER_TRESHOLD)
 
 
 static inline void autopilot_check_in_flight( void) {
@@ -230,6 +266,31 @@ static inline int ahrs_is_aligned(void) {
 }
 #endif
 
+#ifdef AUTOPILOT_INSTANT_START_WITH_SAFETIES
+static inline void autopilot_check_motors_on( void ) {
+	if (radio_control.values[RADIO_KILL_SWITCH]>0 && !ahrs_is_aligned())	
+		autopilot_rc_unkilled_startup = TRUE;
+	if (autopilot_rc_unkilled_startup == TRUE)
+		if (radio_control.values[RADIO_KILL_SWITCH]<0 && ahrs_is_aligned())
+			autopilot_rc_unkilled_startup = FALSE;
+	if (autopilot_motors_on == FALSE && autopilot_rc_unkilled_startup == FALSE && autopilot_mode1_kill == TRUE){
+		if (autopilot_first_boot == TRUE){
+		  RunOnceEvery(512,{autopilot_first_boot = FALSE;})
+		  }
+		else
+		  autopilot_motors_on=radio_control.values[RADIO_KILL_SWITCH]>0 && radio_control.values[RADIO_MODE] < 0 && THROTTLE_STICK_DOWN() && YAW_STICK_CENTERED() && PITCH_STICK_CENTERED() && ROLL_STICK_CENTERED() && ahrs_is_aligned();
+		}
+	else{ 
+		autopilot_motors_on=radio_control.values[RADIO_KILL_SWITCH]>0 && ahrs_is_aligned() && autopilot_rc_unkilled_startup == FALSE;
+		if(autopilot_motors_on == TRUE)
+		  autopilot_mode1_kill = radio_control.values[RADIO_MODE]<0;
+		}
+	}
+#elif defined AUTOPILOT_INSTANT_START
+static inline void autopilot_check_motors_on( void ) {
+	autopilot_motors_on=radio_control.values[RADIO_KILL_SWITCH]>0 && ahrs_is_aligned();
+	}
+#else
 /** Set motors ON or OFF and change the status of the check_motors state machine
  */
 void autopilot_set_motors_on(bool_t motors_on) {
@@ -289,6 +350,7 @@ static inline void autopilot_check_motors_on( void ) {
       break;
   };
 }
+#endif
 
 
 void autopilot_on_rc_frame(void) {
