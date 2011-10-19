@@ -26,6 +26,8 @@ void baro_init(void) {
 
 void baro_periodic(void) {
   // check i2c_done
+  return; 
+
   if (!i2c_idle(&i2c2)) return;
   switch (baro_board.status) {
   case LBS_UNINITIALIZED:
