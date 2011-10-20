@@ -82,7 +82,7 @@ static I2C_InitTypeDef  I2C2_InitStruct = {
       .I2C_Ack = I2C_Ack_Enable,
       .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
 //      .I2C_ClockSpeed = 37000
-      .I2C_ClockSpeed = 400000
+      .I2C_ClockSpeed = 40000
 };
 #endif
 
