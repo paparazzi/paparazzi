@@ -1078,7 +1078,7 @@ void i2c_event(void)
       // Restart transaction doing the Rx part now
       PPRZ_I2C_SEND_START(&i2c1);
     }
-    __disable_irq();
+    __enable_irq();
   }
 #endif
 #ifdef USE_I2C2
@@ -1091,7 +1091,7 @@ void i2c_event(void)
       // Restart transaction doing the Rx part now
       PPRZ_I2C_SEND_START(&i2c2);
     }
-    __disable_irq();
+    __enable_irq();
   }
 #endif
 }
