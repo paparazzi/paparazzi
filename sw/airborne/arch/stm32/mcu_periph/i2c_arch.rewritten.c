@@ -70,7 +70,7 @@ static I2C_InitTypeDef  I2C1_InitStruct = {
       .I2C_OwnAddress1 = 0x00,
       .I2C_Ack = I2C_Ack_Enable,
       .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
-      .I2C_ClockSpeed = 200000
+      .I2C_ClockSpeed = 400000
 };
 #endif
 
@@ -543,7 +543,8 @@ static inline void stmi2c_clear_pending_interrupts(I2C_TypeDef *regs)
 {
   uint16_t SR1 = regs->SR1;
 
-  regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+  regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;			// Disable TXE, RXNE
+
 
   // Start Condition Was Generated
   if (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_SB, SR1 ) )
@@ -681,15 +682,11 @@ static inline void i2c_event(struct i2c_periph *periph)
   //	TRANSACTION HANDLER
 
   enum STMI2CSubTransactionStatus ret = 0;
-  uint8_t restart = 0;
 
+  ///////////////////////
   // Nothing Left To Do
   if (periph->trans_extract_idx == periph->trans_insert_idx)
   {
-    periph->status = I2CIdle;
-    periph->errors->unexpected_event_cnt++;
-
-    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;			// Disable TXE, RXNE
 #ifdef I2C_DEBUG_LED
         LED2_ON();
         LED1_ON();
@@ -700,22 +697,32 @@ static inline void i2c_event(struct i2c_periph *periph)
     LED_SHOW_ACTIVE_BITS(regs->SR1);
 #endif
 
+    // If we still get an interrupt but there are no more things to do
+    // (which can happen if an event was sheduled just before a bus error occurs)
+    // then its easy: just stop: clear all interrupt generating bits  
+
+    // Clear Running Events
     stmi2c_clear_pending_interrupts(regs);
+
+    // Count The Errors
     i2c_error(periph);
 
-    // There are no transactions anymore: so we are not allowed to continue
+    // Mark this as a special error
+    periph->errors->unexpected_event_cnt++;
+
+    periph->status = I2CIdle;
+
+    // There are no transactions anymore: 
+    // furtheron we need a transaction pointer: so we are not allowed to continue
     return;
   }
 
   struct i2c_transaction* trans = periph->trans[periph->trans_extract_idx];
 
+  ///////////////////////////
+  // If there was an error:
   if (( regs->SR1 & I2C_SR1_BITS_ERR ) != 0x0000)
   {
-    // Set result in transaction
-    trans->status = I2CTransFailed;
-
-    // Close the Bus
-    regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;			// Disable TXE RXNE
 
 #ifdef I2C_DEBUG_LED
         LED1_ON();
@@ -724,15 +731,25 @@ static inline void i2c_event(struct i2c_periph *periph)
 	LED2_OFF();
 #endif
 
+    // Set result in transaction
+    trans->status = I2CTransFailed;
+
     // Prepare for next
     ret = STMI2C_SubTra_Ready;
-    restart = 0;
 
+    // Make sure a TxRx does not Restart
+    trans->type == I2CTransRx;
+
+    // Clear Running Events
     stmi2c_clear_pending_interrupts(regs);
 
-    // Count it
+    // Count The Errors
     i2c_error(periph);
   }
+
+
+  ///////////////////////////
+  // Normal Event:
   else
   {
 
@@ -754,25 +771,20 @@ static inline void i2c_event(struct i2c_periph *periph)
     else // TxRx or Tx
     {
       ret = stmi2c_send(regs,periph,trans);
-      if (trans->type == I2CTransTxRx)
-      {
-        restart = 1;
-      }
     }
   }
 
-  // Sub-transaction not finished
-  if (ret == STMI2C_SubTra_Busy)
+  /////////////////////////////////
+  // Sub-transaction has finished
+  if (ret != STMI2C_SubTra_Busy)
   {
-    // Remember the last command was not start or stop
-    periph->status = I2CSendingByte;
-  }
-  else // Finished?
-  {
-    if (restart == 0)
+    // If a restart is not needed
+    if (trans->type != I2CTransTxRx)
     {
+      // Ready, no stop condition set yet
       if (ret == STMI2C_SubTra_Ready)
       {
+
         // Program a stop
 #ifdef I2C_DEBUG_LED
         LED2_ON();
@@ -780,6 +792,7 @@ static inline void i2c_event(struct i2c_periph *periph)
 	LED1_OFF();
 	LED2_OFF();
 #endif
+
         // Man: p722:  Stop generation after the current byte transfer or after the current Start condition is sent.
         regs->CR1 |= I2C_CR1_BIT_STOP;
 
@@ -798,6 +811,7 @@ static inline void i2c_event(struct i2c_periph *periph)
       if (periph->trans_extract_idx == periph->trans_insert_idx)
       {
         periph->status = I2CIdle;
+
 #ifdef I2C_DEBUG_LED
         LED2_ON();
         LED1_ON();
