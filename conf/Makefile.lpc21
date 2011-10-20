@@ -87,7 +87,7 @@ CINCS = $(INCLUDES) -I $(SRC_ARCH)/include
 CFLAGS = $(CINCS)
 CFLAGS += -O$(OPT)
 # CFLAGS += -malignment-traps
-CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align -Winline
+CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
 CFLAGS += -Wpointer-arith -Wswitch
 CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
