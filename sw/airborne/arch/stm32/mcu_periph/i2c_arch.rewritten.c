@@ -1029,7 +1029,7 @@ bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
   if (periph->status == I2CIdle)
   {
 	// TODO: re-enable I2C1
-	if (periph == &i2c1)
+//	if (periph == &i2c1)
 	{
 /*
         LED2_ON();
@@ -1044,7 +1044,7 @@ bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
 	LED2_OFF();
 */
         }
-        else
+//        else
         {
           PPRZ_I2C_SEND_START(periph);
         }
