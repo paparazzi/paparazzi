@@ -340,3 +340,8 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
 
   return TRUE;
 }
+
+void i2c_event(void) { }
+void i2c2_setbitrate(int bitrate __attribute__ ((unused))) { }
+
+

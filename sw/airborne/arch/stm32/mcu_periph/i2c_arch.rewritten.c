@@ -570,7 +570,7 @@ static inline void stmi2c_clear_pending_interrupts(I2C_TypeDef *regs)
 
 static inline void i2c_error(struct i2c_periph *periph);
 
-static inline void i2c_event(struct i2c_periph *periph)
+static inline void i2c_irq(struct i2c_periph *periph)
 {
 
   /*	
@@ -738,7 +738,7 @@ static inline void i2c_event(struct i2c_periph *periph)
     ret = STMI2C_SubTra_Ready;
 
     // Make sure a TxRx does not Restart
-    trans->type == I2CTransRx;
+    trans->type = I2CTransRx;
 
     // Clear Running Events
     stmi2c_clear_pending_interrupts(regs);
@@ -825,8 +825,11 @@ static inline void i2c_event(struct i2c_periph *periph)
       else
       {
         // Restart transaction doing the Rx part now
-        periph->status = I2CStartRequested;
-        PPRZ_I2C_SEND_START(periph);
+        
+// --- moved to idle function
+//        periph->status = I2CStartRequested;
+//        PPRZ_I2C_SEND_START(periph);
+// ------
      }
 
     }
@@ -926,15 +929,59 @@ void i2c1_hw_init(void) {
   // Extra
 #ifdef I2C_DEBUG_LED
   LED_INIT();
+#else
+
+  /* reset peripheral to default state ( sometimes not achieved on reset :(  ) */
+  //I2C_DeInit(I2C1);
+
+  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
+  NVIC_InitTypeDef  NVIC_InitStructure;
+
+  /* Configure and enable I2C1 event interrupt --------------------------------*/
+  NVIC_InitStructure.NVIC_IRQChannel = I2C1_EV_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+
+  /* Configure and enable I2C1 err interrupt ----------------------------------*/
+  NVIC_InitStructure.NVIC_IRQChannel = I2C1_ER_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+
+  /* Enable peripheral clocks -------------------------------------------------*/
+  /* Enable I2C1 clock */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
+  /* Enable GPIOB clock */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin = i2c1.scl_pin | i2c1.sda_pin;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+  I2C_DeInit(I2C1);
+
+  // enable peripheral
+  I2C_Cmd(I2C1, ENABLE);
+
+  I2C_Init(I2C1, i2c1.init_struct);
+
+  // enable error interrupts
+  I2C_ITConfig(I2C1, I2C_IT_ERR, ENABLE);
+
 #endif
 }
 
 void i2c1_ev_irq_handler(void) {
-  i2c_event(&i2c1);
+  i2c_irq(&i2c1);
 }
 
 void i2c1_er_irq_handler(void) {
-  i2c_event(&i2c1);
+  i2c_irq(&i2c1);
 }
 
 #endif /* USE_I2C1 */
@@ -1009,16 +1056,45 @@ void i2c2_setbitrate(int bitrate)
 
 
 void i2c2_ev_irq_handler(void) {
-  i2c_event(&i2c2);
+  i2c_irq(&i2c2);
 }
 
 void i2c2_er_irq_handler(void) {
-  i2c_event(&i2c2);
+  i2c_irq(&i2c2);
 }
 
 #endif /* USE_I2C2 */
 
 
+void i2c_event(void) 
+{
+#ifdef USE_I2C1
+  if (i2c_idle(&i2c1))
+  {
+    __disable_irq();
+    // More work to do
+    if (i2c1.trans_extract_idx != i2c1.trans_insert_idx)
+    {
+      // Restart transaction doing the Rx part now
+      PPRZ_I2C_SEND_START(&i2c1);
+    }
+    __disable_irq();
+  }
+#endif
+#ifdef USE_I2C2
+  if (i2c_idle(&i2c2))
+  {
+    __disable_irq();
+    // More work to do
+    if (i2c2.trans_extract_idx != i2c2.trans_insert_idx)
+    {
+      // Restart transaction doing the Rx part now
+      PPRZ_I2C_SEND_START(&i2c2);
+    }
+    __disable_irq();
+  }
+#endif
+}
 
 /////////////////////////////////////////////////////////
 // Implement Interface Functions
