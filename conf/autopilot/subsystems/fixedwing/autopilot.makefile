@@ -87,9 +87,8 @@ $(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_
 #
 # I2C
 #
-$(TARGET).srcs += mcu_periph/i2c.c
-$(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
-
+include subsystems/shared/i2c_select.makefile
+	
 ######################################################################
 ##
 ## COMMON FOR ALL NON-SIMULATION TARGETS
