@@ -798,8 +798,6 @@ static inline void i2c_irq(struct i2c_periph *periph)
 
         // Silent any BTF that would occur before STOP is executed
         regs->DR = 0x00;
-
-        periph->status = I2CStopRequested;
       }
 
       // Jump to the next transaction
@@ -824,6 +822,7 @@ static inline void i2c_irq(struct i2c_periph *periph)
       // if not, start next transaction
       else
       {
+        periph->status = I2CIdle;
         // Restart transaction doing the Rx part now
         
 // --- moved to idle function
@@ -1116,7 +1115,7 @@ bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
 
   /* if peripheral is idle, start the transaction */
   // if (PPRZ_I2C_IS_IDLE(p))
-  if (periph->status == I2CIdle)
+  if (i2c_idle(periph))
   {
 	// TODO: re-enable I2C1
 //	if (periph == &i2c1)
@@ -1148,7 +1147,6 @@ bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
 bool_t i2c_idle(struct i2c_periph* periph)
 {
   return I2C_GetFlagStatus(periph->reg_addr, I2C_FLAG_BUSY) == RESET;
-  //return periph->status == I2CIdle;
 }
 
 
