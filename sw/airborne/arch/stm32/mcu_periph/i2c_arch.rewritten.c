@@ -805,10 +805,13 @@ static inline void i2c_irq(struct i2c_periph *periph)
       if (periph->trans_extract_idx >= I2C_TRANSACTION_QUEUE_LEN)
         periph->trans_extract_idx = 0;
 
+      // Tell everyone we are ready
+      periph->status = I2CIdle;
+
+
       // if we have no more transaction to process, stop here 
       if (periph->trans_extract_idx == periph->trans_insert_idx)
       {
-        periph->status = I2CIdle;
 
 #ifdef I2C_DEBUG_LED
         LED2_ON();
@@ -822,11 +825,8 @@ static inline void i2c_irq(struct i2c_periph *periph)
       // if not, start next transaction
       else
       {
-        periph->status = I2CIdle;
         // Restart transaction doing the Rx part now
-        
 // --- moved to idle function
-//        periph->status = I2CStartRequested;
 //        PPRZ_I2C_SEND_START(periph);
 // ------
      }
@@ -1068,29 +1068,35 @@ void i2c2_er_irq_handler(void) {
 void i2c_event(void) 
 {
 #ifdef USE_I2C1
-  if (i2c_idle(&i2c1))
+  if (i2c1.status == I2CIdle)
   {
-    __disable_irq();
-    // More work to do
-    if (i2c1.trans_extract_idx != i2c1.trans_insert_idx)
+    if (i2c_idle(&i2c1))
     {
-      // Restart transaction doing the Rx part now
-      PPRZ_I2C_SEND_START(&i2c1);
+      __disable_irq();
+      // More work to do
+      if (i2c1.trans_extract_idx != i2c1.trans_insert_idx)
+      {
+        // Restart transaction doing the Rx part now
+        PPRZ_I2C_SEND_START(&i2c1);
+      }
+      __enable_irq();
     }
-    __enable_irq();
   }
 #endif
 #ifdef USE_I2C2
-  if (i2c_idle(&i2c2))
+  //if (i2c2.status == I2CIdle)
   {
-    __disable_irq();
-    // More work to do
-    if (i2c2.trans_extract_idx != i2c2.trans_insert_idx)
+    if (i2c_idle(&i2c2))
     {
-      // Restart transaction doing the Rx part now
-      PPRZ_I2C_SEND_START(&i2c2);
+      __disable_irq();
+      // More work to do
+      if (i2c2.trans_extract_idx != i2c2.trans_insert_idx)
+      {
+        // Restart transaction doing the Rx part now
+        PPRZ_I2C_SEND_START(&i2c2);
+      }
+      __enable_irq();
     }
-    __enable_irq();
   }
 #endif
 }
@@ -1115,12 +1121,14 @@ bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
 
   /* if peripheral is idle, start the transaction */
   // if (PPRZ_I2C_IS_IDLE(p))
-  if (i2c_idle(periph))
+  if (periph->status == I2CIdle)
   {
-	// TODO: re-enable I2C1
-//	if (periph == &i2c1)
+    if (i2c_idle(periph))
+    {
+#ifdef I2C_DEBUG_LED
+	if (periph == &i2c1)
 	{
-/*
+
         LED2_ON();
         LED1_ON();
 	LED1_OFF();
@@ -1131,12 +1139,14 @@ bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
         LED1_ON();
 	LED1_OFF();
 	LED2_OFF();
-*/
+
         }
-//        else
+        else
+#endif
         {
           PPRZ_I2C_SEND_START(periph);
         }
+    }
   }
   /* else it will be started by the interrupt handler when the previous transactions completes */
   __enable_irq();
