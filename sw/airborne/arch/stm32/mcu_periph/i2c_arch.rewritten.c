@@ -7,7 +7,7 @@
 
 //#include "led.h" 
 
-//#define I2C_DEBUG_LED
+#define I2C_DEBUG_LED
 
 /////////// DEBUGGING //////////////
 // TODO: remove this 
@@ -179,6 +179,12 @@ static inline void LED_SHOW_ACTIVE_BITS(I2C_TypeDef *regs)
     LED2_OFF();
   LED2_OFF();    
   
+  // Anything?
+  if (( SR1 + SR2) != 0x0000)
+    LED2_ON();
+  else
+    LED2_OFF();
+  LED2_OFF();    
 
   LED1_OFF();
 
@@ -206,19 +212,44 @@ static inline void LED_SHOW_ACTIVE_BITS(I2C_TypeDef *regs)
     LED2_OFF();
   LED2_OFF();    
 
-  // 4 Busy
+  // 4 Tra
   if (BIT_X_IS_SET_IN_REG( I2C_SR2_BIT_TRA, SR2 ) )
     LED2_ON();
   else
     LED2_OFF();
   LED2_OFF();    
 
-  // 5 Busy
+  // 5 Master
   if (BIT_X_IS_SET_IN_REG( I2C_SR2_BIT_MSL, SR2 ) )
     LED2_ON();
   else
     LED2_OFF();
   LED2_OFF();    
+  LED1_OFF();
+
+  LED1_ON();
+
+  // 1 Anything CR?
+  if (( CR1) != 0x0000)
+    LED2_ON();
+  else
+    LED2_OFF();
+  LED2_OFF();    
+
+  // 2 PE
+  if (BIT_X_IS_SET_IN_REG( I2C_CR1_BIT_PE, CR1 ) )
+    LED2_ON();
+  else
+    LED2_OFF();
+  LED2_OFF();    
+  
+  // 3 SWRESET
+  if (BIT_X_IS_SET_IN_REG( I2C_CR1_BIT_SWRST, CR1 ) )
+    LED2_ON();
+  else
+    LED2_OFF();
+  LED2_OFF();    
+    
   LED1_OFF();
   
 }
@@ -244,50 +275,41 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
   I2C_TypeDef *regs = (I2C_TypeDef *) periph->reg_addr;
 
   periph->idx_buf = 0;
-  periph->status = I2CStartRequested;
 
 #ifdef I2C_DEBUG_LED
   LED_SHOW_ACTIVE_BITS(regs);
+
+        LED2_ON();
+        LED1_ON();
+	LED1_OFF();
+        LED1_ON();
+	LED1_OFF();
+        LED1_ON();
+	LED1_OFF();
+	LED2_OFF();
+
 #endif
 
+/*
   if (BIT_X_IS_SET_IN_REG( I2C_CR1_BIT_STOP, regs->CR1 ) )
   {
     regs->CR1 &= ~ I2C_CR1_BIT_STOP;
-
-#ifdef I2C_DEBUG_LED
-        LED2_ON();
-        LED1_ON();
-	LED1_OFF();
-        LED1_ON();
-	LED1_OFF();
-        LED1_ON();
-	LED1_OFF();
-        LED1_ON();
-	LED1_OFF();
-	LED2_OFF();
-#endif
   }
-  else
-  {
-#ifdef I2C_DEBUG_LED
-        LED2_ON();
-        LED1_ON();
-	LED1_OFF();
-        LED1_ON();
-	LED1_OFF();
-        LED1_ON();
-	LED1_OFF();
-	LED2_OFF();
-#endif
-  }
+*/
 
-  // Issue a new start
-  regs->CR1 |=  I2C_CR1_BIT_START;
-  
   // Enable Error IRQ, Event IRQ but disable Buffer IRQ
   regs->CR2 |= I2C_CR2_BIT_ITERREN;
   regs->CR2 |= I2C_CR2_BIT_ITEVTEN;
   regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
+
+  // Issue a new start
+  regs->CR1 =  (I2C_CR1_BIT_START | I2C_CR1_BIT_PE);
+  periph->status = I2CStartRequested;
+  
+
+#ifdef I2C_DEBUG_LED
+  LED_SHOW_ACTIVE_BITS(regs);
+#endif
 }
 
 // STOP
@@ -863,7 +885,7 @@ static inline void i2c_irq(struct i2c_periph *periph)
       {
         // Restart transaction doing the Rx part now
 // --- moved to idle function
-//        PPRZ_I2C_SEND_START(periph);
+        PPRZ_I2C_SEND_START(periph);
 // ------
      }
 
@@ -1083,8 +1105,28 @@ void i2c2_hw_init(void) {
 
 void i2c2_setbitrate(int bitrate)
 {
-  I2C2_InitStruct.I2C_ClockSpeed = bitrate;
-  I2C_Init(I2C2, i2c2.init_struct);
+  if (i2c_idle(&i2c2))
+  {
+    I2C2_InitStruct.I2C_ClockSpeed = bitrate;
+    I2C_Init(I2C2, i2c2.init_struct);
+  
+
+#ifdef I2C_DEBUG_LED
+        __disable_irq();
+
+        LED2_ON();
+        LED1_ON();
+        LED2_OFF();
+        LED1_OFF();
+        LED2_ON();
+        LED1_ON();
+        LED2_OFF();
+        LED1_OFF();
+
+        __enable_irq();
+#endif
+
+   }
 }
 
 
@@ -1102,6 +1144,11 @@ void i2c2_er_irq_handler(void) {
 
 void i2c_event(void) 
 {
+  static uint32_t cnt = 0;
+  I2C_TypeDef *regs;
+  cnt++;
+  if (cnt > 10000) cnt = 0;
+
 #ifndef I2C_DEBUG_LED
 #ifdef USE_I2C1
   if (i2c1.status == I2CIdle)
@@ -1122,18 +1169,56 @@ void i2c_event(void)
 #endif
 
 #ifdef USE_I2C2
+  
+#ifdef I2C_DEBUG_LED
+  if (cnt == 0)
+  {
+        __disable_irq();
+
+        LED2_ON();
+        LED1_ON();
+	LED1_OFF();
+        LED1_ON();
+	LED1_OFF();
+        LED1_ON();
+	LED1_OFF();
+        LED1_ON();
+	LED1_OFF();
+        if (i2c2.status == I2CIdle)
+        {
+          LED1_ON();
+   	  LED1_OFF();
+        }
+        else if (i2c2.status == I2CStartRequested)
+        {
+          LED1_ON();
+   	  LED1_OFF();
+          LED1_ON();
+   	  LED1_OFF();
+
+        }
+	LED2_OFF();
+
+        //regs = (I2C_TypeDef *) i2c2.reg_addr;
+        //LED_SHOW_ACTIVE_BITS(regs);
+
+        __enable_irq();
+  }
+#endif  
+
+
   //if (i2c2.status == I2CIdle)
   {
-    if (i2c_idle(&i2c2))
+    //if (i2c_idle(&i2c2))
     {
-      __disable_irq();
+      //__disable_irq();
       // More work to do
-      if (i2c2.trans_extract_idx != i2c2.trans_insert_idx)
+      //if (i2c2.trans_extract_idx != i2c2.trans_insert_idx)
       {
         // Restart transaction doing the Rx part now
-        PPRZ_I2C_SEND_START(&i2c2);
+        //PPRZ_I2C_SEND_START(&i2c2);
       }
-      __enable_irq();
+      //__enable_irq();
     }
   }
 #endif
@@ -1161,22 +1246,11 @@ bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
   // if (PPRZ_I2C_IS_IDLE(p))
   if (periph->status == I2CIdle)
   {
-    if (i2c_idle(periph))
+    //if (i2c_idle(periph))
     {
 #ifdef I2C_DEBUG_LED
 	if (periph == &i2c1)
 	{
-
-        LED2_ON();
-        LED1_ON();
-	LED1_OFF();
-        LED1_ON();
-	LED1_OFF();
-        LED1_ON();
-	LED1_OFF();
-        LED1_ON();
-	LED1_OFF();
-	LED2_OFF();
 
         }
         else
@@ -1194,12 +1268,18 @@ bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
 
 bool_t i2c_idle(struct i2c_periph* periph)
 {
+  I2C_TypeDef *regs = (I2C_TypeDef *) periph->reg_addr;
+
+#ifdef I2C_DEBUG_LED
+	if (periph == &i2c1)
+	{
+	  return TRUE;
+        }
+#endif
   if (periph->status == I2CIdle)
-  {
-    // Only read status register SR2 when it does not matter to maybe clear ADDR bits
-    return I2C_GetFlagStatus(periph->reg_addr, I2C_FLAG_BUSY) == RESET;
-  }
-  return FALSE;
+    return ! (BIT_X_IS_SET_IN_REG( I2C_SR2_BIT_BUSY, regs->SR2 ) );
+  else
+    return FALSE;
 }
 
 
