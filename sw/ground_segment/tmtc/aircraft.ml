@@ -61,6 +61,12 @@ let svinfo_init = fun () ->
      age = 0
    }
 
+type inflight_calib = {
+     mutable if_mode : int; (* DOWN|OFF|UP *)
+     mutable if_val1 : float;
+     mutable if_val2 : float
+   }
+
 type horiz_mode =
     Circle of Latlong.geographic * int
   | Segment of Latlong.geographic * Latlong.geographic
@@ -151,7 +157,8 @@ type aircraft = {
     mutable survey : (Latlong.geographic * Latlong.geographic) option;
     mutable last_msg_date : float;
     mutable time_since_last_survey_msg : float;
-    mutable dist_to_wp : float
+    mutable dist_to_wp : float;
+    inflight_calib : inflight_calib
   }
 
 let max_nb_dl_setting_values = 256 (** indexed iwth an uint8 (messages.xml)  *)
@@ -181,5 +188,6 @@ let new_aircraft = fun id name fp airframe ->
     horiz_mode = UnknownHorizMode;
     horizontal_mode = 0;
     waypoints = Hashtbl.create 3; survey = None; last_msg_date = 0.; dist_to_wp = 0.;
-    time_since_last_survey_msg = 1729.
+    time_since_last_survey_msg = 1729.;
+    inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.}
   }

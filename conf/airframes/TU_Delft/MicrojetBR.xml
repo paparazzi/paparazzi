@@ -232,6 +232,7 @@
       <define name="LIGHT_LED_STROBE" value="3"/>
       <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
     </load>
+    <load name="infrared_adc.xml"/>
   </modules>
 
   <firmware name="fixedwing">
@@ -260,7 +261,7 @@
 <!--    <subsystem name="gyro"		type="roll">
       <configure name="ADC_GYRO_ROLL" 	value="ADC_3" />
     </subsystem>
--->    <subsystem name="attitude" 		type="infrared"/>
+-->    <subsystem name="ahrs" 		type="infrared"/>
     <subsystem name="gps" 		type="ublox_utm"/>
     <subsystem name="control"	/>
     <subsystem name="navigation"	type="extra"/>

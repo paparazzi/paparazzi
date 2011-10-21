@@ -1,37 +1,69 @@
 <!DOCTYPE airframe SYSTEM "../../airframe.dtd">
 
 <!-- Fire Storm
-     Tiny 1.1
-     Tilted infrared sensor
+     Umarim
      Radiotronix modem
-     Drop servo -->
+     -->
 
 <airframe name="FireStorm">
 
   <modules>
     <load name="poles.xml"/>
+    <load name="baro_board.xml"/>
   </modules>
 
-<!-- commands section -->
+  <firmware name="fixedwing">
+    <define name="AGR_CLIMB"/>
+    <define name="ALT_KALMAN"/>
+    <define name="LOITER_TRIM"/>
+    <!--define name="PITCH_TRIM"/-->
+
+    <target name="sim" board="pc"/>
+    <target name="ap" board="umarim_1.0">
+      <configure name="FLASH_MODE" value="IAP"/>
+      <define name="USE_I2C0"/>
+      <define name="USE_I2C1"/>
+    </target>
+
+    <subsystem name="radio_control" type="ppm"/>
+
+    <!-- Communication -->
+    <subsystem name="telemetry" type="transparent">
+      <configure name="MODEM_BAUD" value="B57600"/>
+    </subsystem>
+
+    <!-- Actuators are automatically chosen according to board-->
+    <subsystem name="imu"     type="umarim"/>
+    <subsystem name="ahrs"    type="float_dcm">
+      <define name="USE_HIGH_ACCEL_FLAG"/>
+    </subsystem>
+    <subsystem name="control" type="adaptive"/>
+    <subsystem name="navigation"/>
+    <!-- Sensors -->
+    <subsystem name="gps" type="ublox"/>
+
+    <subsystem name="current_sensor">
+      <configure name="ADC_CURRENT_SENSOR" value="ADC_0"/>
+    </subsystem>
+  </firmware>
+
+  <!-- commands section -->
   <servos>
-    <servo name="MOTOR" no="3" min="1250" neutral="1250" max="1800"/>
-    <servo name="AILEVON_LEFT" no="4" min="1850" neutral="1370" max="1000"/>
-    <servo name="AILEVON_RIGHT" no="5" min="1000" neutral="1515" max="1870"/>
-    <servo name="HATCH" no="6" min="1350" neutral="1900" max="1900"/>
+    <servo name="MOTOR" no="2" min="1250" neutral="1250" max="1800"/>
+    <servo name="AILEVON_LEFT" no="0" min="1850" neutral="1370" max="1000"/>
+    <servo name="AILEVON_RIGHT" no="1" min="1000" neutral="1515" max="1870"/>
   </servos>
 
   <commands>
     <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="ROLL" failsafe_value="0"/>
     <axis name="PITCH" failsafe_value="0"/>
-    <axis name="HATCH" failsafe_value="0"/>
   </commands>
 
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="ROLL" value="@ROLL"/>
     <set command="PITCH" value="@PITCH"/>
-    <set command="HATCH" value="@GAIN1"/>
   </rc_commands>
 
   <section name="MIXER">
@@ -44,7 +76,6 @@
     <let var="aileron" value="@ROLL  * AILEVON_AILERON_RATE"/>
     <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
     <set servo="MOTOR" value="@THROTTLE"/>
-    <set servo="HATCH" value="@HATCH"/>
     <set servo="AILEVON_LEFT" value="$elevator + ($aileron > 0 ? 1 : AILERON_DIFF) * $aileron"/>
     <set servo="AILEVON_RIGHT" value="$elevator - ($aileron > 0 ? AILERON_DIFF : 1) * $aileron"/>
   </command_laws>
@@ -54,56 +85,51 @@
     <define name="MAX_PITCH" value="0.6"/>
   </section>
 
-  <section name="adc" prefix="ADC_CHANNEL_">
-    <define name="IR1" value="ADC_2"/>
-    <define name="IR2" value="ADC_1"/>
-    <define name="IR_TOP" value="ADC_0"/>
-    <define name="IR_NB_SAMPLES" value="16"/>
+  <section name="IMU" prefix="IMU_">
+    <define name="GYRO_P_SIGN" value="1"/>
+    <define name="GYRO_Q_SIGN" value="-1"/>
+    <define name="GYRO_R_SIGN" value="-1"/>
 
-    <define name="GYRO_ROLL" value="ADC_3"/>
-    <define name="GYRO_NB_SAMPLES" value="16"/>
+    <!-- Calibration Neutral -->
+    <define name="GYRO_P_NEUTRAL" value="-53"/>
+    <define name="GYRO_Q_NEUTRAL" value="33"/>
+    <define name="GYRO_R_NEUTRAL" value="-16"/>
 
+    <!-- SENS ITG3200  1/14.375 (deg/s)/LSB, rate frac 12bit => 1/14.375 * pi / 180 * 2^12 -->
+    <define name="GYRO_P_SENS" value="4.97312" integer="16"/>
+    <define name="GYRO_Q_SENS" value="4.97312" integer="16"/>
+    <define name="GYRO_R_SENS" value="4.97312" integer="16"/>
+
+    <define name="ACCEL_X_SIGN" value="1"/>
+    <define name="ACCEL_Y_SIGN" value="-1"/>
+    <define name="ACCEL_Z_SIGN" value="-1"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="-2"/>
+    <define name="ACCEL_Y_NEUTRAL" value="1"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-43"/>
+
+    <define name="ACCEL_X_SENS" value="38.9923420841" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="39.2011913001" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="39.4148057033" integer="16"/>
+
+    <!-- Just to compile -->
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
+
+    <define name="BODY_TO_IMU_PHI" value="0"/>
+    <define name="BODY_TO_IMU_THETA" value="0"/>
+    <define name="BODY_TO_IMU_PSI" value="0"/>
   </section>
 
-  <section name="INFRARED" prefix="IR_">
-    <define name="ADC_IR1_NEUTRAL" value="512"/>
-    <define name="ADC_IR2_NEUTRAL" value="512"/>
-    <define name="ADC_TOP_NEUTRAL" value="512"/>
-
-    <define name="LATERAL_CORRECTION" value="1."/>
-    <define name="LONGITUDINAL_CORRECTION" value="1."/>
-    <define name="VERTICAL_CORRECTION" value="1.2"/>
-
-    <define name="HORIZ_SENSOR_TILTED" value="1"/>
-    <define name="IR1_SIGN" value="-1"/>
-    <define name="IR2_SIGN" value="1"/>
-    <define name="TOP_SIGN" value="-1"/>
-
-    <define name="ROLL_NEUTRAL_DEFAULT" value="3.49504256248" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="-0.114591561258" unit="deg"/>
-
-    <define name="CORRECTION_UP" value="1."/>
-    <define name="CORRECTION_DOWN" value="1."/>
-    <define name="CORRECTION_LEFT" value="1."/>
-    <define name="CORRECTION_RIGHT" value="1."/>
-  </section>
-
- <section name="GYRO" prefix="GYRO_">
-    <define name="ADC_ROLL_NEUTRAL" value="492"/>
-    <define name="ADC_TEMP_NEUTRAL" value="512"/>
-    <define name="ADC_TEMP_SLOPE" value="0"/>
-    <define name="DYNAMIC_RANGE" value="300" unit="deg/s"/>
-    <define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+1.8))"/>
-    <define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/>
-    <define name="ROLL_SCALE" value="3.3*1000./1024./(GYRO_ADXRS300_SENSITIVITY*GYRO_ADXRS300_RESISTOR_BRIDGE)" unit="deg/s/adc_unit"/>
-    <define name="ROLL_DIRECTION" value="1."/>
+  <section name="INS" prefix="INS_">
+    <define name="ROLL_NEUTRAL_DEFAULT" value="-0.0640000030398" unit="rad"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0.0670000016689" unit="rad"/>
   </section>
 
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="2000"/>
-
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-
     <define name="MilliAmpereOfAdc(_adc)" value="(_adc-162)*17.4"/>
   </section>
 
@@ -113,12 +139,10 @@
     <define name="MAXIMUM_AIRSPEED" value="24." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
-    <define name="CONTROL_RATE" value="60" unit="Hz"/>
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
-
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
-
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
+    <define name="TELEMETRY_MODE_AP" value="1"/>
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -135,10 +159,10 @@
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.80"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-2500"/>
-    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.02"/>
-    <define name="AUTO_THROTTLE_IGAIN" value="0.1"/>
-    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.15"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.05" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="-0.007"/>
+    <define name="AUTO_THROTTLE_IGAIN" value="0.067"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.11"/>
 
     <!-- auto pitch inner loop -->
     <define name="AUTO_PITCH_PGAIN" value="-0.05"/>
@@ -151,7 +175,7 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.23500001431"/>
+    <define name="COURSE_PGAIN" value="-0.9"/>
 
     <define name="ROLL_MAX_SETPOINT" value="0.805000007153" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
@@ -162,8 +186,8 @@
 
     <define name="ELEVATOR_OF_ROLL" value="2000."/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-12000"/>
-    <define name="ROLL_RATE_GAIN" value="-2500"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="-2600"/>
+    <define name="ROLL_RATE_GAIN" value="-850"/>
 
     <define name="ROLL_KFF" value="-500"/>
     <define name="ROLL_IGAIN" value="-00"/>
@@ -173,7 +197,6 @@
   <section name="NAV">
     <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0"/>
-    <define name="NAV_GROUND_SPEED_PGAIN" value="-0.01"/>
   </section>
 
   <section name="AGGRESSIVE" prefix="AGR_">
@@ -188,87 +211,21 @@
     </section>
 
 
-  <section name="GYRO_GAINS">
+  <!--section name="GYRO_GAINS">
     <define name="GYRO_MAX_RATE" value="200."/>
     <define name="ROLLRATESUM_NB_SAMPLES" value="64"/>
     <define name="ALT_ROLL__PGAIN" value="1.0"/>
     <define name="ROLL_RATE_PGAIN" value="1000.0"/>
     <define name="ROLL_RATE_IGAIN" value="0.0"/>
     <define name="ROLL_RATE_DGAIN" value="0.0"/>
-  </section>
+  </section-->
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
-	<define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
-    	<define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
-    	<define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
-    	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
-	<define name="HOME_RADIUS" value="100" unit="m"/>
-</section>
+    <define name="DELAY_WITHOUT_GPS" value="1" unit="s"/>
+    <define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
+    <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
+    <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
+    <define name="HOME_RADIUS" value="100" unit="m"/>
+  </section>
 
-
- <makefile>
-CONFIG = \"tiny_1_1.h\"
-
-include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
-
-FLASH_MODE=IAP
-
-ap.CFLAGS +=  -DFBW -DAP -DBOARD_CONFIG=$(CONFIG) -DUSE_LED -DTIME_LED=1
-ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_fbw.c main_ap.c main.c
-
-ap.srcs += commands.c
-
-ap.CFLAGS += -DACTUATORS=\"servos_4015_MAT_hw.h\" -DSERVOS_4015_MAT
-ap.srcs += $(SRC_ARCH)/servos_4015_MAT_hw.c actuators.c
-
-ap.CFLAGS += -DRADIO_CONTROL
-ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
-
-ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
-ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c pprz_transport.c
-
-ap.CFLAGS += -DINTER_MCU
-ap.srcs += inter_mcu.c
-
-ap.CFLAGS += -DADC -DUSE_ADC_0 -DUSE_ADC_1 -DUSE_ADC_2 -DUSE_ADC_3
-ap.srcs += $(SRC_ARCH)/adc_hw.c
-
-ap.CFLAGS += -DUSE_GPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B38400 -DGPS_LED=2
-#ap.CFLAGS += -DUSE_GPS -DUBX -DUSE_UART1 -DGPS_LINK=Uart1 -DUART1_BAUD=B9600 -DGPS_LED=2
-#ap.CFLAGS += -DGPS_CONFIGURE -DGPS_BAUD=38400
-
-ap.srcs += gps_ubx.c gps.c latlong.c
-
-ap.CFLAGS += -DUSE_INFRARED -DALT_KALMAN
-ap.srcs += infrared.c estimator.c
-
-ap.CFLAGS += -DNAV -DAGR_CLIMB -DLOITER_TRIM
-ap.srcs += subsystems/nav.c fw_h_ctl.c fw_v_ctl.c
-
-
-ap.CFLAGS += -DUSE_GYRO -DADXRS150
-ap.srcs += gyro.c subsystems/navigation/nav_line.c
-ap.srcs += subsystems/navigation/nav_survey_rectangle.c
-
-
-# Current sensor; Neutral=162
-#ap.CFLAGS += -DUSE_ADC_7 -DUSE_ADC_GENERIC -DADC_CHANNEL_GENERIC1=ADC_7 -DADC_CHANNEL_GENERIC_NB_SAMPLES=16
-#ap.srcs += adc_generic.c
-
-ap.CFLAGS += -DUSE_ADC_7 -DADC_CHANNEL_CURRENT=ADC_7
-
-ap.CFLAGS += -DUSE_MODULES
-
-# Config for SITL simulation
-#include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
-sim.ARCHDIR = $(ARCHI)
-sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DUSE_INFRARED -DNAV -DUSE_LED -DWIND_INFO
-sim.srcs = latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c infrared.c fw_h_ctl.c fw_v_ctl.c subsystems/nav.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_ir.c $(SRC_ARCH)/sim_ap.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c $(SRC_ARCH)/led_hw.c
-
-sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN
-
-sim.srcs += subsystems/navigation/nav_line.c subsystems/navigation/nav_survey_rectangle.c
-
-sim.CFLAGS += -DUSE_MODULES
-  </makefile>
 </airframe>

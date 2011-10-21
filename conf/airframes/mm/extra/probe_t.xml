@@ -16,7 +16,7 @@
     </target>
     <subsystem name="telemetry"        type="xbee_api"/>
     <subsystem name="control"/>
-    <subsystem name="attitude"         type="infrared"/>
+    <subsystem name="ahrs"         type="infrared"/>
     <subsystem name="gps"              type="ublox"/>
     <subsystem name="navigation"/>
   </firmware>
@@ -30,6 +30,7 @@
   <!-- modules -->
   <modules>
     <load name="max11040.xml"/>
+    <load name="infrared_adc.xml"/>
   </modules>
 
 <!-- commands section -->

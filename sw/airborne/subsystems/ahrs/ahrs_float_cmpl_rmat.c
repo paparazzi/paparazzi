@@ -44,7 +44,7 @@ static inline void compute_body_orientation_and_rates(void);
 struct AhrsFloatCmplRmat ahrs_impl;
 
 void ahrs_init(void) {
-  ahrs_float.status = AHRS_UNINIT;
+  ahrs.status = AHRS_UNINIT;
 
   /* Initialises IMU alignement */
   struct FloatEulers body_to_imu_euler =

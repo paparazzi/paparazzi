@@ -24,7 +24,7 @@
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="control"/>
-    <subsystem name="attitude"      type="infrared"/>
+    <subsystem name="ahrs"      type="infrared"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="navigation"    type="extra"/>
   </firmware>
@@ -37,6 +37,7 @@
   <modules>
     <load name="airspeed_ets.xml"/>
     <load name="baro_ets.xml"/>
+    <load name="infrared_adc.xml"/>
   </modules>
 
 <!-- commands section -->

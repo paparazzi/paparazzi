@@ -205,4 +205,17 @@
 
  </class>
 
+ <class name="MON" ID="0x0A">
+
+  <message name="GET_VER" ID="0x04" length="0">
+  </message>
+
+  <message name="VER" ID="0x04">
+    <block length="1">
+      <field name="c" format="U1"/>
+    </block>
+  </message>
+
+ </class>
+
 </ubx>

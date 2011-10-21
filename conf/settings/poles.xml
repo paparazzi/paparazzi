@@ -3,7 +3,9 @@
 <settings>
   <dl_settings>
     <dl_settings NAME="Poles">
-      <dl_setting MAX="40" MIN="1" STEP="1" VAR="nav_poles_count" module="nav_poles"/>
+      <dl_setting MAX="40" MIN="1" STEP="1" VAR="nav_poles_count" module="modules/poles/nav_poles"/>
+      <dl_setting MAX="180" MIN="0" STEP="1" VAR="nav_poles_time"/>
+      <dl_setting MAX="1" MIN="-1" STEP="2" VAR="nav_poles_land" handler="SetLandDir"/>
     </dl_settings>
   </dl_settings>
 </settings>

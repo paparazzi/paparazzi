@@ -72,7 +72,7 @@ int16_t booz_cam_pan;
 #endif
 
 void booz_cam_init(void) {
-  booz_cam_mode = BOOZ_CAM_DEFAULT_MODE;
+  booz_cam_SetCamMode(BOOZ_CAM_DEFAULT_MODE);
 #ifdef BOOZ_CAM_USE_TILT
   booz_cam_tilt_pwm = BOOZ_CAM_TILT_NEUTRAL;
   BOOZ_CAM_SetPwm(booz_cam_tilt_pwm);
@@ -81,9 +81,14 @@ void booz_cam_init(void) {
 #ifdef BOOZ_CAM_USE_PAN
   booz_cam_pan = BOOZ_CAM_PAN_NEUTRAL;
 #endif
-  if (booz_cam_mode == BOOZ_CAM_MODE_NONE) { LED_ON(CAM_SWITCH_LED); } // CAM OFF
-  else { LED_OFF(CAM_SWITCH_LED); } // CAM ON
 }
+
+#define ABS(_x) ((_x) < 0 ? -(_x) : (_x))
+#define D_TILT (BOOZ_CAM_TILT_MAX - BOOZ_CAM_TILT_MIN)
+#define CT_MIN Min(BOOZ_CAM_TILT_MIN,BOOZ_CAM_TILT_MAX)
+#define CT_MAX Max(BOOZ_CAM_TILT_MIN,BOOZ_CAM_TILT_MAX)
+#define CP_MIN Min(BOOZ_CAM_PAN_MIN,BOOZ_CAM_PAN_MAX)
+#define CP_MAX Max(BOOZ_CAM_PAN_MIN,BOOZ_CAM_PAN_MAX)
 
 void booz_cam_periodic(void) {
 
@@ -98,17 +103,17 @@ void booz_cam_periodic(void) {
       break;
     case BOOZ_CAM_MODE_MANUAL:
 #ifdef BOOZ_CAM_USE_TILT
-      Bound(booz_cam_tilt_pwm,BOOZ_CAM_TILT_MIN,BOOZ_CAM_TILT_MAX);
+      Bound(booz_cam_tilt_pwm, CT_MIN, CT_MAX);
 #endif
       break;
     case BOOZ_CAM_MODE_HEADING:
 #ifdef BOOZ_CAM_USE_TILT_ANGLES
       Bound(booz_cam_tilt,CAM_TA_MIN,CAM_TA_MAX);
-      booz_cam_tilt_pwm = BOOZ_CAM_TILT_MIN + (BOOZ_CAM_TILT_MAX - BOOZ_CAM_TILT_MIN) * (booz_cam_tilt - CAM_TA_MIN) / (CAM_TA_MAX - CAM_TA_MIN);
-      Bound(booz_cam_tilt_pwm,BOOZ_CAM_TILT_MIN,BOOZ_CAM_TILT_MAX);
+      booz_cam_tilt_pwm = BOOZ_CAM_TILT_MIN + D_TILT * (booz_cam_tilt - CAM_TA_MIN) / (CAM_TA_MAX - CAM_TA_MIN);
+      Bound(booz_cam_tilt_pwm, CT_MIN, CT_MAX);
 #endif
 #ifdef BOOZ_CAM_USE_PAN
-      Bound(booz_cam_pan,BOOZ_CAM_PAN_MIN,BOOZ_CAM_PAN_MAX);
+      Bound(booz_cam_pan, CP_MIN, CP_MAX);
       nav_heading = booz_cam_pan;
 #endif
       break;
@@ -126,8 +131,8 @@ void booz_cam_periodic(void) {
         height = (waypoints[WP_CAM].z - ins_enu_pos.z) >> INT32_POS_FRAC;
         INT32_ATAN2(booz_cam_tilt, height, dist);
         Bound(booz_cam_tilt, CAM_TA_MIN, CAM_TA_MAX);
-        booz_cam_tilt_pwm = BOOZ_CAM_TILT_MIN + (BOOZ_CAM_TILT_MAX - BOOZ_CAM_TILT_MIN) * (booz_cam_tilt - CAM_TA_MIN) / (CAM_TA_MAX - CAM_TA_MIN);
-        Bound(booz_cam_tilt_pwm, BOOZ_CAM_TILT_MIN, BOOZ_CAM_TILT_MAX);
+        booz_cam_tilt_pwm = BOOZ_CAM_TILT_MIN + D_TILT * (booz_cam_tilt - CAM_TA_MIN) / (CAM_TA_MAX - CAM_TA_MIN);
+        Bound(booz_cam_tilt_pwm, CT_MIN, CT_MAX);
 #endif
       }
 #endif

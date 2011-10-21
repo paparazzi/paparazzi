@@ -64,7 +64,8 @@ struct AhrsFloat {
   struct FloatRates  body_rate;
   struct FloatRates  body_rate_d;
 
-  uint8_t status;
+  // always use status from fixed point ahrs struct for now
+  //uint8_t status;
 };
 
 extern struct Ahrs ahrs;

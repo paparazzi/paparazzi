@@ -1,0 +1,18 @@
+<!--<!DOCTYPE settings SYSTEM "settings.dtd">-->
+
+<!-- A conf to use to tune an A/C using only the rc -->
+
+<settings>
+
+  <rc_settings>
+    <rc_mode NAME="AUTO1">
+      <rc_setting VAR="ins_pitch_neutral" RANGE="0.2" RC="gain_1_up"    TYPE="float"/>
+      <rc_setting VAR="ins_roll_neutral"  RANGE="-0.2" RC="gain_1_down" TYPE="float"/>
+    </rc_mode>
+    <rc_mode NAME="AUTO2">
+      <rc_setting VAR="h_ctl_course_pgain" RANGE="0.5" RC="gain_1_up" TYPE="float"/>
+      <rc_setting VAR="flight_altitude" RANGE="-100" RC="gain_1_down" TYPE="float"/>
+    </rc_mode>
+  </rc_settings>
+
+</settings>

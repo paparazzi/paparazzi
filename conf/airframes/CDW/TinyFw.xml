@@ -166,6 +166,7 @@
       <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
       <define name="NAV_LIGHT_MODE_DEFAULT" value="0"/>
     </load>
+    <load name="infrared_adc.xml"/>
   </modules>
 
   <firmware name="fixedwing">
@@ -186,7 +187,7 @@
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="gyro"      type="roll"/>
-    <subsystem name="attitude"  type="infrared"/>
+    <subsystem name="ahrs"  type="infrared"/>
     <subsystem name="gps" 		type="ublox_utm"/>
     <subsystem name="navigation"/>
 

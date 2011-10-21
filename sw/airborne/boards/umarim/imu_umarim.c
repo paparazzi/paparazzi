@@ -91,7 +91,7 @@ void imu_umarim_event( void )
   // If the itg3200 I2C transaction has succeeded: convert the data
   itg3200_event();
   if (itg3200_data_available) {
-    RATES_COPY(imu.gyro_unscaled, itg3200_data);
+    RATES_ASSIGN(imu.gyro_unscaled, itg3200_data.p, itg3200_data.q, itg3200_data.r);
     itg3200_data_available = FALSE;
     gyr_valid = TRUE;
   }
@@ -99,6 +99,7 @@ void imu_umarim_event( void )
   // If the adxl345 I2C transaction has succeeded: convert the data
   adxl345_event();
   if (adxl345_data_available) {
+    // Be careful with orientation of the ADXL (ITG axes are taken as default reference)
     VECT3_ASSIGN(imu.accel_unscaled, adxl345_data.y, -adxl345_data.x, adxl345_data.z);
     adxl345_data_available = FALSE;
     acc_valid = TRUE;

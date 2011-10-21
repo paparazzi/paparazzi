@@ -24,7 +24,7 @@
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="control"/>
-    <subsystem name="attitude"      type="infrared"/>
+    <subsystem name="ahrs"      type="infrared"/>
     <subsystem name="gyro"          type="roll"/>
     <subsystem name="gps"           type="ublox_hitl"/>
     <subsystem name="navigation"/>
@@ -44,6 +44,7 @@
       <flag name="USE_ADC_3"/>
       <flag name="USE_ADC_5"/>
     </load>
+    <load name="infrared_adc.xml"/>
   </modules>
 
   <servos>

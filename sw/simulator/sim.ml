@@ -43,6 +43,7 @@ let georef_of_xml = fun xml ->
 let ir_period = 1./.20.
 let fm_period = 1./.25.
 let fg_period = 1./.25.
+let ahrs_period = 1./.20.
 
 let gensym = let n = ref 0 in fun p -> incr n; p ^ string_of_int !n
 let cb_register = fun closure ->
@@ -63,6 +64,9 @@ module type AIRCRAFT =
 
     val infrared_and_airspeed : float -> float -> float -> float -> unit
 	(** [infrared ir_left ir_front ir_top air_speed] Called on timer *)
+
+    val attitude_and_rates : float -> float -> float -> float -> float ->unit
+    (** [ahrs phi theta psi p q] Called on timer *)
 
     val gps : Gps.state -> unit
 	(** [gps state] Called on timer *)
@@ -217,7 +221,12 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       let s = compute_gps_state (x,y,z) (FlightModel.get_time !state) in
       s.Gps.availability <- not (!gps_availability = 0);
       last_gps_state := Some s;
-      Aircraft.gps s in
+      Aircraft.gps s
+
+    and ahrs_task = fun () ->
+      let (phi, theta, psi) = FlightModel.get_attitude !state
+      and p, q = FlightModel.get_pq !state in
+      Aircraft.attitude_and_rates phi theta psi p q in
 
     (** Sending to Flight Gear *)
     let fg_task = fun socket buffer () ->
@@ -257,6 +266,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       Stdlib.timer ~scale:time_scale fm_period fm_task;
       Stdlib.timer ~scale:time_scale ir_period ir_task;
       Stdlib.timer ~scale:time_scale gps_period gps_task;
+      Stdlib.timer ~scale:time_scale ahrs_period ahrs_task;
 
       (** Connection to Flight Gear client *)
       if !fg_client <> "" then

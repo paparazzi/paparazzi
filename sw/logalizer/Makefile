@@ -1,4 +1,4 @@
-# 
+#
 #   $Id$
 #   Copyright (C) 2004 Pascal Brisset, Antoine Drouin
 #
@@ -17,15 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.  
-# 
+# Boston, MA 02111-1307, USA.
+#
 
 # Quiet compilation
 Q=@
 
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
-INCLUDES= $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format lablgtk2) -I ../lib/ocaml 
+INCLUDES= $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format lablgtk2) -I ../lib/ocaml
 
 all: play plotter plot sd2log plotprofile
 
@@ -81,7 +81,7 @@ pt : ahrsview imuview ahrs2fg
 
 CC = gcc
 CFLAGS=-g -O2 -Wall `pkg-config gtk+-2.0 --cflags`
-LDFLAGS=`pkg-config gtk+-2.0 --libs` -s -lgtkdatabox `pcre-config --libs` -lglibivy
+LDFLAGS=`pkg-config gtk+-2.0 --libs` -s -lgtkdatabox -lglibivy
 
 motor_bench : motor_bench.c sliding_plot.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
@@ -98,15 +98,15 @@ plot_roll_loop : plot_roll_loop.c sliding_plot.c
 test_sliding_plot: test_sliding_plot.c sliding_plot.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
-MORE_FLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -rdynamic  /usr/lib/libgtkgl.so -L/usr/lib -L/usr/X11R6/lib /usr/lib/libgtk.so /usr/lib/libgdk.so /usr/lib/libgmodule.so /usr/lib/libglib.so -ldl -lXi -lXext -lX11 -lm -lGLU -lGL  -Wl,--rpath -Wl,/usr/local/lib `pcre-config --libs` -lglibivy
- 
+MORE_FLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -rdynamic  /usr/lib/libgtkgl.so -L/usr/lib -L/usr/X11R6/lib /usr/lib/libgtk.so /usr/lib/libgdk.so /usr/lib/libgmodule.so /usr/lib/libglib.so -ldl -lXi -lXext -lX11 -lm -lGLU -lGL  -Wl,--rpath -Wl,/usr/local/lib -lglibivy `pcre-config --libs`
+
 MORE_CFLAGS = -DHAVE_DLFCN_H=1 -DSTDC_HEADERS=1  -I. -I.  -I..    -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include
 
 disp3d: disp3d.c
 	$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS)
 
 plotprofile: plotprofile.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
+	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 test1: test1.c
 	$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS) -lglut
@@ -146,23 +146,23 @@ FGFS_ARGS = $(FGFS_COMMON_ARGS) $(FGFS_IN_GUI_ARGS)
 run_fg:
 	$(FGFS_ENV) $(FGFS) $(FGFS_ARGS)
 
-ahrs2fg: ahrs2fg.c network.c flight_gear.c utils.c 
+ahrs2fg: ahrs2fg.c network.c flight_gear.c utils.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
 test_samere: test_samere.c network.c flight_gear.c utils.c
 	$(CC) $(CFLAGS) -I../airborne -I../airborne/test -I../include -g -o $@ $^ $(LDFLAGS)
 
 ivy_example: ivy_example.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
+	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 tmclient: tmclient.c
-	gcc -g -O1 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
+	gcc -g -O1 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 ffjoystick: ffjoystick.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy -lm
+	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy -lm
 
 ctrlstick: ctrlstick.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
+	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 #
 # Dependencies
@@ -171,6 +171,6 @@ ctrlstick: ctrlstick.c
 .depend: Makefile
 	ocamldep -I ../lib/ocaml *.ml* > .depend
 
-ifneq ($(MAKECMDGOALS),clean) 
+ifneq ($(MAKECMDGOALS),clean)
 -include .depend
 endif

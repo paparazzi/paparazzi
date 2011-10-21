@@ -3,10 +3,10 @@
 # attitude estimation for fixedwings via dcm algorithm
 
 
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm.h\"
-
 ifeq ($(TARGET), ap)
 
+ap.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm.h\"
+ap.CFLAGS += -DUSE_AHRS_ALIGNER
 ap.CFLAGS += -DUSE_AHRS
 
 ap.srcs   += $(SRC_SUBSYSTEMS)/ahrs.c
@@ -36,20 +36,14 @@ ap.CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
 
 endif
 
-# since there is currently no SITL sim for the Analog IMU, we use the infrared sim
 
 ifeq ($(TARGET), sim)
 
-sim.CFLAGS += -DIR_ROLL_NEUTRAL_DEFAULT=0
-sim.CFLAGS += -DIR_PITCH_NEUTRAL_DEFAULT=0
+sim.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_sim.h\"
+sim.CFLAGS += -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR
 
-sim.CFLAGS += -DUSE_INFRARED
-sim.srcs += subsystems/sensors/infrared.c
-sim.srcs += subsystems/sensors/infrared_adc.c
-
-sim.srcs += $(SRC_ARCH)/sim_ir.c
-sim.srcs += $(SRC_ARCH)/sim_imu.c
+sim.srcs   += $(SRC_SUBSYSTEMS)/ahrs.c
+sim.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_sim.c
 
 endif
 
-jsbsim.srcs += $(SRC_ARCH)/jsbsim_ir.c

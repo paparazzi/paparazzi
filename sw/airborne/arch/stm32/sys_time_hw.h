@@ -70,7 +70,12 @@ static inline bool_t sys_time_periodic( void ) {
 /** Busy wait, in microseconds */
 /* for now empty shell */
 static inline void sys_time_usleep(uint32_t us) {
-
+  uint32_t ready = SYS_TICS_OF_SEC((((float)us) / 1000000.)) / PERIODIC_TASK_PERIOD + 1;
+  while (ready > 0)
+  {
+    if (sys_time_period_elapsed) ready--;
+    sys_time_periodic();
+  }  
 }
 
 #endif /* SYS_TIME_HW_H */

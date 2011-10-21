@@ -22,7 +22,7 @@
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="control"/>
-    <subsystem name="attitude"      type="infrared"/>
+    <subsystem name="ahrs"      type="infrared"/>
     <subsystem name="gps"           type="ublox_utm"/>
     <subsystem name="navigation"/>
   </firmware>
@@ -31,6 +31,10 @@
     <target name="tunnel" 		board="twog_1.0"/>
     <target name="setup_actuators" 	board="twog_1.0"/>
   </firmware>
+
+  <modules>
+    <load name="infrared_adc.xml"/>
+  </modules>
 
 <!-- commands section -->
   <servos>
