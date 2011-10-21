@@ -5,24 +5,46 @@ PKG_NAME	= target
 DATE		= $$(date +%Y%m%d)
 
 # Tool definitions
-HAVE_ARM_NONE_EABI_GCC := $(shell which arm-none-eabi-gcc)
+# try to find the paparazzi multilib toolchain
+TOOLCHAIN_DIR=$(shell find -L /opt/paparazzi/arm-multilib ~/sat -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1 | xargs dirname )
 
-ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
-CC      = arm-elf-gcc
-LD      = arm-elf-ld -v
-AR      = arm-elf-ar
-AS      = arm-elf-as
-CP      = arm-elf-objcopy
-OD	= arm-elf-objdump
+#
+# found the new paparazzi toolchain, use it
+#
+ifneq ($(TOOLCHAIN_DIR),)
+GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
+GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
+GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi
+CC      = $(GCC_BIN_PREFIX)-gcc
+LD      = $(GCC_BIN_PREFIX)-ld -v
+AR      = $(GCC_BIN_PREFIX)-ar
+AS      = $(GCC_BIN_PREFIX)-as
+CP      = $(GCC_BIN_PREFIX)-objcopy
+OD      = $(GCC_BIN_PREFIX)-objdump
+
+#
+# If we can't find the toolchain (in /opt/paparazzi/arm-multilib or ~/sat) then try picking up the compilers from the path
+#
 else
-CC=arm-none-eabi-gcc
-LD=arm-none-eabi-ld -v
-AR=arm-none-eabi-ar
-AS=arm-none-eabi-ar
-CP=arm-none-eabi-objcopy
-OD=arm-none-eabi-objdump
+
+# see if we can find the new arm-none-eabi, otherwise use the older arm-elf
+HAVE_ARM_NONE_EABI_GCC := $(shell which arm-none-eabi-gcc)
+ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
+GCC_PREFIX = arm-elf
+else
+GCC_PREFIX = arm-none-eabi
+GCC_LIB_DIR=$(shell dirname `which arm-none-eabi-gcc`)/../arm-none-eabi/lib
 endif
 
+CC      = $(shell which $(GCC_PREFIX)-gcc)
+LD      = $(shell which $(GCC_PREFIX)-ld) -v
+AR      = $(shell which $(GCC_PREFIX)-ar)
+AS      = $(shell which $(GCC_PREFIX)-as)
+CP      = $(shell which $(GCC_PREFIX)-objcopy)
+OD      = $(shell which $(GCC_PREFIX)-objdump)
+endif
+
+# Define some other programs and commands.
 RM		= rm
 TAR		= tar
 
