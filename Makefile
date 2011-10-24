@@ -61,14 +61,23 @@ UBX_XML = $(CONF)/ubx.xml
 MTK_XML = $(CONF)/mtk.xml
 XSENS_XML = $(CONF)/xsens_MTi-G.xml
 TOOLS=$(PAPARAZZI_SRC)/sw/tools
+OCAML=$(shell which ocaml)
+OCAMLRUN=$(shell which ocamlrun)
+
+# try to find the paparazzi multilib toolchain
+TOOLCHAIN_DIR=$(shell find -L /opt/paparazzi/arm-multilib ~/sat -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1 | xargs dirname )
+ifneq ($(TOOLCHAIN_DIR),)
+#found the compiler from the paparazzi multilib package
+ARMGCC=$(TOOLCHAIN_DIR)/bin/arm-none-eabi-gcc
+else
+#try picking up the arm-none-eabi compiler from the path, otherwise use arm-elf
 HAVE_ARM_NONE_EABI_GCC := $(shell which arm-none-eabi-gcc)
 ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
 ARMGCC=$(shell which arm-elf-gcc)
 else
 ARMGCC=$(HAVE_ARM_NONE_EABI_GCC)
 endif
-OCAML=$(shell which ocaml)
-OCAMLRUN=$(shell which ocamlrun)
+endif
 
 all: conf commands static
 

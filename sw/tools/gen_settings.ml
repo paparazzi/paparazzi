@@ -215,7 +215,11 @@ let parse_rc_setting = fun xml ->
   and range = float_of_string (ExtXml.attrib xml "range") in
   let t = (ExtXml.attrib xml "type") in
   let param_macro = param_macro_of_type t in
-  let var_init = var ^ "_init" in
+  let dot_pos =
+    try String.rindex var '.' + 1 with
+      Not_found -> 0 in
+  let var_nostruct = String.sub var dot_pos (String.length var - dot_pos) in
+  let var_init = var_nostruct ^ "_init" in
 
   lprintf "if (rc_settings_mode == RC_SETTINGS_MODE_%s) { \\\n" (String.uppercase cm);
   right ();
