@@ -133,7 +133,7 @@ extern void i2c2_init(void);
 extern void   i2c_init(struct i2c_periph* p);
 extern bool_t i2c_idle(struct i2c_periph* p);
 extern bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t);
-extern void   i2c2_setbitrate(int bitrate);
+extern void   i2c_setbitrate(struct i2c_periph* p, int bitrate);
 extern void   i2c_event(void);
 
 
