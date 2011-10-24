@@ -5,8 +5,6 @@
 #include <stm32/flash.h>
 #include <stm32/misc.h>
 
-//#include "led.h" 
-
 #define I2C_DEBUG_LED
 
 /////////// DEBUGGING //////////////
@@ -14,6 +12,7 @@
 
 
 #ifdef I2C_DEBUG_LED
+
 static inline void LED1_ON(void)
 {
   GPIO_WriteBit(GPIOB, GPIO_Pin_6 , Bit_SET );
@@ -1163,13 +1162,27 @@ void i2c2_hw_init(void) {
 }
 
 
-void i2c2_setbitrate(int bitrate)
+
+void i2c2_ev_irq_handler(void) {
+  i2c_irq(&i2c2);
+}
+
+void i2c2_er_irq_handler(void) {
+  i2c_irq(&i2c2);
+}
+
+#endif /* USE_I2C2 */
+
+
+void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
 {
-  if (i2c_idle(&i2c2))
+  if (i2c_idle(periph))
   {
-    I2C2_InitStruct.I2C_ClockSpeed = bitrate;
-    I2C_Init(I2C2, i2c2.init_struct);
-  
+    if (periph == &i2c2)
+    {
+      I2C2_InitStruct.I2C_ClockSpeed = bitrate;
+      I2C_Init(I2C2, i2c2.init_struct);
+    }
 
 #ifdef I2C_DEBUG_LED
         __disable_irq();
@@ -1190,30 +1203,18 @@ void i2c2_setbitrate(int bitrate)
 }
 
 
-
-void i2c2_ev_irq_handler(void) {
         __disable_irq();
 #ifdef I2C_DEBUG_LED
   LED1_ON();
   LED1_OFF();
 #endif
-  i2c_irq(&i2c2);
         __enable_irq();
-}
-
-void i2c2_er_irq_handler(void) {
         __disable_irq();
 #ifdef I2C_DEBUG_LED
   LED2_ON();
   LED2_OFF();
 #endif
-  i2c_irq(&i2c2);
         __enable_irq();
-}
-
-#endif /* USE_I2C2 */
-
-
 void i2c_event(void) 
 {
   static uint32_t cnt = 0;
