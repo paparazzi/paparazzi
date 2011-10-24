@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="benchmark">
+  <header>
+    <file name="i2c_abuse_test.h"/>
+  </header>
+  <init fun="init_i2c_abuse_test()"/>
+  <event fun="event_i2c_abuse_test()" />
+ <!-- <periodic fun="periodic_50Hz_i2c_abuse_test()" period="0.02" autorun="FALSE"/> -->
+  <makefile>
+    <!-- define name="i2c_abuse_test_MODULE_LED" value="2"/ -->
+    <file name="i2c_abuse_test.c"/>
+  </makefile>
+</module>
+

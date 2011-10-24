@@ -615,6 +615,10 @@ void init_ap( void ) {
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
 
+#ifndef SINGLE_MCU
+  i2c_event();
+#endif
+
 #if defined USE_AHRS
 #ifdef USE_IMU
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
