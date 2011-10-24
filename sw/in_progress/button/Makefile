@@ -1,4 +1,4 @@
-# 
+#
 #   $Id: Makefile 5874 2010-09-15 03:41:04Z aibara $
 #   Copyright (C) 2004 Pascal Brisset, Antoine Drouin
 #
@@ -17,15 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.  
-# 
+# Boston, MA 02111-1307, USA.
+#
 
 # Quiet compilation
 Q=@
 
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
-INCLUDES= $(shell ocamlfind query -r -i-format xml-light)  $(shell ocamlfind query -r -i-format lablgtk2) -I ../../lib/ocaml 
+INCLUDES= $(shell ocamlfind query -r -i-format xml-light)  $(shell ocamlfind query -r -i-format lablgtk2) -I ../../lib/ocaml
 
 all: panic
 
@@ -63,10 +63,10 @@ pt : ahrsview imuview ahrs2fg
 
 CC = gcc
 CFLAGS=-g -O2 -Wall `pkg-config gtk+-2.0 --cflags`
-LDFLAGS=`pkg-config gtk+-2.0 --libs` -s -lgtkdatabox `pcre-config --libs` -lglibivy
+LDFLAGS=`pkg-config gtk+-2.0 --libs` -s -lgtkdatabox -lglibivy
 
-MORE_FLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -rdynamic  /usr/lib/libgtkgl.so -L/usr/lib -L/usr/X11R6/lib /usr/lib/libgtk.so /usr/lib/libgdk.so /usr/lib/libgmodule.so /usr/lib/libglib.so -ldl -lXi -lXext -lX11 -lm -lGLU -lGL  -Wl,--rpath -Wl,/usr/local/lib `pcre-config --libs` -lglibivy
- 
+MORE_FLAGS = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -rdynamic  /usr/lib/libgtkgl.so -L/usr/lib -L/usr/X11R6/lib /usr/lib/libgtk.so /usr/lib/libgdk.so /usr/lib/libgmodule.so /usr/lib/libglib.so -ldl -lXi -lXext -lX11 -lm -lGLU -lGL  -Wl,--rpath -Wl,/usr/local/lib -lglibivy `pcre-config --libs`
+
 MORE_CFLAGS = -DHAVE_DLFCN_H=1 -DSTDC_HEADERS=1  -I. -I.  -I..    -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include
 
 clean:
@@ -99,7 +99,7 @@ FGFS_ARGS = $(FGFS_COMMON_ARGS) $(FGFS_IN_GUI_ARGS)
 #FGFS_GAME_ARGS)
 
 panic: panic.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy -lhid
+	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy -lhid
 
 #
 # Dependencies
@@ -108,6 +108,6 @@ panic: panic.c
 .depend: Makefile
 	ocamldep -I ../../lib/ocaml *.ml* > .depend
 
-ifneq ($(MAKECMDGOALS),clean) 
+ifneq ($(MAKECMDGOALS),clean)
 -include .depend
 endif
