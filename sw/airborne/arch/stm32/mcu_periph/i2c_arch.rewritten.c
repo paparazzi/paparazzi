@@ -136,6 +136,12 @@ static I2C_InitTypeDef  I2C2_InitStruct = {
 
 #define BIT_X_IS_SET_IN_REG(X,REG)	(((REG) & (X)) == (X))
 
+// Critical Zones
+
+#define __I2C_REG_CRITICAL_ZONE_START	
+#define __I2C_REG_CRITICAL_ZONE_STOP
+
+
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -227,6 +233,10 @@ static inline void LED_SHOW_ACTIVE_BITS(I2C_TypeDef *regs)
   LED2_OFF();    
   LED1_OFF();
 
+//#define I2C_DEBUG_LED_CONTROL
+#ifdef I2C_DEBUG_LED_CONTROL
+
+
   LED1_ON();
 
   // 1 Anything CR?
@@ -251,7 +261,8 @@ static inline void LED_SHOW_ACTIVE_BITS(I2C_TypeDef *regs)
   LED2_OFF();    
     
   LED1_OFF();
-  
+#endif  
+
 }
 #endif
 
@@ -322,7 +333,8 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
 enum STMI2CSubTransactionStatus {
   STMI2C_SubTra_Busy,
   STMI2C_SubTra_Ready_StopRequested,
-  STMI2C_SubTra_Ready
+  STMI2C_SubTra_Ready,
+  STMI2C_SubTra_Error
 };
 
 static inline enum STMI2CSubTransactionStatus stmi2c_send(I2C_TypeDef *regs, struct i2c_periph *periph, struct i2c_transaction *trans)
@@ -389,6 +401,10 @@ static inline enum STMI2CSubTransactionStatus stmi2c_send(I2C_TypeDef *regs, str
 
       return STMI2C_SubTra_Ready;
   }
+  else // Hardware error
+  {
+    return STMI2C_SubTra_Error;
+  }
 
   return STMI2C_SubTra_Busy;
 }
@@ -411,7 +427,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read1(I2C_TypeDef *regs, st
     regs->CR1 &= ~ I2C_CR1_BIT_ACK;
 
     // --- next to steps MUST be executed together to avoid missing the stop
-    __disable_irq();
+    __I2C_REG_CRITICAL_ZONE_START;
 
     // Only after setting ACK, read SR2 to clear the ADDR (next byte will start arriving)
     uint16_t SR2 __attribute__ ((unused)) = regs->SR2;
@@ -419,7 +435,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read1(I2C_TypeDef *regs, st
     // Schedule a Stop
     PPRZ_I2C_SEND_STOP(regs);
 
-    __enable_irq();
+    __I2C_REG_CRITICAL_ZONE_STOP;
     // --- end of critical zone -----------
 
     // Enable the RXNE to get the result
@@ -434,6 +450,10 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read1(I2C_TypeDef *regs, st
     trans->status = I2CTransSuccess;
 
     return STMI2C_SubTra_Ready_StopRequested;
+  }
+  else // Hardware error
+  {
+    return STMI2C_SubTra_Error;
   }
 
   return STMI2C_SubTra_Busy;
@@ -459,7 +479,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read2(I2C_TypeDef *regs, st
     uint16_t SR2 __attribute__ ((unused)) = regs->SR2;
       
     // --- make absolutely sure this command is not delayed too much after the previous: 
-    __disable_irq();
+    __I2C_REG_CRITICAL_ZONE_START;
     //       if transfer of DR was finished already then we will get too many bytes
     // NOT First Clear the ACK bit but only AFTER clearing ADDR
     regs->CR1 &= ~ I2C_CR1_BIT_ACK;
@@ -467,7 +487,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read2(I2C_TypeDef *regs, st
     // Disable the RXNE and wait for BTF
     regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;
 
-    __enable_irq();
+    __I2C_REG_CRITICAL_ZONE_STOP;
     // --- end of critical zone -----------
   }
   // Receive buffer if full, master is halted: BTF
@@ -484,6 +504,10 @@ static inline enum STMI2CSubTransactionStatus stmi2c_read2(I2C_TypeDef *regs, st
     trans->status = I2CTransSuccess;
 
     return STMI2C_SubTra_Ready_StopRequested;
+  }
+  else // Hardware error
+  {
+    return STMI2C_SubTra_Error;
   }
 
   return STMI2C_SubTra_Busy;
@@ -565,7 +589,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
     // And I2C is halted so we have time
 
     // --- Make absolutely sure the next 2 I2C actions are performed with no delay
-    __disable_irq();
+    __I2C_REG_CRITICAL_ZONE_START;
 
     // First we clear the ACK while the SCL is held low by BTF
     regs->CR1 &= ~ I2C_CR1_BIT_ACK;
@@ -577,7 +601,7 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
     // Now the last byte is being clocked. Stop in MUST be set BEFORE the transfer of the last byte is complete
     PPRZ_I2C_SEND_STOP(regs);
 
-    __enable_irq();
+    __I2C_REG_CRITICAL_ZONE_STOP;
     // --- end of critical zone -----------
 
     // read the byte2 we had in the buffer (BTF means 2 bytes available)
@@ -588,15 +612,9 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
     // The last byte will be received with RXNE
     regs->CR2 |= I2C_CR2_BIT_ITBUFEN;
   }
-  else
+  else // Hardware error
   {
-    // Error
-#ifdef I2C_DEBUG_LED
-        LED2_ON();
-        LED1_ON();
-	LED2_OFF();
-	LED1_OFF();
-#endif
+    return STMI2C_SubTra_Error;
   }
 
   return STMI2C_SubTra_Busy;
@@ -609,6 +627,8 @@ static inline void stmi2c_clear_pending_interrupts(I2C_TypeDef *regs)
 
   regs->CR2 &= ~ I2C_CR2_BIT_ITBUFEN;			// Disable TXE, RXNE
 
+  //regs->CR1 &= ~ I2C_CR1_BIT_PE;		// Disable Periferial
+  //regs->CR1 |=   I2C_CR1_BIT_PE;		// Enable Periferial
 
   // Start Condition Was Generated
   if (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_SB, SR1 ) )
@@ -620,7 +640,7 @@ static inline void stmi2c_clear_pending_interrupts(I2C_TypeDef *regs)
   if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_ADDR, SR1) )
   {
     // ADDR: Cleared by software when reading SR1 and then SR2
-    uint16_t SR2 __attribute__ ((unused)) = regs->SR2;
+    uint16_t SR2 __attribute__ ((unused)) = SR2;
   }
   // Byte Transfer Finished
   if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_BTF, SR1) )
@@ -629,6 +649,15 @@ static inline void stmi2c_clear_pending_interrupts(I2C_TypeDef *regs)
     uint8_t dummy __attribute__ ((unused)) = regs->DR;
     regs->DR = 0x00;
   }
+
+
+  // Still have a start sheduled
+//  if (BIT_X_IS_SET_IN_REG(I2C_CR1_BIT_START, regs->CR1) )
+  {
+    // Clear pending start conditions
+//    regs->CR1 &= ~ I2C_CR1_BIT_START;
+  }
+
 }
 
 
@@ -734,12 +763,6 @@ static inline void i2c_irq(struct i2c_periph *periph)
   // Do not read SR2 as it might start the reading while an (n)ack bit might be needed first
   I2C_TypeDef *regs = (I2C_TypeDef *) periph->reg_addr;
   
-#ifdef I2C_DEBUG_LED
-  LED1_ON();
-  LED1_OFF();
-#endif
-
-
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
   //
@@ -765,11 +788,11 @@ static inline void i2c_irq(struct i2c_periph *periph)
     // (which can happen if an event was sheduled just before a bus error occurs)
     // then its easy: just stop: clear all interrupt generating bits  
 
-    // Clear Running Events
-    stmi2c_clear_pending_interrupts(regs);
-
     // Count The Errors
     i2c_error(periph);
+
+    // Clear Running Events
+    stmi2c_clear_pending_interrupts(regs);
 
     // Mark this as a special error
     periph->errors->unexpected_event_cnt++;
@@ -806,11 +829,26 @@ static inline void i2c_irq(struct i2c_periph *periph)
     // Make sure a TxRx does not Restart
     trans->type = I2CTransRx;
 
-    // Clear Running Events
-    stmi2c_clear_pending_interrupts(regs);
+/*
+    // There are 2 types of errors: some need a STOP, some better do without: Following will not get an extra stop
+    if (
+           // Lost Arbitration
+           (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_ERR_ARLO, regs->SR1 ) )
+           // Buss Error When Master Only
+        || ((BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_ERR_BUS,  regs->SR1 ) )  &&  (!BIT_X_IS_SET_IN_REG( I2C_SR2_BIT_MSL,  regs->SR2 ) ))
+        || (BIT_X_IS_SET_IN_REG( I2C_SR1_BIT_ERR_OVR,  regs->SR1 ) )
+       )
+    {
+      ret = STMI2C_SubTra_Error;
+    }
+*/
 
     // Count The Errors
     i2c_error(periph);
+
+    // Clear Running Events
+    stmi2c_clear_pending_interrupts(regs);
+
   }
 
 
@@ -854,9 +892,31 @@ static inline void i2c_irq(struct i2c_periph *periph)
         // Program a stop
         PPRZ_I2C_SEND_STOP(regs);
 
-        // Silent any BTF that would occur before STOP is executed
-        regs->DR = 0x00;
+        // Silent further BTF
+        regs->DR = 0;
       }
+
+      // In case of unexpected condition: e.g. not slave, no event
+      if (ret == STMI2C_SubTra_Error)
+      {
+
+        trans->status = I2CTransFailed;
+
+    // Error
+#ifdef I2C_DEBUG_LED
+        LED2_ON();
+        LED1_ON();
+	LED2_OFF();
+	LED1_OFF();
+#endif
+
+        LED_SHOW_ACTIVE_BITS(regs);
+
+        // Clear Running Events
+        stmi2c_clear_pending_interrupts(regs);
+
+      }
+
 
       // Jump to the next transaction
       periph->trans_extract_idx++;
@@ -1132,11 +1192,23 @@ void i2c2_setbitrate(int bitrate)
 
 
 void i2c2_ev_irq_handler(void) {
+        __disable_irq();
+#ifdef I2C_DEBUG_LED
+  LED1_ON();
+  LED1_OFF();
+#endif
   i2c_irq(&i2c2);
+        __enable_irq();
 }
 
 void i2c2_er_irq_handler(void) {
+        __disable_irq();
+#ifdef I2C_DEBUG_LED
+  LED2_ON();
+  LED2_OFF();
+#endif
   i2c_irq(&i2c2);
+        __enable_irq();
 }
 
 #endif /* USE_I2C2 */
@@ -1145,7 +1217,7 @@ void i2c2_er_irq_handler(void) {
 void i2c_event(void) 
 {
   static uint32_t cnt = 0;
-  I2C_TypeDef *regs;
+  //I2C_TypeDef *regs;
   cnt++;
   if (cnt > 10000) cnt = 0;
 
