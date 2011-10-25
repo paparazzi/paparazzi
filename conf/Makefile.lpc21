@@ -31,25 +31,51 @@
 # only define here or elsewhere?
 SRC_ARCH = arch/lpc21
 
-# Define programs and commands.
+
+# Programs location
+# try to find the paparazzi multilib toolchain
+TOOLCHAIN_DIR=$(shell find -L /opt/paparazzi/arm-multilib ~/sat -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1 | xargs dirname )
+
+#
+# found the new paparazzi toolchain, use it
+#
+ifneq ($(TOOLCHAIN_DIR),)
+GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
+GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
+GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi
+CC      = $(GCC_BIN_PREFIX)-gcc
+LD      = $(GCC_BIN_PREFIX)-gcc
+OBJCOPY = $(GCC_BIN_PREFIX)-objcopy
+OBJDUMP = $(GCC_BIN_PREFIX)-objdump
+NM      = $(GCC_BIN_PREFIX)-nm
+SIZE    = $(GCC_BIN_PREFIX)-size
+OOCD    = $(TOOLCHAIN_DIR)/bin/openocd
+
+#
+# If we can't find the toolchain (in /opt/paparazzi/arm-multilib or ~/sat) then try picking up the compilers from the path
+#
+else
+
+# see if we can find the new arm-none-eabi, otherwise use the older arm-elf
 HAVE_ARM_NONE_EABI_GCC := $(shell which arm-none-eabi-gcc)
 ifeq ($(strip $(HAVE_ARM_NONE_EABI_GCC)),)
-CC		= arm-elf-gcc
-LD		= $(CC)
-SHELL = sh
-OBJCOPY = arm-elf-objcopy
-OBJDUMP = arm-elf-objdump
-SIZE = arm-elf-size
-NM = arm-elf-nm
+GCC_PREFIX = arm-elf
 else
-CC		= arm-none-eabi-gcc
-LD		= $(CC)
-SHELL = sh
-OBJCOPY = arm-none-eabi-objcopy
-OBJDUMP = arm-none-eabi-objdump
-SIZE = arm-none-eabi-size
-NM = arm-none-eabi-nm
+GCC_PREFIX = arm-none-eabi
+GCC_LIB_DIR=$(shell dirname `which arm-none-eabi-gcc`)/../arm-none-eabi/lib
 endif
+
+CC      = $(shell which $(GCC_PREFIX)-gcc)
+LD      = $(shell which $(GCC_PREFIX)-gcc)
+OBJCOPY = $(shell which $(GCC_PREFIX)-objcopy)
+OBJDUMP = $(shell which $(GCC_PREFIX)-objdump)
+NM      = $(shell which $(GCC_PREFIX)-nm)
+SIZE    = $(shell which $(GCC_PREFIX)-size)
+OOCD    = $(shell which openocd)
+endif
+
+# Define some other programs and commands.
+SHELL = sh
 REMOVE = rm -f
 COPY = cp
 
@@ -87,7 +113,7 @@ CINCS = $(INCLUDES) -I $(SRC_ARCH)/include
 CFLAGS = $(CINCS)
 CFLAGS += -O$(OPT)
 # CFLAGS += -malignment-traps
-CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align -Winline
+CFLAGS += -Wall -Wcast-qual -Wimplicit -Wcast-align
 CFLAGS += -Wpointer-arith -Wswitch
 CFLAGS += -Wredundant-decls -Wreturn-type -Wshadow -Wunused
 CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))

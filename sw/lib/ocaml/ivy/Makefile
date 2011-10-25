@@ -63,7 +63,7 @@ deb :
 	cp debian/changelog.$(DISTRO) debian/changelog
 	dpkg-buildpackage -rfakeroot
 
-ivy : ivy-ocaml.cma ivy-ocaml.cmxa 
+ivy : ivy-ocaml.cma ivy-ocaml.cmxa
 glibivy : glibivy-ocaml.cma glibivy-ocaml.cmxa
 tkivy : tkivy-ocaml.cma tkivy-ocaml.cmxa
 
@@ -101,7 +101,7 @@ tkivy-ocaml.cmxa : $(TKIVYCMX) civy.o ctkivy.o
 .ml.cmo :
 	$(OCAMLC) $(OCAMLFLAGS) $(INCLUDES) -c $<
 .c.o :
-    
+
 	$(CC) -Wall -c $(FPIC) -I /opt/local/include/  $(OCAMLINC) $(GLIBINC) $<
 .mli.cmi :
 	$(OCAMLMLI) $(OCAMLFLAGS) -c $<

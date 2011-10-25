@@ -71,8 +71,9 @@ endif
 
 
 all_ac_h: $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(TUNING_H) $(MAKEFILE_AC) $(PERIODIC_H)
-	@echo "TARGET: " $(TARGET) "\n" > $(ACINCLUDE)/$(TARGET)_srcs.list
-	@echo "CFLAGS: " $($(TARGET).CFLAGS) "\n"  >> $(ACINCLUDE)/$(TARGET)_srcs.list
+	@echo "TARGET: " $(TARGET)"\n" > $(ACINCLUDE)/$(TARGET)_srcs.list
+	@echo "CFLAGS: " $($(TARGET).CFLAGS)"\n"  >> $(ACINCLUDE)/$(TARGET)_srcs.list
+	@echo "LDFLAGS: " $($(TARGET).LDFLAGS)"\n"  >> $(ACINCLUDE)/$(TARGET)_srcs.list
 	@echo "srcs: " $($(TARGET).srcs) >> $(ACINCLUDE)/$(TARGET)_srcs.list
 
 radio_ac_h : $(RADIO_H)
