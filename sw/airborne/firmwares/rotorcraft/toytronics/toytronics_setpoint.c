@@ -25,6 +25,15 @@ double hover_pitch_trim_deg = SETPOINT_HOVER_PITCH_TRIM_DEG;
 double tc_fading_upper_deg = SETPOINT_TC_FADING_UPPER_DEG;
 double tc_fading_lower_deg = SETPOINT_TC_FADING_LOWER_DEG;
 
+#ifdef AUTOPILOT_LOBATT_WING_WAGGLE
+  double lobatt_wing_waggle_deg = SETPOINT_LOBATT_WING_WAGGLE_DEG; //angle to which wings are waggled
+  double lobatt_wing_waggle_max = SETPOINT_LOBATT_WING_WAGGLE_MAX; //max number of waggles in each block
+  double lobatt_wing_waggle_dt  = SETPOINT_LOBATT_WING_WAGGLE_DT;  //time multiplier for waggle spike
+  bool_t setpoint_lobatt_wing_waggle_left = TRUE; //keep track of whether last wing waggle was to the left or right
+  double setpoint_lobatt_wing_waggle_num = 1001; //keep track of number of waggles
+      double roll_body;
+#endif
+
 /**************** gains for the 3 modes ******************/
 struct Int32AttitudeGains toytronics_hover_gains = {
   {TOYTRONICS_STAB_GAINS_HOVER_X_P,  TOYTRONICS_STAB_GAINS_HOVER_Y_P,  TOYTRONICS_STAB_GAINS_HOVER_Z_P  },
@@ -376,7 +385,21 @@ toytronics_set_sp_hover_forward_from_rc()
 
   // set pitch/yaw from stick
   double pitch_body = (rcp * SETPOINT_MAX_STICK_ANGLE_DEG + hover_pitch_trim_deg + (fabs(rcr * SETPOINT_MAX_STICK_ANGLE_DEG)*(5/90) * fabs(rcp * SETPOINT_MAX_STICK_ANGLE_DEG)*(1/90)))*M_PI/180.0;
-  double roll_body   = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;
+  
+  #ifdef AUTOPILOT_LOBATT_WING_WAGGLE
+    if (setpoint_lobatt_wing_waggle_num < lobatt_wing_waggle_max){
+      if (setpoint_lobatt_wing_waggle_left==TRUE){
+        if(roll_body < rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0 + lobatt_wing_waggle_deg*M_PI/180.0){roll_body += lobatt_wing_waggle_dt*dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0;}
+        else{roll_body = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0; setpoint_lobatt_wing_waggle_left=FALSE;setpoint_lobatt_wing_waggle_num+=1;}}
+      else{
+        if(roll_body > rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0 - lobatt_wing_waggle_deg*M_PI/180.0){roll_body -= lobatt_wing_waggle_dt*dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0;}
+        else{roll_body = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0; setpoint_lobatt_wing_waggle_left=TRUE;setpoint_lobatt_wing_waggle_num+=1;}}
+    }
+    else{
+      roll_body   = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;}
+  #else
+    roll_body   = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;
+  #endif
 
   // integrate stick to get setpoint heading
   setpoint.setpoint_heading += dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*rcy;
@@ -474,9 +497,24 @@ toytronics_set_sp_absolute_forward_from_rc()
   double rcr = apply_deadband(rc->roll, SETPOINT_DEADBAND);
   double rcy = apply_deadband(rc->yaw, SETPOINT_DEADBAND);
 
+  #ifdef AUTOPILOT_LOBATT_WING_WAGGLE
+    if (setpoint_lobatt_wing_waggle_num < lobatt_wing_waggle_max){
+      if (setpoint_lobatt_wing_waggle_left==TRUE){
+        if(roll_body < rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0 + lobatt_wing_waggle_deg*M_PI/180.0){roll_body += lobatt_wing_waggle_dt*dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0;}
+        else{roll_body = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0; setpoint_lobatt_wing_waggle_left=FALSE;setpoint_lobatt_wing_waggle_num+=1;}}
+      else{
+        if(roll_body > rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0 - lobatt_wing_waggle_deg*M_PI/180.0){roll_body -= lobatt_wing_waggle_dt*dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0;}
+        else{roll_body = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0; setpoint_lobatt_wing_waggle_left=TRUE;setpoint_lobatt_wing_waggle_num+=1;}}
+    }
+    else{
+      roll_body   = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;}
+  #else
+    roll_body   = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;
+  #endif
+
   euler_t e_n2sp;
   e_n2sp.pitch = (rcp * SETPOINT_MAX_STICK_ANGLE_DEG + absolute_forward_pitch_trim_deg+ fabs(rcr * SETPOINT_MAX_STICK_ANGLE_DEG)*(5/90))*M_PI/180.0;
-  e_n2sp.roll  = rcr * SETPOINT_MAX_STICK_ANGLE_DEG * M_PI/180.0;
+  e_n2sp.roll  = roll_body; //rcr * SETPOINT_MAX_STICK_ANGLE_DEG * M_PI/180.0;
 
   // integrate stick to get setpoint heading
   setpoint.setpoint_heading += dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*rcy;
@@ -527,9 +565,24 @@ toytronics_set_sp_incremental_from_rc()
   double rcp = apply_deadband(rc->pitch, SETPOINT_DEADBAND);
   double rcr = apply_deadband(rc->roll, SETPOINT_DEADBAND);
   double rcy = apply_deadband(rc->yaw, SETPOINT_DEADBAND);
+
+  #ifdef AUTOPILOT_LOBATT_WING_WAGGLE
+    if (setpoint_lobatt_wing_waggle_num < lobatt_wing_waggle_max){
+      if (setpoint_lobatt_wing_waggle_left==TRUE){
+        if(roll_body < rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0 + lobatt_wing_waggle_deg*M_PI/180.0){roll_body += lobatt_wing_waggle_dt*dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0;}
+        else{roll_body = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0; setpoint_lobatt_wing_waggle_left=FALSE;setpoint_lobatt_wing_waggle_num+=1;}}
+      else{
+        if(roll_body > rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0 - lobatt_wing_waggle_deg*M_PI/180.0){roll_body -= lobatt_wing_waggle_dt*dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0;}
+        else{roll_body = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0; setpoint_lobatt_wing_waggle_left=TRUE;setpoint_lobatt_wing_waggle_num+=1;}}
+    }
+    else{
+      roll_body   = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0;}
+  #else
+    roll_body = rcr * SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*dt;
+  #endif
   
   // rotation vector in body frame
-  xyz_t w_dt_body = {rcr * SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*dt,
+  xyz_t w_dt_body = {roll_body,//rcr * SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*dt,
                      rcp * SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*dt,
                      rcy * SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*dt};
 

@@ -33,6 +33,9 @@
     <define name="MODE_AUTO2"  value="AP_MODE_TOYTRONICS_AEROBATIC"/>
     <define name="AUTOPILOT_KILL_WITHOUT_AHRS"  value="TRUE"/>
     <define name="AUTOPILOT_INSTANT_START_WITH_SAFETIES"  value="TRUE"/>
+    <!--This is to enable a wing waggle at specified low battery voltage. The interval is in cycle counts, not seconds-->
+    <define name="AUTOPILOT_LOBATT_WING_WAGGLE"  value="TRUE"/>
+    <define name="AUTOPILOT_LOBATT_WING_WAGGLE_INTERVAL"  value="5120"/>
   </section>
 
   <rc_commands>
@@ -124,7 +127,7 @@
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-   <define name="MIN_BAT_LEVEL" value="10.8" units="V"/>
+   <define name="MIN_BAT_LEVEL" value="10.0" units="V"/>
    <define name="BATTERY_SENS"   value="0.48" integer="16"/>
  </section>
 

@@ -75,6 +75,8 @@ extern bool_t autopilot_detect_ground_once;
 
 extern uint16_t autopilot_flight_time;
 
+extern int32_t autopilot_lobatt_wing_waggle_interval;
+
 #ifndef MODE_MANUAL
 #define MODE_MANUAL AP_MODE_RATE_DIRECT
 #endif
