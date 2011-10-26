@@ -73,6 +73,21 @@ float ins_roll_neutral;
 
 volatile uint8_t new_ins_attitude;
 
+#include "subsystems/imu.h"
+
+void imu_init(void)
+{
+  ins_init();
+}
+
+void imu_periodic(void)
+{
+  ins_periodic_task();
+}
+
+//struct Imu imu;
+
+
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 //	XSens Specific

@@ -191,10 +191,6 @@
 
 
   <modules>
-    <load name="ins_xsens_MTiG_fixedwing.xml">
-      <configure name="XSENS_UART_NR" value="0"/>
-    </load>
-
     <load name="light.xml">
       <define name="LIGHT_LED_STROBE" value="3"/>
       <define name="LIGHT_LED_NAV" value="2"/>
@@ -212,15 +208,15 @@
 
   <firmware name="fixedwing">
 
-    <target name="ap" board="tiny_2.11">
+    <target name="ap" board="tiny_2.11" />
+    <target name="sim" board="pc"/>
+
       <define name="STRONG_WIND"/>
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
       <define name="LOITER_TRIM"/>
       <define name="TUNE_AGRESSIVE_CLIMB"/>
       <define name="AGR_CLIMB"/>
-    </target>
-    <target name="sim" board="pc"/>
 
     <subsystem name="radio_control" type="ppm"/>
 
@@ -233,7 +229,9 @@
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="navigation"/>
-    <subsystem name="gps" type="xsens"/>
+    <subsystem name="ins" type="xsens">
+      <configure name="XSENS_UART_NR" value="0" />
+    </subsystem>
 
 
 </firmware>
