@@ -13,8 +13,8 @@ echo "# 1) Configure this machine (username, color, mergetools, ...             
 echo "# 2) I want to make a backup of what I have now                            #"
 echo "# 3) I want to try to add some code changes but I'm not sure if it will    #"
 echo "#    be good and might take a while                                        #"
-echo "#                                                                          #"
-echo "# 4) QUIT                                                                  #"
+echo "# 4) I want to Remeber this particular version or restore a saved version  #"
+echo "# 5) Quit                                                                  #"
 echo "#                                                                          #"
 echo "############################################################################"
 
@@ -38,8 +38,9 @@ case "$choice" in
 	git config --global alias.ci commit   # make `git ci` work
 	git config --global alias.br branch   # make `git br` work
 	git config --global alias.up "pull --rebase"   # make `git up` work similar to svn up
-	# sudo apt-get install diffk
-	# git configure mergetool diffk
+	sudo apt-get update	
+	sudo apt-get install kdiff3
+	# git configure mergetool kdiff3
 	echo ""; echo -e "\033[1mHere are the results\033[0m:";
 	git config --list
 	exit
@@ -84,6 +85,15 @@ case "$choice" in
 	echo -e "-I want to see the list of changes compared to my master: \033[1mgit diff master $branch\033[0m (use 'q' to exit)"
 	echo -e "-Ok, this code is good. I want it in my master now: \033[1mgit checkout master; git merge $branch; $git branch -d $branch\033[0m"
 	exit;
+	;;
+ 4 ) 	
+	echo ""; echo -e "Here is the list of all saved versions [\033[1mgit tag\033[0m]: \033[1m"; git tag;
+	echo -e "\033[0m"; 
+	echo -e "-Make a new TAG: \033[1mgit tag TAGNAME\033[0m (=save an easy link to this revision)"
+	echo -e "-Send it to github: \033[1mgit push REMOTE_NAME --tags\033[0m (find your available REMOTE_NAMEs using  \033[1mgit remote\033[0m )"
+	echo -e "-Download all tags from github: \033[1mgit fetch REMOTE_NAME\033[0m "
+	echo -e "-Now use one of your tags: \033[1mgit checkout TAG_NAME\033[0m (find the available TAG_NAMEs using  \033[1mgit tag\033[0m ) (note that after this command you will be in detached head state which means that you are using a older revision and you can not commit changes here. If you want to make changes you have to make a branch from your tag)"
+        exit;
 	;;
  4 ) clear; exit 1 ;;
 esac
