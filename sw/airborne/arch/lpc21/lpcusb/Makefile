@@ -6,7 +6,7 @@ DATE		= $$(date +%Y%m%d)
 
 # Tool definitions
 # try to find the paparazzi multilib toolchain
-TOOLCHAIN_DIR=$(shell find -L /opt/paparazzi/arm-multilib ~/sat -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1 | xargs dirname )
+TOOLCHAIN_DIR=$(shell find -L /opt/paparazzi/arm-multilib ~/sat -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1 | xargs -r dirname )
 
 #
 # found the new paparazzi toolchain, use it

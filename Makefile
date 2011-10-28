@@ -65,7 +65,7 @@ OCAML=$(shell which ocaml)
 OCAMLRUN=$(shell which ocamlrun)
 
 # try to find the paparazzi multilib toolchain
-TOOLCHAIN_DIR=$(shell find -L /opt/paparazzi/arm-multilib ~/sat -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1 | xargs dirname )
+TOOLCHAIN_DIR=$(shell find -L /opt/paparazzi/arm-multilib ~/sat -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1 | xargs -r dirname )
 ifneq ($(TOOLCHAIN_DIR),)
 #found the compiler from the paparazzi multilib package
 ARMGCC=$(TOOLCHAIN_DIR)/bin/arm-none-eabi-gcc
