@@ -78,6 +78,10 @@
     <let var="forward_left"  value="3*$aileron_feedback_left  + 2*$elevator_feedback_left"/>
     <let var="forward_right" value="3*$aileron_feedback_right + 2*$elevator_feedback_right"/>
 
+    <!-- mode forward HIGH LIFT >
+    <let var="forward_left"  value="3*$aileron_feedback_left  + 2*$elevator_feedback_left  + 2400"/>
+    <let var="forward_right" value="3*$aileron_feedback_right + 2*$elevator_feedback_right - 2400"/-->
+
     <!-- mode aerobatic -->
     <!-- <let var="aerobatic_left"  value="$aileron_direct_left  + $elevator_feedback_left"/> -->
     <!-- <let var="aerobatic_right" value="$aileron_direct_right + $elevator_feedback_right"/> -->
@@ -127,7 +131,7 @@
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-   <define name="MIN_BAT_LEVEL" value="10.0" units="V"/>
+   <define name="MIN_BAT_LEVEL" value="10.2" units="V"/>
    <define name="BATTERY_SENS"   value="0.48" integer="16"/>
  </section>
 
