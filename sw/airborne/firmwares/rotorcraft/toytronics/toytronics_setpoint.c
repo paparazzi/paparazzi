@@ -500,10 +500,10 @@ toytronics_set_sp_absolute_forward_from_rc()
   #ifdef AUTOPILOT_LOBATT_WING_WAGGLE
     if (setpoint_lobatt_wing_waggle_num < lobatt_wing_waggle_max){
       if (setpoint_lobatt_wing_waggle_left==TRUE){
-        if(roll_body < rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0 + lobatt_wing_waggle_deg*M_PI/180.0){roll_body += lobatt_wing_waggle_dt*dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0;}
+        if(roll_body < rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0 + 2*lobatt_wing_waggle_deg*M_PI/180.0){roll_body += lobatt_wing_waggle_dt*dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0;}
         else{roll_body = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0; setpoint_lobatt_wing_waggle_left=FALSE;setpoint_lobatt_wing_waggle_num+=1;}}
       else{
-        if(roll_body > rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0 - lobatt_wing_waggle_deg*M_PI/180.0){roll_body -= lobatt_wing_waggle_dt*dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0;}
+        if(roll_body > rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0 - 2*lobatt_wing_waggle_deg*M_PI/180.0){roll_body -= lobatt_wing_waggle_dt*dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0;}
         else{roll_body = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0; setpoint_lobatt_wing_waggle_left=TRUE;setpoint_lobatt_wing_waggle_num+=1;}}
     }
     else{
@@ -569,10 +569,10 @@ toytronics_set_sp_incremental_from_rc()
   #ifdef AUTOPILOT_LOBATT_WING_WAGGLE
     if (setpoint_lobatt_wing_waggle_num < lobatt_wing_waggle_max){
       if (setpoint_lobatt_wing_waggle_left==TRUE){
-        if(roll_body < rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0 + lobatt_wing_waggle_deg*M_PI/180.0){roll_body += lobatt_wing_waggle_dt*dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0;}
+        if(roll_body < rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0 + 2*lobatt_wing_waggle_deg*M_PI/180.0){roll_body += lobatt_wing_waggle_dt*dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0;}
         else{roll_body = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0; setpoint_lobatt_wing_waggle_left=FALSE;setpoint_lobatt_wing_waggle_num+=1;}}
       else{
-        if(roll_body > rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0 - lobatt_wing_waggle_deg*M_PI/180.0){roll_body -= lobatt_wing_waggle_dt*dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0;}
+        if(roll_body > rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0 - 2*lobatt_wing_waggle_deg*M_PI/180.0){roll_body -= lobatt_wing_waggle_dt*dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0;}
         else{roll_body = rcr * SETPOINT_MAX_STICK_ANGLE_DEG*M_PI/180.0; setpoint_lobatt_wing_waggle_left=TRUE;setpoint_lobatt_wing_waggle_num+=1;}}
     }
     else{
