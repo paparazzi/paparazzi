@@ -33,7 +33,7 @@
 
 #include "generated/airframe.h"
 
-#include "firmwares/rotorcraft/toytronics/toytronics_setpoint.h"
+//#include "firmwares/rotorcraft/toytronics/toytronics_setpoint.h"
 
 
 uint8_t guidance_h_mode;
