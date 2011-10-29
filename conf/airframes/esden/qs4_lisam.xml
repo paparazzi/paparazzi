@@ -227,7 +227,7 @@
    <define name="PGAIN" value="-100"/>
    <define name="DGAIN" value="-100"/>
    <define name="IGAIN" value="-0"/>
-   <define name="TOYTRONICS" value="true"/>
+   <define name="TOYTRONICS" value="TRUE"/>
  </section>
 
  <section name="SIMULATOR" prefix="NPS_">
