@@ -31,8 +31,11 @@
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/camera_mount.h"
 #include "led.h"
-#include "subsystems/electrical.h"
-#include "firmwares/rotorcraft/toytronics/toytronics_setpoint.h"
+
+#ifdef AUTOPILOT_LOBATT_WING_WAGGLE
+  #include "subsystems/electrical.h"
+  #include "firmwares/rotorcraft/toytronics/toytronics_setpoint.h"
+#endif
 
 uint8_t  autopilot_mode;
 uint8_t  autopilot_mode_auto2;
