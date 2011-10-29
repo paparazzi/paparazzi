@@ -546,8 +546,35 @@
 		<field name="AOA" type="float" unit="rad"></field>
 	</message>
 
- <!-- 70 is free -->
- <!-- 71 is free -->
+  <message name="TOYTRONICS_SETPOINT" id="70">
+    <field name="q_n2sp_q0"          type="float" />
+    <field name="q_n2sp_q1"          type="float" />
+    <field name="q_n2sp_q2"          type="float" />
+    <field name="q_n2sp_q3"          type="float" />
+    <field name="q_b2sp_q0"          type="float" />
+    <field name="q_b2sp_q1"          type="float" />
+    <field name="q_b2sp_q2"          type="float" />
+    <field name="q_b2sp_q3"          type="float" />
+    <field name="q_pitch_yaw_sp_q0"  type="float" />
+    <field name="q_pitch_yaw_sp_q1"  type="float" />
+    <field name="q_pitch_yaw_sp_q2"  type="float" />
+    <field name="q_pitch_yaw_sp_q3"  type="float" />
+    <field name="q_pitch_yaw_est_q0" type="float" />
+    <field name="q_pitch_yaw_est_q1" type="float" />
+    <field name="q_pitch_yaw_est_q2" type="float" />
+    <field name="q_pitch_yaw_est_q3" type="float" />
+    <field name="setpoint_heading"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578" />
+    <field name="estimated_heading"  type="float" alt_unit="deg/s" alt_unit_coef="57.29578" />
+  </message>
+
+  <message name="TOYTRONICS_COMMANDS" id="71">
+    <field name="cmd_roll"         type="int32"/>
+    <field name="cmd_pitch"        type="int32"/>
+    <field name="cmd_yaw"          type="int32"/>
+    <field name="cmd_thrust"       type="int32"/>
+    <field name="cmd_elevon_roll"  type="int32"/>
+    <field name="cmd_elevon_pitch" type="int32"/>
+  </message>
  <!-- 72 is free -->
  <!-- 73 is free -->
  <!-- 74 is free -->
