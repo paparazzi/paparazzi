@@ -128,15 +128,61 @@ static inline void adc_init_irq( void );
     Can be changed by predefining ADC1_GPIO_INIT.
 */
 #ifdef USE_AD1
+#warning "Info: ADC1 enabled"
 #ifndef ADC1_GPIO_INIT
-#define ADC1_GPIO_INIT(gpio) {			\
-    (gpio).GPIO_Pin  = GPIO_Pin_1 | GPIO_Pin_0; \
-    (gpio).GPIO_Mode = GPIO_Mode_AIN;		\
+#ifdef USE_AD1_1
+#warning "Info: ADC1 Channel 1 enabled"
+#define ADC1_GPIO_1_INIT(gpio) {		\
+    (gpio).GPIO_Pin  = GPIO_Pin_1;		\
     GPIO_Init(GPIOB, (&gpio));			\
-    (gpio).GPIO_Pin  = GPIO_Pin_5 | GPIO_Pin_3; \
+}
+#else
+#warning "Info: ADC1 Channel 1 not enabled"
+#define ADC1_GPIO_1_INIT(gpio) { }
+#endif
+#ifdef USE_AD1_2
+#warning "Info: ADC1 Channel 2 enabled"
+#define ADC1_GPIO_2_INIT(gpio) {		\
+    (gpio).GPIO_Pin  = GPIO_Pin_0;		\
+    GPIO_Init(GPIOB, (&gpio));			\
+}
+#else
+#warning "Info: ADC1 Channel 2 not enabled"
+#define ADC1_GPIO_2_INIT(gpio) { }
+#endif
+#ifdef USE_AD1_3
+#warning "Info: ADC1 Channel 3 enabled"
+#define ADC1_GPIO_3_INIT(gpio) {		\
+    (gpio).GPIO_Pin  = GPIO_Pin_5;		\
     GPIO_Init(GPIOC, (&gpio));			\
 }
+#else
+#warning "Info: ADC1 Channel 3 not enabled"
+#define ADC1_GPIO_3_INIT(gpio) { }
+#endif
+#ifdef USE_AD1_4
+#warning "Info: ADC1 Channel 4 enabled"
+#define ADC1_GPIO_4_INIT(gpio) {		\
+    (gpio).GPIO_Pin  = GPIO_Pin_3;		\
+    GPIO_Init(GPIOC, (&gpio));			\
+}
+#else
+#warning "Info: ADC1 Channel 4 not enabled"
+#define ADC1_GPIO_4_INIT(gpio) { }
+#endif
+#define ADC1_GPIO_INIT(gpio) {			\
+    (gpio).GPIO_Mode = GPIO_Mode_AIN;		\
+    ADC1_GPIO_1_INIT(gpio);			\
+    ADC1_GPIO_2_INIT(gpio);			\
+    ADC1_GPIO_3_INIT(gpio);			\
+    ADC1_GPIO_4_INIT(gpio);			\
+}
+#else
+#warning "Info: ADC1 init predefined"
 #endif // ADC1_GPIO_INIT
+#else
+#warning "Info: ADC1 not enabled"
+#define ADC1_GPIO_INIT(gpio) { }
 #endif // USE_AD1
 
 /*
@@ -145,16 +191,61 @@ static inline void adc_init_irq( void );
     Uses the same GPIOs as ADC1 (lisa specific).
 */
 #ifdef USE_AD2
-#define ADC2_GPIO_INIT(gpio) {			\
-    (gpio).GPIO_Pin  = GPIO_Pin_0 | GPIO_Pin_1; \
-    (gpio).GPIO_Mode = GPIO_Mode_AIN;		\
-    GPIO_Init(GPIOB, (&gpio));			\
-    (gpio).GPIO_Pin  = GPIO_Pin_3 | GPIO_Pin_5; \
-    GPIO_Init(GPIOC, (&gpio));			\
-  }
+#warning "Info: ADC2 enabled"
 #ifndef ADC2_GPIO_INIT
-#define ADC2_GPIO_INIT(gpio) { }
+#ifdef USE_AD2_1
+#warning "Info: ADC2 Channel 1 enabled"
+#define ADC2_GPIO_1_INIT(gpio) {		\
+    (gpio).GPIO_Pin  = GPIO_Pin_0;		\
+    GPIO_Init(GPIOB, (&gpio));			\
+}
+#else
+#warning "Info: ADC2 Channel 1 not enabled"
+#define ADC2_GPIO_1_INIT(gpio) { }
+#endif
+#ifdef USE_AD2_2
+#warning "Info: ADC2 Channel 2 enabled"
+#define ADC2_GPIO_2_INIT(gpio) {		\
+    (gpio).GPIO_Pin  = GPIO_Pin_1;		\
+    GPIO_Init(GPIOB, (&gpio));			\
+}
+#else
+#warning "Info: ADC2 Channel 2 not enabled"
+#define ADC2_GPIO_2_INIT(gpio) { }
+#endif
+#ifdef USE_AD2_3
+#warning "Info: ADC2 Channel 3 enabled"
+#define ADC2_GPIO_3_INIT(gpio) {		\
+    (gpio).GPIO_Pin  = GPIO_Pin_3;		\
+    GPIO_Init(GPIOC, (&gpio));			\
+}
+#else
+#warning "Info: ADC2 Channel 3 not enabled"
+#define ADC2_GPIO_3_INIT(gpio) { }
+#endif
+#ifdef USE_AD2_4
+#warning "Info: ADC2 Channel 4 enabled"
+#define ADC2_GPIO_4_INIT(gpio) {		\
+    (gpio).GPIO_Pin  = GPIO_Pin_5;		\
+    GPIO_Init(GPIOC, (&gpio));			\
+}
+#else
+#warning "Info: ADC2 Channel 4 not enabled"
+#define ADC2_GPIO_4_INIT(gpio) { }
+#endif
+#define ADC2_GPIO_INIT(gpio) {			\
+    (gpio).GPIO_Mode = GPIO_Mode_AIN;		\
+    ADC2_GPIO_1_INIT(gpio);			\
+    ADC2_GPIO_2_INIT(gpio);			\
+    ADC2_GPIO_3_INIT(gpio);			\
+    ADC2_GPIO_4_INIT(gpio);			\
+}
+#else
+#warning "Info: ADC2 init predefined"
 #endif // ADC2_GPIO_INIT
+#else
+#warning "Info: ADC2 not enabled"
+#define ADC2_GPIO_INIT(gpio) { }
 #endif // USE_AD2
 
 // }}}

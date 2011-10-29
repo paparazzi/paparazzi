@@ -12,12 +12,14 @@
 #define LED_1_GPIO_PIN GPIO_Pin_4
 #define LED_1_AFIO_REMAP GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE)
 
+/* Also ADC4 */
 #define LED_2_BANK
 #define LED_2_GPIO GPIOC
 #define LED_2_GPIO_CLK RCC_APB2Periph_GPIOC
 #define LED_2_GPIO_PIN GPIO_Pin_5
 #define LED_2_AFIO_REMAP ((void)0)
 
+/* Also ADC6 */
 #define LED_3_BANK
 #define LED_3_GPIO GPIOC
 #define LED_3_GPIO_CLK RCC_APB2Periph_GPIOC
