@@ -1,14 +1,8 @@
-# Hey Emacs, this is a -*- makefile -*-
+$(info Error: Please replace <subsystem name="gyro" type="pitch"/> with)
+$(info   <subsystem name="imu" type="analog_gyro">)
+$(info     <configure name="GYRO_P" value="ADC_3"/>)
+$(info     <configure name="GYRO_Q" value="ADC_4"/>)
+$(info   </subsystem>)
+$(info in your airframe file.)
 
-# additional pitch stabilization with gyro
-#
-# this assumes you are already using a roll gyro
-#
-# default values for tiny and twog are:
-# ADC_GYRO_PITCH    = ADC_4
-#
-# to change just redefine these before including this file
-#
-
-ap.CFLAGS += -DADC_CHANNEL_GYRO_PITCH=$(ADC_GYRO_PITCH) -DUSE_$(ADC_GYRO_PITCH)
-
+$(error The gyro_pitch subsystem has been removed)
