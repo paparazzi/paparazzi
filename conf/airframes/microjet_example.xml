@@ -67,19 +67,15 @@
     <define name="CORRECTION_RIGHT" value="1."/>
   </section>
 
-  <!--section name="GYRO" prefix="GYRO_">
-    <define name="ADC_ROLL_NEUTRAL" value="500"/>
-    <define name="DYNAMIC_RANGE" value="300" unit="deg/s"/>
-    <define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+1.8))"/>
-    <define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/>
-    <define name="ROLL_SCALE" value="3.3*1000./1024./(GYRO_ADXRS300_SENSITIVITY*GYRO_ADXRS300_RESISTOR_BRIDGE)" unit="deg/s/adc_unit"/>
-    <define name="ROLL_DIRECTION" value="1."/>
-  </section-->
-
   <section name="IMU" prefix="IMU_">
     <define name="GYRO_P_SIGN"  value="1"/>
-    <define name="GYRO_P_NEUTRAL" value="32362"/>
-    <define name="GYRO_P_SENS" value="1.1032765" integer="16"/>
+    <define name="GYRO_P_NEUTRAL" value="500"/>
+    <!--define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+1.8))"/-->
+    <!--define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/-->
+    <!--define name="ROLL_SCALE" value="3.3*1000./1024./(IMU_ADXRS300_SENSITIVITY*IMU_ADXRS300_RESISTOR_BRIDGE)" unit="deg/s/adc_unit"/-->
+    <!--define name="RATE_DEGS_TO_RADINT" value="M_PI/180./4096."/-->
+    <!--define name="GYRO_P_SENS" value="IMU_RATE_DEGS_TO_RADINT * IMU_ROLL_SCALE" integer="16"/-->
+    <define name="GYRO_P_SENS" value="0.137518981" integer="16"/>
   </section>
 
   <section name="BAT">
