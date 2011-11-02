@@ -549,7 +549,10 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let settings_file = Http.file_of_url settings_url in
   let settings_xml =
     try
-      ExtXml.parse_file ~noprovedtd:true settings_file
+      if String.compare "replay" settings_file <> 0 then
+        ExtXml.parse_file ~noprovedtd:true settings_file
+      else
+        Xml.Element("empty", [], [])
     with exc ->
       prerr_endline (Printexc.to_string exc);
       Xml.Element("empty", [], [])
