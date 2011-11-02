@@ -23,7 +23,7 @@
     <!--<define name="TELEMETRY_MODE_FBW" value="1"/>-->
     <subsystem name="telemetry" type="transparent"/>
     <subsystem name="control"/>
-    <subsystem name="attitude" type="infrared"/>
+    <subsystem name="ahrs" type="infrared"/>
     <subsystem name="gps" type="ublox"/>
     <subsystem name="navigation" type="extra"/>
   </firmware>
@@ -41,6 +41,7 @@
       <define name="SERVO_SWITCH_SERVO"     value="SERVO_SWITCH"/>
     </load>
     <load name="sys_mon.xml"/>
+    <load name="infrared_adc.xml"/>
   </modules>
 
 <!-- commands section -->

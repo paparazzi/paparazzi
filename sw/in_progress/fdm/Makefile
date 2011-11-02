@@ -1,4 +1,4 @@
-# 
+#
 #   $Id$
 #   Copyright (C) 2004 Pascal Brisset, Antoine Drouin
 #
@@ -17,8 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.  
-# 
+# Boston, MA 02111-1307, USA.
+#
 
 # Quiet compilation
 Q=@
@@ -26,14 +26,13 @@ Q=@
 all: fdm_step
 
 fdm_step: fdm_step.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
+	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 
 fms_steps_attitude: fms_steps_attitude.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs`  `pcre-config --libs` -lglibivy
+	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 
 
 clean:
 	rm -f *~ core *.o *.bak .depend fdm_step fms_steps_attitude
-

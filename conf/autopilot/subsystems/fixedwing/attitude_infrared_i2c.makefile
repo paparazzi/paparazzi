@@ -1,10 +1,1 @@
-# Hey Emacs, this is a -*- makefile -*-
-
-# attitude via IR I2C sensors
-
-$(TARGET).CFLAGS += -DUSE_INFRARED_I2C
-$(TARGET).srcs += subsystems/sensors/infrared.c
-$(TARGET).srcs += subsystems/sensors/infrared_i2c.c
-
-sim.srcs += $(SRC_ARCH)/sim_ir.c
-jsbsim.srcs += $(SRC_ARCH)/jsbsim_ir.c
+$(error Attitude estimation via infrared has been implemented as an AHRS subsystem now. Please replace <subsystem name="attitude" type="infrared"/> with <subsystem name="ahrs" type="infrared"/> and add the module <load name="infrared_i2c.xml"/> in your airframe file.)

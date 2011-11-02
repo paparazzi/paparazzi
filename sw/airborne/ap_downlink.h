@@ -93,10 +93,10 @@
 #define PERIODIC_SEND_PPRZ_MODE(_chan) DOWNLINK_SEND_PPRZ_MODE(_chan, &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
 #define PERIODIC_SEND_DESIRED(_chan) DOWNLINK_SEND_DESIRED(_chan, &h_ctl_roll_setpoint, &h_ctl_pitch_loop_setpoint, &h_ctl_course_setpoint, &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint);
 
-#ifdef USE_AHRS
-#define PERIODIC_SEND_STATE_FILTER_STATUS(_chan) { uint8_t mde = 3; if (ahrs.status == AHRS_UNINIT) mde = 2; if (ahrs_timeout_counter > 10) mde = 5; uint16_t val = 0; DOWNLINK_SEND_STATE_FILTER_STATUS(_chan, &mde, &val); }
-#elif defined(USE_INFRARED)
+#ifdef USE_INFRARED
 #define PERIODIC_SEND_STATE_FILTER_STATUS(_chan) { uint16_t contrast = abs(infrared.roll) + abs(infrared.pitch) + abs(infrared.top); uint8_t mde = 3; if (contrast < 50) mde = 7; DOWNLINK_SEND_STATE_FILTER_STATUS(_chan, &mde, &contrast); }
+#elif defined USE_IMU && defined USE_AHRS
+#define PERIODIC_SEND_STATE_FILTER_STATUS(_chan) { uint8_t mde = 3; if (ahrs.status == AHRS_UNINIT) mde = 2; if (ahrs_timeout_counter > 10) mde = 5; uint16_t val = 0; DOWNLINK_SEND_STATE_FILTER_STATUS(_chan, &mde, &val); }
 #else
 #define PERIODIC_SEND_STATE_FILTER_STATUS(_chan) {}
 #endif
@@ -124,6 +124,7 @@
 #endif
 
 #if defined USE_INFRARED || USE_INFRARED_TELEMETRY
+#include "subsystems/sensors/infrared.h"
 #define PERIODIC_SEND_IR_SENSORS(_chan) DOWNLINK_SEND_IR_SENSORS(_chan, &infrared.value.ir1, &infrared.value.ir2, &infrared.pitch, &infrared.roll, &infrared.top);
 #else
 #define PERIODIC_SEND_IR_SENSORS(_chan) ;

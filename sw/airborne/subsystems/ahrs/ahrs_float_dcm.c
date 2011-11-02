@@ -162,7 +162,7 @@ void ahrs_update_fw_estimator( void )
 
 
 void ahrs_init(void) {
-  ahrs_float.status = AHRS_UNINIT;
+  ahrs.status = AHRS_UNINIT;
 
   /*
    * Initialises our IMU alignement variables

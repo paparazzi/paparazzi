@@ -21,7 +21,7 @@ sim.ARCHDIR = $(ARCH)
 
 sim.CFLAGS  += -DSITL -DUSE_NPS
 sim.CFLAGS  += `pkg-config glib-2.0 --cflags`
-sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lpcre -lglibivy -lgsl -lgslcblas
+sim.LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lglibivy -lgsl -lgslcblas
 sim.CFLAGS  += -I$(NPSDIR) -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I../simulator -I$(PAPARAZZI_HOME)/conf/simulator/nps
 
 # use the paparazzi-jsbsim package if it is installed, otherwise look for JSBsim under /opt/jsbsim

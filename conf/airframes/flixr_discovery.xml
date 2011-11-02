@@ -32,6 +32,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <!-- Communication -->
     <subsystem name="telemetry" type="transparent"/>
     <subsystem name="radio_control" type="ppm"/>
+    <!--subsystem name="settings" type="rc"/-->
 
     <!-- Control -->
     <subsystem name="control" type="new"/>
@@ -287,10 +288,10 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <define name="AUTO_GROUNDSPEED_IGAIN" value="0."/-->
 
     <!-- Loiter and Dash trimming -->
-    <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000" unit="pprz_t"/>
-    <define name="AUTO_THROTTLE_DASH_TRIM" value="-2000" unit="pprz_t"/>
-    <define name="PITCH_LOITER_TRIM" value="1000" unit="pprz_t"/>
-    <define name="PITCH_DASH_TRIM" value="-2000" unit="pprz_t"/>
+    <define name="AUTO_THROTTLE_LOITER_TRIM" value="0" unit="pprz_t"/>
+    <define name="AUTO_THROTTLE_DASH_TRIM" value="0" unit="pprz_t"/>
+    <define name="PITCH_LOITER_TRIM" value="0" unit="pprz_t"/>
+    <define name="PITCH_DASH_TRIM" value="0" unit="pprz_t"/>
 
   </section>
 

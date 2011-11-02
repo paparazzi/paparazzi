@@ -27,7 +27,7 @@
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="attitude" 		type="infrared"/>
+    <subsystem name="ahrs" 		type="infrared"/>
     <subsystem name="gps" 		    type="ublox"/>
 
     <subsystem name="navigation"    type="extra"/>
@@ -48,6 +48,7 @@
       <define name="DC_SHUTTER_LED" value="3"/>
     </load>
     <load name="sys_mon.xml"/>
+    <load name="infrared_adc.xml"/>
   </modules>
 
 <!-- commands section -->
