@@ -312,6 +312,7 @@ __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in
     VECT2_ADD(guidance_h_pos_err_sum, guidance_h_pos_err);
     /* saturate it               */
     VECT2_STRIM(guidance_h_pos_err_sum, -MAX_POS_ERR_SUM, MAX_POS_ERR_SUM);
+    INT_VECT2_ZERO(guidance_h_nav_err);
   }
   else { // Tracking algorithm, no integral
     int32_t vect_prod = 0;
