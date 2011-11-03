@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<!-- Currently only available on LPC21xx arch
+Need to also load/use the pwm_measure.xml module
+Possible rssi pwm input pin values for TWOG:
+	<define name="PWM_MEAS_ON_TWOG_ADC5"/> (P0.29)
+	<define name="PWM_MEAS_ON_TWOG_ADC4"/> (P0.30)
+	<define name="PWM_MEAS_ON_TWOG_ADC6"/> (P0.28)
+-->
+<module name="xtend_rssi" dir="datalink">
+  <depend require="pwm_measure.xml"/>
+  <header>
+    <file name="xtend_rssi.h"/>
+  </header>
+  <periodic fun="xtend_rssi_periodic()" freq="2"/>
+  <makefile>
+    <file name="xtend_rssi.c"/>
+  </makefile>
+</module>
+

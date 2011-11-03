@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<!--
+  To enable each pwm measurement input, one must define
+  USE_PWM_INPUTx where x is the channel(s) to use.
+  For the lpc21xx, there are 4 channels:
+    USE_PWM_INPUT1 on P0.29 (TWOG ADC_5)
+    USE_PWM_INPUT2 on P0.30 (TWOG ADC_4)
+    USE_PWM_INPUT3 on P0.27 (Not Available?)
+    USE_PWM_INPUT4 on P0.28 (TWOG ADC_6)
+-->
+<module name="pwm_measure" dir="core">
+  <header>
+    <file name="pwm_measure.h"/>
+  </header>
+  <init fun="pwm_measure_init()"/>
+  <makefile>
+    <file_arch name="pwm_measure_hw.c"/>
+    <file name="pwm_measure.c"/>
+    <define name="USE_PWM_INPUT"/> <!-- required to enable pwm_input driver on lpc21 arch -->
+  </makefile>
+</module>
+

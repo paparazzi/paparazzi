@@ -546,7 +546,11 @@
 		<field name="AOA" type="float" unit="rad"></field>
 	</message>
 
- <!-- 70 is free -->
+  <message name="XTEND_RSSI" id="70">
+    <field name="datalink_time" type="uint16" unit="s"/>
+    <field name="rssi_fade_margin" type="uint8" unit="dB"/>
+    <field name="duty" type="uint8" unit="%"/>
+  </message>
  <!-- 71 is free -->
  <!-- 72 is free -->
  <!-- 73 is free -->
