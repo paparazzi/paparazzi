@@ -1,7 +1,5 @@
 /*
- * $Id: point.h 2304 2008-02-07 21:35:08Z mmm $
- *
- * Copyright (C) 2005-2008  Arnold Schroeter
+ * Copyright (C) 2011 Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -22,13 +20,20 @@
  *
  */
 
-#if defined(USE_AIRBORNE_ANT_TRACKING) && USE_AIRBORNE_ANT_TRACKING == 1
-#ifndef AIRBORNE_ANT_TRACK_H
-#define AIRBORNE_ANT_TRACK_H
+/* driver for MPC3550/1/3
+ */
 
-extern float   airborne_ant_pan;
-void airborne_ant_point_init(void);
-void airborne_ant_point_periodic(void);
+#ifndef MCP355X_H
+#define MCP355X_H
 
-#endif /* AIRBORNE_ANT_TRACK_H */
-#endif // #if defined(USE_AIRBORNE_ANT_TRACKING) && USE_AIRBORNE_ANT_TRACKING == 1
+#include "std.h"
+
+extern bool_t mcp355x_data_available;
+extern int32_t mcp355x_data;
+
+extern void mcp355x_init(void);
+extern void mcp355x_read(void);
+extern void mcp355x_event(void);
+
+#endif
+

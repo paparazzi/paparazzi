@@ -38,7 +38,9 @@ OPT   = s
 #OPT   = 0
 
 # Programs location
-TOOLCHAIN_DIR=$(shell find -L /opt/paparazzi/arm-multilib ~/sat /opt/paparazzi/stm32 -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1 | xargs dirname )
+TOOLCHAIN=$(shell find -L /opt/paparazzi/arm-multilib ~/sat /opt/paparazzi/stm32 -maxdepth 1 -type d -name arm-none-eabi 2>/dev/null | head -n 1)
+ifneq ($(TOOLCHAIN),)
+TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
 GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
 GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
 
@@ -54,7 +56,7 @@ RM   = rm
 OOCD = $(TOOLCHAIN_DIR)/bin/openocd
 
 # If we can't find the toolchain then try picking up the compilers from the path
-ifeq ($(TOOLCHAIN_DIR),)
+else
 CC   = $(shell which arm-none-eabi-gcc)
 LD   = $(shell which arm-none-eabi-gcc)
 CP   = $(shell which arm-none-eabi-objcopy)
@@ -160,9 +162,9 @@ printcommands:
 	@echo "Using SIZE = $(SIZE)"
 	@echo "Using OOCD = $(OOCD)"
 	@echo "GCC version:"
-	@$(CC) --version
+	@$(CC) --version | head -1
 	@echo "OOCD version:"
-	@$(OOCD) --version
+	@$(OOCD) --version | head -1
 
 ifeq ("$(MULTILIB)","yes")
 printmultilib:
