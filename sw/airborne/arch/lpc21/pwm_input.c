@@ -38,25 +38,32 @@ volatile uint8_t pwm_input_valid[PWM_INPUT_NB];
 
 void pwm_input_init ( void )
 {
+  // initialize the arrays to 0 to avoid junk
+  int i = 0;
+  for (int i; i < PWM_INPUT_NUM; i++)
+  {
+    pwm_input_duration[i] = 0;
+    pwm_input_valid[i] = 0;
+  }
   /* select pin for capture */
 #ifdef USE_PWM_INPUT1
   PWM_INPUT1_PINSEL = (PWM_INPUT1_PINSEL & ~PWM_INPUT1_PINSEL_MASK) | PWM_INPUT1_PINSEL_VAL;
-  /* enable capture 0.3 on falling edge + trigger interrupt */
+  /* enable capture 0.3 on rising edge + trigger interrupt */
   T0CCR |= TCCR_CR3_R | TCCR_CR3_I;
 #endif
 #ifdef USE_PWM_INPUT2
   PWM_INPUT2_PINSEL = (PWM_INPUT2_PINSEL & ~PWM_INPUT2_PINSEL_MASK) | PWM_INPUT2_PINSEL_VAL;
-  /* enable capture 0.0 on falling edge + trigger interrupt */
+  /* enable capture 0.0 on rising edge + trigger interrupt */
   T0CCR |= TCCR_CR0_R | TCCR_CR0_I;
 #endif
 #ifdef USE_PWM_INPUT3
   PWM_INPUT3_PINSEL = (PWM_INPUT3_PINSEL & ~PWM_INPUT3_PINSEL_MASK) | PWM_INPUT3_PINSEL_VAL;
-  /* enable capture 0.1 on falling edge + trigger interrupt */
+  /* enable capture 0.1 on rising edge + trigger interrupt */
   T0CCR |= TCCR_CR1_R | TCCR_CR1_I;
 #endif
 #ifdef USE_PWM_INPUT4
   PWM_INPUT4_PINSEL = (PWM_INPUT4_PINSEL & ~PWM_INPUT4_PINSEL_MASK) | PWM_INPUT4_PINSEL_VAL;
-  /* enable capture 0.2 on falling edge + trigger interrupt */
+  /* enable capture 0.2 on rising edge + trigger interrupt */
   T0CCR |= TCCR_CR2_R | TCCR_CR2_I;
 #endif
 }

@@ -7,6 +7,8 @@
 
 #define PWM_INPUT_NB 4
 
+
+
 void pwm_input_init ( void );
 
 /* tracks of length of positive pulse duration */
@@ -22,12 +24,19 @@ static inline void pwm_input_isr1()
     t_fall = T0CR3;
     T0CCR |= TCCR_CR3_R;
     T0CCR &= ~TCCR_CR3_F;
+#if USE_PWM_INPUT2 == PWM_PULSE_TYPE_ACTIVE_LOW
+#else
     pwm_input_duration[0] = t_fall - t_rise;
     pwm_input_valid[0] = TRUE;
+#endif //ACTIVE_HIGH
   } else if (T0CCR & TCCR_CR3_R) {
     t_rise = T0CR3;
     T0CCR |= TCCR_CR3_F;
     T0CCR &= ~TCCR_CR3_R;
+#if USE_PWM_INPUT1 == PWM_PULSE_TYPE_ACTIVE_LOW
+    pwm_input_duration[0] = t_rise - t_fall;
+    pwm_input_valid[0] = TRUE;
+#endif //ACTIVE_LOW
   }
 }
 
@@ -40,12 +49,19 @@ static inline void pwm_input_isr2()
     t_fall = T0CR0;
     T0CCR |= TCCR_CR0_R;
     T0CCR &= ~TCCR_CR0_F;
+#if USE_PWM_INPUT2 == PWM_PULSE_TYPE_ACTIVE_LOW
+#else
     pwm_input_duration[1] = t_fall - t_rise;
     pwm_input_valid[1] = TRUE;
+#endif //ACTIVE_HIGH
   } else if (T0CCR & TCCR_CR0_R) {
     t_rise = T0CR0;
     T0CCR |= TCCR_CR0_F;
     T0CCR &= ~TCCR_CR0_R;
+#if USE_PWM_INPUT2 == PWM_PULSE_TYPE_ACTIVE_LOW
+    pwm_input_duration[1] = t_rise - t_fall;
+    pwm_input_valid[1] = TRUE;
+#endif //ACTIVE_LOW
   }
 }
 
@@ -58,12 +74,19 @@ static inline void pwm_input_isr3()
     t_fall = T0CR1;
     T0CCR |= TCCR_CR1_R;
     T0CCR &= ~TCCR_CR1_F;
+#if USE_PWM_INPUT3 == PWM_PULSE_TYPE_ACTIVE_LOW
+#else
     pwm_input_duration[2] = t_fall - t_rise;
     pwm_input_valid[2] = TRUE;
+#endif //ACTIVE_HIGH
   } else if (T0CCR & TCCR_CR1_R) {
     t_rise = T0CR1;
     T0CCR |= TCCR_CR1_F;
     T0CCR &= ~TCCR_CR1_R;
+#if USE_PWM_INPUT3 == PWM_PULSE_TYPE_ACTIVE_LOW
+    pwm_input_duration[2] = t_rise - t_fall;
+    pwm_input_valid[2] = TRUE;
+#endif //ACTIVE_LOW
   }
 }
 
@@ -76,12 +99,19 @@ static inline void pwm_input_isr4()
     t_fall = T0CR2;
     T0CCR |= TCCR_CR2_R;
     T0CCR &= ~TCCR_CR2_F;
+#if USE_PWM_INPUT4 == PWM_PULSE_TYPE_ACTIVE_LOW
+#else
     pwm_input_duration[3] = t_fall - t_rise;
     pwm_input_valid[3] = TRUE;
+#endif //ACTIVE_HIGH
   } else if (T0CCR & TCCR_CR2_R) {
     t_rise = T0CR2;
     T0CCR |= TCCR_CR2_F;
     T0CCR &= ~TCCR_CR2_R;
+#if USE_PWM_INPUT4 == PWM_PULSE_TYPE_ACTIVE_LOW
+    pwm_input_duration[3] = t_rise - t_fall;
+    pwm_input_valid[3] = TRUE;
+#endif //ACTIVE_LOW
   }
 }
 
