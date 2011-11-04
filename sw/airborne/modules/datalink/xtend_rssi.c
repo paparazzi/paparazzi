@@ -29,8 +29,8 @@
  */
 
 
-#include "datalink/xtend_rssi.h"
-#include "core/pwm_measure.h"
+#include "modules/datalink/xtend_rssi.h"
+#include "mcu_periph/pwm_input.c"
 #include "sys_time.h"
 
 #ifndef DOWNLINK_DEVICE
@@ -42,21 +42,14 @@
 #include "downlink.h"
 
 //from Digi XTend manual
-#define XTEND_RSSI_PWM_PERIOD_ST (uint32_t)(8320 * (PCLK/1000000) / T0_PCLK_DIV + 0.5) //rssi pwm period in sys tics
+#define XTEND_RSSI_PWM_PERIOD_USEC 8320 //rssi pwm period () in sys tics
 
-//architecture dependent pin assignment, update for new architectures? move to arch files?
-#ifdef PWM_MEAS_ON_TWOG_ADC5
-#define PWM_MEAS_XTEND_RSSI_INDEX 0
-#define USE_PWM_INPUT1
-#elif PWM_MEAS_ON_TWOG_ADC4
-#define PWM_MEAS_XTEND_RSSI_INDEX 1
-#define USE_PWM_INPUT2
-#elif PWM_MEAS_ON_TWOG_ADC6
-#define PWM_MEAS_XTEND_RSSI_INDEX 3
-#define USE_PWM_INPUT4
-#else
-#error "Invalid or missing pwm measurement input pin defined for xtend_rssi module"
-#endif
+#define XTEND_RSSI_PWM_ARRAY_INDEX (XTEND_RSSI_PWM_INPUT_CHANNEL - 1)
+
+void xtend_rssi_init( void )
+{
+  pwm_input_init();
+}
 
 void xtend_rssi_periodic( void ) {
 
@@ -65,15 +58,15 @@ void xtend_rssi_periodic( void ) {
    send the %, dB, datalink time
 */
 
-  uint32_t duty_tics = pwm_meas_duty_tics[PWM_MEAS_XTEND_RSSI_INDEX];
+  uint32_t duty_tics = pwm_input_duty_tics[XTEND_RSSI_PWM_ARRAY_INDEX];
   uint8_t duty_percent = 0;
   uint8_t rssi_dB_fade_margin = 0; //shows dB fade margin above rated minimum sensitivity
 
-  if (pwm_meas_duty_valid[PWM_MEAS_XTEND_RSSI_INDEX])
+  if (pwm_input_duty_valid[XTEND_RSSI_PWM_ARRAY_INDEX])
   {
-      duty_percent = (duty_tics * 100) / XTEND_RSSI_PWM_PERIOD_ST;
+      duty_percent = (duty_tics * 100) / SYS_TICS_OF_USEC(XTEND_RSSI_PWM_PERIOD_USEC);
       rssi_dB_fade_margin = (2 * duty_percent + 10) / 3; //not sure if this is right, datasheet isn't very informative
-      pwm_meas_duty_valid[PWM_MEAS_XTEND_RSSI_INDEX] = FALSE;
+      pwm_input_duty_valid[XTEND_RSSI_PWM_ARRAY_INDEX] = FALSE;
   }
   DOWNLINK_SEND_XTEND_RSSI(DefaultChannel,
             &datalink_time,

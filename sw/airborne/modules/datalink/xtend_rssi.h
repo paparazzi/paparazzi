@@ -27,12 +27,12 @@
  *   This measures the rssi pwm signal from a Digi XTend radio modem
  *	 and sends a message with the info.
  *
- *   Module pwm_measure needs to be loaded
  */
 
 #ifndef XTEND_RSSI_H
 #define XTEND_RSSI_H
 
+void xtend_rssi_init( void );
 void xtend_rssi_periodic( void );
 
 #endif

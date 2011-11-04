@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * Paparazzi $Id$
  *
- * Copyright (C) 2011 Stephen Dwyer, based on trigger_ext_hw by Martin Mueller
+ * Copyright (C) 2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -22,10 +22,13 @@
  *
  */
 
-#ifndef PWM_MEASURE_HW_H
-#define PWM_MEAUSURE_HW_H
+/** \file mcu_periph/pwm_input.c
+ * \brief arch independent PWM input capture API */
 
-#include "core/pwm_measure.h"
+#include "std.h"
+#include "mcu_periph/pwm_input.h"
 
-#endif /* PWM_MEASURE_HW_H */
-
+volatile uint32_t pwm_input_duty_tics[PWM_INPUT_NB];
+volatile uint8_t pwm_input_duty_valid[PWM_INPUT_NB];
+volatile uint32_t pwm_input_period_tics[PWM_INPUT_NB];
+volatile uint8_t pwm_input_period_valid[PWM_INPUT_NB];

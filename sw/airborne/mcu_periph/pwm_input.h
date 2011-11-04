@@ -1,7 +1,7 @@
 /*
- * $Id$
+ * Paparazzi $Id$
  *
- * Copyright (C) 2011 Stephen Dwyer, based on trigger_ext_hw by Martin Mueller
+ * Copyright (C) 2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -22,22 +22,28 @@
  *
  */
 
+/** \file mcu_periph/pwm_input.h
+ * \brief arch independent PWM input capture API */
 
-#include "core/pwm_measure_hw.h"
-#include "pwm_input.h" //get the pwm_input drivers
+
+#ifndef PWM_INPUT_H
+#define PWM_INPUT_H
+
+#ifdef USE_PWM_INPUT
+
 #include "std.h"
-#include "sys_time_hw.h"
-#include "LPC21xx.h"
-#include BOARD_CONFIG
+#include "mcu_periph/pwm_input_arch.h"
 
+#define PWM_PULSE_TYPE_ACTIVE_HIGH 0
+#define PWM_PULSE_TYPE_ACTIVE_LOW 1
 
-void pwm_measure_init ( void ) {
+extern volatile uint32_t pwm_input_duty_tics[PWM_INPUT_NB];
+extern volatile uint8_t pwm_input_duty_valid[PWM_INPUT_NB];
+extern volatile uint32_t pwm_input_period_tics[PWM_INPUT_NB];
+extern volatile uint8_t pwm_input_period_valid[PWM_INPUT_NB];
 
-  //Assign the arch indep array as alias of arch dep array, links arch indep to arch dep parts of code
-  pwm_meas_duty_tics = pwm_input_duration;
-  pwm_meas_duty_valid = pwm_input_valid;
-  
-  //Use the pwm_input.* hardware dependent for lpc2148, this will change for each arch
-  pwm_input_init();
+void pwm_input_init(void);
 
-}
+#endif /* USE_PWM_INPUT */
+
+#endif /* PWM_INPUT_H */
