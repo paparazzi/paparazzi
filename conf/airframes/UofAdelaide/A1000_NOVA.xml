@@ -232,7 +232,7 @@
 
  <firmware name="rotorcraft">
 	<target name="ap" board="booz_1.0">
-	  <param  name="FLASH_MODE" value="IAP"/>   <!-- default for the board but putting it here as example-->
+	  <configure  name="FLASH_MODE" value="IAP"/>   <!-- default for the board but putting it here as example-->
 	  <define name="RADIO_KILL_SWITCH" value="RADIO_CONTROL_SWITCH1"/>
 	  <define name="MODEM_BAUD" value = "B57600"/>
 	  <define name="BOOZ_START_DELAY" value = "3"/>
