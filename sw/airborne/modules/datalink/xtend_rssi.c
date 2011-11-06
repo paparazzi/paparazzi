@@ -30,7 +30,7 @@
 
 
 #include "modules/datalink/xtend_rssi.h"
-#include "mcu_periph/pwm_input.c"
+#include "mcu_periph/pwm_input.h"
 #include "sys_time.h"
 
 #ifndef DOWNLINK_DEVICE

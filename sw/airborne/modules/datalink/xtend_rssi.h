@@ -36,5 +36,3 @@ void xtend_rssi_init( void );
 void xtend_rssi_periodic( void );
 
 #endif
-
-
