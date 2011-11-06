@@ -11,7 +11,7 @@
     <file name="xtend_rssi.h"/>
   </header>
   <init fun="xtend_rssi_init()"/>
-  <periodic fun="xtend_rssi_periodic()" freq="2"/>
+  <periodic fun="xtend_rssi_periodic()" freq="2."/>
   <makefile>
     <file name="xtend_rssi.c"/>
   </makefile>
