@@ -22,7 +22,7 @@
  */
 
 /** \brief handling of arm7 PWM input using a timer with capture
- *  
+ *
  */
 
 #ifndef PWM_INPUT_ARCH_H
@@ -34,70 +34,17 @@
 
 #define PWM_INPUT_NB 4 //this is architecture dependent
 
+#include "mcu_periph/pwm_input.h"
+
 //FIXME what about clock time overflow???
 #ifdef USE_PWM_INPUT1
-static inline void pwm_input_isr1()
-{
-  static uint32_t t_rise;
-  static uint32_t t_fall;
-  static uint32_t t_oldrise = 0;
-  static uint32_t t_oldfall = 0;
-
-  if (T0CCR & TCCR_CR3_F) {
-    t_fall = T0CR3;
-    T0CCR |= TCCR_CR3_R;
-    T0CCR &= ~TCCR_CR3_F;
-#if USE_PWM_INPUT1 == PWM_PULSE_TYPE_ACTIVE_HIGH
-    pwm_input_duty_tics[0] = t_fall - t_rise;
-    pwm_input_duty_valid[0] = TRUE;
-#elif USE_PWM_INPUT1 == PWM_PULSE_TYPE_ACTIVE_LOW
-  pwm_input_period_tics[0] = t_fall - t_oldfall;
-  pwm_input_period_valid[0] = TRUE;
-  t_oldfall = t_fall;
-#endif //ACTIVE_HIGH
-  } else if (T0CCR & TCCR_CR3_R) {
-    t_rise = T0CR3;
-    T0CCR |= TCCR_CR3_F;
-    T0CCR &= ~TCCR_CR3_R;
-#if USE_PWM_INPUT1 == PWM_PULSE_TYPE_ACTIVE_LOW
-    pwm_input_duty_tics[0] = t_rise - t_fall;
-    pwm_input_duty_valid[0] = TRUE;
-#elif USE_PWM_INPUT1 == PWM_PULSE_TYPE_ACTIVE_HIGH
-  pwm_input_period_tics[0] = t_rise - t_oldrise;
-  pwm_input_period_valid[0] = TRUE;
-  t_oldrise = t_rise;
-#endif //ACTIVE_LOW
-  }
-}
+extern void pwm_input_isr1(void);
 #define PWM_INPUT_IT1 TIR_CR3I
 #define PWM_INPUT_ISR_1() pwm_input_isr1()
 #endif //USE_PWM_INPUT1
 
 #ifdef USE_PWM_INPUT2
-static inline void pwm_input_isr2()
-{
-  static uint32_t t_rise;
-  static uint32_t t_fall;
-
-  if (T0CCR & TCCR_CR0_F) {
-    t_fall = T0CR0;
-    T0CCR |= TCCR_CR0_R;
-    T0CCR &= ~TCCR_CR0_F;
-#if USE_PWM_INPUT2 == PWM_PULSE_TYPE_ACTIVE_LOW
-#else
-    pwm_input_duration[1] = t_fall - t_rise;
-    pwm_input_valid[1] = TRUE;
-#endif //ACTIVE_HIGH
-  } else if (T0CCR & TCCR_CR0_R) {
-    t_rise = T0CR0;
-    T0CCR |= TCCR_CR0_F;
-    T0CCR &= ~TCCR_CR0_R;
-#if USE_PWM_INPUT2 == PWM_PULSE_TYPE_ACTIVE_LOW
-    pwm_input_duration[1] = t_rise - t_fall;
-    pwm_input_valid[1] = TRUE;
-#endif //ACTIVE_LOW
-  }
-}
+extern void pwm_input_isr2(void);
 #define PWM_INPUT_IT2 TIR_CR0I
 #define PWM_INPUT_ISR_2() pwm_input_isr2()
 #endif //USE_PWM_INPUT2
