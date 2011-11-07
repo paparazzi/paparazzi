@@ -12,11 +12,12 @@
   </header>
   <init fun="xtend_rssi_init()"/>
   <periodic fun="xtend_rssi_periodic()" freq="2."/>
-  <makefile>
-    <file name="xtend_rssi.c"/>
-  </makefile>
   <makefile target="ap">
+    <file name="xtend_rssi.c"/>
+    <file name="pwm_input.c" dir="mcu_periph"/>
+    <file_arch name="pwm_input_arch.c" dir="mcu_periph"/>
     <define name="XTEND_RSSI_PWM_INPUT_CHANNEL" value="$(XTEND_RSSI_PWM_INPUT_CHANNEL)"/>
+    <define name="USE_PWM_INPUT"/>
     <define name="USE_PWM_INPUT$(XTEND_RSSI_PWM_INPUT_CHANNEL)" value="PWM_PULSE_TYPE_ACTIVE_HIGH"/>
   </makefile>
 </module>

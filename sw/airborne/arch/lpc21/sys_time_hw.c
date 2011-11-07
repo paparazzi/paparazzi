@@ -36,10 +36,17 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
 
 #ifdef USE_PWM_INPUT
 #include "mcu_periph/pwm_input.h"
-#else
+#endif
+#ifndef USE_PWM_INPUT1
 #define PWM_INPUT_IT1 0x00
+#endif
+#ifndef USE_PWM_INPUT2
 #define PWM_INPUT_IT2 0x00
+#endif
+#ifndef USE_PWM_INPUT3
 #define PWM_INPUT_IT3 0x00
+#endif
+#ifndef USE_PWM_INPUT4
 #define PWM_INPUT_IT4 0x00
 #endif
 

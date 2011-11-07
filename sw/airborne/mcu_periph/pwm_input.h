@@ -42,7 +42,7 @@ extern volatile uint8_t pwm_input_duty_valid[PWM_INPUT_NB];
 extern volatile uint32_t pwm_input_period_tics[PWM_INPUT_NB];
 extern volatile uint8_t pwm_input_period_valid[PWM_INPUT_NB];
 
-void pwm_input_init(void);
+extern void pwm_input_init(void);
 
 #endif /* USE_PWM_INPUT */
 
