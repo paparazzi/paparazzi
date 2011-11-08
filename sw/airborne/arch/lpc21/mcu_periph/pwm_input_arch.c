@@ -46,22 +46,6 @@
 #define PWM_INPUT2_PINSEL_VAL (0x3 << PWM_INPUT2_PINSEL_BIT)
 #define PWM_INPUT2_PINSEL_MASK (0x3 <<PWM_INPUT2_PINSEL_BIT)
 #endif
-/*
-#ifdef USE_PWM_INPUT3
-//INPUT CAPTURE CAP0.1 on P0.27
-#define PWM_INPUT3_PINSEL     PINSEL1
-#define PWM_INPUT3_PINSEL_BIT 22
-#define PWM_INPUT3_PINSEL_VAL (0x2 << PWM_INPUT3_PINSEL_BIT)
-#define PWM_INPUT3_PINSEL_MASK (0x3 <<PWM_INPUT3_PINSEL_BIT)
-#endif
-#ifdef USE_PWM_INPUT4
-//INPUT CAPTURE CAP0.2 on P0.28
-#define PWM_INPUT4_PINSEL     PINSEL1
-#define PWM_INPUT4_PINSEL_BIT 24
-#define PWM_INPUT4_PINSEL_VAL (0x2 << PWM_INPUT4_PINSEL_BIT)
-#define PWM_INPUT4_PINSEL_MASK (0x3 <<PWM_INPUT4_PINSEL_BIT)
-#endif
-*/
 
 void pwm_input_init ( void )
 {
@@ -84,27 +68,19 @@ void pwm_input_init ( void )
   //enable capture 0.0 on rising edge + trigger interrupt
   T0CCR |= TCCR_CR0_R | TCCR_CR0_I;
 #endif
-/*
-#ifdef USE_PWM_INPUT3
-  PWM_INPUT3_PINSEL = (PWM_INPUT3_PINSEL & ~PWM_INPUT3_PINSEL_MASK) | PWM_INPUT3_PINSEL_VAL;
-  //enable capture 0.1 on rising edge + trigger interrupt
-  T0CCR |= TCCR_CR1_R | TCCR_CR1_I;
-#endif
-#ifdef USE_PWM_INPUT4
-  PWM_INPUT4_PINSEL = (PWM_INPUT4_PINSEL & ~PWM_INPUT4_PINSEL_MASK) | PWM_INPUT4_PINSEL_VAL;
-  //enable capture 0.2 on rising edge + trigger interrupt
-  T0CCR |= TCCR_CR2_R | TCCR_CR2_I;
-#endif
-*/
 }
 
+//FIXME what about clock time overflow???
 #ifdef USE_PWM_INPUT1
 void pwm_input_isr1(void)
 {
   static uint32_t t_rise;
   static uint32_t t_fall;
+#if USE_PWM_INPUT1 == PWM_PULSE_TYPE_ACTIVE_HIGH
   static uint32_t t_oldrise = 0;
+#elif USE_PWM_INPUT1 == PWM_PULSE_TYPE_ACTIVE_LOW
   static uint32_t t_oldfall = 0;
+#endif
 
   if (T0CCR & TCCR_CR3_F) {
     t_fall = T0CR3;
@@ -139,6 +115,11 @@ void pwm_input_isr2(void)
 {
   static uint32_t t_rise;
   static uint32_t t_fall;
+#if USE_PWM_INPUT2 == PWM_PULSE_TYPE_ACTIVE_HIGH
+  static uint32_t t_oldrise = 0;
+#elif USE_PWM_INPUT2 == PWM_PULSE_TYPE_ACTIVE_LOW
+  static uint32_t t_oldfall = 0;
+#endif
 
   if (T0CCR & TCCR_CR0_F) {
     t_fall = T0CR0;

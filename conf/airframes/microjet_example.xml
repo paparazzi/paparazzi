@@ -196,11 +196,6 @@
   <modules>
     <load name="infrared_adc.xml"/>
     <!-- <load name="pwm_measure.xml"/> -->
-    <load name="airspeed_adc.xml">
-      <configure name="ADC_AIRSPEED" value="1"/>
-      <define name="AIRSPEED_SCALE" value="1"/>
-      <define name="AIRSPEED_BIAS" value="0"/>
-    </load>
     <load name="xtend_rssi.xml">
       <configure name="XTEND_RSSI_PWM_INPUT_CHANNEL" value="1"/>
     </load>

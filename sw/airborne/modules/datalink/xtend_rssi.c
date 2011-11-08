@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2010 2011 Stephen Dwyer, based on windturbine by Martin Mueller
+ * Copyright (C) 2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *

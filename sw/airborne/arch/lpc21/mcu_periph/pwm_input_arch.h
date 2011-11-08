@@ -32,11 +32,10 @@
 #include "LPC21xx.h"
 #include "interrupt_hw.h"
 
-#define PWM_INPUT_NB 4 //this is architecture dependent
+#define PWM_INPUT_NB 2 //this is architecture dependent
 
 #include "mcu_periph/pwm_input.h"
 
-//FIXME what about clock time overflow???
 #ifdef USE_PWM_INPUT1
 extern void pwm_input_isr1(void);
 #define PWM_INPUT_IT1 TIR_CR3I
@@ -48,65 +47,5 @@ extern void pwm_input_isr2(void);
 #define PWM_INPUT_IT2 TIR_CR0I
 #define PWM_INPUT_ISR_2() pwm_input_isr2()
 #endif //USE_PWM_INPUT2
-
-/*
-#ifdef USE_PWM_INPUT3
-static inline void pwm_input_isr3()
-{
-  static uint32_t t_rise;
-  static uint32_t t_fall;
-
-  if (T0CCR & TCCR_CR1_F) {
-    t_fall = T0CR1;
-    T0CCR |= TCCR_CR1_R;
-    T0CCR &= ~TCCR_CR1_F;
-#if USE_PWM_INPUT3 == PWM_PULSE_TYPE_ACTIVE_LOW
-#else
-    pwm_input_duration[2] = t_fall - t_rise;
-    pwm_input_valid[2] = TRUE;
-#endif //ACTIVE_HIGH
-  } else if (T0CCR & TCCR_CR1_R) {
-    t_rise = T0CR1;
-    T0CCR |= TCCR_CR1_F;
-    T0CCR &= ~TCCR_CR1_R;
-#if USE_PWM_INPUT3 == PWM_PULSE_TYPE_ACTIVE_LOW
-    pwm_input_duration[2] = t_rise - t_fall;
-    pwm_input_valid[2] = TRUE;
-#endif //ACTIVE_LOW
-  }
-}
-#define PWM_INPUT_IT3 TIR_CR1I
-#define PWM_INPUT_IT4 TIR_CR2I
-#endif //USE_PWM_INPUT3
-
-#ifdef USE_PWM_INPUT4
-static inline void pwm_input_isr4()
-{
-  static uint32_t t_rise;
-  static uint32_t t_fall;
-
-  if (T0CCR & TCCR_CR2_F) {
-    t_fall = T0CR2;
-    T0CCR |= TCCR_CR2_R;
-    T0CCR &= ~TCCR_CR2_F;
-#if USE_PWM_INPUT4 == PWM_PULSE_TYPE_ACTIVE_LOW
-#else
-    pwm_input_duration[3] = t_fall - t_rise;
-    pwm_input_valid[3] = TRUE;
-#endif //ACTIVE_HIGH
-  } else if (T0CCR & TCCR_CR2_R) {
-    t_rise = T0CR2;
-    T0CCR |= TCCR_CR2_F;
-    T0CCR &= ~TCCR_CR2_R;
-#if USE_PWM_INPUT4 == PWM_PULSE_TYPE_ACTIVE_LOW
-    pwm_input_duration[3] = t_rise - t_fall;
-    pwm_input_valid[3] = TRUE;
-#endif //ACTIVE_LOW
-  }
-}
-#define PWM_INPUT_ISR_3() pwm_input_isr3()
-#define PWM_INPUT_ISR_4() pwm_input_isr4()
-#endif //USE_PWM_INPUT4
-*/
 
 #endif /* PWM_INPUT_ARCH_H */
