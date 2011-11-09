@@ -31,8 +31,8 @@ double tc_fading_lower_deg = SETPOINT_TC_FADING_LOWER_DEG;
   double lobatt_wing_waggle_dt  = SETPOINT_LOBATT_WING_WAGGLE_DT;  //time multiplier for waggle spike
   bool_t setpoint_lobatt_wing_waggle_left = TRUE; //keep track of whether last wing waggle was to the left or right
   double setpoint_lobatt_wing_waggle_num = 1001; //keep track of number of waggles
-      double roll_body;
 #endif
+double roll_body;
 
 /**************** gains for the 3 modes ******************/
 struct Int32AttitudeGains toytronics_hover_gains = {

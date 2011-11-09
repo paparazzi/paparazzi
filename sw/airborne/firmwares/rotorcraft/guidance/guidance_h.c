@@ -33,7 +33,9 @@
 
 #include "generated/airframe.h"
 
-//#include "firmwares/rotorcraft/toytronics/toytronics_setpoint.h"
+#ifdef TOYTRONICS
+#include "firmwares/rotorcraft/toytronics/toytronics_setpoint.h"
+#endif
 
 
 uint8_t guidance_h_mode;
@@ -106,12 +108,14 @@ void guidance_h_mode_changed(uint8_t new_mode) {
 	//      case GUIDANCE_H_MODE_RATE:
 	//	stabilization_rate_exit();
 	//	break;
+#ifdef TOYTRONICS
   case GUIDANCE_H_MODE_TOYTRONICS_HOVER:
   case GUIDANCE_H_MODE_TOYTRONICS_HOVER_FORWARD:
   case GUIDANCE_H_MODE_TOYTRONICS_FORWARD:
   case GUIDANCE_H_MODE_TOYTRONICS_AEROBATIC:
     toytronics_mode_exit(guidance_h_mode);
     break;
+#endif
 
   default:
     break;
@@ -135,6 +139,7 @@ void guidance_h_mode_changed(uint8_t new_mode) {
     guidance_h_nav_enter();
     break;
 
+#ifdef TOYTRONICS
   case GUIDANCE_H_MODE_TOYTRONICS_HOVER:
   case GUIDANCE_H_MODE_TOYTRONICS_HOVER_FORWARD:
   case GUIDANCE_H_MODE_TOYTRONICS_FORWARD:
@@ -142,6 +147,7 @@ void guidance_h_mode_changed(uint8_t new_mode) {
     toytronics_mode_enter(new_mode);
     stabilization_attitude_enter();
     break;
+#endif
 
   default:
     break;
@@ -168,6 +174,7 @@ void guidance_h_read_rc(bool_t  in_flight) {
     STABILIZATION_ATTITUDE_READ_RC(guidance_h_rc_sp, in_flight);
     break;
 
+#ifdef TOYTRONICS
   case GUIDANCE_H_MODE_TOYTRONICS_HOVER:
     toytronics_set_sp_absolute_hover_from_rc();
     break;
@@ -183,6 +190,7 @@ void guidance_h_read_rc(bool_t  in_flight) {
   case GUIDANCE_H_MODE_TOYTRONICS_AEROBATIC:
     toytronics_set_sp_incremental_from_rc();
     break;
+#endif
 
   case GUIDANCE_H_MODE_NAV:
     if (radio_control.status == RC_OK) {
@@ -217,12 +225,14 @@ void guidance_h_run(bool_t  in_flight) {
     stabilization_attitude_run(in_flight);
     break;
 
+#ifdef TOYTRONICS
   case GUIDANCE_H_MODE_TOYTRONICS_HOVER:
   case GUIDANCE_H_MODE_TOYTRONICS_HOVER_FORWARD:
   case GUIDANCE_H_MODE_TOYTRONICS_FORWARD:
   case GUIDANCE_H_MODE_TOYTRONICS_AEROBATIC:
     stabilization_attitude_run(in_flight);
     break;
+#endif
 
   case GUIDANCE_H_MODE_NAV:
     {
