@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mcp355x" dir="adcs">
+  <header>
+    <file name="mcp355x.h"/>
+  </header>
+  <init fun="mcp355x_init()"/>
+  <periodic fun="mcp355x_read()" freq="10"/>
+  <event fun="mcp355x_event()"/>
+  <makefile target="ap">
+    <file name="mcp355x.c" dir="peripherals"/>
+    <define name="USE_SPI_SLAVE0"/>
+    <define name="SPI_MASTER"/>
+  </makefile>
+</module>
+
+
