@@ -56,20 +56,20 @@
 
 #define PERIODIC_SEND_ALIVE(_chan)  DOWNLINK_SEND_ALIVE(_chan, 16, MD5SUM);
 
-#define PERIODIC_SEND_BAT(_chan) { \
-    uint16_t amps = (int16_t) (current/1000);				\
-    Downlink({ int16_t e = energy;					\
-	DOWNLINK_SEND_BAT(_chan,					\
-			  &v_ctl_throttle_slewed,			\
-			  &vsupply,					\
-			  &amps,					\
-			  &estimator_flight_time,			\
-			  &kill_throttle,				\
-			  &block_time,					\
-			  &stage_time,					\
-			  &e);						\
-      });								\
-}
+#define PERIODIC_SEND_BAT(_chan) {                      \
+    int16_t amps = (int16_t) (current/10);				\
+    Downlink({ int16_t e = energy;                      \
+        DOWNLINK_SEND_BAT(_chan,                        \
+                          &v_ctl_throttle_slewed,       \
+                          &vsupply,                     \
+                          &amps,                        \
+                          &estimator_flight_time,       \
+                          &kill_throttle,				\
+                          &block_time,					\
+                          &stage_time,					\
+                          &e);                          \
+      });                                               \
+  }
 
 #ifdef MCU_SPI_LINK
 #define PERIODIC_SEND_DEBUG_MCU_LINK(_chan) DOWNLINK_SEND_DEBUG_MCU_LINK(_chan, &link_mcu_nb_err, &link_mcu_fbw_nb_err, &mcu1_ppm_cpt);
