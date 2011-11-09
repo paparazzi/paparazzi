@@ -64,14 +64,14 @@ extern void parse_rc_4ch_datalink(
 /**
  * Macro that normalize rc_dl_values to radio values
  */
-#define NormalizeRcDl(_in, _out) {  \
+#define NormalizeRcDl(_in, _out) {                                \
   _out[RADIO_ROLL] = (MAX_PPRZ/128) * _in[RADIO_ROLL];            \
   Bound(_out[RADIO_ROLL], MIN_PPRZ, MAX_PPRZ);                    \
   _out[RADIO_PITCH] = (MAX_PPRZ/128) * _in[RADIO_PITCH];          \
   Bound(_out[RADIO_PITCH], MIN_PPRZ, MAX_PPRZ);                   \
-  _out[RADIO_YAW] = 0;                                            \
+  _out[RADIO_YAW] = (MAX_PPRZ/128) * _in[RADIO_YAW];              \
   Bound(_out[RADIO_YAW], MIN_PPRZ, MAX_PPRZ);                     \
-  _out[RADIO_THROTTLE] = ((MAX_PPRZ/128) * _in[RADIO_THROTTLE]);   \
+  _out[RADIO_THROTTLE] = ((MAX_PPRZ/128) * _in[RADIO_THROTTLE]);  \
   Bound(_out[RADIO_THROTTLE], 0, MAX_PPRZ);                       \
   _out[RADIO_MODE] = MAX_PPRZ * (_in[RADIO_MODE] - 1);            \
   Bound(_out[RADIO_MODE], MIN_PPRZ, MAX_PPRZ);                    \
