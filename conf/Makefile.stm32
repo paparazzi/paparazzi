@@ -162,9 +162,9 @@ printcommands:
 	@echo "Using SIZE = $(SIZE)"
 	@echo "Using OOCD = $(OOCD)"
 	@echo "GCC version:"
-	@$(CC) --version
+	@$(CC) --version | head -1
 	@echo "OOCD version:"
-	@$(OOCD) --version
+	@$(OOCD) --version | head -1
 
 ifeq ("$(MULTILIB)","yes")
 printmultilib:
