@@ -405,10 +405,13 @@ let create_geomap = fun switch_fullscreen editor_frame ->
   let maps_source_menu = map_menu_fact#add_submenu "Maps Source" in
   let maps_source_fact = new GMenu.factory maps_source_menu in
   let group = ref None in
+  (* Determine a decent default selected item *)
+  let active_maps_source = Gm.get_maps_source () in
   List.iter
     (fun maps_source ->
       let callback = fun b -> if b then Gm.set_maps_source maps_source in
-      let menu_item = maps_source_fact#add_radio_item ~group: !group ~callback (Gm.string_of_maps_source maps_source) in
+      let active = (maps_source = active_maps_source) in
+      let menu_item = maps_source_fact#add_radio_item ~group: !group ~active ~callback (Gm.string_of_maps_source maps_source) in
       group := menu_item#group)
     Gm.maps_sources;
 
