@@ -29,7 +29,7 @@
     <target name="test_uart"           board="lisa_m_1.0"/>
     <target name="test_servos"         board="lisa_m_1.0"/>
     <target name="test_telemetry"      board="lisa_m_1.0">
-      <param name="MODEM_PORT" value="UART2"/>
+      <configure name="MODEM_PORT" value="UART2"/>
     </target>
     <target name="test_bmp085"         board="lisa_m_1.0"/>
     <target name="test_esc_mkk_simple" board="lisa_m_1.0"/>
