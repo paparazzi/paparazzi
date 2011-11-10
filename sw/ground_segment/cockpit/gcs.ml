@@ -359,6 +359,7 @@ let options =
    "-no_google_http", Arg.Unit (fun () -> Gm.set_policy Gm.NoHttp), "Switch off Google Maps downloading";
    "-ortho", Arg.Set_string get_bdortho, "IGN tiles path";
    "-osm", Arg.Unit (fun () -> Gm.set_maps_source Gm.OSM), "Use OpenStreetMap database (default is Google)";
+   "-ms", Arg.Unit (fun () -> Gm.set_maps_source Gm.MS), "Use Microsoft maps database (default is Google)";
    "-particules", Arg.Set display_particules, "Display particules";
     "-plugin", Arg.Set_string  plugin_window, "External X application (launched with the id of the plugin window as argument)";
    "-ref", Arg.Set_string geo_ref, "Geographic ref (e.g. 'WGS84 43.605 1.443')";
