@@ -237,7 +237,6 @@ void v_ctl_climb_loop ( void ) {
 
 inline static void v_ctl_climb_auto_throttle_loop(void) {
   static float last_err;
-
   float f_throttle = 0;
   float err  = estimator_z_dot - v_ctl_climb_setpoint;
   float d_err = err - last_err;
@@ -249,7 +248,17 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
      + v_ctl_auto_throttle_dgain * d_err);
 
   /* pitch pre-command */
+#ifdef PITCH_OF_VZ_REDUCED
+  float v_ctl_pitch_of_vz;
+  float temp_v_ctl_auto_throttle_pitch_of_vz_pgain;
+  if (v_ctl_climb_setpoint > 0)
+    temp_v_ctl_auto_throttle_pitch_of_vz_pgain = v_ctl_auto_throttle_pitch_of_vz_pgain;
+  else
+    temp_v_ctl_auto_throttle_pitch_of_vz_pgain = v_ctl_auto_throttle_pitch_of_vz_pgain / 10;
+  v_ctl_pitch_of_vz = (v_ctl_climb_setpoint + d_err * v_ctl_auto_throttle_pitch_of_vz_dgain) * temp_v_ctl_auto_throttle_pitch_of_vz_pgain;
+#else
   float v_ctl_pitch_of_vz = (v_ctl_climb_setpoint + d_err * v_ctl_auto_throttle_pitch_of_vz_dgain) * v_ctl_auto_throttle_pitch_of_vz_pgain;
+#endif
 
 #if defined AGR_CLIMB
   switch (v_ctl_auto_throttle_submode) {
