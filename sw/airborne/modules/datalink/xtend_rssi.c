@@ -48,7 +48,7 @@
 
 void xtend_rssi_init( void )
 {
-  pwm_input_init();
+  //pwm_input_init();
 }
 
 void xtend_rssi_periodic( void ) {
