@@ -38,6 +38,8 @@
 #include "core/extra_pprz_dl.h"
 #endif
 
+uint32_t custom_angle = 0;
+
 /* position in meters */
 float estimator_x;
 float estimator_y;

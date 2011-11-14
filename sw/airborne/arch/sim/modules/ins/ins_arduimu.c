@@ -40,6 +40,7 @@ void ins_ardu_periodic( void ) {}
 // Updates from Ocaml sim
 float sim_air_speed;
 
+#ifndef USE_INFRARED
 value set_ir_and_airspeed(
     value roll __attribute__ ((unused)),
     value front __attribute__ ((unused)),
@@ -52,4 +53,5 @@ value set_ir_and_airspeed(
   sim_air_speed = Double_val(air_speed);
   return Val_unit;
 }
+#endif
 

@@ -1,0 +1,9 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="custom params">
+      <dl_setting MAX="359" MIN="0" STEP="1" VAR="line_angle"/>
+    </dl_settings>
+  </dl_settings>
+</settings>

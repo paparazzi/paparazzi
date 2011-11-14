@@ -20,10 +20,10 @@
     <define name="PITCH_OF_VZ_REDUCED" value="10"/>
     <define name="USE_ARDUIMU" value="1"/>
     <define name="USE_HIGH_ACCEL_FLAG" value="1"/>
+    <define name="SENSOR_SYNC_SEND"/>
     <target name="ap" board="tiny_2.11">
       <define name="USE_I2C0"/>
       <define name="USE_I2C1"/>
-      <define name="SENSOR_SYNC_SEND"/>
     </target>
 
     <target name="sim"                 board="pc">

@@ -40,6 +40,8 @@
 #include "modules/sensors/baro_ets.h"
 #endif
 
+extern uint32_t custom_angle;
+
 /* position in meters */
 extern float estimator_x;
 extern float estimator_y;
