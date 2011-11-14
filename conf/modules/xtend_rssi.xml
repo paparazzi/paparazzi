@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<!-- Currently only available on LPC21xx arch
+    Digi Xtend RSSI PWM Module
+    @configure XTEND_RSSI_PWM_INPUT_CHANNEL on which arch dep input the pwm line is connected
+      For LPC21xx on the TWOG:
+      1 - INPUT CAPTURE CAP0.3 on P0.29 (TWOG ADC5, 5V->3.3V voltage divider)
+      2 - INPUT CAPTURE CAP0.0 on P0.30 (TWOG ADC4, no voltage divider)
+-->
+<module name="xtend_rssi" dir="datalink">
+  <depend require="pwm_meas.xml"/>
+  <header>
+    <file name="xtend_rssi.h"/>
+  </header>
+  <periodic fun="xtend_rssi_periodic()" freq="0.5"/>
+  <makefile target="ap">
+    <file name="xtend_rssi.c"/>
+    <define name="XTEND_RSSI_PWM_INPUT_CHANNEL" value="$(XTEND_RSSI_PWM_INPUT_CHANNEL)"/> <!-- configure the pwm input to be used in airframe file -->
+    <define name="USE_PWM_INPUT$(XTEND_RSSI_PWM_INPUT_CHANNEL)" value="PWM_PULSE_TYPE_ACTIVE_HIGH"/> <!-- rssi signal is active high -->
+  </makefile>
+</module>
+

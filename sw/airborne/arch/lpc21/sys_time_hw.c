@@ -35,12 +35,13 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
 #endif
 
 #ifdef USE_PWM_INPUT
-#include "pwm_input.h"
-#else
+#include "mcu_periph/pwm_input.h"
+#endif
+#ifndef USE_PWM_INPUT1
 #define PWM_INPUT_IT1 0x00
+#endif
+#ifndef USE_PWM_INPUT2
 #define PWM_INPUT_IT2 0x00
-#define PWM_INPUT_IT3 0x00
-#define PWM_INPUT_IT4 0x00
 #endif
 
 #ifdef USE_AMI601
@@ -64,8 +65,6 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
                         MB_TACHO_IT          |\
                         PWM_INPUT_IT1        |\
                         PWM_INPUT_IT2        |\
-                        PWM_INPUT_IT3        |\
-                        PWM_INPUT_IT4        |\
                         AMI601_IT)
 
 void TIMER0_ISR ( void ) {
@@ -123,18 +122,6 @@ LED_TOGGLE(3);
     if (T0IR&PWM_INPUT_IT2) {
       PWM_INPUT_ISR_2();
       T0IR = PWM_INPUT_IT2;
-    }
-#endif
-#ifdef USE_PWM_INPUT3
-    if (T0IR&PWM_INPUT_IT3) {
-      PWM_INPUT_ISR_3();
-      T0IR = PWM_INPUT_IT3;
-    }
-#endif
-#ifdef USE_PWM_INPUT4
-    if (T0IR&PWM_INPUT_IT4) {
-      PWM_INPUT_ISR_4();
-      T0IR = PWM_INPUT_IT4;
     }
 #endif
 #ifdef USE_AMI601
