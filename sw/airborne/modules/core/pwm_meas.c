@@ -22,16 +22,17 @@
  *
  */
 
-/** \file xtend_rssi.h
+/** \file pwm_meas.c
  *
- *   This measures the rssi pwm signal from a Digi XTend radio modem
- *	 and sends a message with the info.
- *
+ *   Wrapper to access pwm_input mcu peripheral from other modules
  */
 
-#ifndef XTEND_RSSI_H
-#define XTEND_RSSI_H
 
-void xtend_rssi_periodic( void );
+#include "modules/core/pwm_meas.h"
+#include "mcu_periph/pwm_input.h"
+#include "sys_time.h"
 
-#endif
+void pwm_meas_init( void )
+{
+  pwm_input_init();
+}

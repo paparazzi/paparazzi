@@ -46,11 +46,6 @@
 
 #define XTEND_RSSI_PWM_ARRAY_INDEX (XTEND_RSSI_PWM_INPUT_CHANNEL - 1)
 
-void xtend_rssi_init( void )
-{
-  //pwm_input_init();
-}
-
 void xtend_rssi_periodic( void ) {
 
 /* get the last duty if valid then reset valid flag (this says if we got another pulse since the last one)

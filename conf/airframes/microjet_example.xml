@@ -195,7 +195,7 @@
 
   <modules>
     <load name="infrared_adc.xml"/>
-    <load name="pwm_input_mod.xml"/>
+    <load name="pwm_meas.xml"/>
     <load name="xtend_rssi.xml">
       <configure name="XTEND_RSSI_PWM_INPUT_CHANNEL" value="1"/>
     </load>
