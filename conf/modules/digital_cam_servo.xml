@@ -1,0 +1,43 @@
+<!DOCTYPE module SYSTEM "./module.dtd">
+
+<!--
+
+// Use (parts of) the following section in airframe file to change
+
+  <section name="DIGITAL_CAMERA" prefix="DC_">
+
+    <configure name="PUSH" value"LED_ON" />
+    <configure name="RELEASE" value"LED_OFF" />
+
+    <configure name="AUTOSHOOT_QUARTERSEC_PERIOD" value="6" unit="quarter_second"/>
+    <configure name="AUTOSHOOT_METER_GRID" value="50" unit="meter"/>
+  </section>
+
+# ap.CFLAGS += -DGPS_TRIGGERED_FUNCTION="dc_shoot_on_gps"
+# ap.CFLAGS += -DDC_GPS_TRIGGER_START=1
+# ap.CFLAGS += -DDC_GPS_TRIGGER_STOP=3
+
+-->
+
+<module name="digital_cam_servo" dir="digital_cam">
+
+  <header>
+    <file name="servo_cam_ctrl.h"/>
+  </header>
+
+  <init fun="servo_cam_ctrl_init()"/>
+
+  <periodic fun="servo_cam_ctrl_periodic()" freq="4" autorun="TRUE"/>
+
+  <makefile >
+
+    <define name="DIGITAL_CAM" />
+    <file name="servo_cam_ctrl.c"/>
+    <file name="dc.c"/>
+    <define name="SENSOR_SYNC_SEND" value="1" />
+
+  </makefile>
+
+
+</module>
+

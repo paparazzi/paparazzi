@@ -48,6 +48,7 @@ let string_of_maps_source = function
 
 let maps_source = ref Google
 let set_maps_source = fun s -> maps_source := s
+let get_maps_source = fun () -> !maps_source
 
 let mkdir = fun d ->
   if not (Sys.file_exists d) then
