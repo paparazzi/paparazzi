@@ -36,6 +36,7 @@
     <!--This is to enable a wing waggle at specified low battery voltage. The interval is in cycle counts, not seconds-->
     <define name="AUTOPILOT_LOBATT_WING_WAGGLE"  value="TRUE"/>
     <define name="AUTOPILOT_LOBATT_WING_WAGGLE_INTERVAL"  value="5120"/>
+    <define name="TOYTRONICS" value="TRUE"/>
   </section>
 
   <rc_commands>
@@ -50,16 +51,16 @@
   <command_laws>
     <!--************* different mixing strategies - probably don't edit this ****************-->
     <!-- direct ailerons -->
-    <let var="aileron_direct_left"  value="+@RC_ROLL * (9600 + @RC_THRUST)/9600"/>
-    <let var="aileron_direct_right" value="+@RC_ROLL * (9600 + @RC_THRUST)/9600"/>
+    <let var="aileron_direct_left"  value="-@RC_ROLL * (9600 + @RC_THRUST)/9600"/>
+    <let var="aileron_direct_right" value="-@RC_ROLL * (9600 + @RC_THRUST)/9600"/>
 
     <!-- direct elevators -->
     <let var="elevator_direct_left"  value="-@RC_PITCH * (9600 + @RC_THRUST)/9600"/>
     <let var="elevator_direct_right" value="+@RC_PITCH * (9600 + @RC_THRUST)/9600"/>
 
     <!-- aileron feedback -->
-    <let var="aileron_feedback_left"  value="+@ROLL * (9600 + @RC_THRUST)/9600"/>
-    <let var="aileron_feedback_right" value="+@ROLL * (9600 + @RC_THRUST)/9600"/>
+    <let var="aileron_feedback_left"  value="-@ROLL * (9600 + @RC_THRUST)/9600"/>
+    <let var="aileron_feedback_right" value="-@ROLL * (9600 + @RC_THRUST)/9600"/>
 
     <!-- elevator feedback -->
     <let var="elevator_feedback_left"  value="-@PITCH * (9600 + @RC_THRUST)/9600"/>
@@ -227,7 +228,6 @@
    <define name="PGAIN" value="-100"/>
    <define name="DGAIN" value="-100"/>
    <define name="IGAIN" value="-0"/>
-   <define name="TOYTRONICS" value="TRUE"/>
  </section>
 
  <section name="SIMULATOR" prefix="NPS_">
