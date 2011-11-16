@@ -74,13 +74,16 @@ void imu_impl_init(void)
 void imu_periodic( void )
 {
   // Start reading the latest gyroscope data
-  itg3200_periodic();
+  Itg3200Periodic();
 
   // Start reading the latest accelerometer data
-  adxl345_periodic();
+  // Periodicity is automatically adapted
+  // 3200 is the maximum output freq corresponding to the parameter 0xF
+  // A factor 2 is applied to reduice the delay without overloading the i2c
+  RunOnceEvery((PERIODIC_FREQUENCY/(2*3200>>(0xf-ADXL345_BW_RATE))),Adxl345Periodic());
 
-  // Read HMC58XX at 50Hz (main loop for rotorcraft: 512Hz)
-  RunOnceEvery(10,hmc58xx_periodic());
+  // Read HMC58XX at 100Hz (main loop for rotorcraft: 512Hz)
+  RunOnceEvery(5,Hmc58xxPeriodic());
 
   //RunOnceEvery(20,imu_navgo_downlink_raw());
 }
