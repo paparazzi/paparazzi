@@ -1,62 +1,54 @@
-<!DOCTYPE airframe SYSTEM "airframe.dtd">
+#
+# setup.makefile
+#
+#
 
-<!--
 
-    Connects a microSD card to the SPI port of the Paparazzi Tiny. Keep cables
-    short, microSD card can be directly soldered to Molex cable. For now only
-    non SDHC SD cards (<= 2GB) are supported. martinmm@pfump.org
+CFG_SHARED=$(PAPARAZZI_SRC)/conf/autopilot/subsystems/shared
 
-    microSD         TinyV2 SPI J3
-    8 nc
-    7 DO            5 MISO
-    6 GND           1 GND
-    5 CLK           7 SCK
-    4 Vcc           2 +3V3
-    3 DI            4 MOSI
-    2 CS            3 SSEL
-    1 nc
+SRC_ARCH=arch/$(ARCH)
+SRC_FIRMWARE=firmwares/logger
 
-    Looking onto the gold plated connector side of the microSD card:
+SETUP_INC = -I$(SRC_FIRMWARE)
 
-    ###############
-    I 8
-    I 7
-    I 6
-    I 5
-    I 4
-    I 3
-    I 2
-    I 1
-    ######    ##
-          \  I  \
-           ##    ##
+$(TARGET).CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 
--->
+# default config
+ifndef SPI_CHANNEL
+SPI_CHANNEL = 1
+endif
 
-<airframe name="Logger">
+ifndef UART0_BAUD
+UART0_BAUD = B9600
+endif
 
- <makefile>
+ifndef UART1_BAUD
+UART1_BAUD = B9600
+endif
 
-CONFIG = \"tiny_2_1_1_usb.h\"
 
-include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
+# a configuration program to access both uart through usb
+ifeq ($(ARCH), lpc21)
 
-FLASH_MODE=IAP
 
-ap.CFLAGS += -DBOARD_CONFIG=$(CONFIG) -DUSE_LED
-ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_logger.c
+ap.CFLAGS += -DUSE_LED
+ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c $(SRC_FIRMWARE)/main_logger.c
 
 #choose one
 ap.CFLAGS += -DLOG_XBEE
 #ap.CFLAGS += -DLOG_PPRZ
 
+
 #set the speed
-ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B9600 -DUSE_UART0_RX_ONLY
-ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B9600 -DUSE_UART1_RX_ONLY
+ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=$(UART0_BAUD) -DUSE_UART0_RX_ONLY
+ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=$(UART1_BAUD) -DUSE_UART1_RX_ONLY
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
+ap.srcs += mcu_periph/uart.c
+ap.srcs += $(SRC_ARCH)/mcu_arch.c
+ap.srcs += mcu.c
 
 #set SPI interface for SD card (0 or 1)
-ap.CFLAGS += -DHW_ENDPOINT_LPC2000_SPINUM=1
+ap.CFLAGS += -DHW_ENDPOINT_LPC2000_SPINUM=$(SPI_CHANNEL)
 
 #efsl
 ap.CFLAGS += -I $(SRC_ARCH)/efsl/inc -I $(SRC_ARCH)/efsl/conf
@@ -84,7 +76,9 @@ ap.srcs += $(SRC_ARCH)/lpcusb/examples/msc_scsi.c
 ap.srcs += $(SRC_ARCH)/lpcusb/examples/blockdev_sd.c
 ap.srcs += $(SRC_ARCH)/lpcusb/examples/lpc2000_spi.c
 
- </makefile>
 
-</airframe>
+else
+$(error usb_tunnel currently only implemented for the lpc21)
+endif
+
 
