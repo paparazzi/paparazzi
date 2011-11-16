@@ -67,6 +67,8 @@
 #define ADXL345_I2C_DEVICE i2c1
 #endif
 
+// Config done flag
+extern bool_t adxl345_initialized;
 // Data ready flag
 extern volatile bool_t adxl345_data_available;
 // Data vector
@@ -78,8 +80,15 @@ extern struct i2c_transaction adxl345_trans;
 
 // Functions
 extern void adxl345_init(void);
-extern void adxl345_periodic(void);
+extern void adxl345_configure(void);
+extern void adxl345_read(void);
 extern void adxl345_event(void);
+
+// Macro for using ADXL345 in periodic function
+#define Adxl345Periodic() {                 \
+  if (adxl345_initialized) adxl345_read();  \
+  else adxl345_configure();                 \
+}
 
 #define AccelEvent(_handler) {     \
     adxl345_event();              \

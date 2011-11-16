@@ -61,16 +61,19 @@ static void hmc58xx_send_config(void)
       hmc58xx_i2c_trans.buf[0] = HMC58XX_REG_CFGA;
       hmc58xx_i2c_trans.buf[1] = HMC58XX_CRA;
       I2CTransmit(HMC58XX_I2C_DEVICE, hmc58xx_i2c_trans, HMC58XX_ADDR, 2);
+      hmc58xx_init_status++;
       break;
     case HMC_CONF_CRB:
       hmc58xx_i2c_trans.buf[0] = HMC58XX_REG_CFGB;
       hmc58xx_i2c_trans.buf[1] = HMC58XX_CRB;
       I2CTransmit(HMC58XX_I2C_DEVICE, hmc58xx_i2c_trans, HMC58XX_ADDR, 2);
+      hmc58xx_init_status++;
       break;
     case HMC_CONF_MODE:
       hmc58xx_i2c_trans.buf[0] = HMC58XX_REG_MODE;
       hmc58xx_i2c_trans.buf[1] = HMC58XX_MD;
       I2CTransmit(HMC58XX_I2C_DEVICE, hmc58xx_i2c_trans, HMC58XX_ADDR, 2);
+      hmc58xx_init_status++;
       break;
     case HMC_CONF_DONE:
       hmc58xx_initialized = TRUE;
@@ -81,24 +84,23 @@ static void hmc58xx_send_config(void)
   }
 }
 
-void hmc58xx_periodic(void)
+// Configure
+void hmc58xx_configure(void)
 {
-  if (!hmc58xx_initialized) {
-    // Configure
+  if (hmc58xx_init_status == HMC_CONF_UNINIT) {
+    hmc58xx_init_status++;
     if (hmc58xx_i2c_trans.status == I2CTransSuccess || hmc58xx_i2c_trans.status == I2CTransDone) {
-      hmc58xx_init_status++;
       hmc58xx_send_config();
     }
-    if (hmc58xx_i2c_trans.status == I2CTransFailed) {
-      hmc58xx_send_config(); // Retry config
-    }
   }
-  else {
-    // Normal reading
-    if (hmc58xx_i2c_trans.status == I2CTransDone){
-      hmc58xx_i2c_trans.buf[0] = HMC58XX_REG_DATXM;
-      I2CTransceive(HMC58XX_I2C_DEVICE, hmc58xx_i2c_trans, HMC58XX_ADDR, 1, 6);
-    }
+}
+
+// Normal reading
+void hmc58xx_read(void)
+{
+  if (hmc58xx_initialized && hmc58xx_i2c_trans.status == I2CTransDone){
+    hmc58xx_i2c_trans.buf[0] = HMC58XX_REG_DATXM;
+    I2CTransceive(HMC58XX_I2C_DEVICE, hmc58xx_i2c_trans, HMC58XX_ADDR, 1, 6);
   }
 }
 
@@ -116,6 +118,17 @@ void hmc58xx_event(void)
       hmc58xx_data.z = Int16FromBuf(hmc58xx_i2c_trans.buf,2);
       hmc58xx_data_available = TRUE;
       hmc58xx_i2c_trans.status = I2CTransDone;
+    }
+  }
+  else if (!hmc58xx_initialized && hmc58xx_init_status != HMC_CONF_UNINIT) { // Configuring
+    if (hmc58xx_i2c_trans.status == I2CTransSuccess || hmc58xx_i2c_trans.status == I2CTransDone) {
+      hmc58xx_i2c_trans.status = I2CTransDone;
+      hmc58xx_send_config();
+    }
+    if (hmc58xx_i2c_trans.status == I2CTransFailed) {
+      hmc58xx_init_status--;
+      hmc58xx_i2c_trans.status = I2CTransDone;
+      hmc58xx_send_config(); // Retry config (TODO max retry)
     }
   }
 }
