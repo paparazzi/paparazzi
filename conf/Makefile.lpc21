@@ -221,18 +221,17 @@ printcommands:
 	@echo "Using DMP  = $(OBJDUMP)"
 	@echo "Using NM   = $(NM)"
 	@echo "Using SIZE = $(SIZE)"
-	@echo "Using OOCD = $(OOCD)"
 	@echo "GCC version:"
 	@$(CC) --version | head -1
 
 ifeq ("$(MULTILIB)","yes")
 printmultilib:
 	@echo "*** Using multilib ***"
-	@echo "--------------------------"
+	@echo "--------------------------------------"
 else
 printmultilib:
 	@echo "*** NOT using multilib ***"
-	@echo "--------------------------"
+	@echo "--------------------------------------"
 endif
 
 build: elf hex lss sym
@@ -247,10 +246,10 @@ sym: $(OBJDIR)/$(TARGET).sym
 HEXSIZE = $(SIZE) --target=$(FORMAT) $(OBJDIR)/$(TARGET).hex
 ELFSIZE = $(SIZE) -A $(OBJDIR)/$(TARGET).elf
 sizebefore:
-	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; $(ELFSIZE); echo; fi
+	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Previous size:"; $(ELFSIZE); fi
 
 sizeafter:
-	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; $(ELFSIZE); echo; fi
+	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Current size:"; $(ELFSIZE); fi
 
 
 # Program the device.
@@ -258,6 +257,7 @@ load upload program: $(OBJDIR)/$(TARGET).hex
 ifeq ($(FLASH_MODE),IAP)
 	$(SUDO) $(LPC21IAP)  $(OBJDIR)/$(TARGET).elf
 else ifeq ($(FLASH_MODE),JTAG)
+	@echo "Using OOCD = $(OOCD)"
 	@echo -e "  OOCD\t$<"
 	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
                 -f board/$(OOCD_TARGET).cfg \
