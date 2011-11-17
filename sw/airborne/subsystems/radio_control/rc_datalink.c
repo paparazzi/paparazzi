@@ -44,6 +44,7 @@ void parse_rc_3ch_datalink( uint8_t throttle_mode,
   rc_dl_values[RADIO_PITCH] = pitch;
   rc_dl_values[RADIO_THROTTLE] = (int8_t)throttle;
   rc_dl_values[RADIO_MODE] = (int8_t)mode;
+  rc_dl_values[RADIO_YAW] = 0;
 
   rc_dl_frame_available = TRUE;
 }

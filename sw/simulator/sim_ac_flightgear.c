@@ -34,14 +34,14 @@
 #include "flight_gear.h"
 #include "sim_ac_flightgear.h"
 
-static struct  
+static struct
 {
     int socket;
     struct sockaddr_in addr;
 } flightgear;
 
 
-void sim_ac_flightgear_init(const char* host,  unsigned int port) 
+void sim_ac_flightgear_init(const char* host,  unsigned int port)
 {
     int so_reuseaddr = 1;
     struct protoent * pte = getprotobyname("UDP");
@@ -53,51 +53,51 @@ void sim_ac_flightgear_init(const char* host,  unsigned int port)
     flightgear.addr.sin_addr.s_addr = inet_addr(host);
 }
 
-static inline double get_value(JSBSim::FGFDMExec* FDMExec, string name) 
+static inline double get_value(JSBSim::FGFDMExec* FDMExec, string name)
 {
     return FDMExec->GetPropertyManager()->GetNode(name)->getDoubleValue();
 }
 
-void sim_ac_flightgear_send(JSBSim::FGFDMExec* FDMExec) 
+void sim_ac_flightgear_send(JSBSim::FGFDMExec* FDMExec)
 {
-    
+
     struct FGNetGUI gui;
-    
+
     gui.version = FG_NET_GUI_VERSION;
-    
+
     gui.latitude  = get_value(FDMExec, "position/lat-gc-rad");
     gui.longitude = get_value(FDMExec, "position/long-gc-rad");
     gui.altitude  = get_value(FDMExec, "position/h-sl-meters");
     //  printf("%f %f %f\n", gui.latitude, gui.longitude, gui.altitude);
-    
+
     gui.agl = 1.111652;
-    
+
     gui.phi = get_value(FDMExec, "attitude/roll-rad");
     gui.theta = get_value(FDMExec, "attitude/pitch-rad");
     gui.psi = get_value(FDMExec, "attitude/heading-true-rad");
-    
+
     gui.vcas = 0.;
     gui.climb_rate = 0.;
-    
+
     gui.num_tanks = 1;
     gui.fuel_quantity[0] = get_value(FDMExec, "propulsion/total-fuel-lbs");;
-    
+
     //gui.cur_time = 3198060679ul;
     //gui.cur_time = 3198060679ul + rint(fdm.time);
     gui.cur_time = 3198101679ul;
     gui.warp = 1122474394ul;
-    
+
     gui.ground_elev = 0.;
-    
+
     gui.tuned_freq = 125.65;
     gui.nav_radial = 90.;
     gui.in_range = 1;
     gui.dist_nm = 10.;
     gui.course_deviation_deg = 0.;
     gui.gs_deviation_deg = 0.;
-    
+
     if (sendto(flightgear.socket, (char*)(&gui), sizeof(gui), 0,
                (struct sockaddr*)&flightgear.addr, sizeof(flightgear.addr)) == -1)
         printf("error sending\n");
-    
+
 }

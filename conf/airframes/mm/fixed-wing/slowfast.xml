@@ -27,7 +27,7 @@
     <subsystem name="navigation"/>
 
     <subsystem name="gyro" type="roll">
-      <param name="ADC_GYRO_ROLL" value="ADC_3"/>
+      <configure name="ADC_GYRO_ROLL" value="ADC_3"/>
     </subsystem>
   </firmware>
 

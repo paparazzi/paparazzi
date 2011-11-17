@@ -193,24 +193,24 @@
     <target name="stm_passthrough"        board="lisa_l_1.0"		processor="stm32" >
     </target>
     <subsystem name="radio_control" type="spektrum">
-      <param name="RADIO_CONTROL_SPEKTRUM_MODEL"
+      <configure name="RADIO_CONTROL_SPEKTRUM_MODEL"
              value="\\\"subsystems/radio_control/spektrum_dx7se.h\\\""/>
     </subsystem>
     <subsystem name="imu" type="b2_v1.1"/>
 
 
     <target name="overo_test_passthrough" board="lisa_l_1.0" 		processor="omap" >
-      <param name="HOST"          value="A7"/>
-      <param name="USER"          value=""/>
-      <param name="TARGET_DIR"    value="~"/>
-      <param name="PERIODIC_FREQ" value="512"/>
+      <configure name="HOST"          value="A7"/>
+      <configure name="USER"          value=""/>
+      <configure name="TARGET_DIR"    value="~"/>
+      <configure name="PERIODIC_FREQ" value="512"/>
     </target>
 
   </firmware>
 
   <firmware name="lisa_l_test_progs">
     <target name="test_telemetry" board="lisa_l_1.0">
-      <param name="MODEM_PORT" value="UART2"/>
+      <configure name="MODEM_PORT" value="UART2"/>
     </target>
     <target name="test_baro"      board="lisa_l_1.0"/>
     <target name="test_spektrum"  board="lisa_l_1.0"/>

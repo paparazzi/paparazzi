@@ -95,7 +95,7 @@ case "$choice" in
 	echo -e "-Now use one of your tags: \033[1mgit checkout TAG_NAME\033[0m (find the available TAG_NAMEs using  \033[1mgit tag\033[0m ) (note that after this command you will be in detached head state which means that you are using a older revision and you can not commit changes here. If you want to make changes you have to make a branch from your tag)"
         exit;
 	;;
- 4 ) clear; exit 1 ;;
+ 5 ) clear; exit 1 ;;
 esac
 
 done
