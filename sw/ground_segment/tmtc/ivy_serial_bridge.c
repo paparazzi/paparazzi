@@ -110,6 +110,7 @@ static void on_Estimator(IvyClientPtr app, void *user_data, int argc, char *argv
   </message>
 */
 
+  local_uav.utm_z = (( atof(argv[0]) ) * 1000.0f);
   local_uav.climb   = atof(argv[1]);
 }
 
@@ -168,7 +169,6 @@ static void on_Gps(IvyClientPtr app, void *user_data, int argc, char *argv[])
 
   local_uav.utm_east = atoi(argv[1]);
   local_uav.utm_north = atoi(argv[2]);
-  local_uav.utm_z = atoi(argv[4]);
   local_uav.utm_zone = atoi(argv[9]);
   local_uav.speed = atoi(argv[5]);
 
@@ -268,7 +268,7 @@ void send_ivy(void)
    </message>
 */
 
-  IvySendMsg("%d NAVIGATION %d 0 0 0 0 0 0 0 \n", remote_uav.ac_id, remote_uav.block);
+//  IvySendMsg("%d NAVIGATION %d 0 0 0 0 0 0 0 \n", remote_uav.ac_id, remote_uav.block);
 
 /*
    <message name="BAT" id="12">
@@ -310,7 +310,7 @@ void send_ivy(void)
   delayer++;
   if (delayer > 5)
   {
-    IvySendMsg("%d NAVIGATION_REF %d %d %d\n", remote_uav.ac_id, remote_uav.utm_east, remote_uav.utm_north, remote_uav.utm_zone);
+//    IvySendMsg("%d NAVIGATION_REF %d %d %d\n", remote_uav.ac_id, remote_uav.utm_east, remote_uav.utm_north, remote_uav.utm_zone);
     delayer = 0;
   }
 
