@@ -206,7 +206,7 @@
 
     <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="imu"       type="analog_gyro">
+    <subsystem name="imu"       type="analog">
       <configure name="GYRO_P" value="ADC_3"/>
     </subsystem>
     <subsystem name="ahrs" 		type="infrared"/>

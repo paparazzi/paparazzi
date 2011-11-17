@@ -22,7 +22,7 @@
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="control"/>
     <subsystem name="ahrs"      type="infrared"/>
-    <subsystem name="imu"       type="analog_gyro">
+    <subsystem name="imu"       type="analog">
       <configure name="GYRO_P" value="ADC_3"/>
     </subsystem>
     <subsystem name="gps"           type="ublox"/>
