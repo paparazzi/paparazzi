@@ -132,8 +132,6 @@
 
 #define PERIODIC_SEND_ADC(_chan) {}
 
-#define PERIODIC_SEND_GYRO_RATES(_chan) {}
-
 
 #define PERIODIC_SEND_CALIBRATION(_chan) DOWNLINK_SEND_CALIBRATION(_chan, &v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_submode)
 

@@ -244,11 +244,7 @@
     <field name="utm_zone" type="uint8"/>
   </message>
 
-  <message name="GYRO_RATES" id="36">
-    <field name="roll_adc" type="int16"/>
-    <field name="roll" type="float" unit="rad/s"/>
-    <field name="pitch" type="float" unit="rad/s"/>
-  </message>
+  <!-- 36 is free -->
 
   <message name="ENERGY" id="37">
     <field name="bat"      type="float" unit="V"/>
