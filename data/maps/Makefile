@@ -3,6 +3,9 @@ Q=@
 
 all: $(DATADIR)/maps.google.com $(PAPARAZZI_HOME)/conf/maps.xml
 
+clean:
+	
+
 $(DATADIR):
 	mkdir $(DATADIR)
 

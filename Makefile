@@ -233,11 +233,11 @@ fast_deb:
 	$(MAKE) deb OCAMLC=ocamlc.opt DEBFLAGS=-b
 
 clean:
-	rm -fr dox build-stamp configure-stamp conf/%gconf.xml debian/files debian/paparazzi-arm7 debian/paparazzi-avr debian/paparazzi-base debian/paparazzi-bin debian/paparazzi-dev
-	rm -f  $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(DL_PROTOCOL_H)
-	find . -mindepth 2 -name Makefile -exec sh -c '$(MAKE) -C `dirname {}` $@' \;
-	find . -name '*~' -exec rm -f {} \;
-	rm -f paparazzi sw/simulator/launchsitl
+	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml debian/files debian/paparazzi-arm7 debian/paparazzi-avr debian/paparazzi-base debian/paparazzi-bin debian/paparazzi-dev
+	$(Q)rm -f  $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(DL_PROTOCOL_H)
+	$(Q)find . -mindepth 2 -name Makefile -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
+	$(Q)find . -name '*~' -exec rm -f {} \;
+	$(Q)rm -f paparazzi sw/simulator/launchsitl
 
 cleanspaces:
 	find ./sw/airborne -name '*.[ch]' -exec sed -i {} -e 's/[ \t]*$$//' \;
