@@ -64,6 +64,8 @@
 #define ITG3200_I2C_DEVICE i2c1
 #endif
 
+// Config done flag
+extern bool_t itg3200_initialized;
 // Data ready flag
 extern volatile bool_t itg3200_data_available;
 // Data vector
@@ -75,8 +77,15 @@ extern struct i2c_transaction itg3200_trans;
 
 // Functions
 extern void itg3200_init(void);
-extern void itg3200_periodic(void);
+extern void itg3200_configure(void);
+extern void itg3200_read(void);
 extern void itg3200_event(void);
+
+// Macro for using ITG3200 in periodic function
+#define Itg3200Periodic() {                 \
+  if (itg3200_initialized) itg3200_read();  \
+  else itg3200_configure();                 \
+}
 
 #define GyroEvent(_handler) {     \
     itg3200_event();              \
