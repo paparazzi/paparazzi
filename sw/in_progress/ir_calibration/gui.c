@@ -6,7 +6,7 @@
 #include <gtkdatabox_bars.h>
 #include <gtkdatabox_grid.h>
 #include <gtkdatabox_cross_simple.h>
-#include <gtkdatabox_marker.h>
+#include <gtkdatabox_markers.h>
 
 #define NB_POINTS 121
 

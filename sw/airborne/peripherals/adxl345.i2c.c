@@ -62,21 +62,25 @@ static void adxl345_send_config(void)
       adxl345_i2c_trans.buf[0] = ADXL345_REG_BW_RATE;
       adxl345_i2c_trans.buf[1] = ADXL345_BW_RATE;
       I2CTransmit(ADXL345_I2C_DEVICE, adxl345_i2c_trans, ADXL345_I2C_ADDR, 2);
+      adxl345_init_status++;
       break;
     case ADXL_CONF_POWER:
       adxl345_i2c_trans.buf[0] = ADXL345_REG_POWER_CTL;
       adxl345_i2c_trans.buf[1] = ADXL345_POWER_CTL;
       I2CTransmit(ADXL345_I2C_DEVICE, adxl345_i2c_trans, ADXL345_I2C_ADDR, 2);
+      adxl345_init_status++;
       break;
     case ADXL_CONF_INT:
       adxl345_i2c_trans.buf[0] = ADXL345_REG_INT_ENABLE;
       adxl345_i2c_trans.buf[1] = ADXL345_INT_ENABLE;
       I2CTransmit(ADXL345_I2C_DEVICE, adxl345_i2c_trans, ADXL345_I2C_ADDR, 2);
+      adxl345_init_status++;
       break;
     case ADXL_CONF_FORMAT:
       adxl345_i2c_trans.buf[0] = ADXL345_REG_DATA_FORMAT;
       adxl345_i2c_trans.buf[1] = ADXL345_DATA_FORMAT;
       I2CTransmit(ADXL345_I2C_DEVICE, adxl345_i2c_trans, ADXL345_I2C_ADDR, 2);
+      adxl345_init_status++;
       break;
     case ADXL_CONF_DONE:
       adxl345_initialized = TRUE;
@@ -87,24 +91,23 @@ static void adxl345_send_config(void)
   }
 }
 
-void adxl345_periodic(void)
+// Configure
+void adxl345_configure(void)
 {
-  if (!adxl345_initialized) {
-    // Configure
+  if (adxl345_init_status == ADXL_CONF_UNINIT) {
+    adxl345_init_status++;
     if (adxl345_i2c_trans.status == I2CTransSuccess || adxl345_i2c_trans.status == I2CTransDone) {
-      adxl345_init_status++;
       adxl345_send_config();
     }
-    if (adxl345_i2c_trans.status == I2CTransFailed) {
-      adxl345_send_config(); // Retry config
-    }
   }
-  else {
-    // Normal reading
-    if (adxl345_i2c_trans.status == I2CTransDone){
-      adxl345_i2c_trans.buf[0] = ADXL345_REG_DATA_X0;
-      I2CTransceive(ADXL345_I2C_DEVICE, adxl345_i2c_trans, ADXL345_I2C_ADDR, 1, 6);
-    }
+}
+
+// Normal reading
+void adxl345_read(void)
+{
+  if (adxl345_initialized && adxl345_i2c_trans.status == I2CTransDone) {
+    adxl345_i2c_trans.buf[0] = ADXL345_REG_DATA_X0;
+    I2CTransceive(ADXL345_I2C_DEVICE, adxl345_i2c_trans, ADXL345_I2C_ADDR, 1, 6);
   }
 }
 
@@ -123,6 +126,17 @@ void adxl345_event(void)
       adxl345_data.z = Int16FromBuf(adxl345_i2c_trans.buf,4);
       adxl345_data_available = TRUE;
       adxl345_i2c_trans.status = I2CTransDone;
+    }
+  }
+  else if (!adxl345_initialized && adxl345_init_status != ADXL_CONF_UNINIT) { // Configuring
+    if (adxl345_i2c_trans.status == I2CTransSuccess || adxl345_i2c_trans.status == I2CTransDone) {
+      adxl345_i2c_trans.status = I2CTransDone;
+      adxl345_send_config();
+    }
+    if (adxl345_i2c_trans.status == I2CTransFailed) {
+      adxl345_init_status--;
+      adxl345_i2c_trans.status = I2CTransDone;
+      adxl345_send_config(); // Retry config (TODO max retry)
     }
   }
 }

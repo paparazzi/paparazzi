@@ -62,21 +62,25 @@ static void itg3200_send_config(void)
       itg3200_i2c_trans.buf[0] = ITG3200_REG_SMPLRT_DIV;
       itg3200_i2c_trans.buf[1] = ITG3200_SMPLRT_DIV;
       I2CTransmit(ITG3200_I2C_DEVICE, itg3200_i2c_trans, ITG3200_I2C_ADDR, 2);
+      itg3200_init_status++;
       break;
     case ITG_CONF_DF:
       itg3200_i2c_trans.buf[0] = ITG3200_REG_DLPF_FS;
       itg3200_i2c_trans.buf[1] = ITG3200_DLPF_FS;
       I2CTransmit(ITG3200_I2C_DEVICE, itg3200_i2c_trans, ITG3200_I2C_ADDR, 2);
+      itg3200_init_status++;
       break;
     case ITG_CONF_INT:
       itg3200_i2c_trans.buf[0] = ITG3200_REG_INT_CFG;
       itg3200_i2c_trans.buf[1] = ITG3200_INT_CFG;
       I2CTransmit(ITG3200_I2C_DEVICE, itg3200_i2c_trans, ITG3200_I2C_ADDR, 2);
+      itg3200_init_status++;
       break;
     case ITG_CONF_PWR:
       itg3200_i2c_trans.buf[0] = ITG3200_REG_PWR_MGM;
       itg3200_i2c_trans.buf[1] = ITG3200_PWR_MGM;
       I2CTransmit(ITG3200_I2C_DEVICE, itg3200_i2c_trans, ITG3200_I2C_ADDR, 2);
+      itg3200_init_status++;
       break;
     case ITG_CONF_DONE:
       itg3200_initialized = TRUE;
@@ -87,24 +91,23 @@ static void itg3200_send_config(void)
   }
 }
 
-void itg3200_periodic(void)
+// Configure
+void itg3200_configure(void)
 {
-  if (!itg3200_initialized) {
-    // Configure
+  if (itg3200_init_status == ITG_CONF_UNINIT) {
+    itg3200_init_status++;
     if (itg3200_i2c_trans.status == I2CTransSuccess || itg3200_i2c_trans.status == I2CTransDone) {
-      itg3200_init_status++;
       itg3200_send_config();
     }
-    if (itg3200_i2c_trans.status == I2CTransFailed) {
-      itg3200_send_config(); // Retry config
-    }
   }
-  else {
-    // Normal reading
-    if (itg3200_i2c_trans.status == I2CTransDone) {
-      itg3200_i2c_trans.buf[0] = ITG3200_REG_INT_STATUS;
-      I2CTransceive(ITG3200_I2C_DEVICE, itg3200_i2c_trans, ITG3200_I2C_ADDR, 1, 9);
-    }
+}
+
+// Normal reading
+void itg3200_read(void)
+{
+  if (itg3200_initialized && itg3200_i2c_trans.status == I2CTransDone) {
+    itg3200_i2c_trans.buf[0] = ITG3200_REG_INT_STATUS;
+    I2CTransceive(ITG3200_I2C_DEVICE, itg3200_i2c_trans, ITG3200_I2C_ADDR, 1, 9);
   }
 }
 
@@ -126,6 +129,17 @@ void itg3200_event(void)
         itg3200_data_available = TRUE;
       }
       itg3200_i2c_trans.status = I2CTransDone;
+    }
+  }
+  else if (!itg3200_initialized && itg3200_init_status != ITG_CONF_UNINIT) { // Configuring
+    if (itg3200_i2c_trans.status == I2CTransSuccess || itg3200_i2c_trans.status == I2CTransDone) {
+      itg3200_i2c_trans.status = I2CTransDone;
+      itg3200_send_config();
+    }
+    if (itg3200_i2c_trans.status == I2CTransFailed) {
+      itg3200_init_status--;
+      itg3200_i2c_trans.status = I2CTransDone;
+      itg3200_send_config(); // Retry config (TODO max retry)
     }
   }
 }

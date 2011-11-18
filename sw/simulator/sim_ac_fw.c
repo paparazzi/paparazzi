@@ -185,10 +185,18 @@ void copy_outputs_from_jsbsim(FGFDMExec* FDMExec) {
     gps_period = 0.;
   }
 
-    //print(FDMExec);
-  // copy IR
+  //print(FDMExec);
+
   double roll   = get_value(FDMExec, "attitude/roll-rad");
   double pitch  = get_value(FDMExec, "attitude/pitch-rad");
+  double yaw    = get_value(FDMExec, "attitude/heading-true-rad");
+  double p      = get_value(FDMExec, "velocities/p-rad_sec");
+  double q      = get_value(FDMExec, "velocities/q-rad_sec");
+
+  // copy to AHRS
+  provide_attitude_and_rates(roll, pitch, yaw, p, q);
+
+  // copy IR
   set_ir(roll, pitch);
 
   // copy Bat level

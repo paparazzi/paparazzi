@@ -70,6 +70,8 @@
 #define HMC58XX_I2C_DEVICE i2c2
 #endif
 
+// Config done flag
+extern bool_t hmc58xx_initialized;
 // Data ready flag
 extern volatile bool_t hmc58xx_data_available;
 // Data vector
@@ -81,8 +83,15 @@ extern struct i2c_transaction hmc58xx_i2c_trans;
 
 // Functions
 extern void hmc58xx_init(void);
-extern void hmc58xx_periodic(void);
+extern void hmc58xx_configure(void);
+extern void hmc58xx_read(void);
 extern void hmc58xx_event(void);
+
+// Macro for using HMC58XX in periodic function
+#define Hmc58xxPeriodic() {                 \
+  if (hmc58xx_initialized) hmc58xx_read();  \
+  else hmc58xx_configure();                 \
+}
 
 #define MagEvent(_m_handler) {    \
     hmc58xx_event();              \

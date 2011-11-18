@@ -685,6 +685,7 @@ static inline void on_gyro_event( void ) {
     LED_ON(AHRS_CPU_LED);
 #endif
 
+#ifdef USE_AHRS_ALIGNER
   // Run aligner on raw data as it also makes averages.
   if (ahrs.status == AHRS_UNINIT) {
     ImuScaleGyro(imu);
@@ -694,6 +695,7 @@ static inline void on_gyro_event( void ) {
       ahrs_align();
     return;
   }
+#endif
 
 #if PERIODIC_FREQUENCY == 60
   ImuScaleGyro(imu);
