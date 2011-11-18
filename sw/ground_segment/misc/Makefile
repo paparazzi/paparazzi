@@ -2,8 +2,8 @@ UNAME = $(shell uname -s)
 
 ifeq ("$(UNAME)","Darwin")
   LIBRARYS = -L/opt/local/lib
-else 
-  LIBRARYS = -s 
+else
+  LIBRARYS = -s
 endif
 
 

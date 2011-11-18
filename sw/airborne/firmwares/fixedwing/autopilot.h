@@ -33,6 +33,7 @@
 #include <inttypes.h>
 #include "std.h"
 #include "sys_time.h"
+#include "estimator.h"
 
 #define TRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
 

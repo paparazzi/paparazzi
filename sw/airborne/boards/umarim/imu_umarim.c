@@ -69,10 +69,10 @@ void imu_impl_init(void)
 void imu_periodic( void )
 {
   // Start reading the latest gyroscope data
-  itg3200_periodic();
+  Itg3200Periodic();
 
   // Start reading the latest accelerometer data
-  adxl345_periodic();
+  Adxl345Periodic();
 
   //RunOnceEvery(10,imu_umarim_downlink_raw());
 }

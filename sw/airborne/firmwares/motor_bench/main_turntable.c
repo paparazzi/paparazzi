@@ -4,6 +4,8 @@
 #include "led.h"
 #include "interrupt_hw.h"
 #include "mcu_periph/usb_serial.h"
+#include "mcu_periph/uart.h"
+#include "mcu_arch.h"
 
 #include "messages.h"
 #include "downlink.h"

@@ -182,6 +182,14 @@ let send_cam_status = fun a ->
 			"cam_target_long", Pprz.Float ((Rad>>Deg)twgs84.posn_long)] in
 	  Ground_Pprz.message_send my_id "CAM_STATUS" values
 
+let send_if_calib = fun a ->
+  let if_mode = get_indexed_value if_modes a.inflight_calib.if_mode in
+  let values = ["ac_id", Pprz.String a.id;
+		         "if_mode", Pprz.String if_mode;
+		         "if_value1", Pprz.Float a.inflight_calib.if_val1;
+		         "if_value2", Pprz.Float a.inflight_calib.if_val2] in
+  Ground_Pprz.message_send my_id "INFLIGH_CALIB" values
+
 let send_fbw = fun a ->
   let values = [ "ac_id", Pprz.String a.id;
 		 "rc_mode", Pprz.String a.fbw.rc_mode;
@@ -384,6 +392,7 @@ let send_aircraft_msg = fun ac ->
     Ground_Pprz.message_send my_id "AP_STATUS" values;
 
     send_cam_status a;
+    send_if_calib a;
     send_fbw a;
     send_svsinfo a;
     send_horiz_status a;
@@ -438,6 +447,18 @@ let check_md5sum = fun ac_name alive_md5sum aircraft_conf_dir ->
 	done
     | _ -> failwith "Array expected here"
   with _ ->
+    try
+      match alive_md5sum with
+        Pprz.Array array ->
+	  let n = Array.length array in
+	  assert(n = String.length md5sum / 2);
+	  for i = 0 to n - 1 do
+	    let x = 0 in
+	    assert (x = Pprz.int_of_value array.(i))
+  	  done;
+          fprintf stderr "MD5 is ZERO, be carefull with configurations\n%!"
+      | _ -> failwith "Array expected here"
+    with _ ->
     let error_message = sprintf "WARNING: live md5 signature for %s does not match current configuration, please reload your code (disable check with -no_md5_check option)" ac_name in
     if !no_md5_check then
       fprintf stderr "%s; continuing anyway as requested\n%!" error_message
@@ -590,7 +611,8 @@ let send_config = fun http _asker args ->
     let fp = prefix ("var" // ac_name // "flight_plan.xml")
     and af = prefix ("conf" // ExtXml.attrib conf "airframe")
     and rc = prefix ("conf" // ExtXml.attrib conf "radio")
-    and settings = prefix  ("var" // ac_name // "settings.xml") in
+    and settings = if not _is_replayed then prefix ("var" // ac_name //
+    "settings.xml") else "file://replay" in
     let col = try Xml.attrib conf "gui_color" with _ -> new_color () in
     let ac_name = try Xml.attrib conf "name" with _ -> "" in
     [ "ac_id", Pprz.String ac_id;

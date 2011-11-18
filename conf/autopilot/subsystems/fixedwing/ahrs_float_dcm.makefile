@@ -37,13 +37,18 @@ ap.CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
 endif
 
 
-ifeq ($(TARGET), sim)
+#
+# Simple simulation of the AHRS result
+#
+ahrssim_CFLAGS  = -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_sim.h\"
+ahrssim_CFLAGS += -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR
 
-sim.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_sim.h\"
-sim.CFLAGS += -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR
+ahrssim_srcs    = $(SRC_SUBSYSTEMS)/ahrs.c
+ahrssim_srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_sim.c
 
-sim.srcs   += $(SRC_SUBSYSTEMS)/ahrs.c
-sim.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_sim.c
+sim.CFLAGS += $(ahrssim_CFLAGS)
+sim.srcs += $(ahrssim_srcs)
 
-endif
+jsbsim.CFLAGS += $(ahrssim_CFLAGS)
+jsbsim.srcs += $(ahrssim_srcs)
 

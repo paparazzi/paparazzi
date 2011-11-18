@@ -145,7 +145,7 @@ uint8_t dc_survey(float interval, float x, float y) {
     dc_gps_x = x;
     dc_gps_y = y;
   }
-  dc_gps_next_dist = interval;
+  dc_gps_next_dist = 0;
   dc_info();
   return 0;
 }

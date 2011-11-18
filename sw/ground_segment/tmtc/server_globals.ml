@@ -13,6 +13,7 @@ let state_filter_modes = [|"UNKNOWN";"INIT";"ALIGN";"OK";"GPS_LOST";"IMU_LOST";"
 let _3D = 3
 let gps_hybrid_modes = [|"OFF";"ON"|]
 let horiz_modes = [|"WAYPOINT";"ROUTE";"CIRCLE";"ATTITUDE"|]
+let if_modes = [|"OFF";"DOWN";"UP"|]
 
 let string_of_values = fun values ->
   String.concat " " (List.map (fun (_, v) -> Pprz.string_of_value v) values)

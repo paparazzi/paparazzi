@@ -25,8 +25,8 @@
 
 
 #include <inttypes.h>
-#include "rc_settings.h"
 #include "generated/radio.h"
+#include "rc_settings.h"
 #include "autopilot.h"
 #include "subsystems/nav.h"
 #include "subsystems/sensors/infrared.h"
