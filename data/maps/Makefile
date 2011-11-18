@@ -10,7 +10,8 @@ $(DATADIR):
 	mkdir $(DATADIR)
 
 $(DATADIR)/maps.google.com: $(DATADIR) FORCE
-	wget -O $(@) http://maps.google.com/
+	@echo "DOWNLOAD: google maps version code";
+	$(Q)wget -q -O $(@) http://maps.google.com/
 
 $(PAPARAZZI_HOME)/conf/maps.xml: $(DATADIR)/maps.google.com
 	$(Q)echo "<!DOCTYPE maps SYSTEM \"maps.dtd\">" > $(@)
