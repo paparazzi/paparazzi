@@ -44,6 +44,10 @@ TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
 GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
 GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
 
+# Detect if we are using the new libopencm3 or the old libopenstm32
+LIBOPENCM3_LIB=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "opencm3_stm32f1"; else echo "opencm3_stm32"; fi)
+LIBOPENCM3_DEFS=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "-DSTM32F1"; fi)
+
 # Define programs and commands.
 GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi
 CC   = $(GCC_BIN_PREFIX)-gcc
@@ -133,6 +137,7 @@ CFLAGS += -Wmissing-prototypes
 CFLAGS += -Wstrict-prototypes
 CFLAGS += -Wmissing-declarations
 CFLAGS += -Wswitch-default
+CFLAGS += $(LIBOPENCM3_DEFS)
 
 CFLAGS += $($(TARGET).CFLAGS)
 
@@ -148,7 +153,7 @@ else
 LDFLAGS = -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT) --gc-sections
 endif
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
-LDLIBS  += -lc -lm -lgcc -lcmsis -lstm32 -lopencm3_stm32
+LDLIBS  += -lc -lm -lgcc -lcmsis -lstm32 -l$(LIBOPENCM3_LIB)
 
 CPFLAGS = -j .isr_vector -j .text -j .data
 CPFLAGS_BIN = -Obinary
@@ -168,18 +173,17 @@ printcommands:
 	@echo "Using DMP  = $(DMP)"
 	@echo "Using NM   = $(NM)"
 	@echo "Using SIZE = $(SIZE)"
-	@echo "Using OOCD = $(OOCD)"
 	@echo "GCC version:"
 	@$(CC) --version | head -1
-	@echo "OOCD version:"
-	@$(OOCD) --version | head -1
 
 ifeq ("$(MULTILIB)","yes")
 printmultilib:
 	@echo "*** Using multilib ***"
+	@echo "--------------------------------------"
 else
 printmultilib:
 	@echo "*** NOT using multilib ***"
+	@echo "--------------------------------------"
 endif
 
 build: elf bin hex
@@ -194,10 +198,10 @@ sym: $(OBJDIR)/$(TARGET).sym
 # Display size of file.
 ELFSIZE = $(SIZE) -A $(OBJDIR)/$(TARGET).elf
 sizebefore:
-	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; $(ELFSIZE); echo; fi
+	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Previous size:"; $(ELFSIZE); fi
 
 sizeafter:
-	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; $(ELFSIZE); echo; fi
+	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Current size:"; $(ELFSIZE); fi
 
 
 
@@ -246,6 +250,7 @@ upload: $(OBJDIR)/$(TARGET).bin
 	$(LOADER) -p /dev/ttyUSB0  -b 115200 -e -w -v $^
 else ifeq ($(FLASH_MODE),JTAG)
 upload:  $(OBJDIR)/$(TARGET).elf
+	@echo "Using OOCD = $(OOCD)"
 	@echo "  OOCD\t$<"
 	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
 		-f board/$(OOCD_BOARD).cfg \

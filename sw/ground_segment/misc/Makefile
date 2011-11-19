@@ -10,7 +10,7 @@ endif
 all: davis2ivy kestrel2ivy
 
 clean:
-	rm *.o davis2ivy kestrel2ivy
+	rm -f *.o davis2ivy kestrel2ivy
 
 davis2ivy: davis2ivy.o
 	g++ -o davis2ivy davis2ivy.o  $(LIBRARYS)  -livy
