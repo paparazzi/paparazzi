@@ -194,8 +194,7 @@
     </subsystem>
 
     <subsystem name="control"/>
-    <!-- Sensors
-    <subsystem name="gyro"          type="roll"/> -->
+    <!-- Sensors -->
     <subsystem name="gps" 		    type="ublox_utm"/>
     <subsystem name="navigation"/>
 
