@@ -122,4 +122,6 @@ clean:
 .depend:
 	$(OCAMLDEP) $(INCLUDES) *.mli *.ml > .depend
 
+ifneq ($(MAKECMDGOALS),clean)
 include .depend
+endif
