@@ -232,12 +232,10 @@ let parse_firmware = fun makefile_ac firmware ->
     (* print makefile for this target *)
     fprintf makefile_ac "\n###########\n# -target: '%s'\n" (Xml.attrib target "name");
     fprintf makefile_ac "ifeq ($(TARGET), %s)\n" (Xml.attrib target "name");
-    let has_processor =
-      try
-        not (String.compare (Xml.attrib target "processor") "" = 0)
-      with _ -> false in
-    if has_processor then
-      fprintf makefile_ac "BOARD_PROCESSOR = %s\n" (Xml.attrib target "processor");
+    begin (* Check for "processor" attribute *)
+      try fprintf makefile_ac "BOARD_PROCESSOR = %s\n" (Xml.attrib target "processor")
+      with _ -> ()
+    end;
     List.iter (print_firmware_configure makefile_ac) config;
     List.iter (print_firmware_configure makefile_ac) t_config;
     List.iter (print_firmware_define makefile_ac) defines;
