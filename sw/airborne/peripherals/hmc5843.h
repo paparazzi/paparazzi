@@ -30,6 +30,8 @@
 struct Hmc5843 {
     struct i2c_transaction i2c_trans;
     uint32_t timeout;
+    uint8_t sent_tx;
+    uint8_t sent_rx;
     uint8_t initialized;
     uint8_t data_available;
   union {
@@ -39,8 +41,6 @@ struct Hmc5843 {
 };
 
 extern struct Hmc5843 hmc5843;
-
-#define HMC5843_USE_INT
 
 #ifndef HMC5843_NO_IRQ
 #include "peripherals/hmc5843_arch.h"
