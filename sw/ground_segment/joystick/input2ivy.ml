@@ -88,7 +88,8 @@ type msg = {
     msg_class : string;
     fields : (string * Syntax.expression) list;
     on_event : Syntax.expression option;
-    send_always : bool
+    send_always : bool;
+    has_ac_id : bool
   }
 
 (** Representation of a variable *)
@@ -230,12 +231,13 @@ let parse_msg = fun msg ->
   and msg_class = Xml.attrib msg "class"
   and send_always = (try (Xml.attrib msg "send_always") = "true" with _ -> false) in
 
-  let fields =
+  let fields, has_ac_id =
     match get_message_type msg_class with
       "Message" ->
         let msg_descr = get_message msg_class msg_name in
-        List.map (parse_msg_field msg_descr) (Xml.children msg)
-    | "Trim" -> []
+        (List.map (parse_msg_field msg_descr) (Xml.children msg),
+        List.mem_assoc "ac_id" msg_descr.Pprz.fields)
+    | "Trim" -> ([], false)
     | _ -> failwith ("Unknown message class type") in
 
   let on_event =
@@ -245,7 +247,8 @@ let parse_msg = fun msg ->
     msg_class = msg_class;
     fields = fields;
     on_event = on_event;
-    send_always = send_always
+    send_always = send_always;
+    has_ac_id = has_ac_id
   }
 
 (** Parse an XML list of variables and set function *)
@@ -478,7 +481,7 @@ let execute_action = fun ac_id inputs buttons axis variables message ->
   let previous_values = get_previous_values message.msg_name in
   (* FIXME ((value <> previous) && on_event) || send_always ??? *)
   if ( ( (on_event, values) <> previous_values ) || message.send_always ) && on_event then begin
-    let vs = ("ac_id", Pprz.Int ac_id) :: values in
+    let vs = if message.has_ac_id then ("ac_id", Pprz.Int ac_id) :: values else values in
     match message.msg_class with
       "datalink" -> DL.message_send "input2ivy" message.msg_name vs
     | "ground" -> G.message_send "input2ivy" message.msg_name vs

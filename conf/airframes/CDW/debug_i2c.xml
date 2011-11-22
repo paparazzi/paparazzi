@@ -33,71 +33,43 @@
     <define name="SCALE" value="256"/>
     <define name="ROLL_COEF"   value="{  0  ,    0,  256, -256 }"/>
     <define name="PITCH_COEF"  value="{  256, -256,    0,    0 }"/>
-    <define name="YAW_COEF"    value="{  -256,  -256, 256, 256 }"/>
+    <define name="YAW_COEF"    value="{  256,  256, -256, -256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
 
-    <define name="GYRO_P_SIGN" value="-1"/>
-    <define name="GYRO_Q_SIGN" value="1"/>
-    <define name="GYRO_R_SIGN" value="-1"/>
-
-    <define name="GYRO_P_NEUTRAL" value="31840"/>
-    <define name="GYRO_Q_NEUTRAL" value="32485"/>
-    <define name="GYRO_R_NEUTRAL" value="32500"/>
-
-    <define name="GYRO_P_SENS" value=" 0.943560" integer="16"/>
-    <define name="GYRO_Q_SENS" value=" 0.926199" integer="16"/>
-    <define name="GYRO_R_SENS" value=" 0.931912" integer="16"/>
+    <define name="GYRO_P_NEUTRAL" value="32858"/>
+    <define name="GYRO_Q_NEUTRAL" value="33152"/>
+    <define name="GYRO_R_NEUTRAL" value="31779"/>
+    <define name="GYRO_P_SENS" value=" 1.101357422" integer="16"/>
+    <define name="GYRO_Q_SENS" value=" 1.122670898" integer="16"/>
+    <define name="GYRO_R_SENS" value=" 1.104890137" integer="16"/>
 
 
-    <define name="ACCEL_X_SIGN" value="1"/>
-    <define name="ACCEL_Y_SIGN" value="1"/>
-    <define name="ACCEL_Z_SIGN" value="-1"/>
+    <define name="ACCEL_X_NEUTRAL" value="32899"/>
+    <define name="ACCEL_Y_NEUTRAL" value="33281"/>
+    <define name="ACCEL_Z_NEUTRAL" value="32569"/>
+    <define name="ACCEL_X_SENS" value="2.57702956051" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.57835230627" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.54311399868" integer="16"/>
 
-	<define name="ACCEL_X_NEUTRAL" value="38775"/>
-	<define name="ACCEL_Y_NEUTRAL" value="39397"/>
-	<define name="ACCEL_Z_NEUTRAL" value="40319"/>
-	<define name="ACCEL_X_SENS" value="6.13654473092" integer="16"/>
-	<define name="ACCEL_Y_SENS" value="6.40131666838" integer="16"/>
-	<define name="ACCEL_Z_SENS" value="6.52135280494" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="58"/>
+    <define name="MAG_Y_NEUTRAL" value="92"/>
+    <define name="MAG_Z_NEUTRAL" value="-3"/>
+    <define name="MAG_X_SENS" value="4.70018395734" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.884119848" integer="16"/>
+    <define name="MAG_Z_SENS" value="2.59926404993" integer="16"/>
 
-
-
-    <define name="MAG_X_SIGN" value="-43"/>
-    <define name="MAG_Y_SIGN" value=" 49"/>
-    <define name="MAG_Z_SIGN" value="-66"/>
-
-    <define name="MAG_X_NEUTRAL" value="-43"/>
-    <define name="MAG_Y_NEUTRAL" value=" 49"/>
-    <define name="MAG_Z_NEUTRAL" value="-66"/>
-
-    <define name="MAG_X_SENS" value=" 5.32718104135" integer="16"/>
-    <define name="MAG_Y_SENS" value="-4.87857821202" integer="16"/>
-    <define name="MAG_Z_SENS" value="-3.11986612709" integer="16"/>
-
-	<define name="MAG_X_CHAN" value="4"/>
-   <define name="MAG_Y_CHAN" value="0"/>
-    <define name="MAG_Z_CHAN" value="2"/>
-
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(  4.5)"/>
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(  6.8)"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  -45.)"/>
-
-    <define name="GYRO_P_CHAN" value="0"/>
-    <define name="GYRO_Q_CHAN" value="4"/>
-    <define name="GYRO_R_CHAN" value="1"/>
-    <define name="ACCEL_X_CHAN" value="5"/>
-    <define name="ACCEL_Y_CHAN" value="2"/>
-    <define name="ACCEL_Z_CHAN" value="6"/>
-
+    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(   0. )"/>
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg( 135.)"/>
 
   </section>
 
  <section name="AUTOPILOT">
-   <define name="MODE_MANUAL" value="AP_MODE_RATE_DIRECT"/>
-   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
    <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
  </section>
 
@@ -125,7 +97,7 @@
     <!-- setpoints -->
     <define name="SP_MAX_PHI"     value="RadOfDeg(45.)"/>
     <define name="SP_MAX_THETA"   value="RadOfDeg(45.)"/>
-    <define name="SP_MAX_R"       value="RadOfDeg(180.)"/><!-- Maximum speed in deg/s-->
+    <define name="SP_MAX_R"       value="RadOfDeg(90.)"/>
     <define name="DEADBAND_R"     value="250"/>
 
     <!-- reference -->
@@ -202,15 +174,15 @@
    <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="MAX_SUM_ERR" value="2000000"/>
 
-
+<!--
    <define name="HOVER_KP"    value="-500"/>
    <define name="HOVER_KD"    value="-200"/>
    <define name="HOVER_KI"    value="0"/>
-<!--
+-->
    <define name="HOVER_KP"     value="-150"/>
    <define name="HOVER_KD"     value="-80"/>
    <define name="HOVER_KI"     value="0"/>
--->
+
    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
    <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
@@ -236,11 +208,10 @@
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
  </section>
 
-<!--
+
  <modules main_freq="512">
-   <load name="vehicle_interface_overo_link.xml"/>
+   <load name="i2c_abuse_test.xml"/>
  </modules>
--->
 
   <firmware name="rotorcraft">
 <!--     <define name="USE_PERSISTENT_SETTINGS"/> -->
@@ -250,10 +221,7 @@
      <define name="USE_GPS_ACC4R"/>
      <target name="ap" board="lisa_l_1.0">
       <subsystem name="radio_control" type="spektrum"/>
-<define name="RADIO_MODE" value="RADIO_GEAR"/>
-      <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,-1,1,-1,-1,-1,-1,1,1,1,1,1\}"/>
-
-      <subsystem name="actuators"     type="mkk"/>
+      <subsystem name="actuators"     type="asctec"/>
     </target>
     <target name="sim" board="pc">
       <subsystem name="fdm"           type="nps"/>
@@ -261,13 +229,13 @@
       <subsystem name="actuators"     type="mkk"/>
     </target>
     <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="crista"/>
-<!--<define name="USE_HMC5843"           value="TRUE"/>-->
-	 <subsystem name="gps"           type="ublox">
+    <subsystem name="imu"           type="b2_v1.1"/>
+    <subsystem name="gps"           type="ublox">
       <configure name="GPS_BAUD"    value="B57600"/>
     </subsystem>
-   <!--    <subsystem name="ahrs"          type="int_cmpl_euler"/> -->
-   <subsystem name="ahrs"          type="int_cmpl_quat"/>
+    <!--subsystem name="ahrs"          type="int_cmpl_euler"/-->
+    <subsystem name="stabilization"   type="euler"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="ins"           type="hff"/>
   </firmware>
 
@@ -296,14 +264,14 @@
 
   <firmware name="lisa_passthrough">
     <target name="overo_test_passthrough" board="lisa_l_1.0"  >
-      <configure name="HOST"          value="A7"/>
-      <configure name="USER"          value=""/>
-      <configure name="TARGET_DIR"    value="~"/>
-      <configure name="PERIODIC_FREQ" value="512"/>
+      <param name="HOST"          value="A7"/>
+      <param name="USER"          value=""/>
+      <param name="TARGET_DIR"    value="~"/>
+      <param name="PERIODIC_FREQ" value="512"/>
     </target>
     <target name="stm_passthrough" board="lisa_l_1.0">
-      <subsystem name="radio_control" type="ppm"/>
-      <subsystem name="imu" type="crista"/>
+      <subsystem name="radio_control" type="spektrum"/>
+      <subsystem name="imu" type="b2_v1.1"/>
     </target>
  </firmware>
 

@@ -38,6 +38,9 @@ type tile_t = {
 type maps_source = Google | OSM | MS
 val string_of_maps_source : maps_source -> string
 val maps_sources : maps_source list
+val set_maps_source : maps_source -> unit
+val get_maps_source : unit -> maps_source
+(** Initialized to Google *)
 
 val tile_of_geo : Latlong.geographic -> int -> tile_t
 (** [tile_string geo zoom] Returns the tile description containing a
@@ -55,9 +58,6 @@ val policies : policy list
 val set_policy : policy -> unit
 val get_policy : unit -> policy
 (** Initialized to CacheOrHttp using cache and http access *)
-
-val set_maps_source : maps_source -> unit
-(** Initialized to Google *)
 
 exception Not_available
 

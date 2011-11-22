@@ -50,7 +50,6 @@ OBJCOPY = $(GCC_BIN_PREFIX)-objcopy
 OBJDUMP = $(GCC_BIN_PREFIX)-objdump
 NM      = $(GCC_BIN_PREFIX)-nm
 SIZE    = $(GCC_BIN_PREFIX)-size
-OOCD    = $(TOOLCHAIN_DIR)/bin/openocd
 
 #
 # If we can't find the toolchain (in /opt/paparazzi/arm-multilib or ~/sat) then try picking up the compilers from the path
@@ -72,7 +71,15 @@ OBJCOPY = $(shell which $(GCC_PREFIX)-objcopy)
 OBJDUMP = $(shell which $(GCC_PREFIX)-objdump)
 NM      = $(shell which $(GCC_PREFIX)-nm)
 SIZE    = $(shell which $(GCC_PREFIX)-size)
-OOCD    = $(shell which openocd)
+endif
+
+#first try to find OpenOCD in the path
+OOCD = $(shell which openocd)
+#if OpenOCD could not be found in the path, try the toolchain dir
+ifeq ($(OOCD),)
+ifneq ($(TOOLCHAIN),)
+OOCD = $(shell if test -e $(TOOLCHAIN_DIR)/bin/openocd ; then echo $(TOOLCHAIN_DIR)/bin/openocd ; else echo "Warning: OpenOCD not found"; fi)
+endif
 endif
 
 # Define some other programs and commands.
@@ -182,7 +189,6 @@ LPC21IAP = $(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap
 
 # ---------------------------------------------------------------------------
 # Flash-Programming support using openocd
-OOCD = openocd
 OOCD_INTERFACE = arm-usb-ocd
 OOCD_TARGET    = csc
 
@@ -215,18 +221,17 @@ printcommands:
 	@echo "Using DMP  = $(OBJDUMP)"
 	@echo "Using NM   = $(NM)"
 	@echo "Using SIZE = $(SIZE)"
-	@echo "Using OOCD = $(OOCD)"
 	@echo "GCC version:"
 	@$(CC) --version | head -1
 
 ifeq ("$(MULTILIB)","yes")
 printmultilib:
 	@echo "*** Using multilib ***"
-	@echo "--------------------------"
+	@echo "--------------------------------------"
 else
 printmultilib:
 	@echo "*** NOT using multilib ***"
-	@echo "--------------------------"
+	@echo "--------------------------------------"
 endif
 
 build: elf hex lss sym
@@ -241,10 +246,10 @@ sym: $(OBJDIR)/$(TARGET).sym
 HEXSIZE = $(SIZE) --target=$(FORMAT) $(OBJDIR)/$(TARGET).hex
 ELFSIZE = $(SIZE) -A $(OBJDIR)/$(TARGET).elf
 sizebefore:
-	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; $(ELFSIZE); echo; fi
+	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Previous size:"; $(ELFSIZE); fi
 
 sizeafter:
-	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; $(ELFSIZE); echo; fi
+	@if [ -f $(OBJDIR)/$(TARGET).elf ]; then echo; echo "Current size:"; $(ELFSIZE); fi
 
 
 # Program the device.
@@ -252,6 +257,7 @@ load upload program: $(OBJDIR)/$(TARGET).hex
 ifeq ($(FLASH_MODE),IAP)
 	$(SUDO) $(LPC21IAP)  $(OBJDIR)/$(TARGET).elf
 else ifeq ($(FLASH_MODE),JTAG)
+	@echo "Using OOCD = $(OOCD)"
 	@echo -e "  OOCD\t$<"
 	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
                 -f board/$(OOCD_TARGET).cfg \

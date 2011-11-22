@@ -447,6 +447,18 @@ let check_md5sum = fun ac_name alive_md5sum aircraft_conf_dir ->
 	done
     | _ -> failwith "Array expected here"
   with _ ->
+    try
+      match alive_md5sum with
+        Pprz.Array array ->
+	  let n = Array.length array in
+	  assert(n = String.length md5sum / 2);
+	  for i = 0 to n - 1 do
+	    let x = 0 in
+	    assert (x = Pprz.int_of_value array.(i))
+  	  done;
+          fprintf stderr "MD5 is ZERO, be carefull with configurations\n%!"
+      | _ -> failwith "Array expected here"
+    with _ ->
     let error_message = sprintf "WARNING: live md5 signature for %s does not match current configuration, please reload your code (disable check with -no_md5_check option)" ac_name in
     if !no_md5_check then
       fprintf stderr "%s; continuing anyway as requested\n%!" error_message

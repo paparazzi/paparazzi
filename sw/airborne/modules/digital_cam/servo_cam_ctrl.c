@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 The Paparazzi Team
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -17,43 +17,14 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- */
-
-/** @file gps_ucenter_onboard.h
- * @brief Configure Ublox GPS
  *
  */
 
-#ifndef GPS_UBX_UCENTER_H
-#define GPS_UBX_UCENTER_H
+#include "servo_cam_ctrl.h"
 
-/** U-Center Variables */
-#define GPS_UBX_UCENTER_CONFIG_STEPS	  17
+// Button Timer
+uint8_t dc_timer;
 
-struct gps_ubx_ucenter_struct
-{
-  uint8_t status;
-  uint8_t reply;
-  uint8_t cnt;
 
-  uint16_t baud_init;
-  uint16_t baud_run;
-
-  uint8_t sw_ver_h;
-  uint8_t sw_ver_l;
-
-  uint16_t hw_ver_h;
-  uint16_t hw_ver_l;
-
-  char replies[GPS_UBX_UCENTER_CONFIG_STEPS];
-};
-
-extern struct gps_ubx_ucenter_struct gps_ubx_ucenter;
-
-extern void gps_ubx_ucenter_init(void);
-extern void gps_ubx_ucenter_periodic(void);
-extern void gps_ubx_ucenter_event(void);
-
-#endif
 
 
