@@ -152,7 +152,7 @@ void event_task_fbw( void) {
   {
     pprz_t trimmed_commands[COMMANDS_NB];
     int i;
-    for(i = 0; i < COMMANDS_NB; i++) trimmed_commands[i] = commands[i]; 
+    for(i = 0; i < COMMANDS_NB; i++) trimmed_commands[i] = commands[i];
 
     #ifdef COMMAND_ROLL
     trimmed_commands[COMMAND_ROLL] += command_roll_trim;
