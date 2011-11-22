@@ -44,10 +44,6 @@ TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
 GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
 GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
 
-# Detect if we are using the new libopencm3 or the old libopenstm32
-LIBOPENCM3_LIB=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "opencm3_stm32f1"; else echo "opencm3_stm32"; fi)
-LIBOPENCM3_DEFS=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "-DSTM32F1"; fi)
-
 # Define programs and commands.
 GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi
 CC   = $(GCC_BIN_PREFIX)-gcc
@@ -66,8 +62,13 @@ CP   = $(shell which arm-none-eabi-objcopy)
 DMP  = $(shell which arm-none-eabi-objdump)
 NM   = $(shell which arm-none-eabi-nm)
 SIZE = $(shell which arm-none-eabi-size)
+RM   = rm
 GCC_LIB_DIR=$(shell dirname `which arm-none-eabi-gcc`)/../arm-none-eabi/lib
 endif
+
+# Detect if we are using the new libopencm3 or the old libopenstm32
+LIBOPENCM3_LIB=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "opencm3_stm32f1"; else echo "opencm3_stm32"; fi)
+LIBOPENCM3_DEFS=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "-DSTM32F1"; fi)
 
 #first try to find OpenOCD in the path
 OOCD = $(shell which openocd)
