@@ -88,7 +88,7 @@ $(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_
 # I2C
 #
 include $(CFG_SHARED)/i2c_select.makefile
-	
+
 ######################################################################
 ##
 ## COMMON FOR ALL NON-SIMULATION TARGETS
