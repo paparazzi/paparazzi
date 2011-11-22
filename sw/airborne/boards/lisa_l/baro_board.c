@@ -25,7 +25,7 @@ void baro_init(void) {
 
 
 void baro_periodic(void) {
-  return; 
+  return;
 
   switch (baro_board.status) {
   case LBS_UNINITIALIZED:

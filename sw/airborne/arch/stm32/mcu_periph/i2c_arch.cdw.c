@@ -5,7 +5,7 @@
 #include <stm32/flash.h>
 #include <stm32/misc.h>
 
-//#include "led.h" 
+//#include "led.h"
 
 /////////// DEBUGGING //////////////
 
@@ -53,7 +53,7 @@ static inline void LED_ERROR(uint8_t nr)
       LED2_OFF();
     else
       LED2_ON();
-    LED2_OFF();    
+    LED2_OFF();
   }
 }
 
@@ -131,12 +131,12 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
   I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
 }
 
-static void PPRZ_I2C_START_NEXT_TRANSACTION(struct i2c_periph* periph) 
+static void PPRZ_I2C_START_NEXT_TRANSACTION(struct i2c_periph* periph)
 {
   /* if we have no more transaction to process, stop here */
   if (periph->trans_extract_idx == periph->trans_insert_idx)
   {
-    // Should we disable just in case? normally not. So if more interrupts are 
+    // Should we disable just in case? normally not. So if more interrupts are
     // triggered there is a problem and we want to know.
     // I2C_ITConfig(periph->reg_addr, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);
     periph->status = I2CIdle;
@@ -165,9 +165,9 @@ static inline void PPRZ_I2C_HAS_FINISHED(struct i2c_periph *periph, struct i2c_t
 {
   // Finish Current
   trans->status = _status;
- 
+
   // When finished successfully the I2C_FLAG_MLS will be cleared after the stop condition was issued.
-  // However: we do not need to wait for it to go the the next step, but if no stop condition was 
+  // However: we do not need to wait for it to go the the next step, but if no stop condition was
   // sent yet than we are still talking to the same slave...
   // When we are here all paths to this function with success have already issued a STOP, the others not.
   // Man: p722:  Stop generation after the current byte transfer or after the current Start condition is sent.
@@ -175,7 +175,7 @@ static inline void PPRZ_I2C_HAS_FINISHED(struct i2c_periph *periph, struct i2c_t
   {
     // TODO: we might need to do much more here: see reset functions of antoine...
     I2C_GenerateSTOP(periph->reg_addr, ENABLE);
-  }  
+  }
 
   // Jump to the next
   periph->trans_extract_idx++;
@@ -190,7 +190,7 @@ static inline void PPRZ_I2C_HAS_FINISHED(struct i2c_periph *periph, struct i2c_t
 
 static inline void i2c_event(struct i2c_periph *periph)
 {
-  // Referring to manual: 
+  // Referring to manual:
   // -Doc ID 13902 Rev 11
 
 
@@ -204,7 +204,7 @@ static inline void i2c_event(struct i2c_periph *periph)
 
   struct i2c_transaction* trans = periph->trans[periph->trans_extract_idx];
 
-  /*	
+  /*
 	There are 7 possible reasons to get here:
 
 	If IT_EV_FEN
@@ -219,13 +219,13 @@ static inline void i2c_event(struct i2c_periph *periph)
 	5) BTF		// I2C has stopped working (it is waiting for new data, all buffers are tx_empty/rx_full)
 
 	// Beware: using the buffered I2C has some interesting properties:
-	  -when receiving BTF only occurs after the 2nd received byte: after the first byte is received it is 
+	  -when receiving BTF only occurs after the 2nd received byte: after the first byte is received it is
            in RD but the I2C can still receive a second byte. Only when the 2nd byte is received while the RxNE is 1
 	   then a BTF occurs (I2C can not continue receiving bytes or they will get lost)
 	  -when transmitting, and writing a byte to WD, you instantly get a new TxE interrupt while the first is not
 	   transmitted yet. The byte was pushed to the I2C serializer and the buffer is ready for more. You can already
 	   fill new data in the buffer while the first is still being transmitted for max performance transmission.
-	    
+
 	// Beware: the order in which Status is read determines how flags are cleared.
 
 	If IT_EV_FEN AND IT_EV_BUF
@@ -242,7 +242,7 @@ static inline void i2c_event(struct i2c_periph *periph)
 	// -status register flags better correspond to reality, especially in case of I2C errors
 
 	enum I2CStatus {
-	  I2CIdle,			// Dummy: Actual I2C Peripheral idle detection is safer with the 
+	  I2CIdle,			// Dummy: Actual I2C Peripheral idle detection is safer with the
 					// hardware status register flag I2C_FLAG_BUSY.
 
 	  I2CStartRequested,		// EV5: used to differentiate S en Sr
@@ -254,7 +254,7 @@ static inline void i2c_event(struct i2c_periph *periph)
 	  I2CAddrRdSent,		// have buffered sending, these states
 	  I2CSendingLastByte,		// do not correspond to the real state of the
 	  I2CReadingLastByte,		// STM I2C driver so they are not used
-	  I2CStopRequested,		
+	  I2CStopRequested,
 
 	  I2CComplete,			// Used to provide the result
 	  I2CFailed
@@ -275,7 +275,7 @@ static inline void i2c_event(struct i2c_periph *periph)
 
   ///////////////////////////////////////////////////////////////////////////////////
   // Reading the status:
-  // - Caution: this clears several flags and can start transmissions etc... 
+  // - Caution: this clears several flags and can start transmissions etc...
   // - Certain flags like STOP / (N)ACK need to be guaranteed to be set before
   //   the transmission of the byte is finished. At higher clock rates that can be
   //   quite fast: so we allow no other interrupt to be triggered in between
@@ -299,7 +299,7 @@ static inline void i2c_event(struct i2c_periph *periph)
 
   ///////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////
-  // START: Start Condition in Master Mode: 
+  // START: Start Condition in Master Mode:
   // STM Manual Ev5
   if (event & I2C_FLAG_SB)
   {
@@ -324,7 +324,7 @@ static inline void i2c_event(struct i2c_periph *periph)
       I2C_Send7bitAddress(periph->reg_addr, trans->slave_addr, I2C_Direction_Receiver);
       I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, ENABLE);
     }
-    // Problem: this problem need to be triggerd as if the 
+    // Problem: this problem need to be triggerd as if the
     // status was not OK then the buf size is also bad
     else
     {
@@ -336,7 +336,7 @@ static inline void i2c_event(struct i2c_periph *periph)
   ///////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////
   // TRANSMIT: Buffer Can accept the next byte for transmission
-  // --> this means we HAVE TO fill the buffer and/or disable buf interrupts (otherwise this interrupt 
+  // --> this means we HAVE TO fill the buffer and/or disable buf interrupts (otherwise this interrupt
   //     will be triggered until a start/stop occurs which can be quite long = many spurrious interrupts)
   // STM Manual Ev8
   else if (event & I2C_FLAG_TXE) // only possible when TRA(nsmitter) and no flag tra/start/stop/addr
@@ -347,36 +347,36 @@ static inline void i2c_event(struct i2c_periph *periph)
           PPRZ_I2C_RESTART(periph);
     }
 
-    // Do we have more data? and there is buffer room? 
+    // Do we have more data? and there is buffer room?
     // (neglect BTF: if it was set it just means we were too slow)
     else if (periph->idx_buf < trans->len_w)
     {
       I2C_SendData(periph->reg_addr, trans->buf[periph->idx_buf]);
       periph->idx_buf++;
       // Was this one the Last? -> Disable the buf interrupt (until next start) and wait for BTF
-      // -we could gain a bit of efficiency by already starting the next action but for 
+      // -we could gain a bit of efficiency by already starting the next action but for
       //  code-readability we will wait until the last tx-byte is sent
       if (periph->idx_buf >= trans->len_w)
       {
         I2C_ITConfig(periph->reg_addr, I2C_IT_BUF, DISABLE);
         // If this is followed by a restart: then we need to set the startbit to avoid extra interrupts.
-        if (trans->type != I2CTransTx) 
+        if (trans->type != I2CTransTx)
         {
         I2C_GenerateSTOP(periph->reg_addr, ENABLE);
         }
-      } 
+      }
     }
 
     else if (event & I2C_FLAG_BTF)
     {
       // Ready -> Stop
-      if (trans->type == I2CTransTx) 
+      if (trans->type == I2CTransTx)
       {
-        // STM Manual Ev8_2 
+        // STM Manual Ev8_2
         I2C_GenerateSTOP(periph->reg_addr, ENABLE);
         PPRZ_I2C_HAS_FINISHED(periph, trans, I2CTransSuccess);
       }
-      // Rx/Trans -> Restart: 
+      // Rx/Trans -> Restart:
       // Do not wait for BTF
     }
     // If we had no more data but got no BTF then there is a problem
@@ -392,12 +392,12 @@ static inline void i2c_event(struct i2c_periph *periph)
   // while receiving: the master needs to signal to the slave if more data is needed
   else if ((event & I2C_FLAG_ADDR) || (event & I2C_FLAG_RXNE))
   {
-    // data is available every time RXNE is set. If BTF is set it means that 2 bytes are 
+    // data is available every time RXNE is set. If BTF is set it means that 2 bytes are
     // ready to read (one in shift register) and I2C has stopped until the buffer can accept new data.
-    if (event & I2C_FLAG_RXNE) 
+    if (event & I2C_FLAG_RXNE)
     {
       uint8_t read_byte =  I2C_ReceiveData(periph->reg_addr);
-      if (periph->idx_buf < trans->len_r) 
+      if (periph->idx_buf < trans->len_r)
       {
         trans->buf[periph->idx_buf] = read_byte;
         periph->idx_buf++;
@@ -405,12 +405,12 @@ static inline void i2c_event(struct i2c_periph *periph)
     }
 
     // This last byte has arrived
-    if (periph->idx_buf >= trans->len_r) 
+    if (periph->idx_buf >= trans->len_r)
     {
       PPRZ_I2C_HAS_FINISHED(periph, trans, I2CTransSuccess);
     }
     // Tell the Slave it will be the last one
-    else if (periph->idx_buf >= trans->len_r-1) 
+    else if (periph->idx_buf >= trans->len_r-1)
     {
       I2C_AcknowledgeConfig(periph->reg_addr, DISABLE);         // give them a nack once it's done
       I2C_GenerateSTOP(periph->reg_addr, ENABLE);               // and follow with a stop
@@ -423,7 +423,7 @@ static inline void i2c_event(struct i2c_periph *periph)
 
   }
 
-  // Now re-enable IRQ... it's been too long  
+  // Now re-enable IRQ... it's been too long
   // __enable_irq();
 
 
@@ -500,7 +500,7 @@ static inline void i2c_error(struct i2c_periph *periph)
 
 }
 
-  
+
 /*
   // Make sure the bus is free before resetting (p722)
   if (regs->SR2 & (I2C_FLAG_BUSY >> 16)) {
