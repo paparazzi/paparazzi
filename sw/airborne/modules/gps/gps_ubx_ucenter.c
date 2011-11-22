@@ -325,14 +325,14 @@ static inline void gps_ubx_ucenter_enable_msg(uint8_t class, uint8_t id, uint8_t
 #undef GOT_PAYLOAD
 #include "downlink.h"
 
-static bool_t gps_ubx_ucenter_configure(uint8_t nr) 
+static bool_t gps_ubx_ucenter_configure(uint8_t nr)
 {
   // Store the reply of the last configuration step and reset
   if (nr < GPS_UBX_UCENTER_CONFIG_STEPS)
     gps_ubx_ucenter.replies[nr] = gps_ubx_ucenter.reply;
-  
+
   gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
-  
+
   switch (nr) {
   case 0:
     UbxSend_MON_GET_VER();
@@ -355,7 +355,7 @@ static bool_t gps_ubx_ucenter_configure(uint8_t nr)
     DOWNLINK_SEND_DEBUG(DefaultChannel,6,gps_ubx_ucenter.replies);
 
     //////////////////////////////////
-    // Actual configuration start   
+    // Actual configuration start
 
     // Use old baudrate to issue a baudrate change command
     gps_ubx_ucenter_config_port();

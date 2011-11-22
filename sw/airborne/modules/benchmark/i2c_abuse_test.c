@@ -156,7 +156,7 @@ static void i2c_abuse_send_transaction(uint8_t _init)
     i2c_test1.buf[0] = 0x03;
     i2c_submit(&i2c2, &i2c_test1);
   break;
-  default: 
+  default:
     i2c_test1.slave_addr = 0x3C;
     i2c_test1.type = I2CTransTxRx;
     i2c_test1.len_r = 5;
@@ -167,7 +167,7 @@ static void i2c_abuse_send_transaction(uint8_t _init)
 }
 
 
-void event_i2c_abuse_test(void) 
+void event_i2c_abuse_test(void)
 {
   if (i2c_idle(&i2c1))
   {
@@ -204,7 +204,7 @@ void event_i2c_abuse_test(void)
 	  }
   }
 
-  
+
   if ((i2c_test1.status == I2CTransFailed) || (i2c_test1.status == I2CTransSuccess))
   {
 	    if (i2c_abuse_test_counter < 16)
@@ -231,7 +231,7 @@ void event_i2c_abuse_test(void)
 
 	    if (i2c_abuse_test_counter < 16)
 	    {
-	      i2c_abuse_send_transaction( i2c_abuse_test_counter ); 	 
+	      i2c_abuse_send_transaction( i2c_abuse_test_counter );
   	      LED_TOGGLE(5);
 	    }
   }
