@@ -108,9 +108,9 @@ void ins_periodic_task( void )
 
   float gps_speed = 0;
 
-  if (gps.fix == GPS_FIX_3D) 
+  if (gps.fix == GPS_FIX_3D)
   {
-    gps_speed = gps.speed_3d/100.; 
+    gps_speed = gps.speed_3d/100.;
   }
   gps_speed = FloatSwap(gps_speed);
 

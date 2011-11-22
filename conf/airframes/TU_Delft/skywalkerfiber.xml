@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- 
+<!--
      Skywalker Fiberglass "GraySky" FPV 168 (http://www..com/)
      YAPA v2  (http://paparazzi.enac.fr/wiki/Yapa#Yapa_v2)
      With modified power routing
@@ -51,7 +51,7 @@
     <subsystem name="gps" type="ublox"/>
   </firmware>
 
-<!-- **************************** MODULES ********************************** --> 
+<!-- **************************** MODULES ********************************** -->
   <modules>
 <!--    <load name="light.xml">
       <define name="LIGHT_LED_STROBE" value="3"/>
@@ -68,7 +68,7 @@
     </load>
   </modules>
 
-<!-- ***************************** SERVOS ********************************** --> 
+<!-- ***************************** SERVOS ********************************** -->
   <servos>
     <!-- Define here to which CONNECTOR NUMBER the servo is connected to, on the autopilot cicuit board -->
     <servo name="THROTTLE"      no="9" min="1000" neutral="1000" max="2000"/>
@@ -85,7 +85,7 @@
     <axis name="YAW"      failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
 <!-- both ailerons up as braking spoilerons -->
-    <axis name="BRAKE"    failsafe_value="9600"/>  
+    <axis name="BRAKE"    failsafe_value="9600"/>
   </commands>
 
   <rc_commands>
@@ -167,7 +167,7 @@
 <!--    <define name="MilliAmpereOfAdc(adc)" value="((adc) - 505) * 124.0f"/> -->
 
 <!-- Note that 3S lipo 3.1*3=9.3 most of the time the cutof for the motor part of the ESC -->
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.1" unit="V"/>   
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.1" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="10" unit="V"/>
     <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
 
@@ -250,7 +250,7 @@
     <define name="GLIDE_PITCH" value="45" unit="deg"/>
   </section>
 
-<!-- ******************* VERTICAL CONTROL ********************************** --> 
+<!-- ******************* VERTICAL CONTROL ********************************** -->
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
@@ -272,7 +272,7 @@
     <define name="THROTTLE_SLEW_LIMITER" value="2" unit="s"/>
   </section>
 
-<!-- ******************* HORIZONTAL CONTROL ******************************** --> 
+<!-- ******************* HORIZONTAL CONTROL ******************************** -->
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-1.16799998283"/>
