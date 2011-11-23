@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2009  Gautier Hattenberger
+ * Copyright (C) 2011  Christophe De Wagter
  *
  * This file is part of paparazzi.
  *
@@ -169,16 +169,6 @@ static void i2c_abuse_send_transaction(uint8_t _init)
 
 void event_i2c_abuse_test(void)
 {
-  if (i2c_idle(&i2c1))
-  {
-    LED_ON(7);	// green = idle
-    LED_OFF(6);
-  }
-  else
-  {
-    LED_ON(6); // red = busy
-    LED_OFF(7);
-  }
 
   if (i2c_idle(&i2c2))
   {
@@ -223,7 +213,12 @@ void event_i2c_abuse_test(void)
 			      i2c_abuse_test_bitrate += 17000;
 			      if (i2c_abuse_test_bitrate > 500000)
 			      {
+                                static uint8_t bit = 0;
 				i2c_abuse_test_bitrate -= 500000;
+                                bit = 1 - bit;
+				if (bit==0)
+				{ LED_ON(7);} else { LED_OFF(7); }
+				LED_OFF(6);
 			      }
 		  	      LED_TOGGLE(4);
 			    }

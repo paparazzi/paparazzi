@@ -1106,11 +1106,17 @@ void i2c1_hw_init(void) {
 }
 
 void i2c1_ev_irq_handler(void) {
+  I2C_TypeDef *regs = (I2C_TypeDef *) i2c1.reg_addr;
+  regs->CR2 &= ~ I2C_CR2_BIT_ITERREN;
   i2c_irq(&i2c1);
+  regs->CR2 |= I2C_CR2_BIT_ITERREN;
 }
 
 void i2c1_er_irq_handler(void) {
+  I2C_TypeDef *regs = (I2C_TypeDef *) i2c1.reg_addr;
+  regs->CR2 &= ~ I2C_CR2_BIT_ITEVTEN;
   i2c_irq(&i2c1);
+  regs->CR2 |= I2C_CR2_BIT_ITEVTEN;
 }
 
 #endif /* USE_I2C1 */
@@ -1174,14 +1180,18 @@ void i2c2_hw_init(void) {
 
 }
 
-
-
 void i2c2_ev_irq_handler(void) {
+  I2C_TypeDef *regs = (I2C_TypeDef *) i2c2.reg_addr;
+  regs->CR2 &= ~ I2C_CR2_BIT_ITERREN;
   i2c_irq(&i2c2);
+  regs->CR2 |= I2C_CR2_BIT_ITERREN;
 }
 
 void i2c2_er_irq_handler(void) {
+  I2C_TypeDef *regs = (I2C_TypeDef *) i2c2.reg_addr;
+  regs->CR2 &= ~ I2C_CR2_BIT_ITEVTEN;
   i2c_irq(&i2c2);
+  regs->CR2 |= I2C_CR2_BIT_ITEVTEN;
 }
 
 #endif /* USE_I2C2 */
@@ -1322,11 +1332,13 @@ bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
     //if (i2c_idle(periph))
     {
 #ifdef I2C_DEBUG_LED
+#ifdef USE_I2C1
 	if (periph == &i2c1)
 	{
 
         }
         else
+#endif
 #endif
         {
           PPRZ_I2C_SEND_START(periph);
@@ -1344,10 +1356,12 @@ bool_t i2c_idle(struct i2c_periph* periph)
   I2C_TypeDef *regs = (I2C_TypeDef *) periph->reg_addr;
 
 #ifdef I2C_DEBUG_LED
+#ifdef USE_I2C1
 	if (periph == &i2c1)
 	{
 	  return TRUE;
         }
+#endif
 #endif
   if (periph->status == I2CIdle)
     return ! (BIT_X_IS_SET_IN_REG( I2C_SR2_BIT_BUSY, regs->SR2 ) );

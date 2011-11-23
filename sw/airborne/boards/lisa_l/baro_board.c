@@ -25,6 +25,7 @@ void baro_init(void) {
 
 
 void baro_periodic(void) {
+#warning BARO_FILE_CODE_DISABLED
   return;
 
   switch (baro_board.status) {
