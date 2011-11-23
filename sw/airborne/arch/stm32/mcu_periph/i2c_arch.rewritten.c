@@ -613,6 +613,13 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(I2C_TypeDef *regs,
   }
   else // Hardware error
   {
+    // Error
+#ifdef I2C_DEBUG_LED
+        LED2_ON();
+        LED1_ON();
+	LED2_OFF();
+	LED1_OFF();
+#endif
     return STMI2C_SubTra_Error;
   }
 
@@ -639,7 +646,7 @@ static inline void stmi2c_clear_pending_interrupts(I2C_TypeDef *regs)
   if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_ADDR, SR1) )
   {
     // ADDR: Cleared by software when reading SR1 and then SR2
-    uint16_t SR2 __attribute__ ((unused)) = SR2;
+    uint16_t SR2 __attribute__ ((unused)) = regs->SR2;
   }
   // Byte Transfer Finished
   if (BIT_X_IS_SET_IN_REG(I2C_SR1_BIT_BTF, SR1) )
@@ -761,6 +768,12 @@ static inline void i2c_irq(struct i2c_periph *periph)
   // Direct Access to the I2C Registers
   // Do not read SR2 as it might start the reading while an (n)ack bit might be needed first
   I2C_TypeDef *regs = (I2C_TypeDef *) periph->reg_addr;
+
+#ifdef I2C_DEBUG_LED
+  LED1_ON();
+  LED1_OFF();
+#endif
+
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -891,8 +904,8 @@ static inline void i2c_irq(struct i2c_periph *periph)
         // Program a stop
         PPRZ_I2C_SEND_STOP(regs);
 
-        // Silent further BTF
-        regs->DR = 0;
+        // Silent any BTF that would occur before STOP is executed
+        regs->DR = 0x00;
       }
 
       // In case of unexpected condition: e.g. not slave, no event
