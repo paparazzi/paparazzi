@@ -41,6 +41,9 @@
 
 # imu Booz2 v1.1
 
+# for fixedwing firmware
+imu_CFLAGS += -DUSE_IMU
+
 imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\"
 imu_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_MS2100
 imu_CFLAGS += -DIMU_B2_VERSION_1_1

@@ -34,7 +34,10 @@
 #
 #
 
-# imu Booz2 v1
+# imu Booz2 v1.0
+
+# for fixedwing firmware
+imu_CFLAGS += -DUSE_IMU
 
 imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\"
 imu_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_AMI601
@@ -42,16 +45,24 @@ imu_CFLAGS += -DIMU_B2_VERSION_1_0
 imu_srcs += $(SRC_SUBSYSTEMS)/imu.c
 imu_srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c
 imu_srcs += $(SRC_ARCH)/subsystems/imu/imu_b2_arch.c
-imu_CFLAGS += -DSSP_VIC_SLOT=9
 
 imu_srcs += peripherals/max1168.c
 imu_srcs += $(SRC_ARCH)/peripherals/max1168_arch.c
-imu_CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
 
 imu_CFLAGS += -DUSE_AMI601
 imu_srcs += peripherals/ami601.c
-imu_CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=12
 
+ifeq ($(ARCH), lpc21)
+imu_CFLAGS += -DSSP_VIC_SLOT=9
+imu_CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
+imu_CFLAGS += -DUSE_I2C1  -DI2C1_SCLL=150 -DI2C1_SCLH=150 -DI2C1_VIC_SLOT=12
+else ifeq ($(ARCH), stm32)
+#FIXME: untested
+imu_CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
+imu_CFLAGS += -DMAX_1168_DRDY_PORT=$(MAX_1168_DRDY_PORT)
+imu_CFLAGS += -DMAX_1168_DRDY_PORT_SOURCE=$(MAX_1168_DRDY_PORT_SOURCE)
+imu_CFLAGS += -DUSE_I2C2 -DUSE_EXTI9_5_IRQ
+endif
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
 # see: conf/autopilot/subsystems/lisa_passthrough/imu_b2_v1.1.makefile for example
