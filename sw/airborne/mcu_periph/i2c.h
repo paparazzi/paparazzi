@@ -127,7 +127,6 @@ extern void i2c1_init(void);
 
 extern struct i2c_periph i2c2;
 extern void i2c2_init(void);
-extern void i2c2_setbitrate(int bitrate);
 
 #endif /* USE_I2C2 */
 
