@@ -63,6 +63,11 @@ sim.srcs   += firmwares/rotorcraft/main.c
 sim.srcs   += mcu.c
 sim.srcs   += $(SRC_ARCH)/mcu_arch.c
 
+ifeq ($(TARGET), sim)
+  include $(CFG_SHARED)/i2c_select.makefile
+endif
+
+
 sim.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 # -DTIME_LED=1
 #sim.CFLAGS += -DUSE_LED
