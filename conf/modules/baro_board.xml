@@ -12,6 +12,7 @@
     <define name="USE_BARO_AS_ALTIMETER"/>
     <file name="baro_board.c" dir="boards/$(BOARD)"/>
     <define name="ADS1114_I2C_DEVICE" value="i2c1"/>
+    <define name="USE_ADS1114_1"/>
     <file name="ads1114.c" dir="peripherals"/>
   </makefile>
 </module>
