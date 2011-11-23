@@ -101,7 +101,9 @@ ap.srcs += mcu_periph/uart.c
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 # I2C is needed for speed controllers and barometers on lisa
-include $(CFG_SHARED)/i2c_select.makefile
+ifeq ($(TARGET), ap)
+  include $(CFG_SHARED)/i2c_select.makefile
+endif
 
 ap.srcs += $(SRC_FIRMWARE)/commands.c
 
