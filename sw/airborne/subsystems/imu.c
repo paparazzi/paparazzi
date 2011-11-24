@@ -29,15 +29,26 @@ void imu_init(void) {
 
   /* initialises neutrals */
   RATES_ASSIGN(imu.gyro_neutral,  IMU_GYRO_P_NEUTRAL,  IMU_GYRO_Q_NEUTRAL,  IMU_GYRO_R_NEUTRAL);
-  VECT3_ASSIGN(imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
-  //FIXME should not assume that every imu has a mag and this id defined?
+
+#if defined IMU_ACCEL_X_NEUTRAL && defined IMU_ACCEL_Y_NEUTRAL && defined IMU_ACCEL_Z_NEUTRAL
+  INT_VECT3_ASSIGN(imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
+#else
+#warning Accelerometer neutrals are set to zero.
+  INT_VECT3_ZERO(imu.accel_neutral);
+#endif
+
+#if defined IMU_MAG_X_NEUTRAL && defined IMU_MAG_Y_NEUTRAL && defined IMU_MAG_Z_NEUTRAL
   VECT3_ASSIGN(imu.mag_neutral,   IMU_MAG_X_NEUTRAL,   IMU_MAG_Y_NEUTRAL,   IMU_MAG_Z_NEUTRAL);
+#else
+#warning Magnetomter neutrals are set to zero.
+  INT_VECT3_ZERO(imu.mag_neutral);
+#endif
 
   /*
     Compute quaternion and rotation matrix
     for conversions between body and imu frame
   */
-#if defined IMU_BODY_TO_IMU_PHI && defined IMU_BODY_TO_IMU_THETA & defined  IMU_BODY_TO_IMU_PSI
+#if defined IMU_BODY_TO_IMU_PHI && defined IMU_BODY_TO_IMU_THETA & defined IMU_BODY_TO_IMU_PSI
   struct Int32Eulers body_to_imu_eulers =
     { ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_PHI),
       ANGLE_BFP_OF_REAL(IMU_BODY_TO_IMU_THETA),
