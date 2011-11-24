@@ -164,9 +164,4 @@
     <define name="HOME_RADIUS" value="90" unit="m"/>
   </section>
 
-  <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="PPRZ"/>
-    <define name="DEVICE_ADDRESS" value="...."/>
-  </section>
-
 </airframe>
