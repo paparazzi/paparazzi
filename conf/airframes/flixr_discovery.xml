@@ -40,7 +40,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <subsystem name="ahrs" type="float_dcm"/>
 
     <!-- Sensors -->
-    <subsystem name="imu" type="booz"/>
+    <subsystem name="imu" type="b2_v1.0"/>
     <subsystem name="gps" type="ublox"/>
     <subsystem name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
