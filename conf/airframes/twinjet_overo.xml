@@ -24,8 +24,7 @@
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="control"/>
-    <subsystem name="ahrs"      type="infrared"/>
-    <subsystem name="gyro"          type="roll"/>
+    <subsystem name="ahrs"          type="infrared"/>
     <subsystem name="gps"           type="ublox_hitl"/>
     <subsystem name="navigation"/>
     <subsystem name="joystick"/>
@@ -108,12 +107,6 @@
     <define name="CORRECTION_DOWN" value="1."/>
     <define name="CORRECTION_LEFT" value="1."/>
     <define name="CORRECTION_RIGHT" value="1."/>
-  </section>
-
-  <section name="GYRO" prefix="GYRO_">
-    <define name="ADC_ROLL_NEUTRAL" value="316"/>
-    <define name="ROLL_DIRECTION" value="1."/>
-    <define name="ROLL_SCALE" value="0.44"/>
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
