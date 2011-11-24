@@ -1203,8 +1203,15 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
   {
     if (periph == &i2c2)
     {
+//      I2C_DeInit(I2C1);
+//      I2C_Cmd(I2C2, DISABLE);
+
       I2C2_InitStruct.I2C_ClockSpeed = bitrate;
-      I2C_Init(I2C2, i2c2.init_struct);
+//      I2C_Cmd(I2C2, ENABLE);
+//      I2C_Init(I2C2, i2c2.init_struct);
+      // 1) Program peripheral input clock CR2: to get correct timings
+      // 2) Configure clock control registers
+      // 3) Configure rise time register
     }
 
 #ifdef I2C_DEBUG_LED
@@ -1341,6 +1348,10 @@ bool_t i2c_submit(struct i2c_periph* periph, struct i2c_transaction* t) {
 #endif
 #endif
         {
+#ifdef I2C_DEBUG_LED
+	LED2_ON();
+	LED2_OFF();
+#endif
           PPRZ_I2C_SEND_START(periph);
         }
     }

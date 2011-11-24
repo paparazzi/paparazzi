@@ -169,6 +169,8 @@ static void i2c_abuse_send_transaction(uint8_t _init)
 
 void event_i2c_abuse_test(void)
 {
+  static uint8_t bit1 = 0;
+  static uint8_t bit2 = 0;
 
   if (i2c_idle(&i2c2))
   {
@@ -197,6 +199,7 @@ void event_i2c_abuse_test(void)
 
   if ((i2c_test1.status == I2CTransFailed) || (i2c_test1.status == I2CTransSuccess))
   {
+	RunOnceEvery(100,LED_TOGGLE(7));
 	    if (i2c_abuse_test_counter < 16)
 	    {
 	       i2c_abuse_test_counter++;
@@ -208,32 +211,25 @@ void event_i2c_abuse_test(void)
 		{
 			      i2c_abuse_test_counter = 1;
 
-			      i2c_setbitrate(&i2c2, i2c_abuse_test_bitrate);
+			      //i2c_setbitrate(&i2c2, i2c_abuse_test_bitrate);
 
 			      i2c_abuse_test_bitrate += 17000;
 			      if (i2c_abuse_test_bitrate > 500000)
 			      {
-                                static uint8_t bit = 0;
 				i2c_abuse_test_bitrate -= 500000;
-                                bit = 1 - bit;
-				if (bit==0)
-				{ LED_ON(7);} else { LED_OFF(7); }
-				LED_OFF(6);
+                                bit1 = 1 - bit1;
 			      }
-		  	      LED_TOGGLE(4);
 			    }
 		}
 
 	    if (i2c_abuse_test_counter < 16)
 	    {
 	      i2c_abuse_send_transaction( i2c_abuse_test_counter );
-  	      LED_TOGGLE(5);
 	    }
   }
 }
 
 void periodic_50Hz_i2c_abuse_test(void) {
-  // LED_TOGGLE(DEMO_MODULE_LED);
 }
 
 
