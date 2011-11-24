@@ -1,6 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# Booz2 IMU booz2v1.2
+# YAI IMU
 #
 #
 # required xml:
@@ -38,50 +38,13 @@
 #
 # param: MAX_1168_DRDY_PORT
 
-
+# common Booz2 IMU files
+include $(CFG_SHARED)/imu_b2_common.makefile
 
 # imu YAI v1.0
+# no default channels and signs defined yet
 
-#needed for fixedwing firmware
-imu_CFLAGS += -DUSE_IMU
-
-imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\"
-imu_srcs += $(SRC_SUBSYSTEMS)/imu.c
-imu_srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c
-imu_srcs += $(SRC_ARCH)/subsystems/imu/imu_b2_arch.c
-
-imu_srcs += peripherals/max1168.c
-imu_srcs += $(SRC_ARCH)/peripherals/max1168_arch.c
-
-ifeq ($(ARCH), lpc21)
-imu_CFLAGS += -DSSP_VIC_SLOT=9
-imu_CFLAGS += -DMAX1168_EOC_VIC_SLOT=8
-else ifeq ($(ARCH), stm32)
-#FIXME: untested!
-imu_CFLAGS += -DUSE_SPI2 -DUSE_DMA1_C4_IRQ -DUSE_EXTI2_IRQ -DUSE_SPI2_IRQ
-imu_CFLAGS += -DMAX_1168_DRDY_PORT=$(MAX_1168_DRDY_PORT)
-imu_CFLAGS += -DMAX_1168_DRDY_PORT_SOURCE=$(MAX_1168_DRDY_PORT_SOURCE)
-endif
+# No Magnetometer
 
 ap.srcs += $(imu_srcs)
 ap.CFLAGS += $(imu_CFLAGS)
-
-#
-# Simulator
-#
-
-sim.CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_b2.h\"
-#FIXME, should be HMC5843
-sim.CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_AMI601
-#FIXME, should be verision 1.2
-sim.CFLAGS += -DIMU_B2_VERSION_1_1
-sim.srcs += $(SRC_SUBSYSTEMS)/imu.c
-sim.srcs += $(SRC_SUBSYSTEMS)/imu/imu_b2.c
-sim.srcs += $(SRC_ARCH)/subsystems/imu/imu_b2_arch.c
-
-sim.srcs += peripherals/max1168.c
-sim.srcs += $(SRC_ARCH)/peripherals/max1168_arch.c
-
-sim.CFLAGS += -DUSE_AMI601
-sim.srcs   += peripherals/ami601.c
-sim.CFLAGS += -DUSE_I2C1
