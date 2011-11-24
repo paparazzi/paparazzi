@@ -1,13 +1,10 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!--
-     Funjet Multiplex (http://www.multiplex-rc.de/), Jeti ECO 25
-     Tiny 2.11 board (http://paparazzi.enac.fr/wiki/index.php/Tiny_v2)
-     PerkinElmer TPS334 IR Sensors
-     Tilted infrared sensor (http://paparazzi.enac.fr/wiki/index.php/Image:Tiny_v2_1_Funjet.jpg)
+     Trip 50cm 150km range
+     Tiny Sense (=tiny2.11 with onboard thermopiles + current)
      XBee modem
-     Payload: Sensirion humidity/temp, VTI pressure/temp
-     K68, LEA 5
+     LEA 5H
 -->
 
 <airframe name="MavLab50cm">
@@ -98,17 +95,11 @@
     <define name="MilliAmpereOfAdc(adc)" value="((adc-508)*50)"/>
   </section>
 
-
-  <section name="GYRO" prefix="GYRO_">
-    <define name="ADC_ROLL_NEUTRAL" value="382"/>
-    <define name="ADC_PITCH_NEUTRAL" value="400"/>
-    <define name="ADC_TEMP_NEUTRAL" value="0"/>
-    <define name="ADC_TEMP_SLOPE" value="0"/>
+  <section name="IMU" prefix="IMU_">
+    <define name="GYRO_P_SIGN"  value="1"/>
+    <define name="GYRO_P_NEUTRAL" value="382"/>
     <define name="DYNAMIC_RANGE" value="500" unit="deg/s"/>
-    <define name="ROLL_SCALE" value="-2.0/1024.*GYRO_DYNAMIC_RANGE" unit="deg/s/adc_unit"/>
-    <define name="PITCH_SCALE" value="2.0/1024.*GYRO_DYNAMIC_RANGE" unit="deg/s/adc_unit"/>
-    <define name="ROLL_DIRECTION" value="-1."/>
-    <define name="PITCH_DIRECTION" value="1."/>
+    <define name="GYRO_P_SENS" value="-2.0/1024.*GYRO_DYNAMIC_RANGE" unit="deg/s/adc_unit" integer="16"/>
   </section>
 
   <section name="MISC">
