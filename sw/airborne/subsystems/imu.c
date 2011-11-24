@@ -31,7 +31,7 @@ void imu_init(void) {
   RATES_ASSIGN(imu.gyro_neutral,  IMU_GYRO_P_NEUTRAL,  IMU_GYRO_Q_NEUTRAL,  IMU_GYRO_R_NEUTRAL);
 
 #if defined IMU_ACCEL_X_NEUTRAL && defined IMU_ACCEL_Y_NEUTRAL && defined IMU_ACCEL_Z_NEUTRAL
-  INT_VECT3_ASSIGN(imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
+  VECT3_ASSIGN(imu.accel_neutral, IMU_ACCEL_X_NEUTRAL, IMU_ACCEL_Y_NEUTRAL, IMU_ACCEL_Z_NEUTRAL);
 #else
 #warning Accelerometer neutrals are set to zero.
   INT_VECT3_ZERO(imu.accel_neutral);
