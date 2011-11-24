@@ -79,13 +79,6 @@
     <define name="MAX_PITCH" value="1.0"/>
   </section>
 
-  <!-- Configure the pinning of the ADC -->
-
-  <section name="adc" prefix="ADC_CHANNEL_">
-    <define name="GYRO_NB_SAMPLES" value="16" />
-    <define name="ACCEL_NB_SAMPLES" value="32" />
-  </section>
-
   <!-- settings for the Analog IMU -->
 
   <section name="INS" prefix="INS_">
@@ -210,6 +203,7 @@
       <configure name="ACCEL_X" value="ADC_5"/>
       <configure name="ACCEL_Y" value="ADC_6"/>
       <configure name="ACCEL_Z" value="ADC_7"/>
+      <configure name="ADC_ACCEL_NB_SAMPLES" value="32"/>
     </subsystem>
 
     <subsystem name="ahrs"  type="float_dcm"/>
