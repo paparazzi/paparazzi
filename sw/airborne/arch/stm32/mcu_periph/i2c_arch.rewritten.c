@@ -1232,7 +1232,7 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
         bitrate = 3000;
 
       // 36MHz, fast scl: 2counts low 1 count high -> / 3:
-      devider = 12000 / (bitrate/1000);
+      devider = 18000 / (bitrate/1000);
 
       // never allow faster than 600kbps
       if (devider < 20)
@@ -1256,8 +1256,8 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
       // 1)
       regs->CR2 = 0x0324;
       // 2)
-      regs->CCR = 0x8000 + devider;
-      //regs->CCR = 0x0000 + devider;
+      //regs->CCR = 0x8000 + devider;
+      regs->CCR = 0x0000 + devider;
       // 3)
       regs->TRISE = risetime;
 
