@@ -169,9 +169,6 @@ static void i2c_abuse_send_transaction(uint8_t _init)
 
 void event_i2c_abuse_test(void)
 {
-  static uint8_t bit1 = 0;
-  static uint8_t bit2 = 0;
-
   if (i2c_idle(&i2c2))
   {
     LED_ON(5);	// green = idle
@@ -211,13 +208,12 @@ void event_i2c_abuse_test(void)
 		{
 			      i2c_abuse_test_counter = 1;
 
-			      //i2c_setbitrate(&i2c2, i2c_abuse_test_bitrate);
+			      i2c_setbitrate(&i2c2, i2c_abuse_test_bitrate);
 
 			      i2c_abuse_test_bitrate += 17000;
 			      if (i2c_abuse_test_bitrate > 500000)
 			      {
 				i2c_abuse_test_bitrate -= 500000;
-                                bit1 = 1 - bit1;
 			      }
 			    }
 		}

@@ -5,7 +5,7 @@
     <file name="i2c_abuse_test.h"/>
   </header>
   <init fun="init_i2c_abuse_test()"/>
-  <periodic fun="periodic_50Hz_i2c_abuse_test()" period="0.02" autorun="TRUE" /> 
+  <periodic fun="periodic_50Hz_i2c_abuse_test()" period="0.02" autorun="TRUE" />
   <event fun="event_i2c_abuse_test()" />
   <makefile>
     <file name="i2c_abuse_test.c"/>

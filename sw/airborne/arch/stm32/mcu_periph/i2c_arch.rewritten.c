@@ -1203,15 +1203,65 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
   {
     if (periph == &i2c2)
     {
-//      I2C_DeInit(I2C1);
-//      I2C_Cmd(I2C2, DISABLE);
+      int devider;
+      int risetime;
 
+      I2C_TypeDef *regs = (I2C_TypeDef *) i2c2.reg_addr;
+
+      // store (just for fun)
       I2C2_InitStruct.I2C_ClockSpeed = bitrate;
-//      I2C_Cmd(I2C2, ENABLE);
-//      I2C_Init(I2C2, i2c2.init_struct);
+
+/*****************************************************
+	Bitrate:
+
+	-CR2 + CCR + TRISE registers
+	-only change when PE=0
+
+	e.g.
+
+	10kHz:  36MHz + Standard 0x708 + 0x25
+	70kHz:  36MHz + Standard 0x101 +
+	400kHz: 36MHz + Fast 0x1E      + 0xb
+
       // 1) Program peripheral input clock CR2: to get correct timings
       // 2) Configure clock control registers
       // 3) Configure rise time register
+******************************************************/
+
+      if (bitrate < 3000)
+        bitrate = 3000;
+
+      // 36MHz, fast scl: 2counts low 1 count high -> / 3:
+      devider = 12000000UL / bitrate;
+
+      // never allow faster than 600kbps
+      if (devider < 20)
+        devider = 20;
+
+      // no overflow either
+      if (devider >=4095)
+        devider = 4095;
+
+      risetime = 1000000 / (bitrate/1000) / 8 / 28;
+
+      if (risetime < 10)
+        risetime = 10;
+
+      if (risetime >=31)
+        risetime = 31;
+
+
+      regs->CR1 &= ~ I2C_CR1_BIT_PE;
+
+      // 1)
+      regs->CR2 = 0x0324;
+      // 2)
+      regs->CCR = 0x8000 + devider;
+      // 3)
+      regs->TRISE = risetime;
+
+      regs->CR1 |=   I2C_CR1_BIT_PE;
+
     }
 
 #ifdef I2C_DEBUG_LED
