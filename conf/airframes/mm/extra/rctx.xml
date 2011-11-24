@@ -12,16 +12,10 @@
   </section>
 
   <section name="BAT">
-    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
                                         <!-- 0.0247311828 -->
                                         <!-- 0.02432905 -->
     <define name="VoltageOfAdc(adc)" value="(0.02454*adc)"/>
-  </section>
-
- <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="XBEE"/>
-    <define name="DEVICE_ADDRESS" value="...."/>
   </section>
 
  <makefile>

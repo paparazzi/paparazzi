@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2008-2011 The Paparazzi Team
+ * $Id$
+ *
+ * Copyright (C) 2009  C. De Wagter
  *
  * This file is part of paparazzi.
  *
@@ -17,43 +19,34 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- */
-
-/** @file gps_ucenter_onboard.h
- * @brief Configure Ublox GPS
  *
  */
 
-#ifndef GPS_UBX_UCENTER_H
-#define GPS_UBX_UCENTER_H
+/** \file I2C_ABUSE_TEST_module.h
+ *
+ * Total I2C Abuse:
+ *
+ * -all transaction types: T1 T2 T3 T4 R1 R2 R3 R4 T1R1 T2R1 T1R2 T1R3 T1R4 T1R5 T2R5
+ * -all bitrates: 1k (way too slow) to 1M (way to fast)
+ * -occasional Short circuit (simulate bus capacitance or EMI errors)
+ * -variable bus load: from empty to full stack
+ *
+ * -Connect LED to MosFet that pulls-down the SCL and SDA lines
+ */
 
-/** U-Center Variables */
-#define GPS_UBX_UCENTER_CONFIG_STEPS	  17
+#ifndef I2C_ABUSE_TEST_MODULE_H
+#define I2C_ABUSE_TEST_MODULE_H
 
-struct gps_ubx_ucenter_struct
-{
-  uint8_t status;
-  uint8_t reply;
-  uint8_t cnt;
-
-  uint16_t baud_init;
-  uint16_t baud_run;
-
-  uint8_t sw_ver_h;
-  uint8_t sw_ver_l;
-
-  uint16_t hw_ver_h;
-  uint16_t hw_ver_l;
-
-  char replies[GPS_UBX_UCENTER_CONFIG_STEPS];
-};
-
-extern struct gps_ubx_ucenter_struct gps_ubx_ucenter;
-
-extern void gps_ubx_ucenter_init(void);
-extern void gps_ubx_ucenter_periodic(void);
-extern void gps_ubx_ucenter_event(void);
-
+#ifndef I2C_ABUSE_SHORT_SCL_LED
+#define I2C_ABUSE_SHORT_SCL_LED 2
 #endif
 
+#ifndef I2C_ABUSE_SHORT_SDA_LED
+#define I2C_ABUSE_SHORT_SDA_LED 3
+#endif
 
+void init_i2c_abuse_test(void);
+void event_i2c_abuse_test(void);
+void periodic_50Hz_i2c_abuse_test(void);
+
+#endif

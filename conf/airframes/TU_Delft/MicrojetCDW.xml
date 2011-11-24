@@ -184,11 +184,6 @@
     <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
   </section>
 
-  <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="XBEE"/>
-    <define name="DEVICE_ADDRESS" value="...."/>
-  </section>
-
   <firmware name="fixedwing">
     <target name="ap" board="tiny_1.1">
       <configure name="PERIODIC_FREQUENCY" value="960"/> <!-- IMU FREQ -->

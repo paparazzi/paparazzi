@@ -208,13 +208,6 @@
     <define name="HOME_RADIUS" value="70" unit="m"/>
   </section>
 
-<!--
-  <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="PPRZ"/>
-    <define name="DEVICE_ADDRESS" value="...."/>
-  </section>
--->
-
   <section name="SIMU">
     <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
     <define name="JSBSIM_IR_ROLL_NEUTRAL" value="RadOfDeg(0.)"/>

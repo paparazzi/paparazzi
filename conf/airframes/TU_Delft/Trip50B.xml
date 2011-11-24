@@ -236,13 +236,6 @@ inline static void h_ctl_roll_loop( void ) {
     <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
   </section>
 
-<!--
-  <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="XBEE"/>
-    <define name="DEVICE_ADDRESS" value="0x005067361851"/>
-  </section>
--->
-
  <section name="SIMU">
     <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
  </section>

@@ -27,28 +27,44 @@
 
 #include "peripherals/ads1114.h"
 
-struct i2c_transaction ads1114_trans;
-
-bool_t ads1114_config_done;
-bool_t ads1114_data_available;
+#if USE_ADS1114_1
+struct ads1114_periph ads1114_1;
+#endif
+#if USE_ADS1114_2
+struct ads1114_periph ads1114_2;
+#endif
 
 void ads1114_init( void ) {
-  /* configure the ads1114 */
-  ads1114_trans.buf[0] = ADS1114_POINTER_CONFIG_REG;
-  ads1114_trans.buf[1] = ADS1114_CONFIG_MSB;
-  ads1114_trans.buf[2] = ADS1114_CONFIG_LSB;
-  I2CTransmit(ADS1114_I2C_DEVICE, ads1114_trans, ADS1114_I2C_ADDR, 3);
-  ads1114_config_done = FALSE;
-  ads1114_data_available = FALSE;
+  /* configure the ads1114_1 */
+#if USE_ADS1114_1
+  ads1114_1.i2c_addr = ADS1114_1_I2C_ADDR;
+  ads1114_1.trans.buf[0] = ADS1114_POINTER_CONFIG_REG;
+  ads1114_1.trans.buf[1] = ADS1114_1_CONFIG_MSB;
+  ads1114_1.trans.buf[2] = ADS1114_1_CONFIG_LSB;
+  I2CTransmit(ADS1114_I2C_DEVICE, ads1114_1.trans, ADS1114_1_I2C_ADDR, 3);
+  ads1114_1.config_done = FALSE;
+  ads1114_1.data_available = FALSE;
+#endif
+
+  /* configure the ads1114_2 */
+#if USE_ADS1114_2
+  ads1114_2.i2c_addr = ADS1114_2_I2C_ADDR;
+  ads1114_2.trans.buf[0] = ADS1114_POINTER_CONFIG_REG;
+  ads1114_2.trans.buf[1] = ADS1114_2_CONFIG_MSB;
+  ads1114_2.trans.buf[2] = ADS1114_2_CONFIG_LSB;
+  I2CTransmit(ADS1114_I2C_DEVICE, ads1114_2.trans, ADS1114_2_I2C_ADDR, 3);
+  ads1114_2.config_done = FALSE;
+  ads1114_2.data_available = FALSE;
+#endif
 }
 
 
-void ads1114_read( void ) {
+void ads1114_read( struct ads1114_periph * p ) {
   // Config done with success
   // start new reading when previous is done (and read if success)
-  if (ads1114_config_done && ads1114_trans.status == I2CTransDone) {
-    ads1114_trans.buf[0] = ADS1114_POINTER_CONV_REG;
-    I2CTransceive(ADS1114_I2C_DEVICE, ads1114_trans, ADS1114_I2C_ADDR, 1, 2);
+  if (p->config_done && p->trans.status == I2CTransDone) {
+    p->trans.buf[0] = ADS1114_POINTER_CONV_REG;
+    I2CTransceive(ADS1114_I2C_DEVICE, p->trans, p->i2c_addr, 1, 2);
   }
 }
 

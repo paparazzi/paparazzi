@@ -48,11 +48,6 @@
 #include "link_mcu.h"
 #endif
 
-#ifdef MILLIAMP_PER_PERCENT
-#error "deprecated MILLIAMP_PER_PERCENT --> Please use MILLIAMP_AT_FULL_THROTTLE"
-#endif
-
-
 uint8_t fbw_mode;
 
 #include "inter_mcu.h"

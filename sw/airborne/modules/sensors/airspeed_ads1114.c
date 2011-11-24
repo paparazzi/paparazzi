@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 The Paparazzi Team
+ * Copyright (C) 2011 Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -17,43 +17,21 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- */
-
-/** @file gps_ucenter_onboard.h
- * @brief Configure Ublox GPS
  *
  */
 
-#ifndef GPS_UBX_UCENTER_H
-#define GPS_UBX_UCENTER_H
+/*
+ * Module to extend the baro_board module with an airspeed sensor
+ * Init and event functions are handled by the baro_board module
+ */
 
-/** U-Center Variables */
-#define GPS_UBX_UCENTER_CONFIG_STEPS	  17
+#include "modules/sensors/airspeed_ads1114.h"
+#include "subsystems/sensors/baro.h"
+#include "baro_board.h"
 
-struct gps_ubx_ucenter_struct
-{
-  uint8_t status;
-  uint8_t reply;
-  uint8_t cnt;
+void airspeed_periodic(void) {
+  ads1114_read(&BARO_DIFF_ADS);
+}
 
-  uint16_t baud_init;
-  uint16_t baud_run;
-
-  uint8_t sw_ver_h;
-  uint8_t sw_ver_l;
-
-  uint16_t hw_ver_h;
-  uint16_t hw_ver_l;
-
-  char replies[GPS_UBX_UCENTER_CONFIG_STEPS];
-};
-
-extern struct gps_ubx_ucenter_struct gps_ubx_ucenter;
-
-extern void gps_ubx_ucenter_init(void);
-extern void gps_ubx_ucenter_periodic(void);
-extern void gps_ubx_ucenter_event(void);
-
-#endif
 
 

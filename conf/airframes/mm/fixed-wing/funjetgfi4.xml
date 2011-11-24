@@ -78,7 +78,6 @@
   </section>
 
   <section name="BAT">
-    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
                                         <!-- 0.0247311828 -->
                                         <!-- 0.02432905 -->
@@ -168,11 +167,6 @@
 	<define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
 	<define name="HOME_RADIUS" value="100" unit="m"/>
 </section>
-
- <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="XBEE"/>
-    <define name="DEVICE_ADDRESS" value="...."/>
-  </section>
 
  <section name="SIMU">
     <define name="YAW_RESPONSE_FACTOR" value="0.5"/>
