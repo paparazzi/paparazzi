@@ -29,8 +29,8 @@
 struct i2c_transaction i2c_test1;
 struct i2c_transaction i2c_test2;
 
-uint8_t i2c_abuse_test_counter = 0;
-uint16_t i2c_abuse_test_bitrate = 1000;
+volatile uint8_t i2c_abuse_test_counter = 0;
+volatile uint32_t i2c_abuse_test_bitrate = 1000;
 
 void init_i2c_abuse_test(void) {
   //LED_INIT(DEMO_MODULE_LED);

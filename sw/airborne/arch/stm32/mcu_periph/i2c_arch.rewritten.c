@@ -5,7 +5,7 @@
 #include <stm32/flash.h>
 #include <stm32/misc.h>
 
-#define I2C_DEBUG_LED
+//#define I2C_DEBUG_LED
 
 /////////// DEBUGGING //////////////
 // TODO: remove this
@@ -920,9 +920,9 @@ static inline void i2c_irq(struct i2c_periph *periph)
         LED1_ON();
 	LED2_OFF();
 	LED1_OFF();
-#endif
 
         LED_SHOW_ACTIVE_BITS(regs);
+#endif
 
         // Clear Running Events
         stmi2c_clear_pending_interrupts(regs);
@@ -1203,8 +1203,8 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
   {
     if (periph == &i2c2)
     {
-      int devider;
-      int risetime;
+      volatile int devider;
+      volatile int risetime;
 
       I2C_TypeDef *regs = (I2C_TypeDef *) i2c2.reg_addr;
 
@@ -1232,7 +1232,7 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
         bitrate = 3000;
 
       // 36MHz, fast scl: 2counts low 1 count high -> / 3:
-      devider = 12000000UL / bitrate;
+      devider = 12000 / (bitrate/1000);
 
       // never allow faster than 600kbps
       if (devider < 20)
@@ -1242,7 +1242,7 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
       if (devider >=4095)
         devider = 4095;
 
-      risetime = 1000000 / (bitrate/1000) / 8 / 28;
+      risetime = 1000000 / (bitrate/1000) / 6 / 28;
 
       if (risetime < 10)
         risetime = 10;
@@ -1257,6 +1257,7 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
       regs->CR2 = 0x0324;
       // 2)
       regs->CCR = 0x8000 + devider;
+      //regs->CCR = 0x0000 + devider;
       // 3)
       regs->TRISE = risetime;
 
