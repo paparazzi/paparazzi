@@ -39,7 +39,6 @@
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "subsystems/gps.h"
-#include "gyro.h"
 #include "ap_downlink.h"
 #include "subsystems/nav.h"
 #include "firmwares/fixedwing/autopilot.h"
@@ -392,10 +391,6 @@ static void navigation_task( void ) {
 
 static inline void attitude_loop( void ) {
 
-#ifdef USE_GYRO
-  gyro_update();
-#endif
-
 #ifdef USE_INFRARED
   ahrs_update_infrared();
 #endif /* USE_INFRARED */
@@ -540,9 +535,6 @@ void init_ap( void ) {
 #endif /* SINGLE_MCU */
 
   /************* Sensors initialization ***************/
-#ifdef USE_GYRO
-  gyro_init();
-#endif
 #ifdef USE_GPS
   gps_init();
 #endif

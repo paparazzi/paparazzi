@@ -21,7 +21,6 @@
 
 #include "imu_analog.h"
 #include "mcu_periph/adc.h"
-#include "mcu_periph/uart.h"
 
 volatile bool_t analog_imu_available;
 int imu_overrun;
@@ -33,12 +32,24 @@ void imu_impl_init(void) {
   analog_imu_available = FALSE;
   imu_overrun = 0;
 
+#ifdef ADC_CHANNEL_GYRO_P
   adc_buf_channel(ADC_CHANNEL_GYRO_P, &analog_imu_adc_buf[0], ADC_CHANNEL_GYRO_NB_SAMPLES);
+#endif
+#ifdef ADC_CHANNEL_GYRO_Q
   adc_buf_channel(ADC_CHANNEL_GYRO_Q, &analog_imu_adc_buf[1], ADC_CHANNEL_GYRO_NB_SAMPLES);
+#endif
+#ifdef ADC_CHANNEL_GYRO_R
   adc_buf_channel(ADC_CHANNEL_GYRO_R, &analog_imu_adc_buf[2], ADC_CHANNEL_GYRO_NB_SAMPLES);
+#endif
+#ifdef ADC_CHANNEL_ACCEL_X
   adc_buf_channel(ADC_CHANNEL_ACCEL_X, &analog_imu_adc_buf[3], ADC_CHANNEL_ACCEL_NB_SAMPLES);
+#endif
+#ifdef ADC_CHANNEL_ACCEL_Y
   adc_buf_channel(ADC_CHANNEL_ACCEL_Y, &analog_imu_adc_buf[4], ADC_CHANNEL_ACCEL_NB_SAMPLES);
+#endif
+#ifdef ADC_CHANNEL_ACCEL_Z
   adc_buf_channel(ADC_CHANNEL_ACCEL_Z, &analog_imu_adc_buf[5], ADC_CHANNEL_ACCEL_NB_SAMPLES);
+#endif
 
 }
 
@@ -52,12 +63,24 @@ void imu_periodic(void) {
   last_head = analog_imu_adc_buf[0].head;
 
   // Read All Measurements
+#ifdef ADC_CHANNEL_GYRO_P
   imu.gyro_unscaled.p = analog_imu_adc_buf[0].sum / ADC_CHANNEL_GYRO_NB_SAMPLES;
+#endif
+#ifdef ADC_CHANNEL_GYRO_Q
   imu.gyro_unscaled.q = analog_imu_adc_buf[1].sum / ADC_CHANNEL_GYRO_NB_SAMPLES;
+#endif
+#ifdef ADC_CHANNEL_GYRO_R
   imu.gyro_unscaled.r = analog_imu_adc_buf[2].sum / ADC_CHANNEL_GYRO_NB_SAMPLES;
+#endif
+#ifdef ADC_CHANNEL_ACCEL_X
   imu.accel_unscaled.x = analog_imu_adc_buf[3].sum / ADC_CHANNEL_ACCEL_NB_SAMPLES;
+#endif
+#ifdef ADC_CHANNEL_ACCEL_Y
   imu.accel_unscaled.y = analog_imu_adc_buf[4].sum / ADC_CHANNEL_ACCEL_NB_SAMPLES;
+#endif
+#ifdef ADC_CHANNEL_ACCEL_Z
   imu.accel_unscaled.z = analog_imu_adc_buf[5].sum / ADC_CHANNEL_ACCEL_NB_SAMPLES;
+#endif
 
   analog_imu_available = TRUE;
 }

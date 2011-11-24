@@ -132,14 +132,6 @@
 
 #define PERIODIC_SEND_ADC(_chan) {}
 
-#ifdef IDG300
-#include "gyro.h"
-#define PERIODIC_SEND_GYRO_RATES(_chan) DOWNLINK_SEND_GYRO_RATES(_chan, &roll_rate_adc, &estimator_p, &estimator_q)
-#elif defined ADXRS150
-#define PERIODIC_SEND_GYRO_RATES(_chan) DOWNLINK_SEND_GYRO_RATES(_chan, &roll_rate_adc, &estimator_p, &temp_comp)
-#else
-#define PERIODIC_SEND_GYRO_RATES(_chan) {}
-#endif
 
 #define PERIODIC_SEND_CALIBRATION(_chan) DOWNLINK_SEND_CALIBRATION(_chan, &v_ctl_auto_throttle_sum_err, &v_ctl_auto_throttle_submode)
 
