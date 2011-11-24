@@ -209,6 +209,8 @@ struct Int64Vect3 {
 
 #define INT_VECT2_ZERO(_v) VECT2_ASSIGN(_v, 0, 0)
 
+#define INT_VECT2_ASSIGN(_a, _x, _y) VECT2_ASSIGN(_a, _x, _y)
+
 #define INT32_VECT2_NORM(n, v) {			\
     int32_t n2 = (v).x*(v).x + (v).y*(v).y; \
     INT32_SQRT(n, n2);					\
@@ -235,6 +237,9 @@ struct Int64Vect3 {
 
 #define INT_VECT3_ZERO(_v) VECT3_ASSIGN(_v, 0, 0, 0)
 #define INT32_VECT3_ZERO(_v) VECT3_ASSIGN(_v, 0, 0, 0)
+
+#define INT_VECT3_ASSIGN(_a, _x, _y, _z) VECT3_ASSIGN(_a, _x, _y, _z)
+#define INT32_VECT3_ASSIGN(_a, _x, _y, _z) VECT3_ASSIGN(_a, _x, _y, _z)
 
 #define INT32_VECT3_COPY(_o, _i) VECT3_COPY(_o, _i)
 
