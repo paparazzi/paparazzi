@@ -10,6 +10,8 @@
 
   <modules>
     <load name="baro_board.xml"/>
+    <load name="airspeed_ads1114.xml"/>
+    <!--load name="mcp355x.xml"/-->
   </modules>
 
   <firmware name="fixedwing">
@@ -40,6 +42,8 @@
     <subsystem name="navigation"/>
     <!-- Sensors -->
     <subsystem name="gps" type="ublox"/>
+
+    <!--subsystem name="spi"/-->
   </firmware>
 
 

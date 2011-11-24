@@ -50,6 +50,4 @@ endif
 sim.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
 sim.srcs += $(SRC_FIRMWARE)/actuators/actuators_skiron.c
 sim.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=$(SKIRON_I2C_SCL_TIME) -DI2C0_SCLH=$(SKIRON_I2C_SCL_TIME) -DI2C0_VIC_SLOT=10 -DACTUATORS_MKK_DEVICE=i2c0
-sim.srcs += mcu_periph/i2c.c
-sim.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 

@@ -192,10 +192,6 @@
     <define name="HOME_RADIUS" value="100" unit="m"/>
   </section>
 
- <!--section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="XBEE"/>
-    <define name="DEVICE_ADDRESS" value="...."/>
-  </section-->
  <makefile>
 CONFIG = \"tiny_2_1.h\"
 

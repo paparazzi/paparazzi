@@ -19,11 +19,6 @@
     <define name="VoltageOfAdc(adc)" value="(0.02454*adc)"/>
   </section>
 
- <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="XBEE"/>
-    <define name="DEVICE_ADDRESS" value="...."/>
-  </section>
-
  <makefile>
 
 CONFIG = \"tiny_2_1.h\"
