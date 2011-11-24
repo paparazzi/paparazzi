@@ -54,6 +54,8 @@
 */
 #define IR_RollOfIrs(_ir1, _ir2) (_ir1 + _ir2)
 #define IR_PitchOfIrs(_ir1, _ir2) (-(_ir1) + _ir2)
+#else
+#error "You have to define either HORIZ_SENSOR_ALIGNED or HORIZ_SENSOR_TILTED in the IR section"
 #endif
 /* Vertical sensor, TOP_SIGN gives positice values when it's warm on the bottom */
 #ifndef IR_TopOfIr
