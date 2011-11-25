@@ -81,7 +81,7 @@ static I2C_InitTypeDef  I2C2_InitStruct = {
       .I2C_Ack = I2C_Ack_Enable,
       .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
 //      .I2C_ClockSpeed = 37000
-      .I2C_ClockSpeed = 400000
+      .I2C_ClockSpeed = 300000
 };
 #endif
 
@@ -1102,6 +1102,7 @@ void i2c1_hw_init(void) {
   // enable error interrupts
   I2C_ITConfig(I2C1, I2C_IT_ERR, ENABLE);
 
+  i2c_setbitrate(&i2c2, I2C2_InitStruct.I2C_ClockSpeed);
 #endif
 }
 
@@ -1178,6 +1179,7 @@ void i2c2_hw_init(void) {
   // enable error interrupts
   I2C_ITConfig(I2C2, I2C_IT_ERR, ENABLE);
 
+  i2c_setbitrate(&i2c2, I2C2_InitStruct.I2C_ClockSpeed);
 }
 
 void i2c2_ev_irq_handler(void) {
