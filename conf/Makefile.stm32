@@ -118,7 +118,7 @@ endif
 MULTILIB = $(shell if $(CC) --print-multi-lib | grep thumb2 > /dev/null ; then echo "yes"; else echo "no"; fi)
 
 CFLAGS = -I. -I./$(ARCH) $(INCLUDES) -D__thumb2__ -Wall -msoft-float -O$(OPT)
-CFLAGS += -Wl,gc-sections
+CFLAGS += -Wl,--gc-sections
 CFLAGS += -mcpu=$(MCU) -mthumb -ansi
 ifeq ("$(MULTILIB)","yes")
 CFLAGS += -mfix-cortex-m3-ldrd
@@ -149,9 +149,9 @@ endif
 AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
 ifeq ("$(MULTILIB)","yes")
-LDFLAGS = -T$(LDSCRIPT) -nostartfiles -O$(OPT) --gc-sections -mthumb -march=armv7 -mfix-cortex-m3-ldrd -msoft-float
+LDFLAGS = -T$(LDSCRIPT) -nostartfiles -O$(OPT) -mthumb -march=armv7 -mfix-cortex-m3-ldrd -msoft-float
 else
-LDFLAGS = -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT) --gc-sections
+LDFLAGS = -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT)
 endif
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
 LDLIBS  += -lc -lm -lgcc -lcmsis -lstm32 -l$(LIBOPENCM3_LIB)
