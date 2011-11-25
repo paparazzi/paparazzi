@@ -52,8 +52,8 @@
 #endif
 #include "subsystems/ins.h"
 #include "subsystems/ahrs.h"
-//FIXME: wtf ??!!
-#include "mcu_periph/i2c_arch.h"
+// I2C Error counters
+#include "mcu_periph/i2c.h"
 
 extern uint8_t telemetry_mode_Main_DefaultChannel;
 
@@ -748,17 +748,46 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				   );					       \
   }
 
-#define PERIODIC_SEND_I2C_ERRORS(_chan) {				       \
+#ifdef USE_I2C1
+#define PERIODIC_SEND_I2C1_ERRORS(_chan) {				       \
     DOWNLINK_SEND_I2C_ERRORS(_chan,				       \
-				   &i2c_errc_ack_fail,  \
-				   &i2c_errc_miss_start_stop,  \
-				   &i2c_errc_arb_lost,  \
-				   &i2c_errc_over_under,  \
-				   &i2c_errc_pec_recep,  \
-				   &i2c_errc_timeout_tlow,  \
-				   &i2c_errc_smbus_alert  \
+				   &i2c1.errors->ack_fail_cnt,  \
+				   &i2c1.errors->miss_start_stop_cnt,  \
+				   &i2c1.errors->arb_lost_cnt,  \
+				   &i2c1.errors->over_under_cnt,  \
+				   &i2c1.errors->pec_recep_cnt,  \
+				   &i2c1.errors->timeout_tlow_cnt,  \
+				   &i2c1.errors->smbus_alert_cnt,  \
+				   &i2c1.errors->unexpected_event_cnt,  \
+				   &i2c1.errors->last_unexpected_event  \
 				   );					       \
   }
+#else
+#define PERIODIC_SEND_I2C2_ERRORS(_chan) {}
+#endif
+
+#ifdef USE_I2C2
+#define PERIODIC_SEND_I2C2_ERRORS(_chan) {				       \
+    DOWNLINK_SEND_I2C_ERRORS(_chan,				       \
+				   &i2c2.errors->ack_fail_cnt,  \
+				   &i2c2.errors->miss_start_stop_cnt,  \
+				   &i2c2.errors->arb_lost_cnt,  \
+				   &i2c2.errors->over_under_cnt,  \
+				   &i2c2.errors->pec_recep_cnt,  \
+				   &i2c2.errors->timeout_tlow_cnt,  \
+				   &i2c2.errors->smbus_alert_cnt,  \
+				   &i2c2.errors->unexpected_event_cnt,  \
+				   &i2c2.errors->last_unexpected_event  \
+				   );					       \
+  }
+#else
+#define PERIODIC_SEND_I2C2_ERRORS(_chan) {}
+#endif
+
+#define PERIODIC_SEND_I2C_ERRORS(_chan) {				       \
+    PERIODIC_SEND_I2C1_ERRORS(_chan);  						\
+    PERIODIC_SEND_I2C2_ERRORS(_chan);  						\
+}
 
 //TODO replace by BOOZ_EXTRA_ADC
 #ifdef BOOZ2_SONAR
