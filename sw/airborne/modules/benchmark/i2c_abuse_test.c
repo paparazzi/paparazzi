@@ -207,7 +207,7 @@ void event_i2c_abuse_test(void)
 		{
 			      i2c_abuse_test_counter = 1;
 
-			      //i2c_setbitrate(&I2C_ABUSE_PORT, i2c_abuse_test_bitrate);
+			      i2c_setbitrate(&I2C_ABUSE_PORT, i2c_abuse_test_bitrate);
 
 			      i2c_abuse_test_bitrate += 17000;
 			      if (i2c_abuse_test_bitrate > 410000)
