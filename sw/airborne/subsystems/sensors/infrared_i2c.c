@@ -121,10 +121,7 @@ void infrared_i2c_update( void ) {
       ir_i2c_data_ver_available = FALSE;
     }
   }
-#else /* SITL || HITL */
-/** ir_roll and ir_pitch set by simulator in sim_ir.c */
-  estimator_update_state_infrared();
-#endif
+#endif /* SITL || HITL */
 }
 
 #define FilterIR(_ir_prev, _ir_next) (((1<<ir_i2c_conf_word)*_ir_prev + _ir_next) / ((1<<ir_i2c_conf_word) + 1))
