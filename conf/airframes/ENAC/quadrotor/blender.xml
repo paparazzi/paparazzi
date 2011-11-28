@@ -261,7 +261,7 @@
    <define name="FACE_REINJ_1"  value="1024"/>
    <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
    <define name="BoozDropPwm(_v)" value="BoozSetPwm0Value(_v)"/>
-   <define name="IMU_MAG_OFFSET" value="-9."/>
+   <define name="IMU_MAG_OFFSET" value="RadOfDeg(-9.)"/>
  </section>
 
   <section name="GCS">

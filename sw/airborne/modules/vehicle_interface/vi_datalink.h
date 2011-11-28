@@ -37,7 +37,7 @@
 #endif
 
 #ifndef VI_MAX_HEADING_RATE
-#define VI_MAX_HEADING_RATE 60.
+#define VI_MAX_HEADING_RATE RadOfDeg(60.)
 #endif
 
 extern void vi_update_wp(uint8_t wp_id);

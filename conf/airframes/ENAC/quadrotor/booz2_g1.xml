@@ -230,7 +230,7 @@
     <define name="BOOZ_ANALOG_BARO_THRESHOLD" value="800"/>
     <define name="FACE_REINJ_1"  value="1024"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
-    <!--define name="IMU_MAG_OFFSET" value="-5.8"/-->
+    <!--define name="IMU_MAG_OFFSET" value="RadOfDeg(-5.8)"/-->
   </section>
 
   <section name="GCS">
