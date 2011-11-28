@@ -56,6 +56,7 @@ extern float estimator_z_dot;
 /* rates in radians per second */
 extern float estimator_p;
 extern float estimator_q;
+extern float estimator_r;
 
 /* flight time in seconds */
 extern uint16_t estimator_flight_time;
@@ -128,7 +129,7 @@ extern void alt_kalman( float );
 #define EstimatorSetAtt(phi, psi, theta) { estimator_phi = phi; estimator_psi = psi; estimator_theta = theta; }
 #define EstimatorSetPhiPsi(phi, psi) { estimator_phi = phi; estimator_psi = psi; }
 
-#define EstimatorSetRate(p, q) { estimator_p = p; estimator_q = q; }
+#define EstimatorSetRate(p, q, r) { estimator_p = p; estimator_q = q; estimator_r = r; }
 
 
 #endif /* ESTIMATOR_H */

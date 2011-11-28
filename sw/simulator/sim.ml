@@ -65,8 +65,8 @@ module type AIRCRAFT =
     val infrared_and_airspeed : float -> float -> float -> float -> unit
 	(** [infrared ir_left ir_front ir_top air_speed] Called on timer *)
 
-    val attitude_and_rates : float -> float -> float -> float -> float ->unit
-    (** [ahrs phi theta psi p q] Called on timer *)
+    val attitude_and_rates : float -> float -> float -> float -> float -> float ->unit
+    (** [ahrs phi theta psi p q r] Called on timer *)
 
     val gps : Gps.state -> unit
 	(** [gps state] Called on timer *)
@@ -225,8 +225,8 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     and ahrs_task = fun () ->
       let (phi, theta, psi) = FlightModel.get_attitude !state
-      and p, q = FlightModel.get_pq !state in
-      Aircraft.attitude_and_rates phi theta psi p q in
+      and p, q, r = FlightModel.get_pqr !state in
+      Aircraft.attitude_and_rates phi theta psi p q r in
 
     (** Sending to Flight Gear *)
     let fg_task = fun socket buffer () ->

@@ -88,7 +88,7 @@ void parse_ins_msg( void )
 	}
 
 	EstimatorSetAtt(CHIMU_DATA.m_attitude.euler.phi, CHIMU_DATA.m_attitude.euler.psi, CHIMU_DATA.m_attitude.euler.theta);
-	//EstimatorSetRate(ins_p,ins_q);
+	//EstimatorSetRate(ins_p,ins_q,ins_r);
 
 	DOWNLINK_SEND_AHRS_EULER(DefaultChannel, &CHIMU_DATA.m_attitude.euler.phi, &CHIMU_DATA.m_attitude.euler.theta, &CHIMU_DATA.m_attitude.euler.psi);
 

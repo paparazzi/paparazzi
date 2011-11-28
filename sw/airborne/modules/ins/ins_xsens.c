@@ -303,10 +303,10 @@ void handle_ins_msg( void) {
   // Send to Estimator (Control)
 #ifdef XSENS_BACKWARDS
   EstimatorSetAtt((-ins_phi+ins_roll_neutral), (ins_psi + RadOfDeg(180)), (-ins_theta+ins_pitch_neutral));
-  EstimatorSetRate(-ins_p,-ins_q);
+  EstimatorSetRate(-ins_p,-ins_q, ins_r);
 #else
   EstimatorSetAtt(ins_phi+ins_roll_neutral, ins_psi, ins_theta+ins_pitch_neutral);
-  EstimatorSetRate(ins_p,ins_q);
+  EstimatorSetRate(ins_p, ins_q, ins_r);
 #endif
 
   // Position

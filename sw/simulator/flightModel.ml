@@ -46,6 +46,7 @@ type state = {
     mutable theta : radian;
     mutable theta_dot : radian_s;
     mutable phi_dot : radian_s;
+    mutable psi_dot : radian_s;
     mutable delta_a : float;
     mutable delta_b : float;
     mutable thrust : float;
@@ -69,7 +70,7 @@ module type SIG =
 let get_xyz state = (state.x, state.y, state.z)
 let get_time state = state.t
 let get_attitude state = (state.phi, state.theta, state.psi)
-let get_pq state = (state.phi_dot, state.theta_dot)
+let get_pqr state = (state.phi_dot, state.theta_dot, state.psi_dot)
 
 let get_air_speed state = state.air_speed
 let set_air_speed state = fun s -> state.air_speed <- s
@@ -170,7 +171,7 @@ module Make(A:Data.MISSION) = struct
 
   let init route = {
     start = Unix.gettimeofday (); t = 0.; x = 0.; y = 0. ; z = 0.;
-    psi = route; phi = 0.; phi_dot = 0.; theta_dot = 0.;
+    psi = route; phi = 0.; phi_dot = 0.; theta_dot = 0.; psi_dot = 0.;
     delta_a = 0.; delta_b = 0.; thrust = 0.; air_speed = 0.;
     theta = 0.; z_dot = 0.
   }
@@ -195,8 +196,8 @@ module Make(A:Data.MISSION) = struct
       state.phi <- norm_angle (state.phi +. state.phi_dot *. dt);
       state.phi <- bound state.phi (-.max_phi) max_phi;
 
-      let psi_dot = -. g /. state.air_speed *. tan (yaw_response_factor *. state.phi) in
-      state.psi <- norm_angle (state.psi +. psi_dot *. dt);
+      state.psi_dot <- -. g /. state.air_speed *. tan (yaw_response_factor *. state.phi);
+      state.psi <- norm_angle (state.psi +. state.psi_dot *. dt);
 
       (* Aerodynamic pitching moment coeff, proportional to elevator;
         No Thrust moment, so null (0) for steady flight *)

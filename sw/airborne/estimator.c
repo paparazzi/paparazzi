@@ -53,6 +53,7 @@ float estimator_theta;
 /* rates in radians per second */
 float estimator_p;
 float estimator_q;
+float estimator_r;
 
 /* flight time in seconds */
 uint16_t estimator_flight_time;
@@ -96,7 +97,7 @@ void estimator_init( void ) {
 
   EstimatorSetSpeedPol ( 0., 0., 0.);
 
-  EstimatorSetRate(0., 0.);
+  EstimatorSetRate(0., 0., 0.);
 
 #ifdef USE_AIRSPEED
   EstimatorSetAirspeed( 0. );

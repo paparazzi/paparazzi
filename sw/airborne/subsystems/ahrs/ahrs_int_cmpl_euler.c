@@ -316,6 +316,7 @@ void ahrs_update_fw_estimator(void)
   RATES_FLOAT_OF_BFP(rates, ahrs.body_rate);
   estimator_p = rates.p;
   estimator_q = rates.q;
+  estimator_r = rates.r;
 
 }
 #endif //AHRS_UPDATE_FW_ESTIMATOR

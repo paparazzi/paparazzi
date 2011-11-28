@@ -189,6 +189,7 @@ void ArduIMU_event( void ) {
     estimator_theta = arduimu_eulers.theta - ins_pitch_neutral;
     estimator_p = arduimu_rates.p;
     estimator_q = arduimu_rates.q;
+    estimator_r = arduimu_rates.r;
     ardu_ins_trans.status = I2CTransDone;
 
 #ifdef ARDUIMU_SYNC_SEND
