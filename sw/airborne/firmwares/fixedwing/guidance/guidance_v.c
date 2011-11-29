@@ -123,10 +123,9 @@ void v_ctl_init( void ) {
   /* "auto throttle" inner loop parameters */
   v_ctl_auto_throttle_nominal_cruise_throttle = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
   v_ctl_auto_throttle_cruise_throttle = v_ctl_auto_throttle_nominal_cruise_throttle;
-  v_ctl_auto_throttle_climb_throttle_increment =
-    V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT;
+  v_ctl_auto_throttle_climb_throttle_increment = V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT;
   v_ctl_auto_throttle_pgain = ABS(V_CTL_AUTO_THROTTLE_PGAIN);
-  v_ctl_auto_throttle_igain = V_CTL_AUTO_THROTTLE_IGAIN;
+  v_ctl_auto_throttle_igain = ABS(V_CTL_AUTO_THROTTLE_IGAIN);
   v_ctl_auto_throttle_dgain = 0.;
   v_ctl_auto_throttle_sum_err = 0.;
   v_ctl_auto_throttle_pitch_of_vz_pgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN;

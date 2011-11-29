@@ -130,7 +130,7 @@ void v_ctl_init( void ) {
   v_ctl_auto_throttle_cruise_throttle = v_ctl_auto_throttle_nominal_cruise_throttle;
   v_ctl_auto_throttle_climb_throttle_increment = V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT;
   v_ctl_auto_throttle_pgain = ABS(V_CTL_AUTO_THROTTLE_PGAIN);
-  v_ctl_auto_throttle_igain = V_CTL_AUTO_THROTTLE_IGAIN;
+  v_ctl_auto_throttle_igain = ABS(V_CTL_AUTO_THROTTLE_IGAIN);
   v_ctl_auto_throttle_dgain = 0.;
   v_ctl_auto_throttle_sum_err = 0.;
   v_ctl_auto_throttle_pitch_of_vz_pgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN;
@@ -232,9 +232,9 @@ static inline void v_ctl_set_throttle( void ) {
   float d_err = err - last_err;
   last_err = err;
 
-  if (v_ctl_auto_throttle_igain < 0.) {
+  if (v_ctl_auto_throttle_igain > 0.) {
     v_ctl_auto_throttle_sum_err += err*(1./60.);
-    BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR / (-v_ctl_auto_throttle_igain));
+    BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR / (v_ctl_auto_throttle_igain));
   }
 
   // PID loop + feedforward ctl
@@ -242,7 +242,7 @@ static inline void v_ctl_set_throttle( void ) {
     + v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint
     - v_ctl_auto_throttle_pgain * err
     + v_ctl_auto_throttle_dgain * d_err
-    + v_ctl_auto_throttle_igain * v_ctl_auto_throttle_sum_err;
+    - v_ctl_auto_throttle_igain * v_ctl_auto_throttle_sum_err;
 
 }
 
@@ -261,9 +261,9 @@ static inline void v_ctl_set_airspeed( void ) {
   float err_vz = estimator_z_dot - v_ctl_climb_setpoint;
   float d_err_vz = (err_vz - last_err_vz)*AIRSPEED_LOOP_PERIOD;
   last_err_vz = err_vz;
-  if (v_ctl_auto_throttle_igain < 0.) {
+  if (v_ctl_auto_throttle_igain > 0.) {
     v_ctl_auto_throttle_sum_err += err_vz*AIRSPEED_LOOP_PERIOD;
-    BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR / (-v_ctl_auto_throttle_igain));
+    BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR / (v_ctl_auto_throttle_igain));
   }
   if (v_ctl_auto_pitch_igain < 0.) {
     v_ctl_auto_pitch_sum_err += err_vz*AIRSPEED_LOOP_PERIOD;
@@ -306,7 +306,7 @@ static inline void v_ctl_set_airspeed( void ) {
     + v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint
     - v_ctl_auto_throttle_pgain * err_vz
     + v_ctl_auto_throttle_dgain * d_err_vz
-    + v_ctl_auto_throttle_igain * v_ctl_auto_throttle_sum_err
+    - v_ctl_auto_throttle_igain * v_ctl_auto_throttle_sum_err
     + v_ctl_auto_airspeed_throttle_pgain * err_airspeed
     + v_ctl_auto_airspeed_throttle_dgain * d_err_airspeed
     + v_ctl_auto_airspeed_throttle_igain * v_ctl_auto_airspeed_throttle_sum_err;
