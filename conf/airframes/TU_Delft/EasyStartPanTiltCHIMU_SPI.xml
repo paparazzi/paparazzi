@@ -127,7 +127,7 @@
     <define name="ELEVATOR_OF_ROLL" value="1000."/>
 
     <define name="ROLL_ATTITUDE_GAIN" value="11500"/>
-    <define name="ROLL_RATE_GAIN" value="-600."/>
+    <define name="ROLL_RATE_GAIN" value="600."/>
   </section>
 
   <section name="AGGRESSIVE" prefix="AGR_">

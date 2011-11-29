@@ -163,7 +163,7 @@
     <define name="ROLL_SLEW" value="1."/>
 
     <define name="ROLL_ATTITUDE_GAIN" value="11718.75"/>
-    <define name="ROLL_RATE_GAIN" value="-820.312011719"/>
+    <define name="ROLL_RATE_GAIN" value="820.312011719"/>
   </section>
 
   <section name="AGGRESSIVE" prefix="AGR_">

@@ -103,7 +103,7 @@
 
 
     <define name="ROLL_ATTITUDE_GAIN" value="1500"/>
-    <define name="ROLL_RATE_GAIN" value="-10"/>
+    <define name="ROLL_RATE_GAIN" value="10"/>
     <define name="PITCH_PGAIN" value="9000."/>
     <define name="PITCH_DGAIN" value="1.5"/>
     <define name="ELEVATOR_OF_ROLL" value="0"/>

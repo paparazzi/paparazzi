@@ -136,7 +136,7 @@
     <define name="ELEVATOR_OF_ROLL" value="1500"/>
 
     <!--define name="ROLL_ATTITUDE_GAIN" value="5900"/>
-    <define name="ROLL_RATE_GAIN" value="-2900"/-->
+    <define name="ROLL_RATE_GAIN" value="2900"/-->
   </section>
 
   <section name="NAV">

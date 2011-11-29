@@ -161,7 +161,7 @@
     <define name="ELEVATOR_OF_ROLL" value="1200."/>
 
     <define name="ROLL_ATTITUDE_GAIN" value="6000."/>
-    <define name="ROLL_RATE_GAIN" value="-600."/>
+    <define name="ROLL_RATE_GAIN" value="600."/>
 
     <define name="ROLL_SLEW" value="0.02"/> <!-- Maximal roll angle change per 1/60 of second: 0.02 rad/loop * 180/pi * 60 loop/sec = 60 deg/sec -->
   </section>

@@ -45,7 +45,7 @@
 
 
         <dl_setting MAX="10000" MIN="0" STEP="50" VAR="h_ctl_roll_attitude_gain" shortname="roll attitude pgain"/>
-        <dl_setting MAX="0" MIN="-1500" STEP="5" VAR="h_ctl_roll_rate_gain" shortname="roll rate gain"/>
+        <dl_setting MAX="15000" MIN="0" STEP="5" VAR="h_ctl_roll_rate_gain" shortname="roll rate gain"/>
 
       </dl_settings>
 

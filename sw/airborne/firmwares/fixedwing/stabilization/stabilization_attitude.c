@@ -164,7 +164,7 @@ void h_ctl_init( void ) {
 
 #ifdef H_CTL_ROLL_ATTITUDE_GAIN
   h_ctl_roll_attitude_gain = ABS(H_CTL_ROLL_ATTITUDE_GAIN);
-  h_ctl_roll_rate_gain = H_CTL_ROLL_RATE_GAIN;
+  h_ctl_roll_rate_gain = ABS(H_CTL_ROLL_RATE_GAIN);
 #endif
 
 #ifdef AGR_CLIMB
@@ -321,7 +321,7 @@ inline static void h_ctl_roll_loop( void ) {
   last_err = err;
 #endif
   float cmd = h_ctl_roll_attitude_gain * err
-    - h_ctl_roll_rate_gain * estimator_p
+    + h_ctl_roll_rate_gain * estimator_p
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
 
   h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);

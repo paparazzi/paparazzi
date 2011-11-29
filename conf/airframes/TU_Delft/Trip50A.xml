@@ -175,7 +175,7 @@
     <define name="ROLL_SLEW" value="0.30"/> <!-- Maximal roll angle change per 1/60 of second -->
 
     <define name="ROLL_ATTITUDE_GAIN" value="7000."/> <!-- Roll Angle PD control -->
-    <define name="ROLL_RATE_GAIN" value="-2752.29394531"/>
+    <define name="ROLL_RATE_GAIN" value="2752.29394531"/>
 
 <!--
 #ifdef H_CTL_ROLL_ATTITUDE_GAIN
