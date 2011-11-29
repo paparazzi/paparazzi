@@ -155,7 +155,7 @@
 
     <define name="ROLL_KFFP" value="-500"/>
     <define name="ROLL_KFFD" value="0"/>
-    <define name="ROLL_IGAIN" value="-5000"/>
+    <define name="ROLL_IGAIN" value="5000"/>
   </section>
 
   <section name="NAV">

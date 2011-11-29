@@ -159,7 +159,7 @@ void h_ctl_init( void ) {
   h_ctl_roll_setpoint = 0.;
   h_ctl_roll_attitude_gain = ABS(H_CTL_ROLL_ATTITUDE_GAIN);
   h_ctl_roll_rate_gain = ABS(H_CTL_ROLL_RATE_GAIN);
-  h_ctl_roll_igain = H_CTL_ROLL_IGAIN;
+  h_ctl_roll_igain = ABS(H_CTL_ROLL_IGAIN);
   h_ctl_roll_sum_err = 0;
   h_ctl_roll_Kffa = H_CTL_ROLL_KFFA;
   h_ctl_roll_Kffd = H_CTL_ROLL_KFFD;
@@ -299,9 +299,9 @@ inline static void h_ctl_roll_loop( void ) {
     h_ctl_roll_sum_err = 0.;
   }
   else {
-    if (h_ctl_roll_igain < 0.) {
+    if (h_ctl_roll_igain > 0.) {
       h_ctl_roll_sum_err += err * H_CTL_REF_DT;
-      BoundAbs(h_ctl_roll_sum_err, (- H_CTL_ROLL_SUM_ERR_MAX / h_ctl_roll_igain));
+      BoundAbs(h_ctl_roll_sum_err, H_CTL_ROLL_SUM_ERR_MAX / h_ctl_roll_igain);
     } else {
       h_ctl_roll_sum_err = 0.;
     }
@@ -312,13 +312,13 @@ inline static void h_ctl_roll_loop( void ) {
     + h_ctl_roll_Kffd * h_ctl_ref_roll_rate
     - cmd_fb
     + h_ctl_roll_rate_gain * d_err
-    - h_ctl_roll_igain * h_ctl_roll_sum_err
+    + h_ctl_roll_igain * h_ctl_roll_sum_err
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
 //  float cmd = h_ctl_roll_Kffa * h_ctl_ref_roll_accel
 //    + h_ctl_roll_Kffd * h_ctl_ref_roll_rate
 //    + h_ctl_roll_attitude_gain * err
 //    + h_ctl_roll_rate_gain * d_err
-//    - h_ctl_roll_igain * h_ctl_roll_sum_err
+//    + h_ctl_roll_igain * h_ctl_roll_sum_err
 //    + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
 //
   cmd /= airspeed_ratio2;

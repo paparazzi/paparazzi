@@ -182,7 +182,7 @@
 
     <define name="ROLL_ATTITUDE_GAIN" value="8500."/>
     <define name="ROLL_RATE_GAIN" value="2400."/>
-    <define name="ROLL_IGAIN" value="-0."/>
+    <define name="ROLL_IGAIN" value="0."/>
     <define name="ROLL_KFFA" value="0"/>
     <define name="ROLL_KFFD" value="0"/>
 

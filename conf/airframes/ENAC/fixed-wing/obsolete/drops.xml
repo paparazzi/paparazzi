@@ -174,7 +174,7 @@ on<!DOCTYPE airframe SYSTEM "airframe.dtd">
     <define name="ROLL_RATE_GAIN" value="2923.72900391"/>
 
     <define name="ROLL_KFF" value="-500"/>
-    <define name="ROLL_IGAIN" value="-5000"/>
+    <define name="ROLL_IGAIN" value="5000"/>
   </section>
 
   <section name="NAV">

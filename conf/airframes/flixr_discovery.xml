@@ -315,7 +315,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <define name="ROLL_RATE_GAIN" value="1500"/>
 
     <!-- only for stabilization adaptive -->
-    <define name="ROLL_IGAIN" value="-500"/>
+    <define name="ROLL_IGAIN" value="500"/>
     <define name="ROLL_KFFA" value="0."/>
     <define name="ROLL_KFFD" value="0."/>
 
