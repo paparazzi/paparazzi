@@ -49,6 +49,10 @@ float v_ctl_climb_setpoint;
 uint8_t v_ctl_climb_mode;
 uint8_t v_ctl_auto_throttle_submode;
 
+#ifndef V_CTL_AUTO_THROTTLE_DGAIN
+#define V_CTL_AUTO_THROTTLE_DGAIN 0.
+#endif
+
 /* "auto throttle" inner loop parameters */
 float v_ctl_auto_throttle_cruise_throttle;
 float v_ctl_auto_throttle_nominal_cruise_throttle;
@@ -131,7 +135,7 @@ void v_ctl_init( void ) {
   v_ctl_auto_throttle_climb_throttle_increment = V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT;
   v_ctl_auto_throttle_pgain = ABS(V_CTL_AUTO_THROTTLE_PGAIN);
   v_ctl_auto_throttle_igain = ABS(V_CTL_AUTO_THROTTLE_IGAIN);
-  v_ctl_auto_throttle_dgain = 0.;
+  v_ctl_auto_throttle_dgain = ABS(V_CTL_AUTO_THROTTLE_DGAIN);
   v_ctl_auto_throttle_sum_err = 0.;
   v_ctl_auto_throttle_pitch_of_vz_pgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN;
   v_ctl_auto_throttle_pitch_of_vz_dgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_DGAIN;
