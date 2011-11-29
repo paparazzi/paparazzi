@@ -143,7 +143,7 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-2.6"/>
+    <define name="COURSE_PGAIN" value="2.6"/>
     <define name="COURSE_DGAIN" value="1"/>
     <define name="COURSE_PRE_BANK_CORRECTION" value="1."/>
     <define name="ROLL_MAX_SETPOINT" value="0.73" unit="radians"/>

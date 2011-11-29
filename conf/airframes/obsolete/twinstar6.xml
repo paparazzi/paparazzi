@@ -90,7 +90,7 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-0.9"/>
+    <define name="COURSE_PGAIN" value="0.9"/>
     <define name="COURSE_PRE_BANK_CORRECTION" value="1."/>
     <define name="ROLL_MAX_SETPOINT" value="0.6" unit="rad"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>

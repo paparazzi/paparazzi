@@ -275,7 +275,7 @@
 <!-- ******************* HORIZONTAL CONTROL ******************************** -->
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.16799998283"/>
+    <define name="COURSE_PGAIN" value="1.16799998283"/>
     <define name="COURSE_DGAIN" value="0.280999988317"/>
     <define name="COURSE_PRE_BANK_CORRECTION" value="1.0039999485"/>
 

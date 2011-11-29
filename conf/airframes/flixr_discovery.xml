@@ -298,7 +298,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 <!-- ******************* HORIZONTAL CONTROL ******************************** -->
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
 
-    <define name="COURSE_PGAIN" value="-1.1"/>
+    <define name="COURSE_PGAIN" value="1.1"/>
     <!-- <define name="COURSE_IGAIN" value="0.01"/> -->
     <!-- <define name="COURSE_DGAIN" value="0.02"/> -->
     <!-- <define name="COURSE_PRE_BANK_CORRECTION" value="0.5"/> -->

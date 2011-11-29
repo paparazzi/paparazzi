@@ -119,8 +119,8 @@ void h_ctl_init( void ) {
   h_ctl_course_setpoint = 0.;
   h_ctl_course_pre_bank = 0.;
   h_ctl_course_pre_bank_correction = H_CTL_COURSE_PRE_BANK_CORRECTION;
-  h_ctl_course_pgain = H_CTL_COURSE_PGAIN;
-  h_ctl_course_dgain = H_CTL_COURSE_DGAIN;
+  h_ctl_course_pgain = ABS(H_CTL_COURSE_PGAIN);
+  h_ctl_course_dgain = ABS(H_CTL_COURSE_DGAIN);
   h_ctl_roll_max_setpoint = H_CTL_ROLL_MAX_SETPOINT;
 
 #ifdef USE_AOA
@@ -238,7 +238,7 @@ void h_ctl_course_loop ( void ) {
     h_ctl_course_heading_mode = 0;
   }
 */
-#endif
+#endif //STRONG_WIND
 
   float d_err = err - last_err;
   last_err = err;
@@ -248,7 +248,7 @@ void h_ctl_course_loop ( void ) {
 #ifdef H_CTL_COURSE_SLEW_INCREMENT
   /* slew severe course changes (i.e. waypoint moves, block changes or perpendicular routes) */
   static float h_ctl_course_slew_rate = 0.;
-  float nav_angle_saturation = -(h_ctl_roll_max_setpoint/h_ctl_course_pgain);  /* heading error corresponding to max_roll */
+  float nav_angle_saturation = h_ctl_roll_max_setpoint/h_ctl_course_pgain;  /* heading error corresponding to max_roll */
   float half_nav_angle_saturation = nav_angle_saturation / 2.;
   if (launch) {  /* prevent accumulator run-up on the ground */
     if (err > half_nav_angle_saturation) {
@@ -270,7 +270,7 @@ void h_ctl_course_loop ( void ) {
   float speed_depend_nav = estimator_hspeed_mod/NOMINAL_AIRSPEED;
   Bound(speed_depend_nav, 0.66, 1.5);
 
-  float cmd = h_ctl_course_pgain * speed_depend_nav * (err + d_err * h_ctl_course_dgain);
+  float cmd = -h_ctl_course_pgain * speed_depend_nav * (err + d_err * h_ctl_course_dgain);
 
 
 
@@ -280,11 +280,11 @@ void h_ctl_course_loop ( void ) {
     if (v_ctl_auto_throttle_submode == V_CTL_AUTO_THROTTLE_AGRESSIVE || V_CTL_AUTO_THROTTLE_BLENDED) {
       BoundAbs(cmd, h_ctl_roll_max_setpoint); /* bound cmd before NAV_RATIO and again after */
       if (v_ctl_altitude_error < 0) {
-    nav_ratio = AGR_CLIMB_NAV_RATIO + (1 - AGR_CLIMB_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
-    Bound (nav_ratio, AGR_CLIMB_NAV_RATIO, 1);
+        nav_ratio = AGR_CLIMB_NAV_RATIO + (1 - AGR_CLIMB_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
+        Bound (nav_ratio, AGR_CLIMB_NAV_RATIO, 1);
       } else {
-    nav_ratio = AGR_DESCENT_NAV_RATIO + (1 - AGR_DESCENT_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
-    Bound (nav_ratio, AGR_DESCENT_NAV_RATIO, 1);
+        nav_ratio = AGR_DESCENT_NAV_RATIO + (1 - AGR_DESCENT_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
+        Bound (nav_ratio, AGR_DESCENT_NAV_RATIO, 1);
       }
       cmd *= nav_ratio;
     }
