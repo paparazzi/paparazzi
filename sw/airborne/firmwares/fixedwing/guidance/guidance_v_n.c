@@ -241,7 +241,7 @@ static inline void v_ctl_set_throttle( void ) {
   controlled_throttle = v_ctl_auto_throttle_cruise_throttle
     + v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint
     - v_ctl_auto_throttle_pgain * err
-    + v_ctl_auto_throttle_dgain * d_err
+    - v_ctl_auto_throttle_dgain * d_err
     - v_ctl_auto_throttle_igain * v_ctl_auto_throttle_sum_err;
 
 }
@@ -305,7 +305,7 @@ static inline void v_ctl_set_airspeed( void ) {
   controlled_throttle = v_ctl_auto_throttle_cruise_throttle
     + v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint
     - v_ctl_auto_throttle_pgain * err_vz
-    + v_ctl_auto_throttle_dgain * d_err_vz
+    - v_ctl_auto_throttle_dgain * d_err_vz
     - v_ctl_auto_throttle_igain * v_ctl_auto_throttle_sum_err
     + v_ctl_auto_airspeed_throttle_pgain * err_airspeed
     + v_ctl_auto_airspeed_throttle_dgain * d_err_airspeed
