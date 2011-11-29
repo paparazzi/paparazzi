@@ -181,7 +181,7 @@
 
     <define name="ROLL_PGAIN" value="10500."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
-    <define name="PITCH_PGAIN" value="-4500."/>
+    <define name="PITCH_PGAIN" value="4500."/>
     <define name="PITCH_DGAIN" value="6"/>
 
     <define name="ELEVATOR_OF_ROLL" value="1500"/>

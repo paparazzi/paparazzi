@@ -323,7 +323,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <!--define name="ROLL_SLEW" value="0.6"/--> <!-- was 0.05 -->
 
 
-    <define name="PITCH_PGAIN" value="-7000."/>
+    <define name="PITCH_PGAIN" value="7000."/>
 
     <!-- only for stabilization adaptive -->
     <define name="PITCH_DGAIN" value="-1000."/>

@@ -145,7 +145,7 @@
 
     <define name="ROLL_PGAIN" value="5000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
-    <define name="PITCH_PGAIN" value="-7330.82714844"/>
+    <define name="PITCH_PGAIN" value="7330.82714844"/>
     <define name="PITCH_DGAIN" value="1.7254999876"/>
     <define name="ELEVATOR_OF_ROLL" value="1250."/>
     <define name="ROLL_RATE_GAIN" value="-112.781997681"/>

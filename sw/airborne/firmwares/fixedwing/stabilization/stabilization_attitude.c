@@ -140,7 +140,7 @@ void h_ctl_init( void ) {
 
   h_ctl_pitch_setpoint = 0.;
   h_ctl_pitch_loop_setpoint = 0.;
-  h_ctl_pitch_pgain = H_CTL_PITCH_PGAIN;
+  h_ctl_pitch_pgain = ABS(H_CTL_PITCH_PGAIN);
   h_ctl_pitch_dgain = H_CTL_PITCH_DGAIN;
   h_ctl_elevator_setpoint = 0;
   h_ctl_elevator_of_roll = H_CTL_ELEVATOR_OF_ROLL;
@@ -421,9 +421,7 @@ inline static void h_ctl_pitch_loop( void ) {
   if (h_ctl_elevator_of_roll <0.)
     h_ctl_elevator_of_roll = 0.;
 
-  h_ctl_pitch_loop_setpoint =
-    h_ctl_pitch_setpoint
-    - h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(estimator_phi);
+  h_ctl_pitch_loop_setpoint =  h_ctl_pitch_setpoint + h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(estimator_phi);
 
 	float err = 0;
 
@@ -446,7 +444,7 @@ inline static void h_ctl_pitch_loop( void ) {
 
   float d_err = err - last_err;
   last_err = err;
-  float cmd = h_ctl_pitch_pgain * (err + h_ctl_pitch_dgain * d_err);
+  float cmd = -h_ctl_pitch_pgain * (err + h_ctl_pitch_dgain * d_err);
 #ifdef LOITER_TRIM
   cmd += loiter();
 #endif

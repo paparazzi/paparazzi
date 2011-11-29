@@ -167,7 +167,7 @@
     <define name="PITCH_MAX_SETPOINT" value="0.4" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.4" unit="radians"/>
 
-    <define name="PITCH_PGAIN" value="-7110.09179688"/>	<!-- Pitch Angle PD control -->
+    <define name="PITCH_PGAIN" value="7110.09179688"/>	<!-- Pitch Angle PD control -->
     <define name="PITCH_DGAIN" value="2."/>
 
     <define name="ELEVATOR_OF_ROLL" value="1500."/> <!-- Feed forward ABS(roll) to elevator -->

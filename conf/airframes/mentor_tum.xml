@@ -174,7 +174,7 @@
     <define name="PITCH_MAX_SETPOINT" value="RadOfDeg(30)" unit="rad"/>
     <define name="PITCH_MIN_SETPOINT" value="RadOfDeg(-25)" unit="rad"/>
 
-    <define name="PITCH_PGAIN" value="-7000."/>
+    <define name="PITCH_PGAIN" value="7000."/>
     <define name="PITCH_DGAIN" value="1.5"/>
 
     <define name="AILERON_OF_THROTTLE" value="0.0"/>

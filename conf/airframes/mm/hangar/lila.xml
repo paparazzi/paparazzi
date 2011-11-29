@@ -147,7 +147,7 @@
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
-    <define name="PITCH_PGAIN" value="-2500."/>
+    <define name="PITCH_PGAIN" value="2500."/>
     <define name="PITCH_DGAIN" value="-1000"/>
 
     <define name="ELEVATOR_OF_ROLL" value="1100"/>

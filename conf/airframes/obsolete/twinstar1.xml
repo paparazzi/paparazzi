@@ -70,7 +70,7 @@
   </section>
 
   <section name="ALT" prefix="CLIMB_">
-    <define name="PITCH_PGAIN" value="-0.1"/>
+    <define name="PITCH_PGAIN" value="0.1"/>
     <define name="PITCH_IGAIN" value="0.025"/>
     <define name="PGAIN" value="-0.03"/>
     <define name="IGAIN" value="0.1"/>
@@ -90,7 +90,7 @@
 
     <define name="ROLL_PGAIN" value="10000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
-    <define name="PITCH_PGAIN" value="-6000."/>
+    <define name="PITCH_PGAIN" value="6000."/>
     <define name="PITCH_DGAIN" value="0."/>
     <define name="ELEVATOR_OF_ROLL" value="0"/>
 

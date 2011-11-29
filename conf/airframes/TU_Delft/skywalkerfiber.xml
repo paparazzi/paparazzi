@@ -283,7 +283,7 @@
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
-    <define name="PITCH_PGAIN" value="-15429.6865234"/>
+    <define name="PITCH_PGAIN" value="15429.6865234"/>
     <define name="PITCH_DGAIN" value="7.73400020599"/>
 
     <define name="ELEVATOR_OF_ROLL" value="3007.81298828"/>

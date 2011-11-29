@@ -153,7 +153,7 @@
     <define name="ROLL_ATTITUDE_GAIN" value="-9000."/>
     <define name="ROLL_RATE_GAIN" value="-3000."/>
 
-    <define name="PITCH_PGAIN" value="-9000."/>
+    <define name="PITCH_PGAIN" value="9000."/>
     <define name="PITCH_DGAIN" value="0.4"/>
 
     <define name="AILERON_OF_THROTTLE" value="0.0"/>

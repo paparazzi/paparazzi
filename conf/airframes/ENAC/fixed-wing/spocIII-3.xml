@@ -189,7 +189,7 @@
     <define name="ROLL_KFFA" value="0"/>
     <define name="ROLL_KFFD" value="0"/>
 
-    <define name="PITCH_PGAIN" value="-7000."/>
+    <define name="PITCH_PGAIN" value="7000."/>
     <define name="PITCH_DGAIN" value="-2400."/>
     <define name="PITCH_IGAIN" value="-300."/>
     <define name="PITCH_KFFA" value="0."/>

@@ -149,7 +149,7 @@
 
 
     <define name="ROLL_PGAIN" value="6000."/>
-    <define name="PITCH_PGAIN" value="-9000."/>
+    <define name="PITCH_PGAIN" value="9000."/>
     <define name="PITCH_DGAIN" value="1.5"/>
     <define name="ELEVATOR_OF_ROLL" value="2000"/>
   </section>
