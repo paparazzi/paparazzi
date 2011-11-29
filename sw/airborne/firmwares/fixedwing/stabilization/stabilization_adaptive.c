@@ -161,8 +161,8 @@ void h_ctl_init( void ) {
   h_ctl_roll_rate_gain = ABS(H_CTL_ROLL_RATE_GAIN);
   h_ctl_roll_igain = ABS(H_CTL_ROLL_IGAIN);
   h_ctl_roll_sum_err = 0;
-  h_ctl_roll_Kffa = H_CTL_ROLL_KFFA;
-  h_ctl_roll_Kffd = H_CTL_ROLL_KFFD;
+  h_ctl_roll_Kffa = ABS(H_CTL_ROLL_KFFA);
+  h_ctl_roll_Kffd = ABS(H_CTL_ROLL_KFFD);
   h_ctl_aileron_setpoint = 0;
 #ifdef H_CTL_AILERON_OF_THROTTLE
   h_ctl_aileron_of_throttle = H_CTL_AILERON_OF_THROTTLE;
@@ -277,13 +277,13 @@ inline static void h_ctl_roll_loop( void ) {
 
 #ifdef USE_KFF_UPDATE
   // update Kff gains
-  h_ctl_roll_Kffa -= KFFA_UPDATE * h_ctl_ref_roll_accel * cmd_fb / (H_CTL_REF_MAX_P_DOT*H_CTL_REF_MAX_P_DOT);
-  h_ctl_roll_Kffd -= KFFD_UPDATE * h_ctl_ref_roll_rate  * cmd_fb / (H_CTL_REF_MAX_P*H_CTL_REF_MAX_P);
+  h_ctl_roll_Kffa += KFFA_UPDATE * h_ctl_ref_roll_accel * cmd_fb / (H_CTL_REF_MAX_P_DOT*H_CTL_REF_MAX_P_DOT);
+  h_ctl_roll_Kffd += KFFD_UPDATE * h_ctl_ref_roll_rate  * cmd_fb / (H_CTL_REF_MAX_P*H_CTL_REF_MAX_P);
 #ifdef SITL
   printf("%f %f %f\n", h_ctl_roll_Kffa, h_ctl_roll_Kffd, cmd_fb);
 #endif
-  h_ctl_roll_Kffa = Min(h_ctl_roll_Kffa, 0);
-  h_ctl_roll_Kffd = Min(h_ctl_roll_Kffd, 0);
+  h_ctl_roll_Kffa = Max(h_ctl_roll_Kffa, 0);
+  h_ctl_roll_Kffd = Max(h_ctl_roll_Kffd, 0);
 #endif
 
   // Compute errors
@@ -308,14 +308,14 @@ inline static void h_ctl_roll_loop( void ) {
   }
 
   cmd_fb = -h_ctl_roll_attitude_gain * err;// - h_ctl_roll_rate_gain * d_err;
-  float cmd = h_ctl_roll_Kffa * h_ctl_ref_roll_accel
-    + h_ctl_roll_Kffd * h_ctl_ref_roll_rate
+  float cmd = - h_ctl_roll_Kffa * h_ctl_ref_roll_accel
+    - h_ctl_roll_Kffd * h_ctl_ref_roll_rate
     - cmd_fb
     + h_ctl_roll_rate_gain * d_err
     + h_ctl_roll_igain * h_ctl_roll_sum_err
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
-//  float cmd = h_ctl_roll_Kffa * h_ctl_ref_roll_accel
-//    + h_ctl_roll_Kffd * h_ctl_ref_roll_rate
+//  float cmd = - h_ctl_roll_Kffa * h_ctl_ref_roll_accel
+//    - h_ctl_roll_Kffd * h_ctl_ref_roll_rate
 //    + h_ctl_roll_attitude_gain * err
 //    + h_ctl_roll_rate_gain * d_err
 //    + h_ctl_roll_igain * h_ctl_roll_sum_err

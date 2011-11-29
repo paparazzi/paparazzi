@@ -173,8 +173,8 @@
     <define name="ROLL_ATTITUDE_GAIN" value="3553.89208984"/>
     <define name="ROLL_RATE_GAIN" value="0."/>
     <define name="ROLL_IGAIN" value="500"/>
-    <define name="ROLL_KFFA" value="-500"/>
-    <define name="ROLL_KFFD" value="-500"/>
+    <define name="ROLL_KFFA" value="500"/>
+    <define name="ROLL_KFFD" value="500"/>
 
     <define name="PITCH_PGAIN" value="14522.4716797"/>
     <define name="PITCH_DGAIN" value="0."/>
