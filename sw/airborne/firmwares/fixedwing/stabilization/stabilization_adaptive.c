@@ -174,8 +174,8 @@ void h_ctl_init( void ) {
   h_ctl_pitch_dgain = ABS(H_CTL_PITCH_DGAIN);
   h_ctl_pitch_igain = ABS(H_CTL_PITCH_IGAIN);
   h_ctl_pitch_sum_err = 0.;
-  h_ctl_pitch_Kffa = H_CTL_PITCH_KFFA;
-  h_ctl_pitch_Kffd = H_CTL_PITCH_KFFD;
+  h_ctl_pitch_Kffa = ABS(H_CTL_PITCH_KFFA);
+  h_ctl_pitch_Kffd = ABS(H_CTL_PITCH_KFFD);
   h_ctl_elevator_setpoint = 0;
   h_ctl_elevator_of_roll = 0; //H_CTL_ELEVATOR_OF_ROLL;
 #ifdef H_CTL_PITCH_OF_ROLL
@@ -387,9 +387,9 @@ inline static void h_ctl_pitch_loop( void ) {
 #endif
 
   // Compute errors
-  float err = estimator_theta - h_ctl_ref_pitch_angle;
+  float err =  h_ctl_ref_pitch_angle - estimator_theta;
 #ifdef USE_GYRO_PITCH_RATE
-  float d_err = estimator_q - h_ctl_ref_pitch_rate;
+  float d_err = h_ctl_ref_pitch_rate - estimator_q;
 #else // soft derivation
   float d_err = (err - last_err)/H_CTL_REF_DT - h_ctl_ref_pitch_rate;
 #endif
@@ -407,11 +407,11 @@ inline static void h_ctl_pitch_loop( void ) {
     }
   }
 
-  float cmd = h_ctl_pitch_Kffa * h_ctl_ref_pitch_accel
-    + h_ctl_pitch_Kffd * h_ctl_ref_pitch_rate
-    - h_ctl_pitch_pgain * err
-    - h_ctl_pitch_dgain * d_err
-    - h_ctl_pitch_igain * h_ctl_pitch_sum_err;
+  float cmd = - h_ctl_pitch_Kffa * h_ctl_ref_pitch_accel
+    - h_ctl_pitch_Kffd * h_ctl_ref_pitch_rate
+    + h_ctl_pitch_pgain * err
+    + h_ctl_pitch_dgain * d_err
+    + h_ctl_pitch_igain * h_ctl_pitch_sum_err;
 
   cmd /= airspeed_ratio2;
 
