@@ -143,7 +143,7 @@
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
     <define name="POWER_CTL_BAT_NOMINAL" value="14.8" unit="volt"/>
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="-0.04" unit="(m/s)/m"/>
+    <define name="ALTITUDE_PGAIN" value="0.04" unit="(m/s)/m"/>
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="2.5" unit="m/s"/>
 

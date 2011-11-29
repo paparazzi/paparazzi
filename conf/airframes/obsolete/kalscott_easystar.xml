@@ -90,7 +90,7 @@
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
     <define name="POWER_CTL_BAT_NOMINAL" value="11.0" unit="volt"/>
     <!-- outer loop -->
-    <define name="ALTITUDE_PGAIN" value="-0.075" unit="(m/s)/m"/>
+    <define name="ALTITUDE_PGAIN" value="0.075" unit="(m/s)/m"/>
     <define name="ALTITUDE_MAX_CLIMB" value="4." unit="m/s"/>
     <!-- auto throttle inner loop -->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5" unit="%"/>

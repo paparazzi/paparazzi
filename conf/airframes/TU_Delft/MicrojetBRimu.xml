@@ -147,7 +147,7 @@
 
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="-0.101000003517"/>
+    <define name="ALTITUDE_PGAIN" value="0.101000003517"/>
     <!-- outer loop saturation max m/s the alt tap can be-->
     <define name="ALTITUDE_MAX_CLIMB" value="4"/>
 

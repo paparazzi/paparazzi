@@ -119,7 +119,7 @@
 
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="-0.37"/>
+    <define name="ALTITUDE_PGAIN" value="0.37"/>
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="5."/>
 

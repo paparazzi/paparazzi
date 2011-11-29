@@ -115,12 +115,12 @@
     <define name="POWER_CTL_BAT_NOMINAL" value="7.6" unit="volt"/>
 
 	<!-- Vertical Outerloop
-		v_ctl_climb_setpoint = ALTITUDE_PGAIN * altitude_error + altitude_pre_climb;
+		v_ctl_climb_setpoint = -ALTITUDE_PGAIN * altitude_error + altitude_pre_climb;
 		BoundAbs(v_ctl_climb_setpoint, V_CTL_ALTITUDE_MAX_CLIMB);
 	-->
 
     <!-- outer loop proportional gain: alt error 5 climb m/s -->
-    <define name="ALTITUDE_PGAIN" value="-0.0750000029802"/>
+    <define name="ALTITUDE_PGAIN" value="0.0750000029802"/>
     <!-- outer loop saturation: m/s-->
     <define name="ALTITUDE_MAX_CLIMB" value="5.0"/>
 

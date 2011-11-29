@@ -112,7 +112,7 @@ void v_ctl_init( void ) {
   /* outer loop */
   v_ctl_altitude_setpoint = 0.;
   v_ctl_altitude_pre_climb = 0.;
-  v_ctl_altitude_pgain = V_CTL_ALTITUDE_PGAIN;
+  v_ctl_altitude_pgain = ABS(V_CTL_ALTITUDE_PGAIN);
   v_ctl_altitude_error = 0.;
 
   /* inner loops */
@@ -194,7 +194,7 @@ void v_ctl_altitude_loop( void ) {
 #endif
 
   v_ctl_altitude_error = estimator_z - v_ctl_altitude_setpoint;
-  v_ctl_climb_setpoint = altitude_pgain_boost * v_ctl_altitude_pgain * v_ctl_altitude_error
+  v_ctl_climb_setpoint = altitude_pgain_boost * -v_ctl_altitude_pgain * v_ctl_altitude_error
     + v_ctl_altitude_pre_climb;
   BoundAbs(v_ctl_climb_setpoint, V_CTL_ALTITUDE_MAX_CLIMB);
 

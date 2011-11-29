@@ -55,7 +55,7 @@
       </dl_settings>
 
       <dl_settings name="alt">
-        <dl_setting MAX="0" MIN="-0.2" STEP="0.01" VAR="v_ctl_altitude_pgain" shortname="alt_pgain" param="V_CTL_ALTITUDE_PGAIN"/>
+        <dl_setting MAX="0.2" MIN="0" STEP="0.01" VAR="v_ctl_altitude_pgain" shortname="alt_pgain" param="V_CTL_ALTITUDE_PGAIN"/>
       </dl_settings>
 
       <dl_settings name="auto_throttle">

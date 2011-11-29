@@ -117,7 +117,7 @@ void v_ctl_init( void ) {
   /* outer loop */
   v_ctl_altitude_setpoint = 0.;
   v_ctl_altitude_pre_climb = 0.;
-  v_ctl_altitude_pgain = V_CTL_ALTITUDE_PGAIN;
+  v_ctl_altitude_pgain = ABS(V_CTL_ALTITUDE_PGAIN);
   v_ctl_altitude_error = 0.;
 
   /* inner loops */
@@ -180,7 +180,7 @@ void v_ctl_altitude_loop( void ) {
 
   // Altitude error
   v_ctl_altitude_error = estimator_z - v_ctl_altitude_setpoint;
-  v_ctl_climb_setpoint = v_ctl_altitude_pgain * v_ctl_altitude_error + v_ctl_altitude_pre_climb;
+  v_ctl_climb_setpoint = -v_ctl_altitude_pgain * v_ctl_altitude_error + v_ctl_altitude_pre_climb;
 
   // Lead controller
   //v_ctl_climb_setpoint = ((LEAD_CTRL_TAU*LEAD_CTRL_A + LEAD_CTRL_Te)*climb_sp + LEAD_CTRL_TAU*(v_ctl_climb_setpoint - LEAD_CTRL_A*last_lead_input)) / (LEAD_CTRL_TAU + LEAD_CTRL_Te);

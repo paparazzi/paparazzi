@@ -242,7 +242,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <define name="POWER_CTL_BAT_NOMINAL" value="11.2" unit="volt"/>
 
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="-0.04" unit="(m/s)/m"/>
+    <define name="ALTITUDE_PGAIN" value="0.04" unit="(m/s)/m"/>
 
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="2." unit="m/s"/>
