@@ -264,10 +264,10 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <!-- Climb loop (pitch) -->
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.20" unit="rad/(m/s)"/>
     <!--define name="AUTO_PITCH_PGAIN" value="0.0"/>
-    <define name="AUTO_PITCH_DGAIN" value="-0.0"/>
+    <define name="AUTO_PITCH_DGAIN" value="0.0"/>
     <define name="AUTO_PITCH_IGAIN" value="0.0"/-->
     <define name="AUTO_PITCH_PGAIN" value="0.052"/>
-    <define name="AUTO_PITCH_DGAIN" value="-0.0"/>
+    <define name="AUTO_PITCH_DGAIN" value="0.0"/>
     <define name="AUTO_PITCH_IGAIN" value="0.065"/>
 
 

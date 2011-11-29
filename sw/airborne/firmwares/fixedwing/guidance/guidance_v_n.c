@@ -142,7 +142,7 @@ void v_ctl_init( void ) {
 
   /* "auto pitch" inner loop parameters */
   v_ctl_auto_pitch_pgain = ABS(V_CTL_AUTO_PITCH_PGAIN);
-  v_ctl_auto_pitch_dgain = V_CTL_AUTO_PITCH_DGAIN;
+  v_ctl_auto_pitch_dgain = ABS(V_CTL_AUTO_PITCH_DGAIN);
   v_ctl_auto_pitch_igain = ABS(V_CTL_AUTO_PITCH_IGAIN);
   v_ctl_auto_pitch_sum_err = 0.;
 
@@ -220,7 +220,7 @@ static inline void v_ctl_set_pitch ( void ) {
   nav_pitch = 0. //nav_pitch FIXME it really sucks !
     + v_ctl_auto_throttle_pitch_of_vz_pgain * v_ctl_climb_setpoint
     - v_ctl_auto_pitch_pgain * err
-    + v_ctl_auto_pitch_dgain * d_err
+    - v_ctl_auto_pitch_dgain * d_err
     - v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err;
 
 }
@@ -299,7 +299,7 @@ static inline void v_ctl_set_airspeed( void ) {
   nav_pitch = 0. //nav_pitch FIXME it really sucks !
     + v_ctl_auto_throttle_pitch_of_vz_pgain * v_ctl_climb_setpoint
     - v_ctl_auto_pitch_pgain * err_vz
-    + v_ctl_auto_pitch_dgain * d_err_vz
+    - v_ctl_auto_pitch_dgain * d_err_vz
     - v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err
     - v_ctl_auto_airspeed_pitch_pgain * err_airspeed
     - v_ctl_auto_airspeed_pitch_dgain * d_err_airspeed
