@@ -150,8 +150,8 @@ void h_ctl_init( void ) {
   h_ctl_course_setpoint = 0.;
   h_ctl_course_pre_bank = 0.;
   h_ctl_course_pre_bank_correction = H_CTL_COURSE_PRE_BANK_CORRECTION;
-  h_ctl_course_pgain = H_CTL_COURSE_PGAIN;
-  h_ctl_course_dgain = H_CTL_COURSE_DGAIN;
+  h_ctl_course_pgain = ABS(H_CTL_COURSE_PGAIN);
+  h_ctl_course_dgain = ABS(H_CTL_COURSE_DGAIN);
   h_ctl_roll_max_setpoint = H_CTL_ROLL_MAX_SETPOINT;
 
   h_ctl_disabled = FALSE;
@@ -203,7 +203,7 @@ void h_ctl_course_loop ( void ) {
   static float last_err;
 
   // Ground path error
-  float err = estimator_hspeed_dir - h_ctl_course_setpoint;
+  float err = h_ctl_course_setpoint - estimator_hspeed_dir;
   NormRadAngle(err);
 
   float d_err = err - last_err;

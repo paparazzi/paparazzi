@@ -331,7 +331,7 @@ void fly_to_xy(float x, float y) {
     NormRadAngle(diff);
     BoundAbs(diff,M_PI/2.);
     float s = sin(diff);
-    h_ctl_roll_setpoint = atan(2 * estimator_hspeed_mod*estimator_hspeed_mod * s * (-h_ctl_course_pgain) / (CARROT * NOMINAL_AIRSPEED * 9.81) );
+    h_ctl_roll_setpoint = atan(2 * estimator_hspeed_mod*estimator_hspeed_mod * s * h_ctl_course_pgain / (CARROT * NOMINAL_AIRSPEED * 9.81) );
     BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
     lateral_mode = LATERAL_MODE_ROLL;
   }
