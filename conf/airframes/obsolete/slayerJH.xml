@@ -131,7 +131,7 @@
     <define name="PITCH_DGAIN" value="0."/>
     <define name="ELEVATOR_OF_ROLL" value="3213.20800781"/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-5000."/>
+    <define name="ROLL_ATTITUDE_GAIN" value="5000."/>
     <define name="ROLL_RATE_GAIN" value="-495.282989502"/>
   </section>
 

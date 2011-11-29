@@ -186,7 +186,7 @@
 
     <define name="ELEVATOR_OF_ROLL" value="2000."/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-2600"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="2600"/>
     <define name="ROLL_RATE_GAIN" value="-850"/>
 
     <define name="ROLL_KFF" value="-500"/>

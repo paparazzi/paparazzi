@@ -185,7 +185,7 @@
     <define name="PITCH_DGAIN" value="1.7254999876"/>
     <define name="ELEVATOR_OF_ROLL" value="1250."/>
     <define name="ROLL_RATE_GAIN" value="-625."/>
-    <define name="ROLL_ATTITUDE_GAIN" value="-4464.28613281"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="4464.28613281"/>
 
     <!--  roll rate loop -->
     <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>

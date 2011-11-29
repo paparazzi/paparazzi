@@ -164,7 +164,7 @@
 
     <define name="ROLL_SLEW" value="1."/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-7500"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="7500"/>
     <define name="ROLL_RATE_GAIN" value="0."/>
   </section>
 

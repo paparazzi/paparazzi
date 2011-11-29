@@ -163,7 +163,7 @@ void h_ctl_init( void ) {
 #endif
 
 #ifdef H_CTL_ROLL_ATTITUDE_GAIN
-  h_ctl_roll_attitude_gain = H_CTL_ROLL_ATTITUDE_GAIN;
+  h_ctl_roll_attitude_gain = ABS(H_CTL_ROLL_ATTITUDE_GAIN);
   h_ctl_roll_rate_gain = H_CTL_ROLL_RATE_GAIN;
 #endif
 
@@ -320,7 +320,7 @@ inline static void h_ctl_roll_loop( void ) {
   estimator_p = (err - last_err)/(1/60.);
   last_err = err;
 #endif
-  float cmd = - h_ctl_roll_attitude_gain * err
+  float cmd = h_ctl_roll_attitude_gain * err
     - h_ctl_roll_rate_gain * estimator_p
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
 

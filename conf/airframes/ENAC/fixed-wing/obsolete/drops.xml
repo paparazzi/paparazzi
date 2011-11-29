@@ -170,7 +170,7 @@ on<!DOCTYPE airframe SYSTEM "airframe.dtd">
 
     <define name="ELEVATOR_OF_ROLL" value="1520.73706055"/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-5847.45800781"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="5847.45800781"/>
     <define name="ROLL_RATE_GAIN" value="-2923.72900391"/>
 
     <define name="ROLL_KFF" value="-500"/>
