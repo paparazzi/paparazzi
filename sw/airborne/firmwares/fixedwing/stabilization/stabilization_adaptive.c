@@ -287,13 +287,13 @@ inline static void h_ctl_roll_loop( void ) {
 #endif
 
   // Compute errors
-  float err = estimator_phi - h_ctl_ref_roll_angle;
+  float err = h_ctl_ref_roll_angle - estimator_phi;
 #ifdef SITL
   static float last_err = 0;
   estimator_p = (err - last_err)/(1/60.);
   last_err = err;
 #endif
-  float d_err = estimator_p - h_ctl_ref_roll_rate;
+  float d_err = h_ctl_ref_roll_rate - estimator_p;
 
   if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0) {
     h_ctl_roll_sum_err = 0.;
@@ -307,20 +307,14 @@ inline static void h_ctl_roll_loop( void ) {
     }
   }
 
-  cmd_fb = -h_ctl_roll_attitude_gain * err;// - h_ctl_roll_rate_gain * d_err;
+  cmd_fb = h_ctl_roll_attitude_gain * err;
   float cmd = - h_ctl_roll_Kffa * h_ctl_ref_roll_accel
     - h_ctl_roll_Kffd * h_ctl_ref_roll_rate
     - cmd_fb
-    + h_ctl_roll_rate_gain * d_err
-    + h_ctl_roll_igain * h_ctl_roll_sum_err
+    - h_ctl_roll_rate_gain * d_err
+    - h_ctl_roll_igain * h_ctl_roll_sum_err
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
-//  float cmd = - h_ctl_roll_Kffa * h_ctl_ref_roll_accel
-//    - h_ctl_roll_Kffd * h_ctl_ref_roll_rate
-//    + h_ctl_roll_attitude_gain * err
-//    + h_ctl_roll_rate_gain * d_err
-//    + h_ctl_roll_igain * h_ctl_roll_sum_err
-//    + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
-//
+
   cmd /= airspeed_ratio2;
 
   // Set aileron commands
