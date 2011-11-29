@@ -54,7 +54,7 @@
       </dl_setting>
 
 
-        <dl_setting MAX="0.00" MIN="-0.05" STEP="0.005" VAR="v_ctl_auto_throttle_pgain" shortname="throttle_pgain"/>
+        <dl_setting MAX="0.05" MIN="0.00" STEP="0.005" VAR="v_ctl_auto_throttle_pgain" shortname="throttle_pgain"/>
         <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_igain" shortname="throttle_igain"  module="guidance/guidance_v" handler="SetAutoThrottleIgain"/>
         <dl_setting MAX="2" MIN="0.0" STEP="0.1" VAR="v_ctl_auto_throttle_dgain" shortname="throttle_dgain"/>
         <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="v_ctl_auto_throttle_climb_throttle_increment" shortname="throttle_incr"/>

@@ -123,7 +123,7 @@
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="219.511993408"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-1200"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.104999996722" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.00700000021607"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0.00700000021607"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0."/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.12800000608"/>
 

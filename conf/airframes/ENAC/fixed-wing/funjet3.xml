@@ -133,7 +133,7 @@
 
     <!-- Climb loop (throttle) -->
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.004"/> <!-- -0.005 -->
+    <define name="AUTO_THROTTLE_PGAIN" value="0.004"/> <!-- -0.005 -->
     <define name="AUTO_THROTTLE_DGAIN" value="-0.01"/> <!-- 0.005 -->
     <define name="AUTO_THROTTLE_IGAIN" value="-0.004"/> <!-- 0.005 -->
 

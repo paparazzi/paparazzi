@@ -129,7 +129,7 @@ void v_ctl_init( void ) {
   v_ctl_auto_throttle_nominal_cruise_throttle = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
   v_ctl_auto_throttle_cruise_throttle = v_ctl_auto_throttle_nominal_cruise_throttle;
   v_ctl_auto_throttle_climb_throttle_increment = V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT;
-  v_ctl_auto_throttle_pgain = V_CTL_AUTO_THROTTLE_PGAIN;
+  v_ctl_auto_throttle_pgain = ABS(V_CTL_AUTO_THROTTLE_PGAIN);
   v_ctl_auto_throttle_igain = V_CTL_AUTO_THROTTLE_IGAIN;
   v_ctl_auto_throttle_dgain = 0.;
   v_ctl_auto_throttle_sum_err = 0.;
@@ -240,7 +240,7 @@ static inline void v_ctl_set_throttle( void ) {
   // PID loop + feedforward ctl
   controlled_throttle = v_ctl_auto_throttle_cruise_throttle
     + v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint
-    + v_ctl_auto_throttle_pgain * err
+    - v_ctl_auto_throttle_pgain * err
     + v_ctl_auto_throttle_dgain * d_err
     + v_ctl_auto_throttle_igain * v_ctl_auto_throttle_sum_err;
 
@@ -304,7 +304,7 @@ static inline void v_ctl_set_airspeed( void ) {
   // Throttle loop
   controlled_throttle = v_ctl_auto_throttle_cruise_throttle
     + v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint
-    + v_ctl_auto_throttle_pgain * err_vz
+    - v_ctl_auto_throttle_pgain * err_vz
     + v_ctl_auto_throttle_dgain * d_err_vz
     + v_ctl_auto_throttle_igain * v_ctl_auto_throttle_sum_err
     + v_ctl_auto_airspeed_throttle_pgain * err_airspeed

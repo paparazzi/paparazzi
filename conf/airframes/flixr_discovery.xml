@@ -257,7 +257,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 
     <!-- Climb loop (throttle) -->
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.05" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.007" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0.007" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_IGAIN" value="-0.001"/>
     <define name="AUTO_THROTTLE_DGAIN" value="-0.0"/>
 

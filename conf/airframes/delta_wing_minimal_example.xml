@@ -110,7 +110,7 @@
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.35"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.2" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.023"/> <!-- -0.012 -->
+    <define name="AUTO_THROTTLE_PGAIN" value="0.023"/> <!-- -0.012 -->
     <define name="AUTO_THROTTLE_IGAIN" value="0.01"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.05"/>
 
