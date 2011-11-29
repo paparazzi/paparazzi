@@ -327,7 +327,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 
     <!-- only for stabilization adaptive -->
     <define name="PITCH_DGAIN" value="1000."/>
-    <define name="PITCH_IGAIN" value="-500."/>
+    <define name="PITCH_IGAIN" value="500."/>
     <define name="PITCH_KFFA" value="0."/>
     <define name="PITCH_KFFD" value="0."/>
 

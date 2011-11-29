@@ -158,7 +158,7 @@
 
     <define name="ROLL_KFF" value="-500"/>
     <define name="ROLL_IGAIN" value="500"/>
-    <define name="PITCH_IGAIN" value="-500"/>
+    <define name="PITCH_IGAIN" value="500"/>
   </section>
 
   <section name="NAV">
