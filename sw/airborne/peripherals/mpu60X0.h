@@ -5,54 +5,83 @@
 #define MPU60X0_ADDR            0xD0
 #define MPU60X0_ADDR_ALT        0xD2
 
-/* Registers */
+// Power and Interface
+#define MPU60X0_REG_AUX_VDDIO		0x01	// Must be set to 0 on MPU6000
+#define MPU60X0_REG_USER_CTRL		0x6A
+#define MPU60X0_REG_PWR_MGMT_1		0x6B
+#define MPU60X0_REG_PWR_MGMT_2		0x6C
 
-#define MPU60X0_AUX_VDDIO		0x01
-// Must be set to 0 on MPU6000
+// FIFO
+#define MPU60X0_REG_FIFO_COUNT_H	0x72
+#define MPU60X0_REG_FIFO_COUNT_L	0x73
+#define MPU60X0_REG_FIFO_R_W		0x74
 
-
-#define MPU60X0_REG_WHO_AM_I    	0X75
+// Measurement Settings
 #define MPU60X0_REG_SMPLRT_DIV  	0X19
 #define MPU60X0_REG_CONFIG      	0X1A
 #define MPU60X0_REG_GYRO_CONFIG 	0X1B
 #define MPU60X0_REG_ACC_CONFIG  	0X1C
 #define MPU60X0_REG_FIFO_EN     	0X23
 
+// I2C Slave settings
 #define MPU60X0_REG_I2C_MSTR    	0X24
-#define MPU60X0_REG_I2C_MSTR_STATUS    	0X24
+#define MPU60X0_REG_I2C_MSTR_STATUS    	0X36
+#define MPU60X0_REG_I2C_MSTR_DELAY    	0X67
 // Slave 0
-#define MPU60X0_REG_I2C_SLV0_1  0X25	// i2c addr
-#define MPU60X0_REG_I2C_SLV0_2  0X26	// slave reg
-#define MPU60X0_REG_I2C_SLV0_3  0X27	// set-bits
+#define MPU60X0_REG_I2C_SLV0_ADDR	0X25	// i2c addr
+#define MPU60X0_REG_I2C_SLV0_REG	0X26	// slave reg
+#define MPU60X0_REG_I2C_SLV0_SET	0X27	// set-bits
+#define MPU60X0_REG_I2C_SLV0_DO		0X63	// DO
 // Slave 1
-#define MPU60X0_REG_I2C_SLV1_1  0X28	// i2c addr
-#define MPU60X0_REG_I2C_SLV1_2  0X29	// slave reg
-#define MPU60X0_REG_I2C_SLV1_3  0X2A	// set-bits
+#define MPU60X0_REG_I2C_SLV1_ADDR	0X28	// i2c addr
+#define MPU60X0_REG_I2C_SLV1_REG	0X29	// slave reg
+#define MPU60X0_REG_I2C_SLV1_SET	0X2A	// set-bits
+#define MPU60X0_REG_I2C_SLV1_DO		0X64	// DO
 // Slave 2
-#define MPU60X0_REG_I2C_SLV2_1  0X2B	// i2c addr
-#define MPU60X0_REG_I2C_SLV2_2  0X2C	// slave reg
-#define MPU60X0_REG_I2C_SLV2_3  0X2D	// set-bits
+#define MPU60X0_REG_I2C_SLV2_ADDR	0X2B	// i2c addr
+#define MPU60X0_REG_I2C_SLV2_REG	0X2C	// slave reg
+#define MPU60X0_REG_I2C_SLV2_SET	0X2D	// set-bits
+#define MPU60X0_REG_I2C_SLV2_DO		0X65	// DO
 // Slave 3
-#define MPU60X0_REG_I2C_SLV3_1  0X2E	// i2c addr
-#define MPU60X0_REG_I2C_SLV3_2  0X2F	// slave reg
-#define MPU60X0_REG_I2C_SLV3_3  0X30	// set-bits
+#define MPU60X0_REG_I2C_SLV3_ADDR	0X2E	// i2c addr
+#define MPU60X0_REG_I2C_SLV3_REG	0X2F	// slave reg
+#define MPU60X0_REG_I2C_SLV3_SET	0X30	// set-bits
+#define MPU60X0_REG_I2C_SLV3_DO		0X66	// DO
 // Slave 4 - special
-#define MPU60X0_REG_I2C_SLV4_1  0X31	// i2c addr
-#define MPU60X0_REG_I2C_SLV4_2  0X32	// slave reg
-#define MPU60X0_REG_I2C_SLV4_3  0X33	// DO
-#define MPU60X0_REG_I2C_SLV4_4  0X34	// set-bits
-#define MPU60X0_REG_I2C_SLV4_5  0X35	// DI
+#define MPU60X0_REG_I2C_SLV4_ADDR	0X31	// i2c addr
+#define MPU60X0_REG_I2C_SLV4_REG	0X32	// slave reg
+#define MPU60X0_REG_I2C_SLV4_DO		0X33	// DO
+#define MPU60X0_REG_I2C_SLV4_SET	0X34	// set-bits
+#define MPU60X0_REG_I2C_SLV4_DI		0X35	// DI
 
-//TODO
-#define MPU60X0_REG_TEMP_OUT_L  0X1C
-#define MPU60X0_REG_GYRO_XOUT_H 0X1D
-#define MPU60X0_REG_GYRO_XOUT_L 0X1E
-#define MPU60X0_REG_GYRO_YOUT_H 0X1F
-#define MPU60X0_REG_GYRO_YOUT_L 0X20
-#define MPU60X0_REG_GYRO_ZOUT_H 0X21
-#define MPU60X0_REG_GYRO_ZOUT_L 0X22
-#define MPU60X0_REG_PWR_MGM     0X3E
+// Interrupt
+#define MPU60X0_REG_INT_PIN     0X37
+#define MPU60X0_REG_INT_ENABLE  0X38
+#define MPU60X0_REG_INT_STATUS  0X3A
 
+// Accelero
+#define MPU60X0_REG_ACCEL_XOUT_H 0X3B
+#define MPU60X0_REG_ACCEL_XOUT_L 0X3C
+#define MPU60X0_REG_ACCEL_YOUT_H 0X3D
+#define MPU60X0_REG_ACCEL_YOUT_L 0X3E
+#define MPU60X0_REG_ACCEL_ZOUT_H 0X3F
+#define MPU60X0_REG_ACCEL_ZOUT_L 0X40
+
+// Temperature
+#define MPU60X0_REG_TEMP_OUT_H   0X41
+#define MPU60X0_REG_TEMP_OUT_L   0X42
+
+// Gyro
+#define MPU60X0_REG_GYRO_XOUT_H  0X43
+#define MPU60X0_REG_GYRO_XOUT_L  0X44
+#define MPU60X0_REG_GYRO_YOUT_H  0X45
+#define MPU60X0_REG_GYRO_YOUT_L  0X46
+#define MPU60X0_REG_GYRO_ZOUT_H  0X47
+#define MPU60X0_REG_GYRO_ZOUT_L  0X48
+
+// External Sensor Data
+#define MPU60X0_EXT_SENS_DATA    0X49
+#define MPU60X0_EXT_SENS_DATA_SIZE 24
 
 
 /////////////////////////////////////////////////
