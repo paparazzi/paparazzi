@@ -52,8 +52,8 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="6" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="9" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(6)" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(9)" unit="deg"/>
     <linear name="RollOfIrs" arity="2" coeff1="-0.7" coeff2="0.7"/>
     <linear name="PitchOfIrs" arity="2" coeff1="-0.7" coeff2="-0.7"/>
     <linear name="TopOfIr" arity="1" coeff1="1"/>

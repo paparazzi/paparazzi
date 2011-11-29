@@ -73,8 +73,8 @@
     <define name="LONGITUDINAL_CORRECTION" value="1.0039999485"/>
     <define name="VERTICAL_CORRECTION" value="1.5"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="-6.47442293167" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="12.261297226" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(-6.47442293167)" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(12.261297226)" unit="deg"/>
 
     <define name="CORRECTION_UP" value="1.0"/>
     <define name="CORRECTION_DOWN" value="1.0"/>

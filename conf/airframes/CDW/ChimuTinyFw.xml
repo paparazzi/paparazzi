@@ -58,8 +58,8 @@
   </command_laws>
 
   <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(0)" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(0)" unit="deg"/>
   </section>
 
   <section name="AUTO1" prefix="AUTO1_">

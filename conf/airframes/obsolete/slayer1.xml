@@ -57,8 +57,8 @@
     <define name="ADC_IR2_NEUTRAL" value="-16"/>
     <define name="ADC_TOP_NEUTRAL" value="533"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="6" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(0)" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(6)" unit="deg"/>
 
     <linear name="RollOfIrs" arity="2" coeff1=".5" coeff2="0.5"/>
     <linear name="PitchOfIrs" arity="2" coeff1="-0.5" coeff2="0.5"/>
