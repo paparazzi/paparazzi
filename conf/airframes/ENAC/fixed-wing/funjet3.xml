@@ -139,7 +139,7 @@
 
     <!-- Climb loop (pitch) -->
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.02"/>
-    <define name="AUTO_PITCH_PGAIN" value="-0.038"/> <!-- -0.03 -->
+    <define name="AUTO_PITCH_PGAIN" value="0.038"/> <!-- -0.03 -->
     <define name="AUTO_PITCH_DGAIN" value="-0.036"/> <!-- -0.03 -->
     <define name="AUTO_PITCH_IGAIN" value="-0.0"/>
 

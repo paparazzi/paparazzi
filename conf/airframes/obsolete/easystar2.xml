@@ -122,7 +122,7 @@
     <define name="AUTO_GROUNDSPEED_SETPOINT" value="6.0" unit="m/s"/>
     <define name="AUTO_GROUNDSPEED_PGAIN" value="0.75"/>
     <define name="AUTO_GROUNDSPEED_IGAIN" value="0.25"/>
-    <define name="AUTO_PITCH_PGAIN" value="-0.125"/>
+    <define name="AUTO_PITCH_PGAIN" value="0.125"/>
     <define name="AUTO_PITCH_IGAIN" value="0.025"/>
     <define name="AUTO_PITCH_MAX_PITCH" value="RadOfDeg(25)"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="RadOfDeg(-25)"/>

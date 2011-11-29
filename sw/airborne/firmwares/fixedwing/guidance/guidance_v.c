@@ -137,7 +137,7 @@ void v_ctl_init( void ) {
 
 #ifdef V_CTL_AUTO_PITCH_PGAIN
   /* "auto pitch" inner loop parameters */
-  v_ctl_auto_pitch_pgain = V_CTL_AUTO_PITCH_PGAIN;
+  v_ctl_auto_pitch_pgain = ABS(V_CTL_AUTO_PITCH_PGAIN);
   v_ctl_auto_pitch_igain = V_CTL_AUTO_PITCH_IGAIN;
   v_ctl_auto_pitch_sum_err = 0.;
 #endif
@@ -317,7 +317,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
   float err  = estimator_z_dot - v_ctl_climb_setpoint;
   v_ctl_auto_pitch_sum_err += err;
   BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR);
-  v_ctl_pitch_of_vz = v_ctl_auto_pitch_pgain *
+  v_ctl_pitch_of_vz = -v_ctl_auto_pitch_pgain *
     (err + v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err);
 
   // Ground speed control loop (input: groundspeed error, output: airspeed controlled)
@@ -359,7 +359,7 @@ inline static void v_ctl_climb_auto_pitch_loop(void) {
   v_ctl_throttle_setpoint = nav_throttle_setpoint;
   v_ctl_auto_pitch_sum_err += err;
   BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR);
-  nav_pitch = v_ctl_auto_pitch_pgain *
+  nav_pitch = -v_ctl_auto_pitch_pgain *
     (err + v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err);
   Bound(nav_pitch, V_CTL_AUTO_PITCH_MIN_PITCH, V_CTL_AUTO_PITCH_MAX_PITCH);
 }

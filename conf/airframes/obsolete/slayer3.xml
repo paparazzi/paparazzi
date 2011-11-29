@@ -121,7 +121,7 @@
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.35"/>
 
     <!-- auto pitch inner loop -->
-    <define name="AUTO_PITCH_PGAIN" value="-0.1"/>
+    <define name="AUTO_PITCH_PGAIN" value="0.1"/>
     <define name="AUTO_PITCH_IGAIN" value="0.025"/>
     <define name="AUTO_PITCH_MAX_PITCH" value="0.5"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="-0.5"/>
