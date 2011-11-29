@@ -141,7 +141,7 @@ void h_ctl_init( void ) {
   h_ctl_pitch_setpoint = 0.;
   h_ctl_pitch_loop_setpoint = 0.;
   h_ctl_pitch_pgain = ABS(H_CTL_PITCH_PGAIN);
-  h_ctl_pitch_dgain = H_CTL_PITCH_DGAIN;
+  h_ctl_pitch_dgain = ABS(H_CTL_PITCH_DGAIN);
   h_ctl_elevator_setpoint = 0;
   h_ctl_elevator_of_roll = H_CTL_ELEVATOR_OF_ROLL;
 

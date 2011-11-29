@@ -171,7 +171,7 @@ void h_ctl_init( void ) {
   h_ctl_pitch_setpoint = 0.;
   h_ctl_pitch_loop_setpoint = 0.;
   h_ctl_pitch_pgain = ABS(H_CTL_PITCH_PGAIN);
-  h_ctl_pitch_dgain = H_CTL_PITCH_DGAIN;
+  h_ctl_pitch_dgain = ABS(H_CTL_PITCH_DGAIN);
   h_ctl_pitch_igain = H_CTL_PITCH_IGAIN;
   h_ctl_pitch_sum_err = 0.;
   h_ctl_pitch_Kffa = H_CTL_PITCH_KFFA;
@@ -416,7 +416,7 @@ inline static void h_ctl_pitch_loop( void ) {
   float cmd = h_ctl_pitch_Kffa * h_ctl_ref_pitch_accel
     + h_ctl_pitch_Kffd * h_ctl_ref_pitch_rate
     - h_ctl_pitch_pgain * err
-    + h_ctl_pitch_dgain * d_err
+    - h_ctl_pitch_dgain * d_err
     + h_ctl_pitch_igain * h_ctl_pitch_sum_err;
 
   cmd /= airspeed_ratio2;
