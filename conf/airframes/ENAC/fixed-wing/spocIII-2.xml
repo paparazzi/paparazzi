@@ -147,7 +147,7 @@
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.08"/>
     <define name="AUTO_PITCH_PGAIN" value="0.0"/>
     <define name="AUTO_PITCH_DGAIN" value="-0.0"/>
-    <define name="AUTO_PITCH_IGAIN" value="-0.0"/>
+    <define name="AUTO_PITCH_IGAIN" value="0.0"/>
 
     <!-- airspeed control -->
     <define name="AUTO_AIRSPEED_SETPOINT" value="17."/>

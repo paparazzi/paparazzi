@@ -138,7 +138,7 @@ void v_ctl_init( void ) {
 #ifdef V_CTL_AUTO_PITCH_PGAIN
   /* "auto pitch" inner loop parameters */
   v_ctl_auto_pitch_pgain = ABS(V_CTL_AUTO_PITCH_PGAIN);
-  v_ctl_auto_pitch_igain = V_CTL_AUTO_PITCH_IGAIN;
+  v_ctl_auto_pitch_igain = ABS(V_CTL_AUTO_PITCH_IGAIN);
   v_ctl_auto_pitch_sum_err = 0.;
 #endif
 
