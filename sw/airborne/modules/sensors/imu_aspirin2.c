@@ -19,12 +19,9 @@
  */
 
 #include <math.h>
-#include "imu_ppzuav.h"
+#include "imu_aspirin2.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
-
-// Set SPI_CS High
-#include "mcu_periph/gpio_arch.h"
 
 // Downlink
 #include "mcu_periph/uart.h"
@@ -47,8 +44,6 @@ volatile bool_t acc_valid;
 
 // Communication
 struct i2c_transaction aspirin2_mpu60x0;
-//struct i2c_transaction ppzuavimu_adxl345;
-//struct i2c_transaction ppzuavimu_hmc5843;
 
 // Standalone option: run module only
 #ifndef IMU_TYPE_H
@@ -61,47 +56,76 @@ struct Imu imu;
 
 void imu_impl_init(void)
 {
-  GPIO_ARCH_SET_SPI_CS_HIGH();
-
   /////////////////////////////////////////////////////////////////////
   // MPU60X0
   aspirin2_mpu60x0.type = I2CTransTx;
   aspirin2_mpu60x0.slave_addr = MPU60X0_ADDR;
-/*
-  aspirin2_mpu60x0.buf[0] = ITG3200_REG_DLPF_FS;
-#if PERIODIC_FREQUENCY == 60
-  // set gyro range to 2000deg/s and low pass at 20Hz (< 60Hz/2) internal sampling at 1kHz 
-  aspirin2_mpu60x0.buf[1] = (0x03<<3) | (0x04<<0);
-#  warning Info: ITG3200 read at 50Hz
-#else
-#  if PERIODIC_FREQUENCY == 120
-#  warning Info: ITG3200 read at 100Hz
-  // set gyro range to 2000deg/s and low pass at 42Hz (< 120Hz/2) internal sampling at 1kHz
-  aspirin2_mpu60x0.buf[1] = (0x03<<3) | (0x03<<0);
-#  else
-#  error PERIODIC_FREQUENCY should be either 60Hz or 120Hz. Otherwise manually fix the sensor rates
-#  endif
-#endif
+  aspirin2_mpu60x0.len_r = 0;
   aspirin2_mpu60x0.len_w = 2;
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&aspirin2_mpu60x0);
-    while(aspirin2_mpu60x0.status == I2CTransPending);
 
-  // set sample rate to 66Hz: so at 60Hz there is always a new sample ready and you loose little
-  aspirin2_mpu60x0.buf[0] = ITG3200_REG_SMPLRT_DIV;
-#if PERIODIC_FREQUENCY == 60
-  aspirin2_mpu60x0.buf[1] = 19;  // 50Hz
-#else
-  aspirin2_mpu60x0.buf[1] = 9;  // 100Hz
-#endif
-  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&aspirin2_mpu60x0);
-    while(aspirin2_mpu60x0.status == I2CTransPending);
 
-  // switch to gyroX clock 
-  aspirin2_mpu60x0.buf[0] = ITG3200_REG_PWR_MGM;
+  ///////////////////
+  // Configure power:
+
+  // MPU60X0_REG_AUX_VDDIO = 0 (good on startup)
+
+  // MPU60X0_REG_USER_CTRL: 
+  // -Enable Aux I2C Master Mode
+  // -Enable SPI
+
+  // MPU60X0_REG_PWR_MGMT_1
+  // -switch to gyroX clock 
+  aspirin2_mpu60x0.buf[0] = MPU60X0_REG_PWR_MGMT_1;
   aspirin2_mpu60x0.buf[1] = 0x01;
   i2c_submit(&PPZUAVIMU_I2C_DEVICE,&aspirin2_mpu60x0);
     while(aspirin2_mpu60x0.status == I2CTransPending);
 
+  // MPU60X0_REG_PWR_MGMT_2: Nothing should be in standby: default OK
+
+  /////////////////////////
+  // Measurement Settings
+
+  // MPU60X0_REG_CONFIG
+  // -ext sync on gyro X (bit 3->6)
+  // -digital low pass filter: 1kHz sampling of gyro/acc with 44Hz bandwidth: since reading is at 100Hz
+#if PERIODIC_FREQUENCY == 60
+#else
+#  if PERIODIC_FREQUENCY == 120
+#  else
+#  error PERIODIC_FREQUENCY should be either 60Hz or 120Hz. Otherwise manually fix the sensor rates
+#  endif
+#endif
+  aspirin2_mpu60x0.buf[0] = MPU60X0_REG_CONFIG;
+  aspirin2_mpu60x0.buf[1] = (2 << 3) | (3 << 0);
+  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&aspirin2_mpu60x0);
+    while(aspirin2_mpu60x0.status == I2CTransPending);
+
+  // MPU60X0_REG_SMPLRT_DIV
+  // -100Hz output = 1kHz / (9 + 1)
+  aspirin2_mpu60x0.buf[0] = MPU60X0_REG_SMPLRT_DIV;
+  aspirin2_mpu60x0.buf[1] = 9;
+  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&aspirin2_mpu60x0);
+    while(aspirin2_mpu60x0.status == I2CTransPending);
+
+  // MPU60X0_REG_GYRO_CONFIG
+  // -2000deg/sec
+  aspirin2_mpu60x0.buf[0] = MPU60X0_REG_GYRO_CONFIG;
+  aspirin2_mpu60x0.buf[1] = (3<<3);
+  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&aspirin2_mpu60x0);
+    while(aspirin2_mpu60x0.status == I2CTransPending);
+
+  // MPU60X0_REG_ACCEL_CONFIG
+  // 16g, no HPFL
+  aspirin2_mpu60x0.buf[0] = MPU60X0_REG_ACCEL_CONFIG;
+  aspirin2_mpu60x0.buf[1] = (3<<3);
+  i2c_submit(&PPZUAVIMU_I2C_DEVICE,&aspirin2_mpu60x0);
+    while(aspirin2_mpu60x0.status == I2CTransPending);
+
+
+
+  
+
+/*
   // no interrupts for now, but set data ready interrupt to enable reading status bits 
   aspirin2_mpu60x0.buf[0] = ITG3200_REG_INT_CFG;
   aspirin2_mpu60x0.buf[1] = 0x01;
@@ -140,9 +164,9 @@ void imu_periodic( void )
 {
   // Start reading the latest gyroscope data
   aspirin2_mpu60x0.type = I2CTransTxRx;
-  aspirin2_mpu60x0.len_r = 1;
+  aspirin2_mpu60x0.len_r = 21;
   aspirin2_mpu60x0.len_w = 1;
-  aspirin2_mpu60x0.buf[0] = MPU60X0_REG_WHO_AM_I;
+  aspirin2_mpu60x0.buf[0] = MPU60X0_REG_INT_STATUS;
   i2c_submit(&PPZUAVIMU_I2C_DEVICE, &aspirin2_mpu60x0);
 
 /*
@@ -172,9 +196,8 @@ void imu_periodic( void )
 void aspirin2_subsystem_downlink_raw( void )
 {
   DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,&imu.gyro_unscaled.p,&imu.gyro_unscaled.q,&imu.gyro_unscaled.r);
-/*  DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,&imu.accel_unscaled.x,&imu.accel_unscaled.y,&imu.accel_unscaled.z);
+  DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,&imu.accel_unscaled.x,&imu.accel_unscaled.y,&imu.accel_unscaled.z);
   DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,&imu.mag_unscaled.x,&imu.mag_unscaled.y,&imu.mag_unscaled.z);
-*/
 }
 
 void aspirin2_subsystem_event( void )
@@ -184,23 +207,29 @@ void aspirin2_subsystem_event( void )
   // If the itg3200 I2C transaction has succeeded: convert the data
   if (aspirin2_mpu60x0.status == I2CTransSuccess)
   {
-#define ITG_STA_DAT_OFFSET 3
-    x = (int16_t) ((aspirin2_mpu60x0.buf[0+ITG_STA_DAT_OFFSET] << 8) | aspirin2_mpu60x0.buf[1+ITG_STA_DAT_OFFSET]);
-    y = (int16_t) ((aspirin2_mpu60x0.buf[2+ITG_STA_DAT_OFFSET] << 8) | aspirin2_mpu60x0.buf[3+ITG_STA_DAT_OFFSET]);
-    z = (int16_t) ((aspirin2_mpu60x0.buf[4+ITG_STA_DAT_OFFSET] << 8) | aspirin2_mpu60x0.buf[5+ITG_STA_DAT_OFFSET]);
+#define MPU_OFFSET_GYRO 9
+    x = (int16_t) ((aspirin2_mpu60x0.buf[0+MPU_OFFSET_GYRO] << 8) | aspirin2_mpu60x0.buf[1+MPU_OFFSET_GYRO]);
+    y = (int16_t) ((aspirin2_mpu60x0.buf[2+MPU_OFFSET_GYRO] << 8) | aspirin2_mpu60x0.buf[3+MPU_OFFSET_GYRO]);
+    z = (int16_t) ((aspirin2_mpu60x0.buf[4+MPU_OFFSET_GYRO] << 8) | aspirin2_mpu60x0.buf[5+MPU_OFFSET_GYRO]);
+
+    RATES_ASSIGN(imu.gyro_unscaled, x, y, z);
+
+#define MPU_OFFSET_ACC 1
+    x = (int16_t) ((aspirin2_mpu60x0.buf[0+MPU_OFFSET_ACC] << 8) | aspirin2_mpu60x0.buf[1+MPU_OFFSET_ACC]);
+    y = (int16_t) ((aspirin2_mpu60x0.buf[2+MPU_OFFSET_ACC] << 8) | aspirin2_mpu60x0.buf[3+MPU_OFFSET_ACC]);
+    z = (int16_t) ((aspirin2_mpu60x0.buf[4+MPU_OFFSET_ACC] << 8) | aspirin2_mpu60x0.buf[5+MPU_OFFSET_ACC]);
+
+    VECT3_ASSIGN(imu.accel_unscaled, x, y, z);
 
     // Is this is new data
     if (aspirin2_mpu60x0.buf[0] & 0x01)
     {
-      //LED_ON(3);
       gyr_valid = TRUE;
-      //LED_OFF(3);
+      acc_valid = TRUE;
     }
     else
     {
     }
-
-    RATES_ASSIGN(imu.gyro_unscaled, x, -y, -z);
 
     aspirin2_mpu60x0.status = I2CTransDone;  // remove the I2CTransSuccess status, otherwise data ready will be triggered again without new data
   }
