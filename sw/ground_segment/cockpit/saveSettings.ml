@@ -135,18 +135,28 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
       let param = attrib "param" in
       let (airframe_value, unit) = EditAirframe.get airframe_xml param in
       let scale =
-	try
-	  let unit_setting = attrib "unit"
-	  and unit_airframe =
-	    match unit with Some u -> u | None -> raise Exit in
-	  scale_of_units unit_setting unit_airframe
-	with
-	  _ -> 1. in
+        try
+          let unit_setting = attrib "unit"
+          and unit_airframe =
+            match unit with Some u -> u | None -> raise Exit in
+          scale_of_units unit_setting unit_airframe
+        with
+            _ -> 1. in
+      let val_list = Str.split (Str.regexp "[ ()]+") airframe_value in
+      let (scale_macros, str_val) = List.partition (fun x -> Str.string_match (Str.regexp "RadOfDeg\\|DegOfRad") x 0) val_list in
+      let extra_scale =
+        try
+          match (List.hd scale_macros) with
+              "RadOfDeg" -> Latlong.pi /. 180.
+            | "DegOfRad" -> 180. /. Latlong.pi
+            | _ -> 1.
+        with
+            _ -> 1. in
       let scaled_value =
-	try
-	  float_of_string airframe_value *. scale
-	with
-	  Failure "float_of_string" -> raise (EditAirframe.No_param param)
+        try
+          float_of_string (List.hd str_val) *. scale *. extra_scale
+        with
+            Failure "float_of_string" -> raise (EditAirframe.No_param param)
       in
 
       let row = model#append () in
