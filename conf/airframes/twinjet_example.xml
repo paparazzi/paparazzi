@@ -88,8 +88,8 @@
     <define name="IR1_SIGN" value="1"/>
     <define name="IR2_SIGN" value="-1"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(5)" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(10)" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(5)" unit="rad"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(10)" unit="rad"/>
 
     <define name="LATERAL_CORRECTION" value="1."/>
     <define name="LONGITUDINAL_CORRECTION" value="1."/>

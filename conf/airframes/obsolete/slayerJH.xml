@@ -48,8 +48,8 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(0)" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(11.4)" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(0)" unit="rad"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(11.4)" unit="rad"/>
     <define name="DEFAULT_CONTRAST" value="200"/> <!-- Contrast used prior to capture on models without z-sensor -->
     <define name="HORIZ_SENSOR_TILTED" value="1"/> <!-- "0" indicates x-y sensor is aligned with the fueslage, "1" indicates a 45 deg rotation -->
     <define name="IR1_SIGN" value="-1"/>

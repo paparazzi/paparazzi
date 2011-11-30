@@ -109,8 +109,8 @@
     <define name="LONGITUDINAL_CORRECTION" value="1.16"/>
     <define name="VERTICAL_CORRECTION" value="1.0"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(-5.73)" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(5.73)" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(-5.73)" unit="rad"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(5.73)" unit="rad"/>
 
     <define name="CORRECTION_UP" value="1.0"/>
     <define name="CORRECTION_DOWN" value="1.0"/>
@@ -119,8 +119,8 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(-5.73)" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(5.73)" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(-5.73)" unit="rad"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(5.73)" unit="rad"/>
   </section>
 
   <section name="BAT">

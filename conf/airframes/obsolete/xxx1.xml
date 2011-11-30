@@ -62,8 +62,8 @@
     <define name="ADC_IR2_NEUTRAL" value="512"/>
     <define name="ADC_TOP_NEUTRAL" value="512"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(3)" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(0)" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(3)" unit="rad"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(0)" unit="rad"/>
 
     <define name="HORIZ_SENSOR_TILTED" value="1"/>
     <define name="IR1_SIGN" value="-1"/>
