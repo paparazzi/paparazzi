@@ -79,13 +79,13 @@
 		<define name="REF_TAU" value="4" />
 
 		<!-- feedback -->
-	<define name="GAIN_P" value="-400" />
-	<define name="GAIN_Q" value="-400" />
-	<define name="GAIN_R" value="-350" />
+	<define name="GAIN_P" value="400" />
+	<define name="GAIN_Q" value="400" />
+	<define name="GAIN_R" value="350" />
 
-		<define name="IGAIN_P" value="-75" />
-		<define name="IGAIN_Q" value="-75" />
-		<define name="IGAIN_R" value="-50" />
+		<define name="IGAIN_P" value="75" />
+		<define name="IGAIN_Q" value="75" />
+		<define name="IGAIN_R" value="50" />
 
 		<!-- feedforward -->
 		<define name="DDGAIN_P" value="300" />

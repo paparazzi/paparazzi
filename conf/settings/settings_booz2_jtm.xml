@@ -22,9 +22,9 @@
     </dl_settings>
 
     <dl_settings NAME="Rate Loop">
-      <dl_setting var="stabilization_rate_gain.p" min="-1000" step="1" max="-1" module="stabilization/stabilization_rate" shortname="gain p"/>
-      <dl_setting var="stabilization_rate_gain.q" min="-1000" step="1" max="-1" module="stabilization/stabilization_rate" shortname="gain q"/>
-      <dl_setting var="stabilization_rate_gain.r" min="-1000" step="1" max="-1" module="stabilization/stabilization_rate" shortname="gain r"/>
+      <dl_setting var="stabilization_rate_gain.p" min="1" step="1" max="1000" module="stabilization/stabilization_rate" shortname="gain p"/>
+      <dl_setting var="stabilization_rate_gain.q" min="1" step="1" max="1000" module="stabilization/stabilization_rate" shortname="gain q"/>
+      <dl_setting var="stabilization_rate_gain.r" min="1" step="1" max="1000" module="stabilization/stabilization_rate" shortname="gain r"/>
     </dl_settings>
 
 
