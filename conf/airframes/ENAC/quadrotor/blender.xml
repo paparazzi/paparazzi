@@ -219,10 +219,10 @@
   </section>
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="PGAIN" value="-140"/>
-   <define name="DGAIN" value="-90"/>
-   <define name="IGAIN" value="-30"/>
-   <define name="NGAIN" value="-0"/>
+   <define name="PGAIN" value="140"/>
+   <define name="DGAIN" value="90"/>
+   <define name="IGAIN" value="30"/>
+   <define name="NGAIN" value="0"/>
    <!-- feedforward -->
    <define name="AGAIN" value="100"/>
  </section>

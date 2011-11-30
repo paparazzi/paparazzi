@@ -165,10 +165,10 @@
 
 
  <section name="GUIDANCE_H" prefix="BOOZ2_GUIDANCE_H_">
-   <define name="PGAIN" value="-50"/>
-   <define name="DGAIN" value="-60"/>
-   <define name="IGAIN" value="-0"/>
-   <define name="NGAIN" value="-0"/>
+   <define name="PGAIN" value="50"/>
+   <define name="DGAIN" value="60"/>
+   <define name="IGAIN" value="0"/>
+   <define name="NGAIN" value="0"/>
    <!-- feedforward -->
    <define name="AGAIN" value="50"/>
  </section>

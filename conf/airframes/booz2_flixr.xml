@@ -206,9 +206,9 @@
 
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <define name="PGAIN" value="-70"/>
-    <define name="DGAIN" value="-150"/>
-    <define name="IGAIN" value="-15"/>
+    <define name="PGAIN" value="70"/>
+    <define name="DGAIN" value="150"/>
+    <define name="IGAIN" value="15"/>
   </section>
 
   <section name="BAT">
