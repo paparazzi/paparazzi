@@ -46,18 +46,18 @@ let floats_not_equal = fun f1 f2 ->
 (* Unit conversions *)
 let scale_of_units = fun u1 u2  ->
   match u1, u2 with
-    "deg", "rad" -> 180. /. Latlong.pi
-  | "rad", "deg" -> Latlong.pi /. 180.
-  | u1, u2 when u1 = u2 -> 1.
-  | _ -> invalid_arg (Printf.sprintf "SaveSettings.scale_of_units %s %s" u1 u2)
+      "deg", "rad" -> 180. /. Latlong.pi
+    | "rad", "deg" -> Latlong.pi /. 180.
+    | u1, u2 when u1 = u2 -> 1.
+    | _ -> invalid_arg (Printf.sprintf "SaveSettings.scale_of_units %s %s" u1 u2)
 
 
 
 (** The save file dialog box *)
 let save_airframe = fun w filename save ->
   match GToolbox.select_file ~title:"Save Airframe" ~filename () with
-    None -> ()
-  | Some file ->
+      None -> ()
+    | Some file ->
       save file;
       w#save_settings#destroy ()
 
@@ -77,7 +77,7 @@ let display_columns = fun w model ->
     let renderer = GTree.cell_renderer_text [`XALIGN 0.] in
     let vc = GTree.view_column ~title ~renderer:(renderer, ["text", col]) () in
     vc#set_clickable true;
-  ignore (w#treeview_settings#append_column vc))
+    ignore (w#treeview_settings#append_column vc))
     text_columns;
   let renderer = GTree.cell_renderer_toggle [`XALIGN 0.] in
   let vc = GTree.view_column ~renderer:(renderer, ["active", col_to_save]) () in
@@ -117,13 +117,13 @@ let write_xml = fun (model:GTree.tree_store) old_file airframe_xml file ->
 
 
 let send_airframe_values = fun (model:GTree.tree_store) send_value ->
-   model#foreach (fun _path row ->
-     if model#get ~row ~column:col_to_save then begin
-       let index = model#get ~row ~column:col_index
-       and airframe_value = model#get ~row ~column:col_airframe_value in
-       send_value index airframe_value
-     end;
-     false)
+  model#foreach (fun _path row ->
+    if model#get ~row ~column:col_to_save then begin
+      let index = model#get ~row ~column:col_index
+      and airframe_value = model#get ~row ~column:col_airframe_value in
+      send_value index airframe_value
+    end;
+    false)
 
 
 
@@ -157,9 +157,9 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
       model#set ~row ~column:col_settings_scaled_value (value /. scale);
       model#set ~row ~column:col_to_save (floats_not_equal scaled_value value)
     with
-      Xml.No_attribute _ -> ()
-    | EditAirframe.No_param param ->
-	not_in_airframe_file := param :: !not_in_airframe_file ) (* Not savable *)
+        Xml.No_attribute _ -> ()
+      | EditAirframe.No_param param ->
+        not_in_airframe_file := param :: !not_in_airframe_file ) (* Not savable *)
     settings;
 
   (* Warning if needed *)
