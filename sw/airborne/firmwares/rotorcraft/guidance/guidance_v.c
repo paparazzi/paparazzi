@@ -97,9 +97,9 @@ void guidance_v_init(void) {
 
   guidance_v_mode = GUIDANCE_V_MODE_KILL;
 
-  guidance_v_kp = GUIDANCE_V_HOVER_KP;
-  guidance_v_kd = GUIDANCE_V_HOVER_KD;
-  guidance_v_ki = GUIDANCE_V_HOVER_KI;
+  guidance_v_kp = ABS(GUIDANCE_V_HOVER_KP);
+  guidance_v_kd = ABS(GUIDANCE_V_HOVER_KD);
+  guidance_v_ki = ABS(GUIDANCE_V_HOVER_KI);
 
   guidance_v_z_sum_err = 0;
 
@@ -261,9 +261,9 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
   guidance_v_zd_ref = gv_zd_ref<<(INT32_SPEED_FRAC - GV_ZD_REF_FRAC);
   guidance_v_zdd_ref = gv_zdd_ref<<(INT32_ACCEL_FRAC - GV_ZDD_REF_FRAC);
   /* compute the error to our reference */
-  int32_t err_z  =  ins_ltp_pos.z - guidance_v_z_ref;
+  int32_t err_z  = guidance_v_z_ref - ins_ltp_pos.z;
   Bound(err_z, GUIDANCE_V_MIN_ERR_Z, GUIDANCE_V_MAX_ERR_Z);
-  int32_t err_zd =  ins_ltp_speed.z - guidance_v_zd_ref;
+  int32_t err_zd = guidance_v_zd_ref - ins_ltp_speed.z;
   Bound(err_zd, GUIDANCE_V_MIN_ERR_ZD, GUIDANCE_V_MAX_ERR_ZD);
 
   if (in_flight) {
@@ -297,12 +297,13 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
 #endif
 
   /* our error command                   */
-  guidance_v_fb_cmd = ((-guidance_v_kp * err_z)  >> 12) +
-                            ((-guidance_v_kd * err_zd) >> 21) +
-                            ((-guidance_v_ki * guidance_v_z_sum_err) >> 21);
+  guidance_v_fb_cmd = ((guidance_v_kp * err_z)  >> 12) +
+                      ((guidance_v_kd * err_zd) >> 21) +
+                      ((guidance_v_ki * guidance_v_z_sum_err) >> 21);
 
-  guidance_v_delta_t = guidance_v_ff_cmd + guidance_v_fb_cmd;
-  // guidance_v_delta_t = guidance_v_fb_cmd;
+  // z-axis pointing down -> positive error means we need less thrust
+  guidance_v_delta_t = - (guidance_v_ff_cmd + guidance_v_fb_cmd);
+  // guidance_v_delta_t = -guidance_v_fb_cmd;
 
 
 }

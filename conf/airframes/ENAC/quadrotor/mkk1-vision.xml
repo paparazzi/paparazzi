@@ -187,8 +187,8 @@
    <define name="REF_MAX_ZDD"  value=" 0.5*9.81"/>
    <define name="REF_MIN_ZD"   value="-1.5"/>
    <define name="REF_MAX_ZD"   value=" 1.5"/>
-   <define name="HOVER_KP"    value="-200"/>
-   <define name="HOVER_KD"    value="-100"/>
+   <define name="HOVER_KP"    value="200"/>
+   <define name="HOVER_KD"    value="100"/>
    <define name="HOVER_KI"    value="0"/>
    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>

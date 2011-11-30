@@ -201,12 +201,12 @@
    <define name="MAX_SUM_ERR" value="2000000"/>
 
 
-   <define name="HOVER_KP"    value="-500"/>
-   <define name="HOVER_KD"    value="-200"/>
+   <define name="HOVER_KP"    value="500"/>
+   <define name="HOVER_KD"    value="200"/>
    <define name="HOVER_KI"    value="0"/>
 <!--
-   <define name="HOVER_KP"     value="-150"/>
-   <define name="HOVER_KD"     value="-80"/>
+   <define name="HOVER_KP"     value="150"/>
+   <define name="HOVER_KD"     value="80"/>
    <define name="HOVER_KI"     value="0"/>
 -->
    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->

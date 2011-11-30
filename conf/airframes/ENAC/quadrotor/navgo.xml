@@ -220,8 +220,8 @@
    <define name="REF_MAX_ZDD"  value=" 0.8*9.81"/>
    <define name="REF_MIN_ZD"   value="-1.5"/>
    <define name="REF_MAX_ZD"   value=" 1.5"/>
-   <define name="HOVER_KP"     value="-500"/>
-   <define name="HOVER_KD"     value="-250"/>
+   <define name="HOVER_KP"     value="500"/>
+   <define name="HOVER_KD"     value="250"/>
    <define name="HOVER_KI"     value="0"/>
    <!-- SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
