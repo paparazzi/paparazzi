@@ -174,17 +174,17 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="-400"/>
-    <define name="PHI_DGAIN"  value="-160"/>
-    <define name="PHI_IGAIN"  value="-40"/>
+    <define name="PHI_PGAIN"  value="400"/>
+    <define name="PHI_DGAIN"  value="160"/>
+    <define name="PHI_IGAIN"  value="40"/>
 
-    <define name="THETA_PGAIN"  value="-400"/>
-    <define name="THETA_DGAIN"  value="-160"/>
-    <define name="THETA_IGAIN"  value="-40"/>
+    <define name="THETA_PGAIN"  value="400"/>
+    <define name="THETA_DGAIN"  value="160"/>
+    <define name="THETA_IGAIN"  value="40"/>
 
-    <define name="PSI_PGAIN"  value="-1000"/>
-    <define name="PSI_DGAIN"  value="-350"/>
-    <define name="PSI_IGAIN"  value="-10"/>
+    <define name="PSI_PGAIN"  value="1000"/>
+    <define name="PSI_DGAIN"  value="350"/>
+    <define name="PSI_IGAIN"  value="10"/>
 
     <!-- feedforward -->
     <define name="PHI_DDGAIN"   value=" 300"/>
