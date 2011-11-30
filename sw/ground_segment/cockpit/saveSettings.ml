@@ -45,9 +45,15 @@ let floats_not_equal = fun f1 f2 ->
 
 (* Unit conversions *)
 let scale_of_units = fun u1 u2  ->
-  match u1, u2 with
-      "deg", "rad" -> 180. /. Latlong.pi
-    | "rad", "deg" -> Latlong.pi /. 180.
+  match (u1, u2) with
+      ("deg", "rad") | ("deg/s", "rad/s") -> 180. /. Latlong.pi
+    | ("rad", "deg") | ("rad/s", "deg/s") -> Latlong.pi /. 180.
+    | ("m", "cm") | ("m/s", "cm/s") -> 100.
+    | ("cm", "m") | ("cm/s", "m/s") -> 0.01
+    | ("m", "mm") | ("m/s", "mm/s") -> 1000.
+    | ("mm", "m") | ("mm/s", "m/s") -> 0.001
+    | ("decideg", "deg") -> 0.1
+    | ("deg", "decideg") -> 10.
     | u1, u2 when u1 = u2 -> 1.
     | _ -> invalid_arg (Printf.sprintf "SaveSettings.scale_of_units %s %s" u1 u2)
 

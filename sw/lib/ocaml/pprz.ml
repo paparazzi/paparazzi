@@ -171,6 +171,7 @@ let alt_unit_coef_of_xml = function xml ->
     | ("m", "mm") | ("m/s", "mm/s") -> "1000."
     | ("mm", "m") | ("mm/s", "m/s") -> "0.001"
     | ("decideg", "deg") -> "0.1"
+    | ("deg", "decideg") -> "10."
     | (_, _) -> "1."
 
 let pipe_regexp = Str.regexp "|"
