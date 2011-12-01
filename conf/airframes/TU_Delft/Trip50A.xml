@@ -105,9 +105,6 @@
     <define name="NO_XBEE_API_INIT" value="TRUE"/>  <!-- uncommant after programed-->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
     <define name="DEFAULT_CIRCLE_RADIUS" value="70."/>
-    <define name="GLIDE_AIRSPEED" value="10"/>
-    <define name="GLIDE_VSPEED" value="3."/>
-    <define name="GLIDE_PITCH" value="5" unit="deg"/>
 
   </section>
 

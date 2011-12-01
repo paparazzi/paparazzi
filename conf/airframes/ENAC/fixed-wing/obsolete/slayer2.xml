@@ -107,9 +107,6 @@
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
     <define name="RC_LOST_MODE" value="PPRZ_MODE_AUTO2"/>
 
-    <define name="GLIDE_AIRSPEED" value="12.5"/>
-    <define name="GLIDE_VSPEED" value="2."/>
-    <define name="GLIDE_PITCH" value="45" unit="deg"/>
 
     <define name="TELEMETRY_MODE_AP" value="1"/>
   </section>

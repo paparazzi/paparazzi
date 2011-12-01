@@ -230,9 +230,6 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 
     <!-- The Glide definitions are used for calculating the touch down point during auto landing -->
     <!--
-    <define name="GLIDE_AIRSPEED" value="10."/>
-    <define name="GLIDE_VSPEED" value="3."/>
-    <define name="GLIDE_PITCH" value="10." unit="deg"/>
     -->
   </section>
 
