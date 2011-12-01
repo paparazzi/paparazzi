@@ -48,8 +48,8 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(0)" unit="rad"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(0)" unit="rad"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(0)" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(0)" unit="deg"/>
     <define name="ADC_ROLL_NEUTRAL" value="-1005"/>
     <define name="ADC_PITCH_NEUTRAL" value="75"/>
     <define name="DEFAULT_CONTRAST" value="200"/>

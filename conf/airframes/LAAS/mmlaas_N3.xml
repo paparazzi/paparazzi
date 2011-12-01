@@ -93,8 +93,8 @@
   </section>
 
   <section name="INFRARED" prefix="IR_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(3)" unit="rad"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(9)" unit="rad"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(3)" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(9)" unit="deg"/>
 
     <define name="HORIZ_SENSOR_TILTED" value="1"/>
     <define name="IR2_SIGN" value="-1"/>
