@@ -88,9 +88,9 @@
     <define name="MAG_Y_SENS" value="6.95371185551" integer="16"/>
     <define name="MAG_Z_SENS" value="3.12322557454" integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(0.)"/>
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(0.)"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(-135.)"/>
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="-135." unit="deg"/>
 
   </section>
 

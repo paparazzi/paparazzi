@@ -81,9 +81,9 @@
    <define name="MAG_Y_CHAN" value="0"/>
     <define name="MAG_Z_CHAN" value="2"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(  4.5)"/>
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(  6.8)"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  -45.)"/>
+    <define name="BODY_TO_IMU_PHI"   value="4.5" unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="6.8" unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="-45." unit="deg"/>
 
     <define name="GYRO_P_CHAN" value="0"/>
     <define name="GYRO_Q_CHAN" value="4"/>

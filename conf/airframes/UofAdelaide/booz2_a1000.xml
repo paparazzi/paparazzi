@@ -131,9 +131,9 @@ second attempt
 
     <define name="MAG_45_HACK" value="1"/>
 -->
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg( 2.9 )"/> <!-- previously 1.5-->
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg( -3.7 )"/> <!-- previously -1.5-->
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg( 0. )"/>
+    <define name="BODY_TO_IMU_PHI"   value="2.9 " unit="deg"/> <!-- previously 1.5-->
+    <define name="BODY_TO_IMU_THETA" value="-3.7 " unit="deg"/> <!-- previously -1.5-->
+    <define name="BODY_TO_IMU_PSI"   value="0. " unit="deg"/>
 
   </section>
 

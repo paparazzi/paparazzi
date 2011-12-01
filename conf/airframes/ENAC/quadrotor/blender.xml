@@ -130,10 +130,10 @@
     <define name="MAG_Y_SENS" value="5.43740121157" integer="16"/>
     <define name="MAG_Z_SENS" value="2.60492836649" integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(0.)"/>
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(0.)"/>
-    <!--define name="BODY_TO_IMU_PSI"   value="RadOfDeg(45.)"/-->
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(0.)"/>
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <!--define name="BODY_TO_IMU_PSI"   value="45." unit="deg"/-->
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
 
   </section>
 
