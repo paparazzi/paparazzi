@@ -109,8 +109,8 @@
     <define name="IR2_SIGN" value="-1"/>
     <define name="TOP_SIGN" value="-1"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(0.)" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(11.4591560364)" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0." unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="11.4591560364" unit="deg"/>
 
     <define name="CORRECTION_UP" value="1."/>
     <define name="CORRECTION_DOWN" value="1."/>

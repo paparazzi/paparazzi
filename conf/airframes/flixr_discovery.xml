@@ -178,8 +178,8 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(0.)"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(0.)"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0."/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0."/>
   </section>
 
 
