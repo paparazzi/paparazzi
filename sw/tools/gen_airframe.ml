@@ -101,11 +101,13 @@ let parse_element = fun prefix s ->
   match Xml.tag s with
       "define" -> begin
         try
-          try
-            let value = (ExtXml.float_attrib s "value") *. (code_unit_scale_of_tag s) in
-            define (prefix^ExtXml.attrib s "name") (string_of_float value);
-          with
-              _ -> define (prefix^ExtXml.attrib s "name") (ExtXml.display_entities (ExtXml.attrib s "value"));
+          begin
+            try
+              let value = (ExtXml.float_attrib s "value") *. (code_unit_scale_of_tag s) in
+              define (prefix^ExtXml.attrib s "name") (string_of_float value);
+            with
+                _ -> define (prefix^ExtXml.attrib s "name") (ExtXml.display_entities (ExtXml.attrib s "value"));
+          end;
           define_integer (prefix^(ExtXml.attrib s "name")) (ExtXml.float_attrib s "value") (ExtXml.int_attrib s "integer");
         with _ -> ();
       end
