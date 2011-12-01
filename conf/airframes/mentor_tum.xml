@@ -170,9 +170,9 @@
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-1.1"/>
 
-    <define name="ROLL_MAX_SETPOINT"  value="RadOfDeg(50)" unit="rad"/>
-    <define name="PITCH_MAX_SETPOINT" value="RadOfDeg(30)" unit="rad"/>
-    <define name="PITCH_MIN_SETPOINT" value="RadOfDeg(-25)" unit="rad"/>
+    <define name="ROLL_MAX_SETPOINT"  value="50" unit="deg"/>
+    <define name="PITCH_MAX_SETPOINT" value="30" unit="deg"/>
+    <define name="PITCH_MIN_SETPOINT" value="-25" unit="deg"/>
 
     <define name="PITCH_PGAIN" value="-7000."/>
     <define name="PITCH_DGAIN" value="1.5"/>

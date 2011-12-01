@@ -212,8 +212,8 @@
     <define name="TILT_NEUTRAL" value="1500"/>
     <define name="TILT_MAX" value="1000"/>
     <define name="TILT_MIN" value="2300"/>
-    <define name="TILT_ANGLE_MIN" value="RadOfDeg(-90.)" unit="rad"/>
-    <define name="TILT_ANGLE_MAX" value="RadOfDeg( 10.)" unit="rad"/>
+    <define name="TILT_ANGLE_MIN" value="-90." unit="deg"/>
+    <define name="TILT_ANGLE_MAX" value=" 10." unit="deg"/>
     <define name="PAN_NEUTRAL" value="0"/>
     <define name="PAN_MIN" value="0"/>
     <define name="PAN_MAX" value="25736"/> <!-- 360 deg (2^12) -->

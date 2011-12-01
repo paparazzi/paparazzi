@@ -103,8 +103,8 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="RadOfDeg(6.18794441223)" unit="rad"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="RadOfDeg(-6.87549352646)" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="6.18794441223" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="-6.87549352646" unit="deg"/>
   </section>
 
   <section name="AUTO1" prefix="AUTO1_">

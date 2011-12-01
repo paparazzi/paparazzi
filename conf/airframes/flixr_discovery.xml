@@ -306,9 +306,9 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <!-- maybe handy to avoid over corner with lots of wind and small airframe -->
     <!-- <define name="COURSE_SLEW_INCREMENT" value="RadOfDeg(4)"/> -->
 
-    <define name="ROLL_MAX_SETPOINT" value="RadOfDeg(50)" unit="radians"/>
-    <define name="PITCH_MAX_SETPOINT" value="RadOfDeg(35)" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="RadOfDeg(-30)" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="50" unit="deg"/>
+    <define name="PITCH_MAX_SETPOINT" value="35" unit="deg"/>
+    <define name="PITCH_MIN_SETPOINT" value="-30" unit="deg"/>
 
 
     <define name="ROLL_ATTITUDE_GAIN" value="-7500."/>
