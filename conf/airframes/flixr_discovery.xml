@@ -184,8 +184,8 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="RadOfDeg(55)"/>
-    <define name="MAX_PITCH" value="RadOfDeg(35)"/>
+    <define name="MAX_ROLL" value="55" unit="deg"/>
+    <define name="MAX_PITCH" value="35" unit="deg"/>
   </section>
 
 

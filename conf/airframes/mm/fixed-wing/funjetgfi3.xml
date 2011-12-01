@@ -41,8 +41,8 @@
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="RadOfDeg(30)"/>
-    <define name="MAX_PITCH" value="RadOfDeg(30)"/>
+    <define name="MAX_ROLL" value="30" unit="deg"/>
+    <define name="MAX_PITCH" value="30" unit="deg"/>
   </section>
 
   <section name="adc" prefix="ADC_CHANNEL_">
