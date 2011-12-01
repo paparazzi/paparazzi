@@ -212,8 +212,8 @@
 
   <section name="SIMU">
     <define name="JSBSIM_MODEL" value="&quot;Corsica&quot;"/>
-    <define name="JSBSIM_IR_ROLL_NEUTRAL" value="RadOfDeg(0.)"/>
-    <define name="JSBSIM_IR_PITCH_NEUTRAL" value="RadOfDeg(0.)"/>
+    <define name="JSBSIM_IR_ROLL_NEUTRAL" value="0." unit="deg"/>
+    <define name="JSBSIM_IR_PITCH_NEUTRAL" value="0." unit="deg"/>
   </section>
 
 </airframe>
