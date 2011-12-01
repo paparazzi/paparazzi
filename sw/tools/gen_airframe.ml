@@ -26,6 +26,8 @@
 
 let max_pprz = 9600. (* !!!! MAX_PPRZ From paparazzi.h !!!! *)
 
+exception Undefined_scale
+
 open Printf
 open Xml2h
 
@@ -80,19 +82,38 @@ let define_integer name v n =
   in
   continious_frac (truncate v) v (1, (truncate v)) (0, 1)
 
+let code_unit_scale_of_tag = function t ->
+  let u = try ExtXml.attrib t "unit" with _ -> "" in
+  let cu = try ExtXml.attrib t "code_unit" with _ -> "" in
+  match (u, cu) with
+      ("deg", "rad") | ("deg/s", "rad/s") -> Latlong.pi /. 180.
+    | ("deg", "") | ("deg/s", "") -> Latlong.pi /. 180.
+    | ("rad", "deg") | ("rad/s", "deg/s") -> 180. /. Latlong.pi
+    | ("m", "cm") | ("m/s", "cm/s") -> 100.
+    | ("cm", "m") | ("cm/s", "m/s") -> 0.01
+    | ("m", "mm") | ("m/s", "mm/s") -> 1000.
+    | ("mm", "m") | ("mm/s", "m/s") -> 0.001
+    | ("decideg", "deg") -> 0.1
+    | ("deg", "decideg") -> 10.
+    | (_, _) -> raise Undefined_scale
+
 let parse_element = fun prefix s ->
   match Xml.tag s with
-    "define" -> begin
-            try
-        define (prefix^ExtXml.attrib s "name") (ExtXml.display_entities (ExtXml.attrib s "value"));
-        define_integer (prefix^(ExtXml.attrib s "name")) (ExtXml.float_attrib s "value") (ExtXml.int_attrib s "integer");
-            with _ -> ();
-        end
-  | "linear" ->
+      "define" -> begin
+        try
+          try
+            let value = (ExtXml.float_attrib s "value") *. (code_unit_scale_of_tag s) in
+            define (prefix^ExtXml.attrib s "name") (string_of_float value);
+          with
+              _ -> define (prefix^ExtXml.attrib s "name") (ExtXml.display_entities (ExtXml.attrib s "value"));
+          define_integer (prefix^(ExtXml.attrib s "name")) (ExtXml.float_attrib s "value") (ExtXml.int_attrib s "integer");
+        with _ -> ();
+      end
+    | "linear" ->
       let name = ExtXml.attrib s "name"
       and n = int_of_string (ExtXml.attrib s "arity") in
       define_macro (prefix^name) n s
-  | _ -> xml_error "define|linear"
+    | _ -> xml_error "define|linear"
 
 
 
