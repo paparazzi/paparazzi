@@ -45,28 +45,28 @@ static inline void ahrs_update_mag_2d(void);
 
 /* in place quaternion first order integration with constante rotational velocity */
 /*  */
-#define INT32_QUAT_INTEGRATE_FI(_q, _hr, _omega, _f) {			\
-    _hr.qi += -_omega.p*_q.qx - _omega.q*_q.qy - _omega.r*_q.qz;	\
-    _hr.qx +=  _omega.p*_q.qi + _omega.r*_q.qy - _omega.q*_q.qz;	\
-    _hr.qy +=  _omega.q*_q.qi - _omega.r*_q.qx + _omega.p*_q.qz;	\
-    _hr.qz +=  _omega.r*_q.qi + _omega.q*_q.qx - _omega.p*_q.qy;	\
-									\
-    ldiv_t _div = ldiv(_hr.qi, ((1<<INT32_RATE_FRAC)*_f*2));		\
-    _q.qi+= _div.quot;							\
-    _hr.qi = _div.rem;							\
-									\
-    _div = ldiv(_hr.qx, ((1<<INT32_RATE_FRAC)*_f*2));			\
-    _q.qx+= _div.quot;							\
-    _hr.qx = _div.rem;							\
-									\
-    _div = ldiv(_hr.qy, ((1<<INT32_RATE_FRAC)*_f*2));			\
-    _q.qy+= _div.quot;							\
-    _hr.qy = _div.rem;							\
-									\
-    _div = ldiv(_hr.qz, ((1<<INT32_RATE_FRAC)*_f*2));			\
-    _q.qz+= _div.quot;							\
-    _hr.qz = _div.rem;							\
-									\
+#define INT32_QUAT_INTEGRATE_FI(_q, _hr, _omega, _f) {              \
+    _hr.qi += -_omega.p*_q.qx - _omega.q*_q.qy - _omega.r*_q.qz;    \
+    _hr.qx +=  _omega.p*_q.qi + _omega.r*_q.qy - _omega.q*_q.qz;    \
+    _hr.qy +=  _omega.q*_q.qi - _omega.r*_q.qx + _omega.p*_q.qz;    \
+    _hr.qz +=  _omega.r*_q.qi + _omega.q*_q.qx - _omega.p*_q.qy;    \
+                                                                    \
+    ldiv_t _div = ldiv(_hr.qi, ((1<<INT32_RATE_FRAC)*_f*2));        \
+    _q.qi+= _div.quot;                                              \
+    _hr.qi = _div.rem;                                              \
+                                                                    \
+    _div = ldiv(_hr.qx, ((1<<INT32_RATE_FRAC)*_f*2));               \
+    _q.qx+= _div.quot;                                              \
+    _hr.qx = _div.rem;                                              \
+                                                                    \
+    _div = ldiv(_hr.qy, ((1<<INT32_RATE_FRAC)*_f*2));               \
+    _q.qy+= _div.quot;                                              \
+    _hr.qy = _div.rem;                                              \
+                                                                    \
+    _div = ldiv(_hr.qz, ((1<<INT32_RATE_FRAC)*_f*2));               \
+    _q.qz+= _div.quot;                                              \
+    _hr.qz = _div.rem;                                              \
+                                                                    \
   }
 
 
@@ -160,8 +160,8 @@ void ahrs_propagate(void) {
 void ahrs_update_accel(void) {
 
   struct Int32Vect3 c2 = { RMAT_ELMT(ahrs.ltp_to_imu_rmat, 0,2),
-			   RMAT_ELMT(ahrs.ltp_to_imu_rmat, 1,2),
-			   RMAT_ELMT(ahrs.ltp_to_imu_rmat, 2,2)};
+                           RMAT_ELMT(ahrs.ltp_to_imu_rmat, 1,2),
+                           RMAT_ELMT(ahrs.ltp_to_imu_rmat, 2,2)};
   struct Int32Vect3 residual;
 #ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
   // FIXME: check overflow ?
@@ -216,8 +216,8 @@ void ahrs_update_mag(void) {
 
 static inline void ahrs_update_mag_full(void) {
   const struct Int32Vect3 expected_ltp = {MAG_BFP_OF_REAL(AHRS_H_X),
-					  MAG_BFP_OF_REAL(AHRS_H_Y),
-					  MAG_BFP_OF_REAL(AHRS_H_Z)};
+                                          MAG_BFP_OF_REAL(AHRS_H_Y),
+                                          MAG_BFP_OF_REAL(AHRS_H_Z)};
   struct Int32Vect3 expected_imu;
   INT32_RMAT_VMULT(expected_imu, ahrs.ltp_to_imu_rmat, expected_ltp);
 
@@ -242,7 +242,7 @@ static inline void ahrs_update_mag_full(void) {
 static inline void ahrs_update_mag_2d(void) {
 
   const struct Int32Vect2 expected_ltp = {MAG_BFP_OF_REAL(AHRS_H_X),
-					  MAG_BFP_OF_REAL(AHRS_H_Y)};
+                                          MAG_BFP_OF_REAL(AHRS_H_Y)};
 
   struct Int32Vect3 measured_ltp;
   INT32_RMAT_TRANSP_VMULT(measured_ltp, ahrs.ltp_to_imu_rmat, imu.mag);
