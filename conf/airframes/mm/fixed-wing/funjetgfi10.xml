@@ -16,12 +16,12 @@
     <define name="ALT_KALMAN"/>
     <define name="WIND_INFO"/>
     <define name="WIND_INFO_RET"/>
+    <define name="SENSOR_SYNC_SEND"/>
     <define name="ARDUIMU_I2C_DEV" value="i2c1"/>
 
     <target name="ap"                  board="tiny_2.11">
       <define name="USE_I2C0"/>
       <define name="USE_I2C1"/>
-      <define name="SENSOR_SYNC_SEND"/>
     </target>
 
     <target name="sim"                 board="pc">
@@ -53,7 +53,8 @@
     <load name="ins_arduimu.xml"/>
     <load name="baro_scp_i2c.xml"/>
     <load name="airspeed_ets.xml"/>
-    <load name="humid_sht_i2c.xml"/>
+    <load name="humid_sht.xml"/>
+    <load name="temp_temod.xml"/>
     <load name="ir_mlx.xml"/>
   </modules>
 
