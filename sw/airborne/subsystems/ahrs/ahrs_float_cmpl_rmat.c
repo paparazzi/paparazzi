@@ -30,7 +30,11 @@
 #include "generated/airframe.h"
 
 
-#include "../../test/pprz_algebra_print.h"
+//#include "../../test/pprz_algebra_print.h"
+
+#if !defined AHRS_PROPAGATE_RMAT && !defined AHRS_PROPAGATE_QUAT
+#error "You have to define either AHRS_PROPAGATE_RMAT or AHRS_PROPAGATE_QUAT"
+#endif
 
 void ahrs_update_mag_full(void);
 void ahrs_update_mag_2d(void);
@@ -135,6 +139,7 @@ void ahrs_update_accel(void) {
   accel_float.z -= -v * ahrs_float.imu_rate.q;
 #endif
 
+  // c2 = ltp z-axis in imu-frame
   struct FloatVect3  c2 = { RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 0,2),
                             RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 1,2),
                             RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 2,2)};
@@ -223,7 +228,7 @@ void ahrs_update_mag_2d(void) {
 }
 
 
-void ahrs_update_mag_full_2d_dumb(void) {
+void ahrs_update_mag_2d_dumb(void) {
 
   /* project mag on local tangeant plane */
   struct FloatVect3 magf;
