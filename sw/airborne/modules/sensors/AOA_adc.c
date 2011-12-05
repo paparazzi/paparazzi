@@ -33,7 +33,7 @@
 //Messages
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 uint16_t adc_AOA_val;
 

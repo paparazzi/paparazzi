@@ -31,7 +31,7 @@
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "sys_time.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "peripherals/ms2100.h"
 
 static inline void main_init( void );

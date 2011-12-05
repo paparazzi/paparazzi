@@ -45,7 +45,7 @@
 #endif
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 
 struct AhrsFloatDCM ahrs_impl;

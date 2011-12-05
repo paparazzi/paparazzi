@@ -33,7 +33,7 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #ifndef ADC_CHANNEL_LIGHT_TEMT
 #define ADC_CHANNEL_LIGHT_TEMT ADC_4

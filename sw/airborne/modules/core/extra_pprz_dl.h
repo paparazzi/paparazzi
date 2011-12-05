@@ -140,7 +140,7 @@ extern volatile uint8_t extra_pprz_payload_len;
 #include "led.h"
 //#include "mcu_periph/uart.h"
 //#include "messages.h"
-//#include "downlink.h"
+//#include "subsystems/datalink/downlink.h"
 static inline void parse_extra_pprz( uint8_t c ) {
   static uint8_t pprz_status = UNINIT;
   static uint8_t _ck_a, _ck_b, payload_idx;

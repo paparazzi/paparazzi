@@ -3,7 +3,7 @@
 <flight_plan alt="150" ground_alt="10" lat0="78.202961" lon0="15.8310" max_dist_from_home="3000" name="Nordlysstasjonen" qfu="270" security_height="60">
   <header>
 #include "subsystems/navigation/nav_line.h"
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="-0.3" y="-66.4"/>

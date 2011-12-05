@@ -4,7 +4,7 @@
   <header>
 #include "subsystems/navigation/bomb.h"
 #include "subsystems/navigation/nav_line.h"
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="15.0" y="5.0"/>

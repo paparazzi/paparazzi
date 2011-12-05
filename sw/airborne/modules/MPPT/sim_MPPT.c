@@ -28,7 +28,7 @@
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 
 

@@ -30,7 +30,7 @@
 
 extern uint8_t telemetry_mode_Ap_DefaultChannel;
 
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "generated/settings.h"
 
 

@@ -49,7 +49,7 @@ void enose_set_heat(uint8_t no_sensor, uint8_t value) {
 #endif
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 void enose_periodic( void ) {
   enose_PID_val = buf_PID.sum / buf_PID.av_nb_sample;

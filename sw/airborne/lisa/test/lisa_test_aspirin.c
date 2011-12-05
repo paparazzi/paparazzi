@@ -30,7 +30,7 @@
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "sys_time.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "peripherals/itg3200.h"
 #include "peripherals/hmc5843.h"

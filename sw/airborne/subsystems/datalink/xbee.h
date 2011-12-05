@@ -27,13 +27,13 @@
 #ifndef XBEE_H
 #define XBEE_H
 
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 #include "generated/airframe.h"
 
 #ifdef XBEE868
-#include "xbee868.h"
+#include "subsystems/datalink/xbee868.h"
 #else /* Not 868 */
-#include "xbee24.h"
+#include "subsystems/datalink/xbee24.h"
 #endif
 
 /** Constants for the API protocol */

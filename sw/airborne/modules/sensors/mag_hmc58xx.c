@@ -21,7 +21,7 @@
 #include "modules/sensors/mag_hmc58xx.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 
 #ifndef DOWNLINK_DEVICE

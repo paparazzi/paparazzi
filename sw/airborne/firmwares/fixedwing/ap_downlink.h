@@ -40,7 +40,7 @@
 #include "generated/airframe.h"
 
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "messages.h"
 #include "generated/periodic.h"

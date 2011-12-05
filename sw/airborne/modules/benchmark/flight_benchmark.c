@@ -9,7 +9,7 @@
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "estimator.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "mcu_periph/uart.h"
 #include "generated/airframe.h"
 #include "subsystems/nav.h"

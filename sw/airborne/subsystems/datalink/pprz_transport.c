@@ -23,7 +23,7 @@
  */
 
 #include <inttypes.h>
-#include "pprz_transport.h"
+#include "subsystems/datalink/pprz_transport.h"
 #include "mcu_periph/uart.h"
 
 uint8_t ck_a, ck_b;

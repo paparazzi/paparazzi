@@ -32,7 +32,7 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "modules/meteo/light_solar.h"
 
 #ifndef ADC_CHANNEL_LIGHT_SOLAR_UP
