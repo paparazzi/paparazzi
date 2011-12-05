@@ -31,6 +31,11 @@
 
     <dl_settings NAME="control">
 
+      <dl_settings NAME="trim">
+        <dl_setting MAX="960" MIN="-960" STEP="1" VAR="command_roll_trim" shortname="roll_trim" module="commands" param="COMMAND_ROLL_TRIM"/>
+        <dl_setting MAX="960" MIN="-960" STEP="1" VAR="command_pitch_trim" shortname="pitch_trim" param="COMMAND_PITCH_TRIM"/>
+      </dl_settings>
+
       <dl_settings NAME="ins">
         <dl_setting MAX="100" MIN="0" STEP="1" VAR="imu_health" shortname="health" module="subsystems/ahrs" />
         <dl_setting MAX="100" MIN="0" STEP="1" VAR="renorm_sqrt_count" shortname="err_norm" module="subsystems/ahrs" />
