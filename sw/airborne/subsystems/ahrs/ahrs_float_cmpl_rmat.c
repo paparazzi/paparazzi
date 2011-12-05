@@ -136,8 +136,8 @@ void ahrs_update_accel(void) {
 #endif
 
   struct FloatVect3  c2 = { RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 0,2),
-			    RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 1,2),
-			    RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 2,2)};
+                            RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 1,2),
+                            RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 2,2)};
   struct FloatVect3 residual;
   FLOAT_VECT3_CROSS_PRODUCT(residual, accel_float, c2);
 #ifdef AHRS_GRAVITY_UPDATE_NORM_HEURISTIC
@@ -245,11 +245,6 @@ void ahrs_update_mag_full_2d_dumb(void) {
 }
 
 
-
-
-
-
-
 /*
  * Compute ltp to imu rotation in euler angles and quaternion representations
  * from the rotation matrice representation
@@ -271,12 +266,10 @@ static inline void compute_imu_rmat_and_euler_from_quat(void) {
  * Compute body orientation and rates from imu orientation and rates
  */
 static inline void compute_body_orientation_and_rates(void) {
-
   FLOAT_QUAT_COMP_INV(ahrs_float.ltp_to_body_quat,
-		      ahrs_float.ltp_to_imu_quat, ahrs_impl.body_to_imu_quat);
+                      ahrs_float.ltp_to_imu_quat, ahrs_impl.body_to_imu_quat);
   FLOAT_RMAT_COMP_INV(ahrs_float.ltp_to_body_rmat,
-		      ahrs_float.ltp_to_imu_rmat, ahrs_impl.body_to_imu_rmat);
+                      ahrs_float.ltp_to_imu_rmat, ahrs_impl.body_to_imu_rmat);
   FLOAT_EULERS_OF_RMAT(ahrs_float.ltp_to_body_euler, ahrs_float.ltp_to_body_rmat);
   FLOAT_RMAT_TRANSP_RATEMULT(ahrs_float.body_rate, ahrs_impl.body_to_imu_rmat, ahrs_float.imu_rate);
-
 }
