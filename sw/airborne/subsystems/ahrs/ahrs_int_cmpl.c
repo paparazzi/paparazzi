@@ -159,6 +159,7 @@ void ahrs_propagate(void) {
 
 void ahrs_update_accel(void) {
 
+  // c2 = ltp z-axis in imu-frame
   struct Int32Vect3 c2 = { RMAT_ELMT(ahrs.ltp_to_imu_rmat, 0,2),
                            RMAT_ELMT(ahrs.ltp_to_imu_rmat, 1,2),
                            RMAT_ELMT(ahrs.ltp_to_imu_rmat, 2,2)};
@@ -229,9 +230,9 @@ static inline void ahrs_update_mag_full(void) {
   ahrs_impl.rate_correction.r += residual.z/32/16;
 
 
-  ahrs_impl.high_rez_bias.p += -residual.x/32*1024;
-  ahrs_impl.high_rez_bias.q += -residual.y/32*1024;
-  ahrs_impl.high_rez_bias.r += -residual.z/32*1024;
+  ahrs_impl.high_rez_bias.p -= residual.x/32*1024;
+  ahrs_impl.high_rez_bias.q -= residual.y/32*1024;
+  ahrs_impl.high_rez_bias.r -= residual.z/32*1024;
 
 
   INT_RATES_RSHIFT(ahrs_impl.gyro_bias, ahrs_impl.high_rez_bias, 28);
