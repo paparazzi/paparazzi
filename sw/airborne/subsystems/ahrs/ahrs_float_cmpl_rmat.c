@@ -130,21 +130,41 @@ void ahrs_propagate(void) {
 
 void ahrs_update_accel(void) {
 
-  struct FloatVect3 accel_float;
-  ACCELS_FLOAT_OF_BFP(accel_float, imu.accel);
-
-#ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
-  float v = FLOAT_VECT3_NORM(ahrs_impl.est_ltp_speed);
-  accel_float.y -=  v * ahrs_float.imu_rate.r;
-  accel_float.z -= -v * ahrs_float.imu_rate.q;
-#endif
-
-  // c2 = ltp z-axis in imu-frame
+  /* last column of roation matrix = ltp z-axis in imu-frame */
   struct FloatVect3  c2 = { RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 0,2),
                             RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 1,2),
                             RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 2,2)};
+
+  struct FloatVect3 imu_accel_float;
+  ACCELS_FLOAT_OF_BFP(imu_accel_float, imu.accel);
+
   struct FloatVect3 residual;
-  FLOAT_VECT3_CROSS_PRODUCT(residual, accel_float, c2);
+#ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
+  /*
+   * centrifugal acceleration in body frame
+   * a_c_body = omega x (omega x r)
+   * (omega x r) = tangential velocity in body frame
+   * a_c_body = omega x vel_tangential_body
+   * assumption: tangential velocity only along body x-axis
+   */
+  const struct FloatVect3 vel_tangential_body = {ahrs_impl.ltp_vel_norm, 0.0, 0.0};
+  struct FloatVect3 acc_c_body;
+  FLOAT_VECT3_CROSS_PRODUCT(acc_c_body, ahrs_float.body_rate, vel_tangential_body);
+
+  /* convert centrifucal acceleration from body to imu frame */
+  struct FloatVect3 acc_c_imu;
+  FLOAT_RMAT_VECT3_MUL(acc_c_imu, ahrs_impl.body_to_imu_rmat, acc_c_body);
+
+  /* and subtract it from imu measurement to get a corrected measurement of the gravitiy vector */
+  struct FloatVect3 corrected_gravity;
+  VECT3_DIFF(corrected_gravity, imu_accel_float, acc_c_imu);
+
+  /* compute the residual of gravity vector in imu frame */
+  FLOAT_VECT3_CROSS_PRODUCT(residual, corrected_gravity, c2);
+#else
+  FLOAT_VECT3_CROSS_PRODUCT(residual, imu_accel_float, c2);
+#endif
+
 #ifdef AHRS_GRAVITY_UPDATE_NORM_HEURISTIC
   /* heuristic on acceleration norm */
   const float acc_norm = FLOAT_VECT3_NORM(accel_float);
@@ -152,6 +172,7 @@ void ahrs_update_accel(void) {
 #else
   const float weight = 1.;
 #endif
+
   /* compute correction */
   const float gravity_rate_update_gain = -5e-2; // -5e-2
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual, weight*gravity_rate_update_gain);

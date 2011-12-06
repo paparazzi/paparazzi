@@ -178,8 +178,11 @@ void aos_compute_sensors(void) {
   MAGS_BFP_OF_REAL(imu.mag, h_imu);
 
 #ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
-#if AHRS_TYPE == AHRS_TYPE_FCR2 || AHRS_TYPE == AHRS_TYPE_FCQ || AHRS_TYPE == AHRS_TYPE_FLQ
+#if AHRS_TYPE == AHRS_TYPE_FCQ || AHRS_TYPE == AHRS_TYPE_FLQ
   VECT3_COPY(ahrs_impl.est_ltp_speed, aos.ltp_vel);
+#endif
+#if AHRS_TYPE == AHRS_TYPE_FCR2
+  ahrs_impl.ltp_vel_norm = FLOAT_VECT3_NORM(aos.ltp_vel);
 #endif
 #if AHRS_TYPE == AHRS_TYPE_ICQ
   ahrs_impl.ltp_vel_norm = SPEED_BFP_OF_REAL(FLOAT_VECT3_NORM(aos.ltp_vel));
