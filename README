@@ -1,5 +1,4 @@
-#   Paparazzi $Id$
-#   Copyright (C) 2003-2010 The Paparazzi Team
+#   Copyright (C) 2003-2011 The Paparazzi Team
 #
 # This file is part of Paparazzi.
 #
@@ -25,7 +24,7 @@ Intro
 Paparazzi is an attempt to develop a free software Unmanned (Air) Vehicle System.
  As of today the system is being used successfuly by a number of hobyists, universities and companies all over the world, on vehicle of various size ( 100g to 25Kg ) and of various nature ( fixed wing, rotorcrafts, boats and surface vehicles).
 
-Up to date informations are available from the wiki website
+Up to date information is available from the wiki website
 
     http://paparazzi.enac.fr
 
@@ -38,8 +37,6 @@ Directories quick and dirty description:
 conf: the configuration directory (airframe, radio, ... descriptions).
 
 data: where to put read-only data (e.g. maps, terrain elevation files, icons)
-
-hw: hardware (electronic schemas, PCBs, ...)
 
 sw: software (onboard, ground station, simulation, ...)
 
@@ -64,8 +61,7 @@ For Debian or Ubuntu users, required packages are available at
 
 
   - "paparazzi-dev" will provide everything needed to compile and run the ground segment and the simulator. If something is missing, please report it.
-  - "paparazzi-arm7" is required to compile the code for LPC21 based boards ( tiny, twog, booz, etc).
-  - "paparazzi-stm32" is needed for building code for STM32 based boards (lisa/L, lisa/M)
+  - "paparazzi-arm-multilib" is required to compile the code for LPC21 and STM32 based boards
   - "paparazzi-omap" is needed for building code for the optional Gumstix Overo module available on lisa/L
 
   - "paparazzi-jsbsim" is needed for using jsbsim as flight dynamic model for the simulator.
