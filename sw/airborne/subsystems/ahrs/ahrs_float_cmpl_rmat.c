@@ -28,6 +28,9 @@
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_simple_matrix.h"
 #include "generated/airframe.h"
+#ifdef USE_GPS
+#include "subsystems/gps.h"
+#endif
 
 
 //#include "../../test/pprz_algebra_print.h"
@@ -140,6 +143,9 @@ void ahrs_update_accel(void) {
 
   struct FloatVect3 residual;
 #ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
+#ifdef USE_GPS
+  ahrs_impl.ltp_vel_norm = gps.speed_3d / 100.;
+#endif
   /*
    * centrifugal acceleration in body frame
    * a_c_body = omega x (omega x r)
