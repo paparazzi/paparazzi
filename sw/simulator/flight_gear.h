@@ -211,7 +211,9 @@ struct FGNetMiniFDM {
 #define FG_NET_GUI_VERSION 7
 #define FG_NET_GUI_MAX_TANKS 4
 
-#ifdef __x86_64__
+// FIXME: Flightgear on OSX is still 32 bit get rid 
+// off these pragmas when it goes to 64 bit.
+#ifdef __x86_64__ && __APPLE__
 #pragma pack(push)
 #pragma pack(4)
 #endif
@@ -249,7 +251,7 @@ struct FGNetGUI {
   float course_deviation_deg; // degrees off target course
   float gs_deviation_deg;     // degrees off target glide slope
 };
-#ifdef __x86_64__
+#ifdef __x86_64__ && __APPLE__
 #pragma pack(push)
 #pragma pack(pop)
 #endif
