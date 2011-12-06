@@ -6,6 +6,8 @@
 #   ...
 #   <subsystem name="actuators"     type="mkk">
 #     <configure name="MKK_I2C_SCL_TIME" value="50"/> <!-- this is optional, 150 is default, use 50 for 8 motors-->
+#   </subsystem>
+#   <define name="I2C_TRANSACTION_QUEUE_LEN" value="10"/> <!-- default is 8, increase to 10 or more for 8 motors-->
 # </firmware>
 #
 #
