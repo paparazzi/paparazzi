@@ -31,6 +31,9 @@
 #include "subsystems/ahrs/ahrs_int_utils.h"
 
 #include "subsystems/imu.h"
+#ifdef USE_GPS
+#include "subsystems/gps.h"
+#endif
 #include "math/pprz_trig_int.h"
 #include "math/pprz_algebra_int.h"
 
@@ -165,7 +168,7 @@ void ahrs_update_accel(void) {
   struct Int32Vect3 residual;
 #ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
 #ifdef USE_GPS
-  ahrs_impl.ltp_vel_norm = gps.speed_3d / 100.;
+  ahrs_impl.ltp_vel_norm = SPEED_BFP_OF_REAL(gps.speed_3d / 100.);
 #endif
   /*
    * centrifugal acceleration in body frame
