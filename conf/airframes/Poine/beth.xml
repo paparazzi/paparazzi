@@ -147,7 +147,7 @@ main_stm32.srcs += firmwares/rotorcraft/actuators/actuators_asctec.c
 #\
 #                             $(SRC_BOOZ_ARCH)/actuators/actuators_asctec_arch.c
 main_stm32.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
-# -DBOOZ_START_DELAY=3  -DUSE_TIM2_IRQ
+# -DACTUATORS_START_DELAY=3  -DUSE_TIM2_IRQ
 main_stm32.CFLAGS += -DUSE_I2C1
 main_stm32.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 

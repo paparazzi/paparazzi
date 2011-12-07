@@ -82,17 +82,17 @@ let define_integer name v n =
 
 let parse_element = fun prefix s ->
   match Xml.tag s with
-    "define" -> begin
-            try
-        define (prefix^ExtXml.attrib s "name") (ExtXml.display_entities (ExtXml.attrib s "value"));
-        define_integer (prefix^(ExtXml.attrib s "name")) (ExtXml.float_attrib s "value") (ExtXml.int_attrib s "integer");
-            with _ -> ();
-        end
-  | "linear" ->
+      "define" -> begin
+        try
+          define (prefix^ExtXml.attrib s "name") (ExtXml.display_entities (ExtXml.attrib s "value"));
+          define_integer (prefix^(ExtXml.attrib s "name")) (ExtXml.float_attrib s "value") (ExtXml.int_attrib s "integer");
+        with _ -> ();
+      end
+    | "linear" ->
       let name = ExtXml.attrib s "name"
       and n = int_of_string (ExtXml.attrib s "arity") in
       define_macro (prefix^name) n s
-  | _ -> xml_error "define|linear"
+    | _ -> xml_error "define|linear"
 
 
 

@@ -35,9 +35,14 @@
 
 #include "subsystems/settings.h"
 
-#include <libopencm3/stm32/dbgmcu.h>
+#if defined(STM32F1) || defined(STM32F2) || defined(STM32F4)
+#include <libopencm3/stm32/f1/flash.h>
+#include <libopencm3/stm32/f1/crc.h>
+#else
 #include <libopencm3/stm32/flash.h>
 #include <libopencm3/stm32/crc.h>
+#endif
+#include <libopencm3/stm32/dbgmcu.h>
 
 struct FlashInfo {
     uint32_t addr;

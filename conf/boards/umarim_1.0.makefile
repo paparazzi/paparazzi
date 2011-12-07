@@ -29,6 +29,8 @@ GPS_BAUD	= B38400
 endif
 GPS_LED     = 2
 
+RADIO_CONTROL_LED = none
+
 ifndef MODEM_PORT
 MODEM_PORT	= UART1
 endif

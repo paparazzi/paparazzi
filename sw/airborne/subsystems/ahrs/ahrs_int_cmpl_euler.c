@@ -44,9 +44,9 @@ static inline void compute_body_orientation(void);
 
 #define PI_INTEG_EULER     (INT32_ANGLE_PI * F_UPDATE)
 #define TWO_PI_INTEG_EULER (INT32_ANGLE_2_PI * F_UPDATE)
-#define INTEG_EULER_NORMALIZE(_a) {				\
-    while (_a >  PI_INTEG_EULER)  _a -= TWO_PI_INTEG_EULER;	\
-    while (_a < -PI_INTEG_EULER)  _a += TWO_PI_INTEG_EULER;	\
+#define INTEG_EULER_NORMALIZE(_a) {                         \
+    while (_a >  PI_INTEG_EULER)  _a -= TWO_PI_INTEG_EULER; \
+    while (_a < -PI_INTEG_EULER)  _a += TWO_PI_INTEG_EULER; \
   }
 
 void ahrs_init(void) {
@@ -78,7 +78,7 @@ void ahrs_align(void) {
 
   get_phi_theta_measurement_fom_accel(&ahrs_impl.hi_res_euler.phi, &ahrs_impl.hi_res_euler.theta, ahrs_aligner.lp_accel);
   get_psi_measurement_from_mag(&ahrs_impl.hi_res_euler.psi,
-			       ahrs_impl.hi_res_euler.phi/F_UPDATE, ahrs_impl.hi_res_euler.theta/F_UPDATE, ahrs_aligner.lp_mag);
+                               ahrs_impl.hi_res_euler.phi/F_UPDATE, ahrs_impl.hi_res_euler.theta/F_UPDATE, ahrs_aligner.lp_mag);
 
   EULERS_COPY(ahrs_impl.measure, ahrs_impl.hi_res_euler);
   EULERS_COPY(ahrs_impl.measurement, ahrs_impl.hi_res_euler);
