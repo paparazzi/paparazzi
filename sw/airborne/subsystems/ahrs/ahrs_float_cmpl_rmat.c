@@ -323,18 +323,13 @@ float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
 float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 void ahrs_update_fw_estimator(void)
 {
-  struct FloatEulers att;
   // export results to estimator
-  EULERS_FLOAT_OF_BFP(att, ahrs.ltp_to_body_euler);
+  estimator_phi   = ahrs_float.ltp_to_body_euler.phi - ins_roll_neutral;
+  estimator_theta = ahrs_float.ltp_to_body_euler.theta - ins_pitch_neutral;
+  estimator_psi   = ahrs_float.ltp_to_body_euler.psi;
 
-  estimator_phi   = att.phi - ins_roll_neutral;
-  estimator_theta = att.theta - ins_pitch_neutral;
-  estimator_psi   = att.psi;
-
-  struct FloatRates rates;
-  RATES_FLOAT_OF_BFP(rates, ahrs.body_rate);
-  estimator_p = rates.p;
-  estimator_q = rates.q;
-
+  estimator_p = ahrs_float.body_rate.p;
+  estimator_q = ahrs_float.body_rate.q;
+  estimator_r = ahrs_float.body_rate.r;
 }
 #endif //AHRS_UPDATE_FW_ESTIMATOR
