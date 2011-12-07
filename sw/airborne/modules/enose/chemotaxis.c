@@ -1,11 +1,11 @@
-#include "chemotaxis.h"
+#include "modules/enose/chemotaxis.h"
 #include "generated/airframe.h"
 #include "estimator.h"
 #include "std.h"
 #include "subsystems/nav.h"
 #include "generated/flight_plan.h"
 #include "ap_downlink.h"
-#include "chemo_detect.h"
+#include "modules/enose/chemo_detect.h"
 
 #define MAX_RADIUS 250
 #define ALPHA 0.5
