@@ -433,7 +433,12 @@
     }									\
   }
 
-
+/* set _row of _mat with _vin multiplied by scalar _s */
+#define MAT33_ROW_VECT3_SMUL(_mat, _row, _vin, _s) {         \
+    MAT33_ELMT((_mat), _row, 0) = (_vin).x * (_s);           \
+    MAT33_ELMT((_mat), _row, 1) = (_vin).y * (_s);           \
+    MAT33_ELMT((_mat), _row, 2) = (_vin).z * (_s);           \
+  }
 
 
 //
