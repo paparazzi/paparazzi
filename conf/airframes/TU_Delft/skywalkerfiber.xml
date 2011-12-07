@@ -245,9 +245,6 @@
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
 
 <!-- The Glide definitions are used for calculating the touch down point during auto landing -->
-    <define name="GLIDE_AIRSPEED" value="10"/>
-    <define name="GLIDE_VSPEED" value="3."/>
-    <define name="GLIDE_PITCH" value="45" unit="deg"/>
   </section>
 
 <!-- ******************* VERTICAL CONTROL ********************************** -->

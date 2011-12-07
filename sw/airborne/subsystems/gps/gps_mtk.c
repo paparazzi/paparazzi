@@ -386,6 +386,8 @@ static bool_t user_gps_configure(bool_t cpt) {
   case 1:
     MtkSend_CFG(MTK_DIY_OUTPUT_RATE);
     return FALSE;
+  default:
+    break;
   }
   return TRUE; /* Continue, except for the last case */
 }

@@ -361,7 +361,10 @@ inline static void loiter(void) {
 
 
 inline static void h_ctl_pitch_loop( void ) {
+#if !USE_GYRO_PITCH_RATE
   static float last_err;
+#endif
+
   /* sanity check */
   if (h_ctl_pitch_of_roll <0.)
     h_ctl_pitch_of_roll = 0.;
@@ -394,12 +397,12 @@ inline static void h_ctl_pitch_loop( void ) {
 
   // Compute errors
   float err = estimator_theta - h_ctl_ref_pitch_angle;
-#ifdef USE_GYRO_PITCH_RATE
+#if USE_GYRO_PITCH_RATE
   float d_err = estimator_q - h_ctl_ref_pitch_rate;
 #else // soft derivation
   float d_err = (err - last_err)/H_CTL_REF_DT - h_ctl_ref_pitch_rate;
-#endif
   last_err = err;
+#endif
 
   if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0) {
     h_ctl_pitch_sum_err = 0.;

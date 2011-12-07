@@ -123,9 +123,6 @@
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="75."/>
 
-    <define name="GLIDE_AIRSPEED" value="10"/>
-    <define name="GLIDE_VSPEED" value="3."/>
-    <define name="GLIDE_PITCH" value="0." unit="deg"/>
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">

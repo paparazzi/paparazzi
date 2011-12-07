@@ -42,6 +42,7 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
   gps.utm_pos.north = utm_f.north*100;
   gps.utm_pos.zone = nav_utm_zone0;
   x = y = z; /* Just to get rid of the "unused arg" warning */
+  y = x;     /* Just to get rid of the "unused arg" warning */
 #else // GPS_USE_LATLONG
   gps.utm_pos.east = Int_val(x);
   gps.utm_pos.north = Int_val(y);
