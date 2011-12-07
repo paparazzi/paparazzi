@@ -155,7 +155,7 @@ void ahrs_update_accel(void) {
    */
   const struct FloatVect3 vel_tangential_body = {ahrs_impl.ltp_vel_norm, 0.0, 0.0};
   struct FloatVect3 acc_c_body;
-  FLOAT_VECT3_CROSS_PRODUCT(acc_c_body, ahrs_float.body_rate, vel_tangential_body);
+  VECT3_RATES_CROSS_VECT3(acc_c_body, ahrs_float.body_rate, vel_tangential_body);
 
   /* convert centrifucal acceleration from body to imu frame */
   struct FloatVect3 acc_c_imu;
