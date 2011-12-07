@@ -28,7 +28,7 @@ struct AhrsFloatCmplRmat {
   struct FloatRates gyro_bias;
   struct FloatRates rate_correction;
   /* for gravity correction during coordinated turns */
-  struct FloatVect3 est_ltp_speed;
+  float ltp_vel_norm;
 
   /*
      Holds float version of IMU alignement
@@ -40,6 +40,14 @@ struct AhrsFloatCmplRmat {
 };
 
 extern struct AhrsFloatCmplRmat ahrs_impl;
+
+
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
+// TODO copy ahrs to state instead of estimator
+void ahrs_update_fw_estimator(void);
+extern float ins_roll_neutral;
+extern float ins_pitch_neutral;
+#endif
 
 
 #endif /* AHRS_FLOAT_CMPL_RMAT */

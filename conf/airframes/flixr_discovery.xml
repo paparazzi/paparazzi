@@ -19,6 +19,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
       <!--define name="IMU_B2_VERSION_1_0"/-->
       <define name="USE_I2C0"/>
       <define name="I2C0_VIC_SLOT" value="12"/>
+      <define name="AHRS_PROPAGATE_RMAT"/>
     </target>
     <target name="sim"          board="pc"/>
 
@@ -37,7 +38,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <!-- Control -->
     <subsystem name="control" type="new"/>
     <subsystem name="navigation" type="extra"/>
-    <subsystem name="ahrs" type="float_dcm"/>
+    <subsystem name="ahrs" type="float_cmpl_rmat"/>
 
     <!-- Sensors -->
     <subsystem name="imu" type="b2_v1.0"/>
@@ -175,6 +176,13 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <define name="BODY_TO_IMU_PHI" value="0"/>
     <define name="BODY_TO_IMU_THETA" value="0"/>
     <define name="BODY_TO_IMU_PSI" value="0"/>
+  </section>
+
+  <!-- Munich -->
+  <section name="AHRS" prefix="AHRS_">
+    <define name="H_X" value="0.4357869"/>
+    <define name="H_Y" value="0.0177010"/>
+    <define name="H_Z" value="0.8998758"/>
   </section>
 
   <section name="INS" prefix="INS_">
