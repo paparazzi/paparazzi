@@ -23,7 +23,6 @@
 // TODO
 //
 // gravity heuristic
-// gps based gravity correction
 // gps update for yaw on fixed wing ?
 //
 
@@ -165,16 +164,31 @@ void ahrs_update_accel(void) {
                            RMAT_ELMT(ahrs.ltp_to_imu_rmat, 2,2)};
   struct Int32Vect3 residual;
 #ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
+#ifdef USE_GPS
+  ahrs_impl.ltp_vel_norm = gps.speed_3d / 100.;
+#endif
+  /*
+   * centrifugal acceleration in body frame
+   * a_c_body = omega x (omega x r)
+   * (omega x r) = tangential velocity in body frame
+   * a_c_body = omega x vel_tangential_body
+   * assumption: tangential velocity only along body x-axis
+   */
+
   // FIXME: check overflow ?
-  const struct Int32Vect3 Xdd_imu = {
-    0,
-     ((ahrs_impl.ltp_vel_norm>>INT32_ACCEL_FRAC) * ahrs.imu_rate.r)
-    >>(INT32_SPEED_FRAC+INT32_RATE_FRAC-INT32_ACCEL_FRAC-INT32_ACCEL_FRAC),
-    -((ahrs_impl.ltp_vel_norm>>INT32_ACCEL_FRAC) * ahrs.imu_rate.q)
-    >>(INT32_SPEED_FRAC+INT32_RATE_FRAC-INT32_ACCEL_FRAC-INT32_ACCEL_FRAC)
-  };
+  const struct Int32Vect3 vel_tangential_body = {(ahrs_impl.ltp_vel_norm>>INT32_ACCEL_FRAC), 0.0, 0.0};
+  struct Int32Vect3 acc_c_body;
+  VECT3_RATES_CROSS_VECT3(acc_c_body, ahrs.body_rate, vel_tangential_body);
+
+  /* convert centrifucal acceleration from body to imu frame */
+  struct Int32Vect3 acc_c_imu;
+  INT32_MAT33_VECT3_MULT(acc_c_imu, ahrs_impl.body_to_imu_rmat, acc_c_body, (INT32_SPEED_FRAC+INT32_RATE_FRAC-INT32_ACCEL_FRAC-INT32_ACCEL_FRAC));
+
+  /* and subtract it from imu measurement to get a corrected measurement of the gravitiy vector */
   struct Int32Vect3 corrected_gravity;
-  VECT3_DIFF(corrected_gravity, imu.accel, Xdd_imu);
+  INT32_VECT3_DIFF(corrected_gravity, imu.accel, acc_c_imu);
+
+  /* compute the residual of gravity vector in imu frame */
   INT32_VECT3_CROSS_PRODUCT(residual, corrected_gravity, c2);
 #else
   INT32_VECT3_CROSS_PRODUCT(residual, imu.accel, c2);
