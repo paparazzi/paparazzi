@@ -268,11 +268,13 @@ void ahrs_update_mag_2d_dumb(void) {
   const float me =     0. * magf.x + cphi       *magf.y - sphi       *magf.z;
 
   const float res_norm = -RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 0,0)*me + RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 1,0)*mn;
-  struct FloatVect3* r2 = (struct FloatVect3*)(&RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 2,0));
+  const struct FloatVect3 r2 = {RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 2,0),
+                                RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 2,1),
+                                RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 2,2)};
   const float mag_rate_update_gain = 2.5;
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, (*r2), (mag_rate_update_gain*res_norm));
+  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, r2, (mag_rate_update_gain*res_norm));
   const float mag_bias_update_gain = -2.5e-4;
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, (*r2), (mag_bias_update_gain*res_norm));
+  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, r2, (mag_bias_update_gain*res_norm));
 
 }
 
