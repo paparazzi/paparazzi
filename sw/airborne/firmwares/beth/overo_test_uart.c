@@ -43,7 +43,7 @@
 
 #include "overo_gcs_com.h"
 #include "uart_hw.h"
-#include "pprz_transport.h"
+#include "subsystems/datalink/pprz_transport.h"
 
 
 struct OveroController {

@@ -42,7 +42,7 @@
 #include "csc_telemetry.h"
 #include "led.h"
 
-#include "pprz_transport.h"
+#include "subsystems/datalink/pprz_transport.h"
 
 #define RC_PROTOCOL_SYNC 13999
 

@@ -52,7 +52,7 @@
 #include "csc_ap_link.h"
 #include "led.h"
 
-#include "pprz_transport.h"
+#include "subsystems/datalink/pprz_transport.h"
 
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
 

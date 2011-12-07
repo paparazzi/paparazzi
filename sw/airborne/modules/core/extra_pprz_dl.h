@@ -38,7 +38,7 @@
 #ifndef EXTRA_PPRZ_DL_H
 #define EXTRA_PPRZ_DL_H
 
-#include "pprz_transport.h"
+#include "subsystems/datalink/pprz_transport.h"
 
 #define __ExtraLink(dev, _x) dev##_x
 #define _ExtraLink(dev, _x)  __ExtraLink(dev, _x)
