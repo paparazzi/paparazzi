@@ -185,7 +185,7 @@ void ahrs_update_accel(void) {
 
   /* convert centrifucal acceleration from body to imu frame */
   struct Int32Vect3 acc_c_imu;
-  INT32_MAT33_VECT3_MULT(acc_c_imu, ahrs_impl.body_to_imu_rmat, acc_c_body, (INT32_SPEED_FRAC+INT32_RATE_FRAC-INT32_ACCEL_FRAC-INT32_ACCEL_FRAC));
+  INT32_MAT33_VECT3_MUL(acc_c_imu, imu.body_to_imu_rmat, acc_c_body, (INT32_SPEED_FRAC+INT32_RATE_FRAC-INT32_ACCEL_FRAC-INT32_ACCEL_FRAC));
 
   /* and subtract it from imu measurement to get a corrected measurement of the gravitiy vector */
   struct Int32Vect3 corrected_gravity;
