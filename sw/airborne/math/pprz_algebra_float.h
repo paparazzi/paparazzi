@@ -455,21 +455,26 @@ static inline float renorm_factor(float n) {
 
 static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
 
-  struct FloatVect3* r0 = (struct FloatVect3*)(&RMAT_ELMT(*rm, 0,0));
-  struct FloatVect3* r1 = (struct FloatVect3*)(&RMAT_ELMT(*rm, 1,0));
-  struct FloatVect3* r2 = (struct FloatVect3*)(&RMAT_ELMT(*rm, 2,0));
-  float _err = -0.5*FLOAT_VECT3_DOT_PRODUCT(*r0, *r1);
+  const struct FloatVect3 r0 = {RMAT_ELMT(*rm, 0,0),
+                                RMAT_ELMT(*rm, 0,1),
+                                RMAT_ELMT(*rm, 0,2)};
+  const struct FloatVect3 r1 = {RMAT_ELMT(*rm, 1,0),
+                                RMAT_ELMT(*rm, 1,1),
+                                RMAT_ELMT(*rm, 1,2)};
+  float _err = -0.5*FLOAT_VECT3_DOT_PRODUCT(r0, r1);
   struct FloatVect3 r0_t;
-  VECT3_SUM_SCALED(r0_t, *r0, *r1, _err);
-  VECT3_SUM_SCALED(*r1,  *r1, *r0, _err);
-  VECT3_COPY(*r0, r0_t);
-  FLOAT_VECT3_CROSS_PRODUCT(*r2, *r0, *r1);
-  float s = renorm_factor(FLOAT_VECT3_NORM2(*r0));
-  FLOAT_VECT3_SMUL(*r0, *r0, s);
-  s = renorm_factor(FLOAT_VECT3_NORM2(*r1));
-  FLOAT_VECT3_SMUL(*r1, *r1, s);
-  s = renorm_factor(FLOAT_VECT3_NORM2(*r2));
-  FLOAT_VECT3_SMUL(*r2, *r2, s);
+  VECT3_SUM_SCALED(r0_t, r0, r1, _err);
+  struct FloatVect3 r1_t;
+  VECT3_SUM_SCALED(r1_t,  r1, r0, _err);
+  struct FloatVect3 r2_t;
+  FLOAT_VECT3_CROSS_PRODUCT(r2_t, r0_t, r1_t);
+  float s = renorm_factor(FLOAT_VECT3_NORM2(r0_t));
+  MAT33_ROW_VECT3_SMUL(*rm, 0, r0_t, s);
+  s = renorm_factor(FLOAT_VECT3_NORM2(r1_t));
+  MAT33_ROW_VECT3_SMUL(*rm, 1, r1_t, s);
+  s = renorm_factor(FLOAT_VECT3_NORM2(r2_t));
+  MAT33_ROW_VECT3_SMUL(*rm, 2, r2_t, s);
+
   return _err;
 
 }
