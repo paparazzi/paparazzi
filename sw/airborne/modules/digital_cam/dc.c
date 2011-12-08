@@ -54,7 +54,7 @@ uint16_t dc_buffer = 0;
 #endif
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "estimator.h"
 #include "subsystems/gps.h"
 

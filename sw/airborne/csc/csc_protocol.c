@@ -31,7 +31,7 @@
 
 // #include "mcu.h"
 // #include "sys_time.h"
-// #include "downlink.h"
+// #include "subsystems/datalink/downlink.h"
 
 #define CSCP_QUEUE_LEN 8
 

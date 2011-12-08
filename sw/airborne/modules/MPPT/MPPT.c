@@ -55,7 +55,7 @@ struct i2c_transaction mppt_trans;
 #endif
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 uint8_t MPPT_mode;
 /** A value different from 0 is a request from this mode */

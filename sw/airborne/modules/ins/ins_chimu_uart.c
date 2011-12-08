@@ -22,7 +22,7 @@ C code to connect a CHIMU using uart
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "ins_module.h"
 #include "imu_chimu.h"

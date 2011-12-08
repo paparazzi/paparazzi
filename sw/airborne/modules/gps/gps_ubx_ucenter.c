@@ -323,7 +323,7 @@ static inline void gps_ubx_ucenter_enable_msg(uint8_t class, uint8_t id, uint8_t
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 #undef GOT_PAYLOAD
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 static bool_t gps_ubx_ucenter_configure(uint8_t nr)
 {

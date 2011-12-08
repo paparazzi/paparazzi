@@ -27,8 +27,8 @@
 #include "std.h"
 #include "mcu.h"
 #include "sys_time.h"
-#include "downlink.h"
-#include "datalink.h"
+#include "subsystems/datalink/downlink.h"
+#include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
 
 #include "mcu_periph/uart.h"

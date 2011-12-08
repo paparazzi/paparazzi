@@ -31,7 +31,7 @@
 
 #include <inttypes.h>
 #include <string.h>
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 
 #include "generated/modules.h"
 
@@ -61,7 +61,7 @@
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 #include "mcu_periph/uart.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "ap_downlink.h"
 
 #define MOfCm(_x) (((float)(_x))/100.)

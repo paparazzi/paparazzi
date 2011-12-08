@@ -28,7 +28,7 @@
 #include "messages.h"
 #include "mcu_periph/uart.h"
 
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #ifdef RADIO_CONTROL
 #include "subsystems/radio_control.h"

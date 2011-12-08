@@ -138,7 +138,7 @@ void stabilization_attitude_ref_enter()
 
 #include "messages.h"
 #include "mcu_periph/uart.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 void stabilization_attitude_ref_update() {
 

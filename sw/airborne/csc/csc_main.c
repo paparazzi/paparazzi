@@ -35,7 +35,7 @@
 #include "mcu_periph/uart.h"
 #include "csc_telemetry.h"
 #include "generated/periodic.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "i2c.h"
 
 #include "csc_servos.h"

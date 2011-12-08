@@ -2,7 +2,7 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include BOARD_CONFIG
 
 uint16_t adc_generic_val1;

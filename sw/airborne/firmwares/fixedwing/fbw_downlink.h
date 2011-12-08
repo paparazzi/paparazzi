@@ -49,7 +49,7 @@
 #include "inter_mcu.h"
 
 #define DOWNLINK_DEVICE DOWNLINK_FBW_DEVICE
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #define PERIODIC_SEND_COMMANDS(_chan) DOWNLINK_SEND_COMMANDS(_chan, COMMANDS_NB, commands)
 

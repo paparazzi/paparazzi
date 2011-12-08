@@ -34,7 +34,7 @@
 #include "generated/airframe.h"
 
 #include "sys_time.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "messages.h"
 
 #ifdef USE_GPS_XSENS
@@ -187,7 +187,7 @@ uint8_t xsens_msg_buf[XSENS_MAX_PAYLOAD];
 #endif
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 
 uint8_t xsens_errorcode;

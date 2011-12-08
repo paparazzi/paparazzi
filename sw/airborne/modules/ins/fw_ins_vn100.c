@@ -104,7 +104,7 @@ void ins_periodic_task( void ) {
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 void ins_event_task( void ) {
   if (spi_message_received) {

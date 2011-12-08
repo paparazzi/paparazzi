@@ -9,7 +9,7 @@
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "multi/formation.h"
 #include "estimator.h"

@@ -30,7 +30,7 @@
 #include "led.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "max11040.h"
 #include "adcs/max11040_hw.h"
 

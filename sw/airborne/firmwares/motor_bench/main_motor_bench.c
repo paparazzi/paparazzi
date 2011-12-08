@@ -14,7 +14,7 @@
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "generated/settings.h"
 

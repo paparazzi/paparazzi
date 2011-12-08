@@ -35,7 +35,7 @@
 #include "generated/flight_plan.h"
 
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 float tcas_alt_setpoint;
 float tcas_tau_ta, tcas_tau_ra, tcas_dmod, tcas_alim;

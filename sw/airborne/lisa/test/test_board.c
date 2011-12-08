@@ -32,10 +32,10 @@
 #include "mcu.h"
 #include "mcu_periph/uart.h"
 #include "sys_time.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "led.h"
 
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 #include "generated/settings.h"
 
 #include "lisa/lisa_baro.h"

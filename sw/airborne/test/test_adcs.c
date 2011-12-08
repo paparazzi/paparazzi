@@ -10,7 +10,7 @@
 #include "messages.h"
 #include "led.h"
 #include "mcu_periph/uart.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 
 #define NB_ADC 8

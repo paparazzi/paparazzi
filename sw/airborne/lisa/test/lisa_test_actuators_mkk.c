@@ -26,7 +26,7 @@
 #include "sys_time.h"
 #include "firmwares/rotorcraft/commands.h"
 #include "actuators.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "actuators/actuators_asctec.h"
 

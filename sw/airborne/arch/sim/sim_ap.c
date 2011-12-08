@@ -21,7 +21,7 @@
 #include "firmwares/fixedwing/main_ap.h"
 #include "ap_downlink.h"
 #include "sim_uart.h"
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 #include "generated/flight_plan.h"
 
 #include <caml/mlvalues.h>

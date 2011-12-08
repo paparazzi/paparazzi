@@ -40,7 +40,7 @@
 
 #include <inttypes.h>
 #include "std.h"
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 
 extern uint8_t ck_a, ck_b;
 

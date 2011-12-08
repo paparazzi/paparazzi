@@ -51,7 +51,7 @@ void mcp355x_read(void) {
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 void mcp355x_event(void) {
   static uint32_t filtered = 0;

@@ -8,7 +8,7 @@
 #include "mcu_arch.h"
 
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "armVIC.h"
 

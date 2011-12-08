@@ -12,7 +12,7 @@
 
 #include "ant_spi.h"
 
-//#include "downlink.h"
+//#include "subsystems/datalink/downlink.h"
 
 volatile bool_t ant_v2x_data_available;
 struct  Ant_V2xData ant_v2x_data;

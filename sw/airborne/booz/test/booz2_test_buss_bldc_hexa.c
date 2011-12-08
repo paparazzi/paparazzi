@@ -26,8 +26,8 @@
 #include "mcu.h"
 #include "sys_time.h"
 #include "interrupt_hw.h"
-#include "downlink.h"
-#include "datalink.h"
+#include "subsystems/datalink/downlink.h"
+#include "subsystems/datalink/datalink.h"
 
 #include "booz2_test_buss_bldc_hexa.h"
 

@@ -6,7 +6,7 @@
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "csc_booz2_ins.h"
 #include "csc_ap_link.h"
 

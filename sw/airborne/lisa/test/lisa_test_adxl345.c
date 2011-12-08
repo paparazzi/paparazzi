@@ -37,7 +37,7 @@
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "sys_time.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "peripherals/adxl345.h"
 #include "my_debug_servo.h"

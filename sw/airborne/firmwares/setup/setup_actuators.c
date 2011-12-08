@@ -6,11 +6,11 @@
 //#include "actuators.h"
 #include "generated/airframe.h"
 #define DATALINK_C
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 #include "mcu_periph/uart.h"
-#include "pprz_transport.h"
+#include "subsystems/datalink/pprz_transport.h"
 #include "firmwares/fixedwing/main_fbw.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "generated/settings.h"
 
 

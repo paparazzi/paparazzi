@@ -2,7 +2,7 @@
 #include "datalink.h"
 
 #include "generated/settings.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "messages.h"
 #include "dl_protocol.h"
 #include "mcu_periph/uart.h"
