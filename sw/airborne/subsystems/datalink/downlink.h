@@ -62,16 +62,6 @@
 #define DefaultChannel DOWNLINK_TRANSPORT
 #endif
 
-#ifdef AP
-/** Telemetry mode for AP process: index in the telemetry.xml file */
-extern uint8_t telemetry_mode_Ap_DefaultChannel;
-#endif
-
-#ifdef FBW
-/** Telemetry mode for FBW process: index in the telemetry.xml file */
-extern uint8_t telemetry_mode_Fbw_DefaultChannel;
-#endif
-
 /** Counter of messages not sent because of unavailibity of the output buffer*/
 extern uint8_t downlink_nb_ovrn;
 extern uint16_t downlink_nb_bytes;

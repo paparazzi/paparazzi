@@ -48,8 +48,15 @@
 #include "subsystems/electrical.h"
 #include "inter_mcu.h"
 
+#ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_FBW_DEVICE
+#endif
 #include "subsystems/datalink/downlink.h"
+
+#ifdef FBW
+/** Telemetry mode for FBW process: index in the telemetry.xml file */
+extern uint8_t telemetry_mode_Fbw_DefaultChannel;
+#endif
 
 #define PERIODIC_SEND_COMMANDS(_chan) DOWNLINK_SEND_COMMANDS(_chan, COMMANDS_NB, commands)
 

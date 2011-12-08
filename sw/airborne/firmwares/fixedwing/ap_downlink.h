@@ -39,7 +39,9 @@
 
 #include "generated/airframe.h"
 
+#ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 #include "subsystems/datalink/downlink.h"
 
 #include "messages.h"
@@ -53,6 +55,10 @@
 #define Downlink(x) {}
 #endif
 
+#ifdef AP
+/** Telemetry mode for AP process: index in the telemetry.xml file */
+extern uint8_t telemetry_mode_Ap_DefaultChannel;
+#endif
 
 #define PERIODIC_SEND_ALIVE(_chan)  DOWNLINK_SEND_ALIVE(_chan, 16, MD5SUM);
 
