@@ -178,14 +178,15 @@ void ahrs_update_accel(void) {
    * assumption: tangential velocity only along body x-axis
    */
 
-  // FIXME: check overflow ?
+  // FIXME: check overflows !
   const struct Int32Vect3 vel_tangential_body = {(ahrs_impl.ltp_vel_norm>>INT32_ACCEL_FRAC), 0.0, 0.0};
   struct Int32Vect3 acc_c_body;
   VECT3_RATES_CROSS_VECT3(acc_c_body, ahrs.body_rate, vel_tangential_body);
+  INT32_VECT3_RSHIFT(acc_c_body, acc_c_body, INT32_SPEED_FRAC+INT32_RATE_FRAC-INT32_ACCEL_FRAC-INT32_ACCEL_FRAC);
 
   /* convert centrifucal acceleration from body to imu frame */
   struct Int32Vect3 acc_c_imu;
-  INT32_MAT33_VECT3_MUL(acc_c_imu, imu.body_to_imu_rmat, acc_c_body, (INT32_SPEED_FRAC+INT32_RATE_FRAC-INT32_ACCEL_FRAC-INT32_ACCEL_FRAC));
+  INT32_RMAT_VMULT(acc_c_imu, imu.body_to_imu_rmat, acc_c_body);
 
   /* and subtract it from imu measurement to get a corrected measurement of the gravitiy vector */
   struct Int32Vect3 corrected_gravity;
