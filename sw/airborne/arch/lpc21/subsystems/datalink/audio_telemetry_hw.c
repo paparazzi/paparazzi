@@ -1,8 +1,8 @@
-#include "modem.h"
+#include "audio_telemetry.h"
 #include "types.h"
 #include "armVIC.h"
 
-uint8_t           modem_nb_ovrn;
+uint8_t           audio_telemetry_nb_ovrn;
 uint8_t           tx_head;
 volatile uint8_t  tx_tail;
 uint8_t           tx_buf[ TX_BUF_SIZE ];
@@ -14,7 +14,7 @@ uint8_t tx_bit_idx;
 #define NB_STATE 2
 #define NB_PHASE 2
 
-static const uint16_t modem_sample[NB_STATE][NB_PHASE][SAMPLES_PER_PERIOD] =
+static const uint16_t audio_telemetry_sample[NB_STATE][NB_PHASE][SAMPLES_PER_PERIOD] =
   {
     {{512, 1023, 512, 1},
      {512 ,1 , 512 , 1023}},
@@ -22,8 +22,8 @@ static const uint16_t modem_sample[NB_STATE][NB_PHASE][SAMPLES_PER_PERIOD] =
      {512 ,150 ,1 , 150}}
   };
 
-static uint8_t modem_sample_idx = 0;
-static uint8_t modem_phase = 0;
+static uint8_t audio_telemetry_sample_idx = 0;
+static uint8_t audio_telemetry_phase = 0;
 
 
 static inline uint8_t get_next_bit( void ) {
@@ -61,14 +61,14 @@ static inline uint8_t get_next_bit( void ) {
 
 void TIMER1_ISR ( void ) {
   ISR_ENTRY();
-  static uint8_t modem_bit;
+  static uint8_t audio_telemetry_bit;
 
-  DACR = modem_sample[modem_bit][modem_phase][modem_sample_idx] << 6;
-  modem_sample_idx++;
-  if (modem_sample_idx == SAMPLES_PER_PERIOD) {
-    modem_sample_idx = 0;
-    modem_phase ^= modem_bit;
-    modem_bit =  get_next_bit();
+  DACR = audio_telemetry_sample[audio_telemetry_bit][audio_telemetry_phase][audio_telemetry_sample_idx] << 6;
+  audio_telemetry_sample_idx++;
+  if (audio_telemetry_sample_idx == SAMPLES_PER_PERIOD) {
+    audio_telemetry_sample_idx = 0;
+    audio_telemetry_phase ^= audio_telemetry_bit;
+    audio_telemetry_bit =  get_next_bit();
   }
 
   /* clear interrupt */

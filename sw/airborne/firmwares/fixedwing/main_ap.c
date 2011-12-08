@@ -559,8 +559,8 @@ void init_ap( void ) {
 #if defined MCU_SPI_LINK
   link_mcu_init();
 #endif
-#ifdef MODEM
-  modem_init();
+#if USE_AUDIO_TELEMETRY
+  audio_telemetry_init();
 #endif
 
   /************ Internal status ***************/

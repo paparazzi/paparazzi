@@ -22,7 +22,7 @@
  *
  */
 
-/** \file modem_hw.c
+/** \file audio_telemetry_hw.c
  *  \brief Handling of a CMX 469 on avr mega128 architecture
  */
 
@@ -33,9 +33,9 @@
 #endif
 
 #include <avr/interrupt.h>
-#include "modem.h"
+#include "audio_telemetry.h"
 
-uint8_t modem_nb_ovrn;
+uint8_t audio_telemetry_nb_ovrn;
 
 uint8_t           tx_head;
 volatile uint8_t  tx_tail;
@@ -45,21 +45,21 @@ uint8_t    tx_byte;
 uint8_t    tx_byte_idx;
 
 
-SIGNAL( MODEM_CLK_INT_SIG ) {
+SIGNAL( AUDIO_TELEMETRY_CLK_INT_SIG ) {
   /*  start bit         */
   if (tx_byte_idx == 0)
-    cbi(MODEM_TX_PORT, MODEM_TX_DATA);
+    cbi(AUDIO_TELEMETRY_TX_PORT, AUDIO_TELEMETRY_TX_DATA);
   /* 8 data bits        */
   else if (tx_byte_idx < 9) {
     if (tx_byte & 0x01)
-      sbi(MODEM_TX_PORT, MODEM_TX_DATA);
+      sbi(AUDIO_TELEMETRY_TX_PORT, AUDIO_TELEMETRY_TX_DATA);
     else
-      cbi(MODEM_TX_PORT, MODEM_TX_DATA);
+      cbi(AUDIO_TELEMETRY_TX_PORT, AUDIO_TELEMETRY_TX_DATA);
     tx_byte >>= 1;
   }
   /* stop_bit           */
   else {
-    sbi(MODEM_TX_PORT, MODEM_TX_DATA);
+    sbi(AUDIO_TELEMETRY_TX_PORT, AUDIO_TELEMETRY_TX_DATA);
   }
   tx_byte_idx++;
   /* next byte          */
@@ -67,10 +67,10 @@ SIGNAL( MODEM_CLK_INT_SIG ) {
     /*  if we have nothing left to transmit */
     if( tx_head == tx_tail ) {
       /* disable clock interrupt            */
-      cbi( EIMSK, MODEM_CLK_INT );
+      cbi( EIMSK, AUDIO_TELEMETRY_CLK_INT );
     } else {
       /* else load next byte                  */
-      MODEM_LOAD_NEXT_BYTE();
+      AUDIO_TELEMETRY_LOAD_NEXT_BYTE();
     }
   }
 }

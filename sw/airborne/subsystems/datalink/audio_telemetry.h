@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Paparazzi mcu0 cmx469 modem functions
+ * Paparazzi telemetry via audio channel modem functions
  *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *
@@ -24,17 +24,15 @@
  *
  */
 
-#ifndef MODEM_H
-#define MODEM_H
+#ifndef AUDIO_TELEMETRY_H
+#define AUDIO_TELEMETRY_H
 
 #include "inttypes.h"
 
-extern uint8_t modem_nb_ovrn;
-
-#ifdef MODEM
+extern uint8_t audio_telemetry_nb_ovrn;
 
 #include "generated/airframe.h"
-#include "modem_hw.h"
+#include "audio_telemetry_hw.h"
 
 
 #define TX_BUF_SIZE     255
@@ -46,7 +44,7 @@ extern uint8_t    tx_byte;
 extern uint8_t    tx_byte_idx;
 
 
-#define ModemSendMessage() MODEM_CHECK_RUNNING()
+#define AudioTelemetrySendMessage() AUDIO_TELEMETRY_CHECK_RUNNING()
 
 #if TX_BUF_SIZE == 256
 #define UPDATE_HEAD() {			   \
@@ -59,14 +57,14 @@ extern uint8_t    tx_byte_idx;
 }
 #endif
 
-#define ModemCheckFreeSpace(_space) (tx_head>=tx_tail? _space < (TX_BUF_SIZE - (tx_head - tx_tail)) : _space < (tx_tail - tx_head))
+#define AudioTelemetryCheckFreeSpace(_space) (tx_head>=tx_tail? _space < (TX_BUF_SIZE - (tx_head - tx_tail)) : _space < (tx_tail - tx_head))
 
-#define ModemPut1Byte(_byte) { \
+#define AudioTelemetryPut1Byte(_byte) { \
   tx_buf[tx_head] = _byte;	  \
   UPDATE_HEAD();		  \
 }
 
-#define MODEM_LOAD_NEXT_BYTE() { \
+#define AUDIO_TELEMETRY_LOAD_NEXT_BYTE() { \
   tx_byte = tx_buf[tx_tail]; \
   tx_byte_idx = 0; \
   tx_tail++; \
@@ -74,8 +72,6 @@ extern uint8_t    tx_byte_idx;
     tx_tail = 0; \
 }
 
-#define ModemTransmit(_x) ModemPut1Byte(_x)
+#define AudioTelemetryTransmit(_x) Audio_TelemetryPut1Byte(_x)
 
-#endif // MODEM
-
-#endif /* MODEM_H */
+#endif /* AUDIO_TELEMETRY_H */

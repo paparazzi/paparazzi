@@ -1,5 +1,5 @@
-#ifndef MODEM_HW_H
-#define MODEM_HW_H
+#ifndef AUDIO_TELEMETRY_HW_H
+#define AUDIO_TELEMETRY_HW_H
 
 #include "LPC21xx.h"
 #include BOARD_CONFIG
@@ -28,7 +28,7 @@ void TIMER1_ISR ( void ) __attribute__((naked));
 #define SAMPLES_PER_PERIOD 4
 #define SAMPLE_PERIOD (PCLK/4762/SAMPLES_PER_PERIOD/T1_PCLK_DIV)
 
-static inline void modem_init ( void ) {
+static inline void audio_telemetry_init ( void ) {
     /* turn on DAC pins */
   PINSEL1 &= 1 << 19;
   PINSEL1 |= ~(1 << 18);
@@ -53,7 +53,7 @@ static inline void modem_init ( void ) {
 }
 
 
-#define MODEM_CHECK_RUNNING() {}
+#define AUDIO_TELEMETRY_CHECK_RUNNING() {}
 
 
-#endif /* MODEM_HW_H */
+#endif /* AUDIO_TELEMETRY_HW_H */
