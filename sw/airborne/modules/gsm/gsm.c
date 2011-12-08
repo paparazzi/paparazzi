@@ -67,8 +67,8 @@ Receiving:
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 #include "mcu_periph/uart.h"
-#include "downlink.h"
-#include "ap_downlink.h"
+#include "subsystems/datalink/downlink.h"
+#include "ap_subsystems/datalink/downlink.h"
 #include "subsystems/gps.h"
 #include "autopilot.h"
 #include "estimator.h"

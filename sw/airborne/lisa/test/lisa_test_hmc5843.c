@@ -36,7 +36,7 @@
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "sys_time.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "std.h"
 
 #include "mcu_periph/uart.h"

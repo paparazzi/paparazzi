@@ -34,7 +34,7 @@
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "modules/meteo/humid_pcap01.h"
 #ifdef PCAP01_LOAD_FIRMWARE
 #include "modules/meteo/humid_pcap01_firmware.h"

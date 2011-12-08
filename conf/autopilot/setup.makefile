@@ -78,4 +78,4 @@ setup_actuators.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DDOWNLINK_DEVICE=Uart
 setup_actuators.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDATALINK=PPRZ
 setup_actuators.CFLAGS += -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1
 setup_actuators.CFLAGS += $(SETUP_INC) -Ifirmwares/fixedwing
-setup_actuators.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c pprz_transport.c downlink.c $(SRC_FIRMWARE)/setup_actuators.c mcu_periph/uart.c $(SRC_ARCH)/mcu_periph/uart_arch.c firmwares/fixedwing/main.c mcu.c $(SRC_ARCH)/mcu_arch.c
+setup_actuators.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c subsystems/datalink/pprz_transport.c subsystems/datalink/downlink.c $(SRC_FIRMWARE)/setup_actuators.c mcu_periph/uart.c $(SRC_ARCH)/mcu_periph/uart_arch.c firmwares/fixedwing/main.c mcu.c $(SRC_ARCH)/mcu_arch.c

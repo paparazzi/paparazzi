@@ -33,14 +33,14 @@
 #include "led.h"
 #include "interrupt_hw.h"
 #include "mcu_periph/uart.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "generated/periodic.h"
 #include "generated/airframe.h"
 #include "commands.h"
 #include "subsystems/radio_control.h"
 #include "booz/booz2_gps.h"
 
-//#include "ap_downlink.h"
+//#include "ap_subsystems/datalink/downlink.h"
 
 #include "csc_servos.h"
 #include "csc_telemetry.h"
@@ -52,7 +52,7 @@
 #include "csc_ap_link.h"
 #include "led.h"
 
-#include "pprz_transport.h"
+#include "subsystems/datalink/pprz_transport.h"
 
 #define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
 

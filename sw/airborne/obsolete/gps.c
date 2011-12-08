@@ -56,7 +56,7 @@
 #else
 #define DOWNLINK_DEVICE DOWNLINK_GPS_DEVICE
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #endif
 
 uint16_t last_gps_msg_t;	/** cputime of the last gps message */

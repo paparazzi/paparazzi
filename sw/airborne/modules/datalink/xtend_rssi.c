@@ -39,7 +39,7 @@
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 //from Digi XTend manual
 #define XTEND_RSSI_PWM_PERIOD_USEC 8320 //rssi pwm period () in sys tics

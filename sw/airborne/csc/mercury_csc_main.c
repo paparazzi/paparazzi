@@ -51,7 +51,7 @@
 #include "csc_telemetry.h"
 
 #include "generated/periodic.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "pwm_input.h"
 #include "csc_airspeed.h"

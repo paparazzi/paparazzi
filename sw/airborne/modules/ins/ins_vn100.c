@@ -31,7 +31,7 @@
 #include "generated/airframe.h"
 #include "led.h"
 
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "messages.h"
 
 /* neutrals */
@@ -186,7 +186,7 @@ void parse_ins_msg( void ) {
 #endif
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 extern void ins_report_task( void ) {
   DOWNLINK_SEND_AHRS_LKF(DefaultChannel,

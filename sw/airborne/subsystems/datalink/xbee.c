@@ -24,7 +24,7 @@
 
 #include "sys_time.h"
 #include "print.h"
-#include "xbee.h"
+#include "subsystems/datalink/xbee.h"
 
 #ifdef SIM_UART
 #include "sim_uart.h"

@@ -29,7 +29,7 @@
 #include "led.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "mcu_periph/i2c.h"
 #include "peripherals/ami601.h"

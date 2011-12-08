@@ -8,7 +8,7 @@
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "dl_protocol.h"
 
 #include "potential.h"

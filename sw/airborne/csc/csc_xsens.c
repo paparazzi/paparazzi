@@ -32,7 +32,7 @@
 
 #include "led.h"
 
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "messages.h"
 #include "mcu_periph/uart.h"
 //#include "com_stats.h"

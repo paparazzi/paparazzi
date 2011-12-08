@@ -24,12 +24,12 @@
 #define DATALINK_C
 #define MODULES_DATALINK_C
 
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 
 #include "generated/modules.h"
 
 #include "generated/settings.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "messages.h"
 #include "dl_protocol.h"
 #include "mcu_periph/uart.h"

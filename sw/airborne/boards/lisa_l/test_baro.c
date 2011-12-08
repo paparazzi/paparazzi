@@ -33,7 +33,7 @@
 #include "sys_time.h"
 #include "mcu_periph/uart.h"
 
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "subsystems/sensors/baro.h"
 //#include "my_debug_servo.h"

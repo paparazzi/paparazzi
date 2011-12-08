@@ -40,17 +40,17 @@
 
 #ifdef SIM_UART
 #include "sim_uart.h"
-#include "pprz_transport.h"
-#include "xbee.h"
+#include "subsystems/datalink/pprz_transport.h"
+#include "subsystems/datalink/xbee.h"
 #else /* SIM_UART */
 /** Software In The Loop simulation uses IVY bus directly as the transport layer */
 #include "ivy_transport.h"
 #endif
 
 #else /** SITL */
-#include "pprz_transport.h"
-#include "modem.h"
-#include "xbee.h"
+#include "subsystems/datalink/pprz_transport.h"
+#include "subsystems/datalink/modem.h"
+#include "subsystems/datalink/xbee.h"
 #ifdef USE_USB_SERIAL
 #include "mcu_periph/usb_serial.h"
 #endif

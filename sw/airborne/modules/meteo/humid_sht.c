@@ -10,7 +10,7 @@
 #include "LPC21xx.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "humid_sht.h"
 
 #include "led.h"

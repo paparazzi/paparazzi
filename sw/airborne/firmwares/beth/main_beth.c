@@ -3,7 +3,7 @@
 #include "sys_time.h"
 #include "interrupt_hw.h"
 
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "beth/bench_sensors.h"
 

@@ -28,7 +28,7 @@
 #include "sys_time.h"
 #include "interrupt_hw.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "armVIC.h"
 #include "LPC21xx.h"

@@ -62,7 +62,7 @@ void init_sysmon(void) {
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 void periodic_report_sysmon(void) {
   /** Report system status at low frequency */
