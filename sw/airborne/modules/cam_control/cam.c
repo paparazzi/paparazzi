@@ -64,9 +64,6 @@ float test_cam_estimator_hspeed_dir;
 #endif
 #endif
 
-#define MIN_PPRZ_CAM ((int16_t)(MAX_PPRZ * 0.05))
-#define DELTA_ALPHA 0.2
-
 #ifdef CAM_PAN0
 float cam_pan_c = RadOfDeg(CAM_PAN0);
 #else
