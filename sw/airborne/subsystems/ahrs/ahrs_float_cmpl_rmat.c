@@ -52,6 +52,7 @@ struct AhrsFloatCmplRmat ahrs_impl;
 
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
+  ahrs_impl.ltp_vel_norm_valid = FALSE;
 
   /* Initialises IMU alignement */
   struct FloatEulers body_to_imu_euler =
@@ -71,6 +72,12 @@ void ahrs_init(void) {
   EULERS_COPY(ahrs_float.ltp_to_imu_euler, body_to_imu_euler);
 
   FLOAT_RATES_ZERO(ahrs_float.imu_rate);
+
+#if AHRS_GRAVITY_UPDATE_COORDINATED_TURN
+  ahrs_impl.correct_gravity = TRUE;
+#else
+  ahrs_impl.correct_gravity = FALSE;
+#endif
 
 }
 
@@ -133,6 +140,15 @@ void ahrs_propagate(void) {
 
 void ahrs_update_accel(void) {
 
+#if AHRS_GRAVITY_UPDATE_COORDINATED_TURN && USE_GPS
+  if (gps.fix == GPS_FIX_3D) {
+    ahrs_impl.ltp_vel_norm = gps.speed_3d / 100.;
+    ahrs_impl.ltp_vel_norm_valid = TRUE;
+  } else {
+    ahrs_impl.ltp_vel_norm_valid = FALSE;
+  }
+#endif
+
   /* last column of roation matrix = ltp z-axis in imu-frame */
   struct FloatVect3  c2 = { RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 0,2),
                             RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 1,2),
@@ -142,34 +158,32 @@ void ahrs_update_accel(void) {
   ACCELS_FLOAT_OF_BFP(imu_accel_float, imu.accel);
 
   struct FloatVect3 residual;
-#ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
-#ifdef USE_GPS
-  ahrs_impl.ltp_vel_norm = gps.speed_3d / 100.;
-#endif
-  /*
-   * centrifugal acceleration in body frame
-   * a_c_body = omega x (omega x r)
-   * (omega x r) = tangential velocity in body frame
-   * a_c_body = omega x vel_tangential_body
-   * assumption: tangential velocity only along body x-axis
-   */
-  const struct FloatVect3 vel_tangential_body = {ahrs_impl.ltp_vel_norm, 0.0, 0.0};
-  struct FloatVect3 acc_c_body;
-  VECT3_RATES_CROSS_VECT3(acc_c_body, ahrs_float.body_rate, vel_tangential_body);
 
-  /* convert centrifucal acceleration from body to imu frame */
-  struct FloatVect3 acc_c_imu;
-  FLOAT_RMAT_VECT3_MUL(acc_c_imu, ahrs_impl.body_to_imu_rmat, acc_c_body);
+  if (ahrs_impl.correct_gravity && ahrs_impl.ltp_vel_norm_valid) {
+    /*
+     * centrifugal acceleration in body frame
+     * a_c_body = omega x (omega x r)
+     * (omega x r) = tangential velocity in body frame
+     * a_c_body = omega x vel_tangential_body
+     * assumption: tangential velocity only along body x-axis
+     */
+    const struct FloatVect3 vel_tangential_body = {ahrs_impl.ltp_vel_norm, 0.0, 0.0};
+    struct FloatVect3 acc_c_body;
+    VECT3_RATES_CROSS_VECT3(acc_c_body, ahrs_float.body_rate, vel_tangential_body);
 
-  /* and subtract it from imu measurement to get a corrected measurement of the gravitiy vector */
-  struct FloatVect3 corrected_gravity;
-  VECT3_DIFF(corrected_gravity, imu_accel_float, acc_c_imu);
+    /* convert centrifucal acceleration from body to imu frame */
+    struct FloatVect3 acc_c_imu;
+    FLOAT_RMAT_VECT3_MUL(acc_c_imu, ahrs_impl.body_to_imu_rmat, acc_c_body);
 
-  /* compute the residual of gravity vector in imu frame */
-  FLOAT_VECT3_CROSS_PRODUCT(residual, corrected_gravity, c2);
-#else
-  FLOAT_VECT3_CROSS_PRODUCT(residual, imu_accel_float, c2);
-#endif
+    /* and subtract it from imu measurement to get a corrected measurement of the gravitiy vector */
+    struct FloatVect3 corrected_gravity;
+    VECT3_DIFF(corrected_gravity, imu_accel_float, acc_c_imu);
+
+    /* compute the residual of gravity vector in imu frame */
+    FLOAT_VECT3_CROSS_PRODUCT(residual, corrected_gravity, c2);
+  } else {
+    FLOAT_VECT3_CROSS_PRODUCT(residual, imu_accel_float, c2);
+  }
 
 #ifdef AHRS_GRAVITY_UPDATE_NORM_HEURISTIC
   /* heuristic on acceleration norm */

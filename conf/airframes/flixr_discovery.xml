@@ -19,7 +19,6 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
       <!--define name="IMU_B2_VERSION_1_0"/-->
       <define name="USE_I2C0"/>
       <define name="I2C0_VIC_SLOT" value="12"/>
-      <define name="AHRS_PROPAGATE_RMAT"/>
     </target>
     <target name="sim"          board="pc"/>
 
@@ -183,6 +182,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <define name="H_X" value="0.4357869"/>
     <define name="H_Y" value="0.0177010"/>
     <define name="H_Z" value="0.8998758"/>
+    <define name="PROPAGATE_RMAT" value="1"/>
   </section>
 
   <section name="INS" prefix="INS_">

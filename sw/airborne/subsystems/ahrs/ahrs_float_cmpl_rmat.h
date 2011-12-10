@@ -24,11 +24,15 @@
 #ifndef AHRS_FLOAT_CMPL_RMAT
 #define AHRS_FLOAT_CMPL_RMAT
 
+#include "std.h"
+
 struct AhrsFloatCmplRmat {
   struct FloatRates gyro_bias;
   struct FloatRates rate_correction;
   /* for gravity correction during coordinated turns */
   float ltp_vel_norm;
+  bool_t ltp_vel_norm_valid;
+  bool_t correct_gravity;
 
   /*
      Holds float version of IMU alignement
