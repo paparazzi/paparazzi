@@ -325,6 +325,10 @@ void ahrs_update_mag(void)
 #endif
 }
 
+void ahrs_update_gps(void) {
+
+}
+
 void Normalize(void)
 {
   float error=0;

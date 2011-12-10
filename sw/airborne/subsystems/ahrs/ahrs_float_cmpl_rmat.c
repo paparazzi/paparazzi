@@ -140,15 +140,6 @@ void ahrs_propagate(void) {
 
 void ahrs_update_accel(void) {
 
-#if AHRS_GRAVITY_UPDATE_COORDINATED_TURN && USE_GPS
-  if (gps.fix == GPS_FIX_3D) {
-    ahrs_impl.ltp_vel_norm = gps.speed_3d / 100.;
-    ahrs_impl.ltp_vel_norm_valid = TRUE;
-  } else {
-    ahrs_impl.ltp_vel_norm_valid = FALSE;
-  }
-#endif
-
   /* last column of roation matrix = ltp z-axis in imu-frame */
   struct FloatVect3  c2 = { RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 0,2),
                             RMAT_ELMT(ahrs_float.ltp_to_imu_rmat, 1,2),
@@ -288,6 +279,16 @@ void ahrs_update_mag_2d_dumb(void) {
 
 }
 
+void ahrs_update_gps(void) {
+#if AHRS_GRAVITY_UPDATE_COORDINATED_TURN && USE_GPS
+  if (gps.fix == GPS_FIX_3D) {
+    ahrs_impl.ltp_vel_norm = gps.speed_3d / 100.;
+    ahrs_impl.ltp_vel_norm_valid = TRUE;
+  } else {
+    ahrs_impl.ltp_vel_norm_valid = FALSE;
+  }
+#endif
+}
 
 /*
  * Compute ltp to imu rotation in euler angles and quaternion representations
