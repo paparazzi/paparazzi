@@ -187,7 +187,7 @@ void ahrs_update_accel(void) {
 
 #ifdef AHRS_GRAVITY_UPDATE_NORM_HEURISTIC
   /* heuristic on acceleration norm */
-  const float acc_norm = FLOAT_VECT3_NORM(accel_float);
+  const float acc_norm = FLOAT_VECT3_NORM(imu_accel_float);
   const float weight = Chop(1.-6*fabs((9.81-acc_norm)/9.81), 0., 1.);
 #else
   const float weight = 1.;
@@ -196,14 +196,10 @@ void ahrs_update_accel(void) {
   /* compute correction */
   const float gravity_rate_update_gain = -5e-2; // -5e-2
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual, weight*gravity_rate_update_gain);
-#if 1
+
   const float gravity_bias_update_gain = 1e-5; // -5e-6
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual, weight*gravity_bias_update_gain);
-#else
-  const float alpha = 5e-4;
-  FLOAT_RATES_SCALE(ahrs_impl.gyro_bias, 1.-alpha);
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual, alpha);
-#endif
+
   /* FIXME: saturate bias */
 
 }
