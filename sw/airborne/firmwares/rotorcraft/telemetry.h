@@ -43,7 +43,7 @@
 #define TELEMETRY_STARTUP_DELAY 0
 #endif
 
-#define PERIODIC_SEND_ALIVE(_chan) DOWNLINK_SEND_ALIVE(_chan, 16, MD5SUM)
+#define PERIODIC_SEND_ALIVE(_trans, _dev) DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM)
 
 #include "subsystems/electrical.h"
 #include "subsystems/imu.h"
@@ -58,10 +58,10 @@
 extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef USE_GPS
-#define PERIODIC_SEND_ROTORCRAFT_STATUS(_chan) {			\
+#define PERIODIC_SEND_ROTORCRAFT_STATUS(_trans, _dev) {			\
     uint32_t imu_nb_err = 0;						\
     uint8_t _twi_blmc_nb_err = 0;					\
-    DOWNLINK_SEND_ROTORCRAFT_STATUS(_chan,				\
+    DOWNLINK_SEND_ROTORCRAFT_STATUS(_trans, _dev,				\
 				    &imu_nb_err,			\
 				    &_twi_blmc_nb_err,			\
 				    &radio_control.status,		\
@@ -77,11 +77,11 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				    );					\
   }
 #else /* !USE_GPS */
-#define PERIODIC_SEND_ROTORCRAFT_STATUS(_chan) {			\
+#define PERIODIC_SEND_ROTORCRAFT_STATUS(_trans, _dev) {			\
     uint32_t imu_nb_err = 0;						\
     uint8_t twi_blmc_nb_err = 0;					\
     uint8_t  fix = GPS_FIX_NONE;					\
-    DOWNLINK_SEND_ROTORCRAFT_STATUS(_chan,					\
+    DOWNLINK_SEND_ROTORCRAFT_STATUS(_trans, _dev,					\
 			      &imu_nb_err,				\
 			      &twi_blmc_nb_err,				\
 			      &radio_control.status,			\
@@ -99,17 +99,17 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #endif /* USE_GPS */
 
 #ifdef RADIO_CONTROL
-#define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
+#define PERIODIC_SEND_RC(_trans, _dev) DOWNLINK_SEND_RC(_trans, _dev, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
 #if defined RADIO_KILL_SWITCH
-#define PERIODIC_SEND_ROTORCRAFT_RADIO_CONTROL(_chan) SEND_ROTORCRAFT_RADIO_CONTROL( _chan, &radio_control.values[RADIO_KILL_SWITCH])
+#define PERIODIC_SEND_ROTORCRAFT_RADIO_CONTROL(_trans, _dev) SEND_ROTORCRAFT_RADIO_CONTROL( _trans, _dev, &radio_control.values[RADIO_KILL_SWITCH])
 #else /* ! RADIO_KILL_SWITCH */
-#define PERIODIC_SEND_ROTORCRAFT_RADIO_CONTROL(_chan) {			                    \
+#define PERIODIC_SEND_ROTORCRAFT_RADIO_CONTROL(_trans, _dev) {			                    \
     int16_t foo = -42;							                    \
-    SEND_ROTORCRAFT_RADIO_CONTROL( _chan, &foo)				                    \
+    SEND_ROTORCRAFT_RADIO_CONTROL( _trans, _dev, &foo)				                    \
 }
 #endif /* !RADIO_KILL_SWITCH */
-#define SEND_ROTORCRAFT_RADIO_CONTROL(_chan, _kill_switch) {			                    \
-    DOWNLINK_SEND_ROTORCRAFT_RADIO_CONTROL(_chan,				                    \
+#define SEND_ROTORCRAFT_RADIO_CONTROL(_trans, _dev, _kill_switch) {			                    \
+    DOWNLINK_SEND_ROTORCRAFT_RADIO_CONTROL(_trans, _dev,				                    \
 				      &radio_control.values[RADIO_ROLL],            \
 				      &radio_control.values[RADIO_PITCH],           \
 				      &radio_control.values[RADIO_YAW],	            \
@@ -118,73 +118,73 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				      _kill_switch,                                        \
 				      &radio_control.status);}
 #else /* ! RADIO_CONTROL */
-#define PERIODIC_SEND_RC(_chan) {}
-#define PERIODIC_SEND_ROTORCRAFT_RADIO_CONTROL(_chan) {}
+#define PERIODIC_SEND_RC(_trans, _dev) {}
+#define PERIODIC_SEND_ROTORCRAFT_RADIO_CONTROL(_trans, _dev) {}
 #endif
 
 #ifdef RADIO_CONTROL_TYPE_PPM
-#define PERIODIC_SEND_PPM(_chan)                    \
-  DOWNLINK_SEND_PPM(_chan,                          \
+#define PERIODIC_SEND_PPM(_trans, _dev)                    \
+  DOWNLINK_SEND_PPM(_trans, _dev,                          \
                     &radio_control.frame_rate,      \
                     PPM_NB_CHANNEL,                 \
                     ppm_pulses)
 #else
-#define PERIODIC_SEND_PPM(_chan) {}
+#define PERIODIC_SEND_PPM(_trans, _dev) {}
 #endif
 
-#define PERIODIC_SEND_IMU_GYRO_SCALED(_chan) {		\
-    DOWNLINK_SEND_IMU_GYRO_SCALED(_chan,			\
+#define PERIODIC_SEND_IMU_GYRO_SCALED(_trans, _dev) {		\
+    DOWNLINK_SEND_IMU_GYRO_SCALED(_trans, _dev,			\
 			     &imu.gyro.p,		\
 			     &imu.gyro.q,		\
 			     &imu.gyro.r);		\
   }
 
-#define PERIODIC_SEND_IMU_ACCEL_SCALED(_chan) {			\
-    DOWNLINK_SEND_IMU_ACCEL_SCALED(_chan,				\
+#define PERIODIC_SEND_IMU_ACCEL_SCALED(_trans, _dev) {			\
+    DOWNLINK_SEND_IMU_ACCEL_SCALED(_trans, _dev,				\
 			      &imu.accel.x,		\
 			      &imu.accel.y,		\
 			      &imu.accel.z);		\
   }
 
-#define PERIODIC_SEND_IMU_MAG_SCALED(_chan) {			\
-    DOWNLINK_SEND_IMU_MAG_SCALED(_chan,				\
+#define PERIODIC_SEND_IMU_MAG_SCALED(_trans, _dev) {			\
+    DOWNLINK_SEND_IMU_MAG_SCALED(_trans, _dev,				\
 			    &imu.mag.x,			\
 			    &imu.mag.y,			\
 			    &imu.mag.z);			\
   }
 
-#define PERIODIC_SEND_IMU_GYRO_RAW(_chan) {				\
-    DOWNLINK_SEND_IMU_GYRO_RAW(_chan,					\
+#define PERIODIC_SEND_IMU_GYRO_RAW(_trans, _dev) {				\
+    DOWNLINK_SEND_IMU_GYRO_RAW(_trans, _dev,					\
 			       &imu.gyro_unscaled.p,		\
 			       &imu.gyro_unscaled.q,		\
 			       &imu.gyro_unscaled.r);		\
   }
 
-#define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) {				\
-    DOWNLINK_SEND_IMU_ACCEL_RAW(_chan,					\
+#define PERIODIC_SEND_IMU_ACCEL_RAW(_trans, _dev) {				\
+    DOWNLINK_SEND_IMU_ACCEL_RAW(_trans, _dev,					\
 				&imu.accel_unscaled.x,		\
 				&imu.accel_unscaled.y,		\
 				&imu.accel_unscaled.z);		\
   }
 
-#define PERIODIC_SEND_IMU_MAG_RAW(_chan) {				\
-    DOWNLINK_SEND_IMU_MAG_RAW(_chan,					\
+#define PERIODIC_SEND_IMU_MAG_RAW(_trans, _dev) {				\
+    DOWNLINK_SEND_IMU_MAG_RAW(_trans, _dev,					\
 			      &imu.mag_unscaled.x,			\
 			      &imu.mag_unscaled.y,			\
 			      &imu.mag_unscaled.z);		\
   }
 
 /* FIXME: make that depend on board */
-#define PERIODIC_SEND_BOOZ_BARO_RAW(_chan) {				\
-    DOWNLINK_SEND_BOOZ2_BARO_RAW(_chan,					\
+#define PERIODIC_SEND_BOOZ_BARO_RAW(_trans, _dev) {				\
+    DOWNLINK_SEND_BOOZ2_BARO_RAW(_trans, _dev,					\
 				 &baro_board.offset,			\
 			         &baro.absolute,			\
 			         &baro_board.value_filtered);		\
   }
 
 
-#define PERIODIC_SEND_BARO_RAW(_chan) {					\
-    DOWNLINK_SEND_BARO_RAW(_chan,					\
+#define PERIODIC_SEND_BARO_RAW(_trans, _dev) {					\
+    DOWNLINK_SEND_BARO_RAW(_trans, _dev,					\
 			   &baro.absolute,				\
 			   &baro.differential);				\
   }
@@ -193,8 +193,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 
 #include "firmwares/rotorcraft/stabilization.h"
-#define PERIODIC_SEND_RATE_LOOP(_chan) {                          \
-    DOWNLINK_SEND_RATE_LOOP(_chan,                                \
+#define PERIODIC_SEND_RATE_LOOP(_trans, _dev) {                          \
+    DOWNLINK_SEND_RATE_LOOP(_trans, _dev,                                \
                                   &stabilization_rate_sp.p,        \
                                   &stabilization_rate_sp.q,        \
                                   &stabilization_rate_sp.r,        \
@@ -217,8 +217,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 #ifdef STABILISATION_ATTITUDE_TYPE_INT
-#define PERIODIC_SEND_STAB_ATTITUDE(_chan) {			\
-    DOWNLINK_SEND_STAB_ATTITUDE_INT(_chan,			\
+#define PERIODIC_SEND_STAB_ATTITUDE(_trans, _dev) {			\
+    DOWNLINK_SEND_STAB_ATTITUDE_INT(_trans, _dev,			\
 					  &ahrs.body_rate.p,	\
 					  &ahrs.body_rate.q,	\
 					  &ahrs.body_rate.r,	\
@@ -243,8 +243,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 
-#define PERIODIC_SEND_STAB_ATTITUDE_REF(_chan) {			\
-    DOWNLINK_SEND_STAB_ATTITUDE_REF_INT(_chan,			\
+#define PERIODIC_SEND_STAB_ATTITUDE_REF(_trans, _dev) {			\
+    DOWNLINK_SEND_STAB_ATTITUDE_REF_INT(_trans, _dev,			\
 					      &stab_att_sp_euler.phi, \
 					      &stab_att_sp_euler.theta, \
 					      &stab_att_sp_euler.psi, \
@@ -261,8 +261,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #endif /* STABILISATION_ATTITUDE_TYPE_INT */
 
 #ifdef STABILISATION_ATTITUDE_TYPE_FLOAT
-#define PERIODIC_SEND_STAB_ATTITUDE(_chan) {			\
-    DOWNLINK_SEND_STAB_ATTITUDE_FLOAT(_chan,			\
+#define PERIODIC_SEND_STAB_ATTITUDE(_trans, _dev) {			\
+    DOWNLINK_SEND_STAB_ATTITUDE_FLOAT(_trans, _dev,			\
 					    &ahrs_float.body_rate.p,	\
 					    &ahrs_float.body_rate.q,	\
 					    &ahrs_float.body_rate.r,	\
@@ -286,8 +286,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 					    &stabilization_cmd[COMMAND_YAW]); \
   }
 
-#define PERIODIC_SEND_STAB_ATTITUDE_REF(_chan) {			\
-    DOWNLINK_SEND_STAB_ATTITUDE_REF_FLOAT(_chan,			\
+#define PERIODIC_SEND_STAB_ATTITUDE_REF(_trans, _dev) {			\
+    DOWNLINK_SEND_STAB_ATTITUDE_REF_FLOAT(_trans, _dev,			\
 						&stab_att_sp_euler.phi, \
 						&stab_att_sp_euler.theta, \
 						&stab_att_sp_euler.psi, \
@@ -306,8 +306,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 
 #include "subsystems/ahrs/ahrs_aligner.h"
-#define PERIODIC_SEND_FILTER_ALIGNER(_chan) {			\
-    DOWNLINK_SEND_FILTER_ALIGNER(_chan,				\
+#define PERIODIC_SEND_FILTER_ALIGNER(_trans, _dev) {			\
+    DOWNLINK_SEND_FILTER_ALIGNER(_trans, _dev,				\
 				       &ahrs_aligner.lp_gyro.p,	\
 				       &ahrs_aligner.lp_gyro.q,	\
 				       &ahrs_aligner.lp_gyro.r,	\
@@ -319,8 +319,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 
-#define PERIODIC_SEND_BOOZ2_CMD(_chan) {				\
-    DOWNLINK_SEND_BOOZ2_CMD(_chan,					\
+#define PERIODIC_SEND_BOOZ2_CMD(_trans, _dev) {				\
+    DOWNLINK_SEND_BOOZ2_CMD(_trans, _dev,					\
 			    &stabilization_cmd[COMMAND_ROLL],	\
 			    &stabilization_cmd[COMMAND_PITCH],	\
 			    &stabilization_cmd[COMMAND_YAW],	\
@@ -330,8 +330,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef USE_AHRS_CMPL
 #include "subsystems/ahrs/ahrs_int_cmpl_euler.h"
-#define PERIODIC_SEND_FILTER(_chan) {					\
-    DOWNLINK_SEND_FILTER(_chan,						\
+#define PERIODIC_SEND_FILTER(_trans, _dev) {					\
+    DOWNLINK_SEND_FILTER(_trans, _dev,						\
 			 &ahrs.ltp_to_imu_euler.phi,			\
 			 &ahrs.ltp_to_imu_euler.theta,			\
 			 &ahrs.ltp_to_imu_euler.psi,			\
@@ -349,15 +349,15 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			 &ahrs_impl.gyro_bias.r);			\
   }
 #else
-#define PERIODIC_SEND_FILTER(_chan) {}
+#define PERIODIC_SEND_FILTER(_trans, _dev) {}
 #endif
 
 #ifdef USE_AHRS_LKF
 #include "subsystems/ahrs.h"
 #include "ahrs/ahrs_float_lkf.h"
-#define PERIODIC_SEND_AHRS_LKF(_chan) {				\
+#define PERIODIC_SEND_AHRS_LKF(_trans, _dev) {				\
     DOWNLINK_SEND_AHRS_LKF(&bafl_eulers.phi,			\
-				_chan,					\
+				_trans, _dev,					\
 				&bafl_eulers.theta,			\
 				&bafl_eulers.psi,			\
 				&bafl_quat.qi,				\
@@ -374,8 +374,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				&bafl_mag.y,				\
 				&bafl_mag.z);				\
   }
-#define PERIODIC_SEND_AHRS_LKF_DEBUG(_chan) {		   \
-    DOWNLINK_SEND_AHRS_LKF_DEBUG(_chan,			   \
+#define PERIODIC_SEND_AHRS_LKF_DEBUG(_trans, _dev) {		   \
+    DOWNLINK_SEND_AHRS_LKF_DEBUG(_trans, _dev,			   \
 				      &bafl_X[0],		   \
 				      &bafl_X[1],		   \
 				      &bafl_X[2],		   \
@@ -392,8 +392,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				      &bafl_P[4][4],		   \
 				      &bafl_P[5][5]);		   \
   }
-#define PERIODIC_SEND_AHRS_LKF_ACC_DBG(_chan) {		    \
-    DOWNLINK_SEND_AHRS_LKF_ACC_DBG(_chan,			    \
+#define PERIODIC_SEND_AHRS_LKF_ACC_DBG(_trans, _dev) {		    \
+    DOWNLINK_SEND_AHRS_LKF_ACC_DBG(_trans, _dev,			    \
 					&bafl_q_a_err.qi,	    \
 					&bafl_q_a_err.qx,	    \
 					&bafl_q_a_err.qy,	    \
@@ -402,8 +402,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 					&bafl_b_a_err.q,	    \
 					&bafl_b_a_err.r);	    \
   }
-#define PERIODIC_SEND_AHRS_LKF_MAG_DBG(_chan) {	    \
-    DOWNLINK_SEND_AHRS_LKF_MAG_DBG(_chan,		    \
+#define PERIODIC_SEND_AHRS_LKF_MAG_DBG(_trans, _dev) {	    \
+    DOWNLINK_SEND_AHRS_LKF_MAG_DBG(_trans, _dev,		    \
 					&bafl_q_m_err.qi,   \
 					&bafl_q_m_err.qx,   \
 					&bafl_q_m_err.qy,   \
@@ -413,15 +413,15 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 					&bafl_b_m_err.r);   \
   }
 #else
-#define PERIODIC_SEND_AHRS_LKF(_chan) {}
-#define PERIODIC_SEND_AHRS_LKF_DEBUG(_chan) {}
-#define PERIODIC_SEND_AHRS_LKF_MAG_DBG(_chan) {}
-#define PERIODIC_SEND_AHRS_LKF_ACC_DBG(_chan) {}
+#define PERIODIC_SEND_AHRS_LKF(_trans, _dev) {}
+#define PERIODIC_SEND_AHRS_LKF_DEBUG(_trans, _dev) {}
+#define PERIODIC_SEND_AHRS_LKF_MAG_DBG(_trans, _dev) {}
+#define PERIODIC_SEND_AHRS_LKF_ACC_DBG(_trans, _dev) {}
 #endif
 
 
-#define PERIODIC_SEND_AHRS_REF_QUAT(_chan) {				\
-    DOWNLINK_SEND_AHRS_REF_QUAT(_chan,				\
+#define PERIODIC_SEND_AHRS_REF_QUAT(_trans, _dev) {				\
+    DOWNLINK_SEND_AHRS_REF_QUAT(_trans, _dev,				\
 				  &stab_att_ref_quat.qi,	\
 				  &stab_att_ref_quat.qx,	\
 				  &stab_att_ref_quat.qy,	\
@@ -432,8 +432,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				  &ahrs.ltp_to_body_quat.qz);	\
   }
 
-#define PERIODIC_SEND_AHRS_QUAT_INT(_chan) {				\
-    DOWNLINK_SEND_AHRS_QUAT_INT(_chan,				\
+#define PERIODIC_SEND_AHRS_QUAT_INT(_trans, _dev) {				\
+    DOWNLINK_SEND_AHRS_QUAT_INT(_trans, _dev,				\
 				  &ahrs.ltp_to_imu_quat.qi,	\
 				  &ahrs.ltp_to_imu_quat.qx,	\
 				  &ahrs.ltp_to_imu_quat.qy,	\
@@ -444,8 +444,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				  &ahrs.ltp_to_body_quat.qz);	\
   }
 
-#define PERIODIC_SEND_AHRS_EULER_INT(_chan) {				\
-    DOWNLINK_SEND_AHRS_EULER_INT(_chan,				\
+#define PERIODIC_SEND_AHRS_EULER_INT(_trans, _dev) {				\
+    DOWNLINK_SEND_AHRS_EULER_INT(_trans, _dev,				\
 				   &ahrs.ltp_to_imu_euler.phi,	\
 				   &ahrs.ltp_to_imu_euler.theta,	\
 				   &ahrs.ltp_to_imu_euler.psi,	\
@@ -454,8 +454,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				   &ahrs.ltp_to_body_euler.psi);	\
   }
 
-#define PERIODIC_SEND_AHRS_RMAT_INT(_chan) {      \
-    DOWNLINK_SEND_AHRS_RMAT(_chan,				\
+#define PERIODIC_SEND_AHRS_RMAT_INT(_trans, _dev) {      \
+    DOWNLINK_SEND_AHRS_RMAT(_trans, _dev,				\
 				  &ahrs.ltp_to_imu_rmat.m[0],	\
 				  &ahrs.ltp_to_imu_rmat.m[1],	\
 				  &ahrs.ltp_to_imu_rmat.m[2],	\
@@ -480,8 +480,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #ifdef USE_VFF
 #include "subsystems/ins/vf_float.h"
-#define PERIODIC_SEND_VFF(_chan) {		\
-    DOWNLINK_SEND_VFF(_chan,			\
+#define PERIODIC_SEND_VFF(_trans, _dev) {		\
+    DOWNLINK_SEND_VFF(_trans, _dev,			\
 			    &vff_z_meas,		\
 			    &vff_z,			\
 			    &vff_zdot,		\
@@ -491,13 +491,13 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			    & vff_P[2][2]);		\
   }
 #else
-#define PERIODIC_SEND_VFF(_chan) {}
+#define PERIODIC_SEND_VFF(_trans, _dev) {}
 #endif
 
 #ifdef USE_HFF
 #include  "subsystems/ins/hf_float.h"
-#define PERIODIC_SEND_HFF(_chan) {	\
-    DOWNLINK_SEND_HFF(_chan,		\
+#define PERIODIC_SEND_HFF(_trans, _dev) {	\
+    DOWNLINK_SEND_HFF(_trans, _dev,		\
                             &b2_hff_state.x,			\
                             &b2_hff_state.y,			\
                             &b2_hff_state.xdot,         \
@@ -505,8 +505,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                             &b2_hff_state.xdotdot,      \
                             &b2_hff_state.ydotdot);     \
   }
-#define PERIODIC_SEND_HFF_DBG(_chan) {                \
-	DOWNLINK_SEND_HFF_DBG(_chan,                      \
+#define PERIODIC_SEND_HFF_DBG(_trans, _dev) {                \
+	DOWNLINK_SEND_HFF_DBG(_trans, _dev,                      \
                                 &b2_hff_x_meas,             \
                                 &b2_hff_y_meas,             \
                                 &b2_hff_xd_meas,            \
@@ -517,39 +517,39 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                                 &b2_hff_state.yP[1][1]);    \
   }
 #ifdef GPS_LAG
-#define PERIODIC_SEND_HFF_GPS(_chan) {	\
-    DOWNLINK_SEND_HFF_GPS(_chan,			\
+#define PERIODIC_SEND_HFF_GPS(_trans, _dev) {	\
+    DOWNLINK_SEND_HFF_GPS(_trans, _dev,			\
 							  &b2_hff_rb_last->lag_counter,		\
 							  &lag_counter_err,	\
 							  &save_counter);	\
   }
 #else
-#define PERIODIC_SEND_HFF_GPS(_chan) {}
+#define PERIODIC_SEND_HFF_GPS(_trans, _dev) {}
 #endif
 #else
-#define PERIODIC_SEND_HFF(_chan) {}
-#define PERIODIC_SEND_HFF_DBG(_chan) {}
-#define PERIODIC_SEND_HFF_GPS(_chan) {}
+#define PERIODIC_SEND_HFF(_trans, _dev) {}
+#define PERIODIC_SEND_HFF_DBG(_trans, _dev) {}
+#define PERIODIC_SEND_HFF_GPS(_trans, _dev) {}
 #endif
 
-#define PERIODIC_SEND_GUIDANCE(_chan) {				\
-    DOWNLINK_SEND_GUIDANCE(_chan,					\
+#define PERIODIC_SEND_GUIDANCE(_trans, _dev) {				\
+    DOWNLINK_SEND_GUIDANCE(_trans, _dev,					\
 				 &guidance_h_cur_pos.x,		\
 				 &guidance_h_cur_pos.y,		\
 				 &guidance_h_held_pos.x,		\
 				 &guidance_h_held_pos.y);		\
   }
 
-#define PERIODIC_SEND_INS_Z(_chan) {				\
-    DOWNLINK_SEND_INS_Z(_chan,					\
+#define PERIODIC_SEND_INS_Z(_trans, _dev) {				\
+    DOWNLINK_SEND_INS_Z(_trans, _dev,					\
 			    &ins_baro_alt,				\
 			    &ins_ltp_pos.z,			\
 			    &ins_ltp_speed.z,			\
 			    &ins_ltp_accel.z);			\
   }
 
-#define PERIODIC_SEND_INS(_chan) {			\
-    DOWNLINK_SEND_INS(_chan,				\
+#define PERIODIC_SEND_INS(_trans, _dev) {			\
+    DOWNLINK_SEND_INS(_trans, _dev,				\
 					   &ins_ltp_pos.x,		\
 					   &ins_ltp_pos.y,	    \
 					   &ins_ltp_pos.z,		\
@@ -561,8 +561,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 					   &ins_ltp_accel.z);	\
   }
 
-#define PERIODIC_SEND_INS_REF(_chan) {				\
-    DOWNLINK_SEND_INS_REF(_chan,					\
+#define PERIODIC_SEND_INS_REF(_trans, _dev) {				\
+    DOWNLINK_SEND_INS_REF(_trans, _dev,					\
 				&ins_ltp_def.ecef.x,		\
 				&ins_ltp_def.ecef.y,		\
 				&ins_ltp_def.ecef.z,		\
@@ -573,8 +573,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				&ins_qfe);				\
   }
 
-#define PERIODIC_SEND_VERT_LOOP(_chan) {				\
-    DOWNLINK_SEND_VERT_LOOP(_chan,				\
+#define PERIODIC_SEND_VERT_LOOP(_trans, _dev) {				\
+    DOWNLINK_SEND_VERT_LOOP(_trans, _dev,				\
 				  &guidance_v_z_sp,		\
 				  &guidance_v_zd_sp,		\
 				  &ins_ltp_pos.z,			\
@@ -592,8 +592,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				  &guidance_v_delta_t);		\
   }
 
-#define PERIODIC_SEND_HOVER_LOOP(_chan) {				\
-    DOWNLINK_SEND_HOVER_LOOP(_chan,				\
+#define PERIODIC_SEND_HOVER_LOOP(_trans, _dev) {				\
+    DOWNLINK_SEND_HOVER_LOOP(_trans, _dev,				\
 				   &guidance_h_pos_sp.x,		\
 				   &guidance_h_pos_sp.y,		\
 				   &ins_ltp_pos.x,			\
@@ -617,8 +617,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				   &guidance_h_command_body.psi);	\
   }
 
-#define PERIODIC_SEND_GUIDANCE_H_REF(_chan) { \
-  DOWNLINK_SEND_GUIDANCE_H_REF_INT(_chan, \
+#define PERIODIC_SEND_GUIDANCE_H_REF(_trans, _dev) { \
+  DOWNLINK_SEND_GUIDANCE_H_REF_INT(_trans, _dev, \
       &guidance_h_pos_sp.x, \
       &guidance_h_pos_ref.x, \
       &guidance_h_speed_ref.x, \
@@ -630,9 +630,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 }
 
 #include "firmwares/rotorcraft/navigation.h"
-#define PERIODIC_SEND_ROTORCRAFT_FP(_chan) {					\
+#define PERIODIC_SEND_ROTORCRAFT_FP(_trans, _dev) {					\
     int32_t carrot_up = -guidance_v_z_sp;				\
-    DOWNLINK_SEND_ROTORCRAFT_FP( _chan,					\
+    DOWNLINK_SEND_ROTORCRAFT_FP( _trans, _dev,					\
 			    &ins_enu_pos.x,			\
 			    &ins_enu_pos.y,			\
 			    &ins_enu_pos.z,			\
@@ -651,8 +651,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 #ifdef USE_GPS
-#define PERIODIC_SEND_GPS_INT(_chan) {				\
-    DOWNLINK_SEND_GPS_INT( _chan,                   \
+#define PERIODIC_SEND_GPS_INT(_trans, _dev) {				\
+    DOWNLINK_SEND_GPS_INT( _trans, _dev,                   \
                            &gps.ecef_pos.x,         \
                            &gps.ecef_pos.y,         \
                            &gps.ecef_pos.z,         \
@@ -679,12 +679,12 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
     i++;                                                                \
   }
 #else
-#define PERIODIC_SEND_GPS_INT(_chan) {}
+#define PERIODIC_SEND_GPS_INT(_trans, _dev) {}
 #endif
 
 #include "firmwares/rotorcraft/navigation.h"
-#define PERIODIC_SEND_ROTORCRAFT_NAV_STATUS(_chan) {				\
-    DOWNLINK_SEND_ROTORCRAFT_NAV_STATUS(_chan,                      \
+#define PERIODIC_SEND_ROTORCRAFT_NAV_STATUS(_trans, _dev) {				\
+    DOWNLINK_SEND_ROTORCRAFT_NAV_STATUS(_trans, _dev,                      \
 				   &block_time,				\
 				   &stage_time,				\
 				   &nav_block,				\
@@ -695,20 +695,20 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
       float sy = POS_FLOAT_OF_BFP(waypoints[nav_segment_start].y);	\
       float ex = POS_FLOAT_OF_BFP(waypoints[nav_segment_end].x);	\
       float ey = POS_FLOAT_OF_BFP(waypoints[nav_segment_end].y);	\
-      DOWNLINK_SEND_SEGMENT(_chan, &sx, &sy, &ex, &ey);			\
+      DOWNLINK_SEND_SEGMENT(_trans, _dev, &sx, &sy, &ex, &ey);			\
     }									\
     else if (horizontal_mode == HORIZONTAL_MODE_CIRCLE) {			\
       float cx = POS_FLOAT_OF_BFP(waypoints[nav_circle_centre].x);	\
       float cy = POS_FLOAT_OF_BFP(waypoints[nav_circle_centre].y);	\
       float r = POS_FLOAT_OF_BFP(nav_circle_radius); \
-      DOWNLINK_SEND_CIRCLE(_chan, &cx, &cy, &r);			\
+      DOWNLINK_SEND_CIRCLE(_trans, _dev, &cx, &cy, &r);			\
     }									\
   }
 
-#define PERIODIC_SEND_WP_MOVED(_chan) {					\
+#define PERIODIC_SEND_WP_MOVED(_trans, _dev) {					\
     static uint8_t i;							\
     i++; if (i >= nb_waypoint) i = 0;					\
-    DOWNLINK_SEND_WP_MOVED_ENU(_chan,					\
+    DOWNLINK_SEND_WP_MOVED_ENU(_trans, _dev,					\
 			       &i,					\
 			       &(waypoints[i].x),			\
 			       &(waypoints[i].y),			\
@@ -716,13 +716,13 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 #ifdef USE_CAM
-#define PERIODIC_SEND_BOOZ2_CAM(_chan) DOWNLINK_SEND_BOOZ2_CAM(_chan,&booz_cam_tilt,&booz_cam_pan);
+#define PERIODIC_SEND_BOOZ2_CAM(_trans, _dev) DOWNLINK_SEND_BOOZ2_CAM(_trans, _dev,&booz_cam_tilt,&booz_cam_pan);
 #else
-#define PERIODIC_SEND_BOOZ2_CAM(_chan) {}
+#define PERIODIC_SEND_BOOZ2_CAM(_trans, _dev) {}
 #endif
 
-#define PERIODIC_SEND_BOOZ2_TUNE_HOVER(_chan) {				       \
-    DOWNLINK_SEND_BOOZ2_TUNE_HOVER(_chan,				       \
+#define PERIODIC_SEND_BOOZ2_TUNE_HOVER(_trans, _dev) {				       \
+    DOWNLINK_SEND_BOOZ2_TUNE_HOVER(_trans, _dev,				       \
 				   &radio_control.values[RADIO_ROLL],  \
 				   &radio_control.values[RADIO_PITCH], \
 				   &radio_control.values[RADIO_YAW],   \
@@ -739,8 +739,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				   );					       \
   }
 
-#define PERIODIC_SEND_I2C_ERRORS(_chan) {				       \
-    DOWNLINK_SEND_I2C_ERRORS(_chan,				       \
+#define PERIODIC_SEND_I2C_ERRORS(_trans, _dev) {				       \
+    DOWNLINK_SEND_I2C_ERRORS(_trans, _dev,				       \
 				   &i2c_errc_ack_fail,  \
 				   &i2c_errc_miss_start_stop,  \
 				   &i2c_errc_arb_lost,  \
@@ -753,14 +753,14 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 //TODO replace by BOOZ_EXTRA_ADC
 #ifdef BOOZ2_SONAR
-#define PERIODIC_SEND_BOOZ2_SONAR(_chan) DOWNLINK_SEND_BOOZ2_SONAR(_chan,&booz2_adc_1,&booz2_adc_2,&booz2_adc_3,&booz2_adc_4);
+#define PERIODIC_SEND_BOOZ2_SONAR(_trans, _dev) DOWNLINK_SEND_BOOZ2_SONAR(_trans, _dev,&booz2_adc_1,&booz2_adc_2,&booz2_adc_3,&booz2_adc_4);
 #else
-#define PERIODIC_SEND_BOOZ2_SONAR(_chan) {}
+#define PERIODIC_SEND_BOOZ2_SONAR(_trans, _dev) {}
 #endif
 
 #ifdef BOOZ2_TRACK_CAM
 #include "cam_track.h"
-#define PERIODIC_SEND_CAM_TRACK(_chan) DOWNLINK_SEND_BOOZ_SIM_SPEED_POS(_chan, \
+#define PERIODIC_SEND_CAM_TRACK(_trans, _dev) DOWNLINK_SEND_BOOZ_SIM_SPEED_POS(_trans, _dev, \
     &target_accel_ned.x, \
     &target_accel_ned.y, \
     &target_accel_ned.z, \
@@ -771,15 +771,15 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
     &target_pos_ned.y, \
     &target_pos_ned.z)
 #else
-#define PERIODIC_SEND_CAM_TRACK(_chan) {}
+#define PERIODIC_SEND_CAM_TRACK(_trans, _dev) {}
 #endif
 
 #include "generated/settings.h"
-#define PERIODIC_SEND_DL_VALUE(_chan) PeriodicSendDlValue(_chan)
+#define PERIODIC_SEND_DL_VALUE(_trans, _dev) PeriodicSendDlValue(_trans, _dev)
 
 #include "generated/periodic.h"
 #define Booz2TelemetryPeriodic() {			\
-    PeriodicSendMain(DefaultChannel);			\
+    PeriodicSendMain(DefaultChannel,DefaultDevice);			\
   }
 
 
