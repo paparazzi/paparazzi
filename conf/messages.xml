@@ -1048,12 +1048,7 @@
     <field name="cnt"    type="int32"/>
   </message>
 
-  <message name="FILTER_Q" id="138">
-    <field name="qi"  type="int32"/>
-    <field name="qx"  type="int32"/>
-    <field name="qy"  type="int32"/>
-    <field name="qz"  type="int32"/>
-  </message>
+  <!-- 138 is free -->
 
   <message name="FILTER_COR" id="139">
     <field name="mphi"   type="int32"/>

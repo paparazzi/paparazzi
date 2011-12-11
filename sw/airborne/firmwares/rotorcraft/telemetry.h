@@ -478,15 +478,6 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 
 
-
-#define PERIODIC_SEND_FILTER_Q(_chan) {				\
-    DOWNLINK_SEND_FILTER_Q(_chan,					\
-				 &booz2_filter_attitude_quat.qi,	\
-				 &booz2_filter_attitude_quat.qx,	\
-				 &booz2_filter_attitude_quat.qy,	\
-				 &booz2_filter_attitude_quat.qz);	\
-  }
-
 #ifdef USE_VFF
 #include "subsystems/ins/vf_float.h"
 #define PERIODIC_SEND_VFF(_chan) {		\
