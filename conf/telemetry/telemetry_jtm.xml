@@ -22,7 +22,7 @@
       <message name="BOOZ2_CMD"           period=".05"/>
       <message name="PPM"                 period="0.5"/>
       <message name="RC"                  period="0.5"/>
-      <message name="BOOZ2_RADIO_CONTROL" period="0.5"/>
+      <message name="ROTORCRAFT_RADIO_CONTROL" period="0.5"/>
       <message name="ROTORCRAFT_STATUS"       period="1"/>
     </mode>
 
@@ -49,11 +49,11 @@
       <message name="ROTORCRAFT_STATUS"       period="1.2"/>
       <message name="DL_VALUE"          period="0.5"/>
       <message name="ALIVE"             period="2.1"/>
-<!--      <message name="BOOZ2_ALIGNER"     period=".1"/> -->
+<!--      <message name="FILTER_ALIGNER"     period=".1"/> -->
       <message name="FILTER"      period=".5"/>
-<!--      <message name="BOOZ2_AHRS_QUAT"   period=".25"/> -->
-      <message name="BOOZ2_AHRS_EULER"  period=".1"/>
-<!--      <message name="BOOZ2_AHRS_RMAT"   period=".5"/> -->
+<!--      <message name="AHRS_QUAT_INT"   period=".25"/> -->
+      <message name="AHRS_EULER_INT"  period=".1"/>
+<!--      <message name="AHRS_RMAT_INT"   period=".5"/> -->
     </mode>
 
     <mode name="rate_loop">
@@ -114,7 +114,7 @@
       <message name="ALIVE"             period="2.1"/>
       <!--<message name="BOOZ2_SONAR"       period="0.1"/>-->
       <!--<message name="BOOZ2_TUNE_HOVER"               period=".1"/>-->
-      <!-- <message name="BOOZ2_GPS"               period=".20"/> -->
+      <!-- <message name="GPS_INT"               period=".20"/> -->
       <!--<message name="INS2"              period=".05"/>
       <message name="INS3"              period=".20"/>-->
       <message name="INS_REF"           period="5.1"/>

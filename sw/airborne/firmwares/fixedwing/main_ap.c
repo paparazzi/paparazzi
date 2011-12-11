@@ -647,9 +647,7 @@ void event_task_ap( void ) {
 #ifdef USE_GPS
 static inline void on_gps_solution( void ) {
   estimator_update_state_gps();
-#ifdef USE_INFRARED
   ahrs_update_gps();
-#endif
 #ifdef GPS_TRIGGERED_FUNCTION
   GPS_TRIGGERED_FUNCTION();
 #endif

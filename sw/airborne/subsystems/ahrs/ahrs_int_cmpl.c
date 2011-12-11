@@ -82,6 +82,7 @@ static inline void compute_body_orientation(void);
 void ahrs_init(void) {
 
   ahrs.status = AHRS_UNINIT;
+  ahrs_impl.ltp_vel_norm_valid = FALSE;
 
   /* set ltp_to_body to zero */
   INT_EULERS_ZERO(ahrs.ltp_to_body_euler);
@@ -98,6 +99,12 @@ void ahrs_init(void) {
   INT_RATES_ZERO(ahrs_impl.gyro_bias);
   INT_RATES_ZERO(ahrs_impl.rate_correction);
   INT_RATES_ZERO(ahrs_impl.high_rez_bias);
+
+#if AHRS_GRAVITY_UPDATE_COORDINATED_TURN
+  ahrs_impl.correct_gravity = TRUE;
+#else
+  ahrs_impl.correct_gravity = FALSE;
+#endif
 
 }
 
@@ -166,37 +173,35 @@ void ahrs_update_accel(void) {
                            RMAT_ELMT(ahrs.ltp_to_imu_rmat, 1,2),
                            RMAT_ELMT(ahrs.ltp_to_imu_rmat, 2,2)};
   struct Int32Vect3 residual;
-#ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
-#ifdef USE_GPS
-  ahrs_impl.ltp_vel_norm = SPEED_BFP_OF_REAL(gps.speed_3d / 100.);
-#endif
-  /*
-   * centrifugal acceleration in body frame
-   * a_c_body = omega x (omega x r)
-   * (omega x r) = tangential velocity in body frame
-   * a_c_body = omega x vel_tangential_body
-   * assumption: tangential velocity only along body x-axis
-   */
 
-  // FIXME: check overflows !
-  const struct Int32Vect3 vel_tangential_body = {(ahrs_impl.ltp_vel_norm>>INT32_ACCEL_FRAC), 0.0, 0.0};
-  struct Int32Vect3 acc_c_body;
-  VECT3_RATES_CROSS_VECT3(acc_c_body, ahrs.body_rate, vel_tangential_body);
-  INT32_VECT3_RSHIFT(acc_c_body, acc_c_body, INT32_SPEED_FRAC+INT32_RATE_FRAC-INT32_ACCEL_FRAC-INT32_ACCEL_FRAC);
+  if (ahrs_impl.correct_gravity && ahrs_impl.ltp_vel_norm_valid) {
+    /*
+     * centrifugal acceleration in body frame
+     * a_c_body = omega x (omega x r)
+     * (omega x r) = tangential velocity in body frame
+     * a_c_body = omega x vel_tangential_body
+     * assumption: tangential velocity only along body x-axis
+     */
 
-  /* convert centrifucal acceleration from body to imu frame */
-  struct Int32Vect3 acc_c_imu;
-  INT32_RMAT_VMULT(acc_c_imu, imu.body_to_imu_rmat, acc_c_body);
+    // FIXME: check overflows !
+    const struct Int32Vect3 vel_tangential_body = {(ahrs_impl.ltp_vel_norm>>INT32_ACCEL_FRAC), 0.0, 0.0};
+    struct Int32Vect3 acc_c_body;
+    VECT3_RATES_CROSS_VECT3(acc_c_body, ahrs.body_rate, vel_tangential_body);
+    INT32_VECT3_RSHIFT(acc_c_body, acc_c_body, INT32_SPEED_FRAC+INT32_RATE_FRAC-INT32_ACCEL_FRAC-INT32_ACCEL_FRAC);
 
-  /* and subtract it from imu measurement to get a corrected measurement of the gravitiy vector */
-  struct Int32Vect3 corrected_gravity;
-  INT32_VECT3_DIFF(corrected_gravity, imu.accel, acc_c_imu);
+    /* convert centrifucal acceleration from body to imu frame */
+    struct Int32Vect3 acc_c_imu;
+    INT32_RMAT_VMULT(acc_c_imu, imu.body_to_imu_rmat, acc_c_body);
 
-  /* compute the residual of gravity vector in imu frame */
-  INT32_VECT3_CROSS_PRODUCT(residual, corrected_gravity, c2);
-#else
-  INT32_VECT3_CROSS_PRODUCT(residual, imu.accel, c2);
-#endif
+    /* and subtract it from imu measurement to get a corrected measurement of the gravitiy vector */
+    struct Int32Vect3 corrected_gravity;
+    INT32_VECT3_DIFF(corrected_gravity, imu.accel, acc_c_imu);
+
+    /* compute the residual of gravity vector in imu frame */
+    INT32_VECT3_CROSS_PRODUCT(residual, corrected_gravity, c2);
+  } else {
+    INT32_VECT3_CROSS_PRODUCT(residual, imu.accel, c2);
+  }
 
   // residual FRAC : ACCEL_FRAC + TRIG_FRAC = 10 + 14 = 24
   // rate_correction FRAC = RATE_FRAC = 12
@@ -304,6 +309,16 @@ static inline void ahrs_update_mag_2d(void) {
 
 }
 
+void ahrs_update_gps(void) {
+#if AHRS_GRAVITY_UPDATE_COORDINATED_TURN && USE_GPS
+  if (gps.fix == GPS_FIX_3D) {
+    ahrs_impl.ltp_vel_norm = SPEED_BFP_OF_REAL(gps.speed_3d / 100.);
+    ahrs_impl.ltp_vel_norm_valid = TRUE;
+  } else {
+    ahrs_impl.ltp_vel_norm_valid = FALSE;
+  }
+#endif
+}
 
 /* Compute ltp to imu rotation in quaternion and rotation matrice representation
    from the euler angle representation */

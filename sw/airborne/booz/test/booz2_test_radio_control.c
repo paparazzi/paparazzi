@@ -69,7 +69,7 @@ static inline void main_periodic_task( void ) {
 
   int16_t foo = 0;//RC_PPM_SIGNED_TICS_OF_USEC(2050-1500);
   RunOnceEvery(10,
-    {DOWNLINK_SEND_BOOZ2_RADIO_CONTROL(DefaultChannel, DefaultDevice,	\
+    {DOWNLINK_SEND_ROTORCRAFT_RADIO_CONTROL(DefaultChannel, DefaultDevice,	\
 				       &radio_control.values[RADIO_ROLL], \
 				       &radio_control.values[RADIO_PITCH], \
 				       &radio_control.values[RADIO_YAW], \

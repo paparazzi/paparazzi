@@ -100,6 +100,10 @@ void ahrs_update_accel(void) {
 void ahrs_update_mag(void) {
 }
 
+void ahrs_update_gps(void) {
+
+}
+
 
 /*
  * Compute body orientation and rates from imu orientation and rates

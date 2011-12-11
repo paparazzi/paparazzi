@@ -173,7 +173,7 @@ static inline void main_report(void) {
 #endif
 		       },
 		       {
-			 DOWNLINK_SEND_BOOZ2_AHRS_EULER(DefaultChannel, DefaultDevice,
+			 DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
 							&ahrs.ltp_to_imu_euler.phi,
 							&ahrs.ltp_to_imu_euler.theta,
 							&ahrs.ltp_to_imu_euler.psi,
@@ -182,7 +182,7 @@ static inline void main_report(void) {
 							&ahrs.ltp_to_body_euler.psi);
 		       },
 		       {
-			 DOWNLINK_SEND_BOOZ_AHRS_BIAS(DefaultChannel, DefaultDevice,
+			 DOWNLINK_SEND_AHRS_GYRO_BIAS_INT(DefaultChannel, DefaultDevice,
 						      &ahrs_impl.gyro_bias.p,
 						      &ahrs_impl.gyro_bias.q,
 						      &ahrs_impl.gyro_bias.r);

@@ -1048,12 +1048,7 @@
     <field name="cnt"    type="int32"/>
   </message>
 
-  <message name="FILTER_Q" id="138">
-    <field name="qi"  type="int32"/>
-    <field name="qx"  type="int32"/>
-    <field name="qy"  type="int32"/>
-    <field name="qz"  type="int32"/>
-  </message>
+  <!-- 138 is free -->
 
   <message name="FILTER_COR" id="139">
     <field name="mphi"   type="int32"/>
@@ -1276,7 +1271,7 @@
     <field name="fix"     type="uint8" values="NONE|UKN1|UKN2|3D"/>
   </message>
 
-  <message name="BOOZ2_AHRS_EULER" id="156">
+  <message name="AHRS_EULER_INT" id="156">
     <field name="imu_phi"    type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
     <field name="imu_theta"  type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
     <field name="imu_psi"    type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
@@ -1285,7 +1280,7 @@
     <field name="body_psi"   type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
   </message>
 
-  <message name="BOOZ2_AHRS_QUAT" id="157">
+  <message name="AHRS_QUAT_INT" id="157">
     <field name="imu_qi"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
     <field name="imu_qx"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
     <field name="imu_qy"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
@@ -1296,7 +1291,7 @@
     <field name="body_qz" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
   </message>
 
-  <message name="BOOZ2_AHRS_RMAT" id="158">
+  <message name="AHRS_RMAT_INT" id="158">
     <field name="imu_m00"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
     <field name="imu_m01"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
     <field name="imu_m02"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
@@ -1325,7 +1320,7 @@
     <field name="horizontal_mode" type="uint8"/>
   </message>
 
-  <message name="BOOZ2_RADIO_CONTROL" id="160">
+  <message name="ROTORCRAFT_RADIO_CONTROL" id="160">
      <field name="roll"     type="int16" unit="pprz"/>
      <field name="pitch"    type="int16" unit="pprz"/>
      <field name="yaw"      type="int16" unit="pprz"/>
@@ -1474,7 +1469,7 @@
     <field name="data_b"  type="uint32"/>
   </message>
 
-  <message name="BOOZ_AHRS_BIAS" id="178">
+  <message name="AHRS_GYRO_BIAS_INT" id="178">
     <field name="bp"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
     <field name="bq"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
     <field name="br"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>

@@ -91,5 +91,6 @@ extern void ahrs_align(void);
 extern void ahrs_propagate(void);
 extern void ahrs_update_accel(void);
 extern void ahrs_update_mag(void);
+extern void ahrs_update_gps(void);
 
 #endif /* AHRS_H */
