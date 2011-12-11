@@ -101,15 +101,15 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #ifdef RADIO_CONTROL
 #define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
 #if defined RADIO_KILL_SWITCH
-#define PERIODIC_SEND_BOOZ2_RADIO_CONTROL(_chan) SEND_BOOZ2_RADIO_CONTROL( _chan, &radio_control.values[RADIO_KILL_SWITCH])
+#define PERIODIC_SEND_ROTORCRAFT_RADIO_CONTROL(_chan) SEND_ROTORCRAFT_RADIO_CONTROL( _chan, &radio_control.values[RADIO_KILL_SWITCH])
 #else /* ! RADIO_KILL_SWITCH */
-#define PERIODIC_SEND_BOOZ2_RADIO_CONTROL(_chan) {			                    \
+#define PERIODIC_SEND_ROTORCRAFT_RADIO_CONTROL(_chan) {			                    \
     int16_t foo = -42;							                    \
-    SEND_BOOZ2_RADIO_CONTROL( _chan, &foo)				                    \
+    SEND_ROTORCRAFT_RADIO_CONTROL( _chan, &foo)				                    \
 }
 #endif /* !RADIO_KILL_SWITCH */
-#define SEND_BOOZ2_RADIO_CONTROL(_chan, _kill_switch) {			                    \
-    DOWNLINK_SEND_BOOZ2_RADIO_CONTROL(_chan,				                    \
+#define SEND_ROTORCRAFT_RADIO_CONTROL(_chan, _kill_switch) {			                    \
+    DOWNLINK_SEND_ROTORCRAFT_RADIO_CONTROL(_chan,				                    \
 				      &radio_control.values[RADIO_ROLL],            \
 				      &radio_control.values[RADIO_PITCH],           \
 				      &radio_control.values[RADIO_YAW],	            \
@@ -119,7 +119,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				      &radio_control.status);}
 #else /* ! RADIO_CONTROL */
 #define PERIODIC_SEND_RC(_chan) {}
-#define PERIODIC_SEND_BOOZ2_RADIO_CONTROL(_chan) {}
+#define PERIODIC_SEND_ROTORCRAFT_RADIO_CONTROL(_chan) {}
 #endif
 
 #ifdef RADIO_CONTROL_TYPE_PPM
@@ -432,8 +432,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				  &ahrs.ltp_to_body_quat.qz);	\
   }
 
-#define PERIODIC_SEND_BOOZ2_AHRS_QUAT(_chan) {				\
-    DOWNLINK_SEND_BOOZ2_AHRS_QUAT(_chan,				\
+#define PERIODIC_SEND_AHRS_QUAT_INT(_chan) {				\
+    DOWNLINK_SEND_AHRS_QUAT_INT(_chan,				\
 				  &ahrs.ltp_to_imu_quat.qi,	\
 				  &ahrs.ltp_to_imu_quat.qx,	\
 				  &ahrs.ltp_to_imu_quat.qy,	\
@@ -444,8 +444,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				  &ahrs.ltp_to_body_quat.qz);	\
   }
 
-#define PERIODIC_SEND_BOOZ2_AHRS_EULER(_chan) {				\
-    DOWNLINK_SEND_BOOZ2_AHRS_EULER(_chan,				\
+#define PERIODIC_SEND_AHRS_EULER_INT(_chan) {				\
+    DOWNLINK_SEND_AHRS_EULER_INT(_chan,				\
 				   &ahrs.ltp_to_imu_euler.phi,	\
 				   &ahrs.ltp_to_imu_euler.theta,	\
 				   &ahrs.ltp_to_imu_euler.psi,	\
@@ -454,8 +454,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				   &ahrs.ltp_to_body_euler.psi);	\
   }
 
-#define PERIODIC_SEND_BOOZ2_AHRS_RMAT(_chan) {				\
-    DOWNLINK_SEND_BOOZ2_AHRS_RMAT(_chan,				\
+#define PERIODIC_SEND_AHRS_RMAT_INT(_chan) {      \
+    DOWNLINK_SEND_AHRS_RMAT(_chan,				\
 				  &ahrs.ltp_to_imu_rmat.m[0],	\
 				  &ahrs.ltp_to_imu_rmat.m[1],	\
 				  &ahrs.ltp_to_imu_rmat.m[2],	\

@@ -3,7 +3,7 @@
 <telemetry>
   <process name="Ap">
     <mode name="default">
-      <message name="BOOZ2_GPS"      period="0.1"/>
+      <message name="GPS_INT"      period="0.1"/>
     </mode>
   </process>
 </telemetry>
