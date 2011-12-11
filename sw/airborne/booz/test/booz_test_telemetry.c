@@ -52,7 +52,7 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
   LED_TOGGLE(2);
-  DOWNLINK_SEND_TIME(DefaultChannel, &cpu_time_sec);
+  DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &cpu_time_sec);
 }
 
 static inline void main_event_task( void ) {

@@ -9,7 +9,7 @@
 #define MOfCm(_x) (((float)(_x))/100.)
 
 void parse_dl_ping(char* argv[] __attribute__ ((unused))) {
-  DOWNLINK_SEND_PONG(DefaultChannel);
+  DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
 }
 
 void parse_dl_acinfo(char* argv[] __attribute__ ((unused))) {
@@ -30,13 +30,13 @@ void parse_dl_setting(char* argv[]) {
   uint8_t index = atoi(argv[2]);
   float value = atof(argv[3]);
   DlSetting(index, value);
-  DOWNLINK_SEND_DL_VALUE(DefaultChannel,&index, &value);
+  DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice,&index, &value);
 }
 
 void parse_dl_get_setting(char* argv[]) {
   uint8_t index = atoi(argv[2]);
   float value = settings_get_value(index);
-  DOWNLINK_SEND_DL_VALUE(DefaultChannel,&index, &value);
+  DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice,&index, &value);
 }
 
 void parse_dl_block(char* argv[]) {
@@ -61,6 +61,6 @@ void parse_dl_move_wp(char* argv[]) {
      coordinates */
   utm.east = waypoints[wp_id].x + nav_utm_east0;
   utm.north = waypoints[wp_id].y + nav_utm_north0;
-  DOWNLINK_SEND_WP_MOVED(DefaultChannel, &wp_id, &utm.east, &utm.north, &a, &nav_utm_zone0);
+  DOWNLINK_SEND_WP_MOVED(DefaultChannel, DefaultDevice, &wp_id, &utm.east, &utm.north, &a, &nav_utm_zone0);
 }
 

@@ -56,7 +56,7 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
 
-  RunOnceEvery(128, { DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
+  RunOnceEvery(128, { DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
   RunOnceEvery(128, { LED_PERIODIC();});
 }
 
@@ -67,7 +67,7 @@ static inline void main_event_task( void ) {
 
 static void on_gps_sol(void) {
 
-  DOWNLINK_SEND_GPS_INT( DefaultChannel,
+  DOWNLINK_SEND_GPS_INT( DefaultChannel, DefaultDevice,
 			   &gps.ecef_pos.x,
 			   &gps.ecef_pos.y,
 			   &gps.ecef_pos.z,

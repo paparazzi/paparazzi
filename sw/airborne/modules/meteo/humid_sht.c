@@ -320,7 +320,7 @@ void humid_sht_periodic(void) {
       s_connectionreset();
       s_start_measure(HUMI);
       humid_sht_status = SHT_MEASURING_HUMID;
-      DOWNLINK_SEND_SHT_STATUS(DefaultChannel, &humidsht, &tempsht, &fhumidsht, &ftempsht);
+      DOWNLINK_SEND_SHT_STATUS(DefaultChannel, DefaultDevice, &humidsht, &tempsht, &fhumidsht, &ftempsht);
       humid_sht_available = FALSE;
     }
   }

@@ -682,7 +682,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
     static uint8_t last_cnos[GPS_NB_CHANNELS];      \
     if (i == gps.nb_channels) i = 0;                \
     if (i < gps.nb_channels && gps.svinfos[i].cno > 0 && gps.svinfos[i].cno != last_cnos[i]) { \
-      DOWNLINK_SEND_SVINFO(DefaultChannel, &i, &gps.svinfos[i].svid, &gps.svinfos[i].flags, &gps.svinfos[i].qi, &gps.svinfos[i].cno, &gps.svinfos[i].elev, &gps.svinfos[i].azim); \
+      DOWNLINK_SEND_SVINFO(DefaultChannel, DefaultDevice, &i, &gps.svinfos[i].svid, &gps.svinfos[i].flags, &gps.svinfos[i].qi, &gps.svinfos[i].cno, &gps.svinfos[i].elev, &gps.svinfos[i].azim); \
       last_cnos[i] = gps.svinfos[i].cno;                                \
     }                                                                   \
     i++;                                                                \

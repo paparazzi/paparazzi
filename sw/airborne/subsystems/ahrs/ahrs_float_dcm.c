@@ -144,7 +144,7 @@ void ahrs_update_fw_estimator( void )
   estimator_q = ahrs_float.body_rate.q;
   estimator_r = ahrs_float.body_rate.r;
 /*
-  RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel,
+  RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel, DefaultDevice,
     &(DCM_Matrix[0][0]),
     &(DCM_Matrix[0][1]),
     &(DCM_Matrix[0][2]),
@@ -318,7 +318,7 @@ void ahrs_update_mag(void)
   ltp_mag.y = MAG_Heading_Y;
 
   // Downlink
-  RunOnceEvery(10,DOWNLINK_SEND_IMU_MAG(DefaultChannel, &ltp_mag.x, &ltp_mag.y, &ltp_mag.z));
+  RunOnceEvery(10,DOWNLINK_SEND_IMU_MAG(DefaultChannel, DefaultDevice, &ltp_mag.x, &ltp_mag.y, &ltp_mag.z));
 
   // Magnetic Heading
   // MAG_Heading = atan2(imu.mag.y, -imu.mag.x);

@@ -30,6 +30,6 @@
 
 void mag_hmc58xx_report( void )
 {
-  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,&hmc58xx_data.x,&hmc58xx_data.y,&hmc58xx_data.z);
+  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,&hmc58xx_data.x,&hmc58xx_data.y,&hmc58xx_data.z);
 }
 

@@ -189,7 +189,7 @@ void parse_ins_msg( void ) {
 #include "subsystems/datalink/downlink.h"
 
 extern void ins_report_task( void ) {
-  DOWNLINK_SEND_AHRS_LKF(DefaultChannel,
+  DOWNLINK_SEND_AHRS_LKF(DefaultChannel, DefaultDevice,
       &ins_eulers.phi, &ins_eulers.theta, &ins_eulers.psi,
       &ins_quat.qi, &ins_quat.qx, &ins_quat.qy, &ins_quat.qz,
       &ins_rates.p, &ins_rates.q, &ins_rates.r,

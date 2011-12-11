@@ -72,7 +72,7 @@ void dc_send_shot_position(void)
     photo_nr = dc_photo_nr;
   }
 
-  DOWNLINK_SEND_DC_SHOT(DefaultChannel,
+  DOWNLINK_SEND_DC_SHOT(DefaultChannel, DefaultDevice,
                         &photo_nr,
                         &gps.utm_pos.east,
                         &gps.utm_pos.north,
@@ -89,7 +89,7 @@ void dc_send_shot_position(void)
 uint8_t dc_info(void) {
 #ifdef DOWNLINK_SEND_DC_INFO
   float course = DegOfRad(estimator_psi);
-  DOWNLINK_SEND_DC_INFO(DefaultChannel,
+  DOWNLINK_SEND_DC_INFO(DefaultChannel, DefaultDevice,
                         &dc_autoshoot,
                         &estimator_x,
                         &estimator_y,

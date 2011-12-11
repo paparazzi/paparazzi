@@ -80,6 +80,6 @@ void baro_periodic( void ) {
 
 void baro_downlink_raw( void )
 {
-  DOWNLINK_SEND_BARO_RAW(DefaultChannel,&baro.absolute,&baro.differential);
+  DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice,&baro.absolute,&baro.differential);
 }
 

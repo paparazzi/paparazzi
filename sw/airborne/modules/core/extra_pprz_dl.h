@@ -146,7 +146,7 @@ static inline void parse_extra_pprz( uint8_t c ) {
   static uint8_t _ck_a, _ck_b, payload_idx;
 
   //uint8_t tab[] = { c };
-  //DOWNLINK_SEND_DEBUG(DefaultChannel,1,tab);
+  //DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,1,tab);
   switch (pprz_status) {
   case UNINIT:
     if (c == STX)

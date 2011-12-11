@@ -31,21 +31,21 @@
 #define XBEE_RX_ID 0x90
 #define XBEE_RFDATA_OFFSET 12
 
-#define XBeeTransportPutTXHeader()  { \
-  XBeeTransportPutUint8(XBEE_TX_ID); \
-  XBeeTransportPutUint8(NO_FRAME_ID); \
-  XBeeTransportPutUint8(0x00); \
-  XBeeTransportPutUint8(0x00); \
-  XBeeTransportPutUint8(0x00); \
-  XBeeTransportPutUint8(0x00); \
-  XBeeTransportPutUint8(0x00); \
-  XBeeTransportPutUint8(0x00); \
-  XBeeTransportPutUint8(GROUND_STATION_ADDR >> 8); \
-  XBeeTransportPutUint8(GROUND_STATION_ADDR & 0xff); \
-  XBeeTransportPutUint8(0xff); \
-  XBeeTransportPutUint8(0xfe); \
-  XBeeTransportPutUint8(0x00); \
-  XBeeTransportPutUint8(TX_OPTIONS); \
+#define XBeeTransportPutTXHeader(_dev)  { \
+  XBeeTransportPutUint8(_dev, XBEE_TX_ID); \
+  XBeeTransportPutUint8(_dev, NO_FRAME_ID); \
+  XBeeTransportPutUint8(_dev, 0x00); \
+  XBeeTransportPutUint8(_dev, 0x00); \
+  XBeeTransportPutUint8(_dev, 0x00); \
+  XBeeTransportPutUint8(_dev, 0x00); \
+  XBeeTransportPutUint8(_dev, 0x00); \
+  XBeeTransportPutUint8(_dev, 0x00); \
+  XBeeTransportPutUint8(_dev, GROUND_STATION_ADDR >> 8); \
+  XBeeTransportPutUint8(_dev, GROUND_STATION_ADDR & 0xff); \
+  XBeeTransportPutUint8(_dev, 0xff); \
+  XBeeTransportPutUint8(_dev, 0xfe); \
+  XBeeTransportPutUint8(_dev, 0x00); \
+  XBeeTransportPutUint8(_dev, TX_OPTIONS); \
 }
 
 /* 13 = frame_id + addr==8 + 3 + options */

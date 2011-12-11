@@ -51,7 +51,7 @@ void dpicco_event( void ) {
     dpicco_humid = (dpicco_val[0] * DPICCO_HUMID_RANGE) / DPICCO_HUMID_MAX;
     dpicco_temp = ((dpicco_val[1] * DPICCO_TEMP_RANGE) / DPICCO_TEMP_MAX) + DPICCO_TEMP_OFFS;
 
-    DOWNLINK_SEND_DPICCO_STATUS(DefaultChannel, &dpicco_val[0], &dpicco_val[1], &dpicco_humid, &dpicco_temp);
+    DOWNLINK_SEND_DPICCO_STATUS(DefaultChannel, DefaultDevice, &dpicco_val[0], &dpicco_val[1], &dpicco_humid, &dpicco_temp);
     dpicco_trans.status = I2CTransDone;
   }
 }

@@ -39,7 +39,7 @@ void micromag_event( void ) {
   int32_t mz=micromag_values[2];
 
   if (micromag_status == MM_DATA_AVAILABLE) {
-    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
+    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
                 &mx,
                 &my,
                 &mz );

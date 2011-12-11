@@ -59,91 +59,91 @@ void xbee_init( void );
 
 #define __Link(dev, _x) dev##_x
 #define _Link(dev, _x)  __Link(dev, _x)
-#define Link(_x) _Link(DOWNLINK_DEVICE, _x)
+#define Link(_dev, _x) _Link(_dev, _x)
 
-#define XBeeTransportPut1Byte(x) Link(Transmit(x))
-#define XBeeTransportCheckFreeSpace(x) Link(CheckFreeSpace(x))
+#define XBeeTransportPut1Byte(_dev, x) Link(_dev, Transmit(x))
+#define XBeeTransportCheckFreeSpace(_dev, x) Link(_dev, CheckFreeSpace(x))
 /* 5 = Start + len_msb + len_lsb + API_id + checksum */
 #define XBeeAPISizeOf(_x) (_x+5)
-#define XBeeTransportSendMessage() Link(SendMessage())
+#define XBeeTransportSendMessage(_dev) Link(_dev, SendMessage())
 
-#define XBeeTransportPutUint8(_x) { \
+#define XBeeTransportPutUint8(_dev, _x) { \
   xbee_cs += _x; \
-  XBeeTransportPut1Byte(_x); \
+  XBeeTransportPut1Byte(_dev, _x); \
 }
 
-#define XBeeTransportPut1ByteByAddr(_byte) { \
+#define XBeeTransportPut1ByteByAddr(_dev, _byte) { \
   uint8_t _x = *(_byte);	\
-  XBeeTransportPutUint8(_x);	 \
+  XBeeTransportPutUint8(_dev, _x);	 \
  }
 
-#define XBeeTransportPut2Bytes(_x) { \
+#define XBeeTransportPut2Bytes(_dev, _x) { \
   uint16_t x16 = _x; \
-  XBeeTransportPut1Byte(x16>>8); \
-  XBeeTransportPut1Byte(x16 & 0xff); \
+  XBeeTransportPut1Byte(_dev, x16>>8); \
+  XBeeTransportPut1Byte(_dev, x16 & 0xff); \
 }
 
-#define XBeeTransportPut2ByteByAddr(_byte) { \
-    XBeeTransportPut1ByteByAddr(_byte);	\
-    XBeeTransportPut1ByteByAddr((const uint8_t*)_byte+1);	\
+#define XBeeTransportPut2ByteByAddr(_dev, _byte) { \
+    XBeeTransportPut1ByteByAddr(_dev, _byte);	\
+    XBeeTransportPut1ByteByAddr(_dev, (const uint8_t*)_byte+1);	\
   }
 
-#define XBeeTransportPut4ByteByAddr(_byte) { \
-    XBeeTransportPut2ByteByAddr(_byte);	\
-    XBeeTransportPut2ByteByAddr((const uint8_t*)_byte+2); \
+#define XBeeTransportPut4ByteByAddr(_dev, _byte) { \
+    XBeeTransportPut2ByteByAddr(_dev, _byte);	\
+    XBeeTransportPut2ByteByAddr(_dev, (const uint8_t*)_byte+2); \
   }
 
 #ifdef __IEEE_BIG_ENDIAN /* From machine/ieeefp.h */
-#define XBeeTransportPutDoubleByAddr(_byte) { \
-    XBeeTransportPut4ByteByAddr((const uint8_t*)_byte+4);	\
-    XBeeTransportPut4ByteByAddr((const uint8_t*)_byte);	\
+#define XBeeTransportPutDoubleByAddr(_dev, _byte) { \
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
   }
 #else
-#define XBeeTransportPutDoubleByAddr(_byte) { \
-    XBeeTransportPut4ByteByAddr((const uint8_t*)_byte);	\
-    XBeeTransportPut4ByteByAddr((const uint8_t*)_byte+4);	\
+#define XBeeTransportPutDoubleByAddr(_dev, _byte) { \
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
+    XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
   }
 #endif
 
 
-#define XBeeTransportPutInt8ByAddr(_x) XBeeTransportPut1ByteByAddr(_x)
-#define XBeeTransportPutUint8ByAddr(_x) XBeeTransportPut1ByteByAddr((const uint8_t*)_x)
-#define XBeeTransportPutInt16ByAddr(_x) XBeeTransportPut2ByteByAddr((const uint8_t*)_x)
-#define XBeeTransportPutUint16ByAddr(_x) XBeeTransportPut2ByteByAddr((const uint8_t*)_x)
-#define XBeeTransportPutInt32ByAddr(_x) XBeeTransportPut4ByteByAddr((const uint8_t*)_x)
-#define XBeeTransportPutUint32ByAddr(_x) XBeeTransportPut4ByteByAddr((const uint8_t*)_x)
-#define XBeeTransportPutFloatByAddr(_x) XBeeTransportPut4ByteByAddr((const uint8_t*)_x)
-#define XBeeTransportPutNamedUint8(_name, _byte) XBeeTransportPutUint8(_byte)
+#define XBeeTransportPutInt8ByAddr(_dev, _x) XBeeTransportPut1ByteByAddr(_dev, _x)
+#define XBeeTransportPutUint8ByAddr(_dev, _x) XBeeTransportPut1ByteByAddr(_dev, (const uint8_t*)_x)
+#define XBeeTransportPutInt16ByAddr(_dev, _x) XBeeTransportPut2ByteByAddr(_dev, (const uint8_t*)_x)
+#define XBeeTransportPutUint16ByAddr(_dev, _x) XBeeTransportPut2ByteByAddr(_dev, (const uint8_t*)_x)
+#define XBeeTransportPutInt32ByAddr(_dev, _x) XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
+#define XBeeTransportPutUint32ByAddr(_dev, _x) XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
+#define XBeeTransportPutFloatByAddr(_dev, _x) XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
+#define XBeeTransportPutNamedUint8(_dev, _name, _byte) XBeeTransportPutUint8(_dev, _byte)
 
-#define XBeeTransportPutArray(_put, _n, _x) { \
+#define XBeeTransportPutArray(_dev, _put, _n, _x) { \
   uint8_t _i; \
-  XBeeTransportPutUint8(_n); \
+  XBeeTransportPutUint8(_dev, _n); \
   for(_i = 0; _i < _n; _i++) { \
-    _put(&_x[_i]); \
+    _put(_dev, &_x[_i]); \
   } \
 }
 
-#define XBeeTransportPutInt16Array(_n, _x) XBeeTransportPutArray(XBeeTransportPutInt16ByAddr, _n, _x)
+#define XBeeTransportPutInt16Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutInt16ByAddr, _n, _x)
 
-#define XBeeTransportPutUint16Array(_n, _x) XBeeTransportPutArray(XBeeTransportPutUint16ByAddr, _n, _x)
-#define XBeeTransportPutUint8Array(_n, _x) XBeeTransportPutArray(XBeeTransportPutUint8ByAddr, _n, _x)
-#define XBeeTransportPutFloatArray(_n, _x) XBeeTransportPutArray(XBeeTransportPutFloatByAddr, _n, _x)
-#define XBeeTransportPutDoubleArray(_n, _x) XBeeTransportPutArray(XBeeTransportPutDoubleByAddr, _n, _x)
+#define XBeeTransportPutUint16Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutUint16ByAddr, _n, _x)
+#define XBeeTransportPutUint8Array(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutUint8ByAddr, _n, _x)
+#define XBeeTransportPutFloatArray(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutFloatByAddr, _n, _x)
+#define XBeeTransportPutDoubleArray(_dev, _n, _x) XBeeTransportPutArray(_dev, XBeeTransportPutDoubleByAddr, _n, _x)
 
 
 
-#define XBeeTransportHeader(_len) { \
-  XBeeTransportPut1Byte(XBEE_START); \
+#define XBeeTransportHeader(_dev, _len) { \
+  XBeeTransportPut1Byte(_dev, XBEE_START); \
   uint8_t payload_len = XBeeAPISizeOf(_len); \
-  XBeeTransportPut2Bytes(payload_len); \
+  XBeeTransportPut2Bytes(_dev, payload_len); \
   xbee_cs = 0; \
-  XBeeTransportPutTXHeader(); \
+  XBeeTransportPutTXHeader(_dev); \
 }
 
-#define XBeeTransportTrailer() { \
+#define XBeeTransportTrailer(_dev) { \
   xbee_cs = 0xff - xbee_cs; \
-  XBeeTransportPut1Byte(xbee_cs); \
-  XBeeTransportSendMessage() \
+  XBeeTransportPut1Byte(_dev, xbee_cs); \
+  XBeeTransportSendMessage(_dev) \
 }
 
 

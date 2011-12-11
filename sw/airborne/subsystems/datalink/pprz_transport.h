@@ -51,88 +51,88 @@ extern uint8_t ck_a, ck_b;
 
 #define __Link(dev, _x) dev##_x
 #define _Link(dev, _x)  __Link(dev, _x)
-#define Link(_x) _Link(DOWNLINK_DEVICE, _x)
+#define Link(_dev, _x) _Link(_dev, _x)
 
-#define PprzTransportCheckFreeSpace(_x) Link(CheckFreeSpace(_x))
+#define PprzTransportCheckFreeSpace(_dev, _x) Link(_dev, CheckFreeSpace(_x))
 
-#define PprzTransportPut1Byte(_x) Link(Transmit(_x))
-#define PprzTransportSendMessage() Link(SendMessage())
+#define PprzTransportPut1Byte(_dev, _x) Link(_dev, Transmit(_x))
+#define PprzTransportSendMessage(_dev) Link(_dev, SendMessage())
 
-#define PprzTransportHeader(payload_len) { \
-  PprzTransportPut1Byte(STX);				\
+#define PprzTransportHeader(_dev, payload_len) { \
+  PprzTransportPut1Byte(_dev, STX);				\
   uint8_t msg_len = PprzTransportSizeOf(payload_len);	\
-  PprzTransportPut1Byte(msg_len);			\
+  PprzTransportPut1Byte(_dev, msg_len);			\
   ck_a = msg_len; ck_b = msg_len;			\
 }
 
-#define PprzTransportTrailer() { \
-  PprzTransportPut1Byte(ck_a);	\
-  PprzTransportPut1Byte(ck_b);	\
-  PprzTransportSendMessage() \
+#define PprzTransportTrailer(_dev) { \
+  PprzTransportPut1Byte(_dev, ck_a);	\
+  PprzTransportPut1Byte(_dev, ck_b);	\
+  PprzTransportSendMessage(_dev) \
 }
 
-#define PprzTransportPutUint8(_byte) { \
+#define PprzTransportPutUint8(_dev, _byte) { \
     ck_a += _byte;			  \
     ck_b += ck_a;			  \
-    PprzTransportPut1Byte(_byte);		  \
+    PprzTransportPut1Byte(_dev, _byte);		  \
  }
 
-#define PprzTransportPutNamedUint8(_name, _byte) PprzTransportPutUint8(_byte)
+#define PprzTransportPutNamedUint8(_dev, _name, _byte) PprzTransportPutUint8(_dev, _byte)
 
-#define PprzTransportPut1ByteByAddr(_byte) {	 \
+#define PprzTransportPut1ByteByAddr(_dev, _byte) {	 \
     uint8_t _x = *(_byte);		 \
-    PprzTransportPutUint8(_x);	 \
+    PprzTransportPutUint8(_dev, _x);	 \
   }
 
-#define PprzTransportPut2ByteByAddr(_byte) { \
-    PprzTransportPut1ByteByAddr(_byte);	\
-    PprzTransportPut1ByteByAddr((const uint8_t*)_byte+1);	\
+#define PprzTransportPut2ByteByAddr(_dev, _byte) { \
+    PprzTransportPut1ByteByAddr(_dev, _byte);	\
+    PprzTransportPut1ByteByAddr(_dev, (const uint8_t*)_byte+1);	\
   }
 
-#define PprzTransportPut4ByteByAddr(_byte) { \
-    PprzTransportPut2ByteByAddr(_byte);	\
-    PprzTransportPut2ByteByAddr((const uint8_t*)_byte+2);	\
+#define PprzTransportPut4ByteByAddr(_dev, _byte) { \
+    PprzTransportPut2ByteByAddr(_dev, _byte);	\
+    PprzTransportPut2ByteByAddr(_dev, (const uint8_t*)_byte+2);	\
   }
 
 #ifdef __IEEE_BIG_ENDIAN /* From machine/ieeefp.h */
-#define PprzTransportPutDoubleByAddr(_byte) { \
-    PprzTransportPut4ByteByAddr((const uint8_t*)_byte+4);	\
-    PprzTransportPut4ByteByAddr((const uint8_t*)_byte);	\
+#define PprzTransportPutDoubleByAddr(_dev, _byte) { \
+    PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
+    PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
   }
 #else
-#define PprzTransportPutDoubleByAddr(_byte) { \
-    PprzTransportPut4ByteByAddr((const uint8_t*)_byte);	\
-    PprzTransportPut4ByteByAddr((const uint8_t*)_byte+4);	\
+#define PprzTransportPutDoubleByAddr(_dev, _byte) { \
+    PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
+    PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
   }
 #endif
 
 
-#define PprzTransportPutInt8ByAddr(_x) PprzTransportPut1ByteByAddr(_x)
-#define PprzTransportPutUint8ByAddr(_x) PprzTransportPut1ByteByAddr((const uint8_t*)_x)
-#define PprzTransportPutInt16ByAddr(_x) PprzTransportPut2ByteByAddr((const uint8_t*)_x)
-#define PprzTransportPutUint16ByAddr(_x) PprzTransportPut2ByteByAddr((const uint8_t*)_x)
-#define PprzTransportPutInt32ByAddr(_x) PprzTransportPut4ByteByAddr((const uint8_t*)_x)
-#define PprzTransportPutUint32ByAddr(_x) PprzTransportPut4ByteByAddr((const uint8_t*)_x)
-#define PprzTransportPutFloatByAddr(_x) PprzTransportPut4ByteByAddr((const uint8_t*)_x)
+#define PprzTransportPutInt8ByAddr(_dev, _x) PprzTransportPut1ByteByAddr(_dev, _x)
+#define PprzTransportPutUint8ByAddr(_dev, _x) PprzTransportPut1ByteByAddr(_dev, (const uint8_t*)_x)
+#define PprzTransportPutInt16ByAddr(_dev, _x) PprzTransportPut2ByteByAddr(_dev, (const uint8_t*)_x)
+#define PprzTransportPutUint16ByAddr(_dev, _x) PprzTransportPut2ByteByAddr(_dev, (const uint8_t*)_x)
+#define PprzTransportPutInt32ByAddr(_dev, _x) PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
+#define PprzTransportPutUint32ByAddr(_dev, _x) PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
+#define PprzTransportPutFloatByAddr(_dev, _x) PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
 
-#define PprzTransportPutArray(_put, _n, _x) { \
+#define PprzTransportPutArray(_dev, _put, _n, _x) { \
   uint8_t _i; \
-  PprzTransportPutUint8(_n); \
+  PprzTransportPutUint8(_dev, _n); \
   for(_i = 0; _i < _n; _i++) { \
-    _put(&_x[_i]); \
+    _put(_dev, &_x[_i]); \
   } \
 }
 
-#define PprzTransportPutFloatArray(_n, _x) PprzTransportPutArray(PprzTransportPutFloatByAddr, _n, _x)
-#define PprzTransportPutDoubleArray(_n, _x) PprzTransportPutArray(PprzTransportPutDoubleByAddr, _n, _x)
+#define PprzTransportPutFloatArray(_dev, _n, _x) PprzTransportPutArray(_dev, PprzTransportPutFloatByAddr, _n, _x)
+#define PprzTransportPutDoubleArray(_dev, _n, _x) PprzTransportPutArray(_dev, PprzTransportPutDoubleByAddr, _n, _x)
 
-#define PprzTransportPutInt16Array(_n, _x) PprzTransportPutArray(PprzTransportPutInt16ByAddr, _n, _x)
-#define PprzTransportPutUint16Array(_n, _x) PprzTransportPutArray(PprzTransportPutUint16ByAddr, _n, _x)
+#define PprzTransportPutInt16Array(_dev, _n, _x) PprzTransportPutArray(_dev, PprzTransportPutInt16ByAddr, _n, _x)
+#define PprzTransportPutUint16Array(_dev, _n, _x) PprzTransportPutArray(_dev, PprzTransportPutUint16ByAddr, _n, _x)
 
-#define PprzTransportPutInt32Array(_n, _x) PprzTransportPutArray(PprzTransportPutInt32ByAddr, _n, _x)
-#define PprzTransportPutUint32Array(_n, _x) PprzTransportPutArray(PprzTransportPutUint32ByAddr, _n, _x)
+#define PprzTransportPutInt32Array(_dev, _n, _x) PprzTransportPutArray(_dev, PprzTransportPutInt32ByAddr, _n, _x)
+#define PprzTransportPutUint32Array(_dev, _n, _x) PprzTransportPutArray(_dev, PprzTransportPutUint32ByAddr, _n, _x)
 
-#define PprzTransportPutUint8Array(_n, _x) PprzTransportPutArray(PprzTransportPutUint8ByAddr, _n, _x)
+#define PprzTransportPutUint8Array(_dev, _n, _x) PprzTransportPutArray(_dev, PprzTransportPutUint8ByAddr, _n, _x)
 
 
 /** Receiving pprz messages */

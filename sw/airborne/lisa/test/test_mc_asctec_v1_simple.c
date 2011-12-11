@@ -60,10 +60,10 @@ static inline void main_init( void ) {
 static inline void main_periodic_task( void ) {
 
 
-  RunOnceEvery(256, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
+  RunOnceEvery(256, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
   RunOnceEvery(256,
     {
-      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel,
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
 			       &i2c1_errors.ack_fail_cnt,
 			       &i2c1_errors.miss_start_stop_cnt,
 			       &i2c1_errors.arb_lost_cnt,
