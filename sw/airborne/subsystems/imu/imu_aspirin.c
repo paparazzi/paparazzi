@@ -7,8 +7,8 @@ struct ImuAspirin imu_aspirin;
 
 /* initialize peripherals */
 static void configure_gyro(void);
-static void configure_mag(void);
 static void configure_accel(void);
+//static void configure_mag(void);
 
 static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
   uint8_t max_retry = 8;
