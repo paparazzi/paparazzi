@@ -89,8 +89,8 @@
 
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="RadOfDeg(55)"/>
-    <define name="MAX_PITCH" value="RadOfDeg(35)"/>
+    <define name="MAX_ROLL" value="55" unit="deg"/>
+    <define name="MAX_PITCH" value="35" unit="deg"/>
   </section>
 
 
@@ -170,9 +170,9 @@
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-1.1"/>
 
-    <define name="ROLL_MAX_SETPOINT"  value="RadOfDeg(50)" unit="rad"/>
-    <define name="PITCH_MAX_SETPOINT" value="RadOfDeg(30)" unit="rad"/>
-    <define name="PITCH_MIN_SETPOINT" value="RadOfDeg(-25)" unit="rad"/>
+    <define name="ROLL_MAX_SETPOINT"  value="50" unit="deg"/>
+    <define name="PITCH_MAX_SETPOINT" value="30" unit="deg"/>
+    <define name="PITCH_MIN_SETPOINT" value="-25" unit="deg"/>
 
     <define name="PITCH_PGAIN" value="-7000."/>
     <define name="PITCH_DGAIN" value="1.5"/>
@@ -210,8 +210,8 @@
 
   <section name="SIMU">
     <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
-    <define name="JSBSIM_IR_ROLL_NEUTRAL" value="RadOfDeg(0.)"/>
-    <define name="JSBSIM_IR_PITCH_NEUTRAL" value="RadOfDeg(0.)"/>
+    <define name="JSBSIM_IR_ROLL_NEUTRAL" value="0." unit="deg"/>
+    <define name="JSBSIM_IR_PITCH_NEUTRAL" value="0." unit="deg"/>
   </section>
 
 </airframe>

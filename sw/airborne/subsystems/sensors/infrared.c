@@ -38,8 +38,8 @@ struct Infrared infrared;
 /** \brief Initialisation of \a ir structure
  */
 void infrared_struct_init(void) {
-  infrared.roll_neutral = RadOfDeg(IR_ROLL_NEUTRAL_DEFAULT);
-  infrared.pitch_neutral = RadOfDeg(IR_PITCH_NEUTRAL_DEFAULT);
+  infrared.roll_neutral = IR_ROLL_NEUTRAL_DEFAULT;
+  infrared.pitch_neutral = IR_PITCH_NEUTRAL_DEFAULT;
 
   infrared.correction_left = IR_CORRECTION_LEFT;
   infrared.correction_right = IR_CORRECTION_RIGHT;

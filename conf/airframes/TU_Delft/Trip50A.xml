@@ -160,9 +160,9 @@
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-1.5"/>	<!-- Heading outerloop: only P-gain -->
 
-    <define name="ROLL_MAX_SETPOINT" value="0.75" unit="radians"/> <!-- Max Angles -->
-    <define name="PITCH_MAX_SETPOINT" value="0.4" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.4" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.75" unit="rad"/> <!-- Max Angles -->
+    <define name="PITCH_MAX_SETPOINT" value="0.4" unit="rad"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.4" unit="rad"/>
 
     <define name="PITCH_PGAIN" value="-7110.09179688"/>	<!-- Pitch Angle PD control -->
     <define name="PITCH_DGAIN" value="2."/>

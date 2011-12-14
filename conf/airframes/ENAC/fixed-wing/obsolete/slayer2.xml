@@ -143,9 +143,9 @@
     <define name="COURSE_PGAIN" value="-2.6"/>
     <define name="COURSE_DGAIN" value="1"/>
     <define name="COURSE_PRE_BANK_CORRECTION" value="1."/>
-    <define name="ROLL_MAX_SETPOINT" value="0.73" unit="radians"/>
-    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.73" unit="rad"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
     <define name="PITCH_PGAIN" value="-9000."/>
     <define name="PITCH_DGAIN" value="0."/>

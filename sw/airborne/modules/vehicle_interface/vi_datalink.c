@@ -34,7 +34,7 @@ void vi_impl_set_enabled(bool_t enabled __attribute__ ((unused))) {
 
 #define ViMaxHSpeed ((int16_t)SPEED_BFP_OF_REAL(VI_MAX_H_SPEED))
 #define ViMaxVSpeed ((int16_t)SPEED_BFP_OF_REAL(VI_MAX_V_SPEED))
-#define ViMaxHeadingRate ((int16_t)RATE_BFP_OF_REAL(RadOfDeg(VI_MAX_HEADING_RATE)))
+#define ViMaxHeadingRate ((int16_t)RATE_BFP_OF_REAL(VI_MAX_HEADING_RATE))
 
 struct Int16Vect3 wp_speed_max = { ViMaxHSpeed, ViMaxHSpeed, ViMaxVSpeed };
 
