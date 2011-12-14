@@ -23,8 +23,8 @@
 
     <dl_settings NAME="control">
       <dl_settings NAME="infrared">
-        <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="infrared.roll_neutral"            shortname="roll_neutral"  param="IR_ROLL_NEUTRAL_DEFAULT" unit="rad" module="subsystems/sensors/infrared" />
-        <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="infrared.pitch_neutral"           shortname="pitch_neutral" param="IR_PITCH_NEUTRAL_DEFAULT" unit="rad"/>
+        <dl_setting MAX="15" MIN="-15" STEP="0.5" VAR="infrared.roll_neutral"            shortname="roll_neutral"  param="IR_ROLL_NEUTRAL_DEFAULT" unit="rad" alt_unit="deg" module="subsystems/sensors/infrared" />
+        <dl_setting MAX="15" MIN="-15" STEP="0.5" VAR="infrared.pitch_neutral"           shortname="pitch_neutral" param="IR_PITCH_NEUTRAL_DEFAULT" unit="rad" alt_unit="deg"/>
 
         <dl_setting MAX="1.5" MIN="0." STEP="0.1"    VAR="infrared.lateral_correction"      shortname="lat_corr"      param="IR_LATERAL_CORRECTION"/>
         <dl_setting MAX="1.5" MIN="0." STEP="0.1"    VAR="infrared.longitudinal_correction" shortname="log_corr"      param="IR_LONGITUDINAL_CORRECTION"/>

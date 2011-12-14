@@ -150,9 +150,9 @@
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-0.85"/>
-    <define name="ROLL_MAX_SETPOINT" value="0.5" unit="radians"/>
-    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.5" unit="rad"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
 
     <define name="ROLL_PGAIN" value="8000."/>
@@ -207,7 +207,7 @@
 </section>
 
 <section name="CAM" prefix="CAM_">
-  <define name="PHI0" value="-45" unit="deg"/>
+  <define name="PHI0" value="-45" unit="deg" code_unit="deg"/>
 </section>
 
  <makefile>

@@ -107,7 +107,7 @@
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
     <define name="RC_LOST_MODE" value="PPRZ_MODE_AUTO2"/>
 
-    <define name="CAM_PHI_MAX_DEG" value="45"/>
+    <define name="CAM_PHI_MAX" value="45" unit="deg"/>
     <define name="VIDEO_SWITCH_PIN" value="20"/>
   </section>
 
@@ -142,9 +142,9 @@
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-0.75"/>
-    <define name="ROLL_MAX_SETPOINT" value="0.6" unit="radians"/>
-    <define name="PITCH_MAX_SETPOINT" value="0.4" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.4" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.6" unit="rad"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.4" unit="rad"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.4" unit="rad"/>
 
 
     <define name="ROLL_PGAIN" value="13500."/>

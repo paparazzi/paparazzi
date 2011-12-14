@@ -81,8 +81,8 @@
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="RadOfDeg(45)"/>
-    <define name="MAX_PITCH" value="RadOfDeg(45)"/>
+    <define name="MAX_ROLL" value="45" unit="deg"/>
+    <define name="MAX_PITCH" value="45" unit="deg"/>
   </section>
 
   <section name="adc" prefix="ADC_CHANNEL_">
@@ -167,9 +167,9 @@
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-1.296"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="0.6" unit="radians"/>
-    <define name="PITCH_MAX_SETPOINT" value="0.4" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.4" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.6" unit="rad"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.4" unit="rad"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.4" unit="rad"/>
 
     <define name="PITCH_PGAIN" value="-4639.1"/>
     <define name="PITCH_DGAIN" value="0"/>

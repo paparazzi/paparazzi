@@ -265,7 +265,7 @@ __attribute__ ((always_inline)) static inline void get_psi_measurement_from_mag(
   //  sphi_ctheta * imu.mag.y +
   //  cphi_ctheta * imu.mag.z;
   float m_psi = -atan2(me, mn);
-  *psi_meas = ((m_psi - RadOfDeg(ahrs_mag_offset))*(float)(1<<(INT32_ANGLE_FRAC))*F_UPDATE);
+  *psi_meas = ((m_psi - ahrs_mag_offset)*(float)(1<<(INT32_ANGLE_FRAC))*F_UPDATE);
 
 }
 
