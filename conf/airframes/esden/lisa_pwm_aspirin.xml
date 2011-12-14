@@ -198,7 +198,7 @@
       <subsystem name="actuators"     type="mkk"/>
     </target>
 
-    <subsystem name="imu"           type="aspirin"/>
+    <subsystem name="imu"           type="aspirin_v1.0"/>
     <subsystem name="gps"           type="ublox">
 	    <configure name="GPS_BAUD"    value="B57600"/>
     </subsystem>
