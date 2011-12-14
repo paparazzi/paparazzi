@@ -282,7 +282,7 @@ let send_telemetry_status = fun a ->
   try
     let vs =
       ["ac_id", Pprz.String id;
-       "time_since_last_bat_msg", Pprz.Float (U.gettimeofday () -. a.last_msg_date)] in
+       "time_since_last_msg", Pprz.Float (U.gettimeofday () -. a.last_msg_date)] in
     Ground_Pprz.message_send my_id "TELEMETRY_STATUS" vs
   with
     _exc -> ()

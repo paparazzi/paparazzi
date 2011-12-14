@@ -559,7 +559,7 @@
       </message>
       <message name="TELEMETRY_STATUS" ID="32">
         <field name="ac_id" type="string"/>
-        <field name="time_since_last_bat_msg" type="float" unit="s"/>
+        <field name="time_since_last_msg" type="float" unit="s"/>
       </message>
       <message name="TELEMETRY_ERROR" ID="33">
         <field name="ac_id" type="string"/>
