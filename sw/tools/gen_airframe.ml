@@ -26,8 +26,6 @@
 
 let max_pprz = 9600. (* !!!! MAX_PPRZ From paparazzi.h !!!! *)
 
-exception Undefined_scale
-
 open Printf
 open Xml2h
 
@@ -84,18 +82,9 @@ let define_integer name v n =
 
 let code_unit_scale_of_tag = function t ->
   let u = try ExtXml.attrib t "unit" with _ -> "" in
-  let cu = try ExtXml.attrib t "code_unit" with _ -> "" in
-  match (u, cu) with
-      ("deg", "rad") | ("deg/s", "rad/s") -> Latlong.pi /. 180.
-    | ("deg", "") | ("deg/s", "") -> Latlong.pi /. 180.
-    | ("rad", "deg") | ("rad/s", "deg/s") -> 180. /. Latlong.pi
-    | ("m", "cm") | ("m/s", "cm/s") -> 100.
-    | ("cm", "m") | ("cm/s", "m/s") -> 0.01
-    | ("m", "mm") | ("m/s", "mm/s") -> 1000.
-    | ("mm", "m") | ("mm/s", "m/s") -> 0.001
-    | ("decideg", "deg") -> 0.1
-    | ("deg", "decideg") -> 10.
-    | (_, _) -> raise Undefined_scale
+  (* default value for code_unit is rad when unit is deg *)
+  let cu = try ExtXml.attrib t "code_unit" with _ -> if u = "deg" then "rad" else "" in
+  Pprz.scale_of_units u cu
 
 let parse_element = fun prefix s ->
   match Xml.tag s with

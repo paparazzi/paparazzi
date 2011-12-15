@@ -43,21 +43,6 @@ let floats_not_equal = fun f1 f2 ->
   let r = abs_float (f1 /. f2) in
   r < 0.999 || r > 1.001
 
-(* Unit conversions *)
-let scale_of_units = fun u1 u2  ->
-  match (u1, u2) with
-      ("deg", "rad") | ("deg/s", "rad/s") -> 180. /. Latlong.pi
-    | ("rad", "deg") | ("rad/s", "deg/s") -> Latlong.pi /. 180.
-    | ("m", "cm") | ("m/s", "cm/s") -> 100.
-    | ("cm", "m") | ("cm/s", "m/s") -> 0.01
-    | ("m", "mm") | ("m/s", "mm/s") -> 1000.
-    | ("mm", "m") | ("mm/s", "m/s") -> 0.001
-    | ("decideg", "deg") -> 0.1
-    | ("deg", "decideg") -> 10.
-    | u1, u2 when u1 = u2 -> 1.
-    | _ -> invalid_arg (Printf.sprintf "SaveSettings.scale_of_units %s %s" u1 u2)
-
-
 
 (** The save file dialog box *)
 let save_airframe = fun w filename save ->
@@ -145,7 +130,7 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
           let unit_setting = attrib "unit"
           and unit_airframe =
             match unit with Some u -> u | None -> raise Exit in
-          scale_of_units unit_setting unit_airframe
+          Pprz.scale_of_units unit_setting unit_airframe
         with
             _ -> 1. in
       let val_list = Str.split (Str.regexp "[ ()]+") airframe_value in
