@@ -82,8 +82,12 @@ let define_integer name v n =
 
 let code_unit_scale_of_tag = function t ->
   let u = try ExtXml.attrib t "unit" with _ -> "" in
-  (* default value for code_unit is rad when unit is deg *)
-  let cu = try ExtXml.attrib t "code_unit" with _ -> if u = "deg" then "rad" else "" in
+  let cu = try ExtXml.attrib t "code_unit" with _ -> "" in
+  (* default value for code_unit is rad[/s] when unit is deg[/s] *)
+  let cu = match (u, cu) with
+    ("deg", "") -> "rad"
+  | ("deg/s", "") -> "rad/s"
+  | (_,_) -> cu in
   Pprz.scale_of_units u cu
 
 let parse_element = fun prefix s ->
