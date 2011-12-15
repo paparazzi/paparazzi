@@ -91,6 +91,8 @@ let parse_element = fun prefix s ->
       "define" -> begin
         try
           begin
+            (* fail if units conversion is not found and just copy value instead,
+               this is important for integer values, you can't just multiply them with 1.0 *)
             try
               let value = (ExtXml.float_attrib s "value") *. (code_unit_scale_of_tag s) in
               define (prefix^ExtXml.attrib s "name") (string_of_float value);
