@@ -67,7 +67,7 @@ ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
 #ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 #ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
 #					  -DDOWNLINK_DEVICE=Uart0
-#ap.srcs += downlink.c pprz_transport.c
+#ap.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 
 ap.CFLAGS += -DAP_LINK_CAN -DCAN_LED=2
@@ -109,7 +109,7 @@ test_uart.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_uart.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 test_uart.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
 					  -DDOWNLINK_DEVICE=Uart1
-test_uart.srcs += downlink.c pprz_transport.c
+test_uart.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 
 #

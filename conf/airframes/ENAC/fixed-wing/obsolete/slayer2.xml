@@ -203,7 +203,7 @@ ap.CFLAGS += -DRADIO_CONTROL
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 #ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600
-#ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c xbee.c
+#ap.srcs += subsystems/datalink/downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c subsystems/datalink/xbee.c
 
 # AEROCOMM
 # ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B57600
@@ -211,7 +211,7 @@ ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 # RADIOTRONIX
 ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
 
-ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c pprz_transport.c
+ap.srcs += subsystems/datalink/downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c subsystems/datalink/pprz_transport.c
 
 
 ap.CFLAGS += -DINTER_MCU
@@ -262,7 +262,7 @@ ap.CFLAGS += -D BARO_MS5534A_W1=0xAC20 -D BARO_MS5534A_W2=0x87D9 -D BARO_MS5534A
 #include $(PAPARAZZI_SRC)/conf/autopilot/sitl.makefile
 sim.ARCHDIR = $(ARCHI)
 sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport -DUSE_INFRARED -DNAV -DUSE_LED -DWIND_INFO
-sim.srcs = latlong.c radio_control.c downlink.c commands.c gps.c inter_mcu.c infrared.c fw_v_ctl.c subsystems/nav.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_ir.c $(SRC_ARCH)/sim_ap.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c $(SRC_ARCH)/led_hw.c
+sim.srcs = latlong.c radio_control.c subsystems/datalink/downlink.c commands.c gps.c inter_mcu.c infrared.c fw_v_ctl.c subsystems/nav.c estimator.c sys_time.c main_fbw.c main_ap.c datalink.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_ir.c $(SRC_ARCH)/sim_ap.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c $(SRC_ARCH)/led_hw.c
 
 sim.CFLAGS += -DBOARD_CONFIG=\"tiny.h\" -DAGR_CLIMB -DLOITER_TRIM -DALT_KALMAN  -DUSE_BARO_MS5534A
 

@@ -31,7 +31,7 @@ main.srcs += mcu_periph/uart.c
 main.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0
 
-main.srcs += downlink.c pprz_transport.c
+main.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 main.CFLAGS += -DMB_TACHO
 main.srcs += $(MB)/mb_tacho.c

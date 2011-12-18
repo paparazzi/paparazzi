@@ -29,7 +29,7 @@ ant.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
 ant.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 ant.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0
-ant.srcs += downlink.c pprz_transport.c
+ant.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 ant.CFLAGS += -DDOWNLINK_AP_DEVICE=Uart0 -DAP
 ant.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0
