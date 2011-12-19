@@ -1254,7 +1254,7 @@ let message_request = Ground_Pprz.message_req
 
 let get_ts = fun _sender vs ->
   let ac = get_ac vs in
-  let t = Pprz.float_assoc "time_since_last_bat_msg" vs in
+  let t = Pprz.float_assoc "time_since_last_msg" vs in
   ac.strip#set_label "telemetry_status" (if t > 2. then sprintf "%.0f" t else "   ");
   ac.strip#set_color "telemetry_status" (if t > 5. then alert_color else ok_color)
 

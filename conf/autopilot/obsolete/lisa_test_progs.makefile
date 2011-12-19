@@ -47,7 +47,7 @@ overo_test_telemetry.ARCHDIR  = omap
 overo_test_telemetry.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
 overo_test_telemetry.srcs     = $(SRC_FMS)/overo_test_telemetry.c
 overo_test_telemetry.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
-overo_test_telemetry.srcs    += $(SRC_FMS)/udp_transport.c downlink.c
+overo_test_telemetry.srcs    += $(SRC_FMS)/udp_transport.c subsystems/datalink/downlink.c
 overo_test_telemetry.srcs    += $(SRC_FMS)/fms_network.c
 overo_test_telemetry.LDFLAGS += -levent
 
@@ -56,7 +56,7 @@ overo_test_telemetry2.ARCHDIR  = omap
 overo_test_telemetry2.CFLAGS  += -I$(ACINCLUDE) -I. -I$(PAPARAZZI_HOME)/var/include
 overo_test_telemetry2.srcs     = $(SRC_FMS)/overo_test_telemetry2.c
 overo_test_telemetry2.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
-overo_test_telemetry2.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
+overo_test_telemetry2.srcs    += $(SRC_FMS)/udp_transport2.c subsystems/datalink/downlink.c
 overo_test_telemetry2.srcs    += $(SRC_FMS)/fms_network.c
 overo_test_telemetry2.LDFLAGS += -levent
 
@@ -67,7 +67,7 @@ overo_test_gps.srcs     = $(SRC_FMS)/overo_test_gps.c
 overo_test_gps.CFLAGS  += -DFMS_PERIODIC_FREQ=500
 overo_test_gps.srcs    += $(SRC_FMS)/fms_periodic.c
 overo_test_gps.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
-overo_test_gps.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
+overo_test_gps.srcs    += $(SRC_FMS)/udp_transport2.c subsystems/datalink/downlink.c
 overo_test_gps.srcs    += $(SRC_FMS)/fms_network.c
 overo_test_gps.LDFLAGS += -levent
 
@@ -81,7 +81,7 @@ overo_test_periodic.srcs    += $(SRC_FMS)/fms_periodic.c
 overo_test_periodic.srcs    += $(SRC_FMS)/fms_serial_port.c
 overo_test_periodic.LDFLAGS += -lrt
 overo_test_periodic.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
-overo_test_periodic.srcs    += $(SRC_FMS)/udp_transport.c downlink.c
+overo_test_periodic.srcs    += $(SRC_FMS)/udp_transport.c subsystems/datalink/downlink.c
 overo_test_periodic.srcs    += $(SRC_FMS)/fms_network.c
 overo_test_periodic.LDFLAGS += -levent
 overo_test_periodic.CFLAGS  += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageBethDown
@@ -103,7 +103,7 @@ overo_test_passthrough.srcs    += $(SRC_FMS)/fms_periodic.c
 overo_test_passthrough.srcs    += $(SRC_FMS)/fms_spi_link.c
 overo_test_passthrough.srcs    += $(SRC_FMS)/fms_gs_com.c
 overo_test_passthrough.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
-overo_test_passthrough.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
+overo_test_passthrough.srcs    += $(SRC_FMS)/udp_transport2.c subsystems/datalink/downlink.c
 overo_test_passthrough.srcs    += $(SRC_FMS)/fms_network.c
 
 
@@ -207,7 +207,7 @@ test_telemetry1.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_telemetry1.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_telemetry1.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_telemetry1.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
-test_telemetry1.srcs += downlink.c pprz_transport.c
+test_telemetry1.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 
 #
@@ -227,7 +227,7 @@ test_telemetry2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_telemetry2.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_telemetry2.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_telemetry2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_telemetry2.srcs += downlink.c pprz_transport.c
+test_telemetry2.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 
 #
@@ -247,7 +247,7 @@ test_telemetry3.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_telemetry3.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B57600
 test_telemetry3.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_telemetry3.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart3
-test_telemetry3.srcs += downlink.c pprz_transport.c
+test_telemetry3.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 #
 # test datalink
@@ -266,7 +266,7 @@ test_datalink.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_datalink.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_datalink.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_datalink.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_datalink.srcs += downlink.c pprz_transport.c
+test_datalink.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 test_datalink.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart2
 #test_datalink.srcs += $(SRC_FIRMWARE)/datalink.c
 
@@ -317,7 +317,7 @@ test_float.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_float.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_float.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_float.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_float.srcs += downlink.c pprz_transport.c
+test_float.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 test_float.srcs += lisa/plug_sys.c
 
 #
@@ -354,7 +354,7 @@ test_rc_24.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_rc_24.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_rc_24.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_rc_24.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_rc_24.srcs += downlink.c pprz_transport.c
+test_rc_24.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_rc_24.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_LED=2
 test_rc_24.CFLAGS += -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/spektrum.h\"
@@ -391,7 +391,7 @@ test_servos.srcs += $(SRC_FIRMWARE)/actuators/actuators_pwm.c $(SRC_FIRMWARE)/ac
 #test_servos.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 #test_servos.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 #test_servos.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
-#test_servos.srcs += downlink.c pprz_transport.c
+#test_servos.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 
 
@@ -419,7 +419,7 @@ test_imu_b2.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_imu_b2.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_imu_b2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_imu_b2.srcs += downlink.c pprz_transport.c
+test_imu_b2.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_imu_b2.srcs += math/pprz_trig_int.c
 
@@ -453,7 +453,7 @@ test_imu_crista.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_imu_crista.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_imu_crista.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_imu_crista.srcs += downlink.c pprz_transport.c
+test_imu_crista.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_imu_crista.srcs += math/pprz_trig_int.c
 
@@ -485,7 +485,7 @@ test_imu_aspirin.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_imu_aspirin.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_imu_aspirin.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_imu_aspirin.srcs += downlink.c pprz_transport.c
+test_imu_aspirin.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_imu_aspirin.srcs += math/pprz_trig_int.c
 
@@ -561,7 +561,7 @@ test_mc_asctec_v1_simple.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_mc_asctec_v1_simple.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_mc_asctec_v1_simple.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_mc_asctec_v1_simple.srcs += downlink.c pprz_transport.c
+test_mc_asctec_v1_simple.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 
 #
@@ -605,7 +605,7 @@ test_actuators_mkk.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_actuators_mkk.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_actuators_mkk.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_actuators_mkk.srcs += downlink.c pprz_transport.c
+test_actuators_mkk.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_actuators_mkk.srcs += $(SRC_FIRMWARE)/commands.c
 test_actuators_mkk.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
@@ -638,7 +638,7 @@ test_actuators_asctec.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_actuators_asctec.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_actuators_asctec.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_actuators_asctec.srcs += downlink.c pprz_transport.c
+test_actuators_asctec.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_actuators_asctec.srcs += $(SRC_FIRMWARE)/commands.c
 test_actuators_asctec.srcs += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
@@ -689,7 +689,7 @@ test_baro.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_baro.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_baro.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_baro.srcs += downlink.c pprz_transport.c
+test_baro.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 
 #
@@ -711,7 +711,7 @@ test_baro2.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_baro2.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_baro2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_baro2.srcs += downlink.c pprz_transport.c
+test_baro2.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_baro2.srcs += $(SRC_LISA)/lisa_baro.c
 test_baro2.CFLAGS += -DUSE_I2C2
@@ -737,7 +737,7 @@ test_baro3.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_baro3.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_baro3.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_baro3.srcs += downlink.c pprz_transport.c
+test_baro3.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_baro3.CFLAGS += -DUSE_I2C2
 test_baro3.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
@@ -762,7 +762,7 @@ test_spi_slave.CFLAGS += -DUSE_SPI1_IRQ
 test_spi_slave.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_spi_slave.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_spi_slave.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
-test_spi_slave.srcs += downlink.c pprz_transport.c
+test_spi_slave.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 
 #
@@ -782,7 +782,7 @@ test_spi_slave2.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 test_spi_slave2.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_spi_slave2.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_spi_slave2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
-test_spi_slave2.srcs += downlink.c pprz_transport.c
+test_spi_slave2.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 
 
@@ -847,7 +847,7 @@ test_sc18is600.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_sc18is600.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_sc18is600.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_sc18is600.srcs += downlink.c pprz_transport.c
+test_sc18is600.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_sc18is600.srcs += math/pprz_trig_int.c
 
@@ -881,7 +881,7 @@ test_max1168.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_max1168.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_max1168.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
-test_max1168.srcs += downlink.c pprz_transport.c
+test_max1168.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 #
 # test ms2100
@@ -910,7 +910,7 @@ test_ms2100.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_ms2100.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_ms2100.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
-test_ms2100.srcs += downlink.c pprz_transport.c
+test_ms2100.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 #
 # test adxl345
@@ -933,7 +933,7 @@ test_adxl345.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_adxl345.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_adxl345.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_adxl345.srcs += downlink.c pprz_transport.c
+test_adxl345.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_adxl345.CFLAGS += -DUSE_EXTI2_IRQ   # Acc  Int on PD2
 
@@ -958,7 +958,7 @@ test_adxl345_dma.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_adxl345_dma.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_adxl345_dma.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_adxl345_dma.srcs += downlink.c pprz_transport.c
+test_adxl345_dma.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_adxl345_dma.CFLAGS += -DUSE_EXTI2_IRQ   # Accel Int on PD2
 test_adxl345_dma.CFLAGS += -DUSE_DMA1_C4_IRQ # SPI2 Rx DMA
@@ -987,7 +987,7 @@ test_itg3200.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_itg3200.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_itg3200.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_itg3200.srcs += downlink.c pprz_transport.c
+test_itg3200.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_itg3200.CFLAGS += -DUSE_I2C2
 test_itg3200.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
@@ -1013,7 +1013,7 @@ test_hmc5843.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_hmc5843.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_hmc5843.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_hmc5843.srcs += downlink.c pprz_transport.c
+test_hmc5843.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_hmc5843.CFLAGS += -DUSE_I2C2
 test_hmc5843.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
@@ -1045,7 +1045,7 @@ test_aspirin.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_aspirin.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_aspirin.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_aspirin.srcs += downlink.c pprz_transport.c
+test_aspirin.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_aspirin.CFLAGS += -DUSE_I2C2
 test_aspirin.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
@@ -1088,7 +1088,7 @@ ptw.CFLAGS += -DUSE_OVERO_LINK_TELEMETRY
 #ptw.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 #ptw.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 ptw.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=OveroLinkTelemetry
-ptw.srcs += downlink.c pprz_transport.c
+ptw.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 # IMU
 ptw.CFLAGS += -DIMU_TYPE_H=\"imu/imu_b2.h\"
@@ -1142,7 +1142,7 @@ test_csc_servo.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_csc_servo.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart2
 
 test_csc_servo.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_csc_servo.srcs += downlink.c pprz_transport.c
+test_csc_servo.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 # setting CAN prescaler to generate 3MHz time quanta, drift compensiation to 1
 # time quanta, bit section 1 to 3 time quanta and bit section 2 to 4 time quanta
@@ -1179,7 +1179,7 @@ test_gps.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 test_gps.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 test_gps.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_gps.srcs += downlink.c pprz_transport.c
+test_gps.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_gps.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B38400
 test_gps.CFLAGS += -DGPS_LINK=Uart1 -DGPS_LED=3
@@ -1210,7 +1210,7 @@ test_gps.srcs += $(SRC_BOOZ)/gps/booz_gps_skytraq.c
 # test_adc.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 #
 # test_adc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-# test_adc.srcs += downlink.c pprz_transport.c
+# test_adc.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 #
 # test_adc.srcs += $(SRC_ARCH)/adc_hw.c
 
@@ -1235,7 +1235,7 @@ test_adc.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_adc.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart2
 
 test_adc.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_adc.srcs += downlink.c pprz_transport.c
+test_adc.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_adc.CFLAGS += -DUSE_AD1 -DUSE_AD1_1 -DUSE_AD1_2 -DUSE_AD1_3 -DUSE_AD1_4 -DUSE_ADC1_2_IRQ_HANDLER
 
@@ -1263,7 +1263,7 @@ test_board.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_board.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart2
 
 test_board.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-test_board.srcs += downlink.c pprz_transport.c
+test_board.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 test_board.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_board.CFLAGS += -DUSE_UART3 -DUART3_BAUD=B57600
@@ -1308,7 +1308,7 @@ hs_gyro_aspirin.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 hs_gyro_aspirin.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 hs_gyro_aspirin.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-hs_gyro_aspirin.srcs += downlink.c pprz_transport.c
+hs_gyro_aspirin.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 hs_gyro_aspirin.srcs += math/pprz_trig_int.c
 
@@ -1346,7 +1346,7 @@ hs_gyro_b2.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 hs_gyro_b2.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 hs_gyro_b2.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-hs_gyro_b2.srcs += downlink.c pprz_transport.c
+hs_gyro_b2.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 hs_gyro_b2.srcs += math/pprz_trig_int.c
 
@@ -1379,7 +1379,7 @@ hs_gyro_crista.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 hs_gyro_crista.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 hs_gyro_crista.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-hs_gyro_crista.srcs += downlink.c pprz_transport.c
+hs_gyro_crista.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 hs_gyro_crista.srcs += math/pprz_trig_int.c
 

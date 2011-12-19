@@ -61,7 +61,7 @@ ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_0 -DUSE_AD0_1
 #ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 #ap.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
 	                  -DDOWNLINK_DEVICE=Uart1
-#ap.srcs += downlink.c pprz_transport.c
+#ap.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 #ap.srcs += $(SRC_CSC)/csc_telemetry.c
 
 
@@ -73,7 +73,7 @@ ap.srcs += $(SRC_CSC)/csc_can.c
 
 #ap.CFLAGS += -DAP_LINK_UART -DPPRZ_UART=Uart1
 #ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
-#ap.srcs += pprz_transport.c
+#ap.srcs += subsystems/datalink/pprz_transport.c
 
 ap.srcs += $(SRC_CSC)/csc_ap_link.c
 
@@ -110,7 +110,7 @@ test_uart.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_uart.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DUART1_VIC_SLOT=6
 test_uart.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport \
 	                  -DDOWNLINK_DEVICE=Uart1
-test_uart.srcs += downlink.c pprz_transport.c
+test_uart.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 
 #

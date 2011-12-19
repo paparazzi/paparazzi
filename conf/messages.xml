@@ -2398,7 +2398,7 @@
 
   <message name="TELEMETRY_STATUS" id="32">
     <field name="ac_id" type="string"/>
-    <field name="time_since_last_bat_msg" type="float" unit="s"/>
+    <field name="time_since_last_msg" type="float" unit="s"/>
   </message>
 
   <message name="TELEMETRY_ERROR" id="33">

@@ -80,11 +80,29 @@ let define_integer name v n =
   in
   continious_frac (truncate v) v (1, (truncate v)) (0, 1)
 
+let code_unit_scale_of_tag = function t ->
+  let u = try ExtXml.attrib t "unit" with _ -> "" in
+  let cu = try ExtXml.attrib t "code_unit" with _ -> "" in
+  (* default value for code_unit is rad[/s] when unit is deg[/s] *)
+  let cu = match (u, cu) with
+    ("deg", "") -> "rad"
+  | ("deg/s", "") -> "rad/s"
+  | (_,_) -> cu in
+  Pprz.scale_of_units u cu
+
 let parse_element = fun prefix s ->
   match Xml.tag s with
       "define" -> begin
         try
-          define (prefix^ExtXml.attrib s "name") (ExtXml.display_entities (ExtXml.attrib s "value"));
+          begin
+            (* fail if units conversion is not found and just copy value instead,
+               this is important for integer values, you can't just multiply them with 1.0 *)
+            try
+              let value = (ExtXml.float_attrib s "value") *. (code_unit_scale_of_tag s) in
+              define (prefix^ExtXml.attrib s "name") (string_of_float value);
+            with
+                _ -> define (prefix^ExtXml.attrib s "name") (ExtXml.display_entities (ExtXml.attrib s "value"));
+          end;
           define_integer (prefix^(ExtXml.attrib s "name")) (ExtXml.float_attrib s "value") (ExtXml.int_attrib s "integer");
         with _ -> ();
       end

@@ -34,8 +34,8 @@
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="RadOfDeg(50)"/>
-    <define name="MAX_PITCH" value="RadOfDeg(40)"/>
+    <define name="MAX_ROLL" value="50" unit="deg"/>
+    <define name="MAX_PITCH" value="40" unit="deg"/>
   </section>
 
   <section name="adc" prefix="ADC_CHANNEL_">
@@ -111,9 +111,9 @@
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-0.7"/>
-    <define name="ROLL_MAX_SETPOINT" value="RadOfDeg(35)" unit="radians"/>
-    <define name="PITCH_MAX_SETPOINT" value="RadOfDeg(25)" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="RadOfDeg(-25)" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="35" unit="deg"/>
+    <define name="PITCH_MAX_SETPOINT" value="25" unit="deg"/>
+    <define name="PITCH_MIN_SETPOINT" value="-25" unit="deg"/>
     <define name="PITCH_PGAIN" value="-20000."/>
     <define name="PITCH_DGAIN" value="1.5"/>
     <define name="ELEVATOR_OF_ROLL" value="2500"/>
@@ -140,8 +140,8 @@
   <section name="FAILSAFE" prefix="FAILSAFE_">
     <define name="DELAY_WITHOUT_GPS" value="3" unit="s"/>
     <define name="DEFAULT_THROTTLE" value="0.4" unit="%"/>
-    <define name="DEFAULT_ROLL" value="RadOfDeg(15)" unit="rad"/>
-    <define name="DEFAULT_PITCH" value="RadOfDeg(0)" unit="rad"/>
+    <define name="DEFAULT_ROLL" value="15" unit="deg"/>
+    <define name="DEFAULT_PITCH" value="0" unit="deg"/>
     <define name="HOME_RADIUS" value="90" unit="m"/>
   </section>
 
@@ -173,7 +173,7 @@ ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 # Telemetry configuration
 ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ -DUART1_BAUD=B57600
-ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c pprz_transport.c
+ap.srcs += subsystems/datalink/downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c subsystems/datalink/pprz_transport.c
 
 ap.CFLAGS += -DINTER_MCU
 ap.srcs += inter_mcu.c

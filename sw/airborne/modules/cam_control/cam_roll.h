@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2003-2011 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -19,23 +17,21 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
-#include "subsystems/imu.h"
+#ifndef CAM_ROLL_H
+#define CAM_ROLL_H
 
-void imu_impl_init(void) {
+extern uint8_t cam_roll_mode;
+extern float cam_roll_phi;
+extern bool_t cam_roll_switch;
 
-  imu_b2_arch_init();
-
-  max1168_init();
-#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
-  ms2100_init();
-#elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
-  ami601_init();
-#elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC5843
-  hmc5843_init();
-#elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
-  hmc58xx_init();
+#if defined VIDEO_SWITCH_PIN && !(defined SITL)
+#define cam_roll_Switch(_x) { cam_roll_switch = _x; if (_x) IO0SET = _BV(VIDEO_SWITCH_PIN); else IO0CLR = _BV(VIDEO_SWITCH_PIN); }
+#else
+#define cam_roll_Switch(_x) { cam_roll_switch = _x; }
 #endif
 
-}
+
+#endif /* CAM_ROLL_H */

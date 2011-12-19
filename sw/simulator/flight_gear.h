@@ -255,7 +255,7 @@ struct FGNetGUI {
   float course_deviation_deg; // degrees off target course
   float gs_deviation_deg;     // degrees off target glide slope
 };
-#ifdef __x86_64__ && __APPLE__
+#ifdef __x86_64__
 #pragma pack(push)
 #pragma pack(pop)
 #endif

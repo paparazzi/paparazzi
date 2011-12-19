@@ -73,6 +73,7 @@ let (//) = Filename.concat
 let messages_file = Env.paparazzi_src // "conf" // "messages.xml"
 let lazy_messages_xml = lazy (Xml.parse_file messages_file)
 let messages_xml = fun () -> Lazy.force lazy_messages_xml
+let units_file = Env.paparazzi_src // "conf" // "units.xml"
 
 external float_of_bytes : string -> int -> float = "c_float_of_indexed_bytes"
 external double_of_bytes : string -> int -> float = "c_double_of_indexed_bytes"
@@ -158,20 +159,30 @@ let payload_size_of_message = fun message ->
     2 (** + message id + aircraft id *)
 
 
+let scale_of_units = fun from_unit to_unit ->
+  try
+    let units_xml = Xml.parse_file units_file in
+    (* find the first occurence of matching units or raise Not_found *)
+    let _unit = List.find (fun u ->
+      try
+        if from_unit = (Xml.attrib u "from") && to_unit = (Xml.attrib u "to") then
+          true
+        else
+          false
+      with _ -> false (* not a valid unit declaration *)
+    ) (Xml.children units_xml) in
+    (* return coef *)
+    float_of_string (Xml.attrib _unit "coef")
+  with _ -> invalid_arg "Unit conversion failed"
+
+
 let alt_unit_coef_of_xml = function xml ->
   try Xml.attrib xml "alt_unit_coef"
   with _ ->
     let u = try Xml.attrib xml "unit" with _ -> "" in
     let au = try Xml.attrib xml "alt_unit" with _ -> "" in
-    match (u, au) with
-      ("deg", "rad") | ("deg/s", "rad/s") -> string_of_float (pi /. 180.)
-    | ("rad", "deg") | ("rad/s", "deg/s") -> string_of_float (180. /. pi)
-    | ("m", "cm") | ("m/s", "cm/s") -> "100."
-    | ("cm", "m") | ("cm/s", "m/s") -> "0.01"
-    | ("m", "mm") | ("m/s", "mm/s") -> "1000."
-    | ("mm", "m") | ("mm/s", "m/s") -> "0.001"
-    | ("decideg", "deg") -> "0.1"
-    | (_, _) -> "1."
+    let coef = try string_of_float (scale_of_units u au) with _ -> "1." in
+    coef
 
 let pipe_regexp = Str.regexp "|"
 let field_of_xml = fun xml ->

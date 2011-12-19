@@ -41,6 +41,7 @@
 #define CAM_MODE_STABILIZED    6   // Stabilized mode, input: camera angles from the pan and tilt radio channels, output pointing coordinates.
 #define CAM_MODE_RC            7   // Manual mode, input: camera angles from the pan and tilt radio channels, output servo positions.
 
+//FIXME: use radians
 #ifndef CAM_PAN_MAX
 #define CAM_PAN_MAX 90
 #endif

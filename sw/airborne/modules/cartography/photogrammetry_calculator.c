@@ -42,16 +42,16 @@
 
 
 // Flightplan Paramters
-int photogrammetry_sweep_angle = 0;
+int photogrammetry_sweep_angle = 0; // in rad
 
 int photogrammetry_sidestep = 0;
 int photogrammetry_triggerstep = 0;
 int photogrammetry_height = 0;
 
 // Photogrammetry Goals
-int photogrammetry_sidelap;	// Percent 0 - 100
-int photogrammetry_overlap;	// Percent 0 - 100
-int photogrammetry_resolution;	// Millimeter per pixel
+int photogrammetry_sidelap; // Percent 0 - 100
+int photogrammetry_overlap; // Percent 0 - 100
+int photogrammetry_resolution;  // Millimeter per pixel
 
 // Safety Aspects
 int photogrammetry_height_min;
@@ -61,15 +61,15 @@ int photogrammetry_radius_min;
 
 void init_photogrammetry_calculator(void)
 {
-  photogrammetry_sweep_angle 	= PHOTOGRAMMETRY_SWEEP_ANGLE;
+  photogrammetry_sweep_angle = PHOTOGRAMMETRY_SWEEP_ANGLE;
 
-  photogrammetry_sidelap 	= PHOTOGRAMMETRY_SIDELAP;
-  photogrammetry_overlap 	= PHOTOGRAMMETRY_OVERLAP;
-  photogrammetry_resolution 	= PHOTOGRAMMETRY_RESOLUTION;
+  photogrammetry_sidelap     = PHOTOGRAMMETRY_SIDELAP;
+  photogrammetry_overlap     = PHOTOGRAMMETRY_OVERLAP;
+  photogrammetry_resolution  = PHOTOGRAMMETRY_RESOLUTION;
 
-  photogrammetry_height_min	= PHOTOGRAMMETRY_HEIGHT_MIN;
-  photogrammetry_height_max 	= PHOTOGRAMMETRY_HEIGHT_MAX;
-  photogrammetry_radius_min 	= PHOTOGRAMMETRY_RADIUS_MIN;
+  photogrammetry_height_min  = PHOTOGRAMMETRY_HEIGHT_MIN;
+  photogrammetry_height_max  = PHOTOGRAMMETRY_HEIGHT_MAX;
+  photogrammetry_radius_min  = PHOTOGRAMMETRY_RADIUS_MIN;
 
   photogrammetry_calculator_update();
 }

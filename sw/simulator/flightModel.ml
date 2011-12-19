@@ -143,8 +143,8 @@ module Make(A:Data.MISSION) = struct
   let maximum_airspeed = try float_value misc_section "MAXIMUM_AIRSPEED" with _ -> nominal_airspeed *. 1.5
   let max_power = try float_value misc_section "MAXIMUM_POWER" with _ -> 5. *. maximum_airspeed *. weight
 
-  let roll_neutral_default = try rad_of_deg (float_value infrared_section "ROLL_NEUTRAL_DEFAULT") with _ -> 0.
-  let pitch_neutral_default = try rad_of_deg (float_value infrared_section "PITCH_NEUTRAL_DEFAULT") with _ -> 0.
+  let roll_neutral_default = try float_value infrared_section "ROLL_NEUTRAL_DEFAULT" with _ -> 0.
+  let pitch_neutral_default = try float_value infrared_section "PITCH_NEUTRAL_DEFAULT" with _ -> 0.
 
 
   let vert_ctrl_section = try section "VERTICAL CONTROL" with _ -> Xml.Element("",[],[])
