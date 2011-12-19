@@ -42,6 +42,9 @@
 #include "std.h"
 #include "subsystems/datalink/datalink.h"
 
+/* PPRZ Transport
+ * downlink macros
+ */
 extern uint8_t ck_a, ck_b;
 
 #define STX  0x99
@@ -136,81 +139,92 @@ extern uint8_t ck_a, ck_b;
 
 
 /** Receiving pprz messages */
+#include "subsystems/datalink/transport.h"
 
-#define UNINIT 0
-#define GOT_STX 1
-#define GOT_LENGTH 2
+// PPRZ parsing state machine
+#define UNINIT      0
+#define GOT_STX     1
+#define GOT_LENGTH  2
 #define GOT_PAYLOAD 3
-#define GOT_CRC1 4
+#define GOT_CRC1    4
 
+struct pprz_transport {
+  // generic interface
+  struct transport trans;
+  // specific pprz transport variables
+  uint8_t status;
+  uint8_t payload_idx;
+  uint8_t ck_a, ck_b;
+};
 
-#define PPRZ_PAYLOAD_LEN 256
-extern uint8_t pprz_payload[PPRZ_PAYLOAD_LEN];
+extern struct pprz_transport pprz_trans;
 
-extern volatile bool_t pprz_msg_received;
-extern uint8_t pprz_ovrn, pprz_error;
-extern volatile uint8_t pprz_payload_len;
-
-static inline void parse_pprz( uint8_t c ) {
-  static uint8_t pprz_status = UNINIT;
-  static uint8_t _ck_a, _ck_b, payload_idx;
-
-  switch (pprz_status) {
+static inline void parse_pprz(struct pprz_transport * t, uint8_t c ) {
+  switch (t->status) {
   case UNINIT:
     if (c == STX)
-      pprz_status++;
+      t->status++;
     break;
   case GOT_STX:
-    if (pprz_msg_received) {
-      pprz_ovrn++;
+    if (t->trans.msg_received) {
+      t->trans.ovrn++;
       goto error;
     }
-    pprz_payload_len = c-4; /* Counting STX, LENGTH and CRC1 and CRC2 */
-    _ck_a = _ck_b = c;
-    pprz_status++;
-    payload_idx = 0;
+    t->trans.payload_len = c-4; /* Counting STX, LENGTH and CRC1 and CRC2 */
+    t->ck_a = t->ck_b = c;
+    t->status++;
+    t->payload_idx = 0;
     break;
   case GOT_LENGTH:
-    pprz_payload[payload_idx] = c;
-    _ck_a += c; _ck_b += _ck_a;
-    payload_idx++;
-    if (payload_idx == pprz_payload_len)
-      pprz_status++;
+    t->trans.payload[t->payload_idx] = c;
+    t->ck_a += c; t->ck_b += t->ck_a;
+    t->payload_idx++;
+    if (t->payload_idx == t->trans.payload_len)
+      t->status++;
     break;
   case GOT_PAYLOAD:
-    if (c != _ck_a)
+    if (c != t->ck_a)
       goto error;
-    pprz_status++;
+    t->status++;
     break;
   case GOT_CRC1:
-    if (c != _ck_b)
+    if (c != t->ck_b)
       goto error;
-    pprz_msg_received = TRUE;
+    t->trans.msg_received = TRUE;
     goto restart;
   default:
     goto error;
   }
   return;
  error:
-  pprz_error++;
+  t->trans.error++;
  restart:
-  pprz_status = UNINIT;
+  t->status = UNINIT;
   return;
 }
 
-static inline void pprz_parse_payload(void) {
+static inline void pprz_parse_payload(struct pprz_transport * t) {
   uint8_t i;
-  for(i = 0; i < pprz_payload_len; i++)
-    dl_buffer[i] = pprz_payload[i];
+  for(i = 0; i < t->trans.payload_len; i++)
+    dl_buffer[i] = t->trans.payload[i];
   dl_msg_available = TRUE;
 }
 
 #define __PprzLink(dev, _x) dev##_x
 #define _PprzLink(dev, _x)  __PprzLink(dev, _x)
-#define PprzLink(_x) _PprzLink(PPRZ_UART, _x)
+#define PprzLink(_dev, _x) _PprzLink(_dev, _x)
 
-#define PprzBuffer() PprzLink(ChAvailable())
-#define ReadPprzBuffer() { while (PprzLink(ChAvailable())&&!pprz_msg_received) parse_pprz(PprzLink(Getch())); }
+#define PprzBuffer(_dev) PprzLink(_dev,ChAvailable())
+#define ReadPprzBuffer(_dev,_trans) { while (PprzLink(_dev,ChAvailable())&&!_trans.trans.msg_received) parse_pprz(&(_trans),PprzLink(_dev,Getch())); }
+#define PprzCheckAndParse(_dev,_trans) {  \
+  if (PprzBuffer(_dev)) {                 \
+    ReadPprzBuffer(_dev,_trans);          \
+    if (_trans.trans.msg_received) {      \
+      pprz_parse_payload(&(_trans));      \
+      _trans.trans.msg_received = FALSE;  \
+    }                                     \
+  }                                       \
+}
 
 
 #endif /* PPRZ_TRANSPORT_H */
