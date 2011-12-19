@@ -71,27 +71,6 @@ extern uint8_t downlink_nb_ovrn;
 extern uint16_t downlink_nb_bytes;
 extern uint16_t downlink_nb_msgs;
 
-/* TransportOfDownlink and DeviceOfDownlink macros
- *
- * returns transport or device from a channel
- *
- * chan: (transport, device)
- * TransOfDL(transport, device) returns transport
- * DevOfDL(transport, device) returns device
- */
-#define TransOfDL(_trans, _dev) _trans
-#define DevOfDL(_trans, _dev) _dev
-
-#define __TOD(_chan) TransOfDL##_chan
-#define _TOD(_chan) __TOD(_chan)
-//#define TransportOfDownlink(_chan) _TOD(_chan)
-#define TransportOfDownlink(_chan) TransOfDL(_chan)
-
-#define __DOD(_chan) DevOfDL##_chan
-#define _DOD(_chan) __DOD(_chan)
-//#define DeviceOfDownlink(_chan) _DOD(_chan)
-#define DeviceOfDownlink(_chan) DevOfDL(_chan)
-
 /* Transport macros
  *
  * call transport functions from channel
@@ -104,7 +83,7 @@ extern uint16_t downlink_nb_msgs;
 /** Set of macros for generated code (messages.h) from messages.xml */
 /** 2 = ac_id + msg_id */
 #define DownlinkIDsSize(_trans, _dev, _x) (_x+2)
-#define DownlinkSizeOf(_trans, _dev, _x) Transport(_trans, SizeOf(DownlinkIDsSize(_trans, _dev, _x)))
+#define DownlinkSizeOf(_trans, _dev, _x) Transport(_trans, SizeOf(_dev, DownlinkIDsSize(_trans, _dev, _x)))
 
 #define DownlinkCheckFreeSpace(_trans, _dev, _x) Transport(_trans, CheckFreeSpace(_dev, (uint8_t)(_x)))
 

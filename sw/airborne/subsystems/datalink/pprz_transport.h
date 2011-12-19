@@ -47,7 +47,7 @@ extern uint8_t ck_a, ck_b;
 #define STX  0x99
 
 /** 4 = STX + len + ck_a + ck_b */
-#define PprzTransportSizeOf(_payload) (_payload+4)
+#define PprzTransportSizeOf(_dev, _payload) (_payload+4)
 
 #define __Link(dev, _x) dev##_x
 #define _Link(dev, _x)  __Link(dev, _x)
@@ -60,7 +60,7 @@ extern uint8_t ck_a, ck_b;
 
 #define PprzTransportHeader(_dev, payload_len) { \
   PprzTransportPut1Byte(_dev, STX);				\
-  uint8_t msg_len = PprzTransportSizeOf(payload_len);	\
+  uint8_t msg_len = PprzTransportSizeOf(_dev, payload_len);	\
   PprzTransportPut1Byte(_dev, msg_len);			\
   ck_a = msg_len; ck_b = msg_len;			\
 }

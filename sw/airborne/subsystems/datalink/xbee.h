@@ -64,7 +64,7 @@ void xbee_init( void );
 #define XBeeTransportPut1Byte(_dev, x) Link(_dev, Transmit(x))
 #define XBeeTransportCheckFreeSpace(_dev, x) Link(_dev, CheckFreeSpace(x))
 /* 5 = Start + len_msb + len_lsb + API_id + checksum */
-#define XBeeAPISizeOf(_x) (_x+5)
+#define XBeeAPISizeOf(_dev, _x) (_x+5)
 #define XBeeTransportSendMessage(_dev) Link(_dev, SendMessage())
 
 #define XBeeTransportPutUint8(_dev, _x) { \
@@ -134,7 +134,7 @@ void xbee_init( void );
 
 #define XBeeTransportHeader(_dev, _len) { \
   XBeeTransportPut1Byte(_dev, XBEE_START); \
-  uint8_t payload_len = XBeeAPISizeOf(_len); \
+  uint8_t payload_len = XBeeAPISizeOf(_dev, _len); \
   XBeeTransportPut2Bytes(_dev, payload_len); \
   xbee_cs = 0; \
   XBeeTransportPutTXHeader(_dev); \

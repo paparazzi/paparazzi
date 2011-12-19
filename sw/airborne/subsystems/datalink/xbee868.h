@@ -49,7 +49,7 @@
 }
 
 /* 13 = frame_id + addr==8 + 3 + options */
-#define XBeeTransportSizeOf(_x) XBeeAPISizeOf(_x+13)
+#define XBeeTransportSizeOf(_dev, _x) XBeeAPISizeOf(_dev, _x+13)
 
 #define XbeeGetRSSI() {}
 

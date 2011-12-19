@@ -6,7 +6,7 @@ extern char* ivy_p;
 
 #define IvyTransportCheckFreeSpace(_dev,_) TRUE
 
-#define IvyTransportSizeOf(x) (x)
+#define IvyTransportSizeOf(_dev, x) (x)
 
 #define IvyTransportHeader(_dev,len) ivy_p=ivy_buf;
 
