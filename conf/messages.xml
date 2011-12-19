@@ -1330,11 +1330,7 @@
      <field name="status"   type="uint8" values="OK|LOST|REALLY_LOST"/>
   </message>
 
-  <message name="BOOZ_BARO_RAW" id="161">
-      <field name="offset"         type="uint16"/>
-      <field name="value"          type="uint16"/>
-      <field name="value_filtered" type="uint16"/>
-  </message>
+  <!-- 161 is free -->
 
   <message name="VFF" id="162">
       <field name="measure"        type="float"/>
