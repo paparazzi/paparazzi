@@ -328,12 +328,6 @@ inline static void h_ctl_roll_loop( void ) {
 }
 
 
-// NOT USED
-#ifdef LOITER_TRIM
-float v_ctl_auto_throttle_loiter_trim = V_CTL_AUTO_THROTTLE_LOITER_TRIM;
-float v_ctl_auto_throttle_dash_trim = V_CTL_AUTO_THROTTLE_DASH_TRIM;
-#endif
-
 #ifdef USE_PITCH_TRIM
 inline static void loiter(void) {
   float pitch_trim;

@@ -70,11 +70,6 @@ extern float v_ctl_auto_throttle_sum_err;
 extern float v_ctl_auto_throttle_pitch_of_vz_pgain;
 extern float v_ctl_auto_throttle_pitch_of_vz_dgain;
 
-#ifdef LOITER_TRIM
-extern float v_ctl_auto_throttle_loiter_trim;
-extern float v_ctl_auto_throttle_dash_trim;
-#endif
-
 /* agressive tuning */
 #ifdef TUNE_AGRESSIVE_CLIMB
 extern float agr_climb_throttle;
