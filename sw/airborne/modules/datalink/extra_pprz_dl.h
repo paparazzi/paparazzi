@@ -1,7 +1,6 @@
 /*
- * Paparazzi mcu0 $Id: pprz_transport.c 929 2006-06-02 12:11:37Z poine $
+ * Paparazzi $Id: pprz_transport.h 4870 2010-04-24 03:02:39Z poine $
  *
- * Copyright (C) 2006  Pascal Brisset, Antoine Drouin
  * Copyright (C) 2010  ENAC
  *
  * This file is part of paparazzi.
@@ -23,11 +22,27 @@
  *
  */
 
-#include <inttypes.h>
-#include "extra_pprz_dl.h"
-#include "mcu_periph/uart.h"
+/** \file pprz_transport.h
+ *  \brief Extra datalink using PPRZ protocol
+ *
+ */
 
-volatile bool_t extra_pprz_msg_received = FALSE;
-uint8_t extra_pprz_ovrn, extra_pprz_error;
-volatile uint8_t extra_pprz_payload_len;
-uint8_t extra_pprz_payload[PPRZ_PAYLOAD_LEN];
+#ifndef EXTRA_PPRZ_DL_H
+#define EXTRA_PPRZ_DL_H
+
+#include "subsystems/datalink/datalink.h"
+#include "subsystems/datalink/pprz_transport.h"
+
+/* PPRZ transport structure */
+extern struct pprz_transport extra_pprz_tp;
+
+/* Datalink Event */
+
+#define ExtraDatalinkEvent() {			                  \
+  PpprzCheckAndParse(EXTRA_PPRZ_UART, extra_pprz_tp); \
+  DlCheckAndParse();                                  \
+}
+
+
+#endif /* EXTRA_PPRZ_DL_H */
+
