@@ -144,25 +144,21 @@ void stabilization_attitude_run(bool_t  in_flight) {
     stabilization_gains.d.z    * rate_err.r +
     OFFSET_AND_ROUND2((stabilization_gains.i.z  * stabilization_att_sum_err.psi), 10);
 
-  /* sum feedforward and feedback */
+
 #ifdef USE_HELI
+#define CMD_SHIFT 12
+#else
+#define CMD_SHIFT 16
+#endif
+
+  /* sum feedforward and feedback */
   stabilization_cmd[COMMAND_ROLL] =
-    OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_ROLL]+stabilization_att_ff_cmd[COMMAND_ROLL]), 12);
+    OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_ROLL]+stabilization_att_ff_cmd[COMMAND_ROLL]), CMD_SHIFT);
 
   stabilization_cmd[COMMAND_PITCH] =
-    OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_PITCH]+stabilization_att_ff_cmd[COMMAND_PITCH]), 12);
+    OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_PITCH]+stabilization_att_ff_cmd[COMMAND_PITCH]), CMD_SHIFT);
 
   stabilization_cmd[COMMAND_YAW] =
-    OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_YAW]+stabilization_att_ff_cmd[COMMAND_YAW]), 12);
- #else
-   stabilization_cmd[COMMAND_ROLL] =
-    OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_ROLL]+stabilization_att_ff_cmd[COMMAND_ROLL]), 16);
-
-  stabilization_cmd[COMMAND_PITCH] =
-    OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_PITCH]+stabilization_att_ff_cmd[COMMAND_PITCH]), 16);
-
-  stabilization_cmd[COMMAND_YAW] =
-    OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_YAW]+stabilization_att_ff_cmd[COMMAND_YAW]), 16);
- #endif
+    OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_YAW]+stabilization_att_ff_cmd[COMMAND_YAW]), CMD_SHIFT);
 
 }
