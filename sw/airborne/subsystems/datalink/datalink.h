@@ -69,22 +69,16 @@ EXTERN void dl_parse_msg(void);
 
 #if DATALINK == PPRZ
 
-#define DatalinkEvent() {			              \
-  PprzCheckAndParse(PPRZ_UART, pprz_trans); \
-  DlCheckAndParse();                        \
+#define DatalinkEvent() {			            \
+  PprzCheckAndParse(PPRZ_UART, pprz_tp);  \
+  DlCheckAndParse();                      \
 }
 
 #elif DATALINK == XBEE
 
-#define DatalinkEvent() {			\
-  if (XBeeBuffer()) {				\
-    ReadXBeeBuffer();				\
-    if (xbee_msg_received) {			\
-      xbee_parse_payload();			\
-      xbee_msg_received = FALSE;		\
-    }						\
-  }						\
-  DlCheckAndParse();              \
+#define DatalinkEvent() {			            \
+  XBeeCheckAndParse(XBEE_UART, xbee_tp);  \
+  DlCheckAndParse();                      \
 }
 
 #else

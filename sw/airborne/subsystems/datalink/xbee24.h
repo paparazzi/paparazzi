@@ -42,6 +42,6 @@
 /* 4 = frame_id + addr_msb + addr_lsb + options */
 #define XBeeTransportSizeOf(_dev, _x) XBeeAPISizeOf(_dev, _x+4)
 
-#define XbeeGetRSSI() { xbee_rssi = xbee_payload[3]; }
+#define XbeeGetRSSI(_payload) { xbee_rssi = _payload[3]; }
 
 #endif // XBEE24_H

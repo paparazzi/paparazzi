@@ -41,6 +41,7 @@
 #include <inttypes.h>
 #include "std.h"
 #include "subsystems/datalink/datalink.h"
+#include "subsystems/datalink/transport.h"
 
 /* PPRZ Transport
  * downlink macros
@@ -52,14 +53,9 @@ extern uint8_t ck_a, ck_b;
 /** 4 = STX + len + ck_a + ck_b */
 #define PprzTransportSizeOf(_dev, _payload) (_payload+4)
 
-#define __Link(dev, _x) dev##_x
-#define _Link(dev, _x)  __Link(dev, _x)
-#define Link(_dev, _x) _Link(_dev, _x)
-
-#define PprzTransportCheckFreeSpace(_dev, _x) Link(_dev, CheckFreeSpace(_x))
-
-#define PprzTransportPut1Byte(_dev, _x) Link(_dev, Transmit(_x))
-#define PprzTransportSendMessage(_dev) Link(_dev, SendMessage())
+#define PprzTransportCheckFreeSpace(_dev, _x) TransportLink(_dev, CheckFreeSpace(_x))
+#define PprzTransportPut1Byte(_dev, _x) TransportLink(_dev, Transmit(_x))
+#define PprzTransportSendMessage(_dev) TransportLink(_dev, SendMessage())
 
 #define PprzTransportHeader(_dev, payload_len) { \
   PprzTransportPut1Byte(_dev, STX);				\
@@ -139,7 +135,6 @@ extern uint8_t ck_a, ck_b;
 
 
 /** Receiving pprz messages */
-#include "subsystems/datalink/transport.h"
 
 // PPRZ parsing state machine
 #define UNINIT      0
@@ -157,7 +152,7 @@ struct pprz_transport {
   uint8_t ck_a, ck_b;
 };
 
-extern struct pprz_transport pprz_trans;
+extern struct pprz_transport pprz_tp;
 
 static inline void parse_pprz(struct pprz_transport * t, uint8_t c ) {
   switch (t->status) {
@@ -210,12 +205,9 @@ static inline void pprz_parse_payload(struct pprz_transport * t) {
   dl_msg_available = TRUE;
 }
 
-#define __PprzLink(dev, _x) dev##_x
-#define _PprzLink(dev, _x)  __PprzLink(dev, _x)
-#define PprzLink(_dev, _x) _PprzLink(_dev, _x)
 
-#define PprzBuffer(_dev) PprzLink(_dev,ChAvailable())
-#define ReadPprzBuffer(_dev,_trans) { while (PprzLink(_dev,ChAvailable())&&!_trans.trans.msg_received) parse_pprz(&(_trans),PprzLink(_dev,Getch())); }
+#define PprzBuffer(_dev) TransportLink(_dev,ChAvailable())
+#define ReadPprzBuffer(_dev,_trans) { while (TransportLink(_dev,ChAvailable())&&!(_trans.trans.msg_received)) parse_pprz(&(_trans),TransportLink(_dev,Getch())); }
 #define PprzCheckAndParse(_dev,_trans) {  \
   if (PprzBuffer(_dev)) {                 \
     ReadPprzBuffer(_dev,_trans);          \

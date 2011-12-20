@@ -28,4 +28,4 @@
 
 uint8_t ck_a, ck_b;
 
-struct pprz_transport pprz_trans;
+struct pprz_transport pprz_tp;

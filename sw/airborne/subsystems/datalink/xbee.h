@@ -35,37 +35,30 @@
 #else /* Not 868 */
 #include "subsystems/datalink/xbee24.h"
 #endif
+#include "subsystems/datalink/transport.h"
 
 /** Constants for the API protocol */
 #define XBEE_START 0x7e
 #define TX_OPTIONS 0x00
 #define NO_FRAME_ID 0
 
+/** Ground station address */
 #define GROUND_STATION_ADDR 0x100
 
 extern uint8_t xbee_cs;
-#define XBEE_PAYLOAD_LEN 256
-extern uint8_t xbee_payload[XBEE_PAYLOAD_LEN];
-
-extern volatile bool_t xbee_msg_received;
-extern volatile uint8_t xbee_payload_len;
 extern uint8_t xbee_rssi;
-extern uint8_t xbee_ovrn, xbee_error;
 
 /** Initialisation in API mode and setting of the local address
  * FIXME: busy wait */
 #define XBEE_MY_ADDR AC_ID
 void xbee_init( void );
 
-#define __Link(dev, _x) dev##_x
-#define _Link(dev, _x)  __Link(dev, _x)
-#define Link(_dev, _x) _Link(_dev, _x)
-
-#define XBeeTransportPut1Byte(_dev, x) Link(_dev, Transmit(x))
-#define XBeeTransportCheckFreeSpace(_dev, x) Link(_dev, CheckFreeSpace(x))
 /* 5 = Start + len_msb + len_lsb + API_id + checksum */
 #define XBeeAPISizeOf(_dev, _x) (_x+5)
-#define XBeeTransportSendMessage(_dev) Link(_dev, SendMessage())
+
+#define XBeeTransportCheckFreeSpace(_dev, x) TransportLink(_dev, CheckFreeSpace(x))
+#define XBeeTransportPut1Byte(_dev, x) TransportLink(_dev, Transmit(x))
+#define XBeeTransportSendMessage(_dev) TransportLink(_dev, SendMessage())
 
 #define XBeeTransportPutUint8(_dev, _x) { \
   xbee_cs += _x; \
@@ -149,48 +142,55 @@ void xbee_init( void );
 
 
 /** Status of the API packet receiver automata */
-#define XBEE_UNINIT 0
-#define XBEE_GOT_START 1
+#define XBEE_UNINIT         0
+#define XBEE_GOT_START      1
 #define XBEE_GOT_LENGTH_MSB 2
 #define XBEE_GOT_LENGTH_LSB 3
-#define XBEE_GOT_PAYLOAD 4
+#define XBEE_GOT_PAYLOAD    4
 
+struct xbee_transport {
+  // generic interface
+  struct transport trans;
+  // specific pprz transport variables
+  uint8_t status;
+  uint8_t payload_idx;
+  uint8_t cs;
+};
+
+extern struct xbee_transport xbee_tp;
 
 /** Parsing a XBee API frame */
-static inline void parse_xbee( uint8_t c ) {
-  static uint8_t xbee_status = XBEE_UNINIT;
-  static uint8_t cs, payload_idx;
-
-  switch (xbee_status) {
+static inline void parse_xbee( struct xbee_transport * t, uint8_t c ) {
+  switch (t->status) {
   case XBEE_UNINIT:
     if (c == XBEE_START)
-      xbee_status++;
+      t->status++;
     break;
   case XBEE_GOT_START:
-    if (xbee_msg_received) {
-      xbee_ovrn++;
+    if (t->trans.msg_received) {
+      t->trans.ovrn++;
       goto error;
     }
-    xbee_payload_len = c<<8;
-    xbee_status++;
+    t->trans.payload_len = c<<8;
+    t->status++;
     break;
   case XBEE_GOT_LENGTH_MSB:
-    xbee_payload_len |= c;
-    xbee_status++;
-    payload_idx = 0;
-    cs=0;
+    t->trans.payload_len |= c;
+    t->status++;
+    t->payload_idx = 0;
+    t->cs=0;
     break;
   case XBEE_GOT_LENGTH_LSB:
-    xbee_payload[payload_idx] = c;
-    cs += c;
-    payload_idx++;
-    if (payload_idx == xbee_payload_len)
-      xbee_status++;
+    t->trans.payload[t->payload_idx] = c;
+    t->cs += c;
+    t->payload_idx++;
+    if (t->payload_idx == t->trans.payload_len)
+      t->status++;
     break;
   case XBEE_GOT_PAYLOAD:
-    if (c + cs != 0xff)
+    if (c + t->cs != 0xff)
       goto error;
-    xbee_msg_received = TRUE;
+    t->trans.msg_received = TRUE;
     goto restart;
     break;
   default:
@@ -198,21 +198,21 @@ static inline void parse_xbee( uint8_t c ) {
   }
   return;
  error:
-  xbee_error++;
+  t->trans.error++;
  restart:
-  xbee_status = XBEE_UNINIT;
+  t->status = XBEE_UNINIT;
   return;
 }
 
 /** Parsing a frame data and copy the payload to the datalink buffer */
-static inline void xbee_parse_payload(void) {
-  switch (xbee_payload[0]) {
+static inline void xbee_parse_payload(struct xbee_transport * t) {
+  switch (t->trans.payload[0]) {
   case XBEE_RX_ID:
   case XBEE_TX_ID: /* Useful if A/C is connected to the PC with a cable */
-    XbeeGetRSSI();
+    XbeeGetRSSI(t->trans.payload);
     uint8_t i;
-    for(i = XBEE_RFDATA_OFFSET; i < xbee_payload_len; i++)
-      dl_buffer[i-XBEE_RFDATA_OFFSET] = xbee_payload[i];
+    for(i = XBEE_RFDATA_OFFSET; i < t->trans.payload_len; i++)
+      dl_buffer[i-XBEE_RFDATA_OFFSET] = t->trans.payload[i];
     dl_msg_available = TRUE;
     break;
   default:
@@ -220,14 +220,19 @@ static inline void xbee_parse_payload(void) {
   }
 }
 
-#define __XBeeLink(dev, _x) dev##_x
-#define _XBeeLink(dev, _x)  __XBeeLink(dev, _x)
-#define XBeeLink(_x) _XBeeLink(XBEE_UART, _x)
+#define XBeeBuffer(_dev) TransportLink(_dev,ChAvailable())
+#define ReadXBeeBuffer(_dev,_trans) { while (TransportLink(_dev,ChAvailable())&&!(_trans.trans.msg_received)) parse_xbee(&(_trans),TransportLink(_dev,Getch())); }
+#define XBeeCheckAndParse(_dev,_trans) {  \
+  if (XBeeBuffer(_dev)) {                 \
+    ReadXBeeBuffer(_dev,_trans);          \
+    if (_trans.trans.msg_received) {      \
+      xbee_parse_payload(&(_trans));      \
+      _trans.trans.msg_received = FALSE;  \
+    }                                     \
+  }                                       \
+}
 
-#define XBeeBuffer() XBeeLink(ChAvailable())
-#define ReadXBeeBuffer() { while (XBeeLink(ChAvailable())&&!xbee_msg_received) parse_xbee(XBeeLink(Getch())); }
-
-#define XBeePrintString(s) XBeeLink(PrintString(s))
-#define XBeePrintHex16(x) XBeeLink(PrintHex16(x))
+#define XBeePrintString(_dev, s) TransportLink(_dev,PrintString(s))
+#define XBeePrintHex16(_dev, x) TransportLink(_dev,PrintHex16(x))
 
 #endif /* XBEE_H */
