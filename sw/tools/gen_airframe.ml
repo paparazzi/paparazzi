@@ -88,7 +88,9 @@ let code_unit_scale_of_tag = function t ->
     ("deg", "") -> "rad"
   | ("deg/s", "") -> "rad/s"
   | (_,_) -> cu in
-  Pprz.scale_of_units u cu
+  try Pprz.scale_of_units u cu
+  with Pprz.Unit_conversion_error s -> prerr_endline (sprintf "Unit conversion error: %s" s); flush stderr; exit 1
+  | _ -> failwith "Unit conversion error"
 
 let parse_element = fun prefix s ->
   match Xml.tag s with

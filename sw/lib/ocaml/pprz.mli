@@ -86,6 +86,11 @@ val int32_assoc : string -> values -> Int32.t
 val hex_of_int_array : value -> string
 (** Returns the hexadecimal string of an array of integers *)
 
+exception Unit_conversion_error of string
+(** Unit_conversion_error raised when parsing error occurs *)
+exception Unknown_conversion of string * string
+(** Unknown_conversion raised when conversion fails *)
+
 val scale_of_units : string -> string -> float
 (** scale_of_units from to
  *  Returns conversion factor between two units
