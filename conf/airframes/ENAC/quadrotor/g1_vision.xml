@@ -131,7 +131,6 @@
 
   <section name="INS" prefix="BOOZ_INS_">
     <define name="BARO_SENS" value="15." integer="16"/>
-    <define name="UNTILT_ACCEL" value="1"/>
     <define name="SONAR_SENS" value="2.146" integer="16"/>
   </section>
 
