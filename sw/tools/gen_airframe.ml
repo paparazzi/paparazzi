@@ -81,16 +81,25 @@ let define_integer name v n =
   continious_frac (truncate v) v (1, (truncate v)) (0, 1)
 
 let code_unit_scale_of_tag = function t ->
-  let u = try ExtXml.attrib t "unit" with _ -> "" in
+  (* if unit attribute is not specified don't even attempt to convert the units *)
+  let u = try ExtXml.attrib t "unit" with _ -> failwith "Unit conversion error" in
   let cu = try ExtXml.attrib t "code_unit" with _ -> "" in
   (* default value for code_unit is rad[/s] when unit is deg[/s] *)
   let cu = match (u, cu) with
-    ("deg", "") -> "rad"
-  | ("deg/s", "") -> "rad/s"
-  | (_,_) -> cu in
-  try Pprz.scale_of_units u cu
-  with Pprz.Unit_conversion_error s -> prerr_endline (sprintf "Unit conversion error: %s" s); flush stderr; exit 1
-  | _ -> failwith "Unit conversion error"
+      ("deg", "") -> "rad"
+    | ("deg/s", "") -> "rad/s"
+    | (_,_) -> cu in
+  (* if unit and code_unit are defined, try to convert *)
+  if cu <> "" then
+    begin
+      try Pprz.scale_of_units u cu
+      with
+          Pprz.Unit_conversion_error s -> prerr_endline (sprintf "Unit conversion error: %s" s); flush stderr; exit 1
+        | Pprz.Unknown_conversion (su, scu) -> prerr_endline (sprintf "Warning: unknown unit conversion: from %s to %s" su scu); flush stderr; failwith "Unknown unit conversion"
+        | _ -> failwith "Unit conversion error"
+    end
+  else
+    failwith "Unit conversion error"
 
 let parse_element = fun prefix s ->
   match Xml.tag s with
