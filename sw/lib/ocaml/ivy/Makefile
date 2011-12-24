@@ -49,8 +49,11 @@ TKIVYCMX= $(TKIVY:.ml=.cmx)
 
 UNAME = $(shell uname -s)
 
+UNAME = $(shell uname -s)
+
 ifeq ("$(UNAME)","Darwin")
-  LIBRARYS = -L/opt/local/lib
+  LIBRARYS = -L /opt/paparazzi/lib -L /opt/local/lib
+  INCLUDES = -I /opt/paparazzi/include -I /opt/local/include/
 endif
 
 LIBS = ivy-ocaml.cma ivy-ocaml.cmxa glibivy-ocaml.cma glibivy-ocaml.cmxa
@@ -102,7 +105,7 @@ tkivy-ocaml.cmxa : $(TKIVYCMX) civy.o ctkivy.o
 	$(OCAMLC) $(OCAMLFLAGS) $(INCLUDES) -c $<
 .c.o :
 
-	$(CC) -Wall -c $(FPIC) -I /opt/local/include/  $(OCAMLINC) $(GLIBINC) $<
+	$(CC) -Wall -c $(FPIC) $(INCLUDES) $(OCAMLINC) $(GLIBINC) $<
 .mli.cmi :
 	$(OCAMLMLI) $(OCAMLFLAGS) -c $<
 .ml.cmx :
