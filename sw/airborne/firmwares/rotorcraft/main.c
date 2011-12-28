@@ -85,15 +85,6 @@ int main( void ) {
 
 STATIC_INLINE void main_init( void ) {
 
-#ifndef NO_FUCKING_STARTUP_DELAY
-#ifndef RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
-  /* IF THIS IS NEEDED SOME PERHIPHERAL THEN PLEASE MOVE IT THERE */
-  for (uint32_t startup_counter=0; startup_counter<2000000; startup_counter++){
-    __asm("nop");
-  }
-#endif
-#endif
-
   mcu_init();
 
   sys_time_init();

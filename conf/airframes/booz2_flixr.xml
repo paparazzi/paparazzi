@@ -11,7 +11,6 @@
       <subsystem name="fdm"   type="nps"/>
     </target>
 
-    <define name="NO_FUCKING_STARTUP_DELAY"/>
 
     <subsystem name="telemetry"     type="transparent_usb"/>
     <subsystem name="radio_control" type="ppm"/>
