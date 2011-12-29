@@ -32,7 +32,7 @@
 
 #include "modules/meteo/dust_gp2y.h"
 #include "mcu_periph/i2c.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"

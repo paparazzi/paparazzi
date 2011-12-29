@@ -30,7 +30,7 @@
 #include "csc_msg_def.h"
 
 // #include "mcu.h"
-// #include "sys_time.h"
+// #include "mcu_periph/sys_time.h"
 // #include "subsystems/datalink/downlink.h"
 
 #define CSCP_QUEUE_LEN 8

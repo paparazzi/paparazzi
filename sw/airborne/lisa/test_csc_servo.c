@@ -23,7 +23,7 @@
 
 
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "csc_msg_def.h"
 #include "csc_protocol.h"
 #include "stm32/can.h"

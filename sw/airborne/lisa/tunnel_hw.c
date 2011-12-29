@@ -28,7 +28,7 @@
 
 #include BOARD_CONFIG
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 
 #define A_PERIPH   RCC_APB2Periph_GPIOA

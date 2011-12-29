@@ -58,7 +58,7 @@ ap.CFLAGS += -DUSE_VANE_SENSOR
 # ap.CFLAGS += -DUSE_BAT_MONITOR
 
 ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
-ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+ap.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c
 
 #ap.srcs += $(SRC_ARCH)/adc_hw.c
 #ap.CFLAGS += -DADC -DUSE_AD0 -DUSE_AD0_0 -DUSE_AD0_1
@@ -102,7 +102,7 @@ test_uart.CFLAGS += -DUSE_LED
 
 # -DTIME_LED=1
 test_uart.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
-test_uart.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+test_uart.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c
 
 test_uart.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
@@ -126,7 +126,7 @@ test_can1.CFLAGS += -DUSE_LED
 
 # -DTIME_LED=1
 test_can1.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
-test_can1.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+test_can1.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c
 
 test_can1.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_2MHz
 test_can1.CFLAGS +=  -DCAN1_VIC_SLOT=3 -DCAN1_ERR_VIC_SLOT=7

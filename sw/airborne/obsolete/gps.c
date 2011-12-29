@@ -32,7 +32,7 @@
 #include "gps.h"
 #include "latlong.h"
 #ifndef FMS_PERIODIC_FREQ
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #endif
 #include "generated/airframe.h"
 #include "generated/periodic.h"

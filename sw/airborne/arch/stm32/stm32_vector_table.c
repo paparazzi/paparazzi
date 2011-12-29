@@ -28,7 +28,7 @@
 #include "stm32_exceptions.h"
 
 #ifdef USE_SYS_TIME
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #define SYS_TICK_IRQ_HANDLER sys_tick_irq_handler
 #else
 #define SYS_TICK_IRQ_HANDLER null_handler

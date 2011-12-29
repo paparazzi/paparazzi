@@ -45,7 +45,7 @@
 #include "latlong.h"
 
 #ifdef GPS_TIMESTAMP
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #define MSEC_PER_WEEK (1000*60*60*24*7)
 #endif
 

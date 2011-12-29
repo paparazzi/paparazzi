@@ -1,6 +1,6 @@
 #include "mb_servo.h"
 
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #define MY_NB_CLOCK_TIMER_PWM(time_us) SYS_TICS_OF_USEC(time_us)
 
 uint32_t mb_servo_max_pulse_ns, mb_servo_min_pulse_ns;

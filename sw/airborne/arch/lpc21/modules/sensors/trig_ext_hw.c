@@ -1,6 +1,6 @@
 
 #include "std.h"
-#include "sys_time_hw.h"
+#include "mcu_periph/sys_time.hw.h"
 #include "LPC21xx.h"
 #include "trig_ext_hw.h"
 #include BOARD_CONFIG

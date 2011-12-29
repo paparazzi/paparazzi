@@ -30,7 +30,7 @@
  */
 
 #include "led.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"

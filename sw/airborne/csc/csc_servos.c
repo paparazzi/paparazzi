@@ -2,7 +2,7 @@
 
 #include "LPC21xx.h"
 #include "std.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "firmwares/rotorcraft/actuators.h"
 #include "generated/airframe.h"
 #include ACTUATORS

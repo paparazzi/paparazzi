@@ -45,7 +45,7 @@
 #include "estimator.h"
 #include "generated/settings.h"
 #include "link_mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "generated/flight_plan.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"

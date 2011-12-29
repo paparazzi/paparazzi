@@ -82,7 +82,7 @@ $(TARGET).CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./$(PERIODIC_FREQU
 # Systime
 #
 ap.CFLAGS += -DUSE_SYS_TIME
-ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+ap.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 ifeq ($(ARCH), stm32)
 ap.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif

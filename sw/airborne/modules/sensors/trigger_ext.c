@@ -33,7 +33,7 @@
 #include "trigger_ext.h"
 #include "modules/sensors/trig_ext_hw.h"
 #include "subsystems/gps.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"

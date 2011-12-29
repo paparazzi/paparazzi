@@ -2,7 +2,7 @@
 
 #include "LPC21xx.h"
 
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 uint16_t wt_servo_motor_power;
 

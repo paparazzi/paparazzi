@@ -4,7 +4,7 @@
 #include "LPC21xx.h"
 #include "generated/airframe.h"
 #include "actuators.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 #define SERVOS_TICS_OF_USEC(s) SYS_TICS_OF_USEC(s)
 #define ChopServo(x,a,b) Chop(x, a, b)

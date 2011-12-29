@@ -34,7 +34,7 @@
 #include "gps.h"
 #include "gps_ubx.h"
 #include "latlong.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "airframe.h"
 #include "generated/subsystems/nav.h"
 #include "estimator.h"

@@ -32,7 +32,7 @@
 #include "meteo/windturbine.h"
 #include "core/trigger_ext.h"
 #include "subsystems/gps.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE

@@ -7,7 +7,7 @@
 
 #include "firmwares/rotorcraft/commands.h"
 #include "mcu_periph/i2c.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 
 struct ActuatorsAsctec actuators_asctec;

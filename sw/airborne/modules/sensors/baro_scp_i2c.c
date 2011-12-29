@@ -7,7 +7,7 @@
 
 #include "baro_scp_i2c.h"
 
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
 

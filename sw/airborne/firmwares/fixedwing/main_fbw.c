@@ -35,7 +35,7 @@
 
 #include "firmwares/fixedwing/main_fbw.h"
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "commands.h"
 #include "firmwares/fixedwing/actuators.h"
 #include "subsystems/electrical.h"

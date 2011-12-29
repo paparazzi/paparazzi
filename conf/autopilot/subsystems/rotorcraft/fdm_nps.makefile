@@ -71,7 +71,7 @@ endif
 sim.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
 # -DTIME_LED=1
 #sim.CFLAGS += -DUSE_LED
-sim.srcs += sys_time.c
+sim.srcs += mcu_periph/sys_time.c
 
 sim.srcs += subsystems/settings.c
 sim.srcs += $(SRC_ARCH)/subsystems/settings_arch.c

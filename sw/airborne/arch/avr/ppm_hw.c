@@ -29,7 +29,7 @@
 
 #include <avr/interrupt.h>
 #include "ppm.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 /*
  * Pulse width is computed as the difference between now and the

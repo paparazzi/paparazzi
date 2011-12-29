@@ -27,7 +27,7 @@
 
 #include BOARD_CONFIG
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/downlink.h"
 #include "peripherals/sc18is600.h"
 

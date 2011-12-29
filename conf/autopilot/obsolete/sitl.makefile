@@ -11,7 +11,7 @@ sim.srcs += latlong.c\
             $(SRC_FIRMWARE)/guidance/guidance_v.c                 \
             subsystems/nav.c\
             estimator.c\
-            sys_time.c\
+            mcu_periph/sys_time.c\
             $(SRC_FIRMWARE)/main_fbw.c \
             $(SRC_FIRMWARE)/main_ap.c \
             $(SRC_FIRMWARE)/datalink.c \

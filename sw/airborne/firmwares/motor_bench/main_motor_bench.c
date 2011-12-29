@@ -1,7 +1,7 @@
 
 #include "std.h"
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "mb_tacho.h"
 #include "mb_servo.h"

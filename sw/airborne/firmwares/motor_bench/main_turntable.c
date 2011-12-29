@@ -1,6 +1,6 @@
 #include "std.h"
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "interrupt_hw.h"
 #include "mcu_periph/usb_serial.h"
@@ -76,7 +76,7 @@ static inline void main_init_tacho(void) {
 
 
 //
-//  trimed version of arm7/sys_time_hw.c
+//  trimed version of arm7/mcu_periph/sys_time.hw.c
 //
 
 uint32_t cpu_time_ticks;

@@ -31,7 +31,7 @@
 #include <avr/interrupt.h>
 #include "servos_4017.h"
 #include "actuators.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include CONFIG
 
 

@@ -26,7 +26,7 @@
 #define BOOZ_PWM_ARCH_H
 
 #include "std.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 extern void booz_pwm_init_arch(void);
 

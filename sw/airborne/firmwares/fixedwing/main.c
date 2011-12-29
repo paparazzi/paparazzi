@@ -25,7 +25,7 @@
  * \brief main loop used both on single and dual MCU configuration */
 
 
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 #ifdef FBW
 #include "firmwares/fixedwing/main_fbw.h"

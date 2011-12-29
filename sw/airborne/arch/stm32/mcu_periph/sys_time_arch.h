@@ -1,7 +1,7 @@
 /*
  * Paparazzi $Id$
  *
- * Copyright (C) 2009 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2009-2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -23,28 +23,33 @@
  */
 
 /*
- *\brief architecture independant timing functions
+ *\brief STM32 timing functions
  *
  */
 
-#ifndef SYS_TIME_H
-#define SYS_TIME_H
+#ifndef SYS_TIME_HW_H
+#define SYS_TIME_HW_H
 
-#include <inttypes.h>
-#include BOARD_CONFIG
+#include "mcu_periph/sys_time.h"
 
-extern uint16_t cpu_time_sec;
+#include <stm32/gpio.h>
+#include <stm32/rcc.h>
+#include "std.h"
 
-#define SYS_TICS_OF_USEC(us) SYS_TICS_OF_SEC((us) * 1e-6)
-#define SYS_TICS_OF_NSEC(ns) SYS_TICS_OF_SEC((ns) * 1e-9)
-#define SIGNED_SYS_TICS_OF_USEC(us) SIGNED_SYS_TICS_OF_SEC((us) * 1e-6)
-#define SIGNED_SYS_TICS_OF_NSEC(us) SIGNED_SYS_TICS_OF_SEC((us) * 1e-9)
+#define InitSysTimePeriodic()
 
-#define TIME_TICKS_PER_SEC SYS_TICS_OF_SEC( 1.)
-#define FIFTY_MS           SYS_TICS_OF_SEC( 50e-3 )
-#define AVR_PERIOD_MS      SYS_TICS_OF_SEC( 16.666e-3 )
+#define SYS_TIME_TICS_OF_SEC(s)        (uint32_t)((s) * AHB_CLK + 0.5)
+#define SYS_TIME_SIGNED_TICS_OF_SEC(s)  (int32_t)((s) * AHB_CLK + 0.5)
 
-#include "mcu_periph/sys_time.hw.h"
+#define SysTimeTimerStart(_t) { _t = sys_time.nb_tic; }
+#define SysTimeTimer(_t) (sys_time.nb_tic - (_t)))
+#define SysTimeTimerStop(_t) { _t = (sys_time.nb_tic - (_t)); }
 
 
-#endif /* SYS_TIME_H */
+/** Busy wait, in microseconds */
+/* for now empty shell */
+static inline void sys_time_usleep(uint32_t us) {
+
+}
+
+#endif /* SYS_TIME_HW_H */

@@ -33,7 +33,7 @@ ADC_GYRO_NB_SAMPLES = 16
 setup_actuators.ARCHDIR = $(ARCHI)
 
 setup_actuators.CFLAGS += -DFBW -DBOARD_CONFIG=\"tiny.h\" -DUSE_LED -DTIME_LED=1 -DACTUATORS=\"servos_4015_hw.h\" -DSERVOS_4015 -DUSE_UART0 -DUART0_BAUD=B9600 -DDATALINK=PPRZ -DPPRZ_UART=Uart0
-setup_actuators.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c subsystems/datalink/pprz_transport.c setup_actuators.c $(SRC_ARCH)/mcu_periph/uart_arch.c $(SRC_ARCH)/servos_4015_hw.c main.c
+setup_actuators.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c subsystems/datalink/pprz_transport.c setup_actuators.c $(SRC_ARCH)/mcu_periph/uart_arch.c $(SRC_ARCH)/servos_4015_hw.c main.c
 
 
 # a test program to tunnel between both uart
@@ -50,7 +50,7 @@ test_adcs.CFLAGS += -DBOARD_CONFIG=$(CONFIG) -DUSE_LED -DTIME_LED=1 -DADC -DUSE_
 test_adcs.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B9600
 test_adcs.srcs += subsystems/datalink/downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c subsystems/datalink/xbee.c
 
-test_adcs.srcs += sys_time.c $(SRC_ARCH)/adc_hw.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c test_adcs.c
+test_adcs.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/adc_hw.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c test_adcs.c
 # subsystems/datalink/pprz_transport.c
 
 
@@ -61,7 +61,7 @@ usb_tunnel_0.CFLAGS += -DUSE_USB_LINE_CODING -DUSE_USB_SERIAL -DUSE_LED
 usb_tunnel_0.srcs += $(SRC_ARCH)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/mcu_periph/uart_arch.c
 usb_tunnel_0.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
 usb_tunnel_0.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
-usb_tunnel_0.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+usb_tunnel_0.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c
 
 usb_tunnel_1.ARCHDIR = $(ARCHI)
 usb_tunnel_1.CFLAGS += -DFBW -DBOARD_CONFIG=\"tiny_2_1_1_usb.h\" -DUSE_UART1 -DUART1_BAUD=B115200
@@ -69,4 +69,4 @@ usb_tunnel_1.CFLAGS += -DUSE_USB_LINE_CODING -DUSE_USB_SERIAL -DUSE_LED
 usb_tunnel_1.srcs += $(SRC_ARCH)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/mcu_periph/uart_arch.c
 usb_tunnel_1.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
 usb_tunnel_1.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
-usb_tunnel_1.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+usb_tunnel_1.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c
