@@ -96,6 +96,9 @@ void imu_periodic(void) {
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
   RunOnceEvery(10, { ami601_read(); });
 #endif
+#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
+  RunOnceEvery(5,Hmc58xxPeriodic());
+#endif
 
 }
 

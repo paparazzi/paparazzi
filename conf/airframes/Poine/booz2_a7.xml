@@ -162,7 +162,6 @@
 
   <section name="INS" prefix="INS_">
     <define name="BARO_SENS" value="10." integer="16"/>
-    <define name="UNTILT_ACCEL" value="1"/>
   </section>
 
  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
