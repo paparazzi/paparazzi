@@ -1,7 +1,5 @@
 /*
- * $Id: point.h 2304 2008-02-07 21:35:08Z mmm $
- *
- * Copyright (C) 2005-2008  Arnold Schroeter
+ * Copyright (C) 2010 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -22,13 +20,11 @@
  *
  */
 
-#if defined(USE_AIRBORNE_ANT_TRACKING) && USE_AIRBORNE_ANT_TRACKING == 1
-#ifndef AIRBORNE_ANT_TRACK_H
-#define AIRBORNE_ANT_TRACK_H
+#include "servo_cam_ctrl.h"
 
-extern float   airborne_ant_pan;
-void airborne_ant_point_init(void);
-void airborne_ant_point_periodic(void);
+// Button Timer
+uint8_t dc_timer;
 
-#endif /* AIRBORNE_ANT_TRACK_H */
-#endif // #if defined(USE_AIRBORNE_ANT_TRACKING) && USE_AIRBORNE_ANT_TRACKING == 1
+
+
+

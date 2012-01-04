@@ -36,6 +36,7 @@
     <!--This is to enable a wing waggle at specified low battery voltage. The interval is in cycle counts, not seconds-->
     <define name="AUTOPILOT_LOBATT_WING_WAGGLE"  value="TRUE"/>
     <define name="AUTOPILOT_LOBATT_WING_WAGGLE_INTERVAL"  value="5120"/>
+    <define name="TOYTRONICS" value="TRUE"/>
   </section>
 
   <rc_commands>
@@ -227,7 +228,6 @@
    <define name="PGAIN" value="-100"/>
    <define name="DGAIN" value="-100"/>
    <define name="IGAIN" value="-0"/>
-   <define name="TOYTRONICS" value="true"/>
  </section>
 
  <section name="SIMULATOR" prefix="NPS_">

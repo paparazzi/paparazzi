@@ -5,12 +5,12 @@
 #
 #
 # <subsystem name="imu" type="analog">
-#   <param name="GYRO_P" value="ADC_0"/>
-#   <param name="GYRO_Q" value="ADC_1"/>
-#   <param name="GYRO_R" value="ADC_2"/>
-#   <param name="ACCEL_X" value="ADC_5"/>
-#   <param name="ACCEL_Y" value="ADC_6"/>
-#   <param name="ACCEL_Z" value="ADC_7"/>
+#   <configure name="GYRO_P" value="ADC_0"/>
+#   <configure name="GYRO_Q" value="ADC_1"/>
+#   <configure name="GYRO_R" value="ADC_2"/>
+#   <configure name="ACCEL_X" value="ADC_5"/>
+#   <configure name="ACCEL_Y" value="ADC_6"/>
+#   <configure name="ACCEL_Z" value="ADC_7"/>
 # </subsystem>
 #
 # required xml:

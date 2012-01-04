@@ -78,7 +78,7 @@
    <message name="BAT" id="12">
      <field name="throttle" type="int16" unit="pprz"/>
      <field name="voltage" type="uint8" unit="1e-1V" alt_unit="V" alt_unit_coef="0.1"/>
-     <field name="amps" type="int16" unit="A" alt_unit="A" />
+     <field name="amps" type="int16" unit="1e-2A" alt_unit="A" alt_unit_coef="0.01"/>
      <field name="flight_time" type="uint16" unit="s"/>
      <field name="kill_auto_throttle" type="uint8" unit="bool"/>
      <field name="block_time" type="uint16" unit="s"/>
