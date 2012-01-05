@@ -74,6 +74,22 @@ test_led.CFLAGS += -DUSE_LED
 test_led.srcs += $(SRC_ARCH)/led_hw.c
 
 #
+# test sys_time
+#
+test_sys_time.ARCHDIR = $(ARCH)
+test_sys_time.CFLAGS += -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
+test_sys_time.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+test_sys_time.srcs += $(SRC_AIRBORNE)/mcu.c \
+                 $(SRC_ARCH)/mcu_arch.c \
+                 test/mcu_periph/test_sys_time.c           \
+                 mcu_periph/sys_time.c \
+                 $(SRC_ARCH)/mcu_periph/sys_time_arch.c \
+                 $(SRC_ARCH)/stm32_exceptions.c   \
+                 $(SRC_ARCH)/stm32_vector_table.c
+test_sys_time.CFLAGS += -DUSE_LED -DUSE_SYS_TIME -DSYS_TIME_LED=1 -DLED_RED=2 -DLED_BLUE=3
+test_sys_time.srcs += $(SRC_ARCH)/led_hw.c
+
+#
 # test uart
 #
 test_uart_lisam.ARCHDIR = $(ARCH)

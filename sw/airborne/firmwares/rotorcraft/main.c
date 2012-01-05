@@ -75,7 +75,7 @@ int main( void ) {
   main_init();
 
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic();
     main_event();
   }
@@ -87,7 +87,8 @@ STATIC_INLINE void main_init( void ) {
 
   mcu_init();
 
-  sys_time_init();
+  sys_time_register_timer(SYS_TIME_TIMER_S(1./512.), NULL);
+
   electrical_init();
 
   actuators_init();

@@ -25,19 +25,24 @@
 
 #include "stm32_vector_table.h"
 #ifdef SYS_TIME_LED
-#include "subsystems/led.h"
+#include "led.h"
 #endif
 
 void sys_time_init( void ) {
 
-  /* Generate SysTick interrupt every SYS_TIME_RESOLUTION AHB_CLK */
-  (void)SysTick_Config(SYS_TIME_RESOLUTION);
-  /* Set SysTick handler priority                                  */
+  /* Generate SysTick interrupt every SYS_TIME_RESOLUTION_CPU_TICKS
+   * The timer interrupt is activated on the transition from 1 to 0,
+   * therefore it activates every n+1 clock ticks.
+   */
+  if (SysTick_Config(SYS_TIME_RESOLUTION_CPU_TICKS-1))
+    while(1); /* if reload of value is impossible, go into endless loop */
+
+  /* Set SysTick handler priority */
   NVIC_SetPriority(SysTick_IRQn, 0x0);
 
   sys_time.nb_sec     = 0;
   sys_time.nb_sec_rem = 0;
-  sys_time.nb_tic     = 0;
+  sys_time.nb_tick    = 0;
 
   for (unsigned int i=0; i<SYS_TIME_NB_TIMER; i++) {
     sys_time.timer[i].in_use     = FALSE;
@@ -50,17 +55,17 @@ void sys_time_init( void ) {
 }
 
 
-// FIXME : nb_tic rollover ???
+// FIXME : nb_tick rollover ???
 //
 // 97 days at 512hz
 // 12 hours at 100khz
 //
 void sys_tick_irq_handler(void) {
 
-  sys_time.nb_tic++;
-  sys_time.nb_sec_rem += SYS_TIME_RESOLUTION;
-  if (sys_time.nb_sec_rem >= SYS_TIME_TICS_PER_SEC) {
-    sys_time.nb_sec_rem -= SYS_TIME_TICS_PER_SEC;
+  sys_time.nb_tick++;
+  sys_time.nb_sec_rem += SYS_TIME_RESOLUTION_CPU_TICKS;
+  if (sys_time.nb_sec_rem >= CPU_TICKS_PER_SEC) {
+    sys_time.nb_sec_rem -= CPU_TICKS_PER_SEC;
     sys_time.nb_sec++;
 #ifdef SYS_TIME_LED
     LED_TOGGLE(SYS_TIME_LED);
@@ -68,7 +73,7 @@ void sys_tick_irq_handler(void) {
   }
   for (unsigned int i=0; i<SYS_TIME_NB_TIMER; i++) {
     if (sys_time.timer[i].in_use &&
-    sys_time.nb_tic >= sys_time.timer[i].end_time) {
+    sys_time.nb_tick >= sys_time.timer[i].end_time) {
       sys_time.timer[i].end_time += sys_time.timer[i].duration;
       sys_time.timer[i].elapsed = TRUE;
       if (sys_time.timer[i].cb) sys_time.timer[i].cb(i);

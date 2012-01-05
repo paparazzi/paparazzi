@@ -7,7 +7,7 @@ struct sys_time sys_time;
 
 uint8_t sys_time_register_timer(uint32_t duration, sys_time_cb cb) {
 
-  uint32_t start_time = sys_time.nb_tic;
+  uint32_t start_time = sys_time.nb_tick;
   for (int i = 0; i< SYS_TIME_NB_TIMER; i++) {
     if (!sys_time.timer[i].in_use) {
       sys_time.timer[i].cb         = cb;

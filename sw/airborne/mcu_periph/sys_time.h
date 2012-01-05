@@ -31,12 +31,13 @@
 #define SYS_TIME_H
 
 #include <inttypes.h>
+#include <stdlib.h>
 #include "std.h"
 
 #include BOARD_CONFIG
 
 #ifndef SYS_TIME_NB_TIMER
-#define  SYS_TIME_NB_TIMER 5
+#define SYS_TIME_NB_TIMER 5
 #endif
 
 typedef void (*sys_time_cb) (uint8_t id);
@@ -45,18 +46,22 @@ struct sys_time_timer {
   bool_t          in_use;
   sys_time_cb     cb;
   volatile bool_t elapsed;
-  uint32_t        end_time;
-  uint32_t        duration;
+  uint32_t        end_time; ///< in SYS_TICKS
+  uint32_t        duration; ///< in SYS_TICKS
 };
 
 struct sys_time {
-  uint32_t nb_sec;
-  uint32_t nb_sec_rem;
-  uint32_t nb_tic;
+  uint32_t nb_sec;       ///< full seconds since startup
+  uint32_t nb_sec_rem;   ///< remainder of second in CPU_TICKS
+  uint32_t nb_tick;      ///< in SYS_TICKS with SYS_TIME_RESOLUTION
   struct sys_time_timer timer[SYS_TIME_NB_TIMER];
 };
 
 extern struct sys_time sys_time;
+
+//FIXME temporary hack
+#define cpu_time_sec sys_time.nb_sec
+#define cpu_time_ticks sys_time.nb_sec_rem
 
 extern void sys_time_init(void);
 extern uint8_t sys_time_register_timer(uint32_t duration, sys_time_cb cb);
@@ -71,18 +76,36 @@ static inline bool_t sys_time_check_and_ack_timer( uint8_t id ) {
   return FALSE;
 }
 
+#define GET_CUR_TIME_FLOAT() ((float)sys_time.nb_sec + SEC_OF_CPU_TICKS((float)sys_time.nb_sec_rem))
+
+
+/* CPU clock */
+#define CPU_TICKS_OF_USEC(us) CPU_TICKS_OF_SEC((us) * 1e-6)
+#define CPU_TICKS_OF_NSEC(ns) CPU_TICKS_OF_SEC((ns) * 1e-9)
+#define CPU_SIGNED_TICKS_OF_USEC(us) CPU_SIGNED_TICKS_OF_SEC((us) * 1e-6)
+#define CPU_SIGNED_TICKS_OF_NSEC(us) CPU_SIGNED_TICKS_OF_SEC((us) * 1e-9)
+
+#define CPU_TICKS_PER_SEC CPU_TICKS_OF_SEC( 1.)
+
+
+/* paparazzi sys_time timers */
 #ifndef SYS_TIME_RESOLUTION
-#define SYS_TIME_RESOLUTION SYS_TIME_TICS_OF_SEC( 1./1048576.)
+#define SYS_TIME_RESOLUTION ( 1./1024. )
 #endif
+#define SYS_TIME_RESOLUTION_CPU_TICKS CPU_TICKS_OF_SEC(SYS_TIME_RESOLUTION)
 
-#define SYS_TIME_TIMER_S(_s) (SYS_TIME_TICS_OF_SEC(_s)/SYS_TIME_RESOLUTION)
+#define SYS_TIME_TIMER_S(_s) ((_s)/SYS_TIME_RESOLUTION)
 
-#define SYS_TIME_TICS_OF_USEC(us) SYS_TIME_TICS_OF_SEC((us) * 1e-6)
-#define SYS_TIME_TICS_OF_NSEC(ns) SYS_TIME_TICS_OF_SEC((ns) * 1e-9)
-#define SYS_TIME_SIGNED_TICS_OF_USEC(us) SYS_TIME_SIGNED_TICS_OF_SEC((us) * 1e-6)
-#define SYS_TIME_SIGNED_TICS_OF_NSEC(us) SYS_TIME_SIGNED_TICS_OF_SEC((us) * 1e-9)
+#define SYS_TIME_TICKS_OF_SEC(s) (uint32_t)((s) / SYS_TIME_RESOLUTION + 0.5)
+#define SYS_TIME_TICKS_OF_USEC(us) SYS_TIME_TICKS_OF_SEC((us) * 1e-6)
+#define SYS_TIME_TICKS_OF_NSEC(ns) SYS_TIME_TICKS_OF_SEC((ns) * 1e-9)
 
-#define SYS_TIME_TICS_PER_SEC SYS_TIME_TICS_OF_SEC( 1.)
+#define SEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION)
+#define USEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION / 1e-6)
+#define NSEC_OF_SYS_TIME_TICKS(t) ((t) * SYS_TIME_RESOLUTION / 1e-9)
+
+#define USEC_OF_SEC(sec) ((sec) * 1e6)
+
 
 #include "mcu_periph/sys_time_arch.h"
 

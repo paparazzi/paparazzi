@@ -1,5 +1,4 @@
 /*
- * Paparazzi $Id$
  *
  * Copyright (C) 2009-2010 The Paparazzi Team
  *
@@ -27,8 +26,8 @@
  *
  */
 
-#ifndef SYS_TIME_HW_H
-#define SYS_TIME_HW_H
+#ifndef SYS_TIME_ARCH_H
+#define SYS_TIME_ARCH_H
 
 #include "mcu_periph/sys_time.h"
 
@@ -36,14 +35,22 @@
 #include <stm32/rcc.h>
 #include "std.h"
 
-#define InitSysTimePeriodic()
+extern void sys_tick_irq_handler(void);
 
-#define SYS_TIME_TICS_OF_SEC(s)        (uint32_t)((s) * AHB_CLK + 0.5)
-#define SYS_TIME_SIGNED_TICS_OF_SEC(s)  (int32_t)((s) * AHB_CLK + 0.5)
+#define CPU_TICKS_OF_SEC(s)        (uint32_t)((s) * AHB_CLK + 0.5)
+#define CPU_SIGNED_TICKS_OF_SEC(s)  (int32_t)((s) * AHB_CLK + 0.5)
 
-#define SysTimeTimerStart(_t) { _t = sys_time.nb_tic; }
-#define SysTimeTimer(_t) (sys_time.nb_tic - (_t)))
-#define SysTimeTimerStop(_t) { _t = (sys_time.nb_tic - (_t)); }
+#define SEC_OF_CPU_TICKS(t) ((t) / AHB_CLK)
+#define MSEC_OF_CPU_TICKS(t) ((t) / (AHB_CLK/1000))
+#define USEC_OF_CPU_TICKS(t) ((t) / (AHB_CLK/1000000))
+
+#define GET_CUR_TIME_USEC() (sys_time.nb_sec * 1000000 +                \
+                             USEC_OF_CPU_TICKS(sys_time.nb_sec_rem) +   \
+                             USEC_OF_CPU_TICKS(SysTick->LOAD - SysTick->VAL))
+
+#define SysTimeTimerStart(_t) { _t = GET_CUR_TIME_USEC(); }
+#define SysTimeTimer(_t) ( GET_CUR_TIME_USEC() - (_t))
+#define SysTimeTimerStop(_t) { _t = ( GET_CUR_TIME_USEC() - (_t)); }
 
 
 /** Busy wait, in microseconds */
@@ -52,4 +59,4 @@ static inline void sys_time_usleep(uint32_t us) {
 
 }
 
-#endif /* SYS_TIME_HW_H */
+#endif /* SYS_TIME_ARCH_H */
