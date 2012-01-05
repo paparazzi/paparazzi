@@ -45,7 +45,7 @@ void mcu_arch_init(void) {
   rcc_clock_setup_in_hse_12mhz_out_72mhz();
   NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
   return;
-#endif
+#else // !USE_OPENCM3
 #ifdef HSE_TYPE_EXT_CLK
 #warning Info: Using external clock
   /* Setup the microcontroller system.
@@ -97,6 +97,6 @@ void mcu_arch_init(void) {
                          RCC_APB2Periph_GPIOE | RCC_APB2Periph_AFIO, ENABLE);
 #endif
 
-
+#endif // USE_OPENCM3
 }
 
