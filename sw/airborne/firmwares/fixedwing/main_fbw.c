@@ -60,7 +60,9 @@ volatile uint8_t fbw_new_actuators = 0;
 void init_fbw( void ) {
 
   mcu_init();
-  sys_time_init();
+
+  sys_time_register_timer(SYS_TIME_TIMER_S(1./PERIODIC_FREQUENCY), NULL);
+
   electrical_init();
 
 #ifdef ACTUATORS

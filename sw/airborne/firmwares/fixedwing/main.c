@@ -26,6 +26,7 @@
 
 
 #include "mcu_periph/sys_time.h"
+#include "led.h"
 
 #ifdef FBW
 #include "firmwares/fixedwing/main_fbw.h"
@@ -44,9 +45,8 @@
 int main( void ) {
   Fbw(init);
   Ap(init);
-  InitSysTimePeriodic();
   while (1) {
-    if (sys_time_periodic()) {
+    if (sys_time_check_and_ack_timer(0)) {
       Fbw(periodic_task);
       Ap(periodic_task);
       LED_PERIODIC();

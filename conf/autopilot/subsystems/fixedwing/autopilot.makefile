@@ -130,7 +130,7 @@ endif
 #
 # Sys-time
 #
-ns_CFLAGS 		+= -DUSE_SYS_TIME
+ns_CFLAGS 		+= -DUSE_SYS_TIME -DSYS_TIME_RESOLUTION='(1./300.)'
 ns_srcs 		+= $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 
