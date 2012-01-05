@@ -18,7 +18,9 @@ endif
 #
 #
 
+ifndef SYS_TIME_LED
 SYS_TIME_LED = 1 # not used on rotorcraft, only for tests
+endif
 
 RADIO_CONTROL_LED  = 1
 RADIO_CONTROL_LINK = UART0
