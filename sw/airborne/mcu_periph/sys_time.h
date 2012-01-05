@@ -1,7 +1,6 @@
 /*
- * Paparazzi $Id$
  *
- * Copyright (C) 2009 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2009-2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -82,8 +81,8 @@ static inline bool_t sys_time_check_and_ack_timer( uint8_t id ) {
 /* CPU clock */
 #define CPU_TICKS_OF_USEC(us) CPU_TICKS_OF_SEC((us) * 1e-6)
 #define CPU_TICKS_OF_NSEC(ns) CPU_TICKS_OF_SEC((ns) * 1e-9)
-#define CPU_SIGNED_TICKS_OF_USEC(us) CPU_SIGNED_TICKS_OF_SEC((us) * 1e-6)
-#define CPU_SIGNED_TICKS_OF_NSEC(us) CPU_SIGNED_TICKS_OF_SEC((us) * 1e-9)
+#define SIGNED_CPU_TICKS_OF_USEC(us) SIGNED_CPU_TICKS_OF_SEC((us) * 1e-6)
+#define SIGNED_CPU_TICKS_OF_NSEC(us) SIGNED_CPU_TICKS_OF_SEC((us) * 1e-9)
 
 #define CPU_TICKS_PER_SEC CPU_TICKS_OF_SEC( 1.)
 

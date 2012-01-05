@@ -1,5 +1,4 @@
 /*
- * Paparazzi $Id$
  *
  * Copyright (C) 2009-2011 The Paparazzi Team
  *

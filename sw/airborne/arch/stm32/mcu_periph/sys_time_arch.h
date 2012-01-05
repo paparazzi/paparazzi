@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (C) 2009-2010 The Paparazzi Team
+ * Copyright (C) 2009-2011 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -38,9 +38,9 @@
 extern void sys_tick_irq_handler(void);
 
 #define CPU_TICKS_OF_SEC(s)        (uint32_t)((s) * AHB_CLK + 0.5)
-#define CPU_SIGNED_TICKS_OF_SEC(s)  (int32_t)((s) * AHB_CLK + 0.5)
+#define SIGNED_CPU_TICKS_OF_SEC(s)  (int32_t)((s) * AHB_CLK + 0.5)
 
-#define SEC_OF_CPU_TICKS(t) ((t) / AHB_CLK)
+#define SEC_OF_CPU_TICKS(t)  ((t) / AHB_CLK)
 #define MSEC_OF_CPU_TICKS(t) ((t) / (AHB_CLK/1000))
 #define USEC_OF_CPU_TICKS(t) ((t) / (AHB_CLK/1000000))
 
