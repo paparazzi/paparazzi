@@ -34,12 +34,12 @@ extern void booz_pwm_init_arch(void);
 #define BoozSetPwmValue(_v) BoozSetPwm0Value(_v)
 
 #define BoozSetPwm0Value(_v) { \
-  PWMMR5 = SYS_TICS_OF_USEC(_v); \
+  PWMMR5 = CPU_TICKS_OF_USEC(_v); \
   PWMLER = PWMLER_LATCH5; \
 }
 
 #define BoozSetPwm1Value(_v) { \
-  PWMMR2 = SYS_TICS_OF_USEC(_v); \
+  PWMMR2 = CPU_TICKS_OF_USEC(_v); \
   PWMLER = PWMLER_LATCH2; \
 }
 

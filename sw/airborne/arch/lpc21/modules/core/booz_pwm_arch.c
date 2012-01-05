@@ -24,8 +24,8 @@
 
 #include "modules/core/booz_pwm_arch.h"
 
-#define PWM_PERIOD SYS_TICS_OF_USEC(20000)
-#define PWM_DUTY SYS_TICS_OF_USEC(1500)
+#define PWM_PERIOD CPU_TICKS_OF_USEC(20000)
+#define PWM_DUTY CPU_TICKS_OF_USEC(1500)
 
 void booz_pwm_init_arch( void ) {
 

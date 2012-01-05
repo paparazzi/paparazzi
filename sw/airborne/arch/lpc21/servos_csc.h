@@ -6,7 +6,7 @@
 #include "actuators.h"
 #include "mcu_periph/sys_time.h"
 
-#define SERVOS_TICS_OF_USEC(s) SYS_TICS_OF_USEC(s)
+#define SERVOS_TICS_OF_USEC(s) CPU_TICKS_OF_USEC(s)
 #define ChopServo(x,a,b) Chop(x, a, b)
 #define SERVO_COUNT 4
 

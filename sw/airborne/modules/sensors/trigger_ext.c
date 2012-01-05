@@ -50,7 +50,7 @@ void trigger_ext_periodic( void ) {
     uint32_t sync_itow, cycle_time;
 
     sync_itow = gps_tow_from_ticks(trigger_t0);
-    cycle_time =  MSEC_OF_SYS_TICS(delta_t0);
+    cycle_time =  MSEC_OF_CPU_TICKS(delta_t0);
 
     DOWNLINK_SEND_WINDTURBINE_STATUS_(DefaultChannel,
                 &ac_id,

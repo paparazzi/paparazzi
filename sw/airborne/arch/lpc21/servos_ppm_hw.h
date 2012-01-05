@@ -35,7 +35,7 @@
 
 #include BOARD_CONFIG
 
-#define SERVOS_TICS_OF_USEC(s) SYS_TICS_OF_USEC(s)
+#define SERVOS_TICS_OF_USEC(s) CPU_TICKS_OF_USEC(s)
 #define ChopServo(x,a,b) Chop(x, a, b)
 
 #define _PPM_NB_CHANNELS 8

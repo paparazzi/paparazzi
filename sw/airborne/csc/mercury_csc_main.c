@@ -69,9 +69,9 @@ static inline void on_servo_cmd(struct CscServoCmd *cmd);
 static inline void on_motor_cmd(struct CscMotorMsg *msg);
 static inline void on_prop_cmd(struct CscPropCmd *msg, int idx);
 
-#define SERVO_TIMEOUT (SYS_TICS_OF_SEC(0.1) / PERIODIC_TASK_PERIOD)
-#define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
-#define AIRSPEED_TIMEOUT (SYS_TICS_OF_SEC(0.01) / PERIODIC_TASK_PERIOD)
+#define SERVO_TIMEOUT (CPU_TICKS_OF_SEC(0.1) / PERIODIC_TASK_PERIOD)
+#define CSC_STATUS_TIMEOUT (CPU_TICKS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
+#define AIRSPEED_TIMEOUT (CPU_TICKS_OF_SEC(0.01) / PERIODIC_TASK_PERIOD)
 
 
 static uint32_t servo_cmd_timeout = 0;
@@ -215,8 +215,8 @@ static void csc_main_event( void ) {
 #endif
 }
 
-#define MIN_SERVO SYS_TICS_OF_USEC(1000)
-#define MAX_SERVO SYS_TICS_OF_USEC(2000)
+#define MIN_SERVO CPU_TICKS_OF_USEC(1000)
+#define MAX_SERVO CPU_TICKS_OF_USEC(2000)
 
 #ifdef USE_BUSS_TWI_BLMC_MOTOR
 static void on_prop_cmd(struct CscPropCmd *cmd, int idx)

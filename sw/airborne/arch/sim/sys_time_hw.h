@@ -3,12 +3,12 @@
 
 #include <unistd.h>
 
-#define SYS_TICS_OF_SEC(x) (x)
-#define SIGNED_SYS_TICS_OF_SEC(x) (x)
+#define CPU_TICKS_OF_SEC(x) (x)
+#define SIGNED_CPU_TICKS_OF_SEC(x) (x)
 
-#define SEC_OF_SYS_TICS(st) (st)
-#define MSEC_OF_SYS_TICS(st) (st)
-#define USEC_OF_SYS_TICS(st) (st)
+#define SEC_OF_CPU_TICKS(st) (st)
+#define MSEC_OF_CPU_TICKS(st) (st)
+#define USEC_OF_CPU_TICKS(st) (st)
 
 #define SysTimeChronoStart() { }
 #define SysTimeChronoStop() { }

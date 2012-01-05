@@ -34,8 +34,8 @@
  * Let's add a pair of macros to make it possible for them to be different.
  *
  */
-#define RC_PPM_TICS_OF_USEC        SYS_TICS_OF_USEC
-#define RC_PPM_SIGNED_TICS_OF_USEC SIGNED_SYS_TICS_OF_USEC
+#define RC_PPM_TICS_OF_USEC        CPU_TICKS_OF_USEC
+#define RC_PPM_SIGNED_TICS_OF_USEC SIGNED_CPU_TICKS_OF_USEC
 
 #define PPM_NB_CHANNEL RADIO_CONTROL_NB_CHANNEL
 

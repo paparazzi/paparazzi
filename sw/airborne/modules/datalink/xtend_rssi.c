@@ -59,7 +59,7 @@ void xtend_rssi_periodic( void ) {
 
   if (pwm_input_duty_valid[XTEND_RSSI_PWM_ARRAY_INDEX])
   {
-      duty_percent = (duty_tics * 100) / SYS_TICS_OF_USEC(XTEND_RSSI_PWM_PERIOD_USEC);
+      duty_percent = (duty_tics * 100) / CPU_TICKS_OF_USEC(XTEND_RSSI_PWM_PERIOD_USEC);
       rssi_dB_fade_margin = (2 * duty_percent + 10) / 3; //not sure if this is right, datasheet isn't very informative
       pwm_input_duty_valid[XTEND_RSSI_PWM_ARRAY_INDEX] = FALSE;
   }

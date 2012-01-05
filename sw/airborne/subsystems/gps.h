@@ -142,7 +142,7 @@ uint32_t gps_tow_from_ticks(uint32_t clock_ticks)
     clock_delta = clock_ticks - gps_time.t0;
   }
 
-  time_delta = MSEC_OF_SYS_TICS(clock_delta);
+  time_delta = MSEC_OF_CPU_TICKS(clock_delta);
 
   itow_now = gps_time.t0_tow + time_delta;
   if (itow_now > MSEC_PER_WEEK) itow_now %= MSEC_PER_WEEK;

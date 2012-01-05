@@ -24,7 +24,7 @@
 #ifndef SERVO_4017_H
 #define SERVO_4017_H
 
-#define SERVOS_TICS_OF_USEC(_us) SYS_TICS_OF_USEC(_us)
+#define SERVOS_TICS_OF_USEC(_us) CPU_TICKS_OF_USEC(_us)
 #define ChopServo(x,a,b) Chop(x, a, b)
 
 #define _4017_NB_CHANNELS 10

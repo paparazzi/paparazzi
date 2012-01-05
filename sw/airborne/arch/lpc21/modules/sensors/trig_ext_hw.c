@@ -15,7 +15,7 @@ void TRIG_ISR() {
   uint32_t delta_t0_temp;
   trigger_t0 = PPM_CR;
   delta_t0_temp = trigger_t0 - last;
-  if (MSEC_OF_SYS_TICS(delta_t0_temp) > 10) {
+  if (MSEC_OF_CPU_TICKS(delta_t0_temp) > 10) {
     delta_t0 = delta_t0_temp;
     last = trigger_t0;
     trig_ext_valid = TRUE;
