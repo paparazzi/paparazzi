@@ -14,7 +14,7 @@ main.CFLAGS += -DBOARD_CONFIG=\"conf_motor_bench.h\" -I$(MB)
 main.srcs = $(MB)/main_motor_bench.c
 
 main.CFLAGS += -DPERIODIC_TASK_FREQ='250.'
-main.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./PERIODIC_TASK_FREQ)'
+main.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./PERIODIC_TASK_FREQ)'
 main.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 main.CFLAGS += -DUSE_LED
@@ -58,7 +58,7 @@ foo.CFLAGS += -DBOARD_CONFIG=\"conf_motor_bench.h\" -I$(MB)
 foo.srcs = $(MB)/main_foo.c
 
 foo.CFLAGS += -DPERIODIC_TASK_FREQ='250.'
-foo.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./PERIODIC_TASK_FREQ)'
+foo.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./PERIODIC_TASK_FREQ)'
 foo.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 foo.CFLAGS += -DUSE_LED
@@ -77,7 +77,7 @@ bar.CFLAGS += -DBOARD_CONFIG=\"conf_motor_bench.h\" -I$(MB)
 bar.srcs = $(MB)/main_bar.c
 
 bar.CFLAGS += -DPERIODIC_TASK_FREQ='250.'
-bar.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./PERIODIC_TASK_FREQ)'
+bar.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./PERIODIC_TASK_FREQ)'
 bar.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 bar.CFLAGS += -DUSE_LED

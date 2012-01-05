@@ -50,7 +50,7 @@ ap.CFLAGS += -DUSE_LED -DTIME_LED=1
 
 ap.CFLAGS += -DCSC_BOARD_ID=$(CSC_ID)
 
-ap.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
+ap.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
 ap.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c
 
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
@@ -102,7 +102,7 @@ test_uart.srcs += $(SRC_CSC)/csc_test_uart.c
 test_uart.CFLAGS += -DUSE_LED
 
 # -DTIME_LED=1
-test_uart.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
+test_uart.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
 test_uart.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c
 
 test_uart.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
@@ -126,7 +126,7 @@ test_can1.srcs += $(SRC_CSC)/test_can1.c
 test_can1.CFLAGS += -DUSE_LED
 
 # -DTIME_LED=1
-test_can1.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
+test_can1.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC((1./512.))' -DTIMER0_VIC_SLOT=1
 test_can1.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c
 
 test_can1.CFLAGS += -DUSE_CAN1 -DCAN1_BTR=CANBitrate125k_2MHz
