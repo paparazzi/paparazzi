@@ -83,10 +83,8 @@ $(TARGET).CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC((1./$(PERIODIC_FREQ
 #
 ap.CFLAGS += -DUSE_SYS_TIME
 ap.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
-ifeq ($(ARCH), stm32)
 ifneq ($(SYS_TIME_LED),none)
 ap.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
-endif
 endif
 
 #

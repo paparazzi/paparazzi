@@ -10,7 +10,7 @@
 
 tunnel.ARCHDIR = $(ARCH)
 
-tunnel.CFLAGS += -DFBW -DBOARD_CONFIG=\"conf_demo.h\" -DUSE_LED -DTIME_LED=1
+tunnel.CFLAGS += -DFBW -DBOARD_CONFIG=\"conf_demo.h\" -DUSE_LED -DSYS_TIME_LED=1
 tunnel.srcs += $(SRC_ARCH)/uart_tunnel.c
 
 ARCH=lpc21
