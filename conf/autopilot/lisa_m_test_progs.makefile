@@ -443,7 +443,7 @@ test_imu_aspirin.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNL
 test_imu_aspirin.srcs   += mcu_periph/uart.c
 test_imu_aspirin.srcs   += $(SRC_ARCH)/mcu_periph/uart_arch.c
 test_imu_aspirin.srcs   += math/pprz_trig_int.c
-test_imu_aspirin.CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin.h\" -DIMU_OVERRIDE_CHANNELS
+test_imu_aspirin.CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin.h\" -DIMU_ASPIRIN_VERSION_1_0
 test_imu_aspirin.srcs += $(SRC_SUBSYSTEMS)/imu.c             \
                         $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
                         $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c
@@ -455,7 +455,8 @@ test_imu_aspirin.CFLAGS += -DUSE_EXTI15_10_IRQ  # Gyro Int on PC14
 test_imu_aspirin.CFLAGS += -DUSE_EXTI9_5_IRQ    # Mag Int on PB5
 test_imu_aspirin.CFLAGS += -DUSE_EXTI2_IRQ      # Accel Int on PD2
 test_imu_aspirin.CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
-#
+
+
 ##
 ## test hmc5843
 ##
@@ -482,7 +483,6 @@ test_imu_aspirin.CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
 #
 #test_hmc5843.CFLAGS += -DUSE_I2C2
 #test_hmc5843.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-#test_hmc5843.CFLAGS += -DIMU_OVERRIDE_CHANNELS
 #test_hmc5843.CFLAGS += -DUSE_EXTI9_5_IRQ   # Mag Int on PB5
 #
 #
@@ -681,7 +681,6 @@ test_imu_aspirin.CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
 #
 #test_bmp085.CFLAGS += -DUSE_I2C2
 #test_bmp085.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-##test_bmp085.CFLAGS += -DIMU_OVERRIDE_CHANNELS
 ##test_bmp085.CFLAGS += -DUSE_EXTI9_5_IRQ   # Mag Int on PB5
 #
 #

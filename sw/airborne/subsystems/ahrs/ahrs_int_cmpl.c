@@ -44,6 +44,9 @@
 static inline void ahrs_update_mag_full(void);
 static inline void ahrs_update_mag_2d(void);
 
+#ifdef AHRS_MAG_UPDATE_YAW_ONLY
+#warning "AHRS_MAG_UPDATE_YAW_ONLY is deprecated, please remove it. This is the default behaviour. Define AHRS_MAG_UPDATE_ALL_AXES to use mag for all axes and not only yaw."
+#endif
 
 /* in place quaternion first order integration with constante rotational velocity */
 /*  */
@@ -230,10 +233,10 @@ void ahrs_update_accel(void) {
 }
 
 void ahrs_update_mag(void) {
-#ifdef AHRS_MAG_UPDATE_YAW_ONLY
-  ahrs_update_mag_2d();
-#else
+#if AHRS_MAG_UPDATE_ALL_AXES
   ahrs_update_mag_full();
+#else
+  ahrs_update_mag_2d();
 #endif
 }
 

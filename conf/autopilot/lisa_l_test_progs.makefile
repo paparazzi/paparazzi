@@ -392,7 +392,7 @@ test_imu_b2_2.srcs   += $(IMU_B2_2_SRCS)
 #
 # test IMU aspirin
 #
-IMU_ASPIRIN_CFLAGS = -DIMU_TYPE_H=\"imu/imu_aspirin.h\" -DIMU_OVERRIDE_CHANNELS
+IMU_ASPIRIN_CFLAGS = -DIMU_TYPE_H=\"imu/imu_aspirin.h\"
 IMU_ASPIRIN_SRCS   = $(SRC_SUBSYSTEMS)/imu.c             \
                      $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
                      $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c
@@ -508,7 +508,6 @@ test_hmc5843.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_tra
 
 test_hmc5843.CFLAGS += -DUSE_I2C2
 test_hmc5843.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-test_hmc5843.CFLAGS += -DIMU_OVERRIDE_CHANNELS
 test_hmc5843.CFLAGS += -DUSE_EXTI9_5_IRQ   # Mag Int on PB5
 
 
@@ -707,7 +706,6 @@ test_bmp085.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_tran
 
 test_bmp085.CFLAGS += -DUSE_I2C2
 test_bmp085.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
-#test_bmp085.CFLAGS += -DIMU_OVERRIDE_CHANNELS
 #test_bmp085.CFLAGS += -DUSE_EXTI9_5_IRQ   # Mag Int on PB5
 
 
