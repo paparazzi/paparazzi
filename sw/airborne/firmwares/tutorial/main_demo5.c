@@ -16,7 +16,7 @@ static inline void main_dl_parse_msg( void );
 int main( void ) {
   main_init();
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -25,8 +25,7 @@ int main( void ) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
-  led_init();
+  sys_time_register_timer(PERIODIC_TASK_PERIOD, NULL);
   uart0_init_tx();
   mcu_int_enable();
 }

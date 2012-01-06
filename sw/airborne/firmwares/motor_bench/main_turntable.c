@@ -26,7 +26,7 @@ static float omega_rad;
 int main( void ) {
   main_init();
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic();
     main_event();
   }
@@ -35,7 +35,7 @@ int main( void ) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer(PERIODIC_TASK_PERIOD, NULL);
   main_init_tacho();
   mcu_int_enable();
 }

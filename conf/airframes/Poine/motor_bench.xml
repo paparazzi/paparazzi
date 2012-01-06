@@ -15,7 +15,7 @@ main.srcs = $(MB)/main_motor_bench.c
 
 main.CFLAGS += -DPERIODIC_TASK_FREQ='250.'
 main.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./PERIODIC_TASK_FREQ)'
-main.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+main.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 main.CFLAGS += -DUSE_LED
 
@@ -59,7 +59,7 @@ foo.srcs = $(MB)/main_foo.c
 
 foo.CFLAGS += -DPERIODIC_TASK_FREQ='250.'
 foo.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./PERIODIC_TASK_FREQ)'
-foo.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+foo.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 foo.CFLAGS += -DUSE_LED
 foo.srcs += $(SRC_ARCH)/armVIC.c
@@ -78,7 +78,7 @@ bar.srcs = $(MB)/main_bar.c
 
 bar.CFLAGS += -DPERIODIC_TASK_FREQ='250.'
 bar.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./PERIODIC_TASK_FREQ)'
-bar.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+bar.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 bar.CFLAGS += -DUSE_LED
 bar.srcs += $(SRC_ARCH)/armVIC.c
