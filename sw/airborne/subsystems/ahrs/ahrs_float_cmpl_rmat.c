@@ -39,6 +39,10 @@
 #error "You have to define either AHRS_PROPAGATE_RMAT or AHRS_PROPAGATE_QUAT"
 #endif
 
+#ifdef AHRS_MAG_UPDATE_YAW_ONLY
+#warning "AHRS_MAG_UPDATE_YAW_ONLY is deprecated, please remove it. This is the default behaviour. Define AHRS_MAG_UPDATE_ALL_AXES to use mag for all axes and not only yaw."
+#endif
+
 void ahrs_update_mag_full(void);
 void ahrs_update_mag_2d(void);
 void ahrs_update_mag_2d_dumb(void);
@@ -197,11 +201,10 @@ void ahrs_update_accel(void) {
 
 
 void ahrs_update_mag(void) {
-#ifdef AHRS_MAG_UPDATE_YAW_ONLY
-  ahrs_update_mag_2d();
-  //  ahrs_update_mag_2d_dumb();
-#else
+#if AHRS_MAG_UPDATE_ALL_AXES
   ahrs_update_mag_full();
+#else
+  ahrs_update_mag_2d();
 #endif
 }
 
