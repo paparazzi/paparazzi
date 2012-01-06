@@ -97,17 +97,32 @@ extern void v_ctl_init( void );
 extern void v_ctl_altitude_loop( void );
 extern void v_ctl_climb_loop ( void );
 
+// Airspeed Modes
+#define  AS_MODE_STANDARD		0
+#define  AS_MODE_VASSILLIS		1
+#define  AS_MODE_ZHAW_PITCH_SIMPLE	2
+extern uint8_t v_ctl_airspeed_mode;
+
 #ifdef USE_AIRSPEED
 /* "airspeed" inner loop parameters */
 extern float v_ctl_auto_airspeed_setpoint;
 extern float v_ctl_auto_airspeed_controlled;
-extern float v_ctl_auto_airspeed_pgain;
-extern float v_ctl_auto_airspeed_igain;
 extern float v_ctl_auto_airspeed_sum_err;
 extern float v_ctl_auto_groundspeed_setpoint;
 extern float v_ctl_auto_groundspeed_pgain;
 extern float v_ctl_auto_groundspeed_igain;
 extern float v_ctl_auto_groundspeed_sum_err;
+//Vassillis
+extern float v_ctl_auto_airspeed_throttle_pgain_vas;
+extern float v_ctl_auto_airspeed_throttle_igain_vas;
+extern float v_ctl_auto_airspeed_pitch_pgain_vas;
+extern float v_ctl_auto_airspeed_pitch_igain_vas;
+//ZHAW Pitch Simple
+extern float v_ctl_auto_airspeed_throttle_pgain_zps;
+extern float v_ctl_auto_airspeed_throttle_igain_zps;
+extern float v_ctl_auto_airspeed_prethrottle_zps;
+extern float v_ctl_auto_airspeed_pitch_pgain_zps;
+extern float v_ctl_auto_airspeed_pitch_igain_zps;
 #endif
 
 /** Computes throttle_slewed from throttle_setpoint */
