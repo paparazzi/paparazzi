@@ -43,6 +43,6 @@
 #define SysTimeTimerStop(_t) { }
 
 
-static inline void sys_time_usleep(uint32_t us) {}
+static inline void sys_time_usleep(uint32_t us __attribute__ ((unused))) {}
 
 #endif /* SYS_TIME_ARCH_H */

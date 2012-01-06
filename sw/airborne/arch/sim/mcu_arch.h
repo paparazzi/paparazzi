@@ -28,6 +28,7 @@
 extern void mcu_arch_init(void);
 
 #define mcu_int_enable() {}
+#define mcu_int_disable() {}
 
 #endif /* SIM_MCU_ARCH_H */
 
