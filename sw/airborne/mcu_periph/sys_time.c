@@ -61,3 +61,19 @@ void sys_time_update_timer(uint8_t id, uint32_t duration) {
   sys_time.timer[id].duration = duration;
   mcu_int_enable();
 }
+
+void sys_time_init( void ) {
+  sys_time_arch_init();
+
+  sys_time.nb_sec     = 0;
+  sys_time.nb_sec_rem = 0;
+  sys_time.nb_tick    = 0;
+
+  for (unsigned int i=0; i<SYS_TIME_NB_TIMER; i++) {
+    sys_time.timer[i].in_use     = FALSE;
+    sys_time.timer[i].cb         = NULL;
+    sys_time.timer[i].elapsed    = FALSE;
+    sys_time.timer[i].end_time   = 0;
+    sys_time.timer[i].duration   = 0;
+  }
+}

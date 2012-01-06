@@ -71,7 +71,7 @@ ifndef PERIODIC_FREQUENCY
 PERIODIC_FREQUENCY = 60
 endif
 $(TARGET).CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC((1./$(PERIODIC_FREQUENCY).))' -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
-$(TARGET).srcs += mcu_periph/sys_time.c
+$(TARGET).srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 #
 # InterMCU & Commands
@@ -127,7 +127,6 @@ endif
 # Sys-time
 #
 ns_CFLAGS 		+= -DUSE_SYS_TIME -DSYS_TIME_RESOLUTION='(1./300.)'
-ns_srcs 		+= $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 
 #

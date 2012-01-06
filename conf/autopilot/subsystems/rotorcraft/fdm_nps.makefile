@@ -70,7 +70,7 @@ endif
 
 sim.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC((1./512.))'
 #sim.CFLAGS += -DUSE_LED
-sim.srcs += mcu_periph/sys_time.c
+sim.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 sim.srcs += subsystems/settings.c
 sim.srcs += $(SRC_ARCH)/subsystems/settings_arch.c

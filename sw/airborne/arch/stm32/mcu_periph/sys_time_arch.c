@@ -27,7 +27,7 @@
 #include "led.h"
 #endif
 
-void sys_time_init( void ) {
+void sys_time_arch_init( void ) {
 
   /* Generate SysTick interrupt every SYS_TIME_RESOLUTION_CPU_TICKS
    * The timer interrupt is activated on the transition from 1 to 0,
@@ -38,19 +38,6 @@ void sys_time_init( void ) {
 
   /* Set SysTick handler priority */
   NVIC_SetPriority(SysTick_IRQn, 0x0);
-
-  sys_time.nb_sec     = 0;
-  sys_time.nb_sec_rem = 0;
-  sys_time.nb_tick    = 0;
-
-  for (unsigned int i=0; i<SYS_TIME_NB_TIMER; i++) {
-    sys_time.timer[i].in_use     = FALSE;
-    sys_time.timer[i].cb         = NULL;
-    sys_time.timer[i].elapsed    = FALSE;
-    sys_time.timer[i].end_time   = 0;
-    sys_time.timer[i].duration   = 0;
-  }
-
 }
 
 

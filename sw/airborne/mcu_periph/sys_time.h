@@ -108,5 +108,8 @@ static inline bool_t sys_time_check_and_ack_timer( uint8_t id ) {
 
 #include "mcu_periph/sys_time_arch.h"
 
+/* architecture specific init implementation */
+extern void sys_time_arch_init(void);
+
 
 #endif /* SYS_TIME_H */
