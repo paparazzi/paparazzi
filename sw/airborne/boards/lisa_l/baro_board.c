@@ -4,7 +4,7 @@
 // Downlink
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "subsystems/datalink/downlink.h"
+#include "downlink.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
