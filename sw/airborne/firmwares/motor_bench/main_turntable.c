@@ -18,8 +18,8 @@ static inline void main_periodic( void );
 static inline void main_event( void );
 
 static inline void main_init_tacho(void);
-static uint32_t lp_pulse;
-static uint32_t nb_pulse = 0;
+uint32_t lp_pulse;
+uint32_t nb_pulse = 0;
 static float omega_rad;
 
 
@@ -72,33 +72,4 @@ static inline void main_init_tacho(void) {
   TT_TACHO_PINSEL |= TT_TACHO_PINSEL_VAL << TT_TACHO_PINSEL_BIT;
   /* enable capture 0.2 on falling edge + trigger interrupt */
   T0CCR |= TCCR_CR0_F | TCCR_CR0_I;
-}
-
-
-//
-//  trimed version of arm7/mcu_periph/sys_time.hw.c
-//
-
-uint32_t cpu_time_ticks;
-uint32_t last_periodic_event;
-
-uint32_t sys_time_chrono_start; /* T0TC ticks */
-uint32_t sys_time_chrono;       /* T0TC ticks */
-
-
-void TIMER0_ISR ( void ) {
-  ISR_ENTRY();
-  //  LED_TOGGLE(1);
-  if (T0IR & TIR_CR0I) {
-    static uint32_t pulse_last_t;
-    uint32_t t_now = T0CR0;
-    uint32_t diff = t_now - pulse_last_t;
-    lp_pulse = (lp_pulse + diff)/2;
-    pulse_last_t = t_now;
-    nb_pulse++;
-    //    got_one_pulse = TRUE;
-    T0IR = TIR_CR0I;
-  }
-  VICVectAddr = 0x00000000;
-  ISR_EXIT();
 }
