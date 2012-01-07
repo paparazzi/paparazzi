@@ -9,11 +9,19 @@
   <periodic fun="baro_downlink_raw()" freq="10." autorun="FALSE"/>
   <event fun="BaroEvent(baro_abs,baro_diff)"/>
   <makefile target="ap">
-    <define name="USE_BARO_AS_ALTIMETER"/>
     <file name="baro_board.c" dir="boards/$(BOARD)"/>
-    <define name="ADS1114_I2C_DEVICE" value="i2c1"/>
-    <define name="USE_ADS1114_1"/>
-    <file name="ads1114.c" dir="peripherals"/>
+    <define name="USE_BARO_AS_ALTIMETER"/>
+    <raw>
+ifeq ($(BOARD), navgo)
+ap.CFLAGS += -DUSE_I2C1 -DUSE_ADS1114_1
+ap.CFLAGS += -DADS1114_I2C_DEVICE=i2c1
+ap.srcs += peripherals/ads1114.c
+else ifeq ($(BOARD), umarim)
+ap.CFLAGS += -DUSE_I2C1 -DUSE_ADS1114_1
+ap.CFLAGS += -DADS1114_I2C_DEVICE=i2c1
+ap.srcs += peripherals/ads1114.c
+endif
+    </raw>
   </makefile>
 </module>
 
