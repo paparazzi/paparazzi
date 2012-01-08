@@ -63,7 +63,15 @@ extern uint8_t telemetry_mode_Fbw_DefaultChannel;
 #ifdef RADIO_CONTROL
 #define PERIODIC_SEND_FBW_STATUS(_chan) DOWNLINK_SEND_FBW_STATUS(_chan, &(radio_control.status), &(radio_control.frame_rate), &fbw_mode, &electrical.vsupply, &electrical.current)
 #ifdef RADIO_CONTROL_TYPE_PPM
-#define PERIODIC_SEND_PPM(_chan) DOWNLINK_SEND_PPM(_chan, &(radio_control.frame_rate), PPM_NB_CHANNEL, ppm_pulses)
+#define PERIODIC_SEND_PPM(_chan) {                           \
+  uint16_t ppm_pulses_usec[RADIO_CONTROL_NB_CHANNEL];        \
+  for (int i=0;i<RADIO_CONTROL_NB_CHANNEL;i++)               \
+    ppm_pulses_usec[i] = USEC_OF_RC_PPM_TICKS(ppm_pulses[i]); \
+  DOWNLINK_SEND_PPM(_chan,                                   \
+                    &radio_control.frame_rate,               \
+                    PPM_NB_CHANNEL,                          \
+                    ppm_pulses_usec);                        \
+}
 #else
 #define PERIODIC_SEND_PPM(_chan) {}
 #endif
