@@ -60,8 +60,8 @@
     LED_AFIO_REMAP(i);					\
   }
 
-#define LED_ON(i) {LED_GPIO(i)->BSRR = LED_GPIO_PIN(i);}
-#define LED_OFF(i) { LED_GPIO(i)->BRR  = LED_GPIO_PIN(i);}
+#define LED_ON(i) {LED_GPIO(i)->BRR = LED_GPIO_PIN(i);}
+#define LED_OFF(i) { LED_GPIO(i)->BSRR  = LED_GPIO_PIN(i);}
 #define LED_TOGGLE(i) {	LED_GPIO(i)->ODR ^= LED_GPIO_PIN(i);}
 
 #define LED_PERIODIC() {}
