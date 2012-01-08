@@ -5,16 +5,14 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_1.0">
       <subsystem name="radio_control" type="spektrum"/>
-      <define name="SERVO_HZ" value="400"/>
       <define name="RADIO_MODE" value="RADIO_AUX2"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
       <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/>
       <define name="RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value="UART5"/>
       <define name="OVERRIDE_UART5_IRQ_HANDLER"/>
-      <define name="ACTUATORS_START_DELAY" value="2"/>
+      <!--define name="ACTUATORS_START_DELAY" value="2"/-->
       <define name="USE_INS_NAV_INIT"/>
-      <!--configure name="SYS_TIME_LED" value="none"/-->
-      <!--configure name="AHRS_ALIGNER_LED" value="1"/-->
+      <configure name="AHRS_ALIGNER_LED" value="3"/>
     </target>
     <target name="sim" board="pc">
       <subsystem name="fdm"           type="nps"/>
@@ -30,6 +28,7 @@
   </firmware>
 
   <firmware name="lisa_m_test_progs">
+    <target name="tunnel"              board="lisa_m_1.0"/>
     <target name="test_sys_time"       board="lisa_m_1.0"/>
     <target name="test_led"	           board="lisa_m_1.0"/>
     <target name="test_uart_lisam"     board="lisa_m_1.0"/>
