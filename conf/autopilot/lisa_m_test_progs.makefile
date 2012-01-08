@@ -730,21 +730,21 @@ test_imu_aspirin.CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
 #                  subsystems/radio_control/spektrum.c          \
 #                  $(SRC_ARCH)/subsystems/radio_control/spektrum_arch.c
 #
+
+
 #
+# tunnel
 #
-##
-## tunnel
-##
-#tunnel.ARCHDIR = $(ARCH)
-#tunnel.CFLAGS += -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
-#tunnel.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
-#tunnel.srcs   += $(SRC_AIRBORNE)/mcu.c \
-#                 $(SRC_ARCH)/mcu_arch.c \
-#                 $(SRC_LISA)/tunnel_hw.c          \
-#                 $(SRC_ARCH)/stm32_exceptions.c   \
-#                 $(SRC_ARCH)/stm32_vector_table.c
-#tunnel.CFLAGS += -DUSE_LED
-#tunnel.srcs   += $(SRC_ARCH)/led_hw.c
-#tunnel.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
-#tunnel.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./512.)'
-#tunnel.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+tunnel.ARCHDIR = $(ARCH)
+tunnel.CFLAGS += -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
+tunnel.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
+tunnel.srcs   += $(SRC_AIRBORNE)/mcu.c \
+                 $(SRC_ARCH)/mcu_arch.c \
+                 $(SRC_LISA)/tunnel_hw.c          \
+                 $(SRC_ARCH)/stm32_exceptions.c   \
+                 $(SRC_ARCH)/stm32_vector_table.c
+tunnel.CFLAGS += -DUSE_LED
+tunnel.srcs   += $(SRC_ARCH)/led_hw.c
+tunnel.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
+tunnel.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./512.)'
+tunnel.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
