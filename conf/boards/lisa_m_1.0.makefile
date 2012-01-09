@@ -27,13 +27,33 @@ endif
 #
 #
 
+
+#
+# default LED configuration
+#
+ifndef RADIO_CONTROL_LED
+RADIO_CONTROL_LED  = none
+endif
+
+ifndef BARO_LED
+BARO_LED = none
+endif
+
+ifndef AHRS_ALIGNER_LED
+AHRS_ALIGNER_LED = none
+endif
+
+ifndef GPS_LED
+GPS_LED = none
+endif
+
 ifndef SYS_TIME_LED
 SYS_TIME_LED = 1
 endif
 
+
 RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   = UART3
 RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT = UART5
-RADIO_CONTROL_LED  = none
 
 ifndef MODEM_PORT
 MODEM_PORT=UART2
@@ -42,7 +62,6 @@ ifndef MODEM_BAUD
 MODEM_BAUD=B57600
 endif
 
-#AHRS_ALIGNER_LED = 7
 
 ifndef GPS_PORT
 GPS_PORT=UART1
@@ -50,7 +69,7 @@ endif
 ifndef GPS_BAUD
 GPS_BAUD=B38400
 endif
-GPS_LED = none
+
 
 #
 # this is the DRDY pin of a max1168 on a booz IMU
