@@ -140,14 +140,15 @@ ap.srcs += $(SRC_FIRMWARE)/commands.c
 #
 ap.srcs += $(SRC_BOARD)/baro_board.c
 ifeq ($(BOARD), booz)
-ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
 else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), navgo)
-ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
 ap.CFLAGS += -DUSE_I2C1
 ap.CFLAGS += -DADS1114_I2C_DEVICE=i2c1
 ap.srcs += peripherals/ads1114.c
+endif
+ifneq ($(BARO_LED),none)
+ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
 endif
 
 #
