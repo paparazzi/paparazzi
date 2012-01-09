@@ -93,12 +93,16 @@ void sys_time_arch_init( void ) {
   T0TCR = TCR_RESET;
   /* set the prescale divider        */
   T0PR = T0_PCLK_DIV - 1;
-  /* enable interrupt on match0      */
+  /* enable interrupt on match0  for sys_ticks */
   T0MCR = TMCR_MR0_I;
   /* disable capture registers       */
   T0CCR = 0;
   /* disable external match register */
   T0EMR = 0;
+
+  /* set first sys tick interrupt    */
+  T0MR0 = SYS_TIME_RESOLUTION_CPU_TICKS;
+
   /* enable timer 0                  */
   T0TCR = TCR_ENABLE;
 
@@ -110,9 +114,6 @@ void sys_time_arch_init( void ) {
   _VIC_CNTL(TIMER0_VIC_SLOT) = VIC_ENABLE | VIC_TIMER0;
   /* address of the ISR      */
   _VIC_ADDR(TIMER0_VIC_SLOT) = (uint32_t)TIMER0_ISR;
-
-  /* set first sys tick interrupt */
-  T0MR1 = SYS_TIME_RESOLUTION_CPU_TICKS;
 }
 
 
