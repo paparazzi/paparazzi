@@ -9,16 +9,14 @@
 
 #include "mcu_periph/spi.h"
 
-/*
-// accelerometer SPI selection 
-#define Adxl345Unselect() GPIOB->BSRR = GPIO_Pin_12
-#define Adxl345Select()   GPIOB->BRR = GPIO_Pin_12
-// accelerometer dma end of rx handler 
+// SPI2 Slave Selection 
+#define Spi2Slave0Unselect() GPIOB->BSRR = GPIO_Pin_12
+#define Spi2Slave0Select()   GPIOB->BRR = GPIO_Pin_12
+
+// spi dma end of rx handler 
 void dma1_c4_irq_handler(void);
 
 void spi_arch_int_enable(void) {
-  NVIC_InitTypeDef NVIC_InitStructure;
-
   // Enable DMA1 channel4 IRQ Channel ( SPI RX) 
   NVIC_InitTypeDef NVIC_init_struct = {
     .NVIC_IRQChannel = DMA1_Channel4_IRQn,
@@ -30,9 +28,7 @@ void spi_arch_int_enable(void) {
 
 }
 
-void spi_int_disable(void) {
-  NVIC_InitTypeDef NVIC_InitStructure;
-
+void spi_arch_int_disable(void) {
   // Enable DMA1 channel4 IRQ Channel ( SPI RX)
   NVIC_InitTypeDef NVIC_init_struct = {
     .NVIC_IRQChannel = DMA1_Channel4_IRQn,
@@ -41,14 +37,11 @@ void spi_int_disable(void) {
     .NVIC_IRQChannelCmd = DISABLE
   };
   NVIC_Init(&NVIC_init_struct);
-
 }
-*/
 
 void spi_init(void) {
-/*
+
   GPIO_InitTypeDef GPIO_InitStructure;
-  EXTI_InitTypeDef EXTI_InitStructure;
   SPI_InitTypeDef SPI_InitStructure;
 
   // Enable SPI2 Periph clock -------------------------------------------------
@@ -75,15 +68,12 @@ void spi_init(void) {
   SPI_InitStructure.SPI_CRCPolynomial = 7;
   SPI_Init(SPI2, &SPI_InitStructure);
 
-
   // Enable SPI_2 DMA clock ---------------------------------------------------
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
-*/
 }
 
 /*
-
 void adxl345_write_to_reg(uint8_t addr, uint8_t val) {
 
   Adxl345Select();
@@ -93,25 +83,26 @@ void adxl345_write_to_reg(uint8_t addr, uint8_t val) {
   while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
   while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
   Adxl345Unselect();
-
 }
 
-void adxl345_clear_rx_buf(void) {
+void spi_clear_rx_buf(void) {
   uint8_t __attribute__ ((unused)) ret = SPI_I2S_ReceiveData(SPI2);
 }
+*/
 
-void adxl345_start_reading_data(void) {
-   Adxl345Select();
 
-   imu_aspirin.accel_tx_buf[0] = (1<<7|1<<6|ADXL345_REG_DATA_X0);
+
+void spi_rw(volatile uint8_t* _send, volatile uint8_t* _read, volatile int _len) 
+{
+   Spi2Slave0Select();
 
   // SPI2_Rx_DMA_Channel configuration ------------------------------------
   DMA_DeInit(DMA1_Channel4);
   DMA_InitTypeDef DMA_initStructure_4 = {
     .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
-    .DMA_MemoryBaseAddr = (uint32_t)imu_aspirin.accel_rx_buf,
+    .DMA_MemoryBaseAddr = (uint32_t)_read,
     .DMA_DIR = DMA_DIR_PeripheralSRC,
-    .DMA_BufferSize = 7,
+    .DMA_BufferSize = _len,
     .DMA_PeripheralInc = DMA_PeripheralInc_Disable,
     .DMA_MemoryInc = DMA_MemoryInc_Enable,
     .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
@@ -126,9 +117,9 @@ void adxl345_start_reading_data(void) {
   DMA_DeInit(DMA1_Channel5);
   DMA_InitTypeDef DMA_initStructure_5 = {
     .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
-    .DMA_MemoryBaseAddr = (uint32_t)imu_aspirin.accel_tx_buf,
+    .DMA_MemoryBaseAddr = (uint32_t)_send,
     .DMA_DIR = DMA_DIR_PeripheralDST,
-    .DMA_BufferSize = 7,
+    .DMA_BufferSize = _len,
     .DMA_PeripheralInc = DMA_PeripheralInc_Disable,
     .DMA_MemoryInc = DMA_MemoryInc_Enable,
     .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
@@ -157,14 +148,14 @@ void adxl345_start_reading_data(void) {
 
 // Accel end of DMA transfert
 void dma1_c4_irq_handler(void) {
-  Adxl345Unselect();
+  Spi2Slave0Unselect();
   if (DMA_GetITStatus(DMA1_IT_TC4)) {
 		// clear int pending bit
 		DMA_ClearITPendingBit(DMA1_IT_GL4);
 
     // mark as available
-    imu_aspirin.accel_available = TRUE;
-	}
+    spi_message_received = TRUE;
+  }
 
   // disable DMA Channel
   DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);
@@ -177,6 +168,5 @@ void dma1_c4_irq_handler(void) {
 
 }
 
-*/
 
 

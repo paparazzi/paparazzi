@@ -31,16 +31,21 @@
 #include "mcu_periph/spi.h"
 #include <stm32/gpio.h>
 
+
+extern void spi_arch_int_enable(void);
+extern void spi_arch_int_disable(void);
+
+extern void spi_clear_rx_buf(void);
+void spi_rw(volatile uint8_t* _send, volatile uint8_t* _read, volatile int _len);
+
+
 /*
 
 ////////// 
 // from aspirin_arch.h
 
-extern void imu_aspirin_arch_int_enable(void);
-extern void imu_aspirin_arch_int_disable(void);
 
 extern void adxl345_write_to_reg(uint8_t addr, uint8_t val);
-extern void adxl345_clear_rx_buf(void);
 extern void adxl345_start_reading_data(void);
 
 */
