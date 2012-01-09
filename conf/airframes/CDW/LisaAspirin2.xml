@@ -1,17 +1,17 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!--
-	YAPA + XSens + XBee
+	Lisa + Aspirin v2 using SPI only
 -->
 
-<airframe name="Yapa v1">
+<airframe name="LisaAspirin2">
 
   <servos>
-    <servo name="THROTTLE" no="9" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILERON_LEFT" no="8" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILERON_RIGHT" no="7" min="2000" neutral="1500" max="1000"/>
-    <servo name="ELEVATOR" no="6" min="2000" neutral="1500" max="1000"/>
-    <servo name="RUDDER" no="5" min="1100" neutral="1500" max="1900"/>
+    <servo name="THROTTLE" no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILERON_LEFT" no="1" min="1000" neutral="1500" max="2000"/>
+    <servo name="AILERON_RIGHT" no="2" min="2000" neutral="1500" max="1000"/>
+    <servo name="ELEVATOR" no="3" min="2000" neutral="1500" max="1000"/>
+    <servo name="RUDDER" no="4" min="1100" neutral="1500" max="1900"/>
   </servos>
 
   <commands>
@@ -222,7 +222,7 @@
 
   <firmware name="fixedwing">
 
-    <target name="ap" board="tiny_2.11">
+    <target name="ap" board="lisa_m_1.0">
       <define name="STRONG_WIND"/>
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
@@ -232,8 +232,8 @@
       <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
       <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
 
-      <configure name="AHRS_ALIGNER_LED" value="3"/>
-      <configure name="CPU_LED" value="3"/>
+      <configure name="AHRS_ALIGNER_LED" value="1"/>
+      <configure name="CPU_LED" value="1"/>
     </target>
     <target name="sim" board="pc"/>
 
@@ -246,9 +246,8 @@
     <subsystem name="ahrs" type="int_cmpl_quat">
       <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" />
     </subsystem>
-    <subsystem name="imu" type="aspirin_i2c"/>
     -->
-    <subsystem name="imu" type="aspirin2_i2c"/>
+    <subsystem name="imu" type="aspirin_v2.0"/>
     <subsystem name="ahrs" type="float_dcm">
 <!--      <define name="USE_MAGNETOMETER" /> -->
     </subsystem>

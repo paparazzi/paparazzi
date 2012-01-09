@@ -69,12 +69,12 @@ void imu_impl_init(void)
 
   // MPU60X0_REG_AUX_VDDIO = 0 (good on startup)
 
-  // MPU60X0_REG_USER_CTRL: 
+  // MPU60X0_REG_USER_CTRL:
   // -Enable Aux I2C Master Mode
   // -Enable SPI
 
   // MPU60X0_REG_PWR_MGMT_1
-  // -switch to gyroX clock 
+  // -switch to gyroX clock
   aspirin2_mpu60x0.buf[0] = MPU60X0_REG_PWR_MGMT_1;
   aspirin2_mpu60x0.buf[1] = 0x01;
   i2c_submit(&PPZUAVIMU_I2C_DEVICE,&aspirin2_mpu60x0);
@@ -123,10 +123,10 @@ void imu_impl_init(void)
 
 
 
-  
+
 
 /*
-  // no interrupts for now, but set data ready interrupt to enable reading status bits 
+  // no interrupts for now, but set data ready interrupt to enable reading status bits
   aspirin2_mpu60x0.buf[0] = ITG3200_REG_INT_CFG;
   aspirin2_mpu60x0.buf[1] = 0x01;
   i2c_submit(&PPZUAVIMU_I2C_DEVICE,&aspirin2_mpu60x0);
