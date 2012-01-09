@@ -119,7 +119,6 @@ ns_srcs	   	+= $(SRC_FIRMWARE)/main.c
 # LEDs
 #
 ns_CFLAGS 		+= -DUSE_LED
-ifeq ($(ARCH), stm32)
 ifneq ($(SYS_TIME_LED),none)
   ns_CFLAGS 	+= -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
