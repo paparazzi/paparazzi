@@ -1,3 +1,6 @@
+# ignore html dir for github pages
+/html
+
 *.so
 *.[oa]
 *.out
