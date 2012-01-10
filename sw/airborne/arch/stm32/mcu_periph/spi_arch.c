@@ -13,6 +13,7 @@
 #define Spi2Slave0Unselect() GPIOB->BSRR = GPIO_Pin_12
 #define Spi2Slave0Select()   GPIOB->BRR = GPIO_Pin_12
 
+
 // spi dma end of rx handler 
 void dma1_c4_irq_handler(void);
 
@@ -63,7 +64,7 @@ void spi_init(void) {
   SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;
   SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
   SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;
+  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64;
   SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
   SPI_InitStructure.SPI_CRCPolynomial = 7;
   SPI_Init(SPI2, &SPI_InitStructure);
@@ -71,6 +72,16 @@ void spi_init(void) {
   // Enable SPI_2 DMA clock ---------------------------------------------------
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
+  // SLAVE 0
+  // set accel slave select as output and assert it ( on PB12) 
+  Spi2Slave0Unselect();
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+  spi_arch_int_enable();
 }
 
 /*
@@ -147,8 +158,10 @@ void spi_rw(volatile uint8_t* _send, volatile uint8_t* _read, volatile int _len)
 
 
 // Accel end of DMA transfert
-void dma1_c4_irq_handler(void) {
+void dma1_c4_irq_handler(void) 
+{
   Spi2Slave0Unselect();
+
   if (DMA_GetITStatus(DMA1_IT_TC4)) {
 		// clear int pending bit
 		DMA_ClearITPendingBit(DMA1_IT_GL4);

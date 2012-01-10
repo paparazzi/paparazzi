@@ -1,7 +1,12 @@
 #include "subsystems/imu.h"
 
+#include "led.h"
 #include "mcu_periph/spi.h"
 #include "mcu_periph/spi_arch.h"
+
+// Peripherials
+#include "../../peripherals/mpu60X0.h"
+
 
 struct ImuAspirin2 imu_aspirin2;
 
@@ -19,11 +24,26 @@ void imu_impl_init(void) {
   imu_aspirin2.status = Aspirin2StatusUninit;
   imu_aspirin2.imu_available = FALSE;
 
-  imu_aspirin2_arch_init();
+//  imu_aspirin2_arch_init();
+//  spi_arch_int_enable();
+
+//  LED_TOGGLE(2);
+  LED_TOGGLE(3);
 }
 
 
-void imu_periodic(void) {
+void imu_periodic(void) 
+{
+
+//  LED_TOGGLE(2);
+//  LED_TOGGLE(3);
+
+  imu_aspirin2.imu_len = 2;
+  imu_aspirin2.imu_tx_buf[0] = MPU60X0_REG_WHO_AM_I + 0x80;
+  imu_aspirin2.imu_tx_buf[1] = 0x00;
+
+  spi_rw(imu_aspirin2.imu_tx_buf, imu_aspirin2.imu_rx_buf, imu_aspirin2.imu_len);
+
 /*
   hmc5843_periodic();
   if (imu_aspirin.status == AspirinStatusUninit) {
@@ -39,7 +59,7 @@ void imu_periodic(void) {
       configure_accel();
       imu_aspirin.time_since_last_accel_reading=0;
     }
-  }
+  } 
 */
 }
 

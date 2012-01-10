@@ -203,13 +203,13 @@
   <modules>
 <!--
     <load name="light.xml">
-      <define name="LIGHT_LED_STROBE" value="3"/>
-      <define name="LIGHT_LED_NAV" value="2"/>
+      <define name="LIGHT_LED_STROBE" value="2"/>
+      <define name="LIGHT_LED_NAV" value="3"/>
       <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
       <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
     </load>
-    -->
-    <!--    <load name="digital_cam_i2c.xml"/>  -->
+
+        <load name="digital_cam_i2c.xml"/>  -->
 
  <!--    <load name="ins_ppzuavimu.xml" /> -->
 
@@ -256,8 +256,8 @@
     <subsystem name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="xbee_api">
-      <configure name="MODEM_BAUD" value="B9600"/>
+    <subsystem name="telemetry" type="transparent">
+      <configure name="MODEM_BAUD" value="B57600"/>
     </subsystem>
 
     <!-- Actuators -->

@@ -10,7 +10,7 @@
 
 
 
-// gyro int handler
+// gyro interupt handler
 void exti15_10_irq_handler(void);
 
 void imu_aspirin2_arch_int_enable(void) {
@@ -72,16 +72,8 @@ void imu_aspirin2_arch_init(void) {
   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
   EXTI_Init(&EXTI_InitStructure);
-
-  // Accel 
-  // set accel slave select as output and assert it ( on PB12) 
-  Adxl345Unselect();
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
 */
+
 }
 
 

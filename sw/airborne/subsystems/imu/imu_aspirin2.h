@@ -66,6 +66,7 @@ struct ImuAspirin2 {
   volatile uint8_t imu_available;
   volatile uint8_t imu_tx_buf[64];
   volatile uint8_t imu_rx_buf[64];
+  volatile uint8_t imu_len;
   uint32_t time_since_last_reading;
 };
 
