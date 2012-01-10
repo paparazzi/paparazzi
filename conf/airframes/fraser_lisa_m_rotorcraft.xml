@@ -5,7 +5,6 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_1.0">
       <subsystem name="radio_control" type="spektrum"/>
-      <define name="SERVO_HZ" value="400"/>
       <define name="RADIO_MODE" value="RADIO_AUX2"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
       <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/>
@@ -53,13 +52,6 @@
   <modules main_freq="512">
     <load name="sys_mon.xml"/>
   </modules>
-
-  <servos min="0" neutral="0" max="0xff">
-    <servo name="FRONT"   no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="BACK"    no="1" min="1000" neutral="1000" max="2000"/>
-    <servo name="LEFT"    no="2" min="1000" neutral="1000" max="2000"/>
-    <servo name="RIGHT"   no="3" min="1000" neutral="1000" max="2000"/>
-  </servos>
 
   <commands>
     <axis name="PITCH"  failsafe_value="0"/>
