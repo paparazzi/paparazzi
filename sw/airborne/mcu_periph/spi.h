@@ -43,6 +43,7 @@ enum SPITransactionStatus {
 struct spi_transaction {
   volatile uint8_t* mosi_buf;
   volatile uint8_t* miso_buf;
+  volatile uint8_t* ready;
   uint8_t length;
   volatile enum SPITransactionStatus status;
 };

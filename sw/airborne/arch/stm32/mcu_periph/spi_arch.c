@@ -184,6 +184,7 @@ void dma1_c4_irq_handler(void)
   DMA_Cmd(DMA1_Channel5, DISABLE);
 
   slave0->status = SPITransSuccess;
+  *(slave0->ready) = 1;
 }
 
 

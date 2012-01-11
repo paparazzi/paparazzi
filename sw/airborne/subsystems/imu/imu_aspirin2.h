@@ -26,11 +26,7 @@
 
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
-
-#include "mcu_periph/i2c.h"
-#include "peripherals/itg3200.h"
-#include "peripherals/hmc5843.h"
-#include "peripherals/adxl345.h"
+#include "led.h"
 
 
 #ifdef IMU_ASPIRIN_VERSION_2_0
@@ -95,53 +91,69 @@ extern struct ImuAspirin2 imu_aspirin2;
 /* must be implemented by underlying architecture */
 extern void imu_aspirin2_arch_init(void);
 
-/*
-static inline void gyro_copy_i2c(void)
+
+static inline void imu_from_buff(void)
 {
-  int16_t gp = imu_aspirin.i2c_trans_gyro.buf[0]<<8 | imu_aspirin.i2c_trans_gyro.buf[1];
-  int16_t gq = imu_aspirin.i2c_trans_gyro.buf[2]<<8 | imu_aspirin.i2c_trans_gyro.buf[3];
-  int16_t gr = imu_aspirin.i2c_trans_gyro.buf[4]<<8 | imu_aspirin.i2c_trans_gyro.buf[5];
-  RATES_ASSIGN(imu.gyro_unscaled, gp, gq, gr);
+  int32_t x, y, z;
+
+
+  // If the itg3200 I2C transaction has succeeded: convert the data
+#define MPU_OFFSET_GYRO 10
+  x = (int16_t) ((imu_aspirin2.imu_rx_buf[0+MPU_OFFSET_GYRO] << 8) | imu_aspirin2.imu_rx_buf[1+MPU_OFFSET_GYRO]);
+  y = (int16_t) ((imu_aspirin2.imu_rx_buf[2+MPU_OFFSET_GYRO] << 8) | imu_aspirin2.imu_rx_buf[3+MPU_OFFSET_GYRO]);
+  z = (int16_t) ((imu_aspirin2.imu_rx_buf[4+MPU_OFFSET_GYRO] << 8) | imu_aspirin2.imu_rx_buf[5+MPU_OFFSET_GYRO]);
+
+  RATES_ASSIGN(imu.gyro_unscaled, x, y, z);
+
+#define MPU_OFFSET_ACC 2
+  x = (int16_t) ((imu_aspirin2.imu_rx_buf[0+MPU_OFFSET_ACC] << 8) | imu_aspirin2.imu_rx_buf[1+MPU_OFFSET_ACC]);
+  y = (int16_t) ((imu_aspirin2.imu_rx_buf[2+MPU_OFFSET_ACC] << 8) | imu_aspirin2.imu_rx_buf[3+MPU_OFFSET_ACC]);
+  z = (int16_t) ((imu_aspirin2.imu_rx_buf[4+MPU_OFFSET_ACC] << 8) | imu_aspirin2.imu_rx_buf[5+MPU_OFFSET_ACC]);
+
+  VECT3_ASSIGN(imu.accel_unscaled, x, y, z);
+
+  // Is this is new data
+#define MPU_OFFSET_STATUS 1
+  if (imu_aspirin2.imu_rx_buf[MPU_OFFSET_STATUS] & 0x01)
+  {
+    //gyr_valid = TRUE;
+    //acc_valid = TRUE;
+  }
+  else
+  {
+  }
 }
 
-static inline void accel_copy_spi(void)
-{
-  const int16_t ax = imu_aspirin.accel_rx_buf[1] | (imu_aspirin.accel_rx_buf[2]<<8);
-  const int16_t ay = imu_aspirin.accel_rx_buf[3] | (imu_aspirin.accel_rx_buf[4]<<8);
-  const int16_t az = imu_aspirin.accel_rx_buf[5] | (imu_aspirin.accel_rx_buf[6]<<8);
-  VECT3_ASSIGN(imu.accel_unscaled, ax, ay, az);
-}
-
-
-static inline void imu_gyro_event(void (* _gyro_handler)(void))
-{
-
-}
-*/
 
 static inline void imu_aspirin2_event(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
 {
+  LED_TOGGLE(4);
+
   if (imu_aspirin2.status == Aspirin2StatusUninit) return;
 
-  imu_aspirin2_arch_int_disable();
-  if (imu_aspirin2.imu_available) {
+  // imu_aspirin2_arch_int_disable();
+
+  if (imu_aspirin2.imu_available) 
+  {
     imu_aspirin2.time_since_last_reading = 0;
     imu_aspirin2.imu_available = FALSE;
-    //accel_copy_spi();
+    imu_from_buff();
+
+    _gyro_handler();
     _accel_handler();
   }
-  imu_aspirin2_arch_int_enable();
+  // imu_aspirin2_arch_int_enable();
 
   // Reset everything if we've been waiting too long
-  if (imu_aspirin2.time_since_last_reading > ASPIRIN2_TIMEOUT) {
-    imu_aspirin2.time_since_last_reading = 0;
-    return;
-  }
+  //if (imu_aspirin2.time_since_last_reading > ASPIRIN2_TIMEOUT) {
+  //  imu_aspirin2.time_since_last_reading = 0;
+  //  return;
+  //}
 
 }
 
-#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) do {		\
+#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \
   imu_aspirin2_event(_gyro_handler, _accel_handler, _mag_handler); \
-} while(0);
+}
 
 #endif /* IMU_ASPIRIN_H */

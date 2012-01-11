@@ -5,6 +5,8 @@
 #define MPU60X0_ADDR            0xD0
 #define MPU60X0_ADDR_ALT        0xD2
 
+#define MPU60X0_SPI_READ	0x80
+
 // Power and Interface
 #define MPU60X0_REG_AUX_VDDIO		0x01	// Must be set to 0 on MPU6000
 #define MPU60X0_REG_USER_CTRL		0x6A
