@@ -39,8 +39,6 @@ conf: the configuration directory (airframe, radio, ... descriptions).
 
 data: where to put read-only data (e.g. maps, terrain elevation files, icons)
 
-hw: hardware (electronic schemas, PCBs, ...)
-
 sw: software (onboard, ground station, simulation, ...)
 
 var: products of compilation, cache for the map tiles, ...
