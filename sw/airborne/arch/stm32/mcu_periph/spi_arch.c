@@ -101,19 +101,23 @@ void spi_clear_rx_buf(void) {
 }
 */
 
+struct spi_transaction* slave0;
 
-
-void spi_rw(volatile uint8_t* _send, volatile uint8_t* _read, volatile int _len) 
+void spi_rw(struct spi_transaction  * _trans) 
 {
-   Spi2Slave0Select();
+  // Store local copy to notify of the results
+  slave0 = _trans;
+  slave0->status = SPITransRunning;
+
+  Spi2Slave0Select();
 
   // SPI2_Rx_DMA_Channel configuration ------------------------------------
   DMA_DeInit(DMA1_Channel4);
   DMA_InitTypeDef DMA_initStructure_4 = {
     .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
-    .DMA_MemoryBaseAddr = (uint32_t)_read,
+    .DMA_MemoryBaseAddr = (uint32_t) slave0->miso_buf,
     .DMA_DIR = DMA_DIR_PeripheralSRC,
-    .DMA_BufferSize = _len,
+    .DMA_BufferSize = slave0->length,
     .DMA_PeripheralInc = DMA_PeripheralInc_Disable,
     .DMA_MemoryInc = DMA_MemoryInc_Enable,
     .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
@@ -128,9 +132,9 @@ void spi_rw(volatile uint8_t* _send, volatile uint8_t* _read, volatile int _len)
   DMA_DeInit(DMA1_Channel5);
   DMA_InitTypeDef DMA_initStructure_5 = {
     .DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C),
-    .DMA_MemoryBaseAddr = (uint32_t)_send,
+    .DMA_MemoryBaseAddr = (uint32_t) slave0->mosi_buf,
     .DMA_DIR = DMA_DIR_PeripheralDST,
-    .DMA_BufferSize = _len,
+    .DMA_BufferSize = slave0->length,
     .DMA_PeripheralInc = DMA_PeripheralInc_Disable,
     .DMA_MemoryInc = DMA_MemoryInc_Enable,
     .DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
@@ -179,6 +183,7 @@ void dma1_c4_irq_handler(void)
   DMA_Cmd(DMA1_Channel4, DISABLE);
   DMA_Cmd(DMA1_Channel5, DISABLE);
 
+  slave0->status = SPITransSuccess;
 }
 
 

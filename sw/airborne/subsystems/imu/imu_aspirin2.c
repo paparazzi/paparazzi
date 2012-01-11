@@ -10,6 +10,8 @@
 
 struct ImuAspirin2 imu_aspirin2;
 
+struct spi_transaction aspirin2_mpu60x0;
+
 /*
 
 // initialize peripherals
@@ -24,25 +26,23 @@ void imu_impl_init(void) {
   imu_aspirin2.status = Aspirin2StatusUninit;
   imu_aspirin2.imu_available = FALSE;
 
+  aspirin2_mpu60x0.mosi_buf = imu_aspirin2.imu_tx_buf;
+  aspirin2_mpu60x0.miso_buf = imu_aspirin2.imu_rx_buf;
+  aspirin2_mpu60x0.length = 2;
+
 //  imu_aspirin2_arch_init();
 //  spi_arch_int_enable();
 
-//  LED_TOGGLE(2);
-  LED_TOGGLE(3);
 }
 
 
 void imu_periodic(void) 
 {
 
-//  LED_TOGGLE(2);
-//  LED_TOGGLE(3);
-
-  imu_aspirin2.imu_len = 2;
   imu_aspirin2.imu_tx_buf[0] = MPU60X0_REG_WHO_AM_I + 0x80;
   imu_aspirin2.imu_tx_buf[1] = 0x00;
 
-  spi_rw(imu_aspirin2.imu_tx_buf, imu_aspirin2.imu_rx_buf, imu_aspirin2.imu_len);
+  spi_rw(&aspirin2_mpu60x0);
 
 /*
   hmc5843_periodic();

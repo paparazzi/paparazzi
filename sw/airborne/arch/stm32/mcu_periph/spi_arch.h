@@ -35,7 +35,7 @@ extern void spi_arch_int_enable(void);
 extern void spi_arch_int_disable(void);
 
 extern void spi_clear_rx_buf(void);
-void spi_rw(volatile uint8_t* _send, volatile uint8_t* _read, volatile int _len);
+void spi_rw(struct spi_transaction  * _trans);
 
 
 /*
