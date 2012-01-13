@@ -93,23 +93,27 @@ extern void imu_aspirin2_arch_init(void);
 
 static inline void imu_from_buff(void)
 {
-  int32_t x, y, z;
+  int32_t x, y, z, p, q, r;
 
 
   // If the itg3200 I2C transaction has succeeded: convert the data
 #define MPU_OFFSET_GYRO 10
-  x = (int16_t) ((imu_aspirin2.imu_rx_buf[0+MPU_OFFSET_GYRO] << 8) | imu_aspirin2.imu_rx_buf[1+MPU_OFFSET_GYRO]);
-  y = (int16_t) ((imu_aspirin2.imu_rx_buf[2+MPU_OFFSET_GYRO] << 8) | imu_aspirin2.imu_rx_buf[3+MPU_OFFSET_GYRO]);
-  z = (int16_t) ((imu_aspirin2.imu_rx_buf[4+MPU_OFFSET_GYRO] << 8) | imu_aspirin2.imu_rx_buf[5+MPU_OFFSET_GYRO]);
-
-  RATES_ASSIGN(imu.gyro_unscaled, x, y, z);
+  p = (int16_t) ((imu_aspirin2.imu_rx_buf[0+MPU_OFFSET_GYRO] << 8) | imu_aspirin2.imu_rx_buf[1+MPU_OFFSET_GYRO]);
+  q = (int16_t) ((imu_aspirin2.imu_rx_buf[2+MPU_OFFSET_GYRO] << 8) | imu_aspirin2.imu_rx_buf[3+MPU_OFFSET_GYRO]);
+  r = (int16_t) ((imu_aspirin2.imu_rx_buf[4+MPU_OFFSET_GYRO] << 8) | imu_aspirin2.imu_rx_buf[5+MPU_OFFSET_GYRO]);
 
 #define MPU_OFFSET_ACC 2
   x = (int16_t) ((imu_aspirin2.imu_rx_buf[0+MPU_OFFSET_ACC] << 8) | imu_aspirin2.imu_rx_buf[1+MPU_OFFSET_ACC]);
   y = (int16_t) ((imu_aspirin2.imu_rx_buf[2+MPU_OFFSET_ACC] << 8) | imu_aspirin2.imu_rx_buf[3+MPU_OFFSET_ACC]);
   z = (int16_t) ((imu_aspirin2.imu_rx_buf[4+MPU_OFFSET_ACC] << 8) | imu_aspirin2.imu_rx_buf[5+MPU_OFFSET_ACC]);
 
+#ifdef LISA_M_LONGITUDINAL_X
+  RATES_ASSIGN(imu.gyro_unscaled, q, -p, r);
+  VECT3_ASSIGN(imu.accel_unscaled, y, -y, z);
+#else
+  RATES_ASSIGN(imu.gyro_unscaled, p, q, r);
   VECT3_ASSIGN(imu.accel_unscaled, x, y, z);
+#endif
 
   // Is this is new data
 #define MPU_OFFSET_STATUS 1
