@@ -109,7 +109,7 @@ static inline void imu_from_buff(void)
 
 #ifdef LISA_M_LONGITUDINAL_X
   RATES_ASSIGN(imu.gyro_unscaled, q, -p, r);
-  VECT3_ASSIGN(imu.accel_unscaled, y, -y, z);
+  VECT3_ASSIGN(imu.accel_unscaled, y, -x, z);
 #else
   RATES_ASSIGN(imu.gyro_unscaled, p, q, r);
   VECT3_ASSIGN(imu.accel_unscaled, x, y, z);
