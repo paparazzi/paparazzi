@@ -7,9 +7,9 @@
 <airframe name="LisaAspirin2">
 
   <servos>
-    <servo name="THROTTLE" no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILERON_LEFT" no="1" min="1000" neutral="1500" max="2000"/>
-    <servo name="AILERON_RIGHT" no="2" min="2000" neutral="1500" max="1000"/>
+    <servo name="THROTTLE" no="2" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILEVON_LEFT" no="1" min="1000" neutral="1500" max="2000"/>
+    <servo name="AILEVON_RIGHT" no="0" min="2000" neutral="1500" max="1000"/>
     <servo name="ELEVATOR" no="3" min="2000" neutral="1500" max="1000"/>
     <servo name="RUDDER" no="4" min="1100" neutral="1500" max="1900"/>
   </servos>
@@ -29,8 +29,8 @@
   </rc_commands>
 
   <command_laws>
-    <set servo="AILERON_LEFT" value="@ROLL"/>
-    <set servo="AILERON_RIGHT" value="@ROLL"/>
+    <set servo="AILEVON_LEFT" value="@ROLL + @PITCH"/>
+    <set servo="AILEVON_RIGHT" value="@ROLL - @PITCH"/>
     <set servo="THROTTLE" value="@THROTTLE"/>
     <set servo="ELEVATOR" value="@PITCH"/>
   </command_laws>
@@ -53,34 +53,14 @@
     <define name="GYRO_Q_SENS" value="4.359" integer="16"/>
     <define name="GYRO_R_SENS" value="4.359" integer="16"/>
 
-    <define name="GYRO_P_Q" value="0."/>
-    <define name="GYRO_P_R" value="0"/>
-    <define name="GYRO_Q_P" value="0."/>
-    <define name="GYRO_Q_R" value="0."/>
-    <define name="GYRO_R_P" value="0."/>
-    <define name="GYRO_R_Q" value="0."/>
-
-    <define name="GYRO_P_SIGN" value="1"/>
-    <define name="GYRO_Q_SIGN" value="1"/>
-    <define name="GYRO_R_SIGN" value="1"/>
-
-    <define name="ACCEL_X_NEUTRAL" value="-40"/>
-    <define name="ACCEL_Y_NEUTRAL" value="-15"/>
-    <define name="ACCEL_Z_NEUTRAL" value="375"/>
+    <define name="ACCEL_X_NEUTRAL" value="0"/>
+    <define name="ACCEL_Y_NEUTRAL" value="0"/>
+    <define name="ACCEL_Z_NEUTRAL" value="0"/>
 
     <!-- SENS = 2048 LSB/g / 9.81 ms2/g = 208.766564729 LSB/ms2 / 10bit FRAC: 1024 / 208.7665 -->
     <define name="ACCEL_X_SENS" value="9.81" integer="16"/>
     <define name="ACCEL_Y_SENS" value="9.81" integer="16"/>
     <define name="ACCEL_Z_SENS" value="9.81" integer="16"/>
-
-<!--
-    <define name="ACCEL_X_SENS" value="4.905" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="4.905" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="4.905" integer="16"/>
--->
-    <define name="ACCEL_X_SIGN" value="1"/>
-    <define name="ACCEL_Y_SIGN" value="1"/>
-    <define name="ACCEL_Z_SIGN" value="1"/>
 
     <define name="MAG_X_NEUTRAL" value="0"/>
     <define name="MAG_Y_NEUTRAL" value="0"/>
@@ -89,10 +69,6 @@
     <define name="MAG_X_SENS" value="1" integer="16"/>
     <define name="MAG_Y_SENS" value="1" integer="16"/>
     <define name="MAG_Z_SENS" value="1" integer="16"/>
-
-    <define name="MAG_X_SIGN" value="1"/>
-    <define name="MAG_Y_SIGN" value="1"/>
-    <define name="MAG_Z_SIGN" value="1"/>
 
     <define name="BODY_TO_IMU_PHI" value="0"/>
     <define name="BODY_TO_IMU_THETA" value="0"/>
@@ -222,7 +198,7 @@
 
   <firmware name="fixedwing">
 
-    <target name="ap" board="lisa_l_1.0">
+    <target name="ap" board="lisa_m_1.0">
       <define name="STRONG_WIND"/>
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
@@ -230,7 +206,7 @@
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
-<!--       <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" /> -->
+       <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" /> 
 
       <configure name="AHRS_ALIGNER_LED" value="1"/>
       <configure name="CPU_LED" value="1"/>
