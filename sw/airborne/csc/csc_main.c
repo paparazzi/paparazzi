@@ -82,7 +82,7 @@ static void csc_main_init( void ) {
 #endif
 
 
-#ifdef USE_GPS
+#if USE_GPS
   booz2_gps_init();
 #endif
 
@@ -177,7 +177,7 @@ static void csc_main_event( void ) {
 #ifdef SPEKTRUM_LINK
   spektrum_event_task();
 #endif
-#ifdef USE_GPS
+#if USE_GPS
   Booz2GpsEvent(on_gps_event);
 #endif
 }

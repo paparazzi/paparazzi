@@ -113,7 +113,7 @@ void control_run(void) {
   controller.elevation_ddot_ref = -2*controller.omega_elevation_ref*controller.xi_ref*controller.elevation_dot_ref
     - controller.omega_elevation_ref*controller.omega_elevation_ref*(controller.elevation_ref - controller.elevation_sp);
 
-#ifdef USE_AZIMUTH
+#if USE_AZIMUTH
   controller.azimuth_ref = controller.azimuth_ref + controller.azimuth_dot_ref * dt_ctl;
   controller.azimuth_dot_ref = controller.azimuth_dot_ref + controller.azimuth_ddot_ref * dt_ctl;
   controller.azimuth_ddot_ref = -2*controller.omega_azimuth_ref*controller.xi_ref*controller.azimuth_dot_ref
@@ -131,7 +131,7 @@ void control_run(void) {
   const float err_elevation = estimator.elevation - controller.elevation_ref;
   const float err_elevation_dot = estimator.elevation_dot - controller.elevation_dot_ref;
 
-#ifdef USE_AZIMUTH
+#if USE_AZIMUTH
   const float err_azimuth = estimator.azimuth - controller.azimuth_ref;
   const float err_azimuth_dot = estimator.azimuth_dot - controller.azimuth_dot_ref;
 #endif
@@ -151,7 +151,7 @@ void control_run(void) {
   controller.cmd_thrust_fb = -controller.mass * (2 * controller.xi_cl * controller.omega_cl * err_elevation_dot) -
   			controller.mass * (controller.omega_cl * controller.omega_cl * err_elevation);
 
-#ifdef USE_AZIMUTH
+#if USE_AZIMUTH
   controller.cmd_azimuth_ff = controller.one_over_J * controller.azimuth_ddot_ref;
   controller.cmd_azimuth_fb = controller.one_over_J * (2 * controller.xi_cl * controller.omega_cl * err_azimuth_dot) +
                         controller.one_over_J * (controller.omega_cl * controller.omega_cl * err_azimuth);
@@ -159,7 +159,7 @@ void control_run(void) {
 
   controller.cmd_pitch =  /*controller.cmd_pitch_ff*/ + controller.cmd_pitch_fb;
 
-#ifdef USE_AZIMUTH
+#if USE_AZIMUTH
   controller.tilt_sp = controller.azim_gain * (-controller.cmd_azimuth_fb );
 #endif
 

@@ -35,7 +35,7 @@ void imu_periodic(void) {
 
 }
 
-#ifdef USE_NPS
+#if USE_NPS
 #include "nps_sensors.h"
 
 void imu_feed_gyro_accel(void) {

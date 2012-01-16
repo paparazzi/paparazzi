@@ -110,7 +110,7 @@ STATIC_INLINE void main_init( void ) {
 
   ins_init();
 
-#ifdef USE_GPS
+#if USE_GPS
   gps_init();
 #endif
 
@@ -159,7 +159,7 @@ STATIC_INLINE void main_periodic( void ) {
       Booz2TelemetryPeriodic();                             \
     } );
 
-#ifdef USE_GPS
+#if USE_GPS
   if (radio_control.status != RC_OK &&                  \
       autopilot_mode == AP_MODE_NAV && GpsIsLost())		\
     autopilot_set_mode(AP_MODE_FAILSAFE);
@@ -185,7 +185,7 @@ STATIC_INLINE void main_event( void ) {
 
   BaroEvent(on_baro_abs_event, on_baro_dif_event);
 
-#ifdef USE_GPS
+#if USE_GPS
   GpsEvent(on_gps_event);
 #endif
 
@@ -221,14 +221,14 @@ static inline void on_gyro_event( void ) {
 #endif
     ins_propagate();
   }
-#ifdef USE_VEHICLE_INTERFACE
+#if USE_VEHICLE_INTERFACE
   vi_notify_imu_available();
 #endif
 }
 
 static inline void on_baro_abs_event( void ) {
   ins_update_baro();
-#ifdef USE_VEHICLE_INTERFACE
+#if USE_VEHICLE_INTERFACE
   vi_notify_baro_abs_available();
 #endif
 }
@@ -239,7 +239,7 @@ static inline void on_baro_dif_event( void ) {
 
 static inline void on_gps_event(void) {
   ins_update_gps();
-#ifdef USE_VEHICLE_INTERFACE
+#if USE_VEHICLE_INTERFACE
   if (gps.fix == GPS_FIX_3D)
     vi_notify_gps_available();
 #endif
@@ -249,7 +249,7 @@ static inline void on_mag_event(void) {
   ImuScaleMag(imu);
   if (ahrs.status == AHRS_RUNNING)
     ahrs_update_mag();
-#ifdef USE_VEHICLE_INTERFACE
+#if USE_VEHICLE_INTERFACE
   vi_notify_mag_available();
 #endif
 }

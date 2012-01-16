@@ -31,7 +31,7 @@
 #include "subsystems/ahrs/ahrs_int_utils.h"
 
 #include "subsystems/imu.h"
-#ifdef USE_GPS
+#if USE_GPS
 #include "subsystems/gps.h"
 #endif
 #include "math/pprz_trig_int.h"

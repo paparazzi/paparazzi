@@ -18,7 +18,7 @@ extern void alt_vf_update_vz(float vz);
 extern void alt_vf_periodic_task(void);
 
 
-#ifdef USE_BARO_MS5534A
+#if USE_BARO_MS5534A
 
 #include "baro_MS5534A.h"
 

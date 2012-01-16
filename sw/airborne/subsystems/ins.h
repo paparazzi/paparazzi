@@ -33,11 +33,11 @@ extern struct NedCoor_i ins_gps_pos_cm_ned;
 extern struct NedCoor_i ins_gps_speed_cm_s_ned;
 
 /* barometer                   */
-#ifdef USE_VFF
+#if USE_VFF
 extern int32_t ins_baro_alt;
 extern int32_t ins_qfe;
 extern bool_t  ins_baro_initialised;
-#ifdef USE_SONAR
+#if USE_SONAR
 extern bool_t  ins_update_on_agl; /* use sonar to update agl if available */
 extern int32_t ins_sonar_offset;
 #endif
@@ -51,7 +51,7 @@ extern struct NedCoor_i ins_ltp_accel;
 extern struct EnuCoor_i ins_enu_pos;
 extern struct EnuCoor_i ins_enu_speed;
 extern struct EnuCoor_i ins_enu_accel;
-#ifdef USE_HFF
+#if USE_HFF
 /* horizontal gps transformed to NED in meters as float */
 extern struct FloatVect2 ins_gps_pos_m_ned;
 extern struct FloatVect2 ins_gps_speed_m_s_ned;
