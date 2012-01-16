@@ -145,7 +145,7 @@ void airspeed_amsys_read_event( void ) {
 		airspeed_amsys = airspeed_filter * airspeed_old + (1 - airspeed_filter) * airspeed_tmp;
 		airspeed_old = airspeed_amsys;
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
 		EstimatorSetAirspeed(airspeed_amsys);
 #endif
 #ifdef SENSOR_SYNC_SEND

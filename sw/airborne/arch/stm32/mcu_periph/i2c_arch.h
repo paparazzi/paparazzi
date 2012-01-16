@@ -32,7 +32,7 @@
 #include <stm32/i2c.h>
 
 
-#ifdef USE_I2C1
+#if USE_I2C1
 
 extern struct i2c_errors i2c1_errors;
 
@@ -44,7 +44,7 @@ extern void i2c1_er_irq_handler(void);
 
 
 
-#ifdef USE_I2C2
+#if USE_I2C2
 
 extern struct i2c_errors i2c2_errors;
 

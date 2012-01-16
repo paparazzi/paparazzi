@@ -56,7 +56,7 @@
 
 #include "lpcusb/usbapi.h"
 
-#ifdef USE_USB_SERIAL
+#if USE_USB_SERIAL
 #if PCLK < 18000000
 #error PCLK needs to be higher than 18MHz for USB to work properly
 #endif
@@ -116,7 +116,7 @@ static void USBIntHandler(void) __attribute__ ((interrupt("IRQ")));
 
 static void BulkOut(U8 bEP, U8 bEPStatus);
 
-#ifdef USE_USB_LINE_CODING
+#if USE_USB_LINE_CODING
 void set_linecoding(TLineCoding linecoding);
 #endif
 
@@ -239,7 +239,7 @@ static const uint8_t abDescriptors[] = {
 };
 
 
-#ifdef USE_USB_SERIAL
+#if USE_USB_SERIAL
 
 void fifo_init(fifo_t *fifo, U8 *buf)
 {
@@ -292,7 +292,7 @@ int fifo_free(fifo_t *fifo)
 	return (VCOM_FIFO_SIZE - 1 - fifo_avail(fifo));
 }
 
-#ifdef USE_USB_LINE_CODING
+#if USE_USB_LINE_CODING
 void set_linecoding(TLineCoding linecoding)
 {
     uint16_t baud;
@@ -346,13 +346,13 @@ void set_linecoding(TLineCoding linecoding)
             break;
     }
 
-#ifdef USE_UART0
+#if USE_UART0
     U0LCR = ULCR_DLAB_ENABLE;             // select divisor latches
     U0DLL = (uint8_t)baud;                // set for baud low byte
     U0DLM = (uint8_t)(baud >> 8);         // set for baud high byte
     U0LCR = (mode & ~ULCR_DLAB_ENABLE);
 #endif
-#ifdef USE_UART1
+#if USE_UART1
     U1LCR = ULCR_DLAB_ENABLE;             // select divisor latches
     U1DLL = (uint8_t)baud;                // set for baud low byte
     U1DLM = (uint8_t)(baud >> 8);         // set for baud high byte
@@ -361,7 +361,7 @@ void set_linecoding(TLineCoding linecoding)
 }
 #endif
 
-#ifdef USE_USB_LINE_CODING
+#if USE_USB_LINE_CODING
 void VCOM_allow_linecoding(uint8_t mode)
 {
     allow_line_coding = mode;
@@ -499,7 +499,7 @@ static BOOL HandleClassRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
 	case SET_LINE_CODING:
 		memcpy((U8 *)&LineCoding, *ppbData, 7);
 		*piLen = 7;
-#ifdef USE_USB_LINE_CODING
+#if USE_USB_LINE_CODING
         if (allow_line_coding)
         {
             set_linecoding(LineCoding);
@@ -549,7 +549,7 @@ static void USBFrameHandler(U16 wFrame)
 void VCOM_init(void) {
 	// initialise stack
 	USBInit();
-#ifdef USE_USB_LINE_CODING
+#if USE_USB_LINE_CODING
 	// set default line coding
     set_linecoding(LineCoding);
 #endif

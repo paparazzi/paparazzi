@@ -40,7 +40,7 @@
  * */
 #define DIFF_FILTER_GAIN 5
 
-#ifdef USE_BARO_AS_ALTIMETER
+#if USE_BARO_AS_ALTIMETER
 extern float baro_alt;
 extern float baro_alt_offset;
 #define BaroAltHandler() { baro_alt = BARO_SENS*(baro_alt_offset - (float)baro.absolute); }

@@ -24,23 +24,23 @@
 
 #include "mcu_periph/uart.h"
 
-#ifdef USE_UART0
+#if USE_UART0
 struct uart_periph uart0;
 #endif
 
-#ifdef USE_UART1
+#if USE_UART1
 struct uart_periph uart1;
 #endif
 
-#ifdef USE_UART2
+#if USE_UART2
 struct uart_periph uart2;
 #endif
 
-#ifdef USE_UART3
+#if USE_UART3
 struct uart_periph uart3;
 #endif
 
-#ifdef USE_UART5
+#if USE_UART5
 struct uart_periph uart5;
 #endif
 

@@ -10,7 +10,7 @@
 /* CPU clock freq.               */
 #define CCLK (FOSC * PLL_MUL)
 
-#ifdef USE_USB_HIGH_PCLK
+#if USE_USB_HIGH_PCLK
 /* Peripheral bus speed mask  0x00-> 4, 0x01-> 1, 0x02-> 2   */
 /* change both PBSD_BITS/VAL     15MHz,    60MHz,    30MHz   */
 #define PBSD_BITS 0x02
@@ -60,7 +60,7 @@
 /* ADC */
 
 #define ADC_0 AdcBank0(3)
-#ifdef USE_ADC_0
+#if USE_ADC_0
 #ifndef USE_AD0
 #define USE_AD0
 #endif
@@ -68,7 +68,7 @@
 #endif
 
 #define ADC_1 AdcBank0(2)
-#ifdef USE_ADC_1
+#if USE_ADC_1
 #ifndef USE_AD0
 #define USE_AD0
 #endif
@@ -77,7 +77,7 @@
 
 
 #define ADC_2 AdcBank0(1)
-#ifdef USE_ADC_2
+#if USE_ADC_2
 #ifndef USE_AD0
 #define USE_AD0
 #endif
@@ -85,7 +85,7 @@
 #endif
 
 #define ADC_3 AdcBank0(4)
-#ifdef USE_ADC_3
+#if USE_ADC_3
 #ifndef USE_AD0
 #define USE_AD0
 #endif
@@ -93,7 +93,7 @@
 #endif
 
 #define ADC_4 AdcBank1(7)
-#ifdef USE_ADC_4
+#if USE_ADC_4
 #ifndef USE_AD1
 #define USE_AD1
 #endif
@@ -101,7 +101,7 @@
 #endif
 
 #define ADC_5 AdcBank1(3)
-#ifdef USE_ADC_5
+#if USE_ADC_5
 #ifndef USE_AD1
 #define USE_AD1
 #endif
@@ -109,7 +109,7 @@
 #endif
 
 #define ADC_6 AdcBank1(4)
-#ifdef USE_ADC_6
+#if USE_ADC_6
 #ifndef USE_AD1
 #define USE_AD1
 #endif
@@ -117,7 +117,7 @@
 #endif
 
 #define ADC_7 AdcBank1(5)
-#ifdef USE_ADC_7
+#if USE_ADC_7
 #ifndef USE_AD1
 #define USE_AD1
 #endif

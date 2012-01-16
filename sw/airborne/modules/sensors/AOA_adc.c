@@ -77,7 +77,7 @@ void AOA_adc_update( void ) {
 #endif
 	RunOnceEvery(30, DOWNLINK_SEND_AOA_adc(DefaultChannel, &adc_AOA_val, &AOA));
 
-#ifdef USE_AOA
+#if USE_AOA
 	EstimatorSetAOA(AOA);
 #endif
 }

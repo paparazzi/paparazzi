@@ -64,18 +64,18 @@
 #endif
 
 
-#ifdef USE_IMU
+#if USE_IMU
 #include "subsystems/imu.h"
 #endif
-#ifdef USE_AHRS
+#if USE_AHRS
 #include "subsystems/ahrs.h"
 #endif
-#ifdef USE_AHRS_ALIGNER
+#if USE_AHRS_ALIGNER
 #include "subsystems/ahrs/ahrs_aligner.h"
 #endif
 
-#ifdef USE_AHRS
-#ifdef USE_IMU
+#if USE_AHRS
+#if USE_IMU
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
@@ -85,7 +85,7 @@ static inline void on_ahrs_event(void);
 #endif // USE_IMU
 #endif // USE_AHRS
 
-#ifdef USE_GPS
+#if USE_GPS
 static inline void on_gps_solution( void );
 #endif
 
@@ -391,7 +391,7 @@ static void navigation_task( void ) {
 
 static inline void attitude_loop( void ) {
 
-#ifdef USE_INFRARED
+#if USE_INFRARED
   ahrs_update_infrared();
 #endif /* USE_INFRARED */
 
@@ -411,7 +411,7 @@ static inline void attitude_loop( void ) {
 
 }
 
-#ifdef USE_AHRS
+#if USE_AHRS
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
 volatile uint8_t new_ins_attitude = 0;
 #endif
@@ -425,11 +425,11 @@ void periodic_task_ap( void ) {
   static uint8_t _4Hz  = 0;
   static uint8_t _1Hz  = 0;
 
-#ifdef USE_IMU
+#if USE_IMU
   // Run at PERIODIC_FREQUENCY (60Hz if not defined)
   imu_periodic();
 
-#ifdef USE_AHRS
+#if USE_AHRS
   if (ahrs_timeout_counter < 255)
     ahrs_timeout_counter ++;
 #endif
@@ -495,7 +495,7 @@ void periodic_task_ap( void ) {
 
     break;
 
-#ifdef USE_GPIO
+#if USE_GPIO
   case 3:
     GpioUpdate1();
     break;
@@ -535,23 +535,23 @@ void init_ap( void ) {
 #endif /* SINGLE_MCU */
 
   /************* Sensors initialization ***************/
-#ifdef USE_GPS
+#if USE_GPS
   gps_init();
 #endif
 
-#ifdef USE_GPIO
+#if USE_GPIO
   GpioInit();
 #endif
 
-#ifdef USE_IMU
+#if USE_IMU
   imu_init();
 #endif
 
-#ifdef USE_AHRS_ALIGNER
+#if USE_AHRS_ALIGNER
   ahrs_aligner_init();
 #endif
 
-#ifdef USE_AHRS
+#if USE_AHRS
   ahrs_init();
 #endif
 
@@ -608,14 +608,14 @@ void init_ap( void ) {
 void event_task_ap( void ) {
 
 #if defined USE_AHRS
-#ifdef USE_IMU
+#if USE_IMU
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 #else
   AhrsEvent(on_ahrs_event);
 #endif // USE_IMU
 #endif // USE_AHRS
 
-#ifdef USE_GPS
+#if USE_GPS
   GpsEvent(on_gps_solution);
 #endif /** USE_GPS */
 
@@ -647,7 +647,7 @@ void event_task_ap( void ) {
 } /* event_task_ap() */
 
 
-#ifdef USE_GPS
+#if USE_GPS
 static inline void on_gps_solution( void ) {
   estimator_update_state_gps();
   ahrs_update_gps();
@@ -658,8 +658,8 @@ static inline void on_gps_solution( void ) {
 #endif
 
 
-#ifdef USE_AHRS
-#ifdef USE_IMU
+#if USE_AHRS
+#if USE_IMU
 static inline void on_accel_event( void ) {
 }
 
@@ -671,7 +671,7 @@ static inline void on_gyro_event( void ) {
     LED_ON(AHRS_CPU_LED);
 #endif
 
-#ifdef USE_AHRS_ALIGNER
+#if USE_AHRS_ALIGNER
   // Run aligner on raw data as it also makes averages.
   if (ahrs.status == AHRS_UNINIT) {
     ImuScaleGyro(imu);

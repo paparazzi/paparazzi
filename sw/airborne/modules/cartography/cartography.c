@@ -89,7 +89,7 @@ uint16_t railnumberSinceBoot=1; //used to count the number of rails the plane ha
 ////////////////////////////////////////////////////////////////////////////////////////////////
 #define USE_ONBOARD_CAMERA
 
-#ifdef USE_ONBOARD_CAMERA
+#if USE_ONBOARD_CAMERA
 uint16_t camera_snapshot_image_number=0;
 #endif
 

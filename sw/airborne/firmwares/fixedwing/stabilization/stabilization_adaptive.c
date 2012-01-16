@@ -185,7 +185,7 @@ void h_ctl_init( void ) {
   use_airspeed_ratio = FALSE;
   airspeed_ratio2 = 1.;
 
-#ifdef USE_PITCH_TRIM
+#if USE_PITCH_TRIM
   v_ctl_pitch_loiter_trim = V_CTL_PITCH_LOITER_TRIM;
   v_ctl_pitch_dash_trim = V_CTL_PITCH_DASH_TRIM;
 #else
@@ -220,7 +220,7 @@ void h_ctl_course_loop ( void ) {
   BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
 }
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
 static inline void compute_airspeed_ratio( void ) {
   if (use_airspeed_ratio) {
     // low pass airspeed
@@ -238,7 +238,7 @@ static inline void compute_airspeed_ratio( void ) {
 
 void h_ctl_attitude_loop ( void ) {
   if (!h_ctl_disabled) {
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
     compute_airspeed_ratio();
 #endif
     h_ctl_roll_loop();
@@ -254,7 +254,7 @@ inline static void h_ctl_roll_loop( void ) {
 
   static float cmd_fb = 0.;
 
-#ifdef USE_ANGLE_REF
+#if USE_ANGLE_REF
   // Update reference setpoints for roll
   h_ctl_ref_roll_angle += h_ctl_ref_roll_rate * H_CTL_REF_DT;
   h_ctl_ref_roll_rate += h_ctl_ref_roll_accel * H_CTL_REF_DT;
@@ -275,7 +275,7 @@ inline static void h_ctl_roll_loop( void ) {
   h_ctl_ref_roll_accel = 0.;
 #endif
 
-#ifdef USE_KFF_UPDATE
+#if USE_KFF_UPDATE
   // update Kff gains
   h_ctl_roll_Kffa -= KFFA_UPDATE * h_ctl_ref_roll_accel * cmd_fb / (H_CTL_REF_MAX_P_DOT*H_CTL_REF_MAX_P_DOT);
   h_ctl_roll_Kffd -= KFFD_UPDATE * h_ctl_ref_roll_rate  * cmd_fb / (H_CTL_REF_MAX_P*H_CTL_REF_MAX_P);
@@ -328,11 +328,11 @@ inline static void h_ctl_roll_loop( void ) {
 }
 
 
-#ifdef USE_PITCH_TRIM
+#if USE_PITCH_TRIM
 inline static void loiter(void) {
   float pitch_trim;
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
   if (estimator_airspeed > NOMINAL_AIRSPEED) {
     pitch_trim = v_ctl_pitch_dash_trim * (airspeed_ratio2-1) / ((AIRSPEED_RATIO_MAX * AIRSPEED_RATIO_MAX) - 1);
   } else {
@@ -364,11 +364,11 @@ inline static void h_ctl_pitch_loop( void ) {
     h_ctl_pitch_of_roll = 0.;
 
   h_ctl_pitch_loop_setpoint = h_ctl_pitch_setpoint + h_ctl_pitch_of_roll * fabs(estimator_phi);
-#ifdef USE_PITCH_TRIM
+#if USE_PITCH_TRIM
   loiter();
 #endif
 
-#ifdef USE_ANGLE_REF
+#if USE_ANGLE_REF
   // Update reference setpoints for pitch
   h_ctl_ref_pitch_angle += h_ctl_ref_pitch_rate * H_CTL_REF_DT;
   h_ctl_ref_pitch_rate += h_ctl_ref_pitch_accel * H_CTL_REF_DT;

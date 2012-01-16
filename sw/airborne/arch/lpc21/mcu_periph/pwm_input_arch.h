@@ -36,13 +36,13 @@
 
 #include "mcu_periph/pwm_input.h"
 
-#ifdef USE_PWM_INPUT1
+#if USE_PWM_INPUT1
 extern void pwm_input_isr1(void);
 #define PWM_INPUT_IT1 TIR_CR3I
 #define PWM_INPUT_ISR_1() pwm_input_isr1()
 #endif //USE_PWM_INPUT1
 
-#ifdef USE_PWM_INPUT2
+#if USE_PWM_INPUT2
 extern void pwm_input_isr2(void);
 #define PWM_INPUT_IT2 TIR_CR0I
 #define PWM_INPUT_ISR_2() pwm_input_isr2()

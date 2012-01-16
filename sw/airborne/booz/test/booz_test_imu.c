@@ -80,7 +80,7 @@ static inline void main_periodic_task( void ) {
       led_toggle();
       DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
     });
-#ifdef USE_I2C2
+#if USE_I2C2
   RunOnceEvery(111, {
       DOWNLINK_SEND_I2C_ERRORS(DefaultChannel,
                    &i2c2_errors.ack_fail_cnt,

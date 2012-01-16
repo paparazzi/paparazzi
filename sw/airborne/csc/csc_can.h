@@ -31,7 +31,7 @@ struct CscCanMsg {
 
 void csc_can_event(void);
 
-#ifdef USE_CAN1
+#if USE_CAN1
 void csc_can1_init(void(* callback)(struct CscCanMsg *msg));
 void csc_can1_send(struct CscCanMsg* msg);
 

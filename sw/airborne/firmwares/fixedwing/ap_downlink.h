@@ -99,7 +99,7 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #define PERIODIC_SEND_PPRZ_MODE(_chan) DOWNLINK_SEND_PPRZ_MODE(_chan, &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
 #define PERIODIC_SEND_DESIRED(_chan) DOWNLINK_SEND_DESIRED(_chan, &h_ctl_roll_setpoint, &h_ctl_pitch_loop_setpoint, &h_ctl_course_setpoint, &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint);
 
-#ifdef USE_INFRARED
+#if USE_INFRARED
 #define PERIODIC_SEND_STATE_FILTER_STATUS(_chan) { uint16_t contrast = abs(infrared.roll) + abs(infrared.pitch) + abs(infrared.top); uint8_t mde = 3; if (contrast < 50) mde = 7; DOWNLINK_SEND_STATE_FILTER_STATUS(_chan, &mde, &contrast); }
 #elif defined USE_IMU && defined USE_AHRS
 #define PERIODIC_SEND_STATE_FILTER_STATUS(_chan) { uint8_t mde = 3; if (ahrs.status == AHRS_UNINIT) mde = 2; if (ahrs_timeout_counter > 10) mde = 5; uint16_t val = 0; DOWNLINK_SEND_STATE_FILTER_STATUS(_chan, &mde, &val); }
@@ -225,14 +225,14 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
     i++;                                                                \
 }
 
-#ifdef USE_BARO_MS5534A
+#if USE_BARO_MS5534A
 //#include "baro_MS5534A.h"
 #define PERIODIC_SEND_BARO_MS5534A(_chan) DOWNLINK_SEND_BARO_MS5534A(_chan, &baro_MS5534A_pressure, &baro_MS5534A_temp, &baro_MS5534A_z)
 #else
 #define PERIODIC_SEND_BARO_MS5534A(_chan) {}
 #endif
 
-#ifdef USE_BARO_SCP
+#if USE_BARO_SCP
 #include "baro_scp.h"
 #define PERIODIC_SEND_SCP_STATUS(_chan) DOWNLINK_SEND_SCP_STATUS(_chan, &baro_scp_pressure, &baro_scp_temperature)
 #else

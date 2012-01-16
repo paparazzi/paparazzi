@@ -32,14 +32,14 @@
 
 //UPDATE THESE TO BE MORE ACCESSIBLE AND BE WARY OF EXISTING USAGE
 //POSSIBLY MAKE MORE INPUTS ACCESSIBLE
-#ifdef USE_PWM_INPUT1
+#if USE_PWM_INPUT1
 //INPUT CAPTURE CAP0.3 on P0.29
 #define PWM_INPUT1_PINSEL     PINSEL1
 #define PWM_INPUT1_PINSEL_BIT 26
 #define PWM_INPUT1_PINSEL_VAL (0x2 << PWM_INPUT1_PINSEL_BIT)
 #define PWM_INPUT1_PINSEL_MASK (0x3 <<PWM_INPUT1_PINSEL_BIT)
 #endif
-#ifdef USE_PWM_INPUT2
+#if USE_PWM_INPUT2
 //INPUT CAPTURE CAP0.0 on P0.30
 #define PWM_INPUT2_PINSEL     PINSEL1
 #define PWM_INPUT2_PINSEL_BIT 28
@@ -58,12 +58,12 @@ void pwm_input_init ( void )
     pwm_input_period_valid[i] = 0;
   }
   /* select pin for capture */
-#ifdef USE_PWM_INPUT1
+#if USE_PWM_INPUT1
   PWM_INPUT1_PINSEL = (PWM_INPUT1_PINSEL & ~PWM_INPUT1_PINSEL_MASK) | PWM_INPUT1_PINSEL_VAL;
   //enable capture 0.3 on rising edge + trigger interrupt
   T0CCR |= TCCR_CR3_R | TCCR_CR3_I;
 #endif
-#ifdef USE_PWM_INPUT2
+#if USE_PWM_INPUT2
   PWM_INPUT2_PINSEL = (PWM_INPUT2_PINSEL & ~PWM_INPUT2_PINSEL_MASK) | PWM_INPUT2_PINSEL_VAL;
   //enable capture 0.0 on rising edge + trigger interrupt
   T0CCR |= TCCR_CR0_R | TCCR_CR0_I;
@@ -71,7 +71,7 @@ void pwm_input_init ( void )
 }
 
 //FIXME what about clock time overflow???
-#ifdef USE_PWM_INPUT1
+#if USE_PWM_INPUT1
 void pwm_input_isr1(void)
 {
   static uint32_t t_rise;
@@ -110,7 +110,7 @@ void pwm_input_isr1(void)
 }
 #endif //USE_PWM_INPUT1
 
-#ifdef USE_PWM_INPUT2
+#if USE_PWM_INPUT2
 void pwm_input_isr2(void)
 {
   static uint32_t t_rise;

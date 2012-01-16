@@ -113,7 +113,7 @@ void can_hw_init(void)
 	can_tx_msg.StdId = 0x0;
 	can_tx_msg.ExtId = 0x0;
 	can_tx_msg.RTR = CAN_RTR_DATA;
-#ifdef USE_CAN_EXT_ID
+#if USE_CAN_EXT_ID
 	can_tx_msg.IDE = CAN_ID_EXT;
 #else
 	can_tx_msg.IDE = CAN_ID_STD;
@@ -129,7 +129,7 @@ int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 		return -1;
 	}
 
-#ifdef USE_CAN_EXT_ID
+#if USE_CAN_EXT_ID
 	can_tx_msg.ExtId = id;
 #else
 	can_tx_msg.StdId = id;
@@ -146,7 +146,7 @@ int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 void usb_lp_can1_rx0_irq_handler(void)
 {
 	CAN_Receive(CAN1, CAN_FIFO0, &can_rx_msg);
-#ifdef USE_CAN_EXT_ID
+#if USE_CAN_EXT_ID
 	_can_run_rx_callback(can_rx_msg.ExtId, can_rx_msg.Data, can_rx_msg.DLC);
 #else
 	_can_run_rx_callback(can_rx_msg.StdId, can_rx_msg.Data, can_rx_msg.DLC);

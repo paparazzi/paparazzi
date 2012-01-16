@@ -111,7 +111,7 @@ static inline void adc_push_sample(struct adc_buf * buf,
 static inline void adc_init_rcc( void );
 static inline void adc_init_irq( void );
 
-#ifdef USE_AD2
+#if USE_AD2
 #error NOT_IMPLEMENTED__currently_only_ADC1_is_supported
 #endif
 
@@ -127,7 +127,7 @@ static inline void adc_init_irq( void );
   GPIO mapping for ADC1 pins (PB.1, PB.0, PC.5, PC.3).
     Can be changed by predefining ADC1_GPIO_INIT.
 */
-#ifdef USE_AD1
+#if USE_AD1
 #ifndef ADC1_GPIO_INIT
 #define ADC1_GPIO_INIT(gpio) {			\
     (gpio).GPIO_Pin  = GPIO_Pin_1 | GPIO_Pin_0; \
@@ -144,7 +144,7 @@ static inline void adc_init_irq( void );
     Can be changed by predefining ADC2_GPIO_INIT.
     Uses the same GPIOs as ADC1 (lisa specific).
 */
-#ifdef USE_AD2
+#if USE_AD2
 #define ADC2_GPIO_INIT(gpio) {			\
     (gpio).GPIO_Pin  = GPIO_Pin_0 | GPIO_Pin_1; \
     (gpio).GPIO_Mode = GPIO_Mode_AIN;		\
@@ -170,10 +170,10 @@ static inline void adc_init_irq( void );
     channel.
 */
 
-#ifdef USE_AD1
+#if USE_AD1
 static struct adc_buf * adc1_buffers[NB_ADC1_CHANNELS];
 #endif
-#ifdef USE_AD2
+#if USE_AD2
 static struct adc_buf * adc2_buffers[NB_ADC2_CHANNELS];
 #endif
 
@@ -234,10 +234,10 @@ static inline void adc_init_rcc( void )
     RCC_APB1PeriphClockCmd(rcc_apb, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB |
                    RCC_APB2Periph_GPIOC, ENABLE);
-#ifdef USE_AD1
+#if USE_AD1
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
 #endif
-#ifdef USE_AD2
+#if USE_AD2
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC2, ENABLE);
 #endif
 
@@ -286,13 +286,13 @@ static inline void adc_init_single(ADC_TypeDef * adc_t,
 
     /* enable adc_t clock */
     if (adc_t == ADC1) {
-#ifdef USE_AD1
+#if USE_AD1
         num_channels = NB_ADC1_CHANNELS;
         ADC1_GPIO_INIT(gpio);
 #endif
     }
     else if (adc_t == ADC2) {
-#ifdef USE_AD2
+#if USE_AD2
         num_channels = NB_ADC2_CHANNELS;
         ADC2_GPIO_INIT(gpio);
 #endif
@@ -368,11 +368,11 @@ void adc_init( void ) {
        interrupt is enabled.
     */
     uint8_t channel;
-#ifdef USE_AD1
+#if USE_AD1
     for(channel = 0; channel < NB_ADC1_CHANNELS; channel++)
         adc1_buffers[channel] = NULL;
 #endif
-#ifdef USE_AD2
+#if USE_AD2
     for(channel = 0; channel < NB_ADC2_CHANNELS; channel++)
         adc2_buffers[channel] = NULL;
 #endif
@@ -394,24 +394,24 @@ void adc_init( void ) {
 
 // adc_init_single(ADCx, c1, c2, c3, c4)
 // {{{
-#ifdef USE_AD1
+#if USE_AD1
     adc_init_single(ADC1,
-#ifdef USE_AD1_1
+#if USE_AD1_1
             1,
 #else
             0,
 #endif
-#ifdef USE_AD1_2
+#if USE_AD1_2
             1,
 #else
             0,
 #endif
-#ifdef USE_AD1_3
+#if USE_AD1_3
             1,
 #else
             0,
 #endif
-#ifdef USE_AD1_4
+#if USE_AD1_4
             1
 #else
             0
@@ -419,24 +419,24 @@ void adc_init( void ) {
     );
 #endif // USE_AD1
 
-#ifdef USE_AD2
+#if USE_AD2
     adc_init_single(ADC2,
-#ifdef USE_AD2_1
+#if USE_AD2_1
             1,
 #else
             0,
 #endif
-#ifdef USE_AD2_2
+#if USE_AD2_2
             1,
 #else
             0,
 #endif
-#ifdef USE_AD2_3
+#if USE_AD2_3
             1,
 #else
             0,
 #endif
-#ifdef USE_AD2_4
+#if USE_AD2_4
             1
 #else
             0
@@ -466,7 +466,7 @@ void adc1_2_irq_handler(void)
     uint16_t value  = 0;
     struct adc_buf * buf;
 
-#ifdef USE_AD1
+#if USE_AD1
     // Clear Injected End Of Conversion
     ADC_ClearITPendingBit(ADC1, ADC_IT_JEOC);
     for(channel = 0; channel < NB_ADC1_CHANNELS; channel++) {
@@ -478,7 +478,7 @@ void adc1_2_irq_handler(void)
     }
     adc_new_data_trigger = 1;
 #endif
-#ifdef USE_AD2
+#if USE_AD2
     // Clear Injected End Of Conversion
     ADC_ClearITPendingBit(ADC2, ADC_IT_JEOC);
     for(channel = 0; channel < NB_ADC2_CHANNELS; channel++) {

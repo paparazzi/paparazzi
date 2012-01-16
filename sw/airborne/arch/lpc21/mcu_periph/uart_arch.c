@@ -151,7 +151,7 @@ static inline void uart_ISR(struct uart_periph* p)
   }
 }
 
-#ifdef USE_UART0
+#if USE_UART0
 
 #ifndef UART0_VIC_SLOT
 #define UART0_VIC_SLOT 5
@@ -174,7 +174,7 @@ void uart0_init( void ) {
   uart_periph_init(&uart0);
   uart0.reg_addr = UART0_BASE;
 
-#ifdef USE_UART0_RX_ONLY
+#if USE_UART0_RX_ONLY
   // only use the RX0 P0.1 pin, no TX
   PINSEL0 = (PINSEL0 & ~U0_PINMASK_RX) | U0_PINSEL_RX;
 #else
@@ -197,7 +197,7 @@ void uart0_init( void ) {
 
 #endif /* USE_UART0 */
 
-#ifdef USE_UART1
+#if USE_UART1
 
 #ifndef UART1_VIC_SLOT
 #define UART1_VIC_SLOT 6
@@ -220,7 +220,7 @@ void uart1_init( void ) {
   uart_periph_init(&uart1);
   uart1.reg_addr = UART1_BASE;
 
-#ifdef USE_UART1_RX_ONLY
+#if USE_UART1_RX_ONLY
   // only use the RX1 P0.9 pin, no TX
   PINSEL0 = (PINSEL0 & ~U1_PINMASK_RX) | U1_PINSEL_RX;
 #else

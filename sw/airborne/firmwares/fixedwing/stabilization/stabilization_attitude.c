@@ -66,7 +66,7 @@ float  h_ctl_pitch_pgain;
 float  h_ctl_pitch_dgain;
 pprz_t h_ctl_elevator_setpoint;
 
-#ifdef USE_AOA
+#if USE_AOA
   uint8_t h_ctl_pitch_mode;
 #endif
 
@@ -123,7 +123,7 @@ void h_ctl_init( void ) {
   h_ctl_course_dgain = H_CTL_COURSE_DGAIN;
   h_ctl_roll_max_setpoint = H_CTL_ROLL_MAX_SETPOINT;
 
-#ifdef USE_AOA
+#if USE_AOA
   h_ctl_pitch_mode = 0;
 #endif
 
@@ -427,7 +427,7 @@ inline static void h_ctl_pitch_loop( void ) {
 
 	float err = 0;
 
-#ifdef USE_AOA
+#if USE_AOA
 	switch (h_ctl_pitch_mode){
 		case H_CTL_PITCH_MODE_THETA:
 			err = estimator_theta - h_ctl_pitch_loop_setpoint;

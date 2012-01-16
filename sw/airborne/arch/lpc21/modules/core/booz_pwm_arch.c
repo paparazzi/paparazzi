@@ -45,7 +45,7 @@ void booz_pwm_init_arch( void ) {
   /* enable PWM5 */
   PWMPCR = PWMPCR_ENA5;
 
-#ifdef USE_PWM1
+#if USE_PWM1
   /* start PWM2 */
   PWM1_PINSEL |=  PWM1_PINSEL_VAL << PWM1_PINSEL_BIT;
   /* select pwm value to 50% at init (1500 us) */
