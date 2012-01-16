@@ -110,7 +110,7 @@ static inline void usart_enable_irq(IRQn_Type IRQn) {
   NVIC_Init(&nvic);
 }
 
-#if USE_UART1
+#ifdef USE_UART1
 
 void uart1_init( void ) {
 
@@ -144,7 +144,7 @@ void usart1_irq_handler(void) { usart_irq_handler(&uart1); }
 
 #endif /* USE_UART1 */
 
-#if USE_UART2
+#ifdef USE_UART2
 
 void uart2_init( void ) {
 
@@ -178,7 +178,7 @@ void usart2_irq_handler(void) { usart_irq_handler(&uart2); }
 
 #endif /* USE_UART2 */
 
-#if USE_UART3
+#ifdef USE_UART3
 
 void uart3_init( void ) {
 
@@ -214,7 +214,7 @@ void usart3_irq_handler(void) { usart_irq_handler(&uart3); }
 
 #endif /* USE_UART3 */
 
-#if USE_UART5
+#ifdef USE_UART5
 
 void uart5_init( void ) {
 

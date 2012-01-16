@@ -59,7 +59,7 @@
     _PrintHex16(out_fun, low32);				\
 }
 
-#if USE_UART0
+#ifdef USE_UART0
 
 #define Uart0PrintHex(c) _PrintHex(Uart0Transmit, c)
 #define Uart0PrintHex16(c) _PrintHex16(Uart0Transmit, c)
@@ -73,7 +73,7 @@
 
 #endif /* USE_UART0 */
 
-#if USE_UART1
+#ifdef USE_UART1
 
 #define Uart1PrintHex(c) _PrintHex(Uart1Transmit, c)
 #define Uart1PrintHex16(c) _PrintHex16(Uart1Transmit, c)
@@ -87,7 +87,7 @@
 
 #endif /* USE_UART1 */
 
-#if USE_UART2
+#ifdef USE_UART2
 
 #define Uart2PrintHex(c) _PrintHex(Uart2Transmit, c)
 #define Uart2PrintHex16(c) _PrintHex16(Uart2Transmit, c)
@@ -101,7 +101,7 @@
 
 #endif /* USE_UART2 */
 
-#if USE_UART3
+#ifdef USE_UART3
 
 #define Uart3PrintHex(c) _PrintHex(Uart3Transmit, c)
 #define Uart3PrintHex16(c) _PrintHex16(Uart3Transmit, c)
@@ -115,7 +115,7 @@
 
 #endif /* USE_UART3 */
 
-#if USE_UART5
+#ifdef USE_UART5
 
 #define Uart5PrintHex(c) _PrintHex(Uart5Transmit, c)
 #define Uart5PrintHex16(c) _PrintHex16(Uart5Transmit, c)

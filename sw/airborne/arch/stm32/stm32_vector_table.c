@@ -27,7 +27,7 @@
 
 #include "stm32_exceptions.h"
 
-#if USE_SYS_TIME
+#ifdef USE_SYS_TIME
 #include "sys_time.h"
 #define SYS_TICK_IRQ_HANDLER sys_tick_irq_handler
 #else
@@ -63,7 +63,7 @@
 #endif
 
 
-#if USE_I2C1
+#ifdef USE_I2C1
 #include "mcu_periph/i2c_arch.h"
 #define I2C1_EV_IRQ_HANDLER i2c1_ev_irq_handler
 #define I2C1_ER_IRQ_HANDLER i2c1_er_irq_handler
@@ -72,7 +72,7 @@
 #define I2C1_ER_IRQ_HANDLER null_handler
 #endif
 
-#if USE_I2C2
+#ifdef USE_I2C2
 #include "mcu_periph/i2c_arch.h"
 #define I2C2_EV_IRQ_HANDLER i2c2_ev_irq_handler
 #define I2C2_ER_IRQ_HANDLER i2c2_er_irq_handler
@@ -81,14 +81,14 @@
 #define I2C2_ER_IRQ_HANDLER null_handler
 #endif
 
-#if USE_SPI1_IRQ
+#ifdef USE_SPI1_IRQ
 extern void spi1_irq_handler(void);
 #define SPI1_IRQ_HANDLER spi1_irq_handler
 #else
 #define SPI1_IRQ_HANDLER null_handler
 #endif
 
-#if USE_SPI2_IRQ
+#ifdef USE_SPI2_IRQ
 extern void spi2_irq_handler(void);
 #define SPI2_IRQ_HANDLER spi2_irq_handler
 #else
@@ -138,21 +138,21 @@ extern void exti15_10_irq_handler(void);
 #endif
 
 
-#if USE_DMA1_C2_IRQ
+#ifdef USE_DMA1_C2_IRQ
 extern void dma1_c2_irq_handler(void);
 #define DMA1_C2_IRQ_HANDLER dma1_c2_irq_handler
 #else
 #define DMA1_C2_IRQ_HANDLER null_handler
 #endif
 
-#if USE_DMA1_C4_IRQ
+#ifdef USE_DMA1_C4_IRQ
 extern void dma1_c4_irq_handler(void);
 #define DMA1_C4_IRQ_HANDLER dma1_c4_irq_handler
 #else
 #define DMA1_C4_IRQ_HANDLER null_handler
 #endif
 
-#if USE_ADC1_2_IRQ_HANDLER
+#ifdef USE_ADC1_2_IRQ_HANDLER
 extern void adc1_2_irq_handler(void);
 #define ADC1_2_IRQ_HANDLER adc1_2_irq_handler
 #else
@@ -173,14 +173,14 @@ extern void tim6_irq_handler(void);
 #define TIM6_IRQ_HANDLER null_handler
 #endif
 
-#if USE_USB_HP_CAN1_TX_IRQ
+#ifdef USE_USB_HP_CAN1_TX_IRQ
 extern void usb_hp_can1_tx_irq_handler(void);
 #define USB_HP_CAN1_TX_IRQ_HANDLER usb_hp_can1_tx_irq_handler
 #else
 #define USB_HP_CAN1_TX_IRQ_HANDLER null_handler
 #endif
 
-#if USE_USB_LP_CAN1_RX0_IRQ
+#ifdef USE_USB_LP_CAN1_RX0_IRQ
 extern void usb_lp_can1_rx0_irq_handler(void);
 #define USB_LP_CAN1_RX0_IRQ_HANDLER usb_lp_can1_rx0_irq_handler
 #else

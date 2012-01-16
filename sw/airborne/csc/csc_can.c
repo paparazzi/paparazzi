@@ -7,7 +7,7 @@
 #include "led.h"
 
 
-#if USE_CAN1
+#ifdef USE_CAN1
 
 #define QUEUE_LEN 8
 
@@ -198,7 +198,7 @@ void CAN1_Tx_ISR ( void ) {
 
 void csc_can_event(void)
 {
-#if USE_CAN1
+#ifdef USE_CAN1
 
   // drain the RX Queue
   while(!msg_queue_empty(&can1_rx_queue)) {

@@ -32,10 +32,10 @@ void imu_impl_init(void) {
 
   imu_crista_arch_init();
 
-#if USE_AMI601
+#ifdef USE_AMI601
   ami601_init();
 #endif
-#if USE_HMC5843
+#ifdef USE_HMC5843
   hmc5843_init();
 #endif
 
@@ -44,10 +44,10 @@ void imu_impl_init(void) {
 void imu_periodic(void) {
 
   ImuCristaArchPeriodic();
-#if USE_AMI601
+#ifdef USE_AMI601
   RunOnceEvery(10, { ami601_read(); });
 #endif
-#if USE_HMC5843
+#ifdef USE_HMC5843
   hmc5843_periodic();
 #endif
 }

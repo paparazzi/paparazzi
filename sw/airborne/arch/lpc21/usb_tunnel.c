@@ -49,7 +49,7 @@ int main( void ) {
   led_init();
   VCOM_allow_linecoding(1);
 
-#if USE_USB_SERIAL
+#ifdef USE_USB_SERIAL
   VCOM_init();
 #endif
 
@@ -57,7 +57,7 @@ int main( void ) {
 
   LED_ON(3);
 
-#if USE_UART0
+#ifdef USE_UART0
   while(1) {
     if (T0TC > (rx_time+((PCLK / T0_PCLK_DIV) / BLINK_MIN))) LED_OFF(1);
     if (T0TC > (tx_time+((PCLK / T0_PCLK_DIV) / BLINK_MIN))) LED_OFF(2);

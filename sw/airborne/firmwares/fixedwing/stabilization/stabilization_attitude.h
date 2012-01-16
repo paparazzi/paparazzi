@@ -61,7 +61,7 @@ extern float  h_ctl_roll_pgain;
 extern pprz_t h_ctl_aileron_setpoint;
 extern float  h_ctl_roll_slew;
 
-#if USE_AOA
+#ifdef USE_AOA
 /* Pitch mode */
 #define H_CTL_PITCH_MODE_THETA	0
 #define H_CTL_PITCH_MODE_AOA	1

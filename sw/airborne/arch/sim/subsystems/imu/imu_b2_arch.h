@@ -31,7 +31,7 @@
 
 extern int imu_overrun;
 
-#if USE_NPS
+#ifdef USE_NPS
 extern void imu_feed_gyro_accel(void);
 extern void imu_feed_mag(void);
 #endif

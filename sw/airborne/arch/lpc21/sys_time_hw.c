@@ -34,7 +34,7 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
 #define MB_TACHO_IT 0x00
 #endif
 
-#if USE_PWM_INPUT
+#ifdef USE_PWM_INPUT
 #include "mcu_periph/pwm_input.h"
 #endif
 #ifndef USE_PWM_INPUT1
@@ -44,7 +44,7 @@ uint32_t sys_time_chrono;       /* T0TC ticks */
 #define PWM_INPUT_IT2 0x00
 #endif
 
-#if USE_AMI601
+#ifdef USE_AMI601
 #include "peripherals/ami601.h"
 #else
 #define AMI601_IT 0x00
@@ -112,19 +112,19 @@ LED_TOGGLE(3);
       T0IR = MB_TACHO_IT;
     }
 #endif
-#if USE_PWM_INPUT1
+#ifdef USE_PWM_INPUT1
     if (T0IR&PWM_INPUT_IT1) {
       PWM_INPUT_ISR_1();
       T0IR = PWM_INPUT_IT1;
     }
 #endif
-#if USE_PWM_INPUT2
+#ifdef USE_PWM_INPUT2
     if (T0IR&PWM_INPUT_IT2) {
       PWM_INPUT_ISR_2();
       T0IR = PWM_INPUT_IT2;
     }
 #endif
-#if USE_AMI601
+#ifdef USE_AMI601
     if (T0IR&AMI601_IT) {
       AMI601_ISR();
       T0IR = AMI601_IT;

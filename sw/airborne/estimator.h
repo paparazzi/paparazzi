@@ -36,7 +36,7 @@
 #include "baro_MS5534A.h"
 #endif
 
-#if USE_BARO_ETS
+#ifdef USE_BARO_ETS
 #include "modules/sensors/baro_ets.h"
 #endif
 

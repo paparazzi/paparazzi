@@ -29,7 +29,7 @@
 #ifndef PWM_INPUT_H
 #define PWM_INPUT_H
 
-#if USE_PWM_INPUT
+#ifdef USE_PWM_INPUT
 
 #include "std.h"
 #include "mcu_periph/pwm_input_arch.h"

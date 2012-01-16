@@ -61,7 +61,7 @@
 
 /* IR3 */
 #define ADC_0 AdcBank0(3)
-#if USE_ADC_0
+#ifdef USE_ADC_0
 #ifndef USE_AD0
 #define USE_AD0
 #endif
@@ -70,7 +70,7 @@
 
 /* IR2 */
 #define ADC_1 AdcBank0(2)
-#if USE_ADC_1
+#ifdef USE_ADC_1
 #ifndef USE_AD0
 #define USE_AD0
 #endif
@@ -79,7 +79,7 @@
 
 /* IR1 */
 #define ADC_2 AdcBank0(1)
-#if USE_ADC_2
+#ifdef USE_ADC_2
 #ifndef USE_AD0
 #define USE_AD0
 #endif
@@ -89,7 +89,7 @@
 
 /* ADC2 on ANALOG connector */
 #define ADC_3 AdcBank1(2)
-#if USE_ADC_3
+#ifdef USE_ADC_3
 #ifndef USE_AD1
 #define USE_AD1
 #endif
@@ -98,7 +98,7 @@
 
 /* ADC3 on ANALOG connector */
 #define ADC_4 AdcBank1(3)
-#if USE_ADC_4
+#ifdef USE_ADC_4
 #ifndef USE_AD1
 #define USE_AD1
 #endif
@@ -107,7 +107,7 @@
 
 /* ADC4 on ANALOG connector */
 #define ADC_5 AdcBank1(4)
-#if USE_ADC_5
+#ifdef USE_ADC_5
 #ifndef USE_AD1
 #define USE_AD1
 #endif

@@ -22,7 +22,7 @@ static inline void i2c_reset_init(struct i2c_periph *p);
 #define OUT_OF_SYNC_STATE_MACHINE(_periph, _status, _event) { abort_and_reset(_periph);}
 #endif
 
-#if USE_I2C1
+#ifdef USE_I2C1
 static I2C_InitTypeDef  I2C1_InitStruct = {
       .I2C_Mode = I2C_Mode_I2C,
       .I2C_DutyCycle = I2C_DutyCycle_2,
@@ -33,7 +33,7 @@ static I2C_InitTypeDef  I2C1_InitStruct = {
 };
 #endif
 
-#if USE_I2C2
+#ifdef USE_I2C2
 static I2C_InitTypeDef  I2C2_InitStruct = {
       .I2C_Mode = I2C_Mode_I2C,
       .I2C_DutyCycle = I2C_DutyCycle_2,
@@ -76,7 +76,7 @@ static inline void abort_and_reset(struct i2c_periph *p) {
     end_of_transaction(p);
 }
 
-#if USE_I2C2
+#ifdef USE_I2C2
 static inline void on_status_start_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 static inline void on_status_addr_wr_sent(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 static inline void on_status_sending_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
@@ -425,7 +425,7 @@ static inline void i2c_reset_init(struct i2c_periph *p)
 }
 #endif /* USE_I2C2 */
 
-#if USE_I2C1
+#ifdef USE_I2C1
 
 struct i2c_errors i2c1_errors;
 
@@ -503,7 +503,7 @@ void i2c1_er_irq_handler(void) {
 
 
 
-#if USE_I2C2
+#ifdef USE_I2C2
 
 //  dec      hex
 //  196609   30001        BUSY  MSL |                 SB

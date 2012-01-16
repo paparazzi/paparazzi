@@ -153,7 +153,7 @@ static void csc_main_init( void ) {
   csc_adc_init();
   ppm_init();
 
-#if USE_PWM_INPUT
+#ifdef USE_PWM_INPUT
   pwm_input_init();
 #endif
 

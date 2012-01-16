@@ -166,7 +166,7 @@ void airspeed_ets_read_event( void ) {
     for (n = 0; n < AIRSPEED_ETS_NBSAMPLES_AVRG; ++n)
       airspeed_ets += airspeed_ets_buffer[n];
     airspeed_ets = airspeed_ets / (float)AIRSPEED_ETS_NBSAMPLES_AVRG;
-#if USE_AIRSPEED
+#ifdef USE_AIRSPEED
     EstimatorSetAirspeed(airspeed_ets);
 #endif
 #ifdef SENSOR_SYNC_SEND

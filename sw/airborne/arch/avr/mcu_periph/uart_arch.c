@@ -107,7 +107,7 @@ SIGNAL(SIG_UART_TRANS) {
 
 #define TX_BUF_SIZE      256
 
-#if USE_UART0
+#ifdef USE_UART0
 static uint8_t           tx_head0; /* next free in buf */
 static volatile uint8_t  tx_tail0; /* next char to send */
 uint8_t           tx_buf0[ TX_BUF_SIZE ];
@@ -179,7 +179,7 @@ SIGNAL( SIG_UART0_RECV ) {
 
 #endif /** USE_UART0 */
 
-#if USE_UART1
+#ifdef USE_UART1
 
 static uint8_t           tx_head1; /* next free in buf */
 static volatile uint8_t  tx_tail1; /* next char to send */

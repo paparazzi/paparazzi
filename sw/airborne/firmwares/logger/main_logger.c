@@ -88,7 +88,7 @@
 #include "efs.h"
 #include "ls.h"
 
-#if USE_MAX11040
+#ifdef USE_MAX11040
 #include "max11040.h"
 #endif
 
@@ -394,7 +394,7 @@ int do_log(void)
     while ((IO0PIN & _BV(LOG_STOP_KEY))>>LOG_STOP_KEY)
     {
 
-#if USE_MAX11040
+#ifdef USE_MAX11040
       if ((max11040_data == MAX11040_DATA_AVAILABLE) &&
           (max11040_buf_in != max11040_buf_out)) {
 //        LED_TOGGLE(3);
@@ -421,7 +421,7 @@ int do_log(void)
       }
 #endif
 
-#if USE_UART0
+#ifdef USE_UART0
         temp = 0;
         while (Uart0ChAvailable() && (temp++ < 128))
         {
@@ -438,7 +438,7 @@ int do_log(void)
 #endif
         }
 #endif
-#if USE_UART1
+#ifdef USE_UART1
         temp = 0;
         while (Uart1ChAvailable() && (temp++ < 128))
         {
@@ -515,7 +515,7 @@ static inline void main_init( void ) {
   sys_time_init();
   led_init();
 
-#if USE_MAX11040
+#ifdef USE_MAX11040
   max11040_init_ssp();
   max11040_init();
 #endif

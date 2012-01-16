@@ -50,7 +50,7 @@
 extern void uart0_handler(void);
 #endif
 
-#if USE_UART0
+#ifdef USE_UART0
 
 void uart0_init( void );
 
@@ -61,7 +61,7 @@ void uart0_init( void );
 extern void uart1_handler(void);
 #endif
 
-#if USE_UART1
+#ifdef USE_UART1
 
 void uart1_init( void );
 

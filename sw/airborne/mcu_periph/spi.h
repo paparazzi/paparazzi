@@ -29,7 +29,7 @@
 #ifndef SPI_H
 #define SPI_H
 
-#if USE_SPI
+#ifdef USE_SPI
 
 #include "std.h"
 #include "mcu_periph/spi_arch.h"

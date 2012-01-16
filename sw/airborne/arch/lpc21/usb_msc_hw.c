@@ -69,7 +69,7 @@
 #include "blockdev.h"
 #include "usb_msc_hw.h"
 
-#if USE_USB_SERIAL
+#ifdef USE_USB_SERIAL
 #if PCLK < 18000000
 #error PCLK needs to be higher than 18MHz for USB to work properly
 #endif
@@ -155,7 +155,7 @@ static const U8 abDescriptors[] = {
 	0
 };
 
-#if USE_USB_MSC
+#ifdef USE_USB_MSC
 
 /*************************************************************************
 	HandleClassRequest

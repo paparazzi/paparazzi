@@ -87,11 +87,11 @@ static void csc_main_init( void ) {
 	actuators_init();
 
 
-#if USE_UART0
+#ifdef USE_UART0
 	Uart0Init();
 #endif
 
-#if USE_UART1
+#ifdef USE_UART1
 	Uart1Init();
 #endif
 
@@ -99,7 +99,7 @@ static void csc_main_init( void ) {
 	spektrum_init();
 #endif
 
-#if USE_PWM_INPUT
+#ifdef USE_PWM_INPUT
 	pwm_input_init();
 #endif
 
@@ -123,7 +123,7 @@ static void csc_main_init( void ) {
 #endif
 
 
-#if USE_I2C0
+#ifdef USE_I2C0
 	i2c0_init();
 #endif
 
@@ -131,13 +131,13 @@ static void csc_main_init( void ) {
 	motors_init();
 #endif
 
-#if USE_AIRSPEED
+#ifdef USE_AIRSPEED
 	airspeed_init();
 #endif
 #ifdef USE_AMS5812
 		csc_ams5812_init();
 #endif
-#if USE_BARO_SCP
+#ifdef USE_BARO_SCP
 	baro_scp_init();
 #endif
 
@@ -176,10 +176,10 @@ static void csc_main_periodic( void )
 
 	if ((csc_loops % AIRSPEED_TIMEOUT) == 0) {
 	} else if ((csc_loops % AIRSPEED_TIMEOUT) == 1) {
-#if USE_BARO_ETS
+#ifdef USE_BARO_ETS
 		baro_ets_periodic();
 #endif
-#if USE_AIRSPEED
+#ifdef USE_AIRSPEED
 		csc_airspeed_periodic();
 #endif
 #ifdef USE_AMS5812
@@ -188,11 +188,11 @@ static void csc_main_periodic( void )
 #endif
 	}
 
-#if USE_AIRSPEED
+#ifdef USE_AIRSPEED
 	airspeed_update();
 #endif
 
-#if USE_BARO_SCP
+#ifdef USE_BARO_SCP
 	baro_scp_periodic();
 	csc_ap_link_send_baro(baro_scp_pressure, baro_scp_temperature, baro_scp_status);
 #endif

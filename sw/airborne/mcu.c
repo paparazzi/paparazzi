@@ -25,7 +25,7 @@
 #include "mcu.h"
 
 #ifdef PERIPHERALS_AUTO_INIT
-#if USE_LED
+#ifdef USE_LED
 #include "led.h"
 #endif
 #if defined RADIO_CONTROL
@@ -42,13 +42,13 @@
 #if defined USE_ADC
 #include "mcu_periph/adc.h"
 #endif
-#if USE_USB_SERIAL
+#ifdef USE_USB_SERIAL
 #include "mcu_periph/usb_serial.h"
 #endif
-#if USE_SPI
+#ifdef USE_SPI
 #include "mcu_periph/spi.h"
 #endif
-#if USE_DAC
+#ifdef USE_DAC
 #include "mcu_periph/dac.h"
 #endif
 #endif /* PERIPHERALS_AUTO_INIT */
@@ -58,50 +58,50 @@ void mcu_init(void) {
   mcu_arch_init();
 
 #ifdef PERIPHERALS_AUTO_INIT
-#if USE_LED
+#ifdef USE_LED
   led_init();
 #endif
   /* for now this means using spektrum */
 #if defined RADIO_CONTROL & defined RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT & defined RADIO_CONTROL_BIND_IMPL_FUNC
   RADIO_CONTROL_BIND_IMPL_FUNC();
 #endif
-#if USE_UART0
+#ifdef USE_UART0
   uart0_init();
 #endif
-#if USE_UART1
+#ifdef USE_UART1
   uart1_init();
 #endif
-#if USE_UART2
+#ifdef USE_UART2
   uart2_init();
 #endif
-#if USE_UART3
+#ifdef USE_UART3
   uart3_init();
 #endif
-#if USE_UART4
+#ifdef USE_UART4
   uart4_init();
 #endif
-#if USE_UART5
+#ifdef USE_UART5
   uart5_init();
 #endif
-#if USE_I2C0
+#ifdef USE_I2C0
   i2c0_init();
 #endif
-#if USE_I2C1
+#ifdef USE_I2C1
   i2c1_init();
 #endif
-#if USE_I2C2
+#ifdef USE_I2C2
   i2c2_init();
 #endif
-#if USE_ADC
+#ifdef USE_ADC
   adc_init();
 #endif
-#if USE_USB_SERIAL
+#ifdef USE_USB_SERIAL
   VCOM_init();
 #endif
-#if USE_SPI
+#ifdef USE_SPI
   spi_init();
 #endif
-#if USE_DAC
+#ifdef USE_DAC
   dac_init();
 #endif
 #endif /* PERIPHERALS_AUTO_INIT */

@@ -25,7 +25,7 @@
 #include "core/sys_mon.h"
 #include "sys_time.h"
 
-#if USE_USB_SERIAL
+#ifdef USE_USB_SERIAL
 #include "mcu_periph/usb_serial.h"
 #endif
 

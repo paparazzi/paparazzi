@@ -75,7 +75,7 @@ static inline void main_periodic_task( void ) {
 
 static inline void main_event_task( void ) {
 
-#if USE_DMA
+#ifdef USE_DMA
   if (DMA_GetFlagStatus(DMA1_FLAG_TC2)) {
     LED_TOGGLE(3);
     RunOnceEvery(10, {DOWNLINK_SEND_DEBUG_MCU_LINK(DefaultChannel, &SPI_SLAVE_Buffer_Rx[0],
@@ -91,7 +91,7 @@ static inline void main_event_task( void ) {
 
 static inline void main_spi_slave_init( void ) {
 
-#if USE_DMA
+#ifdef USE_DMA
   /* Enable SPI_1 DMA clock ---------------------------------------------------*/
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 #endif
@@ -124,7 +124,7 @@ static inline void main_spi_slave_init( void ) {
   /* Enable SPI_SLAVE */
   SPI_Cmd(SPI1, ENABLE);
 
-#if USE_DMA
+#ifdef USE_DMA
   /* SPI_SLAVE_Rx_DMA_Channel configuration ------------------------------------*/
   main_setup_dma();
   main_enable_dma();

@@ -34,7 +34,7 @@ void spi_ap_link_set_adc_callback(void (* adc_callback_fun)(uint16_t * adc_chann
 void spi_ap_link_periodic(void);
 void spi_ap_link_downlink_send(struct DownlinkTransport *tp);
 
-#if USE_SPI_LINK
+#ifdef USE_SPI_LINK
 #define PERIODIC_SEND_EKF7_Y(_chan) spi_ap_link_downlink_send(_chan);
 #endif
 

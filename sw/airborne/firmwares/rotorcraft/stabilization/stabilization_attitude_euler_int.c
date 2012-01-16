@@ -145,7 +145,7 @@ void stabilization_attitude_run(bool_t  in_flight) {
     OFFSET_AND_ROUND2((stabilization_gains.i.z  * stabilization_att_sum_err.psi), 10);
 
 
-#if USE_HELI
+#ifdef USE_HELI
 #define CMD_SHIFT 12
 #else
 #define CMD_SHIFT 16

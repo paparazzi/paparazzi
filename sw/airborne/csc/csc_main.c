@@ -70,10 +70,10 @@ static void csc_main_init( void ) {
   sys_time_init();
   led_init();
 
-#if USE_UART0
+#ifdef USE_UART0
   Uart0Init();
 #endif
-#if USE_UART1
+#ifdef USE_UART1
   Uart1Init();
 #endif
 
@@ -82,7 +82,7 @@ static void csc_main_init( void ) {
 #endif
 
 
-#if USE_GPS
+#ifdef USE_GPS
   booz2_gps_init();
 #endif
 
@@ -92,7 +92,7 @@ static void csc_main_init( void ) {
 
   csc_adc_init();
 
-  #if USE_I2C0
+  #ifdef USE_I2C0
   i2c_init();
   #endif
   // be sure to call servos_init after uart1 init since they are sharing pins
@@ -177,7 +177,7 @@ static void csc_main_event( void ) {
 #ifdef SPEKTRUM_LINK
   spektrum_event_task();
 #endif
-#if USE_GPS
+#ifdef USE_GPS
   Booz2GpsEvent(on_gps_event);
 #endif
 }

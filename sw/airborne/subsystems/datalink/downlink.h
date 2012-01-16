@@ -53,7 +53,7 @@
 #if USE_AUDIO_TELEMETRY
 #include "subsystems/datalink/audio_telemetry.h"
 #endif
-#if USE_USB_SERIAL
+#ifdef USE_USB_SERIAL
 #include "mcu_periph/usb_serial.h"
 #endif
 #endif /** !SITL */

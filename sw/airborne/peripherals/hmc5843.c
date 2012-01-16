@@ -106,7 +106,7 @@ void hmc5843_periodic(void)
     send_config();
     hmc5843.initialized = TRUE;
   } else if (hmc5843.timeout++ > HMC5843_TIMEOUT && HMC5843_I2C_DEVICE.status == I2CIdle && i2c_idle(&HMC5843_I2C_DEVICE)){
-#if USE_HMC59843_ARCH_RESET
+#ifdef USE_HMC59843_ARCH_RESET
     hmc5843_arch_reset();
 #endif
     hmc5843.i2c_trans.type = I2CTransTx;

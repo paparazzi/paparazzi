@@ -32,7 +32,7 @@
 
 #include "std.h"
 
-#if USE_BARO_MS5534A
+#ifdef USE_BARO_MS5534A
 
 extern bool_t spi_message_received;
 extern bool_t baro_MS5534A_available;

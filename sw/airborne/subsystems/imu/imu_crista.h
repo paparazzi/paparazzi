@@ -47,7 +47,7 @@ extern volatile bool_t ADS8344_available;
     ImuMagEvent(_mag_handler);					\
   }
 
-#if USE_AMI601
+#ifdef USE_AMI601
 #include "peripherals/ami601.h"
 #define foo_handler() {}
 #define ImuMagEvent(_mag_handler) {					\

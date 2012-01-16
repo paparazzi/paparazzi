@@ -88,7 +88,7 @@ inline static void v_ctl_climb_auto_throttle_loop( void );
 inline static void v_ctl_climb_auto_pitch_loop( void );
 #endif
 
-#if USE_AIRSPEED
+#ifdef USE_AIRSPEED
 float v_ctl_auto_airspeed_setpoint;
 float v_ctl_auto_airspeed_controlled;
 float v_ctl_auto_airspeed_pgain;
@@ -139,7 +139,7 @@ void v_ctl_init( void ) {
   v_ctl_auto_pitch_sum_err = 0.;
 #endif
 
-#if USE_AIRSPEED
+#ifdef USE_AIRSPEED
   v_ctl_auto_airspeed_setpoint = V_CTL_AUTO_AIRSPEED_SETPOINT;
   v_ctl_auto_airspeed_controlled = V_CTL_AUTO_AIRSPEED_SETPOINT;
   v_ctl_auto_airspeed_pgain = V_CTL_AUTO_AIRSPEED_PGAIN;
