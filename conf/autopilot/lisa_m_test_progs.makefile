@@ -729,7 +729,7 @@ test_imu_aspirin.CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
 #test_manual.srcs   += $(SRC_SUBSYSTEMS)/radio_control.c                                 \
 #                  subsystems/radio_control/spektrum.c          \
 #                  $(SRC_ARCH)/subsystems/radio_control/spektrum_arch.c
-#
+
 
 
 #
