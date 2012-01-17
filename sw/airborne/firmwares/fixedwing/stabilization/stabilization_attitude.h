@@ -44,6 +44,11 @@ extern float h_ctl_course_pgain;
 extern float h_ctl_course_dgain;
 extern float h_ctl_roll_max_setpoint;
 
+#ifdef LOITER_TRIM
+extern float v_ctl_auto_throttle_loiter_trim;
+extern float v_ctl_auto_throttle_dash_trim;
+#endif
+
 /* roll and pitch disabling */
 extern bool_t h_ctl_disabled;
 

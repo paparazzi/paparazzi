@@ -15,8 +15,14 @@
 #define LED_2_BANK
 #define LED_2_GPIO GPIOC
 #define LED_2_GPIO_CLK RCC_APB2Periph_GPIOC
-#define LED_2_GPIO_PIN GPIO_Pin_13
+#define LED_2_GPIO_PIN GPIO_Pin_5
 #define LED_2_AFIO_REMAP ((void)0)
+
+#define LED_3_BANK
+#define LED_3_GPIO GPIOC
+#define LED_3_GPIO_CLK RCC_APB2Periph_GPIOC
+#define LED_3_GPIO_PIN GPIO_Pin_2
+#define LED_3_AFIO_REMAP ((void)0)
 
 
 /* configuration for aspirin - and more generaly IMUs */
@@ -50,9 +56,10 @@
 
 #define USE_OPENCM3
 
-#define HSE_TYPE_EXT_CLK
-#define STM32_RCC_MODE RCC_HSE_ON
-#define STM32_PLL_MULT RCC_PLLMul_6
+// not needed with USE_OPENCM3:
+//#define HSE_TYPE_EXT_CLK
+//#define STM32_RCC_MODE RCC_HSE_ON
+//#define STM32_PLL_MULT RCC_PLLMul_6
 
 #define PWM_5AND6_TIMER TIM5
 #define PWM_5AND6_RCC RCC_APB1Periph_TIM5

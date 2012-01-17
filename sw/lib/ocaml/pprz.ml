@@ -158,22 +158,29 @@ let payload_size_of_message = fun message ->
     message.fields
     2 (** + message id + aircraft id *)
 
+exception Unit_conversion_error of string
+exception Unknown_conversion of string * string
 
 let scale_of_units = fun from_unit to_unit ->
-  try
-    let units_xml = Xml.parse_file units_file in
-    (* find the first occurence of matching units or raise Not_found *)
-    let _unit = List.find (fun u ->
-      try
-        if from_unit = (Xml.attrib u "from") && to_unit = (Xml.attrib u "to") then
-          true
-        else
-          false
-      with _ -> false (* not a valid unit declaration *)
-    ) (Xml.children units_xml) in
-    (* return coef *)
-    float_of_string (Xml.attrib _unit "coef")
-  with _ -> invalid_arg "Unit conversion failed"
+  if (from_unit = to_unit) then
+    1.0
+  else
+    try
+      let units_xml = Xml.parse_file units_file in
+      (* find the first occurence of matching units or raise Not_found *)
+      let _unit = List.find (fun u ->
+          (* will raise Xml.No_attribute if not a valid attribute *)
+          let f = Xml.attrib u "from"
+          and t = Xml.attrib u "to" in
+          if from_unit = f && to_unit = t then true else false
+        ) (Xml.children units_xml) in
+      (* return coef, raise Failure if coef is not a numerical value *)
+      float_of_string (Xml.attrib _unit "coef")
+    with Xml.File_not_found _ -> raise (Unit_conversion_error ("Parse error of conf/units.xml"))
+      | Xml.No_attribute _ | Xml.Not_element _ -> raise (Unit_conversion_error ("File conf/units.xml has errors"))
+      | Failure "float_of_string" -> raise (Unit_conversion_error ("Unit coef is not numerical value"))
+      | Not_found -> raise (Unknown_conversion (from_unit, to_unit))
+      | _ -> raise (Unknown_conversion (from_unit, to_unit))
 
 
 let alt_unit_coef_of_xml = function xml ->
@@ -181,7 +188,11 @@ let alt_unit_coef_of_xml = function xml ->
   with _ ->
     let u = try Xml.attrib xml "unit" with _ -> "" in
     let au = try Xml.attrib xml "alt_unit" with _ -> "" in
-    let coef = try string_of_float (scale_of_units u au) with _ -> "1." in
+    let coef = try string_of_float (scale_of_units u au) with
+      Unit_conversion_error s -> prerr_endline (sprintf "Unit conversion error: %s" s); flush stderr; exit 1
+    | Unknown_conversion _ -> "1." (* Use coef 1. *)
+    | _ -> "1."
+    in
     coef
 
 let pipe_regexp = Str.regexp "|"

@@ -27,7 +27,7 @@
 #include "subsystems/ins.h"
 #include "subsystems/ahrs.h"
 
-#ifdef USE_HFF
+#if USE_HFF
 #include "subsystems/ins/hf_float.h"
 #endif
 
@@ -125,7 +125,7 @@ void track_event(void) {
     ins_hf_realign = TRUE;
   }
 
-#ifdef USE_HFF
+#if USE_HFF
   if (ins_hf_realign) {
     ins_hf_realign = FALSE;
     struct FloatVect2 pos, zero;

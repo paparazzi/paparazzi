@@ -144,9 +144,6 @@ static inline bool_t sys_time_periodic( void ) {
     if (cpu_time_ticks > TIME_TICKS_PER_SEC) {
       cpu_time_ticks -= TIME_TICKS_PER_SEC;
       cpu_time_sec++;
-#ifdef TIME_LED
-      LED_TOGGLE(TIME_LED)
-#endif
 #ifdef SYS_TIME_LED
       LED_TOGGLE(SYS_TIME_LED)
 #endif

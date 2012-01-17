@@ -44,7 +44,7 @@
 #include "subsystems/nav.h"
 #endif
 
-#ifdef USE_JOYSTICK
+#if USE_JOYSTICK
 #include "joystick.h"
 #endif
 
@@ -178,7 +178,7 @@ void dl_parse_msg(void) {
     DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
   } else
 #endif /** Else there is no dl_settings section in the flight plan */
-#ifdef USE_JOYSTICK
+#if USE_JOYSTICK
     if (msg_id == DL_JOYSTICK_RAW && DL_JOYSTICK_RAW_ac_id(dl_buffer) == AC_ID) {
       JoystickHandeDatalink(DL_JOYSTICK_RAW_roll(dl_buffer),
 			    DL_JOYSTICK_RAW_pitch(dl_buffer),

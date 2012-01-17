@@ -131,13 +131,13 @@ static void csc_main_init( void ) {
 	motors_init();
 #endif
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
 	airspeed_init();
 #endif
 #ifdef USE_AMS5812
 		csc_ams5812_init();
 #endif
-#ifdef USE_BARO_SCP
+#if USE_BARO_SCP
 	baro_scp_init();
 #endif
 
@@ -176,10 +176,10 @@ static void csc_main_periodic( void )
 
 	if ((csc_loops % AIRSPEED_TIMEOUT) == 0) {
 	} else if ((csc_loops % AIRSPEED_TIMEOUT) == 1) {
-#ifdef USE_BARO_ETS
+#if USE_BARO_ETS
 		baro_ets_periodic();
 #endif
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
 		csc_airspeed_periodic();
 #endif
 #ifdef USE_AMS5812
@@ -188,11 +188,11 @@ static void csc_main_periodic( void )
 #endif
 	}
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
 	airspeed_update();
 #endif
 
-#ifdef USE_BARO_SCP
+#if USE_BARO_SCP
 	baro_scp_periodic();
 	csc_ap_link_send_baro(baro_scp_pressure, baro_scp_temperature, baro_scp_status);
 #endif

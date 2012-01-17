@@ -16,7 +16,6 @@
   <firmware name="rotorcraft">
     <define name="USE_INS_NAV_INIT"/>
     <define name="USE_ADAPT_HOVER"/>
-    <define name="NO_FUCKING_STARTUP_DELAY"/>
     <!--define name="GUIDANCE_H_USE_REF"/-->
 
     <target name="ap" board="booz_1.0">
@@ -158,7 +157,6 @@
 
   <section name="INS" prefix="INS_">
     <define name="BARO_SENS" value="15." integer="16"/>
-    <define name="UNTILT_ACCEL" value="1"/>
     <define name="SONAR_SENS" value="2.146" integer="16"/>
   </section>
 

@@ -39,11 +39,12 @@
 # common Booz2 IMU files
 include $(CFG_SHARED)/imu_b2_common.makefile
 
-# imu Booz2 v1.1
-imu_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_AMI601
+# imu Booz2 v1.0
 imu_CFLAGS += -DIMU_B2_VERSION_1_0
 
 # Magnetometer
+ifndef NO_MAG
+imu_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_AMI601
 imu_CFLAGS += -DUSE_AMI601
 imu_srcs += peripherals/ami601.c
 
@@ -53,6 +54,8 @@ else ifeq ($(ARCH), stm32)
 #FIXME: untested
 imu_CFLAGS += -DUSE_I2C2 -DUSE_EXTI9_5_IRQ
 endif
+
+endif #NO_MAG
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
 # see: conf/autopilot/subsystems/lisa_passthrough/imu_b2_v1.1.makefile for example

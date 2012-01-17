@@ -8,8 +8,8 @@
 
 AHRS_CFLAGS  = -DUSE_AHRS
 AHRS_CFLAGS += -DUSE_AHRS_ALIGNER
-ifdef AHRS_ALIGNER_LED
-AHRS_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
+ifneq ($(AHRS_ALIGNER_LED),none)
+  AHRS_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 endif
 AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl_rmat.h\"
 AHRS_SRCS   += subsystems/ahrs.c

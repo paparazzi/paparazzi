@@ -12,7 +12,6 @@
   <firmware name="rotorcraft">
     <define name="USE_INS_NAV_INIT"/>
     <define name="USE_ADAPT_HOVER"/>
-    <define name="NO_FUCKING_STARTUP_DELAY"/>
     <!--define name="GUIDANCE_H_USE_REF"/-->
 
     <target name="ap" board="booz_1.0">
