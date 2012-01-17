@@ -59,36 +59,26 @@ EXTERN uint8_t dl_buffer[MSG_SIZE]  __attribute__ ((aligned));
 EXTERN void dl_parse_msg(void);
 /** Should be called when chars are available in dl_buffer */
 
+/** Check for new message and parse */
+#define DlCheckAndParse() {   \
+  if (dl_msg_available) {			\
+    dl_parse_msg();				    \
+    dl_msg_available = FALSE;	\
+  }						                \
+}
+
 #if DATALINK == PPRZ
 
-#define DatalinkEvent() {			\
-  if (PprzBuffer()) {				\
-    ReadPprzBuffer();				\
-    if (pprz_msg_received) {			\
-      pprz_parse_payload();			\
-      pprz_msg_received = FALSE;		\
-    }						\
-  }						\
-  if (dl_msg_available) {			\
-    dl_parse_msg();				\
-    dl_msg_available = FALSE;			\
-  }						\
+#define DatalinkEvent() {			            \
+  PprzCheckAndParse(PPRZ_UART, pprz_tp);  \
+  DlCheckAndParse();                      \
 }
 
 #elif DATALINK == XBEE
 
-#define DatalinkEvent() {			\
-  if (XBeeBuffer()) {				\
-    ReadXBeeBuffer();				\
-    if (xbee_msg_received) {			\
-      xbee_parse_payload();			\
-      xbee_msg_received = FALSE;		\
-    }						\
-  }						\
-  if (dl_msg_available) {			\
-    dl_parse_msg();				\
-    dl_msg_available = FALSE;			\
-  }						\
+#define DatalinkEvent() {			            \
+  XBeeCheckAndParse(XBEE_UART, xbee_tp);  \
+  DlCheckAndParse();                      \
 }
 
 #else

@@ -27,7 +27,5 @@
 #include "mcu_periph/uart.h"
 
 uint8_t ck_a, ck_b;
-volatile bool_t pprz_msg_received = FALSE;
-uint8_t pprz_ovrn, pprz_error;
-volatile uint8_t pprz_payload_len;
-uint8_t pprz_payload[PPRZ_PAYLOAD_LEN];
+
+struct pprz_transport pprz_tp;

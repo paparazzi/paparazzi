@@ -166,7 +166,7 @@ void baro_bmp_event( void ) {
       baro_bmp_temperature = bmp_t;
       baro_bmp_pressure = bmp_p;
 #ifdef SENSOR_SYNC_SEND
-      DOWNLINK_SEND_BMP_STATUS(DefaultChannel, &bmp_up, &bmp_ut, &bmp_p, &bmp_t);
+      DOWNLINK_SEND_BMP_STATUS(DefaultChannel, DefaultDevice, &bmp_up, &bmp_ut, &bmp_p, &bmp_t);
 #endif
     }
   }

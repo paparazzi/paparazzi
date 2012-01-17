@@ -80,7 +80,7 @@ static inline void main_periodic_task( void ) {
   //  LED_TOGGLE(6);
   RunOnceEvery(10,
 	       {
-		 DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+		 DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
 		 LED_PERIODIC();
 	       });
 

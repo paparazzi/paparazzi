@@ -31,17 +31,17 @@
 #define XBEE_RX_ID 0x81 /* 16 bits address */
 #define XBEE_RFDATA_OFFSET 5
 
-#define XBeeTransportPutTXHeader() { \
-  XBeeTransportPutUint8(XBEE_TX_ID); \
-  XBeeTransportPutUint8(NO_FRAME_ID); \
-  XBeeTransportPutUint8(GROUND_STATION_ADDR >> 8); \
-  XBeeTransportPutUint8(GROUND_STATION_ADDR & 0xff); \
-  XBeeTransportPutUint8(TX_OPTIONS); \
+#define XBeeTransportPutTXHeader(_dev) { \
+  XBeeTransportPutUint8(_dev, XBEE_TX_ID); \
+  XBeeTransportPutUint8(_dev, NO_FRAME_ID); \
+  XBeeTransportPutUint8(_dev, GROUND_STATION_ADDR >> 8); \
+  XBeeTransportPutUint8(_dev, GROUND_STATION_ADDR & 0xff); \
+  XBeeTransportPutUint8(_dev, TX_OPTIONS); \
 }
 
 /* 4 = frame_id + addr_msb + addr_lsb + options */
-#define XBeeTransportSizeOf(_x) XBeeAPISizeOf(_x+4)
+#define XBeeTransportSizeOf(_dev, _x) XBeeAPISizeOf(_dev, _x+4)
 
-#define XbeeGetRSSI() { xbee_rssi = xbee_payload[3]; }
+#define XbeeGetRSSI(_payload) { xbee_rssi = _payload[3]; }
 
 #endif // XBEE24_H

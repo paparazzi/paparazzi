@@ -152,7 +152,7 @@ void init_carto(void) {
 }
 
 void periodic_downlink_carto(void) {
-	DOWNLINK_SEND_CAMERA_SNAPSHOT(DefaultChannel,&camera_snapshot_image_number);
+	DOWNLINK_SEND_CAMERA_SNAPSHOT(DefaultChannel, DefaultDevice,&camera_snapshot_image_number);
 }
 
 void start_carto(void) {

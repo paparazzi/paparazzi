@@ -80,7 +80,7 @@ void atmega_i2c_cam_ctrl_send(uint8_t cmd)
   }
 
   cam_ret[0] = mode + zoom * 0x20;
-  RunOnceEvery(6,DOWNLINK_SEND_PAYLOAD(DefaultChannel, 1, cam_ret ));
+  RunOnceEvery(6,DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice, 1, cam_ret ));
 
 }
 
