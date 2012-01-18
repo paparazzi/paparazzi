@@ -31,7 +31,7 @@
 #include <math.h>
 //#include <stdlib.h>
 
-#ifndef USE_AIRSPEED
+#if !USE_AIRSPEED
 // Just a Warning --> We do't use it.
 //#ifndef SENSOR_SYNC_SEND
 //#warning either set USE_AIRSPEED or SENSOR_SYNC_SEND to use amsys_airspeed
@@ -145,7 +145,7 @@ void airspeed_amsys_read_event( void ) {
 		airspeed_amsys = airspeed_filter * airspeed_old + (1 - airspeed_filter) * airspeed_tmp;
 		airspeed_old = airspeed_amsys;
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
 		EstimatorSetAirspeed(airspeed_amsys);
 #endif
 #ifdef SENSOR_SYNC_SEND

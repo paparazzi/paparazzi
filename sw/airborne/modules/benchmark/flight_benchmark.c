@@ -59,7 +59,7 @@ void flight_benchmark_periodic( void ) {
 	}
 
 	if (benchm_go){
-	#if defined(USE_AIRSPEED) && defined(BENCHMARK_AIRSPEED)
+	#if USE_AIRSPEED && defined(BENCHMARK_AIRSPEED)
 		Err_airspeed = fabs(estimator_airspeed - v_ctl_auto_airspeed_setpoint);
 		if (Err_airspeed>ToleranceAispeed){
 			Err_airspeed = Err_airspeed-ToleranceAispeed;

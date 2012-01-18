@@ -111,7 +111,7 @@ STATIC_INLINE void main_init( void ) {
 
   ins_init();
 
-#ifdef USE_GPS
+#if USE_GPS
   gps_init();
 #endif
 
@@ -160,7 +160,7 @@ STATIC_INLINE void main_periodic( void ) {
       Booz2TelemetryPeriodic();                             \
     } );
 
-#ifdef USE_GPS
+#if USE_GPS
   if (radio_control.status != RC_OK &&                  \
       autopilot_mode == AP_MODE_NAV && GpsIsLost())		\
     autopilot_set_mode(AP_MODE_FAILSAFE);
@@ -186,7 +186,7 @@ STATIC_INLINE void main_event( void ) {
 
   BaroEvent(on_baro_abs_event, on_baro_dif_event);
 
-#ifdef USE_GPS
+#if USE_GPS
   GpsEvent(on_gps_event);
 #endif
 

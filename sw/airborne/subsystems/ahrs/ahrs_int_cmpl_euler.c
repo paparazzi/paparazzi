@@ -99,7 +99,7 @@ void ahrs_align(void) {
 //#define USE_NOISE_FILTER 1
 #define NOISE_FILTER_GAIN 50
 
-#ifdef USE_NOISE_CUT
+#if USE_NOISE_CUT
 #include "led.h"
 static inline bool_t cut_rates (struct Int32Rates i1, struct Int32Rates i2, int32_t threshold) {
   struct Int32Rates diff;
@@ -150,19 +150,19 @@ void ahrs_propagate(void) {
   /* unbias gyro             */
   struct Int32Rates uf_rate;
   RATES_DIFF(uf_rate, imu.gyro, ahrs_impl.gyro_bias);
-#ifdef USE_NOISE_CUT
+#if USE_NOISE_CUT
   static struct Int32Rates last_uf_rate = { 0, 0, 0 };
   if (!cut_rates(uf_rate, last_uf_rate, RATE_CUT_THRESHOLD)) {
 #endif
     /* low pass rate */
-#ifdef USE_NOISE_FILTER
+#if USE_NOISE_FILTER
     RATES_SUM_SCALED(ahrs.imu_rate, ahrs.imu_rate, uf_rate, NOISE_FILTER_GAIN);
     RATES_SDIV(ahrs.imu_rate, ahrs.imu_rate, NOISE_FILTER_GAIN+1);
 #else
     RATES_ADD(ahrs.imu_rate, uf_rate);
     RATES_SDIV(ahrs.imu_rate, ahrs.imu_rate, 2);
 #endif
-#ifdef USE_NOISE_CUT
+#if USE_NOISE_CUT
   }
   RATES_COPY(last_uf_rate, uf_rate);
 #endif
@@ -199,18 +199,18 @@ void ahrs_propagate(void) {
 
 void ahrs_update_accel(void) {
 
-#if defined(USE_NOISE_CUT) || defined(USE_NOISE_FILTER)
+#if USE_NOISE_CUT || USE_NOISE_FILTER
   static struct Int32Vect3 last_accel = { 0, 0, 0 };
 #endif
-#ifdef USE_NOISE_CUT
+#if USE_NOISE_CUT
   if (!cut_accel(imu.accel, last_accel, ACCEL_CUT_THRESHOLD)) {
 #endif
-#ifdef USE_NOISE_FILTER
+#if USE_NOISE_FILTER
     VECT3_SUM_SCALED(imu.accel, imu.accel, last_accel, NOISE_FILTER_GAIN);
     VECT3_SDIV(imu.accel, imu.accel, NOISE_FILTER_GAIN+1);
 #endif
     get_phi_theta_measurement_fom_accel(&ahrs_impl.measurement.phi, &ahrs_impl.measurement.theta, imu.accel);
-#ifdef USE_NOISE_CUT
+#if USE_NOISE_CUT
   }
   VECT3_COPY(last_accel, imu.accel);
 #endif

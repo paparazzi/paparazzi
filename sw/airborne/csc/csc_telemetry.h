@@ -79,7 +79,7 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #endif
 #endif /* RADIO_CONTROL */
 
-#ifdef USE_GPS
+#if USE_GPS
 #define PERIODIC_SEND_BOOZ2_GPS(_chan) {			\
 DOWNLINK_SEND_BOOZ2_GPS( _chan,                 \
                          &booz_ins_gps_pos_cm_ned.x,		\
@@ -130,14 +130,14 @@ DOWNLINK_SEND_INS3(_chan,     \
   &zero, \
   &zero, &zero) }
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
 #include "estimator.h"
 #define PERIODIC_SEND_AIRSPEED(_chan) { float empty; DOWNLINK_SEND_AIRSPEED (_chan, &estimator_airspeed,&empty,&empty,&empty,&empty) }
 #else
 #define PERIODIC_SEND_AIRSPEED(_chan) {}
 #endif
 
-#ifdef USE_BARO_ETS
+#if USE_BARO_ETS
 #include "baro_ets.h"
 #define PERIODIC_SEND_ESTIMATOR(_chan) { float empty; DOWNLINK_SEND_ESTIMATOR(_chan, &baro_ets_altitude, &empty) }
 #endif

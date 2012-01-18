@@ -47,7 +47,7 @@
 
 #include "subsystems/electrical.h"
 #include "subsystems/imu.h"
-#ifdef USE_GPS
+#if USE_GPS
 #include "subsystems/gps.h"
 #endif
 #include "subsystems/ins.h"
@@ -57,7 +57,7 @@
 
 extern uint8_t telemetry_mode_Main_DefaultChannel;
 
-#ifdef USE_GPS
+#if USE_GPS
 #define PERIODIC_SEND_ROTORCRAFT_STATUS(_chan) {			\
     uint32_t imu_nb_err = 0;						\
     uint8_t _twi_blmc_nb_err = 0;					\
@@ -332,7 +332,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 
-#ifdef USE_AHRS_CMPL
+#if USE_AHRS_CMPL
 #include "subsystems/ahrs/ahrs_int_cmpl_euler.h"
 #define PERIODIC_SEND_FILTER(_chan) {					\
     DOWNLINK_SEND_FILTER(_chan,						\
@@ -356,7 +356,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_FILTER(_chan) {}
 #endif
 
-#ifdef USE_AHRS_LKF
+#if USE_AHRS_LKF
 #include "subsystems/ahrs.h"
 #include "ahrs/ahrs_float_lkf.h"
 #define PERIODIC_SEND_AHRS_LKF(_chan) {				\
@@ -482,7 +482,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 
 
-#ifdef USE_VFF
+#if USE_VFF
 #include "subsystems/ins/vf_float.h"
 #define PERIODIC_SEND_VFF(_chan) {		\
     DOWNLINK_SEND_VFF(_chan,			\
@@ -498,7 +498,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_VFF(_chan) {}
 #endif
 
-#ifdef USE_HFF
+#if USE_HFF
 #include  "subsystems/ins/hf_float.h"
 #define PERIODIC_SEND_HFF(_chan) {	\
     DOWNLINK_SEND_HFF(_chan,		\
@@ -654,7 +654,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
           &autopilot_flight_time);	\
   }
 
-#ifdef USE_GPS
+#if USE_GPS
 #define PERIODIC_SEND_GPS_INT(_chan) {				\
     DOWNLINK_SEND_GPS_INT( _chan,                   \
                            &gps.ecef_pos.x,         \

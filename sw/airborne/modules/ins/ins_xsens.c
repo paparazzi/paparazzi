@@ -37,7 +37,7 @@
 #include "subsystems/datalink/downlink.h"
 #include "messages.h"
 
-#ifdef USE_GPS_XSENS
+#if USE_GPS_XSENS
 #include "subsystems/gps.h"
 #include "math/pprz_geodetic_wgs84.h"
 #include "math/pprz_geodetic_float.h"
@@ -365,7 +365,7 @@ void parse_ins_msg( void ) {
   else if (xsens_id == XSENS_Error_ID) {
     xsens_errorcode = XSENS_Error_errorcode(xsens_msg_buf);
   }
-#ifdef USE_GPS_XSENS
+#if USE_GPS_XSENS
   else if (xsens_id == XSENS_GPSStatus_ID) {
     gps.nb_channels = XSENS_GPSStatus_nch(xsens_msg_buf);
     gps.num_sv = 0;
@@ -398,7 +398,7 @@ void parse_ins_msg( void ) {
         offset += XSENS_DATA_RAWInertial_LENGTH;
       }
       if (XSENS_MASK_RAWGPS(xsens_output_mode)) {
-#if defined(USE_GPS_XSENS_RAW_DATA) && defined(USE_GPS_XSENS)
+#if USE_GPS_XSENS_RAW_DATA && USE_GPS_XSENS
 #ifdef GPS_LED
     LED_TOGGLE(GPS_LED);
 #endif
@@ -509,7 +509,7 @@ void parse_ins_msg( void ) {
         offset += l * XSENS_DATA_Auxiliary_LENGTH / 2;
       }
       if (XSENS_MASK_Position(xsens_output_mode)) {
-#if (!defined(USE_GPS_XSENS_RAW_DATA)) && defined(USE_GPS_XSENS)
+#if (! USE_GPS_XSENS_RAW_DATA) && USE_GPS_XSENS
         gps.last_fix_time = cpu_time_sec;
 
         lla_f.lat = RadOfDeg(XSENS_DATA_Position_lat(xsens_msg_buf,offset));
@@ -530,7 +530,7 @@ void parse_ins_msg( void ) {
         offset += XSENS_DATA_Position_LENGTH;
       }
       if (XSENS_MASK_Velocity(xsens_output_mode)) {
-#if (!defined(USE_GPS_XSENS_RAW_DATA)) && defined(USE_GPS_XSENS)
+#if (! USE_GPS_XSENS_RAW_DATA) && USE_GPS_XSENS
         ins_vx = XSENS_DATA_Velocity_vx(xsens_msg_buf,offset);
         ins_vy = XSENS_DATA_Velocity_vy(xsens_msg_buf,offset);
         ins_vz = XSENS_DATA_Velocity_vz(xsens_msg_buf,offset);
@@ -539,7 +539,7 @@ void parse_ins_msg( void ) {
       }
       if (XSENS_MASK_Status(xsens_output_mode)) {
         xsens_msg_status = XSENS_DATA_Status_status(xsens_msg_buf,offset);
-#ifdef USE_GPS_XSENS
+#if USE_GPS_XSENS
         if (bit_is_set(xsens_msg_status,2)) gps.fix = GPS_FIX_3D; // gps fix
         else if (bit_is_set(xsens_msg_status,1)) gps.fix = 0x01; // efk valid
         else gps.fix = GPS_FIX_NONE;
@@ -548,7 +548,7 @@ void parse_ins_msg( void ) {
       }
       if (XSENS_MASK_TimeStamp(xsens_output_settings)) {
         xsens_time_stamp = XSENS_DATA_TimeStamp_ts(xsens_msg_buf,offset);
-#ifdef USE_GPS_XSENS
+#if USE_GPS_XSENS
         gps.tow = xsens_time_stamp;
 #endif
         offset += XSENS_DATA_TimeStamp_LENGTH;

@@ -28,7 +28,7 @@
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_simple_matrix.h"
 #include "generated/airframe.h"
-#ifdef USE_GPS
+#if USE_GPS
 #include "subsystems/gps.h"
 #endif
 

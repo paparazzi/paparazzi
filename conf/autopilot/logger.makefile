@@ -50,6 +50,9 @@ ap.srcs += mcu.c
 #set SPI interface for SD card (0 or 1)
 ap.CFLAGS += -DHW_ENDPOINT_LPC2000_SPINUM=$(SPI_CHANNEL)
 
+#LPC2148 USB hw module needs at least 18MHz PCLK
+ap.CFLAGS += -DUSE_USB_HIGH_PCLK
+
 #efsl
 ap.CFLAGS += -I $(SRC_ARCH)/efsl/inc -I $(SRC_ARCH)/efsl/conf
 

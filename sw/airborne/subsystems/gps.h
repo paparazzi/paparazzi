@@ -20,7 +20,7 @@
  */
 
 /** @file gps.h
- *  @brief Device independent GPS code
+ *  @brief Device independent GPS code (interface)
  *
  */
 
@@ -48,16 +48,17 @@
 #define GPS_NB_CHANNELS 1
 #endif
 
-/** Space Vehicle Information */
+/** data structure for Space Vehicle Information of a single satellite */
 struct SVinfo {
-  uint8_t svid;
-  uint8_t flags;
-  uint8_t qi;
-  uint8_t cno;
-  int8_t elev;  ///< deg
-  int16_t azim; ///< deg
+  uint8_t svid;  ///< Satellite ID
+  uint8_t flags; ///< bitfield with GPS receiver specific flags
+  uint8_t qi;    ///< quality bitfield (GPS receiver specific)
+  uint8_t cno;   ///< Carrier to Noise Ratio (Signal Strength) in dbHz
+  int8_t elev;   ///< elevation in deg
+  int16_t azim;  ///< azimuth in deg
 };
 
+/** data structure for GPS information */
 struct GpsState {
   struct EcefCoor_i ecef_pos;    ///< position in ECEF in cm
   struct LlaCoor_i lla_pos;      ///< position in LLA (lat,lon: rad*1e7; alt: mm over ellipsoid)
@@ -77,7 +78,7 @@ struct GpsState {
   uint32_t tow;                  ///< time of week in ms
 
   uint8_t nb_channels;           ///< Number of scanned satellites
-  struct SVinfo svinfos[GPS_NB_CHANNELS];
+  struct SVinfo svinfos[GPS_NB_CHANNELS]; ///< holds information from the Space Vehicles (Satellites)
 
   uint32_t last_fix_ticks;       ///< cpu time in ticks at last valid fix
   uint16_t last_fix_time;        ///< cpu time in sec at last valid fix
@@ -90,6 +91,7 @@ struct GpsTimeSync {
   uint32_t t0;          ///< for time sync: hw clock ticks when GPS message is received
 };
 
+/** global GPS state */
 extern struct GpsState gps;
 
 
