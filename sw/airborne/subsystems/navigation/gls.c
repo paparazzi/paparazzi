@@ -63,7 +63,7 @@ bool_t init = TRUE;
 #endif
 
 #ifndef APP_ANGLE
-#define APP_ANGLE 5;
+#define APP_ANGLE RadOfDeg(5);
 #endif
 
 #ifndef APP_INTERCEPT_AF_TOD
@@ -80,18 +80,18 @@ static inline bool_t gls_compute_TOD(uint8_t _af, uint8_t _tod, uint8_t _td) {
   float td_af_x = WaypointX(_af) - WaypointX(_td);
   float td_af_y = WaypointY(_af) - WaypointY(_td);
   float td_af = sqrt( td_af_x*td_af_x + td_af_y*td_af_y);
-  float td_tod = (WaypointAlt(_af) - WaypointAlt(_td)) / (tan(RadOfDeg(app_angle)));
+  float td_tod = (WaypointAlt(_af) - WaypointAlt(_td)) / (tan(app_angle));
 
   WaypointX(_tod) = WaypointX(_td) + td_af_x / td_af * td_tod;
   WaypointY(_tod) = WaypointY(_td) + td_af_y / td_af * td_tod;
   WaypointAlt(_tod) = WaypointAlt(_af);
 
   if (td_tod > td_af) {
-  WaypointX(_af) = WaypointX(_tod) + td_af_x / td_af * app_intercept_af_tod;
-  WaypointY(_af) = WaypointY(_tod) + td_af_y / td_af * app_intercept_af_tod;
+    WaypointX(_af) = WaypointX(_tod) + td_af_x / td_af * app_intercept_af_tod;
+    WaypointY(_af) = WaypointY(_tod) + td_af_y / td_af * app_intercept_af_tod;
   }
   return FALSE;
-}	// end of gls_copute_TOD
+}	/* end of gls_copute_TOD */
 
 
 //###############################################################################################
@@ -100,12 +100,12 @@ bool_t gls_init(uint8_t _af, uint8_t _tod, uint8_t _td) {
 
   init = TRUE;
 
-  #ifdef USE_AIRSPEED
-//  float wind_additional = sqrt(wind_east*wind_east + wind_north*wind_north); // should be gusts only!
-//  Bound(wind_additional, 0, 0.5);
-//  target_speed = FL_ENVE_V_S * 1.3 + wind_additional; FIXME
+#if USE_AIRSPEED
+  //float wind_additional = sqrt(wind_east*wind_east + wind_north*wind_north); // should be gusts only!
+  //Bound(wind_additional, 0, 0.5);
+  //target_speed = FL_ENVE_V_S * 1.3 + wind_additional; FIXME
   target_speed =  APP_TARGET_SPEED; //  ok for now!
-  #endif
+#endif
 
   app_angle = APP_ANGLE;
   app_intercept_af_tod = APP_INTERCEPT_AF_TOD;
@@ -115,7 +115,7 @@ bool_t gls_init(uint8_t _af, uint8_t _tod, uint8_t _td) {
   gls_compute_TOD(_af, _tod, _td);	// calculate Top Of Decent
 
   return FALSE;
-}  // end of gls_init()
+}  /* end of gls_init() */
 
 
 //###############################################################################################
@@ -126,11 +126,10 @@ bool_t gls(uint8_t _af, uint8_t _tod, uint8_t _td) {
 
   if (init){
 
-  #ifdef USE_AIRSPEED
-  v_ctl_auto_airspeed_setpoint = target_speed;			// set target speed for approach
-  #endif
-  init = FALSE;
-
+#if USE_AIRSPEED
+    v_ctl_auto_airspeed_setpoint = target_speed;			// set target speed for approach
+#endif
+    init = FALSE;
   }
 
 
@@ -155,20 +154,20 @@ bool_t gls(uint8_t _af, uint8_t _tod, uint8_t _td) {
 
   if(nav_final_progress < -0.5) {			// for smooth intercept
 
-  NavVerticalAltitudeMode(WaypointAlt(_tod), 0);	// vertical mode (fly straigt and intercept glideslope)
+    NavVerticalAltitudeMode(WaypointAlt(_tod), 0);	// vertical mode (fly straigt and intercept glideslope)
 
-  NavVerticalAutoThrottleMode(0);		// throttle mode
+    NavVerticalAutoThrottleMode(0);		// throttle mode
 
-  NavSegment(_af, _td);				// horizontal mode (stay on localiser)
+    NavSegment(_af, _td);				// horizontal mode (stay on localiser)
   }
 
-  else {						//
+  else {
 
-  NavVerticalAltitudeMode(alt, pre_climb);	// vertical mode (folow glideslope)
+    NavVerticalAltitudeMode(alt, pre_climb);	// vertical mode (folow glideslope)
 
-  NavVerticalAutoThrottleMode(0);		// throttle mode
+    NavVerticalAutoThrottleMode(0);		// throttle mode
 
-  NavSegment(_af, _td);				// horizontal mode (stay on localiser)
+    NavSegment(_af, _td);				// horizontal mode (stay on localiser)
   }
 
 
