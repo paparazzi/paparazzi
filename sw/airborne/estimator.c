@@ -204,7 +204,7 @@ void alt_kalman(float gps_z) {
   }
 
 #ifdef DEBUG_ALT_KALMAN
-  DOWNLINK_SEND_ALT_KALMAN(&(p[0][0]),&(p[0][1]),&(p[1][0]), &(p[1][1]));
+  DOWNLINK_SEND_ALT_KALMAN(DefaultChannel,DefaultDevice,&(p[0][0]),&(p[0][1]),&(p[1][0]), &(p[1][1]));
 #endif
 }
 
@@ -230,8 +230,5 @@ void estimator_update_state_gps( void ) {
 
   // Heading estimation now in ahrs_infrared
 
-#ifdef EXTRA_DOWNLINK_DEVICE
-    DOWNLINK_SEND_ATTITUDE(ExtraPprzTransport,&estimator_phi,&estimator_psi,&estimator_theta);
-#endif
 }
 
