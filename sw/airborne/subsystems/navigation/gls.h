@@ -1,5 +1,5 @@
 /*
- *  
+ *
  * Copyright (C) 2012, Tobias Muench
  *
  * This file is part of paparazzi.
@@ -17,8 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
+ */
+
+/**
+ * @file subsystems/navigation/gls.h
+ * @brief gps landing system
  */
 
 #ifndef NAV_GLS_H

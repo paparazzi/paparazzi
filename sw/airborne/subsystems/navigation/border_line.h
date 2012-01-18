@@ -22,6 +22,11 @@
  *
  */
 
+/**
+ * @file subsystems/navigation/border_line.h
+ * @brief navigate along a border line (line 1-2) with turns in the same direction
+ */
+
 #ifndef BORDER_LINE_H
 #define BORDER_LINE_H
 

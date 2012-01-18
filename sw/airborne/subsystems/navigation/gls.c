@@ -22,7 +22,9 @@
  */
 
 /**
- * \brief gps landing system
+ * @file subsystems/navigation/gls.c
+ * @brief gps landing system
+ *
  * gps landing system
  * -automatic calculation of top of decent for const app angle
  * -smooth intercept posible
@@ -125,7 +127,7 @@ bool_t gls(uint8_t _af, uint8_t _tod, uint8_t _td) {
   if (init){
 
   #ifdef USE_AIRSPEED
-  v_ctl_auto_airspeed_setpoint = target_speed;			// set target speed for approach	
+  v_ctl_auto_airspeed_setpoint = target_speed;			// set target speed for approach
   #endif
   init = FALSE;
 
