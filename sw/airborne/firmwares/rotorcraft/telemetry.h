@@ -715,7 +715,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			       &(waypoints[i].z));			\
   }
 
-#ifdef USE_CAM
+#if USE_CAM
 #define PERIODIC_SEND_BOOZ2_CAM(_trans, _dev) DOWNLINK_SEND_BOOZ2_CAM(_trans, _dev,&booz_cam_tilt,&booz_cam_pan);
 #else
 #define PERIODIC_SEND_BOOZ2_CAM(_trans, _dev) {}
