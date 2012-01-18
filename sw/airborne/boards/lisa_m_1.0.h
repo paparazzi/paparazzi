@@ -30,8 +30,10 @@
 #define IMU_ACC_DRDY_GPIO             GPIOB
 #define IMU_ACC_DRDY_GPIO_PORTSOURCE  GPIO_PortSourceGPIOB
 
-
+/* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
+#ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY 2
+#endif
 #define DefaultVoltageOfAdc(adc) (0.00485*adc)
 
 /* Onboard ADCs */

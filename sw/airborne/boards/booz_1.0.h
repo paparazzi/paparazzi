@@ -91,11 +91,14 @@
 #endif
 
 /* battery */
+/* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
+#ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY AdcBank0(2)
 #ifndef USE_AD0
 #define USE_AD0
 #endif
 #define USE_AD0_2
+#endif
 
 #define DefaultVoltageOfAdc(adc) (0.0183*adc)
 
