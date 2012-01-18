@@ -108,7 +108,7 @@ void ArduIMU_periodicGPS( void ) {
 
   if (ardu_gps_trans.status != I2CTransDone) { return; }
 
-#if USE_HIGH_ACCEL_FLAG
+#ifdef USE_HIGH_ACCEL_FLAG
   // Test for high acceleration:
   //  - low speed
   //  - high thrust

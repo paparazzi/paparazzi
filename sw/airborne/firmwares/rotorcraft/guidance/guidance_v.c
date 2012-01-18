@@ -186,7 +186,7 @@ void guidance_v_run(bool_t in_flight) {
     break;
 
   case GUIDANCE_V_MODE_CLIMB:
-#if USE_FMS
+#ifdef USE_FMS
     if (fms.enabled && fms.input.v_mode == GUIDANCE_V_MODE_CLIMB)
       guidance_v_zd_sp = fms.input.v_sp.climb;
 #endif
@@ -201,7 +201,7 @@ void guidance_v_run(bool_t in_flight) {
     break;
 
   case GUIDANCE_V_MODE_HOVER:
-#if USE_FMS
+#ifdef USE_FMS
     if (fms.enabled && fms.input.v_mode == GUIDANCE_V_MODE_HOVER)
       guidance_v_z_sp = fms.input.v_sp.height;
 #endif

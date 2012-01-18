@@ -42,7 +42,7 @@ void stabilization_attitude_ref_init(void) {
 
 void stabilization_attitude_ref_update() {
 
-#if USE_REF
+#ifdef USE_REF
 
     /* dumb integrate reference attitude        */
     struct FloatRates delta_rate;

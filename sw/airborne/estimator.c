@@ -99,7 +99,7 @@ void estimator_init( void ) {
 
   EstimatorSetRate(0., 0., 0.);
 
-#if USE_AIRSPEED
+#ifdef USE_AIRSPEED
   EstimatorSetAirspeed( 0. );
 #endif
 
@@ -152,7 +152,7 @@ void alt_kalman(float gps_z) {
   float R;
   float SIGMA2;
 
-#if USE_BARO_MS5534A
+#ifdef USE_BARO_MS5534A
   if (alt_baro_enabled) {
     DT = BARO_DT;
     R = baro_MS5534A_r;
