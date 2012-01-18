@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2008-2011 The Paparazzi Team
+ * $Id$
+ *
+ * Copyright (C) 2012, Tobias Muench
  *
  * This file is part of paparazzi.
  *
@@ -17,29 +19,22 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- */
-
-/** @file gps.c
- *  @brief Device independent GPS code
  *
  */
 
-#include "subsystems/gps.h"
+/**
+ * @file subsystems/navigation/border_line.h
+ * @brief navigate along a border line (line 1-2) with turns in the same direction
+ */
 
-#include "led.h"
+#ifndef BORDER_LINE_H
+#define BORDER_LINE_H
 
-struct GpsState gps;
+#include "std.h"
 
-#ifdef GPS_TIMESTAMP
-struct GpsTimeSync gps_time;
+extern bool_t border_line_init( void );
+extern bool_t border_line(uint8_t wp1, uint8_t wp2, float radius);
+
 #endif
 
-void gps_init(void) {
-  gps.fix = GPS_FIX_NONE;
-#ifdef GPS_LED
-  LED_OFF(GPS_LED);
-#endif
-#ifdef GPS_TYPE_H
-  gps_impl_init();
-#endif
-}
+/* BORDER_LINE_H */
