@@ -113,7 +113,7 @@ void flight_benchmark_periodic( void ) {
 	#endif
 	}
 
-	DOWNLINK_SEND_FLIGHT_BENCHMARK(DefaultChannel, &SquareSumErr_airspeed, &SquareSumErr_altitude, &SquareSumErr_position, &Err_airspeed, &Err_altitude, &Err_position)
+	DOWNLINK_SEND_FLIGHT_BENCHMARK(DefaultChannel, DefaultDevice, &SquareSumErr_airspeed, &SquareSumErr_altitude, &SquareSumErr_position, &Err_airspeed, &Err_altitude, &Err_position)
 
 }
 

@@ -93,7 +93,7 @@ void humid_htm_event( void ) {
         /* temperature */
         temphtm = (htm_trans.buf[2] << 6) | (htm_trans.buf[3] >> 2);
         ftemphtm = -40.00 + 0.01 * temphtm;
-        DOWNLINK_SEND_HTM_STATUS(DefaultChannel, &humidhtm, &temphtm, &fhumidhtm, &ftemphtm);
+        DOWNLINK_SEND_HTM_STATUS(DefaultChannel, DefaultDevice, &humidhtm, &temphtm, &fhumidhtm, &ftemphtm);
       }
       htm_trans.status = I2CTransDone;
       break;

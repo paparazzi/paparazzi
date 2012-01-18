@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="extra_dl" dir="core">
+<module name="extra_dl" dir="datalink">
   <header>
     <file name="extra_pprz_dl.h"/>
   </header>

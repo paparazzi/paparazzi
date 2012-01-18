@@ -65,8 +65,8 @@ void mcp355x_event(void) {
           ((uint32_t)mcp355x_spi_buf[2]<<1) |
           (mcp355x_spi_buf[3]>>7));
       filtered = (5*filtered + mcp355x_data) / (6);
-      DOWNLINK_SEND_DEBUG(DefaultChannel,4,mcp355x_spi_buf);
-      DOWNLINK_SEND_BARO_RAW(DefaultChannel,&mcp355x_data,&filtered);
+      DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,4,mcp355x_spi_buf);
+      DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice,&mcp355x_data,&filtered);
     }
   }
 }

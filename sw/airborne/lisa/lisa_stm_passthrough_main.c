@@ -165,10 +165,10 @@ static inline void main_periodic(void) {
 
 	RunOnceEvery(10, {
 			LED_PERIODIC();
-			DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+			DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
 			radio_control_periodic();
 			check_radio_lost();
-			DOWNLINK_SEND_BARO_RAW(DefaultChannel, &baro.absolute, &baro.differential);
+			DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice, &baro.absolute, &baro.differential);
 		});
 
 	RunOnceEvery(2, {baro_periodic();});
@@ -179,7 +179,7 @@ static inline void main_periodic(void) {
 		v1 = adc0_buf.sum / adc0_buf.av_nb_sample;
 		v2 = adc1_buf.values[0];
 
-		RunOnceEvery(10, { DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &v1, &v2) });
+		RunOnceEvery(10, { DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, DefaultDevice, &v1, &v2) });
 	}
 }
 
@@ -318,7 +318,7 @@ static inline void on_mag_event(void) {
 static inline void on_vane_msg(void *data) {
 	new_vane = TRUE;
 	int zero = 0;
-	DOWNLINK_SEND_VANE_SENSOR(DefaultChannel,
+	DOWNLINK_SEND_VANE_SENSOR(DefaultChannel, DefaultDevice,
 				&(csc_vane_msg.vane_angle1),
 				&zero,
 				&zero,

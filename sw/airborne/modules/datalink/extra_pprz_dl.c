@@ -1,4 +1,9 @@
 /*
+ * Paparazzi mcu0 $Id: pprz_transport.c 929 2006-06-02 12:11:37Z poine $
+ *
+ * Copyright (C) 2006  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010  ENAC
+ *
  * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
@@ -17,39 +22,8 @@
  * Boston, MA 02111-1307, USA.
  *
  */
-#include "estimator.h"
-#include "mcu_periph/i2c.h"
-#include "mcu_periph/uart.h"
-#include "messages.h"
-#include "subsystems/datalink/downlink.h"
-#include <math.h>
 
-#include "../../peripherals/hmc5843.h"
+#include "extra_pprz_dl.h"
 
+struct pprz_transport extra_pprz_tp;
 
-int32_t mag_x, mag_y, mag_z;
-bool_t mag_valid;
-
-
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-
-
-void hmc5843_module_init( void ) {
-  hmc5843_init();
-}
-
-void hmc5843_module_periodic ( void )
-{
-  hmc5843_periodic();
-  mag_x = hmc5843.data.value[0];
-  mag_y = hmc5843.data.value[1];
-  mag_z = hmc5843.data.value[2];
-  RunOnceEvery(30,DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,&mag_x,&mag_y,&mag_z));
-}
-
-void hmc5843_module_event( void )
-{
-  hmc5843_idle_task();
-}

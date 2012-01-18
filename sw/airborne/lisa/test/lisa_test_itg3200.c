@@ -82,11 +82,11 @@ static inline void main_periodic_task( void ) {
   //  LED_TOGGLE(6);
   RunOnceEvery(10,
   {
-    DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+    DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
     LED_PERIODIC();
   });
   RunOnceEvery(256, {
-   DOWNLINK_SEND_I2C_ERRORS(DefaultChannel,
+   DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
 			    &i2c2_errors.ack_fail_cnt,
 			    &i2c2_errors.miss_start_stop_cnt,
 			    &i2c2_errors.arb_lost_cnt,
@@ -205,11 +205,11 @@ static inline void main_event_task( void ) {
     RATES_ASSIGN(g, tgp, tgq, tgr);
     RunOnceEvery(10,
     {
-      DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, &g.p, &g.q, &g.r);
+      DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice, &g.p, &g.q, &g.r);
 
       uint8_t tmp[8];
       memcpy(tmp, i2c_trans.buf, 8);
-      DOWNLINK_SEND_DEBUG(DefaultChannel, 8, tmp);
+      DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice, 8, tmp);
 
 
     });

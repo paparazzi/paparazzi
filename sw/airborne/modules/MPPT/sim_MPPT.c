@@ -46,5 +46,5 @@ void MPPT_init( void ) {
 void MPPT_periodic( void ) {
   MPPT_data[MPPT_ITOTAL_INDEX] = MPPT_data[MPPT_IBAT_INDEX] + MPPT_data[MPPT_ICONV_INDEX];
 
-  RunOnceEvery(8, DOWNLINK_SEND_MPPT(DefaultChannel, NB_DATA, MPPT_data));
+  RunOnceEvery(8, DOWNLINK_SEND_MPPT(DefaultChannel, DefaultDevice, NB_DATA, MPPT_data));
 }

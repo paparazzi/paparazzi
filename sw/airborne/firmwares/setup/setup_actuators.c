@@ -35,11 +35,11 @@ void dl_parse_msg( void ) {
     for (int j=0 ; j<8 ; j++) {
       SetServo(j,actuators[j]);
     }
-    DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &val);
+    DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
   } else if (msg_id == DL_GET_SETTING && DL_GET_SETTING_ac_id(dl_buffer) == AC_ID) {
     uint8_t i = DL_GET_SETTING_index(dl_buffer);
     float val = settings_get_value(i);
-    DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &val);
+    DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
   }
 #endif
 }
@@ -71,8 +71,8 @@ void periodic_task_fbw(void) {
    /* uint16_t servo_value = 1500+ 500*sin(t); */
    /* SetServo(SERVO_THROTTLE, servo_value); */
 
-  RunOnceEvery(300, DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM));
-  RunOnceEvery(300, DOWNLINK_SEND_ACTUATORS(DefaultChannel, SERVOS_NB, actuators ));
+  RunOnceEvery(300, DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM));
+  RunOnceEvery(300, DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice, SERVOS_NB, actuators ));
 }
 
 void event_task_fbw(void) {

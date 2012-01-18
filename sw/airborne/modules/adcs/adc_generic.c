@@ -47,6 +47,6 @@ void adc_generic_periodic( void ) {
   adc_generic_val2 = buf_generic2.sum / buf_generic2.av_nb_sample;
 #endif
 
-  DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &adc_generic_val1, &adc_generic_val2);
+  DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, DefaultDevice, &adc_generic_val1, &adc_generic_val2);
 }
 

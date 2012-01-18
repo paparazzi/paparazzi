@@ -46,11 +46,11 @@ static inline void main_periodic( void ) {
   RunOnceEvery(50, {
       const float tach_to_rpm = 15000000.*2*M_PI/(float)NB_STEP;
       omega_rad = tach_to_rpm / lp_pulse;
-      DOWNLINK_SEND_IMU_TURNTABLE(DefaultChannel, &omega_rad);}
+      DOWNLINK_SEND_IMU_TURNTABLE(DefaultChannel, DefaultDevice, &omega_rad);}
       //      float foo = nb_pulse;
-      //      DOWNLINK_SEND_IMU_TURNTABLE(DefaultChannel, &foo);}
+      //      DOWNLINK_SEND_IMU_TURNTABLE(DefaultChannel, DefaultDevice, &foo);}
     );
-  RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel,  16, MD5SUM);});
+  RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice,  16, MD5SUM);});
 
 }
 
