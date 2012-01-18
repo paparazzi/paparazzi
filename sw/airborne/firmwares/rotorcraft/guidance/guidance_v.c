@@ -22,7 +22,7 @@
  */
 
 #define GUIDANCE_V_C
-#define GUIDANCE_V_USE_REF
+#define GUIDANCE_V_USE_REF 1
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
 
 
@@ -186,7 +186,7 @@ void guidance_v_run(bool_t in_flight) {
     break;
 
   case GUIDANCE_V_MODE_CLIMB:
-#ifdef USE_FMS
+#if USE_FMS
     if (fms.enabled && fms.input.v_mode == GUIDANCE_V_MODE_CLIMB)
       guidance_v_zd_sp = fms.input.v_sp.climb;
 #endif
@@ -201,7 +201,7 @@ void guidance_v_run(bool_t in_flight) {
     break;
 
   case GUIDANCE_V_MODE_HOVER:
-#ifdef USE_FMS
+#if USE_FMS
     if (fms.enabled && fms.input.v_mode == GUIDANCE_V_MODE_HOVER)
       guidance_v_z_sp = fms.input.v_sp.height;
 #endif

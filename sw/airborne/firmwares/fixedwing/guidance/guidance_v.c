@@ -88,7 +88,7 @@ inline static void v_ctl_climb_auto_throttle_loop( void );
 inline static void v_ctl_climb_auto_pitch_loop( void );
 #endif
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
 float v_ctl_auto_airspeed_setpoint;
 float v_ctl_auto_airspeed_controlled;
 float v_ctl_auto_airspeed_pgain;
@@ -139,7 +139,7 @@ void v_ctl_init( void ) {
   v_ctl_auto_pitch_sum_err = 0.;
 #endif
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
   v_ctl_auto_airspeed_setpoint = V_CTL_AUTO_AIRSPEED_SETPOINT;
   v_ctl_auto_airspeed_controlled = V_CTL_AUTO_AIRSPEED_SETPOINT;
   v_ctl_auto_airspeed_pgain = V_CTL_AUTO_AIRSPEED_PGAIN;
@@ -184,7 +184,7 @@ void v_ctl_init( void ) {
 void v_ctl_altitude_loop( void ) {
   float altitude_pgain_boost = 1.0;
 
-#if defined(USE_AIRSPEED) && defined(AGR_CLIMB)
+#if USE_AIRSPEED && defined(AGR_CLIMB)
   // Aggressive climb mode (boost gain of altitude loop)
   if ( v_ctl_climb_mode == V_CTL_CLIMB_MODE_AUTO_THROTTLE) {
     float dist = fabs(v_ctl_altitude_error);
@@ -233,7 +233,7 @@ void v_ctl_climb_loop ( void ) {
  * \brief
  */
 
-#ifndef USE_AIRSPEED
+#if !USE_AIRSPEED
 
 inline static void v_ctl_climb_auto_throttle_loop(void) {
   static float last_err;

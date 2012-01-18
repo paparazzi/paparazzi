@@ -22,7 +22,7 @@
  */
 
 #define GUIDANCE_H_C
-//#define GUIDANCE_H_USE_REF
+//#define GUIDANCE_H_USE_REF 1
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 
 #include "subsystems/ahrs.h"
@@ -193,7 +193,7 @@ void guidance_h_run(bool_t  in_flight) {
       }
       else {
         INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
-#ifdef GUIDANCE_H_USE_REF
+#if GUIDANCE_H_USE_REF
         b2_gh_update_ref_from_pos_sp(guidance_h_pos_sp);
 #endif
 #ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
@@ -284,7 +284,7 @@ __attribute__ ((always_inline)) static inline void  guidance_h_hover_run(void) {
 __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in_flight) {
 
   /* convert our reference to generic representation */
-#ifdef GUIDANCE_H_USE_REF
+#if GUIDANCE_H_USE_REF
   INT32_VECT2_RSHIFT(guidance_h_pos_ref,   b2_gh_pos_ref,   (B2_GH_POS_REF_FRAC - INT32_POS_FRAC));
   INT32_VECT2_LSHIFT(guidance_h_speed_ref, b2_gh_speed_ref, (INT32_SPEED_FRAC - B2_GH_SPEED_REF_FRAC));
   INT32_VECT2_LSHIFT(guidance_h_accel_ref, b2_gh_accel_ref, (INT32_ACCEL_FRAC - B2_GH_ACCEL_REF_FRAC));

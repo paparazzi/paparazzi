@@ -18,7 +18,7 @@
 
 void set_ir(double roll __attribute__ ((unused)), double pitch __attribute__ ((unused))) {
   // INFRARED_TELEMETRY : Stupid hack to use with modules
-#if defined USE_INFRARED || USE_INFRARED_TELEMETRY
+#if USE_INFRARED || USE_INFRARED_TELEMETRY
   double ir_contrast = 150; //FIXME
   double roll_sensor = roll + JSBSIM_IR_ROLL_NEUTRAL; // ir_roll_neutral;
   double pitch_sensor = pitch + JSBSIM_IR_PITCH_NEUTRAL; // ir_pitch_neutral;

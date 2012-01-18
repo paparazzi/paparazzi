@@ -44,7 +44,7 @@
 #include "subsystems/nav.h"
 #endif
 
-#ifdef USE_JOYSTICK
+#if USE_JOYSTICK
 #include "joystick.h"
 #endif
 
@@ -136,7 +136,7 @@ void dl_parse_msg(void) {
   if (msg_id == DL_WIND_INFO && DL_WIND_INFO_ac_id(dl_buffer) == AC_ID) {
     wind_east = DL_WIND_INFO_east(dl_buffer);
     wind_north = DL_WIND_INFO_north(dl_buffer);
-#ifndef USE_AIRSPEED
+#if !USE_AIRSPEED
     estimator_airspeed = DL_WIND_INFO_airspeed(dl_buffer);
 #endif
 #ifdef WIND_INFO_RET
@@ -178,7 +178,7 @@ void dl_parse_msg(void) {
     DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &val);
   } else
 #endif /** Else there is no dl_settings section in the flight plan */
-#ifdef USE_JOYSTICK
+#if USE_JOYSTICK
     if (msg_id == DL_JOYSTICK_RAW && DL_JOYSTICK_RAW_ac_id(dl_buffer) == AC_ID) {
       JoystickHandeDatalink(DL_JOYSTICK_RAW_roll(dl_buffer),
 			    DL_JOYSTICK_RAW_pitch(dl_buffer),

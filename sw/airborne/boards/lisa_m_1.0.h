@@ -54,7 +54,7 @@
 
 #define BOARD_HAS_BARO
 
-#define USE_OPENCM3
+#define USE_OPENCM3 1
 
 // not needed with USE_OPENCM3:
 //#define HSE_TYPE_EXT_CLK

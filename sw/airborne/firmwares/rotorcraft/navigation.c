@@ -114,7 +114,7 @@ void nav_run(void) {
   int32_t dist_to_waypoint;
   INT32_VECT2_NORM(dist_to_waypoint, path_to_waypoint);
 
-#ifndef GUIDANCE_H_USE_REF
+#if GUIDANCE_H_USE_REF
   if (dist_to_waypoint < CLOSE_TO_WAYPOINT) {
     VECT2_COPY(navigation_carrot, navigation_target);
   }
@@ -255,7 +255,7 @@ unit_t nav_reset_reference( void ) {
 unit_t nav_reset_alt( void ) {
   ins_vf_realign = TRUE;
 
-#ifdef USE_GPS
+#if USE_GPS
   ins_ltp_def.lla.alt = gps.lla_pos.alt;
   ins_ltp_def.hmsl = gps.hmsl;
 #endif
