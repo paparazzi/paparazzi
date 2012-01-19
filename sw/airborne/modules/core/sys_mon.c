@@ -77,7 +77,7 @@ void periodic_report_sysmon(void) {
     sys_mon.cpu_load = 100 * sys_mon.periodic_cycle / sys_mon.periodic_time;
     sys_mon.event_number = sum_n_event / n_periodic;
 
-    DOWNLINK_SEND_SYS_MON(DefaultChannel, &sys_mon.periodic_time, &sys_mon.periodic_cycle, &sys_mon.periodic_cycle_min, &sys_mon.periodic_cycle_max, &sys_mon.event_number, &sys_mon.cpu_load);
+    DOWNLINK_SEND_SYS_MON(DefaultChannel, DefaultDevice, &sys_mon.periodic_time, &sys_mon.periodic_cycle, &sys_mon.periodic_cycle_min, &sys_mon.periodic_cycle_max, &sys_mon.event_number, &sys_mon.cpu_load);
   }
 
   n_periodic = 0;

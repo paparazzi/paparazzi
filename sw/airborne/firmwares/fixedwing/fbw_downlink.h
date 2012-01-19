@@ -58,49 +58,49 @@
 extern uint8_t telemetry_mode_Fbw_DefaultChannel;
 #endif
 
-#define PERIODIC_SEND_COMMANDS(_chan) DOWNLINK_SEND_COMMANDS(_chan, COMMANDS_NB, commands)
+#define PERIODIC_SEND_COMMANDS(_trans, _dev) DOWNLINK_SEND_COMMANDS(_trans, _dev, COMMANDS_NB, commands)
 
 #ifdef RADIO_CONTROL
-#define PERIODIC_SEND_FBW_STATUS(_chan) DOWNLINK_SEND_FBW_STATUS(_chan, &(radio_control.status), &(radio_control.frame_rate), &fbw_mode, &electrical.vsupply, &electrical.current)
+#define PERIODIC_SEND_FBW_STATUS(_trans, _dev) DOWNLINK_SEND_FBW_STATUS(_trans, _dev, &(radio_control.status), &(radio_control.frame_rate), &fbw_mode, &electrical.vsupply, &electrical.current)
 #ifdef RADIO_CONTROL_TYPE_PPM
-#define PERIODIC_SEND_PPM(_chan) {                           \
+#define PERIODIC_SEND_PPM(_trans, _dev) {                           \
   uint16_t ppm_pulses_usec[RADIO_CONTROL_NB_CHANNEL];        \
   for (int i=0;i<RADIO_CONTROL_NB_CHANNEL;i++)               \
     ppm_pulses_usec[i] = USEC_OF_RC_PPM_TICKS(ppm_pulses[i]); \
-  DOWNLINK_SEND_PPM(_chan,                                   \
+  DOWNLINK_SEND_PPM(_trans, _dev,                            \
                     &radio_control.frame_rate,               \
                     PPM_NB_CHANNEL,                          \
                     ppm_pulses_usec);                        \
 }
 #else
-#define PERIODIC_SEND_PPM(_chan) {}
+#define PERIODIC_SEND_PPM(_trans, _dev) {}
 #endif
-#define PERIODIC_SEND_RC(_chan) DOWNLINK_SEND_RC(_chan, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
+#define PERIODIC_SEND_RC(_trans, _dev) DOWNLINK_SEND_RC(_trans, _dev, RADIO_CONTROL_NB_CHANNEL, radio_control.values)
 #else // RADIO_CONTROL
-#define PERIODIC_SEND_FBW_STATUS(_chan) { uint8_t dummy = 0; DOWNLINK_SEND_FBW_STATUS(_chan, &dummy, &dummy, &fbw_mode, &electrical.vsupply, &electrical.current); }
-#define PERIODIC_SEND_PPM(_chan) {}
-#define PERIODIC_SEND_RC(_chan) {}
+#define PERIODIC_SEND_FBW_STATUS(_trans, _dev) { uint8_t dummy = 0; DOWNLINK_SEND_FBW_STATUS(_trans, _dev, &dummy, &dummy, &fbw_mode, &electrical.vsupply, &electrical.current); }
+#define PERIODIC_SEND_PPM(_trans, _dev) {}
+#define PERIODIC_SEND_RC(_trans, _dev) {}
 #endif // RADIO_CONTROL
 
 #ifdef ACTUATORS
-#define PERIODIC_SEND_ACTUATORS(_chan) DOWNLINK_SEND_ACTUATORS(_chan, SERVOS_NB, actuators)
+#define PERIODIC_SEND_ACTUATORS(_trans, _dev) DOWNLINK_SEND_ACTUATORS(_trans, _dev, SERVOS_NB, actuators)
 #else
-#define PERIODIC_SEND_ACTUATORS(_chan) {}
+#define PERIODIC_SEND_ACTUATORS(_trans, _dev) {}
 #endif
 
 #ifdef BRICOLAGE_ADC
 extern uint16_t adc0_val[];
 
-#define PERIODIC_SEND_ADC(_chan) {			\
+#define PERIODIC_SEND_ADC(_trans, _dev) {			\
     static const uint8_t mcu = 0;			\
-    DOWNLINK_SEND_ADC(_chan, &mcu, 8, adc0_val);	\
+    DOWNLINK_SEND_ADC(_trans, _dev, &mcu, 8, adc0_val);	\
   }
 #else
-#define PERIODIC_SEND_ADC(_chan) {}
+#define PERIODIC_SEND_ADC(_trans, _dev) {}
 #endif
 
 static inline void fbw_downlink_periodic_task(void) {
-  PeriodicSendFbw(DefaultChannel)
+  PeriodicSendFbw(DefaultChannel,DefaultDevice)
 }
 
 

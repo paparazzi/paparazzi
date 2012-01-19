@@ -161,7 +161,7 @@ static inline void main_periodic_task( void ) {
 
   RunOnceEvery(10,
     {
-      DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
       LED_PERIODIC();
     });
 
@@ -197,7 +197,7 @@ static inline void main_event_task( void ) {
     int32_t iax = ax;
     int32_t iay = ay;
     int32_t iaz = az;
-    RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, &iax, &iay, &iaz);});
+    RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice, &iax, &iay, &iaz);});
   }
 
 }

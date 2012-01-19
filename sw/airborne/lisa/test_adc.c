@@ -68,8 +68,8 @@ int main( void ) {
 }
 
 static inline void main_periodic_task( void ) {
-  RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
-  RunOnceEvery(100, {/*LED_TOGGLE(7);*/ DOWNLINK_SEND_TIME(DefaultChannel, &cpu_time_sec);});
+  RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
+  RunOnceEvery(100, {/*LED_TOGGLE(7);*/ DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &cpu_time_sec);});
   LED_PERIODIC();
 }
 
@@ -82,7 +82,7 @@ static inline void main_event_task( void ) {
     //    v1 = (((adc0_buf.values[0])));
     v1 = adc0_buf.sum/adc0_buf.av_nb_sample;
     v2 = (((adc3_buf.values[0])));
-    RunOnceEvery(100, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &v1, &v2)});
+    RunOnceEvery(100, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, DefaultDevice, &v1, &v2)});
   }
 
 }

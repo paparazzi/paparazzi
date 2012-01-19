@@ -1,7 +1,7 @@
 /*
- * $Id: $
+ * Paparazzi $Id: pprz_transport.h 4870 2010-04-24 03:02:39Z poine $
  *
- * Copyright (C) 2010 Eric Parsonage
+ * Copyright (C) 2010  ENAC
  *
  * This file is part of paparazzi.
  *
@@ -19,17 +19,30 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
+/** \file pprz_transport.h
+ *  \brief Extra datalink using PPRZ protocol
+ *
+ */
 
-#ifndef DEPLOY_SONAR_BUOY_H
-#define DEPLOY_SONAR_BUOY_H
+#ifndef EXTRA_PPRZ_DL_H
+#define EXTRA_PPRZ_DL_H
 
-#include "std.h"
+#include "subsystems/datalink/datalink.h"
+#include "subsystems/datalink/pprz_transport.h"
 
-extern bool_t buoy_1;
-extern bool_t buoy_2;
-extern void deploy_sonar_buoy_init(void);
-extern void deploy_sonar_buoy_periodic(void);
+/* PPRZ transport structure */
+extern struct pprz_transport extra_pprz_tp;
 
-#endif  /* DEPLOY_SONAR_BUOY_H */
+/* Datalink Event */
+
+#define ExtraDatalinkEvent() {			                  \
+  PpprzCheckAndParse(EXTRA_PPRZ_UART, extra_pprz_tp); \
+  DlCheckAndParse();                                  \
+}
+
+
+#endif /* EXTRA_PPRZ_DL_H */
+

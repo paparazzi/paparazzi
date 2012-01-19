@@ -52,7 +52,7 @@ void trigger_ext_periodic( void ) {
     sync_itow = gps_tow_from_ticks(trigger_t0);
     cycle_time =  MSEC_OF_CPU_TICKS(delta_t0);
 
-    DOWNLINK_SEND_WINDTURBINE_STATUS_(DefaultChannel,
+    DOWNLINK_SEND_WINDTURBINE_STATUS_(DefaultChannel, DefaultDevice,
                 &ac_id,
                 &turb_id,
                 &sync_itow,

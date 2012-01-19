@@ -97,7 +97,7 @@ let print_dl_settings = fun settings ->
   let nb_values = !idx in
 
   (** Macro to call to downlink current values *)
-  lprintf "#define PeriodicSendDlValue(_chan) { \\\n";
+  lprintf "#define PeriodicSendDlValue(_trans, _dev) { \\\n";
   if nb_values > 0 then begin
     right ();
     lprintf "static uint8_t i;\\\n";
@@ -114,7 +114,7 @@ let print_dl_settings = fun settings ->
     lprintf "default: var = 0.; break;\\\n";
     left ();
     lprintf "}\\\n";
-    lprintf "DOWNLINK_SEND_DL_VALUE(_chan, &i, &var);\\\n";
+    lprintf "DOWNLINK_SEND_DL_VALUE(_trans, _dev, &i, &var);\\\n";
     lprintf "i++;\\\n";
     left ()
   end;

@@ -70,7 +70,7 @@ static inline void main_init( void ) {
 static inline void main_periodic_task( void ) {
   RunOnceEvery(100, {
       LED_TOGGLE(3);
-      DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
     });
   imu_periodic();
   RunOnceEvery(10, { LED_PERIODIC();});
@@ -101,11 +101,11 @@ static inline void on_gyro_accel_event(void) {
   if (cnt > NB_SAMPLES) cnt = 0;
   samples[cnt] = imu.MEASURED_SENSOR;
   if (cnt == NB_SAMPLES-1) {
-    DOWNLINK_SEND_IMU_HS_GYRO(DefaultChannel, &axis, NB_SAMPLES, samples);
+    DOWNLINK_SEND_IMU_HS_GYRO(DefaultChannel, DefaultDevice, &axis, NB_SAMPLES, samples);
   }
 
   if (cnt == 10) {
-    DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,
+    DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice,
 			       &imu.gyro_unscaled.p,
 			       &imu.gyro_unscaled.q,
 			       &imu.gyro_unscaled.r);

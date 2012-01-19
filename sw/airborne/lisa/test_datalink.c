@@ -52,7 +52,7 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic( void ) {
-  RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel,  16, MD5SUM);});
+  RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice,  16, MD5SUM);});
 }
 
 static inline void main_event( void ) {
@@ -67,7 +67,7 @@ void dl_parse_msg(void) {
 
   case  DL_PING:
     {
-      DOWNLINK_SEND_PONG(DefaultChannel);
+      DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
     }
     break;
   }

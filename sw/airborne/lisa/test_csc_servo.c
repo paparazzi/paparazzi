@@ -92,7 +92,7 @@ static inline void main_periodic_task( void ) {
 	cscp_transmit(0, 0, (uint8_t *)servos, 8);
 
 	LED_PERIODIC();
-	DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+	DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
 }
 
 
@@ -105,17 +105,17 @@ static inline void main_event_task( void ) {
 	LED_OFF(2);
 	LED_OFF(3);
 
-//	DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+//	DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
 }
 
 void main_on_vane_msg(void *data)
 {
 	int zero = 0;
 
-//	DOWNLINK_SEND_PONG(DefaultChannel);
+//	DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
 
 //	RunOnceEvery(10, {
-			DOWNLINK_SEND_VANE_SENSOR(DefaultChannel,
+			DOWNLINK_SEND_VANE_SENSOR(DefaultChannel, DefaultDevice,
 																&(csc_vane_msg.vane_angle1),
 																&zero,
 																&zero,

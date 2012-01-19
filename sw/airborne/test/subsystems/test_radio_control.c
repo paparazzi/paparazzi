@@ -62,14 +62,14 @@ static inline void main_periodic_task( void ) {
   RunOnceEvery(51, {
     /*LED_TOGGLE(2);*/
     uint32_t blaaa= cpu_time_sec;
-    DOWNLINK_SEND_TIME(DefaultChannel, &blaaa);
+    DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &blaaa);
   });
 
   RunOnceEvery(10, {radio_control_periodic_task();});
 
   int16_t foo = 0;//RC_PPM_SIGNED_TICKS_OF_USEC(2050-1500);
   RunOnceEvery(10,
-    {DOWNLINK_SEND_ROTORCRAFT_RADIO_CONTROL(DefaultChannel,	\
+    {DOWNLINK_SEND_ROTORCRAFT_RADIO_CONTROL(DefaultChannel, DefaultDevice,	\
 				       &radio_control.values[RADIO_ROLL], \
 				       &radio_control.values[RADIO_PITCH], \
 				       &radio_control.values[RADIO_YAW], \
@@ -79,7 +79,7 @@ static inline void main_periodic_task( void ) {
 				       &radio_control.status);});
 #ifdef RADIO_CONTROL_TYPE_PPM
   RunOnceEvery(10,
-	       {uint8_t blaa = 0; DOWNLINK_SEND_PPM(DefaultChannel,&blaa, 8, booz_radio_control_ppm_pulses);});
+	       {uint8_t blaa = 0; DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice,&blaa, 8, booz_radio_control_ppm_pulses);});
 #endif
 
   LED_PERIODIC();

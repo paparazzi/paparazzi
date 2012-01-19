@@ -83,7 +83,7 @@ static void MPPT_ask( void ) {
     fbw_current_milliamp = MPPT_data[MPPT_IBAT_INDEX];
 
     MPPT_data[MPPT_ITOTAL_INDEX] = MPPT_data[MPPT_IBAT_INDEX] + MPPT_data[MPPT_ICONV_INDEX];
-    DOWNLINK_SEND_MPPT(DefaultChannel, NB_DATA, MPPT_data);
+    DOWNLINK_SEND_MPPT(DefaultChannel, DefaultDevice, NB_DATA, MPPT_data);
     data_index = 0;
   }
 

@@ -23,11 +23,7 @@
  *
  */
 
-#include <inttypes.h>
 #include "extra_pprz_dl.h"
-#include "mcu_periph/uart.h"
 
-volatile bool_t extra_pprz_msg_received = FALSE;
-uint8_t extra_pprz_ovrn, extra_pprz_error;
-volatile uint8_t extra_pprz_payload_len;
-uint8_t extra_pprz_payload[PPRZ_PAYLOAD_LEN];
+struct pprz_transport extra_pprz_tp;
+

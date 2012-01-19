@@ -209,7 +209,7 @@ static void calibration( void ) {
   ut1 = (c5 << 3) + 20224;
 
 #ifndef BARO_NO_DOWNLINK
-  DOWNLINK_SEND_BARO_WORDS(DefaultChannel, &words[0], &words[1], &words[2], &words[3]);
+  DOWNLINK_SEND_BARO_WORDS(DefaultChannel, DefaultDevice, &words[0], &words[1], &words[2], &words[3]);
 #endif
 }
 

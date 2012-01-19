@@ -179,7 +179,7 @@ static void baro_scp_read(void) {
 void baro_scp_event( void ) {
   if (baro_scp_available == TRUE) {
 #ifdef SENSOR_SYNC_SEND
-    DOWNLINK_SEND_SCP_STATUS(DefaultChannel, &baro_scp_pressure, &baro_scp_temperature);
+    DOWNLINK_SEND_SCP_STATUS(DefaultChannel, DefaultDevice, &baro_scp_pressure, &baro_scp_temperature);
 #endif
     baro_scp_available = FALSE;
   }

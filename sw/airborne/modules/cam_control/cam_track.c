@@ -115,7 +115,7 @@ void track_periodic_task(void) {
   for (i = 0; i < c; i++) {
     CamUartSend1(cmd_msg[i]);
   }
-  //DOWNLINK_SEND_DEBUG(DefaultChannel,c,cmd_msg);
+  //DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,c,cmd_msg);
 
 }
 
@@ -188,13 +188,13 @@ void parse_cam_msg( void ) {
   ptr++;
   *ptr = cam_data_buf[11];
 
-  //DOWNLINK_SEND_DEBUG(DefaultChannel,12,cam_data_buf);
+  //DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,12,cam_data_buf);
 }
 
 void parse_cam_buffer( uint8_t c ) {
   char bla[1];
   bla[1] = c;
-  //DOWNLINK_SEND_DEBUG(DefaultChannel,1,bla);
+  //DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,1,bla);
   switch (cam_status) {
   case UNINIT:
     if (c != CAM_START_1)

@@ -31,12 +31,9 @@
 #endif
 
 uint8_t xbee_cs;
-uint8_t xbee_payload[XBEE_PAYLOAD_LEN];
-volatile bool_t xbee_msg_received;
-volatile uint8_t xbee_payload_len;
 uint8_t xbee_rssi;
-uint8_t xbee_ovrn, xbee_error;
 
+struct xbee_transport xbee_tp;
 
 #define AT_COMMAND_SEQUENCE "+++"
 #define AT_INIT_PERIOD_US 2000000
@@ -46,29 +43,32 @@ uint8_t xbee_ovrn, xbee_error;
 
 
 void xbee_init( void ) {
+  xbee_tp.status = XBEE_UNINIT;
+  xbee_tp.trans.msg_received = FALSE;
+
 #ifndef NO_XBEE_API_INIT
   /** - busy wait 1.25s */
   sys_time_usleep(1250000);
 
   /** Switching to AT mode (FIXME: busy waiting) */
-  XBeePrintString(AT_COMMAND_SEQUENCE);
+  XBeePrintString(XBEE_UART,AT_COMMAND_SEQUENCE);
 
   /** - busy wait 1.25s */
   sys_time_usleep(1250000);
 
   /** Setting my address */
-  XBeePrintString(AT_SET_MY);
+  XBeePrintString(XBEE_UART,AT_SET_MY);
   uint16_t addr = XBEE_MY_ADDR;
-  XBeePrintHex16(addr);
-  XBeePrintString("\r");
+  XBeePrintHex16(XBEE_UART,addr);
+  XBeePrintString(XBEE_UART,"\r");
 
-  XBeePrintString(AT_AP_MODE);
+  XBeePrintString(XBEE_UART,AT_AP_MODE);
 
 #ifdef XBEE_INIT
-  XBeePrintString(XBEE_INIT);
+  XBeePrintString(XBEE_UART,XBEE_INIT);
 #endif
 
   /** Switching back to normal mode */
-  XBeePrintString(AT_EXIT);
+  XBeePrintString(XBEE_UART,AT_EXIT);
 #endif
 }

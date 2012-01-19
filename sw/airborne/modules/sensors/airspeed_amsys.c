@@ -149,9 +149,9 @@ void airspeed_amsys_read_event( void ) {
 		EstimatorSetAirspeed(airspeed_amsys);
 #endif
 #ifdef SENSOR_SYNC_SEND
-		DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, &airspeed_amsys_raw, &pressure_amsys, &airspeed_tmp, &airspeed_amsys, &airspeed_temperature);
+		DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, DefaultDevice, &airspeed_amsys_raw, &pressure_amsys, &airspeed_tmp, &airspeed_amsys, &airspeed_temperature);
 #else
-		RunOnceEvery(10, DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, &airspeed_amsys_raw, &pressure_amsys, &airspeed_tmp, &airspeed_amsys, &airspeed_temperature));
+		RunOnceEvery(10, DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, DefaultDevice, &airspeed_amsys_raw, &pressure_amsys, &airspeed_tmp, &airspeed_amsys, &airspeed_temperature));
 #endif
 	}
 

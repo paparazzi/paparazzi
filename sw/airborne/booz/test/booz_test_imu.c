@@ -78,11 +78,11 @@ static inline void led_toggle ( void ) {
 static inline void main_periodic_task( void ) {
   RunOnceEvery(100, {
       led_toggle();
-      DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
     });
 #ifdef USE_I2C2
   RunOnceEvery(111, {
-      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel,
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
                    &i2c2_errors.ack_fail_cnt,
                    &i2c2_errors.miss_start_stop_cnt,
                    &i2c2_errors.arb_lost_cnt,
@@ -112,13 +112,13 @@ static inline void on_accel_event(void) {
   cnt++;
   if (cnt > 15) cnt = 0;
   if (cnt == 0) {
-    DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,
+    DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,
                 &imu.accel_unscaled.x,
                 &imu.accel_unscaled.y,
                 &imu.accel_unscaled.z);
   }
   else if (cnt == 7) {
-    DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel,
+    DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel, DefaultDevice,
                   &imu.accel.x,
                   &imu.accel.y,
                   &imu.accel.z);
@@ -134,13 +134,13 @@ static inline void on_gyro_accel_event(void) {
   if (cnt > 15) cnt = 0;
 
   if (cnt == 0) {
-    DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,
+    DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice,
                    &imu.gyro_unscaled.p,
                    &imu.gyro_unscaled.q,
                    &imu.gyro_unscaled.r);
   }
   else if (cnt == 7) {
-    DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel,
+    DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel, DefaultDevice,
                  &imu.gyro.p,
                  &imu.gyro.q,
                  &imu.gyro.r);
@@ -155,13 +155,13 @@ static inline void on_mag_event(void) {
   if (cnt > 10) cnt = 0;
 
   if (cnt == 0) {
-    DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel,
+    DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel, DefaultDevice,
                 &imu.mag.x,
                 &imu.mag.y,
                 &imu.mag.z);
   }
   else if (cnt == 5) {
-    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
+    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
                   &imu.mag_unscaled.x,
                   &imu.mag_unscaled.y,
                   &imu.mag_unscaled.z);

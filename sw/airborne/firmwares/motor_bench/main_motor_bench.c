@@ -79,10 +79,10 @@ static inline void main_periodic_task( void ) {
 
 
   RunOnceEvery(125, {
-      DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
       PeriodicSendDlValue(DefaultChannel);
     });
-  DOWNLINK_SEND_MOTOR_BENCH_STATUS(DefaultChannel, &cpu_time_ticks, &throttle, &rpm, &amps , &thrust, &torque, &cpu_time_sec, &mb_modes_mode);
+  DOWNLINK_SEND_MOTOR_BENCH_STATUS(DefaultChannel, DefaultDevice, &cpu_time_ticks, &throttle, &rpm, &amps , &thrust, &torque, &cpu_time_sec, &mb_modes_mode);
 
 
 
@@ -119,6 +119,6 @@ static inline void main_dl_parse_msg(void) {
     uint8_t i = DL_SETTING_index(dl_buffer);
     float var = DL_SETTING_value(dl_buffer);
     DlSetting(i, var);
-    DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &var);
+    DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &var);
   }
 }

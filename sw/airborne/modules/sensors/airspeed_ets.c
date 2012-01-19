@@ -170,7 +170,7 @@ void airspeed_ets_read_event( void ) {
     EstimatorSetAirspeed(airspeed_ets);
 #endif
 #ifdef SENSOR_SYNC_SEND
-    DOWNLINK_SEND_AIRSPEED_ETS(DefaultChannel, &airspeed_ets_raw, &airspeed_ets_offset, &airspeed_ets);
+    DOWNLINK_SEND_AIRSPEED_ETS(DefaultChannel, DefaultDevice, &airspeed_ets_raw, &airspeed_ets_offset, &airspeed_ets);
 #endif
   } else {
     airspeed_ets = 0.0;
