@@ -21,9 +21,13 @@
  *
  */
 
+/**
+ * @file mcu_periph/sys_time.c
+ * @brief Architecture independent timing functions.
+ *
+ */
+
 #include "mcu_periph/sys_time.h"
-
-
 #include "mcu.h"
 
 struct sys_time sys_time;

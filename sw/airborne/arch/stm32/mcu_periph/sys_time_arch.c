@@ -20,6 +20,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file arch/stm32/mcu_periph/sys_time_arch.c
+ * @brief STM32 timing functions.
+ *
+ */
+
 #include "mcu_periph/sys_time.h"
 
 #include "stm32_vector_table.h"

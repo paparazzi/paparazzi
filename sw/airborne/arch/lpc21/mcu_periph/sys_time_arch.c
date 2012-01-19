@@ -20,6 +20,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file arch/lpc21/mcu_periph/sys_time_arch.c
+ * @brief LPC21xx timing functions.
+ *
+ */
+
 #include "mcu_periph/sys_time.h"
 
 #include "armVIC.h"

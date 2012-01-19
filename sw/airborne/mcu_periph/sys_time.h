@@ -21,8 +21,9 @@
  *
  */
 
-/*
- *\brief architecture independant timing functions
+/**
+ * @file mcu_periph/sys_time.h
+ * @brief Architecture independent timing functions.
  *
  */
 

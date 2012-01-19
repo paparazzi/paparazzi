@@ -21,8 +21,9 @@
  *
  */
 
-/*
- *\brief STM32 timing functions
+/**
+ * @file arch/stm32/mcu_periph/sys_time_arch.h
+ * @brief STM32 timing functions.
  *
  */
 
