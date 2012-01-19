@@ -107,7 +107,7 @@ comments.
 -# for documentation requiring multiple lines, use a "block" style:
 @verbatim
 /**
- * @brief First sentence is short description.  Remaining text becomes
+ * First sentence is brief description.  Remaining text becomes
  * the full description block, where "empty" lines start new paragraphs.
  *
  * One can make text appear in @a italics, @b bold, @c monospace, or
@@ -139,7 +139,7 @@ int field2; ///< a brief description
 @verbatim
 /**
  * @file foo/bar/file.c
- * @brief Brief description of file.
+ * Brief description of file.
  *
  * More detailed description of file.
  */
@@ -150,6 +150,8 @@ int field2; ///< a brief description
 The following guidelines apply to all Doxygen comment blocks:
 
 -# Use the @c '\@cmd' form for all doxygen commands (do @b not use @c '\\cmd').
+-# It is not necessary to use @c \@brief since @c JAVADOC_AUTOBRIEF is enabled.
+  - The first line (until the first dot) is automatically treated as brief description.
 -# Use symbol names such that Doxygen automatically creates links:
   -# @c function_name() can be used to reference functions
     (e.g. ahrs_propagate()).
