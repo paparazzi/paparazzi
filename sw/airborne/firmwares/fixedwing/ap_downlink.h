@@ -47,17 +47,10 @@
 #include "messages.h"
 #include "generated/periodic.h"
 
-//#include "generated/modules.h"
-
 #if defined DOWNLINK
 #define Downlink(x) x
 #else
 #define Downlink(x) {}
-#endif
-
-#ifdef AP
-/** Telemetry mode for AP process: index in the telemetry.xml file */
-extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #endif
 
 #define PERIODIC_SEND_ALIVE(_trans, _dev)  DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM);

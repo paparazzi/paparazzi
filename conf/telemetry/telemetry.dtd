@@ -11,6 +11,7 @@
 >
 <!ATTLIST mode
   name CDATA #REQUIRED
+  key_press CDATA #IMPLIED
 >
 <!ATTLIST message
   name CDATA #REQUIRED

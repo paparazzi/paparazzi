@@ -4,11 +4,6 @@
   <dl_settings>
 
     <dl_settings NAME="Misc">
-       <dl_setting var="telemetry_mode_Main_DefaultChannel" min="0" step="1" max="11" module="telemetry" shortname="telemetry" values="Default|PPM|Raw|Scaled|AHRS|Rate|Attitude|Vertical|Horizontal|Aligner|HS_att_roll|Tune_hover">
-         <key_press key="d" value="0"/>
-         <key_press key="v" value="7"/>
-         <key_press key="h" value="8"/>
-       </dl_setting>
        <dl_setting var="autopilot_mode_auto2" min="0" step="1" max="12" module="autopilot" shortname="auto2" values="Fail|Kill|Rate|Att|Rate_rcC|Att_rcC|Att_C|Rate_Z|Att_Z|Hover|Hover_C|Hover_Z|Nav"/>
       <dl_setting var="kill_throttle" min="0" step="1" max="1" module="autopilot" values="Resurrect|Kill" handler="KillThrottle"/>
       <dl_setting var="autopilot_power_switch" min="0" step="1" max="1" module="autopilot" values="OFF|ON" handler="SetPowerSwitch">

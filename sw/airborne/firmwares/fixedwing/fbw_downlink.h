@@ -53,11 +53,6 @@
 #endif
 #include "subsystems/datalink/downlink.h"
 
-#ifdef FBW
-/** Telemetry mode for FBW process: index in the telemetry.xml file */
-extern uint8_t telemetry_mode_Fbw_DefaultChannel;
-#endif
-
 #define PERIODIC_SEND_COMMANDS(_trans, _dev) DOWNLINK_SEND_COMMANDS(_trans, _dev, COMMANDS_NB, commands)
 
 #ifdef RADIO_CONTROL

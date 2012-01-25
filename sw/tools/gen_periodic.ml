@@ -93,10 +93,39 @@ let output_modes = fun avr_h process_name channel_name device_name modes freq mo
       lprintf avr_h "}\\\n")
     modes
 
+let write_settings = fun xml_file out_set telemetry_xml ->
+  fprintf out_set "<!-- This file has been generated from %s -->\n" xml_file;
+  fprintf out_set "<!-- Please DO NOT EDIT -->\n\n";
+  fprintf out_set "<settings>\n";
+  fprintf out_set " <dl_settings>\n";
+  fprintf out_set "  <dl_settings name=\"Telemetry\">\n";
+  List.iter (fun p ->
+    (* for each process *)
+    let process_name = Xml.attrib p "name"
+    and channel_name = ExtXml.attrib_or_default p "channel" "" in
+    (* convert the xml list of mode to a string list *)
+    let modes = List.map (fun m -> Xml.attrib m "name") (Xml.children p) in
+    let nb_modes = List.length modes in
+    match nb_modes with
+      0 | 1 -> () (* Nothing to do if 1 or zero mode *)
+    | _ -> (* add settings with all modes *)
+        fprintf out_set "   <dl_setting min=\"0\" step=\"1\" max=\"%d\" var=\"telemetry_mode_%s_%s\" shortname=\"%s\" values=\"%s\">\n" (nb_modes-1) process_name channel_name process_name (String.concat "|" modes);
+        let i = ref 0 in
+        List.iter (fun m -> try
+            let key = Xml.attrib m "key_press" in
+            fprintf out_set "    <key_press key=%S value=%S/>\n" key (string_of_int !i);
+            i := !i + 1
+          with _ -> i:= !i + 1) (Xml.children p);
+        fprintf out_set "   </dl_setting>\n"
+  ) (Xml.children telemetry_xml);
+  fprintf out_set "  </dl_settings>\n";
+  fprintf out_set " </dl_settings>\n";
+  fprintf out_set "</settings>\n"
+
 
 let _ =
-  if Array.length Sys.argv <> 5 then begin
-    failwith (sprintf "Usage: %s <airframe.xml> <messages.xml> <telemetry.xml> frequency_in_hz" Sys.argv.(0))
+  if Array.length Sys.argv <> 6 then begin
+    failwith (sprintf "Usage: %s <airframe.xml> <messages.xml> <telemetry.xml> frequency_in_hz out_settings_file" Sys.argv.(0))
   end;
 
   let freq = int_of_string(Sys.argv.(4)) in
@@ -113,7 +142,9 @@ let _ =
   fprintf avr_h "/* This file has been generated from %s and %s */\n" Sys.argv.(2) Sys.argv.(3);
   fprintf avr_h "/* Please DO NOT EDIT */\n\n";
   fprintf avr_h "#ifndef _VAR_PERIODIC_H_\n";
-  fprintf avr_h "#define _VAR_PERIODIC_H_\n";
+  fprintf avr_h "#define _VAR_PERIODIC_H_\n\n";
+  fprintf avr_h "#include \"std.h\"\n";
+  fprintf avr_h "#include \"generated/airframe.h\"\n\n";
 
   (** For each process *)
   List.iter
@@ -123,6 +154,14 @@ let _ =
       and device_name = ExtXml.attrib_or_default process "device" "DefaultDevice" in
 
       fprintf avr_h "\n/* Macros for %s process channel %s with device %s */\n" process_name channel_name device_name;
+      fprintf avr_h "#ifdef PERIODIC_C_%s\n" (String.uppercase process_name);
+      fprintf avr_h "#ifndef TELEMETRY_MODE_%s\n" (String.uppercase process_name);
+      fprintf avr_h "#define TELEMETRY_MODE_%s 0\n" (String.uppercase process_name);
+      fprintf avr_h "#endif\n";
+      fprintf avr_h "uint8_t telemetry_mode_%s_%s = TELEMETRY_MODE_%s;\n" process_name channel_name (String.uppercase process_name);
+      fprintf avr_h "#else /* PERIODIC_C_%s not defined (general header) */\n" (String.uppercase process_name);
+      fprintf avr_h "extern uint8_t telemetry_mode_%s_%s;\n" process_name channel_name;
+      fprintf avr_h "#endif /* PERIODIC_C_%s */\n" (String.uppercase process_name);
 
       let modes = Xml.children process in
 
@@ -148,6 +187,11 @@ let _ =
       lprintf avr_h "}\n"
     )
     (Xml.children telemetry_xml);
+
+  (** Output XML settings file with telemetry modes *)
+  let out_set = open_out Sys.argv.(5) in
+  write_settings Sys.argv.(3) out_set telemetry_xml;
+  close_out out_set;
 
   fprintf avr_h "#endif // _VAR_PERIODIC_H_\n";
 

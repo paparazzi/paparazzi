@@ -55,8 +55,6 @@
 //FIXME: wtf ??!!
 #include "mcu_periph/i2c_arch.h"
 
-extern uint8_t telemetry_mode_Main_DefaultChannel;
-
 #if USE_GPS
 #define PERIODIC_SEND_ROTORCRAFT_STATUS(_trans, _dev) {			\
     uint32_t imu_nb_err = 0;						\
