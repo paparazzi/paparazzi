@@ -39,14 +39,14 @@ let lprintf = fun c f ->
   fprintf c "%s" (String.make !margin ' ');
   fprintf c f
 
-let output_modes = fun avr_h process_name channel_name device_name modes freq modules ->
+let output_modes = fun out_h process_name channel_name device_name modes freq modules ->
   let min_period = 1./.float freq in
   let max_period = 65536. /. float freq in
   (** For each mode in this process *)
   List.iter
     (fun mode ->
       let mode_name = ExtXml.attrib mode "name" in
-      lprintf avr_h "if (telemetry_mode_%s_%s == TELEMETRY_MODE_%s_%s_%s) {\\\n" process_name channel_name process_name channel_name mode_name;
+      lprintf out_h "if (telemetry_mode_%s_%s == TELEMETRY_MODE_%s_%s_%s) {\\\n" process_name channel_name process_name channel_name mode_name;
       right ();
 
       (** Filter message list to remove messages linked to unloaded modules *)
@@ -64,7 +64,7 @@ let output_modes = fun avr_h process_name channel_name device_name modes freq mo
       List.iter (fun m ->
         let v = sprintf "i%d" m in
         let _type = if m >= 256 then "uint16_t" else "uint8_t" in
-        lprintf avr_h "static %s %s = 0; %s++; if (%s>=%d) %s=0;\\\n" _type v v v m v;
+        lprintf out_h "static %s %s = 0; %s++; if (%s>=%d) %s=0;\\\n" _type v v v m v;
         ) modulos;
 
       (** For each message in this mode *)
@@ -80,17 +80,17 @@ let output_modes = fun avr_h process_name channel_name device_name modes freq mo
           let message_phase = try int_of_float (float_of_string (ExtXml.attrib message "phase")*.float_of_int freq) with _ -> !i in
           phase := message_phase;
           let else_ = if List.mem_assoc p !l && not (List.mem (p, !phase) !l) then "else " else "" in
-          lprintf avr_h "%sif (i%d == %d) {\\\n" else_ p !phase;
+          lprintf out_h "%sif (i%d == %d) {\\\n" else_ p !phase;
           l := (p, !phase) :: !l;
           i := !i + freq/10;
           right ();
-          lprintf avr_h "PERIODIC_SEND_%s(%s,%s);\\\n" message_name channel_name device_name;
+          lprintf out_h "PERIODIC_SEND_%s(%s,%s);\\\n" message_name channel_name device_name;
           left ();
-          lprintf avr_h "} \\\n"
+          lprintf out_h "} \\\n"
         )
         messages;
       left ();
-      lprintf avr_h "}\\\n")
+      lprintf out_h "}\\\n")
     modes
 
 let write_settings = fun xml_file out_set telemetry_xml ->
@@ -137,14 +137,14 @@ let _ =
   in
   let modules_name = GC.get_modules_name (ExtXml.parse_file Sys.argv.(1)) in
 
-  let avr_h = stdout in
+  let out_h = stdout in
 
-  fprintf avr_h "/* This file has been generated from %s and %s */\n" Sys.argv.(2) Sys.argv.(3);
-  fprintf avr_h "/* Please DO NOT EDIT */\n\n";
-  fprintf avr_h "#ifndef _VAR_PERIODIC_H_\n";
-  fprintf avr_h "#define _VAR_PERIODIC_H_\n\n";
-  fprintf avr_h "#include \"std.h\"\n";
-  fprintf avr_h "#include \"generated/airframe.h\"\n\n";
+  fprintf out_h "/* This file has been generated from %s and %s */\n" Sys.argv.(2) Sys.argv.(3);
+  fprintf out_h "/* Please DO NOT EDIT */\n\n";
+  fprintf out_h "#ifndef _VAR_PERIODIC_H_\n";
+  fprintf out_h "#define _VAR_PERIODIC_H_\n\n";
+  fprintf out_h "#include \"std.h\"\n";
+  fprintf out_h "#include \"generated/airframe.h\"\n\n";
 
   (** For each process *)
   List.iter
@@ -153,15 +153,15 @@ let _ =
       and channel_name =  ExtXml.attrib_or_default process "channel" "DefaultChannel"
       and device_name = ExtXml.attrib_or_default process "device" "DefaultDevice" in
 
-      fprintf avr_h "\n/* Macros for %s process channel %s with device %s */\n" process_name channel_name device_name;
-      fprintf avr_h "#ifdef PERIODIC_C_%s\n" (String.uppercase process_name);
-      fprintf avr_h "#ifndef TELEMETRY_MODE_%s\n" (String.uppercase process_name);
-      fprintf avr_h "#define TELEMETRY_MODE_%s 0\n" (String.uppercase process_name);
-      fprintf avr_h "#endif\n";
-      fprintf avr_h "uint8_t telemetry_mode_%s_%s = TELEMETRY_MODE_%s;\n" process_name channel_name (String.uppercase process_name);
-      fprintf avr_h "#else /* PERIODIC_C_%s not defined (general header) */\n" (String.uppercase process_name);
-      fprintf avr_h "extern uint8_t telemetry_mode_%s_%s;\n" process_name channel_name;
-      fprintf avr_h "#endif /* PERIODIC_C_%s */\n" (String.uppercase process_name);
+      fprintf out_h "\n/* Macros for %s process channel %s with device %s */\n" process_name channel_name device_name;
+      fprintf out_h "#ifdef PERIODIC_C_%s\n" (String.uppercase process_name);
+      fprintf out_h "#ifndef TELEMETRY_MODE_%s\n" (String.uppercase process_name);
+      fprintf out_h "#define TELEMETRY_MODE_%s 0\n" (String.uppercase process_name);
+      fprintf out_h "#endif\n";
+      fprintf out_h "uint8_t telemetry_mode_%s_%s = TELEMETRY_MODE_%s;\n" process_name channel_name (String.uppercase process_name);
+      fprintf out_h "#else /* PERIODIC_C_%s not defined (general header) */\n" (String.uppercase process_name);
+      fprintf out_h "extern uint8_t telemetry_mode_%s_%s;\n" process_name channel_name;
+      fprintf out_h "#endif /* PERIODIC_C_%s */\n" (String.uppercase process_name);
 
       let modes = Xml.children process in
 
@@ -180,11 +180,11 @@ let _ =
         incr i)
         modes;
 
-      lprintf avr_h "#define PeriodicSend%s(%s,%s) {  /* %dHz */ \\\n" process_name channel_name device_name freq;
+      lprintf out_h "#define PeriodicSend%s(%s,%s) {  /* %dHz */ \\\n" process_name channel_name device_name freq;
       right ();
-      output_modes avr_h process_name channel_name device_name modes freq modules_name;
+      output_modes out_h process_name channel_name device_name modes freq modules_name;
       left ();
-      lprintf avr_h "}\n"
+      lprintf out_h "}\n"
     )
     (Xml.children telemetry_xml);
 
@@ -193,5 +193,5 @@ let _ =
   write_settings Sys.argv.(3) out_set telemetry_xml;
   close_out out_set;
 
-  fprintf avr_h "#endif // _VAR_PERIODIC_H_\n";
+  fprintf out_h "#endif // _VAR_PERIODIC_H_\n";
 
