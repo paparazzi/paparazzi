@@ -88,8 +88,11 @@
  <section name="BAT">
    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+<<<<<<< HEAD
    <define name="MIN_BAT_LEVEL" value="10" units="V"/>
    <define name="BATTERY_SENS"   value="0.48" integer="16"/>
+=======
+>>>>>>> 0ed489b9d13c4476517d632660db4e31e1b6e92b
  </section>
 
 

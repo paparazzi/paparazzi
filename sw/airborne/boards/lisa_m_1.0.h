@@ -19,7 +19,10 @@
 #define LED_2_GPIO_PIN GPIO_Pin_5
 #define LED_2_AFIO_REMAP ((void)0)
 
+<<<<<<< HEAD
 /* Also ADC6 */
+=======
+>>>>>>> 0ed489b9d13c4476517d632660db4e31e1b6e92b
 #define LED_3_BANK
 #define LED_3_GPIO GPIOC
 #define LED_3_GPIO_CLK RCC_APB2Periph_GPIOC
