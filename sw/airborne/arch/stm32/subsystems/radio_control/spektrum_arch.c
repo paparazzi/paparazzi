@@ -53,7 +53,12 @@
 #define TIM_FREQ_1000000 1000000
 #define TIM_TICS_FOR_100us 100
 #define MIN_FRAME_SPACE  70  // 7ms
+
 #define MAX_BYTE_SPACE  3   // .3ms
+//incase using Quadshot supplied RC equipment
+#ifdef RADIO_CONTROL_QUADSHOT_RADIO
+#define MAX_BYTE_SPACE  12   // 1.2ms
+#endif
 
 /*
  * in the makefile we set RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT to be Uartx
@@ -543,6 +548,10 @@ void SpektrumUartInit(void) {
   /* Configure Primary UART */
   USART_InitTypeDef usart;
   usart.USART_BaudRate            = B115200;
+  //incase using Quadshot supplied RC equipment
+  #ifdef RADIO_CONTROL_QUADSHOT_RADIO
+  usart.USART_BaudRate            = B38400;
+  #endif
   usart.USART_WordLength          = USART_WordLength_8b;
   usart.USART_StopBits            = USART_StopBits_1;
   usart.USART_Parity              = USART_Parity_No;
@@ -554,6 +563,10 @@ void SpektrumUartInit(void) {
 
   /* required to get the correct baudrate on lisa m */
   pprz_usart_set_baudrate(PrimaryUart(_reg), B115200);
+  //incase using Quadshot supplied RC equipment
+  #ifdef RADIO_CONTROL_QUADSHOT_RADIO
+  pprz_usart_set_baudrate(PrimaryUart(_reg), B38400);
+  #endif
   /* Enable the Primary UART */
   USART_Cmd(PrimaryUart(_reg), ENABLE);
 
@@ -577,6 +590,9 @@ void SpektrumUartInit(void) {
   GPIO_Init(SecondaryUart(_RxPort), &GPIO_InitStructure);
   /* Configure secondary UART */
   usart.USART_BaudRate            = B115200;
+  #ifdef RADIO_CONTROL_QUADSHOT_RADIO
+  usart.USART_BaudRate            = B38400;
+  #endif
   usart.USART_WordLength          = USART_WordLength_8b;
   usart.USART_StopBits            = USART_StopBits_1;
   usart.USART_Parity              = USART_Parity_No;
@@ -588,6 +604,10 @@ void SpektrumUartInit(void) {
 
   /* required to get the correct baudrate on lisa m */
   pprz_usart_set_baudrate(SecondaryUart(_reg), B115200);
+  //incase using Quadshot supplied RC equipment
+  #ifdef RADIO_CONTROL_QUADSHOT_RADIO
+  pprz_usart_set_baudrate(PrimaryUart(_reg), B38400);
+  #endif
   /* Enable the Primary UART */
   USART_Cmd(SecondaryUart(_reg), ENABLE);
 #endif
