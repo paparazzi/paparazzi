@@ -34,8 +34,8 @@
     <define name="AUTOPILOT_KILL_WITHOUT_AHRS"  value="TRUE"/>
     <define name="AUTOPILOT_INSTANT_START_WITH_SAFETIES"  value="TRUE"/>
     <!--This is to enable a wing waggle at specified low battery voltage. The interval is in cycle counts, not seconds-->
-    <define name="AUTOPILOT_LOBATT_WING_WAGGLE"  value="TRUE"/>
-    <define name="AUTOPILOT_LOBATT_WING_WAGGLE_INTERVAL"  value="5120"/>
+    <!--define name="AUTOPILOT_LOBATT_WING_WAGGLE"/>
+    <define name="AUTOPILOT_LOBATT_WING_WAGGLE_INTERVAL"  value="5120"/-->
     <define name="TOYTRONICS" value="TRUE"/>
   </section>
 
@@ -256,6 +256,7 @@
       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
       <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/>
       <define name = "RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value = "UART5"/>
+      <!--define name = "RADIO_CONTROL_QUADSHOT_RADIO"/-->
       <define name = "OVERRIDE_UART5_IRQ_HANDLER"/>
     </target>
     <target name="sim" board="pc">
