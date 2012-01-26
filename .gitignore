@@ -1,3 +1,6 @@
+# ignore html dir for github pages
+/doc/html
+
 *.so
 *.[oa]
 *.out
@@ -16,6 +19,13 @@
 *.depend
 
 *.aux
+
+# Eclipse IDE project files
+*.cproject
+*.project
+*.externalToolBuilders
+/build.properties
+/META-INF
 
 # Debian related files
 *.deb
@@ -155,3 +165,5 @@
 /sw/airborne/test/test_algebra
 /sw/airborne/test/test_matrix
 /sw/airborne/test/test_att
+/sw/airborne/boards/lisa_m_1.0.h.orig
+/conf/airframes/esden/jt_lisam.xml.orig

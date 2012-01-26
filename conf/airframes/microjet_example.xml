@@ -19,6 +19,7 @@
     <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="ROLL"     failsafe_value="0"/>
     <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="SHUTTER"    failsafe_value="0"/>
   </commands>
 
   <rc_commands>
@@ -120,7 +121,8 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.4"/>
+    <define name="COURSE_PGAIN" value="-1.0"/>
+    <define name="COURSE_DGAIN" value="0.3"/>
 
     <define name="ROLL_MAX_SETPOINT" value="0.6" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
@@ -154,12 +156,6 @@
     <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
     <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
   </section>
-
-  <section name="DATALINK" prefix="DATALINK_">
-    <define name="DEVICE_TYPE" value="XBEE"/>
-    <define name="DEVICE_ADDRESS" value="...."/>
-  </section>
-
 
   <section name="SIMU">
     <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
@@ -195,6 +191,9 @@
 
   <modules>
     <load name="infrared_adc.xml"/>
+    <load name="digital_cam_servo.xml">
+      <define name="DC_SHUTTER_SERVO" value="COMMAND_SHUTTER" />
+    </load>
   </modules>
 
 

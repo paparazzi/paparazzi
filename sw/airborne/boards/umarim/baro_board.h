@@ -35,6 +35,11 @@
 
 #define BARO_FILTER_GAIN 5
 
+/* There is no differential pressure on the board but
+ * it can be available from an external sensor
+ * */
+#define DIFF_FILTER_GAIN 5
+
 #ifdef USE_BARO_AS_ALTIMETER
 extern float baro_alt;
 extern float baro_alt_offset;
@@ -43,15 +48,45 @@ extern float baro_alt_offset;
 
 extern void baro_downlink_raw( void );
 
+#define BARO_ABS_ADS ads1114_1
+
+#define BaroAbs(_ads, _handler) {           \
+  if (_ads.data_available) {                \
+    baro.absolute = (baro.absolute + BARO_FILTER_GAIN*Ads1114GetValue(_ads)) / (BARO_FILTER_GAIN+1); \
+    if (baro.status == BS_RUNNING) {        \
+      _handler();                           \
+      _ads.data_available = FALSE;          \
+    }                                       \
+  }                                         \
+}
+
+#ifndef BaroDiff // Allow custom redefinition ?
+
+#if USE_BARO_DIFF
+
+#ifndef BARO_DIFF_ADS
+#define BARO_DIFF_ADS ads1114_2
+#endif
+#define BaroDiff(_ads, _handler) {          \
+  if (_ads.data_available) {                \
+    baro.differential = (baro.differential + DIFF_FILTER_GAIN*Ads1114GetValue(_ads)) / (DIFF_FILTER_GAIN+1); \
+    if (baro.status == BS_RUNNING) {        \
+      _handler();                           \
+      _ads.data_available = FALSE;          \
+    }                                       \
+  }                                         \
+}
+
+#else // Not using differential with ADS1114
+#define BaroDiff(_a, _h) {}
+#endif
+
+#endif // ifndef BaroDiff
+
 #define BaroEvent(_b_abs_handler, _b_diff_handler) {  \
   Ads1114Event();                                     \
-  if (ads1114_data_available) {                       \
-    baro.absolute = (baro.absolute + BARO_FILTER_GAIN*Ads1114GetValue()) / (BARO_FILTER_GAIN+1); \
-    if (baro.status == BS_RUNNING) {                  \
-      _b_abs_handler();                               \
-      ads1114_data_available = FALSE;                 \
-    }                                                 \
-  }                                                   \
+  BaroAbs(BARO_ABS_ADS,_b_abs_handler);               \
+  BaroDiff(BARO_DIFF_ADS,_b_diff_handler);            \
 }
 
 #endif // BOARDS_UMARIM_BARO_H

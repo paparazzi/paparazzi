@@ -6,6 +6,13 @@
 #include "generated/airframe.h"
 #include BOARD_CONFIG
 
+#ifdef MILLIAMP_PER_PERCENT
+#warning "deprecated MILLIAMP_PER_PERCENT --> Please use MILLIAMP_AT_FULL_THROTTLE"
+#endif
+#if defined BATTERY_SENS || defined BATTERY_OFFSET
+#warning "BATTERY_SENS and BATTERY_OFFSET are deprecated, please remove them --> if you want to change the default use VoltageOfAdc"
+#endif
+
 struct Electrical electrical;
 
 static struct {

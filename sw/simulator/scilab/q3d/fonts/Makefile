@@ -4,3 +4,7 @@ GLIB_LDFLAGS =  `pkg-config glib-2.0 --libs` -lglibivy -lpcre
 
 ttx2scilab: ttx2scilab.c
 	$(CC) -Wall $(GLIB_CFLAGS) -o $@ $< $(GLIB_LDFLAGS)
+
+clean:
+	rm -f ttx2scilab
+

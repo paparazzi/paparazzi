@@ -242,9 +242,7 @@ second attempt
  </section>
 
  <section name="BAT">
-   <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-   <define name="BATTERY_SENS" value="0.25" integer="16"/>
  </section>
 
  <section name="AUTOPILOT">

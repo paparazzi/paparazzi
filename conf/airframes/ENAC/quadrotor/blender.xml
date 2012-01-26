@@ -228,7 +228,6 @@
  </section>
 
  <section name="BAT">
-   <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
    <define name="VoltageOfAdc(adc)" value="(0.025*adc)"/>
  </section>

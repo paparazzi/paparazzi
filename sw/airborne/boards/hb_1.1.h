@@ -114,11 +114,14 @@
 #define USE_AD1_4
 #endif
 
+/* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
+#ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY AdcBank1(6)
 #ifndef USE_AD1
 #define USE_AD1
 #endif
 #define USE_AD1_6
+#endif
 
 
 #define DefaultVoltageOfAdc(adc) (0.032362123*adc)

@@ -233,11 +233,11 @@ fast_deb:
 	$(MAKE) deb OCAMLC=ocamlc.opt DEBFLAGS=-b
 
 clean:
-	rm -fr dox build-stamp configure-stamp conf/%gconf.xml debian/files debian/paparazzi-arm7 debian/paparazzi-avr debian/paparazzi-base debian/paparazzi-bin debian/paparazzi-dev
-	rm -f  $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(DL_PROTOCOL_H)
-	find . -mindepth 2 -name Makefile -exec sh -c '$(MAKE) -C `dirname {}` $@' \;
-	find . -name '*~' -exec rm -f {} \;
-	rm -f paparazzi sw/simulator/launchsitl
+	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml debian/files debian/paparazzi-base debian/paparazzi-bin
+	$(Q)rm -f  $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(DL_PROTOCOL_H)
+	$(Q)find . -mindepth 2 -name Makefile -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
+	$(Q)find . -name '*~' -exec rm -f {} \;
+	$(Q)rm -f paparazzi sw/simulator/launchsitl
 
 cleanspaces:
 	find ./sw/airborne -name '*.[ch]' -exec sed -i {} -e 's/[ \t]*$$//' \;
@@ -247,9 +247,14 @@ cleanspaces:
 	find ./conf -name '*.xml' -exec sed -i {} -e 's/[ \t]*$$//' ';'
 
 distclean : dist_clean
-dist_clean : clean
-	rm -r conf/srtm_data
-	rm -r conf/maps_data conf/maps.xml
+dist_clean :
+	@echo "Warning: This removes all non-repository files. This means you will loose your aircraft list, your maps, your logfiles, ... if you want this, then run: make dist_clean_irreversible"
+
+dist_clean_irreversible: clean
+	rm -rf conf/srtm_data
+	rm -rf conf/maps_data conf/maps.xml
+	rm -rf conf/conf.xml conf/controlpanel.xml
+	rm -rf var
 
 ab_clean:
 	find sw/airborne -name '*~' -exec rm -f {} \;
@@ -259,6 +264,9 @@ test_all_example_airframes:
 	$(MAKE) AIRCRAFT=Microjet clean_ac ap sim
 	$(MAKE) AIRCRAFT=Tiny_IMU clean_ac ap
 	$(MAKE) AIRCRAFT=EasyStar_ETS clean_ac ap sim
+
+test_all_example_airframes2:
+	for ap in `grep name conf/conf.xml.example | sed -e 's/.*name=\"//' | sed -e 's/"//'`; do echo "Making $$ap"; make -C ./ AIRCRAFT=$$ap clean_ac ap.compile;   done
 
 commands: paparazzi sw/simulator/launchsitl
 

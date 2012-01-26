@@ -87,8 +87,7 @@ $(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_
 #
 # I2C
 #
-$(TARGET).srcs += mcu_periph/i2c.c
-$(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
+include $(CFG_SHARED)/i2c_select.makefile
 
 ######################################################################
 ##
@@ -179,7 +178,7 @@ ap_srcs 		+= $(SRC_FIXEDWING)/estimator.c
 
 UNAME = $(shell uname -s)
 ifeq ("$(UNAME)","Darwin")
-  sim.CFLAGS += -I/opt/local/include/
+  sim.CFLAGS += -I/opt/paparazzi/include/ -I/opt/local/include/
 endif
 
 sim.CFLAGS              += $(CPPFLAGS)

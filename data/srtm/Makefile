@@ -3,6 +3,9 @@ Q=@
 
 SRTMData: $(DATADIR)/Africa $(DATADIR)/Australia $(DATADIR)/Eurasia $(DATADIR)/Islands $(DATADIR)/North_America $(DATADIR)/South_America
 
+clean:
+	
+
 $(DATADIR):
 	mkdir $(DATADIR)
 
@@ -28,4 +31,5 @@ $(DATADIR)/South_America: $(DATADIR)
 
 %.hgt.zip: SRTMData
 	$(Q)wget -c -nv -N http://dds.cr.usgs.gov/srtm/version2_1/SRTM3/$(shell grep -l $(@F) $(DATADIR)/* | sed -e s#$(DATADIR)/##)/$(@F)
+
 

@@ -43,13 +43,26 @@
 /* ADC */
 
 /* battery */
+/* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
+#ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY AdcBank1(3)
 #ifndef USE_AD1
 #define USE_AD1
 #endif
 #define USE_AD1_3
+#endif
 
 #define DefaultVoltageOfAdc(adc) (0.01837*adc)
+
+/* SPI (SSP) */
+#define SPI_SELECT_SLAVE0_PORT 0
+#define SPI_SELECT_SLAVE0_PIN 20
+
+#define SPI1_DRDY_PINSEL PINSEL1
+#define SPI1_DRDY_PINSEL_BIT   0
+#define SPI1_DRDY_PINSEL_VAL   1
+#define SPI1_DRDY_EINT         0
+#define SPI1_DRDY_VIC_IT       VIC_EINT0
 
 /* PWM0 (internal PWM5) */
 /* P0.21 */
@@ -65,4 +78,4 @@
 
 #define BOARD_HAS_BARO
 
-#endif /* CONFIG_UMARIM_V1_0_H */
+#endif /* CONFIG_NAVGO_V1_0_H */

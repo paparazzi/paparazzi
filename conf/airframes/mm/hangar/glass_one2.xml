@@ -74,7 +74,6 @@
   </section>
 
   <section name="BAT">
-    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
     <define name="VOLTAGE_ADC_A" value="0.0174"/>
     <define name="VOLTAGE_ADC_B" value="3.43"/>
     <define name="VoltageOfAdc(adc)" value="(VOLTAGE_ADC_A * adc + VOLTAGE_ADC_B)"/>

@@ -6,6 +6,8 @@
 #   ...
 #   <subsystem name="actuators"     type="mkk">
 #     <configure name="MKK_I2C_SCL_TIME" value="50"/> <!-- this is optional, 150 is default, use 50 for 8 motors-->
+#   </subsystem>
+#   <define name="I2C_TRANSACTION_QUEUE_LEN" value="10"/> <!-- default is 8, increase to 10 or more for 8 motors-->
 # </firmware>
 #
 #
@@ -51,5 +53,3 @@ endif
 sim.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
 sim.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
 sim.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=$(MKK_I2C_SCL_TIME) -DI2C0_SCLH=$(MKK_I2C_SCL_TIME) -DI2C0_VIC_SLOT=10 -DACTUATORS_MKK_DEVICE=i2c1
-sim.srcs += mcu_periph/i2c.c
-sim.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
