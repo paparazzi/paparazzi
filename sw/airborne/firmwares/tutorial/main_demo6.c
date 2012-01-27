@@ -22,7 +22,7 @@ int main( void ) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_register_timer(PERIODIC_TASK_PERIOD, NULL);
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   usb_serial_init();
   mcu_int_enable();
 }

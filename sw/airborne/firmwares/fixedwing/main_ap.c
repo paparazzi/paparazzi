@@ -528,7 +528,7 @@ void periodic_task_ap( void ) {
 void init_ap( void ) {
 #ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
   mcu_init();
-  sys_time_register_timer(SYS_TIME_TIMER_S(1./PERIODIC_FREQUENCY), NULL);
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
 #endif /* SINGLE_MCU */
 
   /************* Sensors initialization ***************/

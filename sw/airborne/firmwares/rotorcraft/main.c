@@ -87,7 +87,7 @@ STATIC_INLINE void main_init( void ) {
 
   mcu_init();
 
-  sys_time_register_timer(SYS_TIME_TIMER_S(1./PERIODIC_FREQUENCY), NULL);
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
 
   electrical_init();
 

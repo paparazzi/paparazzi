@@ -64,9 +64,26 @@ extern struct sys_time sys_time;
 #define cpu_time_ticks sys_time.nb_sec_rem
 
 extern void sys_time_init(void);
-extern uint8_t sys_time_register_timer(uint32_t duration, sys_time_cb cb);
+
+/**
+ * Register a new system timer.
+ * @param duration Duration in seconds until the timer elapses.
+ * @param cb Callback function that is called from the ISR when timer elapses, or NULL
+ */
+extern uint8_t sys_time_register_timer(float duration, sys_time_cb cb);
+
+/**
+ * Cancel a system timer by id.
+ * @param id Timer id.
+ */
 extern void    sys_time_cancel_timer(uint8_t id);
-extern void    sys_time_update_timer(uint8_t id, uint32_t duration);
+
+/**
+ * Update the duration until a timer elapses.
+ * @param id Timer id
+ * @param duration Duration in seconds until the timer elapses.
+ */
+extern void    sys_time_update_timer(uint8_t id, float duration);
 
 static inline bool_t sys_time_check_and_ack_timer( uint8_t id ) {
   if (sys_time.timer[id].elapsed) {
@@ -93,8 +110,6 @@ static inline bool_t sys_time_check_and_ack_timer( uint8_t id ) {
 #define SYS_TIME_RESOLUTION ( 1./1024. )
 #endif
 #define SYS_TIME_RESOLUTION_CPU_TICKS CPU_TICKS_OF_SEC(SYS_TIME_RESOLUTION)
-
-#define SYS_TIME_TIMER_S(_s) ((_s)/SYS_TIME_RESOLUTION)
 
 #define SYS_TIME_TICKS_OF_SEC(s) (uint32_t)((s) / SYS_TIME_RESOLUTION + 0.5)
 #define SYS_TIME_TICKS_OF_USEC(us) SYS_TIME_TICKS_OF_SEC((us) * 1e-6)

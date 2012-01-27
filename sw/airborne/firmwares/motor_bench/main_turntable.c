@@ -35,7 +35,7 @@ int main( void ) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_register_timer(PERIODIC_TASK_PERIOD, NULL);
+  sys_time_register_timer(1./PERIODIC_FREQUENCY, NULL);
   main_init_tacho();
   mcu_int_enable();
 }
