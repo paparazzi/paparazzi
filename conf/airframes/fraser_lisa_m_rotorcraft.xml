@@ -27,8 +27,11 @@
     <subsystem name="ahrs"          type="int_cmpl_euler"/>
   </firmware>
 
+  <firmware name="setup">
+    <target name="tunnel" board="lisa_m_1.0"/>
+  </firmware>
+
   <firmware name="lisa_m_test_progs">
-    <target name="tunnel"              board="lisa_m_1.0"/>
     <target name="test_sys_time"       board="lisa_m_1.0"/>
     <target name="test_led"	           board="lisa_m_1.0"/>
     <target name="test_uart_lisam"     board="lisa_m_1.0"/>

@@ -90,7 +90,7 @@ test_uart.srcs = $(SRC_AIRBORNE)/mcu.c \
 test_uart.CFLAGS += -DUSE_LED -DUSE_UART
 test_uart.srcs += $(SRC_ARCH)/led_hw.c
 test_uart.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
-test_uart.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./512.)'
+test_uart.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_uart.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 test_uart.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 test_uart.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
@@ -118,7 +118,7 @@ test_servos.srcs += $(SRC_AIRBORNE)/mcu.c \
 test_servos.CFLAGS += -DUSE_LED
 test_servos.srcs += $(SRC_ARCH)/led_hw.c
 test_servos.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
-test_servos.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC((1./512.))'
+test_servos.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_servos.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 test_servos.srcs += $(SRC_FIRMWARE)/actuators/actuators_pwm.c $(SRC_FIRMWARE)/actuators/arch/$(ARCH)/actuators_pwm_arch.c
@@ -142,7 +142,7 @@ test_telemetry.srcs = $(SRC_AIRBORNE)/mcu.c \
 test_telemetry.CFLAGS += -DUSE_LED
 test_telemetry.srcs += $(SRC_ARCH)/led_hw.c
 test_telemetry.CFLAGS += -DUSE_SYS_TIME
-test_telemetry.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./512.)'
+test_telemetry.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_telemetry.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_telemetry.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 test_telemetry.CFLAGS += -DUSE_$(MODEM_PORT)
@@ -171,7 +171,7 @@ test_baro.srcs = $(SRC_AIRBORNE)/mcu.c \
 test_baro.CFLAGS += -DUSE_LED
 test_baro.srcs   += $(SRC_ARCH)/led_hw.c
 test_baro.CFLAGS += -DUSE_SYS_TIME
-test_baro.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./512.)'
+test_baro.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_baro.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_baro.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 test_baro.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=$(MODEM_PORT)
@@ -207,7 +207,7 @@ test_rc_spektrum.srcs   += $(SRC_AIRBORNE)/mcu.c                \
 test_rc_spektrum.CFLAGS += -DUSE_LED
 test_rc_spektrum.srcs   += $(SRC_ARCH)/led_hw.c
 test_rc_spektrum.CFLAGS += -DUSE_SYS_TIME
-test_rc_spektrum.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC((1./512.))'
+test_rc_spektrum.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_rc_spektrum.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_rc_spektrum.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 test_rc_spektrum.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
@@ -251,7 +251,7 @@ test_rc_ppm.srcs   += $(SRC_AIRBORNE)/mcu.c \
 test_rc_ppm.CFLAGS += -DUSE_LED
 test_rc_ppm.srcs   += $(SRC_ARCH)/led_hw.c
 test_rc_ppm.CFLAGS += -DUSE_SYS_TIME
-test_rc_ppm.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC((1./512.))'
+test_rc_ppm.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_rc_ppm.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_rc_ppm.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 test_rc_ppm.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
@@ -291,7 +291,7 @@ test_adc.srcs   += $(SRC_ARCH)/led_hw.c
 
 test_adc.CFLAGS += -DUSE_SYS_TIME
 test_adc.CFLAGS +=-DSYS_TIME_LED=$(SYS_TIME_LED)
-test_adc.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./512.)'
+test_adc.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_adc.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 test_adc.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
@@ -328,7 +328,6 @@ COMMON_TEST_SRCS    = $(SRC_AIRBORNE)/mcu.c            \
 COMMON_TEST_CFLAGS += -DUSE_LED
 COMMON_TEST_SRCS   += $(SRC_ARCH)/led_hw.c
 COMMON_TEST_CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
-COMMON_TEST_CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC((1./$(PERIODIC_FREQUENCY).))'
 COMMON_TEST_CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 COMMON_TEST_SRCS   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 COMMON_TEST_CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
@@ -496,7 +495,7 @@ test_hmc5843.srcs = $(SRC_AIRBORNE)/mcu.c \
 test_hmc5843.CFLAGS += -DUSE_LED
 test_hmc5843.srcs += $(SRC_ARCH)/led_hw.c
 test_hmc5843.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
-test_hmc5843.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./512.)'
+test_hmc5843.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_hmc5843.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 test_hmc5843.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
@@ -527,7 +526,7 @@ test_itg3200.CFLAGS += -DUSE_LED
 test_itg3200.srcs += $(SRC_ARCH)/led_hw.c
 
 test_itg3200.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
-test_itg3200.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC((1./512.))'
+test_itg3200.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_itg3200.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 test_itg3200.CFLAGS +=  -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
@@ -558,7 +557,7 @@ test_adxl345.CFLAGS += -DUSE_LED
 test_adxl345.srcs += $(SRC_ARCH)/led_hw.c
 
 test_adxl345.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
-test_adxl345.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC((1./512.))'
+test_adxl345.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_adxl345.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 test_adxl345.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
@@ -587,7 +586,7 @@ test_esc_mkk_simple.srcs    = $(SRC_AIRBORNE)/mcu.c \
 test_esc_mkk_simple.CFLAGS += -DUSE_LED
 test_esc_mkk_simple.srcs   += $(SRC_ARCH)/led_hw.c
 test_esc_mkk_simple.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
-test_esc_mkk_simple.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./512.)'
+test_esc_mkk_simple.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_esc_mkk_simple.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 test_esc_mkk_simple.CFLAGS += -DUSE_I2C2
 test_esc_mkk_simple.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
@@ -608,7 +607,7 @@ test_esc_asctecv1_simple.srcs = $(SRC_AIRBORNE)/mcu.c \
 test_esc_asctecv1_simple.CFLAGS += -DUSE_LED
 test_esc_asctecv1_simple.srcs += $(SRC_ARCH)/led_hw.c
 test_esc_asctecv1_simple.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
-test_esc_asctecv1_simple.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./512.)'
+test_esc_asctecv1_simple.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_esc_asctecv1_simple.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 test_esc_asctecv1_simple.CFLAGS += -DUSE_I2C1
 test_esc_asctecv1_simple.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
@@ -630,7 +629,7 @@ test_actuators_mkk.CFLAGS += -DUSE_LED
 test_actuators_mkk.srcs += $(SRC_ARCH)/led_hw.c
 
 test_actuators_mkk.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
-test_actuators_mkk.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./512.)'
+test_actuators_mkk.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_actuators_mkk.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 test_actuators_mkk.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
@@ -663,7 +662,7 @@ test_actuators_asctecv1.CFLAGS += -DUSE_LED
 test_actuators_asctecv1.srcs += $(SRC_ARCH)/led_hw.c
 
 test_actuators_asctecv1.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
-test_actuators_asctecv1.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./512.)'
+test_actuators_asctecv1.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_actuators_asctecv1.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 test_actuators_asctecv1.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
@@ -694,7 +693,7 @@ test_bmp085.srcs = $(SRC_AIRBORNE)/mcu.c \
 test_bmp085.CFLAGS += -DUSE_LED
 test_bmp085.srcs += $(SRC_ARCH)/led_hw.c
 test_bmp085.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
-test_bmp085.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./512.)'
+test_bmp085.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_bmp085.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 test_bmp085.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
@@ -725,7 +724,7 @@ test_manual.srcs    = $(SRC_AIRBORNE)/mcu.c \
 test_manual.CFLAGS += -DUSE_LED
 test_manual.srcs   += $(SRC_ARCH)/led_hw.c
 test_manual.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
-test_manual.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./512.)'
+test_manual.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_manual.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 test_manual.CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
@@ -771,7 +770,7 @@ tunnel_sw.srcs   += $(SRC_AIRBORNE)/mcu.c            \
 tunnel_sw.CFLAGS += -DUSE_LED
 tunnel_sw.srcs   += $(SRC_ARCH)/led_hw.c
 tunnel_sw.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
-tunnel_sw.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./512.)'
+tunnel_sw.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 tunnel_sw.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 
@@ -789,7 +788,7 @@ tunnel_hw.srcs   += lisa/test/lisa_tunnel.c          \
 tunnel_hw.CFLAGS += -DUSE_LED
 tunnel_hw.srcs   += $(SRC_ARCH)/led_hw.c
 tunnel_hw.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
-tunnel_hw.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./512.)'
+tunnel_hw.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 tunnel_hw.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 tunnel_hw.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 tunnel_hw.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
@@ -816,7 +815,7 @@ test_settings.srcs =  test/subsystems/test_settings.c  \
 test_settings.CFLAGS += -DUSE_LED
 test_settings.srcs   += $(SRC_ARCH)/led_hw.c
 test_settings.CFLAGS += -DUSE_SYS_TIME
-test_settings.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC(1./512.)'
+test_settings.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 test_settings.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 test_settings.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 test_settings.CFLAGS += -DUSE_$(MODEM_PORT)

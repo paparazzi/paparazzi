@@ -30,9 +30,12 @@ tunnel.srcs   += mcu.c \
                  $(SRC_ARCH)/stm32_vector_table.c
 tunnel.CFLAGS += -DUSE_LED
 tunnel.srcs   += $(SRC_ARCH)/led_hw.c
-tunnel.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
-tunnel.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-tunnel.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+ifneq ($(SYS_TIME_LED),none)
+tunnel.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
+endif
+tunnel.CFLAGS += -DPERIODIC_FREQUENCY='512.'
+tunnel.CFLAGS += -DUSE_SYS_TIME
+tunnel.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 endif
 
 

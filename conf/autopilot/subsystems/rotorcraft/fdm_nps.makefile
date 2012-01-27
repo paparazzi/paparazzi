@@ -68,7 +68,7 @@ ifeq ($(TARGET), sim)
 endif
 
 
-sim.CFLAGS += -DPERIODIC_TASK_PERIOD='CPU_TICKS_OF_SEC((1./512.))'
+sim.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 #sim.CFLAGS += -DUSE_LED
 sim.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
