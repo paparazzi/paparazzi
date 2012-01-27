@@ -65,6 +65,51 @@
 #define IMU_ACCEL_Z_SIGN  1
 #endif
 
+/* default gyro sensitivy and neutral from the datasheet
+ * IMU-3000 has 16.4 LSB/(deg/s) at 2000deg/s range
+ * sens = 1/16.4 * pi/180 * 2^INT32_RATE_FRAC
+ * sens = 1/16.4 * pi/180 * 4096 = 4.359066229
+ */
+#if !defined IMU_GYRO_P_SENS & !defined IMU_GYRO_Q_SENS & !defined IMU_GYRO_R_SENS
+#define IMU_GYRO_P_SENS 4.359
+#define IMU_GYRO_P_SENS_NUM 4359
+#define IMU_GYRO_P_SENS_DEN 1000
+#define IMU_GYRO_Q_SENS 4.359
+#define IMU_GYRO_Q_SENS_NUM 4359
+#define IMU_GYRO_Q_SENS_DEN 1000
+#define IMU_GYRO_R_SENS 4.359
+#define IMU_GYRO_R_SENS_NUM 4359
+#define IMU_GYRO_R_SENS_DEN 1000
+#endif
+#if !defined IMU_GYRO_P_NEUTRAL & !defined IMU_GYRO_Q_NEUTRAL & !defined IMU_GYRO_R_NEUTRAL
+#define IMU_GYRO_P_NEUTRAL 0
+#define IMU_GYRO_Q_NEUTRAL 0
+#define IMU_GYRO_R_NEUTRAL 0
+#endif
+
+/* default accel sensitivy and neutral from the datasheet
+ * ADXL345 has 3.9 mg/LSB sensitivity at full resolution
+ * sens = 3.9/1000 * 9.81 * 2^INT32_ACCEL_FRAC
+ * sens = 3.9/1000 * 9.81 * 1024 = 39.177216
+ */
+#if !defined IMU_ACCEL_X_SENS & !defined IMU_ACCEL_Y_SENS & !defined IMU_ACCEL_Z_SENS
+#define IMU_ACCEL_X_SENS 39.177
+#define IMU_ACCEL_X_SENS_NUM 39177
+#define IMU_ACCEL_X_SENS_DEN 1000
+#define IMU_ACCEL_Y_SENS 39.177
+#define IMU_ACCEL_Y_SENS_NUM 39177
+#define IMU_ACCEL_Y_SENS_DEN 1000
+#define IMU_ACCEL_Z_SENS 39.177
+#define IMU_ACCEL_Z_SENS_NUM 39177
+#define IMU_ACCEL_Z_SENS_DEN 1000
+#endif
+#if !defined IMU_ACCEL_X_NEUTRAL & !defined IMU_ACCEL_Y_NEUTRAL & !defined IMU_ACCEL_Z_NEUTRAL
+#define IMU_ACCEL_X_NEUTRAL 0
+#define IMU_ACCEL_Y_NEUTRAL 0
+#define IMU_ACCEL_Z_NEUTRAL 0
+#endif
+
+
 enum AspirinStatus
   { AspirinStatusUninit,
     AspirinStatusIdle,
