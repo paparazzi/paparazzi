@@ -239,6 +239,16 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #define PERIODIC_SEND_SCP_STATUS(_trans, _dev) {}
 #endif
 
+#ifdef BOARD_HAS_BARO
+#define PERIODIC_SEND_BARO_RAW(_chan) {         \
+    DOWNLINK_SEND_BARO_RAW(_chan,               \
+                           &baro.absolute,      \
+                           &baro.differential); \
+  }
+#else
+#define PERIODIC_SEND_BARO_RAW(_chan) {}
+#endif
+
 #ifdef MEASURE_AIRSPEED
 #define PERIODIC_SEND_AIRSPEED(_trans, _dev) DOWNLINK_SEND_AIRSPEED (_trans, _dev, &estimator_airspeed, &estimator_airspeed, &estimator_airspeed, &estimator_airspeed)
 #elif USE_AIRSPEED
