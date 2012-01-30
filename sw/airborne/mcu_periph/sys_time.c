@@ -32,7 +32,7 @@
 
 struct sys_time sys_time;
 
-uint8_t sys_time_register_timer(float duration, sys_time_cb cb) {
+tid_t sys_time_register_timer(float duration, sys_time_cb cb) {
 
   uint32_t start_time = sys_time.nb_tick;
   for (int i = 0; i< SYS_TIME_NB_TIMER; i++) {
@@ -48,7 +48,7 @@ uint8_t sys_time_register_timer(float duration, sys_time_cb cb) {
   return -1;
 }
 
-void sys_time_cancel_timer(uint8_t id) {
+void sys_time_cancel_timer(tid_t id) {
   sys_time.timer[id].in_use     = FALSE;
 #if 0
   sys_time.timer[id].cb         = NULL;
@@ -59,7 +59,7 @@ void sys_time_cancel_timer(uint8_t id) {
 }
 
 // FIXME: race condition ??
-void sys_time_update_timer(uint8_t id, float duration) {
+void sys_time_update_timer(tid_t id, float duration) {
   mcu_int_disable();
   sys_time.timer[id].end_time -= (sys_time.timer[id].duration - SYS_TIME_TICKS_OF_SEC(duration));
   sys_time.timer[id].duration = SYS_TIME_TICKS_OF_SEC(duration);

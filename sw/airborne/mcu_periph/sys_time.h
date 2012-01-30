@@ -40,6 +40,7 @@
 #define SYS_TIME_NB_TIMER 5
 #endif
 
+typedef uint8_t tid_t; ///< sys_time timer id type
 typedef void (*sys_time_cb) (uint8_t id);
 
 struct sys_time_timer {
@@ -70,22 +71,22 @@ extern void sys_time_init(void);
  * @param duration Duration in seconds until the timer elapses.
  * @param cb Callback function that is called from the ISR when timer elapses, or NULL
  */
-extern uint8_t sys_time_register_timer(float duration, sys_time_cb cb);
+extern tid_t sys_time_register_timer(float duration, sys_time_cb cb);
 
 /**
  * Cancel a system timer by id.
  * @param id Timer id.
  */
-extern void    sys_time_cancel_timer(uint8_t id);
+extern void sys_time_cancel_timer(tid_t id);
 
 /**
  * Update the duration until a timer elapses.
  * @param id Timer id
  * @param duration Duration in seconds until the timer elapses.
  */
-extern void    sys_time_update_timer(uint8_t id, float duration);
+extern void    sys_time_update_timer(tid_t id, float duration);
 
-static inline bool_t sys_time_check_and_ack_timer( uint8_t id ) {
+static inline bool_t sys_time_check_and_ack_timer(tid_t id) {
   if (sys_time.timer[id].elapsed) {
     sys_time.timer[id].elapsed = FALSE;
     return TRUE;
