@@ -23,7 +23,7 @@
  */
 
 /** \file led.h
- *  \brief arch independant LED (Light Emitting Diodes) API
+ *  \brief arch independent LED (Light Emitting Diodes) API
  *
  *
  */
