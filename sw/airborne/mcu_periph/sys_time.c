@@ -32,7 +32,7 @@
 
 struct sys_time sys_time;
 
-tid_t sys_time_register_timer(float duration, sys_time_cb cb) {
+int sys_time_register_timer(float duration, sys_time_cb cb) {
 
   uint32_t start_time = sys_time.nb_tick;
   for (int i = 0; i< SYS_TIME_NB_TIMER; i++) {

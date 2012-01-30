@@ -77,6 +77,7 @@ tid_t failsafe_tid;      ///< id for failsafe_check() timer
 tid_t radio_control_tid; ///< id for radio_control_periodic_task() timer
 tid_t electrical_tid;    ///< id for electrical_periodic() timer
 tid_t baro_tid;          ///< id for baro_periodic() timer
+tid_t telemetry_tid;     ///< id for telemetry_periodic() timer
 
 int main( void ) {
   main_init();
@@ -90,6 +91,10 @@ int main( void ) {
       failsafe_check();
     if (sys_time_check_and_ack_timer(electrical_tid))
       electrical_periodic();
+    if (sys_time_check_and_ack_timer(baro_tid))
+      baro_periodic();
+    if (sys_time_check_and_ack_timer(telemetry_tid))
+      telemetry_periodic();
     main_event();
   }
   return 0;
@@ -138,6 +143,7 @@ STATIC_INLINE void main_init( void ) {
   failsafe_tid = sys_time_register_timer(0.05, NULL);
   electrical_tid = sys_time_register_timer(0.1, NULL);
   baro_tid = sys_time_register_timer(0.02, NULL);
+  telemetry_tid = sys_time_register_timer((1./60.), NULL);
 }
 
 
