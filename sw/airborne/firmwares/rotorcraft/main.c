@@ -144,7 +144,7 @@ STATIC_INLINE void main_periodic( void ) {
       /* booz_fms_periodic(); FIXME */                      \
     },                                                      \
     {                                                       \
-      electrical_periodic();				    \
+      electrical_periodic();                                \
     },                                                      \
     {                                                       \
       LED_PERIODIC();                                       \
@@ -156,7 +156,7 @@ STATIC_INLINE void main_periodic( void ) {
     {},                                                     \
     {},                                                     \
     {                                                       \
-      Booz2TelemetryPeriodic();                             \
+      TelemetryPeriodic();                                  \
     } );
 
 #if USE_GPS

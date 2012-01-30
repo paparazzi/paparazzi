@@ -768,7 +768,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_DL_VALUE(_trans, _dev) PeriodicSendDlValue(_trans, _dev)
 
 #include "generated/periodic.h"
-#define Booz2TelemetryPeriodic() {			\
+#define TelemetryPeriodic() {			\
     PeriodicSendMain(DefaultChannel,DefaultDevice);			\
   }
 
