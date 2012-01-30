@@ -46,8 +46,6 @@ extern float baro_alt_offset;
 #define BaroAltHandler() { baro_alt = BARO_SENS*(baro_alt_offset - (float)baro.absolute); }
 #endif
 
-extern void baro_downlink_raw( void );
-
 #define BARO_ABS_ADS ads1114_1
 
 #define BaroAbs(_ads, _handler) {           \

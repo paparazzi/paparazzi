@@ -178,21 +178,11 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			      &imu.mag_unscaled.z);		\
   }
 
-/* FIXME: make that depend on board */
-#define PERIODIC_SEND_BOOZ_BARO_RAW(_trans, _dev) {				\
-    DOWNLINK_SEND_BOOZ2_BARO_RAW(_trans, _dev,					\
-				 &baro_board.offset,			\
-			         &baro.absolute,			\
-			         &baro_board.value_filtered);		\
+#define PERIODIC_SEND_BARO_RAW(_trans, _dev) {         \
+    DOWNLINK_SEND_BARO_RAW(_trans, _dev,               \
+                           &baro.absolute,      \
+                           &baro.differential); \
   }
-
-
-#define PERIODIC_SEND_BARO_RAW(_trans, _dev) {					\
-    DOWNLINK_SEND_BARO_RAW(_trans, _dev,					\
-			   &baro.absolute,				\
-			   &baro.differential);				\
-  }
-
 
 
 
@@ -782,7 +772,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_DL_VALUE(_trans, _dev) PeriodicSendDlValue(_trans, _dev)
 
 #include "generated/periodic.h"
-#define Booz2TelemetryPeriodic() {			\
+#define TelemetryPeriodic() {			\
     PeriodicSendMain(DefaultChannel,DefaultDevice);			\
   }
 

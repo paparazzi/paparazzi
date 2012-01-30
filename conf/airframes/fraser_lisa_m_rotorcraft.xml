@@ -83,19 +83,9 @@
   </section>
 
   <section name="IMU" prefix="IMU_">
-    <define name="GYRO_P_NEUTRAL" value="-33"/>
-    <define name="GYRO_Q_NEUTRAL" value="-10"/>
-    <define name="GYRO_R_NEUTRAL" value="-25"/>
-    <define name="GYRO_P_SENS" value="4.412" integer="16"/>
-    <define name="GYRO_Q_SENS" value="4.412" integer="16"/>
-    <define name="GYRO_R_SENS" value="4.412" integer="16"/>
-
     <define name="ACCEL_X_NEUTRAL" value="11"/>
     <define name="ACCEL_Y_NEUTRAL" value="11"/>
     <define name="ACCEL_Z_NEUTRAL" value="-25"/>
-    <define name="ACCEL_X_SENS" value="38.332217432" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="37.7201584738" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="39.2816836007" integer="16"/>
 
     <define name="MAG_X_NEUTRAL" value="-98"/>
     <define name="MAG_Y_NEUTRAL" value="-252"/>
