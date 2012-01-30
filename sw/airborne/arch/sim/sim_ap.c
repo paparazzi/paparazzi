@@ -47,14 +47,22 @@ uint8_t ac_id;
 
 value sim_periodic_task(value unit) {
   sensors_task();
-  navigation_task(); // FIXME, should run at 4Hz
   attitude_loop();
   reporting_task();
-  monitor_task();   // FIXME, should run at 1Hz
   periodic_task_ap();
   periodic_task_fbw();
   event_task_ap();
   event_task_fbw();
+  return unit;
+}
+
+value sim_monitor_task(value unit) {
+  monitor_task();
+  return unit;
+}
+
+value sim_nav_task(value unit) {
+  navigation_task();
   return unit;
 }
 
