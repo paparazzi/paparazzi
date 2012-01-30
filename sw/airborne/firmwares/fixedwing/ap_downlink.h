@@ -240,13 +240,13 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #endif
 
 #ifdef BOARD_HAS_BARO
-#define PERIODIC_SEND_BARO_RAW(_chan) {         \
-    DOWNLINK_SEND_BARO_RAW(_chan,               \
+#define PERIODIC_SEND_BARO_RAW(_trans, _dev) {  \
+    DOWNLINK_SEND_BARO_RAW(_trans, _dev,        \
                            &baro.absolute,      \
                            &baro.differential); \
   }
 #else
-#define PERIODIC_SEND_BARO_RAW(_chan) {}
+#define PERIODIC_SEND_BARO_RAW(_trans, _dev) {}
 #endif
 
 #ifdef MEASURE_AIRSPEED
