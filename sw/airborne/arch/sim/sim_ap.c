@@ -46,6 +46,11 @@ uint16_t datalink_time = 0;
 uint8_t ac_id;
 
 value sim_periodic_task(value unit) {
+  sensors_task();
+  navigation_task(); // FIXME, should run at 4Hz
+  attitude_loop();
+  reporting_task();
+  monitor_task();   // FIXME, should run at 1Hz
   periodic_task_ap();
   periodic_task_fbw();
   event_task_ap();

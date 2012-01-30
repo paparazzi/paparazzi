@@ -31,6 +31,8 @@
 #define FBW_H
 
 #include "std.h"
+#include "mcu_periph/sys_time.h"
+#include "subsystems/electrical.h"
 
 /** Fly by wire modes */
 #define FBW_MODE_MANUAL   0
@@ -40,6 +42,9 @@
 
 extern uint8_t fbw_mode;
 extern bool_t failsafe_mode;
+
+extern tid_t fbw_periodic_tid; ///< id for periodic_task_fbw() timer
+extern tid_t electrical_tid;   ///< id for electrical_periodic() timer
 
 void init_fbw( void );
 void periodic_task_fbw( void );

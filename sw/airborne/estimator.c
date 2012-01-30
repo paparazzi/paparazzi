@@ -113,11 +113,6 @@ void estimator_init( void ) {
 }
 
 
-
-void estimator_propagate_state( void ) {
-
-}
-
 bool_t alt_kalman_enabled;
 
 #ifdef ALT_KALMAN

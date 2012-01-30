@@ -46,11 +46,32 @@ int main( void ) {
   Fbw(init);
   Ap(init);
   while (1) {
-    if (sys_time_check_and_ack_timer(0)) {
+#ifdef FBW
+    if (sys_time_check_and_ack_timer(fbw_periodic_tid))
       Fbw(periodic_task);
-      Ap(periodic_task);
+    if (sys_time_check_and_ack_timer(electrical_tid))
+      electrical_periodic();
+#endif /* FBW */
+#ifdef AP
+    if (sys_time_check_and_ack_timer(sensors_tid)) {
+      sensors_task();
       LED_PERIODIC();
     }
+    if (sys_time_check_and_ack_timer(navigation_tid))
+      navigation_task();
+#ifndef AHRS_TRIGGERED_ATTITUDE_LOOP
+    if (sys_time_check_and_ack_timer(attitude_tid))
+      attitude_loop();
+#endif
+    if (sys_time_check_and_ack_timer(monitor_tid))
+      monitor_task();
+    if (sys_time_check_and_ack_timer(telemetry_tid))
+      reporting_task();
+    if (sys_time_check_and_ack_timer(ap_periodic_tid)) {
+      periodic_task_ap();
+      LED_PERIODIC();
+    }
+#endif /* AP */
     Fbw(event_task);
     Ap(event_task);
   }
