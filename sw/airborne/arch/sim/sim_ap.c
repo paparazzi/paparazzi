@@ -1,6 +1,8 @@
 /* Definitions and declarations required to compile autopilot code on a
    i386 architecture. Bindings for OCaml. */
 
+#define MODULES_C
+
 #include <stdio.h>
 #include <assert.h>
 #include <sys/time.h>
@@ -23,6 +25,8 @@
 #include "sim_uart.h"
 #include "subsystems/datalink/datalink.h"
 #include "generated/flight_plan.h"
+
+#include "generated/modules.h"
 
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
@@ -49,7 +53,7 @@ value sim_periodic_task(value unit) {
   sensors_task();
   attitude_loop();
   reporting_task();
-  periodic_task_ap();
+  modules_periodic_task();
   periodic_task_fbw();
   event_task_ap();
   event_task_fbw();

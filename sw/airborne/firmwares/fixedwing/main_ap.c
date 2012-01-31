@@ -79,6 +79,7 @@
 #endif
 
 #include "gpio.h"
+#include "led.h"
 
 
 #if USE_AHRS
@@ -133,22 +134,139 @@ float energy;       // Fuel consumption (mAh)
 bool_t gps_lost = FALSE;
 
 
-tid_t ap_periodic_tid; ///< id for periodic_task_ap() timer
+tid_t modules_tid;     ///< id for modules_periodic_task() timer
 tid_t telemetry_tid;   ///< id for telemetry_periodic() timer
 tid_t sensors_tid;     ///< id for sensors_task() timer
 tid_t attitude_tid;    ///< id for attitude_loop() timer
 tid_t navigation_tid;  ///< id for navigation_task() timer
 tid_t monitor_tid;     ///< id for monitor_task() timer
 
-#ifndef CONTROL_RATE
-#define CONTROL_RATE 20
+#ifndef CONTROL_FREQUENCY
+#ifdef  CONTROL_RATE
+#define CONTROL_FREQUENCY CONTROL_RATE
+//#warning "CONTROL_RATE deprecated. Renamed into CONTROL_FREQUENCY (in airframe file)"
+#else
+#define CONTROL_FREQUENCY 20
+#endif
 #endif
 
-#ifndef NAVIGATION_RATE
-#define NAVIGATION_RATE 4
+#ifndef NAVIGATION_FREQUENCY
+#define NAVIGATION_FREQUENCY 4
 #endif
 
-/** \brief Update paparazzi mode
+#ifndef MODULES_FREQUENCY
+#define MODULES_FREQUENCY 60
+#endif
+
+void init_ap( void ) {
+#ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
+  mcu_init();
+#endif /* SINGLE_MCU */
+
+  /************* Sensors initialization ***************/
+#if USE_GPS
+  gps_init();
+#endif
+
+#ifdef USE_GPIO
+  GpioInit();
+#endif
+
+#if USE_IMU
+  imu_init();
+#endif
+
+#if USE_AHRS_ALIGNER
+  ahrs_aligner_init();
+#endif
+
+#if USE_AHRS
+  ahrs_init();
+#endif
+
+  /************* Links initialization ***************/
+#if defined MCU_SPI_LINK
+  link_mcu_init();
+#endif
+#if USE_AUDIO_TELEMETRY
+  audio_telemetry_init();
+#endif
+
+  /************ Internal status ***************/
+  h_ctl_init();
+  v_ctl_init();
+  estimator_init();
+#ifdef ALT_KALMAN
+  alt_kalman_init();
+#endif
+  nav_init();
+
+  modules_init();
+
+  settings_init();
+
+  /**** start timers for periodic functions *****/
+  sensors_tid = sys_time_register_timer(1./PERIODIC_FREQUENCY, NULL);
+  navigation_tid = sys_time_register_timer(1./NAVIGATION_FREQUENCY, NULL);
+  attitude_tid = sys_time_register_timer(1./CONTROL_FREQUENCY, NULL);
+  modules_tid = sys_time_register_timer(1./MODULES_FREQUENCY, NULL);
+  telemetry_tid = sys_time_register_timer(1./60, NULL);
+  monitor_tid = sys_time_register_timer(1.0, NULL);
+
+  /** - start interrupt task */
+  mcu_int_enable();
+
+#if defined DATALINK
+#if DATALINK == XBEE
+  xbee_init();
+#endif
+#endif /* DATALINK */
+
+#if defined AEROCOMM_DATA_PIN
+  IO0DIR |= _BV(AEROCOMM_DATA_PIN);
+  IO0SET = _BV(AEROCOMM_DATA_PIN);
+#endif
+
+  power_switch = FALSE;
+
+  /************ Multi-uavs status ***************/
+
+#ifdef TRAFFIC_INFO
+  traffic_info_init();
+#endif
+}
+
+
+void handle_periodic_tasks_ap(void) {
+
+  if (sys_time_check_and_ack_timer(sensors_tid))
+    sensors_task();
+
+  if (sys_time_check_and_ack_timer(navigation_tid))
+    navigation_task();
+
+#ifndef AHRS_TRIGGERED_ATTITUDE_LOOP
+  if (sys_time_check_and_ack_timer(attitude_tid))
+    attitude_loop();
+#endif
+
+  if (sys_time_check_and_ack_timer(modules_tid))
+    modules_periodic_task();
+
+  if (sys_time_check_and_ack_timer(monitor_tid))
+    monitor_task();
+
+  if (sys_time_check_and_ack_timer(telemetry_tid)) {
+    reporting_task();
+    LED_PERIODIC();
+  }
+
+}
+
+
+/******************** Interaction with FBW *****************************/
+
+/** Update paparazzi mode.
  */
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
 static inline uint8_t pprz_mode_update( void ) {
@@ -179,7 +297,7 @@ static inline uint8_t mcu1_status_update( void ) {
 }
 
 
-/** \brief Send back uncontrolled channels
+/** Send back uncontrolled channels.
  */
 static inline void copy_from_to_fbw ( void ) {
 #ifdef SetAutoCommandsFromRC
@@ -189,32 +307,7 @@ static inline void copy_from_to_fbw ( void ) {
 #endif
 }
 
-
-
-/** Define number of message at initialisation */
-#define INIT_MSG_NB 2
-
-uint8_t ac_ident = AC_ID;
-
-/**
- * Send a series of initialisation messages followed by a stream of periodic ones.
- *
- * Called at 60Hz.
- */
-void reporting_task( void ) {
-  static uint8_t boot = TRUE;
-
-  /** initialisation phase during boot */
-  if (boot) {
-    DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &version);
-    boot = FALSE;
-  }
-  /** then report periodicly */
-  else {
-    PeriodicSendAp(DefaultChannel, DefaultDevice);
-  }
-}
-
+/** mode to enter when RC is lost in PPRZ_MODE_MANUAL or PPRZ_MODE_AUTO1 */
 #ifndef RC_LOST_MODE
 #define RC_LOST_MODE PPRZ_MODE_HOME
 #endif
@@ -283,6 +376,32 @@ static inline void telecommand_task( void ) {
     }
   }
 #endif
+}
+
+
+/**************************** Periodic tasks ***********************************/
+
+/** Define number of message at initialisation */
+#define INIT_MSG_NB 2
+
+uint8_t ac_ident = AC_ID;
+
+/**
+ * Send a series of initialisation messages followed by a stream of periodic ones.
+ * Called at 60Hz.
+ */
+void reporting_task( void ) {
+  static uint8_t boot = TRUE;
+
+  /** initialisation phase during boot */
+  if (boot) {
+    DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &version);
+    boot = FALSE;
+  }
+  /** then report periodicly */
+  else {
+    PeriodicSendAp(DefaultChannel, DefaultDevice);
+  }
 }
 
 
@@ -404,7 +523,7 @@ void attitude_loop( void ) {
 }
 
 
-// Run at PERIODIC_FREQUENCY (60Hz if not defined)
+/** Run at PERIODIC_FREQUENCY (60Hz if not defined) */
 void sensors_task( void ) {
 #if USE_IMU
   imu_periodic();
@@ -416,13 +535,15 @@ void sensors_task( void ) {
 #endif // USE_IMU
 }
 
-/** Maximum time allowed for low battery level */
+/** Maximum time allowed for low battery level before going into kill mode */
 #define LOW_BATTERY_DELAY 5
 
+/** Maximum distance from HOME waypoint before going into kill mode */
 #ifndef KILL_MODE_DISTANCE
 #define KILL_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
 #endif
 
+/** monitor stuff run at 1Hz */
 void monitor_task( void ) {
   if (estimator_flight_time)
     estimator_flight_time++;
@@ -447,90 +568,6 @@ void monitor_task( void ) {
 
 #ifdef USE_GPIO
    GpioUpdate1();
-#endif
-}
-
-
-void periodic_task_ap( void ) {
-  modules_periodic_task();
-}
-
-
-void init_ap( void ) {
-#ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
-  mcu_init();
-#endif /* SINGLE_MCU */
-
-  /************* Sensors initialization ***************/
-#if USE_GPS
-  gps_init();
-#endif
-
-#ifdef USE_GPIO
-  GpioInit();
-#endif
-
-#if USE_IMU
-  imu_init();
-#endif
-
-#if USE_AHRS_ALIGNER
-  ahrs_aligner_init();
-#endif
-
-#if USE_AHRS
-  ahrs_init();
-#endif
-
-  /************* Links initialization ***************/
-#if defined MCU_SPI_LINK
-  link_mcu_init();
-#endif
-#if USE_AUDIO_TELEMETRY
-  audio_telemetry_init();
-#endif
-
-  /************ Internal status ***************/
-  h_ctl_init();
-  v_ctl_init();
-  estimator_init();
-#ifdef ALT_KALMAN
-  alt_kalman_init();
-#endif
-  nav_init();
-
-  modules_init();
-
-  settings_init();
-
-  /**** start timers for periodic functions *****/
-  ap_periodic_tid = sys_time_register_timer(1./PERIODIC_FREQUENCY, NULL);
-  telemetry_tid = sys_time_register_timer(1./60, NULL);
-  sensors_tid = sys_time_register_timer(1./PERIODIC_FREQUENCY, NULL);
-  attitude_tid = sys_time_register_timer(1./CONTROL_RATE, NULL);
-  navigation_tid = sys_time_register_timer(1./NAVIGATION_RATE, NULL);
-  monitor_tid = sys_time_register_timer(1.0, NULL);
-
-  /** - start interrupt task */
-  mcu_int_enable();
-
-#if defined DATALINK
-#if DATALINK == XBEE
-  xbee_init();
-#endif
-#endif /* DATALINK */
-
-#if defined AEROCOMM_DATA_PIN
-  IO0DIR |= _BV(AEROCOMM_DATA_PIN);
-  IO0SET = _BV(AEROCOMM_DATA_PIN);
-#endif
-
-  power_switch = FALSE;
-
-  /************ Multi-uavs status ***************/
-
-#ifdef TRAFFIC_INFO
-  traffic_info_init();
 #endif
 }
 
@@ -599,7 +636,7 @@ static inline void on_gyro_event( void ) {
   ahrs_timeout_counter = 0;
 
 #ifdef AHRS_CPU_LED
-    LED_ON(AHRS_CPU_LED);
+  LED_ON(AHRS_CPU_LED);
 #endif
 
 #if USE_AHRS_ALIGNER

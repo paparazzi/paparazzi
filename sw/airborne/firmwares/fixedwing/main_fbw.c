@@ -203,3 +203,13 @@ void periodic_task_fbw( void ) {
 #endif
 
 }
+
+void handle_periodic_tasks_fbw(void) {
+
+  if (sys_time_check_and_ack_timer(fbw_periodic_tid))
+    periodic_task_fbw();
+
+  if (sys_time_check_and_ack_timer(electrical_tid))
+    electrical_periodic();
+
+}

@@ -30,23 +30,14 @@
 #ifndef AP_H
 #define AP_H
 
-#include "mcu_periph/sys_time.h"
-
-extern tid_t ap_periodic_tid; ///< id for periodic_task_ap() timer
-extern tid_t telemetry_tid;   ///< id for telemetry_periodic() timer
-extern tid_t sensors_tid;     ///< id for sensors_task() timer
-extern tid_t attitude_tid;    ///< id for attitude_loop() timer
-extern tid_t navigation_tid;  ///< id for navigation_task() timer
-extern tid_t monitor_tid;     ///< id for monitor_task() timer
-
-
 extern void init_ap( void );
-extern void periodic_task_ap( void );
+extern void handle_periodic_tasks_ap( void );
 extern void event_task_ap( void );
-extern void reporting_task( void );
+
 extern void sensors_task( void );
+extern void navigation_task( void );
+extern void monitor_task( void );
+extern void reporting_task( void );
 extern void attitude_loop( void );
-extern void navigation_task(void);
-extern void monitor_task(void);
 
 #endif
