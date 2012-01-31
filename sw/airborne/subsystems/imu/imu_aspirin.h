@@ -65,7 +65,7 @@
 #define IMU_ACCEL_Z_SIGN  1
 #endif
 
-/* default gyro sensitivy and neutral from the datasheet
+/** default gyro sensitivy and neutral from the datasheet
  * IMU-3000 has 16.4 LSB/(deg/s) at 2000deg/s range
  * sens = 1/16.4 * pi/180 * 2^INT32_RATE_FRAC
  * sens = 1/16.4 * pi/180 * 4096 = 4.359066229
@@ -87,21 +87,28 @@
 #define IMU_GYRO_R_NEUTRAL 0
 #endif
 
-/* default accel sensitivy and neutral from the datasheet
- * ADXL345 has 3.9 mg/LSB sensitivity at full resolution
- * sens = 3.9/1000 * 9.81 * 2^INT32_ACCEL_FRAC
- * sens = 3.9/1000 * 9.81 * 1024 = 39.177216
+
+/** default accel sensitivy from the ADXL345 datasheet
+ * sensitivity of x & y axes depends on supply voltage:
+ *   - 256 LSB/g @ 2.5V
+ *   - 265 LSB/g @ 3.3V
+ * z sensitivity stays at 256 LSB/g
+ * fixed point sens: 9.81 [m/s^2] / 256 [LSB/g] * 2^INT32_ACCEL_FRAC
+ * x/y sens = 9.81 / 265 * 1024 = 37.91
+ * z sens   = 9.81 / 256 * 1024 = 39.24
+ *
+ * what about the offset at 3.3V?
  */
 #if !defined IMU_ACCEL_X_SENS & !defined IMU_ACCEL_Y_SENS & !defined IMU_ACCEL_Z_SENS
-#define IMU_ACCEL_X_SENS 39.177
-#define IMU_ACCEL_X_SENS_NUM 39177
-#define IMU_ACCEL_X_SENS_DEN 1000
-#define IMU_ACCEL_Y_SENS 39.177
-#define IMU_ACCEL_Y_SENS_NUM 39177
-#define IMU_ACCEL_Y_SENS_DEN 1000
-#define IMU_ACCEL_Z_SENS 39.177
-#define IMU_ACCEL_Z_SENS_NUM 39177
-#define IMU_ACCEL_Z_SENS_DEN 1000
+#define IMU_ACCEL_X_SENS 37.91
+#define IMU_ACCEL_X_SENS_NUM 3791
+#define IMU_ACCEL_X_SENS_DEN 100
+#define IMU_ACCEL_Y_SENS 37.91
+#define IMU_ACCEL_Y_SENS_NUM 3791
+#define IMU_ACCEL_Y_SENS_DEN 100
+#define IMU_ACCEL_Z_SENS 39.24
+#define IMU_ACCEL_Z_SENS_NUM 39.24
+#define IMU_ACCEL_Z_SENS_DEN 100
 #endif
 #if !defined IMU_ACCEL_X_NEUTRAL & !defined IMU_ACCEL_Y_NEUTRAL & !defined IMU_ACCEL_Z_NEUTRAL
 #define IMU_ACCEL_X_NEUTRAL 0
