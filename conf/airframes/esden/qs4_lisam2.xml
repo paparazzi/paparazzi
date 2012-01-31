@@ -1,5 +1,5 @@
 <!-- this is a synerani vehicle equiped with Lisa/M and generic china pwm motor controllers -->
-<!-- Copyright (C) 2011, Pranay Sinha, the Quadshot Project -->
+<!-- Copyright (C) 2012, Pranay Sinha, the Quadshot Project -->
 
 <airframe name="qs4_lisam2">
 
@@ -114,7 +114,7 @@
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
     <define name="PITCH_COEF"  value="{ -256, -256,  256,  256 }"/>
-    <define name="ROLL_COEF"   value="{  256, -256, -256,  256 }"/>
+    <define name="ROLL_COEF"   value="{  256, -256, -128,  128 }"/>
     <define name="YAW_COEF"    value="{  256, -256,  256, -256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
@@ -236,7 +236,7 @@
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
  </section>
 
- <include href="conf/airframes/esden/toytronics/gains/QS4_inner_8x4_5.xml"/>
+ <include href="conf/airframes/esden/toytronics/gains/QS4M2_inner_8x4_5.xml"/>
  <include href="conf/airframes/esden/toytronics/setpoint/QS4_setpoint.xml"/>
  <include href="conf/airframes/esden/camera_mount.xml"/>
 
