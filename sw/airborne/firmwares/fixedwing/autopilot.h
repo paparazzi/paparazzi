@@ -111,4 +111,10 @@ extern bool_t power_switch;
 }
 
 
+/* For backward compatibility with old airframe files */
+#include "generated/airframe.h"
+#ifndef CONTROL_RATE
+#define CONTROL_RATE 20
+#endif
+
 #endif /* AUTOPILOT_H */
