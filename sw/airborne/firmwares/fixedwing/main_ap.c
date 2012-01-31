@@ -98,17 +98,9 @@ static inline void on_gps_solution( void );
 #endif
 
 
-#define LOW_BATTERY_DECIVOLT (CATASTROPHIC_BAT_LEVEL*10)
-
-
-/** FIXME: should be in rc_settings but required by telemetry (ap_downlink.h)*/
-uint8_t rc_settings_mode = 0;
-
-/** Define minimal speed for takeoff in m/s */
-#define MIN_SPEED_FOR_TAKEOFF 5.
-
 bool_t power_switch;
-uint8_t fatal_error_nb = 0;
+
+// what version is this ????
 static const uint16_t version = 1;
 
 uint8_t pprz_mode = PPRZ_MODE_AUTO2;
@@ -122,14 +114,23 @@ static uint8_t  mcu1_ppm_cpt;
 
 bool_t kill_throttle = FALSE;
 
-float slider_1_val, slider_2_val;
-
 bool_t launch = FALSE;
 
-uint8_t vsupply;	// deciVolt
+
+/** Supply voltage in deciVolt.
+ * This the ap copy of the measurement from fbw
+ */
+uint8_t vsupply;
+
+/** Supply current in milliAmpere.
+ * This the ap copy of the measurement from fbw
+ */
 static int32_t current;	// milliAmpere
 
-float energy;       // Fuel consumption (mAh)
+/** Fuel consumption (mAh)
+ * TODO: move to electrical subsystem
+ */
+float energy;
 
 bool_t gps_lost = FALSE;
 
@@ -381,11 +382,6 @@ static inline void telecommand_task( void ) {
 
 /**************************** Periodic tasks ***********************************/
 
-/** Define number of message at initialisation */
-#define INIT_MSG_NB 2
-
-uint8_t ac_ident = AC_ID;
-
 /**
  * Send a series of initialisation messages followed by a stream of periodic ones.
  * Called at 60Hz.
@@ -535,6 +531,9 @@ void sensors_task( void ) {
 #endif // USE_IMU
 }
 
+
+
+
 /** Maximum time allowed for low battery level before going into kill mode */
 #define LOW_BATTERY_DELAY 5
 
@@ -542,6 +541,9 @@ void sensors_task( void ) {
 #ifndef KILL_MODE_DISTANCE
 #define KILL_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
 #endif
+
+/** Define minimal speed for takeoff in m/s */
+#define MIN_SPEED_FOR_TAKEOFF 5.
 
 /** monitor stuff run at 1Hz */
 void monitor_task( void ) {
@@ -552,7 +554,7 @@ void monitor_task( void ) {
 #endif
 
   static uint8_t t = 0;
-  if (vsupply < LOW_BATTERY_DECIVOLT)
+  if (vsupply < CATASTROPHIC_BAT_LEVEL*10)
     t++;
   else
     t = 0;
