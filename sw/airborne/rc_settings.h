@@ -23,8 +23,9 @@
  */
 
 
-/** \file rc_settings.h
- *  \brief Variable setting though the radio control
+/**
+ * @file rc_settings.h
+ * Variable setting though the radio control
  *
  * The 'rc_control' section of a XML flight plan allows the user to change the
  * value of an autopilot internal variable through the rc transmitter.
@@ -33,6 +34,7 @@
  */
 
 #ifndef RC_SETTINGS_H
+#define RC_SETTINGS_H
 
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
 
@@ -43,7 +45,15 @@
 #define RC_SETTINGS_MODE_DOWN      1
 #define RC_SETTINGS_MODE_UP        2
 
+/** rc settings mode
+ *  can be either
+ *  - #RC_SETTINGS_MODE_NONE
+ *  - #RC_SETTINGS_MODE_DOWN
+ *  - #RC_SETTINGS_MODE_UP
+ */
 extern uint8_t rc_settings_mode;
+
+extern float slider_1_val, slider_2_val;
 
 void rc_settings(bool_t mode_changed);
 

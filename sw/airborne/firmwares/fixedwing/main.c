@@ -21,12 +21,12 @@
  * Boston, MA 02111-1307, USA.
  *
  */
-/** \file main.c
- * \brief main loop used both on single and dual MCU configuration */
 
+/**
+ * @file main.c
+ * Main loop used both on single and dual MCU configuration.
+ */
 
-#include "mcu_periph/sys_time.h"
-#include "led.h"
 
 #ifdef FBW
 #include "firmwares/fixedwing/main_fbw.h"
@@ -46,11 +46,8 @@ int main( void ) {
   Fbw(init);
   Ap(init);
   while (1) {
-    if (sys_time_check_and_ack_timer(0)) {
-      Fbw(periodic_task);
-      Ap(periodic_task);
-      LED_PERIODIC();
-    }
+    Fbw(handle_periodic_tasks);
+    Ap(handle_periodic_tasks);
     Fbw(event_task);
     Ap(event_task);
   }
