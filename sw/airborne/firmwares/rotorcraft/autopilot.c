@@ -290,7 +290,7 @@ static inline void autopilot_check_motors_on( void ) {
 			autopilot_rc_unkilled_startup = FALSE;
 	if (autopilot_motors_on == FALSE && autopilot_rc_unkilled_startup == FALSE && autopilot_mode1_kill == TRUE){
 		if (autopilot_first_boot == TRUE){
-		  RunOnceEvery(256,{autopilot_first_boot = FALSE;})
+		  RunOnceEvery(1024,{autopilot_first_boot = FALSE;})
 		  }
 		else
 		  autopilot_motors_on=radio_control.values[RADIO_KILL_SWITCH]>0 && radio_control.values[RADIO_MODE] < 0 && THROTTLE_STICK_DOWN() && YAW_STICK_CENTERED() && PITCH_STICK_CENTERED() && ROLL_STICK_CENTERED() && ahrs_is_aligned();
