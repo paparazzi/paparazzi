@@ -186,9 +186,15 @@ void adxl345_clear_rx_buf(void) {
 }
 
 void adxl345_start_reading_data(void) {
-   Adxl345Select();
+  // FIXME!
+  // It would seem that periodically the data in the rx buffer gets offset by one,
+  // i.e. it starts at accel_rx_buf[2] instead of accel_rx_buf[1]
+  // clearing the buffer might help?
+  adxl345_clear_rx_buf();
 
-   imu_aspirin.accel_tx_buf[0] = (1<<7|1<<6|ADXL345_REG_DATA_X0);
+  Adxl345Select();
+
+  imu_aspirin.accel_tx_buf[0] = (1<<7|1<<6|ADXL345_REG_DATA_X0);
 
   /* SPI2_Rx_DMA_Channel configuration ------------------------------------*/
   DMA_DeInit(DMA1_Channel4);
