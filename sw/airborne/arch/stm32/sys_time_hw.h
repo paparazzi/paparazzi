@@ -50,6 +50,12 @@ extern uint32_t cpu_time_ticks;
 #define SYS_TICS_OF_SEC(s)        (uint32_t)((s) * AHB_CLK + 0.5)
 #define SIGNED_SYS_TICS_OF_SEC(s)  (int32_t)((s) * AHB_CLK + 0.5)
 
+/* Generic timer macros */
+//FIXME: dirty temporary hack!!!
+#define SysTimeTimerStart(_t) { _t = SYS_TICS_OF_SEC(cpu_time_sec) + cpu_time_ticks; }
+#define SysTimeTimer(_t) ((uint32_t)(SYS_TICS_OF_SEC(cpu_time_sec) + cpu_time_ticks - _t))
+#define SysTimeTimerStop(_t) { _t = (SYS_TICS_OF_SEC(cpu_time_sec) + cpu_time_ticks - _t); }
+
 static inline bool_t sys_time_periodic( void ) {
   if (sys_time_period_elapsed) {
     sys_time_period_elapsed = FALSE;

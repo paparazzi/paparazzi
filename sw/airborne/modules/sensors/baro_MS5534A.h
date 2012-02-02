@@ -32,7 +32,7 @@
 
 #include "std.h"
 
-#ifdef USE_BARO_MS5534A
+#if USE_BARO_MS5534A
 
 extern bool_t baro_MS5534A_do_reset;
 extern bool_t baro_MS5534A_available;

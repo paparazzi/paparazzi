@@ -33,7 +33,7 @@
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -102,7 +102,7 @@ void humid_sht_periodic_i2c( void ) {
     sht_status = SHT2_TRIG_TEMP;
     I2CTransmit(SHT_I2C_DEV, sht_trans, SHT_SLAVE_ADDR, 1);
     /* send serial number every 30 seconds */
-    RunOnceEvery((4*30), DOWNLINK_SEND_SHT_I2C_SERIAL(DefaultChannel, &sht_serial1, &sht_serial2));
+    RunOnceEvery((4*30), DOWNLINK_SEND_SHT_I2C_SERIAL(DefaultChannel, DefaultDevice, &sht_serial1, &sht_serial2));
     break;
   }
 }
@@ -167,7 +167,7 @@ void humid_sht_event_i2c( void ) {
       sht_trans.status = I2CTransDone;
 
       if (humid_sht_crc(sht_trans.buf) == 0) {
-        DOWNLINK_SEND_SHT_I2C_STATUS(DefaultChannel, &humidsht_i2c, &tempsht_i2c, &fhumidsht_i2c, &ftempsht_i2c);
+        DOWNLINK_SEND_SHT_I2C_STATUS(DefaultChannel, DefaultDevice, &humidsht_i2c, &tempsht_i2c, &fhumidsht_i2c, &ftempsht_i2c);
       }
       break;
 
@@ -197,7 +197,7 @@ void humid_sht_event_i2c( void ) {
       sht_serial[6] = sht_trans.buf[4];
       sht_serial1=sht_serial[7]<<24|sht_serial[6]<<16|sht_serial[5]<<8|sht_serial[4];
       sht_serial2=sht_serial[3]<<24|sht_serial[2]<<16|sht_serial[1]<<8|sht_serial[0];
-      DOWNLINK_SEND_SHT_I2C_SERIAL(DefaultChannel, &sht_serial1, &sht_serial2);
+      DOWNLINK_SEND_SHT_I2C_SERIAL(DefaultChannel, DefaultDevice, &sht_serial1, &sht_serial2);
       sht_status = SHT2_IDLE;
       sht_trans.status = I2CTransDone;
       break;

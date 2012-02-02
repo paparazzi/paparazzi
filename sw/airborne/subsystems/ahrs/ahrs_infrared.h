@@ -31,7 +31,6 @@
 extern float ins_roll_neutral;
 extern float ins_pitch_neutral;
 
-extern void ahrs_update_gps(void);
 extern void ahrs_update_infrared(void);
 
 // TODO copy ahrs to state instead of estimator

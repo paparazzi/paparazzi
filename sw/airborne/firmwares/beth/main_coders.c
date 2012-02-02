@@ -2,7 +2,7 @@
 #include "mcu.h"
 #include "mcu_periph/can.h"
 #include "sys_time.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include <stm32/rcc.h>
 #include <stm32/gpio.h>

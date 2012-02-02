@@ -76,26 +76,26 @@ extern uint8_t dc_cam_tracing;
 
 /* Generic Set of Digital Camera Commands */
 typedef enum {
-    DC_GET_STATUS = 0,
+  DC_GET_STATUS = 0,
 
-    DC_HOLD = 13,
-    DC_SHOOT = 32,
+  DC_HOLD = 13,
+  DC_SHOOT = 32,
 
-    DC_WIDER = 'w',
-    DC_TALLER = 't',
+  DC_WIDER = 'w',
+  DC_TALLER = 't',
 
-    DC_UP = 'u',
-    DC_DOWN = 'd',
-    DC_CENTER = 'c',
-    DC_LEFT = 'l',
-    DC_RIGHT = 'r',
+  DC_UP = 'u',
+  DC_DOWN = 'd',
+  DC_CENTER = 'c',
+  DC_LEFT = 'l',
+  DC_RIGHT = 'r',
 
-    DC_MENU = 'm',
-    DC_HOME = 'h',
-    DC_PLAY = 'p',
+  DC_MENU = 'm',
+  DC_HOME = 'h',
+  DC_PLAY = 'p',
 
-    DC_ON = 'O',
-    DC_OFF = 'o',
+  DC_ON = 'O',
+  DC_OFF = 'o',
 
 } dc_command_type;
 
@@ -104,12 +104,12 @@ static inline void dc_send_command(uint8_t cmd);
 
 /* Auotmatic Digital Camera Photo Triggering */
 typedef enum {
-    DC_AUTOSHOOT_STOP = 0,
-    DC_AUTOSHOOT_PERIODIC = 1,
-    DC_AUTOSHOOT_DISTANCE = 2,
-    DC_AUTOSHOOT_EXT_TRIG = 3,
-    DC_AUTOSHOOT_SURVEY = 4,
-    DC_AUTOSHOOT_CIRCLE = 5
+  DC_AUTOSHOOT_STOP = 0,
+  DC_AUTOSHOOT_PERIODIC = 1,
+  DC_AUTOSHOOT_DISTANCE = 2,
+  DC_AUTOSHOOT_EXT_TRIG = 3,
+  DC_AUTOSHOOT_SURVEY = 4,
+  DC_AUTOSHOOT_CIRCLE = 5
 } dc_autoshoot_type;
 extern dc_autoshoot_type dc_autoshoot;
 
@@ -144,34 +144,34 @@ void dc_send_shot_position(void);
  * FUNCTIONS
  *****************************************************************/
 /**
-  Sets the dc control in circle mode.
-  The 'start' value is the reference course and 'intervall'
-  the minimum angle between shots.
-  If 'start' is 0 the current course is used instead.
+   Sets the dc control in circle mode.
+   The 'start' value is the reference course and 'intervall'
+   the minimum angle between shots.
+   If 'start' is 0 the current course is used instead.
 
-  In this mode the dc control assumes a perfect circular
-  course.
-  The first picture is taken at angle start+interval.
+   In this mode the dc control assumes a perfect circular
+   course.
+   The first picture is taken at angle start+interval.
 */
 extern uint8_t dc_circle(float interval, float start);
 
 #define dc_Circle(interval) dc_circle(interval, DC_IGNORE)
 
 /**
-  Sets the dc control in distance mode.
-  The values of 'x' and 'y' are the coordinates
-  of the reference point used for the distance
-  calculations.
-  If 'y' is 0 the value of 'x' is interpreted
-  as index of a waypoint declared in the flight plan.
-  If both 'x' and 'y' are 0 the current position
-  will be used as reference point.
+   Sets the dc control in distance mode.
+   The values of 'x' and 'y' are the coordinates
+   of the reference point used for the distance
+   calculations.
+   If 'y' is 0 the value of 'x' is interpreted
+   as index of a waypoint declared in the flight plan.
+   If both 'x' and 'y' are 0 the current position
+   will be used as reference point.
 
-  In this mode, the dc control assumes a perfect
-  line formed course since the distance is calculated
-  relative to the first given point of reference.
-  So not usable for circles or other comparable
-  shapes.
+   In this mode, the dc control assumes a perfect
+   line formed course since the distance is calculated
+   relative to the first given point of reference.
+   So not usable for circles or other comparable
+   shapes.
 */
 extern uint8_t dc_survey(float interval, float x, float y);
 
@@ -179,8 +179,8 @@ extern uint8_t dc_survey(float interval, float x, float y);
 
 
 /**
-  Sets the dc control in inactive mode,
-  stopping all current actions.
+   Sets the dc control in inactive mode,
+   stopping all current actions.
 */
 extern uint8_t dc_stop(void);
 
@@ -205,16 +205,17 @@ static inline void dc_init(void)
 #endif
 }
 
-/* shoot on grid
+#if 0
+/* shoot on grid */
 static inline void dc_shot_on_utm_north_close_to_100m_grid( void )
 {
   uint32_t dist_to_100m_grid = (gps.utm_pos.north / 100) % 100;
-  if (dist_to_100m_grid < dc_autoshoot_meter_grid || 100 - dist_to_100m_grid < dc_autoshoot_meter_grid)
-  {
-      dc_send_command(DC_SHOOT);
+  if (dist_to_100m_grid < dc_autoshoot_meter_grid || 100 - dist_to_100m_grid < dc_autoshoot_meter_grid) {
+    dc_send_command(DC_SHOOT);
   }
 }
-*/
+#endif
+
 static float dim_mod(float a, float b, float m) {
   if (a < b) {
     float tmp = a;
@@ -227,9 +228,9 @@ static float dim_mod(float a, float b, float m) {
 /* periodic 4Hz function */
 static inline void dc_periodic_4Hz( void )
 {
-static uint8_t dc_shutter_timer = 0;
+  static uint8_t dc_shutter_timer = 0;
 
- switch (dc_autoshoot) {
+  switch (dc_autoshoot) {
 
   case DC_AUTOSHOOT_PERIODIC:
     if (dc_shutter_timer) {
@@ -237,23 +238,23 @@ static uint8_t dc_shutter_timer = 0;
     } else {
       dc_shutter_timer = dc_autoshoot_quartersec_period;
       dc_send_command(DC_SHOOT);
-      }
-      break;
+    }
+    break;
 
   case DC_AUTOSHOOT_DISTANCE:
-  {
-  uint32_t dist_to_100m_grid = (gps.utm_pos.north / 100) % 100;
-  if (dist_to_100m_grid < dc_autoshoot_meter_grid || 100 - dist_to_100m_grid < dc_autoshoot_meter_grid)
-  {
-      dc_send_command(DC_SHOOT);
-  }
-  }
-  break;
+    {
+      uint32_t dist_to_100m_grid = (gps.utm_pos.north / 100) % 100;
+      if (dist_to_100m_grid < dc_autoshoot_meter_grid || 100 - dist_to_100m_grid < dc_autoshoot_meter_grid)
+        {
+          dc_send_command(DC_SHOOT);
+        }
+    }
+    break;
 
   case DC_AUTOSHOOT_CIRCLE: {
     float course = DegOfRad(estimator_psi) - dc_circle_start_angle;
     if (course < 0.)
-     course += 360.;
+      course += 360.;
     float current_block = floorf(course/dc_circle_interval);
 
     if (dc_probing) {
@@ -267,8 +268,8 @@ static uint8_t dc_shutter_timer = 0;
       dc_circle_last_block = current_block;
       dc_send_command(DC_SHOOT);
     }
-      }
-      break;
+  }
+    break;
 
   case DC_AUTOSHOOT_SURVEY : {
     float dist_x = dc_gps_x - estimator_x;
@@ -285,12 +286,12 @@ static uint8_t dc_shutter_timer = 0;
       dc_gps_count++;
       dc_send_command(DC_SHOOT);
     }
-      }
-      break;
+  }
+    break;
 
   default :
-      dc_autoshoot = DC_AUTOSHOOT_STOP;
- }
+    dc_autoshoot = DC_AUTOSHOOT_STOP;
+  }
 }
 
 

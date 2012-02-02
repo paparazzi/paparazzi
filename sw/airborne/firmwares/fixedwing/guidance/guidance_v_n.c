@@ -92,7 +92,7 @@ pprz_t v_ctl_throttle_slewed;
 
 uint8_t v_ctl_speed_mode;
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
 float v_ctl_auto_airspeed_setpoint;
 float v_ctl_auto_airspeed_controlled;
 float v_ctl_auto_airspeed_throttle_pgain;
@@ -146,7 +146,7 @@ void v_ctl_init( void ) {
   v_ctl_auto_pitch_igain = ABS(V_CTL_AUTO_PITCH_IGAIN);
   v_ctl_auto_pitch_sum_err = 0.;
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
   v_ctl_auto_airspeed_setpoint = V_CTL_AUTO_AIRSPEED_SETPOINT;
   v_ctl_auto_airspeed_controlled = V_CTL_AUTO_AIRSPEED_SETPOINT;
   v_ctl_auto_airspeed_throttle_pgain = V_CTL_AUTO_AIRSPEED_THROTTLE_PGAIN;
@@ -250,7 +250,7 @@ static inline void v_ctl_set_throttle( void ) {
 
 }
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
 #define AIRSPEED_LOOP_PERIOD (1./60.)
 
 // Airspeed control loop (input: [airspeed controlled, climb_setpoint], output: [throttle controlled, pitch setpoint])
@@ -336,7 +336,7 @@ void v_ctl_climb_loop ( void ) {
     // Set throttle
     v_ctl_set_throttle();
     break;
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
   case V_CTL_SPEED_AIRSPEED:
     v_ctl_set_airspeed();
     break;

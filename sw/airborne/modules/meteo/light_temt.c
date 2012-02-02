@@ -33,7 +33,7 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #ifndef ADC_CHANNEL_LIGHT_TEMT
 #define ADC_CHANNEL_LIGHT_TEMT ADC_4
@@ -63,6 +63,6 @@ void light_temt_periodic( void ) {
   /* 3.6k/6.8k voltage divider, 10 bits adc */
   f_light_temt = (adc_light_temt / 1024.) * 100.;
 
-  DOWNLINK_SEND_TEMT_STATUS(DefaultChannel, &adc_light_temt, &f_light_temt);
+  DOWNLINK_SEND_TEMT_STATUS(DefaultChannel, DefaultDevice, &adc_light_temt, &f_light_temt);
 }
 

@@ -78,7 +78,7 @@ sim.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 
 sim.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
 sim.srcs += $(SRC_FIRMWARE)/telemetry.c \
-            downlink.c \
+            subsystems/datalink/downlink.c \
             $(SRC_ARCH)/ivy_transport.c
 
 sim.srcs   += $(SRC_FIRMWARE)/commands.c

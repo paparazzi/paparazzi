@@ -27,8 +27,8 @@
 #include "std.h"
 #include "mcu.h"
 #include "sys_time.h"
-#include "downlink.h"
-#include "datalink.h"
+#include "subsystems/datalink/downlink.h"
+#include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
 
 #include "mcu_periph/uart.h"
@@ -75,7 +75,7 @@ static inline void main_init( void ) {
 static inline void main_periodic( void ) {
 
   RunOnceEvery(100, {
-      DOWNLINK_SEND_ALIVE(DefaultChannel,  16, MD5SUM);
+      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice,  16, MD5SUM);
       PeriodicSendDlValue(DefaultChannel);
     });
 
@@ -101,7 +101,7 @@ void dl_parse_msg(void) {
       uint8_t i = DL_SETTING_index(dl_buffer);
       float val = DL_SETTING_value(dl_buffer);
       DlSetting(i, val);
-      DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &val);
+      DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
     }
     break;
   default:

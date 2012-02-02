@@ -4,7 +4,7 @@
   <dl_settings name="control">
     <dl_settings name="photocalc">
 
-      <dl_setting max="90" min="-90" step="1" module="cartography/photogrammetry_calculator" var="photogrammetry_sweep_angle" shortname="Angle"  param="PHOTOGRAMMETRY_SWEEP_ANGLE" />
+      <dl_setting max="90" min="-90" step="1" module="cartography/photogrammetry_calculator" var="photogrammetry_sweep_angle" shortname="Angle" param="PHOTOGRAMMETRY_SWEEP_ANGLE" unit="rad" alt_unit="deg"/>
 
       <dl_setting max="95" min="0" step="1" VAR="photogrammetry_sidelap" module="cartography/photogrammetry_calculator" shortname="SideLap %" param="PHOTOGRAMMETRY_SIDELAP" handler="UpdateSideLap" />
       <dl_setting max="95" min="0" step="1" var="photogrammetry_overlap" module="cartography/photogrammetry_calculator" shortname="OverLap %" param="PHOTOGRAMMETRY_OVERLAP" handler="UpdateOverLap" />

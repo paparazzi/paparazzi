@@ -17,7 +17,7 @@
 
 #include "messages.h"
 #include "mcu_periph/uart.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #define QUAT_SETPOINT_HOVER_PITCH RadOfDeg(90)
 

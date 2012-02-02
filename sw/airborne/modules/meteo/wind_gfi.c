@@ -35,7 +35,7 @@
 #include "led.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 struct i2c_transaction pcf_trans;
 
@@ -105,7 +105,7 @@ void wind_gfi_event( void ) {
       /* 2048 digits per 360 degrees */
       fpcf_direction = fmod((pcf_direction * (360./2048.)) + ZERO_OFFSET_DEGREES, 360.);
 
-      DOWNLINK_SEND_TMP_STATUS(DefaultChannel, &pcf_direction, &fpcf_direction);
+      DOWNLINK_SEND_TMP_STATUS(DefaultChannel, DefaultDevice, &pcf_direction, &fpcf_direction);
     }
     else if (pcf_status == PCF_IDLE) {
       pcf_trans.status = I2CTransDone;

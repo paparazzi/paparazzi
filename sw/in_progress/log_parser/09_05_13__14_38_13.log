@@ -3294,7 +3294,7 @@ ap.srcs += $(SRC_ARCH)/lpcusb/examples/msc_bot.c $(SRC_ARCH)/lpcusb/examples/msc
       </message>
       <message NAME="TELEMETRY_STATUS" ID="32">
         <field NAME="ac_id" TYPE="string"/>
-        <field NAME="time_since_last_bat_msg" TYPE="float" UNIT="s"/>
+        <field NAME="time_since_last_msg" TYPE="float" UNIT="s"/>
       </message>
       <message NAME="TELEMETRY_ERROR" ID="33">
         <field NAME="ac_id" TYPE="string"/>

@@ -47,9 +47,9 @@
 #include "link_mcu.h"
 #include "sys_time.h"
 #include "generated/flight_plan.h"
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
-#include "xbee.h"
+#include "subsystems/datalink/xbee.h"
 
 #include "gpio.h"
 
@@ -64,18 +64,18 @@
 #endif
 
 
-#ifdef USE_IMU
+#if USE_IMU
 #include "subsystems/imu.h"
 #endif
-#ifdef USE_AHRS
+#if USE_AHRS
 #include "subsystems/ahrs.h"
 #endif
-#ifdef USE_AHRS_ALIGNER
+#if USE_AHRS_ALIGNER
 #include "subsystems/ahrs/ahrs_aligner.h"
 #endif
 
-#ifdef USE_AHRS
-#ifdef USE_IMU
+#if USE_AHRS
+#if USE_IMU
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
@@ -85,7 +85,7 @@ static inline void on_ahrs_event(void);
 #endif // USE_IMU
 #endif // USE_AHRS
 
-#ifdef USE_GPS
+#if USE_GPS
 static inline void on_gps_solution( void );
 #endif
 
@@ -196,12 +196,12 @@ static inline void reporting_task( void ) {
 
   /** initialisation phase during boot */
   if (boot) {
-    DOWNLINK_SEND_BOOT(DefaultChannel, &version);
+    DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &version);
     boot = FALSE;
   }
   /** then report periodicly */
   else {
-    PeriodicSendAp(DefaultChannel);
+    PeriodicSendAp(DefaultChannel, DefaultDevice);
   }
 }
 
@@ -236,7 +236,7 @@ static inline void telecommand_task( void ) {
   }
   mode_changed |= mcu1_status_update();
   if ( mode_changed )
-    PERIODIC_SEND_PPRZ_MODE(DefaultChannel);
+    PERIODIC_SEND_PPRZ_MODE(DefaultChannel, DefaultDevice);
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
   /** In AUTO1 mode, compute roll setpoint and pitch setpoint from
@@ -293,7 +293,7 @@ static void navigation_task( void ) {
       if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
         last_pprz_mode = pprz_mode;
         pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
-        PERIODIC_SEND_PPRZ_MODE(DefaultChannel);
+        PERIODIC_SEND_PPRZ_MODE(DefaultChannel, DefaultDevice);
         gps_lost = TRUE;
       }
     } else if (gps_lost) { /* GPS is ok */
@@ -301,7 +301,7 @@ static void navigation_task( void ) {
       pprz_mode = last_pprz_mode;
       gps_lost = FALSE;
 
-      PERIODIC_SEND_PPRZ_MODE(DefaultChannel);
+      PERIODIC_SEND_PPRZ_MODE(DefaultChannel, DefaultDevice);
     }
   }
 #endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */
@@ -319,10 +319,10 @@ static void navigation_task( void ) {
 #endif
 
 #ifndef PERIOD_NAVIGATION_DefaultChannel_0 // If not sent periodically (in default 0 mode)
-  SEND_NAVIGATION(DefaultChannel);
+  SEND_NAVIGATION(DefaultChannel, DefaultDevice);
 #endif
 
-  SEND_CAM(DefaultChannel);
+  SEND_CAM(DefaultChannel, DefaultDevice);
 
   /* The nav task computes only nav_altitude. However, we are interested
      by desired_altitude (= nav_alt+alt_shift) in any case.
@@ -391,7 +391,7 @@ static void navigation_task( void ) {
 
 static inline void attitude_loop( void ) {
 
-#ifdef USE_INFRARED
+#if USE_INFRARED
   ahrs_update_infrared();
 #endif /* USE_INFRARED */
 
@@ -411,7 +411,7 @@ static inline void attitude_loop( void ) {
 
 }
 
-#ifdef USE_AHRS
+#if USE_AHRS
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
 volatile uint8_t new_ins_attitude = 0;
 #endif
@@ -425,11 +425,11 @@ void periodic_task_ap( void ) {
   static uint8_t _4Hz  = 0;
   static uint8_t _1Hz  = 0;
 
-#ifdef USE_IMU
+#if USE_IMU
   // Run at PERIODIC_FREQUENCY (60Hz if not defined)
   imu_periodic();
 
-#ifdef USE_AHRS
+#if USE_AHRS
   if (ahrs_timeout_counter < 255)
     ahrs_timeout_counter ++;
 #endif
@@ -478,9 +478,6 @@ void periodic_task_ap( void ) {
   switch(_4Hz) {
   case 0:
     estimator_propagate_state();
-#ifdef EXTRA_DOWNLINK_DEVICE
-    DOWNLINK_SEND_ATTITUDE(ExtraPprzTransport,&estimator_phi,&estimator_psi,&estimator_theta);
-#endif
     navigation_task();
     break;
   case 1:
@@ -488,7 +485,7 @@ void periodic_task_ap( void ) {
         estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
       estimator_flight_time = 1;
       launch = TRUE; /* Not set in non auto launch */
-      DOWNLINK_SEND_TAKEOFF(DefaultChannel, &cpu_time_sec);
+      DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &cpu_time_sec);
   default:
     break;
     }
@@ -535,7 +532,7 @@ void init_ap( void ) {
 #endif /* SINGLE_MCU */
 
   /************* Sensors initialization ***************/
-#ifdef USE_GPS
+#if USE_GPS
   gps_init();
 #endif
 
@@ -543,15 +540,15 @@ void init_ap( void ) {
   GpioInit();
 #endif
 
-#ifdef USE_IMU
+#if USE_IMU
   imu_init();
 #endif
 
-#ifdef USE_AHRS_ALIGNER
+#if USE_AHRS_ALIGNER
   ahrs_aligner_init();
 #endif
 
-#ifdef USE_AHRS
+#if USE_AHRS
   ahrs_init();
 #endif
 
@@ -559,8 +556,8 @@ void init_ap( void ) {
 #if defined MCU_SPI_LINK
   link_mcu_init();
 #endif
-#ifdef MODEM
-  modem_init();
+#if USE_AUDIO_TELEMETRY
+  audio_telemetry_init();
 #endif
 
   /************ Internal status ***************/
@@ -607,15 +604,15 @@ void init_ap( void ) {
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
 
-#if defined USE_AHRS
-#ifdef USE_IMU
+#if USE_AHRS
+#if USE_IMU
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 #else
   AhrsEvent(on_ahrs_event);
 #endif // USE_IMU
 #endif // USE_AHRS
 
-#ifdef USE_GPS
+#if USE_GPS
   GpsEvent(on_gps_solution);
 #endif /** USE_GPS */
 
@@ -647,12 +644,10 @@ void event_task_ap( void ) {
 } /* event_task_ap() */
 
 
-#ifdef USE_GPS
+#if USE_GPS
 static inline void on_gps_solution( void ) {
   estimator_update_state_gps();
-#ifdef USE_INFRARED
   ahrs_update_gps();
-#endif
 #ifdef GPS_TRIGGERED_FUNCTION
   GPS_TRIGGERED_FUNCTION();
 #endif
@@ -660,8 +655,8 @@ static inline void on_gps_solution( void ) {
 #endif
 
 
-#ifdef USE_AHRS
-#ifdef USE_IMU
+#if USE_AHRS
+#if USE_IMU
 static inline void on_accel_event( void ) {
 }
 
@@ -673,7 +668,7 @@ static inline void on_gyro_event( void ) {
     LED_ON(AHRS_CPU_LED);
 #endif
 
-#ifdef USE_AHRS_ALIGNER
+#if USE_AHRS_ALIGNER
   // Run aligner on raw data as it also makes averages.
   if (ahrs.status == AHRS_UNINIT) {
     ImuScaleGyro(imu);

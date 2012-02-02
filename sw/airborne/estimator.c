@@ -99,7 +99,7 @@ void estimator_init( void ) {
 
   EstimatorSetRate(0., 0., 0.);
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
   EstimatorSetAirspeed( 0. );
 #endif
 
@@ -152,13 +152,13 @@ void alt_kalman(float gps_z) {
   float R;
   float SIGMA2;
 
-#ifdef USE_BARO_MS5534A
+#if USE_BARO_MS5534A
   if (alt_baro_enabled) {
     DT = BARO_DT;
     R = baro_MS5534A_r;
     SIGMA2 = baro_MS5534A_sigma2;
   } else
-#elif defined(USE_BARO_ETS)
+#elif USE_BARO_ETS
   if (baro_ets_enabled) {
     DT = BARO_ETS_DT;
     R = baro_ets_r;
@@ -204,7 +204,7 @@ void alt_kalman(float gps_z) {
   }
 
 #ifdef DEBUG_ALT_KALMAN
-  DOWNLINK_SEND_ALT_KALMAN(&(p[0][0]),&(p[0][1]),&(p[1][0]), &(p[1][1]));
+  DOWNLINK_SEND_ALT_KALMAN(DefaultChannel,DefaultDevice,&(p[0][0]),&(p[0][1]),&(p[1][0]), &(p[1][1]));
 #endif
 }
 
@@ -230,8 +230,5 @@ void estimator_update_state_gps( void ) {
 
   // Heading estimation now in ahrs_infrared
 
-#ifdef EXTRA_DOWNLINK_DEVICE
-    DOWNLINK_SEND_ATTITUDE(ExtraPprzTransport,&estimator_phi,&estimator_psi,&estimator_theta);
-#endif
 }
 

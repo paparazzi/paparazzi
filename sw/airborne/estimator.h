@@ -36,7 +36,7 @@
 #include "baro_MS5534A.h"
 #endif
 
-#ifdef USE_BARO_ETS
+#if USE_BARO_ETS
 #include "modules/sensors/baro_ets.h"
 #endif
 
@@ -94,10 +94,10 @@ extern void alt_kalman( float );
 #ifdef ALT_KALMAN
 #define EstimatorSetPosXY(x, y) { estimator_x = x; estimator_y = y; }
 
-#if defined(USE_BARO_MS5534A) || defined(USE_BARO_ETS)
+#if USE_BARO_MS5534A || USE_BARO_ETS
 /* Kalman filter cannot be disabled in this mode (no z_dot) */
 #define EstimatorSetAlt(z) alt_kalman(z)
-#else /* USE_BARO_MS5534A */
+#else /* USE_BARO_x */
 #define EstimatorSetAlt(z) { \
   if (!alt_kalman_enabled) { \
     estimator_z = z; \
@@ -105,7 +105,7 @@ extern void alt_kalman( float );
     alt_kalman(z); \
   } \
 }
-#endif /* ! USE_BARO_MS5534A */
+#endif /* ! USE_BARO_x */
 
 #define EstimatorSetSpeedPol(vhmod, vhdir, vz) { \
   estimator_hspeed_mod = vhmod; \

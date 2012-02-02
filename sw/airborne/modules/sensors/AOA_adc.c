@@ -33,7 +33,7 @@
 //Messages
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 uint16_t adc_AOA_val;
 
@@ -75,7 +75,7 @@ void AOA_adc_update( void ) {
 	AOA = AOA_filter * AOA_old + (1 - AOA_filter) * (adc_AOA_val*(2*M_PI)/1024-M_PI+AOA_offset);
 	AOA_old = AOA;
 #endif
-	RunOnceEvery(30, DOWNLINK_SEND_AOA_adc(DefaultChannel, &adc_AOA_val, &AOA));
+	RunOnceEvery(30, DOWNLINK_SEND_AOA_adc(DefaultChannel, DefaultDevice, &adc_AOA_val, &AOA));
 
 #ifdef USE_AOA
 	EstimatorSetAOA(AOA);

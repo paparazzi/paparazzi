@@ -35,7 +35,7 @@
 #include "generated/flight_plan.h"
 
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 float tcas_alt_setpoint;
 float tcas_tau_ta, tcas_tau_ra, tcas_dmod, tcas_alim;
@@ -140,7 +140,7 @@ void tcas_periodic_task_1Hz( void ) {
         if (tau >= TCAS_HUGE_TAU && !inside) {
           tcas_acs_status[i].status = TCAS_NO_ALARM; // conflict is now resolved
           tcas_acs_status[i].resolve = RA_NONE;
-          DOWNLINK_SEND_TCAS_RESOLVED(DefaultChannel,&(the_acs[i].ac_id));
+          DOWNLINK_SEND_TCAS_RESOLVED(DefaultChannel, DefaultDevice,&(the_acs[i].ac_id));
         }
         break;
       case TCAS_TA:
@@ -148,25 +148,25 @@ void tcas_periodic_task_1Hz( void ) {
           tcas_acs_status[i].status = TCAS_RA; // TA -> RA
           // Downlink alert
           //test_dir = tcas_test_direction(the_acs[i].ac_id);
-          //DOWNLINK_SEND_TCAS_RA(DefaultChannel,&(the_acs[i].ac_id),&test_dir);// FIXME only one closest AC ???
+          //DOWNLINK_SEND_TCAS_RA(DefaultChannel, DefaultDevice,&(the_acs[i].ac_id),&test_dir);// FIXME only one closest AC ???
           break;
         }
         if (tau > tcas_tau_ta && !inside)
           tcas_acs_status[i].status = TCAS_NO_ALARM; // conflict is now resolved
           tcas_acs_status[i].resolve = RA_NONE;
-          DOWNLINK_SEND_TCAS_RESOLVED(DefaultChannel,&(the_acs[i].ac_id));
+          DOWNLINK_SEND_TCAS_RESOLVED(DefaultChannel, DefaultDevice,&(the_acs[i].ac_id));
         break;
       case TCAS_NO_ALARM:
         if (tau < tcas_tau_ta || inside) {
           tcas_acs_status[i].status = TCAS_TA; // NO_ALARM -> TA
           // Downlink warning
-          DOWNLINK_SEND_TCAS_TA(DefaultChannel,&(the_acs[i].ac_id));
+          DOWNLINK_SEND_TCAS_TA(DefaultChannel, DefaultDevice,&(the_acs[i].ac_id));
         }
         if (tau < tcas_tau_ra || inside) {
           tcas_acs_status[i].status = TCAS_RA; // NO_ALARM -> RA = big problem ?
           // Downlink alert
           //test_dir = tcas_test_direction(the_acs[i].ac_id);
-          //DOWNLINK_SEND_TCAS_RA(DefaultChannel,&(the_acs[i].ac_id),&test_dir);
+          //DOWNLINK_SEND_TCAS_RA(DefaultChannel, DefaultDevice,&(the_acs[i].ac_id),&test_dir);
         }
         break;
     }
@@ -207,11 +207,11 @@ void tcas_periodic_task_1Hz( void ) {
       }
     }
     // Downlink alert
-    DOWNLINK_SEND_TCAS_RA(DefaultChannel,&tcas_ac_RA,&tcas_resolve);
+    DOWNLINK_SEND_TCAS_RA(DefaultChannel, DefaultDevice,&tcas_ac_RA,&tcas_resolve);
   }
   else tcas_ac_RA = AC_ID; // no conflict
 #ifdef TCAS_DEBUG
-  if (tcas_status == TCAS_RA) DOWNLINK_SEND_TCAS_DEBUG(DefaultChannel,&ac_id_close,&tau_min);
+  if (tcas_status == TCAS_RA) DOWNLINK_SEND_TCAS_DEBUG(DefaultChannel, DefaultDevice,&ac_id_close,&tau_min);
 #endif
 }
 

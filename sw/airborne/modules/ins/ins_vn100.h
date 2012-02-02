@@ -84,7 +84,7 @@ extern uint8_t ins_init_status;
 #define INS_VN100_READY         3
 
 /* Telemetry */
-#define PERIODIC_SEND_AHRS(_chan) DOWNLINK_SEND_AHRS_LKF(_chan, \
+#define PERIODIC_SEND_AHRS(_chan, _dev) DOWNLINK_SEND_AHRS_LKF(_chan, _dev, \
     &ins_eulers.phi, &ins_eulers.theta, &ins_eulers.psi, \
     &ins_quat.qi, &ins_quat.qx, &ins_quat.qy, &ins_quat.qz, \
     &ins_rates.p, &ins_rates.q, &ins_rates.r, \

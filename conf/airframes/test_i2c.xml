@@ -20,7 +20,7 @@ mb.CFLAGS += -DUSE_UART0 -DUART0_BAUD=B38400
 mb.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 mb.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0
-mb.srcs += downlink.c pprz_transport.c
+mb.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 mb.CFLAGS += -DDATALINK=PPRZ -DPPRZ_UART=Uart0
 

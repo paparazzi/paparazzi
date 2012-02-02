@@ -31,7 +31,7 @@
 #include "mcu_periph/usb_serial.h"
 
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "interrupt_hw.h"
 

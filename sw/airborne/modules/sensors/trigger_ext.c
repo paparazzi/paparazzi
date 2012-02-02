@@ -36,7 +36,7 @@
 #include "sys_time.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 
 void trigger_ext_init ( void ) {
@@ -52,7 +52,7 @@ void trigger_ext_periodic( void ) {
     sync_itow = gps_tow_from_ticks(trigger_t0);
     cycle_time =  MSEC_OF_SYS_TICS(delta_t0);
 
-    DOWNLINK_SEND_WINDTURBINE_STATUS_(DefaultChannel,
+    DOWNLINK_SEND_WINDTURBINE_STATUS_(DefaultChannel, DefaultDevice,
                 &ac_id,
                 &turb_id,
                 &sync_itow,

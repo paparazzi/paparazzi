@@ -21,7 +21,7 @@
 #include "firmwares/fixedwing/main_ap.h"
 #include "ap_downlink.h"
 #include "sim_uart.h"
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 #include "generated/flight_plan.h"
 
 #include <caml/mlvalues.h>
@@ -35,7 +35,7 @@ uint8_t vertical_mode;
 uint8_t inflight_calib_mode;
 bool_t rc_event_1, rc_event_2;
 bool_t launch;
-uint8_t gps_nb_ovrn, modem_nb_ovrn, link_fbw_fbw_nb_err, link_fbw_nb_err;
+uint8_t gps_nb_ovrn, link_fbw_fbw_nb_err, link_fbw_nb_err;
 float alt_roll_pgain;
 float roll_rate_pgain;
 bool_t gpio1_status;

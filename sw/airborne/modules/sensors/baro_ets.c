@@ -112,7 +112,7 @@ void baro_ets_read_periodic( void ) {
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #endif
 
@@ -151,7 +151,7 @@ void baro_ets_read_event( void ) {
       // New value available
       EstimatorSetAlt(baro_ets_altitude);
 #ifdef BARO_ETS_TELEMETRY
-      DOWNLINK_SEND_BARO_ETS(DefaultChannel, &baro_ets_adc, &baro_ets_offset, &baro_ets_altitude);
+      DOWNLINK_SEND_BARO_ETS(DefaultChannel, DefaultDevice, &baro_ets_adc, &baro_ets_offset, &baro_ets_altitude);
 #endif
     } else {
       baro_ets_altitude = 0.0;

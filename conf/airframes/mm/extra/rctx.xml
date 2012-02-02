@@ -33,7 +33,7 @@ ap.CFLAGS += -DRADIO_CONTROL -DRADIO_CONTROL_TYPE=RC_FUTABA
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 ap.CFLAGS += -DDOWNLINK -DUSE_UART1 -DDOWNLINK_TRANSPORT=XBeeTransport -DXBEE_UART=Uart1 -DDATALINK=XBEE -DUART1_BAUD=B57600
-ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c xbee.c
+ap.srcs += subsystems/datalink/downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c subsystems/datalink/xbee.c
 
 ap.CFLAGS += -DUSE_DOWNLINK_BROADCAST
 

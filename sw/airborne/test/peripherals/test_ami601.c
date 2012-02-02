@@ -29,7 +29,7 @@
 #include "led.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "mcu_periph/i2c.h"
 #include "peripherals/ami601.h"
@@ -64,7 +64,7 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic_task( void ) {
-  //  RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
+  //  RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
 
   RunOnceEvery(10, { ami601_read();});
 }
@@ -79,6 +79,6 @@ static inline void on_mag(void) {
   LED_TOGGLE(4);
   ami601_status = AMI601_IDLE;
   struct Int32Vect3 bla = {ami601_values[0], ami601_values[1], ami601_values[2]};
-  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, &bla.x, &bla.y, &bla.z);
+  DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &bla.x, &bla.y, &bla.z);
 
 }

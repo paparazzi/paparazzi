@@ -32,7 +32,7 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "modules/meteo/light_solar.h"
 
 #ifndef ADC_CHANNEL_LIGHT_SOLAR_UP
@@ -70,7 +70,7 @@ void light_solar_periodic( void ) {
   /* 10k/10k voltage divider, 10 bits adc, 3.3V max */
 
   if (++light_cnt >= LIGHT_NB) {
-    DOWNLINK_SEND_SOLAR_RADIATION(DefaultChannel,
+    DOWNLINK_SEND_SOLAR_RADIATION(DefaultChannel, DefaultDevice,
           &up[0], &dn[0], &up[1], &dn[1], &up[2], &dn[2], &up[3], &dn[3],
           &up[4], &dn[4], &up[5], &dn[5], &up[6], &dn[6], &up[7], &dn[7],
           &up[8], &dn[8], &up[9], &dn[9]);

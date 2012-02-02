@@ -3,7 +3,7 @@
 <flight_plan alt="1000" ground_alt="840" lat0="65.007419" lon0="-18.895916" max_dist_from_home="4500" name="Ingolfsskali" qfu="0" security_height="160">
   <header>
 #include "subsystems/navigation/nav_line.h"
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="15.0" y="5.0"/>

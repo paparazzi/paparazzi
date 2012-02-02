@@ -43,7 +43,7 @@
 
 #include "overo_gcs_com.h"
 #include "uart_hw.h"
-#include "pprz_transport.h"
+#include "subsystems/datalink/pprz_transport.h"
 
 
 struct OveroController {
@@ -146,7 +146,7 @@ static void main_periodic(int my_sig_num) {
 
 }
 
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #if 0
 uint8_t downlink_nb_ovrn;
 uint16_t downlink_nb_bytes;

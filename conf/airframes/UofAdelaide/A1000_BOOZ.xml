@@ -132,9 +132,9 @@ second attempt
 
 	<define name="MAG_45_HACK" value="1"/>
 -->
-	<define name="BODY_TO_IMU_PHI"   value="RadOfDeg( 2.9 )"/> <!-- previously 1.5-->
-	<define name="BODY_TO_IMU_THETA" value="RadOfDeg( -3.7 )"/> <!-- previously -1.5-->
-	<define name="BODY_TO_IMU_PSI"   value="RadOfDeg( 0. )"/>
+	<define name="BODY_TO_IMU_PHI"   value="2.9 " unit="deg"/> <!-- previously 1.5-->
+	<define name="BODY_TO_IMU_THETA" value="-3.7 " unit="deg"/> <!-- previously -1.5-->
+	<define name="BODY_TO_IMU_PSI"   value="0. " unit="deg"/>
 
   </section>
 
@@ -174,25 +174,25 @@ second attempt
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
 
 	<!-- setpoints -->
-	<define name="SP_MAX_PHI"     value="RadOfDeg(45.)"/>
-	<define name="SP_MAX_THETA"   value="RadOfDeg(45.)"/>
-	<define name="SP_MAX_R"       value="RadOfDeg(90.)"/>
+	<define name="SP_MAX_PHI"     value="45." unit="deg"/>
+	<define name="SP_MAX_THETA"   value="45." unit="deg"/>
+	<define name="SP_MAX_R"       value="90." unit="deg/s"/>
 	<define name="DEADBAND_R"     value="250"/>
 
 	 <!-- reference -->
-	<define name="REF_OMEGA_P"  value="RadOfDeg(500)"/> <!--originally 800-->
+	<define name="REF_OMEGA_P"  value="500" unit="deg/s"/> <!--originally 800-->
 	<define name="REF_ZETA_P"   value="0.85"/>
-	<define name="REF_MAX_P"    value="RadOfDeg(300.)"/>
+	<define name="REF_MAX_P"    value="300." unit="deg/s"/>
 	<define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
 
-	<define name="REF_OMEGA_Q"  value="RadOfDeg(500)"/> <!-- originally 800-->
+	<define name="REF_OMEGA_Q"  value="500" unit="deg/s"/> <!-- originally 800-->
 	<define name="REF_ZETA_Q"   value="0.85"/>
-	<define name="REF_MAX_Q"    value="RadOfDeg(300.)"/>
+	<define name="REF_MAX_Q"    value="300." unit="deg/s"/>
 	<define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
 
-	<define name="REF_OMEGA_R"  value="RadOfDeg(700)"/> <!-- originally 500-->
+	<define name="REF_OMEGA_R"  value="700" unit="deg/s"/> <!-- originally 500-->
 	<define name="REF_ZETA_R"   value="0.85"/>
-	<define name="REF_MAX_R"    value="RadOfDeg(180.)"/>
+	<define name="REF_MAX_R"    value="180." unit="deg/s"/>
 	<define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
    <!-- feedback -->
@@ -274,7 +274,7 @@ second attempt
 	  <define name="RADIO_KILL_SWITCH" value="4"/>
 	  <define name="MODEM_BAUD" value = "B57600"/>
 	  <define name="GPS_LAG" value = "0.8"/>
-	  <define name="BOOZ_START_DELAY" value = "3"/>
+	  <define name="ACTUATORS_START_DELAY" value = "3"/>
  <!-- <define name="KILL_MOTORS"/> -->
 	  <define name="FAILSAFE_GROUND_DETECT"/>
 	  <define name="USE_GPS_ACC4R" />
@@ -347,7 +347,7 @@ include $(CFG_BOOZ)/subsystems/ins_hff.makefile
 ap.CFLAGS += -DGPS_LAG=0.8 -DUSE_GPS_ACC4R
 ap.CFLAGS += -DGPS_USE_LATLONG
 
-ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DBOOZ_START_DELAY=3
+ap.CFLAGS += -DUSE_ADAPT_HOVER -DUSE_INS_NAV_INIT -DACTUATORS_START_DELAY=3
 
  </makefile>
  -->

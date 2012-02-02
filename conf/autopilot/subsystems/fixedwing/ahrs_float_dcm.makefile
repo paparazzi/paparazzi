@@ -13,7 +13,8 @@ ap.srcs   += $(SRC_SUBSYSTEMS)/ahrs.c
 ap.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_aligner.c
 ap.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_float_dcm.c
 
-ifdef AHRS_ALIGNER_LED
+
+ifneq ($(AHRS_ALIGNER_LED),none)
   ap.CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 endif
 

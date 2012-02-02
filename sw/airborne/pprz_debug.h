@@ -33,7 +33,7 @@
 #include "std.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 extern uint8_t pprz_debug_mod;
 extern uint8_t pprz_debug_err;
@@ -48,7 +48,7 @@ extern uint8_t pprz_debug_err;
     if (!(cond)) {                                                  \
       pprz_debug_mod = mod;                                         \
       pprz_debug_err = err;                                         \
-      DOWNLINK_SEND_PPRZ_DEBUG(&pprz_debug_mod, &pprz_debug_err);	\
+      DOWNLINK_SEND_PPRZ_DEBUG(DefaultChannel, DefaultDevice, &pprz_debug_mod, &pprz_debug_err);	\
     }                                                               \
   }
 #else

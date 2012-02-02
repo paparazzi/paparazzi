@@ -6,7 +6,7 @@
 #include "mcu_periph/uart.h"
 #include "print.h"
 //#include "messages.h"
-//#include "downlink.h"
+//#include "subsystems/datalink/downlink.h"
 
 #include "lpc_vor_convertions.h"
 #include "vor_int_demod_decim.h"

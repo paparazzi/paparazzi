@@ -8,7 +8,7 @@
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "dl_protocol.h"
 
 #include "potential.h"
@@ -124,7 +124,7 @@ int potential_task(void) {
   BoundAbs(potential_force.climb, V_CTL_ALTITUDE_MAX_CLIMB);
   NavVerticalClimbMode(potential_force.climb);
 
-  DOWNLINK_SEND_POTENTIAL(DefaultChannel,&potential_force.east,&potential_force.north,&potential_force.alt,&potential_force.speed,&potential_force.climb);
+  DOWNLINK_SEND_POTENTIAL(DefaultChannel, DefaultDevice,&potential_force.east,&potential_force.north,&potential_force.alt,&potential_force.speed,&potential_force.climb);
 
   return TRUE;
 }

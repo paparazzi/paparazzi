@@ -35,7 +35,7 @@ int32_t GPS_Data[14];
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 struct i2c_transaction ardu_gps_trans;
 struct i2c_transaction ardu_ins_trans;
@@ -162,7 +162,7 @@ void ArduIMU_periodicGPS( void ) {
       messageNr = 0;
     }
 
-        //DOWNLINK_SEND_DEBUG_ZHAW(DefaultChannel, &gps_mode , &gps_numSV ,&gps_alt , &gps_hmsl , &gps.tow, &gps_speed_3d);
+        //DOWNLINK_SEND_DEBUG_ZHAW(DefaultChannel, DefaultDevice, &gps_mode , &gps_numSV ,&gps_alt , &gps_hmsl , &gps.tow, &gps_speed_3d);
 }
 
 void ArduIMU_periodic( void ) {
@@ -186,9 +186,9 @@ void ArduIMU_periodic( void ) {
 
 
     //Nachricht zum GCS senden
-    // DOWNLINK_SEND_ArduIMU(DefaultChannel, &ArduIMU_data[0], &ArduIMU_data[1], &ArduIMU_data[2], &ArduIMU_data[3], &ArduIMU_data[4], &ArduIMU_data[5]);
+    // DOWNLINK_SEND_ArduIMU(DefaultChannel, DefaultDevice, &ArduIMU_data[0], &ArduIMU_data[1], &ArduIMU_data[2], &ArduIMU_data[3], &ArduIMU_data[4], &ArduIMU_data[5]);
 
-    //    DOWNLINK_SEND_DEBUG_ZHAW(DefaultChannel, &airspeed_mode , &altitude_mode ,&amsys_baro, &amsys_baro, &amsys_airspeed_scaliert, &amsys_baro_scaliert);
+    //    DOWNLINK_SEND_DEBUG_ZHAW(DefaultChannel, DefaultDevice, &airspeed_mode , &altitude_mode ,&amsys_baro, &amsys_baro, &amsys_airspeed_scaliert, &amsys_baro_scaliert);
 }
 
 void IMU_Daten_verarbeiten( void ) {
@@ -215,6 +215,6 @@ void IMU_Daten_verarbeiten( void ) {
 
     {
     float psi=0;
-    RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, &estimator_phi, &estimator_theta, &psi));
+    RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &estimator_phi, &estimator_theta, &psi));
     }
 }

@@ -11,7 +11,7 @@
 #define DATALINK_PORT 4243
 #include "udp_transport.h"
 #include "fms_network.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #define PERIODIC_SEC       0
 #define PERIODIC_USEC   50000

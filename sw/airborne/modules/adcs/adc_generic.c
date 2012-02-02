@@ -2,7 +2,7 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include BOARD_CONFIG
 
 uint16_t adc_generic_val1;
@@ -47,6 +47,6 @@ void adc_generic_periodic( void ) {
   adc_generic_val2 = buf_generic2.sum / buf_generic2.av_nb_sample;
 #endif
 
-  DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &adc_generic_val1, &adc_generic_val2);
+  DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, DefaultDevice, &adc_generic_val1, &adc_generic_val2);
 }
 

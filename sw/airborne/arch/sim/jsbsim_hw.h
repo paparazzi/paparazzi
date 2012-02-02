@@ -45,7 +45,7 @@
 #include "firmwares/fixedwing/main_ap.h"
 #include "ap_downlink.h"
 #include "sim_uart.h"
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 
 
 void sim_use_gps_pos(double lat, double lon, double alt, double course, double gspeed, double climb, double time);

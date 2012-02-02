@@ -27,7 +27,7 @@
 #include "subsystems/ins.h"
 #include "subsystems/ahrs.h"
 
-#ifdef USE_HFF
+#if USE_HFF
 #include "subsystems/ins/hf_float.h"
 #endif
 
@@ -50,7 +50,7 @@ struct FloatVect3 last_pos_ned;
 #define GOT_END       5
 
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 volatile uint8_t cam_msg_received;
 uint8_t cam_status;
@@ -115,7 +115,7 @@ void track_periodic_task(void) {
   for (i = 0; i < c; i++) {
     CamUartSend1(cmd_msg[i]);
   }
-  //DOWNLINK_SEND_DEBUG(DefaultChannel,c,cmd_msg);
+  //DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,c,cmd_msg);
 
 }
 
@@ -125,7 +125,7 @@ void track_event(void) {
     ins_hf_realign = TRUE;
   }
 
-#ifdef USE_HFF
+#if USE_HFF
   if (ins_hf_realign) {
     ins_hf_realign = FALSE;
     struct FloatVect2 pos, zero;
@@ -188,13 +188,13 @@ void parse_cam_msg( void ) {
   ptr++;
   *ptr = cam_data_buf[11];
 
-  //DOWNLINK_SEND_DEBUG(DefaultChannel,12,cam_data_buf);
+  //DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,12,cam_data_buf);
 }
 
 void parse_cam_buffer( uint8_t c ) {
   char bla[1];
   bla[1] = c;
-  //DOWNLINK_SEND_DEBUG(DefaultChannel,1,bla);
+  //DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,1,bla);
   switch (cam_status) {
   case UNINIT:
     if (c != CAM_START_1)

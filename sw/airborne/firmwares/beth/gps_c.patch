@@ -21,7 +21,7 @@
 +#define DefaultChannel gcs_com.udp_transport
 +#else
  #include "messages.h"
- #include "downlink.h"
+ #include "subsystems/datalink/downlink.h"
 +#endif
  
  uint16_t last_gps_msg_t;	/** cputime of the last gps message */

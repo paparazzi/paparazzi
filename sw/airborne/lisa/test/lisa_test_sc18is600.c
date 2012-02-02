@@ -28,7 +28,7 @@
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "sys_time.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "peripherals/sc18is600.h"
 
 static inline void main_init( void );
@@ -61,7 +61,7 @@ static inline void main_periodic_task( void ) {
   //  LED_TOGGLE(6);
   RunOnceEvery(10,
 	       {
-		 DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+		 DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
 		 LED_PERIODIC();
 	       });
 
