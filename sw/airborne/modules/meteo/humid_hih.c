@@ -36,7 +36,7 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -77,6 +77,6 @@ void humid_hih_periodic( void ) {
   /* temperature compensation */
   fhih_humid = fhih_humid/(1.0546 - (0.00216 * fhih_temp));
 
-  DOWNLINK_SEND_HIH_STATUS(DefaultChannel, &adc_humid_hih, &fhih_humid, &fhih_temp);
+  DOWNLINK_SEND_HIH_STATUS(DefaultChannel, DefaultDevice, &adc_humid_hih, &fhih_humid, &fhih_temp);
 }
 

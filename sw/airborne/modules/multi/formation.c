@@ -9,7 +9,7 @@
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "multi/formation.h"
 #include "estimator.h"
@@ -85,7 +85,7 @@ int formation_init(void) {
 
 int add_slot(uint8_t _id, float slot_e, float slot_n, float slot_a) {
   if (_id != AC_ID && the_acs_id[_id] == 0) return FALSE; // no info for this AC
-  DOWNLINK_SEND_FORMATION_SLOT_TM(DefaultChannel,&_id, &form_mode, &slot_e, &slot_n, &slot_a);
+  DOWNLINK_SEND_FORMATION_SLOT_TM(DefaultChannel, DefaultDevice,&_id, &form_mode, &slot_e, &slot_n, &slot_a);
   formation[the_acs_id[_id]].status = IDLE;
   formation[the_acs_id[_id]].east = slot_e;
   formation[the_acs_id[_id]].north = slot_n;
@@ -100,7 +100,7 @@ int start_formation(void) {
     if (formation[i].status == IDLE) formation[i].status = ACTIVE;
   }
   enum slot_status active = ACTIVE;
-  DOWNLINK_SEND_FORMATION_STATUS_TM(DefaultChannel,&ac_id,&leader_id,&active);
+  DOWNLINK_SEND_FORMATION_STATUS_TM(DefaultChannel, DefaultDevice,&ac_id,&leader_id,&active);
   // store current cruise and alt
   old_cruise = v_ctl_auto_throttle_cruise_throttle;
   old_alt = nav_altitude;
@@ -114,7 +114,7 @@ int stop_formation(void) {
     if (formation[i].status == ACTIVE) formation[i].status = IDLE;
   }
   enum slot_status idle = IDLE;
-  DOWNLINK_SEND_FORMATION_STATUS_TM(DefaultChannel,&ac_id,&leader_id,&idle);
+  DOWNLINK_SEND_FORMATION_STATUS_TM(DefaultChannel, DefaultDevice,&ac_id,&leader_id,&idle);
   // restore cruise and alt
   v_ctl_auto_throttle_cruise_throttle = old_cruise;
   old_cruise = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
@@ -147,10 +147,10 @@ int formation_flight(void) {
   // broadcast info
   uint8_t ac_id = AC_ID;
   enum slot_status status = formation[the_acs_id[AC_ID]].status;
-  DOWNLINK_SEND_FORMATION_STATUS_TM(DefaultChannel,&ac_id,&leader_id,&status);
+  DOWNLINK_SEND_FORMATION_STATUS_TM(DefaultChannel, DefaultDevice,&ac_id,&leader_id,&status);
   if (++_1Hz>=4) {
     _1Hz=0;
-    DOWNLINK_SEND_FORMATION_SLOT_TM(DefaultChannel,&ac_id, &form_mode,
+    DOWNLINK_SEND_FORMATION_SLOT_TM(DefaultChannel, DefaultDevice,&ac_id, &form_mode,
         &formation[the_acs_id[AC_ID]].east,
         &formation[the_acs_id[AC_ID]].north,
         &formation[the_acs_id[AC_ID]].alt);

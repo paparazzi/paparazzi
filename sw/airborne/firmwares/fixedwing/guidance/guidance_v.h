@@ -70,11 +70,6 @@ extern float v_ctl_auto_throttle_sum_err;
 extern float v_ctl_auto_throttle_pitch_of_vz_pgain;
 extern float v_ctl_auto_throttle_pitch_of_vz_dgain;
 
-#ifdef LOITER_TRIM
-extern float v_ctl_auto_throttle_loiter_trim;
-extern float v_ctl_auto_throttle_dash_trim;
-#endif
-
 /* agressive tuning */
 #ifdef TUNE_AGRESSIVE_CLIMB
 extern float agr_climb_throttle;
@@ -97,7 +92,7 @@ extern void v_ctl_init( void );
 extern void v_ctl_altitude_loop( void );
 extern void v_ctl_climb_loop ( void );
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
 /* "airspeed" inner loop parameters */
 extern float v_ctl_auto_airspeed_setpoint;
 extern float v_ctl_auto_airspeed_controlled;

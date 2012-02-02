@@ -43,17 +43,17 @@
 include $(CFG_SHARED)/imu_b2_common.makefile
 
 # imu Booz2 v1.2
-imu_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_HMC5843
 imu_CFLAGS += -DIMU_B2_VERSION_1_2
 
-# Magnetometer
-imu_srcs += peripherals/hmc5843.c
-imu_srcs += $(SRC_ARCH)/peripherals/hmc5843_arch.c
 
 ifeq ($(ARCH), lpc21)
-#FIXME ms2100 not used on this imu
-#imu_CFLAGS += -DMS2100_DRDY_VIC_SLOT=12
+imu_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_HMC58XX
+imu_CFLAGS += -DHMC58XX_I2C_DEVICE=i2c1 -DUSE_I2C1
+imu_srcs += peripherals/hmc58xx.c
 else ifeq ($(ARCH), stm32)
+imu_CFLAGS += -DIMU_B2_MAG_TYPE=IMU_B2_MAG_HMC5843
+imu_srcs += peripherals/hmc5843.c
+imu_srcs += $(SRC_ARCH)/peripherals/hmc5843_arch.c
 imu_CFLAGS += -DUSE_I2C2 -DUSE_EXTI9_5_IRQ
 endif
 

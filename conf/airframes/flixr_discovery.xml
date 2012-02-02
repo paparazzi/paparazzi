@@ -16,9 +16,10 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
       <configure name="AHRS_CORRECT_FREQUENCY" value="60"/>
       <configure name="AHRS_ALIGNER_LED" value="1"/>
       <configure name="CPU_LED" value="2"/>
-      <!--define name="IMU_B2_VERSION_1_0"/-->
+      <!-- for airspeed sensor
       <define name="USE_I2C0"/>
       <define name="I2C0_VIC_SLOT" value="12"/>
+      -->
     </target>
     <target name="sim"          board="pc"/>
 
@@ -37,10 +38,12 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <!-- Control -->
     <subsystem name="control" type="new"/>
     <subsystem name="navigation" type="extra"/>
-    <subsystem name="ahrs" type="float_dcm"/>
+    <subsystem name="ahrs" type="float_cmpl_rmat"/>
 
     <!-- Sensors -->
-    <subsystem name="imu" type="b2_v1.0"/>
+    <subsystem name="imu" type="b2_v1.0">
+      <configure name="NO_MAG" value="1"/>
+    </subsystem>
     <subsystem name="gps" type="ublox"/>
     <subsystem name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
@@ -66,10 +69,10 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <load name="adc_generic.xml">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_4"/> <!-- voltage sensor -->
     </load>
-    <load name="airspeed_ets.xml">
+    <!--load name="airspeed_ets.xml">
       <define name="SENSOR_SYNC_SEND"/>
-      <!--define name="USE_AIRSPEED"/-->
-    </load>
+      <define name="USE_AIRSPEED"/>
+    </load-->
   </modules>
 
 <!-- Define here to which CONNECTOR NUMBER the servo is connected to, on the autopilot cicuit board -->
@@ -177,6 +180,14 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <define name="BODY_TO_IMU_PSI" value="0"/>
   </section>
 
+  <!-- Munich -->
+  <section name="AHRS" prefix="AHRS_">
+    <define name="H_X" value="0.4357869"/>
+    <define name="H_Y" value="0.0177010"/>
+    <define name="H_Z" value="0.8998758"/>
+    <define name="PROPAGATE_RMAT" value="1"/>
+  </section>
+
   <section name="INS" prefix="INS_">
     <define name="ROLL_NEUTRAL_DEFAULT" value="0."/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0."/>
@@ -184,8 +195,8 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="RadOfDeg(55)"/>
-    <define name="MAX_PITCH" value="RadOfDeg(35)"/>
+    <define name="MAX_ROLL" value="55" unit="deg"/>
+    <define name="MAX_PITCH" value="35" unit="deg"/>
   </section>
 
 
@@ -230,9 +241,6 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 
     <!-- The Glide definitions are used for calculating the touch down point during auto landing -->
     <!--
-    <define name="GLIDE_AIRSPEED" value="10."/>
-    <define name="GLIDE_VSPEED" value="3."/>
-    <define name="GLIDE_PITCH" value="10." unit="deg"/>
     -->
   </section>
 
@@ -306,9 +314,9 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <!-- maybe handy to avoid over corner with lots of wind and small airframe -->
     <!-- <define name="COURSE_SLEW_INCREMENT" value="RadOfDeg(4)"/> -->
 
-    <define name="ROLL_MAX_SETPOINT" value="RadOfDeg(50)" unit="radians"/>
-    <define name="PITCH_MAX_SETPOINT" value="RadOfDeg(35)" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="RadOfDeg(-30)" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="50" unit="deg"/>
+    <define name="PITCH_MAX_SETPOINT" value="35" unit="deg"/>
+    <define name="PITCH_MIN_SETPOINT" value="-30" unit="deg"/>
 
 
     <define name="ROLL_ATTITUDE_GAIN" value="7500."/>

@@ -74,7 +74,7 @@
     overo_test_telemetry2.CFLAGS  += $(PAPARAZZI_INC)
     overo_test_telemetry2.srcs     = fms/overo_test_telemetry2.c
     overo_test_telemetry2.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
-    overo_test_telemetry2.srcs    += fms/udp_transport2.c downlink.c
+    overo_test_telemetry2.srcs    += fms/udp_transport2.c subsystems/datalink/downlink.c
     overo_test_telemetry2.srcs    += fms/fms_network.c
     overo_test_telemetry2.LDFLAGS += -levent
 

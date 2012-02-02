@@ -12,7 +12,7 @@ endif
 
 ifeq ($(NORADIO), False)
   $(TARGET).CFLAGS	+= -DRADIO_CONTROL
-  ifdef RADIO_CONTROL_LED
+  ifneq ($(RADIO_CONTROL_LED),none)
     ap.CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
   endif
   $(TARGET).CFLAGS 	+= -DRADIO_CONTROL_TYPE_H=\"subsystems/radio_control/ppm.h\"

@@ -26,7 +26,7 @@
 #include "mcu_periph/uart.h"
 #include "interrupt_hw.h"
 #include "sys_time.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 static inline void main_init( void );
 static inline void main_periodic( void );
 
@@ -48,7 +48,7 @@ static inline void main_init( void ) {
 }
 
 static inline void main_periodic( void ) {
-  RunOnceEvery(10, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
+  RunOnceEvery(10, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
   LED_PERIODIC();
 }
 

@@ -31,7 +31,7 @@
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "sys_time.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "peripherals/ms2100.h"
 
 static inline void main_init( void );
@@ -63,7 +63,7 @@ static inline void main_init( void ) {
 static inline void main_periodic_task( void ) {
   RunOnceEvery(10,
 	       {
-		 DOWNLINK_SEND_BOOT(DefaultChannel, &cpu_time_sec);
+		 DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &cpu_time_sec);
 		 LED_PERIODIC();
 	       });
 
@@ -82,7 +82,7 @@ static inline void main_periodic_task( void ) {
 static inline void main_event_task( void ) {
   if (ms2100_status == MS2100_DATA_AVAILABLE) {
     RunOnceEvery(10, {
-	DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
+	DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
 				  &ms2100_values[0],
 				  &ms2100_values[1],
 				  &ms2100_values[2]);

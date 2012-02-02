@@ -26,7 +26,7 @@
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "sys_time.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 static inline void main_init( void );
 static inline void main_periodic( void );
 
@@ -58,11 +58,11 @@ static inline void main_periodic( void ) {
   float i = sqrt(f);  // ok
   //float i = powf(f1, f1); // nok
   //float i = atan2(f, f); // ok
-  RunOnceEvery(10, {DOWNLINK_SEND_TEST_FORMAT(DefaultChannel, &d1, &i);});
+  RunOnceEvery(10, {DOWNLINK_SEND_TEST_FORMAT(DefaultChannel, DefaultDevice, &d1, &i);});
 
   uint16_t  blaaa = f+d;
 
-  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(DefaultChannel, &blaaa);});
+  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &blaaa);});
   LED_PERIODIC();
 }
 

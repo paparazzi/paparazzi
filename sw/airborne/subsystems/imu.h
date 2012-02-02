@@ -20,6 +20,9 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+/** \file imu.h
+ * \brief Inertial Measurement Unit interface
+ */
 
 #ifndef IMU_H
 #define IMU_H
@@ -32,23 +35,24 @@
 extern void imu_impl_init(void);
 extern void imu_periodic(void);
 
+/** abstract IMU interface providing fixed point interface  */
 struct Imu {
-  struct Int32Rates gyro;
-  struct Int32Vect3 accel;
-  struct Int32Vect3 mag;
-  struct Int32Rates gyro_prev;
-  struct Int32Vect3 accel_prev;
-  struct Int32Rates gyro_neutral;
-  struct Int32Vect3 accel_neutral;
-  struct Int32Vect3 mag_neutral;
-  struct Int32Rates gyro_unscaled;
-  struct Int32Vect3 accel_unscaled;
-  struct Int32Vect3 mag_unscaled;
-  struct Int32Quat  body_to_imu_quat;
-  struct Int32RMat  body_to_imu_rmat;
+  struct Int32Rates gyro;             ///< gyroscope measurements
+  struct Int32Vect3 accel;            ///< accelerometer measurements
+  struct Int32Vect3 mag;              ///< magnetometer measurements
+  struct Int32Rates gyro_prev;        ///< previous gyroscope measurements
+  struct Int32Vect3 accel_prev;       ///< previous accelerometer measurements
+  struct Int32Rates gyro_neutral;     ///< gyroscope bias
+  struct Int32Vect3 accel_neutral;    ///< accelerometer bias
+  struct Int32Vect3 mag_neutral;      ///< magnetometer neutral readings (bias)
+  struct Int32Rates gyro_unscaled;    ///< unscaled gyroscope measurements
+  struct Int32Vect3 accel_unscaled;   ///< unscaled accelerometer measurements
+  struct Int32Vect3 mag_unscaled;     ///< unscaled magnetometer measurements
+  struct Int32Quat  body_to_imu_quat; ///< rotation from body to imu frame as a unit quaternion
+  struct Int32RMat  body_to_imu_rmat; ///< rotation from body to imu frame as a rotation matrix
 };
 
-/* abstract IMU interface providing floating point interface  */
+/** abstract IMU interface providing floating point interface  */
 struct ImuFloat {
   struct FloatRates   gyro;
   struct FloatVect3   accel;
@@ -61,6 +65,8 @@ struct ImuFloat {
 };
 
 extern void imu_float_init(struct ImuFloat* imuf);
+
+/** global IMU state */
 extern struct Imu imu;
 
 /* underlying hardware */

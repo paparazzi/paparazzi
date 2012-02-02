@@ -211,9 +211,15 @@ struct FGNetMiniFDM {
 #define FG_NET_GUI_VERSION 7
 #define FG_NET_GUI_MAX_TANKS 4
 
+// FIXME: Flightgear on OSX is still 32 bit get rid
+// off these pragmas when it goes to 64 bit.
 #ifdef __x86_64__
 #pragma pack(push)
+#ifdef __APPLE__
 #pragma pack(4)
+#else
+#pragma pack(8)
+#endif
 #endif
 struct FGNetGUI {
   uint32_t version;           // increment when data values change

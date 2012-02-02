@@ -86,21 +86,22 @@ val int32_assoc : string -> values -> Int32.t
 val hex_of_int_array : value -> string
 (** Returns the hexadecimal string of an array of integers *)
 
+exception Unit_conversion_error of string
+(** Unit_conversion_error raised when parsing error occurs *)
+exception Unknown_conversion of string * string
+(** Unknown_conversion raised when conversion fails *)
+
+val scale_of_units : string -> string -> float
+(** scale_of_units from to
+ *  Returns conversion factor between two units
+ *  The possible conversions are described in conf/units.xml
+ *  May raise Invalid_argument if one of the unit is not valid
+ *  or if units.xml is not valid
+ *)
+
 val alt_unit_coef_of_xml : Xml.xml -> string
 (** Return coef for alternate unit
-    Default possible corrections:
-    deg -> rad
-    rad -> deg
-    m -> cm
-    cm -> m
-    m -> mm
-    mm -> m
-    m/s -> cm/s
-    cm/s -> m/s
-    m/s -> mm/s
-    mm/s -> m/s
-    decideg -> deg
-    *)
+ *)
 
 exception Unknown_msg_name of string * string
 (** [Unknown_msg_name (name, class_name)] Raised if message [name] is not

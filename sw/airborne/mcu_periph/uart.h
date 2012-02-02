@@ -23,7 +23,7 @@
  */
 
 /** \file mcu_periph/uart.h
- *  \brief arch independant UART (Universal Asynchronous Receiver/Transmitter) API
+ *  \brief arch independent UART (Universal Asynchronous Receiver/Transmitter) API
  *
  */
 

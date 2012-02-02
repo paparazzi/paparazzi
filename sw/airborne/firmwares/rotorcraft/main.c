@@ -29,11 +29,11 @@
 #include "sys_time.h"
 #include "led.h"
 
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "firmwares/rotorcraft/telemetry.h"
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
-#include "xbee.h"
+#include "subsystems/datalink/xbee.h"
 
 #include "firmwares/rotorcraft/commands.h"
 #include "firmwares/rotorcraft/actuators.h"
@@ -85,15 +85,6 @@ int main( void ) {
 
 STATIC_INLINE void main_init( void ) {
 
-#ifndef NO_FUCKING_STARTUP_DELAY
-#ifndef RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
-  /* IF THIS IS NEEDED SOME PERHIPHERAL THEN PLEASE MOVE IT THERE */
-  for (uint32_t startup_counter=0; startup_counter<2000000; startup_counter++){
-    __asm("nop");
-  }
-#endif
-#endif
-
   mcu_init();
 
   sys_time_init();
@@ -119,7 +110,7 @@ STATIC_INLINE void main_init( void ) {
 
   ins_init();
 
-#ifdef USE_GPS
+#if USE_GPS
   gps_init();
 #endif
 
@@ -153,7 +144,7 @@ STATIC_INLINE void main_periodic( void ) {
       /* booz_fms_periodic(); FIXME */                      \
     },                                                      \
     {                                                       \
-      electrical_periodic();				    \
+      electrical_periodic();                                \
     },                                                      \
     {                                                       \
       LED_PERIODIC();                                       \
@@ -165,10 +156,10 @@ STATIC_INLINE void main_periodic( void ) {
     {},                                                     \
     {},                                                     \
     {                                                       \
-      Booz2TelemetryPeriodic();                             \
+      TelemetryPeriodic();                                  \
     } );
 
-#ifdef USE_GPS
+#if USE_GPS
   if (radio_control.status != RC_OK &&                  \
       autopilot_mode == AP_MODE_NAV && GpsIsLost())		\
     autopilot_set_mode(AP_MODE_FAILSAFE);
@@ -194,7 +185,7 @@ STATIC_INLINE void main_event( void ) {
 
   BaroEvent(on_baro_abs_event, on_baro_dif_event);
 
-#ifdef USE_GPS
+#if USE_GPS
   GpsEvent(on_gps_event);
 #endif
 

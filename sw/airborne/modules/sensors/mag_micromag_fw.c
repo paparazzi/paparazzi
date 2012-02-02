@@ -7,7 +7,7 @@
 #endif
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 volatile uint8_t micromag_status;
 volatile int16_t micromag_values[MM_NB_AXIS];
@@ -39,7 +39,7 @@ void micromag_event( void ) {
   int32_t mz=micromag_values[2];
 
   if (micromag_status == MM_DATA_AVAILABLE) {
-    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
+    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
                 &mx,
                 &my,
                 &mz );

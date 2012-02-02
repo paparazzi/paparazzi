@@ -84,7 +84,9 @@ $(TARGET).CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./$(PERIODIC_FREQU
 ap.CFLAGS += -DUSE_SYS_TIME
 ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 ifeq ($(ARCH), stm32)
+ifneq ($(SYS_TIME_LED),none)
 ap.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
+endif
 endif
 
 #
@@ -140,14 +142,15 @@ ap.srcs += $(SRC_FIRMWARE)/commands.c
 #
 ap.srcs += $(SRC_BOARD)/baro_board.c
 ifeq ($(BOARD), booz)
-ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
 else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), navgo)
-ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
 ap.CFLAGS += -DUSE_I2C1
 ap.CFLAGS += -DADS1114_I2C_DEVICE=i2c1
 ap.srcs += peripherals/ads1114.c
+endif
+ifneq ($(BARO_LED),none)
+ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
 endif
 
 #

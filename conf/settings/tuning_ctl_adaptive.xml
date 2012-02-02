@@ -6,6 +6,11 @@
   <dl_settings>
 
     <dl_settings NAME="control">
+      <dl_settings NAME="trim">
+        <dl_setting MAX="960" MIN="-960" STEP="1" VAR="command_roll_trim" shortname="roll_trim" module="commands" param="COMMAND_ROLL_TRIM"/>
+        <dl_setting MAX="960" MIN="-960" STEP="1" VAR="command_pitch_trim" shortname="pitch_trim" param="COMMAND_PITCH_TRIM"/>
+      </dl_settings>
+
       <dl_settings NAME="attitude">
         <dl_setting MAX="15000" MIN="0" STEP="250" VAR="h_ctl_roll_attitude_gain" shortname="roll_pgain" param="H_CTL_ROLL_ATTITUDE_GAIN" module="stabilization/stabilization_attitude"/>
         <dl_setting MAX="15000" MIN="0" STEP="250" VAR="h_ctl_roll_rate_gain" shortname="roll_dgain" param="H_CTL_ROLL_RATE_GAIN"/>
@@ -36,14 +41,10 @@
 
         <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_pitch_pgain" shortname="pitch_p" param="V_CTL_AUTO_PITCH_PGAIN"/>
         <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_pitch_igain" shortname="pitch_i" param="V_CTL_AUTO_PITCH_IGAIN"/>
-        <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_pitch_dgain" shortname="pitch_d" param="V_CTL_AUTO_PITCH_DGAIN" module="guidance/guidance_v_n"/>
 
         <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_throttle_pgain" shortname="throttle_p" param="V_CTL_AUTO_THROTTLE_PGAIN"/>
         <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_throttle_igain" shortname="throttle_i" param="V_CTL_AUTO_THROTTLE_IGAIN"/>
         <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_throttle_dgain" shortname="throttle_d" param="V_CTL_AUTO_THROTTLE_DGAIN"/>
-
-        <dl_setting MAX="0" MIN="-1." STEP="0.01" VAR="v_ctl_pitch_dash_trim" shortname="dash trim" param="V_CTL_PITCH_DASH_TRIM"/>
-        <dl_setting MIN="0" MAX="1." STEP="0.01" VAR="v_ctl_pitch_loiter_trim" shortname="loiter trim" param="V_CTL_PITCH_LOITER_TRIM"/>
 
         <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="v_ctl_auto_throttle_climb_throttle_increment" shortname="throttle_incr" param="V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT"/>
         <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="v_ctl_auto_throttle_pitch_of_vz_pgain" shortname="pitch_of_vz" param="V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN"/>

@@ -12,13 +12,12 @@
   <firmware name="rotorcraft">
     <define name="USE_INS_NAV_INIT"/>
     <define name="USE_ADAPT_HOVER"/>
-    <define name="NO_FUCKING_STARTUP_DELAY"/>
     <!--define name="GUIDANCE_H_USE_REF"/-->
 
     <target name="ap" board="booz_1.0">
       <define name="FAILSAFE_GROUND_DETECT"/>
       <define name="USE_GPS_ACC4R"/>
-      <define name="BOOZ_START_DELAY" value="3"/>
+      <define name="ACTUATORS_START_DELAY" value="3"/>
     </target>
     <target name="sim" board="pc">
       <subsystem name="fdm"         type="nps"/>
@@ -130,10 +129,10 @@
     <define name="MAG_Y_SENS" value="5.43740121157" integer="16"/>
     <define name="MAG_Z_SENS" value="2.60492836649" integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(0.)"/>
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(0.)"/>
-    <!--define name="BODY_TO_IMU_PSI"   value="RadOfDeg(45.)"/-->
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(0.)"/>
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <!--define name="BODY_TO_IMU_PSI"   value="45." unit="deg"/-->
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
 
   </section>
 
@@ -152,25 +151,25 @@
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
 
     <!-- setpoints -->
-    <define name="SP_MAX_PHI"     value="RadOfDeg(45.)"/>
-    <define name="SP_MAX_THETA"   value="RadOfDeg(45.)"/>
-    <define name="SP_MAX_R"       value="RadOfDeg(90.)"/>
+    <define name="SP_MAX_PHI"     value="45." unit="deg"/>
+    <define name="SP_MAX_THETA"   value="45." unit="deg"/>
+    <define name="SP_MAX_R"       value="90." unit="deg/s"/>
     <define name="DEADBAND_R"     value="250"/>
 
      <!-- reference -->
-    <define name="REF_OMEGA_P"  value="RadOfDeg(800)"/>
+    <define name="REF_OMEGA_P"  value="800" unit="deg/s"/>
     <define name="REF_ZETA_P"   value="0.85"/>
-    <define name="REF_MAX_P"    value="RadOfDeg(300.)"/>
+    <define name="REF_MAX_P"    value="300." unit="deg/s"/>
     <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
 
-    <define name="REF_OMEGA_Q"  value="RadOfDeg(800)"/>
+    <define name="REF_OMEGA_Q"  value="800" unit="deg/s"/>
     <define name="REF_ZETA_Q"   value="0.85"/>
-    <define name="REF_MAX_Q"    value="RadOfDeg(300.)"/>
+    <define name="REF_MAX_Q"    value="300." unit="deg/s"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
 
-    <define name="REF_OMEGA_R"  value="RadOfDeg(500)"/>
+    <define name="REF_OMEGA_R"  value="500" unit="deg/s"/>
     <define name="REF_ZETA_R"   value="0.85"/>
-    <define name="REF_MAX_R"    value="RadOfDeg(90.)"/>
+    <define name="REF_MAX_R"    value="90." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
 
     <!-- feedback -->
@@ -246,8 +245,8 @@
     <define name="TILT_NEUTRAL" value="1500"/>
     <define name="TILT_MIN" value="1060"/>
     <define name="TILT_MAX" value="2250"/>
-    <define name="TILT_ANGLE_MIN" value="RadOfDeg(-90.)" unit="rad"/>
-    <define name="TILT_ANGLE_MAX" value="RadOfDeg(  0.)" unit="rad"/>
+    <define name="TILT_ANGLE_MIN" value="-90." unit="deg"/>
+    <define name="TILT_ANGLE_MAX" value="  0." unit="deg"/>
     <define name="PAN_NEUTRAL" value="0"/>
     <define name="PAN_MIN" value="0"/>
     <define name="PAN_MAX" value="25736"/> <!-- 360 deg (2^12) -->
@@ -261,7 +260,7 @@
    <define name="FACE_REINJ_1"  value="1024"/>
    <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
    <define name="BoozDropPwm(_v)" value="BoozSetPwm0Value(_v)"/>
-   <define name="IMU_MAG_OFFSET" value="-9."/>
+   <define name="IMU_MAG_OFFSET" value="RadOfDeg(-9.)"/>
  </section>
 
   <section name="GCS">

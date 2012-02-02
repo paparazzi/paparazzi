@@ -24,12 +24,12 @@
 #define DATALINK_C
 #define MODULES_DATALINK_C
 
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 
 #include "generated/modules.h"
 
 #include "generated/settings.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "messages.h"
 #include "dl_protocol.h"
 #include "mcu_periph/uart.h"
@@ -54,7 +54,7 @@ void dl_parse_msg(void) {
 
   case  DL_PING:
     {
-      DOWNLINK_SEND_PONG(DefaultChannel);
+      DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
     }
     break;
 
@@ -64,7 +64,7 @@ void dl_parse_msg(void) {
       uint8_t i = DL_SETTING_index(dl_buffer);
       float var = DL_SETTING_value(dl_buffer);
       DlSetting(i, var);
-      DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &var);
+      DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &var);
     }
     break;
 
@@ -73,7 +73,7 @@ void dl_parse_msg(void) {
       if (DL_GET_SETTING_ac_id(dl_buffer) != AC_ID) break;
       uint8_t i = DL_GET_SETTING_index(dl_buffer);
       float val = settings_get_value(i);
-      DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &val);
+      DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
     }
     break;
 
@@ -101,7 +101,7 @@ void dl_parse_msg(void) {
       enu.y = POS_BFP_OF_REAL(enu.y)/100;
       enu.z = POS_BFP_OF_REAL(enu.z)/100;
       VECT3_ASSIGN(waypoints[wp_id], enu.x, enu.y, enu.z);
-      DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, &wp_id, &enu.x, &enu.y, &enu.z);
+      DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &enu.x, &enu.y, &enu.z);
     }
     break;
 #endif /* USE_NAVIGATION */

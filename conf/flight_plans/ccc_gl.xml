@@ -2,7 +2,7 @@
 
 <flight_plan alt="150" ground_alt="68" lat0="52.26496" lon0="9.99394" max_dist_from_home="1500" name="Hildesheim" qfu="90" security_height="25">
   <header>
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>

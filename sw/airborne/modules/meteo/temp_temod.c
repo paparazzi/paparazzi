@@ -33,7 +33,7 @@
 #include "led.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 float ftmd_temperature;
 struct i2c_transaction tmd_trans;
@@ -72,7 +72,7 @@ void temod_event( void ) {
 
       ftmd_temperature = (tmd_temperature / TEMOD_TYPE) - 32.;
 
-      DOWNLINK_SEND_TMP_STATUS(DefaultChannel, &tmd_temperature, &ftmd_temperature);
+      DOWNLINK_SEND_TMP_STATUS(DefaultChannel, DefaultDevice, &tmd_temperature, &ftmd_temperature);
       tmd_trans.status = I2CTransDone;
   }
 }

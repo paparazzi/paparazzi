@@ -23,7 +23,7 @@
  */
 
 /*
- *\brief architecture independant timing functions
+ *\brief architecture independent timing functions
  *
  */
 

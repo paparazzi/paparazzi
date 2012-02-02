@@ -27,11 +27,11 @@
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include <math.h>
 //#include <stdlib.h>
 
-#ifndef USE_AIRSPEED
+#if !USE_AIRSPEED
 // Just a Warning --> We do't use it.
 //#ifndef SENSOR_SYNC_SEND
 //#warning either set USE_AIRSPEED or SENSOR_SYNC_SEND to use amsys_airspeed
@@ -145,13 +145,13 @@ void airspeed_amsys_read_event( void ) {
 		airspeed_amsys = airspeed_filter * airspeed_old + (1 - airspeed_filter) * airspeed_tmp;
 		airspeed_old = airspeed_amsys;
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
 		EstimatorSetAirspeed(airspeed_amsys);
 #endif
 #ifdef SENSOR_SYNC_SEND
-		DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, &airspeed_amsys_raw, &pressure_amsys, &airspeed_tmp, &airspeed_amsys, &airspeed_temperature);
+		DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, DefaultDevice, &airspeed_amsys_raw, &pressure_amsys, &airspeed_tmp, &airspeed_amsys, &airspeed_temperature);
 #else
-		RunOnceEvery(10, DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, &airspeed_amsys_raw, &pressure_amsys, &airspeed_tmp, &airspeed_amsys, &airspeed_temperature));
+		RunOnceEvery(10, DOWNLINK_SEND_AMSYS_AIRSPEED(DefaultChannel, DefaultDevice, &airspeed_amsys_raw, &pressure_amsys, &airspeed_tmp, &airspeed_amsys, &airspeed_temperature));
 #endif
 	}
 

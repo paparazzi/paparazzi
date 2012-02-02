@@ -487,7 +487,7 @@ void b2_hff_propagate(void) {
 void b2_hff_update_gps(void) {
   b2_hff_lost_counter = 0;
 
-#ifdef USE_GPS_ACC4R
+#if USE_GPS_ACC4R
   Rgps_pos = (float) gps.pacc / 100.;
   if (Rgps_pos < HFF_R_POS_MIN)
     Rgps_pos = HFF_R_POS_MIN;

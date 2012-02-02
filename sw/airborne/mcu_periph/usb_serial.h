@@ -23,7 +23,7 @@
  */
 
 /** \file usb_serial.h
- *  \brief arch independant USB API
+ *  \brief arch independent USB API
  *
  */
 

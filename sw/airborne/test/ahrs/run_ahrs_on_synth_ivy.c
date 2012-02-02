@@ -40,7 +40,7 @@ gboolean timeout_callback(gpointer data) {
 #endif
 
 #if AHRS_TYPE == AHRS_TYPE_ICQ
-    IvySendMsg("183 BOOZ_AHRS_BIAS %d %d %d",
+    IvySendMsg("183 AHRS_GYRO_BIAS_INT %d %d %d",
 	       ahrs_impl.gyro_bias.p,
 	       ahrs_impl.gyro_bias.q,
 	       ahrs_impl.gyro_bias.r);
@@ -48,7 +48,7 @@ gboolean timeout_callback(gpointer data) {
 #if AHRS_TYPE == AHRS_TYPE_FLQ || AHRS_TYPE == AHRS_TYPE_FCR2
     struct Int32Rates bias_i;
     RATES_BFP_OF_REAL(bias_i, ahrs_impl.gyro_bias);
-    IvySendMsg("183 BOOZ_AHRS_BIAS %d %d %d",
+    IvySendMsg("183 AHRS_GYRO_BIAS_INT %d %d %d",
 	       bias_i.p,
 	       bias_i.q,
 	       bias_i.r);

@@ -62,7 +62,7 @@ void init_sysmon(void) {
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 void periodic_report_sysmon(void) {
   /** Report system status at low frequency */
@@ -72,7 +72,7 @@ void periodic_report_sysmon(void) {
     cpu_load = 100 * periodic_cycle / periodic_time;
     event_number = sum_n_event / n_periodic;
 
-    DOWNLINK_SEND_SYS_MON(DefaultChannel,&periodic_time,&periodic_cycle,&periodic_cycle_min,&periodic_cycle_max,&event_number,&cpu_load);
+    DOWNLINK_SEND_SYS_MON(DefaultChannel, DefaultDevice,&periodic_time,&periodic_cycle,&periodic_cycle_min,&periodic_cycle_max,&event_number,&cpu_load);
   }
 
   n_periodic = 0;

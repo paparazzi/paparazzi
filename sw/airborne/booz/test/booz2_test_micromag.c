@@ -29,7 +29,7 @@
 #include "led.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "interrupt_hw.h"
 #include "armVIC.h"

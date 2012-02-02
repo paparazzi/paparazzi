@@ -35,7 +35,7 @@ struct Baro baro;
 #define OFFSET_NBSAMPLES_AVRG 300
 uint16_t offset_cnt;
 
-#ifdef USE_BARO_AS_ALTIMETER
+#if USE_BARO_AS_ALTIMETER
 /* Weight for offset IIR filter */
 #define OFFSET_FILTER 7
 
@@ -52,7 +52,7 @@ void baro_init( void ) {
   LED_OFF(ROTORCRAFT_BARO_LED);
 #endif
   offset_cnt = OFFSET_NBSAMPLES_AVRG;
-#ifdef USE_BARO_AS_ALTIMETER
+#if USE_BARO_AS_ALTIMETER
   baro_alt = 0.;
   baro_alt_offset = 0.;
 #endif
@@ -61,7 +61,7 @@ void baro_init( void ) {
 void baro_periodic( void ) {
 
   if (baro.status == BS_UNINITIALIZED) {
-#ifdef USE_BARO_AS_ALTIMETER
+#if USE_BARO_AS_ALTIMETER
     // IIR filter to compute an initial offset
     baro_alt_offset = (OFFSET_FILTER * baro_alt_offset + (float)baro.absolute) / (OFFSET_FILTER + 1);
 #endif

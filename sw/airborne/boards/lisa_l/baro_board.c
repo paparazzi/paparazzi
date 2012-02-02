@@ -5,7 +5,6 @@ struct Baro baro;
 struct BaroBoard baro_board;
 struct i2c_transaction baro_trans;
 
-
 static inline void baro_board_write_to_register(uint8_t baro_addr, uint8_t reg_addr, uint8_t val_msb, uint8_t val_lsb);
 static inline void baro_board_read_from_register(uint8_t baro_addr, uint8_t reg_addr);
 static inline void baro_board_set_current_register(uint8_t baro_addr, uint8_t reg_addr);

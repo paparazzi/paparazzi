@@ -39,10 +39,10 @@
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include <math.h>
 
-#ifndef USE_AIRSPEED
+#if !USE_AIRSPEED
 #ifndef SENSOR_SYNC_SEND
 #warning either set USE_AIRSPEED or SENSOR_SYNC_SEND to use ets_airspeed
 #endif
@@ -166,11 +166,11 @@ void airspeed_ets_read_event( void ) {
     for (n = 0; n < AIRSPEED_ETS_NBSAMPLES_AVRG; ++n)
       airspeed_ets += airspeed_ets_buffer[n];
     airspeed_ets = airspeed_ets / (float)AIRSPEED_ETS_NBSAMPLES_AVRG;
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
     EstimatorSetAirspeed(airspeed_ets);
 #endif
 #ifdef SENSOR_SYNC_SEND
-    DOWNLINK_SEND_AIRSPEED_ETS(DefaultChannel, &airspeed_ets_raw, &airspeed_ets_offset, &airspeed_ets);
+    DOWNLINK_SEND_AIRSPEED_ETS(DefaultChannel, DefaultDevice, &airspeed_ets_raw, &airspeed_ets_offset, &airspeed_ets);
 #endif
   } else {
     airspeed_ets = 0.0;

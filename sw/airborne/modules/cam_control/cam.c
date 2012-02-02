@@ -46,6 +46,7 @@ float test_cam_estimator_theta;
 float test_cam_estimator_hspeed_dir;
 #endif // TEST_CAM
 
+//FIXME: use radians
 #ifdef CAM_PAN_NEUTRAL
 #if (CAM_PAN_MAX == CAM_PAN_NEUTRAL)
 #error CAM_PAN_MAX has to be different from CAM_PAN_NEUTRAL
@@ -55,6 +56,7 @@ float test_cam_estimator_hspeed_dir;
 #endif
 #endif
 
+//FIXME: use radians
 #ifdef CAM_TILT_NEUTRAL
 #if ((CAM_TILT_MAX) == (CAM_TILT_NEUTRAL))
 #error CAM_TILT_MAX has to be different from CAM_TILT_NEUTRAL
@@ -64,20 +66,17 @@ float test_cam_estimator_hspeed_dir;
 #endif
 #endif
 
-#define MIN_PPRZ_CAM ((int16_t)(MAX_PPRZ * 0.05))
-#define DELTA_ALPHA 0.2
-
-#ifdef CAM_PAN0
-float cam_pan_c = RadOfDeg(CAM_PAN0);
-#else
+//FIXME: use radians
+#ifndef CAM_PAN0
+#define CAM_PAN0  RadOfDeg(0)
+#endif
 float cam_pan_c;
-#endif
 
-#ifdef CAM_TILT0
-float cam_tilt_c = RadOfDeg(CAM_TILT0);
-#else
-float cam_tilt_c;
+//FIXME: use radians
+#ifndef CAM_TILT0
+#define CAM_TILT0  RadOfDeg(0)
 #endif
+float cam_tilt_c;
 
 float cam_phi_c;
 float cam_theta_c;
@@ -86,6 +85,9 @@ float cam_target_x, cam_target_y, cam_target_alt;
 uint8_t cam_target_wp;
 uint8_t cam_target_ac;
 
+#ifndef CAM_MODE0
+#define CAM_MODE0 CAM_MODE_OFF
+#endif
 uint8_t cam_mode;
 bool_t cam_lock;
 
@@ -99,11 +101,7 @@ void cam_waypoint_target(void);
 void cam_ac_target(void);
 
 void cam_init( void ) {
-#ifdef CAM_MODE0
   cam_mode = CAM_MODE0;
-#else
-  cam_mode = CAM_MODE_OFF;
-#endif
 }
 
 void cam_periodic( void ) {
@@ -113,16 +111,8 @@ void cam_periodic( void ) {
 #endif
     switch (cam_mode) {
     case CAM_MODE_OFF:
-#if defined(CAM_PAN0)
       cam_pan_c = RadOfDeg(CAM_PAN0);
-#else
-      cam_pan_c = RadOfDeg(0);
-#endif
-#if defined(CAM_TILT0)
       cam_tilt_c = RadOfDeg(CAM_TILT0);
-#else
-      cam_tilt_c = RadOfDeg(90);
-#endif
       cam_angles();
       break;
     case CAM_MODE_ANGLES:
@@ -188,19 +178,19 @@ void cam_periodic( void ) {
 void cam_angles( void ) {
   float cam_pan = 0;
   float cam_tilt = 0;
-  if (cam_pan_c > RadOfDeg(CAM_PAN_MAX)){
-     cam_pan_c = RadOfDeg(CAM_PAN_MAX);
-
-  }else{
-          if(cam_pan_c < RadOfDeg(CAM_PAN_MIN)){ cam_pan_c = RadOfDeg(CAM_PAN_MIN); }
-       }
+  if (cam_pan_c > RadOfDeg(CAM_PAN_MAX)) {
+    cam_pan_c = RadOfDeg(CAM_PAN_MAX);
+  } else {
+    if (cam_pan_c < RadOfDeg(CAM_PAN_MIN))
+      cam_pan_c = RadOfDeg(CAM_PAN_MIN);
+  }
 
   if (cam_tilt_c > RadOfDeg(CAM_TILT_MAX)){
-     cam_tilt_c = RadOfDeg(CAM_TILT_MAX);
-
-  }else{
-          if(cam_tilt_c < RadOfDeg(CAM_TILT_MIN)){ cam_tilt_c = RadOfDeg(CAM_TILT_MIN); }
-       }
+    cam_tilt_c = RadOfDeg(CAM_TILT_MAX);
+  } else {
+    if (cam_tilt_c < RadOfDeg(CAM_TILT_MIN))
+      cam_tilt_c = RadOfDeg(CAM_TILT_MIN);
+  }
 
 #ifdef CAM_PAN_NEUTRAL
   float pan_diff = cam_pan_c - RadOfDeg(CAM_PAN_NEUTRAL);
@@ -240,14 +230,14 @@ void cam_angles( void ) {
 void cam_target( void ) {
 #ifdef TEST_CAM
   vPoint(test_cam_estimator_x, test_cam_estimator_y, test_cam_estimator_z,
-     test_cam_estimator_phi, test_cam_estimator_theta, test_cam_estimator_hspeed_dir,
-     cam_target_x, cam_target_y, cam_target_alt,
-     &cam_pan_c, &cam_tilt_c);
+         test_cam_estimator_phi, test_cam_estimator_theta, test_cam_estimator_hspeed_dir,
+         cam_target_x, cam_target_y, cam_target_alt,
+         &cam_pan_c, &cam_tilt_c);
 #else
   vPoint(estimator_x, estimator_y, estimator_z,
-     estimator_phi, estimator_theta, estimator_hspeed_dir,
-     cam_target_x, cam_target_y, cam_target_alt,
-     &cam_pan_c, &cam_tilt_c);
+         estimator_phi, estimator_theta, estimator_hspeed_dir,
+         cam_target_x, cam_target_y, cam_target_alt,
+         &cam_pan_c, &cam_tilt_c);
 #endif
   cam_angles();
 }
