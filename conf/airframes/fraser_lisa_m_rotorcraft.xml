@@ -25,7 +25,7 @@
     <subsystem name="imu"           type="aspirin_v1.5"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="euler"/>
-    <subsystem name="ahrs"          type="int_cmpl_euler"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat"/>
   </firmware>
 
   <firmware name="lisa_m_test_progs">

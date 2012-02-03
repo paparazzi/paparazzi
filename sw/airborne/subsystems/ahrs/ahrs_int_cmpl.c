@@ -23,7 +23,6 @@
 // TODO
 //
 // gravity heuristic
-// gps update for yaw on fixed wing ?
 //
 
 #include "subsystems/ahrs/ahrs_int_cmpl.h"
@@ -321,6 +320,60 @@ void ahrs_update_gps(void) {
     ahrs_impl.ltp_vel_norm_valid = FALSE;
   }
 #endif
+
+#if AHRS_USE_GPS_HEADING && USE_GPS
+  //got a 3d fix and ground speed is more than 0.5 m/s
+  if(gps.fix == GPS_FIX_3D && gps.gspeed>= 500) {
+    // gps.course is in rad * 1e7, we need it in rad * 2^INT32_ANGLE_FRAC
+    int32_t course = gps.course * ((1<<INT32_ANGLE_FRAC) / 1e7);
+    ahrs_update_course(course);
+  }
+#endif
+}
+
+/** Update yaw based on a heading measurement.
+ * e.g. from GPS course
+ * @param heading Heading in radians (CW/north) with #INT32_ANGLE_FRAC
+ */
+void ahrs_update_heading(int32_t heading) {
+
+  INT32_ANGLE_NORMALIZE(heading);
+
+  // row 0 of ltp_to_body_rmat = body x-axis in ltp frame
+  // we only consider x and y
+  struct Int32Vect2 expected_ltp =
+    { RMAT_ELMT(ahrs.ltp_to_body_rmat, 0, 0),
+      RMAT_ELMT(ahrs.ltp_to_body_rmat, 0, 1) };
+
+  int32_t heading_x, heading_y;
+  PPRZ_ITRIG_COS(heading_x, heading); // measured course in x-direction
+  PPRZ_ITRIG_SIN(heading_y, heading); // measured course in y-direction
+
+  // expected_heading cross measured_heading ??
+  struct Int32Vect3 residual_ltp =
+    { 0,
+      0,
+      (expected_ltp.x * heading_y - expected_ltp.y * heading_x)/(1<<INT32_ANGLE_FRAC)};
+
+  struct Int32Vect3 residual_imu;
+  INT32_RMAT_VMULT(residual_imu, ahrs.ltp_to_imu_rmat, residual_ltp);
+
+  // residual FRAC = TRIG_FRAC + TRIG_FRAC = 14 + 14 = 28
+  // rate_correction FRAC = RATE_FRAC = 12
+  // 2^12 / 2^28 * 4.0 = 1/2^14
+  // (1<<INT32_ANGLE_FRAC)/2^14 = 1/4
+  ahrs_impl.rate_correction.p += residual_imu.x/4;
+  ahrs_impl.rate_correction.q += residual_imu.y/4;
+  ahrs_impl.rate_correction.r += residual_imu.z/4;
+
+  // residual_ltp FRAC = 2 * TRIG_FRAC = 28
+  // high_rez_bias = RATE_FRAC+28 = 40
+  // 2^40 / 2^28 * 2.5e-4 = 1
+  ahrs_impl.high_rez_bias.p -= residual_imu.x*(1<<INT32_ANGLE_FRAC);
+  ahrs_impl.high_rez_bias.q -= residual_imu.y*(1<<INT32_ANGLE_FRAC);
+  ahrs_impl.high_rez_bias.r -= residual_imu.z*(1<<INT32_ANGLE_FRAC);
+
+  INT_RATES_RSHIFT(ahrs_impl.gyro_bias, ahrs_impl.high_rez_bias, 28);
 }
 
 /* Compute ltp to imu rotation in quaternion and rotation matrice representation

@@ -68,7 +68,7 @@ struct GpsState {
   struct NedCoor_i ned_vel;      ///< speed NED in cm/s
   int16_t gspeed;                ///< norm of 2d ground speed in cm/s
   int16_t speed_3d;              ///< norm of 3d speed in cm/s
-  int32_t course;                ///< GPS heading in rad*1e7
+  int32_t course;                ///< GPS heading in rad*1e7 (CW/north)
   uint32_t pacc;                 ///< position accuracy
   uint32_t sacc;                 ///< speed accuracy
   uint16_t pdop;                 ///< dilution of precision

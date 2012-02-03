@@ -38,6 +38,7 @@ struct AhrsIntCmpl {
 
 extern struct AhrsIntCmpl ahrs_impl;
 
+void ahrs_update_heading(int32_t heading);
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
 // TODO copy ahrs to state instead of estimator
