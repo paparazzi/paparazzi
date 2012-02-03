@@ -48,7 +48,7 @@
 #define  PPRZ_MODE_GPS_OUT_OF_ORDER 4
 #define  PPRZ_MODE_NB 5
 
-#define PPRZ_MODE_OF_PULSE(pprz, mega8_status) \
+#define PPRZ_MODE_OF_PULSE(pprz) \
   (pprz > TRESHOLD2 ? PPRZ_MODE_AUTO2 : \
         (pprz > TRESHOLD1 ? PPRZ_MODE_AUTO1 : PPRZ_MODE_MANUAL))
 
@@ -97,7 +97,7 @@ void periodic_task( void );
 #ifdef RADIO_CONTROL
 #include "subsystems/radio_control.h"
 static inline void autopilot_process_radio_control ( void ) {
-  pprz_mode = PPRZ_MODE_OF_PULSE(radio_control.values[RADIO_MODE], 0);
+  pprz_mode = PPRZ_MODE_OF_PULSE(radio_control.values[RADIO_MODE]);
 }
 #endif
 
