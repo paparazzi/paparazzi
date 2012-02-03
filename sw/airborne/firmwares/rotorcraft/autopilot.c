@@ -130,6 +130,9 @@ void autopilot_periodic(void) {
     RunOnceEvery(autopilot_lobatt_wing_waggle_interval,{setpoint_lobatt_wing_waggle_num=0;})
   }
 #endif
+#ifdef USE_CAMERA_MOUNT
+  camera_mount_run();
+#endif
 }
 
 
