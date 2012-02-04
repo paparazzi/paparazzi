@@ -29,9 +29,6 @@ void imu_aspirin_arch_init(void) {
 
 }
 
-void imu_periodic(void) {
-
-}
 
 #include "nps_sensors.h"
 
@@ -40,6 +37,7 @@ void imu_feed_gyro_accel(void) {
   /* do something similar to this, fill imu_aspirin.i2c_trans_gyro and
    * imu_aspirin.accel_rx_buf
    */
+#if 0
   max1168_values[IMU_GYRO_P_CHAN]  = sensors.gyro.value.x;
   max1168_values[IMU_GYRO_Q_CHAN]  = sensors.gyro.value.y;
   max1168_values[IMU_GYRO_R_CHAN]  = sensors.gyro.value.z;
@@ -47,6 +45,7 @@ void imu_feed_gyro_accel(void) {
   max1168_values[IMU_ACCEL_Y_CHAN] = sensors.accel.value.y;
   max1168_values[IMU_ACCEL_Z_CHAN] = sensors.accel.value.z;
   max1168_status = STA_MAX1168_DATA_AVAILABLE;
+#endif
 }
 
 

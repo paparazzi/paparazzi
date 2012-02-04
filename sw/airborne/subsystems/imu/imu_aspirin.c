@@ -11,6 +11,8 @@ static void configure_accel(void);
 //static void configure_mag(void);
 
 static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
+#if !SITL
+  // FIXME: there should be no arch dependent code here!
   uint8_t max_retry = 8;
   uint8_t nb_retry = 0;
   do {
@@ -21,6 +23,7 @@ static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
       nb_retry++;
   }
   while (t->status != I2CTransSuccess && nb_retry < max_retry);
+#endif
 }
 
 void imu_impl_init(void) {

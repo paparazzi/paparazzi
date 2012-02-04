@@ -33,5 +33,16 @@
 extern void imu_feed_gyro_accel(void);
 extern void imu_feed_mag(void);
 
+#define imu_aspirin_arch_int_enable() {}
+#define imu_aspirin_arch_int_disable() {}
+#define adxl345_write_to_reg(foo, bar) {}
+#define adxl345_clear_rx_buf() {}
+#define adxl345_start_reading_data() {}
+
+static inline int imu_aspirin_eoc(void)
+{
+  return 1;
+}
+
 
 #endif /* IMU_ASPIRIN_ARCH_H */
