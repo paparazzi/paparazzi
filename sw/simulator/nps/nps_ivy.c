@@ -51,7 +51,7 @@ void nps_ivy_init(void) {
 
 #include "generated/settings.h"
 #include "dl_protocol.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]) {
