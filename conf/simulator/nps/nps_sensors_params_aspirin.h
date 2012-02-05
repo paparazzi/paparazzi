@@ -40,17 +40,18 @@
 /*
  * Accelerometer
  */
-#define NPS_ACCEL_MIN 0
-#define NPS_ACCEL_MAX 65536
+/* ADXL345 configured to +-2g with 10bit resolution */
+#define NPS_ACCEL_MIN -511
+#define NPS_ACCEL_MAX  511
 /* ms-2 */
 /* aka 2^10/ACCEL_X_SENS  */
-#define NPS_ACCEL_SENSITIVITY_XX  ACCEL_BFP_OF_REAL(-1./2.50411474)
-#define NPS_ACCEL_SENSITIVITY_YY  ACCEL_BFP_OF_REAL(-1./2.48126183)
-#define NPS_ACCEL_SENSITIVITY_ZZ  ACCEL_BFP_OF_REAL(-1./2.51396167)
+#define NPS_ACCEL_SENSITIVITY_XX  ACCEL_BFP_OF_REAL(1./37.91)
+#define NPS_ACCEL_SENSITIVITY_YY  ACCEL_BFP_OF_REAL(1./37.91)
+#define NPS_ACCEL_SENSITIVITY_ZZ  ACCEL_BFP_OF_REAL(1./39.24)
 
-#define NPS_ACCEL_NEUTRAL_X       32081
-#define NPS_ACCEL_NEUTRAL_Y       33738
-#define NPS_ACCEL_NEUTRAL_Z       32441
+#define NPS_ACCEL_NEUTRAL_X       0
+#define NPS_ACCEL_NEUTRAL_Y       0
+#define NPS_ACCEL_NEUTRAL_Z       0
 /* m2s-4 */
 #define NPS_ACCEL_NOISE_STD_DEV_X 5.e-2
 #define NPS_ACCEL_NOISE_STD_DEV_Y 5.e-2
@@ -67,17 +68,18 @@
 /*
  * Gyrometer
  */
-#define NPS_GYRO_MIN 0
-#define NPS_GYRO_MAX 65536
+/* IMU-3000 has 16 bit resolution */
+#define NPS_GYRO_MIN -32767
+#define NPS_GYRO_MAX  32767
 
 /* 2^12/GYRO_X_SENS */
-#define NPS_GYRO_SENSITIVITY_PP   RATE_BFP_OF_REAL( 1./1.01)
-#define NPS_GYRO_SENSITIVITY_QQ   RATE_BFP_OF_REAL(-1./1.01)
-#define NPS_GYRO_SENSITIVITY_RR   RATE_BFP_OF_REAL(-1./1.01)
+#define NPS_GYRO_SENSITIVITY_PP   RATE_BFP_OF_REAL(1./4.359)
+#define NPS_GYRO_SENSITIVITY_QQ   RATE_BFP_OF_REAL(1./4.359)
+#define NPS_GYRO_SENSITIVITY_RR   RATE_BFP_OF_REAL(1./4.359)
 
-#define NPS_GYRO_NEUTRAL_P        33924
-#define NPS_GYRO_NEUTRAL_Q        33417
-#define NPS_GYRO_NEUTRAL_R        32809
+#define NPS_GYRO_NEUTRAL_P        0
+#define NPS_GYRO_NEUTRAL_Q        0
+#define NPS_GYRO_NEUTRAL_R        0
 
 #define NPS_GYRO_NOISE_STD_DEV_P  RadOfDeg(0.)
 #define NPS_GYRO_NOISE_STD_DEV_Q  RadOfDeg(0.)
@@ -98,8 +100,9 @@
 /*
  *  Magnetometer
  */
-#define NPS_MAG_MIN -32767
-#define NPS_MAG_MAX  32767
+ /* HMC5843 has 12 bit resolution */
+#define NPS_MAG_MIN -2047
+#define NPS_MAG_MAX  2047
 
 #define NPS_MAG_IMU_TO_SENSOR_PHI              0.
 #define NPS_MAG_IMU_TO_SENSOR_THETA            0.
@@ -143,7 +146,9 @@
  *  GPS
  */
 
-#ifdef GPS_PERFECT
+#define GPS_PERFECT 1
+
+#if GPS_PERFECT
 
 #define NPS_GPS_SPEED_NOISE_STD_DEV            0.
 #define NPS_GPS_SPEED_LATENCY                  0.
