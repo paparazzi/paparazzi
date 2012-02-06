@@ -40,9 +40,9 @@
 /*
  * Accelerometer
  */
-/* ADXL345 configured to +-2g with 10bit resolution */
-#define NPS_ACCEL_MIN -511
-#define NPS_ACCEL_MAX  511
+/* ADXL345 configured to +-16g with 13bit resolution */
+#define NPS_ACCEL_MIN -4095
+#define NPS_ACCEL_MAX  4095
 /* ms-2 */
 /* aka 2^10/ACCEL_X_SENS  */
 #define NPS_ACCEL_SENSITIVITY_XX  ACCEL_BFP_OF_REAL(1./37.91)
