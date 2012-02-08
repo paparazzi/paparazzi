@@ -81,11 +81,6 @@
 #define IMU_GYRO_R_SENS_NUM 4359
 #define IMU_GYRO_R_SENS_DEN 1000
 #endif
-#if !defined IMU_GYRO_P_NEUTRAL & !defined IMU_GYRO_Q_NEUTRAL & !defined IMU_GYRO_R_NEUTRAL
-#define IMU_GYRO_P_NEUTRAL 0
-#define IMU_GYRO_Q_NEUTRAL 0
-#define IMU_GYRO_R_NEUTRAL 0
-#endif
 
 
 /** default accel sensitivy from the ADXL345 datasheet
@@ -109,11 +104,6 @@
 #define IMU_ACCEL_Z_SENS 39.24
 #define IMU_ACCEL_Z_SENS_NUM 3924
 #define IMU_ACCEL_Z_SENS_DEN 100
-#endif
-#if !defined IMU_ACCEL_X_NEUTRAL & !defined IMU_ACCEL_Y_NEUTRAL & !defined IMU_ACCEL_Z_NEUTRAL
-#define IMU_ACCEL_X_NEUTRAL 0
-#define IMU_ACCEL_Y_NEUTRAL 0
-#define IMU_ACCEL_Z_NEUTRAL 0
 #endif
 
 
