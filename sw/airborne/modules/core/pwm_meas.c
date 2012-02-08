@@ -30,7 +30,7 @@
 
 #include "modules/core/pwm_meas.h"
 #include "mcu_periph/pwm_input.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 void pwm_meas_init( void )
 {

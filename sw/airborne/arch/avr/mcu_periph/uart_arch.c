@@ -27,7 +27,7 @@
  *
  */
 #include "mcu_periph/uart.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 #define B2400  2400UL
 #define B9600  9600UL

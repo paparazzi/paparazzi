@@ -29,7 +29,7 @@
 #include <stm32/tim.h>
 #include <stm32/misc.h>
 
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 /*
  *

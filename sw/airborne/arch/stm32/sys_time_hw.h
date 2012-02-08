@@ -30,7 +30,7 @@
 #ifndef SYS_TIME_HW_H
 #define SYS_TIME_HW_H
 
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 #include <stm32/gpio.h>
 #include <stm32/rcc.h>

@@ -26,7 +26,7 @@
 
 #include <inttypes.h>
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 
 #include "subsystems/datalink/downlink.h"
@@ -71,12 +71,30 @@ static inline void on_gps_event( void );
 static inline void on_mag_event( void );
 
 #ifndef SITL
+
+tid_t main_periodic_tid; ///< id for main_periodic() timer
+tid_t failsafe_tid;      ///< id for failsafe_check() timer
+tid_t radio_control_tid; ///< id for radio_control_periodic_task() timer
+tid_t electrical_tid;    ///< id for electrical_periodic() timer
+tid_t baro_tid;          ///< id for baro_periodic() timer
+tid_t telemetry_tid;     ///< id for telemetry_periodic() timer
+
 int main( void ) {
   main_init();
 
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(main_periodic_tid))
       main_periodic();
+    if (sys_time_check_and_ack_timer(radio_control_tid))
+      radio_control_periodic_task();
+    if (sys_time_check_and_ack_timer(failsafe_tid))
+      failsafe_check();
+    if (sys_time_check_and_ack_timer(electrical_tid))
+      electrical_periodic();
+    if (sys_time_check_and_ack_timer(baro_tid))
+      baro_periodic();
+    if (sys_time_check_and_ack_timer(telemetry_tid))
+      telemetry_periodic();
     main_event();
   }
   return 0;
@@ -87,7 +105,6 @@ STATIC_INLINE void main_init( void ) {
 
   mcu_init();
 
-  sys_time_init();
   electrical_init();
 
   actuators_init();
@@ -120,6 +137,13 @@ STATIC_INLINE void main_init( void ) {
 
   mcu_int_enable();
 
+  // register the timers for the periodic functions
+  main_periodic_tid = sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
+  radio_control_tid = sys_time_register_timer((1./60.), NULL);
+  failsafe_tid = sys_time_register_timer(0.05, NULL);
+  electrical_tid = sys_time_register_timer(0.1, NULL);
+  baro_tid = sys_time_register_timer(0.02, NULL);
+  telemetry_tid = sys_time_register_timer((1./60.), NULL);
 }
 
 
@@ -132,45 +156,35 @@ STATIC_INLINE void main_periodic( void ) {
   /* set actuators     */
   actuators_set(autopilot_motors_on);
 
-  PeriodicPrescaleBy10(                                     \
-    {                                                       \
-      radio_control_periodic_task();                        \
-      if (radio_control.status != RC_OK &&                  \
-          autopilot_mode != AP_MODE_KILL &&                 \
-          autopilot_mode != AP_MODE_NAV)                    \
-        autopilot_set_mode(AP_MODE_FAILSAFE);               \
-    },                                                      \
-    {                                                       \
-      /* booz_fms_periodic(); FIXME */                      \
-    },                                                      \
-    {                                                       \
-      electrical_periodic();                                \
-    },                                                      \
-    {                                                       \
-      LED_PERIODIC();                                       \
-    },                                                      \
-    { baro_periodic();                                      \
-    },                                                      \
-    {},                                                     \
-    {},                                                     \
-    {},                                                     \
-    {},                                                     \
-    {                                                       \
-      TelemetryPeriodic();                                  \
-    } );
-
-#if USE_GPS
-  if (radio_control.status != RC_OK &&                  \
-      autopilot_mode == AP_MODE_NAV && GpsIsLost())		\
-    autopilot_set_mode(AP_MODE_FAILSAFE);
-#endif
-
   modules_periodic_task();
 
   if (autopilot_in_flight) {
-    RunOnceEvery(512, { autopilot_flight_time++; datalink_time++; });
+    RunOnceEvery(PERIODIC_FREQUENCY, { autopilot_flight_time++; datalink_time++; });
   }
 
+  RunOnceEvery(10, LED_PERIODIC());
+}
+
+STATIC_INLINE void telemetry_periodic(void) {
+  PeriodicSendMain(DefaultChannel,DefaultDevice);
+}
+
+STATIC_INLINE void failsafe_check( void ) {
+  if (radio_control.status != RC_OK &&
+      autopilot_mode != AP_MODE_KILL &&
+      autopilot_mode != AP_MODE_NAV)
+  {
+    autopilot_set_mode(AP_MODE_FAILSAFE);
+  }
+
+#if USE_GPS
+  if (radio_control.status != RC_OK &&
+      autopilot_mode == AP_MODE_NAV &&
+      GpsIsLost())
+  {
+    autopilot_set_mode(AP_MODE_FAILSAFE);
+  }
+#endif
 }
 
 STATIC_INLINE void main_event( void ) {

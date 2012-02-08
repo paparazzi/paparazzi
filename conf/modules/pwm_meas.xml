@@ -14,6 +14,6 @@
     <file name="pwm_meas.c"/>
     <file name="pwm_input.c" dir="mcu_periph"/>
     <file_arch name="pwm_input_arch.c" dir="mcu_periph"/>
-    <define name="USE_PWM_INPUT"/> <!-- needed to enable the pwm_input interrupts in sys_time_hw.c -->
+    <define name="USE_PWM_INPUT"/> <!-- needed to enable the pwm_input interrupts in mcu_periph/sys_time_arch.c -->
   </makefile>
 </module>

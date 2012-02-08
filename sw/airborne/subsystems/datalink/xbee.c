@@ -22,7 +22,7 @@
  *
  */
 
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "print.h"
 #include "subsystems/datalink/xbee.h"
 

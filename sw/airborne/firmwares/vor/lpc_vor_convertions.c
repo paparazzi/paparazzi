@@ -3,7 +3,7 @@
 #include "LPC21xx.h"
 #include "armVIC.h"
 
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 #include "led.h"
 

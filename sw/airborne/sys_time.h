@@ -44,7 +44,7 @@ extern uint16_t cpu_time_sec;
 #define FIFTY_MS           SYS_TICS_OF_SEC( 50e-3 )
 #define AVR_PERIOD_MS      SYS_TICS_OF_SEC( 16.666e-3 )
 
-#include "sys_time_hw.h"
+#include "mcu_periph/sys_time.hw.h"
 
 
 #endif /* SYS_TIME_H */

@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 volatile bool_t sys_time_period_elapsed;
 uint32_t cpu_time_ticks;

@@ -74,7 +74,6 @@ extern float estimator_airspeed; /* m/s */
 extern float estimator_AOA; /* radians */
 
 void estimator_init( void );
-void estimator_propagate_state( void );
 
 void estimator_update_state_gps( void );
 

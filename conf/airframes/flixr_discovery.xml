@@ -14,8 +14,10 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
       <configure name="PERIODIC_FREQUENCY" value="960"/> <!-- IMU FREQ -->
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="120"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="60"/>
-      <configure name="AHRS_ALIGNER_LED" value="1"/>
-      <configure name="CPU_LED" value="2"/>
+      <configure name="AHRS_ALIGNER_LED" value="2"/>
+      <!--configure name="CPU_LED" value="2"/-->
+      <configure name="SYS_TIME_LED" value="1"/>
+      <configure name="GPS_LED" value="none"/>
       <!-- for airspeed sensor
       <define name="USE_I2C0"/>
       <define name="I2C0_VIC_SLOT" value="12"/>
