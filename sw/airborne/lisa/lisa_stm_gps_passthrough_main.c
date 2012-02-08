@@ -23,7 +23,7 @@
  */
 
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "lisa/lisa_overo_link.h"
 #include "lisa/lisa_spistream.h"
 #include "generated/airframe.h"

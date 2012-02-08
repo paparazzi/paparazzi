@@ -29,7 +29,7 @@
 
 #ifndef SYS_TIME_HW_H
 #define SYS_TIME_HW_H
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "std.h"
 #include "LPC21xx.h"
 #include BOARD_CONFIG

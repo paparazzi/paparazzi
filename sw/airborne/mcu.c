@@ -25,6 +25,7 @@
 #include "mcu.h"
 
 #ifdef PERIPHERALS_AUTO_INIT
+#include "mcu_periph/sys_time.h"
 #ifdef USE_LED
 #include "led.h"
 #endif
@@ -58,6 +59,7 @@ void mcu_init(void) {
   mcu_arch_init();
 
 #ifdef PERIPHERALS_AUTO_INIT
+  sys_time_init();
 #ifdef USE_LED
   led_init();
 #endif

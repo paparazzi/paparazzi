@@ -1,7 +1,7 @@
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "mcu_periph/can.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/downlink.h"
 
 #include <stm32/rcc.h>

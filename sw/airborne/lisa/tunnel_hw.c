@@ -28,7 +28,7 @@
 
 #include BOARD_CONFIG
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 
 #define A_PERIPH   RCC_APB2Periph_GPIOA
@@ -53,8 +53,7 @@ void Delay(__IO uint32_t nCount) {
 int main(void) {
 
   mcu_init();
-  sys_time_init();
-
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
 
   /* init RCC */
   RCC_APB2PeriphClockCmd(A_PERIPH , ENABLE);
@@ -81,10 +80,11 @@ int main(void) {
 
   /* */
   while (1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic();
     main_event();
- };
+  }
+
   return 0;
 }
 

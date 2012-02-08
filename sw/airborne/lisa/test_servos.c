@@ -24,7 +24,7 @@
 #include <inttypes.h>
 
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "firmwares/rotorcraft/actuators/actuators_pwm.h"
 
 static inline void main_init( void );

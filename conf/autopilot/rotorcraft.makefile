@@ -77,16 +77,14 @@ endif
 ifndef PERIODIC_FREQUENCY
 PERIODIC_FREQUENCY = 512
 endif
-$(TARGET).CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./$(PERIODIC_FREQUENCY).))' -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
+$(TARGET).CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 #
 # Systime
 #
 ap.CFLAGS += -DUSE_SYS_TIME
-ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-ifeq ($(ARCH), stm32)
+ap.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 ifneq ($(SYS_TIME_LED),none)
 ap.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
-endif
 endif
 
 #

@@ -43,6 +43,8 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 
   let servos_period = 1./.40. (* s *)
   let periodic_period = 1./.60. (* s *)
+  let nav_period = 1./.4. (* s *)
+  let monitor_period = 1. (* s *)
   let rc_period = 1./.40. (* s *)
 
   let msg = fun name ->
@@ -125,6 +127,8 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     window#show ()
 
   external periodic_task : unit -> unit = "sim_periodic_task"
+  external nav_task : unit -> unit = "sim_nav_task"
+  external monitor_task : unit -> unit = "sim_monitor_task"
   external sim_init : unit -> unit = "sim_init"
   external update_bat : int -> unit = "update_bat"
   external update_adc1 : int -> unit = "update_adc1"
@@ -177,6 +181,8 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
   let boot = fun time_scale ->
     Stdlib.timer ~scale:time_scale servos_period (update_servos bat_button);
     Stdlib.timer ~scale:time_scale periodic_period periodic_task;
+    Stdlib.timer ~scale:time_scale nav_period nav_task;
+    Stdlib.timer ~scale:time_scale monitor_period monitor_task;
 
     (* Forward or broacast messages according to "link" mode *)
     Hashtbl.iter

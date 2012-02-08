@@ -32,7 +32,7 @@
 
 #include <inttypes.h>
 #include "std.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "estimator.h"
 
 #define TRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
@@ -67,15 +67,11 @@ extern bool_t kill_throttle;
 
 #define FLOAT_OF_PPRZ(pprz, center, travel) ((float)pprz / (float)MAX_PPRZ * travel + center)
 
-extern uint8_t fatal_error_nb;
-
 #define THROTTLE_THRESHOLD_TAKEOFF (pprz_t)(MAX_PPRZ * 0.9)
 
 extern uint8_t lateral_mode;
 extern uint8_t vsupply;
 extern float energy;
-
-extern float slider_1_val, slider_2_val;
 
 extern bool_t launch;
 
@@ -91,8 +87,6 @@ extern bool_t sum_err_reset;
   (_mode != new_mode ? _mode = new_mode, TRUE : FALSE); \
 })
 
-void periodic_task( void );
-//void telecommand_task(void);
 
 #ifdef RADIO_CONTROL
 #include "subsystems/radio_control.h"

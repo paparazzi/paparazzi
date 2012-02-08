@@ -2,11 +2,11 @@
 
 #include "LPC21xx.h"
 
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 uint16_t wt_servo_motor_power;
 
-#define MY_NB_CLOCK_TIMER_PWM(time_us) SYS_TICS_OF_USEC(time_us)
+#define MY_NB_CLOCK_TIMER_PWM(time_us) CPU_TICKS_OF_USEC(time_us)
 
 void mb_servo_set_ns(uint32_t duration_ns);
 
@@ -37,7 +37,7 @@ void wt_servo_set(uint16_t val) {
 
 void mb_servo_set_ns(uint32_t duration_ns) {
   /* set Match5 value (pulse duration )*/
-  PWMMR5 = SYS_TICS_OF_NSEC(duration_ns);
+  PWMMR5 = CPU_TICKS_OF_NSEC(duration_ns);
  /* commit PWMMRx changes */
   PWMLER = PWMLER_LATCH5;
 }

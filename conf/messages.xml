@@ -710,8 +710,8 @@
   </message>
 
   <message name="PPM" id="100">
-    <field name="ppm_rate" type="uint8"></field>
-    <field name="values" type="uint16[]" unit="ticks"/>
+    <field name="ppm_rate" type="uint8"/>
+    <field name="values" type="uint16[]" unit="usec"/>
   </message>
 
   <message name="RC" id="101">

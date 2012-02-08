@@ -31,7 +31,7 @@
 #include <avr/interrupt.h>
 #include "servos_4017.h"
 #include "actuators.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include CONFIG
 
 
@@ -63,7 +63,7 @@ void actuators_init( void ) {
   cbi( _4017_CLOCK_PORT, _4017_CLOCK_PIN );
   /* Set all servos at their midpoints              */
   for( i=0 ; i < _4017_NB_CHANNELS ; i++ )
-    servo_widths[i] = SYS_TICS_OF_USEC(1500);
+    servo_widths[i] = CPU_TICKS_OF_USEC(1500);
   /* Set servos to go off some long time from now   */
   SERVO_OCR = 32768ul;
   /* Set output compare to toggle the output bits   */
@@ -94,8 +94,8 @@ SIGNAL( SIG_OUTPUT_COMPARE1A )
   uint16_t width;
 
 #ifdef SERVOS_FALLING_EDGE
-#define RESET_WIDTH SYS_TICS_OF_USEC(1000)
-#define FIRST_PULSE_WIDTH SYS_TICS_OF_USEC(100)
+#define RESET_WIDTH CPU_TICKS_OF_USEC(1000)
+#define FIRST_PULSE_WIDTH CPU_TICKS_OF_USEC(100)
 /** The clock pin has been initialized high and is toggled down by
 the timer.
  Unfortunately it seems that reset does not work on 4017 in this case if it
