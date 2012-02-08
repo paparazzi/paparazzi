@@ -179,6 +179,8 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.flight_time   <- ivalue "flight_time";
       (*if a.gspeed > 3. && a.ap_mode = _AUTO2 then
           Wind.update ac_name a.gspeed a.course*)
+  | "GPS_INT" ->
+      a.gps_Pacc <- ivalue "pacc"
   | "ROTORCRAFT_STATUS" ->
       a.vehicle_type  <- Rotorcraft;
       a.fbw.rc_status <- get_rc_status (ivalue "rc_status");
