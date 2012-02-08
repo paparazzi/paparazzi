@@ -258,7 +258,7 @@ upload:  $(OBJDIR)/$(TARGET).elf
 		-c init \
 		-c "reset halt" \
 		-c "reset init" \
-		-c "stm32x mass_erase 0" \
+		-c "stm32f1x mass_erase 0" \
 		-c "flash write_image $<" \
 		-c reset \
 		-c shutdown
