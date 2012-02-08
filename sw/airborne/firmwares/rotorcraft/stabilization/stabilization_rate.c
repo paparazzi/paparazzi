@@ -101,17 +101,17 @@ void stabilization_rate_init(void) {
   INT_RATES_ZERO(stabilization_rate_sp);
 
   RATES_ASSIGN(stabilization_rate_gain,
-               STABILIZATION_RATE_GAIN_P,
-               STABILIZATION_RATE_GAIN_Q,
-               STABILIZATION_RATE_GAIN_R);
+               ABS(STABILIZATION_RATE_GAIN_P),
+               ABS(STABILIZATION_RATE_GAIN_Q),
+               ABS(STABILIZATION_RATE_GAIN_R));
   RATES_ASSIGN(stabilization_rate_igain,
-               STABILIZATION_RATE_IGAIN_P,
-               STABILIZATION_RATE_IGAIN_Q,
-               STABILIZATION_RATE_IGAIN_R);
+               ABS(STABILIZATION_RATE_IGAIN_P),
+               ABS(STABILIZATION_RATE_IGAIN_Q),
+               ABS(STABILIZATION_RATE_IGAIN_R));
   RATES_ASSIGN(stabilization_rate_ddgain,
-               STABILIZATION_RATE_DDGAIN_P,
-               STABILIZATION_RATE_DDGAIN_Q,
-               STABILIZATION_RATE_DDGAIN_R);
+               ABS(STABILIZATION_RATE_DDGAIN_P),
+               ABS(STABILIZATION_RATE_DDGAIN_Q),
+               ABS(STABILIZATION_RATE_DDGAIN_R));
 
   INT_RATES_ZERO(stabilization_rate_ref);
   INT_RATES_ZERO(stabilization_rate_refdot);
@@ -169,7 +169,7 @@ void stabilization_rate_run(bool_t in_flight) {
     OFFSET_AND_ROUND(stabilization_rate_ref.q, (REF_FRAC - INT32_RATE_FRAC)),
     OFFSET_AND_ROUND(stabilization_rate_ref.r, (REF_FRAC - INT32_RATE_FRAC)) };
   struct Int32Rates _error;
-  RATES_DIFF(_error, ahrs.body_rate, _ref_scaled);
+  RATES_DIFF(_error, _ref_scaled, ahrs.body_rate);
   if (in_flight) {
     /* update integrator */
     RATES_ADD(stabilization_rate_sum_err, _error);
