@@ -20,10 +20,10 @@
  *
  */
 
-/* PERIODIC_C_FBW is defined before generated/periodic.h
+/* PERIODIC_C_FBW is defined before generated/periodic_telemetry.h
  * in order to implement telemetry_mode_Fbw_*
  */
 #define PERIODIC_C_FBW
 
-#include "generated/periodic.h"
+#include "generated/periodic_telemetry.h"
 

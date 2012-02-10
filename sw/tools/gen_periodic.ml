@@ -39,14 +39,14 @@ let lprintf = fun c f ->
   fprintf c "%s" (String.make !margin ' ');
   fprintf c f
 
-let output_modes = fun out_h process_name channel_name device_name modes freq modules ->
+let output_modes = fun out_h process_name modes freq modules ->
   let min_period = 1./.float freq in
   let max_period = 65536. /. float freq in
   (** For each mode in this process *)
   List.iter
     (fun mode ->
       let mode_name = ExtXml.attrib mode "name" in
-      lprintf out_h "if (telemetry_mode_%s_%s == TELEMETRY_MODE_%s_%s_%s) {\\\n" process_name channel_name process_name channel_name mode_name;
+      lprintf out_h "if (telemetry_mode_%s == TELEMETRY_MODE_%s_%s) {\\\n" process_name process_name mode_name;
       right ();
 
       (** Filter message list to remove messages linked to unloaded modules *)
@@ -84,7 +84,7 @@ let output_modes = fun out_h process_name channel_name device_name modes freq mo
           l := (p, !phase) :: !l;
           i := !i + freq/10;
           right ();
-          lprintf out_h "PERIODIC_SEND_%s(%s,%s);\\\n" message_name channel_name device_name;
+          lprintf out_h "PERIODIC_SEND_%s(_trans, _dev);\\\n" message_name;
           left ();
           lprintf out_h "} \\\n"
         )
@@ -101,21 +101,20 @@ let write_settings = fun xml_file out_set telemetry_xml ->
   fprintf out_set "  <dl_settings name=\"Telemetry\">\n";
   List.iter (fun p ->
     (* for each process *)
-    let process_name = Xml.attrib p "name"
-    and channel_name = ExtXml.attrib_or_default p "channel" "" in
+    let process_name = Xml.attrib p "name" in
     (* convert the xml list of mode to a string list *)
     let modes = List.map (fun m -> Xml.attrib m "name") (Xml.children p) in
     let nb_modes = List.length modes in
     match nb_modes with
       0 | 1 -> () (* Nothing to do if 1 or zero mode *)
     | _ -> (* add settings with all modes *)
-        fprintf out_set "   <dl_setting min=\"0\" step=\"1\" max=\"%d\" var=\"telemetry_mode_%s_%s\" shortname=\"%s\" values=\"%s\">\n" (nb_modes-1) process_name channel_name process_name (String.concat "|" modes);
+        fprintf out_set "   <dl_setting min=\"0\" step=\"1\" max=\"%d\" var=\"telemetry_mode_%s\" shortname=\"%s\" values=\"%s\">\n" (nb_modes-1) process_name process_name (String.concat "|" modes);
         let i = ref 0 in
         List.iter (fun m -> try
             let key = Xml.attrib m "key_press" in
             fprintf out_set "    <key_press key=%S value=%S/>\n" key (string_of_int !i);
-            i := !i + 1
-          with _ -> i:= !i + 1) (Xml.children p);
+            incr i
+          with _ -> incr i) (Xml.children p);
         fprintf out_set "   </dl_setting>\n"
   ) (Xml.children telemetry_xml);
   fprintf out_set "  </dl_settings>\n";
@@ -149,18 +148,16 @@ let _ =
   (** For each process *)
   List.iter
     (fun process ->
-      let process_name = ExtXml.attrib process "name"
-      and channel_name =  ExtXml.attrib_or_default process "channel" "DefaultChannel"
-      and device_name = ExtXml.attrib_or_default process "device" "DefaultDevice" in
+      let process_name = ExtXml.attrib process "name" in
 
-      fprintf out_h "\n/* Macros for %s process channel %s with device %s */\n" process_name channel_name device_name;
+      fprintf out_h "\n/* Macros for %s process */\n" process_name;
       fprintf out_h "#ifdef PERIODIC_C_%s\n" (String.uppercase process_name);
       fprintf out_h "#ifndef TELEMETRY_MODE_%s\n" (String.uppercase process_name);
       fprintf out_h "#define TELEMETRY_MODE_%s 0\n" (String.uppercase process_name);
       fprintf out_h "#endif\n";
-      fprintf out_h "uint8_t telemetry_mode_%s_%s = TELEMETRY_MODE_%s;\n" process_name channel_name (String.uppercase process_name);
+      fprintf out_h "uint8_t telemetry_mode_%s = TELEMETRY_MODE_%s;\n" process_name (String.uppercase process_name);
       fprintf out_h "#else /* PERIODIC_C_%s not defined (general header) */\n" (String.uppercase process_name);
-      fprintf out_h "extern uint8_t telemetry_mode_%s_%s;\n" process_name channel_name;
+      fprintf out_h "extern uint8_t telemetry_mode_%s;\n" process_name;
       fprintf out_h "#endif /* PERIODIC_C_%s */\n" (String.uppercase process_name);
 
       let modes = Xml.children process in
@@ -169,20 +166,20 @@ let _ =
       (** For each mode of this process *)
       List.iter (fun mode ->
         let name = ExtXml.attrib mode "name" in
-        Xml2h.define (sprintf "TELEMETRY_MODE_%s_%s_%s" process_name channel_name name) (string_of_int !i);
+        Xml2h.define (sprintf "TELEMETRY_MODE_%s_%s" process_name name) (string_of_int !i);
         (* Output the periods of the messages *)
         List.iter
           (fun x ->
             let p = ExtXml.attrib x "period"
             and n = ExtXml.attrib x "name" in
-            Xml2h.define (sprintf "PERIOD_%s_%s_%s_%d" n process_name channel_name !i) (sprintf "(%s)" p))
+            Xml2h.define (sprintf "PERIOD_%s_%s_%d" n process_name !i) (sprintf "(%s)" p))
           (Xml.children mode);
         incr i)
         modes;
 
-      lprintf out_h "#define PeriodicSend%s(%s,%s) {  /* %dHz */ \\\n" process_name channel_name device_name freq;
+      lprintf out_h "#define PeriodicSend%s(_trans, _dev) {  /* %dHz */ \\\n" process_name freq;
       right ();
-      output_modes out_h process_name channel_name device_name modes freq modules_name;
+      output_modes out_h process_name modes freq modules_name;
       left ();
       lprintf out_h "}\n"
     )

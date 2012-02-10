@@ -45,7 +45,7 @@
 #include "subsystems/datalink/downlink.h"
 
 #include "messages.h"
-#include "generated/periodic.h"
+#include "generated/periodic_telemetry.h"
 
 #if defined DOWNLINK
 #define Downlink(x) x
@@ -79,7 +79,7 @@
 
 #define PERIODIC_SEND_DOWNLINK(_trans, _dev) { \
   static uint16_t last; \
-  uint16_t rate = (downlink_nb_bytes - last) / PERIOD_DOWNLINK_Ap_DefaultChannel_0; \
+  uint16_t rate = (downlink_nb_bytes - last) / PERIOD_DOWNLINK_Ap_0; \
   last = downlink_nb_bytes; \
   DOWNLINK_SEND_DOWNLINK(_trans, _dev, &downlink_nb_ovrn, &rate, &downlink_nb_msgs); \
 }

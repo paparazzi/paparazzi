@@ -38,7 +38,7 @@ PERIODIC_FREQ = 60
 endif
 
 AIRFRAME_H=$(AC_GENERATED)/airframe.h
-PERIODIC_H=$(AC_GENERATED)/periodic.h
+PERIODIC_H=$(AC_GENERATED)/periodic_telemetry.h
 RADIO_H=$(AC_GENERATED)/radio.h
 FLIGHT_PLAN_H=$(AC_GENERATED)/flight_plan.h
 FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml

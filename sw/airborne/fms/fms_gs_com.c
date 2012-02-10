@@ -5,7 +5,7 @@
 #include "udp_transport2.h"
 
 /* generated : holds PeriodicSendMain */
-#include "generated/periodic.h"
+#include "generated/periodic_telemetry.h"
 /* holds the definitions of PERIODIC_SEND_XXX */
 #include "overo_test_passthrough_telemetry.h"
 /* holds the definitions of DOWNLINK_SEND_XXX */

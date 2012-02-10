@@ -37,7 +37,7 @@
 
 #include <inttypes.h>
 #include "messages.h"
-#include "generated/periodic.h"
+#include "generated/periodic_telemetry.h"
 #include "generated/airframe.h"
 #include "commands.h"
 #include "actuators.h"

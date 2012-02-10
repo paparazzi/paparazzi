@@ -775,7 +775,7 @@
 #include "generated/settings.h"
 #define PERIODIC_SEND_DL_VALUE(_trans, _dev) PeriodicSendDlValue(_trans, _dev)
 
-#include "generated/periodic.h"
+#include "generated/periodic_telemetry.h"
 #define Booz2TelemetryPeriodic() {			\
     PeriodicSendMain(DefaultChannel,DefaultDevice);			\
   }

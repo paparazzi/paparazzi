@@ -50,7 +50,7 @@
 #include "mcu_periph/uart.h"
 #include "csc_telemetry.h"
 
-#include "generated/periodic.h"
+#include "generated/periodic_telemetry.h"
 #include "subsystems/datalink/downlink.h"
 
 #include "pwm_input.h"

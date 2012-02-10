@@ -20,10 +20,10 @@
  *
  */
 
-/* PERIODIC_C_AP is defined before generated/periodic.h
+/* PERIODIC_C_AP is defined before generated/periodic_telemetry.h
  * in order to implement telemetry_mode_Ap_*
  */
 #define PERIODIC_C_AP
 
-#include "generated/periodic.h"
+#include "generated/periodic_telemetry.h"
 
