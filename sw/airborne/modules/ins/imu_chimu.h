@@ -20,23 +20,23 @@
  */
 
 /*---------------------------------------------------------------------------
-    Copyright (c)  Ryan Mechatronics 2008.  All Rights Reserved.
+  Copyright (c)  Ryan Mechatronics 2008.  All Rights Reserved.
 
-    File: *.c
+  File: *.c
 
-    Description: CHIMU Protocol Parser
-
-
-    Public Functions:
-      CHIMU_Init           Create component instance
-      CHIMU_Done           Free component instance
-      CHIMU_Parse          Parse the RX byte stream message
-
-    Applicable Documents:
-        CHIMU parsing documentation
+  Description: CHIMU Protocol Parser
 
 
----------------------------------------------------------------------------*/
+  Public Functions:
+  CHIMU_Init           Create component instance
+  CHIMU_Done           Free component instance
+  CHIMU_Parse          Parse the RX byte stream message
+
+  Applicable Documents:
+  CHIMU parsing documentation
+
+
+  ---------------------------------------------------------------------------*/
 
 #include "paparazzi.h"
 
@@ -116,25 +116,25 @@ static inline float FloatSwap( float f )
 
 
 typedef struct {
-	float phi;
-	float theta;
-	float psi;
+  float phi;
+  float theta;
+  float psi;
 } CHIMU_Euler;
 
 typedef struct {
-	float x;
-	float y;
-	float z;
+  float x;
+  float y;
+  float z;
 } CHIMU_Vector;
 
 typedef struct {
-	float s;
-	CHIMU_Vector v;
+  float s;
+  CHIMU_Vector v;
 } CHIMU_Quaternion;
 
 typedef struct {
-	CHIMU_Euler euler;
-	CHIMU_Quaternion q;
+  CHIMU_Euler euler;
+  CHIMU_Quaternion q;
 } CHIMU_attitude_data;
 
 #ifndef FALSE
@@ -145,53 +145,53 @@ typedef struct {
 #endif
 
 typedef struct {
-	float cputemp;
-	float acc[3];
-	float rate[3];
-	float mag[3];
-	float spare1;
+  float cputemp;
+  float acc[3];
+  float rate[3];
+  float mag[3];
+  float spare1;
 } CHIMU_sensor_data;
 
 #define CHIMU_RX_BUFFERSIZE 128
 
 typedef struct {
-        unsigned char	m_State;			// Current state protocol parser is in
-        unsigned char 	m_Checksum;			// Calculated CHIMU sentence checksum
-        unsigned char 	m_ReceivedChecksum;		// Received CHIMU sentence checksum (if exists)
-        unsigned char   m_Index;			// Index used for command and data
-        unsigned char   m_PayloadIndex;
-        unsigned char   m_MsgID;
-        unsigned char   m_MsgLen;
-        unsigned char   m_TempDeviceID;
-        unsigned char   m_DeviceID;
-	unsigned char   m_Payload[CHIMU_RX_BUFFERSIZE];        // CHIMU data
-        unsigned char   m_FullMessage[CHIMU_RX_BUFFERSIZE];	// CHIMU data
-        CHIMU_attitude_data m_attitude;
-        CHIMU_attitude_data m_attrates;
-        CHIMU_sensor_data   m_sensor;
+  unsigned char	m_State;			// Current state protocol parser is in
+  unsigned char   m_Checksum;			// Calculated CHIMU sentence checksum
+  unsigned char   m_ReceivedChecksum;		// Received CHIMU sentence checksum (if exists)
+  unsigned char   m_Index;			// Index used for command and data
+  unsigned char   m_PayloadIndex;
+  unsigned char   m_MsgID;
+  unsigned char   m_MsgLen;
+  unsigned char   m_TempDeviceID;
+  unsigned char   m_DeviceID;
+  unsigned char   m_Payload[CHIMU_RX_BUFFERSIZE];        // CHIMU data
+  unsigned char   m_FullMessage[CHIMU_RX_BUFFERSIZE];	// CHIMU data
+  CHIMU_attitude_data m_attitude;
+  CHIMU_attitude_data m_attrates;
+  CHIMU_sensor_data   m_sensor;
 
-	// Ping data
-        uint8_t gCHIMU_SW_Exclaim;
-        uint8_t gCHIMU_SW_Major;
-        uint8_t gCHIMU_SW_Minor;
-        uint16_t gCHIMU_SW_SerialNumber;
+  // Ping data
+  uint8_t gCHIMU_SW_Exclaim;
+  uint8_t gCHIMU_SW_Major;
+  uint8_t gCHIMU_SW_Minor;
+  uint16_t gCHIMU_SW_SerialNumber;
 
-	// Config
-        uint8_t gCalStatus;
-        uint8_t gCHIMU_BIT;
-        uint8_t gConfigInfo;
+  // Config
+  uint8_t gCalStatus;
+  uint8_t gCHIMU_BIT;
+  uint8_t gConfigInfo;
 
 } CHIMU_PARSER_DATA;
 
 /*---------------------------------------------------------------------------
-        Name: CHIMU_Init
----------------------------------------------------------------------------*/
+  Name: CHIMU_Init
+  ---------------------------------------------------------------------------*/
 void CHIMU_Init(CHIMU_PARSER_DATA   *pstData);
 
 /*---------------------------------------------------------------------------
-        Name: CHIMU_Parse
-    Abstract: Parse message input test mode, returns TRUE if new data.
----------------------------------------------------------------------------*/
+  Name: CHIMU_Parse
+  Abstract: Parse message input test mode, returns TRUE if new data.
+  ---------------------------------------------------------------------------*/
 unsigned char CHIMU_Parse(unsigned char btData, unsigned char bInputType, CHIMU_PARSER_DATA *pstData);
 
 unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloadData, CHIMU_PARSER_DATA  *pstData);
@@ -199,4 +199,3 @@ unsigned char CHIMU_ProcessMessage(unsigned char *pMsgID, unsigned char *pPayloa
 void CHIMU_Checksum(unsigned char *data, unsigned char buflen);
 
 #endif // CHIMU_DEFINED
-
