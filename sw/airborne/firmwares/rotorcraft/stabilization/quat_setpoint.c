@@ -67,7 +67,7 @@ static void update_sp_quat_from_eulers(void) {
     INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
 }
 
-/*
+/* FIXME: what is up with this???
 void stabilization_attitude_read_rc_incremental(bool_t enable_alpha_vane, bool_t enable_beta_vane)
 {
   pprz_t roll = radio_control.values[RADIO_ROLL];
@@ -110,6 +110,7 @@ void stabilization_attitude_read_rc_incremental(bool_t enable_alpha_vane, bool_t
 
 void stabilization_attitude_read_rc_absolute(struct Int32Eulers sp, bool_t in_flight) {
 
+  // FIXME: wtf???
 #ifdef AIRPLANE_STICKS
   pprz_t roll = radio_control.values[RADIO_ROLL];
   pprz_t pitch = radio_control.values[RADIO_PITCH];
