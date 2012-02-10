@@ -28,6 +28,7 @@
 #include "lisa/lisa_spistream.h"
 #include "generated/airframe.h"
 #include "mcu_periph/uart.h"
+#include "led.h"
 
 static inline void main_init(void);
 static inline void main_periodic(void);

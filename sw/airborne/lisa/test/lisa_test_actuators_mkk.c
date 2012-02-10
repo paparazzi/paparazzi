@@ -27,6 +27,7 @@
 #include "firmwares/rotorcraft/commands.h"
 #include "actuators.h"
 #include "subsystems/datalink/downlink.h"
+#include "led.h"
 
 #include "actuators/actuators_asctec.h"
 

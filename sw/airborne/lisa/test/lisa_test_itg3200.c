@@ -45,6 +45,7 @@
 
 #include "peripherals/itg3200.h"
 #include "my_debug_servo.h"
+#include "led.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );

@@ -30,6 +30,7 @@
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #include "lisa/lisa_overo_link.h"
+#include "led.h"
 
 #include "my_debug_servo.h"
 

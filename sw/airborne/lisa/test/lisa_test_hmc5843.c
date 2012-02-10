@@ -38,6 +38,7 @@
 #include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/downlink.h"
 #include "std.h"
+#include "led.h"
 
 #include "mcu_periph/uart.h"
 #include "peripherals/hmc5843.h"

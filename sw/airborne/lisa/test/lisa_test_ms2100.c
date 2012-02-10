@@ -33,6 +33,7 @@
 #include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/downlink.h"
 #include "peripherals/ms2100.h"
+#include "led.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
