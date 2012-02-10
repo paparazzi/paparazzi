@@ -2,21 +2,21 @@
 
 #include "LPC21xx.h"
 #include "std.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "firmwares/rotorcraft/actuators.h"
 #include "generated/airframe.h"
 #include ACTUATORS
 
 #define CSC_SERVOS_NB 4
 
-static uint32_t csc_servos_rng[] = {SYS_TICS_OF_USEC(SERVO_S1_MAX-SERVO_S1_MIN),
-                    SYS_TICS_OF_USEC(SERVO_S2_MAX-SERVO_S2_MIN),
-                    SYS_TICS_OF_USEC(SERVO_S3_MAX-SERVO_S3_MIN),
-                    SYS_TICS_OF_USEC(SERVO_S4_MAX-SERVO_S4_MIN)};
-static uint32_t csc_servos_min[] = {SYS_TICS_OF_USEC(SERVO_S1_MIN),
-                    SYS_TICS_OF_USEC(SERVO_S2_MIN),
-                    SYS_TICS_OF_USEC(SERVO_S3_MIN),
-                    SYS_TICS_OF_USEC(SERVO_S4_MIN)};
+static uint32_t csc_servos_rng[] = {CPU_TICKS_OF_USEC(SERVO_S1_MAX-SERVO_S1_MIN),
+                    CPU_TICKS_OF_USEC(SERVO_S2_MAX-SERVO_S2_MIN),
+                    CPU_TICKS_OF_USEC(SERVO_S3_MAX-SERVO_S3_MIN),
+                    CPU_TICKS_OF_USEC(SERVO_S4_MAX-SERVO_S4_MIN)};
+static uint32_t csc_servos_min[] = {CPU_TICKS_OF_USEC(SERVO_S1_MIN),
+                    CPU_TICKS_OF_USEC(SERVO_S2_MIN),
+                    CPU_TICKS_OF_USEC(SERVO_S3_MIN),
+                    CPU_TICKS_OF_USEC(SERVO_S4_MIN)};
 
 
 void csc_servos_init(void)

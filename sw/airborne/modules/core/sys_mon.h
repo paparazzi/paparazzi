@@ -33,9 +33,16 @@
 
 #include "std.h"
 
-extern uint8_t cpu_load;
-extern uint16_t periodic_time, periodic_cycle, periodic_cycle_min, periodic_cycle_max;
-extern uint16_t event_time, event_number;
+struct SysMon {
+  uint8_t  cpu_load;
+  uint16_t periodic_time;      ///< in usec
+  uint16_t periodic_cycle;     ///< in usec
+  uint16_t periodic_cycle_min; ///< in usec
+  uint16_t periodic_cycle_max; ///< in usec
+  uint16_t event_number;
+};
+
+extern struct SysMon sys_mon;
 
 /** Init system monitoring
  */

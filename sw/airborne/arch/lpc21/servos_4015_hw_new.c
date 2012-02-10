@@ -2,7 +2,7 @@
 #include "armVIC.h"
 
 #include "generated/airframe.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 
 uint16_t servos_values[_4015_NB_CHANNELS];

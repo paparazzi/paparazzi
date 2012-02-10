@@ -31,7 +31,7 @@
 
 #include "mcu.h"
 
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/sensors/baro.h"
 

@@ -5,7 +5,7 @@
 
 #include "std.h"
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/adc.h"
 #include "messages.h"
 #include "led.h"

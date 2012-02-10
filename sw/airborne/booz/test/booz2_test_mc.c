@@ -24,7 +24,7 @@
 #include <inttypes.h>
 
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "mcu_periph/uart.h"
 

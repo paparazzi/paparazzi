@@ -1,7 +1,7 @@
 
 #include "std.h"
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "mb_tacho.h"
 #include "mb_servo.h"
@@ -31,7 +31,7 @@ static inline void main_dl_parse_msg( void );
 int main( void ) {
   main_init();
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -41,8 +41,7 @@ int main( void ) {
 static inline void main_init( void ) {
 
   mcu_init();
-  led_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   mb_tacho_init();
 
 #if defined USE_TWI_CONTROLLER

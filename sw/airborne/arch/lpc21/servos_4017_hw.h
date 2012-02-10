@@ -5,11 +5,11 @@
 #include "std.h"
 
 #include "LPC21xx.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 #include BOARD_CONFIG
 
-#define SERVOS_TICS_OF_USEC(s) SYS_TICS_OF_USEC(s)
+#define SERVOS_TICS_OF_USEC(s) CPU_TICKS_OF_USEC(s)
 #define ChopServo(x,a,b) Chop(x, a, b)
 
 #if defined NB_CHANNELS

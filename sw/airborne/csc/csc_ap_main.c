@@ -29,7 +29,7 @@
 #include "std.h"
 
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "interrupt_hw.h"
 #include "mcu_periph/uart.h"
@@ -54,7 +54,7 @@
 
 #include "subsystems/datalink/pprz_transport.h"
 
-#define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
+#define CSC_STATUS_TIMEOUT (CPU_TICKS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
 
 #define PPRZ_MODE_MANUAL 0
 #define PPRZ_MODE_AUTO1 1

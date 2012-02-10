@@ -80,13 +80,13 @@ static inline void sys_time_init( void ) {
 }
 
 
-#define SYS_TICS_OF_USEC(us) (uint16_t)((us)*CLOCK)
-#define SIGNED_SYS_TICS_OF_USEC(us) (int16_t)((us)*CLOCK)
+#define CPU_TICKS_OF_USEC(us) (uint16_t)((us)*CLOCK)
+#define SIGNED_CPU_TICKS_OF_USEC(us) (int16_t)((us)*CLOCK)
 
 #if CLOCK == 8
-#define LONG_SYS_TICS_OF_USEC(us) (uint16_t)(((uint32_t)(us)*CLOCK)/256ul)
+#define LONG_CPU_TICKS_OF_USEC(us) (uint16_t)(((uint32_t)(us)*CLOCK)/256ul)
 #else
-#define LONG_SYS_TICS_OF_USEC(us) (uint8_t)(((uint32_t)(us)*CLOCK)/1024ul)
+#define LONG_CPU_TICKS_OF_USEC(us) (uint8_t)(((uint32_t)(us)*CLOCK)/1024ul)
 #endif
 
 /*

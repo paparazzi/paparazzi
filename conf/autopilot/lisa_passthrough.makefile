@@ -33,9 +33,9 @@ stm_passthrough.srcs += $(SRC_ARCH)/led_hw.c
 
 # Sys time
 stm_passthrough.CFLAGS += -DUSE_SYS_TIME
-stm_passthrough.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+stm_passthrough.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 stm_passthrough.CFLAGS += -DSYS_TIME_LED=1
-stm_passthrough.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+stm_passthrough.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 # Telemetry
 stm_passthrough.CFLAGS += -DDOWNLINK

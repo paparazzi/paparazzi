@@ -145,6 +145,9 @@ void aos_init(int traj_nb) {
 #ifdef PERFECT_SENSORS
   printf("# PERFECT_SENSORS\n");
 #endif
+#ifdef AHRS_USE_GPS_HEADING
+  printf("# AHRS_USE_GPS_HEADING\n");
+#endif
 
   printf("# tajectory : %s\n", aos.traj->name);
 
@@ -179,16 +182,18 @@ void aos_compute_sensors(void) {
 
 #ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
 #if AHRS_TYPE == AHRS_TYPE_FCQ || AHRS_TYPE == AHRS_TYPE_FLQ
-  VECT3_COPY(ahrs_impl.est_ltp_speed, aos.ltp_vel);
+  ahrs_impl.ltp_vel_norm = FLOAT_VECT3_NORM(aos.ltp_vel);
+  ahrs_impl.ltp_vel_norm_valid = TRUE;
 #endif
 #if AHRS_TYPE == AHRS_TYPE_FCR2
   ahrs_impl.ltp_vel_norm = FLOAT_VECT3_NORM(aos.ltp_vel);
+  ahrs_impl.ltp_vel_norm_valid = TRUE;
 #endif
 #if AHRS_TYPE == AHRS_TYPE_ICQ
   ahrs_impl.ltp_vel_norm = SPEED_BFP_OF_REAL(FLOAT_VECT3_NORM(aos.ltp_vel));
+  ahrs_impl.ltp_vel_norm_valid = TRUE;
 #endif
 #endif
-
 
 }
 
@@ -214,7 +219,18 @@ void aos_run(void) {
 #endif /* DISABLE_ALIGNEMENT */
     ahrs_propagate();
     ahrs_update_accel();
+#ifndef DISABLE_MAG_UPDATE
     ahrs_update_mag();
+#endif
+#if AHRS_USE_GPS_HEADING
+#if AHRS_TYPE == AHRS_TYPE_ICQ
+    ahrs_update_heading(ANGLE_BFP_OF_REAL(aos.ltp_to_imu_euler.psi));
+#endif
+#if AHRS_TYPE == AHRS_TYPE_FCQ
+    ahrs_update_heading(aos.ltp_to_imu_euler.psi);
+#endif
+#endif
+
 #ifndef DISABLE_ALIGNEMENT
   }
 #endif

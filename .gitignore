@@ -1,5 +1,5 @@
 # ignore html dir for github pages
-/html
+/doc/html
 
 *.so
 *.[oa]
@@ -19,6 +19,13 @@
 *.depend
 
 *.aux
+
+# Eclipse IDE project files
+*.cproject
+*.project
+*.externalToolBuilders
+/build.properties
+/META-INF
 
 # Debian related files
 *.deb

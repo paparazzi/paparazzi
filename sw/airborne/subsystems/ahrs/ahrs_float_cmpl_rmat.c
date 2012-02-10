@@ -291,7 +291,48 @@ void ahrs_update_gps(void) {
     ahrs_impl.ltp_vel_norm_valid = FALSE;
   }
 #endif
+
+#if AHRS_USE_GPS_HEADING && USE_GPS
+  //got a 3d fix and ground speed is more than 0.5 m/s
+  if(gps.fix == GPS_FIX_3D && gps.gspeed>= 500) {
+    // gps.course is in rad * 1e7, we need it in rad
+    float course = gps.course / 1e7;
+    ahrs_update_course(course);
+  }
+#endif
 }
+
+
+/** Update yaw based on a heading measurement.
+ * e.g. from GPS course
+ * @param heading Heading in radians (CW/north)
+ */
+void ahrs_update_heading(float heading) {
+
+  FLOAT_ANGLE_NORMALIZE(heading);
+
+  // row 0 of ltp_to_body_rmat = body x-axis in ltp frame
+  // we only consider x and y
+  struct FloatVect2 expected_ltp =
+    { RMAT_ELMT(ahrs_float.ltp_to_body_rmat, 0, 0),
+      RMAT_ELMT(ahrs_float.ltp_to_body_rmat, 0, 1) };
+
+  // expected_heading cross measured_heading
+  struct FloatVect3 residual_ltp =
+    { 0,
+      0,
+      expected_ltp.x * sinf(heading) - expected_ltp.y * cosf(heading)};
+
+  struct FloatVect3 residual_imu;
+  FLOAT_RMAT_VECT3_MUL(residual_imu, ahrs_float.ltp_to_imu_rmat, residual_ltp);
+
+  const float heading_rate_update_gain = 2.5;
+  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, heading_rate_update_gain);
+
+  const float mag_bias_update_gain = -2.5e-4;
+  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, mag_bias_update_gain);
+}
+
 
 /*
  * Compute ltp to imu rotation in euler angles and quaternion representations

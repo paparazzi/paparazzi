@@ -28,7 +28,7 @@
 
 #include BOARD_CONFIG
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "lisa/lisa_overo_link.h"
 
 #include "my_debug_servo.h"

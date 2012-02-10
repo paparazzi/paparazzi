@@ -76,6 +76,26 @@ extern struct Imu imu;
 
 extern void imu_init(void);
 
+
+#if !defined IMU_BODY_TO_IMU_PHI && !defined IMU_BODY_TO_IMU_THETA && !defined IMU_BODY_TO_IMU_PSI
+#define IMU_BODY_TO_IMU_PHI   0
+#define IMU_BODY_TO_IMU_THETA 0
+#define IMU_BODY_TO_IMU_PSI   0
+#endif
+
+#if !defined IMU_GYRO_P_NEUTRAL && !defined IMU_GYRO_Q_NEUTRAL && !defined IMU_GYRO_R_NEUTRAL
+#define IMU_GYRO_P_NEUTRAL 0
+#define IMU_GYRO_Q_NEUTRAL 0
+#define IMU_GYRO_R_NEUTRAL 0
+#endif
+
+#if !defined IMU_ACCEL_X_NEUTRAL && !defined IMU_ACCEL_Y_NEUTRAL && !defined IMU_ACCEL_Z_NEUTRAL
+#define IMU_ACCEL_X_NEUTRAL 0
+#define IMU_ACCEL_Y_NEUTRAL 0
+#define IMU_ACCEL_Z_NEUTRAL 0
+#endif
+
+
 #ifndef ImuScaleGyro
 #define ImuScaleGyro(_imu) {					\
     RATES_COPY(_imu.gyro_prev, _imu.gyro);				\

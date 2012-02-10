@@ -89,7 +89,7 @@
       DOWNLINK_SEND_ATTITUDE(_trans, _dev, &estimator_phi, &estimator_psi, &estimator_theta); \
 })
 
-#define PERIODIC_SEND_PPRZ_MODE(_trans, _dev) DOWNLINK_SEND_PPRZ_MODE(_trans, _dev, &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
+
 #define PERIODIC_SEND_DESIRED(_trans, _dev) DOWNLINK_SEND_DESIRED(_trans, _dev, &h_ctl_roll_setpoint, &h_ctl_pitch_loop_setpoint, &h_ctl_course_setpoint, &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint);
 
 #if USE_INFRARED
@@ -116,9 +116,15 @@
   DownlinkSendWp(_trans, _dev, i);	    \
 }
 
-#ifdef RADIO_CONTROL_SETTINGS
+#if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
+#include "rc_settings.h"
+#define PERIODIC_SEND_PPRZ_MODE(_trans, _dev) DOWNLINK_SEND_PPRZ_MODE(_trans, _dev, &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
 #define PERIODIC_SEND_SETTINGS(_trans, _dev) if (!RcSettingsOff()) DOWNLINK_SEND_SETTINGS(_trans, _dev, &slider_1_val, &slider_2_val);
 #else
+#define PERIODIC_SEND_PPRZ_MODE(_trans, _dev) {                         \
+    uint8_t rc_settings_mode_none = 0;                                  \
+    DOWNLINK_SEND_PPRZ_MODE(_trans, _dev, &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode_none, &mcu1_status); \
+  }
 #define PERIODIC_SEND_SETTINGS(_trans, _dev) {}
 #endif
 
@@ -230,6 +236,16 @@
 #define PERIODIC_SEND_SCP_STATUS(_trans, _dev) DOWNLINK_SEND_SCP_STATUS(_trans, _dev, &baro_scp_pressure, &baro_scp_temperature)
 #else
 #define PERIODIC_SEND_SCP_STATUS(_trans, _dev) {}
+#endif
+
+#ifdef BOARD_HAS_BARO
+#define PERIODIC_SEND_BARO_RAW(_trans, _dev) {  \
+    DOWNLINK_SEND_BARO_RAW(_trans, _dev,        \
+                           &baro.absolute,      \
+                           &baro.differential); \
+  }
+#else
+#define PERIODIC_SEND_BARO_RAW(_trans, _dev) {}
 #endif
 
 #ifdef MEASURE_AIRSPEED

@@ -24,7 +24,7 @@
 #include <inttypes.h>
 
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "interrupt_hw.h"
 #include "mcu_periph/uart.h"
 
@@ -67,7 +67,7 @@ static inline void main_periodic_task( void ) {
 
   RunOnceEvery(10, {radio_control_periodic_task();});
 
-  int16_t foo = 0;//RC_PPM_SIGNED_TICS_OF_USEC(2050-1500);
+  int16_t foo = 0;//RC_PPM_SIGNED_TICKS_OF_USEC(2050-1500);
   RunOnceEvery(10,
     {DOWNLINK_SEND_ROTORCRAFT_RADIO_CONTROL(DefaultChannel, DefaultDevice,	\
 				       &radio_control.values[RADIO_ROLL], \

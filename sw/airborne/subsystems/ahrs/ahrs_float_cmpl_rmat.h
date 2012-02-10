@@ -45,6 +45,7 @@ struct AhrsFloatCmplRmat {
 
 extern struct AhrsFloatCmplRmat ahrs_impl;
 
+void ahrs_update_heading(float heading);
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
 // TODO copy ahrs to state instead of estimator

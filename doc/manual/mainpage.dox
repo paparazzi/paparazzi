@@ -1,0 +1,29 @@
+/** @mainpage Paparazzi Developer's Guide
+
+Welcome to the Paparazzi Developer's Guide -- the developer's resource for
+learning about the internal architecture of the Paparazzi project. @par
+
+Developers that want to contribute to Paparazzi should read the following
+sections before starting work:
+
+- The @subpage styleguide provides rules that developers should
+  follow when writing new code for Paparazzi.
+
+@ref primer provide introductory materials for new developers on various
+specific topics.
+
+
+ */
+
+/** @page primer Paparazzi Technical Primers
+
+This pages lists Technical Primers available for Paparazzi Developers.
+They seek to provide information to pull novices up the learning curves
+associated with the fundamental technologies used by Paparazzi.
+
+- TODO
+
+
+Contributions or suggestions for new Technical Primers are welcome.
+
+ */
