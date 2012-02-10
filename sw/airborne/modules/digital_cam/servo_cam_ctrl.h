@@ -99,6 +99,8 @@ static inline void dc_send_command(uint8_t cmd)
       DC_PUSH(DC_POWER_SERVO);
       break;
 #endif
+    default:
+      break;
   }
 }
 
