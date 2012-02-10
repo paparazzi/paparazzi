@@ -13,13 +13,15 @@
     <define name="USE_BARO_AS_ALTIMETER"/>
     <raw>
 ifeq ($(BOARD), navgo)
-ap.CFLAGS += -DUSE_I2C1 -DUSE_ADS1114_1
-ap.CFLAGS += -DADS1114_I2C_DEVICE=i2c1
-ap.srcs += peripherals/ads1114.c
+  ap.CFLAGS += -DUSE_I2C1 -DUSE_ADS1114_1
+  ap.CFLAGS += -DADS1114_I2C_DEVICE=i2c1
+  ap.srcs += peripherals/ads1114.c
 else ifeq ($(BOARD), umarim)
-ap.CFLAGS += -DUSE_I2C1 -DUSE_ADS1114_1
-ap.CFLAGS += -DADS1114_I2C_DEVICE=i2c1
-ap.srcs += peripherals/ads1114.c
+  ap.CFLAGS += -DUSE_I2C1 -DUSE_ADS1114_1
+  ap.CFLAGS += -DADS1114_I2C_DEVICE=i2c1
+  ap.srcs += peripherals/ads1114.c
+else ifeq ($(BOARD), lisa_l)
+  ap.CFLAGS += -DUSE_I2C2
 endif
     </raw>
   </makefile>
