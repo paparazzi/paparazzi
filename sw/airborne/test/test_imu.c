@@ -38,8 +38,6 @@
 
 #include "interrupt_hw.h"
 
-#include "my_debug_servo.h"
-
 static inline void main_init( void );
 static inline void main_periodic_task( void );
 static inline void main_event_task( void );
@@ -129,7 +127,7 @@ static inline void on_accel_event(void) {
 static inline void on_gyro_accel_event(void) {
   ImuScaleGyro(imu);
 
-  LED_TOGGLE(2);
+  RunOnceEvery(50, LED_TOGGLE(2));
   static uint8_t cnt;
   cnt++;
   if (cnt > 15) cnt = 0;
