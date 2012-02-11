@@ -102,21 +102,38 @@ static void configure(void)
   // -ext sync on gyro X (bit 3->6)
   // -digital low pass filter: 1kHz sampling of gyro/acc with 44Hz bandwidth: since reading is at 100Hz
 #if PERIODIC_FREQUENCY == 60
+// Accelerometer: Bandwidth 44Hz, Delay 4.9ms
+// Gyroscope: Bandwidth 42Hz, Delay 4.8ms sampling 1Khz
+#define MPU_DIG_FILTER 3
+// -100Hz output = 1kHz / (9 + 1)
+#define MPU_SMPLRT_DIV 9
 #else
 #  if PERIODIC_FREQUENCY == 120
+//   Accelerometer: Bandwidth 44Hz, Delay 4.9ms
+//   Gyroscope: Bandwidth 42Hz, Delay 4.8ms sampling 1Khz
+#    define MPU_DIG_FILTER 3
+//   -100Hz output = 1kHz / (9 + 1)
+#    define MPU_SMPLRT_DIV 9
 #  else
-#  error PERIODIC_FREQUENCY should be either 60Hz or 120Hz. Otherwise manually fix the sensor rates
+#    if PERIODIC_FREQUENCY == 512
+//     Accelerometer: Bandwidth 260Hz, Delay 0ms
+//     Gyroscope: Bandwidth 256Hz, Delay 0.89ms sampling 8Khz
+#      define MPU_DIG_FILTER 0
+//     -500Hz output = 1kHz / (1 + 1)
+#      define MPU_SMPLRT_DIV 1
+#    else
+#    error PERIODIC_FREQUENCY should be either 60Hz, 120Hz or 512Hz. Otherwise manually fix the sensor rates
+#    endif
 #  endif
 #endif
   aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_CONFIG;
-  aspirin2_mpu60x0.mosi_buf[1] = (2 << 3) | (3 << 0);
+  aspirin2_mpu60x0.mosi_buf[1] = (2 << 3) | (MPU_DIG_FILTER << 0);
   spi_rw(&aspirin2_mpu60x0);
     while(aspirin2_mpu60x0.status != SPITransSuccess);
 
   // MPU60X0_REG_SMPLRT_DIV
-  // -100Hz output = 1kHz / (9 + 1)
   aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_SMPLRT_DIV;
-  aspirin2_mpu60x0.mosi_buf[1] = 9;
+  aspirin2_mpu60x0.mosi_buf[1] = MPU_SMPLRT_DIV;
   spi_rw(&aspirin2_mpu60x0);
     while(aspirin2_mpu60x0.status != SPITransSuccess);
 
