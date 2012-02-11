@@ -142,6 +142,8 @@ ap.srcs += $(SRC_BOARD)/baro_board.c
 ifeq ($(BOARD), booz)
 else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
+else ifeq ($(BOARD), lisa_m)
+ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), navgo)
 ap.CFLAGS += -DUSE_I2C1
 ap.CFLAGS += -DADS1114_I2C_DEVICE=i2c1
