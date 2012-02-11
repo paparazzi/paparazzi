@@ -107,6 +107,7 @@ static inline void main_event_task( void ) {
 static inline void on_accel_event(void) {
   ImuScaleAccel(imu);
 
+  RunOnceEvery(50, LED_TOGGLE(3));
   static uint8_t cnt;
   cnt++;
   if (cnt > 15) cnt = 0;
