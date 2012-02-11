@@ -79,7 +79,7 @@ static inline void main_periodic_task( void ) {
 				       &radio_control.status);});
 #ifdef RADIO_CONTROL_TYPE_PPM
   RunOnceEvery(10,
-	       {uint8_t blaa = 0; DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice,&blaa, 8, booz_radio_control_ppm_pulses);});
+	       {uint8_t blaa = 0; DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice,&blaa, 8, ppm_pulses);});
 #endif
 
   LED_PERIODIC();
