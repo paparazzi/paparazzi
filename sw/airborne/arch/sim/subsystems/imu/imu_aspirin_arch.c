@@ -29,25 +29,43 @@ void imu_aspirin_arch_init(void) {
 
 }
 
-void imu_periodic(void) {
-
-}
 
 #if USE_NPS
 #include "nps_sensors.h"
 
 void imu_feed_gyro_accel(void) {
 
-  /* do something similar to this, fill imu_aspirin.i2c_trans_gyro and
-   * imu_aspirin.accel_rx_buf
-   */
-  max1168_values[IMU_GYRO_P_CHAN]  = sensors.gyro.value.x;
-  max1168_values[IMU_GYRO_Q_CHAN]  = sensors.gyro.value.y;
-  max1168_values[IMU_GYRO_R_CHAN]  = sensors.gyro.value.z;
-  max1168_values[IMU_ACCEL_X_CHAN] = sensors.accel.value.x;
-  max1168_values[IMU_ACCEL_Y_CHAN] = sensors.accel.value.y;
-  max1168_values[IMU_ACCEL_Z_CHAN] = sensors.accel.value.z;
-  max1168_status = STA_MAX1168_DATA_AVAILABLE;
+#if 1
+  // the high byte is in buf[0], low byte in buf[1], etc.
+  imu_aspirin.i2c_trans_gyro.buf[0] = ((int16_t)sensors.gyro.value.x) >> 8;
+  imu_aspirin.i2c_trans_gyro.buf[1] = ((int16_t)sensors.gyro.value.x) & 0xff;
+  imu_aspirin.i2c_trans_gyro.buf[2] = ((int16_t)sensors.gyro.value.y) >> 8;
+  imu_aspirin.i2c_trans_gyro.buf[3] = ((int16_t)sensors.gyro.value.y) & 0xff;
+  imu_aspirin.i2c_trans_gyro.buf[4] = ((int16_t)sensors.gyro.value.z) >> 8;
+  imu_aspirin.i2c_trans_gyro.buf[5] = ((int16_t)sensors.gyro.value.z) & 0xff;
+
+  // low byte in buf[1], high byte in buf[2], etc...
+  imu_aspirin.accel_rx_buf[1] = ((int16_t)sensors.accel.value.x) & 0xff;
+  imu_aspirin.accel_rx_buf[2] = ((int16_t)sensors.accel.value.x) >> 8;
+  imu_aspirin.accel_rx_buf[3] = ((int16_t)sensors.accel.value.y) & 0xff;
+  imu_aspirin.accel_rx_buf[4] = ((int16_t)sensors.accel.value.y) >> 8;
+  imu_aspirin.accel_rx_buf[5] = ((int16_t)sensors.accel.value.z) & 0xff;
+  imu_aspirin.accel_rx_buf[6] = ((int16_t)sensors.accel.value.z) >> 8;
+
+  // set availability flags...
+  imu_aspirin.accel_available = true;
+
+#else
+
+  RATES_ASSIGN(imu.gyro_unscaled, sensors.gyro.value.x, sensors.gyro.value.y, sensors.gyro.value.z);
+  VECT3_ASSIGN(imu.accel_unscaled, sensors.accel.value.x, sensors.accel.value.y, sensors.accel.value.z);
+
+  // set availability flags...
+  imu_aspirin.accel_available = true;
+  imu_aspirin.gyro_available_blaaa = true;
+
+#endif
+
 }
 
 

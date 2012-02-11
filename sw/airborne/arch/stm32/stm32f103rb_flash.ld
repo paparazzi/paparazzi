@@ -30,6 +30,8 @@ MEMORY
   FLASHB1 (rx) : ORIGIN = 0x00000000, LENGTH = 0
 }
 
+ENTRY(reset_handler_stage1);
+
 /* User mode stack top */
 _estack = 0x20005000;
 

@@ -9,7 +9,8 @@
 
 void   nps_sensor_accel_init(struct NpsSensorAccel* accel, double time) {
   FLOAT_VECT3_ZERO(accel->value);
-  accel->resolution = NPS_ACCEL_RESOLUTION;
+  accel->min = NPS_ACCEL_MIN;
+  accel->max = NPS_ACCEL_MAX;
   FLOAT_MAT33_DIAG(accel->sensitivity,
 		   NPS_ACCEL_SENSITIVITY_XX, NPS_ACCEL_SENSITIVITY_YY, NPS_ACCEL_SENSITIVITY_ZZ);
   VECT3_ASSIGN(accel->neutral,
@@ -65,7 +66,7 @@ void   nps_sensor_accel_run_step(struct NpsSensorAccel* accel, double time, stru
   /* round signal to account for adc discretisation */
   DOUBLE_VECT3_ROUND(accel->value);
   /* saturate                                       */
-  VECT3_BOUND_CUBE(accel->value, 0, accel->resolution);
+  VECT3_BOUND_CUBE(accel->value, accel->min, accel->max);
 
   accel->next_update += NPS_ACCEL_DT;
   accel->data_available = TRUE;

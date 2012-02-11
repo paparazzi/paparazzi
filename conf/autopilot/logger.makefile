@@ -32,7 +32,7 @@ ifeq ($(ARCH), lpc21)
 
 
 ap.CFLAGS += -DUSE_LED
-ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c $(SRC_FIRMWARE)/main_logger.c
+ap.srcs = mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c $(SRC_FIRMWARE)/main_logger.c
 
 #choose one
 ap.CFLAGS += -DLOG_XBEE

@@ -22,6 +22,7 @@ extern float sim_phi;
 extern float sim_theta;
 extern float sim_p;
 extern float sim_q;
+extern float sim_r;
 
 void ArduIMU_init( void ) {}
 void ArduIMU_periodic( void ) {
@@ -30,6 +31,7 @@ void ArduIMU_periodic( void ) {
   estimator_theta = sim_theta - ins_pitch_neutral;
   estimator_p = sim_p;
   estimator_q = sim_q;
+  estimator_r = sim_r;
 }
 void ArduIMU_periodicGPS( void ) {}
 void ArduIMU_event( void ) {}

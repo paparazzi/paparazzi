@@ -1,7 +1,6 @@
 /*
- * $Id$
  *
- * Copyright (C) 2003  Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2003-2011 Pascal Brisset, Antoine Drouin
  *
  * This file is part of paparazzi.
  *
@@ -33,12 +32,10 @@
 #include "generated/flight_plan.h"
 #include "estimator.h"
 #include "inter_mcu.h"
-#include "subsystems/nav.h"
 
-#define MIN_PPRZ_CAM ((int16_t)(MAX_PPRZ * 0.05))
-#define DELTA_ALPHA 0.2
-
-#define MAX_CAM_ROLL M_PI/2
+#ifndef CAM_PHI_MAX
+#define CAM_PHI_MAX RadOfDeg(45)
+#endif
 
 float cam_roll_phi; /* radian */
 float phi_c; /* radian */
@@ -73,7 +70,7 @@ void cam_periodic( void ) {
   default:
     phi_c = 0;
   }
-  ap_state->commands[COMMAND_CAM_ROLL] = TRIM_PPRZ(phi_c * MAX_PPRZ / RadOfDeg(CAM_PHI_MAX_DEG));
+  ap_state->commands[COMMAND_CAM_ROLL] = TRIM_PPRZ(phi_c * MAX_PPRZ / CAM_PHI_MAX);
 }
 
 #endif // MOBILE_CAM

@@ -7,6 +7,7 @@
 <!ATTLIST process
   name CDATA #REQUIRED
   channel CDATA "DefaultChannel"
+  device CDATA "DefaultDevice"
 >
 <!ATTLIST mode
   name CDATA #REQUIRED

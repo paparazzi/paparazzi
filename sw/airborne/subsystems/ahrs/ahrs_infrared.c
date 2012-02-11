@@ -22,6 +22,7 @@
 #include "subsystems/ahrs/ahrs_infrared.h"
 
 #include "subsystems/sensors/infrared.h"
+#include "subsystems/imu.h"
 #include "subsystems/gps.h"
 
 #include "estimator.h"
@@ -52,6 +53,15 @@ void ahrs_align(void) {
 }
 
 void ahrs_propagate(void) {
+#ifdef ADC_CHANNEL_GYRO_P
+  ahrs_float.body_rate.p = RATE_FLOAT_OF_BFP(imu.gyro.p);
+#endif
+#ifdef ADC_CHANNEL_GYRO_Q
+  ahrs_float.body_rate.q = RATE_FLOAT_OF_BFP(imu.gyro.q);
+#endif
+#ifdef ADC_CHANNEL_GYRO_R
+  ahrs_float.body_rate.r = RATE_FLOAT_OF_BFP(imu.gyro.r);
+#endif
 }
 
 void ahrs_update_accel(void) {
@@ -111,5 +121,6 @@ void ahrs_update_fw_estimator(void)
 
   estimator_p = ahrs_float.body_rate.p;
   estimator_q = ahrs_float.body_rate.q;
+  estimator_r = ahrs_float.body_rate.r;
 
 }

@@ -26,9 +26,9 @@
 
 #include "std.h"
 #include "mcu.h"
-#include "sys_time.h"
-#include "downlink.h"
-#include "datalink.h"
+#include "mcu_periph/sys_time.h"
+#include "subsystems/datalink/downlink.h"
+#include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
 
 #include "mcu_periph/uart.h"
@@ -49,7 +49,7 @@ float setting_d;
 int main( void ) {
   main_init();
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic();
     main_event();
   }
@@ -60,7 +60,7 @@ int main( void ) {
 static inline void main_init( void ) {
 
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   settings_init();
   //  DEBUG_SERVO2_INIT();
   //  LED_ON(1);
@@ -75,7 +75,7 @@ static inline void main_init( void ) {
 static inline void main_periodic( void ) {
 
   RunOnceEvery(100, {
-      DOWNLINK_SEND_ALIVE(DefaultChannel,  16, MD5SUM);
+      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice,  16, MD5SUM);
       PeriodicSendDlValue(DefaultChannel);
     });
 
@@ -101,7 +101,7 @@ void dl_parse_msg(void) {
       uint8_t i = DL_SETTING_index(dl_buffer);
       float val = DL_SETTING_value(dl_buffer);
       DlSetting(i, val);
-      DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &val);
+      DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
     }
     break;
   default:

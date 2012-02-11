@@ -63,8 +63,8 @@
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="RadOfDeg(50)"/>
-    <define name="MAX_PITCH" value="RadOfDeg(35)"/>
+    <define name="MAX_ROLL" value="50" unit="deg"/>
+    <define name="MAX_PITCH" value="35" unit="deg"/>
   </section>
 
   <section name="INFRARED" prefix="IR_">
@@ -125,9 +125,9 @@
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-0.9"/>
-    <define name="ROLL_MAX_SETPOINT" value="0.70" unit="radians"/> <!-- 0.5 -->
-    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.70" unit="rad"/> <!-- 0.5 -->
+    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
     <define name="ROLL_PGAIN" value="6600."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>

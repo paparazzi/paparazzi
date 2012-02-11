@@ -30,9 +30,10 @@
 
 #include BOARD_CONFIG
 #include "mcu.h"
-#include "sys_time.h"
-#include "downlink.h"
+#include "mcu_periph/sys_time.h"
+#include "subsystems/datalink/downlink.h"
 #include "peripherals/ms2100.h"
+#include "led.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -44,7 +45,7 @@ int main(void) {
   main_init();
 
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -55,7 +56,7 @@ int main(void) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   ms2100_init();
   main_spi2_init();
 }
@@ -63,7 +64,7 @@ static inline void main_init( void ) {
 static inline void main_periodic_task( void ) {
   RunOnceEvery(10,
 	       {
-		 DOWNLINK_SEND_BOOT(DefaultChannel, &cpu_time_sec);
+		 DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &cpu_time_sec);
 		 LED_PERIODIC();
 	       });
 
@@ -82,7 +83,7 @@ static inline void main_periodic_task( void ) {
 static inline void main_event_task( void ) {
   if (ms2100_status == MS2100_DATA_AVAILABLE) {
     RunOnceEvery(10, {
-	DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
+	DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
 				  &ms2100_values[0],
 				  &ms2100_values[1],
 				  &ms2100_values[2]);

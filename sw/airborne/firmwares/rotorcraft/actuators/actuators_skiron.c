@@ -24,7 +24,7 @@
 
 #include "firmwares/rotorcraft/commands.h"
 #include "mcu_periph/i2c.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 
 struct ActuatorsSkiron actuators_skiron;
@@ -45,7 +45,7 @@ void actuators_init(void) {
     actuators_skiron.actuators_idx[i] = actuators_idx[i];
   }
 
-#if defined BOOZ_START_DELAY && ! defined SITL
+#if defined ACTUATORS_START_DELAY && ! defined SITL
   actuators_delay_done = FALSE;
   SysTimeTimerStart(actuators_delay_time);
 #else
@@ -56,9 +56,9 @@ void actuators_init(void) {
 }
 
 void actuators_set(bool_t motors_on) {
-#if defined BOOZ_START_DELAY && ! defined SITL
+#if defined ACTUATORS_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {
-    if (SysTimeTimer(actuators_delay_time) < SYS_TICS_OF_SEC(BOOZ_START_DELAY)) return;
+    if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) return;
     else actuators_delay_done = TRUE;
   }
 #endif

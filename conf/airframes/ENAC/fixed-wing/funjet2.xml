@@ -19,13 +19,6 @@
     </load>
     <load name="infrared_i2c.xml"/>
     <load name="pbn.xml"/>
-    <!--load name="airspeed_adc.xml">
-      <configure name="ADC_AIRSPEED" value="ADC_4"/>
-      <define name="AIRSPEED_SCALE" value="1"/>
-      <define name="AIRSPEED_BIAS" value="0"/>
-    </load-->
-    <!--load name="airspeed_ets.xml"/>
-    <load name="baro_ets.xml"/-->
   </modules>
 
   <firmware name="fixedwing">
@@ -35,22 +28,21 @@
     <define name="LOITER_TRIM"/>
 
     <target name="sim" board="pc"/>
-    <target name="ap" board="tiny_2.11">
-      <configure name="FLASH_MODE" value="IAP"/>
-    </target>
+    <target name="ap" board="tiny_2.11"/>
 
     <subsystem name="radio_control" type="ppm"/>
     <!--subsystem name="joystick"/-->
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="transparent"/>
+    <subsystem name="telemetry"     type="transparent"/>
 
     <!-- Actuators are automatically chosen according to board-->
     <subsystem name="control"/>
+    <subsystem name="ahrs"          type="infrared"/>
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="gyro" type="roll">
-      <configure name="ADC_GYRO_ROLL" value="ADC_5"/>
+    <subsystem name="gps"           type="ublox"/>
+    <subsystem name="imu"		        type="analog">
+      <configure name="GYRO_P" value="ADC_5" />
     </subsystem>
 
     <subsystem name="current_sensor">
@@ -60,13 +52,12 @@
     <subsystem name="navigation"/>
   </firmware>
 
-
   <firmware name="setup">
     <target name="tunnel" board="tiny_2.11"/>
     <target name="setup_actuators" board="tiny_2.11"/>
   </firmware>
 
-<!-- commands section -->
+
   <servos>
     <servo name="MOTOR" no="0" min="1040" neutral="1040" max="2000"/>
     <servo name="AILEVON_LEFT" no="2" min="1900" neutral="1500" max="1050"/>
@@ -122,12 +113,14 @@
     <define name="PITCH_NEUTRAL_DEFAULT" value="2." unit="deg"/>
   </section>
 
-  <section name="GYRO" prefix="GYRO_">
-    <define name="ADC_ROLL_NEUTRAL" value="487"/>
-    <define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+1.8))"/>
-    <define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/>
-    <define name="ROLL_SCALE" value="3.3*1000./1024./(GYRO_ADXRS300_SENSITIVITY*GYRO_ADXRS300_RESISTOR_BRIDGE)" unit="deg/s/adc_unit"/>
-    <define name="ROLL_DIRECTION" value="1."/>
+  <!-- Gyro sensitivity : -->
+  <!-- GYRO_ADXRS300_RESISTOR_BRIDGE value="(3.3/(3.3+1.8))" -->
+  <!-- GYRO_ADXRS300_SENSITIVITY value="5" unit="mV/(deg/s)" -->
+  <!-- ROLL_SCALE value="RadOfDeg(3.3*1000./1024./(GYRO_ADXRS300_SENSITIVITY*GYRO_ADXRS300_RESISTOR_BRIDGE))" unit="rad/s/adc_unit" -->
+  <section name="IMU" prefix="IMU_">
+    <define name="GYRO_P_SIGN"  value="1"/>
+    <define name="GYRO_P_NEUTRAL" value="487"/>
+    <define name="GYRO_P_SENS" value="0.0173851" integer="16"/>
   </section>
 
   <section name="BAT">
@@ -178,9 +171,9 @@
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-1."/>
-    <define name="ROLL_MAX_SETPOINT" value="0.8" unit="radians"/>
-    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.8" unit="rad"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
     <define name="ROLL_ATTITUDE_GAIN" value="-9000."/>
     <define name="ROLL_RATE_GAIN" value="-3000."/>

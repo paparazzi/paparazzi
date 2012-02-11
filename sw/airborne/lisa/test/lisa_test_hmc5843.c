@@ -35,9 +35,10 @@
 
 #include BOARD_CONFIG
 #include "mcu.h"
-#include "sys_time.h"
-#include "downlink.h"
+#include "mcu_periph/sys_time.h"
+#include "subsystems/datalink/downlink.h"
 #include "std.h"
+#include "led.h"
 
 #include "mcu_periph/uart.h"
 #include "peripherals/hmc5843.h"
@@ -66,7 +67,7 @@ int main(void) {
   main_init();
 
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -76,7 +77,7 @@ int main(void) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   main_init_hw();
 }
 
@@ -84,12 +85,12 @@ static inline void main_periodic_task( void ) {
   //  LED_TOGGLE(6);
   RunOnceEvery(10,
   {
-    DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+    DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
     LED_PERIODIC();
   });
   RunOnceEvery(256,
     {
-      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel,
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
 			       &i2c2_errors.ack_fail_cnt,
 			       &i2c2_errors.miss_start_stop_cnt,
 			       &i2c2_errors.arb_lost_cnt,
@@ -165,10 +166,10 @@ static inline void main_event_task( void ) {
       int16_t mz   = i2c_trans.buf[4]<<8 | i2c_trans.buf[5];
       struct Int32Vect3 m;
       VECT3_ASSIGN(m, mx, my, mz);
-      DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, &m.x, &m.y, &m.z);
+      DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &m.x, &m.y, &m.z);
       //      uint8_t tmp[8];
       //      memcpy(tmp, i2c2.buf, 8);
-      //      DOWNLINK_SEND_DEBUG(DefaultChannel, 8, tmp);
+      //      DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice, 8, tmp);
     }
 		 );
     reading_mag = FALSE;

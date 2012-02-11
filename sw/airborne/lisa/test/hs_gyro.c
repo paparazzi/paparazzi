@@ -25,11 +25,11 @@
 
 #include "std.h"
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "subsystems/imu.h"
 
@@ -51,7 +51,7 @@ static inline void on_mag_event(void);
 int main( void ) {
   main_init();
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -61,7 +61,7 @@ int main( void ) {
 static inline void main_init( void ) {
 
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   imu_init();
 
   mcu_int_enable();
@@ -70,7 +70,7 @@ static inline void main_init( void ) {
 static inline void main_periodic_task( void ) {
   RunOnceEvery(100, {
       LED_TOGGLE(3);
-      DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
     });
   imu_periodic();
   RunOnceEvery(10, { LED_PERIODIC();});
@@ -101,11 +101,11 @@ static inline void on_gyro_accel_event(void) {
   if (cnt > NB_SAMPLES) cnt = 0;
   samples[cnt] = imu.MEASURED_SENSOR;
   if (cnt == NB_SAMPLES-1) {
-    DOWNLINK_SEND_IMU_HS_GYRO(DefaultChannel, &axis, NB_SAMPLES, samples);
+    DOWNLINK_SEND_IMU_HS_GYRO(DefaultChannel, DefaultDevice, &axis, NB_SAMPLES, samples);
   }
 
   if (cnt == 10) {
-    DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,
+    DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice,
 			       &imu.gyro_unscaled.p,
 			       &imu.gyro_unscaled.q,
 			       &imu.gyro_unscaled.r);

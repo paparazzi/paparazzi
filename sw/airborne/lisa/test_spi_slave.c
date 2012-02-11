@@ -27,8 +27,9 @@
 
 #include BOARD_CONFIG
 #include "mcu.h"
-#include "sys_time.h"
-#include "downlink.h"
+#include "mcu_periph/sys_time.h"
+#include "subsystems/datalink/downlink.h"
+#include "led.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -41,7 +42,7 @@ int main(void) {
   main_init();
 
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -52,7 +53,7 @@ int main(void) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   main_spi_slave_init();
 }
 
@@ -65,7 +66,7 @@ static inline void main_periodic_task( void ) {
     GPIOC->BSRR = GPIO_Pin_4;
   foo = !foo;
 #endif
-  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(DefaultChannel, &cpu_time_sec);});
+  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &cpu_time_sec);});
   LED_PERIODIC();
 }
 
@@ -129,7 +130,7 @@ void spi1_irq_handler(void) {
   SPI_I2S_SendData(SPI1, cnt);
   cnt++;
   LED_TOGGLE(3);
-  DOWNLINK_SEND_DEBUG_MCU_LINK(DefaultChannel, &foo, &foo, &cnt);
+  DOWNLINK_SEND_DEBUG_MCU_LINK(DefaultChannel, DefaultDevice, &foo, &foo, &cnt);
 
 
 }

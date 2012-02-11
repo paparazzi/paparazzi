@@ -44,37 +44,6 @@
     <define name="MAX_PITCH" value="0.6"/>
   </section>
 
-  <section name="INFRARED" prefix="IR_">
-    <define name="ADC_IR1_NEUTRAL" value="2048"/>
-    <define name="ADC_IR2_NEUTRAL" value="2048"/>
-    <define name="ADC_TOP_NEUTRAL" value="2048"/>
-
-    <define name="LATERAL_CORRECTION" value="1."/>
-    <define name="LONGITUDINAL_CORRECTION" value="1."/>
-    <define name="VERTICAL_CORRECTION" value="1.5"/>
-
-    <define name="HORIZ_SENSOR_TILTED" value="1"/>
-    <define name="IR2_SIGN" value="-1"/>
-    <define name="TOP_SIGN" value="-1"/>
-
-    <define name="ROLL_NEUTRAL_DEFAULT" value="-3.6" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="5" unit="deg"/>
-
-    <define name="CORRECTION_UP" value="1."/>
-    <define name="CORRECTION_DOWN" value="1."/>
-    <define name="CORRECTION_LEFT" value="1."/>
-    <define name="CORRECTION_RIGHT" value="1."/>
-  </section>
-
-  <section name="GYRO" prefix="GYRO_">
-    <define name="ADC_ROLL_NEUTRAL" value="500"/>
-    <define name="DYNAMIC_RANGE" value="300" unit="deg/s"/>
-    <define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+1.8))"/>
-    <define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/>
-    <define name="ROLL_SCALE" value="3.3*1000./1024./(GYRO_ADXRS300_SENSITIVITY*GYRO_ADXRS300_RESISTOR_BRIDGE)" unit="deg/s/adc_unit"/>
-    <define name="ROLL_DIRECTION" value="1."/>
-  </section>
-
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="2000"/>
 
@@ -92,9 +61,6 @@
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
 
-    <define name="GLIDE_AIRSPEED" value="10"/>
-    <define name="GLIDE_VSPEED" value="3."/>
-    <define name="GLIDE_PITCH" value="45" unit="deg"/>
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -121,9 +87,9 @@
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-1.4"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="0.6" unit="radians"/>
-    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.6" unit="rad"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
     <define name="PITCH_PGAIN" value="-12000."/>
     <define name="PITCH_DGAIN" value="1.5"/>
@@ -156,8 +122,8 @@
 
   <section name="SIMU">
     <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
-    <define name="JSBSIM_IR_ROLL_NEUTRAL" value="RadOfDeg(0.)"/>
-    <define name="JSBSIM_IR_PITCH_NEUTRAL" value="RadOfDeg(0.)"/>
+    <define name="JSBSIM_IR_ROLL_NEUTRAL" value="0." unit="deg"/>
+    <define name="JSBSIM_IR_PITCH_NEUTRAL" value="0." unit="deg"/>
   </section>
 
   <section name="INS" prefix="INS_">
@@ -188,8 +154,7 @@
     </subsystem>
 
     <subsystem name="control"/>
-    <!-- Sensors
-    <subsystem name="gyro"          type="roll"/> -->
+    <!-- Sensors -->
     <subsystem name="gps" 		    type="ublox_utm"/>
     <subsystem name="navigation"/>
 

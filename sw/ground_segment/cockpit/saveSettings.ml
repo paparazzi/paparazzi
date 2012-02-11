@@ -43,21 +43,12 @@ let floats_not_equal = fun f1 f2 ->
   let r = abs_float (f1 /. f2) in
   r < 0.999 || r > 1.001
 
-(* Unit conversions *)
-let scale_of_units = fun u1 u2  ->
-  match u1, u2 with
-    "deg", "rad" -> 180. /. Latlong.pi
-  | "rad", "deg" -> Latlong.pi /. 180.
-  | u1, u2 when u1 = u2 -> 1.
-  | _ -> invalid_arg (Printf.sprintf "SaveSettings.scale_of_units %s %s" u1 u2)
-
-
 
 (** The save file dialog box *)
 let save_airframe = fun w filename save ->
   match GToolbox.select_file ~title:"Save Airframe" ~filename () with
-    None -> ()
-  | Some file ->
+      None -> ()
+    | Some file ->
       save file;
       w#save_settings#destroy ()
 
@@ -77,7 +68,7 @@ let display_columns = fun w model ->
     let renderer = GTree.cell_renderer_text [`XALIGN 0.] in
     let vc = GTree.view_column ~title ~renderer:(renderer, ["text", col]) () in
     vc#set_clickable true;
-  ignore (w#treeview_settings#append_column vc))
+    ignore (w#treeview_settings#append_column vc))
     text_columns;
   let renderer = GTree.cell_renderer_toggle [`XALIGN 0.] in
   let vc = GTree.view_column ~renderer:(renderer, ["active", col_to_save]) () in
@@ -117,13 +108,13 @@ let write_xml = fun (model:GTree.tree_store) old_file airframe_xml file ->
 
 
 let send_airframe_values = fun (model:GTree.tree_store) send_value ->
-   model#foreach (fun _path row ->
-     if model#get ~row ~column:col_to_save then begin
-       let index = model#get ~row ~column:col_index
-       and airframe_value = model#get ~row ~column:col_airframe_value in
-       send_value index airframe_value
-     end;
-     false)
+  model#foreach (fun _path row ->
+    if model#get ~row ~column:col_to_save then begin
+      let index = model#get ~row ~column:col_index
+      and airframe_value = model#get ~row ~column:col_airframe_value in
+      send_value index airframe_value
+    end;
+    false)
 
 
 
@@ -135,18 +126,28 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
       let param = attrib "param" in
       let (airframe_value, unit) = EditAirframe.get airframe_xml param in
       let scale =
-	try
-	  let unit_setting = attrib "unit"
-	  and unit_airframe =
-	    match unit with Some u -> u | None -> raise Exit in
-	  scale_of_units unit_setting unit_airframe
-	with
-	  _ -> 1. in
+        try
+          let unit_setting = attrib "unit"
+          and unit_airframe =
+            match unit with Some u -> u | None -> raise Exit in
+          Pprz.scale_of_units unit_setting unit_airframe
+        with
+            _ -> 1. in
+      let val_list = Str.split (Str.regexp "[ ()]+") airframe_value in
+      let (scale_macros, str_val) = List.partition (fun x -> Str.string_match (Str.regexp "RadOfDeg\\|DegOfRad") x 0) val_list in
+      let extra_scale =
+        try
+          match (List.hd scale_macros) with
+              "RadOfDeg" -> Latlong.pi /. 180.
+            | "DegOfRad" -> 180. /. Latlong.pi
+            | _ -> 1.
+        with
+            _ -> 1. in
       let scaled_value =
-	try
-	  float_of_string airframe_value *. scale
-	with
-	  Failure "float_of_string" -> raise (EditAirframe.No_param param)
+        try
+          float_of_string (List.hd str_val) *. scale *. extra_scale
+        with
+            Failure "float_of_string" -> raise (EditAirframe.No_param param)
       in
 
       let row = model#append () in
@@ -157,9 +158,9 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
       model#set ~row ~column:col_settings_scaled_value (value /. scale);
       model#set ~row ~column:col_to_save (floats_not_equal scaled_value value)
     with
-      Xml.No_attribute _ -> ()
-    | EditAirframe.No_param param ->
-	not_in_airframe_file := param :: !not_in_airframe_file ) (* Not savable *)
+        Xml.No_attribute _ -> ()
+      | EditAirframe.No_param param ->
+        not_in_airframe_file := param :: !not_in_airframe_file ) (* Not savable *)
     settings;
 
   (* Warning if needed *)

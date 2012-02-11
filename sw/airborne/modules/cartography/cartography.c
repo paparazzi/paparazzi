@@ -87,9 +87,9 @@ uint16_t railnumberSinceBoot=1; //used to count the number of rails the plane ha
 //the number 1 is reserved for snapshot fonctions that take only one image, the 2-65535 numbers are used to number the following sequences
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-#define USE_ONBOARD_CAMERA
+#define USE_ONBOARD_CAMERA 1
 
-#ifdef USE_ONBOARD_CAMERA
+#if USE_ONBOARD_CAMERA
 uint16_t camera_snapshot_image_number=0;
 #endif
 
@@ -141,7 +141,7 @@ bool_t ProjectionInsideLimitOfRail;
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "mcu_periph/uart.h"
 #include "std.h"
 
@@ -152,7 +152,7 @@ void init_carto(void) {
 }
 
 void periodic_downlink_carto(void) {
-	DOWNLINK_SEND_CAMERA_SNAPSHOT(DefaultChannel,&camera_snapshot_image_number);
+	DOWNLINK_SEND_CAMERA_SNAPSHOT(DefaultChannel, DefaultDevice,&camera_snapshot_image_number);
 }
 
 void start_carto(void) {

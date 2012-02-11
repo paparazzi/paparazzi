@@ -29,11 +29,11 @@
 #include "std.h"
 
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "interrupt_hw.h"
 #include "mcu_periph/uart.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "generated/periodic.h"
 #include "generated/airframe.h"
 #include "commands.h"
@@ -42,7 +42,7 @@
 #include "csc_telemetry.h"
 #include "led.h"
 
-#include "pprz_transport.h"
+#include "subsystems/datalink/pprz_transport.h"
 
 #define RC_PROTOCOL_SYNC 13999
 

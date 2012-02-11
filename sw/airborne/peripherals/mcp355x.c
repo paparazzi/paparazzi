@@ -51,7 +51,7 @@ void mcp355x_read(void) {
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 void mcp355x_event(void) {
   static uint32_t filtered = 0;
@@ -65,8 +65,8 @@ void mcp355x_event(void) {
           ((uint32_t)mcp355x_spi_buf[2]<<1) |
           (mcp355x_spi_buf[3]>>7));
       filtered = (5*filtered + mcp355x_data) / (6);
-      DOWNLINK_SEND_DEBUG(DefaultChannel,4,mcp355x_spi_buf);
-      DOWNLINK_SEND_BARO_RAW(DefaultChannel,&mcp355x_data,&filtered);
+      DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,4,mcp355x_spi_buf);
+      DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice,&mcp355x_data,&filtered);
     }
   }
 }

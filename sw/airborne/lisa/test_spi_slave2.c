@@ -28,9 +28,10 @@
 
 #include BOARD_CONFIG
 #include "mcu.h"
-#include "sys_time.h"
-#include "downlink.h"
+#include "mcu_periph/sys_time.h"
+#include "subsystems/datalink/downlink.h"
 #include "fms/fms_autopilot_msg.h"
+#include "led.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -49,7 +50,7 @@ int main(void) {
   main_init();
 
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -60,14 +61,14 @@ int main(void) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   main_spi_slave_init();
 }
 
 static inline void main_periodic_task( void ) {
   RunOnceEvery(10,
 	       {
-		 DOWNLINK_SEND_BOOT(DefaultChannel, &cpu_time_sec);
+		 DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &cpu_time_sec);
 		 LED_PERIODIC();
 	       });
 
@@ -78,7 +79,7 @@ static inline void main_event_task( void ) {
 #ifdef USE_DMA
   if (DMA_GetFlagStatus(DMA1_FLAG_TC2)) {
     LED_TOGGLE(3);
-    RunOnceEvery(10, {DOWNLINK_SEND_DEBUG_MCU_LINK(DefaultChannel, &SPI_SLAVE_Buffer_Rx[0],
+    RunOnceEvery(10, {DOWNLINK_SEND_DEBUG_MCU_LINK(DefaultChannel, DefaultDevice, &SPI_SLAVE_Buffer_Rx[0],
 						    &SPI_SLAVE_Buffer_Rx[1], &SPI_SLAVE_Buffer_Rx[2]);});
     memcpy(SPI_SLAVE_Buffer_Tx, SPI_SLAVE_Buffer_Rx, BufferSize);
     main_setup_dma();

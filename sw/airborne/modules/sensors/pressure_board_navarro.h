@@ -54,6 +54,6 @@ extern void pbn_read_event( void );
 
 #define PbnEvent() { if (pbn_trans.status == I2CTransSuccess) pbn_read_event(); }
 
-#define PERIODIC_SEND_PBN(_chan) DOWNLINK_SEND_PBN(DefaultChannel,&airspeed_adc,&altitude_adc,&pbn_airspeed,&pbn_altitude,&airspeed_offset,&altitude_offset);
+#define PERIODIC_SEND_PBN(_chan) DOWNLINK_SEND_PBN(DefaultChannel, DefaultDevice,&airspeed_adc,&altitude_adc,&pbn_airspeed,&pbn_altitude,&airspeed_offset,&altitude_offset);
 
 #endif // PRESSURE_BOARD_NAVARRO_H

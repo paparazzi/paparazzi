@@ -17,8 +17,8 @@
       <dl_setting MAX="1000" MIN="0" STEP="1" VAR="stage_time"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="launch"/>
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="kill_throttle"/>
-      <dl_setting MAX="2" MIN="0" STEP="1" VAR="telemetry_mode_Ap_DefaultChannel" shortname="tele_AP" module="downlink" values="Default|Minimal|Extremal"/>
-      <dl_setting MAX="1" MIN="0" STEP="1" VAR="telemetry_mode_Fbw_DefaultChannel" shortname="tele_FBW" module="downlink" values="Default|Debug"/>
+      <dl_setting MAX="2" MIN="0" STEP="1" VAR="telemetry_mode_Ap_DefaultChannel" shortname="tele_AP" module="firmwares/fixedwing/ap_downlink" values="Default|Minimal|Extremal"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="telemetry_mode_Fbw_DefaultChannel" shortname="tele_FBW" module="firmwares/fixedwing/fbw_downlink" values="Default|Debug"/>
       <dl_setting MAX="2" MIN="0" STEP="1" VAR="gps.reset" module="subsystems/gps" handler="Reset" shortname="GPS reset"/>
 
       <dl_setting MAX="200" MIN="-200" STEP="10" VAR="nav_radius" module="subsystems/nav" handler="SetNavRadius">
@@ -31,8 +31,8 @@
 
     <dl_settings NAME="control">
       <dl_settings NAME="ir">
-        <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="infrared.roll_neutral" shortname="roll_neutral" param="IR_ROLL_NEUTRAL_DEFAULT" unit="rad"/>
-        <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="infrared.pitch_neutral" shortname="pitch_neutral" param="IR_PITCH_NEUTRAL_DEFAULT" unit="rad"/>
+        <dl_setting MAX="15" MIN="-15" STEP="0.5" VAR="infrared.roll_neutral" shortname="roll_neutral" param="IR_ROLL_NEUTRAL_DEFAULT" unit="rad" alt_unit="deg"/>
+        <dl_setting MAX="15" MIN="-15" STEP="0.5" VAR="infrared.pitch_neutral" shortname="pitch_neutral" param="IR_PITCH_NEUTRAL_DEFAULT" unit="rad" alt_unit="deg"/>
 
         <dl_setting MAX="1.5" MIN="0." STEP="0.1" VAR="infrared.lateral_correction" shortname="360_lat_corr" module="subsystems/sensors/infrared" param="IR_LATERAL_CORRECTION"/>
         <dl_setting MAX="1.5" MIN="0." STEP="0.1" VAR="infrared.longitudinal_correction" shortname="360_log_corr" param="IR_LONGITUDINAL_CORRECTION"/>

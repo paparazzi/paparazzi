@@ -15,7 +15,7 @@
 #include "generated/airframe.h"
 
 #include "fms_periodic.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "udp_transport.h"
 #include "fms_network.h"
 #include "fms_spi_link.h"

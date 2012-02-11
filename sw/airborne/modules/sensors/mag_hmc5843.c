@@ -21,7 +21,7 @@
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include <math.h>
 
 #include "../../peripherals/hmc5843.h"
@@ -46,7 +46,7 @@ void hmc5843_module_periodic ( void )
   mag_x = hmc5843.data.value[0];
   mag_y = hmc5843.data.value[1];
   mag_z = hmc5843.data.value[2];
-  RunOnceEvery(30,DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,&mag_x,&mag_y,&mag_z));
+  RunOnceEvery(30,DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,&mag_x,&mag_y,&mag_z));
 }
 
 void hmc5843_module_event( void )

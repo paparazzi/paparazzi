@@ -1,14 +1,14 @@
 #include "std.h"
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "interrupt_hw.h"
 #include "mcu_periph/uart.h"
 
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 #include "generated/settings.h"
 #include "dl_protocol.h"
 

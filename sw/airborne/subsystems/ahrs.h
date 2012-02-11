@@ -121,5 +121,6 @@ extern void ahrs_update_accel(void);
  *  Needs to be implemented by each AHRS algorithm.
  */
 extern void ahrs_update_mag(void);
+extern void ahrs_update_gps(void);
 
 #endif /* AHRS_H */

@@ -159,8 +159,8 @@
   </section>
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="RadOfDeg(75)"/>
-    <define name="MAX_PITCH" value="RadOfDeg(45)"/>
+    <define name="MAX_ROLL" value="75" unit="deg"/>
+    <define name="MAX_PITCH" value="45" unit="deg"/>
   </section>
 
   <section name="BAT">
@@ -245,9 +245,6 @@
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
 
 <!-- The Glide definitions are used for calculating the touch down point during auto landing -->
-    <define name="GLIDE_AIRSPEED" value="10"/>
-    <define name="GLIDE_VSPEED" value="3."/>
-    <define name="GLIDE_PITCH" value="45" unit="deg"/>
   </section>
 
 <!-- ******************* VERTICAL CONTROL ********************************** -->
@@ -279,9 +276,9 @@
     <define name="COURSE_DGAIN" value="0.280999988317"/>
     <define name="COURSE_PRE_BANK_CORRECTION" value="1.0039999485"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="0.851999998093" unit="radians"/>
-    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.851999998093" unit="rad"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
     <define name="PITCH_PGAIN" value="-15429.6865234"/>
     <define name="PITCH_DGAIN" value="7.73400020599"/>

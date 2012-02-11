@@ -1,6 +1,8 @@
 /* Definitions and declarations required to compile autopilot code on a
    i386 architecture. Bindings for OCaml. */
 
+#define MODULES_C
+
 #include <stdio.h>
 #include <assert.h>
 #include <sys/time.h>
@@ -21,8 +23,10 @@
 #include "firmwares/fixedwing/main_ap.h"
 #include "ap_downlink.h"
 #include "sim_uart.h"
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 #include "generated/flight_plan.h"
+
+#include "generated/modules.h"
 
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
@@ -35,7 +39,7 @@ uint8_t vertical_mode;
 uint8_t inflight_calib_mode;
 bool_t rc_event_1, rc_event_2;
 bool_t launch;
-uint8_t gps_nb_ovrn, modem_nb_ovrn, link_fbw_fbw_nb_err, link_fbw_nb_err;
+uint8_t gps_nb_ovrn, link_fbw_fbw_nb_err, link_fbw_nb_err;
 float alt_roll_pgain;
 float roll_rate_pgain;
 bool_t gpio1_status;
@@ -46,10 +50,23 @@ uint16_t datalink_time = 0;
 uint8_t ac_id;
 
 value sim_periodic_task(value unit) {
-  periodic_task_ap();
+  sensors_task();
+  attitude_loop();
+  reporting_task();
+  modules_periodic_task();
   periodic_task_fbw();
   event_task_ap();
   event_task_fbw();
+  return unit;
+}
+
+value sim_monitor_task(value unit) {
+  monitor_task();
+  return unit;
+}
+
+value sim_nav_task(value unit) {
+  navigation_task();
   return unit;
 }
 

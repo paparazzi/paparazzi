@@ -139,7 +139,7 @@ void pbn_read_event( void ) {
       pbn_altitude = PBN_ALTITUDE_SCALE*(float)(altitude_adc-altitude_offset);
 
       pbn_airspeed = (airspeed_filter*pbn_airspeed + tmp_airspeed) / (airspeed_filter + 1.);
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
       EstimatorSetAirspeed(pbn_airspeed);
 #endif
       //alt_kalman(pbn_altitude);

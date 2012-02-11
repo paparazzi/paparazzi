@@ -68,17 +68,16 @@ ifeq ($(TARGET), sim)
 endif
 
 
-sim.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
-# -DTIME_LED=1
+sim.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 #sim.CFLAGS += -DUSE_LED
-sim.srcs += sys_time.c
+sim.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 sim.srcs += subsystems/settings.c
 sim.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 
 sim.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
 sim.srcs += $(SRC_FIRMWARE)/telemetry.c \
-            downlink.c \
+            subsystems/datalink/downlink.c \
             $(SRC_ARCH)/ivy_transport.c
 
 sim.srcs   += $(SRC_FIRMWARE)/commands.c

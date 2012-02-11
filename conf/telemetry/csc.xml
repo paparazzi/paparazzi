@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
-<telemetry>
-  <process name="Ap">
-    <mode name="default">
-      <message name="BOOZ2_GPS"      period="0.1"/>
-    </mode>
-  </process>
-</telemetry>

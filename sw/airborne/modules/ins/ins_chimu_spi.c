@@ -1,5 +1,5 @@
 /*
-C code to connect a CHIMU using uart
+  C code to connect a CHIMU using uart
 */
 
 
@@ -22,7 +22,7 @@ C code to connect a CHIMU using uart
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "ins_module.h"
 #include "imu_chimu.h"
@@ -71,28 +71,23 @@ void ins_init( void )
 
 void parse_ins_msg( void )
 {
-  while (InsLink(ChAvailable()))
-  {
+  while (InsLink(ChAvailable())) {
     uint8_t ch = InsLink(Getch());
 
-    if (CHIMU_Parse(ch, 0, &CHIMU_DATA))
-    {
-    RunOnceEvery(25, LED_TOGGLE(3) );
-      if(CHIMU_DATA.m_MsgID==CHIMU_Msg_3_IMU_Attitude)
-      {
-    new_ins_attitude = 1;
-    if (CHIMU_DATA.m_attitude.euler.phi > M_PI)
-    {
-      CHIMU_DATA.m_attitude.euler.phi -= 2 * M_PI;
-    }
+    if (CHIMU_Parse(ch, 0, &CHIMU_DATA)) {
+      RunOnceEvery(25, LED_TOGGLE(3) );
+      if(CHIMU_DATA.m_MsgID==CHIMU_Msg_3_IMU_Attitude) {
+        new_ins_attitude = 1;
+        if (CHIMU_DATA.m_attitude.euler.phi > M_PI) {
+          CHIMU_DATA.m_attitude.euler.phi -= 2 * M_PI;
+        }
 
-    EstimatorSetAtt(CHIMU_DATA.m_attitude.euler.phi, CHIMU_DATA.m_attitude.euler.psi, CHIMU_DATA.m_attitude.euler.theta);
-    EstimatorSetRate(CHIMU_DATA.m_sensor.rate[0],CHIMU_DATA.m_attrates.euler.theta);
+        EstimatorSetAtt(CHIMU_DATA.m_attitude.euler.phi, CHIMU_DATA.m_attitude.euler.psi, CHIMU_DATA.m_attitude.euler.theta);
+        EstimatorSetRate(CHIMU_DATA.m_sensor.rate[0],CHIMU_DATA.m_attrates.euler.theta,0.); // FIXME rate r
       }
-      else if(CHIMU_DATA.m_MsgID==0x02)
-      {
+      else if(CHIMU_DATA.m_MsgID==0x02) {
 
-    RunOnceEvery(25,DOWNLINK_SEND_AHRS_EULER(DefaultChannel, &CHIMU_DATA.m_sensor.rate[0], &CHIMU_DATA.m_sensor.rate[1], &CHIMU_DATA.m_sensor.rate[2]));
+        RunOnceEvery(25,DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &CHIMU_DATA.m_sensor.rate[0], &CHIMU_DATA.m_sensor.rate[1], &CHIMU_DATA.m_sensor.rate[2]));
 
       }
     }
@@ -100,16 +95,14 @@ void parse_ins_msg( void )
 }
 
 
-//Frequency defined in conf *.xml
-void ins_periodic_task( void )
+void ahrs_update_gps( void )
 {
   // Send SW Centripetal Corrections
   uint8_t centripedal[19] = {0xae, 0xae, 0x0d, 0xaa, 0x0b, 0x02,   0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00,   0x00, 0x00, 0x00, 0x00,   0xc2 };
 
   float gps_speed = 0;
 
-  if (gps.fix == GPS_FIX_3D)
-  {
+  if (gps.fix == GPS_FIX_3D) {
     gps_speed = gps.speed_3d/100.;
   }
   gps_speed = FloatSwap(gps_speed);
@@ -123,3 +116,9 @@ void ins_periodic_task( void )
 
   // Downlink Send
 }
+
+//Frequency defined in conf *.xml
+void ins_periodic_task( void )
+{
+}
+

@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Paparazzi; see the file COPYING.  If not, write to
 # the Free Software Foundation, 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.  
+# Boston, MA 02111-1307, USA.
 #
 
 #import os
@@ -75,7 +75,7 @@ def run_simulation(ahrs_type, build_opt, traj_nb):
 #        print fields
             for i, number in enumerate(fields):
                 data[i].append(number)
-            
+
     print
     for i in xrange(len(mydescr)):
         data[i] = cast[mydescr[i]](data[i])

@@ -8,7 +8,8 @@
 
 void  nps_sensor_gyro_init(struct NpsSensorGyro* gyro, double time) {
   FLOAT_VECT3_ZERO(gyro->value);
-  gyro->resolution = NPS_GYRO_RESOLUTION;
+  gyro->min = NPS_GYRO_MIN;
+  gyro->max = NPS_GYRO_MAX;
   FLOAT_MAT33_DIAG(gyro->sensitivity,
 		   NPS_GYRO_SENSITIVITY_PP, NPS_GYRO_SENSITIVITY_QQ, NPS_GYRO_SENSITIVITY_RR);
   VECT3_ASSIGN(gyro->neutral,
@@ -54,7 +55,7 @@ void nps_sensor_gyro_run_step(struct NpsSensorGyro* gyro, double time, struct Do
   /* round signal to account for adc discretisation */
   DOUBLE_VECT3_ROUND(gyro->value);
   /* saturate                                       */
-  VECT3_BOUND_CUBE(gyro->value, 0, gyro->resolution);
+  VECT3_BOUND_CUBE(gyro->value, gyro->min, gyro->max);
 
   gyro->next_update += NPS_GYRO_DT;
   gyro->data_available = TRUE;

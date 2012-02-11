@@ -53,6 +53,7 @@ float estimator_theta;
 /* rates in radians per second */
 float estimator_p;
 float estimator_q;
+float estimator_r;
 
 /* flight time in seconds */
 uint16_t estimator_flight_time;
@@ -74,18 +75,12 @@ float estimator_AOA;
   }
 
 
-// FIXME maybe vz = -climb for NED??
 #define EstimatorSetSpeedCart(vx, vy, vz) { \
   estimator_vx = vx; \
   estimator_vy = vy; \
   estimator_vz = vz; \
 }
-//  estimator_hspeed_mod = sqrt( estimator_vx * estimator_vx + estimator_vy * estimator_vy);
-//  estimator_hspeed_dir = atan2(estimator_vy, estimator_vx);
 
-
-//FIXME is this true ?? estimator_vx = estimator_hspeed_mod * cos(estimator_hspeed_dir);
-//FIXME is this true ?? estimator_vy = estimator_hspeed_mod * sin(estimator_hspeed_dir);
 
 void estimator_init( void ) {
 
@@ -96,11 +91,7 @@ void estimator_init( void ) {
 
   EstimatorSetSpeedPol ( 0., 0., 0.);
 
-  EstimatorSetRate(0., 0.);
-
-#ifdef USE_AIRSPEED
-  EstimatorSetAirspeed( 0. );
-#endif
+  EstimatorSetRate(0., 0., 0.);
 
 #ifdef USE_AOA
   EstimatorSetAOA( 0. );
@@ -108,14 +99,10 @@ void estimator_init( void ) {
 
   estimator_flight_time = 0;
 
-  estimator_airspeed = NOMINAL_AIRSPEED;
+  // FIXME? Set initial airspeed to zero if USE_AIRSPEED ?
+  EstimatorSetAirspeed( NOMINAL_AIRSPEED );
 }
 
-
-
-void estimator_propagate_state( void ) {
-
-}
 
 bool_t alt_kalman_enabled;
 
@@ -151,13 +138,13 @@ void alt_kalman(float gps_z) {
   float R;
   float SIGMA2;
 
-#ifdef USE_BARO_MS5534A
+#if USE_BARO_MS5534A
   if (alt_baro_enabled) {
     DT = BARO_DT;
     R = baro_MS5534A_r;
     SIGMA2 = baro_MS5534A_sigma2;
   } else
-#elif defined(USE_BARO_ETS)
+#elif USE_BARO_ETS
   if (baro_ets_enabled) {
     DT = BARO_ETS_DT;
     R = baro_ets_r;
@@ -203,7 +190,7 @@ void alt_kalman(float gps_z) {
   }
 
 #ifdef DEBUG_ALT_KALMAN
-  DOWNLINK_SEND_ALT_KALMAN(&(p[0][0]),&(p[0][1]),&(p[1][0]), &(p[1][1]));
+  DOWNLINK_SEND_ALT_KALMAN(DefaultChannel,DefaultDevice,&(p[0][0]),&(p[0][1]),&(p[1][0]), &(p[1][1]));
 #endif
 }
 
@@ -229,8 +216,5 @@ void estimator_update_state_gps( void ) {
 
   // Heading estimation now in ahrs_infrared
 
-#ifdef EXTRA_DOWNLINK_DEVICE
-    DOWNLINK_SEND_ATTITUDE(ExtraPprzTransport,&estimator_phi,&estimator_psi,&estimator_theta);
-#endif
 }
 

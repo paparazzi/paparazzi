@@ -70,8 +70,8 @@ endif
 ifndef PERIODIC_FREQUENCY
 PERIODIC_FREQUENCY = 60
 endif
-$(TARGET).CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./$(PERIODIC_FREQUENCY).))' -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
-$(TARGET).srcs += sys_time.c
+$(TARGET).CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
+$(TARGET).srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 #
 # InterMCU & Commands
@@ -119,17 +119,14 @@ ns_srcs	   	+= $(SRC_FIRMWARE)/main.c
 # LEDs
 #
 ns_CFLAGS 		+= -DUSE_LED
-ifeq ($(ARCH), stm32)
-  ns_CFLAGS 	+= -DSYS_TIME_LED=1
-else
-  ns_CFLAGS 	+= -DTIME_LED=1
+ifneq ($(SYS_TIME_LED),none)
+  ns_CFLAGS 	+= -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
 
 #
 # Sys-time
 #
-ns_CFLAGS 		+= -DUSE_SYS_TIME
-ns_srcs 		+= $(SRC_ARCH)/sys_time_hw.c
+ns_CFLAGS 		+= -DUSE_SYS_TIME -DSYS_TIME_RESOLUTION='(1./$(PERIODIC_FREQUENCY).)'
 
 
 #
@@ -160,6 +157,7 @@ fbw_CFLAGS		+= -DFBW
 fbw_srcs 		+= $(SRC_FIRMWARE)/main_fbw.c
 fbw_srcs 		+= subsystems/electrical.c
 fbw_srcs 		+= $(SRC_FIXEDWING)/commands.c
+fbw_srcs		+= $(SRC_FIRMWARE)/fbw_downlink.c
 
 ######################################################################
 ##
@@ -169,6 +167,7 @@ fbw_srcs 		+= $(SRC_FIXEDWING)/commands.c
 ap_CFLAGS 		+= -DAP
 ap_srcs 		+= $(SRC_FIRMWARE)/main_ap.c
 ap_srcs 		+= $(SRC_FIXEDWING)/estimator.c
+ap_srcs			+= $(SRC_FIRMWARE)/ap_downlink.c
 
 
 ######################################################################
@@ -189,7 +188,7 @@ sim.CFLAGS 		+= -DSITL
 sim.srcs 		+= $(SRC_ARCH)/sim_ap.c
 
 sim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
-sim.srcs 		+= downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c
+sim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/sim_adc_generic.c
 
 sim.srcs 		+= subsystems/settings.c
 sim.srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
@@ -217,7 +216,7 @@ jsbsim.CFLAGS 		+= -I$(SIMDIR) -I/usr/include -I$(JSBSIM_INC) -I$(OCAMLLIBDIR) `
 jsbsim.LDFLAGS		+= `pkg-config glib-2.0 --libs` -lglibivy -lm -L/usr/lib -lJSBSim
 
 jsbsim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
-jsbsim.srcs 		+= downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_ir.c $(SRC_ARCH)/jsbsim_gps.c $(SRC_ARCH)/jsbsim_ahrs.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/jsbsim_transport.c
+jsbsim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_ir.c $(SRC_ARCH)/jsbsim_gps.c $(SRC_ARCH)/jsbsim_ahrs.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/jsbsim_transport.c
 
 jsbsim.srcs 		+= subsystems/settings.c
 jsbsim.srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c

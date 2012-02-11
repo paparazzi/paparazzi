@@ -3,7 +3,7 @@
 
 #include "generated/airframe.h"
 #include "firmwares/rotorcraft/actuators.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "csc_ap_link.h"
 #include "csc_msg_def.h"
 

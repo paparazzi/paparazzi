@@ -25,11 +25,11 @@
 
 #include "std.h"
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "subsystems/imu.h"
 #include "subsystems/ahrs.h"
@@ -49,7 +49,7 @@ static inline void on_mag_event(void);
 int main( void ) {
   main_init();
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -59,7 +59,7 @@ int main( void ) {
 static inline void main_init( void ) {
 
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   imu_init();
   ahrs_aligner_init();
   ahrs_init();
@@ -118,49 +118,49 @@ static inline void main_report(void) {
 
   PeriodicPrescaleBy10(
 		       {
-			 DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,
+			 DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,
 						     &imu.accel_unscaled.x,
 						     &imu.accel_unscaled.y,
 						     &imu.accel_unscaled.z);
 		       },
 		       {
-			 DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,
+			 DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice,
 						    &imu.gyro_unscaled.p,
 						    &imu.gyro_unscaled.q,
 						    &imu.gyro_unscaled.r);
 		       },
 		       {
-			 DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
+			 DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
 						   &imu.mag_unscaled.x,
 						   &imu.mag_unscaled.y,
 						   &imu.mag_unscaled.z);
 		       },
 		       {
-			 DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel,
+			 DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel, DefaultDevice,
 						   &imu.accel.x,
 						   &imu.accel.y,
 						   &imu.accel.z);
 		       },
 		       {
-			 DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel,
+			 DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel, DefaultDevice,
 						  &imu.gyro.p,
 						  &imu.gyro.q,
 						  &imu.gyro.r);
 		       },
 
 		       {
-			 DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel,
+			 DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel, DefaultDevice,
 						 &imu.mag.x,
 						 &imu.mag.y,
 						 &imu.mag.z);
 		       },
 
 		       {
-			 DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+			 DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
 		       },
 		       {
 #ifdef USE_I2C2
-			 DOWNLINK_SEND_I2C_ERRORS(DefaultChannel,
+			 DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
 						  &i2c2_errors.ack_fail_cnt,
 						  &i2c2_errors.miss_start_stop_cnt,
 						  &i2c2_errors.arb_lost_cnt,
@@ -173,7 +173,7 @@ static inline void main_report(void) {
 #endif
 		       },
 		       {
-			 DOWNLINK_SEND_BOOZ2_AHRS_EULER(DefaultChannel,
+			 DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
 							&ahrs.ltp_to_imu_euler.phi,
 							&ahrs.ltp_to_imu_euler.theta,
 							&ahrs.ltp_to_imu_euler.psi,
@@ -182,7 +182,7 @@ static inline void main_report(void) {
 							&ahrs.ltp_to_body_euler.psi);
 		       },
 		       {
-			 DOWNLINK_SEND_BOOZ_AHRS_BIAS(DefaultChannel,
+			 DOWNLINK_SEND_AHRS_GYRO_BIAS_INT(DefaultChannel, DefaultDevice,
 						      &ahrs_impl.gyro_bias.p,
 						      &ahrs_impl.gyro_bias.q,
 						      &ahrs_impl.gyro_bias.r);

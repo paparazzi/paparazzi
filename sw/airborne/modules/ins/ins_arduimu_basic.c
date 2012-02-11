@@ -54,7 +54,7 @@
 #endif
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #endif
 
 struct i2c_transaction ardu_gps_trans;
@@ -108,7 +108,7 @@ void ArduIMU_periodicGPS( void ) {
 
   if (ardu_gps_trans.status != I2CTransDone) { return; }
 
-#ifdef USE_HIGH_ACCEL_FLAG
+#if USE_HIGH_ACCEL_FLAG
   // Test for high acceleration:
   //  - low speed
   //  - high thrust
@@ -189,12 +189,13 @@ void ArduIMU_event( void ) {
     estimator_theta = arduimu_eulers.theta - ins_pitch_neutral;
     estimator_p = arduimu_rates.p;
     estimator_q = arduimu_rates.q;
+    estimator_r = arduimu_rates.r;
     ardu_ins_trans.status = I2CTransDone;
 
 #ifdef ARDUIMU_SYNC_SEND
-    //RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, &arduimu_eulers.phi, &arduimu_eulers.theta, &arduimu_eulers.psi));
-    RunOnceEvery(15, DOWNLINK_SEND_IMU_GYRO(DefaultChannel, &arduimu_rates.p, &arduimu_rates.q, &arduimu_rates.r));
-    RunOnceEvery(15, DOWNLINK_SEND_IMU_ACCEL(DefaultChannel, &arduimu_accel.x, &arduimu_accel.y, &arduimu_accel.z));
+    //RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &arduimu_eulers.phi, &arduimu_eulers.theta, &arduimu_eulers.psi));
+    RunOnceEvery(15, DOWNLINK_SEND_IMU_GYRO(DefaultChannel, DefaultDevice, &arduimu_rates.p, &arduimu_rates.q, &arduimu_rates.r));
+    RunOnceEvery(15, DOWNLINK_SEND_IMU_ACCEL(DefaultChannel, DefaultDevice, &arduimu_accel.x, &arduimu_accel.y, &arduimu_accel.z));
 #endif
   }
   else if (ardu_ins_trans.status == I2CTransFailed) {

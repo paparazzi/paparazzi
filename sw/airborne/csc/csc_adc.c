@@ -9,7 +9,7 @@
 #include "mcu_periph/adc.h"
 #include ACTUATORS
 #include "csc_servos.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 #define ADC_NB_CSC 4
 

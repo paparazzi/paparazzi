@@ -3,7 +3,7 @@
 <flight_plan alt="420" ground_alt="360" lat0="50.230060" lon0="10.990449" max_dist_from_home="1500" name="Flugplatz Steinruecken" security_height="25"  QFU="210">
   <header>
 #include "subsystems/navigation/nav_line.h"
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>

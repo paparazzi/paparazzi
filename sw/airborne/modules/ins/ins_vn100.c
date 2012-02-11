@@ -31,7 +31,7 @@
 #include "generated/airframe.h"
 #include "led.h"
 
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "messages.h"
 
 /* neutrals */
@@ -186,10 +186,10 @@ void parse_ins_msg( void ) {
 #endif
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 extern void ins_report_task( void ) {
-  DOWNLINK_SEND_AHRS_LKF(DefaultChannel,
+  DOWNLINK_SEND_AHRS_LKF(DefaultChannel, DefaultDevice,
       &ins_eulers.phi, &ins_eulers.theta, &ins_eulers.psi,
       &ins_quat.qi, &ins_quat.qx, &ins_quat.qy, &ins_quat.qz,
       &ins_rates.p, &ins_rates.q, &ins_rates.r,

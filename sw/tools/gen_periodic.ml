@@ -39,7 +39,7 @@ let lprintf = fun c f ->
   fprintf c "%s" (String.make !margin ' ');
   fprintf c f
 
-let output_modes = fun avr_h process_name channel_name modes freq modules ->
+let output_modes = fun avr_h process_name channel_name device_name modes freq modules ->
   let min_period = 1./.float freq in
   let max_period = 65536. /. float freq in
   (** For each mode in this process *)
@@ -84,7 +84,7 @@ let output_modes = fun avr_h process_name channel_name modes freq modules ->
           l := (p, !phase) :: !l;
           i := !i + freq/10;
           right ();
-          lprintf avr_h "PERIODIC_SEND_%s(%s);\\\n" message_name channel_name;
+          lprintf avr_h "PERIODIC_SEND_%s(%s,%s);\\\n" message_name channel_name device_name;
           left ();
           lprintf avr_h "} \\\n"
         )
@@ -118,10 +118,11 @@ let _ =
   (** For each process *)
   List.iter
     (fun process ->
-      let process_name = ExtXml.attrib process "name" and
-      channel_name =  ExtXml.attrib process "channel" in
+      let process_name = ExtXml.attrib process "name"
+      and channel_name =  ExtXml.attrib_or_default process "channel" "DefaultChannel"
+      and device_name = ExtXml.attrib_or_default process "device" "DefaultDevice" in
 
-      fprintf avr_h "\n/* Macros for %s process channel %s */\n" process_name channel_name;
+      fprintf avr_h "\n/* Macros for %s process channel %s with device %s */\n" process_name channel_name device_name;
 
       let modes = Xml.children process in
 
@@ -140,9 +141,9 @@ let _ =
         incr i)
         modes;
 
-      lprintf avr_h "#define PeriodicSend%s(%s) {  /* %dHz */ \\\n" process_name channel_name freq;
+      lprintf avr_h "#define PeriodicSend%s(%s,%s) {  /* %dHz */ \\\n" process_name channel_name device_name freq;
       right ();
-      output_modes avr_h process_name channel_name modes freq modules_name;
+      output_modes avr_h process_name channel_name device_name modes freq modules_name;
       left ();
       lprintf avr_h "}\n"
     )

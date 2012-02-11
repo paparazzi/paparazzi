@@ -43,6 +43,8 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
 
   let servos_period = 1./.40. (* s *)
   let periodic_period = 1./.60. (* s *)
+  let nav_period = 1./.4. (* s *)
+  let monitor_period = 1. (* s *)
   let rc_period = 1./.40. (* s *)
 
   let msg = fun name ->
@@ -125,6 +127,8 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     window#show ()
 
   external periodic_task : unit -> unit = "sim_periodic_task"
+  external nav_task : unit -> unit = "sim_nav_task"
+  external monitor_task : unit -> unit = "sim_monitor_task"
   external sim_init : unit -> unit = "sim_init"
   external update_bat : int -> unit = "update_bat"
   external update_adc1 : int -> unit = "update_adc1"
@@ -177,6 +181,8 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
   let boot = fun time_scale ->
     Stdlib.timer ~scale:time_scale servos_period (update_servos bat_button);
     Stdlib.timer ~scale:time_scale periodic_period periodic_task;
+    Stdlib.timer ~scale:time_scale nav_period nav_task;
+    Stdlib.timer ~scale:time_scale monitor_period monitor_task;
 
     (* Forward or broacast messages according to "link" mode *)
     Hashtbl.iter
@@ -194,9 +200,11 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     (** ADC neutral is not taken into account in the soft sim (c.f. sim_ir.c)*)
     set_ir_and_airspeed (truncate ir_left) (truncate ir_front) (truncate ir_top) air_speed
 
-  external provide_attitude_and_rates : float -> float -> float -> float -> float -> unit = "provide_attitude_and_rates"
-  let attitude_and_rates = fun phi theta psi p q ->
-    provide_attitude_and_rates phi theta psi p q
+  external provide_attitude : float -> float -> float -> unit = "provide_attitude"
+  external provide_rates : float -> float -> float -> unit = "provide_rates"
+  let attitude_and_rates = fun phi theta psi p q r ->
+    provide_attitude phi theta psi;
+    provide_rates p q r
 
   external use_gps_pos: int -> int -> int -> float -> float -> float -> float -> float -> bool -> float -> float -> unit = "sim_use_gps_pos_bytecode" "sim_use_gps_pos"
   let gps = fun gps ->

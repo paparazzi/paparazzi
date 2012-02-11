@@ -27,11 +27,11 @@
 
 #include BOARD_CONFIG
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 int main_periodic(void);
 static inline void main_init( void );
@@ -47,7 +47,7 @@ extern uint8_t adc_new_data_trigger;
 
 static inline void main_init( void ) {
     mcu_init();
-    sys_time_init();
+    sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
     adc_init();
     adc_buf_channel(0, &adc0_buf, 8);
     adc_buf_channel(1, &adc1_buf, 3);
@@ -59,7 +59,7 @@ int main( void ) {
   main_init();
 
   while(1) {
-    if (sys_time_periodic()) {
+    if (sys_time_check_and_ack_timer(0)) {
       main_periodic_task();
     }
     main_event_task();
@@ -68,8 +68,8 @@ int main( void ) {
 }
 
 static inline void main_periodic_task( void ) {
-  RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
-  RunOnceEvery(100, {/*LED_TOGGLE(7);*/ DOWNLINK_SEND_TIME(DefaultChannel, &cpu_time_sec);});
+  RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
+  RunOnceEvery(100, {/*LED_TOGGLE(7);*/ DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &cpu_time_sec);});
   LED_PERIODIC();
 }
 
@@ -82,7 +82,7 @@ static inline void main_event_task( void ) {
     //    v1 = (((adc0_buf.values[0])));
     v1 = adc0_buf.sum/adc0_buf.av_nb_sample;
     v2 = (((adc3_buf.values[0])));
-    RunOnceEvery(100, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, &v1, &v2)});
+    RunOnceEvery(100, {DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, DefaultDevice, &v1, &v2)});
   }
 
 }

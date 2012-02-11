@@ -81,9 +81,6 @@
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
 
-    <define name="GLIDE_AIRSPEED" value="10"/>
-    <define name="GLIDE_VSPEED" value="3."/>
-    <define name="GLIDE_PITCH" value="45" unit="deg"/>
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -111,9 +108,9 @@
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-1.10800004005"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="0.6" unit="radians"/>
-    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.6" unit="rad"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
     <define name="PITCH_PGAIN" value="-15184.5644531"/>
     <define name="PITCH_DGAIN" value="1.5"/>

@@ -37,7 +37,7 @@
 
 #include "subsystems/nav.h"
 #include "math/pprz_geodetic_float.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 #define MTK_DIY_OUTPUT_RATE	MTK_DIY_OUTPUT_4HZ
 #define OUTPUT_RATE			4

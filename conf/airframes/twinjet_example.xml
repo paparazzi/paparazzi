@@ -22,7 +22,9 @@
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="control"/>
     <subsystem name="ahrs"      type="infrared"/>
-    <subsystem name="gyro"          type="roll"/>
+    <subsystem name="imu"       type="analog">
+      <configure name="GYRO_P" value="ADC_3"/>
+    </subsystem>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="navigation"/>
   </firmware>
@@ -99,18 +101,18 @@
     <define name="CORRECTION_RIGHT" value="1."/>
   </section>
 
-  <section name="GYRO" prefix="GYRO_">
-    <define name="ADC_ROLL_NEUTRAL" value="316"/>
-    <define name="ROLL_DIRECTION" value="1."/>
-    <define name="ROLL_SCALE" value="0.44"/>
+  <section name="IMU" prefix="IMU_">
+    <define name="GYRO_P_SIGN"  value="1."/>
+    <define name="GYRO_P_NEUTRAL" value="316"/>
+    <define name="GYRO_P_SENS" value="1." integer="16"/>
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-0.9"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="0.53" unit="radians"/>
-    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.53" unit="rad"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
     <define name="PITCH_PGAIN" value="-6000."/>
     <define name="PITCH_DGAIN" value="0."/>

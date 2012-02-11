@@ -44,9 +44,9 @@ static inline void compute_body_orientation(void);
 
 #define PI_INTEG_EULER     (INT32_ANGLE_PI * F_UPDATE)
 #define TWO_PI_INTEG_EULER (INT32_ANGLE_2_PI * F_UPDATE)
-#define INTEG_EULER_NORMALIZE(_a) {				\
-    while (_a >  PI_INTEG_EULER)  _a -= TWO_PI_INTEG_EULER;	\
-    while (_a < -PI_INTEG_EULER)  _a += TWO_PI_INTEG_EULER;	\
+#define INTEG_EULER_NORMALIZE(_a) {                         \
+    while (_a >  PI_INTEG_EULER)  _a -= TWO_PI_INTEG_EULER; \
+    while (_a < -PI_INTEG_EULER)  _a += TWO_PI_INTEG_EULER; \
   }
 
 void ahrs_init(void) {
@@ -78,7 +78,7 @@ void ahrs_align(void) {
 
   get_phi_theta_measurement_fom_accel(&ahrs_impl.hi_res_euler.phi, &ahrs_impl.hi_res_euler.theta, ahrs_aligner.lp_accel);
   get_psi_measurement_from_mag(&ahrs_impl.hi_res_euler.psi,
-			       ahrs_impl.hi_res_euler.phi/F_UPDATE, ahrs_impl.hi_res_euler.theta/F_UPDATE, ahrs_aligner.lp_mag);
+                               ahrs_impl.hi_res_euler.phi/F_UPDATE, ahrs_impl.hi_res_euler.theta/F_UPDATE, ahrs_aligner.lp_mag);
 
   EULERS_COPY(ahrs_impl.measure, ahrs_impl.hi_res_euler);
   EULERS_COPY(ahrs_impl.measurement, ahrs_impl.hi_res_euler);
@@ -99,7 +99,7 @@ void ahrs_align(void) {
 //#define USE_NOISE_FILTER 1
 #define NOISE_FILTER_GAIN 50
 
-#ifdef USE_NOISE_CUT
+#if USE_NOISE_CUT
 #include "led.h"
 static inline bool_t cut_rates (struct Int32Rates i1, struct Int32Rates i2, int32_t threshold) {
   struct Int32Rates diff;
@@ -150,19 +150,19 @@ void ahrs_propagate(void) {
   /* unbias gyro             */
   struct Int32Rates uf_rate;
   RATES_DIFF(uf_rate, imu.gyro, ahrs_impl.gyro_bias);
-#ifdef USE_NOISE_CUT
+#if USE_NOISE_CUT
   static struct Int32Rates last_uf_rate = { 0, 0, 0 };
   if (!cut_rates(uf_rate, last_uf_rate, RATE_CUT_THRESHOLD)) {
 #endif
     /* low pass rate */
-#ifdef USE_NOISE_FILTER
+#if USE_NOISE_FILTER
     RATES_SUM_SCALED(ahrs.imu_rate, ahrs.imu_rate, uf_rate, NOISE_FILTER_GAIN);
     RATES_SDIV(ahrs.imu_rate, ahrs.imu_rate, NOISE_FILTER_GAIN+1);
 #else
     RATES_ADD(ahrs.imu_rate, uf_rate);
     RATES_SDIV(ahrs.imu_rate, ahrs.imu_rate, 2);
 #endif
-#ifdef USE_NOISE_CUT
+#if USE_NOISE_CUT
   }
   RATES_COPY(last_uf_rate, uf_rate);
 #endif
@@ -199,18 +199,18 @@ void ahrs_propagate(void) {
 
 void ahrs_update_accel(void) {
 
-#if defined(USE_NOISE_CUT) || defined(USE_NOISE_FILTER)
+#if USE_NOISE_CUT || USE_NOISE_FILTER
   static struct Int32Vect3 last_accel = { 0, 0, 0 };
 #endif
-#ifdef USE_NOISE_CUT
+#if USE_NOISE_CUT
   if (!cut_accel(imu.accel, last_accel, ACCEL_CUT_THRESHOLD)) {
 #endif
-#ifdef USE_NOISE_FILTER
+#if USE_NOISE_FILTER
     VECT3_SUM_SCALED(imu.accel, imu.accel, last_accel, NOISE_FILTER_GAIN);
     VECT3_SDIV(imu.accel, imu.accel, NOISE_FILTER_GAIN+1);
 #endif
     get_phi_theta_measurement_fom_accel(&ahrs_impl.measurement.phi, &ahrs_impl.measurement.theta, imu.accel);
-#ifdef USE_NOISE_CUT
+#if USE_NOISE_CUT
   }
   VECT3_COPY(last_accel, imu.accel);
 #endif
@@ -221,6 +221,10 @@ void ahrs_update_accel(void) {
 void ahrs_update_mag(void) {
 
   get_psi_measurement_from_mag(&ahrs_impl.measurement.psi, ahrs.ltp_to_imu_euler.phi, ahrs.ltp_to_imu_euler.theta, imu.mag);
+
+}
+
+void ahrs_update_gps(void) {
 
 }
 
@@ -261,7 +265,7 @@ __attribute__ ((always_inline)) static inline void get_psi_measurement_from_mag(
   //  sphi_ctheta * imu.mag.y +
   //  cphi_ctheta * imu.mag.z;
   float m_psi = -atan2(me, mn);
-  *psi_meas = ((m_psi - RadOfDeg(ahrs_mag_offset))*(float)(1<<(INT32_ANGLE_FRAC))*F_UPDATE);
+  *psi_meas = ((m_psi - ahrs_mag_offset)*(float)(1<<(INT32_ANGLE_FRAC))*F_UPDATE);
 
 }
 
@@ -316,6 +320,7 @@ void ahrs_update_fw_estimator(void)
   RATES_FLOAT_OF_BFP(rates, ahrs.body_rate);
   estimator_p = rates.p;
   estimator_q = rates.q;
+  estimator_r = rates.r;
 
 }
 #endif //AHRS_UPDATE_FW_ESTIMATOR

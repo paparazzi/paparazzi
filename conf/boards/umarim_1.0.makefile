@@ -20,6 +20,30 @@ LPC21ISP_BAUD = 38400
 LPC21ISP_XTAL = 12000
 
 
+#
+# default LED configuration
+#
+ifndef RADIO_CONTROL_LED
+RADIO_CONTROL_LED  = none
+endif
+
+ifndef BARO_LED
+BARO_LED = none
+endif
+
+ifndef AHRS_ALIGNER_LED
+AHRS_ALIGNER_LED = none
+endif
+
+ifndef GPS_LED
+GPS_LED = 2
+endif
+
+ifndef SYS_TIME_LED
+SYS_TIME_LED = none
+endif
+
+
 ### default settings
 ifndef GPS_PORT
 GPS_PORT	= UART0
@@ -27,9 +51,6 @@ endif
 ifndef GPS_BAUD
 GPS_BAUD	= B38400
 endif
-GPS_LED     = 2
-
-RADIO_CONTROL_LED = none
 
 ifndef MODEM_PORT
 MODEM_PORT	= UART1

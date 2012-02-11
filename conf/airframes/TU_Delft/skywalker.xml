@@ -90,8 +90,8 @@
   </section>
 
   <section name="AUTO1" prefix="AUTO1_">
-    <define name="MAX_ROLL" value="RadOfDeg(75)"/>
-    <define name="MAX_PITCH" value="RadOfDeg(45)"/>
+    <define name="MAX_ROLL" value="75" unit="deg"/>
+    <define name="MAX_PITCH" value="45" unit="deg"/>
   </section>
 
   <section name="BAT">
@@ -117,9 +117,6 @@
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
 
-    <define name="GLIDE_AIRSPEED" value="10"/>
-    <define name="GLIDE_VSPEED" value="3."/>
-    <define name="GLIDE_PITCH" value="45" unit="deg"/>
 
     <define name="COMMAND_ROLL_TRIM" value="-2300" />
     <define name="COMMAND_PITCH_TRIM" value="1800" />
@@ -151,9 +148,9 @@
     <define name="COURSE_DGAIN" value="0.280999988317"/>
     <define name="COURSE_PRE_BANK_CORRECTION" value="1.0039999485"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="0.851999998093" unit="radians"/>
-    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.851999998093" unit="rad"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
     <define name="PITCH_PGAIN" value="-15429.6865234"/>
     <define name="PITCH_DGAIN" value="7.73400020599"/>
@@ -194,14 +191,12 @@
 
 
   <modules>
-<!--
     <load name="light.xml">
       <define name="LIGHT_LED_STROBE" value="3"/>
       <define name="LIGHT_LED_NAV" value="2"/>
       <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
       <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
     </load>
--->
 
 <!--    <load name="digital_cam_i2c.xml"/>  -->
   <!--    <load name="ins_ppzuavimu.xml"/>  -->

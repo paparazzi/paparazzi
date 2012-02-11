@@ -1,19 +1,9 @@
 
 #include "subsystems/sensors/baro.h"
 
-// Downlink
-#include "mcu_periph/uart.h"
-#include "messages.h"
-#include "downlink.h"
-
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-
 struct Baro baro;
 struct BaroBoard baro_board;
 struct i2c_transaction baro_trans;
-
 
 static inline void baro_board_write_to_register(uint8_t baro_addr, uint8_t reg_addr, uint8_t val_msb, uint8_t val_lsb);
 static inline void baro_board_read_from_register(uint8_t baro_addr, uint8_t reg_addr);
@@ -30,11 +20,6 @@ void baro_init(void) {
   baro.absolute     = 0;
   baro.differential = 0;
   baro_board.status = LBS_UNINITIALIZED;
-}
-
-void baro_downlink_raw( void )
-{
-  DOWNLINK_SEND_BARO_RAW(DefaultChannel,&baro.absolute,&baro.differential);
 }
 
 

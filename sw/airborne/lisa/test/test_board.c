@@ -31,11 +31,11 @@
 #include "std.h"
 #include "mcu.h"
 #include "mcu_periph/uart.h"
-#include "sys_time.h"
-#include "downlink.h"
+#include "mcu_periph/sys_time.h"
+#include "subsystems/datalink/downlink.h"
 #include "led.h"
 
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 #include "generated/settings.h"
 
 #include "lisa/lisa_baro.h"
@@ -89,7 +89,7 @@ enum TestType cur_test;
 int main( void ) {
   main_init();
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -99,7 +99,7 @@ int main( void ) {
 static inline void main_init( void ) {
 
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   led_init();
 
   baro_init();
@@ -113,7 +113,7 @@ static inline void main_init( void ) {
 static inline void main_periodic_task( void ) {
 
   LED_PERIODIC();
-  RunOnceEvery(256, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
+  RunOnceEvery(256, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
 
   tests[cur_test]._periodic();
 
@@ -156,7 +156,7 @@ static void test_baro_start(void) {all_led_green();}
 static void test_baro_periodic(void) {
   RunOnceEvery(2, {baro_periodic();});
   RunOnceEvery(100,{
-      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel,
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
                    &i2c2_errors.ack_fail_cnt,
                    &i2c2_errors.miss_start_stop_cnt,
                    &i2c2_errors.arb_lost_cnt,
@@ -170,10 +170,10 @@ static void test_baro_periodic(void) {
 }
 static void test_baro_event(void) {BaroEvent(test_baro_on_baro_abs, test_baro_on_baro_diff);}
 static inline void test_baro_on_baro_abs(void) {
-  RunOnceEvery(5,{DOWNLINK_SEND_BOOZ_BARO2_RAW(DefaultChannel, &baro.abs_raw, &baro.diff_raw);});
+  RunOnceEvery(5,{DOWNLINK_SEND_BOOZ_BARO2_RAW(DefaultChannel, DefaultDevice, &baro.abs_raw, &baro.diff_raw);});
 }
 static inline void test_baro_on_baro_diff(void) {
-  RunOnceEvery(5,{DOWNLINK_SEND_BOOZ_BARO2_RAW(DefaultChannel, &baro.abs_raw, &baro.diff_raw);});
+  RunOnceEvery(5,{DOWNLINK_SEND_BOOZ_BARO2_RAW(DefaultChannel, DefaultDevice, &baro.abs_raw, &baro.diff_raw);});
 }
 
 
@@ -190,7 +190,7 @@ static void test_bldc_periodic(void) {
   i2c1_transmit(0x58, 1, NULL);
 
   RunOnceEvery(100,{
-      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel,
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
                    &i2c1_errors.ack_fail_cnt,
                    &i2c1_errors.miss_start_stop_cnt,
                    &i2c1_errors.arb_lost_cnt,
@@ -260,7 +260,7 @@ static void test_uart_event(void) {
   if (Uart3ChAvailable()) {
     buf_dest[idx_rx] = Uart3Getch();
     if (idx_rx<sizeof(buf_src)) {
-      DOWNLINK_SEND_DEBUG(DefaultChannel, sizeof(buf_src), buf_dest);
+      DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice, sizeof(buf_src), buf_dest);
       idx_rx++;
       if (idx_rx == sizeof(buf_src)) {
     if ( memcmp(buf_dest, buf_src, sizeof(buf_src)) ) {
@@ -278,7 +278,7 @@ static void test_uart_event(void) {
   if (Uart1ChAvailable()) {
     buf_dest[idx_rx] = Uart1Getch();
     if (idx_rx<sizeof(buf_src)) {
-      DOWNLINK_SEND_DEBUG(DefaultChannel, sizeof(buf_src), buf_dest);
+      DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice, sizeof(buf_src), buf_dest);
       idx_rx++;
       if (idx_rx == sizeof(buf_src)) {
     if ( memcmp(buf_dest, buf_src, sizeof(buf_src)) ) {
@@ -330,7 +330,7 @@ void dl_parse_msg(void) {
 
   case  DL_PING:
     {
-      DOWNLINK_SEND_PONG(DefaultChannel);
+      DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
     }
     break;
 
@@ -340,7 +340,7 @@ void dl_parse_msg(void) {
       uint8_t i = DL_SETTING_index(dl_buffer);
       float var = DL_SETTING_value(dl_buffer);
       DlSetting(i, var);
-      DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &var);
+      DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &var);
     }
     break;
 

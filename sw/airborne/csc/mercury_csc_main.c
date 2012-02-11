@@ -29,7 +29,7 @@
 #include "std.h"
 
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 
 #include "csc_vane.h"
@@ -51,7 +51,7 @@
 #include "csc_telemetry.h"
 
 #include "generated/periodic.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "pwm_input.h"
 #include "csc_airspeed.h"
@@ -69,9 +69,9 @@ static inline void on_servo_cmd(struct CscServoCmd *cmd);
 static inline void on_motor_cmd(struct CscMotorMsg *msg);
 static inline void on_prop_cmd(struct CscPropCmd *msg, int idx);
 
-#define SERVO_TIMEOUT (SYS_TICS_OF_SEC(0.1) / PERIODIC_TASK_PERIOD)
-#define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
-#define AIRSPEED_TIMEOUT (SYS_TICS_OF_SEC(0.01) / PERIODIC_TASK_PERIOD)
+#define SERVO_TIMEOUT (CPU_TICKS_OF_SEC(0.1) / PERIODIC_TASK_PERIOD)
+#define CSC_STATUS_TIMEOUT (CPU_TICKS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
+#define AIRSPEED_TIMEOUT (CPU_TICKS_OF_SEC(0.01) / PERIODIC_TASK_PERIOD)
 
 
 static uint32_t servo_cmd_timeout = 0;
@@ -131,13 +131,13 @@ static void csc_main_init( void ) {
 	motors_init();
 #endif
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
 	airspeed_init();
 #endif
 #ifdef USE_AMS5812
 		csc_ams5812_init();
 #endif
-#ifdef USE_BARO_SCP
+#if USE_BARO_SCP
 	baro_scp_init();
 #endif
 
@@ -176,10 +176,10 @@ static void csc_main_periodic( void )
 
 	if ((csc_loops % AIRSPEED_TIMEOUT) == 0) {
 	} else if ((csc_loops % AIRSPEED_TIMEOUT) == 1) {
-#ifdef USE_BARO_ETS
+#if USE_BARO_ETS
 		baro_ets_periodic();
 #endif
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
 		csc_airspeed_periodic();
 #endif
 #ifdef USE_AMS5812
@@ -188,11 +188,11 @@ static void csc_main_periodic( void )
 #endif
 	}
 
-#ifdef USE_AIRSPEED
+#if USE_AIRSPEED
 	airspeed_update();
 #endif
 
-#ifdef USE_BARO_SCP
+#if USE_BARO_SCP
 	baro_scp_periodic();
 	csc_ap_link_send_baro(baro_scp_pressure, baro_scp_temperature, baro_scp_status);
 #endif
@@ -215,8 +215,8 @@ static void csc_main_event( void ) {
 #endif
 }
 
-#define MIN_SERVO SYS_TICS_OF_USEC(1000)
-#define MAX_SERVO SYS_TICS_OF_USEC(2000)
+#define MIN_SERVO CPU_TICKS_OF_USEC(1000)
+#define MAX_SERVO CPU_TICKS_OF_USEC(2000)
 
 #ifdef USE_BUSS_TWI_BLMC_MOTOR
 static void on_prop_cmd(struct CscPropCmd *cmd, int idx)

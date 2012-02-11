@@ -25,8 +25,9 @@
 
 #include BOARD_CONFIG
 #include "mcu.h"
-#include "sys_time.h"
-#include "downlink.h"
+#include "mcu_periph/sys_time.h"
+#include "subsystems/datalink/downlink.h"
+#include "led.h"
 static inline void main_init( void );
 static inline void main_periodic( void );
 
@@ -36,7 +37,7 @@ int main(void) {
   main_init();
 
   while (1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic();
   }
   return 0;
@@ -44,7 +45,7 @@ int main(void) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
 }
 
 static inline void main_periodic( void ) {
@@ -58,11 +59,11 @@ static inline void main_periodic( void ) {
   float i = sqrt(f);  // ok
   //float i = powf(f1, f1); // nok
   //float i = atan2(f, f); // ok
-  RunOnceEvery(10, {DOWNLINK_SEND_TEST_FORMAT(DefaultChannel, &d1, &i);});
+  RunOnceEvery(10, {DOWNLINK_SEND_TEST_FORMAT(DefaultChannel, DefaultDevice, &d1, &i);});
 
   uint16_t  blaaa = f+d;
 
-  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(DefaultChannel, &blaaa);});
+  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &blaaa);});
   LED_PERIODIC();
 }
 

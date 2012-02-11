@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<!-- Currently only available on LPC21xx arch
+    pwm input measurement mcu periph access and init wrapper for other modules
+      For LPC21xx on the TWOG:
+      1 - INPUT CAPTURE CAP0.3 on P0.29 (TWOG ADC5, 5V->3.3V voltage divider)
+      2 - INPUT CAPTURE CAP0.0 on P0.30 (TWOG ADC4, no voltage divider)
+-->
+<module name="pwm_meas" dir="core">
+  <header>
+    <file name="pwm_meas.h"/>
+  </header>
+  <init fun="pwm_meas_init()"/>
+  <makefile target="ap">
+    <file name="pwm_meas.c"/>
+    <file name="pwm_input.c" dir="mcu_periph"/>
+    <file_arch name="pwm_input_arch.c" dir="mcu_periph"/>
+    <define name="USE_PWM_INPUT"/> <!-- needed to enable the pwm_input interrupts in mcu_periph/sys_time_arch.c -->
+  </makefile>
+</module>
