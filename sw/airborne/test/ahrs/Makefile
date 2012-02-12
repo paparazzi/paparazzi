@@ -104,8 +104,8 @@ AHRS_CFLAGS += -DFACE_REINJ_1=1024
 AHRS_SRCS   += ../../subsystems/ahrs/ahrs_int_cmpl_euler.c
 endif
 ifeq ($(AHRS_TYPE), AHRS_TYPE_ICQ)
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl.h\"
-AHRS_SRCS   += ../../subsystems/ahrs/ahrs_int_cmpl.c
+AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat.h\"
+AHRS_SRCS   += ../../subsystems/ahrs/ahrs_int_cmpl_quat.c
 endif
 ifeq ($(AHRS_TYPE), AHRS_TYPE_FLQ)
 AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_lkf_quat.h\"

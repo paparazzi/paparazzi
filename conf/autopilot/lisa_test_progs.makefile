@@ -384,8 +384,8 @@ endif
 ifeq ($(AHRS), icq)
 #test_ahrs.CFLAGS += -DAHRS_TYPE=\"ICQ\"
 test_ahrs.CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=512
-test_ahrs.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl.h\"
-test_ahrs.srcs +=subsystems/ahrs/ahrs_int_cmpl.c
+test_ahrs.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat.h\"
+test_ahrs.srcs +=subsystems/ahrs/ahrs_int_cmpl_quat.c
 endif
 
 ifeq ($(AHRS), flq)

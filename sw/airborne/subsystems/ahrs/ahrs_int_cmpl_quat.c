@@ -25,7 +25,7 @@
 // gravity heuristic
 //
 
-#include "subsystems/ahrs/ahrs_int_cmpl.h"
+#include "subsystems/ahrs/ahrs_int_cmpl_quat.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/ahrs/ahrs_int_utils.h"
 
