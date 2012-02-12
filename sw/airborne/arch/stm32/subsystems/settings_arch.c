@@ -35,11 +35,7 @@
 
 #include "subsystems/settings.h"
 
-#if defined(STM32F1) || defined(STM32F2) || defined(STM32F4)
 #include <libopencm3/stm32/f1/flash.h>
-#else
-#include <libopencm3/stm32/flash.h>
-#endif
 
 #include <libopencm3/stm32/crc.h>
 #include <libopencm3/stm32/dbgmcu.h>

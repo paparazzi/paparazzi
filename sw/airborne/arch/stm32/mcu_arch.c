@@ -31,14 +31,7 @@
 #include <stm32/rcc.h>
 #include <stm32/flash.h>
 #include <stm32/misc.h>
-#if USE_OPENCM3
-#	if defined(STM32F1) || defined(STM32F2) || defined(STM32F4)
-#		include <libopencm3/stm32/f1/rcc.h>
-#	else
-#		include <libopencm3/stm32/rcc.h>
-#	endif
-#endif
-
+#include <libopencm3/stm32/f1/rcc.h>
 
 void mcu_arch_init(void) {
 #if USE_OPENCM3
