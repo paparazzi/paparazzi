@@ -266,14 +266,14 @@ void ins_periodic_task( void ) {
 
 	case 13:
 		#ifdef AHRS_H_X
-		#warning Sending XSens Magnetic Declination
+		#pragma message "Sending XSens Magnetic Declination."
 		xsens_declination = atan2(AHRS_H_Y, AHRS_H_X);
 		XSENS_SetMagneticDeclination(xsens_declination);
 		#endif
 		break;
 	case 12:
 		#ifdef GPS_IMU_LEVER_ARM_X
-		#warning Sending XSens GPS Arm
+		#pragma message "Sending XSens GPS Arm."
 		XSENS_SetLeverArmGps(GPS_IMU_LEVER_ARM_X,GPS_IMU_LEVER_ARM_Y,GPS_IMU_LEVER_ARM_Z);
 		#endif
 		break;
