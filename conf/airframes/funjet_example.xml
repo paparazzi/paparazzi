@@ -141,6 +141,7 @@
 
 <!--  **************AIRSPEED CONTROL ********************** -->
     <define name="AUTO_AIRSPEED_SETPOINT" value="22.0" unit="m/s"/>
+    <define name="AUTO_AIRSPEED_SETPOINT_SLEW_INCREMENT" value="0.5" unit="m/s"/>
 
 		<!-- Airspeed Mode presetting -->
     <define name="AIRSPEED_MODE" value="0"/>

@@ -106,6 +106,7 @@ extern uint8_t v_ctl_airspeed_mode;
 #ifdef USE_AIRSPEED
 /* "airspeed" inner loop parameters */
 extern float v_ctl_auto_airspeed_setpoint;
+extern float v_ctl_auto_airspeed_setpoint_slew_increment;
 extern float v_ctl_auto_airspeed_controlled;
 extern float v_ctl_auto_airspeed_sum_err;
 extern float v_ctl_auto_groundspeed_setpoint;

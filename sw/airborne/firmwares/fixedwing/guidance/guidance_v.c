@@ -93,6 +93,8 @@ inline static void v_ctl_climb_auto_throttle_loop( void );
 
 	//Airspeed Setpoint
 	float v_ctl_auto_airspeed_setpoint;
+	float v_ctl_auto_airspeed_setpoint_new;			//langede0
+	float v_ctl_auto_airspeed_setpoint_slew_increment;
 	float v_ctl_auto_airspeed_controlled;	
 
 	//Vassilis
@@ -173,6 +175,8 @@ void v_ctl_init( void ) {
 
 	//Setpoint
 	v_ctl_auto_airspeed_setpoint = V_CTL_AUTO_AIRSPEED_SETPOINT;
+	v_ctl_auto_airspeed_setpoint_new = V_CTL_AUTO_AIRSPEED_SETPOINT;			//langede0
+	v_ctl_auto_airspeed_setpoint_slew_increment = V_CTL_AUTO_AIRSPEED_SETPOINT_SLEW_INCREMENT; 
 	v_ctl_auto_airspeed_controlled = V_CTL_AUTO_AIRSPEED_SETPOINT;
 
 	//Vassilis
@@ -266,19 +270,7 @@ void v_ctl_climb_loop ( void ) {
 
   v_ctl_climb_auto_throttle_loop();
 
-/*
-  switch (v_ctl_climb_mode) {
-  case V_CTL_CLIMB_MODE_AUTO_THROTTLE:
-  default:
-    v_ctl_climb_auto_throttle_loop();
-    break;
-#ifdef V_CTL_AUTO_PITCH_PGAIN
-  case V_CTL_CLIMB_MODE_AUTO_PITCH:
-    v_ctl_climb_auto_pitch_loop();
-    break;
-#endif
-  }
-*/
+
 }
 
 /**
@@ -366,6 +358,18 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
   	controlled_throttle=0;
   	v_ctl_pitch_of_vz=0;
 
+
+	//To avoid heavy changes of the Airspeed Setpoint  -langede0
+	if ( fabs( v_ctl_auto_airspeed_setpoint_new - v_ctl_auto_airspeed_setpoint ) > v_ctl_auto_airspeed_setpoint_slew_increment) {
+		if (v_ctl_auto_airspeed_setpoint_new > v_ctl_auto_airspeed_setpoint) {
+			v_ctl_auto_airspeed_setpoint= v_ctl_auto_airspeed_setpoint + v_ctl_auto_airspeed_setpoint_slew_increment;
+		}
+		else if (v_ctl_auto_airspeed_setpoint_new < v_ctl_auto_airspeed_setpoint) {
+			v_ctl_auto_airspeed_setpoint= v_ctl_auto_airspeed_setpoint - v_ctl_auto_airspeed_setpoint_slew_increment;
+		}
+	}
+
+
   	// Limit rate of change of climb setpoint (to ensure that airspeed loop can catch-up)
   	static float v_ctl_climb_setpoint_last = 0;
   	float diff_climb = v_ctl_climb_setpoint - v_ctl_climb_setpoint_last;
@@ -432,18 +436,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
  * auto pitch inner loop
  * \brief computes a nav_pitch from a climb_setpoint given a fixed throttle
  */
-/*#ifdef V_CTL_AUTO_PITCH_PGAIN
-inline static void v_ctl_climb_auto_pitch_loop(void) {
-  float err  = estimator_z_dot - v_ctl_climb_setpoint;
-  v_ctl_throttle_setpoint = nav_throttle_setpoint;
-  v_ctl_auto_pitch_sum_err += err;
-  BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR);
-  nav_pitch = v_ctl_auto_pitch_pgain *
-    (err + v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err);
-  Bound(nav_pitch, V_CTL_AUTO_PITCH_MIN_PITCH, V_CTL_AUTO_PITCH_MAX_PITCH);
-}
-#endif
-*/
+
 #ifdef V_CTL_THROTTLE_SLEW_LIMITER
 #define V_CTL_THROTTLE_SLEW (1./CONTROL_RATE/(V_CTL_THROTTLE_SLEW_LIMITER))
 #endif
