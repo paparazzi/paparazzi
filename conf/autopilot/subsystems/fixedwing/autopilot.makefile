@@ -99,9 +99,6 @@ include $(CFG_SHARED)/i2c_select.makefile
 #
 ifeq ($(ARCH), lpc21)
   ns_srcs 		+= $(SRC_ARCH)/armVIC.c
-else ifeq ($(ARCH), stm32)
-  ns_srcs 		+= $(SRC_ARCH)/stm32_exceptions.c
-#  ns_CFLAGS 		+= -DPERIPHERALS_AUTO_INIT
 endif
 
 ifeq ($(ARCH), stm32)

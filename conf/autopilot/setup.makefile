@@ -25,8 +25,7 @@ tunnel.ARCHDIR = $(ARCH)
 tunnel.CFLAGS += -I$(SRC_LISA) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 tunnel.srcs   += mcu.c \
                  $(SRC_ARCH)/mcu_arch.c \
-                 $(SRC_LISA)/tunnel_hw.c          \
-                 $(SRC_ARCH)/stm32_exceptions.c
+                 $(SRC_LISA)/tunnel_hw.c
 tunnel.CFLAGS += -DUSE_LED
 tunnel.srcs   += $(SRC_ARCH)/led_hw.c
 ifneq ($(SYS_TIME_LED),none)

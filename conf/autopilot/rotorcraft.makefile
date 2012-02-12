@@ -60,8 +60,6 @@ endif
 #
 ifeq ($(ARCH), lpc21)
 ap.srcs += $(SRC_ARCH)/armVIC.c
-else ifeq ($(ARCH), stm32)
-ap.srcs += $(SRC_ARCH)/stm32_exceptions.c
 endif
 
 #

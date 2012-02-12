@@ -23,8 +23,7 @@ stm_passthrough.ARCHDIR = stm32
 stm_passthrough.CFLAGS += -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(SRC_LISA_ARCH) -I$(SRC_BOOZ) -I$(SRC_BOOZ_ARCH) -I$(SRC_BOARD) -I$(SRC_ROTOR_ARCH) -I$(SRC_IMU_ARCH)
 stm_passthrough.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 stm_passthrough.CFLAGS += -DPERIPHERALS_AUTO_INIT
-stm_passthrough.srcs = $(SRC_LISA)/lisa_stm_passthrough_main.c \
-                       $(SRC_ARCH)/stm32_exceptions.c
+stm_passthrough.srcs = $(SRC_LISA)/lisa_stm_passthrough_main.c
 
 # Leds
 stm_passthrough.CFLAGS += -DUSE_LED
