@@ -36,7 +36,7 @@
 #include <libopencm3/stm32/f1/rcc.h>
 #include "std.h"
 
-extern void sys_tick_irq_handler(void);
+extern void sys_tick_handler(void);
 
 #define CPU_TICKS_OF_SEC(s)        (uint32_t)((s) * AHB_CLK + 0.5)
 #define SIGNED_CPU_TICKS_OF_SEC(s)  (int32_t)((s) * AHB_CLK + 0.5)
