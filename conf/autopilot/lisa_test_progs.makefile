@@ -382,8 +382,8 @@ endif
 ifeq ($(AHRS), icq)
 #test_ahrs.CFLAGS += -DAHRS_TYPE=\"ICQ\"
 test_ahrs.CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=512
-test_ahrs.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl.h\"
-test_ahrs.srcs +=subsystems/ahrs/ahrs_int_cmpl.c
+test_ahrs.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat.h\"
+test_ahrs.srcs +=subsystems/ahrs/ahrs_int_cmpl_quat.c
 endif
 
 ifeq ($(AHRS), flq)
@@ -402,14 +402,14 @@ test_ahrs.srcs += subsystems/ahrs/ahrs_float_dcm.c
 endif
 
 ifeq ($(AHRS), fcr2)
-test_ahrs.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl_rmat.h\"
+test_ahrs.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl.h\"
 test_ahrs.CFLAGS += -DAHRS_H_X=0.51562740288882 -DAHRS_H_Y=-0.05707735220832 -DAHRS_H_Z=0.85490967783446
 test_ahrs.CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=512
-test_ahrs.srcs += subsystems/ahrs/ahrs_float_cmpl_rmat.c
+test_ahrs.srcs += subsystems/ahrs/ahrs_float_cmpl.c
 endif
 
 ifeq ($(AHRS), fcq)
-test_ahrs.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl_rmat.h\"
+test_ahrs.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl.h\"
 test_ahrs.CFLAGS += -DAHRS_H_X=0.51562740288882 -DAHRS_H_Y=-0.05707735220832 -DAHRS_H_Z=0.85490967783446
 test_ahrs.CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=512
 test_ahrs.srcs += subsystems/ahrs/ahrs_float_cmpl_quat.c

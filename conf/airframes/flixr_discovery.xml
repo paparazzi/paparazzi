@@ -40,7 +40,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <!-- Control -->
     <subsystem name="control" type="new"/>
     <subsystem name="navigation" type="extra"/>
-    <subsystem name="ahrs" type="float_cmpl_rmat"/>
+    <subsystem name="ahrs" type="float_cmpl"/>
 
     <!-- Sensors -->
     <subsystem name="imu" type="b2_v1.0">
