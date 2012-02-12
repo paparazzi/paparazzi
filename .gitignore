@@ -167,3 +167,6 @@
 /sw/airborne/test/test_att
 
 /sw/airborne/test/ahrs/run_ahrs_on_synth
+
+# Mac OS X
+.DS_Store
