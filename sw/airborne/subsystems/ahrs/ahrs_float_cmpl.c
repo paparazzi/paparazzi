@@ -20,7 +20,7 @@
  */
 
 #include "subsystems/ahrs.h"
-#include "subsystems/ahrs/ahrs_float_cmpl_rmat.h"
+#include "subsystems/ahrs/ahrs_float_cmpl.h"
 #include "subsystems/ahrs/ahrs_float_utils.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/imu.h"

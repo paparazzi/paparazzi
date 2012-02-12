@@ -25,7 +25,7 @@
 #include "subsystems/ahrs/ahrs_float_lkf_quat.h"
 #define OUT_FILE "./out_flq.txt"
 #elif defined AHRS_TYPE && AHRS_TYPE == AHRS_TYPE_FCR
-#include "subsystems/ahrs/ahrs_float_cmpl_rmat.h"
+#include "subsystems/ahrs/ahrs_float_cmpl.h"
 #define OUT_FILE "./out_fcr.txt"
 #elif defined AHRS_TYPE && AHRS_TYPE == AHRS_TYPE_ICE
 #include "subsystems/ahrs/ahrs_int_cmpl_euler.h"

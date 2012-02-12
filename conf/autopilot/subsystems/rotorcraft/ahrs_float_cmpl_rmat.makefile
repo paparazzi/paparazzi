@@ -1,23 +1,3 @@
-# Hey Emacs, this is a -*- makefile -*-
-#
-# AHRS_PROPAGATE_FREQUENCY
-# AHRS_H_X
-# AHRS_H_Y
-# AHRS_H_Z
-#
+include $(CFG_ROTORCRAFT)/ahrs_float_cmpl.makefile
 
-AHRS_CFLAGS  = -DUSE_AHRS
-AHRS_CFLAGS += -DUSE_AHRS_ALIGNER
-ifneq ($(AHRS_ALIGNER_LED),none)
-  AHRS_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
-endif
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl_rmat.h\"
-AHRS_SRCS   += subsystems/ahrs.c
-AHRS_SRCS   += subsystems/ahrs/ahrs_float_cmpl_rmat.c
-AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
-
-ap.CFLAGS += $(AHRS_CFLAGS)
-ap.srcs += $(AHRS_SRCS)
-
-sim.CFLAGS += $(AHRS_CFLAGS)
-sim.srcs += $(AHRS_SRCS)
+$(warning The ahrs_float_cmpl_rmat subsystem has been renamed, please replace <subsystem name="ahrs" type="float_cmpl_rmat"/> with <subsystem name="ahrs" type="float_cmpl"/> in your airframe file.)
