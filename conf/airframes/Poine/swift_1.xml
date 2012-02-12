@@ -24,7 +24,7 @@
     <load name="infrared_adc.xml"/>
   </modules>
 
-  <firmware name="lisa_l_test_progs">
+  <firmware name="lisa_test_progs">
     <target name="test_led"            board="lisa_m_1.0"/>
     <target name="test_uart"           board="lisa_m_1.0"/>
     <target name="test_servos"         board="lisa_m_1.0"/>

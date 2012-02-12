@@ -6,7 +6,7 @@ test settings
 
 <airframe name="test settings">
 
-  <firmware name="lisa_l_test_progs">
+  <firmware name="lisa_test_progs">
     <define name="USE_PERMANENT_SETTINGS"/>
 
     <target name="test_settings"       board="lisa_m_1.0"/>

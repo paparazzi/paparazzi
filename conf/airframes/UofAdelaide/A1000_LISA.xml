@@ -204,7 +204,7 @@
     <subsystem name="ahrs"          type="int_cmpl_euler"/>
   </firmware>
 
-  <firmware name="lisa_l_test_progs">
+  <firmware name="lisa_test_progs">
     <target name="test_telemetry" board="lisa_l_1.0"/>
     <target name="test_baro"      board="lisa_l_1.0"/>
     <target name="test_spektrum"  board="lisa_l_1.0"/>

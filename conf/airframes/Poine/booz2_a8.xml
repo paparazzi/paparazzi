@@ -206,7 +206,7 @@
 
   </firmware>
 
-  <firmware name="lisa_l_test_progs">
+  <firmware name="lisa_test_progs">
     <target name="test_telemetry" board="lisa_l_1.0">
       <configure name="MODEM_PORT" value="UART2"/>
     </target>
