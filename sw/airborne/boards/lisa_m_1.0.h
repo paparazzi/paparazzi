@@ -3,6 +3,8 @@
 
 #define BOARD_LISA_M
 
+/* Lisa/M has a 12MHz external clock and 72MHz internal. */
+#define EXT_CLK 12000000
 #define AHB_CLK 72000000
 
 /* Onboard LEDs */

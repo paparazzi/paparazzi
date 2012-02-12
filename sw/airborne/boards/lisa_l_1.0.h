@@ -3,12 +3,9 @@
 
 #define BOARD_LISA_L
 
+/* Lisa/L has an 8MHZ external clock and 72MHz internal. */
+#define EXT_CLK 8000000
 #define AHB_CLK 72000000
-
-/* Lisa uses an external clock instead of a crystal */
-#define HSE_TYPE_EXT_CLK
-#define STM32_RCC_MODE RCC_HSE_Bypass
-#define STM32_PLL_MULT RCC_PLLMul_9
 
 /* Onboard LEDs */
 #define LED_1_BANK
