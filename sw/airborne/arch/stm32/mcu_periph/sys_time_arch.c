@@ -28,7 +28,6 @@
 
 #include "mcu_periph/sys_time.h"
 
-#include "stm32_vector_table.h"
 #ifdef SYS_TIME_LED
 #include "led.h"
 #endif

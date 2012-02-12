@@ -24,8 +24,7 @@ stm_passthrough.CFLAGS += -I$(SRC_FIRMWARE) -I$(SRC_LISA) -I$(SRC_LISA_ARCH) -I$
 stm_passthrough.CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 stm_passthrough.CFLAGS += -DPERIPHERALS_AUTO_INIT
 stm_passthrough.srcs = $(SRC_LISA)/lisa_stm_passthrough_main.c \
-                       $(SRC_ARCH)/stm32_exceptions.c          \
-                       $(SRC_ARCH)/stm32_vector_table.c
+                       $(SRC_ARCH)/stm32_exceptions.c
 
 # Leds
 stm_passthrough.CFLAGS += -DUSE_LED

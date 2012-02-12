@@ -67,8 +67,7 @@ COMMON_TEST_CFLAGS  = -I$(SRC_FIRMWARE) -I$(ARCH) -DPERIPHERALS_AUTO_INIT
 COMMON_TEST_CFLAGS += -DBOARD_CONFIG=$(BOARD_CFG)
 COMMON_TEST_SRCS    = $(SRC_AIRBORNE)/mcu.c            \
                       $(SRC_ARCH)/mcu_arch.c           \
-                      $(SRC_ARCH)/stm32_exceptions.c   \
-                      $(SRC_ARCH)/stm32_vector_table.c
+                      $(SRC_ARCH)/stm32_exceptions.c
 COMMON_TEST_CFLAGS += -DUSE_SYS_TIME
 ifneq ($(SYS_TIME_LED),none)
   COMMON_TEST_CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)

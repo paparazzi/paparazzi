@@ -107,7 +107,7 @@ AOBJ    = $(ASRC:%.S=$(OBJDIR)/%.o)
 #   if not, use the default STM32f103re_flash.ld
 ifndef LDSCRIPT
 ifndef $(TARGET).LDSCRIPT
-LDSCRIPT = $(SRC_ARCH)/stm32f103re_flash.ld
+LDSCRIPT = $(SRC_ARCH)/stm32default.ld
 else
 LDSCRIPT = $($(TARGET).LDSCRIPT)
 endif

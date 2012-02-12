@@ -1,7 +1,7 @@
 /*
- * $Id$
- *
- * Copyright (C) 2010 Antoine Drouin <poinix@gmail.com>
+ * Hey Emacs, this is a -*- makefile -*-
+ *  
+ * Copyright (C) 2012 Piotr Esden-Tempski <piotr@esden.net>
  *
  * This file is part of Paparazzi.
  *
@@ -18,11 +18,19 @@
  * You should have received a copy of the GNU General Public License
  * along with Paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Boston, MA 02111-1307, USA. 
  */
 
-#ifndef STM32_VECTOR_TABLE_H
-#define STM32_VECTOR_TABLE_H
+/* Linker script for Lisa-M (STM32F105RCT6, 256K flash, 64K RAM). */
 
+/* Define memory regions. */
+MEMORY
+{
+	ram (rwx) : ORIGIN = 0x20000000, LENGTH = 64K
+	/* Leaving 2k of space at the end of rom for stored settings */
+	rom (rx) : ORIGIN = 0x08000000, LENGTH = 254K
+}
 
-#endif /* STM32_VECTOR_TABLE_H */
+/* Include the common ld script. */
+INCLUDE libopencm3_stm32f1.ld
+
