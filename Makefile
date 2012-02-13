@@ -248,7 +248,7 @@ cleanspaces:
 
 distclean : dist_clean
 dist_clean :
-	@echo "Warning: This removes all non-repository files. This means you will loose your aircraft list, your maps, your logfiles, ... if you want this, then run: make dist_clean_irreversible"
+	@echo "Warning: This removes all non-repository files. This means you will loose your aircraft list, your maps, your logfiles, ... if you want this, then run: $(MAKE) dist_clean_irreversible"
 
 dist_clean_irreversible: clean
 	rm -rf conf/srtm_data
@@ -266,7 +266,7 @@ test_all_example_airframes:
 	$(MAKE) AIRCRAFT=EasyStar_ETS clean_ac ap sim
 
 test_all_example_airframes2:
-	for ap in `grep name conf/conf.xml.example | sed -e 's/.*name=\"//' | sed -e 's/"//'`; do echo "Making $$ap"; make -C ./ AIRCRAFT=$$ap clean_ac ap.compile;   done
+	for ap in `grep name conf/conf.xml.example | sed -e 's/.*name=\"//' | sed -e 's/"//'`; do echo "Making $$ap"; $(MAKE) -C ./ AIRCRAFT=$$ap clean_ac ap.compile;   done
 
 commands: paparazzi sw/simulator/launchsitl
 
