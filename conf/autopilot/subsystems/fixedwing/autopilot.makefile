@@ -173,7 +173,7 @@ ap_srcs			+= $(SRC_FIRMWARE)/ap_downlink.c
 
 UNAME = $(shell uname -s)
 ifeq ("$(UNAME)","Darwin")
-  sim.CFLAGS += -I/opt/paparazzi/include/ -I/opt/local/include/
+  sim.CFLAGS += $(shell if test -d /opt/local/include; then echo "-I/opt/local/include"; elif test -d /opt/paparazzi/include; then echo "-I/opt/paparazzi/include"; fi)
 endif
 
 sim.CFLAGS              += $(CPPFLAGS)
