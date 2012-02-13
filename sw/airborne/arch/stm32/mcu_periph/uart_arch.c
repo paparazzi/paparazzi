@@ -122,9 +122,9 @@ void uart1_init( void ) {
   usart_enable_irq(NVIC_USART1_IRQ);
 
   /* Init GPIOS */
-  gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
+  gpio_set_mode(GPIO_BANK_USART1_TX, GPIO_MODE_OUTPUT_50_MHZ,
 	  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_TX);
-  gpio_set_mode(GPIOA, GPIO_MODE_INPUT,
+  gpio_set_mode(GPIO_BANK_USART1_RX, GPIO_MODE_INPUT,
 	  GPIO_CNF_INPUT_FLOAT, GPIO_USART1_RX);
 
   /* Configure USART */
@@ -151,9 +151,9 @@ void uart2_init( void ) {
   usart_enable_irq(NVIC_USART2_IRQ);
 
   /* Init GPIOS */
-  gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
+  gpio_set_mode(GPIO_BANK_USART2_TX, GPIO_MODE_OUTPUT_50_MHZ,
 	  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART2_TX);
-  gpio_set_mode(GPIOA, GPIO_MODE_INPUT,
+  gpio_set_mode(GPIO_BANK_USART2_RX, GPIO_MODE_INPUT,
 	  GPIO_CNF_INPUT_FLOAT, GPIO_USART2_RX);
 
   /* Configure USART */
@@ -182,9 +182,9 @@ void uart3_init( void ) {
 
   /* Init GPIOS */
   AFIO_MAPR |= AFIO_MAPR_USART3_REMAP_PARTIAL_REMAP;
-  gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ,
+  gpio_set_mode(GPIO_BANK_USART3_PR_TX, GPIO_MODE_OUTPUT_50_MHZ,
 	  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART3_PR_TX);
-  gpio_set_mode(GPIOC, GPIO_MODE_INPUT,
+  gpio_set_mode(GPIO_BANK_USART3_PR_RX, GPIO_MODE_INPUT,
 	  GPIO_CNF_INPUT_FLOAT, GPIO_USART3_PR_RX);
 
   /* Configure USART */
@@ -212,9 +212,9 @@ void uart5_init( void ) {
   usart_enable_irq(NVIC_UART5_IRQ);
 
   /* Init GPIOS */
-  gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ,
+  gpio_set_mode(GPIO_BANK_UART5_TX, GPIO_MODE_OUTPUT_50_MHZ,
 	  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_UART5_TX);
-  gpio_set_mode(GPIOD, GPIO_MODE_INPUT,
+  gpio_set_mode(GPIO_BANK_UART5_RX, GPIO_MODE_INPUT,
 	  GPIO_CNF_INPUT_FLOAT, GPIO_UART5_RX);
 
   /* Configure USART */
