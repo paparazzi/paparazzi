@@ -56,8 +56,9 @@ $(TARGET).CFLAGS 	+= -DTRAFFIC_INFO
 #
 # LEDs
 #
-
-$(TARGET).CFLAGS 	+= -DUSE_LED
+ifneq ($(ARCH), jsbsim)
+  $(TARGET).CFLAGS 	+= -DUSE_LED
+endif
 ifneq ($(ARCH), lpc21)
   ifneq ($(ARCH), jsbsim)
     $(TARGET).srcs 	+= $(SRC_ARCH)/led_hw.c
@@ -71,7 +72,8 @@ ifndef PERIODIC_FREQUENCY
 PERIODIC_FREQUENCY = 60
 endif
 $(TARGET).CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
-$(TARGET).srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+$(TARGET).srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+$(TARGET).CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_RESOLUTION='(1./$(PERIODIC_FREQUENCY).)'
 
 #
 # InterMCU & Commands
@@ -122,11 +124,6 @@ ns_CFLAGS 		+= -DUSE_LED
 ifneq ($(SYS_TIME_LED),none)
   ns_CFLAGS 	+= -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
-
-#
-# Sys-time
-#
-ns_CFLAGS 		+= -DUSE_SYS_TIME -DSYS_TIME_RESOLUTION='(1./$(PERIODIC_FREQUENCY).)'
 
 
 #
