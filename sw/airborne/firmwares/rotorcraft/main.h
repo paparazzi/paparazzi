@@ -31,9 +31,10 @@
 #endif
 
 STATIC_INLINE void main_init( void );
-STATIC_INLINE void main_periodic( void );
 STATIC_INLINE void main_event( void );
+STATIC_INLINE void handle_periodic_tasks( void );
 
+STATIC_INLINE void main_periodic( void );
 STATIC_INLINE void telemetry_periodic(void);
 STATIC_INLINE void failsafe_check( void );
 

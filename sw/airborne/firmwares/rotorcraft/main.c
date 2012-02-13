@@ -58,7 +58,7 @@
 #include "firmwares/rotorcraft/main.h"
 
 #ifdef SITL
-#include "nps_autopilot_booz.h"
+#include "nps_autopilot_rotorcraft.h"
 #endif
 
 #include "generated/modules.h"
@@ -70,7 +70,6 @@ static inline void on_baro_dif_event( void );
 static inline void on_gps_event( void );
 static inline void on_mag_event( void );
 
-#ifndef SITL
 
 tid_t main_periodic_tid; ///< id for main_periodic() timer
 tid_t failsafe_tid;      ///< id for failsafe_check() timer
@@ -79,22 +78,12 @@ tid_t electrical_tid;    ///< id for electrical_periodic() timer
 tid_t baro_tid;          ///< id for baro_periodic() timer
 tid_t telemetry_tid;     ///< id for telemetry_periodic() timer
 
+#ifndef SITL
 int main( void ) {
   main_init();
 
   while(1) {
-    if (sys_time_check_and_ack_timer(main_periodic_tid))
-      main_periodic();
-    if (sys_time_check_and_ack_timer(radio_control_tid))
-      radio_control_periodic_task();
-    if (sys_time_check_and_ack_timer(failsafe_tid))
-      failsafe_check();
-    if (sys_time_check_and_ack_timer(electrical_tid))
-      electrical_periodic();
-    if (sys_time_check_and_ack_timer(baro_tid))
-      baro_periodic();
-    if (sys_time_check_and_ack_timer(telemetry_tid))
-      telemetry_periodic();
+    handle_periodic_tasks();
     main_event();
   }
   return 0;
@@ -146,6 +135,20 @@ STATIC_INLINE void main_init( void ) {
   telemetry_tid = sys_time_register_timer((1./60.), NULL);
 }
 
+STATIC_INLINE void handle_periodic_tasks( void ) {
+  if (sys_time_check_and_ack_timer(main_periodic_tid))
+    main_periodic();
+  if (sys_time_check_and_ack_timer(radio_control_tid))
+    radio_control_periodic_task();
+  if (sys_time_check_and_ack_timer(failsafe_tid))
+    failsafe_check();
+  if (sys_time_check_and_ack_timer(electrical_tid))
+    electrical_periodic();
+  if (sys_time_check_and_ack_timer(baro_tid))
+    baro_periodic();
+  if (sys_time_check_and_ack_timer(telemetry_tid))
+    telemetry_periodic();
+}
 
 STATIC_INLINE void main_periodic( void ) {
 
