@@ -51,7 +51,7 @@ SETTINGS_FILE=$(SETTINGS:settings%=%)
 #TUNING_FILE=$(subst   ,_,$(SETTINGS:settings/%.xml=%)).h
 TUNING_H=$(AC_GENERATED)/tuning.h
 SUPERVISION=./paparazzi
-MAKE:=$(MAKE) PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
+MAKE=make PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME)
 MODULES_H=$(AC_GENERATED)/modules.h
 AIRCRAFT_MD5=$(AIRCRAFT_CONF_DIR)/aircraft.md5
 
@@ -138,7 +138,7 @@ $(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_modules.out $(CONF)/modules/
 $(SETTINGS_MODULES) : $(MODULES_H)
 
 %.ac_h : $(TOOLS)/gen_aircraft.out
-	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type '$(MAKE) AIRCRAFT=AircraftName ...'"; exit 1; fi
+	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
 	@echo BUILD $(AIRCRAFT), TARGET $*
 	+$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(TOOLS)/gen_aircraft.out $(AIRCRAFT)
 
@@ -187,5 +187,5 @@ check_fuses_fbw: fbw.check_fuses
 hard_ac ac: ac_h fbw ap
 
 clean_ac :
-	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type '$(MAKE) AIRCRAFT=AircraftName ...'"; exit 1; fi
+	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
 	rm -fr $(PAPARAZZI_HOME)/var/$(AIRCRAFT)
