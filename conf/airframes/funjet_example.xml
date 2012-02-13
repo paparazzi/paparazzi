@@ -146,6 +146,7 @@
 		<!-- Airspeed Mode presetting -->
     <define name="AIRSPEED_MODE" value="0"/>
 
+<!-- !!!!!These are the Values which we are using with UMARS (www.umars.ch) !!!!-->
 		<!-- Vassillis -->
     <define name="AUTO_AIRSPEED_THROTTLE_PGAIN_VAS" value="0.0250000003725"/> 
     <define name="AUTO_AIRSPEED_THROTTLE_IGAIN_VAS" value="0.143999993801"/>
