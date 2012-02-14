@@ -65,12 +65,7 @@
 //#define STM32_RCC_MODE RCC_HSE_ON
 //#define STM32_PLL_MULT RCC_PLLMul_6
 
-#define PWM_5AND6_TIMER TIM5
-#define PWM_5AND6_RCC RCC_APB1Periph_TIM5
-#define PWM5_OC 1
-#define PWM6_OC 2
-#define PWM_5AND6_GPIO GPIOA
-#define PWM5_Pin GPIO_Pin_0
-#define PWM6_Pin GPIO_Pin_1
+// Remap the servos 5 and 6 to TIM5 CH1 and CH2
+#define REMAP_SERVOS_5AND6 1
 
 #endif /* CONFIG_LISA_M_1_0_H */
