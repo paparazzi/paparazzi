@@ -69,7 +69,7 @@
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
 #include "subsystems/datalink/xbee.h"
-#include "ap_downlink.h"
+#include "firmwares/fixedwing/ap_downlink.h"
 
 // modules & settings
 #include "generated/modules.h"
