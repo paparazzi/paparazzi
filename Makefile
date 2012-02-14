@@ -259,13 +259,13 @@ dist_clean_irreversible: clean
 ab_clean:
 	find sw/airborne -name '*~' -exec rm -f {} \;
 
-test_all_example_airframes:
-	$(MAKE) AIRCRAFT=BOOZ2_A1 clean_ac ap sim
-	$(MAKE) AIRCRAFT=Microjet clean_ac ap sim
-	$(MAKE) AIRCRAFT=Tiny_IMU clean_ac ap
-	$(MAKE) AIRCRAFT=EasyStar_ETS clean_ac ap sim
+#test_all_example_airframes:
+#	$(MAKE) AIRCRAFT=BOOZ2_A1 clean_ac ap sim
+#	$(MAKE) AIRCRAFT=Microjet clean_ac ap sim
+#	$(MAKE) AIRCRAFT=Tiny_IMU clean_ac ap
+#	$(MAKE) AIRCRAFT=EasyStar_ETS clean_ac ap sim
 
-test_all_example_airframes2:
+test_all_example_airframes:
 	for ap in `grep name conf/conf.xml.example | sed -e 's/.*name=\"//' | sed -e 's/"//'`; do echo "Making $$ap"; make -C ./ AIRCRAFT=$$ap clean_ac ap.compile || exit 1;   done
 
 commands: paparazzi sw/simulator/launchsitl

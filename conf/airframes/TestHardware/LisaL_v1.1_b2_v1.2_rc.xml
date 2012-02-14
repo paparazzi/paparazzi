@@ -1,2 +1,25 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+<!--
+ This airframe is connected to the build server and is used for hardware testing.
+ The hardware configuration is
+ Powered via a plug 12V pack
+ Lisa/L v1.1 board
+ XBee connected to UART2 configured at 38400
+ Booz2 v1.2
+ GPS connected to UART1 (Since this is inside in a metal box it won't ever get a solution)
+ -->
 <airframe name="TestConfig">
+    <firmware name="rotorcraft">
+        <target name="sim" 			board="pc"/>
+        <target name="ap" 			board="lisa_l_1.1"/>
+        
+        <subsystem name="radio_control" type="ppm"/>
+        <subsystem name="telemetry" 	type="xbee_api">
+            <configure name="MODEM_BAUD" value="B38400"/>
+        </subsystem>
+        <subsystem name="control"/>
+        <subsystem name="gps" 		type="ublox"/>
+        <subsystem name="navigation"/>
+    </firmware>
+
 </airframe>

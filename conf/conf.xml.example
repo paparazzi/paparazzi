@@ -18,13 +18,13 @@
 
 <!-- LISA -->
   <aircraft
-   name="Hexa_LisaL"
-   ac_id="153"
-   airframe="airframes/Poine/h_hex.xml"
+   name="LisaL11_Aspirin15_overo_FW"
+   ac_id="1"
+   airframe="airframes/TestHardware/LisaL_v1.1_aspirin_v1.5_overo_fw.xml"
    radio="radios/cockpitSX.xml"
-   telemetry="telemetry/telemetry_booz2.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/dummy.xml"
-   settings="settings/settings_booz2.xml"
+   settings="settings/basic_ins.xml settings/tuning_ins.xml"
    gui_color="white"
   />
   <aircraft
