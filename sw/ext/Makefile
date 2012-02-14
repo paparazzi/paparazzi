@@ -25,6 +25,7 @@
 
 Q=@
 PAPARAZZI_SRC=../..
+EXT_DIR=$(PAPARAZZI_SRC)/sw/ext
 
 all: libopencm3.module
 
