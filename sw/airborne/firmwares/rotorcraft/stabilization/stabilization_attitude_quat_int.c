@@ -33,12 +33,7 @@
 #include "subsystems/ahrs.h"
 #include "generated/airframe.h"
 
-struct Int32AttitudeGains stabilization_gains = {
-  {STABILIZATION_ATTITUDE_PHI_PGAIN, STABILIZATION_ATTITUDE_THETA_PGAIN, STABILIZATION_ATTITUDE_PSI_PGAIN },
-  {STABILIZATION_ATTITUDE_PHI_DGAIN, STABILIZATION_ATTITUDE_THETA_DGAIN, STABILIZATION_ATTITUDE_PSI_DGAIN },
-  {STABILIZATION_ATTITUDE_PHI_DDGAIN, STABILIZATION_ATTITUDE_THETA_DDGAIN, STABILIZATION_ATTITUDE_PSI_DDGAIN },
-  {STABILIZATION_ATTITUDE_PHI_IGAIN, STABILIZATION_ATTITUDE_THETA_IGAIN, STABILIZATION_ATTITUDE_PSI_IGAIN }
-};
+struct Int32AttitudeGains stabilization_gains;
 
 struct Int32Quat stabilization_att_sum_err_quat;
 struct Int32Eulers stabilization_att_sum_err;
@@ -98,17 +93,37 @@ void stabilization_attitude_init(void) {
 
   /*
   for (int i = 0; i < STABILIZATION_ATTITUDE_GAIN_NB; i++) {
-    VECT3_ASSIGN(stabilization_gains[i].p, phi_pgain[i], theta_pgain[i], psi_pgain[i]);
-    VECT3_ASSIGN(stabilization_gains[i].d, phi_dgain[i], theta_dgain[i], psi_dgain[i]);
-    VECT3_ASSIGN(stabilization_gains[i].i, phi_igain[i], theta_igain[i], psi_igain[i]);
-    VECT3_ASSIGN(stabilization_gains[i].dd, phi_ddgain[i], theta_ddgain[i], psi_ddgain[i]);
-    VECT3_ASSIGN(stabilization_gains[i].rates_d, phi_dgain_d[i], theta_dgain_d[i], psi_dgain_d[i]);
-    VECT3_ASSIGN(stabilization_gains[i].surface_p, phi_pgain_surface[i], theta_pgain_surface[i], psi_pgain_surface[i]);
-    VECT3_ASSIGN(stabilization_gains[i].surface_d, phi_dgain_surface[i], theta_dgain_surface[i], psi_dgain_surface[i]);
-    VECT3_ASSIGN(stabilization_gains[i].surface_i, phi_igain_surface[i], theta_igain_surface[i], psi_igain_surface[i]);
-    VECT3_ASSIGN(stabilization_gains[i].surface_dd, phi_ddgain_surface[i], theta_ddgain_surface[i], psi_ddgain_surface[i]);
+    VECT3_ASSIGN_ABS(stabilization_gains[i].p, phi_pgain[i], theta_pgain[i], psi_pgain[i]);
+    VECT3_ASSIGN_ABS(stabilization_gains[i].d, phi_dgain[i], theta_dgain[i], psi_dgain[i]);
+    VECT3_ASSIGN_ABS(stabilization_gains[i].i, phi_igain[i], theta_igain[i], psi_igain[i]);
+    VECT3_ASSIGN_ABS(stabilization_gains[i].dd, phi_ddgain[i], theta_ddgain[i], psi_ddgain[i]);
+    VECT3_ASSIGN_ABS(stabilization_gains[i].rates_d, phi_dgain_d[i], theta_dgain_d[i], psi_dgain_d[i]);
+    VECT3_ASSIGN_ABS(stabilization_gains[i].surface_p, phi_pgain_surface[i], theta_pgain_surface[i], psi_pgain_surface[i]);
+    VECT3_ASSIGN_ABS(stabilization_gains[i].surface_d, phi_dgain_surface[i], theta_dgain_surface[i], psi_dgain_surface[i]);
+    VECT3_ASSIGN_ABS(stabilization_gains[i].surface_i, phi_igain_surface[i], theta_igain_surface[i], psi_igain_surface[i]);
+    VECT3_ASSIGN_ABS(stabilization_gains[i].surface_dd, phi_ddgain_surface[i], theta_ddgain_surface[i], psi_ddgain_surface[i]);
   }
   */
+
+  VECT3_ASSIGN_ABS(stabilization_gains.p,
+               STABILIZATION_ATTITUDE_PHI_PGAIN,
+               STABILIZATION_ATTITUDE_THETA_PGAIN,
+               STABILIZATION_ATTITUDE_PSI_PGAIN);
+
+  VECT3_ASSIGN_ABS(stabilization_gains.d,
+               STABILIZATION_ATTITUDE_PHI_DGAIN,
+               STABILIZATION_ATTITUDE_THETA_DGAIN,
+               STABILIZATION_ATTITUDE_PSI_DGAIN);
+
+  VECT3_ASSIGN_ABS(stabilization_gains.i,
+               STABILIZATION_ATTITUDE_PHI_IGAIN,
+               STABILIZATION_ATTITUDE_THETA_IGAIN,
+               STABILIZATION_ATTITUDE_PSI_IGAIN);
+
+  VECT3_ASSIGN_ABS(stabilization_gains.dd,
+               STABILIZATION_ATTITUDE_PHI_DDGAIN,
+               STABILIZATION_ATTITUDE_THETA_DDGAIN,
+               STABILIZATION_ATTITUDE_PSI_DDGAIN);
 
   INT32_QUAT_ZERO( stabilization_att_sum_err_quat );
   INT_EULERS_ZERO( stabilization_att_sum_err );
@@ -152,17 +167,17 @@ static void attitude_run_fb(int32_t fb_commands[], struct Int32AttitudeGains *ga
 {
   /*  PID feedback */
   fb_commands[COMMAND_ROLL] =
-    GAIN_PRESCALER_P * -gains->p.x  * QUAT1_FLOAT_OF_BFP(att_err->qx) / 4 +
+    GAIN_PRESCALER_P * gains->p.x  * QUAT1_FLOAT_OF_BFP(att_err->qx) / 4 +
     GAIN_PRESCALER_D * gains->d.x  * RATE_FLOAT_OF_BFP(rate_err->p) / 16 +
     GAIN_PRESCALER_I * gains->i.x  * QUAT1_FLOAT_OF_BFP(sum_err->qx) / 2;
 
   fb_commands[COMMAND_PITCH] =
-    GAIN_PRESCALER_P * -gains->p.y  * QUAT1_FLOAT_OF_BFP(att_err->qy) / 4 +
+    GAIN_PRESCALER_P * gains->p.y  * QUAT1_FLOAT_OF_BFP(att_err->qy) / 4 +
     GAIN_PRESCALER_D * gains->d.y  * RATE_FLOAT_OF_BFP(rate_err->q)  / 16 +
     GAIN_PRESCALER_I * gains->i.y  * QUAT1_FLOAT_OF_BFP(sum_err->qy) / 2;
 
   fb_commands[COMMAND_YAW] =
-    GAIN_PRESCALER_P * -gains->p.z  * QUAT1_FLOAT_OF_BFP(att_err->qz) / 4 +
+    GAIN_PRESCALER_P * gains->p.z  * QUAT1_FLOAT_OF_BFP(att_err->qz) / 4 +
     GAIN_PRESCALER_D * gains->d.z  * RATE_FLOAT_OF_BFP(rate_err->r)  / 16 +
     GAIN_PRESCALER_I * gains->i.z  * QUAT1_FLOAT_OF_BFP(sum_err->qz) / 2;
 
@@ -188,7 +203,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 
   /*  rate error                */
   struct Int32Rates rate_err;
-  RATES_DIFF(rate_err, ahrs.body_rate, stab_att_ref_rate);
+  RATES_DIFF(rate_err, stab_att_ref_rate, ahrs.body_rate);
 
   /* integrated error */
   if (enable_integrator) {
@@ -198,7 +213,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
     scaled_att_err.qx = att_err.qx / IERROR_SCALE;
     scaled_att_err.qy = att_err.qy / IERROR_SCALE;
     scaled_att_err.qz = att_err.qz / IERROR_SCALE;
-    INT32_QUAT_COMP_INV(new_sum_err, stabilization_att_sum_err_quat, scaled_att_err);
+    INT32_QUAT_COMP(new_sum_err, stabilization_att_sum_err_quat, scaled_att_err);
     INT32_QUAT_NORMALIZE(new_sum_err);
     QUAT_COPY(stabilization_att_sum_err_quat, new_sum_err);
     INT32_EULERS_OF_QUAT(stabilization_att_sum_err, stabilization_att_sum_err_quat);

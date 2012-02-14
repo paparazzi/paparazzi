@@ -144,7 +144,7 @@
 
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="-0.101000003517"/>
+    <define name="ALTITUDE_PGAIN" value="0.101000003517"/>
     <!-- outer loop saturation max m/s the alt tap can be-->
     <define name="ALTITUDE_MAX_CLIMB" value="4"/>
 
@@ -160,7 +160,7 @@
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.202000007033"/>
 
     <!-- auto pitch inner loop -->
-    <define name="AUTO_PITCH_PGAIN" value="-0.0399999991059"/>
+    <define name="AUTO_PITCH_PGAIN" value="0.0399999991059"/>
     <define name="AUTO_PITCH_IGAIN" value="0.019999999553"/>
     <define name="AUTO_PITCH_MAX_PITCH" value="0.35"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="-0.35"/>
@@ -170,7 +170,7 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.12900002003"/>
+    <define name="COURSE_PGAIN" value="1.12900002003"/>
     <define name="COURSE_DGAIN" value="0.556999993324"/>
     <define name="ROLL_MAX_SETPOINT" value="0.916999995708" unit="rad"/>
     <define name="PITCH_MAX_SETPOINT" value="0.6" unit="rad"/>
@@ -178,11 +178,11 @@
 
     <define name="ROLL_PGAIN" value="0."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
-    <define name="PITCH_PGAIN" value="-8550.48925781"/>
+    <define name="PITCH_PGAIN" value="8550.48925781"/>
     <define name="PITCH_DGAIN" value="1.7254999876"/>
     <define name="ELEVATOR_OF_ROLL" value="1250."/>
-    <define name="ROLL_RATE_GAIN" value="-625."/>
-    <define name="ROLL_ATTITUDE_GAIN" value="-4464.28613281"/>
+    <define name="ROLL_RATE_GAIN" value="625."/>
+    <define name="ROLL_ATTITUDE_GAIN" value="4464.28613281"/>
 
     <!--  roll rate loop -->
     <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>
@@ -203,7 +203,7 @@
   <section name="NAV">
     <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0."/>
-  <!--  <define name="NAV_GROUND_SPEED_PGAIN" value="-0.015"/> NOG niet in de nav.c file
+  <!--  <define name="NAV_GROUND_SPEED_PGAIN" value="0.015"/> NOG niet in de nav.c file
     <define name="NAV_FOLLOW_PGAIN" value="-0.05"/>  -->
   </section>
 

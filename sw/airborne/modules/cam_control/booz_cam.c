@@ -28,6 +28,7 @@
 #include "firmwares/rotorcraft/navigation.h"
 #include "subsystems/ins.h"
 #include "generated/flight_plan.h"
+#include "std.h"
 
 uint8_t booz_cam_mode;
 
@@ -83,7 +84,6 @@ void booz_cam_init(void) {
 #endif
 }
 
-#define ABS(_x) ((_x) < 0 ? -(_x) : (_x))
 #define D_TILT (BOOZ_CAM_TILT_MAX - BOOZ_CAM_TILT_MIN)
 #define CT_MIN Min(BOOZ_CAM_TILT_MIN,BOOZ_CAM_TILT_MAX)
 #define CT_MAX Max(BOOZ_CAM_TILT_MIN,BOOZ_CAM_TILT_MAX)
