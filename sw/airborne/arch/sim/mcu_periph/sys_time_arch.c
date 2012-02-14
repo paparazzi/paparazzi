@@ -26,3 +26,21 @@
 void sys_time_arch_init( void ) {
 
 }
+
+void sys_tick_handler( void ) {
+
+  sys_time.nb_tick++;
+  sys_time.nb_sec_rem += SYS_TIME_RESOLUTION_CPU_TICKS;
+  if (sys_time.nb_sec_rem >= CPU_TICKS_PER_SEC) {
+    sys_time.nb_sec_rem -= CPU_TICKS_PER_SEC;
+    sys_time.nb_sec++;
+  }
+  for (unsigned int i=0; i<SYS_TIME_NB_TIMER; i++) {
+    if (sys_time.timer[i].in_use &&
+        sys_time.nb_tick >= sys_time.timer[i].end_time) {
+      sys_time.timer[i].end_time += sys_time.timer[i].duration;
+      sys_time.timer[i].elapsed = TRUE;
+      if (sys_time.timer[i].cb) sys_time.timer[i].cb(i);
+    }
+  }
+}

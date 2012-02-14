@@ -36,7 +36,11 @@
 
 # imu aspirin
 
-IMU_ASPIRIN_CFLAGS  = -DUSE_IMU
+# for fixedwing firmware and ap only
+ifeq ($(TARGET), ap)
+  IMU_ASPIRIN_CFLAGS  = -DUSE_IMU
+endif
+
 IMU_ASPIRIN_CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin.h\"
 IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
                       $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \

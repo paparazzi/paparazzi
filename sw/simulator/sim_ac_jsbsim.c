@@ -80,6 +80,9 @@ static void sim_init(void) {
   // main AP init (feed the sensors once before ?)
   autopilot_init();
 
+  printf("sys_time resolution: %f\n", SYS_TIME_RESOLUTION);
+  printf("sys_time period in msec: %d\n", SYSTIME_PERIOD);
+
 }
 
 static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
@@ -116,6 +119,11 @@ static gboolean sim_periodic(gpointer data __attribute__ ((unused))) {
   return result;
 }
 
+static gboolean systime_periodic(gpointer data __attribute__ ((unused))) {
+  sys_tick_handler();
+  return true;
+}
+
 
 int main ( int argc, char** argv) {
 
@@ -129,6 +137,7 @@ int main ( int argc, char** argv) {
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
 
   g_timeout_add(JSBSIM_PERIOD, sim_periodic, NULL);
+  g_timeout_add(SYSTIME_PERIOD, systime_periodic, NULL);
 
   g_main_loop_run(ml);
 
