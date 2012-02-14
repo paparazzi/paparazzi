@@ -229,7 +229,8 @@ __attribute__ ((always_inline)) static inline void  guidance_h_hover_run(void) {
   VECT2_STRIM(guidance_h_pos_err, -MAX_POS_ERR, MAX_POS_ERR);
 
   /* compute speed error    */
-  VECT2_COPY(guidance_h_speed_err, -ins_ltp_speed);
+  guidance_h_speed_err.x = -ins_ltp_speed.x;
+  guidance_h_speed_err.y = -ins_ltp_speed.y;
   /* saturate it               */
   VECT2_STRIM(guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
 
