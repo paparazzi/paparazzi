@@ -109,7 +109,7 @@
 
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="-0.101000003517"/>
+    <define name="ALTITUDE_PGAIN" value="0.101000003517"/>
     <!-- outer loop saturation max m/s the alt tap can be-->
     <define name="ALTITUDE_MAX_CLIMB" value="4"/>
 
@@ -120,12 +120,12 @@
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="219.511993408"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-1200"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.104999996722" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.00700000021607"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0.00700000021607"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0."/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.12800000608"/>
 
     <!-- auto pitch inner loop -->
-    <define name="AUTO_PITCH_PGAIN" value="-0.0399999991059"/>
+    <define name="AUTO_PITCH_PGAIN" value="0.0399999991059"/>
     <define name="AUTO_PITCH_IGAIN" value="0.019999999553"/>
     <define name="AUTO_PITCH_MAX_PITCH" value="0.35"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="-0.35"/>
@@ -135,18 +135,18 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.54100000858"/>
+    <define name="COURSE_PGAIN" value="1.54100000858"/>
     <define name="ROLL_MAX_SETPOINT" value="0.916999995708" unit="rad"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.4" unit="rad"/>
 
     <define name="ROLL_PGAIN" value="5000."/>
     <define name="AILERON_OF_THROTTLE" value="0.0"/>
-    <define name="PITCH_PGAIN" value="-7330.82714844"/>
+    <define name="PITCH_PGAIN" value="7330.82714844"/>
     <define name="PITCH_DGAIN" value="1.7254999876"/>
     <define name="ELEVATOR_OF_ROLL" value="1250."/>
-    <define name="ROLL_RATE_GAIN" value="-112.781997681"/>
-    <define name="ROLL_ATTITUDE_GAIN" value="-4957.62695312"/>
+    <define name="ROLL_RATE_GAIN" value="112.781997681"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="4957.62695312"/>
 
     <!--  roll rate loop -->
     <define name="ROLL_RATE_MODE_DEFAULT" value="1"/>
@@ -167,7 +167,7 @@
   <section name="NAV">
     <define name="NAV_PITCH" value="0."/>
     <define name="NAV_GLIDE_PITCH_TRIM" value="0."/>
-  <!--  <define name="NAV_GROUND_SPEED_PGAIN" value="-0.015"/> NOG niet in de nav.c file
+  <!--  <define name="NAV_GROUND_SPEED_PGAIN" value="0.015"/> NOG niet in de nav.c file
     <define name="NAV_FOLLOW_PGAIN" value="-0.05"/>  -->
   </section>
 

@@ -251,7 +251,7 @@
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="-0.108000002801"/>
+    <define name="ALTITUDE_PGAIN" value="0.108000002801"/>
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
@@ -262,7 +262,7 @@
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-4000"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.250999987125" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.00700000021607"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0.00700000021607"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.0309999994934"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.171000003815"/>
 
@@ -272,7 +272,7 @@
 <!-- ******************* HORIZONTAL CONTROL ******************************** -->
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.16799998283"/>
+    <define name="COURSE_PGAIN" value="1.16799998283"/>
     <define name="COURSE_DGAIN" value="0.280999988317"/>
     <define name="COURSE_PRE_BANK_CORRECTION" value="1.0039999485"/>
 
@@ -280,15 +280,15 @@
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
-    <define name="PITCH_PGAIN" value="-15429.6865234"/>
+    <define name="PITCH_PGAIN" value="15429.6865234"/>
     <define name="PITCH_DGAIN" value="7.73400020599"/>
 
     <define name="ELEVATOR_OF_ROLL" value="3007.81298828"/>
 
     <define name="ROLL_SLEW" value="1."/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-11718.75"/>
-    <define name="ROLL_RATE_GAIN" value="-820.312011719"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="11718.75"/>
+    <define name="ROLL_RATE_GAIN" value="820.312011719"/>
   </section>
 
 <!-- ***************************** AGGRESIVE ******************************* -->

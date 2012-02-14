@@ -27,6 +27,7 @@
 
 #include <float.h>  /* for FLT_EPSILON */
 #include <string.h> /* for memcpy      */
+#include "std.h" /* for ABS */
 
 #define SQUARE(_a) ((_a)*(_a))
 
@@ -99,6 +100,13 @@
     (_a).x = (_x);				\
     (_a).y = (_y);				\
     (_a).z = (_z);				\
+  }
+
+/* a =  {abs(x), abs(y), abs(z)} */
+#define VECT3_ASSIGN_ABS(_a, _x, _y, _z) {      \
+    (_a).x = ABS(_x);                              \
+    (_a).y = ABS(_y);                              \
+    (_a).z = ABS(_z);                              \
   }
 
 /* a = b */
@@ -197,6 +205,13 @@
     if ((_v).x > (_v_max).x) (_v).x = (_v_max).x; else if ((_v).x < (_v_min).x) (_v).x = (_v_min).x; \
     if ((_v).y > (_v_max).y) (_v).y = (_v_max).y; else if ((_v).y < (_v_min).y) (_v).y = (_v_min).z; \
     if ((_v).z > (_v_max).y) (_v).z = (_v_max).z; else if ((_v).z < (_v_min).z) (_v).z = (_v_min).z; \
+  }
+
+/*  */
+#define VECT3_ABS(_vo, _vi) { \
+    (_vo).x = ABS((_vi).x);   \
+    (_vo).y = ABS((_vi).y);   \
+    (_vo).z = ABS((_vi).z);   \
   }
 
 #define VECT3_CROSS_PRODUCT(_vo, _v1, _v2) {        \
