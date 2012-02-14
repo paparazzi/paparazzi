@@ -4,10 +4,10 @@
 <airframe name="qs4_lisam2">
 
   <servos min="0" neutral="0" max="0xff">
-    <servo name="A1"            no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="A2"            no="1" min="1000" neutral="1000" max="2000"/>
-    <servo name="B1"            no="2" min="1000" neutral="1000" max="2000"/>
-    <servo name="B2"            no="3" min="1000" neutral="1000" max="2000"/>
+    <servo name="A1"            no="0" min="800" neutral="800" max="2000"/>
+    <servo name="A2"            no="1" min="800" neutral="800" max="2000"/>
+    <servo name="B1"            no="2" min="800" neutral="800" max="2000"/>
+    <servo name="B2"            no="3" min="800" neutral="800" max="2000"/>
     <servo name="AILEVON_LEFT"  no="4" min="1000" neutral="1500" max="2000"/>
     <servo name="AILEVON_RIGHT" no="5" min="1000" neutral="1500" max="2000"/>
     <servo name="CAMERA_MOUNT"  no="6" min="2000" neutral="1500" max="1000"/>
@@ -32,7 +32,7 @@
     <!-- <define name="MODE_AUTO1" value="AP_MODE_TOYTRONICS_AEROBATIC"/> -->
     <define name="MODE_AUTO2"  value="AP_MODE_TOYTRONICS_AEROBATIC"/>
     <define name="AUTOPILOT_KILL_WITHOUT_AHRS"  value="TRUE"/>
-    <define name="AUTOPILOT_INSTANT_START_WITH_SAFETIES"  value="TRUE"/>
+    <define name="AUTOPILOT_THROTTLE_INSTANT_START_WITH_SAFETIES"  value="TRUE"/>
     <!--This is to enable a wing waggle at specified low battery voltage. The interval is in cycle counts, not seconds-->
     <!--define name="AUTOPILOT_LOBATT_WING_WAGGLE"/>
     <define name="AUTOPILOT_LOBATT_WING_WAGGLE_INTERVAL"  value="5120"/-->
@@ -106,7 +106,7 @@
     <define name="COMMANDS_YAW_ALWAYS_ENABLED" value="TRUE"/>
  </section>
   <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="MIN_MOTOR" value="1100"/>
+    <define name="MIN_MOTOR" value="800"/>
     <define name="MAX_MOTOR" value="2000"/>
     <define name="TRIM_A" value="0"/>
     <define name="TRIM_E" value="0"/>
@@ -253,10 +253,9 @@
       <define name="SERVO_HZ" value="400"/>
       <define name="SERVO_HZ_SECONDARY" value="40"/>
       <define name="RADIO_MODE" value="RADIO_FLAP"/>
-      <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
+      <!--define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/-->
       <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/>
       <define name = "RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value = "UART5"/>
-      <!--define name = "RADIO_CONTROL_QUADSHOT_RADIO"/-->
       <define name = "OVERRIDE_UART5_IRQ_HANDLER"/>
     </target>
     <target name="sim" board="pc">
@@ -265,9 +264,11 @@
       <subsystem name="actuators"     type="mkk"/>
     </target>
 
-    <subsystem name="imu"           type="aspirin"/>
+    <subsystem name="imu"           type="aspirin_v1.0"/>
     <subsystem name="gps"           type="ublox"/>
+    <!--subsystem name="ahrs"          type="float_dcm"/-->
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
+    <!--define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/-->
     <subsystem name="stabilization" type="quaternion"/>
     <subsystem name="toytronics"    type="default"/>
     <subsystem name="camera_mount"  type="default"/>
