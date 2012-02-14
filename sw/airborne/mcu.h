@@ -23,7 +23,7 @@
  */
 
 /** \file mcu.h
- *  \brief arch independant mcu ( Micro Controller Unit ) utilities
+ *  \brief arch independent mcu ( Micro Controller Unit ) utilities
  */
 
 #ifndef MCU_H

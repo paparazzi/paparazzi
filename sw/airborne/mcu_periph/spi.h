@@ -23,7 +23,7 @@
  */
 
 /** \file mcu_periph/spi.h
- * \brief arch independant SPI (Serial Peripheral Interface) API */
+ * \brief arch independent SPI (Serial Peripheral Interface) API */
 
 
 #ifndef SPI_H

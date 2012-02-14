@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2008-2011 The Paparazzi Team
+ *
+ * Copyright (C) 2012, Tobias Muench
  *
  * This file is part of paparazzi.
  *
@@ -17,29 +18,23 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- */
-
-/** @file gps.c
- *  @brief Device independent GPS code
  *
  */
 
-#include "subsystems/gps.h"
+/**
+ * @file subsystems/navigation/gls.h
+ * @brief gps landing system
+ */
 
-#include "led.h"
+#ifndef NAV_GLS_H
+#define NAV_GLS_H
 
-struct GpsState gps;
+#include "std.h"
+#include "paparazzi.h"
 
-#ifdef GPS_TIMESTAMP
-struct GpsTimeSync gps_time;
+
+
+extern bool_t gls_init(uint8_t _af, uint8_t _tod, uint8_t _td);
+extern bool_t gls(uint8_t _af, uint8_t _tod, uint8_t _td);
+
 #endif
-
-void gps_init(void) {
-  gps.fix = GPS_FIX_NONE;
-#ifdef GPS_LED
-  LED_OFF(GPS_LED);
-#endif
-#ifdef GPS_TYPE_H
-  gps_impl_init();
-#endif
-}
