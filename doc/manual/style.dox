@@ -22,7 +22,7 @@ Feedback would be welcome to improve the Paparazzi guidelines.
 /** @page stylec C Style Guide
 
 This page contains guidelines for writing new C source code for the
-OpenOCD project.
+Paparazzi project.
 
 @section styleformat Formatting Guide
 
@@ -66,6 +66,30 @@ int32_t f(int32_t x1, int32_t x2)
 }
 @endcode
 
+@section styleswitch Switch statements
+
+- specify a default case
+- prefer an enum over defines for the different states
+@code
+enum state
+{
+  STATE_FOO = 1,
+  STATE_BAR = 2
+};
+
+switch( state )
+{
+  case STATE_FOO:
+    foo();
+    break;
+  case STATE_BAR:
+    bar();
+    break;
+  default:
+    break;
+}
+@endcode
+
 @section stylecpp Preprocessor directives
 - For conditional compilation use @c #if instead of @c #ifdef.
 Someone might write code like:
@@ -90,7 +114,7 @@ So use @c #if not @c #ifdef to turn a feature on or off. This works fine, and do
 
 /** @page styledoxygen Doxygen Style Guide
 
-The following sections provide guidelines for OpenOCD developers
+The following sections provide guidelines for Paparazzi developers
 who wish to write Doxygen comments in the code or this manual.
 For an introduction to Doxygen documentation,
 see the @ref primerdoxygen.
