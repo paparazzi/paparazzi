@@ -304,6 +304,26 @@ static inline void autopilot_check_motors_on( void ) {
 		  autopilot_mode1_kill = radio_control.values[RADIO_MODE]<0;
 		}
 	}
+#elif defined AUTOPILOT_THROTTLE_INSTANT_START_WITH_SAFETIES
+static inline void autopilot_check_motors_on( void ) {
+	if (!THROTTLE_STICK_DOWN() && !ahrs_is_aligned())	
+		autopilot_rc_unkilled_startup = TRUE;
+	if (autopilot_rc_unkilled_startup == TRUE)
+		if (THROTTLE_STICK_DOWN() && ahrs_is_aligned())
+			autopilot_rc_unkilled_startup = FALSE;
+	if (autopilot_motors_on == FALSE && autopilot_rc_unkilled_startup == FALSE && autopilot_mode1_kill == TRUE){
+		if (autopilot_first_boot == TRUE){
+		  RunOnceEvery(1024,{autopilot_first_boot = FALSE;})
+		  }
+		else
+		  autopilot_motors_on=!THROTTLE_STICK_DOWN() && radio_control.values[RADIO_MODE] < 0 && YAW_STICK_CENTERED() && PITCH_STICK_CENTERED() && ROLL_STICK_CENTERED() && ahrs_is_aligned();
+		}
+	else{ 
+		autopilot_motors_on=!THROTTLE_STICK_DOWN() && ahrs_is_aligned() && autopilot_rc_unkilled_startup == FALSE;
+		if(autopilot_motors_on == TRUE)
+		  autopilot_mode1_kill = radio_control.values[RADIO_MODE]<0;
+		}
+	}
 #elif defined AUTOPILOT_INSTANT_START
 static inline void autopilot_check_motors_on( void ) {
 	autopilot_motors_on=radio_control.values[RADIO_KILL_SWITCH]>0 && ahrs_is_aligned();
