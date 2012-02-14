@@ -96,7 +96,6 @@
   </section>
 
   <section name="BAT">
-    <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
     <define name="ADC_CHANNEL_VSUPPLY"  value="AdcBank1(6)"/>
     <define name="VoltageOfAdc(adc)" value="(0.01787109375*adc)"/>
     <define name="CurrentOfAdc(adc)" value="((adc-177.)*(3.27/0.058))"/>

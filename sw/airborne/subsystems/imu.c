@@ -21,6 +21,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** \file imu.c
+ * \brief Inertial Measurement Unit interface
+ */
+
 #include "subsystems/imu.h"
 
 struct Imu imu;

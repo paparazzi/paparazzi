@@ -199,14 +199,15 @@ let () =
       let tag = GText.tag ~name:color () in
       tag#set_property (`BACKGROUND color);
       (color, tag))
-      ["red"; "green";"orange"] in
+      ["red"; "green"; "orange"] in
   let tag_table = GText.tag_table () in
   List.iter (fun (_color, tag) -> tag_table#add tag#as_tag) background_tags;
   let buffer = GText.buffer ~tag_table () in
   gui#console#set_buffer buffer;
 
   let errors = "red", ["error"; "no such file"; "undefined reference"; "failure"]
-  and warnings = "orange", ["warning"] in
+  and warnings = "orange", ["warning"]
+  and info = "green", ["pragma message"] in
 
   let color_regexps =
     List.map (fun (color, strings) ->
@@ -214,7 +215,7 @@ let () =
       let s = String.concat "\\|" s in
       let s = ".*\\("^s^"\\)" in
       color, Str.regexp_case_fold s)
-      [errors; warnings] in
+      [errors; warnings; info] in
   let compute_tags = fun s ->
     let rec loop = function
 	(color, regexp)::rs ->

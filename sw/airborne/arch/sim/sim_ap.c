@@ -17,7 +17,6 @@
 #include "subsystems/nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
-#include "subsystems/sensors/infrared.h"
 #include "commands.h"
 #include "firmwares/fixedwing/main_ap.h"
 #include "ap_downlink.h"

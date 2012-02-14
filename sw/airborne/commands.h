@@ -32,6 +32,8 @@
 #include "paparazzi.h"
 #include "generated/airframe.h"
 
+extern pprz_t command_roll_trim;
+extern pprz_t command_pitch_trim;
 
 extern pprz_t commands[COMMANDS_NB];
 extern const pprz_t commands_failsafe[COMMANDS_NB];

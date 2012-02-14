@@ -37,6 +37,7 @@ GPS_BAUD = B38400
 endif
 
 GPS_LED     = 2
+RADIO_CONTROL_LED = none
 
 ifndef ADC_IR1
 ADC_IR1      = 1

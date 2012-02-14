@@ -1,7 +1,8 @@
 UNAME = $(shell uname -s)
 
 ifeq ("$(UNAME)","Darwin")
-  LIBRARYS = -L/opt/local/lib
+  LIBRARYS = -L /opt/paparazzi/lib -L /opt/local/lib
+  INCLUDES = -I /opt/paparazzi/include -I /opt/local/include/
 else
   LIBRARYS = -s
 endif
@@ -19,4 +20,4 @@ kestrel2ivy: kestrel2ivy.o
 	g++ -o kestrel2ivy kestrel2ivy.o $(LIBRARYS) -livy
 
 %.o : %.c
-	gcc -c -O2 -Wall -I /opt/local/include/  $<
+	gcc -c -O2 -Wall $(INCLUDES) $<

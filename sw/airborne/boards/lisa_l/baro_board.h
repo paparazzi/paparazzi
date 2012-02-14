@@ -31,6 +31,8 @@ struct BaroBoard {
 extern struct BaroBoard baro_board;
 extern struct i2c_transaction baro_trans;
 
+extern void baro_downlink_raw(void);
+
 extern void baro_board_send_reset(void);
 extern void baro_board_send_config_abs(void);
 extern void baro_board_send_config_diff(void);

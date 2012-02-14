@@ -10,7 +10,7 @@ void imu_crista_arch_init(void) {
 
 }
 
-
+#if USE_NPS
 #include "nps_sensors.h"
 
 void imu_feed_gyro_accel(void) {
@@ -29,3 +29,4 @@ void imu_feed_mag(void) {
   ami601_values[IMU_MAG_Z_CHAN] = sensors.mag.value.z;
   ami601_status = AMI601_DATA_AVAILABLE;
 }
+#endif

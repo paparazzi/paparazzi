@@ -23,7 +23,7 @@
  */
 
 /** \file adc.h
- *  \brief arch independant ADC (Analog to Digital Converter) API
+ *  \brief arch independent ADC (Analog to Digital Converter) API
  *
  * Facility to store last values in a circular buffer for a specific
  *   channel:

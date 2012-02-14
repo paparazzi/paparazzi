@@ -65,9 +65,7 @@
  </section>
 
  <section name="BAT">
-   <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-   <define name="BATTERY_SENS"   value="0.48" integer="16"/>
  </section>
 
 
@@ -196,7 +194,7 @@
       <subsystem name="actuators"     type="mkk"/>
     </target>
 
-    <subsystem name="imu"           type="aspirin"/>
+    <subsystem name="imu"           type="aspirin_v1.0"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <subsystem name="stabilization" type="quaternion"/>

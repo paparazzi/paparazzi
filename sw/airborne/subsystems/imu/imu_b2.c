@@ -34,6 +34,8 @@ void imu_impl_init(void) {
   ami601_init();
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC5843
   hmc5843_init();
+#elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC58XX
+  hmc58xx_init();
 #endif
 
 }
