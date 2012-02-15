@@ -1,4 +1,3 @@
-<!DOCTYPE airframe SYSTEM "../airframe.dtd">
 <!--
  This airframe is connected to the build server and is used for hardware testing.
  The hardware configuration is

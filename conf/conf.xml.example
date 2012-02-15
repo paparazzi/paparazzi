@@ -1,55 +1,66 @@
 <?xml version="1.0"?>
 
 <conf>
-
-<!-- arm7 aircrafts -->
-
-<!-- booz2 -->
-   <aircraft
-   name="BOOZ2_A1"
-   ac_id="150"
-   airframe="airframes/Poine/booz2_a1.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/telemetry_booz2.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/settings_booz2.xml settings/settings_booz2_ahrs_cmpl.xml"
-   gui_color="white"
-  />
-
-<!-- LISA -->
-  <aircraft
-   name="LisaL11_Aspirin15_overo_FW"
-   ac_id="1"
-   airframe="airframes/TestHardware/LisaL_v1.1_aspirin_v1.5_overo_fw.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_fixedwing_imu.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/basic_ins.xml settings/tuning_ins.xml"
-   gui_color="white"
-  />
-  <aircraft
-   name="BOOZ2_A7"
-   ac_id="159"
-   airframe="airframes/Poine/booz2_a7.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/telemetry_booz2.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/settings_booz2.xml"
-   gui_color="white"
-  />
-  <aircraft
-   name="LISA_ASCTEC_PIOTR"
-   ac_id="161"
-   airframe="airframes/esden/lisa_asctec.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/telemetry_booz2.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/settings_booz2.xml settings/settings_booz2_ahrs_cmpl.xml"
-   gui_color="white"
-  />
-
- <!-- tiny -->
-  <aircraft
+	
+	<!-- LISA -->
+	<aircraft
+	name="LisaL11_Booz2_12_RC"
+	ac_id="1"
+	airframe="airframes/TestHardware/LisaL_v1.1_b2_v1.2_rc.xml"
+	radio="radios/cockpitSX.xml"
+	telemetry="telemetry/telemetry_booz2.xml"
+	flight_plan="flight_plans/dummy.xml"
+	settings="settings/settings_booz2.xml"
+	gui_color="white"
+	/>
+	<aircraft
+	name="LisaL11_Aspirin15_overo_FW"
+	ac_id="2"
+	airframe="airframes/TestHardware/LisaL_v1.1_aspirin_v1.5_overo_fw.xml"
+	radio="radios/cockpitSX.xml"
+	telemetry="telemetry/default_fixedwing_imu.xml"
+	flight_plan="flight_plans/dummy.xml"
+	settings="settings/basic_ins.xml settings/tuning_ins.xml"
+	gui_color="white"
+	/>
+	
+	<!-- arm7 aircrafts -->
+	
+	<!-- booz2 -->
+	<aircraft
+	name="BOOZ2_A1"
+	ac_id="150"
+	airframe="airframes/Poine/booz2_a1.xml"
+	radio="radios/cockpitSX.xml"
+	telemetry="telemetry/telemetry_booz2.xml"
+	flight_plan="flight_plans/dummy.xml"
+	settings="settings/settings_booz2.xml settings/settings_booz2_ahrs_cmpl.xml"
+	gui_color="white"
+	/>
+	
+	<aircraft
+	name="BOOZ2_A7"
+	ac_id="159"
+	airframe="airframes/Poine/booz2_a7.xml"
+	radio="radios/cockpitSX.xml"
+	telemetry="telemetry/telemetry_booz2.xml"
+	flight_plan="flight_plans/dummy.xml"
+	settings="settings/settings_booz2.xml"
+	gui_color="white"
+	/>
+	<aircraft
+	name="LISA_ASCTEC_PIOTR"
+	ac_id="161"
+	airframe="airframes/esden/lisa_asctec.xml"
+	radio="radios/cockpitSX.xml"
+	telemetry="telemetry/telemetry_booz2.xml"
+	flight_plan="flight_plans/dummy.xml"
+	settings="settings/settings_booz2.xml settings/settings_booz2_ahrs_cmpl.xml"
+	gui_color="white"
+	/>
+	
+	<!-- tiny -->
+	<aircraft
     name="Microjet"
     ac_id="5"
     airframe="airframes/microjet_example.xml"
@@ -58,18 +69,18 @@
     flight_plan="flight_plans/basic.xml"
     settings="settings/basic_infrared.xml"
     gui_color="#6293ba"
-  />
-  <aircraft
-   name="Tiny_IMU"
-   ac_id="7"
-   airframe="airframes/example_twog_analogimu.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_fixedwing_imu.xml"
-   flight_plan="flight_plans/versatile.xml"
-   settings="settings/tuning_ins.xml"
-   gui_color="blue"
-  />
-  <aircraft
+	/>
+	<aircraft
+	name="Tiny_IMU"
+	ac_id="7"
+	airframe="airframes/example_twog_analogimu.xml"
+	radio="radios/cockpitSX.xml"
+	telemetry="telemetry/default_fixedwing_imu.xml"
+	flight_plan="flight_plans/versatile.xml"
+	settings="settings/tuning_ins.xml"
+	gui_color="blue"
+	/>
+	<aircraft
     name="Twinjet"
     ac_id="6"
     airframe="airframes/twinjet_example.xml"
@@ -78,8 +89,8 @@
     flight_plan="flight_plans/versatile.xml"
     settings="settings/tuning.xml settings/infrared.xml"
     gui_color="#ba6293"
-  />
-  <aircraft
+	/>
+	<aircraft
     name="EasyStar_ETS"
     ac_id="8"
     airframe="airframes/easystar_ets_example.xml"
@@ -88,6 +99,6 @@
     flight_plan="flight_plans/versatile.xml"
     settings="settings/tuning.xml settings/infrared.xml"
     gui_color="red"
-  />
-
+	/>
+	
 </conf>
