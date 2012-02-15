@@ -267,8 +267,12 @@ ab_clean:
 
 test_all_example_airframes2: test_all_example_airframes
 
-test_all_example_airframes:
+test_all_example_airframes: replace_current_conf_xml
 	for ap in `grep name conf/conf.xml.example | sed -e 's/.*name=\"//' | sed -e 's/"//'`; do echo "Making $$ap"; make -C ./ AIRCRAFT=$$ap clean_ac ap.compile || exit 1;   done
+
+replace_current_conf_xml:
+	mv conf/conf.xml conf/conf.xml.backup.`date +%Y%m%d-%H%M%s`
+	cp conf/conf.xml.example conf/conf.xml
 
 commands: paparazzi sw/simulator/launchsitl
 
