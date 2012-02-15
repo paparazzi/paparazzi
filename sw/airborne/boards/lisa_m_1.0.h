@@ -54,7 +54,7 @@
 #define BOARD_ADC_CHANNEL_3 ADC_Channel_14
 #define BOARD_ADC_CHANNEL_4 ADC_Channel_11
 
-#define BOARD_HAS_BARO
+#define BOARD_HAS_BARO 1
 
 #define USE_OPENCM3 1
 
