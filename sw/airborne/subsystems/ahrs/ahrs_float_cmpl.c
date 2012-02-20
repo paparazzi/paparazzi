@@ -85,14 +85,27 @@ void ahrs_init(void) {
 
 }
 
+#define AHRS_ALIGN_QUAT 1
 
 void ahrs_align(void) {
 
+#if AHRS_ALIGN_QUAT
+
+  /* Compute an initial orientation from accel and mag directly as quaternion */
+  ahrs_float_get_quat_from_accel_mag(&ahrs_float.ltp_to_imu_quat, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
+  /* Convert initial orientation from quat to euler and rotation matrix representations. */
+  compute_imu_rmat_and_euler_from_quat();
+
+#else
+
   /* Compute an initial orientation using euler angles */
   ahrs_float_get_euler_from_accel_mag(&ahrs_float.ltp_to_imu_euler, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
-  /* Convert initial orientation in quaternion and rotation matrice representations. */
+  /* Convert initial orientation in quaternion and rotation matrix representations. */
   FLOAT_QUAT_OF_EULERS(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_euler);
   FLOAT_RMAT_OF_QUAT(ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_quat);
+
+#endif
+
   /* Compute initial body orientation */
   compute_body_orientation_and_rates();
 
