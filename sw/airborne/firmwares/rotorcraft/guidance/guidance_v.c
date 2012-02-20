@@ -37,6 +37,13 @@
 
 #include "generated/airframe.h"
 
+/* warn if some gains are still negative */
+#if (GUIDANCE_V_HOVER_KP < 0) ||                   \
+  (GUIDANCE_V_HOVER_KD < 0)   ||                   \
+  (GUIDANCE_V_HOVER_KI < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
+
 /* In case Asctec controllers are used without supervision */
 #ifndef SUPERVISION_MIN_MOTOR
 #define SUPERVISION_MIN_MOTOR 1
@@ -97,9 +104,9 @@ void guidance_v_init(void) {
 
   guidance_v_mode = GUIDANCE_V_MODE_KILL;
 
-  guidance_v_kp = ABS(GUIDANCE_V_HOVER_KP);
-  guidance_v_kd = ABS(GUIDANCE_V_HOVER_KD);
-  guidance_v_ki = ABS(GUIDANCE_V_HOVER_KI);
+  guidance_v_kp = GUIDANCE_V_HOVER_KP;
+  guidance_v_kd = GUIDANCE_V_HOVER_KD;
+  guidance_v_ki = GUIDANCE_V_HOVER_KI;
 
   guidance_v_z_sum_err = 0;
 

@@ -36,6 +36,12 @@
 
 #define MAX_SUM_ERR 4000000
 
+#if (STABILIZATION_RATE_GAIN_P < 0) || \
+  (STABILIZATION_RATE_GAIN_Q < 0)   || \
+  (STABILIZATION_RATE_GAIN_R < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
+
 #ifndef STABILIZATION_RATE_DDGAIN_P
 #define STABILIZATION_RATE_DDGAIN_P 0
 #endif
@@ -45,15 +51,29 @@
 #ifndef STABILIZATION_RATE_DDGAIN_R
 #define STABILIZATION_RATE_DDGAIN_R 0
 #endif
+
 #ifndef STABILIZATION_RATE_IGAIN_P
 #define STABILIZATION_RATE_IGAIN_P 0
+#else
+#if (STABILIZATION_RATE_IGAIN_P < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
 #endif
 #ifndef STABILIZATION_RATE_IGAIN_Q
 #define STABILIZATION_RATE_IGAIN_Q 0
+#else
+#if (STABILIZATION_RATE_IGAIN_Q < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
 #endif
 #ifndef STABILIZATION_RATE_IGAIN_R
 #define STABILIZATION_RATE_IGAIN_R 0
+#else
+#if (STABILIZATION_RATE_IGAIN_R < 0)
+#warning "ALL control gains are now positive!!!"
 #endif
+#endif
+
 #ifndef STABILIZATION_RATE_REF_TAU
 #define STABILIZATION_RATE_REF_TAU 4
 #endif
@@ -101,17 +121,17 @@ void stabilization_rate_init(void) {
   INT_RATES_ZERO(stabilization_rate_sp);
 
   RATES_ASSIGN(stabilization_rate_gain,
-               ABS(STABILIZATION_RATE_GAIN_P),
-               ABS(STABILIZATION_RATE_GAIN_Q),
-               ABS(STABILIZATION_RATE_GAIN_R));
+               STABILIZATION_RATE_GAIN_P,
+               STABILIZATION_RATE_GAIN_Q,
+               STABILIZATION_RATE_GAIN_R);
   RATES_ASSIGN(stabilization_rate_igain,
-               ABS(STABILIZATION_RATE_IGAIN_P),
-               ABS(STABILIZATION_RATE_IGAIN_Q),
-               ABS(STABILIZATION_RATE_IGAIN_R));
+               STABILIZATION_RATE_IGAIN_P,
+               STABILIZATION_RATE_IGAIN_Q,
+               STABILIZATION_RATE_IGAIN_R);
   RATES_ASSIGN(stabilization_rate_ddgain,
-               ABS(STABILIZATION_RATE_DDGAIN_P),
-               ABS(STABILIZATION_RATE_DDGAIN_Q),
-               ABS(STABILIZATION_RATE_DDGAIN_R));
+               STABILIZATION_RATE_DDGAIN_P,
+               STABILIZATION_RATE_DDGAIN_Q,
+               STABILIZATION_RATE_DDGAIN_R);
 
   INT_RATES_ZERO(stabilization_rate_ref);
   INT_RATES_ZERO(stabilization_rate_refdot);

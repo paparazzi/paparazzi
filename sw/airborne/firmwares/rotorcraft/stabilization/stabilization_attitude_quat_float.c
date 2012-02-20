@@ -35,6 +35,19 @@
 
 struct FloatAttitudeGains stabilization_gains[STABILIZATION_ATTITUDE_FLOAT_GAIN_NB];
 
+/* warn if some gains are still negative */
+#if (STABILIZATION_ATTITUDE_FLOAT_PHI_PGAIN < 0) ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_THETA_PGAIN < 0) ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_PSI_PGAIN < 0)   ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_PHI_DGAIN < 0)   ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_THETA_DGAIN < 0) ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_PSI_DGAIN < 0)   ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_PHI_IGAIN < 0)   ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_THETA_IGAIN < 0) ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_PSI_IGAIN  < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
+
 struct FloatQuat stabilization_att_sum_err_quat;
 struct FloatEulers stabilization_att_sum_err_eulers;
 
@@ -86,15 +99,15 @@ void stabilization_attitude_init(void) {
   stabilization_attitude_ref_init();
 
   for (int i = 0; i < STABILIZATION_ATTITUDE_FLOAT_GAIN_NB; i++) {
-    VECT3_ASSIGN_ABS(stabilization_gains[i].p, phi_pgain[i], theta_pgain[i], psi_pgain[i]);
-    VECT3_ASSIGN_ABS(stabilization_gains[i].d, phi_dgain[i], theta_dgain[i], psi_dgain[i]);
-    VECT3_ASSIGN_ABS(stabilization_gains[i].i, phi_igain[i], theta_igain[i], psi_igain[i]);
-    VECT3_ASSIGN_ABS(stabilization_gains[i].dd, phi_ddgain[i], theta_ddgain[i], psi_ddgain[i]);
-    VECT3_ASSIGN_ABS(stabilization_gains[i].rates_d, phi_dgain_d[i], theta_dgain_d[i], psi_dgain_d[i]);
-    VECT3_ASSIGN_ABS(stabilization_gains[i].surface_p, phi_pgain_surface[i], theta_pgain_surface[i], psi_pgain_surface[i]);
-    VECT3_ASSIGN_ABS(stabilization_gains[i].surface_d, phi_dgain_surface[i], theta_dgain_surface[i], psi_dgain_surface[i]);
-    VECT3_ASSIGN_ABS(stabilization_gains[i].surface_i, phi_igain_surface[i], theta_igain_surface[i], psi_igain_surface[i]);
-    VECT3_ASSIGN_ABS(stabilization_gains[i].surface_dd, phi_ddgain_surface[i], theta_ddgain_surface[i], psi_ddgain_surface[i]);
+    VECT3_ASSIGN(stabilization_gains[i].p, phi_pgain[i], theta_pgain[i], psi_pgain[i]);
+    VECT3_ASSIGN(stabilization_gains[i].d, phi_dgain[i], theta_dgain[i], psi_dgain[i]);
+    VECT3_ASSIGN(stabilization_gains[i].i, phi_igain[i], theta_igain[i], psi_igain[i]);
+    VECT3_ASSIGN(stabilization_gains[i].dd, phi_ddgain[i], theta_ddgain[i], psi_ddgain[i]);
+    VECT3_ASSIGN(stabilization_gains[i].rates_d, phi_dgain_d[i], theta_dgain_d[i], psi_dgain_d[i]);
+    VECT3_ASSIGN(stabilization_gains[i].surface_p, phi_pgain_surface[i], theta_pgain_surface[i], psi_pgain_surface[i]);
+    VECT3_ASSIGN(stabilization_gains[i].surface_d, phi_dgain_surface[i], theta_dgain_surface[i], psi_dgain_surface[i]);
+    VECT3_ASSIGN(stabilization_gains[i].surface_i, phi_igain_surface[i], theta_igain_surface[i], psi_igain_surface[i]);
+    VECT3_ASSIGN(stabilization_gains[i].surface_dd, phi_ddgain_surface[i], theta_ddgain_surface[i], psi_ddgain_surface[i]);
   }
 
   FLOAT_QUAT_ZERO( stabilization_att_sum_err_quat );

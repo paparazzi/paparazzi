@@ -31,6 +31,19 @@
 
 struct Int32AttitudeGains  stabilization_gains;
 
+/* warn if some gains are still negative */
+#if (STABILIZATION_ATTITUDE_PHI_PGAIN < 0) || \
+  (STABILIZATION_ATTITUDE_THETA_PGAIN < 0) || \
+  (STABILIZATION_ATTITUDE_PSI_PGAIN < 0)   || \
+  (STABILIZATION_ATTITUDE_PHI_DGAIN < 0)   || \
+  (STABILIZATION_ATTITUDE_THETA_DGAIN < 0) || \
+  (STABILIZATION_ATTITUDE_PSI_DGAIN < 0)   || \
+  (STABILIZATION_ATTITUDE_PHI_IGAIN < 0)   || \
+  (STABILIZATION_ATTITUDE_THETA_IGAIN < 0) || \
+  (STABILIZATION_ATTITUDE_PSI_IGAIN  < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
+
 struct Int32Eulers stabilization_att_sum_err;
 
 int32_t stabilization_att_fb_cmd[COMMANDS_NB];
@@ -42,24 +55,24 @@ void stabilization_attitude_init(void) {
 
 
   VECT3_ASSIGN(stabilization_gains.p,
-               ABS(STABILIZATION_ATTITUDE_PHI_PGAIN),
-               ABS(STABILIZATION_ATTITUDE_THETA_PGAIN),
-               ABS(STABILIZATION_ATTITUDE_PSI_PGAIN));
+               STABILIZATION_ATTITUDE_PHI_PGAIN,
+               STABILIZATION_ATTITUDE_THETA_PGAIN,
+               STABILIZATION_ATTITUDE_PSI_PGAIN);
 
   VECT3_ASSIGN(stabilization_gains.d,
-               ABS(STABILIZATION_ATTITUDE_PHI_DGAIN),
-               ABS(STABILIZATION_ATTITUDE_THETA_DGAIN),
-               ABS(STABILIZATION_ATTITUDE_PSI_DGAIN));
+               STABILIZATION_ATTITUDE_PHI_DGAIN,
+               STABILIZATION_ATTITUDE_THETA_DGAIN,
+               STABILIZATION_ATTITUDE_PSI_DGAIN);
 
   VECT3_ASSIGN(stabilization_gains.i,
-               ABS(STABILIZATION_ATTITUDE_PHI_IGAIN),
-               ABS(STABILIZATION_ATTITUDE_THETA_IGAIN),
-               ABS(STABILIZATION_ATTITUDE_PSI_IGAIN));
+               STABILIZATION_ATTITUDE_PHI_IGAIN,
+               STABILIZATION_ATTITUDE_THETA_IGAIN,
+               STABILIZATION_ATTITUDE_PSI_IGAIN);
 
   VECT3_ASSIGN(stabilization_gains.dd,
-               ABS(STABILIZATION_ATTITUDE_PHI_DDGAIN),
-               ABS(STABILIZATION_ATTITUDE_THETA_DDGAIN),
-               ABS(STABILIZATION_ATTITUDE_PSI_DDGAIN));
+               STABILIZATION_ATTITUDE_PHI_DDGAIN,
+               STABILIZATION_ATTITUDE_THETA_DDGAIN,
+               STABILIZATION_ATTITUDE_PSI_DDGAIN);
 
 
   INT_EULERS_ZERO( stabilization_att_sum_err );
