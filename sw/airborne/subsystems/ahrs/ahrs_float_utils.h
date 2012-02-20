@@ -3,7 +3,7 @@
 
 #include "subsystems/ahrs/ahrs_magnetic_field_model.h"
 
-#define ABS(_x) ((_x) < 0 ? -(_x) : (_x))
+#include "std.h" // for ABS
 
 static inline void ahrs_float_get_euler_from_accel_mag(struct FloatEulers* e, struct Int32Vect3* accel, struct Int32Vect3* mag) {
   /* get phi and theta from accelerometer */
