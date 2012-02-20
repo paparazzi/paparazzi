@@ -496,24 +496,24 @@ static inline float float_rmat_reorthogonalize(struct FloatRMat* rm) {
 
 #define FLOAT_QUAT_COPY(_qo, _qi) QUAT_COPY(_qo, _qi)
 
-#define FLOAT_QUAT_NORM(_q) (sqrtf(SQUARE(_q.qi) + SQUARE(_q.qx)+	\
-				   SQUARE(_q.qy) + SQUARE(_q.qz)))	\
+#define FLOAT_QUAT_NORM(_q) (sqrtf(SQUARE((_q).qi) + SQUARE((_q).qx)+	\
+                                   SQUARE((_q).qy) + SQUARE((_q).qz)))
 
-#define FLOAT_QUAT_NORMALIZE(q) {		                        \
-    float norm = FLOAT_QUAT_NORM(q);					\
-    if (norm > FLT_MIN) {						\
-	    q.qi = q.qi / norm;						\
-      q.qx = q.qx / norm;						\
-      q.qy = q.qy / norm;						\
-      q.qz = q.qz / norm;						\
-	  }								\
+#define FLOAT_QUAT_NORMALIZE(_q) {	     \
+    float norm = FLOAT_QUAT_NORM(_q);    \
+    if (norm > FLT_MIN) {                \
+      (_q).qi = (_q).qi / norm;          \
+      (_q).qx = (_q).qx / norm;          \
+      (_q).qy = (_q).qy / norm;          \
+      (_q).qz = (_q).qz / norm;          \
+    }                                    \
   }
 
 #define FLOAT_QUAT_INVERT(_qo, _qi) QUAT_INVERT(_qo, _qi)
 
-#define FLOAT_QUAT_WRAP_SHORTEST(q) {					\
-    if (q.qi < 0.)							\
-      QUAT_EXPLEMENTARY(q,q);						\
+#define FLOAT_QUAT_WRAP_SHORTEST(_q) {					\
+    if ((_q).qi < 0.)                                   \
+      QUAT_EXPLEMENTARY(_q,_q);						\
   }
 
 /* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
