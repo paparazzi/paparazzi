@@ -77,7 +77,6 @@ static inline void ahrs_update_mag_2d(void);
 
 struct AhrsIntCmpl ahrs_impl;
 
-static inline void compute_imu_quat_and_rmat_from_euler(void);
 static inline void compute_imu_euler_and_rmat_from_quat(void);
 static inline void compute_body_orientation(void);
 
