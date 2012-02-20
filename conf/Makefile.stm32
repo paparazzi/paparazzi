@@ -82,7 +82,7 @@ OOCD = $(shell if test -e $(TOOLCHAIN_DIR)/bin/openocd ; then echo $(TOOLCHAIN_D
 endif
 endif
 
-ifeq ($(BOARD_SERIAL),)
+ifneq ($(BOARD_SERIAL),)
 OOCD_OPTIONS = -c "ft2232_serial $(BOARD_SERIAL)"
 endif
 
