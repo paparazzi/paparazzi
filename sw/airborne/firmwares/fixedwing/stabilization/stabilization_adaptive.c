@@ -116,6 +116,8 @@ inline static void h_ctl_pitch_loop( void );
 #define H_CTL_COURSE_DGAIN 0.
 #endif
 
+#pragma message "CAUTION! ALL control gains have to be positive now!"
+
 // Some default roll gains
 // H_CTL_ROLL_ATTITUDE_GAIN needs to be define in airframe
 #ifndef H_CTL_ROLL_RATE_GAIN
@@ -150,19 +152,19 @@ void h_ctl_init( void ) {
   h_ctl_course_setpoint = 0.;
   h_ctl_course_pre_bank = 0.;
   h_ctl_course_pre_bank_correction = H_CTL_COURSE_PRE_BANK_CORRECTION;
-  h_ctl_course_pgain = ABS(H_CTL_COURSE_PGAIN);
-  h_ctl_course_dgain = ABS(H_CTL_COURSE_DGAIN);
+  h_ctl_course_pgain = H_CTL_COURSE_PGAIN;
+  h_ctl_course_dgain = H_CTL_COURSE_DGAIN;
   h_ctl_roll_max_setpoint = H_CTL_ROLL_MAX_SETPOINT;
 
   h_ctl_disabled = FALSE;
 
   h_ctl_roll_setpoint = 0.;
-  h_ctl_roll_attitude_gain = ABS(H_CTL_ROLL_ATTITUDE_GAIN);
-  h_ctl_roll_rate_gain = ABS(H_CTL_ROLL_RATE_GAIN);
-  h_ctl_roll_igain = ABS(H_CTL_ROLL_IGAIN);
+  h_ctl_roll_attitude_gain = H_CTL_ROLL_ATTITUDE_GAIN;
+  h_ctl_roll_rate_gain = H_CTL_ROLL_RATE_GAIN;
+  h_ctl_roll_igain = H_CTL_ROLL_IGAIN;
   h_ctl_roll_sum_err = 0;
-  h_ctl_roll_Kffa = ABS(H_CTL_ROLL_KFFA);
-  h_ctl_roll_Kffd = ABS(H_CTL_ROLL_KFFD);
+  h_ctl_roll_Kffa = H_CTL_ROLL_KFFA;
+  h_ctl_roll_Kffd = H_CTL_ROLL_KFFD;
   h_ctl_aileron_setpoint = 0;
 #ifdef H_CTL_AILERON_OF_THROTTLE
   h_ctl_aileron_of_throttle = H_CTL_AILERON_OF_THROTTLE;
@@ -170,12 +172,12 @@ void h_ctl_init( void ) {
 
   h_ctl_pitch_setpoint = 0.;
   h_ctl_pitch_loop_setpoint = 0.;
-  h_ctl_pitch_pgain = ABS(H_CTL_PITCH_PGAIN);
-  h_ctl_pitch_dgain = ABS(H_CTL_PITCH_DGAIN);
-  h_ctl_pitch_igain = ABS(H_CTL_PITCH_IGAIN);
+  h_ctl_pitch_pgain = H_CTL_PITCH_PGAIN;
+  h_ctl_pitch_dgain = H_CTL_PITCH_DGAIN;
+  h_ctl_pitch_igain = H_CTL_PITCH_IGAIN;
   h_ctl_pitch_sum_err = 0.;
-  h_ctl_pitch_Kffa = ABS(H_CTL_PITCH_KFFA);
-  h_ctl_pitch_Kffd = ABS(H_CTL_PITCH_KFFD);
+  h_ctl_pitch_Kffa = H_CTL_PITCH_KFFA;
+  h_ctl_pitch_Kffd = H_CTL_PITCH_KFFD;
   h_ctl_elevator_setpoint = 0;
   h_ctl_elevator_of_roll = 0; //H_CTL_ELEVATOR_OF_ROLL;
 #ifdef H_CTL_PITCH_OF_ROLL

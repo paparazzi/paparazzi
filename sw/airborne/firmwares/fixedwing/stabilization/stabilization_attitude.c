@@ -37,6 +37,7 @@
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "firmwares/fixedwing/autopilot.h"
 
+#pragma message "CAUTION! ALL control gains have to be positive now!"
 
 /* outer loop parameters */
 float h_ctl_course_setpoint; /* rad, CW/north */
@@ -119,8 +120,8 @@ void h_ctl_init( void ) {
   h_ctl_course_setpoint = 0.;
   h_ctl_course_pre_bank = 0.;
   h_ctl_course_pre_bank_correction = H_CTL_COURSE_PRE_BANK_CORRECTION;
-  h_ctl_course_pgain = ABS(H_CTL_COURSE_PGAIN);
-  h_ctl_course_dgain = ABS(H_CTL_COURSE_DGAIN);
+  h_ctl_course_pgain = H_CTL_COURSE_PGAIN;
+  h_ctl_course_dgain = H_CTL_COURSE_DGAIN;
   h_ctl_roll_max_setpoint = H_CTL_ROLL_MAX_SETPOINT;
 
 #ifdef USE_AOA
@@ -140,8 +141,8 @@ void h_ctl_init( void ) {
 
   h_ctl_pitch_setpoint = 0.;
   h_ctl_pitch_loop_setpoint = 0.;
-  h_ctl_pitch_pgain = ABS(H_CTL_PITCH_PGAIN);
-  h_ctl_pitch_dgain = ABS(H_CTL_PITCH_DGAIN);
+  h_ctl_pitch_pgain = H_CTL_PITCH_PGAIN;
+  h_ctl_pitch_dgain = H_CTL_PITCH_DGAIN;
   h_ctl_elevator_setpoint = 0;
   h_ctl_elevator_of_roll = H_CTL_ELEVATOR_OF_ROLL;
 
@@ -163,8 +164,8 @@ void h_ctl_init( void ) {
 #endif
 
 #ifdef H_CTL_ROLL_ATTITUDE_GAIN
-  h_ctl_roll_attitude_gain = ABS(H_CTL_ROLL_ATTITUDE_GAIN);
-  h_ctl_roll_rate_gain = ABS(H_CTL_ROLL_RATE_GAIN);
+  h_ctl_roll_attitude_gain = H_CTL_ROLL_ATTITUDE_GAIN;
+  h_ctl_roll_rate_gain = H_CTL_ROLL_RATE_GAIN;
 #endif
 
 #ifdef AGR_CLIMB
