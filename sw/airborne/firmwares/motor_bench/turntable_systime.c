@@ -23,7 +23,7 @@ void sys_time_arch_init( void ) {
   T0TCR = TCR_ENABLE;
 
   /* set first sys tick interrupt    */
-  T0MR0 = SYS_TIME_RESOLUTION_CPU_TICKS;adding/removing string:
+  T0MR0 = SYS_TIME_RESOLUTION_CPU_TICKS;
 
   /* select TIMER0 as IRQ    */
   VICIntSelect &= ~VIC_BIT(VIC_TIMER0);
