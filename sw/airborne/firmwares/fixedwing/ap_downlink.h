@@ -45,19 +45,12 @@
 #include "subsystems/datalink/downlink.h"
 
 #include "messages.h"
-#include "generated/periodic.h"
-
-//#include "generated/modules.h"
+#include "generated/periodic_telemetry.h"
 
 #if defined DOWNLINK
 #define Downlink(x) x
 #else
 #define Downlink(x) {}
-#endif
-
-#ifdef AP
-/** Telemetry mode for AP process: index in the telemetry.xml file */
-extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #endif
 
 #define PERIODIC_SEND_ALIVE(_trans, _dev)  DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM);
@@ -86,7 +79,7 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 
 #define PERIODIC_SEND_DOWNLINK(_trans, _dev) { \
   static uint16_t last; \
-  uint16_t rate = (downlink_nb_bytes - last) / PERIOD_DOWNLINK_Ap_DefaultChannel_0; \
+  uint16_t rate = (downlink_nb_bytes - last) / PERIOD_DOWNLINK_Ap_0; \
   last = downlink_nb_bytes; \
   DOWNLINK_SEND_DOWNLINK(_trans, _dev, &downlink_nb_ovrn, &rate, &downlink_nb_msgs); \
 }

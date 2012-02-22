@@ -5,7 +5,7 @@
 
   <process name="Main">
 
-    <mode name="default">
+    <mode name="default" key_press="d">
       <message name="DL_VALUE"          period="1.1"/>
       <message name="ROTORCRAFT_STATUS"       period="1.2"/>
       <message name="ROTORCRAFT_FP"          period="0.25"/>
@@ -63,16 +63,15 @@
       <message name="RATE_LOOP"   period=".02"/>
     </mode>
 
-    <mode name="attitude_loop">
+    <mode name="attitude_loop" key_press="a">
       <message name="ROTORCRAFT_STATUS"             period="1.2"/>
       <message name="DL_VALUE"                period="0.5"/>
       <message name="ALIVE"                   period="0.9"/>
-      <message name="STAB_ATTITUDE"     period=".09"/>
-      <message name="STAB_ATTITUDE_REF" period=".09"/>
-      <message name="AHRS_REF_QUAT" period=".06"/>
+      <message name="STAB_ATTITUDE"     period=".03"/>
+      <message name="STAB_ATTITUDE_REF" period=".03"/>
     </mode>
 
-    <mode name="vert_loop">
+    <mode name="vert_loop" key_press="v">
       <message name="ROTORCRAFT_STATUS"             period="1.2"/>
       <message name="DL_VALUE"                period="0.5"/>
       <message name="ALIVE"                   period="0.9"/>
@@ -83,7 +82,7 @@
       <message name="INS_REF"           period="5.1"/>
     </mode>
 
-    <mode name="h_loop">
+    <mode name="h_loop" key_press="h">
       <message name="ALIVE"                   period="0.9"/>
       <message name="HOVER_LOOP"        period="0.062"/>
       <message name="STAB_ATTITUDE"     period=".4"/>

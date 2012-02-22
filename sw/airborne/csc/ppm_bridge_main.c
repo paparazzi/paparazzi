@@ -34,7 +34,7 @@
 #include "interrupt_hw.h"
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
-#include "generated/periodic.h"
+#include "generated/periodic_telemetry.h"
 #include "generated/airframe.h"
 #include "commands.h"
 #include "subsystems/radio_control.h"
