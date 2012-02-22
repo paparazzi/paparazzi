@@ -13,6 +13,10 @@ static inline void i2c_reset_init(struct i2c_periph *p);
 
 #define I2C_BUSY 0x20
 
+// If a hard reset cannot free up SDA, SCL lines abort. Previously stm32 would hang
+// when lines stuck i.e. no pullups on I2C lines
+#define I2C_MAX_RESET_FAIL_COUNT 20
+
 #ifdef DEBUG_I2C
 #define SPURIOUS_INTERRUPT(_periph, _status, _event) { while(1); }
 #define OUT_OF_SYNC_STATE_MACHINE(_periph, _status, _event) { while(1); }
@@ -355,6 +359,7 @@ static inline void i2c_error(struct i2c_periph *p)
 
 static inline void i2c_hard_reset(struct i2c_periph *p)
 {
+  uint8_t timeout_fails=0;
   I2C_TypeDef *regs = (I2C_TypeDef *) p->reg_addr;
 
   I2C_DeInit(p->reg_addr);
@@ -366,10 +371,13 @@ static inline void i2c_hard_reset(struct i2c_periph *p)
   GPIO_SetBits(GPIOB, p->scl_pin | p->sda_pin);
   GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-  while(GPIO_ReadInputDataBit(GPIOB, p->sda_pin) == Bit_RESET) {
+  while((GPIO_ReadInputDataBit(GPIOB, p->sda_pin) == Bit_RESET) && timeout_fails < I2C_MAX_RESET_FAIL_COUNT) {
     // Raise SCL, wait until SCL is high (in case of clock stretching)
     GPIO_SetBits(GPIOB, p->scl_pin);
-    while (GPIO_ReadInputDataBit(GPIOB, p->scl_pin) == Bit_RESET);
+    while ((GPIO_ReadInputDataBit(GPIOB, p->scl_pin) == Bit_RESET) && timeout_fails < I2C_MAX_RESET_FAIL_COUNT) {
+      i2c_delay();
+      timeout_fails++;
+    }
     i2c_delay();
 
     // Lower SCL, wait
@@ -379,6 +387,7 @@ static inline void i2c_hard_reset(struct i2c_periph *p)
     // Raise SCL, wait
     GPIO_SetBits(GPIOB, p->scl_pin);
     i2c_delay();
+    timeout_fails++;
   }
 
   // Generate a start condition followed by a stop condition
@@ -391,10 +400,17 @@ static inline void i2c_hard_reset(struct i2c_periph *p)
 
   // Raise both SCL and SDA and wait for SCL high (in case of clock stretching)
   GPIO_SetBits(GPIOB, p->scl_pin | p->sda_pin);
-  while (GPIO_ReadInputDataBit(GPIOB, p->scl_pin) == Bit_RESET);
+  while (GPIO_ReadInputDataBit(GPIOB, p->scl_pin) == Bit_RESET && timeout_fails < I2C_MAX_RESET_FAIL_COUNT) {
+    i2c_delay();
+    timeout_fails++;
+  }
 
   // Wait for SDA to be high
-  while (GPIO_ReadInputDataBit(GPIOB, p->sda_pin) != Bit_SET);
+  while (GPIO_ReadInputDataBit(GPIOB, p->sda_pin) != Bit_SET && timeout_fails < I2C_MAX_RESET_FAIL_COUNT)
+  {
+    i2c_delay();
+    timeout_fails++;
+  }
 
   // SCL and SDA should be high at this point, bus should be free
   // Return the GPIO pins to the alternate function
