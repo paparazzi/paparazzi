@@ -40,7 +40,8 @@ void imu_periodic(void)
     vn100_spi.mosi_buf = (uint8_t*)&last_send_packet;
     vn100_spi.miso_buf = (uint8_t*)&last_received_packet;
     vn100_spi.ready = (uint8_t*)&vn100_spi_complete;
-    spi_rw(&vn100_spi);
+    vn100_spi.slave_idx = 0;
+    spi_submit(&spi2,&vn100_spi);
   }
 }
 
