@@ -8,7 +8,7 @@
 #include "../../peripherals/VN100.h"
 
 struct spi_transaction vn100_spi;
-uint8_t vn100_spi_complete;
+volatile uint8_t vn100_spi_complete;
 uint8_t imu_vn100_available;
 /* last received SPI packet */
 VN100_Res_Packet last_received_packet;
