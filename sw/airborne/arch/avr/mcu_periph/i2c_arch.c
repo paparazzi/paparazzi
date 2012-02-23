@@ -161,3 +161,7 @@ void i2c_init(void) {
   sbi(TWSR, TWPS0);
   */
 }
+
+void i2c_event(void) { }
+void i2c2_setbitrate(int bitrate __attribute__ ((unused))) { }
+

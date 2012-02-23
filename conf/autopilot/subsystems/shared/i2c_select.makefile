@@ -4,8 +4,8 @@
 
 $(TARGET).srcs += mcu_periph/i2c.c
 ifeq ($(ARCH), stm32)
-$(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
-#$(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.rewritten.c
+#$(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
+$(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.rewritten.c
 else
 $(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
 endif

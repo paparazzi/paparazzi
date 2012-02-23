@@ -43,6 +43,7 @@
 #include "firmwares/fixedwing/autopilot.h"
 #include "fbw_downlink.h"
 #include "paparazzi.h"
+#include "mcu_periph/i2c.h"
 
 #ifdef MCU_SPI_LINK
 #include "link_mcu.h"
@@ -119,6 +120,7 @@ void event_task_fbw( void) {
   RadioControlEvent(handle_rc_frame);
 #endif
 
+  i2c_event();
 
 #ifdef INTER_MCU
 #ifdef MCU_SPI_LINK
