@@ -6,13 +6,69 @@
 #include <stm32/exti.h>
 #include <stm32/spi.h>
 #include <stm32/dma.h>
-
+#include BOARD_CONFIG
 #include "mcu_periph/spi.h"
 
+struct spi_transaction* slave0;
+
 // SPI2 Slave Selection 
+#define SPI2_SLAVE0_PORT  GPIOB
+#define SPI2_SLAVE0_PIN   GPIO_Pin_12
+
+#define SPI2_SLAVE1_PORT  GPIOB
+#define SPI2_SLAVE1_PIN   GPIO_Pin_5
+
+#define SPI2_SLAVE2_PORT  GPIOB
+#define SPI2_SLAVE2_PIN   GPIO_Pin_3
+
 #define Spi2Slave0Unselect() GPIOB->BSRR = GPIO_Pin_12
 #define Spi2Slave0Select()   GPIOB->BRR = GPIO_Pin_12
 
+struct spi_periph spi2;
+
+static inline void Spi2SlaveUnselect(uint8_t slave)
+{
+  switch(slave) {
+    case 0:
+      SPI2_SLAVE0_PORT->BSRR = SPI2_SLAVE0_PIN;
+      break;
+#ifdef USE_SPI2_SLAVE1      
+    case 1:
+      SPI2_SLAVE1_PORT->BSRR = SPI2_SLAVE1_PIN;
+      break;
+#endif //USE_SPI2_SLAVE1
+#ifdef USE_SPI2_SLAVE2      
+    case 2:
+      SPI2_SLAVE2_PORT->BSRR = SPI2_SLAVE2_PIN;
+      break;
+#endif //USE_SPI2_SLAVE2
+
+    default:
+      break;
+  }
+}
+
+  
+static inline void Spi2SlaveSelect(uint8_t slave)
+{
+  switch(slave) {
+    case 0:
+      SPI2_SLAVE0_PORT->BRR = SPI2_SLAVE0_PIN;
+      break;
+#ifdef USE_SPI2_SLAVE1
+    case 1:
+      SPI2_SLAVE1_PORT->BRR = SPI2_SLAVE1_PIN;
+      break;
+#endif //USE_SPI2_SLAVE1
+#ifdef USE_SPI2_SLAVE2
+    case 2:
+      SPI2_SLAVE2_PORT->BRR = SPI2_SLAVE2_PIN;
+      break;
+#endif //USE_SPI2_SLAVE2
+    default:
+      break;
+  }
+}
 
 // spi dma end of rx handler 
 void dma1_c4_irq_handler(void);
@@ -74,42 +130,46 @@ void spi_init(void) {
 
   // SLAVE 0
   // set accel slave select as output and assert it ( on PB12) 
-  Spi2Slave0Unselect();
+  Spi2SlaveUnselect(0);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+  GPIO_InitStructure.GPIO_Pin = SPI2_SLAVE0_PIN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  
+  // SLAVE 1 
+  Spi2SlaveUnselect(1);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+  GPIO_InitStructure.GPIO_Pin = SPI2_SLAVE1_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
 
+
+  // SLAVE 2 
+  Spi2SlaveUnselect(2);
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+  GPIO_InitStructure.GPIO_Pin = SPI2_SLAVE2_PIN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE); //Slave2 is on JTDO pin, so disable JTAG DP
+
+  spi2.trans_insert_idx = 0;
+  spi2.trans_extract_idx = 0;
+  spi2.status = SPIIdle;
   spi_arch_int_enable();
 }
 
-/*
-void adxl345_write_to_reg(uint8_t addr, uint8_t val) {
 
-  Adxl345Select();
-  SPI_I2S_SendData(SPI2, addr);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  SPI_I2S_SendData(SPI2, val);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
-  while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET);
-  Adxl345Unselect();
-}
-
-void spi_clear_rx_buf(void) {
-  uint8_t __attribute__ ((unused)) ret = SPI_I2S_ReceiveData(SPI2);
-}
-*/
-
-struct spi_transaction* slave0;
 
 void spi_rw(struct spi_transaction  * _trans) 
 {
   // Store local copy to notify of the results
   slave0 = _trans;
   slave0->status = SPITransRunning;
-
-  Spi2Slave0Select();
+  spi2.status = SPIRunning;
+  Spi2SlaveSelect(slave0->slave_idx);
 
   // SPI2_Rx_DMA_Channel configuration ------------------------------------
   DMA_DeInit(DMA1_Channel4);
@@ -160,12 +220,31 @@ void spi_rw(struct spi_transaction  * _trans)
 }
 
 
+bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
+{
+  uint8_t temp;
+  temp = p->trans_insert_idx + 1;
+  if (temp >= SPI_TRANSACTION_QUEUE_LEN) temp = 0;
+  if (temp == p->trans_extract_idx)
+    return FALSE;
+  t->status = SPITransPending;
 
-// Accel end of DMA transfert
+  //Disable interrupts to avoid race conflict with end of DMA transfer interrupt
+  __disable_irq();
+  p->trans[p->trans_insert_idx] = t;
+  p->trans_insert_idx = temp;
+  
+  if (p->status == SPIIdle)
+  {
+    spi_rw(p->trans[p->trans_extract_idx]);
+  }
+  __enable_irq();
+}
+
+// End of DMA transfer interrupt handler
 void dma1_c4_irq_handler(void) 
 {
-  Spi2Slave0Unselect();
-
+  Spi2SlaveUnselect(spi2.trans[spi2.trans_extract_idx]->slave_idx);
   if (DMA_GetITStatus(DMA1_IT_TC4)) {
 		// clear int pending bit
 		DMA_ClearITPendingBit(DMA1_IT_GL4);
@@ -173,7 +252,6 @@ void dma1_c4_irq_handler(void)
     // mark as available
     spi_message_received = TRUE;
   }
-
   // disable DMA Channel
   DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);
   // Disable SPI_2 Rx and TX request 
@@ -185,7 +263,13 @@ void dma1_c4_irq_handler(void)
 
   slave0->status = SPITransSuccess;
   *(slave0->ready) = 1;
+  spi2.trans_extract_idx++;
+
+  // Check if there is another pending SPI transaction
+  if (spi2.trans_extract_idx >= SPI_TRANSACTION_QUEUE_LEN)
+    spi2.trans_extract_idx = 0;
+  if (spi2.trans_extract_idx == spi2.trans_insert_idx)
+    spi2.status = SPIIdle;
+  else
+    spi_rw(spi2.trans[spi2.trans_extract_idx]);
 }
-
-
-
