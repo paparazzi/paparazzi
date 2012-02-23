@@ -50,7 +50,7 @@ ap.srcs   += $(SRC_ARCH)/mcu_arch.c
 #
 # Math functions
 #
-$(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c
+ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c
 
 ifeq ($(ARCH), stm32)
 ap.srcs += lisa/plug_sys.c
@@ -77,7 +77,7 @@ endif
 ifndef PERIODIC_FREQUENCY
 PERIODIC_FREQUENCY = 512
 endif
-$(TARGET).CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
+ap.CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 #
 # Systime
 #
@@ -141,6 +141,8 @@ ap.srcs += $(SRC_FIRMWARE)/commands.c
 ap.srcs += $(SRC_BOARD)/baro_board.c
 ifeq ($(BOARD), booz)
 else ifeq ($(BOARD), lisa_l)
+ap.CFLAGS += -DUSE_I2C2
+else ifeq ($(BOARD), lisa_m)
 ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), navgo)
 ap.CFLAGS += -DUSE_I2C1

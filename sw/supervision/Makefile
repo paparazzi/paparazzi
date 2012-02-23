@@ -4,7 +4,7 @@ Q=@
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 OCAMLLIB = ../lib/ocaml
-INCLUDES= -I $(OCAMLLIB) -I ../multimon $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light)
+INCLUDES= -I $(OCAMLLIB) $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light)
 LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
 PAPARAZZICENTERCMO = gtk_pc.cmo gtk_process.cmo pc_common.cmo pc_aircraft.cmo pc_control_panel.cmo paparazzicenter.cmo
 

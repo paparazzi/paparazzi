@@ -25,7 +25,7 @@
 // gravity heuristic
 //
 
-#include "subsystems/ahrs/ahrs_int_cmpl.h"
+#include "subsystems/ahrs/ahrs_int_cmpl_quat.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/ahrs/ahrs_int_utils.h"
 
@@ -77,7 +77,6 @@ static inline void ahrs_update_mag_2d(void);
 
 struct AhrsIntCmpl ahrs_impl;
 
-static inline void compute_imu_quat_and_rmat_from_euler(void);
 static inline void compute_imu_euler_and_rmat_from_quat(void);
 static inline void compute_body_orientation(void);
 
@@ -112,10 +111,10 @@ void ahrs_init(void) {
 
 void ahrs_align(void) {
 
-  /* Compute an initial orientation using euler angles */
-  ahrs_int_get_euler_from_accel_mag(&ahrs.ltp_to_imu_euler, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
-  /* Convert initial orientation in quaternion and rotation matrice representations. */
-  compute_imu_quat_and_rmat_from_euler();
+  /* Compute an initial orientation from accel and mag directly as quaternion */
+  ahrs_int_get_quat_from_accel_mag(&ahrs.ltp_to_imu_quat, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
+  /* Convert initial orientation from quat to euler and rotation matrix representations. */
+  compute_imu_euler_and_rmat_from_quat();
 
   compute_body_orientation();
 
@@ -376,16 +375,6 @@ void ahrs_update_heading(int32_t heading) {
   INT_RATES_RSHIFT(ahrs_impl.gyro_bias, ahrs_impl.high_rez_bias, 28);
 }
 
-/* Compute ltp to imu rotation in quaternion and rotation matrice representation
-   from the euler angle representation */
-__attribute__ ((always_inline)) static inline void compute_imu_quat_and_rmat_from_euler(void) {
-
-  /* Compute LTP to IMU quaternion */
-  INT32_QUAT_OF_EULERS(ahrs.ltp_to_imu_quat, ahrs.ltp_to_imu_euler);
-  /* Compute LTP to IMU rotation matrix */
-  INT32_RMAT_OF_EULERS(ahrs.ltp_to_imu_rmat, ahrs.ltp_to_imu_euler);
-
-}
 
 /* Compute ltp to imu rotation in euler angles and rotation matrice representation
    from the quaternion representation */

@@ -4,7 +4,7 @@
   <dl_settings>
 
     <dl_settings NAME="Sim">
-       <dl_setting var="nps_bypass_ahrs" min="0" step="1" max="1" module="nps/nps_autopilot_booz" shortname="bypass_ahrs" values="No|Yes"/>
+       <dl_setting var="nps_bypass_ahrs" min="0" step="1" max="1" module="nps/nps_autopilot_rotorcraft" shortname="bypass_ahrs" values="No|Yes"/>
     </dl_settings>
 
   </dl_settings>

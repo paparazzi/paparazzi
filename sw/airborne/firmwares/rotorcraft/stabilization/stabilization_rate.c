@@ -36,6 +36,12 @@
 
 #define MAX_SUM_ERR 4000000
 
+#if (STABILIZATION_RATE_GAIN_P < 0) || \
+  (STABILIZATION_RATE_GAIN_Q < 0)   || \
+  (STABILIZATION_RATE_GAIN_R < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
+
 #ifndef STABILIZATION_RATE_DDGAIN_P
 #define STABILIZATION_RATE_DDGAIN_P 0
 #endif
@@ -45,15 +51,29 @@
 #ifndef STABILIZATION_RATE_DDGAIN_R
 #define STABILIZATION_RATE_DDGAIN_R 0
 #endif
+
 #ifndef STABILIZATION_RATE_IGAIN_P
 #define STABILIZATION_RATE_IGAIN_P 0
+#else
+#if (STABILIZATION_RATE_IGAIN_P < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
 #endif
 #ifndef STABILIZATION_RATE_IGAIN_Q
 #define STABILIZATION_RATE_IGAIN_Q 0
+#else
+#if (STABILIZATION_RATE_IGAIN_Q < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
 #endif
 #ifndef STABILIZATION_RATE_IGAIN_R
 #define STABILIZATION_RATE_IGAIN_R 0
+#else
+#if (STABILIZATION_RATE_IGAIN_R < 0)
+#warning "ALL control gains are now positive!!!"
 #endif
+#endif
+
 #ifndef STABILIZATION_RATE_REF_TAU
 #define STABILIZATION_RATE_REF_TAU 4
 #endif
@@ -169,7 +189,7 @@ void stabilization_rate_run(bool_t in_flight) {
     OFFSET_AND_ROUND(stabilization_rate_ref.q, (REF_FRAC - INT32_RATE_FRAC)),
     OFFSET_AND_ROUND(stabilization_rate_ref.r, (REF_FRAC - INT32_RATE_FRAC)) };
   struct Int32Rates _error;
-  RATES_DIFF(_error, ahrs.body_rate, _ref_scaled);
+  RATES_DIFF(_error, _ref_scaled, ahrs.body_rate);
   if (in_flight) {
     /* update integrator */
     RATES_ADD(stabilization_rate_sum_err, _error);

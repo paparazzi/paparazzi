@@ -28,6 +28,8 @@
 #include "LPC21xx.h"
 #include BOARD_CONFIG
 
+#include "mcu_periph/sys_time.h"
+
 /**
  * On tiny (and booz) the ppm counter is running at the same speed as
  * the systic counter. There is no reason for this to be true.

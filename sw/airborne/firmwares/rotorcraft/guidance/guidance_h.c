@@ -57,12 +57,27 @@ int32_t guidance_h_igain;
 int32_t guidance_h_ngain;
 int32_t guidance_h_again;
 
+/* warn if some gains are still negative */
+#if (GUIDANCE_H_PGAIN < 0) || \
+  (GUIDANCE_H_DGAIN < 0)   || \
+  (GUIDANCE_H_IGAIN < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
+
 #ifndef GUIDANCE_H_NGAIN
 #define GUIDANCE_H_NGAIN 0
+#else
+#if (GUIDANCE_H_NGAIN < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
 #endif
 
 #ifndef GUIDANCE_H_AGAIN
 #define GUIDANCE_H_AGAIN 0
+#else
+#if (GUIDANCE_H_AGAIN < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
 #endif
 
 static inline void guidance_h_hover_run(void);
@@ -224,12 +239,13 @@ void guidance_h_run(bool_t  in_flight) {
 __attribute__ ((always_inline)) static inline void  guidance_h_hover_run(void) {
 
   /* compute position error    */
-  VECT2_DIFF(guidance_h_pos_err, ins_ltp_pos, guidance_h_pos_sp);
+  VECT2_DIFF(guidance_h_pos_err, guidance_h_pos_sp, ins_ltp_pos);
   /* saturate it               */
   VECT2_STRIM(guidance_h_pos_err, -MAX_POS_ERR, MAX_POS_ERR);
 
   /* compute speed error    */
-  VECT2_COPY(guidance_h_speed_err, ins_ltp_speed);
+  guidance_h_speed_err.x = -ins_ltp_speed.x;
+  guidance_h_speed_err.y = -ins_ltp_speed.y;
   /* saturate it               */
   VECT2_STRIM(guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
 
@@ -295,13 +311,13 @@ __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in
 #endif
 
   /* compute position error    */
-  VECT2_DIFF(guidance_h_pos_err, ins_ltp_pos, guidance_h_pos_ref);
+  VECT2_DIFF(guidance_h_pos_err, guidance_h_pos_ref, ins_ltp_pos);
   /* saturate it               */
   VECT2_STRIM(guidance_h_pos_err, -MAX_POS_ERR, MAX_POS_ERR);
 
   /* compute speed error    */
   //VECT2_COPY(guidance_h_speed_err, ins_ltp_speed);
-  VECT2_DIFF(guidance_h_speed_err, ins_ltp_speed, guidance_h_speed_ref);
+  VECT2_DIFF(guidance_h_speed_err, guidance_h_speed_ref, ins_ltp_speed);
   /* saturate it               */
   VECT2_STRIM(guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
 
@@ -324,8 +340,8 @@ __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in
     }
     // multiply by vector orthogonal to speed
     VECT2_ASSIGN(guidance_h_nav_err,
-        vect_prod * (-ins_ltp_speed.y),
-        vect_prod * ins_ltp_speed.x);
+                 vect_prod * ins_ltp_speed.y,
+                 vect_prod * (-ins_ltp_speed.x));
     // divide by 2 times dist ( >> 16 )
     VECT2_SDIV(guidance_h_nav_err, guidance_h_nav_err, dist*dist);
     // *2 ??

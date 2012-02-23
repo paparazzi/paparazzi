@@ -35,6 +35,19 @@
 
 struct FloatAttitudeGains stabilization_gains[STABILIZATION_ATTITUDE_FLOAT_GAIN_NB];
 
+/* warn if some gains are still negative */
+#if (STABILIZATION_ATTITUDE_FLOAT_PHI_PGAIN < 0) ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_THETA_PGAIN < 0) ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_PSI_PGAIN < 0)   ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_PHI_DGAIN < 0)   ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_THETA_DGAIN < 0) ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_PSI_DGAIN < 0)   ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_PHI_IGAIN < 0)   ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_THETA_IGAIN < 0) ||   \
+  (STABILIZATION_ATTITUDE_FLOAT_PSI_IGAIN  < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
+
 struct FloatQuat stabilization_att_sum_err_quat;
 struct FloatEulers stabilization_att_sum_err_eulers;
 
@@ -136,35 +149,35 @@ static void attitude_run_fb(float fb_commands[], struct FloatAttitudeGains *gain
 {
   /*  PID feedback */
   fb_commands[COMMAND_ROLL] =
-    GAIN_PRESCALER_P * -gains->p.x  * att_err->qx +
+    GAIN_PRESCALER_P * gains->p.x  * att_err->qx +
     GAIN_PRESCALER_D * gains->d.x  * rate_err->p +
     GAIN_PRESCALER_D * gains->rates_d.x  * rate_err_d->p +
     GAIN_PRESCALER_I * gains->i.x  * sum_err->qx;
 
   fb_commands[COMMAND_PITCH] =
-    GAIN_PRESCALER_P * -gains->p.y  * att_err->qy +
+    GAIN_PRESCALER_P * gains->p.y  * att_err->qy +
     GAIN_PRESCALER_D * gains->d.y  * rate_err->q +
     GAIN_PRESCALER_D * gains->rates_d.y  * rate_err_d->q +
     GAIN_PRESCALER_I * gains->i.y  * sum_err->qy;
 
   fb_commands[COMMAND_YAW] =
-    GAIN_PRESCALER_P * -gains->p.z  * att_err->qz +
+    GAIN_PRESCALER_P * gains->p.z  * att_err->qz +
     GAIN_PRESCALER_D * gains->d.z  * rate_err->r +
     GAIN_PRESCALER_D * gains->rates_d.z  * rate_err_d->r +
     GAIN_PRESCALER_I * gains->i.z  * sum_err->qz;
 
   fb_commands[COMMAND_ROLL_SURFACE] =
-    GAIN_PRESCALER_P * -gains->surface_p.x  * att_err->qx +
+    GAIN_PRESCALER_P * gains->surface_p.x  * att_err->qx +
     GAIN_PRESCALER_D * gains->surface_d.x  * rate_err->p +
     GAIN_PRESCALER_I * gains->surface_i.x  * sum_err->qx;
 
   fb_commands[COMMAND_PITCH_SURFACE] =
-    GAIN_PRESCALER_P * -gains->surface_p.y  * att_err->qy +
+    GAIN_PRESCALER_P * gains->surface_p.y  * att_err->qy +
     GAIN_PRESCALER_D * gains->surface_d.y  * rate_err->q +
     GAIN_PRESCALER_I * gains->surface_i.y  * sum_err->qy;
 
   fb_commands[COMMAND_YAW_SURFACE] =
-    GAIN_PRESCALER_P * -gains->surface_p.z  * att_err->qz +
+    GAIN_PRESCALER_P * gains->surface_p.z  * att_err->qz +
     GAIN_PRESCALER_D * gains->surface_d.z  * rate_err->r +
     GAIN_PRESCALER_I * gains->surface_i.z  * sum_err->qz;
 
@@ -189,7 +202,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 
   /*  rate error                */
   struct FloatRates rate_err;
-  RATES_DIFF(rate_err, ahrs_float.body_rate, stab_att_ref_rate);
+  RATES_DIFF(rate_err, stab_att_ref_rate, ahrs_float.body_rate);
 
   /* integrated error */
   if (enable_integrator) {
@@ -199,7 +212,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
     scaled_att_err.qx = att_err.qx / IERROR_SCALE;
     scaled_att_err.qy = att_err.qy / IERROR_SCALE;
     scaled_att_err.qz = att_err.qz / IERROR_SCALE;
-    FLOAT_QUAT_COMP_INV(new_sum_err, stabilization_att_sum_err_quat, scaled_att_err);
+    FLOAT_QUAT_COMP(new_sum_err, stabilization_att_sum_err_quat, scaled_att_err);
     FLOAT_QUAT_NORMALIZE(new_sum_err);
     FLOAT_QUAT_COPY(stabilization_att_sum_err_quat, new_sum_err);
     FLOAT_EULERS_OF_QUAT(stabilization_att_sum_err_eulers, stabilization_att_sum_err_quat);

@@ -169,7 +169,7 @@
     }									\
   }
 #elif defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_HMC5843
-include "peripherals/hmc5843.h"
+#include "peripherals/hmc5843.h"
 #define foo_handler() {}
 #define ImuMagEvent(_mag_handler) {					\
     MagEvent(foo_handler);                          \

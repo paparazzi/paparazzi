@@ -20,7 +20,7 @@
  */
 
 #include "subsystems/ahrs.h"
-#include "subsystems/ahrs/ahrs_float_cmpl_rmat.h"
+#include "subsystems/ahrs/ahrs_float_cmpl.h"
 #include "subsystems/ahrs/ahrs_float_utils.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/imu.h"
@@ -85,16 +85,33 @@ void ahrs_init(void) {
 
 }
 
+#define AHRS_ALIGN_QUAT 1
 
 void ahrs_align(void) {
 
+#if AHRS_ALIGN_QUAT
+
+  /* Compute an initial orientation from accel and mag directly as quaternion */
+  ahrs_float_get_quat_from_accel_mag(&ahrs_float.ltp_to_imu_quat, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
+  /* Convert initial orientation from quat to euler and rotation matrix representations. */
+  compute_imu_rmat_and_euler_from_quat();
+
+#else
+
   /* Compute an initial orientation using euler angles */
   ahrs_float_get_euler_from_accel_mag(&ahrs_float.ltp_to_imu_euler, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
-  /* Convert initial orientation in quaternion and rotation matrice representations. */
+  /* Convert initial orientation in quaternion and rotation matrix representations. */
   FLOAT_QUAT_OF_EULERS(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_euler);
   FLOAT_RMAT_OF_QUAT(ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_quat);
+
+#endif
+
   /* Compute initial body orientation */
   compute_body_orientation_and_rates();
+
+  /* compute fixed point representations */
+  AHRS_INT_OF_FLOAT();
+  AHRS_IMU_INT_OF_FLOAT();
 
   /* used averaged gyro as initial value for bias */
   struct Int32Rates bias0;
@@ -129,17 +146,22 @@ void ahrs_propagate(void) {
 
   const float dt = 1./AHRS_PROPAGATE_FREQUENCY;
 #ifdef AHRS_PROPAGATE_RMAT
+#pragma message "AHRS: propagation using rotation matrix representation"
   FLOAT_RMAT_INTEGRATE_FI(ahrs_float.ltp_to_imu_rmat, omega, dt );
   float_rmat_reorthogonalize(&ahrs_float.ltp_to_imu_rmat);
   compute_imu_quat_and_euler_from_rmat();
 #endif
 #ifdef AHRS_PROPAGATE_QUAT
+#pragma message "AHRS: propagation using quaternion representation"
   FLOAT_QUAT_INTEGRATE(ahrs_float.ltp_to_imu_quat, omega, dt);
   FLOAT_QUAT_NORMALIZE(ahrs_float.ltp_to_imu_quat);
   compute_imu_rmat_and_euler_from_quat();
 #endif
   compute_body_orientation_and_rates();
 
+  /* compute fixed point representations */
+  AHRS_INT_OF_FLOAT();
+  AHRS_IMU_INT_OF_FLOAT();
 }
 
 void ahrs_update_accel(void) {

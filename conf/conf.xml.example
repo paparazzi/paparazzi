@@ -38,16 +38,6 @@
    gui_color="white"
   />
   <aircraft
-   name="BOOZ2_A8"
-   ac_id="160"
-   airframe="airframes/Poine/booz2_a8.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/telemetry_test_passthrough.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/settings_test_passthrough.xml"
-   gui_color="white"
-  />
-  <aircraft
    name="LISA_ASCTEC_PIOTR"
    ac_id="161"
    airframe="airframes/esden/lisa_asctec.xml"

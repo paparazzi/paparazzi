@@ -41,7 +41,7 @@ static        void main_on_radio_control_frame( void );
 int main( void ) {
   main_init();
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -50,7 +50,7 @@ int main( void ) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   radio_control_init();
   mcu_int_enable();
 }
@@ -79,7 +79,7 @@ static inline void main_periodic_task( void ) {
 				       &radio_control.status);});
 #ifdef RADIO_CONTROL_TYPE_PPM
   RunOnceEvery(10,
-	       {uint8_t blaa = 0; DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice,&blaa, 8, booz_radio_control_ppm_pulses);});
+	       {uint8_t blaa = 0; DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice,&blaa, 8, ppm_pulses);});
 #endif
 
   LED_PERIODIC();

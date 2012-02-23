@@ -31,6 +31,19 @@
 
 struct Int32AttitudeGains  stabilization_gains;
 
+/* warn if some gains are still negative */
+#if (STABILIZATION_ATTITUDE_PHI_PGAIN < 0) || \
+  (STABILIZATION_ATTITUDE_THETA_PGAIN < 0) || \
+  (STABILIZATION_ATTITUDE_PSI_PGAIN < 0)   || \
+  (STABILIZATION_ATTITUDE_PHI_DGAIN < 0)   || \
+  (STABILIZATION_ATTITUDE_THETA_DGAIN < 0) || \
+  (STABILIZATION_ATTITUDE_PSI_DGAIN < 0)   || \
+  (STABILIZATION_ATTITUDE_PHI_IGAIN < 0)   || \
+  (STABILIZATION_ATTITUDE_THETA_IGAIN < 0) || \
+  (STABILIZATION_ATTITUDE_PSI_IGAIN  < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
+
 struct Int32Eulers stabilization_att_sum_err;
 
 int32_t stabilization_att_fb_cmd[COMMANDS_NB];
@@ -42,24 +55,24 @@ void stabilization_attitude_init(void) {
 
 
   VECT3_ASSIGN(stabilization_gains.p,
-           STABILIZATION_ATTITUDE_PHI_PGAIN,
-           STABILIZATION_ATTITUDE_THETA_PGAIN,
-           STABILIZATION_ATTITUDE_PSI_PGAIN);
+               STABILIZATION_ATTITUDE_PHI_PGAIN,
+               STABILIZATION_ATTITUDE_THETA_PGAIN,
+               STABILIZATION_ATTITUDE_PSI_PGAIN);
 
   VECT3_ASSIGN(stabilization_gains.d,
-           STABILIZATION_ATTITUDE_PHI_DGAIN,
-           STABILIZATION_ATTITUDE_THETA_DGAIN,
-           STABILIZATION_ATTITUDE_PSI_DGAIN);
+               STABILIZATION_ATTITUDE_PHI_DGAIN,
+               STABILIZATION_ATTITUDE_THETA_DGAIN,
+               STABILIZATION_ATTITUDE_PSI_DGAIN);
 
   VECT3_ASSIGN(stabilization_gains.i,
-           STABILIZATION_ATTITUDE_PHI_IGAIN,
-           STABILIZATION_ATTITUDE_THETA_IGAIN,
-           STABILIZATION_ATTITUDE_PSI_IGAIN);
+               STABILIZATION_ATTITUDE_PHI_IGAIN,
+               STABILIZATION_ATTITUDE_THETA_IGAIN,
+               STABILIZATION_ATTITUDE_PSI_IGAIN);
 
   VECT3_ASSIGN(stabilization_gains.dd,
-           STABILIZATION_ATTITUDE_PHI_DDGAIN,
-           STABILIZATION_ATTITUDE_THETA_DDGAIN,
-           STABILIZATION_ATTITUDE_PSI_DDGAIN);
+               STABILIZATION_ATTITUDE_PHI_DDGAIN,
+               STABILIZATION_ATTITUDE_THETA_DDGAIN,
+               STABILIZATION_ATTITUDE_PSI_DDGAIN);
 
 
   INT_EULERS_ZERO( stabilization_att_sum_err );
@@ -108,7 +121,7 @@ void stabilization_attitude_run(bool_t  in_flight) {
     OFFSET_AND_ROUND(stab_att_ref_euler.theta, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)),
     OFFSET_AND_ROUND(stab_att_ref_euler.psi,   (REF_ANGLE_FRAC - INT32_ANGLE_FRAC)) };
   struct Int32Eulers att_err;
-  EULERS_DIFF(att_err, ahrs.ltp_to_body_euler, att_ref_scaled);
+  EULERS_DIFF(att_err, att_ref_scaled, ahrs.ltp_to_body_euler);
   INT32_ANGLE_NORMALIZE(att_err.psi);
 
   if (in_flight) {
@@ -126,7 +139,7 @@ void stabilization_attitude_run(bool_t  in_flight) {
     OFFSET_AND_ROUND(stab_att_ref_rate.q, (REF_RATE_FRAC - INT32_RATE_FRAC)),
     OFFSET_AND_ROUND(stab_att_ref_rate.r, (REF_RATE_FRAC - INT32_RATE_FRAC)) };
   struct Int32Rates rate_err;
-  RATES_DIFF(rate_err, ahrs.body_rate, rate_ref_scaled);
+  RATES_DIFF(rate_err, rate_ref_scaled, ahrs.body_rate);
 
   /* PID                  */
   stabilization_att_fb_cmd[COMMAND_ROLL] =

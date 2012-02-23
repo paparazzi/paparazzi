@@ -25,35 +25,40 @@
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="euler"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
+    <!--subsystem name="ahrs"          type="float_cmpl">
+      <define name="AHRS_PROPAGATE_QUAT"/>
+    </subsystem-->
   </firmware>
 
   <firmware name="setup">
     <target name="tunnel" board="lisa_m_1.0"/>
   </firmware>
 
-  <firmware name="lisa_m_test_progs">
-    <target name="test_sys_time"       board="lisa_m_1.0"/>
-    <target name="test_led"	           board="lisa_m_1.0"/>
-    <target name="test_uart_lisam"     board="lisa_m_1.0"/>
-    <target name="test_servos"         board="lisa_m_1.0"/>
-    <target name="test_telemetry"      board="lisa_m_1.0"/>
-    <target name="test_imu_aspirin"    board="lisa_m_1.0"/>
-    <target name="test_rc_spektrum"    board="lisa_m_1.0"/>
-    <target name="test_baro"           board="lisa_m_1.0"/>
-    <!--<target name="test_imu"           board="lisa_m_1.0"/>
-    <target name="test_rc_ppm"			board="lisa_m_1.0"/>
-    <target name="test_adc"			board="lisa_m_1.0"/>
-    <target name="test_hmc5843"			board="lisa_m_1.0"/>
-    <target name="test_itg3200"			board="lisa_m_1.0"/>
-    <target name="test_adxl345"			board="lisa_m_1.0"/>
-    <target name="test_esc_mkk_simple"		board="lisa_m_1.0"/>
-    <target name="test_esc_asctecv1_simple"	board="lisa_m_1.0"/>
-    <target name="test_actuators_mkk"		board="lisa_m_1.0"/>
-    <target name="test_actuators_asctecv1"	board="lisa_m_1.0"/-->
+  <firmware name="lisa_test_progs">
+    <target name="test_led"	                board="lisa_m_1.0"/>
+    <target name="test_sys_time"            board="lisa_m_1.0"/>
+    <target name="test_uart"                board="lisa_m_1.0"/>
+    <target name="test_servos"              board="lisa_m_1.0"/>
+    <target name="test_telemetry"           board="lisa_m_1.0"/>
+    <target name="test_baro"                board="lisa_m_1.0"/>
+    <target name="test_rc_spektrum"         board="lisa_m_1.0"/>
+    <target name="test_rc_ppm"              board="lisa_m_1.0"/>
+    <target name="test_adc"                 board="lisa_m_1.0"/>
+    <target name="test_imu_b2"              board="lisa_m_1.0"/>
+    <target name="test_imu_b2_2"            board="lisa_m_1.0"/>
+    <target name="test_imu_aspirin"         board="lisa_m_1.0"/>
+    <target name="test_ahrs"                board="lisa_m_1.0"/>
+    <target name="test_hmc5843"	            board="lisa_m_1.0"/>
+    <target name="test_itg3200"             board="lisa_m_1.0"/>
+    <target name="test_adxl345"	            board="lisa_m_1.0"/>
+    <target name="test_esc_mkk_simple"      board="lisa_m_1.0"/>
+    <target name="test_esc_asctecv1_simple" board="lisa_m_1.0"/>
+    <target name="test_actuators_mkk"       board="lisa_m_1.0"/>
+    <target name="test_actuators_asctecv1"  board="lisa_m_1.0"/>
   </firmware>
 
   <modules main_freq="512">
-    <!--load name="sys_mon.xml"/-->
+    <load name="sys_mon.xml"/>
   </modules>
 
   <commands>
@@ -122,13 +127,13 @@
     <define name="REF_TAU" value="4" />
 
     <!-- feedback -->
-    <define name="GAIN_P" value="-400" />
-    <define name="GAIN_Q" value="-400" />
-    <define name="GAIN_R" value="-350" />
+    <define name="GAIN_P" value="400" />
+    <define name="GAIN_Q" value="400" />
+    <define name="GAIN_R" value="350" />
 
-    <define name="IGAIN_P" value="-75" />
-    <define name="IGAIN_Q" value="-75" />
-    <define name="IGAIN_R" value="-50" />
+    <define name="IGAIN_P" value="75" />
+    <define name="IGAIN_Q" value="75" />
+    <define name="IGAIN_R" value="50" />
 
     <!-- feedforward -->
     <define name="DDGAIN_P" value="300" />
@@ -161,22 +166,22 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="-1000"/>
-    <define name="PHI_DGAIN"  value="-400"/>
-    <define name="PHI_IGAIN"  value="-200"/>
+    <define name="PHI_PGAIN"  value="1000"/>
+    <define name="PHI_DGAIN"  value="400"/>
+    <define name="PHI_IGAIN"  value="200"/>
 
-    <define name="THETA_PGAIN"  value="-1000"/>
-    <define name="THETA_DGAIN"  value="-400"/>
-    <define name="THETA_IGAIN"  value="-200"/>
+    <define name="THETA_PGAIN"  value="1000"/>
+    <define name="THETA_DGAIN"  value="400"/>
+    <define name="THETA_IGAIN"  value="200"/>
 
-    <define name="PSI_PGAIN"  value="-1000"/>
-    <define name="PSI_DGAIN"  value="-400"/>
-    <define name="PSI_IGAIN"  value="-10"/>
+    <define name="PSI_PGAIN"  value="1000"/>
+    <define name="PSI_DGAIN"  value="400"/>
+    <define name="PSI_IGAIN"  value="10"/>
 
     <!-- feedforward -->
-    <define name="PHI_DDGAIN"   value=" 300"/>
-    <define name="THETA_DDGAIN" value=" 300"/>
-    <define name="PSI_DDGAIN"   value=" 300"/>
+    <define name="PHI_DDGAIN"   value="300"/>
+    <define name="THETA_DDGAIN" value="300"/>
+    <define name="PSI_DDGAIN"   value="300"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -185,9 +190,9 @@
     <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
     <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
     <define name="MAX_SUM_ERR" value="2000000"/>
-    <define name="HOVER_KP"    value="-150"/>
-    <define name="HOVER_KD"    value="-80"/>
-    <define name="HOVER_KI"    value="-20"/>
+    <define name="HOVER_KP"    value="150"/>
+    <define name="HOVER_KD"    value="80"/>
+    <define name="HOVER_KI"    value="20"/>
     <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
     <define name="RC_CLIMB_COEF" value ="163"/>
     <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
@@ -196,9 +201,9 @@
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <define name="PGAIN" value="-100"/>
-    <define name="DGAIN" value="-100"/>
-    <define name="IGAIN" value="-0"/>
+    <define name="PGAIN" value="100"/>
+    <define name="DGAIN" value="100"/>
+    <define name="IGAIN" value="0"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">

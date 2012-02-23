@@ -142,7 +142,7 @@
 #define PWM1_PINSEL_BIT 14
 
 
-#define BOARD_HAS_BARO
+#define BOARD_HAS_BARO 1
 
 /*
  * Modem

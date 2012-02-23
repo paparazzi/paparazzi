@@ -37,6 +37,7 @@
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "firmwares/fixedwing/autopilot.h"
 
+#pragma message "CAUTION! ALL control gains have to be positive now!"
 
 /* outer loop parameters */
 float h_ctl_course_setpoint; /* rad, CW/north */
@@ -238,7 +239,7 @@ void h_ctl_course_loop ( void ) {
     h_ctl_course_heading_mode = 0;
   }
 */
-#endif
+#endif //STRONG_WIND
 
   float d_err = err - last_err;
   last_err = err;
@@ -248,7 +249,7 @@ void h_ctl_course_loop ( void ) {
 #ifdef H_CTL_COURSE_SLEW_INCREMENT
   /* slew severe course changes (i.e. waypoint moves, block changes or perpendicular routes) */
   static float h_ctl_course_slew_rate = 0.;
-  float nav_angle_saturation = -(h_ctl_roll_max_setpoint/h_ctl_course_pgain);  /* heading error corresponding to max_roll */
+  float nav_angle_saturation = h_ctl_roll_max_setpoint/h_ctl_course_pgain;  /* heading error corresponding to max_roll */
   float half_nav_angle_saturation = nav_angle_saturation / 2.;
   if (launch) {  /* prevent accumulator run-up on the ground */
     if (err > half_nav_angle_saturation) {
@@ -270,7 +271,7 @@ void h_ctl_course_loop ( void ) {
   float speed_depend_nav = estimator_hspeed_mod/NOMINAL_AIRSPEED;
   Bound(speed_depend_nav, 0.66, 1.5);
 
-  float cmd = h_ctl_course_pgain * speed_depend_nav * (err + d_err * h_ctl_course_dgain);
+  float cmd = -h_ctl_course_pgain * speed_depend_nav * (err + d_err * h_ctl_course_dgain);
 
 
 
@@ -280,11 +281,11 @@ void h_ctl_course_loop ( void ) {
     if (v_ctl_auto_throttle_submode == V_CTL_AUTO_THROTTLE_AGRESSIVE || V_CTL_AUTO_THROTTLE_BLENDED) {
       BoundAbs(cmd, h_ctl_roll_max_setpoint); /* bound cmd before NAV_RATIO and again after */
       if (v_ctl_altitude_error < 0) {
-    nav_ratio = AGR_CLIMB_NAV_RATIO + (1 - AGR_CLIMB_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
-    Bound (nav_ratio, AGR_CLIMB_NAV_RATIO, 1);
+        nav_ratio = AGR_CLIMB_NAV_RATIO + (1 - AGR_CLIMB_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
+        Bound (nav_ratio, AGR_CLIMB_NAV_RATIO, 1);
       } else {
-    nav_ratio = AGR_DESCENT_NAV_RATIO + (1 - AGR_DESCENT_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
-    Bound (nav_ratio, AGR_DESCENT_NAV_RATIO, 1);
+        nav_ratio = AGR_DESCENT_NAV_RATIO + (1 - AGR_DESCENT_NAV_RATIO) * (1 - (fabs(v_ctl_altitude_error) - AGR_BLEND_END) / (AGR_BLEND_START - AGR_BLEND_END));
+        Bound (nav_ratio, AGR_DESCENT_NAV_RATIO, 1);
       }
       cmd *= nav_ratio;
     }
@@ -320,8 +321,8 @@ inline static void h_ctl_roll_loop( void ) {
   estimator_p = (err - last_err)/(1/60.);
   last_err = err;
 #endif
-  float cmd = - h_ctl_roll_attitude_gain * err
-    - h_ctl_roll_rate_gain * estimator_p
+  float cmd = h_ctl_roll_attitude_gain * err
+    + h_ctl_roll_rate_gain * estimator_p
     + v_ctl_throttle_setpoint * h_ctl_aileron_of_throttle;
 
   h_ctl_aileron_setpoint = TRIM_PPRZ(cmd);
@@ -421,9 +422,7 @@ inline static void h_ctl_pitch_loop( void ) {
   if (h_ctl_elevator_of_roll <0.)
     h_ctl_elevator_of_roll = 0.;
 
-  h_ctl_pitch_loop_setpoint =
-    h_ctl_pitch_setpoint
-    - h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(estimator_phi);
+  h_ctl_pitch_loop_setpoint =  h_ctl_pitch_setpoint + h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(estimator_phi);
 
 	float err = 0;
 
@@ -446,7 +445,7 @@ inline static void h_ctl_pitch_loop( void ) {
 
   float d_err = err - last_err;
   last_err = err;
-  float cmd = h_ctl_pitch_pgain * (err + h_ctl_pitch_dgain * d_err);
+  float cmd = -h_ctl_pitch_pgain * (err + h_ctl_pitch_dgain * d_err);
 #ifdef LOITER_TRIM
   cmd += loiter();
 #endif

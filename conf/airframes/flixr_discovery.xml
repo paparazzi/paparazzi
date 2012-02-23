@@ -40,7 +40,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <!-- Control -->
     <subsystem name="control" type="new"/>
     <subsystem name="navigation" type="extra"/>
-    <subsystem name="ahrs" type="float_cmpl_rmat"/>
+    <subsystem name="ahrs" type="float_cmpl"/>
 
     <!-- Sensors -->
     <subsystem name="imu" type="b2_v1.0">
@@ -252,7 +252,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <define name="POWER_CTL_BAT_NOMINAL" value="11.2" unit="volt"/>
 
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="-0.04" unit="(m/s)/m"/>
+    <define name="ALTITUDE_PGAIN" value="0.04" unit="(m/s)/m"/>
 
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="2." unit="m/s"/>
@@ -267,18 +267,18 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 
     <!-- Climb loop (throttle) -->
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.05" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.007" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_IGAIN" value="-0.001"/>
-    <define name="AUTO_THROTTLE_DGAIN" value="-0.0"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0.007" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_IGAIN" value="0.001"/>
+    <define name="AUTO_THROTTLE_DGAIN" value="0.0"/>
 
     <!-- Climb loop (pitch) -->
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.20" unit="rad/(m/s)"/>
-    <!--define name="AUTO_PITCH_PGAIN" value="-0.0"/>
-    <define name="AUTO_PITCH_DGAIN" value="-0.0"/>
-    <define name="AUTO_PITCH_IGAIN" value="-0.0"/-->
-    <define name="AUTO_PITCH_PGAIN" value="-0.052"/>
-    <define name="AUTO_PITCH_DGAIN" value="-0.0"/>
-    <define name="AUTO_PITCH_IGAIN" value="-0.065"/>
+    <!--define name="AUTO_PITCH_PGAIN" value="0.0"/>
+    <define name="AUTO_PITCH_DGAIN" value="0.0"/>
+    <define name="AUTO_PITCH_IGAIN" value="0.0"/-->
+    <define name="AUTO_PITCH_PGAIN" value="0.052"/>
+    <define name="AUTO_PITCH_DGAIN" value="0.0"/>
+    <define name="AUTO_PITCH_IGAIN" value="0.065"/>
 
 
     <!-- airspeed control -->
@@ -308,7 +308,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 <!-- ******************* HORIZONTAL CONTROL ******************************** -->
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
 
-    <define name="COURSE_PGAIN" value="-1.1"/>
+    <define name="COURSE_PGAIN" value="1.1"/>
     <!-- <define name="COURSE_IGAIN" value="0.01"/> -->
     <!-- <define name="COURSE_DGAIN" value="0.02"/> -->
     <!-- <define name="COURSE_PRE_BANK_CORRECTION" value="0.5"/> -->
@@ -321,11 +321,11 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <define name="PITCH_MIN_SETPOINT" value="-30" unit="deg"/>
 
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-7500."/>
-    <define name="ROLL_RATE_GAIN" value="-1500"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="7500."/>
+    <define name="ROLL_RATE_GAIN" value="1500"/>
 
     <!-- only for stabilization adaptive -->
-    <define name="ROLL_IGAIN" value="-500"/>
+    <define name="ROLL_IGAIN" value="500"/>
     <define name="ROLL_KFFA" value="0."/>
     <define name="ROLL_KFFD" value="0."/>
 
@@ -333,11 +333,11 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <!--define name="ROLL_SLEW" value="0.6"/--> <!-- was 0.05 -->
 
 
-    <define name="PITCH_PGAIN" value="-7000."/>
+    <define name="PITCH_PGAIN" value="7000."/>
 
     <!-- only for stabilization adaptive -->
-    <define name="PITCH_DGAIN" value="-1000."/>
-    <define name="PITCH_IGAIN" value="-500."/>
+    <define name="PITCH_DGAIN" value="1000."/>
+    <define name="PITCH_IGAIN" value="500."/>
     <define name="PITCH_KFFA" value="0."/>
     <define name="PITCH_KFFD" value="0."/>
 

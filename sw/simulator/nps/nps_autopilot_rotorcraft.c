@@ -1,4 +1,4 @@
-#include "nps_autopilot_booz.h"
+#include "nps_autopilot_rotorcraft.h"
 
 #include "firmwares/rotorcraft/main.h"
 #include "nps_sensors.h"
@@ -8,6 +8,7 @@
 #include "subsystems/sensors/baro.h"
 #include "baro_board.h"
 #include "subsystems/electrical.h"
+#include "mcu_periph/sys_time.h"
 
 #include "actuators/supervision.h"
 
@@ -30,6 +31,10 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
   electrical.vsupply = 111;
 #endif
 
+}
+
+void nps_autopilot_run_systime_step( void ) {
+  sys_tick_handler();
 }
 
 #include <stdio.h>
@@ -66,7 +71,7 @@ void nps_autopilot_run_step(double time __attribute__ ((unused))) {
     sim_overwrite_ahrs();
   }
 
-  main_periodic();
+  handle_periodic_tasks();
 
   if (time < 8) { /* start with a little bit of hovering */
     int32_t init_cmd[4];

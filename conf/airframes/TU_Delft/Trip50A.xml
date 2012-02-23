@@ -112,19 +112,19 @@
     <define name="POWER_CTL_BAT_NOMINAL" value="7.6" unit="volt"/>
 
 	<!-- Vertical Outerloop
-		v_ctl_climb_setpoint = ALTITUDE_PGAIN * altitude_error + altitude_pre_climb;
+		v_ctl_climb_setpoint = -ALTITUDE_PGAIN * altitude_error + altitude_pre_climb;
 		BoundAbs(v_ctl_climb_setpoint, V_CTL_ALTITUDE_MAX_CLIMB);
 	-->
 
     <!-- outer loop proportional gain: alt error 5 climb m/s -->
-    <define name="ALTITUDE_PGAIN" value="-0.0750000029802"/>
+    <define name="ALTITUDE_PGAIN" value="0.0750000029802"/>
     <!-- outer loop saturation: m/s-->
     <define name="ALTITUDE_MAX_CLIMB" value="5.0"/>
 
     <!-- auto throttle inner loop
 		float controlled_throttle = v_ctl_auto_throttle_cruise_throttle
 		+ v_ctl_auto_throttle_climb_throttle_increment * v_ctl_climb_setpoint
-		+ v_ctl_auto_throttle_pgain *
+		- v_ctl_auto_throttle_pgain *
 		(err + v_ctl_auto_throttle_igain * v_ctl_auto_throttle_sum_err
 		+ v_ctl_auto_throttle_dgain * d_err);
 
@@ -138,7 +138,7 @@
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500."/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-1000"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0." unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.035000000149"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0.035000000149"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0."/>
     <define name="AUTO_THROTTLE_DGAIN" value="0.0"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0."/>
@@ -158,21 +158,21 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.5"/>	<!-- Heading outerloop: only P-gain -->
+    <define name="COURSE_PGAIN" value="1.5"/>	<!-- Heading outerloop: only P-gain -->
 
     <define name="ROLL_MAX_SETPOINT" value="0.75" unit="rad"/> <!-- Max Angles -->
     <define name="PITCH_MAX_SETPOINT" value="0.4" unit="rad"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.4" unit="rad"/>
 
-    <define name="PITCH_PGAIN" value="-7110.09179688"/>	<!-- Pitch Angle PD control -->
+    <define name="PITCH_PGAIN" value="7110.09179688"/>	<!-- Pitch Angle PD control -->
     <define name="PITCH_DGAIN" value="2."/>
 
     <define name="ELEVATOR_OF_ROLL" value="1500."/> <!-- Feed forward ABS(roll) to elevator -->
 
     <define name="ROLL_SLEW" value="0.30"/> <!-- Maximal roll angle change per 1/60 of second -->
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-7000."/> <!-- Roll Angle PD control -->
-    <define name="ROLL_RATE_GAIN" value="-2752.29394531"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="7000."/> <!-- Roll Angle PD control -->
+    <define name="ROLL_RATE_GAIN" value="2752.29394531"/>
 
 <!--
 #ifdef H_CTL_ROLL_ATTITUDE_GAIN

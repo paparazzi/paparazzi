@@ -56,15 +56,10 @@ CFLAGS += $(INCLUDES)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(LOCAL_CFLAGS)
 CFLAGS += -O2
-CFLAGS += -std=gnu99
 
-# meschach prototypes trigger numerous warnings
-ifneq ($(SIM_TYPE),BOOZ)
 ifneq ($(SIM_TYPE),JSBSIM)
-CFLAGS	+= -Wstrict-prototypes
+CFLAGS += -std=gnu99
 endif
-endif
-
 
 LDFLAGS		=	-lm
 

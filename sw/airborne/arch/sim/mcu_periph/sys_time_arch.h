@@ -21,22 +21,24 @@
  *
  */
 
-/*
- *\brief simulator dummy timing functions
- *
+/** @file arch/sim/mcu_periph/sys_time_arch.h
+ * Simulator timing functions
  */
 
 #ifndef SYS_TIME_ARCH_H
 #define SYS_TIME_ARCH_H
 
-#include <unistd.h>
+#include "std.h"
 
-#define CPU_TICKS_OF_SEC(x) (x)
-#define SIGNED_CPU_TICKS_OF_SEC(x) (x)
+extern void sys_tick_handler(void);
 
-#define SEC_OF_CPU_TICKS(st) (st)
-#define MSEC_OF_CPU_TICKS(st) (st)
-#define USEC_OF_CPU_TICKS(st) (st)
+// simulate 1us cpu ticks
+#define CPU_TICKS_OF_SEC(s)        (uint32_t)((s) * 1e6 + 0.5)
+#define SIGNED_CPU_TICKS_OF_SEC(s)  (int32_t)((s) * 1e6 + 0.5)
+
+#define SEC_OF_CPU_TICKS(t)  ((t) / 1e6)
+#define MSEC_OF_CPU_TICKS(t) ((t) / 1e3)
+#define USEC_OF_CPU_TICKS(t) (t)
 
 #define SysTimeTimerStart(_t) { }
 #define SysTimeTimer(_t) (_t)

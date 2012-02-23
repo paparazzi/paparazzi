@@ -78,8 +78,8 @@ void autopilot_init(void) {
 }
 
 void autopilot_periodic_task(void) {
-  periodic_task_ap();
-  periodic_task_fbw();
+  handle_periodic_tasks_ap();
+  handle_periodic_tasks_fbw();
 }
 
 void autopilot_event_task(void) {
