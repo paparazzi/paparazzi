@@ -31,22 +31,16 @@
 
 
 #include "std.h"
-#include "peripherals/ads1114.h"
-
-#ifdef USE_BARO_AS_ALTIMETER
-extern float baro_alt;
-extern float baro_alt_offset;
-#define BaroAltHandler() { baro_alt = BARO_SENS*(baro_alt_offset - (float)baro.absolute); }
-#endif
+#include "peripherals/mcp355x.h"
 
 #define BARO_FILTER_GAIN 5
 
 #define BaroEvent(_b_abs_handler, _b_diff_handler) {  \
-  Ads1114Event();                                     \
-  if (ads1114_data_available) {                       \
-    baro.absolute = (baro.absolute + BARO_FILTER_GAIN*Ads1114GetValue()) / (BARO_FILTER_GAIN+1); \
+  mcp355x_event();                                    \
+  if (mcp355x_data_available) {                       \
+    baro.absolute = (baro.absolute + BARO_FILTER_GAIN*mcp355x_data) / (BARO_FILTER_GAIN+1); \
     _b_abs_handler();                                 \
-    ads1114_data_available = FALSE;                   \
+    mcp355x_data_available = FALSE;                   \
   }                                                   \
 }
 
