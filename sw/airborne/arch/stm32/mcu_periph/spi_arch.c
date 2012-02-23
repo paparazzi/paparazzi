@@ -228,7 +228,7 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
   if (temp == p->trans_extract_idx)
     return FALSE;
   t->status = SPITransPending;
-
+  *(t->ready) = 0;
   //Disable interrupts to avoid race conflict with end of DMA transfer interrupt
   __disable_irq();
   p->trans[p->trans_insert_idx] = t;
@@ -239,6 +239,7 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
     spi_rw(p->trans[p->trans_extract_idx]);
   }
   __enable_irq();
+  return TRUE;
 }
 
 // End of DMA transfer interrupt handler
