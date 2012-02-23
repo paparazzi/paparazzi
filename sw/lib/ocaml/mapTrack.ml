@@ -82,7 +82,6 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 (** red circle : target of the mission *)
   let _ac_mission_target =
     ignore ( GnoCanvas.ellipse ~x1: (-5.) ~y1: (-5.) ~x2: 5. ~y2: 5. ~fill_color:"red" ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "red"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] mission_target) in
-  (*let _ = ac_mission_target#hide () in*)
   let _ = mission_target#hide () in
 
  (** data at map scale *)
