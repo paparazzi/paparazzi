@@ -4,11 +4,9 @@ Paparazzi UAS
 Paparazzi is an attempt to develop a free software Unmanned (Air) Vehicle System.
  As of today the system is being used successfuly by a number of hobyists, universities and companies all over the world, on vehicle of various size ( 100g to 25Kg ) and of various nature ( fixed wing, rotorcrafts, boats and surface vehicles).
 
-Up to date informations are available from the wiki website
+Up to date information is available in the wiki http://paparazzi.enac.fr
 
-    http://paparazzi.enac.fr
-
-and from the mailing list (http://savannah.nongnu.org/mail/?group=paparazzi)
+and from the mailing list [paparazzi-devel@nongnu.org] (http://savannah.nongnu.org/mail/?group=paparazzi)
 and the IRC channel (freenode, #paparazzi).
 
 
@@ -17,13 +15,8 @@ Required Software
 
 Installation is described in the wiki (http://paparazzi.enac.fr/wiki/Installation).
 
-For Ubuntu users, required packages are available at
-
-    https://launchpad.net/~paparazzi-uav/+archive/ppa
-
-For Debian users:
-
-    http://paparazzi.enac.fr/debian
+For Ubuntu users, required packages are available in the [paparazzi-uav PPA] (https://launchpad.net/~paparazzi-uav/+archive/ppa),
+Debian users can use http://paparazzi.enac.fr/debian
 
 
 - **paparazzi-dev** is the meta-package that depends on everything needed to compile and run the ground segment and the simulator.
@@ -35,15 +28,15 @@ For Debian users:
 Directories quick and dirty description:
 ----------------------------------------
 
-conf: the configuration directory (airframe, radio, ... descriptions).
+_conf_: the configuration directory (airframe, radio, ... descriptions).
 
-data: where to put read-only data (e.g. maps, terrain elevation files, icons)
+_data_: where to put read-only data (e.g. maps, terrain elevation files, icons)
 
-doc: documentation (diagrams, manual source files, ...)
+_doc_: documentation (diagrams, manual source files, ...)
 
-sw: software (onboard, ground station, simulation, ...)
+_sw_: software (onboard, ground station, simulation, ...)
 
-var: products of compilation, cache for the map tiles, ...
+_var_: products of compilation, cache for the map tiles, ...
 
 
 Compilation and demo simulation
@@ -63,7 +56,7 @@ Compilation and demo simulation
   Takeoff with the green launch button.
 
 Uploading of the embedded software
-==================================
+----------------------------------
 
 1. Power the flight controller board while it is connected to the PC with the USB cable.
 
@@ -71,6 +64,6 @@ Uploading of the embedded software
 
 
 Flight
-======
+------
 
 1.  From the Paparazzi Center, select the flight session and ... do the same than in simulation !
