@@ -22,6 +22,9 @@ void sys_time_arch_init( void ) {
   /* enable timer 0                  */
   T0TCR = TCR_ENABLE;
 
+  /* set first sys tick interrupt    */
+  T0MR0 = SYS_TIME_RESOLUTION_CPU_TICKS;
+
   /* select TIMER0 as IRQ    */
   VICIntSelect &= ~VIC_BIT(VIC_TIMER0);
   /* enable TIMER0 interrupt */
@@ -30,9 +33,6 @@ void sys_time_arch_init( void ) {
   _VIC_CNTL(TIMER0_VIC_SLOT) = VIC_ENABLE | VIC_TIMER0;
   /* address of the ISR      */
   _VIC_ADDR(TIMER0_VIC_SLOT) = (uint32_t)TIMER0_ISR;
-
-  /* set first sys tick interrupt */
-  T0MR1 = SYS_TIME_RESOLUTION_CPU_TICKS;
 }
 
 static inline void sys_tick_irq_handler(void) {

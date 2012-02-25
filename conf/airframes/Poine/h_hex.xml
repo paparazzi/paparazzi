@@ -174,11 +174,6 @@
       <subsystem name="radio_control" type="spektrum"/>
       <subsystem name="actuators"     type="mkk"/>
     </target>
-    <target name="sim" board="pc">
-      <subsystem name="fdm"           type="nps"/>
-      <subsystem name="radio_control" type="ppm"/>
-      <subsystem name="actuators"     type="mkk"/>
-    </target>
     <subsystem name="telemetry"     type="transparent"/>
 <!--    <subsystem name="imu"           type="b2_v1.1"/> -->
     <subsystem name="imu"           type="aspirin_v1.0"/>

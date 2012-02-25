@@ -171,7 +171,6 @@
 
   <firmware name="setup">
     <target name="tunnel" 		    board="tiny_0.99" />
-    <target name="setup_actuators" 	board="tiny_0.99" />
   </firmware>
 
   <modules>

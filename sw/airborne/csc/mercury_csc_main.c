@@ -81,7 +81,7 @@ static uint32_t can_msg_count = 0;
 static void csc_main_init( void ) {
 
 	hw_init();
-	sys_time_init();
+	sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
 	led_init();
 
 	actuators_init();
@@ -252,7 +252,7 @@ int main( void ) {
 	csc_main_init();
 //	Uart0PrintString("Hello");
 	while(1) {
-		if (sys_time_periodic()) {
+		if (sys_time_check_and_ack_timer(0)) {
 			csc_main_periodic();
 		}
 		csc_main_event();
