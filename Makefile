@@ -259,8 +259,12 @@ dist_clean_irreversible: clean
 ab_clean:
 	find sw/airborne -name '*~' -exec rm -f {} \;
 
-test_all_example_airframes:
+test_all_example_airframes: replace_current_conf_xml
 	for ap in `grep name conf/conf.xml.example | sed -e 's/.*name=\"//' | sed -e 's/".*//'`; do for airframe in `grep $$ap conf/conf.xml.example | sed -e 's/.*airframe=\"//' | sed -e 's/".*//'`; do for target in `grep target conf/$$airframe | grep name | sed -e 's/.*name=\"//' | sed -e 's/\".*//'`; do echo "Making $$ap $$target"; make -C ./ AIRCRAFT=$$ap clean_ac $$target.compile || exit 1; done; done; done
+
+replace_current_conf_xml:
+	test conf/conf.xml || mv conf/conf.xml conf/conf.xml.backup.`date +%Y%m%d-%H%M%s`
+	cp conf/conf.xml.example conf/conf.xml
 
 commands: paparazzi sw/simulator/launchsitl
 
