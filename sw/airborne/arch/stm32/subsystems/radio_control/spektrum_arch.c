@@ -22,17 +22,17 @@
  */
 
 #include <stdint.h>
-#include <stm32/gpio.h>
-#include <stm32/rcc.h>
-#include <stm32/tim.h>
-#include <stm32/misc.h>
-#include <stm32/usart.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/nvic.h>
+#include <libopencm3/stm32/timer.h>
+#include <libopencm3/stm32/usart.h>
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/spektrum_arch.h"
 #include "mcu_periph/uart.h"
-#include "pprz_baudrate.h"
 
-
+/* XXX: this should be declared in some libopencm3 header */
+void tim6_isr(void);
 
 #define SPEKTRUM_CHANNELS_PER_FRAME 7
 #define MAX_SPEKTRUM_FRAMES 2
@@ -468,34 +468,25 @@ void RadioControlEventImp(void (*frame_handler)(void)) {
 void SpektrumTimerInit( void ) {
 
   /* enable TIM6 clock */
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM6, ENABLE);
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM6EN);
 
   /* TIM6 configuration */
-  TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-  TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
+  timer_set_mode(TIM6, TIM_CR1_CKD_CK_INT,
+	         TIM_CR1_CMS_EDGE, TIM_CR1_DIR_DOWN);
   /* 100 microseconds ie 0.1 millisecond */
-  TIM_TimeBaseStructure.TIM_Period = TIM_TICS_FOR_100us-1;
-  TIM_TimeBaseStructure.TIM_Prescaler = ((AHB_CLK / TIM_FREQ_1000000) - 1);
-  TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Down;
-  TIM_TimeBaseInit(TIM6, &TIM_TimeBaseStructure);
+  timer_set_period(TIM6, TIM_TICS_FOR_100us-1);
+  timer_set_prescaler(TIM6, ((AHB_CLK / TIM_FREQ_1000000) - 1));
 
   /* Enable TIM6 interrupts */
-  NVIC_InitTypeDef NVIC_InitStructure;
-
-  /* Enable and configure TIM6 IRQ channel */
-  NVIC_InitStructure.NVIC_IRQChannel = TIM6_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+  nvic_set_priority(NVIC_TIM6_IRQ, 2);
+  nvic_enable_irq(NVIC_TIM6_IRQ);
 
   /* Enable TIM6 Update interrupt */
-  TIM_ITConfig(TIM6, TIM_IT_Update, ENABLE);
-  TIM_ClearFlag(TIM6, TIM_FLAG_Update);
+  timer_enable_irq(TIM6, TIM_DIER_UIE);
+  timer_clear_flag(TIM6, TIM_SR_UIF);
 
   /* TIM6 enable counter */
-  TIM_Cmd(TIM6, ENABLE);
+  timer_enable_counter(TIM6);
 }
 
 /*****************************************************************************
@@ -503,9 +494,9 @@ void SpektrumTimerInit( void ) {
  * TIM6 interrupt request handler updates times used by SpektrumParser
  *
  *****************************************************************************/
-void tim6_irq_handler( void ) {
+void tim6_isr( void ) {
 
-  TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
+  timer_clear_flag(TIM6, TIM_SR_UIF);
 
   if (PrimarySpektrumState.SpektrumTimer)
     --PrimarySpektrumState.SpektrumTimer;
@@ -522,74 +513,62 @@ void tim6_irq_handler( void ) {
  *****************************************************************************/
 void SpektrumUartInit(void) {
   /* init RCC */
-  PrimaryUart(_remap);
-  PrimaryUart(_clk)(PrimaryUart(_UartPeriph), ENABLE);;
+  //PrimaryUart(_remap);
+  //PrimaryUart(_clk)(PrimaryUart(_UartPeriph), ENABLE);;
   //RCC_APB1PeriphClockCmd(PrimaryUart(_UartPeriph), ENABLE);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_USART1EN);
 
   /* Enable USART interrupts */
-  NVIC_InitTypeDef nvic;
-  nvic.NVIC_IRQChannel = PrimaryUart(_IRQn);
-  nvic.NVIC_IRQChannelPreemptionPriority = 2;
-  nvic.NVIC_IRQChannelSubPriority = 1;
-  nvic.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&nvic);
+  nvic_set_priority(NVIC_USART1_IRQ, 2);
+  nvic_enable_irq(NVIC_USART1_IRQ);
+
   /* Init GPIOS */
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   /* Primary UART Rx pin as floating input */
-  GPIO_InitStructure.GPIO_Pin   = PrimaryUart(_RxPin);
-  GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(PrimaryUart(_RxPort), &GPIO_InitStructure);
+  gpio_set_mode(GPIO_BANK_USART1_RX, GPIO_MODE_INPUT,
+                GPIO_CNF_INPUT_FLOAT, GPIO_USART1_RX);
+
   /* Configure Primary UART */
-  USART_InitTypeDef usart;
-  usart.USART_BaudRate            = B115200;
-  usart.USART_WordLength          = USART_WordLength_8b;
-  usart.USART_StopBits            = USART_StopBits_1;
-  usart.USART_Parity              = USART_Parity_No;
-  usart.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  usart.USART_Mode                = USART_Mode_Rx;
-  USART_Init(PrimaryUart(_reg), &usart);
+  usart_set_baudrate(USART1, 115200);
+  usart_set_databits(USART1, 8);
+  usart_set_stopbits(USART1, USART_STOPBITS_1);
+  usart_set_parity(USART1, USART_PARITY_NONE);
+  usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
+  usart_set_mode(USART1, USART_MODE_RX);
+
   /* Enable Primary UART Receive interrupts */
-  USART_ITConfig(PrimaryUart(_reg), USART_IT_RXNE, ENABLE);
+  USART_CR1(USART1) |= USART_CR1_RXNEIE;
 
-  /* required to get the correct baudrate on lisa m */
-  pprz_usart_set_baudrate(PrimaryUart(_reg), B115200);
   /* Enable the Primary UART */
-  USART_Cmd(PrimaryUart(_reg), ENABLE);
-
+  usart_enable(USART1);
 
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
-   /* init RCC */
-  SecondaryUart(_remap);
-  SecondaryUart(_clk)(SecondaryUart(_UartPeriph), ENABLE);
-  //RCC_APB1PeriphClockCmd(SecondaryUart(_UartPeriph), ENABLE);
-  /* Enable USART interrupts */
-  nvic.NVIC_IRQChannel = SecondaryUart(_IRQn);
-  nvic.NVIC_IRQChannelPreemptionPriority = 2;
-  nvic.NVIC_IRQChannelSubPriority = 2;
-  nvic.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&nvic);
-  /* Init GPIOS */;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  /* Secondary UART Rx pin as floating input */
-  GPIO_InitStructure.GPIO_Pin   = SecondaryUart(_RxPin);
-  GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(SecondaryUart(_RxPort), &GPIO_InitStructure);
-  /* Configure secondary UART */
-  usart.USART_BaudRate            = B115200;
-  usart.USART_WordLength          = USART_WordLength_8b;
-  usart.USART_StopBits            = USART_StopBits_1;
-  usart.USART_Parity              = USART_Parity_No;
-  usart.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  usart.USART_Mode                = USART_Mode_Rx;
-  USART_Init(SecondaryUart(_reg), &usart);
-  /* Enable Secondary UART Receive interrupts */
-  USART_ITConfig(SecondaryUart(_reg), USART_IT_RXNE, ENABLE);
+  /* init RCC */
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPDEN);
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_UART5EN);
 
-  /* required to get the correct baudrate on lisa m */
-  pprz_usart_set_baudrate(SecondaryUart(_reg), B115200);
+  /* Enable USART interrupts */
+  nvic_set_priority(NVIC_UART5_IRQ, 3);
+  nvic_enable_irq(NVIC_UART5_IRQ);
+
+  /* Init GPIOS */;
+  /* Secondary UART Rx pin as floating input */
+  gpio_set_mode(GPIO_BANK_UART5_RX, GPIO_MODE_INPUT,
+                GPIO_CNF_INPUT_FLOAT, GPIO_UART5_RX);
+
+  /* Configure secondary UART */
+  usart_set_baudrate(UART5, 115200);
+  usart_set_databits(UART5, 8);
+  usart_set_stopbits(UART5, USART_STOPBITS_1);
+  usart_set_parity(UART5, USART_PARITY_NONE);
+  usart_set_flow_control(UART5, USART_FLOWCONTROL_NONE);
+  usart_set_mode(UART5, USART_MODE_RX);
+
+  /* Enable Secondary UART Receive interrupts */
+  USART_CR1(UART5) |= USART_CR1_RXNEIE;
+
   /* Enable the Primary UART */
-  USART_Cmd(SecondaryUart(_reg), ENABLE);
+  usart_enable(UART5);
 #endif
 
 }
@@ -600,16 +579,19 @@ void SpektrumUartInit(void) {
  * received character to Spektrum Parser.
  *
  *****************************************************************************/
-void PrimaryUart(_irq_handler)(void) {
+void usart1_isr(void) {
 
-  if(USART_GetITStatus(PrimaryUart(_reg), USART_IT_TXE) != RESET) {
-      USART_ITConfig(PrimaryUart(_reg), USART_IT_TXE, DISABLE);
+  if (((USART_CR1(USART1) & USART_CR1_TXEIE) != 0) &&
+      ((USART_SR(USART1) & USART_SR_TXE) != 0)) {
+    USART_CR1(USART1) &= ~USART_CR1_TXEIE;
   }
 
-  if(USART_GetITStatus(PrimaryUart(_reg), USART_IT_RXNE) != RESET) {
-    uint8_t b =  USART_ReceiveData(PrimaryUart(_reg));
+  if (((USART_CR1(USART1) & USART_CR1_RXNEIE) != 0) &&
+      ((USART_SR(USART1) & USART_SR_RXNE) != 0)) {
+    uint8_t b = usart_recv(USART1);
     SpektrumParser(b, PrimarySpektrumState, 0);
   }
+
 }
 
 /*****************************************************************************
@@ -619,16 +601,19 @@ void PrimaryUart(_irq_handler)(void) {
  *
  *****************************************************************************/
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
-void SecondaryUart(_irq_handler)(void) {
+void uart5_isr(void) {
 
-  if(USART_GetITStatus(SecondaryUart(_reg), USART_IT_TXE) != RESET) {
-      USART_ITConfig(SecondaryUart(_reg), USART_IT_TXE, DISABLE);
+  if (((USART_CR1(UART5) & USART_CR1_TXEIE) != 0) &&
+      ((USART_SR(UART5) & USART_SR_TXE) != 0)) {
+    USART_CR1(UART5) &= ~USART_CR1_TXEIE;
   }
 
-  if(USART_GetITStatus(SecondaryUart(_reg), USART_IT_RXNE) != RESET) {
-    uint8_t b =  USART_ReceiveData(SecondaryUart(_reg));
-    SpektrumParser(b, SecondarySpektrumState, 1);
+  if (((USART_CR1(UART5) & USART_CR1_RXNEIE) != 0) &&
+      ((USART_SR(UART5) & USART_SR_RXNE) != 0)) {
+    uint8_t b = usart_recv(UART5);
+    SpektrumParser(b, PrimarySpektrumState, 0);
   }
+
 }
 #endif
 
@@ -638,13 +623,12 @@ void SecondaryUart(_irq_handler)(void) {
  *
  *****************************************************************************/
 void DebugInit(void) {
-  RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOC, ENABLE);
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
-  GPIO_WriteBit(GPIOC, GPIO_Pin_5 , Bit_RESET );
+
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
+
+  gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ,
+	        GPIO_CNF_OUTPUT_PUSHPULL, GPIO5);
+  gpio_clear(GPIOC, GPIO5);
 }
 
 /*****************************************************************************
@@ -665,41 +649,40 @@ void DebugInit(void) {
 void radio_control_spektrum_try_bind(void) {
 
   /* init RCC */
-  RCC_APB2PeriphClockCmd(BIND_PIN_PERIPH , ENABLE);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);
 
   /* Init GPIO for the bind pin */
-  GPIO_InitTypeDef GPIO_InitStructure;
-  GPIO_InitStructure.GPIO_Pin = BIND_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-  GPIO_Init(BIND_PIN_PORT, &GPIO_InitStructure);
+  gpio_set(GPIOC, GPIO3);
+  gpio_set_mode(GPIOC, GPIO_MODE_INPUT,
+	        GPIO_CNF_INPUT_PULL_UPDOWN, GPIO3);
   /* exit if the BIND_PIN is high, it needs to
      be pulled low at startup to initiate bind */
-  if (GPIO_ReadInputDataBit(BIND_PIN_PORT, BIND_PIN))
+  if (gpio_get(GPIOC, GPIO3) != 0)
     return;
 
   /* bind initiated, initialise the delay timer */
   SpektrumDelayInit();
 
   /* initialise the uarts rx pins as  GPIOS */
-  RCC_APB2PeriphClockCmd(PrimaryUart(_Periph) , ENABLE);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+
   /* Master receiver Rx push-pull */
-  GPIO_InitStructure.GPIO_Pin = PrimaryUart(_RxPin);
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(PrimaryUart(_RxPort), &GPIO_InitStructure);
+  gpio_set_mode(GPIO_BANK_USART1_RX, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, GPIO_USART1_RX);
+
   /* Master receiver RX line, drive high */
-  GPIO_WriteBit(PrimaryUart(_RxPort), PrimaryUart(_RxPin) , Bit_SET );
+  gpio_set(GPIO_BANK_USART1_RX, GPIO_USART1_RX);
 
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
-   RCC_APB2PeriphClockCmd(SecondaryUart(_Periph) , ENABLE);
+
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPDEN);
+
   /* Slave receiver Rx push-pull */
-  GPIO_InitStructure.GPIO_Pin = SecondaryUart(_RxPin);
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(SecondaryUart(_RxPort), &GPIO_InitStructure);
+  gpio_set_mode(GPIO_BANK_UART5_RX, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, GPIO_UART5_RX);
+
   /* Slave receiver RX line, drive high */
-  GPIO_WriteBit(SecondaryUart(_RxPort), SecondaryUart(_RxPin) , Bit_SET );
+  gpio_set(GPIO_BANK_UART5_RX, GPIO_UART5_RX);
 #endif
 
   /* We have no idea how long the window for allowing binding after
@@ -708,18 +691,18 @@ void radio_control_spektrum_try_bind(void) {
 
   for (int i = 0; i < MASTER_RECEIVER_PULSES ; i++)
   {
-    GPIO_WriteBit(PrimaryUart(_RxPort), PrimaryUart(_RxPin), Bit_RESET );
+    gpio_clear(GPIO_BANK_USART1_RX, GPIO_USART1_RX);
     DelayUs(118);
-    GPIO_WriteBit(PrimaryUart(_RxPort), PrimaryUart(_RxPin), Bit_SET );
+    gpio_set(GPIO_BANK_USART1_RX, GPIO_USART1_RX);
     DelayUs(122);
   }
 
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
   for (int i = 0; i < SLAVE_RECEIVER_PULSES; i++)
   {
-    GPIO_WriteBit(SecondaryUart(_RxPort), SecondaryUart(_RxPin), Bit_RESET );
+    gpio_clear(GPIO_BANK_UART5_RX, GPIO_UART5_RX);
     DelayUs(120);
-    GPIO_WriteBit(SecondaryUart(_RxPort), SecondaryUart(_RxPin), Bit_SET );
+    gpio_set(GPIO_BANK_UART5_RX, GPIO_UART5_RX);
     DelayUs(120);
   }
 #endif /* RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT */
@@ -733,26 +716,25 @@ void radio_control_spektrum_try_bind(void) {
 
 /* set TIM6 to run at DELAY_TIM_FREQUENCY */
 static void SpektrumDelayInit( void ) {
-  /* Enable timer clock */
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM6, ENABLE);
-  /* Time base configuration */
-  TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-  TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-  TIM_TimeBaseStructure.TIM_Prescaler = (AHB_CLK / DELAY_TIM_FREQUENCY) - 1;
-  TIM_TimeBaseStructure.TIM_Period = UINT16_MAX;
-  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-  TIM_TimeBaseInit(TIM6, &TIM_TimeBaseStructure);
 
- /* Enable counter */
-  TIM_Cmd(TIM6, ENABLE);
+  /* Enable timer clock */
+  rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM6EN);
+
+  /* Time base configuration */
+  timer_set_mode(TIM6, TIM_CR1_CKD_CK_INT,
+	         TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+  timer_set_period(TIM6, UINT16_MAX);
+  timer_set_prescaler(TIM6, (AHB_CLK / DELAY_TIM_FREQUENCY) - 1);
+
+  /* Enable counter */
+  timer_enable_counter(TIM6);
 }
 
 /* wait busy loop, microseconds */
 static void DelayUs( uint16_t uSecs ) {
-  uint16_t start = TIM6->CNT;
+  uint16_t start = TIM6_CNT;
   /* use 16 bit count wrap around */
-  while((uint16_t)(TIM6->CNT - start) <= uSecs);
+  while((uint16_t)(TIM6_CNT - start) <= uSecs);
 }
 
 /* wait busy loop, milliseconds */
