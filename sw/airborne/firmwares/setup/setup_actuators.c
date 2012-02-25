@@ -7,12 +7,17 @@
 #include "generated/airframe.h"
 #define DATALINK_C
 #include "subsystems/datalink/datalink.h"
-#include "mcu_periph/uart.h"
 #include "subsystems/datalink/pprz_transport.h"
 #include "firmwares/fixedwing/main_fbw.h"
-#include "subsystems/datalink/downlink.h"
+
 #include "generated/settings.h"
 
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_FBW_DEVICE
+#endif
+#include "mcu_periph/uart.h"
+#include "subsystems/datalink/downlink.h"
+#include "ap_downlink.h"
 
 #define IdOfMsg(x) (x[1])
 
@@ -76,16 +81,5 @@ void periodic_task_fbw(void) {
 }
 
 void event_task_fbw(void) {
-  if (PprzBuffer()) {
-    ReadPprzBuffer();
-  }
-  if (pprz_msg_received) {
-    pprz_msg_received = FALSE;
-    pprz_parse_payload();
-    LED_TOGGLE(3);
-  }
-  if (dl_msg_available) {
-    dl_parse_msg();
-    dl_msg_available = FALSE;
-  }
+  DatalinkEvent();
 }
