@@ -528,6 +528,7 @@ test_actuators_asctecv1.srcs    = $(COMMON_TEST_SRCS)
 test_actuators_asctecv1.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_actuators_asctecv1.srcs   += $(COMMON_TELEMETRY_SRCS)
 
+test_actuators_asctecv1.srcs   += test/test_actuators.c
 test_actuators_asctecv1.srcs   += $(SRC_FIRMWARE)/commands.c
 test_actuators_asctecv1.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
 test_actuators_asctecv1.srcs   += $(SRC_FIRMWARE)/actuators/actuators_asctec.c
