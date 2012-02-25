@@ -56,7 +56,6 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
   <firmware name="setup">
     <target name="tunnel"          board="twog_1.0" />
     <target name="usb_tunnel_0"    board="twog_1.0" />
-    <target name="setup_actuators" board="twog_1.0" />
   </firmware>
 
 

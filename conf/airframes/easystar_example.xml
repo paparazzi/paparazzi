@@ -30,7 +30,6 @@
 
   <firmware name="setup">
     <target name="tunnel" 		board="twog_1.0"/>
-    <target name="setup_actuators" 	board="twog_1.0"/>
   </firmware>
 
 <!-- commands section -->
