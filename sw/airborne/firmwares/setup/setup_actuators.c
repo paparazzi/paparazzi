@@ -8,16 +8,11 @@
 #define DATALINK_C
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/pprz_transport.h"
+#include "mcu_periph/uart.h"
+#include "subsystems/datalink/downlink.h"
 #include "firmwares/fixedwing/main_fbw.h"
 
 #include "generated/settings.h"
-
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_FBW_DEVICE
-#endif
-#include "mcu_periph/uart.h"
-#include "subsystems/datalink/downlink.h"
-#include "ap_downlink.h"
 
 #define IdOfMsg(x) (x[1])
 
@@ -49,14 +44,9 @@ void dl_parse_msg( void ) {
 #endif
 }
 
-#define PprzUartInit() Link(Init())
 
 void init_fbw( void ) {
   mcu_init();
-  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
-  led_init();
-
-  PprzUartInit();
 
   actuators_init();
 
@@ -67,7 +57,16 @@ void init_fbw( void ) {
 
   //  SetServo(SERVO_GAZ, SERVO_GAZ_MIN);
 
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
+
   mcu_int_enable();
+}
+
+void handle_periodic_tasks_fbw(void) {
+
+  if (sys_time_check_and_ack_timer(0))
+    periodic_task_fbw();
+
 }
 
 void periodic_task_fbw(void) {
