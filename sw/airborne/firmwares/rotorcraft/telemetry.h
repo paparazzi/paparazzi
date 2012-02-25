@@ -748,7 +748,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				   );					       \
   }
 #else
-#define PERIODIC_SEND_I2C2_ERRORS(_trans, _dev) {}
+#define PERIODIC_SEND_I2C1_ERRORS(_trans, _dev) {}
 #endif
 
 #ifdef USE_I2C2
