@@ -720,11 +720,22 @@ static void SpektrumDelayInit( void ) {
   /* Enable timer clock */
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_TIM6EN);
 
+  /* Make sure the timer is reset to default values. */
+  timer_reset(TIM6);
+
   /* Time base configuration */
-  timer_set_mode(TIM6, TIM_CR1_CKD_CK_INT,
-	         TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+  /* Mode does not need to be set as the default reset values are ok. */
   timer_set_period(TIM6, UINT16_MAX);
   timer_set_prescaler(TIM6, (AHB_CLK / DELAY_TIM_FREQUENCY) - 1);
+
+  /*
+   * Let's start the timer late in the cycle to force an update event before
+   * we start using this timer for generating delays. Otherwise the prescaler
+   * value does not seem to be taken over by the timer, resulting in way too
+   * high counting frequency. There does not seem to be a force update bit on
+   * TIM6 is there?
+   */
+  TIM6_CNT = 65534;
 
   /* Enable counter */
   timer_enable_counter(TIM6);
@@ -733,12 +744,14 @@ static void SpektrumDelayInit( void ) {
 /* wait busy loop, microseconds */
 static void DelayUs( uint16_t uSecs ) {
   uint16_t start = TIM6_CNT;
+
   /* use 16 bit count wrap around */
-  while((uint16_t)(TIM6_CNT - start) <= uSecs);
+  while((TIM6_CNT - start) <= uSecs);
 }
 
 /* wait busy loop, milliseconds */
 static void DelayMs( uint16_t mSecs ) {
+
   for(int i = 0; i < mSecs; i++) {
     DelayUs(DELAY_TIM_FREQUENCY / 1000);
   }
