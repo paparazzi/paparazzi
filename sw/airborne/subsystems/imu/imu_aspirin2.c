@@ -31,7 +31,7 @@ void imu_impl_init(void) {
   aspirin2_mpu60x0.miso_buf = imu_aspirin2.imu_rx_buf;
   aspirin2_mpu60x0.ready = &(imu_aspirin2.imu_available);
   aspirin2_mpu60x0.length = 2;
-
+  aspirin2_mpu60x0.slave_idx = 0;
 //  imu_aspirin2_arch_init();
 
 }
@@ -59,7 +59,7 @@ void imu_periodic(void)
     // imu_aspirin2.imu_tx_buf[0] = MPU60X0_REG_WHO_AM_I + MPU60X0_SPI_READ;
     // imu_aspirin2.imu_tx_buf[1] = 0x00;
 
-    spi_rw(&aspirin2_mpu60x0);
+    spi_submit(&spi2,&aspirin2_mpu60x0);
 
 /*
     imu_aspirin.time_since_last_reading++;
@@ -90,7 +90,7 @@ static void configure(void)
   // -switch to gyroX clock
   aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_PWR_MGMT_1;
   aspirin2_mpu60x0.mosi_buf[1] = 0x01;
-  spi_rw(&aspirin2_mpu60x0);
+  spi_submit(&spi2,&aspirin2_mpu60x0);
     while(aspirin2_mpu60x0.status != SPITransSuccess);
 
   // MPU60X0_REG_PWR_MGMT_2: Nothing should be in standby: default OK
@@ -128,27 +128,27 @@ static void configure(void)
 #endif
   aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_CONFIG;
   aspirin2_mpu60x0.mosi_buf[1] = (2 << 3) | (MPU_DIG_FILTER << 0);
-  spi_rw(&aspirin2_mpu60x0);
+  spi_submit(&spi2,&aspirin2_mpu60x0);
     while(aspirin2_mpu60x0.status != SPITransSuccess);
 
   // MPU60X0_REG_SMPLRT_DIV
   aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_SMPLRT_DIV;
   aspirin2_mpu60x0.mosi_buf[1] = MPU_SMPLRT_DIV;
-  spi_rw(&aspirin2_mpu60x0);
+  spi_submit(&spi2,&aspirin2_mpu60x0);
     while(aspirin2_mpu60x0.status != SPITransSuccess);
 
   // MPU60X0_REG_GYRO_CONFIG
   // -2000deg/sec
   aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_GYRO_CONFIG;
   aspirin2_mpu60x0.mosi_buf[1] = (3<<3);
-  spi_rw(&aspirin2_mpu60x0);
+  spi_submit(&spi2,&aspirin2_mpu60x0);
     while(aspirin2_mpu60x0.status != SPITransSuccess);
 
   // MPU60X0_REG_ACCEL_CONFIG
   // 16g, no HPFL
   aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_ACCEL_CONFIG;
   aspirin2_mpu60x0.mosi_buf[1] = (3<<3);
-  spi_rw(&aspirin2_mpu60x0);
+  spi_submit(&spi2,&aspirin2_mpu60x0);
     while(aspirin2_mpu60x0.status != SPITransSuccess);
 
 /*
