@@ -2,7 +2,7 @@
 #define IMU_ASPIRIN2_ARCH_H
 
 #include "subsystems/imu.h"
-#include <stm32/gpio.h>
+#include <libopencm3/stm32/f1/gpio.h>
 
 
 
