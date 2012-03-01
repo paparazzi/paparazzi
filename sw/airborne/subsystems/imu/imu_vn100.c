@@ -1,3 +1,44 @@
+/* VectorNav as IMU subsystem
+   Andre Devitt
+   Feb 2012
+
+  <section name="IMU" prefix="IMU_">
+    <define name="GYRO_P_NEUTRAL" value="0"/>
+    <define name="GYRO_Q_NEUTRAL" value="0"/>
+    <define name="GYRO_R_NEUTRAL" value="0"/>
+    <define name="GYRO_P_SIGN" value="-1"/>
+    <define name="GYRO_Q_SIGN" value="-1"/>
+    <define name="GYRO_R_SIGN" value="1"/>
+    <define name="GYRO_P_SENS" value="1" integer="16"/>
+    <define name="GYRO_Q_SENS" value="1" integer="16"/>
+    <define name="GYRO_R_SENS" value="1" integer="16"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="0"/>
+    <define name="ACCEL_Y_NEUTRAL" value="0"/>
+    <define name="ACCEL_Z_NEUTRAL" value="0"/>
+    <define name="ACCEL_X_SIGN" value="-1"/>
+    <define name="ACCEL_Y_SIGN" value="-1"/>
+    <define name="ACCEL_Z_SIGN" value="1"/>
+    <define name="ACCEL_X_SENS" value="1" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="1" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="1" integer="16"/>
+
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
+    <define name="MAG_X_SIGN" value="-1"/>
+    <define name="MAG_Y_SIGN" value="-1"/>
+    <define name="MAG_Z_SIGN" value="1"/>
+    <define name="MAG_X_SENS" value="1" integer="16"/>
+    <define name="MAG_Y_SENS" value="1" integer="16"/>
+    <define name="MAG_Z_SENS" value="1" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI" value="RadOfDeg(   0. )"/>
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
+    <define name="BODY_TO_IMU_PSI" value="RadOfDeg( 0.)"/>
+  </section>
+*/
+
 #include "subsystems/imu.h"
 
 #include "led.h"
