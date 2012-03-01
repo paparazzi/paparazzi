@@ -5,9 +5,9 @@
 
 #CC = g++
 #CFLAGS  = -Wall -I $(JSBSIM)/include/JSBSim -I../include
-#LDFLAGS = -L $(JSBSIM)/lib -lJSBSim
+#LDFLAGS = -L$(JSBSIM)/lib -lJSBSim
 #CFLAGS  += -I /usr/include/meschach -I /usr/local/include/
-#LDFLAGS += -lmeschach -L /usr/lib
+#LDFLAGS += -lmeschach -L/usr/lib
 #CFLAGS  += `pkg-config glib-2.0 --cflags`
 #LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lglibivy -lpcre
 
@@ -33,7 +33,7 @@ CFLAGS = -Wall                          \
 
 LDFLAGS = -lm                           \
           -lglibivy                     \
-	  -L $(JSBSIM)/lib -lJSBSim	\
+	  -L$(JSBSIM)/lib -lJSBSim	\
           `pkg-config glib-2.0 --libs`  \
 
 SIMDIR = ..
