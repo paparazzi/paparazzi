@@ -40,11 +40,17 @@ enum SPITransactionStatus {
   SPITransFailed
 };
 
+enum SPIStatus {
+  SPIIdle,
+  SPIRunning
+};
+
 struct spi_transaction {
   volatile uint8_t* mosi_buf;
   volatile uint8_t* miso_buf;
   volatile uint8_t* ready;
   uint8_t length;
+  uint8_t slave_idx;
   volatile enum SPITransactionStatus status;
 };
 
