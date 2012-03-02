@@ -37,6 +37,17 @@ extern void spi_arch_int_disable(void);
 extern void spi_clear_rx_buf(void);
 void spi_rw(struct spi_transaction  * _trans);
 
+#define SPI_TRANSACTION_QUEUE_LEN  8
+
+struct spi_periph {
+    struct spi_transaction* trans[SPI_TRANSACTION_QUEUE_LEN];
+    uint8_t trans_insert_idx;
+    uint8_t trans_extract_idx;
+    volatile enum SPIStatus status;
+};
+
+extern struct spi_periph spi2;
+extern bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t);
 
 /*
 
