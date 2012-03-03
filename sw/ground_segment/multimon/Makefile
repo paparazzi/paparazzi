@@ -3,8 +3,21 @@ Q=@
 
 DEBUG		=n
 MACHINE := $(shell uname -m)
+AS86		=as86 -0 -a
+LD86		=ld86 -0
+AS		=as
+LD		=ld
+LDFLAGS		=-lm
+HOSTCC		=gcc
+CC		=gcc
+MAKE		=make
+CPP		=$(CC) -E
+AR		=ar
+STRIP		=strip
+MKDIR		=mkdir
+OCAMLC	 	=ocamlc
 
-CFLAGS		=-Wall -Wstrict-prototypes -I/usr/X11R6/include -I `ocamlc -where`
+CFLAGS		=-Wall -Wstrict-prototypes -I/usr/X11R6/include -I`$(OCAMLC) -where`
 ifeq ($(DEBUG),y)
   CFLAGS		+=-g -O 
 else
@@ -20,24 +33,8 @@ endif
 
 LDFLAGSX	=-lX11 -L/usr/X11R6/lib
 
-
 #BINDIR		=bin-$(shell uname -m)
 BINDIR		=.
-
-AS86		=as86 -0 -a
-LD86		=ld86 -0
-
-AS		=as
-LD		=ld
-LDFLAGS		=-lm
-HOSTCC		=gcc
-CC		=gcc
-MAKE		=make
-CPP		=$(CC) -E
-AR		=ar
-STRIP		=strip
-MKDIR		=mkdir
-OCAMLC	 	=ocamlc
 
 UNAME = $(shell uname -s)
 ifeq ("$(UNAME)","Linux")
@@ -100,7 +97,7 @@ costabi.c costabf.c:	$(BINDIR)/mkcostab
 
 
 libtest: pprzlib.o demodml.c demod.ml test.ml
-	ocamlc -custom -o $@ pprzlib.o demodml.c -I +lablgtk2 unix.cma lablgtk.cma demod.ml test.ml
+	$(OCAMLC) -custom -o $@ pprzlib.o demodml.c -I +lablgtk2 unix.cma lablgtk.cma demod.ml test.ml
 
 hdlc_test : multimon.cma test_gen_hdlc.ml
 	$(OCAMLC) -o $@ -custom -I +lablgtk2 -thread unix.cma threads.cma lablgtk.cma gtkThread.cmo -I . $^ -cclib -ljack
@@ -121,7 +118,7 @@ clean:
 	$(RM) $(BINDIR)/multimon
 
 depend dep:
-		$(CPP) -M $(CFLAGS) $(SRC_MISC) $(SRC_L1) $(SRC_L2) $(SRC_GEN) mkcostab.c > $(BINDIR)/.depend
+	$(CPP) -M $(CFLAGS) $(SRC_MISC) $(SRC_L1) $(SRC_L2) $(SRC_GEN) mkcostab.c > $(BINDIR)/.depend
 
 ifeq ($(BINDIR)/.depend,$(wildcard $(BINDIR)/.depend))
 include $(BINDIR)/.depend

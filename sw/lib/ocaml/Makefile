@@ -36,7 +36,7 @@ OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
 OCAMLLEX=ocamllex
 OCAMLYACC=ocamlyacc
-OCAMLLIBDIR=$(shell ocamlc -where)
+OCAMLLIBDIR=$(shell $(OCAMLC) -where)
 
 
 SRC = fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o convert.o ubx.ml pprz.ml xbee.ml logpprz.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml
@@ -80,7 +80,7 @@ tests : lib-pprz.cma $(TESTS_CMO)
 	$(OCAMLC) $(INCLUDES) -custom -I . -o $@ str.cma unix.cma ivy-ocaml.cma xml-light.cma $^
 
 GTKCFLAGS := `pkg-config --cflags gtk+-2.0`
-#GTKCFLAGS := -I /usr/lib/gtk-2.0/include -I/usr/include/gtk-2.0 -I/usr/include/atk-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pango-1.0 -I /usr/include/cairo
+#GTKCFLAGS := -I/usr/lib/gtk-2.0/include -I/usr/include/gtk-2.0 -I/usr/include/atk-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -I/usr/include/pango-1.0 -I/usr/include/cairo
 # GTKCFLAGS := $(shell gtk-config --cflags)
 
 %.o   : %.c

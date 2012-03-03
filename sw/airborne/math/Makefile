@@ -3,7 +3,7 @@
 
 CC= gcc
 CFLAGS= -fpic
-INCLUDES= -I $(PAPARAZZI_SRC)/sw/include -I $(PAPARAZZI_SRC)/sw/airborne
+INCLUDES= -I$(PAPARAZZI_SRC)/sw/include -I$(PAPARAZZI_SRC)/sw/airborne
 
 # build in ../../../var/build/math
 ifndef BUILDDIR

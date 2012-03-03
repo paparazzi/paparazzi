@@ -26,7 +26,7 @@ Q=@
 OCAMLC = ocamlc
 OCAMLLIB = ../../lib/ocaml
 TOOLSDIR = ../../tools
-OCAMLINCLUDES= -I $(OCAMLLIB) $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) -I $(TOOLSDIR)
+OCAMLINCLUDES= -I$(OCAMLLIB) $(shell ocamlfind query -r -i-format lablgtk2) $(shell ocamlfind query -r -i-format xml-light) -I$(TOOLSDIR)
 LIBPPRZCMA=$(OCAMLLIB)/lib-pprz.cma
 
 all: test_stick input2ivy
