@@ -96,7 +96,7 @@ void stabilization_attitude_init(void) {
 
   stabilization_attitude_ref_init();
 
-  /*
+#if 0
   for (int i = 0; i < STABILIZATION_ATTITUDE_GAIN_NB; i++) {
     VECT3_ASSIGN(stabilization_gains[i].p, phi_pgain[i], theta_pgain[i], psi_pgain[i]);
     VECT3_ASSIGN(stabilization_gains[i].d, phi_dgain[i], theta_dgain[i], psi_dgain[i]);
@@ -108,31 +108,35 @@ void stabilization_attitude_init(void) {
     VECT3_ASSIGN(stabilization_gains[i].surface_i, phi_igain_surface[i], theta_igain_surface[i], psi_igain_surface[i]);
     VECT3_ASSIGN(stabilization_gains[i].surface_dd, phi_ddgain_surface[i], theta_ddgain_surface[i], psi_ddgain_surface[i]);
   }
-  */
+#endif
 
   INT32_QUAT_ZERO( stabilization_att_sum_err_quat );
   INT_EULERS_ZERO( stabilization_att_sum_err );
 }
 
-  /*
+#if 0
 void stabilization_attitude_gain_schedule(uint8_t idx)
 {
-    if (gain_idx >= STABILIZATION_ATTITUDE_GAIN_NB) {
-        // This could be bad -- Just say no.
-        return;
-    }
-    gain_idx = idx;
-    stabilization_attitude_ref_schedule(idx);
+  if (gain_idx >= STABILIZATION_ATTITUDE_GAIN_NB) {
+    // This could be bad -- Just say no.
+    return;
+  }
+  gain_idx = idx;
+  stabilization_attitude_ref_schedule(idx);
 }
-    */
+#endif
 
 void stabilization_attitude_enter(void) {
 
+#if !USE_SETPOINTS_WITH_TRANSITIONS
+  /* reset psi setpoint to current psi angle */
+  stab_att_sp_euler.psi = ahrs.ltp_to_body_euler.psi;
+#endif
+
   stabilization_attitude_ref_enter();
 
-  INT32_QUAT_ZERO( stabilization_att_sum_err_quat );
-  //FLOAT_EULERS_ZERO( stabilization_att_sum_err_eulers );
-  INT_EULERS_ZERO( stabilization_att_sum_err );
+  INT32_QUAT_ZERO(stabilization_att_sum_err_quat);
+  INT_EULERS_ZERO(stabilization_att_sum_err);
 }
 
 #define OFFSET_AND_ROUND(_a, _b) (((_a)+(1<<((_b)-1)))>>(_b))
@@ -220,6 +224,10 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 
 void stabilization_attitude_read_rc(bool_t in_flight) {
 
-  STABILIZATION_ATTITUDE_READ_RC(stab_att_sp_euler, in_flight);
+#if USE_SETPOINTS_WITH_TRANSITIONS
+  stabilization_attitude_read_rc_absolute(in_flight);
+#else
+  stabilization_attitude_read_rc_setpoint(in_flight);
+#endif
 
 }
