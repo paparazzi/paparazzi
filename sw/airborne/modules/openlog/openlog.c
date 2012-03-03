@@ -22,7 +22,7 @@
  *
  */
 
-/*
+/**
  * This module provides a timestamp-message, allowing 
  * sw/logalizer/openlog2tlm to convert a recorded dumpfile, 
  * created by openlog into the pprz-tlm format, to be converted into
@@ -38,12 +38,12 @@
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 
-uint32_t timestamp = 0; //max flighttime = 49 days :-)
+uint32_t timestamp = 0; ///< Timestamp to be incremented during operation
 
 void init_openlog(void) {
 }
 
 void periodic_2Hz_openlog(void) 	{
 	timestamp=timestamp+500;
-        DOWNLINK_SEND_OPENLOG_TIMESTAMP(DefaultChannel, &timestamp);
+        DOWNLINK_SEND_TIMESTAMP(DefaultChannel, &timestamp);
 }

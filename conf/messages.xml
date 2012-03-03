@@ -941,7 +941,7 @@
     <field name="snapshot_image_number" type="uint16"/>
   </message>
 
- <message name="OPENLOG_TIMESTAMP" id="129">
+ <message name="TIMESTAMP" id="129">
  	<field name="timestamp" type="uint32"/>
  </message> 
 
