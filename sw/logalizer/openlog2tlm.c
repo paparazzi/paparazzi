@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Log player
+ * Converter for OpenLog logfiles to TLM
  *  
  * Copyright (C) 2011 Christoph Niemann
  *
@@ -34,7 +34,7 @@
 #include <stdlib.h>
 
 //define the message id for the OPENLOG_TIMESTAMP message (default is 59)
-#define MSG_NUMBER 59
+#define MSG_NUMBER 129
 
 int main(int argc, char *argv[]) {
 	FILE *in,*out;
