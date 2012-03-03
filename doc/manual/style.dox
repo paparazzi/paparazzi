@@ -66,6 +66,30 @@ int32_t f(int32_t x1, int32_t x2)
 }
 @endcode
 
+@section styleswitch Switch statements
+
+- specify a default case
+- prefer an enum over defines for the different states
+@code
+enum state
+{
+  STATE_FOO = 1,
+  STATE_BAR = 2
+};
+
+switch( state )
+{
+  case STATE_FOO:
+    foo();
+    break;
+  case STATE_BAR:
+    bar();
+    break;
+  default:
+    break;
+}
+@endcode
+
 @section stylecpp Preprocessor directives
 - For conditional compilation use @c #if instead of @c #ifdef.
 Someone might write code like:

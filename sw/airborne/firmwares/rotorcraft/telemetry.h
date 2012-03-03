@@ -266,9 +266,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                         &stab_att_ref_euler.phi, \
                         &stab_att_ref_euler.theta, \
                         &stab_att_ref_euler.psi, \
-                        &stabilization_att_sum_err.phi, \
-                        &stabilization_att_sum_err.theta, \
-                        &stabilization_att_sum_err.psi, \
+                        &stabilization_att_sum_err_eulers.phi, \
+                        &stabilization_att_sum_err_eulers.theta, \
+                        &stabilization_att_sum_err_eulers.psi, \
                         &stabilization_att_fb_cmd[COMMAND_ROLL], \
                         &stabilization_att_fb_cmd[COMMAND_PITCH], \
                         &stabilization_att_fb_cmd[COMMAND_YAW], \
@@ -277,7 +277,10 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                         &stabilization_att_ff_cmd[COMMAND_YAW], \
                         &stabilization_cmd[COMMAND_ROLL], \
                         &stabilization_cmd[COMMAND_PITCH], \
-                        &stabilization_cmd[COMMAND_YAW]); \
+                        &stabilization_cmd[COMMAND_YAW], \
+                        &ahrs_float.body_rate_d.p, \
+                        &ahrs_float.body_rate_d.q, \
+                        &ahrs_float.body_rate_d.r);   \
   }
 
 #define PERIODIC_SEND_STAB_ATTITUDE_REF(_trans, _dev) {			\

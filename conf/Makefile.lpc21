@@ -115,7 +115,7 @@ OPT = s
 
 CSTANDARD = -std=gnu99
 
-CINCS = $(INCLUDES) -I $(SRC_ARCH)/include
+CINCS = $(INCLUDES) -I$(SRC_ARCH)/include
 
 # Compiler flags.
 CFLAGS = $(CINCS)

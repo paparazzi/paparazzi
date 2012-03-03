@@ -25,6 +25,9 @@
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="euler"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
+    <!--subsystem name="ahrs"          type="float_cmpl">
+      <define name="AHRS_PROPAGATE_QUAT"/>
+    </subsystem-->
   </firmware>
 
   <firmware name="setup">
@@ -55,7 +58,7 @@
   </firmware>
 
   <modules main_freq="512">
-    <!--load name="sys_mon.xml"/-->
+    <load name="sys_mon.xml"/>
   </modules>
 
   <commands>
@@ -143,7 +146,12 @@
     <!-- setpoints -->
     <define name="SP_MAX_PHI"     value="45." unit="deg"/>
     <define name="SP_MAX_THETA"   value="45." unit="deg"/>
+    <define name="SP_MAX_PSI"     value="45." unit="deg"/>
+    <define name="SP_MAX_P"       value="180." unit="deg/s"/>
+    <define name="SP_MAX_Q"       value="180." unit="deg/s"/>
     <define name="SP_MAX_R"       value="90." unit="deg/s"/>
+    <define name="DEADBAND_A"     value="250"/>
+    <define name="DEADBAND_E"     value="250"/>
     <define name="DEADBAND_R"     value="250"/>
 
     <!-- reference -->

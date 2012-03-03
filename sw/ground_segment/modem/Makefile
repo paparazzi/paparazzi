@@ -27,7 +27,7 @@ LOW_FUSE =  3f
 HIGH_FUSE = cb
 EXT_FUSE=   ff
 LOCK_FUSE=  ff
-INCLUDES= -I ../../include
+INCLUDES= -I../../include
 
 $(TARGET).srcs	=							\
 	main.c								\

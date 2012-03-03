@@ -103,7 +103,7 @@ void imu_navgo_event( void )
   // If the itg3200 I2C transaction has succeeded: convert the data
   itg3200_event();
   if (itg3200_data_available) {
-    RATES_COPY(imu.gyro_unscaled, itg3200_data);
+    RATES_ASSIGN(imu.gyro_unscaled, -itg3200_data.q, itg3200_data.p, itg3200_data.r);
     itg3200_data_available = FALSE;
     gyr_valid = TRUE;
   }
@@ -119,7 +119,7 @@ void imu_navgo_event( void )
   // HMC58XX event task
   hmc58xx_event();
   if (hmc58xx_data_available) {
-    VECT3_ASSIGN(imu.mag_unscaled, -hmc58xx_data.x, -hmc58xx_data.y, hmc58xx_data.z);
+    VECT3_ASSIGN(imu.mag_unscaled, hmc58xx_data.x, hmc58xx_data.y, hmc58xx_data.z);
     hmc58xx_data_available = FALSE;
     mag_valid = TRUE;
   }

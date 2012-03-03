@@ -67,7 +67,7 @@ struct NedCoor_i booz_ins_gps_speed_cm_s_ned;
 static void csc_main_init( void ) {
 
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   led_init();
 
 #ifdef USE_UART0
@@ -219,7 +219,7 @@ static inline void on_motor_cmd(struct CscMotorMsg *msg)
 int main( void ) {
   csc_main_init();
   while(1) {
-  if (sys_time_periodic())
+  if (sys_time_check_and_ack_timer(0))
     csc_main_periodic();
     csc_main_event();
   }
