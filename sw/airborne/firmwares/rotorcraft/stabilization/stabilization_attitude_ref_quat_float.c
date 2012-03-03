@@ -103,11 +103,7 @@ void stabilization_attitude_ref_enter()
 /*
  * Reference
  */
-#ifdef BOOZ_AP_PERIODIC_PRESCALE
-#define DT_UPDATE ((float) BOOZ_AP_PERIODIC_PRESCALE / (float) PERIODIC_FREQ)
-#else
-#define DT_UPDATE (1./512.)
-#endif
+#define DT_UPDATE (1./PERIODIC_FREQUENCY)
 
 void stabilization_attitude_ref_update() {
 
