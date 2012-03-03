@@ -32,6 +32,10 @@
 
 #include "stabilization_attitude_ref_int.h"
 
+#if USE_SETPOINTS_WITH_TRANSITIONS
+#include "firmwares/rotorcraft/stabilization/quat_setpoint_int.h"
+#endif
+
 #define REF_ACCEL_MAX_P BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_PDOT, REF_ACCEL_FRAC)
 #define REF_ACCEL_MAX_Q BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_QDOT, REF_ACCEL_FRAC)
 #define REF_ACCEL_MAX_R BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_RDOT, REF_ACCEL_FRAC)
@@ -110,8 +114,15 @@ void stabilization_attitude_ref_init(void) {
 void stabilization_attitude_ref_enter()
 {
   reset_psi_ref_from_body();
+
+#if USE_SETPOINTS_WITH_TRANSITIONS
+  stabilization_attitude_sp_enter();
+  memcpy(&stab_att_ref_quat, &stab_att_sp_quat, sizeof(struct Int32Quat));
+#else
   update_quat_from_eulers(&stab_att_ref_quat, &stab_att_ref_euler);
-  //memcpy(&stab_att_ref_quat, &stab_att_sp_quat, sizeof(struct Int32Quat));
+#endif
+
+  /* set reference rate and acceleration to zero */
   memset(&stab_att_ref_accel, 0, sizeof(struct Int32Rates));
   memset(&stab_att_ref_rate, 0, sizeof(struct Int32Rates));
 }

@@ -25,7 +25,10 @@
  */
 
 #include "firmwares/rotorcraft/stabilization.h"
+
+#if USE_SETPOINTS_WITH_TRANSITIONS
 #include "firmwares/rotorcraft/stabilization/quat_setpoint_int.h"
+#endif
 
 #include <stdio.h>
 #include "math/pprz_algebra_float.h"

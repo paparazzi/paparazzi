@@ -13,6 +13,6 @@
 
 void stabilization_attitude_sp_enter(void);
 
-void stabilization_attitude_read_rc_absolute(struct Int32Eulers sp, bool_t in_flight);
+void stabilization_attitude_read_rc_absolute(bool_t in_flight);
 
 #endif

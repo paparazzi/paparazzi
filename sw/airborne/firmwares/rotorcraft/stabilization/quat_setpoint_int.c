@@ -55,21 +55,7 @@ static void reset_sp_quat(int32_t _psi, int32_t _theta, struct Int32Quat *initia
   QUAT_COPY(stab_att_sp_quat, pitch_rotated_quat2);
 }
 
-static void update_sp_quat_from_eulers(void) {
-    struct Int32RMat sp_rmat;
-
-#ifdef STICKS_RMAT312
-    INT32_RMAT_OF_EULERS_312(sp_rmat, stab_att_sp_euler);
-#else
-    INT32_RMAT_OF_EULERS_321(sp_rmat, stab_att_sp_euler);
-#endif
-    INT32_QUAT_OF_RMAT(stab_att_sp_quat, sp_rmat);
-    INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
-}
-
-
-// FIXME: function parameter sp not used
-void stabilization_attitude_read_rc_absolute(struct Int32Eulers sp, bool_t in_flight) {
+void stabilization_attitude_read_rc_absolute(bool_t in_flight) {
 
   // FIXME: wtf???
 #ifdef AIRPLANE_STICKS
@@ -108,7 +94,7 @@ void stabilization_attitude_read_rc_absolute(struct Int32Eulers sp, bool_t in_fl
   INT32_EULERS_OF_QUAT(stab_att_sp_euler, stab_att_sp_quat);
 }
 
-void stabilization_attitude_sp_enter()
+void stabilization_attitude_sp_enter(void)
 {
   // reset setpoint to "hover"
   reset_sp_quat(0., 0., &ahrs.ltp_to_body_quat);
