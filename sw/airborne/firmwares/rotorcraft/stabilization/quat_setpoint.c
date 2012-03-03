@@ -67,47 +67,6 @@ static void update_sp_quat_from_eulers(void) {
     INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
 }
 
-/* FIXME: what is up with this???
-void stabilization_attitude_read_rc_incremental(bool_t enable_alpha_vane, bool_t enable_beta_vane)
-{
-  pprz_t roll = radio_control.values[RADIO_ROLL];
-  pprz_t pitch = radio_control.values[RADIO_PITCH];
-  pprz_t yaw = radio_control.values[RADIO_YAW];
-  struct Int32Quat prev_sp_quat, q_e2s, temp_quat;
-
-  struct Int32RMat R_e2s;
-  struct Int32Rates sticks_w_bn_e, sticks_w_bn_s;
-
-  QUAT_COPY(prev_sp_quat, stab_att_sp_quat);
-
-  sticks_w_bn_e.p = APPLY_DEADBAND(roll, STABILIZATION_ATTITUDE_DEADBAND_A) * ROLL_COEF_H;
-  sticks_w_bn_e.q = APPLY_DEADBAND(pitch, STABILIZATION_ATTITUDE_DEADBAND_E) * PITCH_COEF_RATE;
-  sticks_w_bn_e.r = APPLY_DEADBAND(yaw, STABILIZATION_ATTITUDE_DEADBAND_R) * YAW_COEF_RATE;
-
-  // Don't let the sticks command a theta rotation in vane mode
-  if (enable_alpha_vane) {
-    sticks_w_bn_e.q = 0;
-  }
-
-  if (enable_beta_vane) {
-    sticks_w_bn_e.r = 0;
-  }
-  // q_e2s = q_sp (comp) q_b^(-1)
-  INT_QUAT_INV_COMP_NORM_SHORTEST(q_e2s, ahrs.ltp_to_body_quat, stab_att_sp_quat);
-
-  INT_RMAT_OF_QUAT(R_e2s, q_e2s);
-
-  INT_RMAT_RATEMULT(sticks_w_bn_s, R_e2s, sticks_w_bn_e);
-
-  INT_QUAT_DIFFERENTIAL(temp_quat, sticks_w_bn_s, 1/RC_UPDATE_FREQ);
-
-  INT32_QUAT_COMP_NORM_SHORTEST(stab_att_sp_quat, prev_sp_quat, temp_quat);
-
-  // update euler setpoints for telemetry
-  INT32_EULERS_OF_QUAT(stab_att_sp_euler, stab_att_sp_quat);
-}
-*/
-
 void stabilization_attitude_read_rc_absolute(struct Int32Eulers sp, bool_t in_flight) {
 
   // FIXME: wtf???
