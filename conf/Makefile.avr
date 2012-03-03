@@ -28,7 +28,7 @@
 #
 
 ATMELBIN = /usr/bin
-ATMEL_INCLUDES = -I/usr/avr/include
+ATMEL_INCLUDES = -I /usr/avr/include
 ATMEL_LIBPATH = -B /usr/avr/lib/avr4 -B /usr/avr/lib/avr5
 PROG_PORT = /dev/parport0
 
