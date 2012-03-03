@@ -69,7 +69,7 @@ void stabilization_attitude_init(void) {
 
 void stabilization_attitude_read_rc(bool_t in_flight) {
 
-  STABILIZATION_ATTITUDE_READ_RC(stab_att_sp_euler, in_flight);
+  stabilization_attitude_read_rc_ref(&stab_att_sp_euler, in_flight);
 
 }
 
