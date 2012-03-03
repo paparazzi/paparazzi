@@ -22,7 +22,7 @@
 #define STABILIZATION_ATTITUDE_INT_REF_QUAT_INT_H
 
 #include "firmwares/rotorcraft/stabilization.h"
-#include "firmwares/rotorcraft/stabilization/quat_setpoint.h"
+#include "firmwares/rotorcraft/stabilization/quat_setpoint_int.h"
 
 #include "subsystems/radio_control.h"
 #include "math/pprz_algebra_float.h"

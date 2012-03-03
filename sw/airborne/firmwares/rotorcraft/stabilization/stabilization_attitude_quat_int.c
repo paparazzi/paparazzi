@@ -25,7 +25,7 @@
  */
 
 #include "firmwares/rotorcraft/stabilization.h"
-#include "firmwares/rotorcraft/stabilization/quat_setpoint.h"
+#include "firmwares/rotorcraft/stabilization/quat_setpoint_int.h"
 
 #include <stdio.h>
 #include "math/pprz_algebra_float.h"

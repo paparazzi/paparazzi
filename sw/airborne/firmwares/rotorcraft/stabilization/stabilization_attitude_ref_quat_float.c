@@ -31,7 +31,6 @@
 #include "subsystems/ahrs.h"
 
 #include "stabilization_attitude_ref_float.h"
-#include "quat_setpoint.h"
 
 #define REF_ACCEL_MAX_P STABILIZATION_ATTITUDE_FLOAT_REF_MAX_PDOT
 #define REF_ACCEL_MAX_Q STABILIZATION_ATTITUDE_FLOAT_REF_MAX_QDOT

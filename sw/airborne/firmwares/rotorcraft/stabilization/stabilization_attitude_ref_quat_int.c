@@ -31,7 +31,6 @@
 #include "subsystems/ahrs.h"
 
 #include "stabilization_attitude_ref_int.h"
-//#include "quat_setpoint.h"
 
 #define REF_ACCEL_MAX_P BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_PDOT, REF_ACCEL_FRAC)
 #define REF_ACCEL_MAX_Q BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_QDOT, REF_ACCEL_FRAC)

@@ -4,7 +4,7 @@
  *
  */
 
-/** \file quat_setpoint.c
+/** \file quat_setpoint_int.c
  *  \brief Quaternion setpoint generation
  *
  */
@@ -12,7 +12,7 @@
 #include "subsystems/ahrs.h"
 
 #include "stabilization/stabilization_attitude_ref_quat_int.h"
-#include "stabilization/quat_setpoint.h"
+#include "stabilization/quat_setpoint_int.h"
 #include "stabilization.h"
 
 #include "messages.h"
@@ -67,6 +67,8 @@ static void update_sp_quat_from_eulers(void) {
     INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
 }
 
+
+// FIXME: function parameter sp not used
 void stabilization_attitude_read_rc_absolute(struct Int32Eulers sp, bool_t in_flight) {
 
   // FIXME: wtf???
