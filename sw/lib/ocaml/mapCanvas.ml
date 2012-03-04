@@ -727,6 +727,7 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
                 let tmp_dest = Env.paparazzi_home // "var" // tile_zip in
                 ignore(Http.file_of_url ~dest:tmp_dest url);
                 Sys.rename tmp_dest dest;
+                srtm#set_active true;
                 self#altitude wgs84
               with
               | Http.Failure _ | Srtm.Tile_not_found _ ->
