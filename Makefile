@@ -281,3 +281,6 @@ sw/simulator/launchsitl:
 %.hgt.zip:
 	cd data/srtm; $(MAKE) $(@)
 
+test: all
+	cd tests; $(MAKE) $(@)
+
