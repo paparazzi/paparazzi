@@ -558,16 +558,17 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                        &ins_ltp_accel.z);	\
   }
 
-#define PERIODIC_SEND_INS_REF(_trans, _dev) {				\
-    DOWNLINK_SEND_INS_REF(_trans, _dev,					\
-                &ins_ltp_def.ecef.x,		\
-                &ins_ltp_def.ecef.y,		\
-                &ins_ltp_def.ecef.z,		\
-                &ins_ltp_def.lla.lat,		\
-                &ins_ltp_def.lla.lon,		\
-                &ins_ltp_def.lla.alt,		\
-                &ins_ltp_def.hmsl,		\
-                &ins_qfe);				\
+#define PERIODIC_SEND_INS_REF(_trans, _dev) {       \
+    if (ins_ltp_initialised)                        \
+      DOWNLINK_SEND_INS_REF(_trans, _dev,           \
+                            &ins_ltp_def.ecef.x,    \
+                            &ins_ltp_def.ecef.y,    \
+                            &ins_ltp_def.ecef.z,    \
+                            &ins_ltp_def.lla.lat,   \
+                            &ins_ltp_def.lla.lon,   \
+                            &ins_ltp_def.lla.alt,   \
+                            &ins_ltp_def.hmsl,		\
+                            &ins_qfe);				\
   }
 
 #define PERIODIC_SEND_VERT_LOOP(_trans, _dev) {				\
