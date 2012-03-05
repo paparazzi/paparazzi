@@ -129,6 +129,7 @@
 /sw/logalizer/ivy_example
 /sw/logalizer/motor_bench
 /sw/logalizer/tmclient
+/sw/logalizer/openlog2tlm
 
 # /sw/simulator/
 /sw/simulator/gaia
