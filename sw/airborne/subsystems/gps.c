@@ -19,6 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file gps.c
+ *  @brief Device independent GPS code
+ *
+ */
+
 #include "subsystems/gps.h"
 
 #include "led.h"

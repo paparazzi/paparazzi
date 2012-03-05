@@ -43,7 +43,8 @@ extern int8_t xsens_day;
 extern uint8_t xsens_msg_status;
 extern uint16_t xsens_time_stamp;
 
-#define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) {	\
+#define AhrsEvent(_ahrs_handler) {	\
+  LED_TOGGLE(3); \
   InsEventCheckAndHandle(handle_ins_msg()) 			\
 }
 

@@ -1,3 +1,6 @@
+# ignore html dir for github pages
+/doc/html
+
 *.so
 *.[oa]
 *.out
@@ -16,6 +19,13 @@
 *.depend
 
 *.aux
+
+# Eclipse IDE project files
+*.cproject
+*.project
+*.externalToolBuilders
+/build.properties
+/META-INF
 
 # Debian related files
 *.deb
@@ -119,6 +129,7 @@
 /sw/logalizer/ivy_example
 /sw/logalizer/motor_bench
 /sw/logalizer/tmclient
+/sw/logalizer/openlog2tlm
 
 # /sw/simulator/
 /sw/simulator/gaia

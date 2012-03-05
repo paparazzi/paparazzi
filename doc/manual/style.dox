@@ -1,0 +1,249 @@
+/** @page styleguide Style Guides
+
+The goals for each of these guides are:
+- to produce correct code that appears clean, consistent, and readable,
+- to allow developers to create patches that conform to a standard, and
+- to eliminate these issues as points of future contention.
+
+Some of these rules may be ignored in the spirit of these stated goals;
+however, such exceptions should be fairly rare.
+
+The following style guides describe a formatting, naming, and other
+conventions that should be followed when writing or changing the Papaprazzi
+code or documentation:
+
+- @subpage stylec
+- @subpage styledoxygen
+
+
+Feedback would be welcome to improve the Paparazzi guidelines.
+ */
+
+/** @page stylec C Style Guide
+
+This page contains guidelines for writing new C source code for the
+Paparazzi project.
+
+@section styleformat Formatting Guide
+
+- remove any trailing white space at the end of lines.
+- use 2 spaces for indentation; do NOT use tabs.
+- use Unix line endings ('\\n'); do NOT use DOS endings ('\\r\\n')
+- limit adjacent empty lines to at most two (2).
+- remove any trailing empty lines at the end of source files
+- do not "comment out" code from the tree; instead, one should either:
+  -# remove it entirely (git can retrieve the old version), or
+  -# use an @c \#if/\#endif block.
+
+@section stylenames Naming Rules
+
+- most identifiers must use lower-case letters (and digits) only.
+  - macros should use upper-case letters (and digits) only.
+
+@section styletypes Type Guidelines
+- use the types from \<inttypes.h\>:
+  - @c int8_t, @c int16_t, @c int32_t, or @c int64_t: signed types of specified size
+  - @c uint8_t, @c uint16_t, @c uint32_t, or @c uint64_t: unsigned types of specified size
+
+@section stylefunc Functions
+
+- static inline functions should be prefered over macros in most cases:
+@code
+/* do NOT define macro-like functions like this... */
+#define CUBE(x) ((x) * (x) * (x))
+/* instead, define the same expression using a C99 inline function */
+static inline int cube(int x) { return x * x * x; }
+@endcode
+- Functions should be declared static unless required by other modules
+  - define static functions before first usage to avoid forward declarations.
+- Functions should have no space between its name and its parameter list:
+@code
+int32_t f(int32_t x1, int32_t x2)
+{
+  ...
+  int32_t y = f(x1, x2 - x1);
+  ...
+}
+@endcode
+
+@section styleswitch Switch statements
+
+- specify a default case
+- prefer an enum over defines for the different states
+@code
+enum state
+{
+  STATE_FOO = 1,
+  STATE_BAR = 2
+};
+
+switch( state )
+{
+  case STATE_FOO:
+    foo();
+    break;
+  case STATE_BAR:
+    bar();
+    break;
+  default:
+    break;
+}
+@endcode
+
+@section stylecpp Preprocessor directives
+- For conditional compilation use @c #if instead of @c #ifdef.
+Someone might write code like:
+@code
+#ifdef USE_FOO
+  bar();
+#endif
+@endcode
+Someone else might compile the code with turned-off foo info like:
+@verbatim
+ gcc stuff.c -DUSE_FOO=0
+@endverbatim
+So use @c #if not @c #ifdef to turn a feature on or off. This works fine, and does the right thing, even if USE_FOO is not defined at all (!)
+@code
+#if USE_FOO
+  bar();
+#endif
+@endcode
+- If you really need to test whether a symbol is defined or not, test it with the @c defined construct.
+
+ */
+
+/** @page styledoxygen Doxygen Style Guide
+
+The following sections provide guidelines for Paparazzi developers
+who wish to write Doxygen comments in the code or this manual.
+For an introduction to Doxygen documentation,
+see the @ref primerdoxygen.
+
+@section styledoxyblocks Doxygen Block Selection
+
+Several different types of Doxygen comments can be used; often,
+one style will be the most appropriate for a specific context.
+The following guidelines provide developers with heuristics for
+selecting an appropriate form and writing consistent documentation
+comments.
+
+-# use @c /// to for one-line documentation of instances.
+-# for documentation requiring multiple lines, use a "block" style:
+@verbatim
+/**
+ * First sentence is brief description.  Remaining text becomes
+ * the full description block, where "empty" lines start new paragraphs.
+ *
+ * One can make text appear in @a italics, @b bold, @c monospace, or
+ * in blocks such as the one in which this example appears in the Style
+ * Guide.  See the Doxygen Manual for the full list of commands.
+ *
+ * @param foo For a function, describe the parameters (e.g. @a foo).
+ * @returns The value(s) returned, or possible error conditions.
+ */
+@endverbatim
+  -# The block should start on the line following the opening @c /**.
+  -# The end of the block, \f$*/\f$, should also be on its own line.
+  -# Every line in the block should have a @c '*' in-line with its start:
+    - A leading space is required to align the @c '*' with the @c /** line.
+    - A single "empty" line should separate the function documentation
+      from the block of parameter and return value descriptions.
+    - Except to separate paragraphs of documentation, other extra
+      "empty" lines should be removed from the block.
+  -# Only single spaces should be used; do @b not add mid-line indentation.
+-# If the total line length will be less than 80 columns, then
+  - The <code> /**< description </code> form can be used on the same line for a detailed description.
+  - The <code>///< brief </code> form can be used for brief descriptions.
+  - This style should be used sparingly; the best use is for fields:
+@verbatim
+int field;  /**< detailed field description */
+int field2; ///< a brief description
+@endverbatim
+-# Every documented file should contain a block with @c \@file after the license header:
+@verbatim
+/**
+ * @file foo/bar/file.c
+ * Brief description of file.
+ *
+ * More detailed description of file.
+ */
+@endverbatim
+
+@section styledoxyall Doxygen Style Guide
+
+The following guidelines apply to all Doxygen comment blocks:
+
+-# Use the @c '\@cmd' form for all doxygen commands (do @b not use @c '\\cmd').
+-# It is not necessary to use @c \@brief since @c JAVADOC_AUTOBRIEF is enabled.
+  - The first line (until the first dot) is automatically treated as brief description.
+-# Use symbol names such that Doxygen automatically creates links:
+  -# @c function_name() can be used to reference functions
+    (e.g. ahrs_propagate()).
+  -# @c struct_name::member_name should be used to reference structure
+    fields in the documentation (e.g. @c Ahrs::body_rate).
+  -# URLS get converted to markup automatically, without any extra effort.
+  -# new pages can be linked into the heirarchy by using the @c \@subpage
+    command somewhere the page(s) under which they should be linked:
+  -# use @c \@ref in other contexts to create links to pages and sections.
+-# Use good Doxygen mark-up:
+  -# '\@a' (italics) should be used to reference parameters (e.g. <i>foo</i>).
+  -# '\@b' (bold) should be used to emphasizing <b>single</b> words.
+  -# '\@c' (monospace) should be used with <code>file names</code> and
+  <code>code symbols</code>, so they appear visually distinct from
+  surrounding text.
+  -# To mark-up multiple words, the HTML alternatives must be used.
+-# Two spaces should be used when nesting lists; do @b not use '\\t' in lists.
+-# Code examples provided in documentation must conform to the Style Guide.
+
+@section styledoxytext Doxygen Text Inputs
+
+In addition to the guidelines in the preceding sections, the following
+additional style guidelines should be considered when writing
+documentation as part of standalone text files:
+
+-# Text files must contain Doxygen at least one comment block:
+  -# Documentation should begin in the first column (except for nested lists).
+  -# Do NOT use the @c '*' convention that must be used in the source code.
+-# Each file should contain at least one @c \@page block.
+  -# Each new page should be listed as a \@subpage in the \@page block
+  of the page that should serve as its parent.
+  -# Large pages should be structure in parts using meaningful \@section
+  and \@subsection commands.
+-# Include a @c \@file block at the end of each Doxygen @c .dox file to
+  document its contents:
+  - Doxygen creates such pages for files automatically, but no content
+    will appear on them for those that only contain manual pages.
+  - The \@file block should provide useful meta-documentation to assist
+    techincal writers; typically, a list of the pages that it contains.
+  - For example, the @ref styleguide exists in @c doc/manual/style.dox,
+    which contains a reference back to itself.
+-# The \@file and \@page commands should begin on the same line as
+   the start of the Doxygen comment:
+@verbatim
+/** @page pagename Page Title
+
+Documentation for the page.
+
+ */
+/** @file
+
+This file contains the @ref pagename page.
+
+ */
+@endverbatim
+
+For an example, the Doxygen source for this Style Guide can be found in
+@c doc/manual/style.dox, alongside other parts of The Manual.
+
+ */
+
+/** @file
+
+This file contains the @ref styleguide pages.  The @ref styleguide pages
+include the following Style Guides for their respective code and
+documentation languages:
+
+- @ref stylec
+- @ref styledoxygen
+
+ */

@@ -27,8 +27,8 @@ endif
 
 UNAME = $(shell uname -s)
 ifeq ("$(UNAME)","Darwin")
-  INCLUDES=-I/opt/local/include/
-  LIBRARYS=-L/opt/local/lib	
+  LIBRARYS = -L /opt/paparazzi/lib -L /opt/local/lib
+  INCLUDES = -I /opt/paparazzi/include -I /opt/local/include/
 endif
 
 

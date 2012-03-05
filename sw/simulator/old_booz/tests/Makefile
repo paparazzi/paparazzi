@@ -68,3 +68,6 @@ TEST_SENSORS_SRCS = test_sensors.c                            \
 
 test_sensors : $(TEST_SENSORS_SRCS)
 	gcc $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+clean:
+	

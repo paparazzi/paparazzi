@@ -32,66 +32,136 @@
 
 
 /* I2C slave address */
-#define ADS1114_I2C_ADDR 0x90           // slave address byte (I2c address(7bits) + R/W @ 0)
+#ifndef ADS1114_1_I2C_ADDR
+#define ADS1114_1_I2C_ADDR 0x90           // slave address byte (I2c address(7bits) + R/W @ 0)
+#endif
+#ifndef ADS1114_2_I2C_ADDR
+#define ADS1114_2_I2C_ADDR 0x92           // slave address byte (I2c address(7bits) + R/W @ 0)
+#endif
 
 /* I2C conf register */
 #define ADS1114_POINTER_CONV_REG    0x00 // access to the Conversion register (16bits)
 #define ADS1114_POINTER_CONFIG_REG  0x01 // access to the Configuration register (16bits)
 
-/* ADS1114 default conf */
-#ifndef ADS1114_OS
-#define ADS1114_OS 0x0 // Operational status
+/* ADS1114_1 default conf */
+#ifndef ADS1114_1_OS
+#define ADS1114_1_OS 0x0 // Operational status
 #endif
-#ifndef ADS1114_MUX
-#define ADS1114_MUX 0x0 // Input multiplexer
+#ifndef ADS1114_1_MUX
+#define ADS1114_1_MUX 0x0 // Input multiplexer
 #endif
-#ifndef ADS1114_PGA
-#define ADS1114_PGA 0x3 // Programable gain amplifier (= 4 with a Full Scale of +/- 1.024V)
+#ifndef ADS1114_1_PGA
+#define ADS1114_1_PGA 0x3 // Programable gain amplifier (= 4 with a Full Scale of +/- 1.024V)
 #endif
-#ifndef ADS1114_MODE
-#define ADS1114_MODE 0x0 // Continuous conversion mode
+#ifndef ADS1114_1_MODE
+#define ADS1114_1_MODE 0x0 // Continuous conversion mode
 #endif
-#ifndef ADS1114_DR
-#define ADS1114_DR 0x4 // Data rate (128 SPS)
+#ifndef ADS1114_1_DR
+#define ADS1114_1_DR 0x4 // Data rate (128 SPS)
 #endif
-#ifndef ADS1114_COMP_MODE
-#define ADS1114_COMP_MODE 0x0 // Comparator mode
+#ifndef ADS1114_1_COMP_MODE
+#define ADS1114_1_COMP_MODE 0x0 // Comparator mode
 #endif
-#ifndef ADS1114_COMP_POL
-#define ADS1114_COMP_POL 0x0 // Comparator polarity
+#ifndef ADS1114_1_COMP_POL
+#define ADS1114_1_COMP_POL 0x0 // Comparator polarity
 #endif
-#ifndef ADS1114_COMP_LAT
-#define ADS1114_COMP_LAT 0x0 // Latching comparator
+#ifndef ADS1114_1_COMP_LAT
+#define ADS1114_1_COMP_LAT 0x0 // Latching comparator
 #endif
-#ifndef ADS1114_COMP_QUE
-#define ADS1114_COMP_QUE 0x3 // Comparator queue (disable)
+#ifndef ADS1114_1_COMP_QUE
+#define ADS1114_1_COMP_QUE 0x3 // Comparator queue (disable)
 #endif
 
-#define ADS1114_CONFIG_MSB ((ADS1114_OS<<7)|(ADS1114_MUX<<4)|(ADS1114_PGA<<1)|(ADS1114_MODE))
-#define ADS1114_CONFIG_LSB ((ADS1114_DR<<5)|(ADS1114_COMP_MODE<<4)|(ADS1114_COMP_POL<<3)|(ADS1114_COMP_LAT<<2)|(ADS1114_COMP_QUE))
+#define ADS1114_1_CONFIG_MSB ((ADS1114_1_OS<<7)|(ADS1114_1_MUX<<4)|(ADS1114_1_PGA<<1)|(ADS1114_1_MODE))
+#define ADS1114_1_CONFIG_LSB ((ADS1114_1_DR<<5)|(ADS1114_1_COMP_MODE<<4)|(ADS1114_1_COMP_POL<<3)|(ADS1114_1_COMP_LAT<<2)|(ADS1114_1_COMP_QUE))
+
+/* ADS1114_1 default conf */
+#ifndef ADS1114_2_OS
+#define ADS1114_2_OS 0x0 // Operational status
+#endif
+#ifndef ADS1114_2_MUX
+#define ADS1114_2_MUX 0x0 // Input multiplexer
+#endif
+#ifndef ADS1114_2_PGA
+#define ADS1114_2_PGA 0x3 // Programable gain amplifier (= 4 with a Full Scale of +/- 1.024V)
+#endif
+#ifndef ADS1114_2_MODE
+#define ADS1114_2_MODE 0x0 // Continuous conversion mode
+#endif
+#ifndef ADS1114_2_DR
+#define ADS1114_2_DR 0x4 // Data rate (128 SPS)
+#endif
+#ifndef ADS1114_2_COMP_MODE
+#define ADS1114_2_COMP_MODE 0x0 // Comparator mode
+#endif
+#ifndef ADS1114_2_COMP_POL
+#define ADS1114_2_COMP_POL 0x0 // Comparator polarity
+#endif
+#ifndef ADS1114_2_COMP_LAT
+#define ADS1114_2_COMP_LAT 0x0 // Latching comparator
+#endif
+#ifndef ADS1114_2_COMP_QUE
+#define ADS1114_2_COMP_QUE 0x3 // Comparator queue (disable)
+#endif
+
+#define ADS1114_2_CONFIG_MSB ((ADS1114_2_OS<<7)|(ADS1114_2_MUX<<4)|(ADS1114_2_PGA<<1)|(ADS1114_2_MODE))
+#define ADS1114_2_CONFIG_LSB ((ADS1114_2_DR<<5)|(ADS1114_2_COMP_MODE<<4)|(ADS1114_2_COMP_POL<<3)|(ADS1114_2_COMP_LAT<<2)|(ADS1114_2_COMP_QUE))
 
 /* Default I2C device */
+// FIXME all ads on the same device for now
 #ifndef ADS1114_I2C_DEVICE
 #define ADS1114_I2C_DEVICE i2c1
 #endif
 
-extern struct i2c_transaction ads1114_trans;
-extern bool_t ads1114_config_done;
-extern bool_t ads1114_data_available;
+struct ads1114_periph {
+  struct i2c_transaction trans;
+  uint8_t i2c_addr;
+  bool_t config_done;
+  bool_t data_available;
+};
+
+#if USE_ADS1114_1
+extern struct ads1114_periph ads1114_1;
+#endif
+
+#if USE_ADS1114_2
+extern struct ads1114_periph ads1114_2;
+#endif
 
 extern void ads1114_init(void);
-extern void ads1114_read(void);
+extern void ads1114_read(struct ads1114_periph * p);
 
-#define Ads1114Event() { \
-  if (!ads1114_config_done) { \
-    if (ads1114_trans.status == I2CTransSuccess) { ads1114_config_done = TRUE; ads1114_trans.status = I2CTransDone; } \
-    if (ads1114_trans.status == I2CTransFailed) { ads1114_trans.status = I2CTransDone; } \
+// Generic Event Macro
+#define _Ads1114Event(_p) {\
+  if (!_p.config_done) { \
+    if (_p.trans.status == I2CTransSuccess) { _p.config_done = TRUE; _p.trans.status = I2CTransDone; } \
+    if (_p.trans.status == I2CTransFailed) { _p.trans.status = I2CTransDone; } \
   } else { \
-    if (ads1114_trans.status == I2CTransSuccess) { ads1114_data_available = TRUE; ads1114_trans.status = I2CTransDone; } \
-    if (ads1114_trans.status == I2CTransFailed) { ads1114_trans.status = I2CTransDone; } \
-  }\
+    if (_p.trans.status == I2CTransSuccess) { _p.data_available = TRUE; _p.trans.status = I2CTransDone; } \
+    if (_p.trans.status == I2CTransFailed) { _p.trans.status = I2CTransDone; } \
+  } \
 }
 
-#define Ads1114GetValue() ((int16_t)(((int16_t)ads1114_trans.buf[0]<<8)|ads1114_trans.buf[1]))
+#if USE_ADS1114_1
+#define Ads1114_1Event() _Ads1114Event(ads1114_1)
+#else
+#define Ads1114_1Event() {}
+#endif
+
+#if USE_ADS1114_2
+#define Ads1114_2Event() _Ads1114Event(ads1114_2)
+#else
+#define Ads1114_2Event() {}
+#endif
+
+// Final event macro
+#define Ads1114Event() {  \
+  Ads1114_1Event();       \
+  Ads1114_2Event();       \
+}
+
+// Get value macro
+// @param ads1114 periph
+#define Ads1114GetValue(_p) ((int16_t)(((int16_t)_p.trans.buf[0]<<8)|_p.trans.buf[1]))
 
 #endif // ADS_1114_H

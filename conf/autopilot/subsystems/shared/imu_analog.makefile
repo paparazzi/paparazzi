@@ -58,6 +58,10 @@ imu_CFLAGS += -DADC_CHANNEL_ACCEL_X=$(ACCEL_X) -DADC_CHANNEL_ACCEL_Y=$(ACCEL_Y) 
 imu_srcs += $(SRC_SUBSYSTEMS)/imu.c
 imu_srcs += $(SRC_SUBSYSTEMS)/imu/imu_analog.c
 
+else ifeq ($(ARCH), stm32)
+
+$(error Not implemented for the stm32 yet... should be trivial, just do it...)
+
 endif
 
 # Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets

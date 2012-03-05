@@ -31,6 +31,11 @@
 
     <dl_settings NAME="control">
 
+      <dl_settings NAME="trim">
+        <dl_setting MAX="960" MIN="-960" STEP="1" VAR="command_roll_trim" shortname="roll_trim" module="commands" param="COMMAND_ROLL_TRIM"/>
+        <dl_setting MAX="960" MIN="-960" STEP="1" VAR="command_pitch_trim" shortname="pitch_trim" param="COMMAND_PITCH_TRIM"/>
+      </dl_settings>
+
       <dl_settings NAME="ins">
         <dl_setting MAX="0.3" MIN="-0.3" STEP="0.01" VAR="ins_roll_neutral" shortname="roll_neutral" module="subsystems/ahrs" param="INS_ROLL_NEUTRAL_DEFAULT" unit="rad"/>
         <dl_setting MAX="0.5" MIN="-0.3" STEP="0.01" VAR="ins_pitch_neutral" shortname="pitch_neutral" param="INS_PITCH_NEUTRAL_DEFAULT" unit="rad"/>

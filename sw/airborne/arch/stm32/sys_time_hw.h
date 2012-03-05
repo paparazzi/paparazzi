@@ -75,7 +75,7 @@ static inline void sys_time_usleep(uint32_t us) {
   {
     if (sys_time_period_elapsed) ready--;
     sys_time_periodic();
-  }  
+  }
 }
 
 #endif /* SYS_TIME_HW_H */

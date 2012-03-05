@@ -1,11 +1,11 @@
-#include "anemotaxis.h"
+#include "modules/enose/anemotaxis.h"
 #include "generated/airframe.h"
 #include "estimator.h"
 #include "std.h"
 #include "subsystems/nav.h"
 #include "generated/flight_plan.h"
 #include "ap_downlink.h"
-#include "chemo_detect.h"
+#include "modules/enose/chemo_detect.h"
 
 enum status { UTURN, CROSSWIND };
 static enum status status;

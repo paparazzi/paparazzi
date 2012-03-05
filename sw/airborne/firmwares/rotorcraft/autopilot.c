@@ -287,6 +287,8 @@ static inline void autopilot_check_motors_on( void ) {
       if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) // wait until stick released
         autopilot_check_motor_status = STATUS_MOTORS_OFF;
       break;
+    default:
+      break;
   };
 }
 

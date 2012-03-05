@@ -48,11 +48,6 @@
 #include "link_mcu.h"
 #endif
 
-#ifdef MILLIAMP_PER_PERCENT
-#error "deprecated MILLIAMP_PER_PERCENT --> Please use MILLIAMP_AT_FULL_THROTTLE"
-#endif
-
-
 uint8_t fbw_mode;
 
 #include "inter_mcu.h"
@@ -150,7 +145,18 @@ void event_task_fbw( void) {
 #ifdef ACTUATORS
   if (fbw_new_actuators > 0)
   {
-    SetActuatorsFromCommands(commands);
+    pprz_t trimmed_commands[COMMANDS_NB];
+    int i;
+    for(i = 0; i < COMMANDS_NB; i++) trimmed_commands[i] = commands[i];
+
+    #ifdef COMMAND_ROLL
+    trimmed_commands[COMMAND_ROLL] += ChopAbs(command_roll_trim, MAX_PPRZ/10);
+    #endif
+    #ifdef COMMAND_PITCH
+    trimmed_commands[COMMAND_PITCH] += ChopAbs(command_pitch_trim, MAX_PPRZ/10);
+    #endif
+
+    SetActuatorsFromCommands(trimmed_commands);
     fbw_new_actuators = 0;
   }
 #endif

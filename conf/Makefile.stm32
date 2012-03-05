@@ -44,10 +44,6 @@ TOOLCHAIN_DIR=$(shell dirname $(TOOLCHAIN))
 GCC_BIN_DIR=$(TOOLCHAIN_DIR)/bin
 GCC_LIB_DIR=$(TOOLCHAIN_DIR)/arm-none-eabi/lib
 
-# Detect if we are using the new libopencm3 or the old libopenstm32
-LIBOPENCM3_LIB=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "opencm3_stm32f1"; else echo "opencm3_stm32"; fi)
-LIBOPENCM3_DEFS=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "-DSTM32F1"; fi)
-
 # Define programs and commands.
 GCC_BIN_PREFIX=$(GCC_BIN_DIR)/arm-none-eabi
 CC   = $(GCC_BIN_PREFIX)-gcc
@@ -66,8 +62,13 @@ CP   = $(shell which arm-none-eabi-objcopy)
 DMP  = $(shell which arm-none-eabi-objdump)
 NM   = $(shell which arm-none-eabi-nm)
 SIZE = $(shell which arm-none-eabi-size)
+RM   = rm
 GCC_LIB_DIR=$(shell dirname `which arm-none-eabi-gcc`)/../arm-none-eabi/lib
 endif
+
+# Detect if we are using the new libopencm3 or the old libopenstm32
+LIBOPENCM3_LIB=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "opencm3_stm32f1"; else echo "opencm3_stm32"; fi)
+LIBOPENCM3_DEFS=$(shell if [ -e "$(GCC_LIB_DIR)/libopencm3_stm32f1.a" ]; then echo "-DSTM32F1"; fi)
 
 #first try to find OpenOCD in the path
 OOCD = $(shell which openocd)
@@ -117,7 +118,7 @@ endif
 MULTILIB = $(shell if $(CC) --print-multi-lib | grep thumb2 > /dev/null ; then echo "yes"; else echo "no"; fi)
 
 CFLAGS = -I. -I./$(ARCH) $(INCLUDES) -D__thumb2__ -Wall -msoft-float -O$(OPT)
-CFLAGS += -Wl,gc-sections
+CFLAGS += -Wl,--gc-sections
 CFLAGS += -mcpu=$(MCU) -mthumb -ansi
 ifeq ("$(MULTILIB)","yes")
 CFLAGS += -mfix-cortex-m3-ldrd
@@ -148,9 +149,9 @@ endif
 AFLAGS += -x assembler-with-cpp -Wa,-adhlns=$(OBJDIR)/$(<:.S=.lst),--g$(DEBUG)
 
 ifeq ("$(MULTILIB)","yes")
-LDFLAGS = -T$(LDSCRIPT) -nostartfiles -O$(OPT) --gc-sections -mthumb -march=armv7 -mfix-cortex-m3-ldrd -msoft-float
+LDFLAGS = -T$(LDSCRIPT) -nostartfiles -O$(OPT) -mthumb -march=armv7 -mfix-cortex-m3-ldrd -msoft-float
 else
-LDFLAGS = -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT) --gc-sections
+LDFLAGS = -D__thumb2__ -T$(LDSCRIPT) -nostartfiles  -L$(GCC_LIB_DIR) -O$(OPT)
 endif
 LDFLAGS += -Wl,-Map=$(OBJDIR)/$(TARGET).map,--cref,--gc-sections
 LDLIBS  += -lc -lm -lgcc -lcmsis -lstm32 -l$(LIBOPENCM3_LIB)

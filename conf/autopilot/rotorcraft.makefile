@@ -101,8 +101,9 @@ ap.srcs += mcu_periph/uart.c
 ap.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 
 # I2C is needed for speed controllers and barometers on lisa
-ap.srcs += mcu_periph/i2c.c
-ap.srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
+ifeq ($(TARGET), ap)
+  include $(CFG_SHARED)/i2c_select.makefile
+endif
 
 ap.srcs += $(SRC_FIRMWARE)/commands.c
 
@@ -144,9 +145,11 @@ else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), navgo)
 ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
-ap.CFLAGS += -DUSE_I2C1
-ap.CFLAGS += -DADS1114_I2C_DEVICE=i2c1
-ap.srcs += peripherals/ads1114.c
+include $(CFG_ROTORCRAFT)/spi.makefile
+ap.CFLAGS += -DUSE_SPI_SLAVE0
+ap.CFLAGS += -DSPI_NO_UNSELECT_SLAVE
+ap.CFLAGS += -DSPI_MASTER
+ap.srcs += peripherals/mcp355x.c
 endif
 
 #
@@ -194,6 +197,7 @@ endif
 ap.srcs += $(SRC_FIRMWARE)/autopilot.c
 
 ap.srcs += $(SRC_FIRMWARE)/stabilization.c
+ap.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_none.c
 ap.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
 
 ap.CFLAGS += -DUSE_NAVIGATION

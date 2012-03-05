@@ -15,8 +15,14 @@
 #define LED_2_BANK
 #define LED_2_GPIO GPIOC
 #define LED_2_GPIO_CLK RCC_APB2Periph_GPIOC
-#define LED_2_GPIO_PIN GPIO_Pin_13
+#define LED_2_GPIO_PIN GPIO_Pin_5
 #define LED_2_AFIO_REMAP ((void)0)
+
+#define LED_3_BANK
+#define LED_3_GPIO GPIOC
+#define LED_3_GPIO_CLK RCC_APB2Periph_GPIOC
+#define LED_3_GPIO_PIN GPIO_Pin_2
+#define LED_3_AFIO_REMAP ((void)0)
 
 
 /* configuration for aspirin - and more generaly IMUs */
@@ -24,8 +30,10 @@
 #define IMU_ACC_DRDY_GPIO             GPIOB
 #define IMU_ACC_DRDY_GPIO_PORTSOURCE  GPIO_PortSourceGPIOB
 
-
+/* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
+#ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY 2
+#endif
 #define DefaultVoltageOfAdc(adc) (0.00485*adc)
 
 /* Onboard ADCs */

@@ -33,6 +33,7 @@ void imu_periodic(void) {
 
 }
 
+#if USE_NPS
 #include "nps_sensors.h"
 
 void imu_feed_gyro_accel(void) {
@@ -56,3 +57,4 @@ void imu_feed_mag(void) {
   hmc5843.data.value[IMU_MAG_Z_CHAN] = sensors.mag.value.z;
   hmc5843.data_available = TRUE;
 }
+#endif

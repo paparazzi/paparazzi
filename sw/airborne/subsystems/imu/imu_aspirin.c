@@ -7,8 +7,8 @@ struct ImuAspirin imu_aspirin;
 
 /* initialize peripherals */
 static void configure_gyro(void);
-static void configure_mag(void);
 static void configure_accel(void);
+//static void configure_mag(void);
 
 static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
   uint8_t max_retry = 8;
@@ -98,8 +98,8 @@ static void configure_accel(void) {
   adxl345_write_to_reg(ADXL345_REG_POWER_CTL, 1<<3);
   /* enable data ready interrupt */
   adxl345_write_to_reg(ADXL345_REG_INT_ENABLE, 1<<7);
-  /* Enable full res and interrupt active low */
-  adxl345_write_to_reg(ADXL345_REG_DATA_FORMAT, 1<<3|1<<5);
+  /* Enable full res with +-16g range and interrupt active low */
+  adxl345_write_to_reg(ADXL345_REG_DATA_FORMAT, 1<<0|1<<1|1<<3|1<<5);
   /* clear spi rx reg to make DMA happy */
   adxl345_clear_rx_buf();
   /* reads data once to bring interrupt line up */
