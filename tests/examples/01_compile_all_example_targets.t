@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 
 use Test::More;
-use XML::Simple;
 use lib "$ENV{'PAPARAZZI_SRC'}/tests/lib";
+use XML::Simple;
 use Program;
 
 $|++; 
