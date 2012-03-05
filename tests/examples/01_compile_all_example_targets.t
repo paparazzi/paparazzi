@@ -20,7 +20,7 @@ foreach my $example (sort keys%{$examples->{'aircraft'}})
 	{
 		foreach my $target (sort keys %{$airframe_config->{'firmware'}->{$process}->{'target'}})
 		{
-			my $make_upload_options = "AIRCRAFT=$example $target.compile";
+			my $make_upload_options = "AIRCRAFT=$example clean_ac $target.compile";
 			my $upload_output = run_program(
 				"Attempting to build the firmware $target for the airframe $example.",
 				$ENV{'PAPARAZZI_SRC'},
