@@ -276,6 +276,6 @@ sw/simulator/launchsitl:
 	chmod a+x $@
 
 
-test: all
+test: all replace_current_conf_xml
 	cd tests; $(MAKE) $(@)
 

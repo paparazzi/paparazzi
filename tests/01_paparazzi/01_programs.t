@@ -10,6 +10,3 @@ ok(-f "$ENV{'PAPARAZZI_SRC'}/sw/ground_segment/tmtc/messages", "The messages pro
 ok(-f "$ENV{'PAPARAZZI_SRC'}/sw/ground_segment/tmtc/settings", "The settings program exists");
 ok(-f "$ENV{'PAPARAZZI_SRC'}/sw/ground_segment/cockpit/gcs", "The gcs program exists");
 
-use Data::Dumper;
-#warn Dumper(\%ENV);
-
