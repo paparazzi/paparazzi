@@ -14,7 +14,7 @@ my $compile_output = run_program(
 	$ENV{'PAPARAZZI_SRC'},
 	"make $make_compile_options",
 	0,1);
-unlike($compile_output, '/Aircraft \'LisaLv11_Booz2v12_RC\' not found in', "The compile output does not contain the message \"Aircraft \'LisaLv11_Booz2v12_RC\' not found in\"");
+unlike($compile_output, '/Aircraft \'LisaLv11_Booz2v12_RC\' not found in/', "The compile output does not contain the message \"Aircraft \'LisaLv11_Booz2v12_RC\' not found in\"");
 unlike($compile_output, '/Error/i', "The compile output does not contain the word \"Error\"");
 
 ####################
