@@ -24,7 +24,7 @@ my $upload_output = run_program(
 	"Attempting to build and upload the firmware.",
 	$ENV{'PAPARAZZI_SRC'},
 	"make $make_upload_options",
-	1,1);
+	0,1);
 unlike($upload_output, '/Error/i', "The upload output does not contain the word \"Error\"");
 
 
