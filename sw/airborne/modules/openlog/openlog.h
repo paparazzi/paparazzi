@@ -23,10 +23,10 @@
  */
 
 /** \file openlog.h
- * This module provides a timestamp-message, allowing 
- * sw/logalizer/openlog2tlm to convert a recorded dumpfile, 
+ * This module provides a timestamp-message, allowing
+ * sw/logalizer/openlog2tlm to convert a recorded dumpfile,
  * created by openlog into the pprz-tlm format, to be converted into
- * .data and .log files by sw/logalizer/sd2log 
+ * .data and .log files by sw/logalizer/sd2log
  */
 
 #ifndef OPENLOG_H
