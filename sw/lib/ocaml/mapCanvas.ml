@@ -712,12 +712,29 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
     (** ground altitude extraction from srtm data *)
     method altitude = fun wgs84 ->
       try
-	Srtm.of_wgs84 wgs84
+        Srtm.of_wgs84 wgs84
       with
-	Srtm.Tile_not_found x ->
-	  srtm#set_active false;
-	  GToolbox.message_box "SRTM" (sprintf "SRTM tile %s not found: %s ?" x (Srtm.error x));
-	  0
+        Srtm.Tile_not_found x ->
+          srtm#set_active false;
+          (*GToolbox.message_box "SRTM" (sprintf "SRTM tile %s not found: %s ?" x (Srtm.error x));*)
+          let msg = (sprintf "Oups, I can't find SRTM tile %s.\nCan I try to donwload it ?\n(%s)" x (Srtm.error x)) in
+          match GToolbox.question_box "SRTM" ["Download"; "Cancel"] msg with
+          | 1 ->
+              begin try
+                let tile_zip = x^".hgt.zip" in
+                let url = Srtm.srtm_url // (Srtm.area_of_tile x) // tile_zip in
+                let dest = Env.paparazzi_home // "data" // "srtm" // tile_zip in
+                let tmp_dest = Env.paparazzi_home // "var" // tile_zip in
+                ignore(Http.file_of_url ~dest:tmp_dest url);
+                Sys.rename tmp_dest dest;
+                srtm#set_active true;
+                self#altitude wgs84
+              with
+              | Http.Failure _ | Srtm.Tile_not_found _ ->
+                  GToolbox.message_box "SRTM" ("Sorry, tile "^x^" couldn't be downloaded");
+                  0
+              end
+          | _ -> 0
 
     method georefs = georefs
 

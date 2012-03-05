@@ -37,6 +37,7 @@
 
   <firmware name="logger">
     <target name="ap" board="tiny_2.11" >
+      <configure name="LOG_MSG_FMT" value="LOG_PPRZ"/>
       <configure name="SPI_CHANNEL" value="1" />
       <configure name="UART0_BAUD" value="B9600" />
       <configure name="UART1_BAUD" value="B9600" />

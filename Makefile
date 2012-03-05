@@ -251,7 +251,6 @@ dist_clean :
 	@echo "Warning: This removes all non-repository files. This means you will loose your aircraft list, your maps, your logfiles, ... if you want this, then run: make dist_clean_irreversible"
 
 dist_clean_irreversible: clean
-	rm -rf conf/srtm_data
 	rm -rf conf/maps_data conf/maps.xml
 	rm -rf conf/conf.xml conf/controlpanel.xml
 	rm -rf var
@@ -276,8 +275,4 @@ sw/simulator/launchsitl:
 	cat src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
 	chmod a+x $@
 
-#.SUFFIXES: .hgt.zip
-
-%.hgt.zip:
-	cd data/srtm; $(MAKE) $(@)
 

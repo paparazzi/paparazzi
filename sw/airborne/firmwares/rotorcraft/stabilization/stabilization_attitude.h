@@ -39,8 +39,8 @@ extern void stabilization_attitude_ref_init(void);
 extern void stabilization_attitude_ref_update(void);
 
 #define stabilization_attitude_SetKiPhi(_val) {	\
-    stabilization_gains.i.x = _val;			\
-    stabilization_att_sum_err.phi = 0;		\
+    stabilization_gains.i.x = _val;             \
+    stabilization_att_sum_err.phi = 0;          \
   }
 
 #endif /* STABILIZATION_ATTITUDE_H */

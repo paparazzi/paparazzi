@@ -27,7 +27,7 @@ OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 INCLUDES= $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format lablgtk2) -I ../lib/ocaml
 
-all: play plotter plot sd2log plotprofile
+all: play plotter plot sd2log plotprofile openlog2tlm
 
 play : log_file.cmo play_core.cmo play.cmo
 	@echo OL $@
@@ -48,6 +48,13 @@ plot : log_file.cmx gtk_export.cmx export.cmx plot.cmx
 sd2log : sd2log.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma $^
+
+CC = gcc
+CFLAGS=-g -O2 -Wall 
+LDFLAGS=
+
+openlog2tlm: openlog2tlm.c
+	$(CC) $(CFLAGS) -g -o $@ $^
 
 
 play play-nox plotter sd2log : ../lib/ocaml/lib-pprz.cma
@@ -106,7 +113,7 @@ disp3d: disp3d.c
 	$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS)
 
 plotprofile: plotprofile.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
+	$(CC) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 test1: test1.c
 	$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS) -lglut
@@ -115,7 +122,7 @@ test3: test3.c sliding_plot.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg plot plotter gtk_export.ml
+	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg plot plotter gtk_export.ml openlog2tlm
 
 #FGFS_PREFIX=/home/poine/local
 FGFS_PREFIX=/home/poine/flightgear
@@ -153,16 +160,16 @@ test_samere: test_samere.c network.c flight_gear.c utils.c
 	$(CC) $(CFLAGS) -I../airborne -I../airborne/test -I../include -g -o $@ $^ $(LDFLAGS)
 
 ivy_example: ivy_example.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
+	$(CC) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 tmclient: tmclient.c
-	gcc -g -O1 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
+	$(CC) -g -O1 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 ffjoystick: ffjoystick.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy -lm
+	$(CC) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy -lm
 
 ctrlstick: ctrlstick.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
+	$(CC) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 #
 # Dependencies

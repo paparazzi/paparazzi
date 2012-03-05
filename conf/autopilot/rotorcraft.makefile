@@ -145,9 +145,11 @@ ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), lisa_m)
 ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), navgo)
-ap.CFLAGS += -DUSE_I2C1
-ap.CFLAGS += -DADS1114_I2C_DEVICE=i2c1
-ap.srcs += peripherals/ads1114.c
+include $(CFG_ROTORCRAFT)/spi.makefile
+ap.CFLAGS += -DUSE_SPI_SLAVE0
+ap.CFLAGS += -DSPI_NO_UNSELECT_SLAVE
+ap.CFLAGS += -DSPI_MASTER
+ap.srcs += peripherals/mcp355x.c
 endif
 ifneq ($(BARO_LED),none)
 ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
@@ -198,6 +200,7 @@ endif
 ap.srcs += $(SRC_FIRMWARE)/autopilot.c
 
 ap.srcs += $(SRC_FIRMWARE)/stabilization.c
+ap.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_none.c
 ap.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
 
 ap.CFLAGS += -DUSE_NAVIGATION

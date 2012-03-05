@@ -25,7 +25,7 @@ Q=@
 
 OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
-INCLUDES= $(shell ocamlfind query -r -i-format xml-light)  $(shell ocamlfind query -r -i-format lablgtk2) -I ../../lib/ocaml
+INCLUDES= $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format lablgtk2) -I ../../lib/ocaml
 
 all: panic
 
@@ -56,8 +56,6 @@ export.cmx : gtk_export.cmx
 gtk_export.ml : export.glade
 	grep -v invisible_char $< > /tmp/$<
 	lablgladecc2 -root export -hide-default /tmp/$< | grep -B 1000000 "  end" > $@
-
-
 
 pt : ahrsview imuview ahrs2fg
 

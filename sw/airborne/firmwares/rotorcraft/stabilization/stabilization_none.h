@@ -1,5 +1,5 @@
 /*
- * $Id: stabilization_attitude.h 3794 2009-07-24 22:01:51Z poine $
+ * $Id$
  *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
@@ -21,24 +21,17 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef STABILIZATION_ATTITUDE_INT_H
-#define STABILIZATION_ATTITUDE_INT_H
+#ifndef STABILIZATION_NONE
+#define STABILIZATION_NONE
 
 #include "math/pprz_algebra_int.h"
 
-#include "generated/airframe.h"
+extern void stabilization_none_init(void);
+extern void stabilization_none_read_rc(void);
+extern void stabilization_none_run(bool_t in_flight);
+extern void stabilization_none_enter(void);
 
-struct Int32AttitudeGains {
-  struct Int32Vect3  p;
-  struct Int32Vect3  d;
-  struct Int32Vect3  dd;
-  struct Int32Vect3  i;
-};
+extern struct Int32Rates stabilization_none_rc_cmd;
 
-extern struct Int32AttitudeGains  stabilization_gains;
-extern struct Int32Eulers stabilization_att_sum_err;
 
-extern int32_t stabilization_att_fb_cmd[COMMANDS_NB];
-extern int32_t stabilization_att_ff_cmd[COMMANDS_NB];
-
-#endif /* STABILIZATION_ATTITUDE_INT_H */
+#endif /* STABILIZATION_NONE */

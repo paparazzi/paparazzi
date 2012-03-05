@@ -9,16 +9,16 @@
 
 #include "mcu_periph/spi.h"
 
-// SPI2 Slave Selection 
+// SPI2 Slave Selection
 #define Spi2Slave0Unselect() GPIOB->BSRR = GPIO_Pin_12
 #define Spi2Slave0Select()   GPIOB->BRR = GPIO_Pin_12
 
 
-// spi dma end of rx handler 
+// spi dma end of rx handler
 void dma1_c4_irq_handler(void);
 
 void spi_arch_int_enable(void) {
-  // Enable DMA1 channel4 IRQ Channel ( SPI RX) 
+  // Enable DMA1 channel4 IRQ Channel ( SPI RX)
   NVIC_InitTypeDef NVIC_init_struct = {
     .NVIC_IRQChannel = DMA1_Channel4_IRQn,
     .NVIC_IRQChannelPreemptionPriority = 0,
@@ -57,7 +57,7 @@ void spi_init(void) {
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO , ENABLE);
   SPI_Cmd(SPI2, ENABLE);
 
-  // configure SPI 
+  // configure SPI
   SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
   SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
   SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
@@ -73,7 +73,7 @@ void spi_init(void) {
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
   // SLAVE 0
-  // set accel slave select as output and assert it ( on PB12) 
+  // set accel slave select as output and assert it ( on PB12)
   Spi2Slave0Unselect();
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
@@ -103,7 +103,7 @@ void spi_clear_rx_buf(void) {
 
 struct spi_transaction* slave0;
 
-void spi_rw(struct spi_transaction  * _trans) 
+void spi_rw(struct spi_transaction  * _trans)
 {
   // Store local copy to notify of the results
   slave0 = _trans;
@@ -145,14 +145,14 @@ void spi_rw(struct spi_transaction  * _trans)
   };
   DMA_Init(DMA1_Channel5, &DMA_initStructure_5);
 
-  // Enable SPI_2 Rx request 
+  // Enable SPI_2 Rx request
   SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, ENABLE);
-  // Enable DMA1 Channel4 
+  // Enable DMA1 Channel4
   DMA_Cmd(DMA1_Channel4, ENABLE);
 
-  // Enable SPI_2 Tx request 
+  // Enable SPI_2 Tx request
   SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, ENABLE);
-  // Enable DMA1 Channel5 
+  // Enable DMA1 Channel5
   DMA_Cmd(DMA1_Channel5, ENABLE);
 
   // Enable DMA1 Channel4 Transfer Complete interrupt
@@ -162,13 +162,13 @@ void spi_rw(struct spi_transaction  * _trans)
 
 
 // Accel end of DMA transfert
-void dma1_c4_irq_handler(void) 
+void dma1_c4_irq_handler(void)
 {
   Spi2Slave0Unselect();
 
   if (DMA_GetITStatus(DMA1_IT_TC4)) {
-		// clear int pending bit
-		DMA_ClearITPendingBit(DMA1_IT_GL4);
+    // clear int pending bit
+    DMA_ClearITPendingBit(DMA1_IT_GL4);
 
     // mark as available
     spi_message_received = TRUE;
@@ -176,16 +176,13 @@ void dma1_c4_irq_handler(void)
 
   // disable DMA Channel
   DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);
-  // Disable SPI_2 Rx and TX request 
+  // Disable SPI_2 Rx and TX request
   SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, DISABLE);
   SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, DISABLE);
-  // Disable DMA1 Channel4 and 5 
+  // Disable DMA1 Channel4 and 5
   DMA_Cmd(DMA1_Channel4, DISABLE);
   DMA_Cmd(DMA1_Channel5, DISABLE);
 
   slave0->status = SPITransSuccess;
   *(slave0->ready) = 1;
 }
-
-
-

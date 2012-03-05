@@ -34,10 +34,10 @@ ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -DUSE_LED
 ap.srcs = mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c $(SRC_FIRMWARE)/main_logger.c
 
-#choose one
-ap.CFLAGS += -DLOG_XBEE
-#ap.CFLAGS += -DLOG_PPRZ
-
+# PPRZ message format is default
+ifndef LOG_MSG_FMT
+LOG_MSG_FMT = LOG_PPRZ
+endif
 
 #set the speed
 ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=$(UART0_BAUD) -DUSE_UART0_RX_ONLY
@@ -50,11 +50,14 @@ ap.srcs += mcu.c
 #set SPI interface for SD card (0 or 1)
 ap.CFLAGS += -DHW_ENDPOINT_LPC2000_SPINUM=$(SPI_CHANNEL)
 
+#message format pprz/xbee
+ap.CFLAGS += -D$(LOG_MSG_FMT)
+
 #LPC2148 USB hw module needs at least 18MHz PCLK
 ap.CFLAGS += -DUSE_USB_HIGH_PCLK
 
 #efsl
-ap.CFLAGS += -I $(SRC_ARCH)/efsl/inc -I $(SRC_ARCH)/efsl/conf
+ap.CFLAGS += -I$(SRC_ARCH)/efsl/inc -I$(SRC_ARCH)/efsl/conf
 
 ap.srcs += $(SRC_ARCH)/efsl/src/efs.c $(SRC_ARCH)/efsl/src/plibc.c
 ap.srcs += $(SRC_ARCH)/efsl/src/disc.c $(SRC_ARCH)/efsl/src/partition.c
@@ -69,7 +72,7 @@ ap.srcs += $(SRC_ARCH)/efsl/src/interfaces/sd.c
 
 #usb mass storage
 ap.CFLAGS += -DUSE_USB_MSC
-ap.CFLAGS += -I $(SRC_ARCH)/lpcusb -I $(SRC_ARCH)/lpcusb/examples
+ap.CFLAGS += -I$(SRC_ARCH)/lpcusb -I$(SRC_ARCH)/lpcusb/examples
 
 ap.srcs += $(SRC_ARCH)/usb_msc_hw.c
 ap.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c

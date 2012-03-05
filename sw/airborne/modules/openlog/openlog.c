@@ -1,7 +1,7 @@
 /*
- * $Id: stabilization_attitude.h 3794 2009-07-24 22:01:51Z poine $
+ * $Id$
  *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2011 Christoph Niemann
  *
  * This file is part of paparazzi.
  *
@@ -19,26 +19,31 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
-#ifndef STABILIZATION_ATTITUDE_INT_H
-#define STABILIZATION_ATTITUDE_INT_H
+/**
+ * This module provides a timestamp-message, allowing
+ * sw/logalizer/openlog2tlm to convert a recorded dumpfile,
+ * created by openlog into the pprz-tlm format, to be converted into
+ * .data and .log files by sw/logalizer/sd2log
+ */
 
-#include "math/pprz_algebra_int.h"
+#include "openlog.h"
+#include "messages.h"
+#include "subsystems/datalink/downlink.h"
+#include "mcu_periph/uart.h"
 
-#include "generated/airframe.h"
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 
-struct Int32AttitudeGains {
-  struct Int32Vect3  p;
-  struct Int32Vect3  d;
-  struct Int32Vect3  dd;
-  struct Int32Vect3  i;
-};
+uint32_t timestamp = 0; ///< Timestamp to be incremented during operation
 
-extern struct Int32AttitudeGains  stabilization_gains;
-extern struct Int32Eulers stabilization_att_sum_err;
+void init_openlog(void) {
+}
 
-extern int32_t stabilization_att_fb_cmd[COMMANDS_NB];
-extern int32_t stabilization_att_ff_cmd[COMMANDS_NB];
-
-#endif /* STABILIZATION_ATTITUDE_INT_H */
+void periodic_2Hz_openlog(void) 	{
+  timestamp=timestamp+500;
+  DOWNLINK_SEND_TIMESTAMP(DefaultChannel, DefaultDevice, &timestamp);
+}

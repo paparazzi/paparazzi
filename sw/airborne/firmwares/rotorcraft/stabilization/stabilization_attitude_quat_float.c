@@ -116,12 +116,12 @@ void stabilization_attitude_init(void) {
 
 void stabilization_attitude_gain_schedule(uint8_t idx)
 {
-    if (gain_idx >= STABILIZATION_ATTITUDE_FLOAT_GAIN_NB) {
-        // This could be bad -- Just say no.
-        return;
-    }
-    gain_idx = idx;
-    stabilization_attitude_ref_schedule(idx);
+  if (gain_idx >= STABILIZATION_ATTITUDE_FLOAT_GAIN_NB) {
+    // This could be bad -- Just say no.
+    return;
+  }
+  gain_idx = idx;
+  stabilization_attitude_ref_schedule(idx);
 }
 
 void stabilization_attitude_enter(void) {

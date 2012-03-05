@@ -941,7 +941,9 @@
     <field name="snapshot_image_number" type="uint16"/>
   </message>
 
-  <!--129 is free -->
+ <message name="TIMESTAMP" id="129">
+ 	<field name="timestamp" type="uint32"/>
+ </message>
 
   <message name="STAB_ATTITUDE_FLOAT" id="130">
     <field name="est_p"         type="float" alt_unit="degres/s" alt_unit_coef="57.29578"/>

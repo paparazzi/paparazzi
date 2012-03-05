@@ -95,7 +95,7 @@ stm_passthrough.CFLAGS += -DUSE_I2C2
 stm_passthrough.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 # Vanes
-stm_passthrough.CFLAGS += -I $(SRC_CSC)
+stm_passthrough.CFLAGS += -I$(SRC_CSC)
 stm_passthrough.CFLAGS += -DUSE_CAN1 \
     -DUSE_CAN1 \
     -DUSE_USB_LP_CAN1_RX0_IRQ \
