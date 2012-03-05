@@ -48,11 +48,11 @@ void stabilization_none_init(void) {
 void stabilization_none_read_rc( void ) {
 
 
-    stabilization_none_rc_cmd.p = (int32_t)-radio_control.values[RADIO_ROLL];
+    stabilization_none_rc_cmd.p = (int32_t)radio_control.values[RADIO_ROLL];
 
     stabilization_none_rc_cmd.q = (int32_t)radio_control.values[RADIO_PITCH];
 
-    stabilization_none_rc_cmd.r = (int32_t)-radio_control.values[RADIO_YAW];
+    stabilization_none_rc_cmd.r = (int32_t)radio_control.values[RADIO_YAW];
 }
 
 void stabilization_none_enter(void) {

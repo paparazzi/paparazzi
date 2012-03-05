@@ -68,12 +68,12 @@ static inline void update_quat_from_eulers(struct Int32Quat *quat, struct Int32E
 
 static inline void stabilization_attitude_read_rc_setpoint(bool_t in_flight) {
 
-  stab_att_sp_euler.phi = ((int32_t)-radio_control.values[RADIO_ROLL]  * SP_MAX_PHI / MAX_PPRZ);
+  stab_att_sp_euler.phi = ((int32_t) radio_control.values[RADIO_ROLL]  * SP_MAX_PHI / MAX_PPRZ);
   stab_att_sp_euler.theta = ((int32_t) radio_control.values[RADIO_PITCH] * SP_MAX_THETA / MAX_PPRZ);
 
   if (in_flight) {
     if (YAW_DEADBAND_EXCEEDED()) {
-      stab_att_sp_euler.psi += ((int32_t)-radio_control.values[RADIO_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ);
+      stab_att_sp_euler.psi += ((int32_t) radio_control.values[RADIO_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ);
       INT32_ANGLE_NORMALIZE(stab_att_sp_euler.psi);
     }
   }
