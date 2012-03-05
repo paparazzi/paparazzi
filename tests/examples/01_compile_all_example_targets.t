@@ -8,6 +8,9 @@ use Program;
 $|++; 
 my $examples = XMLin("$ENV{'PAPARAZZI_SRC'}/conf/conf.xml.example");
 
+use Data::Dumper;
+warn Dumper(\%ENV);
+
 ok(1, "Parsed the example file");
 foreach my $example (sort keys%{$examples->{'aircraft'}})
 {
@@ -19,10 +22,10 @@ foreach my $example (sort keys%{$examples->{'aircraft'}})
 		{
 			my $make_upload_options = "AIRCRAFT=$example $target.compile";
 			my $upload_output = run_program(
-        			"Attempting to build the firmware $target for the airframe $example.",
-        			$ENV{'PAPARAZZI_SRC'},
-        			"make $make_upload_options",
-        			0,1);
+				"Attempting to build the firmware $target for the airframe $example.",
+				$ENV{'PAPARAZZI_SRC'},
+				"make $make_upload_options",
+				$ENV->{'TEST_VERBOSE'},1);
 			unlike($upload_output, '/Error/i', "The upload output does not contain the word \"Error\"");
 		}
 	}
