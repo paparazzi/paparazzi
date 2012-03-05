@@ -80,6 +80,7 @@ type status =
 
 class plot = fun ~size ~width ~height ~packing () ->
   let curves = Hashtbl.create 3 in
+  let bindings = Hashtbl.create 3 in
   object (self)
     inherit Gtk_tools.pixmap_in_drawin_area ~width ~height ~packing () as pm
 
@@ -119,184 +120,189 @@ class plot = fun ~size ~width ~height ~packing () ->
 
     method reset () =
       if auto_scale then begin
-	min <- max_float;
-	max <- -. max_float
+        min <- max_float;
+        max <- -. max_float
       end;
       Hashtbl.iter (fun _ a ->
-	a.index <- 0;
-	a.average#set_value 0.;
-	a.stdev#set_value 0.;
-	for i = 0 to Array.length a.array - 1 do a.array.(i) <- None done)
-	curves
+        a.index <- 0;
+        a.average#set_value 0.;
+        a.stdev#set_value 0.;
+        for i = 0 to Array.length a.array - 1 do a.array.(i) <- None done)
+        curves
 
     method set_size = fun new_size ->
       if new_size <> size && new_size > 0 then begin
-	Hashtbl.iter (fun _ a ->
-	  let new_array = Array.create new_size None in
-	  for i = 0 to Pervasives.min size new_size - 1 do
-	    new_array.(new_size - 1 - i) <- a.array.((a.index-i+size) mod size)
-	  done;
-	  a.array <- new_array;
-	  a.index <- new_size - 1)
-	  curves;
-	size <- new_size
+        Hashtbl.iter (fun _ a ->
+          let new_array = Array.create new_size None in
+          for i = 0 to Pervasives.min size new_size - 1 do
+            new_array.(new_size - 1 - i) <- a.array.((a.index-i+size) mod size)
+          done;
+          a.array <- new_array;
+          a.index <- new_size - 1)
+          curves;
+        size <- new_size
       end
 
-    method create_curve = fun (name:string) ->
+    method create_curve = fun (name:string) binding ->
       let color = colors.(color_index) in
       let values = create_values size color in
       color_index <- (color_index+1) mod Array.length colors;
       Hashtbl.add curves name values;
+      Hashtbl.add bindings name binding;
       values
 
     method delete_curve = fun name ->
-      Hashtbl.remove curves name
+      Hashtbl.remove curves name;
+      try (* this try should not be needed *)
+        let binding = Hashtbl.find bindings name in
+        Ivy.unbind binding;
+        Hashtbl.remove bindings name
+      with _ -> ()
 
     method add_value = fun name v ->
       if status <> Stop then
-	let a = Hashtbl.find curves name in
-	a.array.(a.index) <- Some v;
-	if auto_scale then begin
-	  min <- Pervasives.min min v;
-	  max <- Pervasives.max max v
-	end
+        let a = Hashtbl.find curves name in
+        a.array.(a.index) <- Some v;
+        if auto_scale then begin
+          min <- Pervasives.min min v;
+          max <- Pervasives.max max v
+        end
 
     method reset_scale = fun () ->
       min <- max_float;
       max <- -. max_float;
       Hashtbl.iter (* for all curves *)
-	(fun name a ->
-	  Array.iter (* for all values *)
-	    (function
-		None -> ()
-	      | Some v ->
-		  min <- Pervasives.min min v;
-		  max <- Pervasives.max max v)
-	    a.array)
-	curves
+        (fun name a ->
+          Array.iter (* for all values *)
+            (function
+        	None -> ()
+              | Some v ->
+        	  min <- Pervasives.min min v;
+        	  max <- Pervasives.max max v)
+            a.array)
+        curves
 
     method shift = fun () ->
       Hashtbl.iter
-	(fun _ a ->
-	  (* Shift *)
-	  a.index <- (a.index + 1) mod (Array.length a.array);
-	  a.array.(a.index) <- None)
-	curves
+        (fun _ a ->
+          (* Shift *)
+          a.index <- (a.index + 1) mod (Array.length a.array);
+          a.array.(a.index) <- None)
+        curves
 
     method update_curves = fun () ->
       if Hashtbl.length curves > 0 then
-	try
-	  if status <> Stop then
-	    self#shift ();
-	  if status <> Suspend then
-	    let da = pm#drawing_area in
-	    let {Gtk.width=width; height=height} = da#misc#allocation in
-	    let dr = pm#get_pixmap () in
-	    dr#set_foreground (`NAME "white");
-	    dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
-	    let margin = Pervasives.min (height / 10) 20 in
+        try
+          if status <> Stop then
+            self#shift ();
+          if status <> Suspend then
+            let da = pm#drawing_area in
+            let {Gtk.width=width; height=height} = da#misc#allocation in
+            let dr = pm#get_pixmap () in
+            dr#set_foreground (`NAME "white");
+            dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
+            let margin = Pervasives.min (height / 10) 20 in
 
-	    (* Time Graduations *)
-	    let context = da#misc#create_pango_context in
-	    context#set_font_by_name ("sans " ^ string_of_int (margin/2));
-	    let layout = context#create_layout in
+            (* Time Graduations *)
+            let context = da#misc#create_pango_context in
+            context#set_font_by_name ("sans " ^ string_of_int (margin/2));
+            let layout = context#create_layout in
 
-	    Pango.Layout.set_text layout "X";
-	    let (_, h) = Pango.Layout.get_pixel_size layout in
+            Pango.Layout.set_text layout "X";
+            let (_, h) = Pango.Layout.get_pixel_size layout in
 
-	    let f = fun x y s ->
-	      Pango.Layout.set_text layout s;
-	      let (w, h) = Pango.Layout.get_pixel_size layout in
-	      dr#put_layout ~x ~y:(y-h/2) ~fore:`BLACK layout in
+            let f = fun x y s ->
+              Pango.Layout.set_text layout s;
+              let (w, h) = Pango.Layout.get_pixel_size layout in
+              dr#put_layout ~x ~y:(y-h/2) ~fore:`BLACK layout in
 
-	    let t = dt *. float size in
-	    f (width-width/size) (height-h/2) "0";
-	    f (width/2) (height-h/2) (Printf.sprintf "-%.1fs" (t/.2.));
-	    f 0 (height-h/2) (Printf.sprintf "-%.1fs" t);
+            let t = dt *. float size in
+            f (width-width/size) (height-h/2) "0";
+            f (width/2) (height-h/2) (Printf.sprintf "-%.1fs" (t/.2.));
+            f 0 (height-h/2) (Printf.sprintf "-%.1fs" t);
 
-	    (* Y graduations *)
-	    let (min, max) =
-	      if max > min then (min, max)
-	      else  let d = abs_float max /. 10. in (max -. d, max +. d) in
-	    let delta = max -. min in
+            (* Y graduations *)
+            let (min, max) =
+              if max > min then (min, max)
+              else  let d = abs_float max /. 10. in (max -. d, max +. d) in
+            let delta = max -. min in
 
-	    let dy = float (height-2*margin) /. delta in
-	    let y = fun v ->
-	      height - margin - truncate ((v-.min)*.dy) in
+            let dy = float (height-2*margin) /. delta in
+            let y = fun v ->
+              height - margin - truncate ((v-.min)*.dy) in
 
-	    let scale = log delta /. log 10. in
-	    let d = 10. ** floor scale in
-	    let u =
-	      if delta < 2.*.d then d/.5.
-	      else if delta < 5.*.d then d/.2.
-	      else d in
-	    let tick_min = min -. mod_float min u in
-	    for i = 0 to truncate (delta/.u) + 1 do
-	      let tick = tick_min +. float i *. u in
-	      f 0 (y tick) (Printf.sprintf "%.*f" (Pervasives.max 0 (2-truncate scale)) tick)
-	    done;
+            let scale = log delta /. log 10. in
+            let d = 10. ** floor scale in
+            let u =
+              if delta < 2.*.d then d/.5.
+              else if delta < 5.*.d then d/.2.
+              else d in
+            let tick_min = min -. mod_float min u in
+            for i = 0 to truncate (delta/.u) + 1 do
+              let tick = tick_min +. float i *. u in
+              f 0 (y tick) (Printf.sprintf "%.*f" (Pervasives.max 0 (2-truncate scale)) tick)
+            done;
 
-	    (* Constants *)
-	    List.iter (fun v ->
-	      dr#set_foreground (`NAME "black");
-	      dr#lines [(0, y v); (width-width/size, y v)])
-	      csts;
+            (* Constants *)
+            List.iter (fun v ->
+              dr#set_foreground (`NAME "black");
+              dr#lines [(0, y v); (width-width/size, y v)])
+              csts;
 
-	    let margin = 3 in
-	    let title_y = ref margin in
-	    Hashtbl.iter
-	      (fun title a ->
-		(* Draw and compute average and stdev*)
-		let curve = ref []
-		and sum = ref 0. and sum_squares = ref 0.
-		and n = ref 0 in
-		assert (size = Array.length a.array);
-		let last_value = ref None in
-		for i = 0 to size - 1 do
-		  let i' = (i+a.index) mod size in
-		  match a.array.(i') with
-		    None -> ()
-		  | Some v ->
-		      incr n;
-		      sum := !sum +. v;
-		      sum_squares := !sum_squares +. v *. v;
-		      let x = (i * width) / size in
-		      begin
-			match !last_value with
-			 Some lv when a.discrete ->
-			   curve := (x, y lv) :: !curve
-			| _ -> ()
-		      end;
-		      curve := (x, y v) :: !curve;
-		      last_value := Some v
-		done;
-		if !curve <> [] then begin
-		  dr#set_foreground (`NAME a.color);
-		  dr#lines !curve;
-		end;
-		let fn = float !n in
-		let avg = !sum /. fn in
-		let stdev = sqrt ((!sum_squares -. fn *. avg *. avg) /. fn) in
-		set_float_value a.average avg;
-		set_float_value a.stdev stdev;
+            let margin = 3 in
+            let title_y = ref margin in
+            Hashtbl.iter (fun title a ->
+              (* Draw and compute average and stdev*)
+              let curve = ref []
+              and sum = ref 0. and sum_squares = ref 0.
+              and n = ref 0 in
+              assert (size = Array.length a.array);
+              let last_value = ref None in
+              for i = 0 to size - 1 do
+                let i' = (i+a.index) mod size in
+                match a.array.(i') with
+                  None -> ()
+                | Some v ->
+                    incr n;
+                    sum := !sum +. v;
+                    sum_squares := !sum_squares +. v *. v;
+                    let x = (i * width) / size in
+                    begin
+              	match !last_value with
+              	 Some lv when a.discrete ->
+              	   curve := (x, y lv) :: !curve
+              	| _ -> ()
+                    end;
+                    curve := (x, y v) :: !curve;
+                    last_value := Some v
+              done;
+              if !curve <> [] then begin
+                dr#set_foreground (`NAME a.color);
+                dr#lines !curve;
+              end;
+              let fn = float !n in
+              let avg = !sum /. fn in
+              let stdev = sqrt ((!sum_squares -. fn *. avg *. avg) /. fn) in
+              set_float_value a.average avg;
+              set_float_value a.stdev stdev;
 
-		(* Title *)
-		Pango.Layout.set_text layout title;
-		let (w, h) = Pango.Layout.get_pixel_size layout in
-		dr#rectangle ~x:(width-h-margin) ~y:!title_y ~width:h ~height:h ~filled:true ();
+              (* Title *)
+              Pango.Layout.set_text layout title;
+              let (w, h) = Pango.Layout.get_pixel_size layout in
+              dr#rectangle ~x:(width-h-margin) ~y:!title_y ~width:h ~height:h ~filled:true ();
 
-		dr#set_foreground `BLACK;
-		dr#put_layout ~x:(width-2*margin-w-h) ~y:(!title_y) layout;
-		title_y := !title_y + h + margin)
+              dr#set_foreground `BLACK;
+              dr#put_layout ~x:(width-2*margin-w-h) ~y:(!title_y) layout;
+              title_y := !title_y + h + margin)
 	      curves;
 	    pm#redraw ()
-	with
-	  exc ->
-	    prerr_endline (Printexc.to_string exc)
+    with
+      exc ->
+        prerr_endline (Printexc.to_string exc)
 
     method stop_timer = fun () ->
       match timer with
-	None -> ()
+        None -> ()
       | Some t -> GMain.Timeout.remove t
 
     method set_update_time = fun delay ->
@@ -306,7 +312,7 @@ class plot = fun ~size ~width ~height ~packing () ->
 
     method button_press = fun ev ->
       match GdkEvent.Button.button ev with
-	3 -> self#reset_scale (); true
+        3 -> self#reset_scale (); true
       | _ -> false
 
     initializer ignore (self#drawing_area#event#add [`BUTTON_PRESS])
@@ -327,7 +333,7 @@ let base_and_index =
   fun field_descr ->
     if Str.string_match field_regexp field_descr 0 then
       ( Str.matched_group 1 field_descr,
-	int_of_string (Str.matched_group 2 field_descr))
+        int_of_string (Str.matched_group 2 field_descr))
     else
       (field_descr, 0)
 
@@ -339,26 +345,32 @@ let rec plot_window = fun window ->
 
   (* Register the window *)
   let oid = plotter#get_oid in
-  Hashtbl.add windows oid ();
+  Hashtbl.add windows oid [];
 
   ignore (plotter#parse_geometry window.geometry);
   plotter#set_icon (Some (GdkPixbuf.from_file Env.icon_file));
   let vbox = GPack.vbox ~packing:plotter#add () in
-  let quit = fun () -> GMain.Main.quit (); exit 0 in
-
-  let close = fun () ->
-    plotter#destroy ();
-    Hashtbl.remove windows oid;
-    if Hashtbl.length windows = 0 then
-      quit () in
-
-  let tooltips = GData.tooltips () in
-
   let menubar = GMenu.menu_bar ~packing:vbox#pack () in
   let factory = new GMenu.factory menubar in
   let accel_group = factory#accel_group in
   let file_menu = factory#add_submenu "Plot" in
   let file_menu_fact = new GMenu.factory file_menu ~accel_group in
+  let h = GPack.hbox ~packing:vbox#pack () in
+  let curves_menu = factory#add_submenu "Curves" in
+  let curves_menu_fact = new GMenu.factory curves_menu in
+  let tooltips = GData.tooltips () in
+
+  let width = 900 and height = 200 in
+  let plot = new plot ~size: !size ~width ~height ~packing:(vbox#pack ~expand:true) () in
+
+  let quit = fun () -> GMain.Main.quit (); exit 0 in
+
+  let close = fun () ->
+    List.iter (fun c -> plot#delete_curve c)  (Hashtbl.find windows oid);
+    plotter#destroy ();
+    Hashtbl.remove windows oid;
+    if Hashtbl.length windows = 0 then
+      quit () in
 
   ignore (file_menu_fact#add_item "New" ~key:GdkKeysyms._N ~callback:(fun () -> plot_window {window with curves=[]}));
 
@@ -369,18 +381,12 @@ let rec plot_window = fun window ->
   ignore (file_menu_fact#add_separator ());
   ignore (file_menu_fact#add_item "Close" ~key:GdkKeysyms._W ~callback:close);
   ignore (file_menu_fact#add_item "Quit" ~key:GdkKeysyms._Q ~callback:quit);
-  let curves_menu = factory#add_submenu "Curves" in
-  let curves_menu_fact = new GMenu.factory curves_menu in
   tooltips#set_tip reset_item#coerce ~text:"Reset the current display and the current data";
   tooltips#set_tip curves_menu#coerce ~text:"Delete the curve";
   tooltips#set_tip suspend_item#coerce ~text:"Freeze the display while the data are still updated";
   tooltips#set_tip stop_item#coerce ~text:"Freeze the data update while the display is active (e.g. resizable)";
   tooltips#set_tip start_item#coerce ~text:"UnFreeze";
 
-  let h = GPack.hbox ~packing:vbox#pack () in
-
-  let width = 900 and height = 200 in
-  let plot = new plot ~size: !size ~width ~height ~packing:(vbox#pack ~expand:true) () in
   tooltips#set_tip plot#drawing_area#coerce ~text:"Drop a messages field here to draw it";
   ignore (plotter#connect#destroy ~callback:close);
 
@@ -448,8 +454,7 @@ let rec plot_window = fun window ->
     (* Delete *)
     let delete_item = submenu_fact#add_item "Delete" in
     let delete = fun () ->
-	plot#delete_curve name;
-      Ivy.unbind binding;
+      plot#delete_curve name;
       curves_menu#remove (curve_item :> GMenu.menu_item) in
     ignore (delete_item#connect#activate ~callback:delete);
 
@@ -471,7 +476,8 @@ let rec plot_window = fun window ->
     let _item = submenu_fact#add_image_item ~image:stdev_value#coerce ~label:"Stdev" () in
     let update_stdev_value = fun () ->
       stdev_value#set_text (sprintf "%.6f" curve.stdev#value) in
-    ignore (curve.stdev#connect#value_changed update_stdev_value) in
+    ignore (curve.stdev#connect#value_changed update_stdev_value)
+  in
 
   let add_curve = fun ?(factor=(1.,0.)) name ->
     let (a, b) = factor in
@@ -482,10 +488,9 @@ let rec plot_window = fun window ->
     let cb = fun _sender values ->
       let (field_name, index) = base_and_index field_descr in
       let value =
-	match Pprz.assoc field_name values with
-	  Pprz.Array array ->
-	    array.(index)
-	| scalar -> scalar in
+        match Pprz.assoc field_name values with
+          Pprz.Array array -> array.(index)
+        | scalar -> scalar in
       let float = pprz_float value in
       let v = float *. a +. b in
       plot#add_value name v in
@@ -493,30 +498,35 @@ let rec plot_window = fun window ->
     let module P = Pprz.Messages (struct let name = class_name end) in
     let binding =
       if sender = "*" then
-	P.message_bind msg_name cb
+        P.message_bind msg_name cb
       else
-	P.message_bind ~sender msg_name cb in
+        P.message_bind ~sender msg_name cb in
 
-    let curve = plot#create_curve name in
-    insert_in_menu curve name binding in
+    let curve = plot#create_curve name binding in
+    insert_in_menu curve name binding;
+
+    (* store name of the curves associated to a window correct closing *)
+    let curves_name = Hashtbl.find windows oid in
+    Hashtbl.replace windows oid (curves_name @ [name])
+  in
 
     (* Drag and drop handler *)
-    let data_received = fun context ~x ~y data ~info ~time ->
-      let factor =  Ocaml_tools.affine_transform factor#text in
-      try
-	let name = data#data in
-	add_curve ~factor name
-      with
-	exc -> prerr_endline (Printexc.to_string exc)
+  let data_received = fun context ~x ~y data ~info ~time ->
+    let factor =  Ocaml_tools.affine_transform factor#text in
+    try
+      let name = data#data in
+      add_curve ~factor name
+    with
+      exc -> prerr_endline (Printexc.to_string exc)
     in
-    plotter#drag#dest_set dnd_targets ~actions:[`COPY];
-    ignore (plotter#drag#connect#data_received ~callback:(data_received));
+  plotter#drag#dest_set dnd_targets ~actions:[`COPY];
+  ignore (plotter#drag#connect#data_received ~callback:(data_received));
 
-    (* Init curves *)
-    List.iter add_curve window.curves;
+  (* Init curves *)
+  List.iter add_curve window.curves;
 
-    plotter#add_accel_group accel_group;
-    plotter#show ()
+  plotter#add_accel_group accel_group;
+  plotter#show ()
 
 
 

@@ -21,7 +21,6 @@
     </target>
     <target name="sim" board="pc">
       <subsystem name="fdm"         type="nps"/>
-      <!--define name="NPS_NO_SUPERVISION"/-->
     </target>
 
     <subsystem name="radio_control" type="ppm"/>
@@ -30,11 +29,11 @@
       <define name="SKIRON_I2C_SCL_TIME" value="25"/>
     </subsystem>
     <subsystem name="imu"           type="navgo"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="euler"/>
-    <subsystem name="ahrs"          type="int_cmpl_euler">
-      <define name="LOW_NOISE_THRESHOLD" value="50000"/>
+    <subsystem name="gps"           type="ublox">
+      <configure name="GPS_BAUD" value="B57600"/>
     </subsystem>
+    <subsystem name="stabilization" type="euler"/>
+    <subsystem name="ahrs"          type="int_cmpl_euler"/>
     <subsystem name="ins"           type="hff"/>
   </firmware>
 
@@ -73,31 +72,39 @@
 
   <section name="IMU" prefix="IMU_">
 
-    <define name="GYRO_P_NEUTRAL" value="-126"/>
-    <define name="GYRO_Q_NEUTRAL" value="-29"/>
-    <define name="GYRO_R_NEUTRAL" value="-32"/>
+    <define name="GYRO_P_NEUTRAL" value="10"/>
+    <define name="GYRO_Q_NEUTRAL" value="-32"/>
+    <define name="GYRO_R_NEUTRAL" value="11"/>
 
     <!-- SENS ITG3200  1/14.375 (deg/s)/LSB, rate frac 12bit => 1/14.375 * pi / 180 * 2^12 -->
     <define name="GYRO_P_SENS" value="4.97312" integer="16"/>
     <define name="GYRO_Q_SENS" value="4.97312" integer="16"/>
     <define name="GYRO_R_SENS" value="4.97312" integer="16"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="4"/>
-    <define name="ACCEL_Y_NEUTRAL" value="-17"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-22"/>
+    <define name="ACCEL_X_NEUTRAL" value="9"/>
+    <define name="ACCEL_Y_NEUTRAL" value="14"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-16"/>
 
     <!-- SENS ADXL345 16G 31.2 mg/LSB, accel frac 10bit => 31.2 * 2^10 / 1000 = 31.9488-->
-    <define name="ACCEL_X_SENS" value="38.2816633245" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="38.7857058923" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="39.7459254023" integer="16"/>
+    <define name="ACCEL_X_SENS" value="38.5866088465" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="38.7212932023" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="39.403098907" integer="16"/>
 
-    <define name="MAG_X_NEUTRAL" value="85"/>
-    <define name="MAG_Y_NEUTRAL" value="97"/>
-    <define name="MAG_Z_NEUTRAL" value="-43"/>
+    <define name="MAG_X_NEUTRAL" value="80"/>
+    <define name="MAG_Y_NEUTRAL" value="-271"/>
+    <define name="MAG_Z_NEUTRAL" value="112"/>
+
+    <define name="MAG_X_SENS" value="4.44131219218" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.56234629213" integer="16"/>
+    <define name="MAG_Z_SENS" value="5.298653926" integer="16"/>
+
+    <!--define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
 
     <define name="MAG_X_SENS" value="5.43371021972" integer="16"/>
     <define name="MAG_Y_SENS" value="4.8961742578" integer="16"/>
-    <define name="MAG_Z_SENS" value="5.31527656902" integer="16"/>
+    <define name="MAG_Z_SENS" value="5.31527656902" integer="16"/-->
 
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(0.)"/> <!-- -10 -->
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(0.)"/> <!-- -10 -->
@@ -125,6 +132,8 @@
     <define name="ACCEL_Y_SENS" value="38.7108" integer="16"/>
     <define name="ACCEL_Z_SENS" value="39.6583" integer="16"/>
 
+
+
     <define name="MAG_X_NEUTRAL" value="55"/>
     <define name="MAG_Y_NEUTRAL" value="54"/>
     <define name="MAG_Z_NEUTRAL" value="92"/>
@@ -149,7 +158,8 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="14" integer="16"/>
+    <!-- 1.4 mm/LSB : 0.0014*2^8 = 0.3584 -->
+    <define name="BARO_SENS" value="1.156" integer="16"/>
   </section>
 
 

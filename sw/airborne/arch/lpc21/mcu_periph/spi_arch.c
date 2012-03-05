@@ -193,7 +193,9 @@ void SPI1_ISR(void) {
   }
 
   if (bit_is_set(SSPMIS, RTMIS)) { /* Rx fifo is not empty and no receive took place in the last 32 bits period */
+#if !SPI_NO_UNSELECT_SLAVE
     SpiUnselectCurrentSlave();
+#endif
     SpiReceive();
     SpiDisableRti();
     SpiClearRti();                /* clear interrupt */

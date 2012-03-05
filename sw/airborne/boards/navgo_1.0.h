@@ -18,17 +18,17 @@
 #define PCLK (CCLK / PBSD_VAL)
 
 /* Onboard LEDs */
-#define LED_1_BANK 1
-#define LED_1_PIN 25
+#define LED_1_BANK 0
+#define LED_1_PIN 22
 
 #define LED_2_BANK 1
-#define LED_2_PIN 24
+#define LED_2_PIN 28
 
 #define LED_3_BANK 1
-#define LED_3_PIN 23
+#define LED_3_PIN 29
 
 #define LED_4_BANK 1
-#define LED_4_PIN 31
+#define LED_4_PIN 30
 
 /* PPM : rc rx on P0.28 ( CAP0.2 ) */
 #define PPM_PINSEL PINSEL1
@@ -45,18 +45,21 @@
 /* battery */
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
-#define ADC_CHANNEL_VSUPPLY AdcBank1(3)
-#ifndef USE_AD1
-#define USE_AD1
+#define ADC_CHANNEL_VSUPPLY AdcBank0(2)
+#ifndef USE_AD0
+#define USE_AD0
 #endif
-#define USE_AD1_3
+#define USE_AD0_2
 #endif
 
-#define DefaultVoltageOfAdc(adc) (0.01837*adc)
+#define DefaultVoltageOfAdc(adc) (0.017889*adc)
 
 /* SPI (SSP) */
 #define SPI_SELECT_SLAVE0_PORT 0
 #define SPI_SELECT_SLAVE0_PIN 20
+
+//#define SPI_SELECT_SLAVE1_PORT 1
+//#define SPI_SELECT_SLAVE1_PIN 19
 
 #define SPI1_DRDY_PINSEL PINSEL1
 #define SPI1_DRDY_PINSEL_BIT   0

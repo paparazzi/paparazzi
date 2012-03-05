@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2011 Christoph Niemann
  *
  * This file is part of paparazzi.
  *
@@ -19,17 +19,20 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
-#include "firmwares/rotorcraft/stabilization.h"
+/** \file openlog.h
+ * This module provides a timestamp-message, allowing
+ * sw/logalizer/openlog2tlm to convert a recorded dumpfile,
+ * created by openlog into the pprz-tlm format, to be converted into
+ * .data and .log files by sw/logalizer/sd2log
+ */
 
-int32_t stabilization_cmd[COMMANDS_NB];
+#ifndef OPENLOG_H
+#define OPENLOG_H
 
-void stabilization_init(void) {
-#ifndef STABILIZATION_SKIP_RATE
-  stabilization_none_init();
-  stabilization_rate_init();
+void init_openlog(void);
+void periodic_2Hz_openlog(void);
+
 #endif
-  stabilization_attitude_init();
-}
-

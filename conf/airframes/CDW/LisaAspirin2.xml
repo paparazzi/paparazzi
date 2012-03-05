@@ -206,7 +206,7 @@
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
-       <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" /> 
+       <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
 
       <configure name="AHRS_ALIGNER_LED" value="1"/>
       <configure name="CPU_LED" value="1"/>
