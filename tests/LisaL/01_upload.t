@@ -8,7 +8,7 @@ $|++;
 
 ####################
 # Make the airframe
-my $make_compile_options = "AIRCRAFT=LisaLv11_Booz2v12_RC BOARD_SERIAL=LISA-L-000156 clean_ac ap.compile";
+my $make_compile_options = "AIRCRAFT=LisaLv11_Booz2v12_RC clean_ac ap.compile";
 my $compile_output = run_program(
 	"Attempting to build and upload the firmware.",
 	$ENV{'PAPARAZZI_SRC'},
@@ -24,7 +24,7 @@ my $upload_output = run_program(
 	"Attempting to build and upload the firmware.",
 	$ENV{'PAPARAZZI_SRC'},
 	"make $make_upload_options",
-	0,1);
+	1,1);
 unlike($upload_output, '/Error/i', "The upload output does not contain the word \"Error\"");
 
 
