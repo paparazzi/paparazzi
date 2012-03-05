@@ -22,26 +22,14 @@
 #define STABILIZATION_ATTITUDE_INT_REF_QUAT_INT_H
 
 #include "firmwares/rotorcraft/stabilization.h"
-#include "firmwares/rotorcraft/stabilization/quat_setpoint.h"
 
 #include "subsystems/radio_control.h"
 #include "math/pprz_algebra_float.h"
 
 #include "stabilization_attitude_ref_int.h"
 
-#define REF_ACCEL_FRAC 12
-#define REF_RATE_FRAC  16
-#define REF_ANGLE_FRAC 20
+#include "subsystems/ahrs.h"
 
-#define REF_ANGLE_PI      BFP_OF_REAL(3.1415926535897932384626433832795029, REF_ANGLE_FRAC)
-#define REF_ANGLE_TWO_PI  BFP_OF_REAL(2.*3.1415926535897932384626433832795029, REF_ANGLE_FRAC)
-#define ANGLE_REF_NORMALIZE(_a) {         \
-      while (_a >  REF_ANGLE_PI)  _a -= REF_ANGLE_TWO_PI;     \
-      while (_a < -REF_ANGLE_PI)  _a += REF_ANGLE_TWO_PI;     \
-    }
-
-
-#define RC_UPDATE_FREQ 40.
 #define ROLL_COEF   (STABILIZATION_ATTITUDE_SP_MAX_PHI   / MAX_PPRZ)
 // FIXME: unused, what was it supposed to be?
 //#define ROLL_COEF_H (STABILIZATION_ATTITUDE_SP_MAX_P_H   / MAX_PPRZ)
@@ -62,12 +50,41 @@
 #define PITCH_DEADBAND_EXCEEDED()						\
   (radio_control.values[RADIO_PITCH] >  STABILIZATION_ATTITUDE_DEADBAND_E || \
    radio_control.values[RADIO_PITCH] < -STABILIZATION_ATTITUDE_DEADBAND_E)
-#define YAW_DEADBAND_EXCEEDED()						\
-  (radio_control.values[RADIO_YAW] >  STABILIZATION_ATTITUDE_DEADBAND_R || \
-   radio_control.values[RADIO_YAW] < -STABILIZATION_ATTITUDE_DEADBAND_R)
 
-#define STABILIZATION_ATTITUDE_READ_RC(_sp, _in_flight) do { stabilization_attitude_read_rc_absolute(_sp, _in_flight); } while(0)
-#define STABILIZATION_ATTITUDE_RESET_PSI_REF(_sp) do {} while(0)
+#define STABILIZATION_ATTITUDE_RESET_PSI_REF(_sp) {}
+
+static inline void update_quat_from_eulers(struct Int32Quat *quat, struct Int32Eulers *eulers) {
+  struct Int32RMat rmat;
+
+#ifdef STICKS_RMAT312
+  INT32_RMAT_OF_EULERS_312(rmat, *eulers);
+#else
+  INT32_RMAT_OF_EULERS_321(rmat, *eulers);
+#endif
+  INT32_QUAT_OF_RMAT(*quat, rmat);
+  INT32_QUAT_WRAP_SHORTEST(*quat);
+}
+
+
+static inline void stabilization_attitude_read_rc_setpoint(bool_t in_flight) {
+
+  stab_att_sp_euler.phi = ((int32_t)-radio_control.values[RADIO_ROLL]  * SP_MAX_PHI / MAX_PPRZ);
+  stab_att_sp_euler.theta = ((int32_t) radio_control.values[RADIO_PITCH] * SP_MAX_THETA / MAX_PPRZ);
+
+  if (in_flight) {
+    if (YAW_DEADBAND_EXCEEDED()) {
+      stab_att_sp_euler.psi += ((int32_t)-radio_control.values[RADIO_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ);
+      INT32_ANGLE_NORMALIZE(stab_att_sp_euler.psi);
+    }
+  }
+  else { /* if not flying, use current yaw as setpoint */
+    stab_att_sp_euler.psi = ahrs.ltp_to_body_euler.psi;
+  }
+
+  /* update quaternion setpoint from euler setpoint */
+  update_quat_from_eulers(&stab_att_sp_quat, &stab_att_sp_euler);
+
+}
 
 void stabilization_attitude_ref_enter(void);
 void stabilization_attitude_ref_schedule(uint8_t idx);

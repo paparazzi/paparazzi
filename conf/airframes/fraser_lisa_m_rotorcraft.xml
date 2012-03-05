@@ -23,11 +23,8 @@
     <subsystem name="actuators"     type="mkk"/>
     <subsystem name="imu"           type="aspirin_v1.5"/>
     <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="euler"/>
+    <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
-    <!--subsystem name="ahrs"          type="float_cmpl">
-      <define name="AHRS_PROPAGATE_QUAT"/>
-    </subsystem-->
   </firmware>
 
   <firmware name="setup">
