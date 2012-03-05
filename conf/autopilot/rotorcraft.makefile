@@ -197,6 +197,7 @@ endif
 ap.srcs += $(SRC_FIRMWARE)/autopilot.c
 
 ap.srcs += $(SRC_FIRMWARE)/stabilization.c
+ap.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_none.c
 ap.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
 
 ap.CFLAGS += -DUSE_NAVIGATION
