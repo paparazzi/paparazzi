@@ -52,9 +52,9 @@
     <define name="MAG_Y_SENS" value="20." integer="16"/>
     <define name="MAG_Z_SENS" value="15." integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg( 14.5)"/>
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg( -8.5)"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(-45. )"/>
+    <define name="BODY_TO_IMU_PHI"   value="14.5" unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="-8.5" unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="-45. " unit="deg"/>
 
   </section>
 
@@ -73,25 +73,25 @@
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
 
    <!-- setpoints -->
-    <define name="SP_MAX_PHI"     value="RadOfDeg(45.)"/>
-    <define name="SP_MAX_THETA"   value="RadOfDeg(45.)"/>
-    <define name="SP_MAX_R"       value="RadOfDeg(90.)"/>
+    <define name="SP_MAX_PHI"     value="45." unit="deg"/>
+    <define name="SP_MAX_THETA"   value="45." unit="deg"/>
+    <define name="SP_MAX_R"       value="90." unit="deg/s"/>
     <define name="DEADBAND_R"     value="250"/>
 
     <!-- reference -->
-    <define name="REF_OMEGA_P"  value="RadOfDeg(800)"/>
+    <define name="REF_OMEGA_P"  value="800" unit="deg/s"/>
     <define name="REF_ZETA_P"   value="0.85"/>
-    <define name="REF_MAX_P"    value="RadOfDeg(300.)"/>
+    <define name="REF_MAX_P"    value="300." unit="deg/s"/>
     <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
 
-    <define name="REF_OMEGA_Q"  value="RadOfDeg(800)"/>
+    <define name="REF_OMEGA_Q"  value="800" unit="deg/s"/>
     <define name="REF_ZETA_Q"   value="0.85"/>
-    <define name="REF_MAX_Q"    value="RadOfDeg(300.)"/>
+    <define name="REF_MAX_Q"    value="300." unit="deg/s"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
 
-    <define name="REF_OMEGA_R"  value="RadOfDeg(500)"/>
+    <define name="REF_OMEGA_R"  value="500" unit="deg/s"/>
     <define name="REF_ZETA_R"   value="0.85"/>
-    <define name="REF_MAX_R"    value="RadOfDeg(180.)"/>
+    <define name="REF_MAX_R"    value="180." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->

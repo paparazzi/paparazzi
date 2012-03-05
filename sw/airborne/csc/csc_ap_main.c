@@ -29,18 +29,18 @@
 #include "std.h"
 
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "interrupt_hw.h"
 #include "mcu_periph/uart.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "generated/periodic.h"
 #include "generated/airframe.h"
 #include "commands.h"
 #include "subsystems/radio_control.h"
 #include "booz/booz2_gps.h"
 
-//#include "ap_downlink.h"
+//#include "ap_subsystems/datalink/downlink.h"
 
 #include "csc_servos.h"
 #include "csc_telemetry.h"
@@ -52,9 +52,9 @@
 #include "csc_ap_link.h"
 #include "led.h"
 
-#include "pprz_transport.h"
+#include "subsystems/datalink/pprz_transport.h"
 
-#define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
+#define CSC_STATUS_TIMEOUT (CPU_TICKS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
 
 #define PPRZ_MODE_MANUAL 0
 #define PPRZ_MODE_AUTO1 1
@@ -142,7 +142,7 @@ static void on_gpspos_cmd( struct CscGPSPosMsg *msg )
 static void csc_main_init( void ) {
 
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   led_init();
 
   Uart0Init();
@@ -213,7 +213,7 @@ static void csc_main_event( void )
 int main( void ) {
   csc_main_init();
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       csc_main_periodic();
     csc_main_event();
   }

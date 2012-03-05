@@ -209,6 +209,8 @@ struct Int64Vect3 {
 
 #define INT_VECT2_ZERO(_v) VECT2_ASSIGN(_v, 0, 0)
 
+#define INT_VECT2_ASSIGN(_a, _x, _y) VECT2_ASSIGN(_a, _x, _y)
+
 #define INT32_VECT2_NORM(n, v) {			\
     int32_t n2 = (v).x*(v).x + (v).y*(v).y; \
     INT32_SQRT(n, n2);					\
@@ -235,6 +237,9 @@ struct Int64Vect3 {
 
 #define INT_VECT3_ZERO(_v) VECT3_ASSIGN(_v, 0, 0, 0)
 #define INT32_VECT3_ZERO(_v) VECT3_ASSIGN(_v, 0, 0, 0)
+
+#define INT_VECT3_ASSIGN(_a, _x, _y, _z) VECT3_ASSIGN(_a, _x, _y, _z)
+#define INT32_VECT3_ASSIGN(_a, _x, _y, _z) VECT3_ASSIGN(_a, _x, _y, _z)
 
 #define INT32_VECT3_COPY(_o, _i) VECT3_COPY(_o, _i)
 
@@ -306,10 +311,10 @@ struct Int64Vect3 {
   }
 
 
-#define INT32_MAT33_VECT3_MULT(_o, _m, _v, _f) {			\
-    (_o).x = ((_m)[0]*(_v).x + (_m)[1]*(_v).y + (_m)[2]*(_v).z)>>(_f);	\
-    (_o).y = ((_m)[3]*(_v).x + (_m)[4]*(_v).y + (_m)[5]*(_v).z)>>(_f);	\
-    (_o).z = ((_m)[6]*(_v).x + (_m)[7]*(_v).y + (_m)[8]*(_v).z)>>(_f);	\
+#define INT32_MAT33_VECT3_MUL(_o, _m, _v, _f) {			\
+    (_o).x = ((_m).m[0]*(_v).x + (_m).m[1]*(_v).y + (_m).m[2]*(_v).z)>>(_f);	\
+    (_o).y = ((_m).m[3]*(_v).x + (_m).m[4]*(_v).y + (_m).m[5]*(_v).z)>>(_f);	\
+    (_o).z = ((_m).m[6]*(_v).x + (_m).m[7]*(_v).y + (_m).m[8]*(_v).z)>>(_f);	\
   }
 
 /*

@@ -7,7 +7,7 @@
 
 #include "firmwares/rotorcraft/commands.h"
 #include "mcu_periph/i2c.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 
 struct ActuatorsAsctec actuators_asctec;
@@ -29,7 +29,7 @@ void actuators_init(void) {
 #endif
   actuators_asctec.nb_err = 0;
 
-#if defined BOOZ_START_DELAY && ! defined SITL
+#if defined ACTUATORS_START_DELAY && ! defined SITL
   actuators_delay_done = FALSE;
   SysTimeTimerStart(actuators_delay_time);
 #else
@@ -45,9 +45,9 @@ void actuators_init(void) {
 
 #ifndef ACTUATORS_ASCTEC_V2_PROTOCOL
 void actuators_set(bool_t motors_on) {
-#if defined BOOZ_START_DELAY && ! defined SITL
+#if defined ACTUATORS_START_DELAY && ! defined SITL
   if (!actuators_delay_done) {
-    if (SysTimeTimer(actuators_delay_time) < SYS_TICS_OF_SEC(BOOZ_START_DELAY)) return;
+    if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) return;
     else actuators_delay_done = TRUE;
   }
 #endif

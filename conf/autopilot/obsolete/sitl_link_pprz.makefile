@@ -1,3 +1,0 @@
-sim.ARCHDIR = $(ARCH)
-sim.CFLAGS += -DSITL -DAP -DFBW -DRADIO_CONTROL -DINTER_MCU -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DUSE_INFRARED -DRADIO_CONTROL_SETTINGS -DSIM_UART -DDOWNLINK_AP_DEVICE=SimUart -DDOWNLINK_FBW_DEVICE=SimUart -DDATALINK=PPRZ
-sim.srcs = radio_control.c downlink.c pprz_transport.c commands.c gps.c inter_mcu.c subsystems/sensors/infrared.c $(SRC_FIRMWARE)/stabilization/stabilization_attitude.c $(SRC_FIRMWARE)/guidance/guidance_v.c nav.c estimator.c cam.c sys_time.c $(SRC_FIRMWARE)/main_fbw.c $(SRC_FIRMWARE)/main_ap.c rc_settings.c $(SRC_ARCH)/ppm_hw.c $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_ir.c $(SRC_ARCH)/sim_ap.c  $(SRC_ARCH)/sim_uart.c $(SRC_FIRMWARE)/datalink.c

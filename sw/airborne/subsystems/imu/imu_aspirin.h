@@ -65,6 +65,48 @@
 #define IMU_ACCEL_Z_SIGN  1
 #endif
 
+/** default gyro sensitivy and neutral from the datasheet
+ * IMU-3000 has 16.4 LSB/(deg/s) at 2000deg/s range
+ * sens = 1/16.4 * pi/180 * 2^INT32_RATE_FRAC
+ * sens = 1/16.4 * pi/180 * 4096 = 4.359066229
+ */
+#if !defined IMU_GYRO_P_SENS & !defined IMU_GYRO_Q_SENS & !defined IMU_GYRO_R_SENS
+#define IMU_GYRO_P_SENS 4.359
+#define IMU_GYRO_P_SENS_NUM 4359
+#define IMU_GYRO_P_SENS_DEN 1000
+#define IMU_GYRO_Q_SENS 4.359
+#define IMU_GYRO_Q_SENS_NUM 4359
+#define IMU_GYRO_Q_SENS_DEN 1000
+#define IMU_GYRO_R_SENS 4.359
+#define IMU_GYRO_R_SENS_NUM 4359
+#define IMU_GYRO_R_SENS_DEN 1000
+#endif
+
+
+/** default accel sensitivy from the ADXL345 datasheet
+ * sensitivity of x & y axes depends on supply voltage:
+ *   - 256 LSB/g @ 2.5V
+ *   - 265 LSB/g @ 3.3V
+ * z sensitivity stays at 256 LSB/g
+ * fixed point sens: 9.81 [m/s^2] / 256 [LSB/g] * 2^INT32_ACCEL_FRAC
+ * x/y sens = 9.81 / 265 * 1024 = 37.91
+ * z sens   = 9.81 / 256 * 1024 = 39.24
+ *
+ * what about the offset at 3.3V?
+ */
+#if !defined IMU_ACCEL_X_SENS & !defined IMU_ACCEL_Y_SENS & !defined IMU_ACCEL_Z_SENS
+#define IMU_ACCEL_X_SENS 37.91
+#define IMU_ACCEL_X_SENS_NUM 3791
+#define IMU_ACCEL_X_SENS_DEN 100
+#define IMU_ACCEL_Y_SENS 37.91
+#define IMU_ACCEL_Y_SENS_NUM 3791
+#define IMU_ACCEL_Y_SENS_DEN 100
+#define IMU_ACCEL_Z_SENS 39.24
+#define IMU_ACCEL_Z_SENS_NUM 3924
+#define IMU_ACCEL_Z_SENS_DEN 100
+#endif
+
+
 enum AspirinStatus
   { AspirinStatusUninit,
     AspirinStatusIdle,
@@ -130,10 +172,6 @@ static inline void accel_copy_spi(void)
   VECT3_ASSIGN(imu.accel_unscaled, ax, ay, az);
 }
 
-static inline void imu_gyro_event(void (* _gyro_handler)(void))
-{
-
-}
 
 static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
 {
@@ -150,6 +188,7 @@ static inline void imu_aspirin_event(void (* _gyro_handler)(void), void (* _acce
 
   // Reset everything if we've been waiting too long
   if (imu_aspirin.time_since_last_reading > ASPIRIN_GYRO_TIMEOUT) {
+    // FIXME: there should be no arch specific code like that here!
     i2c2_er_irq_handler();
     gyro_read_i2c();
     imu_aspirin.time_since_last_reading = 0;

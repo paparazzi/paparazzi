@@ -51,14 +51,14 @@ void nps_ivy_init(void) {
 
 #include "generated/settings.h"
 #include "dl_protocol.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 static void on_DL_SETTING(IvyClientPtr app __attribute__ ((unused)),
                           void *user_data __attribute__ ((unused)),
                           int argc __attribute__ ((unused)), char *argv[]) {
   uint8_t index = atoi(argv[2]);
   float value = atof(argv[3]);
   DlSetting(index, value);
-  DOWNLINK_SEND_DL_VALUE(DOWNLINK_TRANSPORT, &index, &value);
+  DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
   printf("setting %d %f\n", index, value);
 }
 
@@ -67,14 +67,14 @@ static void on_DL_GET_SETTING(IvyClientPtr app __attribute__ ((unused)),
                               int argc __attribute__ ((unused)), char *argv[]) {
   uint8_t index = atoi(argv[2]);
   float value = settings_get_value(index);
-  DOWNLINK_SEND_DL_VALUE(DefaultChannel,&index, &value);
+  DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
   printf("get setting %d %f\n", index, value);
 }
 
 static void on_DL_PING(IvyClientPtr app __attribute__ ((unused)),
                        void *user_data __attribute__ ((unused)),
                        int argc __attribute__ ((unused)), char *argv[] __attribute__ ((unused))) {
-  DOWNLINK_SEND_PONG(DefaultChannel);
+  DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
 }
 
 static void on_DL_BLOCK(IvyClientPtr app __attribute__ ((unused)),
@@ -100,7 +100,7 @@ static void on_DL_MOVE_WP(IvyClientPtr app __attribute__ ((unused)),
   enu.y = POS_BFP_OF_REAL(enu.y)/100;
   enu.z = POS_BFP_OF_REAL(enu.z)/100;
   VECT3_ASSIGN(waypoints[wp_id], enu.x, enu.y, enu.z);
-  DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, &wp_id, &enu.x, &enu.y, &enu.z);
+  DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &enu.x, &enu.y, &enu.z);
   printf("move wp id=%d x=%d y=%d z=%d\n", wp_id, enu.x, enu.y, enu.z);
 }
 

@@ -51,7 +51,7 @@ sim.srcs += $(NPSDIR)/nps_main.c                      \
        $(NPSDIR)/nps_radio_control.c             \
        $(NPSDIR)/nps_radio_control_joystick.c    \
        $(NPSDIR)/nps_radio_control_spektrum.c    \
-       $(NPSDIR)/nps_autopilot_booz.c            \
+       $(NPSDIR)/nps_autopilot_rotorcraft.c            \
        $(NPSDIR)/nps_ivy.c                       \
        $(NPSDIR)/nps_flightgear.c                \
 
@@ -68,17 +68,16 @@ ifeq ($(TARGET), sim)
 endif
 
 
-sim.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))'
-# -DTIME_LED=1
+sim.CFLAGS += -DPERIODIC_FREQUENCY=512
 #sim.CFLAGS += -DUSE_LED
-sim.srcs += sys_time.c
+sim.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 sim.srcs += subsystems/settings.c
 sim.srcs += $(SRC_ARCH)/subsystems/settings_arch.c
 
 sim.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
 sim.srcs += $(SRC_FIRMWARE)/telemetry.c \
-            downlink.c \
+            subsystems/datalink/downlink.c \
             $(SRC_ARCH)/ivy_transport.c
 
 sim.srcs   += $(SRC_FIRMWARE)/commands.c
@@ -86,9 +85,9 @@ sim.srcs   += $(SRC_FIRMWARE)/commands.c
 sim.srcs += $(SRC_FIRMWARE)/datalink.c
 
 #
+# Math functions
 #
-#
-
+sim.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c
 
 sim.CFLAGS += -DROTORCRAFT_BARO_LED=2
 sim.srcs += $(SRC_BOARD)/baro_board.c

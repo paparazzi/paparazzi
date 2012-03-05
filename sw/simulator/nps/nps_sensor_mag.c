@@ -7,7 +7,8 @@
 
 void nps_sensor_mag_init(struct NpsSensorMag* mag, double time) {
   VECT3_ASSIGN(mag->value, 0., 0., 0.);
-  //  mag->resolution = NPS_MAG_RESOLUTION;
+  mag->min = NPS_MAG_MIN;
+  mag->max = NPS_MAG_MAX;
   FLOAT_MAT33_DIAG(mag->sensitivity,
 		   NPS_MAG_SENSITIVITY_XX, NPS_MAG_SENSITIVITY_YY, NPS_MAG_SENSITIVITY_ZZ);
   VECT3_ASSIGN(mag->neutral,
@@ -46,7 +47,7 @@ void nps_sensor_mag_run_step(struct NpsSensorMag* mag, double time, struct Doubl
   /* round signal to account for adc discretisation */
   DOUBLE_VECT3_ROUND(mag->value);
   /* saturate                                       */
-  //  VECT3_BOUND_CUBE(mag->value, 0, mag->resolution);
+  VECT3_BOUND_CUBE(mag->value, mag->min, mag->max);
 
   mag->next_update += NPS_MAG_DT;
   mag->data_available = TRUE;

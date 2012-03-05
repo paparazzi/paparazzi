@@ -111,10 +111,10 @@ void nav_run(void) {
   /* saturate it */
   VECT2_STRIM(path_to_waypoint, -(1<<15), (1<<15));
 
+#if GUIDANCE_H_USE_REF
   int32_t dist_to_waypoint;
   INT32_VECT2_NORM(dist_to_waypoint, path_to_waypoint);
 
-#ifndef GUIDANCE_H_USE_REF
   if (dist_to_waypoint < CLOSE_TO_WAYPOINT) {
     VECT2_COPY(navigation_carrot, navigation_target);
   }
@@ -255,7 +255,7 @@ unit_t nav_reset_reference( void ) {
 unit_t nav_reset_alt( void ) {
   ins_vf_realign = TRUE;
 
-#ifdef USE_GPS
+#if USE_GPS
   ins_ltp_def.lla.alt = gps.lla_pos.alt;
   ins_ltp_def.hmsl = gps.hmsl;
 #endif
@@ -283,13 +283,13 @@ void nav_periodic_task() {
   ground_alt = POS_BFP_OF_REAL((float)ins_ltp_def.hmsl / 1000.);
 }
 
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "messages.h"
 #include "mcu_periph/uart.h"
 void nav_move_waypoint(uint8_t wp_id, struct EnuCoor_i * new_pos) {
   if (wp_id < nb_waypoint) {
     INT32_VECT3_COPY(waypoints[wp_id],(*new_pos));
-    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, &wp_id, &(new_pos->x), &(new_pos->y), &(new_pos->z));
+    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &(new_pos->x), &(new_pos->y), &(new_pos->z));
   }
 }
 
@@ -310,7 +310,7 @@ void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int
   nav_heading += delta_heading;
 
   INT32_COURSE_NORMALIZE(nav_heading);
-  RunOnceEvery(10,DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, &wp, &(waypoints[wp].x), &(waypoints[wp].y), &(waypoints[wp].z)));
+  RunOnceEvery(10,DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp, &(waypoints[wp].x), &(waypoints[wp].y), &(waypoints[wp].z)));
 }
 
 bool_t nav_detect_ground(void) {

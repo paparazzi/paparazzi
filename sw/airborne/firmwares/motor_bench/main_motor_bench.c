@@ -1,7 +1,7 @@
 
 #include "std.h"
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "mb_tacho.h"
 #include "mb_servo.h"
@@ -14,7 +14,7 @@
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "generated/settings.h"
 
@@ -31,7 +31,7 @@ static inline void main_dl_parse_msg( void );
 int main( void ) {
   main_init();
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -41,8 +41,7 @@ int main( void ) {
 static inline void main_init( void ) {
 
   mcu_init();
-  led_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   mb_tacho_init();
 
 #if defined USE_TWI_CONTROLLER
@@ -80,10 +79,10 @@ static inline void main_periodic_task( void ) {
 
 
   RunOnceEvery(125, {
-      DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
       PeriodicSendDlValue(DefaultChannel);
     });
-  DOWNLINK_SEND_MOTOR_BENCH_STATUS(DefaultChannel, &cpu_time_ticks, &throttle, &rpm, &amps , &thrust, &torque, &cpu_time_sec, &mb_modes_mode);
+  DOWNLINK_SEND_MOTOR_BENCH_STATUS(DefaultChannel, DefaultDevice, &cpu_time_ticks, &throttle, &rpm, &amps , &thrust, &torque, &cpu_time_sec, &mb_modes_mode);
 
 
 
@@ -120,6 +119,6 @@ static inline void main_dl_parse_msg(void) {
     uint8_t i = DL_SETTING_index(dl_buffer);
     float var = DL_SETTING_value(dl_buffer);
     DlSetting(i, var);
-    DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &var);
+    DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &var);
   }
 }

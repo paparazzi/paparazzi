@@ -36,8 +36,12 @@
 
 # imu aspirin
 
-IMU_ASPIRIN_CFLAGS  = -DUSE_IMU
-IMU_ASPIRIN_CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin.h\" -DIMU_OVERRIDE_CHANNELS
+# for fixedwing firmware and ap only
+ifeq ($(TARGET), ap)
+  IMU_ASPIRIN_CFLAGS  = -DUSE_IMU
+endif
+
+IMU_ASPIRIN_CFLAGS += -DIMU_TYPE_H=\"imu/imu_aspirin.h\"
 IMU_ASPIRIN_SRCS    = $(SRC_SUBSYSTEMS)/imu.c             \
                       $(SRC_SUBSYSTEMS)/imu/imu_aspirin.c \
                       $(SRC_ARCH)/subsystems/imu/imu_aspirin_arch.c
@@ -56,3 +60,5 @@ IMU_ASPIRIN_CFLAGS += -DUSE_EXTI2_IRQ      # Accel Int on PD2
 IMU_ASPIRIN_CFLAGS += -DUSE_DMA1_C4_IRQ    # SPI2 Rx DMA
 endif
 
+sim.CFLAGS += $(IMU_ASPIRIN_CFLAGS) -DHMC5843_NO_IRQ
+sim.srcs   += $(IMU_ASPIRIN_SRCS)

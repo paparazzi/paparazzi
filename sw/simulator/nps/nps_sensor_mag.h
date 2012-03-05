@@ -8,7 +8,8 @@
 
 struct NpsSensorMag {
   struct DoubleVect3  value;
-  unsigned int resolution;
+  int min;
+  int max;
   struct DoubleMat33 sensitivity;
   struct DoubleVect3 neutral;
   struct DoubleVect3 noise_std_dev;

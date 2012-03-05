@@ -35,7 +35,7 @@
 #include "led.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -95,7 +95,7 @@ void tmp102_event( void ) {
 
       ftmp_temperature = ((int16_t) tmp_temperature) / 16.;
 
-      DOWNLINK_SEND_TMP_STATUS(DefaultChannel, &tmp_temperature, &ftmp_temperature);
+      DOWNLINK_SEND_TMP_STATUS(DefaultChannel, DefaultDevice, &tmp_temperature, &ftmp_temperature);
       tmp_trans.status = I2CTransDone;
   }
 }

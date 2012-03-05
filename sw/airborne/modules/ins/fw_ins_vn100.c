@@ -104,7 +104,7 @@ void ins_periodic_task( void ) {
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 void ins_event_task( void ) {
   if (spi_message_received) {
@@ -116,7 +116,7 @@ void ins_event_task( void ) {
     EstimatorSetAtt((ins_eulers.phi - ins_roll_neutral), ins_eulers.psi, (ins_eulers.theta - ins_pitch_neutral));
 #endif
     //uint8_t s = 4+VN100_REG_QMR_SIZE;
-    //DOWNLINK_SEND_DEBUG(DefaultChannel,s,spi_buffer_input);
+    //DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice,s,spi_buffer_input);
   }
 }
 

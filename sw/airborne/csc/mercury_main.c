@@ -29,11 +29,11 @@
 #include "std.h"
 
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "interrupt_hw.h"
 #include "mcu_periph/uart.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "generated/periodic.h"
 #include "generated/airframe.h"
 #include "commands.h"
@@ -58,7 +58,7 @@
 extern uint8_t vsupply;
 
 
-#define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
+#define CSC_STATUS_TIMEOUT (CPU_TICKS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
 
 #define PPRZ_MODE_MOTORS_OFF 0
 #define PPRZ_MODE_MOTORS_ON  1
@@ -74,7 +74,7 @@ static inline void csc_main_event( void );
 int main( void ) {
   csc_main_init();
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       csc_main_periodic();
     csc_main_event();
   }
@@ -106,7 +106,7 @@ static void on_rc_cmd(struct CscRCMsg *msg)
 static inline void csc_main_init( void ) {
 
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   led_init();
 
   Uart0Init();

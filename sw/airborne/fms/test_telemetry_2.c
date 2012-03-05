@@ -7,7 +7,7 @@
 #include <evutil.h>
 
 
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "udp_transport.h"
 #include "fms_network.h"
 

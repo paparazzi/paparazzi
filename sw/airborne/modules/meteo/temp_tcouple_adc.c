@@ -33,7 +33,7 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "modules/meteo/temp_tcouple_adc.h"
 
 #ifndef ADC_CHANNEL_TEMP_REF
@@ -80,7 +80,7 @@ void temp_tcouple_adc_periodic( void ) {
                      * 100. - 13.;
 
   if (++temp_cnt >= TCOUPLE_NB) {
-    DOWNLINK_SEND_TEMP_TCOUPLE(DefaultChannel,
+    DOWNLINK_SEND_TEMP_TCOUPLE(DefaultChannel, DefaultDevice,
           &fval[0], &fval[1], &fval[2], &fval[3],
           &fref[0], &fref[1], &fref[2], &fref[3],
           &val[0], &val[1], &val[2], &val[3],

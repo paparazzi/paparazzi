@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2008-2011 The Paparazzi Team
+ * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -23,17 +23,20 @@
 
 #include <inttypes.h>
 
+#ifdef BOARD_CONFIG
+#include BOARD_CONFIG
+#endif
 #include "std.h"
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "subsystems/imu.h"
 
-#include "my_debug_servo.h"
+#include "interrupt_hw.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -46,7 +49,7 @@ static inline void on_mag_event(void);
 int main( void ) {
   main_init();
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -56,24 +59,29 @@ int main( void ) {
 static inline void main_init( void ) {
 
   mcu_init();
-  sys_time_init();
+
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
+
   imu_init();
-
-  //  DEBUG_SERVO1_INIT();
-  //  DEBUG_SERVO2_INIT();
-
 
   mcu_int_enable();
 }
 
+static inline void led_toggle ( void ) {
+
+#ifdef BOARD_LISA_L
+      LED_TOGGLE(3);
+#endif
+}
+
 static inline void main_periodic_task( void ) {
   RunOnceEvery(100, {
-      //      LED_TOGGLE(3);
-      DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+      led_toggle();
+      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
     });
 #ifdef USE_I2C2
   RunOnceEvery(111, {
-      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel,
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
                    &i2c2_errors.ack_fail_cnt,
                    &i2c2_errors.miss_start_stop_cnt,
                    &i2c2_errors.arb_lost_cnt,
@@ -93,22 +101,24 @@ static inline void main_event_task( void ) {
 
   ImuEvent(on_gyro_accel_event, on_accel_event, on_mag_event);
 
+
 }
 
 static inline void on_accel_event(void) {
   ImuScaleAccel(imu);
 
+  RunOnceEvery(50, LED_TOGGLE(3));
   static uint8_t cnt;
   cnt++;
   if (cnt > 15) cnt = 0;
   if (cnt == 0) {
-    DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel,
+    DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,
                 &imu.accel_unscaled.x,
                 &imu.accel_unscaled.y,
                 &imu.accel_unscaled.z);
   }
   else if (cnt == 7) {
-    DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel,
+    DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel, DefaultDevice,
                   &imu.accel.x,
                   &imu.accel.y,
                   &imu.accel.z);
@@ -118,18 +128,19 @@ static inline void on_accel_event(void) {
 static inline void on_gyro_accel_event(void) {
   ImuScaleGyro(imu);
 
+  RunOnceEvery(50, LED_TOGGLE(2));
   static uint8_t cnt;
   cnt++;
   if (cnt > 15) cnt = 0;
 
   if (cnt == 0) {
-    DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel,
+    DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice,
                    &imu.gyro_unscaled.p,
                    &imu.gyro_unscaled.q,
                    &imu.gyro_unscaled.r);
   }
   else if (cnt == 7) {
-    DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel,
+    DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel, DefaultDevice,
                  &imu.gyro.p,
                  &imu.gyro.q,
                  &imu.gyro.r);
@@ -144,16 +155,15 @@ static inline void on_mag_event(void) {
   if (cnt > 10) cnt = 0;
 
   if (cnt == 0) {
-    DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel,
+    DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel, DefaultDevice,
                 &imu.mag.x,
                 &imu.mag.y,
                 &imu.mag.z);
   }
   else if (cnt == 5) {
-    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel,
+    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
                   &imu.mag_unscaled.x,
                   &imu.mag_unscaled.y,
                   &imu.mag_unscaled.z);
   }
 }
-

@@ -244,11 +244,7 @@
     <field name="utm_zone" type="uint8"/>
   </message>
 
-  <message name="GYRO_RATES" id="36">
-    <field name="roll_adc" type="int16"/>
-    <field name="roll" type="float" unit="rad/s"/>
-    <field name="pitch" type="float" unit="rad/s"/>
-  </message>
+  <!-- 36 is free -->
 
   <message name="ENERGY" id="37">
     <field name="bat"      type="float" unit="V"/>
@@ -546,7 +542,11 @@
 		<field name="AOA" type="float" unit="rad"></field>
 	</message>
 
- <!-- 70 is free -->
+  <message name="XTEND_RSSI" id="70">
+    <field name="datalink_time" type="uint16" unit="s"/>
+    <field name="rssi_fade_margin" type="uint8" unit="dB"/>
+    <field name="duty" type="uint8" unit="%"/>
+  </message>
  <!-- 71 is free -->
  <!-- 72 is free -->
  <!-- 73 is free -->
@@ -710,8 +710,8 @@
   </message>
 
   <message name="PPM" id="100">
-    <field name="ppm_rate" type="uint8"></field>
-    <field name="values" type="uint16[]" unit="ticks"/>
+    <field name="ppm_rate" type="uint8"/>
+    <field name="values" type="uint16[]" unit="usec"/>
   </message>
 
   <message name="RC" id="101">
@@ -1050,12 +1050,7 @@
     <field name="cnt"    type="int32"/>
   </message>
 
-  <message name="FILTER_Q" id="138">
-    <field name="qi"  type="int32"/>
-    <field name="qx"  type="int32"/>
-    <field name="qy"  type="int32"/>
-    <field name="qz"  type="int32"/>
-  </message>
+  <!-- 138 is free -->
 
   <message name="FILTER_COR" id="139">
     <field name="mphi"   type="int32"/>
@@ -1278,7 +1273,7 @@
     <field name="fix"     type="uint8" values="NONE|UKN1|UKN2|3D"/>
   </message>
 
-  <message name="BOOZ2_AHRS_EULER" id="156">
+  <message name="AHRS_EULER_INT" id="156">
     <field name="imu_phi"    type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
     <field name="imu_theta"  type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
     <field name="imu_psi"    type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
@@ -1287,7 +1282,7 @@
     <field name="body_psi"   type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
   </message>
 
-  <message name="BOOZ2_AHRS_QUAT" id="157">
+  <message name="AHRS_QUAT_INT" id="157">
     <field name="imu_qi"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
     <field name="imu_qx"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
     <field name="imu_qy"  type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
@@ -1298,7 +1293,7 @@
     <field name="body_qz" type="int32" alt_unit=""  alt_unit_coef="0.0000305"/>
   </message>
 
-  <message name="BOOZ2_AHRS_RMAT" id="158">
+  <message name="AHRS_RMAT_INT" id="158">
     <field name="imu_m00"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
     <field name="imu_m01"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
     <field name="imu_m02"  type="int32" alt_unit=""  alt_unit_coef="0.0000610"/>
@@ -1327,7 +1322,7 @@
     <field name="horizontal_mode" type="uint8"/>
   </message>
 
-  <message name="BOOZ2_RADIO_CONTROL" id="160">
+  <message name="ROTORCRAFT_RADIO_CONTROL" id="160">
      <field name="roll"     type="int16" unit="pprz"/>
      <field name="pitch"    type="int16" unit="pprz"/>
      <field name="yaw"      type="int16" unit="pprz"/>
@@ -1337,11 +1332,7 @@
      <field name="status"   type="uint8" values="OK|LOST|REALLY_LOST"/>
   </message>
 
-  <message name="BOOZ_BARO_RAW" id="161">
-      <field name="offset"         type="uint16"/>
-      <field name="value"          type="uint16"/>
-      <field name="value_filtered" type="uint16"/>
-  </message>
+  <!-- 161 is free -->
 
   <message name="VFF" id="162">
       <field name="measure"        type="float"/>
@@ -1476,7 +1467,7 @@
     <field name="data_b"  type="uint32"/>
   </message>
 
-  <message name="BOOZ_AHRS_BIAS" id="178">
+  <message name="AHRS_GYRO_BIAS_INT" id="178">
     <field name="bp"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
     <field name="bq"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
     <field name="br"     type="int32" alt_unit="degres/s" alt_unit_coef="0.0139882"/>
@@ -2405,7 +2396,7 @@
 
   <message name="TELEMETRY_STATUS" id="32">
     <field name="ac_id" type="string"/>
-    <field name="time_since_last_bat_msg" type="float" unit="s"/>
+    <field name="time_since_last_msg" type="float" unit="s"/>
   </message>
 
   <message name="TELEMETRY_ERROR" id="33">

@@ -97,7 +97,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     with
       exc -> prerr_endline (Printexc.to_string exc)
 
-  let attitude_and_rates = fun phi theta psi p q ->
+  let attitude_and_rates = fun phi theta psi p q r ->
     prerr_endline "HITL attitude sim not implemented..."
 
   let sep_reg = Str.regexp Pprz.separator

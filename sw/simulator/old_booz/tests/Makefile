@@ -4,10 +4,10 @@
 #JSBSIM = /usr/local
 
 #CC = g++
-#CFLAGS  = -Wall -I $(JSBSIM)/include/JSBSim -I../include
-#LDFLAGS = -L $(JSBSIM)/lib -lJSBSim
-#CFLAGS  += -I /usr/include/meschach -I /usr/local/include/
-#LDFLAGS += -lmeschach -L /usr/lib
+#CFLAGS  = -Wall -I$(JSBSIM)/include/JSBSim -I../include
+#LDFLAGS = -L$(JSBSIM)/lib -lJSBSim
+#CFLAGS  += -I/usr/include/meschach -I/usr/local/include/
+#LDFLAGS += -lmeschach -L/usr/lib
 #CFLAGS  += `pkg-config glib-2.0 --cflags`
 #LDFLAGS += `pkg-config glib-2.0 --libs` -lm -lglibivy -lpcre
 
@@ -24,16 +24,16 @@
 JSBSIM = /home/violato/enac/programs/install_jsbsim
 
 CFLAGS = -Wall                          \
-         -I ..                          \
-         -I ../../../var/BOOZ2_A1       \
-         -I ../../airborne              \
-         -I ../../include               \
-	 -I $(JSBSIM)/include/JSBSim    \
+         -I..                          \
+         -I../../../var/BOOZ2_A1       \
+         -I../../airborne              \
+         -I../../include               \
+	 -I$(JSBSIM)/include/JSBSim    \
          `pkg-config glib-2.0 --cflags` \
 
 LDFLAGS = -lm                           \
           -lglibivy                     \
-	  -L $(JSBSIM)/lib -lJSBSim	\
+	  -L$(JSBSIM)/lib -lJSBSim	\
           `pkg-config glib-2.0 --libs`  \
 
 SIMDIR = ..

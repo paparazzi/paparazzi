@@ -63,7 +63,7 @@ int32_t gv_adapt_Xmeas;
 #define GV_ADAPT_SYS_NOISE_F 0.00005
 #define GV_ADAPT_SYS_NOISE  BFP_OF_REAL(GV_ADAPT_SYS_NOISE_F, GV_ADAPT_P_FRAC)
 
-#ifndef USE_ADAPT_HOVER
+#if !USE_ADAPT_HOVER
 
 #define GV_ADAPT_MEAS_NOISE_F 2.0
 #define GV_ADAPT_MEAS_NOISE BFP_OF_REAL(GV_ADAPT_MEAS_NOISE_F, GV_ADAPT_P_FRAC)
@@ -81,7 +81,8 @@ int32_t gv_adapt_Xmeas;
 #define GV_ADAPT_MIN_CMD 20
 #define GV_ADAPT_HOVER_MAX_CMD 120
 #define GV_ADAPT_HOVER_MIN_CMD 60
-#endif
+
+#endif /* USE_ADAPT_HOVER */
 
 static inline void gv_adapt_init(void) {
   gv_adapt_X = GV_ADAPT_X0;
@@ -102,7 +103,7 @@ static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied) {
   gv_adapt_P =  gv_adapt_P + GV_ADAPT_SYS_NOISE;
   /* Compute our measurement. If zdd_meas is in the range +/-5g, meas is less than 24 bits */
   const int32_t g_m_zdd = ((int32_t)BFP_OF_REAL(9.81, INT32_ACCEL_FRAC) - zdd_meas)<<(GV_ADAPT_X_FRAC - INT32_ACCEL_FRAC);
-#ifdef USE_ADAPT_HOVER
+#if USE_ADAPT_HOVER
   /* Update only if accel and commands are in a valid range */
   if (thrust_applied < GV_ADAPT_MIN_CMD || thrust_applied > GV_ADAPT_MAX_CMD
       || zdd_meas < -GV_ADAPT_MAX_ACCEL || zdd_meas > GV_ADAPT_MAX_ACCEL)
@@ -116,7 +117,7 @@ static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied) {
   int32_t residual = gv_adapt_Xmeas - gv_adapt_X;
   /* Covariance Error   */
   int32_t E = 0;
-#ifdef USE_ADAPT_HOVER
+#if USE_ADAPT_HOVER
   if ((thrust_applied > GV_ADAPT_HOVER_MIN_CMD && thrust_applied < GV_ADAPT_HOVER_MAX_CMD) ||
       (zdd_meas > -GV_ADAPT_HOVER_ACCEL && zdd_meas < GV_ADAPT_HOVER_ACCEL))
     E = gv_adapt_P + GV_ADAPT_MEAS_NOISE_HOVER;

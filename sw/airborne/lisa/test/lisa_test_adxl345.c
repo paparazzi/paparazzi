@@ -36,11 +36,12 @@
 
 #include BOARD_CONFIG
 #include "mcu.h"
-#include "sys_time.h"
-#include "downlink.h"
+#include "mcu_periph/sys_time.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "peripherals/adxl345.h"
 #include "my_debug_servo.h"
+#include "led.h"
 
 static inline void main_init( void );
 static inline void main_periodic_task( void );
@@ -54,7 +55,7 @@ int main(void) {
   main_init();
 
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -64,7 +65,7 @@ int main(void) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   main_init_hw();
 
 }
@@ -148,7 +149,7 @@ static inline void main_periodic_task( void ) {
 
   RunOnceEvery(10,
     {
-      DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
       LED_PERIODIC();
     });
 
@@ -197,7 +198,7 @@ static inline void main_event_task( void ) {
     int32_t iax = *((int16_t*)&values[0]);
     int32_t iay = *((int16_t*)&values[2]);
     int32_t iaz = *((int16_t*)&values[4]);
-    RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, &iax, &iay, &iaz);});
+    RunOnceEvery(10, {DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice, &iax, &iay, &iaz);});
   }
 
 }

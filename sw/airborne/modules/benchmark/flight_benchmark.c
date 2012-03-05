@@ -9,7 +9,7 @@
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "estimator.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "mcu_periph/uart.h"
 #include "generated/airframe.h"
 #include "subsystems/nav.h"
@@ -59,7 +59,7 @@ void flight_benchmark_periodic( void ) {
 	}
 
 	if (benchm_go){
-	#if defined(USE_AIRSPEED) && defined(BENCHMARK_AIRSPEED)
+	#if USE_AIRSPEED && defined(BENCHMARK_AIRSPEED)
 		Err_airspeed = fabs(estimator_airspeed - v_ctl_auto_airspeed_setpoint);
 		if (Err_airspeed>ToleranceAispeed){
 			Err_airspeed = Err_airspeed-ToleranceAispeed;
@@ -113,7 +113,7 @@ void flight_benchmark_periodic( void ) {
 	#endif
 	}
 
-	DOWNLINK_SEND_FLIGHT_BENCHMARK(DefaultChannel, &SquareSumErr_airspeed, &SquareSumErr_altitude, &SquareSumErr_position, &Err_airspeed, &Err_altitude, &Err_position)
+	DOWNLINK_SEND_FLIGHT_BENCHMARK(DefaultChannel, DefaultDevice, &SquareSumErr_airspeed, &SquareSumErr_altitude, &SquareSumErr_position, &Err_airspeed, &Err_altitude, &Err_position)
 
 }
 

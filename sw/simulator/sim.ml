@@ -53,28 +53,28 @@ let cb_register = fun closure ->
 
 
 module type AIRCRAFT =
-  sig
-    val init : int -> GPack.box -> unit
+sig
+  val init : int -> GPack.box -> unit
     (** [init ac_id box] *)
-    val boot : Stdlib.value -> unit
+  val boot : Stdlib.value -> unit
     (** [boot time_acceleration] *)
 
-    val commands : pprz_t array -> unit
-	(** Called once at init *)
+  val commands : pprz_t array -> unit
+    (** Called once at init *)
 
-    val infrared_and_airspeed : float -> float -> float -> float -> unit
-	(** [infrared ir_left ir_front ir_top air_speed] Called on timer *)
+  val infrared_and_airspeed : float -> float -> float -> float -> unit
+    (** [infrared ir_left ir_front ir_top air_speed] Called on timer *)
 
-    val attitude_and_rates : float -> float -> float -> float -> float ->unit
-    (** [ahrs phi theta psi p q] Called on timer *)
+  val attitude_and_rates : float -> float -> float -> float -> float -> float ->unit
+    (** [ahrs phi theta psi p q r] Called on timer *)
 
-    val gps : Gps.state -> unit
-	(** [gps state] Called on timer *)
-  end
+  val gps : Gps.state -> unit
+  (** [gps state] Called on timer *)
+end
 
 
 module type AIRCRAFT_ITL =
-    functor (A : Data.MISSION) -> functor (FM: FlightModel.SIG) -> AIRCRAFT
+  functor (A : Data.MISSION) -> functor (FM: FlightModel.SIG) -> AIRCRAFT
 
 external fg_sizeof : unit -> int = "fg_sizeof"
 external fg_msg : string -> float -> float -> float -> float -> float -> float -> unit = "fg_msg_bytecode" "fg_msg_native"
@@ -118,9 +118,9 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let ground_alt =
       Srtm.add_path (Env.paparazzi_home ^ "/data/srtm");
       try
-	float (Srtm.of_wgs84 !pos0)
+        float (Srtm.of_wgs84 !pos0)
       with Srtm.Tile_not_found x ->
-	float_attrib flight_plan "ground_alt" in
+        float_attrib flight_plan "ground_alt" in
     ref ground_alt
 
   let main () =
@@ -171,18 +171,18 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     let ask_for_world_env = fun () ->
       try
-	let (x, y, z) = FlightModel.get_xyz !state in
+        let (x, y, z) = FlightModel.get_xyz !state in
 
-	let gps_sol = compute_gps_state (x,y,z) (FlightModel.get_time !state) in
+        let gps_sol = compute_gps_state (x,y,z) (FlightModel.get_time !state) in
 
-	let float = fun f -> Pprz.Float f in
-	let values = ["east", float x; "north", float y; "up", float z;
-		      "lat", float ((Rad>>Deg)gps_sol.Gps.wgs84.posn_lat);
-		      "long", float ((Rad>>Deg)gps_sol.Gps.wgs84.posn_long);
-		      "alt", float gps_sol.Gps.alt ] in
-	Ground_Pprz.message_req "sim" "WORLD_ENV" values world_update
+        let float = fun f -> Pprz.Float f in
+        let values = ["east", float x; "north", float y; "up", float z;
+                      "lat", float ((Rad>>Deg)gps_sol.Gps.wgs84.posn_lat);
+                      "long", float ((Rad>>Deg)gps_sol.Gps.wgs84.posn_long);
+                      "alt", float gps_sol.Gps.alt ] in
+        Ground_Pprz.message_req "sim" "WORLD_ENV" values world_update
       with
-	exc -> fprintf stderr "Error in sim: %s\n%!" (Printexc.to_string exc)
+          exc -> fprintf stderr "Error in sim: %s\n%!" (Printexc.to_string exc)
     in
 
     ignore (GMain.Timeout.add 1000 (fun () -> ask_for_world_env (); true));
@@ -191,15 +191,15 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     let fm_task = fun () ->
       FM.do_commands !state commands;
       let agl =
-	if !noground then max_float
-	else
-	  match !last_gps_state with
-	    Some s ->
-	      begin
-		try s.Gps.alt -. float (Srtm.of_wgs84 s.Gps.wgs84) with
-		  _ -> s.Gps.alt
-	      end
-	  | None -> 0. in
+        if !noground then max_float
+        else
+          match !last_gps_state with
+              Some s ->
+                begin
+                  try s.Gps.alt -. float (Srtm.of_wgs84 s.Gps.wgs84) with
+                      _ -> s.Gps.alt
+                end
+            | None -> 0. in
       FM.state_update !state FM.nominal_airspeed (!wind_x, !wind_y, !wind_z) agl fm_period
 
     and ir_task = fun () ->
@@ -225,39 +225,39 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     and ahrs_task = fun () ->
       let (phi, theta, psi) = FlightModel.get_attitude !state
-      and p, q = FlightModel.get_pq !state in
-      Aircraft.attitude_and_rates phi theta psi p q in
+      and p, q, r = FlightModel.get_pqr !state in
+      Aircraft.attitude_and_rates phi theta psi p q r in
 
     (** Sending to Flight Gear *)
     let fg_task = fun socket buffer () ->
       match !last_gps_state with
-	None -> ()
-      | Some s ->
-	  let lat = s.Gps.wgs84.Latlong.posn_lat
-	  and lon = s.Gps.wgs84.Latlong.posn_long
-	  and alt = s.Gps.alt
-(*	  and theta_ = s.Gps.course *)
-	  and (phi, theta, psi) = FlightModel.get_attitude !state in
-	  fg_msg buffer lat lon alt phi theta psi;
-(**       for i = 0 to String.length buffer - 1 do fprintf stderr "%x " (Char.code buffer.[i]) done; fprintf stderr "\n"; **)
-      try
-	ignore (Unix.send socket buffer 0 (String.length buffer) [])
-      with
-	Unix.Unix_error (e,f,a) -> Printf.fprintf stderr "Error fg: %s (%s(%s))\n" (Unix.error_message e) f a
+          None -> ()
+        | Some s ->
+          let lat = s.Gps.wgs84.Latlong.posn_lat
+          and lon = s.Gps.wgs84.Latlong.posn_long
+          and alt = s.Gps.alt
+      (*    and theta_ = s.Gps.course *)
+          and (phi, theta, psi) = FlightModel.get_attitude !state in
+          fg_msg buffer lat lon alt phi theta psi;
+      (**       for i = 0 to String.length buffer - 1 do fprintf stderr "%x " (Char.code buffer.[i]) done; fprintf stderr "\n"; **)
+          try
+            ignore (Unix.send socket buffer 0 (String.length buffer) [])
+          with
+              Unix.Unix_error (e,f,a) -> Printf.fprintf stderr "Error fg: %s (%s(%s))\n" (Unix.error_message e) f a
     in
 
     let set_pos = fun _ ->
       let current_pos = Latlong.string_of !pos0 in
       begin
-	match GToolbox.input_string ~title:"Setting geographic position" ~text:current_pos "Geographic position"  with
-	  Some s -> pos0 := Latlong.of_string s
-	| _ -> ()
+        match GToolbox.input_string ~title:"Setting geographic position" ~text:current_pos "Geographic position"  with
+            Some s -> pos0 := Latlong.of_string s
+          | _ -> ()
       end;
       begin
-	let text = string_of_float !alt0 in
-	match GToolbox.input_string ~title:"Setting initial altitude" ~text "Geographic altitude"  with
-	  Some s -> alt0 := float_of_string s
-	| _ -> ()
+        let text = string_of_float !alt0 in
+        match GToolbox.input_string ~title:"Setting initial altitude" ~text "Geographic altitude"  with
+            Some s -> alt0 := float_of_string s
+          | _ -> ()
       end
     in
 
@@ -270,14 +270,14 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
       (** Connection to Flight Gear client *)
       if !fg_client <> "" then
-	try
-	  let inet_addr = Unix.inet_addr_of_string !fg_client in
-	  let socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
-	  Unix.connect socket (Unix.ADDR_INET (inet_addr, 5501));
-	  let buffer = String.create (fg_sizeof ()) in
-	  Stdlib.timer ~scale:time_scale fg_period (fg_task socket buffer)
-	with
-	  e -> fprintf stderr "Error while connecting to fg: %s" (Printexc.to_string e)
+        try
+          let inet_addr = Unix.inet_addr_of_string !fg_client in
+          let socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
+          Unix.connect socket (Unix.ADDR_INET (inet_addr, 5501));
+          let buffer = String.create (fg_sizeof ()) in
+          Stdlib.timer ~scale:time_scale fg_period (fg_task socket buffer)
+        with
+            e -> fprintf stderr "Error while connecting to fg: %s" (Printexc.to_string e)
     in
 
     let take_off = fun () -> FlightModel.set_air_speed !state FM.nominal_airspeed in
@@ -295,8 +295,8 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     if not !autoboot then begin
       let s = GButton.button ~label:"Boot" ~packing:(hbox#pack) () in
       let callback = fun () ->
-	set_pos_and_boot ();
-	s#misc#set_sensitive false in
+        set_pos_and_boot ();
+        s#misc#set_sensitive false in
       ignore (s#connect#clicked ~callback)
     end else
       set_pos_and_boot ();
@@ -304,17 +304,17 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
     if not !autolaunch then begin
       let t = GButton.button ~label:"Launch" ~packing:hbox#pack () in
       let callback = fun () ->
-	take_off ();
-	t#misc#set_sensitive false in
+        take_off ();
+        t#misc#set_sensitive false in
       ignore (t#connect#clicked ~callback);
 
       (* Monitor an AUTO2 launch to disable the button *)
       let monitor = fun () ->
-	if FlightModel.get_air_speed !state > 0. then begin
-	  t#misc#set_sensitive false;
-	  false
-	end else
-	  true in
+        if FlightModel.get_air_speed !state > 0. then begin
+          t#misc#set_sensitive false;
+          false
+        end else
+          true in
       ignore (GMain.Timeout.add 1000 monitor)
     end else
       take_off ();

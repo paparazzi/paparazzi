@@ -30,7 +30,8 @@
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "mcu_periph/uart.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
+#include "led.h"
 
 static inline void main_init( void );
 static inline void main_periodic( void );
@@ -40,15 +41,16 @@ int main(void) {
   main_init();
 
   while (1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic();
   }
+
   return 0;
 }
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
 }
 
 static inline void main_periodic( void ) {

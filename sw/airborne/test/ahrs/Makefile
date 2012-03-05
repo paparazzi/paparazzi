@@ -11,7 +11,7 @@ CFLAGS +=
 # imu wants airframe to fetch its neutrals
 # ahrs wants airframe to fetch IMU_BODY_TO_IMU_ANGLES
 #CFLAGS += -I../../../../var/BOOZ2_A7
-CFLAGS += -I../../../../var/TA
+CFLAGS += -I../../../../var/ahrs_test
 
 
 #CFLAGS += -DIMU_BODY_TO_IMU_PHI=0 -DIMU_BODY_TO_IMU_THETA=0 -DIMU_BODY_TO_IMU_PSI=0
@@ -21,24 +21,23 @@ CFLAGS += -DAHRS_H_X=0.51562740288882 -DAHRS_H_Y=-0.05707735220832 -DAHRS_H_Z=0.
 #CFLAGS += -DDISABLE_ALIGNEMENT
 #CFLAGS += -DDISABLE_PROPAGATE
 #CFLAGS += -DDISABLE_ACCEL_UPDATE
-#CFLAGS += -DDISABLE_MAG_UPDATE
 #CFLAGS += -DPERFECT_SENSORS
 #CFLAGS += -DLOW_NOISE_THRESHOLD='ACCEL_BFP_OF_REAL(5.5)'
 CFLAGS += -DLOW_NOISE_THRESHOLD=500000
 CFLAGS += -DLOW_NOISE_TIME=2
 
 SRCS= run_ahrs_on_flight_log.c                    \
-      ../../math/pprz_trig_int.c                  \
-      ../../subsystems/ahrs.c                     \
-      ../../subsystems/ahrs/ahrs_aligner.c        \
-      ../../subsystems/imu.c
+	  ../../math/pprz_trig_int.c                  \
+	  ../../subsystems/ahrs.c                     \
+	  ../../subsystems/ahrs/ahrs_aligner.c        \
+	  ../../subsystems/imu.c
 
-all: run_ahrs_flq_on_flight_log run_ahrs_fcr_on_flight_log run_ahrs_ice_on_flight_log
+all: run_ahrs_fcr_on_flight_log run_ahrs_ice_on_flight_log
 
-run_ahrs_flq_on_flight_log: ../../subsystems/ahrs/ahrs_float_lkf_quat.c $(SRCS)
-	$(CC) -DAHRS_TYPE=AHRS_TYPE_FLQ $(CFLAGS) -o $@ $^ $(LDFLAGS)
+#run_ahrs_flq_on_flight_log: ../../subsystems/ahrs/ahrs_float_lkf_quat.c $(SRCS)
+#	$(CC) -DAHRS_TYPE=AHRS_TYPE_FLQ $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-run_ahrs_fcr_on_flight_log: ../../subsystems/ahrs/ahrs_float_cmpl_rmat.c $(SRCS)
+run_ahrs_fcr_on_flight_log: ../../subsystems/ahrs/ahrs_float_cmpl.c $(SRCS)
 	$(CC) -DAHRS_TYPE=AHRS_TYPE_FCR $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 run_ahrs_ice_on_flight_log: ../../subsystems/ahrs/ahrs_int_cmpl_euler.c $(SRCS)
@@ -64,6 +63,12 @@ endif
 ifndef MAG_UPDATE_YAW_ONLY
 MAG_UPDATE_YAW_ONLY = 0
 endif
+ifndef DISABLE_MAG_UPDATE
+DISABLE_MAG_UPDATE = 0
+endif
+ifndef USE_GPS_HEADING
+USE_GPS_HEADING = 0
+endif
 
 
 AHRS_CFLAGS += -DAHRS_TYPE=$(AHRS_TYPE)
@@ -82,18 +87,25 @@ endif
 ifeq ($(MAG_UPDATE_YAW_ONLY), 1)
 AHRS_CFLAGS += -DAHRS_MAG_UPDATE_YAW_ONLY
 endif
+ifeq ($(USE_GPS_HEADING), 1)
+AHRS_CFLAGS += -DAHRS_USE_GPS_HEADING
+endif
+ifeq ($(DISABLE_MAG_UPDATE), 1)
+AHRS_CFLAGS += -DDISABLE_MAG_UPDATE
+endif
+
 
 AHRS_SRCS   += ../../subsystems/ahrs.c                      \
-               ../../subsystems/ahrs/ahrs_aligner.c         \
+			   ../../subsystems/ahrs/ahrs_aligner.c         \
 
 ifeq ($(AHRS_TYPE), AHRS_TYPE_ICE)
 AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_euler.h\"
 AHRS_CFLAGS += -DFACE_REINJ_1=1024
-AHRS_SRCS   += ../../subsystems/ahrs/ahrs_int_cmpl_euler.c 
+AHRS_SRCS   += ../../subsystems/ahrs/ahrs_int_cmpl_euler.c
 endif
 ifeq ($(AHRS_TYPE), AHRS_TYPE_ICQ)
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl.h\"
-AHRS_SRCS   += ../../subsystems/ahrs/ahrs_int_cmpl.c 
+AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat.h\"
+AHRS_SRCS   += ../../subsystems/ahrs/ahrs_int_cmpl_quat.c
 endif
 ifeq ($(AHRS_TYPE), AHRS_TYPE_FLQ)
 AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_lkf_quat.h\"
@@ -108,27 +120,27 @@ AHRS_CFLAGS += -DDCM_UPDATE_AFTER_PROPAGATE
 AHRS_SRCS   += ../../subsystems/ahrs/ahrs_float_dcm.c
 endif
 ifeq ($(AHRS_TYPE), AHRS_TYPE_FCR2)
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl_rmat.h\"
+AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl.h\"
 AHRS_CFLAGS += -DAHRS_PROPAGATE_RMAT
-AHRS_SRCS   += ../../subsystems/ahrs/ahrs_float_cmpl_rmat.c
+AHRS_SRCS   += ../../subsystems/ahrs/ahrs_float_cmpl.c
 endif
 ifeq ($(AHRS_TYPE), AHRS_TYPE_FCQ)
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl_rmat.h\"
+AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl.h\"
 AHRS_CFLAGS += -DAHRS_PROPAGATE_QUAT
-AHRS_SRCS   += ../../subsystems/ahrs/ahrs_float_cmpl_rmat.c
+AHRS_SRCS   += ../../subsystems/ahrs/ahrs_float_cmpl.c
 endif
 
 
-RAOS_SRCS =      ./ahrs_on_synth.c		     \
-	         ../../subsystems/imu.c              \
-                 ../../subsystems/imu/imu_dummy.c    \
-                 ../../math/pprz_trig_int.c          \
-                 ../../../simulator/nps/nps_random.c
+RAOS_SRCS =  ./ahrs_on_synth.c			 \
+			 ../../subsystems/imu.c              \
+			 ../../subsystems/imu/imu_dummy.c    \
+			 ../../math/pprz_trig_int.c          \
+			 ../../../simulator/nps/nps_random.c
 
 
 run_ahrs_on_synth: run_ahrs_on_synth.c $(RAOS_SRCS) $(AHRS_SRCS)
 	@echo "Building run_ahrs_on_synth for $(AHRS_TYPE)"
-	$(Q) $(CC) $(CFLAGS) $(AHRS_CFLAGS) -o $@ $^ $(LDFLAGS) 
+	$(Q) $(CC) $(CFLAGS) $(AHRS_CFLAGS) -o $@ $^ $(LDFLAGS)
 
 IVY_CFLAGS=-g -O2 -Wall `pkg-config glib-2.0 --cflags`
 IVY_LDFLAGS=`pkg-config glib-2.0 --libs` -lglibivy

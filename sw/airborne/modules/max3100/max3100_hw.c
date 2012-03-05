@@ -161,5 +161,5 @@ void SPI1_ISR(void) {
 }
 
 void max3100_debug(void) {
-  /***     DOWNLINK_SEND_DEBUG(DefaultChannel, 16, max3100_rx_buf); ***/
+  /***     DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice, 16, max3100_rx_buf); ***/
 }

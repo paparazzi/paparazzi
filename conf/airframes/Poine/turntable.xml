@@ -17,8 +17,8 @@ main.srcs += mcu.c
 main.srcs += $(SRC_ARCH)/mcu_arch.c
 
 main.CFLAGS += -DUSE_LED
-main.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./512.))' -DTIME_LED=1
-main.srcs += sys_time.c $(MB)/turntable_systime.c
+main.CFLAGS += -DPERIODIC_FREQUENCY='512.' -DSYS_TIME_LED=1
+main.srcs += mcu_periph/sys_time.c $(MB)/turntable_systime.c
 
 #main.CFLAGS += -DUSE_USB_SERIAL
 #main.srcs += $(SRC_ARCH)/usb_ser_hw.c
@@ -31,7 +31,7 @@ main.srcs += mcu_periph/uart.c
 main.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 main.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart0
 
-main.srcs += downlink.c pprz_transport.c
+main.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 main.CFLAGS += -DMB_TACHO
 main.srcs += $(MB)/mb_tacho.c

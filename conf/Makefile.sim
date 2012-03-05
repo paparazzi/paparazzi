@@ -51,22 +51,17 @@ ifneq ($(SIM_TYPE),JSBSIM)
 INCLUDES += -I `ocamlc -where`
 endif
 
-CFLAGS		=						\
-	-W -Wall 						\
-	$(INCLUDES)					  	\
-	$($(TARGET).CFLAGS)					\
-	$(LOCAL_CFLAGS)						\
-	-O2							\
+CFLAGS  = -W -Wall
+CFLAGS += $(INCLUDES)
+CFLAGS += $($(TARGET).CFLAGS)
+CFLAGS += $(LOCAL_CFLAGS)
+CFLAGS += -O2
 
-# meschach prototypes trigger numerous warnings
-ifneq ($(SIM_TYPE),BOOZ)
 ifneq ($(SIM_TYPE),JSBSIM)
-CFLAGS	+= -Wstrict-prototypes
-endif
+CFLAGS += -std=gnu99
 endif
 
-
-LDFLAGS		=	-lm					\
+LDFLAGS		=	-lm
 
 ifeq ($(SIM_TYPE),BOOZ)
 LDFLAGS		+= $($(TARGET).LDFLAGS)

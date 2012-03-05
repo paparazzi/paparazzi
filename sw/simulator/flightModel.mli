@@ -33,7 +33,7 @@ type state
 val get_xyz : state -> meter * meter * meter
 val get_time : state -> float
 val get_attitude : state -> radian * radian * radian
-val get_pq : state -> radian_s * radian_s
+val get_pqr : state -> radian_s * radian_s * radian_s
 
 val set_air_speed : state -> meter_s -> unit
 val get_air_speed : state -> meter_s

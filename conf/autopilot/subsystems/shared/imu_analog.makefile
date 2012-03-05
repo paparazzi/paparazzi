@@ -3,6 +3,9 @@
 #
 # Analog IMU connected to MCU ADC ports
 #
+# Only add the configure and define lines for the sensors you actually use.
+# E.g. to replace the old gyro_pitch subsystem only add GYRO_P and GYRO_Q
+#
 #
 # <subsystem name="imu" type="analog">
 #   <configure name="GYRO_P" value="ADC_0"/>
@@ -48,12 +51,36 @@ ifeq ($(ARCH), lpc21)
 
 imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_analog.h\"  -DUSE_IMU
 
-imu_CFLAGS += -DADC
-imu_CFLAGS += -DUSE_$(GYRO_P) -DUSE_$(GYRO_Q) -DUSE_$(GYRO_R)
-imu_CFLAGS += -DUSE_$(ACCEL_X) -DUSE_$(ACCEL_Y) -DUSE_$(ACCEL_Z)
+imu_CFLAGS += -DADC_CHANNEL_GYRO_NB_SAMPLES=$(ADC_GYRO_NB_SAMPLES)
 
-imu_CFLAGS += -DADC_CHANNEL_GYRO_P=$(GYRO_P) -DADC_CHANNEL_GYRO_Q=$(GYRO_Q) -DADC_CHANNEL_GYRO_R=$(GYRO_R)
-imu_CFLAGS += -DADC_CHANNEL_ACCEL_X=$(ACCEL_X) -DADC_CHANNEL_ACCEL_Y=$(ACCEL_Y) -DADC_CHANNEL_ACCEL_Z=$(ACCEL_Z)
+ifeq ($(ADC_ACCEL_NB_SAMPLES),)
+ADC_ACCEL_NB_SAMPLES = $(ADC_GYRO_NB_SAMPLES)
+endif
+imu_CFLAGS += -DADC_CHANNEL_ACCEL_NB_SAMPLES=$(ADC_ACCEL_NB_SAMPLES)
+
+ifneq ($(GYRO_P),)
+imu_CFLAGS += -DADC_CHANNEL_GYRO_P=$(GYRO_P) -DUSE_$(GYRO_P)
+endif
+
+ifneq ($(GYRO_Q),)
+imu_CFLAGS += -DADC_CHANNEL_GYRO_Q=$(GYRO_Q) -DUSE_$(GYRO_Q)
+endif
+
+ifneq ($(GYRO_R),)
+imu_CFLAGS += -DADC_CHANNEL_GYRO_R=$(GYRO_R) -DUSE_$(GYRO_R)
+endif
+
+ifneq ($(ACCEL_X),)
+imu_CFLAGS += -DADC_CHANNEL_ACCEL_X=$(ACCEL_X) -DUSE_$(ACCEL_X)
+endif
+
+ifneq ($(ACCEL_Y),)
+imu_CFLAGS += -DADC_CHANNEL_ACCEL_Y=$(ACCEL_Y) -DUSE_$(ACCEL_Y)
+endif
+
+ifneq ($(ACCEL_Z),)
+imu_CFLAGS += -DADC_CHANNEL_ACCEL_Z=$(ACCEL_Z) -DUSE_$(ACCEL_Z)
+endif
 
 imu_srcs += $(SRC_SUBSYSTEMS)/imu.c
 imu_srcs += $(SRC_SUBSYSTEMS)/imu/imu_analog.c

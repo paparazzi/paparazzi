@@ -17,7 +17,7 @@
 
 #include "messages.h"
 #include "mcu_periph/uart.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #define QUAT_SETPOINT_HOVER_PITCH RadOfDeg(90)
 
@@ -67,7 +67,7 @@ static void update_sp_quat_from_eulers(void) {
     INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
 }
 
-/*
+/* FIXME: what is up with this???
 void stabilization_attitude_read_rc_incremental(bool_t enable_alpha_vane, bool_t enable_beta_vane)
 {
   pprz_t roll = radio_control.values[RADIO_ROLL];
@@ -110,6 +110,7 @@ void stabilization_attitude_read_rc_incremental(bool_t enable_alpha_vane, bool_t
 
 void stabilization_attitude_read_rc_absolute(struct Int32Eulers sp, bool_t in_flight) {
 
+  // FIXME: wtf???
 #ifdef AIRPLANE_STICKS
   pprz_t roll = radio_control.values[RADIO_ROLL];
   pprz_t pitch = radio_control.values[RADIO_PITCH];
@@ -147,12 +148,6 @@ void stabilization_attitude_read_rc_absolute(struct Int32Eulers sp, bool_t in_fl
 }
 
 void stabilization_attitude_sp_enter()
-{
-  quat_setpoint_enter_absolute();
-}
-
-
-void quat_setpoint_enter_absolute()
 {
   // reset setpoint to "hover"
   reset_sp_quat(0., 0., &ahrs.ltp_to_body_quat);

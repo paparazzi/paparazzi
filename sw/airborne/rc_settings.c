@@ -34,6 +34,8 @@
 #include "inter_mcu.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 
+uint8_t rc_settings_mode = 0;
+float slider_1_val, slider_2_val;
 
 #define ParamValInt16(param_init_val, param_travel, cur_pulse, init_pulse) \
 (param_init_val + (int16_t)(((float)(cur_pulse - init_pulse)) * param_travel / (float)MAX_PPRZ))

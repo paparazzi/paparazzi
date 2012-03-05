@@ -31,7 +31,7 @@
 #include <stm32/rcc.h>
 #include <stm32/flash.h>
 #include <stm32/misc.h>
-#ifdef USE_OPENCM3
+#if USE_OPENCM3
 #	if defined(STM32F1) || defined(STM32F2) || defined(STM32F4)
 #		include <libopencm3/stm32/f1/rcc.h>
 #	else
@@ -41,11 +41,11 @@
 
 
 void mcu_arch_init(void) {
-#ifdef USE_OPENCM3
+#if USE_OPENCM3
   rcc_clock_setup_in_hse_12mhz_out_72mhz();
   NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
   return;
-#endif
+#else // !USE_OPENCM3
 #ifdef HSE_TYPE_EXT_CLK
 #pragma message "Using external clock."
   /* Setup the microcontroller system.
@@ -97,6 +97,6 @@ void mcu_arch_init(void) {
                          RCC_APB2Periph_GPIOE | RCC_APB2Periph_AFIO, ENABLE);
 #endif
 
-
+#endif // USE_OPENCM3
 }
 

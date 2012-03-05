@@ -32,6 +32,7 @@
 #include "std.h"
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
+#include "mcu_periph/sys_time.h"
 
 #include <Ivy/ivy.h>
 
@@ -42,6 +43,8 @@
 #define JSBSIM_SPEEDUP ((uint8_t) (1000./CONTROL_RATE/JSBSIM_PERIOD))
 #endif
 #define DT (JSBSIM_PERIOD*1e-3) ///< JSBSim timestep in seconds
+
+#define SYSTIME_PERIOD ((uint32_t)(SYS_TIME_RESOLUTION * 1000)) ///< in msec
 
 #define RAD2DEG 57.29578
 #define FT2M 0.3048

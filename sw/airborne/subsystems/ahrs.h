@@ -93,6 +93,13 @@ extern float ahrs_mag_offset;
     RATES_BFP_OF_REAL(ahrs.body_rate, ahrs_float.body_rate);                   \
   }
 
+#define AHRS_IMU_INT_OF_FLOAT() {                                       \
+    QUAT_BFP_OF_REAL(ahrs.ltp_to_imu_quat, ahrs_float.ltp_to_imu_quat); \
+    EULERS_BFP_OF_REAL(ahrs.ltp_to_imu_euler, ahrs_float.ltp_to_imu_euler); \
+    RMAT_BFP_OF_REAL(ahrs.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_rmat); \
+    RATES_BFP_OF_REAL(ahrs.imu_rate, ahrs_float.imu_rate);            \
+  }
+
 /** AHRS initialization. Called at startup.
  *  Needs to be implemented by each AHRS algorithm.
  */
@@ -121,5 +128,6 @@ extern void ahrs_update_accel(void);
  *  Needs to be implemented by each AHRS algorithm.
  */
 extern void ahrs_update_mag(void);
+extern void ahrs_update_gps(void);
 
 #endif /* AHRS_H */

@@ -35,7 +35,7 @@
 #include "led.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -77,7 +77,7 @@ void lm75_event( void ) {
 
     flm75_temperature = ((int16_t) lm75_temperature) / 2.;
 
-    DOWNLINK_SEND_TMP_STATUS(DefaultChannel, &lm75_temperature, &flm75_temperature);
+    DOWNLINK_SEND_TMP_STATUS(DefaultChannel, DefaultDevice, &lm75_temperature, &flm75_temperature);
     lm75_trans.status = I2CTransDone;
   }
 }

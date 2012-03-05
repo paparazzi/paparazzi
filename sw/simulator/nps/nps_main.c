@@ -54,7 +54,7 @@ void cont_hdl (int n __attribute__ ((unused))) {
    printf("Press <enter> to continue.\n");
  }
 
-double time_to_double(timeval *t) {
+double time_to_double(struct timeval *t) {
     return ((double)t->tv_sec + (double)(t->tv_usec * 1e-6));
 }
 
@@ -80,7 +80,7 @@ static void nps_main_init(void) {
 
   nps_main.sim_time = 0.;
   nps_main.display_time = 0.;
-  timeval t;
+  struct timeval t;
   gettimeofday (&t, NULL);
   nps_main.scaled_initial_time = time_to_double(&t);
   nps_main.host_time_factor = HOST_TIME_FACTOR;
@@ -113,6 +113,8 @@ static void nps_main_init(void) {
 
 static void nps_main_run_sim_step(void) {
   //  printf("sim at %f\n", nps_main.sim_time);
+
+  nps_autopilot_run_systime_step();
 
   nps_fdm_run_step(autopilot.commands);
 

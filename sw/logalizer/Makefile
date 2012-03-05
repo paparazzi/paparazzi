@@ -113,7 +113,7 @@ disp3d: disp3d.c
 	$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS)
 
 plotprofile: plotprofile.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
+	$(CC) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 test1: test1.c
 	$(CC) $(MORE_CFLAGS) -g -o $@ $^ $(MORE_FLAGS) -lglut
@@ -160,16 +160,16 @@ test_samere: test_samere.c network.c flight_gear.c utils.c
 	$(CC) $(CFLAGS) -I../airborne -I../airborne/test -I../include -g -o $@ $^ $(LDFLAGS)
 
 ivy_example: ivy_example.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
+	$(CC) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 tmclient: tmclient.c
-	gcc -g -O1 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
+	$(CC) -g -O1 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 ffjoystick: ffjoystick.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy -lm
+	$(CC) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy -lm
 
 ctrlstick: ctrlstick.c
-	gcc -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
+	$(CC) -g -O2 -Wall `pkg-config glib-2.0 --cflags` -o $@ $^ `pkg-config glib-2.0 --libs` -lglibivy
 
 #
 # Dependencies

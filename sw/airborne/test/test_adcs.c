@@ -5,12 +5,12 @@
 
 #include "std.h"
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/adc.h"
 #include "messages.h"
 #include "led.h"
 #include "mcu_periph/uart.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 
 #define NB_ADC 8
@@ -20,7 +20,7 @@ static struct adc_buf buf_adc[NB_ADC];
 
 int main (int argc, char** argv) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   led_init();
   adc_init();
 
@@ -51,7 +51,7 @@ int main (int argc, char** argv) {
   mcu_int_enable();
 
   while(1) {
-    if (sys_time_periodic()) {
+    if (sys_time_check_and_ack_timer(0)) {
       LED_TOGGLE(1);
       uint16_t values[NB_ADC];
       uint8_t i;

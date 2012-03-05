@@ -22,7 +22,7 @@
 ##
 
 CC = gcc
-CFLAGS = -std=gnu99 -Wall -I.. -I../.. -I../../test/ -I../../../include -I ../../booz_priv
+CFLAGS = -std=gnu99 -Wall -I.. -I../.. -I../../test/ -I../../../include -I../../booz_priv
 LDFLAGS = -lm
 
 CFLAGS += -I../../../../var/BOOZ2_A1P
@@ -47,7 +47,7 @@ TEST_ATT_CFLAGS =  -DSTABILISATION_ATTITUDE_TYPE_INT \
 	           -DSTABILISATION_ATTITUDE_REF_H=\"stabilization/booz_stabilization_attitude_ref_quat_int.h\"
 
 test_att_ref: test_att_ref.c ../stabilization/booz_stabilization_attitude_ref_quat_int.c
-	$(CC) $(CFLAGS) $(TEST_ATT_CFLAGS) -I /home/poine/work/savannah/paparazzi3/trunk/var/BOOZ2_A1 -o $@ $^ $(LDFLAGS)
+	$(CC) $(CFLAGS) $(TEST_ATT_CFLAGS) -I/home/poine/work/savannah/paparazzi3/trunk/var/BOOZ2_A1 -o $@ $^ $(LDFLAGS)
 
 
 clean:

@@ -30,7 +30,7 @@
 #include "led.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "max11040.h"
 #include "adcs/max11040_hw.h"
 
@@ -66,7 +66,7 @@ void max11040_periodic(void) {
     }
 
     DOWNLINK_SEND_TURB_PRESSURE_VOLTAGE(
-        DefaultChannel,
+        DefaultChannel, DefaultDevice,
         &max11040_values_f[0],
         &max11040_values_f[1],
         &max11040_values_f[2],

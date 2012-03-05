@@ -251,7 +251,6 @@ dist_clean :
 	@echo "Warning: This removes all non-repository files. This means you will loose your aircraft list, your maps, your logfiles, ... if you want this, then run: make dist_clean_irreversible"
 
 dist_clean_irreversible: clean
-	rm -rf conf/srtm_data
 	rm -rf conf/maps_data conf/maps.xml
 	rm -rf conf/conf.xml conf/controlpanel.xml
 	rm -rf var
@@ -259,14 +258,12 @@ dist_clean_irreversible: clean
 ab_clean:
 	find sw/airborne -name '*~' -exec rm -f {} \;
 
-test_all_example_airframes:
-	$(MAKE) AIRCRAFT=BOOZ2_A1 clean_ac ap sim
-	$(MAKE) AIRCRAFT=Microjet clean_ac ap sim
-	$(MAKE) AIRCRAFT=Tiny_IMU clean_ac ap
-	$(MAKE) AIRCRAFT=EasyStar_ETS clean_ac ap sim
+test_all_example_airframes: replace_current_conf_xml
+	for ap in `grep name conf/conf.xml.example | sed -e 's/.*name=\"//' | sed -e 's/".*//'`; do for airframe in `grep $$ap conf/conf.xml.example | sed -e 's/.*airframe=\"//' | sed -e 's/".*//'`; do for target in `grep target conf/$$airframe | grep name | sed -e 's/.*name=\"//' | sed -e 's/\".*//'`; do echo "Making $$ap $$target"; make -C ./ AIRCRAFT=$$ap clean_ac $$target.compile || exit 1; done; done; done
 
-test_all_example_airframes2:
-	for ap in `grep name conf/conf.xml.example | sed -e 's/.*name=\"//' | sed -e 's/"//'`; do echo "Making $$ap"; make -C ./ AIRCRAFT=$$ap clean_ac ap.compile;   done
+replace_current_conf_xml:
+	test conf/conf.xml || mv conf/conf.xml conf/conf.xml.backup.`date +%Y%m%d-%H%M%s`
+	cp conf/conf.xml.example conf/conf.xml
 
 commands: paparazzi sw/simulator/launchsitl
 
@@ -278,8 +275,4 @@ sw/simulator/launchsitl:
 	cat src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
 	chmod a+x $@
 
-#.SUFFIXES: .hgt.zip
-
-%.hgt.zip:
-	cd data/srtm; $(MAKE) $(@)
 

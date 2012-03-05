@@ -26,8 +26,8 @@
 #include "std.h"
 #include "mcu.h"
 #include "mcu_periph/can.h"
-#include "sys_time.h"
-#include "downlink.h"
+#include "mcu_periph/sys_time.h"
+#include "subsystems/datalink/downlink.h"
 #include "firmwares/rotorcraft/commands.h"
 #include "firmwares/rotorcraft/actuators.h"
 //#include "booz/booz_radio_control.h"
@@ -54,7 +54,7 @@ int main(void) {
   main_init();
 
   while (1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic();
     main_event();
   }
@@ -63,7 +63,7 @@ int main(void) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   actuators_init();
   //radio_control_init();
   imu_init();

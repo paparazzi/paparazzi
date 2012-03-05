@@ -27,19 +27,11 @@
 
 #include "subsystems/sensors/baro.h"
 
-// Downlink
-#include "mcu_periph/uart.h"
-#include "messages.h"
-#include "downlink.h"
-
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
 
 /* Common Baro struct */
 struct Baro baro;
 
-#ifdef USE_BARO_AS_ALTIMETER
+#if USE_BARO_AS_ALTIMETER
 /* Number of values to compute an offset at startup */
 #define OFFSET_NBSAMPLES_AVRG 100
 
@@ -56,7 +48,7 @@ void baro_init( void ) {
   baro.status = BS_UNINITIALIZED;
   baro.absolute     = 0;
   baro.differential = 0; /* not handled on this board, use extra module (ex: airspeed_ads1114) */
-#ifdef USE_BARO_AS_ALTIMETER
+#if USE_BARO_AS_ALTIMETER
   baro_alt = 0.;
   baro_alt_offset = 0.;
   offset_cnt = OFFSET_NBSAMPLES_AVRG;
@@ -65,7 +57,7 @@ void baro_init( void ) {
 
 void baro_periodic( void ) {
 
-#ifdef USE_BARO_AS_ALTIMETER
+#if USE_BARO_AS_ALTIMETER
   if (baro.status == BS_UNINITIALIZED && BARO_ABS_ADS.data_available) {
     // IIR filter to compute an initial offset
     baro_alt_offset = (OFFSET_FILTER * baro_alt_offset + (float)baro.absolute) / (OFFSET_FILTER + 1);
@@ -76,10 +68,5 @@ void baro_periodic( void ) {
 #endif
   // Read the ADC
   ads1114_read(&BARO_ABS_ADS);
-}
-
-void baro_downlink_raw( void )
-{
-  DOWNLINK_SEND_BARO_RAW(DefaultChannel,&baro.absolute,&baro.differential);
 }
 

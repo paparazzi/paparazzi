@@ -1,0 +1,18 @@
+<!-- Table of default units convertion -->
+<!-- used to convert from unit to alt_unit (messages) or code_unit (airframe) -->
+<units>
+  <unit from="deg" to="rad" coef="0.0174532925"/>
+  <unit from="rad" to="deg" coef="57.2957795131"/>
+  <unit from="deg/s" to="rad/s" coef="0.0174532925"/>
+  <unit from="rad/s" to="deg/s" coef="57.2957795131"/>
+  <unit from="m" to="cm" coef="100."/>
+  <unit from="cm" to="m" coef="0.01"/>
+  <unit from="m/s" to="cm/s" coef="100."/>
+  <unit from="cm/s" to="m/s" coef="0.01"/>
+  <unit from="m" to="mm" coef="1000."/>
+  <unit from="mm" to="m" coef="0.001"/>
+  <unit from="m/s" to="mm/s" coef="1000."/>
+  <unit from="mm/s" to="m/s" coef="0.001"/>
+  <unit from="decideg" to="deg" coef="0.1"/>
+  <unit from="deg" to="decideg" coef="10."/>
+</units>

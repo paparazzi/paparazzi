@@ -59,7 +59,7 @@ let print_dl_settings = fun settings ->
   List.iter
     (fun s ->
       try
-    modules := StringSet.add (ExtXml.attrib s "module") !modules
+        modules := StringSet.add (ExtXml.attrib s "module") !modules
       with ExtXml.Error e -> ()
     )
     settings;
@@ -78,15 +78,15 @@ let print_dl_settings = fun settings ->
   List.iter
     (fun s ->
       let v = ExtXml.attrib s "var" in
-    begin
-    try
-      let h = ExtXml.attrib s "handler" and
-          m =  ExtXml.attrib s "module" in
-      lprintf "case %d: %s_%s( _value ); _value = %s; break;\\\n" !idx (Filename.basename m) h v
-    with
-      ExtXml.Error e -> lprintf "case %d: %s = _value; break;\\\n" !idx v
-    end;
-    incr idx
+      begin
+        try
+          let h = ExtXml.attrib s "handler" and
+              m =  ExtXml.attrib s "module" in
+          lprintf "case %d: %s_%s( _value ); _value = %s; break;\\\n" !idx (Filename.basename m) h v
+        with
+            ExtXml.Error e -> lprintf "case %d: %s = _value; break;\\\n" !idx v
+      end;
+      incr idx
     )
     settings;
   lprintf "default: break;\\\n";
@@ -97,7 +97,7 @@ let print_dl_settings = fun settings ->
   let nb_values = !idx in
 
   (** Macro to call to downlink current values *)
-  lprintf "#define PeriodicSendDlValue(_chan) { \\\n";
+  lprintf "#define PeriodicSendDlValue(_trans, _dev) { \\\n";
   if nb_values > 0 then begin
     right ();
     lprintf "static uint8_t i;\\\n";
@@ -108,13 +108,13 @@ let print_dl_settings = fun settings ->
     right ();
     List.iter
       (fun s ->
-    let v = ExtXml.attrib s "var" in
-    lprintf "case %d: var = %s; break;\\\n" !idx v; incr idx)
+        let v = ExtXml.attrib s "var" in
+        lprintf "case %d: var = %s; break;\\\n" !idx v; incr idx)
       settings;
     lprintf "default: var = 0.; break;\\\n";
     left ();
     lprintf "}\\\n";
-    lprintf "DOWNLINK_SEND_DL_VALUE(_chan, &i, &var);\\\n";
+    lprintf "DOWNLINK_SEND_DL_VALUE(_trans, _dev, &i, &var);\\\n";
     lprintf "i++;\\\n";
     left ()
   end;
@@ -177,13 +177,13 @@ let print_persistent_settings = fun settings ->
     (fun s ->
       let v = ExtXml.attrib s "var" in
       begin
-	 try
-	   let h = ExtXml.attrib s "handler" and
-               m =  ExtXml.attrib s "module" in
-	   lprintf "%s_%s( pers_settings.s_%d );\n"  (Filename.basename m) h !idx ;
-(*	   lprintf "%s = pers_settings.s_%d;\n" v !idx *) (* do we want to set the value too or just call the handler ? *)
-	 with
-	   ExtXml.Error e ->  lprintf "%s = pers_settings.s_%d;\n" v !idx
+        try
+          let h = ExtXml.attrib s "handler" and
+              m =  ExtXml.attrib s "module" in
+          lprintf "%s_%s( pers_settings.s_%d );\n"  (Filename.basename m) h !idx ;
+        (*	   lprintf "%s = pers_settings.s_%d;\n" v !idx *) (* do we want to set the value too or just call the handler ? *)
+        with
+            ExtXml.Error e ->  lprintf "%s = pers_settings.s_%d;\n" v !idx
       end;
       incr idx)
     pers_settings;
@@ -252,7 +252,7 @@ let join_xml_files = fun xml_files ->
     let xml = Xml.parse_file xml_file in
     let these_rc_settings =
       try Xml.children (ExtXml.child xml "rc_settings") with
-    Not_found -> [] in
+          Not_found -> [] in
     let these_dl_settings =
       try Xml.children (ExtXml.child xml "dl_settings") with
     Not_found -> [] in

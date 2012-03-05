@@ -74,9 +74,9 @@
     <define name="MAG_Z_SENS" value="-3.11986612709" integer="16"/>
 
 
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(  0.)"/>
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(  0.)"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45.)"/>
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="45." unit="deg"/>
 
     <define name="GYRO_P_CHAN" value="0"/>
     <define name="GYRO_Q_CHAN" value="4"/>
@@ -118,9 +118,9 @@
     <define name="MAG_Y_NEUTRAL" value=" 49"/>
     <define name="MAG_Z_NEUTRAL" value="-66"/>
 
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(  0.)"/>
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(  0.)"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45.)"/>
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="45." unit="deg"/>
 
   </section>
 -->
@@ -167,9 +167,9 @@
     <define name="MAG_Z_SENS" value="-3.11986612709" integer="16"/>
 
 
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(  0.)"/>
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(  0.)"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg( 45.)"/>
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="45." unit="deg"/>
 
     <define name="GYRO_P_CHAN" value="0"/>
     <define name="GYRO_Q_CHAN" value="4"/>
@@ -206,7 +206,7 @@
 
   </firmware>
 
-  <firmware name="lisa_l_test_progs">
+  <firmware name="lisa_test_progs">
     <target name="test_telemetry" board="lisa_l_1.0">
       <configure name="MODEM_PORT" value="UART2"/>
     </target>

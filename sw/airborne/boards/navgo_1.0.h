@@ -79,6 +79,6 @@
 #define PWM1_PINSEL_VAL 0x02
 #define PWM1_PINSEL_BIT 14
 
-#define BOARD_HAS_BARO
+#define BOARD_HAS_BARO 1
 
 #endif /* CONFIG_NAVGO_V1_0_H */

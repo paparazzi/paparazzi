@@ -55,7 +55,6 @@
 /conf/conf.xml.20*
 /conf/control_panel.xml
 /conf/%gconf.xml
-/conf/srtm_data/*
 /conf/maps_data/*
 /conf/maps.xml
 /conf/gps/ublox_conf
@@ -166,3 +165,8 @@
 /sw/airborne/test/test_algebra
 /sw/airborne/test/test_matrix
 /sw/airborne/test/test_att
+
+/sw/airborne/test/ahrs/run_ahrs_on_synth
+
+# Mac OS X
+.DS_Store

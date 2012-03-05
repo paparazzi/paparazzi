@@ -37,6 +37,6 @@
 #define BOARD_ADC_CHANNEL_3 ADC_Channel_0
 #define BOARD_ADC_CHANNEL_4 ADC_Channel_15
 
-#define BOARD_HAS_BARO
+#define BOARD_HAS_BARO 1
 
 #endif /* CONFIG_LISA_L_1_0_H */

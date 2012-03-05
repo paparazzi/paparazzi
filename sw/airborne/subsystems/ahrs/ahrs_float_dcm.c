@@ -29,7 +29,7 @@
 #include "subsystems/ahrs/ahrs_float_dcm_algebra.h"
 #include "math/pprz_algebra_float.h"
 
-#ifdef USE_GPS
+#if USE_GPS
 #include "subsystems/gps.h"
 #endif
 
@@ -45,7 +45,7 @@
 #endif
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 
 struct AhrsFloatDCM ahrs_impl;
@@ -73,7 +73,7 @@ float DCM_Matrix[3][3]       = {{1,0,0},{0,1,0},{0,0,1}};
 float Update_Matrix[3][3]    = {{0,1,2},{3,4,5},{6,7,8}}; //Gyros here
 float Temporary_Matrix[3][3] = {{0,0,0},{0,0,0},{0,0,0}};
 
-#ifdef USE_MAGNETOMETER
+#if USE_MAGNETOMETER
 float MAG_Heading_X = 1;
 float MAG_Heading_Y = 0;
 #endif
@@ -91,7 +91,7 @@ int renorm_blowup_count = 0;
 float imu_health = 0.;
 #endif
 
-#ifdef USE_HIGH_ACCEL_FLAG
+#if USE_HIGH_ACCEL_FLAG
 // High Accel Flag
 #define HIGH_ACCEL_LOW_SPEED 15.0
 #define HIGH_ACCEL_LOW_SPEED_RESUME 4.0 // Hysteresis
@@ -142,8 +142,9 @@ void ahrs_update_fw_estimator( void )
 
   estimator_p = ahrs_float.body_rate.p;
   estimator_q = ahrs_float.body_rate.q;
+  estimator_r = ahrs_float.body_rate.r;
 /*
-  RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel,
+  RunOnceEvery(6,DOWNLINK_SEND_RMAT_DEBUG(DefaultChannel, DefaultDevice,
     &(DCM_Matrix[0][0]),
     &(DCM_Matrix[0][1]),
     &(DCM_Matrix[0][2]),
@@ -188,7 +189,7 @@ void ahrs_init(void) {
   /* set inital filter dcm */
   set_dcm_matrix_from_rmat(&ahrs_float.ltp_to_imu_rmat);
 
-#ifdef USE_HIGH_ACCEL_FLAG
+#if USE_HIGH_ACCEL_FLAG
   high_accel_done = FALSE;
   high_accel_flag = FALSE;
 #endif
@@ -260,7 +261,7 @@ void ahrs_update_accel(void)
   accel_float.z = -accel_float.z;
 
 
-#ifdef USE_GPS
+#if USE_GPS
   if (gps.fix == GPS_FIX_3D) {    //Remove centrifugal acceleration.
     accel_float.y += gps.speed_3d/100. * Omega[2];  // Centrifugal force on Acc_y = GPS_speed*GyroZ
     accel_float.z -= gps.speed_3d/100. * Omega[1];  // Centrifugal force on Acc_z = GPS_speed*GyroY
@@ -273,7 +274,7 @@ void ahrs_update_accel(void)
 
 void ahrs_update_mag(void)
 {
-#ifdef USE_MAGNETOMETER
+#if USE_MAGNETOMETER
 #warning MAGNETOMETER FEEDBACK NOT TESTED YET
 
   float cos_roll;
@@ -317,11 +318,15 @@ void ahrs_update_mag(void)
   ltp_mag.y = MAG_Heading_Y;
 
   // Downlink
-  RunOnceEvery(10,DOWNLINK_SEND_IMU_MAG(DefaultChannel, &ltp_mag.x, &ltp_mag.y, &ltp_mag.z));
+  RunOnceEvery(10,DOWNLINK_SEND_IMU_MAG(DefaultChannel, DefaultDevice, &ltp_mag.x, &ltp_mag.y, &ltp_mag.z));
 
   // Magnetic Heading
   // MAG_Heading = atan2(imu.mag.y, -imu.mag.x);
 #endif
+}
+
+void ahrs_update_gps(void) {
+
 }
 
 void Normalize(void)
@@ -428,7 +433,7 @@ void Drift_correction(void)
   // Weight for accelerometer info (<0.5G = 0.0, 1G = 1.0 , >1.5G = 0.0)
   Accel_weight = Chop(1 - 2*fabs(1 - Accel_magnitude),0,1);  //
 
-#ifdef USE_HIGH_ACCEL_FLAG
+#if USE_HIGH_ACCEL_FLAG
   // Test for high acceleration:
   //  - low speed
   //  - high thrust
@@ -464,7 +469,7 @@ void Drift_correction(void)
 
   //*****YAW***************
 
-#ifdef USE_MAGNETOMETER
+#if USE_MAGNETOMETER
   // We make the gyro YAW drift correction based on compass magnetic heading
 //  float mag_heading_x = cos(MAG_Heading);
 //  float mag_heading_y = sin(MAG_Heading);
@@ -478,7 +483,7 @@ void Drift_correction(void)
   Vector_Scale(&Scaled_Omega_I[0],&errorYaw[0],Ki_YAW);
   Vector_Add(Omega_I,Omega_I,Scaled_Omega_I);//adding integrator to the Omega_I
 
-#elif defined USE_GPS // Use GPS Ground course to correct yaw gyro drift
+#elif USE_GPS // Use GPS Ground course to correct yaw gyro drift
 
   if(gps.fix == GPS_FIX_3D && gps.gspeed>= 500) { //got a 3d fix and ground speed is more than 0.5 m/s
     float ground_course = ((float)gps.course)/1.e7 - M_PI; //This is the runaway direction of you "plane" in rad

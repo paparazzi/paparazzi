@@ -41,5 +41,7 @@ val of_utm : Latlong.utm -> int
 val of_wgs84 : Latlong.geographic -> int
 (** [of_utm utm_pos] Returns the altitude of the given geographic position *)
 
+val area_of_tile : string -> string
+
 val horizon_slope : Latlong.geographic -> int -> float -> float -> float -> float
 (** [horizon_slope geo alt route half_aperture horizon] *)

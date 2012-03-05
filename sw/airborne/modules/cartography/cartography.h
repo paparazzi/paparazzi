@@ -16,7 +16,7 @@ void stop_carto(void);
  */
 
 
-#ifdef USE_ONBOARD_CAMERA
+#if USE_ONBOARD_CAMERA
 extern bool_t CAMERA_SNAPSHOT_REQUIERED;
 extern uint16_t camera_snapshot_image_number;
 #endif

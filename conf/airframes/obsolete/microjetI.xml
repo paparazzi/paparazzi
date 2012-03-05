@@ -96,9 +96,6 @@
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
 
-    <define name="GLIDE_AIRSPEED" value="10"/>
-    <define name="GLIDE_VSPEED" value="3."/>
-    <define name="GLIDE_PITCH" value="45" unit="deg"/>
   </section>
 
   <section name="external leds">
@@ -139,9 +136,9 @@
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="-1.4"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="0.6" unit="radians"/>
-    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
-    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.6" unit="rad"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
     <define name="PITCH_PGAIN" value="-12500."/>
     <define name="PITCH_DGAIN" value="1.5"/>
@@ -200,11 +197,11 @@ ap.CFLAGS += -DRADIO_CONTROL
 ap.srcs += radio_control.c $(SRC_ARCH)/ppm_hw.c
 
 ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=XBeeTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DXBEE_UART=Uart0 -DDATALINK=XBEE -DUART0_BAUD=B19200
-ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c xbee.c
+ap.srcs += subsystems/datalink/downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c subsystems/datalink/xbee.c
 
 # transparent
 # ap.CFLAGS += -DDOWNLINK -DUSE_UART0 -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_FBW_DEVICE=Uart0 -DDOWNLINK_AP_DEVICE=Uart0 -DPPRZ_UART=Uart0 -DDATALINK=PPRZ -DUART0_BAUD=B9600
-# ap.srcs += downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c pprz_transport.c
+# ap.srcs += subsystems/datalink/downlink.c $(SRC_ARCH)/mcu_periph/uart_arch.c datalink.c subsystems/datalink/pprz_transport.c
 
 
 ap.CFLAGS += -DINTER_MCU

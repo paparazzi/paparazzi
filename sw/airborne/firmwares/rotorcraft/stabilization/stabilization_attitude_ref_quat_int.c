@@ -85,21 +85,21 @@ static const float zeta_r[] = STABILIZATION_ATTITUDE_REF_ZETA_R;
 */
 
 static void reset_psi_ref_from_body(void) {
-    stab_att_ref_euler.psi = ahrs.ltp_to_body_euler.psi;
-    stab_att_ref_rate.r = 0;
-    stab_att_ref_accel.r = 0;
+  stab_att_ref_euler.psi = ahrs.ltp_to_body_euler.psi;
+  stab_att_ref_rate.r = 0;
+  stab_att_ref_accel.r = 0;
 }
 
 static void update_ref_quat_from_eulers(void) {
-    struct Int32RMat ref_rmat;
+  struct Int32RMat ref_rmat;
 
 #ifdef STICKS_RMAT312
-    INT32_RMAT_OF_EULERS_312(ref_rmat, stab_att_ref_euler);
+  INT32_RMAT_OF_EULERS_312(ref_rmat, stab_att_ref_euler);
 #else
-    INT32_RMAT_OF_EULERS_321(ref_rmat, stab_att_ref_euler);
+  INT32_RMAT_OF_EULERS_321(ref_rmat, stab_att_ref_euler);
 #endif
-    INT32_QUAT_OF_RMAT(stab_att_ref_quat, ref_rmat);
-    INT32_QUAT_WRAP_SHORTEST(stab_att_ref_quat);
+  INT32_QUAT_OF_RMAT(stab_att_ref_quat, ref_rmat);
+  INT32_QUAT_WRAP_SHORTEST(stab_att_ref_quat);
 }
 
 void stabilization_attitude_ref_init(void) {
@@ -138,7 +138,7 @@ void stabilization_attitude_ref_enter()
 
 #include "messages.h"
 #include "mcu_periph/uart.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 void stabilization_attitude_ref_update() {
 

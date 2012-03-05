@@ -22,10 +22,11 @@
  *
  */
 
-/** \file main_ap.c
- *  \brief AP ( AutoPilot ) process
+/**
+ * @file main_ap.c
+ * AP ( AutoPilot ) tasks
  *
- *   This process is reponsible for the collecting the different sensors data, fusing them to obtain
+ * This process is reponsible for the collecting the different sensors data, fusing them to obtain
  * aircraft attitude and running the different control loops
  */
 
@@ -35,48 +36,54 @@
 
 #include "firmwares/fixedwing/main_ap.h"
 #include "mcu.h"
+#include "mcu_periph/sys_time.h"
 
-#include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
-#include "firmwares/fixedwing/guidance/guidance_v.h"
-#include "subsystems/gps.h"
-#include "gyro.h"
-#include "ap_downlink.h"
-#include "subsystems/nav.h"
-#include "firmwares/fixedwing/autopilot.h"
-#include "estimator.h"
-#include "generated/settings.h"
 #include "link_mcu.h"
-#include "sys_time.h"
-#include "generated/flight_plan.h"
-#include "datalink.h"
-#include "subsystems/settings.h"
-#include "xbee.h"
 
-#include "gpio.h"
-
-#if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
-#include "rc_settings.h"
+// Sensors
+#if USE_GPS
+#include "subsystems/gps.h"
+#endif
+#if USE_IMU
+#include "subsystems/imu.h"
+#endif
+#if USE_AHRS
+#include "subsystems/ahrs.h"
+#endif
+#if USE_AHRS_ALIGNER
+#include "subsystems/ahrs/ahrs_aligner.h"
 #endif
 
-
-
+// autopilot & control
+#include "firmwares/fixedwing/autopilot.h"
+#include "estimator.h"
+#include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
+#include "firmwares/fixedwing/guidance/guidance_v.h"
+#include "subsystems/nav.h"
+#include "generated/flight_plan.h"
 #ifdef TRAFFIC_INFO
 #include "subsystems/navigation/traffic_info.h"
 #endif
 
+// datalink & telemetry
+#include "subsystems/datalink/datalink.h"
+#include "subsystems/settings.h"
+#include "subsystems/datalink/xbee.h"
+#include "firmwares/fixedwing/ap_downlink.h"
 
-#ifdef USE_IMU
-#include "subsystems/imu.h"
-#endif
-#ifdef USE_AHRS
-#include "subsystems/ahrs.h"
-#endif
-#ifdef USE_AHRS_ALIGNER
-#include "subsystems/ahrs/ahrs_aligner.h"
+// modules & settings
+#include "generated/modules.h"
+#include "generated/settings.h"
+#if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
+#include "rc_settings.h"
 #endif
 
-#ifdef USE_AHRS
-#ifdef USE_IMU
+#include "gpio.h"
+#include "led.h"
+
+
+#if USE_AHRS
+#if USE_IMU
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
@@ -86,27 +93,14 @@ static inline void on_ahrs_event(void);
 #endif // USE_IMU
 #endif // USE_AHRS
 
-#ifdef USE_GPS
+#if USE_GPS
 static inline void on_gps_solution( void );
 #endif
 
-#if ! defined CATASTROPHIC_BAT_LEVEL && defined LOW_BATTERY
-#warning "LOW_BATTERY deprecated. Renamed into CATASTROPHIC_BAT_LEVEL (in airframe file)"
-#define CATASTROPHIC_BAT_LEVEL LOW_BATTERY
-#endif
-
-#define LOW_BATTERY_DECIVOLT (CATASTROPHIC_BAT_LEVEL*10)
-
-#include "generated/modules.h"
-
-/** FIXME: should be in rc_settings but required by telemetry (ap_downlink.h)*/
-uint8_t rc_settings_mode = 0;
-
-/** Define minimal speed for takeoff in m/s */
-#define MIN_SPEED_FOR_TAKEOFF 5.
 
 bool_t power_switch;
-uint8_t fatal_error_nb = 0;
+
+// what version is this ????
 static const uint16_t version = 1;
 
 uint8_t pprz_mode = PPRZ_MODE_AUTO2;
@@ -120,22 +114,160 @@ static uint8_t  mcu1_ppm_cpt;
 
 bool_t kill_throttle = FALSE;
 
-float slider_1_val, slider_2_val;
-
 bool_t launch = FALSE;
 
-uint8_t vsupply;	// deciVolt
+
+/** Supply voltage in deciVolt.
+ * This the ap copy of the measurement from fbw
+ */
+uint8_t vsupply;
+
+/** Supply current in milliAmpere.
+ * This the ap copy of the measurement from fbw
+ */
 static int32_t current;	// milliAmpere
 
-float energy;       // Fuel consumption (mAh)
+/** Fuel consumption (mAh)
+ * TODO: move to electrical subsystem
+ */
+float energy;
 
 bool_t gps_lost = FALSE;
 
 
-#define Min(x, y) (x < y ? x : y)
-#define Max(x, y) (x > y ? x : y)
+tid_t modules_tid;     ///< id for modules_periodic_task() timer
+tid_t telemetry_tid;   ///< id for telemetry_periodic() timer
+tid_t sensors_tid;     ///< id for sensors_task() timer
+tid_t attitude_tid;    ///< id for attitude_loop() timer
+tid_t navigation_tid;  ///< id for navigation_task() timer
+tid_t monitor_tid;     ///< id for monitor_task() timer
 
-/** \brief Update paparazzi mode
+#ifndef CONTROL_FREQUENCY
+#ifdef  CONTROL_RATE
+#define CONTROL_FREQUENCY CONTROL_RATE
+//#warning "CONTROL_RATE deprecated. Renamed into CONTROL_FREQUENCY (in airframe file)"
+#else
+#define CONTROL_FREQUENCY 20
+#endif
+#endif
+
+#ifndef NAVIGATION_FREQUENCY
+#define NAVIGATION_FREQUENCY 4
+#endif
+
+#ifndef MODULES_FREQUENCY
+#define MODULES_FREQUENCY 60
+#endif
+
+void init_ap( void ) {
+#ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
+  mcu_init();
+#endif /* SINGLE_MCU */
+
+  /************* Sensors initialization ***************/
+#if USE_GPS
+  gps_init();
+#endif
+
+#ifdef USE_GPIO
+  GpioInit();
+#endif
+
+#if USE_IMU
+  imu_init();
+#endif
+
+#if USE_AHRS_ALIGNER
+  ahrs_aligner_init();
+#endif
+
+#if USE_AHRS
+  ahrs_init();
+#endif
+
+  /************* Links initialization ***************/
+#if defined MCU_SPI_LINK
+  link_mcu_init();
+#endif
+#if USE_AUDIO_TELEMETRY
+  audio_telemetry_init();
+#endif
+
+  /************ Internal status ***************/
+  h_ctl_init();
+  v_ctl_init();
+  estimator_init();
+#ifdef ALT_KALMAN
+  alt_kalman_init();
+#endif
+  nav_init();
+
+  modules_init();
+
+  settings_init();
+
+  /**** start timers for periodic functions *****/
+  sensors_tid = sys_time_register_timer(1./PERIODIC_FREQUENCY, NULL);
+  navigation_tid = sys_time_register_timer(1./NAVIGATION_FREQUENCY, NULL);
+  attitude_tid = sys_time_register_timer(1./CONTROL_FREQUENCY, NULL);
+  modules_tid = sys_time_register_timer(1./MODULES_FREQUENCY, NULL);
+  telemetry_tid = sys_time_register_timer(1./60, NULL);
+  monitor_tid = sys_time_register_timer(1.0, NULL);
+
+  /** - start interrupt task */
+  mcu_int_enable();
+
+#if defined DATALINK
+#if DATALINK == XBEE
+  xbee_init();
+#endif
+#endif /* DATALINK */
+
+#if defined AEROCOMM_DATA_PIN
+  IO0DIR |= _BV(AEROCOMM_DATA_PIN);
+  IO0SET = _BV(AEROCOMM_DATA_PIN);
+#endif
+
+  power_switch = FALSE;
+
+  /************ Multi-uavs status ***************/
+
+#ifdef TRAFFIC_INFO
+  traffic_info_init();
+#endif
+}
+
+
+void handle_periodic_tasks_ap(void) {
+
+  if (sys_time_check_and_ack_timer(sensors_tid))
+    sensors_task();
+
+  if (sys_time_check_and_ack_timer(navigation_tid))
+    navigation_task();
+
+#ifndef AHRS_TRIGGERED_ATTITUDE_LOOP
+  if (sys_time_check_and_ack_timer(attitude_tid))
+    attitude_loop();
+#endif
+
+  if (sys_time_check_and_ack_timer(modules_tid))
+    modules_periodic_task();
+
+  if (sys_time_check_and_ack_timer(monitor_tid))
+    monitor_task();
+
+  if (sys_time_check_and_ack_timer(telemetry_tid)) {
+    reporting_task();
+    LED_PERIODIC();
+  }
+
+}
+
+
+/******************** Interaction with FBW *****************************/
+
+/** Update paparazzi mode.
  */
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
 static inline uint8_t pprz_mode_update( void ) {
@@ -145,7 +277,7 @@ static inline uint8_t pprz_mode_update( void ) {
       || TRUE
 #endif
       ) {
-    return ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(fbw_state->channels[RADIO_MODE], fbw_state->status));
+    return ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(fbw_state->channels[RADIO_MODE]));
   } else
     return FALSE;
 }
@@ -166,7 +298,7 @@ static inline uint8_t mcu1_status_update( void ) {
 }
 
 
-/** \brief Send back uncontrolled channels
+/** Send back uncontrolled channels.
  */
 static inline void copy_from_to_fbw ( void ) {
 #ifdef SetAutoCommandsFromRC
@@ -176,41 +308,14 @@ static inline void copy_from_to_fbw ( void ) {
 #endif
 }
 
-
-
-/*
-   called at 20Hz.
-   sends a serie of initialisation messages followed by a stream of periodic ones
-*/
-
-/** Define number of message at initialisation */
-#define INIT_MSG_NB 2
-
-uint8_t ac_ident = AC_ID;
-
-/** \brief Send a serie of initialisation messages followed by a stream of periodic ones
- *
- * Called at 60Hz.
- */
-static inline void reporting_task( void ) {
-  static uint8_t boot = TRUE;
-
-  /** initialisation phase during boot */
-  if (boot) {
-    DOWNLINK_SEND_BOOT(DefaultChannel, &version);
-    boot = FALSE;
-  }
-  /** then report periodicly */
-  else {
-    PeriodicSendAp(DefaultChannel);
-  }
-}
-
+/** mode to enter when RC is lost in PPRZ_MODE_MANUAL or PPRZ_MODE_AUTO1 */
 #ifndef RC_LOST_MODE
 #define RC_LOST_MODE PPRZ_MODE_HOME
 #endif
 
-/** \brief Function to be called when a message from FBW is available */
+/**
+ * Function to be called when a message from FBW is available
+ */
 static inline void telecommand_task( void ) {
   uint8_t mode_changed = FALSE;
   copy_from_to_fbw();
@@ -237,7 +342,7 @@ static inline void telecommand_task( void ) {
   }
   mode_changed |= mcu1_status_update();
   if ( mode_changed )
-    PERIODIC_SEND_PPRZ_MODE(DefaultChannel);
+    PERIODIC_SEND_PPRZ_MODE(DefaultChannel, DefaultDevice);
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
   /** In AUTO1 mode, compute roll setpoint and pitch setpoint from
@@ -275,14 +380,35 @@ static inline void telecommand_task( void ) {
 }
 
 
+/**************************** Periodic tasks ***********************************/
+
+/**
+ * Send a series of initialisation messages followed by a stream of periodic ones.
+ * Called at 60Hz.
+ */
+void reporting_task( void ) {
+  static uint8_t boot = TRUE;
+
+  /** initialisation phase during boot */
+  if (boot) {
+    DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &version);
+    boot = FALSE;
+  }
+  /** then report periodicly */
+  else {
+    PeriodicSendAp(DefaultChannel, DefaultDevice);
+  }
+}
+
+
 #ifdef FAILSAFE_DELAY_WITHOUT_GPS
 #define GpsTimeoutError (cpu_time_sec - gps.last_fix_time > FAILSAFE_DELAY_WITHOUT_GPS)
 #endif
 
-/** \fn void navigation_task( void )
- *  \brief Compute desired_course
+/**
+ *  Compute desired_course
  */
-static void navigation_task( void ) {
+void navigation_task( void ) {
 #if defined FAILSAFE_DELAY_WITHOUT_GPS
   /** This section is used for the failsafe of GPS */
   static uint8_t last_pprz_mode;
@@ -294,7 +420,7 @@ static void navigation_task( void ) {
       if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
         last_pprz_mode = pprz_mode;
         pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
-        PERIODIC_SEND_PPRZ_MODE(DefaultChannel);
+        PERIODIC_SEND_PPRZ_MODE(DefaultChannel, DefaultDevice);
         gps_lost = TRUE;
       }
     } else if (gps_lost) { /* GPS is ok */
@@ -302,7 +428,7 @@ static void navigation_task( void ) {
       pprz_mode = last_pprz_mode;
       gps_lost = FALSE;
 
-      PERIODIC_SEND_PPRZ_MODE(DefaultChannel);
+      PERIODIC_SEND_PPRZ_MODE(DefaultChannel, DefaultDevice);
     }
   }
 #endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */
@@ -320,10 +446,10 @@ static void navigation_task( void ) {
 #endif
 
 #ifndef PERIOD_NAVIGATION_DefaultChannel_0 // If not sent periodically (in default 0 mode)
-  SEND_NAVIGATION(DefaultChannel);
+  SEND_NAVIGATION(DefaultChannel, DefaultDevice);
 #endif
 
-  SEND_CAM(DefaultChannel);
+  SEND_CAM(DefaultChannel, DefaultDevice);
 
   /* The nav task computes only nav_altitude. However, we are interested
      by desired_altitude (= nav_alt+alt_shift) in any case.
@@ -364,39 +490,15 @@ static void navigation_task( void ) {
 }
 
 
-#ifndef KILL_MODE_DISTANCE
-#define KILL_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
+#if USE_AHRS
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+volatile uint8_t new_ins_attitude = 0;
+#endif
 #endif
 
+void attitude_loop( void ) {
 
-/** Maximum time allowed for low battery level */
-#define LOW_BATTERY_DELAY 5
-
-/** \fn inline void periodic_task( void )
- *  \brief Do periodic tasks at 60 Hz
- */
-/**There are four @@@@@ boucles @@@@@:
- * - 20 Hz:
- *   - lets use \a reporting_task at 60 Hz
- *   - updates estimator of ir with \a ahrs_update_infrared
- *   - set \a desired_aileron and \a desired_elevator with \a pid_attitude_loop
- *   - sends to \a fbw \a desired_throttle, \a desired_aileron and
- *     \a desired_elevator \note \a desired_throttle is set upon GPS
- *     message reception
- * - 4 Hz:
- *   - calls \a estimator_propagate_state
- *   - do navigation with \a navigation_task
- *
- */
-
-
-static inline void attitude_loop( void ) {
-
-#ifdef USE_GYRO
-  gyro_update();
-#endif
-
-#ifdef USE_INFRARED
+#if USE_INFRARED
   ahrs_update_infrared();
 #endif /* USE_INFRARED */
 
@@ -416,198 +518,58 @@ static inline void attitude_loop( void ) {
 
 }
 
-#ifdef USE_AHRS
-#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-volatile uint8_t new_ins_attitude = 0;
-#endif
-#endif
 
-void periodic_task_ap( void ) {
-
-  static uint8_t _60Hz = 0;
-  static uint8_t _20Hz = 0;
-  static uint8_t _10Hz = 0;
-  static uint8_t _4Hz  = 0;
-  static uint8_t _1Hz  = 0;
-
-#ifdef USE_IMU
-  // Run at PERIODIC_FREQUENCY (60Hz if not defined)
+/** Run at PERIODIC_FREQUENCY (60Hz if not defined) */
+void sensors_task( void ) {
+#if USE_IMU
   imu_periodic();
 
-#ifdef USE_AHRS
+#if USE_AHRS
   if (ahrs_timeout_counter < 255)
     ahrs_timeout_counter ++;
-#endif
-
+#endif // USE_AHRS
 #endif // USE_IMU
-
-#define _check_periodic_freq_ PERIODIC_FREQUENCY % 60
-#if _check_periodic_freq_
-#error Using HighSpeed Periodic: PERIODIC_FREQUENCY has to be a multiple of 60!
-#endif
-  _60Hz++;
-  if (_60Hz >= (PERIODIC_FREQUENCY / 60))
-  {
-    _60Hz = 0;
-  }
-  else
-  {
-    return;
-  }
-
-
-  // Rest of the periodic function still runs at 60Hz like always
-  _20Hz++;
-  if (_20Hz>=3) _20Hz=0;
-  _10Hz++;
-  if (_10Hz>=6) _10Hz=0;
-  _4Hz++;
-  if (_4Hz>=15) _4Hz=0;
-  _1Hz++;
-  if (_1Hz>=60) _1Hz=0;
-
-  reporting_task();
-
-  if (!_1Hz) {
-    if (estimator_flight_time) estimator_flight_time++;
-#if defined DATALINK || defined SITL
-    datalink_time++;
-#endif
-
-    static uint8_t t = 0;
-    if (vsupply < LOW_BATTERY_DECIVOLT) t++; else t = 0;
-    kill_throttle |= (t >= LOW_BATTERY_DELAY);
-    kill_throttle |= launch && (dist2_to_home > Square(KILL_MODE_DISTANCE));
-  }
-
-  switch(_4Hz) {
-  case 0:
-    estimator_propagate_state();
-#ifdef EXTRA_DOWNLINK_DEVICE
-    DOWNLINK_SEND_ATTITUDE(ExtraPprzTransport,&estimator_phi,&estimator_psi,&estimator_theta);
-#endif
-    navigation_task();
-    break;
-  case 1:
-    if (!estimator_flight_time &&
-        estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
-      estimator_flight_time = 1;
-      launch = TRUE; /* Not set in non auto launch */
-      DOWNLINK_SEND_TAKEOFF(DefaultChannel, &cpu_time_sec);
-  default:
-    break;
-    }
-
-    break;
-
-#ifdef USE_GPIO
-  case 3:
-    GpioUpdate1();
-    break;
-#endif
-
-    /*  default: */
-  }
-
-#ifndef CONTROL_RATE
-#define CONTROL_RATE 20
-#endif
-
-#if CONTROL_RATE != 60 && CONTROL_RATE != 20
-#error "Only 20 and 60 allowed for CONTROL_RATE"
-#endif
-
-#if CONTROL_RATE == 20
-  if (!_20Hz)
-#endif
-    {
-
-#ifndef AHRS_TRIGGERED_ATTITUDE_LOOP
-      attitude_loop();
-#endif
-
-    }
-
-
-  modules_periodic_task();
 }
 
 
-void init_ap( void ) {
-#ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
-  mcu_init();
-  sys_time_init();
-#endif /* SINGLE_MCU */
 
-  /************* Sensors initialization ***************/
-#ifdef USE_GYRO
-  gyro_init();
+
+/** Maximum time allowed for low battery level before going into kill mode */
+#define LOW_BATTERY_DELAY 5
+
+/** Maximum distance from HOME waypoint before going into kill mode */
+#ifndef KILL_MODE_DISTANCE
+#define KILL_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
 #endif
-#ifdef USE_GPS
-  gps_init();
+
+/** Define minimal speed for takeoff in m/s */
+#define MIN_SPEED_FOR_TAKEOFF 5.
+
+/** monitor stuff run at 1Hz */
+void monitor_task( void ) {
+  if (estimator_flight_time)
+    estimator_flight_time++;
+#if defined DATALINK || defined SITL
+  datalink_time++;
 #endif
+
+  static uint8_t t = 0;
+  if (vsupply < CATASTROPHIC_BAT_LEVEL*10)
+    t++;
+  else
+    t = 0;
+  kill_throttle |= (t >= LOW_BATTERY_DELAY);
+  kill_throttle |= launch && (dist2_to_home > Square(KILL_MODE_DISTANCE));
+
+  if (!estimator_flight_time &&
+      estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
+    estimator_flight_time = 1;
+    launch = TRUE; /* Not set in non auto launch */
+    DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &cpu_time_sec);
+  }
 
 #ifdef USE_GPIO
-  GpioInit();
-#endif
-
-#ifdef USE_IMU
-  imu_init();
-#endif
-
-#ifdef USE_AHRS_ALIGNER
-  ahrs_aligner_init();
-#endif
-
-#ifdef USE_AHRS
-  ahrs_init();
-#endif
-
-  /************* Links initialization ***************/
-#if defined MCU_SPI_LINK
-  link_mcu_init();
-#endif
-#ifdef MODEM
-  modem_init();
-#endif
-
-  /************ Internal status ***************/
-  h_ctl_init();
-  v_ctl_init();
-  estimator_init();
-#ifdef ALT_KALMAN
-  alt_kalman_init();
-#endif
-  nav_init();
-
-  modules_init();
-
-  settings_init();
-
-  /** - start interrupt task */
-  mcu_int_enable();
-
-  /** wait 0.5s (historical :-) */
-  sys_time_usleep(500000);
-
-#if defined DATALINK
-
-#if DATALINK == XBEE
-  xbee_init();
-#endif
-#endif /* DATALINK */
-
-#if defined AEROCOMM_DATA_PIN
-  IO0DIR |= _BV(AEROCOMM_DATA_PIN);
-  IO0SET = _BV(AEROCOMM_DATA_PIN);
-#endif
-
-  power_switch = FALSE;
-
-  /************ Multi-uavs status ***************/
-
-#ifdef TRAFFIC_INFO
-  traffic_info_init();
+   GpioUpdate1();
 #endif
 }
 
@@ -615,15 +577,15 @@ void init_ap( void ) {
 /*********** EVENT ***********************************************************/
 void event_task_ap( void ) {
 
-#if defined USE_AHRS
-#ifdef USE_IMU
+#if USE_AHRS
+#if USE_IMU
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
 #else
   AhrsEvent(on_ahrs_event);
 #endif // USE_IMU
 #endif // USE_AHRS
 
-#ifdef USE_GPS
+#if USE_GPS
   GpsEvent(on_gps_solution);
 #endif /** USE_GPS */
 
@@ -632,7 +594,7 @@ void event_task_ap( void ) {
 
 
 #ifdef MCU_SPI_LINK
-    link_mcu_event_task();
+  link_mcu_event_task();
 #endif
 
   if (inter_mcu_received_fbw) {
@@ -655,12 +617,10 @@ void event_task_ap( void ) {
 } /* event_task_ap() */
 
 
-#ifdef USE_GPS
+#if USE_GPS
 static inline void on_gps_solution( void ) {
   estimator_update_state_gps();
-#ifdef USE_INFRARED
   ahrs_update_gps();
-#endif
 #ifdef GPS_TRIGGERED_FUNCTION
   GPS_TRIGGERED_FUNCTION();
 #endif
@@ -668,8 +628,8 @@ static inline void on_gps_solution( void ) {
 #endif
 
 
-#ifdef USE_AHRS
-#ifdef USE_IMU
+#if USE_AHRS
+#if USE_IMU
 static inline void on_accel_event( void ) {
 }
 
@@ -678,10 +638,10 @@ static inline void on_gyro_event( void ) {
   ahrs_timeout_counter = 0;
 
 #ifdef AHRS_CPU_LED
-    LED_ON(AHRS_CPU_LED);
+  LED_ON(AHRS_CPU_LED);
 #endif
 
-#ifdef USE_AHRS_ALIGNER
+#if USE_AHRS_ALIGNER
   // Run aligner on raw data as it also makes averages.
   if (ahrs.status == AHRS_UNINIT) {
     ImuScaleGyro(imu);

@@ -33,14 +33,14 @@ stm_passthrough.srcs += $(SRC_ARCH)/led_hw.c
 
 # Sys time
 stm_passthrough.CFLAGS += -DUSE_SYS_TIME
-stm_passthrough.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+stm_passthrough.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 stm_passthrough.CFLAGS += -DSYS_TIME_LED=1
-stm_passthrough.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+stm_passthrough.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 # Telemetry
 stm_passthrough.CFLAGS += -DDOWNLINK
 stm_passthrough.CFLAGS += -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-stm_passthrough.srcs += downlink.c pprz_transport.c
+stm_passthrough.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 stm_passthrough.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 stm_passthrough.srcs += mcu_periph/uart.c
 stm_passthrough.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
@@ -95,7 +95,7 @@ stm_passthrough.CFLAGS += -DUSE_I2C2
 stm_passthrough.srcs += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 
 # Vanes
-stm_passthrough.CFLAGS += -I $(SRC_CSC)
+stm_passthrough.CFLAGS += -I$(SRC_CSC)
 stm_passthrough.CFLAGS += -DUSE_CAN1 \
     -DUSE_CAN1 \
     -DUSE_USB_LP_CAN1_RX0_IRQ \
@@ -143,7 +143,7 @@ overo_test_passthrough.srcs    += $(SRC_FMS)/fms_periodic.c
 overo_test_passthrough.srcs    += $(SRC_FMS)/fms_spi_link.c
 overo_test_passthrough.srcs    += $(SRC_FMS)/fms_gs_com.c
 overo_test_passthrough.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
-overo_test_passthrough.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
+overo_test_passthrough.srcs    += $(SRC_FMS)/udp_transport2.c subsystems/datalink/downlink.c
 overo_test_passthrough.srcs    += $(SRC_FMS)/fms_network.c
 
 #
@@ -159,5 +159,5 @@ overo_blmc_calibrate.srcs    += $(SRC_FMS)/fms_periodic.c
 overo_blmc_calibrate.srcs    += $(SRC_FMS)/fms_spi_link.c
 #overo_blmc_calibrate.srcs    += $(SRC_FMS)/fms_gs_com.c
 #overo_blmc_calibrate.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
-#overo_blmc_calibrate.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
+#overo_blmc_calibrate.srcs    += $(SRC_FMS)/udp_transport2.c subsystems/datalink/downlink.c
 overo_blmc_calibrate.srcs    += $(SRC_FMS)/fms_network.c

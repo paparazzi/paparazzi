@@ -1,11 +1,11 @@
 #include "std.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "mcu.h"
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "mcu_periph/spi.h"
 
@@ -179,7 +179,7 @@ static void baro_scp_read(void) {
 void baro_scp_event( void ) {
   if (baro_scp_available == TRUE) {
 #ifdef SENSOR_SYNC_SEND
-    DOWNLINK_SEND_SCP_STATUS(DefaultChannel, &baro_scp_pressure, &baro_scp_temperature);
+    DOWNLINK_SEND_SCP_STATUS(DefaultChannel, DefaultDevice, &baro_scp_pressure, &baro_scp_temperature);
 #endif
     baro_scp_available = FALSE;
   }

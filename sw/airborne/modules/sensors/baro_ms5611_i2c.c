@@ -30,11 +30,11 @@
 
 #include "modules/sensors/baro_ms5611_i2c.h"
 
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -89,7 +89,7 @@ void baro_ms5611_periodic( void ) {
       ms5611_status = MS5611_CONV_D1;
       ms5611_trans.buf[0] = MS5611_START_CONV_D1;
       I2CTransmit(MS5611_I2C_DEV, ms5611_trans, MS5611_SLAVE_ADDR, 1);
-      RunOnceEvery((4*30), DOWNLINK_SEND_MS5611_COEFF(DefaultChannel,
+      RunOnceEvery((4*30), DOWNLINK_SEND_MS5611_COEFF(DefaultChannel, DefaultDevice,
           &ms5611_c[0], &ms5611_c[1], &ms5611_c[2], &ms5611_c[3],
           &ms5611_c[4], &ms5611_c[5], &ms5611_c[6], &ms5611_c[7]));
     }
@@ -152,7 +152,7 @@ void baro_ms5611_event( void ) {
         ms5611_trans.status = I2CTransDone;
         /* check prom crc */
         if (baro_ms5611_crc(ms5611_c) == 0) {
-          DOWNLINK_SEND_MS5611_COEFF(DefaultChannel,
+          DOWNLINK_SEND_MS5611_COEFF(DefaultChannel, DefaultDevice,
               &ms5611_c[0], &ms5611_c[1], &ms5611_c[2], &ms5611_c[3],
               &ms5611_c[4], &ms5611_c[5], &ms5611_c[6], &ms5611_c[7]);
           ms5611_status = MS5611_IDLE;
@@ -220,7 +220,7 @@ void baro_ms5611_event( void ) {
 #ifdef SENSOR_SYNC_SEND
       ftempms = tempms / 100.;
       fbaroms = baroms / 100.;
-      DOWNLINK_SEND_BARO_MS5611(DefaultChannel,
+      DOWNLINK_SEND_BARO_MS5611(DefaultChannel, DefaultDevice,
                                 &ms5611_d1, &ms5611_d2, &fbaroms, &ftempms);
 #endif
       break;

@@ -32,11 +32,11 @@
 
 #include "modules/meteo/humid_htm_b71.h"
 
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -93,7 +93,7 @@ void humid_htm_event( void ) {
         /* temperature */
         temphtm = (htm_trans.buf[2] << 6) | (htm_trans.buf[3] >> 2);
         ftemphtm = -40.00 + 0.01 * temphtm;
-        DOWNLINK_SEND_HTM_STATUS(DefaultChannel, &humidhtm, &temphtm, &fhumidhtm, &ftemphtm);
+        DOWNLINK_SEND_HTM_STATUS(DefaultChannel, DefaultDevice, &humidhtm, &temphtm, &fhumidhtm, &ftemphtm);
       }
       htm_trans.status = I2CTransDone;
       break;

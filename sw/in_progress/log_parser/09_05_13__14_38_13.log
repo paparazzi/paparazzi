@@ -253,7 +253,7 @@
         </section>
         <makefile>include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 FLASH_MODE=IAP
-ap.CFLAGS +=  -DFBW -DAP -DCONFIG=\&quot;tiny_1_1.h\&quot; -DLED -DTIME_LED=1
+ap.CFLAGS +=  -DFBW -DAP -DCONFIG=\&quot;tiny_1_1.h\&quot; -DLED -DSYS_TIME_LED=1
 ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_fbw.c main_ap.c main.c
 ap.srcs += commands.c
 ap.CFLAGS += -DACTUATORS=\&quot;servos_4015_MAT_hw.h\&quot; -DSERVOS_4015_MAT
@@ -546,7 +546,7 @@ sim.CFLAGS += -DUSE_JOYSTICK</makefile>
         <makefile>CONFIG = \&quot;tiny_2_1.h\&quot;
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 FLASH_MODE=IAP
-ap.CFLAGS +=  -DFBW -DAP -DCONFIG=$(CONFIG) -DLED -DTIME_LED=1
+ap.CFLAGS +=  -DFBW -DAP -DCONFIG=$(CONFIG) -DLED -DSYS_TIME_LED=1
 ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_fbw.c main_ap.c main.c
 ap.srcs += commands.c
 ap.CFLAGS += -DACTUATORS=\&quot;servos_4017_hw.h\&quot; -DSERVOS_4017
@@ -832,7 +832,7 @@ sim.CFLAGS += -DUSE_JOYSTICK</makefile>
         <makefile>CONFIG = \&quot;tiny_2_1.h\&quot;
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 FLASH_MODE=IAP
-ap.CFLAGS +=  -DFBW -DAP -DCONFIG=$(CONFIG) -DLED -DTIME_LED=1
+ap.CFLAGS +=  -DFBW -DAP -DCONFIG=$(CONFIG) -DLED -DSYS_TIME_LED=1
 ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_fbw.c main_ap.c main.c
 ap.srcs += commands.c
 ap.CFLAGS += -DACTUATORS=\&quot;servos_4017_hw.h\&quot; -DSERVOS_4017
@@ -1112,7 +1112,7 @@ sim.CFLAGS += -DUSE_JOYSTICK</makefile>
         </section>
         <makefile>include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 FLASH_MODE=IAP
-ap.CFLAGS +=  -DFBW -DAP -DCONFIG=\&quot;tiny_1_1.h\&quot; -DLED -DTIME_LED=1
+ap.CFLAGS +=  -DFBW -DAP -DCONFIG=\&quot;tiny_1_1.h\&quot; -DLED -DSYS_TIME_LED=1
 ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_fbw.c main_ap.c main.c
 ap.srcs += commands.c
 ap.CFLAGS += -DACTUATORS=\&quot;servos_4015_MAT_hw.h\&quot; -DSERVOS_4015_MAT
@@ -1368,7 +1368,7 @@ sim.srcs += nav_survey_rectangle.c $(SRC_ARCH)/sim_baro.c bomb.c nav_line.c</mak
         <makefile>CONFIG = \&quot;tiny_2_1.h\&quot;
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 FLASH_MODE=IAP
-ap.CFLAGS +=  -DFBW -DAP -DCONFIG=$(CONFIG) -DLED -DTIME_LED=1
+ap.CFLAGS +=  -DFBW -DAP -DCONFIG=$(CONFIG) -DLED -DSYS_TIME_LED=1
 ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_fbw.c main_ap.c main.c
 ap.srcs += commands.c
 ap.CFLAGS += -DACTUATORS=\&quot;servos_4017_hw.h\&quot; -DSERVOS_4017
@@ -1628,7 +1628,7 @@ sim.CFLAGS += -DUSE_JOYSTICK</makefile>
         <makefile>CONFIG = \&quot;tiny_2_1.h\&quot;
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 FLASH_MODE=IAP
-ap.CFLAGS +=  -DFBW -DAP -DCONFIG=$(CONFIG) -DLED -DTIME_LED=1
+ap.CFLAGS +=  -DFBW -DAP -DCONFIG=$(CONFIG) -DLED -DSYS_TIME_LED=1
 ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_fbw.c main_ap.c main.c
 ap.srcs += commands.c
 ap.CFLAGS += -DACTUATORS=\&quot;servos_4017_hw.h\&quot; -DSERVOS_4017
@@ -1887,7 +1887,7 @@ sim.CFLAGS += -DUSE_JOYSTICK</makefile>
         <makefile>CONFIG = \&quot;tiny_2_1_1_usb.h\&quot;
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 FLASH_MODE=IAP
-ap.CFLAGS +=  -DFBW -DAP -DCONFIG=$(CONFIG) -DLED -DTIME_LED=1
+ap.CFLAGS +=  -DFBW -DAP -DCONFIG=$(CONFIG) -DLED -DSYS_TIME_LED=1
 ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_fbw.c main_ap.c main.c
 ap.srcs += commands.c
 ap.CFLAGS += -DACTUATORS=\&quot;servos_4017_hw.h\&quot; -DSERVOS_4017
@@ -2025,7 +2025,7 @@ sim.CFLAGS += -DUSE_JOYSTICK</makefile>
         <makefile>CONFIG = \&quot;tiny_2_1_1_usb.h\&quot;
 include $(PAPARAZZI_SRC)/conf/autopilot/tiny.makefile
 FLASH_MODE=IAP
-ap.CFLAGS += -DCONFIG=$(CONFIG) -DLED -DTIME_LED=1
+ap.CFLAGS += -DCONFIG=$(CONFIG) -DLED -DSYS_TIME_LED=1
 ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c main_logger.c
 ap.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 # -DUSE_UART1_RX_ONLY
@@ -3294,7 +3294,7 @@ ap.srcs += $(SRC_ARCH)/lpcusb/examples/msc_bot.c $(SRC_ARCH)/lpcusb/examples/msc
       </message>
       <message NAME="TELEMETRY_STATUS" ID="32">
         <field NAME="ac_id" TYPE="string"/>
-        <field NAME="time_since_last_bat_msg" TYPE="float" UNIT="s"/>
+        <field NAME="time_since_last_msg" TYPE="float" UNIT="s"/>
       </message>
       <message NAME="TELEMETRY_ERROR" ID="33">
         <field NAME="ac_id" TYPE="string"/>

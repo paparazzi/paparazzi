@@ -1,18 +1,18 @@
 #include "std.h"
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "firmwares/fixedwing/actuators.h"
 //#include "actuators.h"
 #include "generated/airframe.h"
 #define DATALINK_C
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
+#include "subsystems/datalink/pprz_transport.h"
 #include "mcu_periph/uart.h"
-#include "pprz_transport.h"
+#include "subsystems/datalink/downlink.h"
 #include "firmwares/fixedwing/main_fbw.h"
-#include "downlink.h"
-#include "generated/settings.h"
 
+#include "generated/settings.h"
 
 #define IdOfMsg(x) (x[1])
 
@@ -35,23 +35,18 @@ void dl_parse_msg( void ) {
     for (int j=0 ; j<8 ; j++) {
       SetServo(j,actuators[j]);
     }
-    DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &val);
+    DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
   } else if (msg_id == DL_GET_SETTING && DL_GET_SETTING_ac_id(dl_buffer) == AC_ID) {
     uint8_t i = DL_GET_SETTING_index(dl_buffer);
     float val = settings_get_value(i);
-    DOWNLINK_SEND_DL_VALUE(DefaultChannel, &i, &val);
+    DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
   }
 #endif
 }
 
-#define PprzUartInit() Link(Init())
 
 void init_fbw( void ) {
   mcu_init();
-  sys_time_init();
-  led_init();
-
-  PprzUartInit();
 
   actuators_init();
 
@@ -62,7 +57,16 @@ void init_fbw( void ) {
 
   //  SetServo(SERVO_GAZ, SERVO_GAZ_MIN);
 
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
+
   mcu_int_enable();
+}
+
+void handle_periodic_tasks_fbw(void) {
+
+  if (sys_time_check_and_ack_timer(0))
+    periodic_task_fbw();
+
 }
 
 void periodic_task_fbw(void) {
@@ -71,21 +75,10 @@ void periodic_task_fbw(void) {
    /* uint16_t servo_value = 1500+ 500*sin(t); */
    /* SetServo(SERVO_THROTTLE, servo_value); */
 
-  RunOnceEvery(300, DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM));
-  RunOnceEvery(300, DOWNLINK_SEND_ACTUATORS(DefaultChannel, SERVOS_NB, actuators ));
+  RunOnceEvery(300, DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM));
+  RunOnceEvery(300, DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice, SERVOS_NB, actuators ));
 }
 
 void event_task_fbw(void) {
-  if (PprzBuffer()) {
-    ReadPprzBuffer();
-  }
-  if (pprz_msg_received) {
-    pprz_msg_received = FALSE;
-    pprz_parse_payload();
-    LED_TOGGLE(3);
-  }
-  if (dl_msg_available) {
-    dl_parse_msg();
-    dl_msg_available = FALSE;
-  }
+  DatalinkEvent();
 }

@@ -52,4 +52,4 @@ endif
 # Simulator
 sim.srcs += $(SRC_FIRMWARE)/actuators/supervision.c
 sim.srcs += $(SRC_FIRMWARE)/actuators/actuators_mkk.c
-sim.CFLAGS += -DUSE_I2C0 -DI2C0_SCLL=$(MKK_I2C_SCL_TIME) -DI2C0_SCLH=$(MKK_I2C_SCL_TIME) -DI2C0_VIC_SLOT=10 -DACTUATORS_MKK_DEVICE=i2c1
+sim.CFLAGS += -DUSE_I2C0 -DACTUATORS_MKK_DEVICE=i2c0

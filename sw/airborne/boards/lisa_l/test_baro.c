@@ -30,10 +30,12 @@
 #include BOARD_CONFIG
 
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/uart.h"
 
-#include "downlink.h"
+#include "led.h"
+
+#include "subsystems/datalink/downlink.h"
 
 #include "subsystems/sensors/baro.h"
 //#include "my_debug_servo.h"
@@ -50,7 +52,7 @@ int main(void) {
   main_init();
 
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -60,7 +62,7 @@ int main(void) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   baro_init();
 
   //  DEBUG_SERVO1_INIT();
@@ -75,10 +77,10 @@ static inline void main_periodic_task( void ) {
 
   RunOnceEvery(2, {baro_periodic();});
   LED_PERIODIC();
-  RunOnceEvery(256, {DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
+  RunOnceEvery(256, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
   RunOnceEvery(256,
     {
-      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel,
+      DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
 			       &i2c2_errors.ack_fail_cnt,
 			       &i2c2_errors.miss_start_stop_cnt,
 			       &i2c2_errors.arb_lost_cnt,
@@ -104,5 +106,5 @@ static inline void main_on_baro_diff(void) {
 }
 
 static inline void main_on_baro_abs(void) {
-  RunOnceEvery(5,{DOWNLINK_SEND_BARO_RAW(DefaultChannel, &baro.absolute, &baro.differential);});
+  RunOnceEvery(5,{DOWNLINK_SEND_BARO_RAW(DefaultChannel, DefaultDevice, &baro.absolute, &baro.differential);});
 }

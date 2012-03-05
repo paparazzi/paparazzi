@@ -6,6 +6,8 @@
 
 #include "subsystems/ahrs/ahrs_magnetic_field_model.h"
 
+#include "subsystems/ahrs/ahrs_float_utils.h"
+
 static inline void ahrs_int_get_euler_from_accel_mag(struct Int32Eulers* e, struct Int32Vect3* accel, struct Int32Vect3* mag) {
   //  DISPLAY_INT32_VECT3("# accel", (*accel));
   const float fphi = atan2f(-accel->y, -accel->z);
@@ -42,6 +44,13 @@ static inline void ahrs_int_get_euler_from_accel_mag(struct Int32Eulers* e, stru
   e->psi = ANGLE_BFP_OF_REAL(fpsi);
   INT32_ANGLE_NORMALIZE(e->psi);
 
+}
+
+static inline void ahrs_int_get_quat_from_accel_mag(struct Int32Quat* q, struct Int32Vect3* accel, struct Int32Vect3* mag) {
+
+  struct FloatQuat q_f;
+  ahrs_float_get_quat_from_accel_mag(&q_f, accel, mag);
+  QUAT_BFP_OF_REAL(*q, q_f);
 }
 
 #endif /* AHRS_INT_UTILS_H */

@@ -312,7 +312,7 @@ def init():
 def run():
   global VEHICLE_QUATS, BAR_VALUES
   VEHICLE_QUATS = [ ["AHRS_REF_QUAT", 6, "Estimate", True], ["AHRS_REF_QUAT", 2, "Reference", True]]
-  BAR_VALUES = [ ["BOOZ2_RADIO_CONTROL", 5, "Throttle (%%) %i", 9600, 96 * 2, 100] ]
+  BAR_VALUES = [ ["ROTORCRAFT_RADIO_CONTROL", 5, "Throttle (%%) %i", 9600, 96 * 2, 100] ]
   window_title = "Attitude_Viz"
   try:
     opts, args = getopt.getopt(sys.argv[1:], "t:", ["title"])

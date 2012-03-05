@@ -28,8 +28,9 @@
 
 #include BOARD_CONFIG
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "lisa/lisa_overo_link.h"
+#include "led.h"
 
 #include "my_debug_servo.h"
 
@@ -43,12 +44,12 @@ static inline void on_overo_link_lost(void);
 int main(void) {
 
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   overo_link_init();
   DEBUG_SERVO1_INIT();
 
   while (1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic();
     main_event();
   }

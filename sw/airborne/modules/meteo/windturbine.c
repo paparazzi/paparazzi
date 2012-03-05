@@ -32,7 +32,7 @@
 #include "meteo/windturbine.h"
 #include "core/trigger_ext.h"
 #include "subsystems/gps.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
@@ -40,7 +40,7 @@
 
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 
 void windturbine_periodic( void ) {
@@ -50,9 +50,9 @@ void windturbine_periodic( void ) {
     uint32_t sync_itow, cycle_time;
 
     sync_itow = gps_tow_from_ticks(trigger_t0);
-    cycle_time = MSEC_OF_SYS_TICS(trigger_delta_t0);
+    cycle_time = MSEC_OF_CPU_TICKS(trigger_delta_t0);
 
-    DOWNLINK_SEND_WINDTURBINE_STATUS_(DefaultChannel,
+    DOWNLINK_SEND_WINDTURBINE_STATUS_(DefaultChannel, DefaultDevice,
                 &ac_id,
                 &turb_id,
                 &sync_itow,

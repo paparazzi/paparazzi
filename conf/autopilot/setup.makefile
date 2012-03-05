@@ -30,9 +30,12 @@ tunnel.srcs   += mcu.c \
                  $(SRC_ARCH)/stm32_vector_table.c
 tunnel.CFLAGS += -DUSE_LED
 tunnel.srcs   += $(SRC_ARCH)/led_hw.c
-tunnel.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=$(SYS_TIME_LED)
-tunnel.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
-tunnel.srcs   += sys_time.c $(SRC_ARCH)/sys_time_hw.c
+ifneq ($(SYS_TIME_LED),none)
+tunnel.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
+endif
+tunnel.CFLAGS += -DPERIODIC_FREQUENCY='512.'
+tunnel.CFLAGS += -DUSE_SYS_TIME
+tunnel.srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 endif
 
 
@@ -45,7 +48,7 @@ usb_tunnel_0.CFLAGS += -DUSE_USB_LINE_CODING -DUSE_USB_SERIAL -DUSE_LED -DUSE_US
 usb_tunnel_0.srcs += $(SRC_ARCH)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c mcu_periph/uart.c $(SRC_ARCH)/mcu_periph/uart_arch.c
 usb_tunnel_0.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
 usb_tunnel_0.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
-usb_tunnel_0.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+usb_tunnel_0.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c
 usb_tunnel_0.srcs += mcu.c $(SRC_ARCH)/mcu_arch.c
 
 usb_tunnel_1.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B115200 -DPERIPHERALS_AUTO_INIT
@@ -53,7 +56,7 @@ usb_tunnel_1.CFLAGS += -DUSE_USB_LINE_CODING -DUSE_USB_SERIAL -DUSE_LED -DUSE_US
 usb_tunnel_1.srcs += $(SRC_ARCH)/usb_tunnel.c $(SRC_ARCH)/usb_ser_hw.c mcu_periph/uart.c $(SRC_ARCH)/mcu_periph/uart_arch.c
 usb_tunnel_1.srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbinit.c
 usb_tunnel_1.srcs += $(SRC_ARCH)/lpcusb/usbcontrol.c $(SRC_ARCH)/lpcusb/usbstdreq.c
-usb_tunnel_1.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c
+usb_tunnel_1.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c
 usb_tunnel_1.srcs += mcu.c $(SRC_ARCH)/mcu_arch.c
 else
 ifeq ($(TARGET),usb_tunnel_0)
@@ -94,12 +97,17 @@ endif
 
 # a test program to setup actuators
 ifeq ($(ARCH), lpc21)
-setup_actuators.CFLAGS += -DFBW -DUSE_LED -DTIME_LED=1
+setup_actuators.CFLAGS += -DFBW -DUSE_LED -DPERIPHERALS_AUTO_INIT
 setup_actuators.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600 -DDOWNLINK_DEVICE=Uart1 -DPPRZ_UART=Uart1
 setup_actuators.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDATALINK=PPRZ
 setup_actuators.CFLAGS += -DDOWNLINK_FBW_DEVICE=Uart1 -DDOWNLINK_AP_DEVICE=Uart1
 setup_actuators.CFLAGS += $(SETUP_INC) -Ifirmwares/fixedwing
-setup_actuators.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c pprz_transport.c downlink.c $(SRC_FIRMWARE)/setup_actuators.c mcu_periph/uart.c $(SRC_ARCH)/mcu_periph/uart_arch.c firmwares/fixedwing/main.c mcu.c $(SRC_ARCH)/mcu_arch.c
+ifneq ($(SYS_TIME_LED),none)
+setup_actuators.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
+endif
+setup_actuators.CFLAGS += -DPERIODIC_FREQUENCY='60'
+setup_actuators.CFLAGS += -DUSE_SYS_TIME
+setup_actuators.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c $(SRC_ARCH)/armVIC.c subsystems/datalink/pprz_transport.c subsystems/datalink/downlink.c $(SRC_FIRMWARE)/setup_actuators.c mcu_periph/uart.c $(SRC_ARCH)/mcu_periph/uart_arch.c firmwares/fixedwing/main.c mcu.c $(SRC_ARCH)/mcu_arch.c
 else ifeq ($(TARGET),setup_actuators)
 $(error setup_actuators currently only implemented for the lpc21)
 endif

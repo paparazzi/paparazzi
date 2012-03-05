@@ -50,7 +50,7 @@ ap.srcs   += $(SRC_ARCH)/mcu_arch.c
 #
 # Math functions
 #
-$(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c
+ap.srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c
 
 ifeq ($(ARCH), stm32)
 ap.srcs += lisa/plug_sys.c
@@ -77,13 +77,13 @@ endif
 ifndef PERIODIC_FREQUENCY
 PERIODIC_FREQUENCY = 512
 endif
-$(TARGET).CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC((1./$(PERIODIC_FREQUENCY).))' -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
+ap.CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 #
 # Systime
 #
 ap.CFLAGS += -DUSE_SYS_TIME
-ap.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
-ifeq ($(ARCH), stm32)
+ap.srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+ifneq ($(SYS_TIME_LED),none)
 ap.CFLAGS += -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
 
@@ -140,16 +140,19 @@ ap.srcs += $(SRC_FIRMWARE)/commands.c
 #
 ap.srcs += $(SRC_BOARD)/baro_board.c
 ifeq ($(BOARD), booz)
-ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
 else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
+else ifeq ($(BOARD), lisa_m)
+ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), navgo)
-ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
 include $(CFG_ROTORCRAFT)/spi.makefile
 ap.CFLAGS += -DUSE_SPI_SLAVE0
 ap.CFLAGS += -DSPI_NO_UNSELECT_SLAVE
 ap.CFLAGS += -DSPI_MASTER
 ap.srcs += peripherals/mcp355x.c
+endif
+ifneq ($(BARO_LED),none)
+ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
 endif
 
 #

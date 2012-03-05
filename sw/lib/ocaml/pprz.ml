@@ -73,6 +73,7 @@ let (//) = Filename.concat
 let messages_file = Env.paparazzi_src // "conf" // "messages.xml"
 let lazy_messages_xml = lazy (Xml.parse_file messages_file)
 let messages_xml = fun () -> Lazy.force lazy_messages_xml
+let units_file = Env.paparazzi_src // "conf" // "units.xml"
 
 external float_of_bytes : string -> int -> float = "c_float_of_indexed_bytes"
 external double_of_bytes : string -> int -> float = "c_double_of_indexed_bytes"
@@ -157,21 +158,42 @@ let payload_size_of_message = fun message ->
     message.fields
     2 (** + message id + aircraft id *)
 
+exception Unit_conversion_error of string
+exception Unknown_conversion of string * string
+
+let scale_of_units = fun from_unit to_unit ->
+  if (from_unit = to_unit) then
+    1.0
+  else
+    try
+      let units_xml = Xml.parse_file units_file in
+      (* find the first occurence of matching units or raise Not_found *)
+      let _unit = List.find (fun u ->
+          (* will raise Xml.No_attribute if not a valid attribute *)
+          let f = Xml.attrib u "from"
+          and t = Xml.attrib u "to" in
+          if from_unit = f && to_unit = t then true else false
+        ) (Xml.children units_xml) in
+      (* return coef, raise Failure if coef is not a numerical value *)
+      float_of_string (Xml.attrib _unit "coef")
+    with Xml.File_not_found _ -> raise (Unit_conversion_error ("Parse error of conf/units.xml"))
+      | Xml.No_attribute _ | Xml.Not_element _ -> raise (Unit_conversion_error ("File conf/units.xml has errors"))
+      | Failure "float_of_string" -> raise (Unit_conversion_error ("Unit coef is not numerical value"))
+      | Not_found -> raise (Unknown_conversion (from_unit, to_unit))
+      | _ -> raise (Unknown_conversion (from_unit, to_unit))
+
 
 let alt_unit_coef_of_xml = function xml ->
   try Xml.attrib xml "alt_unit_coef"
   with _ ->
     let u = try Xml.attrib xml "unit" with _ -> "" in
     let au = try Xml.attrib xml "alt_unit" with _ -> "" in
-    match (u, au) with
-      ("deg", "rad") | ("deg/s", "rad/s") -> string_of_float (pi /. 180.)
-    | ("rad", "deg") | ("rad/s", "deg/s") -> string_of_float (180. /. pi)
-    | ("m", "cm") | ("m/s", "cm/s") -> "100."
-    | ("cm", "m") | ("cm/s", "m/s") -> "0.01"
-    | ("m", "mm") | ("m/s", "mm/s") -> "1000."
-    | ("mm", "m") | ("mm/s", "m/s") -> "0.001"
-    | ("decideg", "deg") -> "0.1"
-    | (_, _) -> "1."
+    let coef = try string_of_float (scale_of_units u au) with
+      Unit_conversion_error s -> prerr_endline (sprintf "Unit conversion error: %s" s); flush stderr; exit 1
+    | Unknown_conversion _ -> "1." (* Use coef 1. *)
+    | _ -> "1."
+    in
+    coef
 
 let pipe_regexp = Str.regexp "|"
 let field_of_xml = fun xml ->

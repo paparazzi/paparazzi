@@ -25,8 +25,8 @@
 
 #include "std.h"
 #include "mcu.h"
-#include "sys_time.h"
-#include "downlink.h"
+#include "mcu_periph/sys_time.h"
+#include "subsystems/datalink/downlink.h"
 #include "subsystems/gps.h"
 #include "interrupt_hw.h"
 
@@ -39,7 +39,7 @@ static void on_gps_sol(void);
 int main( void ) {
   main_init();
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -48,7 +48,7 @@ int main( void ) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   led_init();
   gps_init();
   mcu_int_enable();
@@ -56,7 +56,7 @@ static inline void main_init( void ) {
 
 static inline void main_periodic_task( void ) {
 
-  RunOnceEvery(128, { DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);});
+  RunOnceEvery(128, { DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
   RunOnceEvery(128, { LED_PERIODIC();});
 }
 
@@ -67,7 +67,7 @@ static inline void main_event_task( void ) {
 
 static void on_gps_sol(void) {
 
-  DOWNLINK_SEND_GPS_INT( DefaultChannel,
+  DOWNLINK_SEND_GPS_INT( DefaultChannel, DefaultDevice,
 			   &gps.ecef_pos.x,
 			   &gps.ecef_pos.y,
 			   &gps.ecef_pos.z,

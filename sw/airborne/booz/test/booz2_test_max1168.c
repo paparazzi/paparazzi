@@ -25,10 +25,10 @@
 
 #include "std.h"
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "interrupt_hw.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "armVIC.h"
 #include "LPC21xx.h"
@@ -48,7 +48,7 @@ static void SSP_ISR(void) __attribute__((naked));
 int main( void ) {
   main_init();
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -57,7 +57,7 @@ int main( void ) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
 
   main_init_ssp();
   max1168_init();
@@ -73,9 +73,9 @@ static inline void main_periodic_task( void ) {
 static inline void main_event_task( void ) {
   if (max1168_status == STA_MAX1168_DATA_AVAILABLE) {
     RunOnceEvery(10, {
-	DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, &max1168_values[0], &max1168_values[1], &max1168_values[2]);
-	DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, &max1168_values[3], &max1168_values[4], &max1168_values[6]);
-	DOWNLINK_SEND_BOOT(DefaultChannel, &max1168_values[7]); });
+	DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice, &max1168_values[0], &max1168_values[1], &max1168_values[2]);
+	DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice, &max1168_values[3], &max1168_values[4], &max1168_values[6]);
+	DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &max1168_values[7]); });
     max1168_status = STA_MAX1168_IDLE;
   }
 }

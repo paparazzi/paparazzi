@@ -31,7 +31,7 @@
 #include "alt_srf08.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "led.h"
 
 #ifndef DOWNLINK_DEVICE
@@ -148,7 +148,7 @@ void srf08_event(void)
     else if (srf08_got) {
       srf08_got = FALSE;
       srf08_copy();
-      DOWNLINK_SEND_RANGEFINDER(DefaultChannel, &srf08_range, &f, &f, &f, &f, &f, &i);
+      DOWNLINK_SEND_RANGEFINDER(DefaultChannel, DefaultDevice, &srf08_range, &f, &f, &f, &f, &f, &i);
     }
   }
 }

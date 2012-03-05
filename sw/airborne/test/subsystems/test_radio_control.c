@@ -24,11 +24,11 @@
 #include <inttypes.h>
 
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "interrupt_hw.h"
 #include "mcu_periph/uart.h"
 
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 
 #include "subsystems/radio_control.h"
 
@@ -41,7 +41,7 @@ static        void main_on_radio_control_frame( void );
 int main( void ) {
   main_init();
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -50,7 +50,7 @@ int main( void ) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   radio_control_init();
   mcu_int_enable();
 }
@@ -62,14 +62,14 @@ static inline void main_periodic_task( void ) {
   RunOnceEvery(51, {
     /*LED_TOGGLE(2);*/
     uint32_t blaaa= cpu_time_sec;
-    DOWNLINK_SEND_TIME(DefaultChannel, &blaaa);
+    DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &blaaa);
   });
 
   RunOnceEvery(10, {radio_control_periodic_task();});
 
-  int16_t foo = 0;//RC_PPM_SIGNED_TICS_OF_USEC(2050-1500);
+  int16_t foo = 0;//RC_PPM_SIGNED_TICKS_OF_USEC(2050-1500);
   RunOnceEvery(10,
-    {DOWNLINK_SEND_BOOZ2_RADIO_CONTROL(DefaultChannel,	\
+    {DOWNLINK_SEND_ROTORCRAFT_RADIO_CONTROL(DefaultChannel, DefaultDevice,	\
 				       &radio_control.values[RADIO_ROLL], \
 				       &radio_control.values[RADIO_PITCH], \
 				       &radio_control.values[RADIO_YAW], \
@@ -79,7 +79,7 @@ static inline void main_periodic_task( void ) {
 				       &radio_control.status);});
 #ifdef RADIO_CONTROL_TYPE_PPM
   RunOnceEvery(10,
-	       {uint8_t blaa = 0; DOWNLINK_SEND_PPM(DefaultChannel,&blaa, 8, booz_radio_control_ppm_pulses);});
+	       {uint8_t blaa = 0; DOWNLINK_SEND_PPM(DefaultChannel, DefaultDevice,&blaa, 8, ppm_pulses);});
 #endif
 
   LED_PERIODIC();

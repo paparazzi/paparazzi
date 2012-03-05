@@ -80,7 +80,6 @@ static inline void abort_and_reset(struct i2c_periph *p) {
     end_of_transaction(p);
 }
 
-#ifdef USE_I2C2
 static inline void on_status_start_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 static inline void on_status_addr_wr_sent(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 static inline void on_status_sending_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
@@ -439,7 +438,7 @@ static inline void i2c_reset_init(struct i2c_periph *p)
   // enable error interrupts
   I2C_ITConfig(p->reg_addr, I2C_IT_ERR, ENABLE);
 }
-#endif /* USE_I2C2 */
+
 
 #ifdef USE_I2C1
 

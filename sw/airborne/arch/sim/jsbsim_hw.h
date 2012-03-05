@@ -45,14 +45,14 @@
 #include "firmwares/fixedwing/main_ap.h"
 #include "ap_downlink.h"
 #include "sim_uart.h"
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 
 
 void sim_use_gps_pos(double lat, double lon, double alt, double course, double gspeed, double climb, double time);
 void sim_update_sv(void);
 
 void set_ir(double roll, double pitch);
-void provide_attitude_and_rates(float phi, float theta, float psi, float p, float q);
+void provide_attitude_and_rates(float phi, float theta, float psi, float p, float q, float r);
 
 void update_bat(double bat);
 

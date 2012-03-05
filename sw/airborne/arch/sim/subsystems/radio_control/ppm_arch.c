@@ -21,7 +21,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/ppm.h"
 

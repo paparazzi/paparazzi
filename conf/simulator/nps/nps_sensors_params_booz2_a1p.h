@@ -1,6 +1,6 @@
 /*
  * $Id$
- *  
+ *
  * Copyright (C) 2009 Antoine Drouin
  *
  * This file is part of paparazzi.
@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA. 
+ * Boston, MA 02111-1307, USA.
  *
  */
 
@@ -37,10 +37,11 @@
 #define NPS_BODY_TO_IMU_PSI    RadOfDeg(0.)
 #endif
 
-/* 
- * Accelerometer 
+/*
+ * Accelerometer
  */
-#define NPS_ACCEL_RESOLUTION      (65536)
+#define NPS_ACCEL_MIN 0
+#define NPS_ACCEL_MAX 65536
 /* ms-2 */
 /* aka 2^10/ACCEL_X_SENS  */
 #define NPS_ACCEL_SENSITIVITY_XX  ACCEL_BFP_OF_REAL(-1./2.50411474)
@@ -66,7 +67,8 @@
 /*
  * Gyrometer
  */
-#define NPS_GYRO_RESOLUTION       65536
+#define NPS_GYRO_MIN 0
+#define NPS_GYRO_MAX 65536
 
 /* 2^12/GYRO_X_SENS */
 #define NPS_GYRO_SENSITIVITY_PP   RATE_BFP_OF_REAL( 1./1.01)
@@ -96,7 +98,8 @@
 /*
  *  Magnetometer
  */
-//#define BSM_MAG_RESOLUTION 65536
+#define NPS_MAG_MIN -32767
+#define NPS_MAG_MAX  32767
 
 #define NPS_MAG_IMU_TO_SENSOR_PHI              0.
 #define NPS_MAG_IMU_TO_SENSOR_THETA            0.

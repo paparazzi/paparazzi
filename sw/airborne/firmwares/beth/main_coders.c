@@ -1,8 +1,8 @@
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "mcu_periph/can.h"
-#include "sys_time.h"
-#include "downlink.h"
+#include "mcu_periph/sys_time.h"
+#include "subsystems/datalink/downlink.h"
 
 #include <stm32/rcc.h>
 #include <stm32/gpio.h>
@@ -64,7 +64,7 @@ int main(void) {
   servos[3] = 4;
 
   while (1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic();
     main_event();
   }
@@ -74,7 +74,7 @@ int main(void) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   main_init_adc();
   bench_sensors_init();
   mcu_int_enable();

@@ -29,13 +29,13 @@
 #include "std.h"
 
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "interrupt_hw.h"
 #include "mcu_periph/uart.h"
 #include "csc_telemetry.h"
 #include "generated/periodic.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "i2c.h"
 
 #include "csc_servos.h"
@@ -49,8 +49,8 @@
 static inline void on_servo_cmd(struct CscServoCmd *cmd);
 static inline void on_motor_cmd(struct CscMotorMsg *msg);
 
-#define SERVO_TIMEOUT (SYS_TICS_OF_SEC(0.1) / PERIODIC_TASK_PERIOD)
-#define CSC_STATUS_TIMEOUT (SYS_TICS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
+#define SERVO_TIMEOUT (CPU_TICKS_OF_SEC(0.1) / PERIODIC_TASK_PERIOD)
+#define CSC_STATUS_TIMEOUT (CPU_TICKS_OF_SEC(0.25) / PERIODIC_TASK_PERIOD)
 
 static uint32_t servo_cmd_timeout = 0;
 static uint32_t can_msg_count = 0;
@@ -67,7 +67,7 @@ struct NedCoor_i booz_ins_gps_speed_cm_s_ned;
 static void csc_main_init( void ) {
 
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   led_init();
 
 #ifdef USE_UART0
@@ -82,7 +82,7 @@ static void csc_main_init( void ) {
 #endif
 
 
-#ifdef USE_GPS
+#if USE_GPS
   booz2_gps_init();
 #endif
 
@@ -177,14 +177,14 @@ static void csc_main_event( void ) {
 #ifdef SPEKTRUM_LINK
   spektrum_event_task();
 #endif
-#ifdef USE_GPS
+#if USE_GPS
   Booz2GpsEvent(on_gps_event);
 #endif
 }
 
 
-#define MIN_SERVO SYS_TICS_OF_USEC(1000)
-#define MAX_SERVO SYS_TICS_OF_USEC(2000)
+#define MIN_SERVO CPU_TICKS_OF_USEC(1000)
+#define MAX_SERVO CPU_TICKS_OF_USEC(2000)
 
 static inline void on_servo_cmd(struct CscServoCmd *cmd)
 {
@@ -219,7 +219,7 @@ static inline void on_motor_cmd(struct CscMotorMsg *msg)
 int main( void ) {
   csc_main_init();
   while(1) {
-  if (sys_time_periodic())
+  if (sys_time_check_and_ack_timer(0))
     csc_main_periodic();
     csc_main_event();
   }

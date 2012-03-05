@@ -67,9 +67,9 @@
     <define name="MAG_Z_SENS" value="-3.11986612709" integer="16"/>
 
 
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(  0.)"/>
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(  0.)"/>
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45.)"/>
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="45." unit="deg"/>
 
 <!--  3  -->
     <define name="GYRO_P_CHAN" value="0"/>
@@ -110,13 +110,13 @@ main_stm32.srcs = $(SRC_BETH)/main_stm32.c \
 main_stm32.CFLAGS += -DUSE_LED
 main_stm32.srcs += $(SRC_ARCH)/led_hw.c
 main_stm32.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=1
-main_stm32.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+main_stm32.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 main_stm32.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 main_stm32.CFLAGS += -DUSE_UART2 -DUART2_BAUD=B57600
 main_stm32.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 main_stm32.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart2
-main_stm32.srcs += downlink.c pprz_transport.c
+main_stm32.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 
 main_stm32.CFLAGS += -DUSE_OVERO_LINK
@@ -136,7 +136,7 @@ main_stm32.srcs += lisa/lisa_overo_link.c lisa/arch/stm32/lisa_overo_link_arch.c
 
 #crista IMU
 main_stm32.srcs += math/pprz_trig_int.c
-main_stm32.CFLAGS += -DIMU_TYPE_H=\"imu/imu_crista.h\" -DIMU_OVERRIDE_CHANNELS
+main_stm32.CFLAGS += -DIMU_TYPE_H=\"imu/imu_crista.h\"
 main_stm32.srcs += subsystems/imu.c             \
                         subsystems/imu/imu_crista.c \
                         arch/$(ARCH)/subsystems/imu/imu_crista_arch.c
@@ -147,7 +147,7 @@ main_stm32.srcs += firmwares/rotorcraft/actuators/actuators_asctec.c
 #\
 #                             $(SRC_BOOZ_ARCH)/actuators/actuators_asctec_arch.c
 main_stm32.CFLAGS += -DACTUATORS_ASCTEC_DEVICE=i2c1
-# -DBOOZ_START_DELAY=3  -DUSE_TIM2_IRQ
+# -DACTUATORS_START_DELAY=3  -DUSE_TIM2_IRQ
 main_stm32.CFLAGS += -DUSE_I2C1
 main_stm32.srcs += i2c.c $(SRC_ARCH)/i2c_hw.c
 
@@ -182,13 +182,13 @@ main_coders.srcs = $(SRC_BETH)/main_coders.c \
 main_coders.CFLAGS += -DUSE_LED
 main_coders.srcs += $(SRC_ARCH)/led_hw.c
 main_coders.CFLAGS += -DUSE_SYS_TIME -DSYS_TIME_LED=7
-main_coders.CFLAGS += -DPERIODIC_TASK_PERIOD='SYS_TICS_OF_SEC(1./512.)'
+main_coders.CFLAGS += -DPERIODIC_FREQUENCY='512.'
 main_coders.srcs += sys_time.c $(SRC_ARCH)/sys_time_hw.c
 
 main_coders.CFLAGS += -DUSE_UART1 -DUART1_BAUD=B57600
 main_coders.srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
 main_coders.CFLAGS += -DDOWNLINK -DDOWNLINK_TRANSPORT=PprzTransport -DDOWNLINK_DEVICE=Uart1
-main_coders.srcs += downlink.c pprz_transport.c
+main_coders.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
 
 #main_coders.CFLAGS += -DUSE_I2C2
 #main_coders.srcs += $(SRC_ARCH)/i2c_hw.c
@@ -229,7 +229,7 @@ main_overo.srcs += $(SRC_FMS)/fms_spi_link.c
 main_overo.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageBethDown
 
 main_overo.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
-main_overo.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
+main_overo.srcs    += $(SRC_FMS)/udp_transport2.c subsystems/datalink/downlink.c
 main_overo.srcs    += $(SRC_FMS)/fms_network.c
 main_overo.LDFLAGS += -levent -lm
 
@@ -252,7 +252,7 @@ overo_test_uart.srcs    += $(SRC_FMS)/fms_periodic.c
 overo_test_uart.srcs    += $(SRC_FMS)/fms_serial_port.c
 overo_test_uart.LDFLAGS += -lrt
 overo_test_uart.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
-overo_test_uart.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
+overo_test_uart.srcs    += $(SRC_FMS)/udp_transport2.c subsystems/datalink/downlink.c
 overo_test_uart.srcs    += $(SRC_FMS)/fms_network.c
 overo_test_uart.LDFLAGS += -levent -lm
 overo_test_uart.srcs    += $(SRC_BETH)/overo_gcs_com.c
@@ -261,7 +261,7 @@ overo_test_uart.srcs    += $(SRC_BETH)/overo_gcs_com.c
 overo_test_uart.CFLAGS  += -DUBX -DUSE_GPS -DUSE_UART0 -DUART0_BAUD=B38400 -DGPS_LINK=Uart0 -DGPS_USE_LATLONG
 overo_test_uart.srcs    += gps_ubx.c gps.c latlong.c $(SRC_BETH)/uart_hw.c
 overo_test_uart.CFLAGS  +=-DUSE_UART1 -DUART1_BAUD=B57600 -DDOWNLINK_DEVICE=Uart1 -DPPRZ_UART=Uart1 -DDATALINK=PPRZ
-overo_test_uart.srcs    += pprz_transport.c $(SRC_BETH)/rcv_telemetry.c
+overo_test_uart.srcs    += subsystems/datalink/pprz_transport.c $(SRC_BETH)/rcv_telemetry.c
 
 #
 # Overo twisting
@@ -278,7 +278,7 @@ overo_twist.srcs += $(SRC_FMS)/fms_spi_link.c
 overo_twist.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageBethDown
 
 overo_twist.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
-overo_twist.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
+overo_twist.srcs    += $(SRC_FMS)/udp_transport2.c subsystems/datalink/downlink.c
 overo_twist.srcs    += $(SRC_FMS)/fms_network.c
 overo_twist.LDFLAGS += -levent -lm
 
@@ -304,7 +304,7 @@ overo_sfb.srcs += $(SRC_FMS)/fms_spi_link.c
 overo_sfb.CFLAGS += -DOVERO_LINK_MSG_UP=AutopilotMessageBethUp -DOVERO_LINK_MSG_DOWN=AutopilotMessageBethDown
 
 overo_sfb.CFLAGS  += -DDOWNLINK -DDOWNLINK_TRANSPORT=UdpTransport
-overo_sfb.srcs    += $(SRC_FMS)/udp_transport2.c downlink.c
+overo_sfb.srcs    += $(SRC_FMS)/udp_transport2.c subsystems/datalink/downlink.c
 overo_sfb.srcs    += $(SRC_FMS)/fms_network.c
 overo_sfb.LDFLAGS += -levent
 overo_sfb.LDFLAGS += -lm
