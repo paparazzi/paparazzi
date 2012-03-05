@@ -10,8 +10,7 @@
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/telemetry_booz2.xml"
     flight_plan="flight_plans/dummy.xml"
-    settings="settings/settings_booz2.xml
-    settings/settings_booz2_ahrs_cmpl.xml"
+    settings="settings/settings_booz2.xml settings/settings_booz2_ahrs_cmpl.xml"
     gui_color="white"
     />
 
@@ -33,8 +32,7 @@
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/telemetry_booz2.xml"
     flight_plan="flight_plans/dummy.xml"
-    settings="settings/settings_booz2.xml
-    settings/settings_booz2_ahrs_cmpl.xml"
+    settings="settings/settings_booz2.xml settings/settings_booz2_ahrs_cmpl.xml"
     gui_color="white"
     />
 
@@ -66,8 +64,7 @@
     radio="radios/cockpitMM.xml"
     telemetry="telemetry/default.xml"
     flight_plan="flight_plans/versatile.xml"
-    settings="settings/tuning.xml
-    settings/infrared.xml"
+    settings="settings/tuning.xml settings/infrared.xml"
     gui_color="#ba6293"
     />
   <aircraft
@@ -77,8 +74,7 @@
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/default.xml"
     flight_plan="flight_plans/versatile.xml"
-    settings="settings/tuning.xml
-    settings/infrared.xml"
+    settings="settings/tuning.xml settings/infrared.xml"
     gui_color="red"
     />
 
