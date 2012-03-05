@@ -4,29 +4,52 @@ use Test::More;
 use lib "$ENV{'PAPARAZZI_SRC'}/tests/lib";
 use XML::Simple;
 use Program;
+use Data::Dumper;
 
 $|++; 
 my $examples = XMLin("$ENV{'PAPARAZZI_SRC'}/conf/conf.xml.example");
 
 use Data::Dumper;
-warn Dumper(\%ENV);
 
 ok(1, "Parsed the example file");
 foreach my $example (sort keys%{$examples->{'aircraft'}})
 {
+	#next unless $example =~ m#easystar#i;
 	my $airframe = $examples->{'aircraft'}->{$example}->{'airframe'};
 	my $airframe_config = XMLin("$ENV{'PAPARAZZI_SRC'}/conf/$airframe");
 	foreach my $process (sort keys %{$airframe_config->{'firmware'}})
 	{
-		foreach my $target (sort keys %{$airframe_config->{'firmware'}->{$process}->{'target'}})
+		if ($process =~ m#setup|fixedwing|rotorcraft|lisa_test_progs#)
 		{
-			my $make_upload_options = "AIRCRAFT=$example clean_ac $target.compile";
-			my $upload_output = run_program(
-				"Attempting to build the firmware $target for the airframe $example.",
-				$ENV{'PAPARAZZI_SRC'},
-				"make $make_upload_options",
-				$ENV->{'TEST_VERBOSE'},1);
-			unlike($upload_output, '/Error/i', "The upload output does not contain the word \"Error\"");
+			#warn "EX: [$example] ". Dumper($airframe_config->{'firmware'}->{$process}->{'target'});
+			foreach my $target (sort keys %{$airframe_config->{'firmware'}->{$process}->{'target'}})
+			{
+				next unless scalar $airframe_config->{'firmware'}->{$process}->{'target'}->{$target}->{'board'};
+				#warn "EXAMPLE: [$example] TARGET: [$target]\n";
+				my $make_upload_options = "AIRCRAFT=$example clean_ac $target.compile";
+				my $upload_output = run_program(
+					"Attempting to build the firmware $target for the airframe $example.",
+					$ENV{'PAPARAZZI_SRC'},
+					"make $make_upload_options",
+					$ENV->{'TEST_VERBOSE'},1);
+				unlike($upload_output, '/Error/i', "The upload output does not contain the word \"Error\"");
+			}
+		}
+		elsif ($process =~ m#target#)
+		{
+			#warn "EXT: [$example] ". Dumper($airframe_config->{'firmware'}->{$process});
+			foreach my $target (sort keys %{$airframe_config->{'firmware'}->{$process}})
+			{
+				next unless scalar $airframe_config->{'firmware'}->{$process}->{$target}->{'board'};
+				#warn "EXAMPLET: [$example] TARGET: [$target]\n";
+				my $make_upload_options = "AIRCRAFT=$example clean_ac $target.compile";
+				my $upload_output = run_program(
+					"Attempting to build the firmware $target for the airframe $example.",
+					$ENV{'PAPARAZZI_SRC'},
+					"make $make_upload_options",
+					$ENV->{'TEST_VERBOSE'},1);
+				unlike($upload_output, '/Error/i', "The upload output does not contain the word \"Error\"");
+			}
 		}
 	}
 }
