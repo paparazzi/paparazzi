@@ -24,16 +24,16 @@
 JSBSIM = /home/violato/enac/programs/install_jsbsim
 
 CFLAGS = -Wall                          \
-         -I ..                          \
-         -I ../../../var/BOOZ2_A1       \
-         -I ../../airborne              \
-         -I ../../include               \
-	 -I $(JSBSIM)/include/JSBSim    \
+         -I..                          \
+         -I../../../var/BOOZ2_A1       \
+         -I../../airborne              \
+         -I../../include               \
+	 -I$(JSBSIM)/include/JSBSim    \
          `pkg-config glib-2.0 --cflags` \
 
 LDFLAGS = -lm                           \
           -lglibivy                     \
-	  -L $(JSBSIM)/lib -lJSBSim	\
+	  -L$(JSBSIM)/lib -lJSBSim	\
           `pkg-config glib-2.0 --libs`  \
 
 SIMDIR = ..
