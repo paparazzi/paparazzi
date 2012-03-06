@@ -41,6 +41,8 @@ struct xbee_transport xbee_tp;
 #define AT_AP_MODE "ATAP1\r"
 #define AT_EXIT "ATCN\r"
 
+uint32_t xbee_delay_time;
+
 
 void xbee_init( void ) {
   xbee_tp.status = XBEE_UNINIT;
