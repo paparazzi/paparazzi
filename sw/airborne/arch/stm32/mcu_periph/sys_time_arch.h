@@ -57,7 +57,7 @@ extern void sys_tick_irq_handler(void);
 /** Busy wait, in microseconds */
 // FIXME: directly use the SysTick->VAL here
 static inline void sys_time_usleep(uint32_t us) {
-  uint32_t end = GET_CUR_TIME_USEC() + CPU_TICKS_OF_USEC(us);
+  uint32_t end = GET_CUR_TIME_USEC() + us;
   while ((uint32_t)GET_CUR_TIME_USEC() < end);
 }
 
