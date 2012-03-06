@@ -13,9 +13,6 @@
 
 void stabilization_attitude_sp_enter(void);
 
-// FIXME: apparently unused... still needed??
-//void stabilization_attitude_read_rc_incremental(bool_t enable_alpha_vane, bool_t enable_beta_vane);
-
-void stabilization_attitude_read_rc_absolute(struct Int32Eulers sp, bool_t in_flight);
+void stabilization_attitude_read_rc_absolute(bool_t in_flight);
 
 #endif
