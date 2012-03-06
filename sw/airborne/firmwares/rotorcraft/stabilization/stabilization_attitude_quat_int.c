@@ -148,14 +148,21 @@ void stabilization_attitude_run(bool_t enable_integrator) {
     INT_EULERS_ZERO( stabilization_att_sum_err );
   }
 
+  /* compute the feed forward command */
   attitude_run_ff(stabilization_att_ff_cmd, &stabilization_gains, &stab_att_ref_accel);
 
+  /* compute the feed back command */
   attitude_run_fb(stabilization_att_fb_cmd, &stabilization_gains, &att_err, &rate_err, &stabilization_att_sum_err_quat);
 
-  for (int i = COMMAND_ROLL; i <= COMMAND_YAW; i++) {
-    stabilization_cmd[i] = stabilization_att_fb_cmd[i]+stabilization_att_ff_cmd[i];
-     Bound(stabilization_cmd[i], -200, 200);
-  }
+  /* sum feedforward and feedback */
+  stabilization_cmd[COMMAND_ROLL] = stabilization_att_fb_cmd[COMMAND_ROLL] + stabilization_att_ff_cmd[COMMAND_ROLL];
+  stabilization_cmd[COMMAND_PITCH] = stabilization_att_fb_cmd[COMMAND_PITCH] + stabilization_att_ff_cmd[COMMAND_PITCH];
+  stabilization_cmd[COMMAND_YAW] = stabilization_att_fb_cmd[COMMAND_YAW] + stabilization_att_ff_cmd[COMMAND_YAW];
+
+  /* bound the result */
+  Bound(stabilization_cmd[COMMAND_ROLL], -200, 200);
+  Bound(stabilization_cmd[COMMAND_PITCH], -200, 200);
+  Bound(stabilization_cmd[COMMAND_YAW], -200, 200);
 }
 
 void stabilization_attitude_read_rc(bool_t in_flight) {
