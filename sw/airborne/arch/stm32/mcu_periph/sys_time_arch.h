@@ -55,9 +55,10 @@ extern void sys_tick_irq_handler(void);
 
 
 /** Busy wait, in microseconds */
-/* for now empty shell */
 static inline void sys_time_usleep(uint32_t us) {
-
+  uint32_t start = GET_CUR_TIME_USEC();
+  uint32_t ticks = CPU_TICKS_OF_USEC(us);
+  while ((uint32_t)(GET_CUR_TIME_USEC()-start) < ticks);
 }
 
 #endif /* SYS_TIME_ARCH_H */
