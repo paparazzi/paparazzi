@@ -85,11 +85,11 @@ static void nav_points(point2d start, point2d end)
 **/
 static bool_t intercept_two_lines(point2d *p, point2d x, point2d y, float a1, float a2, float b1, float b2)
 {
-  float div, fac;
+  float divider, fac;
 
-  div = (((b2 - a2)*(y.x - x.x)) + ((x.y - y.y)*(b1 - a1)));
-  if (div == 0) return FALSE;
-  fac = ((y.x*(x.y - a2)) + (x.x*(a2 - y.y)) + (a1*(y.y - x.y))) / div;
+  divider = (((b2 - a2)*(y.x - x.x)) + ((x.y - y.y)*(b1 - a1)));
+  if (divider == 0) return FALSE;
+  fac = ((y.x*(x.y - a2)) + (x.x*(a2 - y.y)) + (a1*(y.y - x.y))) / divider;
   if (fac > 1.0) return FALSE;
   if (fac < 0.0) return FALSE;
 
@@ -164,7 +164,7 @@ bool_t init_poly_survey_adv(uint8_t first_wp, uint8_t size, float angle, float s
 {
   int i;
   point2d small, sweep;
-  float div, len, angle_rad = angle/180.0*M_PI;
+  float divider, len, angle_rad = angle/180.0*M_PI;
 
   if (angle < 0.0) angle += 360.0;
   if (angle >= 360.0) angle -= 360.0;
@@ -224,10 +224,10 @@ bool_t init_poly_survey_adv(uint8_t first_wp, uint8_t size, float angle, float s
   small.x = waypoints[poly_first].x;
   small.y = waypoints[poly_first].y;
 
-  div = (sweep_vec.y*dir_vec.x) - (sweep_vec.x*dir_vec.y);
+  divider = (sweep_vec.y*dir_vec.x) - (sweep_vec.x*dir_vec.y);
 
   //cacluate the leftmost point if one sees the dir vec as going "up" and the sweep vec as going right
-  if (div < 0.0) {
+  if (divider < 0.0) {
     for(i=1;i<poly_count;i++)
       if ((dir_vec.x*(waypoints[poly_first+i].y - small.y)) + (dir_vec.y*(small.x - waypoints[poly_first+i].x)) > 0.0) {
         small.x = waypoints[poly_first+i].x;
