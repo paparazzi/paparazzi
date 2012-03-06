@@ -350,7 +350,7 @@ static inline void telecommand_task( void ) {
    */
   if (pprz_mode == PPRZ_MODE_AUTO1) {
     /** Roll is bounded between [-AUTO1_MAX_ROLL;AUTO1_MAX_ROLL] */
-    h_ctl_roll_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_ROLL], 0., -AUTO1_MAX_ROLL);
+    h_ctl_roll_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_ROLL], 0., AUTO1_MAX_ROLL);
 
     /** Pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
     h_ctl_pitch_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
