@@ -52,8 +52,8 @@ UNAME = $(shell uname -s)
 UNAME = $(shell uname -s)
 
 ifeq ("$(UNAME)","Darwin")
-  LIBRARYS = -L /opt/paparazzi/lib -L /opt/local/lib
-  INCLUDES = -I /opt/paparazzi/include -I /opt/local/include/
+  LIBRARYS = -L/opt/paparazzi/lib -L/opt/local/lib
+  INCLUDES = -I/opt/paparazzi/include -I/opt/local/include/
 endif
 
 LIBS = ivy-ocaml.cma ivy-ocaml.cmxa glibivy-ocaml.cma glibivy-ocaml.cmxa
