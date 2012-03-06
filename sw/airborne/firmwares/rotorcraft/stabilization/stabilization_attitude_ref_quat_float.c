@@ -31,7 +31,6 @@
 #include "subsystems/ahrs.h"
 
 #include "stabilization_attitude_ref_float.h"
-#include "quat_setpoint.h"
 
 #define REF_ACCEL_MAX_P STABILIZATION_ATTITUDE_FLOAT_REF_MAX_PDOT
 #define REF_ACCEL_MAX_Q STABILIZATION_ATTITUDE_FLOAT_REF_MAX_QDOT
@@ -104,11 +103,7 @@ void stabilization_attitude_ref_enter()
 /*
  * Reference
  */
-#ifdef BOOZ_AP_PERIODIC_PRESCALE
-#define DT_UPDATE ((float) BOOZ_AP_PERIODIC_PRESCALE / (float) PERIODIC_FREQ)
-#else
-#define DT_UPDATE (1./512.)
-#endif
+#define DT_UPDATE (1./PERIODIC_FREQUENCY)
 
 void stabilization_attitude_ref_update() {
 

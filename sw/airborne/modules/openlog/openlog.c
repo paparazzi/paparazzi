@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2011 Christoph Niemann
  *
  * This file is part of paparazzi.
  *
@@ -19,17 +19,31 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
-#include "firmwares/rotorcraft/stabilization.h"
+/**
+ * This module provides a timestamp-message, allowing
+ * sw/logalizer/openlog2tlm to convert a recorded dumpfile,
+ * created by openlog into the pprz-tlm format, to be converted into
+ * .data and .log files by sw/logalizer/sd2log
+ */
 
-int32_t stabilization_cmd[COMMANDS_NB];
+#include "openlog.h"
+#include "messages.h"
+#include "subsystems/datalink/downlink.h"
+#include "mcu_periph/uart.h"
 
-void stabilization_init(void) {
-#ifndef STABILIZATION_SKIP_RATE
-  stabilization_none_init();
-  stabilization_rate_init();
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
-  stabilization_attitude_init();
+
+uint32_t timestamp = 0; ///< Timestamp to be incremented during operation
+
+void init_openlog(void) {
 }
 
+void periodic_2Hz_openlog(void) 	{
+  timestamp=timestamp+500;
+  DOWNLINK_SEND_TIMESTAMP(DefaultChannel, DefaultDevice, &timestamp);
+}

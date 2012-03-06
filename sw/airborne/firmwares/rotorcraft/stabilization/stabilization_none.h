@@ -21,15 +21,17 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "firmwares/rotorcraft/stabilization.h"
+#ifndef STABILIZATION_NONE
+#define STABILIZATION_NONE
 
-int32_t stabilization_cmd[COMMANDS_NB];
+#include "math/pprz_algebra_int.h"
 
-void stabilization_init(void) {
-#ifndef STABILIZATION_SKIP_RATE
-  stabilization_none_init();
-  stabilization_rate_init();
-#endif
-  stabilization_attitude_init();
-}
+extern void stabilization_none_init(void);
+extern void stabilization_none_read_rc(void);
+extern void stabilization_none_run(bool_t in_flight);
+extern void stabilization_none_enter(void);
 
+extern struct Int32Rates stabilization_none_rc_cmd;
+
+
+#endif /* STABILIZATION_NONE */
