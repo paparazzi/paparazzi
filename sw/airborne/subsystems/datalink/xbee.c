@@ -41,6 +41,8 @@ struct xbee_transport xbee_tp;
 #define AT_AP_MODE "ATAP1\r"
 #define AT_EXIT "ATCN\r"
 
+uint32_t xbee_delay_time;
+
 
 void xbee_init( void ) {
   xbee_tp.status = XBEE_UNINIT;
@@ -48,13 +50,17 @@ void xbee_init( void ) {
 
 #ifndef NO_XBEE_API_INIT
   /** - busy wait 1.25s */
-  sys_time_usleep(1250000);
+  //sys_time_usleep(1250000);
+  SysTimeTimerStart(xbee_delay_time);
+  while (SysTimeTimer(xbee_delay_time) < 1250000);
 
   /** Switching to AT mode (FIXME: busy waiting) */
   XBeePrintString(XBEE_UART,AT_COMMAND_SEQUENCE);
 
   /** - busy wait 1.25s */
-  sys_time_usleep(1250000);
+  //sys_time_usleep(1250000);
+  SysTimeTimerStart(xbee_delay_time);
+  while (SysTimeTimer(xbee_delay_time) < 1250000);
 
   /** Setting my address */
   XBeePrintString(XBEE_UART,AT_SET_MY);
