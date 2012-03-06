@@ -87,6 +87,5 @@ static inline void stabilization_attitude_read_rc_setpoint(bool_t in_flight) {
 }
 
 void stabilization_attitude_ref_enter(void);
-void stabilization_attitude_ref_schedule(uint8_t idx);
 
 #endif /* STABILIZATION_ATTITUDE_INT_REF_QUAT_INT_H */

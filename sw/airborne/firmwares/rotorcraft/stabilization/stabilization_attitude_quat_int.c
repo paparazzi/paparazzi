@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -20,8 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** \file stabilization_attitude_quat_int.c
- * \brief Booz quaternion attitude stabilization
+/** @file stabilization_attitude_quat_int.c
+ * Rotorcraft quaternion attitude stabilization
  */
 
 #include "firmwares/rotorcraft/stabilization.h"
@@ -49,46 +48,6 @@ struct Int32Eulers stabilization_att_sum_err;
 int32_t stabilization_att_fb_cmd[COMMANDS_NB];
 int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 
-//static int gain_idx = STABILIZATION_ATTITUDE_GAIN_IDX_DEFAULT;
-
-/*
-static const float phi_pgain[] = STABILIZATION_ATTITUDE_PHI_PGAIN;
-static const float theta_pgain[] = STABILIZATION_ATTITUDE_THETA_PGAIN;
-static const float psi_pgain[] = STABILIZATION_ATTITUDE_PSI_PGAIN;
-
-static const float phi_dgain[] = STABILIZATION_ATTITUDE_PHI_DGAIN;
-static const float theta_dgain[] = STABILIZATION_ATTITUDE_THETA_DGAIN;
-static const float psi_dgain[] = STABILIZATION_ATTITUDE_PSI_DGAIN;
-
-static const float phi_igain[] = STABILIZATION_ATTITUDE_PHI_IGAIN;
-static const float theta_igain[] = STABILIZATION_ATTITUDE_THETA_IGAIN;
-static const float psi_igain[] = STABILIZATION_ATTITUDE_PSI_IGAIN;
-
-static const float phi_ddgain[] = STABILIZATION_ATTITUDE_PHI_DDGAIN;
-static const float theta_ddgain[] = STABILIZATION_ATTITUDE_THETA_DDGAIN;
-static const float psi_ddgain[] = STABILIZATION_ATTITUDE_PSI_DDGAIN;
-
-static const float phi_dgain_d[] = STABILIZATION_ATTITUDE_PHI_DGAIN_D;
-static const float theta_dgain_d[] = STABILIZATION_ATTITUDE_THETA_DGAIN_D;
-static const float psi_dgain_d[] = STABILIZATION_ATTITUDE_PSI_DGAIN_D;
-
-static const float phi_pgain_surface[] = STABILIZATION_ATTITUDE_PHI_PGAIN_SURFACE;
-static const float theta_pgain_surface[] = STABILIZATION_ATTITUDE_THETA_PGAIN_SURFACE;
-static const float psi_pgain_surface[] = STABILIZATION_ATTITUDE_PSI_PGAIN_SURFACE;
-
-static const float phi_dgain_surface[] = STABILIZATION_ATTITUDE_PHI_DGAIN_SURFACE;
-static const float theta_dgain_surface[] = STABILIZATION_ATTITUDE_THETA_DGAIN_SURFACE;
-static const float psi_dgain_surface[] = STABILIZATION_ATTITUDE_PSI_DGAIN_SURFACE;
-
-static const float phi_igain_surface[] = STABILIZATION_ATTITUDE_PHI_IGAIN_SURFACE;
-static const float theta_igain_surface[] = STABILIZATION_ATTITUDE_THETA_IGAIN_SURFACE;
-static const float psi_igain_surface[] = STABILIZATION_ATTITUDE_PSI_IGAIN_SURFACE;
-
-static const float phi_ddgain_surface[] = STABILIZATION_ATTITUDE_PHI_DDGAIN_SURFACE;
-static const float theta_ddgain_surface[] = STABILIZATION_ATTITUDE_THETA_DDGAIN_SURFACE;
-static const float psi_ddgain_surface[] = STABILIZATION_ATTITUDE_PSI_DDGAIN_SURFACE;
-*/
-
 #define IERROR_SCALE 1024
 #define GAIN_PRESCALER_FF 1
 #define GAIN_PRESCALER_P 1
@@ -99,35 +58,9 @@ void stabilization_attitude_init(void) {
 
   stabilization_attitude_ref_init();
 
-#if 0
-  for (int i = 0; i < STABILIZATION_ATTITUDE_GAIN_NB; i++) {
-    VECT3_ASSIGN(stabilization_gains[i].p, phi_pgain[i], theta_pgain[i], psi_pgain[i]);
-    VECT3_ASSIGN(stabilization_gains[i].d, phi_dgain[i], theta_dgain[i], psi_dgain[i]);
-    VECT3_ASSIGN(stabilization_gains[i].i, phi_igain[i], theta_igain[i], psi_igain[i]);
-    VECT3_ASSIGN(stabilization_gains[i].dd, phi_ddgain[i], theta_ddgain[i], psi_ddgain[i]);
-    VECT3_ASSIGN(stabilization_gains[i].rates_d, phi_dgain_d[i], theta_dgain_d[i], psi_dgain_d[i]);
-    VECT3_ASSIGN(stabilization_gains[i].surface_p, phi_pgain_surface[i], theta_pgain_surface[i], psi_pgain_surface[i]);
-    VECT3_ASSIGN(stabilization_gains[i].surface_d, phi_dgain_surface[i], theta_dgain_surface[i], psi_dgain_surface[i]);
-    VECT3_ASSIGN(stabilization_gains[i].surface_i, phi_igain_surface[i], theta_igain_surface[i], psi_igain_surface[i]);
-    VECT3_ASSIGN(stabilization_gains[i].surface_dd, phi_ddgain_surface[i], theta_ddgain_surface[i], psi_ddgain_surface[i]);
-  }
-#endif
-
   INT32_QUAT_ZERO( stabilization_att_sum_err_quat );
   INT_EULERS_ZERO( stabilization_att_sum_err );
 }
-
-#if 0
-void stabilization_attitude_gain_schedule(uint8_t idx)
-{
-  if (gain_idx >= STABILIZATION_ATTITUDE_GAIN_NB) {
-    // This could be bad -- Just say no.
-    return;
-  }
-  gain_idx = idx;
-  stabilization_attitude_ref_schedule(idx);
-}
-#endif
 
 void stabilization_attitude_enter(void) {
 
