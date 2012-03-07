@@ -43,7 +43,9 @@
 #endif
 
 #define Actuator(_x)  actuators_pwm_values[_x]
+#ifndef ChopServo
 #define ChopServo(x,a,b) Chop(x, a, b)
+#endif
 #define ActuatorsCommit  actuators_pwm_commit
 
 int32_t actuators_pwm_values[ACTUATORS_PWM_NB];

@@ -1,5 +1,5 @@
 Q = @
-PERL = perl
+PERL = /usr/bin/perl
 TEST_VERBOSE = 0
 ifeq ($(TARGET_BOARD),)
 	TARGET_BOARD = *
