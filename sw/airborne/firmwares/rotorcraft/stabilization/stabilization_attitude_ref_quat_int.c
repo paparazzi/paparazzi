@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -21,8 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** \file stabilization_attitude_ref_int.c
- *  \brief rotorcraft attitude reference generation (quaternion int version)
+/** @file stabilization_attitude_ref_int.c
+ * Rotorcraft attitude reference generation (quaternion int version)
  *
  */
 
@@ -78,14 +76,6 @@ struct Int32RefModel stab_att_ref_model = {
   {STABILIZATION_ATTITUDE_REF_ZETA_P, STABILIZATION_ATTITUDE_REF_ZETA_Q, STABILIZATION_ATTITUDE_REF_ZETA_R}
 };
 
-/*
-static const float omega_p[] = STABILIZATION_ATTITUDE_REF_OMEGA_P;
-static const float zeta_p[] = STABILIZATION_ATTITUDE_REF_ZETA_P;
-static const float omega_q[] = STABILIZATION_ATTITUDE_REF_OMEGA_Q;
-static const float zeta_q[] = STABILIZATION_ATTITUDE_REF_ZETA_Q;
-static const float omega_r[] = STABILIZATION_ATTITUDE_REF_OMEGA_R;
-static const float zeta_r[] = STABILIZATION_ATTITUDE_REF_ZETA_R;
-*/
 
 static void reset_psi_ref_from_body(void) {
   stab_att_ref_euler.psi = ahrs.ltp_to_body_euler.psi;

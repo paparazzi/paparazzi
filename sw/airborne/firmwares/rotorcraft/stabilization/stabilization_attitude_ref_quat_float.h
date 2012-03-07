@@ -1,6 +1,4 @@
 /*
- * $Id: stabilization_attitude_ref_traj_euler.h 3796 2009-07-25 00:01:02Z poine $
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
