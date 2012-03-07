@@ -1,8 +1,10 @@
 #!/usr/bin/perl -w
 
-use Test::More tests => 3;
+use Test::More tests => 7;
 use lib "$ENV{'PAPARAZZI_SRC'}/tests/lib";
 use Program;
+use Proc::Background;
+use Ivy;
 
 $|++; 
 
@@ -27,6 +29,27 @@ my $upload_output = run_program(
 	0,1);
 unlike($upload_output, '/Error/i', "The upload output does not contain the word \"Error\"");
 
+# Start the server process
+my $server_command = "$ENV{'PAPARAZZI_HOME'}/sw/ground_segment/tmtc/server";
+my $server_options = "";
+my $server = Proc::Background->new($server_command, $server_options);
+sleep 2; # The service should die in this time if there's an error
+ok($server->alive(), "The server started successfully");
+
+# Start the link process
+my $link_command = "$ENV{'PAPARAZZI_HOME'}/sw/ground_segment/tmtc/link";
+my @link_options = qw(-d /dev/tty.usbserial-000013FD -s 57600 -transport xbee -xbee_addr 123);
+#my @link_options = qw(-d /dev/tty.usbserial-000013FD -s 57600);
+sleep 2; # The service should die in this time if there's an error
+my $link = Proc::Background->new($link_command, @link_options);
+ok($link->alive(), "The link started successfully");
+
+# Open the Ivy bus and read from it...
+# TODO: learn how to read and write to the Ivy bus
+
+# Shutdown the server and link processes
+ok($server->die(), "The server shutdown successfully.");
+ok($link->die(), "The link shutdown successfully.");
 
 ################################################################################
 # functions used by this test script.
