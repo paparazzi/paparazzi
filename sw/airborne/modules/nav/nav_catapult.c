@@ -25,6 +25,13 @@
  * @file module/nav/nav_catapult.h
  * @brief catapult launch timing system
  *
+ *
+ * Phase 1: -Zero Roll, Climb Pitch, Zero Throttle
+ * Phase 2: After Feeling the Start Acceleration
+ *          -Zero Roll, Climb Pitch, Full Throttle
+ * Phase 3: After feeling the GPS heading (time based)
+ *          -Place climb 300m in front of us
+ *          -GoTo(climb)
 */
 
 
