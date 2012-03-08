@@ -123,6 +123,9 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
       autopilot_motors_on = FALSE;
       guidance_h_mode_changed(GUIDANCE_H_MODE_KILL);
       break;
+    case AP_MODE_RC_DIRECT:
+      guidance_h_mode_changed(GUIDANCE_H_MODE_RC_DIRECT);
+      break;
     case AP_MODE_RATE_DIRECT:
     case AP_MODE_RATE_Z_HOLD:
       guidance_h_mode_changed(GUIDANCE_H_MODE_RATE);
@@ -154,6 +157,7 @@ void autopilot_set_mode(uint8_t new_autopilot_mode) {
     case AP_MODE_KILL:
       guidance_v_mode_changed(GUIDANCE_V_MODE_KILL);
       break;
+    case AP_MODE_RC_DIRECT:
     case AP_MODE_RATE_DIRECT:
     case AP_MODE_ATTITUDE_DIRECT:
     case AP_MODE_HOVER_DIRECT:

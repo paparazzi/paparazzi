@@ -109,6 +109,10 @@ void guidance_h_mode_changed(uint8_t new_mode) {
 
   switch (new_mode) {
 
+  case GUIDANCE_H_MODE_RC_DIRECT:
+    stabilization_none_enter();
+    break;
+
   case GUIDANCE_H_MODE_RATE:
     stabilization_rate_enter();
     break;
@@ -136,6 +140,10 @@ void guidance_h_mode_changed(uint8_t new_mode) {
 void guidance_h_read_rc(bool_t  in_flight) {
 
   switch ( guidance_h_mode ) {
+
+  case GUIDANCE_H_MODE_RC_DIRECT:
+    stabilization_none_read_rc();
+    break;
 
   case GUIDANCE_H_MODE_RATE:
     stabilization_rate_read_rc();
@@ -167,6 +175,10 @@ void guidance_h_read_rc(bool_t  in_flight) {
 
 void guidance_h_run(bool_t  in_flight) {
   switch ( guidance_h_mode ) {
+
+  case GUIDANCE_H_MODE_RC_DIRECT:
+    stabilization_none_run(in_flight);
+    break;
 
   case GUIDANCE_H_MODE_RATE:
     stabilization_rate_run(in_flight);
