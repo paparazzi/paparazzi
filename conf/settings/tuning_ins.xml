@@ -58,6 +58,8 @@
 
       <dl_settings name="alt">
         <dl_setting MAX="0" MIN="-0.2" STEP="0.01" VAR="v_ctl_altitude_pgain" shortname="alt_pgain" param="V_CTL_ALTITUDE_PGAIN"/>
+        <dl_setting MAX="10" MIN="0.1" STEP="0.1" VAR="v_ctl_altitude_max_climb" shortname="max climb" param="V_CTL_ALTITUDE_MAX_CLIMB"/>
+        <dl_setting MAX="2" MIN="0.0" STEP="0.05" VAR="v_ctl_altitude_pre_climb_correction" shortname="pre climb cor" param="V_CTL_ALTITUDE_PRE_CLIMB_CORRECTION"/>
       </dl_settings>
 
       <dl_settings name="auto_throttle">
@@ -66,6 +68,9 @@
           <strip_button name="Cruise" value="0"/>
           <strip_button name="Dash" value="1"/>
         </dl_setting>
+
+        <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_min_cruise_throttle" shortname="min cruise thr" module="guidance/guidance_v" param="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE"/>
+        <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_max_cruise_throttle" shortname="max cruise thr" module="guidance/guidance_v" param="V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE"/>
 
 
         <dl_setting MAX="0.00" MIN="-0.05" STEP="0.005" VAR="v_ctl_auto_throttle_pgain" shortname="throttle_pgain" param="V_CTL_AUTO_THROTTLE_PGAIN"/>
