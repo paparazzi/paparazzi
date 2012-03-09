@@ -94,7 +94,7 @@ static inline void main_periodic_task( void ) {
     if (cnt > 50) {cnt = 0; micromag_status = MM_IDLE;}
   }
 
-  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(&cpu_time_sec);});
+  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(&sys_time.nb_sec);});
 
 }
 

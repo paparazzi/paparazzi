@@ -42,7 +42,7 @@ static inline void main_init( void ) {
 
 
 static inline void main_periodic( void ) {
-  DOWNLINK_SEND_BOOT(&cpu_time_sec);
+  DOWNLINK_SEND_BOOT(&sys_time.nb_sec);
 
 }
 
