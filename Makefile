@@ -84,7 +84,7 @@ all: conf commands static
 
 static : lib center tools cockpit multimon tmtc misc logalizer lpc21iap sim_static static_h usb_lib
 
-conf: conf/conf.xml conf/control_panel.xml conf/maps.xml FORCE
+conf: conf/conf.xml conf/control_panel.xml conf/maps.xml conf/messages_conf.xml FORCE
 
 conf/%.xml :conf/%.xml.example
 	[ -L $@ ] || [ -f $@ ] || cp $< $@
