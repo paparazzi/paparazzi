@@ -23,8 +23,8 @@
 
 #include "firmwares/rotorcraft/stabilization.h"
 
-struct Int32Eulers stab_att_sp_euler;
-struct Int32Eulers stab_att_ref_euler;
+struct Int32Eulers stab_att_sp_euler;   ///< with #REF_ANGLE_FRAC
+struct Int32Eulers stab_att_ref_euler;  ///< with #REF_ANGLE_FRAC
 struct Int32Rates  stab_att_ref_rate;
 struct Int32Rates  stab_att_ref_accel;
 

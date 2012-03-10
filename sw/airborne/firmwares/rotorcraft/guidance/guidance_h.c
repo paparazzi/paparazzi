@@ -146,12 +146,12 @@ void guidance_h_read_rc(bool_t  in_flight) {
     break;
 
   case GUIDANCE_H_MODE_HOVER:
-    STABILIZATION_ATTITUDE_READ_RC(guidance_h_rc_sp, in_flight);
+    stabilization_attitude_read_rc_ref(&guidance_h_rc_sp, in_flight);
     break;
 
   case GUIDANCE_H_MODE_NAV:
     if (radio_control.status == RC_OK) {
-      STABILIZATION_ATTITUDE_READ_RC(guidance_h_rc_sp, in_flight);
+      stabilization_attitude_read_rc_ref(&guidance_h_rc_sp, in_flight);
       guidance_h_rc_sp.psi = 0;
     }
     else {
