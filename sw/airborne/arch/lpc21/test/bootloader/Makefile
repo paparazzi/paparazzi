@@ -15,18 +15,18 @@ LINKFILE	= lpc2148-rom.ld
 LINKFILE_RAM	= lpc2148-ram.ld
 
 # Tool definitions
-CC      = arm-elf-gcc
-LD      = arm-elf-ld -v
-AR      = arm-elf-ar
-AS      = arm-elf-as
-CP      = arm-elf-objcopy
-OD		= arm-elf-objdump
-RM		= rm
-TAR		= tar
+CC      = arm-none-eabi-gcc
+LD      = arm-none-eabi-ld -v
+AR      = arm-none-eabi-ar
+AS      = arm-none-eabi-as
+CP      = arm-none-eabi-objcopy
+OD	= arm-none-eabi-objdump
+RM	= rm
+TAR	= tar
 
 CFLAGS  = -I./ -c -W -Wall -Os -g -mcpu=arm7tdmi -mthumb-interwork $(ALLFLAGS)
 # -DDEBUG 
-ASFLAGS = $(ALLFLAGS) -mapcs-32
+ASFLAGS = $(ALLFLAGS) 
 LFLAGS  = -T $(LINKFILE) -nostartfiles --warn-common -n
 LFLAGS_RAM  = -T $(LINKFILE_RAM) -nostartfiles --warn-common -n
 CPFLAGS = -O ihex
@@ -49,28 +49,28 @@ lib: $(LIBOBJS)
 	$(AR) -r $(LIBNAME).a $(LIBOBJS)
 
 app: $(APPNAME).elf
-	@ echo "...copying"
+	$(Q)echo "...copying"
 	$(CP) $(CPFLAGS) $(APPNAME).elf $(APPNAME).hex
 	$(OD) $(ODFLAGS) $(APPNAME).elf > $(APPNAME).dmp
-#	@ echo "....loading"
+#	$(Q)echo "....loading"
 #	./lpc21isp -control bl.hex com4 38400 12000
 #	./lpc21isp -control -termonly bl.hex com4 115200 12000
 
 app_ram: $(APPNAME_RAM).elf
-	@ echo "...copying"
+	$(Q)echo "...copying"
 	$(CP) $(CPFLAGS) $(APPNAME_RAM).elf $(APPNAME_RAM).hex
 	$(OD) $(ODFLAGS) $(APPNAME_RAM).elf > $(APPNAME_RAM).dmp
 
 $(APPNAME).elf: $(OBJS) $(LIBNAME).a $(LINKFILE)
-	@ echo "..linking"
+	$(Q)echo "..linking"
 	$(CC) $(OBJS) $(LIBNAME).a $(LFLAGS) -o $(APPNAME).elf -Wl,-Map,$(APPNAME).map
 
 $(APPNAME_RAM).elf: $(OBJS) $(LIBNAME).a $(LINKFILE_RAM)
-	@ echo "..linking RAM"
+	$(Q)echo "..linking RAM"
 	$(CC) $(OBJS) $(LIBNAME).a $(LFLAGS_RAM) -o $(APPNAME_RAM).elf -Wl,-Map,$(APPNAME_RAM).map
 
 crt.o: crt.S
-	@ echo ".assembling"
+	$(Q)echo ".assembling"
 	$(CC) -c $(ASFLAGS) -Wa,-ahlms=crt.lst crt.S -o crt.o
 
 # Builds archive tar file
@@ -83,3 +83,4 @@ dist: clean
 
 # recompile if the Makefile changes
 $(OBJS) $(LIBOBJS): Makefile
+
