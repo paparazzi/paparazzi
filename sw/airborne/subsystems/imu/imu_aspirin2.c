@@ -37,10 +37,10 @@ void imu_impl_init(void) {
 }
 
 
-void imu_periodic(void) 
+void imu_periodic(void)
 {
 
-  if (imu_aspirin2.status == Aspirin2StatusUninit) 
+  if (imu_aspirin2.status == Aspirin2StatusUninit)
   {
     configure();
     // imu_aspirin_arch_int_enable();
@@ -64,16 +64,16 @@ void imu_periodic(void)
 /*
     imu_aspirin.time_since_last_reading++;
     imu_aspirin.time_since_last_accel_reading++;
-    if (imu_aspirin.time_since_last_accel_reading > ASPIRIN_ACCEL_TIMEOUT) 
+    if (imu_aspirin.time_since_last_accel_reading > ASPIRIN_ACCEL_TIMEOUT)
     {
       configure_accel();
       imu_aspirin.time_since_last_accel_reading=0;
     }
 */
-  } 
+  }
 }
 
-static void configure(void) 
+static void configure(void)
 {
   aspirin2_mpu60x0.length = 2;
 
@@ -160,11 +160,11 @@ static void configure(void)
   t.mosi_buf[1] = (0x03<<3);
   t.len_w = 2;
   send_i2c_msg_with_retry(&t);
-  // set sample rate to 533Hz 
+  // set sample rate to 533Hz
   t.mosi_buf[0] = ITG3200_REG_SMPLRT_DIV;
   t.mosi_buf[1] = 0x0E;
   send_i2c_msg_with_retry(&t);
-  // switch to gyroX clock 
+  // switch to gyroX clock
   t.mosi_buf[0] = ITG3200_REG_PWR_MGM;
   t.mosi_buf[1] = 0x01;
   send_i2c_msg_with_retry(&t);
@@ -177,19 +177,19 @@ static void configure(void)
 
 
 /*
-static void configure_accel(void) 
+static void configure_accel(void)
 {
   // set data rate to 800Hz
   adxl345_write_to_reg(ADXL345_REG_BW_RATE, 0x0D);
-  // switch to measurememnt mode 
+  // switch to measurememnt mode
   adxl345_write_to_reg(ADXL345_REG_POWER_CTL, 1<<3);
-  // enable data ready interrupt 
+  // enable data ready interrupt
   adxl345_write_to_reg(ADXL345_REG_INT_ENABLE, 1<<7);
-  // Enable full res and interrupt active low 
+  // Enable full res and interrupt active low
   adxl345_write_to_reg(ADXL345_REG_DATA_FORMAT, 1<<3|1<<5);
-  // clear spi rx reg to make DMA happy 
+  // clear spi rx reg to make DMA happy
   adxl345_clear_rx_buf();
-  // reads data once to bring interrupt line up 
+  // reads data once to bring interrupt line up
   adxl345_start_reading_data();
 
 }

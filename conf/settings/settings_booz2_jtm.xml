@@ -70,31 +70,31 @@
    </dl_settings>
 
    <dl_settings NAME="TOYTRONICS">
-      <dl_setting VAR="hover_pitch_trim_deg" MIN="-30.0" STEP="1.0" MAX="30.0" 
+      <dl_setting VAR="hover_pitch_trim_deg" MIN="-30.0" STEP="1.0" MAX="30.0"
 		  module="toytronics/toytronics_setpoint"
 		  shortname="hover_pitch_trim_deg"/>
-      <dl_setting VAR="absolute_forward_pitch_trim_deg" MIN="-25.0" STEP="1.0" MAX="25.0" 
+      <dl_setting VAR="absolute_forward_pitch_trim_deg" MIN="-25.0" STEP="1.0" MAX="25.0"
 		  module="toytronics/toytronics_setpoint"
 		  shortname="absolute_forward_pitch_trim_deg"/>
       <dl_setting VAR="setpoint_absolute_heading_bound_deg" MIN="0.0" STEP="1" MAX="180.0"
 		  module="toytronics/toytronics_setpoint"
 		  shortname="heading_bound"/>
-      <dl_setting VAR="roll_to_yaw_rate_ff_factor" MIN="0.0" STEP="0.1" MAX="6.0" 
+      <dl_setting VAR="roll_to_yaw_rate_ff_factor" MIN="0.0" STEP="0.1" MAX="6.0"
 		  module="toytronics/toytronics_setpoint"
 		  shortname="roll_2_yaw_ff"/>
-      <dl_setting VAR="aerobatic_accel_tc_gain" MIN="-2.0" STEP="0.05" MAX="2.0" 
+      <dl_setting VAR="aerobatic_accel_tc_gain" MIN="-2.0" STEP="0.05" MAX="2.0"
 		  module="toytronics/toytronics_setpoint"
 		  shortname="aero_accel_tc_gain"/>
-      <dl_setting VAR="hover_forward_accel_tc_gain" MIN="-2.0" STEP="0.05" MAX="2.0" 
+      <dl_setting VAR="hover_forward_accel_tc_gain" MIN="-2.0" STEP="0.05" MAX="2.0"
 		  module="toytronics/toytronics_setpoint"
 		  shortname="hoverforward_accel_tc_gain"/>
-      <dl_setting VAR="forward_accel_tc_gain" MIN="-2.0" STEP="0.05" MAX="2.0" 
+      <dl_setting VAR="forward_accel_tc_gain" MIN="-2.0" STEP="0.05" MAX="2.0"
 		  module="toytronics/toytronics_setpoint"
 		  shortname="forward_accel_tc_gain"/>
-      <dl_setting VAR="tc_fading_upper_deg" MIN="0.0" STEP="5" MAX="90.0" 
+      <dl_setting VAR="tc_fading_upper_deg" MIN="0.0" STEP="5" MAX="90.0"
 		  module="toytronics/toytronics_setpoint"
 		  shortname="tc_upper_deg"/>
-      <dl_setting VAR="tc_fading_lower_deg" MIN="0.0" STEP="5" MAX="90.0" 
+      <dl_setting VAR="tc_fading_lower_deg" MIN="0.0" STEP="5" MAX="90.0"
 		  module="toytronics/toytronics_setpoint"
 		  shortname="tc_lower_deg"/>
    </dl_settings>

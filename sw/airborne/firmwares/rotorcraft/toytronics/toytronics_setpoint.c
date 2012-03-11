@@ -123,18 +123,18 @@ get_heading_from_q_n2b(const quat_t * const q_n2b)
   if (fabs(R13) >= 1.0)
     R13 /= R13 + 1.0e-12;
   double theta = acos(-R13);
-  
+
   double norm_rb = sqrt( R23*R23 + R33*R33 ) + 1e-12;
-  quat_t q_b2h = {              cos(0.5*theta), 
-                                           0.0, 
+  quat_t q_b2h = {              cos(0.5*theta),
+                                           0.0,
                     R33/norm_rb*sin(0.5*theta),
                    -R23/norm_rb*sin(0.5*theta)};
 
   quat_t q_n2h;
   quat_mult( &q_n2h, q_n2b, &q_b2h );
-  
+
   quat_t q_y90 = {sqrt(2.0)/2.0, 0.0, sqrt(2.0)/2.0, 0.0};
-  
+
   quat_t q_theta;
   quat_inv_mult( &q_theta, &q_y90, &q_n2h );
 
@@ -228,7 +228,7 @@ tc_fading(const quat_t * const q_n2b)
     tc_slider = 1;
   else
     tc_slider = 1 - (abs_pitch_deg - tc_fading_lower_deg)/(tc_fading_upper_deg - tc_fading_lower_deg);
-  
+
   return tc_slider;
 }
 
@@ -304,7 +304,7 @@ toytronics_set_sp_absolute_hover_from_rc()
   double dt = 1.0/RC_UPDATE_FREQ;
   const rc_t * const rc = get_rc();
   const quat_t * const q_n2b = get_q_n2b();
-  
+
 #ifdef SWAP_STICKS_FOR_SCOTT
   // local copies to allow implementing a deadband
   double rcp = rc->pitch;
@@ -315,7 +315,7 @@ toytronics_set_sp_absolute_hover_from_rc()
   double rcp = rc->pitch;
   double rcy = rc->roll;
   double rcr = apply_deadband(rc->yaw, SETPOINT_DEADBAND);
-#endif  
+#endif
 
   // integrate stick to get setpoint heading
   setpoint.setpoint_heading += dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*rcr;
@@ -332,8 +332,8 @@ toytronics_set_sp_absolute_hover_from_rc()
 
   // don't let setpoint drift too far
   BOUND(error_heading, -setpoint_absolute_heading_bound_deg*M_PI/180.0, setpoint_absolute_heading_bound_deg*M_PI/180.0);
-  setpoint.setpoint_heading = setpoint.estimated_heading + error_heading;  
-  
+  setpoint.setpoint_heading = setpoint.estimated_heading + error_heading;
+
   double pitch_setpoint =  pitch_body*cos(error_heading) - yaw_body*sin(error_heading);
   double yaw_setpoint   =  pitch_body*sin(error_heading) + yaw_body*cos(error_heading);
 
@@ -344,11 +344,11 @@ toytronics_set_sp_absolute_hover_from_rc()
   setpoint.q_n2sp.q1 = 0.0;
   setpoint.q_n2sp.q2 = sqrt(2.0)/2.0;
   setpoint.q_n2sp.q3 = 0.0;
-  
+
   // rotate by heading
   quat_t q_heading = {cos(0.5*setpoint.setpoint_heading), -sin(0.5*setpoint.setpoint_heading), 0.0,0.0};
   setpoint.q_n2sp = quat_mult_ret(setpoint.q_n2sp, q_heading);
- 
+
   // rotate by stick commands
   double total_angle = sqrt(pitch_setpoint*pitch_setpoint + yaw_setpoint*yaw_setpoint+1e-9);
   setpoint.q_pitch_yaw_setpoint.q0 = cos(0.5*total_angle);
@@ -361,7 +361,7 @@ toytronics_set_sp_absolute_hover_from_rc()
   quat_inv_mult( &(setpoint.q_b2sp), q_n2b, &(setpoint.q_n2sp));
 
   // output "pitch"/"yaw" estimated quat
-  quat_mult_inv(&(setpoint.q_pitch_yaw_estimated), &(setpoint.q_pitch_yaw_setpoint), 
+  quat_mult_inv(&(setpoint.q_pitch_yaw_estimated), &(setpoint.q_pitch_yaw_setpoint),
                 &(setpoint.q_b2sp));
 
   // set stabilization setpoint
@@ -374,7 +374,7 @@ toytronics_set_sp_hover_forward_from_rc()
   double dt = 1.0/RC_UPDATE_FREQ;
   const rc_t * const rc = get_rc();
   const quat_t * const q_n2b = get_q_n2b();
-  
+
   // estimated heading for telemetry and bounding
   setpoint.estimated_heading = hover_forward_yaw_of_quat( q_n2b );
 
@@ -385,7 +385,7 @@ toytronics_set_sp_hover_forward_from_rc()
 
   // set pitch/yaw from stick
   double pitch_body = (rcp * SETPOINT_MAX_STICK_ANGLE_DEG + hover_pitch_trim_deg + (fabs(rcr * SETPOINT_MAX_STICK_ANGLE_DEG)*(5/90) * fabs(rcp * SETPOINT_MAX_STICK_ANGLE_DEG)*(1/90)))*M_PI/180.0;
-  
+
   #ifdef AUTOPILOT_LOBATT_WING_WAGGLE
     if (setpoint_lobatt_wing_waggle_num < lobatt_wing_waggle_max){
       if (setpoint_lobatt_wing_waggle_left==TRUE){
@@ -458,7 +458,7 @@ toytronics_set_sp_hover_forward_from_rc()
 
   /* // calculate body to setpoint quat */
   /* quat_inv_mult( &(setpoint.q_b2sp), q_n2b, &(setpoint.q_n2sp)); */
-  
+
   /* // now bound setpoint quat to not get too far away from estimated quat */
   /* BOUND(setpoint.q_b2sp.q1, -setpoint_incremental_bounds_deg.x*M_PI/180.0/2.0, setpoint_incremental_bounds_deg.x*M_PI/180.0/2.0); */
   /* BOUND(setpoint.q_b2sp.q2, -setpoint_incremental_bounds_deg.y*M_PI/180.0/2.0, setpoint_incremental_bounds_deg.y*M_PI/180.0/2.0); */
@@ -471,7 +471,7 @@ toytronics_set_sp_hover_forward_from_rc()
 
   /* // normalize */
   /* setpoint.q_b2sp.q0 = sqrt(1 - SQR(setpoint.q_b2sp.q1) - SQR(setpoint.q_b2sp.q2) - SQR(setpoint.q_b2sp.q3)); */
-  
+
   /* // update n2sp quat */
   /* quat_mult( &(setpoint.q_n2sp), q_n2b, &(setpoint.q_b2sp)); */
 
@@ -519,7 +519,7 @@ toytronics_set_sp_absolute_forward_from_rc()
   // integrate stick to get setpoint heading
   setpoint.setpoint_heading += dt*SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*rcy;
   setpoint.setpoint_heading += dt*e_n2sp.roll*roll_to_yaw_rate_ff_factor;
-  
+
   // accel turn coordination
   setpoint.setpoint_heading -= dt*tc_fading(q_n2b)*forward_accel_tc_gain*get_y_accel();
 
@@ -530,7 +530,7 @@ toytronics_set_sp_absolute_forward_from_rc()
   double error_heading = setpoint.setpoint_heading - setpoint.estimated_heading;
   wrap_to_pi(&error_heading);
   BOUND(error_heading, -setpoint_absolute_heading_bound_deg*M_PI/180.0, setpoint_absolute_heading_bound_deg*M_PI/180.0);
-  setpoint.setpoint_heading = setpoint.estimated_heading + error_heading;  
+  setpoint.setpoint_heading = setpoint.estimated_heading + error_heading;
 
   // generate setpoint
   e_n2sp.yaw = setpoint.setpoint_heading;
@@ -580,7 +580,7 @@ toytronics_set_sp_incremental_from_rc()
   #else
     roll_body = rcr * SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*dt;
   #endif
-  
+
   // rotation vector in body frame
   xyz_t w_dt_body = {roll_body,//rcr * SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*dt,
                      rcp * SETPOINT_MAX_STICK_DEG_PER_SEC*M_PI/180.0*dt,
@@ -588,18 +588,18 @@ toytronics_set_sp_incremental_from_rc()
 
   // try accelerometer turn coordination
   w_dt_body.z -= dt*tc_fading(q_n2b)*aerobatic_accel_tc_gain*get_y_accel();
- 
+
   // old body to setpoint quat q_b2sp
   quat_inv_mult( &(setpoint.q_b2sp), q_n2b, &(setpoint.q_n2sp));
-  
+
   // rotation vector in setpoint frame
   xyz_t w_dt_sp;
   rot_vec_by_quat_a2b( &w_dt_sp, &(setpoint.q_b2sp), &w_dt_body);
 
   // form diff quat
-  double total_angle = sqrt( w_dt_sp.x*w_dt_sp.x 
-                             + w_dt_sp.y*w_dt_sp.y 
-                             + w_dt_sp.z*w_dt_sp.z 
+  double total_angle = sqrt( w_dt_sp.x*w_dt_sp.x
+                             + w_dt_sp.y*w_dt_sp.y
+                             + w_dt_sp.z*w_dt_sp.z
                              + 1e-9);
   quat_t diff_quat = {cos(total_angle/2.0),
                       sin(total_angle/2.0)*w_dt_sp.x/total_angle,
@@ -611,7 +611,7 @@ toytronics_set_sp_incremental_from_rc()
 
   // calculate body to setpoint quat
   quat_inv_mult( &(setpoint.q_b2sp), q_n2b, &(setpoint.q_n2sp));
-  
+
   // now bound setpoint quat to not get too far away from estimated quat
   BOUND(setpoint.q_b2sp.q1, -setpoint_incremental_bounds_deg.x*M_PI/180.0/2.0, setpoint_incremental_bounds_deg.x*M_PI/180.0/2.0);
   BOUND(setpoint.q_b2sp.q2, -setpoint_incremental_bounds_deg.y*M_PI/180.0/2.0, setpoint_incremental_bounds_deg.y*M_PI/180.0/2.0);
@@ -624,7 +624,7 @@ toytronics_set_sp_incremental_from_rc()
 
   // normalize
   setpoint.q_b2sp.q0 = sqrt(1 - SQR(setpoint.q_b2sp.q1) - SQR(setpoint.q_b2sp.q2) - SQR(setpoint.q_b2sp.q3));
-  
+
   // update n2sp quat
   quat_mult( &(setpoint.q_n2sp), q_n2b, &(setpoint.q_b2sp));
 
@@ -670,7 +670,7 @@ toytronics_mode_enter(int new_mode)
     toytronics_sp_set_incremental_bounds_deg( 0.0,
                                               SETPOINT_MODE_2_BOUND_QUAT_DEG_Y,
                                               SETPOINT_MODE_2_BOUND_QUAT_DEG_Z);
-    toytronics_sp_set_absolute_heading_bound_deg( SETPOINT_BOUND_ERROR_HEADING_DEG ); 
+    toytronics_sp_set_absolute_heading_bound_deg( SETPOINT_BOUND_ERROR_HEADING_DEG );
     // initialize setpoint heading to current heading
     toytronics_sp_enter_absolute_forward();
     // init smooth transition

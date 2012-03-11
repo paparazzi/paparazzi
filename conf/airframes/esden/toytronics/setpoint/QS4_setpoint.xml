@@ -21,7 +21,7 @@
     <define name="MODE_2_BOUND_QUAT_DEG_X"    value="180"/>
     <define name="MODE_2_BOUND_QUAT_DEG_Y"    value="180"/>
     <define name="MODE_2_BOUND_QUAT_DEG_Z"    value="180"/>
-    
+
     <define name="LOBATT_WING_WAGGLE_DEG"  value="30.0"/>
     <define name="LOBATT_WING_WAGGLE_MAX"  value="10.0"/>
     <define name="LOBATT_WING_WAGGLE_DT"  value="0.3"/>

@@ -87,7 +87,7 @@
     <set servo="AILEVON_RIGHT"   value="@RC_MODE == AP_MODE_TOYTRONICS_HOVER ? $hover_right  : (@RC_MODE == AP_MODE_TOYTRONICS_HOVER_FORWARD ? $hover_forward_right  : (@RC_MODE == AP_MODE_TOYTRONICS_FORWARD ? $forward_right : $aerobatic_right))" />
     <set servo="CAMERA_MOUNT"   value="@CAMERA"/>
   </command_laws>
-  
+
   <!-- for the sim -->
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
     <define name="NB" value="4"/>
@@ -115,7 +115,7 @@
   <include href="conf/airframes/esden/calib/imu_lisam_033.xml"/>
 
   <section name="IMU" prefix="IMU_">
-    
+
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg( 000. )"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(   0. )"/>

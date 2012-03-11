@@ -179,7 +179,7 @@ static inline void imu_aspirin2_event(void (* _gyro_handler)(void), void (* _acc
 
   // imu_aspirin2_arch_int_disable();
 
-  if (imu_aspirin2.imu_available) 
+  if (imu_aspirin2.imu_available)
   {
     imu_aspirin2.time_since_last_reading = 0;
     imu_aspirin2.imu_available = FALSE;

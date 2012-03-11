@@ -2,17 +2,17 @@
  * This file is part of mathlib.
  *
  * Copyright (C) 2010-2011 Greg Horn <ghorn@stanford.edu>
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
@@ -28,7 +28,7 @@
 
 #include "spatial_rotations.h"
 
-void 
+void
 rotate_xyz_about_x( xyz_t * b, const xyz_t * const a, const double rot_angle)
 {
   double cos_theta = cos(rot_angle);
@@ -100,14 +100,14 @@ quat_of_euler321(quat_t * q, const euler_t * const e)
   q->q1 = sr2*cp2*cy2 - cr2*sp2*sy2;
   q->q2 = cr2*sp2*cy2 + sr2*cp2*sy2;
   q->q3 = cr2*cp2*sy2 - sr2*sp2*cy2;
-  
+
   if (q->q0 < 0){
     q->q0 = -q->q0;
     q->q1 = -q->q1;
     q->q2 = -q->q2;
     q->q3 = -q->q3;
   }
-  
+
   quat_normalize(q);
 }
 
@@ -163,7 +163,7 @@ rot_vec_by_quat_a2b(xyz_t *vec_b, const quat_t * const q_a2b, const xyz_t * cons
 {
   double R_a2b[9];
   dcm_of_quat_a2b(R_a2b,q_a2b);
-  rot_vec_by_dcm_a2b(vec_b, R_a2b, vec_a);	
+  rot_vec_by_dcm_a2b(vec_b, R_a2b, vec_a);
 }
 
 void
@@ -171,7 +171,7 @@ rot_vec_by_quat_b2a(xyz_t *vec_a, const quat_t * const q_a2b, const xyz_t * cons
 {
   double R_a2b[9];
   dcm_of_quat_a2b(R_a2b,q_a2b);
-  rot_vec_by_dcm_b2a(vec_a, R_a2b, vec_b);	
+  rot_vec_by_dcm_b2a(vec_a, R_a2b, vec_b);
 }
 
 void

@@ -70,9 +70,9 @@ void baro_board_send_config_abs(void) {
 #pragma message "Using High LisaL Baro Gain: Do not use below 1000hPa"
   baro_board_write_to_register(BARO_ABS_ADDR, 0x01, 0x86, 0x83);
 #else
-#pragma message "Using Low LisaL Baro Gain, capable of measuring below 1000hPa or more" 
+#pragma message "Using Low LisaL Baro Gain, capable of measuring below 1000hPa or more"
   //config register should be 0x84 in low countries, or 0x86 in normal countries
-  baro_board_write_to_register(BARO_ABS_ADDR, 0x01, 0x84, 0x83); 
+  baro_board_write_to_register(BARO_ABS_ADDR, 0x01, 0x84, 0x83);
 #endif
 }
 
