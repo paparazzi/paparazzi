@@ -565,7 +565,8 @@ void monitor_task( void ) {
       estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
     estimator_flight_time = 1;
     launch = TRUE; /* Not set in non auto launch */
-    DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &sys_time.nb_sec);
+    uint16_t time_sec = sys_time.nb_sec;
+    DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &time_sec);
   }
 
 #ifdef USE_GPIO

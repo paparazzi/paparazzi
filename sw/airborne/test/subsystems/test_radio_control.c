@@ -61,8 +61,7 @@ static inline void main_periodic_task( void ) {
 
   RunOnceEvery(51, {
     /*LED_TOGGLE(2);*/
-    uint32_t blaaa= cpu_time_sec;
-    DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &blaaa);
+    DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &sys_time.nb_sec);
   });
 
   RunOnceEvery(10, {radio_control_periodic_task();});
