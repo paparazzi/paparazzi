@@ -1,3 +1,6 @@
+<!-- Copyright (C) 2011, Greg Horn, Joby Energy, Inc. -->
+<!-- Copyright (C) 2011, Allen Ibara, Joby Energy, Inc. -->
+<!-- Copyright (C) 2011, Pranay Sinha, the Quadshot Project -->
 <?xml version="1.0"?>
 <!DOCTYPE telemetry SYSTEM "telemetry.dtd">
 <telemetry>
@@ -64,12 +67,18 @@
     </mode>
 
     <mode name="attitude_loop">
-      <message name="ROTORCRAFT_STATUS"             period="1.2"/>
+      <message name="ROTORCRAFT_STATUS"             period="0.2"/>
       <message name="DL_VALUE"                period="0.5"/>
       <message name="ALIVE"                   period="0.9"/>
-      <message name="STAB_ATTITUDE"     period=".09"/>
-      <message name="STAB_ATTITUDE_REF" period=".09"/>
-      <message name="AHRS_REF_QUAT" period=".06"/>
+      <!-- <message name="STAB_ATTITUDE"     period=".09"/> -->
+      <!-- <message name="STAB_ATTITUDE_REF" period=".09"/> -->
+      <message name="AHRS_REF_QUAT" period="0.05"/>
+      <!-- <message name="TOYTRONICS_SETPOINT" period="0.09"/> -->
+      <message name="TOYTRONICS_COMMANDS" period="0.05"/>
+      <message name="BOOZ2_RADIO_CONTROL" period="0.05"/>
+      <message name="BARO_RAW"          period=".2"/>
+      <message name="IMU_GYRO_SCALED"        period=".075"/>
+      <message name="IMU_ACCEL_SCALED"       period=".075"/>
     </mode>
 
     <mode name="vert_loop">

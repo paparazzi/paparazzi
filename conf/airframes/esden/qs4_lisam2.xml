@@ -1,0 +1,297 @@
+<!-- this is a synerani vehicle equiped with Lisa/M and generic china pwm motor controllers -->
+<!-- Copyright (C) 2012, Pranay Sinha, the Quadshot Project -->
+
+<airframe name="qs4_lisam2">
+
+  <servos min="0" neutral="0" max="0xff">
+    <servo name="A1"            no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="A2"            no="1" min="1000" neutral="1000" max="2000"/>
+    <servo name="B1"            no="2" min="1000" neutral="1000" max="2000"/>
+    <servo name="B2"            no="3" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILEVON_LEFT"  no="4" min="1000" neutral="1500" max="2000"/>
+    <servo name="AILEVON_RIGHT" no="5" min="1000" neutral="1500" max="2000"/>
+    <servo name="CAMERA_MOUNT"  no="6" min="1700" neutral="1500" max="1000"/>
+  </servos>
+
+  <commands>
+    <axis name="ROLL"     failsafe_value="0"/>
+    <axis name="PITCH"    failsafe_value="0"/>
+    <axis name="YAW"      failsafe_value="0"/>
+    <axis name="THRUST"   failsafe_value="0"/>
+    <axis name="RC_MODE"  failsafe_value="0"/>
+    <axis name="RC_ROLL"  failsafe_value="0"/>
+    <axis name="RC_PITCH" failsafe_value="0"/>
+    <axis name="RC_THRUST" failsafe_value="0"/>
+    <axis name="CAMERA"   failsafe_value="0"/>
+  </commands>
+
+  <section name="AUTOPILOT">
+    <!-- <define name="MODE_MANUAL" value="AP_MODE_TOYTRONICS_HOVER"/> -->
+    <define name="MODE_MANUAL" value="AP_MODE_TOYTRONICS_AEROBATIC"/>
+    <define name="MODE_AUTO1"  value="AP_MODE_TOYTRONICS_FORWARD"/>
+    <!-- <define name="MODE_AUTO1" value="AP_MODE_TOYTRONICS_AEROBATIC"/> -->
+    <define name="MODE_AUTO2"  value="AP_MODE_TOYTRONICS_HOVER_FORWARD"/>
+    <define name="AUTOPILOT_KILL_WITHOUT_AHRS"  value="TRUE"/>
+    <define name="AUTOPILOT_THROTTLE_INSTANT_START_WITH_SAFETIES"  value="TRUE"/>
+    <!--This is to enable a wing waggle at specified low battery voltage. The interval is in cycle counts, not seconds-->
+    <!--define name="AUTOPILOT_LOBATT_WING_WAGGLE"/>
+    <define name="AUTOPILOT_LOBATT_WING_WAGGLE_INTERVAL"  value="5120"/-->
+    <define name="TOYTRONICS" value="TRUE"/>
+  </section>
+
+  <rc_commands>
+    <!-- needed to set up mode laws -->
+    <set command="RC_MODE"  value="@MODE < -1500 ? MODE_MANUAL : (@MODE > 1500 ? MODE_AUTO2 : MODE_AUTO1) "/>
+    <set command="RC_ROLL"  value="@ROLL"/>
+    <set command="RC_PITCH" value="@PITCH"/>
+    <set command="RC_THRUST" value="@THROTTLE"/>
+  </rc_commands>
+
+
+  <command_laws>
+    <!--************* different mixing strategies - probably don't edit this ****************-->
+    <!-- direct ailerons -->
+    <let var="aileron_direct_left"  value="+@RC_ROLL * (9600 + @RC_THRUST)/9600"/>
+    <let var="aileron_direct_right" value="+@RC_ROLL * (9600 + @RC_THRUST)/9600"/>
+
+    <!-- direct elevators -->
+    <let var="elevator_direct_left"  value="-@RC_PITCH * (9600 + @RC_THRUST)/9600"/>
+    <let var="elevator_direct_right" value="+@RC_PITCH * (9600 + @RC_THRUST)/9600"/>
+
+    <!-- aileron feedback -->
+    <let var="aileron_feedback_left"  value="+@ROLL * (9600 + @RC_THRUST)/9600"/>
+    <let var="aileron_feedback_right" value="+@ROLL * (9600 + @RC_THRUST)/9600"/>
+
+    <!-- elevator feedback -->
+    <let var="elevator_feedback_left"  value="-@PITCH * (9600 + @RC_THRUST)/9600"/>
+    <let var="elevator_feedback_right" value="+@PITCH * (9600 + @RC_THRUST)/9600"/>
+
+    <!--************* which mode uses which mixing strategy - edit this for configuration ****************-->
+    <!-- mode hover -->
+    <let var="hover_left"  value="3*$aileron_feedback_left"/>
+    <let var="hover_right" value="3*$aileron_feedback_right"/>
+
+    <!-- mode hover_forward -->
+    <let var="hover_forward_left"  value="3*$aileron_feedback_left  + 2*$elevator_feedback_left"/>
+    <let var="hover_forward_right" value="3*$aileron_feedback_right + 2*$elevator_feedback_right"/>
+
+    <!-- mode forward -->
+    <let var="forward_left"  value="3*$aileron_feedback_left  + 2*$elevator_feedback_left"/>
+    <let var="forward_right" value="3*$aileron_feedback_right + 2*$elevator_feedback_right"/>
+
+    <!-- mode forward HIGH LIFT >
+    <let var="forward_left"  value="3*$aileron_feedback_left  + 2*$elevator_feedback_left  + 2400"/>
+    <let var="forward_right" value="3*$aileron_feedback_right + 2*$elevator_feedback_right - 2400"/-->
+
+    <!-- mode aerobatic -->
+    <!-- <let var="aerobatic_left"  value="$aileron_direct_left  + $elevator_feedback_left"/> -->
+    <!-- <let var="aerobatic_right" value="$aileron_direct_right + $elevator_feedback_right"/> -->
+    <let var="aerobatic_left"  value="3*$aileron_feedback_left  + 2*$elevator_feedback_left"/>
+    <let var="aerobatic_right" value="3*$aileron_feedback_right + 2*$elevator_feedback_right"/>
+
+    <!--************ Map laws to correct modes - probably don't edit this ****************-->
+    <set servo="AILEVON_LEFT"   value="@RC_MODE == AP_MODE_TOYTRONICS_HOVER ? $hover_left  : (@RC_MODE == AP_MODE_TOYTRONICS_HOVER_FORWARD ? $hover_forward_left  : (@RC_MODE == AP_MODE_TOYTRONICS_FORWARD ? $forward_left : $aerobatic_left))" />
+    <set servo="AILEVON_RIGHT"   value="@RC_MODE == AP_MODE_TOYTRONICS_HOVER ? $hover_right  : (@RC_MODE == AP_MODE_TOYTRONICS_HOVER_FORWARD ? $hover_forward_right  : (@RC_MODE == AP_MODE_TOYTRONICS_FORWARD ? $forward_right : $aerobatic_right))" />
+    <set servo="CAMERA_MOUNT"   value="@CAMERA"/>
+  </command_laws>
+  
+  <!-- for the sim -->
+  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
+    <define name="NB" value="4"/>
+    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
+  </section>
+
+
+  <section name="ROTORCRAFT" prefix="ROTORCRAFT_">
+    <define name="COMMANDS_YAW_ALWAYS_ENABLED" value="TRUE"/>
+ </section>
+  <section name="SUPERVISION" prefix="SUPERVISION_">
+    <define name="MIN_MOTOR" value="1000"/>
+    <define name="MAX_MOTOR" value="2000"/>
+    <define name="TRIM_A" value="0"/>
+    <define name="TRIM_E" value="0"/>
+    <define name="TRIM_R" value="0"/>
+    <define name="NB_MOTOR" value="4"/>
+    <define name="SCALE" value="256"/>
+    <define name="PITCH_COEF"  value="{ -256, -256,  256,  256 }"/>
+    <define name="ROLL_COEF"   value="{  256, -256, -128,  128 }"/>
+    <define name="YAW_COEF"    value="{  256, -256,  256, -256 }"/>
+    <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
+  </section>
+
+  <include href="conf/airframes/esden/calib/imu_lisam_033.xml"/>
+
+  <section name="IMU" prefix="IMU_">
+    
+    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg( 000. )"/>
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(   0. )"/>
+
+  </section>
+
+ <section name="BAT">
+   <define name="MILLIAMP_PER_PERCENT" value="0.86"/>
+   <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+   <define name="MIN_BAT_LEVEL" value="10.2" units="V"/>
+   <define name="BATTERY_SENS"   value="0.48" integer="16"/>
+ </section>
+
+
+  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
+
+    <define name="SP_MAX_P" value="10000"/>
+    <define name="SP_MAX_Q" value="10000"/>
+    <define name="SP_MAX_R" value="10000"/>
+
+    <define name="GAIN_P" value="-400"/>
+    <define name="GAIN_Q" value="-400"/>
+    <define name="GAIN_R" value="-350"/>
+
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoints -->
+    <define name="SP_MAX_PHI"     value="RadOfDeg(45.)"/>
+    <define name="SP_MAX_THETA"   value="RadOfDeg(45.)"/>
+    <define name="SP_MAX_PSI"     value="RadOfDeg(45.)"/>
+    <define name="SP_MAX_R"       value="RadOfDeg(90.)"/>
+    <define name="SP_MAX_P"       value="RadOfDeg(90.)"/>
+    <define name="DEADBAND_R"     value="250"/>
+    <define name="DEADBAND_A"     value="250"/>
+
+    <!-- reference -->
+    <define name="REF_OMEGA_R"  value="RadOfDeg(600)"/>
+    <define name="REF_ZETA_R"   value="0.90"/>
+    <define name="REF_MAX_R"    value="RadOfDeg(400.)"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_Q"  value="RadOfDeg(800)"/>
+    <define name="REF_ZETA_Q"   value="0.90"/>
+    <define name="REF_MAX_Q"    value="RadOfDeg(500.)"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_P"  value="RadOfDeg(600)"/>
+    <define name="REF_ZETA_P"   value="0.85"/>
+    <define name="REF_MAX_P"    value="RadOfDeg(220.)"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(1800.)"/>
+
+    <!-- feedback -->
+    <define name="PSI_PGAIN"  value="-750"/>
+    <define name="PSI_DGAIN"  value="-370"/>
+    <define name="PSI_IGAIN"  value="-100"/>
+
+    <define name="THETA_PGAIN"  value="-800"/>
+    <define name="THETA_DGAIN"  value="-240"/>
+    <define name="THETA_IGAIN"  value="-100"/>
+
+    <define name="PHI_PGAIN"  value="-4000"/>
+    <define name="PHI_DGAIN"  value="-600"/>
+    <define name="PHI_IGAIN"  value="-10"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN"   value=" 300"/>
+    <define name="THETA_DDGAIN" value=" 300"/>
+    <define name="PSI_DDGAIN"   value=" 300"/>
+
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <define name="BARO_SENS" value="3.3" integer="16"/>
+  </section>
+
+ <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+   <define name="MIN_ERR_Z"   value="POS_BFP_OF_REAL(-10.)"/>
+   <define name="MAX_ERR_Z"   value="POS_BFP_OF_REAL( 10.)"/>
+   <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
+   <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
+   <define name="MAX_SUM_ERR" value="2000000"/>
+   <define name="HOVER_KP"    value="-150"/>
+   <define name="HOVER_KD"    value="-80"/>
+   <define name="HOVER_KI"    value="-20"/>
+   <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
+   <define name="RC_CLIMB_COEF" value ="163"/>
+   <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
+   <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
+   <define name="INV_M" value ="0.21"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <define name="PROPAGATE_FREQUENCY" value="512"/>
+    <define name="MAG_UPDATE_YAW_ONLY" value="1"/>
+    <!-- magnetic field for Santa cruz from http://www.ngdc.noaa.gov/geomagmodels/IGRFWMM.jsp -->
+    <define name="H_X" value=" 0.47577"/>
+    <define name="H_Y" value=" 0.11811"/>
+    <define name="H_Z" value=" 0.87161"/>
+  </section>
+
+ <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+   <define name="PGAIN" value="-100"/>
+   <define name="DGAIN" value="-100"/>
+   <define name="IGAIN" value="-0"/>
+ </section>
+
+ <section name="SIMULATOR" prefix="NPS_">
+   <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
+   <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
+   <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
+ </section>
+
+ <include href="conf/airframes/esden/toytronics/gains/QS4M2_inner_8x4_5.xml"/>
+ <include href="conf/airframes/esden/toytronics/setpoint/QS4_setpoint.xml"/>
+ <include href="conf/airframes/esden/camera_mount.xml"/>
+
+ <modules main_freq="512">
+   <load name="battery_buzzer.xml"/>
+ </modules>
+
+  <firmware name="rotorcraft">
+    <target name="ap" board="lisa_m_2.0">
+<!--      <define name="BOOZ_START_DELAY" value="1"/> -->
+      <subsystem name="radio_control" type="spektrum"/>
+      <subsystem name="actuators"     type="pwm_supervision"/>
+      <subsystem name="telemetry"     type="transparent"/>
+      <define name="SERVO_HZ" value="400"/>
+      <define name="SERVO_HZ_SECONDARY" value="40"/>
+      <define name="RADIO_MODE" value="RADIO_FLAP"/>
+      <!--define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/-->
+      <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/>
+      <define name = "RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value = "UART5"/>
+      <define name = "OVERRIDE_UART5_IRQ_HANDLER"/>
+    </target>
+    <target name="sim" board="pc">
+      <subsystem name="fdm"           type="nps"/>
+      <subsystem name="radio_control" type="ppm"/>
+      <subsystem name="actuators"     type="mkk"/>
+    </target>
+
+    <subsystem name="imu"           type="aspirin_v1.0"/>
+    <subsystem name="gps"           type="ublox"/>
+    <!--subsystem name="ahrs"          type="float_dcm"/-->
+    <subsystem name="ahrs"          type="int_cmpl_quat"/>
+    <!--define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/-->
+    <subsystem name="stabilization" type="quaternion"/>
+    <subsystem name="toytronics"    type="default"/>
+    <subsystem name="camera_mount"  type="default"/>
+  </firmware>
+
+
+  <firmware name="lisa_m_test_progs">
+    <target name="test_led"			board="lisa_m_2.0"/>
+    <target name="test_uart_lisam"			board="lisa_m_2.0"/>
+    <target name="test_servos"			board="lisa_m_2.0"/>
+    <target name="test_telemetry"		board="lisa_m_2.0"/>
+    <target name="test_imu_aspirin"			board="lisa_m_2.0"/>
+    <target name="test_rc_spektrum"		board="lisa_m_2.0"/>
+    <target name="test_baro"			board="lisa_m_2.0"/>
+    <!--<target name="test_imu"			board="lisa_m_2.0"/>
+    <target name="test_rc_ppm"			board="lisa_m_2.0"/>
+    <target name="test_adc"			board="lisa_m_2.0"/>
+    <target name="test_hmc5843"			board="lisa_m_2.0"/>
+    <target name="test_itg3200"			board="lisa_m_2.0"/>
+    <target name="test_adxl345"			board="lisa_m_2.0"/>
+    <target name="test_esc_mkk_simple"		board="lisa_m_2.0"/>
+    <target name="test_esc_asctecv1_simple"	board="lisa_m_2.0"/>
+    <target name="test_actuators_mkk"		board="lisa_m_2.0"/>
+    <target name="test_actuators_asctecv1"	board="lisa_m_2.0"/-->
+  </firmware>
+</airframe>

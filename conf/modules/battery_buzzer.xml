@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="battery_buzzer">
+  <header>
+    <file name="battery_buzzer.h"/>
+  </header>
+  <init fun="battery_buzzer_init()"/>
+  <periodic fun="battery_buzzer_periodic()" freq="5."/>
+  <makefile>
+    <file name="battery_buzzer.c"/>
+  </makefile>
+</module>
+
+

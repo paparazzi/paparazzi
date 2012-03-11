@@ -53,6 +53,7 @@
 #define TIM_FREQ_1000000 1000000
 #define TIM_TICS_FOR_100us 100
 #define MIN_FRAME_SPACE  70  // 7ms
+
 #define MAX_BYTE_SPACE  3   // .3ms
 
 /*
@@ -554,6 +555,7 @@ void SpektrumUartInit(void) {
 
   /* required to get the correct baudrate on lisa m */
   pprz_usart_set_baudrate(PrimaryUart(_reg), B115200);
+
   /* Enable the Primary UART */
   USART_Cmd(PrimaryUart(_reg), ENABLE);
 

@@ -1,0 +1,25 @@
+<airframe>
+  <section name="SETPOINT" prefix="SETPOINT_">
+    <define name="MAX_STICK_ANGLE_DEG"                 value="90.0"/>
+    <define name="MAX_STICK_DEG_PER_SEC"               value="720.0"/>
+    <define name="BOUND_ERROR_HEADING_DEG"             value="60.0"/>
+    <define name="MODE_1_2_TRANSITION_DEGREES_PER_SEC" value="60.0"/>
+
+    <define name="HOVER_PITCH_TRIM_DEG"             value="0.0"/>
+    <define name="ABSOLUTE_FORWARD_PITCH_TRIM_DEG"  value="8.0"/>
+
+    <define name="TC_FADING_UPPER_DEG"  value="60.0"/>
+    <define name="TC_FADING_LOWER_DEG"  value="30.0"/>
+
+    <define name="ROLL_TO_YAW_RATE_FF_FACTOR"                  value="1.2"/>
+    <define name="AEROBATIC_ACCEL_TURN_COORDINATION_GAIN"      value="0.0"/>
+    <define name="HOVER_FORWARD_ACCEL_TURN_COORDINATION_GAIN"  value="0.066"/>
+    <define name="FORWARD_ACCEL_TURN_COORDINATION_GAIN"        value="0.066"/>
+
+    <define name="DEADBAND"                   value="0.03"/>
+    <define name="MODE_2_BOUND_QUAT_DEG_X"    value="180"/>
+    <define name="MODE_2_BOUND_QUAT_DEG_Y"    value="180"/>
+    <define name="MODE_2_BOUND_QUAT_DEG_Z"    value="180"/>
+
+  </section>
+</airframe>

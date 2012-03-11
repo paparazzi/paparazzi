@@ -1,0 +1,7 @@
+<airframe>
+<section name="CAMERA_MOUNT" prefix="CAMERA_MOUNT_">
+  <define name="HOVER" value="3740"/>
+  <define name="FORWARD" value="-6700"/>
+  <define name="GAIN" value="1.85" integer="16"/>
+</section>
+</airframe>

@@ -1,0 +1,35 @@
+<airframe>
+  <section name="IMU" prefix="IMU_">
+
+    <define name="GYRO_P_NEUTRAL" value="7"/>
+    <define name="GYRO_Q_NEUTRAL" value="-38"/>
+    <define name="GYRO_R_NEUTRAL" value="-30"/>
+    <define name="GYRO_P_SENS" value="4.412" integer="16"/>
+    <define name="GYRO_Q_SENS" value="4.412" integer="16"/>
+    <define name="GYRO_R_SENS" value="4.412" integer="16"/>
+    <define name="GYRO_PQ_SENS" value="0.0" integer="16"/>
+    <define name="GYRO_PR_SENS" value="0.0" integer="16"/>
+    <define name="GYRO_QR_SENS" value="0.0" integer="16"/>
+    
+    <define name="ACCEL_X_NEUTRAL" value="5"/>
+    <define name="ACCEL_Y_NEUTRAL" value="6"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-5"/>
+    <define name="ACCEL_X_SENS" value="38.1959737384" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="38.0891238811" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="39.6400573777" integer="16"/>
+    <define name="ACCEL_XY_SENS" value="0.0" integer="16"/>
+    <define name="ACCEL_XZ_SENS" value="0.0" integer="16"/>
+    <define name="ACCEL_YZ_SENS" value="0.0" integer="16"/>
+    
+    <define name="MAG_X_NEUTRAL" value="69"/>
+    <define name="MAG_Y_NEUTRAL" value="68"/>
+    <define name="MAG_Z_NEUTRAL" value="-228"/>
+    <define name="MAG_X_SENS" value="4.10513850603" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.85423271885" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.50518931605" integer="16"/>
+    <define name="MAG_XY_SENS" value="0.0" integer="16"/>
+    <define name="MAG_XZ_SENS" value="0.0" integer="16"/>
+    <define name="MAG_YZ_SENS" value="0.0" integer="16"/>
+
+  </section>
+</airframe>

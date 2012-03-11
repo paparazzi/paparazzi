@@ -775,4 +775,67 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #include "generated/settings.h"
 #define PERIODIC_SEND_DL_VALUE(_trans, _dev) PeriodicSendDlValue(_trans, _dev)
 
+#ifdef USE_TOYTRONICS
+#include "firmwares/rotorcraft/toytronics/toytronics_setpoint.h"
+#include "firmwares/rotorcraft/actuators/actuators_pwm.h"
+#define PERIODIC_SEND_TOYTRONICS_COMMANDS(_trans, _chan) {                      \
+    int32_t lailevon = 1500 - actuators_pwm_values[SERVO_AILEVON_LEFT]; \
+    int32_t railevon = actuators_pwm_values[SERVO_AILEVON_RIGHT] - 1500; \
+    int32_t ailevon_roll  = (lailevon - railevon)/5;                    \
+    int32_t ailevon_pitch = (lailevon + railevon)/5;                    \
+    DOWNLINK_SEND_TOYTRONICS_COMMANDS(_trans, _chan,                            \
+                                      &stabilization_cmd[COMMAND_ROLL], \
+                                      &stabilization_cmd[COMMAND_PITCH], \
+                                      &stabilization_cmd[COMMAND_YAW],  \
+                                      &stabilization_cmd[COMMAND_THRUST], \
+                                      &ailevon_roll,                    \
+                                      &ailevon_pitch);                  \
+  }
+#define PERIODIC_SEND_TOYTRONICS_SETPOINT(_trans, _chan) {      \
+    float  nq0, nq1, nq2, nq3;                          \
+    float  bq0, bq1, bq2, bq3;                          \
+    float  pysq0, pysq1, pysq2, pysq3;                  \
+    float  pyeq0, pyeq1, pyeq2, pyeq3;                  \
+    float  sp_heading, es_heading;                      \
+    nq0 = setpoint.q_n2sp.q0;                           \
+    nq1 = setpoint.q_n2sp.q1;                           \
+    nq2 = setpoint.q_n2sp.q2;                           \
+    nq3 = setpoint.q_n2sp.q3;                           \
+    bq0 = setpoint.q_b2sp.q0;                           \
+    bq1 = setpoint.q_b2sp.q1;                           \
+    bq2 = setpoint.q_b2sp.q2;                           \
+    bq3 = setpoint.q_b2sp.q3;                           \
+    pysq0	= setpoint.q_pitch_yaw_setpoint.q0;     \
+    pysq1	= setpoint.q_pitch_yaw_setpoint.q1;     \
+    pysq2	= setpoint.q_pitch_yaw_setpoint.q2;     \
+    pysq3	= setpoint.q_pitch_yaw_setpoint.q3;     \
+    pysq0	= setpoint.q_pitch_yaw_estimated.q0;    \
+    pysq1	= setpoint.q_pitch_yaw_estimated.q1;    \
+    pysq2	= setpoint.q_pitch_yaw_estimated.q2;    \
+    pysq3	= setpoint.q_pitch_yaw_estimated.q3;    \
+    sp_heading = setpoint.setpoint_heading;             \
+    es_heading = setpoint.estimated_heading;            \
+    DOWNLINK_SEND_TOYTRONICS_SETPOINT(_trans, _chan,            \
+                                      &nq0,             \
+                                      &nq1,             \
+                                      &nq2,             \
+                                      &nq3,             \
+                                      &bq0,             \
+                                      &bq1,             \
+                                      &bq2,             \
+                                      &bq3,             \
+                                      &pysq0,           \
+                                      &pysq1,           \
+                                      &pysq2,           \
+                                      &pysq3,           \
+                                      &pyeq0,           \
+                                      &pyeq1,           \
+                                      &pyeq2,           \
+                                      &pyeq3,           \
+                                      &sp_heading,      \
+                                      &es_heading);     \
+  }
+#endif // USE_TOYTRONICS
+
+
 #endif /* TELEMETRY_H */

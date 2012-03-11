@@ -1,0 +1,51 @@
+<airframe>
+  <section name="TOYTRONICS_STAB_GAINS" prefix="TOYTRONICS_STAB_GAINS_">
+    <!-- hover gains -->
+    <define name="HOVER_X_P"      value="-1200"/>
+    <define name="HOVER_X_I"      value="-10"/> 
+    <define name="HOVER_X_D"      value="-300"/>
+    <define name="HOVER_X_DD"     value="300"/>
+
+    <define name="HOVER_Y_P"      value="-451"/>
+    <define name="HOVER_Y_I"      value="-10"/>
+    <define name="HOVER_Y_D"      value="-215"/>
+    <define name="HOVER_Y_DD"     value="300"/>
+
+    <define name="HOVER_Z_P"      value="-550"/>
+    <define name="HOVER_Z_I"      value="-10"/>
+    <define name="HOVER_Z_D"      value="-370"/>
+    <define name="HOVER_Z_DD"     value="300"/>
+
+    <!-- forward gains -->
+    <define name="FORWARD_X_P"      value="-1200"/>
+    <define name="FORWARD_X_I"      value="-10"/>
+    <define name="FORWARD_X_D"      value="-300"/>
+    <define name="FORWARD_X_DD"     value="0"/>
+
+    <define name="FORWARD_Y_P"      value="-300"/>
+    <define name="FORWARD_Y_I"      value="-0"/>
+    <define name="FORWARD_Y_D"      value="-200"/>
+    <define name="FORWARD_Y_DD"     value="0"/>
+
+    <define name="FORWARD_Z_P"      value="-386"/>
+    <define name="FORWARD_Z_I"      value="-0"/>
+    <define name="FORWARD_Z_D"      value="-237"/>
+    <define name="FORWARD_Z_DD"     value="0"/>
+   
+    <!-- aerobatic gains -->
+    <define name="AEROBATIC_X_P"      value="-1500"/>
+    <define name="AEROBATIC_X_I"      value="-10"/> 
+    <define name="AEROBATIC_X_D"      value="-300"/>
+    <define name="AEROBATIC_X_DD"     value="0"/>
+
+    <define name="AEROBATIC_Y_P"      value="-310"/>
+    <define name="AEROBATIC_Y_I"      value="0"/>
+    <define name="AEROBATIC_Y_D"      value="-202"/>
+    <define name="AEROBATIC_Y_DD"     value="0"/>
+
+    <define name="AEROBATIC_Z_P"      value="-535"/>
+    <define name="AEROBATIC_Z_I"      value="0"/>
+    <define name="AEROBATIC_Z_D"      value="-293"/>
+    <define name="AEROBATIC_Z_DD"     value="0"/>
+  </section>
+</airframe>
