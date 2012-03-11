@@ -144,7 +144,7 @@ void gps_mtk_read_message(void) {
       gps.lla_pos.lat = RadOfDeg(MTK_DIY14_NAV_LAT(gps_mtk.msg_buf))*10;
       gps.lla_pos.lon = RadOfDeg(MTK_DIY14_NAV_LON(gps_mtk.msg_buf))*10;
       // FIXME: with MTK you do not receive vertical speed
-      if (cpu_time_sec - gps.last_fix_time < 2) {
+      if (sys_time.nb_sec - gps.last_fix_time < 2) {
         gps.ned_vel.z  = ((gps.hmsl -
             MTK_DIY14_NAV_HEIGHT(gps_mtk.msg_buf)*10)*OUTPUT_RATE)/10;
       } else gps.ned_vel.z = 0;
@@ -208,7 +208,7 @@ void gps_mtk_read_message(void) {
       gps.lla_pos.lat = RadOfDeg(MTK_DIY16_NAV_LAT(gps_mtk.msg_buf))*10;
       gps.lla_pos.lon = RadOfDeg(MTK_DIY16_NAV_LON(gps_mtk.msg_buf))*10;
       // FIXME: with MTK you do not receive vertical speed
-      if (cpu_time_sec - gps.last_fix_time < 2) {
+      if (sys_time.nb_sec - gps.last_fix_time < 2) {
         gps.ned_vel.z  = ((gps.hmsl -
             MTK_DIY16_NAV_HEIGHT(gps_mtk.msg_buf)*10)*OUTPUT_RATE)/10;
       } else gps.ned_vel.z = 0;
