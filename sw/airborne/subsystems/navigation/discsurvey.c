@@ -74,6 +74,8 @@ bool_t disc_survey( uint8_t center, float radius) {
       nav_init_stage();
     }
     break;
+  default:
+    break;
   }
 
   NavVerticalAutoThrottleMode(0.); /* No pitch */
