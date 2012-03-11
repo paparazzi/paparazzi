@@ -49,7 +49,7 @@
 #define AP_MODE_TOYTRONICS_HOVER_FORWARD 14
 #define AP_MODE_TOYTRONICS_FORWARD       15
 #define AP_MODE_TOYTRONICS_AEROBATIC     16
-#define AP_MODE_RC_DIRECT	      13	// Safety Pilot Direct Commands for helicopter direct control: appropriately chosen as mode "13" 
+#define AP_MODE_RC_DIRECT	      17	// Safety Pilot Direct Commands for helicopter direct control
 
 
 

@@ -43,7 +43,7 @@ bool_t   autopilot_motors_on;
 
 bool_t   autopilot_rc_unkilled_startup; //toytronics: keep track of Tx on motor unkill @ vehicle power up
 bool_t   autopilot_first_boot; //toytronics: determine first power up for ahrs time delay
-bool_t   autopilot_mode1_kill; //toytronics: keep track of whether motor shutoff occurred in mode 1 
+bool_t   autopilot_mode1_kill; //toytronics: keep track of whether motor shutoff occurred in mode 1
 int32_t  autopilot_lobatt_wing_waggle_interval; //interval at which wing waggle series occurs if batt is low
 
 bool_t   autopilot_in_flight;
