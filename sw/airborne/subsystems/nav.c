@@ -148,11 +148,6 @@ void nav_circle_XY(float x, float y, float radius) {
 }
 
 
-#define NavGotoWaypoint(_wp) { \
-  horizontal_mode = HORIZONTAL_MODE_WAYPOINT; \
-  fly_to_xy(waypoints[_wp].x, waypoints[_wp].y); \
-}
-
 #define NavGlide(_last_wp, _wp) { \
   float start_alt = waypoints[_last_wp].a; \
   float diff_alt = waypoints[_wp].a - start_alt; \

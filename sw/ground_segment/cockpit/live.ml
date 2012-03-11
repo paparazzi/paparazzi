@@ -41,6 +41,8 @@ let gcs_id = "GCS"
 let approaching_alert_time = 3.
 let track_size = ref 500
 
+let _auto_hide_fp = ref false
+
 let min_height = 200
 let lines_height = 30
 
@@ -73,6 +75,7 @@ type aircraft = {
     track : MapTrack.track;
     color: color;
     fp_group : MapFP.flight_plan;
+    fp_show : GMenu.check_menu_item;
     wp_HOME : MapWaypoints.waypoint option;
     fp : Xml.xml;
     blocks : (int * string) list;
@@ -117,6 +120,32 @@ let get_ac = fun vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
   find_ac ac_id
 
+let show_fp = fun ac ->
+  ac.fp_group#show ();
+  ac.fp_show#set_active true
+
+let hide_fp = fun ac ->
+  ac.fp_group#hide ();
+  ac.fp_show#set_active false
+  
+(* callback for FP check button in menu *)
+let show_mission = fun ac on_off ->
+  let a = find_ac ac in
+  if on_off then
+    a.fp_group#show ()
+  else
+    a.fp_group#hide ()
+
+let auto_hide_fp = fun hide ->
+  let _hide_fp = fun () ->
+    Hashtbl.iter (fun _ a -> hide_fp a) aircrafts;
+    if !active_ac <> "" then begin
+      let a = find_ac !active_ac in
+      show_fp a
+    end;
+  in
+  _auto_hide_fp := hide;
+  if hide then _hide_fp () else Hashtbl.iter (fun _ a -> show_fp a) aircrafts
 
 let select_ac = fun acs_notebook ac_id ->
   if !active_ac <> ac_id then
@@ -127,11 +156,13 @@ let select_ac = fun acs_notebook ac_id ->
     if !active_ac <> "" then begin
       let ac' = find_ac !active_ac in
       ac'.strip#hide_buttons ();
-      ac'.notebook_label#set_width_chars (String.length ac'.notebook_label#text)
+      ac'.notebook_label#set_width_chars (String.length ac'.notebook_label#text);
+      if !_auto_hide_fp then hide_fp ac'
     end;
 
     (* Set the new active *)
     active_ac := ac_id;
+    if !_auto_hide_fp then show_fp ac;
 
     (* Select and enlarge the label of the A/C notebook *)
     let n = acs_notebook#page_num ac.pages in
@@ -149,13 +180,6 @@ let log =
     end
 
 let log_and_say = fun a ac_id s -> log ~say:true a ac_id s
-
-let show_mission = fun ac on_off ->
-  let a = find_ac ac in
-  if on_off then
-    a.fp_group#show ()
-  else
-    a.fp_group#hide ()
 
 let resize_track = fun ac track ->
   match
@@ -392,8 +416,8 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
   let ac_menu = GMenu.menu () in
   ac_mi#set_submenu ac_menu;
   let ac_menu_fact = new GMenu.factory ac_menu in
-  let fp = ac_menu_fact#add_check_item "Fligh Plan" ~active:true in
-  ignore (fp#connect#toggled (fun () -> show_mission ac_id fp#active));
+  let fp_show = ac_menu_fact#add_check_item "Fligh Plan" ~active:true in
+  ignore (fp_show#connect#toggled (fun () -> show_mission ac_id fp_show#active));
 
   let track = new MapTrack.track ~size: !track_size ~name ~color:color geomap in
   geomap#register_to_fit (track:>MapCanvas.geographic);
@@ -606,16 +630,16 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     loop fp#waypoints in
 
   let ac = { track = track; color = color; last_dist_to_wp = 0.;
-         fp_group = fp ; config = config ; wp_HOME = wp_HOME;
-         fp = fp_xml; ac_name = name;
+         fp_group = fp; fp_show = fp_show ; config = config ;
+         wp_HOME = wp_HOME; fp = fp_xml; ac_name = name;
          blocks = blocks; last_ap_mode= "";
          last_stage = (-1,-1);
          ir_page = ir_page; flight_time = 0;
          gps_page = gps_page;
-           pfd_page = pfd_page;
+         pfd_page = pfd_page;
          misc_page = misc_page;
          dl_settings_page = dl_settings_page;
-           rc_settings_page = rc_settings_page;
+         rc_settings_page = rc_settings_page;
          strip = strip; first_pos = true;
          last_block_name = ""; alt = 0.; target_alt = 0.;
          in_kill_mode = false; speed = 0.;
@@ -623,7 +647,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
          wind_speed = 0.;
          pages = ac_frame#coerce;
          notebook_label = _label;
-           got_track_status_timer = 1000;
+         got_track_status_timer = 1000;
          dl_values = [||]; last_unix_time = 0.;
          airspeed = 0.
        } in

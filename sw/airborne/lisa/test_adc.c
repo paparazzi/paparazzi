@@ -69,7 +69,7 @@ int main( void ) {
 
 static inline void main_periodic_task( void ) {
   RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
-  RunOnceEvery(100, {/*LED_TOGGLE(7);*/ DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &cpu_time_sec);});
+  RunOnceEvery(100, {/*LED_TOGGLE(7);*/ DOWNLINK_SEND_TIME(DefaultChannel, DefaultDevice, &sys_time.nb_sec);});
   LED_PERIODIC();
 }
 
