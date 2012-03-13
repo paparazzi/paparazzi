@@ -74,9 +74,9 @@ module Includes = struct
 	let check_repeated_elements = fun list ->
 		let rec loop = fun list ->
 			match list with
-				| [] | [_] -> list (* empty or single element list => IGNORE *)
-				| x::((x'::_) as xs) -> if x = x' then raise (Repeated_element x) else x::loop xs in (* different elements => function recall with ?¿?¿?¿? (list - 1st element) *)
-		loop (List.sort compare list)(* Start function with sorted list *)
+				| [] | [_] -> list 
+				| x::((x'::_) as xs) -> if x = x' then raise (Repeated_element x) else x::loop xs in 
+		loop (List.sort compare list)
 	
 	let check_single_names = fun xml_includes ->
 		let names = List.map (fun inc -> inc.class_name) xml_includes in
@@ -122,7 +122,7 @@ module Classes = struct
 	(** Checks if the class type is one of the allowed ones *)
 	let check_class_type = fun attribute ->
 		match attribute with
-			| "datalink" | "ground" | "airborne" -> attribute
+			| "datalink" | "uplink" | "downlink" | "airborne" | "ground" -> attribute
 			| t -> raise (Invalid_class_type t)
 
 	(** Translates a "class" XML element into a value of the 'class' type  *)
@@ -231,17 +231,19 @@ module MakeCalls = struct
 	let make_target = "gen_messages_macros"
 	let make_options = ""
 	
-	let make = fun class_name ->
+	let make = fun class_name check_alignment ->
 		let file = Env.paparazzi_home // "Makefile" in
 		let macros_target = var_include_path // ("messages_"^(String.lowercase class_name)^".h") in
-		let c = sprintf "make -f %s MACROS_TARGET=%s MACROS_CLASS=%s %s %s" file macros_target class_name make_options make_target in
+		let c = sprintf "make -f %s MACROS_TARGET=%s MACROS_CLASS=%s MACROS_ALIGN=%u %s %s" file macros_target class_name check_alignment make_options make_target in
     let returned_code = Sys.command c in
     if returned_code <> 0 then failwith (sprintf "Make command error (Error code: %d)" returned_code) 
 
 
 	let generate_macros = fun classes ->
 		List.map (fun clas -> match (clas.g_type) with 
-			| "datalink" -> prerr_endline ("\t Datalink Class -> Generate macros ("^clas.g_name^")"); make (clas.g_name)  
+			| "datalink" -> prerr_endline ("\t Datalink Class -> Generate macros ("^clas.g_name^") [Check Alignment]"); make clas.g_name 1
+			| "uplink" -> prerr_endline ("\t Uplink Class   -> Generate macros ("^clas.g_name^") [Check Alignment]"); make clas.g_name 1 
+			| "downlink" -> prerr_endline ("\t Downlink Class -> Generate macros ("^clas.g_name^")"); make clas.g_name 0
 			|	"ground" -> prerr_endline ("\t Ground Class   -> Do nothing ("^clas.g_name^")")
 			|	"airborne" -> prerr_endline ("\t Airborne Class -> Generate macros ("^clas.g_name^") ¡¡¡FIXME!!!")
 			|	t -> failwith (sprintf "Invalid class type in generated file: %s" t)
@@ -255,10 +257,6 @@ let () =
 	if Array.length Sys.argv <> 5 then
 	  failwith (sprintf "Usage: %s <messages config file> <spread messages path> <generated file> <var_include_path>" Sys.argv.(0));
 	let classes_info = SpreadMessages.generate_messages_xml () in
-	(*prerr_endline ("\t Messages_conf.xml: "//includes_file);
-	prerr_endline ("\t conf/messages/: "//spread_messages_path);
-	prerr_endline ("\t Messages.xml: "//generated_file);
-	prerr_endline ("\t var/include/: "//var_include_path); *)
 	
 	prerr_endline ("----------- GENERATING MESSAGES MACROS -----------");
 	ignore (MakeCalls.generate_macros classes_info);

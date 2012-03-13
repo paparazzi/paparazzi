@@ -26,6 +26,8 @@
 
 open Printf
 
+let (//) = Filename.concat
+
 type format = string
 
 type _type =
@@ -107,7 +109,7 @@ module Syntax = struct
       msgs
     with
       Not_found -> failwith (sprintf "No class '%s' found" class_)
-end (* module Suntax *)
+end (* module Syntax *)
 
 
 (** Pretty printer of C macros for sending and parsing messages *)
@@ -222,91 +224,87 @@ module Gen_onboard = struct
 
     (** Prints the macro for one field, using the global [offset] ref *)
     let parse_field = fun (_type, field_name, _format) ->
-      if !offset < 0 then
-	failwith "FIXME: No field allowed after an array field (print_get_macros)";
+      if !offset < 0 then failwith "FIXME: No field allowed after an array field (print_get_macros)";
       (** Converts bytes into the required type *)
       let typed = fun o pprz_type -> (* o for offset *)
-	let size = pprz_type.Pprz.size in
-	if check_alignment && o mod (min size 4) <> 0 then
-	  failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
+				let size = pprz_type.Pprz.size in
+				if check_alignment && o mod (min size 4) <> 0 then failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
 
-	match size with
-	  1 -> sprintf "(%s)(*((uint8_t*)_payload+%d))" pprz_type.Pprz.inttype o
-	| 2 -> sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8)" pprz_type.Pprz.inttype o o
-	| 4 when pprz_type.Pprz.inttype = "float" ->
-	    sprintf "({ union { uint32_t u; float f; } _f; _f.u = (uint32_t)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|((uint32_t)*((uint8_t*)_payload+%d+2))<<16|((uint32_t)*((uint8_t*)_payload+%d+3))<<24); _f.f; })" o o o o
-	| 8 when pprz_type.Pprz.inttype = "double" ->
-	    let s = ref (sprintf "*((uint8_t*)_payload+%d)" o) in
-	    for i = 1 to 7 do
-	      s := !s ^ sprintf "|((uint64_t)*((uint8_t*)_payload+%d+%d))<<%d" o i (8*i)
-	    done;
+				match size with
+				  1 -> sprintf "(%s)(*((uint8_t*)_payload+%d))" pprz_type.Pprz.inttype o
+				| 2 -> sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8)" pprz_type.Pprz.inttype o o
+				| 4 when pprz_type.Pprz.inttype = "float" ->
+				    sprintf "({ union { uint32_t u; float f; } _f; _f.u = (uint32_t)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|((uint32_t)*((uint8_t*)_payload+%d+2))<<16|((uint32_t)*((uint8_t*)_payload+%d+3))<<24); _f.f; })" o o o o
+				| 8 when pprz_type.Pprz.inttype = "double" ->
+				    let s = ref (sprintf "*((uint8_t*)_payload+%d)" o) in
+				    for i = 1 to 7 do
+				      s := !s ^ sprintf "|((uint64_t)*((uint8_t*)_payload+%d+%d))<<%d" o i (8*i)
+				    done;
+			
+				    sprintf "({ union { uint64_t u; double f; } _f; _f.u = (uint64_t)(%s); Swap32IfBigEndian(_f.u); _f.f; })" !s
+				| 4 ->
+				    sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|((uint32_t)*((uint8_t*)_payload+%d+2))<<16|((uint32_t)*((uint8_t*)_payload+%d+3))<<24)" pprz_type.Pprz.inttype o o o o
+				| _ -> failwith "unexpected size in Gen_messages.print_get_macros" in
 
-	    sprintf "({ union { uint64_t u; double f; } _f; _f.u = (uint64_t)(%s); Swap32IfBigEndian(_f.u); _f.f; })" !s
-	| 4 ->
-	    sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|((uint32_t)*((uint8_t*)_payload+%d+2))<<16|((uint32_t)*((uint8_t*)_payload+%d+3))<<24)" pprz_type.Pprz.inttype o o o o
-	| _ -> failwith "unexpected size in Gen_messages.print_get_macros" in
+	      (** To be an array or not to be an array: *)
+	      match _type with
+					Basic t ->
+					  let pprz_type = Syntax.assoc_types t in
+					  fprintf h "#define DL_%s_%s(_payload) (%s)\n" msg_name field_name (typed !offset pprz_type);
+					  offset := !offset + pprz_type.Pprz.size
 
-      (** To be an array or not to be an array: *)
-      match _type with
-	Basic t ->
-	  let pprz_type = Syntax.assoc_types t in
-	  fprintf h "#define DL_%s_%s(_payload) (%s)\n" msg_name field_name (typed !offset pprz_type);
-	  offset := !offset + pprz_type.Pprz.size
+	      | Array (t, _varname) ->
+					  (** The macro to access to the length of the array *)
+					  fprintf h "#define DL_%s_%s_length(_payload) (%s)\n" msg_name field_name (typed !offset (Syntax.assoc_types "uint8"));
+					  incr offset;
+					  (** The macro to access to the array itself *)
+					  let pprz_type = Syntax.assoc_types t in
+					  if check_alignment && !offset mod (min pprz_type.Pprz.size 4) <> 0 then
+					    failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
 
-      | Array (t, _varname) ->
-	  (** The macro to access to the length of the array *)
-	  fprintf h "#define DL_%s_%s_length(_payload) (%s)\n" msg_name field_name (typed !offset (Syntax.assoc_types "uint8"));
-	  incr offset;
-
-	  (** The macro to access to the array itself *)
-	  let pprz_type = Syntax.assoc_types t in
-	  if check_alignment && !offset mod (min pprz_type.Pprz.size 4) <> 0 then
-	    failwith (sprintf "Wrong alignment of field '%s' in message '%s" field_name msg_name);
-
-	  fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name pprz_type.Pprz.inttype !offset;
-	  offset := -1 (** Mark for no more fields *)
-    in
-
-    fprintf h "\n";
-    (** Do it for all the fields of the message *)
-    List.iter parse_field message.fields
+					  fprintf h "#define DL_%s_%s(_payload) ((%s*)(_payload+%d))\n" msg_name field_name pprz_type.Pprz.inttype !offset;
+					  offset := -1 (** Mark for no more fields *)
+				    in
+				
+				    fprintf h "\n";
+				    (** Do it for all the fields of the message *)
+				    List.iter parse_field message.fields
 
 end (* module Gen_onboard *)
 
 
 (********************* Main **************************************************)
 let () =
-  if Array.length Sys.argv <> 3 then begin
-    failwith (sprintf "Usage: %s <.xml file> <class_name>" Sys.argv.(0))
+  if Array.length Sys.argv <> 4 then begin
+    failwith (sprintf "Usage: %s <.xml file> <class_name> <check alignment [0,1]>" Sys.argv.(0))
   end;
 
   let filename = Sys.argv.(1)
-  and class_name = Sys.argv.(2) in
+  and class_name = Sys.argv.(2)
+	and check_align = Sys.argv.(3) in
 
   try
     let messages = Syntax.read filename class_name in
-
-    let h = stdout in
-
+		
+		let h = stdout in
+		
     Printf.fprintf h "/* Automatically generated from %s */\n" filename;
     Printf.fprintf h "/* Please DO NOT EDIT */\n";
-
     Printf.fprintf h "/* Macros to send and receive messages of class %s */\n" class_name;
 
     (** Macros for airborne downlink (sending) *)
-    if class_name = "telemetry" then begin (** FIXME *)
-      Printf.fprintf h "#ifdef DOWNLINK\n"
-    end;
+		let u_class_name = String.uppercase class_name in
+    Printf.fprintf h "#if DOWNLINK_%s\n" u_class_name;
     Gen_onboard.print_downlink_macros h class_name messages;
-    if class_name = "telemetry" then begin
-      Printf.fprintf h "#else // DOWNLINK\n";
-      Gen_onboard.print_null_downlink_macros h messages;
-      Printf.fprintf h "#endif // DOWNLINK\n"
-    end;
+	  Printf.fprintf h "#else // DOWNLINK_%s\n" u_class_name;
+	  Gen_onboard.print_null_downlink_macros h messages;
+	  Printf.fprintf h "#endif // DOWNLINK_%s\n" u_class_name;
 
     (** Macros for airborne datalink (receiving) *)
-    let check_alignment = class_name <> "telemetry" in
-    List.iter (Gen_onboard.print_get_macros h check_alignment) messages
+		match check_align with
+		| "0" -> List.iter (Gen_onboard.print_get_macros h false) messages
+		| "1" -> List.iter (Gen_onboard.print_get_macros h true) messages
+		| er -> failwith (sprintf "Parameter <check_align> has value different than 0 or 1 (Value = %s)" check_align )
 
   with
     Xml.Error (msg, pos) -> failwith (sprintf "%s:%d : %s\n" filename (Xml.line pos) (Xml.error_msg msg))
