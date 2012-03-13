@@ -30,21 +30,21 @@
 extern uint8_t ms2100_cur_axe;
 extern int16_t ms2100_last_reading;
 
-#define Ms2001Select()   GPIOC->BRR = GPIO_Pin_12
-#define Ms2001Unselect() GPIOC->BSRR = GPIO_Pin_12
+#define Ms2100Select()   GPIOC->BRR = GPIO_Pin_12
+#define Ms2100Unselect() GPIOC->BSRR = GPIO_Pin_12
 
-#define Ms2001Reset() GPIOC->BSRR = GPIO_Pin_13;
-#define Ms2001Set()   GPIOC->BRR = GPIO_Pin_13
+#define Ms2100Reset() GPIOC->BSRR = GPIO_Pin_13;
+#define Ms2100Set()   GPIOC->BRR = GPIO_Pin_13
 
-#define Ms2001HasEOC() GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5)
+#define Ms2100HasEOC() GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5)
 
-#define Ms2001SendReq() {						\
-    Ms2001Select();							\
+#define Ms2100SendReq() {						\
+    Ms2100Select();							\
     __IO uint32_t nCount = 4;for(; nCount != 0; nCount--);		\
-    Ms2001Reset();							\
+    Ms2100Reset();							\
     ms2100_status = MS2100_SENDING_REQ;					\
     nCount = 4;for(; nCount != 0; nCount--);				\
-    Ms2001Set();							\
+    Ms2100Set();							\
     uint16_t ctl_byte = ((ms2100_cur_axe+1) | (MS2100_DIVISOR << 4));	\
     nCount = 20;for(; nCount != 0; nCount--);				\
     SPI_Cmd(SPI2, DISABLE);						\
@@ -65,9 +65,9 @@ extern int16_t ms2100_last_reading;
     SPI_I2S_SendData(SPI2, ctl_byte);					\
   }
 
-#define Ms2001ReadRes() {						\
+#define Ms2100ReadRes() {						\
     ms2100_status = MS2100_READING_RES;					\
-    Ms2001Select();							\
+    Ms2100Select();							\
     SPI_Cmd(SPI2, DISABLE);						\
     SPI_InitTypeDef SPI_InitStructure = {				\
       .SPI_Direction = SPI_Direction_2Lines_FullDuplex,			\
@@ -122,13 +122,13 @@ extern int16_t ms2100_last_reading;
                                         \
   }
 
-#define Ms2001OnDmaIrq() {					\
+#define Ms2100OnDmaIrq() {					\
     /*  ASSERT((ms2100_status == MS2100_READING_RES),		\
      *   DEBUG_MS2100, MS2100_ERR_SPURIOUS_DMA_IRQ);		\
      */								\
     if (abs(ms2100_last_reading) < 1000)			\
       ms2100_values[ms2100_cur_axe] = ms2100_last_reading;	\
-    Ms2001Unselect();						\
+    Ms2100Unselect();						\
     ms2100_cur_axe++;						\
     if (ms2100_cur_axe > 2) {					\
       ms2100_cur_axe = 0;					\
@@ -140,13 +140,13 @@ extern int16_t ms2100_last_reading;
     DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);		\
   }
 
-#define Ms2001OnSpiIrq() {						\
+#define Ms2100OnSpiIrq() {						\
     /*  ASSERT((ms2100_status == MS2100_SENDING_REQ),			\
      *   DEBUG_MS2100, MS2100_ERR_SPURIOUS_SPI_IRQ);			\
      */									\
     /* read unused control byte reply */				\
     uint8_t foo __attribute__ ((unused)) = SPI_I2S_ReceiveData(SPI2);	\
-    Ms2001Unselect();							\
+    Ms2100Unselect();							\
     ms2100_status = MS2100_WAITING_EOC;					\
     SPI_Cmd(SPI2, DISABLE);						\
     SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_RXNE, DISABLE);			\
