@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav">
+  <header>
+    <file name="nav_catapult.h"/>
+  </header>
+  <init fun="nav_catapult_init()"/>
+  <!-- Run High Rate Lauch Detector -->
+  <periodic fun="nav_catapult_highrate_module()" autorun="TRUE"/>
+  <makefile>
+    <file name="nav_catapult.c"/>
+  </makefile>
+</module>
+

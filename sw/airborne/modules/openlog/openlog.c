@@ -1,5 +1,7 @@
 /*
- * Copyright (C) 2010 ENAC
+ * $Id$
+ *
+ * Copyright (C) 2011 Christoph Niemann
  *
  * This file is part of paparazzi.
  *
@@ -20,28 +22,28 @@
  *
  */
 
-/* driver for the analog Barometer Mpxa6115 using ADC ads1114 (16 bits I2C 860SpS max) from Texas instruments
- * Navarro & Gorraz & Hattenberger
+/**
+ * This module provides a timestamp-message, allowing
+ * sw/logalizer/openlog2tlm to convert a recorded dumpfile,
+ * created by openlog into the pprz-tlm format, to be converted into
+ * .data and .log files by sw/logalizer/sd2log
  */
 
+#include "openlog.h"
+#include "messages.h"
+#include "downlink.h"
+#include "mcu_periph/uart.h"
 
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
 
-#ifndef BOARDS_UMARIM_BARO_H
-#define BOARDS_UMARIM_BARO_H
+uint32_t timestamp = 0; ///< Timestamp to be incremented during operation
 
-
-#include "std.h"
-#include "peripherals/mcp355x.h"
-
-#define BARO_FILTER_GAIN 5
-
-#define BaroEvent(_b_abs_handler, _b_diff_handler) {  \
-  mcp355x_event();                                    \
-  if (mcp355x_data_available) {                       \
-    baro.absolute = (baro.absolute + BARO_FILTER_GAIN*mcp355x_data) / (BARO_FILTER_GAIN+1); \
-    _b_abs_handler();                                 \
-    mcp355x_data_available = FALSE;                   \
-  }                                                   \
+void init_openlog(void) {
 }
 
-#endif // BOARDS_UMARIM_BARO_H
+void periodic_2Hz_openlog(void) 	{
+	timestamp=timestamp+500;
+        DOWNLINK_SEND_TIMESTAMP(DefaultChannel, &timestamp);
+}

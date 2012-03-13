@@ -115,6 +115,8 @@ sim.srcs += $(SRC_FIRMWARE)/autopilot.c
 
 sim.srcs += $(SRC_FIRMWARE)/stabilization.c
 sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
+sim.srcs += $(SRC_FIRMWARE)/stabilization/stabilization_none.c
+
 
 NUM_TYPE=integer
 #NUM_TYPE=float

@@ -148,18 +148,6 @@
 #define PERIODIC_SEND_SEGMENT(_chan) if (nav_in_segment) { DOWNLINK_SEND_SEGMENT(_chan, &nav_segment_x_1, &nav_segment_y_1, &nav_segment_x_2, &nav_segment_y_2); }
 
 #ifdef IMU_TYPE_H
-#  include "subsystems/imu.h"
-#  define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) { DOWNLINK_SEND_IMU_ACCEL_RAW(_chan, &imu.accel_unscaled.x, &imu.accel_unscaled.y, &imu.accel_unscaled.z)}
-#  define PERIODIC_SEND_IMU_GYRO_RAW(_chan) { DOWNLINK_SEND_IMU_GYRO_RAW(_chan, &imu.gyro_unscaled.p, &imu.gyro_unscaled.q, &imu.gyro_unscaled.r)}
-#  define PERIODIC_SEND_IMU_MAG_RAW(_chan) { DOWNLINK_SEND_IMU_MAG_RAW(_chan, &imu.mag_unscaled.x, &imu.mag_unscaled.y, &imu.mag_unscaled.z)}
-#  define PERIODIC_SEND_IMU_ACCEL(_chan) { struct FloatVect3 accel_float; ACCELS_FLOAT_OF_BFP(accel_float, imu.accel); DOWNLINK_SEND_IMU_ACCEL(_chan, &accel_float.x, &accel_float.y, &accel_float.z)}
-#  define PERIODIC_SEND_IMU_GYRO(_chan) { struct FloatRates gyro_float; RATES_FLOAT_OF_BFP(gyro_float, imu.gyro); DOWNLINK_SEND_IMU_GYRO(_chan, &gyro_float.p, &gyro_float.q, &gyro_float.r)}
-#  ifdef USE_MAGNETOMETER
-#    define PERIODIC_SEND_IMU_MAG(_chan) { struct FloatVect3 mag_float; MAGS_FLOAT_OF_BFP(mag_float, imu.mag); DOWNLINK_SEND_IMU_MAG(_chan, &mag_float.x, &mag_float.y, &mag_float.z)}
-#  else
-#    define PERIODIC_SEND_IMU_MAG(_chan) {}
-#  endif
-#else
 #  ifdef INS_MODULE_H
 #  include "modules/ins/ins_module.h"
 #    define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) {}
@@ -169,13 +157,25 @@
 #    define PERIODIC_SEND_IMU_ACCEL(_chan) { DOWNLINK_SEND_IMU_ACCEL(_chan, &ins_ax, &ins_ay, &ins_az)}
 #    define PERIODIC_SEND_IMU_MAG(_chan) { DOWNLINK_SEND_IMU_MAG(_chan, &ins_mx, &ins_my, &ins_mz)}
 #  else
+#    include "subsystems/imu.h"
+#    define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) { DOWNLINK_SEND_IMU_ACCEL_RAW(_chan, &imu.accel_unscaled.x, &imu.accel_unscaled.y, &imu.accel_unscaled.z)}
+#    define PERIODIC_SEND_IMU_GYRO_RAW(_chan) { DOWNLINK_SEND_IMU_GYRO_RAW(_chan, &imu.gyro_unscaled.p, &imu.gyro_unscaled.q, &imu.gyro_unscaled.r)}
+#    define PERIODIC_SEND_IMU_MAG_RAW(_chan) { DOWNLINK_SEND_IMU_MAG_RAW(_chan, &imu.mag_unscaled.x, &imu.mag_unscaled.y, &imu.mag_unscaled.z)}
+#    define PERIODIC_SEND_IMU_ACCEL(_chan) { struct FloatVect3 accel_float; ACCELS_FLOAT_OF_BFP(accel_float, imu.accel); DOWNLINK_SEND_IMU_ACCEL(_chan, &accel_float.x, &accel_float.y, &accel_float.z)}
+#    define PERIODIC_SEND_IMU_GYRO(_chan) { struct FloatRates gyro_float; RATES_FLOAT_OF_BFP(gyro_float, imu.gyro); DOWNLINK_SEND_IMU_GYRO(_chan, &gyro_float.p, &gyro_float.q, &gyro_float.r)}
+#    ifdef USE_MAGNETOMETER
+#      define PERIODIC_SEND_IMU_MAG(_chan) { struct FloatVect3 mag_float; MAGS_FLOAT_OF_BFP(mag_float, imu.mag); DOWNLINK_SEND_IMU_MAG(_chan, &mag_float.x, &mag_float.y, &mag_float.z)}
+#    else
+#      define PERIODIC_SEND_IMU_MAG(_chan) {}
+#    endif
+#  endif
+#else
 #    define PERIODIC_SEND_IMU_ACCEL_RAW(_chan) {}
 #    define PERIODIC_SEND_IMU_GYRO_RAW(_chan) {}
 #    define PERIODIC_SEND_IMU_MAG_RAW(_chan) {}
 #    define PERIODIC_SEND_IMU_ACCEL(_chan) {}
 #    define PERIODIC_SEND_IMU_GYRO(_chan) {}
 #    define PERIODIC_SEND_IMU_MAG(_chan) {}
-#  endif
 #endif
 
 #ifdef IMU_ANALOG

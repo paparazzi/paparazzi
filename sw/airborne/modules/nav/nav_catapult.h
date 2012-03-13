@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2010 ENAC
+ *
+ * Copyright (C) 2012, Christophe De Wagter
  *
  * This file is part of paparazzi.
  *
@@ -20,28 +21,25 @@
  *
  */
 
-/* driver for the analog Barometer Mpxa6115 using ADC ads1114 (16 bits I2C 860SpS max) from Texas instruments
- * Navarro & Gorraz & Hattenberger
+/**
+ * @file module/nav/nav_catapult.h
+ * @brief catapult launch timing system
  */
 
-
-
-#ifndef BOARDS_UMARIM_BARO_H
-#define BOARDS_UMARIM_BARO_H
-
+#ifndef NAV_CATAPULT_H
+#define NAV_CATAPULT_H
 
 #include "std.h"
-#include "peripherals/mcp355x.h"
+#include "paparazzi.h"
 
-#define BARO_FILTER_GAIN 5
+// Module Code
+void nav_catapult_highrate_module(void);
 
-#define BaroEvent(_b_abs_handler, _b_diff_handler) {  \
-  mcp355x_event();                                    \
-  if (mcp355x_data_available) {                       \
-    baro.absolute = (baro.absolute + BARO_FILTER_GAIN*mcp355x_data) / (BARO_FILTER_GAIN+1); \
-    _b_abs_handler();                                 \
-    mcp355x_data_available = FALSE;                   \
-  }                                                   \
-}
+// Flightplan Code
+extern bool_t nav_catapult_init(void);
 
-#endif // BOARDS_UMARIM_BARO_H
+extern bool_t nav_catapult_arm(void);
+extern bool_t nav_catapult(uint8_t _climb);
+extern bool_t nav_catapult_disarm(void);
+
+#endif

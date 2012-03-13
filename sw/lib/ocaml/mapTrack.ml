@@ -75,13 +75,14 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 (** rectangle representing the field covered by the cam *)
   let _ac_cam_targeted =
     ignore ( GnoCanvas.ellipse ~x1: (-. 2.5) ~y1: (-. 2.5 ) ~x2: 2.5 ~y2: 2.5 ~fill_color:color ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam) in
+  let _ = cam#hide () in
 
   let mission_target = GnoCanvas.group group in
 
 (** red circle : target of the mission *)
-  let ac_mission_target =
-    GnoCanvas.ellipse ~x1: (-5.) ~y1: (-5.) ~x2: 5. ~y2: 5. ~fill_color:"red" ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "red"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] mission_target in
-  let _ = ac_mission_target#hide () in
+  let _ac_mission_target =
+    ignore ( GnoCanvas.ellipse ~x1: (-5.) ~y1: (-5.) ~x2: 5. ~y2: 5. ~fill_color:"red" ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "red"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] mission_target) in
+  let _ = mission_target#hide () in
 
  (** data at map scale *)
   let max_cam_half_height_scaled = 10000.0  in
@@ -91,6 +92,8 @@ class track = fun ?(name="Noname") ?(size = 500) ?(color="red") (geomap:MapCanva
 
   let _desired_circle = GnoCanvas.ellipse group
   and _desired_segment = GnoCanvas.line group in
+
+  let _ = aircraft#raise_to_top () in
 
   object (self)
     val mutable top = 0

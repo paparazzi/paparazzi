@@ -47,6 +47,8 @@ extern float v_ctl_altitude_error;
 extern float v_ctl_altitude_setpoint;
 extern float v_ctl_altitude_pre_climb;
 extern float v_ctl_altitude_pgain;
+extern float v_ctl_altitude_pre_climb_correction;
+extern float v_ctl_altitude_max_climb;
 
 /* inner loop */
 extern float v_ctl_climb_setpoint;
@@ -61,6 +63,8 @@ extern uint8_t v_ctl_auto_throttle_submode;
 
 /* "auto throttle" inner loop parameters */
 extern float v_ctl_auto_throttle_nominal_cruise_throttle;
+extern float v_ctl_auto_throttle_min_cruise_throttle;
+extern float v_ctl_auto_throttle_max_cruise_throttle;
 extern float v_ctl_auto_throttle_cruise_throttle;
 extern float v_ctl_auto_throttle_climb_throttle_increment;
 extern float v_ctl_auto_throttle_pgain;
@@ -115,7 +119,7 @@ extern void v_ctl_throttle_slew( void );
 
 #define guidance_v_SetCruiseThrottle(_v) { \
   v_ctl_auto_throttle_cruise_throttle = (_v ? _v : v_ctl_auto_throttle_nominal_cruise_throttle); \
-  Bound(v_ctl_auto_throttle_cruise_throttle, V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE); \
+  Bound(v_ctl_auto_throttle_cruise_throttle, v_ctl_auto_throttle_min_cruise_throttle, v_ctl_auto_throttle_max_cruise_throttle); \
 }
 
 #define guidance_v_SetAutoThrottleIgain(_v) {	\

@@ -1,11 +1,11 @@
 <airframe name="Blender">
 
   <modules main_freq="512">
-    <load name="booz_pwm.xml">
+    <!--load name="booz_pwm.xml">
       <define name="USE_PWM1"/>
     </load>
     <load name="booz_drop.xml"/>
-    <load name="booz_cam.xml"/>
+    <load name="booz_cam.xml"/-->
     <!--load name="sonar_maxbotix_booz.xml"/-->
   </modules>
 
@@ -22,13 +22,13 @@
     </target>
     <target name="sim" board="pc">
       <subsystem name="fdm"         type="nps"/>
-      <!--define name="NPS_NO_SUPERVISION"/-->
     </target>
 
     <subsystem name="radio_control" type="ppm"/>
     <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="actuators"     type="asctec"/>
-    <!--subsystem name="actuators"     type="mkk"/-->
+    <subsystem name="actuators"     type="skiron">
+      <define name="SKIRON_I2C_SCL_TIME" value="25"/>
+    </subsystem>
     <subsystem name="imu"           type="b2_v1.1"/>
     <subsystem name="gps"           type="ublox">
       <configure name="GPS_BAUD"    value="B57600"/>
@@ -48,17 +48,11 @@
   </firmware>
 
   <servos min="0" neutral="0" max="0xff">
-    <servo name="PITCH"  no="0"    min="0" neutral="0" max="255"/>
-    <servo name="ROLL"   no="1"    min="0" neutral="0" max="255"/>
-    <servo name="YAW"    no="2"    min="0" neutral="0" max="255"/>
-    <servo name="THRUST" no="3"    min="0" neutral="0" max="255"/>
-  </servos>
-  <!--servos min="0" neutral="0" max="0xff">
     <servo name="FRONT" no="0" min="0" neutral="0" max="255"/>
-    <servo name="BACK"  no="1" min="0" neutral="0" max="255"/>
-    <servo name="RIGHT" no="2" min="0" neutral="0" max="255"/>
+    <servo name="BACK"  no="2" min="0" neutral="0" max="255"/>
+    <servo name="RIGHT" no="1" min="0" neutral="0" max="255"/>
     <servo name="LEFT"  no="3" min="0" neutral="0" max="255"/>
-  </servos-->
+  </servos>
 
   <commands>
     <axis name="PITCH"  failsafe_value="0"/>
@@ -67,20 +61,15 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
-  <!--section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
+  <section name="ACTUATORS_SKIRON" prefix="ACTUATORS_SKIRON_">
     <define name="NB" value="4"/>
-    <define name="ADDR" value="{ 0x52, 0x56, 0x54, 0x58 }"/>
-  </section-->
+    <define name="IDX" value="{ SERVO_FRONT, SERVO_BACK, SERVO_RIGHT, SERVO_LEFT }"/>
+  </section>
 
   <section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="TRIM_A"  value="0"/>
-    <define name="TRIM_E"  value="0"/>
-    <define name="TRIM_R"  value="0"/>
-  </section>
-  <!--section name="SUPERVISION" prefix="SUPERVISION_">
-    <define name="MIN_MOTOR" value="25"/>
-    <define name="MAX_MOTOR" value="243"/>
-    <define name="TRIM_A" value="0"/>
+    <define name="MIN_MOTOR" value="20"/>
+    <define name="MAX_MOTOR" value="255"/>
+    <define name="TRIM_A" value="6"/>
     <define name="TRIM_E" value="0"/>
     <define name="TRIM_R" value="0"/>
     <define name="NB_MOTOR" value="4"/>
@@ -89,8 +78,7 @@
     <define name="PITCH_COEF" value="{  256, -256,    0,    0}"/>
     <define name="YAW_COEF"   value="{ -256, -256,  256,  256}"/>
     <define name="THRUST_COEF" value="{ 256,  256,  256,  256}"/>
-  </section-->
-
+  </section>
 
   <section name="IMU" prefix="IMU_">
 

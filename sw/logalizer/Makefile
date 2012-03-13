@@ -27,7 +27,7 @@ OCAMLC = ocamlc
 OCAMLOPT = ocamlopt
 INCLUDES= $(shell ocamlfind query -r -i-format xml-light) $(shell ocamlfind query -r -i-format lablgtk2) -I ../lib/ocaml
 
-all: play plotter plot sd2log plotprofile
+all: play plotter plot sd2log plotprofile openlog2tlm
 
 play : log_file.cmo play_core.cmo play.cmo
 	@echo OL $@
@@ -48,6 +48,13 @@ plot : log_file.cmx gtk_export.cmx export.cmx plot.cmx
 sd2log : sd2log.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -custom -o $@ unix.cma str.cma xml-light.cma glibivy-ocaml.cma lib-pprz.cma $^
+
+CC = gcc
+CFLAGS=-g -O2 -Wall 
+LDFLAGS=
+
+openlog2tlm: openlog2tlm.c
+	$(CC) $(CFLAGS) -g -o $@ $^
 
 
 play play-nox plotter sd2log : ../lib/ocaml/lib-pprz.cma
@@ -115,7 +122,7 @@ test3: test3.c sliding_plot.c
 	$(CC) $(CFLAGS) -g -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg plot plotter gtk_export.ml
+	rm -f *.opt *.out *~ core *.o *.bak .depend *.cm* play ahrsview imuview ahrs2fg plot plotter gtk_export.ml openlog2tlm
 
 #FGFS_PREFIX=/home/poine/local
 FGFS_PREFIX=/home/poine/flightgear
