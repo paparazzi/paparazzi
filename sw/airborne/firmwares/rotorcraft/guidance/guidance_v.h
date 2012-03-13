@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -38,19 +36,44 @@
 
 extern uint8_t guidance_v_mode;
 
+/** altitude setpoint in meters (input)
+ *  fixed point representation: Q23.8
+ *  accuracy 0.0039, range 8388km
+ */
 extern int32_t guidance_v_z_sp;
-extern int32_t guidance_v_zd_sp;
-extern int32_t guidance_v_z_ref;
-extern int32_t guidance_v_zd_ref;
-extern int32_t guidance_v_zdd_ref;
-extern int32_t guidance_v_z_sum_err;
-extern int32_t guidance_v_ff_cmd;
-extern int32_t guidance_v_fb_cmd;
-extern int32_t guidance_v_delta_t;
 
-extern int32_t guidance_v_kp;
-extern int32_t guidance_v_kd;
-extern int32_t guidance_v_ki;
+/** vertical speed setpoint in meter/s (input)
+ *  fixed point representation: Q12.19
+ *  accuracy 0.0000019, range +/-4096
+ */
+extern int32_t guidance_v_zd_sp;
+
+/** altitude reference in meters
+ *  fixed point representation: Q23.8
+ *  accuracy 0.0039, range 8388km
+ */
+extern int32_t guidance_v_z_ref;
+
+/** vertical speed reference in meter/s
+ *  fixed point representation: Q12.19
+ *  accuracy 0.0000038, range 4096
+ */
+extern int32_t guidance_v_zd_ref;
+
+/** vertical acceleration reference in meter/s^2
+ *  fixed point representation: Q21.10
+ *  accuracy 0.0009766, range 2097152
+ */
+extern int32_t guidance_v_zdd_ref;
+
+extern int32_t guidance_v_z_sum_err; ///< accumulator for I-gain
+extern int32_t guidance_v_ff_cmd;    ///< feed-forward command
+extern int32_t guidance_v_fb_cmd;    ///< feed-back command
+extern int32_t guidance_v_delta_t;   ///< command output (ff+fb)
+
+extern int32_t guidance_v_kp; ///< vertical control P-gain
+extern int32_t guidance_v_kd; ///< vertical control D-gain
+extern int32_t guidance_v_ki; ///< vertical control I-gain
 
 extern void guidance_v_init(void);
 extern void guidance_v_read_rc(void);
