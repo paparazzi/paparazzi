@@ -30,11 +30,13 @@ let (//) = Filename.concat
 
 (* ------------ PATHS & FILES ------------ *)
 (** File to get the includes *)
-let includes_file = Env.paparazzi_home // "conf" // "messages_conf.xml"
+let includes_file = Sys.argv.(1)
 (** Path to find spread messages files *)
-let spread_messages_path = Env.paparazzi_home // "conf" // "messages"
-(** File to generate with the included classes *)
-let generated_file = Env.paparazzi_home // "conf" // "messages_test.xml"(* Change to actual file when tested *)
+let spread_messages_path = Sys.argv.(2)
+(** Generated messages file *)
+let generated_file = Sys.argv.(3)
+(** Generated macros path *)
+let var_include_path = Sys.argv.(4)
 (* --------------------------------------- *)
 
 (** Type include_xml: the structure of a XML include element *)
@@ -44,13 +46,15 @@ type include_xml = {
 	class_name : string;
 }
 
+type generated_class = {
+	g_id : string;
+	g_name : string;
+	g_type : string;
+}
+
+
 (** Module to obtain the desired messages files to include in messages.xml *)
 module Includes = struct
-	type any = 
-		| Int of int
-		| String of string
-	
-	type anys = any list
 	
 	exception Invalid_include_structure of string
 	exception Duplicated_class_id of string
@@ -66,40 +70,6 @@ module Includes = struct
 			and class_name = ExtXml.attrib conf_xml "class_name" in
 		{ file = file; class_id = class_id; class_name = class_name }
 		with e -> raise (Invalid_include_structure (Printexc.to_string e))
-(*
-	(** Verifies that no repeated class ids are found *)	
-  let check_single_ids_includes = fun xml_includes ->
-    let tab = Array.create 256 false
-    and  last_id = ref 0 in
-    List.iter (fun inc ->
-      if tab.(inc.class_id) then
-				raise (Duplicated_class_id inc.class_id);
-      if inc.class_id < !last_id then
-        fprintf stderr "Warning: unsorted id: %d\n%!" inc.class_id;
-      last_id := inc.class_id;
-      tab.(inc.class_id) <- true)
-      xml_includes
-	
-	(** remove all duplicated elements of a list *)(* FIXME *)
-	let singletonize = fun l ->
-	  let rec loop = fun l ->
-	    match l with
-	      [] | [_] -> l
-	    | x::((x'::_) as xs) ->
-	    if x = x' then loop xs else x::loop xs in
-	  loop (List.sort compare l)
-		*)
-		
-		(*				
-	(** Verifies that no repeated class names are found *)	
-    let check_single_names_includes = fun xml_includes ->
-    let tab = ref [] in
-		List.iter (fun inc ->
-			if List.mem inc.class_name tab then
-				raise (Duplicated_class_name inc.class_name);
-			let tab = inc.class_name :: tab 
-			) xml_includes
-	*)	
 		
 	let check_repeated_elements = fun list ->
 		let rec loop = fun list ->
@@ -147,6 +117,7 @@ module Classes = struct
 	exception Invalid_class_structure of string
 	exception Invalid_class_type of string
 	exception XML_parsing_error of string * string * string
+	exception Invalid_class_xml_node of string
 	
 	(** Checks if the class type is one of the allowed ones *)
 	let check_class_type = fun attribute ->
@@ -187,30 +158,44 @@ module Classes = struct
 			| Invalid_class_structure exc -> raise (Invalid_class_structure exc)
 			| Xml.Error (msg, pos) -> raise (XML_parsing_error (file,(Xml.error_msg msg),(string_of_int (Xml.line pos)))) 
 			| e -> raise e
-								
+
+	(** Extracts the class parameters from a XML class node *)
+	let extract_name_type = fun xml_class ->
+		try
+			{ g_id = ExtXml.attrib xml_class "id"; g_name = ExtXml.attrib xml_class "name"; g_type = ExtXml.attrib xml_class "type" }																
+		with
+			| e -> raise (Invalid_class_xml_node (Printexc.to_string e))
 end
 
 (** Module to save the generated messages file *)
 module SaveXml = struct
 	
 	exception Cannot_open_file of string * string
+	exception Cannot_move_file of string
 	
 	(** Saved the generated file with some header *)
 	let save = fun xml_code ->
 		try
-			let h = open_out (generated_file) in
+			let (temp_filename,h) = Filename.open_temp_file "TEMP" "TEMP" in
+			(*let h = open_out (generated_file) in*)
+			(*let h = stdout in*)
 			Printf.fprintf h "<!-- ************************************************************************************************* -->\n";
 			Printf.fprintf h "<!-- *                 AUTO-GENERATED MESSAGES FILE FROM messages_conf.xml INCLUDES                  * -->\n";
 			Printf.fprintf h "<!-- *                                    Please DO NOT EDIT                                         * -->\n";
-			Printf.fprintf h "<!-- * TIP: You can see an example of messages_conf.xml format in messages_conf.default.xml file     * -->\n";
+			Printf.fprintf h "<!-- * TIP: You can see an example of messages_conf.xml format in messages_conf.xml.example file     * -->\n";
 			Printf.fprintf h "<!-- ************************************************************************************************* -->\n";
 			Printf.fprintf h "%s" xml_code;
+			close_out h;
+			let c = sprintf "mv %s %s " temp_filename generated_file in
+    	let returned_code = Sys.command c in
+			if returned_code <> 0 then raise ( Cannot_move_file (string_of_int returned_code)) 
 		with
-			| e -> raise (Cannot_open_file (generated_file,(Printexc.to_string e)))
+			| e -> raise (Cannot_open_file ("messages.xml",(Printexc.to_string e)))
 end
 
 (** MAIN MODULE: DOES ALL THE PROCEDURE TO GENERATE THE messages.xml FROM THE messages_conf.xml INCLUDES *)
 module SpreadMessages = struct
+	
 	(** Generates a XML file called messages.xml with all the included classes in messages_conf.xml and their messages *)
 	let generate_messages_xml = fun () ->
 		try
@@ -223,8 +208,10 @@ module SpreadMessages = struct
 			(** User-readable xml formating *)
 			let formated_xml = Xml.to_string_fmt final_xml in
 			(** Save the xml code into a xml file *)
-			SaveXml.save formated_xml; 
-			prerr_endline "Messages Xml Generator ended without errors :) yeah!";
+			SaveXml.save formated_xml;
+			(** Prepare and return data for the next function (List of class_ids, class_names and class_types) *)
+			let class_ids_names_types = List.map Classes.extract_name_type classes in
+			class_ids_names_types
 		with
 			| Includes.Invalid_include_structure exc -> failwith (sprintf "Invalid <include> structure (Exception: %s)" exc)
 			| Includes.Duplicated_class_id ii -> failwith (sprintf "Duplicated class id (%s) at includes file" ii)
@@ -232,12 +219,47 @@ module SpreadMessages = struct
 			| Includes.Duplicated_class_name n -> failwith (sprintf "Duplicated class name (%s) at includes file" n)
 			|	Classes.Invalid_class_structure exc -> failwith (sprintf "Invalid <class> structure (Exception: %s)" exc)
 			|	Classes.Invalid_class_type typ -> failwith (sprintf "Invalid class type: %s" typ)
-			|	Classes.XML_parsing_error (file,msg,pos) -> failwith (sprintf "Error parsing XML file: %s (Error: %s Line: %s)" (file) (msg) (pos))(* (Xml.error_msg msg) (string_of_int (Xml.line pos) *)
+			|	Classes.XML_parsing_error (file,msg,pos) -> failwith (sprintf "Error parsing XML file: %s (Error: %s Line: %s)" (file) (msg) (pos))
 			|	SaveXml.Cannot_open_file (file,exc) -> failwith (sprintf "Cannot open the file to generate: %s (Exception: %s)" file exc)
+			| SaveXml.Cannot_move_file err -> failwith (sprintf "Cannot move the generated file to the final destination (Error code for command MV: %s)" err)
+			| Classes.Invalid_class_xml_node exc -> failwith (sprintf "Invalid <class> xml node in generated file (Exception: %s)" exc)
 			| e -> failwith (sprintf "Unhandled exception raised: %s" (Printexc.to_string e))
 end
-		
+
+module MakeCalls = struct
+	
+	let make_target = "gen_messages_macros"
+	let make_options = ""
+	
+	let make = fun class_name ->
+		let file = Env.paparazzi_home // "Makefile" in
+		let macros_target = var_include_path // ("messages_"^(String.lowercase class_name)^".h") in
+		let c = sprintf "make -f %s MACROS_TARGET=%s MACROS_CLASS=%s %s %s" file macros_target class_name make_options make_target in
+    let returned_code = Sys.command c in
+    if returned_code <> 0 then failwith (sprintf "Make command error (Error code: %d)" returned_code) 
+
+
+	let generate_macros = fun classes ->
+		List.map (fun clas -> match (clas.g_type) with 
+			| "datalink" -> prerr_endline ("\t Datalink Class -> Generate macros ("^clas.g_name^")"); make (clas.g_name)  
+			|	"ground" -> prerr_endline ("\t Ground Class   -> Do nothing ("^clas.g_name^")")
+			|	"airborne" -> prerr_endline ("\t Airborne Class -> Generate macros ("^clas.g_name^") ¡¡¡FIXME!!!")
+			|	t -> failwith (sprintf "Invalid class type in generated file: %s" t)
+			) classes;
+			
+end		
+				
 					
 (********************* Main **************************************************)
 let () =
-	SpreadMessages.generate_messages_xml ();
+	if Array.length Sys.argv <> 5 then
+	  failwith (sprintf "Usage: %s <messages config file> <spread messages path> <generated file> <var_include_path>" Sys.argv.(0));
+	let classes_info = SpreadMessages.generate_messages_xml () in
+	(*prerr_endline ("\t Messages_conf.xml: "//includes_file);
+	prerr_endline ("\t conf/messages/: "//spread_messages_path);
+	prerr_endline ("\t Messages.xml: "//generated_file);
+	prerr_endline ("\t var/include/: "//var_include_path); *)
+	
+	prerr_endline ("----------- GENERATING MESSAGES MACROS -----------");
+	ignore (MakeCalls.generate_macros classes_info);
+	prerr_endline ("--------------------------------------------------");

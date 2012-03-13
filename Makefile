@@ -57,6 +57,8 @@ XSENS_PROTOCOL_H=$(STATICINCLUDE)/xsens_protocol.h
 DL_PROTOCOL_H=$(STATICINCLUDE)/dl_protocol.h
 DL_PROTOCOL2_H=$(STATICINCLUDE)/dl_protocol2.h
 MESSAGES_XML = $(CONF)/messages.xml
+MESSAGES_XML_CONF = $(CONF)/messages_conf.xml
+MESSAGES_FILES = $(CONF)/messages
 UBX_XML = $(CONF)/ubx.xml
 MTK_XML = $(CONF)/mtk.xml
 XSENS_XML = $(CONF)/xsens_MTi-G.xml
@@ -122,24 +124,29 @@ misc:
 multimon:
 	cd $(MULTIMON); $(MAKE)
 
-static_h: $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(DL_PROTOCOL2_H)
+#static_h: $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(DL_PROTOCOL2_H)
+static_h: $(MESSAGES_XML) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H)
 
 usb_lib:
 	@[ -d sw/airborne/arch/lpc21/lpcusb ] && ((test -x "$(ARMGCC)" && (cd sw/airborne/arch/lpc21/lpcusb; $(MAKE))) || echo "Not building usb_lib: ARMGCC=$(ARMGCC) not found") || echo "Not building usb_lib: sw/airborne/arch/lpc21/lpcusb directory missing"
 
-$(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) tools
-	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
+$(MESSAGES_XML) : $(MESSAGES_XML_CONF) tools
 	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< telemetry > /tmp/msg.h
-	$(Q)mv /tmp/msg.h $@
-	$(Q)chmod a+r $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages_xml.out $(MESSAGES_XML_CONF) $(MESSAGES_FILES) $@ $(STATICINCLUDE)
 
-$(MESSAGES2_H) : $(MESSAGES_XML) $(CONF_XML) tools
-	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
-	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< telemetry > /tmp/msg2.h
-	$(Q)mv /tmp/msg2.h $@
-	$(Q)chmod a+r $@
+#$(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) tools
+#	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
+#	@echo BUILD $@
+#	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< telemetry > /tmp/msg.h
+#	$(Q)mv /tmp/msg.h $@
+#	$(Q)chmod a+r $@
+
+#$(MESSAGES2_H) : $(MESSAGES_XML) $(CONF_XML) tools
+#	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
+#	@echo BUILD $@
+#	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< telemetry > /tmp/msg2.h
+#	$(Q)mv /tmp/msg2.h $@
+#	$(Q)chmod a+r $@
 
 $(UBX_PROTOCOL_H) : $(UBX_XML) tools
 	@echo BUILD $@
@@ -156,15 +163,15 @@ $(XSENS_PROTOCOL_H) : $(XSENS_XML) tools
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_xsens.out $< > /tmp/xsens.h
 	$(Q)mv /tmp/xsens.h $@
 
-$(DL_PROTOCOL_H) : $(MESSAGES_XML) tools
-	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< datalink > /tmp/dl.h
-	$(Q)mv /tmp/dl.h $@
+#$(DL_PROTOCOL_H) : $(MESSAGES_XML) tools
+#	@echo BUILD $@
+#	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< datalink > /tmp/dl.h
+#	$(Q)mv /tmp/dl.h $@
 
-$(DL_PROTOCOL2_H) : $(MESSAGES_XML) tools
-	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< datalink > /tmp/dl2.h
-	$(Q)mv /tmp/dl2.h $@
+#$(DL_PROTOCOL2_H) : $(MESSAGES_XML) tools
+#	@echo BUILD $@
+#	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< datalink > /tmp/dl2.h
+#	$(Q)mv /tmp/dl2.h $@
 
 include Makefile.ac
 
@@ -275,4 +282,16 @@ sw/simulator/launchsitl:
 	cat src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
 	chmod a+x $@
 
+
+
+
+
+gen_messages_macros: $(MACROS_TARGET)
+
+#$(MACROS_TARGET) : $(MESSAGES_XML) $(CONF_XML) tools
+$(MACROS_TARGET) : $(CONF_XML) tools
+	@echo BUILD $@
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $(MESSAGES_XML) $(MACROS_CLASS) > /tmp/msg.h
+	$(Q)mv /tmp/msg.h $@
+	$(Q)chmod a+r $@
 

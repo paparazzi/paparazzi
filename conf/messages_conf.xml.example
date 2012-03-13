@@ -5,6 +5,7 @@
 	<include file="uplink.xml" class_name="commands" class_id="1" />
 	<include file="custom.xml" class_name="custom" class_id="2" />
 	<include file="ground.xml" class_name="ground" class_id="3" />
-	<include file="alert.xml" class_name="alert" class_id="4" />
-	<include file="DIA.xml" class_name="DIA" class_id="5" />
+	<include file="airborne.xml" class_name="airborne" class_id="4" />
+	<include file="alert.xml" class_name="alert" class_id="5" />
+	<include file="DIA.xml" class_name="DIA" class_id="6" />
 </includes>
