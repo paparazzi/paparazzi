@@ -37,7 +37,9 @@ extern void spi_arch_int_disable(void);
 extern void spi_clear_rx_buf(void);
 void spi_rw(struct spi_transaction  * _trans);
 
+#if !defined SPI_TRANSACTION_QUEUE_LEN
 #define SPI_TRANSACTION_QUEUE_LEN  8
+#endif
 
 struct spi_periph {
     struct spi_transaction* trans[SPI_TRANSACTION_QUEUE_LEN];
@@ -51,7 +53,7 @@ extern bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t);
 
 /*
 
-////////// 
+//////////
 // from aspirin_arch.h
 
 
@@ -96,7 +98,7 @@ extern void adxl345_start_reading_data(void);
 #ifdef SPI_MASTER
 
 
-// !!!!!!!!!!!!! Code for one single slave at a time !!!!!!!!!!!!!!!!! 
+// !!!!!!!!!!!!! Code for one single slave at a time !!!!!!!!!!!!!!!!!
 #if defined SPI_SELECT_SLAVE1_PIN && defined SPI_SELECT_SLAVE0_PIN
 #error "SPI: one single slave, please"
 #endif
@@ -170,7 +172,7 @@ extern void adxl345_start_reading_data(void);
 
 */
 
-#endif // SPI_ARCH_H 
+#endif // SPI_ARCH_H
 
 
 

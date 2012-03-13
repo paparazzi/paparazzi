@@ -11,7 +11,7 @@
 
 struct spi_transaction* slave0;
 
-// SPI2 Slave Selection 
+// SPI2 Slave Selection
 #define SPI2_SLAVE0_PORT  GPIOB
 #define SPI2_SLAVE0_PIN   GPIO_Pin_12
 
@@ -32,12 +32,12 @@ static inline void Spi2SlaveUnselect(uint8_t slave)
     case 0:
       SPI2_SLAVE0_PORT->BSRR = SPI2_SLAVE0_PIN;
       break;
-#ifdef USE_SPI2_SLAVE1      
+#ifdef USE_SPI2_SLAVE1
     case 1:
       SPI2_SLAVE1_PORT->BSRR = SPI2_SLAVE1_PIN;
       break;
 #endif //USE_SPI2_SLAVE1
-#ifdef USE_SPI2_SLAVE2      
+#ifdef USE_SPI2_SLAVE2
     case 2:
       SPI2_SLAVE2_PORT->BSRR = SPI2_SLAVE2_PIN;
       break;
@@ -48,7 +48,7 @@ static inline void Spi2SlaveUnselect(uint8_t slave)
   }
 }
 
-  
+
 static inline void Spi2SlaveSelect(uint8_t slave)
 {
   switch(slave) {
@@ -70,11 +70,11 @@ static inline void Spi2SlaveSelect(uint8_t slave)
   }
 }
 
-// spi dma end of rx handler 
+// spi dma end of rx handler
 void dma1_c4_irq_handler(void);
 
 void spi_arch_int_enable(void) {
-  // Enable DMA1 channel4 IRQ Channel ( SPI RX) 
+  // Enable DMA1 channel4 IRQ Channel ( SPI RX)
   NVIC_InitTypeDef NVIC_init_struct = {
     .NVIC_IRQChannel = DMA1_Channel4_IRQn,
     .NVIC_IRQChannelPreemptionPriority = 0,
@@ -113,7 +113,7 @@ void spi_init(void) {
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO , ENABLE);
   SPI_Cmd(SPI2, ENABLE);
 
-  // configure SPI 
+  // configure SPI
   SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
   SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
   SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
@@ -129,15 +129,15 @@ void spi_init(void) {
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
   // SLAVE 0
-  // set accel slave select as output and assert it ( on PB12) 
+  // set accel slave select as output and assert it ( on PB12)
   Spi2SlaveUnselect(0);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
   GPIO_InitStructure.GPIO_Pin = SPI2_SLAVE0_PIN;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
-  
-  // SLAVE 1 
+
+  // SLAVE 1
   Spi2SlaveUnselect(1);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
   GPIO_InitStructure.GPIO_Pin = SPI2_SLAVE1_PIN;
@@ -146,7 +146,7 @@ void spi_init(void) {
   GPIO_Init(GPIOB, &GPIO_InitStructure);
 
 
-  // SLAVE 2 
+  // SLAVE 2
   Spi2SlaveUnselect(2);
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
   GPIO_InitStructure.GPIO_Pin = SPI2_SLAVE2_PIN;
@@ -163,7 +163,7 @@ void spi_init(void) {
 
 
 
-void spi_rw(struct spi_transaction  * _trans) 
+void spi_rw(struct spi_transaction  * _trans)
 {
   // Store local copy to notify of the results
   slave0 = _trans;
@@ -205,14 +205,14 @@ void spi_rw(struct spi_transaction  * _trans)
   };
   DMA_Init(DMA1_Channel5, &DMA_initStructure_5);
 
-  // Enable SPI_2 Rx request 
+  // Enable SPI_2 Rx request
   SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, ENABLE);
-  // Enable DMA1 Channel4 
+  // Enable DMA1 Channel4
   DMA_Cmd(DMA1_Channel4, ENABLE);
 
-  // Enable SPI_2 Tx request 
+  // Enable SPI_2 Tx request
   SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, ENABLE);
-  // Enable DMA1 Channel5 
+  // Enable DMA1 Channel5
   DMA_Cmd(DMA1_Channel5, ENABLE);
 
   // Enable DMA1 Channel4 Transfer Complete interrupt
@@ -233,7 +233,7 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
   __disable_irq();
   p->trans[p->trans_insert_idx] = t;
   p->trans_insert_idx = temp;
-  
+
   if (p->status == SPIIdle)
   {
     spi_rw(p->trans[p->trans_extract_idx]);
@@ -243,7 +243,7 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
 }
 
 // End of DMA transfer interrupt handler
-void dma1_c4_irq_handler(void) 
+void dma1_c4_irq_handler(void)
 {
   Spi2SlaveUnselect(spi2.trans[spi2.trans_extract_idx]->slave_idx);
   if (DMA_GetITStatus(DMA1_IT_TC4)) {
@@ -255,10 +255,10 @@ void dma1_c4_irq_handler(void)
   }
   // disable DMA Channel
   DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);
-  // Disable SPI_2 Rx and TX request 
+  // Disable SPI_2 Rx and TX request
   SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, DISABLE);
   SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, DISABLE);
-  // Disable DMA1 Channel4 and 5 
+  // Disable DMA1 Channel4 and 5
   DMA_Cmd(DMA1_Channel4, DISABLE);
   DMA_Cmd(DMA1_Channel5, DISABLE);
 
