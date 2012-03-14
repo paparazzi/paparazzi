@@ -751,12 +751,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                    );                          \
   }
 
-//TODO replace by BOOZ_EXTRA_ADC
-#ifdef BOOZ2_SONAR
-#define PERIODIC_SEND_BOOZ2_SONAR(_trans, _dev) DOWNLINK_SEND_BOOZ2_SONAR(_trans, _dev,&booz2_adc_1,&booz2_adc_2,&booz2_adc_3,&booz2_adc_4);
-#else
+// FIXME: still used?? or replace by EXTRA_ADC
 #define PERIODIC_SEND_BOOZ2_SONAR(_trans, _dev) {}
-#endif
 
 #ifdef BOOZ2_TRACK_CAM
 #include "cam_track.h"
