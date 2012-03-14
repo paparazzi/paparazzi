@@ -30,8 +30,21 @@
 #ifndef GUIDANCE_V_ADPT
 #define GUIDANCE_V_ADPT
 
+/** State of the estimator.
+ *  fixed point representation with #GV_ADAPT_X_FRAC
+ *  Q13.18
+ */
 extern int32_t gv_adapt_X;
+#define GV_ADAPT_X_FRAC 18
+
+/** Covariance.
+ *  fixed point representation with #GV_ADAPT_P_FRAC
+ *  Q13.18
+ */
 extern int32_t gv_adapt_P;
+#define GV_ADAPT_P_FRAC 18
+
+/** Measurement */
 extern int32_t gv_adapt_Xmeas;
 
 
@@ -47,21 +60,8 @@ extern int32_t gv_adapt_Xmeas;
 #define SUPERVISION_MAX_MOTOR 200
 #endif
 
-/** State of the estimator
- *  fixed point representation with #GV_ADAPT_X_FRAC
- *  Q13.18
- */
 int32_t gv_adapt_X;
-#define GV_ADAPT_X_FRAC 18
-
-/** Covariance
- *  fixed point representation with #GV_ADAPT_P_FRAC
- *  Q13.18
- */
 int32_t gv_adapt_P;
-#define GV_ADAPT_P_FRAC 18
-
-/** Measurement */
 int32_t gv_adapt_Xmeas;
 
 
@@ -75,7 +75,7 @@ int32_t gv_adapt_Xmeas;
 #define GV_ADAPT_SYS_NOISE_F 0.00005
 #define GV_ADAPT_SYS_NOISE  BFP_OF_REAL(GV_ADAPT_SYS_NOISE_F, GV_ADAPT_P_FRAC)
 
-/** Adapt noise factor
+/** Adapt noise factor.
  * Smaller values will make the filter to adapter faster
  * Bigger values (slower adaptation) make the filter more robust to external perturbations
  * Factor should always be >0
@@ -116,12 +116,13 @@ static inline void gv_adapt_init(void) {
   gv_adapt_P = GV_ADAPT_P0;
 }
 
-/** Adaptation function
- * zdd_meas : INT32_ACCEL_FRAC
- * thrust_applied : controller input [SUPERVISION_MIN_MOTOR, SUPERVISION_MAX_MOTOR]
- * zd_ref: INT32_SPEED_FRAC
- */
 #define K_FRAC 12
+
+/** Adaptation function.
+ * @param zdd_meas        vert accel measurement in m/s^2 with #INT32_ACCEL_FRAC
+ * @param thrust_applied  controller input [SUPERVISION_MIN_MOTOR, SUPERVISION_MAX_MOTOR]
+ * @param zd_ref          vertical speed reference in m/s with #INT32_SPEED_FRAC
+ */
 static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_t zd_ref) {
 
   /* Do you really think we want to divide by zero ?

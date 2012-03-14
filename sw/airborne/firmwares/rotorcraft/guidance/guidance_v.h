@@ -36,31 +36,31 @@
 
 extern uint8_t guidance_v_mode;
 
-/** altitude setpoint in meters (input)
+/** altitude setpoint in meters (input).
  *  fixed point representation: Q23.8
  *  accuracy 0.0039, range 8388km
  */
 extern int32_t guidance_v_z_sp;
 
-/** vertical speed setpoint in meter/s (input)
+/** vertical speed setpoint in meter/s (input).
  *  fixed point representation: Q12.19
  *  accuracy 0.0000019, range +/-4096
  */
 extern int32_t guidance_v_zd_sp;
 
-/** altitude reference in meters
+/** altitude reference in meters.
  *  fixed point representation: Q23.8
  *  accuracy 0.0039, range 8388km
  */
 extern int32_t guidance_v_z_ref;
 
-/** vertical speed reference in meter/s
+/** vertical speed reference in meter/s.
  *  fixed point representation: Q12.19
  *  accuracy 0.0000038, range 4096
  */
 extern int32_t guidance_v_zd_ref;
 
-/** vertical acceleration reference in meter/s^2
+/** vertical acceleration reference in meter/s^2.
  *  fixed point representation: Q21.10
  *  accuracy 0.0009766, range 2097152
  */
