@@ -95,7 +95,7 @@ void guidance_v_init(void) {
 void guidance_v_read_rc(void) {
 
   // used in RC_DIRECT directly and as saturation in CLIMB and HOVER
-  guidance_v_rc_delta_t = Chop(((int32_t)radio_control.values[RADIO_THROTTLE]), SUPERVISION_MIN_MOTOR, SUPERVISION_MAX_MOTOR);
+  guidance_v_rc_delta_t = (int32_t)radio_control.values[RADIO_THROTTLE] * (SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR) / MAX_PPRZ;
   // used in RC_CLIMB
   guidance_v_rc_zd_sp = ((MAX_PPRZ/2) - (int32_t)radio_control.values[RADIO_THROTTLE]) * GUIDANCE_V_RC_CLIMB_COEF;
   DeadBand(guidance_v_rc_zd_sp, GUIDANCE_V_RC_CLIMB_DEAD_BAND);
