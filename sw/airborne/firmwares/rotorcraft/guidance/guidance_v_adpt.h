@@ -30,6 +30,32 @@
 #ifndef GUIDANCE_V_ADPT
 #define GUIDANCE_V_ADPT
 
+/** Adapt noise factor.
+ *  Smaller values will make the filter to adapter faster
+ *  Bigger values (slower adaptation) make the filter more robust to external perturbations
+ *  Factor should always be >0
+ */
+#ifndef GUIDANCE_V_ADAPT_NOISE_FACTOR
+#define GUIDANCE_V_ADAPT_NOISE_FACTOR 1.0
+#endif
+
+/** Filter is not fed if accel values are more than +/- MAX_ACCEL
+ *  MAX_ACCEL is a positive value in m/s^2
+ */
+#ifndef GUIDANCE_V_ADAPT_MAX_ACCEL
+#define GUIDANCE_V_ADAPT_MAX_ACCEL 4.0
+#endif
+
+/** Filter is not fed if command values are out of a % of MIN/MAX_SUPERVISION
+ *  MAX_CMD and MIN_CMD must be between 0 and 1 with MIN_CMD < MAX_CMD
+ */
+#ifndef GUIDANCE_V_ADAPT_MAX_CMD
+#define GUIDANCE_V_ADAPT_MAX_CMD 0.9
+#endif
+#ifndef GUIDANCE_V_ADAPT_MIN_CMD
+#define GUIDANCE_V_ADAPT_MIN_CMD 0.1
+#endif
+
 /** State of the estimator.
  *  fixed point representation with #GV_ADAPT_X_FRAC
  *  Q13.18
@@ -50,16 +76,6 @@ extern int32_t gv_adapt_Xmeas;
 
 #ifdef GUIDANCE_V_C
 
-/** Supervision default bounds
- *  In case Asctec controllers are used without supervision
- * */
-#ifndef SUPERVISION_MIN_MOTOR
-#define SUPERVISION_MIN_MOTOR 1
-#endif
-#ifndef SUPERVISION_MAX_MOTOR
-#define SUPERVISION_MAX_MOTOR 200
-#endif
-
 int32_t gv_adapt_X;
 int32_t gv_adapt_P;
 int32_t gv_adapt_Xmeas;
@@ -75,40 +91,31 @@ int32_t gv_adapt_Xmeas;
 #define GV_ADAPT_SYS_NOISE_F 0.00005
 #define GV_ADAPT_SYS_NOISE  BFP_OF_REAL(GV_ADAPT_SYS_NOISE_F, GV_ADAPT_P_FRAC)
 
-/** Adapt noise factor.
- * Smaller values will make the filter to adapter faster
- * Bigger values (slower adaptation) make the filter more robust to external perturbations
- * Factor should always be >0
- */
-#ifndef GUIDANCE_V_ADAPT_NOISE_FACTOR
-#define GUIDANCE_V_ADAPT_NOISE_FACTOR 1.0
-#endif
-
 /* Measuremement noises */
 #define GV_ADAPT_MEAS_NOISE_HOVER_F (8.0*GUIDANCE_V_ADAPT_NOISE_FACTOR)
 #define GV_ADAPT_MEAS_NOISE_HOVER BFP_OF_REAL(GV_ADAPT_MEAS_NOISE_HOVER_F, GV_ADAPT_P_FRAC)
 #define GV_ADAPT_MEAS_NOISE_OF_ZD (20.0*GUIDANCE_V_ADAPT_NOISE_FACTOR)
 
-/** Filter is not fed if accel values are more than +/- MAX_ACCEL
- * MAX_ACCEL is a positive value in m/s^2
- */
-#ifndef GUIDANCE_V_ADAPT_MAX_ACCEL
-#define GUIDANCE_V_ADAPT_MAX_ACCEL 4.0
-#endif
+/* Max accel */
 #define GV_ADAPT_MAX_ACCEL ACCEL_BFP_OF_REAL(GUIDANCE_V_ADAPT_MAX_ACCEL)
 
-/** Filter is not fed if command values are out of a % of MIN/MAX_SUPERVISION
- * MAX_CMD and MIN_CMD must be between 0 and 1 with MIN_CMD < MAX_CMD
- */
-#ifndef GUIDANCE_V_ADAPT_MAX_CMD
-#define GUIDANCE_V_ADAPT_MAX_CMD 0.9
-#endif
-#ifndef GUIDANCE_V_ADAPT_MIN_CMD
-#define GUIDANCE_V_ADAPT_MIN_CMD 0.1
-#endif
+/* Command bounds */
+#define GV_ADAPT_MAX_CMD ((int32_t)Blend(SUPERVISION_MAX_MOTOR, SUPERVISION_MIN_MOTOR, GUIDANCE_V_ADAPT_MAX_CMD))
+#define GV_ADAPT_MIN_CMD ((int32_t)Blend(SUPERVISION_MAX_MOTOR, SUPERVISION_MIN_MOTOR, GUIDANCE_V_ADAPT_MIN_CMD))
 
-#define GV_ADAPT_MAX_CMD ((int32_t)(SUPERVISION_MIN_MOTOR + (GUIDANCE_V_ADAPT_MAX_CMD * (SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR))))
-#define GV_ADAPT_MIN_CMD ((int32_t)(SUPERVISION_MIN_MOTOR + (GUIDANCE_V_ADAPT_MIN_CMD * (SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR))))
+/* Output bounds.
+ * Don't let it climb over a value that would
+ * give less than zero throttle and don't let it down to zero.
+ * Worst cases:
+ *   MIN_ACCEL / MAX_THROTTLE
+ *   MAX_ACCEL / MIN_THROTTLE
+ * ex:
+ *   9.81*2^18/255 = 10084
+ *   9.81*2^18/1 = 2571632
+ */
+// TODO Check this properly
+#define GV_ADAPT_MAX_OUT (BFP_OF_REAL(9.81, GV_ADAPT_X_FRAC) / SUPERVISION_MIN_MOTOR)
+#define GV_ADAPT_MIN_OUT (BFP_OF_REAL(9.81, GV_ADAPT_X_FRAC) / SUPERVISION_MAX_MOTOR)
 
 
 static inline void gv_adapt_init(void) {
@@ -166,14 +173,11 @@ static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_
 
   /* Update State */
   gv_adapt_X = gv_adapt_X + ((K * residual)>>K_FRAC);
+
   /* Again don't let it climb over a value that would
-     give less than zero throttle and don't let it down to zero.
-     30254 = MAX_ACCEL*GV_ADAPT_X_FRAC/MAX_THROTTLE
-     aka
-     30254 = 3*9.81*2^8/255
-     2571632 = 9.81*2^18
-  */
-  Bound(gv_adapt_X, 10000, 2571632);
+   * give less than zero throttle and don't let it down to zero.
+   */
+  Bound(gv_adapt_X, GV_ADAPT_MIN_OUT, GV_ADAPT_MAX_OUT);
 }
 
 

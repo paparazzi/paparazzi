@@ -95,14 +95,9 @@ void guidance_v_init(void) {
 void guidance_v_read_rc(void) {
 
   // used in RC_DIRECT directly and as saturation in CLIMB and HOVER
-#ifndef USE_HELI
-  guidance_v_rc_delta_t = (int32_t)radio_control.values[RADIO_THROTTLE] * 200 / MAX_PPRZ;
-#else
-  guidance_v_rc_delta_t = (int32_t)radio_control.values[RADIO_THROTTLE] * 4 / 5;
-#endif
+  guidance_v_rc_delta_t = Chop(((int32_t)radio_control.values[RADIO_THROTTLE]), SUPERVISION_MIN_MOTOR, SUPERVISION_MAX_MOTOR);
   // used in RC_CLIMB
-  guidance_v_rc_zd_sp   = ((MAX_PPRZ/2) - (int32_t)radio_control.values[RADIO_THROTTLE]) *
-                                GUIDANCE_V_RC_CLIMB_COEF;
+  guidance_v_rc_zd_sp = ((MAX_PPRZ/2) - (int32_t)radio_control.values[RADIO_THROTTLE]) * GUIDANCE_V_RC_CLIMB_COEF;
   DeadBand(guidance_v_rc_zd_sp, GUIDANCE_V_RC_CLIMB_DEAD_BAND);
 
 }
@@ -268,8 +263,8 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
 
   /* our error feed back command                   */
   guidance_v_fb_cmd = ((-guidance_v_kp * err_z)  >> 12) +
-                            ((-guidance_v_kd * err_zd) >> 21) +
-                            ((-guidance_v_ki * guidance_v_z_sum_err) >> 21);
+                      ((-guidance_v_kd * err_zd) >> 21) +
+                      ((-guidance_v_ki * guidance_v_z_sum_err) >> 21);
 
   guidance_v_delta_t = guidance_v_ff_cmd + guidance_v_fb_cmd;
 

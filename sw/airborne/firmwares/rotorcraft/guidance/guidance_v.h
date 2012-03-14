@@ -24,6 +24,17 @@
 
 #include "std.h"
 
+/** Supervision default bounds
+ *  In case Asctec controllers are used without supervision
+ *  Used in control and adaptation filter
+ * */
+#ifndef SUPERVISION_MIN_MOTOR
+#define SUPERVISION_MIN_MOTOR 1
+#endif
+#ifndef SUPERVISION_MAX_MOTOR
+#define SUPERVISION_MAX_MOTOR 200
+#endif
+
 #include "firmwares/rotorcraft/guidance/guidance_v_ref.h"
 #include "firmwares/rotorcraft/guidance/guidance_v_adpt.h"
 
