@@ -37,6 +37,16 @@ extern int32_t gv_adapt_Xmeas;
 
 #ifdef GUIDANCE_V_C
 
+/** Supervision default bounds
+ *  In case Asctec controllers are used without supervision
+ * */
+#ifndef SUPERVISION_MIN_MOTOR
+#define SUPERVISION_MIN_MOTOR 1
+#endif
+#ifndef SUPERVISION_MAX_MOTOR
+#define SUPERVISION_MAX_MOTOR 200
+#endif
+
 /** State of the estimator
  *  fixed point representation with #GV_ADAPT_X_FRAC
  *  Q13.18
@@ -61,56 +71,73 @@ int32_t gv_adapt_Xmeas;
 #define GV_ADAPT_P0_F 0.5
 #define GV_ADAPT_P0 BFP_OF_REAL(GV_ADAPT_P0_F, GV_ADAPT_P_FRAC)
 
-/* System and Measuremement noises */
+/* System  noises */
 #define GV_ADAPT_SYS_NOISE_F 0.00005
 #define GV_ADAPT_SYS_NOISE  BFP_OF_REAL(GV_ADAPT_SYS_NOISE_F, GV_ADAPT_P_FRAC)
 
-#if !USE_ADAPT_HOVER
+/** Adapt noise factor
+ * Smaller values will make the filter to adapter faster
+ * Bigger values (slower adaptation) make the filter more robust to external perturbations
+ * Factor should always be >0
+ */
+#ifndef GUIDANCE_V_ADAPT_NOISE_FACTOR
+#define GUIDANCE_V_ADAPT_NOISE_FACTOR 1.0
+#endif
 
-#define GV_ADAPT_MEAS_NOISE_F 2.0
-#define GV_ADAPT_MEAS_NOISE BFP_OF_REAL(GV_ADAPT_MEAS_NOISE_F, GV_ADAPT_P_FRAC)
-
-#else /* USE_ADAPT_HOVER */
-
-#define GV_ADAPT_MEAS_NOISE_HOVER_F 10.0
+/* Measuremement noises */
+#define GV_ADAPT_MEAS_NOISE_HOVER_F (8.0*GUIDANCE_V_ADAPT_NOISE_FACTOR)
 #define GV_ADAPT_MEAS_NOISE_HOVER BFP_OF_REAL(GV_ADAPT_MEAS_NOISE_HOVER_F, GV_ADAPT_P_FRAC)
-#define GV_ADAPT_MEAS_NOISE_F 50.0
-#define GV_ADAPT_MEAS_NOISE BFP_OF_REAL(GV_ADAPT_MEAS_NOISE_F, GV_ADAPT_P_FRAC)
+#define GV_ADAPT_MEAS_NOISE_OF_ZD (20.0*GUIDANCE_V_ADAPT_NOISE_FACTOR)
 
-#define GV_ADAPT_MAX_ACCEL ACCEL_BFP_OF_REAL(4.0)
-#define GV_ADAPT_HOVER_ACCEL ACCEL_BFP_OF_REAL(1.0)
-#define GV_ADAPT_MAX_CMD 180
-#define GV_ADAPT_MIN_CMD 20
-#define GV_ADAPT_HOVER_MAX_CMD 120
-#define GV_ADAPT_HOVER_MIN_CMD 60
+/** Filter is not fed if accel values are more than +/- MAX_ACCEL
+ * MAX_ACCEL is a positive value in m/s^2
+ */
+#ifndef GUIDANCE_V_ADAPT_MAX_ACCEL
+#define GUIDANCE_V_ADAPT_MAX_ACCEL 4.0
+#endif
+#define GV_ADAPT_MAX_ACCEL ACCEL_BFP_OF_REAL(GUIDANCE_V_ADAPT_MAX_ACCEL)
 
-#endif /* USE_ADAPT_HOVER */
+/** Filter is not fed if command values are out of a % of MIN/MAX_SUPERVISION
+ * MAX_CMD and MIN_CMD must be between 0 and 1 with MIN_CMD < MAX_CMD
+ */
+#ifndef GUIDANCE_V_ADAPT_MAX_CMD
+#define GUIDANCE_V_ADAPT_MAX_CMD 0.9
+#endif
+#ifndef GUIDANCE_V_ADAPT_MIN_CMD
+#define GUIDANCE_V_ADAPT_MIN_CMD 0.1
+#endif
+
+#define GV_ADAPT_MAX_CMD ((int32_t)(SUPERVISION_MIN_MOTOR + (GUIDANCE_V_ADAPT_MAX_CMD * (SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR))))
+#define GV_ADAPT_MIN_CMD ((int32_t)(SUPERVISION_MIN_MOTOR + (GUIDANCE_V_ADAPT_MIN_CMD * (SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR))))
+
 
 static inline void gv_adapt_init(void) {
   gv_adapt_X = GV_ADAPT_X0;
   gv_adapt_P = GV_ADAPT_P0;
 }
 
-/*
-  zdd_meas : INT32_ACCEL_FRAC
-  thrust_applied : controller input [2-200]
-*/
+/** Adaptation function
+ * zdd_meas : INT32_ACCEL_FRAC
+ * thrust_applied : controller input [SUPERVISION_MIN_MOTOR, SUPERVISION_MAX_MOTOR]
+ * zd_ref: INT32_SPEED_FRAC
+ */
 #define K_FRAC 12
-static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied) {
+static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_t zd_ref) {
 
-  /* Do you really think we want to divide by zero ? */
-  if (thrust_applied == 0) return;
+  /* Do you really think we want to divide by zero ?
+   * Negative commands are also prohibited here
+   */
+  if (thrust_applied <= 0) return;
 
   /* We don't propagate state, it's constant !       */
   /* We propagate our covariance                     */
   gv_adapt_P =  gv_adapt_P + GV_ADAPT_SYS_NOISE;
 
-#if USE_ADAPT_HOVER
   /* Update only if accel and commands are in a valid range */
   if (thrust_applied < GV_ADAPT_MIN_CMD || thrust_applied > GV_ADAPT_MAX_CMD
-      || zdd_meas < -GV_ADAPT_MAX_ACCEL || zdd_meas > GV_ADAPT_MAX_ACCEL)
+      || zdd_meas < -GV_ADAPT_MAX_ACCEL || zdd_meas > GV_ADAPT_MAX_ACCEL) {
     return;
-#endif
+  }
 
   /* Compute our measurement. If zdd_meas is in the range +/-5g, meas is less than 24 bits */
   const int32_t g_m_zdd = ((int32_t)BFP_OF_REAL(9.81, INT32_ACCEL_FRAC) - zdd_meas)<<(GV_ADAPT_X_FRAC - INT32_ACCEL_FRAC);
@@ -124,14 +151,9 @@ static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied) {
   int32_t residual = gv_adapt_Xmeas - gv_adapt_X;
 
   /* Covariance Error   */
-  int32_t E = 0;
-#if USE_ADAPT_HOVER
-  if ((thrust_applied > GV_ADAPT_HOVER_MIN_CMD && thrust_applied < GV_ADAPT_HOVER_MAX_CMD) ||
-      (zdd_meas > -GV_ADAPT_HOVER_ACCEL && zdd_meas < GV_ADAPT_HOVER_ACCEL))
-    E = gv_adapt_P + GV_ADAPT_MEAS_NOISE_HOVER;
-  else
-#endif
-    E = gv_adapt_P + GV_ADAPT_MEAS_NOISE;
+  int32_t ref = zd_ref >> (INT32_SPEED_FRAC - GV_ADAPT_P_FRAC);
+  if (zd_ref < 0) ref = -ref;
+  int32_t E = gv_adapt_P + GV_ADAPT_MEAS_NOISE_HOVER + ref * GV_ADAPT_MEAS_NOISE_OF_ZD;
 
   /* Kalman gain        */
   int32_t K = (gv_adapt_P<<K_FRAC) / E;
