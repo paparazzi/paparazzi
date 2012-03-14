@@ -1,7 +1,8 @@
+# Hey Emacs, this is a -*- makefile -*-
 #
 # lisa_m_1.0.makefile
 #
-# http://paparazzi.enac.fr/wiki/User/LisaM
+# http://paparazzi.enac.fr/wiki/Lisa/M
 #
 
 BOARD=lisa_m
@@ -51,9 +52,13 @@ ifndef SYS_TIME_LED
 SYS_TIME_LED = 1
 endif
 
-
+ifndef RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
 RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   = UART3
+endif
+
+ifndef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
 RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT = UART5
+endif
 
 ifndef MODEM_PORT
 MODEM_PORT=UART2
