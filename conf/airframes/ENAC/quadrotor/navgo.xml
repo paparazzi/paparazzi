@@ -38,8 +38,8 @@
   </firmware>
 
   <servos min="0" neutral="0" max="0xff">
-    <servo name="FRONT"  no="2"    min="0" neutral="0" max="255"/>
-    <servo name="BACK"   no="0"    min="0" neutral="0" max="255"/>
+    <servo name="FRONT"  no="0"    min="0" neutral="0" max="255"/>
+    <servo name="BACK"   no="2"    min="0" neutral="0" max="255"/>
     <servo name="RIGHT"  no="1"    min="0" neutral="0" max="255"/>
     <servo name="LEFT"   no="3"    min="0" neutral="0" max="255"/>
   </servos>
@@ -98,52 +98,8 @@
     <define name="MAG_Y_SENS" value="4.56234629213" integer="16"/>
     <define name="MAG_Z_SENS" value="5.298653926" integer="16"/>
 
-    <!--define name="MAG_X_NEUTRAL" value="0"/>
-    <define name="MAG_Y_NEUTRAL" value="0"/>
-    <define name="MAG_Z_NEUTRAL" value="0"/>
-
-    <define name="MAG_X_SENS" value="5.43371021972" integer="16"/>
-    <define name="MAG_Y_SENS" value="4.8961742578" integer="16"/>
-    <define name="MAG_Z_SENS" value="5.31527656902" integer="16"/-->
-
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(0.)"/> <!-- -10 -->
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(0.)"/> <!-- -10 -->
-    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(0.)"/>
-
-  </section>
-
-  <section name="IMU_PROTO" prefix="IMU_PROTO_">
-
-    <define name="GYRO_P_NEUTRAL" value="-24"/>
-    <define name="GYRO_Q_NEUTRAL" value="-8"/>
-    <define name="GYRO_R_NEUTRAL" value="21"/>
-
-    <!-- SENS ITG3200  1/14.375 (deg/s)/LSB, rate frac 12bit => 1/14.375 * pi / 180 * 2^12 -->
-    <define name="GYRO_P_SENS" value="4.97312" integer="16"/>
-    <define name="GYRO_Q_SENS" value="4.97312" integer="16"/>
-    <define name="GYRO_R_SENS" value="4.97312" integer="16"/>
-
-    <define name="ACCEL_X_NEUTRAL" value="-9"/>
-    <define name="ACCEL_Y_NEUTRAL" value="0"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-29"/>
-
-    <!-- SENS ADXL345 16G 31.2 mg/LSB, accel frac 10bit => 31.2 * 2^10 / 1000 = 31.9488-->
-    <define name="ACCEL_X_SENS" value="38.2683" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="38.7108" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="39.6583" integer="16"/>
-
-
-
-    <define name="MAG_X_NEUTRAL" value="55"/>
-    <define name="MAG_Y_NEUTRAL" value="54"/>
-    <define name="MAG_Z_NEUTRAL" value="92"/>
-
-    <define name="MAG_X_SENS" value="4.97044135787" integer="16"/>
-    <define name="MAG_Y_SENS" value="4.49687342915" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.93138019221" integer="16"/>
-
-    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(-10.)"/>
-    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(-10.)"/>
+    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(0.)"/>
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(0.)"/>
     <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(0.)"/>
 
   </section>
@@ -158,7 +114,8 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <!-- 1.4 mm/LSB : 0.0014*2^8 = 0.3584 -->
+    <!-- datasheet 1.4 mm/LSB : 0.0014*2^8 = 0.3584 -->
+    <!-- calibration SENS = 1.156 :( -->
     <define name="BARO_SENS" value="1.156" integer="16"/>
   </section>
 
@@ -230,8 +187,8 @@
    <define name="REF_MAX_ZDD"  value=" 0.8*9.81"/>
    <define name="REF_MIN_ZD"   value="-1.5"/>
    <define name="REF_MAX_ZD"   value=" 1.5"/>
-   <define name="HOVER_KP"     value="-500"/>
-   <define name="HOVER_KD"     value="-250"/>
+   <define name="HOVER_KP"     value="-350"/>
+   <define name="HOVER_KD"     value="-160"/>
    <define name="HOVER_KI"     value="0"/>
    <!-- SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
@@ -278,11 +235,9 @@
 
 
  <section name="MISC">
-   <define name="BOOZ_ANALOG_BARO_THRESHOLD" value="800"/>
-   <define name="FACE_REINJ_1"  value="1024"/>
    <define name="DEFAULT_CIRCLE_RADIUS" value="10."/>
    <define name="BoozDropPwm(_v)" value="BoozSetPwm1Value(_v)"/>
-   <define name="IMU_MAG_OFFSET" value="-9."/>
+   <!--define name="IMU_MAG_OFFSET" value="-9."/-->
  </section>
 
   <section name="GCS">
