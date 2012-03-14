@@ -6,6 +6,7 @@
 
 // Peripherials
 #include "../../peripherals/mpu60X0.h"
+#include "../../peripherals/hmc58xx.h"
 
 
 struct ImuAspirin2 imu_aspirin2;
@@ -37,10 +38,10 @@ void imu_impl_init(void) {
 }
 
 
-void imu_periodic(void) 
+void imu_periodic(void)
 {
 
-  if (imu_aspirin2.status == Aspirin2StatusUninit) 
+  if (imu_aspirin2.status == Aspirin2StatusUninit)
   {
     configure();
     // imu_aspirin_arch_int_enable();
@@ -64,49 +65,62 @@ void imu_periodic(void)
 /*
     imu_aspirin.time_since_last_reading++;
     imu_aspirin.time_since_last_accel_reading++;
-    if (imu_aspirin.time_since_last_accel_reading > ASPIRIN_ACCEL_TIMEOUT) 
+    if (imu_aspirin.time_since_last_accel_reading > ASPIRIN_ACCEL_TIMEOUT)
     {
       configure_accel();
       imu_aspirin.time_since_last_accel_reading=0;
     }
 */
-  } 
+  }
 }
 
-static void configure(void) 
+static inline void mpu_set(uint8_t _reg, uint8_t _val)
+{
+  aspirin2_mpu60x0.mosi_buf[0] = _reg;
+  aspirin2_mpu60x0.mosi_buf[1] = _val;
+  spi_rw(&aspirin2_mpu60x0);
+    while(aspirin2_mpu60x0.status != SPITransSuccess);
+}
+
+static inline void mpu_wait_slave4_ready(void)
+{
+  uint8_t ret = 0x80;
+  while (ret & 0x80)
+  {
+    aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_I2C_SLV4_CTRL | MPU60X0_SPI_READ ;
+    aspirin2_mpu60x0.mosi_buf[1] = 0;
+    spi_rw(&aspirin2_mpu60x0);
+      while(aspirin2_mpu60x0.status != SPITransSuccess);
+
+    ret = aspirin2_mpu60x0.miso_buf[1];
+  }
+}
+
+
+
+static void configure(void)
 {
   aspirin2_mpu60x0.length = 2;
 
   ///////////////////
   // Configure power:
 
-  // MPU60X0_REG_AUX_VDDIO = 0 (good on startup)
-
-  // MPU60X0_REG_USER_CTRL:
-  // -Enable Aux I2C Master Mode
-  // -Enable SPI
-
   // MPU60X0_REG_PWR_MGMT_1
-  // -switch to gyroX clock
-  aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_PWR_MGMT_1;
-  aspirin2_mpu60x0.mosi_buf[1] = 0x01;
-  spi_rw(&aspirin2_mpu60x0);
-    while(aspirin2_mpu60x0.status != SPITransSuccess);
+  mpu_set( MPU60X0_REG_PWR_MGMT_1,
+           0x01);		// -switch to gyroX clock
 
   // MPU60X0_REG_PWR_MGMT_2: Nothing should be in standby: default OK
+  // -No standby and no wake timer
 
   /////////////////////////
   // Measurement Settings
 
-  // MPU60X0_REG_CONFIG
-  // -ext sync on gyro X (bit 3->6)
-  // -digital low pass filter: 1kHz sampling of gyro/acc with 44Hz bandwidth: since reading is at 100Hz
 #if PERIODIC_FREQUENCY == 60
 // Accelerometer: Bandwidth 44Hz, Delay 4.9ms
 // Gyroscope: Bandwidth 42Hz, Delay 4.8ms sampling 1Khz
-#define MPU_DIG_FILTER 3
+#  define MPU_DIG_FILTER 3
 // -100Hz output = 1kHz / (9 + 1)
-#define MPU_SMPLRT_DIV 9
+#  define MPU_SMPLRT_DIV 9
 #else
 #  if PERIODIC_FREQUENCY == 120
 //   Accelerometer: Bandwidth 44Hz, Delay 4.9ms
@@ -126,73 +140,94 @@ static void configure(void)
 #    endif
 #  endif
 #endif
-  aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_CONFIG;
-  aspirin2_mpu60x0.mosi_buf[1] = (2 << 3) | (MPU_DIG_FILTER << 0);
-  spi_rw(&aspirin2_mpu60x0);
-    while(aspirin2_mpu60x0.status != SPITransSuccess);
+
+  // MPU60X0_REG_CONFIG
+  mpu_set( MPU60X0_REG_CONFIG,
+           (2 << 3) | 			// Fsync / ext sync on gyro X (bit 3->6)
+           (MPU_DIG_FILTER << 0) );	// Low-Pass Filter
 
   // MPU60X0_REG_SMPLRT_DIV
-  aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_SMPLRT_DIV;
-  aspirin2_mpu60x0.mosi_buf[1] = MPU_SMPLRT_DIV;
-  spi_rw(&aspirin2_mpu60x0);
-    while(aspirin2_mpu60x0.status != SPITransSuccess);
+  mpu_set( MPU60X0_REG_SMPLRT_DIV, MPU_SMPLRT_DIV);
 
   // MPU60X0_REG_GYRO_CONFIG
-  // -2000deg/sec
-  aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_GYRO_CONFIG;
-  aspirin2_mpu60x0.mosi_buf[1] = (3<<3);
-  spi_rw(&aspirin2_mpu60x0);
-    while(aspirin2_mpu60x0.status != SPITransSuccess);
+  mpu_set( MPU60X0_REG_GYRO_CONFIG,
+           (3 << 3) );			// -2000deg/sec
 
   // MPU60X0_REG_ACCEL_CONFIG
-  // 16g, no HPFL
-  aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_ACCEL_CONFIG;
-  aspirin2_mpu60x0.mosi_buf[1] = (3<<3);
-  spi_rw(&aspirin2_mpu60x0);
-    while(aspirin2_mpu60x0.status != SPITransSuccess);
+  mpu_set( MPU60X0_REG_ACCEL_CONFIG,
+           (0 << 0) |			// No HPFL
+           (3 << 3) );			// Full Scale = 16g
 
-/*
-  struct i2c_transaction t;
-  t.type = I2CTransTx;
-  t.slave_addr = ITG3200_ADDR;
-  // set gyro range to 2000deg/s and low pass at 256Hz
-  t.mosi_buf[0] = ITG3200_REG_DLPF_FS;
-  t.mosi_buf[1] = (0x03<<3);
-  t.len_w = 2;
-  send_i2c_msg_with_retry(&t);
-  // set sample rate to 533Hz 
-  t.mosi_buf[0] = ITG3200_REG_SMPLRT_DIV;
-  t.mosi_buf[1] = 0x0E;
-  send_i2c_msg_with_retry(&t);
-  // switch to gyroX clock 
-  t.mosi_buf[0] = ITG3200_REG_PWR_MGM;
-  t.mosi_buf[1] = 0x01;
-  send_i2c_msg_with_retry(&t);
-  // enable interrupt on data ready, idle high, latch until read any register
-  t.mosi_buf[0] = ITG3200_REG_INT_CFG;
-  t.mosi_buf[1] = (0x01 | (0x1<<4) | (0x1<<5) | 0x01<<7);
-  send_i2c_msg_with_retry(&t);
-*/
+#ifndef MPU6000_NO_SLAVES
+
+  /////////////////////////////////////
+  // SPI Slave Configuration Section
+
+  // Power the Aux I2C Circuit:
+  // MPU60X0_REG_AUX_VDDIO = 0 (good on startup):  (0 << 7);	// MPU6000: 0=Vdd. MPU6050 : 0=VLogic 1=Vdd
+
+  // MPU60X0_REG_USER_CTRL:
+  mpu_set( MPU60X0_REG_USER_CTRL,
+           (1 << 5) |		// I2C_MST_EN: Enable Aux I2C Master Mode
+           (1 << 4) |		// I2C_IF_DIS: Disable I2C on primary interface
+           (0 << 1) );		// Trigger a I2C_MST_RESET
+
+  // Enable the aux i2c
+  mpu_set( MPU60X0_REG_I2C_MST_CTRL,
+           (0 << 7) | 		// no multimaster
+	   (0 << 6) |		// do not delay IRQ waiting for all external slaves
+	   (0 << 5) | 		// no slave 3 FIFO
+	   (0 << 4) | 		// restart or stop/start from one slave to another: read -> write is always stop/start
+	   (8 << 0) );		// 0=348kHz 8=256kHz, 9=500kHz
+
+
+  // HMC5883 Magnetometer Configuration
+
+  mpu_set( MPU60X0_REG_I2C_SLV4_ADDR, (HMC58XX_ADDR >> 1));
+  mpu_set( MPU60X0_REG_I2C_SLV4_REG,  HMC58XX_REG_CFGA);
+  mpu_set( MPU60X0_REG_I2C_SLV4_DO,  HMC58XX_CRA);
+  mpu_set( MPU60X0_REG_I2C_SLV4_CTRL,
+           (1 << 7) |		// Slave 4 enable
+           (0 << 6) |		// Byte Swap
+           (0 << 0) );		// Full Speed
+
+  mpu_wait_slave4_ready();
+
+  mpu_set( MPU60X0_REG_I2C_SLV4_ADDR, (HMC58XX_ADDR >> 1));
+  mpu_set( MPU60X0_REG_I2C_SLV4_REG,  HMC58XX_REG_CFGB);
+  mpu_set( MPU60X0_REG_I2C_SLV4_DO,  HMC58XX_CRB);
+  mpu_set( MPU60X0_REG_I2C_SLV4_CTRL,
+           (1 << 7) |		// Slave 4 enable
+           (0 << 6) |		// Byte Swap
+           (0 << 0) );		// Full Speed
+
+  mpu_wait_slave4_ready();
+
+  mpu_set( MPU60X0_REG_I2C_SLV4_ADDR, (HMC58XX_ADDR >> 1));
+  mpu_set( MPU60X0_REG_I2C_SLV4_REG,  HMC58XX_REG_MODE);
+  mpu_set( MPU60X0_REG_I2C_SLV4_DO,  HMC58XX_MD);
+  mpu_set( MPU60X0_REG_I2C_SLV4_CTRL,
+           (1 << 7) |		// Slave 4 enable
+           (0 << 6) |		// Byte Swap
+           (0 << 0) );		// Full Speed
+
+
+  // HMC5883 Reading:
+  // a) write hmc-register to HMC
+  // b) read 6 bytes from HMC
+
+  mpu_set( MPU60X0_REG_I2C_SLV0_ADDR, (HMC58XX_ADDR >> 1) | MPU60X0_SPI_READ);
+  mpu_set( MPU60X0_REG_I2C_SLV0_REG,  HMC58XX_REG_DATXM);
+  // Put the enable command as last.
+  mpu_set( MPU60X0_REG_I2C_SLV0_CTRL,
+           (1 << 7) |		// Slave 0 enable
+           (0 << 6) |		// Byte Swap
+           (6 << 0) );		// Read 6 bytes
+
+	// Slave 0 Control:
+
+
+#endif
+
 }
-
-
-/*
-static void configure_accel(void) 
-{
-  // set data rate to 800Hz
-  adxl345_write_to_reg(ADXL345_REG_BW_RATE, 0x0D);
-  // switch to measurememnt mode 
-  adxl345_write_to_reg(ADXL345_REG_POWER_CTL, 1<<3);
-  // enable data ready interrupt 
-  adxl345_write_to_reg(ADXL345_REG_INT_ENABLE, 1<<7);
-  // Enable full res and interrupt active low 
-  adxl345_write_to_reg(ADXL345_REG_DATA_FORMAT, 1<<3|1<<5);
-  // clear spi rx reg to make DMA happy 
-  adxl345_clear_rx_buf();
-  // reads data once to bring interrupt line up 
-  adxl345_start_reading_data();
-
-}
-*/
-
 
