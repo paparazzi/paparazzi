@@ -198,7 +198,7 @@
 
   <firmware name="fixedwing">
 
-    <target name="ap" board="lisa_m_1.0">
+    <target name="ap" board="lisa_l_1.0">
       <define name="STRONG_WIND"/>
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
@@ -206,7 +206,7 @@
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
-       <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" /> 
+      <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
 
       <configure name="AHRS_ALIGNER_LED" value="1"/>
       <configure name="CPU_LED" value="1"/>
@@ -232,7 +232,7 @@
     <subsystem name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="transparent">
+    <subsystem name="telemetry" type="xbee_api">
       <configure name="MODEM_BAUD" value="B57600"/>
     </subsystem>
 
@@ -240,7 +240,7 @@
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="navigation"/>
-    <subsystem name="gps" type="ublox_utm"/>
+    <subsystem name="gps" type="ublox"/>
 
 
 </firmware>
