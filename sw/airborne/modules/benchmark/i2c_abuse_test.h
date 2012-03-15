@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright (C) 2009  C. De Wagter
+ * Copyright (C) 2011  Christophe De Wagter
  *
  * This file is part of paparazzi.
  *
