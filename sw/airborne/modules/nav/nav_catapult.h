@@ -39,7 +39,9 @@ void nav_catapult_highrate_module(void);
 extern bool_t nav_catapult_init(void);
 
 extern bool_t nav_catapult_arm(void);
-extern bool_t nav_catapult(uint8_t _climb);
+extern bool_t nav_catapult(uint8_t _to, uint8_t _climb);
 extern bool_t nav_catapult_disarm(void);
+
+extern bool_t nav_select_touch_down(uint8_t _td);
 
 #endif
