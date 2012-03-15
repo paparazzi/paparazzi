@@ -27,57 +27,43 @@
 
 #include "subsystems/sensors/baro.h"
 #include "led.h"
+#include "mcu_periph/spi.h"
 
 /* Common Baro struct */
 struct Baro baro;
 
-/* Number of values to compute an offset at startup */
-#define OFFSET_NBSAMPLES_AVRG 300
-uint16_t offset_cnt;
-
-#ifdef USE_BARO_AS_ALTIMETER
-/* Weight for offset IIR filter */
-#define OFFSET_FILTER 7
-
-float baro_alt;
-float baro_alt_offset;
-#endif
+/* Counter to init mcp355x at startup */
+#define STARTUP_COUNTER 200
+uint16_t startup_cnt;
 
 void baro_init( void ) {
-  ads1114_init();
+  mcp355x_init();
+  SpiSelectSlave0(); // never unselect this slave (continious conversion mode)
   baro.status = BS_UNINITIALIZED;
   baro.absolute     = 0;
   baro.differential = 0; /* not handled on this board */
 #ifdef ROTORCRAFT_BARO_LED
   LED_OFF(ROTORCRAFT_BARO_LED);
 #endif
-  offset_cnt = OFFSET_NBSAMPLES_AVRG;
-#ifdef USE_BARO_AS_ALTIMETER
-  baro_alt = 0.;
-  baro_alt_offset = 0.;
-#endif
+  startup_cnt = STARTUP_COUNTER;
 }
 
 void baro_periodic( void ) {
 
   if (baro.status == BS_UNINITIALIZED) {
-#ifdef USE_BARO_AS_ALTIMETER
-    // IIR filter to compute an initial offset
-    baro_alt_offset = (OFFSET_FILTER * baro_alt_offset + (float)baro.absolute) / (OFFSET_FILTER + 1);
-#endif
-    // decrease init counter
-    --offset_cnt;
+    // Run some loops to get correct readings from the adc
+    --startup_cnt;
 #ifdef ROTORCRAFT_BARO_LED
     LED_TOGGLE(ROTORCRAFT_BARO_LED);
 #endif
-    if (offset_cnt == 0) {
+    if (startup_cnt == 0) {
       baro.status = BS_RUNNING;
 #ifdef ROTORCRAFT_BARO_LED
       LED_ON(ROTORCRAFT_BARO_LED);
 #endif
     }
   }
-  // Read the ADC
-  ads1114_read();
+  // Read the ADC (at 50/4 Hz, conversion time is 68 ms)
+  RunOnceEvery(4,mcp355x_read());
 }
 

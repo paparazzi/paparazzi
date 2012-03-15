@@ -338,6 +338,7 @@ and edit = ref false
 and display_particules = ref false
 and wid = ref None
 and srtm = ref false
+and hide_fp = ref false
 
 let options =
   [
@@ -369,6 +370,7 @@ let options =
    "-utm", Arg.Unit (fun () -> projection:=G.UTM),"Switch to UTM local projection";
    "-wid", Arg.String (fun s -> wid := Some (Int32.of_string s)), "<window id> Id of an existing window to be attached to";
    "-zoom", Arg.Set_float zoom, "Initial zoom";
+   "-auto_hide_fp", Arg.Unit (fun () -> Live.auto_hide_fp true; hide_fp := true), "Automatically hide flight plans of unselected aircraft";
  ]
 
 
@@ -389,6 +391,7 @@ let create_geomap = fun switch_fullscreen editor_frame ->
   ignore (geomap#canvas#event#connect#motion_notify (motion_notify geomap));
   ignore (geomap#canvas#event#connect#any (any_event geomap));
 
+  ignore (menu_fact#add_check_item "Auto hide FP" ~callback:(fun hide -> Live.auto_hide_fp hide) ~active:!hide_fp);
   ignore (menu_fact#add_item "Redraw" ~key:GdkKeysyms._L ~callback:(fun _ -> geomap#canvas#misc#draw None));
   let fullscreen = menu_fact#add_image_item ~stock:(`STOCK "gtk-fullscreen") ~callback:switch_fullscreen () in
   fullscreen#add_accelerator accel_group GdkKeysyms._F11;

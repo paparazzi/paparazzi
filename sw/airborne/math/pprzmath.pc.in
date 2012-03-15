@@ -1,0 +1,9 @@
+prefix=PREFIX
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${exec_prefix}/include
+Name: pprzmath
+Description: math library used in Paparazzi project (http://paparazzi.enac.fr)
+Version:0.1
+Libs: -L${libdir} -lpprzmath
+Cflags: -I${includedir}/pprz

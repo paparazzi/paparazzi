@@ -41,32 +41,20 @@ void mcp355x_init(void) {
 void mcp355x_read(void) {
   spi_buffer_length = 4;
   spi_buffer_input = mcp355x_spi_buf;
-  SpiSelectSlave0();
+  //SpiSelectSlave0();
   SpiStart();
 }
 
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-
-#include "mcu_periph/uart.h"
-#include "messages.h"
-#include "downlink.h"
-
 void mcp355x_event(void) {
-  static uint32_t filtered = 0;
   if (spi_message_received) {
     spi_message_received = FALSE;
     if ((mcp355x_spi_buf[0]>>4) == 0) {
-      //mcp355x_data = (int32_t)(((uint32_t)mcp355x_spi_buf[0]<<16) | ((uint32_t)mcp355x_spi_buf[1]<<8) | (mcp355x_spi_buf[2]));
       mcp355x_data = (int32_t)(
           ((uint32_t)mcp355x_spi_buf[0]<<17) |
           ((uint32_t)mcp355x_spi_buf[1]<<9) |
           ((uint32_t)mcp355x_spi_buf[2]<<1) |
           (mcp355x_spi_buf[3]>>7));
-      filtered = (5*filtered + mcp355x_data) / (6);
-      DOWNLINK_SEND_DEBUG(DefaultChannel,4,mcp355x_spi_buf);
-      DOWNLINK_SEND_BARO_RAW(DefaultChannel,&mcp355x_data,&filtered);
+      mcp355x_data_available = TRUE;
     }
   }
 }

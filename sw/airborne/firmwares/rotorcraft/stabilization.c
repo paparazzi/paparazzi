@@ -27,6 +27,7 @@ int32_t stabilization_cmd[COMMANDS_NB];
 
 void stabilization_init(void) {
 #ifndef STABILIZATION_SKIP_RATE
+  stabilization_none_init();
   stabilization_rate_init();
 #endif
   stabilization_attitude_init();

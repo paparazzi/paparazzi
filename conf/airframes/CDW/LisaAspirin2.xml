@@ -1,56 +1,83 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!--
-	YAPA + XSens + XBee
+	Lisa + Aspirin v2 using SPI only
 -->
 
-<airframe name="Yapa v1">
+<airframe name="LisaAspirin2">
 
   <servos>
-    <servo name="THROTTLE" no="0" min="1100" neutral="1000" max="1900"/>
-    <servo name="RUDDER" no="2" min="1100" neutral="1500" max="1900"/>
-    <servo name="ELEVATOR" no="6" min="1000" neutral="1500" max="2000"/>
-    <servo name="CAM_TILT" no="7" min="700" neutral="1600" max="2500"/>
-    <servo name="CAM_PAN" no="3" min="800" neutral="1650" max="2500"/>
+    <servo name="THROTTLE" no="2" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILEVON_LEFT" no="1" min="1000" neutral="1500" max="2000"/>
+    <servo name="AILEVON_RIGHT" no="0" min="2000" neutral="1500" max="1000"/>
+    <servo name="ELEVATOR" no="3" min="2000" neutral="1500" max="1000"/>
+    <servo name="RUDDER" no="4" min="1100" neutral="1500" max="1900"/>
   </servos>
 
   <commands>
     <axis name="THROTTLE" failsafe_value="0"/>
     <axis name="ROLL" failsafe_value="0"/>
     <axis name="PITCH" failsafe_value="0"/>
-    <axis name="CAM_PAN" failsafe_value="0"/>
-    <axis name="CAM_TILT" failsafe_value="0"/>
+    <axis name="BRAKE" failsafe_value="0"/>	<!-- both elerons up as butterfly brake ? -->
   </commands>
-
-<ap_only_commands>
-  <copy command="CAM_PAN"/>
-  <copy command="CAM_TILT"/>
-</ap_only_commands>
-
 
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="ROLL" value="@ROLL"/>
     <set command="PITCH" value="@PITCH"/>
+    <set command="BRAKE" value="@YAW"/>
   </rc_commands>
 
   <command_laws>
-    <set servo="CAM_PAN" value="@CAM_PAN"/>
-    <set servo="CAM_TILT" value="@CAM_TILT"/>
-
-    <!-- Differential Aileron Depending on Brake Value -->
-    <set servo="RUDDER" value="@ROLL"/>
-
-    <!-- Differential Thurst -->
+    <set servo="AILEVON_LEFT" value="@ROLL + @PITCH"/>
+    <set servo="AILEVON_RIGHT" value="@ROLL - @PITCH"/>
     <set servo="THROTTLE" value="@THROTTLE"/>
-
-    <!-- Pitch with Brake-Trim Function -->
     <set servo="ELEVATOR" value="@PITCH"/>
   </command_laws>
 
+  <!-- Local magnetic field -->
+  <section name="AHRS" prefix="AHRS_" >
+    <define name="H_X" value="0.51562740288882" />
+    <define name="H_Y" value="-0.05707735220832" />
+    <define name="H_Z" value="0.85490967783446" />
+  </section>
+
+  <section name="IMU" prefix="IMU_">
+    <!-- Calibration Neutral -->
+    <define name="GYRO_P_NEUTRAL" value="0"/>
+    <define name="GYRO_Q_NEUTRAL" value="0"/>
+    <define name="GYRO_R_NEUTRAL" value="0"/>
+
+    <!-- SENS = 16.4 LSB/(deg/sec) * 57.6 deg/rad = 939.650 LSB/rad/sec / 12bit FRAC: 4096 / 939.65 -->
+    <define name="GYRO_P_SENS" value="4.359" integer="16"/>
+    <define name="GYRO_Q_SENS" value="4.359" integer="16"/>
+    <define name="GYRO_R_SENS" value="4.359" integer="16"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="0"/>
+    <define name="ACCEL_Y_NEUTRAL" value="0"/>
+    <define name="ACCEL_Z_NEUTRAL" value="0"/>
+
+    <!-- SENS = 2048 LSB/g / 9.81 ms2/g = 208.766564729 LSB/ms2 / 10bit FRAC: 1024 / 208.7665 -->
+    <define name="ACCEL_X_SENS" value="9.81" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="9.81" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="9.81" integer="16"/>
+
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
+
+    <define name="MAG_X_SENS" value="1" integer="16"/>
+    <define name="MAG_Y_SENS" value="1" integer="16"/>
+    <define name="MAG_Z_SENS" value="1" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI" value="0"/>
+    <define name="BODY_TO_IMU_THETA" value="0"/>
+    <define name="BODY_TO_IMU_PSI" value="0"/>
+  </section>
+
   <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="rad"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="rad"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
   </section>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -58,30 +85,20 @@
     <define name="MAX_PITCH" value="0.7"/>
   </section>
 
-  <section name="PANTILT" prefix="CAM_">
-    <define name="PAN_MIN" value="-45"/>
-    <define name="PAN_NEUTRAL" value="33"/>
-    <define name="PAN_MAX" value="156"/>
-    <define name="PAN0" value="0"/>
-    <define name="TILT_MIN" value="-62"/>
-    <define name="TILT_NEUTRAL" value="47"/>
-    <define name="TILT_MAX" value="122"/>
-    <define name="TILT0" value="90"/>
-    <define name="MODE0" value="1"/>
-  </section>
-
   <section name="BAT">
-    <define name="LOW_BAT_LEVEL" value="7" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="6.5" unit="V"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="6.0" unit="V"/>
+    <define name="MilliAmpereOfAdc(adc)" value="((adc) - 505) * 124.0f"/>
+
+    <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="10" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.1" unit="V"/>
   </section>
 
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED" value="13." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
- <!--   <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
-    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
+    <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
+<!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
@@ -117,17 +134,19 @@
     <define name="COURSE_DGAIN" value="0.3"/>
     <define name="COURSE_PRE_BANK_CORRECTION" value="0.2"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="0.9" unit="radians"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.75" unit="radians"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="radians"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="radians"/>
 
     <define name="PITCH_PGAIN" value="-12000."/>
-    <define name="PITCH_DGAIN" value="0"/>
+    <define name="PITCH_DGAIN" value="1.5"/>
 
     <define name="ELEVATOR_OF_ROLL" value="1000."/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-11500"/>
-    <define name="ROLL_RATE_GAIN" value="-600."/>
+    <define name="ROLL_SLEW" value="1."/>
+
+    <define name="ROLL_ATTITUDE_GAIN" value="-7500"/>
+    <define name="ROLL_RATE_GAIN" value="0."/>
   </section>
 
   <section name="AGGRESSIVE" prefix="AGR_">
@@ -158,43 +177,73 @@
 
 
   <modules>
-    <load name="ins_chimu_spi.xml" >
-      <define name="CHIMU_BIG_ENDIAN" />
+<!--
+    <load name="light.xml">
+      <define name="LIGHT_LED_STROBE" value="2"/>
+      <define name="LIGHT_LED_NAV" value="3"/>
+      <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
+      <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
     </load>
-    <load name="./TUDelft/campoint60Hz.xml" />
-    <load name="gps_ubx_ucenter.xml">
-      <define name="GPS_PORT_ID" value="GPS_PORT_UART2" />
+
+        <load name="digital_cam_i2c.xml"/>  -->
+
+ <!--    <load name="ins_ppzuavimu.xml" /> -->
+
+<!--
+    <load name="digital_cam.xml" >
+      <define name="DC_SHUTTER_LED" value="3"/>
     </load>
+    -->
   </modules>
 
   <firmware name="fixedwing">
-    <target name="ap" board="tiny_2.11">
+
+    <target name="ap" board="lisa_m_1.0">
       <define name="STRONG_WIND"/>
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
-      <define name="LOITER_TRIM"/>
-      <define name="ALT_KALMAN"/>
-      <define name="POINT_CAM_PITCH_ROLL" />
+
+      <configure name="PERIODIC_FREQUENCY" value="120"/>
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
+      <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
+       <define name="AHRS_TRIGGERED_ATTITUDE_LOOP" />
+
+      <configure name="AHRS_ALIGNER_LED" value="1"/>
+      <configure name="CPU_LED" value="1"/>
     </target>
     <target name="sim" board="pc"/>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="gps" type="ublox" />
+    <define name="AGR_CLIMB"/>
+    <define name="LOITER_TRIM"/>
+    <define name="ALT_KALMAN"/>
 
+    <!-- Sensors -->
+    <!--
+    <subsystem name="ahrs" type="int_cmpl_quat">
+      <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" />
+    </subsystem>
+    -->
+    <subsystem name="imu" type="aspirin_v2.0"/>
+    <subsystem name="ahrs" type="float_dcm">
+<!--      <define name="USE_MAGNETOMETER" /> -->
+    </subsystem>
+
+
+    <subsystem name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="xbee_api">
-      <configure name="MODEM_BAUD" value="B9600"/>
+    <subsystem name="telemetry" type="transparent">
+      <configure name="MODEM_BAUD" value="B57600"/>
     </subsystem>
 
     <!-- Actuators -->
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="navigation"/>
-<!--    <subsystem name="gps"    type="ublox_lea5h"/> -->
+    <subsystem name="gps" type="ublox_utm"/>
 
-    <subsystem name="spi_slave_hs"/>
 
-  </firmware>
+</firmware>
+
 
 </airframe>

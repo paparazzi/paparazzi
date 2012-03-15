@@ -34,10 +34,10 @@ ifeq ($(ARCH), lpc21)
 ap.CFLAGS += -DUSE_LED
 ap.srcs = sys_time.c $(SRC_ARCH)/sys_time_hw.c $(SRC_ARCH)/armVIC.c $(SRC_FIRMWARE)/main_logger.c
 
-#choose one
-ap.CFLAGS += -DLOG_XBEE
-#ap.CFLAGS += -DLOG_PPRZ
-
+# PPRZ message format is default
+ifndef LOG_MSG_FMT
+LOG_MSG_FMT = LOG_PPRZ
+endif
 
 #set the speed
 ap.CFLAGS += -DUSE_UART0 -DUART0_BAUD=$(UART0_BAUD) -DUSE_UART0_RX_ONLY
@@ -49,6 +49,9 @@ ap.srcs += mcu.c
 
 #set SPI interface for SD card (0 or 1)
 ap.CFLAGS += -DHW_ENDPOINT_LPC2000_SPINUM=$(SPI_CHANNEL)
+
+#message format pprz/xbee
+ap.CFLAGS += -D$(LOG_MSG_FMT)
 
 #LPC2148 USB hw module needs at least 18MHz PCLK
 ap.CFLAGS += -DUSE_USB_HIGH_PCLK

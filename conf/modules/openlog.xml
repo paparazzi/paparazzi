@@ -1,0 +1,13 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="openlog">
+  <header>
+    <file name="openlog.h"/>
+  </header>
+  <init fun="init_openlog()"/>
+  <periodic fun="periodic_2Hz_openlog()" freq="2." autorun="TRUE"/>
+  <makefile>
+    <file name="openlog.c"/>
+  </makefile>
+</module>
+
