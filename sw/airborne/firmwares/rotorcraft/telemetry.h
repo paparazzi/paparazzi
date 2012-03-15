@@ -59,6 +59,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_ROTORCRAFT_STATUS(_trans, _dev) {			\
     uint32_t imu_nb_err = 0;						\
     uint8_t _twi_blmc_nb_err = 0;					\
+    uint16_t time_sec = sys_time.nb_sec; \
     DOWNLINK_SEND_ROTORCRAFT_STATUS(_trans, _dev,				\
                     &imu_nb_err,			\
                     &_twi_blmc_nb_err,			\
@@ -71,7 +72,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                     &guidance_h_mode,			\
                     &guidance_v_mode,			\
                     &electrical.vsupply,		\
-                    &sys_time.nb_sec			\
+                    &time_sec			\
                     );					\
   }
 #else /* !USE_GPS */
@@ -79,6 +80,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
     uint32_t imu_nb_err = 0;						\
     uint8_t twi_blmc_nb_err = 0;					\
     uint8_t  fix = GPS_FIX_NONE;					\
+    uint16_t time_sec = sys_time.nb_sec;                            \
     DOWNLINK_SEND_ROTORCRAFT_STATUS(_trans, _dev,					\
                   &imu_nb_err,				\
                   &twi_blmc_nb_err,				\
@@ -91,7 +93,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                   &guidance_h_mode,			\
                   &guidance_v_mode,			\
                   &electrical.vsupply,		\
-                  &sys_time.nb_sec    \
+                  &time_sec    \
                   );					\
   }
 #endif /* USE_GPS */
@@ -266,9 +268,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                         &stab_att_ref_euler.phi, \
                         &stab_att_ref_euler.theta, \
                         &stab_att_ref_euler.psi, \
-                        &stabilization_att_sum_err.phi, \
-                        &stabilization_att_sum_err.theta, \
-                        &stabilization_att_sum_err.psi, \
+                        &stabilization_att_sum_err_eulers.phi, \
+                        &stabilization_att_sum_err_eulers.theta, \
+                        &stabilization_att_sum_err_eulers.psi, \
                         &stabilization_att_fb_cmd[COMMAND_ROLL], \
                         &stabilization_att_fb_cmd[COMMAND_PITCH], \
                         &stabilization_att_fb_cmd[COMMAND_YAW], \
@@ -277,7 +279,10 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                         &stabilization_att_ff_cmd[COMMAND_YAW], \
                         &stabilization_cmd[COMMAND_ROLL], \
                         &stabilization_cmd[COMMAND_PITCH], \
-                        &stabilization_cmd[COMMAND_YAW]); \
+                        &stabilization_cmd[COMMAND_YAW], \
+                        &ahrs_float.body_rate_d.p, \
+                        &ahrs_float.body_rate_d.q, \
+                        &ahrs_float.body_rate_d.r);   \
   }
 
 #define PERIODIC_SEND_STAB_ATTITUDE_REF(_trans, _dev) {			\
@@ -511,11 +516,11 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                                 &b2_hff_state.yP[1][1]);    \
   }
 #ifdef GPS_LAG
-#define PERIODIC_SEND_HFF_GPS(_trans, _dev) {	\
-    DOWNLINK_SEND_HFF_GPS(_trans, _dev,			\
-                              &b2_hff_rb_last->lag_counter,		\
-                              &lag_counter_err,	\
-                              &save_counter);	\
+#define PERIODIC_SEND_HFF_GPS(_trans, _dev) {               \
+    DOWNLINK_SEND_HFF_GPS(_trans, _dev,                     \
+                          &(b2_hff_rb_last->lag_counter),   \
+                          &lag_counter_err,                 \
+                          &save_counter);                   \
   }
 #else
 #define PERIODIC_SEND_HFF_GPS(_trans, _dev) {}
@@ -555,16 +560,17 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                        &ins_ltp_accel.z);	\
   }
 
-#define PERIODIC_SEND_INS_REF(_trans, _dev) {				\
-    DOWNLINK_SEND_INS_REF(_trans, _dev,					\
-                &ins_ltp_def.ecef.x,		\
-                &ins_ltp_def.ecef.y,		\
-                &ins_ltp_def.ecef.z,		\
-                &ins_ltp_def.lla.lat,		\
-                &ins_ltp_def.lla.lon,		\
-                &ins_ltp_def.lla.alt,		\
-                &ins_ltp_def.hmsl,		\
-                &ins_qfe);				\
+#define PERIODIC_SEND_INS_REF(_trans, _dev) {       \
+    if (ins_ltp_initialised)                        \
+      DOWNLINK_SEND_INS_REF(_trans, _dev,           \
+                            &ins_ltp_def.ecef.x,    \
+                            &ins_ltp_def.ecef.y,    \
+                            &ins_ltp_def.ecef.z,    \
+                            &ins_ltp_def.lla.lat,   \
+                            &ins_ltp_def.lla.lon,   \
+                            &ins_ltp_def.lla.alt,   \
+                            &ins_ltp_def.hmsl,		\
+                            &ins_qfe);				\
   }
 
 #define PERIODIC_SEND_VERT_LOOP(_trans, _dev) {				\
@@ -774,12 +780,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
     PERIODIC_SEND_I2C2_ERRORS(_trans, _dev);  						\
 }
 
-//TODO replace by BOOZ_EXTRA_ADC
-#ifdef BOOZ2_SONAR
-#define PERIODIC_SEND_BOOZ2_SONAR(_trans, _dev) DOWNLINK_SEND_BOOZ2_SONAR(_trans, _dev,&booz2_adc_1,&booz2_adc_2,&booz2_adc_3,&booz2_adc_4);
-#else
+// FIXME: still used?? or replace by EXTRA_ADC
 #define PERIODIC_SEND_BOOZ2_SONAR(_trans, _dev) {}
-#endif
 
 #ifdef BOOZ2_TRACK_CAM
 #include "cam_track.h"

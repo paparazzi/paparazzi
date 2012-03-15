@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -21,8 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** \file stabilization_attitude_ref_int.c
- *  \brief Booz attitude reference generation (quaternion int version)
+/** @file stabilization_attitude_ref_int.c
+ * Rotorcraft attitude reference generation (quaternion int version)
  *
  */
 
@@ -31,7 +29,10 @@
 #include "subsystems/ahrs.h"
 
 #include "stabilization_attitude_ref_int.h"
-//#include "quat_setpoint.h"
+
+#if USE_SETPOINTS_WITH_TRANSITIONS
+#include "firmwares/rotorcraft/stabilization/quat_setpoint_int.h"
+#endif
 
 #define REF_ACCEL_MAX_P BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_PDOT, REF_ACCEL_FRAC)
 #define REF_ACCEL_MAX_Q BFP_OF_REAL(STABILIZATION_ATTITUDE_REF_MAX_QDOT, REF_ACCEL_FRAC)
@@ -63,9 +64,9 @@
 #define OMEGA_2_R    BFP_OF_REAL((OMEGA_R*OMEGA_R), OMEGA_2_R_RES)
 
 
-struct Int32Eulers stab_att_sp_euler;
+struct Int32Eulers stab_att_sp_euler;  ///< with #INT32_ANGLE_FRAC
 struct Int32Quat   stab_att_sp_quat;
-struct Int32Eulers stab_att_ref_euler;
+struct Int32Eulers stab_att_ref_euler; ///< with #INT32_ANGLE_FRAC
 struct Int32Quat   stab_att_ref_quat;
 struct Int32Rates  stab_att_ref_rate;
 struct Int32Rates  stab_att_ref_accel;
@@ -75,41 +76,21 @@ struct Int32RefModel stab_att_ref_model = {
   {STABILIZATION_ATTITUDE_REF_ZETA_P, STABILIZATION_ATTITUDE_REF_ZETA_Q, STABILIZATION_ATTITUDE_REF_ZETA_R}
 };
 
-/*
-static const float omega_p[] = STABILIZATION_ATTITUDE_REF_OMEGA_P;
-static const float zeta_p[] = STABILIZATION_ATTITUDE_REF_ZETA_P;
-static const float omega_q[] = STABILIZATION_ATTITUDE_REF_OMEGA_Q;
-static const float zeta_q[] = STABILIZATION_ATTITUDE_REF_ZETA_Q;
-static const float omega_r[] = STABILIZATION_ATTITUDE_REF_OMEGA_R;
-static const float zeta_r[] = STABILIZATION_ATTITUDE_REF_ZETA_R;
-*/
 
 static void reset_psi_ref_from_body(void) {
-    stab_att_ref_euler.psi = ahrs.ltp_to_body_euler.psi;
-    stab_att_ref_rate.r = 0;
-    stab_att_ref_accel.r = 0;
-}
-
-static void update_ref_quat_from_eulers(void) {
-    struct Int32RMat ref_rmat;
-
-#ifdef STICKS_RMAT312
-    INT32_RMAT_OF_EULERS_312(ref_rmat, stab_att_ref_euler);
-#else
-    INT32_RMAT_OF_EULERS_321(ref_rmat, stab_att_ref_euler);
-#endif
-    INT32_QUAT_OF_RMAT(stab_att_ref_quat, ref_rmat);
-    INT32_QUAT_WRAP_SHORTEST(stab_att_ref_quat);
+  stab_att_ref_euler.psi = ahrs.ltp_to_body_euler.psi;
+  stab_att_ref_rate.r = 0;
+  stab_att_ref_accel.r = 0;
 }
 
 void stabilization_attitude_ref_init(void) {
 
   INT_EULERS_ZERO(stab_att_sp_euler);
-  INT32_QUAT_ZERO(  stab_att_sp_quat);
+  INT32_QUAT_ZERO(stab_att_sp_quat);
   INT_EULERS_ZERO(stab_att_ref_euler);
-  INT32_QUAT_ZERO(  stab_att_ref_quat);
-  INT_RATES_ZERO( stab_att_ref_rate);
-  INT_RATES_ZERO( stab_att_ref_accel);
+  INT32_QUAT_ZERO(stab_att_ref_quat);
+  INT_RATES_ZERO(stab_att_ref_rate);
+  INT_RATES_ZERO(stab_att_ref_accel);
 
   /*
   for (int i = 0; i < STABILIZATION_ATTITUDE_GAIN_NB; i++) {
@@ -123,22 +104,24 @@ void stabilization_attitude_ref_init(void) {
 void stabilization_attitude_ref_enter()
 {
   reset_psi_ref_from_body();
+
+#if USE_SETPOINTS_WITH_TRANSITIONS
   stabilization_attitude_sp_enter();
   memcpy(&stab_att_ref_quat, &stab_att_sp_quat, sizeof(struct Int32Quat));
+#else
+  update_quat_from_eulers(&stab_att_ref_quat, &stab_att_ref_euler);
+#endif
+
+  /* set reference rate and acceleration to zero */
   memset(&stab_att_ref_accel, 0, sizeof(struct Int32Rates));
   memset(&stab_att_ref_rate, 0, sizeof(struct Int32Rates));
-  //update_ref_quat_from_eulers();
 }
 
 /*
  * Reference
  */
-#define DT_UPDATE (1./512.)
+#define DT_UPDATE (1./PERIODIC_FREQUENCY)
 #define F_UPDATE_RES 9
-
-#include "messages.h"
-#include "mcu_periph/uart.h"
-#include "subsystems/datalink/downlink.h"
 
 void stabilization_attitude_ref_update() {
 

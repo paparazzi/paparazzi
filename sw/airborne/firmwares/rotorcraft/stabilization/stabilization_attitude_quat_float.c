@@ -103,12 +103,12 @@ void stabilization_attitude_init(void) {
 
 void stabilization_attitude_gain_schedule(uint8_t idx)
 {
-    if (gain_idx >= STABILIZATION_ATTITUDE_FLOAT_GAIN_NB) {
-        // This could be bad -- Just say no.
-        return;
-    }
-    gain_idx = idx;
-    stabilization_attitude_ref_schedule(idx);
+  if (gain_idx >= STABILIZATION_ATTITUDE_FLOAT_GAIN_NB) {
+    // This could be bad -- Just say no.
+    return;
+  }
+  gain_idx = idx;
+  stabilization_attitude_ref_schedule(idx);
 }
 
 void stabilization_attitude_enter(void) {
@@ -213,6 +213,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 
   attitude_run_fb(stabilization_att_fb_cmd, &stabilization_gains[gain_idx], &att_err, &rate_err, &ahrs_float.body_rate_d, &stabilization_att_sum_err_quat);
 
+  // FIXME: this is very dangerous! only works if this really includes all commands
   for (int i = COMMAND_ROLL; i <= COMMAND_YAW_SURFACE; i++) {
     stabilization_cmd[i] = stabilization_att_fb_cmd[i]+stabilization_att_ff_cmd[i];
   }

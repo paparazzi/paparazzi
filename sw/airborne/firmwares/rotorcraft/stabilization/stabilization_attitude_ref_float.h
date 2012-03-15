@@ -20,8 +20,8 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-#ifndef BOOZ_STABILISATION_ATTITUDE_REF_FLOAT_H
-#define BOOZ_STABILISATION_ATTITUDE_REF_FLOAT_H
+#ifndef STABILISATION_ATTITUDE_REF_FLOAT_H
+#define STABILISATION_ATTITUDE_REF_FLOAT_H
 
 #include "generated/airframe.h"
 
@@ -39,4 +39,4 @@ struct FloatRefModel {
 
 extern struct FloatRefModel stab_att_ref_model[];
 
-#endif /* BOOZ_STABILISATION_ATTITUDE_REF_FLOAT_H */
+#endif /* STABILISATION_ATTITUDE_REF_FLOAT_H */

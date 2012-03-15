@@ -28,8 +28,6 @@
 #include STABILISATION_ATTITUDE_H
 extern void stabilization_attitude_init(void);
 extern void stabilization_attitude_read_rc(bool_t in_flight);
-extern void stabilization_attitude_read_beta_vane(float beta);
-extern void stabilization_attitude_read_alpha_vane(float alpha);
 extern void stabilization_attitude_enter(void);
 extern void stabilization_attitude_run(bool_t  in_flight);
 
@@ -39,8 +37,8 @@ extern void stabilization_attitude_ref_init(void);
 extern void stabilization_attitude_ref_update(void);
 
 #define stabilization_attitude_SetKiPhi(_val) {	\
-    stabilization_gains.i.x = _val;			\
-    stabilization_att_sum_err.phi = 0;		\
+    stabilization_gains.i.x = _val;             \
+    stabilization_att_sum_err.phi = 0;          \
   }
 
 #endif /* STABILIZATION_ATTITUDE_H */

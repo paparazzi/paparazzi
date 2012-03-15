@@ -36,7 +36,7 @@ float dc_circle_start_angle = 0;
 float dc_circle_last_block = 0;
 float dc_circle_max_blocks = 0;
 
-float dc_gps_dist = 0;
+float dc_gps_dist = 50;
 float dc_gps_next_dist = 0;
 float dc_gps_x = 0;
 float dc_gps_y = 0;

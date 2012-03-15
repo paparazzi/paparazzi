@@ -20,8 +20,8 @@
  *
  */
 
-/** \file gps_nmea.h
- * \brief NMEA protocol specific code
+/** @file gps_nmea.h
+ *  NMEA protocol specific code
  *
 */
 
@@ -32,6 +32,10 @@
 #include "mcu_periph/uart.h"
 
 #define GPS_NB_CHANNELS 16
+
+#define GPS_FIX_NONE 0x00
+#define GPS_FIX_2D   0x02
+#define GPS_FIX_3D   0x03
 
 #ifdef DEBUG_NMEA
 #define NMEA_PRINT(...) {  UsbSPrintString( __VA_ARGS__);};
@@ -70,7 +74,7 @@ extern struct GpsNmea gps_nmea;
       if (gps_nmea.pos_available) {		   \
         if (gps.fix == GPS_FIX_3D) {               \
           gps.last_fix_ticks = cpu_time_ticks;     \
-          gps.last_fix_time = cpu_time_sec;        \
+          gps.last_fix_time = sys_time.nb_sec;        \
         }                                          \
         _sol_available_callback();                 \
       }                                            \

@@ -50,7 +50,7 @@ static void SSP_ISR(void) __attribute__((naked));
 int main( void ) {
   main_init();
   while(1) {
-    if (sys_time_periodic())
+    if (sys_time_check_and_ack_timer(0))
       main_periodic_task();
     main_event_task();
   }
@@ -59,7 +59,7 @@ int main( void ) {
 
 static inline void main_init( void ) {
   mcu_init();
-  sys_time_init();
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
   led_init();
 
   uart1_init_tx();
@@ -94,7 +94,7 @@ static inline void main_periodic_task( void ) {
     if (cnt > 50) {cnt = 0; micromag_status = MM_IDLE;}
   }
 
-  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(&cpu_time_sec);});
+  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(&sys_time.nb_sec);});
 
 }
 

@@ -191,6 +191,7 @@
   </firmware>
 
   <modules>
+    <load name="openlog.xml"/>
     <load name="infrared_adc.xml"/>
     <load name="digital_cam_servo.xml">
       <define name="DC_SHUTTER_SERVO" value="COMMAND_SHUTTER" />
@@ -202,7 +203,6 @@
     <target name="tunnel"           board="tiny_1.1" />
     <target name="usb_tunnel_0"     board="tiny_1.1" />
     <target name="usb_tunnel_1"     board="tiny_1.1" />
-    <target name="setup_actuators"  board="tiny_1.1" />
   </firmware>
 
 </airframe>

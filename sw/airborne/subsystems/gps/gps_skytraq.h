@@ -24,6 +24,13 @@
 
 #include "mcu_periph/uart.h"
 
+
+#define GPS_FIX_NONE    0x00
+#define GPS_FIX_2D      0x01
+#define GPS_FIX_3D      0x02
+#define GPS_FIX_3D_DGPS 0x03
+
+
 #define SKYTRAQ_SYNC1 0xA0
 #define SKYTRAQ_SYNC2 0xA1
 
@@ -95,9 +102,10 @@ extern struct GpsSkytraq gps_skytraq;
     if (gps_skytraq.msg_available) {                            \
       gps_skytraq_read_message();                               \
       if (gps_skytraq.msg_id == SKYTRAQ_ID_NAVIGATION_DATA) {	\
-        if (gps.fix == GPS_FIX_3D)                              \
-          gps.last_fix_ticks = cpu_time_ticks;                  \
-          gps.last_fix_time = cpu_time_sec;                     \
+        if (gps.fix == GPS_FIX_3D) {                            \
+          gps.last_fix_ticks = sys_time.nb_sec_rem;             \
+          gps.last_fix_time = sys_time.nb_sec;                  \
+        }                                                       \
         _sol_available_callback();                              \
       }                                                         \
       gps_skytraq.msg_available = FALSE;                        \

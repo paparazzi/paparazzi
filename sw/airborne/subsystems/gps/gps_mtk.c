@@ -144,7 +144,7 @@ void gps_mtk_read_message(void) {
       gps.lla_pos.lat = RadOfDeg(MTK_DIY14_NAV_LAT(gps_mtk.msg_buf))*10;
       gps.lla_pos.lon = RadOfDeg(MTK_DIY14_NAV_LON(gps_mtk.msg_buf))*10;
       // FIXME: with MTK you do not receive vertical speed
-      if (cpu_time_sec - gps.last_fix_time < 2) {
+      if (sys_time.nb_sec - gps.last_fix_time < 2) {
         gps.ned_vel.z  = ((gps.hmsl -
             MTK_DIY14_NAV_HEIGHT(gps_mtk.msg_buf)*10)*OUTPUT_RATE)/10;
       } else gps.ned_vel.z = 0;
@@ -156,16 +156,7 @@ void gps_mtk_read_message(void) {
       gps.speed_3d    = gps.gspeed;
       gps.course      = (RadOfDeg(MTK_DIY14_NAV_Heading(gps_mtk.msg_buf)))*10;
       gps.num_sv      = MTK_DIY14_NAV_numSV(gps_mtk.msg_buf);
-      switch (MTK_DIY14_NAV_GPSfix(gps_mtk.msg_buf)) {
-      case MTK_DIY_FIX_3D:
-        gps.fix = GPS_FIX_3D;
-        break;
-      case MTK_DIY_FIX_2D:
-        gps.fix = GPS_FIX_2D;
-        break;
-      default:
-        gps.fix = GPS_FIX_NONE;
-      }
+      gps.fix         = MTK_DIY14_NAV_GPSfix(gps_mtk.msg_buf);
       gps.tow         = MTK_DIY14_NAV_ITOW(gps_mtk.msg_buf);;
       // FIXME: with MTK DIY 1.4 you do not receive GPS week
       gps.week        = 0;
@@ -208,7 +199,7 @@ void gps_mtk_read_message(void) {
       gps.lla_pos.lat = RadOfDeg(MTK_DIY16_NAV_LAT(gps_mtk.msg_buf))*10;
       gps.lla_pos.lon = RadOfDeg(MTK_DIY16_NAV_LON(gps_mtk.msg_buf))*10;
       // FIXME: with MTK you do not receive vertical speed
-      if (cpu_time_sec - gps.last_fix_time < 2) {
+      if (sys_time.nb_sec - gps.last_fix_time < 2) {
         gps.ned_vel.z  = ((gps.hmsl -
             MTK_DIY16_NAV_HEIGHT(gps_mtk.msg_buf)*10)*OUTPUT_RATE)/10;
       } else gps.ned_vel.z = 0;

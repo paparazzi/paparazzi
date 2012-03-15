@@ -109,6 +109,10 @@ void guidance_h_mode_changed(uint8_t new_mode) {
 
   switch (new_mode) {
 
+  case GUIDANCE_H_MODE_RC_DIRECT:
+    stabilization_none_enter();
+    break;
+
   case GUIDANCE_H_MODE_RATE:
     stabilization_rate_enter();
     break;
@@ -137,6 +141,10 @@ void guidance_h_read_rc(bool_t  in_flight) {
 
   switch ( guidance_h_mode ) {
 
+  case GUIDANCE_H_MODE_RC_DIRECT:
+    stabilization_none_read_rc();
+    break;
+
   case GUIDANCE_H_MODE_RATE:
     stabilization_rate_read_rc();
     break;
@@ -146,12 +154,12 @@ void guidance_h_read_rc(bool_t  in_flight) {
     break;
 
   case GUIDANCE_H_MODE_HOVER:
-    STABILIZATION_ATTITUDE_READ_RC(guidance_h_rc_sp, in_flight);
+    stabilization_attitude_read_rc_ref(&guidance_h_rc_sp, in_flight);
     break;
 
   case GUIDANCE_H_MODE_NAV:
     if (radio_control.status == RC_OK) {
-      STABILIZATION_ATTITUDE_READ_RC(guidance_h_rc_sp, in_flight);
+      stabilization_attitude_read_rc_ref(&guidance_h_rc_sp, in_flight);
       guidance_h_rc_sp.psi = 0;
     }
     else {
@@ -167,6 +175,10 @@ void guidance_h_read_rc(bool_t  in_flight) {
 
 void guidance_h_run(bool_t  in_flight) {
   switch ( guidance_h_mode ) {
+
+  case GUIDANCE_H_MODE_RC_DIRECT:
+    stabilization_none_run(in_flight);
+    break;
 
   case GUIDANCE_H_MODE_RATE:
     stabilization_rate_run(in_flight);

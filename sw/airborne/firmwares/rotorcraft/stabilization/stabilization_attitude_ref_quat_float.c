@@ -31,7 +31,6 @@
 #include "subsystems/ahrs.h"
 
 #include "stabilization_attitude_ref_float.h"
-#include "quat_setpoint.h"
 
 #define REF_ACCEL_MAX_P STABILIZATION_ATTITUDE_FLOAT_REF_MAX_PDOT
 #define REF_ACCEL_MAX_Q STABILIZATION_ATTITUDE_FLOAT_REF_MAX_QDOT
@@ -56,21 +55,21 @@ static const float omega_r[] = STABILIZATION_ATTITUDE_FLOAT_REF_OMEGA_R;
 static const float zeta_r[] = STABILIZATION_ATTITUDE_FLOAT_REF_ZETA_R;
 
 static void reset_psi_ref_from_body(void) {
-    stab_att_ref_euler.psi = ahrs_float.ltp_to_body_euler.psi;
-    stab_att_ref_rate.r = 0;
-    stab_att_ref_accel.r = 0;
+  stab_att_ref_euler.psi = ahrs_float.ltp_to_body_euler.psi;
+  stab_att_ref_rate.r = 0;
+  stab_att_ref_accel.r = 0;
 }
 
 static void update_ref_quat_from_eulers(void) {
-    struct FloatRMat ref_rmat;
+  struct FloatRMat ref_rmat;
 
 #ifdef STICKS_RMAT312
-    FLOAT_RMAT_OF_EULERS_312(ref_rmat, stab_att_ref_euler);
+  FLOAT_RMAT_OF_EULERS_312(ref_rmat, stab_att_ref_euler);
 #else
-    FLOAT_RMAT_OF_EULERS_321(ref_rmat, stab_att_ref_euler);
+  FLOAT_RMAT_OF_EULERS_321(ref_rmat, stab_att_ref_euler);
 #endif
-    FLOAT_QUAT_OF_RMAT(stab_att_ref_quat, ref_rmat);
-    FLOAT_QUAT_WRAP_SHORTEST(stab_att_ref_quat);
+  FLOAT_QUAT_OF_RMAT(stab_att_ref_quat, ref_rmat);
+  FLOAT_QUAT_WRAP_SHORTEST(stab_att_ref_quat);
 }
 
 void stabilization_attitude_ref_init(void) {
@@ -104,11 +103,7 @@ void stabilization_attitude_ref_enter()
 /*
  * Reference
  */
-#ifdef BOOZ_AP_PERIODIC_PRESCALE
-#define DT_UPDATE ((float) BOOZ_AP_PERIODIC_PRESCALE / (float) PERIODIC_FREQ)
-#else
-#define DT_UPDATE (1./512.)
-#endif
+#define DT_UPDATE (1./PERIODIC_FREQUENCY)
 
 void stabilization_attitude_ref_update() {
 

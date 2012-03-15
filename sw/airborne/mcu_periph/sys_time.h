@@ -52,9 +52,9 @@ struct sys_time_timer {
 };
 
 struct sys_time {
-  uint32_t nb_sec;       ///< full seconds since startup
-  uint32_t nb_sec_rem;   ///< remainder of second in CPU_TICKS
-  uint32_t nb_tick;      ///< in SYS_TICKS with SYS_TIME_RESOLUTION
+  volatile uint32_t nb_sec;       ///< full seconds since startup
+  volatile uint32_t nb_sec_rem;   ///< remainder of second in CPU_TICKS
+  volatile uint32_t nb_tick;      ///< in SYS_TICKS with SYS_TIME_RESOLUTION
   struct sys_time_timer timer[SYS_TIME_NB_TIMER];
 };
 

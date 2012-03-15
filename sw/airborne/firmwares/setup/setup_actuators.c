@@ -7,12 +7,12 @@
 #include "generated/airframe.h"
 #define DATALINK_C
 #include "subsystems/datalink/datalink.h"
-#include "mcu_periph/uart.h"
 #include "subsystems/datalink/pprz_transport.h"
-#include "firmwares/fixedwing/main_fbw.h"
+#include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
-#include "generated/settings.h"
+#include "firmwares/fixedwing/main_fbw.h"
 
+#include "generated/settings.h"
 
 #define IdOfMsg(x) (x[1])
 
@@ -44,14 +44,9 @@ void dl_parse_msg( void ) {
 #endif
 }
 
-#define PprzUartInit() Link(Init())
 
 void init_fbw( void ) {
   mcu_init();
-  sys_time_init();
-  led_init();
-
-  PprzUartInit();
 
   actuators_init();
 
@@ -62,7 +57,16 @@ void init_fbw( void ) {
 
   //  SetServo(SERVO_GAZ, SERVO_GAZ_MIN);
 
+  sys_time_register_timer((1./PERIODIC_FREQUENCY), NULL);
+
   mcu_int_enable();
+}
+
+void handle_periodic_tasks_fbw(void) {
+
+  if (sys_time_check_and_ack_timer(0))
+    periodic_task_fbw();
+
 }
 
 void periodic_task_fbw(void) {
@@ -76,16 +80,5 @@ void periodic_task_fbw(void) {
 }
 
 void event_task_fbw(void) {
-  if (PprzBuffer()) {
-    ReadPprzBuffer();
-  }
-  if (pprz_msg_received) {
-    pprz_msg_received = FALSE;
-    pprz_parse_payload();
-    LED_TOGGLE(3);
-  }
-  if (dl_msg_available) {
-    dl_parse_msg();
-    dl_msg_available = FALSE;
-  }
+  DatalinkEvent();
 }

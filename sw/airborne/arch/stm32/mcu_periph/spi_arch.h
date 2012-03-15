@@ -40,7 +40,7 @@ void spi_rw(struct spi_transaction  * _trans);
 
 /*
 
-////////// 
+//////////
 // from aspirin_arch.h
 
 
@@ -85,7 +85,7 @@ extern void adxl345_start_reading_data(void);
 #ifdef SPI_MASTER
 
 
-// !!!!!!!!!!!!! Code for one single slave at a time !!!!!!!!!!!!!!!!! 
+// !!!!!!!!!!!!! Code for one single slave at a time !!!!!!!!!!!!!!!!!
 #if defined SPI_SELECT_SLAVE1_PIN && defined SPI_SELECT_SLAVE0_PIN
 #error "SPI: one single slave, please"
 #endif
@@ -159,8 +159,4 @@ extern void adxl345_start_reading_data(void);
 
 */
 
-#endif // SPI_ARCH_H 
-
-
-
-
+#endif // SPI_ARCH_H

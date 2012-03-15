@@ -55,7 +55,6 @@
 /conf/conf.xml.20*
 /conf/control_panel.xml
 /conf/%gconf.xml
-/conf/srtm_data/*
 /conf/maps_data/*
 /conf/maps.xml
 /conf/gps/ublox_conf
@@ -129,6 +128,7 @@
 /sw/logalizer/ivy_example
 /sw/logalizer/motor_bench
 /sw/logalizer/tmclient
+/sw/logalizer/openlog2tlm
 
 # /sw/simulator/
 /sw/simulator/gaia

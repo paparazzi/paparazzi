@@ -28,6 +28,10 @@
 /** Includes macros generated from mtk.xml */
 #include "mtk_protocol.h"
 
+#define GPS_FIX_NONE 0x01
+#define GPS_FIX_2D   0x02
+#define GPS_FIX_3D   0x03
+
 #define GPS_MTK_MAX_PAYLOAD 255
 
 struct GpsMtk {
@@ -80,15 +84,15 @@ extern bool_t gps_configuring;
       if (gps_mtk.msg_class == MTK_DIY14_ID &&      \
           gps_mtk.msg_id == MTK_DIY14_NAV_ID) {     \
         if (gps.fix == GPS_FIX_3D) {                \
-          gps.last_fix_time = cpu_time_sec;         \
+          gps.last_fix_time = sys_time.nb_sec;      \
         }                                           \
         _sol_available_callback();                  \
       }                                             \
       if (gps_mtk.msg_class == MTK_DIY16_ID &&      \
           gps_mtk.msg_id == MTK_DIY16_NAV_ID) {     \
         if (gps.fix == GPS_FIX_3D) {                \
-          gps.last_fix_ticks = cpu_time_ticks;      \
-          gps.last_fix_time = cpu_time_sec;         \
+          gps.last_fix_ticks = sys_time.nb_sec_rem; \
+          gps.last_fix_time = sys_time.nb_sec;      \
         }                                           \
         _sol_available_callback();                  \
       }                                             \
@@ -104,10 +108,6 @@ extern bool_t gps_configuring;
 
 extern void gps_mtk_read_message(void);
 extern void gps_mtk_parse(uint8_t c);
-
-#define MTK_DIY_FIX_3D      3
-#define MTK_DIY_FIX_2D      2
-#define MTK_DIY_FIX_NONE    1
 
 /*
  * dynamic GPS configuration
