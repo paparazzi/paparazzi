@@ -25,7 +25,8 @@
 #include "led.h"
 
 #if GPS_USE_LATLONG
-#include "subsystems/nav.h"
+/* currently needed to get nav_utm_zone0 */
+#include "subsystems/navigation/common_nav.h"
 #include "math/pprz_geodetic_float.h"
 #endif
 

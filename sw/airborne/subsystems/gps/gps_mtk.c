@@ -35,8 +35,10 @@
 
 #include "led.h"
 
-#include "subsystems/nav.h"
+/* currently needed to get nav_utm_zone0 */
+#include "subsystems/navigation/common_nav.h"
 #include "math/pprz_geodetic_float.h"
+
 #include "mcu_periph/sys_time.h"
 
 #define MTK_DIY_OUTPUT_RATE	MTK_DIY_OUTPUT_4HZ
