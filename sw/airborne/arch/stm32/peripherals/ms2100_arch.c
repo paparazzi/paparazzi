@@ -41,8 +41,8 @@ void ms2100_arch_init( void ) {
   ms2100_cur_axe = 0;
 
   /* set mag SS and reset as output and assert them (SS on PC12  reset on PC13) ----*/
-  Ms2001Unselect();
-  Ms2001Set();
+  Ms2100Unselect();
+  Ms2100Set();
 
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -83,13 +83,13 @@ void ms2100_arch_init( void ) {
 
 #ifdef MS2100_HANDLES_SPI_IRQ
 void spi2_irq_handler(void) {
-  Ms2001OnSpiIrq();
+  Ms2100OnSpiIrq();
 }
 #endif
 
 
 #ifdef MS2100_HANDLES_DMA_IRQ
 void dma1_c4_irq_handler(void) {
-  Ms2001OnDmaIrq();
+  Ms2100OnDmaIrq();
 }
 #endif /* MS2100_HANDLES_DMA_IRQ */

@@ -93,11 +93,11 @@ void dma1_c4_irq_handler(void) {
     SPI_Cmd(SPI2, DISABLE);
 #if IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
     if (ms2100_status == MS2100_IDLE) {
-      Ms2001SendReq();
+      Ms2100SendReq();
       imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
     }
-    else if (ms2100_status == MS2100_WAITING_EOC && Ms2001HasEOC()) {
-      Ms2001ReadRes();
+    else if (ms2100_status == MS2100_WAITING_EOC && Ms2100HasEOC()) {
+      Ms2100ReadRes();
       imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
     }
     else
@@ -106,7 +106,7 @@ void dma1_c4_irq_handler(void) {
     break;
   case IMU_SSP_STA_BUSY_MS2100:
 #if IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
-    Ms2001OnDmaIrq();
+    Ms2100OnDmaIrq();
 #endif
     break;
   default:
@@ -118,6 +118,6 @@ void dma1_c4_irq_handler(void) {
 
 void spi2_irq_handler(void) {
 #if IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
-  Ms2001OnSpiIrq();
+  Ms2100OnSpiIrq();
 #endif
 }

@@ -16,20 +16,20 @@
 
 extern volatile uint8_t ms2100_cur_axe;
 
-#define Ms2001Select()   SetBit(MS2100_SS_IOCLR,MS2100_SS_PIN)
-#define Ms2001Unselect() SetBit(MS2100_SS_IOSET,MS2100_SS_PIN)
+#define Ms2100Select()   SetBit(MS2100_SS_IOCLR,MS2100_SS_PIN)
+#define Ms2100Unselect() SetBit(MS2100_SS_IOSET,MS2100_SS_PIN)
 
-#define Ms2001Reset() SetBit(MS2100_RESET_IOCLR,MS2100_RESET_PIN)
-#define Ms2001Set()   SetBit(MS2100_RESET_IOSET,MS2100_RESET_PIN)
+#define Ms2100Reset() SetBit(MS2100_RESET_IOCLR,MS2100_RESET_PIN)
+#define Ms2100Set()   SetBit(MS2100_RESET_IOSET,MS2100_RESET_PIN)
 
-#define Ms2001OnSpiInt() {                                   \
+#define Ms2100OnSpiInt() {                                   \
     switch (ms2100_status) {                                \
     case MS2100_SENDING_REQ:                                \
       {                                                     \
         /* read dummy control byte reply */                 \
         uint8_t foo __attribute__ ((unused)) = SSPDR;       \
         ms2100_status = MS2100_WAITING_EOC;                 \
-        Ms2001Unselect();                                   \
+        Ms2100Unselect();                                   \
         SSP_ClearRti();                                     \
         SSP_DisableRti();                                   \
         SSP_Disable();                                      \
@@ -42,7 +42,7 @@ extern volatile uint8_t ms2100_cur_axe;
         new_val += SSPDR;                                   \
         if (abs(new_val) < 2000)                            \
           ms2100_values[ms2100_cur_axe] = new_val;			\
-        Ms2001Unselect();                                   \
+        Ms2100Unselect();                                   \
         SSP_ClearRti();                                     \
         SSP_DisableRti();                                   \
         SSP_Disable();                                      \
@@ -59,22 +59,22 @@ extern volatile uint8_t ms2100_cur_axe;
   }
 
 
-#define Ms2001SendReq() {                               \
-    Ms2001Select();                                     \
+#define Ms2100SendReq() {                               \
+    Ms2100Select();                                     \
     ms2100_status = MS2100_SENDING_REQ;					\
-    Ms2001Set();                                        \
+    Ms2100Set();                                        \
     SSP_ClearRti();                                     \
     SSP_EnableRti();                                    \
-    Ms2001Reset();                                      \
+    Ms2100Reset();                                      \
     uint8_t control_byte = (ms2100_cur_axe+1) << 0 |    \
       MS2100_DIVISOR << 4;                              \
     SSP_Send(control_byte);                             \
     SSP_Enable();                                       \
   }
 
-#define Ms2001ReadRes() {						\
+#define Ms2100ReadRes() {						\
     ms2100_status = MS2100_READING_RES;         \
-    Ms2001Select();                             \
+    Ms2100Select();                             \
     /* trigger 2 bytes read */                  \
     SSP_Send(0);                                \
     SSP_Send(0);                                \

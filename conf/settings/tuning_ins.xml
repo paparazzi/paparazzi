@@ -57,7 +57,7 @@
       </dl_settings>
 
       <dl_settings name="alt">
-        <dl_setting MAX="0" MIN="-0.2" STEP="0.01" VAR="v_ctl_altitude_pgain" shortname="alt_pgain" param="V_CTL_ALTITUDE_PGAIN"/>
+        <dl_setting MAX="0" MIN="-0.2" STEP="0.01" VAR="v_ctl_altitude_pgain" shortname="alt_pgain" param="V_CTL_ALTITUDE_PGAIN" module="guidance/guidance_v"/>
         <dl_setting MAX="10" MIN="0.1" STEP="0.1" VAR="v_ctl_altitude_max_climb" shortname="max climb" param="V_CTL_ALTITUDE_MAX_CLIMB"/>
         <dl_setting MAX="2" MIN="0.0" STEP="0.05" VAR="v_ctl_altitude_pre_climb_correction" shortname="pre climb cor" param="V_CTL_ALTITUDE_PRE_CLIMB_CORRECTION"/>
       </dl_settings>

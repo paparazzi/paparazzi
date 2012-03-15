@@ -115,10 +115,10 @@ static void SSP_ISR(void) {
     if (ms2100_status == MS2100_IDLE || ms2100_status == MS2100_GOT_EOC) {
       ImuSetSSP8bits();
       if (ms2100_status == MS2100_IDLE) {
-        Ms2001SendReq();
+        Ms2100SendReq();
       }
       else { /* MS2100_GOT_EOC */
-        Ms2001ReadRes();
+        Ms2100ReadRes();
       }
       imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
     }
@@ -127,9 +127,9 @@ static void SSP_ISR(void) {
     }
     break;
   case IMU_SSP_STA_BUSY_MS2100:
-    Ms2001OnSpiInt();
+    Ms2100OnSpiInt();
     if (ms2100_status == MS2100_IDLE) {
-      Ms2001SendReq();
+      Ms2100SendReq();
       imu_ssp_status = IMU_SSP_STA_BUSY_MS2100;
     }
     else
