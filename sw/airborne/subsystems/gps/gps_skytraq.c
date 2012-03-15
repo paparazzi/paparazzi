@@ -21,6 +21,11 @@
 
 #include "subsystems/gps.h"
 
+#if GPS_USE_LATLONG
+#include "subsystems/nav.h"
+#include "math/pprz_geodetic_float.h"
+#endif
+
 struct GpsSkytraq gps_skytraq;
 
 /* parser status */
@@ -68,6 +73,23 @@ void gps_skytraq_read_message(void) {
     gps.num_sv      = SKYTRAQ_NAVIGATION_DATA_NumSV(gps_skytraq.msg_buf);
     gps.fix         = SKYTRAQ_NAVIGATION_DATA_FixMode(gps_skytraq.msg_buf);
     gps.tow         = SKYTRAQ_NAVIGATION_DATA_TOW(gps_skytraq.msg_buf)/10;
+
+#if GPS_USE_LATLONG
+    /* Computes from (lat, long) in the referenced UTM zone */
+    struct LlaCoor_f lla_f;
+    lla_f.lat = ((float) gps.lla_pos.lat) / 1e7;
+    lla_f.lon = ((float) gps.lla_pos.lon) / 1e7;
+    struct UtmCoor_f utm_f;
+    utm_f.zone = nav_utm_zone0;
+    /* convert to utm */
+    utm_of_lla_f(&utm_f, &lla_f);
+    /* copy results of utm conversion */
+    gps.utm_pos.east = utm_f.east*100;
+    gps.utm_pos.north = utm_f.north*100;
+    gps.utm_pos.alt = utm_f.alt*1000;
+    gps.utm_pos.zone = nav_utm_zone0;
+#else
+
     //DEBUG_S2_TOGGLE();
 
 #ifdef GPS_LED

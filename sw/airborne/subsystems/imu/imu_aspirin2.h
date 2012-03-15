@@ -138,7 +138,7 @@ extern void imu_aspirin2_arch_init(void);
 
 static inline void imu_from_buff(void)
 {
-  int32_t x, y, z, p, q, r;
+  int32_t x, y, z, p, q, r, Mx, My, Mz;
 
 
   // If the itg3200 I2C transaction has succeeded: convert the data
@@ -152,6 +152,11 @@ static inline void imu_from_buff(void)
   y = (int16_t) ((imu_aspirin2.imu_rx_buf[2+MPU_OFFSET_ACC] << 8) | imu_aspirin2.imu_rx_buf[3+MPU_OFFSET_ACC]);
   z = (int16_t) ((imu_aspirin2.imu_rx_buf[4+MPU_OFFSET_ACC] << 8) | imu_aspirin2.imu_rx_buf[5+MPU_OFFSET_ACC]);
 
+#define MPU_OFFSET_MAG 16
+  Mx = (int16_t) ((imu_aspirin2.imu_rx_buf[0+MPU_OFFSET_MAG] << 8) | imu_aspirin2.imu_rx_buf[1+MPU_OFFSET_MAG]);
+  My = (int16_t) ((imu_aspirin2.imu_rx_buf[2+MPU_OFFSET_MAG] << 8) | imu_aspirin2.imu_rx_buf[3+MPU_OFFSET_MAG]);
+  Mz = (int16_t) ((imu_aspirin2.imu_rx_buf[4+MPU_OFFSET_MAG] << 8) | imu_aspirin2.imu_rx_buf[5+MPU_OFFSET_MAG]);
+
 #ifdef LISA_M_LONGITUDINAL_X
   RATES_ASSIGN(imu.gyro_unscaled, q, -p, r);
   VECT3_ASSIGN(imu.accel_unscaled, y, -x, z);
@@ -159,6 +164,8 @@ static inline void imu_from_buff(void)
   RATES_ASSIGN(imu.gyro_unscaled, p, q, r);
   VECT3_ASSIGN(imu.accel_unscaled, x, y, z);
 #endif
+
+  VECT3_ASSIGN(imu.mag_unscaled, Mx, My, Mz);
 
   // Is this is new data
 #define MPU_OFFSET_STATUS 1
@@ -179,7 +186,7 @@ static inline void imu_aspirin2_event(void (* _gyro_handler)(void), void (* _acc
 
   // imu_aspirin2_arch_int_disable();
 
-  if (imu_aspirin2.imu_available) 
+  if (imu_aspirin2.imu_available)
   {
     imu_aspirin2.time_since_last_reading = 0;
     imu_aspirin2.imu_available = FALSE;

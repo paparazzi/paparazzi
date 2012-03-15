@@ -57,6 +57,7 @@
 #define PERIODIC_SEND_ROTORCRAFT_STATUS(_trans, _dev) {			\
     uint32_t imu_nb_err = 0;						\
     uint8_t _twi_blmc_nb_err = 0;					\
+    uint16_t time_sec = sys_time.nb_sec; \
     DOWNLINK_SEND_ROTORCRAFT_STATUS(_trans, _dev,				\
                     &imu_nb_err,			\
                     &_twi_blmc_nb_err,			\
@@ -69,7 +70,7 @@
                     &guidance_h_mode,			\
                     &guidance_v_mode,			\
                     &electrical.vsupply,		\
-                    &sys_time.nb_sec			\
+                    &time_sec			\
                     );					\
   }
 #else /* !USE_GPS */
@@ -77,6 +78,7 @@
     uint32_t imu_nb_err = 0;						\
     uint8_t twi_blmc_nb_err = 0;					\
     uint8_t  fix = GPS_FIX_NONE;					\
+    uint16_t time_sec = sys_time.nb_sec;                            \
     DOWNLINK_SEND_ROTORCRAFT_STATUS(_trans, _dev,					\
                   &imu_nb_err,				\
                   &twi_blmc_nb_err,				\
@@ -89,7 +91,7 @@
                   &guidance_h_mode,			\
                   &guidance_v_mode,			\
                   &electrical.vsupply,		\
-                  &sys_time.nb_sec    \
+                  &time_sec    \
                   );					\
   }
 #endif /* USE_GPS */
@@ -512,11 +514,11 @@
                                 &b2_hff_state.yP[1][1]);    \
   }
 #ifdef GPS_LAG
-#define PERIODIC_SEND_HFF_GPS(_trans, _dev) {	\
-    DOWNLINK_SEND_HFF_GPS(_trans, _dev,			\
-                              &b2_hff_rb_last->lag_counter,		\
-                              &lag_counter_err,	\
-                              &save_counter);	\
+#define PERIODIC_SEND_HFF_GPS(_trans, _dev) {               \
+    DOWNLINK_SEND_HFF_GPS(_trans, _dev,                     \
+                          &(b2_hff_rb_last->lag_counter),   \
+                          &lag_counter_err,                 \
+                          &save_counter);                   \
   }
 #else
 #define PERIODIC_SEND_HFF_GPS(_trans, _dev) {}
@@ -747,12 +749,8 @@
                    );                          \
   }
 
-//TODO replace by BOOZ_EXTRA_ADC
-#ifdef BOOZ2_SONAR
-#define PERIODIC_SEND_BOOZ2_SONAR(_trans, _dev) DOWNLINK_SEND_BOOZ2_SONAR(_trans, _dev,&booz2_adc_1,&booz2_adc_2,&booz2_adc_3,&booz2_adc_4);
-#else
+// FIXME: still used?? or replace by EXTRA_ADC
 #define PERIODIC_SEND_BOOZ2_SONAR(_trans, _dev) {}
-#endif
 
 #ifdef BOOZ2_TRACK_CAM
 #include "cam_track.h"

@@ -37,7 +37,9 @@
     <load name="booz_drop.xml"/>
     <load name="sys_mon.xml"/>
     <!--load name="booz_cam.xml"/-->
-    <!--load name="sonar_maxbotix_booz.xml"/-->
+    <load name="sonar_maxbotix_booz.xml">
+      <configure name="ADC_SONAR" value="ADC_0"/>
+    </load>
   </modules>
 
   <commands>
@@ -185,7 +187,8 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="15." integer="16" />
+    <define name="BARO_SENS" value="15." integer="16"/>
+    <define name="SONAR_SENS" value="2.146" integer="16"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">

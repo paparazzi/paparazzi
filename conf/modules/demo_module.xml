@@ -9,7 +9,7 @@
   <periodic fun="periodic_10Hz_demo()" period="0.1" start="start_demo()" stop="stop_demo()" autorun="FALSE"/>
   <makefile>
     <raw>
-#Exemple of RAW makefile part
+#Example of RAW makefile part
     </raw>
     <define name="DEMO_MODULE_LED" value="2"/>
     <file name="demo_module.c"/>

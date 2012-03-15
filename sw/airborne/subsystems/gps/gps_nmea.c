@@ -37,7 +37,7 @@
 
 #include "led.h"
 
-#ifdef GPS_USE_LATLONG
+#if GPS_USE_LATLONG
 #include "subsystems/nav.h"
 #include "math/pprz_geodetic_float.h"
 #endif
