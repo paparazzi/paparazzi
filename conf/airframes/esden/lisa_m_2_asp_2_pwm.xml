@@ -201,7 +201,7 @@
 
     <subsystem name="imu"           type="aspirin_v2.0"/>
     <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization"   type="quaternion"/>
+    <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
     <!--subsystem name="stabilization"   type="euler"/>
     <subsystem name="ahrs"          type="int_cmpl_euler"/-->

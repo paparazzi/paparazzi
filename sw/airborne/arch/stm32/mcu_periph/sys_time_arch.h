@@ -34,6 +34,7 @@
 
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/systick.h>
 #include "std.h"
 
 extern void sys_tick_handler(void);
@@ -47,7 +48,7 @@ extern void sys_tick_handler(void);
 
 #define GET_CUR_TIME_USEC() (sys_time.nb_sec * 1000000 +                \
                              USEC_OF_CPU_TICKS(sys_time.nb_sec_rem) +   \
-                             USEC_OF_CPU_TICKS(SysTick->LOAD - SysTick->VAL))
+                             USEC_OF_CPU_TICKS(STK_LOAD - STK_VAL))
 
 #define SysTimeTimerStart(_t) { _t = GET_CUR_TIME_USEC(); }
 #define SysTimeTimer(_t) ( GET_CUR_TIME_USEC() - (_t))
