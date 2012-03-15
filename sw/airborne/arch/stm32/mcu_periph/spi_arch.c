@@ -46,14 +46,26 @@ void spi_init(void) {
   // reset SPI
   spi_reset(SPI2);
 
+  // Disable SPI peripheral
+  spi_disable(SPI2);
+
   // configure SPI
   spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-		  SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
+                  SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
+
+  /*
+   * Set NSS management to software.
+   *
+   * Note:
+   * Setting nss high is very important, even if we are controlling the GPIO
+   * ourselves this bit needs to be at least set to 1, otherwise the spi
+   * peripheral will not send any data out.
+   */
   spi_enable_software_slave_management(SPI2);
-  SPI2_CRCPR = 7;
+  spi_set_nss_high(SPI2);
 
   // Enable SPI2 periph.
-  SPI_CR1(SPI2) |= SPI_CR1_SPE;
+  spi_enable(SPI2);
 
   // Enable SPI_2 DMA clock ---------------------------------------------------
   rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
@@ -105,13 +117,14 @@ void spi_rw(struct spi_transaction  * _trans)
 
   Spi2Slave0Select();
 
+
   // SPI2_Rx_DMA_Channel configuration ------------------------------------
 
   dma_channel_reset(DMA1, DMA_CHANNEL4);
-  dma_set_peripheral_address(DMA1, 4, SPI2_DR);
-  dma_set_memory_address(DMA1, 4, (uint32_t)slave0->miso_buf);
-  dma_set_read_from_peripheral(DMA1, DMA_CHANNEL4);
+  dma_set_peripheral_address(DMA1, DMA_CHANNEL4, (u32)&SPI2_DR);
+  dma_set_memory_address(DMA1, DMA_CHANNEL4, (uint32_t)slave0->miso_buf);
   dma_set_number_of_data(DMA1, DMA_CHANNEL4, slave0->length);
+  dma_set_read_from_peripheral(DMA1, DMA_CHANNEL4);
   //dma_disable_peripheral_increment_mode(DMA1, DMA_CHANNEL4);
   dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL4);
   dma_set_peripheral_size(DMA1, DMA_CHANNEL4, DMA_CCR_PSIZE_8BIT);
@@ -139,10 +152,10 @@ void spi_rw(struct spi_transaction  * _trans)
 
   // SPI2_Tx_DMA_Channel configuration ------------------------------------
   dma_channel_reset(DMA1, DMA_CHANNEL5);
-  dma_set_peripheral_address(DMA1, DMA_CHANNEL5, SPI2_DR);
+  dma_set_peripheral_address(DMA1, DMA_CHANNEL5, (u32)&SPI2_DR);
   dma_set_memory_address(DMA1, DMA_CHANNEL5, (uint32_t)slave0->mosi_buf);
-  dma_set_read_from_memory(DMA1, DMA_CHANNEL5);
   dma_set_number_of_data(DMA1, DMA_CHANNEL5, slave0->length);
+  dma_set_read_from_memory(DMA1, DMA_CHANNEL5);
   //dma_disable_peripheral_increment_mode(DMA1, DMA_CHANNEL5);
   dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL5);
   dma_set_peripheral_size(DMA1, DMA_CHANNEL5, DMA_CCR_PSIZE_8BIT);
@@ -168,19 +181,19 @@ void spi_rw(struct spi_transaction  * _trans)
   DMA_Init(DMA1_Channel5, &DMA_initStructure_5);
   */
 
-  // Enable SPI_2 Rx request
-  spi_enable_rx_dma(SPI2);
-  //SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, ENABLE);
   // Enable DMA1 Channel4
   dma_enable_channel(DMA1, DMA_CHANNEL4);
   //DMA_Cmd(DMA1_Channel4, ENABLE);
+  // Enable SPI_2 Rx request
+  spi_enable_rx_dma(SPI2);
+  //SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, ENABLE);
 
-  // Enable SPI_2 Tx request
-  spi_enable_tx_dma(SPI2);
-  //SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, ENABLE);
   // Enable DMA1 Channel5
   dma_enable_channel(DMA1, DMA_CHANNEL5);
   //DMA_Cmd(DMA1_Channel5, ENABLE);
+  // Enable SPI_2 Tx request
+  spi_enable_tx_dma(SPI2);
+  //SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, ENABLE);
 
   // Enable DMA1 Channel4 Transfer Complete interrupt
   dma_enable_transfer_complete_interrupt(DMA1, DMA_CHANNEL4);
@@ -189,7 +202,7 @@ void spi_rw(struct spi_transaction  * _trans)
   //gpio_set(GPIOC, GPIO6);
 }
 
-// Accel end of DMA transfert
+// Accel end of DMA transferred
 void dma1_channel4_isr(void)
 {
   gpio_toggle(GPIOC, GPIO7);
