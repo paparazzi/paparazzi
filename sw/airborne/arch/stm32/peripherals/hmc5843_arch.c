@@ -22,39 +22,28 @@
  */
 #include "peripherals/hmc5843.h"
 
-#include <stm32/gpio.h>
-#include <stm32/rcc.h>
-#include <stm32/spi.h>
-#include <stm32/exti.h>
-#include <stm32/misc.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/spi.h>
+#include <libopencm3/stm32/exti.h>
 #include "mcu_periph/i2c.h"
 
-void exti9_5_irq_handler(void);
+void exti9_5_isr(void);
 
 void hmc5843_arch_init( void ) {
   /* configure external interrupt exti5 on PB5( mag int ) */
-    GPIO_InitTypeDef GPIO_InitStructure;
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN);
+  gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
+	        GPIO_CNF_INPUT_FLOAT, GPIO5);
 
 #ifdef HMC5843_USE_INT
-  GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource5);
-  EXTI_InitTypeDef EXTI_InitStructure;
-  EXTI_InitStructure.EXTI_Line = EXTI_Line5;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
+  exti_select_source(EXTI5, GPIOB);
+  exti_set_trigger(EXTI5, EXTI_TRIGGER_FALLING);
+  exti_enable_request(EXTI5);
 
-  NVIC_InitTypeDef NVIC_InitStructure;
-  NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+  nvic_set_priority(NVIC_EXTI9_5_IRQ, 0x0f);
+  nvic_enable_irq(NVIC_EXTI9_5_IRQ);
 #endif
 }
 
@@ -63,10 +52,7 @@ void hmc5843_arch_reset(void)
     i2c2_er_irq_handler();
 }
 
-void exti9_5_irq_handler(void) {
+void exti9_5_isr(void) {
 
-  /* clear EXTI */
-  if(EXTI_GetITStatus(EXTI_Line5) != RESET)
-    EXTI_ClearITPendingBit(EXTI_Line5);
-
+  exti_reset_request(EXTI5);
 }

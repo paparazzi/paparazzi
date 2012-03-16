@@ -513,34 +513,33 @@ void tim6_isr( void ) {
  *****************************************************************************/
 void SpektrumUartInit(void) {
   /* init RCC */
-  //PrimaryUart(_remap);
-  //PrimaryUart(_clk)(PrimaryUart(_UartPeriph), ENABLE);;
-  //RCC_APB1PeriphClockCmd(PrimaryUart(_UartPeriph), ENABLE);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_USART1EN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, PrimaryUart(_RCC_GPIO));
+  rcc_peripheral_enable_clock(PrimaryUart(_RCC_REG), PrimaryUart(_RCC_DEV));
 
   /* Enable USART interrupts */
-  nvic_set_priority(NVIC_USART1_IRQ, 2);
-  nvic_enable_irq(NVIC_USART1_IRQ);
+  nvic_set_priority(PrimaryUart(_IRQ), 2);
+  nvic_enable_irq(PrimaryUart(_IRQ));
 
   /* Init GPIOS */
   /* Primary UART Rx pin as floating input */
-  gpio_set_mode(GPIO_BANK_USART1_RX, GPIO_MODE_INPUT,
-                GPIO_CNF_INPUT_FLOAT, GPIO_USART1_RX);
+  gpio_set_mode(PrimaryUart(_BANK), GPIO_MODE_INPUT,
+	        GPIO_CNF_INPUT_FLOAT, PrimaryUart(_PIN));
+
+  PrimaryUart(_REMAP);
 
   /* Configure Primary UART */
-  usart_set_baudrate(USART1, 115200);
-  usart_set_databits(USART1, 8);
-  usart_set_stopbits(USART1, USART_STOPBITS_1);
-  usart_set_parity(USART1, USART_PARITY_NONE);
-  usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
-  usart_set_mode(USART1, USART_MODE_RX);
+  usart_set_baudrate(PrimaryUart(_DEV), 115200);
+  usart_set_databits(PrimaryUart(_DEV), 8);
+  usart_set_stopbits(PrimaryUart(_DEV), USART_STOPBITS_1);
+  usart_set_parity(PrimaryUart(_DEV), USART_PARITY_NONE);
+  usart_set_flow_control(PrimaryUart(_DEV), USART_FLOWCONTROL_NONE);
+  usart_set_mode(PrimaryUart(_DEV), USART_MODE_RX);
 
   /* Enable Primary UART Receive interrupts */
-  USART_CR1(USART1) |= USART_CR1_RXNEIE;
+  USART_CR1(PrimaryUart(_DEV)) |= USART_CR1_RXNEIE;
 
   /* Enable the Primary UART */
-  usart_enable(USART1);
+  usart_enable(PrimaryUart(_DEV));
 
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
   /* init RCC */
@@ -579,16 +578,16 @@ void SpektrumUartInit(void) {
  * received character to Spektrum Parser.
  *
  *****************************************************************************/
-void usart1_isr(void) {
+void PrimaryUart(_ISR)(void) {
 
-  if (((USART_CR1(USART1) & USART_CR1_TXEIE) != 0) &&
-      ((USART_SR(USART1) & USART_SR_TXE) != 0)) {
-    USART_CR1(USART1) &= ~USART_CR1_TXEIE;
+  if (((USART_CR1(PrimaryUart(_DEV)) & USART_CR1_TXEIE) != 0) &&
+      ((USART_SR(PrimaryUart(_DEV)) & USART_SR_TXE) != 0)) {
+    USART_CR1(PrimaryUart(_DEV)) &= ~USART_CR1_TXEIE;
   }
 
-  if (((USART_CR1(USART1) & USART_CR1_RXNEIE) != 0) &&
-      ((USART_SR(USART1) & USART_SR_RXNE) != 0)) {
-    uint8_t b = usart_recv(USART1);
+  if (((USART_CR1(PrimaryUart(_DEV)) & USART_CR1_RXNEIE) != 0) &&
+      ((USART_SR(PrimaryUart(_DEV)) & USART_SR_RXNE) != 0)) {
+    uint8_t b = usart_recv(PrimaryUart(_DEV));
     SpektrumParser(b, PrimarySpektrumState, 0);
   }
 
@@ -664,14 +663,14 @@ void radio_control_spektrum_try_bind(void) {
   SpektrumDelayInit();
 
   /* initialise the uarts rx pins as  GPIOS */
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPAEN);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, PrimaryUart(_RCC_GPIO));
 
   /* Master receiver Rx push-pull */
-  gpio_set_mode(GPIO_BANK_USART1_RX, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_PUSHPULL, GPIO_USART1_RX);
+  gpio_set_mode(PrimaryUart(_BANK), GPIO_MODE_OUTPUT_50_MHZ,
+	  GPIO_CNF_OUTPUT_PUSHPULL, PrimaryUart(_PIN));
 
   /* Master receiver RX line, drive high */
-  gpio_set(GPIO_BANK_USART1_RX, GPIO_USART1_RX);
+  gpio_set(PrimaryUart(_BANK), PrimaryUart(_PIN));
 
 #ifdef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
 
@@ -691,9 +690,9 @@ void radio_control_spektrum_try_bind(void) {
 
   for (int i = 0; i < MASTER_RECEIVER_PULSES ; i++)
   {
-    gpio_clear(GPIO_BANK_USART1_RX, GPIO_USART1_RX);
+    gpio_clear(PrimaryUart(_BANK), PrimaryUart(_PIN));
     DelayUs(118);
-    gpio_set(GPIO_BANK_USART1_RX, GPIO_USART1_RX);
+    gpio_set(PrimaryUart(_BANK), PrimaryUart(_PIN));
     DelayUs(122);
   }
 
