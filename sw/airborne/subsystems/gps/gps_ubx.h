@@ -38,10 +38,6 @@
 
 #define GPS_NB_CHANNELS 16
 
-#define GPS_FIX_NONE 0x00
-#define GPS_FIX_2D   0x02
-#define GPS_FIX_3D   0x03
-
 #define GPS_UBX_MAX_PAYLOAD 255
 struct GpsUbx {
   bool_t msg_available;
