@@ -71,7 +71,7 @@ extern struct Int32RefModel stab_att_ref_model;
 
 static inline void stabilization_attitude_read_rc_ref(struct Int32Eulers *sp, bool_t in_flight) {
 
-  sp->phi = ((int32_t)-radio_control.values[RADIO_ROLL]  * SP_MAX_PHI / MAX_PPRZ)
+  sp->phi = ((int32_t) radio_control.values[RADIO_ROLL]  * SP_MAX_PHI / MAX_PPRZ)
     << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
 
   sp->theta = ((int32_t) radio_control.values[RADIO_PITCH] * SP_MAX_THETA / MAX_PPRZ)
@@ -79,7 +79,7 @@ static inline void stabilization_attitude_read_rc_ref(struct Int32Eulers *sp, bo
 
   if (in_flight) {
     if (YAW_DEADBAND_EXCEEDED()) {
-      sp->psi += ((int32_t)-radio_control.values[RADIO_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ)
+      sp->psi += ((int32_t) radio_control.values[RADIO_YAW] * SP_MAX_R / MAX_PPRZ / RC_UPDATE_FREQ)
         << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
       ANGLE_REF_NORMALIZE(sp->psi);
     }
