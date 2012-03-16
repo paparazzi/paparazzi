@@ -36,11 +36,6 @@
 #include "subsystems/ahrs.h"
 
 
-#define GPS_FIX_NONE 0x00
-#define GPS_FIX_2D   0x02
-#define GPS_FIX_3D   0x03
-
-
 extern int8_t xsens_hour;
 extern int8_t xsens_min;
 extern int8_t xsens_sec;
