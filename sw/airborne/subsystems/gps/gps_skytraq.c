@@ -64,10 +64,10 @@ void gps_skytraq_read_message(void) {
     gps.ecef_vel.x  = SKYTRAQ_NAVIGATION_DATA_ECEFVX(gps_skytraq.msg_buf);
     gps.ecef_vel.y  = SKYTRAQ_NAVIGATION_DATA_ECEFVY(gps_skytraq.msg_buf);
     gps.ecef_vel.z  = SKYTRAQ_NAVIGATION_DATA_ECEFVZ(gps_skytraq.msg_buf);
-    gps.lla_pos.lat = SKYTRAQ_NAVIGATION_DATA_LAT(gps_skytraq.msg_buf);
-    gps.lla_pos.lon = SKYTRAQ_NAVIGATION_DATA_LON(gps_skytraq.msg_buf);
-    gps.lla_pos.alt = SKYTRAQ_NAVIGATION_DATA_AEL(gps_skytraq.msg_buf);
-    gps.hmsl        = SKYTRAQ_NAVIGATION_DATA_ASL(gps_skytraq.msg_buf);
+    gps.lla_pos.lat = RadOfDeg(SKYTRAQ_NAVIGATION_DATA_LAT(gps_skytraq.msg_buf));
+    gps.lla_pos.lon = RadOfDeg(SKYTRAQ_NAVIGATION_DATA_LON(gps_skytraq.msg_buf));
+    gps.lla_pos.alt = SKYTRAQ_NAVIGATION_DATA_AEL(gps_skytraq.msg_buf)/10;
+    gps.hmsl        = SKYTRAQ_NAVIGATION_DATA_ASL(gps_skytraq.msg_buf)/10;
     //   pacc;
     //   sacc;
     //     gps.pdop       = SKYTRAQ_NAVIGATION_DATA_PDOP(gps_skytraq.msg_buf);
@@ -89,7 +89,7 @@ void gps_skytraq_read_message(void) {
     gps.utm_pos.north = utm_f.north*100;
     gps.utm_pos.alt = utm_f.alt*1000;
     gps.utm_pos.zone = nav_utm_zone0;
-#else
+#endif
 
     //DEBUG_S2_TOGGLE();
 
