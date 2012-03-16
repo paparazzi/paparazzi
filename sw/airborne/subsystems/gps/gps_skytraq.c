@@ -89,7 +89,7 @@ void gps_skytraq_read_message(void) {
     gps.utm_pos.north = utm_f.north*100;
     gps.utm_pos.alt = utm_f.alt*1000;
     gps.utm_pos.zone = nav_utm_zone0;
-#else
+#endif
 
     //DEBUG_S2_TOGGLE();
 
