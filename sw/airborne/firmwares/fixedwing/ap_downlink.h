@@ -224,6 +224,45 @@
     i++;                                                                \
 }
 
+#if USE_GPS
+#define PERIODIC_SEND_GPS_INT(_trans, _dev) {   \
+  DOWNLINK_SEND_GPS_INT( _trans, _dev,          \
+                         &gps.ecef_pos.x,       \
+                         &gps.ecef_pos.y,       \
+                         &gps.ecef_pos.z,       \
+                         &gps.lla_pos.lat,      \
+                         &gps.lla_pos.lon,      \
+                         &gps.lla_pos.alt,      \
+                         &gps.hmsl,             \
+                         &gps.ecef_vel.x,       \
+                         &gps.ecef_vel.y,       \
+                         &gps.ecef_vel.z,       \
+                         &gps.pacc,             \
+                         &gps.sacc,             \
+                         &gps.tow,              \
+                         &gps.pdop,             \
+                         &gps.num_sv,           \
+                         &gps.fix);             \
+  }
+
+#define PERIODIC_SEND_GPS_LLA(_trans, _dev) {               \
+    int16_t climb = -gps.ned_vel.z;                         \
+    int16_t course = (DegOfRad(gps.course)/((int32_t)1e6)); \
+    DOWNLINK_SEND_GPS_LLA( _trans, _dev,                    \
+                           &gps.lla_pos.lat,                \
+                           &gps.lla_pos.lon,                \
+                           &gps.lla_pos.alt,                \
+                           &gps.hmsl,                       \
+                           &course,                         \
+                           &gps.gspeed,                     \
+                           &climb,                          \
+                           &gps.week,                       \
+                           &gps.tow,                        \
+                           &gps.fix,                        \
+                           &gps.fix);                       \
+  }
+#endif
+
 #if USE_BARO_MS5534A
 //#include "baro_MS5534A.h"
 #define PERIODIC_SEND_BARO_MS5534A(_trans, _dev) DOWNLINK_SEND_BARO_MS5534A(_trans, _dev, &baro_MS5534A_pressure, &baro_MS5534A_temp, &baro_MS5534A_z)
