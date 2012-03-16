@@ -37,7 +37,11 @@
 
 #include "firmwares/rotorcraft/commands.h"
 #include "firmwares/rotorcraft/actuators.h"
+
+#if defined RADIO_CONTROL
 #include "subsystems/radio_control.h"
+#pragma message "CAUTION! RadioControl roll and yaw channel inputs have been reversed to follow aerospace sign conventions.\n You will have to change your radio control xml file to get a positive value when pushing roll stick right and a positive value when pushing yaw stick right!"
+#endif
 
 #include "subsystems/imu.h"
 #include "subsystems/gps.h"

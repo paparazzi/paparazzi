@@ -81,6 +81,11 @@
 #include "gpio.h"
 #include "led.h"
 
+#if defined RADIO_CONTROL
+#pragma message "CAUTION! radio control roll channel input has been changed to follow aerospace sign conventions.\n You will have to change your radio control xml file to get a positive value when banking right!"
+#endif
+
+
 
 #if USE_AHRS
 #if USE_IMU
