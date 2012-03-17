@@ -20,6 +20,7 @@
  */
 
 #include "subsystems/gps.h"
+#include "led.h"
 
 #if GPS_USE_LATLONG
 /* currently needed to get nav_utm_zone0 */
@@ -40,8 +41,12 @@ struct GpsSkytraq gps_skytraq;
 #define GOT_CHECKSUM  7
 #define GOT_SYNC3     8
 
+#define SKYTRAQ_FIX_NONE    0x00
+#define SKYTRAQ_FIX_2D      0x01
+#define SKYTRAQ_FIX_3D      0x02
+#define SKYTRAQ_FIX_3D_DGPS 0x03
+
 //#include "my_debug_servo.h"
-#include "led.h"
 
 void gps_impl_init(void) {
 
@@ -72,8 +77,19 @@ void gps_skytraq_read_message(void) {
     //   sacc;
     //     gps.pdop       = SKYTRAQ_NAVIGATION_DATA_PDOP(gps_skytraq.msg_buf);
     gps.num_sv      = SKYTRAQ_NAVIGATION_DATA_NumSV(gps_skytraq.msg_buf);
-    gps.fix         = SKYTRAQ_NAVIGATION_DATA_FixMode(gps_skytraq.msg_buf);
     gps.tow         = SKYTRAQ_NAVIGATION_DATA_TOW(gps_skytraq.msg_buf)/10;
+
+    switch (SKYTRAQ_NAVIGATION_DATA_FixMode(gps_skytraq.msg_buf)) {
+    case SKYTRAQ_FIX_3D_DGPS:
+    case SKYTRAQ_FIX_3D:
+      gps.fix = GPS_FIX_3D;
+      break;
+    case SKYTRAQ_FIX_2D:
+      gps.fix = GPS_FIX_2D;
+      break;
+    default:
+      gps.fix = GPS_FIX_NONE;
+    }
 
 #if GPS_USE_LATLONG
     /* Computes from (lat, long) in the referenced UTM zone */

@@ -37,6 +37,7 @@ ap.CFLAGS += -DIMU_TYPE_H=\"modules/ins/ins_xsens.h\"
 # AHRS Results
 ap.CFLAGS += -DAHRS_TYPE_H=\"modules/ins/ins_xsens.h\"
 ap.CFLAGS += -DINS_MODULE_H=\"modules/ins/ins_xsens.h\"
+ap.CFLAGS += -DGPS_TYPE_H=\"modules/ins/ins_xsens.h\"
 
 ap.CFLAGS += -DUSE_UART$(XSENS_UART_NR)
 ap.CFLAGS += -DINS_LINK=Uart$(XSENS_UART_NR)
