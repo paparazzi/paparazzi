@@ -24,108 +24,98 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <stm32/gpio.h>
-#include <stm32/spi.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/spi.h>
 
 extern uint8_t ms2100_cur_axe;
 extern int16_t ms2100_last_reading;
 
-#define Ms2100Select()   GPIOC->BRR = GPIO_Pin_12
-#define Ms2100Unselect() GPIOC->BSRR = GPIO_Pin_12
+#define Ms2100Select()   GPIOC_BRR = GPIO12
+#define Ms2100Unselect() GPIOC_BSRR = GPIO12
 
-#define Ms2100Reset() GPIOC->BSRR = GPIO_Pin_13;
-#define Ms2100Set()   GPIOC->BRR = GPIO_Pin_13
+#define Ms2100Reset() GPIOC_BSRR = GPIO13;
+#define Ms2100Set()   GPIOC_BRR = GPIO13
 
-#define Ms2100HasEOC() GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5)
+#define Ms2100HasEOC() (gpio_get(GPIOB, GPIO5) != 0)
 
 #define Ms2100SendReq() {						\
     Ms2100Select();							\
-    __IO uint32_t nCount = 4;for(; nCount != 0; nCount--);		\
+    volatile uint32_t nCount = 4;for(; nCount != 0; nCount--);		\
     Ms2100Reset();							\
     ms2100_status = MS2100_SENDING_REQ;					\
     nCount = 4;for(; nCount != 0; nCount--);				\
     Ms2100Set();							\
     uint16_t ctl_byte = ((ms2100_cur_axe+1) | (MS2100_DIVISOR << 4));	\
     nCount = 20;for(; nCount != 0; nCount--);				\
-    SPI_Cmd(SPI2, DISABLE);						\
-    SPI_InitTypeDef SPI_InitStructure = {				\
-      .SPI_Direction = SPI_Direction_2Lines_FullDuplex,			\
-      .SPI_Mode = SPI_Mode_Master,					\
-      .SPI_DataSize = SPI_DataSize_8b,					\
-      .SPI_CPOL = SPI_CPOL_Low,						\
-      .SPI_CPHA = SPI_CPHA_1Edge,					\
-      .SPI_NSS = SPI_NSS_Soft,						\
-      .SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64,		\
-      .SPI_FirstBit = SPI_FirstBit_MSB,					\
-      .SPI_CRCPolynomial = 7						\
-    };									\
-    SPI_Init(SPI2, &SPI_InitStructure);					\
-    SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_RXNE, ENABLE);			\
-    SPI_Cmd(SPI2, ENABLE);						\
-    SPI_I2S_SendData(SPI2, ctl_byte);					\
+    spi_disable(SPI2);							\
+    spi_reset(SPI2);							\
+    spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_64,		\
+		    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,			\
+		    SPI_CR1_CPHA_CLK_TRANSITION_1,			\
+		    SPI_CR1_DFF_8BIT,					\
+		    SPI_CR1_MSBFIRST);					\
+    spi_enable_software_slave_management(SPI2);				\
+    spi_set_nss_high(SPI2);						\
+    spi_enable_rx_buffer_not_empty_interrupt(SPI2);			\
+    spi_enable(SPI2);							\
+    SPI_DR(SPI2) = ctl_byte;						\
   }
 
 #define Ms2100ReadRes() {						\
     ms2100_status = MS2100_READING_RES;					\
     Ms2100Select();							\
-    SPI_Cmd(SPI2, DISABLE);						\
-    SPI_InitTypeDef SPI_InitStructure = {				\
-      .SPI_Direction = SPI_Direction_2Lines_FullDuplex,			\
-      .SPI_Mode = SPI_Mode_Master,					\
-      .SPI_DataSize = SPI_DataSize_16b,					\
-      .SPI_CPOL = SPI_CPOL_Low,						\
-      .SPI_CPHA = SPI_CPHA_1Edge,					\
-      .SPI_NSS = SPI_NSS_Soft,						\
-      .SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64,		\
-      .SPI_FirstBit = SPI_FirstBit_MSB,					\
-      .SPI_CRCPolynomial = 7						\
-    };									\
-    SPI_Init(SPI2, &SPI_InitStructure);					\
-    SPI_Cmd(SPI2, ENABLE);						\
-                                    \
+    spi_disable(SPI2);							\
+    spi_reset(SPI2);							\
+    spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_64,		\
+		    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,			\
+		    SPI_CR1_CPHA_CLK_TRANSITION_1,			\
+		    SPI_CR1_DFF_16BIT,					\
+		    SPI_CR1_MSBFIRST);					\
+    spi_enable_software_slave_management(SPI2);				\
+    spi_set_nss_high(SPI2);						\
+    spi_enable(SPI2);							\
+    									\
     /* trigger 2 frames read */						\
-    /* SPI2_Rx_DMA_Channel configuration ------------------------------------*/ \
-    DMA_InitTypeDef  DMA_InitStructure;					\
-    DMA_DeInit(DMA1_Channel4);						\
-    DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C); \
-    DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)(&ms2100_last_reading); \
-    DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;			\
-    DMA_InitStructure.DMA_BufferSize = 1;				\
-    DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;	\
-    DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;		\
-    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord; \
-    DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;	\
-    DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;			\
-    DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;		\
-    DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;			\
-    DMA_Init(DMA1_Channel4, &DMA_InitStructure);			\
-    /* SPI2_Tx_DMA_Channel configuration ------------------------------------*/ \
-    DMA_DeInit(DMA1_Channel5);						\
-    DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(SPI2_BASE+0x0C); \
-    DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)&ms2100_values;	\
-    DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;			\
-    DMA_InitStructure.DMA_Priority = DMA_Priority_Medium;		\
-    DMA_Init(DMA1_Channel5, &DMA_InitStructure);			\
-                                    \
-    /* Enable SPI_2 Rx request */					\
-    SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Rx, ENABLE);			\
+    dma_channel_reset(DMA1, DMA_CHANNEL4);				\
+    dma_set_peripheral_address(DMA1, DMA_CHANNEL4, (u32)&SPI2_DR);	\
+    dma_set_memory_address(DMA1, DMA_CHANNEL4, (uint32_t)(&ms2100_last_reading)); \
+    dma_set_number_of_data(DMA1, DMA_CHANNEL4, 1);			\
+    dma_set_read_from_peripheral(DMA1, DMA_CHANNEL4);			\
+    /*dma_disable_peripheral_increment_mode(DMA1, DMA_CHANNEL4); */	\
+    dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL4);		\
+    dma_set_peripheral_size(DMA1, DMA_CHANNEL4, DMA_CCR_PSIZE_16BIT);	\
+    dma_set_memory_size(DMA1, DMA_CHANNEL4, DMA_CCR_MSIZE_16BIT);	\
+    /*dma_set_mode(DMA1, DMA_CHANNEL4, DMA_???_NORMAL); */		\
+    dma_set_priority(DMA1, DMA_CHANNEL4, DMA_CCR_PL_VERY_HIGH);		\
+									\
+    /* SPI2_Tx_DMA_Channel configuration ----------------------------*/ \
+    dma_channel_reset(DMA1, DMA_CHANNEL5);				\
+    dma_set_peripheral_address(DMA1, DMA_CHANNEL5, (u32)&SPI2_DR);	\
+    dma_set_memory_address(DMA1, DMA_CHANNEL5, (uint32_t)(&ms2100_values)); \
+    dma_set_number_of_data(DMA1, DMA_CHANNEL5, 1);			\
+    dma_set_read_from_memory(DMA1, DMA_CHANNEL5);			\
+    /*dma_disable_peripheral_increment_mode(DMA1, DMA_CHANNEL5); */	\
+    dma_enable_memory_increment_mode(DMA1, DMA_CHANNEL5);		\
+    dma_set_peripheral_size(DMA1, DMA_CHANNEL5, DMA_CCR_PSIZE_16BIT);	\
+    dma_set_memory_size(DMA1, DMA_CHANNEL5, DMA_CCR_MSIZE_16BIT);	\
+    /*dma_set_mode(DMA1, DMA_CHANNEL5, DMA_???_NORMAL); */		\
+    dma_set_priority(DMA1, DMA_CHANNEL5, DMA_CCR_PL_MEDIUM);		\
+									\
     /* Enable DMA1 Channel4 */						\
-    DMA_Cmd(DMA1_Channel4, ENABLE);					\
-                                    \
-    /* Enable SPI_2 Tx request */					\
-    SPI_I2S_DMACmd(SPI2, SPI_I2S_DMAReq_Tx, ENABLE);			\
+    dma_enable_channel(DMA1, DMA_CHANNEL4);				\
+    /* Enable SPI_2 Rx request */					\
+    spi_enable_rx_dma(SPI2);						\
+									\
     /* Enable DMA1 Channel5 */						\
-    DMA_Cmd(DMA1_Channel5, ENABLE);					\
-                                    \
+    dma_enable_channel(DMA1, DMA_CHANNEL5);				\
+    /* Enable SPI_2 Tx request */					\
+    spi_enable_tx_dma(SPI2);						\
+									\
     /* Enable DMA1 Channel4 Transfer Complete interrupt */		\
-    DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, ENABLE);			\
-                                        \
+    dma_enable_transfer_complete_interrupt(DMA1, DMA_CHANNEL4);		\
   }
 
 #define Ms2100OnDmaIrq() {					\
-    /*  ASSERT((ms2100_status == MS2100_READING_RES),		\
-     *   DEBUG_MS2100, MS2100_ERR_SPURIOUS_DMA_IRQ);		\
-     */								\
     if (abs(ms2100_last_reading) < 1000)			\
       ms2100_values[ms2100_cur_axe] = ms2100_last_reading;	\
     Ms2100Unselect();						\
@@ -136,20 +126,17 @@ extern int16_t ms2100_last_reading;
     }								\
     else							\
       ms2100_status = MS2100_IDLE;				\
-    SPI_Cmd(SPI2, DISABLE);					\
-    DMA_ITConfig(DMA1_Channel4, DMA_IT_TC, DISABLE);		\
+    spi_disable(SPI2);							\
+    dma_disable_transfer_complete_interrupt(DMA1, DMA_CHANNEL4);	\
   }
 
 #define Ms2100OnSpiIrq() {						\
-    /*  ASSERT((ms2100_status == MS2100_SENDING_REQ),			\
-     *   DEBUG_MS2100, MS2100_ERR_SPURIOUS_SPI_IRQ);			\
-     */									\
     /* read unused control byte reply */				\
-    uint8_t foo __attribute__ ((unused)) = SPI_I2S_ReceiveData(SPI2);	\
+    uint8_t foo __attribute__ ((unused)) = SPI_DR(SPI2);		\
     Ms2100Unselect();							\
     ms2100_status = MS2100_WAITING_EOC;					\
-    SPI_Cmd(SPI2, DISABLE);						\
-    SPI_I2S_ITConfig(SPI2, SPI_I2S_IT_RXNE, DISABLE);			\
+    spi_disable(SPI2);							\
+    spi_disable_rx_buffer_not_empty_interrupt(SPI2);			\
   }
 
 #endif /* MS2100_ARCH_H */

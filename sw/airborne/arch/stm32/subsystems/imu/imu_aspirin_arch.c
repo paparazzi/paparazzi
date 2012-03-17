@@ -149,7 +149,6 @@ void adxl345_start_reading_data(void) {
    imu_aspirin.accel_tx_buf[0] = (1<<7|1<<6|ADXL345_REG_DATA_X0);
 
   // SPI2_Rx_DMA_Channel configuration ------------------------------------
-
   dma_channel_reset(DMA1, DMA_CHANNEL4);
   dma_set_peripheral_address(DMA1, DMA_CHANNEL4, (u32)&SPI2_DR);
   dma_set_memory_address(DMA1, DMA_CHANNEL4, (uint32_t)imu_aspirin.accel_rx_buf);

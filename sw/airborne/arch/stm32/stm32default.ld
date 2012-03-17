@@ -27,7 +27,7 @@
 /* Define memory regions. */
 MEMORY
 {
-	ram (rwx) : ORIGIN = 0x20000000, LENGTH = 20K
+	ram (rwx) : ORIGIN = 0x20000000, LENGTH = 64K
 	/* Leaving 1k of space at the end of rom for stored settings */
 	rom (rx) : ORIGIN = 0x08000000, LENGTH = 127K
 }
