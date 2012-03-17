@@ -44,8 +44,8 @@ void actuators_init(void)
 }
 
 #define PWM_GAIN_SCALE 2
-#ifdef SUPERVISION_OFF_MOTOR
-#define PWM_OFF SUPERVISION_OFF_MOTOR
+#ifdef SUPERVISION_STOP_MOTOR
+#define PWM_OFF SUPERVISION_STOP_MOTOR
 #else
 #define PWM_OFF 1000
 #endif
