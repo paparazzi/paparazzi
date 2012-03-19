@@ -44,10 +44,8 @@ void actuators_init(void)
 }
 
 #define PWM_GAIN_SCALE 2
-#ifdef SUPERVISION_STOP_MOTOR
-#define PWM_OFF SUPERVISION_STOP_MOTOR
-#else
-#define PWM_OFF 1000
+#ifndef SUPERVISION_PWM_OFF
+#define SUPERVISION_PWM_OFF 1000
 #endif
 
 void actuators_set(bool_t motors_on) {
@@ -73,7 +71,7 @@ void actuators_set(bool_t motors_on) {
       actuators_pwm_values[i] = supervision.commands[i];
   } else {
     for (int i = 0; i < SUPERVISION_NB_MOTOR; i++)
-      actuators_pwm_values[i] = PWM_OFF;
+      actuators_pwm_values[i] = SUPERVISION_PWM_OFF;
   }
   actuators_pwm_commit();
 
