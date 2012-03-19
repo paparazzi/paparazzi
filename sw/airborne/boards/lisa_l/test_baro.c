@@ -47,6 +47,7 @@ static inline void main_event_task( void );
 static inline void main_on_baro_diff(void);
 static inline void main_on_baro_abs(void);
 
+extern struct i2c_errors i2c2_errors;
 
 int main(void) {
   main_init();

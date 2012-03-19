@@ -28,11 +28,9 @@
  */
 
 
-#include <stm32/gpio.h>
-#include <stm32/flash.h>
-#include <stm32/misc.h>
-#include <stm32/exti.h>
-#include <stm32/spi.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/exti.h>
+#include <libopencm3/stm32/spi.h>
 
 #include BOARD_CONFIG
 #include "mcu.h"
@@ -59,7 +57,9 @@ static uint8_t gyro_state = 0;
 static volatile uint8_t gyro_ready_for_read = FALSE;
 static uint8_t reading_gyro = FALSE;
 
-void exti15_10_irq_handler(void);
+void exti15_10_isr(void);
+
+extern struct i2c_errors i2c2_errors;
 
 int main(void) {
   main_init();
@@ -219,6 +219,9 @@ static inline void main_event_task( void ) {
 }
 
 static inline void main_init_hw( void ) {
+#warning "Needs to be ported to libopencm3 or use the real driver!"
+
+#if 0
   /* set mag ss as floating input (on PC12) = shorted to sda         ------------------------------*/
   /* set mag reset as floating input (on PC13) = shorted to scl      ------------------------------*/
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
@@ -259,6 +262,7 @@ static inline void main_init_hw( void ) {
 
   DEBUG_SERVO1_INIT();
   DEBUG_SERVO2_INIT();
+#endif
 
 }
 
@@ -268,8 +272,7 @@ void exti15_10_irq_handler(void) {
   //  DEBUG_S4_ON();
 
   /* clear EXTI */
-  if(EXTI_GetITStatus(EXTI_Line14) != RESET)
-    EXTI_ClearITPendingBit(EXTI_Line14);
+  exti_reset_request(EXTI14);
 
   //  DEBUG_S4_TOGGLE();
 

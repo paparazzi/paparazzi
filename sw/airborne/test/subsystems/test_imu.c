@@ -46,6 +46,8 @@ static inline void on_gyro_accel_event(void);
 static inline void on_accel_event(void);
 static inline void on_mag_event(void);
 
+extern struct i2c_errors i2c2_errors;
+
 int main( void ) {
   main_init();
   while(1) {

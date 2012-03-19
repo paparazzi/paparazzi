@@ -24,10 +24,9 @@
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/ppm.h"
 
-#include <stm32/rcc.h>
-#include <stm32/gpio.h>
-#include <stm32/tim.h>
-#include <stm32/misc.h>
+#include <libopencm3/stm32/f1/rcc.h>
+#include <libopencm3/stm32/f1/gpio.h>
+#include <libopencm3/stm32/timer.h>
 
 #include "mcu_periph/sys_time.h"
 
@@ -42,9 +41,13 @@ uint32_t ppm_last_pulse_time;
 bool_t   ppm_data_valid;
 static uint32_t timer_rollover_cnt;
 
-void tim2_irq_handler(void);
+void tim2_isr(void);
 
 void ppm_arch_init ( void ) {
+
+#warning "Needs porting to libopencm3"
+
+#if 0
 
   /* TIM2 channel 2 pin (PA.01) configuration */
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -98,11 +101,14 @@ void ppm_arch_init ( void ) {
   ppm_cur_pulse = RADIO_CONTROL_NB_CHANNEL;
   timer_rollover_cnt = 0;
 
+#endif
+
 }
 
 
-void tim2_irq_handler(void) {
+void tim2_isr(void) {
 
+#if 0
   if(TIM_GetITStatus(TIM2, TIM_IT_CC2) == SET) {
     TIM_ClearITPendingBit(TIM2, TIM_IT_CC2);
 
@@ -113,5 +119,7 @@ void tim2_irq_handler(void) {
     timer_rollover_cnt+=(1<<16);
     TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
   }
+
+#endif
 
 }
