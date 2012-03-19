@@ -81,7 +81,7 @@ struct GpsState {
   struct SVinfo svinfos[GPS_NB_CHANNELS]; ///< holds information from the Space Vehicles (Satellites)
 
   uint32_t last_fix_ticks;       ///< cpu time in ticks at last valid fix
-  uint16_t last_fix_time;        ///< cpu time in sec at last valid fix
+  uint32_t last_fix_time;        ///< cpu time in sec at last valid fix
   uint16_t reset;                ///< hotstart, warmstart, coldstart
 };
 
@@ -106,7 +106,7 @@ extern void gps_impl_init(void);
 #ifndef GPS_TIMEOUT
 #define GPS_TIMEOUT 5
 #endif
-#define GpsIsLost() (cpu_time_sec - gps.last_fix_time > GPS_TIMEOUT)
+#define GpsIsLost() (sys_time.nb_sec - gps.last_fix_time > GPS_TIMEOUT)
 
 
 //TODO

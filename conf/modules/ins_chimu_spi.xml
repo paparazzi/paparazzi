@@ -4,7 +4,6 @@
   <!-- <depend conflict="ins" -->
   <header>
     <file name="ins_module.h"/>
-    <file name="ins_chimu.h"/>
   </header>
   <init fun="ins_init()"/>
   <event fun="parse_ins_msg()"/>

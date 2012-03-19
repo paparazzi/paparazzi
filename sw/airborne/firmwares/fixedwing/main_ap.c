@@ -402,7 +402,7 @@ void reporting_task( void ) {
 
 
 #ifdef FAILSAFE_DELAY_WITHOUT_GPS
-#define GpsTimeoutError (cpu_time_sec - gps.last_fix_time > FAILSAFE_DELAY_WITHOUT_GPS)
+#define GpsTimeoutError (sys_time.nb_sec - gps.last_fix_time > FAILSAFE_DELAY_WITHOUT_GPS)
 #endif
 
 /**
@@ -565,7 +565,8 @@ void monitor_task( void ) {
       estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
     estimator_flight_time = 1;
     launch = TRUE; /* Not set in non auto launch */
-    DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &cpu_time_sec);
+    uint16_t time_sec = sys_time.nb_sec;
+    DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &time_sec);
   }
 
 #ifdef USE_GPIO

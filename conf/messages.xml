@@ -428,8 +428,8 @@
  </message>
 
   <message name="GPS_LLA" id="59">
-    <field name="lat"        type="int32"  unit="cm" alt_unit="m"/>
-    <field name="lon"        type="int32"  unit="cm" alt_unit="m"/>
+    <field name="lat"        type="int32"  alt_unit="deg" alt_unit_coef="0.0000057296"/>
+    <field name="lon"        type="int32"  alt_unit="deg" alt_unit_coef="0.0000057296"/>
     <field name="alt"        type="int32"  unit="mm" alt_unit="m"/>
     <field name="course"     type="int16"  unit="decideg" alt_unit="deg"/>
     <field name="speed"      type="uint16" unit="cm/s" alt_unit="m/s"/>
@@ -1792,7 +1792,7 @@
     <field name="ap_h_mode"    type="uint8" values="KILL|RATE|ATTITUDE|HOVER|NAV"/>
     <field name="ap_v_mode"    type="uint8" values="KILL|RC_DIRECT|RC_CLIMB|CLIMB|HOVER|NAV"/>
     <field name="vsupply"      type="uint8" unit="decivolt"/>
-    <field name="cpu_time"     type="uint16" unit="s"></field>
+    <field name="cpu_time"     type="uint16" unit="s"/>
   </message>
 
    <message name="STATE_FILTER_STATUS" id="232">

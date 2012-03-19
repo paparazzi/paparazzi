@@ -64,17 +64,17 @@ static inline void main_init( void ) {
 static inline void main_periodic_task( void ) {
   RunOnceEvery(10,
 	       {
-		 DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &cpu_time_sec);
+		 DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &sys_time.nb_sec);
 		 LED_PERIODIC();
 	       });
 
   switch(ms2100_status) {
   case MS2100_IDLE:
-    Ms2001SendReq();
+    Ms2100SendReq();
     break;
   case MS2100_WAITING_EOC:
-    if (Ms2001HasEOC()) {
-      Ms2001ReadRes();
+    if (Ms2100HasEOC()) {
+      Ms2100ReadRes();
     }
     break;
   }

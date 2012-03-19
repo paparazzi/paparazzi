@@ -1,7 +1,6 @@
 /*
- * $Id$
  *
- * Copyright (C) 2011 Christoph Niemann
+ * Copyright (C) 2012, Christophe De Wagter
  *
  * This file is part of paparazzi.
  *
@@ -22,17 +21,27 @@
  *
  */
 
-/** \file openlog.h
- * This module provides a timestamp-message, allowing
- * sw/logalizer/openlog2tlm to convert a recorded dumpfile,
- * created by openlog into the pprz-tlm format, to be converted into
- * .data and .log files by sw/logalizer/sd2log
+/**
+ * @file module/nav/nav_catapult.h
+ * @brief catapult launch timing system
  */
 
-#ifndef OPENLOG_H
-#define OPENLOG_H
+#ifndef NAV_CATAPULT_H
+#define NAV_CATAPULT_H
 
-void init_openlog(void);
-void periodic_2Hz_openlog(void);
+#include "std.h"
+#include "paparazzi.h"
+
+// Module Code
+void nav_catapult_highrate_module(void);
+
+// Flightplan Code
+extern bool_t nav_catapult_init(void);
+
+extern bool_t nav_catapult_arm(void);
+extern bool_t nav_catapult(uint8_t _to, uint8_t _climb);
+extern bool_t nav_catapult_disarm(void);
+
+extern bool_t nav_select_touch_down(uint8_t _td);
 
 #endif

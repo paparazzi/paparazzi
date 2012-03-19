@@ -91,8 +91,8 @@ extern struct GpsUbx gps_ubx;
            (gps_ubx.msg_id == UBX_NAV_SOL_ID &&    \
             gps_ubx.have_velned == 0))) {          \
         if (gps.fix == GPS_FIX_3D) {               \
-          gps.last_fix_ticks = cpu_time_ticks;     \
-          gps.last_fix_time = cpu_time_sec;        \
+          gps.last_fix_ticks = sys_time.nb_sec_rem; \
+          gps.last_fix_time = sys_time.nb_sec;      \
         }                                          \
         _sol_available_callback();                 \
       }                                            \

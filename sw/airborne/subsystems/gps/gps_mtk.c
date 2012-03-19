@@ -35,8 +35,10 @@
 
 #include "led.h"
 
-#include "subsystems/nav.h"
+/* currently needed to get nav_utm_zone0 */
+#include "subsystems/navigation/common_nav.h"
 #include "math/pprz_geodetic_float.h"
+
 #include "mcu_periph/sys_time.h"
 
 #define MTK_DIY_OUTPUT_RATE	MTK_DIY_OUTPUT_4HZ
@@ -61,6 +63,12 @@
 #define GPS_MTK_ERR_UNEXPECTED   4
 #define GPS_MTK_ERR_OUT_OF_SYNC  5
 
+/* mediatek gps fix mask */
+#define MTK_DIY_FIX_3D      3
+#define MTK_DIY_FIX_2D      2
+#define MTK_DIY_FIX_NONE    1
+
+
 /* defines for UTC-GPS time conversion */
 #define SECS_MINUTE (60)
 #define SECS_HOUR   (60*60)
@@ -74,6 +82,23 @@ const int8_t DAYS_MONTH[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
 struct GpsMtk gps_mtk;
 
 #ifdef GPS_CONFIGURE
+#define MTK_DIY_SET_BINARY  "$PGCMD,16,0,0,0,0,0*6A\r\n"
+#define MTK_DIY_SET_NMEA    "$PGCMD,16,1,1,1,1,1*6B\r\n"
+
+#define MTK_DIY_OUTPUT_1HZ  "$PMTK220,1000*1F\r\n"
+#define MTK_DIY_OUTPUT_2HZ  "$PMTK220,500*2B\r\n"
+#define MTK_DIY_OUTPUT_4HZ  "$PMTK220,250*29\r\n"
+#define MTK_DIY_OTUPUT_5HZ  "$PMTK220,200*2C\r\n"
+#define MTK_DIY_OUTPUT_10HZ "$PMTK220,100*2F\r\n"
+
+#define MTK_BAUD_RATE_38400 "$PMTK251,38400*27\r\n"
+
+#define MTK_DIY_SBAS_ON     "$PMTK313,1*2E\r\n"
+#define MTK_DIY_SBAS_OFF    "$PMTK313,0*2F\r\n"
+
+#define MTK_DIY_WAAS_ON     "$PSRF151,1*3F\r\n"
+#define MTK_DIY_WAAS_OFF    "$PSRF151,0*3E\r\n"
+
 bool_t gps_configuring;
 static uint8_t gps_status_config;
 #endif
@@ -144,7 +169,7 @@ void gps_mtk_read_message(void) {
       gps.lla_pos.lat = RadOfDeg(MTK_DIY14_NAV_LAT(gps_mtk.msg_buf))*10;
       gps.lla_pos.lon = RadOfDeg(MTK_DIY14_NAV_LON(gps_mtk.msg_buf))*10;
       // FIXME: with MTK you do not receive vertical speed
-      if (cpu_time_sec - gps.last_fix_time < 2) {
+      if (sys_time.nb_sec - gps.last_fix_time < 2) {
         gps.ned_vel.z  = ((gps.hmsl -
             MTK_DIY14_NAV_HEIGHT(gps_mtk.msg_buf)*10)*OUTPUT_RATE)/10;
       } else gps.ned_vel.z = 0;
@@ -208,7 +233,7 @@ void gps_mtk_read_message(void) {
       gps.lla_pos.lat = RadOfDeg(MTK_DIY16_NAV_LAT(gps_mtk.msg_buf))*10;
       gps.lla_pos.lon = RadOfDeg(MTK_DIY16_NAV_LON(gps_mtk.msg_buf))*10;
       // FIXME: with MTK you do not receive vertical speed
-      if (cpu_time_sec - gps.last_fix_time < 2) {
+      if (sys_time.nb_sec - gps.last_fix_time < 2) {
         gps.ned_vel.z  = ((gps.hmsl -
             MTK_DIY16_NAV_HEIGHT(gps_mtk.msg_buf)*10)*OUTPUT_RATE)/10;
       } else gps.ned_vel.z = 0;

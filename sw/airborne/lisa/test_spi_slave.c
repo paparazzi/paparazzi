@@ -66,7 +66,7 @@ static inline void main_periodic_task( void ) {
     GPIOC->BSRR = GPIO_Pin_4;
   foo = !foo;
 #endif
-  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &cpu_time_sec);});
+  RunOnceEvery(10, {DOWNLINK_SEND_BOOT(DefaultChannel, DefaultDevice, &sys_time.nb_sec);});
   LED_PERIODIC();
 }
 

@@ -17,11 +17,11 @@ void ms2100_arch_init( void ) {
   ms2100_cur_axe = 0;
 
   /* configure SS pin */
-  Ms2001Unselect();                       /* pin idles high */
+  Ms2100Unselect();                       /* pin idles high */
   SetBit(MS2100_SS_IODIR, MS2100_SS_PIN); /* pin is output  */
 
   /* configure RESET pin */
-  Ms2001Reset();                                /* pin idles low  */
+  Ms2100Reset();                                /* pin idles low  */
   SetBit(MS2100_RESET_IODIR, MS2100_RESET_PIN); /* pin is output  */
 
   /* configure DRDY pin */

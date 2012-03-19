@@ -71,21 +71,11 @@ INS_FORMAT ins_mz;
 float ins_pitch_neutral;
 float ins_roll_neutral;
 
-//volatile uint8_t new_ins_attitude;
-
-#include "subsystems/imu.h"
 
 void ahrs_init(void)
 {
   ins_init();
 }
-
-void imu_periodic(void)
-{
-  ins_periodic_task();
-}
-
-//struct Imu imu;
 
 
 #include "subsystems/imu.h"
@@ -99,8 +89,6 @@ void imu_periodic(void)
 {
   ins_periodic_task();
 }
-
-//struct Imu imu;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -385,7 +373,7 @@ void parse_ins_msg( void ) {
     gps.nb_channels = XSENS_GPSStatus_nch(xsens_msg_buf);
     gps.num_sv = 0;
 
-    gps.last_fix_time = cpu_time_sec;
+    gps.last_fix_time = sys_time.nb_sec;
 
     uint8_t i;
     // Do not write outside buffer
@@ -417,7 +405,7 @@ void parse_ins_msg( void ) {
 #ifdef GPS_LED
     LED_TOGGLE(GPS_LED);
 #endif
-        gps.last_fix_time = cpu_time_sec;
+        gps.last_fix_time = sys_time.nb_sec;
         gps.week = 0; // FIXME
         gps.tow = XSENS_DATA_RAWGPS_itow(xsens_msg_buf,offset) * 10;
         gps.lla_pos.lat = RadOfDeg(XSENS_DATA_RAWGPS_lat(xsens_msg_buf,offset));
@@ -525,7 +513,7 @@ void parse_ins_msg( void ) {
       }
       if (XSENS_MASK_Position(xsens_output_mode)) {
 #if (! USE_GPS_XSENS_RAW_DATA) && USE_GPS_XSENS
-        gps.last_fix_time = cpu_time_sec;
+        gps.last_fix_time = sys_time.nb_sec;
 
         lla_f.lat = RadOfDeg(XSENS_DATA_Position_lat(xsens_msg_buf,offset));
         lla_f.lon = RadOfDeg(XSENS_DATA_Position_lon(xsens_msg_buf,offset));

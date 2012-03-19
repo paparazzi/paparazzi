@@ -14,7 +14,7 @@ extern void gps_impl_init();
 #define GpsEvent(_sol_available_callback) {     \
     if (gps_available) {                        \
       if (gps.fix == GPS_FIX_3D)                \
-        gps.last_fix_time = cpu_time_sec;       \
+        gps.last_fix_time = sys_time.nb_sec;    \
       _sol_available_callback();				\
       gps_available = FALSE;                    \
     }                                           \

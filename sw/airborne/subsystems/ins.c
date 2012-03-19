@@ -39,10 +39,6 @@
 #include "subsystems/ins/hf_float.h"
 #endif
 
-#ifdef BOOZ2_SONAR
-#include "generated/modules.h"
-#endif
-
 #ifdef SITL
 #include "nps_fdm.h"
 #include <stdio.h>
@@ -107,7 +103,7 @@ void ins_init() {
 #endif
 #if USE_VFF
   ins_baro_initialised = FALSE;
-#ifdef BOOZ2_SONAR
+#if USE_SONAR
   ins_update_on_agl = FALSE;
 #endif
   vff_init(0., 0., 0.);
