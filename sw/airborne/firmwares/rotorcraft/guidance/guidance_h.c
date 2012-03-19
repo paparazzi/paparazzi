@@ -380,7 +380,9 @@ __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in
 
   /* Set attitude setpoint in eulers and as quaternion */
   EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
+#ifdef STABILISATION_ATTITUDE_TYPE_QUAT
   INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
+#endif
 
 }
 
