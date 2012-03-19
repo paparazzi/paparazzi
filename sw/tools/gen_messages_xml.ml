@@ -231,19 +231,19 @@ module MakeCalls = struct
 	let make_target = "gen_messages_macros"
 	let make_options = ""
 	
-	let make = fun class_name check_alignment ->
+	let make = fun class_name class_id check_alignment ->
 		let file = Env.paparazzi_home // "Makefile" in
 		let macros_target = var_include_path // ("messages_"^(String.lowercase class_name)^".h") in
-		let c = sprintf "make -f %s MACROS_TARGET=%s MACROS_CLASS=%s MACROS_ALIGN=%u %s %s" file macros_target class_name check_alignment make_options make_target in
+		let c = sprintf "make -f %s MACROS_TARGET=%s MACROS_CLASS=%s MACROS_CLASS_ID=%s MACROS_ALIGN=%u %s %s" file macros_target class_name class_id check_alignment make_options make_target in
     let returned_code = Sys.command c in
     if returned_code <> 0 then failwith (sprintf "Make command error (Error code: %d)" returned_code) 
 
 
 	let generate_macros = fun classes ->
 		List.map (fun clas -> match (clas.g_type) with 
-			| "datalink" -> prerr_endline ("\t Datalink Class -> Generate macros ("^clas.g_name^") [Check Alignment]"); make clas.g_name 1
-			| "uplink" -> prerr_endline ("\t Uplink Class   -> Generate macros ("^clas.g_name^") [Check Alignment]"); make clas.g_name 1 
-			| "downlink" -> prerr_endline ("\t Downlink Class -> Generate macros ("^clas.g_name^")"); make clas.g_name 0
+			| "datalink" -> prerr_endline ("\t Datalink Class -> Generate macros ("^clas.g_name^") [Check Alignment]"); make clas.g_name clas.g_id 1
+			| "uplink" -> prerr_endline ("\t Uplink Class   -> Generate macros ("^clas.g_name^") [Check Alignment]"); make clas.g_name clas.g_id 1 
+			| "downlink" -> prerr_endline ("\t Downlink Class -> Generate macros ("^clas.g_name^")"); make clas.g_name clas.g_id 0
 			|	"ground" -> prerr_endline ("\t Ground Class   -> Do nothing ("^clas.g_name^")")
 			|	"airborne" -> prerr_endline ("\t Airborne Class -> Generate macros ("^clas.g_name^") ¡¡¡FIXME!!!")
 			|	t -> failwith (sprintf "Invalid class type in generated file: %s" t)

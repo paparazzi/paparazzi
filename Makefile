@@ -124,7 +124,6 @@ misc:
 multimon:
 	cd $(MULTIMON); $(MAKE)
 
-#static_h: $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H) $(DL_PROTOCOL_H) $(DL_PROTOCOL2_H)
 static_h: $(MESSAGES_XML) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(XSENS_PROTOCOL_H)
 
 usb_lib:
@@ -133,20 +132,6 @@ usb_lib:
 $(MESSAGES_XML) : $(MESSAGES_XML_CONF) tools
 	@echo BUILD $@
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages_xml.out $(MESSAGES_XML_CONF) $(MESSAGES_FILES) $@ $(STATICINCLUDE)
-
-#$(MESSAGES_H) : $(MESSAGES_XML) $(CONF_XML) tools
-#	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
-#	@echo BUILD $@
-#	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< telemetry > /tmp/msg.h
-#	$(Q)mv /tmp/msg.h $@
-#	$(Q)chmod a+r $@
-
-#$(MESSAGES2_H) : $(MESSAGES_XML) $(CONF_XML) tools
-#	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
-#	@echo BUILD $@
-#	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< telemetry > /tmp/msg2.h
-#	$(Q)mv /tmp/msg2.h $@
-#	$(Q)chmod a+r $@
 
 $(UBX_PROTOCOL_H) : $(UBX_XML) tools
 	@echo BUILD $@
@@ -163,15 +148,6 @@ $(XSENS_PROTOCOL_H) : $(XSENS_XML) tools
 	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_xsens.out $< > /tmp/xsens.h
 	$(Q)mv /tmp/xsens.h $@
 
-#$(DL_PROTOCOL_H) : $(MESSAGES_XML) tools
-#	@echo BUILD $@
-#	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $< datalink > /tmp/dl.h
-#	$(Q)mv /tmp/dl.h $@
-
-#$(DL_PROTOCOL2_H) : $(MESSAGES_XML) tools
-#	@echo BUILD $@
-#	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages2.out $< datalink > /tmp/dl2.h
-#	$(Q)mv /tmp/dl2.h $@
 
 include Makefile.ac
 
@@ -241,12 +217,10 @@ fast_deb:
 
 clean:
 	$(Q)rm -fr dox build-stamp configure-stamp conf/%gconf.xml debian/files debian/paparazzi-base debian/paparazzi-bin
-#	$(Q)rm -f  $(MESSAGES_H) $(MESSAGES2_H) $(UBX_PROTOCOL_H) $(MTK_PROTOCOL_H) $(DL_PROTOCOL_H)
 	$(Q)find . -mindepth 2 -name Makefile -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
 	$(Q)find . -name '*~' -exec rm -f {} \;
 	$(Q)rm -f paparazzi sw/simulator/launchsitl
 	$(Q)rm -f $(STATICINCLUDE)/*
-	$(Q)rm -f $(MESSAGES_XML_CONF)
 
 cleanspaces:
 	find ./sw/airborne -name '*.[ch]' -exec sed -i {} -e 's/[ \t]*$$//' \;
@@ -263,6 +237,7 @@ dist_clean_irreversible: clean
 	rm -rf conf/maps_data conf/maps.xml
 	rm -rf conf/conf.xml conf/controlpanel.xml
 	rm -rf var
+	rm -f $(MESSAGES_XML_CONF)
 
 ab_clean:
 	find sw/airborne -name '*~' -exec rm -f {} \;
@@ -284,16 +259,11 @@ sw/simulator/launchsitl:
 	cat src/$(@F) | sed s#OCAMLRUN#$(OCAMLRUN)# | sed s#OCAML#$(OCAML)# > $@
 	chmod a+x $@
 
-
-
-
-
 gen_messages_macros: $(MACROS_TARGET)
 
-#$(MACROS_TARGET) : $(MESSAGES_XML) $(CONF_XML) tools
-$(MACROS_TARGET) : 
+$(MACROS_TARGET) : $(MESSAGES_XML_CONF) tools
 	@echo BUILD $@
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $(MESSAGES_XML) $(MACROS_CLASS) $(MACROS_ALIGN) > /tmp/msg.h
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) $(TOOLS)/gen_messages.out $(MESSAGES_XML) $(MACROS_CLASS) $(MACROS_CLASS_ID) $(MACROS_ALIGN) > /tmp/msg.h
 	$(Q)mv /tmp/msg.h $@
 	$(Q)chmod a+r $@
 

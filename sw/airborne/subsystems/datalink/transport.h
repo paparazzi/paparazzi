@@ -45,6 +45,8 @@ struct transport {
   volatile bool_t msg_received;
   // overrun and error flags
   uint8_t ovrn, error;
+  // packet sequence
+  uint8_t packet_seq;
 };
 
 /** Transport link macros

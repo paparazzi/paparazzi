@@ -66,8 +66,9 @@
 
 #define MOfCm(_x) (((float)(_x))/100.)
 
-#define SenderIdOfMsg(x) (x[0])
-#define IdOfMsg(x) (x[1])
+#define SenderIdOfMsg(x) (x[1])
+#define IdOfClass(x) (x[2])
+#define IdOfMsg(x) (x[3])
 
 void dl_parse_msg(void) {
   datalink_time = 0;
