@@ -114,7 +114,9 @@ endif
 endif
 
 #UNAME = $(shell uname -s)
+ifndef MULTILIB
 MULTILIB = $(shell if $(CC) --print-multi-lib | grep thumb2 > /dev/null ; then echo "yes"; else echo "no"; fi)
+endif
 
 CFLAGS = -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES) -D__thumb2__ -Wall -msoft-float -O$(OPT)
 CFLAGS += -Wl,--gc-sections
