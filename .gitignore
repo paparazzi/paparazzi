@@ -170,3 +170,13 @@
 
 # Mac OS X
 .DS_Store
+
+sw/ground_segment/lpc21iap/lpc21iap.dSYM/Contents/Info.plist
+
+sw/ground_segment/lpc21iap/lpc21iap.dSYM/Contents/Resources/DWARF/lpc21iap
+
+tests/results/*
+
+sw/logalizer/plotprofile.dSYM/Contents/Resources/DWARF/plotprofile
+
+sw/logalizer/plotprofile.dSYM/Contents/Info.plist
