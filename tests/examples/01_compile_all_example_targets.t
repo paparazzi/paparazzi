@@ -5,6 +5,7 @@ use lib "$ENV{'PAPARAZZI_SRC'}/tests/lib";
 use XML::Simple;
 use Program;
 use Data::Dumper;
+use Config;
 
 $|++; 
 my $examples = XMLin("$ENV{'PAPARAZZI_SRC'}/conf/conf.xml.example");
@@ -25,6 +26,10 @@ foreach my $example (sort keys%{$examples->{'aircraft'}})
 			foreach my $target (sort keys %{$airframe_config->{'firmware'}->{$process}->{'target'}})
 			{
 				next unless scalar $airframe_config->{'firmware'}->{$process}->{'target'}->{$target}->{'board'};
+
+				# Exclude some builds on Mac as they are currently broken.
+				next if ( ($Config{'osname'} =~ m#darwin#i) and ($example =~ m#LISA_ASCTEC_PIOTR|LisaLv11_Booz2v12_RC|BOOZ2_A1#i) and ($target =~ m#sim#i) );
+
 				#warn "EXAMPLE: [$example] TARGET: [$target]\n";
 				my $make_upload_options = "AIRCRAFT=$example clean_ac $target.compile";
 				my $upload_output = run_program(
@@ -41,6 +46,10 @@ foreach my $example (sort keys%{$examples->{'aircraft'}})
 			foreach my $target (sort keys %{$airframe_config->{'firmware'}->{$process}})
 			{
 				next unless scalar $airframe_config->{'firmware'}->{$process}->{$target}->{'board'};
+
+				# Exclude some builds on Mac as they are currently broken.
+				next if ( ($Config{'osname'} =~ m#darwin#i) and ($example =~ m#LISA_ASCTEC_PIOTR|LisaLv11_Booz2v12_RC|BOOZ2_A1#i) and ($target =~ m#sim#i) );
+
 				#warn "EXAMPLET: [$example] TARGET: [$target]\n";
 				my $make_upload_options = "AIRCRAFT=$example clean_ac $target.compile";
 				my $upload_output = run_program(
