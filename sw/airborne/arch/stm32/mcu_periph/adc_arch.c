@@ -367,7 +367,7 @@ static inline void adc_init_single(uint32_t adc,
 	    ADC_JSQR(adc) = tmpreg;
     }
 
-    rank = 1;
+    rank = 0;
     if (chan1) {
 	adc_set_conversion_time(adc, adc_channel_map[0], ADC_SMPR1_SMP_41DOT5CYC);
 	channels[rank] = adc_channel_map[0];
