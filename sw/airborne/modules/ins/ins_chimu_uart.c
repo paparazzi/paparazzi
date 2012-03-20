@@ -14,6 +14,7 @@
 
 // For centripedal corrections
 #include "subsystems/gps.h"
+#include "subsystems/ahrs.h"
 
 // Telemetry
 #ifndef DOWNLINK_DEVICE
