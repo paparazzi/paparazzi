@@ -24,7 +24,7 @@
 #include <libopencm3/stm32/f1/gpio.h>
 #include <libopencm3/stm32/exti.h>
 #include <libopencm3/stm32/spi.h>
-#include <libopencm3/stm32/dma.h>
+#include <libopencm3/stm32/f1/dma.h>
 
 #include BOARD_CONFIG
 #include "mcu.h"
