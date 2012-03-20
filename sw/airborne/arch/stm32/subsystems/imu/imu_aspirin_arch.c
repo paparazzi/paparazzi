@@ -13,8 +13,10 @@
 void exti15_10_isr(void);
 /* mag int handler  */
 void exti9_5_isr(void);
-/* accelerometer int handler  */
+/* accelerometer int handler */
 void exti2_isr(void);
+/* dma1 channel 4 int handler */
+void dma1_channel4_isr(void) {
 /* accelerometer SPI selection */
 #define Adxl345Unselect() GPIOB_BSRR = GPIO12
 #define Adxl345Select()   GPIOB_BRR = GPIO12

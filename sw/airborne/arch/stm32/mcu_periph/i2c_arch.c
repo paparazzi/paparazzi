@@ -165,6 +165,12 @@ static inline void __enable_irq(void)   { asm volatile ("cpsie i"); }
 #define __I2C_REG_CRITICAL_ZONE_START	__disable_irq();
 #define __I2C_REG_CRITICAL_ZONE_STOP	__enable_irq();
 
+/* Interrupt service routine forward declarations. */
+/* XXX: This should be somehow integrated into libopencm3. */
+void i2c1_ev_isr(void);
+void i2c1_er_isr(void);
+void i2c2_ev_isr(void);
+void i2c2_er_isr(void);
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -689,42 +695,58 @@ static inline enum STMI2CSubTransactionStatus stmi2c_readmany(u32 i2c, struct i2
 
 static inline void i2c_error(struct i2c_periph *periph)
 {
+#ifdef I2C_DEBUG_LED
   uint8_t err_nr = 0;
+#endif
   periph->errors->er_irq_cnt;
   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_AF) != 0) { /* Acknowledge failure */
     periph->errors->ack_fail_cnt++;
     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_AF;
+#ifdef I2C_DEBUG_LED
     err_nr = 1;
+#endif
   }
   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_BERR) != 0) {     /* Misplaced Start or Stop condition */
     periph->errors->miss_start_stop_cnt++;
     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_BERR;
+#ifdef I2C_DEBUG_LED
     err_nr = 2;
+#endif
   }
   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_ARLO) != 0) {     /* Arbitration lost */
     periph->errors->arb_lost_cnt++;
     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_ARLO;
+#ifdef I2C_DEBUG_LED
     err_nr = 3;
+#endif
   }
   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_OVR) != 0) {      /* Overrun/Underrun */
     periph->errors->over_under_cnt++;
     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_OVR;
+#ifdef I2C_DEBUG_LED
     err_nr = 4;
+#endif
   }
   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_PECERR) != 0) {   /* PEC Error in reception */
     periph->errors->pec_recep_cnt++;
     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_PECERR;
+#ifdef I2C_DEBUG_LED
     err_nr = 5;
+#endif
   }
   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_TIMEOUT) != 0) {  /* Timeout or Tlow error */
     periph->errors->timeout_tlow_cnt++;
     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_TIMEOUT;
+#ifdef I2C_DEBUG_LED
     err_nr = 6;
+#endif
   }
   if ((I2C_SR1((u32)periph->reg_addr) & I2C_SR1_SMBALERT) != 0) { /* SMBus alert */
     periph->errors->smbus_alert_cnt++;
     I2C_SR1((u32)periph->reg_addr) &= ~I2C_SR1_SMBALERT;
+#ifdef I2C_DEBUG_LED
     err_nr = 7;
+#endif
   }
 
 #ifdef I2C_DEBUG_LED
