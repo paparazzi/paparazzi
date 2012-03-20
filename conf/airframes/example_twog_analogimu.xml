@@ -15,7 +15,7 @@
 
   <servos>
     <servo name="THROTTLE"   no="7" min="1200" neutral="1200" max="2000"/>
-    <servo name="AILERON" no="4" min="2000" neutral="1500" max="1000"/>
+    <servo name="AILERON" no="4" min="1000" neutral="1500" max="2000"/>
     <servo name="ELEVATOR" no="3" max="2000" neutral="1500" min="1000"/>
     <servo name="CAM" no="2" max="2000" neutral="1500" min="1000"/>
     <servo name="TILT" no="6" max="2000" neutral="1501" min="1000"/>

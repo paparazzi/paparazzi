@@ -36,7 +36,7 @@
   <servos>
     <servo name="THROTTLE"      no="7" min="1120" neutral="1120" max="1920"/>
     <servo name="ELEVATOR"      no="3" min="1100" neutral="1515" max="1900"/>
-    <servo name="RUDDER"        no="4" min="2050" neutral="1440" max="950"/>
+    <servo name="RUDDER"        no="4" min="950" neutral="1440" max="2050"/>
   </servos>
 
   <commands>

@@ -80,8 +80,8 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
   <servos>
     <servo name="MOTOR"         no="0" min="1100" neutral="1100" max="1900"/>
     <servo name="ELEVATOR"      no="2" min="1100" neutral="1500" max="1900"/>
-    <servo name="AILERON_RIGHT" no="3" min="2000" neutral="1500" max="1000"/>
-    <servo name="AILERON_LEFT"  no="4" min="2000" neutral="1500" max="1000"/>
+    <servo name="AILERON_RIGHT" no="3" min="1000" neutral="1500" max="1000"/>
+    <servo name="AILERON_LEFT"  no="4" min="1000" neutral="1500" max="2000"/>
     <servo name="RUDDER"        no="6" min="1000" neutral="1500" max="2000"/>
     <servo name="HATCH"     no="7" min="1100" neutral="1100" max="1900"/>
   </servos>
@@ -120,8 +120,8 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
 
     <let var="roll" value="@ROLL"/>
-    <set servo="AILERON_LEFT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
-    <set servo="AILERON_RIGHT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
+    <set servo="AILERON_LEFT" value="($roll > 0 ? 1: AILERON_DIFF) * $roll"/>
+    <set servo="AILERON_RIGHT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
     <!--set servo="HATCH"         value="@HATCH"/-->
   </command_laws>
 

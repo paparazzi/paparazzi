@@ -510,7 +510,7 @@ void attitude_loop( void ) {
   h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
   v_ctl_throttle_slew();
   ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
-  ap_state->commands[COMMAND_ROLL] = h_ctl_aileron_setpoint;
+  ap_state->commands[COMMAND_ROLL] = -h_ctl_aileron_setpoint;
 
   ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
 
