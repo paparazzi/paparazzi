@@ -27,12 +27,12 @@
 #endif
 #define DefaultVoltageOfAdc(adc) (0.0059*adc)
 /* Onboard ADCs */
-#define BOARD_ADC_CHANNEL_1 ADC_Channel_8
-#define BOARD_ADC_CHANNEL_2 ADC_Channel_9
+#define BOARD_ADC_CHANNEL_1 8
+#define BOARD_ADC_CHANNEL_2 9
 // FIXME - removed for now and used for battery monitoring
-//#define BOARD_ADC_CHANNEL_3 ADC_Channel_13
-#define BOARD_ADC_CHANNEL_3 ADC_Channel_0
-#define BOARD_ADC_CHANNEL_4 ADC_Channel_15
+//#define BOARD_ADC_CHANNEL_3 13
+#define BOARD_ADC_CHANNEL_3 0
+#define BOARD_ADC_CHANNEL_4 15
 
 #define BOARD_HAS_BARO 1
 
