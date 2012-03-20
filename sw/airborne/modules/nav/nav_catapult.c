@@ -53,7 +53,7 @@
 #endif
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/datalink.h"
 
 
 static bool_t nav_catapult_armed = FALSE;
@@ -189,7 +189,7 @@ bool_t nav_catapult(uint8_t _to, uint8_t _climb)
     WaypointX(_climb) = nav_catapult_x + (dir_x / dir_L) * 300;
     WaypointY(_climb) = nav_catapult_y + (dir_y / dir_L) * 300;
 
-    DownlinkSendWp(DefaultChannel, _climb);
+    DownlinkSendWp(DefaultChannel, DefaultDevice, _climb);
   }
 
 

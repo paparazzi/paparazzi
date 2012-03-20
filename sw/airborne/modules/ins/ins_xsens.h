@@ -33,6 +33,9 @@
 
 #include "ins_module.h"
 
+#include "subsystems/ahrs.h"
+
+
 extern int8_t xsens_hour;
 extern int8_t xsens_min;
 extern int8_t xsens_sec;

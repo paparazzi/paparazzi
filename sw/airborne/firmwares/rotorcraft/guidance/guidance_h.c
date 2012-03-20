@@ -394,8 +394,11 @@ __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in
   guidance_h_command_body.psi    = guidance_h_psi_sp + guidance_h_rc_sp.psi;
   ANGLE_REF_NORMALIZE(guidance_h_command_body.psi);
 
-  // Set attitude setpoint
+  /* Set attitude setpoint in eulers and as quaternion */
   EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
+#ifdef STABILISATION_ATTITUDE_TYPE_QUAT
+  INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
+#endif
 
 }
 
