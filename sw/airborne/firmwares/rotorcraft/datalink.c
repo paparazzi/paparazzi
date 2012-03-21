@@ -43,6 +43,9 @@
 #include "math/pprz_geodetic_int.h"
 #include "subsystems/ins.h"
 
+#define PacketSeq(x) (x[0])
+#define SenderIdOfMsg(x) (x[1])
+#define IdOfClass(x) (x[2])
 #define IdOfMsg(x) (x[3])
 
 void dl_parse_msg(void) {

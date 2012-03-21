@@ -69,7 +69,7 @@ let send_msg = fun () ->
     "cam_roll", Pprz.Int state.cam_roll;
     "cam_pitch", Pprz.Int state.cam_pitch
   ] in
-  let s = Sub_Pprz.payload_of_values msg_id !ac_id vs in
+  let s = Sub_Pprz.payload_of_values !ac_id (Sub_Pprz.class_id_of_msg "NAV_INFO") msg_id vs in 
   Debug.call 'l' (fun f ->  fprintf f "sending: %s\n" (Debug.xprint (Serial.string_of_payload s)));
   Hdlc.write_data (Serial.string_of_payload s)
 

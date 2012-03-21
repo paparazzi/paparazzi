@@ -61,7 +61,7 @@ let () =
   let get_ivy_message = fun _ args ->
     try
       let (msg_id, vs) = Tm_Pprz.values_of_string args.(0) in
-      let payload = Tm_Pprz.payload_of_values msg_id (int_of_string !id) vs in
+      let payload = Tm_Pprz.payload_of_values (int_of_string !id) (Tm_Pprz.class_id_of_msg_args args.(0)) msg_id vs in 
       let buf = Pprz.Transport.packet payload in
       let n = String.length buf in
       let n' = Unix.sendto socket buf 0 n [] sockaddr in
@@ -86,7 +86,7 @@ let () =
 
 	let use_dl_message = fun payload ->
 	  Debug.trace 'x' (Debug.xprint (Serial.string_of_payload payload));
-	  let (msg_id, ac_id, values) = Dl_Pprz.values_of_payload payload in
+	  let (packet_seq, ac_id, class_id, msg_id, values) = Dl_Pprz.values_of_payload payload in
 	  let msg = Dl_Pprz.message_of_id msg_id in
 	  Dl_Pprz.message_send "ground_dl" msg.Pprz.name values in
 

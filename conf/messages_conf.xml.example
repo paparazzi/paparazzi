@@ -2,7 +2,7 @@
 <!-- Maximum included files: 16   ids from 0 to 15. No repeated ids or names. -->
 <includes>
 	<include file="downlink.xml" class_name="telemetry" class_id="0" />
-	<include file="uplink.xml" class_name="commands" class_id="1" />
+	<include file="uplink.xml" class_name="datalink" class_id="1" />
 	<include file="custom.xml" class_name="custom" class_id="2" />
 	<include file="ground.xml" class_name="ground" class_id="3" />
 	<include file="airborne.xml" class_name="airborne" class_id="4" />

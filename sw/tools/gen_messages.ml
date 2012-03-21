@@ -148,7 +148,7 @@ module Gen_onboard = struct
     with
       Failure "int_of_string" -> 0
 
-  let print_downlink_macro = fun h {name=s; fields = fields} ->
+  let print_downlink_macro = fun h class_ class_id {name=s; fields = fields} ->
     if List.length fields > 0 then begin
       fprintf h "#define DOWNLINK_SEND_%s(_trans, _dev, " s;
     end else
@@ -158,7 +158,7 @@ module Gen_onboard = struct
     let size = (size_fields fields "0") in
     fprintf h "\tif (DownlinkCheckFreeSpace(_trans, _dev, DownlinkSizeOf(_trans, _dev, %s))) {\\\n" size;
     fprintf h "\t  DownlinkCountBytes(_trans, _dev, DownlinkSizeOf(_trans, _dev, %s)); \\\n" size;
-    fprintf h "\t  DownlinkStartMessage(_trans, _dev, \"%s\", DL_%s, %s) \\\n" s s size;
+    fprintf h "\t  DownlinkStartMessage(_trans, _dev, %s, %s, \"%s\", DL_%s, %s) \\\n" class_ class_id s s size;
     List.iter (print_field h) fields;
     fprintf h "\t  DownlinkEndMessage(_trans, _dev ) \\\n";
     fprintf h "\t} else \\\n";
@@ -209,10 +209,10 @@ module Gen_onboard = struct
     fprintf h "*/\n"
 
   (** Prints the macros required to send a message *)
-  let print_downlink_macros = fun h class_ messages ->
+  let print_downlink_macros = fun h class_ class_id messages ->
     print_enum h class_ messages;
     print_lengths_array h class_ messages;
-    List.iter (print_downlink_macro h) messages
+    List.iter (print_downlink_macro h class_ class_id) messages
 
   let print_null_downlink_macros = fun h messages ->
     List.iter (print_null_downlink_macro h) messages
@@ -244,6 +244,12 @@ module Gen_onboard = struct
 				    sprintf "({ union { uint64_t u; double f; } _f; _f.u = (uint64_t)(%s); Swap32IfBigEndian(_f.u); _f.f; })" !s
 				| 4 ->
 				    sprintf "(%s)(*((uint8_t*)_payload+%d)|*((uint8_t*)_payload+%d+1)<<8|((uint32_t)*((uint8_t*)_payload+%d+2))<<16|((uint32_t)*((uint8_t*)_payload+%d+3))<<24)" pprz_type.Pprz.inttype o o o o
+				| 8 -> 
+						let s = ref (sprintf "(%s)(*((uint8_t*)_payload+%d)" pprz_type.Pprz.inttype o) in
+				    for i = 1 to 7 do
+				      s := !s ^ sprintf "|((uint64_t)*((uint8_t*)_payload+%d+%d))<<%d" o i (8*i)
+				    done;
+						sprintf "%s" !s	
 				| _ -> failwith "unexpected size in Gen_messages.print_get_macros" in
 
 	      (** To be an array or not to be an array: *)
@@ -275,13 +281,14 @@ end (* module Gen_onboard *)
 
 (********************* Main **************************************************)
 let () =
-  if Array.length Sys.argv <> 4 then begin
-    failwith (sprintf "Usage: %s <.xml file> <class_name> <check alignment [0,1]>" Sys.argv.(0))
+  if Array.length Sys.argv <> 5 then begin
+    failwith (sprintf "Usage: %s <.xml file> <class_name> <class_id> <check alignment [0,1]>" Sys.argv.(0))
   end;
 
   let filename = Sys.argv.(1)
   and class_name = Sys.argv.(2)
-	and check_align = Sys.argv.(3) in
+	and class_id = Sys.argv.(3)
+	and check_align = Sys.argv.(4) in
 
   try
     let messages = Syntax.read filename class_name in
@@ -295,7 +302,7 @@ let () =
     (** Macros for airborne downlink (sending) *)
 		let u_class_name = String.uppercase class_name in
     Printf.fprintf h "#if DOWNLINK_%s\n" u_class_name;
-    Gen_onboard.print_downlink_macros h class_name messages;
+    Gen_onboard.print_downlink_macros h class_name class_id messages;
 	  Printf.fprintf h "#else // DOWNLINK_%s\n" u_class_name;
 	  Gen_onboard.print_null_downlink_macros h messages;
 	  Printf.fprintf h "#endif // DOWNLINK_%s\n" u_class_name;

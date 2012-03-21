@@ -49,7 +49,7 @@
 
 //#include "generated/modules.h"
 
-#if defined DOWNLINK
+#if defined DOWNLINK_TELEMETRY
 #define Downlink(x) x
 #else
 #define Downlink(x) {}

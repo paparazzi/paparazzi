@@ -66,6 +66,7 @@
 
 #define MOfCm(_x) (((float)(_x))/100.)
 
+#define PacketSeq(x) (x[0])
 #define SenderIdOfMsg(x) (x[1])
 #define IdOfClass(x) (x[2])
 #define IdOfMsg(x) (x[3])

@@ -18,15 +18,18 @@ extern char* ivy_p;
 #define Space() ivy_p += sprintf(ivy_p, " ");
 #define Comma() ivy_p += sprintf(ivy_p, ",");
 
+#define IvyTransportPutCharByAddr(_dev,x) ivy_p += sprintf(ivy_p, "%c", *x);
 #define IvyTransportPutUintByAddr(_dev,x) ivy_p += sprintf(ivy_p, "%u", *x);
 #define IvyTransportPutUint8ByAddr(_dev,x) IvyTransportPutUintByAddr(_dev,x) Space()
 #define IvyTransportPutUint16ByAddr(_dev,x) IvyTransportPutUintByAddr(_dev,x) Space()
 #define IvyTransportPutUint32ByAddr(_dev,x) IvyTransportPutUintByAddr(_dev,x) Space()
+#define IvyTransportPutUint64ByAddr(_dev,x) IvyTransportPutUintByAddr(_dev,x) Space()
 
 #define IvyTransportPutIntByAddr(_dev,x) ivy_p += sprintf(ivy_p, "%d", *x);
 #define IvyTransportPutInt8ByAddr(_dev,x) IvyTransportPutIntByAddr(_dev,x) Space()
 #define IvyTransportPutInt16ByAddr(_dev,x) IvyTransportPutIntByAddr(_dev,x) Space()
 #define IvyTransportPutInt32ByAddr(_dev,x) IvyTransportPutIntByAddr(_dev,x) Space()
+#define IvyTransportPutInt64ByAddr(_dev,x) IvyTransportPutIntByAddr(_dev,x) Space() 
 
 #define IvyTransportPutOneFloatByAddr(_dev,x) ivy_p += sprintf(ivy_p, "%f", *x);
 #define IvyTransportPutFloatByAddr(_dev,x) IvyTransportPutOneFloatByAddr(_dev,x) Space()

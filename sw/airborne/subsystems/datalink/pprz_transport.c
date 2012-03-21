@@ -26,6 +26,6 @@
 #include "subsystems/datalink/pprz_transport.h"
 #include "mcu_periph/uart.h"
 
-uint8_t ck_a, ck_b, down_packet_seq;
+uint8_t ck_a, ck_b, pprz_down_packet_seq = 1;
 
 struct pprz_transport pprz_tp;

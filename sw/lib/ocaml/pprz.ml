@@ -27,15 +27,18 @@
 open Printf
 open Latlong
 
+type sender_id = int
+type class_id = int
 type message_id = int
-type ac_id = int
+type message_name = string
+type packet_seq = int
 type class_name = string
 type format = string
 type _type =
     Scalar of string
   | ArrayType of string
 type value =
-    Int of int | Float of float | String of string | Int32 of int32
+    Int of int | Float of float | String of string | Int32 of int32 | Char of char | Int64 of int64
   | Array of value array
 type field = {
     _type : _type;
@@ -80,8 +83,10 @@ external double_of_bytes : string -> int -> float = "c_double_of_indexed_bytes"
 external int32_of_bytes : string -> int -> int32 = "c_int32_of_indexed_bytes"
 external int8_of_bytes : string -> int -> int = "c_int8_of_indexed_bytes"
 external int16_of_bytes : string -> int -> int = "c_int16_of_indexed_bytes"
+external int64_of_bytes : string -> int -> int64 = "c_int64_of_indexed_bytes"
 external sprint_float : string -> int -> float -> unit = "c_sprint_float"
 external sprint_double : string -> int -> float -> unit = "c_sprint_double"
+external sprint_int64 : string -> int -> int64 -> unit = "c_sprint_int64" 
 external sprint_int32 : string -> int -> int32 -> unit = "c_sprint_int32"
 external sprint_int16 : string -> int -> int -> unit = "c_sprint_int16"
 external sprint_int8 : string -> int -> int -> unit = "c_sprint_int8"
@@ -90,11 +95,14 @@ let types = [
   ("uint8",  { format = "%u"; glib_type = "guint8"; inttype = "uint8_t";  size = 1; value=Int 42 });
   ("uint16", { format = "%u";  glib_type = "guint16"; inttype = "uint16_t"; size = 2; value=Int 42 });
   ("uint32", { format = "%lu" ;  glib_type = "guint32"; inttype = "uint32_t"; size = 4; value=Int 42 });
+	("uint64", { format = "%Lu" ;  glib_type = "guint64"; inttype = "uint64_t"; size = 8; value=Int 42 }); 
   ("int8",   { format = "%d"; glib_type = "gint8"; inttype = "int8_t";   size = 1; value= Int 42 });
   ("int16",  { format = "%d";  glib_type = "gint16"; inttype = "int16_t";  size = 2; value= Int 42 });
   ("int32",  { format = "%ld" ;  glib_type = "gint32"; inttype = "int32_t";  size = 4; value=Int 42 });
+	("int64",  { format = "%Ld" ;  glib_type = "gint64"; inttype = "int64_t";  size = 8; value=Int 42 }); 
   ("float",  { format = "%f" ;  glib_type = "gfloat"; inttype = "float";  size = 4; value=Float 4.2 });
   ("double",  { format = "%f" ;  glib_type = "gdouble"; inttype = "double";  size = 8; value=Float 4.2 });
+	("char",  { format = "%c" ;  glib_type = "gchar"; inttype = "char";  size = 1; value=Char '*' });
   ("string",  { format = "%s" ;  glib_type = "gchar*"; inttype = "char*";  size = max_int; value=String "42" })
 ]
 
@@ -112,19 +120,23 @@ let int_of_string = fun x ->
 
 let rec value = fun t v ->
   match t with
-    Scalar ("uint8" | "uint16" | "int8" | "int16") -> Int (int_of_string v)
+    Scalar ("uint8" | "uint16" | "int8" | "int16") -> Int (int_of_string v) 
   | Scalar ("uint32" | "int32") -> Int32 (Int32.of_string v)
+	| Scalar ("uint64" | "int64") -> Int64 (Int64.of_string v) 
   | Scalar ("float" | "double") -> Float (float_of_string v)
   | Scalar "string" -> String v
+	| Scalar "char" -> Char v.[0] 
   | ArrayType t' ->
       Array (Array.map (value (Scalar t')) (Array.of_list (split_array v)))
   | Scalar t -> failwith (sprintf "Pprz.value: Unexpected type: %s" t)
 
 
 let rec string_of_value = function
-    Int x -> string_of_int x
+    Int x -> string_of_int x  
   | Float x -> string_of_float x
   | Int32 x -> Int32.to_string x
+	| Int64 x -> Int64.to_string x 
+	| Char c -> String.make 1 c 
   | String s -> s
   | Array a -> String.concat separator (Array.to_list (Array.map string_of_value a))
 
@@ -156,7 +168,7 @@ let payload_size_of_message = fun message ->
   List.fold_right
     (fun (_, f) s -> size_of_field f + s)
     message.fields
-    2 (** + message id + aircraft id *)
+    4 (** + packet sequence + sender id + class_id + message id *)
 
 exception Unit_conversion_error of string
 exception Unknown_conversion of string * string
@@ -219,31 +231,42 @@ let float_assoc = fun (a:string) vs ->
   | _ -> invalid_arg "Pprz.float_assoc"
 
 let int_of_value = fun value ->
-  match value with
+  match value with 
     Int x -> x
   | Int32 x ->
       let i = Int32.to_int x in
       if Int32.compare x (Int32.of_int i) <> 0 then
 	failwith "Pprz.int_assoc: Int32 too large to be converted into an int";
       i
+	| Int64 x -> 
+      let i = Int64.to_int x in
+      if Int64.compare x (Int64.of_int i) <> 0 then
+	failwith "Pprz.int_assoc: Int64 too large to be converted into an int";
+      i
   | _ -> invalid_arg "Pprz.int_assoc"
 
 let int_assoc = fun (a:string) vs ->
   int_of_value (assoc a vs)
 
-let int32_assoc = fun (a:string) vs ->
+let int32_assoc = fun (a:string) vs -> 
   match assoc a vs with
     Int32 x -> x
   | _ -> invalid_arg "Pprz.int_assoc"
 
+let int64_assoc = fun (a:string) vs ->
+  match assoc a vs with
+    Int64 x -> x
+  | _ -> invalid_arg "Pprz.int_assoc"
+
 let string_assoc = fun (a:string) (vs:values) -> string_of_value (assoc a vs)
+let char_assoc = fun (a:string) (vs:values) -> (string_of_value (assoc a vs)).[0]
 
 let link_mode_of_string = function
     "forwarded" -> Forwarded
   | "broadcasted" -> Broadcasted
   | x -> invalid_arg (sprintf "link_mode_of_string: %s" x)
 
-let parse_class = fun xml_class ->
+let parse_class = fun xml_class -> 
   let by_id = Hashtbl.create 13
   and by_name = Hashtbl.create 13 in
   List.iter
@@ -269,16 +292,19 @@ let parse_class = fun xml_class ->
   (by_id, by_name)
 
 
+
 (** Returns a value and its length *)
 let rec value_of_bin = fun buffer index _type ->
   match _type with
     Scalar "uint8" -> Int (Char.code buffer.[index]), sizeof _type
+	|	Scalar "char" -> Char (buffer.[index]), sizeof _type
   | Scalar "int8" -> Int (int8_of_bytes buffer index), sizeof _type
   | Scalar "uint16" -> Int (Char.code buffer.[index+1] lsl 8 + Char.code buffer.[index]), sizeof _type
   | Scalar "int16" -> Int (int16_of_bytes buffer index), sizeof _type
   | Scalar "float" -> Float (float_of_bytes buffer index), sizeof _type
   | Scalar "double" -> Float (double_of_bytes buffer index), sizeof _type
   | Scalar ("int32"  | "uint32") -> Int32 (int32_of_bytes buffer index), sizeof _type
+	| Scalar ("int64"  | "uint64") -> Int64 (int64_of_bytes buffer index), sizeof _type 
   | ArrayType t ->
       (** First get the number of values *)
       let n = int8_of_bytes buffer index in
@@ -287,7 +313,7 @@ let rec value_of_bin = fun buffer index _type ->
       let size = 1 + n * s in
       (Array (Array.init n
 	       (fun i -> fst (value_of_bin buffer (index+1+i*s) type_of_elt))), size)
-  | Scalar "string" ->
+  | Scalar "string" -> 
       let n = Char.code buffer.[index] in
       (String (String.sub buffer (index+1) n), (1+n))
   | _ -> failwith "value_of_bin"
@@ -298,7 +324,7 @@ let value_field = fun buf index field ->
 let byte = fun x -> Char.chr (x land 0xff)
 
 (** Returns the size of outputed data *)
-let rec sprint_value = fun buf i _type v ->
+let rec sprint_value = fun buf i _type v -> 
   match _type, v with
     Scalar "uint8", Int x ->
       if x < 0 || x > 0xff then
@@ -311,6 +337,7 @@ let rec sprint_value = fun buf i _type v ->
   | Scalar "float", Float f -> sprint_float buf i f; sizeof _type
   | Scalar "double", Float f -> sprint_double buf i f; sizeof _type
   | Scalar ("int32"|"uint32"), Int32 x -> sprint_int32 buf i x; sizeof _type
+	| Scalar ("int64"|"uint64"), Int64 x -> sprint_int64 buf i x; sizeof _type 
   | Scalar "int16", Int x -> sprint_int16 buf i x; sizeof _type
   | Scalar ("int32" | "uint32"), Int value ->
       assert (_type <> Scalar "uint32" || value >= 0);
@@ -319,6 +346,17 @@ let rec sprint_value = fun buf i _type v ->
       buf.[i+1] <- byte (value lsr 8);
       buf.[i+0] <- byte value;
       sizeof _type
+	| Scalar ("int64" | "uint64"), Int value -> 
+      assert (_type <> Scalar "uint64" || value >= 0);
+      buf.[i+7] <- byte (value asr 56);
+			buf.[i+6] <- byte (value lsr 48);
+			buf.[i+5] <- byte (value lsr 40);
+			buf.[i+4] <- byte (value lsr 32);
+			buf.[i+3] <- byte (value lsr 24);
+      buf.[i+2] <- byte (value lsr 16);
+      buf.[i+1] <- byte (value lsr 8);
+      buf.[i+0] <- byte value;
+      sizeof _type		
   | Scalar "uint16", Int value ->
       assert (value >= 0);
       buf.[i+1] <- byte (value lsr 8);
@@ -343,6 +381,8 @@ let rec sprint_value = fun buf i _type v ->
 	failwith "Error in sprint_value: message too long";
       String.blit s 0 buf (i+1) n;
       1 + n
+	| Scalar "char", Char c ->
+			buf.[i] <- c; sizeof _type
   | (Scalar x|ArrayType x), _ -> failwith (sprintf "Pprz.sprint_value (%s)" x)
 
 
@@ -401,7 +441,7 @@ module PprzTransportBase(SubType:TRANSPORT_TYPE) = struct
   let checksum = fun msg ->
     let l = String.length msg in
     let ck_a, ck_b = compute_checksum msg in
-    Debug.call 'T' (fun f -> fprintf f "Pprz cs: %d %d\n" ck_a (Char.code msg.[l-2]));
+    Debug.call 'T' (fun f -> fprintf f "Pprz cs: %d %d\n" ck_a (Char.code msg.[l-2])); 
     ck_a = Char.code msg.[l-2] && ck_b = Char.code msg.[l-1]
 
   let payload = fun msg ->
@@ -445,9 +485,11 @@ end
 module Transport = PprzTransportBase (PprzTypeStandard)
 module TransportExtended = PprzTransportBase (PprzTypeTimestamp)
 
-let offset_ac_id = 0
-let offset_msg_id = 1
-let offset_fields = 2
+let offset_packet_seq = 0
+let offset_sender_id = 1
+let offset_class_id = 2
+let offset_msg_id = 3
+let offset_fields = 4
 
 module type CLASS_Xml = sig
   val xml : Xml.xml
@@ -458,16 +500,23 @@ module type CLASS = sig
   val name : string
 end
 
-module type MESSAGES = sig
+module type MESSAGES = sig 
   val messages : (message_id, message) Hashtbl.t
   val message_of_id : message_id -> message
   val message_of_name : string ->  message_id * message
-  val values_of_payload : Serial.payload -> message_id * ac_id * values
-  (** [values_of_bin payload] Parses a raw payload, returns the
-   message id, the A/C id and the list of (field_name, value) *)
 
-  val payload_of_values : message_id -> ac_id -> values -> Serial.payload
-  (** [payload_of_values id ac_id vs] Returns a payload *)
+	val class_id_of_msg : message_name -> class_id
+	(** [class_id_of_msg msg_name] returns the class id containing the given message *)
+
+	val class_id_of_msg_args : string -> class_id
+	(** [class_id_of_msg_args args.(0)] returns the class id containing the given message when args.(0) is the parameter *)
+	
+	val values_of_payload : Serial.payload -> packet_seq * sender_id * class_id * message_id * values
+  (** [values_of_bin payload] Parses a raw payload, returns the
+   the Sender id, class id, message id and the list of (field_name, value) *)
+
+  val payload_of_values : ?gen_packet_seq:int -> sender_id -> class_id -> message_id -> values -> Serial.payload
+  (** [payload_of_values ?gen_packet_seq sender_id class_id id vs] Returns a payload *)
 
   val values_of_string : string -> message_id * values
   (** May raise [(Unknown_msg_name msg_name)] *)
@@ -495,23 +544,56 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
   let messages_by_id, messages_by_name =
     try
       let select = fun x -> Xml.attrib x "name" = Class.name in
-      parse_class (ExtXml.child Class.xml ~select "class")
+      parse_class (ExtXml.child Class.xml ~select "class") 
     with
       Not_found -> failwith (sprintf "Unknown message class: %s" Class.name)
+			
   let messages = messages_by_id
   let message_of_id = fun id -> try Hashtbl.find messages_by_id id with Not_found -> fprintf stderr "message_of_id :%d\n%!" id; raise Not_found
   let message_of_name = fun name ->
     try
       Hashtbl.find messages_by_name name
     with
-      Not_found -> raise (Unknown_msg_name (name, Class.name))
+      Not_found -> raise (Unknown_msg_name (name, Class.name))	
 
+	let is_message_inside = fun pattern message ->
+		let msg_name = Xml.attrib message "name" in
+		if msg_name = pattern then true else false
+
+	let get_id_and_messages = fun msg clas ->
+		let id = ExtXml.attrib clas "id"
+		and messages = Xml.children clas in
+		let contains = List.map (is_message_inside msg) messages in
+		let is_inside = List.mem true contains in
+		if is_inside = true then int_of_string(id) else -1
+
+	let class_id_of_msg = fun msg -> 
+		try
+			let msg_xml = Xml.parse_file messages_file in
+			let classes = Xml.children msg_xml in
+			let classes_with = List.map (get_id_and_messages msg) classes in
+			let result = List.filter (fun x -> if(x>(-1))then true else false) classes_with in
+			match result with
+				| [] -> failwith (sprintf "No class containing message %s" msg)
+				|	[x] -> x
+				|	_ -> failwith (sprintf "More than one class containing message %s" msg)
+    with
+			| Not_found -> failwith (sprintf "No class attribute found or message '%s' not found" msg)
+			| e -> failwith (sprintf "Unhandled exception (Exception: %s)" (Printexc.to_string e))
+   
+	let class_id_of_msg_args = fun s ->
+		let space = Str.regexp "[ \t]+" in
+    match Str.split space s with
+			| [] -> failwith (sprintf "Cannot obtain msg_name from arguments string '%s'" s)
+      | msg_name::args ->	class_id_of_msg msg_name 
 
   let values_of_payload = fun buffer ->
     let buffer = Serial.string_of_payload buffer in
     try
       let id = Char.code buffer.[offset_msg_id] in
-      let ac_id = Char.code buffer.[offset_ac_id] in
+      let sender_id = Char.code buffer.[offset_sender_id] in
+			let packet_seq = Char.code buffer.[offset_packet_seq] in
+			let class_id = Char.code buffer.[offset_class_id] in
       let message = message_of_id id in
       Debug.call 'T' (fun f -> fprintf f "Pprz.values id=%d\n" id);
       let rec loop = fun index fields ->
@@ -524,29 +606,30 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 	| (field_name, field_descr)::fs ->
 	    let (value, n) = value_field buffer index field_descr in
 	    (field_name, value) :: loop (index+n) fs in
-      (id, ac_id, loop offset_fields message.fields)
+      (packet_seq, sender_id, class_id, id, loop offset_fields message.fields)
     with
       Invalid_argument("index out of bounds") ->
 	failwith (sprintf "Pprz.values_of_payload, wrong argument: %s" (Debug.xprint buffer))
 
-
-  let payload_of_values = fun id ac_id values ->
+  let payload_of_values = fun ?gen_packet_seq sender_id class_id id values ->
     let message = message_of_id id in
 
     (** The actual length is computed from the values *)
     let p = String.make max_length '#' in
 
     p.[offset_msg_id] <- Char.chr id;
-    p.[offset_ac_id] <- Char.chr ac_id;
+    p.[offset_sender_id] <- Char.chr sender_id;
+		p.[offset_packet_seq] <- Char.chr (match gen_packet_seq with None -> 0 | Some some -> some);
+		p.[offset_class_id] <- Char.chr class_id;
     let i = ref offset_fields in
     List.iter
       (fun (field_name, field) ->
-	let v =
-	  try List.assoc field_name values with
-	    Not_found -> default_value field._type in
-	let size = sprint_value p !i field._type v in
-	i := !i + size
-	)
+			let v =
+			  try List.assoc field_name values with
+			    Not_found -> default_value field._type in
+			let size = sprint_value p !i field._type v in
+			i := !i + size
+			)
       message.fields;
 
     (** Cut to the actual length *)

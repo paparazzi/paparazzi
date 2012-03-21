@@ -33,7 +33,6 @@
 #include <inttypes.h>
 
 #include "generated/modules.h"
-#include "messages.h"
 #include "generated/airframe.h" // AC_ID is required
 
 #if defined SITL
@@ -80,9 +79,10 @@ extern uint16_t downlink_nb_msgs;
 #define Transport(_chan, _fun) _Transport(_chan, _fun)
 
 
-/** Set of macros for generated code (messages.h) from messages.xml */
-/** 2 = ac_id + msg_id */
-#define DownlinkIDsSize(_trans, _dev, _x) (_x+2)
+/** Set of macros for generated code (messages_<class_name>.h) from messages.xml */
+/** 4 = packet_sequence + ac_id + class_id + msg_id */
+#define DownlinkIDsSize(_trans, _dev, _x) (_x+4)
+
 #define DownlinkSizeOf(_trans, _dev, _x) Transport(_trans, SizeOf(_dev, DownlinkIDsSize(_trans, _dev, _x)))
 
 #define DownlinkCheckFreeSpace(_trans, _dev, _x) Transport(_trans, CheckFreeSpace(_dev, (uint8_t)(_x)))
@@ -98,6 +98,9 @@ extern uint16_t downlink_nb_msgs;
 #define DownlinkPutFloatByAddr(_trans, _dev, _x) Transport(_trans, PutFloatByAddr(_dev, _x))
 
 #define DownlinkPutDoubleByAddr(_trans, _dev, _x) Transport(_trans, PutDoubleByAddr(_dev, _x))
+#define DownlinkPutUint64ByAddr(_trans, _dev, _x) Transport(_trans, PutUint64ByAddr(_dev, _x)) 
+#define DownlinkPutInt64ByAddr(_trans, _dev, _x) Transport(_trans, PutInt64ByAddr(_dev, _x))
+#define DownlinkPutCharByAddr(_trans, _dev, _x) Transport(_trans, PutCharByAddr(_dev, _x))
 
 #define DownlinkPutFloatArray(_trans, _dev, _n, _x) Transport(_trans, PutFloatArray(_dev, _n, _x))
 #define DownlinkPutDoubleArray(_trans, _dev, _n, _x) Transport(_trans, PutDoubleArray(_dev, _n, _x))
@@ -110,10 +113,12 @@ extern uint16_t downlink_nb_msgs;
 #define DownlinkOverrun(_trans, _dev) downlink_nb_ovrn++;
 #define DownlinkCountBytes(_trans, _dev, _n) downlink_nb_bytes += _n;
 
-#define DownlinkStartMessage(_trans, _dev, _name, msg_id, payload_len) { \
+#define DownlinkStartMessage(_trans, _dev, _classname, class_id, _name, msg_id, payload_len) { \
   downlink_nb_msgs++; \
   Transport(_trans, Header(_dev, DownlinkIDsSize(_trans, _dev, payload_len))); \
+  Transport(_trans, PutPacketSequence(_dev));\
   Transport(_trans, PutUint8(_dev, AC_ID)); \
+  Transport(_trans, PutNamedUint8(_dev, _classname, class_id)); \
   Transport(_trans, PutNamedUint8(_dev, _name, msg_id)); \
 }
 

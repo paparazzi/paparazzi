@@ -46,7 +46,7 @@
 /* PPRZ Transport
  * downlink macros
  */
-extern uint8_t ck_a, ck_b;
+extern uint8_t ck_a, ck_b, pprz_down_packet_seq;
 
 #define STX  0x99
 
@@ -68,13 +68,19 @@ extern uint8_t ck_a, ck_b;
   PprzTransportPut1Byte(_dev, ck_a);	\
   PprzTransportPut1Byte(_dev, ck_b);	\
   PprzTransportSendMessage(_dev) \
-}
+} 
 
 #define PprzTransportPutUint8(_dev, _byte) { \
     ck_a += _byte;			  \
     ck_b += ck_a;			  \
     PprzTransportPut1Byte(_dev, _byte);		  \
  }
+
+#define PprzTransportPutPacketSequence(_dev) { \
+    pprz_down_packet_seq++;	\
+    if(pprz_down_packet_seq==0){ pprz_down_packet_seq++; } \
+    PprzTransportPutUint8(_dev, pprz_down_packet_seq); \
+}
 
 #define PprzTransportPutNamedUint8(_dev, _name, _byte) PprzTransportPutUint8(_dev, _byte)
 
@@ -98,8 +104,24 @@ extern uint8_t ck_a, ck_b;
     PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
     PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
   }
+#define PprzTransportPutUint64ByAddr(_dev, _byte) { \
+    PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
+    PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
+  }
+#define PprzTransportPutInt64ByAddr(_dev, _byte) { \
+    PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
+    PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
+  }
 #else
 #define PprzTransportPutDoubleByAddr(_dev, _byte) { \
+    PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
+    PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
+  }
+#define PprzTransportPutUint64ByAddr(_dev, _byte) { \
+    PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
+    PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
+  }
+#define PprzTransportPutInt64ByAddr(_dev, _byte) { \
     PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte);	\
     PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_byte+4);	\
   }
@@ -113,6 +135,7 @@ extern uint8_t ck_a, ck_b;
 #define PprzTransportPutInt32ByAddr(_dev, _x) PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
 #define PprzTransportPutUint32ByAddr(_dev, _x) PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
 #define PprzTransportPutFloatByAddr(_dev, _x) PprzTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
+#define PprzTransportPutCharByAddr(_dev, _x) PprzTransportPut1ByteByAddr(_dev, (const uint8_t*)_x) 
 
 #define PprzTransportPutArray(_dev, _put, _n, _x) { \
   uint8_t _i; \
@@ -203,6 +226,16 @@ static inline void pprz_parse_payload(struct pprz_transport * t) {
   for(i = 0; i < t->trans.payload_len; i++)
     dl_buffer[i] = t->trans.payload[i];
   dl_msg_available = TRUE;
+  if((dl_buffer[0]!=t->trans.packet_seq+1)&&(dl_buffer[0]!=0)){
+    	if((t->trans.packet_seq+1)<dl_buffer[0]){
+		//uint8_t jump = dl_buffer[0]-(t->trans.packet_seq+1);
+		//XGGDEBUG:SEQ: Do something like increment counter
+	}else{
+		//uint8_t jump = dl_buffer[0]+(255-(t->trans.packet_seq));
+		//XGGDEBUG:SEQ: Do something like increment counter
+	}
+  }
+  t->trans.packet_seq = dl_buffer[0];
 }
 
 

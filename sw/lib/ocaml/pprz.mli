@@ -26,15 +26,18 @@
 
 val messages_xml : unit -> Xml.xml
 
+type sender_id = int
+type class_id = int
 type class_name = string
 type message_id = int
-type ac_id = int
+type message_name = string
+type packet_seq = int
 type format = string
 type _type =
     Scalar of string
   | ArrayType of string
 type value =
-    Int of int | Float of float | String of string | Int32 of int32
+    Int of int | Float of float | String of string | Int32 of int32 | Char of char | Int64 of int64
   | Array of value array
 type field = {
     _type : _type;
@@ -52,6 +55,7 @@ type message = {
 
 
 external int32_of_bytes : string -> int -> int32 = "c_int32_of_indexed_bytes"
+external int64_of_bytes : string -> int -> int64 = "c_int64_of_indexed_bytes" 
 (** [int32_of_bytes buffer offset] *)
 
 val separator : string
@@ -80,7 +84,8 @@ val string_assoc : string -> values -> string
 
 val float_assoc : string -> values -> float
 val int_assoc : string -> values -> int
-val int32_assoc : string -> values -> Int32.t
+val int32_assoc : string -> values -> Int32.t 
+val int64_assoc : string -> values -> Int64.t
 (** May raise Not_found or Invalid_argument *)
 
 val hex_of_int_array : value -> string
@@ -146,13 +151,19 @@ module type MESSAGES = sig
   val messages : (message_id, message) Hashtbl.t
   val message_of_id : message_id -> message
   val message_of_name : string ->  message_id * message
+	
+	val class_id_of_msg : message_name -> class_id
+	(** [class_id_of_msg msg_name] returns the class id containing the given message *)
 
-  val values_of_payload : Serial.payload -> message_id * ac_id * values
+	val class_id_of_msg_args : string -> class_id
+	(** [class_id_of_msg_args args.(0)] returns the class id containing the given message when args.(0) is the parameter *)
+
+  val values_of_payload : Serial.payload -> packet_seq * sender_id * class_id * message_id * values
   (** [values_of_bin payload] Parses a raw payload, returns the
-   message id, the A/C id and the list of (field_name, value) *)
+   the A/C id, class id, message id and the list of (field_name, value) *)
 
-  val payload_of_values : message_id -> ac_id -> values -> Serial.payload
-  (** [payload_of_values id ac_id vs] Returns a payload *)
+  val payload_of_values : ?gen_packet_seq:int -> sender_id -> class_id -> message_id -> values -> Serial.payload
+  (** [payload_of_values ?gen_packet_seq sender_id class_id id vs] Returns a payload *)
 
   val values_of_string : string -> message_id * values
   (** May raise [(Unknown_msg_name msg_name)] *)

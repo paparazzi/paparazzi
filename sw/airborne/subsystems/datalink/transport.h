@@ -46,7 +46,7 @@ struct transport {
   // overrun and error flags
   uint8_t ovrn, error;
   // packet sequence
-  uint8_t packet_seq;
+  uint8_t packet_seq; /* XGGDEBUG:SEQ: need to initialize to 1 */
 };
 
 /** Transport link macros
