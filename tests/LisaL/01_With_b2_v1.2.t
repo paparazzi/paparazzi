@@ -12,7 +12,7 @@ $|++;
 # Make the airframe
 my $make_compile_options = "AIRCRAFT=LisaLv11_Booz2v12_RC clean_ac ap.compile";
 my $compile_output = run_program(
-	"Attempting to build and upload the firmware.",
+	"Attempting to build the firmware.",
 	$ENV{'PAPARAZZI_SRC'},
 	"make $make_compile_options",
 	0,1);
@@ -31,25 +31,24 @@ unlike($upload_output, '/\bError\b/i', "The upload output does not contain the w
 
 # Start the server process
 my $server_command = "$ENV{'PAPARAZZI_HOME'}/sw/ground_segment/tmtc/server";
-my $server_options = "";
-my $server = Proc::Background->new($server_command, $server_options);
+my @server_options = qw(-n)
+my $server = Proc::Background->new($server_command, @server_options);
 sleep 2; # The service should die in this time if there's an error
-ok($server->alive(), "The server started successfully");
+ok($server->alive(), "The server process started successfully");
 
 # Start the link process
 my $link_command = "$ENV{'PAPARAZZI_HOME'}/sw/ground_segment/tmtc/link";
 my @link_options = qw(-d /dev/tty.usbserial-000013FD -s 57600 -transport xbee -xbee_addr 123);
-#my @link_options = qw(-d /dev/tty.usbserial-000013FD -s 57600);
 sleep 2; # The service should die in this time if there's an error
 my $link = Proc::Background->new($link_command, @link_options);
-ok($link->alive(), "The link started successfully");
+ok($link->alive(), "The link process started successfully");
 
 # Open the Ivy bus and read from it...
 # TODO: learn how to read and write to the Ivy bus
 
 # Shutdown the server and link processes
-ok($server->die(), "The server shutdown successfully.");
-ok($link->die(), "The link shutdown successfully.");
+ok($server->die(), "The server process shutdown successfully.");
+ok($link->die(), "The link process shutdown successfully.");
 
 ################################################################################
 # functions used by this test script.

@@ -274,8 +274,5 @@ sw/simulator/launchsitl:
 	chmod a+x $@
 
 test: all replace_current_conf_xml
-	cd tests; $(MAKE) $(@)
-
-test_all_example_airframes: replace_current_conf_xml
-	cd tests; $(MAKE) $(@) TARGET_BOARD=examples
+	cd tests; $(MAKE) test
 
