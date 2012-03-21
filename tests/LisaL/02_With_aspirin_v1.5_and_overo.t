@@ -9,18 +9,18 @@ $|++;
 
 ####################
 # Make the airframe
-my $make_compile_options = "AIRCRAFT=LisaLv11_Booz2v12_RC clean_ac ap.compile";
+my $make_compile_options = "AIRCRAFT=LisaLv11_Aspirinv15_Overo_RC clean_ac ap.compile";
 my $compile_output = run_program(
 	"Attempting to build the firmware.",
 	$ENV{'PAPARAZZI_SRC'},
 	"make $make_compile_options",
 	0,1);
-unlike($compile_output, '/Aircraft \'LisaLv11_Booz2v12_RC\' not found in/', "The compile output does not contain the message \"Aircraft \'LisaLv11_Booz2v12_RC\' not found in\"");
+unlike($compile_output, '/Aircraft \'LisaLv11_Aspirinv15_Overo_RC\' not found in/', "The compile output does not contain the message \"Aircraft \'LisaLv11_Aspirinv15_Overo_RC\' not found in\"");
 unlike($compile_output, '/\bError\b/i', "The compile output does not contain the word \"Error\"");
 
 ####################
 # Upload the airframe
-my $make_upload_options = "AIRCRAFT=LisaLv11_Booz2v12_RC BOARD_SERIAL=LISA-L-000154 ap.upload";
+my $make_upload_options = "AIRCRAFT=LisaLv11_Aspirinv15_Overo_RC BOARD_SERIAL=LISA-L-000154 ap.upload";
 my $upload_output = run_program(
 	"Attempting to build and upload the firmware.",
 	$ENV{'PAPARAZZI_SRC'},
