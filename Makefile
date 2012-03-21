@@ -238,7 +238,6 @@ clean:
 	$(Q)find . -mindepth 2 -name Makefile -exec sh -c 'echo "Cleaning {}"; $(MAKE) -C `dirname {}` $@' \;
 	$(Q)find . -name '*~' -exec rm -f {} \;
 	$(Q)rm -f paparazzi sw/simulator/launchsitl
-	$(Q)rm -rf tests/results/*
 
 cleanspaces:
 	find ./sw/airborne -name '*.[ch]' -exec sed -i {} -e 's/[ \t]*$$//' \;
