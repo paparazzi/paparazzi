@@ -27,7 +27,7 @@ ok($server->alive(), "The server process started successfully");
 
 # Start the launchsitl process
 my $launchsitl_command = "$ENV{'PAPARAZZI_HOME'}/sw/simulator/launchsitl";
-my @launchsitl_options = qw(-a -boot -norc);
+my @launchsitl_options = qw(-a Microjet -boot -norc);
 sleep 2; # The service should die in this time if there's an error
 my $launchsitl = Proc::Background->new($launchsitl_command, @launchsitl_options);
 ok($launchsitl->alive(), "The launchsitl process started successfully");
