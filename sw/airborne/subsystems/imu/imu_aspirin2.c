@@ -2,11 +2,10 @@
 
 #include "led.h"
 #include "mcu_periph/spi.h"
-#include "mcu_periph/spi_arch.h"
 
 // Peripherials
-#include "../../peripherals/mpu60X0.h"
-#include "../../peripherals/hmc58xx.h"
+#include "peripherals/mpu60X0.h"
+#include "peripherals/hmc58xx.h"
 
 
 struct ImuAspirin2 imu_aspirin2;
@@ -27,11 +26,15 @@ void imu_impl_init(void) {
 
   imu_aspirin2.status = Aspirin2StatusUninit;
   imu_aspirin2.imu_available = FALSE;
+  imu_aspirin2.input_buf_p = aspirin2_mpu60x0.input_buf;
 
-  aspirin2_mpu60x0.mosi_buf = imu_aspirin2.imu_tx_buf;
-  aspirin2_mpu60x0.miso_buf = imu_aspirin2.imu_rx_buf;
+  aspirin2_mpu60x0.select = SPISelectUnselect;
+  aspirin2_mpu60x0.cpol = SPICpolIdleLow;
+  aspirin2_mpu60x0.cpha = SPICphaEdge1;
+  aspirin2_mpu60x0.dss = DSS8bit;
   aspirin2_mpu60x0.ready = &(imu_aspirin2.imu_available);
   aspirin2_mpu60x0.length = 2;
+  aspirin2_mpu60x0.slave_idx = 0;
 
 //  imu_aspirin2_arch_init();
 
@@ -48,10 +51,10 @@ void imu_periodic(void)
     imu_aspirin2.status = Aspirin2StatusIdle;
 
     aspirin2_mpu60x0.length = 22;
-    aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_INT_STATUS + MPU60X0_SPI_READ;
+    aspirin2_mpu60x0.output_buf[0] = MPU60X0_REG_INT_STATUS + MPU60X0_SPI_READ;
     {
       for (int i=1;i<aspirin2_mpu60x0.length;i++)
-        aspirin2_mpu60x0.mosi_buf[i] = 0;
+        aspirin2_mpu60x0.output_buf[i] = 0;
     }
   }
   else
@@ -60,7 +63,7 @@ void imu_periodic(void)
     // imu_aspirin2.imu_tx_buf[0] = MPU60X0_REG_WHO_AM_I + MPU60X0_SPI_READ;
     // imu_aspirin2.imu_tx_buf[1] = 0x00;
 
-    spi_rw(&aspirin2_mpu60x0);
+    spi_submit(&spi2,&aspirin2_mpu60x0);
 
 /*
     imu_aspirin.time_since_last_reading++;
@@ -76,10 +79,12 @@ void imu_periodic(void)
 
 static inline void mpu_set(uint8_t _reg, uint8_t _val)
 {
-  aspirin2_mpu60x0.mosi_buf[0] = _reg;
-  aspirin2_mpu60x0.mosi_buf[1] = _val;
-  spi_rw(&aspirin2_mpu60x0);
-    while(aspirin2_mpu60x0.status != SPITransSuccess);
+  aspirin2_mpu60x0.output_buf[0] = _reg;
+  aspirin2_mpu60x0.output_buf[1] = _val;
+  spi_submit(&spi2,&aspirin2_mpu60x0);
+
+  // FIXME: no busy waiting! if really needed add a timeout!!!!
+  while(aspirin2_mpu60x0.status != SPITransSuccess);
 }
 
 static inline void mpu_wait_slave4_ready(void)
@@ -87,12 +92,14 @@ static inline void mpu_wait_slave4_ready(void)
   uint8_t ret = 0x80;
   while (ret & 0x80)
   {
-    aspirin2_mpu60x0.mosi_buf[0] = MPU60X0_REG_I2C_SLV4_CTRL | MPU60X0_SPI_READ ;
-    aspirin2_mpu60x0.mosi_buf[1] = 0;
-    spi_rw(&aspirin2_mpu60x0);
-      while(aspirin2_mpu60x0.status != SPITransSuccess);
+    aspirin2_mpu60x0.output_buf[0] = MPU60X0_REG_I2C_SLV4_CTRL | MPU60X0_SPI_READ ;
+    aspirin2_mpu60x0.output_buf[1] = 0;
+    spi_submit(&spi2,&aspirin2_mpu60x0);
 
-    ret = aspirin2_mpu60x0.miso_buf[1];
+    // FIXME: no busy waiting! if really needed add a timeout!!!!
+    while(aspirin2_mpu60x0.status != SPITransSuccess);
+
+    ret = aspirin2_mpu60x0.input_buf[1];
   }
 }
 
@@ -140,7 +147,8 @@ static void configure(void)
 #    endif
 #  endif
 #endif
-  // MPU60X0_REG_CONFIG
+  aspirin2_mpu60x0.output_buf[1] = (2 << 3) | (MPU_DIG_FILTER << 0);
+  spi_submit(&spi2,&aspirin2_mpu60x0);
   mpu_set( MPU60X0_REG_CONFIG,
            (2 << 3) | 			// Fsync / ext sync on gyro X (bit 3->6)
            (MPU_DIG_FILTER << 0) );	// Low-Pass Filter

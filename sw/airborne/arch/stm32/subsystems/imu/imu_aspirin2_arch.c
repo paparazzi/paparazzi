@@ -43,8 +43,8 @@ void imu_aspirin2_arch_init(void) {
   SPI_InitTypeDef SPI_InitStructure;
 
   // Set "mag ss" and "mag reset" as floating inputs ------------------------
-  // "mag ss"    (PC12) is shorted to I2C2 SDA      
-  // "mag reset" (PC13) is shorted to I2C2 SCL       
+  // "mag ss"    (PC12) is shorted to I2C2 SDA
+  // "mag reset" (PC13) is shorted to I2C2 SCL
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12|GPIO_Pin_13;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
@@ -88,4 +88,3 @@ void imu_aspirin2_arch_init(void) {
 //  imu_aspirin.status = AspirinStatusReadingGyro;
 //*/
 //}
-
