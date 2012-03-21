@@ -1,16 +1,15 @@
 #!/usr/bin/perl -w
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 use lib "$ENV{'PAPARAZZI_SRC'}/tests/lib";
 use Program;
 use Proc::Background;
-use Ivy;
 
 $|++; 
 
 ####################
 # Make the airframe
-my $make_compile_options = "AIRCRAFT=Microjet clean_ac sim.compile";
+my $make_compile_options = "AIRCRAFT=Microjet clean_ac sim";
 my $compile_output = run_program(
 	"Attempting to build the sim firmware.",
 	$ENV{'PAPARAZZI_SRC'},
@@ -26,19 +25,23 @@ my $server = Proc::Background->new($server_command, @server_options);
 sleep 2; # The service should die in this time if there's an error
 ok($server->alive(), "The server process started successfully");
 
-# Start the sim process
-my $link_command = "$ENV{'PAPARAZZI_HOME'}/sw/simulator/launchsitl";
-my @link_options = qw(-a -boot -norc);
+# Start the launchsitl process
+my $launchsitl_command = "$ENV{'PAPARAZZI_HOME'}/sw/simulator/launchsitl";
+my @launchsitl_options = qw(-a -boot -norc);
 sleep 2; # The service should die in this time if there's an error
-my $link = Proc::Background->new($link_command, @link_options);
-ok($link->alive(), "The launchsitl process started successfully");
+my $launchsitl = Proc::Background->new($launchsitl_command, @launchsitl_options);
+ok($launchsitl->alive(), "The launchsitl process started successfully");
 
 # Open the Ivy bus and read from it...
-# TODO: learn how to read and write to the Ivy bus
+SKIP : {
+	skip "Skipping testing of the simulator since we can't load the Ivy module. Please install IO::Socket::Multicast", 1 unless eval("use Ivy; 1");
+	ok(1, "We can load the Ivy module.");
+	# TODO: learn how to read and write to the Ivy bus
+}
 
-# Shutdown the server and link processes
+# Shutdown the server and launchsitl processes
 ok($server->die(), "The server process shutdown successfully.");
-ok($link->die(), "The launchsitl process shutdown successfully.");
+ok($launchsitl->die(), "The launchsitl process shutdown successfully.");
 
 ################################################################################
 # functions used by this test script.

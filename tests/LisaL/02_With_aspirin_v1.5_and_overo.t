@@ -1,10 +1,9 @@
 #!/usr/bin/perl -w
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 use lib "$ENV{'PAPARAZZI_SRC'}/tests/lib";
 use Program;
 use Proc::Background;
-use Ivy;
 
 $|++; 
 
@@ -44,7 +43,11 @@ my $link = Proc::Background->new($link_command, @link_options);
 ok($link->alive(), "The link process started successfully");
 
 # Open the Ivy bus and read from it...
-# TODO: learn how to read and write to the Ivy bus
+SKIP : {
+        skip "Skipping testing of the hardware since we can't load the Ivy module. Please install IO::Socket::Multicast", 1 unless eval("use Ivy; 1");
+        ok(1, "We can load the Ivy module.");
+        # TODO: learn how to read and write to the Ivy bus
+}
 
 # Shutdown the server and link processes
 ok($server->die(), "The server process shutdown successfully.");

@@ -3,8 +3,8 @@ PERL = /usr/bin/perl
 TEST_VERBOSE = 0
 NON_TEST_DIRS = lib|results
 HARDWARE_REGEX = Lisa|Tiny|Umarim
-HARDWARE_TEST_DIRS = $(shell find -L $(PAPARAZZI_SRC)/tests -d 1 -type d | grep -Ev "$(NON_TEST_DIRS)" | grep -E "$(HARDWARE_REGEX)")
-NON_HARDWARE_TEST_DIRS = $(shell find -L $(PAPARAZZI_SRC)/tests -d 1 -type d | grep -Ev "$(NON_TEST_DIRS)" | grep -Ev "$(HARDWARE_REGEX)")
+HARDWARE_TEST_DIRS = $(shell find -L * -maxdepth 1 -type d | grep -Ev "$(NON_TEST_DIRS)" | grep -E "$(HARDWARE_REGEX)")
+NON_HARDWARE_TEST_DIRS = $(shell find -L * -maxdepth 1 -type d | grep -Ev "$(NON_TEST_DIRS)" | grep -Ev "$(HARDWARE_REGEX)")
 ifneq ($(TARGET_BOARD),)
 	TEST_DIRECTORIES = $(TARGET_BOARD)
 else
