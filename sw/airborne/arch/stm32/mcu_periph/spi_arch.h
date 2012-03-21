@@ -30,7 +30,6 @@
 
 
 #include "mcu_periph/spi.h"
-#include <libopencm3/stm32/f1/gpio.h>
 
 extern void spi_arch_int_enable(void);
 extern void spi_arch_int_disable(void);

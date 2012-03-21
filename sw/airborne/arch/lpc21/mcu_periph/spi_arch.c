@@ -64,7 +64,7 @@ __attribute__ ((always_inline)) static inline void SpiSlaveSelect(uint8_t slave)
       break;
 #endif
 #if USE_SPI_SLAVE1
-    case SPI_SLAVE0:
+    case SPI_SLAVE1:
       SetBit(SPI_SELECT_SLAVE1_IOCLR, SPI_SELECT_SLAVE1_PIN);
       break;
 #endif
@@ -81,7 +81,7 @@ __attribute__ ((always_inline)) static inline void SpiSlaveUnselect(uint8_t slav
       break;
 #endif
 #if USE_SPI_SLAVE1
-    case SPI_SLAVE0:
+    case SPI_SLAVE1:
       SetBit(SPI_SELECT_SLAVE1_IOSET, SPI_SELECT_SLAVE1_PIN);
       break;
 #endif

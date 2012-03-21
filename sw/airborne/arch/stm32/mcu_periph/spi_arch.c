@@ -34,35 +34,46 @@
 
 #include "mcu_periph/spi.h"
 
+/*
+ *
+ * SPI Master code
+ *
+ *
+ */
+
+#ifdef SPI_MASTER
+
 struct spi_transaction* slave0;
+
+void spi_rw(struct spi_transaction  * _trans);
 
 // SPI2 Slave Selection
 
-#define SPI2_SLAVE0_PORT  GPIOB
-#define SPI2_SLAVE0_PIN   GPIO12
+#define SPI_SLAVE0_PORT  GPIOB
+#define SPI_SLAVE0_PIN   GPIO12
 
-#define SPI2_SLAVE1_PORT  GPIOB
-#define SPI2_SLAVE1_PIN   GPIO5
+#define SPI_SLAVE1_PORT  GPIOB
+#define SPI_SLAVE1_PIN   GPIO5
 
-#define SPI2_SLAVE2_PORT  GPIOB
-#define SPI2_SLAVE2_PIN   GPIO3
+#define SPI_SLAVE2_PORT  GPIOB
+#define SPI_SLAVE2_PIN   GPIO3
 
-static inline void Spi2SlaveUnselect(uint8_t slave)
+static inline void SpiSlaveUnselect(uint8_t slave)
 {
   switch(slave) {
     case 0:
-      GPIO_BSRR(SPI2_SLAVE0_PORT) = SPI2_SLAVE0_PIN;
+      GPIO_BSRR(SPI_SLAVE0_PORT) = SPI_SLAVE0_PIN;
       break;
-#if USE_SPI2_SLAVE1
+#if USE_SPI_SLAVE1
     case 1:
-      GPIO_BSRR(SPI2_SLAVE1_PORT) = SPI2_SLAVE1_PIN;
+      GPIO_BSRR(SPI_SLAVE1_PORT) = SPI_SLAVE1_PIN;
       break;
-#endif //USE_SPI2_SLAVE1
-#if USE_SPI2_SLAVE2
+#endif //USE_SPI_SLAVE1
+#if USE_SPI_SLAVE2
     case 2:
-      GPIO_BSRR(SPI2_SLAVE2_PORT) = SPI2_SLAVE2_PIN;
+      GPIO_BSRR(SPI_SLAVE2_PORT) = SPI_SLAVE2_PIN;
       break;
-#endif //USE_SPI2_SLAVE2
+#endif //USE_SPI_SLAVE2
 
     default:
       break;
@@ -70,22 +81,22 @@ static inline void Spi2SlaveUnselect(uint8_t slave)
 }
 
 
-static inline void Spi2SlaveSelect(uint8_t slave)
+static inline void SpiSlaveSelect(uint8_t slave)
 {
   switch(slave) {
     case 0:
-      GPIO_BRR(SPI2_SLAVE0_PORT) = SPI2_SLAVE0_PIN;
+      GPIO_BRR(SPI_SLAVE0_PORT) = SPI_SLAVE0_PIN;
       break;
-#if USE_SPI2_SLAVE1
+#if USE_SPI_SLAVE1
     case 1:
-      GPIO_BRR(SPI2_SLAVE1_PORT) = SPI2_SLAVE1_PIN;
+      GPIO_BRR(SPI_SLAVE1_PORT) = SPI_SLAVE1_PIN;
       break;
-#endif //USE_SPI2_SLAVE1
-#if USE_SPI2_SLAVE2
+#endif //USE_SPI_SLAVE1
+#if USE_SPI_SLAVE2
     case 2:
-      GPIO_BRR(SPI2_SLAVE2_PORT) = SPI2_SLAVE2_PIN;
+      GPIO_BRR(SPI_SLAVE2_PORT) = SPI_SLAVE2_PIN;
       break;
-#endif //USE_SPI2_SLAVE2
+#endif //USE_SPI_SLAVE2
     default:
       break;
   }
@@ -108,7 +119,45 @@ void spi_arch_int_disable(void) {
   nvic_disable_irq(NVIC_DMA1_CHANNEL4_IRQ);
 }
 
-void spi_init(void) {
+void spi_init_slaves(void) {
+#if USE_SPI_SLAVE0
+  SpiSlaveUnselect(0);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI2_SLAVE0_PIN);
+#endif
+
+#if USE_SPI_SLAVE1
+  SpiSlaveUnselect(1);
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI2_SLAVE1_PIN);
+#endif
+
+#if USE_SPI_SLAVE2
+  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
+  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
+                GPIO_CNF_OUTPUT_PUSHPULL, SPI2_SLAVE2_PIN);
+  //FIXME: do remapping
+  //GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE); //Slave2 is on JTDO pin, so disable JTAG DP
+#endif
+}
+
+
+#if USE_SPI0
+void spi0_arch_init(void) {
+
+}
+#endif
+
+#if USE_SPI1
+void spi1_arch_init(void) {
+
+}
+#endif
+
+#if USE_SPI2
+void spi2_arch_init(void) {
 
   // Enable SPI2 Periph and gpio clocks -------------------------------------------------
   rcc_peripheral_enable_clock(&RCC_APB1ENR, RCC_APB1ENR_SPI2EN);
@@ -148,26 +197,6 @@ void spi_init(void) {
   // Enable SPI_2 DMA clock ---------------------------------------------------
   rcc_peripheral_enable_clock(&RCC_AHBENR, RCC_AHBENR_DMA1EN);
 
-  // SLAVE 0
-  // set accel slave select as output and assert it ( on PB12)
-  Spi2SlaveUnselect(0);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
-  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
-	        GPIO_CNF_OUTPUT_PUSHPULL, SPI2_SLAVE0_PIN);
-
-  // SLAVE 1
-  Spi2SlaveUnselect(1);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
-  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
-	        GPIO_CNF_OUTPUT_PUSHPULL, SPI2_SLAVE1_PIN);
-
-  // SLAVE 2
-  Spi2SlaveUnselect(1);
-  rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);
-  gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
-	        GPIO_CNF_OUTPUT_PUSHPULL, SPI2_SLAVE2_PIN);
-//GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE); //Slave2 is on JTDO pin, so disable JTAG DP
-
 
   spi2.trans_insert_idx = 0;
   spi2.trans_extract_idx = 0;
@@ -175,22 +204,24 @@ void spi_init(void) {
 
   spi_arch_int_enable();
 }
+#endif
 
 
+//FIXME: get rid off slave0 and take spi periph as parameter
 void spi_rw(struct spi_transaction  * _trans)
 {
   // Store local copy to notify of the results
   slave0 = _trans;
   slave0->status = SPITransRunning;
   spi2.status = SPIRunning;
-  Spi2SlaveSelect(slave0->slave_idx);
+  SpiSlaveSelect(slave0->slave_idx);
 
 
   // SPI2_Rx_DMA_Channel configuration ------------------------------------
 
   dma_channel_reset(DMA1, DMA_CHANNEL4);
   dma_set_peripheral_address(DMA1, DMA_CHANNEL4, (u32)&SPI2_DR);
-  dma_set_memory_address(DMA1, DMA_CHANNEL4, (uint32_t)slave0->miso_buf);
+  dma_set_memory_address(DMA1, DMA_CHANNEL4, (uint32_t)slave0->input_buf);
   dma_set_number_of_data(DMA1, DMA_CHANNEL4, slave0->length);
   dma_set_read_from_peripheral(DMA1, DMA_CHANNEL4);
   //dma_disable_peripheral_increment_mode(DMA1, DMA_CHANNEL4);
@@ -203,7 +234,7 @@ void spi_rw(struct spi_transaction  * _trans)
   // SPI2_Tx_DMA_Channel configuration ------------------------------------
   dma_channel_reset(DMA1, DMA_CHANNEL5);
   dma_set_peripheral_address(DMA1, DMA_CHANNEL5, (u32)&SPI2_DR);
-  dma_set_memory_address(DMA1, DMA_CHANNEL5, (uint32_t)slave0->mosi_buf);
+  dma_set_memory_address(DMA1, DMA_CHANNEL5, (uint32_t)slave0->output_buf);
   dma_set_number_of_data(DMA1, DMA_CHANNEL5, slave0->length);
   dma_set_read_from_memory(DMA1, DMA_CHANNEL5);
   //dma_disable_peripheral_increment_mode(DMA1, DMA_CHANNEL5);
@@ -258,14 +289,15 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t)
 void dma1_channel4_isr(void)
 {
 
-  Spi2SlaveUnselect(spi2.trans[spi2.trans_extract_idx]->slave_idx);
+  SpiSlaveUnselect(spi2.trans[spi2.trans_extract_idx]->slave_idx);
 
   if ((DMA1_ISR & DMA_ISR_TCIF4) != 0) {
     // clear int pending bit
     DMA1_IFCR |= DMA_IFCR_CTCIF4;
 
     // mark as available
-    spi_message_received = TRUE;
+    // FIXME: should only be needed in slave mode...
+    //spi_message_received = TRUE;
   }
   // disable DMA Channel
   dma_disable_transfer_complete_interrupt(DMA1, DMA_CHANNEL4);
@@ -291,5 +323,16 @@ void dma1_channel4_isr(void)
     spi_rw(spi2.trans[spi2.trans_extract_idx]);
 }
 
+#endif /** SPI_MASTER */
 
 
+/*
+ *
+ * SPI Slave code
+ *
+ * FIXME implement it
+ *
+ */
+#ifdef SPI_SLAVE
+
+#endif /* SPI_SLAVE */
