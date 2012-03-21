@@ -30,7 +30,7 @@ unlike($upload_output, '/\bError\b/i', "The upload output does not contain the w
 
 # Start the server process
 my $server_command = "$ENV{'PAPARAZZI_HOME'}/sw/ground_segment/tmtc/server";
-my @server_options = qw(-n)
+my @server_options = qw(-n);
 my $server = Proc::Background->new($server_command, @server_options);
 sleep 2; # The service should die in this time if there's an error
 ok($server->alive(), "The server process started successfully");

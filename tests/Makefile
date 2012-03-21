@@ -27,3 +27,6 @@ endif
 test:
 	$(Q)$(PERLENV) $(PERL) "-e" "$(RUNTESTS)"
 
+clean:
+	rm -rf results/*
+
