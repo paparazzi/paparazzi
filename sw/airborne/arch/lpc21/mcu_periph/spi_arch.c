@@ -206,16 +206,21 @@ __attribute__ ((always_inline)) static inline void SpiInitBuf(struct spi_periph*
 __attribute__ ((always_inline)) static inline void SpiStart(struct spi_periph* p, struct spi_transaction* t) {
   p->status = SPIRunning;
   t->status = SPITransRunning;
+
   // handle spi options (CPOL, CPHA, data size,...)
-  if (t->cpol == SPICPOL_Mode1) SpiSetCPOL(p);
+  if (t->cpol == SPICpolIdleHigh) SpiSetCPOL(p);
   else SpiClearCPOL(p);
-  if (t->cpha == SPICPHA_Mode1) SpiSetCPHA(p);
+
+  if (t->cpha == SPICphaEdge2) SpiSetCPHA(p);
   else SpiClearCPHA(p);
+
   SpiSetDataSize(p, t->dss);
+
   // handle slave select
   if (t->select == SPISelectUnselect || t->select == SPISelect) {
     SpiSlaveSelect(t->slave_idx);
   }
+
   // start spi transaction
   SpiEnable(p);
   SpiInitBuf(p,t);
