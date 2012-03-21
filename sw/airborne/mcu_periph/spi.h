@@ -1,7 +1,5 @@
 /*
- * Paparazzi $Id$
- *
- * Copyright (C) 2005-2006 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2005-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -22,8 +20,10 @@
  *
  */
 
-/** \file mcu_periph/spi.h
- * \brief arch independent SPI (Serial Peripheral Interface) API */
+/**
+ * @file mcu_periph/spi.h
+ * Architecture independent SPI (Serial Peripheral Interface) API.
+ */
 
 
 #ifndef SPI_H

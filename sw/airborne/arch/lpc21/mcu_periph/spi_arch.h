@@ -1,6 +1,5 @@
-/*  $Id$
- *
- * Copyright (C) 2003-2005  Pascal Brisset, Antoine Drouin
+/*
+ * Copyright (C) 2005-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -21,8 +20,10 @@
  *
  */
 
-/** \brief handling of arm7 SPI hardware
- *  for now only SPI1 ( aka SSP )
+/**
+ * @file arch/lpc21/mcu_periph/spi_arch.h
+ * Handling of SPI hardware for lpc21xx.
+ * for now only SPI1 ( aka SSP )
  */
 
 #ifndef SPI_ARCH_H

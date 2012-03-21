@@ -1,7 +1,5 @@
 /*
- * Paparazzi $Id$
- *
- * Copyright (C) 2005-2006 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2005-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -20,6 +18,11 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
+ */
+
+/**
+ * @file mcu_periph/spi.c
+ * Architecture independent SPI (Serial Peripheral Interface) API.
  */
 
 #include "std.h"
