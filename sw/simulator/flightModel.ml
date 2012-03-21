@@ -146,7 +146,11 @@ module Make(A:Data.MISSION) = struct
   let max_bat_level =
     try float_value (section "BAT") "MAX_BAT_LEVEL" with _ -> 12.5
 
-  let max_phi = 0.7 (* rad *)
+  let h_ctrl_section =
+    try section "HORIZONTAL CONTROL" with _ -> Xml.Element("",[],[])
+
+  let max_phi =
+    try code_value h_ctrl_section "ROLL_MAX_SETPOINT" with _ -> 0.7 (* rad *)
   let max_phi_dot = 0.25 (* rad/s *)
   let bound = fun x mi ma -> if x > ma then ma else if x < mi then mi else x
 
