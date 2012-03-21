@@ -91,7 +91,7 @@
     />
   <aircraft
     name="LisaLv11_Aspirinv15_Overo_RC"
-    ac_id="9"
+    ac_id="10"
     airframe="airframes/TestHardware/LisaL_v1.1_aspirin_v1.5_overo_rc.xml"
     radio="radios/cockpitSX.xml"
     telemetry="telemetry/telemetry_booz2.xml"
