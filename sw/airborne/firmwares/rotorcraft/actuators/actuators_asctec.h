@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -21,26 +19,30 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file actuators_asctec.h
+ *  Actuators driver for Asctec motor controllers.
+ */
+
 #ifndef ACTUATORS_ASCTEC_H
 #define ACTUATORS_ASCTEC_H
 
 #include "mcu_periph/i2c.h"
 
 enum actuators_astec_cmd { NONE,
-               TEST,
-               REVERSE,
-               SET_ADDR };
+                           TEST,
+                           REVERSE,
+                           SET_ADDR };
 
 enum actuators_astec_addr { FRONT,
-                BACK,
-                LEFT,
-                RIGHT };
+                            BACK,
+                            LEFT,
+                            RIGHT };
 
 /* this is for the v1 protocol which does its own mixing */
 enum actuators_astec_cmds { PITCH,
-                ROLL,
-                YAW,
-                THRUST,
+                            ROLL,
+                            YAW,
+                            THRUST,
                             CMD_NB };
 
 struct ActuatorsAsctec {
@@ -56,16 +58,16 @@ struct ActuatorsAsctec {
 extern struct ActuatorsAsctec actuators_asctec;
 
 #define actuators_asctec_SetCommand(_v) {  \
-    actuators_asctec.cmd = _v;			\
-}
+    actuators_asctec.cmd = _v;             \
+  }
 
-#define actuators_asctec_SetNewAddr(_v) {	\
-    actuators_asctec.new_addr = _v;		\
-}
+#define actuators_asctec_SetNewAddr(_v) {  \
+    actuators_asctec.new_addr = _v;        \
+  }
 
-#define actuators_asctec_SetCurAddr(_v) {	\
-    actuators_asctec.cur_addr = _v;		\
-}
+#define actuators_asctec_SetCurAddr(_v) {  \
+    actuators_asctec.cur_addr = _v;        \
+  }
 
 
 #endif /* ACTUATORS_ASCTEC_H */

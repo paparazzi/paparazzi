@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2008-2010 The Paparazzi Team
+ * Copyright (C) 2008-2012 The Paparazzi Team
  *
  * This file is part of Paparazzi.
  *
@@ -19,7 +17,12 @@
  * along with Paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
+ */
+
+/** @file supervision.c
+ *  Supervision.
+ *  Handles the mapping of roll/pitch/yaw commands
+ *  to actual motor commands.
  */
 
 #include "firmwares/rotorcraft/actuators/supervision.h"

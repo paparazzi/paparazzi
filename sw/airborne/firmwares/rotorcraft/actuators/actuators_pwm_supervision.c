@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2010-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,6 +17,10 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/** @file actuators_pwm_supervision.h
+ *  PWM actuators with supervision.
  */
 
 #include "firmwares/rotorcraft/actuators.h"
