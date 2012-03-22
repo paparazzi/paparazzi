@@ -28,7 +28,34 @@
 
 #define MAX1168_NB_CHAN 8
 
+#ifndef MAX1168_SLAVE_IDX
+#define MAX1168_SLAVE_IDX SPI_SLAVE0
+#endif
+
+#ifndef MAX1168_SPI_DEV
+#define MAX1168_SPI_DEV spi1
+#endif
+
+/** Configure control register.
+ */
+#ifndef MAX1168_CONF_CHANNEL
+#define MAX1168_CONF_CHANNEL 0x7 // select all channels
+#endif
+#ifndef MAX1168_CONF_SCAN
+#define MAX1168_CONF_SCAN 0x1 // scan number of channels selected
+#endif
+#ifndef MAX1168_CONF_REF
+#define MAX1168_CONF_REF 0x0 // internal ref and no power down
+#endif
+#define MAX1168_CONF_CLOCK
+#define MAX1168_CONF_CLOCK 0x1 // internal clock
+#endif
+
+#define MAX1168_CONF_CR ((MAX1168_CONF_CHANNEL<<5)|(MAX1168_CONF_SCAN<<3)|(MAX1168_CONF_REF<<1)|(MAX1168_CONF_CLOCK))
+
 extern void max1168_init( void );
+extern void max1168_read( void );
+extern void max1168_event( void );
 
 #define STA_MAX1168_IDLE           0
 #define STA_MAX1168_SENDING_REQ    1
@@ -42,7 +69,6 @@ extern uint16_t max1168_values[MAX1168_NB_CHAN];
 #include "peripherals/max1168_arch.h"
 /* must be implemented by underlying architecture */
 extern void max1168_arch_init( void );
-extern void max1168_read( void );
 
 
 #endif /* MAX1168_H */

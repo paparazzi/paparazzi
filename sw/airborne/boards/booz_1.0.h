@@ -110,13 +110,22 @@
 #define USE_AD1_2
 
 
+/* SPI slaves (IMU connector) */
+#define SPI_SELECT_SLAVE0_PORT 0
+#define SPI_SELECT_SLAVE0_PIN 20
 
-/* MS2100 on SSP, IMU connector */
-#define MS2100_SS_PIN   28
-#define MS2100_SS_IODIR IO1DIR
-#define MS2100_SS_IOSET IO1SET
-#define MS2100_SS_IOCLR IO1CLR
+#define SPI_SELECT_SLAVE1_PORT 1
+#define SPI_SELECT_SLAVE1_PIN 28
 
+/* MAX1168 EOC pin (booz2 imu) */
+#define MAX1168_EOC_PIN 16
+#define MAX1168_EOC_PINSEL PINSEL1
+#define MAX1168_EOC_PINSEL_BIT 0
+#define MAX1168_EOC_PINSEL_VAL 1
+#define MAX1168_EOC_EINT 0
+
+
+/* MS2100 EOC and reset pins (booz2 imu) */
 #define MS2100_RESET_PIN   19
 #define MS2100_RESET_IODIR IO1DIR
 #define MS2100_RESET_IOSET IO1SET
