@@ -37,7 +37,7 @@ foreach my $example (sort keys%{$examples->{'aircraft'}})
 					$ENV{'PAPARAZZI_SRC'},
 					"make $make_upload_options",
 					$ENV->{'TEST_VERBOSE'},1);
-				unlike($upload_output, '/Error/i', "The upload output does not contain the word \"Error\"");
+				unlike($upload_output, '/\bError\b/i', "The upload output does not contain the word \"Error\"");
 			}
 		}
 		elsif ($process =~ m#target#)
@@ -57,7 +57,7 @@ foreach my $example (sort keys%{$examples->{'aircraft'}})
 					$ENV{'PAPARAZZI_SRC'},
 					"make $make_upload_options",
 					$ENV->{'TEST_VERBOSE'},1);
-				unlike($upload_output, '/Error/i', "The upload output does not contain the word \"Error\"");
+				unlike($upload_output, '/\bError\b/i', "The upload output does not contain the word \"Error\"");
 			}
 		}
 	}

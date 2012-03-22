@@ -17,7 +17,7 @@ my $compile_output = run_program(
 	"make $make_compile_options",
 	0,1);
 unlike($compile_output, '/Aircraft \'LisaLv11_Booz2v12_RC\' not found in/', "The compile output does not contain the message \"Aircraft \'LisaLv11_Booz2v12_RC\' not found in\"");
-unlike($compile_output, '/Error/i', "The compile output does not contain the word \"Error\"");
+unlike($compile_output, '/\bError\b/i', "The compile output does not contain the word \"Error\"");
 
 ####################
 # Upload the airframe
@@ -27,7 +27,7 @@ my $upload_output = run_program(
 	$ENV{'PAPARAZZI_SRC'},
 	"make $make_upload_options",
 	0,1);
-unlike($upload_output, '/Error/i', "The upload output does not contain the word \"Error\"");
+unlike($upload_output, '/\bError\b/i', "The upload output does not contain the word \"Error\"");
 
 # Start the server process
 my $server_command = "$ENV{'PAPARAZZI_HOME'}/sw/ground_segment/tmtc/server";
