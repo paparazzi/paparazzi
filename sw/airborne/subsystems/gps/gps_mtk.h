@@ -28,10 +28,6 @@
 /** Includes macros generated from mtk.xml */
 #include "mtk_protocol.h"
 
-#define GPS_FIX_NONE 0x01
-#define GPS_FIX_2D   0x02
-#define GPS_FIX_3D   0x03
-
 #define GPS_MTK_MAX_PAYLOAD 255
 
 struct GpsMtk {
@@ -113,23 +109,6 @@ extern void gps_mtk_parse(uint8_t c);
  * dynamic GPS configuration
  */
 #ifdef GPS_CONFIGURE
-#define MTK_DIY_SET_BINARY  "$PGCMD,16,0,0,0,0,0*6A\r\n"
-#define MTK_DIY_SET_NMEA    "$PGCMD,16,1,1,1,1,1*6B\r\n"
-
-#define MTK_DIY_OUTPUT_1HZ  "$PMTK220,1000*1F\r\n"
-#define MTK_DIY_OUTPUT_2HZ  "$PMTK220,500*2B\r\n"
-#define MTK_DIY_OUTPUT_4HZ  "$PMTK220,250*29\r\n"
-#define MTK_DIY_OTUPUT_5HZ  "$PMTK220,200*2C\r\n"
-#define MTK_DIY_OUTPUT_10HZ "$PMTK220,100*2F\r\n"
-
-#define MTK_BAUD_RATE_38400 "$PMTK251,38400*27\r\n"
-
-#define MTK_DIY_SBAS_ON     "$PMTK313,1*2E\r\n"
-#define MTK_DIY_SBAS_OFF    "$PMTK313,0*2F\r\n"
-
-#define MTK_DIY_WAAS_ON     "$PSRF151,1*3F\r\n"
-#define MTK_DIY_WAAS_OFF    "$PSRF151,0*3E\r\n"
-
 extern void gps_configure(void);
 extern void gps_configure_uart(void);
 #endif

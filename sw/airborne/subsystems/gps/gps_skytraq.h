@@ -24,13 +24,6 @@
 
 #include "mcu_periph/uart.h"
 
-
-#define GPS_FIX_NONE    0x00
-#define GPS_FIX_2D      0x01
-#define GPS_FIX_3D      0x02
-#define GPS_FIX_3D_DGPS 0x03
-
-
 #define SKYTRAQ_SYNC1 0xA0
 #define SKYTRAQ_SYNC2 0xA1
 

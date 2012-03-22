@@ -128,9 +128,9 @@ AP_MODE_NAV
     <define name="SP_MAX_Q" value="10000"/>
     <define name="SP_MAX_R" value="10000"/>
 
-    <define name="GAIN_P" value="-400"/>
-    <define name="GAIN_Q" value="-400"/>
-    <define name="GAIN_R" value="-350"/>
+    <define name="GAIN_P" value="400"/>
+    <define name="GAIN_Q" value="400"/>
+    <define name="GAIN_R" value="350"/>
 
   </section>
 
@@ -161,22 +161,22 @@ AP_MODE_NAV
     <define name="REF_MAX_PDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PSI_PGAIN" value="-750"/>
-    <define name="PSI_DGAIN" value="-370"/>
-    <define name="PSI_IGAIN" value="-100"/>
+    <define name="PSI_PGAIN" value="750"/>
+    <define name="PSI_DGAIN" value="370"/>
+    <define name="PSI_IGAIN" value="100"/>
 
-    <define name="THETA_PGAIN" value="-800"/>
-    <define name="THETA_DGAIN" value="-240"/>
-    <define name="THETA_IGAIN" value="-100"/>
+    <define name="THETA_PGAIN" value="800"/>
+    <define name="THETA_DGAIN" value="240"/>
+    <define name="THETA_IGAIN" value="100"/>
 
-    <define name="PHI_PGAIN" value="-4000"/>
-    <define name="PHI_DGAIN" value="-600"/>
-    <define name="PHI_IGAIN" value="-10"/>
+    <define name="PHI_PGAIN" value="4000"/>
+    <define name="PHI_DGAIN" value="600"/>
+    <define name="PHI_IGAIN" value="10"/>
 
     <!-- feedforward -->
-    <define name="PHI_DDGAIN" value=" 300"/>
-    <define name="THETA_DDGAIN" value=" 300"/>
-    <define name="PSI_DDGAIN" value=" 300"/>
+    <define name="PHI_DDGAIN" value="300"/>
+    <define name="THETA_DDGAIN" value="300"/>
+    <define name="PSI_DDGAIN" value="300"/>
 
   </section>
 
@@ -190,9 +190,9 @@ AP_MODE_NAV
    <define name="MIN_ERR_ZD" value="SPEED_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_ZD" value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="MAX_SUM_ERR" value="2000000"/>
-   <define name="HOVER_KP" value="-150"/>
-   <define name="HOVER_KD" value="-80"/>
-   <define name="HOVER_KI" value="-20"/>
+   <define name="HOVER_KP" value="150"/>
+   <define name="HOVER_KD" value="80"/>
+   <define name="HOVER_KI" value="20"/>
    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
    <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
@@ -210,9 +210,9 @@ AP_MODE_NAV
   </section>
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="PGAIN" value="-100"/>
-   <define name="DGAIN" value="-100"/>
-   <define name="IGAIN" value="-0"/>
+   <define name="PGAIN" value="100"/>
+   <define name="DGAIN" value="100"/>
+   <define name="IGAIN" value="0"/>
  </section>
 
  <section name="SIMULATOR" prefix="NPS_">

@@ -82,6 +82,9 @@ OOCD = $(shell if test -e $(TOOLCHAIN_DIR)/bin/openocd ; then echo $(TOOLCHAIN_D
 endif
 endif
 
+ifneq ($(BOARD_SERIAL),)
+OOCD_OPTIONS = -c "ft2232_serial $(BOARD_SERIAL)"
+endif
 
 LOADER=/home/poine/work/stm32/stm32loader-a3c51c26ad6c/stm32loader.py
 
@@ -258,7 +261,7 @@ upload: $(OBJDIR)/$(TARGET).elf
 	@echo "Using OOCD = $(OOCD)"
 	@echo "  OOCD\t$<"
 	$(Q)$(OOCD) -f interface/$(OOCD_INTERFACE).cfg \
-		-f board/$(OOCD_BOARD).cfg \
+		-f board/$(OOCD_BOARD).cfg $(OOCD_OPTIONS) \
 		-c init \
 		-c "reset halt" \
 		-c "reset init" \

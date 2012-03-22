@@ -9,4 +9,9 @@ $(TARGET).CFLAGS += -DSSP_VIC_SLOT=9
 else ifeq ($(ARCH), stm32)
 endif
 
+ifeq ($(TARGET), sim)
+else
+
 $(TARGET).srcs += mcu_periph/spi.c $(SRC_ARCH)/mcu_periph/spi_slave_hs_arch.c
+
+endif
