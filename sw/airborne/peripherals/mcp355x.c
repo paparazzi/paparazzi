@@ -40,7 +40,7 @@ void mcp355x_init(void) {
   mcp355x_spi_trans.select = SPISelect;
   mcp355x_spi_trans.cpol = SPICphaEdge1;
   mcp355x_spi_trans.cpha = SPICpolIdleLow;
-  mcp355x_spi_trans.dss = DSS8bit;
+  mcp355x_spi_trans.dss = SPIDss8bit;
 
 }
 

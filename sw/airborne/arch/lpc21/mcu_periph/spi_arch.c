@@ -115,10 +115,10 @@ __attribute__ ((always_inline)) static inline void SpiClearCPHA(struct spi_perip
 __attribute__ ((always_inline)) static inline void SpiSetDataSize(struct spi_periph* p, enum SPIDataSizeSelect dss) {
   switch (dss) {
     default:
-    case DSS8bit:
+    case SPIDss8bit:
       ((sspRegs_t *)(p->reg_addr))->cr0 = (((sspRegs_t *)(p->reg_addr))->cr0 & ~(0xF<<DSS)) | (DSS_VAL8<<DSS);
       break;
-    case DSS16bit:
+    case SPIDss16bit:
       ((sspRegs_t *)(p->reg_addr))->cr0 = (((sspRegs_t *)(p->reg_addr))->cr0 & ~(0xF<<DSS)) | (DSS_VAL16<<DSS);
       break;
   }
@@ -163,11 +163,11 @@ __attribute__ ((always_inline)) static inline void SpiDisableRxi(struct spi_peri
   ClearBit(((sspRegs_t *)(p->reg_addr))->imsc, RXIM);
 }
 
-__attribute__ ((always_inline)) static inline void SpiSend(struct spi_periph* p, uint8_t c) {
+__attribute__ ((always_inline)) static inline void SpiSend(struct spi_periph* p, uint16_t c) {
   ((sspRegs_t *)(p->reg_addr))->dr = c;
 }
 
-__attribute__ ((always_inline)) static inline void SpiRead(struct spi_periph* p, uint8_t* c) {
+__attribute__ ((always_inline)) static inline void SpiRead(struct spi_periph* p, uint16_t* c) {
   *c = ((sspRegs_t *)(p->reg_addr))->dr;
 }
 
@@ -184,13 +184,13 @@ __attribute__ ((always_inline)) static inline void SpiTransmit(struct spi_periph
 __attribute__ ((always_inline)) static inline void SpiReceive(struct spi_periph* p, struct spi_transaction* t) {
   while (bit_is_set(((sspRegs_t *)(p->reg_addr))->sr, RNE)) {
     if (p->rx_idx_buf < t->length) {
-      uint8_t r;
+      uint16_t r;
       SpiRead(p, &r);
       t->input_buf[p->rx_idx_buf] = r;
       p->rx_idx_buf++;
     }
     else {
-      uint8_t foo;
+      uint16_t foo;
       SpiRead(p, &foo);
     }
   }

@@ -79,8 +79,8 @@ enum SPIClockPolarity {
 /** SPI Data size transfer.
  */
 enum SPIDataSizeSelect {
-  DSS8bit,
-  DSS16bit
+  SPIDss8bit,
+  SPIDss16bit
 };
 
 /** SPI transaction status.
@@ -105,9 +105,8 @@ enum SPIStatus {
 #endif
 
 struct spi_transaction {
-  volatile uint8_t input_buf[SPI_BUF_LEN];
-  volatile uint8_t output_buf[SPI_BUF_LEN];
-  volatile uint8_t* ready; // FIXME what is the difference with status ?
+  volatile uint16_t input_buf[SPI_BUF_LEN];
+  volatile uint16_t output_buf[SPI_BUF_LEN];
   uint8_t length;
   uint8_t slave_idx;
   enum SPISlaveSelect select;
