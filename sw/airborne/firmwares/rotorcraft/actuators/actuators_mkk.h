@@ -1,6 +1,4 @@
 /*
- * $Id: actuators_mkk.h 3847 2009-08-02 21:47:31Z poine $
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -19,6 +17,10 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/** @file actuators_mkk.h
+ *  Actuators driver for Mikrokopter motor controllers.
  */
 
 #ifndef ACTUATORS_MKK_H

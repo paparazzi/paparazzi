@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2008-2010 The Paparazzi Team
+ * Copyright (C) 2008-2012 The Paparazzi Team
  *
  * This file is part of Paparazzi.
  *
@@ -19,7 +17,12 @@
  * along with Paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
+ */
+
+/** @file supervision.c
+ *  Supervision.
+ *  Handles the mapping of roll/pitch/yaw commands
+ *  to actual motor commands.
  */
 
 #include "firmwares/rotorcraft/actuators/supervision.h"
@@ -54,6 +57,13 @@
 #endif
 */
 #endif
+
+/** total supervision command scale.
+ * scales a command input [-MAX_PPRZ,MAX_PPRZ]
+ * to the final supervision motor command with range of
+ * [0,SUPERVISION_MAX_MOTOR-SUPERVISION_MIN_MOTOR]
+ */
+#define SUPERVISION_CMD_SCALE (((SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR) / MAX_PPRZ) /SUPERVISION_SCALE)
 
 static const int32_t roll_coef[SUPERVISION_NB_MOTOR]   = SUPERVISION_ROLL_COEF;
 static const int32_t pitch_coef[SUPERVISION_NB_MOTOR]  = SUPERVISION_PITCH_COEF;
@@ -147,7 +157,7 @@ void supervision_run(bool_t motors_on, bool_t override_on, int32_t in_cmd[] ) {
          roll_coef[i]   * in_cmd[COMMAND_ROLL]   +
          pitch_coef[i]  * in_cmd[COMMAND_PITCH]  +
          yaw_coef[i]    * in_cmd[COMMAND_YAW]    +
-         supervision.trim[i]) / SUPERVISION_SCALE;
+         supervision.trim[i] + SUPERVISION_MIN_MOTOR) * SUPERVISION_CMD_SCALE;
       if (supervision.commands[i] < min_cmd)
         min_cmd = supervision.commands[i];
       if (supervision.commands[i] > max_cmd)
@@ -163,8 +173,8 @@ void supervision_run(bool_t motors_on, bool_t override_on, int32_t in_cmd[] ) {
     /* For testing motor failure */
     if (motors_on && override_on) {
       for (i = 0; i < SUPERVISION_NB_MOTOR; i++) {
-	if (supervision.override_enabled[i])
-	  supervision.commands[i] = supervision.override_value[i];
+        if (supervision.override_enabled[i])
+          supervision.commands[i] = supervision.override_value[i];
       }
     }
     bound_commands();

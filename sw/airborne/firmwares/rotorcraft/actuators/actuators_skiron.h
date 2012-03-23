@@ -19,7 +19,9 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/* Skiron motor speed controller by Michel */
+/** @file actuators_skiron.h
+ *  Skiron motor speed controller by Michel.
+ */
 
 #ifndef ACTUATORS_SKIRON_H
 #define ACTUATORS_SKIRON_H
