@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2011-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,6 +17,13 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/** @file stabilization_none.h
+ *  Dummy stabilization for rotorcrafts.
+ *
+ *  Doesn't actually do any stabilization,
+ *  just directly passes the RC commands along.
  */
 
 #ifndef STABILIZATION_NONE

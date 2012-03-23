@@ -19,6 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file firmwares/rotorcraft/guidance/guidance_v.h
+ *  Vertical guidance for rotorcrafts.
+ *
+ */
+
 #ifndef GUIDANCE_V
 #define GUIDANCE_V
 
@@ -82,7 +87,12 @@ extern int32_t guidance_v_zdd_ref;
 extern int32_t guidance_v_z_sum_err; ///< accumulator for I-gain
 extern int32_t guidance_v_ff_cmd;    ///< feed-forward command
 extern int32_t guidance_v_fb_cmd;    ///< feed-back command
-extern int32_t guidance_v_delta_t;   ///< command output (ff+fb)
+
+/** thrust command.
+ *  summation of feed-forward and feed-back commands,
+ *  valid range 0 : #MAX_PPRZ
+ */
+extern int32_t guidance_v_delta_t;
 
 extern int32_t guidance_v_kp; ///< vertical control P-gain
 extern int32_t guidance_v_kd; ///< vertical control D-gain
