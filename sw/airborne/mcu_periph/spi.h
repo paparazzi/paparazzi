@@ -100,6 +100,13 @@ enum SPIStatus {
   SPIRunning
 };
 
+/** SPI Callback function.
+ * if not NULL, can execute a function before or after transaction
+ * allow to execute some hardware very specific actions
+ */
+typedef void (*SPICallback)(void);
+
+
 #ifndef SPI_BUF_LEN
 #define SPI_BUF_LEN 32
 #endif
@@ -113,6 +120,8 @@ struct spi_transaction {
   enum SPIClockPolarity cpol;
   enum SPIClockPhase cpha;
   enum SPIDataSizeSelect dss; // Architecture dependant options (LPC21) ?
+  SPICallback before_cb;
+  SPICallback after_cb;
   volatile enum SPITransactionStatus status;
 };
 

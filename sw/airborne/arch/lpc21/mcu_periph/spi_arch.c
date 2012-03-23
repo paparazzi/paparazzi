@@ -207,6 +207,9 @@ __attribute__ ((always_inline)) static inline void SpiStart(struct spi_periph* p
   p->status = SPIRunning;
   t->status = SPITransRunning;
 
+  // callback function before transaction
+  if (t->before_cb != NULL) before_cb();
+
   // handle spi options (CPOL, CPHA, data size,...)
   if (t->cpol == SPICpolIdleHigh) SpiSetCPOL(p);
   else SpiClearCPOL(p);
@@ -250,6 +253,10 @@ __attribute__ ((always_inline)) static inline void SpiAutomaton(struct spi_perip
     SpiDisable(p);
     // end transaction with success
     trans->status = SPITransSuccess;
+
+    // callback function after transaction
+    if (t->after_cb != NULL) after_cb();
+
     // handle transaction fifo here
     p->trans_extract_idx++;
     if (p->trans_extract_idx >= SPI_TRANSACTION_QUEUE_LEN)
