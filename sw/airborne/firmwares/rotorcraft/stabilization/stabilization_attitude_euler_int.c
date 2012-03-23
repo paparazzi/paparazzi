@@ -143,6 +143,8 @@ void stabilization_attitude_run(bool_t  in_flight) {
     OFFSET_AND_ROUND2((stabilization_gains.i.z  * stabilization_att_sum_err.psi), 10);
 
 
+
+  //FIXME: still needed? for what?
 #ifdef USE_HELI
 #define CMD_SHIFT 12
 #else
@@ -158,5 +160,10 @@ void stabilization_attitude_run(bool_t  in_flight) {
 
   stabilization_cmd[COMMAND_YAW] =
     OFFSET_AND_ROUND((stabilization_att_fb_cmd[COMMAND_YAW]+stabilization_att_ff_cmd[COMMAND_YAW]), CMD_SHIFT);
+
+  /* bound the result */
+  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
 
 }
