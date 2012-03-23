@@ -5,8 +5,11 @@
 # http://paparazzi.enac.fr/wiki/User/LisaL
 #
 
+
+# we are actually still using the Lisa/L 1.0 header file
+
 BOARD=lisa_l
-BOARD_VERSION=1.1
+BOARD_VERSION=1.0
 BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 
 # -----------------------------------------------------------------------
