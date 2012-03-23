@@ -29,10 +29,6 @@
 /* let's start butchery now and use the actuators_pwm arch functions */
 #include "firmwares/rotorcraft/actuators/actuators_pwm.h"
 
-#ifdef USE_TOYTRONICS
-#include "firmwares/rotorcraft/autopilot.h" // for the mode-dependent command laws
-#endif
-
 #include "generated/airframe.h"
 
 #define actuators actuators_pwm_values
@@ -69,9 +65,6 @@ void actuators_set(bool_t motors_on) {
 
   supervision_run(motors_on, FALSE, pwm_commands);
 
-#ifdef USE_TOYTRONICS
-  SetCommandsFromRC(pwm_commands_pprz, radio_control.values);
-#endif
   SetActuatorsFromCommands(pwm_commands_pprz);
 
   for (int i = 0; i < SUPERVISION_NB_MOTOR; i++) {
