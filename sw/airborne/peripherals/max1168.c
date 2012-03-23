@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  * Copyright (C) 2012 Gautier Hattenberger
  *
@@ -76,6 +74,7 @@ void max1168_event( void ) {
       spi_submit(&(MAX1168_SPI_DEV),&max1168_trans);
 
       max1168_status = STA_MAX1168_READING_RES;
+      max1168_trans.status = SPITransDone;
     }
     else if (max1168_status == STA_MAX1168_READING_RES) {
       // store values
@@ -88,12 +87,13 @@ void max1168_event( void ) {
       max1168_values[6] = max1168_trans.input_buf[6];
       max1168_values[7] = max1168_trans.input_buf[7];
       max1168_status = STA_MAX1168_DATA_AVAILABLE;
+      max1168_trans.status = SPITransDone;
     }
     else { /* TODO ? */ }
-    max1168_trans.status = SPITransDone;
   }
   else if (max1168_trans.status == SPITransFailed) {
     // TODO
+    max1168_status = STA_MAX1168_IDLE;
     max1168_trans.status = SPITransDone;
   }
 }

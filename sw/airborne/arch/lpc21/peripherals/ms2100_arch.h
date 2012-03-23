@@ -1,27 +1,32 @@
+/*
+ * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2012 Gautier Hattenberger
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
 #ifndef MS2100_ARCH_H
 #define MS2100_ARCH_H
-
-#include <stdlib.h>  // for abs
-
-#include "std.h"
-#include "LPC21xx.h"
-#include "interrupt_hw.h"
-
-#include "ssp_hw.h"
-#include BOARD_CONFIG
-
-#include "generated/airframe.h"
-
-
-
-extern volatile uint8_t ms2100_cur_axe;
-
-#define Ms2100Select()   SetBit(MS2100_SS_IOCLR,MS2100_SS_PIN)
-#define Ms2100Unselect() SetBit(MS2100_SS_IOSET,MS2100_SS_PIN)
 
 #define Ms2100Reset() SetBit(MS2100_RESET_IOCLR,MS2100_RESET_PIN)
 #define Ms2100Set()   SetBit(MS2100_RESET_IOSET,MS2100_RESET_PIN)
 
+#if 0
 #define Ms2100OnSpiInt() {                                   \
     switch (ms2100_status) {                                \
     case MS2100_SENDING_REQ:                                \
@@ -83,6 +88,6 @@ extern volatile uint8_t ms2100_cur_axe;
     SSP_EnableRti();							\
   }
 
-
+#endif
 
 #endif /* MS2100_ARCH_H */

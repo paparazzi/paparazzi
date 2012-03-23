@@ -1,7 +1,6 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
+ * Copyright (C) 2012 Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -24,13 +23,27 @@
 #ifndef MS2100_H
 #define MS2100_H
 
+/**
+ * @file peripherals/ms2100.h
+ * Driver for the ms2100 magnetic sensor from PNI
+ */
 
 #include "std.h"
+
 #define MS2100_NB_AXIS 3
+
+#ifndef MS2100_SLAVE_IDX
+#define MS2100_SLAVE_IDX SPI_SLAVE1
+#endif
+
+#ifndef MS2100_SPI_DEV
+#define MS2100_SPI_DEV spi1
+#endif
 
 extern void ms2100_init( void );
 extern void ms2100_read( void );
-extern void ms2100_reset( void);
+extern void ms2100_event( void );
+extern void ms2100_reset( void );
 
 #define MS2100_IDLE            0
 #define MS2100_BUSY            1
@@ -42,6 +55,8 @@ extern void ms2100_reset( void);
 
 extern volatile uint8_t ms2100_status;
 extern volatile int16_t ms2100_values[MS2100_NB_AXIS];
+extern volatile uint8_t ms2100_cur_axe;
+
 
 /* underlying architecture */
 #include "peripherals/ms2100_arch.h"
@@ -53,7 +68,9 @@ extern void ms2100_arch_init( void );
 #define MS2100_DIVISOR_512  4
 #define MS2100_DIVISOR_1024 5
 
+#ifndef MS2100_DIVISOR
 #define MS2100_DIVISOR MS2100_DIVISOR_1024
+#endif
 
 
 #endif /* MS2100_H */
