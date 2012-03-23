@@ -44,7 +44,9 @@ SYS_TIME_LED = none
 endif
 
 
-### default settings
+#
+# default uart settings
+#
 ifndef GPS_PORT
 GPS_PORT	= UART0
 endif

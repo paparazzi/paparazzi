@@ -19,6 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file firwmares/rotorcraft/guidance/guidance_v_ref.h
+ *  Reference generation for vertical guidance.
+ *
+ */
+
 #ifndef GUIDANCE_V_REF_H
 #define GUIDANCE_V_REF_H
 

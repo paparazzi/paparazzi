@@ -52,6 +52,9 @@ ifndef SYS_TIME_LED
 SYS_TIME_LED = 1
 endif
 
+#
+# default uart configuration
+#
 ifndef RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
 RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   = UART3
 endif
@@ -74,17 +77,6 @@ endif
 ifndef GPS_BAUD
 GPS_BAUD=B38400
 endif
-
-
-#
-# this is the DRDY pin of a max1168 on a booz IMU
-#
-# v 1.0
-#
-MAX_1168_DRDY_PORT = _GPIOD
-MAX_1168_DRDY_PORT_SOURCE = PortSourceGPIOD
-# v1.1
-#MAX_1168_DRDY_PORT = GPIOB
 
 
 
