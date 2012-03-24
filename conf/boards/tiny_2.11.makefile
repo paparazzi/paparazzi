@@ -11,6 +11,7 @@ BOARD_VERSION=2.11
 
 BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 
+
 ifndef FLASH_MODE
 FLASH_MODE = IAP
 endif
@@ -42,7 +43,10 @@ ifndef SYS_TIME_LED
 SYS_TIME_LED = none
 endif
 
-### default settings for tiny_2 and twog
+
+#
+# default uart settings
+#
 ifndef GPS_PORT
 GPS_PORT	= UART0
 endif
@@ -66,7 +70,14 @@ ADC_GYRO_NB_SAMPLES = 16
 
 ADC_GENERIC_NB_SAMPLES = 16
 
+#
+# you can use different actuators by adding a configure option to your firmware section
+# e.g. <configure name="ACTUATORS" value="actuators_ppm/>
+#
+ifndef ACTUATORS
+ACTUATORS = actuators_4017
+endif
+
+
 # All targets on the TINY board run on the same processor achitecture
 $(TARGET).ARCHDIR = $(ARCH)
-
-ACTUATORS = actuators_4017

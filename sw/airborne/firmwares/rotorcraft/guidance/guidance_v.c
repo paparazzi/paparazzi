@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -19,6 +17,11 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/** @file firmwares/rotorcraft/guidance/guidance_v.c
+ *  Vertical guidance for rotorcrafts.
+ *
  */
 
 #define GUIDANCE_V_C
@@ -44,7 +47,7 @@ int32_t guidance_v_delta_t;
 
 
 /** Direct throttle from radio control.
- *  range 0:200
+ *  range 0:#MAX_PPRZ
  */
 int32_t guidance_v_rc_delta_t;
 
@@ -127,8 +130,9 @@ void guidance_v_mode_changed(uint8_t new_mode) {
 }
 
 void guidance_v_notify_in_flight( bool_t in_flight) {
-  if (in_flight)
+  if (in_flight) {
     gv_adapt_init();
+  }
 }
 
 
@@ -157,8 +161,9 @@ void guidance_v_run(bool_t in_flight) {
 
   case GUIDANCE_V_MODE_CLIMB:
 #if USE_FMS
-    if (fms.enabled && fms.input.v_mode == GUIDANCE_V_MODE_CLIMB)
+    if (fms.enabled && fms.input.v_mode == GUIDANCE_V_MODE_CLIMB) {
       guidance_v_zd_sp = fms.input.v_sp.climb;
+    }
 #endif
     gv_update_ref_from_zd_sp(guidance_v_zd_sp);
     run_hover_loop(in_flight);
@@ -166,7 +171,7 @@ void guidance_v_run(bool_t in_flight) {
     stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
 #else
     // saturate max authority with RC stick
-    stabilization_cmd[COMMAND_THRUST] = Min( guidance_v_rc_delta_t, guidance_v_delta_t);
+    stabilization_cmd[COMMAND_THRUST] = Min(guidance_v_rc_delta_t, guidance_v_delta_t);
 #endif
     break;
 
@@ -181,7 +186,7 @@ void guidance_v_run(bool_t in_flight) {
     stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
 #else
     // saturate max authority with RC stick
-    stabilization_cmd[COMMAND_THRUST] = Min( guidance_v_rc_delta_t, guidance_v_delta_t);
+    stabilization_cmd[COMMAND_THRUST] = Min(guidance_v_rc_delta_t, guidance_v_delta_t);
 #endif
     break;
 
@@ -207,7 +212,7 @@ void guidance_v_run(bool_t in_flight) {
 #else
       /* use rc limitation if available */
       if (radio_control.status == RC_OK)
-        stabilization_cmd[COMMAND_THRUST] = Min( guidance_v_rc_delta_t, guidance_v_delta_t);
+        stabilization_cmd[COMMAND_THRUST] = Min(guidance_v_rc_delta_t, guidance_v_delta_t);
       else
         stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
 #endif

@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2008-2010 The Paparazzi Team
+ * Copyright (C) 2008-2012 The Paparazzi Team
  *
  * This file is part of Paparazzi.
  *
@@ -19,7 +17,12 @@
  * along with Paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
+ */
+
+/** @file supervision.c
+ *  Supervision.
+ *  Handles the mapping of roll/pitch/yaw commands
+ *  to actual motor commands.
  */
 
 #include "firmwares/rotorcraft/actuators/supervision.h"
@@ -32,6 +35,10 @@
 
 #ifndef INT32_MAX
 #define INT32_MAX (2147483647)
+#endif
+
+#ifndef SUPERVISION_STOP_MOTOR
+#define SUPERVISION_STOP_MOTOR 0
 #endif
 
 #ifndef SUPERVISION_MIN_MOTOR_STARTUP
@@ -166,7 +173,9 @@ void supervision_run(bool_t motors_on, bool_t override_on, int32_t in_cmd[] ) {
     bound_commands();
     bound_commands_step();
   }
-  else
-    for (i=0; i<SUPERVISION_NB_MOTOR; i++)
-      supervision.commands[i] = 0;
+  else {
+    for (i=0; i<SUPERVISION_NB_MOTOR; i++) {
+      supervision.commands[i] = SUPERVISION_STOP_MOTOR;
+    }
+  }
 }

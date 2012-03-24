@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2010-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,6 +17,10 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/** @file actuators_pwm_supervision.h
+ *  PWM actuators with supervision.
  */
 
 #include "firmwares/rotorcraft/actuators.h"
@@ -44,12 +46,10 @@ void actuators_init(void)
 }
 
 #define PWM_GAIN_SCALE 2
-#define PWM_OFF 1000
 
 void actuators_set(bool_t motors_on) {
   int32_t pwm_commands[COMMANDS_NB];
   int32_t pwm_commands_pprz[COMMANDS_NB];
-  int32_t booz2_commands[COMMANDS_NB];
 
   pwm_commands[COMMAND_ROLL] = commands[COMMAND_ROLL] * PWM_GAIN_SCALE;
   pwm_commands[COMMAND_PITCH] = commands[COMMAND_PITCH] * PWM_GAIN_SCALE;
@@ -64,12 +64,8 @@ void actuators_set(bool_t motors_on) {
 
   SetActuatorsFromCommands(pwm_commands_pprz);
 
-  if (motors_on) {
-    for (int i = 0; i < SUPERVISION_NB_MOTOR; i++)
+  for (int i = 0; i < SUPERVISION_NB_MOTOR; i++) {
       actuators_pwm_values[i] = supervision.commands[i];
-  } else {
-    for (int i = 0; i < SUPERVISION_NB_MOTOR; i++)
-      actuators_pwm_values[i] = PWM_OFF;
   }
   actuators_pwm_commit();
 
