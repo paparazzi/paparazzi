@@ -160,9 +160,9 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   stabilization_cmd[COMMAND_YAW] = stabilization_att_fb_cmd[COMMAND_YAW] + stabilization_att_ff_cmd[COMMAND_YAW];
 
   /* bound the result */
-  Bound(stabilization_cmd[COMMAND_ROLL], -200, 200);
-  Bound(stabilization_cmd[COMMAND_PITCH], -200, 200);
-  Bound(stabilization_cmd[COMMAND_YAW], -200, 200);
+  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
 }
 
 void stabilization_attitude_read_rc(bool_t in_flight) {

@@ -30,6 +30,8 @@
 #ifndef GUIDANCE_V_ADPT
 #define GUIDANCE_V_ADPT
 
+#include "paparazzi.h"
+
 /** Adapt noise factor.
  *  Smaller values will make the filter to adapter faster
  *  Bigger values (slower adaptation) make the filter more robust to external perturbations
@@ -46,7 +48,7 @@
 #define GUIDANCE_V_ADAPT_MAX_ACCEL 4.0
 #endif
 
-/** Filter is not fed if command values are out of a % of MIN/MAX_SUPERVISION
+/** Filter is not fed if command values are out of a % of 0/MAX_PPRZ
  *  MAX_CMD and MIN_CMD must be between 0 and 1 with MIN_CMD < MAX_CMD
  */
 #ifndef GUIDANCE_V_ADAPT_MAX_CMD
@@ -100,8 +102,8 @@ int32_t gv_adapt_Xmeas;
 #define GV_ADAPT_MAX_ACCEL ACCEL_BFP_OF_REAL(GUIDANCE_V_ADAPT_MAX_ACCEL)
 
 /* Command bounds */
-#define GV_ADAPT_MAX_CMD ((int32_t)Blend(SUPERVISION_MAX_MOTOR, SUPERVISION_MIN_MOTOR, GUIDANCE_V_ADAPT_MAX_CMD))
-#define GV_ADAPT_MIN_CMD ((int32_t)Blend(SUPERVISION_MAX_MOTOR, SUPERVISION_MIN_MOTOR, GUIDANCE_V_ADAPT_MIN_CMD))
+#define GV_ADAPT_MAX_CMD ((int32_t)(GUIDANCE_V_ADAPT_MAX_CMD*MAX_PPRZ))
+#define GV_ADAPT_MIN_CMD ((int32_t)(GUIDANCE_V_ADAPT_MIN_CMD*MAX_PPRZ))
 
 /* Output bounds.
  * Don't let it climb over a value that would
@@ -114,8 +116,8 @@ int32_t gv_adapt_Xmeas;
  *   9.81*2^18/1 = 2571632
  */
 // TODO Check this properly
-#define GV_ADAPT_MAX_OUT (BFP_OF_REAL(9.81, GV_ADAPT_X_FRAC) / SUPERVISION_MIN_MOTOR)
-#define GV_ADAPT_MIN_OUT (BFP_OF_REAL(9.81, GV_ADAPT_X_FRAC) / SUPERVISION_MAX_MOTOR)
+#define GV_ADAPT_MAX_OUT (BFP_OF_REAL(9.81, GV_ADAPT_X_FRAC))
+#define GV_ADAPT_MIN_OUT (BFP_OF_REAL(9.81, GV_ADAPT_X_FRAC) / MAX_PPRZ)
 
 
 static inline void gv_adapt_init(void) {
@@ -127,7 +129,7 @@ static inline void gv_adapt_init(void) {
 
 /** Adaptation function.
  * @param zdd_meas        vert accel measurement in m/s^2 with #INT32_ACCEL_FRAC
- * @param thrust_applied  controller input [SUPERVISION_MIN_MOTOR, SUPERVISION_MAX_MOTOR]
+ * @param thrust_applied  controller input [0 : MAX_PPRZ]
  * @param zd_ref          vertical speed reference in m/s with #INT32_SPEED_FRAC
  */
 static inline void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_t zd_ref) {
