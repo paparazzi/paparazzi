@@ -204,6 +204,9 @@ void guidance_h_run(bool_t  in_flight) {
 #ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
         stab_att_sp_euler.phi = nav_roll << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
         stab_att_sp_euler.theta = nav_pitch << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
+#ifdef STABILISATION_ATTITUDE_TYPE_QUAT
+        INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
+#endif
 #endif
       }
       else {
@@ -289,6 +292,9 @@ __attribute__ ((always_inline)) static inline void  guidance_h_hover_run(void) {
 #endif /* STABILISATION_ATTITUDE_TYPE_FLOAT */
 
   EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
+#ifdef STABILISATION_ATTITUDE_TYPE_QUAT
+  INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
+#endif
 
 }
 
