@@ -109,7 +109,8 @@ void stabilization_attitude_ref_enter()
   stabilization_attitude_sp_enter();
   memcpy(&stab_att_ref_quat, &stab_att_sp_quat, sizeof(struct Int32Quat));
 #else
-  update_quat_from_eulers(&stab_att_ref_quat, &stab_att_ref_euler);
+  INT32_QUAT_OF_EULERS(stab_att_ref_quat, stab_att_ref_euler);
+  INT32_QUAT_WRAP_SHORTEST(stab_att_ref_quat);
 #endif
 
   /* set reference rate and acceleration to zero */
