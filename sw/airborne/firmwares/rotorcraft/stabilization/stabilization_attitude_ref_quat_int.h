@@ -49,18 +49,6 @@
 
 #define STABILIZATION_ATTITUDE_RESET_PSI_REF(_sp) {}
 
-static inline void update_quat_from_eulers(struct Int32Quat *quat, struct Int32Eulers *eulers) {
-  struct Int32RMat rmat;
-
-#ifdef STICKS_RMAT312
-  INT32_RMAT_OF_EULERS_312(rmat, *eulers);
-#else
-  INT32_RMAT_OF_EULERS_321(rmat, *eulers);
-#endif
-  INT32_QUAT_OF_RMAT(*quat, rmat);
-  INT32_QUAT_WRAP_SHORTEST(*quat);
-}
-
 
 static inline void stabilization_attitude_read_rc_setpoint(bool_t in_flight) {
 
@@ -78,7 +66,8 @@ static inline void stabilization_attitude_read_rc_setpoint(bool_t in_flight) {
   }
 
   /* update quaternion setpoint from euler setpoint */
-  update_quat_from_eulers(&stab_att_sp_quat, &stab_att_sp_euler);
+  INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
+  INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
 
 }
 

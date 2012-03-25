@@ -217,10 +217,16 @@ void guidance_h_run(bool_t  in_flight) {
 
       if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
 #ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
+#ifdef STABILISATION_ATTITUDE_TYPE_QUAT
+        /* FIXME: stab_att_sp_euler should always have REF_ANGLE_FRAC
+         * and not be different for quat and euler versions */
+        stab_att_sp_euler.phi = nav_roll;
+        stab_att_sp_euler.theta = nav_pitch;
+        INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
+        INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
+#else
         stab_att_sp_euler.phi = nav_roll << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
         stab_att_sp_euler.theta = nav_pitch << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
-#ifdef STABILISATION_ATTITUDE_TYPE_QUAT
-        INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
 #endif
 #endif
       }
@@ -303,14 +309,25 @@ __attribute__ ((always_inline)) static inline void  guidance_h_hover_run(void) {
   guidance_h_command_body.phi   += guidance_h_rc_sp.phi;
   guidance_h_command_body.theta += guidance_h_rc_sp.theta;
   guidance_h_command_body.psi    = guidance_h_psi_sp + guidance_h_rc_sp.psi;
-#ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
-  ANGLE_REF_NORMALIZE(guidance_h_command_body.psi);
-#endif /* STABILISATION_ATTITUDE_TYPE_FLOAT */
 
-  EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
+#ifdef STABILISATION_ATTITUDE_TYPE_INT
+  ANGLE_REF_NORMALIZE(guidance_h_command_body.psi);
+
 #ifdef STABILISATION_ATTITUDE_TYPE_QUAT
+  /* guidance_h_command_body with REF_ANGLE_FRAC
+   * stab_att_sp_euler with INT32_ANGLE_FRAC
+   * FIXME: stab_att_sp_euler should always have REF_ANGLE_FRAC
+   */
+  INT32_EULERS_LSHIFT(stab_att_sp_euler, guidance_h_command_body, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
   INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
-#endif
+  INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
+#else
+  EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
+#endif /* STABILISATION_ATTITUDE_TYPE_QUAT */
+
+#else
+  EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
+#endif /* STABILISATION_ATTITUDE_TYPE_INT */
 
 }
 
@@ -401,13 +418,23 @@ __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in
   guidance_h_command_body.phi   += guidance_h_rc_sp.phi;
   guidance_h_command_body.theta += guidance_h_rc_sp.theta;
   guidance_h_command_body.psi    = guidance_h_psi_sp + guidance_h_rc_sp.psi;
+
+#ifdef STABILISATION_ATTITUDE_TYPE_INT
   ANGLE_REF_NORMALIZE(guidance_h_command_body.psi);
+#endif
 
   /* Set attitude setpoint in eulers and as quaternion */
-  EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
 #ifdef STABILISATION_ATTITUDE_TYPE_QUAT
+  /* guidance_h_command_body with REF_ANGLE_FRAC
+   * stab_att_sp_euler with INT32_ANGLE_FRAC
+   * FIXME: stab_att_sp_euler should always have REF_ANGLE_FRAC
+   */
+  INT32_EULERS_LSHIFT(stab_att_sp_euler, guidance_h_command_body, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
   INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
-#endif
+  INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
+#else
+  EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
+#endif /* STABILISATION_ATTITUDE_TYPE_QUAT */
 
 }
 
