@@ -28,16 +28,16 @@ foreach my $example (sort keys%{$examples->{'aircraft'}})
 				next unless scalar $airframe_config->{'firmware'}->{$process}->{'target'}->{$target}->{'board'};
 
 				# Exclude some builds on Mac as they are currently broken.
-				next if ( ($Config{'osname'} =~ m#darwin#i) and ($example =~ m#LISA_ASCTEC_PIOTR|LisaLv11_Booz2v12_RC|BOOZ2_A1#i) and ($target =~ m#sim#i) );
+				next if ( ($Config{'osname'} =~ m#darwin#i) and ($example =~ m#LISA_ASCTEC_PIOTR|LisaLv11_Booz2v12_RC|BOOZ2_A1|LisaLv11_Aspirinv15_Overo_RC#i) and ($target =~ m#sim#i) );
 
 				#warn "EXAMPLE: [$example] TARGET: [$target]\n";
-				my $make_upload_options = "AIRCRAFT=$example clean_ac $target.compile";
-				my $upload_output = run_program(
+				my $make_options = "AIRCRAFT=$example clean_ac $target.compile";
+				my $output = run_program(
 					"Attempting to build the firmware $target for the airframe $example.",
 					$ENV{'PAPARAZZI_SRC'},
-					"make $make_upload_options",
+					"make $make_options",
 					$ENV->{'TEST_VERBOSE'},1);
-				unlike($upload_output, '/\bError\b/i', "The upload output does not contain the word \"Error\"");
+				unlike($output, '/\bError\b/i', "The make output for the $example target $target does not contain the word \"Error\"");
 			}
 		}
 		elsif ($process =~ m#target#)
@@ -48,16 +48,16 @@ foreach my $example (sort keys%{$examples->{'aircraft'}})
 				next unless scalar $airframe_config->{'firmware'}->{$process}->{$target}->{'board'};
 
 				# Exclude some builds on Mac as they are currently broken.
-				next if ( ($Config{'osname'} =~ m#darwin#i) and ($example =~ m#LISA_ASCTEC_PIOTR|LisaLv11_Booz2v12_RC|BOOZ2_A1#i) and ($target =~ m#sim#i) );
+				next if ( ($Config{'osname'} =~ m#darwin#i) and ($example =~ m#LISA_ASCTEC_PIOTR|LisaLv11_Booz2v12_RC|BOOZ2_A1|LisaLv11_Aspirinv15_Overo_RC#i) and ($target =~ m#sim#i) );
 
 				#warn "EXAMPLET: [$example] TARGET: [$target]\n";
-				my $make_upload_options = "AIRCRAFT=$example clean_ac $target.compile";
-				my $upload_output = run_program(
+				my $make_options = "AIRCRAFT=$example clean_ac $target.compile";
+				my $output = run_program(
 					"Attempting to build the firmware $target for the airframe $example.",
 					$ENV{'PAPARAZZI_SRC'},
-					"make $make_upload_options",
+					"make $make_options",
 					$ENV->{'TEST_VERBOSE'},1);
-				unlike($upload_output, '/\bError\b/i', "The upload output does not contain the word \"Error\"");
+				unlike($output, '/\bError\b/i', "The make output for the $example target $target does not contain the word \"Error\"");
 			}
 		}
 	}

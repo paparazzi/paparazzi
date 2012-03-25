@@ -1,7 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2010 The Paparazzi Team
+ * Copyright (C) 2010-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,6 +17,10 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/** @file actuators_pwm_supervision.h
+ *  PWM actuators with supervision.
  */
 
 #include "firmwares/rotorcraft/actuators.h"
@@ -48,7 +50,6 @@ void actuators_init(void)
 void actuators_set(bool_t motors_on) {
   int32_t pwm_commands[COMMANDS_NB];
   int32_t pwm_commands_pprz[COMMANDS_NB];
-  int32_t booz2_commands[COMMANDS_NB];
 
   pwm_commands[COMMAND_ROLL] = commands[COMMAND_ROLL] * PWM_GAIN_SCALE;
   pwm_commands[COMMAND_PITCH] = commands[COMMAND_PITCH] * PWM_GAIN_SCALE;

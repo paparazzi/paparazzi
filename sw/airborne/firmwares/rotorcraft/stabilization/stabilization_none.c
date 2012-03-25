@@ -1,8 +1,5 @@
 /*
- * $Id$
- *
- * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
- * Copyright (C) 2010 Felix Ruess <felix.ruess@gmail.com>
+ * Copyright (C) 2011-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -20,6 +17,13 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/** @file stabilization_none.c
+ *  Dummy stabilization for rotorcrafts.
+ *
+ *  Doesn't actually do any stabilization,
+ *  just directly passes the RC commands along.
  */
 
 #include "firmwares/rotorcraft/stabilization.h"
@@ -42,19 +46,13 @@
 struct Int32Rates stabilization_none_rc_cmd;
 
 void stabilization_none_init(void) {
-
   INT_RATES_ZERO(stabilization_none_rc_cmd);
-
 }
-
 
 void stabilization_none_read_rc( void ) {
 
-
     stabilization_none_rc_cmd.p = (int32_t)radio_control.values[RADIO_ROLL];
-
     stabilization_none_rc_cmd.q = (int32_t)radio_control.values[RADIO_PITCH];
-
     stabilization_none_rc_cmd.r = (int32_t)radio_control.values[RADIO_YAW];
 }
 

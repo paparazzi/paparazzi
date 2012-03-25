@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -19,6 +17,11 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/** @file firmware/rotorcraft/guidance/guidance_h.c
+ *  Horizontal guidance for rotorcrafts.
+ *
  */
 
 #define GUIDANCE_H_C
@@ -216,6 +219,9 @@ void guidance_h_run(bool_t  in_flight) {
 #ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
         stab_att_sp_euler.phi = nav_roll << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
         stab_att_sp_euler.theta = nav_pitch << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
+#ifdef STABILISATION_ATTITUDE_TYPE_QUAT
+        INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
+#endif
 #endif
       }
       else {
@@ -302,6 +308,9 @@ __attribute__ ((always_inline)) static inline void  guidance_h_hover_run(void) {
 #endif /* STABILISATION_ATTITUDE_TYPE_FLOAT */
 
   EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
+#ifdef STABILISATION_ATTITUDE_TYPE_QUAT
+  INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
+#endif
 
 }
 

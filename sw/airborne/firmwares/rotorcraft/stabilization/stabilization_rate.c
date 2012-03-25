@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  * Copyright (C) 2010 Felix Ruess <felix.ruess@gmail.com>
  *
@@ -20,6 +18,12 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/** @file stabilization_rate.c
+ *  Rate stabilization for rotorcrafts.
+ *
+ *  Control loops for angular velocity.
  */
 
 #include "firmwares/rotorcraft/stabilization.h"
