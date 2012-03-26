@@ -1,10 +1,20 @@
 Q = @
 PERL = /usr/bin/perl
 TEST_VERBOSE = 0
-ifeq ($(TARGET_BOARD),)
-	TARGET_BOARD = *
+NON_TEST_DIRS = lib|results
+HARDWARE_REGEX = Lisa|Tiny|Umarim
+HARDWARE_TEST_DIRS = $(shell find -L * -maxdepth 1 -type d | grep -Ev "$(NON_TEST_DIRS)" | grep -E "$(HARDWARE_REGEX)")
+NON_HARDWARE_TEST_DIRS = $(shell find -L * -maxdepth 1 -type d | grep -Ev "$(NON_TEST_DIRS)" | grep -Ev "$(HARDWARE_REGEX)")
+ifneq ($(TARGET_BOARD),)
+	TEST_DIRECTORIES = $(TARGET_BOARD)
+else
+ifeq ($(TEST_HARDWARE),)
+	TEST_DIRECTORIES = $(NON_HARDWARE_TEST_DIRS)
+else
+	TEST_DIRECTORIES = $(NON_HARDWARE_TEST_DIRS) $(HARDWARE_TEST_DIRS)
 endif
-TEST_FILES := $(shell ls $(TARGET_BOARD)/*.t)
+endif
+TEST_FILES := $(shell ls $(TEST_DIRECTORIES:%=%/*.t))
 
 ifneq ($(JUNIT),)
 	PERLENV=PERL_TEST_HARNESS_DUMP_TAP=$(PAPARAZZI_SRC)/tests/results
@@ -16,4 +26,7 @@ endif
 
 test:
 	$(Q)$(PERLENV) $(PERL) "-e" "$(RUNTESTS)"
+
+clean:
+	rm -rf results/*
 

@@ -89,6 +89,7 @@ endif
 	$(MAKE) install -C apps DESTDIR=$(DESTDIR)
 
 clean:
-	$(MAKE) clean -C $(KSRC) M=$(shell pwd)/kernel
+	$(MAKE) clean -C $(KSRC) $(shell pwd)/kernel
 	rm -f hotplug/wis-ezusb udev/wis-ezusb.rules
 	$(MAKE) clean -C apps
+
