@@ -144,7 +144,7 @@ ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), navgo)
 include $(CFG_ROTORCRAFT)/spi.makefile
 ap.CFLAGS += -DUSE_SPI_SLAVE0
-ap.CFLAGS += -DSPI_NO_UNSELECT_SLAVE
+ap.CFLAGS += -DUSE_SPI1
 ap.CFLAGS += -DSPI_MASTER
 ap.srcs += peripherals/mcp355x.c
 endif
