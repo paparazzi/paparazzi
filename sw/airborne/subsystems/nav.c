@@ -203,7 +203,7 @@ static inline void nav_follow(uint8_t _ac_id, float _distance, float _height);
 static void nav_ground_speed_loop( void ) {
   if (MINIMUM_AIRSPEED < nav_ground_speed_setpoint
       && nav_ground_speed_setpoint < MAXIMUM_AIRSPEED) {
-    float err = estimator_hspeed_mod - nav_ground_speed_setpoint;
+    float err = nav_ground_speed_setpoint - estimator_hspeed_mod;
     v_ctl_auto_throttle_cruise_throttle += nav_ground_speed_pgain*err;
     Bound(v_ctl_auto_throttle_cruise_throttle, V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE, V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE);
   } else {
@@ -326,7 +326,7 @@ void fly_to_xy(float x, float y) {
     NormRadAngle(diff);
     BoundAbs(diff,M_PI/2.);
     float s = sin(diff);
-    h_ctl_roll_setpoint = atan(2 * estimator_hspeed_mod*estimator_hspeed_mod * s * (-h_ctl_course_pgain) / (CARROT * NOMINAL_AIRSPEED * 9.81) );
+    h_ctl_roll_setpoint = atan(2 * estimator_hspeed_mod*estimator_hspeed_mod * s * h_ctl_course_pgain / (CARROT * NOMINAL_AIRSPEED * 9.81) );
     BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
     lateral_mode = LATERAL_MODE_ROLL;
   }
@@ -419,7 +419,7 @@ void nav_init(void) {
   nav_mode = NAV_MODE_COURSE;
 
 #ifdef NAV_GROUND_SPEED_PGAIN
-  nav_ground_speed_pgain = NAV_GROUND_SPEED_PGAIN;
+  nav_ground_speed_pgain = ABS(NAV_GROUND_SPEED_PGAIN);
   nav_ground_speed_setpoint = NOMINAL_AIRSPEED;
 #endif
 }

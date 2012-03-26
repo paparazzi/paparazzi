@@ -81,6 +81,11 @@
 #include "gpio.h"
 #include "led.h"
 
+#if defined RADIO_CONTROL
+#pragma message "CAUTION! radio control roll channel input has been changed to follow aerospace sign conventions.\n You will have to change your radio control xml file to get a positive value when banking right!"
+#endif
+
+
 
 #if USE_AHRS
 #if USE_IMU
@@ -350,7 +355,7 @@ static inline void telecommand_task( void ) {
    */
   if (pprz_mode == PPRZ_MODE_AUTO1) {
     /** Roll is bounded between [-AUTO1_MAX_ROLL;AUTO1_MAX_ROLL] */
-    h_ctl_roll_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_ROLL], 0., -AUTO1_MAX_ROLL);
+    h_ctl_roll_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_ROLL], 0., AUTO1_MAX_ROLL);
 
     /** Pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
     h_ctl_pitch_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
@@ -445,7 +450,7 @@ void navigation_task( void ) {
   CallTCAS();
 #endif
 
-#ifndef PERIOD_NAVIGATION_DefaultChannel_0 // If not sent periodically (in default 0 mode)
+#ifndef PERIOD_NAVIGATION_0 // If not sent periodically (in default 0 mode)
   SEND_NAVIGATION(DefaultChannel, DefaultDevice);
 #endif
 
@@ -505,7 +510,7 @@ void attitude_loop( void ) {
   h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
   v_ctl_throttle_slew();
   ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
-  ap_state->commands[COMMAND_ROLL] = h_ctl_aileron_setpoint;
+  ap_state->commands[COMMAND_ROLL] = -h_ctl_aileron_setpoint;
 
   ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
 

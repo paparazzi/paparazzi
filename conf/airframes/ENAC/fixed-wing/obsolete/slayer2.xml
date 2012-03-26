@@ -113,7 +113,7 @@
 
  <section name="VERTICAL CONTROL" prefix="V_CTL_">
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="-0.065"/>
+    <define name="ALTITUDE_PGAIN" value="0.065"/>
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="3."/>
 
@@ -124,13 +124,13 @@
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1250"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-2000"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.01"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0.01"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.15"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.15"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_DGAIN" value="-1"/>
 
     <!-- auto pitch inner loop -->
-    <define name="AUTO_PITCH_PGAIN" value="-0.1"/>
+    <define name="AUTO_PITCH_PGAIN" value="0.1"/>
     <define name="AUTO_PITCH_IGAIN" value="0.025"/>
     <define name="AUTO_PITCH_MAX_PITCH" value="0.5"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="-0.5"/>
@@ -140,21 +140,21 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-2.6"/>
+    <define name="COURSE_PGAIN" value="2.6"/>
     <define name="COURSE_DGAIN" value="1"/>
     <define name="COURSE_PRE_BANK_CORRECTION" value="1."/>
     <define name="ROLL_MAX_SETPOINT" value="0.73" unit="rad"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
-    <define name="PITCH_PGAIN" value="-9000."/>
+    <define name="PITCH_PGAIN" value="9000."/>
     <define name="PITCH_DGAIN" value="0."/>
 
     <define name="ELEVATOR_OF_ROLL" value="1000"/>
 
     <!--  roll rate loop -->
-    <define name="ROLL_ATTITUDE_GAIN" value="-7500"/>
-    <define name="ROLL_RATE_GAIN" value="-1500"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="7500"/>
+    <define name="ROLL_RATE_GAIN" value="1500"/>
 
     <define name="COURSE_SLEW_INCREMENT" value="RadOfDeg(3)"/>
   </section>

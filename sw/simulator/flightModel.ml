@@ -199,7 +199,7 @@ module Make(A:Data.MISSION) = struct
 
   let do_commands = fun state commands ->
     let c_lda = 4e-5 in (* FIXME *)
-    state.delta_a <- -. c_lda *. float commands.(command_roll);
+    state.delta_a <- c_lda *. float commands.(command_roll);
     state.delta_b <- float commands.(command_pitch);
     state.thrust <- (float (commands.(command_throttle) - min_thrust) /. float (max_thrust - min_thrust))
 

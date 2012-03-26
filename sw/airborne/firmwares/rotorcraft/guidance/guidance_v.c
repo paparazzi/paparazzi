@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -21,6 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file firmwares/rotorcraft/guidance/guidance_v.c
+ *  Vertical guidance for rotorcrafts.
+ *
+ */
+
 #define GUIDANCE_V_C
 #define GUIDANCE_V_USE_REF 1
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
@@ -37,6 +40,15 @@
 
 #include "generated/airframe.h"
 
+
+/* warn if some gains are still negative */
+#if (GUIDANCE_V_HOVER_KP < 0) ||                   \
+  (GUIDANCE_V_HOVER_KD < 0)   ||                   \
+  (GUIDANCE_V_HOVER_KI < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
+
+
 uint8_t guidance_v_mode;
 int32_t guidance_v_ff_cmd;
 int32_t guidance_v_fb_cmd;
@@ -44,7 +56,7 @@ int32_t guidance_v_delta_t;
 
 
 /** Direct throttle from radio control.
- *  range 0:200
+ *  range 0:#MAX_PPRZ
  */
 int32_t guidance_v_rc_delta_t;
 
@@ -94,9 +106,10 @@ void guidance_v_init(void) {
 
 void guidance_v_read_rc(void) {
 
-  // used in RC_DIRECT directly and as saturation in CLIMB and HOVER
-  guidance_v_rc_delta_t = (int32_t)radio_control.values[RADIO_THROTTLE] * (SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR) / MAX_PPRZ;
-  // used in RC_CLIMB
+  /* used in RC_DIRECT directly and as saturation in CLIMB and HOVER */
+  guidance_v_rc_delta_t = (int32_t)radio_control.values[RADIO_THROTTLE];
+
+  /* used in RC_CLIMB */
   guidance_v_rc_zd_sp = ((MAX_PPRZ/2) - (int32_t)radio_control.values[RADIO_THROTTLE]) * GUIDANCE_V_RC_CLIMB_COEF;
   DeadBand(guidance_v_rc_zd_sp, GUIDANCE_V_RC_CLIMB_DEAD_BAND);
 
@@ -127,8 +140,9 @@ void guidance_v_mode_changed(uint8_t new_mode) {
 }
 
 void guidance_v_notify_in_flight( bool_t in_flight) {
-  if (in_flight)
+  if (in_flight) {
     gv_adapt_init();
+  }
 }
 
 
@@ -157,8 +171,9 @@ void guidance_v_run(bool_t in_flight) {
 
   case GUIDANCE_V_MODE_CLIMB:
 #if USE_FMS
-    if (fms.enabled && fms.input.v_mode == GUIDANCE_V_MODE_CLIMB)
+    if (fms.enabled && fms.input.v_mode == GUIDANCE_V_MODE_CLIMB) {
       guidance_v_zd_sp = fms.input.v_sp.climb;
+    }
 #endif
     gv_update_ref_from_zd_sp(guidance_v_zd_sp);
     run_hover_loop(in_flight);
@@ -166,7 +181,7 @@ void guidance_v_run(bool_t in_flight) {
     stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
 #else
     // saturate max authority with RC stick
-    stabilization_cmd[COMMAND_THRUST] = Min( guidance_v_rc_delta_t, guidance_v_delta_t);
+    stabilization_cmd[COMMAND_THRUST] = Min(guidance_v_rc_delta_t, guidance_v_delta_t);
 #endif
     break;
 
@@ -181,7 +196,7 @@ void guidance_v_run(bool_t in_flight) {
     stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
 #else
     // saturate max authority with RC stick
-    stabilization_cmd[COMMAND_THRUST] = Min( guidance_v_rc_delta_t, guidance_v_delta_t);
+    stabilization_cmd[COMMAND_THRUST] = Min(guidance_v_rc_delta_t, guidance_v_delta_t);
 #endif
     break;
 
@@ -207,7 +222,7 @@ void guidance_v_run(bool_t in_flight) {
 #else
       /* use rc limitation if available */
       if (radio_control.status == RC_OK)
-        stabilization_cmd[COMMAND_THRUST] = Min( guidance_v_rc_delta_t, guidance_v_delta_t);
+        stabilization_cmd[COMMAND_THRUST] = Min(guidance_v_rc_delta_t, guidance_v_delta_t);
       else
         stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
 #endif
@@ -231,9 +246,9 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
   guidance_v_zd_ref = gv_zd_ref<<(INT32_SPEED_FRAC - GV_ZD_REF_FRAC);
   guidance_v_zdd_ref = gv_zdd_ref<<(INT32_ACCEL_FRAC - GV_ZDD_REF_FRAC);
   /* compute the error to our reference */
-  int32_t err_z  =  ins_ltp_pos.z - guidance_v_z_ref;
+  int32_t err_z  = guidance_v_z_ref - ins_ltp_pos.z;
   Bound(err_z, GUIDANCE_V_MIN_ERR_Z, GUIDANCE_V_MAX_ERR_Z);
-  int32_t err_zd =  ins_ltp_speed.z - guidance_v_zd_ref;
+  int32_t err_zd = guidance_v_zd_ref - ins_ltp_speed.z;
   Bound(err_zd, GUIDANCE_V_MIN_ERR_ZD, GUIDANCE_V_MAX_ERR_ZD);
 
   if (in_flight) {
@@ -261,11 +276,16 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
   /* feed forward command */
   guidance_v_ff_cmd = (guidance_v_ff_cmd << INT32_TRIG_FRAC) / cphitheta;
 
+
   /* our error feed back command                   */
+  /* z-axis pointing down -> positive error means we need less thrust */
   guidance_v_fb_cmd = ((-guidance_v_kp * err_z)  >> 12) +
                       ((-guidance_v_kd * err_zd) >> 21) +
                       ((-guidance_v_ki * guidance_v_z_sum_err) >> 21);
 
   guidance_v_delta_t = guidance_v_ff_cmd + guidance_v_fb_cmd;
+
+  /* bound the result */
+  Bound(guidance_v_delta_t, 0, MAX_PPRZ);
 
 }

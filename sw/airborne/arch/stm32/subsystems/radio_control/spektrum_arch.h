@@ -54,7 +54,7 @@
 /* reverse some channels to suit Paparazzi conventions          */
 /* the maximum number of channels a Spektrum can transmit is 12 */
 #ifndef RADIO_CONTROL_SPEKTRUM_SIGNS
-#define RADIO_CONTROL_SPEKTRUM_SIGNS {1,1,-1,1,1,-1,1,1,1,1,1,1}
+#define RADIO_CONTROL_SPEKTRUM_SIGNS {1,-1,-1,-1,1,-1,1,1,1,1,1,1}
 #endif
 
 /* really for a 9 channel transmitter

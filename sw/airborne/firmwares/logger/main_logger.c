@@ -104,6 +104,31 @@
 #define LOG_STOP_KEY 7
 #endif
 
+/*
+#ifndef POWER_DETECT_PIN
+// Pin 0.10
+#define POWER_DETECT_PIN 6
+#endif
+
+#ifndef CARD_DETECT_PIN
+// Pin 1.20
+#define CARD_DETECT_PIN 20
+#endif
+*/
+
+#ifndef LED_GREEN
+#define LED_GREEN	3
+#endif
+
+#ifndef LED_YELLOW
+#define LED_YELLOW	2
+#endif
+
+#ifndef LED_RED
+#define LED_RED		1
+#endif
+
+
 /* USB Vbus (= P0.23) */
 #define VBUS_PIN 23
 
@@ -391,7 +416,7 @@ int do_log(void)
     }
 
     /* write to SD until key is pressed */
-    while ((IO0PIN & _BV(LOG_STOP_KEY))>>LOG_STOP_KEY)
+    while ((IO0PIN & (1<<LOG_STOP_KEY))>>LOG_STOP_KEY)
     {
 
 #ifdef USE_MAX11040
@@ -468,6 +493,40 @@ int main(void)
 {
   int waitloop, ledcount;
   main_init();
+
+#ifdef _DEBUG_BOARD_
+  while(1)
+  {
+    if (IO0PIN & (1 << LOG_STOP_KEY))
+    {
+      LED_ON(LED_YELLOW);
+    }
+    else
+    {
+      LED_OFF(LED_YELLOW);
+    }
+
+    if (IO1PIN & (1 << CARD_DETECT_PIN))
+    {
+      LED_OFF(LED_GREEN);
+    }
+    else
+    {
+      LED_ON(LED_GREEN);
+    }
+
+    if (IO0PIN & (1 << POWER_DETECT_PIN))
+//    if (IO0PIN & (1 << VBUS_PIN))
+    {
+      LED_ON(LED_RED);
+    }
+    else
+    {
+      LED_OFF(LED_RED);
+    }
+  }
+#endif
+
 
   while(1)
   {
