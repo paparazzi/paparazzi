@@ -94,7 +94,7 @@
     ac_id="10"
     airframe="airframes/TestHardware/LisaL_v1.1_aspirin_v1.5_overo_rc.xml"
     radio="radios/cockpitSX.xml"
-    telemetry="telemetry/telemetry_booz2.xml"
+    telemetry="telemetry/default_rotorcraft.xml"
     flight_plan="flight_plans/dummy.xml"
     settings="settings/settings_booz2.xml"
     gui_color="white"
