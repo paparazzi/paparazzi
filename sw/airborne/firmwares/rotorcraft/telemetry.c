@@ -21,7 +21,10 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "telemetry.h"
+/* PERIODIC_C_MAIN is defined before generated/periodic_telemetry.h
+ * in order to implement telemetry_mode_Main_*
+ */
+#define PERIODIC_C_MAIN
 
+#include "generated/periodic_telemetry.h"
 
-uint8_t telemetry_mode_Main_DefaultChannel = TELEMETRY_MODE_Main_DefaultChannel_default;

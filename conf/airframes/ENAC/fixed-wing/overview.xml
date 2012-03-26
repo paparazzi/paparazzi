@@ -119,7 +119,7 @@
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="-0.06"/>
+    <define name="ALTITUDE_PGAIN" value="0.06"/>
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
@@ -130,12 +130,12 @@
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-1200"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.2" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.023"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0.023"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.1"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.05"/>
 
     <!-- auto pitch inner loop -->
-    <define name="AUTO_PITCH_PGAIN" value="-0.06"/>
+    <define name="AUTO_PITCH_PGAIN" value="0.06"/>
     <define name="AUTO_PITCH_IGAIN" value="0.0"/>
     <define name="AUTO_PITCH_MAX_PITCH" value="0.35"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="-0.35"/>
@@ -145,15 +145,15 @@
 
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.0"/>
+    <define name="COURSE_PGAIN" value="1.0"/>
     <define name="ROLL_MAX_SETPOINT" value="0.60" unit="rad"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-9000."/>
-    <define name="ROLL_RATE_GAIN" value="-3000."/>
+    <define name="ROLL_ATTITUDE_GAIN" value="9000."/>
+    <define name="ROLL_RATE_GAIN" value="3000."/>
 
-    <define name="PITCH_PGAIN" value="-9000."/>
+    <define name="PITCH_PGAIN" value="9000."/>
     <define name="PITCH_DGAIN" value="0.4"/>
 
     <define name="AILERON_OF_THROTTLE" value="0.0"/>

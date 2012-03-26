@@ -1,6 +1,4 @@
 /*
- * Paparazzi $Id$
- *
  * Copyright (C) 2011 Gautier Hattenberger
  *
  * This file is part of paparazzi.
@@ -22,14 +20,10 @@
  *
  */
 
-#include "firmwares/fixedwing/fbw_downlink.h"
-#include "generated/airframe.h"
+/* PERIODIC_C_FBW is defined before generated/periodic_telemetry.h
+ * in order to implement telemetry_mode_Fbw_*
+ */
+#define PERIODIC_C_FBW
 
-#ifdef FBW
-#ifndef TELEMETRY_MODE_FBW
-#define TELEMETRY_MODE_FBW 0
-#endif
-uint8_t telemetry_mode_Fbw_DefaultChannel = TELEMETRY_MODE_FBW;
-#endif /** AP */
-
+#include "generated/periodic_telemetry.h"
 

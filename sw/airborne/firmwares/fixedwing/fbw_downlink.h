@@ -37,7 +37,7 @@
 
 #include <inttypes.h>
 #include "messages.h"
-#include "generated/periodic.h"
+#include "generated/periodic_telemetry.h"
 #include "generated/airframe.h"
 #include "commands.h"
 #include "actuators.h"
@@ -52,11 +52,6 @@
 #define DOWNLINK_DEVICE DOWNLINK_FBW_DEVICE
 #endif
 #include "subsystems/datalink/downlink.h"
-
-#ifdef FBW
-/** Telemetry mode for FBW process: index in the telemetry.xml file */
-extern uint8_t telemetry_mode_Fbw_DefaultChannel;
-#endif
 
 #define PERIODIC_SEND_COMMANDS(_trans, _dev) DOWNLINK_SEND_COMMANDS(_trans, _dev, COMMANDS_NB, commands)
 

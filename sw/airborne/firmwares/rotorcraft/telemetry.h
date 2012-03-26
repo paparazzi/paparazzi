@@ -29,7 +29,7 @@
 #include "mcu_periph/uart.h"
 
 #include "subsystems/datalink/downlink.h"
-#include "generated/periodic.h"
+#include "generated/periodic_telemetry.h"
 
 #ifdef RADIO_CONTROL
 #include "subsystems/radio_control.h"
@@ -50,8 +50,6 @@
 #include "subsystems/ahrs.h"
 //FIXME: wtf ??!!
 #include "mcu_periph/i2c_arch.h"
-
-extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #define PERIODIC_SEND_ALIVE(_trans, _dev) DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM)
 

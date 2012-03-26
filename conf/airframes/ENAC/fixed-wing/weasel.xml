@@ -144,7 +144,7 @@
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
     <!--define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/-->
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="-0.159999996424"/> <!-- -0.024 -->
+    <define name="ALTITUDE_PGAIN" value="0.159999996424"/> <!-- -0.024 -->
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="5."/>
 
@@ -157,15 +157,15 @@
 
     <!-- Climb loop (throttle) -->
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.004"/> <!-- -0.005 -->
-    <define name="AUTO_THROTTLE_DGAIN" value="-0.01"/> <!-- 0.005 -->
-    <define name="AUTO_THROTTLE_IGAIN" value="-0.004"/> <!-- 0.005 -->
+    <define name="AUTO_THROTTLE_PGAIN" value="0.004"/> <!-- -0.005 -->
+    <define name="AUTO_THROTTLE_DGAIN" value="0.01"/> <!-- 0.005 -->
+    <define name="AUTO_THROTTLE_IGAIN" value="0.004"/> <!-- 0.005 -->
 
     <!-- Climb loop (pitch) -->
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.02"/>
-    <define name="AUTO_PITCH_PGAIN" value="-0.038"/> <!-- -0.03 -->
-    <define name="AUTO_PITCH_DGAIN" value="-0.036"/> <!-- -0.03 -->
-    <define name="AUTO_PITCH_IGAIN" value="-0.0"/>
+    <define name="AUTO_PITCH_PGAIN" value="0.038"/> <!-- -0.03 -->
+    <define name="AUTO_PITCH_DGAIN" value="0.036"/> <!-- -0.03 -->
+    <define name="AUTO_PITCH_IGAIN" value="0.0"/>
 
     <!-- airspeed control -->
     <define name="AUTO_AIRSPEED_SETPOINT" value="16."/>
@@ -191,20 +191,20 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-0.7"/>
+    <define name="COURSE_PGAIN" value="0.7"/>
     <define name="ROLL_MAX_SETPOINT" value="0.8" unit="rad"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-3800."/>
-    <define name="ROLL_RATE_GAIN" value="-500."/>
-    <define name="ROLL_IGAIN" value="-150."/>
+    <define name="ROLL_ATTITUDE_GAIN" value="3800."/>
+    <define name="ROLL_RATE_GAIN" value="500."/>
+    <define name="ROLL_IGAIN" value="150."/>
     <define name="ROLL_KFFA" value="0"/>
     <define name="ROLL_KFFD" value="0"/>
 
-    <define name="PITCH_PGAIN" value="-10000."/>
+    <define name="PITCH_PGAIN" value="10000."/>
     <define name="PITCH_DGAIN" value="0."/>
-    <define name="PITCH_IGAIN" value="-250."/>
+    <define name="PITCH_IGAIN" value="250."/>
     <define name="PITCH_KFFA" value="0."/>
     <define name="PITCH_KFFD" value="0."/>
 
