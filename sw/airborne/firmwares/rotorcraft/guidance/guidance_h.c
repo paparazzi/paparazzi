@@ -25,12 +25,12 @@
  */
 
 #define GUIDANCE_H_C
-//#define GUIDANCE_H_USE_REF 1
+
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 
-#include "subsystems/ahrs.h"
 #include "firmwares/rotorcraft/stabilization.h"
-// #include "booz_fms.h" FIXME
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
+#include "subsystems/ahrs.h"
 #include "subsystems/ins.h"
 #include "firmwares/rotorcraft/navigation.h"
 
@@ -172,12 +172,12 @@ void guidance_h_read_rc(bool_t  in_flight) {
     break;
 
   case GUIDANCE_H_MODE_HOVER:
-    stabilization_attitude_read_rc_ref(&guidance_h_rc_sp, in_flight);
+    stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
     break;
 
   case GUIDANCE_H_MODE_NAV:
     if (radio_control.status == RC_OK) {
-      stabilization_attitude_read_rc_ref(&guidance_h_rc_sp, in_flight);
+      stabilization_attitude_read_rc_setpoint_eulers(&guidance_h_rc_sp, in_flight);
       guidance_h_rc_sp.psi = 0;
     }
     else {
@@ -419,7 +419,8 @@ __attribute__ ((always_inline)) static inline void guidance_h_hover_enter(void) 
 
   VECT2_COPY(guidance_h_pos_sp, ins_ltp_pos);
 
-  STABILIZATION_ATTITUDE_RESET_PSI_REF( guidance_h_rc_sp );
+  guidance_h_rc_sp.psi = ahrs.ltp_to_body_euler.psi;
+  reset_psi_ref_from_body();
 
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
 
@@ -434,12 +435,14 @@ __attribute__ ((always_inline)) static inline void guidance_h_nav_enter(void) {
   VECT2_COPY(speed, ins_ltp_speed);
   GuidanceHSetRef(pos, speed, zero);
 
-  struct Int32Eulers tmp_sp;
-  STABILIZATION_ATTITUDE_RESET_PSI_REF( tmp_sp );
-  guidance_h_psi_sp = tmp_sp.psi;
-#ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
-  nav_heading = (guidance_h_psi_sp >> (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
-#endif /* STABILISATION_ATTITUDE_TYPE_FLOAT */
+  /* reset psi reference, set psi setpoint to current psi */
+  reset_psi_ref_from_body();
+  guidance_h_rc_sp.psi = ahrs.ltp_to_body_euler.psi;
+  guidance_h_psi_sp = ahrs.ltp_to_body_euler.psi;
+  nav_heading = guidance_h_psi_sp;
+
+  /* set RC heading setpoint to zero,
+   * since that is added to guidance_h_psi_sp later */
   guidance_h_rc_sp.psi = 0;
 
   INT_VECT2_ZERO(guidance_h_pos_err_sum);

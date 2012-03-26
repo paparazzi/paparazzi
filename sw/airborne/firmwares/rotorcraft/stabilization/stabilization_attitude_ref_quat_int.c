@@ -77,12 +77,6 @@ struct Int32RefModel stab_att_ref_model = {
 };
 
 
-static void reset_psi_ref_from_body(void) {
-  stab_att_ref_euler.psi = ahrs.ltp_to_body_euler.psi;
-  stab_att_ref_rate.r = 0;
-  stab_att_ref_accel.r = 0;
-}
-
 void stabilization_attitude_ref_init(void) {
 
   INT_EULERS_ZERO(stab_att_sp_euler);

@@ -23,7 +23,7 @@
 #include "subsystems/ahrs.h"
 #include "subsystems/radio_control.h"
 
-
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 
 #include "generated/airframe.h"
 
@@ -80,14 +80,15 @@ void stabilization_attitude_init(void) {
 
 void stabilization_attitude_read_rc(bool_t in_flight) {
 
-  stabilization_attitude_read_rc_ref(&stab_att_sp_euler, in_flight);
+  stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
 
 }
 
 
 void stabilization_attitude_enter(void) {
 
-  STABILIZATION_ATTITUDE_RESET_PSI_REF(  stab_att_sp_euler );
+  stab_att_sp_euler.psi = ahrs.ltp_to_body_euler.psi;
+  reset_psi_ref_from_body();
   INT_EULERS_ZERO( stabilization_att_sum_err );
 
 }

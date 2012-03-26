@@ -1,6 +1,4 @@
 /*
- * $Id: stabilization_attitude_ref_euler_int.h -1   $
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -74,6 +72,8 @@ void stabilization_attitude_ref_init(void) {
 #define OMEGA_2_R_RES 7
 #define OMEGA_2_R    BFP_OF_REAL((OMEGA_R*OMEGA_R), OMEGA_2_R_RES)
 
+
+/** explicitly define to zero to disable attitude reference generation */
 #ifndef USE_ATTITUDE_REF
 #define USE_ATTITUDE_REF 1
 #endif

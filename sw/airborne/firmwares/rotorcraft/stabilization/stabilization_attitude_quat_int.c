@@ -24,6 +24,7 @@
  */
 
 #include "firmwares/rotorcraft/stabilization.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 
 #if USE_SETPOINTS_WITH_TRANSITIONS
 #include "firmwares/rotorcraft/stabilization/quat_setpoint_int.h"
@@ -183,7 +184,10 @@ void stabilization_attitude_read_rc(bool_t in_flight) {
 #if USE_SETPOINTS_WITH_TRANSITIONS
   stabilization_attitude_read_rc_absolute(in_flight);
 #else
-  stabilization_attitude_read_rc_setpoint(in_flight);
+  stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
+  /* update quaternion setpoint from euler setpoint */
+  INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
+  INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
 #endif
 
 }
