@@ -64,9 +64,9 @@
 #define OMEGA_2_R    BFP_OF_REAL((OMEGA_R*OMEGA_R), OMEGA_2_R_RES)
 
 
-struct Int32Eulers stab_att_sp_euler;  ///< with #INT32_ANGLE_FRAC
+struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
-struct Int32Eulers stab_att_ref_euler; ///< with #INT32_ANGLE_FRAC
+struct Int32Eulers stab_att_ref_euler;
 struct Int32Quat   stab_att_ref_quat;
 struct Int32Rates  stab_att_ref_rate;
 struct Int32Rates  stab_att_ref_accel;
@@ -76,12 +76,6 @@ struct Int32RefModel stab_att_ref_model = {
   {STABILIZATION_ATTITUDE_REF_ZETA_P, STABILIZATION_ATTITUDE_REF_ZETA_Q, STABILIZATION_ATTITUDE_REF_ZETA_R}
 };
 
-
-static void reset_psi_ref_from_body(void) {
-  stab_att_ref_euler.psi = ahrs.ltp_to_body_euler.psi;
-  stab_att_ref_rate.r = 0;
-  stab_att_ref_accel.r = 0;
-}
 
 void stabilization_attitude_ref_init(void) {
 
@@ -109,7 +103,10 @@ void stabilization_attitude_ref_enter()
   stabilization_attitude_sp_enter();
   memcpy(&stab_att_ref_quat, &stab_att_sp_quat, sizeof(struct Int32Quat));
 #else
-  INT32_QUAT_OF_EULERS(stab_att_ref_quat, stab_att_ref_euler);
+  /* convert reference attitude with REF_ANGLE_FRAC to eulers with normal INT32_ANGLE_FRAC */
+  struct Int32Eulers ref_eul;
+  INT32_EULERS_RSHIFT(ref_eul, stab_att_ref_euler, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
+  INT32_QUAT_OF_EULERS(stab_att_ref_quat, ref_eul);
   INT32_QUAT_WRAP_SHORTEST(stab_att_ref_quat);
 #endif
 
@@ -180,7 +177,9 @@ void stabilization_attitude_ref_update() {
   //const struct Int32Rates MAX_ACCEL = {  REF_ACCEL_MAX_P,  REF_ACCEL_MAX_Q,  REF_ACCEL_MAX_R };
   //RATES_BOUND_BOX(stab_att_ref_accel, MIN_ACCEL, MAX_ACCEL);
 
-  /* compute ref_euler */
-  INT32_EULERS_OF_QUAT(stab_att_ref_euler, stab_att_ref_quat);
 
+  /* compute ref_euler for debugging and telemetry */
+  struct Int32Eulers ref_eul;
+  INT32_EULERS_OF_QUAT(ref_eul, stab_att_ref_quat);
+  INT32_EULERS_LSHIFT(stab_att_ref_euler, ref_eul, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
 }
