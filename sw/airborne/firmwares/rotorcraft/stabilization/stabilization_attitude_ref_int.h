@@ -20,6 +20,12 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+
+/** @file stabilization_attitude_ref_int.h
+ *  Rotorcraft attitude reference generation API.
+ *  Common to all fixed-point reference generators (euler and quaternion)
+ */
+
 #ifndef STABILISATION_ATTITUDE_REF_INT_H
 #define STABILISATION_ATTITUDE_REF_INT_H
 
@@ -30,12 +36,9 @@
 #include "subsystems/radio_control.h"
 #include "subsystems/ahrs.h"
 
-/*
- * CAUTION! stabilization euler has the euler angles with REF_ANGLE_FRAC, but stab quat with INT32_ANGLE_FRAC
- */
-extern struct Int32Eulers stab_att_sp_euler;
+extern struct Int32Eulers stab_att_sp_euler;  ///< with #INT32_ANGLE_FRAC
 extern struct Int32Quat   stab_att_sp_quat;   ///< with #INT32_QUAT_FRAC
-extern struct Int32Eulers stab_att_ref_euler;
+extern struct Int32Eulers stab_att_ref_euler; ///< with #REF_ANGLE_FRAC
 extern struct Int32Quat   stab_att_ref_quat;  ///< with #INT32_QUAT_FRAC
 extern struct Int32Rates  stab_att_ref_rate;  ///< with #REF_RATE_FRAC
 extern struct Int32Rates  stab_att_ref_accel; ///< with #REF_ACCEL_FRAC

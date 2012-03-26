@@ -216,18 +216,11 @@ void guidance_h_run(bool_t  in_flight) {
       if (!in_flight) guidance_h_nav_enter();
 
       if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
-#ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
-#ifdef STABILISATION_ATTITUDE_TYPE_QUAT
-        /* FIXME: stab_att_sp_euler should always have REF_ANGLE_FRAC
-         * and not be different for quat and euler versions */
         stab_att_sp_euler.phi = nav_roll;
         stab_att_sp_euler.theta = nav_pitch;
+#ifdef STABILISATION_ATTITUDE_TYPE_QUAT
         INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
         INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
-#else
-        stab_att_sp_euler.phi = nav_roll << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
-        stab_att_sp_euler.theta = nav_pitch << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC);
-#endif
 #endif
       }
       else {
@@ -235,10 +228,7 @@ void guidance_h_run(bool_t  in_flight) {
 #if GUIDANCE_H_USE_REF
         b2_gh_update_ref_from_pos_sp(guidance_h_pos_sp);
 #endif
-#ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
-        guidance_h_psi_sp = (nav_heading << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
-#endif
-        //guidance_h_hover_run();
+        guidance_h_psi_sp = nav_heading;
         guidance_h_nav_run(in_flight);
       }
       stabilization_attitude_run(in_flight);
@@ -256,6 +246,7 @@ void guidance_h_run(bool_t  in_flight) {
 #define MAX_SPEED_ERR SPEED_BFP_OF_REAL(16.)
 #define MAX_POS_ERR_SUM ((int32_t)(MAX_POS_ERR)<< 12)
 
+// FIXME
 // 15 degres
 //#define MAX_BANK (65536)
 #define MAX_BANK (98000)
@@ -297,42 +288,34 @@ __attribute__ ((always_inline)) static inline void  guidance_h_hover_run(void) {
   PPRZ_ITRIG_COS(c_psi, ahrs.ltp_to_body_euler.psi);
 
 
-  // INT32_TRIG_FRAC - 2: 100mm erreur, gain 100 -> 10000 command | 2 degres = 36000, so multiply by 4
+  // INT32_TRIG_FRAC - 2: 100mm error, gain 100 -> 10000 command | 2 degrees = 142, so divide by 64
   guidance_h_command_body.phi =
       ( - s_psi * guidance_h_command_earth.x + c_psi * guidance_h_command_earth.y)
-    >> (INT32_TRIG_FRAC - 2);
+    >> (INT32_TRIG_FRAC + 6);
   guidance_h_command_body.theta =
     - ( c_psi * guidance_h_command_earth.x + s_psi * guidance_h_command_earth.y)
-    >> (INT32_TRIG_FRAC - 2);
+    >> (INT32_TRIG_FRAC + 6);
 
+  guidance_h_command_body.psi = guidance_h_psi_sp;
 
-  guidance_h_command_body.phi   += guidance_h_rc_sp.phi;
-  guidance_h_command_body.theta += guidance_h_rc_sp.theta;
-  guidance_h_command_body.psi    = guidance_h_psi_sp + guidance_h_rc_sp.psi;
+  /* Add RC setpoint */
+  EULERS_ADD(guidance_h_command_body, guidance_h_rc_sp);
 
-#ifdef STABILISATION_ATTITUDE_TYPE_INT
-  ANGLE_REF_NORMALIZE(guidance_h_command_body.psi);
+  /* wrap heading in shortest direction */
+  INT32_ANGLE_NORMALIZE(guidance_h_command_body.psi);
+
+  EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
 
 #ifdef STABILISATION_ATTITUDE_TYPE_QUAT
-  /* guidance_h_command_body with REF_ANGLE_FRAC
-   * stab_att_sp_euler with INT32_ANGLE_FRAC
-   * FIXME: stab_att_sp_euler should always have REF_ANGLE_FRAC
-   */
-  INT32_EULERS_LSHIFT(stab_att_sp_euler, guidance_h_command_body, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
   INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
   INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
-#else
-  EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
 #endif /* STABILISATION_ATTITUDE_TYPE_QUAT */
-
-#else
-  EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
-#endif /* STABILISATION_ATTITUDE_TYPE_INT */
 
 }
 
-// 20 degres -> 367002 (0.35 << 20)
-#define NAV_MAX_BANK BFP_OF_REAL(0.35,REF_ANGLE_FRAC)
+// FIXME: set in airframe file, some hardcoded value here
+// 20 degres
+#define NAV_MAX_BANK BFP_OF_REAL(0.35, INT32_ANGLE_FRAC)
 #define HOLD_DISTANCE POS_BFP_OF_REAL(10.)
 
 __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in_flight) {
@@ -354,7 +337,6 @@ __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in
   VECT2_STRIM(guidance_h_pos_err, -MAX_POS_ERR, MAX_POS_ERR);
 
   /* compute speed error    */
-  //VECT2_COPY(guidance_h_speed_err, ins_ltp_speed);
   VECT2_DIFF(guidance_h_speed_err, guidance_h_speed_ref, ins_ltp_speed);
   /* saturate it               */
   VECT2_STRIM(guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
@@ -401,7 +383,9 @@ __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in
     guidance_h_again * guidance_h_accel_ref.y; /* feedforward gain */
 
   VECT2_STRIM(guidance_h_command_earth, -NAV_MAX_BANK, NAV_MAX_BANK);
-  INT32_VECT2_RSHIFT(guidance_h_command_earth, guidance_h_command_earth, REF_ANGLE_FRAC - 16); // Reduice to 16 for trigo operation
+
+  // command_body is already in INT32_ANGLE_FRAC (12), so maybe reduce it in command_earth above?
+  //INT32_VECT2_RSHIFT(guidance_h_command_earth, guidance_h_command_earth, REF_ANGLE_FRAC - 16); // Reduice to 16 for trigo operation
 
   /* Rotate to body frame */
   int32_t s_psi, c_psi;
@@ -410,30 +394,23 @@ __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in
 
   // Restore angle ref resolution after rotation
   guidance_h_command_body.phi =
-      ( - s_psi * guidance_h_command_earth.x + c_psi * guidance_h_command_earth.y) >> (INT32_TRIG_FRAC - (REF_ANGLE_FRAC - 16));
+      ( - s_psi * guidance_h_command_earth.x + c_psi * guidance_h_command_earth.y) >> INT32_TRIG_FRAC;
   guidance_h_command_body.theta =
-    - ( c_psi * guidance_h_command_earth.x + s_psi * guidance_h_command_earth.y) >> (INT32_TRIG_FRAC - (REF_ANGLE_FRAC - 16));
+    - ( c_psi * guidance_h_command_earth.x + s_psi * guidance_h_command_earth.y) >> INT32_TRIG_FRAC;
 
-  // Add RC setpoint
-  guidance_h_command_body.phi   += guidance_h_rc_sp.phi;
-  guidance_h_command_body.theta += guidance_h_rc_sp.theta;
-  guidance_h_command_body.psi    = guidance_h_psi_sp + guidance_h_rc_sp.psi;
+  guidance_h_command_body.psi = guidance_h_psi_sp;
 
-#ifdef STABILISATION_ATTITUDE_TYPE_INT
-  ANGLE_REF_NORMALIZE(guidance_h_command_body.psi);
-#endif
+  /* Add RC setpoint */
+  EULERS_ADD(guidance_h_command_body, guidance_h_rc_sp);
+
+  INT32_ANGLE_NORMALIZE(guidance_h_command_body.psi);
 
   /* Set attitude setpoint in eulers and as quaternion */
+  EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
+
 #ifdef STABILISATION_ATTITUDE_TYPE_QUAT
-  /* guidance_h_command_body with REF_ANGLE_FRAC
-   * stab_att_sp_euler with INT32_ANGLE_FRAC
-   * FIXME: stab_att_sp_euler should always have REF_ANGLE_FRAC
-   */
-  INT32_EULERS_LSHIFT(stab_att_sp_euler, guidance_h_command_body, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
   INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
   INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
-#else
-  EULERS_COPY(stab_att_sp_euler, guidance_h_command_body);
 #endif /* STABILISATION_ATTITUDE_TYPE_QUAT */
 
 }

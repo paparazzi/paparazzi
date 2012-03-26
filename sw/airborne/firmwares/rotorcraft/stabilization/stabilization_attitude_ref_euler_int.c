@@ -21,9 +21,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file stabilization_attitude_ref_euler_int.c
+ *  Rotorcraft attitude reference generation (euler int version)
+ *
+ */
+
 #include "firmwares/rotorcraft/stabilization.h"
 
-struct Int32Eulers stab_att_sp_euler;   ///< with #REF_ANGLE_FRAC
+struct Int32Eulers stab_att_sp_euler;
 struct Int32Eulers stab_att_ref_euler;  ///< with #REF_ANGLE_FRAC
 struct Int32Rates  stab_att_ref_rate;
 struct Int32Rates  stab_att_ref_accel;
@@ -92,9 +97,13 @@ void stabilization_attitude_ref_update() {
     stab_att_ref_accel.r >> ( F_UPDATE_RES + REF_ACCEL_FRAC - REF_RATE_FRAC)};
   RATES_ADD(stab_att_ref_rate, d_rate);
 
+  /* attitude setpoint with REF_ANGLE_FRAC   */
+  struct Int32Eulers sp_ref;
+  INT32_EULERS_LSHIFT(sp_ref, stab_att_sp_euler, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
+
   /* compute reference attitude error        */
   struct Int32Eulers ref_err;
-  EULERS_DIFF(ref_err, stab_att_ref_euler, stab_att_sp_euler);
+  EULERS_DIFF(ref_err, stab_att_ref_euler, sp_ref);
   /* wrap it in the shortest direction       */
   ANGLE_REF_NORMALIZE(ref_err.psi);
 
@@ -123,7 +132,7 @@ void stabilization_attitude_ref_update() {
   SATURATE_SPEED_TRIM_ACCEL();
 
 #else  /* !USE_ATTITUDE_REF  */
-  EULERS_COPY(stab_att_ref_euler, stab_att_sp_euler);
+  INT32_EULERS_LSHIFT(stab_att_ref_euler, stab_att_sp_euler, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
   INT_RATES_ZERO(stab_att_ref_rate);
   INT_RATES_ZERO(stab_att_ref_accel);
 #endif /* USE_ATTITUDE_REF   */
