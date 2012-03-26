@@ -57,7 +57,6 @@ struct Int32Eulers guidance_h_command_body;
 int32_t guidance_h_pgain;
 int32_t guidance_h_dgain;
 int32_t guidance_h_igain;
-int32_t guidance_h_ngain;
 int32_t guidance_h_again;
 
 /* warn if some gains are still negative */
@@ -67,13 +66,6 @@ int32_t guidance_h_again;
 #warning "ALL control gains are now positive!!!"
 #endif
 
-#ifndef GUIDANCE_H_NGAIN
-#define GUIDANCE_H_NGAIN 0
-#else
-#if (GUIDANCE_H_NGAIN < 0)
-#warning "ALL control gains are now positive!!!"
-#endif
-#endif
 
 #ifndef GUIDANCE_H_AGAIN
 #define GUIDANCE_H_AGAIN 0
@@ -107,7 +99,6 @@ void guidance_h_init(void) {
   guidance_h_pgain = GUIDANCE_H_PGAIN;
   guidance_h_igain = GUIDANCE_H_IGAIN;
   guidance_h_dgain = GUIDANCE_H_DGAIN;
-  guidance_h_ngain = GUIDANCE_H_NGAIN;
   guidance_h_again = GUIDANCE_H_AGAIN;
 
 }

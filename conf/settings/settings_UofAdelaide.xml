@@ -64,7 +64,6 @@
       <dl_setting var="guidance_h_pgain" min="0" step="1" max="400" module="guidance/guidance_h" shortname="kp"/>
       <dl_setting var="guidance_h_dgain" min="0" step="1" max="400" module="guidance/guidance_h" shortname="kd"/>
       <dl_setting var="guidance_h_igain" min="0" step="1" max="400" module="guidance/guidance_h" shortname="ki" handler="SetKi"/>
-      <dl_setting var="guidance_h_ngain" min="0" step="1" max="400" module="guidance/guidance_h" shortname="kn"/>
       <dl_setting var="guidance_h_again" min="0" step="1" max="400" module="guidance/guidance_h" shortname="ka"/>
       <dl_setting var="ins_hf_realign" min="0" step="1" max="1" module="subsystems/ins" shortname="hf_realign" values="OFF|ON"/>
    </dl_settings>
