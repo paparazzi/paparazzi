@@ -67,6 +67,7 @@ let print_dl_settings = fun settings ->
   lprintf "\n";
   StringSet.iter (fun m -> lprintf "#include \"%s.h\"\n" m) !modules;
   lprintf "#include \"generated/modules.h\"\n";
+  lprintf "#include \"generated/periodic_telemetry.h\"\n";
   lprintf "\n";
 
   (** Macro to call to set one variable *)

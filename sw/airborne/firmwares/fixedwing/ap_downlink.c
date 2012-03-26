@@ -1,6 +1,4 @@
 /*
- * Paparazzi $Id$
- *
  * Copyright (C) 2011 Gautier Hattenberger
  *
  * This file is part of paparazzi.
@@ -22,14 +20,10 @@
  *
  */
 
-#include "firmwares/fixedwing/ap_downlink.h"
-#include "generated/airframe.h"
+/* PERIODIC_C_AP is defined before generated/periodic_telemetry.h
+ * in order to implement telemetry_mode_Ap_*
+ */
+#define PERIODIC_C_AP
 
-#ifdef AP
-#ifndef TELEMETRY_MODE_AP
-#define TELEMETRY_MODE_AP 0
-#endif
-uint8_t telemetry_mode_Ap_DefaultChannel = TELEMETRY_MODE_AP;
-#endif /** AP */
-
+#include "generated/periodic_telemetry.h"
 

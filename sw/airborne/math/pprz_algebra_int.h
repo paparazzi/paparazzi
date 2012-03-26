@@ -837,9 +837,17 @@ struct Int64Vect3 {
     									\
   }
 
+#define INT32_EULERS_LSHIFT(_o, _i, _r) {  \
+    (_o).phi   = ((_i).phi   << (_r));     \
+    (_o).theta = ((_i).theta << (_r));     \
+    (_o).psi   = ((_i).psi   << (_r));     \
+  }
 
-
-
+#define INT32_EULERS_RSHIFT(_o, _i, _r) {  \
+    (_o).phi   = ((_i).phi   >> (_r));     \
+    (_o).theta = ((_i).theta >> (_r));     \
+    (_o).psi   = ((_i).psi   >> (_r));     \
+  }
 
 
 /*

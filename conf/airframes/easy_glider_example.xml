@@ -7,8 +7,8 @@
     <servo name="THROTTLE" no="0" min="1290" neutral="1290" max="1810"/>
     <servo name="ELEVATOR" no="1" min="1770" neutral="1457" max="970"/>
     <servo name="RUDDER" no="3" min="1040" neutral="1595" max="2040"/>
-    <servo name="AILERON_LEFT" no="4" min="1000" neutral="1508" max="2000"/>
-    <servo name="AILERON_RIGHT" no="5" min="1000" neutral="1527" max="2000"/>
+    <servo name="AILERON_LEFT" no="4" min="2000" neutral="1508" max="1000"/>
+    <servo name="AILERON_RIGHT" no="5" min="2000" neutral="1527" max="1000"/>
   </servos>
 
   <commands>
@@ -36,8 +36,8 @@
     <set servo="RUDDER" value="@YAW + @ROLL*COMBI_SWITCH"/>
 
     <let var="roll" value="@ROLL"/>
-    <set servo="AILERON_LEFT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
-    <set servo="AILERON_RIGHT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
+    <set servo="AILERON_LEFT" value="($roll > 0 ? AILERON_DIFF : 1) * $roll"/>
+    <set servo="AILERON_RIGHT" value="($roll > 0 ? 1 : AILERON_DIFF) * $roll"/>
   </command_laws>
 
   <section name="AUTO1" prefix="AUTO1_">
@@ -87,7 +87,7 @@
 
     <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
     <!-- outer loop proportional gain -->
-    <define name="ALTITUDE_PGAIN" value="-0.03"/>
+    <define name="ALTITUDE_PGAIN" value="0.03"/>
     <!-- outer loop saturation -->
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
@@ -98,7 +98,7 @@
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-4000"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.15" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.01"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0.01"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.1"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.05"/>
 
@@ -106,21 +106,21 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-1.10800004005"/>
+    <define name="COURSE_PGAIN" value="1.10800004005"/>
 
     <define name="ROLL_MAX_SETPOINT" value="0.6" unit="rad"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
-    <define name="PITCH_PGAIN" value="-15184.5644531"/>
+    <define name="PITCH_PGAIN" value="15184.5644531"/>
     <define name="PITCH_DGAIN" value="1.5"/>
 
     <define name="ELEVATOR_OF_ROLL" value="1250"/>
 
     <define name="ROLL_SLEW" value="0.1"/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="-7500"/>
-    <define name="ROLL_RATE_GAIN" value="-1500"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="7500"/>
+    <define name="ROLL_RATE_GAIN" value="1500"/>
    </section>
 
   <section name="NAV">

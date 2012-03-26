@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -21,21 +19,15 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file stabilization_attitude_ref_euler_int.h
+ *  Rotorcraft attitude reference generation (euler int version)
+ *
+ */
+
 #ifndef STABILIZATION_ATTITUDE_REF_EULER_INT_H
 #define STABILIZATION_ATTITUDE_REF_EULER_INT_H
 
 #include "stabilization_attitude_ref_int.h"
-
-#define STABILIZATION_ATTITUDE_ADD_SP(_add_sp) {	\
-    EULERS_ADD(stab_att_sp_euler,_add_sp);          \
-    ANGLE_REF_NORMALIZE(stab_att_sp_euler.psi);     \
-  }
-
-#define STABILIZATION_ATTITUDE_RESET_PSI_REF(_sp) {                     \
-    _sp.psi = ahrs.ltp_to_body_euler.psi << (REF_ANGLE_FRAC - INT32_ANGLE_FRAC); \
-    stab_att_ref_euler.psi = _sp.psi;                                   \
-    stab_att_ref_rate.r = 0;                                            \
-  }
 
 
 #endif /* STABILIZATION_ATTITUDE_REF_EULER_INT_H */

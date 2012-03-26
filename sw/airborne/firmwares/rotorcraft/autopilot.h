@@ -52,7 +52,6 @@
 #define AP_MODE_RC_DIRECT	      17	// Safety Pilot Direct Commands for helicopter direct control
 
 
-
 extern uint8_t autopilot_mode;
 extern uint8_t autopilot_mode_auto2;
 extern bool_t  autopilot_motors_on;

@@ -36,7 +36,7 @@
   <servos>
     <servo name="THROTTLE"      no="7" min="1120" neutral="1120" max="1920"/>
     <servo name="ELEVATOR"      no="3" min="1100" neutral="1515" max="1900"/>
-    <servo name="RUDDER"        no="4" min="2050" neutral="1440" max="950"/>
+    <servo name="RUDDER"        no="4" min="950" neutral="1440" max="2050"/>
   </servos>
 
   <commands>
@@ -108,7 +108,7 @@
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
     <define name="POWER_CTL_BAT_NOMINAL" value="11.0" unit="volt"/>
     <!-- outer loop -->
-    <define name="ALTITUDE_PGAIN" value="-0.075" unit="(m/s)/m"/>
+    <define name="ALTITUDE_PGAIN" value="0.075" unit="(m/s)/m"/>
     <define name="ALTITUDE_MAX_CLIMB" value="4." unit="m/s"/>
     <!-- auto throttle inner loop -->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5" unit="%"/>
@@ -117,10 +117,10 @@
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500" unit="pprz_t"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-1000" unit="pprz_t"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="-0.02" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0.02" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.1"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.05" unit="rad/(m/s)"/>
-    <define name="AUTO_PITCH_PGAIN" value="-0.125"/>
+    <define name="AUTO_PITCH_PGAIN" value="0.125"/>
     <define name="AUTO_PITCH_IGAIN" value="0.025"/>
     <define name="AUTO_PITCH_MAX_PITCH" value="RadOfDeg(25)"/>
     <define name="AUTO_PITCH_MIN_PITCH" value="RadOfDeg(-25)"/>
@@ -128,15 +128,15 @@
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="-0.7"/>
+    <define name="COURSE_PGAIN" value="0.7"/>
     <define name="ROLL_MAX_SETPOINT" value="35" unit="deg"/>
     <define name="PITCH_MAX_SETPOINT" value="25" unit="deg"/>
     <define name="PITCH_MIN_SETPOINT" value="-25" unit="deg"/>
-    <define name="PITCH_PGAIN" value="-20000."/>
+    <define name="PITCH_PGAIN" value="20000."/>
     <define name="PITCH_DGAIN" value="1.5"/>
     <define name="ELEVATOR_OF_ROLL" value="2500"/>
-    <define name="ROLL_ATTITUDE_GAIN" value="-7400"/>
-    <define name="ROLL_RATE_GAIN" value="-200"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="7400"/>
+    <define name="ROLL_RATE_GAIN" value="200"/>
   </section>
 
   <section name="NAV">

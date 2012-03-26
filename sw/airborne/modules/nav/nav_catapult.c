@@ -124,7 +124,7 @@ bool_t nav_catapult_init(void)
 
 
 
-bool_t nav_catapult(uint8_t _to, uint8_t _climb) 
+bool_t nav_catapult(uint8_t _to, uint8_t _climb)
 {
   float alt = WaypointAlt(_climb);
 

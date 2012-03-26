@@ -127,13 +127,13 @@
     <define name="REF_TAU" value="4" />
 
     <!-- feedback -->
-    <define name="GAIN_P" value="-400" />
-    <define name="GAIN_Q" value="-400" />
-    <define name="GAIN_R" value="-350" />
+    <define name="GAIN_P" value="400" />
+    <define name="GAIN_Q" value="400" />
+    <define name="GAIN_R" value="350" />
 
-    <define name="IGAIN_P" value="-75" />
-    <define name="IGAIN_Q" value="-75" />
-    <define name="IGAIN_R" value="-50" />
+    <define name="IGAIN_P" value="75" />
+    <define name="IGAIN_Q" value="75" />
+    <define name="IGAIN_R" value="50" />
 
     <!-- feedforward -->
     <define name="DDGAIN_P" value="300" />
@@ -167,17 +167,17 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)" />
 
     <!-- feedback -->
-    <define name="PHI_PGAIN" value="-1000" />
-    <define name="PHI_DGAIN" value="-300" />
-    <define name="PHI_IGAIN" value="-100" />
+    <define name="PHI_PGAIN" value="1000" />
+    <define name="PHI_DGAIN" value="300" />
+    <define name="PHI_IGAIN" value="100" />
 
-    <define name="THETA_PGAIN" value="-1000" />
-    <define name="THETA_DGAIN" value="-300" />
-    <define name="THETA_IGAIN" value="-100" />
+    <define name="THETA_PGAIN" value="1000" />
+    <define name="THETA_DGAIN" value="300" />
+    <define name="THETA_IGAIN" value="100" />
 
-    <define name="PSI_PGAIN" value="-500" />
-    <define name="PSI_DGAIN" value="-320" />
-    <define name="PSI_IGAIN" value="-75" />
+    <define name="PSI_PGAIN" value="500" />
+    <define name="PSI_DGAIN" value="320" />
+    <define name="PSI_IGAIN" value="75" />
 
     <!-- feedforward -->
     <define name="PHI_DDGAIN" value=" 300" />
@@ -197,9 +197,9 @@
     <define name="MIN_ERR_ZD" value="SPEED_BFP_OF_REAL(-10.)" />
     <define name="MAX_ERR_ZD" value="SPEED_BFP_OF_REAL( 10.)" />
     <define name="MAX_SUM_ERR" value="2000000"/>
-    <define name="HOVER_KP" value="-100"/>
-    <define name="HOVER_KD" value="-60"/>
-    <define name="HOVER_KI" value="-10"/>
+    <define name="HOVER_KP" value="100"/>
+    <define name="HOVER_KD" value="60"/>
+    <define name="HOVER_KI" value="10"/>
     <!-- 1.5m/s for full stick : SPEED_BFP_OF_REAL(1.5) / (MAX_PPRZ/2) -->
     <define name="RC_CLIMB_COEF" value="163" />
     <!-- SPEED_BFP_OF_REAL(1.5) * 20% -->
@@ -208,9 +208,9 @@
 
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <define name="PGAIN" value="-70"/>
-    <define name="DGAIN" value="-150"/>
-    <define name="IGAIN" value="-15"/>
+    <define name="PGAIN" value="70"/>
+    <define name="DGAIN" value="150"/>
+    <define name="IGAIN" value="15"/>
   </section>
 
   <section name="BAT">
