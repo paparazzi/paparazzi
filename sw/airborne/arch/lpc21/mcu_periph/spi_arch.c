@@ -207,9 +207,6 @@ __attribute__ ((always_inline)) static inline void SpiStart(struct spi_periph* p
   p->status = SPIRunning;
   t->status = SPITransRunning;
 
-  // callback function before transaction
-  if (t->before_cb != NULL) before_cb();
-
   // handle spi options (CPOL, CPHA, data size,...)
   if (t->cpol == SPICpolIdleHigh) SpiSetCPOL(p);
   else SpiClearCPOL(p);
@@ -223,6 +220,9 @@ __attribute__ ((always_inline)) static inline void SpiStart(struct spi_periph* p
   if (t->select == SPISelectUnselect || t->select == SPISelect) {
     SpiSlaveSelect(t->slave_idx);
   }
+
+  // callback function before transaction
+  if (t->before_cb != 0) t->before_cb();
 
   // start spi transaction
   SpiEnable(p);
@@ -243,6 +243,9 @@ __attribute__ ((always_inline)) static inline void SpiAutomaton(struct spi_perip
 
   /* Rx fifo is not empty and no receive took place in the last 32 bits period */
   if (bit_is_set(((sspRegs_t *)(p->reg_addr))->mis, RTMIS)) {
+    // callback function after transaction
+    if (trans->after_cb != 0) trans->after_cb();
+
     // handle slave unselect
     if (trans->select == SPISelectUnselect || trans->select == SPIUnselect) {
       SpiSlaveUnselect(trans->slave_idx);
@@ -253,9 +256,6 @@ __attribute__ ((always_inline)) static inline void SpiAutomaton(struct spi_perip
     SpiDisable(p);
     // end transaction with success
     trans->status = SPITransSuccess;
-
-    // callback function after transaction
-    if (t->after_cb != NULL) after_cb();
 
     // handle transaction fifo here
     p->trans_extract_idx++;
@@ -324,7 +324,7 @@ void spi0_arch_init(void) {
 #define SSP_DSS  0x07 << 0  /* data size         : 8 bits        */
 #define SSP_FRF  0x00 << 4  /* frame format      : SPI           */
 #define SSP_CPOL 0x00 << 6  /* clock polarity    : SCK idles low */
-#define SSP_CPHA 0x01 << 7  /* clock phase       : data captured on second clock transition */
+#define SSP_CPHA 0x00 << 7  /* clock phase       : data captured on first clock transition */
 #define SSP_SCR  0x00 << 8  /* serial clock rate   */
 
 /* SSPCR1 settings */

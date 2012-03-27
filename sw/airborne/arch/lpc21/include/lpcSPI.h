@@ -38,12 +38,12 @@ typedef struct
 // Serial Serial Port Registers (SSP/SPI)
 typedef struct
 {
-  REG_8 cr0;                            // Control Register 0
-  REG_8 _pad0[3];
+  REG16 cr0;                            // Control Register 0
+  REG16 _pad0;
   REG_8 cr1;                            // Control Register 1
   REG_8 _pad1[3];
-  REG_8 dr;                             // Data Register
-  REG_8 _pad2[3];
+  REG16 dr;                             // Data Register
+  REG16 _pad2;
   REG_8 sr;                             // Status Register
   REG_8 _pad3[3];
   REG_8 cpsr;                           // Clock Prescale Register
