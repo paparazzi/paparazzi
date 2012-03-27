@@ -46,7 +46,7 @@
 #ifndef MAX1168_CONF_REF
 #define MAX1168_CONF_REF 0x0 // internal ref and no power down
 #endif
-#define MAX1168_CONF_CLOCK
+#ifndef MAX1168_CONF_CLOCK
 #define MAX1168_CONF_CLOCK 0x1 // internal clock
 #endif
 
@@ -56,11 +56,11 @@ extern void max1168_init( void );
 extern void max1168_read( void );
 extern void max1168_event( void );
 
-#define STA_MAX1168_IDLE            0
-#define STA_MAX1168_SENDING_REQ     1
-#define STA_MAX1168_GOT_EOC         2
-#define STA_MAX1168_READING_RES     3
-#define STA_MAX1168_DATA_AVAILABLE  4
+#define MAX1168_IDLE            0
+#define MAX1168_SENDING_REQ     1
+#define MAX1168_GOT_EOC         2
+#define MAX1168_READING_RES     3
+#define MAX1168_DATA_AVAILABLE  4
 extern volatile uint8_t max1168_status;
 
 extern uint16_t max1168_values[MAX1168_NB_CHAN];

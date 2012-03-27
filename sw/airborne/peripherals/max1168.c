@@ -41,13 +41,13 @@ extern void max1168_init( void ) {
   max1168_trans.slave_idx = MAX1168_SLAVE_IDX;
   max1168_trans.cpol = SPICpolIdleLow;
   max1168_trans.cpha = SPICphaEdge1;
-  max1168_trans.dss = DSS16bit;
+  max1168_trans.dss = SPIDss16bit;
 
-  max1168_status = STA_MAX1168_IDLE;
+  max1168_status = MAX1168_IDLE;
 }
 
 void max1168_read( void ) {
-  ASSERT((max1168_status == STA_MAX1168_IDLE), DEBUG_MAX_1168, MAX1168_ERR_READ_OVERUN);
+  ASSERT((max1168_status == MAX1168_IDLE), DEBUG_MAX_1168, MAX1168_ERR_READ_OVERUN);
 
   // TODO test trans status ?
 
@@ -58,13 +58,13 @@ void max1168_read( void ) {
 
   spi_submit(&(MAX1168_SPI_DEV),&max1168_trans);
 
-  max1168_status = STA_MAX1168_SENDING_REQ;
+  max1168_status = MAX1168_SENDING_REQ;
 
 }
 
 void max1168_event( void ) {
   if (max1168_trans.status == SPITransSuccess) {
-    if (max1168_status == STA_MAX1168_GOT_EOC) {
+    if (max1168_status == MAX1168_GOT_EOC) {
       // eoc occurs, submit reading req
       // read 8 frames FIXME should be function of control register options
       // FIXME submit transaction from interrupt or event function ?
@@ -73,10 +73,10 @@ void max1168_event( void ) {
       max1168_trans.length = 8;
       spi_submit(&(MAX1168_SPI_DEV),&max1168_trans);
 
-      max1168_status = STA_MAX1168_READING_RES;
+      max1168_status = MAX1168_READING_RES;
       max1168_trans.status = SPITransDone;
     }
-    else if (max1168_status == STA_MAX1168_READING_RES) {
+    else if (max1168_status == MAX1168_READING_RES) {
       // store values
       max1168_values[0] = max1168_trans.input_buf[0];
       max1168_values[1] = max1168_trans.input_buf[1];
@@ -86,14 +86,15 @@ void max1168_event( void ) {
       max1168_values[5] = max1168_trans.input_buf[5];
       max1168_values[6] = max1168_trans.input_buf[6];
       max1168_values[7] = max1168_trans.input_buf[7];
-      max1168_status = STA_MAX1168_DATA_AVAILABLE;
+      max1168_status = MAX1168_DATA_AVAILABLE;
       max1168_trans.status = SPITransDone;
     }
     else { /* TODO ? */ }
   }
   else if (max1168_trans.status == SPITransFailed) {
     // TODO
-    max1168_status = STA_MAX1168_IDLE;
+    max1168_status = MAX1168_IDLE;
+    spi_slave_unselect(MAX1168_SLAVE_IDX);
     max1168_trans.status = SPITransDone;
   }
 }

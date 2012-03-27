@@ -25,7 +25,7 @@
 
 #include "LPC21xx.h"
 #include "interrupt_hw.h"
-
+#include BOARD_CONFIG
 
 static void EXTINT0_ISR(void) __attribute__((naked));
 
@@ -52,7 +52,7 @@ void EXTINT0_ISR(void) {
   ISR_ENTRY();
   ASSERT((max1168_status == STA_MAX1168_SENDING_REQ),	DEBUG_MAX_1168, MAX1168_ERR_SPURIOUS_EOC);
 
-  max1168_status = STA_MAX1168_GOT_EOC;
+  max1168_status = MAX1168_GOT_EOC;
 
   //SetBit(EXTINT, MAX1168_EOC_EINT);   /* clear extint0 */
   EXTINT = (1<<MAX1168_EOC_EINT);
