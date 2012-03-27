@@ -652,7 +652,7 @@ let setting = fun logging _sender vs ->
   let ac_id = Pprz.string_assoc "ac_id" vs in
   let vs = ["ac_id", Pprz.String ac_id;
 	    "index", List.assoc "index" vs;
-	    "value", List.assoc "value" vs] in
+	    "value", List.assoc "value" vs] in 
   Dl_Pprz.message_send dl_id "SETTING" vs;
   log logging ac_id "SETTING" vs
 
@@ -675,14 +675,11 @@ let jump_block = fun logging _sender vs ->
 
 (** Got a RAW_DATALINK,send its contents *)
 let raw_datalink = fun logging _sender vs ->
-  let ac_id = Pprz.string_assoc "ac_id" vs
-  and m = Pprz.string_assoc "message" vs in
-  for i = 0 to String.length m - 1 do
-    if m.[i] = ';' then m.[i] <- ' '
-  done;
-  let msg_id, vs = Dl_Pprz.values_of_string m in
-  let msg = Dl_Pprz.message_of_id msg_id in
-  Dl_Pprz.message_send dl_id msg.Pprz.name vs;
+	let ac_id = Pprz.string_assoc "ac_id" vs
+	and m = Pprz.string_assoc "message" vs in
+	let msg_id, vs = Dl_Pprz.values_of_string_unsorted m in
+	let msg = Dl_Pprz.message_of_id msg_id in
+	Dl_Pprz.message_send dl_id msg.Pprz.name vs;
   log logging ac_id msg.Pprz.name vs
 
 (** Get the 'ground' uplink messages, log them and send 'datalink' messages *)

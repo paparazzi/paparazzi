@@ -7,7 +7,7 @@
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/adc.h"
-#include "messages.h"
+#include "downlink_msg.h"
 #include "led.h"
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"

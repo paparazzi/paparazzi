@@ -37,6 +37,10 @@ let spread_messages_path = Sys.argv.(2)
 let generated_file = Sys.argv.(3)
 (** Generated macros path *)
 let var_include_path = Sys.argv.(4)
+(** Generated macros uplink file *)
+let uplink_msg_h = Sys.argv.(5)
+(** Generated macros downlink file *)
+let downlink_msg_h = Sys.argv.(6)
 (* --------------------------------------- *)
 
 (** Type include_xml: the structure of a XML include element *)
@@ -245,19 +249,66 @@ module MakeCalls = struct
 			| "uplink" -> prerr_endline ("\t Uplink Class   -> Generate macros ("^clas.g_name^") [Check Alignment]"); make clas.g_name clas.g_id 1 
 			| "downlink" -> prerr_endline ("\t Downlink Class -> Generate macros ("^clas.g_name^")"); make clas.g_name clas.g_id 0
 			|	"ground" -> prerr_endline ("\t Ground Class   -> Do nothing ("^clas.g_name^")")
-			|	"airborne" -> prerr_endline ("\t Airborne Class -> Generate macros ("^clas.g_name^") ¡¡¡FIXME!!!")
+			|	"airborne" -> prerr_endline ("\t Airborne Class -> Generate macros ("^clas.g_name^") FIXME!")
 			|	t -> failwith (sprintf "Invalid class type in generated file: %s" t)
 			) classes;
 			
 end		
+
+module FinalMacros = struct
+	exception Cannot_open_file of string
+	exception Cannot_move_file of string * string
+	
+	let create_both_files = fun () ->
+		try
+			let (temp_filename_up,h_up) = Filename.open_temp_file "TEMP" "TEMP" in
+			let (temp_filename_down,h_down) = Filename.open_temp_file "TEMP" "TEMP" in
+			(temp_filename_up, h_up, temp_filename_down, h_down) 
+		with
+			| e -> raise (Cannot_open_file (Printexc.to_string e))
 				
+	let close_both_files = fun temp_filename_up h_up temp_filename_down h_down ->
+		close_out h_up;
+		close_out h_down;
+		let cu = sprintf "mv %s %s " temp_filename_up uplink_msg_h in
+	  let returned_code_u = Sys.command cu in
+		prerr_endline ("\t Uplink    -> "^uplink_msg_h);
+		let cd = sprintf "mv %s %s " temp_filename_down downlink_msg_h in
+	  let returned_code_d = Sys.command cd in
+		prerr_endline ("\t Downlink  -> "^downlink_msg_h);
+		if returned_code_u <> 0 then raise ( Cannot_move_file ("uplink",string_of_int returned_code_u));
+		if returned_code_d <> 0 then raise ( Cannot_move_file ("downlink",string_of_int returned_code_d))
+		
+				
+  let include_in_file = fun clas h ->
+		Printf.fprintf h "#include \"messages_%s.h\" \n" clas.g_name
+		
+	let generate_files = fun classes ->
+		try
+			let (temp_filename_up, h_up, temp_filename_down, h_down) = create_both_files () in
+			List.map (fun clas -> match (clas.g_type) with
+				| "uplink" -> include_in_file clas h_up
+				|	"downlink" -> include_in_file clas h_down
+				|	"datalink" -> include_in_file clas h_up; include_in_file clas h_down
+				| _ -> ()
+				) classes;
+			close_both_files temp_filename_up h_up temp_filename_down h_down
+		with
+			| Cannot_open_file s -> failwith (sprintf "Cannot open file to inlcude macro files (Exception: %s)" s)
+			| Cannot_move_file (f,s) -> failwith (sprintf "Cannot move file of %s macros to it's final destination (Error code for command MV: %s)" f s )
+		
+end								
 					
 (********************* Main **************************************************)
 let () =
-	if Array.length Sys.argv <> 5 then
+	if Array.length Sys.argv <> 7 then
 	  failwith (sprintf "Usage: %s <messages config file> <spread messages path> <generated file> <var_include_path>" Sys.argv.(0));
 	let classes_info = SpreadMessages.generate_messages_xml () in
 	
-	prerr_endline ("----------- GENERATING MESSAGES MACROS -----------");
+	prerr_endline ("----------- GENERATING MESSAGES MACROS (Spread) -----------");
 	ignore (MakeCalls.generate_macros classes_info);
-	prerr_endline ("--------------------------------------------------");
+	prerr_endline ("-----------------------------------------------------------");
+	
+	prerr_endline ("----------- GENERATING MESSAGES MACROS (Global) -----------");
+	ignore (FinalMacros.generate_files classes_info);
+	prerr_endline ("-----------------------------------------------------------");

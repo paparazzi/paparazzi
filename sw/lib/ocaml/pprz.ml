@@ -224,6 +224,7 @@ let string_of_values = fun vs ->
 let assoc = fun a vs ->
   try List.assoc (String.lowercase a) vs with Not_found ->
     failwith (sprintf "Attribute '%s' not found in '%s'" a (string_of_values vs))
+		
 
 let float_assoc = fun (a:string) vs ->
   match assoc a vs with
@@ -259,6 +260,7 @@ let int64_assoc = fun (a:string) vs ->
   | _ -> invalid_arg "Pprz.int_assoc"
 
 let string_assoc = fun (a:string) (vs:values) -> string_of_value (assoc a vs)
+
 let char_assoc = fun (a:string) (vs:values) -> (string_of_value (assoc a vs)).[0]
 
 let link_mode_of_string = function
@@ -521,6 +523,9 @@ module type MESSAGES = sig
   val values_of_string : string -> message_id * values
   (** May raise [(Unknown_msg_name msg_name)] *)
 
+  val values_of_string_unsorted : string -> message_id * values
+  (** May raise [(Unknown_msg_name msg_name)] *)
+
   val string_of_message : ?sep:string -> message -> values -> string
   (** [string_of_message ?sep msg values] Default [sep] is space *)
 
@@ -651,6 +656,33 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 	end
     | [] -> invalid_arg (sprintf "Pprz.values_of_string: %s" s)
 
+	let semicolon = Str.regexp "[;\t]+"
+	let coma = Str.regexp "[,\t]+"
+	let values_of_string_unsorted = fun s ->
+    match Str.split semicolon s with
+      msg_name::args ->
+	begin
+	  try
+			prerr_endline ("**** USING PPRZ.values_of_string_unsorted WITH MESSAGE: "^msg_name);
+	    let msg_id, msg = message_of_name msg_name in
+			
+			let assoc_args = ref [] in
+			for i = 0 to List.length args -1 do
+				let parts = Str.split coma (List.nth args i) in
+				assoc_args := List.append !assoc_args [((List.nth parts 0),(List.nth parts 1))] 
+			done;
+			
+			let values = List.map (fun (field_name, field) ->
+				let v = List.assoc field_name !assoc_args in
+				prerr_endline ("!!! field_name="^field_name^" | v="^v); 
+				(field_name, value field._type v) ) msg.fields in
+	    (msg_id, values)
+	  with
+			| Not_found -> failwith (sprintf "Pprz.values_of_string_unsorted: field name not found in args list")
+			| e -> failwith (sprintf "Pprz.values_of_string_unsorted: Unhandled exception (Exception: %s)" (Printexc.to_string e))
+	end
+    | [] -> invalid_arg (sprintf "Pprz.values_of_string_unsorted: %s" s)
+	
   let string_of_message = fun ?(sep=" ") msg values ->
     (** Check that the values are compatible with this message *)
     List.iter
@@ -671,6 +703,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 	 msg.fields)
 
   let message_send = fun ?timestamp sender msg_name values ->
+		prerr_endline("****************** PPRZ.MESSAGE_SEND: "^msg_name);
     let m = snd (message_of_name msg_name) in
     let s = string_of_message m values in
     let timestamp_string =

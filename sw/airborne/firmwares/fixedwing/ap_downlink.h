@@ -44,12 +44,12 @@
 #endif
 #include "subsystems/datalink/downlink.h"
 
-#include "messages.h"
+#include "downlink_msg.h"
 #include "generated/periodic.h"
 
 //#include "generated/modules.h"
 
-#if defined DOWNLINK_TELEMETRY
+#if defined DOWNLINK
 #define Downlink(x) x
 #else
 #define Downlink(x) {}
@@ -59,6 +59,19 @@
 /** Telemetry mode for AP process: index in the telemetry.xml file */
 extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #endif
+
+#define PERIODIC_SEND_FORMAT_TEST(_trans, _dev) \
+	int64_t sixtyfouri = -1234567890123456;\
+	uint64_t sixtyfouru[3] = {1234567890123456,66666666666666,1010101010101010};\
+	Downlink({ \
+      		DOWNLINK_SEND_FORMAT_TEST(_trans, _dev, &sixtyfouri , 3, sixtyfouru); \
+})
+
+#define PERIODIC_SEND_FORMAT_TEST2(_trans, _dev) \
+	char ctest[] = {'x','a','v','i'}; \
+	Downlink({ \
+      		DOWNLINK_SEND_FORMAT_TEST2(_trans, _dev, 4, ctest); \
+})
 
 #define PERIODIC_SEND_ALIVE(_trans, _dev)  DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM);
 

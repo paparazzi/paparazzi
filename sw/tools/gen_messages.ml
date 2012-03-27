@@ -301,17 +301,19 @@ let () =
 
     (** Macros for airborne downlink (sending) *)
 		let u_class_name = String.uppercase class_name in
-    Printf.fprintf h "#if DOWNLINK_%s\n" u_class_name;
+		Printf.fprintf h "#ifndef MSG_%s_H\n" u_class_name;
+		Printf.fprintf h "#define MSG_%s_H\n" u_class_name;
+    Printf.fprintf h "#if DOWNLINK\n";
     Gen_onboard.print_downlink_macros h class_name class_id messages;
-	  Printf.fprintf h "#else // DOWNLINK_%s\n" u_class_name;
+	  Printf.fprintf h "#else // DOWNLINK\n";
 	  Gen_onboard.print_null_downlink_macros h messages;
-	  Printf.fprintf h "#endif // DOWNLINK_%s\n" u_class_name;
+	  Printf.fprintf h "#endif // DOWNLINK\n";
 
     (** Macros for airborne datalink (receiving) *)
 		match check_align with
-		| "0" -> List.iter (Gen_onboard.print_get_macros h false) messages
-		| "1" -> List.iter (Gen_onboard.print_get_macros h true) messages
-		| er -> failwith (sprintf "Parameter <check_align> has value different than 0 or 1 (Value = %s)" check_align )
+		| "0" -> List.iter (Gen_onboard.print_get_macros h false) messages; Printf.fprintf h "#endif // MSG_%s_H\n" u_class_name 
+		| "1" -> List.iter (Gen_onboard.print_get_macros h true) messages; Printf.fprintf h "#endif // MSG_%s_H\n" u_class_name 
+		| er -> failwith (sprintf "Parameter <check_align> has value different than 0 or 1 (Value = %s)" er ) 
 
   with
     Xml.Error (msg, pos) -> failwith (sprintf "%s:%d : %s\n" filename (Xml.line pos) (Xml.error_msg msg))

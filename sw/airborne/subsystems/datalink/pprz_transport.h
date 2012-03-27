@@ -154,6 +154,11 @@ extern uint8_t ck_a, ck_b, pprz_down_packet_seq;
 #define PprzTransportPutInt32Array(_dev, _n, _x) PprzTransportPutArray(_dev, PprzTransportPutInt32ByAddr, _n, _x)
 #define PprzTransportPutUint32Array(_dev, _n, _x) PprzTransportPutArray(_dev, PprzTransportPutUint32ByAddr, _n, _x)
 
+#define PprzTransportPutInt64Array(_dev, _n, _x) PprzTransportPutArray(_dev, PprzTransportPutInt64ByAddr, _n, _x)
+#define PprzTransportPutUint64Array(_dev, _n, _x) PprzTransportPutArray(_dev, PprzTransportPutUint64ByAddr, _n, _x)
+
+#define PprzTransportPutCharArray(_dev, _n, _x) PprzTransportPutArray(_dev, PprzTransportPutCharByAddr, _n, _x)
+
 #define PprzTransportPutUint8Array(_dev, _n, _x) PprzTransportPutArray(_dev, PprzTransportPutUint8ByAddr, _n, _x)
 
 

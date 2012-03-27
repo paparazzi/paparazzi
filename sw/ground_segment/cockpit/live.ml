@@ -298,7 +298,7 @@ let mark = fun (geomap:G.widget) ac_id track plugin_frame ->
 
 (** Light display of attributes in the flight plan. *)
 let attributes_pretty_printer = fun attribs ->
-  (* Remove the optional attributes *)
+  (* Remove the optional attributesï¿½*)
   let valid = fun a ->
     let a = String.lowercase a in
     a <> "no" && a <> "strip_icon" && a <> "strip_button" && a <> "pre_call"
@@ -642,8 +642,7 @@ let create_ac = fun alert (geomap:G.widget) (acs_notebook:GPack.notebook) (ac_id
     let wind_east = sprintf "%.1f" (-. cos a *. w)
     and wind_north = sprintf "%.1f" (-. sin a *. w)
     and airspeed = sprintf "%.1f" ac.airspeed in
-
-    let msg_items = ["WIND_INFO"; ac_id; "42"; wind_east; wind_north;airspeed] in
+    let msg_items = ["WIND_INFO"; "ac_id,"^ac_id; "pad0,42"; "east,"^wind_east; "north,"^wind_north; "airspeed,"^airspeed] in
     let value = String.concat ";" msg_items in
     let vs = ["ac_id", Pprz.String ac_id; "message", Pprz.String value] in
     Ground_Pprz.message_send "dl" "RAW_DATALINK" vs;

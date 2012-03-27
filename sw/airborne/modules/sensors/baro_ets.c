@@ -111,7 +111,7 @@ void baro_ets_read_periodic( void ) {
 #endif
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "downlink_msg.h"
 #include "subsystems/datalink/downlink.h"
 
 #endif

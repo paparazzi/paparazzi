@@ -11,7 +11,7 @@
 /* holds the definitions of DOWNLINK_SEND_XXX */
 #include "messages2.h"
 
-#include "dl_protocol.h"
+#include "uplink_msg.h"
 /* generated : holds DlSetting() and PeriodicSendDlValue() */
 #include "generated/settings.h"
 

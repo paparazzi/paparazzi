@@ -4,12 +4,12 @@
 #include "led.h"
 #include "mcu_periph/uart.h"
 
-#include "messages.h"
+#include "downlink_msg.h"
 #include "subsystems/datalink/downlink.h"
 
 #include "subsystems/datalink/datalink.h"
 #include "generated/settings.h"
-#include "dl_protocol.h"
+#include "uplink_msg.h"
 
 #include "mcu_periph/spi.h"
 #include "sd_card.h"

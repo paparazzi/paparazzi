@@ -34,7 +34,7 @@ int32_t GPS_Data[14];
 #endif
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "downlink_msg.h"
 #include "subsystems/datalink/downlink.h"
 
 struct i2c_transaction ardu_gps_trans;

@@ -25,7 +25,7 @@
 #define TELEMETRY_H
 
 #include "std.h"
-#include "messages.h"
+#include "downlink_msg.h"
 #include "mcu_periph/uart.h"
 
 #include "subsystems/datalink/downlink.h"

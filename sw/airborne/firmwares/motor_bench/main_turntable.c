@@ -7,7 +7,7 @@
 #include "mcu_periph/uart.h"
 #include "mcu_arch.h"
 
-#include "messages.h"
+#include "downlink_msg.h"
 #include "subsystems/datalink/downlink.h"
 
 #include "armVIC.h"

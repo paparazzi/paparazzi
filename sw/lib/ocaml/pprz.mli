@@ -168,6 +168,9 @@ module type MESSAGES = sig
   val values_of_string : string -> message_id * values
   (** May raise [(Unknown_msg_name msg_name)] *)
 
+  val values_of_string_unsorted : string -> message_id * values
+  (** May raise [(Unknown_msg_name msg_name)] *)
+
   val string_of_message : ?sep:string -> message -> values -> string
   (** [string_of_message ?sep msg values] Default [sep] is space *)
 

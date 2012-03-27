@@ -21,7 +21,7 @@
 #endif
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "downlink_msg.h"
 #include "subsystems/datalink/downlink.h"
 
 #include "ins_module.h"

@@ -20,7 +20,7 @@
 +#include "beth/overo_gcs_com.h"
 +#define DefaultChannel gcs_com.udp_transport
 +#else
- #include "messages.h"
+ #include "downlink_msg.h"
  #include "subsystems/datalink/downlink.h"
 +#endif
  

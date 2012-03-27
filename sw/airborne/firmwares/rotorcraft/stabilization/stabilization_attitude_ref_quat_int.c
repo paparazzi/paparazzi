@@ -136,7 +136,7 @@ void stabilization_attitude_ref_enter()
 #define DT_UPDATE (1./512.)
 #define F_UPDATE_RES 9
 
-#include "messages.h"
+#include "downlink_msg.h"
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
 

@@ -35,7 +35,7 @@
 
 #include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/downlink.h"
-#include "messages.h"
+#include "downlink_msg.h"
 
 #if USE_GPS_XSENS
 #include "subsystems/gps.h"
@@ -186,7 +186,7 @@ uint8_t xsens_msg_buf[XSENS_MAX_PAYLOAD];
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "downlink_msg.h"
 #include "subsystems/datalink/downlink.h"
 
 

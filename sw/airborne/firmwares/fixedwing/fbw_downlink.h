@@ -36,7 +36,7 @@
 #define FBW_DOWNLINK_H
 
 #include <inttypes.h>
-#include "messages.h"
+#include "downlink_msg.h"
 #include "generated/periodic.h"
 #include "generated/airframe.h"
 #include "commands.h"

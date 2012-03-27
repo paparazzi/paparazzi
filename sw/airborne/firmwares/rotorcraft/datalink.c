@@ -30,8 +30,8 @@
 
 #include "generated/settings.h"
 #include "subsystems/datalink/downlink.h"
-#include "messages.h"
-#include "dl_protocol.h"
+#include "downlink_msg.h"
+#include "uplink_msg.h"
 #include "mcu_periph/uart.h"
 
 #ifdef BOOZ_FMS_TYPE
