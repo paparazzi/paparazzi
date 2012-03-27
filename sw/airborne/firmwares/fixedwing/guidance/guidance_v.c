@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2006  Pascal Brisset, Antoine Drouin, Michel Gorraz
  *
  * This file is part of paparazzi.
@@ -19,12 +17,11 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 /**
- *  \file v_ctl_ctl
- *  \brief Vertical control for fixed wing vehicles.
+ *  @file firmwares/fixedwing/guidance/guidance_v.c
+ *  Vertical control for fixed wing vehicles.
  *
  */
 

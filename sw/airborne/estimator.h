@@ -40,15 +40,15 @@
 #include "modules/sensors/baro_ets.h"
 #endif
 
-/* position in meters */
-extern float estimator_x;
-extern float estimator_y;
-extern float estimator_z;
+/* position in meters, ENU frame, relative to reference */
+extern float estimator_x; ///< east position in meters
+extern float estimator_y; ///< north position in meters
+extern float estimator_z; ///< altitude above MSL in meters
 
 /* attitude in radians */
-extern float estimator_phi; /* + = right */
-extern float estimator_psi; /* CW, 0 = N */
-extern float estimator_theta; /* + = up */
+extern float estimator_phi;   ///< roll angle in rad, + = right
+extern float estimator_psi;   ///< heading in rad, CW, 0 = N
+extern float estimator_theta; ///< pitch angle in rad, + = up
 
 /* speed in meters per second */
 extern float estimator_z_dot;
@@ -58,20 +58,19 @@ extern float estimator_p;
 extern float estimator_q;
 extern float estimator_r;
 
-/* flight time in seconds */
+/** flight time in seconds. */
 extern uint16_t estimator_flight_time;
 extern float estimator_t;
 
 /* horizontal ground speed in module and dir (m/s, rad (CW/North)) */
-extern float estimator_hspeed_mod;
-extern float estimator_hspeed_dir;
+extern float estimator_hspeed_mod; ///< module of horizontal ground speed in m/s
+extern float estimator_hspeed_dir; ///< direction of horizontal ground speed in rad (CW/North)
 
 /* Wind and airspeed estimation sent by the GCS */
 extern float wind_east, wind_north; /* m/s */
-extern float estimator_airspeed; /* m/s */
+extern float estimator_airspeed; ///< m/s
 
-/* Angle of Attack estimation */
-extern float estimator_AOA; /* radians */
+extern float estimator_AOA; ///< angle of attack in rad
 
 void estimator_init( void );
 
