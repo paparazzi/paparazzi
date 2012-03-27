@@ -316,12 +316,12 @@
   }
 
 
-#define PERIODIC_SEND_BOOZ2_CMD(_trans, _dev) {				\
-    DOWNLINK_SEND_BOOZ2_CMD(_trans, _dev,					\
-                &stabilization_cmd[COMMAND_ROLL],	\
-                &stabilization_cmd[COMMAND_PITCH],	\
-                &stabilization_cmd[COMMAND_YAW],	\
-                &stabilization_cmd[COMMAND_THRUST]);	\
+#define PERIODIC_SEND_ROTORCRAFT_CMD(_trans, _dev) {                    \
+    DOWNLINK_SEND_ROTORCRAFT_CMD(_trans, _dev,                          \
+                                 &stabilization_cmd[COMMAND_ROLL],      \
+                                 &stabilization_cmd[COMMAND_PITCH],     \
+                                 &stabilization_cmd[COMMAND_YAW],       \
+                                 &stabilization_cmd[COMMAND_THRUST]);   \
   }
 
 
@@ -719,22 +719,21 @@
 #define PERIODIC_SEND_BOOZ2_CAM(_trans, _dev) {}
 #endif
 
-#define PERIODIC_SEND_BOOZ2_TUNE_HOVER(_trans, _dev) {                     \
-    DOWNLINK_SEND_BOOZ2_TUNE_HOVER(_trans, _dev,                       \
-                   &radio_control.values[RADIO_ROLL],  \
-                   &radio_control.values[RADIO_PITCH], \
-                   &radio_control.values[RADIO_YAW],   \
-                   &stabilization_cmd[COMMAND_ROLL],      \
-                   &stabilization_cmd[COMMAND_PITCH],     \
-                   &stabilization_cmd[COMMAND_YAW],       \
-                   &stabilization_cmd[COMMAND_THRUST],    \
-                   &ahrs.ltp_to_imu_euler.phi,         \
-                   &ahrs.ltp_to_imu_euler.theta,           \
-                   &ahrs.ltp_to_imu_euler.psi,         \
-                   &ahrs.ltp_to_body_euler.phi,        \
-                   &ahrs.ltp_to_body_euler.theta,          \
-                   &ahrs.ltp_to_body_euler.psi         \
-                   );                          \
+#define PERIODIC_SEND_ROTORCRAFT_TUNE_HOVER(_trans, _dev) {             \
+    DOWNLINK_SEND_ROTORCRAFT_TUNE_HOVER(_trans, _dev,                   \
+                                        &radio_control.values[RADIO_ROLL], \
+                                        &radio_control.values[RADIO_PITCH], \
+                                        &radio_control.values[RADIO_YAW], \
+                                        &stabilization_cmd[COMMAND_ROLL], \
+                                        &stabilization_cmd[COMMAND_PITCH], \
+                                        &stabilization_cmd[COMMAND_YAW], \
+                                        &stabilization_cmd[COMMAND_THRUST], \
+                                        &ahrs.ltp_to_imu_euler.phi,     \
+                                        &ahrs.ltp_to_imu_euler.theta,   \
+                                        &ahrs.ltp_to_imu_euler.psi,     \
+                                        &ahrs.ltp_to_body_euler.phi,    \
+                                        &ahrs.ltp_to_body_euler.theta,  \
+                                        &ahrs.ltp_to_body_euler.psi);   \
   }
 
 #define PERIODIC_SEND_I2C_ERRORS(_trans, _dev) {                       \
