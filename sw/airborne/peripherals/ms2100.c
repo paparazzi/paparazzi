@@ -36,11 +36,6 @@ volatile uint8_t ms2100_cur_axe;
 
 struct spi_transaction ms2100_trans;
 
-/** Reset callback.
- * to be implemented in ms2100_arch.c
- */
-void ms2100_reset_cb( void );
-
 
 void ms2100_init( void ) {
 
@@ -56,7 +51,7 @@ void ms2100_init( void ) {
   ms2100_trans.select = SPISelectUnselect;
   ms2100_trans.cpol = SPICpolIdleLow;
   ms2100_trans.cpha = SPICphaEdge1;
-  ms2100_trans.dss = DSS8bit;
+  ms2100_trans.dss = SPIDss8bit;
   ms2100_trans.before_cb = ms2100_reset_cb; // implemented in ms2100_arch.c
 
   ms2100_status = MS2100_IDLE;
@@ -88,7 +83,7 @@ void ms2100_event( void ) {
       ms2100_status = MS2100_READING_RES;
       ms2100_trans.status = SPITransDone;
     }
-    else if (max1168_status == STA_MAX1168_READING_RES) {
+    else if (ms2100_status == MS2100_READING_RES) {
       // store value
       int16_t new_val;
       new_val = ms2100_trans.input_buf[0] << 8;

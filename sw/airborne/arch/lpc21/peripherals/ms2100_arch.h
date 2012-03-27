@@ -26,68 +26,9 @@
 #define Ms2100Reset() SetBit(MS2100_RESET_IOCLR,MS2100_RESET_PIN)
 #define Ms2100Set()   SetBit(MS2100_RESET_IOSET,MS2100_RESET_PIN)
 
-#if 0
-#define Ms2100OnSpiInt() {                                   \
-    switch (ms2100_status) {                                \
-    case MS2100_SENDING_REQ:                                \
-      {                                                     \
-        /* read dummy control byte reply */                 \
-        uint8_t foo __attribute__ ((unused)) = SSPDR;       \
-        ms2100_status = MS2100_WAITING_EOC;                 \
-        Ms2100Unselect();                                   \
-        SSP_ClearRti();                                     \
-        SSP_DisableRti();                                   \
-        SSP_Disable();                                      \
-      }                                                     \
-      break;                                                \
-    case MS2100_READING_RES:                                \
-      {                                                     \
-        int16_t new_val;                                    \
-        new_val = SSPDR << 8;                               \
-        new_val += SSPDR;                                   \
-        if (abs(new_val) < 2000)                            \
-          ms2100_values[ms2100_cur_axe] = new_val;			\
-        Ms2100Unselect();                                   \
-        SSP_ClearRti();                                     \
-        SSP_DisableRti();                                   \
-        SSP_Disable();                                      \
-        ms2100_cur_axe++;                                   \
-        if (ms2100_cur_axe > 2) {                           \
-          ms2100_cur_axe = 0;                               \
-          ms2100_status = MS2100_DATA_AVAILABLE;			\
-        }                                                   \
-        else                                                \
-          ms2100_status = MS2100_IDLE;                      \
-      }                                                     \
-      break;                                                \
-    }                                                       \
-  }
-
-
-#define Ms2100SendReq() {                               \
-    Ms2100Select();                                     \
-    ms2100_status = MS2100_SENDING_REQ;					\
-    Ms2100Set();                                        \
-    SSP_ClearRti();                                     \
-    SSP_EnableRti();                                    \
-    Ms2100Reset();                                      \
-    uint8_t control_byte = (ms2100_cur_axe+1) << 0 |    \
-      MS2100_DIVISOR << 4;                              \
-    SSP_Send(control_byte);                             \
-    SSP_Enable();                                       \
-  }
-
-#define Ms2100ReadRes() {						\
-    ms2100_status = MS2100_READING_RES;         \
-    Ms2100Select();                             \
-    /* trigger 2 bytes read */                  \
-    SSP_Send(0);                                \
-    SSP_Send(0);                                \
-    SSP_Enable();                               \
-    SSP_ClearRti();                             \
-    SSP_EnableRti();							\
-  }
-
-#endif
+/** Reset callback.
+ * called before spi transaction and after slave select
+ */
+extern void ms2100_reset_cb( void );
 
 #endif /* MS2100_ARCH_H */
