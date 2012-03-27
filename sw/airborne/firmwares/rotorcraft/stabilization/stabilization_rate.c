@@ -183,7 +183,7 @@ void stabilization_rate_run(bool_t in_flight) {
   RATES_ADD(stabilization_rate_ref, _delta_ref);
 
   /* compute feed-forward command */
-  RATES_EWMULT_RSHIFT(stabilization_rate_ff_cmd, stabilization_rate_ddgain, stabilization_rate_refdot, 14);
+  RATES_EWMULT_RSHIFT(stabilization_rate_ff_cmd, stabilization_rate_ddgain, stabilization_rate_refdot, 9);
 
 
   /* compute feed-back command */
@@ -213,9 +213,9 @@ void stabilization_rate_run(bool_t in_flight) {
   stabilization_rate_fb_cmd.r = stabilization_rate_gain.r * _error.r +
     OFFSET_AND_ROUND2((stabilization_rate_igain.r  * stabilization_rate_sum_err.r), 10);
 
-  stabilization_rate_fb_cmd.p = stabilization_rate_fb_cmd.p >> 16;
-  stabilization_rate_fb_cmd.q = stabilization_rate_fb_cmd.q >> 16;
-  stabilization_rate_fb_cmd.r = stabilization_rate_fb_cmd.r >> 16;
+  stabilization_rate_fb_cmd.p = stabilization_rate_fb_cmd.p >> 11;
+  stabilization_rate_fb_cmd.q = stabilization_rate_fb_cmd.q >> 11;
+  stabilization_rate_fb_cmd.r = stabilization_rate_fb_cmd.r >> 11;
 
   /* sum to final command */
   stabilization_cmd[COMMAND_ROLL]  = stabilization_rate_ff_cmd.p + stabilization_rate_fb_cmd.p;
