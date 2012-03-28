@@ -14,10 +14,9 @@ extern char* ivy_p;
 
 #define IvyTransportPutUint8(_dev,x) { ivy_p += sprintf(ivy_p, "%u ", x); }
 #define IvyTransportPutNamedUint8(_dev,_name, _x) { ivy_p += sprintf(ivy_p, "%s ", _name); }
+#define IvyTransportPutClassUint8(_dev,_name, _x)
 
-#define IvyTransportPutPacketSequence(_dev) { \
-    IvyTransportPutUint8(_dev, 0); \
-}
+#define IvyTransportPutPacketSequence(_dev)
 
 #define Space() ivy_p += sprintf(ivy_p, " ");
 #define Comma() ivy_p += sprintf(ivy_p, ",");

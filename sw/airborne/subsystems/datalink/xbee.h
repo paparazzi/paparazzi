@@ -131,6 +131,7 @@ void xbee_init( void );
 #define XBeeTransportPutUint32ByAddr(_dev, _x) XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
 #define XBeeTransportPutFloatByAddr(_dev, _x) XBeeTransportPut4ByteByAddr(_dev, (const uint8_t*)_x)
 #define XBeeTransportPutNamedUint8(_dev, _name, _byte) XBeeTransportPutUint8(_dev, _byte)
+#define XBeeTransportPutClassUint8(_dev, _name, _byte) XBeeTransportPutUint8(_dev, _byte)
 #define XBeeTransportPutCharByAddr(_dev, _x) XBeeTransportPut1ByteByAddr(_dev, (const uint8_t*)_x)
 
 #define XBeeTransportPutArray(_dev, _put, _n, _x) { \

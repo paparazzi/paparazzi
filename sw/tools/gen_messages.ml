@@ -158,7 +158,7 @@ module Gen_onboard = struct
     let size = (size_fields fields "0") in
     fprintf h "\tif (DownlinkCheckFreeSpace(_trans, _dev, DownlinkSizeOf(_trans, _dev, %s))) {\\\n" size;
     fprintf h "\t  DownlinkCountBytes(_trans, _dev, DownlinkSizeOf(_trans, _dev, %s)); \\\n" size;
-    fprintf h "\t  DownlinkStartMessage(_trans, _dev, %s, %s, \"%s\", DL_%s, %s) \\\n" class_ class_id s s size;
+    fprintf h "\t  DownlinkStartMessage(_trans, _dev, \"%s\", %s, \"%s\", DL_%s, %s) \\\n" class_ class_id s s size;
     List.iter (print_field h) fields;
     fprintf h "\t  DownlinkEndMessage(_trans, _dev ) \\\n";
     fprintf h "\t} else \\\n";
@@ -303,11 +303,11 @@ let () =
 		let u_class_name = String.uppercase class_name in
 		Printf.fprintf h "#ifndef MSG_%s_H\n" u_class_name;
 		Printf.fprintf h "#define MSG_%s_H\n" u_class_name;
-    Printf.fprintf h "#if DOWNLINK\n";
+    (*Printf.fprintf h "#if DOWNLINK\n";*)
     Gen_onboard.print_downlink_macros h class_name class_id messages;
-	  Printf.fprintf h "#else // DOWNLINK\n";
+	  (*Printf.fprintf h "#else // DOWNLINK\n";
 	  Gen_onboard.print_null_downlink_macros h messages;
-	  Printf.fprintf h "#endif // DOWNLINK\n";
+	  Printf.fprintf h "#endif // DOWNLINK\n";*)
 
     (** Macros for airborne datalink (receiving) *)
 		match check_align with

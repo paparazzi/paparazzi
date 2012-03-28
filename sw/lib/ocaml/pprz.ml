@@ -663,7 +663,6 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
       msg_name::args ->
 	begin
 	  try
-			prerr_endline ("**** USING PPRZ.values_of_string_unsorted WITH MESSAGE: "^msg_name);
 	    let msg_id, msg = message_of_name msg_name in
 			
 			let assoc_args = ref [] in
@@ -674,7 +673,6 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 			
 			let values = List.map (fun (field_name, field) ->
 				let v = List.assoc field_name !assoc_args in
-				prerr_endline ("!!! field_name="^field_name^" | v="^v); 
 				(field_name, value field._type v) ) msg.fields in
 	    (msg_id, values)
 	  with
@@ -703,7 +701,6 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 	 msg.fields)
 
   let message_send = fun ?timestamp sender msg_name values ->
-		prerr_endline("****************** PPRZ.MESSAGE_SEND: "^msg_name);
     let m = snd (message_of_name msg_name) in
     let s = string_of_message m values in
     let timestamp_string =

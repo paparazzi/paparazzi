@@ -74,10 +74,13 @@ extern uint16_t downlink_nb_msgs;
  *
  * call transport functions from channel
  */
+#if DOWNLINK
 #define __Transport(dev, _x) dev##_x
 #define _Transport(dev, _x) __Transport(dev, _x)
 #define Transport(_chan, _fun) _Transport(_chan, _fun)
-
+#else /** DOWNLINK */
+#define Transport(_chan, _fun)
+#endif /** DOWNLINK */
 
 /** Set of macros for generated code (messages_<class_name>.h) from messages.xml */
 /** 4 = packet_sequence + ac_id + class_id + msg_id */
@@ -121,7 +124,7 @@ extern uint16_t downlink_nb_msgs;
   Transport(_trans, Header(_dev, DownlinkIDsSize(_trans, _dev, payload_len))); \
   Transport(_trans, PutPacketSequence(_dev));\
   Transport(_trans, PutUint8(_dev, AC_ID)); \
-  Transport(_trans, PutNamedUint8(_dev, _classname, class_id)); \
+  Transport(_trans, PutClassUint8(_dev, _classname, class_id)); \
   Transport(_trans, PutNamedUint8(_dev, _name, msg_id)); \
 }
 

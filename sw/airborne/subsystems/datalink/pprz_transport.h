@@ -83,6 +83,7 @@ extern uint8_t ck_a, ck_b, pprz_down_packet_seq;
 }
 
 #define PprzTransportPutNamedUint8(_dev, _name, _byte) PprzTransportPutUint8(_dev, _byte)
+#define PprzTransportPutClassUint8(_dev, _name, _byte) PprzTransportPutUint8(_dev, _byte)
 
 #define PprzTransportPut1ByteByAddr(_dev, _byte) {	 \
     uint8_t _x = *(_byte);		 \
