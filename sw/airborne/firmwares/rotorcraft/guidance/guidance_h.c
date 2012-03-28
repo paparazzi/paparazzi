@@ -238,6 +238,7 @@ static inline void guidance_h_update_reference(bool_t use_ref) {
     INT_VECT2_ZERO(guidance_h_accel_ref);
   }
 #else
+  if (use_ref) {;} // we don't have a reference... just to avoid the unused arg warning in that case
   VECT2_COPY(guidance_h_pos_ref, guidance_h_pos_sp);
   INT_VECT2_ZERO(guidance_h_speed_ref);
   INT_VECT2_ZERO(guidance_h_accel_ref);
