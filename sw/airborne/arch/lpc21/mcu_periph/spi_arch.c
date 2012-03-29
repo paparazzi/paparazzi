@@ -171,6 +171,7 @@ __attribute__ ((always_inline)) static inline void SpiRead(struct spi_periph* p,
   *c = ((sspRegs_t *)(p->reg_addr))->dr;
 }
 
+#include "led.h"
 __attribute__ ((always_inline)) static inline void SpiTransmit(struct spi_periph* p, struct spi_transaction* t) {
   while (p->tx_idx_buf < t->length && bit_is_set(((sspRegs_t *)(p->reg_addr))->sr, TNF)) {
     SpiSend(p, t->output_buf[p->tx_idx_buf]);
@@ -230,44 +231,66 @@ __attribute__ ((always_inline)) static inline void SpiStart(struct spi_periph* p
   SpiEnableTxi(p); // enable tx fifo half empty interrupt
 }
 
+__attribute__ ((always_inline)) static inline void SpiEndOfTransaction(struct spi_periph* p, struct spi_transaction* t) {
+  // callback function after transaction
+  if (t->after_cb != 0) t->after_cb();
+
+  // handle slave unselect
+  if (t->select == SPISelectUnselect || t->select == SPIUnselect) {
+    SpiSlaveUnselect(t->slave_idx);
+  }
+
+  //SpiReceive(p, t);
+  //SpiDisableRti(p);
+  SpiClearRti(p);                /* clear interrupt */
+  SSPIMSC = 0;
+  SpiDisable(p);
+  // end transaction with success
+  t->status = SPITransSuccess;
+
+  // handle transaction fifo here
+  p->trans_extract_idx++;
+  if (p->trans_extract_idx >= SPI_TRANSACTION_QUEUE_LEN)
+    p->trans_extract_idx = 0;
+  // if no more transaction to process, stop here, else start next transaction
+  if (p->trans_extract_idx == p->trans_insert_idx) {
+    p->status = SPIIdle;
+  }
+  else {
+    SpiStart(p,p->trans[p->trans_extract_idx]);
+  }
+
+}
 
 __attribute__ ((always_inline)) static inline void SpiAutomaton(struct spi_periph* p) {
+  //LED_ON(1);
+  //LED_ON(2);
+  //LED_ON(3);
+  //LED_ON(4);
   struct spi_transaction* trans = p->trans[p->trans_extract_idx];
 
   /* Tx fifo is half empty */
   if (bit_is_set(((sspRegs_t *)(p->reg_addr))->mis, TXMIS)) {
     SpiTransmit(p, trans);
     SpiReceive(p, trans);
-    SpiEnableRti(p);
+    if (p->tx_idx_buf == trans->length && p->rx_idx_buf == trans->length) {
+      SpiDisableRti(p);
+      SpiClearRti(p);                /* clear interrupt */
+      //LED_OFF(2);
+      SpiEndOfTransaction(p, trans);
+    }
+    else {
+      //LED_OFF(3);
+      SpiEnableRti(p);
+    }
   }
 
   /* Rx fifo is not empty and no receive took place in the last 32 bits period */
   if (bit_is_set(((sspRegs_t *)(p->reg_addr))->mis, RTMIS)) {
-    // callback function after transaction
-    if (trans->after_cb != 0) trans->after_cb();
-
-    // handle slave unselect
-    if (trans->select == SPISelectUnselect || trans->select == SPIUnselect) {
-      SpiSlaveUnselect(trans->slave_idx);
-    }
     SpiReceive(p, trans);
     SpiDisableRti(p);
     SpiClearRti(p);                /* clear interrupt */
-    SpiDisable(p);
-    // end transaction with success
-    trans->status = SPITransSuccess;
-
-    // handle transaction fifo here
-    p->trans_extract_idx++;
-    if (p->trans_extract_idx >= SPI_TRANSACTION_QUEUE_LEN)
-      p->trans_extract_idx = 0;
-    // if no more transaction to process, stop here, else start next transaction
-    if (p->trans_extract_idx == p->trans_insert_idx) {
-      p->status = SPIIdle;
-    }
-    else {
-      SpiStart(p,p->trans[p->trans_extract_idx]);
-    }
+    SpiEndOfTransaction(p, trans);
   }
 }
 
@@ -325,7 +348,7 @@ void spi0_arch_init(void) {
 #define SSP_FRF  0x00 << 4  /* frame format      : SPI           */
 #define SSP_CPOL 0x00 << 6  /* clock polarity    : SCK idles low */
 #define SSP_CPHA 0x00 << 7  /* clock phase       : data captured on first clock transition */
-#define SSP_SCR  0x00 << 8  /* serial clock rate   */
+#define SSP_SCR  0x0F << 8  /* serial clock rate : divide by 16  */
 
 /* SSPCR1 settings */
 #define SSP_LBM  0x00 << 0  /* loopback mode     : disabled                  */
@@ -333,8 +356,12 @@ void spi0_arch_init(void) {
 #define SSP_MS   0x00 << 2  /* master slave mode : master                    */
 #define SSP_SOD  0x00 << 3  /* slave output disable : don't care when master */
 
+/** Clock prescaler.
+ * SPI clock rate = PCLK / (CPSR*(SCR+1))
+ * with PCLK = 30 MHz, CPSR = 2 and SCR = 15 -> clock ~ 1 MHz
+ */
 #ifndef SSPCPSR_VAL
-#define SSPCPSR_VAL 0x20
+#define SSPCPSR_VAL 0x02    /* clock prescale */
 #endif
 
 void spi1_ISR(void) __attribute__((naked));
@@ -372,25 +399,33 @@ void spi1_arch_init(void) {
 
 
 bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t) {
-
+  //LED_OFF(1);
+  //LED_OFF(2);
+  //LED_OFF(3);
+  //LED_OFF(4);
   uint8_t idx;
   idx = p->trans_insert_idx + 1;
   if (idx >= SPI_TRANSACTION_QUEUE_LEN) idx = 0;
   if (idx == p->trans_extract_idx) {
     t->status = SPITransFailed;
+    //LED_ON(4);
     return FALSE; /* queue full */
   }
   t->status = SPITransPending;
-  //*(t->ready) = 0; ???
   // Disable interrupts
-  int_disable();
+  //int_disable();
+  //VICIntEnClear = VIC_BIT(VIC_SPI1);
   p->trans[p->trans_insert_idx] = t;
   p->trans_insert_idx = idx;
   /* if peripheral is idle, start the transaction */
+  //LED_ON(1);
   if (p->status == SPIIdle) {
+    //LED_ON(3);
     SpiStart(p,p->trans[p->trans_extract_idx]);
   }
-  int_enable();
+  //int_enable();
+  //VICIntEnable = VIC_BIT(VIC_SPI1);
+  //LED_ON(2);
 
   return TRUE;
 }

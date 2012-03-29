@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  *
  * This file is part of paparazzi.
@@ -36,19 +34,5 @@
   RESET P1.19
 
 */
-
-#include "std.h"
-#include "LPC21xx.h"
-#include "interrupt_hw.h"
-
-#define IMU_SSP_STA_IDLE           0
-#define IMU_SSP_STA_BUSY_MAX1168   1
-#define IMU_SSP_STA_BUSY_MS2100    2
-extern volatile uint8_t imu_ssp_status;
-extern int imu_overrun;
-
-
-
-
 
 #endif /* IMU_B2_ARCH_H */

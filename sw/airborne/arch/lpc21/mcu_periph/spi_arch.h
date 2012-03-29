@@ -38,9 +38,11 @@
 // SSP is on SPI1 on lpc
 #if defined USE_SSP & !USE_SPI1
 #define USE_SP11 1
-// TODO other defines ?
 #endif
 
+#if defined SSP_VIC_SLOT & !SPI1_VIC_SLOT
+#define SPI1_VIC_SLOT SSP_VIC_SLOT
+#endif
 
 #ifdef SPI_SLAVE
 
