@@ -87,7 +87,9 @@ __attribute__ ((always_inline)) static inline void I2cClearIT(void* reg) {
   ((i2cRegs_t *)reg)->conclr = _BV(SIC);
 }
 
+#include "led.h"
 __attribute__ ((always_inline)) static inline void I2cAutomaton(int32_t state, struct i2c_periph* p) {
+  LED_OFF(3);
   struct i2c_transaction* trans = p->trans[p->trans_extract_idx];
   switch (state) {
     case I2C_START:
@@ -153,6 +155,7 @@ __attribute__ ((always_inline)) static inline void I2cAutomaton(int32_t state, s
       /* FIXME log error */
       break;
   }
+  LED_ON(3);
 }
 
 
@@ -319,7 +322,9 @@ bool_t i2c_idle(struct i2c_periph* p) {
 }
 
 bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
+  unsigned cpsr;
 
+//  LED_OFF(3);
   uint8_t idx;
   idx = p->trans_insert_idx + 1;
   if (idx >= I2C_TRANSACTION_QUEUE_LEN) idx = 0;
@@ -328,7 +333,13 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
     return FALSE;  /* queue full */
   }
   t->status = I2CTransPending;
-  int_disable();
+
+  //int_disable();
+  cpsr = disableIRQ();                                // disable global interrupts
+  VICIntEnClear = VIC_BIT(VIC_I2C0);
+  VICIntEnClear = VIC_BIT(VIC_I2C1);
+  restoreIRQ(cpsr);                                   // restore global interrupts
+
   p->trans[p->trans_insert_idx] = t;
   p->trans_insert_idx = idx;
   /* if peripheral is idle, start the transaction */
@@ -336,8 +347,14 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
     I2cSendStart(p);
   /* else it will be started by the interrupt handler */
   /* when the previous transactions completes         */
-  int_enable();
 
+  //int_enable();
+  cpsr = disableIRQ();                                // disable global interrupts
+  VICIntEnable = VIC_BIT(VIC_I2C0);
+  VICIntEnable = VIC_BIT(VIC_I2C1);
+  restoreIRQ(cpsr);                                   // restore global interrupts
+
+//  LED_ON(3);
   return TRUE;
 }
 

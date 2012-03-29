@@ -368,9 +368,11 @@ void spi1_ISR(void) __attribute__((naked));
 
 void spi1_ISR(void) {
   ISR_ENTRY();
+    LED_OFF(2);
 
   SpiAutomaton(&spi1);
 
+    LED_ON(2);
   VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
   ISR_EXIT();
 }
@@ -400,21 +402,26 @@ void spi1_arch_init(void) {
 
 bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t) {
   //LED_OFF(1);
-  //LED_OFF(2);
+//  LED_OFF(2);
   //LED_OFF(3);
   //LED_OFF(4);
+  unsigned cpsr;
+
   uint8_t idx;
   idx = p->trans_insert_idx + 1;
   if (idx >= SPI_TRANSACTION_QUEUE_LEN) idx = 0;
   if (idx == p->trans_extract_idx) {
     t->status = SPITransFailed;
-    //LED_ON(4);
     return FALSE; /* queue full */
   }
   t->status = SPITransPending;
+
   // Disable interrupts
   //int_disable();
-  //VICIntEnClear = VIC_BIT(VIC_SPI1);
+  cpsr = disableIRQ();                                // disable global interrupts
+  VICIntEnClear = VIC_BIT(VIC_SPI1);
+  restoreIRQ(cpsr);                                   // restore global interrupts
+
   p->trans[p->trans_insert_idx] = t;
   p->trans_insert_idx = idx;
   /* if peripheral is idle, start the transaction */
@@ -423,9 +430,12 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t) {
     //LED_ON(3);
     SpiStart(p,p->trans[p->trans_extract_idx]);
   }
+
   //int_enable();
-  //VICIntEnable = VIC_BIT(VIC_SPI1);
-  //LED_ON(2);
+  cpsr = disableIRQ();                                // disable global interrupts
+  VICIntEnable = VIC_BIT(VIC_SPI1);
+  restoreIRQ(cpsr);                                   // restore global interrupts
+//  LED_ON(2);
 
   return TRUE;
 }

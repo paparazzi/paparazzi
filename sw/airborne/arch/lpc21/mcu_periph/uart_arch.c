@@ -62,16 +62,21 @@ void uart_periph_set_baudrate(struct uart_periph* p, uint32_t baud) {
   uart_enable_interrupts(p);
 }
 
+#include "led.h"
 void uart_transmit(struct uart_periph* p, uint8_t data ) {
   uint16_t temp;
   unsigned cpsr;
 
+//  LED_OFF(1);
   temp = (p->tx_insert_idx + 1) % UART_TX_BUFFER_SIZE;
 
-  if (temp == p->tx_extract_idx)
+  if (temp == p->tx_extract_idx) {
     return;                          // no room
+  }
 
   cpsr = disableIRQ();                                // disable global interrupts
+  VICIntEnClear = VIC_BIT(VIC_UART1);
+  VICIntEnClear = VIC_BIT(VIC_UART0);
   ((uartRegs_t *)(p->reg_addr))->ier &= ~UIER_ETBEI;  // disable TX interrupts
   restoreIRQ(cpsr);                                   // restore global interrupts
 
@@ -88,13 +93,16 @@ void uart_transmit(struct uart_periph* p, uint8_t data ) {
 
   cpsr = disableIRQ();                              // disable global interrupts
   ((uartRegs_t *)(p->reg_addr))->ier |= UIER_ETBEI; // enable TX interrupts
+  VICIntEnable = VIC_BIT(VIC_UART1);
+  VICIntEnable = VIC_BIT(VIC_UART0);
   restoreIRQ(cpsr);                                 // restore global interrupts
+//  LED_ON(1);
 }
 
 static inline void uart_ISR(struct uart_periph* p)
 {
+  LED_OFF(1);
   uint8_t iid;
-
   // loop until not more interrupt sources
   while (((iid = ((uartRegs_t *)(p->reg_addr))->iir) & UIIR_NO_INT) == 0)
   {
@@ -149,6 +157,7 @@ static inline void uart_ISR(struct uart_periph* p)
         break;
     }
   }
+  LED_ON(1);
 }
 
 #ifdef USE_UART0
