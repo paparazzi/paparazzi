@@ -165,14 +165,6 @@ module Gen_onboard = struct
     fprintf h "\t  DownlinkOverrun(_trans, _dev ); \\\n";
     fprintf h "}\n\n"
 
-  let print_null_downlink_macro = fun h {name=s; fields = fields} ->
-    if List.length fields > 0 then begin
-      fprintf h "#define DOWNLINK_SEND_%s(_trans, _dev, " s;
-    end else
-      fprintf h "#define DOWNLINK_SEND_%s(_trans, _dev " s;
-    print_macro_parameters h fields;
-    fprintf h ") {}\n"
-
   (** Prints the messages ids *)
   let print_enum = fun h class_ messages ->
     List.iter (fun m ->
@@ -213,9 +205,6 @@ module Gen_onboard = struct
     print_enum h class_ messages;
     print_lengths_array h class_ messages;
     List.iter (print_downlink_macro h class_ class_id) messages
-
-  let print_null_downlink_macros = fun h messages ->
-    List.iter (print_null_downlink_macro h) messages
 
   (** Prints the macro to get access to the fields of a received message *)
   let print_get_macros = fun h check_alignment message ->
@@ -303,11 +292,7 @@ let () =
 		let u_class_name = String.uppercase class_name in
 		Printf.fprintf h "#ifndef MSG_%s_H\n" u_class_name;
 		Printf.fprintf h "#define MSG_%s_H\n" u_class_name;
-    (*Printf.fprintf h "#if DOWNLINK\n";*)
     Gen_onboard.print_downlink_macros h class_name class_id messages;
-	  (*Printf.fprintf h "#else // DOWNLINK\n";
-	  Gen_onboard.print_null_downlink_macros h messages;
-	  Printf.fprintf h "#endif // DOWNLINK\n";*)
 
     (** Macros for airborne datalink (receiving) *)
 		match check_align with

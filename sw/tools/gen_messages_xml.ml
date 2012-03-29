@@ -286,12 +286,13 @@ module FinalMacros = struct
 	let generate_files = fun classes ->
 		try
 			let (temp_filename_up, h_up, temp_filename_down, h_down) = create_both_files () in
+			ignore(
 			List.map (fun clas -> match (clas.g_type) with
 				| "uplink" -> include_in_file clas h_up
 				|	"downlink" -> include_in_file clas h_down
 				|	"datalink" -> include_in_file clas h_up; include_in_file clas h_down
 				| _ -> ()
-				) classes;
+				) classes);
 			close_both_files temp_filename_up h_up temp_filename_down h_down
 		with
 			| Cannot_open_file s -> failwith (sprintf "Cannot open file to inlcude macro files (Exception: %s)" s)
