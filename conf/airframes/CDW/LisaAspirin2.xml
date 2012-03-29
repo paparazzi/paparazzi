@@ -198,7 +198,7 @@
 
   <firmware name="fixedwing">
 
-    <target name="ap" board="lisa_m_1.0">
+    <target name="ap" board="lisa_l_1.0">
       <define name="STRONG_WIND"/>
       <define name="WIND_INFO"/>
       <define name="WIND_INFO_RET"/>
@@ -232,7 +232,7 @@
     <subsystem name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="transparent">
+    <subsystem name="telemetry" type="xbee_api">
       <configure name="MODEM_BAUD" value="B57600"/>
     </subsystem>
 
@@ -240,7 +240,7 @@
     <subsystem name="control"/>
     <!-- Sensors -->
     <subsystem name="navigation"/>
-    <subsystem name="gps" type="ublox_utm"/>
+    <subsystem name="gps" type="ublox"/>
 
 
 </firmware>
