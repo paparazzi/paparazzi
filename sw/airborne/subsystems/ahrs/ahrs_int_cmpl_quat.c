@@ -47,33 +47,6 @@ static inline void ahrs_update_mag_2d(void);
 #warning "AHRS_MAG_UPDATE_YAW_ONLY is deprecated, please remove it. This is the default behaviour. Define AHRS_MAG_UPDATE_ALL_AXES to use mag for all axes and not only yaw."
 #endif
 
-/* in place quaternion first order integration with constante rotational velocity */
-/*  */
-#define INT32_QUAT_INTEGRATE_FI(_q, _hr, _omega, _f) {              \
-    _hr.qi += -_omega.p*_q.qx - _omega.q*_q.qy - _omega.r*_q.qz;    \
-    _hr.qx +=  _omega.p*_q.qi + _omega.r*_q.qy - _omega.q*_q.qz;    \
-    _hr.qy +=  _omega.q*_q.qi - _omega.r*_q.qx + _omega.p*_q.qz;    \
-    _hr.qz +=  _omega.r*_q.qi + _omega.q*_q.qx - _omega.p*_q.qy;    \
-                                                                    \
-    ldiv_t _div = ldiv(_hr.qi, ((1<<INT32_RATE_FRAC)*_f*2));        \
-    _q.qi+= _div.quot;                                              \
-    _hr.qi = _div.rem;                                              \
-                                                                    \
-    _div = ldiv(_hr.qx, ((1<<INT32_RATE_FRAC)*_f*2));               \
-    _q.qx+= _div.quot;                                              \
-    _hr.qx = _div.rem;                                              \
-                                                                    \
-    _div = ldiv(_hr.qy, ((1<<INT32_RATE_FRAC)*_f*2));               \
-    _q.qy+= _div.quot;                                              \
-    _hr.qy = _div.rem;                                              \
-                                                                    \
-    _div = ldiv(_hr.qz, ((1<<INT32_RATE_FRAC)*_f*2));               \
-    _q.qz+= _div.quot;                                              \
-    _hr.qz = _div.rem;                                              \
-                                                                    \
-  }
-
-
 
 struct AhrsIntCmpl ahrs_impl;
 

@@ -600,6 +600,32 @@ struct Int64Vect3 {
     (_qd).qz = (-1*(-(_r).r*(_q).qi/2 - (_r).q*(_q).qx + (_r).p*(_q).qy))>>INT32_RATE_FRAC; \
   }
 
+/** in place quaternion first order integration with constant rotational velocity. */
+#define INT32_QUAT_INTEGRATE_FI(_q, _hr, _omega, _f) {              \
+    _hr.qi += -_omega.p*_q.qx - _omega.q*_q.qy - _omega.r*_q.qz;    \
+    _hr.qx +=  _omega.p*_q.qi + _omega.r*_q.qy - _omega.q*_q.qz;    \
+    _hr.qy +=  _omega.q*_q.qi - _omega.r*_q.qx + _omega.p*_q.qz;    \
+    _hr.qz +=  _omega.r*_q.qi + _omega.q*_q.qx - _omega.p*_q.qy;    \
+                                                                    \
+    ldiv_t _div = ldiv(_hr.qi, ((1<<INT32_RATE_FRAC)*_f*2));        \
+    _q.qi+= _div.quot;                                              \
+    _hr.qi = _div.rem;                                              \
+                                                                    \
+    _div = ldiv(_hr.qx, ((1<<INT32_RATE_FRAC)*_f*2));               \
+    _q.qx+= _div.quot;                                              \
+    _hr.qx = _div.rem;                                              \
+                                                                    \
+    _div = ldiv(_hr.qy, ((1<<INT32_RATE_FRAC)*_f*2));               \
+    _q.qy+= _div.quot;                                              \
+    _hr.qy = _div.rem;                                              \
+                                                                    \
+    _div = ldiv(_hr.qz, ((1<<INT32_RATE_FRAC)*_f*2));               \
+    _q.qz+= _div.quot;                                              \
+    _hr.qz = _div.rem;                                              \
+                                                                    \
+  }
+
+
 #ifdef ALGEBRA_INT_USE_SLOW_FUNCTIONS
 #define INT32_QUAT_VMULT(v_out, q, v_in) {				\
     const int32_t qi2  = ((q).qi*(q).qi)>>INT32_QUAT_FRAC;			\
