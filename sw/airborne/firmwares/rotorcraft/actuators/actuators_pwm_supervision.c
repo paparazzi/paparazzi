@@ -23,15 +23,20 @@
  *  PWM actuators with supervision.
  */
 
+#include "generated/airframe.h"
 #include "firmwares/rotorcraft/actuators.h"
 #include "firmwares/rotorcraft/commands.h"
-#include "actuators_pwm_supervision.h"
 #include "subsystems/radio_control.h"
+
+/* warn if SUPERVISION_STOP_MOTOR is not define in the airframe file */
+#ifndef SUPERVISION_STOP_MOTOR
+#warning "STOP_MOTOR is not defined in the SUPERVISION section, are you sure you want to use the default of 0?"
+#endif
+
+#include "actuators_pwm_supervision.h"
 
 /* let's start butchery now and use the actuators_pwm arch functions */
 #include "firmwares/rotorcraft/actuators/actuators_pwm.h"
-
-#include "generated/airframe.h"
 
 #define actuators actuators_pwm_values
 #define Actuator(_x) actuators_pwm_values[_x]

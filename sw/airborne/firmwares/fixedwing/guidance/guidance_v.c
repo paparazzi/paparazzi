@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2006  Pascal Brisset, Antoine Drouin, Michel Gorraz
  *
  * This file is part of paparazzi.
@@ -19,12 +17,11 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 /**
- *  \file v_ctl_ctl
- *  \brief Vertical control for fixed wing vehicles.
+ *  @file firmwares/fixedwing/guidance/guidance_v.c
+ *  Vertical control for fixed wing vehicles.
  *
  */
 
@@ -288,7 +285,8 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
     nav_pitch = (1-ratio) * v_ctl_pitch_of_vz;
     v_ctl_auto_throttle_sum_err += (1-ratio) * err;
     BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR);
-    if (v_ctl_altitude_error < 0) {
+    /* positive error -> too low */
+    if (v_ctl_altitude_error > 0) {
       f_throttle +=  ratio * AGR_CLIMB_THROTTLE;
       nav_pitch += ratio * AGR_CLIMB_PITCH;
     } else {
