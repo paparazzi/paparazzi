@@ -17,5 +17,24 @@
 #define ADXL345_REG_DATA_Z0     0x36
 #define ADXL345_REG_DATA_Z1     0x37
 
+/* Selectable data rates in ADXL345_REG_BW_RATE
+ * bandwith is always half of data rate
+ */
+#define ADXL345_RATE_3200 0x0F
+#define ADXL345_RATE_1600 0x0E
+#define ADXL345_RATE_800  0x0D
+#define ADXL345_RATE_400  0x0C
+#define ADXL345_RATE_200  0x0B
+#define ADXL345_RATE_100  0x0A
+#define ADXL345_RATE_50   0x09
+
+/* data format bits, range */
+#define ADXL345_INT_INVERT  0x20
+#define ADXL345_FULL_RES    0x08
+#define ADXL345_JUSTIFY_MSB 0x04
+#define ADXL345_RANGE_16G   0x03
+#define ADXL345_RANGE_8G    0x02
+#define ADXL345_RANGE_4G    0x01
+#define ADXL345_RANGE_2G    0x00
 
 #endif /* ADXL345_H */

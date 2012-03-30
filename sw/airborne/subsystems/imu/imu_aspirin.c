@@ -10,6 +10,10 @@ static void configure_gyro(void);
 static void configure_accel(void);
 //static void configure_mag(void);
 
+#ifndef ASPIRIN_ACCEL_RATE
+#define ASPIRIN_ACCEL_RATE ADXL345_RATE_800
+#endif
+
 #if !SITL
 // FIXME: there should be no arch dependent code here!
 static void send_i2c_msg_with_retry(struct i2c_transaction* t) {
@@ -97,14 +101,14 @@ static void configure_gyro(void) {
 
 static void configure_accel(void) {
 
-  /* set data rate to 800Hz */
-  adxl345_write_to_reg(ADXL345_REG_BW_RATE, 0x0D);
+  /* set data rate to 800Hz and bandwidth to 400Hz (unless set otherwise) */
+  adxl345_write_to_reg(ADXL345_REG_BW_RATE, ASPIRIN_ACCEL_RATE);
   /* switch to measurememnt mode */
   adxl345_write_to_reg(ADXL345_REG_POWER_CTL, 1<<3);
   /* enable data ready interrupt */
   adxl345_write_to_reg(ADXL345_REG_INT_ENABLE, 1<<7);
   /* Enable full res with +-16g range and interrupt active low */
-  adxl345_write_to_reg(ADXL345_REG_DATA_FORMAT, 1<<0|1<<1|1<<3|1<<5);
+  adxl345_write_to_reg(ADXL345_REG_DATA_FORMAT, ADXL345_FULL_RES|ADXL345_RANGE_16G|ADXL345_INT_INVERT);
   /* clear spi rx reg to make DMA happy */
   adxl345_clear_rx_buf();
   /* reads data once to bring interrupt line up */
