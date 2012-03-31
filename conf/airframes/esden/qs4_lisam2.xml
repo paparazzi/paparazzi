@@ -32,7 +32,7 @@
     <!-- <define name="MODE_AUTO1" value="AP_MODE_TOYTRONICS_AEROBATIC"/> -->
     <define name="MODE_AUTO2"  value="AP_MODE_TOYTRONICS_HOVER_FORWARD"/>
     <define name="AUTOPILOT_KILL_WITHOUT_AHRS"  value="TRUE"/>
-    <define name="AUTOPILOT_THROTTLE_INSTANT_START_WITH_SAFETIES"  value="TRUE"/>
+    <define name="AUTOPILOT_INSTANT_START"  value="TRUE"/>
     <!--This is to enable a wing waggle at specified low battery voltage. The interval is in cycle counts, not seconds-->
     <!--define name="AUTOPILOT_LOBATT_WING_WAGGLE"/>
     <define name="AUTOPILOT_LOBATT_WING_WAGGLE_INTERVAL"  value="5120"/-->
@@ -119,7 +119,8 @@
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
   </section>
 
-  <include href="conf/airframes/esden/calib/imu_lisam_033.xml"/>
+  <!--include href="conf/airframes/esden/calib/imu_lisam_033.xml"/-->
+  <include href="conf/airframes/esden/calib/asp21-default.xml"/>
 
   <section name="IMU" prefix="IMU_">
     
@@ -253,7 +254,7 @@
       <define name="SERVO_HZ" value="400"/>
       <define name="SERVO_HZ_SECONDARY" value="40"/>
       <define name="RADIO_MODE" value="RADIO_FLAP"/>
-      <!--define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/-->
+      <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
       <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/>
       <define name = "RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value = "UART5"/>
       <define name = "OVERRIDE_UART5_IRQ_HANDLER"/>
@@ -264,7 +265,8 @@
       <subsystem name="actuators"     type="mkk"/>
     </target>
 
-    <subsystem name="imu"           type="aspirin_v1.0"/>
+    <!--subsystem name="imu"           type="aspirin_v1.0"/-->
+    <subsystem name="imu"           type="aspirin_v2.0"/>
     <subsystem name="gps"           type="ublox"/>
     <!--subsystem name="ahrs"          type="float_dcm"/-->
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
