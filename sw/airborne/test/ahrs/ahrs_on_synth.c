@@ -114,8 +114,6 @@ void aos_init(int traj_nb) {
 #endif
 
 
-
-
 #ifdef DISABLE_ALIGNEMENT
   printf("# DISABLE_ALIGNEMENT\n");
 #endif
@@ -174,11 +172,12 @@ void aos_compute_sensors(void) {
   float_vect3_add_gaussian_noise(&accelero_imu, &aos.accel_noise);
   ACCELS_BFP_OF_REAL(imu.accel, accelero_imu);
 
-
+#ifndef DISABLE_MAG_UPDATE
   struct FloatVect3 h_earth = {AHRS_H_X, AHRS_H_Y, AHRS_H_Z};
   struct FloatVect3 h_imu;
   FLOAT_QUAT_VMULT(h_imu, aos.ltp_to_imu_quat, h_earth);
   MAGS_BFP_OF_REAL(imu.mag, h_imu);
+#endif
 
 #ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
 #if AHRS_TYPE == AHRS_TYPE_FCQ || AHRS_TYPE == AHRS_TYPE_FLQ
@@ -219,15 +218,17 @@ void aos_run(void) {
 #endif /* DISABLE_ALIGNEMENT */
     ahrs_propagate();
     ahrs_update_accel();
+
 #ifndef DISABLE_MAG_UPDATE
     ahrs_update_mag();
 #endif
+
 #if AHRS_USE_GPS_HEADING
 #if AHRS_TYPE == AHRS_TYPE_ICQ
-    ahrs_update_heading(ANGLE_BFP_OF_REAL(aos.ltp_to_imu_euler.psi));
+    RunOnceEvery(100,ahrs_update_heading(ANGLE_BFP_OF_REAL(aos.ltp_to_imu_euler.psi)));
 #endif
 #if AHRS_TYPE == AHRS_TYPE_FCQ
-    ahrs_update_heading(aos.ltp_to_imu_euler.psi);
+    RunOnceEvery(100,ahrs_update_heading(aos.ltp_to_imu_euler.psi));
 #endif
 #endif
 

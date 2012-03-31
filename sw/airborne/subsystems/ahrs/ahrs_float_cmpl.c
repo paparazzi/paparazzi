@@ -352,14 +352,24 @@ void ahrs_update_heading(float heading) {
   const float heading_rate_update_gain = 2.5;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, heading_rate_update_gain);
 
-  const float heading_bias_update_gain = -2.5e-4;
+  float heading_bias_update_gain;
+  /* crude attempt to only update bias if deviation is small
+   * e.g. needed when you only have gps providing heading
+   * and the inital heading is totally different from
+   * the gps course information you get once you have a gps fix.
+   * Otherwise the bias will be falsely "corrected".
+   */
+  if (fabs(residual_ltp.z) < sinf(RadOfDeg(5.)))
+    heading_bias_update_gain = -2.5e-4;
+  else
+    heading_bias_update_gain = 0.0;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, heading_bias_update_gain);
 }
 
 
 /*
  * Compute ltp to imu rotation in euler angles and quaternion representations
- * from the rotation matrice representation
+ * from the rotation matrix representation
  */
 static inline void compute_imu_quat_and_euler_from_rmat(void) {
   FLOAT_QUAT_OF_RMAT(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_rmat);
@@ -374,7 +384,7 @@ static inline void compute_imu_rmat_and_euler_from_quat(void) {
 
 
 
-/*
+/**
  * Compute body orientation and rates from imu orientation and rates
  */
 static inline void compute_body_orientation_and_rates(void) {
