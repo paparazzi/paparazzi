@@ -143,6 +143,8 @@ ifeq ($(BOARD), booz)
 ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
 else ifeq ($(BOARD), lisa_l)
 ap.CFLAGS += -DUSE_I2C2
+else ifeq ($(BOARD), lisa_m)
+ap.CFLAGS += -DUSE_I2C2
 else ifeq ($(BOARD), navgo)
 ap.CFLAGS += -DROTORCRAFT_BARO_LED=$(BARO_LED)
 include $(CFG_ROTORCRAFT)/spi.makefile
