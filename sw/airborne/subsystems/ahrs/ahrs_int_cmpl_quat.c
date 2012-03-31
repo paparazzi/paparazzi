@@ -298,7 +298,8 @@ void ahrs_update_gps(void) {
   if(gps.fix == GPS_FIX_3D && gps.gspeed>= 500) {
     // gps.course is in rad * 1e7, we need it in rad * 2^INT32_ANGLE_FRAC
     int32_t course = gps.course * ((1<<INT32_ANGLE_FRAC) / 1e7);
-    ahrs_update_course(course);
+    /* the assumption here is that there is no side-slip, so heading=course */
+    ahrs_update_heading(course);
   }
 #endif
 }

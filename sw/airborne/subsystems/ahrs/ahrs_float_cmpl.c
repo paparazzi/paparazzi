@@ -319,7 +319,8 @@ void ahrs_update_gps(void) {
   if(gps.fix == GPS_FIX_3D && gps.gspeed>= 500) {
     // gps.course is in rad * 1e7, we need it in rad
     float course = gps.course / 1e7;
-    ahrs_update_course(course);
+    /* the assumption here is that there is no side-slip, so heading=course */
+    ahrs_update_heading(course);
   }
 #endif
 }
@@ -351,8 +352,8 @@ void ahrs_update_heading(float heading) {
   const float heading_rate_update_gain = 2.5;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, heading_rate_update_gain);
 
-  const float mag_bias_update_gain = -2.5e-4;
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, mag_bias_update_gain);
+  const float heading_bias_update_gain = -2.5e-4;
+  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, heading_bias_update_gain);
 }
 
 
