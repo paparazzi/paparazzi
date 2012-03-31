@@ -57,6 +57,7 @@ struct AhrsFloatCmplRmat ahrs_impl;
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
   ahrs_impl.ltp_vel_norm_valid = FALSE;
+  ahrs_impl.heading_initialized = FALSE;
 
   /* Initialises IMU alignement */
   struct FloatEulers body_to_imu_euler =
@@ -117,6 +118,10 @@ void ahrs_align(void) {
   struct Int32Rates bias0;
   RATES_COPY(bias0, ahrs_aligner.lp_gyro);
   RATES_FLOAT_OF_BFP(ahrs_impl.gyro_bias, bias0);
+
+#if !AHRS_USE_GPS_HEADING
+  ahrs_impl.heading_initialized = TRUE;
+#endif
 
   ahrs.status = AHRS_RUNNING;
 
@@ -315,21 +320,26 @@ void ahrs_update_gps(void) {
 #endif
 
 #if AHRS_USE_GPS_HEADING && USE_GPS
-  //got a 3d fix and ground speed is more than 0.5 m/s
-  if(gps.fix == GPS_FIX_3D && gps.gspeed>= 500) {
+  //got a 3d fix, ground speed > 0.5 m/s and course accuracy is better than 10deg
+  if(gps.fix == GPS_FIX_3D &&
+     gps.gspeed >= 500 &&
+     gps.cacc <= RadOfDeg(10*1e7)) {
     // gps.course is in rad * 1e7, we need it in rad
     float course = gps.course / 1e7;
-    /* the assumption here is that there is no side-slip, so heading=course */
-    ahrs_update_heading(course);
+
+    if (ahrs_impl.heading_initialized) {
+      /* the assumption here is that there is no side-slip, so heading=course */
+      ahrs_update_heading(course);
+    }
+    else {
+      /* hard reset the heading if this is the first measurement */
+      ahrs_realign_heading(course);
+    }
   }
 #endif
 }
 
 
-/** Update yaw based on a heading measurement.
- * e.g. from GPS course
- * @param heading Heading in radians (CW/north)
- */
 void ahrs_update_heading(float heading) {
 
   FLOAT_ANGLE_NORMALIZE(heading);
@@ -367,7 +377,49 @@ void ahrs_update_heading(float heading) {
 }
 
 
-/*
+void ahrs_realign_heading(float heading) {
+  FLOAT_ANGLE_NORMALIZE(heading);
+
+  /* quaternion representing only the heading rotation from ltp to body */
+  struct FloatQuat q_h_new;
+  q_h_new.qx = 0.0;
+  q_h_new.qy = 0.0;
+  q_h_new.qz = sinf(heading/2.0);
+  q_h_new.qi = cosf(heading/2.0);
+
+  /* quaternion representing current heading only */
+  struct FloatQuat q_h;
+  QUAT_COPY(q_h, ahrs_float.ltp_to_body_quat);
+  q_h.qx = 0.;
+  q_h.qy = 0.;
+  FLOAT_QUAT_NORMALIZE(q_h);
+
+  /* quaternion representing rotation from current to new heading */
+  struct FloatQuat q_c;
+  FLOAT_QUAT_INV_COMP_NORM_SHORTEST(q_c, q_h, q_h_new);
+
+  /* correct current heading in body frame */
+  FLOAT_QUAT_COMP_NORM_SHORTEST(ahrs_float.ltp_to_body_quat,
+                                ahrs_float.ltp_to_body_quat, q_c);
+
+  /* compute ltp to imu rotation quaternion */
+  FLOAT_QUAT_COMP(ahrs_float.ltp_to_imu_quat,
+                  ahrs_float.ltp_to_body_quat, ahrs_impl.body_to_imu_quat);
+
+  /* compute other body orientation representations */
+  FLOAT_RMAT_OF_QUAT(ahrs_float.ltp_to_body_rmat, ahrs_float.ltp_to_body_quat);
+  FLOAT_EULERS_OF_RMAT(ahrs_float.ltp_to_body_euler, ahrs_float.ltp_to_body_rmat);
+
+  /* compute other ltp to imu rotation representations */
+  compute_imu_rmat_and_euler_from_quat();
+
+  /* compute fixed point representations */
+  AHRS_INT_OF_FLOAT();
+  AHRS_IMU_INT_OF_FLOAT();
+}
+
+
+/**
  * Compute ltp to imu rotation in euler angles and quaternion representations
  * from the rotation matrix representation
  */
