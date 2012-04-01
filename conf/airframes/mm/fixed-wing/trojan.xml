@@ -56,10 +56,10 @@
   <!-- commands section -->
   <servos>
     <servo name="MOTOR"         no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILERON_LEFT"  no="2" min="1100" neutral="1509" max="1900"/>
-    <servo name="AILERON_RIGHT" no="6" min="1100" neutral="1509" max="1900"/>
-    <servo name="ELEVATOR"      no="7" min="1900" neutral="1501" max="1100"/>
-    <servo name="RUDDER"        no="3" min="1900" neutral="1435" max="1100"/>
+    <servo name="AILERON_LEFT"  no="2" min="1100" neutral="1545" max="1900"/>
+    <servo name="AILERON_RIGHT" no="6" min="1100" neutral="1545" max="1900"/>
+    <servo name="ELEVATOR"      no="7" min="1900" neutral="1504" max="1100"/>
+    <servo name="RUDDER"        no="3" min="1900" neutral="1419" max="1100"/>
   </servos>
 
   <commands>
@@ -109,9 +109,9 @@
     <define name="GYRO_Q_SIGN" value="1"/>
     <define name="GYRO_R_SIGN" value="1"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="-20"/>
-    <define name="ACCEL_Y_NEUTRAL" value="-10"/>
-    <define name="ACCEL_Z_NEUTRAL" value="375"/>
+    <define name="ACCEL_X_NEUTRAL" value="0"/>
+    <define name="ACCEL_Y_NEUTRAL" value="0"/>
+    <define name="ACCEL_Z_NEUTRAL" value="0"/>
 
     <!-- SENS = 2048 LSB/g / 9.81 ms2/g = 208.766564729 LSB/ms2 / 10bit FRAC: 1024 / 208.7665 -->
     <define name="ACCEL_X_SENS" value="9.81" integer="16"/>
@@ -145,7 +145,7 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="4" unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="4" unit="deg"/>
   </section>
 
@@ -190,7 +190,7 @@
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000"/>
-    <define name="AUTO_THROTTLE_DASH_TRIM" value="-1200"/>
+    <define name="AUTO_THROTTLE_DASH_TRIM" value="-600"/>
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.2" unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PGAIN" value="0.023"/> <!-- -0.012 -->
     <define name="AUTO_THROTTLE_IGAIN" value="0.01"/>
