@@ -74,7 +74,7 @@ void supervision_init(void) {
       pitch_coef[i] * SUPERVISION_TRIM_E +
       yaw_coef[i]   * SUPERVISION_TRIM_R;
     supervision.override_enabled[i] = FALSE;
-    supervision.override_value[i] = SUPERVISION_MIN_MOTOR;
+    supervision.override_value[i] = SUPERVISION_STOP_MOTOR;
   }
   supervision.nb_failure = 0;
 }
