@@ -40,7 +40,10 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <!-- Control -->
     <subsystem name="control" type="new"/>
     <subsystem name="navigation" type="extra"/>
-    <subsystem name="ahrs" type="float_cmpl"/>
+
+    <subsystem name="ahrs" type="int_cmpl_quat">
+      <configure name="USE_MAGNETOMETER" value="0"/>
+    </subsystem>
 
     <!-- Sensors -->
     <subsystem name="imu" type="b2_v1.0">
@@ -176,7 +179,6 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <define name="H_X" value="0.4357869"/>
     <define name="H_Y" value="0.0177010"/>
     <define name="H_Z" value="0.8998758"/>
-    <define name="PROPAGATE_QUAT" value="1"/>
     <define name="USE_GPS_HEADING" value="1"/>
   </section>
 

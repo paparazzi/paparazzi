@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 The Paparazzi Team
+ * Copyright (C) 2008-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -47,6 +47,9 @@ static inline void ahrs_update_mag_2d(void);
 #warning "AHRS_MAG_UPDATE_YAW_ONLY is deprecated, please remove it. This is the default behaviour. Define AHRS_MAG_UPDATE_ALL_AXES to use mag for all axes and not only yaw."
 #endif
 
+#if USE_MAGNETOMETER && AHRS_UPDATE_GPS_HEADING
+#warning "Using magnetometer and GPS course to update heading. Probably better to set USE_MAGNETOMETER=0 if you want to use GPS course."
+#endif
 
 struct AhrsIntCmpl ahrs_impl;
 
@@ -87,12 +90,14 @@ void ahrs_init(void) {
 
 void ahrs_align(void) {
 
-#if AHRS_USE_GPS_HEADING
-  /* Compute an initial orientation from accel and just set heading to zero */
-  ahrs_int_get_quat_from_accel(&ahrs.ltp_to_imu_quat, &ahrs_aligner.lp_accel);
-#else
+#if USE_MAGNETOMETER
   /* Compute an initial orientation from accel and mag directly as quaternion */
   ahrs_int_get_quat_from_accel_mag(&ahrs.ltp_to_imu_quat, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
+  ahrs_impl.heading_aligned = TRUE;
+#else
+  /* Compute an initial orientation from accel and just set heading to zero */
+  ahrs_int_get_quat_from_accel(&ahrs.ltp_to_imu_quat, &ahrs_aligner.lp_accel);
+  ahrs_impl.heading_aligned = FALSE;
 #endif
 
   /* Convert initial orientation from quat to euler and rotation matrix representations. */
@@ -105,12 +110,7 @@ void ahrs_align(void) {
   RATES_COPY( ahrs_impl.high_rez_bias, ahrs_aligner.lp_gyro);
   INT_RATES_LSHIFT(ahrs_impl.high_rez_bias, ahrs_impl.high_rez_bias, 28);
 
-#if !AHRS_USE_GPS_HEADING
-  ahrs_impl.heading_aligned = TRUE;
-#endif
-
   ahrs.status = AHRS_RUNNING;
-
 }
 
 
@@ -212,7 +212,6 @@ void ahrs_update_accel(void) {
 
   /*                        */
   INT_RATES_RSHIFT(ahrs_impl.gyro_bias, ahrs_impl.high_rez_bias, 28);
-
 
 }
 
