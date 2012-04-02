@@ -46,7 +46,7 @@
 #warning "AHRS_MAG_UPDATE_YAW_ONLY is deprecated, please remove it. This is the default behaviour. Define AHRS_MAG_UPDATE_ALL_AXES to use mag for all axes and not only yaw."
 #endif
 
-#if USE_MAGNETOMETER && AHRS_UPDATE_GPS_HEADING
+#if USE_MAGNETOMETER && AHRS_USE_GPS_HEADING
 #warning "Using magnetometer and GPS course to update heading. Probably better to set USE_MAGNETOMETER=0 if you want to use GPS course."
 #endif
 

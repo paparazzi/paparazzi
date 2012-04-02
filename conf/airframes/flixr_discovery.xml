@@ -43,6 +43,7 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
 
     <subsystem name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="0"/>
+      <define name="AHRS_USE_GPS_HEADING" value="1"/>
     </subsystem>
 
     <!-- Sensors -->
@@ -179,7 +180,6 @@ http://paparazzi.enac.fr/w/index.php?title=Theory_of_Operation
     <define name="H_X" value="0.4357869"/>
     <define name="H_Y" value="0.0177010"/>
     <define name="H_Z" value="0.8998758"/>
-    <define name="USE_GPS_HEADING" value="1"/>
   </section>
 
   <section name="INS" prefix="INS_">
