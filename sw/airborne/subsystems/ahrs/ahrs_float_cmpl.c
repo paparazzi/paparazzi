@@ -57,7 +57,7 @@ struct AhrsFloatCmplRmat ahrs_impl;
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
   ahrs_impl.ltp_vel_norm_valid = FALSE;
-  ahrs_impl.heading_initialized = FALSE;
+  ahrs_impl.heading_aligned = FALSE;
 
   /* Initialises IMU alignement */
   struct FloatEulers body_to_imu_euler =
@@ -86,26 +86,18 @@ void ahrs_init(void) {
 
 }
 
-#define AHRS_ALIGN_QUAT 1
-
 void ahrs_align(void) {
 
-#if AHRS_ALIGN_QUAT
-
+#if AHRS_USE_GPS_HEADING
+  /* Compute an initial orientation from accel and just set heading to zero */
+  ahrs_float_get_quat_from_accel(&ahrs_float.ltp_to_imu_quat, &ahrs_aligner.lp_accel);
+#else
   /* Compute an initial orientation from accel and mag directly as quaternion */
   ahrs_float_get_quat_from_accel_mag(&ahrs_float.ltp_to_imu_quat, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
+#endif
+
   /* Convert initial orientation from quat to euler and rotation matrix representations. */
   compute_imu_rmat_and_euler_from_quat();
-
-#else
-
-  /* Compute an initial orientation using euler angles */
-  ahrs_float_get_euler_from_accel_mag(&ahrs_float.ltp_to_imu_euler, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
-  /* Convert initial orientation in quaternion and rotation matrix representations. */
-  FLOAT_QUAT_OF_EULERS(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_euler);
-  FLOAT_RMAT_OF_QUAT(ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_quat);
-
-#endif
 
   /* Compute initial body orientation */
   compute_body_orientation_and_rates();
@@ -120,7 +112,7 @@ void ahrs_align(void) {
   RATES_FLOAT_OF_BFP(ahrs_impl.gyro_bias, bias0);
 
 #if !AHRS_USE_GPS_HEADING
-  ahrs_impl.heading_initialized = TRUE;
+  ahrs_impl.heading_aligned = TRUE;
 #endif
 
   ahrs.status = AHRS_RUNNING;
@@ -324,10 +316,11 @@ void ahrs_update_gps(void) {
   if(gps.fix == GPS_FIX_3D &&
      gps.gspeed >= 500 &&
      gps.cacc <= RadOfDeg(10*1e7)) {
+
     // gps.course is in rad * 1e7, we need it in rad
     float course = gps.course / 1e7;
 
-    if (ahrs_impl.heading_initialized) {
+    if (ahrs_impl.heading_aligned) {
       /* the assumption here is that there is no side-slip, so heading=course */
       ahrs_update_heading(course);
     }
@@ -399,8 +392,9 @@ void ahrs_realign_heading(float heading) {
   FLOAT_QUAT_INV_COMP_NORM_SHORTEST(q_c, q_h, q_h_new);
 
   /* correct current heading in body frame */
-  FLOAT_QUAT_COMP_NORM_SHORTEST(ahrs_float.ltp_to_body_quat,
-                                ahrs_float.ltp_to_body_quat, q_c);
+  struct FloatQuat q;
+  FLOAT_QUAT_COMP_NORM_SHORTEST(q, q_c, ahrs_float.ltp_to_body_quat);
+  QUAT_COPY(ahrs_float.ltp_to_body_quat, q);
 
   /* compute ltp to imu rotation quaternion */
   FLOAT_QUAT_COMP(ahrs_float.ltp_to_imu_quat,
@@ -416,6 +410,8 @@ void ahrs_realign_heading(float heading) {
   /* compute fixed point representations */
   AHRS_INT_OF_FLOAT();
   AHRS_IMU_INT_OF_FLOAT();
+
+  ahrs_impl.heading_aligned = TRUE;
 }
 
 

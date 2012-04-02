@@ -34,7 +34,7 @@ struct AhrsFloatCmplRmat {
   bool_t ltp_vel_norm_valid;
   bool_t correct_gravity;
 
-  bool_t heading_initialized;
+  bool_t heading_aligned;
 
   /*
      Holds float version of IMU alignement
@@ -56,6 +56,7 @@ void ahrs_update_heading(float heading);
 
 /** Hard reset yaw to a heading.
  * Doesn't affect the bias.
+ * Sets ahrs_impl.heading_aligned to TRUE.
  * @param heading Heading in body frame, radians (CW/north)
  */
 void ahrs_realign_heading(float heading);

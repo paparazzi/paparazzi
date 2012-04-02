@@ -92,10 +92,12 @@ void aos_init(int traj_nb) {
   RATES_ASSIGN(aos.gyro_bias,  RadOfDeg(0.), RadOfDeg(0.), RadOfDeg(0.));
   RATES_ASSIGN(aos.gyro_noise, RadOfDeg(0.), RadOfDeg(0.), RadOfDeg(0.));
   VECT3_ASSIGN(aos.accel_noise, 0., 0., 0.);
+  aos.heading_noise = 0.;
 #else
   RATES_ASSIGN(aos.gyro_bias,  RadOfDeg(1.), RadOfDeg(2.), RadOfDeg(3.));
   RATES_ASSIGN(aos.gyro_noise, RadOfDeg(1.), RadOfDeg(1.), RadOfDeg(1.));
   VECT3_ASSIGN(aos.accel_noise, .5, .5, .5);
+  aos.heading_noise = RadOfDeg(3.);
 #endif
 
 
@@ -179,6 +181,8 @@ void aos_compute_sensors(void) {
   MAGS_BFP_OF_REAL(imu.mag, h_imu);
 #endif
 
+  aos.heading_meas = aos.ltp_to_imu_euler.psi + get_gaussian_noise() * aos.heading_noise;
+
 #ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
 #if AHRS_TYPE == AHRS_TYPE_FCQ || AHRS_TYPE == AHRS_TYPE_FLQ
   ahrs_impl.ltp_vel_norm = FLOAT_VECT3_NORM(aos.ltp_vel);
@@ -223,14 +227,24 @@ void aos_run(void) {
     ahrs_update_mag();
 #endif
 
+
 #if AHRS_USE_GPS_HEADING
+
 #if AHRS_TYPE == AHRS_TYPE_ICQ
-    RunOnceEvery(100,ahrs_update_heading(ANGLE_BFP_OF_REAL(aos.ltp_to_imu_euler.psi)));
+    int32_t heading = ANGLE_BFP_OF_REAL(aos.heading_meas);
 #endif
 #if AHRS_TYPE == AHRS_TYPE_FCQ
-    RunOnceEvery(100,ahrs_update_heading(aos.ltp_to_imu_euler.psi));
+    float heading = aos.heading_meas;
 #endif
-#endif
+
+    if (aos.time > 10) {
+      if (!ahrs_impl.heading_aligned) {
+        ahrs_realign_heading(heading);
+      } else {
+        RunOnceEvery(100,ahrs_update_heading(heading));
+      }
+    }
+#endif // AHRS_USE_GPS_HEADING
 
 #ifndef DISABLE_ALIGNEMENT
   }
