@@ -363,6 +363,11 @@ struct Int64Vect3 {
     (_vb).z = ( (_m_b2a).m[2]*(_va).x + (_m_b2a).m[5]*(_va).y + (_m_b2a).m[8]*(_va).z)>>INT32_TRIG_FRAC; \
   }
 
+#define INT32_RMAT_RATEMULT(_vb, _m_a2b, _va) {                  \
+    (_vb).p = ( (_m_a2b).m[0]*(_va).p + (_m_a2b).m[1]*(_va).q + (_m_a2b).m[2]*(_va).r)>>INT32_TRIG_FRAC; \
+    (_vb).q = ( (_m_a2b).m[3]*(_va).p + (_m_a2b).m[4]*(_va).q + (_m_a2b).m[5]*(_va).r)>>INT32_TRIG_FRAC; \
+    (_vb).r = ( (_m_a2b).m[6]*(_va).p + (_m_a2b).m[7]*(_va).q + (_m_a2b).m[8]*(_va).r)>>INT32_TRIG_FRAC; \
+  }
 
 #define INT32_RMAT_TRANSP_RATEMULT(_vb, _m_b2a, _va) {				                         \
     (_vb).p = ( (_m_b2a).m[0]*(_va).p + (_m_b2a).m[3]*(_va).q + (_m_b2a).m[6]*(_va).r)>>INT32_TRIG_FRAC; \
@@ -582,6 +587,13 @@ struct Int64Vect3 {
     (_b2c).qx = ((_a2b).qi*(_a2c).qx - (_a2b).qx*(_a2c).qi - (_a2b).qy*(_a2c).qz + (_a2b).qz*(_a2c).qy)>>INT32_QUAT_FRAC; \
     (_b2c).qy = ((_a2b).qi*(_a2c).qy + (_a2b).qx*(_a2c).qz - (_a2b).qy*(_a2c).qi - (_a2b).qz*(_a2c).qx)>>INT32_QUAT_FRAC; \
     (_b2c).qz = ((_a2b).qi*(_a2c).qz - (_a2b).qx*(_a2c).qy + (_a2b).qy*(_a2c).qx - (_a2b).qz*(_a2c).qi)>>INT32_QUAT_FRAC; \
+  }
+
+/* _b2c = _a2b inv_comp _a2c , aka  _b2c = inv(_a2b) * _a2c */
+#define INT32_QUAT_INV_COMP_NORM_SHORTEST(_b2c, _a2b, _a2c) {   \
+    INT32_QUAT_INV_COMP(_b2c, _a2b, _a2c);                      \
+    INT32_QUAT_WRAP_SHORTEST(_b2c);                             \
+    INT32_QUAT_NORMALIZE(_b2c);                                 \
   }
 
 /* _a2c = _a2b comp _b2c , aka  _a2c = _a2b * _b2c */
