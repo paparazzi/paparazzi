@@ -721,8 +721,8 @@ static inline void on_gyro_event( void ) {
 
 static inline void on_mag_event(void)
 {
-  ImuScaleMag(imu);
 #if USE_MAGNETOMETER
+  ImuScaleMag(imu);
   if (ahrs.status == AHRS_RUNNING) {
     ahrs_update_mag();
   }
