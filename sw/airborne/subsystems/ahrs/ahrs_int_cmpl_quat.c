@@ -20,11 +20,6 @@
  */
 
 
-// TODO
-//
-// gravity heuristic
-//
-
 #include "subsystems/ahrs/ahrs_int_cmpl_quat.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/ahrs/ahrs_int_utils.h"
@@ -84,6 +79,12 @@ void ahrs_init(void) {
   ahrs_impl.correct_gravity = TRUE;
 #else
   ahrs_impl.correct_gravity = FALSE;
+#endif
+
+#if AHRS_GRAVITY_UPDATE_NORM_HEURISTIC
+  ahrs_impl.use_gravity_heuristic = TRUE;
+#else
+  ahrs_impl.use_gravity_heuristic = FALSE;
 #endif
 
 }
@@ -190,12 +191,25 @@ void ahrs_update_accel(void) {
     INT32_VECT3_CROSS_PRODUCT(residual, imu.accel, c2);
   }
 
+
+  int32_t inv_weight;
+  if (ahrs_impl.use_gravity_heuristic) {
+    /* heuristic on acceleration norm */
+    int32_t acc_norm;
+    INT32_VECT3_NORM(acc_norm, imu.accel);
+    const int32_t acc_norm_d = ABS(ACCEL_BFP_OF_REAL(9.81)-acc_norm);
+    inv_weight = Chop(6*acc_norm_d/ACCEL_BFP_OF_REAL(9.81), 1, 6);
+  }
+  else {
+    inv_weight = 1;
+  }
+
   // residual FRAC : ACCEL_FRAC + TRIG_FRAC = 10 + 14 = 24
   // rate_correction FRAC = RATE_FRAC = 12
   // 2^12 / 2^24 * 5e-2 = 1/81920
-  ahrs_impl.rate_correction.p += -residual.x/82000;
-  ahrs_impl.rate_correction.q += -residual.y/82000;
-  ahrs_impl.rate_correction.r += -residual.z/82000;
+  ahrs_impl.rate_correction.p += -residual.x/82000/inv_weight;
+  ahrs_impl.rate_correction.q += -residual.y/82000/inv_weight;
+  ahrs_impl.rate_correction.r += -residual.z/82000/inv_weight;
 
   // residual FRAC = ACCEL_FRAC + TRIG_FRAC = 10 + 14 = 24
   // high_rez_bias = RATE_FRAC+28 = 40
@@ -205,9 +219,9 @@ void ahrs_update_accel(void) {
   //  ahrs_impl.high_rez_bias.q += residual.y*3;
   //  ahrs_impl.high_rez_bias.r += residual.z*3;
 
-  ahrs_impl.high_rez_bias.p += residual.x;
-  ahrs_impl.high_rez_bias.q += residual.y;
-  ahrs_impl.high_rez_bias.r += residual.z;
+  ahrs_impl.high_rez_bias.p += residual.x/inv_weight;
+  ahrs_impl.high_rez_bias.q += residual.y/inv_weight;
+  ahrs_impl.high_rez_bias.r += residual.z/inv_weight;
 
 
   /*                        */

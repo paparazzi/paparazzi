@@ -34,6 +34,7 @@ struct AhrsIntCmpl {
   int32_t ltp_vel_norm;
   bool_t ltp_vel_norm_valid;
   bool_t correct_gravity;
+  bool_t use_gravity_heuristic;
   bool_t heading_aligned;
 };
 
