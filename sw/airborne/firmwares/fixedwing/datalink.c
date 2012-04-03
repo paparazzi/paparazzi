@@ -97,11 +97,6 @@ void dl_parse_msg(void) {
   if (msg_id == DL_PING) {
     DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice)
   } else
-  if (msg_id == DL_TEST) {
-    uint8_t len = DL_TEST_valors_length(dl_buffer);
-    char* vals = DL_TEST_valors(dl_buffer);
-    DOWNLINK_SEND_ACKTEST(DefaultChannel, DefaultDevice, len, vals)
-  } else
 #ifdef TRAFFIC_INFO
   if (msg_id == DL_ACINFO && DL_ACINFO_ac_id(dl_buffer) != AC_ID) {
     uint8_t id = DL_ACINFO_ac_id(dl_buffer);
