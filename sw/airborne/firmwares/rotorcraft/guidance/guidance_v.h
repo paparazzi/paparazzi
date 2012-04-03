@@ -52,6 +52,8 @@
 #define GUIDANCE_V_MODE_HOVER     4
 #define GUIDANCE_V_MODE_NAV       5
 
+#define GUIDANCE_V_GAIN_SCALER 48
+
 extern uint8_t guidance_v_mode;
 
 /** altitude setpoint in meters (input).
