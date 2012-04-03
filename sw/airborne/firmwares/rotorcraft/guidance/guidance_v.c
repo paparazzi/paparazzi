@@ -48,6 +48,7 @@
 #warning "ALL control gains are now positive!!!"
 #endif
 
+#define GUIDANCE_V_GAIN_SCALER 48
 
 uint8_t guidance_v_mode;
 int32_t guidance_v_ff_cmd;
