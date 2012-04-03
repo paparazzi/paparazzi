@@ -28,32 +28,37 @@ static inline void ahrs_float_get_euler_from_accel_mag(struct FloatEulers* e, st
 
 }
 
-static inline void ahrs_float_get_quat_from_accel_mag(struct FloatQuat* q, struct Int32Vect3* accel, struct Int32Vect3* mag) {
-
+/** Compute a quaternion representing roll and pitch from an accelerometer measurement. */
+static inline void ahrs_float_get_quat_from_accel(struct FloatQuat* q, struct Int32Vect3* accel) {
   /* normalized accel measurement in floating point */
   struct FloatVect3 acc_normalized;
   ACCELS_FLOAT_OF_BFP(acc_normalized, *accel);
   FLOAT_VECT3_NORMALIZE(acc_normalized);
 
+  /* check for 180deg case */
+  if ( ABS(acc_normalized.z - 1.0) < 5*FLT_MIN ) {
+    QUAT_ASSIGN(*q, 0.0, 1.0, 0.0, 0.0);
+  }
+  else {
+    /*
+     * axis we want to rotate around is cross product of accel and reference [0,0,-g]
+     * normalized: cross(acc_normalized, [0,0,-1])
+     * vector part of quaternion is the axis
+     * scalar part (angle): 1.0 + dot(acc_normalized, [0,0,-1])
+     */
+    q->qx = - acc_normalized.y;
+    q->qy = acc_normalized.x;
+    q->qz = 0.0;
+    q->qi = 1.0 - acc_normalized.z;
+    FLOAT_QUAT_NORMALIZE(*q);
+  }
+}
+
+static inline void ahrs_float_get_quat_from_accel_mag(struct FloatQuat* q, struct Int32Vect3* accel, struct Int32Vect3* mag) {
+
   /* the quaternion representing roll and pitch from acc measurement */
   struct FloatQuat q_a;
-
-  /*
-   * axis we want to rotate around is cross product of accel and reference [0,0,-g]
-   * normalized: cross(acc_normalized, [0,0,-1])
-   * vector part of quaternion is the axis
-   * scalar part (angle): 1.0 + dot(acc_normalized, [0,0,-1])
-   */
-  q_a.qx = - acc_normalized.y;
-  q_a.qy = acc_normalized.x;
-  q_a.qz = 0.0;
-  q_a.qi = 1.0 - acc_normalized.z;
-  FLOAT_QUAT_NORMALIZE(q_a);
-
-  /* handle 180deg case */
-  if ( ABS(acc_normalized.z - 1.0) < 5*FLT_MIN ) {
-    QUAT_ASSIGN(q_a, 0.0, 1.0, 0.0, 0.0);
-  }
+  ahrs_float_get_quat_from_accel(&q_a, accel);
 
 
   /* convert mag measurement to float */

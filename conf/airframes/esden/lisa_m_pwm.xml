@@ -38,6 +38,7 @@
 
 
   <section name="SUPERVISION" prefix="SUPERVISION_">
+    <define name="STOP_MOTOR" value="1000"/>
     <define name="MIN_MOTOR" value="1200"/>
     <define name="MAX_MOTOR" value="1920"/>
     <define name="TRIM_A" value="0"/>

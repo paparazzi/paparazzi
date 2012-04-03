@@ -1,0 +1,37 @@
+<!-- Default Aspirin V2.1 values based on the datasheet -->
+<!-- You can also just leave out those defines then the defaults will be provided by imu_aspirin2.h -->
+
+<airframe>
+  <section name="IMU" prefix="IMU_">
+
+    <!-- Calibration Neutral -->
+    <define name="GYRO_P_NEUTRAL" value="0"/>
+    <define name="GYRO_Q_NEUTRAL" value="0"/>
+    <define name="GYRO_R_NEUTRAL" value="0"/>
+
+    <!-- SENS = 16.4 LSB/(deg/sec) * 57.6 deg/rad = 939.650 LSB/rad/sec / 12bit FRAC: 4096 / 939.65 -->
+    <define name="GYRO_P_SENS" value="4.359" integer="16"/>
+    <define name="GYRO_Q_SENS" value="4.359" integer="16"/>
+    <define name="GYRO_R_SENS" value="4.359" integer="16"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="0"/>
+    <define name="ACCEL_Y_NEUTRAL" value="0"/>
+    <define name="ACCEL_Z_NEUTRAL" value="0"/>
+
+    <!-- SENS = 2048 LSB/g / 9.81 ms2/g = 208.766564729 LSB/ms2 / 10bit FRAC: 1024 / 208.7665 -->
+    <define name="ACCEL_X_SENS" value="4.905" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.905" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.905" integer="16"/>
+
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
+    <define name="MAG_X_SENS" value="1" integer="16"/>
+    <define name="MAG_Y_SENS" value="1" integer="16"/>
+    <define name="MAG_Z_SENS" value="1" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(   0. )"/>
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  45. )"/>
+  </section>
+</airframe>

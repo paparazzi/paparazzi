@@ -26,7 +26,10 @@ my $upload_output = run_program(
 	$ENV{'PAPARAZZI_SRC'},
 	"make $make_upload_options",
 	0,1);
-unlike($upload_output, '/\bError\b/i', "The upload output does not contain the word \"Error\"");
+SKIP: {
+	skip "The requested hardware isn't available on this host.", 1 unless $make_upload_options =~ m#Error: unable to open ftdi device: device not found#;
+	unlike($upload_output, '/\bError\b/i', "The upload output does not contain the word \"Error\"");
+}
 
 # Start the server process
 my $server_command = "$ENV{'PAPARAZZI_HOME'}/sw/ground_segment/tmtc/server";

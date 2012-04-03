@@ -196,6 +196,7 @@
   }
 #else
 #define ImuMagEvent(_mag_handler) {}
+#define ImuScaleMag(_imu) {}
 #endif
 
 

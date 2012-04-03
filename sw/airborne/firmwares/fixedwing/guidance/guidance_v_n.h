@@ -1,6 +1,4 @@
 /*
- * $Id: $
- *
  * Copyright (C) 2010 ENAC
  *
  * This file is part of paparazzi.
@@ -19,12 +17,11 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 /**
- *
- * fixed wing vertical control
+ *  @file firmwares/fixedwing/guidance/guidance_v_n.h
+ *  "New" vertical control for fixed wing vehicles.
  *
  */
 

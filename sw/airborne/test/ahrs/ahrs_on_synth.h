@@ -25,6 +25,9 @@ struct AhrsOnSynth {
   struct FloatRates  gyro_noise;
   struct FloatVect3  accel_noise;
 
+  float heading_noise;
+  float heading_meas;
+
   /* state */
   struct FloatEulers ltp_to_imu_euler;
   struct FloatQuat   ltp_to_imu_quat;
