@@ -139,17 +139,24 @@ module TransportExtended : Serial.PROTOCOL
 val offset_fields : int
 
 module type CLASS = sig
-  val name : string
+  val _type : string
+	val single_class : string
 end
 
 module type CLASS_Xml = sig
   val xml : Xml.xml
-  val name : string
+  val _type : string
+	val single_class : string
 end
 
+type msg_and_class_id = {
+	msg_id : int;
+	cls_id : int;
+}
+
 module type MESSAGES = sig
-  val messages : (message_id, message) Hashtbl.t
-  val message_of_id : message_id -> message
+  val messages : (msg_and_class_id, message) Hashtbl.t
+  val message_of_id : class_id -> message_id -> message
   val message_of_name : string ->  message_id * message
 	
 	val class_id_of_msg : message_name -> class_id
@@ -157,6 +164,9 @@ module type MESSAGES = sig
 
 	val class_id_of_msg_args : string -> class_id
 	(** [class_id_of_msg_args args.(0)] returns the class id containing the given message when args.(0) is the parameter *)
+
+	val class_id_of_msg_args_unsorted : string -> class_id
+	(** [class_id_of_msg_args_unsorted args.(0)] returns the class id containing the given message when string with semicolons is the parameter *)
 
   val values_of_payload : Serial.payload -> packet_seq * sender_id * class_id * message_id * values
   (** [values_of_bin payload] Parses a raw payload, returns the

@@ -32,8 +32,8 @@ open Printf
 let msg_period = 500 (* ms *)
 let ac_id = ref 1
 
-module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
-module Sub_Pprz = Pprz.Messages(struct let name = "DIA" end)
+module Ground_Pprz = Pprz.Messages(struct let _type = "ground" and single_class = "" end)
+module Sub_Pprz = Pprz.Messages(struct let _type = "" and single_class = "DIA" end)
 
 type state = {
     mutable lat : float;

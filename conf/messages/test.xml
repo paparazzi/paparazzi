@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<class type="datalink">
+	<message id="2" name="SYSTEM_TIME">
+		<!-- Timestamp of the master clock in microseconds since UNIX epoch. -->
+		<field name="time_unix_usec" type="uint64"/>
+		<!-- Timestamp of the component clock since boot time in milliseconds. -->
+		<field name="time_boot_ms" type="uint32"/>
+		<field name="character" type="char"/>
+	</message>
+</class>

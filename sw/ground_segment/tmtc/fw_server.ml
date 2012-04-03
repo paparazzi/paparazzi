@@ -30,7 +30,7 @@ open Aircraft
 open Latlong
 module LL = Latlong
 module U = Unix
-module Dl_Pprz = Pprz.Messages (struct let name = "datalink" end)
+module Dl_Pprz = Pprz.Messages (struct let _type = "uplink" and single_class = "" end)
 
 
 (* FIXME: bound the loop *)

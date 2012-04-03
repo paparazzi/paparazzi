@@ -25,8 +25,8 @@
  *)
 open Printf
 
-module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
-module Tele_Pprz = Pprz.Messages(struct let name = "telemetry" end)
+module Ground_Pprz = Pprz.Messages(struct let _type = "ground"  and single_class = "" end)
+module Tele_Pprz = Pprz.Messages(struct let _type = "downlink"  and single_class = ""end)
 
 let (//) = Filename.concat
 let conf_dir = Env.paparazzi_home // "conf"

@@ -56,7 +56,7 @@ let base_and_index =
       (field_descr, 0)
 
 
-class message_field = fun ?sender ?(class_name="telemetry") msg_name field_descr ->
+class message_field = fun ?sender ?(class_name="telemetry") msg_name field_descr -> 
   object
     val mutable callbacks = []
     val mutable last_value = "0."
@@ -70,7 +70,7 @@ class message_field = fun ?sender ?(class_name="telemetry") msg_name field_descr
     method type_ = "message_field"
 
     initializer
-      let module P = Pprz.Messages (struct let name = class_name end) in
+      let module P = Pprz.Messages (struct let _type = "" and single_class = class_name end) in
       let process_message = fun _sender values ->
 	let (field_name, index) = base_and_index field_descr in
 	let value =

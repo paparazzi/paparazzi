@@ -30,11 +30,12 @@ open Latlong
 open Printf
 
 (* Handlers for the modem and Ivy messages *)
-module Tm_Pprz = Pprz.Messages (struct let name = "telemetry" end) 
-module Ground_Pprz = Pprz.Messages (struct let name = "ground" end)
-module Dl_Pprz = Pprz.Messages (struct let name = "datalink" end)
+module Tm_Pprz = Pprz.Messages (struct let _type = "downlink" and single_class = "" end) 
+module Ground_Pprz = Pprz.Messages (struct let _type = "ground" and single_class = "" end)
+module Dl_Pprz = Pprz.Messages (struct let _type = "uplink" and single_class = "" end)
 module PprzTransport = Serial.Transport (Pprz.Transport)
 module PprzTransportExtended = Serial.Transport (Pprz.TransportExtended)
+
 
 (* Modem transport layer *)
 type transport =
@@ -206,7 +207,7 @@ let use_tele_message = fun ?udp_peername ?raw_data_size payload ->
   try
     let (packet_seq ,ac_id, class_id, msg_id, values) = Tm_Pprz.values_of_payload payload in
 		ignore (check_down_packet_sequence ac_id packet_seq);
-    let msg = Tm_Pprz.message_of_id msg_id in
+		let msg = Tm_Pprz.message_of_id class_id msg_id in
     send_message_over_ivy (string_of_int ac_id) msg.Pprz.name values;
     update_status ?udp_peername ac_id raw_data_size (msg.Pprz.name = "PONG")
   with
@@ -446,7 +447,7 @@ let message_uplink = fun device ->
 
   (* Set a forwarder or a broadcaster for all messages tagged in messages.xml *)
   Hashtbl.iter
-    (fun _m_id msg ->
+    (fun _m_c_id msg ->
       match msg.Pprz.link with
 	Some Pprz.Forwarded -> set_forwarder msg.Pprz.name
       | Some Pprz.Broadcasted -> if !ac_info then set_broadcaster msg.Pprz.name

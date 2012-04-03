@@ -151,6 +151,9 @@ c_ivy_client_example_2: c_ivy_client_example_2.c
 c_ivy_client_example_3: c_ivy_client_example_3.c
 	$(CC) $(GTK_CFLAGS) -o $@ $< $(GTK_LDFLAGS)
 
+c_new_formats_testing: c_new_formats_testing.c
+	$(CC) $(GTK_CFLAGS) -o $@ $< $(GTK_LDFLAGS)
+
 ivy_serial_bridge: ivy_serial_bridge.c
 	$(CC) $(GTK_CFLAGS) -o $@ $< $(GTK_LDFLAGS)
 

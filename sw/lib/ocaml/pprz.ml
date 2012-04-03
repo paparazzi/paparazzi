@@ -268,32 +268,6 @@ let link_mode_of_string = function
   | "broadcasted" -> Broadcasted
   | x -> invalid_arg (sprintf "link_mode_of_string: %s" x)
 
-let parse_class = fun xml_class -> 
-  let by_id = Hashtbl.create 13
-  and by_name = Hashtbl.create 13 in
-  List.iter
-    (fun xml_msg ->
-      let name = ExtXml.attrib xml_msg "name"
-      and link =
-	try
-	  Some (link_mode_of_string (Xml.attrib xml_msg "link"))
-	with
-	  Xml.No_attribute("link") -> None
-      in
-      let msg = {
-	name = name;
-	fields = List.map field_of_xml (Xml.children xml_msg);
-	link = link
-      } in
-      let id = int_of_string (ExtXml.attrib xml_msg "id") in
-      if Hashtbl.mem by_id id then
-	failwith (sprintf "Duplicated id in messages.xml: %d" id);
-      Hashtbl.add by_id id msg;
-      Hashtbl.add by_name name (id, msg))
-    (Xml.children xml_class);
-  (by_id, by_name)
-
-
 
 (** Returns a value and its length *)
 let rec value_of_bin = fun buffer index _type ->
@@ -495,23 +469,33 @@ let offset_fields = 4
 
 module type CLASS_Xml = sig
   val xml : Xml.xml
-  val name : string
+  val _type : string
+	val single_class : string
 end
 
 module type CLASS = sig
-  val name : string
+  val _type : string
+	val single_class : string
 end
 
+type msg_and_class_id = {
+	msg_id : int;
+	cls_id : int;
+}
+
 module type MESSAGES = sig 
-  val messages : (message_id, message) Hashtbl.t
-  val message_of_id : message_id -> message
+  val messages : (msg_and_class_id, message) Hashtbl.t
+  val message_of_id : class_id -> message_id -> message
   val message_of_name : string ->  message_id * message
 
 	val class_id_of_msg : message_name -> class_id
 	(** [class_id_of_msg msg_name] returns the class id containing the given message *)
 
 	val class_id_of_msg_args : string -> class_id
-	(** [class_id_of_msg_args args.(0)] returns the class id containing the given message when args.(0) is the parameter *)
+	(** [class_id_of_msg_args args.(0)] returns the class id containing the given message when string with spaces is the parameter *)
+
+	val class_id_of_msg_args_unsorted : string -> class_id
+	(** [class_id_of_msg_args_unsorted args.(0)] returns the class id containing the given message when string with semicolons is the parameter *)
 	
 	val values_of_payload : Serial.payload -> packet_seq * sender_id * class_id * message_id * values
   (** [values_of_bin payload] Parses a raw payload, returns the
@@ -546,20 +530,97 @@ end
 
 module MessagesOfXml(Class:CLASS_Xml) = struct
   let max_length = 256
-  let messages_by_id, messages_by_name =
+	let msg_xml = Xml.parse_file messages_file
+	(* XGGDEBUG:DYNMOD: *)
+	type _class = {
+		class_id : int;
+		class_name : string;
+		class_type : string;
+		class_xml : Xml.xml;
+	}
+	(** classes_by_id: Hastbl{class_id,Hashtbl{message_id,message}} *)
+	let classes_by_id = Hashtbl.create 1
+	(** messages_by_name: Hastbl{message_name,message} *) 
+	let messages_by_name = Hashtbl.create 256
+	(** messages_by_name: Hastbl{(message_id,class_id),message} *) 
+	let messages = Hashtbl.create 256
+	
+	let space = Str.regexp "[ \t]+"
+	let semicolon = Str.regexp "[;\t]+"
+	let coma = Str.regexp "[,\t]+"
+	
+	let parse_class = fun struc -> 
+		let xml_class = struc.class_xml in
+	  let by_id = Hashtbl.create 13 in
+	  List.iter
+	    (fun xml_msg ->
+	      let name = ExtXml.attrib xml_msg "name"
+	      and link =
+					try
+					  Some (link_mode_of_string (Xml.attrib xml_msg "link"))
+					with
+					  Xml.No_attribute("link") -> None
+	      in
+	      let msg = {
+					name = name;
+					fields = List.map field_of_xml (Xml.children xml_msg);
+					link = link
+	      } in
+	      let id = int_of_string (ExtXml.attrib xml_msg "id") in
+	      if Hashtbl.mem by_id id then failwith (sprintf "Duplicated id in messages.xml: %d" id);
+	      Hashtbl.add by_id id msg;
+				let ids_for_messages = { msg_id = id; cls_id = struc.class_id} in
+				Hashtbl.add messages ids_for_messages msg;
+	      Hashtbl.add messages_by_name name (id, msg))
+	    (Xml.children xml_class);
+	  by_id
+	
+  let messages_loaded =
     try
-      let select = fun x -> Xml.attrib x "name" = Class.name in
-      parse_class (ExtXml.child Class.xml ~select "class") 
+			match Class._type,Class.single_class with
+				| _,"" -> 
+					let class_structs = List.map (fun _class -> 
+						{class_id = int_of_string (ExtXml.attrib _class "id") ; class_name = ExtXml.attrib _class "name" ; class_type = ExtXml.attrib _class "type" ; class_xml = _class }
+						) (Xml.children msg_xml) in
+					let selected_classes = ref [] in
+					ignore (List.map (fun struc -> match struc.class_type with
+						| "datalink" -> if (Class._type = "uplink"||Class._type = "downlink") then  selected_classes := List.append !selected_classes [struc];
+						| other_type -> if Class._type = other_type then selected_classes := List.append !selected_classes [struc]; 
+						) class_structs);	
+					ignore (List.map (fun sel ->
+							let by_id = parse_class sel in
+							Hashtbl.add classes_by_id sel.class_id by_id
+						) !selected_classes);
+					true
+				| "",_ ->
+					let class_structs = List.map (fun _class -> 
+						{class_id = int_of_string (ExtXml.attrib _class "id") ; class_name = ExtXml.attrib _class "name" ; class_type = ExtXml.attrib _class "type" ; class_xml = _class }
+						) (Xml.children msg_xml) in
+					let selected_classes = ref [] in
+					ignore (List.map (fun struc -> if struc.class_name = Class.single_class then selected_classes := List.append !selected_classes [struc];
+						) class_structs);	
+					ignore (List.map (fun sel ->
+							let by_id = parse_class sel in
+							Hashtbl.add classes_by_id sel.class_id by_id
+						) !selected_classes);
+					true
+				| _,_ -> failwith ("Pprz->messages: cannot initialize with both _type and single_class ")		
     with
-      Not_found -> failwith (sprintf "Unknown message class: %s" Class.name)
-			
-  let messages = messages_by_id
-  let message_of_id = fun id -> try Hashtbl.find messages_by_id id with Not_found -> fprintf stderr "message_of_id :%d\n%!" id; raise Not_found
+      | Not_found -> failwith ("Pprz->messages: error loading classes and messages (Not_found) ")
+			| e -> failwith (sprintf "Pprz->messages: error loading classes and messages (Exception: %s) " (Printexc.to_string e))
+	
+  let message_of_id = fun class_id id -> 
+		try 
+			let sel_class = Hashtbl.find classes_by_id class_id in
+			Hashtbl.find sel_class id 
+		with Not_found -> fprintf stderr "Pprz->messages.message_of_id: class of id: %d or message of id :%d not found\n%!" class_id id; raise Not_found
+	
+	
   let message_of_name = fun name ->
     try
       Hashtbl.find messages_by_name name
     with
-      Not_found -> raise (Unknown_msg_name (name, Class.name))	
+      Not_found -> raise (Unknown_msg_name (name, Class._type))	
 
 	let is_message_inside = fun pattern message ->
 		let msg_name = Xml.attrib message "name" in
@@ -571,25 +632,34 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 		let contains = List.map (is_message_inside msg) messages in
 		let is_inside = List.mem true contains in
 		if is_inside = true then int_of_string(id) else -1
+		
+	exception Msg_Duplicated of string
+	exception Msg_Not_found of string
 
 	let class_id_of_msg = fun msg -> 
 		try
-			let msg_xml = Xml.parse_file messages_file in
 			let classes = Xml.children msg_xml in
 			let classes_with = List.map (get_id_and_messages msg) classes in
 			let result = List.filter (fun x -> if(x>(-1))then true else false) classes_with in
 			match result with
-				| [] -> failwith (sprintf "No class containing message %s" msg)
+				| [] -> raise (Msg_Not_found msg) 
 				|	[x] -> x
-				|	_ -> failwith (sprintf "More than one class containing message %s" msg)
+				|	_ -> raise (Msg_Duplicated msg)
     with
-			| Not_found -> failwith (sprintf "No class attribute found or message '%s' not found" msg)
+			| Msg_Duplicated s -> failwith (sprintf "No class containing message %s" s)
+			| Msg_Not_found s -> failwith (sprintf "More than one class containing message %s" s)
+			| Not_found -> failwith (sprintf "No class attribute found for message '%s'" msg)
 			| e -> failwith (sprintf "Unhandled exception (Exception: %s)" (Printexc.to_string e))
    
 	let class_id_of_msg_args = fun s ->
-		let space = Str.regexp "[ \t]+" in
     match Str.split space s with
 			| [] -> failwith (sprintf "Cannot obtain msg_name from arguments string '%s'" s)
+      | msg_name::args ->	class_id_of_msg msg_name 
+	
+	(** For raw_datalink messages *)
+	let class_id_of_msg_args_unsorted = fun s -> 
+    match Str.split semicolon s with
+			| [] -> failwith (sprintf "Cannot obtain msg_name from unsorted arguments string '%s'" s)
       | msg_name::args ->	class_id_of_msg msg_name 
 
   let values_of_payload = fun buffer ->
@@ -599,7 +669,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
       let sender_id = Char.code buffer.[offset_sender_id] in
 			let packet_seq = Char.code buffer.[offset_packet_seq] in
 			let class_id = Char.code buffer.[offset_class_id] in
-      let message = message_of_id id in
+      let message = message_of_id class_id id in
       Debug.call 'T' (fun f -> fprintf f "Pprz.values id=%d\n" id);
       let rec loop = fun index fields ->
 	match fields with
@@ -617,7 +687,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 	failwith (sprintf "Pprz.values_of_payload, wrong argument: %s" (Debug.xprint buffer))
 
   let payload_of_values = fun ?gen_packet_seq sender_id class_id id values ->
-    let message = message_of_id id in
+    let message = message_of_id class_id id in
 
     (** The actual length is computed from the values *)
     let p = String.make max_length '#' in
@@ -641,8 +711,6 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
     let p = String.sub p 0 !i in
     Serial.payload_of_string p
 
-
-  let space = Str.regexp "[ \t]+"
   let values_of_string = fun s ->
     match Str.split space s with
       msg_name::args ->
@@ -656,8 +724,6 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 	end
     | [] -> invalid_arg (sprintf "Pprz.values_of_string: %s" s)
 
-	let semicolon = Str.regexp "[;\t]+"
-	let coma = Str.regexp "[,\t]+"
 	let values_of_string_unsorted = fun s ->
     match Str.split semicolon s with
       msg_name::args ->
@@ -754,11 +820,13 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
     let msg_name_req = msg_name ^ "_REQ" in
     let m = sprintf "%s %s %s" sender id (string_of_message (snd (message_of_name msg_name_req)) values) in
     Ivy.send m
+		
 end
 
 module Messages(Class:CLASS) = struct
   include MessagesOfXml(struct
     let xml = messages_xml ()
-    let name = Class.name
+    let _type = Class._type
+		let single_class = Class.single_class
   end)
 end

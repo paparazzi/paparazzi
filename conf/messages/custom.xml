@@ -1,0 +1,300 @@
+<?xml version="1.0"?>
+<class type="downlink">
+	<message name="ACKTEST" id="2">
+		<field name="valors" type="char[]"/>
+	</message> 
+
+<!-- BLMC Messages: BrushLess Motor Controller -->
+
+	<message name="BLMC_FAULT_STATUS" id="183">
+		<field name="raw_fault"	type="uint16[]"/>
+	</message>
+
+	<message name="BLMC_SPEEDS" id="184">
+		<field name="speeds" type="int16[]"/>
+	</message>
+
+	<message name="BLMC_BUSVOLTS" id="186">
+		<field name="busvolts"	type="uint16[]"/>
+	</message>
+
+<!-- EKF7 Messages: Extended Kalman Fileter -->
+	<message name="EKF7_XHAT" id="170">
+		<field name="c"   type="float"/>
+		<field name="s1"  type="float"/>
+		<field name="s2"  type="float"/>
+		<field name="s3"  type="float"/>
+		<field name="p"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+		<field name="q"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+		<field name="r"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+		<field name="bp"  type="float"/>
+		<field name="bq"  type="float"/>
+		<field name="br"  type="float"/>
+	</message>
+
+	<message name="EKF7_Y" id="171">
+		<field name="timecount" type="uint16"/>
+		<field name="g1"  type="float"/>
+		<field name="g2"  type="float"/>
+		<field name="g3"  type="float"/>
+		<field name="m1"  type="float"/>
+		<field name="m2"  type="float"/>
+		<field name="m3"  type="float"/>
+		<field name="p"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+		<field name="q"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+		<field name="r"   type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+	</message>
+
+	<message name="EKF7_P_DIAG" id="172">
+		<field name="c"   type="float"/>
+		<field name="s1"  type="float"/>
+		<field name="s2"  type="float"/>
+		<field name="s3"  type="float"/>
+		<field name="p"   type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+		<field name="q"   type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+		<field name="r"   type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+		<field name="bp"  type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+		<field name="bq"  type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+		<field name="br"  type="float" alt_unit="deg^2/s^2" alt_unit_coef="3283"/>
+	</message>
+
+<!-- ANTENNA Messages -->
+	<message name="ANTENNA_STATUS" id="93">
+		<field name="azim_sp" type="float"/>
+		<field name="elev_sp" type="float"/>
+		<field name="id_sp" type="uint8"/>
+		<field name="mode" type="uint8"/>
+	</message>
+
+	<message name="ANTENNA_DEBUG" id="92">
+		<field name="mag_xraw" type="int32"/>
+		<field name="mag_yraw" type="int32"/>
+		<field name="mag_xcal" type="float"/>
+		<field name="mag_ycal" type="float"/>
+		<field name="mag_heading" type="float"/>
+		<field name="mag_magnitude" type="float"/>
+		<field name="mag_temp" type="float"/>
+		<field name="mag_distor" type="uint8"/>
+		<field name="mag_cal_status" type="uint8"/>
+	</message>
+
+<!-- CAMERA Messages -->
+	<message name="CAM" id="20">
+		<field name="phi" type="int16" unit="deg"/>
+		<field name="theta" type="int16" unit="deg"/>
+		<field name="target_x" type="int16" unit="m"/>
+		<field name="target_y" type="int16" unit="m"/>
+	</message>
+
+	<message name="CAM_POINT" id="63">
+		<field name="cam_point_distance_from_home" type="uint16" unit="m"/>
+		<field name="cam_point_lat" type="float" unit="deg"/>
+		<field name="cam_point_lon" type="float" unit="deg"/>
+	</message>
+
+	<message name="DC_INFO" id="64">
+		<field name="mode" type="int16" unit=""/>
+		<field name="utm_east" type="float" unit="m"/>
+		<field name="utm_north" type="float" unit="m"/>
+		<field name="course" type="float" unit="deg"/>
+		<field name="buffer" type="int8"/>
+		<field name="dist" type="float" unit="m"/>
+		<field name="next_dist" type="float" unit="m"/>
+		<field name="start_x" type="float" unit="m"/>
+		<field name="start_y" type="float" unit="m"/>
+		<field name="start_angle" type="float" unit="deg"/>
+		<field name="angle" type="float" unit="deg"/>
+		<field name="last_block" type="float"/>
+		<field name="count" type="int16" unit=""/>
+		<field name="shutter" type="uint8" unit="s"/>
+	</message>
+
+	<message name="DC_SHOT" id="110">
+		<field name="photo_nr" type="int16"/>
+		<field name="utm_east"  type="int32" unit="cm"/>
+		<field name="utm_north" type="int32" unit="cm"/>
+		<field name="z" type="float" unit="m"/>
+		<field name="utm_zone"  type="uint8"/>
+		<field name="phi" type="int16" unit="decideg"/>
+		<field name="theta" type="int16" unit="decideg"/>
+		<field name="course" type="int16" unit="decideg"/>
+		<field name="speed"  type="uint16" unit="cm/s"/>
+		<field name="itow"  type="uint32" unit="ms"/>
+	</message>
+
+	<message name="CAMERA_SNAPSHOT" id="128">
+		<field name="snapshot_image_number" type="uint16"/>
+	</message>
+
+<!-- BETH Messages -->
+	<message name="BETH" id="106">
+		<field name="azimuth" type="int16"/>
+		<field name="elevation" type="int16"/>
+		<field name="tilt" type="int16"/>
+		<field name="counter" type="uint32"/>
+		<field name="can_errs" type="uint16"/>
+		<field name="spi_errs" type="uint16"/>
+		<field name="thrust_out" type="int8"/>
+		<field name="pitch_out" type="int8"/>
+	</message>
+
+	<message name="BETH_ESTIMATOR" id="107">
+		<field name="tilt" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+		<field name="tilt_dot" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+		<field name="elevation" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+		<field name="elevation_dot" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+		<field name="azimuth" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+		<field name="azimuth_dot" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+	</message>
+
+	<message name="BETH_CONTROLLER" id="108">
+		<field name="pitch" type="float"/>
+		<field name="thrust" type="float"/>
+		<field name="pitch_ff" type="float"/>
+		<field name="pitch_fb" type="float"/>
+		<field name="thrust_ff" type="float"/>
+		<field name="thrust_fb" type="float"/>
+		<field name="tilt_sp" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+		<field name="tilt_ref" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+		<field name="tilt_dot_ref" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+		<field name="elevation_sp " type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+		<field name="elevation_ref " type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+		<field name="elevation_dot_ref" type="float" alt_unit="deg/s" alt_unit_coef="57.29578"/>
+		<field name="azimuth_sp" type="float" alt_unit="deg" alt_unit_coef="57.29578"/>
+	</message>
+
+	<message name="BETH_CONTROLLER_TWIST" id="109">
+		<field name="S" type="float"/>
+		<field name="S_dot" type="float"/>
+		<field name="U_twt" type="float"/>
+		<field name="error" type="float"/>
+	</message>
+
+	<message name="BETH_CONTROLLER_SFB" id="112">
+		<field name="one" type="float"/>
+	</message>
+
+<!-- UNTYPICAL MEASUREMENTS Messages -->
+	<message name="WIND_INFO_RET" id="87">
+		<field name="east" type="float" unit="m/s"/>
+		<field name="north" type="float" unit="m/s"/>
+		<field name="airspeed" type="float" unit="m/s"/>
+	</message>
+
+	<message name="ATMOSPHERE_CHARGE" id="118">
+		<field name="t0" type="uint16"/>
+		<field name="t1" type="uint16"/>
+		<field name="t2" type="uint16"/>
+		<field name="t3" type="uint16"/>
+		<field name="t4" type="uint16"/>
+		<field name="t5" type="uint16"/>
+		<field name="t6" type="uint16"/>
+		<field name="t7" type="uint16"/>
+		<field name="t8" type="uint16"/>
+		<field name="t9" type="uint16"/>
+	</message>
+
+	<message name="SOLAR_RADIATION" id="119">
+		<field name="up_t0" type="uint16"/>
+		<field name="dn_t0" type="uint16"/>
+		<field name="up_t1" type="uint16"/>
+		<field name="dn_t1" type="uint16"/>
+		<field name="up_t2" type="uint16"/>
+		<field name="dn_t2" type="uint16"/>
+		<field name="up_t3" type="uint16"/>
+		<field name="dn_t3" type="uint16"/>
+		<field name="up_t4" type="uint16"/>
+		<field name="dn_t4" type="uint16"/>
+		<field name="up_t5" type="uint16"/>
+		<field name="dn_t5" type="uint16"/>
+		<field name="up_t6" type="uint16"/>
+		<field name="dn_t6" type="uint16"/>
+		<field name="up_t7" type="uint16"/>
+		<field name="dn_t7" type="uint16"/>
+		<field name="up_t8" type="uint16"/>
+		<field name="dn_t8" type="uint16"/>
+		<field name="up_t9" type="uint16"/>
+		<field name="dn_t9" type="uint16"/>
+	</message>
+
+	<message name="GEIGER_COUNTER" id="153">
+		<field name="tube1"   type="uint32" unit="events"/>
+		<field name="tube2"   type="uint32" unit="events"/>
+		<field name="vsupply" type="uint16" unit="volts"/>
+	</message>
+
+	<message name="VANE_SENSOR" id="191">
+		<field name="alpha"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+		<field name="alpha_filtered"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+		<field name="alpha_target"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+		<field name="alpha_vane_error" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+		<field name="alpha2"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+		<field name="beta"    type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+		<field name="beta_filtered"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+		<field name="beta_target"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+		<field name="beta_vane_error" type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+		<field name="beta2"   type="float" unit="rad" alt_unit="deg" alt_unit_coef="57.3"/>
+	</message>
+
+	<message name="WEATHER" id="219">
+		<field name="p_amb" type="float" unit="Pa" alt_unit="mBar" alt_unit_coef="0.01"/>
+		<field name="t_amb" type="float" unit="deg C"/>
+		<field name="windspeed" type="float" unit="m/s"/>
+		<field name="wind_from" type="float" unit="deg"/>
+	</message>
+
+<!-- SPECIFIC DEBUG Messages -->
+	<message name="TEST_BOARD_RESULTS" ID="111">
+		<field name="uart" type="uint8"/>
+		<field name="ppm" type="uint8"/>
+		<field name="servo" type="uint16[]"/>
+	</message>
+
+	<message name="DEBUG_MCU_LINK" id="13">
+		<field name="i2c_nb_err" type="uint8"></field>
+		<field name="i2c_mcu1_nb_err" type="uint8"></field>
+		<field name="ppm_rate" type="uint8"></field>
+	</message>
+
+	<message name="DEBUG_IR_I2C" id="53">
+		<field name="ir1" type="int16" unit="adc"/>
+		<field name="ir2" type="int16" unit="adc"/>
+		<field name="top" type="int16" unit="adc"/>
+	</message>
+
+	<message name="CSC_CAN_DEBUG" id="176">
+		<field name="err_nb"      type="uint32"/>
+		<field name="err_code"    type="uint32"/>
+	</message>
+
+	<message name="FLA_DEBUG" id="182">
+		<field name="past_input"    type="float"/>
+		<field name="imu_rate"      type="float"/>
+		<field name="desired_accel" type="float"/>
+		<field name="motor_command" type="float"/>
+	</message>
+
+	<message name="RMAT_DEBUG" id="189">
+		<field name="a"   type="float" />
+		<field name="b"   type="float" />
+		<field name="c"   type="float" />
+		<field name="d"   type="float" />
+		<field name="e"   type="float" />
+		<field name="f"   type="float" />
+		<field name="g"   type="float" />
+		<field name="h"   type="float" />
+		<field name="i"   type="float" />
+	</message>
+
+	<message name="I2C_ERRORS" id="253">
+		<field name="acknowledge_failure_cnt"     type="uint16"/>
+		<field name="misplaced_start_or_stop_cnt" type="uint16"/>
+		<field name="arbitration_lost_cnt"        type="uint16"/>
+		<field name="overrun_or_underrun_cnt"     type="uint16"/>
+		<field name="pec_error_in_reception_cnt"  type="uint16"/>
+		<field name="timeout_or_tlow_error_cnt"   type="uint16"/>
+		<field name="smbus_alert_cnt"             type="uint16"/>
+		<field name="unexpected_event_cnt"        type="uint16"/>
+		<field name="last_unexpected_event"       type="uint32"/>
+	</message>
+</class>

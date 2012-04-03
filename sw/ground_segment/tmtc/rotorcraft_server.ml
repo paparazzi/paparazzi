@@ -28,7 +28,7 @@ open Aircraft
 open Latlong
 module LL = Latlong
 module U = Unix
-module Dl_Pprz = Pprz.Messages (struct let name = "datalink" end)
+module Dl_Pprz = Pprz.Messages (struct let _type = "uplink" and single_class = "" end)
 
 let nav_ref_alt = ref 0.
 let nav_ref_hmsl = ref 0.

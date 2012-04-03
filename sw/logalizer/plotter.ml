@@ -497,7 +497,7 @@ let rec plot_window = fun window ->
       let v = float *. a +. b in
       plot#add_value name v in
 
-    let module P = Pprz.Messages (struct let name = class_name end) in
+    let module P = Pprz.Messages (struct let _type = "" and single_class = class_name end) in 
     let binding =
       if sender = "*" then
         P.message_bind msg_name cb

@@ -156,7 +156,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
 let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
   let class_name = (Xml.attrib xml_class "name") in
   let messages = Xml.children xml_class in
-  let module P = Pprz.Messages (struct let name = class_name end) in
+  let module P = Pprz.Messages (struct let _type = "" and single_class = class_name end) in (* XGGDEBUG:DYNMOD: *)
   let senders = Hashtbl.create 5 in
   match sender with
     | Some "*" ->
@@ -188,8 +188,25 @@ let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
 (*********************** Main ************************************************)
 let _ =
   let ivy_bus = ref Defivybus.default_ivy_bus in
-  let classes = ref ["telemetry:*"] in
-  Arg.parse
+	
+	
+	
+	
+	let class_names = List.map (fun _class -> if ("downlink" = ExtXml.attrib _class "type")||("datalink" = ExtXml.attrib _class "type") then ExtXml.attrib _class "name" else "" ) (Xml.children (Pprz.messages_xml ())) in
+	let classes = ref [] in
+	ignore (List.map (fun c_name -> match c_name with
+		| "" -> ()
+		| name -> classes := List.append !classes [name^":*"]
+		) class_names);
+	
+	
+	
+	
+  (*let classes = ref ["telemetry:*";"custom:*"] in *) (* XGGDEBUG:MULTIMSG change for type downlink *)
+  
+	
+	
+	Arg.parse
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-c",  Arg.String (fun x -> classes := x :: !classes), "class name"]
     (fun x -> prerr_endline ("WARNING: don't do anything with "^x))
@@ -205,7 +222,7 @@ let _ =
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
 
-  let notebook = GPack.notebook ~packing:window#add ~tab_pos:`TOP () in
+  let notebook = GPack.notebook ~packing:window#add ~tab_pos:`TOP () in (* XGGDEBUG:MULTIMSG: here creates tab?¿ *)
 
   (** Get the XML description of the required classes *)
   let xml_classes =

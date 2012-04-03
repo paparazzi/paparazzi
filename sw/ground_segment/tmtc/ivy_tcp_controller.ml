@@ -1,7 +1,7 @@
 open Printf
 
-module Tm_Pprz = Pprz.Messages(struct let name = "telemetry" end)
-module Dl_Pprz = Pprz.Messages(struct let name = "datalink" end)
+module Tm_Pprz = Pprz.Messages(struct let _type = "donwlink" and single_class = "" end)
+module Dl_Pprz = Pprz.Messages(struct let _type = "uplink" and single_class = "" end)
 module PprzTransport = Serial.Transport(Pprz.Transport)
 
 let () =
@@ -39,7 +39,7 @@ let () =
 	let use_tele_message = fun payload ->
 	  Debug.trace 'x' (Debug.xprint (Serial.string_of_payload payload));
 	  let (packet_seq, ac_id, class_id, msg_id, values) = Tm_Pprz.values_of_payload payload in
-	  let msg = Tm_Pprz.message_of_id msg_id in
+	  let msg = Tm_Pprz.message_of_id class_id msg_id in
 	  Tm_Pprz.message_send (string_of_int ac_id) msg.Pprz.name values in
 
 	ignore (PprzTransport.parse use_tele_message b)
