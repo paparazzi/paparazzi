@@ -156,7 +156,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
 let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
   let class_name = (Xml.attrib xml_class "name") in
   let messages = Xml.children xml_class in
-  let module P = Pprz.Messages (struct let _type = "" and single_class = class_name end) in (* XGGDEBUG:DYNMOD: *)
+  let module P = Pprz.Messages (struct let _type = "" and single_class = class_name end) in 
   let senders = Hashtbl.create 5 in
   match sender with
     | Some "*" ->
@@ -198,14 +198,7 @@ let _ =
 		| "" -> ()
 		| name -> classes := List.append !classes [name^":*"]
 		) class_names);
-	
-	
-	
-	
-  (*let classes = ref ["telemetry:*";"custom:*"] in *) (* XGGDEBUG:MULTIMSG change for type downlink *)
-  
-	
-	
+
 	Arg.parse
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-c",  Arg.String (fun x -> classes := x :: !classes), "class name"]
@@ -222,8 +215,8 @@ let _ =
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
 
-  let notebook = GPack.notebook ~packing:window#add ~tab_pos:`TOP () in (* XGGDEBUG:MULTIMSG: here creates tab?¿ *)
-
+  let notebook = GPack.notebook ~packing:window#add ~tab_pos:`TOP () in 
+	
   (** Get the XML description of the required classes *)
   let xml_classes =
     let xml = Pprz.messages_xml () in

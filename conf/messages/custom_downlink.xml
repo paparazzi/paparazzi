@@ -1,8 +1,5 @@
 <?xml version="1.0"?>
 <class type="downlink">
-	<message name="ACKTEST" id="2">
-		<field name="valors" type="char[]"/>
-	</message> 
 
 <!-- BLMC Messages: BrushLess Motor Controller -->
 

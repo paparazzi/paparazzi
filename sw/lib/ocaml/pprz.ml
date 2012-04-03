@@ -531,7 +531,7 @@ end
 module MessagesOfXml(Class:CLASS_Xml) = struct
   let max_length = 256
 	let msg_xml = Xml.parse_file messages_file
-	(* XGGDEBUG:DYNMOD: *)
+
 	type _class = {
 		class_id : int;
 		class_name : string;
