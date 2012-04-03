@@ -75,6 +75,10 @@ int32_t guidance_h_again;
 #endif
 #endif
 
+#ifndef GUIDANCE_H_MAX_BANK
+#define GUIDANCE_H_MAX_BANK RadOfDeg(20)
+#endif
+
 static inline void guidance_h_update_reference(bool_t use_ref);
 static inline void guidance_h_traj_run(bool_t in_flight);
 static inline void guidance_h_hover_enter(void);
@@ -254,9 +258,8 @@ static inline void guidance_h_update_reference(bool_t use_ref) {
  * you get an angle of 5.6 degrees for 1m pos error */
 #define GH_GAIN_SCALE 2
 
-// FIXME: set in airframe file, instead of hardcoded value here
-/** maximum bank angle: 20 deg */
-#define TRAJ_MAX_BANK BFP_OF_REAL(0.35, INT32_ANGLE_FRAC)
+/** maximum bank angle: default 20 deg */
+#define TRAJ_MAX_BANK BFP_OF_REAL(GUIDANCE_H_MAX_BANK, INT32_ANGLE_FRAC)
 
 static inline void guidance_h_traj_run(bool_t in_flight) {
 
