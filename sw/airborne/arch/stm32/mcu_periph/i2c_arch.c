@@ -13,6 +13,8 @@
 
 #ifdef I2C_DEBUG_LED
 
+#warning "LED debug needs porting to libopencm3 (or removal)"
+
 static inline void LED1_ON(void)
 {
   GPIO_WriteBit(GPIOB, GPIO_Pin_6 , Bit_SET );
@@ -1150,7 +1152,7 @@ void i2c1_hw_init(void) {
   // enable error interrupts
   I2C_CR2(I2C1) |= I2C_CR2_ITERREN;
 
-  i2c_setbitrate(&i2c1, I2C2_CLOCK_SPEED);
+  i2c_setbitrate(&i2c1, I2C1_CLOCK_SPEED);
 #endif
 }
 
