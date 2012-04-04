@@ -26,8 +26,8 @@
 
 open Printf
 
-module Ground_Pprz = Pprz.Messages(struct let _type = "ground" and single_class = "" end)
-module Tm_Pprz = Pprz.Messages(struct let _type = "downlink" and single_class = "" end)
+module Ground_Pprz = Pprz.Messages_of_type(struct let class_type = "ground" end)
+module Tm_Pprz = Pprz.Messages_of_type(struct let class_type = "downlink" end)
 
 let (//) = Filename.concat
 let replay_dir = Env.paparazzi_home // "var" // "replay"
@@ -149,7 +149,7 @@ let run = fun serial_port log adj i0 speed no_gui ->
       | Some channel ->
 	  try
 	  let msg_id, vs = Tm_Pprz.values_of_string m in
-	  let payload = Tm_Pprz.payload_of_values (int_of_string ac) (Tm_Pprz.class_id_of_msg_args m) msg_id vs in 
+	  let payload = Tm_Pprz.payload_of_values (int_of_string ac) (Pprz.class_id_of_msg_args m) msg_id vs in 
 	  let buf = Pprz.Transport.packet payload in
 	  Debug.call 'o' (fun f -> fprintf f "%s\n" (Debug.xprint buf));
 	  fprintf channel "%s%!" buf

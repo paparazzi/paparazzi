@@ -128,7 +128,7 @@ void dl_parse_msg(void) {
        coordinates */
     utm.east = waypoints[wp_id].x + nav_utm_east0;
     utm.north = waypoints[wp_id].y + nav_utm_north0;
-    DOWNLINK_SEND_WP_MOVED(DefaultChannel, DefaultDevice, &wp_id, &utm.east, &utm.north, &a, &nav_utm_zone0);
+    DOWNLINK_SEND_WP_MOVED_UTM(DefaultChannel, DefaultDevice, &wp_id, &utm.east, &utm.north, &a, &nav_utm_zone0);
   } else if (msg_id == DL_BLOCK && DL_BLOCK_ac_id(dl_buffer) == AC_ID) {
     nav_goto_block(DL_BLOCK_block_id(dl_buffer));
     SEND_NAVIGATION(DefaultChannel, DefaultDevice);

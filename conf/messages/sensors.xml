@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+<class type="downlink">
+<!-- XGGDEBUG: Other STATUS PPZ Messages -->
+<!-- custom all group (sensor class) -->
+	<message name="WINDTURBINE_STATUS_" id="50">
+		<field name="ac_id" type="uint8"/>
+		<field name="tb_id" type="uint8"/>
+		<field name="sync_itow"  type="uint32" unit="ms"/>
+		<field name="cycle_time" type="uint32" unit="ms"/>
+	</message>
+
+	<message name="BMP_STATUS" id="84">
+		<field name="UP"    type="int32"/>
+		<field name="UT"    type="int32"/>
+		<field name="press" type="int32" unit="Pa"/>
+		<field name="temp"  type="int32" unit="10x_deg_celsius"/>
+	</message>
+
+	<message name="MLX_STATUS" id="85">
+		<field name="itemp_case" type="uint16"/>
+		<field name="temp_case"  type="float" unit="deg_celsius" format="%.2f"/>
+		<field name="itemp_obj"  type="uint16"/>
+		<field name="temp_obj"   type="float" unit="deg_celsius" format="%.2f"/>
+	</message>
+
+	<message name="TMP_STATUS" id="86">
+		<field name="itemp"  type="uint16"/>
+		<field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+	</message>
+
+	<message name="SCP_STATUS" id="88">
+		<field name="press" type="uint32" unit="Pa"/>
+		<field name="temp"  type="int16" unit="100x_deg_celsius"/>
+	</message>
+
+	<message name="SHT_STATUS" id="89">
+		<field name="ihumid" type="uint16"/>
+		<field name="itemp"  type="uint16"/>
+		<field name="humid"  type="float" unit="rel_hum" format="%.2f"/>
+		<field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+	</message>
+
+	<message name="ENOSE_STATUS" id="90">
+		<field name="val1" type="uint16"/>
+		<field name="val2" type="uint16"/>
+		<field name="val3" type="uint16"/>
+		<field name="PID" type="uint16"/>
+		<field name="heat" type="uint8[]"/>
+	</message>
+
+	<message name="DPICCO_STATUS" id="91">
+		<field name="humid" type="uint16"/>
+		<field name="temp" type="uint16"/>
+		<field name="fhumid" type="float" unit="rel_hum" format="%.2f"/>
+		<field name="ftemp" type="float" unit="deg_celsius" format="%.2f"/>
+	</message>
+
+	<message name="HIH_STATUS" id="96">
+		<field name="humid" type="uint16"/>
+		<field name="fhumid" type="float" unit="rel_hum" format="%.2f"/>
+		<field name="ftemp" type="float" unit="deg_celsius" format="%.2f"/>
+	</message>
+
+	<message name="TEMT_STATUS" id="97">
+		<field name="light"  type="uint16"/>
+		<field name="f_light" type="float" unit="percent" format="%.2f"/>
+	</message>
+
+	<message name="GP2Y_STATUS" id="98">
+		<field name="idensity"  type="uint16"/>
+		<field name="density"   type="float" unit="mg/m3" format="%.2f"/>
+	</message>
+
+	<message name="HTM_STATUS" id="115">
+		<field name="ihumid" type="uint16"/>
+		<field name="itemp"  type="uint16"/>
+		<field name="humid"  type="float" unit="rel_hum" format="%.2f"/>
+		<field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+	</message>
+
+	<message name="SHT_I2C_STATUS" id="127">
+		<field name="ihumid" type="uint16"/>
+		<field name="itemp"  type="uint16"/>
+		<field name="humid"  type="float" unit="rel_hum" format="%.2f"/>
+		<field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+	</message>
+
+	<message name="PCAP01_STATUS" id="152">
+		<field name="ihumid" type="uint32"/>
+		<field name="itemp"  type="uint32"/>
+		<field name="humid"  type="float" unit="rel_hum" format="%.2f"/>
+		<field name="temp"   type="float" unit="deg_celsius" format="%.2f"/>
+	</message>
+
+	<message name="TEST_PASSTHROUGH_STATUS" id="212"><!-- custom -->
+		<field name="io_proc_msg_cnt" type="uint32"/>
+		<field name="io_proc_err_cnt" type="uint32"/>
+		<field name="io_link_msg_cnt" type="uint32"/>
+		<field name="io_link_err_cnt" type="uint32"/>
+		<field name="rc_status"       type="uint8" values="OK|LOST|REALLY_LOST"/>
+	</message>
+
+<!-- XGGDEBUG: PRESSURE-BARO PPZ Messages -->
+<!-- custom all group  (sensor)-->
+	<message name="BARO_BMP85_CALIB" id="38">
+		<field name="a1"  type="int16"/>
+		<field name="a2"  type="int16"/>
+		<field name="a3"  type="int16"/>
+		<field name="a4"  type="uint16"/>
+		<field name="a5"  type="uint16"/>
+		<field name="a6"  type="uint16"/>
+		<field name="b1"  type="int16"/>
+		<field name="b2"  type="int16"/>
+		<field name="mb"  type="int16"/>
+		<field name="mc"  type="int16"/>
+		<field name="md"  type="int16"/>
+	</message>
+
+	<message name="BARO_BMP85" id="39">
+		<field name="UT"  type="int32"/>
+		<field name="UP"  type="int32"/>
+		<field name="P"  type="uint32"/>
+		<field name="T"  type="float"/>
+		<field name="MSL"  type="float"/>
+	</message>
+
+	<message name="BARO_MS5534A" id="44">
+		<field name="pressure" type="uint32" unit="P"/>
+		<field name="temp" type="uint16" unit="dC"/>
+		<field name="alt" type="float" unit="m"/>
+	</message>
+
+	<message name="BARO_WORDS" id="46">
+		<field name="w1"  type="uint16"/>
+		<field name="w2"  type="uint16"/>
+		<field name="w3"  type="uint16"/>
+		<field name="w4"  type="uint16"/>
+	</message>
+
+	<message name="BARO_ETS" id="56">
+		<field name="adc" type="uint16"/>
+		<field name="offset" type="uint16"/>
+		<field name="scaled" type="float"/>
+	</message>
+
+	<message name="AMSYS_BARO" id="65">
+		<field name="pBaroRaw" type="uint16"></field>
+		<field name="pBaro" type="float" unit="Pa"> </field>
+		<field name="pHomePressure" type="float" unit="Pa"></field>
+		<field name="AltOffset" type="float" unit="m"></field>
+		<field name="aktuell" type="float" unit="m"></field>
+		<field name="Over_Ground" type="float" unit="m"></field>
+		<field name="tempBaro" type="float" unit="°C"></field>
+	</message>
+
+	<message name="AMSYS_AIRSPEED" id="66">
+		<field name="asRaw" type="uint16"></field>
+		<field name="asPresure" type="float" unit="Pa"></field>
+		<field name="asAirspeed" type="float" unit="m/s"></field>
+		<field name="asAirsFilt" type="float" unit="m/s"></field>
+		<field name="asTemp" type="float" unit="°C"></field>
+	</message>
+
+	<message name="BARO_MS5611" id="116">
+		<field name="d1"       type="uint32"/>
+		<field name="d2"       type="uint32"/>
+		<field name="pressure" type="float" unit="hPa" format="%.2f"/>
+		<field name="temp"     type="float" unit="deg_celsius" format="%.2f"/>
+	</message>
+
+
+
+</class>

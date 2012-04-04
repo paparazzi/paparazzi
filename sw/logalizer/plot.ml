@@ -679,8 +679,9 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 	
 	let class_type = "downlink" in
 	Debug.call 'p' (fun f ->  fprintf f "class_type: %s\n" class_type);
-	let module M = struct let _type = class_type and single_class = "" let xml = protocol end in 
-  let module P = Pprz.MessagesOfXml(M) in
+	(*let module M = struct let selection = class_type and mode = "type" let xml = protocol end in *)(* XGGDEBUG:DYNMOD: Why only MessagesOfXml and not the full module? I need to use message_of_id and it's in the full module *)
+  (*let module P = Pprz.MessagesOfXml(M) in *)
+	let module P = Pprz.Messages_of_type (struct let class_type = class_type end) in
 	
   let f =
     try
@@ -709,7 +710,7 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 
 	    (*Elements of [acs] are assoc lists of [fields] indexed by msg id*)
 	    let msg_id, vs = P.values_of_string m in
-			let cls_id = P.class_id_of_msg_args m in
+			let cls_id = Pprz.class_id_of_msg_args m in
 			let ids_of_msg = { msg_id = msg_id; cls_id = cls_id} in
 
 			if not (Hashtbl.mem msgs ids_of_msg) then

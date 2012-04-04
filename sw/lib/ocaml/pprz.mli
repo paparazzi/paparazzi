@@ -138,15 +138,18 @@ module TransportExtended : Serial.PROTOCOL
 
 val offset_fields : int
 
-module type CLASS = sig
-  val _type : string
-	val single_class : string
+module type CLASS_NAME = sig
+	val class_name : string
+end
+
+module type CLASS_TYPE = sig
+	val class_type : string
 end
 
 module type CLASS_Xml = sig
   val xml : Xml.xml
-  val _type : string
-	val single_class : string
+  val selection : string
+	val mode : string
 end
 
 type msg_and_class_id = {
@@ -154,19 +157,54 @@ type msg_and_class_id = {
 	cls_id : int;
 }
 
+val class_id_of_msg : message_name -> class_id
+(** [class_id_of_msg msg_name] returns the class id containing the given message *)
+
+val class_id_of_msg_args : string -> class_id
+(** [class_id_of_msg_args args.(0)] returns the class id containing the given message when args.(0) is the parameter *)
+
+val class_id_of_msg_args_unsorted : string -> class_id
+(** [class_id_of_msg_args_unsorted args.(0)] returns the class id containing the given message when string with semicolons is the parameter *)
+
 module type MESSAGES = sig
+  val messages : (msg_and_class_id, message) Hashtbl.t
+  val message_of_name : string ->  message_id * message
+
+  val values_of_payload : Serial.payload -> packet_seq * sender_id * class_id * message_id * values
+  (** [values_of_bin payload] Parses a raw payload, returns the
+   the A/C id, class id, message id and the list of (field_name, value) *)
+
+  val values_of_string : string -> message_id * values
+  (** May raise [(Unknown_msg_name msg_name)] *)
+
+  val values_of_string_unsorted : string -> message_id * values
+  (** May raise [(Unknown_msg_name msg_name)] *)
+
+  val string_of_message : ?sep:string -> message -> values -> string
+  (** [string_of_message ?sep msg values] Default [sep] is space *)
+
+  val message_send : ?timestamp:float -> string -> string -> values -> unit
+  (** [message_send sender msg_name values] *)
+
+  val message_bind : ?sender:string ->string -> (string -> values -> unit) -> Ivy.binding
+  (** [message_bind ?sender msg_name callback] *)
+
+  val message_answerer : string -> string -> (string -> values -> values) -> Ivy.binding
+  (** [message_answerer sender msg_name callback] Set a handler for a
+      [message_req] (which will send a [msg_name]_REQ message).
+      [callback asker args] must return the list of attributes of the answer. *)
+
+  val message_req : string -> string -> values -> (string -> values -> unit) -> unit
+  (** [message_req sender msg_name values receiver] Sends a request on the Ivy
+      bus for the specified message. A [msg_name]_REQ message is send and a
+      [msg_name] message is expected for the reply. On reception, [receiver]
+      will be applied on [sender_name] and attribute values of the values. *)
+end
+
+module type MESSAGES_TYPE = sig
   val messages : (msg_and_class_id, message) Hashtbl.t
   val message_of_id : class_id -> message_id -> message
   val message_of_name : string ->  message_id * message
-	
-	val class_id_of_msg : message_name -> class_id
-	(** [class_id_of_msg msg_name] returns the class id containing the given message *)
-
-	val class_id_of_msg_args : string -> class_id
-	(** [class_id_of_msg_args args.(0)] returns the class id containing the given message when args.(0) is the parameter *)
-
-	val class_id_of_msg_args_unsorted : string -> class_id
-	(** [class_id_of_msg_args_unsorted args.(0)] returns the class id containing the given message when string with semicolons is the parameter *)
 
   val values_of_payload : Serial.payload -> packet_seq * sender_id * class_id * message_id * values
   (** [values_of_bin payload] Parses a raw payload, returns the
@@ -202,5 +240,41 @@ module type MESSAGES = sig
       will be applied on [sender_name] and attribute values of the values. *)
 end
 
-module Messages : functor (Class : CLASS) -> MESSAGES
+module type MESSAGES_NAME = sig 
+  val messages : (msg_and_class_id, message) Hashtbl.t
+  val message_of_id : message_id -> message
+  val message_of_name : string ->  message_id * message
+	
+	val values_of_payload : Serial.payload -> packet_seq * sender_id * class_id * message_id * values
+  (** [values_of_bin payload] Parses a raw payload, returns the
+   the Sender id, class id, message id and the list of (field_name, value) *)
+
+  val payload_of_values : ?gen_packet_seq:int -> sender_id -> message_id -> values -> Serial.payload
+  (** [payload_of_values ?gen_packet_seq sender_id class_id id vs] Returns a payload *)
+
+  val values_of_string : string -> message_id * values
+  (** May raise [(Unknown_msg_name msg_name)] *)
+
+  val values_of_string_unsorted : string -> message_id * values
+  (** May raise [(Unknown_msg_name msg_name)] *)
+
+  val string_of_message : ?sep:string -> message -> values -> string
+  (** [string_of_message ?sep msg values] Default [sep] is space *)
+
+  val message_send : ?timestamp:float -> string -> string -> values -> unit
+  (** [message_send sender msg_name values] *)
+
+  val message_bind : ?sender:string ->string -> (string -> values -> unit) -> Ivy.binding
+  (** [message_bind ?sender msg_name callback] *)
+
+  val message_answerer : string -> string -> (string -> values -> values) -> Ivy.binding
+  (** [message_answerer sender msg_name callback] *)
+
+  val message_req : string -> string -> values -> (string -> values -> unit) -> unit
+  (** [message_answerer sender msg_name values receiver] Sends a request on the Ivy bus for the specified message. On reception, [receiver] will be applied on [sender_name] and expected values. *)
+end
+
+module Messages_of_type : functor (Class : CLASS_TYPE) -> MESSAGES_TYPE
+module Messages_of_name : functor (Class : CLASS_NAME) -> MESSAGES_NAME
+
 module MessagesOfXml : functor (Class : CLASS_Xml) -> MESSAGES

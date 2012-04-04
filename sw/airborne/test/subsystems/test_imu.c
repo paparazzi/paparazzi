@@ -118,7 +118,7 @@ static inline void on_accel_event(void) {
                 &imu.accel_unscaled.z);
   }
   else if (cnt == 7) {
-    DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel, DefaultDevice,
+    DOWNLINK_SEND_IMU_ACCEL_INT(DefaultChannel, DefaultDevice,
                   &imu.accel.x,
                   &imu.accel.y,
                   &imu.accel.z);
@@ -140,7 +140,7 @@ static inline void on_gyro_accel_event(void) {
                    &imu.gyro_unscaled.r);
   }
   else if (cnt == 7) {
-    DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel, DefaultDevice,
+    DOWNLINK_SEND_IMU_GYRO_INT(DefaultChannel, DefaultDevice,
                  &imu.gyro.p,
                  &imu.gyro.q,
                  &imu.gyro.r);
@@ -155,7 +155,7 @@ static inline void on_mag_event(void) {
   if (cnt > 10) cnt = 0;
 
   if (cnt == 0) {
-    DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel, DefaultDevice,
+    DOWNLINK_SEND_IMU_MAG_INT(DefaultChannel, DefaultDevice,
                 &imu.mag.x,
                 &imu.mag.y,
                 &imu.mag.z);

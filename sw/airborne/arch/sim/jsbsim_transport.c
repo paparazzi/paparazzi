@@ -61,6 +61,6 @@ void parse_dl_move_wp(char* argv[]) {
      coordinates */
   utm.east = waypoints[wp_id].x + nav_utm_east0;
   utm.north = waypoints[wp_id].y + nav_utm_north0;
-  DOWNLINK_SEND_WP_MOVED(DefaultChannel, DefaultDevice, &wp_id, &utm.east, &utm.north, &a, &nav_utm_zone0);
+  DOWNLINK_SEND_WP_MOVED_UTM(DefaultChannel, DefaultDevice, &wp_id, &utm.east, &utm.north, &a, &nav_utm_zone0);
 }
 

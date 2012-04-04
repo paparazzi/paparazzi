@@ -1,6 +1,6 @@
 let my_id = 0
-module Tm_Pprz = Pprz.Messages(struct let _type = "donwlink" and single_class = "" end)
-module Dl_Pprz = Pprz.Messages(struct let _type = "uplink" and single_class = "" end)
+module Tm_Pprz = Pprz.Messages_of_type(struct let class_type = "donwlink" end)
+module Dl_Pprz = Pprz.Messages_of_type(struct let class_type = "uplink" end)
 module PprzTransport = Serial.Transport(Pprz.Transport)
 
 open Printf
@@ -32,7 +32,7 @@ let () =
   let get_ivy_message = fun _ args ->
     try
       let (msg_id, vs) = Tm_Pprz.values_of_string args.(0) in
-      let payload = Tm_Pprz.payload_of_values (int_of_string !id) (Tm_Pprz.class_id_of_msg_args args.(0)) msg_id vs in 
+      let payload = Tm_Pprz.payload_of_values (int_of_string !id) (Pprz.class_id_of_msg_args args.(0)) msg_id vs in 
       let buf = Pprz.Transport.packet payload in
       fprintf o "%s%!" buf
     with _ -> () in

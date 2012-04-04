@@ -29,9 +29,9 @@ open Latlong
 module LL = Latlong
 open Printf
 
-module Tele_Pprz = Pprz.Messages(struct let _type = "downlink" and single_class = "" end)
-module Ground_Pprz = Pprz.Messages(struct let _type = "ground" and single_class = "" end)
-module Alert_Pprz = Pprz.Messages(struct let _type = "" and single_class = "alert" end) 
+module Tele_Pprz = Pprz.Messages_of_type(struct let class_type = "downlink" end)
+module Ground_Pprz = Pprz.Messages_of_type(struct let class_type = "ground" end)
+module Alert_Pprz = Pprz.Messages_of_name(struct let class_name = "alert" end) 
 
 
 let (//) = Filename.concat

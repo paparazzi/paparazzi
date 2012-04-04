@@ -113,11 +113,11 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #define DownlinkSendWp(_trans, _dev, i) {	     \
   float x = nav_utm_east0 +  waypoints[i].x; \
   float y = nav_utm_north0 + waypoints[i].y; \
-  DOWNLINK_SEND_WP_MOVED(_trans, _dev, &i, &x, &y, &(waypoints[i].a),&nav_utm_zone0); \
+  DOWNLINK_SEND_WP_MOVED_UTM(_trans, _dev, &i, &x, &y, &(waypoints[i].a),&nav_utm_zone0); \
 }
 
 
-#define PERIODIC_SEND_WP_MOVED(_trans, _dev) { \
+#define PERIODIC_SEND_WP_MOVED_UTM(_trans, _dev) { \
   static uint8_t i; \
   i++; if (i >= nb_waypoint) i = 0; \
   DownlinkSendWp(_trans, _dev, i);	    \

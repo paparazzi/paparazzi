@@ -28,7 +28,7 @@ open Printf
 open Stdlib
 open Latlong
 
-module Ground_Pprz = Pprz.Messages(struct let _type = "ground" and single_class = "" end)
+module Ground_Pprz = Pprz.Messages_of_type(struct let class_type = "ground" end)
 
 let float_attrib xml a = float_of_string (ExtXml.attrib xml a)
 

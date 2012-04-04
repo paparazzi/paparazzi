@@ -1,7 +1,7 @@
 open Printf
 
-module Tm_Pprz = Pprz.Messages(struct let _type = "donwlink" and single_class = "" end)
-module Dl_Pprz = Pprz.Messages(struct let _type = "uplink" and single_class = "" end)
+module Tm_Pprz = Pprz.Messages_of_type(struct let class_type = "donwlink" end)
+module Dl_Pprz = Pprz.Messages_of_type(struct let class_type = "uplink" end)
 module PprzTransport = Serial.Transport(Pprz.Transport)
 
 let () =
@@ -57,7 +57,7 @@ let () =
     try
       let (msg_id, vs) = Dl_Pprz.values_of_string args.(0) in
       let ac_id = Pprz.int_assoc "ac_id" vs in
-      let payload = Dl_Pprz.payload_of_values ac_id (Dl_Pprz.class_id_of_msg_args args.(0)) msg_id vs in
+      let payload = Dl_Pprz.payload_of_values ac_id (Pprz.class_id_of_msg_args args.(0)) msg_id vs in
       let buf = Pprz.Transport.packet payload in
       fprintf o "%s%!" buf
     with exc -> prerr_endline (Printexc.to_string exc) in

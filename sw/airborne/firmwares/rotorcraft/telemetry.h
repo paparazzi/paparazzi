@@ -134,22 +134,22 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_PPM(_trans, _dev) {}
 #endif
 
-#define PERIODIC_SEND_IMU_GYRO_SCALED(_trans, _dev) {		\
-    DOWNLINK_SEND_IMU_GYRO_SCALED(_trans, _dev,			\
+#define PERIODIC_SEND_IMU_GYRO_INT(_trans, _dev) {		\
+    DOWNLINK_SEND_IMU_GYRO_INT(_trans, _dev,			\
                  &imu.gyro.p,		\
                  &imu.gyro.q,		\
                  &imu.gyro.r);		\
   }
 
-#define PERIODIC_SEND_IMU_ACCEL_SCALED(_trans, _dev) {			\
-    DOWNLINK_SEND_IMU_ACCEL_SCALED(_trans, _dev,				\
+#define PERIODIC_SEND_IMU_ACCEL_INT(_trans, _dev) {			\
+    DOWNLINK_SEND_IMU_ACCEL_INT(_trans, _dev,				\
                   &imu.accel.x,		\
                   &imu.accel.y,		\
                   &imu.accel.z);		\
   }
 
-#define PERIODIC_SEND_IMU_MAG_SCALED(_trans, _dev) {			\
-    DOWNLINK_SEND_IMU_MAG_SCALED(_trans, _dev,				\
+#define PERIODIC_SEND_IMU_MAG_INT(_trans, _dev) {			\
+    DOWNLINK_SEND_IMU_MAG_INT(_trans, _dev,				\
                 &imu.mag.x,			\
                 &imu.mag.y,			\
                 &imu.mag.z);			\
@@ -703,7 +703,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
     }									\
   }
 
-#define PERIODIC_SEND_WP_MOVED(_trans, _dev) {					\
+#define PERIODIC_SEND_WP_MOVED_UTM(_trans, _dev) {					\
     static uint8_t i;							\
     i++; if (i >= nb_waypoint) i = 0;					\
     DOWNLINK_SEND_WP_MOVED_ENU(_trans, _dev,					\

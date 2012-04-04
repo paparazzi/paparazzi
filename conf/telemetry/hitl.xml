@@ -6,7 +6,7 @@
       <message name="ALIVE"          period="5"/>
       <message name="ATTITUDE"       period="0.5"/>
       <message name="ESTIMATOR"      period="0.5"/>
-      <message name="WP_MOVED"       period="0.5"/>
+      <message name="WP_MOVED_UTM"   period="0.5"/>
       <message name="CIRCLE"         period="1.05"/>
       <message name="DESIRED"        period="1.05"/>
       <message name="BAT"            period="1.1"/>

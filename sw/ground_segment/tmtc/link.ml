@@ -30,9 +30,9 @@ open Latlong
 open Printf
 
 (* Handlers for the modem and Ivy messages *)
-module Tm_Pprz = Pprz.Messages (struct let _type = "downlink" and single_class = "" end) 
-module Ground_Pprz = Pprz.Messages (struct let _type = "ground" and single_class = "" end)
-module Dl_Pprz = Pprz.Messages (struct let _type = "uplink" and single_class = "" end)
+module Tm_Pprz = Pprz.Messages_of_type (struct let class_type = "downlink" end) 
+module Ground_Pprz = Pprz.Messages_of_type (struct let class_type = "ground" end)
+module Dl_Pprz = Pprz.Messages_of_type (struct let class_type = "uplink" end)
 module PprzTransport = Serial.Transport (Pprz.Transport)
 module PprzTransportExtended = Serial.Transport (Pprz.TransportExtended)
 
@@ -428,7 +428,7 @@ let message_uplink = fun device ->
   let forwarder = fun name _sender vs ->
     Debug.call 'f' (fun f -> fprintf f "forward %s\n" name);
     let ac_id = Pprz.int_assoc "ac_id" vs in
-		let class_id = Dl_Pprz.class_id_of_msg name in 
+		let class_id = Pprz.class_id_of_msg name in 
     let msg_id, _ = Dl_Pprz.message_of_name name in
 		let gen_packet_seq = get_up_packet_sequence ac_id in
     let s = Dl_Pprz.payload_of_values ~gen_packet_seq:gen_packet_seq my_id class_id msg_id vs in
@@ -438,7 +438,7 @@ let message_uplink = fun device ->
 
   let broadcaster = fun name _sender vs ->
     Debug.call 'f' (fun f -> fprintf f "broadcast %s\n" name);
-		let class_id = Dl_Pprz.class_id_of_msg name in 
+		let class_id = Pprz.class_id_of_msg name in 
     let msg_id, _ = Dl_Pprz.message_of_name name in
     let payload = Dl_Pprz.payload_of_values ~gen_packet_seq:(get_up_packet_sequence 0) my_id class_id msg_id vs in
     broadcast device payload Low in
@@ -457,7 +457,7 @@ let message_uplink = fun device ->
 let send_ping_msg = fun device ->
   Hashtbl.iter
     (fun ac_id status ->
-		  let class_id = Dl_Pprz.class_id_of_msg "PING" in 
+		  let class_id = Pprz.class_id_of_msg "PING" in 
       let msg_id, _ = Dl_Pprz.message_of_name "PING" in
       let s = Dl_Pprz.payload_of_values ~gen_packet_seq:(get_up_packet_sequence ac_id) my_id class_id msg_id [] in
       send ac_id device s High;

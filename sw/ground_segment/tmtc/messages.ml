@@ -156,7 +156,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) bind m ->
 let rec one_class = fun (notebook:GPack.notebook) (ident, xml_class, sender) ->
   let class_name = (Xml.attrib xml_class "name") in
   let messages = Xml.children xml_class in
-  let module P = Pprz.Messages (struct let _type = "" and single_class = class_name end) in 
+  let module P = Pprz.Messages_of_name (struct let class_name = class_name end) in 
   let senders = Hashtbl.create 5 in
   match sender with
     | Some "*" ->

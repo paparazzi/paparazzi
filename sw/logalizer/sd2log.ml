@@ -32,8 +32,8 @@ let logs_path = var_path // "logs"
 let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 
 
-module Tm_Pprz = Pprz.Messages (struct let _type = "downlink" and single_class = "" end)
-module Dl_Pprz = Pprz.Messages (struct let _type = "uplink" and single_class = "" end)
+module Tm_Pprz = Pprz.Messages_of_type (struct let class_type = "downlink" end)
+module Dl_Pprz = Pprz.Messages_of_type (struct let class_type = "uplink" end)
 
 module Parser = Serial.Transport(Logpprz.Transport)
 

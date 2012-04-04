@@ -30,7 +30,7 @@ open Aircraft
 open Latlong
 module LL = Latlong
 module U = Unix
-module Dl_Pprz = Pprz.Messages (struct let _type = "uplink" and single_class = "" end)
+module Dl_Pprz = Pprz.Messages_of_type (struct let class_type = "uplink" end)
 
 
 (* FIXME: bound the loop *)
@@ -286,7 +286,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
 	a.nb_dl_setting_values <- max a.nb_dl_setting_values (i+1)
       end else
 	failwith "Too much dl_setting values !!!"
-  | "WP_MOVED" ->
+  | "WP_MOVED_UTM" ->
       begin
         match a.nav_ref with
           Some Utm nav_ref ->

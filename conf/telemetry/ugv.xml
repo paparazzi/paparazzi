@@ -4,7 +4,7 @@
   <process name="Ap">
     <mode name="default">
       <message name="ALIVE"          period="5"/>
-      <message name="WP_MOVED"       period="2"/>
+      <message name="WP_MOVED_UTM"   period="2"/>
       <message name="DESIRED"        period="1.05"/>
       <message name="NAVIGATION_REF" period="9."/>
       <message name="PPRZ_MODE"      period="5."/>

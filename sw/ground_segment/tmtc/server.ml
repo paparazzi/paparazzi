@@ -36,11 +36,11 @@ open Aircraft
 module U = Unix
 module LL = Latlong
 
-module Ground = struct let _type = "ground" and single_class = "" end
-module Ground_Pprz = Pprz.Messages(Ground)
-module Tm_Pprz = Pprz.Messages (struct let _type = "downlink" and single_class = "" end)
-module Alerts_Pprz = Pprz.Messages(struct let _type = "" and single_class = "alert" end)
-module Dl_Pprz = Pprz.Messages (struct let _type = "uplink" and single_class = "" end)
+module Ground = struct let class_type = "ground" end
+module Ground_Pprz = Pprz.Messages_of_type(Ground)
+module Tm_Pprz = Pprz.Messages_of_type (struct let class_type = "downlink" end)
+module Alerts_Pprz = Pprz.Messages_of_name(struct let class_name = "alert" end)
+module Dl_Pprz = Pprz.Messages_of_type (struct let class_type = "uplink" end)
 
 
 
@@ -136,12 +136,13 @@ let log = fun ?timestamp logging ac_name msg_name values ->
 
 (** Callback for a message from a registered A/C *)
 let ac_msg = fun messages_xml logging ac_name ac ->
-  let module Tele_Pprz = Pprz.MessagesOfXml(struct let xml = messages_xml let _type="downlink" and single_class = "" end) in
+  (*let module Tele_Pprz = Pprz.MessagesOfXml(struct let xml = messages_xml let selection = "downlink" and mode = "type" end) in*) (* XGGDEBUG:DYNMOD: What is doing this? I NEED THE FULL MODULE TO USE MESSAGE_OF_ID *)
+	let module Tele_Pprz = Pprz.Messages_of_type (struct let class_type = "downlink" end) in
   fun ts m ->
     try
       let timestamp = try Some (float_of_string ts) with _ -> None in
       let (msg_id, values) = Tele_Pprz.values_of_string m in
-			let cls_id = Tele_Pprz.class_id_of_msg_args m in 
+			let cls_id = Pprz.class_id_of_msg_args m in 
 			let msg = Tele_Pprz.message_of_id cls_id msg_id in
       log ?timestamp logging ac_name msg.Pprz.name values;
       Fw_server.log_and_parse ac_name ac msg values;
@@ -679,7 +680,7 @@ let raw_datalink = fun logging _sender vs ->
 	let ac_id = Pprz.string_assoc "ac_id" vs 
 	and m = Pprz.string_assoc "message" vs in
 	let msg_id, vs = Dl_Pprz.values_of_string_unsorted m in
-	let cls_id = Dl_Pprz.class_id_of_msg_args_unsorted m in 
+	let cls_id = Pprz.class_id_of_msg_args_unsorted m in 
 	let msg = Dl_Pprz.message_of_id cls_id msg_id in
 	Dl_Pprz.message_send dl_id msg.Pprz.name vs;
   log logging ac_id msg.Pprz.name vs

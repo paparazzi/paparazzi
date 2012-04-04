@@ -26,8 +26,8 @@
 
 open Printf
 
-module Ground_Pprz = Pprz.Messages(struct let _type = "ground" and single_class = "" end)
-module Dl_Pprz = Pprz.Messages(struct let _type = "uplink" and single_class = "" end)
+module Ground_Pprz = Pprz.Messages_of_type(struct let class_type = "ground" end)
+module Dl_Pprz = Pprz.Messages_of_type(struct let class_type = "uplink" end)
 
 let ground_id = 0 (* cf tmtc/link.ml *)
 
@@ -167,7 +167,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
   let get_message = fun name link_mode _sender vs ->
     let set = fun () ->
       let msg_id, _ = Dl_Pprz.message_of_name name in
-      let s = Dl_Pprz.payload_of_values ground_id (Dl_Pprz.class_id_of_msg name) msg_id vs in
+      let s = Dl_Pprz.payload_of_values ground_id (Pprz.class_id_of_msg name) msg_id vs in
       set_message (Serial.string_of_payload s) in
     let ac_id = Pprz.int_assoc "ac_id" vs in
     match link_mode with
