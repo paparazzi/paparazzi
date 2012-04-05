@@ -27,7 +27,5 @@
 
 void init_bat_checker(void);
 void bat_checker_periodic(void);
-void start_bat_checker(void);
-void stop_bat_checker(void);
 
 #endif // BAT_CHECKER_H
