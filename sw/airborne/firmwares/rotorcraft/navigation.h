@@ -59,7 +59,7 @@ extern int32_t nav_heading, nav_course; ///< with #INT32_ANGLE_FRAC
 extern float nav_radius;
 
 extern uint8_t vertical_mode;
-extern uint32_t nav_throttle;
+extern uint32_t nav_throttle;  ///< direct throttle from 0:MAX_PPRZ, used in VERTICAL_MODE_MANUAL
 extern int32_t nav_climb, nav_altitude, nav_flight_altitude;
 extern float flight_altitude;
 #define VERTICAL_MODE_MANUAL      0
@@ -155,8 +155,8 @@ bool_t nav_approaching_from(uint8_t wp_idx, uint8_t from_idx);
 
 /** Set the vertical mode to fixed throttle with the specified setpoint */
 #define NavVerticalThrottleMode(_throttle) { \
-  vertical_mode = VERTICAL_MODE_MANUAL; \
-  nav_throttle = (200 * ((uint32_t)_throttle) / 9600); \
+  vertical_mode = VERTICAL_MODE_MANUAL;      \
+  nav_throttle = _throttle;                  \
 }
 
 #define NavHeading(_course) {}

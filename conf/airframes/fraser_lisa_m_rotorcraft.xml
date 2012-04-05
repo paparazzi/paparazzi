@@ -207,6 +207,8 @@
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="USE_REF" value="1"/>
+    <define name="MAX_BANK" value="20" unit="deg"/>
     <define name="PGAIN" value="100"/>
     <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="0"/>

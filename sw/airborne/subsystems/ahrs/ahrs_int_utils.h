@@ -46,6 +46,12 @@ static inline void ahrs_int_get_euler_from_accel_mag(struct Int32Eulers* e, stru
 
 }
 
+static inline void ahrs_int_get_quat_from_accel(struct Int32Quat* q, struct Int32Vect3* accel) {
+  struct FloatQuat q_f;
+  ahrs_float_get_quat_from_accel(&q_f, accel);
+  QUAT_BFP_OF_REAL(*q, q_f);
+}
+
 static inline void ahrs_int_get_quat_from_accel_mag(struct Int32Quat* q, struct Int32Vect3* accel, struct Int32Vect3* mag) {
 
   struct FloatQuat q_f;

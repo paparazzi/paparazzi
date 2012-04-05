@@ -1,6 +1,4 @@
 /*
- * $Id: $
- *
  * Copyright (C) 2010 Eric Parsonage
  * Copyright (C) 2011 Piotr Esden-Tempski <piotr@esden.net>
  *
@@ -21,16 +19,17 @@
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+
+/** @file battery_buzzer.c
+ * Simple module to toggle a gpio with connected buzzer on Lisa/M,
+ * when battery voltage drops below a certain level.
+ */
+
 #include <stm32/gpio.h>
 #include <stm32/rcc.h>
 #include "battery_buzzer.h"
 #include "generated/airframe.h"
 #include "subsystems/electrical.h"
-
-/*
- * simple module to toggle a gpio with connected buzzer on Lisa/M,
- * when battery voltage drops below a certain level.
- */
 
 /* initialises GPIO pins */
 void battery_buzzer_init(void) {
@@ -50,7 +49,7 @@ void battery_buzzer_init(void) {
 /* sets GPIO pins */
 void battery_buzzer_periodic(void) {
 
-  if (electrical.vsupply < (MIN_BAT_LEVEL * 10)) {
+  if (electrical.vsupply < (LOW_BAT_LEVEL * 10)) {
     GPIO_WriteBit(GPIOC, GPIO_Pin_10 , Bit_RESET);
   } else {
     GPIO_WriteBit(GPIOC, GPIO_Pin_10 , Bit_SET);

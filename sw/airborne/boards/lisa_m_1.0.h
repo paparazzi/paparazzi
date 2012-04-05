@@ -24,6 +24,18 @@
 #define LED_3_GPIO_PIN GPIO_Pin_2
 #define LED_3_AFIO_REMAP ((void)0)
 
+#define LED_4_BANK
+#define LED_4_GPIO GPIOC
+#define LED_4_GPIO_CLK RCC_APB2Periph_GPIOC
+#define LED_4_GPIO_PIN GPIO_Pin_10
+#define LED_4_AFIO_REMAP ((void)0)
+
+#define LED_5_BANK
+#define LED_5_GPIO GPIOC
+#define LED_5_GPIO_CLK RCC_APB2Periph_GPIOC
+#define LED_5_GPIO_PIN GPIO_Pin_12
+#define LED_5_AFIO_REMAP ((void)0)
+
 
 /* configuration for aspirin - and more generaly IMUs */
 #define IMU_ACC_DRDY_RCC_GPIO         RCC_APB2Periph_GPIOB

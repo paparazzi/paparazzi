@@ -1,29 +1,38 @@
 # Hey Emacs, this is a -*- makefile -*-
-
-# attitude estimation for fixedwings via dcm algorithm
+#
+# AHRS_PROPAGATE_FREQUENCY
+# AHRS_H_X
+# AHRS_H_Y
+# AHRS_H_Z
+#
 
 ifndef USE_MAGNETOMETER
-USE_MAGNETOMETER = 0
+USE_MAGNETOMETER = 1
 endif
 
-ifeq ($(TARGET), ap)
-
-ap.CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm.h\"
-ap.CFLAGS += -DUSE_AHRS_ALIGNER
-ap.CFLAGS += -DUSE_AHRS
+AHRS_CFLAGS  = -DUSE_AHRS -DAHRS_UPDATE_FW_ESTIMATOR
+AHRS_CFLAGS += -DUSE_AHRS_ALIGNER -DAHRS_GRAVITY_UPDATE_COORDINATED_TURN
 
 ifneq ($(USE_MAGNETOMETER),0)
-ap.CFLAGS += -DUSE_MAGNETOMETER
+  AHRS_CFLAGS += -DUSE_MAGNETOMETER
 endif
-
-ap.srcs   += $(SRC_SUBSYSTEMS)/ahrs.c
-ap.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_aligner.c
-ap.srcs   += $(SRC_SUBSYSTEMS)/ahrs/ahrs_float_dcm.c
-
 
 ifneq ($(AHRS_ALIGNER_LED),none)
-  ap.CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
+  AHRS_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 endif
+
+AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl.h\"
+AHRS_CFLAGS += -DAHRS_PROPAGATE_QUAT
+AHRS_SRCS   += subsystems/ahrs.c
+AHRS_SRCS   += subsystems/ahrs/ahrs_float_cmpl.c
+AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
+
+ap.CFLAGS += $(AHRS_CFLAGS)
+ap.srcs += $(AHRS_SRCS)
+
+
+
+# Extra stuff for fixedwings
 
 ifdef CPU_LED
   ap.CFLAGS += -DAHRS_CPU_LED=$(CPU_LED)
@@ -42,8 +51,6 @@ endif
 ap.CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(AHRS_PROPAGATE_FREQUENCY)
 ap.CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
 
-endif
-
 
 #
 # Simple simulation of the AHRS result
@@ -59,4 +66,3 @@ sim.srcs += $(ahrssim_srcs)
 
 jsbsim.CFLAGS += $(ahrssim_CFLAGS)
 jsbsim.srcs += $(ahrssim_srcs)
-

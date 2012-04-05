@@ -121,7 +121,7 @@ $(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_flight_plan
 $(SETTINGS_H) : $(SETTINGS_XMLS) $(CONF_XML) $(SETTINGS_MODULES) $(SETTINGS_TELEMETRY) $(TOOLS)/gen_settings.out
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_XMLS) $(SETTINGS_MODULES) $(SETTINGS_TELEMETRY) > $@
+	$(Q)$(TOOLS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_TELEMETRY) $(SETTINGS_XMLS) $(SETTINGS_MODULES) > $@
 	$(Q)chmod a+r $@
 	$(Q)cp $(SETTINGS_XMLS) $(AIRCRAFT_CONF_DIR)/settings
 

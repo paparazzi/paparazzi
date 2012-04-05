@@ -6,8 +6,13 @@
   </header>
   <init fun="battery_buzzer_init()"/>
   <periodic fun="battery_buzzer_periodic()" freq="5."/>
-  <makefile>
+  <makefile target="ap">
     <file name="battery_buzzer.c"/>
+    <raw>
+ifneq ($(ARCH), stm32)
+$(error The battery_buzzer module is currently only implemented for STM32 based boards.)
+endif
+    </raw>
   </makefile>
 </module>
 

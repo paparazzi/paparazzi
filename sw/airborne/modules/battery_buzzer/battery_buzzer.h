@@ -1,7 +1,4 @@
-
 /*
- * $Id: $
- *
  * Copyright (C) 2010 Eric Parsonage
  * Copyright (C) 2011 Piotr Esden-Tempski <piotr@esden.net>
  *
