@@ -49,7 +49,7 @@ void battery_buzzer_init(void) {
 /* sets GPIO pins */
 void battery_buzzer_periodic(void) {
 
-  if (electrical.vsupply < (MIN_BAT_LEVEL * 10)) {
+  if (electrical.vsupply < (LOW_BAT_LEVEL * 10)) {
     GPIO_WriteBit(GPIOC, GPIO_Pin_10 , Bit_RESET);
   } else {
     GPIO_WriteBit(GPIOC, GPIO_Pin_10 , Bit_SET);
