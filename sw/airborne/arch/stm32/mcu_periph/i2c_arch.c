@@ -27,24 +27,30 @@ static inline void i2c_reset_init(struct i2c_periph *p);
 #endif
 
 #ifdef USE_I2C1
+#ifndef I2C1_BITRATE
+#define I2C1_BITRATE 200000
+#endif
 static I2C_InitTypeDef  I2C1_InitStruct = {
       .I2C_Mode = I2C_Mode_I2C,
       .I2C_DutyCycle = I2C_DutyCycle_2,
       .I2C_OwnAddress1 = 0x00,
       .I2C_Ack = I2C_Ack_Enable,
       .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
-      .I2C_ClockSpeed = 200000
+      .I2C_ClockSpeed = I2C1_BITRATE
 };
 #endif
 
 #ifdef USE_I2C2
+#ifndef I2C2_BITRATE
+#define I2C2_BITRATE 300000
+#endif
 static I2C_InitTypeDef  I2C2_InitStruct = {
       .I2C_Mode = I2C_Mode_I2C,
       .I2C_DutyCycle = I2C_DutyCycle_2,
       .I2C_OwnAddress1 = 0x00,
       .I2C_Ack = I2C_Ack_Enable,
       .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
-      .I2C_ClockSpeed = 300000
+      .I2C_ClockSpeed = I2C2_BITRATE
 };
 #endif
 
