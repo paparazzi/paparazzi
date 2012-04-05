@@ -34,7 +34,7 @@ def GetOptions():
 		elif o in ("-f", "--file"):
 			messages_path = a
 
-
+#No repeated message names so it wont clasify by class what is clasified by message name.(To be able to show different class messages)
 def ParseMessages():
   from lxml import etree
   tree = etree.parse( messages_path)
@@ -42,8 +42,6 @@ def ParseMessages():
     class_name = the_class.attrib['name']
     if not message_dictionary.has_key(class_name):
       message_dictionary_id_name[class_name] = {}
-      message_dictionary_name_id[class_name] = {}
-      message_dictionary[class_name] = {}
       message_dictionary_types[class_name] = {}
     for the_message in the_class.xpath("message[@name]"):
       message_name = the_message.attrib['name']
@@ -57,15 +55,14 @@ def ParseMessages():
         message_id = int(message_id)
 
       message_dictionary_id_name[class_name][message_id] = message_name
-      message_dictionary_name_id[class_name][message_name] = message_id
+      message_dictionary_name_id[message_name] = message_id
 
-      # insert this message into our dictionary as a list with room for the fields
-      message_dictionary[class_name][message_name] = []
+      message_dictionary[message_name] = []
       message_dictionary_types[class_name][message_id] = []
 
       for the_field in the_message.xpath('field[@name]'):
         # for now, just save the field names -- in the future maybe expand this to save a struct?
-        message_dictionary[class_name][message_name].append( the_field.attrib['name'])
+        message_dictionary[message_name].append( the_field.attrib['name'])
         message_dictionary_types[class_name][message_id].append( the_field.attrib['type'])
     
 def test():
