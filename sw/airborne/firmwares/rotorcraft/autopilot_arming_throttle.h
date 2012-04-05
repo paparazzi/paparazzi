@@ -59,22 +59,19 @@ static inline void autopilot_arming_check_motors_on( void ) {
   switch(autopilot_arming_state) {
   case STATE_UNINIT:
     autopilot_motors_on = FALSE;
-    if (radio_control.status == RC_OK) {
-      if (THROTTLE_STICK_DOWN())
-        autopilot_arming_state = STATE_STARTABLE;
-      else
-        autopilot_arming_state = STATE_WAITING;
-    }
+    if (THROTTLE_STICK_DOWN())
+      autopilot_arming_state = STATE_STARTABLE;
+    else
+      autopilot_arming_state = STATE_WAITING;
     break;
   case STATE_WAITING:
     autopilot_motors_on = FALSE;
-    if (radio_control.status == RC_OK && THROTTLE_STICK_DOWN())
+    if (THROTTLE_STICK_DOWN())
       autopilot_arming_state = STATE_STARTABLE;
     break;
   case STATE_STARTABLE:
     autopilot_motors_on = FALSE;
-    if (radio_control.status == RC_OK &&
-        !THROTTLE_STICK_DOWN() &&
+    if (!THROTTLE_STICK_DOWN() &&
         rc_attitude_sticks_centered() &&
         autopilot_mode == MODE_MANUAL &&
         ahrs_is_aligned()) {
@@ -83,7 +80,7 @@ static inline void autopilot_arming_check_motors_on( void ) {
     break;
   case STATE_MOTORS_ON:
     autopilot_motors_on = TRUE;
-    if (radio_control.status == RC_OK && THROTTLE_STICK_DOWN())
+    if (THROTTLE_STICK_DOWN())
       autopilot_arming_state = STATE_STARTABLE;
     break;
   default:
