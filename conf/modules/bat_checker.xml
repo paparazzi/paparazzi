@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="bat_checker">
+  <header>
+    <file name="bat_checker.h"/>
+  </header>
+  <init fun="init_bat_checker()"/>
+  <periodic fun="bat_checker_periodic()" freq="0.5" start="start_bat_checker()" stop="stop_bat_checker()" autorun="TRUE"/>
+  <makefile>
+    <!-- the warning signal will be enabled when supply voltage is below
+         CRITIC_BAT_LEVEL for this number of bat_checker_periodic() cycles -->
+    <define name="BAT_CHECKER_DELAY" value="6"/>
+    <define name="BAT_CHECKER_LED" value="4"/>
+    <file name="bat_checker.c"/>
+  </makefile>
+  <!--makefile target="demo">
+    <define name="SOME_FLAG"/>
+    <configure name="SOME_DEFINE" value="bla"/>
+  </makefile-->
+</module>
+
