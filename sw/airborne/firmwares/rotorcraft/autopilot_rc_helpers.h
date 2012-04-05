@@ -26,7 +26,9 @@
 
 #define AUTOPILOT_THROTTLE_TRESHOLD      (MAX_PPRZ / 20)
 #define AUTOPILOT_YAW_TRESHOLD           (MAX_PPRZ * 19 / 20)
+#ifndef AUTOPILOT_STICK_CENTER_TRESHOLD
 #define AUTOPILOT_STICK_CENTER_TRESHOLD  (MAX_PPRZ * 1 / 20)
+#endif
 
 #define THROTTLE_STICK_DOWN()                                           \
   (radio_control.values[RADIO_THROTTLE] < AUTOPILOT_THROTTLE_TRESHOLD)
