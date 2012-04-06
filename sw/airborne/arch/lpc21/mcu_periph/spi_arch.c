@@ -171,7 +171,6 @@ __attribute__ ((always_inline)) static inline void SpiRead(struct spi_periph* p,
   *c = ((sspRegs_t *)(p->reg_addr))->dr;
 }
 
-#include "led.h"
 __attribute__ ((always_inline)) static inline void SpiTransmit(struct spi_periph* p, struct spi_transaction* t) {
   while (p->tx_idx_buf < t->length && bit_is_set(((sspRegs_t *)(p->reg_addr))->sr, TNF)) {
     SpiSend(p, t->output_buf[p->tx_idx_buf]);
@@ -240,10 +239,8 @@ __attribute__ ((always_inline)) static inline void SpiEndOfTransaction(struct sp
     SpiSlaveUnselect(t->slave_idx);
   }
 
-  //SpiReceive(p, t);
-  //SpiDisableRti(p);
   SpiClearRti(p);                /* clear interrupt */
-  SSPIMSC = 0;
+  //SSPIMSC = 0;
   SpiDisable(p);
   // end transaction with success
   t->status = SPITransSuccess;
@@ -252,21 +249,17 @@ __attribute__ ((always_inline)) static inline void SpiEndOfTransaction(struct sp
   p->trans_extract_idx++;
   if (p->trans_extract_idx >= SPI_TRANSACTION_QUEUE_LEN)
     p->trans_extract_idx = 0;
-  // if no more transaction to process, stop here, else start next transaction
+  // if no more transaction to process, stop here, else start next transaction unless fifo is locked
   if (p->trans_extract_idx == p->trans_insert_idx) {
     p->status = SPIIdle;
   }
-  else {
+  else if (!p->suspend) {
     SpiStart(p,p->trans[p->trans_extract_idx]);
   }
 
 }
 
 __attribute__ ((always_inline)) static inline void SpiAutomaton(struct spi_periph* p) {
-  //LED_ON(1);
-  //LED_ON(2);
-  //LED_ON(3);
-  //LED_ON(4);
   struct spi_transaction* trans = p->trans[p->trans_extract_idx];
 
   /* Tx fifo is half empty */
@@ -276,11 +269,9 @@ __attribute__ ((always_inline)) static inline void SpiAutomaton(struct spi_perip
     if (p->tx_idx_buf == trans->length && p->rx_idx_buf == trans->length) {
       SpiDisableRti(p);
       SpiClearRti(p);                /* clear interrupt */
-      //LED_OFF(2);
       SpiEndOfTransaction(p, trans);
     }
     else {
-      //LED_OFF(3);
       SpiEnableRti(p);
     }
   }
@@ -303,8 +294,6 @@ __attribute__ ((always_inline)) static inline void SpiAutomaton(struct spi_perip
 
 #ifdef SPI_MASTER
 
-//#include "led.h"  /* FIXME remove that */
-
 #if USE_SPI0
 
 // void spi0_ISR(void) __attribute__((naked));
@@ -315,9 +304,13 @@ __attribute__ ((always_inline)) static inline void SpiAutomaton(struct spi_perip
 //   ISR_EXIT();
 // }
 
+uint8_t spi0_vic_slot;
+
 void spi0_arch_init(void) {
 
   spi0.reg_addr = SPI0;
+  spi0_vic_slot = VIC_SPI0;
+  spi0.init_struct = (void*)(&spi0_vic_slot);
 
   // TODO set spi0 and interrupt vector
 }
@@ -368,18 +361,20 @@ void spi1_ISR(void) __attribute__((naked));
 
 void spi1_ISR(void) {
   ISR_ENTRY();
-    LED_OFF(2);
 
   SpiAutomaton(&spi1);
 
-    LED_ON(2);
   VICVectAddr = 0x00000000; /* clear this interrupt from the VIC */
   ISR_EXIT();
 }
 
+uint8_t spi1_vic_slot;
+
 void spi1_arch_init(void) {
 
   spi1.reg_addr = SPI1;
+  spi1_vic_slot = VIC_SPI1;
+  spi1.init_struct = (void*)(&spi1_vic_slot);
 
   /* setup pins for SSP (SCK, MISO, MOSI) */
   PINSEL1 |= PINSEL1_SCK | PINSEL1_MISO | PINSEL1_MOSI;
@@ -401,10 +396,6 @@ void spi1_arch_init(void) {
 
 
 bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t) {
-  //LED_OFF(1);
-//  LED_OFF(2);
-  //LED_OFF(3);
-  //LED_OFF(4);
   unsigned cpsr;
 
   uint8_t idx;
@@ -417,25 +408,21 @@ bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t) {
   t->status = SPITransPending;
 
   // Disable interrupts
-  //int_disable();
+  uint8_t* vic = (uint8_t*)(p->init_struct);
   cpsr = disableIRQ();                                // disable global interrupts
-  VICIntEnClear = VIC_BIT(VIC_SPI1);
+  VICIntEnClear = VIC_BIT(*vic);
   restoreIRQ(cpsr);                                   // restore global interrupts
 
   p->trans[p->trans_insert_idx] = t;
   p->trans_insert_idx = idx;
-  /* if peripheral is idle, start the transaction */
-  //LED_ON(1);
-  if (p->status == SPIIdle) {
-    //LED_ON(3);
+  /* if peripheral is idle and not locked, start the transaction */
+  if (p->status == SPIIdle && !p->suspend) {
     SpiStart(p,p->trans[p->trans_extract_idx]);
   }
 
-  //int_enable();
   cpsr = disableIRQ();                                // disable global interrupts
-  VICIntEnable = VIC_BIT(VIC_SPI1);
+  VICIntEnable = VIC_BIT(*vic);
   restoreIRQ(cpsr);                                   // restore global interrupts
-//  LED_ON(2);
 
   return TRUE;
 }
@@ -446,17 +433,16 @@ void spi_init_slaves(void) {
   /* setup slave0_select pin
    * slave0_select is output
    */
+  SPI_SELECT_SLAVE0_PINSEL |= SPI_SELECT_SLAVE0_PINSEL_VAL << SPI_SELECT_SLAVE0_PINSEL_BIT;
   SPI_SELECT_SLAVE0_IODIR |= 1 << SPI_SELECT_SLAVE0_PIN;
   SpiSlaveUnselect(SPI_SLAVE0);
 #endif
 
 #if USE_SPI_SLAVE1
   /* setup slave1_select pin
-   * P1.25-16 are used as GPIO
-   * FIXME SLAVEX_PINSEL should be defined in airframe header
    * slave1_select is output
    */
-  PINSEL2 &= ~(_BV(3));
+  SPI_SELECT_SLAVE1_PINSEL |= SPI_SELECT_SLAVE1_PINSEL_VAL << SPI_SELECT_SLAVE1_PINSEL_BIT;
   SPI_SELECT_SLAVE1_IODIR |= 1 << SPI_SELECT_SLAVE1_PIN;
   SpiSlaveUnselect(SPI_SLAVE1);
 #endif
@@ -472,6 +458,35 @@ void spi_slave_select(uint8_t slave) {
 
 void spi_slave_unselect(uint8_t slave) {
   SpiSlaveUnselect(slave);
+}
+
+bool_t spi_lock(struct spi_periph* p, uint8_t slave) {
+  uint8_t* vic = (uint8_t*)(p->init_struct);
+  VICIntEnClear = VIC_BIT(*vic);
+  if (slave < 254 && p->suspend == 0) {
+    p->suspend = slave + 1; // 0 is reserved for unlock state
+    VICIntEnable = VIC_BIT(*vic);
+    return TRUE;
+  }
+  VICIntEnable = VIC_BIT(*vic);
+  return FALSE;
+}
+
+
+bool_t spi_resume(struct spi_periph* p, uint8_t slave) {
+  uint8_t* vic = (uint8_t*)(p->init_struct);
+  VICIntEnClear = VIC_BIT(*vic);
+  if (p->suspend == slave + 1) {
+    // restart fifo
+    p->suspend = 0;
+    if (p->status == SPIIdle) {
+      SpiStart(p,p->trans[p->trans_extract_idx]);
+    }
+    VICIntEnable = VIC_BIT(*vic);
+    return TRUE;
+  }
+  VICIntEnable = VIC_BIT(*vic);
+  return FALSE;
 }
 
 #endif /** SPI_MASTER */

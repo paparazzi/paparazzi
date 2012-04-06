@@ -67,6 +67,7 @@ void spi_init(struct spi_periph* p) {
   p->trans_insert_idx = 0;
   p->trans_extract_idx = 0;
   p->status = SPIIdle;
+  p->suspend = FALSE;
 }
 
 #endif /* SPI_MASTER */

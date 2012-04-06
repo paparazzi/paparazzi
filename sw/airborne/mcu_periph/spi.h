@@ -139,7 +139,10 @@ struct spi_periph {
   volatile uint8_t tx_idx_buf;
   volatile uint8_t rx_idx_buf;
   void* reg_addr;
+  void *init_struct;
   enum SPIMode mode;
+  /* control for stop/resume of the fifo */
+  volatile uint8_t suspend;
 };
 
 #ifdef SPI_MASTER
@@ -207,12 +210,30 @@ extern bool_t spi_submit(struct spi_periph* p, struct spi_transaction* t);
 /** Select a slave.
  * @param slave slave id
  */
-void spi_slave_select(uint8_t slave);
+extern void spi_slave_select(uint8_t slave);
 
 /** Unselect a slave.
  * @param slave slave id
  */
-void spi_slave_unselect(uint8_t slave);
+extern void spi_slave_unselect(uint8_t slave);
+
+/** Lock the SPI fifo.
+ * This will stop the SPI fifo after the current transaction if any,
+ * or before the next one if none are pending.
+ * Only the slave that locks the fifo can unlock it.
+ * @param p spi peripheral to be used
+ * @param slave slave id
+ * @return true if correctly locked
+ */
+extern bool_t spi_lock(struct spi_periph* p, uint8_t slave);
+
+/** Resume the SPI fifo.
+ * Only the slave that locks the fifo can unlock it.
+ * @param p spi peripheral to be used
+ * @param slave slave id
+ * @resume true if correctly unlocked
+ */
+extern bool_t spi_resume(struct spi_periph* p, uint8_t slave);
 
 #endif /* SPI_MASTER */
 
