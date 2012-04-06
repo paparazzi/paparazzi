@@ -249,11 +249,11 @@ __attribute__ ((always_inline)) static inline void SpiEndOfTransaction(struct sp
   p->trans_extract_idx++;
   if (p->trans_extract_idx >= SPI_TRANSACTION_QUEUE_LEN)
     p->trans_extract_idx = 0;
-  // if no more transaction to process, stop here, else start next transaction unless fifo is locked
-  if (p->trans_extract_idx == p->trans_insert_idx) {
+  // if no more transaction to process or locked, stop here, else start next transaction
+  if (p->trans_extract_idx == p->trans_insert_idx || p->suspend) {
     p->status = SPIIdle;
   }
-  else if (!p->suspend) {
+  else {
     SpiStart(p,p->trans[p->trans_extract_idx]);
   }
 
@@ -471,7 +471,6 @@ bool_t spi_lock(struct spi_periph* p, uint8_t slave) {
   VICIntEnable = VIC_BIT(*vic);
   return FALSE;
 }
-
 
 bool_t spi_resume(struct spi_periph* p, uint8_t slave) {
   uint8_t* vic = (uint8_t*)(p->init_struct);
