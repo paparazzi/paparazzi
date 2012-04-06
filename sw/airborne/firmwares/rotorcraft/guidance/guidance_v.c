@@ -40,6 +40,16 @@
 
 #include "generated/airframe.h"
 
+
+/* warn if some gains are still negative */
+#if (GUIDANCE_V_HOVER_KP < 0) ||                   \
+  (GUIDANCE_V_HOVER_KD < 0)   ||                   \
+  (GUIDANCE_V_HOVER_KI < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
+
+#define GUIDANCE_V_GAIN_SCALER 48
+
 uint8_t guidance_v_mode;
 int32_t guidance_v_ff_cmd;
 int32_t guidance_v_fb_cmd;
@@ -97,9 +107,10 @@ void guidance_v_init(void) {
 
 void guidance_v_read_rc(void) {
 
-  // used in RC_DIRECT directly and as saturation in CLIMB and HOVER
-  guidance_v_rc_delta_t = (int32_t)radio_control.values[RADIO_THROTTLE] * (SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR) / MAX_PPRZ;
-  // used in RC_CLIMB
+  /* used in RC_DIRECT directly and as saturation in CLIMB and HOVER */
+  guidance_v_rc_delta_t = (int32_t)radio_control.values[RADIO_THROTTLE];
+
+  /* used in RC_CLIMB */
   guidance_v_rc_zd_sp = ((MAX_PPRZ/2) - (int32_t)radio_control.values[RADIO_THROTTLE]) * GUIDANCE_V_RC_CLIMB_COEF;
   DeadBand(guidance_v_rc_zd_sp, GUIDANCE_V_RC_CLIMB_DEAD_BAND);
 
@@ -236,9 +247,9 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
   guidance_v_zd_ref = gv_zd_ref<<(INT32_SPEED_FRAC - GV_ZD_REF_FRAC);
   guidance_v_zdd_ref = gv_zdd_ref<<(INT32_ACCEL_FRAC - GV_ZDD_REF_FRAC);
   /* compute the error to our reference */
-  int32_t err_z  =  ins_ltp_pos.z - guidance_v_z_ref;
+  int32_t err_z  = guidance_v_z_ref - ins_ltp_pos.z;
   Bound(err_z, GUIDANCE_V_MIN_ERR_Z, GUIDANCE_V_MAX_ERR_Z);
-  int32_t err_zd =  ins_ltp_speed.z - guidance_v_zd_ref;
+  int32_t err_zd = guidance_v_zd_ref - ins_ltp_speed.z;
   Bound(err_zd, GUIDANCE_V_MIN_ERR_ZD, GUIDANCE_V_MAX_ERR_ZD);
 
   if (in_flight) {
@@ -266,11 +277,16 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
   /* feed forward command */
   guidance_v_ff_cmd = (guidance_v_ff_cmd << INT32_TRIG_FRAC) / cphitheta;
 
+
   /* our error feed back command                   */
-  guidance_v_fb_cmd = ((-guidance_v_kp * err_z)  >> 12) +
-                      ((-guidance_v_kd * err_zd) >> 21) +
-                      ((-guidance_v_ki * guidance_v_z_sum_err) >> 21);
+  /* z-axis pointing down -> positive error means we need less thrust */
+  guidance_v_fb_cmd = ((-guidance_v_kp * GUIDANCE_V_GAIN_SCALER * err_z)  >> 12) +
+                      ((-guidance_v_kd * GUIDANCE_V_GAIN_SCALER * err_zd) >> 21) +
+                      ((-guidance_v_ki * GUIDANCE_V_GAIN_SCALER * guidance_v_z_sum_err) >> 21);
 
   guidance_v_delta_t = guidance_v_ff_cmd + guidance_v_fb_cmd;
+
+  /* bound the result */
+  Bound(guidance_v_delta_t, 0, MAX_PPRZ);
 
 }

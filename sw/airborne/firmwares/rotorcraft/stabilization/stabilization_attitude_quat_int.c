@@ -24,6 +24,7 @@
  */
 
 #include "firmwares/rotorcraft/stabilization.h"
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 
 #if USE_SETPOINTS_WITH_TRANSITIONS
 #include "firmwares/rotorcraft/stabilization/quat_setpoint_int.h"
@@ -42,6 +43,19 @@ struct Int32AttitudeGains stabilization_gains = {
   {STABILIZATION_ATTITUDE_PHI_IGAIN, STABILIZATION_ATTITUDE_THETA_IGAIN, STABILIZATION_ATTITUDE_PSI_IGAIN }
 };
 
+/* warn if some gains are still negative */
+#if (STABILIZATION_ATTITUDE_PHI_PGAIN < 0) ||   \
+  (STABILIZATION_ATTITUDE_THETA_PGAIN < 0) ||   \
+  (STABILIZATION_ATTITUDE_PSI_PGAIN < 0)   ||   \
+  (STABILIZATION_ATTITUDE_PHI_DGAIN < 0)   ||   \
+  (STABILIZATION_ATTITUDE_THETA_DGAIN < 0) ||   \
+  (STABILIZATION_ATTITUDE_PSI_DGAIN < 0)   ||   \
+  (STABILIZATION_ATTITUDE_PHI_IGAIN < 0)   ||   \
+  (STABILIZATION_ATTITUDE_THETA_IGAIN < 0) ||   \
+  (STABILIZATION_ATTITUDE_PSI_IGAIN  < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
+
 struct Int32Quat stabilization_att_sum_err_quat;
 struct Int32Eulers stabilization_att_sum_err;
 
@@ -49,10 +63,10 @@ int32_t stabilization_att_fb_cmd[COMMANDS_NB];
 int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 
 #define IERROR_SCALE 1024
-#define GAIN_PRESCALER_FF 1
-#define GAIN_PRESCALER_P 1
-#define GAIN_PRESCALER_D 1
-#define GAIN_PRESCALER_I 1
+#define GAIN_PRESCALER_FF 48
+#define GAIN_PRESCALER_P 48
+#define GAIN_PRESCALER_D 48
+#define GAIN_PRESCALER_I 48
 
 void stabilization_attitude_init(void) {
 
@@ -82,9 +96,9 @@ static void attitude_run_ff(int32_t ff_commands[], struct Int32AttitudeGains *ga
 {
   /* Compute feedforward based on reference acceleration */
 
-  ff_commands[COMMAND_ROLL]          = GAIN_PRESCALER_FF * gains->dd.x * RATE_FLOAT_OF_BFP(ref_accel->p) / (1 << 7);
-  ff_commands[COMMAND_PITCH]         = GAIN_PRESCALER_FF * gains->dd.y * RATE_FLOAT_OF_BFP(ref_accel->q) / (1 << 7);
-  ff_commands[COMMAND_YAW]           = GAIN_PRESCALER_FF * gains->dd.z * RATE_FLOAT_OF_BFP(ref_accel->r) / (1 << 7);
+  ff_commands[COMMAND_ROLL]  = GAIN_PRESCALER_FF * gains->dd.x * RATE_FLOAT_OF_BFP(ref_accel->p) / (1 << 7);
+  ff_commands[COMMAND_PITCH] = GAIN_PRESCALER_FF * gains->dd.y * RATE_FLOAT_OF_BFP(ref_accel->q) / (1 << 7);
+  ff_commands[COMMAND_YAW]   = GAIN_PRESCALER_FF * gains->dd.z * RATE_FLOAT_OF_BFP(ref_accel->r) / (1 << 7);
 }
 
 static void attitude_run_fb(int32_t fb_commands[], struct Int32AttitudeGains *gains, struct Int32Quat *att_err,
@@ -92,17 +106,17 @@ static void attitude_run_fb(int32_t fb_commands[], struct Int32AttitudeGains *ga
 {
   /*  PID feedback */
   fb_commands[COMMAND_ROLL] =
-    GAIN_PRESCALER_P * -gains->p.x  * QUAT1_FLOAT_OF_BFP(att_err->qx) / 4 +
+    GAIN_PRESCALER_P * gains->p.x  * QUAT1_FLOAT_OF_BFP(att_err->qx) / 4 +
     GAIN_PRESCALER_D * gains->d.x  * RATE_FLOAT_OF_BFP(rate_err->p) / 16 +
     GAIN_PRESCALER_I * gains->i.x  * QUAT1_FLOAT_OF_BFP(sum_err->qx) / 2;
 
   fb_commands[COMMAND_PITCH] =
-    GAIN_PRESCALER_P * -gains->p.y  * QUAT1_FLOAT_OF_BFP(att_err->qy) / 4 +
+    GAIN_PRESCALER_P * gains->p.y  * QUAT1_FLOAT_OF_BFP(att_err->qy) / 4 +
     GAIN_PRESCALER_D * gains->d.y  * RATE_FLOAT_OF_BFP(rate_err->q)  / 16 +
     GAIN_PRESCALER_I * gains->i.y  * QUAT1_FLOAT_OF_BFP(sum_err->qy) / 2;
 
   fb_commands[COMMAND_YAW] =
-    GAIN_PRESCALER_P * -gains->p.z  * QUAT1_FLOAT_OF_BFP(att_err->qz) / 4 +
+    GAIN_PRESCALER_P * gains->p.z  * QUAT1_FLOAT_OF_BFP(att_err->qz) / 4 +
     GAIN_PRESCALER_D * gains->d.z  * RATE_FLOAT_OF_BFP(rate_err->r)  / 16 +
     GAIN_PRESCALER_I * gains->i.z  * QUAT1_FLOAT_OF_BFP(sum_err->qz) / 2;
 
@@ -128,7 +142,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
 
   /*  rate error                */
   struct Int32Rates rate_err;
-  RATES_DIFF(rate_err, ahrs.body_rate, stab_att_ref_rate);
+  RATES_DIFF(rate_err, stab_att_ref_rate, ahrs.body_rate);
 
   /* integrated error */
   if (enable_integrator) {
@@ -138,7 +152,7 @@ void stabilization_attitude_run(bool_t enable_integrator) {
     scaled_att_err.qx = att_err.qx / IERROR_SCALE;
     scaled_att_err.qy = att_err.qy / IERROR_SCALE;
     scaled_att_err.qz = att_err.qz / IERROR_SCALE;
-    INT32_QUAT_COMP_INV(new_sum_err, stabilization_att_sum_err_quat, scaled_att_err);
+    INT32_QUAT_COMP(new_sum_err, stabilization_att_sum_err_quat, scaled_att_err);
     INT32_QUAT_NORMALIZE(new_sum_err);
     QUAT_COPY(stabilization_att_sum_err_quat, new_sum_err);
     INT32_EULERS_OF_QUAT(stabilization_att_sum_err, stabilization_att_sum_err_quat);
@@ -160,9 +174,9 @@ void stabilization_attitude_run(bool_t enable_integrator) {
   stabilization_cmd[COMMAND_YAW] = stabilization_att_fb_cmd[COMMAND_YAW] + stabilization_att_ff_cmd[COMMAND_YAW];
 
   /* bound the result */
-  Bound(stabilization_cmd[COMMAND_ROLL], -200, 200);
-  Bound(stabilization_cmd[COMMAND_PITCH], -200, 200);
-  Bound(stabilization_cmd[COMMAND_YAW], -200, 200);
+  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
 }
 
 void stabilization_attitude_read_rc(bool_t in_flight) {
@@ -170,7 +184,10 @@ void stabilization_attitude_read_rc(bool_t in_flight) {
 #if USE_SETPOINTS_WITH_TRANSITIONS
   stabilization_attitude_read_rc_absolute(in_flight);
 #else
-  stabilization_attitude_read_rc_setpoint(in_flight);
+  stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight);
+  /* update quaternion setpoint from euler setpoint */
+  INT32_QUAT_OF_EULERS(stab_att_sp_quat, stab_att_sp_euler);
+  INT32_QUAT_WRAP_SHORTEST(stab_att_sp_quat);
 #endif
 
 }

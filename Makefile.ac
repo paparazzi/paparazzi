@@ -38,7 +38,7 @@ PERIODIC_FREQ = 60
 endif
 
 AIRFRAME_H=$(AC_GENERATED)/airframe.h
-PERIODIC_H=$(AC_GENERATED)/periodic.h
+PERIODIC_H=$(AC_GENERATED)/periodic_telemetry.h
 RADIO_H=$(AC_GENERATED)/radio.h
 FLIGHT_PLAN_H=$(AC_GENERATED)/flight_plan.h
 FLIGHT_PLAN_XML=$(ACINCLUDE)/flight_plan.xml
@@ -46,6 +46,7 @@ SETTINGS_H=$(AC_GENERATED)/settings.h
 SETTINGS_XMLS=$(patsubst %,$(CONF)/%,$(SETTINGS))
 SETTINGS_XML=$(ACINCLUDE)/settings.xml
 SETTINGS_MODULES=$(ACINCLUDE)/settings_modules.xml
+SETTINGS_TELEMETRY=$(ACINCLUDE)/settings_telemetry.xml
 MAKEFILE_AC=$(ACINCLUDE)/Makefile.ac
 SETTINGS_FILE=$(SETTINGS:settings%=%)
 #TUNING_FILE=$(subst   ,_,$(SETTINGS:settings/%.xml=%)).h
@@ -99,7 +100,7 @@ $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(TOOLS)/gen_radio.out
 $(PERIODIC_H) : $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY) $(MAKEFILE_AC)
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_periodic.out $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF)/$(TELEMETRY) $(PERIODIC_FREQ) > $@
+	$(Q)$(TOOLS)/gen_periodic.out $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF)/$(TELEMETRY) $(PERIODIC_FREQ) $(SETTINGS_TELEMETRY) > $@
 	$(Q)chmod a+r $@
 	$(Q)cp $< $(AIRCRAFT_CONF_DIR)
 	$(Q)cp $(CONF)/$(TELEMETRY) $(AIRCRAFT_CONF_DIR)/telemetry
@@ -117,10 +118,10 @@ $(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(TOOLS)/gen_flight_plan
 	$(Q)$(TOOLS)/gen_flight_plan.out -dump $< > $@
 	$(Q)chmod a+r $@
 
-$(SETTINGS_H) : $(SETTINGS_XMLS) $(CONF_XML) $(SETTINGS_MODULES) $(TOOLS)/gen_settings.out
+$(SETTINGS_H) : $(SETTINGS_XMLS) $(CONF_XML) $(SETTINGS_MODULES) $(SETTINGS_TELEMETRY) $(TOOLS)/gen_settings.out
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo BUILD $@
-	$(Q)$(TOOLS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_XMLS) $(SETTINGS_MODULES) > $@
+	$(Q)$(TOOLS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_TELEMETRY) $(SETTINGS_XMLS) $(SETTINGS_MODULES) > $@
 	$(Q)chmod a+r $@
 	$(Q)cp $(SETTINGS_XMLS) $(AIRCRAFT_CONF_DIR)/settings
 
@@ -136,6 +137,7 @@ $(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(TOOLS)/gen_modules.out $(CONF)/modules/
 	$(Q)chmod a+r $@
 
 $(SETTINGS_MODULES) : $(MODULES_H)
+$(SETTINGS_TELEMETRY) : $(PERIODIC_H)
 
 %.ac_h : $(TOOLS)/gen_aircraft.out
 	$(Q)if (expr "$(AIRCRAFT)"); then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi

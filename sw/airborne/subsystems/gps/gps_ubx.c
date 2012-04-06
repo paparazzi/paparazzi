@@ -164,6 +164,7 @@ void gps_ubx_read_message(void) {
       // solution: First to radians, and then scale to 1e-7 radians
       // First x 10 for loosing less resolution, then to radians, then multiply x 10 again
       gps.course = (RadOfDeg(UBX_NAV_VELNED_Heading(gps_ubx.msg_buf)*10)) * 10;
+      gps.cacc = (RadOfDeg(UBX_NAV_VELNED_CAcc(gps_ubx.msg_buf)*10)) * 10;
       gps.tow = UBX_NAV_VELNED_ITOW(gps_ubx.msg_buf);
       gps_ubx.have_velned = 1;
     }

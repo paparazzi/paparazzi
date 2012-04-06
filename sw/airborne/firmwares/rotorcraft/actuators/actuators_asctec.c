@@ -136,7 +136,13 @@ void actuators_set(bool_t motors_on) {
 }
 #else /* ! ACTUATORS_ASCTEC_V2_PROTOCOL */
 void actuators_set(bool_t motors_on) {
-  if (!cpu_time_sec) return; // FIXME
+#if defined ACTUATORS_START_DELAY && ! defined SITL
+  if (!actuators_delay_done) {
+    if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) return;
+    else actuators_delay_done = TRUE;
+  }
+#endif
+
   supervision_run(motors_on, FALSE, commands);
 #ifdef KILL_MOTORS
   actuators_asctec.i2c_trans.buf[0] = 0;

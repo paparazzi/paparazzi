@@ -29,7 +29,7 @@
 #include "mcu_periph/uart.h"
 
 #include "subsystems/datalink/downlink.h"
-#include "generated/periodic.h"
+#include "generated/periodic_telemetry.h"
 
 #ifdef RADIO_CONTROL
 #include "subsystems/radio_control.h"
@@ -50,8 +50,6 @@
 #include "subsystems/ahrs.h"
 // I2C Error counters
 #include "mcu_periph/i2c.h"
-
-extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #define PERIODIC_SEND_ALIVE(_trans, _dev) DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM)
 
@@ -318,12 +316,12 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
   }
 
 
-#define PERIODIC_SEND_BOOZ2_CMD(_trans, _dev) {				\
-    DOWNLINK_SEND_BOOZ2_CMD(_trans, _dev,					\
-                &stabilization_cmd[COMMAND_ROLL],	\
-                &stabilization_cmd[COMMAND_PITCH],	\
-                &stabilization_cmd[COMMAND_YAW],	\
-                &stabilization_cmd[COMMAND_THRUST]);	\
+#define PERIODIC_SEND_ROTORCRAFT_CMD(_trans, _dev) {                    \
+    DOWNLINK_SEND_ROTORCRAFT_CMD(_trans, _dev,                          \
+                                 &stabilization_cmd[COMMAND_ROLL],      \
+                                 &stabilization_cmd[COMMAND_PITCH],     \
+                                 &stabilization_cmd[COMMAND_YAW],       \
+                                 &stabilization_cmd[COMMAND_THRUST]);   \
   }
 
 
@@ -721,22 +719,21 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #define PERIODIC_SEND_BOOZ2_CAM(_trans, _dev) {}
 #endif
 
-#define PERIODIC_SEND_BOOZ2_TUNE_HOVER(_trans, _dev) {                     \
-    DOWNLINK_SEND_BOOZ2_TUNE_HOVER(_trans, _dev,                       \
-                   &radio_control.values[RADIO_ROLL],  \
-                   &radio_control.values[RADIO_PITCH], \
-                   &radio_control.values[RADIO_YAW],   \
-                   &stabilization_cmd[COMMAND_ROLL],      \
-                   &stabilization_cmd[COMMAND_PITCH],     \
-                   &stabilization_cmd[COMMAND_YAW],       \
-                   &stabilization_cmd[COMMAND_THRUST],    \
-                   &ahrs.ltp_to_imu_euler.phi,         \
-                   &ahrs.ltp_to_imu_euler.theta,           \
-                   &ahrs.ltp_to_imu_euler.psi,         \
-                   &ahrs.ltp_to_body_euler.phi,        \
-                   &ahrs.ltp_to_body_euler.theta,          \
-                   &ahrs.ltp_to_body_euler.psi         \
-                   );                          \
+#define PERIODIC_SEND_ROTORCRAFT_TUNE_HOVER(_trans, _dev) {             \
+    DOWNLINK_SEND_ROTORCRAFT_TUNE_HOVER(_trans, _dev,                   \
+                                        &radio_control.values[RADIO_ROLL], \
+                                        &radio_control.values[RADIO_PITCH], \
+                                        &radio_control.values[RADIO_YAW], \
+                                        &stabilization_cmd[COMMAND_ROLL], \
+                                        &stabilization_cmd[COMMAND_PITCH], \
+                                        &stabilization_cmd[COMMAND_YAW], \
+                                        &stabilization_cmd[COMMAND_THRUST], \
+                                        &ahrs.ltp_to_imu_euler.phi,     \
+                                        &ahrs.ltp_to_imu_euler.theta,   \
+                                        &ahrs.ltp_to_imu_euler.psi,     \
+                                        &ahrs.ltp_to_body_euler.phi,    \
+                                        &ahrs.ltp_to_body_euler.theta,  \
+                                        &ahrs.ltp_to_body_euler.psi);   \
   }
 
 #ifdef USE_I2C1

@@ -1,6 +1,4 @@
 /*
- * $Id: $
- *
  * Copyright (C) 2010 ENAC
  *
  * This file is part of paparazzi.
@@ -19,12 +17,11 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 /**
- *  \file v_ctl_ctl_n
- *  \brief Vertical control for fixed wing vehicles.
+ *  @file firmwares/fixedwing/guidance/guidance_v_n.c
+ *  "New" vertical control for fixed wing vehicles.
  *
  */
 
@@ -48,6 +45,10 @@ float v_ctl_altitude_error;
 float v_ctl_climb_setpoint;
 uint8_t v_ctl_climb_mode;
 uint8_t v_ctl_auto_throttle_submode;
+
+#ifndef V_CTL_AUTO_THROTTLE_DGAIN
+#define V_CTL_AUTO_THROTTLE_DGAIN 0.
+#endif
 
 /* "auto throttle" inner loop parameters */
 float v_ctl_auto_throttle_cruise_throttle;
@@ -110,6 +111,7 @@ float v_ctl_auto_groundspeed_sum_err;
 #define V_CTL_AUTO_GROUNDSPEED_MAX_SUM_ERR 100
 #endif
 
+#pragma message "CAUTION! ALL control gains have to be positive now!"
 
 void v_ctl_init( void ) {
   /* mode */
@@ -135,7 +137,7 @@ void v_ctl_init( void ) {
   v_ctl_auto_throttle_climb_throttle_increment = V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT;
   v_ctl_auto_throttle_pgain = V_CTL_AUTO_THROTTLE_PGAIN;
   v_ctl_auto_throttle_igain = V_CTL_AUTO_THROTTLE_IGAIN;
-  v_ctl_auto_throttle_dgain = 0.;
+  v_ctl_auto_throttle_dgain = V_CTL_AUTO_THROTTLE_DGAIN;
   v_ctl_auto_throttle_sum_err = 0.;
   v_ctl_auto_throttle_pitch_of_vz_pgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN;
   v_ctl_auto_throttle_pitch_of_vz_dgain = V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_DGAIN;
@@ -183,7 +185,7 @@ void v_ctl_altitude_loop( void ) {
   //static float last_lead_input = 0.;
 
   // Altitude error
-  v_ctl_altitude_error = estimator_z - v_ctl_altitude_setpoint;
+  v_ctl_altitude_error = v_ctl_altitude_setpoint - estimator_z;
   v_ctl_climb_setpoint = v_ctl_altitude_pgain * v_ctl_altitude_error + v_ctl_altitude_pre_climb;
 
   // Lead controller
@@ -207,13 +209,13 @@ static inline void v_ctl_set_pitch ( void ) {
     v_ctl_auto_pitch_sum_err = 0;
 
   // Compute errors
-  float err = estimator_z_dot - v_ctl_climb_setpoint;
+  float err = v_ctl_climb_setpoint - estimator_z_dot;
   float d_err = err - last_err;
   last_err = err;
 
-  if (v_ctl_auto_pitch_igain < 0.) {
+  if (v_ctl_auto_pitch_igain > 0.) {
     v_ctl_auto_pitch_sum_err += err*(1./60.);
-    BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR / (-v_ctl_auto_pitch_igain));
+    BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR / v_ctl_auto_pitch_igain);
   }
 
   // PI loop + feedforward ctl
@@ -232,13 +234,13 @@ static inline void v_ctl_set_throttle( void ) {
     v_ctl_auto_throttle_sum_err = 0;
 
   // Compute errors
-  float err = estimator_z_dot - v_ctl_climb_setpoint;
+  float err =  v_ctl_climb_setpoint - estimator_z_dot;
   float d_err = err - last_err;
   last_err = err;
 
-  if (v_ctl_auto_throttle_igain < 0.) {
+  if (v_ctl_auto_throttle_igain > 0.) {
     v_ctl_auto_throttle_sum_err += err*(1./60.);
-    BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR / (-v_ctl_auto_throttle_igain));
+    BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR / v_ctl_auto_throttle_igain);
   }
 
   // PID loop + feedforward ctl
@@ -262,26 +264,26 @@ static inline void v_ctl_set_airspeed( void ) {
   Bound(v_ctl_auto_airspeed_setpoint, V_CTL_AIRSPEED_MIN, V_CTL_AIRSPEED_MAX);
 
   // Compute errors
-  float err_vz = estimator_z_dot - v_ctl_climb_setpoint;
+  float err_vz = v_ctl_climb_setpoint - estimator_z_dot;
   float d_err_vz = (err_vz - last_err_vz)*AIRSPEED_LOOP_PERIOD;
   last_err_vz = err_vz;
-  if (v_ctl_auto_throttle_igain < 0.) {
+  if (v_ctl_auto_throttle_igain > 0.) {
     v_ctl_auto_throttle_sum_err += err_vz*AIRSPEED_LOOP_PERIOD;
-    BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR / (-v_ctl_auto_throttle_igain));
+    BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR / v_ctl_auto_throttle_igain);
   }
-  if (v_ctl_auto_pitch_igain < 0.) {
+  if (v_ctl_auto_pitch_igain > 0.) {
     v_ctl_auto_pitch_sum_err += err_vz*AIRSPEED_LOOP_PERIOD;
-    BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR / (-v_ctl_auto_pitch_igain));
+    BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR / v_ctl_auto_pitch_igain);
   }
 
   float err_airspeed = v_ctl_auto_airspeed_setpoint - estimator_airspeed;
   float d_err_airspeed = (err_airspeed - last_err_as)*AIRSPEED_LOOP_PERIOD;
   last_err_as = err_airspeed;
-  if (v_ctl_auto_airspeed_throttle_igain > 0.) { // ! sign
+  if (v_ctl_auto_airspeed_throttle_igain > 0.) {
     v_ctl_auto_airspeed_throttle_sum_err += err_airspeed*AIRSPEED_LOOP_PERIOD;
     BoundAbs(v_ctl_auto_airspeed_throttle_sum_err, V_CTL_AUTO_AIRSPEED_THROTTLE_MAX_SUM_ERR / v_ctl_auto_airspeed_throttle_igain);
   }
-  if (v_ctl_auto_airspeed_pitch_igain > 0.) { // ! sign
+  if (v_ctl_auto_airspeed_pitch_igain > 0.) {
     v_ctl_auto_airspeed_pitch_sum_err += err_airspeed*AIRSPEED_LOOP_PERIOD;
     BoundAbs(v_ctl_auto_airspeed_pitch_sum_err, V_CTL_AUTO_AIRSPEED_PITCH_MAX_SUM_ERR / v_ctl_auto_airspeed_pitch_igain);
   }

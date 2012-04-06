@@ -36,8 +36,8 @@ let rec flatten = fun xml r ->
     match Xml.children xml with
       [] -> r
     | x::xs ->
-	List.iter (fun y -> assert(ExtXml.tag_is y (Xml.tag x))) xs;
-	List.fold_right flatten (x::xs) r
+        List.iter (fun y -> assert(ExtXml.tag_is y (Xml.tag x))) xs;
+        List.fold_right flatten (x::xs) r
 
 let join_xml_files = fun xml_files ->
   let dl_settings = ref [] in
@@ -45,7 +45,7 @@ let join_xml_files = fun xml_files ->
     let xml = Xml.parse_file xml_file in
     let these_dl_settings =
       try Xml.children (ExtXml.child xml "dl_settings") with
-	Not_found -> [] in
+        Not_found -> [] in
     dl_settings := these_dl_settings @ !dl_settings)
     xml_files;
   Xml.Element("dl_settings",[],!dl_settings)

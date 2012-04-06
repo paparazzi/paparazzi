@@ -122,10 +122,10 @@ static void parse_data(char* buf, int len) {
 static void handle_frame(void) {
 
 
-  nps_radio_control.roll = (float)CHANNEL_OF_FRAME(0)/340.;
+  nps_radio_control.roll = (float)CHANNEL_OF_FRAME(0)/-340.;
   nps_radio_control.throttle = (float)(CHANNEL_OF_FRAME(1)+340)/680.;
   nps_radio_control.pitch = (float)CHANNEL_OF_FRAME(2)/-340.;
-  nps_radio_control.yaw = (float)CHANNEL_OF_FRAME(3)/340.;
+  nps_radio_control.yaw = (float)CHANNEL_OF_FRAME(3)/-340.;
   nps_radio_control.mode = (float)CHANNEL_OF_FRAME(5)/340.;
 
 
