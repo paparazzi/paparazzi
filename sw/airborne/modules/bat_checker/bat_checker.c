@@ -31,6 +31,19 @@
 #error You must define CRITIC_BAT_LEVEL to use this module!
 #endif
 
+#ifndef LOW_BAT_LEVEL
+#error You must define LOW_BAT_LEVEL to use this module!
+#endif
+
+#ifndef BAT_CHECKER_LED
+#error You must define BAT_CHECKER_LED in your airframe file.
+#endif
+
+#ifndef BAT_CHECKER_DELAY
+#warning BAT_CHECKER_DELAY is undefined. Falling back to 5 seconds.
+#define BAT_CHECKER_DELAY 5
+#endif
+
 // at this level, the buzzer will be activated periodically
 #define WARN_BAT_LEVEL1 (LOW_BAT_LEVEL*10)
 
