@@ -24,17 +24,23 @@
 
 #include "autopilot_rc_helpers.h"
 
+#define AUTOPILOT_ARMING_DELAY 10
+
 enum arming_throttle_state {
   STATE_UNINIT,
   STATE_WAITING,
-  STATE_STARTABLE,
-  STATE_MOTORS_ON
+  STATE_MOTORS_OFF_READY,
+  STATE_ARMING,
+  STATE_MOTORS_ON,
+  STATE_UNARMING
 };
 
 enum arming_throttle_state autopilot_arming_state;
+uint8_t autopilot_arming_delay_counter;
 
 static inline void autopilot_arming_init(void) {
   autopilot_arming_state = STATE_UNINIT;
+  autopilot_arming_delay_counter = 0;
 }
 
 static inline void autopilot_arming_set(bool_t motors_on) {
@@ -43,7 +49,7 @@ static inline void autopilot_arming_set(bool_t motors_on) {
   }
   else {
     if (autopilot_arming_state == STATE_MOTORS_ON)
-      autopilot_arming_state = STATE_STARTABLE;
+      autopilot_arming_state = STATE_MOTORS_OFF_READY;
   }
 }
 
@@ -59,29 +65,53 @@ static inline void autopilot_arming_check_motors_on( void ) {
   switch(autopilot_arming_state) {
   case STATE_UNINIT:
     autopilot_motors_on = FALSE;
+    autopilot_arming_delay_counter = 0;
     if (THROTTLE_STICK_DOWN())
-      autopilot_arming_state = STATE_STARTABLE;
+      autopilot_arming_state = STATE_MOTORS_OFF_READY;
     else
       autopilot_arming_state = STATE_WAITING;
     break;
   case STATE_WAITING:
     autopilot_motors_on = FALSE;
+    autopilot_arming_delay_counter = 0;
     if (THROTTLE_STICK_DOWN())
-      autopilot_arming_state = STATE_STARTABLE;
+      autopilot_arming_state = STATE_MOTORS_OFF_READY;
     break;
-  case STATE_STARTABLE:
+  case STATE_MOTORS_OFF_READY:
     autopilot_motors_on = FALSE;
+    autopilot_arming_delay_counter = 0;
     if (!THROTTLE_STICK_DOWN() &&
         rc_attitude_sticks_centered() &&
         autopilot_mode == MODE_MANUAL &&
         ahrs_is_aligned()) {
-      autopilot_arming_state = STATE_MOTORS_ON;
+      autopilot_arming_state = STATE_ARMING;
     }
+    break;
+  case STATE_ARMING:
+    autopilot_motors_on = FALSE;
+    autopilot_arming_delay_counter++;
+    if (THROTTLE_STICK_DOWN() ||
+        !rc_attitude_sticks_centered() ||
+        autopilot_mode != MODE_MANUAL ||
+        !ahrs_is_aligned()) {
+      autopilot_arming_state = STATE_MOTORS_OFF_READY;
+    }
+    else if (autopilot_arming_delay_counter >= AUTOPILOT_ARMING_DELAY)
+      autopilot_arming_state = STATE_MOTORS_ON;
     break;
   case STATE_MOTORS_ON:
     autopilot_motors_on = TRUE;
+    autopilot_arming_delay_counter = AUTOPILOT_ARMING_DELAY;
     if (THROTTLE_STICK_DOWN())
-      autopilot_arming_state = STATE_STARTABLE;
+      autopilot_arming_state = STATE_UNARMING;
+    break;
+  case STATE_UNARMING:
+    autopilot_motors_on = TRUE;
+    autopilot_arming_delay_counter--;
+    if (!THROTTLE_STICK_DOWN())
+      autopilot_arming_state = STATE_MOTORS_ON;
+    else if (autopilot_arming_delay_counter == 0)
+      autopilot_arming_state = STATE_MOTORS_OFF_READY;
     break;
   default:
     break;
