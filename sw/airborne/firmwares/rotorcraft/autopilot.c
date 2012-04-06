@@ -223,7 +223,10 @@ static inline void autopilot_check_in_flight( bool_t motors_on ) {
 
 
 void autopilot_set_motors_on(bool_t motors_on) {
-  autopilot_motors_on = motors_on;
+  if (ahrs_is_aligned && motors_on)
+    autopilot_motors_on = TRUE;
+  else
+    autopilot_motors_on = FALSE;
   kill_throttle = ! autopilot_motors_on;
   autopilot_arming_set(autopilot_motors_on);
 }
