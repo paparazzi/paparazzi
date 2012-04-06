@@ -46,7 +46,7 @@ bool_t   autopilot_detect_ground_once;
 
 #define AUTOPILOT_IN_FLIGHT_TIME    40
 
-#ifdef AUTOPILOT_KILL_WITHOUT_AHRS
+#ifndef AUTOPILOT_DISABLE_AHRS_KILL
 #include "subsystems/ahrs.h"
 static inline int ahrs_is_aligned(void) {
   return (ahrs.status == AHRS_RUNNING);
