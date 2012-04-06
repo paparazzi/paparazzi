@@ -5,7 +5,7 @@
 
     <dl_settings NAME="Misc">
        <dl_setting var="autopilot_mode_auto2" min="0" step="1" max="12" module="autopilot" shortname="auto2" values="Fail|Kill|Rate|Att|Rate_rcC|Att_rcC|Att_C|Rate_Z|Att_Z|Hover|Hover_C|Hover_Z|Nav"/>
-      <dl_setting var="autopilot_motors_on" min="0" step="1" max="1" module="autopilot" values="Kill|Resurrect" handler="KillThrottle"/>
+      <dl_setting var="kill_throttle" min="0" step="1" max="1" module="autopilot" values="Resurrect|Kill" handler="KillThrottle"/>
       <dl_setting var="autopilot_power_switch" min="0" step="1" max="1" module="autopilot" values="OFF|ON" handler="SetPowerSwitch">
         <strip_button name="POWER ON" icon="on.png" value="1"/>
         <strip_button name="POWER OFF" icon="off.png" value="0"/>

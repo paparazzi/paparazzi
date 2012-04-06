@@ -36,6 +36,7 @@ uint32_t autopilot_in_flight_counter;
 uint16_t autopilot_flight_time;
 
 bool_t   autopilot_motors_on;
+bool_t   kill_throttle;
 
 bool_t   autopilot_rc;
 bool_t   autopilot_power_switch;
@@ -67,6 +68,7 @@ static inline int ahrs_is_aligned(void) {
 void autopilot_init(void) {
   autopilot_mode = AP_MODE_KILL;
   autopilot_motors_on = FALSE;
+  kill_throttle = ! autopilot_motors_on;
   autopilot_in_flight = FALSE;
   autopilot_in_flight_counter = 0;
   autopilot_mode_auto2 = MODE_AUTO2;
@@ -222,6 +224,7 @@ static inline void autopilot_check_in_flight( bool_t motors_on ) {
 
 void autopilot_set_motors_on(bool_t motors_on) {
   autopilot_motors_on = motors_on;
+  kill_throttle = ! autopilot_motors_on;
   autopilot_arming_set(autopilot_motors_on);
 }
 
@@ -240,6 +243,8 @@ void autopilot_on_rc_frame(void) {
 
   // an arming sequence is used to start/stop motors
   autopilot_arming_check_motors_on();
+
+  kill_throttle = ! autopilot_motors_on;
 
   autopilot_check_in_flight(autopilot_motors_on);
 

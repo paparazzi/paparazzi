@@ -90,6 +90,7 @@ static inline void autopilot_arming_check_motors_on( void ) {
   default:
     break;
   }
+  kill_throttle = ! autopilot_motors_on;
 }
 
 #endif /* AUTOPILOT_ARMING_SWITCH_H */
