@@ -87,9 +87,7 @@ __attribute__ ((always_inline)) static inline void I2cClearIT(void* reg) {
   ((i2cRegs_t *)reg)->conclr = _BV(SIC);
 }
 
-#include "led.h"
 __attribute__ ((always_inline)) static inline void I2cAutomaton(int32_t state, struct i2c_periph* p) {
-  LED_OFF(3);
   struct i2c_transaction* trans = p->trans[p->trans_extract_idx];
   switch (state) {
     case I2C_START:
@@ -155,7 +153,6 @@ __attribute__ ((always_inline)) static inline void I2cAutomaton(int32_t state, s
       /* FIXME log error */
       break;
   }
-  LED_ON(3);
 }
 
 
@@ -211,12 +208,15 @@ void i2c0_ISR(void) {
   ISR_EXIT();                           // recover registers and return
 }
 
+uint8_t i2c0_vic_slot;
 
 /* SDA0 on P0.3 */
 /* SCL0 on P0.2 */
 void i2c0_hw_init ( void ) {
 
   i2c0.reg_addr = I2C0;
+  i2c0_vic_slot = VIC_I2C0;
+  i2c0.init_struct = (void*)(&i2c0_vic_slot);
 
   /* set P0.2 and P0.3 to I2C0 */
   PINSEL0 |= 1 << 4 | 1 << 6;
@@ -291,11 +291,15 @@ void i2c1_ISR(void) {
   ISR_EXIT();                           // recover registers and return
 }
 
+uint8_t i2c1_vic_slot;
+
 /* SDA1 on P0.14 */
 /* SCL1 on P0.11 */
 void i2c1_hw_init ( void ) {
 
   i2c1.reg_addr = I2C1;
+  i2c1_vic_slot = VIC_I2C1;
+  i2c1.init_struct = (void*)(&i2c1_vic_slot);
 
   /* set P0.11 and P0.14 to I2C1 */
   PINSEL0 |= 3 << 22 | 3 << 28;
@@ -324,7 +328,6 @@ bool_t i2c_idle(struct i2c_periph* p) {
 bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
   unsigned cpsr;
 
-//  LED_OFF(3);
   uint8_t idx;
   idx = p->trans_insert_idx + 1;
   if (idx >= I2C_TRANSACTION_QUEUE_LEN) idx = 0;
@@ -334,10 +337,9 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
   }
   t->status = I2CTransPending;
 
-  //int_disable();
+  uint8_t* vic = (uint8_t*)(p->init_struct);
   cpsr = disableIRQ();                                // disable global interrupts
-  VICIntEnClear = VIC_BIT(VIC_I2C0);
-  VICIntEnClear = VIC_BIT(VIC_I2C1);
+  VICIntEnClear = VIC_BIT(*vic);
   restoreIRQ(cpsr);                                   // restore global interrupts
 
   p->trans[p->trans_insert_idx] = t;
@@ -350,11 +352,9 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
 
   //int_enable();
   cpsr = disableIRQ();                                // disable global interrupts
-  VICIntEnable = VIC_BIT(VIC_I2C0);
-  VICIntEnable = VIC_BIT(VIC_I2C1);
+  VICIntEnable = VIC_BIT(*vic);
   restoreIRQ(cpsr);                                   // restore global interrupts
 
-//  LED_ON(3);
   return TRUE;
 }
 
