@@ -9,7 +9,7 @@
 
       <message name="ATTITUDE"       period="6."	phase="0"/>
       <message name="DL_VALUE"       period="3."	phase="0"/>
-      <message name="WP_MOVED_UTM"   period="6."	phase="3"/>
+      <message name="WP_MOVED"       period="6."	phase="3"/>
 
       <message name="DESIRED"        period="6."	phase="0"/>
       <message name="SEGMENT"        period="6."	phase="0"/>

@@ -32,7 +32,7 @@ let () =
   let get_ivy_message = fun _ args ->
     try
       let (msg_id, vs) = Tm_Pprz.values_of_string args.(0) in
-      let payload = Tm_Pprz.payload_of_values (int_of_string !id) (Pprz.class_id_of_msg_args args.(0)) msg_id vs in 
+      let payload = Tm_Pprz.payload_of_values (int_of_string !id) ~class_id:(Pprz.class_id_of_msg_args args.(0)) msg_id vs in 
       let buf = Pprz.Transport.packet payload in
       fprintf o "%s%!" buf
     with _ -> () in
@@ -51,7 +51,7 @@ let () =
 	let use_dl_message = fun payload ->
 	  Debug.trace 'x' (Debug.xprint (Serial.string_of_payload payload));
 	  let (packet_seq, ac_id, class_id, msg_id, values) = Dl_Pprz.values_of_payload payload in
-	  let msg = Dl_Pprz.message_of_id class_id msg_id in
+	  let msg = Dl_Pprz.message_of_id ~class_id:class_id msg_id in
 	  Dl_Pprz.message_send "ground_dl" msg.Pprz.name values in
 
 	assert (PprzTransport.parse use_dl_message b = n)

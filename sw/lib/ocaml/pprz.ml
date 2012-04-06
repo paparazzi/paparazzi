@@ -467,10 +467,13 @@ let offset_class_id = 2
 let offset_msg_id = 3
 let offset_fields = 4
 
+type messages_mode = Type | Name
+
 module type CLASS_Xml = sig
   val xml : Xml.xml
   val selection : string
-	val mode : string
+	val mode : messages_mode
+	val sel_class_id : int option
 end
 
 module type CLASS_NAME = sig
@@ -534,11 +537,15 @@ match Str.split semicolon s with
 
 module type MESSAGES = sig
   val messages : (msg_and_class_id, message) Hashtbl.t
+	val message_of_id : ?class_id:int -> message_id -> message
   val message_of_name : string ->  message_id * message
 
   val values_of_payload : Serial.payload -> packet_seq * sender_id * class_id * message_id * values
   (** [values_of_bin payload] Parses a raw payload, returns the
    the A/C id, class id, message id and the list of (field_name, value) *)
+	
+  val payload_of_values : ?gen_packet_seq:int -> sender_id -> ?class_id:int -> message_id -> values -> Serial.payload
+  (** [payload_of_values ?gen_packet_seq sender_id class_id id vs] Returns a payload *)
 
   val values_of_string : string -> message_id * values
   (** May raise [(Unknown_msg_name msg_name)] *)
@@ -567,73 +574,6 @@ module type MESSAGES = sig
       will be applied on [sender_name] and attribute values of the values. *)
 end
 
-module type MESSAGES_TYPE = sig 
-  val messages : (msg_and_class_id, message) Hashtbl.t
-  val message_of_id : class_id -> message_id -> message
-  val message_of_name : string ->  message_id * message
-	
-	val values_of_payload : Serial.payload -> packet_seq * sender_id * class_id * message_id * values
-  (** [values_of_bin payload] Parses a raw payload, returns the
-   the Sender id, class id, message id and the list of (field_name, value) *)
-
-  val payload_of_values : ?gen_packet_seq:int -> sender_id -> class_id -> message_id -> values -> Serial.payload
-  (** [payload_of_values ?gen_packet_seq sender_id class_id id vs] Returns a payload *)
-
-  val values_of_string : string -> message_id * values
-  (** May raise [(Unknown_msg_name msg_name)] *)
-
-  val values_of_string_unsorted : string -> message_id * values
-  (** May raise [(Unknown_msg_name msg_name)] *)
-
-  val string_of_message : ?sep:string -> message -> values -> string
-  (** [string_of_message ?sep msg values] Default [sep] is space *)
-
-  val message_send : ?timestamp:float -> string -> string -> values -> unit
-  (** [message_send sender msg_name values] *)
-
-  val message_bind : ?sender:string ->string -> (string -> values -> unit) -> Ivy.binding
-  (** [message_bind ?sender msg_name callback] *)
-
-  val message_answerer : string -> string -> (string -> values -> values) -> Ivy.binding
-  (** [message_answerer sender msg_name callback] *)
-
-  val message_req : string -> string -> values -> (string -> values -> unit) -> unit
-  (** [message_answerer sender msg_name values receiver] Sends a request on the Ivy bus for the specified message. On reception, [receiver] will be applied on [sender_name] and expected values. *)
-end
-
-module type MESSAGES_NAME = sig 
-  val messages : (msg_and_class_id, message) Hashtbl.t
-  val message_of_id : message_id -> message
-  val message_of_name : string ->  message_id * message
-	
-	val values_of_payload : Serial.payload -> packet_seq * sender_id * class_id * message_id * values
-  (** [values_of_bin payload] Parses a raw payload, returns the
-   the Sender id, class id, message id and the list of (field_name, value) *)
-
-  val payload_of_values : ?gen_packet_seq:int -> sender_id -> message_id -> values -> Serial.payload
-  (** [payload_of_values ?gen_packet_seq sender_id class_id id vs] Returns a payload *)
-
-  val values_of_string : string -> message_id * values
-  (** May raise [(Unknown_msg_name msg_name)] *)
-
-  val values_of_string_unsorted : string -> message_id * values
-  (** May raise [(Unknown_msg_name msg_name)] *)
-
-  val string_of_message : ?sep:string -> message -> values -> string
-  (** [string_of_message ?sep msg values] Default [sep] is space *)
-
-  val message_send : ?timestamp:float -> string -> string -> values -> unit
-  (** [message_send sender msg_name values] *)
-
-  val message_bind : ?sender:string ->string -> (string -> values -> unit) -> Ivy.binding
-  (** [message_bind ?sender msg_name callback] *)
-
-  val message_answerer : string -> string -> (string -> values -> values) -> Ivy.binding
-  (** [message_answerer sender msg_name callback] *)
-
-  val message_req : string -> string -> values -> (string -> values -> unit) -> unit
-  (** [message_answerer sender msg_name values receiver] Sends a request on the Ivy bus for the specified message. On reception, [receiver] will be applied on [sender_name] and expected values. *)
-end
 
 module MessagesOfXml(Class:CLASS_Xml) = struct
   let max_length = 256
@@ -680,7 +620,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
   let messages_loaded =
     try
 			match Class.mode with
-				| "type" -> 
+				| Type -> 
 					let class_structs = List.map (fun _class -> 
 						{class_id = int_of_string (ExtXml.attrib _class "id") ; class_name = ExtXml.attrib _class "name" ; class_type = ExtXml.attrib _class "type" ; class_xml = _class }
 						) (Xml.children msg_xml) in
@@ -694,7 +634,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 							Hashtbl.add classes_by_id sel.class_id by_id
 						) !selected_classes);
 					true
-				| "name" ->
+				| Name ->
 					let class_structs = List.map (fun _class -> 
 						{class_id = int_of_string (ExtXml.attrib _class "id") ; class_name = ExtXml.attrib _class "name" ; class_type = ExtXml.attrib _class "type" ; class_xml = _class }
 						) (Xml.children msg_xml) in
@@ -705,17 +645,22 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
 							let by_id = parse_class sel in
 							Hashtbl.add classes_by_id sel.class_id by_id
 						) !selected_classes);
-					true
-				| _ -> failwith ("Pprz->messages: cannot initialize with mode different than 'name' or 'type' ")		
+					true		
     with
       | Not_found -> failwith ("Pprz->messages: error loading classes and messages (Not_found) ")
 			| e -> failwith (sprintf "Pprz->messages: error loading classes and messages (Exception: %s) " (Printexc.to_string e))
-	
-  let message_of_id_ = fun class_id id -> 
+
+	let check_mode = fun class_id ->
+		match class_id with
+			| None -> if (Class.mode = Name) then match Class.sel_class_id with None -> failwith("") | Some cls_id-> cls_id else failwith ("Pprz.Messages class_id not defined ")
+			| Some cls_id -> cls_id 
+
+  let message_of_id = fun ?class_id id ->
 		try 
-			let sel_class = Hashtbl.find classes_by_id class_id in
-			Hashtbl.find sel_class id 
-		with Not_found -> fprintf stderr "Pprz->messages.message_of_id: class of id: %d or message of id :%d not found\n%!" class_id id; raise Not_found
+			let cls_id = check_mode class_id in		
+			let sel_class = Hashtbl.find classes_by_id cls_id in
+			Hashtbl.find sel_class id
+		with Not_found -> failwith ("Pprz.Messages message not found")
 	
 	
   let message_of_name = fun name ->
@@ -731,7 +676,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
       let sender_id = Char.code buffer.[offset_sender_id] in
 			let packet_seq = Char.code buffer.[offset_packet_seq] in
 			let class_id = Char.code buffer.[offset_class_id] in
-      let message = message_of_id_ class_id id in
+      let message = message_of_id ~class_id:class_id id in
       Debug.call 'T' (fun f -> fprintf f "Pprz.values id=%d\n" id);
       let rec loop = fun index fields ->
 	match fields with
@@ -747,9 +692,10 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
     with
       Invalid_argument("index out of bounds") ->
 	failwith (sprintf "Pprz.values_of_payload, wrong argument: %s" (Debug.xprint buffer))
-
-  let payload_of_values_ = fun ?gen_packet_seq sender_id class_id id values ->
-    let message = message_of_id_ class_id id in
+    
+  let payload_of_values = fun ?gen_packet_seq sender_id ?class_id id values ->
+		let cls_id = check_mode class_id in
+		let message = message_of_id ~class_id:cls_id id in
 
     (** The actual length is computed from the values *)
     let p = String.make max_length '#' in
@@ -757,7 +703,7 @@ module MessagesOfXml(Class:CLASS_Xml) = struct
     p.[offset_msg_id] <- Char.chr id;
     p.[offset_sender_id] <- Char.chr sender_id;
 		p.[offset_packet_seq] <- Char.chr (match gen_packet_seq with None -> 0 | Some some -> some);
-		p.[offset_class_id] <- Char.chr class_id;
+		p.[offset_class_id] <- Char.chr cls_id;
     let i = ref offset_fields in
     List.iter
       (fun (field_name, field) ->
@@ -889,10 +835,9 @@ module Messages_of_type(Class:CLASS_TYPE) = struct
   include MessagesOfXml(struct
     let xml = messages_xml ()
     let selection = Class.class_type
-		let mode = "type"
+		let mode = Type
+		let sel_class_id = None
   end)
-	let message_of_id = fun class_id message_id -> message_of_id_ class_id message_id 
-	let payload_of_values = fun ?gen_packet_seq sender_id class_id id values -> payload_of_values_ ?gen_packet_seq sender_id class_id id values 
 end
 
 type class_id_name = {
@@ -912,11 +857,9 @@ module Messages_of_name(Class:CLASS_NAME) = struct
   include MessagesOfXml(struct
     let xml = messages_xml ()
     let selection = Class.class_name
-		let mode = "name"
+		let mode = Name
+		let sel_class_id = Some (class_id_of_name Class.class_name)
   end)
-	let sel_class_id = class_id_of_name Class.class_name 
-	let message_of_id = fun message_id -> message_of_id_ sel_class_id message_id 
-	let payload_of_values = fun ?gen_packet_seq sender_id id values -> payload_of_values_ ?gen_packet_seq sender_id sel_class_id id values
 end
 
 

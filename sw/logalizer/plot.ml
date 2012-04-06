@@ -679,9 +679,8 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 	
 	let class_type = "downlink" in
 	Debug.call 'p' (fun f ->  fprintf f "class_type: %s\n" class_type);
-	(*let module M = struct let selection = class_type and mode = "type" let xml = protocol end in *)(* XGGDEBUG:DYNMOD: Why only MessagesOfXml and not the full module? I need to use message_of_id and it's in the full module *)
-  (*let module P = Pprz.MessagesOfXml(M) in *)
-	let module P = Pprz.Messages_of_type (struct let class_type = class_type end) in
+	let module M = struct let selection = class_type and mode = Pprz.Type and sel_class_id = None let xml = protocol end in
+  let module P = Pprz.MessagesOfXml(M) in
 	
   let f =
     try
@@ -730,7 +729,7 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 		| scalar ->
 		    Hashtbl.add fields f (t, scalar))
 	      vs;
-			let msg_temp = P.message_of_id cls_id msg_id in
+			let msg_temp = P.message_of_id ~class_id:cls_id msg_id in
 	    let msg_name = msg_temp.Pprz.name in
 	    raw_msgs := (t, msg_name, vs) :: !raw_msgs
 	  )
@@ -751,7 +750,7 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 	  (* First sort by message id *)
 	  let l = ref [] in
 		
-		Hashtbl.iter (fun msg_ids fields -> l := (P.message_of_id msg_ids.cls_id msg_ids.msg_id, fields):: !l) msgs; 
+		Hashtbl.iter (fun msg_ids fields -> l := (P.message_of_id ~class_id:msg_ids.cls_id msg_ids.msg_id, fields):: !l) msgs; 
 				
 	  let msgs = List.sort (fun (a,_) (b,_) -> compare a b) !l in
 

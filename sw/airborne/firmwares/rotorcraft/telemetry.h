@@ -703,7 +703,7 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
     }									\
   }
 
-#define PERIODIC_SEND_WP_MOVED_UTM(_trans, _dev) {					\
+#define PERIODIC_SEND_WP_MOVED(_trans, _dev) {					\
     static uint8_t i;							\
     i++; if (i >= nb_waypoint) i = 0;					\
     DOWNLINK_SEND_WP_MOVED_ENU(_trans, _dev,					\

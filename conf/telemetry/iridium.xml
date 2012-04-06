@@ -9,7 +9,7 @@
 
       <message name="ATTITUDE"       period="4."	phase="1"/>
       <message name="DL_VALUE"       period="4."	phase="3"/>
-      <message name="WP_MOVED_UTM"   period="4."	phase="3"/>
+      <message name="WP_MOVED"       period="4."	phase="3"/>
 
       <message name="DESIRED"        period="8."	phase="1"/>
       <!-- Only one of the following is active at the same time: give them same time stamp -->

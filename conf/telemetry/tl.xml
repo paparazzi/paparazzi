@@ -15,7 +15,7 @@
       <message name="TL_ESTIMATOR"   period="0.5"/>
       <message name="NAVIGATION_REF" period="9"/>
       <message name="NAVIGATION"     period="1"/>
-      <message name="WP_MOVED_UTM"       period="0.5"/>
+      <message name="WP_MOVED"       period="0.5"/>
       <message name="LOOP"           period="0.5"/>
       <message name="TL_DEBUG"       period="0.5"/>
     </mode>

@@ -207,7 +207,7 @@ let use_tele_message = fun ?udp_peername ?raw_data_size payload ->
   try
     let (packet_seq ,ac_id, class_id, msg_id, values) = Tm_Pprz.values_of_payload payload in
 		ignore (check_down_packet_sequence ac_id packet_seq);
-		let msg = Tm_Pprz.message_of_id class_id msg_id in
+		let msg = Tm_Pprz.message_of_id ~class_id:class_id msg_id in
     send_message_over_ivy (string_of_int ac_id) msg.Pprz.name values;
     update_status ?udp_peername ac_id raw_data_size (msg.Pprz.name = "PONG")
   with
@@ -431,7 +431,7 @@ let message_uplink = fun device ->
 		let class_id = Pprz.class_id_of_msg name in 
     let msg_id, _ = Dl_Pprz.message_of_name name in
 		let gen_packet_seq = get_up_packet_sequence ac_id in
-    let s = Dl_Pprz.payload_of_values ~gen_packet_seq:gen_packet_seq my_id class_id msg_id vs in
+    let s = Dl_Pprz.payload_of_values ~gen_packet_seq:gen_packet_seq my_id ~class_id:class_id msg_id vs in
     send ac_id device s High in
   let set_forwarder = fun name ->
     ignore (Dl_Pprz.message_bind name (forwarder name)) in
@@ -440,7 +440,7 @@ let message_uplink = fun device ->
     Debug.call 'f' (fun f -> fprintf f "broadcast %s\n" name);
 		let class_id = Pprz.class_id_of_msg name in 
     let msg_id, _ = Dl_Pprz.message_of_name name in
-    let payload = Dl_Pprz.payload_of_values ~gen_packet_seq:(get_up_packet_sequence 0) my_id class_id msg_id vs in
+    let payload = Dl_Pprz.payload_of_values ~gen_packet_seq:(get_up_packet_sequence 0) my_id ~class_id:class_id msg_id vs in
     broadcast device payload Low in
   let set_broadcaster = fun name ->
     ignore (Dl_Pprz.message_bind name (broadcaster name)) in
@@ -459,7 +459,7 @@ let send_ping_msg = fun device ->
     (fun ac_id status ->
 		  let class_id = Pprz.class_id_of_msg "PING" in 
       let msg_id, _ = Dl_Pprz.message_of_name "PING" in
-      let s = Dl_Pprz.payload_of_values ~gen_packet_seq:(get_up_packet_sequence ac_id) my_id class_id msg_id [] in
+      let s = Dl_Pprz.payload_of_values ~gen_packet_seq:(get_up_packet_sequence ac_id) my_id ~class_id:class_id msg_id [] in
       send ac_id device s High;
       status.last_ping <- Unix.gettimeofday ()
     )

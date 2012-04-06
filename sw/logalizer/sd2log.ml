@@ -141,7 +141,7 @@ let convert_file = fun file ->
     if ac_id <> !single_ac_id && log_msg.Logpprz.source = 0 then
       fprintf stderr "Discarding message with ac_id %d, previous one was %d\n%!" ac_id !single_ac_id
     else
-      let msg_descr = message_of_id log_msg class_id msg_id in
+      let msg_descr = message_of_id log_msg ~class_id:class_id msg_id in
       let timestamp = Int32.to_float log_msg.Logpprz.timestamp /. 1e4 in
       fprintf f_out "%.4f %d %s\n" timestamp ac_id (string_of_message log_msg msg_descr vs);
 
