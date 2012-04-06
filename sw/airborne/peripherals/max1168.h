@@ -65,6 +65,12 @@ extern volatile uint8_t max1168_status;
 
 extern uint16_t max1168_values[MAX1168_NB_CHAN];
 
+#define Max1168Periodic() {             \
+  if (max1168_status == MAX1168_IDLE) { \
+    max1168_read();                     \
+  }                                     \
+}
+
 /* underlying architecture */
 #include "peripherals/max1168_arch.h"
 /* must be implemented by underlying architecture */

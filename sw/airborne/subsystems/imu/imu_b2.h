@@ -30,11 +30,11 @@
 #include "peripherals/max1168.h"
 
 /* type of magnetometer */
-#define IMU_B2_MAG_NONE   0
-#define IMU_B2_MAG_MS2100 1
-#define IMU_B2_MAG_AMI601 2
-#define IMU_B2_MAG_HMC5843 3
-#define IMU_B2_MAG_HMC58XX 4
+#define IMU_B2_MAG_NONE     0
+#define IMU_B2_MAG_MS2100   1
+#define IMU_B2_MAG_AMI601   2
+#define IMU_B2_MAG_HMC5843  3
+#define IMU_B2_MAG_HMC58XX  4
 
 
 #ifdef IMU_B2_VERSION_1_0
@@ -146,25 +146,16 @@
 
 /** Event functions and macros for imu_b2.
  */
-extern uint8_t imu_status;
-extern int imu_overrun;
-
-/* MAX1168 takes over SPI */
-#define IMU_IDLE          0
-#define IMU_BUSY_MAX1168  1
-#define IMU_BUSY_MS2100   2
-#define IMU_END_CYCLE     3
 
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
 #include "peripherals/ms2100.h"
 #define ImuMagEvent(_mag_handler) {                     \
-  if(imu_status == IMU_IDLE) ms2100_event();                                       \
+  ms2100_event();                                       \
   if (ms2100_status == MS2100_DATA_AVAILABLE) {         \
     imu.mag_unscaled.x = ms2100_values[IMU_MAG_X_CHAN]; \
     imu.mag_unscaled.y = ms2100_values[IMU_MAG_Y_CHAN]; \
     imu.mag_unscaled.z = ms2100_values[IMU_MAG_Z_CHAN]; \
     ms2100_status = MS2100_IDLE;                        \
-    imu_status = IMU_END_CYCLE;                         \
     _mag_handler();                                     \
   }                                                     \
 }
@@ -221,19 +212,11 @@ extern int imu_overrun;
     imu.accel_unscaled.y = max1168_values[IMU_ACCEL_Y_CHAN];    \
     imu.accel_unscaled.z = max1168_values[IMU_ACCEL_Z_CHAN];    \
     max1168_status = MAX1168_IDLE;                              \
-    imu_status = IMU_IDLE;                       \
-    /*ms2100_read();*/                                      \
     _gyro_handler();                                            \
     _accel_handler();                                           \
   }                                                             \
   ImuMagEvent(_mag_handler);                                    \
 }
-
-
-/* underlying architecture */
-//#include "subsystems/imu/imu_b2_arch.h"
-/* must be implemented by underlying architecture */
-//extern void imu_b2_arch_init(void);
 
 
 #endif /* IMU_B2_H */

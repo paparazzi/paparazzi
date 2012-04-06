@@ -23,14 +23,7 @@
 
 #include "subsystems/imu.h"
 
-int imu_overrun;
-uint8_t imu_status;
-
 void imu_impl_init(void) {
-
-  //imu_b2_arch_init();
-  imu_status = IMU_IDLE;
-  imu_overrun = 0;
 
   max1168_init();
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
@@ -47,18 +40,13 @@ void imu_impl_init(void) {
 
 #include "led.h"
 void imu_periodic(void) {
-  // check ssp idle
-  if (imu_status != IMU_IDLE && imu_status != IMU_END_CYCLE)
-  {
-    imu_overrun++;
-    return;
-  }
+
   // read adc
-  imu_status = IMU_BUSY_MAX1168;
-  max1168_read();
-  imu_status = IMU_IDLE;
-  //ms2100_read();
-  // read i2c mag if needed
+  Max1168Periodic();
+  // read mag
+#if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_MS2100
+  Ms2100Periodic();
+#endif
 #if defined IMU_B2_MAG_TYPE && IMU_B2_MAG_TYPE == IMU_B2_MAG_AMI601
   RunOnceEvery(10, { ami601_read(); });
 #endif

@@ -58,7 +58,6 @@ void ms2100_init( void ) {
 }
 
 void ms2100_read( void ) {
-  if (ms2100_status != MS2100_IDLE) return;
 
   /* set SPI transaction */
   ms2100_trans.length = 1;
@@ -71,13 +70,11 @@ void ms2100_read( void ) {
   ms2100_status = MS2100_SENDING_REQ;
 }
 
-#include "led.h"
 void ms2100_event( void ) {
   if (ms2100_trans.status == SPITransSuccess) {
     if (ms2100_status == MS2100_GOT_EOC) {
       // eoc occurs, submit reading req
       // read 2 bytes
-      // FIXME submit transaction from interrupt or event function ?
       ms2100_trans.output_buf[0] = 0; // FIXME really needed ?
       ms2100_trans.length = 2;
       ms2100_trans.before_cb = 0; // no reset when reading values

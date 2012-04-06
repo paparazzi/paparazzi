@@ -46,17 +46,20 @@ extern void ms2100_event( void );
 extern void ms2100_reset( void );
 
 #define MS2100_IDLE            0
-#define MS2100_BUSY            1
-#define MS2100_SENDING_REQ     2
-#define MS2100_WAITING_EOC     3
-#define MS2100_GOT_EOC         4
-#define MS2100_READING_RES     5
-#define MS2100_DATA_AVAILABLE  6
+#define MS2100_SENDING_REQ     1
+#define MS2100_GOT_EOC         2
+#define MS2100_READING_RES     3
+#define MS2100_DATA_AVAILABLE  4
 
 extern volatile uint8_t ms2100_status;
 extern volatile int16_t ms2100_values[MS2100_NB_AXIS];
 extern volatile uint8_t ms2100_cur_axe;
 
+#define Ms2100Periodic() {            \
+  if (ms2100_status == MS2100_IDLE) { \
+    ms2100_read();                    \
+  }                                   \
+}
 
 /* underlying architecture */
 #include "peripherals/ms2100_arch.h"
