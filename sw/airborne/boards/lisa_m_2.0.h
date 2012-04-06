@@ -1,5 +1,5 @@
-#ifndef CONFIG_LISA_M_1_0_H
-#define CONFIG_LISA_M_1_0_H
+#ifndef CONFIG_LISA_M_2_0_H
+#define CONFIG_LISA_M_2_0_H
 
 #define BOARD_LISA_M
 
@@ -12,6 +12,7 @@
 #define LED_1_GPIO_PIN GPIO_Pin_4
 #define LED_1_AFIO_REMAP GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE)
 
+/* shared with ADC15 */
 #define LED_2_BANK
 #define LED_2_GPIO GPIOC
 #define LED_2_GPIO_CLK RCC_APB2Periph_GPIOC
@@ -48,12 +49,12 @@
 
 /* Onboard ADCs */
 /*
-   ADC_1 PC3/ADC13
-   ADC_2 PC0/ADC10
-   ADC_3 PC1/ADC11
-   ADC_4 PC5/ADC15
-   ADC_6 PC2/ADC12
-   BATT  PC4/ADC14
+   ADC1 PC3/ADC13
+   ADC2 PC0/ADC10
+   ADC3 PC1/ADC11
+   ADC4 PC5/ADC15
+   ADC6 PC2/ADC12
+   BATT PC4/ADC14
 */
 #define BOARD_ADC_CHANNEL_1 ADC_Channel_13
 #define BOARD_ADC_CHANNEL_2 ADC_Channel_10
@@ -77,10 +78,10 @@
 /* GPIO mapping for ADC1 pins, overwrites the default in arch/stm32/mcu_periph/adc_arch.c */
 // FIXME, this is not very nice, is also stm lib specific
 #ifdef USE_AD1
-#define ADC1_GPIO_INIT(gpio) {                  \
+#define ADC1_GPIO_INIT(gpio) {                                          \
     (gpio).GPIO_Pin  = GPIO_Pin_3 | GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_4; \
-    (gpio).GPIO_Mode = GPIO_Mode_AIN;           \
-    GPIO_Init(GPIOC, (&gpio));                  \
+    (gpio).GPIO_Mode = GPIO_Mode_AIN;                                   \
+    GPIO_Init(GPIOC, (&gpio));                                          \
   }
 #endif // USE_AD1
 
@@ -103,4 +104,4 @@
 #define PWM5_Pin GPIO_Pin_0
 #define PWM6_Pin GPIO_Pin_1
 
-#endif /* CONFIG_LISA_M_1_0_H */
+#endif /* CONFIG_LISA_M_2_0_H */
