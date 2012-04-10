@@ -223,7 +223,7 @@ static inline void autopilot_check_in_flight( bool_t motors_on ) {
 
 
 void autopilot_set_motors_on(bool_t motors_on) {
-  if (ahrs_is_aligned && motors_on)
+  if (ahrs_is_aligned() && motors_on)
     autopilot_motors_on = TRUE;
   else
     autopilot_motors_on = FALSE;
