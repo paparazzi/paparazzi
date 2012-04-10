@@ -127,7 +127,7 @@ let show_fp = fun ac ->
 let hide_fp = fun ac ->
   ac.fp_group#hide ();
   ac.fp_show#set_active false
-  
+
 (* callback for FP check button in menu *)
 let show_mission = fun ac on_off ->
   let a = find_ac ac in
