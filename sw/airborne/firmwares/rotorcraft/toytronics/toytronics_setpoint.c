@@ -1,6 +1,6 @@
 // toytronics_setpoint.c
 // Copyright (C) 2011, Greg Horn, Joby Robotics, LLC.
-// Copyright (C) 2011, Pranay Sinha, the Quadshot Project.
+// Copyright (C) 2011, Pranay Sinha, Transition Robotics, Inc.
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -105,7 +105,8 @@ wrap_to_pi(double * angle){
 static void
 discrete_exponential_decay( double * state, const double tau, const double ts )
 {
-  *state *= exp(-ts/tau);
+  if(fabs(*state)>0.08)
+    {*state *= exp(-ts/tau);}
 //  if tau <= 0.01*ts
 }
 
