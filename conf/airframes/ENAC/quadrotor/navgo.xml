@@ -10,7 +10,6 @@
 
   <firmware name="rotorcraft">
     <define name="USE_INS_NAV_INIT"/>
-    <define name="USE_ADAPT_HOVER"/>
     <define name="USE_ATTITUDE_REF" value="0"/>
     <!--define name="GUIDANCE_H_USE_REF"/-->
 
@@ -105,7 +104,6 @@
 
   <!-- Magnetic field for Toulouse (declination -16°) -->
   <section name="AHRS" prefix="AHRS_">
-    <define name="MAG_UPDATE_YAW_ONLY" value="1"/>
     <define name="PROPAGATE_FREQUENCY" value="512"/>
     <define name="H_X" value=" 0.513081"/>
     <define name="H_Y" value="-0.00242783"/>
