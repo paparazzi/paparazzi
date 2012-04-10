@@ -316,12 +316,12 @@
   }
 
 
-#define PERIODIC_SEND_BOOZ2_CMD(_trans, _dev) {				\
-    DOWNLINK_SEND_BOOZ2_CMD(_trans, _dev,					\
-                &stabilization_cmd[COMMAND_ROLL],	\
-                &stabilization_cmd[COMMAND_PITCH],	\
-                &stabilization_cmd[COMMAND_YAW],	\
-                &stabilization_cmd[COMMAND_THRUST]);	\
+#define PERIODIC_SEND_ROTORCRAFT_CMD(_trans, _dev) {                    \
+    DOWNLINK_SEND_ROTORCRAFT_CMD(_trans, _dev,                          \
+                                 &stabilization_cmd[COMMAND_ROLL],      \
+                                 &stabilization_cmd[COMMAND_PITCH],     \
+                                 &stabilization_cmd[COMMAND_YAW],       \
+                                 &stabilization_cmd[COMMAND_THRUST]);   \
   }
 
 
@@ -719,23 +719,50 @@
 #define PERIODIC_SEND_BOOZ2_CAM(_trans, _dev) {}
 #endif
 
-#define PERIODIC_SEND_BOOZ2_TUNE_HOVER(_trans, _dev) {				       \
-    DOWNLINK_SEND_BOOZ2_TUNE_HOVER(_trans, _dev,				       \
-				   &radio_control.values[RADIO_ROLL],  \
-				   &radio_control.values[RADIO_PITCH], \
-				   &radio_control.values[RADIO_YAW],   \
-				   &stabilization_cmd[COMMAND_ROLL],      \
-				   &stabilization_cmd[COMMAND_PITCH],     \
-				   &stabilization_cmd[COMMAND_YAW],       \
-				   &stabilization_cmd[COMMAND_THRUST],    \
-				   &ahrs.ltp_to_imu_euler.phi,	       \
-				   &ahrs.ltp_to_imu_euler.theta,	       \
-				   &ahrs.ltp_to_imu_euler.psi,	       \
-				   &ahrs.ltp_to_body_euler.phi,	       \
-				   &ahrs.ltp_to_body_euler.theta,	       \
-				   &ahrs.ltp_to_body_euler.psi	       \
-				   );					       \
+
+#define PERIODIC_SEND_ROTORCRAFT_TUNE_HOVER(_trans, _dev) {             \
+    DOWNLINK_SEND_ROTORCRAFT_TUNE_HOVER(_trans, _dev,                   \
+                                        &radio_control.values[RADIO_ROLL], \
+                                        &radio_control.values[RADIO_PITCH], \
+                                        &radio_control.values[RADIO_YAW], \
+                                        &stabilization_cmd[COMMAND_ROLL], \
+                                        &stabilization_cmd[COMMAND_PITCH], \
+                                        &stabilization_cmd[COMMAND_YAW], \
+                                        &stabilization_cmd[COMMAND_THRUST], \
+                                        &ahrs.ltp_to_imu_euler.phi,     \
+                                        &ahrs.ltp_to_imu_euler.theta,   \
+                                        &ahrs.ltp_to_imu_euler.psi,     \
+                                        &ahrs.ltp_to_body_euler.phi,    \
+                                        &ahrs.ltp_to_body_euler.theta,  \
+                                        &ahrs.ltp_to_body_euler.psi);   \
   }
+
+
+#ifdef USE_I2C0
+#define PERIODIC_SEND_I2C0_ERRORS(_trans, _dev) {                             \
+    uint16_t i2c0_ack_fail_cnt          = i2c0.errors->ack_fail_cnt;          \
+    uint16_t i2c0_miss_start_stop_cnt   = i2c0.errors->miss_start_stop_cnt;   \
+    uint16_t i2c0_arb_lost_cnt          = i2c0.errors->arb_lost_cnt;          \
+    uint16_t i2c0_over_under_cnt        = i2c0.errors->over_under_cnt;        \
+    uint16_t i2c0_pec_recep_cnt         = i2c0.errors->pec_recep_cnt;         \
+    uint16_t i2c0_timeout_tlow_cnt      = i2c0.errors->timeout_tlow_cnt;      \
+    uint16_t i2c0_smbus_alert_cnt       = i2c0.errors->smbus_alert_cnt;       \
+    uint16_t i2c0_unexpected_event_cnt  = i2c0.errors->unexpected_event_cnt;  \
+    uint32_t i2c0_last_unexpected_event = i2c0.errors->last_unexpected_event; \
+    DOWNLINK_SEND_I2C_ERRORS(_trans, _dev,                  \
+                             &i2c0_ack_fail_cnt,            \
+                             &i2c0_miss_start_stop_cnt,     \
+                             &i2c0_arb_lost_cnt,            \
+                             &i2c0_over_under_cnt,          \
+                             &i2c0_pec_recep_cnt,           \
+                             &i2c0_timeout_tlow_cnt,        \
+                             &i2c0_smbus_alert_cnt,         \
+                             &i2c0_unexpected_event_cnt,    \
+                             &i2c0_last_unexpected_event);  \
+  }
+#else
+#define PERIODIC_SEND_I2C0_ERRORS(_trans, _dev) {}
+#endif
 
 #ifdef USE_I2C0
 #define PERIODIC_SEND_I2C0_ERRORS(_trans, _dev) {                             \

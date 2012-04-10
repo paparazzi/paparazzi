@@ -242,7 +242,7 @@
     -->
     <subsystem name="imu" type="ppzuav"/>
     <subsystem name="ahrs" type="float_dcm">
-<!--      <define name="USE_MAGNETOMETER" /> -->
+<!--      <configure name="USE_MAGNETOMETER" /> -->
     </subsystem>
 
 

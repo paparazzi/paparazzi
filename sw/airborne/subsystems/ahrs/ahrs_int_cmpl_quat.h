@@ -34,11 +34,25 @@ struct AhrsIntCmpl {
   int32_t ltp_vel_norm;
   bool_t ltp_vel_norm_valid;
   bool_t correct_gravity;
+  bool_t use_gravity_heuristic;
+  bool_t heading_aligned;
 };
 
 extern struct AhrsIntCmpl ahrs_impl;
 
+
+/** Update yaw based on a heading measurement.
+ * e.g. from GPS course
+ * @param heading Heading in body frame, radians (CW/north) with #INT32_ANGLE_FRAC
+ */
 void ahrs_update_heading(int32_t heading);
+
+/** Hard reset yaw to a heading.
+ * Doesn't affect the bias.
+ * Sets ahrs_impl.heading_aligned to TRUE.
+ * @param heading Heading in body frame, radians (CW/north) with #INT32_ANGLE_FRAC
+ */
+void ahrs_realign_heading(int32_t heading);
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
 // TODO copy ahrs to state instead of estimator

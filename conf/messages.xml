@@ -1116,7 +1116,7 @@
     <field name="ref_rd"    type="float" alt_unit="degres/s2" alt_unit_coef="57.29578"/>
  </message>
 
- <message name="BOOZ2_CMD" id="143">
+ <message name="ROTORCRAFT_CMD" id="143">
     <field name="cmd_roll"   type="int32"/>
     <field name="cmd_pitch"  type="int32"/>
     <field name="cmd_yaw"    type="int32"/>
@@ -1207,7 +1207,7 @@
     <field name="ref_ydd" type="int32" alt_unit="m/s2"  alt_unit_coef="0.0009766"/>
   </message>
 
-  <message name="BOOZ2_TUNE_HOVER" id="150">
+  <message name="ROTORCRAFT_TUNE_HOVER" id="150">
     <field name="rc_roll"    type="int16" alt_unit="-100/100" alt_unit_coef="0.01041670"/>
     <field name="rc_pitch"   type="int16" alt_unit="-100/100" alt_unit_coef="0.01041670"/>
     <field name="rc_yaw"     type="int16" alt_unit="-100/100" alt_unit_coef="0.01041670"/>

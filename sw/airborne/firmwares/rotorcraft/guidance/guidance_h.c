@@ -75,6 +75,10 @@ int32_t guidance_h_again;
 #endif
 #endif
 
+#ifndef GUIDANCE_H_MAX_BANK
+#define GUIDANCE_H_MAX_BANK RadOfDeg(20)
+#endif
+
 static inline void guidance_h_update_reference(bool_t use_ref);
 static inline void guidance_h_traj_run(bool_t in_flight);
 static inline void guidance_h_hover_enter(void);
@@ -238,6 +242,7 @@ static inline void guidance_h_update_reference(bool_t use_ref) {
     INT_VECT2_ZERO(guidance_h_accel_ref);
   }
 #else
+  if (use_ref) {;} // we don't have a reference... just to avoid the unused arg warning in that case
   VECT2_COPY(guidance_h_pos_ref, guidance_h_pos_sp);
   INT_VECT2_ZERO(guidance_h_speed_ref);
   INT_VECT2_ZERO(guidance_h_accel_ref);
@@ -253,9 +258,8 @@ static inline void guidance_h_update_reference(bool_t use_ref) {
  * you get an angle of 5.6 degrees for 1m pos error */
 #define GH_GAIN_SCALE 2
 
-// FIXME: set in airframe file, instead of hardcoded value here
-/** maximum bank angle: 20 deg */
-#define TRAJ_MAX_BANK BFP_OF_REAL(0.35, INT32_ANGLE_FRAC)
+/** maximum bank angle: default 20 deg */
+#define TRAJ_MAX_BANK BFP_OF_REAL(GUIDANCE_H_MAX_BANK, INT32_ANGLE_FRAC)
 
 static inline void guidance_h_traj_run(bool_t in_flight) {
 
@@ -283,12 +287,12 @@ static inline void guidance_h_traj_run(bool_t in_flight) {
     guidance_h_pgain * (guidance_h_pos_err.x >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
     guidance_h_dgain * (guidance_h_speed_err.x >> (INT32_SPEED_FRAC - GH_GAIN_SCALE)) +
     guidance_h_igain * (guidance_h_pos_err_sum.x >> (12 + INT32_POS_FRAC - GH_GAIN_SCALE)) +
-    guidance_h_again * guidance_h_accel_ref.x; /* feedforward gain */
+    guidance_h_again * (guidance_h_accel_ref.x >> 8); /* feedforward gain */
   guidance_h_command_earth.y =
-    guidance_h_pgain * (guidance_h_pos_err.y << (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+    guidance_h_pgain * (guidance_h_pos_err.y >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
     guidance_h_dgain * (guidance_h_speed_err.y >> (INT32_SPEED_FRAC - GH_GAIN_SCALE)) +
     guidance_h_igain * (guidance_h_pos_err_sum.y >> (12 + INT32_POS_FRAC - GH_GAIN_SCALE)) +
-    guidance_h_again * guidance_h_accel_ref.y; /* feedforward gain */
+    guidance_h_again * (guidance_h_accel_ref.y >> 8); /* feedforward gain */
 
   VECT2_STRIM(guidance_h_command_earth, -TRAJ_MAX_BANK, TRAJ_MAX_BANK);
 

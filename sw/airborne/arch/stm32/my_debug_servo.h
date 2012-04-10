@@ -37,7 +37,7 @@
     GPIOC_BSRR = GPIO6 | GPIO7 | GPIO8 ;                                \
     rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);      \
     gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ,                       \
-                  GPIO_CFG_OUTPUT_PUSHPULL, GPIO6 | GPIO7 | GPIO8);     \
+                  GPIO_CNF_OUTPUT_PUSHPULL, GPIO6 | GPIO7 | GPIO8);     \
     DEBUG_S1_OFF();                                                     \
     DEBUG_S2_OFF();                                                     \
     DEBUG_S3_OFF();                                                     \
@@ -48,12 +48,12 @@
     GPIOC_BSRR = GPIO9;                                                 \
     rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPCEN);      \
     gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ,                       \
-                  GPIO_CFG_OUTPUT_PUSHPULL, GPIO9);                     \
+                  GPIO_CNF_OUTPUT_PUSHPULL, GPIO9);                     \
     /* S5: PB8 and S6: PB9 */                                           \
     GPIOB_BSRR = GPIO8 | GPIO9;                                         \
     rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_IOPBEN);      \
     gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,                       \
-                  GPIO_CFG_OUTPUT_PUSHPULL, GPIO8 | GPIO9);             \
+                  GPIO_CNF_OUTPUT_PUSHPULL, GPIO8 | GPIO9);             \
     DEBUG_S4_OFF();                                                     \
     DEBUG_S5_OFF();                                                     \
     DEBUG_S6_OFF();                                                     \

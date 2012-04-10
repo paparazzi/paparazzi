@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 The Paparazzi Team
+ * Copyright (C) 2008-2012 The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -19,11 +19,6 @@
  * Boston, MA 02111-1307, USA.
  */
 
-
-// TODO
-//
-// gravity heuristic
-//
 
 #include "subsystems/ahrs/ahrs_int_cmpl_quat.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
@@ -47,43 +42,22 @@ static inline void ahrs_update_mag_2d(void);
 #warning "AHRS_MAG_UPDATE_YAW_ONLY is deprecated, please remove it. This is the default behaviour. Define AHRS_MAG_UPDATE_ALL_AXES to use mag for all axes and not only yaw."
 #endif
 
-/* in place quaternion first order integration with constante rotational velocity */
-/*  */
-#define INT32_QUAT_INTEGRATE_FI(_q, _hr, _omega, _f) {              \
-    _hr.qi += -_omega.p*_q.qx - _omega.q*_q.qy - _omega.r*_q.qz;    \
-    _hr.qx +=  _omega.p*_q.qi + _omega.r*_q.qy - _omega.q*_q.qz;    \
-    _hr.qy +=  _omega.q*_q.qi - _omega.r*_q.qx + _omega.p*_q.qz;    \
-    _hr.qz +=  _omega.r*_q.qi + _omega.q*_q.qx - _omega.p*_q.qy;    \
-                                                                    \
-    ldiv_t _div = ldiv(_hr.qi, ((1<<INT32_RATE_FRAC)*_f*2));        \
-    _q.qi+= _div.quot;                                              \
-    _hr.qi = _div.rem;                                              \
-                                                                    \
-    _div = ldiv(_hr.qx, ((1<<INT32_RATE_FRAC)*_f*2));               \
-    _q.qx+= _div.quot;                                              \
-    _hr.qx = _div.rem;                                              \
-                                                                    \
-    _div = ldiv(_hr.qy, ((1<<INT32_RATE_FRAC)*_f*2));               \
-    _q.qy+= _div.quot;                                              \
-    _hr.qy = _div.rem;                                              \
-                                                                    \
-    _div = ldiv(_hr.qz, ((1<<INT32_RATE_FRAC)*_f*2));               \
-    _q.qz+= _div.quot;                                              \
-    _hr.qz = _div.rem;                                              \
-                                                                    \
-  }
-
-
+#if USE_MAGNETOMETER && AHRS_USE_GPS_HEADING
+#warning "Using magnetometer and GPS course to update heading. Probably better to set USE_MAGNETOMETER=0 if you want to use GPS course."
+#endif
 
 struct AhrsIntCmpl ahrs_impl;
 
 static inline void compute_imu_euler_and_rmat_from_quat(void);
+static inline void compute_body_euler_and_rmat_from_quat(void);
+static inline void compute_imu_orientation(void);
 static inline void compute_body_orientation(void);
 
 void ahrs_init(void) {
 
   ahrs.status = AHRS_UNINIT;
   ahrs_impl.ltp_vel_norm_valid = FALSE;
+  ahrs_impl.heading_aligned = FALSE;
 
   /* set ltp_to_body to zero */
   INT_EULERS_ZERO(ahrs.ltp_to_body_euler);
@@ -107,12 +81,26 @@ void ahrs_init(void) {
   ahrs_impl.correct_gravity = FALSE;
 #endif
 
+#if AHRS_GRAVITY_UPDATE_NORM_HEURISTIC
+  ahrs_impl.use_gravity_heuristic = TRUE;
+#else
+  ahrs_impl.use_gravity_heuristic = FALSE;
+#endif
+
 }
 
 void ahrs_align(void) {
 
+#if USE_MAGNETOMETER
   /* Compute an initial orientation from accel and mag directly as quaternion */
   ahrs_int_get_quat_from_accel_mag(&ahrs.ltp_to_imu_quat, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
+  ahrs_impl.heading_aligned = TRUE;
+#else
+  /* Compute an initial orientation from accel and just set heading to zero */
+  ahrs_int_get_quat_from_accel(&ahrs.ltp_to_imu_quat, &ahrs_aligner.lp_accel);
+  ahrs_impl.heading_aligned = FALSE;
+#endif
+
   /* Convert initial orientation from quat to euler and rotation matrix representations. */
   compute_imu_euler_and_rmat_from_quat();
 
@@ -124,7 +112,6 @@ void ahrs_align(void) {
   INT_RATES_LSHIFT(ahrs_impl.high_rez_bias, ahrs_impl.high_rez_bias, 28);
 
   ahrs.status = AHRS_RUNNING;
-
 }
 
 
@@ -204,12 +191,25 @@ void ahrs_update_accel(void) {
     INT32_VECT3_CROSS_PRODUCT(residual, imu.accel, c2);
   }
 
+
+  int32_t inv_weight;
+  if (ahrs_impl.use_gravity_heuristic) {
+    /* heuristic on acceleration norm */
+    int32_t acc_norm;
+    INT32_VECT3_NORM(acc_norm, imu.accel);
+    const int32_t acc_norm_d = ABS(ACCEL_BFP_OF_REAL(9.81)-acc_norm);
+    inv_weight = Chop(6*acc_norm_d/ACCEL_BFP_OF_REAL(9.81), 1, 6);
+  }
+  else {
+    inv_weight = 1;
+  }
+
   // residual FRAC : ACCEL_FRAC + TRIG_FRAC = 10 + 14 = 24
   // rate_correction FRAC = RATE_FRAC = 12
   // 2^12 / 2^24 * 5e-2 = 1/81920
-  ahrs_impl.rate_correction.p += -residual.x/82000;
-  ahrs_impl.rate_correction.q += -residual.y/82000;
-  ahrs_impl.rate_correction.r += -residual.z/82000;
+  ahrs_impl.rate_correction.p += -residual.x/82000/inv_weight;
+  ahrs_impl.rate_correction.q += -residual.y/82000/inv_weight;
+  ahrs_impl.rate_correction.r += -residual.z/82000/inv_weight;
 
   // residual FRAC = ACCEL_FRAC + TRIG_FRAC = 10 + 14 = 24
   // high_rez_bias = RATE_FRAC+28 = 40
@@ -219,14 +219,13 @@ void ahrs_update_accel(void) {
   //  ahrs_impl.high_rez_bias.q += residual.y*3;
   //  ahrs_impl.high_rez_bias.r += residual.z*3;
 
-  ahrs_impl.high_rez_bias.p += residual.x;
-  ahrs_impl.high_rez_bias.q += residual.y;
-  ahrs_impl.high_rez_bias.r += residual.z;
+  ahrs_impl.high_rez_bias.p += residual.x/inv_weight;
+  ahrs_impl.high_rez_bias.q += residual.y/inv_weight;
+  ahrs_impl.high_rez_bias.r += residual.z/inv_weight;
 
 
   /*                        */
   INT_RATES_RSHIFT(ahrs_impl.gyro_bias, ahrs_impl.high_rez_bias, 28);
-
 
 }
 
@@ -321,19 +320,28 @@ void ahrs_update_gps(void) {
 #endif
 
 #if AHRS_USE_GPS_HEADING && USE_GPS
-  //got a 3d fix and ground speed is more than 0.5 m/s
-  if(gps.fix == GPS_FIX_3D && gps.gspeed>= 500) {
+  //got a 3d fix,ground speed > 0.5 m/s and course accuracy is better than 10deg
+  if(gps.fix == GPS_FIX_3D &&
+     gps.gspeed >= 500 &&
+     gps.cacc <= RadOfDeg(10*1e7)) {
+
     // gps.course is in rad * 1e7, we need it in rad * 2^INT32_ANGLE_FRAC
     int32_t course = gps.course * ((1<<INT32_ANGLE_FRAC) / 1e7);
-    ahrs_update_course(course);
+
+    /* the assumption here is that there is no side-slip, so heading=course */
+
+    if (ahrs_impl.heading_aligned) {
+      ahrs_update_heading(course);
+    }
+    else {
+      /* hard reset the heading if this is the first measurement */
+      ahrs_realign_heading(course);
+    }
   }
 #endif
 }
 
-/** Update yaw based on a heading measurement.
- * e.g. from GPS course
- * @param heading Heading in radians (CW/north) with #INT32_ANGLE_FRAC
- */
+
 void ahrs_update_heading(int32_t heading) {
 
   INT32_ANGLE_NORMALIZE(heading);
@@ -365,18 +373,64 @@ void ahrs_update_heading(int32_t heading) {
   ahrs_impl.rate_correction.q += residual_imu.y/4;
   ahrs_impl.rate_correction.r += residual_imu.z/4;
 
-  // residual_ltp FRAC = 2 * TRIG_FRAC = 28
-  // high_rez_bias = RATE_FRAC+28 = 40
-  // 2^40 / 2^28 * 2.5e-4 = 1
-  ahrs_impl.high_rez_bias.p -= residual_imu.x*(1<<INT32_ANGLE_FRAC);
-  ahrs_impl.high_rez_bias.q -= residual_imu.y*(1<<INT32_ANGLE_FRAC);
-  ahrs_impl.high_rez_bias.r -= residual_imu.z*(1<<INT32_ANGLE_FRAC);
 
-  INT_RATES_RSHIFT(ahrs_impl.gyro_bias, ahrs_impl.high_rez_bias, 28);
+  /* crude attempt to only update bias if deviation is small
+   * e.g. needed when you only have gps providing heading
+   * and the inital heading is totally different from
+   * the gps course information you get once you have a gps fix.
+   * Otherwise the bias will be falsely "corrected".
+   */
+  int32_t sin_max_angle_deviation;
+  PPRZ_ITRIG_SIN(sin_max_angle_deviation, TRIG_BFP_OF_REAL(RadOfDeg(5.)));
+  if (ABS(residual_ltp.z) < sin_max_angle_deviation)
+  {
+    // residual_ltp FRAC = 2 * TRIG_FRAC = 28
+    // high_rez_bias = RATE_FRAC+28 = 40
+    // 2^40 / 2^28 * 2.5e-4 = 1
+    ahrs_impl.high_rez_bias.p -= residual_imu.x*(1<<INT32_ANGLE_FRAC);
+    ahrs_impl.high_rez_bias.q -= residual_imu.y*(1<<INT32_ANGLE_FRAC);
+    ahrs_impl.high_rez_bias.r -= residual_imu.z*(1<<INT32_ANGLE_FRAC);
+
+    INT_RATES_RSHIFT(ahrs_impl.gyro_bias, ahrs_impl.high_rez_bias, 28);
+  }
+}
+
+void ahrs_realign_heading(int32_t heading) {
+
+  /* quaternion representing only the heading rotation from ltp to body */
+  struct Int32Quat q_h_new;
+  q_h_new.qx = 0;
+  q_h_new.qy = 0;
+  PPRZ_ITRIG_SIN(q_h_new.qz, heading/2);
+  PPRZ_ITRIG_COS(q_h_new.qi, heading/2);
+
+  /* quaternion representing current heading only */
+  struct Int32Quat q_h;
+  QUAT_COPY(q_h, ahrs.ltp_to_body_quat);
+  q_h.qx = 0;
+  q_h.qy = 0;
+  INT32_QUAT_NORMALIZE(q_h);
+
+  /* quaternion representing rotation from current to new heading */
+  struct Int32Quat q_c;
+  INT32_QUAT_INV_COMP_NORM_SHORTEST(q_c, q_h, q_h_new);
+
+  /* correct current heading in body frame */
+  struct Int32Quat q;
+  INT32_QUAT_COMP_NORM_SHORTEST(q, q_c, ahrs.ltp_to_body_quat);
+  QUAT_COPY(ahrs.ltp_to_body_quat, q);
+
+  /* compute other representations in body frame */
+  compute_body_euler_and_rmat_from_quat();
+
+  /* compute ltp to imu rotations */
+  compute_imu_orientation();
+
+  ahrs_impl.heading_aligned = TRUE;
 }
 
 
-/* Compute ltp to imu rotation in euler angles and rotation matrice representation
+/* Compute ltp to imu rotation in euler angles and rotation matrix representation
    from the quaternion representation */
 __attribute__ ((always_inline)) static inline void compute_imu_euler_and_rmat_from_quat(void) {
 
@@ -384,6 +438,17 @@ __attribute__ ((always_inline)) static inline void compute_imu_euler_and_rmat_fr
   INT32_EULERS_OF_QUAT(ahrs.ltp_to_imu_euler, ahrs.ltp_to_imu_quat);
   /* Compute LTP to IMU rotation matrix */
   INT32_RMAT_OF_QUAT(ahrs.ltp_to_imu_rmat, ahrs.ltp_to_imu_quat);
+
+}
+
+/* Compute ltp to body rotation in euler angles and rotation matrix representation
+   from the quaternion representation */
+__attribute__ ((always_inline)) static inline void compute_body_euler_and_rmat_from_quat(void) {
+
+  /* Compute LTP to body euler */
+  INT32_EULERS_OF_QUAT(ahrs.ltp_to_body_euler, ahrs.ltp_to_body_quat);
+  /* Compute LTP to body rotation matrix */
+  INT32_RMAT_OF_QUAT(ahrs.ltp_to_body_rmat, ahrs.ltp_to_body_quat);
 
 }
 
@@ -397,6 +462,19 @@ __attribute__ ((always_inline)) static inline void compute_body_orientation(void
   INT32_EULERS_OF_RMAT(ahrs.ltp_to_body_euler, ahrs.ltp_to_body_rmat);
   /* compute body rates */
   INT32_RMAT_TRANSP_RATEMULT(ahrs.body_rate, imu.body_to_imu_rmat, ahrs.imu_rate);
+
+}
+
+__attribute__ ((always_inline)) static inline void compute_imu_orientation(void) {
+
+  /* Compute LTP to IMU quaternion */
+  INT32_QUAT_COMP(ahrs.ltp_to_imu_quat, ahrs.ltp_to_body_quat, imu.body_to_imu_quat);
+  /* Compute LTP to IMU rotation matrix */
+  INT32_RMAT_COMP(ahrs.ltp_to_imu_rmat, ahrs.ltp_to_body_rmat, imu.body_to_imu_rmat);
+  /* compute LTP to IMU eulers */
+  INT32_EULERS_OF_RMAT(ahrs.ltp_to_imu_euler, ahrs.ltp_to_imu_rmat);
+  /* compute IMU rates */
+  INT32_RMAT_RATEMULT(ahrs.imu_rate, imu.body_to_imu_rmat, ahrs.body_rate);
 
 }
 

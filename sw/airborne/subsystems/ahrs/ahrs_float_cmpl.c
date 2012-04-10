@@ -35,12 +35,19 @@
 
 //#include "../../test/pprz_algebra_print.h"
 
-#if !defined AHRS_PROPAGATE_RMAT && !defined AHRS_PROPAGATE_QUAT
+#if AHRS_PROPAGATE_RMAT && AHRS_PROPAGATE_QUAT
+#error "You can only define either AHRS_PROPAGATE_RMAT or AHRS_PROPAGATE_QUAT, not both!"
+#endif
+#if !AHRS_PROPAGATE_RMAT && !AHRS_PROPAGATE_QUAT
 #error "You have to define either AHRS_PROPAGATE_RMAT or AHRS_PROPAGATE_QUAT"
 #endif
 
 #ifdef AHRS_MAG_UPDATE_YAW_ONLY
 #warning "AHRS_MAG_UPDATE_YAW_ONLY is deprecated, please remove it. This is the default behaviour. Define AHRS_MAG_UPDATE_ALL_AXES to use mag for all axes and not only yaw."
+#endif
+
+#if USE_MAGNETOMETER && AHRS_USE_GPS_HEADING
+#warning "Using magnetometer and GPS course to update heading. Probably better to set USE_MAGNETOMETER=0 if you want to use GPS course."
 #endif
 
 void ahrs_update_mag_full(void);
@@ -57,6 +64,7 @@ struct AhrsFloatCmplRmat ahrs_impl;
 void ahrs_init(void) {
   ahrs.status = AHRS_UNINIT;
   ahrs_impl.ltp_vel_norm_valid = FALSE;
+  ahrs_impl.heading_aligned = FALSE;
 
   /* Initialises IMU alignement */
   struct FloatEulers body_to_imu_euler =
@@ -85,26 +93,20 @@ void ahrs_init(void) {
 
 }
 
-#define AHRS_ALIGN_QUAT 1
-
 void ahrs_align(void) {
 
-#if AHRS_ALIGN_QUAT
-
+#if USE_MAGNETOMETER
   /* Compute an initial orientation from accel and mag directly as quaternion */
   ahrs_float_get_quat_from_accel_mag(&ahrs_float.ltp_to_imu_quat, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
+  ahrs_impl.heading_aligned = TRUE;
+#else
+  /* Compute an initial orientation from accel and just set heading to zero */
+  ahrs_float_get_quat_from_accel(&ahrs_float.ltp_to_imu_quat, &ahrs_aligner.lp_accel);
+  ahrs_impl.heading_aligned = FALSE;
+#endif
+
   /* Convert initial orientation from quat to euler and rotation matrix representations. */
   compute_imu_rmat_and_euler_from_quat();
-
-#else
-
-  /* Compute an initial orientation using euler angles */
-  ahrs_float_get_euler_from_accel_mag(&ahrs_float.ltp_to_imu_euler, &ahrs_aligner.lp_accel, &ahrs_aligner.lp_mag);
-  /* Convert initial orientation in quaternion and rotation matrix representations. */
-  FLOAT_QUAT_OF_EULERS(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_euler);
-  FLOAT_RMAT_OF_QUAT(ahrs_float.ltp_to_imu_rmat, ahrs_float.ltp_to_imu_quat);
-
-#endif
 
   /* Compute initial body orientation */
   compute_body_orientation_and_rates();
@@ -119,7 +121,6 @@ void ahrs_align(void) {
   RATES_FLOAT_OF_BFP(ahrs_impl.gyro_bias, bias0);
 
   ahrs.status = AHRS_RUNNING;
-
 }
 
 
@@ -145,14 +146,12 @@ void ahrs_propagate(void) {
   FLOAT_RATES_ZERO(ahrs_impl.rate_correction);
 
   const float dt = 1./AHRS_PROPAGATE_FREQUENCY;
-#ifdef AHRS_PROPAGATE_RMAT
-#pragma message "AHRS: propagation using rotation matrix representation"
+#if AHRS_PROPAGATE_RMAT
   FLOAT_RMAT_INTEGRATE_FI(ahrs_float.ltp_to_imu_rmat, omega, dt );
   float_rmat_reorthogonalize(&ahrs_float.ltp_to_imu_rmat);
   compute_imu_quat_and_euler_from_rmat();
 #endif
-#ifdef AHRS_PROPAGATE_QUAT
-#pragma message "AHRS: propagation using quaternion representation"
+#if AHRS_PROPAGATE_QUAT
   FLOAT_QUAT_INTEGRATE(ahrs_float.ltp_to_imu_quat, omega, dt);
   FLOAT_QUAT_NORMALIZE(ahrs_float.ltp_to_imu_quat);
   compute_imu_rmat_and_euler_from_quat();
@@ -315,20 +314,27 @@ void ahrs_update_gps(void) {
 #endif
 
 #if AHRS_USE_GPS_HEADING && USE_GPS
-  //got a 3d fix and ground speed is more than 0.5 m/s
-  if(gps.fix == GPS_FIX_3D && gps.gspeed>= 500) {
+  //got a 3d fix, ground speed > 0.5 m/s and course accuracy is better than 10deg
+  if(gps.fix == GPS_FIX_3D &&
+     gps.gspeed >= 500 &&
+     gps.cacc <= RadOfDeg(10*1e7)) {
+
     // gps.course is in rad * 1e7, we need it in rad
     float course = gps.course / 1e7;
-    ahrs_update_course(course);
+
+    if (ahrs_impl.heading_aligned) {
+      /* the assumption here is that there is no side-slip, so heading=course */
+      ahrs_update_heading(course);
+    }
+    else {
+      /* hard reset the heading if this is the first measurement */
+      ahrs_realign_heading(course);
+    }
   }
 #endif
 }
 
 
-/** Update yaw based on a heading measurement.
- * e.g. from GPS course
- * @param heading Heading in radians (CW/north)
- */
 void ahrs_update_heading(float heading) {
 
   FLOAT_ANGLE_NORMALIZE(heading);
@@ -351,14 +357,69 @@ void ahrs_update_heading(float heading) {
   const float heading_rate_update_gain = 2.5;
   FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.rate_correction, residual_imu, heading_rate_update_gain);
 
-  const float mag_bias_update_gain = -2.5e-4;
-  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, mag_bias_update_gain);
+  float heading_bias_update_gain;
+  /* crude attempt to only update bias if deviation is small
+   * e.g. needed when you only have gps providing heading
+   * and the inital heading is totally different from
+   * the gps course information you get once you have a gps fix.
+   * Otherwise the bias will be falsely "corrected".
+   */
+  if (fabs(residual_ltp.z) < sinf(RadOfDeg(5.)))
+    heading_bias_update_gain = -2.5e-4;
+  else
+    heading_bias_update_gain = 0.0;
+  FLOAT_RATES_ADD_SCALED_VECT(ahrs_impl.gyro_bias, residual_imu, heading_bias_update_gain);
 }
 
 
-/*
+void ahrs_realign_heading(float heading) {
+  FLOAT_ANGLE_NORMALIZE(heading);
+
+  /* quaternion representing only the heading rotation from ltp to body */
+  struct FloatQuat q_h_new;
+  q_h_new.qx = 0.0;
+  q_h_new.qy = 0.0;
+  q_h_new.qz = sinf(heading/2.0);
+  q_h_new.qi = cosf(heading/2.0);
+
+  /* quaternion representing current heading only */
+  struct FloatQuat q_h;
+  QUAT_COPY(q_h, ahrs_float.ltp_to_body_quat);
+  q_h.qx = 0.;
+  q_h.qy = 0.;
+  FLOAT_QUAT_NORMALIZE(q_h);
+
+  /* quaternion representing rotation from current to new heading */
+  struct FloatQuat q_c;
+  FLOAT_QUAT_INV_COMP_NORM_SHORTEST(q_c, q_h, q_h_new);
+
+  /* correct current heading in body frame */
+  struct FloatQuat q;
+  FLOAT_QUAT_COMP_NORM_SHORTEST(q, q_c, ahrs_float.ltp_to_body_quat);
+  QUAT_COPY(ahrs_float.ltp_to_body_quat, q);
+
+  /* compute ltp to imu rotation quaternion */
+  FLOAT_QUAT_COMP(ahrs_float.ltp_to_imu_quat,
+                  ahrs_float.ltp_to_body_quat, ahrs_impl.body_to_imu_quat);
+
+  /* compute other body orientation representations */
+  FLOAT_RMAT_OF_QUAT(ahrs_float.ltp_to_body_rmat, ahrs_float.ltp_to_body_quat);
+  FLOAT_EULERS_OF_RMAT(ahrs_float.ltp_to_body_euler, ahrs_float.ltp_to_body_rmat);
+
+  /* compute other ltp to imu rotation representations */
+  compute_imu_rmat_and_euler_from_quat();
+
+  /* compute fixed point representations */
+  AHRS_INT_OF_FLOAT();
+  AHRS_IMU_INT_OF_FLOAT();
+
+  ahrs_impl.heading_aligned = TRUE;
+}
+
+
+/**
  * Compute ltp to imu rotation in euler angles and quaternion representations
- * from the rotation matrice representation
+ * from the rotation matrix representation
  */
 static inline void compute_imu_quat_and_euler_from_rmat(void) {
   FLOAT_QUAT_OF_RMAT(ahrs_float.ltp_to_imu_quat, ahrs_float.ltp_to_imu_rmat);
@@ -373,7 +434,7 @@ static inline void compute_imu_rmat_and_euler_from_quat(void) {
 
 
 
-/*
+/**
  * Compute body orientation and rates from imu orientation and rates
  */
 static inline void compute_body_orientation_and_rates(void) {

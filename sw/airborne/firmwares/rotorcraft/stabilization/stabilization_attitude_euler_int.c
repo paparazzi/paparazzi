@@ -157,13 +157,11 @@ void stabilization_attitude_run(bool_t  in_flight) {
     OFFSET_AND_ROUND2((stabilization_gains.i.z  * stabilization_att_sum_err.psi), 10);
 
 
-
-  //FIXME: still needed? for what?
-#ifdef USE_HELI
-#define CMD_SHIFT 12
-#else
-#define CMD_SHIFT 16
-#endif
+  /* with P gain of 100, att_err of 180deg (3.14 rad)
+   * fb cmd: 100 * 3.14 * 2^12 / 2^CMD_SHIFT = 628
+   * max possible command is 9600
+   */
+#define CMD_SHIFT 11
 
   /* sum feedforward and feedback */
   stabilization_cmd[COMMAND_ROLL] =

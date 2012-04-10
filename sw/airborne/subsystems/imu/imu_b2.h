@@ -199,6 +199,7 @@
 }
 #else
 #define ImuMagEvent(_mag_handler) {}
+#define ImuScaleMag(_imu) {}
 #endif
 
 #define ImuEvent(_gyro_handler, _accel_handler, _mag_handler) { \

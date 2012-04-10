@@ -58,13 +58,6 @@
 */
 #endif
 
-/** total supervision command scale.
- * scales a command input [-MAX_PPRZ,MAX_PPRZ]
- * to the final supervision motor command with range of
- * [0,SUPERVISION_MAX_MOTOR-SUPERVISION_MIN_MOTOR]
- */
-#define SUPERVISION_CMD_SCALE (((SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR) / MAX_PPRZ) /SUPERVISION_SCALE)
-
 static const int32_t roll_coef[SUPERVISION_NB_MOTOR]   = SUPERVISION_ROLL_COEF;
 static const int32_t pitch_coef[SUPERVISION_NB_MOTOR]  = SUPERVISION_PITCH_COEF;
 static const int32_t yaw_coef[SUPERVISION_NB_MOTOR]    = SUPERVISION_YAW_COEF;
@@ -81,7 +74,7 @@ void supervision_init(void) {
       pitch_coef[i] * SUPERVISION_TRIM_E +
       yaw_coef[i]   * SUPERVISION_TRIM_R;
     supervision.override_enabled[i] = FALSE;
-    supervision.override_value[i] = SUPERVISION_MIN_MOTOR;
+    supervision.override_value[i] = SUPERVISION_STOP_MOTOR;
   }
   supervision.nb_failure = 0;
 }
@@ -151,13 +144,15 @@ void supervision_run(bool_t motors_on, bool_t override_on, int32_t in_cmd[] ) {
   if (motors_on) {
     int32_t min_cmd = INT32_MAX;
     int32_t max_cmd = INT32_MIN;
+    /* do the mixing in float to avoid overflows, implicitly casted back to int32_t */
     for (i=0; i<SUPERVISION_NB_MOTOR; i++) {
-      supervision.commands[i] =
-        (thrust_coef[i] * in_cmd[COMMAND_THRUST] +
-         roll_coef[i]   * in_cmd[COMMAND_ROLL]   +
-         pitch_coef[i]  * in_cmd[COMMAND_PITCH]  +
-         yaw_coef[i]    * in_cmd[COMMAND_YAW]    +
-         supervision.trim[i] + SUPERVISION_MIN_MOTOR) * SUPERVISION_CMD_SCALE;
+      supervision.commands[i] = SUPERVISION_MIN_MOTOR +
+        (float)(thrust_coef[i] * in_cmd[COMMAND_THRUST] +
+                roll_coef[i]   * in_cmd[COMMAND_ROLL]   +
+                pitch_coef[i]  * in_cmd[COMMAND_PITCH]  +
+                yaw_coef[i]    * in_cmd[COMMAND_YAW]    +
+                supervision.trim[i]) / SUPERVISION_SCALE *
+        (SUPERVISION_MAX_MOTOR - SUPERVISION_MIN_MOTOR) / MAX_PPRZ;
       if (supervision.commands[i] < min_cmd)
         min_cmd = supervision.commands[i];
       if (supervision.commands[i] > max_cmd)
