@@ -38,7 +38,6 @@ uint16_t startup_cnt;
 
 void baro_init( void ) {
   mcp355x_init();
-  SpiSelectSlave0(); // never unselect this slave (continious conversion mode)
   baro.status = BS_UNINITIALIZED;
   baro.absolute     = 0;
   baro.differential = 0; /* not handled on this board */

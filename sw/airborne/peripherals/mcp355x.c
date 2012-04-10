@@ -28,6 +28,7 @@
 
 bool_t mcp355x_data_available;
 int32_t mcp355x_data;
+uint8_t mcp355x_val[4];
 
 struct spi_transaction mcp355x_spi_trans;
 
@@ -35,7 +36,10 @@ void mcp355x_init(void) {
   mcp355x_data_available = FALSE;
   mcp355x_data = 0;
 
-  mcp355x_spi_trans.length = 4;
+  mcp355x_spi_trans.input_length = 4;
+  mcp355x_spi_trans.input_buf = mcp355x_val;
+  mcp355x_spi_trans.output_length = 0;
+  mcp355x_spi_trans.output_buf = 0;
   mcp355x_spi_trans.slave_idx = SPI_SLAVE0;
   mcp355x_spi_trans.select = SPISelect;
   mcp355x_spi_trans.cpol = SPICphaEdge1;
