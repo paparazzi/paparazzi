@@ -33,15 +33,12 @@
 #include "interrupt_hw.h"
 #include "armVIC.h"
 #include BOARD_CONFIG
+#include "led.h"
 
 // FIXME
 // current implementation only works for SPI1 (SSP)
 
-/** Slave selection functions and macros
- *
- *
- * Slave0 select : P0.20  PINSEL1 00 << 8
- * Slave1 select : P1.20
+/** Slave selection functions and macros.
  *
  */
 
@@ -240,7 +237,6 @@ __attribute__ ((always_inline)) static inline void SpiEndOfTransaction(struct sp
   }
 
   SpiClearRti(p);                /* clear interrupt */
-  //SSPIMSC = 0;
   SpiDisable(p);
   // end transaction with success
   t->status = SPITransSuccess;
@@ -478,7 +474,7 @@ bool_t spi_resume(struct spi_periph* p, uint8_t slave) {
   if (p->suspend == slave + 1) {
     // restart fifo
     p->suspend = 0;
-    if (p->status == SPIIdle) {
+    if (p->trans_extract_idx != p->trans_insert_idx && p->status == SPIIdle) {
       SpiStart(p,p->trans[p->trans_extract_idx]);
     }
     VICIntEnable = VIC_BIT(*vic);
