@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<!--
+     Battery checker module
+     @define BAT_CHECKER_DELAY Number of seconds the battery voltage has to be
+                               below LOW_BAT_LEVEL before the warning signal is
+                               activated.
+     @define BAT_CHECKER_LED   The LED to use for the warning signal.
+     -->
+<module name="bat_checker">
+  <header>
+    <file name="bat_checker.h"/>
+  </header>
+  <init fun="init_bat_checker()"/>
+  <periodic fun="bat_checker_periodic()" freq="2" autorun="TRUE"/>
+  <makefile>
+    <define name="bat_checker_periodic_FREQ" value="2"/>
+    <file name="bat_checker.c"/>
+  </makefile>
+</module>
+

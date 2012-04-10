@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2010 Eric Parsonage
- * Copyright (C) 2011 Piotr Esden-Tempski <piotr@esden.net>
+ * $Id$
+ *
+ * Copyright (C) 2012  Thomas Kolb
  *
  * This file is part of paparazzi.
  *
@@ -18,15 +19,13 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
+#ifndef BAT_CHECKER_H
+#define BAT_CHECKER_H
 
-#ifndef BATTERY_BUZZER_H
-#define BATTERY_BUZZER_H
+void init_bat_checker(void);
+void bat_checker_periodic(void);
 
-#include "std.h"
-
-extern void battery_buzzer_init(void);
-extern void battery_buzzer_periodic(void);
-
-#endif  /* BATTERY_BUZZER_H */
+#endif // BAT_CHECKER_H

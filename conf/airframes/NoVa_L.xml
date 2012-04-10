@@ -242,7 +242,6 @@
   <firmware name="rotorcraft">
 <!--     <define name="USE_PERSISTENT_SETTINGS"/> -->
 <!--     <define name="USE_INS_NAV_INIT"/> -->
-     <define name="USE_ADAPT_HOVER"/>
      <define name="FAILSAFE_GROUND_DETECT"/>
      <define name="USE_GPS_ACC4R"/>
      <target name="ap" board="lisa_l_1.0">
