@@ -57,9 +57,9 @@ static inline int ahrs_is_aligned(void) {
 }
 #endif
 
-#ifdef AUTOPILOT_ARMING_KILL_SWITCH
+#if USE_KILL_SWITCH_FOR_MOTOR_ARMING
 #include "autopilot_arming_switch.h"
-#elif defined AUTOPILOT_ARMING_THROTTLE
+#elif USE_THROTTLE_FOR_MOTOR_ARMING
 #include "autopilot_arming_throttle.h"
 #else
 #include "autopilot_arming_yaw.h"
