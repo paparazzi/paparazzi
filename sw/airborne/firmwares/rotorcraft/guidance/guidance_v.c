@@ -48,12 +48,18 @@
 #warning "ALL control gains are now positive!!!"
 #endif
 
+#if defined GUIDANCE_V_INV_M
+#warning "GUIDANCE_V_INV_M has been removed. If you don't want to use adaptive hover, please define GUIDANCE_V_NOMINAL_HOVER_THROTTLE"
+#endif
+
 #define GUIDANCE_V_GAIN_SCALER 48
 
 uint8_t guidance_v_mode;
 int32_t guidance_v_ff_cmd;
 int32_t guidance_v_fb_cmd;
 int32_t guidance_v_delta_t;
+
+int16_t guidance_v_nominal_throttle;
 
 
 /** Direct throttle from radio control.
@@ -100,6 +106,10 @@ void guidance_v_init(void) {
   guidance_v_ki = GUIDANCE_V_HOVER_KI;
 
   guidance_v_z_sum_err = 0;
+
+#ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
+  guidance_v_nominal_throttle = GUIDANCE_V_NOMINAL_HOVER_THROTTLE * MAX_PPRZ;
+#endif
 
   gv_adapt_init();
 }
@@ -264,8 +274,8 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
     guidance_v_z_sum_err = 0;
 
   /* our nominal command : (g + zdd)*m   */
-#ifdef GUIDANCE_V_INV_M
-  const int32_t inv_m = BFP_OF_REAL(GUIDANCE_V_INV_M, FF_CMD_FRAC);
+#ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
+  const int32_t inv_m = BFP_OF_REAL(9.81/guidance_v_nominal_throttle, FF_CMD_FRAC);
 #else
   const int32_t inv_m =  gv_adapt_X>>(GV_ADAPT_X_FRAC - FF_CMD_FRAC);
 #endif
