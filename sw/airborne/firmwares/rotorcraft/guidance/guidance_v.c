@@ -48,6 +48,10 @@
 #warning "ALL control gains are now positive!!!"
 #endif
 
+#if defined GUIDANCE_V_INV_M
+#warning "GUIDANCE_V_INV_M has been removed. If you don't want to use adaptive hover, please define GUIDANCE_V_NOMINAL_HOVER_THROTTLE"
+#endif
+
 #define GUIDANCE_V_GAIN_SCALER 48
 
 uint8_t guidance_v_mode;
@@ -271,7 +275,7 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
 
   /* our nominal command : (g + zdd)*m   */
 #ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
-  const int32_t inv_m = BFP_OF_REAL(9.81/GUIDANCE_V_NOMINAL_HOVER_THROTTLE, FF_CMD_FRAC);
+  const int32_t inv_m = BFP_OF_REAL(9.81/guidance_v_nominal_throttle, FF_CMD_FRAC);
 #else
   const int32_t inv_m =  gv_adapt_X>>(GV_ADAPT_X_FRAC - FF_CMD_FRAC);
 #endif
