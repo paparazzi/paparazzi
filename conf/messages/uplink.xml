@@ -111,7 +111,7 @@
 		<field name="pitch" type="int8"/>
 	</message>
 
-	<message name="RC_4CH" id="52" link="broadcasted">
+	<message name="RC_4CH" id="52" link="broadcasted"><!-- Don't change of class -->
 		<field name="ac_id"       type="uint8"/>
 		<field name="mode"        type="uint8"/>
 		<field name="throttle"    type="uint8"/>
@@ -130,7 +130,7 @@
 		<field name="command"     type="uint8[]"/>
 	</message>
 
-	<message name="SET_ACTUATOR" id="100" link="forwarded">
+	<message name="SET_ACTUATOR" id="100" link="forwarded"><!-- Don't change of class -->
 		<field name="value" type="uint16"/>
 		<field name="no" type="uint8"/>
 		<field name="ac_id" type="uint8"/>
@@ -143,7 +143,7 @@
 		<field name="servo_4" type="uint16"/>
 	</message>
 
-	<message name="BOOZ2_FMS_COMMAND" id="149" link="forwarded">
+	<message name="BOOZ2_FMS_COMMAND" id="149" link="forwarded"><!-- Don't change of class -->
 		<field name="v_sp"   type="int32"/>
 		<field name="h_sp_1" type="int32"/>
 		<field name="h_sp_2" type="int32"/>
@@ -153,7 +153,7 @@
 		<field name="ac_id"  type="uint8"/>
 	</message>
 
-	<message name="BOOZ_NAV_STICK" id="150" link="forwarded">
+	<message name="BOOZ_NAV_STICK" id="150" link="forwarded"><!-- Don't change of class -->
 		<field name="ac_id" type="uint8"/>
 		<field name="vx_sp" type="int8"/>
 		<field name="vy_sp" type="int8"/>
@@ -170,7 +170,7 @@
 		<field name="status" type="uint8"/>
 	</message>
 
-	<message name="BOOZ_CAM_STICK" id="152" link="forwarded">
+	<message name="BOOZ_CAM_STICK" id="152" link="forwarded"><!-- Don't change of class -->
 		<field name="ac_id" type="uint8"/>
 		<field name="tilt" type="int8"/>
 		<field name="pan" type="int8"/>

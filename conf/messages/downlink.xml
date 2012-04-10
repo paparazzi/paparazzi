@@ -63,10 +63,6 @@
 		<field name="z_dot" type="float" unit="m/s"/>
 	</message>
 
-
-
-
-
 	<message name="PAYLOAD" id="114">
 		<field name="values" type="uint8[]" unit="none"/>
 	</message>
@@ -88,7 +84,6 @@
 	</message>
 
 
-<!-- *********************************** ENERGY, POWER & THRUST *********************************** -->
 <!-- _________________________________ BATTERY / ENERGY / MOTOR ___________________________________ -->
 	<message name="BAT" id="12"><!-- MAIN -->
 		<field name="throttle" type="int16" unit="pprz"/>
@@ -208,7 +203,7 @@
 		<field name="fix"     type="uint8" values="NONE|UKN1|UKN2|3D"/>
 	</message>
 
-<!-- GPS Messages: Global Positioning System  -->
+<!-- GPS Messages: Global Positioning System !!!OTHERS  -->
 
 
 	<message name="SVINFO" id="25"><!-- gps -->
@@ -274,7 +269,7 @@
 
 
 <!-- ___________________________________________ BARO _____________________________________________ -->
-	<message name="PRESSURE" id="45">
+	<message name="PRESSURE" id="45"><!-- PBN-PRESSURE merge? -->
 		<field name="airspeed_adc" type="float"/>
 		<field name="airspeed" type="float" unit="m/s"/>
 		<field name="altitude_adc" type="float"/>
@@ -292,7 +287,7 @@
 		<field name="diff"         type="int32"/>
 	</message>
 
-	<message name="PBN" id="58">
+	<message name="PBN" id="58"><!-- PBN-PRESSURE merge? -->
 		<field name="airspeed_adc" type="uint16"></field>
 		<field name="altitude_adc" type="uint16"></field>
 		<field name="airspeed" type="float"></field>
@@ -622,7 +617,7 @@
 		<field name="nb_err" type="uint32"/>
 	</message>
 
-	<message name="ANTENNA_STATUS" id="93"><!-- MAIN -->
+	<message name="ANTENNA_STATUS" id="93"><!-- MAIN: here or in GEN:SENSORS? -->
 		<field name="azim_sp" type="float"/>
 		<field name="elev_sp" type="float"/>
 		<field name="id_sp" type="uint8"/>
@@ -666,7 +661,7 @@
 		<field name="long" type="float" unit="deg"/>
 	</message>
 
-	<message name="WP_MOVED_UTM" id="35"><!-- MAIN !!! added _UTM => change everywhere-->
+	<message name="WP_MOVED_UTM" id="35"><!-- MAIN _UTM-->
 		<field name="wp_id" type="uint8"/>
 		<field name="utm_east" type="float" unit="m"/>
 		<field name="utm_north" type="float" unit="m"/>
@@ -1030,79 +1025,38 @@
 		<field name="ref_alt" type="float"></field>
 	</message>
 
-<!-- __________________________________________ SIMULATOR _________________________________________ -->
+	<message name="XSENS" id="55">
+		<field name="counter" type="int16" unit=""/>
 
+		<field name="p" type="float" unit="deg/s"/>
+		<field name="q" type="float" unit="deg/s"/>
+		<field name="r" type="float" unit="deg/s"/>
 
-	<message name="BOOZ_SIM_SENSORS_SCALED" id="197">
-		<field name="acc_x"    type="float" />
-		<field name="acc_y"    type="float" />
-		<field name="acc_z"    type="float" />
-		<field name="mag_x"    type="float" />
-		<field name="mag_y"    type="float" />
-		<field name="mag_z"    type="float" />
-	</message>
+		<field name="phi" type="float" unit="deg"/>
+		<field name="theta" type="float" unit="deg"/>
+		<field name="psi" type="float" unit="deg"/>
 
-	<message name="BOOZ_SIM_POS_LLH" id="238"><!-- remove alt_unit_coef -->
-		<field name="pprz_lat"   type="float" unit="rad" alt_unit="deg"/>
-		<field name="lat_geod"   type="float" unit="rad" alt_unit="deg"/>
-		<field name="lat_geoc"   type="float" unit="rad" alt_unit="deg"/>
-		<field name="pprz_lon"   type="float" unit="rad" alt_unit="deg"/>
-		<field name="lon"        type="float" unit="rad" alt_unit="deg"/>
-		<field name="pprz_alt"   type="float" unit="m"/>
-		<field name="alt_geod"   type="float" unit="m"/>
-		<field name="agl"        type="float" unit="m"/>
-		<field name="asl"        type="float" unit="m"/>
-	</message>
+		<field name="ax" type="float" unit="m/s2"/>
+		<field name="ay" type="float" unit="m/s2"/>
+		<field name="az" type="float" unit="m/s2"/>
 
-	<message name="BOOZ_SIM_RPMS" id="239">
-		<field name="front"    type="float" unit="RPM"/>
-		<field name="back"     type="float" unit="RPM"/>
-		<field name="right"    type="float" unit="RPM"/>
-		<field name="left"     type="float" unit="RPM"/>
-	</message>
+		<field name="vx" type="float" unit="m/s"/>
+		<field name="vy" type="float" unit="m/s"/>
+		<field name="vz" type="float" unit="m/s"/>
 
-	<message name="BOOZ_SIM_SPEED_POS" id="240">
-		<field name="ltpp_xdd" type="float" unit="m/s2"/>
-		<field name="ltpp_ydd" type="float" unit="m/s2"/>
-		<field name="ltpp_zdd" type="float" unit="m/s2"/>
-		<field name="ltpp_xd"  type="float" unit="m/s"/>
-		<field name="ltpp_yd"  type="float" unit="m/s"/>
-		<field name="ltpp_zd"  type="float" unit="m/s"/>
-		<field name="ltpp_x"   type="float" unit="m"/>
-		<field name="ltpp_y"   type="float" unit="m"/>
-		<field name="ltpp_z"   type="float" unit="m"/>
-	</message>
+		<field name="lat" type="float" unit="deg"/>
+		<field name="lon" type="float" unit="deg"/>
+		<field name="alt" type="float" unit="m"/>
 
-	<message name="BOOZ_SIM_RATE_ATTITUDE" id="241">
-		<field name="p"     type="float" unit="degres/s"/>
-		<field name="q"     type="float" unit="degres/s"/>
-		<field name="r"     type="float" unit="degres/s"/>
-		<field name="phi"   type="float" unit="degres"/>
-		<field name="theta" type="float" unit="degres"/>
-		<field name="psi"   type="float" unit="degres"/>
-	</message>
+		<field name="status" type="uint8" unit=""/>
 
-	<message name="BOOZ_SIM_GYRO_BIAS" id="242">
-		<field name="bp"     type="float" unit="degres/s"/>
-		<field name="bq"     type="float" unit="degres/s"/>
-		<field name="br"     type="float" unit="degres/s"/>
-	</message>
-
-	<message name="BOOZ_SIM_RANGE_METER" id="243">
-		<field name="dist"   type="float" unit="adc"/>
-	</message>
-
-	<message name="BOOZ_SIM_WIND" id="244">
-		<field name="vx"   type="float" unit="m/s"/>
-		<field name="vy"   type="float" unit="m/s"/>
-		<field name="vz"   type="float" unit="m/s"/>
-	</message>
-
-
-	<message name="BOOZ_SIM_ACCEL_LTP" id="248">
-		<field name="xdd"   type="float" unit="m/s2"/>
-		<field name="ydd"   type="float" unit="m/s2"/>
-		<field name="zdd"   type="float" unit="m/s2"/>
+		<field name="hour" type="uint8" unit=""/>
+		<field name="min" type="uint8" unit=""/>
+		<field name="sec" type="uint8" unit=""/>
+		<field name="nanosec" type="uint32" unit=""/>
+		<field name="year" type="uint16" unit=""/>
+		<field name="month" type="uint8" unit=""/>
+		<field name="day" type="uint8" unit=""/>
 	</message>
 
 <!-- ____________________________________________ DEBUG ___________________________________________ -->
@@ -1131,11 +1085,33 @@
 	</message>
 
 
+	<message name="TEST_FORMAT" id="19">
+		<field name="val1" type="double"/>
+		<field name="val2" type="float"/>
+	</message>
 
 
 
 
-<!-- ********************************* POSITION, ATTITUDE & SPEED ********************************* -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1202,32 +1178,7 @@
 
 
 
-
-
-
-
-<!-- *************************************** SYSTEM, DEBUG *************************************** -->
-
-
-
-
-
-
-
-
-
-
-
-
 <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-
-
-	<message name="TEST_FORMAT" id="19">
-		<field name="val1" type="double"/>
-		<field name="val2" type="float"/>
-	</message>
-
-
 
 
 	<message name="RANGEFINDER" id="29">
@@ -1254,45 +1205,6 @@
 		<field name="phi" type="float"/>
 		<field name="phi_sp" type="float"/>
 	</message>
-
-
-
-
-	<message name="XSENS" id="55">
-		<field name="counter" type="int16" unit=""/>
-
-		<field name="p" type="float" unit="deg/s"/>
-		<field name="q" type="float" unit="deg/s"/>
-		<field name="r" type="float" unit="deg/s"/>
-
-		<field name="phi" type="float" unit="deg"/>
-		<field name="theta" type="float" unit="deg"/>
-		<field name="psi" type="float" unit="deg"/>
-
-		<field name="ax" type="float" unit="m/s2"/>
-		<field name="ay" type="float" unit="m/s2"/>
-		<field name="az" type="float" unit="m/s2"/>
-
-		<field name="vx" type="float" unit="m/s"/>
-		<field name="vy" type="float" unit="m/s"/>
-		<field name="vz" type="float" unit="m/s"/>
-
-		<field name="lat" type="float" unit="deg"/>
-		<field name="lon" type="float" unit="deg"/>
-		<field name="alt" type="float" unit="m"/>
-
-		<field name="status" type="uint8" unit=""/>
-
-		<field name="hour" type="uint8" unit=""/>
-		<field name="min" type="uint8" unit=""/>
-		<field name="sec" type="uint8" unit=""/>
-		<field name="nanosec" type="uint32" unit=""/>
-		<field name="year" type="uint16" unit=""/>
-		<field name="month" type="uint8" unit=""/>
-		<field name="day" type="uint8" unit=""/>
-	</message>
-
-
 
 	<message name="H_CTL_A" id="60">
 		<field name="roll_sum_err" type="float"/>
@@ -1324,12 +1236,6 @@
 		<field name="accel" type="float" unit="m/s/s"/>
 	</message>
 
-
-
-
-
-
-
 	<message name="BOOZ2_FMS_INFO" id="148">
 		<field name="tbd"      type="float"/>
 	</message>
@@ -1350,26 +1256,11 @@
 		<field name="body_psi"   type="int32" alt_unit="degres" alt_unit_coef="0.0139882"/>
 	</message>
 
-
-
-
-
 	<message name="BOOZ2_TUNE_FF" id="163">
 		<field name="fb_rms"         type="float"/>
 		<field name="dg"             type="float"/>
 		<field name="g"              type="float"/>
 	</message>
-
-<!-- REMOVED
-	<message name="BOOZ2_SONAR" id="167">
-		<field name="front" type="uint16" unit="adc"/>
-		<field name="back" type="uint16" unit="adc"/>
-		<field name="right" type="uint16" unit="adc"/>
-		<field name="left" type="uint16" unit="adc"/>
-	</message>
--->
-
-
 
 	<message name="BOOZ_ATT_REF_MODEL" id="251">
 		<field name="omega_p" type="float" />
@@ -1386,6 +1277,13 @@
 		<field name="yaw" type="float"/>
 	</message>
 
-
+<!-- REMOVED
+	<message name="BOOZ2_SONAR" id="167">
+		<field name="front" type="uint16" unit="adc"/>
+		<field name="back" type="uint16" unit="adc"/>
+		<field name="right" type="uint16" unit="adc"/>
+		<field name="left" type="uint16" unit="adc"/>
+	</message>
+-->
 
 </class>

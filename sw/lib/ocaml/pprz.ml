@@ -379,8 +379,67 @@ let hex_of_int_array = function
   | value ->
       failwith (sprintf "Error: expecting array in Pprz.hex_of_int_array, found %s" (string_of_value value))
 
+type _class = {
+	class_id : int;
+	class_name : string;
+	class_type : string;
+	class_xml : Xml.xml;
+}
 
+let join_messages_of_type = fun xml _type final_class ->
+	try
+		let version = Xml.attrib xml "version" in
+		match version with 
+			| "1.0" ->
+				let classes = List.map (fun _class -> {class_id = int_of_string (ExtXml.attrib _class "id") ; class_name = ExtXml.attrib _class "name" ; class_type = ExtXml.attrib _class "type" ; class_xml = _class }) (Xml.children xml) in
+				let sel_classes = List.filter (fun _class -> 
+					if (_class.class_type = _type) || (_class.class_type = "datalink") then true else false
+					(*
+					match _class.class_type with 
+					| _type -> true 
+					| "datalink" -> true 
+					| _ -> false 
+					*)) classes in
+				let msgs_lists = List.map (fun sel_class -> Xml.children sel_class.class_xml ) sel_classes in
+				let msgs_list = List.flatten msgs_lists in
+				let param_list = ["name",final_class] in
+				let node_class = Xml.Element("class",param_list,msgs_list) in
+				let node_protocol = Xml.Element("protocol",[],[node_class]) in 
+				node_protocol
+			| v -> failwith (sprintf "Pprz.join_messages_of_type Version not handled (Version: %s)" v)
+	with
+		| Xml.No_attribute atr -> prerr_endline ("Info: Using old messages.xml version"); xml
 
+let get_downlink_messages_in_one_class = fun xml ->
+	join_messages_of_type xml "downlink" "telemetry"
+
+let get_uplink_messages_in_one_class = fun xml ->
+	join_messages_of_type xml "uplink" "datalink"	
+
+let old_classes_info = [("telemetry",["common_telemetry";"0";"downlink"]);("datalink",["common_commands";"1";"uplink"]);("alert",["alert";"2";"ground"]);("ground",["ground";"3";"ground"]);("DIA",["DIA";"4";"ground"])]
+
+let convert_to_new_xml = fun xml ->
+	try
+		let classes = List.map (fun _class ->
+			let new_info = List.assoc (ExtXml.attrib _class "name") old_classes_info in
+			{class_id = int_of_string(List.nth new_info 1) ; class_name = List.nth new_info 0 ; class_type = List.nth new_info 2 ; class_xml = _class }) (Xml.children xml) in
+		let class_nodes = List.map (fun cls ->
+			let param_list = ["id",string_of_int(cls.class_id);"name",cls.class_name;"type",cls.class_type] in
+			Xml.Element("class",param_list,Xml.children cls.class_xml)
+				) classes in
+		let node_protocol = Xml.Element("protocol",["version","1.0"],class_nodes) in 
+		node_protocol
+	with
+		| Not_found -> failwith ("Pprz.convert_to_new_xml New info for old class not defined")
+
+let to_new_xml_format = fun xml ->
+	try
+		let version = Xml.attrib xml "version" in
+		match version with
+			| "1.0" -> xml
+			| v -> failwith (sprintf "Pprz.to_new_xml_format Version not handled (Version: %s)" v)
+	with Xml.No_attribute atr -> prerr_endline ("Info: Using old messages.xml version"); (convert_to_new_xml xml)
+			
 exception Unknown_msg_name of string * string
 
 module type TRANSPORT_TYPE = sig

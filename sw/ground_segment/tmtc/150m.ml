@@ -17,10 +17,10 @@ let index_pprz_mode = 5 (* From var/include/basic.h *)
 let autopilot_HOME_mode_value = 3 (* From sw/airborne/autopilot.h *)
 
 (* Build the module to listen telemetry *)
-module Tele_Pprz = Pprz.Messages(struct let name = "telemetry" end)
+module Tele_Pprz = Pprz.Messages_of_type(struct let class_type = "downlink" end)
 
 (* Build the module to send uplink messages *)
-module Datalink_Pprz = Pprz.Messages(struct let name = "datalink" end)
+module Datalink_Pprz = Pprz.Messages_of_type(struct let class_type = "uplink" end)
 
 
 

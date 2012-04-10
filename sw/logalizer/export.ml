@@ -260,7 +260,8 @@ let save_values = fun w filename save ->
 
 (*****************************************************************************)
 (** The popup window displaying values to export *)
-let popup = fun ?(no_gui = false) xml log_filename data ->
+let popup = fun ?(no_gui = false) _xml log_filename data ->
+	let xml = Pprz.get_downlink_messages_in_one_class _xml in
   (* Build the list window *)
   let file = Env.paparazzi_src // "sw" // "logalizer" // "export.glade" in
   let w = new Gtk_export.export ~file () in

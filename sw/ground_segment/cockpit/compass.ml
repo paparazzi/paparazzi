@@ -27,7 +27,7 @@
 open Printf
 open Latlong
 
-module Tm_Pprz = Pprz.Messages (struct let name = "telemetry" end)
+module Tm_Pprz = Pprz.Messages_of_type (struct let class_type = "downlink" end)
 
 let width = 200
 let height = width
@@ -95,9 +95,9 @@ let draw = fun (da_object:Gtk_tools.pixmap_in_drawin_area) desired_course course
   (* Distance and bearing to target, current track *)
   print_string (7*s) s (sprintf "%.0f m" distance);
   print_string (7*s) (s/2) "Dist.";
-  print_string s s (sprintf "%.0f°" desired_course);
+  print_string s s (sprintf "%.0fï¿½" desired_course);
   print_string s (s/2) "Brg";
-  print_string s (7*s) (match course_opt with None -> "---" | _ -> sprintf "%.0f°" course);
+  print_string s (7*s) (match course_opt with None -> "---" | _ -> sprintf "%.0fï¿½" course);
   print_string s (7*s+s/2) "Track";
 
   (* Cardinal points *)

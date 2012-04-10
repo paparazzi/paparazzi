@@ -676,12 +676,13 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
   Debug.call 'p' (fun f ->  fprintf f "data_file: %s\n" data_file);
 
   let protocol = ExtXml.child xml "protocol" in
+	let _protocol = Pprz.to_new_xml_format protocol in
 	
 	let class_type = "downlink" in
 	Debug.call 'p' (fun f ->  fprintf f "class_type: %s\n" class_type);
-	let module M = struct let selection = class_type and mode = Pprz.Type and sel_class_id = None let xml = protocol end in
-  let module P = Pprz.MessagesOfXml(M) in
 	
+	let module M = struct let selection = class_type and mode = Pprz.Type and sel_class_id = None let xml = _protocol end in
+  let module P = Pprz.MessagesOfXml(M) in
   let f =
     try
       Ocaml_tools.find_file [Filename.dirname xml_file] data_file
@@ -753,7 +754,6 @@ let load_log = fun ?export ?factor (plot:plot) (menubar:GMenu.menu_shell GMenu.f
 		Hashtbl.iter (fun msg_ids fields -> l := (P.message_of_id ~class_id:msg_ids.cls_id msg_ids.msg_id, fields):: !l) msgs; 
 				
 	  let msgs = List.sort (fun (a,_) (b,_) -> compare a b) !l in
-
 	  let msgs =
 	    List.map (fun (msg_ids, fields) ->
 	      let l = ref [] in

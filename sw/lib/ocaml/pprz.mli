@@ -108,6 +108,20 @@ val alt_unit_coef_of_xml : Xml.xml -> string
 (** Return coef for alternate unit
  *)
 
+val get_downlink_messages_in_one_class : Xml.xml -> Xml.xml
+(** Messages.xml version handler. For those functions that are using stored messages.xml files. 
+ *  If the message is of the old version it returns the same file,
+ *  if it's of the new version (1.0) it returns a 'protocol' xml element with one class called 'telemetry' including all downlink and datalink messages *)
+
+val get_uplink_messages_in_one_class : Xml.xml -> Xml.xml
+(** Messages.xml version handler. For those functions that are using stored messages.xml files. 
+ *  If the message is of the old version it returns the same file,
+ *  if it's of the new version (1.0) it returns a 'protocol' xml element with one class called 'datalink' including all uplink and datalink messages *)
+
+val to_new_xml_format : Xml.xml -> Xml.xml
+(** Converts old format xml messages file to the new format. Use it before generating the module MessagesOfXml without going through the functors. 
+ *  Returns the xml with the new format (v1.0). *)
+
 exception Unknown_msg_name of string * string
 (** [Unknown_msg_name (name, class_name)] Raised if message [name] is not
 found in class [class_name]. *)

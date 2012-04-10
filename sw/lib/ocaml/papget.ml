@@ -56,7 +56,7 @@ let base_and_index =
       (field_descr, 0)
 
 
-class message_field = fun ?sender ?(class_name="telemetry") msg_name field_descr -> (* XGGDEBUG:DYNMOD: if there's a change of 'telemetry' to 'downlink', change here the class_name *) 
+class message_field = fun ?sender ?(class_type="downlink") msg_name field_descr -> (* XGGDEBUG:DYNMOD: No one is using it with the class_name so maybe the best idea is to change it by type and pus downlink *)
   object
     val mutable callbacks = []
     val mutable last_value = "0."
@@ -70,7 +70,7 @@ class message_field = fun ?sender ?(class_name="telemetry") msg_name field_descr
     method type_ = "message_field"
 
     initializer
-      let module P = Pprz.Messages_of_name (struct let class_name = class_name end) in
+      let module P = Pprz.Messages_of_type (struct let class_type = class_type end) in
       let process_message = fun _sender values ->
 	let (field_name, index) = base_and_index field_descr in
 	let value =
