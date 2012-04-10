@@ -598,13 +598,20 @@ toytronics_set_sp_incremental_from_rc()
 
   // form diff quat
   double total_angle = sqrt( w_dt_sp.x*w_dt_sp.x 
-                             + w_dt_sp.y*w_dt_sp.y 
-                             + w_dt_sp.z*w_dt_sp.z 
-                             + 1e-9);
-  quat_t diff_quat = {cos(total_angle/2.0),
-                      sin(total_angle/2.0)*w_dt_sp.x/total_angle,
-                      sin(total_angle/2.0)*w_dt_sp.y/total_angle,
-                      sin(total_angle/2.0)*w_dt_sp.z/total_angle};
+                           + w_dt_sp.y*w_dt_sp.y 
+                           + w_dt_sp.z*w_dt_sp.z);
+  quat_t diff_quat;
+  if (total_angle < 1e-12){
+    diff_quat.q0 = 1;
+    diff_quat.q1 = 0;
+    diff_quat.q2 = 0;
+    diff_quat.q3 = 0;
+  } else {
+    diff_quat.q0 = cos(total_angle/2.0);
+    diff_quat.q1 = sin(total_angle/2.0)*w_dt_sp.x/total_angle;
+    diff_quat.q2 = sin(total_angle/2.0)*w_dt_sp.y/total_angle;
+    diff_quat.q3 = sin(total_angle/2.0)*w_dt_sp.z/total_angle;
+  }
 
   // use diff quat to update setpoint quat
   setpoint.q_n2sp = quat_mult_ret(setpoint.q_n2sp, diff_quat);
