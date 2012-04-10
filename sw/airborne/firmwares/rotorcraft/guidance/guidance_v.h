@@ -94,6 +94,11 @@ extern int32_t guidance_v_fb_cmd;    ///< feed-back command
  */
 extern int32_t guidance_v_delta_t;
 
+/** nominal throttle for hover.
+ * range: 0 : #MAX_PPRZ
+ */
+extern int16_t guidance_v_nominal_throttle;
+
 extern int32_t guidance_v_kp; ///< vertical control P-gain
 extern int32_t guidance_v_kd; ///< vertical control D-gain
 extern int32_t guidance_v_ki; ///< vertical control I-gain
