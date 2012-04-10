@@ -265,7 +265,7 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
 
   /* our nominal command : (g + zdd)*m   */
 #ifdef GUIDANCE_V_INV_M
-  const int32_t inv_m = BFP_OF_REAL(GUIDANCE_V_INV_M, GV_ADAPT_X_FRAC);
+  const int32_t inv_m = BFP_OF_REAL(GUIDANCE_V_INV_M, FF_CMD_FRAC);
 #else
   const int32_t inv_m =  gv_adapt_X>>(GV_ADAPT_X_FRAC - FF_CMD_FRAC);
 #endif
