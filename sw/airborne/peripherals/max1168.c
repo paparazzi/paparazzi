@@ -30,6 +30,11 @@ uint16_t max1168_values[MAX1168_NB_CHAN];
 struct spi_transaction max1168_req_trans;
 struct spi_transaction max1168_read_trans;
 
+/* callback function to lock the spi fifo
+ * after the first transaction
+ */
+void max1168_lock_cb(void);
+
 extern void max1168_init( void ) {
 
   max1168_arch_init();
@@ -46,6 +51,7 @@ extern void max1168_init( void ) {
   max1168_req_trans.select = SPISelect;
   max1168_req_trans.length = 1;
   max1168_req_trans.output_buf[0] = MAX1168_CONF_CR << 8;
+  max1168_req_trans.after_cb = max1168_lock_cb;
 
   max1168_read_trans.slave_idx = MAX1168_SLAVE_IDX;
   max1168_read_trans.cpol = SPICpolIdleLow;
@@ -64,11 +70,10 @@ void max1168_read( void ) {
   ASSERT((max1168_status == MAX1168_IDLE), DEBUG_MAX_1168, MAX1168_ERR_READ_OVERUN);
 
   /* set SPI transaction */
-  /* SPI is locked between the two transactions */
+  /* SPI is locked between the two transactions (callback) */
   /* SPI is unlocked when EOC is received */
 
   spi_submit(&(MAX1168_SPI_DEV),&max1168_req_trans);
-  spi_lock(&(MAX1168_SPI_DEV),MAX1168_SLAVE_IDX);
   spi_submit(&(MAX1168_SPI_DEV),&max1168_read_trans);
 
   max1168_status = MAX1168_SENDING_REQ;
@@ -76,28 +81,14 @@ void max1168_read( void ) {
 }
 
 void max1168_event( void ) {
-  //LED_OFF(1);
-  //LED_OFF(2);
-  //LED_OFF(3);
-  //LED_ON(4);
   // handle request transaction
   if (max1168_req_trans.status == SPITransSuccess) {
-    //LED_ON(3);
-    if (max1168_status == MAX1168_GOT_EOC) {
-      //LED_ON(1);
-      // eoc occurs, unlock SPI
-      spi_resume(&(MAX1168_SPI_DEV),MAX1168_SLAVE_IDX);
-
-      max1168_status = MAX1168_READING_RES;
-      max1168_req_trans.status = SPITransDone;
-    }
-    else { /* TODO ? */ }
+    max1168_req_trans.status = SPITransDone;
   }
   else if (max1168_req_trans.status == SPITransFailed) {
-      //LED_ON(2);
-    // TODO
     max1168_status = MAX1168_IDLE;
     spi_slave_unselect(MAX1168_SLAVE_IDX);
+    spi_resume(&(MAX1168_SPI_DEV),MAX1168_SLAVE_IDX);
     max1168_req_trans.status = SPITransDone;
   }
 
@@ -116,13 +107,22 @@ void max1168_event( void ) {
       max1168_status = MAX1168_DATA_AVAILABLE;
       max1168_read_trans.status = SPITransDone;
     }
-    else { /* TODO ? */ }
   }
   else if (max1168_read_trans.status == SPITransFailed) {
-    // TODO
     max1168_status = MAX1168_IDLE;
     spi_slave_unselect(MAX1168_SLAVE_IDX);
     max1168_read_trans.status = SPITransDone;
   }
-  //LED_OFF(4);
+  // Waiting for EOC
+  // FIXME possible race condition, should suspend external int ?
+  if (max1168_status == MAX1168_GOT_EOC) {
+    // eoc occurs, unlock SPI
+    spi_resume(&(MAX1168_SPI_DEV),MAX1168_SLAVE_IDX);
+    max1168_status = MAX1168_READING_RES;
+  }
 }
+
+void max1168_lock_cb(void) {
+  spi_lock(&(MAX1168_SPI_DEV),MAX1168_SLAVE_IDX);
+}
+
