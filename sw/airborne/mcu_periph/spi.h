@@ -29,8 +29,6 @@
 #ifndef SPI_H
 #define SPI_H
 
-//#if USE_SPI
-
 #include "std.h"
 
 #include "mcu_periph/spi_arch.h"
@@ -248,7 +246,5 @@ extern volatile bool_t spi_message_received;
 void spi_slave_init(void);
 
 #endif
-
-//#endif /* USE_SPI */
 
 #endif /* SPI_H */

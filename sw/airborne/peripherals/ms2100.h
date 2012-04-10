@@ -43,7 +43,6 @@
 extern void ms2100_init( void );
 extern void ms2100_read( void );
 extern void ms2100_event( void );
-extern void ms2100_reset( void );
 
 #define MS2100_IDLE            0
 #define MS2100_SENDING_REQ     1

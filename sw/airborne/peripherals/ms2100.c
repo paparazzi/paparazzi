@@ -103,12 +103,9 @@ void ms2100_event( void ) {
     else { /* TODO ? */ }
   }
   else if (ms2100_trans.status == SPITransFailed) {
-    // TODO
+    // TODO is it enough ?
     ms2100_status = MS2100_IDLE;
     ms2100_trans.status = SPITransDone;
   }
 }
 
-void ms2100_reset( void ) {
-  ms2100_status = MS2100_IDLE;
-}

@@ -20,13 +20,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/* PNI ms2100 connected on SPI1 */
-/*
-  IMU b2
-  SS on P1.28
-  RESET on P1.19
-  DRDY on P0.30 ( EINT3)
-*/
+/** PNI ms2100.
+ */
 
 #include "peripherals/ms2100.h"
 
@@ -34,8 +29,6 @@
 #include "interrupt_hw.h"
 #include "mcu_periph/sys_time.h"
 #include BOARD_CONFIG
-
-//#include "generated/airframe.h"
 
 static void EXTINT_ISR(void) __attribute__((naked));
 
